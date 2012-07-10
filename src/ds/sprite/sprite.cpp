@@ -1,4 +1,4 @@
-#include "entity.h"
+#include "sprite.h"
 #include "cinder/gl/gl.h"
 #include "gl/GL.h"
 #include "../math/glm/gtc/matrix_transform.hpp"
@@ -6,10 +6,10 @@
 
 using namespace ci;
 
-namespace ds
-{
+namespace ds {
+namespace ui {
 
-Entity::Entity( float width /*= 0.0f*/, float height /*= 0.0f*/ )
+Sprite::Sprite( float width /*= 0.0f*/, float height /*= 0.0f*/ )
     : mWidth(width)
     , mHeight(height)
     , mCenter(0.0f, 0.0f)
@@ -28,12 +28,12 @@ Entity::Entity( float width /*= 0.0f*/, float height /*= 0.0f*/ )
 
 }
 
-Entity::~Entity()
+Sprite::~Sprite()
 {
     remove();
 }
 
-void Entity::update( const UpdateParams &updateParams )
+void Sprite::update( const UpdateParams &updateParams )
 {
     for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
     {
@@ -41,7 +41,7 @@ void Entity::update( const UpdateParams &updateParams )
     }
 }
 
-void Entity::draw( const glm::mat4 &trans, const DrawParams &drawParams )
+void Sprite::draw( const glm::mat4 &trans, const DrawParams &drawParams )
 {
     if ( !mVisible )
         return;
@@ -70,8 +70,8 @@ void Entity::draw( const glm::mat4 &trans, const DrawParams &drawParams )
     }
     else
     {
-        std::list<Entity *> mCopy = mChildren;
-        mCopy.sort([](Entity *i, Entity *j)
+        std::list<Sprite *> mCopy = mChildren;
+        mCopy.sort([](Sprite *i, Sprite *j)
         {
             return i->getZLevel() < j->getZLevel();
         });
@@ -83,37 +83,37 @@ void Entity::draw( const glm::mat4 &trans, const DrawParams &drawParams )
     }
 }
 
-void Entity::setPosition( float x, float y )
+void Sprite::setPosition( float x, float y )
 {
     mPosition = glm::vec2(x, y);
 }
 
-const glm::vec2 &Entity::getPosition() const
+const glm::vec2 &Sprite::getPosition() const
 {
     return mPosition;
 }
 
-void Entity::setScale( float x, float y )
+void Sprite::setScale( float x, float y )
 {
     mScale = glm::vec2(x, y);
 }
 
-const glm::vec2 &Entity::getScale() const
+const glm::vec2 &Sprite::getScale() const
 {
     return mScale;
 }
 
-void Entity::setCenter( float x, float y )
+void Sprite::setCenter( float x, float y )
 {
     mCenter = glm::vec2(x, y);
 }
 
-const glm::vec2 &Entity::getCenter() const
+const glm::vec2 &Sprite::getCenter() const
 {
     return mCenter;
 }
 
-void Entity::setRotation( float rotZ )
+void Sprite::setRotation( float rotZ )
 {
     if ( fabs(mRotation-rotZ) < 0.0001f )
         return;
@@ -122,39 +122,39 @@ void Entity::setRotation( float rotZ )
     mUpdateTransform = true;
 }
 
-float Entity::getRotation() const
+float Sprite::getRotation() const
 {
     return mRotation;
 }
 
-void Entity::setZLevel( float zlevel )
+void Sprite::setZLevel( float zlevel )
 {
     mZLevel = zlevel;
 }
 
-float Entity::getZLevel() const
+float Sprite::getZLevel() const
 {
     return mZLevel;
 }
 
-void Entity::setDrawSorted( bool drawSorted )
+void Sprite::setDrawSorted( bool drawSorted )
 {
     mDrawSorted = drawSorted;
 }
 
-bool Entity::getDrawSorted() const
+bool Sprite::getDrawSorted() const
 {
     return mDrawSorted;
 }
 
-const glm::mat4 &Entity::getTransform() const
+const glm::mat4 &Sprite::getTransform() const
 {
     if ( mUpdateTransform )
         buildTransform();
     return mTranformation;
 }
 
-void Entity::addChild( Entity *child )
+void Sprite::addChild( Sprite *child )
 {
     if ( containsChild(child) )
         return;
@@ -163,7 +163,7 @@ void Entity::addChild( Entity *child )
     child->setParent(this);
 }
 
-void Entity::removeChild( Entity *child )
+void Sprite::removeChild( Sprite *child )
 {
     if ( !containsChild(child) )
         return;
@@ -172,7 +172,7 @@ void Entity::removeChild( Entity *child )
     child->setParent(nullptr);
 }
 
-void Entity::setParent( Entity *parent )
+void Sprite::setParent( Sprite *parent )
 {
     removeParent();
     mParent = parent;
@@ -180,7 +180,7 @@ void Entity::setParent( Entity *parent )
         mParent->addChild(this);
 }
 
-void Entity::removeParent()
+void Sprite::removeParent()
 {
     if ( mParent )
     {
@@ -189,7 +189,7 @@ void Entity::removeParent()
     }
 }
 
-bool Entity::containsChild( Entity *child ) const
+bool Sprite::containsChild( Sprite *child ) const
 {
     auto found = std::find(mChildren.begin(), mChildren.end(), child);
 
@@ -198,7 +198,7 @@ bool Entity::containsChild( Entity *child ) const
     return false;
 }
 
-void Entity::clearChildren()
+void Sprite::clearChildren()
 {
     auto tempList = mChildren;
     mChildren.clear();
@@ -213,7 +213,7 @@ void Entity::clearChildren()
     }
 }
 
-void Entity::buildTransform() const
+void Sprite::buildTransform() const
 {
     mUpdateTransform = false;
 
@@ -229,44 +229,44 @@ void Entity::buildTransform() const
                      glm::translate(mTranformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
 }
 
-void Entity::remove()
+void Sprite::remove()
 {
     clearChildren();
     removeParent();
 }
 
-void Entity::setSize( float width, float height )
+void Sprite::setSize( float width, float height )
 {
     mWidth = width;
     mHeight = height;
 }
 
-void Entity::setColor( const Color &color )
+void Sprite::setColor( const Color &color )
 {
     mColor = color;
 }
 
-void Entity::setColor( float r, float g, float b )
+void Sprite::setColor( float r, float g, float b )
 {
     mColor = Color(r, g, b);
 }
 
-Color Entity::getColor() const
+Color Sprite::getColor() const
 {
     return mColor;
 }
 
-void Entity::setOpacity( float opacity )
+void Sprite::setOpacity( float opacity )
 {
     mOpacity = opacity;
 }
 
-float Entity::getOpacity() const
+float Sprite::getOpacity() const
 {
     return mOpacity;
 }
 
-void Entity::drawLocal()
+void Sprite::drawLocal()
 {
     glBegin(GL_QUADS);
     gl::vertex( 0 , 0 );
@@ -276,68 +276,68 @@ void Entity::drawLocal()
     glEnd();
 }
 
-void Entity::setTransparent( bool transparent )
+void Sprite::setTransparent( bool transparent )
 {
     mTransparent = transparent;
 }
 
-bool Entity::getTransparent() const
+bool Sprite::getTransparent() const
 {
     return mTransparent;
 }
 
-void Entity::show()
+void Sprite::show()
 {
     mVisible = true;
 }
 
-void Entity::hide()
+void Sprite::hide()
 {
     mVisible = false;
 }
 
-bool Entity::visible() const
+bool Sprite::visible() const
 {
     return mVisible;
 }
 
-int Entity::getType() const
+int Sprite::getType() const
 {
     return mType;
 }
 
-void Entity::setType( int type )
+void Sprite::setType( int type )
 {
     mType = type;
 }
 
-float Entity::getWidth() const
+float Sprite::getWidth() const
 {
     return mWidth;
 }
 
-float Entity::getHeight() const
+float Sprite::getHeight() const
 {
     return mHeight;
 }
 
-void Entity::enable( bool flag )
+void Sprite::enable( bool flag )
 {
     mEnabled = flag;
 }
 
-bool Entity::isEnabled() const
+bool Sprite::isEnabled() const
 {
     return mEnabled;
 }
 
-void Entity::buildGlobalTransform() const
+void Sprite::buildGlobalTransform() const
 {
     buildTransform();
 
     mGlobalTransform = mTranformation;
 
-    for ( Entity *parent = mParent; parent; parent = parent->getParent() )
+    for ( Sprite *parent = mParent; parent; parent = parent->getParent() )
     {
         mGlobalTransform = parent->getGlobalTransform() * mGlobalTransform;
     }
@@ -345,19 +345,19 @@ void Entity::buildGlobalTransform() const
     mInverseGlobalTransform = glm::inverse(mGlobalTransform);
 }
 
-Entity * Entity::getParent() const
+Sprite * Sprite::getParent() const
 {
     return mParent;
 }
 
-const glm::mat4x4 & Entity::getGlobalTransform() const
+const glm::mat4x4 & Sprite::getGlobalTransform() const
 {
     buildGlobalTransform();
 
     return mGlobalTransform;
 }
 
-glm::vec2 Entity::globalToLocal( const glm::vec2 &globalPoint )
+glm::vec2 Sprite::globalToLocal( const glm::vec2 &globalPoint )
 {
     buildGlobalTransform();
 
@@ -365,14 +365,14 @@ glm::vec2 Entity::globalToLocal( const glm::vec2 &globalPoint )
     return glm::vec2(point.x, point.y);
 }
 
-glm::vec2 Entity::localToGlobal( const glm::vec2 &localPoint )
+glm::vec2 Sprite::localToGlobal( const glm::vec2 &localPoint )
 {
     buildGlobalTransform();
     glm::vec4 point = mGlobalTransform * glm::vec4(localPoint, 0.0f, 1.0f);
     return glm::vec2(point.x, point.y);
 }
 
-bool Entity::contains( const glm::vec2 &point ) const
+bool Sprite::contains( const glm::vec2 &point ) const
 {
     buildGlobalTransform();
 
@@ -399,34 +399,34 @@ bool Entity::contains( const glm::vec2 &point ) const
 	);
 }
 
-Entity *Entity::getHit( const glm::vec2 &point )
+Sprite *Sprite::getHit( const glm::vec2 &point )
 {
     if ( !mDrawSorted )
     {
         for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
         {
-            Entity *child = *it;
+            Sprite *child = *it;
             if ( child->isEnabled() && child->contains(point) )
                 return child;
-            Entity *hitChild = child->getHit(point);
+            Sprite *hitChild = child->getHit(point);
             if ( hitChild )
                 return hitChild;
         }
     }
     else
     {
-        std::list<Entity *> mCopy = mChildren;
-        mCopy.sort([](Entity *i, Entity *j)
+        std::list<Sprite *> mCopy = mChildren;
+        mCopy.sort([](Sprite *i, Sprite *j)
         {
             return i->getZLevel() < j->getZLevel();
         });
 
         for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
         {
-            Entity *child = *it;
+            Sprite *child = *it;
             if ( child->isEnabled() && child->contains(point) )
                 return child;
-            Entity *hitChild = child->getHit(point);
+            Sprite *hitChild = child->getHit(point);
             if ( hitChild )
                 return hitChild;
         }
@@ -438,4 +438,5 @@ Entity *Entity::getHit( const glm::vec2 &point )
     return nullptr;
 }
 
-}
+} // namespace ui
+} // namespace ds

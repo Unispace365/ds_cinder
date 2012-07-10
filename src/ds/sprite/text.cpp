@@ -7,15 +7,14 @@
 
 using namespace ci;
 
-namespace
-{
+namespace {
 
 std::map<std::string, std::map<float, std::shared_ptr<ci::Font>>> mFontCache;
 
 }
 
-namespace ds
-{
+namespace ds {
+namespace ui {
 
 Text::Text( const std::string &string, const std::string &filename, float fontSize )
     : mFontSize(fontSize)
@@ -32,7 +31,7 @@ Text::Text( const std::string &string, const std::string &filename, float fontSi
     mTextBox.setColor( Color( 1.0f, 1.0f, 1.0f ) );
 
     ci::Vec2i sz = mTextBox.getSize();
-    Entity::setSize(static_cast<float>(sz.x), static_cast<float>(sz.y));
+    Sprite::setSize(static_cast<float>(sz.x), static_cast<float>(sz.y));
 
     mBoxChanged = true;
 }
@@ -57,7 +56,7 @@ void Text::setSize( float width, float height )
 {
     mTextBox.setSize( ci::Vec2i(static_cast<int>(width), static_cast<int>(height)) );
     ci::Vec2i sz = mTextBox.getSize();
-    Entity::setSize(static_cast<float>(sz.x), static_cast<float>(sz.y));
+    Sprite::setSize(static_cast<float>(sz.x), static_cast<float>(sz.y));
 }
 
 void Text::loadText( const std::string &filename )
@@ -70,7 +69,7 @@ void Text::loadText( const std::string &filename )
     mTextBox.font(*mFont);
 
     ci::Vec2i sz = mTextBox.getSize();
-    Entity::setSize(static_cast<float>(sz.x), static_cast<float>(sz.y));
+    Sprite::setSize(static_cast<float>(sz.x), static_cast<float>(sz.y));
     
     mBoxChanged = true;
 }
@@ -129,4 +128,5 @@ void Text::setColor( float r, float g, float b )
     mBoxChanged = true;
 }
 
-}
+} // namespace ui
+} // namespace ds
