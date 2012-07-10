@@ -42,7 +42,7 @@ public:
 	MessageRunnable() { }
 
 	virtual void			run() {
-		console() << "Example of a generic worker runnable, running in another thread, doing something cool" << endl;
+		std::cout << "Example of a generic worker runnable, running in another thread, doing something cool" << endl;
 	}
 };
 
