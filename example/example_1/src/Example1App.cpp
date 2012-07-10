@@ -1,5 +1,6 @@
 #include <cinder/app/AppBasic.h>
 #include <cinder/Timeline.h>
+#include <Poco/Path.h>
 
 #include <ds/app/engine.h>
 
@@ -10,6 +11,15 @@
 using namespace std;
 using namespace ci;
 using namespace ci::app;
+
+// Answer the path to my local data directory, optionally to a filename
+static std::string    get_data_path(const std::string& fn = "")
+{
+  Poco::Path			p(Poco::Path::expand("%DS_PLATFORM%"));
+  p.append("example").append("example_1").append("data");
+  if (!fn.empty()) p.append(fn);
+  return p.toString();
+}
 
 class BasicTweenApp : public AppBasic {
   public:
@@ -40,12 +50,19 @@ BasicTweenApp::BasicTweenApp()
 	: mClient(mEngine)
 	,  mQuery(mEngine)
 {
-	mClient.setResultHandler([](std::unique_ptr<Poco::Runnable>&){ cout << "I could do something" << endl; });
-	mQuery.setResultHandler([](const ds::query::Result& r, ds::query::Talkback&){ cout << "query finished rowSize=" << r.getRowSize() << endl; });
+  try {
+    // Example worker
+	  mClient.setResultHandler([](std::unique_ptr<Poco::Runnable>&){ cout << "I could do something" << endl; });
+    // Example query
+	  mQuery.setResultHandler([](const ds::query::Result& r, ds::query::Talkback&){ cout << "query finished rowSize=" << r.getRowSize() << endl; });
 
-//  ds::cfg::Settings   settings;
-//  settings.readFrom("C:\\Users\\erich\\Desktop\\work\\git\\northeastern_wall\\bin\\data\\layout_ew.xml");
-//  cout << "SETTINGS COLOR COUNT=" << settings.getColorSize("row_bg") << endl;
+    // Example settings
+    ds::cfg::Settings   settings;
+    settings.readFrom(get_data_path("example_settings.xml"));
+    cout << "settings background color=" << settings.getColor("background") << endl;
+  } catch (std::exception const& ex) {
+    cout << "ERROR in app constructor=" << ex.what() << endl;
+  }
 }
 
 void BasicTweenApp::setup()
@@ -56,7 +73,7 @@ void BasicTweenApp::setup()
 void BasicTweenApp::mouseDown( MouseEvent event )
 {
 	mClient.run(std::unique_ptr<Poco::Runnable>(new MessageRunnable()));
-	mQuery.runAsync("C:\\Users\\erich\\Documents\\downstream\\northeastern\\db\\northeastern.sqlite", "SELECT * FROM person");
+	mQuery.runAsync(get_data_path("example_db.sqlite"), "SELECT * FROM person");
 
 	// the call to apply() replaces any existing tweens on mBlackPos with this new one
 	timeline().apply( &mBlackPos, (Vec2f)event.getPos(), 2.0f, EaseInCubic() );
