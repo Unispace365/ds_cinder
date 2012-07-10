@@ -18,6 +18,12 @@
     <ClInclude Include="..\src\ds\data\resource.h" />
     <ClInclude Include="..\src\ds\debug\console.h" />
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
+    <ClInclude Include="..\src\ds\entity\entity.h" />
+    <ClInclude Include="..\src\ds\entity\image.h" />
+    <ClInclude Include="..\src\ds\entity\text.h" />
+    <ClInclude Include="..\src\ds\entity\video.h" />
+    <ClInclude Include="..\src\ds\params\draw_params.h" />
+    <ClInclude Include="..\src\ds\params\update_params.h" />
     <ClInclude Include="..\src\ds\query\query_client.h" />
     <ClInclude Include="..\src\ds\query\query_result.h" />
     <ClInclude Include="..\src\ds\query\query_result_builder.h" />
@@ -42,6 +48,12 @@
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
     <ClCompile Include="..\src\ds\data\resource.cpp" />
+    <ClCompile Include="..\src\ds\entity\entity.cpp" />
+    <ClCompile Include="..\src\ds\entity\image.cpp" />
+    <ClCompile Include="..\src\ds\entity\text.cpp" />
+    <ClCompile Include="..\src\ds\entity\video.cpp" />
+    <ClCompile Include="..\src\ds\params\draw_params.cpp" />
+    <ClCompile Include="..\src\ds\params\update_params.cpp" />
     <ClCompile Include="..\src\ds\query\query_client.cpp" />
     <ClCompile Include="..\src\ds\query\query_result.cpp" />
     <ClCompile Include="..\src\ds\query\query_result_builder.cpp" />
