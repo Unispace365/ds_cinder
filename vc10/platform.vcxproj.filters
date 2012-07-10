@@ -1,0 +1,171 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{c6487098-2eaf-493d-ada3-1025bb854738}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds">
+      <UniqueIdentifier>{78d83269-245b-4726-9b7d-eed59de07506}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\app">
+      <UniqueIdentifier>{371cbcf6-40e2-4cc7-8de8-324884a1a41e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\debug">
+      <UniqueIdentifier>{f33039c8-3c8e-44ce-84fa-cb1e9ec7f1f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\data">
+      <UniqueIdentifier>{82677205-5330-4559-96b4-57603391363c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\query">
+      <UniqueIdentifier>{1e476e57-00f3-49bd-896f-25d85401f019}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\query\sqlite">
+      <UniqueIdentifier>{0d3cba12-8c92-4c1f-93c6-bdb8c8bde430}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui">
+      <UniqueIdentifier>{d7b8e4dd-8239-48ad-bb6a-97dfd629e5ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\view">
+      <UniqueIdentifier>{65aee626-817a-4a91-9fe3-ce2175f51a6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\util">
+      <UniqueIdentifier>{35cdee3e-bb96-4566-9838-ba11d4e2ed46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\thread">
+      <UniqueIdentifier>{b4621128-d54d-45b3-9b09-eff83bfa8402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\config">
+      <UniqueIdentifier>{56cec190-0e30-45b0-b3af-cb6310f5130c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\ds\app\app_defs.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\environment.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\resource.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\console.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\debug_defines.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\sqlite\sqlite3.h">
+      <Filter>src\ds\query\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h">
+      <Filter>src\ds\query\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\query_client.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\query_result.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\query_result_builder.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\query_talkback.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\sql_database.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\sql_query_result_builder.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\runnable_client.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\thread_defs.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\work_client.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\work_manager.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\work_request.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\work_request_list.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\view\image_view.h">
+      <Filter>src\ds\ui\view</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\view\view.h">
+      <Filter>src\ds\ui\view</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\memory_ds.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\string_util.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\config\settings.h">
+      <Filter>src\ds\config</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\ds\app\engine.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\environment.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\resource.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\sqlite\sqlite3.c">
+      <Filter>src\ds\query\sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\query_client.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\query_result.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\query_result_builder.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\sql_database.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\thread\runnable_client.cpp">
+      <Filter>src\ds\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\thread\work_client.cpp">
+      <Filter>src\ds\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\thread\work_manager.cpp">
+      <Filter>src\ds\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\thread\work_request.cpp">
+      <Filter>src\ds\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\view\image_view.cpp">
+      <Filter>src\ds\ui\view</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\view\view.cpp">
+      <Filter>src\ds\ui\view</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\string_util.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\config\settings.cpp">
+      <Filter>src\ds\config</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

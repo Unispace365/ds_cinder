@@ -1,0 +1,28 @@
+Welcome to the new BigWorld framework implemented in Cinder.
+
+Couple of brief notes for getting started:
+
+1.  You'll need two environment variables set:
+CINDER should point to the current cinder dist (cinder_0.8.4_vc2010 as of this writing)
+DS_PLATFORM should point to this repository.
+
+2.  You should currently start from one of the Cinder example apps as your base project.
+
+3.  Client apps need these C++ includes:
+$(DS_PLATFORM)\lib\poco\include
+$(DS_PLATFORM)\src
+
+4.  Client apps need to link with these libraries:
+4.1.  Debug
+PocoFoundationmtd.lib
+PocoNetmtd.lib
+platform_d.lib
+
+4.1.2  Release
+PocoFoundationmt.lib
+PocoNetmt.lib
+platform.lib
+
+5.  Client apps need to include these link directories:
+$(DS_PLATFORM)\lib\poco\lib\vs2010
+$(DS_PLATFORM)\lib
