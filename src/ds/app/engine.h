@@ -30,6 +30,9 @@ class Engine {
     void                        loadCinderSettings( ci::app::App::Settings *setting );
     //called in app setup; loads settings files and what not.
     void                        setup();
+
+    bool                        isIdling() const;
+    void                        startIdling();
   private:
 #if defined DS_PLATFORM_SERVER || defined DS_PLATFORM_SERVERCLIENT
     friend class WorkClient;
@@ -40,6 +43,13 @@ class Engine {
     UpdateParams                mUpdateParams;
     DrawParams                  mDrawParams;
     float                       mLastTime;
+    bool                        mIdling;
+    float                       mLastTouchTime;
+    float                       mIdleTime;
+
+    std::map<int, Sprite *>     mFingerDispatcher;
+    std::map<int, glm::vec2>    mTouchStartPoint;
+    std::map<int, glm::vec2>    mTouchPreviousPoint;
 };
 
 } // namespace ds

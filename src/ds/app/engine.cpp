@@ -20,6 +20,8 @@ namespace ds {
  * \class ds::Engine
  */
 Engine::Engine()
+  : mIdleTime(300.0f)
+  , mIdling(true)
 {
 	DS_DBG_CODE(GLOBAL_CONSOLE.create());
 }
@@ -39,6 +41,10 @@ void Engine::update()
   float curr = static_cast<float>(getElapsedSeconds());
   float dt = curr - mLastTime;
   mLastTime = curr;
+
+  if (!mIdling && (curr - mLastTouchTime) >= mIdleTime ) {
+    mIdling = true;
+  }
 
   mUpdateParams.setDeltaTime(dt);
   mUpdateParams.setElapsedTime(curr);
@@ -73,12 +79,29 @@ void Engine::setup()
   //////////////////////////////////////////////////////////////////////////
 
   mRootSprite = std::move(std::unique_ptr<ui::Sprite>(new ui::Sprite));
-  mLastTime = static_cast<float>(getElapsedSeconds());
+  float curr = static_cast<float>(getElapsedSeconds());
+  mLastTime = curr;
+  mLastTouchTime = 0;
 }
 
 void Engine::loadCinderSettings( ci::app::App::Settings *setting )
 {
 
+}
+
+bool Engine::isIdling() const
+{
+  if (mIdling)
+    return true;
+  return false;
+}
+
+void Engine::startIdling()
+{
+  if (mIdling)
+    return;
+
+  mIdling = true;
 }
 
 } // namespace ds
