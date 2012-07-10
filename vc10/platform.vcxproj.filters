@@ -147,6 +147,12 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_manager.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\logger.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\bit_mask.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -220,6 +226,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp">
       <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\bit_mask.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\logger.cpp">
+      <Filter>src\ds\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
