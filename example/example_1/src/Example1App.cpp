@@ -25,6 +25,7 @@ class BasicTweenApp : public AppBasic {
   public:
 	BasicTweenApp();
 
+  void        prepareSettings( Settings *settings );
 	void				setup();
 	void				mouseDown( MouseEvent event );
 	void				update();
@@ -67,7 +68,19 @@ BasicTweenApp::BasicTweenApp()
 
 void BasicTweenApp::setup()
 {	
+  mEngine.setup();
 	mBlackPos = mWhitePos = getWindowCenter();
+
+
+  ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+
+  ds::ui::Sprite *child = new ds::ui::Sprite(100.0f, 100.0f);
+  child->setPosition(getWindowWidth() / 4.0f, getWindowHeight() / 4.0f);
+  child->setCenter(0.5f, 0.5f);
+  child->setColor(1.0f, 1.0f, 0.0f);
+  child->setTransparent(false);
+  child->enable(true);
+  rootSprite.addChild(child);
 }
 
 void BasicTweenApp::mouseDown( MouseEvent event )
@@ -95,6 +108,13 @@ void BasicTweenApp::draw()
 	
 	gl::color( Color::white() );
 	gl::drawSolidCircle( mWhitePos, 16.0f );
+
+  mEngine.draw();
+}
+
+void BasicTweenApp::prepareSettings( Settings *settings )
+{
+  mEngine.loadCinderSettings(settings);
 }
 
 // This line tells Cinder to actually create the application
