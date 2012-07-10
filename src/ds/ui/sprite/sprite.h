@@ -3,7 +3,7 @@
 #define DS_OBJECT_INTERFACE_H
 #include "cinder/Cinder.h"
 #include <list>
-#include "../math/glm/glm.hpp"
+#include "../../math/glm/glm.hpp"
 #include "cinder/Color.h"
 
 namespace ds {

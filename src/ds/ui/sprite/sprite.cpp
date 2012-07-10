@@ -1,8 +1,8 @@
 #include "sprite.h"
 #include "cinder/gl/gl.h"
 #include "gl/GL.h"
-#include "../math/glm/gtc/matrix_transform.hpp"
-#include "../math/glm/gtc/type_ptr.hpp"
+#include "../../math/glm/gtc/matrix_transform.hpp"
+#include "../../math/glm/gtc/type_ptr.hpp"
 
 using namespace ci;
 
