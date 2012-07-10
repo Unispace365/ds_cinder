@@ -1,15 +1,7 @@
 #include "Video.h"
-#include <map>
 
-namespace
-{
-
-std::map<std::string, std::shared_ptr<ci::gl::Texture>> mTextureCache;
-
-}
-
-namespace ds
-{
+namespace ds {
+namespace ui {
 
 Video::Video( const std::string &filename )
     : mLooping(false)
@@ -26,7 +18,7 @@ Video::Video( const std::string &filename )
         return;
     }
 
-    Entity::setSize(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()));
+    Sprite::setSize(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()));
 }
 
 Video::~Video()
@@ -63,7 +55,7 @@ void Video::loadVideo( const std::string &filename )
     float prevWidth = getWidth() * getScale().x;
     float prevHeight = getHeight() * getScale().y;
 
-    Entity::setSize(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()));
+    Sprite::setSize(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()));
     setSize(prevWidth, prevHeight);
 }
 
@@ -120,4 +112,5 @@ bool Video::isLooping() const
     return mLooping;
 }
 
-}
+} // namespace ui
+} // namespace ds

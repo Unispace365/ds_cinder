@@ -6,22 +6,23 @@
 #include "../math/glm/glm.hpp"
 #include "cinder/Color.h"
 
-namespace ds
-{
+namespace ds {
 
 class UpdateParams;
 class DrawParams;
+
+namespace ui {
 /*!
  * brief Base Class for App Entities
  *
  * basic scene container for app. objects implement a few functions to abstract functionality.
- * Entity will delete children when clearing.
+ * Sprite will delete children when clearing.
  */
-class Entity
+class Sprite
 {
     public:
-        Entity(float width = 0.0f, float height = 0.0f);
-        virtual ~Entity();
+        Sprite(float width = 0.0f, float height = 0.0f);
+        virtual ~Sprite();
 
         void                update(const UpdateParams &updateParams);
         virtual void        draw( const glm::mat4 &trans, const DrawParams &drawParams );
@@ -45,25 +46,25 @@ class Entity
         void                setZLevel( float zlevel );
         float               getZLevel() const;
 
-        // whether to draw be by Entity order or z level.
-        // Only works on a per Entity base.
+        // whether to draw be by Sprite order or z level.
+        // Only works on a per Sprite base.
         void                setDrawSorted( bool drawSorted );
         bool                getDrawSorted() const;
 
         const glm::mat4x4  &getTransform() const;
         const glm::mat4x4  &getGlobalTransform() const;
 
-        void                addChild( Entity *child );
+        void                addChild( Sprite *child );
 
-        // removes child from Entity, but does not delete it.
-        void                removeChild( Entity *child );
+        // removes child from Sprite, but does not delete it.
+        void                removeChild( Sprite *child );
         // calls removeParent then addChild to parent.
-        void                setParent( Entity *parent );
+        void                setParent( Sprite *parent );
         // remove child from parent, does not delete.
         void                removeParent();
 
-        // check to see if Entity contains child
-        bool                containsChild( Entity *child ) const;
+        // check to see if Sprite contains child
+        bool                containsChild( Sprite *child ) const;
         // removes and deletes all children
         void                clearChildren();
 
@@ -87,23 +88,23 @@ class Entity
 
         int                 getType() const;
 
-        // removes Entity from parent and deletes all children. Does not delete Entity.
+        // removes Sprite from parent and deletes all children. Does not delete Sprite.
         void                remove();
 
-        // check to see if Entity can be touched
+        // check to see if Sprite can be touched
         void                enable(bool flag);
         bool                isEnabled() const;
 
-        Entity             *getParent() const;
+        Sprite             *getParent() const;
 
         glm::vec2           globalToLocal( const glm::vec2 &globalPoint );
         glm::vec2           localToGlobal( const glm::vec2 &localPoint );
 
-        // check if a point is inside the Entity's bounds.
+        // check if a point is inside the Sprite's bounds.
         bool                contains( const glm::vec2 &point ) const;
 
-        // finds Entity at position
-        Entity             *getHit( const glm::vec2 &point );
+        // finds Sprite at position
+        Sprite             *getHit( const glm::vec2 &point );
     protected:
         void                buildTransform() const;
         void                buildGlobalTransform() const;
@@ -133,10 +134,11 @@ class Entity
         mutable glm::mat4   mGlobalTransform;
         mutable glm::mat4   mInverseGlobalTransform;
 
-        Entity             *mParent;
-        std::list<Entity *> mChildren; 
+        Sprite             *mParent;
+        std::list<Sprite *> mChildren; 
 };
 
-}
+} // namespace ui
+} // namespace ds
 
 #endif//DS_OBJECT_INTERFACE_H

@@ -2,15 +2,14 @@
 #include <map>
 #include "cinder/ImageIo.h"
 
-namespace
-{
+namespace {
 
 std::map<std::string, std::shared_ptr<ci::gl::Texture>> mTextureCache;
 
 }
 
-namespace ds
-{
+namespace ds {
+namespace ui {
 
 Image::Image( const std::string &filename )
 {
@@ -20,7 +19,7 @@ Image::Image( const std::string &filename )
     if ( !mTexture )
         return;
 
-    Entity::setSize(static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
+    Sprite::setSize(static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
 }
 
 Image::~Image()
@@ -48,7 +47,7 @@ void Image::loadImage( const std::string &filename )
     if ( !mTexture )
         return;
 
-    Entity::setSize(static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
+    Sprite::setSize(static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
     setSize(prevWidth, prevHeight);
 }
 
@@ -62,4 +61,5 @@ std::shared_ptr<ci::gl::Texture> Image::getImage( const std::string &filename )
     return mTextureCache[filename];
 }
 
-}
+} // namespace ui
+} // namespace ds

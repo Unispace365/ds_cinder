@@ -1,16 +1,16 @@
 #pragma once
 #ifndef DS_TEXT_H
 #define DS_TEXT_H
-#include "entity.h"
+#include "sprite.h"
 #include <string>
 #include "cinder/gl/Texture.h"
 #include "cinder/Text.h"
 #include "cinder/Font.h"
 
-namespace ds
-{
+namespace ds {
+namespace ui {
 
-class Text: public Entity
+class Text: public Sprite
 {
     public:
         enum Alignment
@@ -42,6 +42,7 @@ class Text: public Entity
         std::string               mTextString;
 };
 
-}
+} // namespace ui
+} // namespace ds
 
 #endif//DS_TEXT_H

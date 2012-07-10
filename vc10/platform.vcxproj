@@ -18,10 +18,6 @@
     <ClInclude Include="..\src\ds\data\resource.h" />
     <ClInclude Include="..\src\ds\debug\console.h" />
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
-    <ClInclude Include="..\src\ds\entity\entity.h" />
-    <ClInclude Include="..\src\ds\entity\image.h" />
-    <ClInclude Include="..\src\ds\entity\text.h" />
-    <ClInclude Include="..\src\ds\entity\video.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
     <ClInclude Include="..\src\ds\params\update_params.h" />
     <ClInclude Include="..\src\ds\query\query_client.h" />
@@ -32,6 +28,10 @@
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
     <ClInclude Include="..\src\ds\query\sql_query_result_builder.h" />
+    <ClInclude Include="..\src\ds\sprite\image.h" />
+    <ClInclude Include="..\src\ds\sprite\sprite.h" />
+    <ClInclude Include="..\src\ds\sprite\text.h" />
+    <ClInclude Include="..\src\ds\sprite\video.h" />
     <ClInclude Include="..\src\ds\thread\runnable_client.h" />
     <ClInclude Include="..\src\ds\thread\thread_defs.h" />
     <ClInclude Include="..\src\ds\thread\work_client.h" />
@@ -48,10 +48,6 @@
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
     <ClCompile Include="..\src\ds\data\resource.cpp" />
-    <ClCompile Include="..\src\ds\entity\entity.cpp" />
-    <ClCompile Include="..\src\ds\entity\image.cpp" />
-    <ClCompile Include="..\src\ds\entity\text.cpp" />
-    <ClCompile Include="..\src\ds\entity\video.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />
     <ClCompile Include="..\src\ds\params\update_params.cpp" />
     <ClCompile Include="..\src\ds\query\query_client.cpp" />
@@ -60,6 +56,10 @@
     <ClCompile Include="..\src\ds\query\sqlite\sqlite3.c" />
     <ClCompile Include="..\src\ds\query\sql_database.cpp" />
     <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp" />
+    <ClCompile Include="..\src\ds\sprite\image.cpp" />
+    <ClCompile Include="..\src\ds\sprite\sprite.cpp" />
+    <ClCompile Include="..\src\ds\sprite\text.cpp" />
+    <ClCompile Include="..\src\ds\sprite\video.cpp" />
     <ClCompile Include="..\src\ds\thread\runnable_client.cpp" />
     <ClCompile Include="..\src\ds\thread\work_client.cpp" />
     <ClCompile Include="..\src\ds\thread\work_manager.cpp" />

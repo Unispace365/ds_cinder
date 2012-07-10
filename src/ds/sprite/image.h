@@ -1,14 +1,14 @@
 #pragma once
 #ifndef DS_IMAGE_H
 #define DS_IMAGE_H
-#include "entity.h"
+#include "sprite.h"
 #include <string>
 #include "cinder/gl/Texture.h"
 
-namespace ds
-{
+namespace ds {
+namespace ui {
 
-class Image: public Entity
+class Image: public Sprite
 {
     public:
         Image( const std::string &filename );
@@ -22,6 +22,7 @@ class Image: public Entity
         std::shared_ptr<ci::gl::Texture> mTexture;
 };
 
-}
+} // namespace ui
+} // namespace ds
 
 #endif//DS_IMAGE_H

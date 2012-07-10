@@ -1,15 +1,15 @@
 #pragma once
 #ifndef DS_VIDEO_H
 #define DS_VIDEO_H
-#include "entity.h"
+#include "sprite.h"
 #include <string>
 #include "cinder/gl/Texture.h"
 #include "cinder/qtime/QuickTime.h"
 
-namespace ds
-{
+namespace ds {
+namespace ui {
 
-class Video: public Entity
+class Video: public Sprite
 {
     public:
         Video( const std::string &filename );
@@ -32,6 +32,7 @@ class Video: public Entity
         bool                mLooping;
 };
 
-}
+} // namespace ui
+} // namespace ds
 
 #endif//DS_VIDEO_H
