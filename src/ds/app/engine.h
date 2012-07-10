@@ -23,6 +23,8 @@ class Engine {
     ~Engine();
 
     void					              update();
+
+    // only valid after setup() is called
     ui::Sprite                 &getRootSprite();
     void                        draw();
     void                        loadCinderSettings( ci::app::App::Settings *setting );
