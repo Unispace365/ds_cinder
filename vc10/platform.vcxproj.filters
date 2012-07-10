@@ -40,8 +40,8 @@
     <Filter Include="src\ds\params">
       <UniqueIdentifier>{211f71c8-e9c1-4fa5-87d6-c67cbf9b0195}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\sprite">
-      <UniqueIdentifier>{11cf6f64-5c55-4f65-8d33-eaf8eda5dc2f}</UniqueIdentifier>
+    <Filter Include="src\ds\ui\sprite">
+      <UniqueIdentifier>{2ac10f37-fb39-4f7f-a22a-e86ab62d9163}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -126,17 +126,17 @@
     <ClInclude Include="..\src\ds\params\update_params.h">
       <Filter>src\ds\params</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\sprite\image.h">
-      <Filter>src\ds\sprite</Filter>
+    <ClInclude Include="..\src\ds\ui\sprite\image.h">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\sprite\sprite.h">
-      <Filter>src\ds\sprite</Filter>
+    <ClInclude Include="..\src\ds\ui\sprite\sprite.h">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\sprite\text.h">
-      <Filter>src\ds\sprite</Filter>
+    <ClInclude Include="..\src\ds\ui\sprite\text.h">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\sprite\video.h">
-      <Filter>src\ds\sprite</Filter>
+    <ClInclude Include="..\src\ds\ui\sprite\video.h">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -197,17 +197,17 @@
     <ClCompile Include="..\src\ds\params\update_params.cpp">
       <Filter>src\ds\params</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\sprite\image.cpp">
-      <Filter>src\ds\sprite</Filter>
+    <ClCompile Include="..\src\ds\ui\sprite\image.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\sprite\sprite.cpp">
-      <Filter>src\ds\sprite</Filter>
+    <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\sprite\text.cpp">
-      <Filter>src\ds\sprite</Filter>
+    <ClCompile Include="..\src\ds\ui\sprite\text.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\sprite\video.cpp">
-      <Filter>src\ds\sprite</Filter>
+    <ClCompile Include="..\src\ds\ui\sprite\video.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
