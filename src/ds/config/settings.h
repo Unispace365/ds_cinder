@@ -44,9 +44,9 @@ class Settings {
     const cinder::Rectf&  getRect(const std::string& name, const int index = 0) const;
     int									  getInt(const std::string& name, const int index = 0) const;
     const Resource::Id&   getResourceId(const std::string& name, const int index = 0) const;
-    const cinder::Color&  getColor(const std::string& name, const int index = 0) const;
-    const cinder::ColorA&	getColorA(const std::string& name, const int index = 0) const;
-    const cinder::Vec2f&  getSize(const std::string& name, const int index = 0) const;
+    const ci::Color&      getColor(const std::string& name, const int index = 0) const;
+    const ci::ColorA&	    getColorA(const std::string& name, const int index = 0) const;
+    const ci::Vec2f&      getSize(const std::string& name, const int index = 0) const;
     const std::string&    getText(const std::string& name, const int index = 0) const;
     const std::wstring&   getTextW(const std::string& name, const int index = 0) const;
     // Bools are a convenience on text fields that will be either "true" or "false"
@@ -54,12 +54,12 @@ class Settings {
 
     // Answer the defaults if not found
     float							  	getFloat(const std::string& name, const int index, const float defaultValue) const;
-    cinder::Rectf					getRect(const std::string& name, const int index, const cinder::Rectf& defaultValue) const;
+    cinder::Rectf					getRect(const std::string& name, const int index, const ci::Rectf& defaultValue) const;
     int								  	getInt(const std::string& name, const int index, const int defaultValue) const;
     Resource::Id					getResourceId(const std::string& name, const int index, const Resource::Id& defaultValue) const;
-    cinder::Color					getColor(const std::string& name, const int index, const cinder::Color& defaultValue) const;
-    cinder::ColorA				getColorA(const std::string& name, const int index, const cinder::ColorA& defaultValue) const;
-    cinder::Vec2f					getSize(const std::string& name, const int index, const cinder::Vec2f& defaultValue) const;
+    ci::Color				    	getColor(const std::string& name, const int index, const ci::Color& defaultValue) const;
+    ci::ColorA				    getColorA(const std::string& name, const int index, const ci::ColorA& defaultValue) const;
+    ci::Vec2f				    	getSize(const std::string& name, const int index, const ci::Vec2f& defaultValue) const;
     std::string						getText(const std::string& name, const int index, const std::string& defaultValue) const;
     std::wstring					getTextW(const std::string& name, const int index, const std::wstring& defaultValue) const;
     // Bools are a convenience on text fields that will be either "true" or "false"
@@ -68,17 +68,17 @@ class Settings {
   private:
   	std::map<std::string, float>
                           mFloat;
-  	std::map<std::string, cinder::Rectf>
+  	std::map<std::string, ci::Rectf>
                           mRect;
   	std::map<std::string, std::vector<int>>
                           mInt;
   	std::map<std::string, std::vector<Resource::Id>>
                           mRes;
-  	std::map<std::string, std::vector<cinder::Color>>
+  	std::map<std::string, std::vector<ci::Color>>
                           mColor;
-  	std::map<std::string, std::vector<cinder::ColorA>>
+  	std::map<std::string, std::vector<ci::ColorA>>
                           mColorA;
-  	std::map<std::string, cinder::Vec2f>
+  	std::map<std::string, ci::Vec2f>
                           mSize;
   	std::map<std::string, std::vector<std::string>>
                           mText;
@@ -103,7 +103,7 @@ class Settings {
 
         Editor&							setFloat(const std::string& name, const float);
         Editor&							setResourceId(const std::string& name, const Resource::Id&);
-        Editor&							setSize(const std::string& name, const cinder::Vec2f&);
+        Editor&							setSize(const std::string& name, const ci::Vec2f&);
 
         Editor&							addInt(const std::string& name, const int);
         Editor&							addResourceId(const std::string& name, const Resource::Id&);
