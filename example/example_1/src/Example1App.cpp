@@ -42,7 +42,7 @@ public:
 	MessageRunnable() { }
 
 	virtual void			run() {
-		console() << "I'm doing stuff!!" << endl;
+		console() << "Example of a generic worker runnable, running in another thread, doing something cool" << endl;
 	}
 };
 
@@ -52,7 +52,7 @@ BasicTweenApp::BasicTweenApp()
 {
   try {
     // Example worker
-	  mClient.setResultHandler([](std::unique_ptr<Poco::Runnable>&){ cout << "I could do something" << endl; });
+	  mClient.setResultHandler([](std::unique_ptr<Poco::Runnable>&){ cout << "Example worker just finished doing something cool" << endl; });
     // Example query
 	  mQuery.setResultHandler([](const ds::query::Result& r, ds::query::Talkback&){ cout << "query finished rowSize=" << r.getRowSize() << endl; });
 
