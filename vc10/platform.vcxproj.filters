@@ -43,6 +43,9 @@
     <Filter Include="src\ds\ui\sprite">
       <UniqueIdentifier>{2ac10f37-fb39-4f7f-a22a-e86ab62d9163}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\touch">
+      <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\app\app_defs.h">
@@ -138,6 +141,12 @@
     <ClInclude Include="..\src\ds\ui\sprite\video.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\touch_info.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\touch_manager.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -208,6 +217,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\video.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp">
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

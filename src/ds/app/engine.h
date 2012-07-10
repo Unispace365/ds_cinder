@@ -47,7 +47,7 @@ class Engine {
     float                       mLastTouchTime;
     float                       mIdleTime;
 
-    std::map<int, Sprite *>     mFingerDispatcher;
+    std::map<int, ui::Sprite *>     mFingerDispatcher;
     std::map<int, glm::vec2>    mTouchStartPoint;
     std::map<int, glm::vec2>    mTouchPreviousPoint;
 };
