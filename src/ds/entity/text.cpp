@@ -87,7 +87,7 @@ std::shared_ptr<ci::Font> Text::getFont( const std::string &filename, float font
 
     mFontCache[filename][fontSize] = std::move(std::shared_ptr<ci::Font>(new ci::Font));
 
-    ci::DataSourcePathRef src = ci::DataSourcePath::createRef(filename);
+    ci::DataSourcePathRef src = ci::DataSourcePath::create(filename);
 
     *(mFontCache[filename][fontSize]) = ci::Font( src, fontSize );
     return mFontCache[filename][fontSize];
