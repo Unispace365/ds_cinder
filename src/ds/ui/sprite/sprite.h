@@ -37,6 +37,7 @@ class Sprite
         void                setScale(float x, float y);
         const glm::vec2    &getScale() const;
 
+        // center of the Sprite. Where its positioned at and rotated at.
         void                setCenter(float x, float y);
         const glm::vec2    &getCenter() const;
 
