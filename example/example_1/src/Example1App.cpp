@@ -7,6 +7,7 @@
 #include <ds/thread/runnable_client.h>
 #include <ds/query/query_client.h>
 #include <ds/config/settings.h>
+#include "ds/ui/touch/touch_info.h"
 
 using namespace std;
 using namespace ci;
@@ -90,11 +91,17 @@ void BasicTweenApp::setup()
   child->setColor(1.0f, 1.0f, 0.0f);
   child->setTransparent(false);
   child->enable(true);
+  child->setProcessTouchCallback([](ds::ui::Sprite *sprite, const ds::ui::TouchInfo &info)
+  {
+    sprite->setPosition(info.mCurrentPoint);
+  });
   rootSprite.addChild(child);
 }
 
 void BasicTweenApp::mouseDown( MouseEvent event )
 {
+  inherited::mouseDown(event);
+
 	mClient.run(std::unique_ptr<Poco::Runnable>(new MessageRunnable()));
 	mQuery.runAsync(get_data_path("example_db.sqlite"), "SELECT * FROM person");
 
@@ -127,17 +134,17 @@ void BasicTweenApp::prepareSettings( Settings *settings )
 
 void BasicTweenApp::touchesBegan( TouchEvent event )
 {
-  mEngine.touchesBegin(event);
+  inherited::touchesBegan(event);
 }
 
 void BasicTweenApp::touchesMoved( TouchEvent event )
 {
-  mEngine.touchesMoved(event);
+  inherited::touchesMoved(event);
 }
 
 void BasicTweenApp::touchesEnded( TouchEvent event )
 {
-  mEngine.touchesEnded(event);
+  inherited::touchesEnded(event);
 }
 
 // This line tells Cinder to actually create the application

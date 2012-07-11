@@ -63,6 +63,7 @@ ui::Sprite &Engine::getRootSprite()
 
 void Engine::draw()
 {
+  gl::enableAlphaBlending();
   gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 
   if (mRootSprite) {

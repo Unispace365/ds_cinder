@@ -36,7 +36,7 @@ void TouchManager::touchesBegin( TouchEvent event )
       currentSprite->processTouchInfo(touchInfo);
     }
 
-    std::cout << "touch began: " << touchIt->getId() << " @: x: " << touchIt->getPos().x << " | y: " << touchIt->getPos().y << std::endl;
+    //std::cout << "touch began: " << touchIt->getId() << " @: x: " << touchIt->getPos().x << " | y: " << touchIt->getPos().y << std::endl;
   }
 }
 
@@ -60,7 +60,7 @@ void TouchManager::touchesMoved( TouchEvent event )
 
     mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
 
-    std::cout << "touch moved: " << touchIt->getId() << " @: x: " << touchIt->getPos().x << " | y: " << touchIt->getPos().y << std::endl;
+    //std::cout << "touch moved: " << touchIt->getId() << " @: x: " << touchIt->getPos().x << " | y: " << touchIt->getPos().y << std::endl;
   }
 }
 
@@ -83,7 +83,7 @@ void TouchManager::touchesEnded( TouchEvent event )
     mTouchStartPoint.erase(touchInfo.mFingerId);
     mTouchPreviousPoint.erase(touchInfo.mFingerId);
     mFingerDispatcher.erase(touchInfo.mFingerId);
-    std::cout << "touch ended: " << touchIt->getId() << " @: x: " << touchIt->getPos().x << " | y: " << touchIt->getPos().y << std::endl;
+    //std::cout << "touch ended: " << touchIt->getId() << " @: x: " << touchIt->getPos().x << " | y: " << touchIt->getPos().y << std::endl;
   }
 }
 
@@ -105,7 +105,7 @@ void TouchManager::mouseTouchBegin( MouseEvent event, int id )
     currentSprite->processTouchInfo(touchInfo);
   }
 
-  std::cout << "mouse began: " << id << " @: x: " << touchInfo.mCurrentPoint.x << " | y: " << touchInfo.mCurrentPoint.y << std::endl;
+  //std::cout << "mouse began: " << id << " @: x: " << touchInfo.mCurrentPoint.x << " | y: " << touchInfo.mCurrentPoint.y << std::endl;
 }
 
 void TouchManager::mouseTouchMoved( MouseEvent event, int id )
@@ -127,7 +127,7 @@ void TouchManager::mouseTouchMoved( MouseEvent event, int id )
 
   mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
 
-  std::cout << "mouse moved: " << id << " @: x: " << touchInfo.mCurrentPoint.x << " | y: " << touchInfo.mCurrentPoint.y << std::endl;
+  //std::cout << "mouse moved: " << id << " @: x: " << touchInfo.mCurrentPoint.x << " | y: " << touchInfo.mCurrentPoint.y << std::endl;
 }
 
 void TouchManager::mouseTouchEnded( MouseEvent event, int id )
@@ -148,7 +148,7 @@ void TouchManager::mouseTouchEnded( MouseEvent event, int id )
   mTouchStartPoint.erase(touchInfo.mFingerId);
   mTouchPreviousPoint.erase(touchInfo.mFingerId);
   mFingerDispatcher.erase(touchInfo.mFingerId);
-  std::cout << "mouse ended: " << id << " @: x: " << touchInfo.mCurrentPoint.x << " | y: " << touchInfo.mCurrentPoint.y << std::endl;
+  //std::cout << "mouse ended: " << id << " @: x: " << touchInfo.mCurrentPoint.x << " | y: " << touchInfo.mCurrentPoint.y << std::endl;
 }
 
 } // namespace ui
