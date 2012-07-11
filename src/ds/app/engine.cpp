@@ -31,6 +31,7 @@ Engine::Engine()
 Engine::~Engine()
 {
 	DS_DBG_CODE(GLOBAL_CONSOLE.destroy());
+  mTuio.disconnect();
 }
 
 void Engine::update()
@@ -69,6 +70,8 @@ void Engine::draw()
   if (mRootSprite) {
     mRootSprite->draw(Matrix44f::identity(), mDrawParams);
   }
+
+  mTouchManager.drawTouches();
 }
 
 void Engine::setup()

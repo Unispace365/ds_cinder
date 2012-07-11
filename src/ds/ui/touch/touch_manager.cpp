@@ -151,5 +151,14 @@ void TouchManager::mouseTouchEnded( MouseEvent event, int id )
   //std::cout << "mouse ended: " << id << " @: x: " << touchInfo.mCurrentPoint.x << " | y: " << touchInfo.mCurrentPoint.y << std::endl;
 }
 
+void TouchManager::drawTouches() const
+{
+  gl::color( Color( 1, 1, 0 ) );
+
+  for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {
+  	gl::drawStrokedCircle( it->second, 20.0f );
+  }
+}
+
 } // namespace ui
 } // namespace ds

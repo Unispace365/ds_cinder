@@ -28,6 +28,8 @@ class TouchManager
     void                        touchesBegin( TouchEvent event );
     void                        touchesMoved( TouchEvent event );
     void                        touchesEnded( TouchEvent event );
+
+    void                        drawTouches() const;
   private:
     Engine &mEngine;
 
