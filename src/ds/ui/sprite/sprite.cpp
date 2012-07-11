@@ -8,8 +8,9 @@ using namespace ci;
 namespace ds {
 namespace ui {
 
-Sprite::Sprite( float width /*= 0.0f*/, float height /*= 0.0f*/ )
-    : mWidth(width)
+Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.0f*/ )
+    : mEngine(engine)
+    , mWidth(width)
     , mHeight(height)
     , mCenter(0.0f, 0.0f)
     , mRotation(0.0f)

@@ -81,7 +81,7 @@ void Engine::setup()
   glLoadIdentity();
   //////////////////////////////////////////////////////////////////////////
 
-  mRootSprite = std::move(std::unique_ptr<ui::Sprite>(new ui::Sprite));
+  mRootSprite = std::move(std::unique_ptr<ui::Sprite>(new ui::Sprite(*this)));
   float curr = static_cast<float>(getElapsedSeconds());
   mLastTime = curr;
   mLastTouchTime = 0;

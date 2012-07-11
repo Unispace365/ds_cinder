@@ -56,7 +56,7 @@ public:
 
 BasicTweenApp::BasicTweenApp()
 	: mClient(mEngine)
-	,  mQuery(mEngine)
+	, mQuery(mEngine)
 {
   try {
     // Example worker
@@ -85,7 +85,7 @@ void BasicTweenApp::setup()
 
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
-  ds::ui::Sprite *child = new ds::ui::Sprite(100.0f, 100.0f);
+  ds::ui::Sprite *child = new ds::ui::Sprite(mEngine, 100.0f, 100.0f);
   child->setPosition(getWindowWidth() / 4.0f, getWindowHeight() / 4.0f);
   child->setCenter(0.5f, 0.5f);
   child->setColor(1.0f, 1.0f, 0.0f);

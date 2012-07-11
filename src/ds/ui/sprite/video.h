@@ -12,7 +12,7 @@ namespace ui {
 class Video: public Sprite
 {
     public:
-        Video( const std::string &filename );
+        Video( SpriteEngine&, const std::string &filename );
         ~Video();
         void                setSize( float width, float height );
         void                drawLocal();
@@ -26,6 +26,8 @@ class Video: public Sprite
         void                loop(bool flag);
         bool                isLooping() const;
     private:
+        typedef Sprite inherited;
+
         ci::qtime::MovieGl  mMovie;
         ci::gl::Texture     mFrameTexture;
 

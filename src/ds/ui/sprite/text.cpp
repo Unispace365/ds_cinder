@@ -16,8 +16,9 @@ std::map<std::string, std::map<float, std::shared_ptr<ci::Font>>> mFontCache;
 namespace ds {
 namespace ui {
 
-Text::Text( const std::string &string, const std::string &filename, float fontSize )
-    : mFontSize(fontSize)
+Text::Text( SpriteEngine& engine, const std::string &string, const std::string &filename, float fontSize )
+    : inherited(engine)
+    , mFontSize(fontSize)
     , mTextString(string)
     , mBoxChanged(false)
 {

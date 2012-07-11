@@ -11,7 +11,8 @@ std::map<std::string, std::shared_ptr<ci::gl::Texture>> mTextureCache;
 namespace ds {
 namespace ui {
 
-Image::Image( const std::string &filename )
+Image::Image( SpriteEngine& engine, const std::string &filename )
+  : inherited(engine)
 {
     setTransparent(false);
     mTexture = getImage( filename );

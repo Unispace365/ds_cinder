@@ -20,7 +20,7 @@ class Text: public Sprite
             CENTER
         };
 
-        Text( const std::string &string, const std::string &filename, float fontSize );
+        Text( SpriteEngine&, const std::string &string, const std::string &filename, float fontSize );
         ~Text();
         void                      setSize( float width, float height );
         void                      setAlignmnet( int alignment );
@@ -32,6 +32,8 @@ class Text: public Sprite
         virtual void              setColor( const ci::Color &color );
         virtual void              setColor( float r, float g, float b );
     private:
+        typedef Sprite inherited;
+
         std::shared_ptr<ci::Font> getFont( const std::string &filename, float fontSize );
         std::shared_ptr<ci::Font> mFont;
         ci::TextBox               mTextBox;
