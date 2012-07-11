@@ -137,4 +137,19 @@ tuio::Client &Engine::getTuioClient()
   return mTuio;
 }
 
+void Engine::mouseTouchBegin( MouseEvent event, int id )
+{
+  mTouchManager.mouseTouchBegin(event, id);
+}
+
+void Engine::mouseTouchMoved( MouseEvent event, int id )
+{
+  mTouchManager.mouseTouchMoved(event, id);
+}
+
+void Engine::mouseTouchEnded( MouseEvent event, int id )
+{
+  mTouchManager.mouseTouchEnded(event, id);
+}
+
 } // namespace ds

@@ -18,6 +18,9 @@ class UpdateParams;
 class DrawParams;
 
 namespace ui {
+
+struct TouchInfo;
+
 /*!
  * brief Base Class for App Entities
  *
@@ -37,13 +40,19 @@ class Sprite
         float               getWidth() const;
         float               getHeight() const;
 
+        void                setPosition(const Vec2f &pos);
         void                setPosition(float x, float y);
         const Vec2f        &getPosition() const;
 
+        void                move(const Vec2f &delta);
+        void                move(float deltaX, float deltaY);
+
+        void                setScale(const Vec2f &scale);
         void                setScale(float x, float y);
         const Vec2f        &getScale() const;
 
         // center of the Sprite. Where its positioned at and rotated at.
+        void                setCenter(const Vec2f &center);
         void                setCenter(float x, float y);
         const Vec2f        &getCenter() const;
 
@@ -112,7 +121,11 @@ class Sprite
 
         // finds Sprite at position
         Sprite             *getHit( const Vec2f &point );
+
+        void                setProcessTouchCallback( const std::function<void (Sprite *, const TouchInfo &)> &func );
     protected:
+        friend class        TouchManager;
+        void                processTouchInfo( const TouchInfo &touchInfo );
         void                buildTransform() const;
         void                buildGlobalTransform() const;
         virtual void        drawLocal();
@@ -143,6 +156,8 @@ class Sprite
 
         Sprite             *mParent;
         std::list<Sprite *> mChildren; 
+
+        std::function<void (Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
 };
 
 } // namespace ui

@@ -84,7 +84,14 @@ void Sprite::draw( const Matrix44f &trans, const DrawParams &drawParams )
 
 void Sprite::setPosition( float x, float y )
 {
-    mPosition = Vec2f(x, y);
+  mPosition = Vec2f(x, y);
+  mUpdateTransform = true;
+}
+
+void Sprite::setPosition( const Vec2f &pos )
+{
+  mPosition = pos;
+  mUpdateTransform = true;
 }
 
 const Vec2f &Sprite::getPosition() const
@@ -94,17 +101,31 @@ const Vec2f &Sprite::getPosition() const
 
 void Sprite::setScale( float x, float y )
 {
-    mScale = Vec2f(x, y);
+  mScale = Vec2f(x, y);
+  mUpdateTransform = true;
+}
+
+void Sprite::setScale( const Vec2f &scale )
+{
+  mScale = scale;
+  mUpdateTransform = true;
 }
 
 const Vec2f &Sprite::getScale() const
 {
-    return mScale;
+  return mScale;
 }
 
 void Sprite::setCenter( float x, float y )
 {
-    mCenter = Vec2f(x, y);
+  mCenter = Vec2f(x, y);
+  mUpdateTransform = true;
+}
+
+void Sprite::setCenter( const Vec2f &center )
+{
+  mCenter = center;
+  mUpdateTransform = true;
 }
 
 const Vec2f &Sprite::getCenter() const
@@ -441,6 +462,29 @@ Sprite *Sprite::getHit( const Vec2f &point )
         return this;
 
     return nullptr;
+}
+
+void Sprite::setProcessTouchCallback( const std::function<void (Sprite *, const TouchInfo &)> &func )
+{
+  mProcessTouchInfoCallback = func;
+}
+
+void Sprite::processTouchInfo( const TouchInfo &touchInfo )
+{
+  if ( mProcessTouchInfoCallback )
+    mProcessTouchInfoCallback(this, touchInfo);
+}
+
+void Sprite::move( const Vec2f &delta )
+{
+  mPosition += delta;
+  mUpdateTransform = true;
+}
+
+void Sprite::move( float deltaX, float deltaY )
+{
+  mPosition += Vec2f(deltaX, deltaY);
+  mUpdateTransform = true;
 }
 
 } // namespace ui

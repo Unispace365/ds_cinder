@@ -42,6 +42,9 @@ class Engine {
     void                        startIdling();
 
     tuio::Client               &getTuioClient();
+    void                        mouseTouchBegin( MouseEvent event, int id );
+    void                        mouseTouchMoved( MouseEvent event, int id );
+    void                        mouseTouchEnded( MouseEvent event, int id );
     void                        touchesBegin( TouchEvent event );
     void                        touchesMoved( TouchEvent event );
     void                        touchesEnded( TouchEvent event );
