@@ -3,8 +3,14 @@
 #define DS_OBJECT_INTERFACE_H
 #include "cinder/Cinder.h"
 #include <list>
-#include "../../math/glm/glm.hpp"
 #include "cinder/Color.h"
+#include "cinder/Matrix22.h"
+#include "cinder/Matrix33.h"
+#include "cinder/MatrixAffine2.h"
+#include "cinder/Matrix44.h"
+#include "cinder/Vector.h"
+
+using namespace ci;
 
 namespace ds {
 
@@ -25,21 +31,21 @@ class Sprite
         virtual ~Sprite();
 
         void                update(const UpdateParams &updateParams);
-        virtual void        draw( const glm::mat4 &trans, const DrawParams &drawParams );
+        virtual void        draw( const Matrix44f &trans, const DrawParams &drawParams );
 
         virtual void        setSize(float width, float height);
         float               getWidth() const;
         float               getHeight() const;
 
         void                setPosition(float x, float y);
-        const glm::vec2    &getPosition() const;
+        const Vec2f        &getPosition() const;
 
         void                setScale(float x, float y);
-        const glm::vec2    &getScale() const;
+        const Vec2f        &getScale() const;
 
         // center of the Sprite. Where its positioned at and rotated at.
         void                setCenter(float x, float y);
-        const glm::vec2    &getCenter() const;
+        const Vec2f        &getCenter() const;
 
         void                setRotation(float rotZ);
         float               getRotation() const;
@@ -52,8 +58,8 @@ class Sprite
         void                setDrawSorted( bool drawSorted );
         bool                getDrawSorted() const;
 
-        const glm::mat4x4  &getTransform() const;
-        const glm::mat4x4  &getGlobalTransform() const;
+        const Matrix44f    &getTransform() const;
+        const Matrix44f    &getGlobalTransform() const;
 
         void                addChild( Sprite *child );
 
@@ -98,14 +104,14 @@ class Sprite
 
         Sprite             *getParent() const;
 
-        glm::vec2           globalToLocal( const glm::vec2 &globalPoint );
-        glm::vec2           localToGlobal( const glm::vec2 &localPoint );
+        Vec2f               globalToLocal( const Vec2f &globalPoint );
+        Vec2f               localToGlobal( const Vec2f &localPoint );
 
         // check if a point is inside the Sprite's bounds.
-        bool                contains( const glm::vec2 &point ) const;
+        bool                contains( const Vec2f &point ) const;
 
         // finds Sprite at position
-        Sprite             *getHit( const glm::vec2 &point );
+        Sprite             *getHit( const Vec2f &point );
     protected:
         void                buildTransform() const;
         void                buildGlobalTransform() const;
@@ -116,12 +122,12 @@ class Sprite
         float               mWidth;
         float               mHeight;
 
-        mutable glm::mat4   mTranformation;
+        mutable Matrix44f   mTransformation;
         mutable bool        mUpdateTransform;
 
-        glm::vec2           mPosition;
-        glm::vec2           mCenter;
-        glm::vec2           mScale;
+        Vec2f               mPosition;
+        Vec2f               mCenter;
+        Vec2f               mScale;
         float               mRotation;
         float               mZLevel;
         bool                mDrawSorted;
@@ -132,8 +138,8 @@ class Sprite
         int                 mType;
         bool                mEnabled;
 
-        mutable glm::mat4   mGlobalTransform;
-        mutable glm::mat4   mInverseGlobalTransform;
+        mutable Matrix44f   mGlobalTransform;
+        mutable Matrix44f   mInverseGlobalTransform;
 
         Sprite             *mParent;
         std::list<Sprite *> mChildren; 

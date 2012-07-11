@@ -17,7 +17,7 @@ void TouchManager::touchesBegin( TouchEvent event )
 {
   for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
     TouchInfo touchInfo;
-    touchInfo.mCurrentPoint = glm::vec2(touchIt->getX(), touchIt->getY());
+    touchInfo.mCurrentPoint = Vec2f(touchIt->getX(), touchIt->getY());
     touchInfo.mFingerId = touchIt->getId();
     touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
     mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
@@ -41,14 +41,14 @@ void TouchManager::touchesMoved( TouchEvent event )
   for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
     TouchInfo touchInfo;
-    touchInfo.mCurrentPoint = glm::vec2(touchIt->getX(), touchIt->getY());
+    touchInfo.mCurrentPoint = Vec2f(touchIt->getX(), touchIt->getY());
     touchInfo.mFingerId = touchIt->getId();
     touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
     touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
     touchInfo.mPhase = TouchInfo::Removed;
     touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
 
-    if (fabs(glm::length(touchInfo.mDeltaPoint)) < math::EPSILON)
+    if (fabs(touchInfo.mDeltaPoint.length()) < math::EPSILON)
       continue;
 
     if (mFingerDispatcher[touchInfo.mFingerId]) {
@@ -65,7 +65,7 @@ void TouchManager::touchesEnded( TouchEvent event )
 {
   for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
     TouchInfo touchInfo;
-    touchInfo.mCurrentPoint = glm::vec2(touchIt->getX(), touchIt->getY());
+    touchInfo.mCurrentPoint = Vec2f(touchIt->getX(), touchIt->getY());
     touchInfo.mFingerId = touchIt->getId();
     touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
     touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];

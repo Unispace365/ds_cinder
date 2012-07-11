@@ -64,7 +64,7 @@ ui::Sprite &Engine::getRootSprite()
 void Engine::draw()
 {
   if (mRootSprite) {
-    mRootSprite->draw(glm::mat4(1.0f), mDrawParams);
+    mRootSprite->draw(Matrix44f::identity(), mDrawParams);
   }
 }
 

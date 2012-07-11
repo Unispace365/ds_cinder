@@ -1,8 +1,7 @@
 #include "sprite.h"
 #include "cinder/gl/gl.h"
 #include "gl/GL.h"
-#include "../../math/glm/gtc/matrix_transform.hpp"
-#include "../../math/glm/gtc/type_ptr.hpp"
+#include "ds/math/math_defs.h"
 
 using namespace ci;
 
@@ -41,7 +40,7 @@ void Sprite::update( const UpdateParams &updateParams )
     }
 }
 
-void Sprite::draw( const glm::mat4 &trans, const DrawParams &drawParams )
+void Sprite::draw( const Matrix44f &trans, const DrawParams &drawParams )
 {
     if ( !mVisible )
         return;
@@ -49,11 +48,11 @@ void Sprite::draw( const glm::mat4 &trans, const DrawParams &drawParams )
     if ( mUpdateTransform )
         buildTransform();
 
-    glm::mat4 totalTransformation = trans*mTranformation;
+    Matrix44f totalTransformation = trans*mTransformation;
 
-    glMatrixMode(GL_MODELVIEW);
     glPushMatrix();
-    glMultMatrixf(glm::value_ptr(totalTransformation));
+    //gl::multModelView(totalTransformation);
+    gl::multModelView(totalTransformation);
     gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
 
     if ( !mTransparent )
@@ -85,30 +84,30 @@ void Sprite::draw( const glm::mat4 &trans, const DrawParams &drawParams )
 
 void Sprite::setPosition( float x, float y )
 {
-    mPosition = glm::vec2(x, y);
+    mPosition = Vec2f(x, y);
 }
 
-const glm::vec2 &Sprite::getPosition() const
+const Vec2f &Sprite::getPosition() const
 {
     return mPosition;
 }
 
 void Sprite::setScale( float x, float y )
 {
-    mScale = glm::vec2(x, y);
+    mScale = Vec2f(x, y);
 }
 
-const glm::vec2 &Sprite::getScale() const
+const Vec2f &Sprite::getScale() const
 {
     return mScale;
 }
 
 void Sprite::setCenter( float x, float y )
 {
-    mCenter = glm::vec2(x, y);
+    mCenter = Vec2f(x, y);
 }
 
-const glm::vec2 &Sprite::getCenter() const
+const Vec2f &Sprite::getCenter() const
 {
     return mCenter;
 }
@@ -147,11 +146,11 @@ bool Sprite::getDrawSorted() const
     return mDrawSorted;
 }
 
-const glm::mat4 &Sprite::getTransform() const
+const Matrix44f &Sprite::getTransform() const
 {
     if ( mUpdateTransform )
         buildTransform();
-    return mTranformation;
+    return mTransformation;
 }
 
 void Sprite::addChild( Sprite *child )
@@ -217,16 +216,22 @@ void Sprite::buildTransform() const
 {
     mUpdateTransform = false;
 
-    mTranformation = glm::mat4(1.0f);
-    //mTranformation = glm::scale(mTranformation, glm::vec3(mScale, 1.0f)) *
-    //                 glm::rotate(mTranformation, mRotation, glm::vec3(0.0f, 0.0f, 1.0f)) *
-    //                 glm::translate(mTranformation, glm::vec3(mPosition, 0.0f)) *
-    //                 glm::translate(mTranformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
+    mTransformation = Matrix44f::identity();
+    //mTransformation = glm::scale(mTransformation, glm::vec3(mScale, 1.0f)) *
+    //                 glm::rotate(mTransformation, mRotation, glm::vec3(0.0f, 0.0f, 1.0f)) *
+    //                 glm::translate(mTransformation, glm::vec3(mPosition, 0.0f)) *
+    //                 glm::translate(mTransformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
     
-    mTranformation = glm::translate(mTranformation, glm::vec3(mPosition, 0.0f)) *
-                     glm::scale(mTranformation, glm::vec3(mScale, 1.0f)) *
-                     glm::rotate(mTranformation, mRotation, glm::vec3(0.0f, 0.0f, 1.0f)) *
-                     glm::translate(mTranformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
+    //mTransformation = glm::translate(mTransformation, glm::vec3(mPosition, 0.0f)) *
+    //                 glm::scale(mTransformation, glm::vec3(mScale, 1.0f)) *
+    //                 glm::rotate(mTransformation, mRotation, glm::vec3(0.0f, 0.0f, 1.0f)) *
+    //                 glm::translate(mTransformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
+
+    mTransformation.setToIdentity();
+    mTransformation.translate(Vec3f(mPosition.x, mPosition.y, 0.0f));
+    mTransformation.rotate(Vec3f(0.0f, 0.0f, 1.0f), mRotation * math::DEGREE2RADIAN);
+    mTransformation.scale(Vec3f(mScale.x, mScale.y, 1.0f));
+    mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
 }
 
 void Sprite::remove()
@@ -335,61 +340,61 @@ void Sprite::buildGlobalTransform() const
 {
     buildTransform();
 
-    mGlobalTransform = mTranformation;
+    mGlobalTransform = mTransformation;
 
     for ( Sprite *parent = mParent; parent; parent = parent->getParent() )
     {
         mGlobalTransform = parent->getGlobalTransform() * mGlobalTransform;
     }
 
-    mInverseGlobalTransform = glm::inverse(mGlobalTransform);
+    mInverseGlobalTransform = mGlobalTransform.inverted();
 }
 
-Sprite * Sprite::getParent() const
+Sprite *Sprite::getParent() const
 {
     return mParent;
 }
 
-const glm::mat4x4 & Sprite::getGlobalTransform() const
+const Matrix44f &Sprite::getGlobalTransform() const
 {
     buildGlobalTransform();
 
     return mGlobalTransform;
 }
 
-glm::vec2 Sprite::globalToLocal( const glm::vec2 &globalPoint )
+Vec2f Sprite::globalToLocal( const Vec2f &globalPoint )
 {
     buildGlobalTransform();
 
-    glm::vec4 point = mInverseGlobalTransform * glm::vec4(globalPoint, 0.0f, 1.0f);
-    return glm::vec2(point.x, point.y);
+    Vec4f point = mInverseGlobalTransform * Vec4f(globalPoint.x, globalPoint.y, 0.0f, 1.0f);
+    return Vec2f(point.x, point.y);
 }
 
-glm::vec2 Sprite::localToGlobal( const glm::vec2 &localPoint )
+Vec2f Sprite::localToGlobal( const Vec2f &localPoint )
 {
     buildGlobalTransform();
-    glm::vec4 point = mGlobalTransform * glm::vec4(localPoint, 0.0f, 1.0f);
-    return glm::vec2(point.x, point.y);
+    Vec4f point = mGlobalTransform * Vec4f(localPoint.x, localPoint.y, 0.0f, 1.0f);
+    return Vec2f(point.x, point.y);
 }
 
-bool Sprite::contains( const glm::vec2 &point ) const
+bool Sprite::contains( const Vec2f &point ) const
 {
     buildGlobalTransform();
 
-    glm::vec4 pR = glm::vec4(point, 0.0f, 1.0f);
+    Vec4f pR = Vec4f(point.x, point.y, 0.0f, 1.0f);
 
-    glm::vec4 cA = mGlobalTransform * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f);
-    glm::vec4 cB = mGlobalTransform * glm::vec4(mWidth, 0.0f, 0.0f, 1.0f);
-    glm::vec4 cC = mGlobalTransform * glm::vec4(mWidth, mHeight, 0.0f, 1.0f);
+    Vec4f cA = mGlobalTransform * Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+    Vec4f cB = mGlobalTransform * Vec4f(mWidth, 0.0f, 0.0f, 1.0f);
+    Vec4f cC = mGlobalTransform * Vec4f(mWidth, mHeight, 0.0f, 1.0f);
     
-    glm::vec4 v1 = cA - cB;
-    glm::vec4 v2 = cC - cB;
-    glm::vec4 v = pR - cB;
+    Vec4f v1 = cA - cB;
+    Vec4f v2 = cC - cB;
+    Vec4f v = pR - cB;
 
-    float dot1 = glm::dot(v, v1);
-    float dot2 = glm::dot(v, v2);
-    float dot3 = glm::dot(v1, v1);
-    float dot4 = glm::dot(v2, v2);
+    float dot1 = v.dot(v1);
+    float dot2 = v.dot(v2);
+    float dot3 = v1.dot(v1);
+    float dot4 = v2.dot(v2);
 
 	return (
         dot1 >= 0 &&
@@ -399,7 +404,7 @@ bool Sprite::contains( const glm::vec2 &point ) const
 	);
 }
 
-Sprite *Sprite::getHit( const glm::vec2 &point )
+Sprite *Sprite::getHit( const Vec2f &point )
 {
     if ( !mDrawSorted )
     {
