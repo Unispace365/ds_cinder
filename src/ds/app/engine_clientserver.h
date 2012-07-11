@@ -9,7 +9,8 @@ namespace ds {
 
 /**
  * \class ds::EngineClientServer
- * Container and manager for all views.
+ * The ClientServer engine contains all behaviour found in both the client
+ * and server, and no communication pipe replicating sprite changes.
  */
 class EngineClientServer : public Engine {
   public:
@@ -26,4 +27,4 @@ class EngineClientServer : public Engine {
 
 } // namespace ds
 
-#endif // DS_APP_ENGINE_H_
+#endif // DS_APP_ENGINECLIENTSERVER_H_

@@ -1,6 +1,7 @@
 #include "ds/app/app.h"
 
 #include "ds/app/engine_clientserver.h"
+#include "ds/app/engine_server.h"
 
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(const ds::cfg::Settings&);
@@ -88,5 +89,6 @@ void App::touchesEnded( TouchEvent event )
 
 static ds::Engine&    new_engine(const ds::cfg::Settings& settings)
 {
+  if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(settings));
   return *(new ds::EngineClientServer(settings));
 }

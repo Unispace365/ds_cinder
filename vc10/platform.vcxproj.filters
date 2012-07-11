@@ -219,6 +219,9 @@
     <ClInclude Include="..\src\ds\app\engine_settings.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine_server.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -321,6 +324,9 @@
       <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine_settings.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine_server.cpp">
       <Filter>src\ds\app</Filter>
     </ClCompile>
   </ItemGroup>
