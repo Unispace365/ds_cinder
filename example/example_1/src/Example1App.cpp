@@ -27,7 +27,10 @@ class BasicTweenApp : public AppBasic {
 
   void        prepareSettings( Settings *settings );
 	void				setup();
-	void				mouseDown( MouseEvent event );
+  void				mouseDown( MouseEvent event );
+  void        touchesBegan( TouchEvent event );
+  void        touchesMoved( TouchEvent event );
+  void        touchesEnded( TouchEvent event );
 	void				update();
 	void				draw();
   
@@ -71,6 +74,9 @@ void BasicTweenApp::setup()
   mEngine.setup();
 	mBlackPos = mWhitePos = getWindowCenter();
 
+  tuio::Client &tuioClient = mEngine.getTuioClient();
+  tuioClient.registerTouches(this);
+  tuioClient.connect();
 
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
@@ -115,6 +121,21 @@ void BasicTweenApp::draw()
 void BasicTweenApp::prepareSettings( Settings *settings )
 {
   mEngine.loadCinderSettings(settings);
+}
+
+void BasicTweenApp::touchesBegan( TouchEvent event )
+{
+  mEngine.touchesBegin(event);
+}
+
+void BasicTweenApp::touchesMoved( TouchEvent event )
+{
+  mEngine.touchesMoved(event);
+}
+
+void BasicTweenApp::touchesEnded( TouchEvent event )
+{
+  mEngine.touchesEnded(event);
 }
 
 // This line tells Cinder to actually create the application
