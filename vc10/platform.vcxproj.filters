@@ -207,6 +207,9 @@
     <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioObject.h">
       <Filter>blocks\tuio\include</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\app.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -301,6 +304,9 @@
     </ClCompile>
     <ClCompile Include="$(CINDER)\blocks\tuio\src\TuioClient.cpp">
       <Filter>blocks\tuio\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\app.cpp">
+      <Filter>src\ds\app</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

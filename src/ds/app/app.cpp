@@ -24,6 +24,8 @@ void App::setup()
 {
   inherited::setup();
 
+  mEngine.setup();
+
   for (auto it=getArgs().begin(), end=getArgs().end(); it != end; ++it) {
     std::cout << "ARG=" << (*it) << std::endl;
   }

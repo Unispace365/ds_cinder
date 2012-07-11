@@ -20,6 +20,7 @@
     <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioCursor.h" />
     <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioObject.h" />
     <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioProfileBase.h" />
+    <ClInclude Include="..\src\ds\app\app.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
     <ClInclude Include="..\src\ds\app\engine.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
@@ -63,6 +64,7 @@
     <ClCompile Include="$(CINDER)\blocks\osc\src\OscMessage.cpp" />
     <ClCompile Include="$(CINDER)\blocks\osc\src\OscSender.cpp" />
     <ClCompile Include="$(CINDER)\blocks\tuio\src\TuioClient.cpp" />
+    <ClCompile Include="..\src\ds\app\app.cpp" />
     <ClCompile Include="..\src\ds\app\engine.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
