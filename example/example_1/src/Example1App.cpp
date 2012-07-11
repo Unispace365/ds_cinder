@@ -79,10 +79,6 @@ void BasicTweenApp::setup()
 
   mBlackPos = mWhitePos = getWindowCenter();
 
-  tuio::Client &tuioClient = mEngine.getTuioClient();
-  tuioClient.registerTouches(this);
-  tuioClient.connect();
-
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
   ds::ui::Sprite *child = new ds::ui::Sprite(mEngine, 100.0f, 100.0f);
