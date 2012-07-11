@@ -23,6 +23,8 @@
     <ClInclude Include="..\src\ds\app\app.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
     <ClInclude Include="..\src\ds\app\engine.h" />
+    <ClInclude Include="..\src\ds\app\engine_clientserver.h" />
+    <ClInclude Include="..\src\ds\app\engine_settings.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
     <ClInclude Include="..\src\ds\config\settings.h" />
     <ClInclude Include="..\src\ds\data\resource.h" />
@@ -47,6 +49,7 @@
     <ClInclude Include="..\src\ds\thread\work_request_list.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h" />
     <ClInclude Include="..\src\ds\ui\sprite\text.h" />
     <ClInclude Include="..\src\ds\ui\sprite\video.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h" />
@@ -66,6 +69,8 @@
     <ClCompile Include="$(CINDER)\blocks\tuio\src\TuioClient.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
     <ClCompile Include="..\src\ds\app\engine.cpp" />
+    <ClCompile Include="..\src\ds\app\engine_clientserver.cpp" />
+    <ClCompile Include="..\src\ds\app\engine_settings.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
     <ClCompile Include="..\src\ds\data\resource.cpp" />

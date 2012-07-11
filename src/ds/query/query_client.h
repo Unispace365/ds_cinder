@@ -30,7 +30,7 @@ class Client : public ds::WorkClient {
                                         Result&);
 
   public:
-    Client(ds::Engine&, const std::function<void(const Result&, Talkback&)>& = nullptr);
+    Client(ui::SpriteEngine&, const std::function<void(const Result&, Talkback&)>& = nullptr);
 	
     void                    setResultHandler(const std::function<void(const Result&, Talkback&)>&);
 

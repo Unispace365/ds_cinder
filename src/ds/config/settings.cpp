@@ -1,6 +1,7 @@
 #include "ds/config/settings.h"
 
 #include <cinder/Xml.h>
+#include <Poco/File.h>
 #include <Poco/String.h>
 #include "ds/debug/debug_defines.h"
 
@@ -141,12 +142,14 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll)
       throw std::exception("unsupported format");
     }
   } catch (std::exception const& ex) {
+    // TODO:  Really need this writing to a log file, because it easily happens
     std::cout << "ds::cfg::Settings::directReadFrom() failed on " << filename << " exception=" << ex.what() << std::endl;
   }
 }
 
 void Settings::directReadXmlFrom(const std::string& filename, const bool clearAll)
 {
+  if (!Poco::File(filename).exists()) return;
   cinder::XmlTree     xml(cinder::loadFile(filename));
 
   if (clearAll) clear();
@@ -485,6 +488,12 @@ Settings::Editor& Settings::Editor::setSize(const std::string& name, const cinde
 {
 	editor_set(mMode, name, mSettings.mSize, v);
 	return *this;
+}
+
+Settings::Editor& Settings::Editor::setText(const std::string& name, const std::string& v)
+{
+  editor_set_vec(mMode, name, mSettings.mText, v);
+  return *this;
 }
 
 Settings::Editor& Settings::Editor::addInt(const std::string& name, const int v)

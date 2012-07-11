@@ -2,14 +2,15 @@
 
 #include "ds/app/engine.h"
 #include "ds/thread/work_manager.h"
+#include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {
 
 /**
  * \class ds::WorkClient
  */
-WorkClient::WorkClient(Engine& e)
-	: mManager(e.mWorkManager)
+WorkClient::WorkClient(ui::SpriteEngine& e)
+	: mManager(e.getWorkManager())
 {
 	mManager.addClient(*this);
 }

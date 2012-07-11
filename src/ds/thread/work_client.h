@@ -6,8 +6,11 @@
 #include "ds/thread/work_request.h"
 
 namespace ds {
-class Engine;
 class WorkManager;
+
+namespace ui {
+class SpriteEngine;
+}
 
 /**
  * \class ds::WorkClient
@@ -15,7 +18,7 @@ class WorkManager;
  */
 class WorkClient {
 public:
-	WorkClient(Engine&);
+	WorkClient(ui::SpriteEngine&);
 	virtual ~WorkClient();
 
 protected:

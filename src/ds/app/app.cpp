@@ -1,16 +1,24 @@
 #include "ds/app/app.h"
 
+#include "ds/app/engine_clientserver.h"
+
+// Answer a new engine based on the current settings
+static ds::Engine&    new_engine(const ds::cfg::Settings&);
+
 namespace ds {
 
 /**
  * \class ds::App
  */
 App::App()
+  : mEngineSettings(getAppPath().generic_string())
+  , mEngine(new_engine(mEngineSettings))
 {
 }
 
 App::~App()
 {
+  delete &(mEngine);
 }
 
 void App::prepareSettings(Settings *settings)
@@ -25,10 +33,6 @@ void App::setup()
   inherited::setup();
 
   mEngine.setup();
-
-  for (auto it=getArgs().begin(), end=getArgs().end(); it != end; ++it) {
-    std::cout << "ARG=" << (*it) << std::endl;
-  }
 }
 
 void App::update()
@@ -42,3 +46,8 @@ void App::draw()
 }
 
 } // namespace ds
+
+static ds::Engine&    new_engine(const ds::cfg::Settings& settings)
+{
+  return *(new ds::EngineClientServer(settings));
+}

@@ -20,7 +20,7 @@ namespace ds {
 /**
  * \class ds::Engine
  */
-Engine::Engine()
+Engine::Engine(const ds::cfg::Settings&)
   : mIdleTime(300.0f)
   , mIdling(true)
   , mTouchManager(*this)
@@ -35,11 +35,6 @@ Engine::~Engine()
 
 void Engine::update()
 {
-#if defined DS_PLATFORM_SERVER || defined DS_PLATFORM_SERVERCLIENT
-	mWorkManager.update();
-#endif
-
-
   float curr = static_cast<float>(getElapsedSeconds());
   float dt = curr - mLastTime;
   mLastTime = curr;

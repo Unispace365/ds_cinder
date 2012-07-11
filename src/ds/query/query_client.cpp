@@ -24,7 +24,7 @@ namespace query {
  * \class ds::query::Client static
  */
 bool Client::query(	const std::string& database, const std::string& select,
-					Result& qr, const int flags)
+					          Result& qr, const int flags)
 {
 	qr.clear();
 	if (database.empty() || select.empty()) return false;
@@ -36,7 +36,7 @@ bool Client::query(	const std::string& database, const std::string& select,
 }
 
 bool Client::queryWrite(const std::string& database, const std::string& select,
-						Result& qr)
+						            Result& qr)
 {
 	qr.clear();
 	if (database.empty()) return false;
@@ -50,7 +50,7 @@ bool Client::queryWrite(const std::string& database, const std::string& select,
 /**
  * \class ds::query::Client
  */
-Client::Client(Engine& e, const std::function<void(const Result&, Talkback&)>& h)
+Client::Client(ui::SpriteEngine& e, const std::function<void(const Result&, Talkback&)>& h)
 	: inherited(e)
 	, mCache(this)
 	, mRunId(0)

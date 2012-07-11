@@ -3,7 +3,6 @@
 #define DS_APP_ENGINE_H_
 
 #include "ds/app/app_defs.h"
-#include "ds/thread/work_manager.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
 #include "ds/params/draw_params.h"
@@ -12,24 +11,26 @@
 #include "cinder/app/TouchEvent.h"
 #include "cinder/app/AppBasic.h"
 #include "TuioClient.h"
+#include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 
 using namespace ci;
 using namespace ci::app;
 
 namespace ds {
-class WorkClient;
+namespace cfg {
+class Settings;
+}
 
 /**
  * \class ds::Engine
  * Container and manager for all views.
  */
-class Engine {
+class Engine : public ui::SpriteEngine {
   public:
-    Engine();
     ~Engine();
 
-    void					              update();
+    virtual void	              update();
 
     // only valid after setup() is called
     ui::Sprite                 &getRootSprite();
@@ -45,12 +46,11 @@ class Engine {
     void                        touchesBegin( TouchEvent event );
     void                        touchesMoved( TouchEvent event );
     void                        touchesEnded( TouchEvent event );
-  private:
-#if defined DS_PLATFORM_SERVER || defined DS_PLATFORM_SERVERCLIENT
-    friend class WorkClient;
-    WorkManager				          mWorkManager;
-#endif
 
+  protected:
+    Engine(const ds::cfg::Settings&);
+
+  private:
     std::unique_ptr<ui::Sprite> mRootSprite;
     UpdateParams                mUpdateParams;
     DrawParams                  mDrawParams;

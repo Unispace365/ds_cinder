@@ -103,6 +103,7 @@ class Settings {
         Editor&							setFloat(const std::string& name, const float);
         Editor&							setResourceId(const std::string& name, const Resource::Id&);
         Editor&							setSize(const std::string& name, const ci::Vec2f&);
+        Editor&							setText(const std::string& name, const std::string&);
 
         Editor&							addInt(const std::string& name, const int);
         Editor&							addResourceId(const std::string& name, const Resource::Id&);
