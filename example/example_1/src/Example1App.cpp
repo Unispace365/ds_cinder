@@ -112,8 +112,6 @@ void BasicTweenApp::update()
 void BasicTweenApp::draw()
 {
   inherited::draw();
-
-	gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 	
 	gl::color( Color::black() );
 	gl::drawSolidCircle( mBlackPos, 20.0f );

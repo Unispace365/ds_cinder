@@ -63,6 +63,8 @@ ui::Sprite &Engine::getRootSprite()
 
 void Engine::draw()
 {
+  gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
+
   if (mRootSprite) {
     mRootSprite->draw(Matrix44f::identity(), mDrawParams);
   }
