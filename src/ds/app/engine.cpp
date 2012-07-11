@@ -31,6 +31,7 @@ Engine::Engine(const ds::cfg::Settings&)
 Engine::~Engine()
 {
 	DS_DBG_CODE(GLOBAL_CONSOLE.destroy());
+  mTuio.disconnect();
 }
 
 void Engine::update()
@@ -58,9 +59,14 @@ ui::Sprite &Engine::getRootSprite()
 
 void Engine::draw()
 {
+  gl::enableAlphaBlending();
+  gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
+
   if (mRootSprite) {
-    mRootSprite->draw(glm::mat4(1.0f), mDrawParams);
+    mRootSprite->draw(Matrix44f::identity(), mDrawParams);
   }
+
+  mTouchManager.drawTouches();
 }
 
 void Engine::setup()
@@ -111,7 +117,7 @@ void Engine::touchesBegin( TouchEvent event )
 
 void Engine::touchesMoved( TouchEvent event )
 {
-  mLastTouchTime = getElapsedSeconds();
+  mLastTouchTime = static_cast<float>(getElapsedSeconds());
   mIdling = false;
 
   mTouchManager.touchesMoved(event);
@@ -119,7 +125,7 @@ void Engine::touchesMoved( TouchEvent event )
 
 void Engine::touchesEnded( TouchEvent event )
 {
-  mLastTouchTime = getElapsedSeconds();
+  mLastTouchTime = static_cast<float>(getElapsedSeconds());
   mIdling = false;
 
   mTouchManager.touchesEnded(event);
@@ -128,6 +134,21 @@ void Engine::touchesEnded( TouchEvent event )
 tuio::Client &Engine::getTuioClient()
 {
   return mTuio;
+}
+
+void Engine::mouseTouchBegin( MouseEvent event, int id )
+{
+  mTouchManager.mouseTouchBegin(event, id);
+}
+
+void Engine::mouseTouchMoved( MouseEvent event, int id )
+{
+  mTouchManager.mouseTouchMoved(event, id);
+}
+
+void Engine::mouseTouchEnded( MouseEvent event, int id )
+{
+  mTouchManager.mouseTouchEnded(event, id);
 }
 
 } // namespace ds

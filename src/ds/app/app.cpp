@@ -33,6 +33,10 @@ void App::setup()
   inherited::setup();
 
   mEngine.setup();
+
+  tuio::Client &tuioClient = mEngine.getTuioClient();
+  tuioClient.registerTouches(this);
+  tuioClient.connect();
 }
 
 void App::update()
@@ -43,6 +47,41 @@ void App::update()
 void App::draw()
 {
   mEngine.draw();
+}
+
+void App::mouseDown( MouseEvent event )
+{
+  mEngine.mouseTouchBegin(event, 1);
+}
+
+void App::mouseMove( MouseEvent event )
+{
+
+}
+
+void App::mouseDrag( MouseEvent event )
+{
+  mEngine.mouseTouchMoved(event, 1);
+}
+
+void App::mouseUp( MouseEvent event )
+{
+  mEngine.mouseTouchEnded(event, 1);
+}
+
+void App::touchesBegan( TouchEvent event )
+{
+  mEngine.touchesBegin(event);
+}
+
+void App::touchesMoved( TouchEvent event )
+{
+  mEngine.touchesMoved(event);
+}
+
+void App::touchesEnded( TouchEvent event )
+{
+  mEngine.touchesEnded(event);
 }
 
 } // namespace ds

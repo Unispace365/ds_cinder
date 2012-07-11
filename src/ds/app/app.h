@@ -17,6 +17,13 @@ class App : public ci::app::AppBasic {
     App();
     ~App();
 
+    virtual void                mouseDown( MouseEvent event );	
+    virtual void                mouseMove( MouseEvent event );
+    virtual void                mouseDrag( MouseEvent event );
+    virtual void                mouseUp( MouseEvent event );	
+    virtual void                touchesBegan( TouchEvent event );
+    virtual void                touchesMoved( TouchEvent event );
+    virtual void                touchesEnded( TouchEvent event );
     virtual void                prepareSettings(Settings*);
     virtual void				        setup();
     virtual void	    			    update();

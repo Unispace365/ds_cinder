@@ -16,9 +16,9 @@ struct TouchInfo
 
   int       mFingerId;
   Phase     mPhase;
-  glm::vec2 mStartPoint;
-  glm::vec2 mCurrentPoint;
-  glm::vec2 mDeltaPoint;
+  Vec2f     mStartPoint;
+  Vec2f     mCurrentPoint;
+  Vec2f     mDeltaPoint;
   Sprite   *mPickedSprite;
 };
 
