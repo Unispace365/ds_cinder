@@ -13,7 +13,7 @@ static const string					WORK_THREAD_NAME("ds_work");
  * \class ds::WorkManager
  */
 WorkManager::WorkManager()
-	: mPool(WORK_THREAD_NAME, 4, 32)		// Keep at least 4 threads running, because we use this for all async ops
+	: mPool(WORK_THREAD_NAME, 4, 16)		// Keep at least 4 threads running, because we use this for all async ops
 //	: mPool(WORK_THREAD_NAME, 1, 1)
 	, mLoop(*this)
 {
@@ -206,25 +206,7 @@ void WorkManager::Loop::handleInput(std::unique_ptr<WorkRequest>& upR) const
 
 	r->run();
 
-#if 0
-	if (!in.mDatabaseName.empty() && !in.mSelect.empty()) {
-		int							errorCode = 0;
-		SqlDatabase					resourceDB(in.mDatabaseName, SQLITE_OPEN_READONLY, &errorCode);
-		if (errorCode != SQLITE_OK) {
-			stringstream s;
-			s << "QueryManager: Unable to access the resource database (SQLite error " << errorCode << ").";
-			ofxLogger::Instance()->LogWarning(true, s.str());
-		} else {
-			SqlQueryResultBuilder	qrb(out.mResult, resourceDB.rawSelect(in.mSelect));
-			qrb.build();
-		}
-	}
-#endif
-
-//	out.mComm = in.mComm;
-//	QueryResultBuilder::setRequestTime(out.mResult, in.mRequestTime);
-//	QueryResultBuilder::setClientId(out.mResult, in.mClientId);
-	mManager.addOutput(upR);
+  mManager.addOutput(upR);
 }
 
 /* QUERY-DEBUG

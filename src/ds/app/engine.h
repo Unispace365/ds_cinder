@@ -2,13 +2,13 @@
 #ifndef DS_APP_ENGINE_H_
 #define DS_APP_ENGINE_H_
 
+#include <memory>
+#include <cinder/app/App.h>
 #include "ds/app/app_defs.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
 #include "ds/params/draw_params.h"
-#include <memory>
-#include "cinder/app/App.h"
 
 namespace ds {
 class WorkClient;
