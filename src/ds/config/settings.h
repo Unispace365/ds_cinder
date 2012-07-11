@@ -6,7 +6,6 @@
 #include <vector>
 #include <cinder/Color.h>
 #include <cinder/Rect.h>
-#include <cinder/Vector.h>
 #include "ds/data/resource.h"
 
 namespace ds {

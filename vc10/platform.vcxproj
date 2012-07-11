@@ -52,6 +52,8 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_manager.h" />
     <ClInclude Include="..\src\ds\ui\view\image_view.h" />
     <ClInclude Include="..\src\ds\ui\view\view.h" />
+    <ClInclude Include="..\src\ds\util\bit_mask.h" />
+    <ClInclude Include="..\src\ds\util\logger.h" />
     <ClInclude Include="..\src\ds\util\memory_ds.h" />
     <ClInclude Include="..\src\ds\util\string_util.h" />
   </ItemGroup>
@@ -84,6 +86,8 @@
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp" />
     <ClCompile Include="..\src\ds\ui\view\image_view.cpp" />
     <ClCompile Include="..\src\ds\ui\view\view.cpp" />
+    <ClCompile Include="..\src\ds\util\bit_mask.cpp" />
+    <ClCompile Include="..\src\ds\util\logger.cpp" />
     <ClCompile Include="..\src\ds\util\string_util.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
