@@ -2,13 +2,20 @@
 #ifndef DS_APP_ENGINE_H_
 #define DS_APP_ENGINE_H_
 
-#include <memory>
-#include <cinder/app/App.h>
 #include "ds/app/app_defs.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
 #include "ds/params/draw_params.h"
+#include <memory>
+#include "cinder/app/App.h"
+#include "cinder/app/TouchEvent.h"
+#include "cinder/app/AppBasic.h"
+#include "TuioClient.h"
+#include "ds/ui/touch/touch_manager.h"
+
+using namespace ci;
+using namespace ci::app;
 
 namespace ds {
 class WorkClient;
@@ -33,6 +40,11 @@ class Engine {
 
     bool                        isIdling() const;
     void                        startIdling();
+
+    tuio::Client               &getTuioClient();
+    void                        touchesBegin( TouchEvent event );
+    void                        touchesMoved( TouchEvent event );
+    void                        touchesEnded( TouchEvent event );
   private:
 #if defined DS_PLATFORM_SERVER || defined DS_PLATFORM_SERVERCLIENT
     friend class WorkClient;
@@ -47,9 +59,8 @@ class Engine {
     float                       mLastTouchTime;
     float                       mIdleTime;
 
-    std::map<int, ui::Sprite *>     mFingerDispatcher;
-    std::map<int, glm::vec2>    mTouchStartPoint;
-    std::map<int, glm::vec2>    mTouchPreviousPoint;
+    tuio::Client                mTuio;
+    ui::TouchManager            mTouchManager;
 };
 
 } // namespace ds

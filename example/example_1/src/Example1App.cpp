@@ -2,7 +2,7 @@
 #include <cinder/Timeline.h>
 #include <Poco/Path.h>
 
-#include <ds/app/APP.h>
+#include <ds/app/engine.h>
 
 #include <ds/thread/runnable_client.h>
 #include <ds/query/query_client.h>
@@ -21,22 +21,24 @@ static std::string    get_data_path(const std::string& fn = "")
   return p.toString();
 }
 
-class BasicTweenApp : public ds::App {
+class BasicTweenApp : public AppBasic {
   public:
-	  BasicTweenApp();
+	BasicTweenApp();
 
-	  void				    setup();
-	  void				    mouseDown( MouseEvent event );
-	  void				    update();
-	  void				    draw();
+  void        prepareSettings( Settings *settings );
+	void				setup();
+  void				mouseDown( MouseEvent event );
+  void        touchesBegan( TouchEvent event );
+  void        touchesMoved( TouchEvent event );
+  void        touchesEnded( TouchEvent event );
+	void				update();
+	void				draw();
   
-	  Anim<Vec2f>			mBlackPos, mWhitePos;
+	ds::Engine			mEngine;
+	Anim<Vec2f>			mBlackPos, mWhitePos;
 
-	  ds::RunnableClient	mClient;
-	  ds::query::Client	mQuery;
-
-  private:
-    typedef ds::App   inherited;
+	ds::RunnableClient	mClient;
+	ds::query::Client	mQuery;
 };
 
 class MessageRunnable : public Poco::Runnable {
@@ -50,7 +52,7 @@ public:
 
 BasicTweenApp::BasicTweenApp()
 	: mClient(mEngine)
-	, mQuery(mEngine)
+	,  mQuery(mEngine)
 {
   try {
     // Example worker
@@ -68,12 +70,13 @@ BasicTweenApp::BasicTweenApp()
 }
 
 void BasicTweenApp::setup()
-{
-  inherited::setup();
-
+{	
   mEngine.setup();
 	mBlackPos = mWhitePos = getWindowCenter();
 
+  tuio::Client &tuioClient = mEngine.getTuioClient();
+  tuioClient.registerTouches(this);
+  tuioClient.connect();
 
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
@@ -99,13 +102,11 @@ void BasicTweenApp::mouseDown( MouseEvent event )
 
 void BasicTweenApp::update()
 {
-  inherited::update();
+	mEngine.update();
 }
 
 void BasicTweenApp::draw()
 {
-  inherited::draw();
-
 	gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 	
 	gl::color( Color::black() );
@@ -113,6 +114,28 @@ void BasicTweenApp::draw()
 	
 	gl::color( Color::white() );
 	gl::drawSolidCircle( mWhitePos, 16.0f );
+
+  mEngine.draw();
+}
+
+void BasicTweenApp::prepareSettings( Settings *settings )
+{
+  mEngine.loadCinderSettings(settings);
+}
+
+void BasicTweenApp::touchesBegan( TouchEvent event )
+{
+  mEngine.touchesBegin(event);
+}
+
+void BasicTweenApp::touchesMoved( TouchEvent event )
+{
+  mEngine.touchesMoved(event);
+}
+
+void BasicTweenApp::touchesEnded( TouchEvent event )
+{
+  mEngine.touchesEnded(event);
 }
 
 // This line tells Cinder to actually create the application

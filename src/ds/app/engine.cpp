@@ -4,6 +4,7 @@
 #include "ds/debug/debug_defines.h"
 #include "cinder/app/App.h"
 #include <GL/glu.h>
+#include "ds/math/math_defs.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -22,6 +23,7 @@ namespace ds {
 Engine::Engine()
   : mIdleTime(300.0f)
   , mIdling(true)
+  , mTouchManager(*this)
 {
 	DS_DBG_CODE(GLOBAL_CONSOLE.create());
 }
@@ -102,6 +104,35 @@ void Engine::startIdling()
     return;
 
   mIdling = true;
+}
+
+void Engine::touchesBegin( TouchEvent event )
+{
+  mLastTouchTime = static_cast<float>(getElapsedSeconds());
+  mIdling = false;
+
+  mTouchManager.touchesBegin(event);
+}
+
+void Engine::touchesMoved( TouchEvent event )
+{
+  mLastTouchTime = getElapsedSeconds();
+  mIdling = false;
+
+  mTouchManager.touchesMoved(event);
+}
+
+void Engine::touchesEnded( TouchEvent event )
+{
+  mLastTouchTime = getElapsedSeconds();
+  mIdling = false;
+
+  mTouchManager.touchesEnded(event);
+}
+
+tuio::Client &Engine::getTuioClient()
+{
+  return mTuio;
 }
 
 } // namespace ds
