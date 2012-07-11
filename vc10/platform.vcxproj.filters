@@ -46,6 +46,30 @@
     <Filter Include="src\ds\ui\touch">
       <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="blocks">
+      <UniqueIdentifier>{f15b674a-6660-4f54-aded-258e0acbdae2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="blocks\osc">
+      <UniqueIdentifier>{67b00306-1537-48e6-b0b9-5b01df324518}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="blocks\tuio">
+      <UniqueIdentifier>{797d5636-a345-4fc7-8a3a-2e934d4d9afe}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="blocks\tuio\include">
+      <UniqueIdentifier>{87b48932-d918-41a2-b81b-e1035291f6d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="blocks\tuio\src">
+      <UniqueIdentifier>{afe9eb27-af5e-499f-8a15-c7f275640b37}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="blocks\osc\include">
+      <UniqueIdentifier>{4b0125fa-0db2-4110-b441-6ff21f995a2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="blocks\osc\src">
+      <UniqueIdentifier>{49a4cc56-68d0-49c5-b6fc-c43c839acc55}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\math">
+      <UniqueIdentifier>{9fb4c09e-660e-4216-93c1-e3dd8ff0f9e0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\app\app_defs.h">
@@ -147,6 +171,36 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_manager.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\tuio\include\TuioClient.h">
+      <Filter>blocks\tuio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\tuio\include\TuioCursor.h">
+      <Filter>blocks\tuio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\tuio\include\TuioObject.h">
+      <Filter>blocks\tuio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\tuio\include\TuioProfileBase.h">
+      <Filter>blocks\tuio\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\include\OscArg.h">
+      <Filter>blocks\osc\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\include\OscBundle.h">
+      <Filter>blocks\osc\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\include\OscListener.h">
+      <Filter>blocks\osc\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\include\OscMessage.h">
+      <Filter>blocks\osc\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\include\OscSender.h">
+      <Filter>blocks\osc\include</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\math_defs.h">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -220,6 +274,21 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp">
       <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\cinder_0.8.4_vc2010\blocks\tuio\src\TuioClient.cpp">
+      <Filter>blocks\tuio\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\src\OscBundle.cpp">
+      <Filter>blocks\osc\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\src\OscListener.cpp">
+      <Filter>blocks\osc\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\src\OscMessage.cpp">
+      <Filter>blocks\osc\src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\src\OscSender.cpp">
+      <Filter>blocks\osc\src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

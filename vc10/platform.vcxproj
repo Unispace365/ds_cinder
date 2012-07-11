@@ -11,6 +11,15 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\include\OscArg.h" />
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\include\OscBundle.h" />
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\include\OscListener.h" />
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\include\OscMessage.h" />
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\include\OscSender.h" />
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\tuio\include\TuioClient.h" />
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\tuio\include\TuioCursor.h" />
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\tuio\include\TuioObject.h" />
+    <ClInclude Include="..\..\..\cinder_0.8.4_vc2010\blocks\tuio\include\TuioProfileBase.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
     <ClInclude Include="..\src\ds\app\engine.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
@@ -18,6 +27,7 @@
     <ClInclude Include="..\src\ds\data\resource.h" />
     <ClInclude Include="..\src\ds\debug\console.h" />
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
+    <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
     <ClInclude Include="..\src\ds\params\update_params.h" />
     <ClInclude Include="..\src\ds\query\query_client.h" />
@@ -46,6 +56,11 @@
     <ClInclude Include="..\src\ds\util\string_util.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\src\OscBundle.cpp" />
+    <ClCompile Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\src\OscListener.cpp" />
+    <ClCompile Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\src\OscMessage.cpp" />
+    <ClCompile Include="..\..\..\cinder_0.8.4_vc2010\blocks\osc\src\OscSender.cpp" />
+    <ClCompile Include="..\..\..\cinder_0.8.4_vc2010\blocks\tuio\src\TuioClient.cpp" />
     <ClCompile Include="..\src\ds\app\engine.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
@@ -109,7 +124,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -136,7 +151,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
