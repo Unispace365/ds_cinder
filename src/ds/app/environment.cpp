@@ -2,8 +2,9 @@
 
 #include <Poco/File.h>
 #include <Poco/Path.h>
+#include "ds/app/app.h"
 
-static std::string    folder_from(const Poco::Path&, const std::string& folder);
+static std::string    folder_from(const Poco::Path&, const std::string& folder, const std::string& fileName);
 
 namespace ds {
 
@@ -14,14 +15,20 @@ Environment::Environment()
 {
 }
 
-std::string Environment::getAppFolder(const std::string& appPath, const std::string& folderName)
+const std::string& Environment::SETTINGS()
 {
-  Poco::Path      p(appPath);
+  static const std::string    SZ("settings");
+  return SZ;
+}
+
+std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName)
+{
+  Poco::Path      p(ds::App::envAppPath());
   std::string     ans;
   // A couple things limit the search -- the directory can't get
   // too short, and right now nothing is more then 3 steps from the appPath.
   int             count = 0;
-  while ((ans=folder_from(p, folderName)).empty()) {
+  while ((ans=folder_from(p, folderName, fileName)).empty()) {
     p.popDirectory();
     if (count++ >= 3 || p.depth() < 2) return "";
   }
@@ -47,12 +54,16 @@ std::string Environment::getProjectSettingsFolder(const std::string& projectPath
 
 } // namespace ds
 
-static std::string    folder_from(const Poco::Path& parentP, const std::string& folder)
+static std::string    folder_from(const Poco::Path& parentP, const std::string& folder, const std::string& fileName)
 {
   Poco::Path          p(parentP);
   p.append(folder);
 
   const Poco::File    f(p);
-  if (f.exists() && f.isDirectory()) return f.path();
+  if (f.exists() && f.isDirectory()) {
+    if (fileName.empty()) return f.path();
+    p.append(fileName);
+    return p.toString();
+  }
   return "";
 }

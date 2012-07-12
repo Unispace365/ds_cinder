@@ -32,7 +32,7 @@ namespace ds {
  */
 class EngineSettings : public ds::cfg::Settings {
   public:
-    EngineSettings(const std::string& applicationPath);
+    EngineSettings();
 };
 
 } // namespace ds
