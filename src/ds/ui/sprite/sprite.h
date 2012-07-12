@@ -142,6 +142,7 @@ class Sprite
         bool                inBounds() const;
         void                setCheckBounds(bool checkBounds);
         bool                getCheckBounds() const;
+        virtual bool        isLoaded() const;
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;

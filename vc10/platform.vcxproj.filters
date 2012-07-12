@@ -234,6 +234,9 @@
     <ClInclude Include="..\src\ds\math\random.h">
       <Filter>src\ds\math</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\file_name_parser.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -352,6 +355,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\math\math_func.cpp">
       <Filter>src\ds\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\file_name_parser.cpp">
+      <Filter>src\ds\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

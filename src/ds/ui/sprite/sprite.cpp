@@ -714,5 +714,10 @@ bool Sprite::inBounds() const
   return mInBounds;
 }
 
+bool Sprite::isLoaded() const
+{
+  return true;
+}
+
 } // namespace ui
 } // namespace ds

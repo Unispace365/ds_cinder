@@ -2,6 +2,11 @@ Welcome to the new BigWorld framework implemented in Cinder.
 
 Couple of brief notes for getting started:
 
+0.  Recommended Image naming:
+(your_image_name).w_(your_image_width).h_(your_image_height).(extention)
+example:
+killer_bunny_glow.w_1920.h_1080.png
+
 1.  You'll need two environment variables set:
 CINDER should point to the current cinder dist (cinder_0.8.4_vc2010 as of this writing)
 DS_PLATFORM should point to this repository.
