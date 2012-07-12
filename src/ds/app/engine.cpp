@@ -17,6 +17,10 @@ Engine::Engine(const ds::cfg::Settings&)
   : mIdleTime(300.0f)
   , mIdling(true)
   , mTouchManager(*this)
+  , mMinTouchDistance(10.0f)
+  , mMinTapDistance(10.0f)
+  , mSwipeQueueSize(4)
+  , mDoubleTapTime(0.1f)
 {
 }
 
@@ -140,6 +144,26 @@ void Engine::mouseTouchMoved( MouseEvent event, int id )
 void Engine::mouseTouchEnded( MouseEvent event, int id )
 {
   mTouchManager.mouseTouchEnded(event, id);
+}
+
+float Engine::getMinTouchDistance() const
+{
+  return mMinTouchDistance;
+}
+
+float Engine::getMinTapDistance() const
+{
+  return mMinTapDistance;
+}
+
+unsigned Engine::getSwipeQueueSize() const
+{
+  return mSwipeQueueSize;
+}
+
+float Engine::getDoubleTapTime() const
+{
+  return mDoubleTapTime;
 }
 
 } // namespace ds

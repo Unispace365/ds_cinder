@@ -10,7 +10,8 @@
 #include "cinder/Matrix44.h"
 #include "cinder/Vector.h"
 #include "ds/util/bit_mask.h"
-#include "../touch/touch_process.h"
+#include "ds/ui//touch/touch_process.h"
+#include "ds/ui/touch/multi_touch_constraints.h"
 
 using namespace ci;
 
@@ -131,6 +132,8 @@ class Sprite
         void                setTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func );
         void                setDoubleTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func );
 
+        // Constraints defined in multi_touch_constraints.h
+        void                enableMultiTouch(const BitMask &);
         bool                multiTouchEnabled() const;
         bool                hasMultiTouchConstraint( const BitMask &constraint ) const;
         bool                multiTouchConstraintNotZero() const;

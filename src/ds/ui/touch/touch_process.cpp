@@ -2,19 +2,14 @@
 #include "ds/math/math_defs.h"
 #include "ds/ui/sprite/sprite.h"
 #include "multi_touch_constraints.h"
-
-namespace {
-  const float MIN_TOUCH_DISTANCE = 20.0f;
-  const float MIN_TAP_DISTANCE = 20.0f;
-  const int SWIPE_QUEUE_SIZE = 4;
-  const float DOUBLE_TAP_TIME = 0.2f;
-}
+#include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {
 namespace ui {
 
-TouchProcess::TouchProcess( Sprite &sprite )
-  : mSprite(sprite)
+TouchProcess::TouchProcess( SpriteEngine &engine, Sprite &sprite )
+  : mSpriteEngine(engine)
+  , mSprite(sprite)
   , mTappable(false)
   , mOneTap(false)
 {
@@ -75,6 +70,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
       Sprite *currentParent = mSprite.getParent();
       while (currentParent) {
         parentTransform = currentParent->getInverseTransform() * parentTransform;
+        currentParent = currentParent->getParent();
       }
 
       Vec2f fingerStart0 = foundControl0->second.mStartPoint;
@@ -86,12 +82,12 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
         Vec2f fingerCurrent1 = foundControl1->second.mCurrentPoint;
 
         mStartDistance = fingerStart0.distance(fingerStart1);
-        if (mStartDistance < MIN_TOUCH_DISTANCE)
-          mStartDistance = MIN_TOUCH_DISTANCE;
+        if (mStartDistance < mSpriteEngine.getMinTouchDistance())
+          mStartDistance = mSpriteEngine.getMinTouchDistance();
         
         mCurrentDistance = fingerCurrent0.distance(fingerCurrent1);
-        if (mCurrentDistance < MIN_TOUCH_DISTANCE)
-          mCurrentDistance = MIN_TOUCH_DISTANCE;
+        if (mCurrentDistance < mSpriteEngine.getMinTouchDistance())
+          mCurrentDistance = mSpriteEngine.getMinTouchDistance();
 
         mCurrentDistance = mCurrentDistance / mStartDistance;
 
@@ -147,7 +143,7 @@ void TouchProcess::update( const UpdateParams &updateParams )
 {
   if (!mSprite.visible() || !mSprite.isEnabled() || !mOneTap || !mSprite.hasDoubleTap())
     return;
-  if (mLastUpdateTime - mDoubleTapTime > DOUBLE_TAP_TIME) {
+  if (mLastUpdateTime - mDoubleTapTime > mSpriteEngine.getDoubleTapTime()) {
     mSprite.tap(mFirstTapPos);
     mOneTap = false;
     mDoubleTapTime = mLastUpdateTime;
@@ -266,7 +262,7 @@ void TouchProcess::addToSwipeQueue( const Vec2f &currentPoint, int queueNum )
   swipeEvent.mCurrentPoint = currentPoint;
   swipeEvent.mTimeStamp = mLastUpdateTime;
   mSwipeQueue.push_back(swipeEvent);
-  if (mSwipeQueue.size() > SWIPE_QUEUE_SIZE)
+  if (mSwipeQueue.size() > mSpriteEngine.getSwipeQueueSize())
     mSwipeQueue.pop_front();
 }
 
@@ -276,7 +272,7 @@ bool TouchProcess::swipeHappened()
   const float maxTimeThreshold = 0.5f;
   mSwipeVector = Vec2f();
 
-  if (mSwipeQueue.size() < SWIPE_QUEUE_SIZE)
+  if (mSwipeQueue.size() < mSpriteEngine.getSwipeQueueSize())
     return false;
 
   for ( auto it = mSwipeQueue.begin(), it2 = mSwipeQueue.end(); it != it2 - 1; ++it ) {
@@ -304,7 +300,7 @@ void TouchProcess::processTap( const TouchInfo &touchInfo )
   if (touchInfo.mPhase == TouchInfo::Added && mFingers.empty()) {
     mTappable = true;
   } else if (mTappable) {
-    if (mFingers.size() > 1 || (touchInfo.mPhase == TouchInfo::Moved && touchInfo.mCurrentPoint.distance(touchInfo.mStartPoint) > MIN_TAP_DISTANCE)) {
+    if (mFingers.size() > 1 || (touchInfo.mPhase == TouchInfo::Moved && touchInfo.mCurrentPoint.distance(touchInfo.mStartPoint) > mSpriteEngine.getMinTapDistance())) {
       mTappable = false;
     } else if (touchInfo.mPhase == TouchInfo::Removed) {
       if (mSprite.hasTap() && !mSprite.hasDoubleTap()) {
