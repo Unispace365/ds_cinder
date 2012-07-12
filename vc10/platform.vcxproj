@@ -49,6 +49,8 @@
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\text.h" />
     <ClInclude Include="..\src\ds\ui\sprite\video.h" />
+    <ClInclude Include="..\src\ds\ui\touch\multi_touch_constraints.h" />
+    <ClInclude Include="..\src\ds\ui\touch\touch_process.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_manager.h" />
     <ClInclude Include="..\src\ds\ui\view\image_view.h" />
@@ -85,6 +87,8 @@
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\text.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\video.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\touch_process.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp" />
     <ClCompile Include="..\src\ds\ui\view\image_view.cpp" />
     <ClCompile Include="..\src\ds\ui\view\view.cpp" />

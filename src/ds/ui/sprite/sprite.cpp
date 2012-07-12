@@ -23,6 +23,8 @@ Sprite::Sprite( float width /*= 0.0f*/, float height /*= 0.0f*/ )
     , mVisible(true)
     , mTransparent(true)
     , mEnabled(false)
+    , mMultiTouchEnabled(false)
+    , mTouchProcess(*this)
 {
 
 }
@@ -253,6 +255,8 @@ void Sprite::buildTransform() const
     mTransformation.rotate(Vec3f(0.0f, 0.0f, 1.0f), mRotation * math::DEGREE2RADIAN);
     mTransformation.scale(Vec3f(mScale.x, mScale.y, 1.0f));
     mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
+
+    mInverseTransform = mTransformation.inverted();
 }
 
 void Sprite::remove()
@@ -471,8 +475,7 @@ void Sprite::setProcessTouchCallback( const std::function<void (Sprite *, const 
 
 void Sprite::processTouchInfo( const TouchInfo &touchInfo )
 {
-  if ( mProcessTouchInfoCallback )
-    mProcessTouchInfoCallback(this, touchInfo);
+  mTouchProcess.processTouchInfo(touchInfo);
 }
 
 void Sprite::move( const Vec2f &delta )
@@ -485,6 +488,79 @@ void Sprite::move( float deltaX, float deltaY )
 {
   mPosition += Vec2f(deltaX, deltaY);
   mUpdateTransform = true;
+}
+
+bool Sprite::multiTouchEnabled() const
+{
+  return mMultiTouchEnabled;
+}
+
+const Matrix44f &Sprite::getInverseGlobalTransform() const
+{
+  return mInverseGlobalTransform;
+}
+
+const Matrix44f    &Sprite::getInverseTransform() const
+{
+  return mInverseTransform;
+}
+
+bool Sprite::hasMultiTouchConstraint( const BitMask &constraint ) const
+{
+  return mMultiTouchConstraints & constraint;
+}
+
+bool Sprite::multiTouchConstraintNotZero() const
+{
+  return mMultiTouchConstraints.getFirstIndex() < 0;
+}
+
+void Sprite::swipe( const Vec2f &swipeVector )
+{
+  if (mSwipeCallback)
+    mSwipeCallback(this, swipeVector);
+}
+
+bool Sprite::hasDoubleTap() const
+{
+  if (mDoubleTapCallback)
+    return true;
+  return false;
+}
+
+void Sprite::tap( const Vec2f &tapPos )
+{
+  if (mTapCallback)
+    mTapCallback(this, tapPos);
+}
+
+void Sprite::doubleTap( const Vec2f &tapPos )
+{
+  if (mDoubleTapCallback)
+    mDoubleTapCallback(this, tapPos);
+}
+
+bool Sprite::hasTap() const
+{
+  if (mTapCallback)
+    return true;
+  return false;
+}
+
+void Sprite::processTouchInfoCallback( const TouchInfo &touchInfo )
+{
+  if (mProcessTouchInfoCallback)
+    mProcessTouchInfoCallback(this, touchInfo);
+}
+
+void Sprite::setTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func )
+{
+  mTapCallback = func;
+}
+
+void Sprite::setDoubleTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func )
+{
+  mDoubleTapCallback = func;
 }
 
 } // namespace ui
