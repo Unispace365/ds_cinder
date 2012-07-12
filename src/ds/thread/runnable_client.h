@@ -17,7 +17,7 @@ namespace ds {
  */
 class RunnableClient : public WorkClient {
 public:
-	RunnableClient(Engine&, const std::function<void(std::unique_ptr<Poco::Runnable>&)>& = nullptr);
+	RunnableClient(ui::SpriteEngine&, const std::function<void(std::unique_ptr<Poco::Runnable>&)>& = nullptr);
 	
 	void						setResultHandler(const std::function<void(std::unique_ptr<Poco::Runnable>&)>&);
 

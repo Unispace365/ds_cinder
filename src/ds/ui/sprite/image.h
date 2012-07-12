@@ -11,12 +11,14 @@ namespace ui {
 class Image: public Sprite
 {
     public:
-        Image( const std::string &filename );
+        Image( SpriteEngine&, const std::string &filename );
         ~Image();
         void                             setSize( float width, float height );
         void                             drawLocal();
         void                             loadImage( const std::string &filename );
     private:
+        typedef Sprite inherited;
+
         std::shared_ptr<ci::gl::Texture> getImage( const std::string &filename );
 
         std::shared_ptr<ci::gl::Texture> mTexture;

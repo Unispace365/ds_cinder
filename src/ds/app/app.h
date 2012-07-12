@@ -4,6 +4,7 @@
 
 #include <cinder/app/AppBasic.h>
 #include "ds/app/engine.h"
+#include "ds/app/engine_settings.h"
 
 namespace ds {
 
@@ -29,7 +30,8 @@ class App : public ci::app::AppBasic {
     virtual void	    			    draw();
 
   protected:
-    ds::Engine                  mEngine;
+    ds::EngineSettings          mEngineSettings;
+    ds::Engine&                 mEngine;
 
   private:
     typedef ci::app::AppBasic   inherited;

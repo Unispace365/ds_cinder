@@ -8,7 +8,7 @@ namespace ds {
 /**
  * \class ds::RunnableClient
  */
-RunnableClient::RunnableClient(Engine& e, const std::function<void(std::unique_ptr<Poco::Runnable>&)>& h)
+RunnableClient::RunnableClient(ui::SpriteEngine& e, const std::function<void(std::unique_ptr<Poco::Runnable>&)>& h)
 	: inherited(e)
 	, mCache(this)
 	, mResultHandler(h)

@@ -20,7 +20,7 @@ namespace ds {
 /**
  * \class ds::Engine
  */
-Engine::Engine()
+Engine::Engine(const ds::cfg::Settings&)
   : mIdleTime(300.0f)
   , mIdling(true)
   , mTouchManager(*this)
@@ -36,11 +36,6 @@ Engine::~Engine()
 
 void Engine::update()
 {
-#if defined DS_PLATFORM_SERVER || defined DS_PLATFORM_SERVERCLIENT
-	mWorkManager.update();
-#endif
-
-
   float curr = static_cast<float>(getElapsedSeconds());
   float dt = curr - mLastTime;
   mLastTime = curr;
@@ -86,7 +81,7 @@ void Engine::setup()
   glLoadIdentity();
   //////////////////////////////////////////////////////////////////////////
 
-  mRootSprite = std::move(std::unique_ptr<ui::Sprite>(new ui::Sprite));
+  mRootSprite = std::move(std::unique_ptr<ui::Sprite>(new ui::Sprite(*this)));
   float curr = static_cast<float>(getElapsedSeconds());
   mLastTime = curr;
   mLastTouchTime = 0;
@@ -122,7 +117,7 @@ void Engine::touchesBegin( TouchEvent event )
 
 void Engine::touchesMoved( TouchEvent event )
 {
-  mLastTouchTime = getElapsedSeconds();
+  mLastTouchTime = static_cast<float>(getElapsedSeconds());
   mIdling = false;
 
   mTouchManager.touchesMoved(event);
@@ -130,7 +125,7 @@ void Engine::touchesMoved( TouchEvent event )
 
 void Engine::touchesEnded( TouchEvent event )
 {
-  mLastTouchTime = getElapsedSeconds();
+  mLastTouchTime = static_cast<float>(getElapsedSeconds());
   mIdling = false;
 
   mTouchManager.touchesEnded(event);

@@ -22,6 +22,7 @@ class DrawParams;
 namespace ui {
 
 struct TouchInfo;
+class SpriteEngine;
 
 /*!
  * brief Base Class for App Entities
@@ -32,7 +33,7 @@ struct TouchInfo;
 class Sprite
 {
     public:
-        Sprite(float width = 0.0f, float height = 0.0f);
+        Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
         virtual ~Sprite();
 
         void                update(const UpdateParams &updateParams);
@@ -148,6 +149,8 @@ class Sprite
         bool                hasTap() const;
 
         void                setType(int type);
+
+        SpriteEngine       &mEngine;
 
         float               mWidth;
         float               mHeight;

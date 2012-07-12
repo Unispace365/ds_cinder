@@ -3,8 +3,9 @@
 namespace ds {
 namespace ui {
 
-Video::Video( const std::string &filename )
-    : mLooping(false)
+Video::Video( SpriteEngine& engine, const std::string &filename )
+    : inherited(engine)
+    , mLooping(false)
 {
     setTransparent(false);
     try
