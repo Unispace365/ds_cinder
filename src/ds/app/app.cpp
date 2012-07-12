@@ -11,7 +11,7 @@ static ds::Engine&    new_engine(const ds::cfg::Settings&);
 namespace {
 std::string           APP_PATH;
 #ifdef _DEBUG
-ds::Console		GLOBAL_CONSOLE;
+ds::Console		        GLOBAL_CONSOLE;
 #endif
 }
 
@@ -21,11 +21,11 @@ namespace ds {
  * \class ds::App
  */
 App::App()
-  : mInitializer(getAppPath().generic_string())
-  , mEngineSettings()
-  , mEngine(new_engine(mEngineSettings))
-  , mCtrlDown(false)
-  , mSecondMouseDown(false)
+    : mInitializer(getAppPath().generic_string())
+    , mEngineSettings()
+    , mEngine(new_engine(mEngineSettings))
+    , mCtrlDown(false)
+    , mSecondMouseDown(false)
 {
 }
 
