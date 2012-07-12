@@ -4,6 +4,7 @@
 #include "sprite.h"
 #include <string>
 #include <cinder/gl/Texture.h>
+#include "ds/data/resource.h"
 #include "ds/ui/service/load_image_service.h"
 
 namespace ds {
@@ -32,6 +33,7 @@ class Image: public Sprite
         ci::gl::Texture                 mTexture;
 
         int                             mFlags;
+        ds::Resource::Id                mResourceId;
         std::string                     mResourceFn;
 
         void                            requestImage();
