@@ -50,8 +50,7 @@ void Sprite::draw( const Matrix44f &trans, const DrawParams &drawParams )
     if ( !mVisible )
         return;
 
-    if ( mUpdateTransform )
-        buildTransform();
+    buildTransform();
 
     Matrix44f totalTransformation = trans*mTransformation;
 
@@ -174,8 +173,7 @@ bool Sprite::getDrawSorted() const
 
 const Matrix44f &Sprite::getTransform() const
 {
-    if ( mUpdateTransform )
-        buildTransform();
+    buildTransform();
     return mTransformation;
 }
 
@@ -240,6 +238,9 @@ void Sprite::clearChildren()
 
 void Sprite::buildTransform() const
 {
+  if (!mUpdateTransform)
+    return;
+
     mUpdateTransform = false;
 
     mTransformation = Matrix44f::identity();
@@ -505,6 +506,7 @@ const Matrix44f &Sprite::getInverseGlobalTransform() const
 
 const Matrix44f    &Sprite::getInverseTransform() const
 {
+  buildTransform();
   return mInverseTransform;
 }
 
@@ -515,7 +517,7 @@ bool Sprite::hasMultiTouchConstraint( const BitMask &constraint ) const
 
 bool Sprite::multiTouchConstraintNotZero() const
 {
-  return mMultiTouchConstraints.getFirstIndex() < 0;
+  return mMultiTouchConstraints.getFirstIndex() >= 0;
 }
 
 void Sprite::swipe( const Vec2f &swipeVector )
@@ -571,6 +573,12 @@ void Sprite::enableMultiTouch( const BitMask &constraints )
   mMultiTouchEnabled = true;
   mMultiTouchConstraints.clear();
   mMultiTouchConstraints |= constraints;
+}
+
+void Sprite::disableMultiTouch()
+{
+  mMultiTouchEnabled = false;
+  mMultiTouchConstraints.clear();
 }
 
 } // namespace ui

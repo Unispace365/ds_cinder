@@ -25,6 +25,8 @@ class App : public ci::app::AppBasic {
     virtual void                touchesBegan( TouchEvent event );
     virtual void                touchesMoved( TouchEvent event );
     virtual void                touchesEnded( TouchEvent event );
+    virtual void                keyDown( KeyEvent event );
+    virtual void                keyUp( KeyEvent event );
     virtual void                prepareSettings(Settings*);
     virtual void				        setup();
     virtual void	    			    update();
@@ -42,6 +44,9 @@ class App : public ci::app::AppBasic {
 
     friend class Environment;
     static const std::string&   envAppPath();
+
+    bool                        mCtrlDown;
+    bool                        mSecondMouseDown;
 };
 
 } // namespace ds

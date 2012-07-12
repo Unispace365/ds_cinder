@@ -89,7 +89,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
         if (mCurrentDistance < mSpriteEngine.getMinTouchDistance())
           mCurrentDistance = mSpriteEngine.getMinTouchDistance();
 
-        mCurrentDistance = mCurrentDistance / mStartDistance;
+        mCurrentScale = mCurrentDistance / mStartDistance;
 
         mCurrentAngle = atan2(fingerStart1.y - fingerStart0.y, fingerStart1.x - fingerStart0.x) -
                         atan2(fingerCurrent1.y - fingerCurrent0.y, fingerCurrent1.x - fingerCurrent0.x);
@@ -251,7 +251,7 @@ void TouchProcess::resetTouchAnchor()
   positionOffset.y *= mSprite.getScale().y;
   positionOffset.rotate(mSprite.getRotation() * math::DEGREE2RADIAN);
   if (mSprite.multiTouchConstraintNotZero()) {
-    mSprite.setCenter(mMultiTouchAnchor);
+    mSprite.setCenter(mStartAnchor);
     mSprite.move(positionOffset);
   }
 }

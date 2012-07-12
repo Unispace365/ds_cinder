@@ -134,6 +134,7 @@ class Sprite
 
         // Constraints defined in multi_touch_constraints.h
         void                enableMultiTouch(const BitMask &);
+        void                disableMultiTouch();
         bool                multiTouchEnabled() const;
         bool                hasMultiTouchConstraint( const BitMask &constraint ) const;
         bool                multiTouchConstraintNotZero() const;
