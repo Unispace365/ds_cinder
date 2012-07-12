@@ -9,6 +9,8 @@
 #include "cinder/MatrixAffine2.h"
 #include "cinder/Matrix44.h"
 #include "cinder/Vector.h"
+#include "ds/util/bit_mask.h"
+#include "../touch/touch_process.h"
 
 using namespace ci;
 
@@ -69,7 +71,9 @@ class Sprite
         bool                getDrawSorted() const;
 
         const Matrix44f    &getTransform() const;
+        const Matrix44f    &getInverseTransform() const;
         const Matrix44f    &getGlobalTransform() const;
+        const Matrix44f    &getInverseGlobalTransform() const;
 
         void                addChild( Sprite *child );
 
@@ -124,12 +128,25 @@ class Sprite
         Sprite             *getHit( const Vec2f &point );
 
         void                setProcessTouchCallback( const std::function<void (Sprite *, const TouchInfo &)> &func );
+        void                setTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func );
+        void                setDoubleTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func );
+
+        bool                multiTouchEnabled() const;
+        bool                hasMultiTouchConstraint( const BitMask &constraint ) const;
+        bool                multiTouchConstraintNotZero() const;
     protected:
         friend class        TouchManager;
+        friend class        TouchProcess;
+        void                swipe(const Vec2f &swipeVector);
+        void                tap(const Vec2f &tapPos);
+        void                doubleTap(const Vec2f &tapPos);
         void                processTouchInfo( const TouchInfo &touchInfo );
+        void                processTouchInfoCallback( const TouchInfo &touchInfo );
         void                buildTransform() const;
         void                buildGlobalTransform() const;
         virtual void        drawLocal();
+        bool                hasDoubleTap() const;
+        bool                hasTap() const;
 
         void                setType(int type);
 
@@ -139,6 +156,7 @@ class Sprite
         float               mHeight;
 
         mutable Matrix44f   mTransformation;
+        mutable Matrix44f   mInverseTransform;
         mutable bool        mUpdateTransform;
 
         Vec2f               mPosition;
@@ -161,6 +179,15 @@ class Sprite
         std::list<Sprite *> mChildren; 
 
         std::function<void (Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
+        std::function<void (Sprite *, const Vec2f &)> mSwipeCallback;
+        std::function<void (Sprite *, const Vec2f &)> mTapCallback;
+        std::function<void (Sprite *, const Vec2f &)> mDoubleTapCallback;
+
+        bool                mMultiTouchEnabled;
+        BitMask             mMultiTouchConstraints;
+
+        // All touch processing happens in the process touch class
+        TouchProcess				mTouchProcess;
 };
 
 } // namespace ui
