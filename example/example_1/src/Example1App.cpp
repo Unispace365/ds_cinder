@@ -74,7 +74,7 @@ void BasicTweenApp::setup()
 
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
-  ds::ui::Image   *imgSprite = new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "lorem_kicksum.png"));
+  ds::ui::Image   *imgSprite = new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "lorem_kicksum.w_1170.h_1146.png"));
   imgSprite->setScale(0.25f, 0.25f);
   imgSprite->enable(true);
   imgSprite->setProcessTouchCallback([](ds::ui::Sprite *sprite, const ds::ui::TouchInfo &info)
