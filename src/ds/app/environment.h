@@ -13,15 +13,17 @@ namespace ds {
  */
 class Environment {
   public:
-    // Answer an app folder -- currently only "settings" is valid for arg 2.
+    static const std::string&   SETTINGS();
+    // Answer an app folder -- currently only SETTINGS() is valid for arg 1.
+    // If fileName is valid, then it will be appended to the found app folder, if it exists.
     // This function assumes that I don't actually know the location of the folderName
     // relative to my appPath, and searches up the appPath looking for it.  This makes
     // it so no configuration is needed between dev and production environments.
-    static std::string    getAppFolder(const std::string& appPath, const std::string& folderName);
+    static std::string          getAppFolder(const std::string& folderName, const std::string& fileName = "");
     // Answer the Downstream documents folder.
-    static std::string		getDownstreamDocumentsFolder();
+    static std::string		      getDownstreamDocumentsFolder();
     // Answer the settings folder for this project.
-    static std::string		getProjectSettingsFolder(const std::string& projectPath);
+    static std::string		      getProjectSettingsFolder(const std::string& projectPath);
 
     Environment();
 };

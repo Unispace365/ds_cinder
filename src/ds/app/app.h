@@ -7,6 +7,7 @@
 #include "ds/app/engine_settings.h"
 
 namespace ds {
+class Environment;
 
 /**
  * \class ds::App
@@ -38,6 +39,9 @@ class App : public ci::app::AppBasic {
 
   private:
     typedef ci::app::AppBasic   inherited;
+
+    friend class Environment;
+    static const std::string&   envAppPath();
 };
 
 } // namespace ds

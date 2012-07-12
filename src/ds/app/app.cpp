@@ -9,6 +9,7 @@
 static ds::Engine&    new_engine(const ds::cfg::Settings&);
 
 namespace {
+std::string           APP_PATH;
 #ifdef _DEBUG
 ds::Console		GLOBAL_CONSOLE;
 #endif
@@ -21,7 +22,7 @@ namespace ds {
  */
 App::App()
   : mInitializer(getAppPath().generic_string())
-  , mEngineSettings(getAppPath().generic_string())
+  , mEngineSettings()
   , mEngine(new_engine(mEngineSettings))
 {
 }
@@ -67,7 +68,6 @@ void App::mouseDown( MouseEvent event )
 
 void App::mouseMove( MouseEvent event )
 {
-
 }
 
 void App::mouseDrag( MouseEvent event )
@@ -95,12 +95,18 @@ void App::touchesEnded( TouchEvent event )
   mEngine.touchesEnded(event);
 }
 
+const std::string& App::envAppPath()
+{
+  return APP_PATH;
+}
+
 /**
  * \class ds::App::Initializer
  */
 ds::App::Initializer::Initializer(const std::string& appPath)
 {
   DS_DBG_CODE(GLOBAL_CONSOLE.create());
+  APP_PATH = appPath;
 }
 
 } // namespace ds

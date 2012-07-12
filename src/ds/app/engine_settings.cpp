@@ -13,7 +13,7 @@ namespace ds {
 /**
  * \class ds::EngineSettings
  */
-EngineSettings::EngineSettings(const std::string& applicationPath)
+EngineSettings::EngineSettings()
 {
   // Default file names.
   const std::string             DEFAULT_FILENAME("engine.xml");
@@ -49,7 +49,7 @@ EngineSettings::EngineSettings(const std::string& applicationPath)
   // APP SETTINGS
   // Find my app settings/ directory.  This will vary based on whether I'm in a dev environment or
   // in a production, but I will have a settings/ folder either at or above me.
-  const std::string         appSettingsPath = ds::Environment::getAppFolder(applicationPath, "settings");
+  const std::string         appSettingsPath = ds::Environment::getAppFolder(ds::Environment::SETTINGS());
   if (appSettingsPath.empty()) throw std::runtime_error("Missing application settings folder");
   Poco::Path                appP(appSettingsPath);
   appP.append(appFilename);
