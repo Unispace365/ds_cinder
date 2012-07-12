@@ -7,7 +7,7 @@
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
 
-#pragma warning (disable : 4355)    // disable 'this': used in base member intializer list
+#pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
 using namespace ci;
 using namespace ci::app;

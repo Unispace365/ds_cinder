@@ -32,6 +32,9 @@ bool			  	HAS_ASYNC = true;
 std::string		LOG_FILE;
 
 Poco::Semaphore		BLOCK_SEM(0, 1);
+
+// Maintain the modules associated with names so I can let the user know what's available
+std::map<int, std::string>*  MODULE_MAP = nullptr;
 }
 
 /* DS::LOGGER static
@@ -58,10 +61,10 @@ static void setup_module(const std::string& module)
 static const std::string& level_name(const int level)
 {
 	static const std::string	INFO(	"info   "),
-								WARNING("warning"),
-								ERROR_(	"error  "),
-								FATAL(	"fatal  "),
-								UNKNOWN("       ");
+								            WARNING("warning"),
+								            ERROR_(	"error  "),
+								            FATAL(	"fatal  "),
+								            UNKNOWN("       ");
 	if (level == ds::Logger::LOG_INFO) return INFO;
 	if (level == ds::Logger::LOG_WARNING) return WARNING;
 	if (level == ds::Logger::LOG_ERROR) return ERROR_;
@@ -107,13 +110,24 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 	file.append(Poco::DateTimeFormatter::format(Poco::Timestamp(), DATE_FORMAT));
 	file.append(".log.txt");
 	LOG_FILE = file;
+
+  // Inform user of what modules are active (and available)
+  if (MODULE_MAP) {
+    for (auto it=MODULE_MAP->begin(), end=MODULE_MAP->end(); it != end; ++it) {
+      std::cout << "Logger module " << it->first << " (" << it->second << ")";
+      if (HAS_MODULE&(ds::BitMask(it->first))) std::cout << " is ON";
+      std::cout << std::endl;
+    }
+  }
 }
 
 ds::BitMask Logger::newModule(const std::string& name)
 {
-	static int			NEXT_DS = 0;
+  static std::map<int, std::string>   MAP;
+	static int			                    NEXT_DS = 0;
 	const ds::BitMask	ans = ds::BitMask(NEXT_DS++);
-	cout << "Logger module name=\"" << name << "\" id=\"" << ans.getFirstIndex() << "\"" << endl;
+  if (!MODULE_MAP) MODULE_MAP = &MAP;
+  MAP[ans.getFirstIndex()] = name;
 	return ans;
 }
 

@@ -35,7 +35,7 @@ class Engine : public ui::SpriteEngine {
     void                        draw();
     void                        loadCinderSettings( ci::app::App::Settings *setting );
     //called in app setup; loads settings files and what not.
-    void                        setup();
+    virtual void                setup();
 
     bool                        isIdling() const;
     void                        startIdling();
