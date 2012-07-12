@@ -14,6 +14,7 @@ namespace ds {
 namespace ui {
 
 class Sprite;
+class SpriteEngine;
 
 struct SwipeQueueEvent
 {
@@ -24,12 +25,13 @@ struct SwipeQueueEvent
 class TouchProcess
 {
   public:
-    TouchProcess(Sprite &sprite);
+    TouchProcess(SpriteEngine &, Sprite &sprite);
     ~TouchProcess();
 
     bool                    processTouchInfo(const TouchInfo &touchInfo);
     void                    update(const UpdateParams &updateParams);
   private:
+    SpriteEngine            &mSpriteEngine;
     Sprite                  &mSprite;
 
     void                     sendTouchInfo(const TouchInfo &touchInfo);

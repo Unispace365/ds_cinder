@@ -1,9 +1,9 @@
 #include "ds/app/engine.h"
 
-#include <cinder/app/App.h>
+#include "ds/debug/debug_defines.h"
+#include "cinder/app/App.h"
 #include <GL/glu.h>
 #include "ds/app/environment.h"
-#include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
 
@@ -18,9 +18,13 @@ namespace ds {
  * \class ds::Engine
  */
 Engine::Engine(const ds::cfg::Settings&)
-    : mIdleTime(300.0f)
-    , mIdling(true)
-    , mTouchManager(*this)
+  : mIdleTime(300.0f)
+  , mIdling(true)
+  , mTouchManager(*this)
+  , mMinTouchDistance(10.0f)
+  , mMinTapDistance(10.0f)
+  , mSwipeQueueSize(4)
+  , mDoubleTapTime(0.1f)
 {
   const std::string     DEBUG_FILE("debug.xml");
   mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
@@ -148,6 +152,26 @@ void Engine::mouseTouchMoved( MouseEvent event, int id )
 void Engine::mouseTouchEnded( MouseEvent event, int id )
 {
   mTouchManager.mouseTouchEnded(event, id);
+}
+
+float Engine::getMinTouchDistance() const
+{
+  return mMinTouchDistance;
+}
+
+float Engine::getMinTapDistance() const
+{
+  return mMinTapDistance;
+}
+
+unsigned Engine::getSwipeQueueSize() const
+{
+  return mSwipeQueueSize;
+}
+
+float Engine::getDoubleTapTime() const
+{
+  return mDoubleTapTime;
 }
 
 } // namespace ds

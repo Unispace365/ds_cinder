@@ -18,9 +18,13 @@ class SpriteEngine {
     virtual ds::WorkManager       &getWorkManager() = 0;
     virtual ui::LoadImageService  &getLoadImageService() = 0;
 
+    virtual float                  getMinTouchDistance() const = 0;
+    virtual float                  getMinTapDistance() const = 0;
+    virtual unsigned               getSwipeQueueSize() const = 0;
+    virtual float                  getDoubleTapTime() const = 0;
   protected:
-    SpriteEngine()                { }
-    virtual ~SpriteEngine()       { }
+    SpriteEngine()                 { }
+    virtual ~SpriteEngine()        { }
 };
 
 } // namespace ui

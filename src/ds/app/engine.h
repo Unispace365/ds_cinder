@@ -48,6 +48,10 @@ class Engine : public ui::SpriteEngine {
     void                        touchesMoved( TouchEvent event );
     void                        touchesEnded( TouchEvent event );
 
+    float                       getMinTouchDistance() const;
+    float                       getMinTapDistance() const;
+    unsigned                    getSwipeQueueSize() const;
+    float                       getDoubleTapTime() const;
   protected:
     Engine(const ds::cfg::Settings&);
 
@@ -62,6 +66,11 @@ class Engine : public ui::SpriteEngine {
 
     tuio::Client                mTuio;
     ui::TouchManager            mTouchManager;
+
+    float                       mMinTouchDistance;
+    float                       mMinTapDistance;
+    int                         mSwipeQueueSize;
+    float                       mDoubleTapTime;
 
     ds::cfg::Settings           mDebugSettings;
 };

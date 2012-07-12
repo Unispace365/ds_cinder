@@ -27,7 +27,7 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mTransparent(true)
     , mEnabled(false)
     , mMultiTouchEnabled(false)
-    , mTouchProcess(*this)
+    , mTouchProcess(engine, *this)
 {
 
 }
@@ -436,7 +436,7 @@ Sprite *Sprite::getHit( const Vec2f &point )
 {
     if ( !mDrawSorted )
     {
-        for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
+        for ( auto it = mChildren.rbegin(), it2 = mChildren.rend(); it != it2; ++it )
         {
             Sprite *child = *it;
             if ( child->isEnabled() && child->contains(point) )
@@ -564,6 +564,13 @@ void Sprite::setTapCallback( const std::function<void (Sprite *, const Vec2f &)>
 void Sprite::setDoubleTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func )
 {
   mDoubleTapCallback = func;
+}
+
+void Sprite::enableMultiTouch( const BitMask &constraints )
+{
+  mMultiTouchEnabled = true;
+  mMultiTouchConstraints.clear();
+  mMultiTouchConstraints |= constraints;
 }
 
 } // namespace ui
