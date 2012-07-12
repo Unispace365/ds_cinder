@@ -29,16 +29,16 @@ class ImageToken {
     void                    acquire(const std::string& filename, const int flags);
     void                    release();
 
-    ci::gl::Texture*        getImage(float& fade);
+    ci::gl::Texture         getImage(float& fade);
     // No refs are acquired, no image is loaded -- if it exists, answer it
-    const ci::gl::Texture*  peekImage(const std::string& filename) const;
+    const ci::gl::Texture   peekImage(const std::string& filename) const;
 
   private:
     LoadImageService&       mSrv;
     std::string             mFilename;
     bool                    mAcquired;
     bool                    mError;
-    ci::gl::Texture*        mImg;
+    ci::gl::Texture         mTexture;
 
     void                    init();
 };
@@ -54,9 +54,9 @@ class LoadImageService : public ds::GlThreadClient<LoadImageService> {
 	bool					acquire(const std::string& filename, const int flags);
 	void					release(const std::string& filename);
 
-	ci::gl::Texture*				getImage(const std::string& filename, float& fade);
+	ci::gl::Texture				getImage(const std::string& filename, float& fade);
 	// No refs are acquired, no image is loaded -- if it exists, answer it
-	const ci::gl::Texture*		peekImage(const std::string& filename) const;
+	const ci::gl::Texture		peekImage(const std::string& filename) const;
 	// Answer true if the token exists (though the image might not be loaded), supplying the flags if you like
 	bool					peekToken(const std::string& filename, int* flags = nullptr) const;
 

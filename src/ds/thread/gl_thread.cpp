@@ -33,6 +33,8 @@ void GlThread::start(const bool makeGlCalls)
     DS_LOG_WARNING_M("ds::GlThread::start() thread already running", GLTHREAD_LOG_M);
     return;
   }
+
+  mLoop.start(makeGlCalls);
   if (!mLoop.mError) {
     mThread.start(mLoop);
     // We want to serialize this thread with the main thread, for the wglMakeCurrent() call.

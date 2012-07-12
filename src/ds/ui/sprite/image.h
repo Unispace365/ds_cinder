@@ -27,17 +27,14 @@ class Image: public Sprite
 
         LoadImageService&               mImageService;
         ImageToken                      mImageToken;
+        ci::gl::Texture                 mTexture;
 
         int                             mFlags;
         // The resource can either be a Resource::Id or a filename, but in all
         // cases it gets resolved to a file before loading
         std::string                     mResourceFn;
 
-        void                            acquireImage();
-
-        std::shared_ptr<ci::gl::Texture> getImage( const std::string &filename );
-
-        std::shared_ptr<ci::gl::Texture> mTexture;
+        void                            requestImage();
 };
 
 } // namespace ui

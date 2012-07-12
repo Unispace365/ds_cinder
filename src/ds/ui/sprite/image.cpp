@@ -21,38 +21,29 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
     , mResourceFn(filename)
 {
     setTransparent(false);
-    mTexture = getImage( filename );
-
-    if ( !mTexture )
-        return;
-
-    Sprite::setSize(static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
 }
 
 Image::~Image()
 {
-
 }
 
 void Image::drawLocal()
 {
-  if ( mTexture )
-      ci::gl::draw(*mTexture);
-
-  float				      fade = 1;
-  ci::gl::Texture	  *img = mImageToken.getImage(fade);
-
-  // XXX Do bounds check here
-  if (!img && mImageToken.canAcquire()) { // && intersectsLocalScreen){
-    acquireImage();
-    // Take one more pass, in case the image is currently being cached in the service.
-    img = mImageToken.getImage(fade);
+  if (!mTexture) {
+    // XXX Do bounds check here
+    if (mImageToken.canAcquire()) { // && intersectsLocalScreen){
+      requestImage();
+    }
+    float         fade;
+    mTexture = mImageToken.getImage(fade);
+    // Keep up the bounds
+    if (mTexture) {
+      Sprite::setSize(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()));
+    }
+    return;
   }
 
-  if (img) {
-//    std::cout << "draw LOADED image!!!" << std::endl;
-//    ci::gl::draw(*img);
-  }
+  ci::gl::draw(mTexture);
 }
 
 void Image::setSize( float width, float height )
@@ -62,6 +53,8 @@ void Image::setSize( float width, float height )
 
 void Image::loadImage( const std::string &filename )
 {
+  std::cout << "Image::loadImage() Still makin' this compatibile with async loading..." << std::endl;
+#if 0
     mTexture = getImage( filename );
     float prevWidth = getWidth() * getScale().x;
     float prevHeight = getHeight() * getScale().y;
@@ -71,24 +64,15 @@ void Image::loadImage( const std::string &filename )
 
     Sprite::setSize(static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
     setSize(prevWidth, prevHeight);
+#endif
 }
 
-void Image::acquireImage()
+void Image::requestImage()
 {
   // XXX Check to see if I have a resource ID, and use that instead.
   if (mResourceFn.empty()) return;
 
   mImageToken.acquire(mResourceFn, mFlags);
-}
-
-std::shared_ptr<ci::gl::Texture> Image::getImage( const std::string &filename )
-{
-    auto found = mTextureCache.find(filename);
-    if ( found != mTextureCache.end() )
-        return found->second;
-    mTextureCache[filename] = std::move(std::shared_ptr<ci::gl::Texture>(new ci::gl::Texture));
-    (*mTextureCache[filename]) = ci::loadImage( filename );
-    return mTextureCache[filename];
 }
 
 } // namespace ui
