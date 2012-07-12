@@ -9,6 +9,7 @@
 #include <ds/query/query_client.h>
 #include <ds/config/settings.h>
 #include "ds/ui/touch/touch_info.h"
+#include "ds/ui/sprite/image.h"
 
 using namespace std;
 using namespace ci;
@@ -72,6 +73,15 @@ void BasicTweenApp::setup()
   mBlackPos = mWhitePos = getWindowCenter();
 
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+
+  ds::ui::Image   *imgSprite = new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "lorem_kicksum.png"));
+  imgSprite->setScale(0.25f, 0.25f);
+  imgSprite->enable(true);
+  imgSprite->setProcessTouchCallback([](ds::ui::Sprite *sprite, const ds::ui::TouchInfo &info)
+  {
+    sprite->setPosition(info.mCurrentPoint);
+  });
+  rootSprite.addChild(imgSprite);
 
   ds::ui::Sprite *child = new ds::ui::Sprite(mEngine, 100.0f, 100.0f);
   child->setPosition(getWindowWidth() / 4.0f, getWindowHeight() / 4.0f);

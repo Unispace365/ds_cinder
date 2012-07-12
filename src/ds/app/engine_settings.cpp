@@ -8,6 +8,10 @@
 static bool       get_key_value(const std::wstring& arg, std::string& key, std::string& value);
 static void       get_cmd_line(std::vector<std::wstring>&);
 
+namespace {
+std::string       PROJECT_PATH;
+}
+
 namespace ds {
 
 /**
@@ -67,10 +71,16 @@ EngineSettings::EngineSettings()
     ed.setText("project_path", projectPath);
   }
   if (!projectPath.empty()) {
-    Poco::Path                  localP(ds::Environment::getProjectSettingsFolder(projectPath));
-    localP.append(localFilename);
-    readFrom(localP.toString(), true);
+    // Set the global project path
+    PROJECT_PATH = projectPath;
+
+    readFrom(ds::Environment::getLocalSettingsPath(localFilename), true);
   }
+}
+
+const std::string& EngineSettings::envProjectPath()
+{
+  return PROJECT_PATH;
 }
 
 } // namespace ds

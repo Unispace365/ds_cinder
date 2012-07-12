@@ -13,7 +13,7 @@ EngineClientServer::EngineClientServer(const ds::cfg::Settings& settings)
 
 void EngineClientServer::setup()
 {
-  inherited::update();
+  inherited::setup();
 
   mLoadImageThread.start(true);
 }

@@ -7,10 +7,11 @@
 #include "ds/params/update_params.h"
 #include "ds/params/draw_params.h"
 #include <memory>
-#include "cinder/app/App.h"
-#include "cinder/app/TouchEvent.h"
-#include "cinder/app/AppBasic.h"
+#include <cinder/app/App.h>
+#include <cinder/app/TouchEvent.h>
+#include <cinder/app/AppBasic.h>
 #include "TuioClient.h"
+#include "ds/config/settings.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 
@@ -18,9 +19,6 @@ using namespace ci;
 using namespace ci::app;
 
 namespace ds {
-namespace cfg {
-class Settings;
-}
 
 /**
  * \class ds::Engine
@@ -37,7 +35,7 @@ class Engine : public ui::SpriteEngine {
     void                        draw();
     void                        loadCinderSettings( ci::app::App::Settings *setting );
     //called in app setup; loads settings files and what not.
-    void                        setup();
+    virtual void                setup();
 
     bool                        isIdling() const;
     void                        startIdling();
@@ -77,7 +75,9 @@ class Engine : public ui::SpriteEngine {
     float                       mMinTapDistance;
     int                         mSwipeQueueSize;
     float                       mDoubleTapTime;
+
     ci::Rectf                   mScreenRect;
+    ds::cfg::Settings           mDebugSettings;
 };
 
 } // namespace ds

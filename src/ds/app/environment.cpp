@@ -3,6 +3,7 @@
 #include <Poco/File.h>
 #include <Poco/Path.h>
 #include "ds/app/app.h"
+#include "ds/app/engine_settings.h"
 
 static std::string    folder_from(const Poco::Path&, const std::string& folder, const std::string& fileName);
 
@@ -44,12 +45,24 @@ std::string Environment::getDownstreamDocumentsFolder()
 	return p.toString();
 }
 
+#if 0
+// Answer the settings folder for this project.
+//    static std::string		      getProjectSettingsFolder(const std::string& projectPath);
 std::string Environment::getProjectSettingsFolder(const std::string& projectPath)
 {
 	Poco::Path			p(getDownstreamDocumentsFolder());
-	p.append("settings");
+	p.append(SETTINGS());
 	if (!projectPath.empty()) p.append(projectPath);
 	return p.toString();
+}
+#endif
+
+std::string Environment::getLocalSettingsPath(const std::string& fileName)
+{
+  if (EngineSettings::envProjectPath().empty()) return "";
+  Poco::Path			p(getDownstreamDocumentsFolder());
+  p.append(SETTINGS()).append(EngineSettings::envProjectPath()).append(fileName);
+  return p.toString();
 }
 
 } // namespace ds

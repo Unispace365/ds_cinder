@@ -5,6 +5,8 @@
 #include "sprite_engine.h"
 #include "ds/math/math_func.h"
 
+#pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
+
 using namespace ci;
 
 namespace ds {

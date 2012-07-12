@@ -3,8 +3,12 @@
 #include "ds/debug/debug_defines.h"
 #include "cinder/app/App.h"
 #include <GL/glu.h>
+#include "ds/app/environment.h"
+#include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
 #include "ds/config/settings.h"
+
+#pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
 using namespace ci;
 using namespace ci::app;
@@ -23,6 +27,10 @@ Engine::Engine(const ds::cfg::Settings &settings)
   , mSwipeQueueSize(4)
   , mDoubleTapTime(0.1f)
 {
+  const std::string     DEBUG_FILE("debug.xml");
+  mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
+  mDebugSettings.readFrom(ds::Environment::getLocalSettingsPath(DEBUG_FILE), true);
+  ds::Logger::setup(mDebugSettings);
   mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 0.0f, 0.0f, 0.0f));
 }
 

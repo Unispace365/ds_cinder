@@ -53,19 +53,19 @@ void ImageToken::release()
 	init();
 }
 
-ci::gl::Texture* ImageToken::getImage(float& fade)
+ci::gl::Texture ImageToken::getImage(float& fade)
 {
-	if (!mAcquired) return NULL;
+	if (!mAcquired) return ci::gl::Texture();
 
-	if (!mImg) {
-		return (mImg = mSrv.getImage(mFilename, fade));
+	if (!mTexture) {
+		return (mTexture = mSrv.getImage(mFilename, fade));
 	}
 
 	fade = 1;
-	return mImg;
+	return mTexture;
 }
 
-const ci::gl::Texture* ImageToken::peekImage(const std::string& filename) const
+const ci::gl::Texture ImageToken::peekImage(const std::string& filename) const
 {
 	return mSrv.peekImage(filename);
 }
@@ -75,7 +75,7 @@ void ImageToken::init()
   mFilename.clear();
 	mAcquired = false;
 	mError = false;
-	mImg = NULL;
+	mTexture.reset();
 }
 
 /* DS::LOAD-IMAGE-SERVICE::HOLDER
@@ -126,31 +126,42 @@ bool LoadImageService::acquire(const std::string& filename, const int flags)
 
 void LoadImageService::release(const std::string& filename)
 {
-	holder& h = mImageResource[filename];
-	h.mRefs--;
-	// If I'm caching this image, never release it
-	if ((h.mFlags&Image::IMG_CACHE_F) == 0 && h.mRefs <= 0) {
-    mImageResource.erase(filename);
-	}
+  // Note:  As far as I can tell, find() always throws an error if the map is empty.
+  // Further, I can't even seem to catch the error, so really not sure what's going on there.
+  if (mImageResource.empty()) {
+    DS_LOG_WARNING_M("LoadImageService::release() called on empty map", LOAD_IMAGE_LOG_M);
+    return;
+  }
+
+  auto it = mImageResource.find(filename);
+  if (it != mImageResource.end()) {
+    holder&		h = it->second;
+    h.mRefs--;
+    // If I'm caching this image, never release it
+    if ((h.mFlags&Image::IMG_CACHE_F) == 0 && h.mRefs <= 0) {
+      mImageResource.erase(filename);
+    }
+  } else {
+    DS_LOG_WARNING_M("LoadImageService::release() called on filename that doesn't exist (" << filename << ")", LOAD_IMAGE_LOG_M);
+  }
 }
 
-ci::gl::Texture* LoadImageService::getImage(const std::string& filename, float& fade)
+ci::gl::Texture LoadImageService::getImage(const std::string& filename, float& fade)
 {
-	// XXX Move to render engine update cycle -- wait, but why?  This is probably more efficient
+  // Anytime someone asks for an image, flush out the buffer.
 	update();
 
 	holder& h = mImageResource[filename];
 	fade = 1;
-	return &(h.mTexture);
+	return h.mTexture;
 }
 
-const ci::gl::Texture* LoadImageService::peekImage(const std::string& filename) const
+const ci::gl::Texture LoadImageService::peekImage(const std::string& filename) const
 {
 	auto it = mImageResource.find(filename);
 	if (it != mImageResource.end()) {
 		const holder&		h = it->second;
-//		if (h.mImg && h.mImg->loaded()) return h.mImg;
-    return &(h.mTexture);
+    return h.mTexture;
 	}
 	return nullptr;
 }
@@ -169,17 +180,17 @@ bool LoadImageService::peekToken(const std::string& filename, int* flags) const
 void LoadImageService::update()
 {
 	Poco::Mutex::ScopedLock			l(mMutex);
-	for (int k=0; k<mOutput.size(); k++) {
+  for (int k=0; k<mOutput.size(); k++) {
 		op&							  out = mOutput[k];
 		holder&						h = mImageResource[out.mFilename];
-		if (h.mTexture.getWidth() > 0) {
+		if (h.mTexture) {
 #ifdef _DEBUG
 			std::cout << "WHHAAAAT?  Duplicate images for id=" << out.mFilename << " refs=" << h.mRefs << std::endl;
 #endif
-      out.mTexture = ci::gl::Texture();
 		} else {
-      h.mTexture = std::move(out.mTexture);
+      h.mTexture = out.mTexture;
     }
+    out.clear();
 	}
 	mOutput.clear();
 }
@@ -198,10 +209,10 @@ void LoadImageService::_load()
 		mInput.swap(mTmp);
 	}
 	// Load them all
-	std::vector<op>							outs;
 	DS_REPORT_GL_ERRORS();
 	for (int k=0; k<mTmp.size(); k++) {
 		op&						           top = mTmp[k];
+    DS_LOG_INFO_M("LoadImageService::_load() on file (" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
     top.mTexture = ci::loadImage(top.mFilename);
 		DS_REPORT_GL_ERRORS();
     // Possibly there's a better "existence" check
@@ -215,11 +226,6 @@ void LoadImageService::_load()
 		}
     top.clear();
 		DS_REPORT_GL_ERRORS();
-	}
-	// Push the outs to the output, restore my reusable pixels
-	{
-		Poco::Mutex::ScopedLock			l(mMutex);
-		mOutput.insert(mOutput.end(), outs.begin(), outs.end());
 	}
 	mTmp.clear();
 }
@@ -245,7 +251,7 @@ LoadImageService::op::op(const std::string& filename, const int flags)
 void LoadImageService::op::clear()
 {
   mFilename.clear();
-  mTexture = ci::gl::Texture();
+  mTexture.reset();
   mFlags = 0;
 }
 

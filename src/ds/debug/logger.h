@@ -44,7 +44,6 @@ class Logger
      *  "logger:file" string -- filename (and location).  a date stamp is appended.  DEFAULT=../logs/
      *  "logger:async" text -- (true,false) If this is false, then logging is synchronous.  DEFAULT=true
      */
-    static void						  setup(const std::string&);
     static void						  setup(const ds::cfg::Settings&);
 
     /**
