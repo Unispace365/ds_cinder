@@ -64,19 +64,6 @@ void Image::loadImage( const std::string &filename )
   mTexture.reset();
   mResourceFn = filename;
   requestImage();
-
-//  std::cout << "Image::loadImage() Still makin' this compatibile with async loading..." << std::endl;
-#if 0
-    mTexture = getImage( filename );
-    float prevWidth = getWidth() * getScale().x;
-    float prevHeight = getHeight() * getScale().y;
-
-    if ( !mTexture )
-        return;
-
-    Sprite::setSize(static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
-    setSize(prevWidth, prevHeight);
-#endif
 }
 
 void Image::requestImage()

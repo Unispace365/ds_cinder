@@ -4,6 +4,7 @@
 #include "sprite.h"
 #include <string>
 #include <cinder/gl/Texture.h>
+#include "ds/data/resource.h"
 #include "ds/ui/service/load_image_service.h"
 
 namespace ds {
@@ -32,6 +33,7 @@ class Image: public Sprite
         int                             mFlags;
         // The resource can either be a Resource::Id or a filename, but in all
         // cases it gets resolved to a file before loading
+        ds::Resource::Id                mResourceId;
         std::string                     mResourceFn;
 
         void                            requestImage();
