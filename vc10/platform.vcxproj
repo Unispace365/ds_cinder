@@ -33,6 +33,8 @@
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
     <ClInclude Include="..\src\ds\debug\logger.h" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
+    <ClInclude Include="..\src\ds\math\math_func.h" />
+    <ClInclude Include="..\src\ds\math\random.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
     <ClInclude Include="..\src\ds\params\update_params.h" />
     <ClInclude Include="..\src\ds\query\query_client.h" />
@@ -80,6 +82,7 @@
     <ClCompile Include="..\src\ds\data\resource.cpp" />
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />
+    <ClCompile Include="..\src\ds\math\math_func.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />
     <ClCompile Include="..\src\ds\params\update_params.cpp" />
     <ClCompile Include="..\src\ds\query\query_client.cpp" />

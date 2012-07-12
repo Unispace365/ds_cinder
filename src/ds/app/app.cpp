@@ -114,13 +114,13 @@ const std::string& App::envAppPath()
 
 void App::keyDown( KeyEvent event )
 {
-  if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_LCTRL )
+  if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_RCTRL )
     mCtrlDown = true;
 }
 
 void App::keyUp( KeyEvent event )
 {
-  if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_LCTRL )
+  if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_RCTRL )
     mCtrlDown = false;
 }
 

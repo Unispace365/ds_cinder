@@ -136,8 +136,12 @@ class Sprite
         void                enableMultiTouch(const BitMask &);
         void                disableMultiTouch();
         bool                multiTouchEnabled() const;
-        bool                hasMultiTouchConstraint( const BitMask &constraint ) const;
+        bool                hasMultiTouchConstraint( const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS ) const;
         bool                multiTouchConstraintNotZero() const;
+
+        bool                inBounds() const;
+        void                setCheckBounds(bool checkBounds);
+        bool                getCheckBounds() const;
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -151,8 +155,13 @@ class Sprite
         virtual void        drawLocal();
         bool                hasDoubleTap() const;
         bool                hasTap() const;
-
         void                setType(int type);
+        void                updateCheckBounds() const;
+        bool                checkBounds() const;
+
+        mutable bool        mBoundsNeedChecking;
+        mutable bool        mInBounds;
+
 
         SpriteEngine       &mEngine;
 
@@ -192,6 +201,8 @@ class Sprite
 
         // All touch processing happens in the process touch class
         TouchProcess				mTouchProcess;
+
+        bool                mCheckBounds;
 };
 
 } // namespace ui

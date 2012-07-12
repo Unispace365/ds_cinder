@@ -4,6 +4,7 @@
 #include "cinder/app/App.h"
 #include <GL/glu.h>
 #include "ds/math/math_defs.h"
+#include "ds/config/settings.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -13,7 +14,7 @@ namespace ds {
 /**
  * \class ds::Engine
  */
-Engine::Engine(const ds::cfg::Settings&)
+Engine::Engine(const ds::cfg::Settings &settings)
   : mIdleTime(300.0f)
   , mIdling(true)
   , mTouchManager(*this)
@@ -22,6 +23,7 @@ Engine::Engine(const ds::cfg::Settings&)
   , mSwipeQueueSize(4)
   , mDoubleTapTime(0.1f)
 {
+  mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 0.0f, 0.0f, 0.0f));
 }
 
 Engine::~Engine()
@@ -164,6 +166,21 @@ unsigned Engine::getSwipeQueueSize() const
 float Engine::getDoubleTapTime() const
 {
   return mDoubleTapTime;
+}
+
+ci::Rectf Engine::getScreenRect() const
+{
+  return mScreenRect;
+}
+
+float Engine::getWidth() const
+{
+  return mScreenRect.getWidth();
+}
+
+float Engine::getHeight() const
+{
+  return mScreenRect.getHeight();
 }
 
 } // namespace ds

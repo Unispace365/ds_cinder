@@ -1,6 +1,7 @@
 #pragma once
 #ifndef DS_UI_SPRITE_SPRITEENGINE_H_
 #define DS_UI_SPRITE_SPRITEENGINE_H_
+#include "cinder/Rect.h"
 
 namespace ds {
 class GlThread;
@@ -22,6 +23,9 @@ class SpriteEngine {
     virtual float                  getMinTapDistance() const = 0;
     virtual unsigned               getSwipeQueueSize() const = 0;
     virtual float                  getDoubleTapTime() const = 0;
+    virtual ci::Rectf              getScreenRect() const = 0;
+    virtual float                  getWidth() const = 0;
+    virtual float                  getHeight() const = 0;
   protected:
     SpriteEngine()                 { }
     virtual ~SpriteEngine()        { }

@@ -79,10 +79,11 @@ void BasicTweenApp::setup()
   child->setColor(1.0f, 1.0f, 0.0f);
   child->setTransparent(false);
   child->enable(true);
-  child->setProcessTouchCallback([](ds::ui::Sprite *sprite, const ds::ui::TouchInfo &info)
-  {
-    sprite->setPosition(info.mCurrentPoint);
-  });
+  //child->setProcessTouchCallback([](ds::ui::Sprite *sprite, const ds::ui::TouchInfo &info)
+  //{
+  //  sprite->setPosition(info.mCurrentPoint);
+  //});
+  child->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(child);
 }
 

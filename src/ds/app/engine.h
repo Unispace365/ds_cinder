@@ -54,6 +54,10 @@ class Engine : public ui::SpriteEngine {
     float                       getMinTapDistance() const;
     unsigned                    getSwipeQueueSize() const;
     float                       getDoubleTapTime() const;
+
+    ci::Rectf                   getScreenRect() const;
+    float                       getWidth() const;
+    float                       getHeight() const;
   protected:
     Engine(const ds::cfg::Settings&);
 
@@ -73,6 +77,7 @@ class Engine : public ui::SpriteEngine {
     float                       mMinTapDistance;
     int                         mSwipeQueueSize;
     float                       mDoubleTapTime;
+    ci::Rectf                   mScreenRect;
 };
 
 } // namespace ds
