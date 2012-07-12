@@ -80,17 +80,6 @@ static bool ends_in_separator(const std::string& file)
 	return false;
 }
 
-void ds::Logger::setup(const std::string& fn)
-{
-  try {
-    ds::cfg::Settings     settings;
-    settings.readFrom(fn);
-    setup(settings);
-  } catch (std::exception const& ex) {
-    std::cout << "ERROR ds::Logger::setup() ex=" << ex.what() << std::endl;
-  }
-}
-
 void ds::Logger::setup(const ds::cfg::Settings& settings)
 {
 	for (int k=0; k<LEVEL_SIZE; ++k) HAS_LEVEL[k] = false;

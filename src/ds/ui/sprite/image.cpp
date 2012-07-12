@@ -1,6 +1,8 @@
 #include "image.h"
+
 #include <map>
-#include "cinder/ImageIo.h"
+#include <cinder/ImageIo.h>
+#include "ds/ui/sprite/sprite_engine.h"
 
 namespace {
 
@@ -12,7 +14,11 @@ namespace ds {
 namespace ui {
 
 Image::Image( SpriteEngine& engine, const std::string &filename )
-  : inherited(engine)
+    : inherited(engine)
+    , mImageService(engine.getLoadImageService())
+    , mImageToken(mImageService)
+    , mFlags(0)
+    , mResourceFn(filename)
 {
     setTransparent(false);
     mTexture = getImage( filename );
@@ -30,8 +36,23 @@ Image::~Image()
 
 void Image::drawLocal()
 {
-    if ( mTexture )
-        ci::gl::draw(*mTexture);
+  if ( mTexture )
+      ci::gl::draw(*mTexture);
+
+  float				      fade = 1;
+  ci::gl::Texture	  *img = mImageToken.getImage(fade);
+
+  // XXX Do bounds check here
+  if (!img && mImageToken.canAcquire()) { // && intersectsLocalScreen){
+    acquireImage();
+    // Take one more pass, in case the image is currently being cached in the service.
+    img = mImageToken.getImage(fade);
+  }
+
+  if (img) {
+//    std::cout << "draw LOADED image!!!" << std::endl;
+//    ci::gl::draw(*img);
+  }
 }
 
 void Image::setSize( float width, float height )
@@ -50,6 +71,14 @@ void Image::loadImage( const std::string &filename )
 
     Sprite::setSize(static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
     setSize(prevWidth, prevHeight);
+}
+
+void Image::acquireImage()
+{
+  // XXX Check to see if I have a resource ID, and use that instead.
+  if (mResourceFn.empty()) return;
+
+  mImageToken.acquire(mResourceFn, mFlags);
 }
 
 std::shared_ptr<ci::gl::Texture> Image::getImage( const std::string &filename )

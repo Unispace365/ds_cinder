@@ -3,10 +3,12 @@
 #define DS_IMAGE_H
 #include "sprite.h"
 #include <string>
-#include "cinder/gl/Texture.h"
+#include <cinder/gl/Texture.h>
+#include "ds/ui/service/load_image_service.h"
 
 namespace ds {
 namespace ui {
+class LoadImageService;
 
 class Image: public Sprite
 {
@@ -17,11 +19,21 @@ class Image: public Sprite
     public:
         Image( SpriteEngine&, const std::string &filename );
         ~Image();
-        void                             setSize( float width, float height );
-        void                             drawLocal();
-        void                             loadImage( const std::string &filename );
+        void                            setSize( float width, float height );
+        void                            drawLocal();
+        void                            loadImage( const std::string &filename );
     private:
         typedef Sprite inherited;
+
+        LoadImageService&               mImageService;
+        ImageToken                      mImageToken;
+
+        int                             mFlags;
+        // The resource can either be a Resource::Id or a filename, but in all
+        // cases it gets resolved to a file before loading
+        std::string                     mResourceFn;
+
+        void                            acquireImage();
 
         std::shared_ptr<ci::gl::Texture> getImage( const std::string &filename );
 

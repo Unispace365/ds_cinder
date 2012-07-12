@@ -126,12 +126,24 @@ bool LoadImageService::acquire(const std::string& filename, const int flags)
 
 void LoadImageService::release(const std::string& filename)
 {
-	holder& h = mImageResource[filename];
-	h.mRefs--;
-	// If I'm caching this image, never release it
-	if ((h.mFlags&Image::IMG_CACHE_F) == 0 && h.mRefs <= 0) {
-    mImageResource.erase(filename);
-	}
+  // Note:  As far as I can tell, find() always throws an error if the map is empty.
+  // Further, I can't even seem to catch the error, so really not sure what's going on there.
+  if (mImageResource.empty()) {
+    DS_LOG_WARNING_M("LoadImageService::release() called on empty map", LOAD_IMAGE_LOG_M);
+    return;
+  }
+
+  auto it = mImageResource.find(filename);
+  if (it != mImageResource.end()) {
+    holder&		h = it->second;
+    h.mRefs--;
+    // If I'm caching this image, never release it
+    if ((h.mFlags&Image::IMG_CACHE_F) == 0 && h.mRefs <= 0) {
+      mImageResource.erase(filename);
+    }
+  } else {
+    DS_LOG_WARNING_M("LoadImageService::release() called on filename that doesn't exist (" << filename << ")", LOAD_IMAGE_LOG_M);
+  }
 }
 
 ci::gl::Texture* LoadImageService::getImage(const std::string& filename, float& fade)

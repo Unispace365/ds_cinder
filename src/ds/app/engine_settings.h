@@ -5,6 +5,7 @@
 #include "ds/config/settings.h"
 
 namespace ds {
+class Environment;
 
 /**
  * \class ds::EngineSettings
@@ -33,6 +34,10 @@ namespace ds {
 class EngineSettings : public ds::cfg::Settings {
   public:
     EngineSettings();
+
+private:
+    friend class Environment;
+    static const std::string&   envProjectPath();
 };
 
 } // namespace ds

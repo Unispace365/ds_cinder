@@ -1,9 +1,13 @@
 #include "ds/app/engine.h"
 
-#include "ds/debug/debug_defines.h"
-#include "cinder/app/App.h"
+#include <cinder/app/App.h>
 #include <GL/glu.h>
+#include "ds/app/environment.h"
+#include "ds/debug/debug_defines.h"
+#include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
+
+#pragma warning (disable : 4355)    // disable 'this': used in base member intializer list
 
 using namespace ci;
 using namespace ci::app;
@@ -14,10 +18,14 @@ namespace ds {
  * \class ds::Engine
  */
 Engine::Engine(const ds::cfg::Settings&)
-  : mIdleTime(300.0f)
-  , mIdling(true)
-  , mTouchManager(*this)
+    : mIdleTime(300.0f)
+    , mIdling(true)
+    , mTouchManager(*this)
 {
+  const std::string     DEBUG_FILE("debug.xml");
+  mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
+  mDebugSettings.readFrom(ds::Environment::getLocalSettingsPath(DEBUG_FILE), true);
+  ds::Logger::setup(mDebugSettings);
 }
 
 Engine::~Engine()

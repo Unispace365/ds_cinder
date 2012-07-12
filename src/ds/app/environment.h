@@ -22,9 +22,11 @@ class Environment {
     static std::string          getAppFolder(const std::string& folderName, const std::string& fileName = "");
     // Answer the Downstream documents folder.
     static std::string		      getDownstreamDocumentsFolder();
-    // Answer the settings folder for this project.
-    static std::string		      getProjectSettingsFolder(const std::string& projectPath);
+    // Answer a complete path to a local settings file.  Supply an empty file name
+    // to just get the local settings folder.
+    static std::string		      getLocalSettingsPath(const std::string& fileName);
 
+  private:
     Environment();
 };
 

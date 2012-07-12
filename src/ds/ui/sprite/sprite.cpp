@@ -3,6 +3,8 @@
 #include "gl/GL.h"
 #include "ds/math/math_defs.h"
 
+#pragma warning (disable : 4355)    // disable 'this': used in base member intializer list
+
 using namespace ci;
 
 namespace ds {
