@@ -142,7 +142,7 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll)
       throw std::exception("unsupported format");
     }
   } catch (std::exception const& ex) {
-    // TODO:  Really need this writing to a log file, because it easily happens
+    // TODO:  Really need this writing to a log file, because it easily happens during construction of the app
     std::cout << "ds::cfg::Settings::directReadFrom() failed on " << filename << " exception=" << ex.what() << std::endl;
   }
 }

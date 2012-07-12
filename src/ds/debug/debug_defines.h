@@ -16,4 +16,21 @@
 	#define DS_DBG_HDR(code)				;
 #endif
 
+/* OpenGL debugging
+ ******************************************************************/
+#ifdef _DEBUG
+#define TURN_ON_REPORT_GL_ERRORS
+#endif
+
+/* OpenGL debugging -- impl
+ ******************************************************************/
+#ifdef TURN_ON_REPORT_GL_ERRORS
+namespace ds {
+  void			report_gl_errors();
+}
+#define DS_REPORT_GL_ERRORS()		ds::report_gl_errors();
+#else
+#define DS_REPORT_GL_ERRORS()		(void*)0
+#endif
+
 #endif // DS_DEBUG_DEBUGDEFINES_H_

@@ -3,7 +3,9 @@
 #define DS_APP_ENGINECLIENTSERVER_H_
 
 #include "ds/app/engine.h"
+#include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
+#include "ds/ui/service/load_image_service.h"
 
 namespace ds {
 
@@ -16,13 +18,17 @@ class EngineClientServer : public Engine {
   public:
     EngineClientServer(const ds::cfg::Settings&);
 
-    virtual ds::WorkManager     &getWorkManager()   { return mWorkManager; }
+    virtual ds::WorkManager       &getWorkManager()         { return mWorkManager; }
+    virtual ui::LoadImageService  &getLoadImageService()    { return mLoadImageService; }
 
-    virtual void	              update();
+    virtual void				          setup();
+    virtual void	                update();
 
   private:
     typedef Engine inherited;
-    WorkManager				          mWorkManager;
+    WorkManager				            mWorkManager;
+    GlThread                      mLoadImageThread;
+    ui::LoadImageService          mLoadImageService;
 };
 
 } // namespace ds

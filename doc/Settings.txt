@@ -7,7 +7,7 @@ Optionally, an installation can have a local settings file.  The local settings 
 Where the settings are located and what the files are named will vary with the environment (development or production) and command line args.
 
 1.  APP SETTINGS
-The app settings file defaults to the name "engine_settings.xml" and is located within the settings/ folder.  The settings/ folder is always relative to where the app .exe is located -- either at or within 3 levels above the folder containing the .exe (this is done solely to make development easier, so that the folder can be located several levels above the exe in the project structure).
+The app settings file defaults to the name "engine.xml" and is located within the settings/ folder.  The settings/ folder is always relative to where the app .exe is located -- either at or within 3 levels above the folder containing the .exe (this is done solely to make development easier, so that the folder can be located several levels above the exe in the project structure).
 
 The default name can be replaced by supplying a command line arg like this:  APP_SETTINGS=filename.xml
 

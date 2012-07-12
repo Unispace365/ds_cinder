@@ -31,6 +31,7 @@
     <ClInclude Include="..\src\ds\data\resource.h" />
     <ClInclude Include="..\src\ds\debug\console.h" />
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
+    <ClInclude Include="..\src\ds\debug\logger.h" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
     <ClInclude Include="..\src\ds\params\update_params.h" />
@@ -42,12 +43,14 @@
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
     <ClInclude Include="..\src\ds\query\sql_query_result_builder.h" />
+    <ClInclude Include="..\src\ds\thread\gl_thread.h" />
     <ClInclude Include="..\src\ds\thread\runnable_client.h" />
     <ClInclude Include="..\src\ds\thread\thread_defs.h" />
     <ClInclude Include="..\src\ds\thread\work_client.h" />
     <ClInclude Include="..\src\ds\thread\work_manager.h" />
     <ClInclude Include="..\src\ds\thread\work_request.h" />
     <ClInclude Include="..\src\ds\thread\work_request_list.h" />
+    <ClInclude Include="..\src\ds\ui\service\load_image_service.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h" />
@@ -55,10 +58,7 @@
     <ClInclude Include="..\src\ds\ui\sprite\video.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_manager.h" />
-    <ClInclude Include="..\src\ds\ui\view\image_view.h" />
-    <ClInclude Include="..\src\ds\ui\view\view.h" />
     <ClInclude Include="..\src\ds\util\bit_mask.h" />
-    <ClInclude Include="..\src\ds\util\logger.h" />
     <ClInclude Include="..\src\ds\util\memory_ds.h" />
     <ClInclude Include="..\src\ds\util\string_util.h" />
   </ItemGroup>
@@ -76,6 +76,8 @@
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
     <ClCompile Include="..\src\ds\data\resource.cpp" />
+    <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
+    <ClCompile Include="..\src\ds\debug\logger.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />
     <ClCompile Include="..\src\ds\params\update_params.cpp" />
     <ClCompile Include="..\src\ds\query\query_client.cpp" />
@@ -84,19 +86,18 @@
     <ClCompile Include="..\src\ds\query\sqlite\sqlite3.c" />
     <ClCompile Include="..\src\ds\query\sql_database.cpp" />
     <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp" />
+    <ClCompile Include="..\src\ds\thread\gl_thread.cpp" />
     <ClCompile Include="..\src\ds\thread\runnable_client.cpp" />
     <ClCompile Include="..\src\ds\thread\work_client.cpp" />
     <ClCompile Include="..\src\ds\thread\work_manager.cpp" />
     <ClCompile Include="..\src\ds\thread\work_request.cpp" />
+    <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\text.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\video.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp" />
-    <ClCompile Include="..\src\ds\ui\view\image_view.cpp" />
-    <ClCompile Include="..\src\ds\ui\view\view.cpp" />
     <ClCompile Include="..\src\ds\util\bit_mask.cpp" />
-    <ClCompile Include="..\src\ds\util\logger.cpp" />
     <ClCompile Include="..\src\ds\util\string_util.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

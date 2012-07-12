@@ -26,6 +26,11 @@ public:
 		if ( mConsoleCreated )
 			return;
 
+    // The app writes to the output before any console has been allocated, which puts
+    // it in an error state, so that needs to be cleared out before you'll see any output.
+    std::cout.clear();
+    std::cin.clear();
+
 		AllocConsole();
 
 		HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);

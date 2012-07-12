@@ -16,7 +16,7 @@ namespace ds {
 EngineSettings::EngineSettings(const std::string& applicationPath)
 {
   // Default file names.
-  const std::string             DEFAULT_FILENAME("engine_settings.xml");
+  const std::string             DEFAULT_FILENAME("engine.xml");
   std::string                   appFilename = DEFAULT_FILENAME,
                                 localFilename,
                                 projectPath;

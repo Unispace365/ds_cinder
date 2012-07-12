@@ -25,9 +25,6 @@
     <Filter Include="src\ds\ui">
       <UniqueIdentifier>{d7b8e4dd-8239-48ad-bb6a-97dfd629e5ee}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\view">
-      <UniqueIdentifier>{65aee626-817a-4a91-9fe3-ce2175f51a6d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\util">
       <UniqueIdentifier>{35cdee3e-bb96-4566-9838-ba11d4e2ed46}</UniqueIdentifier>
     </Filter>
@@ -69,6 +66,9 @@
     </Filter>
     <Filter Include="src\ds\math">
       <UniqueIdentifier>{9fb4c09e-660e-4216-93c1-e3dd8ff0f9e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\service">
+      <UniqueIdentifier>{0ee8cb5c-b5a5-4e24-80b3-ae017220e214}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -132,12 +132,6 @@
     <ClInclude Include="..\src\ds\thread\work_request_list.h">
       <Filter>src\ds\thread</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\view\image_view.h">
-      <Filter>src\ds\ui\view</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\view\view.h">
-      <Filter>src\ds\ui\view</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\util\memory_ds.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
@@ -170,9 +164,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_manager.h">
       <Filter>src\ds\ui\touch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\util\logger.h">
-      <Filter>src\ds\util</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\util\bit_mask.h">
       <Filter>src\ds\util</Filter>
@@ -222,6 +213,15 @@
     <ClInclude Include="..\src\ds\app\engine_server.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\service\load_image_service.h">
+      <Filter>src\ds\ui\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\gl_thread.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\logger.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -263,12 +263,6 @@
     <ClCompile Include="..\src\ds\thread\work_request.cpp">
       <Filter>src\ds\thread</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\view\image_view.cpp">
-      <Filter>src\ds\ui\view</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\view\view.cpp">
-      <Filter>src\ds\ui\view</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\util\string_util.cpp">
       <Filter>src\ds\util</Filter>
     </ClCompile>
@@ -299,9 +293,6 @@
     <ClCompile Include="..\src\ds\util\bit_mask.cpp">
       <Filter>src\ds\util</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\util\logger.cpp">
-      <Filter>src\ds\util</Filter>
-    </ClCompile>
     <ClCompile Include="$(CINDER)\blocks\osc\src\OscBundle.cpp">
       <Filter>blocks\osc\src</Filter>
     </ClCompile>
@@ -328,6 +319,18 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine_server.cpp">
       <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\thread\gl_thread.cpp">
+      <Filter>src\ds\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\logger.cpp">
+      <Filter>src\ds\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\debug_defines.cpp">
+      <Filter>src\ds\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp">
+      <Filter>src\ds\ui\service</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

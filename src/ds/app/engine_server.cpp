@@ -6,7 +6,8 @@ namespace ds {
  * \class ds::EngineServer
  */
 EngineServer::EngineServer(const ds::cfg::Settings& settings)
-  : inherited(settings)
+    : inherited(settings)
+    , mLoadImageService(mLoadImageThread)
 {
 }
 

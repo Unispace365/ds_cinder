@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DS_UTIL_LOGGER_H_
-#define DS_UTIL_LOGGER_H_
+#ifndef DS_DEBUG_LOGGER_H_
+#define DS_DEBUG_LOGGER_H_
 
 // Unfortunately due to some weird include issue I need to make sure to
 // include cinder/ChanTraits.h before something in presumably the C++ libs.

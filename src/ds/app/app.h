@@ -30,6 +30,9 @@ class App : public ci::app::AppBasic {
     virtual void	    			    draw();
 
   protected:
+    class Initializer { public: Initializer(const std::string&); };
+    Initializer                 mInitializer;
+
     ds::EngineSettings          mEngineSettings;
     ds::Engine&                 mEngine;
 

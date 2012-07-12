@@ -11,6 +11,10 @@ namespace ui {
 class Image: public Sprite
 {
     public:
+        // Cache any texture loaded by this sprite, never releasing it.
+        static const int                IMG_CACHE_F = (1<<0);
+
+    public:
         Image( SpriteEngine&, const std::string &filename );
         ~Image();
         void                             setSize( float width, float height );

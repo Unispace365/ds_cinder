@@ -2,9 +2,17 @@
 
 #include "ds/app/engine_clientserver.h"
 #include "ds/app/engine_server.h"
+#include "ds/debug/console.h"
+#include "ds/debug/debug_defines.h"
 
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(const ds::cfg::Settings&);
+
+namespace {
+#ifdef _DEBUG
+ds::Console		GLOBAL_CONSOLE;
+#endif
+}
 
 namespace ds {
 
@@ -12,7 +20,8 @@ namespace ds {
  * \class ds::App
  */
 App::App()
-  : mEngineSettings(getAppPath().generic_string())
+  : mInitializer(getAppPath().generic_string())
+  , mEngineSettings(getAppPath().generic_string())
   , mEngine(new_engine(mEngineSettings))
 {
 }
@@ -20,6 +29,7 @@ App::App()
 App::~App()
 {
   delete &(mEngine);
+  DS_DBG_CODE(GLOBAL_CONSOLE.destroy());
 }
 
 void App::prepareSettings(Settings *settings)
@@ -83,6 +93,14 @@ void App::touchesMoved( TouchEvent event )
 void App::touchesEnded( TouchEvent event )
 {
   mEngine.touchesEnded(event);
+}
+
+/**
+ * \class ds::App::Initializer
+ */
+ds::App::Initializer::Initializer(const std::string& appPath)
+{
+  DS_DBG_CODE(GLOBAL_CONSOLE.create());
 }
 
 } // namespace ds

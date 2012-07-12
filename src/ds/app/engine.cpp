@@ -1,6 +1,5 @@
 #include "ds/app/engine.h"
 
-#include "ds/debug/console.h"
 #include "ds/debug/debug_defines.h"
 #include "cinder/app/App.h"
 #include <GL/glu.h>
@@ -8,12 +7,6 @@
 
 using namespace ci;
 using namespace ci::app;
-
-namespace {
-#ifdef _DEBUG
-ds::Console		GLOBAL_CONSOLE;
-#endif
-}
 
 namespace ds {
 
@@ -25,12 +18,10 @@ Engine::Engine(const ds::cfg::Settings&)
   , mIdling(true)
   , mTouchManager(*this)
 {
-	DS_DBG_CODE(GLOBAL_CONSOLE.create());
 }
 
 Engine::~Engine()
 {
-	DS_DBG_CODE(GLOBAL_CONSOLE.destroy());
   mTuio.disconnect();
 }
 
