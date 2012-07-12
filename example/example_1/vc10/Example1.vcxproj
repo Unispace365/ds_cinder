@@ -61,8 +61,8 @@
       <AdditionalIncludeDirectories>$(CINDER)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>cinder_d.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform_d.lib;glu32.lib;osc_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER)\lib;$(CINDER)\lib\msw;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(CINDER)\blocks\osc\lib\vc10;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cinder_d.lib;glu32.lib;osc_d.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -89,8 +89,8 @@
       <AdditionalIncludeDirectories>$(CINDER)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>cinder.lib;PocoFoundationmt.lib;PocoNetmt.lib;platform.lib;glu32.lib;osc.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER)\lib;$(CINDER)\lib\msw;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(CINDER)\blocks\osc\lib\vc10;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>cinder.lib;glu32.lib;osc.lib;PocoFoundationmt.lib;PocoNetmt.lib;platform.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
