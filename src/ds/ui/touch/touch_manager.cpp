@@ -153,6 +153,9 @@ void TouchManager::mouseTouchEnded( MouseEvent event, int id )
 
 void TouchManager::drawTouches() const
 {
+  if (mTouchPreviousPoint.empty())
+    return;
+
   gl::color( Color( 1, 1, 0 ) );
 
   for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {

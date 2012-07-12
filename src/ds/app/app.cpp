@@ -24,6 +24,8 @@ App::App()
   : mInitializer(getAppPath().generic_string())
   , mEngineSettings()
   , mEngine(new_engine(mEngineSettings))
+  , mCtrlDown(false)
+  , mSecondMouseDown(false)
 {
 }
 
@@ -63,7 +65,17 @@ void App::draw()
 
 void App::mouseDown( MouseEvent event )
 {
-  mEngine.mouseTouchBegin(event, 1);
+  if (mCtrlDown) {
+    if (!mSecondMouseDown) {
+      mEngine.mouseTouchBegin(event, 2);
+      mSecondMouseDown = true;
+    } else {
+      mEngine.mouseTouchEnded(event, 2);
+      mSecondMouseDown = false;
+    }
+  } else {
+    mEngine.mouseTouchBegin(event, 1);
+  }
 }
 
 void App::mouseMove( MouseEvent event )
@@ -98,6 +110,18 @@ void App::touchesEnded( TouchEvent event )
 const std::string& App::envAppPath()
 {
   return APP_PATH;
+}
+
+void App::keyDown( KeyEvent event )
+{
+  if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_LCTRL )
+    mCtrlDown = true;
+}
+
+void App::keyUp( KeyEvent event )
+{
+  if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_LCTRL )
+    mCtrlDown = false;
 }
 
 /**
