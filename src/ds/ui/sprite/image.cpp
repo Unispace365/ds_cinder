@@ -38,7 +38,15 @@ void Image::drawLocal()
     mTexture = mImageToken.getImage(fade);
     // Keep up the bounds
     if (mTexture) {
-      Sprite::setSize(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()));
+      const float         prevRealW = getWidth(), prevRealH = getHeight();
+      if (prevRealW <= 0 || prevRealH <= 0) {
+        Sprite::setSize(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()));
+      } else {
+        float             prevWidth = prevRealW * getScale().x;
+        float             prevHeight = prevRealH * getScale().y;
+        Sprite::setSize(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()));
+        setSize(prevWidth, prevHeight);
+      }
     }
     return;
   }
@@ -53,7 +61,11 @@ void Image::setSize( float width, float height )
 
 void Image::loadImage( const std::string &filename )
 {
-  std::cout << "Image::loadImage() Still makin' this compatibile with async loading..." << std::endl;
+  mTexture.reset();
+  mResourceFn = filename;
+  requestImage();
+
+//  std::cout << "Image::loadImage() Still makin' this compatibile with async loading..." << std::endl;
 #if 0
     mTexture = getImage( filename );
     float prevWidth = getWidth() * getScale().x;
