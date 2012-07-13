@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <unordered_map>
+#include <cinder/Surface.h>
 #include <cinder/gl/Texture.h>
 #include "ds/thread/gl_thread.h"
 
@@ -77,14 +78,14 @@ class LoadImageService : public ds::GlThreadClient<LoadImageService> {
 	// an op for loading images
 	struct op {
 		op();
-    op(const op&);
-    op(const std::string& filename, const int flags);
+		op(const op&);
+		op(const std::string& filename, const int flags);
 
 		std::string				mFilename;
-    ci::gl::Texture  mTexture;
-		int					mFlags;
+    ci::Surface32f    mSurface;
+		int					      mFlags;
 
-    void                clear();
+    void              clear();
 	};
 
  private:

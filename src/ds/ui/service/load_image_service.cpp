@@ -188,7 +188,7 @@ void LoadImageService::update()
 			std::cout << "WHHAAAAT?  Duplicate images for id=" << out.mFilename << " refs=" << h.mRefs << std::endl;
 #endif
 		} else {
-      h.mTexture = out.mTexture;
+      h.mTexture = ci::gl::Texture(out.mSurface);
     }
     out.clear();
 	}
@@ -214,19 +214,9 @@ void LoadImageService::_load()
 		op&						           top = mTmp[k];
     try {
       DS_LOG_INFO_M("LoadImageService::_load() on file (" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
-      // For some reason, cinder really doesn't like loading directly to a texture.
-      // Doing it that way, it seems to munge some of the pixel data in certain
-      // situations (not clear what the rules are, but the most consistent thing I
-      // was seeing was when I was loading multiple textures with the same size).
-      // For some reason scrubbing it by loading through a surface first seems to work.
-#if 1
-      ci::Surface32f        srf(ci::loadImage(top.mFilename));
-      top.mTexture = ci::gl::Texture(srf);
-#else
-      top.mTexture = ci::loadImage(top.mFilename);
-#endif
+      top.mSurface = ci::Surface32f(ci::loadImage(top.mFilename));
       DS_REPORT_GL_ERRORS();
-      if (top.mTexture) {
+      if (top.mSurface) {
         // This is to immediately place operations on the out put...
         Poco::Mutex::ScopedLock		l(mMutex);
         mOutput.push_back(op(top));
@@ -261,7 +251,7 @@ LoadImageService::op::op(const std::string& filename, const int flags)
 void LoadImageService::op::clear()
 {
   mFilename.clear();
-  mTexture.reset();
+  mSurface.reset();
   mFlags = 0;
 }
 
