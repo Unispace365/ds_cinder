@@ -2,6 +2,7 @@
 
 #include <map>
 #include <cinder/ImageIo.h>
+#include "ds/data/resource_list.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
 namespace {
@@ -21,6 +22,21 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
     , mResourceFn(filename)
 {
     setTransparent(false);
+}
+
+Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
+  : inherited(engine)
+  , mImageService(engine.getLoadImageService())
+  , mImageToken(mImageService)
+  , mFlags(0)
+  , mResourceId(resourceId)
+{
+  setTransparent(false);
+  ds::Resource            res;
+  if (engine.getResources().get(resourceId, res)) {
+    setSize(res.getWidth(), res.getHeight());
+    mResourceFn = res.getAbsoluteFilePath();
+  }
 }
 
 Image::~Image()
@@ -68,7 +84,6 @@ void Image::loadImage( const std::string &filename )
 
 void Image::requestImage()
 {
-  // XXX Check to see if I have a resource ID, and use that instead.
   if (mResourceFn.empty()) return;
 
   mImageToken.acquire(mResourceFn, mFlags);

@@ -11,6 +11,7 @@
 #include <cinder/app/TouchEvent.h>
 #include <cinder/app/AppBasic.h>
 #include "TuioClient.h"
+#include "ds/data/resource_list.h"
 #include "ds/config/settings.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
@@ -48,6 +49,7 @@ class Engine : public ui::SpriteEngine {
     void                        touchesMoved( TouchEvent event );
     void                        touchesEnded( TouchEvent event );
 
+    virtual ds::ResourceList   &getResources();
     float                       getMinTouchDistance() const;
     float                       getMinTapDistance() const;
     unsigned                    getSwipeQueueSize() const;
@@ -57,6 +59,8 @@ class Engine : public ui::SpriteEngine {
 
   private:
     std::unique_ptr<ui::Sprite> mRootSprite;
+    // A cache of all the resources in the system
+    ResourceList                mResources;
     UpdateParams                mUpdateParams;
     DrawParams                  mDrawParams;
     float                       mLastTime;

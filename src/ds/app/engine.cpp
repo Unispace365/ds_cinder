@@ -154,6 +154,11 @@ void Engine::mouseTouchEnded( MouseEvent event, int id )
   mTouchManager.mouseTouchEnded(event, id);
 }
 
+ds::ResourceList& Engine::getResources()
+{
+  return mResources;
+}
+
 float Engine::getMinTouchDistance() const
 {
   return mMinTouchDistance;

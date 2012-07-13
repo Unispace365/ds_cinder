@@ -6,12 +6,14 @@
 #include "ds/debug/debug_defines.h"
 
 namespace {
-const std::string		FONT_TYPE_SZ("f");
-const std::string		IMAGE_TYPE_SZ("i");
-const std::string		IMAGE_SEQUENCE_TYPE_SZ("s");
-const std::string		PDF_TYPE_SZ("p");
-const std::string		VIDEO_TYPE_SZ("v");
-const std::string		WEB_TYPE_SZ("w");
+const std::string		  FONT_TYPE_SZ("f");
+const std::string		  IMAGE_TYPE_SZ("i");
+const std::string		  IMAGE_SEQUENCE_TYPE_SZ("s");
+const std::string		  PDF_TYPE_SZ("p");
+const std::string		  VIDEO_TYPE_SZ("v");
+const std::string		  WEB_TYPE_SZ("w");
+
+const std::string		  EMPTY_SZ("");
 
 const std::wstring		FONT_NAME_SZ(L"font");
 const std::wstring		IMAGE_NAME_SZ(L"image");
@@ -140,17 +142,23 @@ bool Resource::Id::verifyPaths() const
  * ds::Resource::id database path
  */
 namespace {
-std::string				CMS_RESOURCE_PATH("");
-std::string				CMS_DB_PATH("");
-std::string				APP_RESOURCE_PATH("");
-std::string				APP_DB_PATH("");
+std::string				  CMS_RESOURCE_PATH("");
+std::string				  CMS_DB_PATH("");
+std::string				  APP_RESOURCE_PATH("");
+std::string				  APP_DB_PATH("");
 const std::string		EMPTY_PATH("");
+// Function for generating custom paths
+std::function<const std::string&(const Resource::Id&)>
+                    CUSTOM_RESOURCE_PATH;
+std::function<const std::string&(const Resource::Id&)>
+                    CUSTOM_DB_PATH;
 }
 
 const std::string& Resource::Id::getResourcePath() const
 {
 	if (mType == CMS_TYPE)		return CMS_RESOURCE_PATH;
 	if (mType == APP_TYPE)		return APP_RESOURCE_PATH;
+  if (mType <= CUSTOM_TYPE && CUSTOM_RESOURCE_PATH) return CUSTOM_RESOURCE_PATH(*this);
 	return EMPTY_PATH;
 }
 
@@ -158,6 +166,7 @@ const std::string& Resource::Id::getDatabasePath() const
 {
 	if (mType == CMS_TYPE)		return CMS_DB_PATH;
 	if (mType == APP_TYPE)		return APP_DB_PATH;
+  if (mType <= CUSTOM_TYPE && CUSTOM_DB_PATH) return CUSTOM_DB_PATH(*this);
 	return EMPTY_PATH;
 }
 
@@ -186,17 +195,30 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 	}
 }
 
+void Resource::Id::setupCustomPaths( const std::function<const std::string&(const Resource::Id&)>& resourcePath,
+                                     const std::function<const std::string&(const Resource::Id&)>& dbPath)
+{
+  CUSTOM_RESOURCE_PATH = resourcePath;
+  CUSTOM_DB_PATH = dbPath;
+}
+
 /**
  * ds::Resource
  */
 Resource::Resource()
 	: mType(ERROR_TYPE)
+  , mDuration(0)
+  , mWidth(0)
+  , mHeight(0)
 {
 }
 
 Resource::Resource(const Resource::Id& dbId, const int type)
 	: mDbId(dbId)
 	, mType(type)
+  , mDuration(0)
+  , mWidth(0)
+  , mHeight(0)
 {
 }
 
@@ -209,6 +231,15 @@ const std::wstring& Resource::getTypeName() const
 	else if (mType == VIDEO_TYPE) return VIDEO_NAME_SZ;
 	else if (mType == WEB_TYPE) return WEB_NAME_SZ;
 	return ERROR_NAME_SZ;
+}
+
+std::string Resource::getAbsoluteFilePath() const
+{
+  if (mFileName.empty()) return EMPTY_SZ;
+  Poco::Path        p(mDbId.getResourcePath());
+  if (p.depth() < 1) return EMPTY_SZ;
+  p.append(mPath).append(mFileName);
+  return p.toString();
 }
 
 void Resource::setDbId(const Resource::Id& id)

@@ -4,16 +4,27 @@
 
 #include <ds/app/app.h>
 #include <ds/app/environment.h>
-
+#include <ds/data/resource_list.h>
 #include <ds/thread/runnable_client.h>
 #include <ds/query/query_client.h>
 #include <ds/config/settings.h>
-#include "ds/ui/touch/touch_info.h"
-#include "ds/ui/sprite/image.h"
+#include <ds/ui/touch/touch_info.h>
+#include <ds/ui/sprite/image.h>
 
 using namespace std;
 using namespace ci;
 using namespace ci::app;
+
+namespace {
+const char                      EXAMPLE_DB_TYPE = ds::Resource::Id::CUSTOM_TYPE;
+// A hardcoded resource from the example database
+const ds::Resource::Id          KITTY_RES_ID(EXAMPLE_DB_TYPE, 44);
+
+// Custom database info
+std::string                     CUSTOM_RESOURCE_PATH;
+std::string                     CUSTOM_DB_PATH;
+std::string                     EMPTY_CUSTOM_PATH("");
+}
 
 class BasicTweenApp : public ds::App {
   public:
@@ -61,6 +72,12 @@ BasicTweenApp::BasicTweenApp()
     ds::cfg::Settings   settings;
     settings.readFrom(ds::Environment::getAppFolder("data", "example_settings.xml"));
     cout << "settings background color=" << settings.getColor("background") << endl;
+
+    // Setup my custom database info
+    CUSTOM_RESOURCE_PATH = ds::Environment::getAppFolder("data", "resources");
+    CUSTOM_DB_PATH = ds::Environment::getAppFolder("data", "resources/db/db.sqlite");
+    ds::Resource::Id::setupCustomPaths( [](const ds::Resource::Id& id)->const std::string&{ if (id.mType == EXAMPLE_DB_TYPE) return CUSTOM_RESOURCE_PATH; return EMPTY_CUSTOM_PATH; },
+                                        [](const ds::Resource::Id& id)->const std::string&{ if (id.mType == EXAMPLE_DB_TYPE) return CUSTOM_DB_PATH; return EMPTY_CUSTOM_PATH; });
   } catch (std::exception const& ex) {
     cout << "ERROR in app constructor=" << ex.what() << endl;
   }
@@ -74,9 +91,21 @@ void BasicTweenApp::setup()
 
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
+  // Example image sprite from a hardcoded filename.
   ds::ui::Image   *imgSprite = new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "lorem_kicksum.png"));
   imgSprite->setScale(0.25f, 0.25f);
   imgSprite->enable(true);
+  imgSprite->setProcessTouchCallback([](ds::ui::Sprite *sprite, const ds::ui::TouchInfo &info)
+  {
+    sprite->setPosition(info.mCurrentPoint);
+  });
+  rootSprite.addChild(imgSprite);
+
+  // Example image sprite from a resource.
+  imgSprite = new ds::ui::Image(mEngine, KITTY_RES_ID);
+  imgSprite->setScale(0.5f, 0.5f);
+  imgSprite->enable(true);
+  imgSprite->setPosition(200, 200);
   imgSprite->setProcessTouchCallback([](ds::ui::Sprite *sprite, const ds::ui::TouchInfo &info)
   {
     sprite->setPosition(info.mCurrentPoint);

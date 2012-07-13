@@ -228,6 +228,9 @@
     <ClInclude Include="..\src\ds\debug\logger.h">
       <Filter>src\ds\debug</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\data\resource_list.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -343,6 +346,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp">
       <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\resource_list.cpp">
+      <Filter>src\ds\data</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

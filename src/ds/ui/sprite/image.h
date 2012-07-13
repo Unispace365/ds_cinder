@@ -19,6 +19,7 @@ class Image: public Sprite
 
     public:
         Image( SpriteEngine&, const std::string &filename );
+        Image( SpriteEngine&, const ds::Resource::Id &resourceId );
         ~Image();
         void                            setSize( float width, float height );
         void                            drawLocal();
