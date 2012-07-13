@@ -2,27 +2,43 @@ Welcome to the new BigWorld framework implemented in Cinder.
 
 Couple of brief notes for getting started:
 
+0.  Recommended Image naming:
+(your_image_name).w_(your_image_width).h_(your_image_height).(extention)
+example:
+killer_bunny_glow.w_1920.h_1080.png
+
 1.  You'll need two environment variables set:
 CINDER should point to the current cinder dist (cinder_0.8.4_vc2010 as of this writing)
 DS_PLATFORM should point to this repository.
+QUICKTIME should point to quicktime dist (QuickTimeSDK-7.3 or whatever version is needed)
 
 2.  You should currently start from one of the Cinder example apps as your base project.
 
 3.  Client apps need these C++ includes:
 $(DS_PLATFORM)\lib\poco\include
 $(DS_PLATFORM)\src
+$(CINDER)\blocks\tuio\include
+$(CINDER)\blocks\osc\include
 
 4.  Client apps need to link with these libraries:
 4.1.  Debug
 PocoFoundationmtd.lib
 PocoNetmtd.lib
 platform_d.lib
+osc_d.lib // for tuio
+CVClient.lib // for quicktime
+QTMLClient.lib // for quicktime
 
 4.1.2  Release
 PocoFoundationmt.lib
 PocoNetmt.lib
 platform.lib
+ocs.lib // for tuio
+CVClient.lib // for quicktime
+QTMLClient.lib // for quicktime
 
 5.  Client apps need to include these link directories:
 $(DS_PLATFORM)\lib\poco\lib\vs2010
 $(DS_PLATFORM)\lib
+$(CINDER)\blocks\osc\lib
+$(QUICKTIME)\Libraries

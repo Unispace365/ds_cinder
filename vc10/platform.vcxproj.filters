@@ -228,6 +228,15 @@
     <ClInclude Include="..\src\ds\debug\logger.h">
       <Filter>src\ds\debug</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\math\math_func.h">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\random.h">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\file_name_parser.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\ds\data\resource_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
@@ -346,6 +355,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp">
       <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\math\math_func.cpp">
+      <Filter>src\ds\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\file_name_parser.cpp">
+      <Filter>src\ds\util</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\data\resource_list.cpp">
       <Filter>src\ds\data</Filter>

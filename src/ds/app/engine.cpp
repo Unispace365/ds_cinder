@@ -6,6 +6,7 @@
 #include "ds/app/environment.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
+#include "ds/config/settings.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -17,7 +18,7 @@ namespace ds {
 /**
  * \class ds::Engine
  */
-Engine::Engine(const ds::cfg::Settings&)
+Engine::Engine(const ds::cfg::Settings &settings)
   : mIdleTime(300.0f)
   , mIdling(true)
   , mTouchManager(*this)
@@ -30,6 +31,7 @@ Engine::Engine(const ds::cfg::Settings&)
   mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
   mDebugSettings.readFrom(ds::Environment::getLocalSettingsPath(DEBUG_FILE), true);
   ds::Logger::setup(mDebugSettings);
+  mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 0.0f, 0.0f, 0.0f));
 }
 
 Engine::~Engine()
@@ -177,6 +179,21 @@ unsigned Engine::getSwipeQueueSize() const
 float Engine::getDoubleTapTime() const
 {
   return mDoubleTapTime;
+}
+
+ci::Rectf Engine::getScreenRect() const
+{
+  return mScreenRect;
+}
+
+float Engine::getWidth() const
+{
+  return mScreenRect.getWidth();
+}
+
+float Engine::getHeight() const
+{
+  return mScreenRect.getHeight();
 }
 
 } // namespace ds

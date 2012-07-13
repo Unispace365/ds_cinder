@@ -21,9 +21,11 @@ class Image: public Sprite
         Image( SpriteEngine&, const std::string &filename );
         Image( SpriteEngine&, const ds::Resource::Id &resourceId );
         ~Image();
+
         void                            setSize( float width, float height );
         void                            drawLocal();
         void                            loadImage( const std::string &filename );
+        bool                            isLoaded() const;
     private:
         typedef Sprite inherited;
 
@@ -32,8 +34,6 @@ class Image: public Sprite
         ci::gl::Texture                 mTexture;
 
         int                             mFlags;
-        // The resource can either be a Resource::Id or a filename, but in all
-        // cases it gets resolved to a file before loading
         ds::Resource::Id                mResourceId;
         std::string                     mResourceFn;
 

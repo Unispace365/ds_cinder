@@ -2,6 +2,8 @@
 #include "cinder/gl/gl.h"
 #include "gl/GL.h"
 #include "ds/math/math_defs.h"
+#include "sprite_engine.h"
+#include "ds/math/math_func.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -28,6 +30,9 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mEnabled(false)
     , mMultiTouchEnabled(false)
     , mTouchProcess(engine, *this)
+    , mCheckBounds(false)
+    , mBoundsNeedChecking(true)
+    , mInBounds(true)
 {
 
 }
@@ -39,6 +44,10 @@ Sprite::~Sprite()
 
 void Sprite::update( const UpdateParams &updateParams )
 {
+  if (mCheckBounds) {
+    updateCheckBounds();
+  }
+
     for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
     {
         (*it)->update(updateParams);
@@ -90,12 +99,14 @@ void Sprite::setPosition( float x, float y )
 {
   mPosition = Vec2f(x, y);
   mUpdateTransform = true;
+  mBoundsNeedChecking = true;
 }
 
 void Sprite::setPosition( const Vec2f &pos )
 {
   mPosition = pos;
   mUpdateTransform = true;
+  mBoundsNeedChecking = true;
 }
 
 const Vec2f &Sprite::getPosition() const
@@ -107,12 +118,14 @@ void Sprite::setScale( float x, float y )
 {
   mScale = Vec2f(x, y);
   mUpdateTransform = true;
+  mBoundsNeedChecking = true;
 }
 
 void Sprite::setScale( const Vec2f &scale )
 {
   mScale = scale;
   mUpdateTransform = true;
+  mBoundsNeedChecking = true;
 }
 
 const Vec2f &Sprite::getScale() const
@@ -124,12 +137,14 @@ void Sprite::setCenter( float x, float y )
 {
   mCenter = Vec2f(x, y);
   mUpdateTransform = true;
+  mBoundsNeedChecking = true;
 }
 
 void Sprite::setCenter( const Vec2f &center )
 {
   mCenter = center;
   mUpdateTransform = true;
+  mBoundsNeedChecking = true;
 }
 
 const Vec2f &Sprite::getCenter() const
@@ -144,6 +159,7 @@ void Sprite::setRotation( float rotZ )
 
     mRotation = rotZ;
     mUpdateTransform = true;
+    mBoundsNeedChecking = true;
 }
 
 float Sprite::getRotation() const
@@ -486,12 +502,14 @@ void Sprite::move( const Vec2f &delta )
 {
   mPosition += delta;
   mUpdateTransform = true;
+  mBoundsNeedChecking = true;
 }
 
 void Sprite::move( float deltaX, float deltaY )
 {
   mPosition += Vec2f(deltaX, deltaY);
   mUpdateTransform = true;
+  mBoundsNeedChecking = true;
 }
 
 bool Sprite::multiTouchEnabled() const
@@ -579,6 +597,126 @@ void Sprite::disableMultiTouch()
 {
   mMultiTouchEnabled = false;
   mMultiTouchConstraints.clear();
+}
+
+bool Sprite::checkBounds() const
+{
+  if (!mCheckBounds)
+    return true;
+
+  mBoundsNeedChecking = false;
+  mInBounds = false;
+
+  Rectf screenRect = mEngine.getScreenRect();
+
+  float screenMinX = screenRect.getX1();
+  float screenMaxX = screenRect.getX2();
+  float screenMinY = screenRect.getY1();
+  float screenMaxY = screenRect.getY2();
+
+  float spriteMinX = 0.0f;
+  float spriteMinY = 0.0f;
+  float spriteMaxX = mWidth-1.0f;
+  float spriteMaxY = mHeight-1.0f;
+
+  Vec2f positions[4];
+
+  buildGlobalTransform();
+
+  positions[0] = (mGlobalTransform * Vec4f(spriteMinX, spriteMinY, 0.0f, 1.0f)).xy();
+  positions[1] = (mGlobalTransform * Vec4f(spriteMaxX, spriteMinY, 0.0f, 1.0f)).xy();
+  positions[2] = (mGlobalTransform * Vec4f(spriteMinX, spriteMaxY, 0.0f, 1.0f)).xy();
+  positions[3] = (mGlobalTransform * Vec4f(spriteMaxX, spriteMaxY, 0.0f, 1.0f)).xy();
+
+
+  spriteMinX = spriteMaxX = positions[0].x;
+  spriteMinY = spriteMaxY = positions[0].y;
+
+  for ( int i = 1; i < 4; ++i ) {
+    if ( positions[i].x < spriteMinX )
+      spriteMinX = positions[i].x;
+    if ( positions[i].y < spriteMinY )
+      spriteMinY = positions[i].y;
+    if ( positions[i].x > spriteMaxX )
+      spriteMaxX = positions[i].x;
+    if ( positions[i].y > spriteMaxY )
+      spriteMaxY = positions[i].y;
+  }
+
+  if ( spriteMinX == spriteMaxX || spriteMinY == spriteMaxY ) {
+    return false;
+  }
+
+  if (spriteMinX > screenMaxX)
+    return false;
+  if (spriteMaxX < screenMinX)
+    return false;
+  if (spriteMinY > screenMaxY)
+    return false;
+  if (spriteMaxY < screenMinY)
+    return false;
+
+  for ( int i = 0; i < 4; ++i ) {
+    if ( positions[i].x >= screenMinX && positions[i].x <= screenMaxX && positions[i].y >= screenMinY && positions[i].y <= screenMaxY ) {
+      mInBounds = true;
+      return true;
+    }
+  }
+
+  Vec2f screenpos[4];
+
+  screenpos[0] = Vec2f(screenMinX, screenMinY);
+  screenpos[1] = Vec2f(screenMaxX, screenMinY);
+  screenpos[2] = Vec2f(screenMinX, screenMaxY);
+  screenpos[3] = Vec2f(screenMaxX, screenMaxY);
+
+  for ( int i = 0; i < 4; ++i ) {
+    if ( screenpos[i].x >= spriteMinX && screenpos[i].x <= spriteMaxX && screenpos[i].y >= spriteMinY && screenpos[i].y <= spriteMaxY ) {
+      mInBounds = true;
+      return true;
+    }
+  }
+
+
+  for ( int i = 0; i < 4; ++i ) {
+    for ( int j = 0; j < 4; ++j ) {
+      if ( math::intersect2D( screenpos[i%4], screenpos[(i+1)%4], positions[i%4], positions[(i+1)%4] ) ) {
+        mInBounds = true;
+        return true;
+      }
+    }
+  }
+
+  return true;
+}
+
+void Sprite::setCheckBounds( bool checkBounds )
+{
+  mCheckBounds = checkBounds;
+  mInBounds = !mCheckBounds;
+  mBoundsNeedChecking = checkBounds;
+}
+
+bool Sprite::getCheckBounds() const
+{
+  return mCheckBounds;
+}
+
+void Sprite::updateCheckBounds() const
+{
+  if (mBoundsNeedChecking)
+    checkBounds();
+}
+
+bool Sprite::inBounds() const
+{
+  updateCheckBounds();
+  return mInBounds;
+}
+
+bool Sprite::isLoaded() const
+{
+  return true;
 }
 
 } // namespace ui

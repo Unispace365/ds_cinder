@@ -4,6 +4,7 @@
 #include <cinder/ImageIo.h>
 #include "ds/data/resource_list.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/util/file_name_parser.h"
 
 namespace {
 
@@ -21,7 +22,15 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
     , mFlags(0)
     , mResourceFn(filename)
 {
-    setTransparent(false);
+  try {
+    Vec2f size = parseFileMetaDataSize(filename);
+    mWidth = size.x;
+    mHeight = size.y;
+  } catch (ParseFileMetaException &e) {
+    std::cout << e.what() << std::endl;
+    std::cout << "Going to load image synchronously; this will affect performance." << std::endl;
+  }
+  setTransparent(false);
 }
 
 Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
@@ -87,6 +96,11 @@ void Image::requestImage()
   if (mResourceFn.empty()) return;
 
   mImageToken.acquire(mResourceFn, mFlags);
+}
+
+bool Image::isLoaded() const
+{
+  return mTexture;
 }
 
 } // namespace ui
