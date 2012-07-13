@@ -2,6 +2,8 @@
 #ifndef DS_UI_SPRITE_SPRITEENGINE_H_
 #define DS_UI_SPRITE_SPRITEENGINE_H_
 #include "cinder/Rect.h"
+#include <list>
+#include "cinder/Vector.h"
 
 namespace ds {
 class ResourceList;
@@ -31,10 +33,14 @@ class SpriteEngine {
     virtual float                  getWorldWidth() const = 0;
     virtual float                  getWorldHeight() const = 0;
 
-    //void                           addToDragDestinationList(Sprite *)
+    void                           addToDragDestinationList(Sprite *sprite);
+    void                           removeFromDragDestinationList(Sprite *sprite);
+    Sprite                        *getDragDestinationSprite(const ci::Vec3f &globalPoint, Sprite *draggingSprite);
   protected:
     SpriteEngine()                 { }
     virtual ~SpriteEngine()        { }
+
+    std::list<Sprite *>            mDragDestinationSprites;
 };
 
 } // namespace ui

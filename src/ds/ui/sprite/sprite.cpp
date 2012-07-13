@@ -34,6 +34,7 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mBoundsNeedChecking(true)
     , mInBounds(true)
     , mDepth(1.0f)
+    , mDragDestination(nullptr)
 {
 
 }
@@ -256,37 +257,37 @@ const Matrix44f &Sprite::getTransform() const
     return mTransformation;
 }
 
-void Sprite::addChild( Sprite *child )
+void Sprite::addChild( Sprite &child )
 {
-    if ( containsChild(child) )
+    if ( containsChild(&child) )
         return;
 
-    mChildren.push_back(child);
-    child->setParent(this);
+    mChildren.push_back(&child);
+    child.setParent(this);
 }
 
-void Sprite::removeChild( Sprite *child )
+void Sprite::removeChild( Sprite &child )
 {
-    if ( !containsChild(child) )
+    if ( !containsChild(&child) )
         return;
 
-    mChildren.remove(child);
-    child->setParent(nullptr);
+    mChildren.remove(&child);
+    child.setParent(nullptr);
 }
 
 void Sprite::setParent( Sprite *parent )
 {
     removeParent();
     mParent = parent;
-    if ( mParent)
-        mParent->addChild(this);
+    if (mParent)
+        mParent->addChild(*this);
 }
 
 void Sprite::removeParent()
 {
     if ( mParent )
     {
-        mParent->removeChild(this);
+        mParent->removeChild(*this);
         mParent = nullptr;
     }
 }
@@ -797,6 +798,27 @@ bool Sprite::isLoaded() const
 float Sprite::getDepth() const
 {
   return mDepth;
+}
+
+void Sprite::setDragDestiantion( Sprite *dragDestination )
+{
+  mDragDestination = dragDestination;
+}
+
+Sprite *Sprite::getDragDestination() const
+{
+  return mDragDestination;
+}
+
+void Sprite::setDragDestinationCallback( const std::function<void (Sprite *, const DragDestinationInfo &)> &func )
+{
+  mDragDestinationCallback = func;
+}
+
+void Sprite::dragDestination( Sprite *sprite, const DragDestinationInfo &dragInfo )
+{
+  if (mDragDestinationCallback)
+    mDragDestinationCallback(sprite, dragInfo);
 }
 
 } // namespace ui

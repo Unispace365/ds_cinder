@@ -243,7 +243,7 @@
     <ClInclude Include="..\src\ds\app\engine_client.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\touch\drag_constaints.h">
+    <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
   </ItemGroup>
@@ -374,8 +374,8 @@
     <ClCompile Include="..\src\ds\app\engine_client.cpp">
       <Filter>src\ds\app</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\touch\drag_constaints.cpp">
-      <Filter>src\ds\ui\touch</Filter>
+    <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

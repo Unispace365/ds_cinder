@@ -24,6 +24,7 @@ namespace ui {
 
 struct TouchInfo;
 class SpriteEngine;
+struct DragDestinationInfo;
 
 /*!
  * brief Base Class for App Entities
@@ -83,10 +84,10 @@ class Sprite
         const Matrix44f    &getGlobalTransform() const;
         const Matrix44f    &getInverseGlobalTransform() const;
 
-        void                addChild( Sprite *child );
+        void                addChild( Sprite &child );
 
         // removes child from Sprite, but does not delete it.
-        void                removeChild( Sprite *child );
+        void                removeChild( Sprite &child );
         // calls removeParent then addChild to parent.
         void                setParent( Sprite *parent );
         // remove child from parent, does not delete.
@@ -138,6 +139,7 @@ class Sprite
         void                setProcessTouchCallback( const std::function<void (Sprite *, const TouchInfo &)> &func );
         void                setTapCallback( const std::function<void (Sprite *, const Vec3f &)> &func );
         void                setDoubleTapCallback( const std::function<void (Sprite *, const Vec3f &)> &func );
+        void                setDragDestinationCallback( const std::function<void (Sprite *, const DragDestinationInfo &)> &func );
 
         // Constraints defined in multi_touch_constraints.h
         void                enableMultiTouch(const BitMask &);
@@ -150,12 +152,15 @@ class Sprite
         void                setCheckBounds(bool checkBounds);
         bool                getCheckBounds() const;
         virtual bool        isLoaded() const;
+        void                setDragDestiantion(Sprite *dragDestination);
+        Sprite             *getDragDestination() const;
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
         void                swipe(const Vec3f &swipeVector);
         void                tap(const Vec3f &tapPos);
         void                doubleTap(const Vec3f &tapPos);
+        void                dragDestination(Sprite *sprite, const DragDestinationInfo &dragInfo);
         void                processTouchInfo( const TouchInfo &touchInfo );
         void                processTouchInfoCallback( const TouchInfo &touchInfo );
         void                buildTransform() const;
@@ -205,6 +210,7 @@ class Sprite
         std::function<void (Sprite *, const Vec3f &)> mSwipeCallback;
         std::function<void (Sprite *, const Vec3f &)> mTapCallback;
         std::function<void (Sprite *, const Vec3f &)> mDoubleTapCallback;
+        std::function<void (Sprite *, const DragDestinationInfo &)> mDragDestinationCallback;
 
         bool                mMultiTouchEnabled;
         BitMask             mMultiTouchConstraints;
@@ -213,6 +219,8 @@ class Sprite
         TouchProcess				mTouchProcess;
 
         bool                mCheckBounds;
+
+        Sprite             *mDragDestination;
 };
 
 } // namespace ui

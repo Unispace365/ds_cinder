@@ -6,6 +6,8 @@ namespace ui {
 Video::Video( SpriteEngine& engine, const std::string &filename )
     : inherited(engine)
     , mLooping(false)
+    , mMuted(true)
+    , mVolume(1.0f)
 {
     setTransparent(false);
     try
@@ -13,6 +15,7 @@ Video::Video( SpriteEngine& engine, const std::string &filename )
         mMovie = ci::qtime::MovieGl( filename );
         mMovie.setLoop(mLooping);
         mMovie.play();
+        mMovie.setVolume(0.0f);
     }
     catch (...)
     {
@@ -29,8 +32,21 @@ Video::~Video()
 
 void Video::drawLocalServer()
 {
-    if ( mMovie )
-        mFrameTexture = mMovie.getTexture();
+  if (!inBounds()) {
+    if (mMovie && !mMuted) {
+      mMovie.setVolume(0.0f);
+      mMuted = true;
+    }
+    return;
+  }
+
+    if ( mMovie ) {
+      if (mMuted) {
+        mMovie.setVolume(mVolume);
+        mMuted = false;
+      }
+      mFrameTexture = mMovie.getTexture();
+    }
     if ( mFrameTexture )
         ci::gl::draw(mFrameTexture);
 }
@@ -47,6 +63,8 @@ void Video::loadVideo( const std::string &filename )
         mMovie = ci::qtime::MovieGl( filename );
         mMovie.setLoop(mLooping);
         mMovie.play();
+        mMovie.setVolume(0.0f);
+        mMuted = true;
     }
     catch (...)
     {
@@ -111,6 +129,16 @@ void Video::loop( bool flag )
 bool Video::isLooping() const
 {
     return mLooping;
+}
+
+void Video::setVolume( float volume )
+{
+  mVolume = volume;
+}
+
+float Video::getVolume() const
+{
+  return mVolume;
 }
 
 } // namespace ui
