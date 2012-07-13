@@ -98,7 +98,7 @@ void BasicTweenApp::setup()
   imgSprite->setScale(0.25f, 0.25f);
   imgSprite->enable(true);
   imgSprite->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
-  rootSprite.addChild(imgSprite);
+  rootSprite.addChild(*imgSprite);
 
   // Example image sprite from a resource.
   imgSprite = new ds::ui::Image(mEngine, KITTY_RES_ID);
@@ -106,7 +106,7 @@ void BasicTweenApp::setup()
   imgSprite->setPosition(200, 200);
   imgSprite->enable(true);
   imgSprite->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
-  rootSprite.addChild(imgSprite);
+  rootSprite.addChild(*imgSprite);
 
   ds::ui::Sprite *child = new ds::ui::Sprite(mEngine, 100.0f, 100.0f);
   child->setPosition(getWindowWidth() / 4.0f, getWindowHeight() / 4.0f);
@@ -115,7 +115,7 @@ void BasicTweenApp::setup()
   child->setTransparent(false);
   child->enable(true);
   child->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
-  rootSprite.addChild(child);
+  rootSprite.addChild(*child);
 }
 
 void BasicTweenApp::mouseDown( MouseEvent event )

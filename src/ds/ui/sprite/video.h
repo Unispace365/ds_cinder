@@ -25,6 +25,9 @@ class Video: public Sprite
         bool                isPlaying() const;
         void                loop(bool flag);
         bool                isLooping() const;
+        // value between 0.0f & 1.0f
+        void                setVolume(float volume);
+        float               getVolume() const;
     private:
         typedef Sprite inherited;
 
@@ -32,6 +35,8 @@ class Video: public Sprite
         ci::gl::Texture     mFrameTexture;
 
         bool                mLooping;
+        bool                mMuted;
+        float               mVolume;
 };
 
 } // namespace ui

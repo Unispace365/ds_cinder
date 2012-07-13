@@ -3,6 +3,7 @@
 #include "ds/ui/sprite/sprite.h"
 #include "multi_touch_constraints.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "drag_destination_info.h"
 
 namespace ds {
 namespace ui {
@@ -292,7 +293,33 @@ void TouchProcess::updateDragDestination( const TouchInfo &touchInfo )
   if (found == mFingers.end())
     return;
 
+  Sprite *dragDestinationSprite = mSpriteEngine.getDragDestinationSprite(touchInfo.mCurrentPoint, &mSprite);
 
+  if (!dragDestinationSprite)
+    return;
+
+  DragDestinationInfo dragInfo = {touchInfo.mCurrentPoint, DragDestinationInfo::Null, &mSprite};
+
+  if (!mSprite.getDragDestination() && dragDestinationSprite) {
+    dragInfo.mPhase = DragDestinationInfo::Entered;
+    mSprite.setDragDestiantion(dragDestinationSprite);
+  } else if (false) {
+    dragInfo.mPhase = DragDestinationInfo::Updated;
+  } else if (false) {
+    dragInfo.mPhase = DragDestinationInfo::Exited;
+  }
+
+  if (mSprite.getDragDestination() && mFingers.size() < 2 && touchInfo.mPhase == TouchInfo::Removed) {
+    dragInfo.mPhase = DragDestinationInfo::Released;
+  }
+
+  mSprite.dragDestination(mSprite.getDragDestination(), dragInfo);
+  if (mSprite.getDragDestination())
+    mSprite.getDragDestination()->dragDestination(mSprite.getDragDestination(), dragInfo);
+
+  if (dragInfo.mPhase == DragDestinationInfo::Released || dragInfo.mPhase == DragDestinationInfo::Exited) {
+    mSprite.setDragDestiantion(nullptr);
+  }
 }
 
 void TouchProcess::processTap( const TouchInfo &touchInfo )
