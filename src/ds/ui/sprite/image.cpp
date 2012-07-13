@@ -53,7 +53,7 @@ Image::~Image()
 {
 }
 
-void Image::drawLocalServer()
+void Image::drawLocalClient()
 {
   if (!inBounds())
     return;

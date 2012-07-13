@@ -15,7 +15,7 @@ class Video: public Sprite
         Video( SpriteEngine&, const std::string &filename );
         ~Video();
         void                setSize( float width, float height );
-        void                drawLocalServer();
+        void                drawLocalClient();
         void                loadVideo( const std::string &filename );
         void                play();
         void                stop();

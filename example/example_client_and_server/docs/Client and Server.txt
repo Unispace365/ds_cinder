@@ -1,0 +1,1 @@
+This example provides a test case for splitting the application into a client and server.  It's a bit of an artificial example:  For convenience, the app has been physically broken into two so it's easy for developers to run them both.  In practice, it would always just be the same app, running on different machines.

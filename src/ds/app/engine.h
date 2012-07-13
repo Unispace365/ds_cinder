@@ -21,6 +21,7 @@ using namespace ci;
 using namespace ci::app;
 
 namespace ds {
+class App;
 
 /**
  * \class ds::Engine
@@ -38,6 +39,7 @@ class Engine : public ui::SpriteEngine {
     void                        loadCinderSettings( ci::app::App::Settings *setting );
     //called in app setup; loads settings files and what not.
     virtual void                setup();
+    virtual void                setupTuio(ds::App&) = 0;
 
     bool                        isIdling() const;
     void                        startIdling();

@@ -55,6 +55,7 @@
     <ClInclude Include="..\src\ds\thread\work_request.h" />
     <ClInclude Include="..\src\ds\thread\work_request_list.h" />
     <ClInclude Include="..\src\ds\ui\service\load_image_service.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h" />
@@ -103,6 +104,7 @@
     <ClCompile Include="..\src\ds\thread\work_manager.cpp" />
     <ClCompile Include="..\src\ds\thread\work_request.cpp" />
     <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp" />
