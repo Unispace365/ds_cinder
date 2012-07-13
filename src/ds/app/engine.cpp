@@ -31,7 +31,8 @@ Engine::Engine(const ds::cfg::Settings &settings)
   mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
   mDebugSettings.readFrom(ds::Environment::getLocalSettingsPath(DEBUG_FILE), true);
   ds::Logger::setup(mDebugSettings);
-  mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 0.0f, 0.0f, 0.0f));
+  mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 640.0f, 0.0f, 400.0f));
+  mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
 }
 
 Engine::~Engine()
@@ -194,6 +195,16 @@ float Engine::getWidth() const
 float Engine::getHeight() const
 {
   return mScreenRect.getHeight();
+}
+
+float Engine::getWorldWidth() const
+{
+  return mWorldSize.x;
+}
+
+float Engine::getWorldHeight() const
+{
+  return mWorldSize.y;
 }
 
 } // namespace ds

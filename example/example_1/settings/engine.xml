@@ -7,7 +7,7 @@
 	<int name="server:send_port" value="10370" />
 	<int name="server:listen_port" value="10371" />
 
-	<size name="master_dimensions" x="2350" y="1366" />
+	<size name="world_dimensions" x="2350" y="1366" />
 	<rect name="local_rect" l="0" r="2350" t="0" b="1366" />
 
 	<size name="touch_overlay:dimensions" x="2350" y="1366" />

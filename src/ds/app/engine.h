@@ -58,6 +58,8 @@ class Engine : public ui::SpriteEngine {
     ci::Rectf                   getScreenRect() const;
     float                       getWidth() const;
     float                       getHeight() const;
+    float                       getWorldWidth() const;
+    float                       getWorldHeight() const;
   protected:
     Engine(const ds::cfg::Settings&);
 
@@ -81,6 +83,7 @@ class Engine : public ui::SpriteEngine {
     float                       mDoubleTapTime;
 
     ci::Rectf                   mScreenRect;
+    ci::Vec2f                   mWorldSize;
     ds::cfg::Settings           mDebugSettings;
 };
 
