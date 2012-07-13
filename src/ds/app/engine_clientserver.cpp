@@ -20,12 +20,12 @@ void EngineClientServer::setup()
 
 void EngineClientServer::update()
 {
-  updateClient();
+  updateServer();
 }
 
 void EngineClientServer::draw()
 {
-  drawServer();
+  drawClient();
 }
 
 } // namespace ds

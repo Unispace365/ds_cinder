@@ -246,6 +246,9 @@
     <ClInclude Include="..\src\ds\ui\touch\drag_constaints.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -376,6 +379,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\drag_constaints.cpp">
       <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

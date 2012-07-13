@@ -27,7 +27,7 @@ Video::~Video()
 
 }
 
-void Video::drawLocalServer()
+void Video::drawLocalClient()
 {
     if ( mMovie )
         mFrameTexture = mMovie.getTexture();

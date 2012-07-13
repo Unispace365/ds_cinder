@@ -42,7 +42,7 @@ Text::~Text()
 
 }
 
-void Text::drawLocalServer()
+void Text::drawLocalClient()
 {
     if ( mBoxChanged )
     {
