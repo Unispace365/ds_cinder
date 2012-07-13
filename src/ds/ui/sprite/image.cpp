@@ -43,9 +43,10 @@ Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
   setTransparent(false);
   ds::Resource            res;
   if (engine.getResources().get(resourceId, res)) {
-    setSize(res.getWidth(), res.getHeight());
+    inherited::setSize(res.getWidth(), res.getHeight());
     mResourceFn = res.getAbsoluteFilePath();
   }
+  setTransparent(false);
 }
 
 Image::~Image()
@@ -54,6 +55,9 @@ Image::~Image()
 
 void Image::drawLocalServer()
 {
+  if (!inBounds())
+    return;
+
   if (!mTexture) {
     // XXX Do bounds check here
     if (mImageToken.canAcquire()) { // && intersectsLocalScreen){

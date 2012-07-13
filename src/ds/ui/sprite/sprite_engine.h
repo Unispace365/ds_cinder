@@ -9,6 +9,7 @@ class WorkManager;
 
 namespace ui {
 class LoadImageService;
+class Sprite;
 
 /**
  * \class ds::ui::SpriteEngine
@@ -27,6 +28,10 @@ class SpriteEngine {
     virtual ci::Rectf              getScreenRect() const = 0;
     virtual float                  getWidth() const = 0;
     virtual float                  getHeight() const = 0;
+    virtual float                  getWorldWidth() const = 0;
+    virtual float                  getWorldHeight() const = 0;
+
+    //void                           addToDragDestinationList(Sprite *)
   protected:
     SpriteEngine()                 { }
     virtual ~SpriteEngine()        { }

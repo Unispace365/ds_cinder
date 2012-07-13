@@ -31,7 +31,8 @@ Engine::Engine(const ds::cfg::Settings &settings)
   mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
   mDebugSettings.readFrom(ds::Environment::getLocalSettingsPath(DEBUG_FILE), true);
   ds::Logger::setup(mDebugSettings);
-  mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 0.0f, 0.0f, 0.0f));
+  mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 640.0f, 0.0f, 400.0f));
+  mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
 }
 
 Engine::~Engine()
@@ -71,6 +72,8 @@ void Engine::drawClient()
   gl::enableAlphaBlending();
   gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 
+  gl::setMatrices(mCamera);
+
   if (mRootSprite) {
     mRootSprite->drawClient(Matrix44f::identity(), mDrawParams);
   }
@@ -83,6 +86,8 @@ void Engine::drawServer()
   gl::enableAlphaBlending();
   gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 
+  gl::setMatrices(mCamera);
+
   if (mRootSprite) {
     mRootSprite->drawServer(Matrix44f::identity(), mDrawParams);
   }
@@ -92,14 +97,9 @@ void Engine::drawServer()
 
 void Engine::setup()
 {
-  // setup gl view and projection
-  glMatrixMode( GL_PROJECTION );
-  glLoadIdentity();
-  glViewport( 0, 0, getWindowWidth(), getWindowHeight() );
-  //gluPerspective( 41.95f, float(SCREEN_WIDTH)/SCREEN_HEIGHT, 0.1f, 1000.0f );
-  gluOrtho2D( 0, getWindowWidth(), getWindowHeight(), 0 );
-  glMatrixMode( GL_MODELVIEW );
-  glLoadIdentity();
+  mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
+  gl::setMatrices(mCamera);
+  //gl::disable(GL_CULL_FACE);
   //////////////////////////////////////////////////////////////////////////
 
   mRootSprite = std::move(std::unique_ptr<ui::Sprite>(new ui::Sprite(*this)));
@@ -213,6 +213,16 @@ float Engine::getWidth() const
 float Engine::getHeight() const
 {
   return mScreenRect.getHeight();
+}
+
+float Engine::getWorldWidth() const
+{
+  return mWorldSize.x;
+}
+
+float Engine::getWorldHeight() const
+{
+  return mWorldSize.y;
 }
 
 } // namespace ds

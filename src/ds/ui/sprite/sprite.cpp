@@ -76,15 +76,14 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
 
     Matrix44f totalTransformation = trans*mTransformation;
 
-    glPushMatrix();
-    //gl::multModelView(totalTransformation);
+    gl::pushModelView();
     gl::multModelView(totalTransformation);
     gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
 
     if ( !mTransparent )
         drawLocalClient();
 
-    glPopMatrix();
+    gl::popModelView();
 
     if ( !mDrawSorted )
     {
@@ -324,23 +323,21 @@ void Sprite::buildTransform() const
     mUpdateTransform = false;
 
     mTransformation = Matrix44f::identity();
-    //mTransformation = glm::scale(mTransformation, glm::vec3(mScale, 1.0f)) *
-    //                 glm::rotate(mTransformation, mRotation, glm::vec3(0.0f, 0.0f, 1.0f)) *
-    //                 glm::translate(mTransformation, glm::vec3(mPosition, 0.0f)) *
-    //                 glm::translate(mTransformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
-    
-    //mTransformation = glm::translate(mTransformation, glm::vec3(mPosition, 0.0f)) *
-    //                 glm::scale(mTransformation, glm::vec3(mScale, 1.0f)) *
-    //                 glm::rotate(mTransformation, mRotation, glm::vec3(0.0f, 0.0f, 1.0f)) *
-    //                 glm::translate(mTransformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
 
     mTransformation.setToIdentity();
-    mTransformation.translate(Vec3f(mPosition.x, mPosition.y, 1.0f));
+    mTransformation.translate(Vec3f(mPosition.x, mPosition.y, mPosition.z));
     mTransformation.rotate(Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
     mTransformation.rotate(Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
     mTransformation.rotate(Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
     mTransformation.scale(Vec3f(mScale.x, mScale.y, mScale.z));
     mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
+    //mTransformation.setToIdentity();
+    //mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
+    //mTransformation.scale(Vec3f(mScale.x, mScale.y, mScale.z));
+    //mTransformation.rotate(Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+    //mTransformation.rotate(Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+    //mTransformation.rotate(Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+    //mTransformation.translate(Vec3f(mPosition.x, mPosition.y, 1.0f));
 
     mInverseTransform = mTransformation.inverted();
 }
@@ -385,12 +382,13 @@ float Sprite::getOpacity() const
 
 void Sprite::drawLocalClient()
 {
-    glBegin(GL_QUADS);
-    gl::vertex( 0 , 0 );
-    gl::vertex( mWidth, 0 );
-    gl::vertex( mWidth, mHeight );
-    gl::vertex( 0, mHeight );
-    glEnd();
+    //glBegin(GL_QUADS);
+    //gl::vertex( 0 , 0 );
+    //gl::vertex( mWidth, 0 );
+    //gl::vertex( mWidth, mHeight );
+    //gl::vertex( 0, mHeight );
+    //glEnd();
+  gl::drawSolidRect(Rectf(0.0f, 0.0f, mWidth, mHeight));
 }
 
 void Sprite::drawLocalServer()

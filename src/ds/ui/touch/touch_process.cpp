@@ -288,6 +288,10 @@ bool TouchProcess::swipeHappened()
 
 void TouchProcess::updateDragDestination( const TouchInfo &touchInfo )
 {
+  auto found = mFingers.find(touchInfo.mFingerId);
+  if (found == mFingers.end())
+    return;
+
 
 }
 
