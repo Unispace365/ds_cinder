@@ -93,9 +93,12 @@ void Engine::setup()
   mLastTouchTime = 0;
 }
 
-void Engine::loadCinderSettings( ci::app::App::Settings *setting )
+void Engine::loadCinderSettings( ci::app::App::Settings *settings )
 {
+  if (!settings) return;
 
+  settings->setWindowSize(static_cast<int>(getWidth()),
+                          static_cast<int>(getHeight()));
 }
 
 bool Engine::isIdling() const

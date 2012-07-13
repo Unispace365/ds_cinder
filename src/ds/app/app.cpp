@@ -4,6 +4,7 @@
 #include "ds/app/engine_clientserver.h"
 #include "ds/app/engine_server.h"
 #include "ds/debug/console.h"
+#include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 
 // Answer a new engine based on the current settings
@@ -33,6 +34,7 @@ App::App()
 App::~App()
 {
   delete &(mEngine);
+  ds::getLogger().shutDown();
   DS_DBG_CODE(GLOBAL_CONSOLE.destroy());
 }
 
