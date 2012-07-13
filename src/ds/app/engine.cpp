@@ -68,6 +68,8 @@ void Engine::draw()
   gl::enableAlphaBlending();
   gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 
+  gl::setMatrices(mCamera);
+
   if (mRootSprite) {
     mRootSprite->draw(Matrix44f::identity(), mDrawParams);
   }
@@ -77,14 +79,9 @@ void Engine::draw()
 
 void Engine::setup()
 {
-  // setup gl view and projection
-  glMatrixMode( GL_PROJECTION );
-  glLoadIdentity();
-  glViewport( 0, 0, getWindowWidth(), getWindowHeight() );
-  //gluPerspective( 41.95f, float(SCREEN_WIDTH)/SCREEN_HEIGHT, 0.1f, 1000.0f );
-  gluOrtho2D( 0, getWindowWidth(), getWindowHeight(), 0 );
-  glMatrixMode( GL_MODELVIEW );
-  glLoadIdentity();
+  mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
+  gl::setMatrices(mCamera);
+  gl::disable(GL_CULL_FACE);
   //////////////////////////////////////////////////////////////////////////
 
   mRootSprite = std::move(std::unique_ptr<ui::Sprite>(new ui::Sprite(*this)));
