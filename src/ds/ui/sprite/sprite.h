@@ -40,28 +40,30 @@ class Sprite
         void                update(const UpdateParams &updateParams);
         virtual void        draw( const Matrix44f &trans, const DrawParams &drawParams );
 
-        virtual void        setSize(float width, float height);
+        virtual void        setSize(float width, float height, float depth = 1.0f);
         float               getWidth() const;
         float               getHeight() const;
+        float               getDepth() const;
 
-        void                setPosition(const Vec2f &pos);
-        void                setPosition(float x, float y);
-        const Vec2f        &getPosition() const;
+        void                setPosition(const Vec3f &pos);
+        void                setPosition(float x, float y, float z = 0.0f);
+        const Vec3f        &getPosition() const;
 
-        void                move(const Vec2f &delta);
-        void                move(float deltaX, float deltaY);
+        void                move(const Vec3f &delta);
+        void                move(float deltaX, float deltaY, float deltaZ = 0.0f);
 
-        void                setScale(const Vec2f &scale);
-        void                setScale(float x, float y);
-        const Vec2f        &getScale() const;
+        void                setScale(const Vec3f &scale);
+        void                setScale(float x, float y, float z = 1.0f);
+        const Vec3f        &getScale() const;
 
         // center of the Sprite. Where its positioned at and rotated at.
-        void                setCenter(const Vec2f &center);
-        void                setCenter(float x, float y);
-        const Vec2f        &getCenter() const;
+        void                setCenter(const Vec3f &center);
+        void                setCenter(float x, float y, float z = 0.0f);
+        const Vec3f        &getCenter() const;
 
         void                setRotation(float rotZ);
-        float               getRotation() const;
+        void                setRotation(const Vec3f &rot);
+        Vec3f               getRotation() const;
 
         void                setZLevel( float zlevel );
         float               getZLevel() const;
@@ -119,18 +121,18 @@ class Sprite
 
         Sprite             *getParent() const;
 
-        Vec2f               globalToLocal( const Vec2f &globalPoint );
-        Vec2f               localToGlobal( const Vec2f &localPoint );
+        Vec3f               globalToLocal( const Vec3f &globalPoint );
+        Vec3f               localToGlobal( const Vec3f &localPoint );
 
         // check if a point is inside the Sprite's bounds.
-        bool                contains( const Vec2f &point ) const;
+        bool                contains( const Vec3f &point ) const;
 
         // finds Sprite at position
-        Sprite             *getHit( const Vec2f &point );
+        Sprite             *getHit( const Vec3f &point );
 
         void                setProcessTouchCallback( const std::function<void (Sprite *, const TouchInfo &)> &func );
-        void                setTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func );
-        void                setDoubleTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func );
+        void                setTapCallback( const std::function<void (Sprite *, const Vec3f &)> &func );
+        void                setDoubleTapCallback( const std::function<void (Sprite *, const Vec3f &)> &func );
 
         // Constraints defined in multi_touch_constraints.h
         void                enableMultiTouch(const BitMask &);
@@ -146,9 +148,9 @@ class Sprite
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
-        void                swipe(const Vec2f &swipeVector);
-        void                tap(const Vec2f &tapPos);
-        void                doubleTap(const Vec2f &tapPos);
+        void                swipe(const Vec3f &swipeVector);
+        void                tap(const Vec3f &tapPos);
+        void                doubleTap(const Vec3f &tapPos);
         void                processTouchInfo( const TouchInfo &touchInfo );
         void                processTouchInfoCallback( const TouchInfo &touchInfo );
         void                buildTransform() const;
@@ -168,15 +170,16 @@ class Sprite
 
         float               mWidth;
         float               mHeight;
+        float               mDepth;
 
         mutable Matrix44f   mTransformation;
         mutable Matrix44f   mInverseTransform;
         mutable bool        mUpdateTransform;
 
-        Vec2f               mPosition;
-        Vec2f               mCenter;
-        Vec2f               mScale;
-        float               mRotation;
+        Vec3f               mPosition;
+        Vec3f               mCenter;
+        Vec3f               mScale;
+        Vec3f               mRotation;
         float               mZLevel;
         bool                mDrawSorted;
         float               mOpacity;
@@ -193,9 +196,9 @@ class Sprite
         std::list<Sprite *> mChildren; 
 
         std::function<void (Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
-        std::function<void (Sprite *, const Vec2f &)> mSwipeCallback;
-        std::function<void (Sprite *, const Vec2f &)> mTapCallback;
-        std::function<void (Sprite *, const Vec2f &)> mDoubleTapCallback;
+        std::function<void (Sprite *, const Vec3f &)> mSwipeCallback;
+        std::function<void (Sprite *, const Vec3f &)> mTapCallback;
+        std::function<void (Sprite *, const Vec3f &)> mDoubleTapCallback;
 
         bool                mMultiTouchEnabled;
         BitMask             mMultiTouchConstraints;

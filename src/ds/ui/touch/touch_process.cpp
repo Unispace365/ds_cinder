@@ -73,13 +73,13 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
         currentParent = currentParent->getParent();
       }
 
-      Vec2f fingerStart0 = foundControl0->second.mStartPoint;
-      Vec2f fingerCurrent0 = foundControl0->second.mCurrentPoint;
-      Vec2f fingerPositionOffset = (parentTransform * Vec4f(fingerCurrent0.x, fingerCurrent0.y, 0.0f, 1.0f) - parentTransform * Vec4f(fingerStart0.x, fingerStart0.y, 0.0f, 1.0f)).xy();
+      Vec3f fingerStart0 = foundControl0->second.mStartPoint;
+      Vec3f fingerCurrent0 = foundControl0->second.mCurrentPoint;
+      Vec3f fingerPositionOffset = (parentTransform * Vec4f(fingerCurrent0.x, fingerCurrent0.y, 0.0f, 1.0f) - parentTransform * Vec4f(fingerStart0.x, fingerStart0.y, 0.0f, 1.0f)).xyz();
 
       if (mFingers.size() > 1) {
-        Vec2f fingerStart1 = foundControl1->second.mStartPoint;
-        Vec2f fingerCurrent1 = foundControl1->second.mCurrentPoint;
+        Vec3f fingerStart1 = foundControl1->second.mStartPoint;
+        Vec3f fingerCurrent1 = foundControl1->second.mCurrentPoint;
 
         mStartDistance = fingerStart0.distance(fingerStart1);
         if (mStartDistance < mSpriteEngine.getMinTouchDistance())
@@ -99,12 +99,12 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
         }
 
         if (mSprite.hasMultiTouchConstraint(MULTITOUCH_CAN_ROTATE)) {
-          mSprite.setRotation(mStartRotation - mCurrentAngle * math::RADIAN2DEGREE);
+          mSprite.setRotation(mStartRotation.z - mCurrentAngle * math::RADIAN2DEGREE);
         }
       }
 
       if (mSprite.multiTouchConstraintNotZero() && touchInfo.mFingerId == foundControl0->second.mFingerId) {
-        Vec2f offset(0.0f, 0.0f);
+        Vec3f offset(0.0f, 0.0f, 0.0f);
         if (!mTappable && mSprite.hasMultiTouchConstraint(MULTITOUCH_CAN_POSITION_X))
           offset.x = fingerPositionOffset.x;
         if (!mTappable && mSprite.hasMultiTouchConstraint(MULTITOUCH_CAN_POSITION_Y))
@@ -176,14 +176,15 @@ void TouchProcess::initializeFirstTouch()
   mMultiTouchAnchor = mSprite.globalToLocal(mFingers[mControlFingerIndexes[0]].mStartPoint);
   mMultiTouchAnchor.x /= mSprite.getWidth();
   mMultiTouchAnchor.y /= mSprite.getHeight();
+  mMultiTouchAnchor.z /= mSprite.getDepth();
   mStartAnchor = mSprite.getCenter();
 
-  Vec2f positionOffset = mMultiTouchAnchor - mStartAnchor;
+  Vec3f positionOffset = mMultiTouchAnchor - mStartAnchor;
   positionOffset.x *= mSprite.getWidth();
   positionOffset.y *= mSprite.getHeight();
   positionOffset.x *= mSprite.getScale().x;
   positionOffset.y *= mSprite.getScale().y;
-  positionOffset.rotate(mSprite.getRotation() * math::DEGREE2RADIAN);
+  positionOffset.rotate( Vec3f(0.0f, 0.0f, 1.0f), mSprite.getRotation().z * math::DEGREE2RADIAN);
   if (mSprite.multiTouchConstraintNotZero()) {
     mSprite.setCenter(mMultiTouchAnchor);
     mSprite.move(positionOffset);
@@ -244,19 +245,19 @@ void TouchProcess::resetTouchAnchor()
 {
   if (!mSprite.multiTouchEnabled())
     return;
-  Vec2f positionOffset = mStartAnchor - mSprite.getCenter();
+  Vec3f positionOffset = mStartAnchor - mSprite.getCenter();
   positionOffset.x *= mSprite.getWidth();
   positionOffset.y *= mSprite.getHeight();
   positionOffset.x *= mSprite.getScale().x;
   positionOffset.y *= mSprite.getScale().y;
-  positionOffset.rotate(mSprite.getRotation() * math::DEGREE2RADIAN);
+  positionOffset.rotate( Vec3f(0.0f, 0.0f, 1.0f), mSprite.getRotation().z * math::DEGREE2RADIAN);
   if (mSprite.multiTouchConstraintNotZero()) {
     mSprite.setCenter(mStartAnchor);
     mSprite.move(positionOffset);
   }
 }
 
-void TouchProcess::addToSwipeQueue( const Vec2f &currentPoint, int queueNum )
+void TouchProcess::addToSwipeQueue( const Vec3f &currentPoint, int queueNum )
 {
   SwipeQueueEvent swipeEvent;
   swipeEvent.mCurrentPoint = currentPoint;
@@ -270,7 +271,7 @@ bool TouchProcess::swipeHappened()
 {
   const float minSpeed = 800.0f;
   const float maxTimeThreshold = 0.5f;
-  mSwipeVector = Vec2f();
+  mSwipeVector = Vec3f();
 
   if (mSwipeQueue.size() < mSpriteEngine.getSwipeQueueSize())
     return false;
@@ -280,7 +281,7 @@ bool TouchProcess::swipeHappened()
   }
 
   mSwipeVector /= static_cast<float>(mSwipeQueue.size() - 1);
-  float averageDistance = mSwipeVector.distance(Vec2f());
+  float averageDistance = mSwipeVector.distance(Vec3f());
 
   return (averageDistance >= minSpeed * 60.0f && (mLastUpdateTime - mSwipeQueue.front().mTimeStamp) < maxTimeThreshold);
 }

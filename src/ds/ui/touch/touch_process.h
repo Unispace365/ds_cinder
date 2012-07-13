@@ -18,7 +18,7 @@ class SpriteEngine;
 
 struct SwipeQueueEvent
 {
-  Vec2f mCurrentPoint;
+  Vec3f mCurrentPoint;
   float mTimeStamp;
 };
 
@@ -39,7 +39,7 @@ class TouchProcess
     void                     initializeTouchPoints();
     void                     resetTouchAnchor();
     
-    void                     addToSwipeQueue(const Vec2f &currentPoint, int queueNum);
+    void                     addToSwipeQueue(const Vec3f &currentPoint, int queueNum);
     bool                     swipeHappened();
 
     void                     updateDragDestination(const TouchInfo &touchInfo);
@@ -50,15 +50,15 @@ class TouchProcess
     int                      mControlFingerIndexes[2];
 
     // the start point of the first finger, in local coordinates
-    Vec2f                    mMultiTouchAnchor;
+    Vec3f                    mMultiTouchAnchor;
 
     // Start properties are stored to determine deltas
-    Vec2f                    mStartPosition;
+    Vec3f                    mStartPosition;
 
     // and to reset the anchor on touch completion and switches
-    Vec2f                    mStartScale;
-    float                    mStartRotation;
-    Vec2f                    mStartAnchor;
+    Vec3f                    mStartScale;
+    Vec3f                    mStartRotation;
+    Vec3f                    mStartAnchor;
 
     float                    mStartWidth;
     float                    mStartHeight;
@@ -69,7 +69,7 @@ class TouchProcess
     float                    mCurrentScale;
     float                    mCurrentAngle;
 
-    Vec2f                    mSwipeVector;
+    Vec3f                    mSwipeVector;
     int                      mSwipeFingerId;
 
     // the last few touch events and their time, for calculating swipes
@@ -83,7 +83,7 @@ class TouchProcess
     // used to track for double taps
     bool                     mOneTap;
     float                    mDoubleTapTime;
-    Vec2f                    mFirstTapPos;
+    Vec3f                    mFirstTapPos;
 
     float                    mLastUpdateTime;
 };

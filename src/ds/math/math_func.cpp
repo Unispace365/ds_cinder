@@ -6,12 +6,12 @@ using namespace ci;
 namespace ds {
 namespace math {
 
-bool intersect2D( const ci::Vec2f &start0, const ci::Vec2f &end0, const ci::Vec2f &start1, const ci::Vec2f &end1 )
+bool intersect2D( const ci::Vec3f &start0, const ci::Vec3f &end0, const ci::Vec3f &start1, const ci::Vec3f &end1 )
 {
-  Vec2f u = end0 - start0;
-  Vec2f v = end1 - start1;
+  Vec3f u = end0 - start0;
+  Vec3f v = end1 - start1;
 
-  Vec2f w = start0 - start1;
+  Vec3f w = start0 - start1;
 
   float bottom = ((u.dot(u))*(v.dot(v))-(u.dot(v))*(u.dot(v)));
 
@@ -35,9 +35,9 @@ bool intersect2D( const ci::Vec2f &start0, const ci::Vec2f &end0, const ci::Vec2
 
   t1 = clamp(t1, 0.0f, 1.0f);
 
-  Vec2f p1 = start0 + u * t0;
+  Vec3f p1 = start0 + u * t0;
 
-  Vec2f q1 = start1 + v * t1;
+  Vec3f q1 = start1 + v * t1;
 
   if (isEqual(top1, 0.0f) && isEqual(top2, 0.0f)) {
     return false;

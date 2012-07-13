@@ -16,10 +16,10 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     : mEngine(engine)
     , mWidth(width)
     , mHeight(height)
-    , mCenter(0.0f, 0.0f)
-    , mRotation(0.0f)
+    , mCenter(0.0f, 0.0f, 0.0f)
+    , mRotation(0.0f, 0.0f, 0.0f)
     , mZLevel(0.0f)
-    , mScale(1.0f, 1.0f)
+    , mScale(1.0f, 1.0f, 1.0f)
     , mDrawSorted(false)
     , mUpdateTransform(true)
     , mParent(nullptr)
@@ -33,6 +33,7 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mCheckBounds(false)
     , mBoundsNeedChecking(true)
     , mInBounds(true)
+    , mDepth(1.0f)
 {
 
 }
@@ -95,74 +96,84 @@ void Sprite::draw( const Matrix44f &trans, const DrawParams &drawParams )
     }
 }
 
-void Sprite::setPosition( float x, float y )
+void Sprite::setPosition( float x, float y, float z )
 {
-  mPosition = Vec2f(x, y);
+  mPosition = Vec3f(x, y, z);
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
 
-void Sprite::setPosition( const Vec2f &pos )
+void Sprite::setPosition( const Vec3f &pos )
 {
   mPosition = pos;
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
 
-const Vec2f &Sprite::getPosition() const
+const Vec3f &Sprite::getPosition() const
 {
     return mPosition;
 }
 
-void Sprite::setScale( float x, float y )
+void Sprite::setScale( float x, float y, float z )
 {
-  mScale = Vec2f(x, y);
+  mScale = Vec3f(x, y, z);
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
 
-void Sprite::setScale( const Vec2f &scale )
+void Sprite::setScale( const Vec3f &scale )
 {
   mScale = scale;
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
 
-const Vec2f &Sprite::getScale() const
+const Vec3f &Sprite::getScale() const
 {
   return mScale;
 }
 
-void Sprite::setCenter( float x, float y )
+void Sprite::setCenter( float x, float y, float z )
 {
-  mCenter = Vec2f(x, y);
+  mCenter = Vec3f(x, y, z);
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
 
-void Sprite::setCenter( const Vec2f &center )
+void Sprite::setCenter( const Vec3f &center )
 {
   mCenter = center;
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
 
-const Vec2f &Sprite::getCenter() const
+const Vec3f &Sprite::getCenter() const
 {
     return mCenter;
 }
 
 void Sprite::setRotation( float rotZ )
 {
-    if ( fabs(mRotation-rotZ) < 0.0001f )
+    if ( math::isEqual(mRotation.z, rotZ) )
         return;
 
-    mRotation = rotZ;
+    mRotation.z = rotZ;
     mUpdateTransform = true;
     mBoundsNeedChecking = true;
 }
 
-float Sprite::getRotation() const
+void Sprite::setRotation( const Vec3f &rot )
+{
+  if ( math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z) )
+    return;
+
+  mRotation = rot;
+  mUpdateTransform = true;
+  mBoundsNeedChecking = true;
+}
+
+Vec3f Sprite::getRotation() const
 {
     return mRotation;
 }
@@ -271,10 +282,12 @@ void Sprite::buildTransform() const
     //                 glm::translate(mTransformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
 
     mTransformation.setToIdentity();
-    mTransformation.translate(Vec3f(mPosition.x, mPosition.y, 0.0f));
-    mTransformation.rotate(Vec3f(0.0f, 0.0f, 1.0f), mRotation * math::DEGREE2RADIAN);
-    mTransformation.scale(Vec3f(mScale.x, mScale.y, 1.0f));
-    mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, 0.0f));
+    mTransformation.translate(Vec3f(mPosition.x, mPosition.y, 1.0f));
+    mTransformation.rotate(Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+    mTransformation.rotate(Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+    mTransformation.rotate(Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+    mTransformation.scale(Vec3f(mScale.x, mScale.y, mScale.z));
+    mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
 
     mInverseTransform = mTransformation.inverted();
 }
@@ -285,10 +298,11 @@ void Sprite::remove()
     removeParent();
 }
 
-void Sprite::setSize( float width, float height )
+void Sprite::setSize( float width, float height, float depth )
 {
     mWidth = width;
     mHeight = height;
+    mDepth = depth;
 }
 
 void Sprite::setColor( const Color &color )
@@ -407,26 +421,26 @@ const Matrix44f &Sprite::getGlobalTransform() const
     return mGlobalTransform;
 }
 
-Vec2f Sprite::globalToLocal( const Vec2f &globalPoint )
+Vec3f Sprite::globalToLocal( const Vec3f &globalPoint )
 {
     buildGlobalTransform();
 
-    Vec4f point = mInverseGlobalTransform * Vec4f(globalPoint.x, globalPoint.y, 0.0f, 1.0f);
-    return Vec2f(point.x, point.y);
+    Vec4f point = mInverseGlobalTransform * Vec4f(globalPoint.x, globalPoint.y, globalPoint.z, 1.0f);
+    return Vec3f(point.x, point.y, point.z);
 }
 
-Vec2f Sprite::localToGlobal( const Vec2f &localPoint )
+Vec3f Sprite::localToGlobal( const Vec3f &localPoint )
 {
     buildGlobalTransform();
-    Vec4f point = mGlobalTransform * Vec4f(localPoint.x, localPoint.y, 0.0f, 1.0f);
-    return Vec2f(point.x, point.y);
+    Vec4f point = mGlobalTransform * Vec4f(localPoint.x, localPoint.y, localPoint.z, 1.0f);
+    return Vec3f(point.x, point.y, point.z);
 }
 
-bool Sprite::contains( const Vec2f &point ) const
+bool Sprite::contains( const Vec3f &point ) const
 {
     buildGlobalTransform();
 
-    Vec4f pR = Vec4f(point.x, point.y, 0.0f, 1.0f);
+    Vec4f pR = Vec4f(point.x, point.y, point.z, 1.0f);
 
     Vec4f cA = mGlobalTransform * Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
     Vec4f cB = mGlobalTransform * Vec4f(mWidth, 0.0f, 0.0f, 1.0f);
@@ -449,7 +463,7 @@ bool Sprite::contains( const Vec2f &point ) const
 	);
 }
 
-Sprite *Sprite::getHit( const Vec2f &point )
+Sprite *Sprite::getHit( const Vec3f &point )
 {
     if ( !mDrawSorted )
     {
@@ -498,16 +512,16 @@ void Sprite::processTouchInfo( const TouchInfo &touchInfo )
   mTouchProcess.processTouchInfo(touchInfo);
 }
 
-void Sprite::move( const Vec2f &delta )
+void Sprite::move( const Vec3f &delta )
 {
   mPosition += delta;
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
 
-void Sprite::move( float deltaX, float deltaY )
+void Sprite::move( float deltaX, float deltaY, float deltaZ )
 {
-  mPosition += Vec2f(deltaX, deltaY);
+  mPosition += Vec3f(deltaX, deltaY, deltaZ);
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
@@ -538,7 +552,7 @@ bool Sprite::multiTouchConstraintNotZero() const
   return mMultiTouchConstraints.getFirstIndex() >= 0;
 }
 
-void Sprite::swipe( const Vec2f &swipeVector )
+void Sprite::swipe( const Vec3f &swipeVector )
 {
   if (mSwipeCallback)
     mSwipeCallback(this, swipeVector);
@@ -551,13 +565,13 @@ bool Sprite::hasDoubleTap() const
   return false;
 }
 
-void Sprite::tap( const Vec2f &tapPos )
+void Sprite::tap( const Vec3f &tapPos )
 {
   if (mTapCallback)
     mTapCallback(this, tapPos);
 }
 
-void Sprite::doubleTap( const Vec2f &tapPos )
+void Sprite::doubleTap( const Vec3f &tapPos )
 {
   if (mDoubleTapCallback)
     mDoubleTapCallback(this, tapPos);
@@ -576,12 +590,12 @@ void Sprite::processTouchInfoCallback( const TouchInfo &touchInfo )
     mProcessTouchInfoCallback(this, touchInfo);
 }
 
-void Sprite::setTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func )
+void Sprite::setTapCallback( const std::function<void (Sprite *, const Vec3f &)> &func )
 {
   mTapCallback = func;
 }
 
-void Sprite::setDoubleTapCallback( const std::function<void (Sprite *, const Vec2f &)> &func )
+void Sprite::setDoubleTapCallback( const std::function<void (Sprite *, const Vec3f &)> &func )
 {
   mDoubleTapCallback = func;
 }
@@ -619,14 +633,14 @@ bool Sprite::checkBounds() const
   float spriteMaxX = mWidth-1.0f;
   float spriteMaxY = mHeight-1.0f;
 
-  Vec2f positions[4];
+  Vec3f positions[4];
 
   buildGlobalTransform();
 
-  positions[0] = (mGlobalTransform * Vec4f(spriteMinX, spriteMinY, 0.0f, 1.0f)).xy();
-  positions[1] = (mGlobalTransform * Vec4f(spriteMaxX, spriteMinY, 0.0f, 1.0f)).xy();
-  positions[2] = (mGlobalTransform * Vec4f(spriteMinX, spriteMaxY, 0.0f, 1.0f)).xy();
-  positions[3] = (mGlobalTransform * Vec4f(spriteMaxX, spriteMaxY, 0.0f, 1.0f)).xy();
+  positions[0] = (mGlobalTransform * Vec4f(spriteMinX, spriteMinY, 0.0f, 1.0f)).xyz();
+  positions[1] = (mGlobalTransform * Vec4f(spriteMaxX, spriteMinY, 0.0f, 1.0f)).xyz();
+  positions[2] = (mGlobalTransform * Vec4f(spriteMinX, spriteMaxY, 0.0f, 1.0f)).xyz();
+  positions[3] = (mGlobalTransform * Vec4f(spriteMaxX, spriteMaxY, 0.0f, 1.0f)).xyz();
 
 
   spriteMinX = spriteMaxX = positions[0].x;
@@ -663,12 +677,12 @@ bool Sprite::checkBounds() const
     }
   }
 
-  Vec2f screenpos[4];
+  Vec3f screenpos[4];
 
-  screenpos[0] = Vec2f(screenMinX, screenMinY);
-  screenpos[1] = Vec2f(screenMaxX, screenMinY);
-  screenpos[2] = Vec2f(screenMinX, screenMaxY);
-  screenpos[3] = Vec2f(screenMaxX, screenMaxY);
+  screenpos[0] = Vec3f(screenMinX, screenMinY, 0.0f);
+  screenpos[1] = Vec3f(screenMaxX, screenMinY, 0.0f);
+  screenpos[2] = Vec3f(screenMinX, screenMaxY, 0.0f);
+  screenpos[3] = Vec3f(screenMaxX, screenMaxY, 0.0f);
 
   for ( int i = 0; i < 4; ++i ) {
     if ( screenpos[i].x >= spriteMinX && screenpos[i].x <= spriteMaxX && screenpos[i].y >= spriteMinY && screenpos[i].y <= spriteMaxY ) {
@@ -717,6 +731,11 @@ bool Sprite::inBounds() const
 bool Sprite::isLoaded() const
 {
   return true;
+}
+
+float Sprite::getDepth() const
+{
+  return mDepth;
 }
 
 } // namespace ui

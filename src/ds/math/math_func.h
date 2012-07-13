@@ -37,7 +37,7 @@ T clamp(T v, T min, T max)
   return v;
 }
 
-bool intersect2D(const ci::Vec2f &start0, const ci::Vec2f &end0, const ci::Vec2f &start1, const ci::Vec2f &end1);
+bool intersect2D(const ci::Vec3f &start0, const ci::Vec3f &end0, const ci::Vec3f &start1, const ci::Vec3f &end1);
 
 template <typename T>
 T lerp(const T &a, const T &b, float t)
