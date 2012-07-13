@@ -21,7 +21,7 @@ void TouchManager::touchesBegin( TouchEvent event )
 {
   for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
     TouchInfo touchInfo;
-    touchInfo.mCurrentPoint = Vec2f(touchIt->getX(), touchIt->getY());
+    touchInfo.mCurrentPoint = Vec3f(touchIt->getPos(), 0.0f);
     touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
     touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
     mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
@@ -44,7 +44,7 @@ void TouchManager::touchesMoved( TouchEvent event )
 {
   for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
     TouchInfo touchInfo;
-    touchInfo.mCurrentPoint = Vec2f(touchIt->getX(), touchIt->getY());
+    touchInfo.mCurrentPoint = Vec3f(touchIt->getPos(), 0.0f);
     touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
     touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
     touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -68,7 +68,7 @@ void TouchManager::touchesEnded( TouchEvent event )
 {
   for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
     TouchInfo touchInfo;
-    touchInfo.mCurrentPoint = Vec2f(touchIt->getX(), touchIt->getY());
+    touchInfo.mCurrentPoint = Vec3f(touchIt->getPos(), 0.0f);
     touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
     touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
     touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -90,7 +90,7 @@ void TouchManager::touchesEnded( TouchEvent event )
 void TouchManager::mouseTouchBegin( MouseEvent event, int id )
 {
   TouchInfo touchInfo;
-  touchInfo.mCurrentPoint = event.getPos();
+  touchInfo.mCurrentPoint = Vec3f(event.getPos(), 0.0f);
   touchInfo.mFingerId = id;
   touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
   mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
@@ -111,7 +111,7 @@ void TouchManager::mouseTouchBegin( MouseEvent event, int id )
 void TouchManager::mouseTouchMoved( MouseEvent event, int id )
 {
   TouchInfo touchInfo;
-  touchInfo.mCurrentPoint = event.getPos();
+  touchInfo.mCurrentPoint = Vec3f(event.getPos(), 0.0f);
   touchInfo.mFingerId = id;
   touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
   touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -133,7 +133,7 @@ void TouchManager::mouseTouchMoved( MouseEvent event, int id )
 void TouchManager::mouseTouchEnded( MouseEvent event, int id )
 {
   TouchInfo touchInfo;
-  touchInfo.mCurrentPoint = event.getPos();
+  touchInfo.mCurrentPoint = Vec3f(event.getPos(), 0.0f);
   touchInfo.mFingerId = id;
   touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
   touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -159,7 +159,7 @@ void TouchManager::drawTouches() const
   gl::color( Color( 1, 1, 0 ) );
 
   for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {
-  	gl::drawStrokedCircle( it->second, 20.0f );
+  	gl::drawStrokedCircle( it->second.xy(), 20.0f );
   }
 }
 

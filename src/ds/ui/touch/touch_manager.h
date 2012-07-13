@@ -34,8 +34,8 @@ class TouchManager
     Engine &mEngine;
 
     std::map<int, ui::Sprite *> mFingerDispatcher;
-    std::map<int, Vec2f>        mTouchStartPoint;
-    std::map<int, Vec2f>        mTouchPreviousPoint;
+    std::map<int, Vec3f>        mTouchStartPoint;
+    std::map<int, Vec3f>        mTouchPreviousPoint;
 };
 
 } // namespace ui
