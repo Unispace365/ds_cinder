@@ -214,7 +214,17 @@ void LoadImageService::_load()
 		op&						           top = mTmp[k];
     try {
       DS_LOG_INFO_M("LoadImageService::_load() on file (" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
+      // For some reason, cinder really doesn't like loading directly to a texture.
+      // Doing it that way, it seems to munge some of the pixel data in certain
+      // situations (not clear what the rules are, but the most consistent thing I
+      // was seeing was when I was loading multiple textures with the same size).
+      // For some reason scrubbing it by loading through a surface first seems to work.
+#if 1
+      ci::Surface32f        srf(ci::loadImage(top.mFilename));
+      top.mTexture = ci::gl::Texture(srf);
+#else
       top.mTexture = ci::loadImage(top.mFilename);
+#endif
       DS_REPORT_GL_ERRORS();
       if (top.mTexture) {
         // This is to immediately place operations on the out put...
