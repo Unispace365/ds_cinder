@@ -86,6 +86,8 @@ void Engine::drawServer()
   gl::enableAlphaBlending();
   gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 
+  gl::setMatrices(mCamera);
+
   if (mRootSprite) {
     mRootSprite->drawServer(Matrix44f::identity(), mDrawParams);
   }
@@ -97,7 +99,7 @@ void Engine::setup()
 {
   mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
   gl::setMatrices(mCamera);
-  gl::disable(GL_CULL_FACE);
+  //gl::disable(GL_CULL_FACE);
   //////////////////////////////////////////////////////////////////////////
 
   mRootSprite = std::move(std::unique_ptr<ui::Sprite>(new ui::Sprite(*this)));
