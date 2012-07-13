@@ -91,25 +91,21 @@ void BasicTweenApp::setup()
 
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
+  ds::ui::Image   *imgSprite;
+ 
   // Example image sprite from a hardcoded filename.
-  ds::ui::Image   *imgSprite = new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "lorem_kicksum.w_1170.h_1146.png"));
+  imgSprite = new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "lorem_kicksum.w_1170.h_1146.png"));
   imgSprite->setScale(0.25f, 0.25f);
   imgSprite->enable(true);
-  imgSprite->setProcessTouchCallback([](ds::ui::Sprite *sprite, const ds::ui::TouchInfo &info)
-  {
-    sprite->setPosition(info.mCurrentPoint);
-  });
+  imgSprite->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(imgSprite);
 
   // Example image sprite from a resource.
   imgSprite = new ds::ui::Image(mEngine, KITTY_RES_ID);
   imgSprite->setScale(0.5f, 0.5f);
-  imgSprite->enable(true);
   imgSprite->setPosition(200, 200);
-  imgSprite->setProcessTouchCallback([](ds::ui::Sprite *sprite, const ds::ui::TouchInfo &info)
-  {
-    sprite->setPosition(info.mCurrentPoint);
-  });
+  imgSprite->enable(true);
+  imgSprite->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(imgSprite);
 
   ds::ui::Sprite *child = new ds::ui::Sprite(mEngine, 100.0f, 100.0f);
@@ -118,10 +114,6 @@ void BasicTweenApp::setup()
   child->setColor(1.0f, 1.0f, 0.0f);
   child->setTransparent(false);
   child->enable(true);
-  //child->setProcessTouchCallback([](ds::ui::Sprite *sprite, const ds::ui::TouchInfo &info)
-  //{
-  //  sprite->setPosition(info.mCurrentPoint);
-  //});
   child->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(child);
 }
