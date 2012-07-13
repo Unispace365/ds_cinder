@@ -1,5 +1,6 @@
 #include "ds/app/app.h"
 
+#include "ds/app/engine_client.h"
 #include "ds/app/engine_clientserver.h"
 #include "ds/app/engine_server.h"
 #include "ds/debug/console.h"
@@ -137,6 +138,7 @@ ds::App::Initializer::Initializer(const std::string& appPath)
 
 static ds::Engine&    new_engine(const ds::cfg::Settings& settings)
 {
+  if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(settings));
   if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(settings));
   return *(new ds::EngineClientServer(settings));
 }

@@ -23,6 +23,7 @@
     <ClInclude Include="..\src\ds\app\app.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
     <ClInclude Include="..\src\ds\app\engine.h" />
+    <ClInclude Include="..\src\ds\app\engine_client.h" />
     <ClInclude Include="..\src\ds\app\engine_clientserver.h" />
     <ClInclude Include="..\src\ds\app\engine_server.h" />
     <ClInclude Include="..\src\ds\app\engine_settings.h" />
@@ -76,6 +77,7 @@
     <ClCompile Include="$(CINDER)\blocks\tuio\src\TuioClient.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
     <ClCompile Include="..\src\ds\app\engine.cpp" />
+    <ClCompile Include="..\src\ds\app\engine_client.cpp" />
     <ClCompile Include="..\src\ds\app\engine_clientserver.cpp" />
     <ClCompile Include="..\src\ds\app\engine_server.cpp" />
     <ClCompile Include="..\src\ds\app\engine_settings.cpp" />
