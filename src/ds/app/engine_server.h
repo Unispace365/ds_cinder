@@ -20,6 +20,7 @@ class EngineServer : public Engine {
     virtual ds::WorkManager       &getWorkManager()         { return mWorkManager; }
     virtual ui::LoadImageService  &getLoadImageService()    { return mLoadImageService; }
 
+    virtual void                  setupTuio(ds::App&);
     virtual void	                update();
     virtual void                  draw();
 

@@ -21,6 +21,7 @@ class EngineClient : public Engine {
     virtual ui::LoadImageService  &getLoadImageService()    { return mLoadImageService; }
 
     virtual void				          setup();
+    virtual void                  setupTuio(ds::App&);
     virtual void	                update();
     virtual void                  draw();
 

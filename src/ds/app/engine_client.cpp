@@ -18,6 +18,10 @@ void EngineClient::setup()
   mLoadImageThread.start(true);
 }
 
+void EngineClient::setupTuio(ds::App&)
+{
+}
+
 void EngineClient::update()
 {
   updateClient();

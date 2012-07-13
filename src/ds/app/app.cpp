@@ -50,10 +50,7 @@ void App::setup()
   inherited::setup();
 
   mEngine.setup();
-
-  tuio::Client &tuioClient = mEngine.getTuioClient();
-  tuioClient.registerTouches(this);
-  tuioClient.connect();
+  mEngine.setupTuio(*this);
 }
 
 void App::update()

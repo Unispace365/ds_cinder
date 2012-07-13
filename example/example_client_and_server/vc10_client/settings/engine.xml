@@ -1,0 +1,25 @@
+<settings>
+	<text name="platform:architecture" value="client" />
+	<text name="project_path" value="northeastern\wall" />
+ 	<int name="num_clients" value="1" />
+
+	<text name="server:ip" value="239.255.42.58" />
+	<int name="server:send_port" value="10370" />
+	<int name="server:listen_port" value="10371" />
+
+	<size name="world_dimensions" x="2350" y="1366" />
+	<rect name="local_rect" l="0" r="1280" t="0" b="720" />
+
+	<size name="touch_overlay:dimensions" x="2350" y="1366" />
+	<size name="touch_overlay:offset" x="0" y="0" />
+	<text name="touch_overlay:debug" value="true" />
+
+	<float name="camera:fov" value="30" />
+	
+	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\northeastern\" />
+	<text name="resource_db" value="db\northeastern.sqlite" />
+
+	<float name="frame_rate" value="30" />
+	<float name="tap_threshold" value="10" />
+
+</settings>
