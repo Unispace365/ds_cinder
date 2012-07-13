@@ -20,9 +20,12 @@ void EngineClientServer::setup()
 
 void EngineClientServer::update()
 {
-  mWorkManager.update();
+  updateClient();
+}
 
-  inherited::update();
+void EngineClientServer::draw()
+{
+  drawServer();
 }
 
 } // namespace ds

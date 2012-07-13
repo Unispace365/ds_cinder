@@ -52,7 +52,7 @@ Image::~Image()
 {
 }
 
-void Image::drawLocal()
+void Image::drawLocalServer()
 {
   if (!mTexture) {
     // XXX Do bounds check here

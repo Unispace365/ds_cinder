@@ -43,7 +43,7 @@ Sprite::~Sprite()
     remove();
 }
 
-void Sprite::update( const UpdateParams &updateParams )
+void Sprite::updateClient( const UpdateParams &updateParams )
 {
   if (mCheckBounds) {
     updateCheckBounds();
@@ -51,11 +51,23 @@ void Sprite::update( const UpdateParams &updateParams )
 
     for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
     {
-        (*it)->update(updateParams);
+        (*it)->updateClient(updateParams);
     }
 }
 
-void Sprite::draw( const Matrix44f &trans, const DrawParams &drawParams )
+void Sprite::updateServer( const UpdateParams &updateParams )
+{
+  if (mCheckBounds) {
+    updateCheckBounds();
+  }
+
+  for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
+  {
+    (*it)->updateServer(updateParams);
+  }
+}
+
+void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
 {
     if ( !mVisible )
         return;
@@ -70,7 +82,7 @@ void Sprite::draw( const Matrix44f &trans, const DrawParams &drawParams )
     gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
 
     if ( !mTransparent )
-        drawLocal();
+        drawLocalClient();
 
     glPopMatrix();
 
@@ -78,7 +90,7 @@ void Sprite::draw( const Matrix44f &trans, const DrawParams &drawParams )
     {
         for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
         {
-            (*it)->draw(totalTransformation, drawParams);
+            (*it)->drawClient(totalTransformation, drawParams);
         }
     }
     else
@@ -91,9 +103,50 @@ void Sprite::draw( const Matrix44f &trans, const DrawParams &drawParams )
 
         for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
         {
-            (*it)->draw(totalTransformation, drawParams);
+            (*it)->drawClient(totalTransformation, drawParams);
         }
     }
+}
+
+void Sprite::drawServer( const Matrix44f &trans, const DrawParams &drawParams )
+{
+  if ( !mVisible )
+    return;
+
+  buildTransform();
+
+  Matrix44f totalTransformation = trans*mTransformation;
+
+  glPushMatrix();
+  //gl::multModelView(totalTransformation);
+  gl::multModelView(totalTransformation);
+  gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+
+  if ( !mTransparent )
+    drawLocalServer();
+
+  glPopMatrix();
+
+  if ( !mDrawSorted )
+  {
+    for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
+    {
+      (*it)->drawServer(totalTransformation, drawParams);
+    }
+  }
+  else
+  {
+    std::list<Sprite *> mCopy = mChildren;
+    mCopy.sort([](Sprite *i, Sprite *j)
+    {
+      return i->getZLevel() < j->getZLevel();
+    });
+
+    for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
+    {
+      (*it)->drawServer(totalTransformation, drawParams);
+    }
+  }
 }
 
 void Sprite::setPosition( float x, float y, float z )
@@ -330,7 +383,7 @@ float Sprite::getOpacity() const
     return mOpacity;
 }
 
-void Sprite::drawLocal()
+void Sprite::drawLocalClient()
 {
     glBegin(GL_QUADS);
     gl::vertex( 0 , 0 );
@@ -338,6 +391,16 @@ void Sprite::drawLocal()
     gl::vertex( mWidth, mHeight );
     gl::vertex( 0, mHeight );
     glEnd();
+}
+
+void Sprite::drawLocalServer()
+{
+  glBegin(GL_QUADS);
+  gl::vertex( 0 , 0 );
+  gl::vertex( mWidth, 0 );
+  gl::vertex( mWidth, mHeight );
+  gl::vertex( 0, mHeight );
+  glEnd();
 }
 
 void Sprite::setTransparent( bool transparent )

@@ -39,7 +39,12 @@ Engine::~Engine()
   mTuio.disconnect();
 }
 
-void Engine::update()
+ui::Sprite &Engine::getRootSprite()
+{
+  return *mRootSprite;
+}
+
+void Engine::updateClient()
 {
   float curr = static_cast<float>(getElapsedSeconds());
   float dt = curr - mLastTime;
@@ -53,25 +58,36 @@ void Engine::update()
   mUpdateParams.setElapsedTime(curr);
 
   if (mRootSprite) {
-    mRootSprite->update(mUpdateParams);
+    mRootSprite->updateClient(mUpdateParams);
   }
 }
 
-ui::Sprite &Engine::getRootSprite()
+void Engine::updateServer()
 {
-  return *mRootSprite;
 }
 
-void Engine::draw()
+void Engine::drawClient()
 {
   gl::enableAlphaBlending();
   gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 
   if (mRootSprite) {
-    mRootSprite->draw(Matrix44f::identity(), mDrawParams);
+    mRootSprite->drawClient(Matrix44f::identity(), mDrawParams);
   }
 
   mTouchManager.drawTouches();
+}
+
+void Engine::drawServer()
+{
+  gl::enableAlphaBlending();
+  gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
+
+  if (mRootSprite) {
+    mRootSprite->drawServer(Matrix44f::identity(), mDrawParams);
+  }
+
+//  mTouchManager.drawTouches();
 }
 
 void Engine::setup()

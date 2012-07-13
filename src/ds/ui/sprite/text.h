@@ -24,7 +24,7 @@ class Text: public Sprite
         ~Text();
         void                      setSize( float width, float height );
         void                      setAlignmnet( int alignment );
-        void                      drawLocal();
+        void                      drawLocalServer();
         void                      loadText( const std::string &filename );
         void                      setText( const std::string &text );
         std::string               getText() const;

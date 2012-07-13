@@ -13,9 +13,12 @@ EngineServer::EngineServer(const ds::cfg::Settings& settings)
 
 void EngineServer::update()
 {
-  mWorkManager.update();
+  updateServer();
+}
 
-  inherited::update();
+void EngineServer::draw()
+{
+  drawServer();
 }
 
 } // namespace ds

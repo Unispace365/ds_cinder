@@ -23,6 +23,7 @@ class EngineClientServer : public Engine {
 
     virtual void				          setup();
     virtual void	                update();
+    virtual void                  draw();
 
   private:
     typedef Engine inherited;

@@ -23,7 +23,7 @@ class Image: public Sprite
         ~Image();
 
         void                            setSize( float width, float height );
-        void                            drawLocal();
+        void                            drawLocalServer();
         void                            loadImage( const std::string &filename );
         bool                            isLoaded() const;
     private:
