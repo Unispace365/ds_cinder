@@ -30,11 +30,11 @@ class Engine : public ui::SpriteEngine {
   public:
     ~Engine();
 
-    virtual void	              update();
+    virtual void	              update() = 0;
+    virtual void                draw() = 0;
 
     // only valid after setup() is called
     ui::Sprite                 &getRootSprite();
-    void                        draw();
     void                        loadCinderSettings( ci::app::App::Settings *setting );
     //called in app setup; loads settings files and what not.
     virtual void                setup();
@@ -63,6 +63,12 @@ class Engine : public ui::SpriteEngine {
     float                       getWorldHeight() const;
   protected:
     Engine(const ds::cfg::Settings&);
+
+    // Conveniences for the subclases
+    void	                      updateClient();
+    void	                      updateServer();
+    void                        drawClient();
+    void                        drawServer();
 
   private:
     std::unique_ptr<ui::Sprite> mRootSprite;

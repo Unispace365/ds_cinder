@@ -20,7 +20,12 @@ void EngineClient::setup()
 
 void EngineClient::update()
 {
-  inherited::update();
+  updateClient();
+}
+
+void EngineClient::draw()
+{
+  drawClient();
 }
 
 } // namespace ds

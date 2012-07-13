@@ -21,6 +21,7 @@ class EngineServer : public Engine {
     virtual ui::LoadImageService  &getLoadImageService()    { return mLoadImageService; }
 
     virtual void	                update();
+    virtual void                  draw();
 
   private:
     typedef Engine inherited;

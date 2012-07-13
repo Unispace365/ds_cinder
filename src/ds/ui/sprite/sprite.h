@@ -37,8 +37,13 @@ class Sprite
         Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
         virtual ~Sprite();
 
-        void                update(const UpdateParams &updateParams);
-        virtual void        draw( const Matrix44f &trans, const DrawParams &drawParams );
+        // Sprite behaviour can vary whether this is running on the server
+        // or client.
+        virtual void        updateClient(const UpdateParams &updateParams);
+        virtual void        updateServer(const UpdateParams &updateParams);
+
+        virtual void        drawClient( const Matrix44f &trans, const DrawParams &drawParams );
+        virtual void        drawServer( const Matrix44f &trans, const DrawParams &drawParams );
 
         virtual void        setSize(float width, float height, float depth = 1.0f);
         float               getWidth() const;
@@ -155,7 +160,8 @@ class Sprite
         void                processTouchInfoCallback( const TouchInfo &touchInfo );
         void                buildTransform() const;
         void                buildGlobalTransform() const;
-        virtual void        drawLocal();
+        virtual void        drawLocalClient();
+        virtual void        drawLocalServer();
         bool                hasDoubleTap() const;
         bool                hasTap() const;
         void                setType(int type);
