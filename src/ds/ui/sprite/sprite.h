@@ -10,7 +10,8 @@
 #include "cinder/Matrix44.h"
 #include "cinder/Vector.h"
 #include "ds/util/bit_mask.h"
-#include "ds/ui//touch/touch_process.h"
+#include "ds/ui/sprite/dirty_state.h"
+#include "ds/ui/touch/touch_process.h"
 #include "ds/ui/touch/multi_touch_constraints.h"
 
 using namespace ci;
@@ -168,6 +169,10 @@ class Sprite
         void                updateCheckBounds() const;
         bool                checkBounds() const;
 
+        virtual void		    markAsDirty(const DirtyState&);
+		    // Special function that marks all children as dirty, without sending anything up the hierarchy.
+    		virtual void		    markChildrenAsDirty(const DirtyState&);
+
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
 
@@ -200,6 +205,8 @@ class Sprite
 
         Sprite             *mParent;
         std::list<Sprite *> mChildren; 
+
+    		DirtyState			    mDirty;
 
         std::function<void (Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
         std::function<void (Sprite *, const Vec3f &)> mSwipeCallback;

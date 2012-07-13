@@ -19,12 +19,18 @@ typedef BitMask DirtyState;
 DirtyState			newUniqueDirtyState();
 
 /**
+ * \brief Sprites can use the following for a non-specific
+ * dirty message that will just cause a packet send.
+ */
+extern const DirtyState&	GENERIC_DIRTY;
+/**
  * \brief Sprites can use the following for entirely internal dirty states.
  * To work, the sprite should have no class above or below it in the sprite hierarchy
  * that uses the same states.  So just use for leaf sprites.
  * This is done because I'm hitting the limit for number of dirty states, and
  * increasing the bitmask to handle more is a little annoying.
  */
+extern const DirtyState&	GENERIC_DIRTY;
 extern const DirtyState&	INTERNAL_A_DIRTY;
 extern const DirtyState&	INTERNAL_B_DIRTY;
 extern const DirtyState&	INTERNAL_C_DIRTY;

@@ -12,6 +12,10 @@ using namespace ci;
 namespace ds {
 namespace ui {
 
+namespace {
+const DirtyState    CHILD_DIRTY 			= newUniqueDirtyState();
+}
+
 Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.0f*/ )
     : mEngine(engine)
     , mWidth(width)
@@ -797,6 +801,33 @@ bool Sprite::isLoaded() const
 float Sprite::getDepth() const
 {
   return mDepth;
+}
+
+void Sprite::markAsDirty(const DirtyState& dirty)
+{
+	mDirty |= dirty;
+	Sprite*		      p = mParent;
+	while (p) {
+		if ((p->mDirty&CHILD_DIRTY) == true) break;
+
+		p->mDirty |= CHILD_DIRTY;
+		p = p->mParent;
+	}
+
+	// Opacity is a special case, since it's composed of myself and all parent values.
+	// So make sure any children are notified that my opacity changed.
+// This was true in BigWorld, probably still but not sure yet.
+//	if (dirty.has(ds::OPACITY_DIRTY)) {
+//		markChildrenAsDirty(ds::OPACITY_DIRTY);
+//	}
+}
+
+void Sprite::markChildrenAsDirty(const DirtyState& dirty)
+{
+	mDirty |= dirty;
+	for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
+		(*it)->markChildrenAsDirty(dirty);
+	}
 }
 
 } // namespace ui
