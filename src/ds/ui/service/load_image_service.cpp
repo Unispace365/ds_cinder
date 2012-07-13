@@ -110,7 +110,7 @@ bool LoadImageService::acquire(const std::string& filename, const int flags)
 	// either an image or one's being loaded.  And if there's an image but the refs are < 1,
 	// then it's being cached.
 	if ((!h.mTexture) && h.mRefs < 1) {
-    DS_LOG_INFO_M("ImageService: Loading resource '" << filename << "' flags=" << flags << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
+    DS_LOG_INFO_M("ImageService: acquire resource '" << filename << "' flags=" << flags << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
 		// There's no image, so push on an operation to start one
 		{
 			Poco::Mutex::ScopedLock		l(mMutex);
@@ -212,18 +212,18 @@ void LoadImageService::_load()
 	DS_REPORT_GL_ERRORS();
 	for (int k=0; k<mTmp.size(); k++) {
 		op&						           top = mTmp[k];
-    DS_LOG_INFO_M("LoadImageService::_load() on file (" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
-    top.mTexture = ci::loadImage(top.mFilename);
-		DS_REPORT_GL_ERRORS();
-    // Possibly there's a better "existence" check
-		if (top.mTexture.getWidth() > 0 && top.mTexture.getHeight() > 0) {
-			// This is to immediately place operations on the out put...
-			Poco::Mutex::ScopedLock		l(mMutex);
-      try {
+    try {
+      DS_LOG_INFO_M("LoadImageService::_load() on file (" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
+      top.mTexture = ci::loadImage(top.mFilename);
+      DS_REPORT_GL_ERRORS();
+      if (top.mTexture) {
+        // This is to immediately place operations on the out put...
+        Poco::Mutex::ScopedLock		l(mMutex);
         mOutput.push_back(op(top));
-      } catch (std::exception const&) {
       }
-		}
+    } catch (std::exception const& ex) {
+      DS_LOG_WARNING_M("LoadImageService::_load() failed ex=" << ex.what(), LOAD_IMAGE_LOG_M);
+    }
     top.clear();
 		DS_REPORT_GL_ERRORS();
 	}
