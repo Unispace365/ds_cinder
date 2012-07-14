@@ -25,6 +25,7 @@ namespace ui {
 
 struct TouchInfo;
 class SpriteEngine;
+class SpriteRegistry;
 struct DragDestinationInfo;
 
 /*!
@@ -36,6 +37,8 @@ struct DragDestinationInfo;
 class Sprite
 {
     public:
+        static void           addTo(SpriteRegistry&);
+
         Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
         virtual ~Sprite();
 
@@ -155,6 +158,10 @@ class Sprite
         virtual bool        isLoaded() const;
         void                setDragDestiantion(Sprite *dragDestination);
         Sprite             *getDragDestination() const;
+
+        bool                isDirty() const;
+        void                writeAllTo(void* packetClass);
+
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -177,6 +184,7 @@ class Sprite
         virtual void		    markAsDirty(const DirtyState&);
 		    // Special function that marks all children as dirty, without sending anything up the hierarchy.
     		virtual void		    markChildrenAsDirty(const DirtyState&);
+        virtual void        writeTo(void* packetClass);
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
@@ -211,6 +219,8 @@ class Sprite
         Sprite             *mParent;
         std::list<Sprite *> mChildren; 
 
+        // Class-unique key for this type.  Subclasses can replace.
+        char                mSpriteType;
     		DirtyState			    mDirty;
 
         std::function<void (Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;

@@ -3,6 +3,7 @@
 #include "gl/GL.h"
 #include "ds/math/math_defs.h"
 #include "sprite_engine.h"
+#include "ds/ui/sprite/sprite_registry.h"
 #include "ds/math/math_func.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
@@ -13,7 +14,14 @@ namespace ds {
 namespace ui {
 
 namespace {
+const char          SPRITE_TYPE       = '_';
 const DirtyState    CHILD_DIRTY 			= newUniqueDirtyState();
+const DirtyState    POSITION_DIRTY 		= newUniqueDirtyState();
+}
+
+void Sprite::addTo(SpriteRegistry& registry)
+{
+  registry.add(SPRITE_TYPE, [](SpriteEngine& se)->Sprite*{return new Sprite(se);});
 }
 
 Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.0f*/ )
@@ -39,6 +47,7 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mInBounds(true)
     , mDepth(1.0f)
     , mDragDestination(nullptr)
+    , mSpriteType(SPRITE_TYPE)
 {
 
 }
@@ -155,16 +164,17 @@ void Sprite::drawServer( const Matrix44f &trans, const DrawParams &drawParams )
 
 void Sprite::setPosition( float x, float y, float z )
 {
-  mPosition = Vec3f(x, y, z);
-  mUpdateTransform = true;
-  mBoundsNeedChecking = true;
+  setPosition(Vec3f(x, y, z));
 }
 
 void Sprite::setPosition( const Vec3f &pos )
 {
+  if (mPosition == pos) return;
+
   mPosition = pos;
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
+	markAsDirty(POSITION_DIRTY);
 }
 
 const Vec3f &Sprite::getPosition() const
@@ -823,6 +833,31 @@ void Sprite::dragDestination( Sprite *sprite, const DragDestinationInfo &dragInf
 {
   if (mDragDestinationCallback)
     mDragDestinationCallback(sprite, dragInfo);
+}
+
+bool Sprite::isDirty() const
+{
+  return !mDirty.isEmpty();
+}
+
+void Sprite::writeAllTo(void* packetClass)
+{
+  if (mDirty.isEmpty()) return;
+
+  // XXX Write sprite type  mSpriteType
+  writeTo(packetClass);
+  mDirty.clear();
+
+  for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
+    (*it)->writeAllTo(packetClass);
+  }
+}
+
+void Sprite::writeTo(void* packetClass)
+{
+		if (mDirty.has(POSITION_DIRTY)) {
+      // XXX Write to packetClass
+    }
 }
 
 void Sprite::markAsDirty(const DirtyState& dirty)

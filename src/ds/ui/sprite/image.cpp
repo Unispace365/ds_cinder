@@ -4,16 +4,30 @@
 #include <cinder/ImageIo.h>
 #include "ds/data/resource_list.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/ui/sprite/sprite_registry.h"
 #include "ds/util/file_name_parser.h"
 
 namespace {
-
-std::map<std::string, std::shared_ptr<ci::gl::Texture>> mTextureCache;
-
+const char          SPRITE_TYPE       = 'i';
 }
 
 namespace ds {
 namespace ui {
+
+void Image::addTo(SpriteRegistry& registry)
+{
+  registry.add(SPRITE_TYPE, [](SpriteEngine& se)->Sprite*{return new Image(se);});
+}
+
+Image::Image( SpriteEngine& engine )
+    : inherited(engine)
+    , mImageService(engine.getLoadImageService())
+    , mImageToken(mImageService)
+    , mFlags(0)
+{
+  mSpriteType = SPRITE_TYPE;
+  setTransparent(false);
+}
 
 Image::Image( SpriteEngine& engine, const std::string &filename )
     : inherited(engine)
@@ -22,6 +36,7 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
     , mFlags(0)
     , mResourceFn(filename)
 {
+  mSpriteType = SPRITE_TYPE;
   try {
     Vec2f size = parseFileMetaDataSize(filename);
     mWidth = size.x;
@@ -40,6 +55,7 @@ Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
   , mFlags(0)
   , mResourceId(resourceId)
 {
+  mSpriteType = SPRITE_TYPE;
   setTransparent(false);
   ds::Resource            res;
   if (engine.getResources().get(resourceId, res)) {
