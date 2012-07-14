@@ -60,6 +60,7 @@
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\sprite_registry.h" />
     <ClInclude Include="..\src\ds\ui\sprite\text.h" />
     <ClInclude Include="..\src\ds\ui\sprite\video.h" />
     <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h" />
@@ -110,6 +111,7 @@
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\sprite_registry.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\text.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\video.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp" />

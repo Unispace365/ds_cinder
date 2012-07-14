@@ -6,6 +6,7 @@
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
+#include "ds/ui/sprite/sprite_registry.h"
 
 namespace ds {
 
@@ -27,6 +28,7 @@ class EngineClient : public Engine {
 
   private:
     typedef Engine inherited;
+    ds::ui::SpriteRegistry        mSpriteRegistry;
     WorkManager				            mWorkManager;
     GlThread                      mLoadImageThread;
     ui::LoadImageService          mLoadImageService;

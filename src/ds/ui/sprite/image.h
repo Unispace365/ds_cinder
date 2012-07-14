@@ -14,10 +14,12 @@ class LoadImageService;
 class Image: public Sprite
 {
     public:
+        static void                     addTo(SpriteRegistry&);
         // Cache any texture loaded by this sprite, never releasing it.
         static const int                IMG_CACHE_F = (1<<0);
 
     public:
+        Image( SpriteEngine& );
         Image( SpriteEngine&, const std::string &filename );
         Image( SpriteEngine&, const ds::Resource::Id &resourceId );
         ~Image();

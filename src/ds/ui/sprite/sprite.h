@@ -10,7 +10,8 @@
 #include "cinder/Matrix44.h"
 #include "cinder/Vector.h"
 #include "ds/util/bit_mask.h"
-#include "ds/ui//touch/touch_process.h"
+#include "ds/ui/sprite/dirty_state.h"
+#include "ds/ui/touch/touch_process.h"
 #include "ds/ui/touch/multi_touch_constraints.h"
 
 using namespace ci;
@@ -24,6 +25,7 @@ namespace ui {
 
 struct TouchInfo;
 class SpriteEngine;
+class SpriteRegistry;
 struct DragDestinationInfo;
 
 /*!
@@ -35,6 +37,8 @@ struct DragDestinationInfo;
 class Sprite
 {
     public:
+        static void           addTo(SpriteRegistry&);
+
         Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
         virtual ~Sprite();
 
@@ -154,6 +158,10 @@ class Sprite
         virtual bool        isLoaded() const;
         void                setDragDestiantion(Sprite *dragDestination);
         Sprite             *getDragDestination() const;
+
+        bool                isDirty() const;
+        void                writeAllTo(void* packetClass);
+
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -172,6 +180,11 @@ class Sprite
         void                setType(int type);
         void                updateCheckBounds() const;
         bool                checkBounds() const;
+
+        virtual void		    markAsDirty(const DirtyState&);
+		    // Special function that marks all children as dirty, without sending anything up the hierarchy.
+    		virtual void		    markChildrenAsDirty(const DirtyState&);
+        virtual void        writeTo(void* packetClass);
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
@@ -205,6 +218,10 @@ class Sprite
 
         Sprite             *mParent;
         std::list<Sprite *> mChildren; 
+
+        // Class-unique key for this type.  Subclasses can replace.
+        char                mSpriteType;
+    		DirtyState			    mDirty;
 
         std::function<void (Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
         std::function<void (Sprite *, const Vec3f &)> mSwipeCallback;

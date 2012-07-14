@@ -23,6 +23,11 @@ void EngineServer::setupTuio(ds::App& a)
 void EngineServer::update()
 {
   updateServer();
+
+  ui::Sprite                 &root = getRootSprite();
+  if (root.isDirty()) {
+    root.writeAllTo(nullptr);
+  }
 }
 
 void EngineServer::draw()

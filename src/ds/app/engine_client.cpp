@@ -1,5 +1,7 @@
 #include "ds/app/engine_client.h"
 
+#include "ds/ui/sprite/image.h"
+
 namespace ds {
 
 /**
@@ -9,6 +11,8 @@ EngineClient::EngineClient(const ds::cfg::Settings& settings)
     : inherited(settings)
     , mLoadImageService(mLoadImageThread)
 {
+  ds::ui::Sprite::addTo(mSpriteRegistry);
+  ds::ui::Image::addTo(mSpriteRegistry);
 }
 
 void EngineClient::setup()
