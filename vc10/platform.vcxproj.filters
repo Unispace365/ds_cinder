@@ -249,6 +249,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\data\data_buffer.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -382,6 +385,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\data_buffer.cpp">
+      <Filter>src\ds\data</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

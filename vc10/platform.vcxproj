@@ -29,6 +29,7 @@
     <ClInclude Include="..\src\ds\app\engine_settings.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
     <ClInclude Include="..\src\ds\config\settings.h" />
+    <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\resource.h" />
     <ClInclude Include="..\src\ds\data\resource_list.h" />
     <ClInclude Include="..\src\ds\debug\console.h" />
@@ -85,6 +86,7 @@
     <ClCompile Include="..\src\ds\app\engine_settings.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
+    <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\resource.cpp" />
     <ClCompile Include="..\src\ds\data\resource_list.cpp" />
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
