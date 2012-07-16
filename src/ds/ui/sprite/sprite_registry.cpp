@@ -2,6 +2,7 @@
 
 #include <assert.h>
 #include "ds/debug/debug_defines.h"
+#include <iostream>
 
 namespace ds {
 namespace ui {
@@ -13,7 +14,7 @@ SpriteRegistry::SpriteRegistry()
 void SpriteRegistry::add(const char type, const std::function<Sprite*(SpriteEngine&)>& f)
 {
   if (!mRegistered.empty() && mRegistered.find(type) != mRegistered.end()) {
-    DS_DBG_CODE(std::cout << "ERROR SpriteRegistry::add() type (" << type << ") already exists" << endl);
+    DS_DBG_CODE(std::cout << "ERROR SpriteRegistry::add() type (" << type << ") already exists" << std::endl);
     assert(false);
     return;
   }
