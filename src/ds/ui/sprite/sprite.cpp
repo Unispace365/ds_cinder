@@ -840,20 +840,20 @@ bool Sprite::isDirty() const
   return !mDirty.isEmpty();
 }
 
-void Sprite::writeAllTo(void* packetClass)
+void Sprite::writeTo(void* packetClass)
 {
   if (mDirty.isEmpty()) return;
 
   // XXX Write sprite type  mSpriteType
-  writeTo(packetClass);
+  writeAttributesTo(packetClass);
   mDirty.clear();
 
   for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
-    (*it)->writeAllTo(packetClass);
+    (*it)->writeTo(packetClass);
   }
 }
 
-void Sprite::writeTo(void* packetClass)
+void Sprite::writeAttributesTo(void* packetClass)
 {
 		if (mDirty.has(POSITION_DIRTY)) {
       // XXX Write to packetClass

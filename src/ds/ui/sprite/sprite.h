@@ -160,7 +160,7 @@ class Sprite
         Sprite             *getDragDestination() const;
 
         bool                isDirty() const;
-        void                writeAllTo(void* packetClass);
+        void                writeTo(void* packetClass);
 
     protected:
         friend class        TouchManager;
@@ -184,7 +184,7 @@ class Sprite
         virtual void		    markAsDirty(const DirtyState&);
 		    // Special function that marks all children as dirty, without sending anything up the hierarchy.
     		virtual void		    markChildrenAsDirty(const DirtyState&);
-        virtual void        writeTo(void* packetClass);
+        virtual void        writeAttributesTo(void* packetClass);
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
