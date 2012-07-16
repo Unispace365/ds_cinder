@@ -26,7 +26,7 @@ void EngineServer::update()
 
   ui::Sprite                 &root = getRootSprite();
   if (root.isDirty()) {
-    root.writeAllTo(nullptr);
+    root.writeTo(nullptr);
   }
 }
 
