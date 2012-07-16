@@ -1,0 +1,22 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ImportGroup Label="PropertySheets" />
+  <PropertyGroup Label="UserMacros">
+    <platform_include_d>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(DS_PLATFORM)\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\osc\include</platform_include_d>
+    <platform_lib_d>cinder_d.lib;glu32.lib;osc_d.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform_d.lib</platform_lib_d>
+    <platform_lib_include_d>$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib</platform_lib_include_d>
+  </PropertyGroup>
+  <PropertyGroup />
+  <ItemDefinitionGroup />
+  <ItemGroup>
+    <BuildMacro Include="platform_include_d">
+      <Value>$(platform_include_d)</Value>
+    </BuildMacro>
+    <BuildMacro Include="platform_lib_d">
+      <Value>$(platform_lib_d)</Value>
+    </BuildMacro>
+    <BuildMacro Include="platform_lib_include_d">
+      <Value>$(platform_lib_include_d)</Value>
+    </BuildMacro>
+  </ItemGroup>
+</Project>
