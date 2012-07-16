@@ -51,18 +51,10 @@ bool ReadWriteBuffer::write( const char *buffer, unsigned size )
 
 void ReadWriteBuffer::reserve( unsigned size )
 {
-  unsigned newSize = math::getNextPowerOf2(mSize);
-  char *newBuffer = new char[newSize];
-  memset(newBuffer, 0, newSize);
+  if (mSize > size)
+    return;
 
-  if (mBuffer) {
-    memcpy(newBuffer, mBuffer, mSize);
-    delete [] mBuffer;
-    mBuffer = nullptr;
-  }
-
-  mBuffer = newBuffer;
-  mSize = newSize;
+  grow(size);
 }
 
 void ReadWriteBuffer::clear()
