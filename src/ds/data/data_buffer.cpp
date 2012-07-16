@@ -57,7 +57,8 @@ bool DataBuffer::read( char *b, unsigned size )
   return true;
 }
 
-DataBuffer::DataBuffer()
+DataBuffer::DataBuffer(unsigned initialStreamSize)
+  : mStream(initialStreamSize)
 {
 
 }

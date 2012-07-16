@@ -2,7 +2,6 @@
 #ifndef DS_DATA_BUFFER_H
 #define DS_DATA_BUFFER_H
 #include <string>
-#include <sstream>
 #include "read_write_buffer.h"
 
 namespace ds {
@@ -10,7 +9,7 @@ namespace ds {
 class DataBuffer
 {
   public:
-    DataBuffer();
+    DataBuffer(unsigned initialStreamSize = 0);
     unsigned size();
     void seekBegin();
     void clear();

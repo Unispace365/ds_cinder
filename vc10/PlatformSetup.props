@@ -3,8 +3,8 @@
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
     <platform_include>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(DS_PLATFORM)\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\osc\include</platform_include>
-    <platform_lib>cinder.lib;glu32.lib;osc.lib;PocoFoundationmt.lib;PocoNetmt.lib;platform.lib</platform_lib>
-    <platform_lib_include>$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib</platform_lib_include>
+    <platform_lib>cinder.lib;glu32.lib;osc.lib;PocoFoundationmt.lib;PocoNetmt.lib;platform.lib;CVClient.lib;QTMLClient.lib</platform_lib>
+    <platform_lib_include>$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(QUICKTIME)\Libraries</platform_lib_include>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
