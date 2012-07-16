@@ -3,6 +3,7 @@
 #define DS_DATA_BUFFER_H
 #include <string>
 #include <sstream>
+#include "read_write_buffer.h"
 
 namespace ds {
 
@@ -10,7 +11,13 @@ class DataBuffer
 {
   public:
     DataBuffer();
-    const std::string &getSteam() const;
+    unsigned size();
+    void seekBegin();
+    void clear();
+
+    void addRaw(const char *b, unsigned size);
+    void readRaw(char *b, unsigned size);
+
     void add(const char *b, unsigned size);
     template <typename T>
     void add(const T &t)
@@ -35,8 +42,6 @@ class DataBuffer
       return t;
     }
 
-    void seekBegin();
-
     template <>
     std::string read<std::string>();
     template <>
@@ -45,37 +50,39 @@ class DataBuffer
     template <typename T>
     void rewindRead()
     {
-      std::streamoff currentPosition = mStream.tellg();
+      unsigned currentPosition = mStream.getReadPosition();
 
-      if (currentPosition - sizeof(T) < 0)
+      if (sizeof(T) > currentPosition)
         return;
-      mStream.seekg(currentPosition - sizeof(T));
+
+      mStream.rewindRead(sizeof(T));
     }
 
     template <typename T>
     void rewindAdd()
     {
-      std::streamoff currentPosition = mStream.tellp();
+      unsigned currentPosition = mStream.getWritePosition();
 
-      if (currentPosition - sizeof(T) < 0)
+      if (sizeof(T) > currentPosition)
         return;
-      mStream.seekp(currentPosition - sizeof(T));
+
+      mStream.rewindWrite(sizeof(T));
     }
   private:
-    std::stringstream mStream;
+    ReadWriteBuffer mStream;
 };
 
 template <>
 std::string DataBuffer::read<std::string>()
 {
   unsigned size = read<unsigned>();
-  std::streamoff currentPosition = mStream.tellg();
+  unsigned currentPosition = mStream.getReadPosition();
 
-  mStream.seekg(0, std::stringstream::end);
-  std::streamoff length = mStream.tellg();
-  mStream.seekg(currentPosition);
+  mStream.setReadPosition(ReadWriteBuffer::End);
+  unsigned length = mStream.getReadPosition();
+  mStream.setReadPosition(currentPosition);
 
-  if (size > (unsigned)(length - currentPosition)) {
+  if (size > (length - currentPosition)) {
     add(size);
     return std::string();
   }
@@ -98,13 +105,13 @@ template <>
 std::wstring DataBuffer::read<std::wstring>()
 {
   unsigned size = read<unsigned>();
-  std::streamoff currentPosition = mStream.tellg();
+  unsigned currentPosition = mStream.getReadPosition();
 
-  mStream.seekg(0, std::stringstream::end);
-  std::streamoff length = mStream.tellg();
-  mStream.seekg(currentPosition);
+  mStream.setReadPosition(ReadWriteBuffer::End);
+  unsigned length = mStream.getReadPosition();
+  mStream.setReadPosition(currentPosition);
 
-  if (size > (unsigned)(length - currentPosition)) {
+  if (size > (length - currentPosition)) {
     add(size);
     return std::wstring();
   }

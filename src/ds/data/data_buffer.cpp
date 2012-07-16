@@ -1,4 +1,5 @@
 #include "data_buffer.h"
+#include <string>
 
 namespace ds {
 
@@ -42,13 +43,13 @@ bool DataBuffer::read( char *b, unsigned size )
     return false;
   }
 
-  std::streamoff currentPosition = mStream.tellg();
+  unsigned currentPosition = mStream.getReadPosition();
 
-  mStream.seekg(std::stringstream::end);
-  std::streamoff length = mStream.tellg();
-  mStream.seekg(currentPosition);
+  mStream.setReadPosition(ReadWriteBuffer::End);
+  unsigned length = mStream.getReadPosition();
+  mStream.setReadPosition(currentPosition);
 
-  if (size > (unsigned)(length - currentPosition))
+  if (size > (length - currentPosition))
     return false;
 
 
@@ -63,8 +64,43 @@ DataBuffer::DataBuffer()
 
 void DataBuffer::seekBegin()
 {
-  mStream.seekg(std::stringstream::beg);
-  mStream.seekp(std::stringstream::beg);
+  mStream.setReadPosition(ReadWriteBuffer::Begin);
+  mStream.setWritePosition(ReadWriteBuffer::Begin);
+}
+
+unsigned DataBuffer::size()
+{
+  unsigned currentPosition = mStream.getReadPosition();
+
+  mStream.setReadPosition(ReadWriteBuffer::End);
+  unsigned length = mStream.getReadPosition();
+  mStream.setReadPosition(currentPosition);
+
+  return length;
+}
+
+void DataBuffer::clear()
+{
+  mStream.clear();
+}
+
+void DataBuffer::addRaw( const char *b, unsigned size )
+{
+  mStream.write(b, size);
+}
+
+void DataBuffer::readRaw( char *b, unsigned size )
+{
+  unsigned currentPosition = mStream.getReadPosition();
+
+  mStream.setReadPosition(ReadWriteBuffer::End);
+  unsigned length = mStream.getReadPosition();
+  mStream.setReadPosition(currentPosition);
+
+  if (size > (length - currentPosition))
+    return;
+
+  mStream.read(b, size);
 }
 
 } // namespace ds

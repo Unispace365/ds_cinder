@@ -92,6 +92,13 @@ inline double round(const double d)
   return d > 0.0 ? floor(d + 0.5) : ceil(d - 0.5);
 }
 
+inline unsigned getNextPowerOf2( unsigned number )
+{
+  unsigned pos = sizeof(unsigned) * 8;
+  while (pos-->0 && !(number&1<<pos));
+  return 1<<++pos;
+}
+
 } // namespace math
 } // namespace ds
 
