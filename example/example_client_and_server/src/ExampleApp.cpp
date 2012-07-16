@@ -69,7 +69,7 @@ void BasicTweenApp::setup()
   imgSprite->enable(true);
   imgSprite->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(*imgSprite);
-
+  
   ds::ui::Sprite *child = new ds::ui::Sprite(mEngine, 100.0f, 100.0f);
   child->setPosition(getWindowWidth() / 4.0f, getWindowHeight() / 4.0f);
   child->setCenter(0.5f, 0.5f);
