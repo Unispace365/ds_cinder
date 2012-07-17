@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_map>
 #include "ds/app/app_defs.h"
+#include "ds/app/blob_registry.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
 #include "ds/params/draw_params.h"
@@ -47,6 +48,10 @@ class Engine : public ui::SpriteEngine {
     bool                        isIdling() const;
     void                        startIdling();
     
+    // Called during app construction, to register the sprites as blob handlers.
+    virtual void                installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
+                                              const std::function<void(ds::BlobRegistry&)>& asClient) = 0;
+
     virtual ds::sprite_id_t     nextSpriteId();
     virtual void                registerSprite(ds::ui::Sprite&);
     virtual void                unregisterSprite(ds::ui::Sprite&);
@@ -74,6 +79,7 @@ class Engine : public ui::SpriteEngine {
   protected:
     Engine(const ds::cfg::Settings&);
 
+    ds::BlobRegistry            mBlobRegistry;
     std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
                                 mSprites;
 

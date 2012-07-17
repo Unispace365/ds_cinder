@@ -13,6 +13,12 @@ EngineClientServer::EngineClientServer(const ds::cfg::Settings& settings)
 {
 }
 
+void EngineClientServer::installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
+                                       const std::function<void(ds::BlobRegistry&)>& asClient)
+{
+  // I don't have network communication so I don't need to handle blob.
+}
+
 void EngineClientServer::setup()
 {
   inherited::setup();

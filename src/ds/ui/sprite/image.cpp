@@ -16,9 +16,14 @@ char          BLOB_TYPE       = 0;
 namespace ds {
 namespace ui {
 
-void Image::install(ds::BlobRegistry& registry)
+void Image::installAsServer(ds::BlobRegistry& registry)
 {
-  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlob<Image>(r);});
+  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
+}
+
+void Image::installAsClient(ds::BlobRegistry& registry)
+{
+  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Image>(r);});
 }
 
 Image::Image( SpriteEngine& engine )

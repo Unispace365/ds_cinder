@@ -24,15 +24,32 @@ char                BLOB_TYPE         = 0;
 const DirtyState    ID_DIRTY 			    = newUniqueDirtyState();
 const DirtyState    CHILD_DIRTY 			= newUniqueDirtyState();
 const DirtyState    POSITION_DIRTY 		= newUniqueDirtyState();
+const DirtyState    SCALE_DIRTY 	  	= newUniqueDirtyState();
 
 const char          POSITION_ATT      = 2;
+const char          SCALE_ATT         = 3;
+const char          TERMINATE_TOKEN   = 0;
 
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
 
-void Sprite::install(ds::BlobRegistry& registry)
+void Sprite::installAsServer(ds::BlobRegistry& registry)
 {
-  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlob<Sprite>(r);});
+  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
+}
+
+void Sprite::installAsClient(ds::BlobRegistry& registry)
+{
+  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Sprite>(r);});
+}
+
+void Sprite::handleBlobFromClient(ds::BlobReader& r)
+{
+  ds::DataBuffer&       buf(r.mDataBuffer);
+  if (buf.read<char>() != SPRITE_ID_ATTRIBUTE) return;
+  ds::sprite_id_t       id = buf.read<ds::sprite_id_t>();
+  Sprite*               s = r.mSpriteEngine.findSprite(id);
+  if (s) s->readFrom(r);
 }
 
 Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.0f*/ )
@@ -198,16 +215,17 @@ const Vec3f &Sprite::getPosition() const
 
 void Sprite::setScale( float x, float y, float z )
 {
-  mScale = Vec3f(x, y, z);
-  mUpdateTransform = true;
-  mBoundsNeedChecking = true;
+  setScale(Vec3f(x, y, z));
 }
 
 void Sprite::setScale( const Vec3f &scale )
 {
+  if (mScale == scale) return;
+
   mScale = scale;
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
+	markAsDirty(SCALE_DIRTY);
 }
 
 const Vec3f &Sprite::getScale() const
@@ -869,6 +887,9 @@ void Sprite::writeTo(ds::DataBuffer& buf)
   buf.add(mId);
 
   writeAttributesTo(buf);
+  // Terminate the sprite and attribute list
+  buf.add(TERMINATE_TOKEN);
+  // If I wrote any attributes then make sure to terminate the block
   mDirty.clear();
 
   for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
@@ -884,6 +905,12 @@ void Sprite::writeAttributesTo(ds::DataBuffer& buf)
       buf.add(mPosition.y);
       buf.add(mPosition.z);
     }
+		if (mDirty.has(SCALE_DIRTY)) {
+      buf.add(SCALE_ATT);
+      buf.add(mScale.x);
+      buf.add(mScale.y);
+      buf.add(mScale.z);
+    }
 }
 
 void Sprite::readFrom(ds::BlobReader& blob)
@@ -895,11 +922,15 @@ void Sprite::readFrom(ds::BlobReader& blob)
 void Sprite::readAttributesFrom(ds::DataBuffer& buf)
 {
   char          id;
-  while ((id=buf.read<char>()) != 0) {
+  while ((id=buf.read<char>()) != TERMINATE_TOKEN) {
     if (id == POSITION_ATT) {
       mPosition.x = buf.read<float>();
       mPosition.y = buf.read<float>();
       mPosition.z = buf.read<float>();
+    } else if (id == SCALE_ATT) {
+      mScale.x = buf.read<float>();
+      mScale.y = buf.read<float>();
+      mScale.z = buf.read<float>();
     } else {
       readAttributeFrom(id, buf);
     }
