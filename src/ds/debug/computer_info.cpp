@@ -5,9 +5,12 @@ namespace {
 const double BYTE_2_MEGABYTE = 9.31323e-7;
 const double BYTE_2_GIGABYTE = 9.31323e-10;
 const double BYTE_2_KILOBYTE = 0.000976562;
+
 }
 
 namespace ds {
+
+#ifdef CINDER_MSW
 
 ComputerInfo::ComputerInfo(const MemoryConversion &memoryConversion)
   : mMemoryConversion(memoryConversion)
@@ -112,5 +115,67 @@ double ComputerInfo::getPercentUsageCPU() const
 {
   return mPercentCPU;
 }
+
+#else // something else
+
+ComputerInfo::ComputerInfo(const MemoryConversion &memoryConversion)
+{
+}
+
+ComputerInfo::~ComputerInfo()
+{
+
+}
+
+void ComputerInfo::update()
+{
+}
+
+double ComputerInfo::getTotalVirtualMemory() const
+{
+  return 0.0f;
+}
+
+double ComputerInfo::getCurrentVirtualMemory() const
+{
+  return 0.0f;
+}
+
+double ComputerInfo::getVirtualMemoryUsedByProcess() const
+{
+  return 0.0f;
+}
+
+double ComputerInfo::getTotalPhysicalMemory() const
+{
+  return 0.0f;
+}
+
+double ComputerInfo::getCurrentPhysicalMemory() const
+{
+  return 0.0f;
+}
+
+double ComputerInfo::getPhysicalMemoryUsedByProcess() const
+{
+  return 0.0f;
+}
+
+ComputerInfo::MemoryConversion ComputerInfo::getConversion() const
+{
+  return NONE;
+}
+
+double ComputerInfo::getConversionNumber() const
+{
+  return 0.0f;
+}
+
+double ComputerInfo::getPercentUsageCPU() const
+{
+  return 0.0f;
+}
+
+#endif
 
 } // namespace ds

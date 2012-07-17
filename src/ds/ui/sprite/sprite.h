@@ -14,6 +14,7 @@
 #include "ds/ui/sprite/dirty_state.h"
 #include "ds/ui/touch/touch_process.h"
 #include "ds/ui/touch/multi_touch_constraints.h"
+#include "cinder/gl/GlslProg.h"
 
 using namespace ci;
 
@@ -46,6 +47,14 @@ class Sprite
         static void           install(ds::BlobRegistry&);
         template <typename T>
         static void           handleBlob(ds::BlobReader&);
+
+        enum BlendMode
+        {
+          NORMAL,
+          NORMAL_PREMULTIPLIED,
+          MULTIPLY,
+          SCREEN
+        };
 
         Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
         virtual ~Sprite();
@@ -173,6 +182,11 @@ class Sprite
         void                writeTo(ds::DataBuffer&);
         void                readFrom(ds::BlobReader&);
 
+        void                setBlendMode(const BlendMode &blendMode);
+        BlendMode           getBlendMode() const;
+
+        void                setShader(const std::string &shaderName);
+        std::string         getShaderName() const;
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -260,6 +274,9 @@ class Sprite
   private:
         void                readAttributesFrom(ds::DataBuffer&);
 
+        BlendMode           mBlendMode;
+        std::string         mShaderName;
+        ci::gl::GlslProg    mShader;
 };
 
 template <typename T>
