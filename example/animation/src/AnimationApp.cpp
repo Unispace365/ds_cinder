@@ -63,13 +63,14 @@ class AnimationApp : public ds::App {
     typedef ds::App   inherited;
     ds::ui::Image&    mSprite1;
     ds::ui::Image&    mSprite2;
+    ds::ui::Image&    mSprite3;
 };
 
 AnimationApp::AnimationApp()
     : mSprite1(*(new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "this_is_real.jpg"))))
     , mSprite2(*(new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "this_is_real.jpg"))))
+    , mSprite3(*(new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "this_is_real.jpg"))))
 {
-//  mBlackPos.setUpd
 }
 
 void AnimationApp::setup()
@@ -90,6 +91,11 @@ void AnimationApp::setup()
   mSprite2.setPosition(400, 400);
   mSprite2.setScale(0.5f, 0.5f);
   rootSprite.addChild(mSprite2);
+
+  mSprite3.enable(false);
+  mSprite3.setPosition(200, 400);
+  mSprite3.setScale(0.25f, 0.25f);
+  rootSprite.addChild(mSprite3);
 }
 
 void AnimationApp::mouseDown( MouseEvent event )
@@ -97,9 +103,10 @@ void AnimationApp::mouseDown( MouseEvent event )
   inherited::mouseDown(event);
 
 	// the call to apply() replaces any existing tweens on mBlackPos with this new one
-	timeline().apply( &mBlackPos, (Vec2f)event.getPos(), 2.0f, EaseInCubic() );
-	// the call to appendTo causes the white circle to start when the black one finishes
-	timeline().apply( &mWhitePos, (Vec2f)event.getPos(), 0.35f, EaseOutQuint() ).appendTo( &mBlackPos );
+	auto ans = timeline().apply( &mBlackPos, (Vec2f)event.getPos(), 2.0f, EaseOutQuint() );
+  ds::ui::Image*      up3 = &mSprite3;
+  const Vec2f*        pos3 = mBlackPos.ptr();
+  ans.updateFn([up3, pos3](){up3->setPosition(Vec3f(pos3->x, pos3->y, 0));});
 
   ci::Vec3f   start(0, 0, 0);
   ci::Vec3f   end(400, 200, 0);
