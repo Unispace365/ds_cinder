@@ -9,10 +9,12 @@ QUICKTIME should point to quicktime dist (QuickTimeSDK-7.3 or whatever version i
 
 2.  You should currently start from one of the Cinder example apps as your base project.
 
-3.  We are using Visual Studio property sheets to manage basic settings like libraries and include paths.  If you start a new solution, you will need to manually include these sheets:
+3.  We are using Visual Studio property sheets to manage basic settings like libraries and include paths.  If you start a new solution, you will need to manually include these sheets in all projects.
+
+The property sheets are located in ds_cinder/vc10/, PlatformSetup.props (release config) and PlatformSetup_d.props (debug config).  What this means is that in the future, all include paths, libraries, and library include paths should be added to these property sheets, so that apps will inherit any changes.  All of these values are specified in the property sheets Common Properties->User Macros page.
 
 3.1.  Open the Property Manager (View -> Property Manager).
-3.2.  For each project, in the Debug config add PlatformSetup_d.props (found in ds_cinder/vc10/) and in release add PlatformSetup.props (in both cases, right click the config and select Add Existing Property Sheet...).
+3.2.  For each project, in the Debug config add PlatformSetup_d.props and in release add PlatformSetup.props (in both cases, right click the config and select Add Existing Property Sheet...).
 3.2.  In C/C++->General set Additional Include Directories to "$(platform_include_d)" (in debug) or "$(platform_include)" (in release)
 3.2.  In Linker->General set Additional Library Directories to "$(platform_lib_include_d);%(AdditionalLibraryDirectories)" (in debug) or "$(platform_lib_include);%(AdditionalLibraryDirectories)" (in release)
 3.3.  In Linker->Input set Additional Dependencies to "$(platform_lib_d);%(AdditionalDependencies)" (in debug) or "$(platform_lib);%(AdditionalDependencies)" (in release)

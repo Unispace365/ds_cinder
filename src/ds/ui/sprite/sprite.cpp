@@ -14,7 +14,7 @@ namespace ds {
 namespace ui {
 
 namespace {
-const char          SPRITE_TYPE       = '_';
+const char          SPRITE_TYPE       = 0;
 const DirtyState    CHILD_DIRTY 			= newUniqueDirtyState();
 const DirtyState    POSITION_DIRTY 		= newUniqueDirtyState();
 }

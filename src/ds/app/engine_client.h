@@ -3,6 +3,7 @@
 #define DS_APP_ENGINECLIENT_H_
 
 #include "ds/app/engine.h"
+#include "ds/data/data_buffer.h"
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
@@ -29,9 +30,14 @@ class EngineClient : public Engine {
   private:
     typedef Engine inherited;
     ds::ui::SpriteRegistry        mSpriteRegistry;
-    WorkManager				            mWorkManager;
+    WorkManager                   mWorkManager;
     GlThread                      mLoadImageThread;
     ui::LoadImageService          mLoadImageService;
+
+    ds::DataBuffer                mReceiveBuffer;
+
+    void                          receiveHeader(ds::DataBuffer&);
+    void                          receiveCommand(ds::DataBuffer&);
 };
 
 } // namespace ds
