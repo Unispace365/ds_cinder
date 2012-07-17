@@ -776,7 +776,8 @@ bool Sprite::checkBounds() const
       }
     }
   }
-
+  
+  mInBounds = true;
   return true;
 }
 

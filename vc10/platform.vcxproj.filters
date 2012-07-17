@@ -255,6 +255,12 @@
     <ClInclude Include="..\src\ds\ui\sprite\sprite_registry.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\data\read_write_buffer.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\computer_info.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -394,6 +400,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\sprite_registry.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\read_write_buffer.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\computer_info.cpp">
+      <Filter>src\ds\debug</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
