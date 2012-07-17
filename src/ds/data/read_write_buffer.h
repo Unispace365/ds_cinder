@@ -34,7 +34,6 @@ class ReadWriteBuffer
     void setWritePosition(const Postions &position);
   private:
     void grow(unsigned size);
-    unsigned getNextPowerOf2(unsigned number);
 
     char *mBuffer;
     unsigned mSize;

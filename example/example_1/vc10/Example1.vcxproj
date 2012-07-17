@@ -71,7 +71,7 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
-      <IgnoreSpecificDefaultLibraries>$(platform_lib_ignore)</IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>$(platform_lib_ignore_d)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

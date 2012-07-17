@@ -17,6 +17,8 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "cinder/Camera.h"
+#include "ds/network/zmq_connection.h"
+#include "ds/data/raw_data_buffer.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -83,6 +85,7 @@ class Engine : public ui::SpriteEngine {
     void                        drawClient();
     void                        drawServer();
 
+    static const int            NumberOfNetworkThreads;
   private:
     std::unique_ptr<ui::Sprite> mRootSprite;
     // A cache of all the resources in the system

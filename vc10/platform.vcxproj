@@ -32,6 +32,7 @@
     <ClInclude Include="..\src\ds\app\environment.h" />
     <ClInclude Include="..\src\ds\config\settings.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
+    <ClInclude Include="..\src\ds\data\raw_data_buffer.h" />
     <ClInclude Include="..\src\ds\data\read_write_buffer.h" />
     <ClInclude Include="..\src\ds\data\resource.h" />
     <ClInclude Include="..\src\ds\data\resource_list.h" />
@@ -42,6 +43,7 @@
     <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\math\math_func.h" />
     <ClInclude Include="..\src\ds\math\random.h" />
+    <ClInclude Include="..\src\ds\network\zmq_connection.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
     <ClInclude Include="..\src\ds\params\update_params.h" />
     <ClInclude Include="..\src\ds\query\query_client.h" />
@@ -93,6 +95,7 @@
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
+    <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\read_write_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\resource.cpp" />
     <ClCompile Include="..\src\ds\data\resource_list.cpp" />
@@ -100,6 +103,7 @@
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
+    <ClCompile Include="..\src\ds\network\zmq_connection.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />
     <ClCompile Include="..\src\ds\params\update_params.cpp" />
     <ClCompile Include="..\src\ds\query\query_client.cpp" />
@@ -167,7 +171,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src;$(DS_PLATFORM)\lib\zmq;$(DS_PLATFORM)\lib\snappy</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -194,7 +198,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src;$(DS_PLATFORM)\lib\zmq;$(DS_PLATFORM)\lib\snappy</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>

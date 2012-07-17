@@ -13,9 +13,17 @@
 using namespace ci;
 using namespace ci::app;
 
+namespace {
+
+const int NUMBER_OF_NETWORK_THREADS = 2;
+
+}
+
 const ds::BitMask	ds::ENGINE_LOG = ds::Logger::newModule("engine");
 
 namespace ds {
+
+const int Engine::NumberOfNetworkThreads = 2;
 
 /**
  * \class ds::Engine
@@ -35,6 +43,7 @@ Engine::Engine(const ds::cfg::Settings &settings)
   ds::Logger::setup(mDebugSettings);
   mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 640.0f, 0.0f, 400.0f));
   mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
+  mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
 }
 
 Engine::~Engine()
@@ -94,7 +103,7 @@ void Engine::drawServer()
     mRootSprite->drawServer(Matrix44f::identity(), mDrawParams);
   }
 
-//  mTouchManager.drawTouches();
+  mTouchManager.drawTouches();
 }
 
 void Engine::setup()
