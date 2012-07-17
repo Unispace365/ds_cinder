@@ -8,6 +8,8 @@
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
+#include "ds/data/raw_data_buffer.h"
+#include "ds/network/zmq_connection.h"
 
 namespace ds {
 
@@ -42,6 +44,13 @@ class EngineClient : public Engine {
 
     void                          receiveHeader(ds::DataBuffer&);
     void                          receiveCommand(ds::DataBuffer&);
+
+
+    ds::ZmqConnection           mConnection;
+    std::string                 mCompressionBufferRead;
+    std::string                 mCompressionBufferWrite;
+
+    RawDataBuffer               mRawDataBuffer;
 };
 
 } // namespace ds

@@ -4,6 +4,7 @@
 #include <map>
 #include "cinder/app/TouchEvent.h"
 #include "cinder/app/MouseEvent.h"
+#include "cinder/Color.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -30,12 +31,14 @@ class TouchManager
     void                        touchesEnded( TouchEvent event );
 
     void                        drawTouches() const;
+    void                        setTouchColor(const ci::Color &color);
   private:
     Engine &mEngine;
 
     std::map<int, ui::Sprite *> mFingerDispatcher;
     std::map<int, Vec3f>        mTouchStartPoint;
     std::map<int, Vec3f>        mTouchPreviousPoint;
+    ci::Color                   mTouchColor;
 };
 
 } // namespace ui

@@ -70,6 +70,9 @@
     <Filter Include="src\ds\ui\service">
       <UniqueIdentifier>{0ee8cb5c-b5a5-4e24-80b3-ae017220e214}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\network">
+      <UniqueIdentifier>{20082a19-803d-48dd-bf2a-4b79b04506d7}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\app\app_defs.h">
@@ -264,6 +267,12 @@
     <ClInclude Include="..\src\ds\app\blob_reader.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\network\zmq_connection.h">
+      <Filter>src\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\raw_data_buffer.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -412,6 +421,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\blob_reader.cpp">
       <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\zmq_connection.cpp">
+      <Filter>src\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp">
+      <Filter>src\ds\data</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

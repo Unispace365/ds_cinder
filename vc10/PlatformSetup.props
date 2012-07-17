@@ -2,9 +2,9 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <platform_include>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(DS_PLATFORM)\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\osc\include;$(DS_PLATFORM)\lib\snappy</platform_include>
-    <platform_lib>cinder.lib;glu32.lib;osc.lib;PocoFoundationmt.lib;PocoNetmt.lib;platform.lib;CVClient.lib;QTMLClient.lib;psapi.lib;snappy.lib</platform_lib>
-    <platform_lib_include>$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(QUICKTIME)\Libraries;$(DS_PLATFORM)\lib\snappy</platform_lib_include>
+    <platform_include>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(DS_PLATFORM)\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\osc\include;$(DS_PLATFORM)\lib\snappy;$(DS_PLATFORM)\lib\zmq</platform_include>
+    <platform_lib>cinder.lib;glu32.lib;osc.lib;PocoFoundationmt.lib;PocoNetmt.lib;platform.lib;CVClient.lib;QTMLClient.lib;psapi.lib;snappy.lib;libzmq.lib</platform_lib>
+    <platform_lib_include>$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(QUICKTIME)\Libraries;$(DS_PLATFORM)\lib\snappy;$(DS_PLATFORM)\lib\zmq</platform_lib_include>
     <platform_lib_ignore>
     </platform_lib_ignore>
   </PropertyGroup>
