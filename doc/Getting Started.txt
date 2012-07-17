@@ -16,3 +16,4 @@ QUICKTIME should point to quicktime dist (QuickTimeSDK-7.3 or whatever version i
 3.2.  In C/C++->General set Additional Include Directories to "$(platform_include_d)" (in debug) or "$(platform_include)" (in release)
 3.2.  In Linker->General set Additional Library Directories to "$(platform_lib_include_d);%(AdditionalLibraryDirectories)" (in debug) or "$(platform_lib_include);%(AdditionalLibraryDirectories)" (in release)
 3.3.  In Linker->Input set Additional Dependencies to "$(platform_lib_d);%(AdditionalDependencies)" (in debug) or "$(platform_lib);%(AdditionalDependencies)" (in release)
+3.4.  In Linker->Input set Ignore Specific to "$(platform_lib_ignore_d)" (in debug) or "$(platform_lib_ignore)" (in release)
