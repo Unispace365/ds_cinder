@@ -6,6 +6,8 @@
 #include "ds/debug/console.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
+// For installing the sprite types
+#include "ds/ui/sprite/image.h"
 
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(const ds::cfg::Settings&);
@@ -29,6 +31,11 @@ App::App()
     , mCtrlDown(false)
     , mSecondMouseDown(false)
 {
+  // Initialize each sprite type with a unique blob handler for network communication.
+  mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Sprite::installAsServer(r);},
+                        [](ds::BlobRegistry& r){ds::ui::Sprite::installAsClient(r);});
+  mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Image::installAsServer(r);},
+                        [](ds::BlobRegistry& r){ds::ui::Image::installAsClient(r);});
 }
 
 App::~App()

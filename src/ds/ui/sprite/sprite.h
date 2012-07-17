@@ -44,9 +44,12 @@ extern const char     SPRITE_ID_ATTRIBUTE;
 class Sprite
 {
     public:
-        static void           install(ds::BlobRegistry&);
+        static void           installAsServer(ds::BlobRegistry&);
+        static void           installAsClient(ds::BlobRegistry&);
+
         template <typename T>
-        static void           handleBlob(ds::BlobReader&);
+        static void           handleBlobFromServer(ds::BlobReader&);
+        static void           handleBlobFromClient(ds::BlobReader&);
 
         enum BlendMode
         {
@@ -280,7 +283,7 @@ class Sprite
 };
 
 template <typename T>
-static void Sprite::handleBlob(ds::BlobReader& r)
+static void Sprite::handleBlobFromServer(ds::BlobReader& r)
 {
   ds::DataBuffer&       buf(r.mDataBuffer);
   if (buf.read<char>() != SPRITE_ID_ATTRIBUTE) return;

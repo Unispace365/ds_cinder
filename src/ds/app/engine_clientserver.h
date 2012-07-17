@@ -21,6 +21,9 @@ class EngineClientServer : public Engine {
     virtual ds::WorkManager       &getWorkManager()         { return mWorkManager; }
     virtual ui::LoadImageService  &getLoadImageService()    { return mLoadImageService; }
 
+    virtual void                  installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
+                                                const std::function<void(ds::BlobRegistry&)>& asClient);
+
     virtual void				          setup();
     virtual void                  setupTuio(ds::App&);
     virtual void	                update();

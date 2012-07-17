@@ -7,7 +7,6 @@
 namespace ds {
 
 namespace {
-char              VERIFIER_BLOB = 0;
 char              HEADER_BLOB = 0;
 char              COMMAND_BLOB = 0;
 }
@@ -21,11 +20,17 @@ EngineClient::EngineClient(const ds::cfg::Settings& settings)
     , mBlobReader(mReceiveBuffer, *this)
     , mConnection(NumberOfNetworkThreads)
 {
-  VERIFIER_BLOB = mBlobRegistry.add([this](BlobReader& r) {std::cout << "verify" << std::endl;});
+  // NOTE:  Must be EXACTLY the same items as in EngineServer
   HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
   mConnection.initialize(false, settings.getText("server:ip", 0, "239.255.20.20"), ds::value_to_string(settings.getInt("server:send_port", 0, 8000)));
+}
+
+void EngineClient::installSprite( const std::function<void(ds::BlobRegistry&)>& asServer,
+                                  const std::function<void(ds::BlobRegistry&)>& asClient)
+{
+  if (asClient) asClient(mBlobRegistry);
 }
 
 ds::sprite_id_t EngineClient::nextSpriteId()

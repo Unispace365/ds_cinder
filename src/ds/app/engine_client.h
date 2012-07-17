@@ -3,7 +3,6 @@
 #define DS_APP_ENGINECLIENT_H_
 
 #include "ds/app/blob_reader.h"
-#include "ds/app/blob_registry.h"
 #include "ds/app/engine.h"
 #include "ds/data/data_buffer.h"
 #include "ds/thread/gl_thread.h"
@@ -26,6 +25,9 @@ class EngineClient : public Engine {
     virtual ui::LoadImageService  &getLoadImageService()    { return mLoadImageService; }
     virtual ds::sprite_id_t        nextSpriteId();
 
+    virtual void                  installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
+                                                const std::function<void(ds::BlobRegistry&)>& asClient);
+
     virtual void				          setup();
     virtual void                  setupTuio(ds::App&);
     virtual void	                update();
@@ -33,7 +35,6 @@ class EngineClient : public Engine {
 
   private:
     typedef Engine inherited;
-    ds::BlobRegistry              mBlobRegistry;
     WorkManager                   mWorkManager;
     GlThread                      mLoadImageThread;
     ui::LoadImageService          mLoadImageService;

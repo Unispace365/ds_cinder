@@ -14,7 +14,8 @@ class LoadImageService;
 class Image: public Sprite
 {
     public:
-        static void                     install(ds::BlobRegistry&);
+        static void                     installAsServer(ds::BlobRegistry&);
+        static void                     installAsClient(ds::BlobRegistry&);
 
         // Cache any texture loaded by this sprite, never releasing it.
         static const int                IMG_CACHE_F = (1<<0);
