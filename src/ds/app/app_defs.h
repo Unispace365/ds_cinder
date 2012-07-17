@@ -2,6 +2,13 @@
 #ifndef DS_APP_APPDEFS_H_
 #define DS_APP_APPDEFS_H_
 
+namespace ds {
+
+typedef int                 sprite_id_t;
+static const sprite_id_t    EMPTY_SPRITE_ID = 0;
+
+} // namespace ds
+
 #if 0
 // This is currently and hopefully permanently obsolete
 

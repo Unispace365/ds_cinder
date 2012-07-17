@@ -1,9 +1,12 @@
 #include "sprite.h"
 #include "cinder/gl/gl.h"
 #include "gl/GL.h"
+#include "ds/app/blob_reader.h"
+#include "ds/app/blob_registry.h"
+#include "ds/data/data_buffer.h"
+#include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
 #include "sprite_engine.h"
-#include "ds/ui/sprite/sprite_registry.h"
 #include "ds/math/math_func.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
@@ -13,19 +16,28 @@ using namespace ci;
 namespace ds {
 namespace ui {
 
+const char          SPRITE_ID_ATTRIBUTE = 1;
+
 namespace {
-const char          SPRITE_TYPE       = 0;
+char                BLOB_TYPE         = 0;
+
+const DirtyState    ID_DIRTY 			    = newUniqueDirtyState();
 const DirtyState    CHILD_DIRTY 			= newUniqueDirtyState();
 const DirtyState    POSITION_DIRTY 		= newUniqueDirtyState();
+
+const char          POSITION_ATT      = 2;
+
+const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
 
-void Sprite::addTo(SpriteRegistry& registry)
+void Sprite::install(ds::BlobRegistry& registry)
 {
-  registry.add(SPRITE_TYPE, [](SpriteEngine& se)->Sprite*{return new Sprite(se);});
+  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlob<Sprite>(r);});
 }
 
 Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.0f*/ )
     : mEngine(engine)
+    , mId(ds::EMPTY_SPRITE_ID)
     , mWidth(width)
     , mHeight(height)
     , mCenter(0.0f, 0.0f, 0.0f)
@@ -47,14 +59,15 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mInBounds(true)
     , mDepth(1.0f)
     , mDragDestination(nullptr)
-    , mSpriteType(SPRITE_TYPE)
+    , mBlobType(BLOB_TYPE)
 {
-
+  setSpriteId(mEngine.nextSpriteId());
 }
 
 Sprite::~Sprite()
 {
     remove();
+    setSpriteId(0);
 }
 
 void Sprite::updateClient( const UpdateParams &updateParams )
@@ -841,24 +854,69 @@ bool Sprite::isDirty() const
   return !mDirty.isEmpty();
 }
 
-void Sprite::writeTo(void* packetClass)
+void Sprite::writeTo(ds::DataBuffer& buf)
 {
   if (mDirty.isEmpty()) return;
+  if (mId == ds::EMPTY_SPRITE_ID) {
+    // This shouldn't be possible
+    DS_LOG_WARNING_M("Sprite::writeTo() on empty sprite ID", SPRITE_LOG);
+    return;
+  }
 
-  // XXX Write sprite type  mSpriteType
-  writeAttributesTo(packetClass);
+  buf.add(mBlobType);
+  buf.add(SPRITE_ID_ATTRIBUTE);
+  buf.add(mId);
+
+  writeAttributesTo(buf);
   mDirty.clear();
 
   for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
-    (*it)->writeTo(packetClass);
+    (*it)->writeTo(buf);
   }
 }
 
-void Sprite::writeAttributesTo(void* packetClass)
+void Sprite::writeAttributesTo(ds::DataBuffer& buf)
 {
 		if (mDirty.has(POSITION_DIRTY)) {
-      // XXX Write to packetClass
+      buf.add(POSITION_ATT);
+      buf.add(mPosition.x);
+      buf.add(mPosition.y);
+      buf.add(mPosition.z);
     }
+}
+
+void Sprite::readFrom(ds::BlobReader& blob)
+{
+  ds::DataBuffer&       buf(blob.mDataBuffer);
+  readAttributesFrom(buf);
+}
+
+void Sprite::readAttributesFrom(ds::DataBuffer& buf)
+{
+  char          id;
+  while ((id=buf.read<char>()) != 0) {
+    if (id == POSITION_ATT) {
+      mPosition.x = buf.read<float>();
+      mPosition.y = buf.read<float>();
+      mPosition.z = buf.read<float>();
+    } else {
+      readAttributeFrom(id, buf);
+    }
+  }
+}
+
+void Sprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
+{
+}
+
+void Sprite::setSpriteId(const ds::sprite_id_t& id)
+{
+  if (mId == id) return;
+
+  if (mId != ds::EMPTY_SPRITE_ID) mEngine.unregisterSprite(*this);
+  mId = id;
+  if (mId != ds::EMPTY_SPRITE_ID) mEngine.registerSprite(*this);
+  markAsDirty(ID_DIRTY);
 }
 
 void Sprite::markAsDirty(const DirtyState& dirty)

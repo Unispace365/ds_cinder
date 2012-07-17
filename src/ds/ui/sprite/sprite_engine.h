@@ -4,6 +4,7 @@
 #include "cinder/Rect.h"
 #include <list>
 #include "cinder/Vector.h"
+#include "ds/app/app_defs.h"
 
 namespace ds {
 class ResourceList;
@@ -19,9 +20,16 @@ class Sprite;
  */
 class SpriteEngine {
   public:
+    // General engine services
     virtual ds::WorkManager       &getWorkManager() = 0;
     virtual ds::ResourceList      &getResources() = 0;
     virtual ui::LoadImageService  &getLoadImageService() = 0;
+
+    // Sprite management
+    virtual ds::sprite_id_t        nextSpriteId() = 0;
+    virtual void                   registerSprite(Sprite&) = 0;
+    virtual void                   unregisterSprite(Sprite&) = 0;
+    virtual Sprite*                findSprite(const ds::sprite_id_t) = 0;
 
     virtual float                  getMinTouchDistance() const = 0;
     virtual float                  getMinTapDistance() const = 0;

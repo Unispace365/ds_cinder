@@ -9,6 +9,7 @@
 #include "cinder/MatrixAffine2.h"
 #include "cinder/Matrix44.h"
 #include "cinder/Vector.h"
+#include "ds/app/app_defs.h"
 #include "ds/util/bit_mask.h"
 #include "ds/ui/sprite/dirty_state.h"
 #include "ds/ui/touch/touch_process.h"
@@ -18,15 +19,20 @@ using namespace ci;
 
 namespace ds {
 
-class UpdateParams;
+class BlobReader;
+class BlobRegistry;
+class DataBuffer;
 class DrawParams;
+class UpdateParams;
 
 namespace ui {
 
 struct TouchInfo;
 class SpriteEngine;
-class SpriteRegistry;
 struct DragDestinationInfo;
+
+// Attribute access
+extern const char     SPRITE_ID_ATTRIBUTE;
 
 /*!
  * brief Base Class for App Entities
@@ -37,7 +43,9 @@ struct DragDestinationInfo;
 class Sprite
 {
     public:
-        static void           addTo(SpriteRegistry&);
+        static void           install(ds::BlobRegistry&);
+        template <typename T>
+        static void           handleBlob(ds::BlobReader&);
 
         Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
         virtual ~Sprite();
@@ -49,6 +57,8 @@ class Sprite
 
         virtual void        drawClient( const Matrix44f &trans, const DrawParams &drawParams );
         virtual void        drawServer( const Matrix44f &trans, const DrawParams &drawParams );
+
+        ds::sprite_id_t     getId() const       { return mId; }
 
         virtual void        setSize(float width, float height, float depth = 1.0f);
         float               getWidth() const;
@@ -160,7 +170,8 @@ class Sprite
         Sprite             *getDragDestination() const;
 
         bool                isDirty() const;
-        void                writeTo(void* packetClass);
+        void                writeTo(ds::DataBuffer&);
+        void                readFrom(ds::BlobReader&);
 
     protected:
         friend class        TouchManager;
@@ -181,16 +192,23 @@ class Sprite
         void                updateCheckBounds() const;
         bool                checkBounds() const;
 
+        void                setSpriteId(const ds::sprite_id_t&);
+
         virtual void		    markAsDirty(const DirtyState&);
 		    // Special function that marks all children as dirty, without sending anything up the hierarchy.
     		virtual void		    markChildrenAsDirty(const DirtyState&);
-        virtual void        writeAttributesTo(void* packetClass);
+        virtual void        writeAttributesTo(ds::DataBuffer&);
+        // Read a single attribute
+        virtual void        readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
 
 
         SpriteEngine       &mEngine;
+        // The ID must always be assigned through setSpriteId(), which has some
+        // behaviour associated with the ID changing.
+        ds::sprite_id_t     mId;
 
         float               mWidth;
         float               mHeight;
@@ -220,7 +238,7 @@ class Sprite
         std::list<Sprite *> mChildren; 
 
         // Class-unique key for this type.  Subclasses can replace.
-        char                mSpriteType;
+        char                mBlobType;
     		DirtyState			    mDirty;
 
         std::function<void (Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
@@ -238,7 +256,26 @@ class Sprite
         bool                mCheckBounds;
 
         Sprite             *mDragDestination;
+
+  private:
+        void                readAttributesFrom(ds::DataBuffer&);
+
 };
+
+template <typename T>
+static void Sprite::handleBlob(ds::BlobReader& r)
+{
+  ds::DataBuffer&       buf(r.mDataBuffer);
+  if (buf.read<char>() != SPRITE_ID_ATTRIBUTE) return;
+  ds::sprite_id_t       id = buf.read<ds::sprite_id_t>();
+  Sprite*               s = r.mSpriteEngine.findSprite(id);
+  if (s) {
+    s->readFrom(r);
+  } else if ((s = new T(r.mSpriteEngine)) != nullptr) {
+    s->setSpriteId(id);
+    s->readFrom(r);
+  }
+}
 
 } // namespace ui
 } // namespace ds

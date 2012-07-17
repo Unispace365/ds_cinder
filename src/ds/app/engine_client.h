@@ -2,12 +2,13 @@
 #ifndef DS_APP_ENGINECLIENT_H_
 #define DS_APP_ENGINECLIENT_H_
 
+#include "ds/app/blob_reader.h"
+#include "ds/app/blob_registry.h"
 #include "ds/app/engine.h"
 #include "ds/data/data_buffer.h"
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
-#include "ds/ui/sprite/sprite_registry.h"
 
 namespace ds {
 
@@ -21,6 +22,7 @@ class EngineClient : public Engine {
 
     virtual ds::WorkManager       &getWorkManager()         { return mWorkManager; }
     virtual ui::LoadImageService  &getLoadImageService()    { return mLoadImageService; }
+    virtual ds::sprite_id_t        nextSpriteId();
 
     virtual void				          setup();
     virtual void                  setupTuio(ds::App&);
@@ -29,12 +31,13 @@ class EngineClient : public Engine {
 
   private:
     typedef Engine inherited;
-    ds::ui::SpriteRegistry        mSpriteRegistry;
+    ds::BlobRegistry              mBlobRegistry;
     WorkManager                   mWorkManager;
     GlThread                      mLoadImageThread;
     ui::LoadImageService          mLoadImageService;
 
     ds::DataBuffer                mReceiveBuffer;
+    ds::BlobReader                mBlobReader;
 
     void                          receiveHeader(ds::DataBuffer&);
     void                          receiveCommand(ds::DataBuffer&);

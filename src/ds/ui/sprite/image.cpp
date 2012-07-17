@@ -2,21 +2,23 @@
 
 #include <map>
 #include <cinder/ImageIo.h>
+#include "ds/app/blob_reader.h"
+#include "ds/app/blob_registry.h"
+#include "ds/data/data_buffer.h"
 #include "ds/data/resource_list.h"
 #include "ds/ui/sprite/sprite_engine.h"
-#include "ds/ui/sprite/sprite_registry.h"
 #include "ds/util/file_name_parser.h"
 
 namespace {
-const char          SPRITE_TYPE       = 'i';
+char          BLOB_TYPE       = 0;
 }
 
 namespace ds {
 namespace ui {
 
-void Image::addTo(SpriteRegistry& registry)
+void Image::install(ds::BlobRegistry& registry)
 {
-  registry.add(SPRITE_TYPE, [](SpriteEngine& se)->Sprite*{return new Image(se);});
+  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlob<Image>(r);});
 }
 
 Image::Image( SpriteEngine& engine )
@@ -25,7 +27,7 @@ Image::Image( SpriteEngine& engine )
     , mImageToken(mImageService)
     , mFlags(0)
 {
-  mSpriteType = SPRITE_TYPE;
+  mBlobType = BLOB_TYPE;
   setTransparent(false);
 }
 
@@ -36,7 +38,7 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
     , mFlags(0)
     , mResourceFn(filename)
 {
-  mSpriteType = SPRITE_TYPE;
+  mBlobType = BLOB_TYPE;
   try {
     Vec2f size = parseFileMetaDataSize(filename);
     mWidth = size.x;
@@ -55,7 +57,7 @@ Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
   , mFlags(0)
   , mResourceId(resourceId)
 {
-  mSpriteType = SPRITE_TYPE;
+  mBlobType = BLOB_TYPE;
   setTransparent(false);
   ds::Resource            res;
   if (engine.getResources().get(resourceId, res)) {

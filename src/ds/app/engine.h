@@ -2,11 +2,12 @@
 #ifndef DS_APP_ENGINE_H_
 #define DS_APP_ENGINE_H_
 
+#include <memory>
+#include <unordered_map>
 #include "ds/app/app_defs.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
 #include "ds/params/draw_params.h"
-#include <memory>
 #include <cinder/app/App.h>
 #include <cinder/app/TouchEvent.h>
 #include <cinder/app/AppBasic.h>
@@ -22,6 +23,8 @@ using namespace ci::app;
 
 namespace ds {
 class App;
+
+extern const ds::BitMask	ENGINE_LOG;
 
 /**
  * \class ds::Engine
@@ -43,6 +46,11 @@ class Engine : public ui::SpriteEngine {
 
     bool                        isIdling() const;
     void                        startIdling();
+    
+    virtual ds::sprite_id_t     nextSpriteId();
+    virtual void                registerSprite(ds::ui::Sprite&);
+    virtual void                unregisterSprite(ds::ui::Sprite&);
+    virtual ds::ui::Sprite*     findSprite(const ds::sprite_id_t);
 
     tuio::Client               &getTuioClient();
     void                        mouseTouchBegin( MouseEvent event, int id );
@@ -65,6 +73,9 @@ class Engine : public ui::SpriteEngine {
     float                       getWorldHeight() const;
   protected:
     Engine(const ds::cfg::Settings&);
+
+    std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
+                                mSprites;
 
     // Conveniences for the subclases
     void	                      updateClient();

@@ -13,6 +13,8 @@
 using namespace ci;
 using namespace ci::app;
 
+const ds::BitMask	ds::ENGINE_LOG = ds::Logger::newModule("engine");
+
 namespace ds {
 
 /**
@@ -129,6 +131,46 @@ void Engine::startIdling()
     return;
 
   mIdling = true;
+}
+
+ds::sprite_id_t Engine::nextSpriteId()
+{
+  static ds::sprite_id_t              ID = ds::EMPTY_SPRITE_ID;
+  ++ID;
+  // If god forbid I ever wrap around to where I started, I still
+  // want to maintain a special empty ID that is never assigned as valid.
+  if (ID == ds::EMPTY_SPRITE_ID) ++ID;
+  return ID;
+}
+
+void Engine::registerSprite(ds::ui::Sprite& s)
+{
+  if (s.getId() == ds::EMPTY_SPRITE_ID) {
+    DS_LOG_WARNING_M("Engine::registerSprite() on empty sprite ID", ds::ENGINE_LOG);
+    assert(false);
+    return;
+  }
+  mSprites[s.getId()] = &s;
+}
+
+void Engine::unregisterSprite(ds::ui::Sprite& s)
+{
+  if (mSprites.empty()) return;
+  if (s.getId() == ds::EMPTY_SPRITE_ID) {
+    DS_LOG_WARNING_M("Engine::unregisterSprite() on empty sprite ID", ds::ENGINE_LOG);
+    assert(false);
+    return;
+  }
+  auto it = mSprites.find(s.getId());
+  if (it != mSprites.end()) mSprites.erase(it);
+}
+
+ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id)
+{
+  if (mSprites.empty()) return nullptr;
+  auto it = mSprites.find(id);
+  if (it == mSprites.end()) return nullptr;
+  return it->second;
 }
 
 void Engine::touchesBegin( TouchEvent event )

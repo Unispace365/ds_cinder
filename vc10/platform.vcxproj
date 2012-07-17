@@ -22,6 +22,8 @@
     <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioProfileBase.h" />
     <ClInclude Include="..\src\ds\app\app.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
+    <ClInclude Include="..\src\ds\app\blob_reader.h" />
+    <ClInclude Include="..\src\ds\app\blob_registry.h" />
     <ClInclude Include="..\src\ds\app\engine.h" />
     <ClInclude Include="..\src\ds\app\engine_client.h" />
     <ClInclude Include="..\src\ds\app\engine_clientserver.h" />
@@ -62,7 +64,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h" />
-    <ClInclude Include="..\src\ds\ui\sprite\sprite_registry.h" />
     <ClInclude Include="..\src\ds\ui\sprite\text.h" />
     <ClInclude Include="..\src\ds\ui\sprite\video.h" />
     <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h" />
@@ -82,6 +83,8 @@
     <ClCompile Include="$(CINDER)\blocks\osc\src\OscSender.cpp" />
     <ClCompile Include="$(CINDER)\blocks\tuio\src\TuioClient.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
+    <ClCompile Include="..\src\ds\app\blob_reader.cpp" />
+    <ClCompile Include="..\src\ds\app\blob_registry.cpp" />
     <ClCompile Include="..\src\ds\app\engine.cpp" />
     <ClCompile Include="..\src\ds\app\engine_client.cpp" />
     <ClCompile Include="..\src\ds\app\engine_clientserver.cpp" />
@@ -115,7 +118,6 @@
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\sprite_registry.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\text.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\video.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp" />

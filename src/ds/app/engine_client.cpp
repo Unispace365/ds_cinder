@@ -3,8 +3,12 @@
 #include "ds/ui/sprite/image.h"
 
 namespace ds {
-const char        HEADER_BLOCK = -1;
-const char        COMMAND_BLOCK = -2;
+
+namespace {
+char              VERIFIER_BLOB = 0;
+char              HEADER_BLOB = 0;
+char              COMMAND_BLOB = 0;
+}
 
 /**
  * \class ds::EngineClient
@@ -12,11 +16,17 @@ const char        COMMAND_BLOCK = -2;
 EngineClient::EngineClient(const ds::cfg::Settings& settings)
     : inherited(settings)
     , mLoadImageService(mLoadImageThread)
+    , mBlobReader(mReceiveBuffer, *this)
 {
-  mSpriteRegistry.add(HEADER_BLOCK, nullptr);
-  mSpriteRegistry.add(COMMAND_BLOCK, nullptr);
-  ds::ui::Sprite::addTo(mSpriteRegistry);
-  ds::ui::Image::addTo(mSpriteRegistry);
+  VERIFIER_BLOB = mBlobRegistry.add([this](BlobReader& r) {std::cout << "verify" << std::endl;});
+  HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
+  COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
+}
+
+ds::sprite_id_t EngineClient::nextSpriteId()
+{
+  // Clients never generate sprite IDs, they are always assigned from a blob.
+  return 0;
 }
 
 void EngineClient::setup()
@@ -35,13 +45,10 @@ void EngineClient::update()
   updateClient();
 
   // Receive and handle server data
+  const char    size = static_cast<char>(mBlobRegistry.mReader.size());
   char          token;
   while (mReceiveBuffer.read(&token, 1)) {
-    if (token == HEADER_BLOCK) {
-      receiveHeader(mReceiveBuffer);
-    } else if (token == COMMAND_BLOCK) {
-      receiveCommand(mReceiveBuffer);
-    }
+    if (token > 0 && token < size) mBlobRegistry.mReader[token](mBlobReader);
   }
 }
 
@@ -52,6 +59,7 @@ void EngineClient::draw()
 
 void EngineClient::receiveHeader(ds::DataBuffer& data)
 {
+  std::cout << "EngineClient::receiveHeader()" << std::endl;
 }
 
 void EngineClient::receiveCommand(ds::DataBuffer& data)

@@ -3,6 +3,7 @@
 #define DS_APP_ENGINESERVER_H_
 
 #include "ds/app/engine.h"
+#include "ds/data/data_buffer.h"
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
@@ -29,6 +30,8 @@ class EngineServer : public Engine {
     WorkManager				            mWorkManager;
     GlNoThread                    mLoadImageThread;
     ui::LoadImageService          mLoadImageService;
+
+    ds::DataBuffer                mSendBuffer;
 };
 
 } // namespace ds
