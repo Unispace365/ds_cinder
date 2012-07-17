@@ -13,6 +13,7 @@
 #include "ds/ui/sprite/dirty_state.h"
 #include "ds/ui/touch/touch_process.h"
 #include "ds/ui/touch/multi_touch_constraints.h"
+#include "cinder/gl/GlslProg.h"
 
 using namespace ci;
 
@@ -37,6 +38,14 @@ struct DragDestinationInfo;
 class Sprite
 {
     public:
+        enum BlendMode
+        {
+          NORMAL,
+          NORMAL_PREMULTIPLIED,
+          MULTIPLY,
+          SCREEN
+        };
+
         static void           addTo(SpriteRegistry&);
 
         Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
@@ -162,6 +171,11 @@ class Sprite
         bool                isDirty() const;
         void                writeTo(void* packetClass);
 
+        void                setBlendMode(const BlendMode &blendMode);
+        BlendMode           getBlendMode() const;
+
+        void                setShader(const std::string &shaderName);
+        std::string         getShaderName() const;
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -238,6 +252,10 @@ class Sprite
         bool                mCheckBounds;
 
         Sprite             *mDragDestination;
+
+        BlendMode           mBlendMode;
+        std::string         mShaderName;
+        ci::gl::GlslProg    mShader;
 };
 
 } // namespace ui

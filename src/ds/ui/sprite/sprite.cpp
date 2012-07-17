@@ -48,6 +48,7 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mDepth(1.0f)
     , mDragDestination(nullptr)
     , mSpriteType(SPRITE_TYPE)
+    , mBlendMode(NORMAL)
 {
 
 }
@@ -886,6 +887,26 @@ void Sprite::markChildrenAsDirty(const DirtyState& dirty)
 	for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
 		(*it)->markChildrenAsDirty(dirty);
 	}
+}
+
+void Sprite::setBlendMode( const BlendMode &blendMode )
+{
+
+}
+
+Sprite::BlendMode Sprite::getBlendMode() const
+{
+  return mBlendMode;
+}
+
+void Sprite::setShader( const std::string &shaderName )
+{
+
+}
+
+std::string Sprite::getShaderName() const
+{
+  return mShaderName;
 }
 
 } // namespace ui

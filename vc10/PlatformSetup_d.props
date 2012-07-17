@@ -2,9 +2,10 @@
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ImportGroup Label="PropertySheets" />
   <PropertyGroup Label="UserMacros">
-    <platform_include_d>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(DS_PLATFORM)\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\osc\include</platform_include_d>
-    <platform_lib_d>cinder_d.lib;glu32.lib;osc_d.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform_d.lib;CVClient.lib;QTMLClient.lib;psapi.lib</platform_lib_d>
-    <platform_lib_include_d>$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(QUICKTIME)\Libraries</platform_lib_include_d>
+    <platform_include_d>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(DS_PLATFORM)\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\osc\include;$(DS_PLATFORM)\lib\snappy</platform_include_d>
+    <platform_lib_d>cinder_d.lib;glu32.lib;osc_d.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform_d.lib;CVClient.lib;QTMLClient.lib;psapi.lib;snappy_d.lib</platform_lib_d>
+    <platform_lib_include_d>$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(QUICKTIME)\Libraries;$(DS_PLATFORM)\lib\snappy</platform_lib_include_d>
+    <platform_lib_ignore>LIBCMT; LIBC.lib</platform_lib_ignore>
   </PropertyGroup>
   <PropertyGroup />
   <ItemDefinitionGroup />
@@ -17,6 +18,9 @@
     </BuildMacro>
     <BuildMacro Include="platform_lib_include_d">
       <Value>$(platform_lib_include_d)</Value>
+    </BuildMacro>
+    <BuildMacro Include="platform_lib_ignore">
+      <Value>$(platform_lib_ignore)</Value>
     </BuildMacro>
   </ItemGroup>
 </Project>
