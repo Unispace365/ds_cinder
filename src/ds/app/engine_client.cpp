@@ -21,6 +21,9 @@ EngineClient::EngineClient(const ds::cfg::Settings& settings)
   VERIFIER_BLOB = mBlobRegistry.add([this](BlobReader& r) {std::cout << "verify" << std::endl;});
   HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
+
+  ds::ui::Sprite::install(mBlobRegistry);
+  ds::ui::Image::install(mBlobRegistry);
 }
 
 ds::sprite_id_t EngineClient::nextSpriteId()
