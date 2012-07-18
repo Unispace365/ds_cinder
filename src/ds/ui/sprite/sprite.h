@@ -73,7 +73,8 @@ class Sprite
 
         ds::sprite_id_t     getId() const       { return mId; }
 
-        virtual void        setSize(float width, float height, float depth = 1.0f);
+        virtual void        setSize(float width, float height);
+        virtual void        setSize(float width, float height, float depth);
         float               getWidth() const;
         float               getHeight() const;
         float               getDepth() const;
@@ -285,7 +286,7 @@ class Sprite
         BlendMode           mBlendMode;
         std::string         mShaderName;
         ci::gl::GlslProg    mShaderBlend;
-        ci::gl::GlslProg    mShaderNormal;
+        ci::gl::GlslProg    mShaderBase;
 };
 
 template <typename T>

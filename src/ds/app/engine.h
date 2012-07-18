@@ -20,6 +20,7 @@
 #include "cinder/Camera.h"
 #include "ds/network/zmq_connection.h"
 #include "ds/data/raw_data_buffer.h"
+#include "cinder/gl/Fbo.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -78,6 +79,8 @@ class Engine : public ui::SpriteEngine {
     float                       getHeight() const;
     float                       getWorldWidth() const;
     float                       getWorldHeight() const;
+
+    void                        setCamera();
   protected:
     Engine(const ds::cfg::Settings&);
 
@@ -115,6 +118,8 @@ class Engine : public ui::SpriteEngine {
     ci::Vec2f                   mWorldSize;
     ds::cfg::Settings           mDebugSettings;
     ci::CameraOrtho             mCamera;
+
+    ci::gl::Fbo                 mFbo;
 };
 
 } // namespace ds

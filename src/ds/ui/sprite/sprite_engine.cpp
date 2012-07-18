@@ -37,5 +37,39 @@ Sprite *SpriteEngine::getDragDestinationSprite( const ci::Vec3f &globalPoint, Sp
   return nullptr;
 }
 
+std::unique_ptr<ci::gl::Fbo> SpriteEngine::getFbo( int width, int height )
+{
+  if (!mFbos.empty()) {
+    auto it = mFbos.begin();
+    for (auto it2 = mFbos.end(); it != it2; ++it) {
+      if ((*it).get()->getWidth() >= width && (*it).get()->getHeight() >= height) {
+        std::unique_ptr<ci::gl::Fbo> fbo = std::move(*it);
+        mFbos.erase(it);
+        return std::move(fbo);
+      }
+    }
+
+    std::unique_ptr<ci::gl::Fbo> fbo = std::move(mFbos.front());
+    mFbos.pop_front();
+
+    gl::Fbo::Format format;
+    format.setColorInternalFormat(GL_RGBA32F);
+    format.setTarget(GL_TEXTURE_RECTANGLE_ARB);
+    fbo = std::move(std::unique_ptr<ci::gl::Fbo>(new ci::gl::Fbo(width, height, format)));
+
+    return std::move(fbo);
+  }
+
+  gl::Fbo::Format format;
+  format.setColorInternalFormat(GL_RGBA32F);
+  format.setTarget(GL_TEXTURE_RECTANGLE_ARB);
+  return std::move(std::unique_ptr<ci::gl::Fbo>(new ci::gl::Fbo(width, height, format)));
+}
+
+void SpriteEngine::giveBackFbo( std::unique_ptr<ci::gl::Fbo> &fbo )
+{
+  mFbos.push_back(std::move(fbo));
+}
+
 }
 }

@@ -8,6 +8,7 @@
 #include "ds/math/math_defs.h"
 #include "sprite_engine.h"
 #include "ds/math/math_func.h"
+#include "cinder/Camera.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -141,14 +142,41 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
 
     Matrix44f totalTransformation = trans*mTransformation;
 
-    gl::pushModelView();
-    gl::multModelView(totalTransformation);
-    gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
 
-    if ( !mTransparent )
+    if ( !mTransparent ) {
+      std::unique_ptr<ci::gl::Fbo> fbo = std::move(mEngine.getFbo(mWidth, mHeight));
+      {
+
+        gl::SaveFramebufferBinding bindingSaver;
+        // bind the framebuffer - now everything we draw will go there
+        fbo->bindFramebuffer();
+
+        gl::setViewport(fbo->getBounds());
+
+        ci::CameraOrtho camera;
+        camera.setOrtho(0.0f, fbo->getWidth(), fbo->getHeight(), 0.0f, -1.0f, 1.0f);
+
+        gl::pushModelView();
+        gl::setMatrices(camera);
+
+        gl::enableAlphaBlending();
+        gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+        gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
         drawLocalClient();
+        gl::popModelView();
+      }
 
-    gl::popModelView();
+      mEngine.setCamera();
+      Rectf screen(0.0f, fbo->getHeight(), fbo->getWidth(), 0.0f);
+      gl::pushModelView();
+      glLoadIdentity();
+      gl::multModelView(totalTransformation);
+      gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+      gl::draw( fbo->getTexture(0), screen );
+      gl::popModelView();
+      mEngine.giveBackFbo(std::move(fbo));
+    }
+
 
     if ( !mDrawSorted )
     {
@@ -424,6 +452,12 @@ void Sprite::setSize( float width, float height, float depth )
   mWidth = width;
   mHeight = height;
   mDepth = depth;
+  markAsDirty(SIZE_DIRTY);
+}
+
+void Sprite::setSize( float width, float height )
+{
+  setSize(width, height, 1.0f);
   markAsDirty(SIZE_DIRTY);
 }
 
