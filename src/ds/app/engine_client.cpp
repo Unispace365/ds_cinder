@@ -1,5 +1,6 @@
 #include "ds/app/engine_client.h"
 
+#include "ds/debug/logger.h"
 #include "ds/ui/sprite/image.h"
 #include "ds/util/string_util.h"
 #include "snappy.h"
@@ -24,7 +25,11 @@ EngineClient::EngineClient(const ds::cfg::Settings& settings)
   HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
-  mConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+  try {
+   mConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+  } catch(std::exception &e) {
+    DS_LOG_ERROR_M("EngineClient() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
+  }
 }
 
 void EngineClient::installSprite( const std::function<void(ds::BlobRegistry&)>& asServer,
@@ -58,8 +63,8 @@ void EngineClient::update()
     //if (mSendBuffer.size() > 0) {
     //  int size = mSendBuffer.size();
     //  mRawDataBuffer.resize(size);
-    //  mSendBuffer.readRaw(mRawDataBuffer.ptr(), size);
-    //  snappy::Compress(mRawDataBuffer.constPtr(), size, &mCompressionBufferWrite);
+    //  mSendBuffer.readRaw(mRawDataBuffer.data(), size);
+    //  snappy::Compress(mRawDataBuffer.data(), size, &mCompressionBufferWrite);
     //  mConnection.sendMessage(mCompressionBufferWrite);
     //}
 
