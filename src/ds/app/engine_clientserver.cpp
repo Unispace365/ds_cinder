@@ -38,6 +38,7 @@ void EngineClientServer::setupTuio(ds::App& a)
 void EngineClientServer::update()
 {
   updateServer();
+  mWorkManager.update();
 }
 
 void EngineClientServer::draw()
