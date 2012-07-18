@@ -70,7 +70,7 @@
     <Filter Include="src\ds\ui\service">
       <UniqueIdentifier>{0ee8cb5c-b5a5-4e24-80b3-ae017220e214}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\network">
+    <Filter Include="src\ds\network">
       <UniqueIdentifier>{20082a19-803d-48dd-bf2a-4b79b04506d7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -268,7 +268,7 @@
       <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\network\zmq_connection.h">
-      <Filter>src\network</Filter>
+      <Filter>src\ds\network</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\data\raw_data_buffer.h">
       <Filter>src\ds\data</Filter>
@@ -423,7 +423,7 @@
       <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\network\zmq_connection.cpp">
-      <Filter>src\network</Filter>
+      <Filter>src\ds\network</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp">
       <Filter>src\ds\data</Filter>
