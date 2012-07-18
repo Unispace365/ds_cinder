@@ -90,7 +90,7 @@ void DataBuffer::addRaw( const char *b, unsigned size )
   mStream.write(b, size);
 }
 
-void DataBuffer::readRaw( char *b, unsigned size )
+bool DataBuffer::readRaw( char *b, unsigned size )
 {
   unsigned currentPosition = mStream.getReadPosition();
 
@@ -99,9 +99,10 @@ void DataBuffer::readRaw( char *b, unsigned size )
   mStream.setReadPosition(currentPosition);
 
   if (size > (length - currentPosition))
-    return;
+    return false;
 
   mStream.read(b, size);
+  return true;
 }
 
 } // namespace ds
