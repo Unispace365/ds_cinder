@@ -1,5 +1,25 @@
 #include "zmq_connection.h"
 #include <iostream>
+#include "ds\util\string_util.h"
+
+namespace {
+
+class BadIpException: public std::exception
+{
+  public:
+    BadIpException(const std::string &ip)
+    {
+      mMsg = ip + " is in the Multicast range. Please choose a different ip; usually, \"localhost,\" 127.0.0.1, or your local ip.";
+    }
+    const char *what() const
+    {
+      return mMsg.c_str();
+    }
+  private:
+    std::string mMsg;
+};
+
+}
 
 namespace ds
 {
@@ -7,6 +27,7 @@ namespace ds
 ZmqConnection::ZmqConnection(int numThreads)
   : mContext(numThreads)
   , mServer(false)
+  , mInitialized(false)
 {
 }
 
@@ -17,6 +38,12 @@ ZmqConnection::~ZmqConnection()
 
 bool ZmqConnection::initialize( bool server, const std::string &ip, const std::string &port )
 {
+  std::vector<std::string> numbers = ds::split(ip, ".");
+  int value;
+  ds::string_to_value(numbers.front(), value);
+  if (value >= 224 && value <= 239 )
+    throw BadIpException(ip);
+
   mServer = server;
   mInitialized = true;
   try

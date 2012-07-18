@@ -24,7 +24,11 @@ EngineClient::EngineClient(const ds::cfg::Settings& settings)
   HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
-  mConnection.initialize(false, settings.getText("server:ip", 0, "239.255.20.20"), ds::value_to_string(settings.getInt("server:send_port", 0, 8000)));
+  try {
+   mConnection.initialize(false, settings.getText("server:ip", 0, "239.255.20.20"), ds::value_to_string(settings.getInt("server:send_port", 0, 8000)));
+  } catch(std::exception &e) {
+    std::cout << e.what() << std::endl;
+  }
 }
 
 void EngineClient::installSprite( const std::function<void(ds::BlobRegistry&)>& asServer,
