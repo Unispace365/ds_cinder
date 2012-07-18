@@ -33,19 +33,11 @@ class PosAnim {
     void                operator=(const PosAnim& rhs) { if (mTarget) mTarget->setPosition(rhs.mPos); mPos = rhs.mPos; }
 };
 
-#if 0
-class PosAnim2 : public ci::Anim<ci::Vec3f> {
-  public:
-    PosAnim2(ds::ui::Sprite& s) : inherited(&mTarget, ), mSprite(s) {
-    }
+class Tweener {
 
-    ds::ui::Sprite      &mSprite;
-    ci::Vec3f           mTarget;
-
-  private:
-    typedef ci::Anim<ci::Vec3f>   inherited;
+  template<typename DST, typename SRC>
+  void        add(DST& dst, const std::function<void(void)>& assign
 };
-#endif
 
 }
 
