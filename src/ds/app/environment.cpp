@@ -22,6 +22,12 @@ const std::string& Environment::SETTINGS()
   return SZ;
 }
 
+const std::string& Environment::RESOURCES()
+{
+  static const std::string    SZ("resources");
+  return SZ;
+}
+
 std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName)
 {
   Poco::Path      p(ds::App::envAppPath());

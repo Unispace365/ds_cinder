@@ -14,6 +14,7 @@ namespace ds {
 class Environment {
   public:
     static const std::string&   SETTINGS();
+    static const std::string&   RESOURCES();
     // Answer an app folder -- currently only SETTINGS() is valid for arg 1.
     // If fileName is valid, then it will be appended to the found app folder, if it exists.
     // This function assumes that I don't actually know the location of the folderName
