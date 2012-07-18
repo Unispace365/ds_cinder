@@ -22,13 +22,16 @@ namespace {
 char                BLOB_TYPE         = 0;
 
 const DirtyState    ID_DIRTY 			    = newUniqueDirtyState();
+const DirtyState    PARENT_DIRTY 			= newUniqueDirtyState();
 const DirtyState    CHILD_DIRTY 			= newUniqueDirtyState();
+const DirtyState    SIZE_DIRTY 	    	= newUniqueDirtyState();
 const DirtyState    POSITION_DIRTY 		= newUniqueDirtyState();
 const DirtyState    SCALE_DIRTY 	  	= newUniqueDirtyState();
 
-const char          POSITION_ATT      = 2;
-const char          SCALE_ATT         = 3;
-const char          TERMINATE_TOKEN   = 0;
+const char          PARENT_ATT        = 2;
+const char          SIZE_ATT          = 3;
+const char          POSITION_ATT      = 4;
+const char          SCALE_ATT         = 5;
 
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
@@ -57,29 +60,46 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mId(ds::EMPTY_SPRITE_ID)
     , mWidth(width)
     , mHeight(height)
-    , mCenter(0.0f, 0.0f, 0.0f)
-    , mRotation(0.0f, 0.0f, 0.0f)
-    , mZLevel(0.0f)
-    , mScale(1.0f, 1.0f, 1.0f)
-    , mDrawSorted(false)
-    , mUpdateTransform(true)
-    , mParent(nullptr)
-    , mOpacity(1.0f)
-    , mColor(Color(1.0f, 1.0f, 1.0f))
-    , mVisible(true)
-    , mTransparent(true)
-    , mEnabled(false)
-    , mMultiTouchEnabled(false)
     , mTouchProcess(engine, *this)
-    , mCheckBounds(false)
-    , mBoundsNeedChecking(true)
-    , mInBounds(true)
-    , mDepth(1.0f)
-    , mDragDestination(nullptr)
-    , mBlobType(BLOB_TYPE)
-    , mBlendMode(NORMAL)
 {
-  setSpriteId(mEngine.nextSpriteId());
+  init(mEngine.nextSpriteId());
+  setSize(width, height);
+}
+
+Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id )
+    : mEngine(engine)
+    , mId(ds::EMPTY_SPRITE_ID)
+    , mTouchProcess(engine, *this)
+{
+  init(id);
+}
+
+void Sprite::init(const ds::sprite_id_t id)
+{
+  mWidth = 0;
+  mHeight = 0;
+  mCenter = ci::Vec3f(0.0f, 0.0f, 0.0f);
+  mRotation = ci::Vec3f(0.0f, 0.0f, 0.0f);
+  mZLevel = 0.0f;
+  mScale = ci::Vec3f(1.0f, 1.0f, 1.0f);
+  mDrawSorted = false;
+  mUpdateTransform = true;
+  mParent = nullptr;
+  mOpacity = 1.0f;
+  mColor = Color(1.0f, 1.0f, 1.0f);
+  mVisible = true;
+  mTransparent = true;
+  mEnabled = false;
+  mMultiTouchEnabled = false;
+  mCheckBounds = false;
+  mBoundsNeedChecking = true;
+  mInBounds = true;
+  mDepth = 1.0f;
+  mDragDestination = nullptr;
+  mBlobType = BLOB_TYPE;
+  mBlendMode = NORMAL;
+
+  setSpriteId(id);
 }
 
 Sprite::~Sprite()
@@ -327,6 +347,7 @@ void Sprite::setParent( Sprite *parent )
     mParent = parent;
     if (mParent)
         mParent->addChild(*this);
+    markAsDirty(PARENT_DIRTY);
 }
 
 void Sprite::removeParent()
@@ -335,6 +356,7 @@ void Sprite::removeParent()
     {
         mParent->removeChild(*this);
         mParent = nullptr;
+        markAsDirty(PARENT_DIRTY);
     }
 }
 
@@ -397,9 +419,12 @@ void Sprite::remove()
 
 void Sprite::setSize( float width, float height, float depth )
 {
-    mWidth = width;
-    mHeight = height;
-    mDepth = depth;
+  if (mWidth == width && mHeight == height && mDepth == depth) return;
+
+  mWidth = width;
+  mHeight = height;
+  mDepth = depth;
+  markAsDirty(SIZE_DIRTY);
 }
 
 void Sprite::setColor( const Color &color )
@@ -883,7 +908,7 @@ void Sprite::writeTo(ds::DataBuffer& buf)
 
   writeAttributesTo(buf);
   // Terminate the sprite and attribute list
-  buf.add(TERMINATE_TOKEN);
+  buf.add(ds::TERMINATOR_CHAR);
   // If I wrote any attributes then make sure to terminate the block
   mDirty.clear();
 
@@ -894,6 +919,17 @@ void Sprite::writeTo(ds::DataBuffer& buf)
 
 void Sprite::writeAttributesTo(ds::DataBuffer& buf)
 {
+		if (mDirty.has(PARENT_DIRTY)) {
+      buf.add(PARENT_ATT);
+      if (mParent) buf.add(mParent->getId());
+      else buf.add(ds::EMPTY_SPRITE_ID);
+    }
+		if (mDirty.has(SIZE_DIRTY)) {
+      buf.add(SIZE_ATT);
+      buf.add(mWidth);
+      buf.add(mHeight);
+      buf.add(mDepth);
+    }
 		if (mDirty.has(POSITION_DIRTY)) {
       buf.add(POSITION_ATT);
       buf.add(mPosition.x);
@@ -917,8 +953,16 @@ void Sprite::readFrom(ds::BlobReader& blob)
 void Sprite::readAttributesFrom(ds::DataBuffer& buf)
 {
   char          id;
-  while ((id=buf.read<char>()) != TERMINATE_TOKEN) {
-    if (id == POSITION_ATT) {
+  while (buf.canRead<char>() && (id=buf.read<char>()) != ds::TERMINATOR_CHAR) {
+    if (id == PARENT_ATT) {
+      const sprite_id_t     parentId = buf.read<sprite_id_t>();
+      Sprite*               parent = mEngine.findSprite(parentId);
+      if (parent) parent->addChild(*this);
+    } else if (id == SIZE_ATT) {
+      mWidth = buf.read<float>();
+      mHeight = buf.read<float>();
+      mDepth = buf.read<float>();
+    } else if (id == POSITION_ATT) {
       mPosition.x = buf.read<float>();
       mPosition.y = buf.read<float>();
       mPosition.z = buf.read<float>();

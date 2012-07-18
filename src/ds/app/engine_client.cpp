@@ -1,5 +1,6 @@
 #include "ds/app/engine_client.h"
 
+#include "ds/debug/logger.h"
 #include "ds/ui/sprite/image.h"
 #include "ds/util/string_util.h"
 #include "snappy.h"
@@ -25,9 +26,9 @@ EngineClient::EngineClient(const ds::cfg::Settings& settings)
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
   try {
-   mConnection.initialize(false, settings.getText("server:ip", 0, "239.255.20.20"), ds::value_to_string(settings.getInt("server:send_port", 0, 8000)));
+   mConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
   } catch(std::exception &e) {
-    std::cout << e.what() << std::endl;
+    DS_LOG_ERROR_M("EngineClient() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
   }
 }
 
@@ -75,9 +76,9 @@ void EngineClient::update()
   }
 
   // Receive and handle server data
-  const char    size = static_cast<char>(mBlobRegistry.mReader.size());
-  char          token;
-  while (mReceiveBuffer.read(&token, 1)) {
+  const char      size = static_cast<char>(mBlobRegistry.mReader.size());
+  while (mReceiveBuffer.canRead<char>()) {
+    const char  token = mReceiveBuffer.read<char>();
     if (token > 0 && token < size) mBlobRegistry.mReader[token](mBlobReader);
   }
 }
@@ -89,7 +90,7 @@ void EngineClient::draw()
 
 void EngineClient::receiveHeader(ds::DataBuffer& data)
 {
-  std::cout << "EngineClient::receiveHeader()" << std::endl;
+//  std::cout << "EngineClient::receiveHeader()" << std::endl;
 }
 
 void EngineClient::receiveCommand(ds::DataBuffer& data)

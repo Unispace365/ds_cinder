@@ -1,10 +1,9 @@
 <settings>
-	<text name="platform:architecture" value="client" />
+	<!-- Example engine_settings.xml file.  -->
 	<text name="project_path" value="northeastern\wall" />
  	<int name="num_clients" value="1" />
 
-<!--	<text name="server:ip" value="239.255.42.58" />  <!-- this will cause a crash when zmq is initialized for some reason -->
-	<text name="server:ip" value="192.168.0.71" /> <!-- -->
+	<text name="server:ip" value="239.255.42.58" />
 	<int name="server:send_port" value="10370" />
 	<int name="server:listen_port" value="10371" />
 

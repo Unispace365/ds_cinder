@@ -29,7 +29,8 @@ const int Engine::NumberOfNetworkThreads = 2;
  * \class ds::Engine
  */
 Engine::Engine(const ds::cfg::Settings &settings)
-  : mIdleTime(300.0f)
+  : mRootSprite(*this, ROOT_SPRITE_ID)
+  , mIdleTime(300.0f)
   , mIdling(true)
   , mTouchManager(*this)
   , mMinTouchDistance(10.0f)
@@ -53,7 +54,7 @@ Engine::~Engine()
 
 ui::Sprite &Engine::getRootSprite()
 {
-  return *mRootSprite;
+  return mRootSprite;
 }
 
 void Engine::updateClient()
@@ -69,9 +70,7 @@ void Engine::updateClient()
   mUpdateParams.setDeltaTime(dt);
   mUpdateParams.setElapsedTime(curr);
 
-  if (mRootSprite) {
-    mRootSprite->updateClient(mUpdateParams);
-  }
+  mRootSprite.updateClient(mUpdateParams);
 }
 
 void Engine::updateServer()
@@ -85,9 +84,7 @@ void Engine::drawClient()
 
   gl::setMatrices(mCamera);
 
-  if (mRootSprite) {
-    mRootSprite->drawClient(Matrix44f::identity(), mDrawParams);
-  }
+  mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
 
   mTouchManager.drawTouches();
 }
@@ -99,9 +96,7 @@ void Engine::drawServer()
 
   gl::setMatrices(mCamera);
 
-  if (mRootSprite) {
-    mRootSprite->drawServer(Matrix44f::identity(), mDrawParams);
-  }
+  mRootSprite.drawServer(Matrix44f::identity(), mDrawParams);
 
   mTouchManager.drawTouches();
 }
@@ -113,7 +108,6 @@ void Engine::setup()
   //gl::disable(GL_CULL_FACE);
   //////////////////////////////////////////////////////////////////////////
 
-  mRootSprite = std::move(std::unique_ptr<ui::Sprite>(new ui::Sprite(*this)));
   float curr = static_cast<float>(getElapsedSeconds());
   mLastTime = curr;
   mLastTouchTime = 0;
@@ -142,13 +136,16 @@ void Engine::startIdling()
   mIdling = true;
 }
 
+static bool illegal_sprite_id(const ds::sprite_id_t id)
+{
+  return id == EMPTY_SPRITE_ID || id == ROOT_SPRITE_ID;
+}
+
 ds::sprite_id_t Engine::nextSpriteId()
 {
-  static ds::sprite_id_t              ID = ds::EMPTY_SPRITE_ID;
+  static ds::sprite_id_t              ID = 0;
   ++ID;
-  // If god forbid I ever wrap around to where I started, I still
-  // want to maintain a special empty ID that is never assigned as valid.
-  if (ID == ds::EMPTY_SPRITE_ID) ++ID;
+  while (illegal_sprite_id(ID)) ++ID;
   return ID;
 }
 

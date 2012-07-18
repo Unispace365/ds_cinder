@@ -2,6 +2,7 @@
 
 #include "ds/app/app.h"
 #include "ds/app/blob_reader.h"
+#include "ds/debug/logger.h"
 #include "snappy.h"
 #include "ds/util/string_util.h"
 
@@ -10,6 +11,8 @@ namespace ds {
 namespace {
 char              HEADER_BLOB = 0;
 char              COMMAND_BLOB = 0;
+
+const char        TERMINATOR = 0;
 }
 
 /**
@@ -25,9 +28,9 @@ EngineServer::EngineServer(const ds::cfg::Settings& settings)
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
   try {
-    mConnection.initialize(true, settings.getText("server:ip", 0, "239.255.20.20"), ds::value_to_string(settings.getInt("server:send_port", 0, 8000)));
+    mConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
   } catch (std::exception &e) {
-    std::cout << e.what() << std::endl;
+    DS_LOG_ERROR_M("EngineServer() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
   }
 }
 
@@ -48,11 +51,13 @@ void EngineServer::update()
 {
   updateServer();
 
+  // Always send the header
+  mSendBuffer.clear();
+  mSendBuffer.add(HEADER_BLOB);
+  mSendBuffer.add(ds::TERMINATOR_CHAR);
+
   ui::Sprite                 &root = getRootSprite();
   if (root.isDirty()) {
-    mSendBuffer.clear();
-    //create header
-    //
     root.writeTo(mSendBuffer);
   }
 
