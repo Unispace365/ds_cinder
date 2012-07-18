@@ -5,22 +5,15 @@
 namespace ds {
 
 typedef int                 sprite_id_t;
+// System-defined illegal sprite
 static const sprite_id_t    EMPTY_SPRITE_ID = 0;
+// System-defined root sprite, there is always one, and apps can't manage it.
+// All other sprites descend from this sprite.
+static const sprite_id_t    ROOT_SPRITE_ID = -1;
+
+// Blob termination for network traffic
+static const char           TERMINATOR_CHAR = 0;
 
 } // namespace ds
-
-#if 0
-// This is currently and hopefully permanently obsolete
-
-// Three types of compile modes:
-// Server contains the logic for managing all the views, and is what would generally be thought of
-// as the application framework.
-// Client is responsible for drawing the model.
-// ServerClient puts both of them together as a single app.
-//#define			DS_PLATFORM_SERVER			(1)
-//#define			DS_PLATFORM_CLIENT			(1)
-#define			DS_PLATFORM_SERVERCLIENT	(1)
-
-#endif
 
 #endif // DS_APP_APPDEFS_H_

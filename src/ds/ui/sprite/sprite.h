@@ -24,6 +24,7 @@ class BlobReader;
 class BlobRegistry;
 class DataBuffer;
 class DrawParams;
+class Engine;
 class UpdateParams;
 
 namespace ui {
@@ -275,6 +276,10 @@ class Sprite
         Sprite             *mDragDestination;
 
   private:
+        friend class Engine;
+        Sprite(SpriteEngine&, const ds::sprite_id_t);
+
+        void                init(const ds::sprite_id_t);
         void                readAttributesFrom(ds::DataBuffer&);
 
         BlendMode           mBlendMode;
@@ -294,6 +299,13 @@ static void Sprite::handleBlobFromServer(ds::BlobReader& r)
   } else if ((s = new T(r.mSpriteEngine)) != nullptr) {
     s->setSpriteId(id);
     s->readFrom(r);
+    // If it didn't get assigned to a parent, something is wrong,
+    // and it would disappear forever from memory management if I didn't
+    // clean up here.
+    if (!s->mParent) {
+      assert(false);
+      delete s;
+    }
   }
 }
 

@@ -93,7 +93,7 @@ class Engine : public ui::SpriteEngine {
 
     static const int            NumberOfNetworkThreads;
   private:
-    std::unique_ptr<ui::Sprite> mRootSprite;
+    ui::Sprite                  mRootSprite;
     // A cache of all the resources in the system
     ResourceList                mResources;
     UpdateParams                mUpdateParams;

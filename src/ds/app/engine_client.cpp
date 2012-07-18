@@ -71,9 +71,9 @@ void EngineClient::update()
   }
 
   // Receive and handle server data
-  const char    size = static_cast<char>(mBlobRegistry.mReader.size());
-  char          token;
-  while (mReceiveBuffer.read(&token, 1)) {
+  const char      size = static_cast<char>(mBlobRegistry.mReader.size());
+  while (mReceiveBuffer.canRead<char>()) {
+    const char  token = mReceiveBuffer.read<char>();
     if (token > 0 && token < size) mBlobRegistry.mReader[token](mBlobReader);
   }
 }
@@ -85,7 +85,7 @@ void EngineClient::draw()
 
 void EngineClient::receiveHeader(ds::DataBuffer& data)
 {
-  std::cout << "EngineClient::receiveHeader()" << std::endl;
+//  std::cout << "EngineClient::receiveHeader()" << std::endl;
 }
 
 void EngineClient::receiveCommand(ds::DataBuffer& data)
