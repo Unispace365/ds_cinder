@@ -3,6 +3,7 @@
 #define DS_DATA_BUFFER_H
 #include <string>
 #include "read_write_buffer.h"
+#include "raw_data_buffer.h"
 
 namespace ds {
 
@@ -91,6 +92,8 @@ class DataBuffer
     }
   private:
     ReadWriteBuffer mStream;
+    RawDataBuffer   mStringBuffer;
+    RawDataBuffer   mWStringBuffer;
 };
 
 template <>
@@ -108,18 +111,10 @@ std::string DataBuffer::read<std::string>()
     return std::string();
   }
 
-  static unsigned bytesSize = size;
-  static char *bytes = new char[bytesSize];
+  mStringBuffer.setSize(size);
 
-  if (bytesSize < size || !bytes) {
-    if (bytes)
-      delete []bytes;
-    bytesSize = size;
-    bytes = new char[bytesSize];
-  }
-
-  mStream.read(bytes, size);
-  return std::string(bytes, size);
+  mStream.read(mStringBuffer.data(), size);
+  return std::string(mStringBuffer.data(), size);
 }
 
 template <>
@@ -137,18 +132,10 @@ std::wstring DataBuffer::read<std::wstring>()
     return std::wstring();
   }
 
-  static unsigned bytesSize = size;
-  static wchar_t *bytes = new wchar_t[bytesSize];
+  mWStringBuffer.setSize(size);
 
-  if (bytesSize < size || !bytes) {
-    if (bytes)
-      delete []bytes;
-    bytesSize = size;
-    bytes = new wchar_t[bytesSize];
-  }
-
-  mStream.read((char *)bytes, size);
-  return std::wstring(bytes, size/2);
+  mStream.read((char *)mWStringBuffer.data(), size);
+  return std::wstring((const wchar_t *)mWStringBuffer.data(), size/2);
 }
 
 }

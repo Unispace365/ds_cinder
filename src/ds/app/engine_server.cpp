@@ -54,9 +54,9 @@ void EngineServer::update()
   if (mConnection.initialized()) {
     if (mSendBuffer.size() > 0) {
       int size = mSendBuffer.size();
-      mRawDataBuffer.resize(size);
-      mSendBuffer.readRaw(mRawDataBuffer.ptr(), size);
-      snappy::Compress(mRawDataBuffer.constPtr(), size, &mCompressionBufferWrite);
+      mRawDataBuffer.setSize(size);
+      mSendBuffer.readRaw(mRawDataBuffer.data(), size);
+      snappy::Compress(mRawDataBuffer.data(), size, &mCompressionBufferWrite);
       mConnection.sendMessage(mCompressionBufferWrite);
       mSendBuffer.clear();
     }

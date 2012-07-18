@@ -1,25 +1,11 @@
 #pragma once
 #ifndef DS_RAW_DATA_BUFFER_H
 #define DS_RAW_DATA_BUFFER_H
+#include "ds/query/RecycleArray.h"
 
 namespace ds {
 
-class RawDataBuffer
-{
-  public:
-    RawDataBuffer(const unsigned &size = 0);
-    ~RawDataBuffer();
-
-    void        resize(unsigned size);
-    char       *ptr() const;
-    const char *constPtr() const;
-    unsigned    size();
-  protected:
-    void        grow(unsigned size);
-
-    char       *mBuffer;
-    unsigned    mSize;
-};
+typedef RecycleArray<char> RawDataBuffer; 
 
 }
 
