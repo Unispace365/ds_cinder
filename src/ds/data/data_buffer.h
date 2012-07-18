@@ -6,6 +6,10 @@
 
 namespace ds {
 
+/*
+ * brief
+ *   add functions must be matched be read function.
+ */
 class DataBuffer
 {
   public:
@@ -14,9 +18,27 @@ class DataBuffer
     void seekBegin();
     void clear();
 
-    void addRaw(const char *b, unsigned size);
-    void readRaw(char *b, unsigned size);
+    template <typename T>
+    bool canRead()
+    {
+      unsigned size = sizeof(T);
+      unsigned currentPosition = mStream.getReadPosition();
 
+      mStream.setReadPosition(ReadWriteBuffer::End);
+      unsigned length = mStream.getReadPosition();
+      mStream.setReadPosition(currentPosition);
+
+      if (size > (length - currentPosition))
+        return false;
+      return true;
+    }
+
+    // function to add raw data no size added.
+    void addRaw(const char *b, unsigned size);
+    // function to read raw data no size will be read.
+    bool readRaw(char *b, unsigned size);
+
+    // will write size when writing data.
     void add(const char *b, unsigned size);
     template <typename T>
     void add(const T &t)
@@ -31,7 +53,7 @@ class DataBuffer
     void add(const char *cs);
     void add(const wchar_t *cs);
 
-
+    // will read size from buffer and only read if size is available.
     bool read(char *b, unsigned size);
     template <typename T>
     T read()
