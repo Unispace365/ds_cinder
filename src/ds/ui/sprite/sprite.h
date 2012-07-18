@@ -279,7 +279,8 @@ class Sprite
 
         BlendMode           mBlendMode;
         std::string         mShaderName;
-        ci::gl::GlslProg    mShader;
+        ci::gl::GlslProg    mShaderBlend;
+        ci::gl::GlslProg    mShaderNormal;
 };
 
 template <typename T>

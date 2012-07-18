@@ -440,12 +440,7 @@ void Sprite::drawLocalClient()
 
 void Sprite::drawLocalServer()
 {
-  glBegin(GL_QUADS);
-  gl::vertex( 0 , 0 );
-  gl::vertex( mWidth, 0 );
-  gl::vertex( mWidth, mHeight );
-  gl::vertex( 0, mHeight );
-  glEnd();
+  gl::drawSolidRect(Rectf(0.0f, 0.0f, mWidth, mHeight));
 }
 
 void Sprite::setTransparent( bool transparent )
