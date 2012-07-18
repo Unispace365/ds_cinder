@@ -30,6 +30,11 @@ class Image: public Sprite
         void                            drawLocalClient();
         void                            loadImage( const std::string &filename );
         bool                            isLoaded() const;
+
+    protected:
+        virtual void                    writeAttributesTo(ds::DataBuffer&);
+        virtual void                    readAttributeFrom(const char attributeId, ds::DataBuffer&);
+
     private:
         typedef Sprite inherited;
 

@@ -26,6 +26,7 @@ class EngineServer : public Engine {
     virtual void                  installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
                                                 const std::function<void(ds::BlobRegistry&)>& asClient);
 
+    virtual void				          setup(ds::App&);
     virtual void                  setupTuio(ds::App&);
     virtual void	                update();
     virtual void                  draw();

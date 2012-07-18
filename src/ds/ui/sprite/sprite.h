@@ -211,6 +211,9 @@ class Sprite
         bool                checkBounds() const;
 
         void                setSpriteId(const ds::sprite_id_t&);
+        // Helper utility to set a flag
+        void                setFlag(const int newBit, const bool on, const DirtyState&, int& oldFlags);
+        bool                getFlag(const int bit, const int flags) const;
 
         virtual void		    markAsDirty(const DirtyState&);
 		    // Special function that marks all children as dirty, without sending anything up the hierarchy.
@@ -236,18 +239,15 @@ class Sprite
         mutable Matrix44f   mInverseTransform;
         mutable bool        mUpdateTransform;
 
+        int                 mSpriteFlags;
         Vec3f               mPosition;
         Vec3f               mCenter;
         Vec3f               mScale;
         Vec3f               mRotation;
         float               mZLevel;
-        bool                mDrawSorted;
         float               mOpacity;
         ci::Color           mColor;
-        bool                mVisible;
-        bool                mTransparent;
         int                 mType;
-        bool                mEnabled;
 
         mutable Matrix44f   mGlobalTransform;
         mutable Matrix44f   mInverseGlobalTransform;
@@ -277,6 +277,8 @@ class Sprite
 
   private:
         friend class Engine;
+        // Internal constructor just for the Engine, used to create the root sprite,
+        // which always exists and is identical across all architectures.
         Sprite(SpriteEngine&, const ds::sprite_id_t);
 
         void                init(const ds::sprite_id_t);

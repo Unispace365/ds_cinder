@@ -101,7 +101,7 @@ void Engine::drawServer()
   mTouchManager.drawTouches();
 }
 
-void Engine::setup()
+void Engine::setup(ds::App&)
 {
   mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
   gl::setMatrices(mCamera);

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <Poco/Path.h>
 #include "ds/app/environment.h"
+#include "ds/data/data_buffer.h"
 #include "ds/debug/debug_defines.h"
 
 namespace {
@@ -136,6 +137,21 @@ bool Resource::Id::verifyPaths() const
 		return false;
 	}
 	return true;
+}
+
+void Resource::Id::writeTo(DataBuffer& buf) const
+{
+  buf.add(mType);
+  buf.add(mValue);
+}
+
+bool Resource::Id::readFrom(DataBuffer& buf)
+{
+  if (!buf.canRead<char>()) return false;
+  mType = buf.read<char>();
+  if (!buf.canRead<int>()) return false;
+  mValue = buf.read<int>();
+  return true;
 }
 
 /**
