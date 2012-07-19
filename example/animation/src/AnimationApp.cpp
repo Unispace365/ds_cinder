@@ -33,19 +33,13 @@ class PosAnim {
     void                operator=(const PosAnim& rhs) { if (mTarget) mTarget->setPosition(rhs.mPos); mPos = rhs.mPos; }
 };
 
-class Tweener {
-
-  template<typename DST, typename SRC>
-  void        add(DST& dst, const std::function<void(void)>& assign
-};
-
 }
 
 class AnimationApp : public ds::App {
   public:
     AnimationApp();
 
-    void				      setup();
+    void				      setupServer();
     void				      mouseDown( MouseEvent event );
 
     Anim<Vec2f>			  mBlackPos, mWhitePos;
@@ -65,10 +59,8 @@ AnimationApp::AnimationApp()
 {
 }
 
-void AnimationApp::setup()
+void AnimationApp::setupServer()
 {
-  inherited::setup();
-
   mBlackPos = mWhitePos = getWindowCenter();
   mSprite2Pos.ptr()->mTarget = &mSprite2;
   mSprite2Pos.ptr()->mPos = ci::Vec3f(400, 400, 0);
@@ -93,22 +85,26 @@ void AnimationApp::setup()
 void AnimationApp::mouseDown( MouseEvent event )
 {
   inherited::mouseDown(event);
-
-	// the call to apply() replaces any existing tweens on mBlackPos with this new one
+#if 0
+  // the call to apply() replaces any existing tweens on mBlackPos with this new one
 	auto ans = timeline().apply( &mBlackPos, (Vec2f)event.getPos(), 2.0f, EaseOutQuint() );
   ds::ui::Image*      up3 = &mSprite3;
   const Vec2f*        pos3 = mBlackPos.ptr();
   ans.updateFn([up3, pos3](){up3->setPosition(Vec3f(pos3->x, pos3->y, 0));});
+  ans.finishFn([this](){this->mBlackPos.stop();});
+#endif
 
+#if 0
   ci::Vec3f   start(0, 0, 0);
   ci::Vec3f   end(400, 200, 0);
   ds::ui::Image*      img = &mSprite1;
   timeline().applyFn<ci::Vec3f>([img](ci::Vec3f pos){img->setPosition(pos);}, start, end, 2.0);
+#endif
 
+  ci::Vec3f       end3(ci::Vec3f(float(event.getPos().x), float(event.getPos().y), 0));
+//  	auto ans = mTimeline.apply(anim, start, end, duration, cinder::EaseOutQuint() );
 
-  PosAnim       anim(&mSprite2, ci::Vec3f(float(event.getPos().x), float(event.getPos().y), 0));
-  timeline().apply( &mSprite2Pos, anim, 2.0f, EaseInCubic() );
-
+  mEngine.getTweenline().addVec3f(mSprite2, mSprite2.getPosition(), end3, ds::ui::Tweenline::POSITION(), 3.0f);
 }
 
 // This line tells Cinder to actually create the application

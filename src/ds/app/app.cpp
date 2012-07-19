@@ -10,7 +10,7 @@
 #include "ds/ui/sprite/image.h"
 
 // Answer a new engine based on the current settings
-static ds::Engine&    new_engine(const ds::cfg::Settings&);
+static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&);
 
 namespace {
 std::string           APP_PATH;
@@ -27,7 +27,7 @@ namespace ds {
 App::App()
     : mInitializer(getAppPath().generic_string())
     , mEngineSettings()
-    , mEngine(new_engine(mEngineSettings))
+    , mEngine(new_engine(*this, mEngineSettings))
     , mCtrlDown(false)
     , mSecondMouseDown(false)
 {
@@ -142,9 +142,9 @@ ds::App::Initializer::Initializer(const std::string& appPath)
 
 } // namespace ds
 
-static ds::Engine&    new_engine(const ds::cfg::Settings& settings)
+static ds::Engine&    new_engine(ds::App& app, const ds::cfg::Settings& settings)
 {
-  if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(settings));
-  if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(settings));
-  return *(new ds::EngineClientServer(settings));
+  if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(app, settings));
+  if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(app, settings));
+  return *(new ds::EngineClientServer(app, settings));
 }

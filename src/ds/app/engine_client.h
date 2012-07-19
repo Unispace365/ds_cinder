@@ -19,7 +19,7 @@ namespace ds {
  */
 class EngineClient : public Engine {
   public:
-    EngineClient(const ds::cfg::Settings&);
+    EngineClient(ds::App&, const ds::cfg::Settings&);
 
     virtual ds::WorkManager       &getWorkManager()         { return mWorkManager; }
     virtual ui::LoadImageService  &getLoadImageService()    { return mLoadImageService; }

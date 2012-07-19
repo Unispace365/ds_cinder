@@ -73,6 +73,9 @@
     <Filter Include="src\ds\network">
       <UniqueIdentifier>{20082a19-803d-48dd-bf2a-4b79b04506d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\tweenline">
+      <UniqueIdentifier>{75419866-dc29-488a-8391-9c329efd0d2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\app\app_defs.h">
@@ -273,6 +276,9 @@
     <ClInclude Include="..\src\ds\data\raw_data_buffer.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\tween\tweenline.h">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -427,6 +433,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp">
       <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\tween\tweenline.cpp">
+      <Filter>src\ds\ui\tweenline</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

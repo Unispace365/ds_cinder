@@ -1,9 +1,9 @@
 #include "ds/app/engine.h"
 
-#include "ds/debug/debug_defines.h"
-#include "cinder/app/App.h"
 #include <GL/glu.h>
+#include "ds/app/app.h"
 #include "ds/app/environment.h"
+#include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
 #include "ds/config/settings.h"
@@ -28,8 +28,9 @@ const int Engine::NumberOfNetworkThreads = 2;
 /**
  * \class ds::Engine
  */
-Engine::Engine(const ds::cfg::Settings &settings)
-  : mRootSprite(*this, ROOT_SPRITE_ID)
+Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
+  : mTweenline(app.timeline())
+  , mRootSprite(*this, ROOT_SPRITE_ID)
   , mIdleTime(300.0f)
   , mIdling(true)
   , mTouchManager(*this)

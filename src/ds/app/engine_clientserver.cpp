@@ -7,8 +7,8 @@ namespace ds {
 /**
  * \class ds::EngineClientServer
  */
-EngineClientServer::EngineClientServer(const ds::cfg::Settings& settings)
-    : inherited(settings)
+EngineClientServer::EngineClientServer(ds::App& app, const ds::cfg::Settings& settings)
+    : inherited(app, settings)
     , mLoadImageService(mLoadImageThread)
 {
 }

@@ -15,8 +15,8 @@ char              COMMAND_BLOB = 0;
 /**
  * \class ds::EngineClient
  */
-EngineClient::EngineClient(const ds::cfg::Settings& settings)
-    : inherited(settings)
+EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings)
+    : inherited(app, settings)
     , mLoadImageService(mLoadImageThread)
     , mBlobReader(mReceiveBuffer, *this)
     , mConnection(NumberOfNetworkThreads)

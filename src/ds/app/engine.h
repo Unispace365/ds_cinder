@@ -17,6 +17,7 @@
 #include "ds/config/settings.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
+#include "ds/ui/tween/tweenline.h"
 #include "cinder/Camera.h"
 #include "ds/network/zmq_connection.h"
 #include "ds/data/raw_data_buffer.h"
@@ -39,6 +40,8 @@ class Engine : public ui::SpriteEngine {
 
     virtual void	              update() = 0;
     virtual void                draw() = 0;
+
+    virtual ds::ui::Tweenline  &getTweenline() { return mTweenline; }
 
     // only valid after setup() is called
     ui::Sprite                 &getRootSprite();
@@ -79,7 +82,7 @@ class Engine : public ui::SpriteEngine {
     float                       getWorldWidth() const;
     float                       getWorldHeight() const;
   protected:
-    Engine(const ds::cfg::Settings&);
+    Engine(ds::App&, const ds::cfg::Settings&);
 
     ds::BlobRegistry            mBlobRegistry;
     std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
@@ -93,6 +96,7 @@ class Engine : public ui::SpriteEngine {
 
     static const int            NumberOfNetworkThreads;
   private:
+    ds::ui::Tweenline           mTweenline;
     ui::Sprite                  mRootSprite;
     // A cache of all the resources in the system
     ResourceList                mResources;

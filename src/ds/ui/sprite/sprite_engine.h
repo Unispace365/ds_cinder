@@ -13,6 +13,7 @@ class WorkManager;
 namespace ui {
 class LoadImageService;
 class Sprite;
+class Tweenline;
 
 /**
  * \class ds::ui::SpriteEngine
@@ -23,7 +24,8 @@ class SpriteEngine {
     // General engine services
     virtual ds::WorkManager       &getWorkManager() = 0;
     virtual ds::ResourceList      &getResources() = 0;
-    virtual ui::LoadImageService  &getLoadImageService() = 0;
+    virtual LoadImageService      &getLoadImageService() = 0;
+    virtual Tweenline             &getTweenline() = 0;
 
     // Sprite management
     virtual ds::sprite_id_t        nextSpriteId() = 0;
