@@ -83,6 +83,8 @@ void BasicTweenApp::setupServer()
   mBlackPos = mWhitePos = getWindowCenter();
 
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+  rootSprite.setColor(0.3333f, 0.3333f, 0.3333f);
+  rootSprite.setTransparent(false);
 
   ds::ui::Image   *imgSprite;
  

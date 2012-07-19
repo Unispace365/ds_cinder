@@ -47,6 +47,8 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 640.0f, 0.0f, 400.0f));
   mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
   mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
+
+  mRootSprite.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
 }
 
 Engine::~Engine()
