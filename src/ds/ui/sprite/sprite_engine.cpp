@@ -54,7 +54,7 @@ std::unique_ptr<ci::gl::Fbo> SpriteEngine::getFbo( int width, int height )
 
     gl::Fbo::Format format;
     format.setColorInternalFormat(GL_RGBA32F);
-    format.setTarget(GL_TEXTURE_RECTANGLE_ARB);
+    format.setTarget(GL_TEXTURE_2D);
     fbo = std::move(std::unique_ptr<ci::gl::Fbo>(new ci::gl::Fbo(width, height, format)));
 
     return std::move(fbo);
@@ -62,7 +62,7 @@ std::unique_ptr<ci::gl::Fbo> SpriteEngine::getFbo( int width, int height )
 
   gl::Fbo::Format format;
   format.setColorInternalFormat(GL_RGBA32F);
-  format.setTarget(GL_TEXTURE_RECTANGLE_ARB);
+  format.setTarget(GL_TEXTURE_2D);
   return std::move(std::unique_ptr<ci::gl::Fbo>(new ci::gl::Fbo(width, height, format)));
 }
 

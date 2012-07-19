@@ -80,35 +80,37 @@ void Engine::updateServer()
 void Engine::drawClient()
 {
   {
-    gl::SaveFramebufferBinding bindingSaver;
+    //gl::SaveFramebufferBinding bindingSaver;
 
     // bind the framebuffer - now everything we draw will go there
-    mFbo.bindFramebuffer();
+    //mFbo.bindFramebuffer();
 
-    mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
+    //mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
     gl::setMatrices(mCamera);
 
     gl::enableAlphaBlending();
-    gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
+    //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+    gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
     mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
 
     mTouchManager.drawTouches();
   }
 
-
-  mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
-  gl::setMatrices(mCamera);
-  gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
-  gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
-  Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
-  gl::draw( mFbo.getTexture(0), screen );
+  //gl::enableAlphaBlending();
+  //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  //mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
+  //gl::setMatrices(mCamera);
+  //gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
+  //gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+  //Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
+  //gl::draw( mFbo.getTexture(0), screen );
 }
 
 void Engine::drawServer()
 {
   gl::enableAlphaBlending();
-  gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
+  gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
   gl::setMatrices(mCamera);
 
@@ -117,7 +119,7 @@ void Engine::drawServer()
   mTouchManager.drawTouches();
 }
 
-void Engine::setup()
+void Engine::setup(ds::App&)
 {
   mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
   gl::setMatrices(mCamera);

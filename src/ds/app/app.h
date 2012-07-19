@@ -29,6 +29,8 @@ class App : public ci::app::AppBasic {
     virtual void                keyUp( KeyEvent event );
     virtual void                prepareSettings(Settings*);
     virtual void				        setup();
+    // This is where client applications would setup the initial UI.
+    virtual void                setupServer()     { }
     virtual void	    			    update();
     virtual void	    			    draw();
 

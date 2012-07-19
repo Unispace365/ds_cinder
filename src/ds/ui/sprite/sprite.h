@@ -190,8 +190,8 @@ class Sprite
         void                setBlendMode(const BlendMode &blendMode);
         BlendMode           getBlendMode() const;
 
-        void                setShader(const std::string &shaderName);
-        std::string         getShaderName() const;
+        void                setBaseShader(const std::string &location, const std::string &shadername);
+        std::string         getBaseShaderName() const;
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -212,6 +212,9 @@ class Sprite
         bool                checkBounds() const;
 
         void                setSpriteId(const ds::sprite_id_t&);
+        // Helper utility to set a flag
+        void                setFlag(const int newBit, const bool on, const DirtyState&, int& oldFlags);
+        bool                getFlag(const int bit, const int flags) const;
 
         virtual void		    markAsDirty(const DirtyState&);
 		    // Special function that marks all children as dirty, without sending anything up the hierarchy.
@@ -219,6 +222,8 @@ class Sprite
         virtual void        writeAttributesTo(ds::DataBuffer&);
         // Read a single attribute
         virtual void        readAttributeFrom(const char attributeId, ds::DataBuffer&);
+
+        void                loadShaders();
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
@@ -237,18 +242,15 @@ class Sprite
         mutable Matrix44f   mInverseTransform;
         mutable bool        mUpdateTransform;
 
+        int                 mSpriteFlags;
         Vec3f               mPosition;
         Vec3f               mCenter;
         Vec3f               mScale;
         Vec3f               mRotation;
         float               mZLevel;
-        bool                mDrawSorted;
         float               mOpacity;
         ci::Color           mColor;
-        bool                mVisible;
-        bool                mTransparent;
         int                 mType;
-        bool                mEnabled;
 
         mutable Matrix44f   mGlobalTransform;
         mutable Matrix44f   mInverseGlobalTransform;
@@ -278,15 +280,21 @@ class Sprite
 
   private:
         friend class Engine;
+        // Internal constructor just for the Engine, used to create the root sprite,
+        // which always exists and is identical across all architectures.
         Sprite(SpriteEngine&, const ds::sprite_id_t);
 
         void                init(const ds::sprite_id_t);
         void                readAttributesFrom(ds::DataBuffer&);
 
         BlendMode           mBlendMode;
-        std::string         mShaderName;
+        std::string         mShaderBaseName;
+        std::string         mShaderBaseNameVert;
+        std::string         mShaderBaseNameFrag;
         ci::gl::GlslProg    mShaderBlend;
         ci::gl::GlslProg    mShaderBase;
+
+        ci::ColorA          mServerColor;
 };
 
 template <typename T>

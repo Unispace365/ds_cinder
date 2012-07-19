@@ -44,9 +44,9 @@ ds::sprite_id_t EngineClient::nextSpriteId()
   return 0;
 }
 
-void EngineClient::setup()
+void EngineClient::setup(ds::App& app)
 {
-  inherited::setup();
+  inherited::setup(app);
 
   mLoadImageThread.start(true);
 }
@@ -79,6 +79,7 @@ void EngineClient::update()
   const char      size = static_cast<char>(mBlobRegistry.mReader.size());
   while (mReceiveBuffer.canRead<char>()) {
     const char  token = mReceiveBuffer.read<char>();
+//    if (token != HEADER_BLOB) std::cout << "receive blob " << (int)(token) << std::endl;
     if (token > 0 && token < size) mBlobRegistry.mReader[token](mBlobReader);
   }
 }

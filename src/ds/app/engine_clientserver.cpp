@@ -19,11 +19,13 @@ void EngineClientServer::installSprite(const std::function<void(ds::BlobRegistry
   // I don't have network communication so I don't need to handle blob.
 }
 
-void EngineClientServer::setup()
+void EngineClientServer::setup(ds::App& app)
 {
-  inherited::setup();
+  inherited::setup(app);
 
   mLoadImageThread.start(true);
+
+  app.setupServer();
 }
 
 void EngineClientServer::setupTuio(ds::App& a)
@@ -36,6 +38,7 @@ void EngineClientServer::setupTuio(ds::App& a)
 void EngineClientServer::update()
 {
   updateServer();
+  mWorkManager.update();
 }
 
 void EngineClientServer::draw()

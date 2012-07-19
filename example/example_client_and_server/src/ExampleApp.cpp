@@ -24,17 +24,17 @@ std::string                     CUSTOM_DB_PATH;
 std::string                     EMPTY_CUSTOM_PATH("");
 }
 
-class BasicTweenApp : public ds::App {
+class CsApp : public ds::App {
   public:
-    BasicTweenApp();
+    CsApp();
 
-    void				      setup();
+    void				      setupServer();
 
   private:
     typedef ds::App   inherited;
 };
 
-BasicTweenApp::BasicTweenApp()
+CsApp::CsApp()
 {
   try {
     // Setup my custom database info
@@ -47,10 +47,8 @@ BasicTweenApp::BasicTweenApp()
   }
 }
 
-void BasicTweenApp::setup()
+void CsApp::setupServer()
 {
-  inherited::setup();
-
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
   ds::ui::Image   *imgSprite;
@@ -81,4 +79,4 @@ void BasicTweenApp::setup()
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC( BasicTweenApp, RendererGl )
+CINDER_APP_BASIC( CsApp, RendererGl )

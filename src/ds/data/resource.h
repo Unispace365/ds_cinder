@@ -6,6 +6,7 @@
 #include <string>
 
 namespace ds {
+class DataBuffer;
 class ResourceList;
 
 /**
@@ -63,8 +64,8 @@ class Resource
       // Utility to report and log an error if I'm missing path information
       bool                verifyPaths() const;
 
-//		void						writeTo(UDPPacketSender&) const;
-//		void						readFrom(UDPPacketReceiver&);
+	  	void						    writeTo(DataBuffer&) const;
+  		bool						    readFrom(DataBuffer&);
 
       // The engines are required to set paths to the various resource database before
       // anyone does anything.  This assumes the traditional CMS path -- a resource

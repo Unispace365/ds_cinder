@@ -56,7 +56,7 @@ void App::setup()
 {
   inherited::setup();
 
-  mEngine.setup();
+  mEngine.setup(*this);
   mEngine.setupTuio(*this);
 }
 

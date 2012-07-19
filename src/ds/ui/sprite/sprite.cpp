@@ -9,6 +9,31 @@
 #include "sprite_engine.h"
 #include "ds/math/math_func.h"
 #include "cinder/Camera.h"
+#include "ds/math/random.h"
+#include "ds/app/environment.h"
+#include "ds/util/string_util.h"
+
+namespace {
+
+const std::string DefaultBaseFrag = 
+"uniform sampler2D tex0;\n"
+"void main()\n"
+"{\n"
+"    vec4 acolor = texture2D( tex0, gl_TexCoord[0].st );\n"
+"    acolor *= gl_Color;\n"
+"    gl_FragColor = acolor;\n"
+"}\n";
+
+const std::string DefaultBaseVert = 
+"void main()\n"
+"{\n"
+"  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
+"  gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;\n"
+"  gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
+"  gl_FrontColor = gl_Color;\n"
+"}\n";
+
+}
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -25,14 +50,26 @@ char                BLOB_TYPE         = 0;
 const DirtyState    ID_DIRTY 			    = newUniqueDirtyState();
 const DirtyState    PARENT_DIRTY 			= newUniqueDirtyState();
 const DirtyState    CHILD_DIRTY 			= newUniqueDirtyState();
+const DirtyState    FLAGS_DIRTY 	   	= newUniqueDirtyState();
 const DirtyState    SIZE_DIRTY 	    	= newUniqueDirtyState();
 const DirtyState    POSITION_DIRTY 		= newUniqueDirtyState();
 const DirtyState    SCALE_DIRTY 	  	= newUniqueDirtyState();
+const DirtyState    COLOR_DIRTY 	  	= newUniqueDirtyState();
+const DirtyState    OPACITY_DIRTY 	  = newUniqueDirtyState();
 
 const char          PARENT_ATT        = 2;
 const char          SIZE_ATT          = 3;
-const char          POSITION_ATT      = 4;
-const char          SCALE_ATT         = 5;
+const char          FLAGS_ATT         = 4;
+const char          POSITION_ATT      = 5;
+const char          SCALE_ATT         = 6;
+const char          COLOR_ATT         = 7;
+const char          OPACITY_ATT       = 8;
+
+// flags
+const int           VISIBLE_F         = (1<<0);
+const int           TRANSPARENT_F     = (1<<1);
+const int           ENABLED_F         = (1<<2);
+const int           DRAW_SORTED_F     = (1<<3);
 
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
@@ -77,20 +114,17 @@ Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id )
 
 void Sprite::init(const ds::sprite_id_t id)
 {
+  mSpriteFlags = VISIBLE_F | TRANSPARENT_F;
   mWidth = 0;
   mHeight = 0;
   mCenter = ci::Vec3f(0.0f, 0.0f, 0.0f);
   mRotation = ci::Vec3f(0.0f, 0.0f, 0.0f);
   mZLevel = 0.0f;
   mScale = ci::Vec3f(1.0f, 1.0f, 1.0f);
-  mDrawSorted = false;
   mUpdateTransform = true;
   mParent = nullptr;
   mOpacity = 1.0f;
   mColor = Color(1.0f, 1.0f, 1.0f);
-  mVisible = true;
-  mTransparent = true;
-  mEnabled = false;
   mMultiTouchEnabled = false;
   mCheckBounds = false;
   mBoundsNeedChecking = true;
@@ -101,6 +135,11 @@ void Sprite::init(const ds::sprite_id_t id)
   mBlendMode = NORMAL;
 
   setSpriteId(id);
+
+  mServerColor = ColorA(math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, 0.4f);
+
+  mShaderBaseNameVert = Environment::getAppFolder("data/shaders", "base.vert");
+  mShaderBaseNameFrag = Environment::getAppFolder("data/shaders", "base.frag");
 }
 
 Sprite::~Sprite()
@@ -135,18 +174,21 @@ void Sprite::updateServer( const UpdateParams &updateParams )
 
 void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
 {
-    if ( !mVisible )
+    if ((mSpriteFlags&VISIBLE_F) == 0)
         return;
+
+    if (!mShaderBase) {
+      loadShaders();
+    }
 
     buildTransform();
 
     Matrix44f totalTransformation = trans*mTransformation;
 
 
-    if ( !mTransparent ) {
+    if ((mSpriteFlags&TRANSPARENT_F) == 0) {
       std::unique_ptr<ci::gl::Fbo> fbo = std::move(mEngine.getFbo(mWidth, mHeight));
       {
-
         gl::SaveFramebufferBinding bindingSaver;
         // bind the framebuffer - now everything we draw will go there
         fbo->bindFramebuffer();
@@ -159,26 +201,42 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
         gl::pushModelView();
         gl::setMatrices(camera);
 
-        gl::enableAlphaBlending();
+        gl::disableAlphaBlending();
         gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
         gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+
         drawLocalClient();
         gl::popModelView();
       }
 
+      gl::enableAlphaBlending();
       mEngine.setCamera();
       Rectf screen(0.0f, fbo->getHeight(), fbo->getWidth(), 0.0f);
       gl::pushModelView();
       glLoadIdentity();
       gl::multModelView(totalTransformation);
       gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
-      gl::draw( fbo->getTexture(0), screen );
+
+      fbo->bindTexture();
+
+      if (mShaderBase) {
+        mShaderBase.bind();
+        mShaderBase.uniform("tex0", 0);
+      }
+
+      gl::drawSolidRect(screen);
+
+      if (mShaderBase) {
+        mShaderBase.unbind();
+      }
+
+      fbo->unbindTexture();
+      //gl::draw( fbo->getTexture(0), screen );
       gl::popModelView();
       mEngine.giveBackFbo(std::move(fbo));
     }
 
-
-    if ( !mDrawSorted )
+    if ((mSpriteFlags&DRAW_SORTED_F) == 0)
     {
         for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
         {
@@ -202,7 +260,7 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
 
 void Sprite::drawServer( const Matrix44f &trans, const DrawParams &drawParams )
 {
-  if ( !mVisible )
+  if ((mSpriteFlags&VISIBLE_F) == 0)
     return;
 
   buildTransform();
@@ -212,14 +270,14 @@ void Sprite::drawServer( const Matrix44f &trans, const DrawParams &drawParams )
   glPushMatrix();
   //gl::multModelView(totalTransformation);
   gl::multModelView(totalTransformation);
-  gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+  gl::color(mServerColor);
 
-  if ( !mTransparent )
+  if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled())
     drawLocalServer();
 
   glPopMatrix();
 
-  if ( !mDrawSorted )
+  if ((mSpriteFlags&DRAW_SORTED_F) == 0)
   {
     for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
     {
@@ -337,12 +395,12 @@ float Sprite::getZLevel() const
 
 void Sprite::setDrawSorted( bool drawSorted )
 {
-    mDrawSorted = drawSorted;
+  setFlag(DRAW_SORTED_F, drawSorted, FLAGS_DIRTY, mSpriteFlags);
 }
 
 bool Sprite::getDrawSorted() const
 {
-    return mDrawSorted;
+  return getFlag(DRAW_SORTED_F, mSpriteFlags);
 }
 
 const Matrix44f &Sprite::getTransform() const
@@ -463,12 +521,15 @@ void Sprite::setSize( float width, float height )
 
 void Sprite::setColor( const Color &color )
 {
-    mColor = color;
+  if (mColor == color) return;
+
+  mColor = color;
+  markAsDirty(COLOR_DIRTY);
 }
 
 void Sprite::setColor( float r, float g, float b )
 {
-    mColor = Color(r, g, b);
+  setColor(Color(r, g, b));
 }
 
 Color Sprite::getColor() const
@@ -478,7 +539,10 @@ Color Sprite::getColor() const
 
 void Sprite::setOpacity( float opacity )
 {
-    mOpacity = opacity;
+  if (mOpacity == opacity) return;
+
+  mOpacity = opacity;
+  markAsDirty(OPACITY_DIRTY);
 }
 
 float Sprite::getOpacity() const
@@ -504,27 +568,27 @@ void Sprite::drawLocalServer()
 
 void Sprite::setTransparent( bool transparent )
 {
-    mTransparent = transparent;
+  setFlag(TRANSPARENT_F, transparent, FLAGS_DIRTY, mSpriteFlags);
 }
 
 bool Sprite::getTransparent() const
 {
-    return mTransparent;
+  return getFlag(TRANSPARENT_F, mSpriteFlags);
 }
 
 void Sprite::show()
 {
-    mVisible = true;
+  setFlag(VISIBLE_F, true, FLAGS_DIRTY, mSpriteFlags);
 }
 
 void Sprite::hide()
 {
-    mVisible = false;
+  setFlag(VISIBLE_F, false, FLAGS_DIRTY, mSpriteFlags);
 }
 
 bool Sprite::visible() const
 {
-    return mVisible;
+  return getFlag(VISIBLE_F, mSpriteFlags);
 }
 
 int Sprite::getType() const
@@ -549,12 +613,12 @@ float Sprite::getHeight() const
 
 void Sprite::enable( bool flag )
 {
-    mEnabled = flag;
+  setFlag(ENABLED_F, flag, FLAGS_DIRTY, mSpriteFlags);
 }
 
 bool Sprite::isEnabled() const
 {
-    return mEnabled;
+  return getFlag(ENABLED_F, mSpriteFlags);
 }
 
 void Sprite::buildGlobalTransform() const
@@ -627,7 +691,7 @@ bool Sprite::contains( const Vec3f &point ) const
 
 Sprite *Sprite::getHit( const Vec3f &point )
 {
-    if ( !mDrawSorted )
+    if ( !getFlag(DRAW_SORTED_F, mSpriteFlags) )
     {
         for ( auto it = mChildren.rbegin(), it2 = mChildren.rend(); it != it2; ++it )
         {
@@ -964,6 +1028,10 @@ void Sprite::writeAttributesTo(ds::DataBuffer& buf)
       buf.add(mHeight);
       buf.add(mDepth);
     }
+		if (mDirty.has(FLAGS_DIRTY)) {
+      buf.add(FLAGS_ATT);
+      buf.add(mSpriteFlags);
+    }
 		if (mDirty.has(POSITION_DIRTY)) {
       buf.add(POSITION_ATT);
       buf.add(mPosition.x);
@@ -976,6 +1044,16 @@ void Sprite::writeAttributesTo(ds::DataBuffer& buf)
       buf.add(mScale.y);
       buf.add(mScale.z);
     }
+		if (mDirty.has(COLOR_DIRTY)) {
+      buf.add(COLOR_ATT);
+      buf.add(mColor.r);
+      buf.add(mColor.g);
+      buf.add(mColor.b);
+    }
+		if (mDirty.has(OPACITY_DIRTY)) {
+      buf.add(OPACITY_ATT);
+      buf.add(mOpacity);
+    }
 }
 
 void Sprite::readFrom(ds::BlobReader& blob)
@@ -987,6 +1065,7 @@ void Sprite::readFrom(ds::BlobReader& blob)
 void Sprite::readAttributesFrom(ds::DataBuffer& buf)
 {
   char          id;
+  bool          transformChanged = false;
   while (buf.canRead<char>() && (id=buf.read<char>()) != ds::TERMINATOR_CHAR) {
     if (id == PARENT_ATT) {
       const sprite_id_t     parentId = buf.read<sprite_id_t>();
@@ -996,17 +1075,31 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf)
       mWidth = buf.read<float>();
       mHeight = buf.read<float>();
       mDepth = buf.read<float>();
+    } else if (id == FLAGS_ATT) {
+      mSpriteFlags = buf.read<int>();
     } else if (id == POSITION_ATT) {
       mPosition.x = buf.read<float>();
       mPosition.y = buf.read<float>();
       mPosition.z = buf.read<float>();
+      transformChanged = true;
     } else if (id == SCALE_ATT) {
       mScale.x = buf.read<float>();
       mScale.y = buf.read<float>();
       mScale.z = buf.read<float>();
+      transformChanged = true;
+    } else if (id == COLOR_ATT) {
+      mColor.r = buf.read<float>();
+      mColor.g = buf.read<float>();
+      mColor.b = buf.read<float>();
+    } else if (id == OPACITY_ATT) {
+      mOpacity = buf.read<float>();
     } else {
       readAttributeFrom(id, buf);
     }
+  }
+  if (transformChanged) {
+    mUpdateTransform = true;
+    mBoundsNeedChecking = true;
   }
 }
 
@@ -1022,6 +1115,22 @@ void Sprite::setSpriteId(const ds::sprite_id_t& id)
   mId = id;
   if (mId != ds::EMPTY_SPRITE_ID) mEngine.registerSprite(*this);
   markAsDirty(ID_DIRTY);
+}
+
+void Sprite::setFlag(const int newBit, const bool on, const DirtyState& dirty, int& oldFlags)
+{
+  int             newFlags = oldFlags;
+  if (on) newFlags |= newBit;
+  else newFlags &= ~newBit;
+  if (newFlags == oldFlags) return;
+
+  oldFlags = newFlags;
+  markAsDirty(dirty);
+}
+
+bool Sprite::getFlag(const int bit, const int flags) const
+{
+    return (flags&bit) != 0;
 }
 
 void Sprite::markAsDirty(const DirtyState& dirty)
@@ -1061,14 +1170,35 @@ Sprite::BlendMode Sprite::getBlendMode() const
   return mBlendMode;
 }
 
-void Sprite::setShader( const std::string &shaderName )
+void Sprite::setBaseShader(const std::string &location, const std::string &shadername)
 {
+  mShaderBaseName = shadername;
+  mShaderBaseNameVert = location+mShaderBaseName+".vert";
+  mShaderBaseNameFrag = location+mShaderBaseName+".frag";
 
+  loadShaders();
 }
 
-std::string Sprite::getShaderName() const
+std::string Sprite::getBaseShaderName() const
 {
-  return mShaderName;
+  return mShaderBaseName;
+}
+
+void Sprite::loadShaders()
+{
+  if (mShaderBaseNameVert.empty() || mShaderBaseNameFrag.empty()) {
+    try {
+      mShaderBase = gl::GlslProg(DefaultBaseVert.c_str(), DefaultBaseFrag.c_str());
+    } catch ( std::exception &e ) {
+      std::cout << e.what() << std::endl;
+    }
+  } else {
+    try {
+      mShaderBase = gl::GlslProg(loadFile(mShaderBaseNameVert), loadFile(mShaderBaseNameFrag));
+    } catch ( std::exception &e ) {
+      std::cout << e.what() << std::endl;
+    }
+  }
 }
 
 } // namespace ui

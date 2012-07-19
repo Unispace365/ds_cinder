@@ -30,13 +30,8 @@ class BasicTweenApp : public ds::App {
   public:
     BasicTweenApp();
 
-    void        prepareSettings( Settings *settings );
-    void				setup();
+    void				setupServer();
     void				mouseDown( MouseEvent event );
-    void        touchesBegan( TouchEvent event );
-    void        touchesMoved( TouchEvent event );
-    void        touchesEnded( TouchEvent event );
-    void				update();
     void				draw();
 
 
@@ -83,10 +78,8 @@ BasicTweenApp::BasicTweenApp()
   }
 }
 
-void BasicTweenApp::setup()
+void BasicTweenApp::setupServer()
 {
-  inherited::setup();
-
   mBlackPos = mWhitePos = getWindowCenter();
 
   ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
@@ -131,11 +124,6 @@ void BasicTweenApp::mouseDown( MouseEvent event )
 	timeline().apply( &mWhitePos, (Vec2f)event.getPos(), 0.35f, EaseOutQuint() ).appendTo( &mBlackPos );
 }
 
-void BasicTweenApp::update()
-{
-  inherited::update();
-}
-
 void BasicTweenApp::draw()
 {
   inherited::draw();
@@ -145,26 +133,6 @@ void BasicTweenApp::draw()
 	
 	gl::color( Color::white() );
 	gl::drawSolidCircle( mWhitePos, 16.0f );
-}
-
-void BasicTweenApp::prepareSettings( Settings *settings )
-{
-  inherited::prepareSettings(settings);
-}
-
-void BasicTweenApp::touchesBegan( TouchEvent event )
-{
-  inherited::touchesBegan(event);
-}
-
-void BasicTweenApp::touchesMoved( TouchEvent event )
-{
-  inherited::touchesMoved(event);
-}
-
-void BasicTweenApp::touchesEnded( TouchEvent event )
-{
-  inherited::touchesEnded(event);
 }
 
 // This line tells Cinder to actually create the application

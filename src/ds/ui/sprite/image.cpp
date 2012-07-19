@@ -9,12 +9,18 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/util/file_name_parser.h"
 
-namespace {
-char          BLOB_TYPE       = 0;
-}
-
 namespace ds {
 namespace ui {
+
+namespace {
+char                BLOB_TYPE         = 0;
+
+const DirtyState&   RES_ID_DIRTY 		  = INTERNAL_A_DIRTY;
+const DirtyState&   RES_FN_DIRTY 		  = INTERNAL_B_DIRTY;
+
+const char          RES_ID_ATT        = 80;
+const char          RES_FN_ATT        = 81;
+}
 
 void Image::installAsServer(ds::BlobRegistry& registry)
 {
@@ -53,6 +59,7 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
     std::cout << "Going to load image synchronously; this will affect performance." << std::endl;
   }
   setTransparent(false);
+  markAsDirty(RES_FN_DIRTY);
 }
 
 Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
@@ -63,13 +70,13 @@ Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
   , mResourceId(resourceId)
 {
   mBlobType = BLOB_TYPE;
-  setTransparent(false);
   ds::Resource            res;
   if (engine.getResources().get(resourceId, res)) {
     inherited::setSize(res.getWidth(), res.getHeight());
     mResourceFn = res.getAbsoluteFilePath();
   }
   setTransparent(false);
+  markAsDirty(RES_ID_DIRTY);
 }
 
 Image::~Image()
@@ -128,6 +135,31 @@ void Image::requestImage()
 bool Image::isLoaded() const
 {
   return mTexture;
+}
+
+void Image::writeAttributesTo(ds::DataBuffer& buf)
+{
+  inherited::writeAttributesTo(buf);
+
+	if (mDirty.has(RES_ID_DIRTY)) {
+    buf.add(RES_ID_ATT);
+    mResourceId.writeTo(buf);
+  }
+	if (mDirty.has(RES_FN_DIRTY)) {
+    buf.add(RES_FN_ATT);
+    buf.add(mResourceFn);
+  }
+}
+
+void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
+{
+    if (attributeId == RES_ID_ATT) {
+      mResourceId.readFrom(buf);
+    } else if (attributeId == RES_FN_ATT) {
+      mResourceFn = buf.read<std::string>();
+    } else {
+      inherited::readAttributeFrom(attributeId, buf);
+    }
 }
 
 } // namespace ui

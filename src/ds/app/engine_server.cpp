@@ -40,6 +40,13 @@ void EngineServer::installSprite( const std::function<void(ds::BlobRegistry&)>& 
   if (asServer) asServer(mBlobRegistry);
 }
 
+void EngineServer::setup(ds::App& app)
+{
+  inherited::setup(app);
+
+  app.setupServer();
+}
+
 void EngineServer::setupTuio(ds::App& a)
 {
   tuio::Client &tuioClient = getTuioClient();
@@ -50,6 +57,7 @@ void EngineServer::setupTuio(ds::App& a)
 void EngineServer::update()
 {
   updateServer();
+  mWorkManager.update();
 
   // Always send the header
   mSendBuffer.clear();
