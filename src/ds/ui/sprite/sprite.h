@@ -73,7 +73,8 @@ class Sprite
 
         ds::sprite_id_t     getId() const       { return mId; }
 
-        virtual void        setSize(float width, float height, float depth = 1.0f);
+        virtual void        setSize(float width, float height);
+        virtual void        setSize(float width, float height, float depth);
         float               getWidth() const;
         float               getHeight() const;
         float               getDepth() const;
@@ -189,8 +190,8 @@ class Sprite
         void                setBlendMode(const BlendMode &blendMode);
         BlendMode           getBlendMode() const;
 
-        void                setShader(const std::string &shaderName);
-        std::string         getShaderName() const;
+        void                setBaseShader(const std::string &location, const std::string &shadername);
+        std::string         getBaseShaderName() const;
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -221,6 +222,8 @@ class Sprite
         virtual void        writeAttributesTo(ds::DataBuffer&);
         // Read a single attribute
         virtual void        readAttributeFrom(const char attributeId, ds::DataBuffer&);
+
+        void                loadShaders();
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
@@ -285,8 +288,13 @@ class Sprite
         void                readAttributesFrom(ds::DataBuffer&);
 
         BlendMode           mBlendMode;
-        std::string         mShaderName;
-        ci::gl::GlslProg    mShader;
+        std::string         mShaderBaseName;
+        std::string         mShaderBaseNameVert;
+        std::string         mShaderBaseNameFrag;
+        ci::gl::GlslProg    mShaderBlend;
+        ci::gl::GlslProg    mShaderBase;
+
+        ci::ColorA          mServerColor;
 };
 
 template <typename T>

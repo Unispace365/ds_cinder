@@ -5,6 +5,7 @@
 #include <list>
 #include "cinder/Vector.h"
 #include "ds/app/app_defs.h"
+#include "cinder/gl/Fbo.h"
 
 namespace ds {
 class ResourceList;
@@ -42,6 +43,11 @@ class SpriteEngine {
     virtual float                  getHeight() const = 0;
     virtual float                  getWorldWidth() const = 0;
     virtual float                  getWorldHeight() const = 0;
+    
+    std::unique_ptr<ci::gl::Fbo>   getFbo(int width, int height);
+    void                           giveBackFbo(std::unique_ptr<ci::gl::Fbo> &fbo);
+
+    virtual void                   setCamera() = 0;
 
     void                           addToDragDestinationList(Sprite *sprite);
     void                           removeFromDragDestinationList(Sprite *sprite);
@@ -51,6 +57,8 @@ class SpriteEngine {
     virtual ~SpriteEngine()        { }
 
     std::list<Sprite *>            mDragDestinationSprites;
+
+    std::list<std::unique_ptr<ci::gl::Fbo>> mFbos;
 };
 
 } // namespace ui

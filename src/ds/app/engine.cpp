@@ -80,20 +80,38 @@ void Engine::updateServer()
 
 void Engine::drawClient()
 {
-  gl::enableAlphaBlending();
-  gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
+  {
+    //gl::SaveFramebufferBinding bindingSaver;
 
-  gl::setMatrices(mCamera);
+    // bind the framebuffer - now everything we draw will go there
+    //mFbo.bindFramebuffer();
 
-  mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
+    //mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
+    gl::setMatrices(mCamera);
 
-  mTouchManager.drawTouches();
+    gl::enableAlphaBlending();
+    //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+    gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
+
+    mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
+
+    mTouchManager.drawTouches();
+  }
+
+  //gl::enableAlphaBlending();
+  //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+  //mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
+  //gl::setMatrices(mCamera);
+  //gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
+  //gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+  //Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
+  //gl::draw( mFbo.getTexture(0), screen );
 }
 
 void Engine::drawServer()
 {
   gl::enableAlphaBlending();
-  gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
+  gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
   gl::setMatrices(mCamera);
 
@@ -107,6 +125,11 @@ void Engine::setup(ds::App&)
   mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
   gl::setMatrices(mCamera);
   //gl::disable(GL_CULL_FACE);
+  //////////////////////////////////////////////////////////////////////////
+
+  gl::Fbo::Format format;
+  format.setColorInternalFormat(GL_RGBA32F);
+  mFbo = gl::Fbo(getWidth(), getHeight(), format);
   //////////////////////////////////////////////////////////////////////////
 
   float curr = static_cast<float>(getElapsedSeconds());
@@ -272,6 +295,13 @@ float Engine::getWorldWidth() const
 float Engine::getWorldHeight() const
 {
   return mWorldSize.y;
+}
+
+void Engine::setCamera()
+{
+  gl::setViewport(Area(mScreenRect.getX1(), mScreenRect.getY2(), mScreenRect.getX2(), mScreenRect.getY1()));
+  mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
+  gl::setMatrices(mCamera);
 }
 
 } // namespace ds

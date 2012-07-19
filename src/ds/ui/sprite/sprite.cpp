@@ -8,6 +8,32 @@
 #include "ds/math/math_defs.h"
 #include "sprite_engine.h"
 #include "ds/math/math_func.h"
+#include "cinder/Camera.h"
+#include "ds/math/random.h"
+#include "ds/app/environment.h"
+#include "ds/util/string_util.h"
+
+namespace {
+
+const std::string DefaultBaseFrag = 
+"uniform sampler2D tex0;\n"
+"void main()\n"
+"{\n"
+"    vec4 acolor = texture2D( tex0, gl_TexCoord[0].st );\n"
+"    acolor *= gl_Color;\n"
+"    gl_FragColor = acolor;\n"
+"}\n";
+
+const std::string DefaultBaseVert = 
+"void main()\n"
+"{\n"
+"  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
+"  gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;\n"
+"  gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
+"  gl_FrontColor = gl_Color;\n"
+"}\n";
+
+}
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -109,6 +135,11 @@ void Sprite::init(const ds::sprite_id_t id)
   mBlendMode = NORMAL;
 
   setSpriteId(id);
+
+  mServerColor = ColorA(math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, 0.4f);
+
+  mShaderBaseNameVert = Environment::getAppFolder("data/shaders", "base.vert");
+  mShaderBaseNameFrag = Environment::getAppFolder("data/shaders", "base.frag");
 }
 
 Sprite::~Sprite()
@@ -146,18 +177,64 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
     if ((mSpriteFlags&VISIBLE_F) == 0)
         return;
 
+    if (!mShaderBase) {
+      loadShaders();
+    }
+
     buildTransform();
 
     Matrix44f totalTransformation = trans*mTransformation;
 
-    gl::pushModelView();
-    gl::multModelView(totalTransformation);
-    gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
 
-    if ((mSpriteFlags&TRANSPARENT_F) == 0)
+    if ((mSpriteFlags&TRANSPARENT_F) == 0) {
+      std::unique_ptr<ci::gl::Fbo> fbo = std::move(mEngine.getFbo(mWidth, mHeight));
+      {
+        gl::SaveFramebufferBinding bindingSaver;
+        // bind the framebuffer - now everything we draw will go there
+        fbo->bindFramebuffer();
+
+        gl::setViewport(fbo->getBounds());
+
+        ci::CameraOrtho camera;
+        camera.setOrtho(0.0f, fbo->getWidth(), fbo->getHeight(), 0.0f, -1.0f, 1.0f);
+
+        gl::pushModelView();
+        gl::setMatrices(camera);
+
+        gl::disableAlphaBlending();
+        gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+        gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+
         drawLocalClient();
+        gl::popModelView();
+      }
 
-    gl::popModelView();
+      gl::enableAlphaBlending();
+      mEngine.setCamera();
+      Rectf screen(0.0f, fbo->getHeight(), fbo->getWidth(), 0.0f);
+      gl::pushModelView();
+      glLoadIdentity();
+      gl::multModelView(totalTransformation);
+      gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+
+      fbo->bindTexture();
+
+      if (mShaderBase) {
+        mShaderBase.bind();
+        mShaderBase.uniform("tex0", 0);
+      }
+
+      gl::drawSolidRect(screen);
+
+      if (mShaderBase) {
+        mShaderBase.unbind();
+      }
+
+      fbo->unbindTexture();
+      //gl::draw( fbo->getTexture(0), screen );
+      gl::popModelView();
+      mEngine.giveBackFbo(std::move(fbo));
+    }
 
     if ((mSpriteFlags&DRAW_SORTED_F) == 0)
     {
@@ -193,9 +270,9 @@ void Sprite::drawServer( const Matrix44f &trans, const DrawParams &drawParams )
   glPushMatrix();
   //gl::multModelView(totalTransformation);
   gl::multModelView(totalTransformation);
-  gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+  gl::color(mServerColor);
 
-  if ((mSpriteFlags&TRANSPARENT_F) == 0)
+  if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled())
     drawLocalServer();
 
   glPopMatrix();
@@ -436,6 +513,12 @@ void Sprite::setSize( float width, float height, float depth )
   markAsDirty(SIZE_DIRTY);
 }
 
+void Sprite::setSize( float width, float height )
+{
+  setSize(width, height, 1.0f);
+  markAsDirty(SIZE_DIRTY);
+}
+
 void Sprite::setColor( const Color &color )
 {
   if (mColor == color) return;
@@ -480,12 +563,7 @@ void Sprite::drawLocalClient()
 
 void Sprite::drawLocalServer()
 {
-  glBegin(GL_QUADS);
-  gl::vertex( 0 , 0 );
-  gl::vertex( mWidth, 0 );
-  gl::vertex( mWidth, mHeight );
-  gl::vertex( 0, mHeight );
-  glEnd();
+  gl::drawSolidRect(Rectf(0.0f, 0.0f, mWidth, mHeight));
 }
 
 void Sprite::setTransparent( bool transparent )
@@ -1092,14 +1170,35 @@ Sprite::BlendMode Sprite::getBlendMode() const
   return mBlendMode;
 }
 
-void Sprite::setShader( const std::string &shaderName )
+void Sprite::setBaseShader(const std::string &location, const std::string &shadername)
 {
+  mShaderBaseName = shadername;
+  mShaderBaseNameVert = location+mShaderBaseName+".vert";
+  mShaderBaseNameFrag = location+mShaderBaseName+".frag";
 
+  loadShaders();
 }
 
-std::string Sprite::getShaderName() const
+std::string Sprite::getBaseShaderName() const
 {
-  return mShaderName;
+  return mShaderBaseName;
+}
+
+void Sprite::loadShaders()
+{
+  if (mShaderBaseNameVert.empty() || mShaderBaseNameFrag.empty()) {
+    try {
+      mShaderBase = gl::GlslProg(DefaultBaseVert.c_str(), DefaultBaseFrag.c_str());
+    } catch ( std::exception &e ) {
+      std::cout << e.what() << std::endl;
+    }
+  } else {
+    try {
+      mShaderBase = gl::GlslProg(loadFile(mShaderBaseNameVert), loadFile(mShaderBaseNameFrag));
+    } catch ( std::exception &e ) {
+      std::cout << e.what() << std::endl;
+    }
+  }
 }
 
 } // namespace ui
