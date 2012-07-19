@@ -38,6 +38,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   , mMinTapDistance(10.0f)
   , mSwipeQueueSize(4)
   , mDoubleTapTime(0.1f)
+  , mSettings(settings)
 {
   const std::string     DEBUG_FILE("debug.xml");
   mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
@@ -137,12 +138,14 @@ void Engine::setup(ds::App&)
   mLastTouchTime = 0;
 }
 
-void Engine::loadCinderSettings( ci::app::App::Settings *settings )
+void Engine::loadCinderSettings( ci::app::AppBasic::Settings &settings )
 {
-  if (!settings) return;
-
-  settings->setWindowSize(static_cast<int>(getWidth()),
+  settings.setWindowSize( static_cast<int>(getWidth()),
                           static_cast<int>(getHeight()));
+  settings.setResizable(false);
+
+  if (mSettings.getText("screen:mode", 0, "") == "full") settings.setFullScreen(true);
+  settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, true));
 }
 
 bool Engine::isIdling() const

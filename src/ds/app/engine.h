@@ -46,7 +46,7 @@ class Engine : public ui::SpriteEngine {
 
     // only valid after setup() is called
     ui::Sprite                 &getRootSprite();
-    void                        loadCinderSettings( ci::app::App::Settings *setting );
+    void                        loadCinderSettings( ci::app::AppBasic::Settings& );
     //called in app setup; loads settings files and what not.
     virtual void                setup(ds::App&);
     virtual void                setupTuio(ds::App&) = 0;
@@ -120,6 +120,7 @@ class Engine : public ui::SpriteEngine {
 
     ci::Rectf                   mScreenRect;
     ci::Vec2f                   mWorldSize;
+    const ds::cfg::Settings    &mSettings;
     ds::cfg::Settings           mDebugSettings;
     ci::CameraOrtho             mCamera;
 

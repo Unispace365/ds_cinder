@@ -22,4 +22,7 @@
 	<float name="frame_rate" value="30" />
 	<float name="tap_threshold" value="10" />
 
+	<text name="screen:mode" value="false" />		<!-- full or window (default) -->
+	<text name="screen:always_on_top" value="false" />
+
 </settings>

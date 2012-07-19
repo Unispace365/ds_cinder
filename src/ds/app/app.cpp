@@ -49,7 +49,7 @@ void App::prepareSettings(Settings *settings)
 {
   inherited::prepareSettings(settings);
 
-  mEngine.loadCinderSettings(settings);
+  if (settings) mEngine.loadCinderSettings(*settings);
 }
 
 void App::setup()
