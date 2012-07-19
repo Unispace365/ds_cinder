@@ -2,14 +2,11 @@
 #ifndef DS_UI_TWEEN_TWEENLINE_H_
 #define DS_UI_TWEEN_TWEENLINE_H_
 
-#include <unordered_map>
-#include <cinder/Tween.h>
-#include <cinder/Vector.h>
-#include "ds/app/app_defs.h"
+#include <cinder/Timeline.h>
+#include "ds/ui/tween/sprite_anim.h"
 
 namespace ds {
 namespace ui {
-class Sprite;
 
 /**
  * \class ds::ui::Tweenline
@@ -17,31 +14,33 @@ class Sprite;
  */
 class Tweenline {
   public:
-    // Common tweening targets
-    typedef std::function<void(Sprite&, const ci::Vec3f&)>  TWEEN_VEC3F;
-
-    static const TWEEN_VEC3F&     POSITION();
-
-  public:
     Tweenline(cinder::Timeline&);
 
-    bool                  addVec3f( Sprite&, const ci::Vec3f& start, const ci::Vec3f& end,
-                                    const std::function<void(Sprite&, const ci::Vec3f&)>&,
-                                    float duration, ci::EaseFn easeFunction = ci::easeNone);
+    template <typename T>
+    void                  apply( Sprite&, const SpriteAnim<T>&, const T& end,
+                                 float duration, ci::EaseFn easeFunction = ci::easeNone,
+                                 typename ci::Tween<T>::LerpFn lerpFunction = &tweenLerp<T>);
+
+    // Clients can go nuts with full access to the cinder timeline
+    cinder::Timeline&     getTimeline();
 
   private:
     Tweenline();
     cinder::Timeline&     mTimeline;
-
-    // Maintain tokens for all tweening objects, so I can cancel them
-    typedef cinder::Anim<ci::Vec3f>
-                          AnimVec3f;
-
-    std::unordered_map<ds::sprite_id_t, std::vector<std::unique_ptr<AnimVec3f>>>
-                          mVec3f;
-
-    void                  removeVec3f(const ds::sprite_id_t, const ci::Vec3f*);
 };
+
+template <typename T>
+void Tweenline::apply( Sprite& s, const SpriteAnim<T>& a, const T& end,
+                       float duration, ci::EaseFn easeFunction,
+                       typename ci::Tween<T>::LerpFn lerpFunction)
+{
+  auto&   anim = a.getAnim(s); 
+  auto    ans = mTimeline.apply(&anim, a.getStartValue(s), end, duration, easeFunction, lerpFunction);
+  ds::ui::Sprite*           s_ptr = &s;
+  const ci::Vec3f*          vec_ptr = anim.ptr();
+  auto                      assignF = a.getAssignValue();
+  ans.updateFn([s_ptr, vec_ptr, assignF](){ assignF(*vec_ptr, *s_ptr);});
+}
 
 } // namespace ui
 } // namespace ds

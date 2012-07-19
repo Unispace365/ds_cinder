@@ -8,12 +8,14 @@
 #include "cinder/Matrix33.h"
 #include "cinder/MatrixAffine2.h"
 #include "cinder/Matrix44.h"
+#include "cinder/Tween.h"
 #include "cinder/Vector.h"
 #include "ds/app/app_defs.h"
 #include "ds/util/bit_mask.h"
 #include "ds/ui/sprite/dirty_state.h"
 #include "ds/ui/touch/touch_process.h"
 #include "ds/ui/touch/multi_touch_constraints.h"
+#include "ds/ui/tween/sprite_anim.h"
 #include "cinder/gl/GlslProg.h"
 
 using namespace ci;
@@ -42,7 +44,7 @@ extern const char     SPRITE_ID_ATTRIBUTE;
  * basic scene container for app. objects implement a few functions to abstract functionality.
  * Sprite will delete children when clearing.
  */
-class Sprite
+class Sprite : public SpriteAnimatable
 {
     public:
         static void           installAsServer(ds::BlobRegistry&);

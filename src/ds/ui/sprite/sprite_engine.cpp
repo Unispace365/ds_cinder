@@ -1,5 +1,6 @@
 #include "sprite_engine.h"
 #include "sprite.h"
+#include "ds/debug/debug_defines.h"
 
 namespace ds {
 namespace ui {
@@ -39,6 +40,8 @@ Sprite *SpriteEngine::getDragDestinationSprite( const ci::Vec3f &globalPoint, Sp
 
 std::unique_ptr<ci::gl::Fbo> SpriteEngine::getFbo( int width, int height )
 {
+  DS_VALIDATE(width > 0 && height > 0, return nullptr);
+
   if (!mFbos.empty()) {
     auto it = mFbos.begin();
     for (auto it2 = mFbos.end(); it != it2; ++it) {

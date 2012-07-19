@@ -185,9 +185,9 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
 
     Matrix44f totalTransformation = trans*mTransformation;
 
-
     if ((mSpriteFlags&TRANSPARENT_F) == 0) {
       std::unique_ptr<ci::gl::Fbo> fbo = std::move(mEngine.getFbo(mWidth, mHeight));
+      if (!fbo) return;
       {
         gl::SaveFramebufferBinding bindingSaver;
         // bind the framebuffer - now everything we draw will go there
