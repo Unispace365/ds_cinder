@@ -118,6 +118,8 @@ void Sprite::init(const ds::sprite_id_t id)
   setSpriteId(id);
 
   mServerColor = ci::ColorA(math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, 0.4f);
+  mClippingBounds.set(0.0f, 0.0f, 0.0f, 0.0f);
+  dimensionalStateChanged();
 }
 
 Sprite::~Sprite()
@@ -164,58 +166,13 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
     ci::Matrix44f totalTransformation = trans*mTransformation;
 
     ci::gl::pushModelView();
-    //glLoadIdentity();
-    ci::gl::multModelView(mTransformation);
+    glLoadIdentity();
+    ci::gl::multModelView(totalTransformation);
 
     if ((mSpriteFlags&TRANSPARENT_F) == 0) {
-      //std::unique_ptr<FboGeneral> fbo = std::move(mEngine.getFbo());
-      //{
-      //  //bind the framebuffer - now everything we draw will go there
-      //  if (!mRenderTarget || mRenderTarget.getWidth() != getWidth() || mRenderTarget.getHeight() != getHeight()) {
-      //    ci::gl::Texture::Format format;
-      //    format.setInternalFormat(GL_RGBA);
-      //    format.setTarget(GL_TEXTURE_2D);
-      //    mRenderTarget = ci::gl::Texture(mWidth, mHeight, format);
-      //  }
-
-      //  //FboGeneral::AutoAttach autoAttach(*fbo, mRenderTarget);
-      //  //FboGeneral::AutoRun autoRun(*fbo);
-      //  fbo->attach(mRenderTarget);
-      //  fbo->begin();
-
-      //  ci::CameraOrtho camera;
-      //  fbo->offsetViewport(0,0);
-      //  camera.setOrtho(0.0f, mRenderTarget.getWidth(), mRenderTarget.getHeight(), 0.0f, -1.0f, 1.0f);
-
-      //  //ci::gl::pushModelView();
-      //  ci::gl::setMatrices(camera);
-
-      //  //ci::gl::multModelView(totalTransformation);
-
-      //  ci::gl::disableAlphaBlending();
-      //  ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
-      //  ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
-
-      //  //if (mShaderBase) {
-      //  //  mShaderBase.bind();
-      //  //  mShaderBase.uniform("tex0", 0);
-      //  //  mShaderBase.uniform("useTexture", mUseShaderTexture);
-      //  //}
-      //  drawLocalClient();
-      //  //if (mShaderBase) {
-      //  //  mShaderBase.unbind();
-      //  //}
-      //  //ci::gl::popModelView();
-      //  fbo->end();
-      //  fbo->detach();
-      //}
-      //mEngine.giveBackFbo(std::move(fbo));
 
       ci::gl::enableAlphaBlending();
       applyBlendingMode(mBlendMode);
-      //ci::gl::pushModelView();
-      ////glLoadIdentity();
-      //ci::gl::multModelView(mTransformation);
 
       ci::gl::GlslProg shaderBase = mSpriteShader.getShader();
 
@@ -233,13 +190,13 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
         shaderBase.unbind();
       }
 
-      /*ci::gl::popModelView();*/
+    }
+    
+    if ((mSpriteFlags&CLIP_F) != 0) {
+      enableClipping(mClippingBounds.getX1(), mClippingBounds.getY1(), mClippingBounds.getX2(), mClippingBounds.getY2());
     }
 
-    if ((mSpriteFlags&CLIP_F) != 0) {
-      computeClippingBounds();
-      enableClipping(mClippingBounds.getX1(), mClippingBounds.getY1()/*mEngine.getHeight() - mClippingBounds.getY2()*/, mClippingBounds.getX2(), mClippingBounds.getY2());
-    }
+    ci::gl::popModelView();
 
     if ((mSpriteFlags&DRAW_SORTED_F) == 0)
     {
@@ -265,8 +222,6 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
     if ((mSpriteFlags&CLIP_F) != 0) {
       disableClipping();
     }
-
-    ci::gl::popModelView();
 }
 
 void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams )
@@ -278,15 +233,20 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
 
   ci::Matrix44f totalTransformation = trans*mTransformation;
 
-  glPushMatrix();
-  //ci::gl::multModelView(totalTransformation);
+  ci::gl::pushModelView();
+  glLoadIdentity();
   ci::gl::multModelView(totalTransformation);
-  ci::gl::color(mServerColor);
 
-  if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled())
+  if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
+    ci::gl::color(mServerColor);
     drawLocalServer();
+  }
 
-  glPopMatrix();
+  if ((mSpriteFlags&CLIP_F) != 0) {
+    enableClipping(mClippingBounds.getX1(), mClippingBounds.getY1(), mClippingBounds.getX2(), mClippingBounds.getY2());
+  }
+
+  ci::gl::popModelView();
 
   if ((mSpriteFlags&DRAW_SORTED_F) == 0)
   {
@@ -308,6 +268,10 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
       (*it)->drawServer(totalTransformation, drawParams);
     }
   }
+
+  if ((mSpriteFlags&CLIP_F) != 0) {
+    disableClipping();
+  }
 }
 
 void Sprite::setPosition( float x, float y, float z )
@@ -323,6 +287,7 @@ void Sprite::setPosition( const ci::Vec3f &pos )
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 	markAsDirty(POSITION_DIRTY);
+  dimensionalStateChanged();
 }
 
 const ci::Vec3f &Sprite::getPosition() const
@@ -343,6 +308,7 @@ void Sprite::setScale( const ci::Vec3f &scale )
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 	markAsDirty(SCALE_DIRTY);
+  dimensionalStateChanged();
 }
 
 const ci::Vec3f &Sprite::getScale() const
@@ -355,6 +321,7 @@ void Sprite::setCenter( float x, float y, float z )
   mCenter = ci::Vec3f(x, y, z);
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
+  dimensionalStateChanged();
 }
 
 void Sprite::setCenter( const ci::Vec3f &center )
@@ -377,6 +344,7 @@ void Sprite::setRotation( float rotZ )
     mRotation.z = rotZ;
     mUpdateTransform = true;
     mBoundsNeedChecking = true;
+    dimensionalStateChanged();
 }
 
 void Sprite::setRotation( const ci::Vec3f &rot )
@@ -387,6 +355,7 @@ void Sprite::setRotation( const ci::Vec3f &rot )
   mRotation = rot;
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
+  dimensionalStateChanged();
 }
 
 ci::Vec3f Sprite::getRotation() const
@@ -522,12 +491,14 @@ void Sprite::setSize( float width, float height, float depth )
   mHeight = height;
   mDepth = depth;
   markAsDirty(SIZE_DIRTY);
+  dimensionalStateChanged();
 }
 
 void Sprite::setSize( float width, float height )
 {
   setSize(width, height, 1.0f);
   markAsDirty(SIZE_DIRTY);
+  dimensionalStateChanged();
 }
 
 void Sprite::setColor( const ci::Color &color )
@@ -1206,6 +1177,7 @@ void Sprite::setUseShaderTextuer( bool flag )
 void Sprite::setClipping( bool flag )
 {
   setFlag(CLIP_F, flag, FLAGS_DIRTY, mSpriteFlags);
+  computeClippingBounds();
 }
 
 bool Sprite::getClipping() const
@@ -1272,6 +1244,11 @@ void Sprite::computeClippingBounds()
       mClippingBounds.set(l, t, r, b);
     }
   }
+}
+
+void Sprite::dimensionalStateChanged()
+{
+  computeClippingBounds();
 }
 
 } // namespace ui

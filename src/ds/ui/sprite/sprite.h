@@ -226,6 +226,8 @@ class Sprite : public SpriteAnimatable
         void                setUseShaderTextuer(bool flag);
         bool                getUseShaderTextuer() const;
 
+        void                dimensionalStateChanged();
+
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
 
