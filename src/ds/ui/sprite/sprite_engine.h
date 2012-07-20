@@ -3,6 +3,7 @@
 #define DS_UI_SPRITE_SPRITEENGINE_H_
 #include "cinder/Rect.h"
 #include <list>
+#include <unordered_map>
 #include "cinder/Vector.h"
 #include "ds/app/app_defs.h"
 #include "cinder/gl/Fbo.h"
@@ -10,6 +11,10 @@
 namespace ds {
 class ResourceList;
 class WorkManager;
+
+namespace cfg {
+class Settings;
+}
 
 namespace ui {
 class LoadImageService;
@@ -27,6 +32,8 @@ class SpriteEngine {
     virtual ds::ResourceList      &getResources() = 0;
     virtual LoadImageService      &getLoadImageService() = 0;
     virtual Tweenline             &getTweenline() = 0;
+    virtual const ds::cfg::Settings
+                                  &getDebugSettings() = 0;
 
     // Sprite management
     virtual ds::sprite_id_t        nextSpriteId() = 0;

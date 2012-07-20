@@ -56,8 +56,8 @@ void EngineServer::setupTuio(ds::App& a)
 
 void EngineServer::update()
 {
-  updateServer();
   mWorkManager.update();
+  updateServer();
 
   // Always send the header
   mSendBuffer.clear();

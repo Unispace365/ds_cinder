@@ -76,5 +76,5 @@ void SpriteEngine::giveBackFbo( std::unique_ptr<ci::gl::Fbo> &fbo )
   mFbos.push_back(std::move(fbo));
 }
 
-}
-}
+} // namespace ui
+} // namespace ds

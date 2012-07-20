@@ -282,6 +282,9 @@
     <ClInclude Include="..\src\ds\ui\tween\sprite_anim.h">
       <Filter>src\ds\ui\tweenline</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\text_layout.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -442,6 +445,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\tween\sprite_anim.cpp">
       <Filter>src\ds\ui\tweenline</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\text_layout.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

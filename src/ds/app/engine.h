@@ -43,6 +43,8 @@ class Engine : public ui::SpriteEngine {
     virtual void                draw() = 0;
 
     virtual ds::ui::Tweenline  &getTweenline() { return mTweenline; }
+    virtual const ds::cfg::Settings
+                               &getDebugSettings() { return mDebugSettings; }
 
     // only valid after setup() is called
     ui::Sprite                 &getRootSprite();

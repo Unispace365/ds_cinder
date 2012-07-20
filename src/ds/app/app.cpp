@@ -8,6 +8,7 @@
 #include "ds/debug/debug_defines.h"
 // For installing the sprite types
 #include "ds/ui/sprite/image.h"
+#include "ds/ui/sprite/text.h"
 
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&);
@@ -36,6 +37,8 @@ App::App()
                         [](ds::BlobRegistry& r){ds::ui::Sprite::installAsClient(r);});
   mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Image::installAsServer(r);},
                         [](ds::BlobRegistry& r){ds::ui::Image::installAsClient(r);});
+  mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
+                        [](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
 }
 
 App::~App()

@@ -45,13 +45,6 @@ extern const char     SPRITE_ID_ATTRIBUTE;
 class Sprite : public SpriteAnimatable
 {
     public:
-        static void           installAsServer(ds::BlobRegistry&);
-        static void           installAsClient(ds::BlobRegistry&);
-
-        template <typename T>
-        static void           handleBlobFromServer(ds::BlobReader&);
-        static void           handleBlobFromClient(ds::BlobReader&);
-
         enum BlendMode
         {
           NORMAL,
@@ -59,6 +52,10 @@ class Sprite : public SpriteAnimatable
           MULTIPLY,
           SCREEN
         };
+
+        // Generic sprite creation function
+        template <typename T>
+        static T&           make(SpriteEngine&, Sprite* parent = nullptr);
 
         Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
         virtual ~Sprite();
@@ -75,8 +72,8 @@ class Sprite : public SpriteAnimatable
 
         virtual void        setSize(float width, float height);
         virtual void        setSize(float width, float height, float depth);
-        float               getWidth() const;
-        float               getHeight() const;
+        virtual float       getWidth() const;
+        virtual float       getHeight() const;
         float               getDepth() const;
 
         void                setPosition(const ci::Vec3f &pos);
@@ -295,7 +292,25 @@ class Sprite : public SpriteAnimatable
         ci::gl::GlslProg    mShaderBase;
 
         ci::ColorA          mServerColor;
+
+    public:
+        // Initialization and network handling
+        static void           installAsServer(ds::BlobRegistry&);
+        static void           installAsClient(ds::BlobRegistry&);
+
+        template <typename T>
+        static void           handleBlobFromServer(ds::BlobReader&);
+        static void           handleBlobFromClient(ds::BlobReader&);
 };
+
+template <typename T>
+static T& Sprite::make(SpriteEngine& e, Sprite* parent)
+{
+  T*                    s = new T(e);
+  if (!s) throw std::runtime_error("Can't make sprite");
+  if (parent) parent->addChild(*s);
+  return *s;
+}
 
 template <typename T>
 static void Sprite::handleBlobFromServer(ds::BlobReader& r)

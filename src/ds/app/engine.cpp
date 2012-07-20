@@ -79,6 +79,18 @@ void Engine::updateClient()
 
 void Engine::updateServer()
 {
+  float curr = static_cast<float>(getElapsedSeconds());
+  float dt = curr - mLastTime;
+  mLastTime = curr;
+
+  if (!mIdling && (curr - mLastTouchTime) >= mIdleTime ) {
+    mIdling = true;
+  }
+
+  mUpdateParams.setDeltaTime(dt);
+  mUpdateParams.setElapsedTime(curr);
+
+  mRootSprite.updateServer(mUpdateParams);
 }
 
 void Engine::drawClient()
