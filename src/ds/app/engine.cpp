@@ -90,7 +90,7 @@ void Engine::drawClient()
 
     gl::enableAlphaBlending();
     //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-    gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
+    gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 
     mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
 

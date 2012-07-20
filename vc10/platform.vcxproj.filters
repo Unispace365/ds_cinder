@@ -73,6 +73,15 @@
     <Filter Include="src\ds\network">
       <UniqueIdentifier>{20082a19-803d-48dd-bf2a-4b79b04506d7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\sprite\fbo">
+      <UniqueIdentifier>{9005e0a6-9deb-47ef-a96d-2d1f531a4a68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\sprite\shader">
+      <UniqueIdentifier>{ea37a132-bc5d-41e3-8741-e3f669b7df2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\sprite\util">
+      <UniqueIdentifier>{10e6bd0d-110c-4e59-a253-3c5b534efff4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\app\app_defs.h">
@@ -273,6 +282,18 @@
     <ClInclude Include="..\src\ds\data\raw_data_buffer.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h">
+      <Filter>src\ds\ui\sprite\fbo</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\shader\sprite_shader.h">
+      <Filter>src\ds\ui\sprite\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\util\blend.h">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -427,6 +448,18 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp">
       <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp">
+      <Filter>src\ds\ui\sprite\fbo</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\shader\sprite_shader.cpp">
+      <Filter>src\ds\ui\sprite\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\util\blend.cpp">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp">
+      <Filter>src\ds\ui\sprite\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

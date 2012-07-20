@@ -50,6 +50,8 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
     , mResourceFn(filename)
 {
   mBlobType = BLOB_TYPE;
+  setUseShaderTextuer(true);
+
   try {
     Vec2f size = parseFileMetaDataSize(filename);
     mWidth = size.x;
@@ -70,6 +72,8 @@ Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
   , mResourceId(resourceId)
 {
   mBlobType = BLOB_TYPE;
+  setUseShaderTextuer(true);
+
   ds::Resource            res;
   if (engine.getResources().get(resourceId, res)) {
     inherited::setSize(res.getWidth(), res.getHeight());

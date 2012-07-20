@@ -15,6 +15,9 @@
 #include "ds/ui/touch/touch_process.h"
 #include "ds/ui/touch/multi_touch_constraints.h"
 #include "cinder/gl/GlslProg.h"
+#include "cinder/gl/Texture.h"
+#include "shader/sprite_shader.h"
+#include "util/blend.h"
 
 using namespace ci;
 
@@ -51,14 +54,6 @@ class Sprite
         template <typename T>
         static void           handleBlobFromServer(ds::BlobReader&);
         static void           handleBlobFromClient(ds::BlobReader&);
-
-        enum BlendMode
-        {
-          NORMAL,
-          NORMAL_PREMULTIPLIED,
-          MULTIPLY,
-          SCREEN
-        };
 
         Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
         virtual ~Sprite();
@@ -192,6 +187,9 @@ class Sprite
 
         void                setBaseShader(const std::string &location, const std::string &shadername);
         std::string         getBaseShaderName() const;
+
+        void                setClipping(bool flag);
+        bool                getClipping() const;
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -223,7 +221,8 @@ class Sprite
         // Read a single attribute
         virtual void        readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
-        void                loadShaders();
+        void                setUseShaderTextuer(bool flag);
+        bool                getUseShaderTextuer() const;
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
@@ -287,12 +286,13 @@ class Sprite
         void                init(const ds::sprite_id_t);
         void                readAttributesFrom(ds::DataBuffer&);
 
+        ci::gl::Texture     mRenderTarget;
+
         BlendMode           mBlendMode;
-        std::string         mShaderBaseName;
-        std::string         mShaderBaseNameVert;
-        std::string         mShaderBaseNameFrag;
-        ci::gl::GlslProg    mShaderBlend;
-        ci::gl::GlslProg    mShaderBase;
+        SpriteShader        mSpriteShader;
+
+        //set by sprite constructors. doesn't need to be passed through.
+        bool                mUseShaderTexture; 
 
         ci::ColorA          mServerColor;
 };

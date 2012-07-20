@@ -2,6 +2,7 @@
 #include "touch_info.h"
 #include "ds/app/engine.h"
 #include "ds/math/math_defs.h"
+#include "ds/ui/sprite/util/blend.h"
 
 
 namespace {
@@ -156,6 +157,7 @@ void TouchManager::drawTouches() const
   if (mTouchPreviousPoint.empty())
     return;
 
+  applyBlendingMode(NORMAL);
   gl::color( mTouchColor );
 
   for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {

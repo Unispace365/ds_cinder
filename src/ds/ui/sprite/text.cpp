@@ -22,6 +22,8 @@ Text::Text( SpriteEngine& engine, const std::string &string, const std::string &
     , mTextString(string)
     , mBoxChanged(false)
 {
+  setUseShaderTextuer(true);
+
     setTransparent(false);
     mFont = getFont( filename, mFontSize );
 

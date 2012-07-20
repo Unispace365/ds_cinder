@@ -12,28 +12,7 @@
 #include "ds/math/random.h"
 #include "ds/app/environment.h"
 #include "ds/util/string_util.h"
-
-namespace {
-
-const std::string DefaultBaseFrag = 
-"uniform sampler2D tex0;\n"
-"void main()\n"
-"{\n"
-"    vec4 acolor = texture2D( tex0, gl_TexCoord[0].st );\n"
-"    acolor *= gl_Color;\n"
-"    gl_FragColor = acolor;\n"
-"}\n";
-
-const std::string DefaultBaseVert = 
-"void main()\n"
-"{\n"
-"  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
-"  gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;\n"
-"  gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
-"  gl_FrontColor = gl_Color;\n"
-"}\n";
-
-}
+#include "util/clip_plane.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -70,6 +49,7 @@ const int           VISIBLE_F         = (1<<0);
 const int           TRANSPARENT_F     = (1<<1);
 const int           ENABLED_F         = (1<<2);
 const int           DRAW_SORTED_F     = (1<<3);
+const int           CLIP_F            = (1<<4);
 
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
@@ -99,6 +79,7 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mWidth(width)
     , mHeight(height)
     , mTouchProcess(engine, *this)
+    , mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
 {
   init(mEngine.nextSpriteId());
   setSize(width, height);
@@ -108,6 +89,7 @@ Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id )
     : mEngine(engine)
     , mId(ds::EMPTY_SPRITE_ID)
     , mTouchProcess(engine, *this)
+    , mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
 {
   init(id);
 }
@@ -133,13 +115,11 @@ void Sprite::init(const ds::sprite_id_t id)
   mDragDestination = nullptr;
   mBlobType = BLOB_TYPE;
   mBlendMode = NORMAL;
+  mUseShaderTexture = false;
 
   setSpriteId(id);
 
   mServerColor = ColorA(math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, 0.4f);
-
-  mShaderBaseNameVert = Environment::getAppFolder("data/shaders", "base.vert");
-  mShaderBaseNameFrag = Environment::getAppFolder("data/shaders", "base.frag");
 }
 
 Sprite::~Sprite()
@@ -177,64 +157,87 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
     if ((mSpriteFlags&VISIBLE_F) == 0)
         return;
 
-    if (!mShaderBase) {
-      loadShaders();
+    if (!mSpriteShader.isValid()) {
+      mSpriteShader.loadShaders();
     }
 
     buildTransform();
 
     Matrix44f totalTransformation = trans*mTransformation;
 
-
     if ((mSpriteFlags&TRANSPARENT_F) == 0) {
-      std::unique_ptr<ci::gl::Fbo> fbo = std::move(mEngine.getFbo(mWidth, mHeight));
-      {
-        gl::SaveFramebufferBinding bindingSaver;
-        // bind the framebuffer - now everything we draw will go there
-        fbo->bindFramebuffer();
+      //std::unique_ptr<FboGeneral> fbo = std::move(mEngine.getFbo());
+      //{
+      //  //bind the framebuffer - now everything we draw will go there
+      //  if (!mRenderTarget || mRenderTarget.getWidth() != getWidth() || mRenderTarget.getHeight() != getHeight()) {
+      //    ci::gl::Texture::Format format;
+      //    format.setInternalFormat(GL_RGBA);
+      //    format.setTarget(GL_TEXTURE_2D);
+      //    mRenderTarget = ci::gl::Texture(mWidth, mHeight, format);
+      //  }
 
-        gl::setViewport(fbo->getBounds());
+      //  //FboGeneral::AutoAttach autoAttach(*fbo, mRenderTarget);
+      //  //FboGeneral::AutoRun autoRun(*fbo);
+      //  fbo->attach(mRenderTarget);
+      //  fbo->begin();
 
-        ci::CameraOrtho camera;
-        camera.setOrtho(0.0f, fbo->getWidth(), fbo->getHeight(), 0.0f, -1.0f, 1.0f);
+      //  ci::CameraOrtho camera;
+      //  fbo->offsetViewport(0,0);
+      //  camera.setOrtho(0.0f, mRenderTarget.getWidth(), mRenderTarget.getHeight(), 0.0f, -1.0f, 1.0f);
 
-        gl::pushModelView();
-        gl::setMatrices(camera);
+      //  //gl::pushModelView();
+      //  gl::setMatrices(camera);
 
-        gl::disableAlphaBlending();
-        gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
-        gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+      //  //gl::multModelView(totalTransformation);
 
-        drawLocalClient();
-        gl::popModelView();
-      }
+      //  gl::disableAlphaBlending();
+      //  gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+      //  gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+
+      //  //if (mShaderBase) {
+      //  //  mShaderBase.bind();
+      //  //  mShaderBase.uniform("tex0", 0);
+      //  //  mShaderBase.uniform("useTexture", mUseShaderTexture);
+      //  //}
+      //  drawLocalClient();
+      //  //if (mShaderBase) {
+      //  //  mShaderBase.unbind();
+      //  //}
+      //  //gl::popModelView();
+      //  fbo->end();
+      //  fbo->detach();
+      //}
+      //mEngine.giveBackFbo(std::move(fbo));
 
       gl::enableAlphaBlending();
+      applyBlendingMode(mBlendMode);
       mEngine.setCamera();
-      Rectf screen(0.0f, fbo->getHeight(), fbo->getWidth(), 0.0f);
       gl::pushModelView();
       glLoadIdentity();
       gl::multModelView(totalTransformation);
-      gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 
-      fbo->bindTexture();
+      ci::gl::GlslProg shaderBase = mSpriteShader.getShader();
 
-      if (mShaderBase) {
-        mShaderBase.bind();
-        mShaderBase.uniform("tex0", 0);
+      if (shaderBase) {
+        shaderBase.bind();
+        shaderBase.uniform("tex0", 0);
+        shaderBase.uniform("useTexture", mUseShaderTexture);
+        shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
       }
 
-      gl::drawSolidRect(screen);
+      gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+      drawLocalClient();
 
-      if (mShaderBase) {
-        mShaderBase.unbind();
+      if (shaderBase) {
+        shaderBase.unbind();
       }
 
-      fbo->unbindTexture();
-      //gl::draw( fbo->getTexture(0), screen );
       gl::popModelView();
-      mEngine.giveBackFbo(std::move(fbo));
     }
+
+    //if ((mSpriteFlags&CLIP_F) != 0) {
+    //  enableClipping(0, 0, mWidth, mHeight);
+    //}
 
     if ((mSpriteFlags&DRAW_SORTED_F) == 0)
     {
@@ -256,6 +259,10 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
             (*it)->drawClient(totalTransformation, drawParams);
         }
     }
+
+    //if ((mSpriteFlags&CLIP_F) != 0) {
+    //  disableClipping();
+    //}
 }
 
 void Sprite::drawServer( const Matrix44f &trans, const DrawParams &drawParams )
@@ -558,6 +565,7 @@ void Sprite::drawLocalClient()
     //gl::vertex( mWidth, mHeight );
     //gl::vertex( 0, mHeight );
     //glEnd();
+
   gl::drawSolidRect(Rectf(0.0f, 0.0f, mWidth, mHeight));
 }
 
@@ -1162,43 +1170,42 @@ void Sprite::markChildrenAsDirty(const DirtyState& dirty)
 
 void Sprite::setBlendMode( const BlendMode &blendMode )
 {
-
+  mBlendMode = blendMode;
 }
 
-Sprite::BlendMode Sprite::getBlendMode() const
+BlendMode Sprite::getBlendMode() const
 {
   return mBlendMode;
 }
 
 void Sprite::setBaseShader(const std::string &location, const std::string &shadername)
 {
-  mShaderBaseName = shadername;
-  mShaderBaseNameVert = location+mShaderBaseName+".vert";
-  mShaderBaseNameFrag = location+mShaderBaseName+".frag";
-
-  loadShaders();
+  mSpriteShader.setShaders(location, shadername);
 }
 
 std::string Sprite::getBaseShaderName() const
 {
-  return mShaderBaseName;
+  return mSpriteShader.getName();
 }
 
-void Sprite::loadShaders()
+bool Sprite::getUseShaderTextuer() const
 {
-  if (mShaderBaseNameVert.empty() || mShaderBaseNameFrag.empty()) {
-    try {
-      mShaderBase = gl::GlslProg(DefaultBaseVert.c_str(), DefaultBaseFrag.c_str());
-    } catch ( std::exception &e ) {
-      std::cout << e.what() << std::endl;
-    }
-  } else {
-    try {
-      mShaderBase = gl::GlslProg(loadFile(mShaderBaseNameVert), loadFile(mShaderBaseNameFrag));
-    } catch ( std::exception &e ) {
-      std::cout << e.what() << std::endl;
-    }
-  }
+  return mUseShaderTexture;
+}
+
+void Sprite::setUseShaderTextuer( bool flag )
+{
+  mUseShaderTexture = flag;
+}
+
+void Sprite::setClipping( bool flag )
+{
+  setFlag(CLIP_F, flag, FLAGS_DIRTY, mSpriteFlags);
+}
+
+bool Sprite::getClipping() const
+{
+  return getFlag(CLIP_F, mSpriteFlags);
 }
 
 } // namespace ui

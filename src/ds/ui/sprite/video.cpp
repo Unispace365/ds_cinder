@@ -9,6 +9,8 @@ Video::Video( SpriteEngine& engine, const std::string &filename )
     , mMuted(true)
     , mVolume(1.0f)
 {
+  setUseShaderTextuer(true);
+
     setTransparent(false);
     try
     {
@@ -47,8 +49,9 @@ void Video::drawLocalClient()
       }
       mFrameTexture = mMovie.getTexture();
     }
-    if ( mFrameTexture )
+    if ( mFrameTexture ) {
         ci::gl::draw(mFrameTexture);
+    }
 }
 
 void Video::setSize( float width, float height )
