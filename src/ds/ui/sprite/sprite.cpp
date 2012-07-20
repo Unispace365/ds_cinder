@@ -33,6 +33,8 @@ const DirtyState    POSITION_DIRTY 		= newUniqueDirtyState();
 const DirtyState    SCALE_DIRTY 	  	= newUniqueDirtyState();
 const DirtyState    COLOR_DIRTY 	  	= newUniqueDirtyState();
 const DirtyState    OPACITY_DIRTY 	  = newUniqueDirtyState();
+const DirtyState    BLEND_MODE        = newUniqueDirtyState();
+const DirtyState    CLIPPING_BOUNDS   = newUniqueDirtyState();
 
 const char          PARENT_ATT        = 2;
 const char          SIZE_ATT          = 3;
@@ -41,6 +43,8 @@ const char          POSITION_ATT      = 5;
 const char          SCALE_ATT         = 6;
 const char          COLOR_ATT         = 7;
 const char          OPACITY_ATT       = 8;
+const char          BLEND_ATT         = 9;
+const char          CLIP_BOUNDS_ATT   = 10;
 
 // flags
 const int           VISIBLE_F         = (1<<0);
@@ -1038,6 +1042,17 @@ void Sprite::writeAttributesTo(ds::DataBuffer& buf)
       buf.add(OPACITY_ATT);
       buf.add(mOpacity);
     }
+    if (mDirty.has(BLEND_MODE)) {
+      buf.add(BLEND_ATT);
+      buf.add(mBlendMode);
+    }
+    if (mDirty.has(CLIPPING_BOUNDS)) {
+      buf.add(CLIP_BOUNDS_ATT);
+      buf.add(mClippingBounds.getX1());
+      buf.add(mClippingBounds.getY1());
+      buf.add(mClippingBounds.getX2());
+      buf.add(mClippingBounds.getY2());
+    }
 }
 
 void Sprite::readFrom(ds::BlobReader& blob)
@@ -1077,6 +1092,14 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf)
       mColor.b = buf.read<float>();
     } else if (id == OPACITY_ATT) {
       mOpacity = buf.read<float>();
+    } else if (id == BLEND_ATT) {
+      mBlendMode = buf.read<BlendMode>();
+    } else if (id == CLIP_BOUNDS_ATT) {
+      float x1 = buf.read<float>();
+      float y1 = buf.read<float>();
+      float x2 = buf.read<float>();
+      float y2 = buf.read<float>();
+      mClippingBounds.set(x1, y1, x2, y2);
     } else {
       readAttributeFrom(id, buf);
     }
@@ -1146,7 +1169,11 @@ void Sprite::markChildrenAsDirty(const DirtyState& dirty)
 
 void Sprite::setBlendMode( const BlendMode &blendMode )
 {
+  if (mBlendMode == blendMode)
+    return;
+
   mBlendMode = blendMode;
+  markAsDirty(BLEND_MODE);
 }
 
 BlendMode Sprite::getBlendMode() const
@@ -1242,6 +1269,7 @@ void Sprite::computeClippingBounds()
 
     if (!math::isEqual(old_l, l) || !math::isEqual(old_r, r) || !math::isEqual(old_t, t) || !math::isEqual(old_b, b)) {
       mClippingBounds.set(l, t, r, b);
+      markAsDirty(CLIPPING_BOUNDS);
     }
   }
 }
