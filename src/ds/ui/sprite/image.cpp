@@ -10,6 +10,8 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/util/file_name_parser.h"
 
+using namespace ci;
+
 namespace ds {
 namespace ui {
 

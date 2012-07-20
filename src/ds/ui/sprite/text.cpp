@@ -106,7 +106,7 @@ std::string Text::getText() const
     return mTextString;
 }
 
-void Text::setAlignmnet( int alignment )
+void Text::setAlignment( int alignment )
 {
     if ( alignment == LEFT )
         mTextBox.setAlignment(ci::TextBox::LEFT);

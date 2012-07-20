@@ -18,8 +18,6 @@
 #include "ds/ui/tween/sprite_anim.h"
 #include "cinder/gl/GlslProg.h"
 
-using namespace ci;
-
 namespace ds {
 
 class BlobReader;
@@ -70,8 +68,8 @@ class Sprite : public SpriteAnimatable
         virtual void        updateClient(const UpdateParams &updateParams);
         virtual void        updateServer(const UpdateParams &updateParams);
 
-        virtual void        drawClient( const Matrix44f &trans, const DrawParams &drawParams );
-        virtual void        drawServer( const Matrix44f &trans, const DrawParams &drawParams );
+        virtual void        drawClient( const ci::Matrix44f &trans, const DrawParams &drawParams );
+        virtual void        drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams );
 
         ds::sprite_id_t     getId() const       { return mId; }
 
@@ -81,25 +79,25 @@ class Sprite : public SpriteAnimatable
         float               getHeight() const;
         float               getDepth() const;
 
-        void                setPosition(const Vec3f &pos);
+        void                setPosition(const ci::Vec3f &pos);
         void                setPosition(float x, float y, float z = 0.0f);
-        const Vec3f        &getPosition() const;
+        const ci::Vec3f    &getPosition() const;
 
-        void                move(const Vec3f &delta);
+        void                move(const ci::Vec3f &delta);
         void                move(float deltaX, float deltaY, float deltaZ = 0.0f);
 
-        void                setScale(const Vec3f &scale);
+        void                setScale(const ci::Vec3f &scale);
         void                setScale(float x, float y, float z = 1.0f);
-        const Vec3f        &getScale() const;
+        const ci::Vec3f    &getScale() const;
 
         // center of the Sprite. Where its positioned at and rotated at.
-        void                setCenter(const Vec3f &center);
+        void                setCenter(const ci::Vec3f &center);
         void                setCenter(float x, float y, float z = 0.0f);
-        const Vec3f        &getCenter() const;
+        const ci::Vec3f    &getCenter() const;
 
         void                setRotation(float rotZ);
-        void                setRotation(const Vec3f &rot);
-        Vec3f               getRotation() const;
+        void                setRotation(const ci::Vec3f &rot);
+        ci::Vec3f           getRotation() const;
 
         void                setZLevel( float zlevel );
         float               getZLevel() const;
@@ -109,10 +107,10 @@ class Sprite : public SpriteAnimatable
         void                setDrawSorted( bool drawSorted );
         bool                getDrawSorted() const;
 
-        const Matrix44f    &getTransform() const;
-        const Matrix44f    &getInverseTransform() const;
-        const Matrix44f    &getGlobalTransform() const;
-        const Matrix44f    &getInverseGlobalTransform() const;
+        const ci::Matrix44f &getTransform() const;
+        const ci::Matrix44f &getInverseTransform() const;
+        const ci::Matrix44f &getGlobalTransform() const;
+        const ci::Matrix44f &getInverseGlobalTransform() const;
 
         void                addChild( Sprite &child );
 
@@ -157,18 +155,18 @@ class Sprite : public SpriteAnimatable
 
         Sprite             *getParent() const;
 
-        Vec3f               globalToLocal( const Vec3f &globalPoint );
-        Vec3f               localToGlobal( const Vec3f &localPoint );
+        ci::Vec3f           globalToLocal( const ci::Vec3f &globalPoint );
+        ci::Vec3f           localToGlobal( const ci::Vec3f &localPoint );
 
         // check if a point is inside the Sprite's bounds.
-        bool                contains( const Vec3f &point ) const;
+        bool                contains( const ci::Vec3f &point ) const;
 
         // finds Sprite at position
-        Sprite             *getHit( const Vec3f &point );
+        Sprite             *getHit( const ci::Vec3f &point );
 
         void                setProcessTouchCallback( const std::function<void (Sprite *, const TouchInfo &)> &func );
-        void                setTapCallback( const std::function<void (Sprite *, const Vec3f &)> &func );
-        void                setDoubleTapCallback( const std::function<void (Sprite *, const Vec3f &)> &func );
+        void                setTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func );
+        void                setDoubleTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func );
         void                setDragDestinationCallback( const std::function<void (Sprite *, const DragDestinationInfo &)> &func );
 
         // Constraints defined in multi_touch_constraints.h
@@ -197,9 +195,9 @@ class Sprite : public SpriteAnimatable
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
-        void                swipe(const Vec3f &swipeVector);
-        void                tap(const Vec3f &tapPos);
-        void                doubleTap(const Vec3f &tapPos);
+        void                swipe(const ci::Vec3f &swipeVector);
+        void                tap(const ci::Vec3f &tapPos);
+        void                doubleTap(const ci::Vec3f &tapPos);
         void                dragDestination(Sprite *sprite, const DragDestinationInfo &dragInfo);
         void                processTouchInfo( const TouchInfo &touchInfo );
         void                processTouchInfoCallback( const TouchInfo &touchInfo );
@@ -240,22 +238,22 @@ class Sprite : public SpriteAnimatable
         float               mHeight;
         float               mDepth;
 
-        mutable Matrix44f   mTransformation;
-        mutable Matrix44f   mInverseTransform;
+        mutable ci::Matrix44f   mTransformation;
+        mutable ci::Matrix44f   mInverseTransform;
         mutable bool        mUpdateTransform;
 
         int                 mSpriteFlags;
-        Vec3f               mPosition;
-        Vec3f               mCenter;
-        Vec3f               mScale;
-        Vec3f               mRotation;
+        ci::Vec3f           mPosition;
+        ci::Vec3f           mCenter;
+        ci::Vec3f           mScale;
+        ci::Vec3f           mRotation;
         float               mZLevel;
         float               mOpacity;
         ci::Color           mColor;
         int                 mType;
 
-        mutable Matrix44f   mGlobalTransform;
-        mutable Matrix44f   mInverseGlobalTransform;
+        mutable ci::Matrix44f   mGlobalTransform;
+        mutable ci::Matrix44f   mInverseGlobalTransform;
 
         Sprite             *mParent;
         std::list<Sprite *> mChildren; 
@@ -265,9 +263,9 @@ class Sprite : public SpriteAnimatable
     		DirtyState			    mDirty;
 
         std::function<void (Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
-        std::function<void (Sprite *, const Vec3f &)> mSwipeCallback;
-        std::function<void (Sprite *, const Vec3f &)> mTapCallback;
-        std::function<void (Sprite *, const Vec3f &)> mDoubleTapCallback;
+        std::function<void (Sprite *, const ci::Vec3f &)> mSwipeCallback;
+        std::function<void (Sprite *, const ci::Vec3f &)> mTapCallback;
+        std::function<void (Sprite *, const ci::Vec3f &)> mDoubleTapCallback;
         std::function<void (Sprite *, const DragDestinationInfo &)> mDragDestinationCallback;
 
         bool                mMultiTouchEnabled;

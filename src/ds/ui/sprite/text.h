@@ -19,11 +19,10 @@ class Text: public Sprite
             RIGHT,
             CENTER
         };
-
         Text( SpriteEngine&, const std::string &string, const std::string &filename, float fontSize );
         ~Text();
         void                      setSize( float width, float height );
-        void                      setAlignmnet( int alignment );
+        void                      setAlignment( int alignment );
         void                      drawLocalClient();
         void                      loadText( const std::string &filename );
         void                      setText( const std::string &text );

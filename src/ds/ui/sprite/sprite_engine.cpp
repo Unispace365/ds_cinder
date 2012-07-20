@@ -2,6 +2,8 @@
 #include "sprite.h"
 #include "ds/debug/debug_defines.h"
 
+using namespace ci;
+
 namespace ds {
 namespace ui {
 

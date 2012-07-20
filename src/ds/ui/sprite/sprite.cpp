@@ -13,6 +13,8 @@
 #include "ds/app/environment.h"
 #include "ds/util/string_util.h"
 
+using namespace ci;
+
 namespace {
 
 const std::string DefaultBaseFrag = 
