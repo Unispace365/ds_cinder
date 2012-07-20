@@ -16,8 +16,6 @@
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
-using namespace ci;
-
 namespace ds {
 namespace ui {
 
@@ -106,7 +104,7 @@ void Sprite::init(const ds::sprite_id_t id)
   mUpdateTransform = true;
   mParent = nullptr;
   mOpacity = 1.0f;
-  mColor = Color(1.0f, 1.0f, 1.0f);
+  mColor = ci::Color(1.0f, 1.0f, 1.0f);
   mMultiTouchEnabled = false;
   mCheckBounds = false;
   mBoundsNeedChecking = true;
@@ -119,7 +117,7 @@ void Sprite::init(const ds::sprite_id_t id)
 
   setSpriteId(id);
 
-  mServerColor = ColorA(math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, 0.4f);
+  mServerColor = ci::ColorA(math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, 0.4f);
 }
 
 Sprite::~Sprite()
@@ -152,7 +150,7 @@ void Sprite::updateServer( const UpdateParams &updateParams )
   }
 }
 
-void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
+void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParams )
 {
     if ((mSpriteFlags&VISIBLE_F) == 0)
         return;
@@ -163,7 +161,11 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
 
     buildTransform();
 
-    Matrix44f totalTransformation = trans*mTransformation;
+    ci::Matrix44f totalTransformation = trans*mTransformation;
+
+    ci::gl::pushModelView();
+    //glLoadIdentity();
+    ci::gl::multModelView(mTransformation);
 
     if ((mSpriteFlags&TRANSPARENT_F) == 0) {
       //std::unique_ptr<FboGeneral> fbo = std::move(mEngine.getFbo());
@@ -185,14 +187,14 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
       //  fbo->offsetViewport(0,0);
       //  camera.setOrtho(0.0f, mRenderTarget.getWidth(), mRenderTarget.getHeight(), 0.0f, -1.0f, 1.0f);
 
-      //  //gl::pushModelView();
-      //  gl::setMatrices(camera);
+      //  //ci::gl::pushModelView();
+      //  ci::gl::setMatrices(camera);
 
-      //  //gl::multModelView(totalTransformation);
+      //  //ci::gl::multModelView(totalTransformation);
 
-      //  gl::disableAlphaBlending();
-      //  gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
-      //  gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+      //  ci::gl::disableAlphaBlending();
+      //  ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+      //  ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
 
       //  //if (mShaderBase) {
       //  //  mShaderBase.bind();
@@ -203,18 +205,17 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
       //  //if (mShaderBase) {
       //  //  mShaderBase.unbind();
       //  //}
-      //  //gl::popModelView();
+      //  //ci::gl::popModelView();
       //  fbo->end();
       //  fbo->detach();
       //}
       //mEngine.giveBackFbo(std::move(fbo));
 
-      gl::enableAlphaBlending();
+      ci::gl::enableAlphaBlending();
       applyBlendingMode(mBlendMode);
-      mEngine.setCamera();
-      gl::pushModelView();
-      glLoadIdentity();
-      gl::multModelView(totalTransformation);
+      //ci::gl::pushModelView();
+      ////glLoadIdentity();
+      //ci::gl::multModelView(mTransformation);
 
       ci::gl::GlslProg shaderBase = mSpriteShader.getShader();
 
@@ -225,19 +226,20 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
         shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
       }
 
-      gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+      ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
       drawLocalClient();
 
       if (shaderBase) {
         shaderBase.unbind();
       }
 
-      gl::popModelView();
+      /*ci::gl::popModelView();*/
     }
 
-    //if ((mSpriteFlags&CLIP_F) != 0) {
-    //  enableClipping(0, 0, mWidth, mHeight);
-    //}
+    if ((mSpriteFlags&CLIP_F) != 0) {
+      computeClippingBounds();
+      enableClipping(mClippingBounds.getX1(), mClippingBounds.getY1()/*mEngine.getHeight() - mClippingBounds.getY2()*/, mClippingBounds.getX2(), mClippingBounds.getY2());
+    }
 
     if ((mSpriteFlags&DRAW_SORTED_F) == 0)
     {
@@ -260,24 +262,26 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
         }
     }
 
-    //if ((mSpriteFlags&CLIP_F) != 0) {
-    //  disableClipping();
-    //}
+    if ((mSpriteFlags&CLIP_F) != 0) {
+      disableClipping();
+    }
+
+    ci::gl::popModelView();
 }
 
-void Sprite::drawServer( const Matrix44f &trans, const DrawParams &drawParams )
+void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams )
 {
   if ((mSpriteFlags&VISIBLE_F) == 0)
     return;
 
   buildTransform();
 
-  Matrix44f totalTransformation = trans*mTransformation;
+  ci::Matrix44f totalTransformation = trans*mTransformation;
 
   glPushMatrix();
-  //gl::multModelView(totalTransformation);
-  gl::multModelView(totalTransformation);
-  gl::color(mServerColor);
+  //ci::gl::multModelView(totalTransformation);
+  ci::gl::multModelView(totalTransformation);
+  ci::gl::color(mServerColor);
 
   if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled())
     drawLocalServer();
@@ -308,10 +312,10 @@ void Sprite::drawServer( const Matrix44f &trans, const DrawParams &drawParams )
 
 void Sprite::setPosition( float x, float y, float z )
 {
-  setPosition(Vec3f(x, y, z));
+  setPosition(ci::Vec3f(x, y, z));
 }
 
-void Sprite::setPosition( const Vec3f &pos )
+void Sprite::setPosition( const ci::Vec3f &pos )
 {
   if (mPosition == pos) return;
 
@@ -321,17 +325,17 @@ void Sprite::setPosition( const Vec3f &pos )
 	markAsDirty(POSITION_DIRTY);
 }
 
-const Vec3f &Sprite::getPosition() const
+const ci::Vec3f &Sprite::getPosition() const
 {
     return mPosition;
 }
 
 void Sprite::setScale( float x, float y, float z )
 {
-  setScale(Vec3f(x, y, z));
+  setScale(ci::Vec3f(x, y, z));
 }
 
-void Sprite::setScale( const Vec3f &scale )
+void Sprite::setScale( const ci::Vec3f &scale )
 {
   if (mScale == scale) return;
 
@@ -341,26 +345,26 @@ void Sprite::setScale( const Vec3f &scale )
 	markAsDirty(SCALE_DIRTY);
 }
 
-const Vec3f &Sprite::getScale() const
+const ci::Vec3f &Sprite::getScale() const
 {
   return mScale;
 }
 
 void Sprite::setCenter( float x, float y, float z )
 {
-  mCenter = Vec3f(x, y, z);
+  mCenter = ci::Vec3f(x, y, z);
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
 
-void Sprite::setCenter( const Vec3f &center )
+void Sprite::setCenter( const ci::Vec3f &center )
 {
   mCenter = center;
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
 
-const Vec3f &Sprite::getCenter() const
+const ci::Vec3f &Sprite::getCenter() const
 {
     return mCenter;
 }
@@ -375,7 +379,7 @@ void Sprite::setRotation( float rotZ )
     mBoundsNeedChecking = true;
 }
 
-void Sprite::setRotation( const Vec3f &rot )
+void Sprite::setRotation( const ci::Vec3f &rot )
 {
   if ( math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z) )
     return;
@@ -385,7 +389,7 @@ void Sprite::setRotation( const Vec3f &rot )
   mBoundsNeedChecking = true;
 }
 
-Vec3f Sprite::getRotation() const
+ci::Vec3f Sprite::getRotation() const
 {
     return mRotation;
 }
@@ -410,7 +414,7 @@ bool Sprite::getDrawSorted() const
   return getFlag(DRAW_SORTED_F, mSpriteFlags);
 }
 
-const Matrix44f &Sprite::getTransform() const
+const ci::Matrix44f &Sprite::getTransform() const
 {
     buildTransform();
     return mTransformation;
@@ -484,15 +488,15 @@ void Sprite::buildTransform() const
 
     mUpdateTransform = false;
 
-    mTransformation = Matrix44f::identity();
+    mTransformation = ci::Matrix44f::identity();
 
     mTransformation.setToIdentity();
-    mTransformation.translate(Vec3f(mPosition.x, mPosition.y, mPosition.z));
-    mTransformation.rotate(Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
-    mTransformation.rotate(Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
-    mTransformation.rotate(Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
-    mTransformation.scale(Vec3f(mScale.x, mScale.y, mScale.z));
-    mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
+    mTransformation.translate(ci::Vec3f(mPosition.x, mPosition.y, mPosition.z));
+    mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+    mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+    mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+    mTransformation.scale(ci::Vec3f(mScale.x, mScale.y, mScale.z));
+    mTransformation.translate(ci::Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
     //mTransformation.setToIdentity();
     //mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
     //mTransformation.scale(Vec3f(mScale.x, mScale.y, mScale.z));
@@ -526,7 +530,7 @@ void Sprite::setSize( float width, float height )
   markAsDirty(SIZE_DIRTY);
 }
 
-void Sprite::setColor( const Color &color )
+void Sprite::setColor( const ci::Color &color )
 {
   if (mColor == color) return;
 
@@ -536,10 +540,10 @@ void Sprite::setColor( const Color &color )
 
 void Sprite::setColor( float r, float g, float b )
 {
-  setColor(Color(r, g, b));
+  setColor(ci::Color(r, g, b));
 }
 
-Color Sprite::getColor() const
+ci::Color Sprite::getColor() const
 {
     return mColor;
 }
@@ -560,18 +564,18 @@ float Sprite::getOpacity() const
 void Sprite::drawLocalClient()
 {
     //glBegin(GL_QUADS);
-    //gl::vertex( 0 , 0 );
-    //gl::vertex( mWidth, 0 );
-    //gl::vertex( mWidth, mHeight );
-    //gl::vertex( 0, mHeight );
+    //ci::gl::vertex( 0 , 0 );
+    //ci::gl::vertex( mWidth, 0 );
+    //ci::gl::vertex( mWidth, mHeight );
+    //ci::gl::vertex( 0, mHeight );
     //glEnd();
 
-  gl::drawSolidRect(Rectf(0.0f, 0.0f, mWidth, mHeight));
+  ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 }
 
 void Sprite::drawLocalServer()
 {
-  gl::drawSolidRect(Rectf(0.0f, 0.0f, mWidth, mHeight));
+  ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 }
 
 void Sprite::setTransparent( bool transparent )
@@ -637,7 +641,8 @@ void Sprite::buildGlobalTransform() const
 
     for ( Sprite *parent = mParent; parent; parent = parent->getParent() )
     {
-        mGlobalTransform = parent->getGlobalTransform() * mGlobalTransform;
+      parent->buildTransform();
+      mGlobalTransform = parent->mTransformation * mGlobalTransform;
     }
 
     mInverseGlobalTransform = mGlobalTransform.inverted();
@@ -648,41 +653,41 @@ Sprite *Sprite::getParent() const
     return mParent;
 }
 
-const Matrix44f &Sprite::getGlobalTransform() const
+const ci::Matrix44f &Sprite::getGlobalTransform() const
 {
     buildGlobalTransform();
 
     return mGlobalTransform;
 }
 
-Vec3f Sprite::globalToLocal( const Vec3f &globalPoint )
+ci::Vec3f Sprite::globalToLocal( const ci::Vec3f &globalPoint )
 {
     buildGlobalTransform();
 
-    Vec4f point = mInverseGlobalTransform * Vec4f(globalPoint.x, globalPoint.y, globalPoint.z, 1.0f);
-    return Vec3f(point.x, point.y, point.z);
+    ci::Vec4f point = mInverseGlobalTransform * ci::Vec4f(globalPoint.x, globalPoint.y, globalPoint.z, 1.0f);
+    return ci::Vec3f(point.x, point.y, point.z);
 }
 
-Vec3f Sprite::localToGlobal( const Vec3f &localPoint )
+ci::Vec3f Sprite::localToGlobal( const ci::Vec3f &localPoint )
 {
     buildGlobalTransform();
-    Vec4f point = mGlobalTransform * Vec4f(localPoint.x, localPoint.y, localPoint.z, 1.0f);
-    return Vec3f(point.x, point.y, point.z);
+    ci::Vec4f point = mGlobalTransform * ci::Vec4f(localPoint.x, localPoint.y, localPoint.z, 1.0f);
+    return ci::Vec3f(point.x, point.y, point.z);
 }
 
-bool Sprite::contains( const Vec3f &point ) const
+bool Sprite::contains( const ci::Vec3f &point ) const
 {
     buildGlobalTransform();
 
-    Vec4f pR = Vec4f(point.x, point.y, point.z, 1.0f);
+    ci::Vec4f pR = ci::Vec4f(point.x, point.y, point.z, 1.0f);
 
-    Vec4f cA = mGlobalTransform * Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-    Vec4f cB = mGlobalTransform * Vec4f(mWidth, 0.0f, 0.0f, 1.0f);
-    Vec4f cC = mGlobalTransform * Vec4f(mWidth, mHeight, 0.0f, 1.0f);
+    ci::Vec4f cA = mGlobalTransform * ci::Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
+    ci::Vec4f cB = mGlobalTransform * ci::Vec4f(mWidth, 0.0f, 0.0f, 1.0f);
+    ci::Vec4f cC = mGlobalTransform * ci::Vec4f(mWidth, mHeight, 0.0f, 1.0f);
     
-    Vec4f v1 = cA - cB;
-    Vec4f v2 = cC - cB;
-    Vec4f v = pR - cB;
+    ci::Vec4f v1 = cA - cB;
+    ci::Vec4f v2 = cC - cB;
+    ci::Vec4f v = pR - cB;
 
     float dot1 = v.dot(v1);
     float dot2 = v.dot(v2);
@@ -697,18 +702,18 @@ bool Sprite::contains( const Vec3f &point ) const
 	);
 }
 
-Sprite *Sprite::getHit( const Vec3f &point )
+Sprite *Sprite::getHit( const ci::Vec3f &point )
 {
     if ( !getFlag(DRAW_SORTED_F, mSpriteFlags) )
     {
         for ( auto it = mChildren.rbegin(), it2 = mChildren.rend(); it != it2; ++it )
         {
             Sprite *child = *it;
-            if ( child->isEnabled() && child->contains(point) )
-                return child;
             Sprite *hitChild = child->getHit(point);
             if ( hitChild )
                 return hitChild;
+            if ( child->isEnabled() && child->contains(point) )
+                return child;
         }
     }
     else
@@ -746,7 +751,7 @@ void Sprite::processTouchInfo( const TouchInfo &touchInfo )
   mTouchProcess.processTouchInfo(touchInfo);
 }
 
-void Sprite::move( const Vec3f &delta )
+void Sprite::move( const ci::Vec3f &delta )
 {
   mPosition += delta;
   mUpdateTransform = true;
@@ -755,7 +760,7 @@ void Sprite::move( const Vec3f &delta )
 
 void Sprite::move( float deltaX, float deltaY, float deltaZ )
 {
-  mPosition += Vec3f(deltaX, deltaY, deltaZ);
+  mPosition += ci::Vec3f(deltaX, deltaY, deltaZ);
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
 }
@@ -765,12 +770,12 @@ bool Sprite::multiTouchEnabled() const
   return mMultiTouchEnabled;
 }
 
-const Matrix44f &Sprite::getInverseGlobalTransform() const
+const ci::Matrix44f &Sprite::getInverseGlobalTransform() const
 {
   return mInverseGlobalTransform;
 }
 
-const Matrix44f    &Sprite::getInverseTransform() const
+const ci::Matrix44f    &Sprite::getInverseTransform() const
 {
   buildTransform();
   return mInverseTransform;
@@ -786,7 +791,7 @@ bool Sprite::multiTouchConstraintNotZero() const
   return mMultiTouchConstraints.getFirstIndex() >= 0;
 }
 
-void Sprite::swipe( const Vec3f &swipeVector )
+void Sprite::swipe( const ci::Vec3f &swipeVector )
 {
   if (mSwipeCallback)
     mSwipeCallback(this, swipeVector);
@@ -799,13 +804,13 @@ bool Sprite::hasDoubleTap() const
   return false;
 }
 
-void Sprite::tap( const Vec3f &tapPos )
+void Sprite::tap( const ci::Vec3f &tapPos )
 {
   if (mTapCallback)
     mTapCallback(this, tapPos);
 }
 
-void Sprite::doubleTap( const Vec3f &tapPos )
+void Sprite::doubleTap( const ci::Vec3f &tapPos )
 {
   if (mDoubleTapCallback)
     mDoubleTapCallback(this, tapPos);
@@ -824,12 +829,12 @@ void Sprite::processTouchInfoCallback( const TouchInfo &touchInfo )
     mProcessTouchInfoCallback(this, touchInfo);
 }
 
-void Sprite::setTapCallback( const std::function<void (Sprite *, const Vec3f &)> &func )
+void Sprite::setTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func )
 {
   mTapCallback = func;
 }
 
-void Sprite::setDoubleTapCallback( const std::function<void (Sprite *, const Vec3f &)> &func )
+void Sprite::setDoubleTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func )
 {
   mDoubleTapCallback = func;
 }
@@ -855,7 +860,7 @@ bool Sprite::checkBounds() const
   mBoundsNeedChecking = false;
   mInBounds = false;
 
-  Rectf screenRect = mEngine.getScreenRect();
+  ci::Rectf screenRect = mEngine.getScreenRect();
 
   float screenMinX = screenRect.getX1();
   float screenMaxX = screenRect.getX2();
@@ -867,14 +872,14 @@ bool Sprite::checkBounds() const
   float spriteMaxX = mWidth-1.0f;
   float spriteMaxY = mHeight-1.0f;
 
-  Vec3f positions[4];
+  ci::Vec3f positions[4];
 
   buildGlobalTransform();
 
-  positions[0] = (mGlobalTransform * Vec4f(spriteMinX, spriteMinY, 0.0f, 1.0f)).xyz();
-  positions[1] = (mGlobalTransform * Vec4f(spriteMaxX, spriteMinY, 0.0f, 1.0f)).xyz();
-  positions[2] = (mGlobalTransform * Vec4f(spriteMinX, spriteMaxY, 0.0f, 1.0f)).xyz();
-  positions[3] = (mGlobalTransform * Vec4f(spriteMaxX, spriteMaxY, 0.0f, 1.0f)).xyz();
+  positions[0] = (mGlobalTransform * ci::Vec4f(spriteMinX, spriteMinY, 0.0f, 1.0f)).xyz();
+  positions[1] = (mGlobalTransform * ci::Vec4f(spriteMaxX, spriteMinY, 0.0f, 1.0f)).xyz();
+  positions[2] = (mGlobalTransform * ci::Vec4f(spriteMinX, spriteMaxY, 0.0f, 1.0f)).xyz();
+  positions[3] = (mGlobalTransform * ci::Vec4f(spriteMaxX, spriteMaxY, 0.0f, 1.0f)).xyz();
 
 
   spriteMinX = spriteMaxX = positions[0].x;
@@ -911,12 +916,12 @@ bool Sprite::checkBounds() const
     }
   }
 
-  Vec3f screenpos[4];
+  ci::Vec3f screenpos[4];
 
-  screenpos[0] = Vec3f(screenMinX, screenMinY, 0.0f);
-  screenpos[1] = Vec3f(screenMaxX, screenMinY, 0.0f);
-  screenpos[2] = Vec3f(screenMinX, screenMaxY, 0.0f);
-  screenpos[3] = Vec3f(screenMaxX, screenMaxY, 0.0f);
+  screenpos[0] = ci::Vec3f(screenMinX, screenMinY, 0.0f);
+  screenpos[1] = ci::Vec3f(screenMaxX, screenMinY, 0.0f);
+  screenpos[2] = ci::Vec3f(screenMinX, screenMaxY, 0.0f);
+  screenpos[3] = ci::Vec3f(screenMaxX, screenMaxY, 0.0f);
 
   for ( int i = 0; i < 4; ++i ) {
     if ( screenpos[i].x >= spriteMinX && screenpos[i].x <= spriteMaxX && screenpos[i].y >= spriteMinY && screenpos[i].y <= spriteMaxY ) {
@@ -1206,6 +1211,67 @@ void Sprite::setClipping( bool flag )
 bool Sprite::getClipping() const
 {
   return getFlag(CLIP_F, mSpriteFlags);
+}
+
+void Sprite::computeClippingBounds()
+{
+  if (getClipping()) {
+    float l = 0.0f, t = 0.0f;
+    float r = mWidth;
+    float b = mHeight;
+
+
+    // first find the outermost clipped window and use it as our reference
+    Sprite *outerClippedSprite = nullptr;
+    Sprite *curSprite = this;
+    while (curSprite) {
+      if (curSprite->getClipping())
+        outerClippedSprite = curSprite;
+      curSprite = curSprite->mParent;
+    }
+
+    float old_l = mClippingBounds.getX1();
+    float old_r = mClippingBounds.getX2();
+    float old_t = mClippingBounds.getY1();
+    float old_b = mClippingBounds.getY2();
+
+    if (outerClippedSprite) {
+      curSprite = mParent;
+      while (curSprite) {
+        if (curSprite->getClipping()) {
+          float ww = curSprite->getWidth();
+          float wh = curSprite->getHeight();
+
+          ci::Vec3f tl, br;
+          tl = globalToLocal(curSprite->localToGlobal(ci::Vec3f( 0,  0, 0)));
+          br = globalToLocal(curSprite->localToGlobal(ci::Vec3f(ww, wh, 0)));
+
+          float wl = tl.x;
+          float wt = tl.y;
+          float wr = br.x;
+          float wb = br.y;
+
+          if ( wl > l) l = wl;
+          if ( wr < r) r = wr;
+          if ( wt > t) t = wt;
+          if ( wb < b) b = wb;
+
+          if ( wl > r) r = wl+1;
+          if ( wr < l) l = wr-1;
+          if ( wt > b) b = wt+1;
+          if ( wb < t) t = wb-1;
+        }
+        curSprite = curSprite->mParent;
+      }
+
+      if (l == r) r += 1;
+      if (t == b) b += 1;
+    }
+
+    if (!math::isEqual(old_l, l) || !math::isEqual(old_r, r) || !math::isEqual(old_t, t) || !math::isEqual(old_b, b)) {
+      mClippingBounds.set(l, t, r, b);
+    }
+  }
 }
 
 } // namespace ui

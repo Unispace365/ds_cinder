@@ -47,6 +47,9 @@ class Image: public Sprite
         std::string                     mResourceFn;
 
         void                            requestImage();
+        // A horrible fallback when no meta info has been supplied about
+        // the image size.
+        void                            superSlowSetDimensions(const std::string& filename);
 };
 
 } // namespace ui

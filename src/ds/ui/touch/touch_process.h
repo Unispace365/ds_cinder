@@ -8,8 +8,6 @@
 #include <map>
 #include <deque>
 
-using namespace ci;
-
 namespace ds {
 namespace ui {
 
@@ -18,8 +16,8 @@ class SpriteEngine;
 
 struct SwipeQueueEvent
 {
-  Vec3f mCurrentPoint;
-  float mTimeStamp;
+  ci::Vec3f mCurrentPoint;
+  float     mTimeStamp;
 };
 
 class TouchProcess
@@ -39,7 +37,7 @@ class TouchProcess
     void                     initializeTouchPoints();
     void                     resetTouchAnchor();
     
-    void                     addToSwipeQueue(const Vec3f &currentPoint, int queueNum);
+    void                     addToSwipeQueue(const ci::Vec3f &currentPoint, int queueNum);
     bool                     swipeHappened();
 
     void                     updateDragDestination(const TouchInfo &touchInfo);
@@ -50,15 +48,15 @@ class TouchProcess
     int                      mControlFingerIndexes[2];
 
     // the start point of the first finger, in local coordinates
-    Vec3f                    mMultiTouchAnchor;
+    ci::Vec3f                mMultiTouchAnchor;
 
     // Start properties are stored to determine deltas
-    Vec3f                    mStartPosition;
+    ci::Vec3f                mStartPosition;
 
     // and to reset the anchor on touch completion and switches
-    Vec3f                    mStartScale;
-    Vec3f                    mStartRotation;
-    Vec3f                    mStartAnchor;
+    ci::Vec3f                mStartScale;
+    ci::Vec3f                mStartRotation;
+    ci::Vec3f                mStartAnchor;
 
     float                    mStartWidth;
     float                    mStartHeight;
@@ -69,7 +67,7 @@ class TouchProcess
     float                    mCurrentScale;
     float                    mCurrentAngle;
 
-    Vec3f                    mSwipeVector;
+    ci::Vec3f                mSwipeVector;
     int                      mSwipeFingerId;
 
     // the last few touch events and their time, for calculating swipes
@@ -83,7 +81,7 @@ class TouchProcess
     // used to track for double taps
     bool                     mOneTap;
     float                    mDoubleTapTime;
-    Vec3f                    mFirstTapPos;
+    ci::Vec3f                mFirstTapPos;
 
     float                    mLastUpdateTime;
 };

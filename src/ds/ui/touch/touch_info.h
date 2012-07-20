@@ -3,8 +3,6 @@
 #define DS_UI_TOUCH_INFO_H
 #include "cinder/Vector.h"
 
-using namespace ci;
-
 namespace ds {
 namespace ui {
 
@@ -19,19 +17,19 @@ struct TouchInfo
     Removed
   };
 
-  int       mFingerIndex;
-  int       mNumberFingers;
-  int       mFingerId;
-  Phase     mPhase;
-  Vec3f     mStartPoint;
-  Vec3f     mCurrentPoint;
-  Vec3f     mDeltaPoint;
-  Sprite   *mPickedSprite;
-  bool      mActive;
-  float     mStartDistance;
-  float     mCurrentDistance;
-  float     mCurrentScale;
-  float     mCurrentAngle;
+  int         mFingerIndex;
+  int         mNumberFingers;
+  int         mFingerId;
+  Phase       mPhase;
+  ci::Vec3f   mStartPoint;
+  ci::Vec3f   mCurrentPoint;
+  ci::Vec3f   mDeltaPoint;
+  Sprite     *mPickedSprite;
+  bool        mActive;
+  float       mStartDistance;
+  float       mCurrentDistance;
+  float       mCurrentScale;
+  float       mCurrentAngle;
 };
 
 } // namespace ui

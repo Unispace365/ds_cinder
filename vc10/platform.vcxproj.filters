@@ -82,6 +82,9 @@
     <Filter Include="src\ds\ui\sprite\util">
       <UniqueIdentifier>{10e6bd0d-110c-4e59-a253-3c5b534efff4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\tweenline">
+      <UniqueIdentifier>{75419866-dc29-488a-8391-9c329efd0d2d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\app\app_defs.h">
@@ -294,6 +297,12 @@
     <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h">
       <Filter>src\ds\ui\sprite\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\tween\tweenline.h">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\tween\sprite_anim.h">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -460,6 +469,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp">
       <Filter>src\ds\ui\sprite\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\tween\tweenline.cpp">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\tween\sprite_anim.cpp">
+      <Filter>src\ds\ui\tweenline</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

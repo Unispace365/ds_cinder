@@ -6,8 +6,11 @@
 #include "ds/app/blob_registry.h"
 #include "ds/data/data_buffer.h"
 #include "ds/data/resource_list.h"
+#include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/util/file_name_parser.h"
+
+using namespace ci;
 
 namespace ds {
 namespace ui {
@@ -20,6 +23,8 @@ const DirtyState&   RES_FN_DIRTY 		  = INTERNAL_B_DIRTY;
 
 const char          RES_ID_ATT        = 80;
 const char          RES_FN_ATT        = 81;
+
+const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("image sprite");
 }
 
 void Image::installAsServer(ds::BlobRegistry& registry)
@@ -54,11 +59,10 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
 
   try {
     Vec2f size = parseFileMetaDataSize(filename);
-    mWidth = size.x;
-    mHeight = size.y;
+    Sprite::setSize(size.x, size.y);
   } catch (ParseFileMetaException &e) {
-    std::cout << e.what() << std::endl;
-    std::cout << "Going to load image synchronously; this will affect performance." << std::endl;
+    DS_LOG_WARNING_M("Image() error=" << e.what(), SPRITE_LOG);
+    superSlowSetDimensions(filename);
   }
   setTransparent(false);
   markAsDirty(RES_FN_DIRTY);
@@ -76,7 +80,7 @@ Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
 
   ds::Resource            res;
   if (engine.getResources().get(resourceId, res)) {
-    inherited::setSize(res.getWidth(), res.getHeight());
+    Sprite::setSize(res.getWidth(), res.getHeight());
     mResourceFn = res.getAbsoluteFilePath();
   }
   setTransparent(false);
@@ -164,6 +168,19 @@ void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
     } else {
       inherited::readAttributeFrom(attributeId, buf);
     }
+}
+
+void Image::superSlowSetDimensions(const std::string& filename)
+{
+  if (filename.empty()) return;
+  DS_LOG_WARNING_M("Going to load image synchronously; this will affect performance", SPRITE_LOG);
+  // Just load the image to get the dimensions -- this will incur what is
+  // unnecessarily overhead in one situation (I am in client/server mode),
+  // but is otherwise the right thing to do.
+  auto s = ci::Surface32f(ci::loadImage(filename));
+  if (s) {
+    Sprite::setSize(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+  }
 }
 
 } // namespace ui
