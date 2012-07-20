@@ -187,7 +187,8 @@ void Sprite::drawClient( const Matrix44f &trans, const DrawParams &drawParams )
 
     Matrix44f totalTransformation = trans*mTransformation;
 
-    if ((mSpriteFlags&TRANSPARENT_F) == 0) {
+    // Sprites really do not deal well with being 0,0 size so for now avoid it
+    if ((mSpriteFlags&TRANSPARENT_F) == 0 && mWidth > 0 && mHeight > 0) {
       std::unique_ptr<ci::gl::Fbo> fbo = std::move(mEngine.getFbo(mWidth, mHeight));
       if (!fbo) return;
       {
