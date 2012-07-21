@@ -106,7 +106,7 @@ void Engine::drawClient()
 
     gl::enableAlphaBlending();
     //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-    gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
+    gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
 
     mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
 
@@ -159,7 +159,7 @@ void Engine::loadCinderSettings( ci::app::AppBasic::Settings &settings )
   settings.setResizable(false);
 
   if (mSettings.getText("screen:mode", 0, "") == "full") settings.setFullScreen(true);
-  settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, true));
+  settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 }
 
 bool Engine::isIdling() const

@@ -1,6 +1,7 @@
 #pragma once
 #ifndef DS_OBJECT_INTERFACE_H
 #define DS_OBJECT_INTERFACE_H
+#include <exception>
 #include "cinder/Cinder.h"
 #include <list>
 #include "cinder/Color.h"
@@ -17,6 +18,9 @@
 #include "ds/ui/touch/multi_touch_constraints.h"
 #include "ds/ui/tween/sprite_anim.h"
 #include "cinder/gl/GlslProg.h"
+#include "cinder/gl/Texture.h"
+#include "shader/sprite_shader.h"
+#include "util/blend.h"
 
 namespace ds {
 
@@ -45,14 +49,6 @@ extern const char     SPRITE_ID_ATTRIBUTE;
 class Sprite : public SpriteAnimatable
 {
     public:
-        enum BlendMode
-        {
-          NORMAL,
-          NORMAL_PREMULTIPLIED,
-          MULTIPLY,
-          SCREEN
-        };
-
         // Generic sprite creation function
         template <typename T>
         static T&           make(SpriteEngine&, Sprite* parent = nullptr);
@@ -72,8 +68,8 @@ class Sprite : public SpriteAnimatable
 
         virtual void        setSize(float width, float height);
         virtual void        setSize(float width, float height, float depth);
-        virtual float       getWidth() const;
-        virtual float       getHeight() const;
+        float               getWidth() const;
+        float               getHeight() const;
         float               getDepth() const;
 
         void                setPosition(const ci::Vec3f &pos);
@@ -189,6 +185,9 @@ class Sprite : public SpriteAnimatable
 
         void                setBaseShader(const std::string &location, const std::string &shadername);
         std::string         getBaseShaderName() const;
+
+        void                setClipping(bool flag);
+        bool                getClipping() const;
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -208,6 +207,8 @@ class Sprite : public SpriteAnimatable
         void                updateCheckBounds() const;
         bool                checkBounds() const;
 
+        void                computeClippingBounds();
+
         void                setSpriteId(const ds::sprite_id_t&);
         // Helper utility to set a flag
         void                setFlag(const int newBit, const bool on, const DirtyState&, int& oldFlags);
@@ -220,7 +221,10 @@ class Sprite : public SpriteAnimatable
         // Read a single attribute
         virtual void        readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
-        void                loadShaders();
+        void                setUseShaderTextuer(bool flag);
+        bool                getUseShaderTextuer() const;
+
+        void                dimensionalStateChanged();
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
@@ -248,6 +252,8 @@ class Sprite : public SpriteAnimatable
         float               mOpacity;
         ci::Color           mColor;
         int                 mType;
+        ci::Rectf               mClippingBounds;
+        SpriteShader        mSpriteShader;
 
         mutable ci::Matrix44f   mGlobalTransform;
         mutable ci::Matrix44f   mInverseGlobalTransform;
@@ -284,17 +290,16 @@ class Sprite : public SpriteAnimatable
         void                init(const ds::sprite_id_t);
         void                readAttributesFrom(ds::DataBuffer&);
 
+        ci::gl::Texture     mRenderTarget;
+
         BlendMode           mBlendMode;
-        std::string         mShaderBaseName;
-        std::string         mShaderBaseNameVert;
-        std::string         mShaderBaseNameFrag;
-        ci::gl::GlslProg    mShaderBlend;
-        ci::gl::GlslProg    mShaderBase;
+
+        //set by sprite constructors. doesn't need to be passed through.
+        bool                mUseShaderTexture; 
 
         ci::ColorA          mServerColor;
 
     public:
-        // Initialization and network handling
         static void           installAsServer(ds::BlobRegistry&);
         static void           installAsClient(ds::BlobRegistry&);
 
@@ -304,10 +309,10 @@ class Sprite : public SpriteAnimatable
 };
 
 template <typename T>
-static T& Sprite::make(SpriteEngine& e, Sprite* parent)
+static T& Sprite:: make(SpriteEngine& e, Sprite* parent)
 {
   T*                    s = new T(e);
-  if (!s) throw std::runtime_error("Can't make sprite");
+  if (!s) throw std::runtime_error("Can't create sprite");
   if (parent) parent->addChild(*s);
   return *s;
 }

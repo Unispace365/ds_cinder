@@ -63,6 +63,7 @@ Text::Text(SpriteEngine& engine)
 {
   mBlobType = BLOB_TYPE;
   setTransparent(false);
+  setUseShaderTextuer(true);
 }
 
 Text::~Text()
@@ -97,9 +98,12 @@ void Text::updateServer(const UpdateParams& p)
 void Text::drawLocalClient()
 {
   if (mDebugShowFrame) {
+    mSpriteShader.getShader().uniform("useTexture", false);
+    glPushAttrib(GL_COLOR);
     gl::color(0.25f, 0, 0, 0.5f);
-    inherited::drawLocalClient();
-    gl::color(getColor().r, getColor().g, getColor().b, mOpacity);
+    ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+    glPopAttrib();
+    mSpriteShader.getShader().uniform("useTexture", true);
   }
 
   if (!mTextureFont) return;
@@ -107,7 +111,8 @@ void Text::drawLocalClient()
   auto& lines = mLayout.getLines();
   if (lines.empty()) return;
 
-  gl::enableAlphaBlending();
+//  gl::enableAlphaBlending();
+//  applyBlendingMode(NORMAL);
 
   for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
     const TextLayout::Line&   line(*it);

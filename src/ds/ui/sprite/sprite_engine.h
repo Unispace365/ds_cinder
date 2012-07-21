@@ -6,7 +6,8 @@
 #include <unordered_map>
 #include "cinder/Vector.h"
 #include "ds/app/app_defs.h"
-#include "cinder/gl/Fbo.h"
+#include "fbo/fbo.h"
+#include <memory>
 
 namespace ds {
 class ResourceList;
@@ -51,8 +52,8 @@ class SpriteEngine {
     virtual float                  getWorldWidth() const = 0;
     virtual float                  getWorldHeight() const = 0;
     
-    std::unique_ptr<ci::gl::Fbo>   getFbo(int width, int height);
-    void                           giveBackFbo(std::unique_ptr<ci::gl::Fbo> &fbo);
+    std::unique_ptr<FboGeneral>    getFbo();
+    void                           giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
 
     virtual void                   setCamera() = 0;
 
@@ -65,7 +66,7 @@ class SpriteEngine {
 
     std::list<Sprite *>            mDragDestinationSprites;
 
-    std::list<std::unique_ptr<ci::gl::Fbo>> mFbos;
+    std::list<std::unique_ptr<FboGeneral>> mFbos;
 };
 
 } // namespace ui
