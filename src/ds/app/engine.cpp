@@ -93,6 +93,7 @@ void Engine::updateServer()
   mRootSprite.updateServer(mUpdateParams);
 }
 
+
 void Engine::drawClient()
 {
   {
@@ -106,7 +107,7 @@ void Engine::drawClient()
 
     gl::enableAlphaBlending();
     //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-    gl::clear( Color( 0.5f, 0.5f, 0.5f ) );
+    gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
     mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
 
@@ -144,7 +145,7 @@ void Engine::setup(ds::App&)
 
   gl::Fbo::Format format;
   format.setColorInternalFormat(GL_RGBA32F);
-  mFbo = gl::Fbo(getWidth(), getHeight(), format);
+  mFbo = gl::Fbo((int)getWidth(), (int)getHeight(), format);
   //////////////////////////////////////////////////////////////////////////
 
   float curr = static_cast<float>(getElapsedSeconds());
@@ -316,7 +317,7 @@ float Engine::getWorldHeight() const
 
 void Engine::setCamera()
 {
-  gl::setViewport(Area(mScreenRect.getX1(), mScreenRect.getY2(), mScreenRect.getX2(), mScreenRect.getY1()));
+  gl::setViewport(Area((int)mScreenRect.getX1(), (int)mScreenRect.getY2(), (int)mScreenRect.getX2(), (int)mScreenRect.getY1()));
   mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
   gl::setMatrices(mCamera);
 }
