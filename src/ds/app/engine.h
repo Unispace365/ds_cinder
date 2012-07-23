@@ -48,7 +48,7 @@ class Engine : public ui::SpriteEngine {
 
     // only valid after setup() is called
     ui::Sprite                 &getRootSprite();
-    void                        loadCinderSettings( ci::app::AppBasic::Settings& );
+    void                        prepareSettings( ci::app::AppBasic::Settings& );
     //called in app setup; loads settings files and what not.
     virtual void                setup(ds::App&);
     virtual void                setupTuio(ds::App&) = 0;
