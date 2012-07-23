@@ -1,5 +1,7 @@
 <settings>
 	<text name="logger:level" value="all" />	<!-- all,none,info,warning,error,fatal -->
 	<text name="logger:module" value="all" />	<!-- all,none,or numbers (i.e. "0,1,2,3") -->
+  <!-- scales world dimensions to local rect. make sure local rect starts at 0,0 -->
+  <text name="scale_world_to_fit" value="false" />
 <!--	<text name="logger:async" value="true" />	<!-- (true,false) If this is false, then logging is synchronous -->
 </settings>

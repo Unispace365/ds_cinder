@@ -11,10 +11,10 @@ const std::string DefaultFrag =
 "void main()\n"
 "{\n"
 "    vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n"
-"    color *= gl_Color;\n"
 "    if (useTexture) {\n"
 "        color = texture2D( tex0, gl_TexCoord[0].st );\n"
 "    }\n"
+"    color *= gl_Color;\n"
 "    if (preMultiply) {\n"
 "        color.r *= color.a;\n"
 "        color.g *= color.a;\n"
@@ -89,7 +89,7 @@ void SpriteShader::loadShadersFromFile()
     return;
 
   try {
-    mShader = ci::gl::GlslProg((mLocation+"/"+mName+".vert").c_str(), (mLocation+"/"+mName+".frag").c_str());
+    mShader = ci::gl::GlslProg(ci::loadFile((mLocation+"/"+mName+".vert").c_str()), ci::loadFile((mLocation+"/"+mName+".frag").c_str()));
   } catch (std::exception &e) {
     std::cout << e.what() << std::endl;
   }
