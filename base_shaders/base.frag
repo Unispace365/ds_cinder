@@ -5,11 +5,12 @@ uniform bool preMultiply;
 void main()
 {
     vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
-    color *= gl_Color;
 
     if (useTexture) {
         color = texture2D( tex0, gl_TexCoord[0].st );
     }
+    
+    color *= gl_Color;
     
     if (preMultiply) {
         color.r *= color.a;
