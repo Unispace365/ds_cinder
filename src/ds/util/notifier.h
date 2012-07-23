@@ -17,10 +17,25 @@ class Notifier
     Notifier();
 
     void clear();
+
+    /* 
+     * addListener
+     * /brief adds function func referenced by id. id is usually the this pointer of a class.
+     */
     void addListener(void *id, const std::function<void(const T *)> &func);
+    
+    /* 
+     * removeListener
+     * /brief removes function referenced by id.
+     */
     void removeListener(void *id);
     void removeAllListeners();
 
+    
+    /* 
+     * notify
+     * /brief passes a pointer of type T to all listeners.
+     */
     void notify( const T *v = nullptr );
   private:
     std::map<void *, std::function<void(const T *)>> mFunctions;
