@@ -58,6 +58,7 @@
     <ClInclude Include="..\src\ds\thread\gl_thread.h" />
     <ClInclude Include="..\src\ds\thread\runnable_client.h" />
     <ClInclude Include="..\src\ds\thread\thread_defs.h" />
+    <ClInclude Include="..\src\ds\thread\timed_runnable.h" />
     <ClInclude Include="..\src\ds\thread\work_client.h" />
     <ClInclude Include="..\src\ds\thread\work_manager.h" />
     <ClInclude Include="..\src\ds\thread\work_request.h" />
@@ -196,6 +197,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(CINDER)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -221,6 +223,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
