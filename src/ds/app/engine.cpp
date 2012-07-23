@@ -48,7 +48,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
   mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
 
-  bool scaleWorldToFit = settings.getBool("scale_world_to_fit", 0, false);
+  bool scaleWorldToFit = mDebugSetting.getBool("scale_world_to_fit", 0, false);
 
   mRootSprite.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
 
