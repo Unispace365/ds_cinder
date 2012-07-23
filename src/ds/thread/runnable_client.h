@@ -4,7 +4,6 @@
 
 #include <functional>
 #include "ds/thread/work_client.h"
-#include "ds/thread/work_request.h"
 #include "ds/thread/work_request_list.h"
 
 namespace ds {
