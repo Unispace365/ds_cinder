@@ -83,6 +83,7 @@
     <ClInclude Include="..\src\ds\util\bit_mask.h" />
     <ClInclude Include="..\src\ds\util\file_name_parser.h" />
     <ClInclude Include="..\src\ds\util\memory_ds.h" />
+    <ClInclude Include="..\src\ds\util\notifier.h" />
     <ClInclude Include="..\src\ds\util\string_util.h" />
   </ItemGroup>
   <ItemGroup>

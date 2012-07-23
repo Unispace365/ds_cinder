@@ -9,6 +9,8 @@
 
 	<size name="world_dimensions" x="900" y="700" />
 	<rect name="local_rect" l="0" r="900" t="0" b="700" />
+  <!-- scales world dimensions to local rect. make sure local rect starts at 0,0 -->
+  <text name="scale_world_to_fit" value="false" />
 
 	<size name="touch_overlay:dimensions" x="2350" y="1366" />
 	<size name="touch_overlay:offset" x="0" y="0" />

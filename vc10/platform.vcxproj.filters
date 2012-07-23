@@ -306,6 +306,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\text_layout.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\notifier.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
