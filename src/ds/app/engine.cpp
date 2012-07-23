@@ -152,7 +152,7 @@ void Engine::setup(ds::App&)
   mLastTouchTime = 0;
 }
 
-void Engine::loadCinderSettings( ci::app::AppBasic::Settings &settings )
+void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )
 {
   settings.setWindowSize( static_cast<int>(getWidth()),
                           static_cast<int>(getHeight()));
@@ -160,6 +160,10 @@ void Engine::loadCinderSettings( ci::app::AppBasic::Settings &settings )
 
   if (mSettings.getText("screen:mode", 0, "") == "full") settings.setFullScreen(true);
   settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
+
+  const std::string     nope = "ds:IllegalTitle";
+  const std::string     title = mSettings.getText("screen:title", 0, nope);
+  if (title != nope) settings.setTitle(title);
 }
 
 bool Engine::isIdling() const

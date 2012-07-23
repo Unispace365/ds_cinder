@@ -81,24 +81,30 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   // Per line, find the word breaks, then create a line.
   std::vector<std::string>    tokens;
   tokenize(in.mText, tokens);
-  float                       x = 0;
   float                       y = in.mFont->getAscent();
   const float                 lineH = in.mFont->getAscent() + in.mFont->getDescent() + (in.mFont->getFont().getLeading()*mLeading);
   std::string                 lineText;
+  // spaces don't have a size so we make something up
+  const ci::Vec2f             spaceSize = in.mFont->measureString("o", in.mOptions);
   for (auto it=tokens.begin(), end=tokens.end(); it != end; ++it) {
-    const ci::Vec2f           size = in.mFont->measureString(*it, in.mOptions);
-    if (x + size.x > in.mSize.x) {
+    // Test the new string to see if it's too long
+    std::string               newLine(lineText);
+    newLine.append(*it);
+    const ci::Vec2f           size = in.mFont->measureString(newLine, in.mOptions);
+    // If the new line is too large, then flush the previous and
+    // continue with the current token
+    if (size.x > in.mSize.x) {
       // Flush the current line
       if (!lineText.empty()) {
         out.addLine(ci::Vec2f(0, y), lineText);
-        lineText.clear();
-        x = 0;
       }
-      y += lineH;
-    } else {
-      lineText.append(*it);
+      lineText = *it;
       lineText.append(" ");
-      x += size.x;
+      y += lineH;
+    // Otherwise maintain the new line.
+    } else {
+      lineText.swap(newLine);
+      lineText.append(" ");
     }
   }
   if (!lineText.empty()) {

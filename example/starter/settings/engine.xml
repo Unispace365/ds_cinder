@@ -22,4 +22,6 @@
 	<float name="frame_rate" value="30" />
 	<float name="tap_threshold" value="10" />
 
+	<text name="screen:title" value="Starter" />	<!-- title of the window -->
+
 </settings>

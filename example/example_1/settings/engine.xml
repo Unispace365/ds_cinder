@@ -24,5 +24,6 @@
 
 	<text name="screen:mode" value="false" />		<!-- full or window (default) -->
 	<text name="screen:always_on_top" value="false" />
+	<text name="screen:title" value="Example" />	<!-- title of the window -->
 
 </settings>
