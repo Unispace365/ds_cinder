@@ -31,6 +31,8 @@ App::App()
     , mEngine(new_engine(*this, mEngineSettings))
     , mCtrlDown(false)
     , mSecondMouseDown(false)
+	, mQKeyEnabled(false)
+	, mEscKeyEnabled(false)
 {
   // Initialize each sprite type with a unique blob handler for network communication.
   mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Sprite::installAsServer(r);},
@@ -124,6 +126,8 @@ const std::string& App::envAppPath()
 
 void App::keyDown( KeyEvent event )
 {
+  if ( ( mEscKeyEnabled && event.getCode() == KeyEvent::KEY_ESCAPE ) || ( mQKeyEnabled && event.getCode() == KeyEvent::KEY_q ) )
+    std::exit(0);
   if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_RCTRL )
     mCtrlDown = true;
 }
@@ -133,6 +137,14 @@ void App::keyUp( KeyEvent event )
   if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_RCTRL )
     mCtrlDown = false;
 }
+
+void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
+  if (q)
+	mQKeyEnabled = true;
+  if (esc)
+    mEscKeyEnabled = true;
+}
+
 
 /**
  * \class ds::App::Initializer
