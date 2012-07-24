@@ -33,7 +33,9 @@ class Settings {
 
     // This applies to both RGB and RGBA colours, which are always identical.
     int								  	getColorSize(const std::string& name) const;
+    int								  	getFloatSize(const std::string& name) const;
     int								  	getIntSize(const std::string& name) const;
+    int								  	getRectSize(const std::string& name) const;
     int									  getResourceIdSize(const std::string& name) const;
     int								  	getTextSize(const std::string& name) const;
     int								  	getTextWSize(const std::string& name) const;
@@ -65,9 +67,9 @@ class Settings {
     bool							  	getBool(const std::string& name, const int index, const bool defaultValue) const;
 
   private:
-  	std::map<std::string, float>
+  	std::map<std::string, std::vector<float>>
                           mFloat;
-  	std::map<std::string, ci::Rectf>
+  	std::map<std::string, std::vector<ci::Rectf>>
                           mRect;
   	std::map<std::string, std::vector<int>>
                           mInt;
@@ -77,7 +79,7 @@ class Settings {
                           mColor;
   	std::map<std::string, std::vector<ci::ColorA>>
                           mColorA;
-  	std::map<std::string, ci::Vec2f>
+  	std::map<std::string, std::vector<ci::Vec2f>>
                           mSize;
   	std::map<std::string, std::vector<std::string>>
                           mText;

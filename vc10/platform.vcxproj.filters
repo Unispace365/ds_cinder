@@ -309,6 +309,12 @@
     <ClInclude Include="..\src\ds\util\notifier.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\network\http_client.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\timed_runnable.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -484,6 +490,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\text_layout.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\http_client.cpp">
+      <Filter>src\ds\network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

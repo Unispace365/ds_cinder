@@ -43,6 +43,7 @@
     <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\math\math_func.h" />
     <ClInclude Include="..\src\ds\math\random.h" />
+    <ClInclude Include="..\src\ds\network\http_client.h" />
     <ClInclude Include="..\src\ds\network\zmq_connection.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
     <ClInclude Include="..\src\ds\params\update_params.h" />
@@ -57,6 +58,7 @@
     <ClInclude Include="..\src\ds\thread\gl_thread.h" />
     <ClInclude Include="..\src\ds\thread\runnable_client.h" />
     <ClInclude Include="..\src\ds\thread\thread_defs.h" />
+    <ClInclude Include="..\src\ds\thread\timed_runnable.h" />
     <ClInclude Include="..\src\ds\thread\work_client.h" />
     <ClInclude Include="..\src\ds\thread\work_manager.h" />
     <ClInclude Include="..\src\ds\thread\work_request.h" />
@@ -111,6 +113,7 @@
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
+    <ClCompile Include="..\src\ds\network\http_client.cpp" />
     <ClCompile Include="..\src\ds\network\zmq_connection.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />
     <ClCompile Include="..\src\ds\params\update_params.cpp" />
@@ -195,6 +198,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(CINDER)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -220,6 +224,7 @@
       </PrecompiledHeader>
       <WarningLevel>Level3</WarningLevel>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ProjectReference>
       <LinkLibraryDependencies>true</LinkLibraryDependencies>

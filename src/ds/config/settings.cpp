@@ -14,16 +14,22 @@ namespace cfg {
 static const std::string		FALSE_SZ("false");
 static const std::string		TRUE_SZ("true");
 
-static const std::string		COLOR_NAME("color");
-static const std::string		INT_NAME("int");
-static const std::string		RESOURCE_ID_NAME("resource id");
-static const std::string		TEXT_NAME("text");
-static const std::string		TEXTW_NAME("wtext");
+static const std::string		  COLOR_NAME("color");
+static const std::string		  FLOAT_NAME("float");
+static const std::string		  INT_NAME("int");
+static const std::string		  RECT_NAME("rect");
+static const std::string		  RESOURCE_ID_NAME("resource id");
+static const std::string		  SIZE_NAME("size");
+static const std::string		  TEXT_NAME("text");
+static const std::string		  TEXTW_NAME("wtext");
 
 static const cinder::Color    COLOR_TYPE;
 static const cinder::ColorA   COLORA_TYPE;
+static const float				    FLOAT_TYPE(0.0f);
 static const int				      INT_TYPE(0);
+static const ci::Rectf        RECT_TYPE;
 static const Resource::Id     RESOURCE_ID_TYPE;
+static const ci::Vec2f        SIZE_TYPE;
 static const std::string      TEXT_TYPE;
 static const std::wstring     TEXTW_TYPE;
 
@@ -171,17 +177,18 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
   auto                end = xml.end();
   for (auto it = xml.begin(FLOAT_PATH); it != end; ++it) {
     const std::string name = it->getAttributeValue<std::string>(NAME_SZ);
-    mFloat[name] = it->getAttributeValue<float>(VALUE_SZ);
+    add_item(name, mFloat, it->getAttributeValue<float>(VALUE_SZ));
   }
 
   // RECT
   const std::string   RECT_PATH("settings/rect");
   for (auto it = xml.begin(RECT_PATH); it != end; ++it) {
-    const std::string name = it->getAttributeValue<std::string>(NAME_SZ);
-    mRect[name] = cinder::Rectf(it->getAttributeValue<float>(L_SZ),
-                                it->getAttributeValue<float>(T_SZ),
-                                it->getAttributeValue<float>(R_SZ),
-                                it->getAttributeValue<float>(B_SZ));
+    const std::string   name = it->getAttributeValue<std::string>(NAME_SZ);
+    const cinder::Rectf value( it->getAttributeValue<float>(L_SZ),
+                              it->getAttributeValue<float>(T_SZ),
+                              it->getAttributeValue<float>(R_SZ),
+                              it->getAttributeValue<float>(B_SZ));
+    add_item(name, mRect, value);
   }
 
   // INT
@@ -209,8 +216,9 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
   for (auto it = xml.begin(SIZE_PATH); it != end; ++it) {
     const float             DEFV = 0.0f;
     const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-    mSize[name] = cinder::Vec2f(it->getAttributeValue<float>(X_SZ, DEFV),
-                                it->getAttributeValue<float>(Y_SZ, DEFV));
+    const cinder::Vec2f     value( it->getAttributeValue<float>(X_SZ, DEFV),
+                                  it->getAttributeValue<float>(Y_SZ, DEFV));
+    add_item(name, mSize, value);
   }
 
   // TEXT
@@ -251,9 +259,19 @@ int Settings::getColorSize(const std::string& name) const
 	return get_size(name, mColor);
 }
 
+int Settings::getFloatSize(const std::string& name) const
+{
+	return get_size(name, mFloat);
+}
+
 int Settings::getIntSize(const std::string& name) const
 {
 	return get_size(name, mInt);
+}
+
+int Settings::getRectSize(const std::string& name) const
+{
+	return get_size(name, mRect);
 }
 
 int Settings::getResourceIdSize(const std::string& name) const
@@ -273,16 +291,12 @@ int Settings::getTextWSize(const std::string& name) const
 
 float Settings::getFloat(const std::string& name, const int index) const
 {
-	auto it = mFloat.find(name);
-	if (it != mFloat.end()) return it->second;
-	throw std::logic_error("Settings float (" + name + ") does not exist");
+	return get_or_throw(name, mFloat, index, FLOAT_TYPE, FLOAT_NAME);
 }
 
 const cinder::Rectf& Settings::getRect(const std::string& name, const int index) const
 {
-	auto it = mRect.find(name);
-	if (it != mRect.end()) return it->second;
-	throw std::logic_error("Settings rect (" + name + ") does not exist");
+	return get_or_throw(name, mRect, index, RECT_TYPE, RECT_NAME);
 }
 
 int Settings::getInt(const std::string& name, const int index) const
@@ -307,9 +321,7 @@ const cinder::ColorA& Settings::getColorA(const std::string& name, const int ind
 
 const cinder::Vec2f& Settings::getSize(const std::string& name, const int index) const
 {
-	auto it = mSize.find(name);
-	if (it != mSize.end()) return it->second;
-	throw std::logic_error("Settings size (" + name + ") does not exist");
+	return get_or_throw(name, mSize, index, SIZE_TYPE, SIZE_NAME);
 }
 
 const std::string& Settings::getText(const std::string& name, const int index) const
@@ -329,16 +341,12 @@ bool Settings::getBool(const std::string& name, const int index) const
 
 float Settings::getFloat(const std::string& name, const int index, const float defaultValue) const
 {
-	auto it = mFloat.find(name);
-	if (it != mFloat.end()) return it->second;
-	return defaultValue;
+	return get(name, mFloat, index, defaultValue, FLOAT_NAME);
 }
 
-cinder::Rectf Settings::getRect(const std::string& name, const int index, const cinder::Rectf& defaultValue) const
+cinder::Rectf Settings::getRect(const std::string& name, const int index, const ci::Rectf& defaultValue) const
 {
-	auto it = mRect.find(name);
-	if (it != mRect.end()) return it->second;
-	return defaultValue;
+	return get(name, mRect, index, defaultValue, RECT_NAME);
 }
 
 int Settings::getInt(const std::string& name, const int index, const int defaultValue) const
@@ -351,21 +359,19 @@ Resource::Id Settings::getResourceId(const std::string& name, const int index, c
 	return get(name, mRes, index, defaultValue, RESOURCE_ID_NAME);
 }
 
-cinder::Color Settings::getColor(const std::string& name, const int index, const cinder::Color& defaultValue) const
+cinder::Color Settings::getColor(const std::string& name, const int index, const ci::Color& defaultValue) const
 {
 	return get(name, mColor, index, defaultValue, COLOR_NAME);
 }
 
-cinder::ColorA Settings::getColorA(const std::string& name, const int index, const cinder::ColorA& defaultValue) const
+cinder::ColorA Settings::getColorA(const std::string& name, const int index, const ci::ColorA& defaultValue) const
 {
 	return get(name, mColorA, index, defaultValue, COLOR_NAME);
 }
 
-cinder::Vec2f Settings::getSize(const std::string& name, const int index, const cinder::Vec2f& defaultValue) const
+cinder::Vec2f Settings::getSize(const std::string& name, const int index, const ci::Vec2f& defaultValue) const
 {
-	auto it = mSize.find(name);
-	if (it != mSize.end()) return it->second;
-	return defaultValue;
+	return get(name, mSize, index, defaultValue, SIZE_NAME);
 }
 
 std::string Settings::getText(const std::string& name, const int index, const std::string& defaultValue) const
@@ -420,19 +426,6 @@ Settings::Editor& Settings::Editor::setMode(const int mode)
 }
 
 template <typename A, typename V>
-static void editor_set(const int mode, const std::string& name, A& container, const V& value)
-{
-	// Always set the value
-	if (mode == ds::cfg::Settings::Editor::SET_MODE) {
-		container[name] = value;
-	// Only set the value if it doesn't already exist
-	} else if (mode == ds::cfg::Settings::Editor::IF_MISSING_MODE) {
-		auto it = container.find(name);
-		if (it == container.end()) container[name] = value;
-	}
-}
-
-template <typename A, typename V>
 static void editor_set_vec(const int mode, const std::string& name, A& container, const V& value)
 {
 	// Always set the first value
@@ -474,7 +467,7 @@ static void editor_add_vec(const int mode, const std::string& name, A& container
 
 Settings::Editor& Settings::Editor::setFloat(const std::string& name, const float v)
 {
-	editor_set(mMode, name, mSettings.mFloat, v);
+	editor_set_vec(mMode, name, mSettings.mFloat, v);
 	return *this;
 }
 
@@ -486,7 +479,7 @@ Settings::Editor& Settings::Editor::setResourceId(const std::string& name, const
 
 Settings::Editor& Settings::Editor::setSize(const std::string& name, const cinder::Vec2f& v)
 {
-	editor_set(mMode, name, mSettings.mSize, v);
+	editor_set_vec(mMode, name, mSettings.mSize, v);
 	return *this;
 }
 
