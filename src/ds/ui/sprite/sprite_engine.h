@@ -60,6 +60,8 @@ class SpriteEngine {
     void                           addToDragDestinationList(Sprite *sprite);
     void                           removeFromDragDestinationList(Sprite *sprite);
     Sprite                        *getDragDestinationSprite(const ci::Vec3f &globalPoint, Sprite *draggingSprite);
+
+    double                         getElapsedTimeSeconds() const;
   protected:
     SpriteEngine()                 { }
     virtual ~SpriteEngine()        { }

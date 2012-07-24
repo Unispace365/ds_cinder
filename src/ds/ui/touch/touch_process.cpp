@@ -27,6 +27,8 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
   if (!mSprite.visible() || !mSprite.isEnabled())
     return false;
 
+  mSprite.userInputReceived();
+
   processTap(touchInfo);
 
   if (TouchInfo::Added == touchInfo.mPhase) {

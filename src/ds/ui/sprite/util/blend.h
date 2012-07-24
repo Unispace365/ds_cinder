@@ -11,7 +11,9 @@ enum BlendMode
   MULTIPLY,
   SCREEN,
   ADD,
-  SUBTRACT
+  SUBTRACT,
+  LIGHTEN,
+  DARKEN
 };
 
 bool premultiplyAlpha(const BlendMode &blendMode);

@@ -21,6 +21,7 @@
 #include "cinder/gl/Texture.h"
 #include "shader/sprite_shader.h"
 #include "util/blend.h"
+#include "ds/util/idle_timer.h"
 
 namespace ds {
 
@@ -188,6 +189,15 @@ class Sprite : public SpriteAnimatable
 
         void                setClipping(bool flag);
         bool                getClipping() const;
+
+
+        virtual             void userInputReceived();
+        void                setSecondBeforeIdle( const double );
+        double              secondsToIdle() const;
+        bool                isIdling() const;
+        void                startIdling();
+        void                resetIdleTimer();
+        void                clear();
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -280,6 +290,8 @@ class Sprite : public SpriteAnimatable
         bool                mCheckBounds;
 
         Sprite             *mDragDestination;
+
+        IdleTimer           mIdleTimer;
 
   private:
         friend class Engine;
