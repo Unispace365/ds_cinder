@@ -207,6 +207,8 @@ class Sprite : public SpriteAnimatable
         void                updateCheckBounds() const;
         bool                checkBounds() const;
 
+        virtual void        onSizeChanged();
+
         void                computeClippingBounds();
 
         void                setSpriteId(const ds::sprite_id_t&);
@@ -223,8 +225,6 @@ class Sprite : public SpriteAnimatable
 
         void                setUseShaderTextuer(bool flag);
         bool                getUseShaderTextuer() const;
-
-        void                dimensionalStateChanged();
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
@@ -289,6 +289,8 @@ class Sprite : public SpriteAnimatable
 
         void                init(const ds::sprite_id_t);
         void                readAttributesFrom(ds::DataBuffer&);
+
+        void                dimensionalStateChanged();
 
         ci::gl::Texture     mRenderTarget;
 

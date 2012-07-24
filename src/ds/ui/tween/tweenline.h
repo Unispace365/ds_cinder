@@ -22,6 +22,7 @@ class Tweenline {
     template <typename T>
     void                  apply( Sprite&, const SpriteAnim<T>&, const T& end,
                                  float duration, ci::EaseFn easeFunction = ci::easeNone,
+                                 const std::function<void(void)>& finishFn = nullptr,
                                  typename ci::Tween<T>::LerpFn lerpFunction = &tweenLerp<T>);
 
     // Clients can go nuts with full access to the cinder timeline
@@ -35,6 +36,7 @@ class Tweenline {
 template <typename T>
 void Tweenline::apply( Sprite& s, const SpriteAnim<T>& a, const T& end,
                        float duration, ci::EaseFn easeFunction,
+                       const std::function<void(void)>& finishFn,
                        typename ci::Tween<T>::LerpFn lerpFunction)
 {
   auto&   anim = a.getAnim(s); 
@@ -43,6 +45,7 @@ void Tweenline::apply( Sprite& s, const SpriteAnim<T>& a, const T& end,
   const ci::Vec3f*          vec_ptr = anim.ptr();
   auto                      assignF = a.getAssignValue();
   ans.updateFn([s_ptr, vec_ptr, assignF](){ assignF(*vec_ptr, *s_ptr);});
+  if (finishFn) ans.finishFn(finishFn);
 }
 
 } // namespace ui

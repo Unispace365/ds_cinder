@@ -1274,9 +1274,14 @@ void Sprite::computeClippingBounds()
   }
 }
 
+void Sprite::onSizeChanged()
+{
+}
+
 void Sprite::dimensionalStateChanged()
 {
   computeClippingBounds();
+  onSizeChanged();
 }
 
 } // namespace ui
