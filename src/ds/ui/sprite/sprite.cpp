@@ -1327,5 +1327,37 @@ void Sprite::userInputReceived()
   resetIdleTimer();
 }
 
+void Sprite::sendSpriteToFront( Sprite &sprite )
+{
+  if (!containsChild(&sprite))
+    return;
+
+  auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
+  mChildren.push_back(*found);
+  mChildren.erase(found);
+}
+
+void Sprite::sendSpriteToBack( Sprite &sprite )
+{
+  if (!containsChild(&sprite))
+    return;
+
+  auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
+  mChildren.push_front(*found);
+  mChildren.erase(found);
+}
+
+void Sprite::sendToFront()
+{
+  if (mParent)
+    mParent->sendSpriteToFront(*this);
+}
+
+void Sprite::sendToBack()
+{
+  if (mParent)
+    mParent->sendSpriteToBack(*this);
+}
+
 } // namespace ui
 } // namespace ds

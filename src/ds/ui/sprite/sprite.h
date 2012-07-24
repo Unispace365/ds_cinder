@@ -120,6 +120,11 @@ class Sprite : public SpriteAnimatable
         // removes and deletes all children
         void                clearChildren();
 
+        // sends sprite to front of parents child list.
+        void                sendToFront();
+        // sends sprite to back of parents child list.
+        void                sendToBack();
+
         virtual void        setColor( const ci::Color &color );
         virtual void        setColor( float r, float g, float b );
         ci::Color           getColor() const;
@@ -235,6 +240,9 @@ class Sprite : public SpriteAnimatable
 
         void                setUseShaderTextuer(bool flag);
         bool                getUseShaderTextuer() const;
+
+        void                sendSpriteToFront(Sprite &sprite);
+        void                sendSpriteToBack(Sprite &sprite);
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
