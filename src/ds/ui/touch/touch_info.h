@@ -22,7 +22,7 @@ struct TouchInfo
   int         mFingerId;
   Phase       mPhase;
   ci::Vec3f   mStartPoint;
-  ci::Vec3f   mCurrentPoint;
+  ci::Vec3f   mCurrentGlobalPoint;
   ci::Vec3f   mDeltaPoint;
   Sprite     *mPickedSprite;
   bool        mActive;

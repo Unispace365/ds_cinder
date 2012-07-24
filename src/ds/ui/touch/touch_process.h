@@ -16,7 +16,7 @@ class SpriteEngine;
 
 struct SwipeQueueEvent
 {
-  ci::Vec3f mCurrentPoint;
+  ci::Vec3f mCurrentGlobalPoint;
   float     mTimeStamp;
 };
 

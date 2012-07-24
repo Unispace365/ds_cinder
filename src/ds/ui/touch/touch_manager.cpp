@@ -22,14 +22,14 @@ void TouchManager::touchesBegin( TouchEvent event )
 {
   for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
     TouchInfo touchInfo;
-    touchInfo.mCurrentPoint = Vec3f(touchIt->getPos(), 0.0f);
+    touchInfo.mCurrentGlobalPoint = Vec3f(touchIt->getPos(), 0.0f);
     touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
-    touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
-    mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
-    touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
+    touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
+    mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
+    touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
     touchInfo.mPhase = TouchInfo::Added;
 
-    Sprite *currentSprite = mEngine.getRootSprite().getHit(touchInfo.mCurrentPoint);
+    Sprite *currentSprite = mEngine.getRootSprite().getHit(touchInfo.mCurrentGlobalPoint);
     touchInfo.mPickedSprite = currentSprite;
 
     if ( currentSprite ) {
@@ -45,10 +45,10 @@ void TouchManager::touchesMoved( TouchEvent event )
 {
   for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
     TouchInfo touchInfo;
-    touchInfo.mCurrentPoint = Vec3f(touchIt->getPos(), 0.0f);
+    touchInfo.mCurrentGlobalPoint = Vec3f(touchIt->getPos(), 0.0f);
     touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
     touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
-    touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
+    touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
     touchInfo.mPhase = TouchInfo::Moved;
     touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
 
@@ -59,7 +59,7 @@ void TouchManager::touchesMoved( TouchEvent event )
       mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
     }
 
-    mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
+    mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 
     //std::cout << "touch moved: " << touchIt->getId() << " @: x: " << touchIt->getPos().x << " | y: " << touchIt->getPos().y << std::endl;
   }
@@ -69,10 +69,10 @@ void TouchManager::touchesEnded( TouchEvent event )
 {
   for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
     TouchInfo touchInfo;
-    touchInfo.mCurrentPoint = Vec3f(touchIt->getPos(), 0.0f);
+    touchInfo.mCurrentGlobalPoint = Vec3f(touchIt->getPos(), 0.0f);
     touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
     touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
-    touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
+    touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
     touchInfo.mPhase = TouchInfo::Removed;
     touchInfo.mPickedSprite = nullptr;
 
@@ -91,14 +91,14 @@ void TouchManager::touchesEnded( TouchEvent event )
 void TouchManager::mouseTouchBegin( MouseEvent event, int id )
 {
   TouchInfo touchInfo;
-  touchInfo.mCurrentPoint = Vec3f(event.getPos(), 0.0f);
+  touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
   touchInfo.mFingerId = id;
-  touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
-  mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
-  touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
+  touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
+  mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
+  touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
   touchInfo.mPhase = TouchInfo::Added;
 
-  Sprite *currentSprite = mEngine.getRootSprite().getHit(touchInfo.mCurrentPoint);
+  Sprite *currentSprite = mEngine.getRootSprite().getHit(touchInfo.mCurrentGlobalPoint);
   touchInfo.mPickedSprite = currentSprite;
 
   if ( currentSprite ) {
@@ -106,16 +106,16 @@ void TouchManager::mouseTouchBegin( MouseEvent event, int id )
     currentSprite->processTouchInfo(touchInfo);
   }
 
-  //std::cout << "mouse began: " << id << " @: x: " << touchInfo.mCurrentPoint.x << " | y: " << touchInfo.mCurrentPoint.y << std::endl;
+  //std::cout << "mouse began: " << id << " @: x: " << touchInfo.mCurrentGlobalPoint.x << " | y: " << touchInfo.mCurrentGlobalPoint.y << std::endl;
 }
 
 void TouchManager::mouseTouchMoved( MouseEvent event, int id )
 {
   TouchInfo touchInfo;
-  touchInfo.mCurrentPoint = Vec3f(event.getPos(), 0.0f);
+  touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
   touchInfo.mFingerId = id;
   touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
-  touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
+  touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
   touchInfo.mPhase = TouchInfo::Moved;
   touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
 
@@ -126,18 +126,18 @@ void TouchManager::mouseTouchMoved( MouseEvent event, int id )
     mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
   }
 
-  mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentPoint;
+  mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 
-  //std::cout << "mouse moved: " << id << " @: x: " << touchInfo.mCurrentPoint.x << " | y: " << touchInfo.mCurrentPoint.y << std::endl;
+  //std::cout << "mouse moved: " << id << " @: x: " << touchInfo.mCurrentGlobalPoint.x << " | y: " << touchInfo.mCurrentGlobalPoint.y << std::endl;
 }
 
 void TouchManager::mouseTouchEnded( MouseEvent event, int id )
 {
   TouchInfo touchInfo;
-  touchInfo.mCurrentPoint = Vec3f(event.getPos(), 0.0f);
+  touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
   touchInfo.mFingerId = id;
   touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
-  touchInfo.mDeltaPoint = touchInfo.mCurrentPoint - mTouchPreviousPoint[touchInfo.mFingerId];
+  touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
   touchInfo.mPhase = TouchInfo::Removed;
   touchInfo.mPickedSprite = nullptr;
 
@@ -149,7 +149,7 @@ void TouchManager::mouseTouchEnded( MouseEvent event, int id )
   mTouchStartPoint.erase(touchInfo.mFingerId);
   mTouchPreviousPoint.erase(touchInfo.mFingerId);
   mFingerDispatcher.erase(touchInfo.mFingerId);
-  //std::cout << "mouse ended: " << id << " @: x: " << touchInfo.mCurrentPoint.x << " | y: " << touchInfo.mCurrentPoint.y << std::endl;
+  //std::cout << "mouse ended: " << id << " @: x: " << touchInfo.mCurrentGlobalPoint.x << " | y: " << touchInfo.mCurrentGlobalPoint.y << std::endl;
 }
 
 void TouchManager::drawTouches() const
