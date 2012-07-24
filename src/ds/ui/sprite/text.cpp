@@ -98,12 +98,12 @@ void Text::updateServer(const UpdateParams& p)
 void Text::drawLocalClient()
 {
   if (mDebugShowFrame) {
-    mSpriteShader.getShader().uniform("useTexture", false);
+    mSpriteShader.getShader().unbind();
     glPushAttrib(GL_COLOR);
     gl::color(0.25f, 0, 0, 0.5f);
     ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
     glPopAttrib();
-    mSpriteShader.getShader().uniform("useTexture", true);
+    mSpriteShader.getShader().bind();
   }
 
   if (!mTextureFont) return;
@@ -130,13 +130,24 @@ void Text::drawLocalClient()
 #endif
 }
 
-void Text::setSize( float width, float height, float depth )
+void Text::setSize( float width, float height )
 {
   if (mResizeToText) {
     DS_LOG_WARNING_M("Text::setSize() while auto resize is on, statement does nothing", SPRITE_LOG);
     return;
   }
   
+  inherited::setSize(width, height);
+  mNeedsLayout = true;
+}
+
+void Text::setSize( float width, float height, float depth )
+{
+  if (mResizeToText) {
+    DS_LOG_WARNING_M("Text::setSize() while auto resize is on, statement does nothing", SPRITE_LOG);
+    return;
+  }
+
   inherited::setSize(width, height, depth);
   mNeedsLayout = true;
 }

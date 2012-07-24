@@ -157,6 +157,9 @@ void Engine::setup(ds::App&)
   float curr = static_cast<float>(getElapsedSeconds());
   mLastTime = curr;
   mLastTouchTime = 0;
+  
+  mUpdateParams.setDeltaTime(0.0f);
+  mUpdateParams.setElapsedTime(curr);
 }
 
 void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )

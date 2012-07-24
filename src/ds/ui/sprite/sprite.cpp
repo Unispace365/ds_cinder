@@ -82,6 +82,7 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mHeight(height)
     , mTouchProcess(engine, *this)
     , mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
+    , mIdleTimer(engine)
 {
   init(mEngine.nextSpriteId());
   setSize(width, height);
@@ -92,6 +93,7 @@ Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id )
     , mId(ds::EMPTY_SPRITE_ID)
     , mTouchProcess(engine, *this)
     , mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
+    , mIdleTimer(engine)
 {
   init(id);
 }
@@ -134,6 +136,8 @@ Sprite::~Sprite()
 
 void Sprite::updateClient( const UpdateParams &updateParams )
 {
+  mIdleTimer.update();
+
   if (mCheckBounds) {
     updateCheckBounds();
   }
@@ -146,6 +150,8 @@ void Sprite::updateClient( const UpdateParams &updateParams )
 
 void Sprite::updateServer( const UpdateParams &updateParams )
 {
+  mIdleTimer.update();
+
   if (mCheckBounds) {
     updateCheckBounds();
   }
@@ -1282,6 +1288,43 @@ void Sprite::dimensionalStateChanged()
 {
   computeClippingBounds();
   onSizeChanged();
+}
+
+void Sprite::setSecondBeforeIdle( const double idleTime )
+{
+  mIdleTimer.setSecondBeforeIdle(idleTime);
+}
+
+double Sprite::secondsToIdle() const
+{
+  return mIdleTimer.secondsToIdle();
+}
+
+bool Sprite::isIdling() const
+{
+  return mIdleTimer.isIdling();
+}
+
+void Sprite::startIdling()
+{
+  mIdleTimer.startIdling();
+}
+
+void Sprite::resetIdleTimer()
+{
+  mIdleTimer.resetIdleTimer();
+}
+
+void Sprite::clear()
+{
+  mIdleTimer.clear();
+}
+
+void Sprite::userInputReceived()
+{
+  if (mParent)
+    mParent->userInputReceived();
+  resetIdleTimer();
 }
 
 } // namespace ui

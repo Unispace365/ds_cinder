@@ -21,6 +21,12 @@ void applyBlendingMode(const BlendMode &blendMode)
   } else if (blendMode == SUBTRACT) {
     glBlendEquation(GL_FUNC_REVERSE_SUBTRACT);
     glBlendFunc(GL_ONE, GL_ONE);
+  } else if (blendMode == LIGHTEN) {
+    glBlendEquation(GL_MAX);
+    glBlendFunc(GL_ONE, GL_ONE);
+  } else if (blendMode == DARKEN) {
+    glBlendEquation(GL_MIN);
+    glBlendFunc(GL_ONE, GL_ONE);
   }
 }
 
@@ -35,6 +41,10 @@ bool premultiplyAlpha( const BlendMode &blendMode )
   } else if (blendMode == ADD) {
     return true;
   } else if (blendMode == SUBTRACT) {
+    return true;
+  } else if (blendMode == LIGHTEN) {
+    return true;
+  } else if (blendMode == DARKEN) {
     return true;
   }
   return false;

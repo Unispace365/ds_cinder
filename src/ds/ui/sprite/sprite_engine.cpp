@@ -1,6 +1,7 @@
 #include "sprite_engine.h"
 #include "sprite.h"
 #include "ds/debug/debug_defines.h"
+#include "cinder/app/App.h"
 
 using namespace ci;
 
@@ -58,6 +59,11 @@ std::unique_ptr<FboGeneral> SpriteEngine::getFbo()
 void SpriteEngine::giveBackFbo( std::unique_ptr<FboGeneral> &fbo )
 {
   mFbos.push_back(std::move(fbo));
+}
+
+double SpriteEngine::getElapsedTimeSeconds() const
+{
+  return ci::app::getElapsedSeconds();
 }
 
 } // namespace ui

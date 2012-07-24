@@ -84,6 +84,7 @@
     <ClInclude Include="..\src\ds\ui\tween\tweenline.h" />
     <ClInclude Include="..\src\ds\util\bit_mask.h" />
     <ClInclude Include="..\src\ds\util\file_name_parser.h" />
+    <ClInclude Include="..\src\ds\util\idle_timer.h" />
     <ClInclude Include="..\src\ds\util\memory_ds.h" />
     <ClInclude Include="..\src\ds\util\notifier.h" />
     <ClInclude Include="..\src\ds\util\string_util.h" />
@@ -147,6 +148,7 @@
     <ClCompile Include="..\src\ds\ui\tween\tweenline.cpp" />
     <ClCompile Include="..\src\ds\util\bit_mask.cpp" />
     <ClCompile Include="..\src\ds\util\file_name_parser.cpp" />
+    <ClCompile Include="..\src\ds\util\idle_timer.cpp" />
     <ClCompile Include="..\src\ds\util\string_util.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

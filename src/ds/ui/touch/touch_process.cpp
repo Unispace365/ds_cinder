@@ -27,6 +27,8 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
   if (!mSprite.visible() || !mSprite.isEnabled())
     return false;
 
+  mSprite.userInputReceived();
+
   processTap(touchInfo);
 
   if (TouchInfo::Added == touchInfo.mPhase) {
@@ -35,7 +37,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
     if (mFingers.size() == 1) {
       mSwipeQueue.clear();
       mSwipeFingerId = touchInfo.mFingerId;
-      addToSwipeQueue(touchInfo.mCurrentPoint, 0);
+      addToSwipeQueue(touchInfo.mCurrentGlobalPoint, 0);
     }
 
     initializeTouchPoints();
@@ -51,10 +53,10 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
     auto found = mFingers.find(touchInfo.mFingerId);
     if (found == mFingers.end())
       return false;
-    found->second.mCurrentPoint = touchInfo.mCurrentPoint;
+    found->second.mCurrentGlobalPoint = touchInfo.mCurrentGlobalPoint;
 
     if (mSwipeFingerId == touchInfo.mFingerId)
-      addToSwipeQueue(touchInfo.mCurrentPoint, 0);
+      addToSwipeQueue(touchInfo.mCurrentGlobalPoint, 0);
 
 
     auto foundControl0 = mFingers.find(mControlFingerIndexes[0]);
@@ -75,12 +77,12 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
       }
 
       Vec3f fingerStart0 = foundControl0->second.mStartPoint;
-      Vec3f fingerCurrent0 = foundControl0->second.mCurrentPoint;
+      Vec3f fingerCurrent0 = foundControl0->second.mCurrentGlobalPoint;
       Vec3f fingerPositionOffset = (parentTransform * Vec4f(fingerCurrent0.x, fingerCurrent0.y, 0.0f, 1.0f) - parentTransform * Vec4f(fingerStart0.x, fingerStart0.y, 0.0f, 1.0f)).xyz();
 
       if (mFingers.size() > 1) {
         Vec3f fingerStart1 = foundControl1->second.mStartPoint;
-        Vec3f fingerCurrent1 = foundControl1->second.mCurrentPoint;
+        Vec3f fingerCurrent1 = foundControl1->second.mCurrentGlobalPoint;
 
         mStartDistance = fingerStart0.distance(fingerStart1);
         if (mStartDistance < mSpriteEngine.getMinTouchDistance())
@@ -173,7 +175,7 @@ void TouchProcess::sendTouchInfo( const TouchInfo &touchInfo )
 void TouchProcess::initializeFirstTouch()
 {
   mFingers[mControlFingerIndexes[0]].mActive = true;
-  mFingers[mControlFingerIndexes[0]].mStartPoint = mFingers[mControlFingerIndexes[0]].mCurrentPoint;
+  mFingers[mControlFingerIndexes[0]].mStartPoint = mFingers[mControlFingerIndexes[0]].mCurrentGlobalPoint;
   mMultiTouchAnchor = mSprite.globalToLocal(mFingers[mControlFingerIndexes[0]].mStartPoint);
   mMultiTouchAnchor.x /= mSprite.getWidth();
   mMultiTouchAnchor.y /= mSprite.getHeight();
@@ -216,7 +218,7 @@ void TouchProcess::initializeTouchPoints()
   	{
   		if (it == itt)
         continue;
-      float newDistance = itt->second.mCurrentPoint.distance(it->second.mCurrentPoint);
+      float newDistance = itt->second.mCurrentGlobalPoint.distance(it->second.mCurrentGlobalPoint);
       if (newDistance > potentialFarthestDistance) {
         potentialFarthestIndexes[0] = itt->first;
         potentialFarthestIndexes[1] = it->first;
@@ -234,7 +236,7 @@ void TouchProcess::initializeTouchPoints()
   initializeFirstTouch();
 
   mFingers[mControlFingerIndexes[1]].mActive = true;
-  mFingers[mControlFingerIndexes[1]].mStartPoint = mFingers[mControlFingerIndexes[1]].mCurrentPoint;
+  mFingers[mControlFingerIndexes[1]].mStartPoint = mFingers[mControlFingerIndexes[1]].mCurrentGlobalPoint;
   mStartPosition = mSprite.getPosition();
   mStartRotation = mSprite.getRotation();
   mStartScale    = mSprite.getScale();
@@ -261,7 +263,7 @@ void TouchProcess::resetTouchAnchor()
 void TouchProcess::addToSwipeQueue( const Vec3f &currentPoint, int queueNum )
 {
   SwipeQueueEvent swipeEvent;
-  swipeEvent.mCurrentPoint = currentPoint;
+  swipeEvent.mCurrentGlobalPoint = currentPoint;
   swipeEvent.mTimeStamp = mLastUpdateTime;
   mSwipeQueue.push_back(swipeEvent);
   if (mSwipeQueue.size() > mSpriteEngine.getSwipeQueueSize())
@@ -278,7 +280,7 @@ bool TouchProcess::swipeHappened()
     return false;
 
   for ( auto it = mSwipeQueue.begin(), it2 = mSwipeQueue.end(); it != it2 - 1; ++it ) {
-  	mSwipeVector += (it+1)->mCurrentPoint - it->mCurrentPoint;
+  	mSwipeVector += (it+1)->mCurrentGlobalPoint - it->mCurrentGlobalPoint;
   }
 
   mSwipeVector /= static_cast<float>(mSwipeQueue.size() - 1);
@@ -293,12 +295,12 @@ void TouchProcess::updateDragDestination( const TouchInfo &touchInfo )
   if (found == mFingers.end())
     return;
 
-  Sprite *dragDestinationSprite = mSpriteEngine.getDragDestinationSprite(touchInfo.mCurrentPoint, &mSprite);
+  Sprite *dragDestinationSprite = mSpriteEngine.getDragDestinationSprite(touchInfo.mCurrentGlobalPoint, &mSprite);
 
   if (!dragDestinationSprite)
     return;
 
-  DragDestinationInfo dragInfo = {touchInfo.mCurrentPoint, DragDestinationInfo::Null, &mSprite};
+  DragDestinationInfo dragInfo = {touchInfo.mCurrentGlobalPoint, DragDestinationInfo::Null, &mSprite};
 
   if (!mSprite.getDragDestination() && dragDestinationSprite) {
     dragInfo.mPhase = DragDestinationInfo::Entered;
@@ -332,17 +334,17 @@ void TouchProcess::processTap( const TouchInfo &touchInfo )
   if (touchInfo.mPhase == TouchInfo::Added && mFingers.empty()) {
     mTappable = true;
   } else if (mTappable) {
-    if (mFingers.size() > 1 || (touchInfo.mPhase == TouchInfo::Moved && touchInfo.mCurrentPoint.distance(touchInfo.mStartPoint) > mSpriteEngine.getMinTapDistance())) {
+    if (mFingers.size() > 1 || (touchInfo.mPhase == TouchInfo::Moved && touchInfo.mCurrentGlobalPoint.distance(touchInfo.mStartPoint) > mSpriteEngine.getMinTapDistance())) {
       mTappable = false;
     } else if (touchInfo.mPhase == TouchInfo::Removed) {
       if (mSprite.hasTap() && !mSprite.hasDoubleTap()) {
-        mSprite.tap(touchInfo.mCurrentPoint);
+        mSprite.tap(touchInfo.mCurrentGlobalPoint);
         mOneTap = false;
       } else if (mOneTap) {
-        mSprite.doubleTap(touchInfo.mCurrentPoint);
+        mSprite.doubleTap(touchInfo.mCurrentGlobalPoint);
         mOneTap = false;
       } else {
-        mFirstTapPos = touchInfo.mCurrentPoint;
+        mFirstTapPos = touchInfo.mCurrentGlobalPoint;
         mOneTap = true;
         mDoubleTapTime = mLastUpdateTime;
       }
