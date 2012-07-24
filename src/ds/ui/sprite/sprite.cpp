@@ -217,10 +217,10 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
     }
     else
     {
-        std::list<Sprite *> mCopy = mChildren;
-        mCopy.sort([](Sprite *i, Sprite *j)
+        std::vector<Sprite *> mCopy = mChildren;
+        std::sort( mCopy.begin(), mCopy.end(), [](Sprite *i, Sprite *j)
         {
-            return i->getZLevel() < j->getZLevel();
+          return i->getZLevel() < j->getZLevel();
         });
 
         for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
@@ -267,8 +267,8 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
   }
   else
   {
-    std::list<Sprite *> mCopy = mChildren;
-    mCopy.sort([](Sprite *i, Sprite *j)
+    std::vector<Sprite *> mCopy = mChildren;
+    std::sort( mCopy.begin(), mCopy.end(), [](Sprite *i, Sprite *j)
     {
       return i->getZLevel() < j->getZLevel();
     });
@@ -413,7 +413,8 @@ void Sprite::removeChild( Sprite &child )
     if ( !containsChild(&child) )
         return;
 
-    mChildren.remove(&child);
+    auto found = std::find(mChildren.begin(), mChildren.end(), &child);
+    mChildren.erase(found);
     child.setParent(nullptr);
 }
 
@@ -699,11 +700,11 @@ Sprite *Sprite::getHit( const ci::Vec3f &point )
     }
     else
     {
-        std::list<Sprite *> mCopy = mChildren;
-        mCopy.sort([](Sprite *i, Sprite *j)
-        {
-            return i->getZLevel() < j->getZLevel();
-        });
+      std::vector<Sprite *> mCopy = mChildren;
+      std::sort( mChildren.begin(), mChildren.end(), [](Sprite *i, Sprite *j)
+      {
+        return i->getZLevel() < j->getZLevel();
+      });
 
         for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
         {
@@ -1333,8 +1334,8 @@ void Sprite::sendSpriteToFront( Sprite &sprite )
     return;
 
   auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
-  mChildren.push_back(*found);
   mChildren.erase(found);
+  mChildren.push_back(&sprite);
 }
 
 void Sprite::sendSpriteToBack( Sprite &sprite )
@@ -1343,8 +1344,8 @@ void Sprite::sendSpriteToBack( Sprite &sprite )
     return;
 
   auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
-  mChildren.push_front(*found);
   mChildren.erase(found);
+  mChildren.insert(mChildren.begin(), &sprite);
 }
 
 void Sprite::sendToFront()

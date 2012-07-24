@@ -277,7 +277,7 @@ class Sprite : public SpriteAnimatable
         mutable ci::Matrix44f   mInverseGlobalTransform;
 
         Sprite             *mParent;
-        std::list<Sprite *> mChildren; 
+        std::vector<Sprite *> mChildren; 
 
         // Class-unique key for this type.  Subclasses can replace.
         char                mBlobType;
