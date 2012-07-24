@@ -27,6 +27,7 @@ class Text: public Sprite
         ~Text();
         Text&                     setResizeToText(const bool = true);
         Text&                     setFont(const std::string& filename, const float fontSize);
+        void                      setSize( float width, float height );
         void                      setSize( float width, float height, float depth );
         virtual float             getWidth() const;
         virtual float             getHeight() const;
