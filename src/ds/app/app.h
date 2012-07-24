@@ -34,6 +34,8 @@ class App : public ci::app::AppBasic {
     virtual void	    			    update();
     virtual void	    			    draw();
 
+	void						enableCommonKeystrokes(bool q = true, bool esc = true);
+
   protected:
     class Initializer { public: Initializer(const std::string&); };
     Initializer                 mInitializer;
@@ -49,6 +51,8 @@ class App : public ci::app::AppBasic {
 
     bool                        mCtrlDown;
     bool                        mSecondMouseDown;
+	bool						mQKeyEnabled;
+	bool						mEscKeyEnabled;
 };
 
 } // namespace ds
