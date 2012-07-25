@@ -100,9 +100,12 @@ class Engine : public ui::SpriteEngine {
     void                        drawServer();
 
     static const int            NumberOfNetworkThreads;
+
+  protected:
+    ui::Sprite                  mRootSprite;
+
   private:
     ds::ui::Tweenline           mTweenline;
-    ui::Sprite                  mRootSprite;
     // A cache of all the resources in the system
     ResourceList                mResources;
     UpdateParams                mUpdateParams;

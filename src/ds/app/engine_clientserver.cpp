@@ -13,6 +13,12 @@ EngineClientServer::EngineClientServer(ds::App& app, const ds::cfg::Settings& se
 {
 }
 
+EngineClientServer::~EngineClientServer()
+{
+  // It's important to clean up the sprites before the services go away
+  mRootSprite.clearChildren();
+}
+
 void EngineClientServer::installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
                                        const std::function<void(ds::BlobRegistry&)>& asClient)
 {

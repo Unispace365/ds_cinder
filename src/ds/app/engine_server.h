@@ -19,6 +19,7 @@ namespace ds {
 class EngineServer : public Engine {
   public:
     EngineServer(ds::App&, const ds::cfg::Settings&);
+    ~EngineServer();
 
     virtual ds::WorkManager       &getWorkManager()         { return mWorkManager; }
     virtual ui::LoadImageService  &getLoadImageService()    { return mLoadImageService; }

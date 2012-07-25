@@ -91,7 +91,7 @@ void SpriteShader::loadShadersFromFile()
   try {
     mShader = ci::gl::GlslProg(ci::loadFile((mLocation+"/"+mName+".vert").c_str()), ci::loadFile((mLocation+"/"+mName+".frag").c_str()));
   } catch (std::exception &e) {
-    std::cout << e.what() << std::endl;
+//    std::cout << e.what() << std::endl;
   }
 }
 
@@ -103,7 +103,7 @@ void SpriteShader::loadDefaultFromFile()
   try {
     mShader = ci::gl::GlslProg(ci::loadFile((mDefaultLocation+"/"+mDefaultName+".vert").c_str()), ci::loadFile((mDefaultLocation+"/"+mDefaultName+".frag").c_str()));
   } catch (std::exception &e) {
-    std::cout << e.what() << std::endl;
+//    std::cout << e.what() << std::endl;
   }
 }
 
