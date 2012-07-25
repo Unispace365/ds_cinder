@@ -1,5 +1,6 @@
 #include "sprite_shader.h"
 #include "cinder/DataSource.h"
+#include "ds/debug/logger.h"
 
 
 namespace {
@@ -32,6 +33,8 @@ const std::string DefaultVert =
 "  gl_FrontColor = gl_Color;\n"
 "}\n";
 
+const ds::BitMask   SHADER_LOG        = ds::Logger::newModule("shader");
+
 }
 
 namespace ds {
@@ -51,11 +54,14 @@ SpriteShader::~SpriteShader()
 
 void SpriteShader::setShaders( const std::string &location, const std::string &name )
 {
-  if (mName.empty())
+  if (name.empty()) {
+    DS_LOG_WARNING_M("SpriteShader::setShaders() on empty name, did you intend that?", SHADER_LOG);
     return;
+  }
 
-  if (mLocation == location && mName == name)
+  if (mLocation == location && mName == name) {
     return;
+  }
 
   if (mShader)
     mShader.reset();
