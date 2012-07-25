@@ -16,7 +16,7 @@
 	// For when you want debug code in a header file
 	#define DS_DBG_HDR(code)				  code
 #else
-	#define DS_ASSERT(cnd, expr)			(void*)0
+	#define DS_ASSERT(cnd)			      (void*)0
 	#define DS_VALIDATE(cnd, expr)		if (!(cnd)) { expr; }
 	#define DS_DBG_CODE(op)					  (void*)0
 	#define DS_DBG_HDR(code)				  ;
