@@ -32,6 +32,8 @@ class EngineServer : public Engine {
     virtual void	                update();
     virtual void                  draw();
 
+    virtual void                  stopServices();
+
   private:
     typedef Engine inherited;
     WorkManager				            mWorkManager;

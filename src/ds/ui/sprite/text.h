@@ -41,6 +41,11 @@ class Text: public Sprite
         // Set a function for translating a string into a layout object.
         Text&                     setLayoutFunction(const TextLayout::MAKE_FUNC&);
 
+        // Font metrics, this is probably temporary
+        float                     getFontAscent() const;
+        float                     getFontDescent() const;
+        float                     getFontHeight() const;
+
     private:
         typedef Sprite inherited;
 

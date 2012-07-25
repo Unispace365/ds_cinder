@@ -335,4 +335,8 @@ void Engine::setCamera()
   gl::setMatrices(mCamera);
 }
 
+void Engine::stopServices()
+{
+}
+
 } // namespace ds

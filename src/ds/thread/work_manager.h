@@ -31,6 +31,9 @@ public:
 	// any pending query outputs.
 	void							update();
 
+	// Stop the thread pool.  Called from the destructor, if a client doesn't call it earlier.
+	void							stopManager();
+
 protected:
 	friend class WorkClient;
 
@@ -74,9 +77,6 @@ private:
 	// Clients
 	Poco::Mutex						mClientMutex;
 	std::vector<WorkClient*>		mClient;
-
-	// Stop the thread pool.  Called from the destructor.
-	void							stopManager();
 
 	// Call after you've added more input
 	bool							inputAdded();

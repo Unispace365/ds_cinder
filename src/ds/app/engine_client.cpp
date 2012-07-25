@@ -95,6 +95,12 @@ void EngineClient::draw()
   drawClient();
 }
 
+void EngineClient::stopServices()
+{
+  inherited::stopServices();
+  mWorkManager.stopManager();
+}
+
 void EngineClient::receiveHeader(ds::DataBuffer& data)
 {
 //  std::cout << "EngineClient::receiveHeader()" << std::endl;

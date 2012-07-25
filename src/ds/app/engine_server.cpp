@@ -96,6 +96,12 @@ void EngineServer::draw()
   drawServer();
 }
 
+void EngineServer::stopServices()
+{
+  inherited::stopServices();
+  mWorkManager.stopManager();
+}
+
 void EngineServer::receiveHeader(ds::DataBuffer& data)
 {
 }

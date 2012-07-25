@@ -86,6 +86,12 @@ class Engine : public ui::SpriteEngine {
     float                       getWorldHeight() const;
 
     void                        setCamera();
+
+    // Can be used by apps to stop services before exiting.
+    // This will happen automatically, but some apps might want
+    // to make sure everything is stopped before they go away.
+    virtual void                stopServices();
+
   protected:
     Engine(ds::App&, const ds::cfg::Settings&);
 

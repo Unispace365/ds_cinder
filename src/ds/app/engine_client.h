@@ -34,7 +34,9 @@ class EngineClient : public Engine {
     virtual void	                update();
     virtual void                  draw();
 
-  private:
+    virtual void                  stopServices();
+
+private:
     typedef Engine inherited;
     WorkManager                   mWorkManager;
     GlThread                      mLoadImageThread;

@@ -52,4 +52,10 @@ void EngineClientServer::draw()
   drawClient();
 }
 
+void EngineClientServer::stopServices()
+{
+  inherited::stopServices();
+  mWorkManager.stopManager();
+}
+
 } // namespace ds

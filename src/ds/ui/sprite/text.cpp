@@ -211,6 +211,24 @@ Text& Text::setLayoutFunction(const TextLayout::MAKE_FUNC& f)
   return *this;
 }
 
+float Text::getFontAscent() const
+{
+  if (!mTextureFont) return 0;
+  return mTextureFont->getAscent();
+}
+
+float Text::getFontDescent() const
+{
+  if (!mTextureFont) return 0;
+  return mTextureFont->getDescent();
+}
+
+float Text::getFontHeight() const
+{
+  if (!mTextureFont) return 0;
+  return mTextureFont->getAscent() + mTextureFont->getDescent();
+}
+
 void Text::makeLayout()
 {
   if (mNeedsLayout) {
