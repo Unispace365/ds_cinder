@@ -125,6 +125,7 @@ void Sprite::init(const ds::sprite_id_t id)
 
   mServerColor = ci::ColorA(math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, 0.4f);
   mClippingBounds.set(0.0f, 0.0f, 0.0f, 0.0f);
+  mClippingBoundsDirty = false;
   dimensionalStateChanged();
 }
 
@@ -203,7 +204,8 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
     }
     
     if ((mSpriteFlags&CLIP_F) != 0) {
-      enableClipping(mClippingBounds.getX1(), mClippingBounds.getY1(), mClippingBounds.getX2(), mClippingBounds.getY2());
+      const ci::Rectf&      clippingBounds = getClippingBounds();
+      enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
     }
 
     ci::gl::popModelView();
@@ -253,7 +255,8 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
   }
 
   if ((mSpriteFlags&CLIP_F) != 0) {
-    enableClipping(mClippingBounds.getX1(), mClippingBounds.getY1(), mClippingBounds.getX2(), mClippingBounds.getY2());
+    const ci::Rectf&      clippingBounds = getClippingBounds();
+    enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
   }
 
   ci::gl::popModelView();
@@ -1107,6 +1110,7 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf)
       float x2 = buf.read<float>();
       float y2 = buf.read<float>();
       mClippingBounds.set(x1, y1, x2, y2);
+      mClippingBoundsDirty = false;
     } else {
       readAttributeFrom(id, buf);
     }
@@ -1211,12 +1215,21 @@ void Sprite::setUseShaderTextuer( bool flag )
 void Sprite::setClipping( bool flag )
 {
   setFlag(CLIP_F, flag, FLAGS_DIRTY, mSpriteFlags);
-  computeClippingBounds();
+  markClippingDirty();
 }
 
 bool Sprite::getClipping() const
 {
   return getFlag(CLIP_F, mSpriteFlags);
+}
+
+const ci::Rectf& Sprite::getClippingBounds()
+{
+  if (mClippingBoundsDirty) {
+    mClippingBoundsDirty = false;
+    computeClippingBounds();
+  }
+  return mClippingBounds;
 }
 
 void Sprite::computeClippingBounds()
@@ -1287,8 +1300,17 @@ void Sprite::onSizeChanged()
 
 void Sprite::dimensionalStateChanged()
 {
-  computeClippingBounds();
+  markClippingDirty();
   onSizeChanged();
+}
+
+void Sprite::markClippingDirty()
+{
+  mClippingBoundsDirty = true;
+  for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
+    Sprite*     s = *it;
+    if (s) s->markClippingDirty();
+  }
 }
 
 void Sprite::setSecondBeforeIdle( const double idleTime )

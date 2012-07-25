@@ -224,6 +224,8 @@ class Sprite : public SpriteAnimatable
 
         virtual void        onSizeChanged();
 
+        // Always access the bounds via this, which will build them if necessary
+        const ci::Rectf&    getClippingBounds();
         void                computeClippingBounds();
 
         void                setSpriteId(const ds::sprite_id_t&);
@@ -270,7 +272,8 @@ class Sprite : public SpriteAnimatable
         float               mOpacity;
         ci::Color           mColor;
         int                 mType;
-        ci::Rectf               mClippingBounds;
+        ci::Rectf           mClippingBounds;
+        bool                mClippingBoundsDirty;
         SpriteShader        mSpriteShader;
 
         mutable ci::Matrix44f   mGlobalTransform;
@@ -311,6 +314,8 @@ class Sprite : public SpriteAnimatable
         void                readAttributesFrom(ds::DataBuffer&);
 
         void                dimensionalStateChanged();
+        // Applies to all children, too.
+        void                markClippingDirty();
 
         ci::gl::Texture     mRenderTarget;
 
