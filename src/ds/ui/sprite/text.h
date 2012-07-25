@@ -26,6 +26,9 @@ class Text: public Sprite
         Text(SpriteEngine&);
         ~Text();
         Text&                     setResizeToText(const bool = true);
+        Text&                     setResizeToText(const bool width, const bool height);
+        bool                      autoResizeWidth() const;
+        bool                      autoResizeHeight() const;
         Text&                     setFont(const std::string& filename, const float fontSize);
         void                      setSize( float width, float height );
         void                      setSize( float width, float height, float depth );
@@ -51,7 +54,7 @@ class Text: public Sprite
 
         void                      makeLayout();
         // Only used when ResizeToText is on
-        void                      calculateFrame();
+        void                      calculateFrame(const int flags);
 
         ci::gl::TextureFontRef    mTextureFont;
         ci::gl::TextureFont::DrawOptions
@@ -61,8 +64,9 @@ class Text: public Sprite
         std::string               mTextString;
         ci::Rectf                 mBorder;
 
-        // When on, my width and height changes automatically to match my text
-        bool                      mResizeToText;
+        // After performing the layout, this determines if my width and/or height
+        // will be set to the layout bounds.
+        int                       mResizeToTextF;
         TextLayout                mLayout;
         bool                      mNeedsLayout;
         TextLayout::MAKE_FUNC     mLayoutFunc;

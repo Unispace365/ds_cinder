@@ -29,8 +29,9 @@ class TextLayout
     // A bundle of all data necessary to create a layout
     class Input {
       public:
-        Input(const ci::gl::TextureFontRef&, const ci::gl::TextureFont::DrawOptions&,
+        Input(const Text&, const ci::gl::TextureFontRef&, const ci::gl::TextureFont::DrawOptions&,
               const ci::Vec2f& size, const std::string& text);
+        const Text&           mSprite;
         const ci::gl::TextureFontRef&
                               mFont;
         const ci::gl::TextureFont::DrawOptions&

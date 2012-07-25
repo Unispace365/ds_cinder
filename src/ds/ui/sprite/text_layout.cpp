@@ -19,11 +19,13 @@ TextLayout::Line::Line()
 /**
  * \class ds::ui::TextLayout::Input
  */
-TextLayout::Input::Input( const ci::gl::TextureFontRef& f,
+TextLayout::Input::Input( const Text& sprite,
+                          const ci::gl::TextureFontRef& f,
                           const ci::gl::TextureFont::DrawOptions& o,
                           const ci::Vec2f& size,
                           const std::string& text)
-  : mFont(f)
+  : mSprite(sprite)
+  , mFont(f)
   , mOptions(o)
   , mSize(size)
   , mText(text)
@@ -81,6 +83,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   // Per line, find the word breaks, then create a line.
   std::vector<std::string>    tokens;
   tokenize(in.mText, tokens);
+  const bool                  limitToHeight = !(in.mSprite.autoResizeHeight());
   float                       y = in.mFont->getAscent();
   const float                 lineH = in.mFont->getAscent() + in.mFont->getDescent() + (in.mFont->getFont().getLeading()*mLeading);
   std::string                 lineText;
@@ -101,6 +104,8 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
       lineText = *it;
       lineText.append(" ");
       y += lineH;
+      // If the sprite is not auto resizing, then don't go past its bounds
+      if (limitToHeight && y + lineH > in.mSize.y) break;
     // Otherwise maintain the new line.
     } else {
       lineText.swap(newLine);

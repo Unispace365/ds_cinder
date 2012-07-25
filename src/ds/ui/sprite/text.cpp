@@ -40,6 +40,9 @@ const char          FONT_ATT          = 80;
 const char          TEXT_ATT          = 81;
 const char          LAYOUT_ATT        = 82;
 const char          BORDER_ATT        = 83;
+
+const int           RESIZE_W          = (1<<0);
+const int           RESIZE_H          = (1<<1);
 }
 
 void Text::installAsServer(ds::BlobRegistry& registry)
@@ -56,7 +59,7 @@ Text::Text(SpriteEngine& engine)
     : inherited(engine)
     , mFontSize(0)
     , mBorder(0, 0, 0, 0)
-    , mResizeToText(true)
+    , mResizeToTextF(RESIZE_W|RESIZE_H)
     , mNeedsLayout(false)
     , mLayoutFunc(TextLayout::SINGLE_LINE())
     , mDebugShowFrame(engine.getDebugSettings().getBool("text:show_frame", 0, false))
@@ -72,11 +75,29 @@ Text::~Text()
 
 Text& Text::setResizeToText(const bool on)
 {
-  if (mResizeToText == on) return *this;
+  return setResizeToText(on, on);
+}
 
-  mResizeToText = on;
+Text& Text::setResizeToText(const bool width, const bool height)
+{
+  int           newF = 0;
+  if (width) newF |= RESIZE_W;
+  if (height) newF |= RESIZE_H;
+  if (mResizeToTextF == newF) return *this;
+
+  mResizeToTextF = newF;
   mNeedsLayout = true;
   return *this;
+}
+
+bool Text::autoResizeWidth() const
+{
+  return (mResizeToTextF&RESIZE_W) != 0;
+}
+
+bool Text::autoResizeHeight() const
+{
+  return (mResizeToTextF&RESIZE_H) != 0;
 }
 
 Text& Text::setFont(const std::string& filename, const float fontSize)
@@ -132,7 +153,7 @@ void Text::drawLocalClient()
 
 void Text::setSize( float width, float height )
 {
-  if (mResizeToText) {
+  if (mResizeToTextF) {
     DS_LOG_WARNING_M("Text::setSize() while auto resize is on, statement does nothing", SPRITE_LOG);
     return;
   }
@@ -143,7 +164,7 @@ void Text::setSize( float width, float height )
 
 void Text::setSize( float width, float height, float depth )
 {
-  if (mResizeToText) {
+  if (mResizeToTextF) {
     DS_LOG_WARNING_M("Text::setSize() while auto resize is on, statement does nothing", SPRITE_LOG);
     return;
   }
@@ -154,7 +175,7 @@ void Text::setSize( float width, float height, float depth )
 
 float Text::getWidth() const
 {
-  if (mResizeToText && mNeedsLayout) {
+  if (mResizeToTextF && mNeedsLayout) {
     (const_cast<Text*>(this))->makeLayout();
   }
   return mWidth;
@@ -162,7 +183,7 @@ float Text::getWidth() const
 
 float Text::getHeight() const
 {
-  if (mResizeToText && mNeedsLayout) {
+  if (mResizeToTextF && mNeedsLayout) {
     (const_cast<Text*>(this))->makeLayout();
   }
   return mHeight;
@@ -184,15 +205,7 @@ std::string Text::getText() const
 
 void Text::setAlignment( int alignment )
 {
-#if 0
-    if ( alignment == LEFT )
-        mTextBox.setAlignment(ci::TextBox::LEFT);
-    else if ( alignment == RIGHT )
-        mTextBox.setAlignment(ci::TextBox::RIGHT);
-    else if ( alignment == CENTER )
-        mTextBox.setAlignment(ci::TextBox::CENTER);
-    mBoxChanged = true;
-#endif
+  // This will be handled in a layout
 }
 
 Text& Text::setBorder(const ci::Rectf& r)
@@ -237,19 +250,20 @@ void Text::makeLayout()
     if (mLayoutFunc && mTextureFont) {
       ci::Vec2f      size(mWidth-mBorder.x1-mBorder.x2, mHeight-mBorder.y1-mBorder.y2);
       // If we're auto resizing, then the area to perform the layout should be unlimited.
-      if (mResizeToText) size = ci::Vec2f(100000, 100000);
-      TextLayout::Input    in(mTextureFont, mDrawOptions, size, mTextString);
+      if ((mResizeToTextF&RESIZE_W) != 0) size.x = 100000;
+      if ((mResizeToTextF&RESIZE_H) != 0) size.y = 100000;
+      TextLayout::Input    in(*this, mTextureFont, mDrawOptions, size, mTextString);
       mLayoutFunc(in, mLayout);
     }
     markAsDirty(LAYOUT_DIRTY);
 
-    if (mResizeToText) {
-      calculateFrame();
+    if (mResizeToTextF) {
+      calculateFrame(mResizeToTextF);
     }
   }
 }
 
-void Text::calculateFrame()
+void Text::calculateFrame(const int flags)
 {
   if (!mTextureFont) return;
 
@@ -267,6 +281,9 @@ void Text::calculateFrame()
   }
   w = mBorder.x1 + w + mBorder.x2;
   h = mBorder.y1 + h + mBorder.y2;
+  // Only change the dimensions specified by the flags
+  if ((flags&RESIZE_W) == 0) w = mWidth;
+  if ((flags&RESIZE_H) == 0) h = mHeight;
   inherited::setSize(w, h, mDepth);
 }
 
