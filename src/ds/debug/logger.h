@@ -113,7 +113,6 @@ class Logger
         virtual void        run();
 
       private:
-        std::string         mFileName;
         std::stringstream   mBuf;
 
         void                consume(std::vector<entry>&);

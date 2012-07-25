@@ -44,6 +44,7 @@ Image::Image( SpriteEngine& engine )
     , mFlags(0)
 {
   mBlobType = BLOB_TYPE;
+  setUseShaderTextuer(true);
   setTransparent(false);
 }
 

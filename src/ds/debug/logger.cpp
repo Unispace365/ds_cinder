@@ -7,6 +7,7 @@
 #include <Poco/Path.h>
 #include <Poco/Semaphore.h>
 #include <Poco/String.h>
+#include "ds/app/environment.h"
 #include "ds/config/settings.h"
 #include "ds/util/string_util.h"
 
@@ -101,15 +102,33 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 	Poco::toLowerInPlace(async);
 	if (async == "false") HAS_ASYNC = false;
 
-	// Create the file name, with a timestamp appended.
-	if (file.empty()) file = "../logs/";
-	const Poco::Timestamp::TimeVal	t = Poco::Timestamp().epochMicroseconds();
-	static const std::string		DATE_FORMAT("%Y-%m-%d");
-	// If an actual file name was supplied, then do something to separate the date stamp
-	if (!file.empty() && !ends_in_separator(file)) file.append(" ");
-	file.append(Poco::DateTimeFormatter::format(Poco::Timestamp(), DATE_FORMAT));
-	file.append(".log.txt");
-	LOG_FILE = file;
+  // If I wasn't supplied a filename, try and find a logs folder
+  if (file.empty()) {
+    file = ds::Environment::getAppFolder("logs");
+  }
+  if (!file.empty()) {
+    Poco::Path                      path(file);
+	  const Poco::Timestamp::TimeVal	t = Poco::Timestamp().epochMicroseconds();
+	  static const std::string		    DATE_FORMAT("%Y-%m-%d");
+    std::string                     fn;
+	  // If an actual file name was supplied, then do something to separate the date stamp
+    // XXX -- not currently supported, assume the default log name
+//	  if (!file.empty() && !ends_in_separator(file)) file.append(" ");
+	  fn.append(Poco::DateTimeFormatter::format(Poco::Timestamp(), DATE_FORMAT));
+	  fn.append(".log.txt");
+    path.append(fn);
+	  LOG_FILE = path.toString();
+
+	  cout << "Logging to file " << LOG_FILE << endl;
+	  // Verify the directory exists
+	  try {
+		  path.makeAbsolute();
+		  path.makeParent();
+		  Poco::File			f(path);
+		  if (!f.exists()) cout << "WARNING:  Log directory does not exist.  No log will be created." << endl << "\t" << path.toString() << endl;
+	  } catch (std::exception&) {
+	  }
+  }
 
   // Inform user of what modules are active (and available)
   if (MODULE_MAP) {
@@ -201,16 +220,6 @@ Logger::Loop::Loop()
 	: mAbort(false)
 {
 	mInput.reserve(128);
-	cout << "Logging to file " << mFileName << endl;
-	// Verify the directory exists
-	try {
-		Poco::Path			p(mFileName);
-		p.makeAbsolute();
-		p.makeParent();
-		Poco::File			f(p);
-		if (!f.exists()) cout << "WARNING:  Log directory does not exist.  No log will be created." << endl << "\t" << p.toString() << endl;
-	} catch (std::exception&) {
-	}
 }
 
 void Logger::Loop::log(const int level, const std::string& str)
@@ -293,8 +302,10 @@ void Logger::Loop::logToConsole(const entry& e, const std::string& formattedMsg)
 
 void Logger::Loop::logToFile(const entry& e, const std::string& formattedMsg)
 {
+  if (LOG_FILE.empty()) return;
+
 	ofstream outFile;
-	outFile.open(mFileName.c_str(), ios_base::app);
+	outFile.open(LOG_FILE.c_str(), ios_base::app);
 	outFile << formattedMsg;
 	outFile.close();
 }
