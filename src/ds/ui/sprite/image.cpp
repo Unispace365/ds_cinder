@@ -63,7 +63,7 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
 
   try {
     Vec2f size = parseFileMetaDataSize(filename);
-    Sprite::setSize(size.x, size.y);
+    Sprite::setSizeAll(size.x, size.y, mDepth);
   } catch (ParseFileMetaException &e) {
     DS_LOG_WARNING_M("Image() error=" << e.what(), SPRITE_LOG);
     superSlowSetDimensions(filename);
@@ -85,7 +85,7 @@ Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
 
   ds::Resource            res;
   if (engine.getResources().get(resourceId, res)) {
-    Sprite::setSize(res.getWidth(), res.getHeight());
+    Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
     mResourceFn = res.getAbsoluteFilePath();
   }
   setTransparent(false);
@@ -123,11 +123,11 @@ void Image::drawLocalClient()
       setStatus(Status::STATUS_LOADED);
       const float         prevRealW = getWidth(), prevRealH = getHeight();
       if (prevRealW <= 0 || prevRealH <= 0) {
-        Sprite::setSize(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()));
+        Sprite::setSizeAll(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()), mDepth);
       } else {
         float             prevWidth = prevRealW * getScale().x;
         float             prevHeight = prevRealH * getScale().y;
-        Sprite::setSize(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()));
+        Sprite::setSizeAll(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()), mDepth);
         setSize(prevWidth, prevHeight);
       }
     }
@@ -137,7 +137,7 @@ void Image::drawLocalClient()
   ci::gl::draw(mTexture);
 }
 
-void Image::setSize( float width, float height )
+void Image::setSizeAll( float width, float height, float depth )
 {
     setScale( width / getWidth(), height / getHeight() );
 }
@@ -209,7 +209,7 @@ void Image::superSlowSetDimensions(const std::string& filename)
   // but is otherwise the right thing to do.
   auto s = ci::Surface32f(ci::loadImage(filename));
   if (s) {
-    Sprite::setSize(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+    Sprite::setSizeAll(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()), mDepth);
   }
 }
 

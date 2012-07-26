@@ -151,25 +151,14 @@ void Text::drawLocalClient()
 #endif
 }
 
-void Text::setSize( float width, float height )
+void Text::setSizeAll( float width, float height, float depth )
 {
   if (mResizeToTextF) {
-    DS_LOG_WARNING_M("Text::setSize() while auto resize is on, statement does nothing", SPRITE_LOG);
-    return;
-  }
-  
-  inherited::setSize(width, height);
-  mNeedsLayout = true;
-}
-
-void Text::setSize( float width, float height, float depth )
-{
-  if (mResizeToTextF) {
-    DS_LOG_WARNING_M("Text::setSize() while auto resize is on, statement does nothing", SPRITE_LOG);
+    DS_LOG_WARNING_M("Text::setSizeAll() while auto resize is on, statement does nothing", SPRITE_LOG);
     return;
   }
 
-  inherited::setSize(width, height, depth);
+  inherited::setSizeAll(width, height, depth);
   mNeedsLayout = true;
 }
 
@@ -201,6 +190,11 @@ Text& Text::setText( const std::string &text )
 std::string Text::getText() const
 {
     return mTextString;
+}
+
+bool Text::hasText() const
+{
+  return !mTextString.empty();
 }
 
 void Text::setAlignment( int alignment )
@@ -290,7 +284,7 @@ void Text::calculateFrame(const int flags)
   // Only change the dimensions specified by the flags
   if ((flags&RESIZE_W) == 0) w = mWidth;
   if ((flags&RESIZE_H) == 0) h = mHeight;
-  inherited::setSize(w, h, mDepth);
+  inherited::setSizeAll(w, h, mDepth);
 }
 
 } // namespace ui

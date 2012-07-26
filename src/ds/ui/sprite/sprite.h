@@ -67,8 +67,8 @@ class Sprite : public SpriteAnimatable
 
         ds::sprite_id_t     getId() const       { return mId; }
 
-        virtual void        setSize(float width, float height);
-        virtual void        setSize(float width, float height, float depth);
+        void                setSize(float width, float height);
+        virtual void        setSizeAll(float width, float height, float depth);
         float               getWidth() const;
         float               getHeight() const;
         float               getDepth() const;

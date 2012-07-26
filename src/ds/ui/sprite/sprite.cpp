@@ -504,7 +504,7 @@ void Sprite::remove()
     removeParent();
 }
 
-void Sprite::setSize( float width, float height, float depth )
+void Sprite::setSizeAll( float width, float height, float depth )
 {
   if (mWidth == width && mHeight == height && mDepth == depth) return;
 
@@ -517,9 +517,7 @@ void Sprite::setSize( float width, float height, float depth )
 
 void Sprite::setSize( float width, float height )
 {
-  setSize(width, height, 1.0f);
-  markAsDirty(SIZE_DIRTY);
-  dimensionalStateChanged();
+  setSizeAll(width, height, mDepth);
 }
 
 void Sprite::setColor( const ci::Color &color )

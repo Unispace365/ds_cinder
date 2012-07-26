@@ -34,6 +34,15 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SCALE()
   return ANIM;
 }
 
+const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SIZE()
+{
+  static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
+          [](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimSize; },
+          [](ds::ui::Sprite& s)->ci::Vec3f { return ci::Vec3f(s.getWidth(), s.getHeight(), s.getDepth()); },
+          [](const ci::Vec3f& v, ds::ui::Sprite& s) { s.setSizeAll(v.x, v.y, v.z); });
+  return ANIM;
+}
+
 void SpriteAnimatable::animStop()
 {
   mAnimPosition.stop();

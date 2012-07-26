@@ -30,8 +30,7 @@ class Text: public Sprite
         bool                      autoResizeWidth() const;
         bool                      autoResizeHeight() const;
         Text&                     setFont(const std::string& filename, const float fontSize);
-        void                      setSize( float width, float height );
-        void                      setSize( float width, float height, float depth );
+        void                      setSizeAll( float width, float height, float depth );
         virtual float             getWidth() const;
         virtual float             getHeight() const;
         void                      setAlignment( int alignment );
@@ -40,6 +39,7 @@ class Text: public Sprite
         void                      drawLocalClient();
         Text&                     setText( const std::string &text );
         std::string               getText() const;
+        bool                      hasText() const;
 
         // Set a function for translating a string into a layout object.
         Text&                     setLayoutFunction(const TextLayout::MAKE_FUNC&);
