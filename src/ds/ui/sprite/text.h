@@ -47,7 +47,8 @@ class Text: public Sprite
         // Font metrics, this is probably temporary
         float                     getFontAscent() const;
         float                     getFontDescent() const;
-        float                     getFontHeight() const;
+        float                     getFontHeight() const;  // does not include leading
+        float                     getFontLeading() const;
 
     private:
         typedef Sprite inherited;

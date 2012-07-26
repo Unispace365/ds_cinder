@@ -242,6 +242,12 @@ float Text::getFontHeight() const
   return mTextureFont->getAscent() + mTextureFont->getDescent();
 }
 
+float Text::getFontLeading() const
+{
+  if (!mTextureFont) return 0;
+  return mTextureFont->getFont().getLeading();
+}
+
 void Text::makeLayout()
 {
   if (mNeedsLayout) {
