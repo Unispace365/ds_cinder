@@ -6,6 +6,7 @@
 #include "ds/app/blob_registry.h"
 #include "ds/data/data_buffer.h"
 #include "ds/data/resource_list.h"
+#include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/util/file_name_parser.h"
@@ -43,6 +44,7 @@ Image::Image( SpriteEngine& engine )
     , mImageToken(mImageService)
     , mFlags(0)
 {
+  init();
   mBlobType = BLOB_TYPE;
   setUseShaderTextuer(true);
   setTransparent(false);
@@ -55,6 +57,7 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
     , mFlags(0)
     , mResourceFn(filename)
 {
+  init();
   mBlobType = BLOB_TYPE;
   setUseShaderTextuer(true);
 
@@ -76,6 +79,7 @@ Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
   , mFlags(0)
   , mResourceId(resourceId)
 {
+  init();
   mBlobType = BLOB_TYPE;
   setUseShaderTextuer(true);
 
@@ -92,6 +96,16 @@ Image::~Image()
 {
 }
 
+void Image::updateServer(const UpdateParams& up)
+{
+  inherited::updateServer(up);
+
+  if (mStatusDirty) {
+    mStatusDirty = false;
+    if (mStatusFn) mStatusFn(mStatus);
+  }
+}
+
 void Image::drawLocalClient()
 {
   if (!inBounds())
@@ -106,6 +120,7 @@ void Image::drawLocalClient()
     mTexture = mImageToken.getImage(fade);
     // Keep up the bounds
     if (mTexture) {
+      setStatus(Status::STATUS_LOADED);
       const float         prevRealW = getWidth(), prevRealH = getHeight();
       if (prevRealW <= 0 || prevRealH <= 0) {
         Sprite::setSize(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()));
@@ -131,7 +146,15 @@ void Image::loadImage( const std::string &filename )
 {
   mTexture.reset();
   mResourceFn = filename;
-  requestImage();
+  setStatus(Status::STATUS_EMPTY);
+}
+
+void Image::clearResource()
+{
+  mTexture.reset();
+  mResourceFn.clear();
+  mImageToken.release();
+  setStatus(Status::STATUS_EMPTY);
 }
 
 void Image::requestImage()
@@ -144,6 +167,12 @@ void Image::requestImage()
 bool Image::isLoaded() const
 {
   return mTexture;
+}
+
+void Image::setStatusCallback(const std::function<void(const Status&)>& fn)
+{
+  DS_ASSERT_MSG(mEngine.getMode() == mEngine.CLIENTSERVER_MODE, "Currently only works in ClientServer mode, fill in the UDP callbacks if you want to use this otherwise");
+  mStatusFn = fn;
 }
 
 void Image::writeAttributesTo(ds::DataBuffer& buf)
@@ -182,6 +211,21 @@ void Image::superSlowSetDimensions(const std::string& filename)
   if (s) {
     Sprite::setSize(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
   }
+}
+
+void Image::setStatus(const int code)
+{
+  if (code == mStatus.mCode) return;
+
+  mStatus.mCode = code;
+  mStatusDirty = true;
+}
+
+void Image::init()
+{
+  mStatus.mCode = Status::STATUS_EMPTY;
+  mStatusDirty = false;
+  mStatusFn = nullptr;
 }
 
 } // namespace ui

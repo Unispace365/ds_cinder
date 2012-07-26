@@ -35,6 +35,7 @@ class EngineClient : public Engine {
     virtual void                  draw();
 
     virtual void                  stopServices();
+    virtual int                   getMode() const { return CLIENT_MODE; }
 
 private:
     typedef Engine inherited;

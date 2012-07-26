@@ -325,6 +325,9 @@ class Sprite : public SpriteAnimatable
         bool                mUseShaderTexture; 
 
         ci::ColorA          mServerColor;
+        // This to make onSizeChanged() more efficient -- it can get
+        // triggered as a result of position changes, which shouldn't affect it.
+        float               mLastWidth, mLastHeight;
 
     public:
         static void           installAsServer(ds::BlobRegistry&);

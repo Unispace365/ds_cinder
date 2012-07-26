@@ -83,6 +83,8 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mTouchProcess(engine, *this)
     , mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
     , mIdleTimer(engine)
+    , mLastWidth(width)
+    , mLastHeight(height)
 {
   init(mEngine.nextSpriteId());
   setSize(width, height);
@@ -94,6 +96,8 @@ Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id )
     , mTouchProcess(engine, *this)
     , mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
     , mIdleTimer(engine)
+    , mLastWidth(0)
+    , mLastHeight(0)
 {
   init(id);
 }
@@ -123,7 +127,10 @@ void Sprite::init(const ds::sprite_id_t id)
 
   setSpriteId(id);
 
-  mServerColor = ci::ColorA(math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, math::random()*0.5 + 0.5f, 0.4f);
+  mServerColor = ci::ColorA(static_cast<float>(math::random()*0.5 + 0.5),
+                            static_cast<float>(math::random()*0.5 + 0.5),
+                            static_cast<float>(math::random()*0.5 + 0.5),
+                            0.4f);
   mClippingBounds.set(0.0f, 0.0f, 0.0f, 0.0f);
   mClippingBoundsDirty = false;
   dimensionalStateChanged();
@@ -1301,7 +1308,11 @@ void Sprite::onSizeChanged()
 void Sprite::dimensionalStateChanged()
 {
   markClippingDirty();
-  onSizeChanged();
+  if (mLastWidth != mWidth || mLastHeight != mHeight) {
+    mLastWidth = mWidth;
+    mLastHeight = mHeight;
+    onSizeChanged();
+  }
 }
 
 void Sprite::markClippingDirty()

@@ -10,6 +10,7 @@
  ******************************************************************/
 #ifdef _DEBUG
 	#define DS_ASSERT(cnd)			      if (!(cnd)) { Poco::Debugger::enter(); }
+	#define DS_ASSERT_MSG(cnd, msg)		if (!(cnd)) { Poco::Debugger::enter(msg); }
 	#define DS_VALIDATE(cnd, expr)	  if (!(cnd)) { Poco::Debugger::enter(); expr; }
 	// Useful when throwing in some testing code that you want to make sure never gets into release
 	#define DS_DBG_CODE(code)				  code
@@ -17,6 +18,7 @@
 	#define DS_DBG_HDR(code)				  code
 #else
 	#define DS_ASSERT(cnd)			      (void*)0
+	#define DS_ASSERT_MSG(cnd, msg)		(void*)0
 	#define DS_VALIDATE(cnd, expr)		if (!(cnd)) { expr; }
 	#define DS_DBG_CODE(op)					  (void*)0
 	#define DS_DBG_HDR(code)				  ;

@@ -62,6 +62,12 @@ class SpriteEngine {
     Sprite                        *getDragDestinationSprite(const ci::Vec3f &globalPoint, Sprite *draggingSprite);
 
     double                         getElapsedTimeSeconds() const;
+
+    static const int               CLIENT_MODE = 0;
+    static const int               SERVER_MODE = 1;
+    static const int               CLIENTSERVER_MODE = 2;
+    virtual int                    getMode() const = 0;
+
   protected:
     SpriteEngine()                 { }
     virtual ~SpriteEngine()        { }

@@ -33,6 +33,7 @@ class EngineServer : public Engine {
     virtual void                  draw();
 
     virtual void                  stopServices();
+    virtual int                   getMode() const { return SERVER_MODE; }
 
   private:
     typedef Engine inherited;

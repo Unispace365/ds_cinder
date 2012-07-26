@@ -24,9 +24,18 @@ class Image: public Sprite
         ~Image();
 
         void                            setSize( float width, float height );
-        void                            drawLocalClient();
+        virtual void                    updateServer(const UpdateParams&);
+        virtual void                    drawLocalClient();
         void                            loadImage( const std::string &filename );
+        void                            clearResource();
         bool                            isLoaded() const;
+
+        struct Status {
+          static const int              STATUS_EMPTY = 0;
+          static const int              STATUS_LOADED = 1;
+          int                           mCode;
+        };
+        void                            setStatusCallback(const std::function<void(const Status&)>&);
 
     protected:
         virtual void                    writeAttributesTo(ds::DataBuffer&);
@@ -34,6 +43,13 @@ class Image: public Sprite
 
     private:
         typedef Sprite inherited;
+
+        void                            requestImage();
+        // A horrible fallback when no meta info has been supplied about
+        // the image size.
+        void                            superSlowSetDimensions(const std::string& filename);
+        void                            setStatus(const int);
+        void                            init();
 
         LoadImageService&               mImageService;
         ImageToken                      mImageToken;
@@ -43,11 +59,10 @@ class Image: public Sprite
         ds::Resource::Id                mResourceId;
         std::string                     mResourceFn;
 
-        void                            requestImage();
-        // A horrible fallback when no meta info has been supplied about
-        // the image size.
-        void                            superSlowSetDimensions(const std::string& filename);
-
+        Status                          mStatus;
+        bool                            mStatusDirty;
+        std::function<void(const Status&)>
+                                        mStatusFn;
         // Initialization
     public:
         static void                     installAsServer(ds::BlobRegistry&);
