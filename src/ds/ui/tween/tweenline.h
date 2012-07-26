@@ -40,11 +40,17 @@ void Tweenline::apply( Sprite& s, const SpriteAnim<T>& a, const T& end,
                        typename ci::Tween<T>::LerpFn lerpFunction)
 {
   auto&   anim = a.getAnim(s); 
-  auto    ans = mTimeline.apply(&anim, a.getStartValue(s), end, duration, easeFunction, lerpFunction);
+  // OK, for some reason, this broke once I added float<> anims.  What's
+  // going on is that, no matter what, the lerp is always a ci::Vec3f type,
+  // probably not coincidentally the only type I was using before adding floats.
+  // This doesn't affect the default lerp if I don't pass mine in, not sure
+  // what the deal is.
+//  auto    ans = mTimeline.apply(&anim, a.getStartValue(s), end, duration, easeFunction, lerpFunction);
+  auto    ans = mTimeline.apply(&anim, a.getStartValue(s), end, duration, easeFunction);
   ds::ui::Sprite*           s_ptr = &s;
-  const ci::Vec3f*          vec_ptr = anim.ptr();
+  const T*                  value_ptr = anim.ptr();
   auto                      assignF = a.getAssignValue();
-  ans.updateFn([s_ptr, vec_ptr, assignF](){ assignF(*vec_ptr, *s_ptr);});
+  ans.updateFn([s_ptr, value_ptr, assignF](){ assignF(*value_ptr, *s_ptr);});
   if (finishFn) ans.finishFn(finishFn);
 }
 

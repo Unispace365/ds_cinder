@@ -57,6 +57,7 @@ class SpriteAnimatable {
     SpriteAnimatable();
     virtual ~SpriteAnimatable();
 
+    static const SpriteAnim<float>&       ANIM_OPACITY();
     static const SpriteAnim<ci::Vec3f>&   ANIM_POSITION();
     static const SpriteAnim<ci::Vec3f>&   ANIM_SCALE();
     static const SpriteAnim<ci::Vec3f>&   ANIM_SIZE();
@@ -64,6 +65,7 @@ class SpriteAnimatable {
     void                                  animStop();
 
   public:
+      ci::Anim<float>                     mAnimOpacity;
       ci::Anim<ci::Vec3f>                 mAnimPosition;
       ci::Anim<ci::Vec3f>                 mAnimScale;
       ci::Anim<ci::Vec3f>                 mAnimSize;

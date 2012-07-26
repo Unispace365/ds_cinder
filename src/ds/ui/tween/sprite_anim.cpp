@@ -16,6 +16,15 @@ SpriteAnimatable::~SpriteAnimatable()
 {
 }
 
+const SpriteAnim<float>& SpriteAnimatable::ANIM_OPACITY()
+{
+  static ds::ui::SpriteAnim<float>  ANIM(
+          [](ds::ui::Sprite& s)->ci::Anim<float>& { return s.mAnimOpacity; },
+          [](ds::ui::Sprite& s)->float { return s.getOpacity(); },
+          [](const float& v, ds::ui::Sprite& s) { s.setOpacity(v); });
+  return ANIM;
+}
+
 const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_POSITION()
 {
   static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
