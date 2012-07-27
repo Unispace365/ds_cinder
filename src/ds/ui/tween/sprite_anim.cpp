@@ -54,8 +54,10 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SIZE()
 
 void SpriteAnimatable::animStop()
 {
+  mAnimOpacity.stop();
   mAnimPosition.stop();
   mAnimScale.stop();
+  mAnimSize.stop();
 }
 
 } // namespace ui
