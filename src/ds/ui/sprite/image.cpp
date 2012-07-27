@@ -133,13 +133,12 @@ void Image::drawLocalClient()
     }
     return;
   }
-
   ci::gl::draw(mTexture);
 }
 
 void Image::setSizeAll( float width, float height, float depth )
 {
-    setScale( width / getWidth(), height / getHeight() );
+  setScale( width / getWidth(), height / getHeight() );
 }
 
 void Image::loadImage( const std::string &filename )
@@ -147,6 +146,16 @@ void Image::loadImage( const std::string &filename )
   mTexture.reset();
   mResourceFn = filename;
   setStatus(Status::STATUS_EMPTY);
+
+  if (!filename.empty()) {
+    try {
+      Vec2f size = parseFileMetaDataSize(filename);
+      Sprite::setSizeAll(size.x, size.y, mDepth);
+    } catch (ParseFileMetaException &e) {
+      DS_LOG_WARNING_M("Image() error=" << e.what(), SPRITE_LOG);
+      superSlowSetDimensions(filename);
+    }
+  }
 }
 
 void Image::clearResource()
