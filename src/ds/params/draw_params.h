@@ -8,8 +8,8 @@ namespace ds
 class DrawParams
 {
     public:
-        DrawParams();
-    private:
+      DrawParams();
+      float mParentOpacity;
 };
 
 }

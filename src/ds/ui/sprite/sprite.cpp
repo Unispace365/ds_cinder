@@ -13,6 +13,7 @@
 #include "ds/app/environment.h"
 #include "ds/util/string_util.h"
 #include "util/clip_plane.h"
+#include "ds/params/draw_params.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -201,7 +202,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
         shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
       }
 
-      ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity);
+      ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);
       drawLocalClient();
 
       if (shaderBase) {
@@ -217,11 +218,14 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
 
     ci::gl::popModelView();
 
+    DrawParams dParams = drawParams;
+    dParams.mParentOpacity *= mOpacity;
+
     if ((mSpriteFlags&DRAW_SORTED_F) == 0)
     {
         for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
         {
-            (*it)->drawClient(totalTransformation, drawParams);
+            (*it)->drawClient(totalTransformation, dParams);
         }
     }
     else
@@ -234,7 +238,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
 
         for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
         {
-            (*it)->drawClient(totalTransformation, drawParams);
+            (*it)->drawClient(totalTransformation, dParams);
         }
     }
 
