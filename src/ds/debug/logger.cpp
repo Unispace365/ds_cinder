@@ -137,6 +137,7 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
       if (HAS_MODULE&(ds::BitMask(it->first))) std::cout << " is ON";
       std::cout << std::endl;
     }
+    std::cout << "logger level is " << level << std::endl;
   }
 }
 
