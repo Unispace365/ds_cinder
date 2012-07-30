@@ -14,11 +14,10 @@ class Video: public Sprite
 {
     public:
         Video( SpriteEngine& );
-        Video( SpriteEngine&, const std::string &filename );
         ~Video();
         void                setSize( float width, float height );
         void                drawLocalClient();
-        void                loadVideo( const std::string &filename );
+        Video&              loadVideo( const std::string &filename );
         void                play();
         void                stop();
         void                pause();
