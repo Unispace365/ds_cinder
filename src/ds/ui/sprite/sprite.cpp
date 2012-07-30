@@ -700,6 +700,10 @@ bool Sprite::contains( const ci::Vec3f &point ) const
 
 Sprite *Sprite::getHit( const ci::Vec3f &point )
 {
+    // EH:  Not sure what bigworld was doing, but I don't see why we'd want to
+    // select children of an invisible sprite.
+    if (!visible()) return nullptr;
+
     if ( !getFlag(DRAW_SORTED_F, mSpriteFlags) )
     {
         for ( auto it = mChildren.rbegin(), it2 = mChildren.rend(); it != it2; ++it )
