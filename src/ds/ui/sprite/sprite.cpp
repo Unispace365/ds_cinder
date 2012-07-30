@@ -15,6 +15,8 @@
 #include "util/clip_plane.h"
 #include "ds/params/draw_params.h"
 
+#include <Poco/Debugger.h>
+
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
 namespace ds {
@@ -798,6 +800,13 @@ bool Sprite::hasDoubleTap() const
   return false;
 }
 
+bool Sprite::tapInfo( const TapInfo& ti )
+{
+  if (mTapInfoCallback)
+    return mTapInfoCallback(this, ti);
+  return false;
+}
+
 void Sprite::tap( const ci::Vec3f &tapPos )
 {
   if (mTapCallback)
@@ -817,10 +826,20 @@ bool Sprite::hasTap() const
   return false;
 }
 
+bool Sprite::hasTapInfo() const
+{
+  return mTapInfoCallback != nullptr;
+}
+
 void Sprite::processTouchInfoCallback( const TouchInfo &touchInfo )
 {
   if (mProcessTouchInfoCallback)
     mProcessTouchInfoCallback(this, touchInfo);
+}
+
+void Sprite::setTapInfoCallback( const std::function<bool (Sprite *, const TapInfo &)> &func )
+{
+  mTapInfoCallback = func;
 }
 
 void Sprite::setTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func )
@@ -972,9 +991,15 @@ float Sprite::getDepth() const
   return mDepth;
 }
 
-void Sprite::setDragDestiantion( Sprite *dragDestination )
+void Sprite::setDragDestination( Sprite *dragDestination )
 {
   mDragDestination = dragDestination;
+}
+
+void Sprite::setDragDestiantion( Sprite *dragDestination )
+{
+  Poco::Debugger::enter("Obsolete Function! (misspelled API call)  Replace with setDragDestination()");
+  setDragDestination(dragDestination);
 }
 
 Sprite *Sprite::getDragDestination() const

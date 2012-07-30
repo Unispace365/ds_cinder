@@ -318,6 +318,9 @@
     <ClInclude Include="..\src\ds\util\idle_timer.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\tap_info.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">

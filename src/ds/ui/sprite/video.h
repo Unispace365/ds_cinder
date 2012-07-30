@@ -12,6 +12,7 @@ namespace ui {
 class Video: public Sprite
 {
     public:
+        Video( SpriteEngine& );
         Video( SpriteEngine&, const std::string &filename );
         ~Video();
         void                setSize( float width, float height );

@@ -2,6 +2,16 @@
 
 namespace ds {
 namespace ui {
+  
+Video::Video( SpriteEngine& engine )
+    : inherited(engine)
+    , mLooping(false)
+    , mMuted(true)
+    , mVolume(1.0f)
+{
+  setUseShaderTextuer(true);
+  setTransparent(false);
+}
 
 Video::Video( SpriteEngine& engine, const std::string &filename )
     : inherited(engine)
@@ -61,24 +71,24 @@ void Video::setSize( float width, float height )
 
 void Video::loadVideo( const std::string &filename )
 {
-    try
-    {
-        mMovie = ci::qtime::MovieGl( filename );
-        mMovie.setLoop(mLooping);
-        mMovie.play();
-        mMovie.setVolume(0.0f);
-        mMuted = true;
-    }
-    catch (...)
-    {
-        return;
-    }
+  try
+  {
+    mMovie = ci::qtime::MovieGl( filename );
+    mMovie.setLoop(mLooping);
+    mMovie.play();
+    mMovie.setVolume(0.0f);
+    mMuted = true;
+  }
+  catch (std::exception const& ex)
+  {
+    std::cout << "ERROR Video::loadVide() ex=" << ex.what() << std::endl;
+    return;
+  }
 
-    float prevWidth = getWidth() * getScale().x;
-    float prevHeight = getHeight() * getScale().y;
-
-    Sprite::setSize(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()));
-    setSize(prevWidth, prevHeight);
+  Sprite::setSizeAll(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()), mDepth);
+  if (getWidth() > 0 &&  getHeight() > 0) {
+    setSize(getWidth() * getScale().x,  getHeight() * getScale().y);
+  }
 }
 
 void Video::play()
