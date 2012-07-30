@@ -5,6 +5,7 @@
 #include <string>
 #include "cinder/gl/Texture.h"
 #include "cinder/qtime/QuickTime.h"
+#include "cinder/gl/Fbo.h"
 
 namespace ds {
 namespace ui {
@@ -34,6 +35,7 @@ class Video: public Sprite
 
         ci::qtime::MovieGl  mMovie;
         ci::gl::Texture     mFrameTexture;
+        ci::gl::Fbo         mFbo;
 
         bool                mLooping;
         bool                mMuted;

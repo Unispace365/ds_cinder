@@ -1,4 +1,8 @@
 #include "Video.h"
+#include "cinder\Camera.h"
+#include "sprite_engine.h"
+
+using namespace ci;
 
 namespace ds {
 namespace ui {
@@ -35,6 +39,8 @@ Video::Video( SpriteEngine& engine, const std::string &filename )
     }
 
     Sprite::setSize(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()));
+
+    mFbo = ci::gl::Fbo(getWidth(), getHeight(), true);
 }
 
 Video::~Video()
@@ -60,7 +66,28 @@ void Video::drawLocalClient()
       mFrameTexture = mMovie.getTexture();
     }
     if ( mFrameTexture ) {
+      {
+        gl::SaveFramebufferBinding bindingSaver;
+
+        gl::pushMatrices();
+        mSpriteShader.getShader().unbind();
+        ci::gl::setViewport(mFrameTexture.getBounds());
+        ci::CameraOrtho camera;
+        camera.setOrtho(mFrameTexture.getBounds().getX1(), mFrameTexture.getBounds().getX2(), mFrameTexture.getBounds().getY2(), mFrameTexture.getBounds().getY1(), -1.0f, 1.0f);
+        gl::setMatrices(camera);
+        // bind the framebuffer - now everything we draw will go there
+        mFbo.bindFramebuffer();
+        gl::clear(ci::Color(1.0f, 1.0f, 1.0f));
         ci::gl::draw(mFrameTexture);
+        mFbo.unbindFramebuffer();
+        mSpriteShader.getShader().bind();
+        gl::popMatrices();
+      }
+
+      Rectf screenRect = mEngine.getScreenRect();
+      gl::setViewport(Area((int)screenRect.getX1(), (int)screenRect.getY2(), (int)screenRect.getX2(), (int)screenRect.getY1()));
+      Rectf area(0.0f, getHeight(), getWidth(), 0.0f);
+      gl::draw( mFbo.getTexture(0), area );
     }
 }
 
