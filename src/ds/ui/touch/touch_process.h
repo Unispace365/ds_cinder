@@ -4,6 +4,7 @@
 
 #include "touch_info.h"
 #include "ds/params/update_params.h"
+#include "ds/ui/touch/tap_info.h"
 #include "cinder/Vector.h"
 #include <map>
 #include <deque>
@@ -74,6 +75,8 @@ class TouchProcess
     std::deque<SwipeQueueEvent> mSwipeQueue;
 
     void                     processTap(const TouchInfo &touchInfo);
+    void                     processTapInfo(const TouchInfo &touchInfo);
+    void                     sendTapInfo(const TapInfo::State, const int count, const ci::Vec3f& pt = ci::Vec3f(-1.0f, -1.0f, -1.0f));
 
     // is the current finger action potentially a tap? If it is, the sprite won't move.
     bool                     mTappable;
@@ -82,6 +85,8 @@ class TouchProcess
     bool                     mOneTap;
     float                    mDoubleTapTime;
     ci::Vec3f                mFirstTapPos;
+
+    TapInfo                  mTapInfo;
 
     float                    mLastUpdateTime;
 };

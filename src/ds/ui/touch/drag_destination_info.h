@@ -3,8 +3,6 @@
 #define DS_UI_DRAG_DESTINATION_INFO_H
 #include "cinder/Vector.h"
 
-using namespace ci;
-
 namespace ds {
 namespace ui {
 
@@ -21,7 +19,7 @@ struct DragDestinationInfo
     Null
   };
 
-  Vec3f     mCurrentPoint;
+  ci::Vec3f mCurrentPoint;
   Phase     mPhase;
   Sprite   *mSprite;
 };

@@ -1,36 +1,21 @@
 #include "Video.h"
 #include "cinder\Camera.h"
 #include "sprite_engine.h"
+#include "ds/debug/debug_defines.h"
 
 using namespace ci;
 
 namespace ds {
 namespace ui {
-
-Video::Video( SpriteEngine& engine, const std::string &filename )
+  
+Video::Video( SpriteEngine& engine )
     : inherited(engine)
     , mLooping(false)
     , mMuted(true)
     , mVolume(1.0f)
 {
   setUseShaderTextuer(true);
-
-    setTransparent(false);
-    try
-    {
-        mMovie = ci::qtime::MovieGl( filename );
-        mMovie.setLoop(mLooping);
-        mMovie.play();
-        mMovie.setVolume(0.0f);
-    }
-    catch (...)
-    {
-        return;
-    }
-
-    Sprite::setSize(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()));
-
-    mFbo = ci::gl::Fbo(getWidth(), getHeight(), true);
+  setTransparent(false);
 }
 
 Video::~Video()
@@ -40,6 +25,7 @@ Video::~Video()
 
 void Video::drawLocalClient()
 {
+  if (!mFbo) return;
   if (!inBounds()) {
     if (mMovie && !mMuted) {
       mMovie.setVolume(0.0f);
@@ -63,7 +49,7 @@ void Video::drawLocalClient()
         mSpriteShader.getShader().unbind();
         ci::gl::setViewport(mFrameTexture.getBounds());
         ci::CameraOrtho camera;
-        camera.setOrtho(mFrameTexture.getBounds().getX1(), mFrameTexture.getBounds().getX2(), mFrameTexture.getBounds().getY2(), mFrameTexture.getBounds().getY1(), -1.0f, 1.0f);
+        camera.setOrtho(float(mFrameTexture.getBounds().getX1()), float(mFrameTexture.getBounds().getX2()), float(mFrameTexture.getBounds().getY2()), float(mFrameTexture.getBounds().getY1()), -1.0f, 1.0f);
         gl::setMatrices(camera);
         // bind the framebuffer - now everything we draw will go there
         mFbo.bindFramebuffer();
@@ -86,26 +72,28 @@ void Video::setSize( float width, float height )
     setScale( width / getWidth(), height / getHeight() );
 }
 
-void Video::loadVideo( const std::string &filename )
+Video& Video::loadVideo( const std::string &filename )
 {
-    try
-    {
-        mMovie = ci::qtime::MovieGl( filename );
-        mMovie.setLoop(mLooping);
-        mMovie.play();
-        mMovie.setVolume(0.0f);
-        mMuted = true;
-    }
-    catch (...)
-    {
-        return;
-    }
+  try
+  {
+    mMovie = ci::qtime::MovieGl( filename );
+    mMovie.setLoop(mLooping);
+    mMovie.play();
+    mMovie.setVolume(0.0f);
+    mMuted = true;
+  }
+  catch (std::exception const& ex)
+  {
+    DS_DBG_CODE(std::cout << "ERROR Video::loadVideo() ex=" << ex.what() << std::endl);
+    return *this;
+  }
 
-    float prevWidth = getWidth() * getScale().x;
-    float prevHeight = getHeight() * getScale().y;
-
-    Sprite::setSize(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()));
-    setSize(prevWidth, prevHeight);
+  Sprite::setSizeAll(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()), mDepth);
+  if (getWidth() > 0 &&  getHeight() > 0) {
+    setSize(getWidth() * getScale().x,  getHeight() * getScale().y);
+  }
+  mFbo = ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), true);
+  return *this;
 }
 
 void Video::play()

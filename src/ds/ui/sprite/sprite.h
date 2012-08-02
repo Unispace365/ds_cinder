@@ -34,9 +34,10 @@ class UpdateParams;
 
 namespace ui {
 
-struct TouchInfo;
-class SpriteEngine;
 struct DragDestinationInfo;
+class SpriteEngine;
+struct TapInfo;
+struct TouchInfo;
 
 // Attribute access
 extern const char     SPRITE_ID_ATTRIBUTE;
@@ -164,6 +165,11 @@ class Sprite : public SpriteAnimatable
         Sprite             *getHit( const ci::Vec3f &point );
 
         void                setProcessTouchCallback( const std::function<void (Sprite *, const TouchInfo &)> &func );
+        // Stateful tap is the new-style and should be preferred over others.  It lets you
+        // know the state of the tap in addition to the count.  It also lets clients cancel
+        // a tap if, for example, they only want to handle single taps.  Answer true as
+        // long as you want to keep checking for a tap, false otherwise.
+        void                setTapInfoCallback( const std::function<bool (Sprite *, const TapInfo &)> &func );
         void                setTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func );
         void                setDoubleTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func );
         void                setDragDestinationCallback( const std::function<void (Sprite *, const DragDestinationInfo &)> &func );
@@ -179,6 +185,7 @@ class Sprite : public SpriteAnimatable
         void                setCheckBounds(bool checkBounds);
         bool                getCheckBounds() const;
         virtual bool        isLoaded() const;
+        void                setDragDestination(Sprite *dragDestination);
         void                setDragDestiantion(Sprite *dragDestination);
         Sprite             *getDragDestination() const;
 
@@ -207,6 +214,7 @@ class Sprite : public SpriteAnimatable
         friend class        TouchManager;
         friend class        TouchProcess;
         void                swipe(const ci::Vec3f &swipeVector);
+        bool                tapInfo(const TapInfo&);
         void                tap(const ci::Vec3f &tapPos);
         void                doubleTap(const ci::Vec3f &tapPos);
         void                dragDestination(Sprite *sprite, const DragDestinationInfo &dragInfo);
@@ -218,6 +226,7 @@ class Sprite : public SpriteAnimatable
         virtual void        drawLocalServer();
         bool                hasDoubleTap() const;
         bool                hasTap() const;
+        bool                hasTapInfo() const;
         void                setType(int type);
         void                updateCheckBounds() const;
         bool                checkBounds() const;
@@ -288,6 +297,7 @@ class Sprite : public SpriteAnimatable
 
         std::function<void (Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
         std::function<void (Sprite *, const ci::Vec3f &)> mSwipeCallback;
+        std::function<bool (Sprite *, const TapInfo &)> mTapInfoCallback;
         std::function<void (Sprite *, const ci::Vec3f &)> mTapCallback;
         std::function<void (Sprite *, const ci::Vec3f &)> mDoubleTapCallback;
         std::function<void (Sprite *, const DragDestinationInfo &)> mDragDestinationCallback;

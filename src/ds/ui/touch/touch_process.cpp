@@ -5,6 +5,8 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "drag_destination_info.h"
 
+using namespace ci;
+
 namespace ds {
 namespace ui {
 
@@ -30,6 +32,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
   mSprite.userInputReceived();
 
   processTap(touchInfo);
+  processTapInfo(touchInfo);
 
   if (TouchInfo::Added == touchInfo.mPhase) {
     mFingers[touchInfo.mFingerId] = touchInfo;
@@ -304,7 +307,7 @@ void TouchProcess::updateDragDestination( const TouchInfo &touchInfo )
 
   if (!mSprite.getDragDestination() && dragDestinationSprite) {
     dragInfo.mPhase = DragDestinationInfo::Entered;
-    mSprite.setDragDestiantion(dragDestinationSprite);
+    mSprite.setDragDestination(dragDestinationSprite);
   } else if (false) {
     dragInfo.mPhase = DragDestinationInfo::Updated;
   } else if (false) {
@@ -320,12 +323,13 @@ void TouchProcess::updateDragDestination( const TouchInfo &touchInfo )
     mSprite.getDragDestination()->dragDestination(mSprite.getDragDestination(), dragInfo);
 
   if (dragInfo.mPhase == DragDestinationInfo::Released || dragInfo.mPhase == DragDestinationInfo::Exited) {
-    mSprite.setDragDestiantion(nullptr);
+    mSprite.setDragDestination(nullptr);
   }
 }
 
 void TouchProcess::processTap( const TouchInfo &touchInfo )
 {
+  if (mSprite.hasTapInfo()) return;
   if (!mSprite.hasTap() && !mSprite.hasDoubleTap()) {
     mTappable = false;
     return;
@@ -352,6 +356,53 @@ void TouchProcess::processTap( const TouchInfo &touchInfo )
       if (mFingers.size() == 1)
         mTappable = false;
     }
+  }
+}
+
+void TouchProcess::processTapInfo( const TouchInfo &touchInfo )
+{
+  if (mSprite.hasTap() || mSprite.hasDoubleTap()) return;
+  if (!mSprite.hasTapInfo()) {
+    mTappable = false;
+    return;
+  }
+
+  // NOTE: This currently doesn't work with double taps.  Don't
+  // need it right now and wasn't planning on needing to do this
+  // at all.
+  if (touchInfo.mPhase == TouchInfo::Added && mFingers.empty()) {
+    mTappable = true;
+    sendTapInfo(TapInfo::Waiting, 0);
+  } else if (mTappable) {
+    // User cancelled at some point
+    if (mTapInfo.mState == TapInfo::Done) {
+      mTappable = false;
+      return;
+    }
+    if (mFingers.size() > 1 || (touchInfo.mPhase == TouchInfo::Moved && touchInfo.mCurrentGlobalPoint.distance(touchInfo.mStartPoint) > mSpriteEngine.getMinTapDistance())) {
+      mTappable = false;
+      sendTapInfo(TapInfo::Done, 0);
+    } else if (touchInfo.mPhase == TouchInfo::Removed) {
+      if (mSprite.hasTapInfo()) {
+        sendTapInfo(TapInfo::Tapped, 1, touchInfo.mCurrentGlobalPoint);
+        mTappable = false;
+        mTapInfo.mCount = 0;
+        mTapInfo.mState = TapInfo::Done;
+      }
+
+      if (mFingers.size() == 1)
+        mTappable = false;
+    }
+  }
+}
+
+void TouchProcess::sendTapInfo(const TapInfo::State s, const int count, const ci::Vec3f& pt)
+{
+  mTapInfo.mState = s;
+  mTapInfo.mCount = count;
+  mTapInfo.mCurrentGlobalPoint = pt;
+  if (!mSprite.tapInfo(mTapInfo)) {
+    mTapInfo.mState = TapInfo::Done;
   }
 }
 
