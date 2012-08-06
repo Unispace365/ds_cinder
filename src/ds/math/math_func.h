@@ -42,7 +42,7 @@ bool intersect2D(const ci::Vec3f &start0, const ci::Vec3f &end0, const ci::Vec3f
 template <typename T>
 T lerp(const T &a, const T &b, float t)
 {
-  return a + (b - a) * t;
+  return (T)(a + (b - a) * t);
 }
 
 //wrapping modulus
