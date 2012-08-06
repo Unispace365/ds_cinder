@@ -35,6 +35,8 @@ const std::string DefaultVert =
 
 const ds::BitMask   SHADER_LOG        = ds::Logger::newModule("shader");
 
+std::map<std::string, ci::gl::GlslProg> GlslProgs;
+
 }
 
 namespace ds {
@@ -44,7 +46,8 @@ SpriteShader::SpriteShader(const std::string &defaultLocation, const std::string
   : mDefaultLocation(defaultLocation)
   , mDefaultName(defaultName)
 {
-
+  mLocation = mDefaultLocation;
+  mName = mDefaultName;
 }
 
 SpriteShader::~SpriteShader()
@@ -95,7 +98,13 @@ void SpriteShader::loadShadersFromFile()
     return;
 
   try {
-    mShader = ci::gl::GlslProg(ci::loadFile((mLocation+"/"+mName+".vert").c_str()), ci::loadFile((mLocation+"/"+mName+".frag").c_str()));
+    auto found = GlslProgs.find(mName);
+    if (found == GlslProgs.end()) {
+      mShader = ci::gl::GlslProg(ci::loadFile((mLocation+"/"+mName+".vert").c_str()), ci::loadFile((mLocation+"/"+mName+".frag").c_str()));
+      GlslProgs[mName] = mShader;
+    } else {
+      mShader = found->second;
+    }
   } catch (std::exception &e) {
 //    std::cout << e.what() << std::endl;
   }
@@ -107,16 +116,28 @@ void SpriteShader::loadDefaultFromFile()
     return;
 
   try {
-    mShader = ci::gl::GlslProg(ci::loadFile((mDefaultLocation+"/"+mDefaultName+".vert").c_str()), ci::loadFile((mDefaultLocation+"/"+mDefaultName+".frag").c_str()));
+    auto found = GlslProgs.find(mDefaultName);
+    if (found == GlslProgs.end()) {
+      mShader = ci::gl::GlslProg(ci::loadFile((mDefaultLocation+"/"+mDefaultName+".vert").c_str()), ci::loadFile((mDefaultLocation+"/"+mDefaultName+".frag").c_str()));
+      GlslProgs[mDefaultName] = mShader;
+    } else {
+      mShader = found->second;
+    }
   } catch (std::exception &e) {
 //    std::cout << e.what() << std::endl;
   }
 }
 
-void SpriteShader::loadDefaultFromMemory()
+void SpriteShader::loadDefaultFromMemory() 
 {
   try {
-    mShader = ci::gl::GlslProg(DefaultVert.c_str(), DefaultFrag.c_str());
+    auto found = GlslProgs.find("default_cpp_shader");
+    if (found == GlslProgs.end()) {
+      mShader = ci::gl::GlslProg(DefaultVert.c_str(), DefaultFrag.c_str());
+      GlslProgs["default_cpp_shader"] = mShader;
+    } else {
+      mShader = found->second;
+    }
   } catch (std::exception &e) {
     std::cout << e.what() << std::endl;
   }

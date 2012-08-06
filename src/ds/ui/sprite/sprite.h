@@ -196,7 +196,7 @@ class Sprite : public SpriteAnimatable
         void                setBlendMode(const BlendMode &blendMode);
         BlendMode           getBlendMode() const;
 
-        void                setBaseShader(const std::string &location, const std::string &shadername);
+        void                setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
         std::string         getBaseShaderName() const;
 
         void                setClipping(bool flag);

@@ -55,6 +55,7 @@ const int           TRANSPARENT_F     = (1<<1);
 const int           ENABLED_F         = (1<<2);
 const int           DRAW_SORTED_F     = (1<<3);
 const int           CLIP_F            = (1<<4);
+const int           SHADER_CHILDREN_F = (1<<5);
 
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
@@ -419,6 +420,10 @@ void Sprite::addChild( Sprite &child )
 {
     if ( containsChild(&child) )
         return;
+
+    if (getFlag(SHADER_CHILDREN_F, mSpriteFlags)) {
+      child.setBaseShader(mSpriteShader.getLocation(), mSpriteShader.getName(), true);
+    }
 
     mChildren.push_back(&child);
     child.setParent(this);
@@ -1226,9 +1231,16 @@ BlendMode Sprite::getBlendMode() const
   return mBlendMode;
 }
 
-void Sprite::setBaseShader(const std::string &location, const std::string &shadername)
+void Sprite::setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren)
 {
   mSpriteShader.setShaders(location, shadername);
+  setFlag(SHADER_CHILDREN_F, applyToChildren, FLAGS_DIRTY, mSpriteFlags);
+
+  if (applyToChildren) {    
+    for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+    	(*it)->setBaseShader(location, shadername, applyToChildren);
+    }
+  }
 }
 
 std::string Sprite::getBaseShaderName() const
