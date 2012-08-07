@@ -62,6 +62,9 @@ std::wstring value_to_wstring(T number)
 std::vector<std::string> split( const std::string &str, const std::string &delimiters, bool dropEmpty = false );
 std::vector<std::wstring> split( const std::wstring &str, const std::wstring &delimiters, bool dropEmpty = false );
 
+std::vector<std::string> partition( const std::string &str, const std::string &partitioner );
+std::vector<std::string> partition(const std::string &str, const std::vector<std::string> &partitioners);
+
 int find_count( const std::string &str, const std::string &token );
 int find_count( const std::wstring &str, const std::wstring &token );
 
