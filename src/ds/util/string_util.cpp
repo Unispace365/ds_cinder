@@ -159,8 +159,13 @@ std::vector<std::string> ds::split( const std::string &str, const std::string &d
         }
         else
         {
-            if ( pos != lastPos || !dropEmpty )
-                splitWords.push_back( std::string( str.data() + lastPos, pos-lastPos ) );
+            if ( pos != lastPos || !dropEmpty ) {
+              std::string tstr = std::string( str.data() + lastPos, pos-lastPos );
+              if (!tstr.empty())
+                splitWords.push_back( tstr );
+              lastPos = pos + delimiters.size();
+              continue;
+            }
         }
 
         lastPos = pos + 1;
@@ -191,7 +196,7 @@ std::vector<std::wstring> ds::split( const std::wstring &str, const std::wstring
         {
             if ( pos != lastPos || !dropEmpty )
             {
-                splitWords.push_back( std::wstring( str.data() + lastPos, pos-lastPos ) );
+                splitWords.push_back( std::wstring( str.data() + lastPos, pos-lastPos + delimiters.size() ) );
                 lastPos = pos + delimiters.size();
                 continue;
             }
@@ -201,6 +206,59 @@ std::vector<std::wstring> ds::split( const std::wstring &str, const std::wstring
     }
 
     return splitWords;
+}
+
+std::vector<std::string> ds::partition( const std::string &str, const std::string &partitioner )
+{
+  std::vector<std::string> partitions;
+
+  std::size_t pos;
+  std::size_t lastPos = 0;
+
+  while (lastPos != std::string::npos) {
+    pos = str.find_first_of(partitioner, lastPos);
+    if (pos != std::string::npos) {
+      if (pos == lastPos) {
+        partitions.push_back(std::string(str.data() + lastPos, pos-lastPos+partitioner.size()));
+        lastPos += partitioner.size();
+        continue;
+      } else {
+        partitions.push_back(std::string(str.data() + lastPos, pos-lastPos));
+        partitions.push_back(partitioner);
+        lastPos = pos;
+        lastPos += partitioner.size();
+        continue;
+      }
+    } else {
+      pos = str.length();
+      if (pos != lastPos)
+        partitions.push_back(std::string(str.data() + lastPos, pos-lastPos));
+      break;
+    }
+    lastPos += 1;
+  }
+
+  return partitions;
+}
+
+std::vector<std::string> ds::partition( const std::string &str, const std::vector<std::string> &partitioners )
+{
+  std::vector<std::string> partitions;
+  partitions.push_back(str);
+
+  for (auto it = partitioners.begin(), it2 = partitioners.end(); it != it2; ++it) {
+    std::vector<std::string> tPartitions;
+    for (auto itt = partitions.begin(), itt2 = partitions.end(); itt != itt2; ++itt) {
+      std::vector<std::string> splitWords = ds::partition(*itt, *it);
+
+      for (auto ittt = splitWords.begin(), ittt2 = splitWords.end(); ittt != ittt2; ++ittt) {
+        tPartitions.push_back(*ittt);
+      }
+    }
+    partitions = tPartitions;
+  }
+
+  return partitions;
 }
 
 int ds::find_count( const std::string &str, const std::string &token )

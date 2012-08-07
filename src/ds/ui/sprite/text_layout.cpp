@@ -1,6 +1,7 @@
 #include "ds/ui/sprite/text_layout.h"
 
 #include "ds/ui/sprite/text.h"
+#include "ds/util/string_util.h"
 
 using namespace ci;
 
@@ -82,36 +83,92 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
 {
   // Per line, find the word breaks, then create a line.
   std::vector<std::string>    tokens;
-  tokenize(in.mText, tokens);
+  //tokenize(in.mText, tokens);
+  std::vector<std::string> partitioners;
+  partitioners.push_back(" ");
+  partitioners.push_back("-");
+  partitioners.push_back("_");
+  partitioners.push_back("\n");
+  partitioners.push_back("\t");
+  tokens = ds::partition(in.mText, partitioners);
+
   const bool                  limitToHeight = !(in.mSprite.autoResizeHeight());
   float                       y = in.mFont->getAscent();
   const float                 lineH = in.mFont->getAscent() + in.mFont->getDescent() + (in.mFont->getFont().getLeading()*mLeading);
   std::string                 lineText;
   // spaces don't have a size so we make something up
   const ci::Vec2f             spaceSize = in.mFont->measureString("o", in.mOptions);
+  const ci::Vec2f             tabSize(spaceSize.x*3.0f, spaceSize.y);
   for (auto it=tokens.begin(), end=tokens.end(); it != end; ++it) {
     // Test the new string to see if it's too long
     std::string               newLine(lineText);
-    newLine.append(*it);
-    const ci::Vec2f           size = in.mFont->measureString(newLine, in.mOptions);
     // If the new line is too large, then flush the previous and
     // continue with the current token
+    if (*it == " ") {
+      lineText.append(" ");
+      continue;
+    } else if (*it == "\n") {
+      // Flush the current line
+      if (!lineText.empty()) {
+        out.addLine(ci::Vec2f(0, y), lineText);
+      }
+      lineText.clear();
+      //lineText.append(" ");
+      y += lineH;
+      // If the sprite is not auto resizing, then don't go past its bounds
+      if (limitToHeight && y + lineH > in.mSize.y)
+        break;
+      continue;
+    } else if (*it == "\t") {
+      lineText.append(" ");
+      lineText.append(" ");
+      lineText.append(" ");
+      lineText.append(" ");
+      continue;
+    }
+
+    newLine.append(*it);
+    const ci::Vec2f           size = in.mFont->measureString(newLine, in.mOptions);
     if (size.x > in.mSize.x) {
       // Flush the current line
       if (!lineText.empty()) {
         out.addLine(ci::Vec2f(0, y), lineText);
       }
       lineText = *it;
-      lineText.append(" ");
+      //lineText.append(" ");
       y += lineH;
       // If the sprite is not auto resizing, then don't go past its bounds
-      if (limitToHeight && y + lineH > in.mSize.y) break;
-    // Otherwise maintain the new line.
+      if (limitToHeight && y + lineH > in.mSize.y)
+        break;
+      // Otherwise maintain the new line.
     } else {
       lineText.swap(newLine);
-      lineText.append(" ");
+      //lineText.append(" ");
     }
   }
+  //for (auto it=tokens.begin(), end=tokens.end(); it != end; ++it) {
+  //  // Test the new string to see if it's too long
+  //  std::string               newLine(lineText);
+  //  newLine.append(*it);
+  //  const ci::Vec2f           size = in.mFont->measureString(newLine, in.mOptions);
+  //  // If the new line is too large, then flush the previous and
+  //  // continue with the current token
+  //  if (size.x > in.mSize.x) {
+  //    // Flush the current line
+  //    if (!lineText.empty()) {
+  //      out.addLine(ci::Vec2f(0, y), lineText);
+  //    }
+  //    lineText = *it;
+  //    lineText.append(" ");
+  //    y += lineH;
+  //    // If the sprite is not auto resizing, then don't go past its bounds
+  //    if (limitToHeight && y + lineH > in.mSize.y) break;
+  //  // Otherwise maintain the new line.
+  //  } else {
+  //    lineText.swap(newLine);
+  //    lineText.append(" ");
+  //  }
+  //}
   if (!lineText.empty()) {
     out.addLine(ci::Vec2f(0, y), lineText);
   }
