@@ -116,7 +116,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
       //lineText.append(" ");
       y += lineH;
       // If the sprite is not auto resizing, then don't go past its bounds
-      if (limitToHeight && y + lineH > in.mSize.y)
+      if (limitToHeight && y > in.mSize.y)
         break;
       continue;
     } else if (*it == "\t") {
@@ -153,7 +153,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
           }
         }
 
-        if (limitToHeight && y + lineH > in.mSize.y)
+        if (limitToHeight && y > in.mSize.y)
           break;
 
         size = in.mFont->measureString(lineText, in.mOptions);
@@ -162,7 +162,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
       //lineText.append(" ");
       //y += lineH;
       // If the sprite is not auto resizing, then don't go past its bounds
-      if (limitToHeight && y + lineH > in.mSize.y)
+      if (limitToHeight && y > in.mSize.y)
         break;
       // Otherwise maintain the new line.
     } else {
@@ -193,7 +193,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   //    lineText.append(" ");
   //  }
   //}
-  if (!lineText.empty()) {
+  if (!lineText.empty() && !(limitToHeight && y > in.mSize.y)) {
     out.addLine(ci::Vec2f(0, y), lineText);
   }
 }
