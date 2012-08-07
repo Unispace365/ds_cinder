@@ -128,15 +128,39 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
     }
 
     newLine.append(*it);
-    const ci::Vec2f           size = in.mFont->measureString(newLine, in.mOptions);
+    ci::Vec2f           size = in.mFont->measureString(newLine, in.mOptions);
     if (size.x > in.mSize.x) {
       // Flush the current line
       if (!lineText.empty()) {
         out.addLine(ci::Vec2f(0, y), lineText);
+        y += lineH;
       }
+
       lineText = *it;
+
+      size = in.mFont->measureString(lineText, in.mOptions);
+      while (size.x > in.mSize.x) {
+        for (int i = 1; i <= lineText.size(); ++i) {
+        	float cSize = in.mFont->measureString(lineText.substr(0, i), in.mOptions).x;
+          if (cSize > in.mSize.x && i > 0) {
+            std::string sub = lineText.substr(0, i-1);
+            lineText = lineText.substr(i-1, lineText.size() - (i-1));
+            if (!sub.empty()) {
+              out.addLine(ci::Vec2f(0, y), sub);
+              y += lineH;
+            }
+            break;
+          }
+        }
+
+        if (limitToHeight && y + lineH > in.mSize.y)
+          break;
+
+        size = in.mFont->measureString(lineText, in.mOptions);
+      }
+
       //lineText.append(" ");
-      y += lineH;
+      //y += lineH;
       // If the sprite is not auto resizing, then don't go past its bounds
       if (limitToHeight && y + lineH > in.mSize.y)
         break;
