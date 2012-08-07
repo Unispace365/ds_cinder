@@ -140,7 +140,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
 
       size = in.mFont->measureString(lineText, in.mOptions);
       while (size.x > in.mSize.x) {
-        for (int i = 1; i <= lineText.size(); ++i) {
+        for (unsigned i = 1; i <= lineText.size(); ++i) {
         	float cSize = in.mFont->measureString(lineText.substr(0, i), in.mOptions).x;
           if (cSize > in.mSize.x && i > 0) {
             std::string sub = lineText.substr(0, i-1);
