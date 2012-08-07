@@ -141,7 +141,7 @@ void Image::setSizeAll( float width, float height, float depth )
   setScale( width / getWidth(), height / getHeight() );
 }
 
-void Image::loadImage( const std::string &filename )
+Image& Image::setResourceFilename( const std::string &filename )
 {
   mTexture.reset();
   mResourceFn = filename;
@@ -156,6 +156,12 @@ void Image::loadImage( const std::string &filename )
       superSlowSetDimensions(filename);
     }
   }
+  return *this;
+}
+
+void Image::loadImage( const std::string &filename )
+{
+  setResourceFilename(filename);
 }
 
 void Image::clearResource()

@@ -26,6 +26,7 @@ class Image: public Sprite
         void                            setSizeAll( float width, float height, float depth );
         virtual void                    updateServer(const UpdateParams&);
         virtual void                    drawLocalClient();
+        Image&                          setResourceFilename( const std::string &filename );
         void                            loadImage( const std::string &filename );
         void                            clearResource();
         bool                            isLoaded() const;
