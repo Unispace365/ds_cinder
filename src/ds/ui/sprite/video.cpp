@@ -13,19 +13,40 @@ Video::Video( SpriteEngine& engine )
     , mLooping(false)
     , mMuted(true)
     , mVolume(1.0f)
+    , mStatusDirty(false)
+    , mStatusFn(nullptr)
 {
   setUseShaderTextuer(true);
   setTransparent(false);
+  setStatus(Status::STATUS_STOPPED);
 }
 
 Video::~Video()
 {
+}
 
+void Video::updateServer(const UpdateParams& up)
+{
+  inherited::updateServer(up);
+
+  if (mStatusDirty) {
+    mStatusDirty = false;
+    if (mStatusFn) mStatusFn(mStatus);
+  }
 }
 
 void Video::drawLocalClient()
 {
   if (!mFbo) return;
+
+  if (mMovie) {
+    // The movie considers itself still playing even after the
+    // video is over -- that state is covered by "done"
+    if (mMovie.isDone()) setStatus(Status::STATUS_STOPPED);
+    else if (mMovie.isPlaying()) setStatus(Status::STATUS_PLAYING);
+    else setStatus(Status::STATUS_STOPPED);
+  }
+
   if (!inBounds()) {
     if (mMovie && !mMuted) {
       mMovie.setVolume(0.0f);
@@ -157,6 +178,20 @@ void Video::setVolume( float volume )
 float Video::getVolume() const
 {
   return mVolume;
+}
+
+void Video::setStatusCallback(const std::function<void(const Status&)>& fn)
+{
+  DS_ASSERT_MSG(mEngine.getMode() == mEngine.CLIENTSERVER_MODE, "Currently only works in ClientServer mode, fill in the UDP callbacks if you want to use this otherwise");
+  mStatusFn = fn;
+}
+
+void Video::setStatus(const int code)
+{
+  if (code == mStatus.mCode) return;
+
+  mStatus.mCode = code;
+  mStatusDirty = true;
 }
 
 } // namespace ui

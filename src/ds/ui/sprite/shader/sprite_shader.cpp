@@ -106,7 +106,7 @@ void SpriteShader::loadShadersFromFile()
       mShader = found->second;
     }
   } catch (std::exception &e) {
-//    std::cout << e.what() << std::endl;
+    std::cout << e.what() << std::endl;
   }
 }
 
