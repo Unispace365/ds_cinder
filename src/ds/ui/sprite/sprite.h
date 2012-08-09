@@ -67,6 +67,7 @@ class Sprite : public SpriteAnimatable
         virtual void        drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams );
 
         ds::sprite_id_t     getId() const       { return mId; }
+        ds::ui::SpriteEngine& getEngine()       { return mEngine; }
 
         void                setSize(float width, float height);
         virtual void        setSizeAll(float width, float height, float depth);
