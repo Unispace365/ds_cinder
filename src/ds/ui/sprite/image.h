@@ -23,10 +23,12 @@ class Image: public Sprite
         Image( SpriteEngine&, const ds::Resource::Id &resourceId );
         ~Image();
 
+        void                            setSize( float width, float height );
         void                            setSizeAll( float width, float height, float depth );
         virtual void                    updateServer(const UpdateParams&);
         virtual void                    drawLocalClient();
         Image&                          setResourceFilename( const std::string &filename );
+        Image                          &setResourceId(const ds::Resource::Id &resourceId);
         void                            loadImage( const std::string &filename );
         void                            clearResource();
         bool                            isLoaded() const;

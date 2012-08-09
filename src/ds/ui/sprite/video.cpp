@@ -2,6 +2,7 @@
 #include "cinder\Camera.h"
 #include "sprite_engine.h"
 #include "ds/debug/debug_defines.h"
+#include "ds/data/resource_list.h"
 
 using namespace ci;
 
@@ -44,7 +45,7 @@ void Video::drawLocalClient()
     // video is over -- that state is covered by "done"
     if (mMovie.isDone()) setStatus(Status::STATUS_STOPPED);
     else if (mMovie.isPlaying()) setStatus(Status::STATUS_PLAYING);
-    else setStatus(Status::STATUS_STOPPED);
+    else setStatus(Status::STATUS_PAUSED);
   }
 
   if (!inBounds()) {
@@ -101,7 +102,9 @@ Video& Video::loadVideo( const std::string &filename )
     mMovie.setLoop(mLooping);
     mMovie.play();
     mMovie.setVolume(0.0f);
+    mVolume = 0.0f;
     mMuted = true;
+    setStatus(Status::STATUS_PLAYING);
   }
   catch (std::exception const& ex)
   {
@@ -173,6 +176,7 @@ bool Video::isLooping() const
 void Video::setVolume( float volume )
 {
   mVolume = volume;
+  mMovie.setVolume(mVolume);
 }
 
 float Video::getVolume() const
@@ -192,6 +196,42 @@ void Video::setStatus(const int code)
 
   mStatus.mCode = code;
   mStatusDirty = true;
+}
+
+float Video::currentTime() const
+{
+  if (mMovie)
+    return mMovie.getCurrentTime();
+  else
+    return 0.0f;
+}
+
+Video &Video::setResourceId( const ds::Resource::Id &resourceId )
+{
+  try
+  {
+    ds::Resource            res;
+    if (mEngine.getResources().get(resourceId, res)) {
+      Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
+      std::string filename = res.getAbsoluteFilePath();
+
+      mMovie = ci::qtime::MovieGl( filename );
+      mMovie.setLoop(mLooping);
+      mMovie.play();
+      mMovie.setVolume(0.0f);
+      mVolume = 0.0f;
+      mMuted = true;
+      setStatus(Status::STATUS_PLAYING);
+    }
+  }
+  catch (std::exception const& ex)
+  {
+    DS_DBG_CODE(std::cout << "ERROR Video::loadVideo() ex=" << ex.what() << std::endl);
+    return *this;
+  }
+
+  mFbo = ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), true);
+  return *this;
 }
 
 } // namespace ui

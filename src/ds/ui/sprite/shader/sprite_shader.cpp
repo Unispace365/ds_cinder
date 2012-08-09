@@ -106,8 +106,8 @@ void SpriteShader::loadShadersFromFile()
       mShader = found->second;
     }
   } catch (std::exception &e) {
-//    std::cout << e.what() << std::endl;
-    if (!mName.empty()) {
+    std::cout << e.what() << std::endl;
+    if (mName.empty()) {
       DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on non empty name, did you intend that?", SHADER_LOG);
     }
   }

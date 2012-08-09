@@ -243,5 +243,24 @@ void Image::init()
   mStatusFn = nullptr;
 }
 
+Image &Image::setResourceId( const ds::Resource::Id &resourceId )
+{
+  ds::Resource            res;
+  if (mEngine.getResources().get(resourceId, res)) {
+    Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
+    mTexture.reset();
+    mResourceFn = res.getAbsoluteFilePath();
+    setStatus(Status::STATUS_EMPTY);
+  }
+  markAsDirty(RES_ID_DIRTY);
+
+  return *this;
+}
+
+void Image::setSize( float width, float height )
+{
+  setSizeAll(width, height, mDepth);
+}
+
 } // namespace ui
 } // namespace ds

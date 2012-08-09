@@ -6,6 +6,7 @@
 #include "cinder/gl/Texture.h"
 #include "cinder/qtime/QuickTime.h"
 #include "cinder/gl/Fbo.h"
+#include "ds/data/resource.h"
 
 namespace ds {
 namespace ui {
@@ -19,11 +20,13 @@ class Video: public Sprite
         virtual void        updateServer(const UpdateParams&);
         void                drawLocalClient();
         Video&              loadVideo( const std::string &filename );
+        Video              &setResourceId(const ds::Resource::Id &resourceId);
         void                play();
         void                stop();
         void                pause();
         void                seek(float t);
         float               duration() const;
+        float               currentTime() const;
         bool                isPlaying() const;
         void                loop(bool flag);
         bool                isLooping() const;
@@ -34,6 +37,7 @@ class Video: public Sprite
         struct Status {
           static const int  STATUS_STOPPED = 0;
           static const int  STATUS_PLAYING = 1;
+          static const int  STATUS_PAUSED  = 2;
           int               mCode;
         };
         void                setStatusCallback(const std::function<void(const Status&)>&);

@@ -7,6 +7,7 @@
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
 #include "ds/config/settings.h"
+#include "Poco/Path.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -55,6 +56,17 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   if (scaleWorldToFit) {
     mRootSprite.setScale(getWidth()/getWorldWidth(), getHeight()/getWorldHeight());
   }
+
+  std::string resourceLocation = settings.getText("resource_location", 0);
+  std::string userPath = "%USERPROFILE%";
+  size_t pos = resourceLocation.find(userPath);
+  if (pos != std::string::npos) {
+    Poco::Path p(Poco::Path::expand("%USERPROFILE%"));
+    std::string folder = p.toString();
+    resourceLocation.replace(pos, userPath.size(), folder.c_str());
+  }
+
+  Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
 }
 
 Engine::~Engine()

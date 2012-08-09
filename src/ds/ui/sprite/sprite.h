@@ -73,6 +73,9 @@ class Sprite : public SpriteAnimatable
         float               getWidth() const;
         float               getHeight() const;
         float               getDepth() const;
+        float               getScaleWidth() const;
+        float               getScaleHeight() const;
+        float               getScaleDepth() const;
 
         void                setPosition(const ci::Vec3f &pos);
         void                setPosition(float x, float y, float z = 0.0f);
@@ -197,6 +200,7 @@ class Sprite : public SpriteAnimatable
         BlendMode           getBlendMode() const;
 
         void                setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
+        SpriteShader       &getBaseShader();
         std::string         getBaseShaderName() const;
 
         void                setClipping(bool flag);

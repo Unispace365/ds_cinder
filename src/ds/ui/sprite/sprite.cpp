@@ -1436,5 +1436,25 @@ void Sprite::sendToBack()
     mParent->sendSpriteToBack(*this);
 }
 
+ds::ui::SpriteShader &Sprite::getBaseShader()
+{
+  return mSpriteShader;
+}
+
+float Sprite::getScaleWidth() const
+{
+  return mScale.x * mWidth;
+}
+
+float Sprite::getScaleHeight() const
+{
+  return mScale.y * mHeight;
+}
+
+float Sprite::getScaleDepth() const
+{
+  return mScale.z * mDepth;
+}
+
 } // namespace ui
 } // namespace ds

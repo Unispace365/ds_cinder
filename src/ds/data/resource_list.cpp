@@ -33,7 +33,7 @@ bool ResourceList::get(const Resource::Id& id, Resource& ans)
 
 bool ResourceList::query(const Resource::Id& id, Resource& ans)
 {
-  const std::string&          dbPath = id.getDatabasePath();
+  const std::string&          dbPath = id.getResourcePath() + id.getDatabasePath();
   if (dbPath.empty()) return false;
 
   mBuf.str("");
