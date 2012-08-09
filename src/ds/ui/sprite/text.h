@@ -25,10 +25,22 @@ class Text: public Sprite
     public:
         Text(SpriteEngine&);
         ~Text();
+
+        // The text allows a lot of control between auto resizing and forcing specific
+        // sizes.  In general, resizeToText will do exactly what it says, and resize
+        // the sprite after a layout to match the text.  However, you can set a limit,
+        // which will prevent the auto resize from going beyond a certain value.
         Text&                     setResizeToText(const bool = true);
         Text&                     setResizeToText(const bool width, const bool height);
         bool                      autoResizeWidth() const;
         bool                      autoResizeHeight() const;
+        // When the limit is <= 0 it is unusued.  When it's a valid value, then it is
+        // ignored if resize is OFF, but if resize is ON, it prevents the view from
+        // being resized beyond the limit.
+        float                     getResizeLimitWidth() const;
+        float                     getResizeLimitHeight() const;
+        Text&                     setResizeLimit(const float width = 0, const float height = 0);
+
         Text&                     setFont(const std::string& filename, const float fontSize);
         void                      setSizeAll( float width, float height, float depth );
         virtual float             getWidth() const;
@@ -49,6 +61,9 @@ class Text: public Sprite
         float                     getFontDescent() const;
         float                     getFontHeight() const;  // does not include leading
         float                     getFontLeading() const;
+
+        // Print my line info
+        void                      debugPrint();
 
     private:
         typedef Sprite inherited;
@@ -71,6 +86,8 @@ class Text: public Sprite
         TextLayout                mLayout;
         bool                      mNeedsLayout;
         TextLayout::MAKE_FUNC     mLayoutFunc;
+        float                     mResizeLimitWidth,
+                                  mResizeLimitHeight;
 
         // When true, display the whole sprite area.
         const bool                mDebugShowFrame;

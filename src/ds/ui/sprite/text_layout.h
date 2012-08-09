@@ -51,6 +51,9 @@ class TextLayout
 
     const std::vector<Line> getLines() const    { return mLines; }
 
+    // Print my line info
+    void                    debugPrint() const;
+
   private:
     std::vector<Line>       mLines;
 

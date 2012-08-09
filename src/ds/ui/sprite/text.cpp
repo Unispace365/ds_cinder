@@ -62,6 +62,8 @@ Text::Text(SpriteEngine& engine)
     , mResizeToTextF(RESIZE_W|RESIZE_H)
     , mNeedsLayout(false)
     , mLayoutFunc(TextLayout::SINGLE_LINE())
+    , mResizeLimitWidth(0)
+    , mResizeLimitHeight(0)
     , mDebugShowFrame(engine.getDebugSettings().getBool("text:show_frame", 0, false))
 {
   mBlobType = BLOB_TYPE;
@@ -98,6 +100,26 @@ bool Text::autoResizeWidth() const
 bool Text::autoResizeHeight() const
 {
   return (mResizeToTextF&RESIZE_H) != 0;
+}
+
+float Text::getResizeLimitWidth() const
+{
+  return mResizeLimitWidth;
+}
+
+float Text::getResizeLimitHeight() const
+{
+  return mResizeLimitHeight;
+}
+
+Text& Text::setResizeLimit(const float width, const float height)
+{
+  if (width == mResizeLimitWidth && height == mResizeLimitHeight) return *this;
+
+  mResizeLimitWidth = width;
+  mResizeLimitHeight = height;
+  mNeedsLayout = true;
+  return *this;
 }
 
 Text& Text::setFont(const std::string& filename, const float fontSize)
@@ -139,16 +161,6 @@ void Text::drawLocalClient()
     const TextLayout::Line&   line(*it);
     mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
   }
-
-#if 0
-    if ( mBoxChanged )
-    {
-        mTexture = ci::gl::Texture( mTextBox.render() );
-        mBoxChanged = false;
-    }
-    if ( mTexture )
-        ci::gl::draw(mTexture);
-#endif
 }
 
 void Text::setSizeAll( float width, float height, float depth )
@@ -242,6 +254,13 @@ float Text::getFontLeading() const
   return mTextureFont->getFont().getLeading();
 }
 
+void Text::debugPrint()
+{
+  makeLayout();
+  std::cout << "Text lines=" << mLayout.getLines().size() << std::endl;
+  mLayout.debugPrint();
+}
+
 void Text::makeLayout()
 {
   if (mNeedsLayout) {
@@ -250,8 +269,14 @@ void Text::makeLayout()
     if (mLayoutFunc && mTextureFont) {
       ci::Vec2f      size(mWidth-mBorder.x1-mBorder.x2, mHeight-mBorder.y1-mBorder.y2);
       // If we're auto resizing, then the area to perform the layout should be unlimited.
-      if ((mResizeToTextF&RESIZE_W) != 0) size.x = 100000;
-      if ((mResizeToTextF&RESIZE_H) != 0) size.y = 100000;
+      if ((mResizeToTextF&RESIZE_W) != 0) {
+        size.x = 100000;
+        if (mResizeLimitWidth > 0) size.x = mResizeLimitWidth;
+      }
+      if ((mResizeToTextF&RESIZE_H) != 0) {
+        size.y = 100000;
+        if (mResizeLimitHeight > 0) size.y = mResizeLimitHeight;
+      }
       TextLayout::Input    in(*this, mTextureFont, mDrawOptions, size, mTextString);
       mLayoutFunc(in, mLayout);
     }

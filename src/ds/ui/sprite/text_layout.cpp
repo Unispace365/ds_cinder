@@ -1,5 +1,6 @@
 #include "ds/ui/sprite/text_layout.h"
 
+#include <iostream>
 #include "ds/ui/sprite/text.h"
 #include "ds/util/string_util.h"
 
@@ -53,6 +54,15 @@ void TextLayout::addLine(const ci::Vec2f& pos, const std::string& text)
   l.mText = text;
 }
 
+void TextLayout::debugPrint() const
+{
+  int             k = 0;
+  for (auto it=mLines.begin(), end=mLines.end(); it != end; ++it) {
+    const Line&   line(*it);
+    std::cout << "\t" << k << " (" << line.mPos.x << ", " << line.mPos.y << ") " << line.mText << std::endl;
+  }
+}
+
 const TextLayout::MAKE_FUNC& TextLayout::SINGLE_LINE()
 {
   static const MAKE_FUNC    ANS = [](const TextLayout::Input& i, TextLayout& l) { l.addLine(ci::Vec2f(0, i.mFont->getAscent()), i.mText); };
@@ -92,10 +102,21 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   partitioners.push_back("\t");
   tokens = ds::partition(in.mText, partitioners);
 
-  const bool                  limitToHeight = !(in.mSprite.autoResizeHeight());
+  // Now that I think about it, it makes a lot more sense to just always limit
+  // myself to the supplied dimensions, which will be absurdly high for clients
+  // that don't want to be limited.
+//  const bool                  limitToHeight = !(in.mSprite.autoResizeHeight());
+  const bool                  limitToHeight = true;
   float                       y = in.mFont->getAscent();
   const float                 lineH = in.mFont->getAscent() + in.mFont->getDescent() + (in.mFont->getFont().getLeading()*mLeading);
   std::string                 lineText;
+
+  // Before we do anything, make sure we have room for the first line,
+  // otherwise that will slip past.
+  if (limitToHeight) {
+    if (y + in.mFont->getDescent() > in.mSize.y) return;
+  }
+
   // spaces don't have a size so we make something up
   const ci::Vec2f             spaceSize = in.mFont->measureString("o", in.mOptions);
   const ci::Vec2f             tabSize(spaceSize.x*3.0f, spaceSize.y);
