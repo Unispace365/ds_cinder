@@ -65,6 +65,9 @@ class Text: public Sprite
         // Print my line info
         void                      debugPrint();
 
+    protected:
+        bool                      mNeedsLayout;
+
     private:
         typedef Sprite inherited;
 
@@ -84,7 +87,6 @@ class Text: public Sprite
         // will be set to the layout bounds.
         int                       mResizeToTextF;
         TextLayout                mLayout;
-        bool                      mNeedsLayout;
         TextLayout::MAKE_FUNC     mLayoutFunc;
         float                     mResizeLimitWidth,
                                   mResizeLimitHeight;

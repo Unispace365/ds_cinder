@@ -83,7 +83,7 @@ public:
 
   void                  installOn(Text&);
 
-  // Adjust the font leading value, where 0 =  no space between lines,
+  // Adjust the font leading value, where 0 = no space between lines,
   // and 1 = the default leading.
   float                 mLeading;
 
