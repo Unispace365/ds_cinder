@@ -36,6 +36,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 
   if (TouchInfo::Added == touchInfo.mPhase) {
     mFingers[touchInfo.mFingerId] = touchInfo;
+    mFingerIndex.push_back(touchInfo.mFingerId);
 
     if (mFingers.size() == 1) {
       mSwipeQueue.clear();
@@ -128,6 +129,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
     auto found = mFingers.find(touchInfo.mFingerId);
     if (found != mFingers.end())
       mFingers.erase(found);
+    mFingerIndex.remove(touchInfo.mFingerId);
 
     if (!mSprite.multiTouchEnabled())
       return true;
@@ -168,11 +170,13 @@ void TouchProcess::sendTouchInfo( const TouchInfo &touchInfo )
   if (touchInfo.mPhase == TouchInfo::Removed && t.mNumberFingers > 0)
     t.mNumberFingers = -1;
 
+  t.mFingerIndex = getFingerIndex(touchInfo.mFingerId);
+
   auto found = mFingers.find(touchInfo.mFingerId);
   if (found != mFingers.end())
     t.mActive = found->second.mActive;
 
-  mSprite.processTouchInfoCallback(touchInfo);
+  mSprite.processTouchInfoCallback(t);
 }
 
 void TouchProcess::initializeFirstTouch()
@@ -404,6 +408,16 @@ void TouchProcess::sendTapInfo(const TapInfo::State s, const int count, const ci
   if (!mSprite.tapInfo(mTapInfo)) {
     mTapInfo.mState = TapInfo::Done;
   }
+}
+
+int TouchProcess::getFingerIndex( int id )
+{
+  int i = 0;
+  for (auto it = mFingerIndex.begin(), it2 = mFingerIndex.end(); it != it2; ++it, ++i) {
+  	if (*it == id)
+      return i;
+  }
+  return -1;
 }
 
 }

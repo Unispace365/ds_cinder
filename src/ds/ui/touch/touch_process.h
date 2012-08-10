@@ -8,6 +8,7 @@
 #include "cinder/Vector.h"
 #include <map>
 #include <deque>
+#include <list>
 
 namespace ds {
 namespace ui {
@@ -42,8 +43,10 @@ class TouchProcess
     bool                     swipeHappened();
 
     void                     updateDragDestination(const TouchInfo &touchInfo);
+    int                      getFingerIndex(int id);
 
     std::map<int, TouchInfo> mFingers;
+    std::list<int> mFingerIndex;
 
     // the fingerIndexes of the current 2 control fingers
     int                      mControlFingerIndexes[2];
