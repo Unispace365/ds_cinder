@@ -321,6 +321,9 @@
     <ClInclude Include="..\src\ds\ui\touch\tap_info.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\multiline_text.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -502,6 +505,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\util\idle_timer.cpp">
       <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\multiline_text.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

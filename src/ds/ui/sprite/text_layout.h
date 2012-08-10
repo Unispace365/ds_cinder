@@ -51,6 +51,9 @@ class TextLayout
 
     const std::vector<Line> getLines() const    { return mLines; }
 
+    // Print my line info
+    void                    debugPrint() const;
+
   private:
     std::vector<Line>       mLines;
 
@@ -80,7 +83,7 @@ public:
 
   void                  installOn(Text&);
 
-  // Adjust the font leading value, where 0 =  no space between lines,
+  // Adjust the font leading value, where 0 = no space between lines,
   // and 1 = the default leading.
   float                 mLeading;
 

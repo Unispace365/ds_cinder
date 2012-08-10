@@ -67,6 +67,7 @@
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h" />
     <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\multiline_text.h" />
     <ClInclude Include="..\src\ds\ui\sprite\shader\sprite_shader.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h" />
@@ -134,6 +135,7 @@
     <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\multiline_text.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\shader\sprite_shader.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp" />

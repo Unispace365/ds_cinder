@@ -170,9 +170,8 @@ void HttpClient::Request::run()
 			if (!str.empty()) mReply.mMsg = ds::wstr_from_utf8(str);
 			mReply.mStatus = ds::HttpReply::REPLY_OK;
 #ifdef _DEBUG
-			wcout << "DBG HttpClient response OK msg=" << mReply.mMsg << endl;
+//			wcout << "DBG HttpClient response OK msg=" << mReply.mMsg << endl;
 #endif
-			wcout << "DBG HttpClient response OK msg=" << mReply.mMsg << endl;
 		} else {
 #ifdef _DEBUG
 			std::cout << "DBG Http request failed on " << uri.toString() << " response=" << response.getStatus() << " reason=" << response.getReason() << std::endl;
