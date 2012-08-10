@@ -11,6 +11,33 @@ static void tokenize(const std::string& ws, std::vector<std::string>& tokens);
 namespace ds {
 namespace ui {
 
+namespace {
+class LimitCheck {
+  public:
+    LimitCheck(const TextLayout::Input& in)
+      : mLimitToHeight(!(in.mSprite.autoResizeHeight()))
+      , mDescent(in.mFont->getDescent())
+      , mMaxY(in.mSize.y)
+    {
+    }
+
+    inline bool outOfBounds(const float y) const
+    {
+      // Not doing the limit check any more -- it just makes sense to never bother
+      // with this, instead always having a limit, but using an unreasonably high one
+      // for "unlimited"
+//      if (!limitToHeight) return false;
+      return (y + mDescent > mMaxY);
+    }
+
+  private:
+    const bool    mLimitToHeight;
+    const float   mDescent;
+    const float   mMaxY;
+};
+
+}
+
 /**
  * \class ds::ui::TextLayout::Line
  */
@@ -102,20 +129,14 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   partitioners.push_back("\t");
   tokens = ds::partition(in.mText, partitioners);
 
-  // Now that I think about it, it makes a lot more sense to just always limit
-  // myself to the supplied dimensions, which will be absurdly high for clients
-  // that don't want to be limited.
-//  const bool                  limitToHeight = !(in.mSprite.autoResizeHeight());
-  const bool                  limitToHeight = true;
+  LimitCheck                  check(in);
   float                       y = in.mFont->getAscent();
   const float                 lineH = in.mFont->getAscent() + in.mFont->getDescent() + (in.mFont->getFont().getLeading()*mLeading);
   std::string                 lineText;
 
   // Before we do anything, make sure we have room for the first line,
   // otherwise that will slip past.
-  if (limitToHeight) {
-    if (y + in.mFont->getDescent() > in.mSize.y) return;
-  }
+  if (check.outOfBounds(y)) return;
 
   // spaces don't have a size so we make something up
   const ci::Vec2f             spaceSize = in.mFont->measureString("o", in.mOptions);
@@ -136,9 +157,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
       lineText.clear();
       //lineText.append(" ");
       y += lineH;
-      // If the sprite is not auto resizing, then don't go past its bounds
-      if (limitToHeight && y > in.mSize.y)
-        break;
+      if (check.outOfBounds(y)) return;
       continue;
     } else if (*it == "\t") {
       lineText.append(" ");
@@ -155,6 +174,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
       if (!lineText.empty()) {
         out.addLine(ci::Vec2f(0, y), lineText);
         y += lineH;
+        if (check.outOfBounds(y)) return;
       }
 
       lineText = *it;
@@ -174,8 +194,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
           }
         }
 
-        if (limitToHeight && y > in.mSize.y)
-          break;
+        if (check.outOfBounds(y)) return;
 
         size = in.mFont->measureString(lineText, in.mOptions);
       }
@@ -183,38 +202,15 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
       //lineText.append(" ");
       //y += lineH;
       // If the sprite is not auto resizing, then don't go past its bounds
-      if (limitToHeight && y > in.mSize.y)
-        break;
+      if (check.outOfBounds(y)) return;
       // Otherwise maintain the new line.
     } else {
       lineText.swap(newLine);
       //lineText.append(" ");
     }
   }
-  //for (auto it=tokens.begin(), end=tokens.end(); it != end; ++it) {
-  //  // Test the new string to see if it's too long
-  //  std::string               newLine(lineText);
-  //  newLine.append(*it);
-  //  const ci::Vec2f           size = in.mFont->measureString(newLine, in.mOptions);
-  //  // If the new line is too large, then flush the previous and
-  //  // continue with the current token
-  //  if (size.x > in.mSize.x) {
-  //    // Flush the current line
-  //    if (!lineText.empty()) {
-  //      out.addLine(ci::Vec2f(0, y), lineText);
-  //    }
-  //    lineText = *it;
-  //    lineText.append(" ");
-  //    y += lineH;
-  //    // If the sprite is not auto resizing, then don't go past its bounds
-  //    if (limitToHeight && y + lineH > in.mSize.y) break;
-  //  // Otherwise maintain the new line.
-  //  } else {
-  //    lineText.swap(newLine);
-  //    lineText.append(" ");
-  //  }
-  //}
-  if (!lineText.empty() && !(limitToHeight && y > in.mSize.y)) {
+
+  if (!lineText.empty() && !check.outOfBounds(y)) {
     out.addLine(ci::Vec2f(0, y), lineText);
   }
 }
