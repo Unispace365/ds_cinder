@@ -184,13 +184,17 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
         for (unsigned i = 1; i <= lineText.size(); ++i) {
         	float cSize = in.mFont->measureString(lineText.substr(0, i), in.mOptions).x;
           if (cSize > in.mSize.x && i > 0) {
-            std::string sub = lineText.substr(0, i);
-            lineText = lineText.substr(i, lineText.size() - i);
+            // Eric, you said there was an infinite loop here with the code like this. The way you changed it wasn't the correct
+            // split and would cause lettings out of bounds. If you get the infinite loop again let me know how to reproduce it.
+            std::string sub = lineText.substr(0, i-1);
+            lineText = lineText.substr(i-1, lineText.size() - i + 1);
             if (!sub.empty()) {
               out.addLine(ci::Vec2f(0, y), sub);
               y += lineH;
+              break;
+            } else {
+              return;
             }
-            break;
           }
         }
 
