@@ -127,6 +127,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   partitioners.push_back("_");
   partitioners.push_back("\n");
   partitioners.push_back("\t");
+  partitioners.push_back(",");
   tokens = ds::partition(in.mText, partitioners);
 
   LimitCheck                  check(in);
