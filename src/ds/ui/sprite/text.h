@@ -7,6 +7,7 @@
 #include <cinder/Font.h>
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/text_layout.h"
+#include "cinder/gl/Fbo.h"
 
 namespace ds {
 namespace ui {
@@ -67,11 +68,13 @@ class Text: public Sprite
 
     protected:
         bool                      mNeedsLayout;
+        bool                      mNeedRedrawing;
 
     private:
         typedef Sprite inherited;
 
         void                      makeLayout();
+        void                      drawIntoFbo();
         // Only used when ResizeToText is on
         void                      calculateFrame(const int flags);
 
@@ -93,6 +96,8 @@ class Text: public Sprite
 
         // When true, display the whole sprite area.
         const bool                mDebugShowFrame;
+
+        ci::gl::Fbo               mFbo;
 
         // Initialization
     public:

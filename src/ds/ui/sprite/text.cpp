@@ -11,6 +11,7 @@
 #include "ds/config/settings.h"
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "cinder/Camera.h"
 
 using namespace ci;
 
@@ -61,6 +62,7 @@ Text::Text(SpriteEngine& engine)
     , mBorder(0, 0, 0, 0)
     , mResizeToTextF(RESIZE_W|RESIZE_H)
     , mNeedsLayout(false)
+    , mNeedRedrawing(false)
     , mLayoutFunc(TextLayout::SINGLE_LINE())
     , mResizeLimitWidth(0)
     , mResizeLimitHeight(0)
@@ -89,6 +91,7 @@ Text& Text::setResizeToText(const bool width, const bool height)
 
   mResizeToTextF = newF;
   mNeedsLayout = true;
+  mNeedRedrawing = true;
   return *this;
 }
 
@@ -119,6 +122,7 @@ Text& Text::setResizeLimit(const float width, const float height)
   mResizeLimitWidth = width;
   mResizeLimitHeight = height;
   mNeedsLayout = true;
+  mNeedRedrawing = true;
   return *this;
 }
 
@@ -128,6 +132,7 @@ Text& Text::setFont(const std::string& filename, const float fontSize)
   mFontSize = fontSize;
   markAsDirty(FONT_DIRTY);
   mNeedsLayout = true;
+  mNeedRedrawing = true;
   return *this;
 }
 
@@ -136,6 +141,8 @@ void Text::updateServer(const UpdateParams& p)
   inherited::updateServer(p);
 
   makeLayout();
+  if (mNeedRedrawing)
+    drawIntoFbo();
 }
 
 void Text::drawLocalClient()
@@ -149,18 +156,24 @@ void Text::drawLocalClient()
     mSpriteShader.getShader().bind();
   }
 
-  if (!mTextureFont) return;
+  //if (!mTextureFont) return;
 
-  auto& lines = mLayout.getLines();
-  if (lines.empty()) return;
+  //auto& lines = mLayout.getLines();
+  //if (lines.empty()) return;
 
 //  gl::enableAlphaBlending();
 //  applyBlendingMode(NORMAL);
 
-  for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
-    const TextLayout::Line&   line(*it);
-    mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
+  if (mFbo) {
+    mFbo.getTexture().bind();
+    ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mFbo.getHeight()), static_cast<float>(mFbo.getWidth()), 0.0f));
+    mFbo.getTexture().unbind();
   }
+  //std::cout << "Size: " << lines.size() << std::endl;
+  //for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
+  //  const TextLayout::Line&   line(*it);
+  //  mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
+  //}
 }
 
 void Text::setSizeAll( float width, float height, float depth )
@@ -172,6 +185,7 @@ void Text::setSizeAll( float width, float height, float depth )
 
   inherited::setSizeAll(width, height, depth);
   mNeedsLayout = true;
+  mNeedRedrawing = true;
 }
 
 float Text::getWidth() const
@@ -196,6 +210,7 @@ Text& Text::setText( const std::string &text )
 
   mTextString = text;
   mNeedsLayout = true;
+  mNeedRedrawing = true;
   return *this;
 }
 
@@ -227,6 +242,7 @@ Text& Text::setLayoutFunction(const TextLayout::MAKE_FUNC& f)
 {
   mLayoutFunc = f;
   mNeedsLayout = true;
+  mNeedRedrawing = true;
   return *this;
 }
 
@@ -310,6 +326,45 @@ void Text::calculateFrame(const int flags)
   if ((flags&RESIZE_W) == 0) w = mWidth;
   if ((flags&RESIZE_H) == 0) h = mHeight;
   inherited::setSizeAll(w, h, mDepth);
+}
+
+void Text::drawIntoFbo()
+{
+  if (!mTextureFont) return;
+
+  auto& lines = mLayout.getLines();
+  if (lines.empty()) return;
+
+  if (mNeedRedrawing) {
+    mNeedRedrawing = false;
+    const int w = (int)ceilf(getWidth());
+    const int h = (int)ceilf(getHeight());
+    if (!mFbo || mFbo.getWidth() < w || mFbo.getHeight() < h) {
+      mFbo = ci::gl::Fbo(w, h, true);
+    }
+
+    applyBlendingMode(NORMAL);
+    gl::SaveFramebufferBinding bindingSaver;
+
+    mFbo.bindFramebuffer();
+    ci::gl::setViewport(mFbo.getBounds());
+    ci::CameraOrtho camera;
+    camera.setOrtho(static_cast<float>(mFbo.getBounds().getX1()), static_cast<float>(mFbo.getBounds().getX2()), static_cast<float>(mFbo.getBounds().getY2()), static_cast<float>(mFbo.getBounds().getY1()), -1.0f, 1.0f);
+
+    ci::gl::setMatrices(camera);
+
+
+    ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+    ci::gl::color(Color(1.0f, 1.0f, 1.0f));
+
+    //std::cout << "Size: " << lines.size() << std::endl;
+    for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
+      const TextLayout::Line&   line(*it);
+      mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
+    }
+
+    mEngine.setCamera();
+  }
 }
 
 } // namespace ui

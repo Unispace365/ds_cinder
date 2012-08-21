@@ -109,6 +109,8 @@ void SpriteShader::loadShadersFromFile()
     //std::cout << e.what() << std::endl;
     if (mName.empty()) {
       DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on non empty name, did you intend that?", SHADER_LOG);
+    } else {
+      DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on " + mName + "\n" + e.what(), SHADER_LOG);
     }
   }
 }
@@ -127,7 +129,8 @@ void SpriteShader::loadDefaultFromFile()
       mShader = found->second;
     }
   } catch (std::exception &e) {
-//    std::cout << e.what() << std::endl;
+    //    std::cout << e.what() << std::endl;
+    DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on " + mDefaultName + "\n" + e.what(), SHADER_LOG);
   }
 }
 
@@ -142,7 +145,8 @@ void SpriteShader::loadDefaultFromMemory()
       mShader = found->second;
     }
   } catch (std::exception &e) {
-    std::cout << e.what() << std::endl;
+    //std::cout << e.what() << std::endl;
+    DS_LOG_WARNING_M(std::string("SpriteShader::loadShadersFromFile() on DefaultVert\n") + e.what(), SHADER_LOG);
   }
 }
 
