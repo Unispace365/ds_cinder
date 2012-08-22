@@ -75,8 +75,9 @@ void FboGeneral::attach( ci::gl::Texture &target, bool useDepth /*= false*/, boo
 
   GLenum fb = glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
   DS_REPORT_GL_ERRORS();
-  if (fb != GL_FRAMEBUFFER_COMPLETE)
-    std::cout << "what?" << fb <<std::endl;
+  if (fb != GL_FRAMEBUFFER_COMPLETE) {
+    std::cout << "Bad framebuffer: " << fb << " | file: " << __FILE__ << " line: " << __LINE__ << std::endl;
+  }
   deactivate();
 }
 
