@@ -98,6 +98,7 @@ class Text: public Sprite
         const bool                mDebugShowFrame;
 
         ci::gl::Fbo               mFbo;
+        ci::gl::Texture           mTexture;
 
         // Initialization
     public:

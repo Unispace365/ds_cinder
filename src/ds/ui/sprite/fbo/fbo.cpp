@@ -1,4 +1,5 @@
 #include "fbo.h"
+#include "ds/debug/debug_defines.h"
 
 namespace ds {
 namespace ui {
@@ -50,29 +51,8 @@ void FboGeneral::attach( ci::gl::Texture &target, bool useDepth /*= false*/, boo
 
   mAttached = &target;
 
-  GLint error = glGetError();
-  if (error != GL_NO_ERROR) {
-    std::cout << "ouch" << std::endl;
-  }
-
   glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, mAttached->getTarget(), mAttached->getId(), 0);
-
-  error = glGetError();
-  if (error != GL_NO_ERROR) {
-    if (error == GL_INVALID_ENUM) {
-      std::cout << "GL_INVALID_ENUM" << std::endl;
-    } else if (error == GL_INVALID_VALUE) {
-      std::cout << "GL_INVALID_VALUE" << std::endl;
-    } else if (error == GL_INVALID_OPERATION) {
-      std::cout << "GL_INVALID_OPERATION" << std::endl;
-    } else if (error == GL_STACK_OVERFLOW) {
-      std::cout << "GL_STACK_OVERFLOW" << std::endl;
-    } else if (error == GL_STACK_UNDERFLOW) {
-      std::cout << "GL_STACK_UNDERFLOW" << std::endl;
-    } else if (error == GL_OUT_OF_MEMORY) {
-      std::cout << "GL_OUT_OF_MEMORY" << std::endl;
-    }
-  }
+  DS_REPORT_GL_ERRORS();
 
   mWidth = mAttached->getWidth();
   mHeight = mAttached->getHeight();
@@ -93,6 +73,10 @@ void FboGeneral::attach( ci::gl::Texture &target, bool useDepth /*= false*/, boo
     glFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, 0);
   }
 
+  GLenum fb = glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
+  DS_REPORT_GL_ERRORS();
+  if (fb != GL_FRAMEBUFFER_COMPLETE)
+    std::cout << "what?" << fb <<std::endl;
   deactivate();
 }
 
@@ -101,7 +85,7 @@ void FboGeneral::detach()
   activate();
 
   if (mAttached) {
-    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, mAttached->getInternalFormat(), 0, 0);
+    glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, mAttached->getTarget(), 0, 0);
     mAttached = nullptr;
     mWidth = 0;
     mHeight = 0;
@@ -113,12 +97,16 @@ void FboGeneral::detach()
 void FboGeneral::begin()
 {
   pushTransformation();
+  DS_REPORT_GL_ERRORS();
   activate();
+  DS_REPORT_GL_ERRORS();
 }
 
 void FboGeneral::end()
 {
+  DS_REPORT_GL_ERRORS();
   deactivate();
+  DS_REPORT_GL_ERRORS();
   popTransformation();
 }
 

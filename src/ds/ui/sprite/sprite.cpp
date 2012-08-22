@@ -707,7 +707,13 @@ Sprite *Sprite::getHit( const ci::Vec3f &point )
 {
     // EH:  Not sure what bigworld was doing, but I don't see why we'd want to
     // select children of an invisible sprite.
-    if (!visible()) return nullptr;
+    if (!visible())
+      return nullptr;
+
+    if (getClipping()) {
+      if (!contains(point))
+        return nullptr;
+    }
 
     if ( !getFlag(DRAW_SORTED_F, mSpriteFlags) )
     {

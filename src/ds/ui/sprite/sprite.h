@@ -142,9 +142,9 @@ class Sprite : public SpriteAnimatable
         bool                getTransparent() const;
 
         // will show all children that are visible
-        void                show();
+        virtual void        show();
         // will hide all children as well.
-        void                hide();
+        virtual void        hide();
 
         bool                visible() const;
 

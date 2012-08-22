@@ -164,10 +164,15 @@ void Text::drawLocalClient()
 //  gl::enableAlphaBlending();
 //  applyBlendingMode(NORMAL);
 
-  if (mFbo) {
-    mFbo.getTexture().bind();
-    ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mFbo.getHeight()), static_cast<float>(mFbo.getWidth()), 0.0f));
-    mFbo.getTexture().unbind();
+  //if (mFbo) {
+  //  mFbo.getTexture().bind();
+  //  ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mFbo.getHeight()), static_cast<float>(mFbo.getWidth()), 0.0f));
+  //  mFbo.getTexture().unbind();
+  //}
+  if (mTexture) {
+    mTexture.bind();
+    ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture.getHeight()), static_cast<float>(mTexture.getWidth()), 0.0f));
+    mTexture.unbind();
   }
   //std::cout << "Size: " << lines.size() << std::endl;
   //for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
@@ -339,30 +344,45 @@ void Text::drawIntoFbo()
     mNeedRedrawing = false;
     const int w = (int)ceilf(getWidth());
     const int h = (int)ceilf(getHeight());
-    if (!mFbo || mFbo.getWidth() < w || mFbo.getHeight() < h) {
-      mFbo = ci::gl::Fbo(w, h, true);
+
+    if (w == 0 || h == 0)
+      return;
+
+    if (!mTexture || mTexture.getWidth() < w || mTexture.getHeight() < h) {
+      ci::gl::Texture::Format format;
+      format.setTarget(GL_TEXTURE_2D);
+      mTexture = ci::gl::Texture(w, h);
     }
 
     applyBlendingMode(NORMAL);
-    gl::SaveFramebufferBinding bindingSaver;
+    {
+      gl::SaveFramebufferBinding bindingSaver;
 
-    mFbo.bindFramebuffer();
-    ci::gl::setViewport(mFbo.getBounds());
-    ci::CameraOrtho camera;
-    camera.setOrtho(static_cast<float>(mFbo.getBounds().getX1()), static_cast<float>(mFbo.getBounds().getX2()), static_cast<float>(mFbo.getBounds().getY2()), static_cast<float>(mFbo.getBounds().getY1()), -1.0f, 1.0f);
+      std::unique_ptr<ds::ui::FboGeneral> fbo = std::move(mEngine.getFbo());
+      fbo->attach(mTexture, true);
+      fbo->begin();
 
-    ci::gl::setMatrices(camera);
+      ci::Area fboBounds(0.0f, 0.0f, fbo->getWidth(), fbo->getHeight());
+      ci::gl::setViewport(fboBounds);
+      ci::CameraOrtho camera;
+      camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
+
+      ci::gl::setMatrices(camera);
 
 
-    ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
-    ci::gl::color(Color(1.0f, 1.0f, 1.0f));
+      ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+      ci::gl::color(Color(1.0f, 1.0f, 1.0f));
 
-    //std::cout << "Size: " << lines.size() << std::endl;
-    for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
-      const TextLayout::Line&   line(*it);
-      mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
+      //std::cout << "Size: " << lines.size() << std::endl;
+      for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
+        const TextLayout::Line&   line(*it);
+        mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
+      }
+
+      fbo->end();
+      fbo->detach();
+      mEngine.giveBackFbo(std::move(fbo));
     }
-
     mEngine.setCamera();
   }
 }

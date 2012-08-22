@@ -52,7 +52,7 @@ std::unique_ptr<FboGeneral> SpriteEngine::getFbo()
   }
 
   std::unique_ptr<FboGeneral> fbo = std::move(std::unique_ptr<FboGeneral>(new FboGeneral()));
-  fbo->setup();
+  fbo->setup(true);
   return std::move(fbo);
 }
 
