@@ -20,7 +20,8 @@ int parseFileMetaData( const std::string &filename, const std::string &metaValue
 
   for ( auto it = splitString.begin(), it2 = splitString.end(); it != it2; ++it ) {
   	std::string str = *it;
-    if (str.find(metaValue) != std::string::npos) {
+    size_t pos = str.find(metaValue);
+    if (pos != std::string::npos && pos == 0) {
       std::vector<std::string> splitMeta = split(str, "_");
       int val;
       if (!string_to_value(splitMeta.back(), val))

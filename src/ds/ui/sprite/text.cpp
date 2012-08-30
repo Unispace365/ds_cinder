@@ -335,6 +335,8 @@ void Text::calculateFrame(const int flags)
 
 void Text::drawIntoFbo()
 {
+  mTexture.reset();
+
   if (!mTextureFont) return;
 
   auto& lines = mLayout.getLines();

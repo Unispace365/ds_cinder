@@ -143,7 +143,7 @@ void Image::setSizeAll( float width, float height, float depth )
 
 Image& Image::setResourceFilename( const std::string &filename )
 {
-  mTexture.reset();
+  clearResource();
   mResourceFn = filename;
   setStatus(Status::STATUS_EMPTY);
 
@@ -245,6 +245,7 @@ void Image::init()
 
 Image &Image::setResourceId( const ds::Resource::Id &resourceId )
 {
+  clearResource();
   ds::Resource            res;
   if (mEngine.getResources().get(resourceId, res)) {
     Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
