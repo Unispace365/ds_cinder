@@ -364,7 +364,7 @@ void Text::drawIntoFbo()
       fbo->attach(mTexture, true);
       fbo->begin();
 
-      ci::Area fboBounds(0.0f, 0.0f, fbo->getWidth(), fbo->getHeight());
+      ci::Area fboBounds(0, 0, fbo->getWidth(), fbo->getHeight());
       ci::gl::setViewport(fboBounds);
       ci::CameraOrtho camera;
       camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
