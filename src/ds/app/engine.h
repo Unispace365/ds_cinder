@@ -123,6 +123,7 @@ class Engine : public ui::SpriteEngine {
 
     tuio::Client                mTuio;
     ui::TouchManager            mTouchManager;
+    bool                        mDrawTouches;
 
     float                       mMinTouchDistance;
     float                       mMinTapDistance;

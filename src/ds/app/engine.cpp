@@ -48,6 +48,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 640.0f, 0.0f, 400.0f));
   mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
   mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
+  mDrawTouches = settings.getBool("touch_overlay:debug", 0, false);
 
   bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
@@ -129,7 +130,8 @@ void Engine::drawClient()
 
     mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
 
-    mTouchManager.drawTouches();
+    if (mDrawTouches)
+      mTouchManager.drawTouches();
   }
 
   //gl::enableAlphaBlending();
@@ -151,7 +153,8 @@ void Engine::drawServer()
 
   mRootSprite.drawServer(Matrix44f::identity(), mDrawParams);
 
-  mTouchManager.drawTouches();
+  if (mDrawTouches)
+    mTouchManager.drawTouches();
 }
 
 void Engine::setup(ds::App&)

@@ -126,6 +126,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   partitioners.push_back("-");
   partitioners.push_back("_");
   partitioners.push_back("\n");
+  partitioners.push_back("\r");
   partitioners.push_back("\t");
   partitioners.push_back(",");
   tokens = ds::partition(in.mText, partitioners);
@@ -150,7 +151,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
     if (*it == " ") {
       lineText.append(" ");
       continue;
-    } else if (*it == "\n") {
+    } else if (*it == "\n" ) {
       // Flush the current line
       if (!lineText.empty()) {
         out.addLine(ci::Vec2f(0, y), lineText);
@@ -165,6 +166,8 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
       lineText.append(" ");
       lineText.append(" ");
       lineText.append(" ");
+      continue;
+    } else if (*it == "\r") {
       continue;
     }
 
