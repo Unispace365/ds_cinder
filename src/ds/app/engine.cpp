@@ -8,6 +8,7 @@
 #include "ds/math/math_defs.h"
 #include "ds/config/settings.h"
 #include "Poco/Path.h"
+#include "cinder/Thread.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -66,6 +67,20 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   } else {
     resourceLocation = Poco::Path::expand(resourceLocation);
     Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
+    //std::cout << "db location: " << resourceLocation << std::endl;
+    //std::cout << "resource location: " << settings.getText("resource_db", 0) << std::endl;
+    //std::cout << "project path location: " << settings.getText("project_path", 0) << std::endl;
+    //std::fstream file;
+    //file.open("locations.txt", std::fstream::out);
+    //if (file.is_open()) {
+    //  //std::stringstream ss;
+
+    //  file << "db location: " << resourceLocation << std::endl;
+    //  file << "resource location: " << settings.getText("resource_db", 0) << std::endl;
+    //  file << "project path location: " << settings.getText("project_path", 0) << std::endl;
+ 
+    //  file.close();
+    //}
   }
 }
 
@@ -95,8 +110,66 @@ void Engine::updateClient()
   mRootSprite.updateClient(mUpdateParams);
 }
 
+
+std::mutex myMutex;
+
 void Engine::updateServer()
 {
+  myMutex.lock();
+  if (!mMouseBeginEvents.empty()) {
+    for (auto it = mMouseBeginEvents.begin(), it2 = mMouseBeginEvents.end(); it != it2; ++it) {
+    	mTouchManager.mouseTouchBegin(it->first, it->second);
+    }
+    mMouseBeginEvents.clear();
+  }
+  myMutex.unlock();
+
+  myMutex.lock();
+  if (!mMouseMovedEvents.empty()) {
+    for (auto it = mMouseMovedEvents.begin(), it2 = mMouseMovedEvents.end(); it != it2; ++it) {
+      mTouchManager.mouseTouchMoved(it->first, it->second);
+    }
+    mMouseMovedEvents.clear();
+  }
+  myMutex.unlock();
+  
+  myMutex.lock();
+  if (!mMouseEndEvents.empty()) {
+    for (auto it = mMouseEndEvents.begin(), it2 = mMouseEndEvents.end(); it != it2; ++it) {
+      mTouchManager.mouseTouchEnded(it->first, it->second);
+    }
+    mMouseEndEvents.clear();
+  }
+  myMutex.unlock();
+  //////////////////////////////////////////////////////////////////////////
+  myMutex.lock();
+  if (!mTouchBeginEvents.empty()) {
+    for (auto it = mTouchBeginEvents.begin(), it2 = mTouchBeginEvents.end(); it != it2; ++it) {
+      mTouchManager.touchesBegin(*it);
+    }
+    mTouchBeginEvents.clear();
+  }
+  myMutex.unlock();
+
+  myMutex.lock();
+  if (!mTouchMovedEvents.empty()) {
+    for (auto it = mTouchMovedEvents.begin(), it2 = mTouchMovedEvents.end(); it != it2; ++it) {
+      mTouchManager.touchesMoved(*it);
+    }
+    mTouchMovedEvents.clear();
+  }
+  myMutex.unlock();
+
+  myMutex.lock();
+  if (!mTouchEndEvents.empty()) {
+    for (auto it = mTouchEndEvents.begin(), it2 = mTouchEndEvents.end(); it != it2; ++it) {
+      mTouchManager.touchesEnded(*it);
+    }
+    mTouchEndEvents.clear();
+  }
+  myMutex.unlock();
+  //////////////////////////////////////////////////////////////////////////
+
   float curr = static_cast<float>(getElapsedSeconds());
   float dt = curr - mLastTime;
   mLastTime = curr;
@@ -114,6 +187,7 @@ void Engine::updateServer()
 
 void Engine::drawClient()
 {
+
   {
     //gl::SaveFramebufferBinding bindingSaver;
 
@@ -141,6 +215,7 @@ void Engine::drawClient()
   //gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
   //Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
   //gl::draw( mFbo.getTexture(0), screen );
+
 }
 
 void Engine::drawServer()
@@ -253,7 +328,10 @@ void Engine::touchesBegin( TouchEvent event )
   mLastTouchTime = static_cast<float>(getElapsedSeconds());
   mIdling = false;
 
-  mTouchManager.touchesBegin(event);
+  myMutex.lock();
+  mTouchBeginEvents.push_back(event);
+  myMutex.unlock();
+  //mTouchManager.touchesBegin(event);
 }
 
 void Engine::touchesMoved( TouchEvent event )
@@ -261,7 +339,10 @@ void Engine::touchesMoved( TouchEvent event )
   mLastTouchTime = static_cast<float>(getElapsedSeconds());
   mIdling = false;
 
-  mTouchManager.touchesMoved(event);
+  myMutex.lock();
+  mTouchMovedEvents.push_back(event);
+  myMutex.unlock();
+  //mTouchManager.touchesMoved(event);
 }
 
 void Engine::touchesEnded( TouchEvent event )
@@ -269,7 +350,10 @@ void Engine::touchesEnded( TouchEvent event )
   mLastTouchTime = static_cast<float>(getElapsedSeconds());
   mIdling = false;
 
-  mTouchManager.touchesEnded(event);
+  myMutex.lock();
+  mTouchEndEvents.push_back(event);
+  myMutex.unlock();
+  //mTouchManager.touchesEnded(event);
 }
 
 tuio::Client &Engine::getTuioClient()
@@ -279,17 +363,26 @@ tuio::Client &Engine::getTuioClient()
 
 void Engine::mouseTouchBegin( MouseEvent event, int id )
 {
-  mTouchManager.mouseTouchBegin(event, id);
+  myMutex.lock();
+  mMouseBeginEvents.push_back(MousePair(event, id));
+  myMutex.unlock();
+  //mTouchManager.mouseTouchBegin(event, id);
 }
 
 void Engine::mouseTouchMoved( MouseEvent event, int id )
 {
-  mTouchManager.mouseTouchMoved(event, id);
+  myMutex.lock();
+  mMouseMovedEvents.push_back(MousePair(event, id));
+  myMutex.unlock();
+  //mTouchManager.mouseTouchMoved(event, id);
 }
 
 void Engine::mouseTouchEnded( MouseEvent event, int id )
 {
-  mTouchManager.mouseTouchEnded(event, id);
+  myMutex.lock();
+  mMouseEndEvents.push_back(MousePair(event, id));
+  myMutex.unlock();
+  //mTouchManager.mouseTouchEnded(event, id);
 }
 
 ds::ResourceList& Engine::getResources()
