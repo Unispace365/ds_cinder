@@ -176,7 +176,8 @@ bool Video::isLooping() const
 void Video::setVolume( float volume )
 {
   mVolume = volume;
-  mMovie.setVolume(mVolume);
+  if ( mMovie )
+    mMovie.setVolume(mVolume);
 }
 
 float Video::getVolume() const

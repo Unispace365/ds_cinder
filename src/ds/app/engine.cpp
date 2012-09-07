@@ -50,6 +50,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
   mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
   mDrawTouches = settings.getBool("touch_overlay:debug", 0, false);
+  mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
 
   bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
@@ -115,53 +116,63 @@ std::mutex myMutex;
 
 void Engine::updateServer()
 {
+  float curr = static_cast<float>(getElapsedSeconds());
+  //////////////////////////////////////////////////////////////////////////
   myMutex.lock();
   if (!mMouseBeginEvents.empty()) {
+    mLastTouchTime = curr;
+    mIdling = false;
+
     for (auto it = mMouseBeginEvents.begin(), it2 = mMouseBeginEvents.end(); it != it2; ++it) {
     	mTouchManager.mouseTouchBegin(it->first, it->second);
     }
     mMouseBeginEvents.clear();
   }
-  myMutex.unlock();
 
-  myMutex.lock();
   if (!mMouseMovedEvents.empty()) {
+    mLastTouchTime = curr;
+    mIdling = false;
+
     for (auto it = mMouseMovedEvents.begin(), it2 = mMouseMovedEvents.end(); it != it2; ++it) {
       mTouchManager.mouseTouchMoved(it->first, it->second);
     }
     mMouseMovedEvents.clear();
   }
-  myMutex.unlock();
   
-  myMutex.lock();
   if (!mMouseEndEvents.empty()) {
+    mLastTouchTime = curr;
+    mIdling = false;
+
     for (auto it = mMouseEndEvents.begin(), it2 = mMouseEndEvents.end(); it != it2; ++it) {
       mTouchManager.mouseTouchEnded(it->first, it->second);
     }
     mMouseEndEvents.clear();
   }
-  myMutex.unlock();
   //////////////////////////////////////////////////////////////////////////
-  myMutex.lock();
   if (!mTouchBeginEvents.empty()) {
+    mLastTouchTime = curr;
+    mIdling = false;
+
     for (auto it = mTouchBeginEvents.begin(), it2 = mTouchBeginEvents.end(); it != it2; ++it) {
       mTouchManager.touchesBegin(*it);
     }
     mTouchBeginEvents.clear();
   }
-  myMutex.unlock();
 
-  myMutex.lock();
   if (!mTouchMovedEvents.empty()) {
+    mLastTouchTime = curr;
+    mIdling = false;
+
     for (auto it = mTouchMovedEvents.begin(), it2 = mTouchMovedEvents.end(); it != it2; ++it) {
       mTouchManager.touchesMoved(*it);
     }
     mTouchMovedEvents.clear();
   }
-  myMutex.unlock();
 
-  myMutex.lock();
   if (!mTouchEndEvents.empty()) {
+    mLastTouchTime = curr;
+    mIdling = false;
+
     for (auto it = mTouchEndEvents.begin(), it2 = mTouchEndEvents.end(); it != it2; ++it) {
       mTouchManager.touchesEnded(*it);
     }
@@ -169,8 +180,6 @@ void Engine::updateServer()
   }
   myMutex.unlock();
   //////////////////////////////////////////////////////////////////////////
-
-  float curr = static_cast<float>(getElapsedSeconds());
   float dt = curr - mLastTime;
   mLastTime = curr;
 
@@ -325,9 +334,6 @@ ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id)
 
 void Engine::touchesBegin( TouchEvent event )
 {
-  mLastTouchTime = static_cast<float>(getElapsedSeconds());
-  mIdling = false;
-
   myMutex.lock();
   mTouchBeginEvents.push_back(event);
   myMutex.unlock();
@@ -336,9 +342,6 @@ void Engine::touchesBegin( TouchEvent event )
 
 void Engine::touchesMoved( TouchEvent event )
 {
-  mLastTouchTime = static_cast<float>(getElapsedSeconds());
-  mIdling = false;
-
   myMutex.lock();
   mTouchMovedEvents.push_back(event);
   myMutex.unlock();
@@ -347,9 +350,6 @@ void Engine::touchesMoved( TouchEvent event )
 
 void Engine::touchesEnded( TouchEvent event )
 {
-  mLastTouchTime = static_cast<float>(getElapsedSeconds());
-  mIdling = false;
-
   myMutex.lock();
   mTouchEndEvents.push_back(event);
   myMutex.unlock();
@@ -379,6 +379,9 @@ void Engine::mouseTouchMoved( MouseEvent event, int id )
 
 void Engine::mouseTouchEnded( MouseEvent event, int id )
 {
+  mLastTouchTime = static_cast<float>(getElapsedSeconds());
+  mIdling = false;
+
   myMutex.lock();
   mMouseEndEvents.push_back(MousePair(event, id));
   myMutex.unlock();
