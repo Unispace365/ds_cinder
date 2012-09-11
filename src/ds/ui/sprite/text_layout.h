@@ -11,6 +11,12 @@ namespace ds {
 namespace ui {
 class Text;
 
+enum Alignment
+{
+  Left,
+  Right,
+  Center
+};
 /**
  * \class ds::ui::TextLayout
  * A text layout is a series of lines, where each line
@@ -86,7 +92,7 @@ public:
   // Adjust the font leading value, where 0 = no space between lines,
   // and 1 = the default leading.
   float                 mLeading;
-
+  Alignment             mAlignment;
 private:
   void                  run(const TextLayout::Input&, TextLayout&);
 };

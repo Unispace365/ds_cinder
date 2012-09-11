@@ -101,11 +101,13 @@ const TextLayout::MAKE_FUNC& TextLayout::SINGLE_LINE()
  */
 TextLayoutVertical::TextLayoutVertical()
   : mLeading(1)
+  , mAlignment(Left)
 {
 }
 
 TextLayoutVertical::TextLayoutVertical(Text& t)
   : mLeading(1)
+  , mAlignment(Left)
 {
   installOn(t);
 }
@@ -176,7 +178,17 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
     if (size.x > in.mSize.x) {
       // Flush the current line
       if (!lineText.empty()) {
-        out.addLine(ci::Vec2f(0, y), lineText);
+        if (mAlignment == Left) {
+          out.addLine(ci::Vec2f(0, y), lineText);
+        } else if (mAlignment == Right) {
+          float size = in.mFont->measureString(lineText, in.mOptions).x;
+          float x = in.mSize.x - size;
+          out.addLine(ci::Vec2f(x, y), lineText);
+        } else {
+          float size = in.mFont->measureString(lineText, in.mOptions).x;
+          float x = (in.mSize.x - size) / 2.0f;
+          out.addLine(ci::Vec2f(x, y), lineText);
+        }
         y += lineH;
         if (check.outOfBounds(y)) return;
       }
@@ -193,7 +205,17 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
             std::string sub = lineText.substr(0, i-1);
             lineText = lineText.substr(i-1, lineText.size() - i + 1);
             if (!sub.empty()) {
-              out.addLine(ci::Vec2f(0, y), sub);
+              if (mAlignment == Left) {
+                out.addLine(ci::Vec2f(0, y), sub);
+              } else if (mAlignment == Right) {
+                float size = in.mFont->measureString(sub, in.mOptions).x;
+                float x = in.mSize.x - size;
+                out.addLine(ci::Vec2f(x, y), sub);
+              } else {
+                float size = in.mFont->measureString(sub, in.mOptions).x;
+                float x = (in.mSize.x - size) / 2.0f;
+                out.addLine(ci::Vec2f(x, y), sub);
+              }
               y += lineH;
               break;
             } else {
@@ -219,7 +241,17 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   }
 
   if (!lineText.empty() && !check.outOfBounds(y)) {
-    out.addLine(ci::Vec2f(0, y), lineText);
+    if (mAlignment == Left) {
+      out.addLine(ci::Vec2f(0, y), lineText);
+    } else if (mAlignment == Right) {
+      float size = in.mFont->measureString(lineText, in.mOptions).x;
+      float x = in.mSize.x - size;
+      out.addLine(ci::Vec2f(x, y), lineText);
+    } else {
+      float size = in.mFont->measureString(lineText, in.mOptions).x;
+      float x = (in.mSize.x - size) / 2.0f;
+      out.addLine(ci::Vec2f(x, y), lineText);
+    }
   }
 }
 
