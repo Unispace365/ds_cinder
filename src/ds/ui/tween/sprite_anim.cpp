@@ -60,5 +60,14 @@ void SpriteAnimatable::animStop()
   mAnimSize.stop();
 }
 
+const SpriteAnim<ci::Vec3f> &SpriteAnimatable::ANIM_ROTATION()
+{
+  static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
+    [](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimRotation; },
+    [](ds::ui::Sprite& s)->ci::Vec3f { return s.getRotation(); },
+    [](const ci::Vec3f& v, ds::ui::Sprite& s) { s.setRotation(v); });
+  return ANIM;
+}
+
 } // namespace ui
 } // namespace ds

@@ -61,6 +61,7 @@ class SpriteAnimatable {
     static const SpriteAnim<ci::Vec3f>&   ANIM_POSITION();
     static const SpriteAnim<ci::Vec3f>&   ANIM_SCALE();
     static const SpriteAnim<ci::Vec3f>&   ANIM_SIZE();
+    static const SpriteAnim<ci::Vec3f>&   ANIM_ROTATION();
 
     void                                  animStop();
 
@@ -69,6 +70,7 @@ class SpriteAnimatable {
       ci::Anim<ci::Vec3f>                 mAnimPosition;
       ci::Anim<ci::Vec3f>                 mAnimScale;
       ci::Anim<ci::Vec3f>                 mAnimSize;
+      ci::Anim<ci::Vec3f>                 mAnimRotation;
 };
 
 } // namespace ui
