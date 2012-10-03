@@ -71,16 +71,16 @@ class Sprite : public SpriteAnimatable
 
         void                setSize(float width, float height);
         virtual void        setSizeAll(float width, float height, float depth);
-        float               getWidth() const;
-        float               getHeight() const;
-        float               getDepth() const;
-        float               getScaleWidth() const;
-        float               getScaleHeight() const;
-        float               getScaleDepth() const;
+        float       getWidth() const;
+        float       getHeight() const;
+        float       getDepth() const;
+        float       getScaleWidth() const;
+        float       getScaleHeight() const;
+        float       getScaleDepth() const;
 
-        void                setPosition(const ci::Vec3f &pos);
-        void                setPosition(float x, float y, float z = 0.0f);
-        const ci::Vec3f    &getPosition() const;
+        void             setPosition(const ci::Vec3f &pos);
+        void             setPosition(float x, float y, float z = 0.0f);
+        const ci::Vec3f &getPosition() const;
 
         void                move(const ci::Vec3f &delta);
         void                move(float deltaX, float deltaY, float deltaZ = 0.0f);
