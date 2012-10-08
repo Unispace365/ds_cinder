@@ -189,6 +189,7 @@ void LoadImageService::update()
 #endif
 		} else {
       h.mTexture = ci::gl::Texture(out.mSurface);
+      DS_REPORT_GL_ERRORS();
     }
     out.clear();
 	}
