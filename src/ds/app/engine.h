@@ -137,6 +137,14 @@ class Engine : public ui::SpriteEngine {
     ci::CameraOrtho             mCamera;
 
     ci::gl::Fbo                 mFbo;
+
+    std::vector<TouchEvent>     mTouchBeginEvents;
+    std::vector<TouchEvent>     mTouchMovedEvents;
+    std::vector<TouchEvent>     mTouchEndEvents;
+    typedef std::pair<MouseEvent, int> MousePair;
+    std::vector<MousePair>     mMouseBeginEvents;
+    std::vector<MousePair>     mMouseMovedEvents;
+    std::vector<MousePair>     mMouseEndEvents;
 };
 
 } // namespace ds

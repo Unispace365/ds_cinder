@@ -51,14 +51,20 @@ bool ZmqConnection::initialize( bool server, const std::string &ip, const std::s
     if ( mServer )
     {
       mSocket = std::move( std::unique_ptr<zmq::socket_t>(new zmq::socket_t(mContext, ZMQ_DEALER)) );
-      if ( mSocket )
+      if ( mSocket ) {
         mSocket->bind(("tcp://"+ip+":"+port).c_str());
+        int lingerVal = 0;
+        mSocket->setsockopt(ZMQ_LINGER, &lingerVal, sizeof(int));
+      }
     }
     else
     {
       mSocket = std::move( std::unique_ptr<zmq::socket_t>(new zmq::socket_t(mContext, ZMQ_DEALER)) );
-      if ( mSocket )
+      if ( mSocket ) {
         mSocket->connect(("tcp://"+ip+":"+port).c_str());
+        int lingerVal = 0;
+        mSocket->setsockopt(ZMQ_LINGER, &lingerVal, sizeof(int));
+      }
     }
 
     return true;

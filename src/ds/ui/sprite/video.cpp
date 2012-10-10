@@ -101,8 +101,7 @@ Video& Video::loadVideo( const std::string &filename )
     mMovie = ci::qtime::MovieGl( filename );
     mMovie.setLoop(mLooping);
     mMovie.play();
-    mMovie.setVolume(0.0f);
-    mVolume = 0.0f;
+    mMovie.setVolume(mVolume);
     mMuted = true;
     setStatus(Status::STATUS_PLAYING);
   }
@@ -176,7 +175,8 @@ bool Video::isLooping() const
 void Video::setVolume( float volume )
 {
   mVolume = volume;
-  mMovie.setVolume(mVolume);
+  if ( mMovie )
+    mMovie.setVolume(mVolume);
 }
 
 float Video::getVolume() const
@@ -218,8 +218,7 @@ Video &Video::setResourceId( const ds::Resource::Id &resourceId )
       mMovie = ci::qtime::MovieGl( filename );
       mMovie.setLoop(mLooping);
       mMovie.play();
-      mMovie.setVolume(0.0f);
-      mVolume = 0.0f;
+      mMovie.setVolume(mVolume);
       mMuted = true;
       setStatus(Status::STATUS_PLAYING);
     }

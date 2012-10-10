@@ -33,6 +33,8 @@ class App : public ci::app::AppBasic {
     virtual void                setupServer()     { }
     virtual void	    			    update();
     virtual void	    			    draw();
+    virtual void                quit();
+    virtual void                shutdown();
 
 	void						enableCommonKeystrokes(bool q = true, bool esc = true);
 

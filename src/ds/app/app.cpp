@@ -150,6 +150,17 @@ void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
     mEscKeyEnabled = true;
 }
 
+void App::quit()
+{
+  ci::app::AppBasic::quit();
+}
+
+void App::shutdown()
+{
+  mEngine.getRootSprite().clearChildren();
+  ci::app::AppBasic::shutdown();
+}
+
 
 /**
  * \class ds::App::Initializer

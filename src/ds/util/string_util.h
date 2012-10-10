@@ -64,6 +64,8 @@ std::vector<std::wstring> split( const std::wstring &str, const std::wstring &de
 
 std::vector<std::string> partition( const std::string &str, const std::string &partitioner );
 std::vector<std::string> partition(const std::string &str, const std::vector<std::string> &partitioners);
+std::vector<std::wstring> partition( const std::wstring &str, const std::wstring &partitioner );
+std::vector<std::wstring> partition(const std::wstring &str, const std::vector<std::wstring> &partitioners);
 
 int find_count( const std::string &str, const std::string &token );
 int find_count( const std::wstring &str, const std::wstring &token );

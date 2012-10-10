@@ -261,6 +261,59 @@ std::vector<std::string> ds::partition( const std::string &str, const std::vecto
   return partitions;
 }
 
+std::vector<std::wstring> ds::partition( const std::wstring &str, const std::wstring &partitioner )
+{
+  std::vector<std::wstring> partitions;
+
+  std::size_t pos;
+  std::size_t lastPos = 0;
+
+  while (lastPos != std::wstring::npos) {
+    pos = str.find_first_of(partitioner, lastPos);
+    if (pos != std::wstring::npos) {
+      if (pos == lastPos) {
+        partitions.push_back(std::wstring(str.data() + lastPos, pos-lastPos+partitioner.size()));
+        lastPos += partitioner.size();
+        continue;
+      } else {
+        partitions.push_back(std::wstring(str.data() + lastPos, pos-lastPos));
+        partitions.push_back(partitioner);
+        lastPos = pos;
+        lastPos += partitioner.size();
+        continue;
+      }
+    } else {
+      pos = str.length();
+      if (pos != lastPos)
+        partitions.push_back(std::wstring(str.data() + lastPos, pos-lastPos));
+      break;
+    }
+    lastPos += 1;
+  }
+
+  return partitions;
+}
+
+std::vector<std::wstring> ds::partition( const std::wstring &str, const std::vector<std::wstring> &partitioners )
+{
+  std::vector<std::wstring> partitions;
+  partitions.push_back(str);
+
+  for (auto it = partitioners.begin(), it2 = partitioners.end(); it != it2; ++it) {
+    std::vector<std::wstring> tPartitions;
+    for (auto itt = partitions.begin(), itt2 = partitions.end(); itt != itt2; ++itt) {
+      std::vector<std::wstring> splitWords = ds::partition(*itt, *it);
+
+      for (auto ittt = splitWords.begin(), ittt2 = splitWords.end(); ittt != ittt2; ++ittt) {
+        tPartitions.push_back(*ittt);
+      }
+    }
+    partitions = tPartitions;
+  }
+
+  return partitions;
+}
+
 int ds::find_count( const std::string &str, const std::string &token )
 {
     std::size_t pos;
