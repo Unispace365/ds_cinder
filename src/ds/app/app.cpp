@@ -54,7 +54,12 @@ void App::prepareSettings(Settings *settings)
 {
   inherited::prepareSettings(settings);
 
-  if (settings) mEngine.prepareSettings(*settings);
+  if (settings) {
+    mEngine.prepareSettings(*settings);
+    // This was getting offset -- should make a settings for it, but
+    // for now, this is always what I want
+    settings->setWindowPos(0, 0);
+  }
 }
 
 void App::setup()
