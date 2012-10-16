@@ -16,7 +16,7 @@ class LimitCheck {
   public:
     LimitCheck(const TextLayout::Input& in)
       : mLimitToHeight(!(in.mSprite.autoResizeHeight()))
-      , mDescent(in.mFont->getDescent())
+      , mDescent(in.mFont->descender())
       , mMaxY(in.mSize.y)
     {
     }
@@ -49,13 +49,11 @@ TextLayout::Line::Line()
  * \class ds::ui::TextLayout::Input
  */
 TextLayout::Input::Input( const Text& sprite,
-                          const ci::gl::TextureFontRef& f,
-                          const ci::gl::TextureFont::DrawOptions& o,
+                          const FontPtr& f,
                           const ci::Vec2f& size,
                           const std::string& text)
   : mSprite(sprite)
   , mFont(f)
-  , mOptions(o)
   , mSize(size)
   , mText(text)
 {
@@ -92,7 +90,7 @@ void TextLayout::debugPrint() const
 
 const TextLayout::MAKE_FUNC& TextLayout::SINGLE_LINE()
 {
-  static const MAKE_FUNC    ANS = [](const TextLayout::Input& i, TextLayout& l) { l.addLine(ci::Vec2f(0, i.mFont->getAscent()), i.mText); };
+  static const MAKE_FUNC    ANS = [](const TextLayout::Input& i, TextLayout& l) { l.addLine(ci::Vec2f(0, ceilf((1.0f - i.mFont->ascender() / 1000.0f) * i.mFont->pointSize())), i.mText); };
   return ANS;
 }
 
@@ -118,8 +116,26 @@ void TextLayoutVertical::installOn(Text& t)
   t.setLayoutFunction(f);
 }
 
+ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str)
+{
+  OGLFT::BBox box = font->measureRaw(str.c_str());
+  ci::Vec2f   size(box.x_max_-box.x_min_, box.y_max_-box.y_min_);
+
+  return size;
+}
+
+float getDifference(const FontPtr &font, const std::string &str, float lineH, float leading)
+{
+  //float lineHeight = getSizeFromString(font, str).y + font->height() * leading;
+  //if (lineHeight < lineH)
+  //  return lineH - lineHeight;
+  return 0.0f;
+}
+
 void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
 {
+  if (in.mText.empty())
+    return;
   // Per line, find the word breaks, then create a line.
   std::vector<std::string>    tokens;
   //tokenize(in.mText, tokens);
@@ -134,8 +150,9 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   tokens = ds::partition(in.mText, partitioners);
 
   LimitCheck                  check(in);
-  float                       y = in.mFont->getAscent();
-  const float                 lineH = in.mFont->getAscent() + in.mFont->getDescent() + (in.mFont->getFont().getLeading()*mLeading);
+  float                       y = ceilf((1.0f - in.mFont->ascender() / 1000.0f) * in.mFont->pointSize());
+                                                                                       //address this
+  const float                 lineH = in.mFont->height()*mLeading + in.mFont->pointSize();//in.mFont->ascender() + in.mFont->descender() + (in.mFont->getFont().getLeading()*mLeading);
   std::string                 lineText;
 
   // Before we do anything, make sure we have room for the first line,
@@ -143,7 +160,8 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   if (check.outOfBounds(y)) return;
 
   // spaces don't have a size so we make something up
-  const ci::Vec2f             spaceSize = in.mFont->measureString("o", in.mOptions);
+  const ci::Vec2f             spaceSize = getSizeFromString(in.mFont, "o");
+  //const ci::Vec2f             spaceSize = in.mFont->measureString("o", in.mOptions);
   const ci::Vec2f             tabSize(spaceSize.x*3.0f, spaceSize.y);
   for (auto it=tokens.begin(), end=tokens.end(); it != end; ++it) {
     // Test the new string to see if it's too long
@@ -156,7 +174,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
     } else if (*it == "\n" ) {
       // Flush the current line
       if (!lineText.empty()) {
-        out.addLine(ci::Vec2f(0, y), lineText);
+        out.addLine(ci::Vec2f(0, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
       }
       lineText.clear();
       //lineText.append(" ");
@@ -174,20 +192,20 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
     }
 
     newLine.append(*it);
-    ci::Vec2f           size = in.mFont->measureString(newLine, in.mOptions);
+    ci::Vec2f           size = getSizeFromString(in.mFont, newLine);//in.mFont->measureString(newLine, in.mOptions);
     if (size.x > in.mSize.x) {
       // Flush the current line
       if (!lineText.empty()) {
         if (mAlignment == Left) {
-          out.addLine(ci::Vec2f(0, y), lineText);
+          out.addLine(ci::Vec2f(0, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
         } else if (mAlignment == Right) {
-          float size = in.mFont->measureString(lineText, in.mOptions).x;
+          float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
           float x = in.mSize.x - size;
-          out.addLine(ci::Vec2f(x, y), lineText);
+          out.addLine(ci::Vec2f(x, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
         } else {
-          float size = in.mFont->measureString(lineText, in.mOptions).x;
+          float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
           float x = (in.mSize.x - size) / 2.0f;
-          out.addLine(ci::Vec2f(x, y), lineText);
+          out.addLine(ci::Vec2f(x, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
         }
         y += lineH;
         if (check.outOfBounds(y)) return;
@@ -195,10 +213,10 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
 
       lineText = *it;
 
-      size = in.mFont->measureString(lineText, in.mOptions);
+      size = getSizeFromString(in.mFont, lineText);//in.mFont->measureString(lineText, in.mOptions);
       while (size.x > in.mSize.x) {
         for (unsigned i = 1; i <= lineText.size(); ++i) {
-        	float cSize = in.mFont->measureString(lineText.substr(0, i), in.mOptions).x;
+        	float cSize = getSizeFromString(in.mFont, lineText.substr(0, i)).x;//in.mFont->measureString(lineText.substr(0, i), in.mOptions).x;
           if (cSize > in.mSize.x && i > 0) {
             // Eric, you said there was an infinite loop here with the code like this. The way you changed it wasn't the correct
             // split and would cause lettings out of bounds. If you get the infinite loop again let me know how to reproduce it.
@@ -206,16 +224,17 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
             lineText = lineText.substr(i-1, lineText.size() - i + 1);
             if (!sub.empty()) {
               if (mAlignment == Left) {
-                out.addLine(ci::Vec2f(0, y), sub);
+                out.addLine(ci::Vec2f(0, y + getDifference(in.mFont, sub, lineH, mLeading)), sub);
               } else if (mAlignment == Right) {
-                float size = in.mFont->measureString(sub, in.mOptions).x;
+                float size = getSizeFromString(in.mFont, sub).x;//in.mFont->measureString(sub, in.mOptions).x;
                 float x = in.mSize.x - size;
-                out.addLine(ci::Vec2f(x, y), sub);
+                out.addLine(ci::Vec2f(x, y + getDifference(in.mFont, sub, lineH, mLeading)), sub);
               } else {
-                float size = in.mFont->measureString(sub, in.mOptions).x;
+                float size = getSizeFromString(in.mFont, sub).x;//in.mFont->measureString(sub, in.mOptions).x;
                 float x = (in.mSize.x - size) / 2.0f;
-                out.addLine(ci::Vec2f(x, y), sub);
+                out.addLine(ci::Vec2f(x, y + getDifference(in.mFont, sub, lineH, mLeading)), sub);
               }
+
               y += lineH;
               break;
             } else {
@@ -226,7 +245,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
 
         if (check.outOfBounds(y)) return;
 
-        size = in.mFont->measureString(lineText, in.mOptions);
+        size = getSizeFromString(in.mFont, lineText);//in.mFont->measureString(lineText, in.mOptions);
       }
 
       //lineText.append(" ");
@@ -242,15 +261,15 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
 
   if (!lineText.empty() && !check.outOfBounds(y)) {
     if (mAlignment == Left) {
-      out.addLine(ci::Vec2f(0, y), lineText);
+      out.addLine(ci::Vec2f(0, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
     } else if (mAlignment == Right) {
-      float size = in.mFont->measureString(lineText, in.mOptions).x;
+      float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
       float x = in.mSize.x - size;
-      out.addLine(ci::Vec2f(x, y), lineText);
+      out.addLine(ci::Vec2f(x, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
     } else {
-      float size = in.mFont->measureString(lineText, in.mOptions).x;
+      float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
       float x = (in.mSize.x - size) / 2.0f;
-      out.addLine(ci::Vec2f(x, y), lineText);
+      out.addLine(ci::Vec2f(x, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
     }
   }
 }

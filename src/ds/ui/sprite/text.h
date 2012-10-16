@@ -11,6 +11,7 @@
 
 namespace ds {
 namespace ui {
+void clearFontCache();
 
 /**
  * \class ds::ui::Text
@@ -78,9 +79,10 @@ class Text: public Sprite
         // Only used when ResizeToText is on
         void                      calculateFrame(const int flags);
 
-        ci::gl::TextureFontRef    mTextureFont;
-        ci::gl::TextureFont::DrawOptions
-                                  mDrawOptions;
+        //ci::gl::TextureFontRef    mTextureFont;
+        //ci::gl::TextureFont::DrawOptions
+        //                          mDrawOptions;
+        FontPtr mFont;
         
         float                     mFontSize;
         std::string               mTextString;

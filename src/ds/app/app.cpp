@@ -153,6 +153,7 @@ void App::quit()
 void App::shutdown()
 {
   mEngine.getRootSprite().clearChildren();
+  ds::ui::clearFontCache();
   ci::app::AppBasic::shutdown();
 }
 
