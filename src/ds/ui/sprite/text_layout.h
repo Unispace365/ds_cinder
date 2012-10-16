@@ -15,6 +15,9 @@ namespace ui {
 class Text;
 
 ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str);
+int getFontSize(const FontPtr &font);
+float getFontAscender(const FontPtr &font);
+float getFontDescender(const FontPtr &font);
 
 enum Alignment
 {

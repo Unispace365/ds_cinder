@@ -12,6 +12,7 @@
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "cinder/Camera.h"
+#include <stdexcept>
 
 using namespace ci;
 
@@ -264,13 +265,13 @@ Text& Text::setLayoutFunction(const TextLayout::MAKE_FUNC& f)
 float Text::getFontAscent() const
 {
   if (!mFont) return 0;
-  return 0;//mFont->ascender();
+  return getFontAscender(mFont) * mFont->pointSize();
 }
 
 float Text::getFontDescent() const
 {
   if (!mFont) return 0;
-  return 0;//mFont->descender();
+  return getFontDescender(mFont) * mFont->pointSize();
 }
 
 float Text::getFontHeight() const
@@ -284,10 +285,9 @@ float Text::getFontLeading() const
   //////////////////////////////////////////////////////////////////////////
   // Come back to this.
   //////////////////////////////////////////////////////////////////////////
-  return 0;
 
-  //if (!mTextureFont) return 0;
-  //return mTextureFont->getFont().getLeading();
+  if (!mFont) return 0;
+  return mFont->height();
 }
 
 void Text::debugPrint()
@@ -459,6 +459,10 @@ static FontPtr get_font(const std::string& filename, const float size)
   }
 
   FontPtr font = FontPtr(new OGLFT::Translucent(filename.c_str(), size));
+
+  if (!font->isValid())
+    throw std::runtime_error("Font: " + filename + " was unable to load.");
+
   font->setCompileMode(OGLFT::Face::IMMEDIATE);
 
   mFontCache[filename][size] = font;

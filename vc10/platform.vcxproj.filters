@@ -85,6 +85,12 @@
     <Filter Include="src\ds\ui\tweenline">
       <UniqueIdentifier>{75419866-dc29-488a-8391-9c329efd0d2d}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\lib">
+      <UniqueIdentifier>{82ea73fe-3df5-416a-9d1c-3816870b34b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\lib\OGLFT">
+      <UniqueIdentifier>{d9dd9d0c-956b-4b14-bba6-ecdb842728d4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\app\app_defs.h">
@@ -327,6 +333,9 @@
     <ClInclude Include="..\src\ds\thread\parallel_runnable.h">
       <Filter>src\ds\thread</Filter>
     </ClInclude>
+    <ClInclude Include="..\lib\OGLFT\OGLFT.h">
+      <Filter>src\lib\OGLFT</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -511,6 +520,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\multiline_text.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\OGLFT\OGLFT.cpp">
+      <Filter>src\lib\OGLFT</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

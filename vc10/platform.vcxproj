@@ -20,6 +20,7 @@
     <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioCursor.h" />
     <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioObject.h" />
     <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioProfileBase.h" />
+    <ClInclude Include="..\lib\OGLFT\OGLFT.h" />
     <ClInclude Include="..\src\ds\app\app.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
     <ClInclude Include="..\src\ds\app\blob_reader.h" />
@@ -98,6 +99,7 @@
     <ClCompile Include="$(CINDER)\blocks\osc\src\OscMessage.cpp" />
     <ClCompile Include="$(CINDER)\blocks\osc\src\OscSender.cpp" />
     <ClCompile Include="$(CINDER)\blocks\tuio\src\TuioClient.cpp" />
+    <ClCompile Include="..\lib\OGLFT\OGLFT.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
     <ClCompile Include="..\src\ds\app\blob_reader.cpp" />
     <ClCompile Include="..\src\ds\app\blob_registry.cpp" />
@@ -195,7 +197,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src;$(DS_PLATFORM)\lib\zmq;$(DS_PLATFORM)\lib\snappy</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src;$(DS_PLATFORM)\lib\zmq;$(DS_PLATFORM)\lib\snappy;$(FREETYPE)\include;$(DS_PLATFORM)\lib\OGLFT</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -223,7 +225,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src;$(DS_PLATFORM)\lib\zmq;$(DS_PLATFORM)\lib\snappy</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src;$(DS_PLATFORM)\lib\zmq;$(DS_PLATFORM)\lib\snappy;$(FREETYPE)\include;$(DS_PLATFORM)\lib\OGLFT</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>

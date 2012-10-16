@@ -90,7 +90,7 @@ void TextLayout::debugPrint() const
 
 const TextLayout::MAKE_FUNC& TextLayout::SINGLE_LINE()
 {
-  static const MAKE_FUNC    ANS = [](const TextLayout::Input& i, TextLayout& l) { l.addLine(ci::Vec2f(0, ceilf((1.0f - i.mFont->ascender() / 1000.0f) * i.mFont->pointSize())), i.mText); };
+  static const MAKE_FUNC    ANS = [](const TextLayout::Input& i, TextLayout& l) { l.addLine(ci::Vec2f(0, ceilf((1.0f - getFontAscender(i.mFont)) * i.mFont->pointSize())), i.mText); };
   return ANS;
 }
 
@@ -150,7 +150,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   tokens = ds::partition(in.mText, partitioners);
 
   LimitCheck                  check(in);
-  float                       y = ceilf((1.0f - in.mFont->ascender() / 1000.0f) * in.mFont->pointSize());
+  float                       y = ceilf((1.0f - getFontAscender(in.mFont)) * in.mFont->pointSize());
                                                                                        //address this
   const float                 lineH = in.mFont->height()*mLeading + in.mFont->pointSize();//in.mFont->ascender() + in.mFont->descender() + (in.mFont->getFont().getLeading()*mLeading);
   std::string                 lineText;
@@ -272,6 +272,21 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
       out.addLine(ci::Vec2f(x, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
     }
   }
+}
+
+int getFontSize( const FontPtr &font )
+{
+  return abs(font->ascender())+abs(font->descender());
+}
+
+float getFontAscender( const FontPtr &font )
+{
+  return font->ascender() / (float)getFontSize(font);
+}
+
+float getFontDescender( const FontPtr &font )
+{
+  return font->descender() / (float)getFontSize(font);
 }
 
 } // namespace ui
