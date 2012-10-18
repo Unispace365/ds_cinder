@@ -379,8 +379,8 @@ void Text::drawIntoFbo()
       mTexture = ci::gl::Texture(w, h);
     }
 
-    //applyBlendingMode(NORMAL);
     gl::enableAlphaBlending();
+    applyBlendingMode(LIGHTEN);
     {
       gl::SaveFramebufferBinding bindingSaver;
 
@@ -399,7 +399,7 @@ void Text::drawIntoFbo()
       ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
       ci::gl::color(Color(1.0f, 1.0f, 1.0f));
 
-      mFont->setForegroundColor( mColor.r, mColor.g, mColor.b );
+      mFont->setForegroundColor( 1.0f, 1.0f, 1.0f );
       mFont->setBackgroundColor( 0.0f, 0.0f, 0.0f, 0.0f );
       //std::cout << "Size: " << lines.size() << std::endl;
       float height = mFont->pointSize();
