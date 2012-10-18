@@ -22,6 +22,14 @@
 #ifndef OGLFT_H
 #define OGLFT_H
 
+// ds_cinder
+#ifndef OGLFT_NO_SOLID
+#define OGLFT_NO_SOLID
+#endif
+#ifndef OGLFT_NO_QT
+#define OGLFT_NO_QT
+#endif
+
 #include <cmath>
 #include <map>
 #include <list>
