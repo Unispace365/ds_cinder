@@ -532,7 +532,139 @@ namespace OGLFT {
 
     return bbox;
   }
+
+
 #endif /* OGLFT_NO_QT */
+
+  OGLFT::BBox Face::measure( const std::string &s )
+  {
+    BBox bbox;
+
+    if ( s.size() > 0 ) {
+
+      bbox = measure( s.at( 0 ) );
+
+      for ( unsigned int i = 1; i < s.size(); i++ ) {
+
+        BBox char_bbox = measure( s.at( i ) );
+
+        bbox += char_bbox;
+      }
+    }
+
+    return bbox;
+  }
+
+  OGLFT::BBox Face::measure( const std::string &format, double number )
+  {
+    return measure( format_number( format, number ) );
+  }
+
+  OGLFT::BBox Face::measure( const std::wstring &s )
+  {
+    BBox bbox;
+
+    if ( s.size() > 0 ) {
+
+      bbox = measure( s.at( 0 ) );
+
+      for ( unsigned int i = 1; i < s.size(); i++ ) {
+
+        BBox char_bbox = measure( s.at( i ) );
+
+        bbox += char_bbox;
+      }
+    }
+
+    return bbox;
+  }
+
+  OGLFT::BBox Face::measure( const std::wstring &format, double number )
+  {
+    return measure( format_number( format, number ) );
+  }
+
+  OGLFT::BBox Face::measureRaw( const std::string &s )
+  {
+    BBox bbox;
+
+    for ( unsigned int i = 0; i < s.length(); i++ ) {
+      BBox char_bbox;
+
+      unsigned int f;
+      FT_UInt glyph_index = 0;
+
+      for ( f = 0; f < faces_.size(); f++ ) {
+        glyph_index = FT_Get_Char_Index( faces_[f].face_, s.at( i ) );
+        if ( glyph_index != 0 ) break;
+      }
+
+      if ( glyph_index == 0 ) {
+        continue;
+      }
+
+      FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
+        FT_LOAD_DEFAULT );
+      if ( error != 0 ) continue;
+
+      FT_Glyph glyph;
+      error = FT_Get_Glyph( faces_[f].face_->glyph, &glyph );
+      if ( error != 0 ) continue;
+
+      FT_BBox ft_bbox;
+      FT_Glyph_Get_CBox( glyph, ft_glyph_bbox_unscaled, &ft_bbox );
+
+      FT_Done_Glyph( glyph );
+
+      char_bbox = ft_bbox;
+      char_bbox.advance_ = faces_[f].face_->glyph->advance;
+
+      bbox += char_bbox;
+    }
+
+    return bbox;
+  }
+
+  OGLFT::BBox Face::measureRaw( const std::wstring &s )
+  {
+    BBox bbox;
+
+    for ( unsigned int i = 0; i < s.length(); i++ ) {
+      BBox char_bbox;
+
+      unsigned int f;
+      FT_UInt glyph_index = 0;
+
+      for ( f = 0; f < faces_.size(); f++ ) {
+        glyph_index = FT_Get_Char_Index( faces_[f].face_, s.at( i ) );
+        if ( glyph_index != 0 ) break;
+      }
+
+      if ( glyph_index == 0 ) {
+        continue;
+      }
+
+      FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
+        FT_LOAD_DEFAULT );
+      if ( error != 0 ) continue;
+
+      FT_Glyph glyph;
+      error = FT_Get_Glyph( faces_[f].face_->glyph, &glyph );
+      if ( error != 0 ) continue;
+
+      FT_BBox ft_bbox;
+      FT_Glyph_Get_CBox( glyph, ft_glyph_bbox_unscaled, &ft_bbox );
+
+      FT_Done_Glyph( glyph );
+
+      char_bbox = ft_bbox;
+      char_bbox.advance_ = faces_[f].face_->glyph->advance;
+
+      bbox += char_bbox;
+    }
+
+    return bbox;
+  }
 
   // Measure the bounding box as if the (latin1) string were not rotated
 
@@ -606,6 +738,7 @@ namespace OGLFT {
 
     return bbox;
   }
+
 
   // Format the number per the given format. Mostly pointless
   // for the standard formats, e.g. %12e. You can use the regular
@@ -719,7 +852,88 @@ namespace OGLFT {
 
     return prefix + value_format + postfix;
   }
+
+
 #endif /* OGLFT_NO_QT */
+
+  OGLFT::BBox Face::measure_nominal( const std::string &s )
+  {
+    if ( string_rotation_ == 0. )
+      return measure( s );
+
+    for ( unsigned int f = 0; f < faces_.size(); f++ )
+      FT_Set_Transform( faces_[f].face_, 0, 0 );
+
+    BBox bbox = measure( s );
+
+    float angle;
+    if ( string_rotation_ < 0. ) {
+      angle = 360. - fmod( fabs( string_rotation_ ), 360.f );
+    }
+    else {
+      angle = fmod( string_rotation_, 360.f );
+    }
+
+    FT_Matrix rotation_matrix;
+    FT_Vector sinus;
+
+    FT_Vector_Unit( &sinus, (FT_Angle)(angle * 0x10000L) );
+
+    rotation_matrix.xx = sinus.x;
+    rotation_matrix.xy = -sinus.y;
+    rotation_matrix.yx = sinus.y;
+    rotation_matrix.yy = sinus.x;
+
+    for ( unsigned int f = 0; f < faces_.size(); f++ )
+      FT_Set_Transform( faces_[f].face_, &rotation_matrix, 0 );
+
+    return bbox;
+  }
+
+  OGLFT::BBox Face::measure_nominal( const std::wstring &s )
+  {
+    if ( string_rotation_ == 0. )
+      return measure( s );
+
+    for ( unsigned int f = 0; f < faces_.size(); f++ )
+      FT_Set_Transform( faces_[f].face_, 0, 0 );
+
+    BBox bbox = measure( s );
+
+    float angle;
+    if ( string_rotation_ < 0. ) {
+      angle = 360. - fmod( fabs( string_rotation_ ), 360.f );
+    }
+    else {
+      angle = fmod( string_rotation_, 360.f );
+    }
+
+    FT_Matrix rotation_matrix;
+    FT_Vector sinus;
+
+    FT_Vector_Unit( &sinus, (FT_Angle)(angle * 0x10000L) );
+
+    rotation_matrix.xx = sinus.x;
+    rotation_matrix.xy = -sinus.y;
+    rotation_matrix.yx = sinus.y;
+    rotation_matrix.yy = sinus.x;
+
+    for ( unsigned int f = 0; f < faces_.size(); f++ )
+      FT_Set_Transform( faces_[f].face_, &rotation_matrix, 0 );
+
+    return bbox;
+  }
+
+  std::string Face::format_number( const std::string &format, double number )
+  {
+    return std::string();
+  }
+
+  std::wstring Face::format_number( const std::wstring &format, double number )
+  {
+    return std::wstring();
+  }
+
 
   // Compile a (latin1) string into a display list
 
@@ -839,7 +1053,117 @@ namespace OGLFT {
 
     return dlist;
   }
+
+
+
 #endif /* OGLFT_NO_QT */
+
+  GLuint Face::compile( const std::string &s )
+  {
+    // First, make sure all the characters in the string are themselves
+    // in display lists
+    for ( unsigned int i = 0; i < s.size(); i++ ) {
+      compile( s.at( i ) );
+    }
+
+    GLuint dlist = glGenLists( 1 );
+    glNewList( dlist, GL_COMPILE );
+
+    glColor4f( foreground_color_[R], foreground_color_[G], foreground_color_[B],
+      foreground_color_[A] );
+    if ( !advance_ )
+      glPushMatrix();
+
+    draw( s );
+
+    if ( !advance_ )
+      glPopMatrix();
+
+    glEndList();
+
+    return dlist;
+  }
+
+  GLuint Face::compile( const std::wstring &s )
+  {
+    // First, make sure all the characters in the string are themselves
+    // in display lists
+    for ( unsigned int i = 0; i < s.size(); i++ ) {
+      compile( s.at( i ) );
+    }
+
+    GLuint dlist = glGenLists( 1 );
+    glNewList( dlist, GL_COMPILE );
+
+    glColor4f( foreground_color_[R], foreground_color_[G], foreground_color_[B],
+      foreground_color_[A] );
+    if ( !advance_ )
+      glPushMatrix();
+
+    draw( s );
+
+    if ( !advance_ )
+      glPopMatrix();
+
+    glEndList();
+
+    return dlist;
+  }
+
+  GLuint Face::compile( const wchar_t c )
+  {
+    // See if we've done it already
+
+    GDLCI fgi = glyph_dlists_.find( c );
+
+    if ( fgi != glyph_dlists_.end() )
+      return fgi->second;
+
+    unsigned int f;
+    FT_UInt glyph_index = 0;
+
+    for ( f = 0; f < faces_.size(); f++ ) {
+      glyph_index = FT_Get_Char_Index( faces_[f].face_, c );
+      if ( glyph_index != 0 ) break;
+    }
+
+    if ( glyph_index == 0 )
+      return 0;
+
+    GLuint dlist = compileGlyph( faces_[f].face_, glyph_index );
+
+    glyph_dlists_[ c ] = dlist;
+
+    return dlist;
+  }
+
+  GLuint Face::compile( char c )
+  {
+    // See if we've done it already
+
+    GDLCI fgi = glyph_dlists_.find( c );
+
+    if ( fgi != glyph_dlists_.end() )
+      return fgi->second;
+
+    unsigned int f;
+    FT_UInt glyph_index = 0;
+
+    for ( f = 0; f < faces_.size(); f++ ) {
+      glyph_index = FT_Get_Char_Index( faces_[f].face_, c );
+      if ( glyph_index != 0 ) break;
+    }
+
+    if ( glyph_index == 0 )
+      return 0;
+
+    GLuint dlist = compileGlyph( faces_[f].face_, glyph_index );
+
+    glyph_dlists_[ c ] = dlist;
+
+    return dlist;
+  }
+
   // Assume the MODELVIEW matrix is already set and draw the (latin1)
   // string.  Note: this routine now ignores almost all settings:
   // including the position (both modelview and raster), color,
@@ -884,6 +1208,36 @@ namespace OGLFT {
     }
   }
 #endif /* OGLFT_NO_QT */
+
+  void Face::draw( const std::string &s )
+  {
+    DLCI character_display_list = character_display_lists_.begin();
+
+    for ( unsigned int i = 0; i < s.size(); i++ ) {
+
+      if ( character_display_list != character_display_lists_.end() ) {
+        glCallList( *character_display_list );
+        character_display_list++;
+      }
+
+      draw( s.at( i ) );
+    }
+  }
+
+  void Face::draw( const std::wstring &s )
+  {
+    DLCI character_display_list = character_display_lists_.begin();
+
+    for ( unsigned int i = 0; i < s.size(); i++ ) {
+
+      if ( character_display_list != character_display_lists_.end() ) {
+        glCallList( *character_display_list );
+        character_display_list++;
+      }
+
+      draw( s.at( i ) );
+    }
+  }
 
   // Assume the MODELVIEW matrix is already setup and draw the
   // (latin1) character.
@@ -965,6 +1319,45 @@ namespace OGLFT {
     }
   }
 #endif /* OGLFT_NO_QT */
+
+
+  void Face::draw( const wchar_t c )
+  {
+    // See if we've done it already
+
+    GDLCI fgi = glyph_dlists_.find( c );
+
+    if ( fgi != glyph_dlists_.end( ) ) {
+      glCallList( fgi->second );
+      return;
+    }
+
+    unsigned int f;
+    FT_UInt glyph_index = 0;
+
+    for ( f = 0; f < faces_.size(); f++ ) {
+      glyph_index = FT_Get_Char_Index( faces_[f].face_, c );
+      if ( glyph_index != 0 ) {
+        break;
+      }
+    }
+
+    if ( glyph_index == 0 )
+      return;
+
+    // Otherwise, either compile it (and call it) or ...
+
+    if ( compile_mode_ == COMPILE ) {
+      GLuint dlist = compile( c );
+      glCallList( dlist );
+    }
+
+    // ... render it immediately
+
+    else {
+      renderGlyph( faces_[f].face_, glyph_index );
+    }
+  }
   // Draw the (latin1) character at the given position. The MODELVIEW
   // matrix is modified by the glyph advance.
 
@@ -1025,6 +1418,30 @@ namespace OGLFT {
     draw( c );
   }
 #endif /* OGLFT_NO_QT */
+
+  void Face::draw( GLfloat x, GLfloat y, wchar_t c )
+  {
+    glTranslatef( x, y, 0. );
+
+    glColor4f( foreground_color_[R], foreground_color_[G], foreground_color_[B],
+      foreground_color_[A] );
+
+    glRasterPos2i( 0, 0 );
+
+    draw( c );
+  }
+
+  void Face::draw( GLfloat x, GLfloat y, GLfloat z, wchar_t c )
+  {
+    glTranslatef( x, y, z );
+
+    glColor4f( foreground_color_[R], foreground_color_[G], foreground_color_[B],
+      foreground_color_[A] );
+
+    glRasterPos2i( 0, 0 );
+
+    draw( c );
+  }
 
   // Draw the (latin1) string at the given position.
 
@@ -1321,7 +1738,359 @@ namespace OGLFT {
   {
     draw( x, y, z, format_number( format, number ) );
   }
+
 #endif /* OGLFT_NO_QT */
+
+  void Face::draw( GLfloat x, GLfloat y, const std::string &s )
+  {
+    if ( !advance_ )
+      glPushMatrix();
+
+    if ( horizontal_justification_ != ORIGIN ||
+      vertical_justification_ != BASELINE ) {
+        glPushMatrix();
+
+        BBox bbox = measure_nominal( s );
+
+        GLfloat dx = 0, dy = 0;
+
+        switch ( horizontal_justification_ ) {
+        case LEFT:
+          dx = -bbox.x_min_; break;
+        case CENTER:
+          dx = -( bbox.x_min_ + bbox.x_max_ ) / 2.; break;
+        case RIGHT:
+          dx = -bbox.x_max_; break;
+        }
+        switch ( vertical_justification_ ) {
+        case BOTTOM:
+          dy = -bbox.y_min_; break;
+        case MIDDLE:
+          dy = -( bbox.y_min_ + bbox.y_max_ ) / 2.; break;
+        case TOP:
+          dy = -bbox.y_max_; break;
+        }
+
+        // There is probably a less expensive way to compute this
+
+        glRotatef( string_rotation_, 0., 0., 1. );
+        glTranslatef( dx, dy, 0 );
+        glRotatef( -string_rotation_, 0., 0., 1. );
+    }
+
+    glTranslatef( x, y, 0. );
+
+    glColor4f( foreground_color_[R], foreground_color_[G], foreground_color_[B],
+      foreground_color_[A] );
+
+    glRasterPos2i( 0, 0 );
+
+    draw( s );
+
+    if ( horizontal_justification_ != ORIGIN ||
+      vertical_justification_ != BASELINE )
+      glPopMatrix();
+
+    if ( !advance_ )
+      glPopMatrix();
+  }
+
+  void Face::draw( GLfloat x, GLfloat y, GLfloat z, const std::string &s )
+  {
+    if ( !advance_ )
+      glPushMatrix();
+
+    if ( horizontal_justification_ != ORIGIN ||
+      vertical_justification_ != BASELINE ) {
+        glPushMatrix();
+
+        // In 3D, we need to exert more care in the computation of the
+        // bounding box of the text. NOTE: Needs to be fixed up for
+        // polygonal faces, too...
+
+        BBox bbox;
+        // Code from measure_nominal, but changed to use measureRaw instead
+        if ( string_rotation_ == 0. )
+          bbox = measureRaw( s );
+
+        else {
+          // Undo rotation
+          for ( unsigned int f = 0; f < faces_.size(); f++ )
+            FT_Set_Transform( faces_[f].face_, 0, 0 );
+
+          bbox = measureRaw( s );
+
+          // Redo rotation
+          float angle;
+          if ( string_rotation_ < 0. ) {
+            angle = 360. - fmod( fabs( string_rotation_ ), 360.f );
+          }
+          else {
+            angle = fmod( string_rotation_, 360.f );
+          }
+
+          FT_Matrix rotation_matrix;
+          FT_Vector sinus;
+
+          FT_Vector_Unit( &sinus, (FT_Angle)(angle * 0x10000L) );
+
+          rotation_matrix.xx = sinus.x;
+          rotation_matrix.xy = -sinus.y;
+          rotation_matrix.yx = sinus.y;
+          rotation_matrix.yy = sinus.x;
+
+          for ( unsigned int f = 0; f < faces_.size(); f++ )
+            FT_Set_Transform( faces_[f].face_, &rotation_matrix, 0 );
+        }
+
+        // Determine the offset into the bounding box which will appear
+        // at the user's specified position.
+        GLfloat dx = 0, dy = 0;
+        switch ( horizontal_justification_ ) {
+        case LEFT:
+          dx = bbox.x_min_; break;
+        case CENTER:
+          dx = ( bbox.x_min_ + bbox.x_max_ ) / 2; break;
+        case RIGHT:
+          dx = bbox.x_max_; break;
+        }
+        switch ( vertical_justification_ ) {
+        case BOTTOM:
+          dy = bbox.y_min_; break;
+        case MIDDLE:
+          dy = ( bbox.y_min_ + bbox.y_max_ ) /2; break;
+        case TOP:
+          dy = bbox.y_max_; break;
+        }
+
+        // **Now** rotate these coordinates around into 3D modeling coordinates!
+        GLint viewport[4];
+        GLdouble modelview[16], projection[16];
+
+        glGetIntegerv( GL_VIEWPORT, viewport );
+        glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+        glGetDoublev( GL_PROJECTION_MATRIX, projection );
+
+        GLdouble x0, y0, z0;
+        gluUnProject( 0, 0, 0, modelview, projection, viewport, &x0, &y0, &z0 );
+
+        GLdouble dx_m, dy_m, dz_m;
+        gluUnProject( dx, dy, 0., modelview, projection, viewport,&dx_m,&dy_m,&dz_m );
+
+        glTranslated( x0-dx_m, y0-dy_m, z0-dz_m );
+    }
+
+    glTranslatef( x, y, z );
+
+    glColor4f( foreground_color_[R], foreground_color_[G], foreground_color_[B],
+      foreground_color_[A] );
+
+    glRasterPos2i( 0, 0 );
+
+    draw( s );
+
+    if ( horizontal_justification_ != ORIGIN ||
+      vertical_justification_ != BASELINE )
+      glPopMatrix();
+
+    if ( !advance_ )
+      glPopMatrix();
+  }
+
+  void Face::draw( GLfloat x, GLfloat y, const std::wstring &s )
+  {
+
+    if ( !advance_ )
+      glPushMatrix();
+
+    if ( horizontal_justification_ != ORIGIN ||
+      vertical_justification_ != BASELINE ) {
+        glPushMatrix();
+
+        BBox bbox = measure_nominal( s );
+
+        GLfloat dx = 0, dy = 0;
+
+        switch ( horizontal_justification_ ) {
+        case LEFT:
+          dx = -bbox.x_min_; break;
+        case CENTER:
+          dx = -( bbox.x_min_ + bbox.x_max_ ) / 2.; break;
+        case RIGHT:
+          dx = -bbox.x_max_; break;
+        }
+        switch ( vertical_justification_ ) {
+        case BOTTOM:
+          dy = -bbox.y_min_; break;
+        case MIDDLE:
+          dy = -( bbox.y_min_ + bbox.y_max_ ) / 2.; break;
+        case TOP:
+          dy = -bbox.y_max_; break;
+        }
+
+        // There is probably a less expensive way to compute this
+
+        glRotatef( string_rotation_, 0., 0., 1. );
+        glTranslatef( dx, dy, 0 );
+        glRotatef( -string_rotation_, 0., 0., 1. );
+    }
+
+    glTranslatef( x, y, 0. );
+
+    glColor4f( foreground_color_[R], foreground_color_[G], foreground_color_[B],
+      foreground_color_[A] );
+
+    glRasterPos2i( 0, 0 );
+
+    draw( s );
+
+    if ( horizontal_justification_ != ORIGIN ||
+      vertical_justification_ != BASELINE )
+      glPopMatrix();
+
+    if ( !advance_ )
+      glPopMatrix();
+  }
+
+  void Face::draw( GLfloat x, GLfloat y, GLfloat z, const std::wstring &s )
+  {
+    if ( !advance_ )
+      glPushMatrix();
+
+    if ( horizontal_justification_ != ORIGIN ||
+      vertical_justification_ != BASELINE ) {
+        glPushMatrix();
+
+        // In 3D, we need to exert more care in the computation of the
+        // bounding box of the text. NOTE: Needs to be fixed up for
+        // polygonal faces, too...
+
+        BBox bbox;
+        // Code from measure_nominal, but changed to use measureRaw instead
+        if ( string_rotation_ == 0. )
+          bbox = measureRaw( s );
+
+        else {
+          // Undo rotation
+          for ( unsigned int f = 0; f < faces_.size(); f++ )
+            FT_Set_Transform( faces_[f].face_, 0, 0 );
+
+          bbox = measureRaw( s );
+
+          // Redo rotation
+          float angle;
+          if ( string_rotation_ < 0. ) {
+            angle = 360. - fmod( fabs( string_rotation_ ), 360.f );
+          }
+          else {
+            angle = fmod( string_rotation_, 360.f );
+          }
+
+          FT_Matrix rotation_matrix;
+          FT_Vector sinus;
+
+          FT_Vector_Unit( &sinus, (FT_Angle)(angle * 0x10000L) );
+
+          rotation_matrix.xx = sinus.x;
+          rotation_matrix.xy = -sinus.y;
+          rotation_matrix.yx = sinus.y;
+          rotation_matrix.yy = sinus.x;
+
+          for ( unsigned int f = 0; f < faces_.size(); f++ )
+            FT_Set_Transform( faces_[f].face_, &rotation_matrix, 0 );
+        }
+
+        // Determine the offset into the bounding box which will appear
+        // at the user's specified position.
+        GLfloat dx = 0, dy = 0;
+        switch ( horizontal_justification_ ) {
+        case LEFT:
+          dx = bbox.x_min_; break;
+        case CENTER:
+          dx = ( bbox.x_min_ + bbox.x_max_ ) / 2; break;
+        case RIGHT:
+          dx = bbox.x_max_; break;
+        }
+        switch ( vertical_justification_ ) {
+        case BOTTOM:
+          dy = bbox.y_min_; break;
+        case MIDDLE:
+          dy = ( bbox.y_min_ + bbox.y_max_ ) /2; break;
+        case TOP:
+          dy = bbox.y_max_; break;
+        }
+
+        // **Now** rotate these coordinates around into 3D modeling coordinates!
+        GLint viewport[4];
+        GLdouble modelview[16], projection[16];
+
+        glGetIntegerv( GL_VIEWPORT, viewport );
+        glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+        glGetDoublev( GL_PROJECTION_MATRIX, projection );
+
+        GLdouble x0, y0, z0;
+        gluUnProject( 0, 0, 0, modelview, projection, viewport, &x0, &y0, &z0 );
+
+        GLdouble dx_m, dy_m, dz_m;
+        gluUnProject( dx, dy, 0., modelview, projection, viewport,&dx_m,&dy_m,&dz_m );
+
+        glTranslated( x0-dx_m, y0-dy_m, z0-dz_m );
+    }
+
+    glTranslatef( x, y, z );
+
+    glColor4f( foreground_color_[R], foreground_color_[G], foreground_color_[B],
+      foreground_color_[A] );
+
+    glRasterPos2i( 0, 0 );
+
+    draw( s );
+
+    if ( horizontal_justification_ != ORIGIN ||
+      vertical_justification_ != BASELINE )
+      glPopMatrix();
+
+    if ( !advance_ )
+      glPopMatrix();
+  }
+
+  void Face::draw( GLfloat x, GLfloat y, const std::string &format, double number )
+  {
+
+  }
+
+  void Face::draw( GLfloat x, GLfloat y, GLfloat z, const std::string &format, double number )
+  {
+
+  }
+
+  void Face::draw( GLfloat x, GLfloat y, const std::wstring &format, double number )
+  {
+
+  }
+
+  void Face::draw( GLfloat x, GLfloat y, GLfloat z, const std::wstring &format, double number )
+  {
+
+  }
+
+  void Face::draw( char c )
+  {
+    draw((unsigned char)c);
+  }
+
+  void Face::draw( GLfloat x, GLfloat y, char c )
+  {
+    draw(x, y, (unsigned char)c);
+  }
+
+  void Face::draw( GLfloat x, GLfloat y, GLfloat z, char c )
+  {
+    draw(x, y, z, (unsigned char)c);
+  }
+
+
+
 
   Raster::Raster ( const char* filename, float point_size, FT_UInt resolution )
     : Face( filename, point_size, resolution )
@@ -1508,7 +2277,149 @@ namespace OGLFT {
 
     return bbox;
   }
+
 #endif /* OGLFT_NO_QT */
+
+  OGLFT::BBox Raster::measure( const wchar_t c )
+  {
+    BBox bbox;
+    // For starters, just get the unscaled glyph bounding box
+    unsigned int f;
+    FT_UInt glyph_index = 0;
+
+    for ( f = 0; f < faces_.size(); f++ ) {
+      glyph_index = FT_Get_Char_Index( faces_[f].face_, c );
+      if ( glyph_index != 0 ) break;
+    }
+
+    if ( glyph_index == 0 )
+      return bbox;
+
+    FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
+      FT_LOAD_DEFAULT );
+    if ( error != 0 )
+      return bbox;
+
+    FT_Glyph glyph;
+    error = FT_Get_Glyph( faces_[f].face_->glyph, &glyph );
+    if ( error != 0 )
+      return bbox;
+
+    FT_BBox ft_bbox;
+    FT_Glyph_Get_CBox( glyph, ft_glyph_bbox_unscaled, &ft_bbox );
+
+    FT_Done_Glyph( glyph );
+
+    bbox = ft_bbox;
+    bbox.advance_ = faces_[f].face_->glyph->advance;
+
+    // In order to be accurate regarding the placement of text not
+    // aligned at the glyph's origin (CENTER/MIDDLE), the bounding box
+    // of the raster format has to be projected back into the
+    // view's coordinates
+
+    GLint viewport[4];
+    GLdouble modelview[16], projection[16];
+
+    glGetIntegerv( GL_VIEWPORT, viewport );
+    glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+    glGetDoublev( GL_PROJECTION_MATRIX, projection );
+
+    // Well, first we have to get the Origin, since that is the basis
+    // of the bounding box
+    GLdouble x0, y0, z0;
+    gluUnProject( 0., 0., 0., modelview, projection, viewport, &x0, &y0, &z0 );
+
+    GLdouble x, y, z;
+    gluUnProject( bbox.x_min_, bbox.y_min_, 0., modelview, projection, viewport,
+      &x, &y, &z );
+    bbox.x_min_ = x - x0;
+    bbox.y_min_ = y - y0;
+
+    gluUnProject( bbox.x_max_, bbox.y_max_, 0., modelview, projection, viewport,
+      &x, &y, &z );
+    bbox.x_max_ = x - x0;
+    bbox.y_max_ = y - y0;
+
+    gluUnProject( bbox.advance_.dx_, bbox.advance_.dy_, 0., modelview, projection,
+      viewport,
+      &x, &y, &z );
+    bbox.advance_.dx_ = x - x0;
+    bbox.advance_.dy_ = y - y0;
+
+    return bbox;
+  }
+
+  OGLFT::BBox Raster::measure( char c )
+  {
+    BBox bbox;
+    // For starters, just get the unscaled glyph bounding box
+    unsigned int f;
+    FT_UInt glyph_index = 0;
+
+    for ( f = 0; f < faces_.size(); f++ ) {
+      glyph_index = FT_Get_Char_Index( faces_[f].face_, c );
+      if ( glyph_index != 0 ) break;
+    }
+
+    if ( glyph_index == 0 )
+      return bbox;
+
+    FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
+      FT_LOAD_DEFAULT );
+    if ( error != 0 )
+      return bbox;
+
+    FT_Glyph glyph;
+    error = FT_Get_Glyph( faces_[f].face_->glyph, &glyph );
+    if ( error != 0 )
+      return bbox;
+
+    FT_BBox ft_bbox;
+    FT_Glyph_Get_CBox( glyph, ft_glyph_bbox_unscaled, &ft_bbox );
+
+    FT_Done_Glyph( glyph );
+
+    bbox = ft_bbox;
+    bbox.advance_ = faces_[f].face_->glyph->advance;
+
+    // In order to be accurate regarding the placement of text not
+    // aligned at the glyph's origin (CENTER/MIDDLE), the bounding box
+    // of the raster format has to be projected back into the
+    // view's coordinates
+
+    GLint viewport[4];
+    GLdouble modelview[16], projection[16];
+
+    glGetIntegerv( GL_VIEWPORT, viewport );
+    glGetDoublev( GL_MODELVIEW_MATRIX, modelview );
+    glGetDoublev( GL_PROJECTION_MATRIX, projection );
+
+    // Well, first we have to get the Origin, since that is the basis
+    // of the bounding box
+    GLdouble x0, y0, z0;
+    gluUnProject( 0., 0., 0., modelview, projection, viewport, &x0, &y0, &z0 );
+
+    GLdouble x, y, z;
+    gluUnProject( bbox.x_min_, bbox.y_min_, 0., modelview, projection, viewport,
+      &x, &y, &z );
+    bbox.x_min_ = x - x0;
+    bbox.y_min_ = y - y0;
+
+    gluUnProject( bbox.x_max_, bbox.y_max_, 0., modelview, projection, viewport,
+      &x, &y, &z );
+    bbox.x_max_ = x - x0;
+    bbox.y_max_ = y - y0;
+
+    gluUnProject( bbox.advance_.dx_, bbox.advance_.dy_, 0., modelview, projection,
+      viewport,
+      &x, &y, &z );
+    bbox.advance_.dx_ = x - x0;
+    bbox.advance_.dy_ = y - y0;
+
+    return bbox;
+  }
+
 
   GLuint Raster::compileGlyph ( FT_Face face, FT_UInt glyph_index )
   {
@@ -2218,7 +3129,85 @@ namespace OGLFT {
 
     return bbox;
   }
+
 #endif /* OGLFT_NO_QT */
+
+  OGLFT::BBox Polygonal::measure( const wchar_t c )
+  {
+    BBox bbox;
+    // For starters, just get the unscaled glyph bounding box
+    unsigned int f;
+    FT_UInt glyph_index = 0;
+
+    for ( f = 0; f < faces_.size(); f++ ) {
+      glyph_index = FT_Get_Char_Index( faces_[f].face_, c );
+      if ( glyph_index != 0 ) break;
+    }
+
+    if ( glyph_index == 0 )
+      return bbox;
+
+    FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
+      FT_LOAD_DEFAULT );
+    if ( error != 0 )
+      return bbox;
+
+    FT_Glyph glyph;
+    error = FT_Get_Glyph( faces_[f].face_->glyph, &glyph );
+    if ( error != 0 )
+      return bbox;
+
+    FT_BBox ft_bbox;
+    FT_Glyph_Get_CBox( glyph, ft_glyph_bbox_unscaled, &ft_bbox );
+
+    FT_Done_Glyph( glyph );
+
+    bbox = ft_bbox;
+    bbox.advance_ = faces_[f].face_->glyph->advance;
+
+    bbox *= ( point_size_ * resolution_ ) / ( 72. * faces_[f].face_->units_per_EM );
+
+    return bbox;
+  }
+
+  OGLFT::BBox Polygonal::measure( char c )
+  {
+    BBox bbox;
+    // For starters, just get the unscaled glyph bounding box
+    unsigned int f;
+    FT_UInt glyph_index = 0;
+
+    for ( f = 0; f < faces_.size(); f++ ) {
+      glyph_index = FT_Get_Char_Index( faces_[f].face_, c );
+      if ( glyph_index != 0 ) break;
+    }
+
+    if ( glyph_index == 0 )
+      return bbox;
+
+    FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
+      FT_LOAD_DEFAULT );
+    if ( error != 0 )
+      return bbox;
+
+    FT_Glyph glyph;
+    error = FT_Get_Glyph( faces_[f].face_->glyph, &glyph );
+    if ( error != 0 )
+      return bbox;
+
+    FT_BBox ft_bbox;
+    FT_Glyph_Get_CBox( glyph, ft_glyph_bbox_unscaled, &ft_bbox );
+
+    FT_Done_Glyph( glyph );
+
+    bbox = ft_bbox;
+    bbox.advance_ = faces_[f].face_->glyph->advance;
+
+    bbox *= ( point_size_ * resolution_ ) / ( 72. * faces_[f].face_->units_per_EM );
+
+    return bbox;
+  }
+
 
   GLuint Polygonal::compileGlyph ( FT_Face face, FT_UInt glyph_index )
   {
@@ -3403,7 +4392,82 @@ namespace OGLFT {
 
     return bbox;
   }
+
 #endif /* OGLFT_NO_QT */
+
+  OGLFT::BBox Texture::measure( const wchar_t c )
+  {
+    BBox bbox;
+    // For starters, just get the unscaled glyph bounding box
+    unsigned int f;
+    FT_UInt glyph_index = 0;
+
+    for ( f = 0; f < faces_.size(); f++ ) {
+      glyph_index = FT_Get_Char_Index( faces_[f].face_, c );
+      if ( glyph_index != 0 ) break;
+    }
+
+    if ( glyph_index == 0 )
+      return bbox;
+
+    FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
+      FT_LOAD_DEFAULT );
+    if ( error != 0 )
+      return bbox;
+
+    FT_Glyph glyph;
+    error = FT_Get_Glyph( faces_[f].face_->glyph, &glyph );
+    if ( error != 0 )
+      return bbox;
+
+    FT_BBox ft_bbox;
+    FT_Glyph_Get_CBox( glyph, ft_glyph_bbox_unscaled, &ft_bbox );
+
+    FT_Done_Glyph( glyph );
+
+    bbox = ft_bbox;
+    bbox.advance_ = faces_[f].face_->glyph->advance;
+
+    return bbox;
+  }
+
+  OGLFT::BBox Texture::measure( char c )
+  {
+    BBox bbox;
+    // For starters, just get the unscaled glyph bounding box
+    unsigned int f;
+    FT_UInt glyph_index = 0;
+
+    for ( f = 0; f < faces_.size(); f++ ) {
+      glyph_index = FT_Get_Char_Index( faces_[f].face_, c );
+      if ( glyph_index != 0 ) break;
+    }
+
+    if ( glyph_index == 0 )
+      return bbox;
+
+    FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
+      FT_LOAD_DEFAULT );
+    if ( error != 0 )
+      return bbox;
+
+    FT_Glyph glyph;
+    error = FT_Get_Glyph( faces_[f].face_->glyph, &glyph );
+    if ( error != 0 )
+      return bbox;
+
+    FT_BBox ft_bbox;
+    FT_Glyph_Get_CBox( glyph, ft_glyph_bbox_unscaled, &ft_bbox );
+
+    FT_Done_Glyph( glyph );
+
+    bbox = ft_bbox;
+    bbox.advance_ = faces_[f].face_->glyph->advance;
+
+    return bbox;
+  }
+
+
   GLuint Texture::compileGlyph ( FT_Face face, FT_UInt glyph_index )
   {
     bindTexture( face, glyph_index );

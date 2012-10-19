@@ -55,6 +55,7 @@
 #include FT_GLYPH_H
 #include FT_OUTLINE_H
 #include FT_TRIGONOMETRY_H
+#include <string>
 
 //! All of OGLFT C++ objects are in this namespace.
 
@@ -694,6 +695,7 @@ namespace OGLFT {
      * \return the bounding box of c.
      */
     virtual BBox measure ( unsigned char c ) = 0;
+    virtual BBox measure ( char c ) = 0;
 #ifndef OGLFT_NO_QT
     /*!
      * Compute the bounding box info for a character.
@@ -702,6 +704,8 @@ namespace OGLFT {
      */
     virtual BBox measure ( QChar c ) = 0;
 #endif /* OGLFT_NO_QT */
+    virtual BBox measure ( const wchar_t c ) = 0;
+
     /*!
      * Compute the bounding box info for a string.
      * \param s the (latin1) string to measure.
@@ -737,6 +741,12 @@ namespace OGLFT {
      */
     virtual BBox measureRaw ( const QString& s );
 #endif /* OGLFT_NO_QT */
+    virtual BBox measure ( const std::string &s );
+    virtual BBox measure ( const std::string &format, double number );
+    virtual BBox measureRaw ( const std::string &s );
+    virtual BBox measure ( const std::wstring &s );
+    virtual BBox measure ( const std::wstring &format, double number );
+    virtual BBox measureRaw ( const std::wstring &s );
     /*!
      * Compile a string into an OpenGL display list for later
      * rendering.  Essentially, the string is rendered at the origin
@@ -761,6 +771,8 @@ namespace OGLFT {
      */
     GLuint compile ( const QString& s );
 #endif /* OGLFT_NO_QT */
+    GLuint compile ( const std::string &s );
+    GLuint compile ( const std::wstring &s );
     /*!
      * Compile a single character (glyph) into an OpenGL display list
      * for later rendering. The Face \em does keep track of these
@@ -769,6 +781,7 @@ namespace OGLFT {
      * \return the display list name for the character.
      */
     GLuint compile ( unsigned char c );
+    GLuint compile ( char c );
 #ifndef OGLFT_NO_QT
     /*!
      * Compile a single character (glyph) into an OpenGL display list
@@ -779,6 +792,7 @@ namespace OGLFT {
      */
     GLuint compile ( const QChar c );
 #endif /* OGLFT_NO_QT */
+    GLuint compile ( const wchar_t c );
     /*!
      * Draw a (latin1) string using the current MODELVIEW matrix. If
      * advance is true, then the final glyph advance changes to the
@@ -795,6 +809,8 @@ namespace OGLFT {
      */
     void draw ( const QString& s );
 #endif /* OGLFT_NO_QT */
+    void draw ( const std::string &s );
+    void draw ( const std::wstring &s );
     /*!
      * Draw the character using the current MODELVIEW matrix. Note that
      * the MODELVIEW matrix is modified by the glyph advance. Draw a
@@ -802,6 +818,7 @@ namespace OGLFT {
      * \param c the (latin1) character to draw.
      */
     void draw ( unsigned char c );
+    void draw ( char c );
 
 #ifndef OGLFT_NO_QT
     /*!
@@ -812,6 +829,7 @@ namespace OGLFT {
      */
     void draw ( const QChar c );
 #endif /* OGLFT_NO_QT */
+    void draw ( const wchar_t c );
     /*!
      * Draw the (latin1) character at the given 2D point. Note that
      * the MODELVIEW matrix is modified by the glyph advance. Draw
@@ -821,6 +839,7 @@ namespace OGLFT {
      * \param c the (latin1) character to draw.
      */
     void draw ( GLfloat x, GLfloat y, unsigned char c );
+    void draw ( GLfloat x, GLfloat y, char c );
     /*!
      * Draw the (latin1) character at the given 3D point. Note that
      * the MODELVIEW matrix is modified by the glyph advance. Draw
@@ -831,6 +850,7 @@ namespace OGLFT {
      * \param c the (latin1) character to draw.
      */
     void draw ( GLfloat x, GLfloat y, GLfloat z, unsigned char c );
+    void draw ( GLfloat x, GLfloat y, GLfloat z, char c );
 #ifndef OGLFT_NO_QT
     /*!
      * Draw the (UNICODE) character at the given 2D point. Note that
@@ -852,6 +872,8 @@ namespace OGLFT {
      */
     void draw ( GLfloat x, GLfloat y, GLfloat z, QChar c );
 #endif /* OGLFT_NO_QT */
+    void draw ( GLfloat x, GLfloat y, wchar_t c );
+    void draw ( GLfloat x, GLfloat y, GLfloat z, wchar_t c );
     /*!
      * Draw a string at the given 2D point.
      * \param x the X position.
@@ -922,6 +944,20 @@ namespace OGLFT {
     void draw ( GLfloat x, GLfloat y, GLfloat z, const QString& format,
 		double number );
 #endif /* OGLFT_NO_QT */
+    void draw ( GLfloat x, GLfloat y, const std::string &s );
+    void draw ( GLfloat x, GLfloat y, GLfloat z, const std::string &s );
+    // unsupported
+    void draw ( GLfloat x, GLfloat y, const std::string &format, double number );
+    // unsupported
+    void draw ( GLfloat x, GLfloat y, GLfloat z, const std::string &format,
+      double number );
+    void draw ( GLfloat x, GLfloat y, const std::wstring &s );
+    void draw ( GLfloat x, GLfloat y, GLfloat z, const std::wstring &s );
+    // unsupported
+    void draw ( GLfloat x, GLfloat y, const std::wstring &format, double number );
+    // unsupported
+    void draw ( GLfloat x, GLfloat y, GLfloat z, const std::wstring &format,
+      double number );
     /*!
      * \return the nominal ascender from the face. This is in "notional"
      * units.
@@ -969,6 +1005,12 @@ namespace OGLFT {
     BBox measure_nominal ( const QString& s );
     QString format_number ( const QString& format, double number );
 #endif /* OGLFT_NO_QT */
+    BBox measure_nominal ( const std::string &s );
+    // not supported
+    std::string format_number ( const std::string &format, double number );
+    BBox measure_nominal ( const std::wstring &s );
+    // not supported
+    std::wstring format_number ( const std::wstring &format, double number );
   };
 
   //! This is the base class of the polygonal styles: outline, filled and solid.
@@ -1247,6 +1289,7 @@ namespace OGLFT {
      * \return the bounding box of c.
      */
     BBox measure ( unsigned char c );
+    BBox measure ( char c );
 #ifndef OGLFT_NO_QT
     /*!
      * Implement measuring a character in a polygonal face.
@@ -1255,6 +1298,7 @@ namespace OGLFT {
      */
     BBox measure ( const QChar c );
 #endif /* OGLFT_NO_QT */
+    BBox measure ( const wchar_t c );
     /*!
      * Measure a string of characters. Note: currently, this merely
      * calls Face's measure routine.
@@ -1272,6 +1316,10 @@ namespace OGLFT {
     BBox measure ( const QString& format, double number )
     { return Face::measure( format, number ); }
 #endif /* OGLFT_NO_QT */
+    BBox measure ( const std::string &format, double number )
+    { return Face::measure( format, number ); }
+    BBox measure ( const std::wstring &format, double number )
+    { return Face::measure( format, number ); }
 
   private:
     void init ( void );
@@ -1589,6 +1637,7 @@ namespace OGLFT {
      * \return the bounding box of c.
      */
     BBox measure ( unsigned char c );
+    BBox measure ( char c );
 #ifndef OGLFT_NO_QT
     /*!
      * Implement measuring a character in a raster face.
@@ -1597,6 +1646,7 @@ namespace OGLFT {
      */
     BBox measure ( const QChar c );
 #endif /* OGLFT_NO_QT */
+    BBox measure ( const wchar_t c );
     /*!
      * Measure a string of characters. Note: currently, this merely
      * calls Face's measure routine.
@@ -1614,6 +1664,10 @@ namespace OGLFT {
     BBox measure ( const QString& format, double number )
     { return Face::measure( format, number ); }
 #endif /* OGLFT_NO_QT */
+    BBox measure ( const std::string &format, double number )
+    { return Face::measure( format, number ); }
+    BBox measure ( const std::wstring &format, double number )
+    { return Face::measure( format, number ); }
 
   private:
     void init ( void );
@@ -1890,6 +1944,7 @@ namespace OGLFT {
      * \return the bounding box of c.
      */
     BBox measure ( unsigned char c );
+    BBox measure ( char c );
 #ifndef OGLFT_NO_QT
     /*!
      * Implement measuring a character in a texture face.
@@ -1898,6 +1953,7 @@ namespace OGLFT {
      */
     BBox measure ( const QChar c );
 #endif /* OGLFT_NO_QT */
+    BBox measure ( const wchar_t c );
     /*!
      * Measure a string of characters. Note: currently, this merely
      * calls Face's measure routine.
@@ -1915,6 +1971,10 @@ namespace OGLFT {
     BBox measure ( const QString& format, double number )
     { return Face::measure( format, number ); }
 #endif /* OGLFT_NO_QT */
+    BBox measure ( const std::string &format, double number )
+    { return Face::measure( format, number ); }
+    BBox measure ( const std::wstring &format, double number )
+    { return Face::measure( format, number ); }
 
   protected:
     /*!

@@ -52,7 +52,9 @@ class Text: public Sprite
         virtual void              updateServer(const UpdateParams&);
         void                      drawLocalClient();
         Text&                     setText( const std::string &text );
-        std::string               getText() const;
+        Text&                     setText( const std::wstring &text );
+        std::string               getTextAsString() const;
+        std::wstring              getText() const;
         bool                      hasText() const;
 
         // Set a function for translating a string into a layout object.
@@ -85,7 +87,7 @@ class Text: public Sprite
         FontPtr mFont;
         
         float                     mFontSize;
-        std::string               mTextString;
+        std::wstring              mTextString;
         ci::Rectf                 mBorder;
 
         // After performing the layout, this determines if my width and/or height

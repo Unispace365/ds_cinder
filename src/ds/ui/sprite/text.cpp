@@ -13,6 +13,7 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "cinder/Camera.h"
 #include <stdexcept>
+#include "ds/util/string_util.h"
 
 using namespace ci;
 
@@ -222,6 +223,18 @@ float Text::getHeight() const
 
 Text& Text::setText( const std::string &text )
 {
+  std::wstring temp = ds::wstr_from_utf8(text);
+
+  if (mTextString == temp) return *this;
+
+  mTextString = temp;
+  mNeedsLayout = true;
+  mNeedRedrawing = true;
+  return *this;
+}
+
+Text& Text::setText( const std::wstring &text )
+{
   if (mTextString == text) return *this;
 
   mTextString = text;
@@ -230,10 +243,17 @@ Text& Text::setText( const std::string &text )
   return *this;
 }
 
-std::string Text::getText() const
+std::wstring Text::getText() const
 {
     return mTextString;
 }
+
+std::string Text::getTextAsString() const
+{
+
+  return ds::utf8_from_wstr(mTextString);
+}
+
 
 bool Text::hasText() const
 {
@@ -406,8 +426,8 @@ void Text::drawIntoFbo()
       for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
         const TextLayout::Line&   line(*it);
         //mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
-        OGLFT::BBox box = mFont->measureRaw(line.mText.c_str());
-        mFont->draw(line.mPos.x+mBorder.x1 - box.x_min_, line.mPos.y+mBorder.y1 + height, line.mText.c_str());
+        OGLFT::BBox box = mFont->measureRaw(line.mText);
+        mFont->draw(line.mPos.x+mBorder.x1 - box.x_min_, line.mPos.y+mBorder.y1 + height, line.mText);
       }
 
       fbo->end();

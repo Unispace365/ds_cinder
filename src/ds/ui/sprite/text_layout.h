@@ -15,6 +15,7 @@ namespace ui {
 class Text;
 
 ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str);
+ci::Vec2f getSizeFromString(const FontPtr &font, const std::wstring &str);
 int getFontSize(const FontPtr &font);
 float getFontAscender(const FontPtr &font);
 float getFontDescender(const FontPtr &font);
@@ -38,17 +39,17 @@ class TextLayout
       public:
         Line();
         ci::Vec2f         mPos;
-        std::string       mText;
+        std::wstring       mText;
     };
     // A bundle of all data necessary to create a layout
     class Input {
       public:
         Input(const Text&, const FontPtr &,
-              const ci::Vec2f& size, const std::string& text);
+              const ci::Vec2f& size, const std::wstring& text);
         const Text&           mSprite;
         const FontPtr &mFont;
         const ci::Vec2f&      mSize;
-        const std::string&    mText;
+        const std::wstring&    mText;
       private:
         Input();
     };
@@ -58,7 +59,7 @@ class TextLayout
 
     void                    clear();
 
-    void                    addLine(const ci::Vec2f&, const std::string&);
+    void                    addLine(const ci::Vec2f&, const std::wstring&);
 
     const std::vector<Line> getLines() const    { return mLines; }
 
