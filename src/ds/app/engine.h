@@ -93,6 +93,7 @@ class Engine : public ui::SpriteEngine {
     virtual void                stopServices();
 
     bool                        systemMultitouchEnabled() const;
+    bool                        hideMouse() const;
 
   protected:
     Engine(ds::App&, const ds::cfg::Settings&);
@@ -149,6 +150,7 @@ class Engine : public ui::SpriteEngine {
     std::vector<MousePair>     mMouseEndEvents;
 
     bool                       mSystemMultitouchEnabled;
+    bool                       mHideMouse;
 };
 
 } // namespace ds

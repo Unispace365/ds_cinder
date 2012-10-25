@@ -267,10 +267,12 @@ void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )
                           static_cast<int>(getHeight()));
   settings.setResizable(false);
 
-  if (mSettings.getBool("enable_system_multitouch", 0, "false")) {
+  if (mSettings.getBool("enable_system_multitouch", 0, false)) {
     mSystemMultitouchEnabled = true;
     settings.enableMultiTouch();
   }
+
+  mHideMouse = mSettings.getBool("hide_mouse", 0, false);
 
   settings.setFrameRate(mSettings.getFloat("frame_rate", 0, 60.0f));
 
@@ -460,6 +462,11 @@ void Engine::stopServices()
 bool Engine::systemMultitouchEnabled() const
 {
   return mSystemMultitouchEnabled;
+}
+
+bool Engine::hideMouse() const
+{
+  return mHideMouse;
 }
 
 } // namespace ds

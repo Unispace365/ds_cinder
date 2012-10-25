@@ -67,6 +67,8 @@ void App::setup()
 
 void App::update()
 {
+  if (mEngine.hideMouse())
+    hideCursor();
   mEngine.update();
 }
 
