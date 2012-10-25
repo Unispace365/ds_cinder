@@ -92,6 +92,8 @@ class Engine : public ui::SpriteEngine {
     // to make sure everything is stopped before they go away.
     virtual void                stopServices();
 
+    bool                        systemMultitouchEnabled() const;
+
   protected:
     Engine(ds::App&, const ds::cfg::Settings&);
 
@@ -145,6 +147,8 @@ class Engine : public ui::SpriteEngine {
     std::vector<MousePair>     mMouseBeginEvents;
     std::vector<MousePair>     mMouseMovedEvents;
     std::vector<MousePair>     mMouseEndEvents;
+
+    bool                       mSystemMultitouchEnabled;
 };
 
 } // namespace ds

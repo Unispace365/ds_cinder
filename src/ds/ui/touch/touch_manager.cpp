@@ -3,7 +3,7 @@
 #include "ds/app/engine.h"
 #include "ds/math/math_defs.h"
 #include "ds/ui/sprite/util/blend.h"
-
+#include <cinder/System.h>
 
 namespace {
   const int MOUSE_RESERVED_IDS = 2;
@@ -90,6 +90,9 @@ void TouchManager::touchesEnded( TouchEvent event )
 
 void TouchManager::mouseTouchBegin( MouseEvent event, int id )
 {
+  if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch())
+    return;
+
   TouchInfo touchInfo;
   touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
   touchInfo.mFingerId = id;
@@ -111,6 +114,9 @@ void TouchManager::mouseTouchBegin( MouseEvent event, int id )
 
 void TouchManager::mouseTouchMoved( MouseEvent event, int id )
 {
+  if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch())
+    return;
+
   TouchInfo touchInfo;
   touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
   touchInfo.mFingerId = id;
@@ -133,6 +139,9 @@ void TouchManager::mouseTouchMoved( MouseEvent event, int id )
 
 void TouchManager::mouseTouchEnded( MouseEvent event, int id )
 {
+  if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch())
+    return;
+
   TouchInfo touchInfo;
   touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
   touchInfo.mFingerId = id;
