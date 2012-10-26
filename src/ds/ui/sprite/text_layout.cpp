@@ -182,7 +182,18 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
     } else if (*it == L"\n" ) {
       // Flush the current line
       if (!lineText.empty()) {
-        out.addLine(ci::Vec2f(0, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
+        //out.addLine(ci::Vec2f(0, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
+        if (mAlignment == Left) {
+          out.addLine(ci::Vec2f(0, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
+        } else if (mAlignment == Right) {
+          float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
+          float x = in.mSize.x - size;
+          out.addLine(ci::Vec2f(x, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
+        } else {
+          float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
+          float x = (in.mSize.x - size) / 2.0f;
+          out.addLine(ci::Vec2f(x, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
+        }
       }
       lineText.clear();
       //lineText.append(" ");

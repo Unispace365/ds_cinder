@@ -112,6 +112,7 @@ class Engine : public ui::SpriteEngine {
 
   protected:
     ui::Sprite                  mRootSprite;
+    int                         mTuioPort;
 
   private:
     ds::ui::Tweenline           mTweenline;

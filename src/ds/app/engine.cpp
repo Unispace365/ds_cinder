@@ -273,6 +273,7 @@ void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )
   }
 
   mHideMouse = mSettings.getBool("hide_mouse", 0, false);
+  mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
 
   settings.setFrameRate(mSettings.getFloat("frame_rate", 0, 60.0f));
 
