@@ -396,6 +396,7 @@ void Text::drawIntoFbo()
     if (!mTexture || mTexture.getWidth() < w || mTexture.getHeight() < h) {
       ci::gl::Texture::Format format;
       format.setTarget(GL_TEXTURE_2D);
+      format.setMagFilter(GL_NEAREST);
       mTexture = ci::gl::Texture(w, h);
     }
 
