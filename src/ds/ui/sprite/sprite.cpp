@@ -522,6 +522,7 @@ void Sprite::setSizeAll( float width, float height, float depth )
   mWidth = width;
   mHeight = height;
   mDepth = depth;
+  mUpdateTransform = true;
   markAsDirty(SIZE_DIRTY);
   dimensionalStateChanged();
 }

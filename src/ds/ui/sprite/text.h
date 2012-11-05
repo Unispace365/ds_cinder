@@ -65,6 +65,7 @@ class Text: public Sprite
         float                     getFontDescent() const;
         float                     getFontHeight() const;  // does not include leading
         float                     getFontLeading() const;
+        virtual float             getLeading() const;
 
         // Print my line info
         void                      debugPrint();

@@ -160,7 +160,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   LimitCheck                  check(in);
   float                       y = ceilf((1.0f - getFontAscender(in.mFont)) * in.mFont->pointSize());
                                                                                        //address this
-  const float                 lineH = in.mFont->height()*mLeading + in.mFont->pointSize();//in.mFont->ascender() + in.mFont->descender() + (in.mFont->getFont().getLeading()*mLeading);
+  const float                 lineH = in.mFont->pointSize()*mLeading + in.mFont->pointSize();//in.mFont->ascender() + in.mFont->descender() + (in.mFont->getFont().getLeading()*mLeading);
   std::wstring                 lineText;
 
   // Before we do anything, make sure we have room for the first line,

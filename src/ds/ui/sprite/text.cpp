@@ -439,6 +439,11 @@ void Text::drawIntoFbo()
   }
 }
 
+float Text::getLeading() const
+{
+  return 1.0f;
+}
+
 } // namespace ui
 } // namespace ds
 
