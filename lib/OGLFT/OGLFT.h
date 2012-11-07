@@ -57,6 +57,8 @@
 #include FT_TRIGONOMETRY_H
 #include <string>
 
+#include <unordered_map>
+
 //! All of OGLFT C++ objects are in this namespace.
 
 namespace OGLFT {
@@ -287,6 +289,9 @@ namespace OGLFT {
     };
 
   private:
+
+
+    std::unordered_map<wchar_t, BBox> mBBoxes;
     //! We allow a Face to be constructed either from a file name
     //! or passed in as an already opened FreeType FT_Face. In the case
     //! of the later (already opened), we don't close the FT_Face on

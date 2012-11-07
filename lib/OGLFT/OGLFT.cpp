@@ -629,14 +629,23 @@ namespace OGLFT {
   {
     BBox bbox;
 
-    for ( unsigned int i = 0; i < s.length(); i++ ) {
+    unsigned stringSize = s.size();
+    for ( unsigned int i = 0; i < stringSize; i++ ) {
+      
+      auto found = mBBoxes.find(s[i]);
+      if (found != mBBoxes.end()) {
+        bbox += found->second;
+        continue;
+      }
+
       BBox char_bbox;
 
       unsigned int f;
       FT_UInt glyph_index = 0;
 
-      for ( f = 0; f < faces_.size(); f++ ) {
-        glyph_index = FT_Get_Char_Index( faces_[f].face_, s.at( i ) );
+      unsigned facesSize = faces_.size();
+      for ( f = 0; f < facesSize; f++ ) {
+        glyph_index = FT_Get_Char_Index( faces_[f].face_, s[i] );
         if ( glyph_index != 0 ) break;
       }
 
@@ -661,6 +670,7 @@ namespace OGLFT {
       char_bbox.advance_ = faces_[f].face_->glyph->advance;
 
       bbox += char_bbox;
+      mBBoxes[s[i]] = char_bbox;
     }
 
     return bbox;
