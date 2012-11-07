@@ -161,7 +161,6 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
 
   tokens = ds::partition(in.mText, partitioners);
 
-  clock_t start = clock();
   LimitCheck                  check(in);
   float                       y = ceilf((1.0f - getFontAscender(in.mFont)) * in.mFont->pointSize());
                                                                                        //address this
@@ -298,7 +297,6 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
       out.addLine(ci::Vec2f(x, y), lineText);
     }
   }
-  std::cout << double(clock() - start) / CLOCKS_PER_SEC << std::endl;
 }
 
 int getFontSize( const FontPtr &font )
