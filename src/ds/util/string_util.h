@@ -62,9 +62,18 @@ std::wstring value_to_wstring(T number)
 std::vector<std::string> split( const std::string &str, const std::string &delimiters, bool dropEmpty = false );
 std::vector<std::wstring> split( const std::wstring &str, const std::wstring &delimiters, bool dropEmpty = false );
 
+struct Token
+{
+  Token(int pos = 0, int size = 0)
+    : pos(pos)
+    , size(size) {}
+  int pos;
+  int size;
+};
+
 std::vector<std::string> partition( const std::string &str, const std::string &partitioner );
 std::vector<std::string> partition(const std::string &str, const std::vector<std::string> &partitioners);
-std::vector<std::wstring> partition( const std::wstring &str, const std::wstring &partitioner );
+void partition( const std::wstring &str, const std::wstring &partitioner, const Token &token, std::vector<Token> &partitions );
 std::vector<std::wstring> partition(const std::wstring &str, const std::vector<std::wstring> &partitioners);
 
 int find_count( const std::string &str, const std::string &token );

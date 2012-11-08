@@ -10,6 +10,8 @@ using namespace ds;
  ******************************************************************/
 #ifdef WIN32
 #include <windows.h>
+#include <time.h>
+#include <iostream>
 
 std::wstring wstr_from_str(const std::string& str, const UINT cp)
 {
@@ -261,58 +263,130 @@ std::vector<std::string> ds::partition( const std::string &str, const std::vecto
   return partitions;
 }
 
-std::vector<std::wstring> ds::partition( const std::wstring &str, const std::wstring &partitioner )
+//std::vector<std::wstring> ds::partition( const std::wstring &str, const std::wstring &partitioner )
+//{
+//  std::vector<std::wstring> partitions;
+//
+//  std::size_t pos;
+//  std::size_t lastPos = 0;
+//
+//  while (lastPos != std::wstring::npos) {
+//    pos = str.find_first_of(partitioner, lastPos);
+//    if (pos != std::wstring::npos) {
+//      if (pos == lastPos) {
+//        partitions.push_back(std::wstring(str.data() + lastPos, pos-lastPos+partitioner.size()));
+//        lastPos += partitioner.size();
+//        continue;
+//      } else {
+//        partitions.push_back(std::wstring(str.data() + lastPos, pos-lastPos));
+//        partitions.push_back(partitioner);
+//        lastPos = pos;
+//        lastPos += partitioner.size();
+//        continue;
+//      }
+//    } else {
+//      pos = str.length();
+//      if (pos != lastPos)
+//        partitions.push_back(std::wstring(str.data() + lastPos, pos-lastPos));
+//      break;
+//    }
+//    lastPos += 1;
+//  }
+//
+//  return partitions;
+//}
+
+namespace {
+
+bool strEqual(const wchar_t *str1, const wchar_t *str2, int size)
 {
-  std::vector<std::wstring> partitions;
-
-  std::size_t pos;
-  std::size_t lastPos = 0;
-
-  while (lastPos != std::wstring::npos) {
-    pos = str.find_first_of(partitioner, lastPos);
-    if (pos != std::wstring::npos) {
-      if (pos == lastPos) {
-        partitions.push_back(std::wstring(str.data() + lastPos, pos-lastPos+partitioner.size()));
-        lastPos += partitioner.size();
-        continue;
-      } else {
-        partitions.push_back(std::wstring(str.data() + lastPos, pos-lastPos));
-        partitions.push_back(partitioner);
-        lastPos = pos;
-        lastPos += partitioner.size();
-        continue;
-      }
-    } else {
-      pos = str.length();
-      if (pos != lastPos)
-        partitions.push_back(std::wstring(str.data() + lastPos, pos-lastPos));
-      break;
-    }
-    lastPos += 1;
+  for (int i = 0; i < size; ++i) {
+    if (str1[i] != str2[i])
+      return false;
   }
+  return true;
+}
 
-  return partitions;
+}
+
+void ds::partition( const std::wstring &str, const std::wstring &partitioner, const Token &token, std::vector<Token> &partitions )
+{
+  int lastPos = token.pos;
+  const int size = token.pos + token.size - (partitioner.size()-1);
+  for (int i = token.pos; i < size; ++i) {
+    if (strEqual(&str[i], partitioner.c_str(), partitioner.size())) {
+      if (i - lastPos > 0)
+        partitions.push_back(Token(lastPos, i - lastPos));
+      partitions.push_back(Token(i, partitioner.size()));
+      lastPos = i + partitioner.size();
+    }
+  }
+  if (lastPos != token.pos + token.size)
+    partitions.push_back(Token(lastPos, token.pos + token.size - lastPos));
 }
 
 std::vector<std::wstring> ds::partition( const std::wstring &str, const std::vector<std::wstring> &partitioners )
 {
-  std::vector<std::wstring> partitions;
-  partitions.push_back(str);
+  //clock_t start = clock();
+  std::vector<Token> partitions;
+  partitions.push_back(Token(0, str.size()));
 
+  std::vector<Token> tPartitions;
   for (auto it = partitioners.begin(), it2 = partitioners.end(); it != it2; ++it) {
-    std::vector<std::wstring> tPartitions;
     for (auto itt = partitions.begin(), itt2 = partitions.end(); itt != itt2; ++itt) {
-      std::vector<std::wstring> splitWords = ds::partition(*itt, *it);
-
-      for (auto ittt = splitWords.begin(), ittt2 = splitWords.end(); ittt != ittt2; ++ittt) {
-        tPartitions.push_back(*ittt);
-      }
+      partition(str, *it, *itt, tPartitions);
     }
     partitions = tPartitions;
+    tPartitions.clear();
   }
 
-  return partitions;
+  std::vector<std::wstring> tokenPartitions;
+  for (int i = 0; i < partitions.size(); ++i) {
+    tokenPartitions.push_back(str.substr(partitions[i].pos, partitions[i].size));
+  }
+
+  //std::cout << "time taken: " << (double)(clock() - start) / CLOCKS_PER_SEC << std::endl;
+  return tokenPartitions;
 }
+//std::vector<std::wstring> ds::partition( const std::wstring &str, const std::wstring &partitioner )
+//{
+//  std::vector<std::wstring> partitions;
+//
+//  int lastPos = 0;
+//  const int size = str.size() - (partitioner.size()-1);
+//  for (int i = 0; i < size; ++i) {
+//    if (strEqual(&str[i], partitioner.c_str(), partitioner.size())) {
+//      if (i - lastPos > 0)
+//        partitions.push_back(str.substr(lastPos, i - lastPos));
+//      partitions.push_back(str.substr(i, partitioner.size()));
+//      lastPos = i + partitioner.size();
+//    }
+//  }
+//  if (lastPos != str.size())
+//    partitions.push_back(str.substr(lastPos, str.size() - lastPos));
+//
+//  return partitions;
+//}
+//
+//std::vector<std::wstring> ds::partition( const std::wstring &str, const std::vector<std::wstring> &partitioners )
+//{
+//  std::vector<std::wstring> partitions;
+//  partitions.push_back(str);
+//
+//  for (auto it = partitioners.begin(), it2 = partitioners.end(); it != it2; ++it) {
+//    std::vector<std::wstring> tPartitions;
+//    for (auto itt = partitions.begin(), itt2 = partitions.end(); itt != itt2; ++itt) {
+//      std::vector<std::wstring> splitWords = ds::partition(*itt, *it);
+//
+//      for (auto ittt = splitWords.begin(), ittt2 = splitWords.end(); ittt != ittt2; ++ittt) {
+//        tPartitions.push_back(*ittt);
+//      }
+//    }
+//    partitions = tPartitions;
+//  }
+//
+//  return partitions;
+//}
 
 int ds::find_count( const std::string &str, const std::string &token )
 {

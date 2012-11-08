@@ -378,6 +378,9 @@ void Text::calculateFrame(const int flags)
 
 void Text::drawIntoFbo()
 {
+
+  //clock_t start = clock();
+
   mTexture.reset();
 
   if (!mFont) return;
@@ -437,6 +440,8 @@ void Text::drawIntoFbo()
     }
     mEngine.setCamera();
   }
+  
+  //std::cout << "time taken: " << (double)(clock() - start) / CLOCKS_PER_SEC << std::endl;
 }
 
 float Text::getLeading() const
@@ -489,7 +494,7 @@ static FontPtr get_font(const std::string& filename, const float size)
   if (!font->isValid())
     throw std::runtime_error("Font: " + filename + " was unable to load.");
 
-  font->setCompileMode(OGLFT::Face::IMMEDIATE);
+  font->setCompileMode(OGLFT::Face::COMPILE);
 
   mFontCache[filename][size] = font;
   return font;
