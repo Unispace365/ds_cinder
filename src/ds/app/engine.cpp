@@ -470,4 +470,9 @@ bool Engine::hideMouse() const
   return mHideMouse;
 }
 
+void Engine::clearFingers( const std::vector<int> &fingers )
+{
+	mTouchManager.clearFingers(fingers);
+}
+
 } // namespace ds

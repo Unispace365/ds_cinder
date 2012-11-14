@@ -179,5 +179,23 @@ void TouchManager::setTouchColor( const ci::Color &color )
   mTouchColor = color;
 }
 
+void TouchManager::clearFingers( const std::vector<int> &fingers )
+{
+	for ( auto i = fingers.begin(), e = fingers.end(); i != e; ++i )
+	{
+		auto dispatcher = mFingerDispatcher.find(*i);
+		if ( dispatcher != mFingerDispatcher.end() )
+			mFingerDispatcher.erase(dispatcher);
+
+		auto startPoint = mTouchStartPoint.find(*i);
+		if ( startPoint != mTouchStartPoint.end() )
+			mTouchStartPoint.erase(startPoint);
+
+		auto prevPoint = mTouchPreviousPoint.find(*i);
+		if ( prevPoint != mTouchPreviousPoint.end() )
+			mTouchPreviousPoint.erase(prevPoint);
+	}
+}
+
 } // namespace ui
 } // namespace ds

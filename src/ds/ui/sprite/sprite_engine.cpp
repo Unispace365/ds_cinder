@@ -66,5 +66,10 @@ double SpriteEngine::getElapsedTimeSeconds() const
   return ci::app::getElapsedSeconds();
 }
 
+void SpriteEngine::clearFingers( const std::vector<int> &fingers )
+{
+
+}
+
 } // namespace ui
 } // namespace ds

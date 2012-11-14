@@ -95,6 +95,8 @@ class Engine : public ui::SpriteEngine {
     bool                        systemMultitouchEnabled() const;
     bool                        hideMouse() const;
 
+	virtual void                clearFingers( const std::vector<int> &fingers );
+
   protected:
     Engine(ds::App&, const ds::cfg::Settings&);
 
