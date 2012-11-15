@@ -12,12 +12,28 @@ static void tokenize(const std::string& ws, std::vector<std::string>& tokens);
 namespace ds {
 namespace ui {
 
+int getFontSize( const FontPtr &font )
+{
+  return abs(font->ascender())+abs(font->descender());
+}
+
+float getFontAscender( const FontPtr &font )
+{
+  return font->ascender() / (float)getFontSize(font);
+}
+
+float getFontDescender( const FontPtr &font )
+{
+  return font->descender() / (float)getFontSize(font);
+}
+
 namespace {
+  
 class LimitCheck {
   public:
     LimitCheck(const TextLayout::Input& in)
       : mLimitToHeight(!(in.mSprite.autoResizeHeight()))
-      , mDescent(in.mFont->descender())
+      , mDescent(getFontDescender(in.mFont))
       , mMaxY(in.mSize.y)
     {
     }
@@ -297,21 +313,6 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
       out.addLine(ci::Vec2f(x, y), lineText);
     }
   }
-}
-
-int getFontSize( const FontPtr &font )
-{
-  return abs(font->ascender())+abs(font->descender());
-}
-
-float getFontAscender( const FontPtr &font )
-{
-  return font->ascender() / (float)getFontSize(font);
-}
-
-float getFontDescender( const FontPtr &font )
-{
-  return font->descender() / (float)getFontSize(font);
 }
 
 } // namespace ui
