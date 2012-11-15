@@ -307,7 +307,15 @@ float Text::getFontLeading() const
   //////////////////////////////////////////////////////////////////////////
 
   if (!mFont) return 0;
-  return mFont->height();
+  return static_cast<float>(mFont->height());
+}
+
+float Text::getPixelFontHeight() const
+{
+  if (!mFont) return 0;
+  float y = ceilf((1.0f - getFontAscender(mFont)) * mFont->pointSize());
+  auto p = mFont->pointSize();
+  return p + y - (getFontDescender(mFont) * p);
 }
 
 void Text::debugPrint()
@@ -349,7 +357,7 @@ void Text::calculateFrame(const int flags)
   if (!mFont) return;
 
   //const float     descent = mFont->descender();
-  const float     lineHeight = mFont->height();
+  const float     lineHeight = static_cast<float>(mFont->height());
   const float     height = mFont->pointSize();
   float           w = 0, h = 0;
   auto&           lines = mLayout.getLines();

@@ -66,6 +66,9 @@ class Text: public Sprite
         float                     getFontHeight() const;  // does not include leading
         float                     getFontLeading() const;
         virtual float             getLeading() const;
+        // Return the font height in pixels, including ascender and descender. Seems
+        // like one of the other functions should do this, but they don't.
+        float                     getPixelFontHeight() const;
 
         // Print my line info
         void                      debugPrint();
