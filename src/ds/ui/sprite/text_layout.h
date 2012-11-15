@@ -6,10 +6,19 @@
 #include <vector>
 #include <cinder/Vector.h>
 #include <cinder/gl/TextureFont.h>
+#include <OGLFT.h>
+
+typedef std::shared_ptr<OGLFT::Translucent> FontPtr;
 
 namespace ds {
 namespace ui {
 class Text;
+
+ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str);
+ci::Vec2f getSizeFromString(const FontPtr &font, const std::wstring &str);
+int getFontSize(const FontPtr &font);
+float getFontAscender(const FontPtr &font);
+float getFontDescender(const FontPtr &font);
 
 enum Alignment
 {
@@ -30,20 +39,17 @@ class TextLayout
       public:
         Line();
         ci::Vec2f         mPos;
-        std::string       mText;
+        std::wstring       mText;
     };
     // A bundle of all data necessary to create a layout
     class Input {
       public:
-        Input(const Text&, const ci::gl::TextureFontRef&, const ci::gl::TextureFont::DrawOptions&,
-              const ci::Vec2f& size, const std::string& text);
+        Input(const Text&, const FontPtr &,
+              const ci::Vec2f& size, const std::wstring& text);
         const Text&           mSprite;
-        const ci::gl::TextureFontRef&
-                              mFont;
-        const ci::gl::TextureFont::DrawOptions&
-                              mOptions;
+        const FontPtr &mFont;
         const ci::Vec2f&      mSize;
-        const std::string&    mText;
+        const std::wstring&    mText;
       private:
         Input();
     };
@@ -53,7 +59,7 @@ class TextLayout
 
     void                    clear();
 
-    void                    addLine(const ci::Vec2f&, const std::string&);
+    void                    addLine(const ci::Vec2f&, const std::wstring&);
 
     const std::vector<Line> getLines() const    { return mLines; }
 

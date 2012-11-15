@@ -92,6 +92,11 @@ class Engine : public ui::SpriteEngine {
     // to make sure everything is stopped before they go away.
     virtual void                stopServices();
 
+    bool                        systemMultitouchEnabled() const;
+    bool                        hideMouse() const;
+
+	virtual void                clearFingers( const std::vector<int> &fingers );
+
   protected:
     Engine(ds::App&, const ds::cfg::Settings&);
 
@@ -109,6 +114,7 @@ class Engine : public ui::SpriteEngine {
 
   protected:
     ui::Sprite                  mRootSprite;
+    int                         mTuioPort;
 
   private:
     ds::ui::Tweenline           mTweenline;
@@ -145,6 +151,9 @@ class Engine : public ui::SpriteEngine {
     std::vector<MousePair>     mMouseBeginEvents;
     std::vector<MousePair>     mMouseMovedEvents;
     std::vector<MousePair>     mMouseEndEvents;
+
+    bool                       mSystemMultitouchEnabled;
+    bool                       mHideMouse;
 };
 
 } // namespace ds

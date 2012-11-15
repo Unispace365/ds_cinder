@@ -189,6 +189,9 @@ void LoadImageService::update()
 #endif
 		} else {
       h.mTexture = ci::gl::Texture(out.mSurface);
+      if (glGetError() == GL_OUT_OF_MEMORY) {
+        DS_LOG_ERROR_M("LoadImageService::update() called on filename: " << out.mFilename << " recieved an out of memory error. Image my be too big.", LOAD_IMAGE_LOG_M);
+      }
       DS_REPORT_GL_ERRORS();
     }
     out.clear();

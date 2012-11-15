@@ -32,6 +32,8 @@ class TouchManager
 
     void                        drawTouches() const;
     void                        setTouchColor(const ci::Color &color);
+
+	void                        clearFingers( const std::vector<int> &fingers );
   private:
     Engine &mEngine;
 

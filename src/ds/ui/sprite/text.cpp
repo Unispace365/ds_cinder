@@ -12,22 +12,34 @@
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "cinder/Camera.h"
+#include <stdexcept>
+#include "ds/util/string_util.h"
 
 using namespace ci;
 
 namespace {
 
-std::map<std::string, std::map<float, std::shared_ptr<ci::Font>>> mFontCache;
+//std::map<std::string, std::map<float, std::shared_ptr<ci::Font>>> mFontCache;
+//
+//std::map<std::string, std::map<float, ci::gl::TextureFontRef>>
+//                                  mTextureFonts;
 
-std::map<std::string, std::map<float, ci::gl::TextureFontRef>>
-                                  mTextureFonts;
+std::map<std::string, std::map<float, FontPtr>> mFontCache;
 }
 
 static const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("text sprite");
-static ci::gl::TextureFontRef get_font(const std::string& filename, const float size);
+//static ci::gl::TextureFontRef get_font(const std::string& filename, const float size);
+
+FontPtr get_font(const std::string& filename, const float size);
 
 namespace ds {
 namespace ui {
+
+
+void clearFontCache()
+{
+  mFontCache.clear();
+}
 
 namespace {
 char                BLOB_TYPE         = 0;
@@ -128,7 +140,7 @@ Text& Text::setResizeLimit(const float width, const float height)
 
 Text& Text::setFont(const std::string& filename, const float fontSize)
 {
-  mTextureFont = get_font(filename, fontSize);
+  mFont = get_font(filename, fontSize);
   mFontSize = fontSize;
   markAsDirty(FONT_DIRTY);
   mNeedsLayout = true;
@@ -211,6 +223,18 @@ float Text::getHeight() const
 
 Text& Text::setText( const std::string &text )
 {
+  std::wstring temp = ds::wstr_from_utf8(text);
+
+  if (mTextString == temp) return *this;
+
+  mTextString = temp;
+  mNeedsLayout = true;
+  mNeedRedrawing = true;
+  return *this;
+}
+
+Text& Text::setText( const std::wstring &text )
+{
   if (mTextString == text) return *this;
 
   mTextString = text;
@@ -219,10 +243,17 @@ Text& Text::setText( const std::string &text )
   return *this;
 }
 
-std::string Text::getText() const
+std::wstring Text::getText() const
 {
     return mTextString;
 }
+
+std::string Text::getTextAsString() const
+{
+
+  return ds::utf8_from_wstr(mTextString);
+}
+
 
 bool Text::hasText() const
 {
@@ -253,26 +284,30 @@ Text& Text::setLayoutFunction(const TextLayout::MAKE_FUNC& f)
 
 float Text::getFontAscent() const
 {
-  if (!mTextureFont) return 0;
-  return mTextureFont->getAscent();
+  if (!mFont) return 0;
+  return getFontAscender(mFont) * mFont->pointSize();
 }
 
 float Text::getFontDescent() const
 {
-  if (!mTextureFont) return 0;
-  return mTextureFont->getDescent();
+  if (!mFont) return 0;
+  return getFontDescender(mFont) * mFont->pointSize();
 }
 
 float Text::getFontHeight() const
 {
-  if (!mTextureFont) return 0;
-  return mTextureFont->getAscent() + mTextureFont->getDescent();
+  if (!mFont) return 0;
+  return getFontAscent() + getFontDescent();
 }
 
 float Text::getFontLeading() const
 {
-  if (!mTextureFont) return 0;
-  return mTextureFont->getFont().getLeading();
+  //////////////////////////////////////////////////////////////////////////
+  // Come back to this.
+  //////////////////////////////////////////////////////////////////////////
+
+  if (!mFont) return 0;
+  return mFont->height();
 }
 
 void Text::debugPrint()
@@ -287,7 +322,7 @@ void Text::makeLayout()
   if (mNeedsLayout) {
     mNeedsLayout = false;
     mLayout.clear();
-    if (mLayoutFunc && mTextureFont) {
+    if (mLayoutFunc && mFont) {
       ci::Vec2f      size(mWidth-mBorder.x1-mBorder.x2, mHeight-mBorder.y1-mBorder.y2);
       // If we're auto resizing, then the area to perform the layout should be unlimited.
       if ((mResizeToTextF&RESIZE_W) != 0) {
@@ -298,7 +333,7 @@ void Text::makeLayout()
         size.y = 100000;
         if (mResizeLimitHeight > 0) size.y = mResizeLimitHeight;
       }
-      TextLayout::Input    in(*this, mTextureFont, mDrawOptions, size, mTextString);
+      TextLayout::Input    in(*this, mFont, size, mTextString);
       mLayoutFunc(in, mLayout);
     }
     markAsDirty(LAYOUT_DIRTY);
@@ -311,17 +346,25 @@ void Text::makeLayout()
 
 void Text::calculateFrame(const int flags)
 {
-  if (!mTextureFont) return;
+  if (!mFont) return;
 
-  const float     descent = mTextureFont->getDescent();
+  //const float     descent = mFont->descender();
+  const float     lineHeight = mFont->height();
+  const float     height = mFont->pointSize();
   float           w = 0, h = 0;
   auto&           lines = mLayout.getLines();
 
   for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
     const TextLayout::Line&   line(*it);
-    const ci::Vec2f           size = mTextureFont->measureString(line.mText, mDrawOptions);
-    const float               lineW = line.mPos.x + size.x,
-                              lineH = line.mPos.y + descent;
+    const ci::Vec2f           size = getSizeFromString(mFont, line.mText);//mFont->measureRaw(line.mText.c_str());
+    const float               lineW = line.mPos.x + size.x;
+          float               lineH = line.mPos.y + height;
+    if (it + 1 != lines.end()) {
+      lineH += lineHeight;
+    } else {
+      OGLFT::BBox box = mFont->measureRaw(line.mText.c_str());
+      lineH += -box.y_min_;
+    }
     if (lineW > w) w = lineW;
     if (lineH > h) h = lineH;
   }
@@ -335,9 +378,12 @@ void Text::calculateFrame(const int flags)
 
 void Text::drawIntoFbo()
 {
+
+  //clock_t start = clock();
+
   mTexture.reset();
 
-  if (!mTextureFont) return;
+  if (!mFont) return;
 
   auto& lines = mLayout.getLines();
   if (lines.empty()) return;
@@ -353,10 +399,12 @@ void Text::drawIntoFbo()
     if (!mTexture || mTexture.getWidth() < w || mTexture.getHeight() < h) {
       ci::gl::Texture::Format format;
       format.setTarget(GL_TEXTURE_2D);
+      //format.setMagFilter(GL_NEAREST);
       mTexture = ci::gl::Texture(w, h);
     }
 
-    applyBlendingMode(NORMAL);
+    gl::enableAlphaBlending();
+    applyBlendingMode(LIGHTEN);
     {
       gl::SaveFramebufferBinding bindingSaver;
 
@@ -375,10 +423,15 @@ void Text::drawIntoFbo()
       ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
       ci::gl::color(Color(1.0f, 1.0f, 1.0f));
 
+      mFont->setForegroundColor( 1.0f, 1.0f, 1.0f );
+      mFont->setBackgroundColor( 0.0f, 0.0f, 0.0f, 0.0f );
       //std::cout << "Size: " << lines.size() << std::endl;
+      float height = mFont->pointSize();
       for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
         const TextLayout::Line&   line(*it);
-        mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
+        //mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
+        OGLFT::BBox box = mFont->measureRaw(line.mText);
+        mFont->draw(line.mPos.x+mBorder.x1 - box.x_min_, line.mPos.y+mBorder.y1 + height, line.mText);
       }
 
       fbo->end();
@@ -387,34 +440,62 @@ void Text::drawIntoFbo()
     }
     mEngine.setCamera();
   }
+  
+  //std::cout << "time taken: " << (double)(clock() - start) / CLOCKS_PER_SEC << std::endl;
+}
+
+float Text::getLeading() const
+{
+  return 1.0f;
 }
 
 } // namespace ui
 } // namespace ds
 
-static ci::gl::TextureFontRef get_font(const std::string& filename, const float size)
-{
-    auto found = mTextureFonts.find(filename);
-    if ( found != mTextureFonts.end() )
-    {
-        auto found2 = found->second.find(size);
-        if ( found2 != found->second.end() )
-            return found2->second;
-    }
+//static ci::gl::TextureFontRef get_font(const std::string& filename, const float size)
+//{
+//    auto found = mTextureFonts.find(filename);
+//    if ( found != mTextureFonts.end() )
+//    {
+//        auto found2 = found->second.find(size);
+//        if ( found2 != found->second.end() )
+//            return found2->second;
+//    }
+//
+//    ci::DataSourcePathRef src = ci::DataSourcePath::create(filename);
+//    ci::Font              f(src, size);
+//    if (!f) {
+//      DS_LOG_ERROR_M("Text::get_font() failed to load font (" << filename << ")", SPRITE_LOG);
+//      DS_ASSERT(false);
+//      return nullptr;
+//    }
+//    ci::gl::TextureFontRef  tf = ci::gl::TextureFont::create(f);
+//    if (!tf) {
+//      DS_LOG_ERROR_M("Text::get_font() failed to create font texture (" << filename << ")", SPRITE_LOG);
+//      DS_ASSERT(false);
+//      return nullptr;
+//    }
+//    mTextureFonts[filename][size] = tf;
+//    return tf;
+//}
 
-    ci::DataSourcePathRef src = ci::DataSourcePath::create(filename);
-    ci::Font              f(src, size);
-    if (!f) {
-      DS_LOG_ERROR_M("Text::get_font() failed to load font (" << filename << ")", SPRITE_LOG);
-      DS_ASSERT(false);
-      return nullptr;
-    }
-    ci::gl::TextureFontRef  tf = ci::gl::TextureFont::create(f);
-    if (!tf) {
-      DS_LOG_ERROR_M("Text::get_font() failed to create font texture (" << filename << ")", SPRITE_LOG);
-      DS_ASSERT(false);
-      return nullptr;
-    }
-    mTextureFonts[filename][size] = tf;
-    return tf;
+static FontPtr get_font(const std::string& filename, const float size)
+{
+  auto found = mFontCache.find(filename);
+  if ( found != mFontCache.end() )
+  {
+    auto found2 = found->second.find(size);
+    if ( found2 != found->second.end() )
+      return found2->second;
+  }
+
+  FontPtr font = FontPtr(new OGLFT::Translucent(filename.c_str(), size));
+
+  if (!font->isValid())
+    throw std::runtime_error("Font: " + filename + " was unable to load.");
+
+  font->setCompileMode(OGLFT::Face::COMPILE);
+
+  mFontCache[filename][size] = font;
+  return font;
 }

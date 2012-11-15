@@ -11,6 +11,7 @@
 
 namespace ds {
 namespace ui {
+void clearFontCache();
 
 /**
  * \class ds::ui::Text
@@ -51,7 +52,9 @@ class Text: public Sprite
         virtual void              updateServer(const UpdateParams&);
         void                      drawLocalClient();
         Text&                     setText( const std::string &text );
-        std::string               getText() const;
+        Text&                     setText( const std::wstring &text );
+        std::string               getTextAsString() const;
+        std::wstring              getText() const;
         bool                      hasText() const;
 
         // Set a function for translating a string into a layout object.
@@ -62,6 +65,7 @@ class Text: public Sprite
         float                     getFontDescent() const;
         float                     getFontHeight() const;  // does not include leading
         float                     getFontLeading() const;
+        virtual float             getLeading() const;
 
         // Print my line info
         void                      debugPrint();
@@ -78,12 +82,13 @@ class Text: public Sprite
         // Only used when ResizeToText is on
         void                      calculateFrame(const int flags);
 
-        ci::gl::TextureFontRef    mTextureFont;
-        ci::gl::TextureFont::DrawOptions
-                                  mDrawOptions;
+        //ci::gl::TextureFontRef    mTextureFont;
+        //ci::gl::TextureFont::DrawOptions
+        //                          mDrawOptions;
+        FontPtr mFont;
         
         float                     mFontSize;
-        std::string               mTextString;
+        std::wstring              mTextString;
         ci::Rectf                 mBorder;
 
         // After performing the layout, this determines if my width and/or height

@@ -41,6 +41,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   , mSwipeQueueSize(4)
   , mDoubleTapTime(0.1f)
   , mSettings(settings)
+  , mSystemMultitouchEnabled(false)
 {
   const std::string     DEBUG_FILE("debug.xml");
   mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
@@ -266,6 +267,16 @@ void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )
                           static_cast<int>(getHeight()));
   settings.setResizable(false);
 
+  if (mSettings.getBool("enable_system_multitouch", 0, false)) {
+    mSystemMultitouchEnabled = true;
+    settings.enableMultiTouch();
+  }
+
+  mHideMouse = mSettings.getBool("hide_mouse", 0, false);
+  mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
+
+  settings.setFrameRate(mSettings.getFloat("frame_rate", 0, 60.0f));
+
   if (mSettings.getText("screen:mode", 0, "") == "full") settings.setFullScreen(true);
   settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 
@@ -447,6 +458,21 @@ void Engine::setCamera()
 
 void Engine::stopServices()
 {
+}
+
+bool Engine::systemMultitouchEnabled() const
+{
+  return mSystemMultitouchEnabled;
+}
+
+bool Engine::hideMouse() const
+{
+  return mHideMouse;
+}
+
+void Engine::clearFingers( const std::vector<int> &fingers )
+{
+	mTouchManager.clearFingers(fingers);
 }
 
 } // namespace ds

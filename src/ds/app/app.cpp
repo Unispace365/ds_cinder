@@ -72,6 +72,8 @@ void App::setup()
 
 void App::update()
 {
+  if (mEngine.hideMouse())
+    hideCursor();
   mEngine.update();
 }
 
@@ -158,6 +160,7 @@ void App::quit()
 void App::shutdown()
 {
   mEngine.getRootSprite().clearChildren();
+  ds::ui::clearFontCache();
   ci::app::AppBasic::shutdown();
 }
 
