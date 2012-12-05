@@ -475,4 +475,11 @@ void Engine::clearFingers( const std::vector<int> &fingers )
 	mTouchManager.clearFingers(fingers);
 }
 
+void Engine::resetIdleTimeOut()
+{
+  float curr = static_cast<float>(getElapsedSeconds());
+  mLastTime = curr;
+  mLastTouchTime = curr;
+}
+
 } // namespace ds
