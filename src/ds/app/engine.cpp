@@ -277,7 +277,10 @@ void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )
 
   settings.setFrameRate(mSettings.getFloat("frame_rate", 0, 60.0f));
 
-  if (mSettings.getText("screen:mode", 0, "") == "full") settings.setFullScreen(true);
+  if (mSettings.getText("screen:mode", 0, "") == "full")
+    settings.setFullScreen(true);
+  else if (mSettings.getText("screen:mode", 0, "") == "borderless")
+    settings.setBorderless(true);
   settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 
   const std::string     nope = "ds:IllegalTitle";
@@ -473,6 +476,13 @@ bool Engine::hideMouse() const
 void Engine::clearFingers( const std::vector<int> &fingers )
 {
 	mTouchManager.clearFingers(fingers);
+}
+
+void Engine::resetIdleTimeOut()
+{
+  float curr = static_cast<float>(getElapsedSeconds());
+  mLastTime = curr;
+  mLastTouchTime = curr;
 }
 
 } // namespace ds

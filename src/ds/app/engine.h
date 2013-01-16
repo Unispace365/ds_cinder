@@ -55,6 +55,7 @@ class Engine : public ui::SpriteEngine {
 
     bool                        isIdling() const;
     void                        startIdling();
+    void                        resetIdleTimeOut();
     
     // Called during app construction, to register the sprites as blob handlers.
     virtual void                installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,

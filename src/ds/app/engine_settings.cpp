@@ -89,8 +89,13 @@ const std::string& EngineSettings::envProjectPath()
 static bool       get_key_value(const std::wstring& arg, std::string& key, std::string& value)
 {
   const std::wstring    SEP_SZ(L"=");
+  const std::wstring    SEP_SZ_ALT(L":");
   size_t                sep = arg.find(SEP_SZ);
-  if (sep == arg.npos) return false;
+  if (sep == arg.npos) {
+    sep = arg.find(SEP_SZ_ALT);
+    if (sep == arg.npos)
+      return false;
+  }
 
   key = ds::utf8_from_wstr(arg.substr(0, sep));
   Poco::toLowerInPlace(key);

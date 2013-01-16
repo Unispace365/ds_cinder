@@ -168,11 +168,12 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   if (partitioners.empty()) {
     partitioners.push_back(L" ");
     partitioners.push_back(L"-");
-    partitioners.push_back(L"_");
+    partitioners.push_back(L"|");
+    //partitioners.push_back(L"_");
     partitioners.push_back(L"\n");
     partitioners.push_back(L"\r");
     partitioners.push_back(L"\t");
-    partitioners.push_back(L",");
+    //partitioners.push_back(L",");
   }
 
   tokens = ds::partition(in.mText, partitioners);
