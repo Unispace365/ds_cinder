@@ -192,6 +192,8 @@ void Engine::updateServer()
   mUpdateParams.setDeltaTime(dt);
   mUpdateParams.setElapsedTime(curr);
 
+  mAutoUpdate.update();
+
   mRootSprite.updateServer(mUpdateParams);
 }
 

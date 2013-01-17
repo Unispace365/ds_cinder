@@ -336,6 +336,15 @@
     <ClInclude Include="..\lib\OGLFT\OGLFT.h">
       <Filter>src\lib\OGLFT</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\thread\serial_runnable.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\auto_update.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\auto_update_list.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -523,6 +532,12 @@
     </ClCompile>
     <ClCompile Include="..\lib\OGLFT\OGLFT.cpp">
       <Filter>src\lib\OGLFT</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\auto_update.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\auto_update_list.cpp">
+      <Filter>src\ds\app</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

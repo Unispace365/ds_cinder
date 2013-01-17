@@ -10,6 +10,7 @@
 #include <memory>
 
 namespace ds {
+class AutoUpdateList;
 class ResourceList;
 class WorkManager;
 
@@ -31,6 +32,7 @@ class SpriteEngine {
     // General engine services
     virtual ds::WorkManager       &getWorkManager() = 0;
     virtual ds::ResourceList      &getResources() = 0;
+    virtual ds::AutoUpdateList    &getAutoUpdateList() = 0;
     virtual LoadImageService      &getLoadImageService() = 0;
     virtual Tweenline             &getTweenline() = 0;
     virtual const ds::cfg::Settings

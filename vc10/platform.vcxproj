@@ -23,6 +23,8 @@
     <ClInclude Include="..\lib\OGLFT\OGLFT.h" />
     <ClInclude Include="..\src\ds\app\app.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
+    <ClInclude Include="..\src\ds\app\auto_update.h" />
+    <ClInclude Include="..\src\ds\app\auto_update_list.h" />
     <ClInclude Include="..\src\ds\app\blob_reader.h" />
     <ClInclude Include="..\src\ds\app\blob_registry.h" />
     <ClInclude Include="..\src\ds\app\engine.h" />
@@ -59,6 +61,7 @@
     <ClInclude Include="..\src\ds\thread\gl_thread.h" />
     <ClInclude Include="..\src\ds\thread\parallel_runnable.h" />
     <ClInclude Include="..\src\ds\thread\runnable_client.h" />
+    <ClInclude Include="..\src\ds\thread\serial_runnable.h" />
     <ClInclude Include="..\src\ds\thread\thread_defs.h" />
     <ClInclude Include="..\src\ds\thread\timed_runnable.h" />
     <ClInclude Include="..\src\ds\thread\work_client.h" />
@@ -101,6 +104,8 @@
     <ClCompile Include="$(CINDER)\blocks\tuio\src\TuioClient.cpp" />
     <ClCompile Include="..\lib\OGLFT\OGLFT.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
+    <ClCompile Include="..\src\ds\app\auto_update.cpp" />
+    <ClCompile Include="..\src\ds\app\auto_update_list.cpp" />
     <ClCompile Include="..\src\ds\app\blob_reader.cpp" />
     <ClCompile Include="..\src\ds\app\blob_registry.cpp" />
     <ClCompile Include="..\src\ds\app\engine.cpp" />
