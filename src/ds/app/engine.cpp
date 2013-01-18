@@ -119,67 +119,68 @@ void Engine::updateServer()
 {
   float curr = static_cast<float>(getElapsedSeconds());
   //////////////////////////////////////////////////////////////////////////
-  myMutex.lock();
-  if (!mMouseBeginEvents.empty()) {
-    mLastTouchTime = curr;
-    mIdling = false;
+  {
+    boost::lock_guard<boost::mutex> lock(myMutex);
+    if (!mMouseBeginEvents.empty()) {
+      mLastTouchTime = curr;
+      mIdling = false;
 
-    for (auto it = mMouseBeginEvents.begin(), it2 = mMouseBeginEvents.end(); it != it2; ++it) {
-    	mTouchManager.mouseTouchBegin(it->first, it->second);
+      for (auto it = mMouseBeginEvents.begin(), it2 = mMouseBeginEvents.end(); it != it2; ++it) {
+    	  mTouchManager.mouseTouchBegin(it->first, it->second);
+      }
+      mMouseBeginEvents.clear();
     }
-    mMouseBeginEvents.clear();
-  }
 
-  if (!mMouseMovedEvents.empty()) {
-    mLastTouchTime = curr;
-    mIdling = false;
+    if (!mMouseMovedEvents.empty()) {
+      mLastTouchTime = curr;
+      mIdling = false;
 
-    for (auto it = mMouseMovedEvents.begin(), it2 = mMouseMovedEvents.end(); it != it2; ++it) {
-      mTouchManager.mouseTouchMoved(it->first, it->second);
+      for (auto it = mMouseMovedEvents.begin(), it2 = mMouseMovedEvents.end(); it != it2; ++it) {
+        mTouchManager.mouseTouchMoved(it->first, it->second);
+      }
+      mMouseMovedEvents.clear();
     }
-    mMouseMovedEvents.clear();
-  }
   
-  if (!mMouseEndEvents.empty()) {
-    mLastTouchTime = curr;
-    mIdling = false;
+    if (!mMouseEndEvents.empty()) {
+      mLastTouchTime = curr;
+      mIdling = false;
 
-    for (auto it = mMouseEndEvents.begin(), it2 = mMouseEndEvents.end(); it != it2; ++it) {
-      mTouchManager.mouseTouchEnded(it->first, it->second);
+      for (auto it = mMouseEndEvents.begin(), it2 = mMouseEndEvents.end(); it != it2; ++it) {
+        mTouchManager.mouseTouchEnded(it->first, it->second);
+      }
+      mMouseEndEvents.clear();
     }
-    mMouseEndEvents.clear();
-  }
-  //////////////////////////////////////////////////////////////////////////
-  if (!mTouchBeginEvents.empty()) {
-    mLastTouchTime = curr;
-    mIdling = false;
+    //////////////////////////////////////////////////////////////////////////
+    if (!mTouchBeginEvents.empty()) {
+      mLastTouchTime = curr;
+      mIdling = false;
 
-    for (auto it = mTouchBeginEvents.begin(), it2 = mTouchBeginEvents.end(); it != it2; ++it) {
-      mTouchManager.touchesBegin(*it);
+      for (auto it = mTouchBeginEvents.begin(), it2 = mTouchBeginEvents.end(); it != it2; ++it) {
+        mTouchManager.touchesBegin(*it);
+      }
+      mTouchBeginEvents.clear();
     }
-    mTouchBeginEvents.clear();
-  }
 
-  if (!mTouchMovedEvents.empty()) {
-    mLastTouchTime = curr;
-    mIdling = false;
+    if (!mTouchMovedEvents.empty()) {
+      mLastTouchTime = curr;
+      mIdling = false;
 
-    for (auto it = mTouchMovedEvents.begin(), it2 = mTouchMovedEvents.end(); it != it2; ++it) {
-      mTouchManager.touchesMoved(*it);
+      for (auto it = mTouchMovedEvents.begin(), it2 = mTouchMovedEvents.end(); it != it2; ++it) {
+        mTouchManager.touchesMoved(*it);
+      }
+      mTouchMovedEvents.clear();
     }
-    mTouchMovedEvents.clear();
-  }
 
-  if (!mTouchEndEvents.empty()) {
-    mLastTouchTime = curr;
-    mIdling = false;
+    if (!mTouchEndEvents.empty()) {
+      mLastTouchTime = curr;
+      mIdling = false;
 
-    for (auto it = mTouchEndEvents.begin(), it2 = mTouchEndEvents.end(); it != it2; ++it) {
-      mTouchManager.touchesEnded(*it);
+      for (auto it = mTouchEndEvents.begin(), it2 = mTouchEndEvents.end(); it != it2; ++it) {
+        mTouchManager.touchesEnded(*it);
+      }
+      mTouchEndEvents.clear();
     }
-    mTouchEndEvents.clear();
-  }
-  myMutex.unlock();
+  } // unlock myMutex
   //////////////////////////////////////////////////////////////////////////
   float dt = curr - mLastTime;
   mLastTime = curr;
@@ -190,6 +191,8 @@ void Engine::updateServer()
 
   mUpdateParams.setDeltaTime(dt);
   mUpdateParams.setElapsedTime(curr);
+
+  mAutoUpdate.update();
 
   mRootSprite.updateServer(mUpdateParams);
 }
@@ -348,25 +351,28 @@ ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id)
 
 void Engine::touchesBegin( TouchEvent event )
 {
-  myMutex.lock();
-  mTouchBeginEvents.push_back(event);
-  myMutex.unlock();
+  {
+    boost::lock_guard<boost::mutex> lock(myMutex);
+    mTouchBeginEvents.push_back(event);
+  }
   //mTouchManager.touchesBegin(event);
 }
 
 void Engine::touchesMoved( TouchEvent event )
 {
-  myMutex.lock();
-  mTouchMovedEvents.push_back(event);
-  myMutex.unlock();
+  {
+    boost::lock_guard<boost::mutex> lock(myMutex);
+    mTouchMovedEvents.push_back(event);
+  }
   //mTouchManager.touchesMoved(event);
 }
 
 void Engine::touchesEnded( TouchEvent event )
 {
-  myMutex.lock();
-  mTouchEndEvents.push_back(event);
-  myMutex.unlock();
+  {
+    boost::lock_guard<boost::mutex> lock(myMutex);
+    mTouchEndEvents.push_back(event);
+  }
   //mTouchManager.touchesEnded(event);
 }
 
@@ -377,17 +383,19 @@ tuio::Client &Engine::getTuioClient()
 
 void Engine::mouseTouchBegin( MouseEvent event, int id )
 {
-  myMutex.lock();
-  mMouseBeginEvents.push_back(MousePair(event, id));
-  myMutex.unlock();
+  {
+    boost::lock_guard<boost::mutex> lock(myMutex);
+    mMouseBeginEvents.push_back(MousePair(event, id));
+  }
   //mTouchManager.mouseTouchBegin(event, id);
 }
 
 void Engine::mouseTouchMoved( MouseEvent event, int id )
 {
-  myMutex.lock();
-  mMouseMovedEvents.push_back(MousePair(event, id));
-  myMutex.unlock();
+  {
+    boost::lock_guard<boost::mutex> lock(myMutex);
+    mMouseMovedEvents.push_back(MousePair(event, id));
+  }
   //mTouchManager.mouseTouchMoved(event, id);
 }
 
@@ -396,9 +404,10 @@ void Engine::mouseTouchEnded( MouseEvent event, int id )
   mLastTouchTime = static_cast<float>(getElapsedSeconds());
   mIdling = false;
 
-  myMutex.lock();
-  mMouseEndEvents.push_back(MousePair(event, id));
-  myMutex.unlock();
+  {
+    boost::lock_guard<boost::mutex> lock(myMutex);
+    mMouseEndEvents.push_back(MousePair(event, id));
+  }
   //mTouchManager.mouseTouchEnded(event, id);
 }
 

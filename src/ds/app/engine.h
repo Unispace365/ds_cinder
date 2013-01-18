@@ -5,6 +5,7 @@
 #include <memory>
 #include <unordered_map>
 #include "ds/app/app_defs.h"
+#include "ds/app/auto_update_list.h"
 #include "ds/app/blob_registry.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
@@ -28,6 +29,7 @@ using namespace ci::app;
 
 namespace ds {
 class App;
+class AutoUpdate;
 
 extern const ds::BitMask	ENGINE_LOG;
 
@@ -42,6 +44,7 @@ class Engine : public ui::SpriteEngine {
     virtual void	              update() = 0;
     virtual void                draw() = 0;
 
+    virtual ds::AutoUpdateList &getAutoUpdateList() { return mAutoUpdate; }
     virtual ds::ui::Tweenline  &getTweenline() { return mTweenline; }
     virtual const ds::cfg::Settings
                                &getDebugSettings() { return mDebugSettings; }
@@ -131,6 +134,9 @@ class Engine : public ui::SpriteEngine {
     tuio::Client                mTuio;
     ui::TouchManager            mTouchManager;
     bool                        mDrawTouches;
+    // Clients that will get update() called automatically at the start
+    // of each update cycle
+    AutoUpdateList              mAutoUpdate;
 
     float                       mMinTouchDistance;
     float                       mMinTapDistance;

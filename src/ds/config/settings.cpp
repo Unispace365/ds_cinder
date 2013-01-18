@@ -423,6 +423,13 @@ bool Settings::getBool(const std::string& name, const int index, const bool defa
 	return check_bool(getText(name, index, defaultValue ? TRUE_SZ : FALSE_SZ), false);
 }
 
+void Settings::forEachTextKey(const std::function<void(const std::string&)>& fn)
+{
+  if (!fn || mText.empty()) return;
+
+  for (auto it=mText.begin(), end=mText.end(); it != end; ++it) fn(it->first);
+}
+
 /**
  * ds::xml::Settings::Editor
  */

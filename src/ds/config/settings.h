@@ -69,6 +69,9 @@ class Settings {
     // Bools are a convenience on text fields that will be either "true" or "false"
     bool							  	getBool(const std::string& name, const int index, const bool defaultValue) const;
 
+    // Iterate over the keys
+    void                  forEachTextKey(const std::function<void(const std::string&)>&);
+
   private:
   	std::map<std::string, std::vector<float>>
                           mFloat;
