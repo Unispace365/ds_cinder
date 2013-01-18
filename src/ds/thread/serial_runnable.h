@@ -37,10 +37,13 @@ public:
   // to supply info to the constructor, supply a custom alloc.
 	SerialRunnable(ui::SpriteEngine&, const std::function<T*(void)>& alloc = nullptr);
 	
+	void							  setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }
 	// Start a new runnable, intializing it via the handler block.  Any previous, unfinished runs
 	// will be ignored.
-	bool							  start(const HandlerFunc& = nullptr);
-	void							  setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }
+  // If waitForResult is true, this will be run synchronously, blocking until the operation is finished.
+  // This is useful for serial runnables that run through the life of an app, but during setup you
+  // want to run them once and guarantee data exists before the app begins.
+	bool							  start(const HandlerFunc& = nullptr, const bool waitForResult = false);
 
 private:
 	bool							  send(std::unique_ptr<T>&);
@@ -70,7 +73,7 @@ SerialRunnable<T>::SerialRunnable(ui::SpriteEngine& se, const std::function<T*(v
 }
 
 template <class T>
-bool SerialRunnable<T>::start(const HandlerFunc& f)
+bool SerialRunnable<T>::start(const HandlerFunc& f, const bool waitForResult)
 {
   // Start a new one by making sure I have a valid mNext. Then it will either
   // sit there waiting to be run, or start immediately.
@@ -84,10 +87,18 @@ bool SerialRunnable<T>::start(const HandlerFunc& f)
 		  if (mNext.get() == nullptr) mNext = std::move(unique_ptr<T>(new T));
 	  } catch (std::exception const&) {
 	  }
-	  if (mNext.get() == nullptr) return false;
+	  if (!mNext) return false;
   }
 
 	if (f) f(*(mNext.get()));
+
+  // Run synchronously if requested
+  if (waitForResult) {
+    mNext->run();
+    mCurrent = mNext.get();
+    receive(mNext);
+    return true;
+  }
 
   // If I'm waiting for someone, keep waiting. Otherwise, go NUTSO.
   if (mCurrent) return true;

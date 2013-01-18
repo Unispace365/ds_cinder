@@ -54,13 +54,13 @@ template <class T>
 bool ParallelRunnable<T>::start(const HandlerFunc& f)
 {
 	// Get a new T to run.  Try to take from the cache.
-	unique_ptr<T>			up;
+	std::unique_ptr<T>			up;
 	try {
 		if (mCache.size() > 0) {
 			up = std::move(mCache.back());
 			mCache.pop_back();
 		}
-		if (up.get() == nullptr) up = std::move(unique_ptr<T>(new T));
+		if (up.get() == nullptr) up = std::move(std::unique_ptr<T>(new T));
 	} catch (std::exception const&) {
 	}
 	if (up.get() == nullptr) return false;
