@@ -71,6 +71,12 @@ std::string Environment::getLocalSettingsPath(const std::string& fileName)
   return p.toString();
 }
 
+void Environment::loadSettings(const std::string& filename, ds::cfg::Settings& settings)
+{
+  settings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), false);
+  settings.readFrom(ds::Environment::getLocalSettingsPath(filename), true);
+}
+
 } // namespace ds
 
 static std::string    folder_from(const Poco::Path& parentP, const std::string& folder, const std::string& fileName)
