@@ -39,6 +39,7 @@ class Settings {
     int									  getResourceIdSize(const std::string& name) const;
     int								  	getTextSize(const std::string& name) const;
     int								  	getTextWSize(const std::string& name) const;
+    int                   getPointSize(const std::string& name) const;
 
     // Throw errors if not found
     float								  getFloat(const std::string& name, const int index = 0) const;
@@ -50,6 +51,7 @@ class Settings {
     const ci::Vec2f&      getSize(const std::string& name, const int index = 0) const;
     const std::string&    getText(const std::string& name, const int index = 0) const;
     const std::wstring&   getTextW(const std::string& name, const int index = 0) const;
+    const ci::Vec3f&      getPoint(const std::string& name, const int index = 0) const;
     // Bools are a convenience on text fields that will be either "true" or "false"
     bool								  getBool(const std::string& name, const int index = 0) const;
 
@@ -63,6 +65,7 @@ class Settings {
     ci::Vec2f				    	getSize(const std::string& name, const int index, const ci::Vec2f& defaultValue) const;
     std::string						getText(const std::string& name, const int index, const std::string& defaultValue) const;
     std::wstring					getTextW(const std::string& name, const int index, const std::wstring& defaultValue) const;
+    const ci::Vec3f&      getPoint(const std::string& name, const int index, const ci::Vec3f& defaultValue) const;
     // Bools are a convenience on text fields that will be either "true" or "false"
     bool							  	getBool(const std::string& name, const int index, const bool defaultValue) const;
 
@@ -85,6 +88,8 @@ class Settings {
                           mText;
   	std::map<std::string, std::vector<std::wstring>>
                           mTextW;
+  	std::map<std::string, std::vector<ci::Vec3f>>
+                          mPoints;
 
     void                  directReadFrom(const std::string& filename, const bool clear);
     void                  directReadXmlFrom(const std::string& filename, const bool clear);
@@ -106,6 +111,7 @@ class Settings {
         Editor&							setResourceId(const std::string& name, const Resource::Id&);
         Editor&							setSize(const std::string& name, const ci::Vec2f&);
         Editor&							setText(const std::string& name, const std::string&);
+        Editor&							setPoint(const std::string& name, const ci::Vec3f&);
 
         Editor&							addInt(const std::string& name, const int);
         Editor&							addResourceId(const std::string& name, const Resource::Id&);

@@ -22,6 +22,7 @@ static const std::string		  RESOURCE_ID_NAME("resource id");
 static const std::string		  SIZE_NAME("size");
 static const std::string		  TEXT_NAME("text");
 static const std::string		  TEXTW_NAME("wtext");
+static const std::string		  POINT_NAME("point");
 
 static const cinder::Color    COLOR_TYPE;
 static const cinder::ColorA   COLORA_TYPE;
@@ -32,6 +33,7 @@ static const Resource::Id     RESOURCE_ID_TYPE;
 static const ci::Vec2f        SIZE_TYPE;
 static const std::string      TEXT_TYPE;
 static const std::wstring     TEXTW_TYPE;
+static const ci::Vec3f        POINT_TYPE;
 
 namespace {
 
@@ -171,6 +173,7 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
   const std::string   A_SZ("a");
   const std::string   X_SZ("x");
   const std::string   Y_SZ("y");
+  const std::string   Z_SZ("z");
 
   // FLOAT
   const std::string   FLOAT_PATH("settings/float");
@@ -228,6 +231,20 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
     const std::string       value = it->getAttributeValue<std::string>(VALUE_SZ);
     add_item(name, mText, value);
   }
+
+  // POINT
+  const std::string  POINT_PATH("settings/point");
+  for (auto it = xml.begin(POINT_PATH); it != end; ++it) {
+    const float             DEFV = 0.0f;
+    const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
+    cinder::Vec3f           value( it->getAttributeValue<float>(X_SZ, DEFV),
+                                   it->getAttributeValue<float>(Y_SZ, DEFV), DEFV);
+    if (it->hasAttribute(Z_SZ)) {
+      value.z = it->getAttributeValue<float>(Z_SZ, DEFV);
+    }
+
+    add_item(name, mPoints, value);
+  }
 }
 
 bool Settings::empty() const
@@ -238,7 +255,8 @@ bool Settings::empty() const
 	if (!mColor.empty()) return false;
 	if (!mSize.empty()) return false;
 	if (!mText.empty()) return false;
-	if (!mTextW.empty()) return false;
+  if (!mTextW.empty()) return false;
+  if (!mPoints.empty()) return false;
 	return true;
 }
 
@@ -252,6 +270,7 @@ void Settings::clear()
 	mSize.clear();
 	mText.clear();
 	mTextW.clear();
+  mPoints.clear();
 }
 
 int Settings::getColorSize(const std::string& name) const
@@ -287,6 +306,11 @@ int Settings::getTextSize(const std::string& name) const
 int Settings::getTextWSize(const std::string& name) const
 {
 	return get_size(name, mTextW);
+}
+
+int Settings::getPointSize( const std::string& name ) const
+{
+  return get_size(name, mPoints);
 }
 
 float Settings::getFloat(const std::string& name, const int index) const
@@ -332,6 +356,11 @@ const std::string& Settings::getText(const std::string& name, const int index) c
 const std::wstring& Settings::getTextW(const std::string& name, const int index) const
 {
 	return get_or_throw(name, mTextW, index, TEXTW_TYPE, TEXTW_NAME);
+}
+
+const ci::Vec3f& Settings::getPoint( const std::string& name, const int index /*= 0*/ ) const
+{
+  return get_or_throw(name, mPoints, index, POINT_TYPE, POINT_NAME);
 }
 
 bool Settings::getBool(const std::string& name, const int index) const
@@ -384,6 +413,11 @@ std::wstring Settings::getTextW(const std::string& name, const int index, const 
 	return get(name, mTextW, index, defaultValue, TEXT_NAME);
 }
 
+const ci::Vec3f& Settings::getPoint( const std::string& name, const int index /*= 0*/, const ci::Vec3f& defaultValue ) const
+{
+  return get_or_throw(name, mPoints, index, POINT_TYPE, POINT_NAME);
+}
+
 bool Settings::getBool(const std::string& name, const int index, const bool defaultValue) const
 {
 	return check_bool(getText(name, index, defaultValue ? TRUE_SZ : FALSE_SZ), false);
@@ -415,7 +449,8 @@ Settings::Editor& Settings::Editor::clear()
 	clear_vec(mSettings.mColorA);
 	mSettings.mSize.clear();
 	clear_vec(mSettings.mText);
-	clear_vec(mSettings.mTextW);
+  clear_vec(mSettings.mTextW);
+  clear_vec(mSettings.mPoints);
 	return *this;
 }
 
@@ -505,6 +540,12 @@ Settings::Editor& Settings::Editor::addTextW(const std::string& name, const std:
 {
 	editor_add_vec(mMode, name, mSettings.mTextW, v);
 	return *this;
+}
+
+Settings::Editor& Settings::Editor::setPoint( const std::string& name, const ci::Vec3f& v)
+{
+  editor_add_vec(mMode, name, mSettings.mPoints, v);
+  return *this;
 }
 
 } // namespace cfg
