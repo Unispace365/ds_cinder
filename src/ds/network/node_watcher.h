@@ -16,7 +16,7 @@ namespace ds {
  * \class ds::NodeWatcher
  * \brief Feed clients information about changes in the node.
  */
-class NodeWatcher { //: public ds::AutoUpdate {
+class NodeWatcher : public ds::AutoUpdate {
 public:
 	// A generic class that stores info received from the node.
 	class Message {

@@ -9,8 +9,8 @@ namespace ds {
  * \class ds::NodeWatcher
  */
 NodeWatcher::NodeWatcher(ds::ui::SpriteEngine& se, const std::string& host, const int port)
-//	: ds::AutoUpdate(se)
-  : mLoop(host, port)
+	: ds::AutoUpdate(se)
+  , mLoop(host, port)
 {
 	mThread.start(mLoop);
 }
