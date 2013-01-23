@@ -131,7 +131,8 @@ void Settings::readFrom(const std::string& filename, const bool append)
 	merge_vec(mColorA, s.mColorA);
 	merge(mSize, s.mSize);
 	merge_vec(mText, s.mText);
-	merge_vec(mTextW, s.mTextW);
+  merge_vec(mTextW, s.mTextW);
+  merge_vec(mPoints, s.mPoints);
 }
 
 void Settings::directReadFrom(const std::string& filename, const bool clearAll)
