@@ -84,7 +84,7 @@ bool SerialRunnable<T>::start(const HandlerFunc& f, const bool waitForResult)
 			  mNext = std::move(mCache.back());
 			  mCache.pop_back();
 		  }
-		  if (mNext.get() == nullptr) mNext = std::move(unique_ptr<T>(new T));
+		  if (mNext.get() == nullptr) mNext = std::move(std::unique_ptr<T>(new T));
 	  } catch (std::exception const&) {
 	  }
 	  if (!mNext) return false;
@@ -96,7 +96,8 @@ bool SerialRunnable<T>::start(const HandlerFunc& f, const bool waitForResult)
   if (waitForResult) {
     mNext->run();
     mCurrent = mNext.get();
-    receive(mNext);
+    std::unique_ptr<Poco::Runnable>		payload(ds::unique_dynamic_cast<Poco::Runnable, T>(mNext));
+    receive(payload);
     return true;
   }
 
@@ -111,7 +112,7 @@ bool SerialRunnable<T>::send(std::unique_ptr<T>& r)
   mCurrent = nullptr;
   if (!r) return false;
 
-	unique_ptr<T>			                up = std::move(r);
+	std::unique_ptr<T>			          up = std::move(r);
 	if (!up) return false;
 
   std::unique_ptr<Poco::Runnable>		payload(ds::unique_dynamic_cast<Poco::Runnable, T>(up));
@@ -130,7 +131,7 @@ void SerialRunnable<T>::receive(std::unique_ptr<Poco::Runnable>& r)
 	std::unique_ptr<T>		payload(ds::unique_dynamic_cast<T, Poco::Runnable>(r));
 	if (payload) {
     if (mCurrent && payload.get() == mCurrent) {
-		  if (mReplyHandler) mReplyHandler(*(payload.get());
+		  if (mReplyHandler) mReplyHandler(*(payload.get()));
     }
 	  try {
       mCache.push_back(std::move(payload));

@@ -238,6 +238,16 @@ Resource::Resource(const Resource::Id& dbId, const int type)
 {
 }
 
+bool Resource::operator==(const Resource& o) const
+{
+	return mDbId == o.mDbId && mType == o.mType && mDuration == o.mDuration && mWidth == o.mWidth && mHeight == o.mHeight && mFileName == o.mFileName && mPath == o.mPath;
+}
+
+bool Resource::operator!=(const Resource& o) const
+{
+  return (!(*this == o));
+}
+
 const std::wstring& Resource::getTypeName() const
 {
 	if (mType == FONT_TYPE) return FONT_NAME_SZ;

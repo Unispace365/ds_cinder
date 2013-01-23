@@ -101,6 +101,9 @@ class Resource
     Resource();
     Resource(const Resource::Id& dbId, const int type);
 
+    bool                  operator==(const Resource&) const;
+    bool                  operator!=(const Resource&) const;
+
     const Resource::Id&   getDbId() const			  { return mDbId; }
     int                   getType() const			  { return mType; }
     const std::wstring&   getTypeName() const;

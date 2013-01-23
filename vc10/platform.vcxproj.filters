@@ -345,6 +345,9 @@
     <ClInclude Include="..\src\ds\app\auto_update_list.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\network\node_watcher.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -538,6 +541,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\auto_update_list.cpp">
       <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\node_watcher.cpp">
+      <Filter>src\ds\network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
