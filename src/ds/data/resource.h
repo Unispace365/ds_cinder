@@ -60,6 +60,9 @@ class Resource
       // database (which will always be in the resource path).
       const std::string&  getResourcePath() const;
       const std::string&  getDatabasePath() const;
+      // Whhaaaatt... The database path returns the leaf, to be appended to resourcePath??
+      // Why is that? This the full path.
+      const std::string&  getFullDatabasePath() const;
 
       // Utility to report and log an error if I'm missing path information
       bool                verifyPaths() const;
@@ -104,20 +107,25 @@ class Resource
     bool                  operator==(const Resource&) const;
     bool                  operator!=(const Resource&) const;
 
-    const Resource::Id&   getDbId() const			  { return mDbId; }
-    int                   getType() const			  { return mType; }
+    const Resource::Id&   getDbId() const			    { return mDbId; }
+    int                   getType() const			    { return mType; }
     const std::wstring&   getTypeName() const;
-    double                getDuration() const   { return mDuration; }
-    float                 getWidth() const      { return mWidth; }
-    float                 getHeight() const     { return mHeight; }
+    double                getDuration() const     { return mDuration; }
+    float                 getWidth() const        { return mWidth; }
+    float                 getHeight() const       { return mHeight; }
+    int                   getThumbnailId() const  { return mThumbnailId; }
     // Answer the full path to my file
     std::string           getAbsoluteFilePath() const;
+
+    void                  clear();
 
     void                  setDbId(const Resource::Id&);
     void                  setType(const int);
 
     // Warning: Expensive operation (database lookup).  Use with care.
     bool                  existsInDb() const;
+    // Query the DB for my contents. Obviously, this is also an expensive operation.
+    bool                  query(const Resource::Id&);
 
   private:
     friend class ResourceList;
@@ -129,6 +137,8 @@ class Resource
                           mHeight;
     std::string           mFileName;
     std::string           mPath;
+    // Sorta hacked in for Kurt's model
+    int                   mThumbnailId;
 
     void                  setTypeFromString(const std::string& typeChar);
 };

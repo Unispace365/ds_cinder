@@ -1,10 +1,12 @@
 #include "ds/data/resource.h"
 
 #include <iostream>
+#include <sstream>
 #include <Poco/Path.h>
 #include "ds/app/environment.h"
 #include "ds/data/data_buffer.h"
 #include "ds/debug/debug_defines.h"
+#include "ds/query/query_client.h"
 
 namespace {
 const std::string		  FONT_TYPE_SZ("f");
@@ -160,6 +162,7 @@ bool Resource::Id::readFrom(DataBuffer& buf)
 namespace {
 std::string				  CMS_RESOURCE_PATH("");
 std::string				  CMS_DB_PATH("");
+std::string				  CMS_FULL_DB_PATH("");
 std::string				  APP_RESOURCE_PATH("");
 std::string				  APP_DB_PATH("");
 const std::string		EMPTY_PATH("");
@@ -186,14 +189,23 @@ const std::string& Resource::Id::getDatabasePath() const
 	return EMPTY_PATH;
 }
 
+const std::string& Resource::Id::getFullDatabasePath() const
+{
+	if (mType == CMS_TYPE)		return CMS_FULL_DB_PATH;
+	if (mType == APP_TYPE)		return APP_DB_PATH;
+  if (mType <= CUSTOM_TYPE && CUSTOM_DB_PATH) return CUSTOM_DB_PATH(*this);
+	return EMPTY_PATH;
+}
+
 void Resource::Id::setupPaths(const std::string& resource, const std::string& db,
                               const std::string& projectPath)
 {
 	CMS_RESOURCE_PATH = resource;
+	CMS_DB_PATH = db;
   {
     Poco::Path      p(resource);
     p.append(db);
-    CMS_DB_PATH = p.toString();
+    CMS_FULL_DB_PATH = p.toString();
   }
 
 	// If the project path exists, then setup our app-local resources path.
@@ -230,6 +242,7 @@ Resource::Resource()
   , mDuration(0)
   , mWidth(0)
   , mHeight(0)
+  , mThumbnailId(0)
 {
 }
 
@@ -239,6 +252,7 @@ Resource::Resource(const Resource::Id& dbId, const int type)
   , mDuration(0)
   , mWidth(0)
   , mHeight(0)
+  , mThumbnailId(0)
 {
 }
 
@@ -272,6 +286,18 @@ std::string Resource::getAbsoluteFilePath() const
   return p.toString();
 }
 
+void Resource::clear()
+{
+  mDbId.clear();
+  mType = ERROR_TYPE;
+  mDuration = 0.0;
+  mWidth = 0.0f;
+  mHeight = 0.0f;
+  mFileName.clear();
+  mPath.clear();
+  mThumbnailId = 0;
+}
+
 void Resource::setDbId(const Resource::Id& id)
 {
 	mDbId = id;
@@ -293,6 +319,36 @@ return false;
 	if (!QueryClient::query(mDbId.getDatabasePath(), buf.str(), r) || r.rowsAreEmpty()) return false;
 	return true;
 #endif
+}
+
+bool Resource::query(const Resource::Id& id)
+{
+  const std::string&          dbPath = id.getFullDatabasePath();
+  if (dbPath.empty()) return false;
+
+  std::stringstream           buf;
+  buf.str("");
+  buf << "SELECT resourcestype,resourcesduration,resourceswidth,resourcesheight,resourcesfilename,resourcespath,resourcesthumbid FROM Resources WHERE resourcesid = " << id.mValue;
+  query::Result               r;
+  if (!query::Client::query(dbPath, buf.str(), r) || r.rowsAreEmpty()) {
+    return false;
+  }
+
+  clear();
+
+  query::Result::RowIterator  it(r);
+  if (!it.hasValue()) return false;
+
+  setDbId(id);
+  setTypeFromString(it.getString(0));
+  mDuration = it.getFloat(1);
+  mWidth = it.getFloat(2);
+  mHeight = it.getFloat(3);
+  mFileName = it.getString(4);
+  mPath = it.getString(5);
+  mThumbnailId = it.getInt(6);
+
+  return true;
 }
 
 void Resource::setTypeFromString(const std::string& typeChar)
