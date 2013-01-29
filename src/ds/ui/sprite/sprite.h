@@ -174,6 +174,7 @@ class Sprite : public SpriteAnimatable
         // a tap if, for example, they only want to handle single taps.  Answer true as
         // long as you want to keep checking for a tap, false otherwise.
         void                setTapInfoCallback( const std::function<bool (Sprite *, const TapInfo &)> &func );
+        void                setSwipeCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func );
         void                setTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func );
         void                setDoubleTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func );
         void                setDragDestinationCallback( const std::function<void (Sprite *, const DragDestinationInfo &)> &func );

@@ -1463,5 +1463,10 @@ float Sprite::getScaleDepth() const
   return mScale.z * mDepth;
 }
 
+void Sprite::setSwipeCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func )
+{
+  mSwipeCallback = func;
+}
+
 } // namespace ui
 } // namespace ds

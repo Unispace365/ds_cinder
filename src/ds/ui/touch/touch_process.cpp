@@ -286,7 +286,7 @@ void TouchProcess::addToSwipeQueue( const Vec3f &currentPoint, int queueNum )
 
 bool TouchProcess::swipeHappened()
 {
-  const float minSpeed = 800.0f;
+  const float minSpeed = 800;
   const float maxTimeThreshold = 0.5f;
   mSwipeVector = Vec3f();
 
@@ -300,7 +300,7 @@ bool TouchProcess::swipeHappened()
   mSwipeVector /= static_cast<float>(mSwipeQueue.size() - 1);
   float averageDistance = mSwipeVector.distance(Vec3f());
 
-  return (averageDistance >= minSpeed * 60.0f && (mLastUpdateTime - mSwipeQueue.front().mTimeStamp) < maxTimeThreshold);
+  return (averageDistance >= minSpeed * 0.016f && (mLastUpdateTime - mSwipeQueue.front().mTimeStamp) < maxTimeThreshold);
 }
 
 void TouchProcess::updateDragDestination( const TouchInfo &touchInfo )
