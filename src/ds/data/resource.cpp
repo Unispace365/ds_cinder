@@ -190,7 +190,11 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
                               const std::string& projectPath)
 {
 	CMS_RESOURCE_PATH = resource;
-	CMS_DB_PATH = db;
+  {
+    Poco::Path      p(resource);
+    p.append(db);
+    CMS_DB_PATH = p.toString();
+  }
 
 	// If the project path exists, then setup our app-local resources path.
 	if (!projectPath.empty()) {
