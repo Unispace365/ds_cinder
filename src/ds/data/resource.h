@@ -60,9 +60,6 @@ class Resource
       // database (which will always be in the resource path).
       const std::string&  getResourcePath() const;
       const std::string&  getDatabasePath() const;
-      // Whhaaaatt... The database path returns the leaf, to be appended to resourcePath??
-      // Why is that? This the full path.
-      const std::string&  getFullDatabasePath() const;
 
       // Utility to report and log an error if I'm missing path information
       bool                verifyPaths() const;

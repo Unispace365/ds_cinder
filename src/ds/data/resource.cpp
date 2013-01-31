@@ -162,7 +162,6 @@ bool Resource::Id::readFrom(DataBuffer& buf)
 namespace {
 std::string				  CMS_RESOURCE_PATH("");
 std::string				  CMS_DB_PATH("");
-std::string				  CMS_FULL_DB_PATH("");
 std::string				  APP_RESOURCE_PATH("");
 std::string				  APP_DB_PATH("");
 const std::string		EMPTY_PATH("");
@@ -189,23 +188,14 @@ const std::string& Resource::Id::getDatabasePath() const
 	return EMPTY_PATH;
 }
 
-const std::string& Resource::Id::getFullDatabasePath() const
-{
-	if (mType == CMS_TYPE)		return CMS_FULL_DB_PATH;
-	if (mType == APP_TYPE)		return APP_DB_PATH;
-  if (mType <= CUSTOM_TYPE && CUSTOM_DB_PATH) return CUSTOM_DB_PATH(*this);
-	return EMPTY_PATH;
-}
-
 void Resource::Id::setupPaths(const std::string& resource, const std::string& db,
                               const std::string& projectPath)
 {
 	CMS_RESOURCE_PATH = resource;
-	CMS_DB_PATH = db;
   {
     Poco::Path      p(resource);
     p.append(db);
-    CMS_FULL_DB_PATH = p.toString();
+    CMS_DB_PATH = p.toString();
   }
 
 	// If the project path exists, then setup our app-local resources path.
@@ -323,7 +313,7 @@ return false;
 
 bool Resource::query(const Resource::Id& id)
 {
-  const std::string&          dbPath = id.getFullDatabasePath();
+  const std::string&          dbPath = id.getDatabasePath();
   if (dbPath.empty()) return false;
 
   std::stringstream           buf;
