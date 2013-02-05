@@ -46,8 +46,8 @@ public:
   // This is useful for serial runnables that run through the life of an app, but during setup you
   // want to run them once and guarantee data exists before the app begins.
   // NOTE: Be careful with HandlerFunc; it might be evaluated at some later point. So if you
-  // pass in a lambda with captured variables, make sure to not use references, or if you do,
-  // that the referenced item still exists for the life of the SerialRunnable.
+  // pass in a lambda with captured variables, make sure to capture by value, not reference, or if
+  // you do, that the referenced item still exists for the life of the SerialRunnable.
 	bool							  start(const HandlerFunc& = nullptr, const bool waitForResult = false);
 
 private:
