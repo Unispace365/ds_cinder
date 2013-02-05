@@ -35,7 +35,6 @@ bool ResourceList::query(const Resource::Id& id, Resource& ans)
 {
   // XXX Replace with ans.query() when I get a chance to verify that it works fine
 
-  //const std::string&          dbPath = id.getResourcePath() + id.getDatabasePath();
   const std::string&          dbPath = id.getDatabasePath();
   if (dbPath.empty()) return false;
 
