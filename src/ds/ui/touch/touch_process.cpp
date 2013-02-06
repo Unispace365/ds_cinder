@@ -72,10 +72,6 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 
     auto foundControl0 = mFingers.find(mControlFingerIndexes[0]);
     auto foundControl1 = mFingers.find(mControlFingerIndexes[1]);
-    if (foundControl0 == mFingers.end() || foundControl1 == mFingers.end()) {
-      sendTouchInfo(touchInfo);
-      updateDragDestination(touchInfo);
-    }
 
     if (mSprite.multiTouchEnabled() && (touchInfo.mFingerId == foundControl0->second.mFingerId || touchInfo.mFingerId == foundControl1->second.mFingerId)) {
       Matrix44f parentTransform;
