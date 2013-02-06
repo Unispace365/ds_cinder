@@ -56,9 +56,10 @@ void App::prepareSettings(Settings *settings)
 
   if (settings) {
     mEngine.prepareSettings(*settings);
-    // This was getting offset -- should make a settings for it, but
-    // for now, this is always what I want
-    settings->setWindowPos(0, 0);
+
+    // set in the engine.xml
+    ci::Vec3f pos = mEngineSettings.getPoint("window_pos", 0, ci::Vec3f(0.0f, 0.0f, 0.0f));
+    settings->setWindowPos(static_cast<unsigned>(pos.x), static_cast<unsigned>(pos.y));
   }
 }
 
