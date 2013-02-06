@@ -416,7 +416,7 @@ std::wstring Settings::getTextW(const std::string& name, const int index, const 
 
 const ci::Vec3f& Settings::getPoint( const std::string& name, const int index /*= 0*/, const ci::Vec3f& defaultValue ) const
 {
-  return get_or_throw(name, mPoints, index, POINT_TYPE, POINT_NAME);
+  return get(name, mPoints, index, defaultValue, POINT_NAME);
 }
 
 bool Settings::getBool(const std::string& name, const int index, const bool defaultValue) const
