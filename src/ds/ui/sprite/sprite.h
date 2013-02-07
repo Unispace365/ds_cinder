@@ -225,7 +225,9 @@ class Sprite : public SpriteAnimatable
         void                doubleTap(const ci::Vec3f &tapPos);
         void                dragDestination(Sprite *sprite, const DragDestinationInfo &dragInfo);
         void                processTouchInfo( const TouchInfo &touchInfo );
-        void                processTouchInfoCallback( const TouchInfo &touchInfo );
+		void                processTouchInfoCallback( const TouchInfo &touchInfo );
+		void				passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
+
         void                buildTransform() const;
         void                buildGlobalTransform() const;
         virtual void        drawLocalClient();

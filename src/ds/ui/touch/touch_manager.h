@@ -34,6 +34,8 @@ class TouchManager
     void                        setTouchColor(const ci::Color &color);
 
 	void                        clearFingers( const std::vector<int> &fingers );
+
+	void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite );
   private:
     Engine &mEngine;
 

@@ -197,5 +197,14 @@ void TouchManager::clearFingers( const std::vector<int> &fingers )
 	}
 }
 
+void TouchManager::setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){
+	if (!theSprite){
+		return;
+	}
+	
+	mFingerDispatcher[fingerId] = theSprite;
+}
+
+
 } // namespace ui
 } // namespace ds

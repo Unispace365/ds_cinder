@@ -66,6 +66,7 @@ class SpriteEngine {
     double                         getElapsedTimeSeconds() const;
 
 	virtual void                   clearFingers( const std::vector<int> &fingers );
+	virtual void				   setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;
 
     static const int               CLIENT_MODE = 0;
     static const int               SERVER_MODE = 1;
