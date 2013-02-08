@@ -37,7 +37,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   , mIdling(true)
   , mTouchManager(*this)
   , mMinTouchDistance(10.0f)
-  , mMinTapDistance(10.0f)
+  , mMinTapDistance(30.0f)
   , mSwipeQueueSize(4)
   , mDoubleTapTime(0.1f)
   , mSettings(settings)
@@ -52,6 +52,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
   mDrawTouches = settings.getBool("touch_overlay:debug", 0, false);
   mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
+  mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
 
   bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
