@@ -101,6 +101,8 @@ class Engine : public ui::SpriteEngine {
 
 	virtual void                clearFingers( const std::vector<int> &fingers );
 
+	void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
+
   protected:
     Engine(ds::App&, const ds::cfg::Settings&);
 

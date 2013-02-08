@@ -1468,5 +1468,21 @@ void Sprite::setSwipeCallback( const std::function<void (Sprite *, const ci::Vec
   mSwipeCallback = func;
 }
 
+void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touchInfo ){
+	if (!destinationSprite || this == destinationSprite) return;
+
+	// tell our current sprite we're through.
+	TouchInfo newTouchInfo = touchInfo;
+	newTouchInfo.mCurrentGlobalPoint = localToGlobal(ci::Vec3f(-10.0f,-10.0f, 0.0f));	// make sure we touch up outside the sprite area, so buttons don't think they're hit
+	newTouchInfo.mPhase = TouchInfo::Removed;
+	processTouchInfo(newTouchInfo);
+	// switch to the new sprite
+	mEngine.setSpriteForFinger(touchInfo.mFingerId, destinationSprite);
+	newTouchInfo = touchInfo;
+	newTouchInfo.mPhase = TouchInfo::Added; 
+	destinationSprite->processTouchInfo(newTouchInfo);
+}
+
+
 } // namespace ui
 } // namespace ds
