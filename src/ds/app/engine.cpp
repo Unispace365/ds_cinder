@@ -247,8 +247,9 @@ void Engine::drawServer()
 
 void Engine::setup(ds::App&)
 {
-  mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
-  gl::setMatrices(mCamera);
+  //mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
+  //gl::setMatrices(mCamera);
+  setCamera();
   //gl::disable(GL_CULL_FACE);
   //////////////////////////////////////////////////////////////////////////
 
@@ -465,7 +466,7 @@ float Engine::getWorldHeight() const
 void Engine::setCamera()
 {
   gl::setViewport(Area((int)mScreenRect.getX1(), (int)mScreenRect.getY2(), (int)mScreenRect.getX2(), (int)mScreenRect.getY1()));
-  mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
+  mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1000.0f, 1000.0f);
   gl::setMatrices(mCamera);
 }
 
