@@ -75,8 +75,17 @@ void Video::drawLocalClient()
         gl::setMatrices(camera);
         // bind the framebuffer - now everything we draw will go there
         mFbo.bindFramebuffer();
-        gl::clear(ci::Color(1.0f, 1.0f, 1.0f));
+
+        glPushAttrib( GL_TRANSFORM_BIT | GL_ENABLE_BIT );
+        for (int i = 0; i < 4; ++i) {
+          glDisable( GL_CLIP_PLANE0 + i );
+        }
+
+        gl::clear(ci::Color(1.0f, 1.0f, 0.0f));
         ci::gl::draw(mFrameTexture);
+
+        glPopAttrib();
+
         mFbo.unbindFramebuffer();
         mSpriteShader.getShader().bind();
         gl::popMatrices();
