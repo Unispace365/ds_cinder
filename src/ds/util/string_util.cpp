@@ -198,7 +198,7 @@ std::vector<std::wstring> ds::split( const std::wstring &str, const std::wstring
         {
             if ( pos != lastPos || !dropEmpty )
             {
-                splitWords.push_back( std::wstring( str.data() + lastPos, pos-lastPos + delimiters.size() ) );
+                splitWords.push_back( std::wstring( str.data() + lastPos, pos-lastPos/* + delimiters.size()*/ ) );
                 lastPos = pos + delimiters.size();
                 continue;
             }
