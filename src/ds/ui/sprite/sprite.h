@@ -186,6 +186,8 @@ class Sprite : public SpriteAnimatable
         bool                hasMultiTouchConstraint( const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS ) const;
         bool                multiTouchConstraintNotZero() const;
 
+		void				passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
+
         bool                inBounds() const;
         void                setCheckBounds(bool checkBounds);
         bool                getCheckBounds() const;
@@ -226,7 +228,6 @@ class Sprite : public SpriteAnimatable
         void                dragDestination(Sprite *sprite, const DragDestinationInfo &dragInfo);
         void                processTouchInfo( const TouchInfo &touchInfo );
 		void                processTouchInfoCallback( const TouchInfo &touchInfo );
-		void				passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
 
         void                buildTransform() const;
         void                buildGlobalTransform() const;
