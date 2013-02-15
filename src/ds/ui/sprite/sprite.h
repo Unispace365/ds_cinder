@@ -216,6 +216,7 @@ class Sprite : public SpriteAnimatable
         void                startIdling();
         void                resetIdleTimer();
         void                clear();
+		void				passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -226,7 +227,6 @@ class Sprite : public SpriteAnimatable
         void                dragDestination(Sprite *sprite, const DragDestinationInfo &dragInfo);
         void                processTouchInfo( const TouchInfo &touchInfo );
 		void                processTouchInfoCallback( const TouchInfo &touchInfo );
-		void				passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
 
         void                buildTransform() const;
         void                buildGlobalTransform() const;

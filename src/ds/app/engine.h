@@ -163,6 +163,11 @@ class Engine : public ui::SpriteEngine {
 
     bool                       mSystemMultitouchEnabled;
     bool                       mHideMouse;
+
+    bool                       mApplyFxAA;
+    float                      mFxAASpanMax;
+    float                      mFxAAReduceMul;
+    float                      mFxAAReduceMin;
 };
 
 } // namespace ds
