@@ -110,7 +110,7 @@ bool LoadImageService::acquire(const std::string& filename, const int flags)
 	// either an image or one's being loaded.  And if there's an image but the refs are < 1,
 	// then it's being cached.
 	if ((!h.mTexture) && h.mRefs < 1) {
-    DS_LOG_INFO_M("ImageService: acquire resource '" << filename << "' flags=" << flags << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
+//    DS_LOG_INFO_M("ImageService: acquire resource '" << filename << "' flags=" << flags << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
 		// There's no image, so push on an operation to start one
 		{
 			Poco::Mutex::ScopedLock		l(mMutex);
@@ -217,7 +217,7 @@ void LoadImageService::_load()
 	for (int k=0; k<mTmp.size(); k++) {
 		op&						           top = mTmp[k];
     try {
-      DS_LOG_INFO_M("LoadImageService::_load() on file (" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
+//      DS_LOG_INFO_M("LoadImageService::_load() on file (" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
       top.mSurface = ci::Surface32f(ci::loadImage(top.mFilename));
       DS_REPORT_GL_ERRORS();
       if (top.mSurface) {
