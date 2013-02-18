@@ -42,6 +42,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   , mDoubleTapTime(0.1f)
   , mSettings(settings)
   , mSystemMultitouchEnabled(false)
+  , mApplyFxAA(false)
 {
   const std::string     DEBUG_FILE("debug.xml");
   mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
@@ -53,6 +54,10 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   mDrawTouches = settings.getBool("touch_overlay:debug", 0, false);
   mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
   mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
+  mApplyFxAA = settings.getBool("FxAA", 0, false);
+  mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
+  mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
+  mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
   bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
@@ -201,14 +206,64 @@ void Engine::updateServer()
 
 void Engine::drawClient()
 {
+  if (mApplyFxAA) {
+    {
+      gl::SaveFramebufferBinding bindingSaver;
 
-  {
-    //gl::SaveFramebufferBinding bindingSaver;
+      // bind the framebuffer - now everything we draw will go there
+      mFbo.bindFramebuffer();
 
-    // bind the framebuffer - now everything we draw will go there
-    //mFbo.bindFramebuffer();
+      //mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
+      gl::setMatrices(mCamera);
 
-    //mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
+      gl::enableAlphaBlending();
+      //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+      gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
+
+      mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
+
+      if (mDrawTouches)
+        mTouchManager.drawTouches();
+
+      mFbo.unbindFramebuffer();
+    }
+
+    gl::enableAlphaBlending();
+    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+    setCamera();
+    gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
+    gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+    Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
+
+    static ci::gl::GlslProg shader;
+    if (!shader) {
+      std::string location = ds::Environment::getAppFolder("data/shaders");
+      std::string name = "fxaa";
+      try {
+        shader = ci::gl::GlslProg(ci::loadFile((location+"/"+name+".vert").c_str()), ci::loadFile((location+"/"+name+".frag").c_str()));
+      } catch (std::exception &e) {
+        std::cout << e.what() << std::endl;
+      }
+    }
+
+    if (shader) {
+      shader.bind();
+      mFbo.bindTexture();
+      shader.uniform("tex0", 0);
+      shader.uniform("texcoordOffset", ci::Vec2f(1.0f / getWidth(), 1.0f / getHeight()));
+      shader.uniform("FXAA_SPAN_MAX", mFxAASpanMax);
+      shader.uniform("FXAA_REDUCE_MUL", 1.0f / mFxAAReduceMul);
+      shader.uniform("FXAA_REDUCE_MIN", 1.0f / mFxAAReduceMin);
+
+      //gl::draw( mFbo.getTexture(0), screen );
+      gl::drawSolidRect(screen);
+
+      mFbo.unbindTexture();
+      shader.unbind();
+    } else {
+      gl::draw( mFbo.getTexture(0), screen );
+    }
+  } else {
     gl::setMatrices(mCamera);
 
     gl::enableAlphaBlending();
@@ -220,16 +275,6 @@ void Engine::drawClient()
     if (mDrawTouches)
       mTouchManager.drawTouches();
   }
-
-  //gl::enableAlphaBlending();
-  //glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-  //mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
-  //gl::setMatrices(mCamera);
-  //gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
-  //gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
-  //Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
-  //gl::draw( mFbo.getTexture(0), screen );
-
 }
 
 void Engine::drawServer()

@@ -218,6 +218,7 @@ class Sprite : public SpriteAnimatable
         void                startIdling();
         void                resetIdleTimer();
         void                clear();
+		void				passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
