@@ -44,7 +44,13 @@ public:
 	// If the URL contains a query part it needs to be URL encoded, that won't happen automatically.
 	static bool						httpGetAndReply(const std::wstring& url, ds::HttpReply*);
 	static bool						httpPostAndReply(const std::wstring& url, const std::string& body, ds::HttpReply*);
-  // Do a post with complete control over what goes in the form.
+  // Do a post with complete control over what goes in the form. Poco supplies utilities for
+  // adding strings and files. An example of posting a file into the form would be this:
+  // const std::string  filename("c:\\tempfile.png")'
+  // auto postFn = [filename](Poco::Net::HTMLForm& f) {
+  //    Poco::Net::FilePartSource*  ps = new Poco::Net::FilePartSource(filename, "temp.png", "binary/octet-stream");
+  //    if (ps) f.addPart("file", ps);
+  // };
 	static bool						httpPostAndReply(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>&, ds::HttpReply*);
 
 public:
