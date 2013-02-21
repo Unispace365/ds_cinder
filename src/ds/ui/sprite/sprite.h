@@ -78,20 +78,20 @@ class Sprite : public SpriteAnimatable
         float       getScaleHeight() const;
         float       getScaleDepth() const;
 
-        void             setPosition(const ci::Vec3f &pos);
-        void             setPosition(float x, float y, float z = 0.0f);
+        virtual void     setPosition(const ci::Vec3f &pos);
+        virtual void     setPosition(float x, float y, float z = 0.0f);
         const ci::Vec3f &getPosition() const;
 
         void                move(const ci::Vec3f &delta);
         void                move(float deltaX, float deltaY, float deltaZ = 0.0f);
 
-        void                setScale(const ci::Vec3f &scale);
-        void                setScale(float x, float y, float z = 1.0f);
+        virtual void     setScale(const ci::Vec3f &scale);
+        virtual void        setScale(float x, float y, float z = 1.0f);
         const ci::Vec3f    &getScale() const;
 
         // center of the Sprite. Where its positioned at and rotated at.
-        void                setCenter(const ci::Vec3f &center);
-        void                setCenter(float x, float y, float z = 0.0f);
+        virtual void     setCenter(const ci::Vec3f &center);
+        virtual void        setCenter(float x, float y, float z = 0.0f);
         const ci::Vec3f    &getCenter() const;
 
         void                setRotation(float rotZ);
@@ -216,6 +216,9 @@ class Sprite : public SpriteAnimatable
         void                startIdling();
         void                resetIdleTimer();
         void                clear();
+        /*
+         * \brief must be passed inside handle touch Moved or else will result in an infinite loop.
+         */
 		void				passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
     protected:
         friend class        TouchManager;

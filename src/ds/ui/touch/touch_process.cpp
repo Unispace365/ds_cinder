@@ -240,6 +240,8 @@ void TouchProcess::initializeTouchPoints()
   if (fabs(potentialFarthestDistance) < math::EPSILON)
     return;
 
+  resetTouchAnchor();
+
   mControlFingerIndexes[0] = potentialFarthestIndexes[0];
   mControlFingerIndexes[1] = potentialFarthestIndexes[1];
 
