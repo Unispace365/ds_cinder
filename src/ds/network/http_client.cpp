@@ -6,6 +6,7 @@
 #include <Poco/Net/HTTPRequest.h>
 #include <Poco/Net/HTTPResponse.h>
 #include <Poco/Net/NetException.h>
+#include <Poco/Net/StringPartSource.h>
 #include <Poco/StreamCopier.h>
 #include <Poco/URI.h>
 #include "ds/debug/debug_defines.h"
@@ -15,6 +16,9 @@
 #include "ds/util/string_util.h"
 
 using namespace std;
+
+// FOR TESTING HTTP:
+// Use http://requestb.in
 
 namespace ds {
 
@@ -31,12 +35,17 @@ const ds::BitMask		  HTTP_LOG = ds::Logger::newModule("http");
  ******************************************************************/
 bool HttpClient::httpGetAndReply(const std::wstring& url, ds::HttpReply* ans)
 {
-	return httpAndReply(HTTP_GET_OPT, url, EMPTY_SZ, ans);
+	return httpAndReply(HTTP_GET_OPT, url, EMPTY_SZ, nullptr, ans);
 }
 
 bool HttpClient::httpPostAndReply(const std::wstring& url, const std::string& body, ds::HttpReply* ans)
 {
-	return httpAndReply(HTTP_POST_OPT, url, body, ans);
+	return httpAndReply(HTTP_POST_OPT, url, body, nullptr, ans);
+}
+
+bool HttpClient::httpPostAndReply(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn, ds::HttpReply* ans)
+{
+	return httpAndReply(HTTP_POST_OPT, url, EMPTY_SZ, postFn, ans);
 }
 
 /* HTTP-CLIENT
@@ -55,12 +64,17 @@ void HttpClient::setResultHandler(const std::function<void(const HttpReply&)>& h
 
 bool HttpClient::httpGet(const std::wstring& url)
 {
-	return sendHttp(HTTP_GET_OPT, url, EMPTY_SZ);
+	return sendHttp(HTTP_GET_OPT, url, EMPTY_SZ, nullptr);
 }
 
 bool HttpClient::httpPost(const std::wstring& url, const std::string& body)
 {
-	return sendHttp(HTTP_POST_OPT, url, body);
+	return sendHttp(HTTP_POST_OPT, url, body, nullptr);
+}
+
+bool HttpClient::httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn)
+{
+	return sendHttp(HTTP_POST_OPT, url, EMPTY_SZ, postFn);
 }
 
 void HttpClient::handleResult(std::unique_ptr<WorkRequest>& wr)
@@ -73,7 +87,8 @@ void HttpClient::handleResult(std::unique_ptr<WorkRequest>& wr)
 	mCache.push(r);
 }
 
-bool HttpClient::sendHttp(const int opt, const std::wstring& url, const std::string& body)
+bool HttpClient::sendHttp(const int opt, const std::wstring& url, const std::string& body,
+                          const std::function<void(Poco::Net::HTMLForm&)>& postFn)
 {
 	if (url.empty()) {
 		DS_DBG_CODE(std::cout << "ERROR ds::HttpClient() empty url" << std::endl);
@@ -83,20 +98,23 @@ bool HttpClient::sendHttp(const int opt, const std::wstring& url, const std::str
 	std::unique_ptr<Request>		r(std::move(mCache.next()));
 	if (!r) return false;
 
-//	r->mRunId = (mRunId++);
   r->mOpt = opt;
 	r->mUrl = url;
 	r->mBody = body;
+  r->mPostFn = postFn;
 	r->mReply.clear();
 	return mManager.sendRequest(ds::unique_dynamic_cast<WorkRequest, Request>(r));
 }
 
-bool HttpClient::httpAndReply(const int opt, const std::wstring& url, const std::string& body, ds::HttpReply* ans)
+bool HttpClient::httpAndReply(const int opt, const std::wstring& url, const std::string& body,
+                              const std::function<void(Poco::Net::HTMLForm&)>& postFn,
+                              ds::HttpReply* ans)
 {
 	Request				r(nullptr);
 	r.mOpt = opt;
 	r.mUrl = url;
 	r.mBody = body;
+  r.mPostFn = postFn;
 	r.run();
 	if (ans) (*ans) = r.mReply;
 	return true;
@@ -145,18 +163,22 @@ void HttpClient::Request::run()
 
 		if ((mOpt&HTTP_POST_OPT) != 0) {
 			Poco::Net::HTTPRequest		request(Poco::Net::HTTPRequest::HTTP_POST, path, Poco::Net::HTTPMessage::HTTP_1_1);
-			// Untested!  I don't think anyone's using this, so no doubt this isn't quite right.
-			// Update:  Now confirmed the post works fine.  But I still don't supply the post data, so this message stands.
-#ifdef _DEBUG
-			cout << "DBG HttpClient::HTTP_POST, POCO style, but missing the postfields, so figure out how to transfer that from CURL" << endl;
-#endif
-			Poco::Net::HTMLForm		form(request);
-			form.prepareSubmit(request);
+      Poco::Net::HTMLForm		    form(request);
+      form.setEncoding(Poco::Net::HTMLForm::ENCODING_MULTIPART);
+      if (!mBody.empty()) {
+        request.setKeepAlive(true);
+        // XXX Obviously we need to provide more parameters to use this properly.
+        // Clients should use the postFn... probably should obsolete this, or make it URL-encoded only.
+	      Poco::Net::StringPartSource*  ps = new Poco::Net::StringPartSource(mBody, "binary/octet-stream", "unknown_file");
+        if (ps) form.addPart("file", ps);
+      } else if (mPostFn != nullptr) {
+        request.setKeepAlive(true);
+        mPostFn(form);
+      }
+      form.prepareSubmit(request);
 
-//			request.write(std::cout);
-//			std::cout << std::endl;
-
-			s.sendRequest(request);
+			std::ostream&   ostr = s.sendRequest(request); // << mBody;
+      form.write(ostr);
 		} else {
 			Poco::Net::HTTPRequest		request(Poco::Net::HTTPRequest::HTTP_GET, path, Poco::Net::HTTPMessage::HTTP_1_1);
 			s.sendRequest(request);
