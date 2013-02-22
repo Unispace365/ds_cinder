@@ -171,7 +171,7 @@ void TouchProcess::sendTouchInfo( const TouchInfo &touchInfo )
   t.mNumberFingers = mFingers.size();
 
   if (touchInfo.mPhase == TouchInfo::Removed && t.mNumberFingers > 0)
-    t.mNumberFingers = -1;
+    t.mNumberFingers -= 1;
 
   t.mFingerIndex = getFingerIndex(touchInfo.mFingerId);
 
