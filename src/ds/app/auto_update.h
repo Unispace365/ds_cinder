@@ -7,6 +7,7 @@
 
 namespace ds {
 class AutoUpdateList;
+class UpdateParams;
 namespace ui {
 class SpriteEngine;
 }
@@ -22,7 +23,7 @@ class AutoUpdate {
     ~AutoUpdate();
 
   protected:
-	  virtual void					update(const Poco::Timestamp::TimeVal&) = 0;
+    virtual void update(const ds::UpdateParams &updateParams) = 0;
 
   private:
     friend class AutoUpdateList;
