@@ -22,6 +22,7 @@ class Settings;
 
 // Some common modules, for lack of a better place
 extern const ds::BitMask	GENERAL_LOG;
+extern const ds::BitMask	IO_LOG;
 extern const ds::BitMask	IMAGE_LOG;
 extern const ds::BitMask	VIDEO_LOG;
 

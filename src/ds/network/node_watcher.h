@@ -39,7 +39,7 @@ public:
 	void							add(const std::function<void(const Message&)>&);
 
 protected:
-	virtual void      update(const Poco::Timestamp::TimeVal&);
+	virtual void      update(const ds::UpdateParams &);
 
 private:
 	class Loop : public Poco::Runnable {

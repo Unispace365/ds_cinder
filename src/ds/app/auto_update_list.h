@@ -6,6 +6,7 @@
 
 namespace ds {
 class AutoUpdate;
+class UpdateParams;
 
 /**
  * \class ds::AutoUpdateList
@@ -15,7 +16,7 @@ class AutoUpdateList {
   public:
     AutoUpdateList();
 
-    void                      update();
+    void update(const ds::UpdateParams &updateParams);
 
   private:
     friend class AutoUpdate;

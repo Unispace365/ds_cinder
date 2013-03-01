@@ -40,7 +40,7 @@ void NodeWatcher::add(const std::function<void(const Message&)>& f)
 	}
 }
 
-void NodeWatcher::update(const Poco::Timestamp::TimeVal&)
+void NodeWatcher::update(const ds::UpdateParams &)
 {
 	mMsg.clear();
 	{

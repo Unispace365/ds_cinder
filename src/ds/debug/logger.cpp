@@ -15,6 +15,7 @@ using namespace ds;
 using namespace std;
 
 const ds::BitMask	ds::GENERAL_LOG = ds::Logger::newModule("general");
+const ds::BitMask	ds::IO_LOG = ds::Logger::newModule("io");
 const ds::BitMask	ds::IMAGE_LOG = ds::Logger::newModule("image");
 const ds::BitMask	ds::VIDEO_LOG = ds::Logger::newModule("video");
 
