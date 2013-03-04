@@ -539,6 +539,7 @@ void Engine::resetIdleTimeOut()
   float curr = static_cast<float>(getElapsedSeconds());
   mLastTime = curr;
   mLastTouchTime = curr;
+  mIdling = false;
 }
 
 } // namespace ds
