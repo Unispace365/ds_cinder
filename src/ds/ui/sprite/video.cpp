@@ -3,6 +3,8 @@
 #include "sprite_engine.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/data/resource_list.h"
+#include "ds/util/file_name_parser.h"
+#include "ds/math/math_func.h"
 
 using namespace ci;
 
@@ -121,6 +123,7 @@ Video& Video::loadVideo( const std::string &filename )
   }
 
   Sprite::setSizeAll(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()), mDepth);
+
   if (getWidth() > 0 &&  getHeight() > 0) {
     setSize(getWidth() * getScale().x,  getHeight() * getScale().y);
   }
