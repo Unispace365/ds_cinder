@@ -55,6 +55,9 @@ class Sprite : public SpriteAnimatable
         template <typename T>
         static T&           make(SpriteEngine&, Sprite* parent = nullptr);
 
+        template <typename T>
+        static void removeAndDelete(T *&sprite);
+
         Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
         virtual ~Sprite();
 
@@ -366,6 +369,17 @@ static T& Sprite:: make(SpriteEngine& e, Sprite* parent)
   if (!s) throw std::runtime_error("Can't create sprite");
   if (parent) parent->addChild(*s);
   return *s;
+}
+
+template <typename T>
+void Sprite::removeAndDelete( T *&sprite )
+{
+  if (!sprite)
+    return;
+
+  sprite->remove();
+  delete sprite;
+  sprite = nullptr;
 }
 
 template <typename T>

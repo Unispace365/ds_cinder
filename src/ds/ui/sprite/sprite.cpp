@@ -1483,6 +1483,5 @@ void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touc
 	destinationSprite->processTouchInfo(newTouchInfo);
 }
 
-
 } // namespace ui
 } // namespace ds
