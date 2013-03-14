@@ -116,6 +116,10 @@ class Sprite : public SpriteAnimatable
 
         void                addChild( Sprite &child );
 
+        // Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
+        // Jeremy
+        void                addChildHack( Sprite &child );
+
         // removes child from Sprite, but does not delete it.
         void                removeChild( Sprite &child );
         // calls removeParent then addChild to parent.

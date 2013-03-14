@@ -429,6 +429,16 @@ void Sprite::addChild( Sprite &child )
     child.setParent(this);
 }
 
+// Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
+// Jeremy
+void Sprite::addChildHack( Sprite &child )
+{
+  if ( containsChild(&child) )
+    return;
+
+  mChildren.push_back(&child);
+}
+
 void Sprite::removeChild( Sprite &child )
 {
     if ( !containsChild(&child) )
@@ -436,7 +446,8 @@ void Sprite::removeChild( Sprite &child )
 
     auto found = std::find(mChildren.begin(), mChildren.end(), &child);
     mChildren.erase(found);
-    child.setParent(nullptr);
+    if (child.getParent() == this)
+      child.setParent(nullptr);
 }
 
 void Sprite::setParent( Sprite *parent )
@@ -474,11 +485,12 @@ void Sprite::clearChildren()
 
     for ( auto it = tempList.begin(), it2 = tempList.end(); it != it2; ++it )
     {
-    	if ( !(*it) )
+    	if ( !(*it) || (*it)->getParent() != this )
             continue;
-        (*it)->removeParent();
-        (*it)->clearChildren();
-        delete *it;
+      (*it)->removeParent();
+      (*it)->clearChildren();
+      (*it)->setParent(nullptr);
+      delete *it;
     }
 }
 
