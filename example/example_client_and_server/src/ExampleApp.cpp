@@ -29,6 +29,7 @@ class CsApp : public ds::App {
     CsApp();
 
     void				      setupServer();
+    void              keyDown( KeyEvent event );
 
   private:
     typedef ds::App   inherited;
@@ -76,6 +77,16 @@ void CsApp::setupServer()
   child->enable(true);
   child->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(*child);
+}
+
+void CsApp::keyDown( KeyEvent event )
+{
+  inherited::keyDown(event);
+
+  if ( event.getCode() == KeyEvent::KEY_ESCAPE )
+  {
+    quit();
+  }
 }
 
 // This line tells Cinder to actually create the application
