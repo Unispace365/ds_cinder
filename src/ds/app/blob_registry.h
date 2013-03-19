@@ -23,6 +23,8 @@ class BlobRegistry {
 
   private:
     friend class EngineClient;
+    friend class EngineServer;
+    friend class EngineReceiver;
     std::vector<std::function<void(BlobReader&)>>
                       mReader;
 };

@@ -18,10 +18,14 @@ char              COMMAND_BLOB = 0;
 EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings)
     : inherited(app, settings)
     , mLoadImageService(mLoadImageThread)
-    , mBlobReader(mReceiveBuffer, *this)
     , mConnection(NumberOfNetworkThreads)
+    , mSender(mConnection)
+    , mReceiver(mConnection)
+    , mBlobReader(mReceiver.getData(), *this)
+    , mState(&mBlankState)
 {
-  // NOTE:  Must be EXACTLY the same items as in EngineServer
+  // NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
+  // so that the BLOB ids match.
   HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
@@ -65,29 +69,8 @@ void EngineClient::update()
 {
   updateClient();
 
-  if (mConnection.initialized()) {
-    //if (mSendBuffer.size() > 0) {
-    //  int size = mSendBuffer.size();
-    //  mRawDataBuffer.resize(size);
-    //  mSendBuffer.readRaw(mRawDataBuffer.data(), size);
-    //  snappy::Compress(mRawDataBuffer.data(), size, &mCompressionBufferWrite);
-    //  mConnection.sendMessage(mCompressionBufferWrite);
-    //}
-
-    if (mConnection.recvMessage(mCompressionBufferWrite)) {
-      snappy::Uncompress(mCompressionBufferWrite.c_str(), mCompressionBufferWrite.size(), &mCompressionBufferRead);
-      mReceiveBuffer.clear();
-      mReceiveBuffer.addRaw(mCompressionBufferRead.c_str(), mCompressionBufferRead.size());
-    }
-  }
-
-  // Receive and handle server data
-  const char      size = static_cast<char>(mBlobRegistry.mReader.size());
-  while (mReceiveBuffer.canRead<char>()) {
-    const char  token = mReceiveBuffer.read<char>();
-//    if (token != HEADER_BLOB) std::cout << "receive blob " << (int)(token) << std::endl;
-    if (token > 0 && token < size) mBlobRegistry.mReader[token](mBlobReader);
-  }
+  mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
+  mState->update(*this);
 }
 
 void EngineClient::draw()
@@ -108,6 +91,39 @@ void EngineClient::receiveHeader(ds::DataBuffer& data)
 
 void EngineClient::receiveCommand(ds::DataBuffer& data)
 {
+  std::cout << "RECEIVE COMMAND" << std::endl;
+
+  while (data.canRead<char>()) {
+    const char    cmd = data.read<char>();
+    if (cmd == CMD_SERVER_SEND_WORLD) {
+      std::cout << "...WORLD!" << std::endl;
+    }
+  }
+
+}
+
+/**
+ * EngineClient::State
+ */
+EngineClient::State::State()
+{
+}
+
+/**
+ * EngineClient::BlankState
+ */
+EngineClient::BlankState::BlankState()
+{
+}
+
+void EngineClient::BlankState::update(EngineClient& engine)
+{
+  EngineSender::AutoSend  send(engine.mSender);
+  std::cout << "Send world request" << std::endl;
+  ds::DataBuffer&   buf = send.mData;
+  buf.add(COMMAND_BLOB);
+  buf.add(CMD_CLIENT_REQUEST_WORLD);
+  buf.add(ds::TERMINATOR_CHAR);
 }
 
 } // namespace ds

@@ -170,6 +170,12 @@ class Engine : public ui::SpriteEngine {
     float                      mFxAAReduceMin;
 };
 
+// Server -> Client communication
+extern const char             CMD_SERVER_SEND_WORLD; // The server is sending the entire world
+
+// Client -> Server communication
+extern const char             CMD_CLIENT_REQUEST_WORLD; // The client is requesting the entire world
+
 } // namespace ds
 
 #endif // DS_APP_ENGINE_H_

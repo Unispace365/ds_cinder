@@ -1,6 +1,6 @@
 <settings>
 	<text name="platform:architecture" value="server" />
-	<text name="project_path" value="dscinder\clientserverexample" />
+	<text name="project_path" value="dscinder_example\clientserver_s" />
  	<int name="num_clients" value="1" />
 
     <text name="server:ip" value="127.0.0.1" />

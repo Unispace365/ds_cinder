@@ -30,6 +30,7 @@
     <ClInclude Include="..\src\ds\app\engine.h" />
     <ClInclude Include="..\src\ds\app\engine_client.h" />
     <ClInclude Include="..\src\ds\app\engine_clientserver.h" />
+    <ClInclude Include="..\src\ds\app\engine_io.h" />
     <ClInclude Include="..\src\ds\app\engine_server.h" />
     <ClInclude Include="..\src\ds\app\engine_settings.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
@@ -112,6 +113,7 @@
     <ClCompile Include="..\src\ds\app\engine.cpp" />
     <ClCompile Include="..\src\ds\app\engine_client.cpp" />
     <ClCompile Include="..\src\ds\app\engine_clientserver.cpp" />
+    <ClCompile Include="..\src\ds\app\engine_io.cpp" />
     <ClCompile Include="..\src\ds\app\engine_server.cpp" />
     <ClCompile Include="..\src\ds\app\engine_settings.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />

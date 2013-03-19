@@ -22,8 +22,13 @@ EngineServer::EngineServer(ds::App& app, const ds::cfg::Settings& settings)
     : inherited(app, settings)
     , mLoadImageService(mLoadImageThread)
     , mConnection(NumberOfNetworkThreads)
+    , mSender(mConnection)
+    , mReceiver(mConnection)
+    , mBlobReader(mReceiver.getData(), *this)
+    , mState(&mRunningState)
 {
-  // NOTE:  Must be EXACTLY the same items as in EngineClient
+  // NOTE:  Must be EXACTLY the same items as in EngineClient, in same order,
+  // so that the BLOB ids match.
   HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
@@ -65,30 +70,21 @@ void EngineServer::update()
   mWorkManager.update();
   updateServer();
 
-  // Always send the header
-  mSendBuffer.clear();
-  mSendBuffer.add(HEADER_BLOB);
-  mSendBuffer.add(ds::TERMINATOR_CHAR);
+  // Send data to clients
+  {
+    EngineSender::AutoSend  send(mSender);
+    // Always send the header
+    send.mData.add(HEADER_BLOB);
+    send.mData.add(ds::TERMINATOR_CHAR);
 
-  ui::Sprite                 &root = getRootSprite();
-  if (root.isDirty()) {
-    root.writeTo(mSendBuffer);
-  }
-
-  if (mConnection.initialized()) {
-    if (mSendBuffer.size() > 0) {
-      int size = mSendBuffer.size();
-      mRawDataBuffer.setSize(size);
-      mSendBuffer.readRaw(mRawDataBuffer.data(), size);
-      snappy::Compress(mRawDataBuffer.data(), size, &mCompressionBufferWrite);
-      mConnection.sendMessage(mCompressionBufferWrite);
-      mSendBuffer.clear();
-    }
-
-    if (mConnection.recvMessage(mCompressionBufferWrite)) {
-      snappy::Uncompress(mCompressionBufferWrite.c_str(), mCompressionBufferWrite.size(), &mCompressionBufferRead);
+    ui::Sprite                 &root = getRootSprite();
+    if (root.isDirty()) {
+      root.writeTo(send.mData);
     }
   }
+
+  // Receive data from clients
+  mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
 }
 
 void EngineServer::draw()
@@ -107,6 +103,41 @@ void EngineServer::receiveHeader(ds::DataBuffer& data)
 }
 
 void EngineServer::receiveCommand(ds::DataBuffer& data)
+{
+  while (data.canRead<char>()) {
+    const char    cmd = data.read<char>();
+    if (cmd == CMD_CLIENT_REQUEST_WORLD) {
+      mState = &mSendWorldState;
+    }
+  }
+}
+
+/**
+ * EngineServer::State
+ */
+EngineServer::State::State()
+{
+}
+
+/**
+ * EngineServer::RunningState
+ */
+EngineServer::RunningState::RunningState()
+{
+}
+
+void EngineServer::RunningState::update(EngineServer& engine)
+{
+}
+
+/**
+ * EngineServer::SendWorldState
+ */
+EngineServer::SendWorldState::SendWorldState()
+{
+}
+
+void EngineServer::SendWorldState::update(EngineServer& engine)
 {
 }
 

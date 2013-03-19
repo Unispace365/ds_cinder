@@ -348,6 +348,9 @@
     <ClInclude Include="..\src\ds\network\node_watcher.h">
       <Filter>src\ds\network</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine_io.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -544,6 +547,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\network\node_watcher.cpp">
       <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine_io.cpp">
+      <Filter>src\ds\app</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

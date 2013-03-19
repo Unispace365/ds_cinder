@@ -4,12 +4,13 @@
 
 #include "ds/app/blob_reader.h"
 #include "ds/app/engine.h"
-#include "ds/data/data_buffer.h"
+#include "ds/app/engine_io.h"
+//#include "ds/data/data_buffer.h"
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
-#include "ds/data/raw_data_buffer.h"
-#include "ds/network/zmq_connection.h"
+//#include "ds/data/raw_data_buffer.h"
+//#include "ds/network/zmq_connection.h"
 
 namespace ds {
 
@@ -38,23 +39,36 @@ class EngineClient : public Engine {
     virtual int                   getMode() const { return CLIENT_MODE; }
 
 private:
+    void                          receiveHeader(ds::DataBuffer&);
+    void                          receiveCommand(ds::DataBuffer&);
+
     typedef Engine inherited;
     WorkManager                   mWorkManager;
     GlThread                      mLoadImageThread;
     ui::LoadImageService          mLoadImageService;
 
-    ds::DataBuffer                mReceiveBuffer;
+    ds::ZmqConnection             mConnection;
+    EngineSender                  mSender;
+    EngineReceiver                mReceiver;
     ds::BlobReader                mBlobReader;
 
-    void                          receiveHeader(ds::DataBuffer&);
-    void                          receiveCommand(ds::DataBuffer&);
+    // STATES
 
+    class State {
+    public:
+      State();
+      virtual void              update(EngineClient&) = 0;
+    };
 
-    ds::ZmqConnection           mConnection;
-    std::string                 mCompressionBufferRead;
-    std::string                 mCompressionBufferWrite;
+    // I have no data, and am waiting for a complete refresh
+    class BlankState : public State {
+    public:
+      BlankState();
+      virtual void              update(EngineClient&);
+    };
 
-    RawDataBuffer               mRawDataBuffer;
+    State*                      mState;
+    BlankState                  mBlankState;
 };
 
 } // namespace ds
