@@ -22,7 +22,8 @@ EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings)
     , mSender(mConnection)
     , mReceiver(mConnection)
     , mBlobReader(mReceiver.getData(), *this)
-    , mState(&mBlankState)
+//    , mState(&mBlankState)
+    , mState(&mRunningState)
 {
   // NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
   // so that the BLOB ids match.
@@ -69,7 +70,17 @@ void EngineClient::update()
 {
   updateClient();
 
-  mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
+  // Every update, receive data
+  if (!mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader)) {
+    // If I didn't receive any data, then don't send any data. This is
+    // pretty important -- 0MQ will buffer sent commands if there's
+    // no one to receive them. There isn't a way to ask the socket how
+    // many connections there are, so we rely on the fact that the
+    // server sounds out data each frame to tell us if there's someone
+    // to receive anything.
+    return;
+  }
+
   mState->update(*this);
 }
 
@@ -91,21 +102,36 @@ void EngineClient::receiveHeader(ds::DataBuffer& data)
 
 void EngineClient::receiveCommand(ds::DataBuffer& data)
 {
-  std::cout << "RECEIVE COMMAND" << std::endl;
+  std::cout << "RECEIVE COMMAND time " << time(0) << std::endl;
 
   while (data.canRead<char>()) {
     const char    cmd = data.read<char>();
     if (cmd == CMD_SERVER_SEND_WORLD) {
       std::cout << "...WORLD!" << std::endl;
+      mRootSprite.clearChildren();
+      mState = &mRunningState;
+      // Done reading this command, slurp the terminator, then let the normal blob reader take over
+      if (data.canRead<char>()) data.read<char>();
+      return;
     }
   }
-
 }
 
 /**
  * EngineClient::State
  */
 EngineClient::State::State()
+{
+}
+
+/**
+ * EngineClient::RunningState
+ */
+EngineClient::RunningState::RunningState()
+{
+}
+
+void EngineClient::RunningState::update(EngineClient& engine)
 {
 }
 
@@ -119,7 +145,7 @@ EngineClient::BlankState::BlankState()
 void EngineClient::BlankState::update(EngineClient& engine)
 {
   EngineSender::AutoSend  send(engine.mSender);
-  std::cout << "Send world request" << std::endl;
+  std::cout << "Send world REQUEST AT " << time(0) << std::endl;
   ds::DataBuffer&   buf = send.mData;
   buf.add(COMMAND_BLOB);
   buf.add(CMD_CLIENT_REQUEST_WORLD);

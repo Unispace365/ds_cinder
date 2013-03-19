@@ -60,6 +60,12 @@ private:
       virtual void              update(EngineClient&) = 0;
     };
 
+    class RunningState : public State {
+    public:
+      RunningState();
+      virtual void              update(EngineClient&);
+    };
+
     // I have no data, and am waiting for a complete refresh
     class BlankState : public State {
     public:
@@ -68,6 +74,7 @@ private:
     };
 
     State*                      mState;
+    RunningState                mRunningState;
     BlankState                  mBlankState;
 };
 

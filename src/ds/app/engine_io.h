@@ -51,8 +51,8 @@ class EngineReceiver {
 
     ds::DataBuffer&               getData();
     // Convenience for clients with a blob reader, automatically
-    // receive and handle the data.
-    void                          receiveAndHandle(ds::BlobRegistry&, ds::BlobReader&);
+    // receive and handle the data. Answer true if there was data.
+    bool                          receiveAndHandle(ds::BlobRegistry&, ds::BlobReader&);
 
   private:
     ds::ZmqConnection&            mConnection;

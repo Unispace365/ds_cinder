@@ -53,14 +53,18 @@ ds::DataBuffer& EngineReceiver::getData()
   return mReceiveBuffer;
 }
 
-void EngineReceiver::receiveAndHandle(ds::BlobRegistry& registry, ds::BlobReader& reader)
+bool EngineReceiver::receiveAndHandle(ds::BlobRegistry& registry, ds::BlobReader& reader)
 {
   EngineReceiver::AutoReceive   receive(*this);
+  if (mReceiveBuffer.size() < 1) return false;
+
+  const int receiveSize = mReceiveBuffer.size();
   const char                    size = static_cast<char>(registry.mReader.size());
   while (receive.mData.canRead<char>()) {
     const char  token = receive.mData.read<char>();
     if (token > 0 && token < size) registry.mReader[token](reader);
   }
+  return true;
 }
 
 /**

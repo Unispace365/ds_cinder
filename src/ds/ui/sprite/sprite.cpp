@@ -1416,6 +1416,12 @@ void Sprite::clear()
   mIdleTimer.clear();
 }
 
+void Sprite::markTreeAsDirty()
+{
+  markAsDirty(ds::BitMask::newFilled());
+  markChildrenAsDirty(ds::BitMask::newFilled());
+}
+
 void Sprite::userInputReceived()
 {
   if (mParent)

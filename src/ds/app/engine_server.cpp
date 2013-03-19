@@ -70,21 +70,7 @@ void EngineServer::update()
   mWorkManager.update();
   updateServer();
 
-  // Send data to clients
-  {
-    EngineSender::AutoSend  send(mSender);
-    // Always send the header
-    send.mData.add(HEADER_BLOB);
-    send.mData.add(ds::TERMINATOR_CHAR);
-
-    ui::Sprite                 &root = getRootSprite();
-    if (root.isDirty()) {
-      root.writeTo(send.mData);
-    }
-  }
-
-  // Receive data from clients
-  mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
+  mState->update(*this);
 }
 
 void EngineServer::draw()
@@ -104,9 +90,11 @@ void EngineServer::receiveHeader(ds::DataBuffer& data)
 
 void EngineServer::receiveCommand(ds::DataBuffer& data)
 {
+  std::cout << "RECEIVE at" << time(0) << std::endl;
   while (data.canRead<char>()) {
     const char    cmd = data.read<char>();
     if (cmd == CMD_CLIENT_REQUEST_WORLD) {
+      std::cout << "Client REQUEST FOR WORLD at " << time(0) << std::endl;
       mState = &mSendWorldState;
     }
   }
@@ -128,6 +116,21 @@ EngineServer::RunningState::RunningState()
 
 void EngineServer::RunningState::update(EngineServer& engine)
 {
+  // Send data to clients
+  {
+    EngineSender::AutoSend  send(engine.mSender);
+    // Always send the header
+    send.mData.add(HEADER_BLOB);
+    send.mData.add(ds::TERMINATOR_CHAR);
+
+    ui::Sprite                 &root = engine.getRootSprite();
+    if (root.isDirty()) {
+      root.writeTo(send.mData);
+    }
+  }
+
+  // Receive data from clients
+  engine.mReceiver.receiveAndHandle(engine.mBlobRegistry, engine.mBlobReader);
 }
 
 /**
@@ -139,6 +142,23 @@ EngineServer::SendWorldState::SendWorldState()
 
 void EngineServer::SendWorldState::update(EngineServer& engine)
 {
+  // Send data to clients
+  {
+    EngineSender::AutoSend  send(engine.mSender);
+    std::cout << "SEND WORLD " << std::time(0) << std::endl;
+    // Always send the header
+    send.mData.add(HEADER_BLOB);
+    send.mData.add(ds::TERMINATOR_CHAR);
+    send.mData.add(COMMAND_BLOB);
+    send.mData.add(CMD_SERVER_SEND_WORLD);
+    send.mData.add(ds::TERMINATOR_CHAR);
+
+    ui::Sprite                 &root = engine.getRootSprite();
+    root.markTreeAsDirty();
+    root.writeTo(send.mData);
+  }
+
+  engine.mState = &engine.mRunningState;
 }
 
 } // namespace ds
