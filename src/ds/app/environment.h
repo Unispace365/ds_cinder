@@ -25,6 +25,9 @@ class Environment {
     // relative to my appPath, and searches up the appPath looking for it.  This makes
     // it so no configuration is needed between dev and production environments.
     static std::string          getAppFolder(const std::string& folderName, const std::string& fileName = "");
+    //
+    static std::string          getLocalResourcesFolder(const std::string& folderName, const std::string& fileName = "");
+
     // Answer the Downstream documents folder.
     static std::string		      getDownstreamDocumentsFolder();
     // Answer a complete path to a local settings file.  Supply an empty file name

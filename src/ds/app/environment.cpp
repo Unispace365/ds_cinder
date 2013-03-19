@@ -42,6 +42,24 @@ std::string Environment::getAppFolder(const std::string& folderName, const std::
   return ans;
 }
 
+std::string Environment::getLocalResourcesFolder( const std::string& folderName, const std::string& fileName /*= ""*/ )
+{
+  if (EngineSettings::envProjectPath().empty())
+    return "";
+  Poco::Path p(getDownstreamDocumentsFolder());
+  p.append(RESOURCES()).append(EngineSettings::envProjectPath());
+  std::string     ans;
+  // A couple things limit the search -- the directory can't get
+  // too short, and right now nothing is more then 3 steps from the appPath.
+  int             count = 0;
+  while ((ans=folder_from(p, folderName, fileName)).empty()) {
+    p.popDirectory();
+    if (count++ >= 3 || p.depth() < 2)
+      return "";
+  }
+  return ans;
+}
+
 std::string Environment::getDownstreamDocumentsFolder()
 {
 	// We will need to do something different for linux, no doubt

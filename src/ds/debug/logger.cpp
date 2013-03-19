@@ -191,6 +191,11 @@ void Logger::log(const int level, const std::string& str)
 	mLoop.log(level, str);
 }
 
+void ds::Logger::log( const int level, const std::wstring& str)
+{
+  log(level, ds::utf8_from_wstr(str));
+}
+
 void Logger::blockUntilReady()
 {
 	// Only matters if I'm running async
@@ -241,6 +246,11 @@ void Logger::Loop::log(const int level, const std::string& str)
 	} else {
 		consume(mInput);
 	}
+}
+
+void ds::Logger::Loop::log( const int level, const std::wstring& str)
+{
+  log(level, ds::utf8_from_wstr(str));
 }
 
 void Logger::Loop::run()
@@ -310,6 +320,16 @@ void Logger::Loop::logToFile(const entry& e, const std::string& formattedMsg)
 	outFile.open(LOG_FILE.c_str(), ios_base::app);
 	outFile << formattedMsg;
 	outFile.close();
+}
+
+void ds::Logger::Loop::logToConsole( const entry& e, const std::wstring& formattedMsg )
+{
+  logToConsole(e, ds::utf8_from_wstr(formattedMsg));
+}
+
+void ds::Logger::Loop::logToFile( const entry& e, const std::wstring& formattedMsg )
+{
+  logToFile(e, ds::utf8_from_wstr(formattedMsg));
 }
 
 /* DS::LOGGER singleton

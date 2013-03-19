@@ -83,6 +83,7 @@ class Logger
     ~Logger();
 
     void                    log(const int level, const std::string&);
+    void                    log(const int level, const std::wstring&);
 
     // Block until all current inputs have finished writing
     void                    blockUntilReady();
@@ -110,6 +111,7 @@ class Logger
         Loop();
 
         void                log(const int level, const std::string&);
+        void                log(const int level, const std::wstring&);
 
         virtual void        run();
 
@@ -119,6 +121,8 @@ class Logger
         void                consume(std::vector<entry>&);
         void                logToConsole(const entry&, const std::string& formattedMsg);
         void                logToFile(const entry&, const std::string& formattedMsg);
+        void                logToConsole(const entry&, const std::wstring& formattedMsg);
+        void                logToFile(const entry&, const std::wstring& formattedMsg);
     };
 
   private:
@@ -135,6 +139,9 @@ Logger&                     getLogger();
 // example: DS_LOG(ds::Logger::LOG_INFO, "I have " << numberArg << " info items to report" << endl, ds::BitMask::newFilled());
 #define DS_LOG(level, streamExp, module)	{ if (ds::Logger::hasLevel(level) && ds::Logger::hasModule(module)) { std::stringstream	buf;	buf << streamExp; 	ds::getLogger().log(level, buf.str()); } }
 
+// example: DS_LOGW(ds::Logger::LOG_INFO, L"I have " << numberArg << L" info items to report" << endl, ds::BitMask::newFilled());
+#define DS_LOGW(level, streamExp, module)	{ if (ds::Logger::hasLevel(level) && ds::Logger::hasModule(module)) { std::wstringstream	buf;	buf << streamExp; 	ds::getLogger().log(level, buf.str()); } }
+
 // Logging convenience
 #define DS_LOG_INFO(streamExp)				DS_LOG(ds::Logger::LOG_INFO,	streamExp, ds::BitMask::newFilled())
 #define DS_LOG_INFO_M(streamExp, module)	DS_LOG(ds::Logger::LOG_INFO,	streamExp, module)
@@ -145,10 +152,21 @@ Logger&                     getLogger();
 #define DS_LOG_FATAL(streamExp)				DS_LOG(ds::Logger::LOG_FATAL,	streamExp, ds::BitMask::newFilled())
 #define DS_LOG_FATAL_M(streamExp, module)	DS_LOG(ds::Logger::LOG_FATAL,	streamExp, module)
 
+// Logging convenience
+#define DS_LOGW_INFO(streamExp)				DS_LOGW(ds::Logger::LOG_INFO,	streamExp, ds::BitMask::newFilled())
+#define DS_LOGW_INFO_M(streamExp, module)	DS_LOGW(ds::Logger::LOG_INFO,	streamExp, module)
+#define DS_LOGW_WARNING(streamExp)			DS_LOGW(ds::Logger::LOG_WARNING, streamExp, ds::BitMask::newFilled())
+#define DS_LOGW_WARNING_M(streamExp, module)	DS_LOGW(ds::Logger::LOG_WARNING, streamExp, module)
+#define DS_LOGW_ERROR(streamExp)				DS_LOGW(ds::Logger::LOG_ERROR,	streamExp, ds::BitMask::newFilled())
+#define DS_LOGW_ERROR_M(streamExp, module)	DS_LOGW(ds::Logger::LOG_ERROR,	streamExp, module)
+#define DS_LOGW_FATAL(streamExp)				DS_LOGW(ds::Logger::LOG_FATAL,	streamExp, ds::BitMask::newFilled())
+#define DS_LOGW_FATAL_M(streamExp, module)	DS_LOGW(ds::Logger::LOG_FATAL,	streamExp, module)
+
 // Utility for logging a fatal error then ending the app, to maintain compatibility
 // with the previous logger, which had this functionality.  Probably shouldn't
 // be here in the logging stuff, but I don't think we have a place for things
 // like this right now.
 #define DS_FATAL_ERROR(streamExp)			{ std::stringstream	buf;	buf << streamExp; 	ds::getLogger().log(ds::Logger::LOG_FATAL, buf.str()); ds::getLogger().blockUntilReady(); Poco::Thread::sleep(4000); std::exit(-1); }
+#define DS_FATALW_ERROR(streamExp)			{ std::wstringstream	buf;	buf << streamExp; 	ds::getLogger().log(ds::Logger::LOG_FATAL, buf.str()); ds::getLogger().blockUntilReady(); Poco::Thread::sleep(4000); std::exit(-1); }
 
 #endif // LOGGER_DS_H
