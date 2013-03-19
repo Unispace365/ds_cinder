@@ -351,6 +351,12 @@
     <ClInclude Include="..\src\ds\app\engine_io.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\network\udp_connection.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\net_connection.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -550,6 +556,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine_io.cpp">
       <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\udp_connection.cpp">
+      <Filter>src\ds\network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

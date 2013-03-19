@@ -11,7 +11,7 @@ namespace ds {
 /**
  * \class ds::EngineSender
  */
-EngineSender::EngineSender(ds::ZmqConnection& con)
+EngineSender::EngineSender(ds::NetConnection& con)
     : mConnection(con)
 {
 }
@@ -43,7 +43,7 @@ EngineSender::AutoSend::~AutoSend()
 /**
  * \class ds::EngineReceiver
  */
-EngineReceiver::EngineReceiver(ds::ZmqConnection& con)
+EngineReceiver::EngineReceiver(ds::NetConnection& con)
     : mConnection(con)
 {
 }

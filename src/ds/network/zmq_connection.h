@@ -3,13 +3,13 @@
 #define DS_ZMQ_CONNECTION_H
 
 #include "zmq.hpp"
-#include <string>
 #include <memory>
+#include "ds/network/net_connection.h"
 
 namespace ds
 {
 
-class ZmqConnection
+class ZmqConnection : public NetConnection
 {
   public:
     ZmqConnection(int numThreads = 1);

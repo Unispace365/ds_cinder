@@ -4,7 +4,7 @@
 
 #include "ds/data/data_buffer.h"
 #include "ds/data/raw_data_buffer.h"
-#include "ds/network/zmq_connection.h"
+#include "ds/network/net_connection.h"
 
 /**
  * Hide the busy work of sending information between the server and client.
@@ -20,10 +20,10 @@ class BlobRegistry;
  */
 class EngineSender {
   public:
-    EngineSender(ds::ZmqConnection&);
+    EngineSender(ds::NetConnection&);
 
   private:
-    ds::ZmqConnection&            mConnection;
+    ds::NetConnection&            mConnection;
     ds::DataBuffer                mSendBuffer;
     RawDataBuffer                 mRawDataBuffer;
     std::string                   mCompressionBuffer;
@@ -47,7 +47,7 @@ class EngineSender {
  */
 class EngineReceiver {
   public:
-    EngineReceiver(ds::ZmqConnection&);
+    EngineReceiver(ds::NetConnection&);
 
     ds::DataBuffer&               getData();
     // Convenience for clients with a blob reader, automatically
@@ -55,7 +55,7 @@ class EngineReceiver {
     bool                          receiveAndHandle(ds::BlobRegistry&, ds::BlobReader&);
 
   private:
-    ds::ZmqConnection&            mConnection;
+    ds::NetConnection&            mConnection;
     ds::DataBuffer                mReceiveBuffer;
     std::string                   mCompressionBufferRead;
     std::string                   mCompressionBufferWrite;
