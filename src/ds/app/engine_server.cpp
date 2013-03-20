@@ -98,11 +98,9 @@ void EngineServer::receiveHeader(ds::DataBuffer& data)
 
 void EngineServer::receiveCommand(ds::DataBuffer& data)
 {
-  std::cout << "RECEIVE at" << time(0) << std::endl;
   char            cmd;
   while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
     if (cmd == CMD_CLIENT_REQUEST_WORLD) {
-      std::cout << "Client REQUEST FOR WORLD at " << time(0) << std::endl;
       setState(mSendWorldState);
     }
   }
@@ -153,7 +151,6 @@ void EngineServer::RunningState::update(EngineServer& engine)
   {
     EngineSender::AutoSend  send(engine.mSender);
     // Always send the header
-    std::cout << "send frame " << mFrame << std::endl;
     addHeader(send.mData, mFrame);
 
     ui::Sprite                 &root = engine.getRootSprite();
@@ -164,23 +161,22 @@ void EngineServer::RunningState::update(EngineServer& engine)
 
   // Receive data from clients
   engine.mReceiver.receiveAndHandle(engine.mBlobRegistry, engine.mBlobReader);
+
+  mFrame++;
 }
 
 /**
  * EngineServer::SendWorldState
  */
 EngineServer::SendWorldState::SendWorldState()
-  : mSent(false)
 {
 }
 
 void EngineServer::SendWorldState::update(EngineServer& engine)
 {
-  // Send data to clients
-//if (!mSent) {
   {
     EngineSender::AutoSend  send(engine.mSender);
-    std::cout << "SEND WORLD " << std::time(0) << std::endl;
+//    std::cout << "SEND WORLD " << std::time(0) << std::endl;
     // Always send the header
     addHeader(send.mData, -1);
     send.mData.add(COMMAND_BLOB);
@@ -191,8 +187,7 @@ void EngineServer::SendWorldState::update(EngineServer& engine)
     root.markTreeAsDirty();
     root.writeTo(send.mData);
   }
-  mSent = true;
-//}
+
   engine.setState(engine.mRunningState);
 }
 

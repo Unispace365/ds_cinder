@@ -57,25 +57,33 @@ private:
     class State {
     public:
       State();
-      virtual void              update(EngineClient&) = 0;
+      virtual void                begin(EngineClient&);
+      virtual void                update(EngineClient&) = 0;
     };
 
     class RunningState : public State {
     public:
       RunningState();
-      virtual void              update(EngineClient&);
+      virtual void                update(EngineClient&);
     };
 
     // I have no data, and am waiting for a complete refresh
     class BlankState : public State {
     public:
       BlankState();
-      virtual void              update(EngineClient&);
+      virtual void                begin(EngineClient&);
+      virtual void                update(EngineClient&);
+
+    private:
+      // Avoid flooding the server with requests for the world.
+      int                         mSendFrame;
     };
 
-    State*                      mState;
-    RunningState                mRunningState;
-    BlankState                  mBlankState;
+    State*                        mState;
+    RunningState                  mRunningState;
+    BlankState                    mBlankState;
+
+    void                          setState(State&);
 };
 
 } // namespace ds

@@ -22,8 +22,7 @@ EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings)
     , mSender(mSendConnection)
     , mReceiver(mReceiveConnection)
     , mBlobReader(mReceiver.getData(), *this)
-    , mState(&mBlankState)
-//    , mState(&mRunningState)
+    , mState(nullptr)
 {
   // NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
   // so that the BLOB ids match.
@@ -37,6 +36,8 @@ EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings)
   } catch(std::exception &e) {
     DS_LOG_ERROR_M("EngineClient() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
   }
+
+  setState(mBlankState);
 }
 
 EngineClient::~EngineClient()
@@ -99,11 +100,9 @@ void EngineClient::stopServices()
 
 void EngineClient::receiveHeader(ds::DataBuffer& data)
 {
-//  std::cout << "EngineClient::receiveHeader()" << std::endl;
-
   if (data.canRead<int>()) {
     const int frame = data.read<int>();
-    std::cout << "frame=" << frame << std::endl;
+//    std::cout << "frame=" << frame << std::endl;
   }
   // Terminator
   if (data.canRead<char>()) {
@@ -113,22 +112,31 @@ void EngineClient::receiveHeader(ds::DataBuffer& data)
 
 void EngineClient::receiveCommand(ds::DataBuffer& data)
 {
-  std::cout << "RECEIVE COMMAND time " << time(0) << std::endl;
-
   char            cmd;
   while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
     if (cmd == CMD_SERVER_SEND_WORLD) {
-      std::cout << "...WORLD!" << std::endl;
       mRootSprite.clearChildren();
-      mState = &mRunningState;
+      setState(mRunningState);
     }
   }
+}
+
+void EngineClient::setState(State& s)
+{
+  if (&s == mState) return;
+  
+  s.begin(*this);
+  mState = &s;
 }
 
 /**
  * EngineClient::State
  */
 EngineClient::State::State()
+{
+}
+
+void EngineClient::State::begin(EngineClient&)
 {
 }
 
@@ -147,17 +155,27 @@ void EngineClient::RunningState::update(EngineClient& engine)
  * EngineClient::BlankState
  */
 EngineClient::BlankState::BlankState()
+  : mSendFrame(0)
 {
+}
+
+void EngineClient::BlankState::begin(EngineClient&)
+{
+  mSendFrame = 0;
 }
 
 void EngineClient::BlankState::update(EngineClient& engine)
 {
-  EngineSender::AutoSend  send(engine.mSender);
-  std::cout << "Send world REQUEST AT " << time(0) << std::endl;
-  ds::DataBuffer&   buf = send.mData;
-  buf.add(COMMAND_BLOB);
-  buf.add(CMD_CLIENT_REQUEST_WORLD);
-  buf.add(ds::TERMINATOR_CHAR);
+  if (mSendFrame <= 0) {
+    EngineSender::AutoSend  send(engine.mSender);
+    ds::DataBuffer&   buf = send.mData;
+    buf.add(COMMAND_BLOB);
+    buf.add(CMD_CLIENT_REQUEST_WORLD);
+    buf.add(ds::TERMINATOR_CHAR);
+
+    mSendFrame = 10;
+  }
+  --mSendFrame;
 }
 
 } // namespace ds

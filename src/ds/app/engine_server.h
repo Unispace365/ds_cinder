@@ -77,8 +77,6 @@ class EngineServer : public Engine {
     public:
       SendWorldState();
       virtual void                update(EngineServer&);
-
-      bool mSent;
     };
 
     State*                      mState;
