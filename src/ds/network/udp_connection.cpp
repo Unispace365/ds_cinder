@@ -1,5 +1,6 @@
 #include "udp_connection.h"
 #include <iostream>
+#include <Poco/Net/NetException.h>
 #include "ds\util\string_util.h"
 
 const unsigned int		ds::NET_MAX_UDP_PACKET_SIZE = 2000000;
@@ -71,7 +72,7 @@ bool UdpConnection::initialize( bool server, const std::string &ip, const std::s
 
 	    mReceiveBufferMaxSize = mSocket.getReceiveBufferSize();
       if (mReceiveBufferMaxSize <= 0) throw std::exception("UdpConnection::initialize() Couldn't determine a receive buffer size");
-      if (mReceiveBuffer.setSize(mReceiveBufferMaxSize)) throw std::exception("UdpConnection::initialize() Can't allocate receive buffer");
+      if (!mReceiveBuffer.setSize(mReceiveBufferMaxSize)) throw std::exception("UdpConnection::initialize() Can't allocate receive buffer");
     }
 
     mInitialized = true;
@@ -121,6 +122,10 @@ bool UdpConnection::sendMessage( const char *data, int size )
   {
 		const int sentAmt = mSocket.sendBytes(data, size);
     return sentAmt > 0;
+  }
+  catch ( Poco::Net::NetException &e)
+  {
+    std::cout << "UdpConnection::sendMessage() error " << e.message() << std::endl;
   }
   catch ( std::exception &e )
   {

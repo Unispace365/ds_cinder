@@ -18,12 +18,12 @@ char              COMMAND_BLOB = 0;
 EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings)
     : inherited(app, settings)
     , mLoadImageService(mLoadImageThread)
-    , mConnection(NumberOfNetworkThreads)
-    , mSender(mConnection)
-    , mReceiver(mConnection)
+//    , mConnection(NumberOfNetworkThreads)
+    , mSender(mSendConnection)
+    , mReceiver(mReceiveConnection)
     , mBlobReader(mReceiver.getData(), *this)
-//    , mState(&mBlankState)
-    , mState(&mRunningState)
+    , mState(&mBlankState)
+//    , mState(&mRunningState)
 {
   // NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
   // so that the BLOB ids match.
@@ -31,7 +31,9 @@ EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings)
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
   try {
-   mConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+//   mConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+   mSendConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
+   mReceiveConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
   } catch(std::exception &e) {
     DS_LOG_ERROR_M("EngineClient() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
   }
@@ -98,21 +100,27 @@ void EngineClient::stopServices()
 void EngineClient::receiveHeader(ds::DataBuffer& data)
 {
 //  std::cout << "EngineClient::receiveHeader()" << std::endl;
+
+  if (data.canRead<int>()) {
+    const int frame = data.read<int>();
+    std::cout << "frame=" << frame << std::endl;
+  }
+  // Terminator
+  if (data.canRead<char>()) {
+    data.read<char>();
+  }
 }
 
 void EngineClient::receiveCommand(ds::DataBuffer& data)
 {
   std::cout << "RECEIVE COMMAND time " << time(0) << std::endl;
 
-  while (data.canRead<char>()) {
-    const char    cmd = data.read<char>();
+  char            cmd;
+  while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
     if (cmd == CMD_SERVER_SEND_WORLD) {
       std::cout << "...WORLD!" << std::endl;
       mRootSprite.clearChildren();
       mState = &mRunningState;
-      // Done reading this command, slurp the terminator, then let the normal blob reader take over
-      if (data.canRead<char>()) data.read<char>();
-      return;
     }
   }
 }

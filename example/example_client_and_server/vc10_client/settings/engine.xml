@@ -3,7 +3,8 @@
 	<text name="project_path" value="dscinder_example\clientserver_c" />
  	<int name="num_clients" value="1" />
 
-    <text name="server:ip" value="127.0.0.1" />
+    <text name="server:ip" value="230.168.0.55" />
+<!--    <text name="server:ip" value="127.0.0.1" /> -->
 	<int name="server:send_port" value="5000" />
 	<int name="server:listen_port" value="5001" />
 

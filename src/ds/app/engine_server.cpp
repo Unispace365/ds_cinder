@@ -21,11 +21,11 @@ const char        TERMINATOR = 0;
 EngineServer::EngineServer(ds::App& app, const ds::cfg::Settings& settings)
     : inherited(app, settings)
     , mLoadImageService(mLoadImageThread)
-    , mConnection(NumberOfNetworkThreads)
-    , mSender(mConnection)
-    , mReceiver(mConnection)
+//    , mConnection(NumberOfNetworkThreads)
+    , mSender(mSendConnection)
+    , mReceiver(mReceiveConnection)
     , mBlobReader(mReceiver.getData(), *this)
-    , mState(&mRunningState)
+    , mState(nullptr)
 {
   // NOTE:  Must be EXACTLY the same items as in EngineClient, in same order,
   // so that the BLOB ids match.
@@ -33,10 +33,14 @@ EngineServer::EngineServer(ds::App& app, const ds::cfg::Settings& settings)
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
   try {
-    mConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+//    mConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+    mSendConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+    mReceiveConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
   } catch (std::exception &e) {
     DS_LOG_ERROR_M("EngineServer() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
   }
+
+  setState(mRunningState);
 }
 
 EngineServer::~EngineServer()
@@ -86,18 +90,30 @@ void EngineServer::stopServices()
 
 void EngineServer::receiveHeader(ds::DataBuffer& data)
 {
+  char            id;
+  while (data.canRead<char>() && (id=data.read<char>()) != ds::TERMINATOR_CHAR) {
+    // Nothing in the header right now.
+  }
 }
 
 void EngineServer::receiveCommand(ds::DataBuffer& data)
 {
   std::cout << "RECEIVE at" << time(0) << std::endl;
-  while (data.canRead<char>()) {
-    const char    cmd = data.read<char>();
+  char            cmd;
+  while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
     if (cmd == CMD_CLIENT_REQUEST_WORLD) {
       std::cout << "Client REQUEST FOR WORLD at " << time(0) << std::endl;
-      mState = &mSendWorldState;
+      setState(mSendWorldState);
     }
   }
+}
+
+void EngineServer::setState(State& s)
+{
+  if (&s == mState) return;
+  
+  s.begin(*this);
+  mState = &s;
 }
 
 /**
@@ -107,11 +123,28 @@ EngineServer::State::State()
 {
 }
 
+void EngineServer::State::begin(EngineServer&)
+{
+}
+
+void EngineServer::State::addHeader(ds::DataBuffer& data, const int frame)
+{
+    data.add(HEADER_BLOB);
+    data.add(frame);
+    data.add(ds::TERMINATOR_CHAR);
+}
+
 /**
  * EngineServer::RunningState
  */
 EngineServer::RunningState::RunningState()
+  : mFrame(0)
 {
+}
+
+void EngineServer::RunningState::begin(EngineServer&)
+{
+  mFrame = 0;
 }
 
 void EngineServer::RunningState::update(EngineServer& engine)
@@ -120,8 +153,8 @@ void EngineServer::RunningState::update(EngineServer& engine)
   {
     EngineSender::AutoSend  send(engine.mSender);
     // Always send the header
-    send.mData.add(HEADER_BLOB);
-    send.mData.add(ds::TERMINATOR_CHAR);
+    std::cout << "send frame " << mFrame << std::endl;
+    addHeader(send.mData, mFrame);
 
     ui::Sprite                 &root = engine.getRootSprite();
     if (root.isDirty()) {
@@ -137,18 +170,19 @@ void EngineServer::RunningState::update(EngineServer& engine)
  * EngineServer::SendWorldState
  */
 EngineServer::SendWorldState::SendWorldState()
+  : mSent(false)
 {
 }
 
 void EngineServer::SendWorldState::update(EngineServer& engine)
 {
   // Send data to clients
+//if (!mSent) {
   {
     EngineSender::AutoSend  send(engine.mSender);
     std::cout << "SEND WORLD " << std::time(0) << std::endl;
     // Always send the header
-    send.mData.add(HEADER_BLOB);
-    send.mData.add(ds::TERMINATOR_CHAR);
+    addHeader(send.mData, -1);
     send.mData.add(COMMAND_BLOB);
     send.mData.add(CMD_SERVER_SEND_WORLD);
     send.mData.add(ds::TERMINATOR_CHAR);
@@ -157,8 +191,9 @@ void EngineServer::SendWorldState::update(EngineServer& engine)
     root.markTreeAsDirty();
     root.writeTo(send.mData);
   }
-
-  engine.mState = &engine.mRunningState;
+  mSent = true;
+//}
+  engine.setState(engine.mRunningState);
 }
 
 } // namespace ds

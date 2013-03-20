@@ -5,6 +5,7 @@
 #include "ds/app/blob_reader.h"
 #include "ds/app/engine.h"
 #include "ds/app/engine_io.h"
+#include "ds/network/udp_connection.h"
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
@@ -43,7 +44,9 @@ class EngineServer : public Engine {
     GlNoThread                    mLoadImageThread;
     ui::LoadImageService          mLoadImageService;
 
-    ds::ZmqConnection             mConnection;
+//    ds::ZmqConnection             mConnection;
+    ds::UdpConnection             mSendConnection;
+    ds::UdpConnection             mReceiveConnection;
     EngineSender                  mSender;
     EngineReceiver                mReceiver;
     ds::BlobReader                mBlobReader;
@@ -53,24 +56,36 @@ class EngineServer : public Engine {
     class State {
     public:
       State();
-      virtual void              update(EngineServer&) = 0;
+      virtual void                begin(EngineServer&);
+      virtual void                update(EngineServer&) = 0;
+
+    protected:
+      void                        addHeader(ds::DataBuffer&, const int frame);
     };
 
     class RunningState : public State {
     public:
       RunningState();
-      virtual void              update(EngineServer&);
+      virtual void                begin(EngineServer&);
+      virtual void                update(EngineServer&);
+
+    private:
+      int                         mFrame;
     };
 
     class SendWorldState : public State {
     public:
       SendWorldState();
-      virtual void              update(EngineServer&);
+      virtual void                update(EngineServer&);
+
+      bool mSent;
     };
 
     State*                      mState;
     RunningState                mRunningState;
     SendWorldState              mSendWorldState;
+
+    void                        setState(State&);
 };
 
 } // namespace ds
