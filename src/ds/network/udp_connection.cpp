@@ -160,6 +160,23 @@ int UdpConnection::recvMessage( std::string &msg )
   return 0;
 }
 
+bool UdpConnection::canRecv() const
+{
+  if ( !mInitialized )
+    return 0;
+
+  try
+  {
+		return mSocket.available() > 0;
+  }
+  catch ( std::exception &e )
+  {
+    std::cout << e.what() << std::endl;
+  }
+
+  return false;
+}
+
 bool UdpConnection::isServer() const
 {
   return mServer;

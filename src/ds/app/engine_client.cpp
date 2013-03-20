@@ -84,6 +84,17 @@ void EngineClient::update()
     return;
   }
 
+  // Oh this is interesting... There can be more data in the pipe
+  // after handling, so make sure to slurp it all up, or else you
+  // can end up in a situation where the render lags behind the world
+  // by a couple seconds. For now, limit the amount of blocks I might
+  // slurp up, to guarantee I don't go into an infinite loop on some
+  // weird condition.
+  if (mReceiveConnection.canRecv()) {
+    mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
+    if (mReceiveConnection.canRecv()) mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
+  }
+
   mState->update(*this);
 }
 
@@ -102,7 +113,7 @@ void EngineClient::receiveHeader(ds::DataBuffer& data)
 {
   if (data.canRead<int>()) {
     const int frame = data.read<int>();
-//    std::cout << "frame=" << frame << std::endl;
+//    std::cout << "receive frame=" << frame << std::endl;
   }
   // Terminator
   if (data.canRead<char>()) {
@@ -115,6 +126,7 @@ void EngineClient::receiveCommand(ds::DataBuffer& data)
   char            cmd;
   while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
     if (cmd == CMD_SERVER_SEND_WORLD) {
+      std::cout << "receive world" << std::endl;
       mRootSprite.clearChildren();
       setState(mRunningState);
     }

@@ -25,6 +25,8 @@ class UdpConnection : public NetConnection
     bool sendMessage(const char *data, int size);
 
     int recvMessage(std::string &msg);
+    // Answer true if I have more data to receive, false otherwise.
+    bool canRecv() const;
 
     bool isServer() const;
 

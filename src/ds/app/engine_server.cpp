@@ -152,7 +152,7 @@ void EngineServer::RunningState::update(EngineServer& engine)
     EngineSender::AutoSend  send(engine.mSender);
     // Always send the header
     addHeader(send.mData, mFrame);
-
+//    std::cout << "send frame=" << mFrame << std::endl;
     ui::Sprite                 &root = engine.getRootSprite();
     if (root.isDirty()) {
       root.writeTo(send.mData);
@@ -176,7 +176,7 @@ void EngineServer::SendWorldState::update(EngineServer& engine)
 {
   {
     EngineSender::AutoSend  send(engine.mSender);
-//    std::cout << "SEND WORLD " << std::time(0) << std::endl;
+    std::cout << "SEND WORLD " << std::time(0) << std::endl;
     // Always send the header
     addHeader(send.mData, -1);
     send.mData.add(COMMAND_BLOB);
