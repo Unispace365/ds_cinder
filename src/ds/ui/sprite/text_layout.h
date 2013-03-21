@@ -11,6 +11,8 @@
 typedef std::shared_ptr<OGLFT::Translucent> FontPtr;
 
 namespace ds {
+class DataBuffer;
+
 namespace ui {
 class Text;
 
@@ -62,6 +64,9 @@ class TextLayout
     void                    addLine(const ci::Vec2f&, const std::wstring&);
 
     const std::vector<Line> getLines() const    { return mLines; }
+
+ 	  void						        writeTo(ds::DataBuffer&) const;
+ 		bool						        readFrom(ds::DataBuffer&);
 
     // Print my line info
     void                    debugPrint() const;

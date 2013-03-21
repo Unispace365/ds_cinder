@@ -8,6 +8,7 @@
 #include <ds/config/settings.h>
 #include <ds/ui/touch/touch_info.h>
 #include <ds/ui/sprite/image.h>
+#include <ds/ui/sprite/multiline_text.h>
 
 using namespace std;
 using namespace ci;
@@ -69,6 +70,7 @@ void CsApp::setupServer()
   imgSprite->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(*imgSprite);
   
+  // Example sprite
   ds::ui::Sprite *child = new ds::ui::Sprite(mEngine, 100.0f, 100.0f);
   child->setPosition(getWindowWidth() / 4.0f, getWindowHeight() / 4.0f);
   child->setCenter(0.5f, 0.5f);
@@ -77,6 +79,14 @@ void CsApp::setupServer()
   child->enable(true);
   child->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(*child);
+
+  // Example text sprite
+  ds::ui::MultilineText*  text = new ds::ui::MultilineText(mEngine);
+	const std::string       font = ds::Environment::getAppFolder("data/fonts", "DIN-Medium.otf");
+  text->setFont(font, 12.0f);
+  text->setText("beavers and ducks");
+  text->setPosition(getWindowWidth() * 0.25f, getWindowHeight() * 0.75f);
+  rootSprite.addChild(*text);
 }
 
 void CsApp::keyDown( KeyEvent event )

@@ -1,6 +1,7 @@
 #include "ds/ui/sprite/text_layout.h"
 
 #include <iostream>
+#include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/text.h"
 #include "ds/util/string_util.h"
 #include <time.h>
@@ -94,6 +95,42 @@ void TextLayout::addLine(const ci::Vec2f& pos, const std::wstring& text)
   Line&     l = mLines.back();
   l.mPos = pos;
   l.mText = text;
+}
+
+void TextLayout::writeTo(ds::DataBuffer& buf) const
+{
+  buf.add(mLines.size());
+  int k = 0;
+  for (auto it=mLines.begin(), end=mLines.end(); it != end; ++it) {
+    const Line&   line(*it);
+    buf.add(k);
+    buf.add(line.mPos.x);
+    buf.add(line.mPos.y);
+    buf.add(line.mText);
+    ++k;
+  }
+}
+
+bool TextLayout::readFrom(ds::DataBuffer& buf)
+{
+  if (!buf.canRead<int>()) return false;
+  const int     count = buf.read<int>();
+  // XXX Not really sure what the max count should be
+  if (count < 0 || count > 255) return false;
+  for (int k=0; k<count; ++k) {
+    if (!buf.canRead<int>()) return false;
+    if (buf.read<int>() != k) return false;
+
+    mLines.push_back(Line());
+    Line& l = mLines.back();
+
+    if (!buf.canRead<float>()) return false;
+    l.mPos.x = buf.read<float>();
+    if (!buf.canRead<float>()) return false;
+    l.mPos.y = buf.read<float>();
+    l.mText = buf.read<std::wstring>();
+  }
+  return true;
 }
 
 void TextLayout::debugPrint() const
@@ -193,7 +230,7 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   //const ci::Vec2f             spaceSize = in.mFont->measureString("o", in.mOptions);
   const ci::Vec2f             tabSize(spaceSize.x*3.0f, spaceSize.y);
   //for (auto it=tokens.begin(), end=tokens.end(); it != end; ++it) {
-  for (int i = 0; i < tokens.size(); ++i) {
+  for (size_t i = 0; i < tokens.size(); ++i) {
     // Test the new string to see if it's too long
     std::wstring               newLine(lineText);
     // If the new line is too large, then flush the previous and

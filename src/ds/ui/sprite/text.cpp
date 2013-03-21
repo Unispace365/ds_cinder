@@ -141,6 +141,7 @@ Text& Text::setResizeLimit(const float width, const float height)
 Text& Text::setFont(const std::string& filename, const float fontSize)
 {
   mFont = get_font(filename, fontSize);
+  mFontFileName = filename;
   mFontSize = fontSize;
   markAsDirty(FONT_DIRTY);
   mNeedsLayout = true;
@@ -166,6 +167,10 @@ void Text::drawLocalClient()
     ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
     glPopAttrib();
     mSpriteShader.getShader().bind();
+  }
+
+  if (mNeedRedrawing) {
+    drawIntoFbo();
   }
 
   //if (!mTextureFont) return;
@@ -323,6 +328,54 @@ void Text::debugPrint()
   makeLayout();
   std::cout << "Text lines=" << mLayout.getLines().size() << std::endl;
   mLayout.debugPrint();
+}
+
+void Text::writeAttributesTo(ds::DataBuffer& buf)
+{
+  inherited::writeAttributesTo(buf);
+
+	if (mDirty.has(FONT_DIRTY)) {
+    buf.add(FONT_ATT);
+    buf.add(mFontFileName);
+    buf.add(mFontSize);
+  }
+	if (mDirty.has(LAYOUT_DIRTY)) {
+    makeLayout();
+    buf.add(LAYOUT_ATT);
+    mLayout.writeTo(buf);
+  }
+	if (mDirty.has(BORDER_DIRTY)) {
+    buf.add(BORDER_ATT);
+    buf.add(mBorder.x1);
+    buf.add(mBorder.y1);
+    buf.add(mBorder.x2);
+    buf.add(mBorder.y2);
+  }
+}
+
+void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
+{
+    if (attributeId == FONT_ATT) {
+      const std::string filename = buf.read<std::string>();
+      const float       fontSize = buf.read<float>();
+      if (!filename.empty()) {
+        setFont(filename, fontSize);
+        mNeedRedrawing = true;
+      }
+    } else if (attributeId == LAYOUT_ATT) {
+      mLayout.readFrom(buf);
+      mNeedRedrawing = true;
+    } else if (attributeId == BORDER_ATT) {
+      float x1 = mBorder.x1, y1 = mBorder.y1, x2 = mBorder.x2, y2 = mBorder.y2;
+      if (buf.canRead<float>()) x1 = buf.read<float>();
+      if (buf.canRead<float>()) y1 = buf.read<float>();
+      if (buf.canRead<float>()) x2 = buf.read<float>();
+      if (buf.canRead<float>()) y2 = buf.read<float>();
+      mBorder = ci::Rectf(x1, y1, x2, y2);
+      mNeedRedrawing = true;
+    } else {
+      inherited::readAttributeFrom(attributeId, buf);
+    }
 }
 
 void Text::makeLayout()

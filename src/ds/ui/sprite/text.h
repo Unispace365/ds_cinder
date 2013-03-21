@@ -74,6 +74,9 @@ class Text: public Sprite
         void                      debugPrint();
 
     protected:
+        virtual void              writeAttributesTo(ds::DataBuffer&);
+        virtual void              readAttributeFrom(const char attributeId, ds::DataBuffer&);
+
         bool                      mNeedsLayout;
         bool                      mNeedRedrawing;
 
@@ -90,6 +93,7 @@ class Text: public Sprite
         //                          mDrawOptions;
         FontPtr mFont;
         
+        std::string               mFontFileName;
         float                     mFontSize;
         std::wstring              mTextString;
         ci::Rectf                 mBorder;
