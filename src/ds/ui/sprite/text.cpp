@@ -376,6 +376,11 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
     } else {
       inherited::readAttributeFrom(attributeId, buf);
     }
+    // This stuff should always been off -- it's server-side only, and
+    // will prevent the drawing. Which suggests the division between
+    // server and client functionality isn't defined well enough.
+    mResizeToTextF = 0;
+    mNeedsLayout = false;
 }
 
 void Text::makeLayout()
