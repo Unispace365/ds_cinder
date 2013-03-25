@@ -44,6 +44,13 @@ CsApp::CsApp()
     CUSTOM_DB_PATH = ds::Environment::getAppFolder("data", "resources/db/db.sqlite");
     ds::Resource::Id::setupCustomPaths( [](const ds::Resource::Id& id)->const std::string&{ if (id.mType == EXAMPLE_DB_TYPE) return CUSTOM_RESOURCE_PATH; return EMPTY_CUSTOM_PATH; },
                                         [](const ds::Resource::Id& id)->const std::string&{ if (id.mType == EXAMPLE_DB_TYPE) return CUSTOM_DB_PATH; return EMPTY_CUSTOM_PATH; });
+    // Setup my custom fonts. This is purely optional, but is used to optimize
+    // server->client communication. If the client and server have different font
+    // folders, that's fine. You'll need to construct each on its own, and in the
+    // same order.
+    // It's maybe worth nothing that if the client and server do have different
+    // font folders, then you HAVE to do this, to abstract that info.
+    mEngine.editFonts().install(ds::Environment::getAppFolder("data/fonts", "DIN-Medium.otf"));
   } catch (std::exception const& ex) {
     cout << "ERROR in app constructor=" << ex.what() << endl;
   }

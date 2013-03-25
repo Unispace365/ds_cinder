@@ -357,6 +357,9 @@
     <ClInclude Include="..\src\ds\network\net_connection.h">
       <Filter>src\ds\network</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\data\font_list.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -559,6 +562,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\network\udp_connection.cpp">
       <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\font_list.cpp">
+      <Filter>src\ds\data</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -4,6 +4,7 @@
 #include <cinder/app/App.h>
 #include <cinder/Buffer.h>
 #include <cinder/DataSource.h>
+#include "ds/data/font_list.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/app/blob_reader.h"
@@ -49,10 +50,11 @@ const DirtyState&   TEXT_DIRTY 		    = INTERNAL_B_DIRTY;
 const DirtyState&   LAYOUT_DIRTY 		  = INTERNAL_C_DIRTY;
 const DirtyState&   BORDER_DIRTY 		  = INTERNAL_D_DIRTY;
 
-const char          FONT_ATT          = 80;
-const char          TEXT_ATT          = 81;
-const char          LAYOUT_ATT        = 82;
-const char          BORDER_ATT        = 83;
+const char          FONTNAME_ATT      = 80;
+const char          FONTID_ATT        = 81;
+const char          TEXT_ATT          = 82;
+const char          LAYOUT_ATT        = 83;
+const char          BORDER_ATT        = 84;
 
 const int           RESIZE_W          = (1<<0);
 const int           RESIZE_H          = (1<<1);
@@ -346,8 +348,15 @@ void Text::writeAttributesTo(ds::DataBuffer& buf)
   inherited::writeAttributesTo(buf);
 
 	if (mDirty.has(FONT_DIRTY)) {
-    buf.add(FONT_ATT);
-    buf.add(mFontFileName);
+    // Try to find an efficient token, if the app has the FontList setup.
+    const int fontId = mEngine.getFonts().getId(mFontFileName);
+    if (fontId > 0) {
+      buf.add(FONTID_ATT);
+      buf.add(fontId);
+    } else {
+      buf.add(FONTNAME_ATT);
+      buf.add(mFontFileName);
+    }
     buf.add(mFontSize);
   }
 	if (mDirty.has(LAYOUT_DIRTY)) {
@@ -366,8 +375,15 @@ void Text::writeAttributesTo(ds::DataBuffer& buf)
 
 void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
 {
-    if (attributeId == FONT_ATT) {
+    if (attributeId == FONTNAME_ATT) {
       const std::string filename = buf.read<std::string>();
+      const float       fontSize = buf.read<float>();
+      if (!filename.empty()) {
+        setFont(filename, fontSize);
+        mNeedRedrawing = true;
+      }
+    } else if (attributeId == FONTID_ATT) {
+      const std::string filename = mEngine.getFonts().getName(buf.read<int>());
       const float       fontSize = buf.read<float>();
       if (!filename.empty()) {
         setFont(filename, fontSize);

@@ -466,6 +466,16 @@ ds::ResourceList& Engine::getResources()
   return mResources;
 }
 
+const ds::FontList& Engine::getFonts() const
+{
+  return mFonts;
+}
+
+ds::FontList& Engine::editFonts()
+{
+  return mFonts;
+}
+
 float Engine::getMinTouchDistance() const
 {
   return mMinTouchDistance;
