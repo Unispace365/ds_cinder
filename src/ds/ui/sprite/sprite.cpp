@@ -1097,9 +1097,17 @@ void Sprite::writeAttributesTo(ds::DataBuffer& buf)
     }
 		if (mDirty.has(POSITION_DIRTY)) {
       buf.add(POSITION_ATT);
-      buf.add(mPosition.x);
-      buf.add(mPosition.y);
-      buf.add(mPosition.z);
+      // I'm sure there's a better way to do this, but I need to compensate
+      // for the fact that touching down on a sprite will set the center, which
+      // affects the position.
+//      buf.add(mPosition.x);
+//      buf.add(mPosition.y);
+//      buf.add(mPosition.z);
+      buildTransform();
+      auto v = this->mTransformation.getTranslate();
+      buf.add(v.x);
+      buf.add(v.y);
+      buf.add(v.z);
     }
 		if (mDirty.has(CENTER_DIRTY)) {
       buf.add(CENTER_ATT);
