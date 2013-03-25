@@ -40,7 +40,7 @@ EngineServer::EngineServer(ds::App& app, const ds::cfg::Settings& settings)
     DS_LOG_ERROR_M("EngineServer() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
   }
 
-  setState(mRunningState);
+  setState(mSendWorldState);
 }
 
 EngineServer::~EngineServer()
@@ -176,7 +176,7 @@ void EngineServer::SendWorldState::update(EngineServer& engine)
 {
   {
     EngineSender::AutoSend  send(engine.mSender);
-    std::cout << "SEND WORLD " << std::time(0) << std::endl;
+//    std::cout << "SEND WORLD " << std::time(0) << std::endl;
     // Always send the header
     addHeader(send.mData, -1);
     send.mData.add(COMMAND_BLOB);
