@@ -49,6 +49,7 @@ class Text: public Sprite
         virtual float             getHeight() const;
         void                      setAlignment( int alignment );
         Text&                     setBorder(const ci::Rectf&);
+        virtual void              updateClient(const UpdateParams &updateParams);
         virtual void              updateServer(const UpdateParams&);
         void                      drawLocalClient();
         Text&                     setText( const std::string &text );

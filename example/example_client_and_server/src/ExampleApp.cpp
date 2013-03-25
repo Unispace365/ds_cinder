@@ -86,6 +86,7 @@ void CsApp::setupServer()
   text->setFont(font, 12.0f);
   text->setText("beavers and ducks");
   text->setPosition(getWindowWidth() * 0.25f, getWindowHeight() * 0.75f);
+  text->enable(true);
   rootSprite.addChild(*text);
 }
 

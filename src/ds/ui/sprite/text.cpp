@@ -154,8 +154,25 @@ void Text::updateServer(const UpdateParams& p)
   inherited::updateServer(p);
 
   makeLayout();
-  if (mNeedRedrawing)
+  // NOTE: Needs to be here. If this is called in drawLocalClient(),
+  // then the font won't render.
+  // ALSO, this really shouldn't be here. Need to work out a way for
+  // the texture to be created only in client or clientserver mode;
+  // this also drags in server mode.
+  if (mNeedRedrawing) {
     drawIntoFbo();
+  }
+}
+
+void Text::updateClient(const UpdateParams& p)
+{
+  inherited::updateClient(p);
+
+  // NOTE: Needs to be here. If this is called in drawLocalClient(),
+  // then the font won't render.
+  if (mNeedRedrawing) {
+    drawIntoFbo();
+  }
 }
 
 void Text::drawLocalClient()
@@ -169,28 +186,22 @@ void Text::drawLocalClient()
     mSpriteShader.getShader().bind();
   }
 
-  if (mNeedRedrawing) {
-    drawIntoFbo();
-  }
+  // NOTE: This won't work here. The font will draw nothing. Don't know OpenGL well
+  // enough to say, maybe there's some translation that's interfering with it? We should
+  // figure it out, because this is the ONLY place this should happen, and it should be
+  // removed from updateServer() and updateClient().
+//  if (mNeedRedrawing) {
+//    drawIntoFbo();
+//  }
 
   //if (!mTextureFont) return;
 
-  //auto& lines = mLayout.getLines();
-  //if (lines.empty()) return;
-
-//  gl::enableAlphaBlending();
-//  applyBlendingMode(NORMAL);
-
-  //if (mFbo) {
-  //  mFbo.getTexture().bind();
-  //  ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mFbo.getHeight()), static_cast<float>(mFbo.getWidth()), 0.0f));
-  //  mFbo.getTexture().unbind();
-  //}
   if (mTexture) {
     mTexture.bind();
     ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture.getHeight()), static_cast<float>(mTexture.getWidth()), 0.0f));
     mTexture.unbind();
   }
+
   //std::cout << "Size: " << lines.size() << std::endl;
   //for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
   //  const TextLayout::Line&   line(*it);
