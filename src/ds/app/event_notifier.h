@@ -17,6 +17,14 @@ class EventNotifier
     EventNotifier();
     virtual ~EventNotifier();
 
+    void                        addListener(void *id, const std::function<void(const ds::Event*)>&);
+
+    // Send an event to the system, for clients that don't need
+    // an EventClient (i.e. don't need to receive events)
+    void                        notify(const ds::Event&);
+    // Request information from the system.
+    void                        request(ds::Event&);
+
   protected:
     friend class EventClient;
 
