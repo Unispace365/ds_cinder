@@ -34,6 +34,9 @@
     <ClInclude Include="..\src\ds\app\engine_server.h" />
     <ClInclude Include="..\src\ds\app\engine_settings.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
+    <ClInclude Include="..\src\ds\app\event.h" />
+    <ClInclude Include="..\src\ds\app\event_client.h" />
+    <ClInclude Include="..\src\ds\app\event_notifier.h" />
     <ClInclude Include="..\src\ds\config\settings.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
@@ -99,6 +102,7 @@
     <ClInclude Include="..\src\ds\util\idle_timer.h" />
     <ClInclude Include="..\src\ds\util\memory_ds.h" />
     <ClInclude Include="..\src\ds\util\notifier.h" />
+    <ClInclude Include="..\src\ds\util\notifier_2.h" />
     <ClInclude Include="..\src\ds\util\string_util.h" />
   </ItemGroup>
   <ItemGroup>
@@ -120,6 +124,9 @@
     <ClCompile Include="..\src\ds\app\engine_server.cpp" />
     <ClCompile Include="..\src\ds\app\engine_settings.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
+    <ClCompile Include="..\src\ds\app\event.cpp" />
+    <ClCompile Include="..\src\ds\app\event_client.cpp" />
+    <ClCompile Include="..\src\ds\app\event_notifier.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />

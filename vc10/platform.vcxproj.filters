@@ -360,6 +360,18 @@
     <ClInclude Include="..\src\ds\data\font_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\event.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\event_client.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\event_notifier.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\notifier_2.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -565,6 +577,15 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\font_list.cpp">
       <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\event.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\event_client.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\event_notifier.cpp">
+      <Filter>src\ds\app</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
