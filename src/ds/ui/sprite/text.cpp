@@ -140,10 +140,10 @@ Text& Text::setResizeLimit(const float width, const float height)
   return *this;
 }
 
-Text& Text::setFont(const std::string& filename, const float fontSize)
+Text& Text::setFont(const std::string& name, const float fontSize)
 {
-  mFont = get_font(filename, fontSize);
-  mFontFileName = filename;
+  mFont = get_font(mEngine.getFonts().getFileNameFromName(name), fontSize);
+  mFontFileName = name;
   mFontSize = fontSize;
   markAsDirty(FONT_DIRTY);
   mNeedsLayout = true;
@@ -349,7 +349,7 @@ void Text::writeAttributesTo(ds::DataBuffer& buf)
 
 	if (mDirty.has(FONT_DIRTY)) {
     // Try to find an efficient token, if the app has the FontList setup.
-    const int fontId = mEngine.getFonts().getId(mFontFileName);
+    const int fontId = mEngine.getFonts().getIdFromName(mFontFileName);
     if (fontId > 0) {
       buf.add(FONTID_ATT);
       buf.add(fontId);
@@ -383,7 +383,7 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
         mNeedRedrawing = true;
       }
     } else if (attributeId == FONTID_ATT) {
-      const std::string filename = mEngine.getFonts().getName(buf.read<int>());
+      const std::string filename = mEngine.getFonts().getFileNameFromId(buf.read<int>());
       const float       fontSize = buf.read<float>();
       if (!filename.empty()) {
         setFont(filename, fontSize);
