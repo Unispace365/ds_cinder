@@ -33,6 +33,7 @@ const DirtyState    CHILD_DIRTY 			= newUniqueDirtyState();
 const DirtyState    FLAGS_DIRTY 	   	= newUniqueDirtyState();
 const DirtyState    SIZE_DIRTY 	    	= newUniqueDirtyState();
 const DirtyState    POSITION_DIRTY 		= newUniqueDirtyState();
+const DirtyState    CENTER_DIRTY 		  = newUniqueDirtyState();
 const DirtyState    SCALE_DIRTY 	  	= newUniqueDirtyState();
 const DirtyState    COLOR_DIRTY 	  	= newUniqueDirtyState();
 const DirtyState    OPACITY_DIRTY 	  = newUniqueDirtyState();
@@ -43,11 +44,12 @@ const char          PARENT_ATT        = 2;
 const char          SIZE_ATT          = 3;
 const char          FLAGS_ATT         = 4;
 const char          POSITION_ATT      = 5;
-const char          SCALE_ATT         = 6;
-const char          COLOR_ATT         = 7;
-const char          OPACITY_ATT       = 8;
-const char          BLEND_ATT         = 9;
-const char          CLIP_BOUNDS_ATT   = 10;
+const char          CENTER_ATT        = 6;
+const char          SCALE_ATT         = 7;
+const char          COLOR_ATT         = 8;
+const char          OPACITY_ATT       = 9;
+const char          BLEND_ATT         = 10;
+const char          CLIP_BOUNDS_ATT   = 11;
 
 // flags
 const int           VISIBLE_F         = (1<<0);
@@ -348,6 +350,7 @@ void Sprite::setCenter( float x, float y, float z )
   mCenter = ci::Vec3f(x, y, z);
   mUpdateTransform = true;
   mBoundsNeedChecking = true;
+	markAsDirty(CENTER_DIRTY);
   dimensionalStateChanged();
 }
 
@@ -1094,9 +1097,23 @@ void Sprite::writeAttributesTo(ds::DataBuffer& buf)
     }
 		if (mDirty.has(POSITION_DIRTY)) {
       buf.add(POSITION_ATT);
-      buf.add(mPosition.x);
-      buf.add(mPosition.y);
-      buf.add(mPosition.z);
+      // I'm sure there's a better way to do this, but I need to compensate
+      // for the fact that touching down on a sprite will set the center, which
+      // affects the position.
+//      buf.add(mPosition.x);
+//      buf.add(mPosition.y);
+//      buf.add(mPosition.z);
+      buildTransform();
+      auto v = this->mTransformation.getTranslate();
+      buf.add(v.x);
+      buf.add(v.y);
+      buf.add(v.z);
+    }
+		if (mDirty.has(CENTER_DIRTY)) {
+      buf.add(CENTER_ATT);
+      buf.add(mCenter.x);
+      buf.add(mCenter.y);
+      buf.add(mCenter.z);
     }
 		if (mDirty.has(SCALE_DIRTY)) {
       buf.add(SCALE_ATT);
@@ -1152,6 +1169,11 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf)
       mPosition.x = buf.read<float>();
       mPosition.y = buf.read<float>();
       mPosition.z = buf.read<float>();
+      transformChanged = true;
+    } else if (id == CENTER_ATT) {
+      mCenter.x = buf.read<float>();
+      mCenter.y = buf.read<float>();
+      mCenter.z = buf.read<float>();
       transformChanged = true;
     } else if (id == SCALE_ATT) {
       mScale.x = buf.read<float>();
@@ -1414,6 +1436,12 @@ void Sprite::resetIdleTimer()
 void Sprite::clear()
 {
   mIdleTimer.clear();
+}
+
+void Sprite::markTreeAsDirty()
+{
+  markAsDirty(ds::BitMask::newFilled());
+  markChildrenAsDirty(ds::BitMask::newFilled());
 }
 
 void Sprite::userInputReceived()

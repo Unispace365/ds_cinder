@@ -15,6 +15,9 @@
 using namespace ci;
 using namespace ci::app;
 
+const char  ds::CMD_SERVER_SEND_WORLD = 1;
+const char  ds::CMD_CLIENT_REQUEST_WORLD = 2;
+
 namespace {
 
 const int NUMBER_OF_NETWORK_THREADS = 2;
@@ -492,6 +495,16 @@ void Engine::mouseTouchEnded( MouseEvent event, int id )
 ds::ResourceList& Engine::getResources()
 {
   return mResources;
+}
+
+const ds::FontList& Engine::getFonts() const
+{
+  return mFonts;
+}
+
+ds::FontList& Engine::editFonts()
+{
+  return mFonts;
 }
 
 float Engine::getMinTouchDistance() const

@@ -18,18 +18,26 @@ char              COMMAND_BLOB = 0;
 EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings)
     : inherited(app, settings)
     , mLoadImageService(mLoadImageThread)
-    , mBlobReader(mReceiveBuffer, *this)
-    , mConnection(NumberOfNetworkThreads)
+//    , mConnection(NumberOfNetworkThreads)
+    , mSender(mSendConnection)
+    , mReceiver(mReceiveConnection)
+    , mBlobReader(mReceiver.getData(), *this)
+    , mState(nullptr)
 {
-  // NOTE:  Must be EXACTLY the same items as in EngineServer
+  // NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
+  // so that the BLOB ids match.
   HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
   try {
-   mConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+//   mConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+   mSendConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
+   mReceiveConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
   } catch(std::exception &e) {
     DS_LOG_ERROR_M("EngineClient() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
   }
+
+  setState(mBlankState);
 }
 
 EngineClient::~EngineClient()
@@ -65,29 +73,29 @@ void EngineClient::update()
 {
   updateClient();
 
-  if (mConnection.initialized()) {
-    //if (mSendBuffer.size() > 0) {
-    //  int size = mSendBuffer.size();
-    //  mRawDataBuffer.resize(size);
-    //  mSendBuffer.readRaw(mRawDataBuffer.data(), size);
-    //  snappy::Compress(mRawDataBuffer.data(), size, &mCompressionBufferWrite);
-    //  mConnection.sendMessage(mCompressionBufferWrite);
-    //}
-
-    if (mConnection.recvMessage(mCompressionBufferWrite)) {
-      snappy::Uncompress(mCompressionBufferWrite.c_str(), mCompressionBufferWrite.size(), &mCompressionBufferRead);
-      mReceiveBuffer.clear();
-      mReceiveBuffer.addRaw(mCompressionBufferRead.c_str(), mCompressionBufferRead.size());
-    }
+  // Every update, receive data
+  if (!mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader)) {
+    // If I didn't receive any data, then don't send any data. This is
+    // pretty important -- 0MQ will buffer sent commands if there's
+    // no one to receive them. There isn't a way to ask the socket how
+    // many connections there are, so we rely on the fact that the
+    // server sounds out data each frame to tell us if there's someone
+    // to receive anything.
+    return;
   }
 
-  // Receive and handle server data
-  const char      size = static_cast<char>(mBlobRegistry.mReader.size());
-  while (mReceiveBuffer.canRead<char>()) {
-    const char  token = mReceiveBuffer.read<char>();
-//    if (token != HEADER_BLOB) std::cout << "receive blob " << (int)(token) << std::endl;
-    if (token > 0 && token < size) mBlobRegistry.mReader[token](mBlobReader);
+  // Oh this is interesting... There can be more data in the pipe
+  // after handling, so make sure to slurp it all up, or else you
+  // can end up in a situation where the render lags behind the world
+  // by a couple seconds. For now, limit the amount of blocks I might
+  // slurp up, to guarantee I don't go into an infinite loop on some
+  // weird condition.
+  if (mReceiveConnection.canRecv()) {
+    mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
+    if (mReceiveConnection.canRecv()) mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
   }
+
+  mState->update(*this);
 }
 
 void EngineClient::draw()
@@ -103,11 +111,83 @@ void EngineClient::stopServices()
 
 void EngineClient::receiveHeader(ds::DataBuffer& data)
 {
-//  std::cout << "EngineClient::receiveHeader()" << std::endl;
+  if (data.canRead<int>()) {
+    const int frame = data.read<int>();
+//    std::cout << "receive frame=" << frame << std::endl;
+  }
+  // Terminator
+  if (data.canRead<char>()) {
+    data.read<char>();
+  }
 }
 
 void EngineClient::receiveCommand(ds::DataBuffer& data)
 {
+  char            cmd;
+  while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
+    if (cmd == CMD_SERVER_SEND_WORLD) {
+      std::cout << "receive world" << std::endl;
+      mRootSprite.clearChildren();
+      setState(mRunningState);
+    }
+  }
+}
+
+void EngineClient::setState(State& s)
+{
+  if (&s == mState) return;
+  
+  s.begin(*this);
+  mState = &s;
+}
+
+/**
+ * EngineClient::State
+ */
+EngineClient::State::State()
+{
+}
+
+void EngineClient::State::begin(EngineClient&)
+{
+}
+
+/**
+ * EngineClient::RunningState
+ */
+EngineClient::RunningState::RunningState()
+{
+}
+
+void EngineClient::RunningState::update(EngineClient& engine)
+{
+}
+
+/**
+ * EngineClient::BlankState
+ */
+EngineClient::BlankState::BlankState()
+  : mSendFrame(0)
+{
+}
+
+void EngineClient::BlankState::begin(EngineClient&)
+{
+  mSendFrame = 0;
+}
+
+void EngineClient::BlankState::update(EngineClient& engine)
+{
+  if (mSendFrame <= 0) {
+    EngineSender::AutoSend  send(engine.mSender);
+    ds::DataBuffer&   buf = send.mData;
+    buf.add(COMMAND_BLOB);
+    buf.add(CMD_CLIENT_REQUEST_WORLD);
+    buf.add(ds::TERMINATOR_CHAR);
+
+    mSendFrame = 10;
+  }
+  --mSendFrame;
 }
 
 } // namespace ds

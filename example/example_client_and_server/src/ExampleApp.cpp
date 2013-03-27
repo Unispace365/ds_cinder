@@ -8,6 +8,7 @@
 #include <ds/config/settings.h>
 #include <ds/ui/touch/touch_info.h>
 #include <ds/ui/sprite/image.h>
+#include <ds/ui/sprite/multiline_text.h>
 
 using namespace std;
 using namespace ci;
@@ -29,6 +30,7 @@ class CsApp : public ds::App {
     CsApp();
 
     void				      setupServer();
+    void              keyDown( KeyEvent event );
 
   private:
     typedef ds::App   inherited;
@@ -42,6 +44,13 @@ CsApp::CsApp()
     CUSTOM_DB_PATH = ds::Environment::getAppFolder("data", "resources/db/db.sqlite");
     ds::Resource::Id::setupCustomPaths( [](const ds::Resource::Id& id)->const std::string&{ if (id.mType == EXAMPLE_DB_TYPE) return CUSTOM_RESOURCE_PATH; return EMPTY_CUSTOM_PATH; },
                                         [](const ds::Resource::Id& id)->const std::string&{ if (id.mType == EXAMPLE_DB_TYPE) return CUSTOM_DB_PATH; return EMPTY_CUSTOM_PATH; });
+    // Setup my custom fonts. This is purely optional, but is used to optimize
+    // server->client communication. If the client and server have different font
+    // folders, that's fine. You'll need to construct each on its own, and in the
+    // same order.
+    // It's maybe worth nothing that if the client and server do have different
+    // font folders, then you HAVE to do this, to abstract that info.
+    mEngine.editFonts().install(ds::Environment::getAppFolder("data/fonts", "DIN-Medium.otf"));
   } catch (std::exception const& ex) {
     cout << "ERROR in app constructor=" << ex.what() << endl;
   }
@@ -68,6 +77,7 @@ void CsApp::setupServer()
   imgSprite->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(*imgSprite);
   
+  // Example sprite
   ds::ui::Sprite *child = new ds::ui::Sprite(mEngine, 100.0f, 100.0f);
   child->setPosition(getWindowWidth() / 4.0f, getWindowHeight() / 4.0f);
   child->setCenter(0.5f, 0.5f);
@@ -76,6 +86,25 @@ void CsApp::setupServer()
   child->enable(true);
   child->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(*child);
+
+  // Example text sprite
+  ds::ui::MultilineText*  text = new ds::ui::MultilineText(mEngine);
+	const std::string       font = ds::Environment::getAppFolder("data/fonts", "DIN-Medium.otf");
+  text->setFont(font, 12.0f);
+  text->setText("beavers and ducks");
+  text->setPosition(getWindowWidth() * 0.25f, getWindowHeight() * 0.75f);
+  text->enable(true);
+  rootSprite.addChild(*text);
+}
+
+void CsApp::keyDown( KeyEvent event )
+{
+  inherited::keyDown(event);
+
+  if ( event.getCode() == KeyEvent::KEY_ESCAPE )
+  {
+    quit();
+  }
 }
 
 // This line tells Cinder to actually create the application

@@ -2,13 +2,13 @@
 #ifndef DS_APP_ENGINESERVER_H_
 #define DS_APP_ENGINESERVER_H_
 
+#include "ds/app/blob_reader.h"
 #include "ds/app/engine.h"
-#include "ds/data/data_buffer.h"
+#include "ds/app/engine_io.h"
+#include "ds/network/udp_connection.h"
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
-#include "ds/data/raw_data_buffer.h"
-#include "ds/network/zmq_connection.h"
 
 namespace ds {
 
@@ -36,21 +36,54 @@ class EngineServer : public Engine {
     virtual int                   getMode() const { return SERVER_MODE; }
 
   private:
+    void                          receiveHeader(ds::DataBuffer&);
+    void                          receiveCommand(ds::DataBuffer&);
+
     typedef Engine inherited;
     WorkManager				            mWorkManager;
     GlNoThread                    mLoadImageThread;
     ui::LoadImageService          mLoadImageService;
 
-    ds::DataBuffer                mSendBuffer;
+//    ds::ZmqConnection             mConnection;
+    ds::UdpConnection             mSendConnection;
+    ds::UdpConnection             mReceiveConnection;
+    EngineSender                  mSender;
+    EngineReceiver                mReceiver;
+    ds::BlobReader                mBlobReader;
 
-    void                          receiveHeader(ds::DataBuffer&);
-    void                          receiveCommand(ds::DataBuffer&);
+    // STATES
 
-    ds::ZmqConnection           mConnection;
-    std::string                 mCompressionBufferRead;
-    std::string                 mCompressionBufferWrite;
+    class State {
+    public:
+      State();
+      virtual void                begin(EngineServer&);
+      virtual void                update(EngineServer&) = 0;
 
-    RawDataBuffer               mRawDataBuffer;
+    protected:
+      void                        addHeader(ds::DataBuffer&, const int frame);
+    };
+
+    class RunningState : public State {
+    public:
+      RunningState();
+      virtual void                begin(EngineServer&);
+      virtual void                update(EngineServer&);
+
+    private:
+      int                         mFrame;
+    };
+
+    class SendWorldState : public State {
+    public:
+      SendWorldState();
+      virtual void                update(EngineServer&);
+    };
+
+    State*                      mState;
+    RunningState                mRunningState;
+    SendWorldState              mSendWorldState;
+
+    void                        setState(State&);
 };
 
 } // namespace ds

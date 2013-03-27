@@ -14,6 +14,7 @@
 #include <cinder/app/TouchEvent.h>
 #include <cinder/app/AppBasic.h>
 #include "TuioClient.h"
+#include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
 #include "ds/config/settings.h"
 #include "ds/ui/sprite/sprite_engine.h"
@@ -81,6 +82,9 @@ class Engine : public ui::SpriteEngine {
     void                        touchesEnded( TouchEvent event );
 
     virtual ds::ResourceList   &getResources();
+    virtual const ds::FontList &getFonts() const;
+    ds::FontList               &editFonts();
+
     float                       getMinTouchDistance() const;
     float                       getMinTapDistance() const;
     unsigned                    getSwipeQueueSize() const;
@@ -130,6 +134,7 @@ class Engine : public ui::SpriteEngine {
     ds::ui::Tweenline           mTweenline;
     // A cache of all the resources in the system
     ResourceList                mResources;
+    FontList                    mFonts;
     UpdateParams                mUpdateParams;
     DrawParams                  mDrawParams;
     float                       mLastTime;
@@ -177,6 +182,12 @@ class Engine : public ui::SpriteEngine {
     float                      mFxAAReduceMul;
     float                      mFxAAReduceMin;
 };
+
+// Server -> Client communication
+extern const char             CMD_SERVER_SEND_WORLD; // The server is sending the entire world
+
+// Client -> Server communication
+extern const char             CMD_CLIENT_REQUEST_WORLD; // The client is requesting the entire world
 
 } // namespace ds
 

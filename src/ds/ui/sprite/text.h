@@ -49,6 +49,7 @@ class Text: public Sprite
         virtual float             getHeight() const;
         void                      setAlignment( int alignment );
         Text&                     setBorder(const ci::Rectf&);
+        virtual void              updateClient(const UpdateParams &updateParams);
         virtual void              updateServer(const UpdateParams&);
         void                      drawLocalClient();
         Text&                     setText( const std::string &text );
@@ -74,6 +75,9 @@ class Text: public Sprite
         void                      debugPrint();
 
     protected:
+        virtual void              writeAttributesTo(ds::DataBuffer&);
+        virtual void              readAttributeFrom(const char attributeId, ds::DataBuffer&);
+
         bool                      mNeedsLayout;
         bool                      mNeedRedrawing;
 
@@ -90,6 +94,7 @@ class Text: public Sprite
         //                          mDrawOptions;
         FontPtr mFont;
         
+        std::string               mFontFileName;
         float                     mFontSize;
         std::wstring              mTextString;
         ci::Rectf                 mBorder;

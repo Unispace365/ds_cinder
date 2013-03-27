@@ -223,6 +223,10 @@ class Sprite : public SpriteAnimatable
         void                startIdling();
         void                resetIdleTimer();
         void                clear();
+
+        // Special function to mark every sprite from me down as dirty.
+        void                markTreeAsDirty();
+
         /*
          * \brief must be passed inside handle touch Moved or else will result in an infinite loop.
          */

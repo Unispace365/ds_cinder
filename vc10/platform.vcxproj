@@ -30,11 +30,16 @@
     <ClInclude Include="..\src\ds\app\engine.h" />
     <ClInclude Include="..\src\ds\app\engine_client.h" />
     <ClInclude Include="..\src\ds\app\engine_clientserver.h" />
+    <ClInclude Include="..\src\ds\app\engine_io.h" />
     <ClInclude Include="..\src\ds\app\engine_server.h" />
     <ClInclude Include="..\src\ds\app\engine_settings.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
+    <ClInclude Include="..\src\ds\app\event.h" />
+    <ClInclude Include="..\src\ds\app\event_client.h" />
+    <ClInclude Include="..\src\ds\app\event_notifier.h" />
     <ClInclude Include="..\src\ds\config\settings.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
+    <ClInclude Include="..\src\ds\data\font_list.h" />
     <ClInclude Include="..\src\ds\data\raw_data_buffer.h" />
     <ClInclude Include="..\src\ds\data\read_write_buffer.h" />
     <ClInclude Include="..\src\ds\data\resource.h" />
@@ -47,7 +52,9 @@
     <ClInclude Include="..\src\ds\math\math_func.h" />
     <ClInclude Include="..\src\ds\math\random.h" />
     <ClInclude Include="..\src\ds\network\http_client.h" />
+    <ClInclude Include="..\src\ds\network\net_connection.h" />
     <ClInclude Include="..\src\ds\network\node_watcher.h" />
+    <ClInclude Include="..\src\ds\network\udp_connection.h" />
     <ClInclude Include="..\src\ds\network\zmq_connection.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
     <ClInclude Include="..\src\ds\params\update_params.h" />
@@ -95,6 +102,7 @@
     <ClInclude Include="..\src\ds\util\idle_timer.h" />
     <ClInclude Include="..\src\ds\util\memory_ds.h" />
     <ClInclude Include="..\src\ds\util\notifier.h" />
+    <ClInclude Include="..\src\ds\util\notifier_2.h" />
     <ClInclude Include="..\src\ds\util\string_util.h" />
   </ItemGroup>
   <ItemGroup>
@@ -112,11 +120,16 @@
     <ClCompile Include="..\src\ds\app\engine.cpp" />
     <ClCompile Include="..\src\ds\app\engine_client.cpp" />
     <ClCompile Include="..\src\ds\app\engine_clientserver.cpp" />
+    <ClCompile Include="..\src\ds\app\engine_io.cpp" />
     <ClCompile Include="..\src\ds\app\engine_server.cpp" />
     <ClCompile Include="..\src\ds\app\engine_settings.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
+    <ClCompile Include="..\src\ds\app\event.cpp" />
+    <ClCompile Include="..\src\ds\app\event_client.cpp" />
+    <ClCompile Include="..\src\ds\app\event_notifier.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
+    <ClCompile Include="..\src\ds\data\font_list.cpp" />
     <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\read_write_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\resource.cpp" />
@@ -127,6 +140,7 @@
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
     <ClCompile Include="..\src\ds\network\http_client.cpp" />
     <ClCompile Include="..\src\ds\network\node_watcher.cpp" />
+    <ClCompile Include="..\src\ds\network\udp_connection.cpp" />
     <ClCompile Include="..\src\ds\network\zmq_connection.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />
     <ClCompile Include="..\src\ds\params\update_params.cpp" />

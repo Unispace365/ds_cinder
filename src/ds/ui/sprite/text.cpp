@@ -4,6 +4,7 @@
 #include <cinder/app/App.h>
 #include <cinder/Buffer.h>
 #include <cinder/DataSource.h>
+#include "ds/data/font_list.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/app/blob_reader.h"
@@ -49,10 +50,11 @@ const DirtyState&   TEXT_DIRTY 		    = INTERNAL_B_DIRTY;
 const DirtyState&   LAYOUT_DIRTY 		  = INTERNAL_C_DIRTY;
 const DirtyState&   BORDER_DIRTY 		  = INTERNAL_D_DIRTY;
 
-const char          FONT_ATT          = 80;
-const char          TEXT_ATT          = 81;
-const char          LAYOUT_ATT        = 82;
-const char          BORDER_ATT        = 83;
+const char          FONTNAME_ATT      = 80;
+const char          FONTID_ATT        = 81;
+const char          TEXT_ATT          = 82;
+const char          LAYOUT_ATT        = 83;
+const char          BORDER_ATT        = 84;
 
 const int           RESIZE_W          = (1<<0);
 const int           RESIZE_H          = (1<<1);
@@ -141,6 +143,7 @@ Text& Text::setResizeLimit(const float width, const float height)
 Text& Text::setFont(const std::string& filename, const float fontSize)
 {
   mFont = get_font(filename, fontSize);
+  mFontFileName = filename;
   mFontSize = fontSize;
   markAsDirty(FONT_DIRTY);
   mNeedsLayout = true;
@@ -153,8 +156,25 @@ void Text::updateServer(const UpdateParams& p)
   inherited::updateServer(p);
 
   makeLayout();
-  if (mNeedRedrawing)
+  // NOTE: Needs to be here. If this is called in drawLocalClient(),
+  // then the font won't render.
+  // ALSO, this really shouldn't be here. Need to work out a way for
+  // the texture to be created only in client or clientserver mode;
+  // this also drags in server mode.
+  if (mNeedRedrawing) {
     drawIntoFbo();
+  }
+}
+
+void Text::updateClient(const UpdateParams& p)
+{
+  inherited::updateClient(p);
+
+  // NOTE: Needs to be here. If this is called in drawLocalClient(),
+  // then the font won't render.
+  if (mNeedRedrawing) {
+    drawIntoFbo();
+  }
 }
 
 void Text::drawLocalClient()
@@ -168,24 +188,22 @@ void Text::drawLocalClient()
     mSpriteShader.getShader().bind();
   }
 
+  // NOTE: This won't work here. The font will draw nothing. Don't know OpenGL well
+  // enough to say, maybe there's some translation that's interfering with it? We should
+  // figure it out, because this is the ONLY place this should happen, and it should be
+  // removed from updateServer() and updateClient().
+//  if (mNeedRedrawing) {
+//    drawIntoFbo();
+//  }
+
   //if (!mTextureFont) return;
 
-  //auto& lines = mLayout.getLines();
-  //if (lines.empty()) return;
-
-//  gl::enableAlphaBlending();
-//  applyBlendingMode(NORMAL);
-
-  //if (mFbo) {
-  //  mFbo.getTexture().bind();
-  //  ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mFbo.getHeight()), static_cast<float>(mFbo.getWidth()), 0.0f));
-  //  mFbo.getTexture().unbind();
-  //}
   if (mTexture) {
     mTexture.bind();
     ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture.getHeight()), static_cast<float>(mTexture.getWidth()), 0.0f));
     mTexture.unbind();
   }
+
   //std::cout << "Size: " << lines.size() << std::endl;
   //for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
   //  const TextLayout::Line&   line(*it);
@@ -323,6 +341,73 @@ void Text::debugPrint()
   makeLayout();
   std::cout << "Text lines=" << mLayout.getLines().size() << std::endl;
   mLayout.debugPrint();
+}
+
+void Text::writeAttributesTo(ds::DataBuffer& buf)
+{
+  inherited::writeAttributesTo(buf);
+
+	if (mDirty.has(FONT_DIRTY)) {
+    // Try to find an efficient token, if the app has the FontList setup.
+    const int fontId = mEngine.getFonts().getId(mFontFileName);
+    if (fontId > 0) {
+      buf.add(FONTID_ATT);
+      buf.add(fontId);
+    } else {
+      buf.add(FONTNAME_ATT);
+      buf.add(mFontFileName);
+    }
+    buf.add(mFontSize);
+  }
+	if (mDirty.has(LAYOUT_DIRTY)) {
+    makeLayout();
+    buf.add(LAYOUT_ATT);
+    mLayout.writeTo(buf);
+  }
+	if (mDirty.has(BORDER_DIRTY)) {
+    buf.add(BORDER_ATT);
+    buf.add(mBorder.x1);
+    buf.add(mBorder.y1);
+    buf.add(mBorder.x2);
+    buf.add(mBorder.y2);
+  }
+}
+
+void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
+{
+    if (attributeId == FONTNAME_ATT) {
+      const std::string filename = buf.read<std::string>();
+      const float       fontSize = buf.read<float>();
+      if (!filename.empty()) {
+        setFont(filename, fontSize);
+        mNeedRedrawing = true;
+      }
+    } else if (attributeId == FONTID_ATT) {
+      const std::string filename = mEngine.getFonts().getName(buf.read<int>());
+      const float       fontSize = buf.read<float>();
+      if (!filename.empty()) {
+        setFont(filename, fontSize);
+        mNeedRedrawing = true;
+      }
+    } else if (attributeId == LAYOUT_ATT) {
+      mLayout.readFrom(buf);
+      mNeedRedrawing = true;
+    } else if (attributeId == BORDER_ATT) {
+      float x1 = mBorder.x1, y1 = mBorder.y1, x2 = mBorder.x2, y2 = mBorder.y2;
+      if (buf.canRead<float>()) x1 = buf.read<float>();
+      if (buf.canRead<float>()) y1 = buf.read<float>();
+      if (buf.canRead<float>()) x2 = buf.read<float>();
+      if (buf.canRead<float>()) y2 = buf.read<float>();
+      mBorder = ci::Rectf(x1, y1, x2, y2);
+      mNeedRedrawing = true;
+    } else {
+      inherited::readAttributeFrom(attributeId, buf);
+    }
+    // This stuff should always been off -- it's server-side only, and
+    // will prevent the drawing. Which suggests the division between
+    // server and client functionality isn't defined well enough.
+    mResizeToTextF = 0;
+    mNeedsLayout = false;
 }
 
 void Text::makeLayout()
