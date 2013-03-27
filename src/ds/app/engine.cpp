@@ -58,6 +58,16 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
   mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
   mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
+  
+  mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(-1000.0f, 1000.0f));
+  mCameraFOV = settings.getFloat("camera:fov", 0, 30.0f);
+  std::string cameraType = settings.getText("camera:type", 0, "ortho");
+  if(cameraType == "perspective" || cameraType == "persp"){
+	  mCameraType = CAMERA_PERSP;
+  } else {
+	  mCameraType = CAMERA_ORTHO;
+  }
+  
 
   bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
@@ -203,6 +213,28 @@ void Engine::updateServer()
   mRootSprite.updateServer(mUpdateParams);
 }
 
+void Engine::setCamera()
+{
+	if(mCameraType == CAMERA_ORTHO){
+		gl::setViewport(Area((int)mScreenRect.getX1(), (int)mScreenRect.getY2(), (int)mScreenRect.getX2(), (int)mScreenRect.getY1()));
+		mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), mCameraZClipping.x, mCameraZClipping.y);
+		gl::setMatrices(mCamera);
+	} else if(mCameraType == CAMERA_PERSP){
+		mCameraPersp.setPerspective(mCameraFOV, getWorldWidth () / getWorldHeight(), mCameraZClipping.x, mCameraZClipping.y );
+		mCameraPersp.lookAt( ci::Vec3f(0, 0, -getWorldWidth()/2.0f), Vec3f(0.0f, 0.0f, 0.0f), Vec3f(0.0f, 0.0f, 1.0f) );
+	}
+	setCameraForDraw();
+}
+
+void Engine::setCameraForDraw(){
+	if(mCameraType == CAMERA_ORTHO){
+		//mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
+		gl::setMatrices(mCamera);
+	} else if(mCameraType == CAMERA_PERSP){
+		gl::setMatrices(mCameraPersp);
+		gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
+	}
+}
 
 void Engine::drawClient()
 {
@@ -213,8 +245,7 @@ void Engine::drawClient()
       // bind the framebuffer - now everything we draw will go there
       mFbo.bindFramebuffer();
 
-      //mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
-      gl::setMatrices(mCamera);
+	  setCameraForDraw();
 
       gl::enableAlphaBlending();
       //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
@@ -263,8 +294,8 @@ void Engine::drawClient()
     } else {
       gl::draw( mFbo.getTexture(0), screen );
     }
-  } else {
-    gl::setMatrices(mCamera);
+  } else {	  
+	  setCameraForDraw();
 
     gl::enableAlphaBlending();
     //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
@@ -282,7 +313,7 @@ void Engine::drawServer()
   gl::enableAlphaBlending();
   gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
-  gl::setMatrices(mCamera);
+	setCameraForDraw();
 
   mRootSprite.drawServer(Matrix44f::identity(), mDrawParams);
 
@@ -506,13 +537,6 @@ float Engine::getWorldWidth() const
 float Engine::getWorldHeight() const
 {
   return mWorldSize.y;
-}
-
-void Engine::setCamera()
-{
-  gl::setViewport(Area((int)mScreenRect.getX1(), (int)mScreenRect.getY2(), (int)mScreenRect.getX2(), (int)mScreenRect.getY1()));
-  mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1000.0f, 1000.0f);
-  gl::setMatrices(mCamera);
 }
 
 void Engine::stopServices()

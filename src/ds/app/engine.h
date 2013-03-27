@@ -39,6 +39,9 @@ extern const ds::BitMask	ENGINE_LOG;
  */
 class Engine : public ui::SpriteEngine {
   public:
+	  static const int			CAMERA_ORTHO = 0;
+	  static const int			CAMERA_PERSP = 1;
+
     ~Engine();
 
     virtual void	              update() = 0;
@@ -115,6 +118,7 @@ class Engine : public ui::SpriteEngine {
     void	                      updateServer();
     void                        drawClient();
     void                        drawServer();
+	void						setCameraForDraw();
 
     static const int            NumberOfNetworkThreads;
 
@@ -150,6 +154,10 @@ class Engine : public ui::SpriteEngine {
     const ds::cfg::Settings    &mSettings;
     ds::cfg::Settings           mDebugSettings;
     ci::CameraOrtho             mCamera;
+	ci::CameraPersp				mCameraPersp;
+	ci::Vec2f					mCameraZClipping;
+	float						mCameraFOV;
+	int							mCameraType;
 
     ci::gl::Fbo                 mFbo;
 
