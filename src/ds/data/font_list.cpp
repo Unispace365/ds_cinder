@@ -3,6 +3,7 @@
 namespace ds {
 
 namespace {
+const int           EMPTY_ID(0);
 const std::string   EMPTY_SZ("");
 }
 
@@ -18,29 +19,39 @@ void FontList::clear()
   mData.clear();
 }
 
-void FontList::install(const std::string& fontname)
+void FontList::install(const std::string& fileName, const std::string& shortName)
 {
-  const int     id = mData.size();
-  mData[fontname] = id+1;
+  const int     id = mData.size() + 1;
+  mData[id] = Entry(fileName, shortName);
 }
 
-int FontList::getId(const std::string& fontname) const
+int FontList::getIdFromName(const std::string& n) const
 {
-  if (mData.empty()) return 0;
-  auto it = mData.find(fontname);
-  if (it != mData.end()) {
-    return it->second;
+  if (mData.empty()) return EMPTY_ID;
+  for (auto it=mData.begin(), end=mData.end(); it != end; ++it) {
+    if (it->second.mFileName == n) return it->first;
+    if (it->second.mShortName == n) return it->first;
   }
-  return 0;
+  return EMPTY_ID;
 }
 
-const std::string& FontList::getName(const int id) const
+const std::string& FontList::getFileNameFromId(const int id) const
 {
   if (mData.empty()) return EMPTY_SZ;
-  for (auto it=mData.begin(), end=mData.end(); it != end; ++it) {
-    if (it->second == id) return it->first;
+  auto it = mData.find(id);
+  if (it != mData.end()) {
+    return it->second.mFileName;
   }
   return EMPTY_SZ;
+}
+
+const std::string& FontList::getFileNameFromName(const std::string& n) const
+{
+  if (mData.empty()) return n;
+  for (auto it=mData.begin(), end=mData.end(); it != end; ++it) {
+    if (it->second.mShortName == n) return it->second.mFileName;
+  }
+  return n;
 }
 
 } // namespace ds

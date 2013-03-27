@@ -15,6 +15,7 @@ using namespace ci;
 using namespace ci::app;
 
 namespace {
+const std::string               FONT_NAME("din-medium");
 const char                      EXAMPLE_DB_TYPE = ds::Resource::Id::CUSTOM_TYPE;
 // A hardcoded resource from the example database
 const ds::Resource::Id          KITTY_RES_ID(EXAMPLE_DB_TYPE, 44);
@@ -50,7 +51,7 @@ CsApp::CsApp()
     // same order.
     // It's maybe worth nothing that if the client and server do have different
     // font folders, then you HAVE to do this, to abstract that info.
-    mEngine.editFonts().install(ds::Environment::getAppFolder("data/fonts", "DIN-Medium.otf"));
+    mEngine.editFonts().install(ds::Environment::getAppFolder("data/fonts", "DIN-Medium.otf"), FONT_NAME);
   } catch (std::exception const& ex) {
     cout << "ERROR in app constructor=" << ex.what() << endl;
   }
@@ -89,8 +90,7 @@ void CsApp::setupServer()
 
   // Example text sprite
   ds::ui::MultilineText*  text = new ds::ui::MultilineText(mEngine);
-	const std::string       font = ds::Environment::getAppFolder("data/fonts", "DIN-Medium.otf");
-  text->setFont(font, 12.0f);
+  text->setFont(FONT_NAME, 12.0f);
   text->setText("beavers and ducks");
   text->setPosition(getWindowWidth() * 0.25f, getWindowHeight() * 0.75f);
   text->enable(true);

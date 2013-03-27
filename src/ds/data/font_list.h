@@ -21,13 +21,24 @@ class FontList
 
     void                clear();
 
-    void                install(const std::string&);
-    // Answer > 0 for a valid ID.
-    int 						    getId(const std::string&) const;
-    const std::string&  getName(const int id) const;
+    // Short name can be supplied by the app and used to refer to fonts from now on.
+    // Often it might be something in a settings file.
+    void                install(const std::string& fileName, const std::string& shortName = "");
+    // Answer > 0 for a valid ID. Name can either be the file or short name, which should never conflict.
+    int 						    getIdFromName(const std::string&) const;
+    const std::string&  getFileNameFromId(const int id) const;
+    // Clients give either a filename or a shortname, and I answer with the resulting filename
+    const std::string&  getFileNameFromName(const std::string&) const;
 
   private:
-    std::unordered_map<std::string, int> 
+    class Entry {
+    public:
+      Entry()           { }
+      Entry(const std::string& fileName, const std::string& shortName) : mFileName(fileName), mShortName(shortName) { }
+      std::string       mFileName;
+      std::string       mShortName;      
+    };
+    std::unordered_map<int, Entry> 
                         mData;
 };
 

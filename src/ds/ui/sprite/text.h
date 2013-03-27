@@ -43,7 +43,8 @@ class Text: public Sprite
         float                     getResizeLimitHeight() const;
         Text&                     setResizeLimit(const float width = 0, const float height = 0);
 
-        Text&                     setFont(const std::string& filename, const float fontSize);
+        // Name can be a full filename, or a short name, if the FontList has been filled out.
+        Text&                     setFont(const std::string& name, const float fontSize);
         void                      setSizeAll( float width, float height, float depth );
         virtual float             getWidth() const;
         virtual float             getHeight() const;
