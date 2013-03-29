@@ -83,7 +83,8 @@ void Video::drawLocalClient()
           glDisable( GL_CLIP_PLANE0 + i );
         }
 
-        gl::clear(ci::Color(1.0f, 1.0f, 0.0f));
+       // gl::clear(ci::Color(0.0f, 0.0f, 0.0f));
+		gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
         ci::gl::draw(mFrameTexture);
 
         glPopAttrib();
