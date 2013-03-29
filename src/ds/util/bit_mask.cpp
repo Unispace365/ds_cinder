@@ -55,6 +55,11 @@ BitMask::BitMask(const int index)
 	assert(index >= 0 && index < 64);
 }
 
+bool BitMask::operator!=(const BitMask& o) const
+{
+  return mMask != o.mMask;
+}
+
 void BitMask::operator|=(const BitMask& o)
 {
 	mMask |= o.mMask;
