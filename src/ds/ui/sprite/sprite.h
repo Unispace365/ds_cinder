@@ -191,7 +191,6 @@ class Sprite : public SpriteAnimatable
         void                disableMultiTouch();
         bool                multiTouchEnabled() const;
         bool                hasMultiTouchConstraint( const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS ) const;
-        bool                multiTouchConstraintNotZero() const;
 
         bool                inBounds() const;
         void                setCheckBounds(bool checkBounds);
