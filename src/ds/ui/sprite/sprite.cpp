@@ -823,11 +823,6 @@ bool Sprite::hasMultiTouchConstraint( const BitMask &constraint ) const
   return mMultiTouchConstraints & constraint;
 }
 
-bool Sprite::multiTouchConstraintNotZero() const
-{
-  return mMultiTouchConstraints.getFirstIndex() >= 0;
-}
-
 void Sprite::swipe( const ci::Vec3f &swipeVector )
 {
   if (mSwipeCallback)

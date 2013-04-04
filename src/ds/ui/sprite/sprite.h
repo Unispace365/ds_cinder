@@ -54,6 +54,8 @@ class Sprite : public SpriteAnimatable
         // Generic sprite creation function
         template <typename T>
         static T&           make(SpriteEngine&, Sprite* parent = nullptr);
+        template <typename T>
+        static T&           makeAlloc(const std::function<T*(void)>& allocFn, Sprite* parent = nullptr);
 
         template <typename T>
         static void removeAndDelete(T *&sprite);
@@ -191,7 +193,6 @@ class Sprite : public SpriteAnimatable
         void                disableMultiTouch();
         bool                multiTouchEnabled() const;
         bool                hasMultiTouchConstraint( const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS ) const;
-        bool                multiTouchConstraintNotZero() const;
 
         bool                inBounds() const;
         void                setCheckBounds(bool checkBounds);
@@ -384,6 +385,15 @@ template <typename T>
 static T& Sprite:: make(SpriteEngine& e, Sprite* parent)
 {
   T*                    s = new T(e);
+  if (!s) throw std::runtime_error("Can't create sprite");
+  if (parent) parent->addChild(*s);
+  return *s;
+}
+
+template <typename T>
+static T& Sprite:: makeAlloc(const std::function<T*(void)>& allocFn, Sprite* parent)
+{
+  T*                    s = allocFn();
   if (!s) throw std::runtime_error("Can't create sprite");
   if (parent) parent->addChild(*s);
   return *s;

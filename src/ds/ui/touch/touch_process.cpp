@@ -113,7 +113,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
         }
       }
 
-      if (mSprite.multiTouchConstraintNotZero() && touchInfo.mFingerId == foundControl0->second.mFingerId) {
+      if (mSprite.mMultiTouchConstraints != ds::ui::MULTITOUCH_INFO_ONLY && touchInfo.mFingerId == foundControl0->second.mFingerId) {
         Vec3f offset(0.0f, 0.0f, 0.0f);
         if (!mTappable && mSprite.hasMultiTouchConstraint(MULTITOUCH_CAN_POSITION_X))
           offset.x = fingerPositionOffset.x;
@@ -198,7 +198,7 @@ void TouchProcess::initializeFirstTouch()
   positionOffset.x *= mSprite.getScale().x;
   positionOffset.y *= mSprite.getScale().y;
   positionOffset.rotate( Vec3f(0.0f, 0.0f, 1.0f), mSprite.getRotation().z * math::DEGREE2RADIAN);
-  if (mSprite.multiTouchConstraintNotZero()) {
+  if (mSprite.mMultiTouchConstraints != ds::ui::MULTITOUCH_INFO_ONLY) {
     mSprite.setCenter(mMultiTouchAnchor);
     mSprite.move(positionOffset);
   }
@@ -266,7 +266,7 @@ void TouchProcess::resetTouchAnchor()
   positionOffset.x *= mSprite.getScale().x;
   positionOffset.y *= mSprite.getScale().y;
   positionOffset.rotate( Vec3f(0.0f, 0.0f, 1.0f), mSprite.getRotation().z * math::DEGREE2RADIAN);
-  if (mSprite.multiTouchConstraintNotZero()) {
+  if (mSprite.mMultiTouchConstraints != ds::ui::MULTITOUCH_INFO_ONLY) {
     mSprite.setCenter(mStartAnchor);
     mSprite.move(positionOffset);
   }
