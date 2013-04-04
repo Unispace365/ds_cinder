@@ -73,6 +73,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   //} else {
 	 // mCameraType = CAMERA_ORTHO;
   //}
+  mRootPerspectiveSprite.setDrawSorted(false);
   
 
   bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
@@ -138,7 +139,7 @@ void Engine::updateClient()
   mUpdateParams.setElapsedTime(curr);
 
   mRootSprite.updateClient(mUpdateParams);
-  mRootPerspectiveSprite.updateServer(mUpdateParams);
+  mRootPerspectiveSprite.updateClient(mUpdateParams);
 }
 
 
@@ -231,11 +232,11 @@ void Engine::setCamera(const bool perspective)
 {
 	if(!perspective){
 		gl::setViewport(Area((int)mScreenRect.getX1(), (int)mScreenRect.getY2(), (int)mScreenRect.getX2(), (int)mScreenRect.getY1()));
-		mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), mCameraZClipping.x, mCameraZClipping.y);
-		gl::setMatrices(mCamera);
+		mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1, 1);
+		//gl::setMatrices(mCamera);
 	} else {
 
-    mCameraPersp.setEyePoint( Vec3f(0.0f, 10.0f, 100.0f) );
+    mCameraPersp.setEyePoint( Vec3f(0.0f, 0.0f, 100.0f) );
     mCameraPersp.setCenterOfInterestPoint( Vec3f(0.0f, 0.0f, 0.0f) );
     mCameraPersp.setPerspective( 60.0f, getWindowAspectRatio(), 1.0f, 1000.0f );
 		//mCameraPersp.setPerspective(mCameraFOV, getWindowAspectRatio(), mCameraZClipping.x, mCameraZClipping.y );
@@ -249,7 +250,6 @@ void Engine::setCameraForDraw(const bool perspective){
 	if(!perspective){
 		//mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
     gl::setMatrices(mCamera);
-    // enable the depth buffer (after all, we are doing 3D)
     gl::disableDepthRead();
     gl::disableDepthWrite();
 	} else {
@@ -275,10 +275,12 @@ void Engine::drawClient()
       gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
       setCameraForDraw(true);
-      mRootPerspectiveSprite.drawClient(Matrix44f::identity(), mDrawParams);
+      Matrix44f transform = ci::gl::getModelView();
+      mRootPerspectiveSprite.drawClient(transform, mDrawParams);
 
-	    setCameraForDraw();
-      mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
+      setCameraForDraw();
+      transform = ci::gl::getModelView();
+      mRootSprite.drawClient(transform, mDrawParams);
 
       if (mDrawTouches)
         mTouchManager.drawTouches();
@@ -327,10 +329,12 @@ void Engine::drawClient()
     gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
     setCameraForDraw(true);
-    mRootPerspectiveSprite.drawClient(Matrix44f::identity(), mDrawParams);
+    Matrix44f transform = ci::gl::getModelView();
+    mRootPerspectiveSprite.drawClient(transform, mDrawParams);
 
-	  setCameraForDraw();
-    mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
+    setCameraForDraw();
+    transform = ci::gl::getModelView();
+    mRootSprite.drawClient(transform, mDrawParams);
 
     if (mDrawTouches)
       mTouchManager.drawTouches();
@@ -606,6 +610,26 @@ void Engine::resetIdleTimeOut()
   mLastTime = curr;
   mLastTouchTime = curr;
   mIdling = false;
+}
+
+void Engine::setPerspectiveCameraPosition( const ci::Vec3f &pos )
+{
+  mCameraPersp.setEyePoint(pos);
+}
+
+ci::Vec3f Engine::getPerspectiveCameraPosition() const
+{
+  return mCameraPersp.getEyePoint();
+}
+
+void Engine::setPerspectiveCameraTarget( const ci::Vec3f &tar )
+{
+  mCameraPersp.setCenterOfInterestPoint(tar);
+}
+
+ci::Vec3f Engine::getPerspectiveCameraTarget() const
+{
+  return mCameraPersp.getCenterOfInterestPoint();
 }
 
 } // namespace ds

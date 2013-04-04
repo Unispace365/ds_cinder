@@ -192,7 +192,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
     ci::Matrix44f totalTransformation = trans*mTransformation;
 
     ci::gl::pushModelView();
-    //glLoadIdentity();
+    glLoadIdentity();
     ci::gl::multModelView(totalTransformation);
 
     if ((mSpriteFlags&TRANSPARENT_F) == 0) {
@@ -423,6 +423,10 @@ const ci::Matrix44f &Sprite::getTransform() const
 
 void Sprite::addChild( Sprite &child )
 {
+  if (this == &child) {
+    throw std::runtime_error("Trying to add a Sprite to itself.");
+  }
+
     if ( containsChild(&child) )
         return;
 
@@ -1534,9 +1538,9 @@ bool Sprite::getPerspective() const
   return mPerspective;
 }
 
-void Sprite::setPerspective( const bool )
+void Sprite::setPerspective( const bool perspective )
 {
-  mPerspective = true;
+  mPerspective = perspective;
 }
 
 

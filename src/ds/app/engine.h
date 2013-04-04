@@ -100,6 +100,11 @@ class Engine : public ui::SpriteEngine {
 
     void                        setCamera(const bool perspective = false);
 
+    void                        setPerspectiveCameraPosition(const ci::Vec3f &pos);
+    ci::Vec3f                   getPerspectiveCameraPosition() const;
+    void                        setPerspectiveCameraTarget(const ci::Vec3f &tar);
+    ci::Vec3f                   getPerspectiveCameraTarget() const;
+
     // Can be used by apps to stop services before exiting.
     // This will happen automatically, but some apps might want
     // to make sure everything is stopped before they go away.
