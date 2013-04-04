@@ -36,6 +36,7 @@ const int Engine::NumberOfNetworkThreads = 2;
 Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   : mTweenline(app.timeline())
   , mRootSprite(*this, ROOT_SPRITE_ID)
+  , mRootPerspectiveSprite(*this, ROOT_PERSPECTIVE_SPRITE_ID, true)
   , mIdleTime(300.0f)
   , mIdling(true)
   , mTouchManager(*this)
@@ -61,15 +62,17 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
   mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
   mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
+
+  mCameraPosition = ci::Vec3f(0.0f, 0.0f, 100.0f);
   
-  mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(-1000.0f, 1000.0f));
-  mCameraFOV = settings.getFloat("camera:fov", 0, 30.0f);
-  std::string cameraType = settings.getText("camera:type", 0, "ortho");
-  if(cameraType == "perspective" || cameraType == "persp"){
-	  mCameraType = CAMERA_PERSP;
-  } else {
-	  mCameraType = CAMERA_ORTHO;
-  }
+  mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(1.0f, 1000.0f));
+  mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
+  //std::string cameraType = settings.getText("camera:type", 0, "ortho");
+  //if(cameraType == "perspective" || cameraType == "persp"){
+	 // mCameraType = CAMERA_PERSP;
+  //} else {
+	 // mCameraType = CAMERA_ORTHO;
+  //}
   
 
   bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
@@ -79,6 +82,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   if (scaleWorldToFit) {
     mRootSprite.setScale(getWidth()/getWorldWidth(), getHeight()/getWorldHeight());
   }
+
 
   // SETUP RESOURCES
   std::string resourceLocation = settings.getText("resource_location", 0, "");
@@ -115,6 +119,11 @@ ui::Sprite &Engine::getRootSprite()
   return mRootSprite;
 }
 
+ui::Sprite &Engine::getRootPersectiveSprite()
+{
+  return mRootPerspectiveSprite;
+}
+
 void Engine::updateClient()
 {
   float curr = static_cast<float>(getElapsedSeconds());
@@ -129,6 +138,7 @@ void Engine::updateClient()
   mUpdateParams.setElapsedTime(curr);
 
   mRootSprite.updateClient(mUpdateParams);
+  mRootPerspectiveSprite.updateServer(mUpdateParams);
 }
 
 
@@ -214,28 +224,40 @@ void Engine::updateServer()
   mAutoUpdate.update(mUpdateParams);
 
   mRootSprite.updateServer(mUpdateParams);
+  mRootPerspectiveSprite.updateServer(mUpdateParams);
 }
 
-void Engine::setCamera()
+void Engine::setCamera(const bool perspective)
 {
-	if(mCameraType == CAMERA_ORTHO){
+	if(!perspective){
 		gl::setViewport(Area((int)mScreenRect.getX1(), (int)mScreenRect.getY2(), (int)mScreenRect.getX2(), (int)mScreenRect.getY1()));
 		mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), mCameraZClipping.x, mCameraZClipping.y);
 		gl::setMatrices(mCamera);
-	} else if(mCameraType == CAMERA_PERSP){
-		mCameraPersp.setPerspective(mCameraFOV, getWorldWidth () / getWorldHeight(), mCameraZClipping.x, mCameraZClipping.y );
-		mCameraPersp.lookAt( ci::Vec3f(0, 0, -getWorldWidth()/2.0f), Vec3f(0.0f, 0.0f, 0.0f), Vec3f(0.0f, 0.0f, 1.0f) );
+	} else {
+
+    mCameraPersp.setEyePoint( Vec3f(0.0f, 10.0f, 100.0f) );
+    mCameraPersp.setCenterOfInterestPoint( Vec3f(0.0f, 0.0f, 0.0f) );
+    mCameraPersp.setPerspective( 60.0f, getWindowAspectRatio(), 1.0f, 1000.0f );
+		//mCameraPersp.setPerspective(mCameraFOV, getWindowAspectRatio(), mCameraZClipping.x, mCameraZClipping.y );
+		//mCameraPersp.lookAt( mCameraPosition, mCameraTarget, Vec3f(0.0f, 1.0f, 0.0f) );
 	}
-	setCameraForDraw();
+
+	setCameraForDraw(perspective);
 }
 
-void Engine::setCameraForDraw(){
-	if(mCameraType == CAMERA_ORTHO){
+void Engine::setCameraForDraw(const bool perspective){
+	if(!perspective){
 		//mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
-		gl::setMatrices(mCamera);
-	} else if(mCameraType == CAMERA_PERSP){
-		gl::setMatrices(mCameraPersp);
-		gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
+    gl::setMatrices(mCamera);
+    // enable the depth buffer (after all, we are doing 3D)
+    gl::disableDepthRead();
+    gl::disableDepthWrite();
+	} else {
+    gl::setMatrices(mCameraPersp);
+    // enable the depth buffer (after all, we are doing 3D)
+    gl::enableDepthRead();
+    gl::enableDepthWrite();
+		//gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
 	}
 }
 
@@ -248,12 +270,14 @@ void Engine::drawClient()
       // bind the framebuffer - now everything we draw will go there
       mFbo.bindFramebuffer();
 
-	  setCameraForDraw();
-
       gl::enableAlphaBlending();
       //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
       gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
+      setCameraForDraw(true);
+      mRootPerspectiveSprite.drawClient(Matrix44f::identity(), mDrawParams);
+
+	    setCameraForDraw();
       mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
 
       if (mDrawTouches)
@@ -298,12 +322,14 @@ void Engine::drawClient()
       gl::draw( mFbo.getTexture(0), screen );
     }
   } else {	  
-	  setCameraForDraw();
-
     gl::enableAlphaBlending();
     //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
     gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
+    setCameraForDraw(true);
+    mRootPerspectiveSprite.drawClient(Matrix44f::identity(), mDrawParams);
+
+	  setCameraForDraw();
     mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
 
     if (mDrawTouches)
@@ -316,8 +342,10 @@ void Engine::drawServer()
   gl::enableAlphaBlending();
   gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
-	setCameraForDraw();
+  setCameraForDraw(true);
+  mRootPerspectiveSprite.drawClient(Matrix44f::identity(), mDrawParams);
 
+	setCameraForDraw();
   mRootSprite.drawServer(Matrix44f::identity(), mDrawParams);
 
   if (mDrawTouches)
@@ -328,6 +356,7 @@ void Engine::setup(ds::App&)
 {
   //mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
   //gl::setMatrices(mCamera);
+  setCamera(true);
   setCamera();
   //gl::disable(GL_CULL_FACE);
   //////////////////////////////////////////////////////////////////////////

@@ -91,12 +91,13 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mIdleTimer(engine)
     , mLastWidth(width)
     , mLastHeight(height)
+    , mPerspective(false)
 {
   init(mEngine.nextSpriteId());
   setSize(width, height);
 }
 
-Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id )
+Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id, const bool perspective )
     : mEngine(engine)
     , mId(ds::EMPTY_SPRITE_ID)
     , mTouchProcess(engine, *this)
@@ -104,6 +105,7 @@ Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id )
     , mIdleTimer(engine)
     , mLastWidth(0)
     , mLastHeight(0)
+    , mPerspective(perspective)
 {
   init(id);
 }
@@ -190,7 +192,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
     ci::Matrix44f totalTransformation = trans*mTransformation;
 
     ci::gl::pushModelView();
-    glLoadIdentity();
+    //glLoadIdentity();
     ci::gl::multModelView(totalTransformation);
 
     if ((mSpriteFlags&TRANSPARENT_F) == 0) {
@@ -262,7 +264,7 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
   ci::Matrix44f totalTransformation = trans*mTransformation;
 
   ci::gl::pushModelView();
-  glLoadIdentity();
+  //glLoadIdentity();d
   ci::gl::multModelView(totalTransformation);
 
   if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
@@ -430,6 +432,7 @@ void Sprite::addChild( Sprite &child )
 
     mChildren.push_back(&child);
     child.setParent(this);
+    child.setPerspective(mPerspective);
 }
 
 // Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
@@ -440,6 +443,7 @@ void Sprite::addChildHack( Sprite &child )
     return;
 
   mChildren.push_back(&child);
+  child.setPerspective(mPerspective);
 }
 
 void Sprite::removeChild( Sprite &child )
@@ -449,8 +453,10 @@ void Sprite::removeChild( Sprite &child )
 
     auto found = std::find(mChildren.begin(), mChildren.end(), &child);
     mChildren.erase(found);
-    if (child.getParent() == this)
+    if (child.getParent() == this) {
       child.setParent(nullptr);
+      child.setPerspective(false);
+    }
 }
 
 void Sprite::setParent( Sprite *parent )
@@ -1522,6 +1528,18 @@ void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touc
 	newTouchInfo.mPhase = TouchInfo::Added; 
 	destinationSprite->processTouchInfo(newTouchInfo);
 }
+
+bool Sprite::getPerspective() const
+{
+  return mPerspective;
+}
+
+void Sprite::setPerspective( const bool )
+{
+  mPerspective = true;
+}
+
+
 
 } // namespace ui
 } // namespace ds

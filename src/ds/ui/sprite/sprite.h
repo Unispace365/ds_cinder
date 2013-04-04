@@ -227,6 +227,9 @@ class Sprite : public SpriteAnimatable
         // Special function to mark every sprite from me down as dirty.
         void                markTreeAsDirty();
 
+
+        bool                getPerspective() const;
+
         /*
          * \brief must be passed inside handle touch Moved or else will result in an infinite loop.
          */
@@ -276,6 +279,9 @@ class Sprite : public SpriteAnimatable
 
         void                sendSpriteToFront(Sprite &sprite);
         void                sendSpriteToBack(Sprite &sprite);
+
+
+        void setPerspective(const bool);
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
@@ -340,7 +346,7 @@ class Sprite : public SpriteAnimatable
         friend class Engine;
         // Internal constructor just for the Engine, used to create the root sprite,
         // which always exists and is identical across all architectures.
-        Sprite(SpriteEngine&, const ds::sprite_id_t);
+        Sprite(SpriteEngine&, const ds::sprite_id_t id, const bool perspective = false);
 
         void                init(const ds::sprite_id_t);
         void                readAttributesFrom(ds::DataBuffer&);
@@ -352,6 +358,10 @@ class Sprite : public SpriteAnimatable
         ci::gl::Texture     mRenderTarget;
 
         BlendMode           mBlendMode;
+
+        //set flag for determining whether to use orthoganol or perspective.
+        // this flag is only set on the root perspective sprite.
+        bool mPerspective;
 
         //set by sprite constructors. doesn't need to be passed through.
         bool                mUseShaderTexture; 

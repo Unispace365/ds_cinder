@@ -40,8 +40,8 @@ extern const ds::BitMask	ENGINE_LOG;
  */
 class Engine : public ui::SpriteEngine {
   public:
-	  static const int			CAMERA_ORTHO = 0;
-	  static const int			CAMERA_PERSP = 1;
+    static const int			CAMERA_ORTHO = 0;
+    static const int			CAMERA_PERSP = 1;
 
     ~Engine();
 
@@ -55,6 +55,8 @@ class Engine : public ui::SpriteEngine {
 
     // only valid after setup() is called
     ui::Sprite                 &getRootSprite();
+    ui::Sprite                 &getRootPersectiveSprite();
+
     void                        prepareSettings( ci::app::AppBasic::Settings& );
     //called in app setup; loads settings files and what not.
     virtual void                setup(ds::App&);
@@ -96,7 +98,7 @@ class Engine : public ui::SpriteEngine {
     float                       getWorldWidth() const;
     float                       getWorldHeight() const;
 
-    void                        setCamera();
+    void                        setCamera(const bool perspective = false);
 
     // Can be used by apps to stop services before exiting.
     // This will happen automatically, but some apps might want
@@ -106,9 +108,9 @@ class Engine : public ui::SpriteEngine {
     bool                        systemMultitouchEnabled() const;
     bool                        hideMouse() const;
 
-	virtual void                clearFingers( const std::vector<int> &fingers );
+  virtual void                clearFingers( const std::vector<int> &fingers );
 
-	void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
+  void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 
   protected:
     Engine(ds::App&, const ds::cfg::Settings&);
@@ -122,12 +124,13 @@ class Engine : public ui::SpriteEngine {
     void	                      updateServer();
     void                        drawClient();
     void                        drawServer();
-	void						setCameraForDraw();
+    void                        setCameraForDraw(const bool perspective = false);
 
     static const int            NumberOfNetworkThreads;
 
   protected:
     ui::Sprite                  mRootSprite;
+    ui::Sprite                  mRootPerspectiveSprite;
     int                         mTuioPort;
 
   private:
@@ -159,10 +162,13 @@ class Engine : public ui::SpriteEngine {
     const ds::cfg::Settings    &mSettings;
     ds::cfg::Settings           mDebugSettings;
     ci::CameraOrtho             mCamera;
-	ci::CameraPersp				mCameraPersp;
-	ci::Vec2f					mCameraZClipping;
-	float						mCameraFOV;
-	int							mCameraType;
+    ci::CameraPersp				     mCameraPersp;
+    ci::Vec2f					         mCameraZClipping;
+    float						           mCameraFOV;
+    int							           mCameraType;
+
+    ci::Vec3f                  mCameraPosition;
+    ci::Vec3f                  mCameraTarget;
 
     ci::gl::Fbo                 mFbo;
 

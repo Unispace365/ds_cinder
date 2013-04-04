@@ -59,7 +59,7 @@ class SpriteEngine {
     std::unique_ptr<FboGeneral>    getFbo();
     void                           giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
 
-    virtual void                   setCamera() = 0;
+    virtual void                   setCamera(const bool perspective = false) = 0;
 
     void                           addToDragDestinationList(Sprite *sprite);
     void                           removeFromDragDestinationList(Sprite *sprite);
