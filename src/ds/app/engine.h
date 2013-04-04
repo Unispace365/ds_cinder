@@ -99,6 +99,8 @@ class Engine : public ui::SpriteEngine {
     float                       getWorldHeight() const;
 
     virtual void                setCamera(const bool perspective = false);
+    // Used by the perspective camera to set the near and far planes
+    void                        setPerspectiveCameraPlanes(const float near, const float far);
 
     virtual void                setPerspectiveCameraPosition(const ci::Vec3f &pos);
     virtual ci::Vec3f           getPerspectiveCameraPosition() const;
@@ -171,6 +173,8 @@ class Engine : public ui::SpriteEngine {
     ci::Vec2f					         mCameraZClipping;
     float						           mCameraFOV;
     int							           mCameraType;
+    float                      mCameraPerspNearPlane,
+                               mCameraPerspFarPlane;
 
     ci::Vec3f                  mCameraPosition;
     ci::Vec3f                  mCameraTarget;
