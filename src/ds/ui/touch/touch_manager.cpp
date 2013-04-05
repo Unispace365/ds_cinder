@@ -29,7 +29,7 @@ void TouchManager::touchesBegin( TouchEvent event )
     touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
     touchInfo.mPhase = TouchInfo::Added;
 
-    Sprite *currentSprite = mEngine.getRootSprite().getHit(touchInfo.mCurrentGlobalPoint);
+    Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
     touchInfo.mPickedSprite = currentSprite;
 
     if ( currentSprite ) {
@@ -101,7 +101,7 @@ void TouchManager::mouseTouchBegin( MouseEvent event, int id )
   touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
   touchInfo.mPhase = TouchInfo::Added;
 
-  Sprite *currentSprite = mEngine.getRootSprite().getHit(touchInfo.mCurrentGlobalPoint);
+  Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
   touchInfo.mPickedSprite = currentSprite;
 
   if ( currentSprite ) {
@@ -203,6 +203,15 @@ void TouchManager::setSpriteForFinger( const int fingerId, ui::Sprite* theSprite
 	}
 	
 	mFingerDispatcher[fingerId] = theSprite;
+}
+
+Sprite* TouchManager::getHit(const ci::Vec3f &point)
+{
+  Sprite* s = mEngine.getRootSprite().getHit(point);
+  if (s) return s;
+  s = mEngine.getRootPersectiveSprite().getHit(point);
+  if (s) return s;
+  return nullptr;
 }
 
 

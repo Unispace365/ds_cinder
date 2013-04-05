@@ -45,6 +45,8 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   , mSwipeQueueSize(4)
   , mDoubleTapTime(0.1f)
   , mSettings(settings)
+  , mCameraPerspNearPlane(1.0f)
+  , mCameraPerspFarPlane(1000.0f)
   , mSystemMultitouchEnabled(false)
   , mApplyFxAA(false)
 {
@@ -238,12 +240,18 @@ void Engine::setCamera(const bool perspective)
 
     mCameraPersp.setEyePoint( Vec3f(0.0f, 0.0f, 100.0f) );
     mCameraPersp.setCenterOfInterestPoint( Vec3f(0.0f, 0.0f, 0.0f) );
-    mCameraPersp.setPerspective( 60.0f, getWindowAspectRatio(), 1.0f, 1000.0f );
+    mCameraPersp.setPerspective( 60.0f, getWindowAspectRatio(), mCameraPerspNearPlane, mCameraPerspFarPlane );
 		//mCameraPersp.setPerspective(mCameraFOV, getWindowAspectRatio(), mCameraZClipping.x, mCameraZClipping.y );
 		//mCameraPersp.lookAt( mCameraPosition, mCameraTarget, Vec3f(0.0f, 1.0f, 0.0f) );
 	}
 
 	setCameraForDraw(perspective);
+}
+
+void Engine::setPerspectiveCameraPlanes(const float nearPlane, const float farPlane)
+{
+  mCameraPerspNearPlane = nearPlane;
+  mCameraPerspFarPlane = farPlane;
 }
 
 void Engine::setCameraForDraw(const bool perspective){

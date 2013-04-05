@@ -60,6 +60,11 @@ class SpriteEngine {
     void                           giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
 
     virtual void                   setCamera(const bool perspective = false) = 0;
+    // Camera control
+    virtual void                   setPerspectiveCameraPosition(const ci::Vec3f &pos) = 0;
+    virtual ci::Vec3f              getPerspectiveCameraPosition() const = 0;
+    virtual void                   setPerspectiveCameraTarget(const ci::Vec3f &tar) = 0;
+    virtual ci::Vec3f              getPerspectiveCameraTarget() const = 0;
 
     void                           addToDragDestinationList(Sprite *sprite);
     void                           removeFromDragDestinationList(Sprite *sprite);
