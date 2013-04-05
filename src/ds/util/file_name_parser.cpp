@@ -1,5 +1,6 @@
 #include "file_name_parser.h"
 #include "string_util.h"
+#include <map>
 
 namespace ds {
 
@@ -33,12 +34,22 @@ int parseFileMetaData( const std::string &filename, const std::string &metaValue
   throw ParseFileMetaException("Was unable to find meta data for: "+metaValue);
 }
 
+static std::map<std::string, ci::Vec2f> ParsedAttribs;
+
 ci::Vec2f parseFileMetaDataSize(const std::string &filename)
 {
+  std::map<std::string, ci::Vec2f>::iterator found = ParsedAttribs.find(filename);
+
+  if (found != ParsedAttribs.end())
+    return found->second;
+
   int wVal = parseFileMetaData(filename, "w_");
   int hVal = parseFileMetaData(filename, "h_");
 
-  return ci::Vec2f(static_cast<float>(wVal), static_cast<float>(hVal));
+  ci::Vec2f values(static_cast<float>(wVal), static_cast<float>(hVal));
+  ParsedAttribs[filename] = values;
+
+  return values;
 }
 
 }
