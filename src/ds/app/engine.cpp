@@ -45,8 +45,6 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   , mSwipeQueueSize(4)
   , mDoubleTapTime(0.1f)
   , mSettings(settings)
-  , mCameraPerspNearPlane(1.0f)
-  , mCameraPerspFarPlane(1000.0f)
   , mSystemMultitouchEnabled(false)
   , mApplyFxAA(false)
 {
@@ -67,15 +65,15 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
 
   mCameraPosition = ci::Vec3f(0.0f, 0.0f, 100.0f);
   
-  mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(1.0f, 1000.0f));
-  mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
+  mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(0.1f, 1000.0f));
+  mCameraFOV = settings.getFloat("camera:fov", 0, 41.95f);
   //std::string cameraType = settings.getText("camera:type", 0, "ortho");
   //if(cameraType == "perspective" || cameraType == "persp"){
 	 // mCameraType = CAMERA_PERSP;
   //} else {
 	 // mCameraType = CAMERA_ORTHO;
   //}
-  mRootPerspectiveSprite.setDrawSorted(false);
+  mRootPerspectiveSprite.setDrawSorted(true);
   
 
   bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
@@ -240,18 +238,12 @@ void Engine::setCamera(const bool perspective)
 
     mCameraPersp.setEyePoint( Vec3f(0.0f, 0.0f, 100.0f) );
     mCameraPersp.setCenterOfInterestPoint( Vec3f(0.0f, 0.0f, 0.0f) );
-    mCameraPersp.setPerspective( 60.0f, getWindowAspectRatio(), mCameraPerspNearPlane, mCameraPerspFarPlane );
+    mCameraPersp.setPerspective( 60.0f, getWindowAspectRatio(), 1.0f, 1000.0f );
 		//mCameraPersp.setPerspective(mCameraFOV, getWindowAspectRatio(), mCameraZClipping.x, mCameraZClipping.y );
 		//mCameraPersp.lookAt( mCameraPosition, mCameraTarget, Vec3f(0.0f, 1.0f, 0.0f) );
 	}
 
 	setCameraForDraw(perspective);
-}
-
-void Engine::setPerspectiveCameraPlanes(const float nearPlane, const float farPlane)
-{
-  mCameraPerspNearPlane = nearPlane;
-  mCameraPerspFarPlane = farPlane;
 }
 
 void Engine::setCameraForDraw(const bool perspective){
@@ -271,6 +263,9 @@ void Engine::setCameraForDraw(const bool perspective){
 
 void Engine::drawClient()
 {
+  glAlphaFunc( GL_GREATER, 0.1 ) ;
+  glEnable( GL_ALPHA_TEST ) ;
+
   if (mApplyFxAA) {
     {
       gl::SaveFramebufferBinding bindingSaver;

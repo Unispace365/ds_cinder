@@ -240,7 +240,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
         std::vector<Sprite *> mCopy = mChildren;
         std::sort( mCopy.begin(), mCopy.end(), [](Sprite *i, Sprite *j)
         {
-          return i->getZLevel() < j->getZLevel();
+          return i->getPosition().z < j->getPosition().z;
         });
 
         for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
@@ -437,6 +437,7 @@ void Sprite::addChild( Sprite &child )
     mChildren.push_back(&child);
     child.setParent(this);
     child.setPerspective(mPerspective);
+    child.setDrawSorted(getDrawSorted());
 }
 
 // Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
@@ -448,6 +449,7 @@ void Sprite::addChildHack( Sprite &child )
 
   mChildren.push_back(&child);
   child.setPerspective(mPerspective);
+  child.setDrawSorted(getDrawSorted());
 }
 
 void Sprite::removeChild( Sprite &child )
