@@ -1,6 +1,10 @@
 import sys, os
+
+LIB_PATH = "vc10/swig/lib"
 if "DS_PLATFORM" in os.environ:
-    sys.path.append( os.path.join( os.environ["DS_PLATFORM"], "vc10/swig/lib") )
+    sys.path.append( os.path.join( os.environ["DS_PLATFORM"], LIB_PATH ) )
+else:
+    sys.path.append( os.path.join( "../..", LIB_PATH ) )
 
 import ds_cinder_swig
 from ds_cinder_swig import App, Sprite
