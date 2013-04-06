@@ -1,0 +1,137 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{3F6FDEAA-3DB7-4387-B35C-7FF7A63555E3}</ProjectGuid>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+    <Keyword>ManagedCProj</Keyword>
+    <RootNamespace>ds_cinder_swig</RootNamespace>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <CLRSupport>false</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <CLRSupport>false</CLRSupport>
+    <CharacterSet>Unicode</CharacterSet>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PlatformSetup_d.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="..\..\PlatformSetup.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <TargetExt>.pyd</TargetExt>
+    <TargetName>_$(ProjectName)</TargetName>
+    <OutDir>..\lib\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <LinkIncremental>false</LinkIncremental>
+    <LibraryPath>$(LibraryPath)</LibraryPath>
+    <TargetExt>.pyd</TargetExt>
+    <TargetName>_$(ProjectName)</TargetName>
+    <OutDir>..\lib\</OutDir>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <Optimization>Disabled</Optimization>
+      <AdditionalIncludeDirectories>$(platform_include_d);$(PYTHON_INCLUDE)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(platform_lib_d);%(AdditionalDependencies);$(PYTHON_LIB)\python33.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(platform_lib_include_d);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <OutputFile>$(OutDir)$(TargetName).pyd</OutputFile>
+      <IgnoreSpecificDefaultLibraries>$(platform_lib_ignore_d)</IgnoreSpecificDefaultLibraries>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(platform_include);$(PYTHON_INCLUDE)</AdditionalIncludeDirectories>
+      <WarningLevel>Level3</WarningLevel>
+      <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>
+      </PrecompiledHeaderFile>
+      <PrecompiledHeaderOutputFile>
+      </PrecompiledHeaderOutputFile>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
+      <Optimization>Disabled</Optimization>
+      <MinimalRebuild>true</MinimalRebuild>
+    </ClCompile>
+    <Link>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>$(platform_lib);%(AdditionalDependencies);$(PYTHON_LIB)\python33.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(platform_lib_include);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <IgnoreSpecificDefaultLibraries>$(platform_lib_ignore)</IgnoreSpecificDefaultLibraries>
+      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\src\ds_cinder_swig.i">
+      <FileType>Document</FileType>
+      <Command>echo In order to function correctly, please ensure the following environment variables are correctly set: 
+echo PYTHON_INCLUDE: %PYTHON_INCLUDE% 
+echo PYTHON_LIB: %PYTHON_LIB% 
+echo on
+echo C:\Users\Nick\code\swig\swig.exe  -I..\include -I..\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\boost -IC:\Users\Nick\code\ds_cinder\lib\poco\include -IC:\Users\Nick\code\ds_cinder\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\tuio\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\osc\include -IC:\Users\Nick\code\ds_cinder\lib\snappy -IC:\Users\Nick\code\ds_cinder\lib\zmq -IC:\Users\Nick\code\ds_cinder\lib\freetype-2.4.10\include -IC:\Users\Nick\code\ds_cinder\lib\OGLFT -c++ -python -outdir C:\Users\Nick\code\ds_cinder\vc10\swig\vc10\..\lib\ C:\Users\Nick\code\ds_cinder\vc10\swig\src\ds_cinder_swig.i 
+C:\Users\Nick\code\swig\swig.exe  -I..\include -I..\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\boost -IC:\Users\Nick\code\ds_cinder\lib\poco\include -IC:\Users\Nick\code\ds_cinder\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\tuio\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\osc\include -IC:\Users\Nick\code\ds_cinder\lib\snappy -IC:\Users\Nick\code\ds_cinder\lib\zmq -IC:\Users\Nick\code\ds_cinder\lib\freetype-2.4.10\include -IC:\Users\Nick\code\ds_cinder\lib\OGLFT -c++ -python -outdir C:\Users\Nick\code\ds_cinder\vc10\swig\vc10\..\lib\ C:\Users\Nick\code\ds_cinder\vc10\swig\src\ds_cinder_swig.i </Command>
+      <Outputs>..\src\_wrap.cxx;..\lib\.py</Outputs>
+      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo In order to function correctly, please ensure the following environment variables are correctly set: 
+echo PYTHON_INCLUDE: %PYTHON_INCLUDE% 
+echo PYTHON_LIB: %PYTHON_LIB% 
+echo on
+echo C:\Users\Nick\code\swig\swig.exe  -I..\include -I..\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\boost -IC:\Users\Nick\code\ds_cinder\lib\poco\include -IC:\Users\Nick\code\ds_cinder\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\tuio\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\osc\include -IC:\Users\Nick\code\ds_cinder\lib\snappy -IC:\Users\Nick\code\ds_cinder\lib\zmq -IC:\Users\Nick\code\ds_cinder\lib\freetype-2.4.10\include -IC:\Users\Nick\code\ds_cinder\lib\OGLFT -c++ -python -outdir C:\Users\Nick\code\ds_cinder\vc10\swig\vc10\..\lib\ C:\Users\Nick\code\ds_cinder\vc10\swig\src\ds_cinder_swig.i 
+C:\Users\Nick\code\swig\swig.exe -v -I..\include -I..\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\boost -IC:\Users\Nick\code\ds_cinder\lib\poco\include -IC:\Users\Nick\code\ds_cinder\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\tuio\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\osc\include -IC:\Users\Nick\code\ds_cinder\lib\snappy -IC:\Users\Nick\code\ds_cinder\lib\zmq -IC:\Users\Nick\code\ds_cinder\lib\freetype-2.4.10\include -IC:\Users\Nick\code\ds_cinder\lib\OGLFT -c++ -python -outdir C:\Users\Nick\code\ds_cinder\vc10\swig\vc10\..\lib\ C:\Users\Nick\code\ds_cinder\vc10\swig\src\ds_cinder_swig.i </Command>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\ds_cinder_swig_wrap.cxx" />
+    <ClCompile Include="..\src\run_app.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\run_app.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\lib\ds_cinder_swig.py" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

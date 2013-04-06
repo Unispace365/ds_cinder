@@ -1,0 +1,47 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Generated Files">
+      <UniqueIdentifier>{70f4a730-505c-4e80-aef8-b8224903d774}</UniqueIdentifier>
+      <SourceControlFiles>False</SourceControlFiles>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Swig Files">
+      <UniqueIdentifier>{5a4c53f5-bc8d-49e0-b272-cc866b8afdc0}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\run_app.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds_cinder_swig_wrap.cxx">
+      <Filter>Generated Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\run_app.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\lib\ds_cinder_swig.py">
+      <Filter>Generated Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="..\src\ds_cinder_swig.i" />
+    <CustomBuild Include="..\src\ds_cinder_swig.i" />
+    <CustomBuild Include="..\src\ds_cinder_swig.i" />
+    <CustomBuild Include="..\src\ds_cinder_swig.i" />
+    <CustomBuild Include="..\src\ds_cinder_swig.i" />
+    <CustomBuild Include="..\src\ds_cinder_swig.i" />
+    <CustomBuild Include="..\src\ds_cinder_swig.i" />
+  </ItemGroup>
+</Project>
