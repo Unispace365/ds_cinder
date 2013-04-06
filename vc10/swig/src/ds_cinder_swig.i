@@ -11,6 +11,7 @@
 #include "ds/app/app.h"
 #include "ds/ui/tween/sprite_anim.h"
 #include "ds/ui/sprite/sprite.h"
+#include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/util/blend.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 #include "ds/ui/sprite/dirty_state.h"
@@ -50,8 +51,14 @@ using namespace cinder::app;
 %include "cinder/app/App.h"
 %include "cinder/app/AppBasic.h"
 
+%include "cinder/CinderMath.h"
+%ignore NaN;
+%include "cinder/Vector.h"
+%template(Vec2f) cinder::Vec2<float>;
+
 %include "ds/ui/tween/sprite_anim.h"
 %include "ds/ui/sprite/sprite.h"
+%include "ds/ui/sprite/image.h"
 %include "ds/ui/touch/multi_touch_constraints.h"
 
 %include "ds/app/app.h"
