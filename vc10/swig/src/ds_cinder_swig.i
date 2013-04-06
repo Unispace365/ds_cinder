@@ -1,5 +1,7 @@
 %module (directors="1") ds_cinder_swig
+%feature("autodoc","1");
 %include "std_string.i"
+
 
 %{
 #include "cinder/app/App.h"
