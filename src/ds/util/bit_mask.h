@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #ifndef DS_UTIL_BITMASK_H_
 #define DS_UTIL_BITMASK_H_
 
