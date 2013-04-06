@@ -75,7 +75,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   //} else {
 	 // mCameraType = CAMERA_ORTHO;
   //}
-  mRootPerspectiveSprite.setDrawSorted(false);
+  mRootPerspectiveSprite.setDrawSorted(true);
   
 
   bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
@@ -263,14 +263,17 @@ void Engine::setCameraForDraw(const bool perspective){
 	} else {
     gl::setMatrices(mCameraPersp);
     // enable the depth buffer (after all, we are doing 3D)
-    gl::enableDepthRead();
-    gl::enableDepthWrite();
+    //gl::enableDepthRead();
+    //gl::enableDepthWrite();
 		//gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
 	}
 }
 
 void Engine::drawClient()
 {
+  glAlphaFunc ( GL_GREATER, 0.001f ) ;
+  glEnable ( GL_ALPHA_TEST ) ;
+
   if (mApplyFxAA) {
     {
       gl::SaveFramebufferBinding bindingSaver;

@@ -231,6 +231,9 @@ class Sprite : public SpriteAnimatable
 
         bool                getPerspective() const;
 
+        void                setUseDepthBuffer(bool useDepth);
+        bool                getUseDepthBuffer() const;
+
         /*
          * \brief must be passed inside handle touch Moved or else will result in an infinite loop.
          */
@@ -342,6 +345,8 @@ class Sprite : public SpriteAnimatable
         Sprite             *mDragDestination;
 
         IdleTimer           mIdleTimer;
+
+        bool                mUseDepthBuffer;
 
   private:
         friend class Engine;

@@ -496,7 +496,7 @@ void Text::drawIntoFbo()
       ci::gl::Texture::Format format;
       format.setTarget(GL_TEXTURE_2D);
       //format.setMagFilter(GL_NEAREST);
-      mTexture = ci::gl::Texture(w, h);
+      mTexture = ci::gl::Texture(w, h, format);
     }
 
     gl::enableAlphaBlending();

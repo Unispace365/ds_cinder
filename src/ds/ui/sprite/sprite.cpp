@@ -92,6 +92,7 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mLastWidth(width)
     , mLastHeight(height)
     , mPerspective(false)
+    , mUseDepthBuffer(false)
 {
   init(mEngine.nextSpriteId());
   setSize(width, height);
@@ -106,6 +107,7 @@ Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id, const bool persp
     , mLastWidth(0)
     , mLastHeight(0)
     , mPerspective(perspective)
+    , mUseDepthBuffer(false)
 {
   init(id);
 }
@@ -210,6 +212,13 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
       }
 
       ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);
+      if (mUseDepthBuffer) {
+        ci::gl::enableDepthRead();
+        ci::gl::enableDepthWrite();
+      } else {
+        ci::gl::disableDepthRead();
+        ci::gl::disableDepthWrite();
+      }
       drawLocalClient();
 
       if (shaderBase) {
@@ -269,6 +278,13 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
 
   if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
     ci::gl::color(mServerColor);
+    if (mUseDepthBuffer) {
+      ci::gl::enableDepthRead();
+      ci::gl::enableDepthWrite();
+    } else {
+      ci::gl::disableDepthRead();
+      ci::gl::disableDepthWrite();
+    }
     drawLocalServer();
   }
 
@@ -438,6 +454,7 @@ void Sprite::addChild( Sprite &child )
     child.setParent(this);
     child.setPerspective(mPerspective);
     child.setDrawSorted(getDrawSorted());
+    child.setUseDepthBuffer(mUseDepthBuffer);
 }
 
 // Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
@@ -450,6 +467,7 @@ void Sprite::addChildHack( Sprite &child )
   mChildren.push_back(&child);
   child.setPerspective(mPerspective);
   child.setDrawSorted(getDrawSorted());
+  child.setUseDepthBuffer(mUseDepthBuffer);
 }
 
 void Sprite::removeChild( Sprite &child )
@@ -1538,7 +1556,27 @@ bool Sprite::getPerspective() const
 void Sprite::setPerspective( const bool perspective )
 {
   mPerspective = perspective;
+
+  for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+  	(*it)->setPerspective(perspective);
+  }
 }
+
+void Sprite::setUseDepthBuffer( bool useDepth )
+{
+  mUseDepthBuffer = useDepth;
+
+  for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+  	(*it)->setUseDepthBuffer(mUseDepthBuffer);
+  }
+}
+
+bool Sprite::getUseDepthBuffer() const
+{
+  return mUseDepthBuffer;
+}
+
+
 
 
 
