@@ -13,12 +13,16 @@ class Environment;
  * \class ds::App
  * Handle the main app setup.
  */
-class App : public ci::app::AppBasic {
+class App : public cinder::app::AppBasic {
   public:
 		// Apps can provide a list of root sprites (Engine::CAMERA_ORTHO or Engine::CAMERA_PERSP), which
 		// can be accessed by index. If none supplied, you get 1 orthogonal.
-    App(const std::vector<int>* roots = nullptr);
+    App(const std::vector<int>* roots = nullptr, const std::string &basePath = "");
     ~App();
+
+    Engine                      &getEngine();
+    ui::SpriteEngine            &getSpriteEngine();
+    ui::Sprite                  &getRootSprite();
 
     virtual void                mouseDown( MouseEvent event );	
     virtual void                mouseMove( MouseEvent event );
@@ -57,6 +61,7 @@ class App : public ci::app::AppBasic {
     bool                        mSecondMouseDown;
 	bool						mQKeyEnabled;
 	bool						mEscKeyEnabled;
+
 };
 
 } // namespace ds

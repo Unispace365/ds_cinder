@@ -25,8 +25,8 @@ namespace ds {
 /**
  * \class ds::App
  */
-App::App(const std::vector<int>* roots)
-	: mInitializer(getAppPath().generic_string())
+App::App(const std::vector<int>* roots, const std::string &appPath)
+    : mInitializer(appPath != "" ? appPath : getAppPath().generic_string())
 	, mEngineSettings()
 	, mEngine(new_engine(*this, mEngineSettings, roots))
 	, mCtrlDown(false)
@@ -49,6 +49,20 @@ App::~App()
   ds::getLogger().shutDown();
   DS_DBG_CODE(GLOBAL_CONSOLE.destroy());
 }
+
+ui::Sprite &App::getRootSprite() {
+	return mEngine.getRootSprite();
+}
+
+Engine &App::getEngine() {
+	return mEngine;
+}
+
+ui::SpriteEngine &App::getSpriteEngine() {
+	return mEngine;
+}
+
+
 
 void App::prepareSettings(Settings *settings)
 {
