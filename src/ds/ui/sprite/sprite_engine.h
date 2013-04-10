@@ -9,6 +9,11 @@
 #include "fbo/fbo.h"
 #include <memory>
 
+namespace Awesomium {
+class WebCore;
+class WebSession;
+}
+
 namespace ds {
 class AutoUpdateList;
 class FontList;
@@ -80,7 +85,10 @@ class SpriteEngine {
     static const int               CLIENTSERVER_MODE = 2;
     virtual int                    getMode() const = 0;
 
+    virtual Awesomium::WebCore    *getWebCore() const = 0;
+    virtual Awesomium::WebSession *getWebSession() const = 0;
   protected:
+
     SpriteEngine()                 { }
     virtual ~SpriteEngine()        { }
 

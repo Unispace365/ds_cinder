@@ -91,6 +91,9 @@
     <Filter Include="src\lib\OGLFT">
       <UniqueIdentifier>{d9dd9d0c-956b-4b14-bba6-ecdb842728d4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\lib\Awesomium">
+      <UniqueIdentifier>{989f2b72-5d64-442a-88e6-656576560a7f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\app\app_defs.h">
@@ -372,6 +375,12 @@
     <ClInclude Include="..\src\ds\util\notifier_2.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\markdown.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.h">
+      <Filter>src\lib\Awesomium</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -586,6 +595,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\event_notifier.cpp">
       <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\markdown.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp">
+      <Filter>src\lib\Awesomium</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
