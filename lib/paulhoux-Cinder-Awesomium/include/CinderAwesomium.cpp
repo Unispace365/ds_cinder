@@ -1,3 +1,4 @@
+#ifdef AWESOMIUM
 #include "CinderAwesomium.h"
 
 namespace ph { namespace awesomium {
@@ -313,3 +314,4 @@ void handleMouseWheel( Awesomium::WebView *view, ci::app::MouseEvent event, int 
 
 } } // namespace ph::awesomium
 
+#endif

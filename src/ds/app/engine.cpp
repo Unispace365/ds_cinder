@@ -1,5 +1,9 @@
 #include "ds/app/engine.h"
 
+#ifdef AWESOMIUM
+#pragma comment(lib, "awesomium.lib")
+#endif
+
 #include <GL/glu.h>
 #include "ds/app/app.h"
 #include "ds/app/environment.h"
@@ -120,9 +124,11 @@ Engine::~Engine()
 {
   mTuio.disconnect();
 
+#ifdef AWESOMIUM
   if (mWebCorePtr) {
     Awesomium::WebCore::Shutdown();
   }
+#endif
 }
 
 ui::Sprite &Engine::getRootSprite()
@@ -664,11 +670,13 @@ ci::Vec3f Engine::getPerspectiveCameraTarget() const
 
 void Engine::initializeWeb()
 {
+  #ifdef AWESOMIUM
   Awesomium::WebConfig cnf;
   cnf.log_level = Awesomium::kLogLevel_Verbose;
 
   // initialize the Awesomium web engine
   mWebCorePtr = Awesomium::WebCore::Initialize( cnf );
+  #endif
 }
 
 Awesomium::WebCore *Engine::getWebCore() const

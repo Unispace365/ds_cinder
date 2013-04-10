@@ -1,4 +1,5 @@
 #include "markdown.h"
+#ifdef AWESOMIUM
 #include "sprite_engine.h"
 #include "Awesomium/WebCore.h"
 #include "Awesomium/WebSession.h"
@@ -200,3 +201,5 @@ void Markdown::setPageUpdatedCallback( const std::function<void(void)> &func )
 
 }
 }
+
+#endif

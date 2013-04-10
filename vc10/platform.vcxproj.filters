@@ -92,7 +92,7 @@
       <UniqueIdentifier>{d9dd9d0c-956b-4b14-bba6-ecdb842728d4}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\lib\Awesomium">
-      <UniqueIdentifier>{989f2b72-5d64-442a-88e6-656576560a7f}</UniqueIdentifier>
+      <UniqueIdentifier>{16413bf8-880a-440b-975d-6471bad2acdc}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

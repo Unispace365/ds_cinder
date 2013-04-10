@@ -517,9 +517,9 @@ void Text::drawIntoFbo()
 
 
       ci::gl::clear(ColorA(1.0f, 1.0f, 1.0f, 0.0f));
-      ci::gl::color(Color(1.0f, 1.0f, 1.0f));
+      ci::gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 
-      mFont->setForegroundColor( 1.0f, 1.0f, 1.0f );
+      mFont->setForegroundColor( 1.0f, 1.0f, 1.0f, 0.99f );
       mFont->setBackgroundColor( 1.0f, 1.0f, 1.0f, 0.0f );
       //std::cout << "Size: " << lines.size() << std::endl;
       float height = mFont->pointSize();
