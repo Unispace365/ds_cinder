@@ -18,8 +18,8 @@ const char        TERMINATOR = 0;
 /**
  * \class ds::EngineServer
  */
-EngineServer::EngineServer(ds::App& app, const ds::cfg::Settings& settings)
-    : inherited(app, settings)
+EngineServer::EngineServer(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
+    : inherited(app, settings, roots)
     , mLoadImageService(mLoadImageThread)
 //    , mConnection(NumberOfNetworkThreads)
     , mSender(mSendConnection)
@@ -46,7 +46,7 @@ EngineServer::EngineServer(ds::App& app, const ds::cfg::Settings& settings)
 EngineServer::~EngineServer()
 {
   // It's important to clean up the sprites before the services go away
-  mRootSprite.clearChildren();
+	clearAllSprites();
 }
 
 void EngineServer::installSprite( const std::function<void(ds::BlobRegistry&)>& asServer,
