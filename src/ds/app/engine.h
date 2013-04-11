@@ -119,6 +119,8 @@ class Engine : public ui::SpriteEngine {
 
   void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 
+    Awesomium::WebCore         *getWebCore() const;
+    Awesomium::WebSession      *getWebSession() const;
   protected:
     Engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
 
@@ -126,6 +128,7 @@ class Engine : public ui::SpriteEngine {
     std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
                                 mSprites;
 
+    void												initializeWeb();
     // Conveniences for the subclases
     void	                      updateClient();
     void	                      updateServer();
@@ -138,10 +141,11 @@ class Engine : public ui::SpriteEngine {
 
     static const int            NumberOfNetworkThreads;
 
+    Awesomium::WebCore         *mWebCorePtr;
+    Awesomium::WebSession      *mWebSessionPtr;
+
   protected:
     int                         mTuioPort;
-//    ui::Sprite                  mRootSprite;
-//    ui::Sprite                  mRootPerspectiveSprite;
 
   private:
 		std::vector<ui::Sprite*>		mRoots;

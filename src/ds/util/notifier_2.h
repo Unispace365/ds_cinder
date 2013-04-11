@@ -136,6 +136,6 @@ void Notifier<T>::request( T& v )
     }
 }
 
-} // namespace cub2
+} // namespace {template_namespace}2
 
 #endif
