@@ -1,0 +1,258 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ProjectSchemaDefinitions xmlns="clr-namespace:Microsoft.Build.Framework.XamlTypes;assembly=Microsoft.Build.Framework" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:sys="clr-namespace:System;assembly=mscorlib" xmlns:transformCallback="Microsoft.Cpp.Dev10.ConvertPropertyCallback">
+  <Rule
+    Name="Swig"
+    PageTemplate="tool"
+    DisplayName="Swig"
+    Order="200">
+    <Rule.DataSource>
+      <DataSource
+        Persistence="ProjectFile"
+        ItemType="Swig" />
+    </Rule.DataSource>
+    <Rule.Categories>
+      <Category
+        Name="General">
+        <Category.DisplayName>
+          <sys:String>General</sys:String>
+        </Category.DisplayName>
+      </Category>
+      <Category
+        Name="Command Line"
+        Subtype="CommandLine">
+        <Category.DisplayName>
+          <sys:String>Command Line</sys:String>
+        </Category.DisplayName>
+      </Category>
+    </Rule.Categories>
+    <StringListProperty
+      Name="Inputs"
+      Category="Command Line"
+      IsRequired="true"
+      Switch=" ">
+      <StringListProperty.DataSource>
+        <DataSource
+          Persistence="ProjectFile"
+          ItemType="Swig"
+          SourceType="Item" />
+      </StringListProperty.DataSource>
+    </StringListProperty>
+    <BoolProperty
+      Name="debugclasses"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug Classes"
+      Description="Display information about the classes found in the interface"
+      Switch="-debug-classes" />
+    <BoolProperty
+      Name="debugsymtabs"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug Symbol tables"
+      Description="Display symbol tables information"
+      Switch="-debug-symtabs" />
+    <BoolProperty
+      Name="debugsymbols"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug Symbols"
+      Description="Display target language symbols in the symbol tables"
+      Switch="-debug-symbols" />
+    <BoolProperty
+      Name="debugcsymbols"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug C Symbols"
+      Description="Display C symbols in the symbol tables"
+      Switch="-debug-csymbols" />
+    <BoolProperty
+      Name="debuglsymbols"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug Layer Symbols"
+      Description="Display target language layer symbols"
+      Switch="-debug-lsymbols" />
+    <BoolProperty
+      Name="debugtags"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug Tags"
+      Description="Display information about the tags found in the interface"
+      Switch="-debug-tags" />
+    <BoolProperty
+      Name="debugtemplate"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug Template"
+      Description="Display information for debugging templates"
+      Switch="-debug-template" />
+    <BoolProperty
+      Name="debugtypedef"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug Typedef"
+      Description="Display information about the types and typedefs in the interface"
+      Switch="-debug-typedef" />
+    <BoolProperty
+      Name="debugtypemap"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug Typemap"
+      Description="Display typemap debugging information"
+      Switch="-debug-typemap" />
+    <BoolProperty
+      Name="debugtmsearch"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug Typemap Search"
+      Description="Display typemap search debugging information"
+      Switch="-debug-tmsearch" />
+    <BoolProperty
+      Name="debugtmused"
+      Category="Debug"
+      HelpContext="0"
+      DisplayName="Debug Typemap Used"
+      Description="Display typemaps used debugging information"
+      Switch="-debug-tmused" />
+    <StringProperty
+      Name="swigexe"
+      HelpContext="0"
+      DisplayName="Swig Executable File"
+      Description="Allows you to change the Swig executable filename and path"
+      Switch="[value]" />
+    <StringListProperty
+      Name="additionalincludes"
+      HelpContext="0"
+      DisplayName="Additional include directories"
+      Description="Specifies one or more directories to add to the include path; use semi-colon delimited list if more than one."
+      Separator=";"
+      Switch="-I[value]" />
+    <StringListProperty
+      Name="testincludes"
+      HelpContext="0"
+      DisplayName="OMG TEST"
+      Description="OMG TEST"
+      Separator=";"
+      Switch="-I[value]" />
+    <StringProperty
+      Name="outdir"
+      HelpContext="0"
+      DisplayName="Output Directory"
+      Description="Directory where generated target-language moules shall be placed"
+      Switch="-outdir [value]" />
+    <EnumProperty
+      Name="sourcelanguage"
+      HelpContext="0"
+      DisplayName="Source Language"
+      Description="The source language for SWIG to wrap">
+      <EnumValue
+        Name="0"
+        DisplayName="C"
+        Switch="-c" />
+      <EnumValue
+        Name="1"
+        DisplayName="C++"
+        Switch="-c++" />
+    </EnumProperty>
+    <EnumProperty
+      Name="targetlanguage"
+      HelpContext="0"
+      DisplayName="Target Language"
+      Description="The language for SWIG to to target">
+      <EnumValue
+        Name="0"
+        DisplayName="Python"
+        Switch="-python" />
+      <EnumValue
+        Name="1"
+        DisplayName="Ruby"
+        Switch="-ruby" />
+    </EnumProperty>
+    <StringProperty
+      Name="CommandLineTemplate"
+      DisplayName="Command Line"
+      Visible="False"
+      IncludeInCommandLine="False" />
+    <DynamicEnumProperty
+      Name="SwigBeforeTargets"
+      Category="General"
+      EnumProvider="Targets"
+      IncludeInCommandLine="False">
+      <DynamicEnumProperty.DisplayName>
+        <sys:String>Execute Before</sys:String>
+      </DynamicEnumProperty.DisplayName>
+      <DynamicEnumProperty.Description>
+        <sys:String>Specifies the targets for the build customization to run before.</sys:String>
+      </DynamicEnumProperty.Description>
+      <DynamicEnumProperty.ProviderSettings>
+        <NameValuePair
+          Name="Exclude"
+          Value="^SwigBeforeTargets|^Compute" />
+      </DynamicEnumProperty.ProviderSettings>
+      <DynamicEnumProperty.DataSource>
+        <DataSource
+          Persistence="ProjectFile"
+          HasConfigurationCondition="true" />
+      </DynamicEnumProperty.DataSource>
+    </DynamicEnumProperty>
+    <DynamicEnumProperty
+      Name="SwigAfterTargets"
+      Category="General"
+      EnumProvider="Targets"
+      IncludeInCommandLine="False">
+      <DynamicEnumProperty.DisplayName>
+        <sys:String>Execute After</sys:String>
+      </DynamicEnumProperty.DisplayName>
+      <DynamicEnumProperty.Description>
+        <sys:String>Specifies the targets for the build customization to run after.</sys:String>
+      </DynamicEnumProperty.Description>
+      <DynamicEnumProperty.ProviderSettings>
+        <NameValuePair
+          Name="Exclude"
+          Value="^SwigAfterTargets|^Compute" />
+      </DynamicEnumProperty.ProviderSettings>
+      <DynamicEnumProperty.DataSource>
+        <DataSource
+          Persistence="ProjectFile"
+          ItemType=""
+          HasConfigurationCondition="true" />
+      </DynamicEnumProperty.DataSource>
+    </DynamicEnumProperty>
+    <StringListProperty
+      Name="Outputs"
+      DisplayName="Outputs"
+      Visible="False"
+      IncludeInCommandLine="False" />
+    <StringProperty
+      Name="ExecutionDescription"
+      DisplayName="Execution Description"
+      Visible="False"
+      IncludeInCommandLine="False" />
+    <StringListProperty
+      Name="AdditionalDependencies"
+      DisplayName="Additional Dependencies"
+      IncludeInCommandLine="False"
+      Visible="false" />
+    <StringProperty
+      Subtype="AdditionalOptions"
+      Name="AdditionalOptions"
+      Category="Command Line">
+      <StringProperty.DisplayName>
+        <sys:String>Additional Options</sys:String>
+      </StringProperty.DisplayName>
+      <StringProperty.Description>
+        <sys:String>Additional Options</sys:String>
+      </StringProperty.Description>
+    </StringProperty>
+  </Rule>
+  <ItemType
+    Name="Swig"
+    DisplayName="Swig" />
+  <FileExtension
+    Name="*.i"
+    ContentType="Swig" />
+  <ContentType
+    Name="Swig"
+    DisplayName="Swig"
+    ItemType="Swig" />
+</ProjectSchemaDefinitions>

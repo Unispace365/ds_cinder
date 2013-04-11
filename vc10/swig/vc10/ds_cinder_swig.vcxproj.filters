@@ -15,6 +15,10 @@
     </Filter>
     <Filter Include="Swig Files">
       <UniqueIdentifier>{5a4c53f5-bc8d-49e0-b272-cc866b8afdc0}</UniqueIdentifier>
+      <Extensions>i</Extensions>
+    </Filter>
+    <Filter Include="Python Files">
+      <UniqueIdentifier>{11a5e5b4-a89a-48e3-8143-b244ec9fb74f}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -32,16 +36,15 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="..\lib\ds_cinder_swig.py">
-      <Filter>Generated Files</Filter>
+      <Filter>Python Files</Filter>
+    </None>
+    <None Include="..\..\..\example\python_example\python_example.py">
+      <Filter>Python Files</Filter>
     </None>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\src\ds_cinder_swig.i" />
-    <CustomBuild Include="..\src\ds_cinder_swig.i" />
-    <CustomBuild Include="..\src\ds_cinder_swig.i" />
-    <CustomBuild Include="..\src\ds_cinder_swig.i" />
-    <CustomBuild Include="..\src\ds_cinder_swig.i" />
-    <CustomBuild Include="..\src\ds_cinder_swig.i" />
-    <CustomBuild Include="..\src\ds_cinder_swig.i" />
+    <Swig Include="..\src\ds_cinder_swig.i">
+      <Filter>Swig Files</Filter>
+    </Swig>
   </ItemGroup>
 </Project>

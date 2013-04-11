@@ -32,6 +32,7 @@
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
+    <Import Project="swig.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -104,22 +105,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="..\src\ds_cinder_swig.i">
-      <FileType>Document</FileType>
-      <Command>echo In order to function correctly, please ensure the following environment variables are correctly set: 
-echo PYTHON_INCLUDE: %PYTHON_INCLUDE% 
-echo PYTHON_LIB: %PYTHON_LIB% 
-echo on
-echo C:\Users\Nick\code\swig\swig.exe  -I..\include -I..\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\boost -IC:\Users\Nick\code\ds_cinder\lib\poco\include -IC:\Users\Nick\code\ds_cinder\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\tuio\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\osc\include -IC:\Users\Nick\code\ds_cinder\lib\snappy -IC:\Users\Nick\code\ds_cinder\lib\zmq -IC:\Users\Nick\code\ds_cinder\lib\freetype-2.4.10\include -IC:\Users\Nick\code\ds_cinder\lib\OGLFT -c++ -python -outdir C:\Users\Nick\code\ds_cinder\vc10\swig\vc10\..\lib\ C:\Users\Nick\code\ds_cinder\vc10\swig\src\ds_cinder_swig.i 
-C:\Users\Nick\code\swig\swig.exe  -I..\include -I..\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\boost -IC:\Users\Nick\code\ds_cinder\lib\poco\include -IC:\Users\Nick\code\ds_cinder\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\tuio\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\osc\include -IC:\Users\Nick\code\ds_cinder\lib\snappy -IC:\Users\Nick\code\ds_cinder\lib\zmq -IC:\Users\Nick\code\ds_cinder\lib\freetype-2.4.10\include -IC:\Users\Nick\code\ds_cinder\lib\OGLFT -c++ -python -outdir C:\Users\Nick\code\ds_cinder\vc10\swig\vc10\..\lib\ C:\Users\Nick\code\ds_cinder\vc10\swig\src\ds_cinder_swig.i </Command>
-      <Outputs>..\src\_wrap.cxx;..\lib\.py</Outputs>
-      <Command Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">echo In order to function correctly, please ensure the following environment variables are correctly set: 
-echo PYTHON_INCLUDE: %PYTHON_INCLUDE% 
-echo PYTHON_LIB: %PYTHON_LIB% 
-echo on
-echo C:\Users\Nick\code\swig\swig.exe  -I..\include -I..\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\boost -IC:\Users\Nick\code\ds_cinder\lib\poco\include -IC:\Users\Nick\code\ds_cinder\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\tuio\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\osc\include -IC:\Users\Nick\code\ds_cinder\lib\snappy -IC:\Users\Nick\code\ds_cinder\lib\zmq -IC:\Users\Nick\code\ds_cinder\lib\freetype-2.4.10\include -IC:\Users\Nick\code\ds_cinder\lib\OGLFT -c++ -python -outdir C:\Users\Nick\code\ds_cinder\vc10\swig\vc10\..\lib\ C:\Users\Nick\code\ds_cinder\vc10\swig\src\ds_cinder_swig.i 
-C:\Users\Nick\code\swig\swig.exe -v -I..\include -I..\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\boost -IC:\Users\Nick\code\ds_cinder\lib\poco\include -IC:\Users\Nick\code\ds_cinder\src -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\tuio\include -IC:\Users\Nick\code\cinder_0.8.4_vc2010\blocks\osc\include -IC:\Users\Nick\code\ds_cinder\lib\snappy -IC:\Users\Nick\code\ds_cinder\lib\zmq -IC:\Users\Nick\code\ds_cinder\lib\freetype-2.4.10\include -IC:\Users\Nick\code\ds_cinder\lib\OGLFT -c++ -python -outdir C:\Users\Nick\code\ds_cinder\vc10\swig\vc10\..\lib\ C:\Users\Nick\code\ds_cinder\vc10\swig\src\ds_cinder_swig.i </Command>
-    </CustomBuild>
+    <Swig Include="..\src\ds_cinder_swig.i">
+      <swigexe Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(UserProfile)\code\swig\swig.exe</swigexe>
+      <outdir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)</outdir>
+    </Swig>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds_cinder_swig_wrap.cxx" />
@@ -129,9 +118,11 @@ C:\Users\Nick\code\swig\swig.exe -v -I..\include -I..\src -IC:\Users\Nick\code\c
     <ClInclude Include="..\src\run_app.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\..\..\example\python_example\python_example.py" />
     <None Include="..\lib\ds_cinder_swig.py" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="swig.targets" />
   </ImportGroup>
 </Project>

@@ -1,0 +1,98 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <PropertyPageSchema
+      Include="$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml" />
+    <AvailableItemName
+      Include="Swig">
+      <Targets>_Swig</Targets>
+    </AvailableItemName>
+  </ItemGroup>
+  <UsingTask
+    TaskName="Swig"
+    TaskFactory="XamlTaskFactory"
+    AssemblyName="Microsoft.Build.Tasks.v4.0">
+    <Task>$(MSBuildThisFileDirectory)$(MSBuildThisFileName).xml</Task>
+  </UsingTask>
+  <Target
+    Name="_Swig"
+    BeforeTargets="$(SwigBeforeTargets)"
+    AfterTargets="$(SwigAfterTargets)"
+    Condition="'@(Swig)' != ''"
+    DependsOnTargets="$(SwigDependsOn);ComputeSwigOutput"
+    Outputs="%(Swig.Outputs)"
+    Inputs="%(Swig.Identity);%(Swig.AdditionalDependencies);$(MSBuildProjectFile)">
+    <ItemGroup
+      Condition="'@(SelectedFiles)' != ''">
+      <Swig
+        Remove="@(Swig)"
+        Condition="'%(Identity)' != '@(SelectedFiles)'" />
+    </ItemGroup>
+    <ItemGroup>
+      <Swig_tlog
+        Include="%(Swig.Outputs)"
+        Condition="'%(Swig.Outputs)' != '' and '%(Swig.ExcludedFromBuild)' != 'true'">
+        <Source>@(Swig, '|')</Source>
+      </Swig_tlog>
+    </ItemGroup>
+    <Message
+      Importance="High"
+      Text="%(Swig.ExecutionDescription)" />
+    <WriteLinesToFile
+      Condition="'@(Swig_tlog)' != '' and '%(Swig_tlog.ExcludedFromBuild)' != 'true'"
+      File="$(IntDir)$(ProjectName).write.1.tlog"
+      Lines="^%(Swig_tlog.Source);@(Swig_tlog-&gt;'%(Fullpath)')" />
+    <Swig
+      Condition="'@(Swig)' != '' and '%(Swig.ExcludedFromBuild)' != 'true'"
+      CommandLineTemplate="%(Swig.CommandLineTemplate)"
+      debugclasses="%(Swig.debugclasses)"
+      debugsymtabs="%(Swig.debugsymtabs)"
+      debugsymbols="%(Swig.debugsymbols)"
+      debugcsymbols="%(Swig.debugcsymbols)"
+      debuglsymbols="%(Swig.debuglsymbols)"
+      debugtags="%(Swig.debugtags)"
+      debugtemplate="%(Swig.debugtemplate)"
+      debugtypedef="%(Swig.debugtypedef)"
+      debugtypemap="%(Swig.debugtypemap)"
+      debugtmsearch="%(Swig.debugtmsearch)"
+      debugtmused="%(Swig.debugtmused)"
+      swigexe="%(Swig.swigexe)"
+      additionalincludes="%(Swig.additionalincludes)"
+      testincludes="%(Swig.testincludes)"
+      outdir="%(Swig.outdir)"
+      sourcelanguage="%(Swig.sourcelanguage)"
+      targetlanguage="%(Swig.targetlanguage)"
+      AdditionalOptions="%(Swig.AdditionalOptions)"
+      Inputs="%(Swig.Identity)" />
+  </Target>
+  <PropertyGroup>
+    <ComputeLinkInputsTargets>
+            $(ComputeLinkInputsTargets);
+            ComputeSwigOutput;
+          </ComputeLinkInputsTargets>
+    <ComputeLibInputsTargets>
+            $(ComputeLibInputsTargets);
+            ComputeSwigOutput;
+          </ComputeLibInputsTargets>
+  </PropertyGroup>
+  <Target
+    Name="ComputeSwigOutput"
+    Condition="'@(Swig)' != ''">
+    <ItemGroup>
+      <SwigDirsToMake
+        Condition="'@(Swig)' != '' and '%(Swig.ExcludedFromBuild)' != 'true'"
+        Include="%(Swig.Outputs)" />
+      <Link
+        Include="%(SwigDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <Lib
+        Include="%(SwigDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+      <ImpLib
+        Include="%(SwigDirsToMake.Identity)"
+        Condition="'%(Extension)'=='.obj' or '%(Extension)'=='.res' or '%(Extension)'=='.rsc' or '%(Extension)'=='.lib'" />
+    </ItemGroup>
+    <MakeDir
+      Directories="@(SwigDirsToMake-&gt;'%(RootDir)%(Directory)')" />
+  </Target>
+</Project>

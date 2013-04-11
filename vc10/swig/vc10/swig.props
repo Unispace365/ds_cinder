@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup
+    Condition="'$(SwigBeforeTargets)' == '' and '$(SwigAfterTargets)' == '' and '$(ConfigurationType)' != 'Makefile'">
+    <SwigBeforeTargets>Midl</SwigBeforeTargets>
+    <SwigAfterTargets>CustomBuild</SwigAfterTargets>
+  </PropertyGroup>
+  <PropertyGroup>
+    <SwigDependsOn
+      Condition="'$(ConfigurationType)' != 'Makefile'">_SelectedFiles;$(SwigDependsOn)</SwigDependsOn>
+  </PropertyGroup>
+  <ItemDefinitionGroup>
+    <Swig>
+      <debugclasses>False</debugclasses>
+      <debugsymtabs>False</debugsymtabs>
+      <debugsymbols>False</debugsymbols>
+      <debugcsymbols>False</debugcsymbols>
+      <debuglsymbols>False</debuglsymbols>
+      <debugtags>False</debugtags>
+      <debugtemplate>False</debugtemplate>
+      <debugtypedef>False</debugtypedef>
+      <debugtypemap>False</debugtypemap>
+      <debugtmsearch>False</debugtmsearch>
+      <debugtmused>False</debugtmused>
+      <swigexe>swig.exe</swigexe>
+      <additionalincludes>$(platform_include)</additionalincludes>
+      <testincludes>I$(platform_include.Replace("%3b", " -I"))</testincludes>
+      <outdir>$(OutDir)</outdir>
+      <sourcelanguage>1</sourcelanguage>
+      <targetlanguage>0</targetlanguage>
+      <CommandLineTemplate>[swigexe] [debugsymtabs] [debugsymbols] [debugcsymbols] [debuglsymbols] [debugtags] [debugtemplate] [debugtypedef] [debugtypemap] [debugtmsearch] [debugtmused] [additionalincludes] [testincludes] [sourcelanguage] [targetlanguage] [outdir] %(FullPath)</CommandLineTemplate>
+      <Outputs>$(OutDir)%(Filename).py;%(RootDir)%(Directory)%(Filename)_wrap.cxx</Outputs>
+      <ExecutionDescription>Generating Swig bindings from interface file: %(Filename)%(Extension)...</ExecutionDescription>
+    </Swig>
+  </ItemDefinitionGroup>
+</Project>
