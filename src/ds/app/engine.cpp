@@ -370,21 +370,29 @@ void Engine::drawClient()
     if (mDrawTouches)
       mTouchManager.drawTouches();
   }
+  glAlphaFunc(GL_ALWAYS, 0.0f);
 }
 
 void Engine::drawServer()
 {
+  glAlphaFunc ( GL_GREATER, 0.001f ) ;
+  glEnable ( GL_ALPHA_TEST ) ;
+
   gl::enableAlphaBlending();
   gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
   setCameraForDraw(true);
-  mRootPerspectiveSprite.drawClient(Matrix44f::identity(), mDrawParams);
+  Matrix44f transform = ci::gl::getModelView();
+  mRootPerspectiveSprite.drawClient(transform, mDrawParams);
 
-	setCameraForDraw();
-  mRootSprite.drawServer(Matrix44f::identity(), mDrawParams);
+  setCameraForDraw();
+  transform = ci::gl::getModelView();
+  mRootSprite.drawServer(transform, mDrawParams);
 
   if (mDrawTouches)
     mTouchManager.drawTouches();
+
+  glAlphaFunc(GL_ALWAYS, 0.0f);
 }
 
 void Engine::setup(ds::App&)
