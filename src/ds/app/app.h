@@ -15,7 +15,9 @@ class Environment;
  */
 class App : public ci::app::AppBasic {
   public:
-    App();
+		// Apps can provide a list of root sprites (Engine::CAMERA_ORTHO or Engine::CAMERA_PERSP), which
+		// can be accessed by index. If none supplied, you get 1 orthogonal.
+    App(const std::vector<int>* roots = nullptr);
     ~App();
 
     virtual void                mouseDown( MouseEvent event );	

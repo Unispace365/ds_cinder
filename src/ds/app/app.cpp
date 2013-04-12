@@ -11,7 +11,7 @@
 #include "ds/ui/sprite/text.h"
 
 // Answer a new engine based on the current settings
-static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&);
+static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
 
 namespace {
 std::string           APP_PATH;
@@ -25,12 +25,12 @@ namespace ds {
 /**
  * \class ds::App
  */
-App::App()
-    : mInitializer(getAppPath().generic_string())
-    , mEngineSettings()
-    , mEngine(new_engine(*this, mEngineSettings))
-    , mCtrlDown(false)
-    , mSecondMouseDown(false)
+App::App(const std::vector<int>* roots)
+	: mInitializer(getAppPath().generic_string())
+	, mEngineSettings()
+	, mEngine(new_engine(*this, mEngineSettings, roots))
+	, mCtrlDown(false)
+	, mSecondMouseDown(false)
 	, mQKeyEnabled(false)
 	, mEscKeyEnabled(false)
 {
@@ -177,9 +177,9 @@ ds::App::Initializer::Initializer(const std::string& appPath)
 
 } // namespace ds
 
-static ds::Engine&    new_engine(ds::App& app, const ds::cfg::Settings& settings)
+static ds::Engine&    new_engine(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
 {
-  if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(app, settings));
-  if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(app, settings));
-  return *(new ds::EngineClientServer(app, settings));
+  if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(app, settings, roots));
+  if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(app, settings, roots));
+  return *(new ds::EngineClientServer(app, settings, roots));
 }

@@ -40,8 +40,8 @@ extern const ds::BitMask	ENGINE_LOG;
  */
 class Engine : public ui::SpriteEngine {
   public:
-    static const int			CAMERA_ORTHO = 0;
-    static const int			CAMERA_PERSP = 1;
+    static const int						CAMERA_ORTHO = 0;
+    static const int						CAMERA_PERSP = 1;
 
     ~Engine();
 
@@ -54,8 +54,8 @@ class Engine : public ui::SpriteEngine {
                                &getDebugSettings() { return mDebugSettings; }
 
     // only valid after setup() is called
-    ui::Sprite                 &getRootSprite();
-    ui::Sprite                 &getRootPersectiveSprite();
+		int													getRootCount() const;
+    ui::Sprite                 &getRootSprite(const size_t index = 0);
 
     void                        prepareSettings( ci::app::AppBasic::Settings& );
     //called in app setup; loads settings files and what not.
@@ -122,30 +122,34 @@ class Engine : public ui::SpriteEngine {
     Awesomium::WebCore         *getWebCore() const;
     Awesomium::WebSession      *getWebSession() const;
   protected:
-    Engine(ds::App&, const ds::cfg::Settings&);
-    void initializeWeb();
+    Engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
 
     ds::BlobRegistry            mBlobRegistry;
     std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
                                 mSprites;
 
+    void												initializeWeb();
     // Conveniences for the subclases
     void	                      updateClient();
     void	                      updateServer();
     void                        drawClient();
     void                        drawServer();
     void                        setCameraForDraw(const bool perspective = false);
+		// Called from the destructor of all subclasses, so I can cleanup
+		// sprites before services go away.
+		void												clearAllSprites();
 
     static const int            NumberOfNetworkThreads;
 
     Awesomium::WebCore         *mWebCorePtr;
     Awesomium::WebSession      *mWebSessionPtr;
+
   protected:
-    ui::Sprite                  mRootSprite;
-    ui::Sprite                  mRootPerspectiveSprite;
     int                         mTuioPort;
 
   private:
+		std::vector<ui::Sprite*>		mRoots;
+
     ds::ui::Tweenline           mTweenline;
     // A cache of all the resources in the system
     ResourceList                mResources;

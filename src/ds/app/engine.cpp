@@ -39,10 +39,8 @@ const int Engine::NumberOfNetworkThreads = 2;
 /**
  * \class ds::Engine
  */
-Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
+Engine::Engine(ds::App& app, const ds::cfg::Settings &settings, const std::vector<int>* roots)
   : mTweenline(app.timeline())
-  , mRootSprite(*this, ROOT_SPRITE_ID)
-  , mRootPerspectiveSprite(*this, ROOT_PERSPECTIVE_SPRITE_ID, true)
   , mIdleTime(300.0f)
   , mIdling(true)
   , mTouchManager(*this)
@@ -58,6 +56,22 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   , mWebCorePtr(nullptr)
   , mWebSessionPtr(nullptr)
 {
+	// Construct the root sprites
+	if (roots) {
+		sprite_id_t				id = EMPTY_SPRITE_ID-1;
+		for (auto it=roots->begin(), end=roots->end(); it != end; ++it) {
+			ui::Sprite*		s = new ui::Sprite(*this, id, (*it) == Engine::CAMERA_PERSP);
+			if (!s) throw std::runtime_error("Engine can't create root sprite");
+			mRoots.push_back(s);
+			--id;
+		}
+	}
+	if (mRoots.empty()) {
+		ui::Sprite*		s = new ui::Sprite(*this, EMPTY_SPRITE_ID - 1);
+		if (!s) throw std::runtime_error("Engine can't create root sprite");
+		mRoots.push_back(s);
+	}
+
   const std::string     DEBUG_FILE("debug.xml");
   mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
   mDebugSettings.readFrom(ds::Environment::getLocalSettingsPath(DEBUG_FILE), true);
@@ -77,23 +91,20 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   
   mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(1.0f, 1000.0f));
   mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
-  //std::string cameraType = settings.getText("camera:type", 0, "ortho");
-  //if(cameraType == "perspective" || cameraType == "persp"){
-	 // mCameraType = CAMERA_PERSP;
-  //} else {
-	 // mCameraType = CAMERA_ORTHO;
-  //}
-  mRootPerspectiveSprite.setDrawSorted(true);
-  
 
-  bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
+  const bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
-  mRootSprite.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
-
-  if (scaleWorldToFit) {
-    mRootSprite.setScale(getWidth()/getWorldWidth(), getHeight()/getWorldHeight());
-  }
-
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		ds::ui::Sprite&			s = *(*it);
+		if (s.getPerspective()) {
+			s.setDrawSorted(true);
+		} else {
+			s.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
+			if (scaleWorldToFit) {
+				s.setScale(getWidth()/getWorldWidth(), getHeight()/getWorldHeight());
+			}
+		}
+	}
 
   // SETUP RESOURCES
   std::string resourceLocation = settings.getText("resource_location", 0, "");
@@ -131,14 +142,15 @@ Engine::~Engine()
 #endif
 }
 
-ui::Sprite &Engine::getRootSprite()
+int Engine::getRootCount() const
 {
-  return mRootSprite;
+	return mRoots.size();
 }
 
-ui::Sprite &Engine::getRootPersectiveSprite()
+ui::Sprite& Engine::getRootSprite(const size_t index)
 {
-  return mRootPerspectiveSprite;
+	if (index < 0 || index >= mRoots.size()) throw std::runtime_error("Engine::getRootSprite() on invalid index");
+  return *(mRoots[index]);
 }
 
 void Engine::updateClient()
@@ -157,8 +169,9 @@ void Engine::updateClient()
   mUpdateParams.setDeltaTime(dt);
   mUpdateParams.setElapsedTime(curr);
 
-  mRootSprite.updateClient(mUpdateParams);
-  mRootPerspectiveSprite.updateClient(mUpdateParams);
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		(*it)->updateClient(mUpdateParams);
+	}
 }
 
 
@@ -246,8 +259,9 @@ void Engine::updateServer()
 
   mAutoUpdate.update(mUpdateParams);
 
-  mRootSprite.updateServer(mUpdateParams);
-  mRootPerspectiveSprite.updateServer(mUpdateParams);
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		(*it)->updateServer(mUpdateParams);
+	}
 }
 
 void Engine::setCamera(const bool perspective)
@@ -289,6 +303,13 @@ void Engine::setCameraForDraw(const bool perspective){
 	}
 }
 
+void Engine::clearAllSprites()
+{
+	for (auto it=mRoots.begin(), end=mRoots.end(); it != end; ++it) {
+		(*it)->clearChildren();
+	}
+}
+
 void Engine::drawClient()
 {
   glAlphaFunc ( GL_GREATER, 0.001f ) ;
@@ -305,13 +326,11 @@ void Engine::drawClient()
       //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
       gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
-      setCameraForDraw(true);
-      Matrix44f transform = ci::gl::getModelView();
-      mRootPerspectiveSprite.drawClient(transform, mDrawParams);
-
-      setCameraForDraw();
-      transform = ci::gl::getModelView();
-      mRootSprite.drawClient(transform, mDrawParams);
+			for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+				ds::ui::Sprite*			s = (*it);
+				setCameraForDraw(s->getPerspective());
+				s->drawClient(ci::gl::getModelView(), mDrawParams);
+			}
 
       if (mDrawTouches)
         mTouchManager.drawTouches();
@@ -359,18 +378,17 @@ void Engine::drawClient()
     //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
     gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
-    setCameraForDraw(true);
-    Matrix44f transform = ci::gl::getModelView();
-    mRootPerspectiveSprite.drawClient(transform, mDrawParams);
-
-    setCameraForDraw();
-    transform = ci::gl::getModelView();
-    mRootSprite.drawClient(transform, mDrawParams);
+		for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+			ds::ui::Sprite*			s = (*it);
+			setCameraForDraw(s->getPerspective());
+			s->drawClient(ci::gl::getModelView(), mDrawParams);
+		}
 
     if (mDrawTouches)
       mTouchManager.drawTouches();
   }
-  glAlphaFunc(GL_ALWAYS, 0.0f);
+
+  glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
 }
 
 void Engine::drawServer()
@@ -381,18 +399,21 @@ void Engine::drawServer()
   gl::enableAlphaBlending();
   gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
-  setCameraForDraw(true);
-  Matrix44f transform = ci::gl::getModelView();
-  mRootPerspectiveSprite.drawClient(transform, mDrawParams);
-
-  setCameraForDraw();
-  transform = ci::gl::getModelView();
-  mRootSprite.drawServer(transform, mDrawParams);
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		ds::ui::Sprite*			s = (*it);
+		const bool					persp = s->getPerspective();
+		setCameraForDraw(persp);
+		if (persp) {
+			s->drawClient(ci::gl::getModelView(), mDrawParams);
+		} else {
+			s->drawServer(ci::gl::getModelView(), mDrawParams);
+		}
+	}
 
   if (mDrawTouches)
     mTouchManager.drawTouches();
 
-  glAlphaFunc(GL_ALWAYS, 0.0f);
+  glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
 }
 
 void Engine::setup(ds::App&)
@@ -464,16 +485,12 @@ void Engine::startIdling()
   mIdling = true;
 }
 
-static bool illegal_sprite_id(const ds::sprite_id_t id)
-{
-  return id == EMPTY_SPRITE_ID || id == ROOT_SPRITE_ID;
-}
-
 ds::sprite_id_t Engine::nextSpriteId()
 {
   static ds::sprite_id_t              ID = 0;
   ++ID;
-  while (illegal_sprite_id(ID)) ++ID;
+	// Skip negative values.
+	if (ID <= EMPTY_SPRITE_ID) ID = EMPTY_SPRITE_ID + 1;
   return ID;
 }
 

@@ -7,8 +7,8 @@ namespace ds {
 /**
  * \class ds::EngineClientServer
  */
-EngineClientServer::EngineClientServer(ds::App& app, const ds::cfg::Settings& settings)
-    : inherited(app, settings)
+EngineClientServer::EngineClientServer(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
+    : inherited(app, settings, roots)
     , mLoadImageService(mLoadImageThread)
 {
 }
@@ -16,7 +16,7 @@ EngineClientServer::EngineClientServer(ds::App& app, const ds::cfg::Settings& se
 EngineClientServer::~EngineClientServer()
 {
   // It's important to clean up the sprites before the services go away
-  mRootSprite.clearChildren();
+	clearAllSprites();
 }
 
 void EngineClientServer::installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,

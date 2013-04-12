@@ -15,8 +15,8 @@ char              COMMAND_BLOB = 0;
 /**
  * \class ds::EngineClient
  */
-EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings)
-    : inherited(app, settings)
+EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
+    : inherited(app, settings, roots)
     , mLoadImageService(mLoadImageThread)
 //    , mConnection(NumberOfNetworkThreads)
     , mSender(mSendConnection)
@@ -43,7 +43,7 @@ EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings)
 EngineClient::~EngineClient()
 {
   // It's important to clean up the sprites before the services go away
-  mRootSprite.clearChildren();
+	clearAllSprites();
 }
 
 void EngineClient::installSprite( const std::function<void(ds::BlobRegistry&)>& asServer,
@@ -127,7 +127,7 @@ void EngineClient::receiveCommand(ds::DataBuffer& data)
   while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
     if (cmd == CMD_SERVER_SEND_WORLD) {
       std::cout << "receive world" << std::endl;
-      mRootSprite.clearChildren();
+			clearAllSprites();
       setState(mRunningState);
     }
   }
