@@ -381,6 +381,7 @@ void Engine::drawClient()
 		for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 			ds::ui::Sprite*			s = (*it);
 			setCameraForDraw(s->getPerspective());
+			if (s->getPerspective()) glClear(GL_DEPTH_BUFFER_BIT);
 			s->drawClient(ci::gl::getModelView(), mDrawParams);
 		}
 

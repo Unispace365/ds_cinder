@@ -322,6 +322,9 @@ class Sprite : public SpriteAnimatable
 
         Sprite             *mParent;
         std::vector<Sprite *> mChildren; 
+				// A cache for when I need to sort my children. This could be
+				// a lot more efficient, only running the sort when Z changes.
+				std::vector<Sprite*>	mSortedTmp;
 
         // Class-unique key for this type.  Subclasses can replace.
         char                mBlobType;

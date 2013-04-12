@@ -246,13 +246,13 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
     }
     else
     {
-        std::vector<Sprite *> mCopy = mChildren;
-        std::sort( mCopy.begin(), mCopy.end(), [](Sprite *i, Sprite *j)
+        mSortedTmp = mChildren;
+        std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j)
         {
           return i->getPosition().z < j->getPosition().z;
         });
 
-        for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
+        for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
         {
             (*it)->drawClient(totalTransformation, dParams);
         }
