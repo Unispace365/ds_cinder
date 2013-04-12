@@ -388,10 +388,15 @@ void Engine::drawClient()
     if (mDrawTouches)
       mTouchManager.drawTouches();
   }
+
+  glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
 }
 
 void Engine::drawServer()
 {
+  glAlphaFunc ( GL_GREATER, 0.001f ) ;
+  glEnable ( GL_ALPHA_TEST ) ;
+
   gl::enableAlphaBlending();
   gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
@@ -400,14 +405,16 @@ void Engine::drawServer()
 		const bool					persp = s->getPerspective();
 		setCameraForDraw(persp);
 		if (persp) {
-			s->drawClient(Matrix44f::identity(), mDrawParams);
+			s->drawClient(ci::gl::getModelView(), mDrawParams);
 		} else {
-			s->drawServer(Matrix44f::identity(), mDrawParams);
+			s->drawServer(ci::gl::getModelView(), mDrawParams);
 		}
 	}
 
   if (mDrawTouches)
     mTouchManager.drawTouches();
+
+  glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
 }
 
 void Engine::setup(ds::App&)

@@ -1,0 +1,13 @@
+<!DOCTYPE html>
+<html>
+  <body>
+    <div id="preview"> </div>
+    <script src="markdown.js"></script>
+    <script>
+      function SetText(input) {
+        var $ = function (id) { return document.getElementById(id); };
+        $("preview").innerHTML = markdown.toHTML(input);
+      }
+    </script>
+  </body>
+</html>

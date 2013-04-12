@@ -32,3 +32,6 @@ We are currently making use of ZeroMQ, which requires a DLL to be located in the
 copy /Y "$(DS_PLATFORM)\lib\zmq\lib\*" "$(OutDir)"
 3.2.4.  Set Description to something like
 Copying ZMQ
+
+4.
+For using markdown. add AWESOMIUM to the dscinder defines and it will compile the awesomium stuff in. Then copy the files in the "for_markdown" folder to there correct locations.
