@@ -1,0 +1,23 @@
+Getting Started with DsCinder on Python
+=======================================
+
+1. First install a python interpreter.  This has been tested with the standard [Python v3.3] [1] (CPython) release, downloaded directly from from [python.org] [1].
+
+[1]: http://www.python.org/ftp/python/3.3.0/python-3.3.0.msi
+
+2. It might help to install some helpful tools to bootstrap python.  Namely, the [Distribute] [2] and [Pip] [3] packages, built as Windows installers by [Christopher Gohlke] [4].
+
+[2]: http://www.lfd.uci.edu/~gohlke/pythonlibs/2ncns7v9/distribute-0.6.36.win32-py3.3.exe
+[3]: http://www.lfd.uci.edu/~gohlke/pythonlibs/2ncns7v9/pip-1.3.1.win32-py3.3.exe
+[4]: http://www.lfd.uci.edu/~gohlke/pythonlibs/ "Christopher Gohlke"
+
+3. Next, use Pip to install some handy Python packages and tools.  I like to use [IPython](http://ipython.org) and [IPdb](https://pypi.python.org/pypi/ipdb), two python modules that make introspection super easy and nice to look at.
+	`pip install ipython ipdb`
+
+	*Note:* When using ipdb v0.7 on Windows, there is a bug which garbles your console output if you import the module twice.  To remedy this, change line 43 in `C:\Path\to\Python\Lib\site-packages\ipdb\__main__.py` to read:
+	```Python
+		def update_stdout():
+			# setup stdout to ensure output is available with nose
+			#io.stdout = sys.stdout = sys.__stdout__  # <--- Comment this out
+			pass                                      # <--- Add this instead
+	```
