@@ -94,7 +94,7 @@ class SpriteEngine {
 
     std::list<Sprite *>            mDragDestinationSprites;
 
-    std::list<std::unique_ptr<FboGeneral>> mFbos;
+    std::list<std::unique_ptr<FboGeneral> > mFbos;
 };
 
 } // namespace ui
