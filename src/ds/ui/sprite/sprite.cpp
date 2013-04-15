@@ -775,13 +775,13 @@ Sprite *Sprite::getHit( const ci::Vec3f &point )
     }
     else
     {
-      std::vector<Sprite *> mCopy = mChildren;
+      mSortedTmp = mChildren;
       std::sort( mChildren.begin(), mChildren.end(), [](Sprite *i, Sprite *j)
       {
         return i->getZLevel() < j->getZLevel();
       });
 
-        for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
+        for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
         {
             Sprite *child = *it;
             if ( child->isEnabled() && child->contains(point) )
