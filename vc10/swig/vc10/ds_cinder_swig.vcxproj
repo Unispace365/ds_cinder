@@ -111,10 +111,12 @@
     </Swig>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\src\callbacks.cpp" />
     <ClCompile Include="..\src\ds_cinder_swig_wrap.cxx" />
     <ClCompile Include="..\src\run_app.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\src\callbacks.h" />
     <ClInclude Include="..\src\run_app.h" />
   </ItemGroup>
   <ItemGroup>

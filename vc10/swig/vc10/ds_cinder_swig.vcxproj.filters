@@ -28,9 +28,15 @@
     <ClCompile Include="..\src\ds_cinder_swig_wrap.cxx">
       <Filter>Generated Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\callbacks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\run_app.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\callbacks.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

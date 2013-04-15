@@ -1,0 +1,52 @@
+#include <functional>
+#include "cinder/Vector.h"
+
+namespace ds {
+	namespace ui {
+		class Sprite;
+		struct TapInfo;
+		struct DragDestinationInfo;
+	}
+
+	typedef std::function< void (ds::ui::Sprite *, const cinder::Vec3f &)               > TapCallbackFn;
+	typedef std::function< void (ds::ui::Sprite *, const cinder::Vec3f &)               > DoubleTapCallbackFn;
+	typedef std::function< bool (ds::ui::Sprite *, const ds::ui::TapInfo &)             > TapInfoCallbackFn;
+	typedef std::function< void (ds::ui::Sprite *, const cinder::Vec3f &)               > SwipeCallbackFn;
+	typedef std::function< void (ds::ui::Sprite *, const ds::ui::DragDestinationInfo &) > DragDestinationInfoCallbackFn;
+
+	class TapCallback {
+	public:
+		virtual ~TapCallback();
+		virtual void onTap( ds::ui::Sprite *s, const cinder::Vec3f &v );
+		TapCallbackFn func();
+	};
+
+	class DoubleTapCallback {
+	public:
+		virtual ~DoubleTapCallback();
+		virtual void onDoubleTap( ds::ui::Sprite *s, const cinder::Vec3f &v );
+		DoubleTapCallbackFn func();
+	};
+
+	class TapInfoCallback {
+	public:
+		virtual ~TapInfoCallback();
+		virtual bool onTapInfo( ds::ui::Sprite *s, const ds::ui::TapInfo & );
+		TapInfoCallbackFn func();
+	};
+
+	class SwipeCallback {
+	public:
+		virtual ~SwipeCallback();
+		virtual void onSwipe( ds::ui::Sprite *s, const cinder::Vec3f &v );
+		SwipeCallbackFn func();
+	};
+
+	class DragDestinationInfoCallback {
+	public:
+		virtual ~DragDestinationInfoCallback();
+		virtual void onDragDestinationInfo( ds::ui::Sprite *s, const ds::ui::DragDestinationInfo & );
+		DragDestinationInfoCallbackFn func();
+	};
+}
+/* vim: set noet fenc= ff=dos sts=0 sw=4 ts=4 : */
