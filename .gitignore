@@ -2,3 +2,4 @@ vc10/obj
 *.suo
 *.vcxproj.user
 lib/*.lib
+Thumbs.db
