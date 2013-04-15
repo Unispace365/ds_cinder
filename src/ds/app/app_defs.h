@@ -7,9 +7,6 @@ namespace ds {
 typedef int                 sprite_id_t;
 // System-defined illegal sprite
 static const sprite_id_t    EMPTY_SPRITE_ID = 0;
-// System-defined root sprite, there is always one, and apps can't manage it.
-// All other sprites descend from this sprite.
-static const sprite_id_t    ROOT_SPRITE_ID = -1;
 
 // Blob termination for network traffic
 static const char           TERMINATOR_CHAR = 0;

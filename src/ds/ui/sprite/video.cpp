@@ -96,8 +96,14 @@ void Video::drawLocalClient()
 
       Rectf screenRect = mEngine.getScreenRect();
       gl::setViewport(Area((int)screenRect.getX1(), (int)screenRect.getY2(), (int)screenRect.getX2(), (int)screenRect.getY1()));
-      Rectf area(0.0f, getHeight(), getWidth(), 0.0f);
-      gl::draw( mFbo.getTexture(0), area );
+
+      if (getPerspective()) {
+        Rectf area(0.0f, 0.0f, getWidth(), getHeight());
+        gl::draw( mFbo.getTexture(0), area );
+      } else {
+        Rectf area(0.0f, getHeight(), getWidth(), 0.0f);
+        gl::draw( mFbo.getTexture(0), area );
+      }
     }
 }
 

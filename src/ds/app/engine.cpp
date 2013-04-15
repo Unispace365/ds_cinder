@@ -1,5 +1,9 @@
 #include "ds/app/engine.h"
 
+#ifdef AWESOMIUM
+#pragma comment(lib, "awesomium.lib")
+#endif
+
 #include <GL/glu.h>
 #include "ds/app/app.h"
 #include "ds/app/environment.h"
@@ -9,6 +13,8 @@
 #include "ds/config/settings.h"
 #include "Poco/Path.h"
 #include "cinder/Thread.h"
+#include "CinderAwesomium.h"
+#include "Awesomium/WebSession.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -33,9 +39,8 @@ const int Engine::NumberOfNetworkThreads = 2;
 /**
  * \class ds::Engine
  */
-Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
+Engine::Engine(ds::App& app, const ds::cfg::Settings &settings, const std::vector<int>* roots)
   : mTweenline(app.timeline())
-  , mRootSprite(*this, ROOT_SPRITE_ID)
   , mIdleTime(300.0f)
   , mIdling(true)
   , mTouchManager(*this)
@@ -44,9 +49,29 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   , mSwipeQueueSize(4)
   , mDoubleTapTime(0.1f)
   , mSettings(settings)
+  , mCameraPerspNearPlane(1.0f)
+  , mCameraPerspFarPlane(1000.0f)
   , mSystemMultitouchEnabled(false)
   , mApplyFxAA(false)
+  , mWebCorePtr(nullptr)
+  , mWebSessionPtr(nullptr)
 {
+	// Construct the root sprites
+	if (roots) {
+		sprite_id_t				id = EMPTY_SPRITE_ID-1;
+		for (auto it=roots->begin(), end=roots->end(); it != end; ++it) {
+			ui::Sprite*		s = new ui::Sprite(*this, id, (*it) == Engine::CAMERA_PERSP);
+			if (!s) throw std::runtime_error("Engine can't create root sprite");
+			mRoots.push_back(s);
+			--id;
+		}
+	}
+	if (mRoots.empty()) {
+		ui::Sprite*		s = new ui::Sprite(*this, EMPTY_SPRITE_ID - 1);
+		if (!s) throw std::runtime_error("Engine can't create root sprite");
+		mRoots.push_back(s);
+	}
+
   const std::string     DEBUG_FILE("debug.xml");
   mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
   mDebugSettings.readFrom(ds::Environment::getLocalSettingsPath(DEBUG_FILE), true);
@@ -61,24 +86,25 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
   mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
   mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
   mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
+
+  mCameraPosition = ci::Vec3f(0.0f, 0.0f, 100.0f);
   
-  mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(-1000.0f, 1000.0f));
-  mCameraFOV = settings.getFloat("camera:fov", 0, 30.0f);
-  std::string cameraType = settings.getText("camera:type", 0, "ortho");
-  if(cameraType == "perspective" || cameraType == "persp"){
-	  mCameraType = CAMERA_PERSP;
-  } else {
-	  mCameraType = CAMERA_ORTHO;
-  }
-  
+  mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(1.0f, 1000.0f));
+  mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
 
-  bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
+  const bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
-  mRootSprite.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
-
-  if (scaleWorldToFit) {
-    mRootSprite.setScale(getWidth()/getWorldWidth(), getHeight()/getWorldHeight());
-  }
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		ds::ui::Sprite&			s = *(*it);
+		if (s.getPerspective()) {
+			s.setDrawSorted(true);
+		} else {
+			s.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
+			if (scaleWorldToFit) {
+				s.setScale(getWidth()/getWorldWidth(), getHeight()/getWorldHeight());
+			}
+		}
+	}
 
   // SETUP RESOURCES
   std::string resourceLocation = settings.getText("resource_location", 0, "");
@@ -108,11 +134,23 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings)
 Engine::~Engine()
 {
   mTuio.disconnect();
+
+#ifdef AWESOMIUM
+  if (mWebCorePtr) {
+    Awesomium::WebCore::Shutdown();
+  }
+#endif
 }
 
-ui::Sprite &Engine::getRootSprite()
+int Engine::getRootCount() const
 {
-  return mRootSprite;
+	return mRoots.size();
+}
+
+ui::Sprite& Engine::getRootSprite(const size_t index)
+{
+	if (index < 0 || index >= mRoots.size()) throw std::runtime_error("Engine::getRootSprite() on invalid index");
+  return *(mRoots[index]);
 }
 
 void Engine::updateClient()
@@ -125,10 +163,15 @@ void Engine::updateClient()
     mIdling = true;
   }
 
+  if (mWebCorePtr)
+    mWebCorePtr->Update();
+
   mUpdateParams.setDeltaTime(dt);
   mUpdateParams.setElapsedTime(curr);
 
-  mRootSprite.updateClient(mUpdateParams);
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		(*it)->updateClient(mUpdateParams);
+	}
 }
 
 
@@ -208,39 +251,70 @@ void Engine::updateServer()
     mIdling = true;
   }
 
+  if (mWebCorePtr)
+    mWebCorePtr->Update();
+
   mUpdateParams.setDeltaTime(dt);
   mUpdateParams.setElapsedTime(curr);
 
   mAutoUpdate.update(mUpdateParams);
 
-  mRootSprite.updateServer(mUpdateParams);
-}
-
-void Engine::setCamera()
-{
-	if(mCameraType == CAMERA_ORTHO){
-		gl::setViewport(Area((int)mScreenRect.getX1(), (int)mScreenRect.getY2(), (int)mScreenRect.getX2(), (int)mScreenRect.getY1()));
-		mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), mCameraZClipping.x, mCameraZClipping.y);
-		gl::setMatrices(mCamera);
-	} else if(mCameraType == CAMERA_PERSP){
-		mCameraPersp.setPerspective(mCameraFOV, getWorldWidth () / getWorldHeight(), mCameraZClipping.x, mCameraZClipping.y );
-		mCameraPersp.lookAt( ci::Vec3f(0, 0, -getWorldWidth()/2.0f), Vec3f(0.0f, 0.0f, 0.0f), Vec3f(0.0f, 0.0f, 1.0f) );
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		(*it)->updateServer(mUpdateParams);
 	}
-	setCameraForDraw();
 }
 
-void Engine::setCameraForDraw(){
-	if(mCameraType == CAMERA_ORTHO){
+void Engine::setCamera(const bool perspective)
+{
+	if(!perspective){
+		gl::setViewport(Area((int)mScreenRect.getX1(), (int)mScreenRect.getY2(), (int)mScreenRect.getX2(), (int)mScreenRect.getY1()));
+		mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1, 1);
+		//gl::setMatrices(mCamera);
+	} else {
+
+    mCameraPersp.setEyePoint( Vec3f(0.0f, 0.0f, 100.0f) );
+    mCameraPersp.setCenterOfInterestPoint( Vec3f(0.0f, 0.0f, 0.0f) );
+    mCameraPersp.setPerspective( 60.0f, getWindowAspectRatio(), mCameraPerspNearPlane, mCameraPerspFarPlane );
+		//mCameraPersp.setPerspective(mCameraFOV, getWindowAspectRatio(), mCameraZClipping.x, mCameraZClipping.y );
+		//mCameraPersp.lookAt( mCameraPosition, mCameraTarget, Vec3f(0.0f, 1.0f, 0.0f) );
+	}
+
+	setCameraForDraw(perspective);
+}
+
+void Engine::setPerspectiveCameraPlanes(const float nearPlane, const float farPlane)
+{
+  mCameraPerspNearPlane = nearPlane;
+  mCameraPerspFarPlane = farPlane;
+}
+
+void Engine::setCameraForDraw(const bool perspective){
+	if(!perspective){
 		//mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
-		gl::setMatrices(mCamera);
-	} else if(mCameraType == CAMERA_PERSP){
-		gl::setMatrices(mCameraPersp);
-		gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
+    gl::setMatrices(mCamera);
+    gl::disableDepthRead();
+    gl::disableDepthWrite();
+	} else {
+    gl::setMatrices(mCameraPersp);
+    // enable the depth buffer (after all, we are doing 3D)
+    //gl::enableDepthRead();
+    //gl::enableDepthWrite();
+		//gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
+	}
+}
+
+void Engine::clearAllSprites()
+{
+	for (auto it=mRoots.begin(), end=mRoots.end(); it != end; ++it) {
+		(*it)->clearChildren();
 	}
 }
 
 void Engine::drawClient()
 {
+  glAlphaFunc ( GL_GREATER, 0.001f ) ;
+  glEnable ( GL_ALPHA_TEST ) ;
+
   if (mApplyFxAA) {
     {
       gl::SaveFramebufferBinding bindingSaver;
@@ -248,13 +322,15 @@ void Engine::drawClient()
       // bind the framebuffer - now everything we draw will go there
       mFbo.bindFramebuffer();
 
-	  setCameraForDraw();
-
       gl::enableAlphaBlending();
       //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
       gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
-      mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
+			for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+				ds::ui::Sprite*			s = (*it);
+				setCameraForDraw(s->getPerspective());
+				s->drawClient(ci::gl::getModelView(), mDrawParams);
+			}
 
       if (mDrawTouches)
         mTouchManager.drawTouches();
@@ -298,36 +374,54 @@ void Engine::drawClient()
       gl::draw( mFbo.getTexture(0), screen );
     }
   } else {	  
-	  setCameraForDraw();
-
     gl::enableAlphaBlending();
     //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
     gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
-    mRootSprite.drawClient(Matrix44f::identity(), mDrawParams);
+		for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+			ds::ui::Sprite*			s = (*it);
+			setCameraForDraw(s->getPerspective());
+			if (s->getPerspective()) glClear(GL_DEPTH_BUFFER_BIT);
+			s->drawClient(ci::gl::getModelView(), mDrawParams);
+		}
 
     if (mDrawTouches)
       mTouchManager.drawTouches();
   }
+
+  glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
 }
 
 void Engine::drawServer()
 {
+  glAlphaFunc ( GL_GREATER, 0.001f ) ;
+  glEnable ( GL_ALPHA_TEST ) ;
+
   gl::enableAlphaBlending();
   gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
 
-	setCameraForDraw();
-
-  mRootSprite.drawServer(Matrix44f::identity(), mDrawParams);
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		ds::ui::Sprite*			s = (*it);
+		const bool					persp = s->getPerspective();
+		setCameraForDraw(persp);
+		if (persp) {
+			s->drawClient(ci::gl::getModelView(), mDrawParams);
+		} else {
+			s->drawServer(ci::gl::getModelView(), mDrawParams);
+		}
+	}
 
   if (mDrawTouches)
     mTouchManager.drawTouches();
+
+  glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
 }
 
 void Engine::setup(ds::App&)
 {
   //mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
   //gl::setMatrices(mCamera);
+  setCamera(true);
   setCamera();
   //gl::disable(GL_CULL_FACE);
   //////////////////////////////////////////////////////////////////////////
@@ -367,6 +461,11 @@ void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )
     settings.setBorderless(true);
   settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 
+  if (mSettings.getBool("web:use", 0, false)) {
+    //add falg to engine.xml to check here.
+    initializeWeb();
+  }
+
   const std::string     nope = "ds:IllegalTitle";
   const std::string     title = mSettings.getText("screen:title", 0, nope);
   if (title != nope) settings.setTitle(title);
@@ -387,16 +486,12 @@ void Engine::startIdling()
   mIdling = true;
 }
 
-static bool illegal_sprite_id(const ds::sprite_id_t id)
-{
-  return id == EMPTY_SPRITE_ID || id == ROOT_SPRITE_ID;
-}
-
 ds::sprite_id_t Engine::nextSpriteId()
 {
   static ds::sprite_id_t              ID = 0;
   ++ID;
-  while (illegal_sprite_id(ID)) ++ID;
+	// Skip negative values.
+	if (ID <= EMPTY_SPRITE_ID) ID = EMPTY_SPRITE_ID + 1;
   return ID;
 }
 
@@ -577,6 +672,47 @@ void Engine::resetIdleTimeOut()
   mLastTime = curr;
   mLastTouchTime = curr;
   mIdling = false;
+}
+
+void Engine::setPerspectiveCameraPosition( const ci::Vec3f &pos )
+{
+  mCameraPersp.setEyePoint(pos);
+}
+
+ci::Vec3f Engine::getPerspectiveCameraPosition() const
+{
+  return mCameraPersp.getEyePoint();
+}
+
+void Engine::setPerspectiveCameraTarget( const ci::Vec3f &tar )
+{
+  mCameraPersp.setCenterOfInterestPoint(tar);
+}
+
+ci::Vec3f Engine::getPerspectiveCameraTarget() const
+{
+  return mCameraPersp.getCenterOfInterestPoint();
+}
+
+void Engine::initializeWeb()
+{
+  #ifdef AWESOMIUM
+  Awesomium::WebConfig cnf;
+  cnf.log_level = Awesomium::kLogLevel_Verbose;
+
+  // initialize the Awesomium web engine
+  mWebCorePtr = Awesomium::WebCore::Initialize( cnf );
+  #endif
+}
+
+Awesomium::WebCore *Engine::getWebCore() const
+{
+  return mWebCorePtr;
+}
+
+Awesomium::WebSession *Engine::getWebSession() const
+{
+  return mWebSessionPtr;
 }
 
 } // namespace ds

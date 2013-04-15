@@ -40,8 +40,8 @@ extern const ds::BitMask	ENGINE_LOG;
  */
 class Engine : public ui::SpriteEngine {
   public:
-	  static const int			CAMERA_ORTHO = 0;
-	  static const int			CAMERA_PERSP = 1;
+    static const int						CAMERA_ORTHO = 0;
+    static const int						CAMERA_PERSP = 1;
 
     ~Engine();
 
@@ -54,7 +54,9 @@ class Engine : public ui::SpriteEngine {
                                &getDebugSettings() { return mDebugSettings; }
 
     // only valid after setup() is called
-    ui::Sprite                 &getRootSprite();
+		int													getRootCount() const;
+    ui::Sprite                 &getRootSprite(const size_t index = 0);
+
     void                        prepareSettings( ci::app::AppBasic::Settings& );
     //called in app setup; loads settings files and what not.
     virtual void                setup(ds::App&);
@@ -96,7 +98,14 @@ class Engine : public ui::SpriteEngine {
     float                       getWorldWidth() const;
     float                       getWorldHeight() const;
 
-    void                        setCamera();
+    virtual void                setCamera(const bool perspective = false);
+    // Used by the perspective camera to set the near and far planes
+    void                        setPerspectiveCameraPlanes(const float near, const float far);
+
+    virtual void                setPerspectiveCameraPosition(const ci::Vec3f &pos);
+    virtual ci::Vec3f           getPerspectiveCameraPosition() const;
+    virtual void                setPerspectiveCameraTarget(const ci::Vec3f &tar);
+    virtual ci::Vec3f           getPerspectiveCameraTarget() const;
 
     // Can be used by apps to stop services before exiting.
     // This will happen automatically, but some apps might want
@@ -106,31 +115,41 @@ class Engine : public ui::SpriteEngine {
     bool                        systemMultitouchEnabled() const;
     bool                        hideMouse() const;
 
-	virtual void                clearFingers( const std::vector<int> &fingers );
+  virtual void                clearFingers( const std::vector<int> &fingers );
 
-	void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
+  void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 
+    Awesomium::WebCore         *getWebCore() const;
+    Awesomium::WebSession      *getWebSession() const;
   protected:
-    Engine(ds::App&, const ds::cfg::Settings&);
+    Engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
 
     ds::BlobRegistry            mBlobRegistry;
     std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
                                 mSprites;
 
+    void												initializeWeb();
     // Conveniences for the subclases
     void	                      updateClient();
     void	                      updateServer();
     void                        drawClient();
     void                        drawServer();
-	void						setCameraForDraw();
+    void                        setCameraForDraw(const bool perspective = false);
+		// Called from the destructor of all subclasses, so I can cleanup
+		// sprites before services go away.
+		void												clearAllSprites();
 
     static const int            NumberOfNetworkThreads;
 
+    Awesomium::WebCore         *mWebCorePtr;
+    Awesomium::WebSession      *mWebSessionPtr;
+
   protected:
-    ui::Sprite                  mRootSprite;
     int                         mTuioPort;
 
   private:
+		std::vector<ui::Sprite*>		mRoots;
+
     ds::ui::Tweenline           mTweenline;
     // A cache of all the resources in the system
     ResourceList                mResources;
@@ -159,10 +178,15 @@ class Engine : public ui::SpriteEngine {
     const ds::cfg::Settings    &mSettings;
     ds::cfg::Settings           mDebugSettings;
     ci::CameraOrtho             mCamera;
-	ci::CameraPersp				mCameraPersp;
-	ci::Vec2f					mCameraZClipping;
-	float						mCameraFOV;
-	int							mCameraType;
+    ci::CameraPersp				     mCameraPersp;
+    ci::Vec2f					         mCameraZClipping;
+    float						           mCameraFOV;
+    int							           mCameraType;
+    float                      mCameraPerspNearPlane,
+                               mCameraPerspFarPlane;
+
+    ci::Vec3f                  mCameraPosition;
+    ci::Vec3f                  mCameraTarget;
 
     ci::gl::Fbo                 mFbo;
 

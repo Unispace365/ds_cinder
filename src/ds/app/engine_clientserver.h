@@ -16,7 +16,7 @@ namespace ds {
  */
 class EngineClientServer : public Engine {
   public:
-    EngineClientServer(ds::App&, const ds::cfg::Settings&);
+    EngineClientServer(ds::App&, const ds::cfg::Settings&, const std::vector<int>* = nullptr);
     ~EngineClientServer();
 
     virtual ds::WorkManager       &getWorkManager()         { return mWorkManager; }

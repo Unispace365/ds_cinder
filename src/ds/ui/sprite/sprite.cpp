@@ -91,12 +91,14 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mIdleTimer(engine)
     , mLastWidth(width)
     , mLastHeight(height)
+    , mPerspective(false)
+    , mUseDepthBuffer(false)
 {
   init(mEngine.nextSpriteId());
   setSize(width, height);
 }
 
-Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id )
+Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id, const bool perspective )
     : mEngine(engine)
     , mId(ds::EMPTY_SPRITE_ID)
     , mTouchProcess(engine, *this)
@@ -104,6 +106,8 @@ Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id )
     , mIdleTimer(engine)
     , mLastWidth(0)
     , mLastHeight(0)
+    , mPerspective(perspective)
+    , mUseDepthBuffer(false)
 {
   init(id);
 }
@@ -208,6 +212,13 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
       }
 
       ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);
+      if (mUseDepthBuffer) {
+        ci::gl::enableDepthRead();
+        ci::gl::enableDepthWrite();
+      } else {
+        ci::gl::disableDepthRead();
+        ci::gl::disableDepthWrite();
+      }
       drawLocalClient();
 
       if (shaderBase) {
@@ -235,13 +246,13 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
     }
     else
     {
-        std::vector<Sprite *> mCopy = mChildren;
-        std::sort( mCopy.begin(), mCopy.end(), [](Sprite *i, Sprite *j)
+        mSortedTmp = mChildren;
+        std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j)
         {
-          return i->getZLevel() < j->getZLevel();
+          return i->getPosition().z < j->getPosition().z;
         });
 
-        for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
+        for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
         {
             (*it)->drawClient(totalTransformation, dParams);
         }
@@ -262,11 +273,18 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
   ci::Matrix44f totalTransformation = trans*mTransformation;
 
   ci::gl::pushModelView();
-  glLoadIdentity();
+  //glLoadIdentity();d
   ci::gl::multModelView(totalTransformation);
 
   if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
     ci::gl::color(mServerColor);
+    if (mUseDepthBuffer) {
+      ci::gl::enableDepthRead();
+      ci::gl::enableDepthWrite();
+    } else {
+      ci::gl::disableDepthRead();
+      ci::gl::disableDepthWrite();
+    }
     drawLocalServer();
   }
 
@@ -421,6 +439,10 @@ const ci::Matrix44f &Sprite::getTransform() const
 
 void Sprite::addChild( Sprite &child )
 {
+  if (this == &child) {
+    throw std::runtime_error("Trying to add a Sprite to itself.");
+  }
+
     if ( containsChild(&child) )
         return;
 
@@ -430,6 +452,9 @@ void Sprite::addChild( Sprite &child )
 
     mChildren.push_back(&child);
     child.setParent(this);
+    child.setPerspective(mPerspective);
+    child.setDrawSorted(getDrawSorted());
+    child.setUseDepthBuffer(mUseDepthBuffer);
 }
 
 // Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
@@ -440,6 +465,9 @@ void Sprite::addChildHack( Sprite &child )
     return;
 
   mChildren.push_back(&child);
+  child.setPerspective(mPerspective);
+  child.setDrawSorted(getDrawSorted());
+  child.setUseDepthBuffer(mUseDepthBuffer);
 }
 
 void Sprite::removeChild( Sprite &child )
@@ -449,8 +477,10 @@ void Sprite::removeChild( Sprite &child )
 
     auto found = std::find(mChildren.begin(), mChildren.end(), &child);
     mChildren.erase(found);
-    if (child.getParent() == this)
+    if (child.getParent() == this) {
       child.setParent(nullptr);
+      child.setPerspective(false);
+    }
 }
 
 void Sprite::setParent( Sprite *parent )
@@ -811,11 +841,6 @@ const ci::Matrix44f    &Sprite::getInverseTransform() const
 bool Sprite::hasMultiTouchConstraint( const BitMask &constraint ) const
 {
   return mMultiTouchConstraints & constraint;
-}
-
-bool Sprite::multiTouchConstraintNotZero() const
-{
-  return mMultiTouchConstraints.getFirstIndex() >= 0;
 }
 
 void Sprite::swipe( const ci::Vec3f &swipeVector )
@@ -1522,6 +1547,38 @@ void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touc
 	newTouchInfo.mPhase = TouchInfo::Added; 
 	destinationSprite->processTouchInfo(newTouchInfo);
 }
+
+bool Sprite::getPerspective() const
+{
+  return mPerspective;
+}
+
+void Sprite::setPerspective( const bool perspective )
+{
+  mPerspective = perspective;
+
+  for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+  	(*it)->setPerspective(perspective);
+  }
+}
+
+void Sprite::setUseDepthBuffer( bool useDepth )
+{
+  mUseDepthBuffer = useDepth;
+
+  for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+  	(*it)->setUseDepthBuffer(mUseDepthBuffer);
+  }
+}
+
+bool Sprite::getUseDepthBuffer() const
+{
+  return mUseDepthBuffer;
+}
+
+
+
+
 
 } // namespace ui
 } // namespace ds

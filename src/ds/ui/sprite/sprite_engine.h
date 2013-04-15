@@ -9,6 +9,11 @@
 #include "fbo/fbo.h"
 #include <memory>
 
+namespace Awesomium {
+class WebCore;
+class WebSession;
+}
+
 namespace ds {
 class AutoUpdateList;
 class FontList;
@@ -59,7 +64,12 @@ class SpriteEngine {
     std::unique_ptr<FboGeneral>    getFbo();
     void                           giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
 
-    virtual void                   setCamera() = 0;
+    virtual void                   setCamera(const bool perspective = false) = 0;
+    // Camera control
+    virtual void                   setPerspectiveCameraPosition(const ci::Vec3f &pos) = 0;
+    virtual ci::Vec3f              getPerspectiveCameraPosition() const = 0;
+    virtual void                   setPerspectiveCameraTarget(const ci::Vec3f &tar) = 0;
+    virtual ci::Vec3f              getPerspectiveCameraTarget() const = 0;
 
     void                           addToDragDestinationList(Sprite *sprite);
     void                           removeFromDragDestinationList(Sprite *sprite);
@@ -75,7 +85,10 @@ class SpriteEngine {
     static const int               CLIENTSERVER_MODE = 2;
     virtual int                    getMode() const = 0;
 
+    virtual Awesomium::WebCore    *getWebCore() const = 0;
+    virtual Awesomium::WebSession *getWebSession() const = 0;
   protected:
+
     SpriteEngine()                 { }
     virtual ~SpriteEngine()        { }
 

@@ -200,7 +200,10 @@ void Text::drawLocalClient()
 
   if (mTexture) {
     mTexture.bind();
-    ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture.getHeight()), static_cast<float>(mTexture.getWidth()), 0.0f));
+    if (getPerspective())
+      ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight())));
+    else
+      ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture.getHeight()), static_cast<float>(mTexture.getWidth()), 0.0f));
     mTexture.unbind();
   }
 
@@ -493,7 +496,7 @@ void Text::drawIntoFbo()
       ci::gl::Texture::Format format;
       format.setTarget(GL_TEXTURE_2D);
       //format.setMagFilter(GL_NEAREST);
-      mTexture = ci::gl::Texture(w, h);
+      mTexture = ci::gl::Texture(w, h, format);
     }
 
     gl::enableAlphaBlending();
@@ -514,9 +517,9 @@ void Text::drawIntoFbo()
 
 
       ci::gl::clear(ColorA(1.0f, 1.0f, 1.0f, 0.0f));
-      ci::gl::color(Color(1.0f, 1.0f, 1.0f));
+      ci::gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 
-      mFont->setForegroundColor( 1.0f, 1.0f, 1.0f );
+      mFont->setForegroundColor( 1.0f, 1.0f, 1.0f, 0.99f );
       mFont->setBackgroundColor( 1.0f, 1.0f, 1.0f, 0.0f );
       //std::cout << "Size: " << lines.size() << std::endl;
       float height = mFont->pointSize();

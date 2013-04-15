@@ -27,6 +27,7 @@ class BitMask {
      */
     BitMask(const int index);
 
+    bool          operator!=(const BitMask&) const;
     void          operator|=(const BitMask&);
     BitMask       operator|(const BitMask&) const;
     void          operator&=(const BitMask&);

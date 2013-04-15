@@ -54,6 +54,8 @@ class Sprite : public SpriteAnimatable
         // Generic sprite creation function
         template <typename T>
         static T&           make(SpriteEngine&, Sprite* parent = nullptr);
+        template <typename T>
+        static T&           makeAlloc(const std::function<T*(void)>& allocFn, Sprite* parent = nullptr);
 
         template <typename T>
         static void removeAndDelete(T *&sprite);
@@ -191,7 +193,6 @@ class Sprite : public SpriteAnimatable
         void                disableMultiTouch();
         bool                multiTouchEnabled() const;
         bool                hasMultiTouchConstraint( const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS ) const;
-        bool                multiTouchConstraintNotZero() const;
 
         bool                inBounds() const;
         void                setCheckBounds(bool checkBounds);
@@ -226,6 +227,12 @@ class Sprite : public SpriteAnimatable
 
         // Special function to mark every sprite from me down as dirty.
         void                markTreeAsDirty();
+
+
+        bool                getPerspective() const;
+
+        void                setUseDepthBuffer(bool useDepth);
+        bool                getUseDepthBuffer() const;
 
         /*
          * \brief must be passed inside handle touch Moved or else will result in an infinite loop.
@@ -277,6 +284,9 @@ class Sprite : public SpriteAnimatable
         void                sendSpriteToFront(Sprite &sprite);
         void                sendSpriteToBack(Sprite &sprite);
 
+
+        void setPerspective(const bool);
+
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
 
@@ -312,6 +322,9 @@ class Sprite : public SpriteAnimatable
 
         Sprite             *mParent;
         std::vector<Sprite *> mChildren; 
+				// A cache for when I need to sort my children. This could be
+				// a lot more efficient, only running the sort when Z changes.
+				std::vector<Sprite*>	mSortedTmp;
 
         // Class-unique key for this type.  Subclasses can replace.
         char                mBlobType;
@@ -336,11 +349,13 @@ class Sprite : public SpriteAnimatable
 
         IdleTimer           mIdleTimer;
 
+        bool                mUseDepthBuffer;
+
   private:
         friend class Engine;
         // Internal constructor just for the Engine, used to create the root sprite,
         // which always exists and is identical across all architectures.
-        Sprite(SpriteEngine&, const ds::sprite_id_t);
+        Sprite(SpriteEngine&, const ds::sprite_id_t id, const bool perspective = false);
 
         void                init(const ds::sprite_id_t);
         void                readAttributesFrom(ds::DataBuffer&);
@@ -352,6 +367,10 @@ class Sprite : public SpriteAnimatable
         ci::gl::Texture     mRenderTarget;
 
         BlendMode           mBlendMode;
+
+        //set flag for determining whether to use orthoganol or perspective.
+        // this flag is only set on the root perspective sprite.
+        bool mPerspective;
 
         //set by sprite constructors. doesn't need to be passed through.
         bool                mUseShaderTexture; 
@@ -374,6 +393,15 @@ template <typename T>
 static T& Sprite:: make(SpriteEngine& e, Sprite* parent)
 {
   T*                    s = new T(e);
+  if (!s) throw std::runtime_error("Can't create sprite");
+  if (parent) parent->addChild(*s);
+  return *s;
+}
+
+template <typename T>
+static T& Sprite:: makeAlloc(const std::function<T*(void)>& allocFn, Sprite* parent)
+{
+  T*                    s = allocFn();
   if (!s) throw std::runtime_error("Can't create sprite");
   if (parent) parent->addChild(*s);
   return *s;

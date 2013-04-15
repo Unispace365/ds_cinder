@@ -133,7 +133,15 @@ void Image::drawLocalClient()
     }
     return;
   }
-  ci::gl::draw(mTexture);
+  //ci::gl::draw(mTexture);
+  if (mTexture) {
+    mTexture.bind();
+    if (getPerspective())
+      ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture.getHeight()), static_cast<float>(mTexture.getWidth()), 0.0f));
+    else
+      ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight())));
+    mTexture.unbind();
+  }
 }
 
 void Image::setSizeAll( float width, float height, float depth )
