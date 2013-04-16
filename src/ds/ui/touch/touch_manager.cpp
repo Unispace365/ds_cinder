@@ -209,6 +209,15 @@ Sprite* TouchManager::getHit(const ci::Vec3f &point)
 {
 	for (int k=mEngine.getRootCount()-1; k>=0; --k) {
 		Sprite* s = mEngine.getRootSprite(k).getHit(point);
+#if 0
+		// Need to translate from screen to world coords, but this isn't working
+		if (s && s->getPerspective()) {
+			ds::ScreenToWorld&	cp = mEngine.getScreenToWorld();
+			ci::Vec3f						pt = cp.translate(point);
+
+			std::cout << "from=" << point << " to=" << pt << std::endl;
+		}
+#endif
 		if (s) return s;
 	}
   return nullptr;

@@ -24,6 +24,7 @@
 #include "ds/network/zmq_connection.h"
 #include "ds/data/raw_data_buffer.h"
 #include "cinder/gl/Fbo.h"
+#include "ds/app/camera_utils.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -106,6 +107,9 @@ class Engine : public ui::SpriteEngine {
     virtual ci::Vec3f           getPerspectiveCameraPosition() const;
     virtual void                setPerspectiveCameraTarget(const ci::Vec3f &tar);
     virtual ci::Vec3f           getPerspectiveCameraTarget() const;
+		// Tmp
+		ci::CameraPersp&						getPerspectiveCamera() { return mCameraPersp; }
+		ds::ScreenToWorld&					getScreenToWorld() { return mScreenToWorld; }
 
     // Can be used by apps to stop services before exiting.
     // This will happen automatically, but some apps might want
@@ -187,6 +191,8 @@ class Engine : public ui::SpriteEngine {
 
     ci::Vec3f                  mCameraPosition;
     ci::Vec3f                  mCameraTarget;
+
+		ds::ScreenToWorld						mScreenToWorld;
 
     ci::gl::Fbo                 mFbo;
 

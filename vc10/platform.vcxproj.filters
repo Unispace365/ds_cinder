@@ -381,6 +381,9 @@
     <ClInclude Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.h">
       <Filter>src\lib\Awesomium</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\camera_utils.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -601,6 +604,9 @@
     </ClCompile>
     <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp">
       <Filter>src\lib\Awesomium</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\camera_utils.cpp">
+      <Filter>src\ds\app</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

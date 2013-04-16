@@ -28,6 +28,7 @@
     <ClInclude Include="..\src\ds\app\auto_update_list.h" />
     <ClInclude Include="..\src\ds\app\blob_reader.h" />
     <ClInclude Include="..\src\ds\app\blob_registry.h" />
+    <ClInclude Include="..\src\ds\app\camera_utils.h" />
     <ClInclude Include="..\src\ds\app\engine.h" />
     <ClInclude Include="..\src\ds\app\engine_client.h" />
     <ClInclude Include="..\src\ds\app\engine_clientserver.h" />
@@ -120,6 +121,7 @@
     <ClCompile Include="..\src\ds\app\auto_update_list.cpp" />
     <ClCompile Include="..\src\ds\app\blob_reader.cpp" />
     <ClCompile Include="..\src\ds\app\blob_registry.cpp" />
+    <ClCompile Include="..\src\ds\app\camera_utils.cpp" />
     <ClCompile Include="..\src\ds\app\engine.cpp" />
     <ClCompile Include="..\src\ds\app\engine_client.cpp" />
     <ClCompile Include="..\src\ds\app\engine_clientserver.cpp" />
