@@ -1,9 +1,18 @@
 #include "callbacks.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/touch/touch_info.h"
+#include "ds/ui/touch/tap_info.h"
 #include "ds/ui/touch/drag_destination_info.h"
 
 namespace ds {
+
+TouchInfoCallback::~TouchInfoCallback() {}
+void TouchInfoCallback::onTouchInfo( ds::ui::Sprite *s, const ds::ui::TouchInfo &ti ) {}
+TouchInfoCallbackFn TouchInfoCallback::func() {
+	return ( [this](ds::ui::Sprite *s, const ds::ui::TouchInfo &ti) {
+			this->onTouchInfo( s, ti );
+	});
+}
 
 TapCallback::~TapCallback() {}
 void TapCallback::onTap( ds::ui::Sprite *s, const cinder::Vec3f &v ) {}

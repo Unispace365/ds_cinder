@@ -4,15 +4,25 @@
 namespace ds {
 	namespace ui {
 		class Sprite;
+		struct TouchInfo;
 		struct TapInfo;
 		struct DragDestinationInfo;
 	}
 
+	typedef std::function< void (ds::ui::Sprite *, const ds::ui::TouchInfo &)           > TouchInfoCallbackFn;
 	typedef std::function< void (ds::ui::Sprite *, const cinder::Vec3f &)               > TapCallbackFn;
 	typedef std::function< void (ds::ui::Sprite *, const cinder::Vec3f &)               > DoubleTapCallbackFn;
 	typedef std::function< bool (ds::ui::Sprite *, const ds::ui::TapInfo &)             > TapInfoCallbackFn;
 	typedef std::function< void (ds::ui::Sprite *, const cinder::Vec3f &)               > SwipeCallbackFn;
 	typedef std::function< void (ds::ui::Sprite *, const ds::ui::DragDestinationInfo &) > DragDestinationInfoCallbackFn;
+
+
+	class TouchInfoCallback {
+	public:
+		virtual ~TouchInfoCallback();
+		virtual void onTouchInfo( ds::ui::Sprite *s, const ds::ui::TouchInfo &ti );
+		TouchInfoCallbackFn func();
+	};
 
 	class TapCallback {
 	public:

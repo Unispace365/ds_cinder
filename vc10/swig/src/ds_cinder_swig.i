@@ -20,6 +20,7 @@
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/text_layout.h"
 #include "ds/ui/sprite/text.h"
+#include "ds/ui/sprite/multiline_text.h"
 #include "ds/ui/sprite/util/blend.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 #include "ds/ui/sprite/dirty_state.h"
@@ -42,7 +43,7 @@
 %import "ds/ui/sprite/shader/sprite_shader.h"
 %import "ds/ui/sprite/util/blend.h"
 %import "ds/ui/sprite/dirty_state.h"
-%import "ds/util/bit_mask.h"
+%include "ds/util/bit_mask.h"
 
 %include "cinder/app/Event.h"
 %include "cinder/app/KeyEvent.h"
@@ -141,27 +142,63 @@ namespace std {
 	};
 }
 %template(CinderEaseFn) std::function< float (float) >;
+
+%template(DsTouchInfoCallbackFn)           std::function< void (ds::ui::Sprite *, const ds::ui::TouchInfo &)           >;
 %template(DsTapCallbackFn)                 std::function< void (ds::ui::Sprite *, const cinder::Vec3f &)               >;
 %template(DsTapInfoCallbackFn)             std::function< bool (ds::ui::Sprite *, const ds::ui::TapInfo &)             >;
 %template(DsDragDestinationInfoCallbackFn) std::function< void (ds::ui::Sprite *, const ds::ui::DragDestinationInfo &) >;
 
+
+
+
 // Add an EaseFn conversion method to Ease functors that can be passed parameters
-%extend cinder::EaseInBounce { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseInBounce { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseOutBounce { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseInOutBounce { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseOutInBounce { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseInBack { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseOutBack { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseInOutBack { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseOutInBack { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseInElastic { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseOutElastic { cinder::EaseFn func() { return *$self; } }
+
+
+%extend cinder::EaseNone         { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInQuad       { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutQuad      { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInOutQuad    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutInQuad    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInCubic      { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutCubic     { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInOutCubic   { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutInCubic   { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInQuart      { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutQuart     { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInOutQuart   { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutInQuart   { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInQuint      { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutQuint     { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInOutQuint   { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutInQuint   { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInSine       { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutSine      { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInOutSine    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutInSine    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInExpo       { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutExpo      { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInOutExpo    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutInExpo    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInCirc       { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutCirc      { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInOutCirc    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutInCirc    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInBounce     { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInBounce     { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutBounce    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInOutBounce  { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutInBounce  { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInBack       { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutBack      { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInOutBack    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutInBack    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInElastic    { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutElastic   { cinder::EaseFn func() { return *$self; } }
 %extend cinder::EaseInOutElastic { cinder::EaseFn func() { return *$self; } }
 %extend cinder::EaseOutInElastic { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseInAtan { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseOutAtan { cinder::EaseFn func() { return *$self; } }
-%extend cinder::EaseInOutAtan { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInAtan       { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseOutAtan      { cinder::EaseFn func() { return *$self; } }
+%extend cinder::EaseInOutAtan    { cinder::EaseFn func() { return *$self; } }
 
 // Cinder vector classes
 %ignore NaN;
@@ -179,6 +216,24 @@ namespace std {
 %template(Vec2f) cinder::Vec2<float>;
 %template(Vec3f) cinder::Vec3<float>;
 
+%pythoncode %{
+def vec3f_str(self):
+	return "Vec3f[ %6.2f %6.2f %6.2f ]" % ( self.x, self.y, self.z )
+Vec3f.__str__ = vec3f_str
+Vec3f.__repr__ = vec3f_str
+
+def vec2f_str(self):
+	return "Vec2f[ %6.2f %6.2f ]" % ( self.x, self.y )
+Vec2f.__str__ = vec2f_str
+Vec2f.__repr__ = vec2f_str
+
+def vec2i_str(self):
+	return "Vec2i[ %5d %5d ]" % ( self.x, self.y )
+Vec2i.__str__ = vec2i_str
+Vec2i.__repr__ = vec2i_str
+%}
+
+
 %include "ds/ui/tween/tweenline.h"
 %include "ds/ui/tween/sprite_anim.h"
 //%import "ds/ui/sprite/sprite_engine.h"
@@ -187,6 +242,8 @@ namespace ds { namespace ui {
 	public:
 	virtual float                  getWorldWidth() const = 0;
 	virtual float                  getWorldHeight() const = 0;
+    void                           addToDragDestinationList(Sprite *sprite);
+    void                           removeFromDragDestinationList(Sprite *sprite);
 
 	protected:
 		virtual ~SpriteEngine();
@@ -197,7 +254,11 @@ namespace ds { namespace ui {
 %include "ds/ui/sprite/image.h"
 %include "ds/ui/sprite/text_layout.h"
 %include "ds/ui/sprite/text.h"
+%include "ds/ui/sprite/multiline_text.h"
 %include "ds/ui/touch/multi_touch_constraints.h"
+%include "ds/ui/touch/touch_info.h"
+%include "ds/ui/touch/tap_info.h"
+%include "ds/ui/touch/drag_destination_info.h"
 
 %extend ds::ui::Sprite {
 	void tweenPositionTo( const Vec3f &pos, float d, cinder::EaseFn easeFunction = cinder::easeNone ) {
@@ -235,6 +296,7 @@ namespace std {
 	%template(SpriteVector) vector< ds::ui::Sprite *>;
 }
 
+%feature("director") ds::TouchInfoCallback;
 %feature("director") ds::TapCallback;
 %feature("director") ds::DoubleTapCallback;
 %feature("director") ds::TapInfoCallback;
