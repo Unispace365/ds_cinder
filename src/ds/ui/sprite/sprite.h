@@ -27,6 +27,7 @@ namespace ds {
 
 class BlobReader;
 class BlobRegistry;
+class CameraPick;
 class DataBuffer;
 class DrawParams;
 class Engine;
@@ -176,6 +177,7 @@ class Sprite : public SpriteAnimatable
 
         // finds Sprite at position
         Sprite             *getHit( const ci::Vec3f &point );
+        Sprite             *getPerspectiveHit(CameraPick&);
 
         void                setProcessTouchCallback( const std::function<void (Sprite *, const TouchInfo &)> &func );
         // Stateful tap is the new-style and should be preferred over others.  It lets you
@@ -230,6 +232,9 @@ class Sprite : public SpriteAnimatable
 
 
         bool                getPerspective() const;
+				// Total hack resulting from my unfamiliarity with 3D systems. This can sometimes be necessary for
+				// views that are inside of perspective cameras, but are expressed in screen coordinates.
+				void								setIsInScreenCoordsHack(const bool);
 
         void                setUseDepthBuffer(bool useDepth);
         bool                getUseDepthBuffer() const;
@@ -379,6 +384,11 @@ class Sprite : public SpriteAnimatable
         // This to make onSizeChanged() more efficient -- it can get
         // triggered as a result of position changes, which shouldn't affect it.
         float               mLastWidth, mLastHeight;
+
+				// Total hack needed in certain cases where you're using a perspective camera.
+				// This is used by the picking to let the touch system know that the sprite
+				// (position/dimensions) are in the screen coordinate space.
+				bool								mIsInScreenCoordsHack;
 
     public:
         static void           installAsServer(ds::BlobRegistry&);

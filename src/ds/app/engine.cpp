@@ -99,6 +99,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings, const std::vecto
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		ds::ui::Sprite&			s = *(*it);
 		if (s.getPerspective()) {
+			s.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
 			s.setDrawSorted(true);
 		} else {
 			s.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());

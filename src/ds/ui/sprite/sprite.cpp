@@ -3,6 +3,7 @@
 #include "gl/GL.h"
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
+#include "ds/app/camera_utils.h"
 #include "ds/data/data_buffer.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
@@ -134,6 +135,7 @@ void Sprite::init(const ds::sprite_id_t id)
   mBlobType = BLOB_TYPE;
   mBlendMode = NORMAL;
   mUseShaderTexture = false;
+	mIsInScreenCoordsHack = false;
 
   setSpriteId(id);
 
@@ -776,7 +778,7 @@ Sprite *Sprite::getHit( const ci::Vec3f &point )
     else
     {
       mSortedTmp = mChildren;
-      std::sort( mChildren.begin(), mChildren.end(), [](Sprite *i, Sprite *j)
+      std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j)
       {
         return i->getZLevel() < j->getZLevel();
       });
@@ -796,6 +798,41 @@ Sprite *Sprite::getHit( const ci::Vec3f &point )
         return this;
 
     return nullptr;
+}
+
+Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
+{
+	if (!visible())
+		return nullptr;
+
+	for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it ) {
+		Sprite*		hit = (*it)->getPerspectiveHit(pick);
+		if (hit) {
+			return hit;
+		}
+	}
+
+	if (isEnabled()) {
+		const float						w = getWidth(),
+													h = getHeight();
+		ci::Vec3f							a = getPosition();
+		a.x += (-mCenter.x*w);
+		a.y += (mCenter.y*h);
+		ci::Vec2f							lt = ci::Vec2f(a.x, a.y);
+		ci::Vec2f							rb(a.x + w, a.y - h);
+		if (!mIsInScreenCoordsHack) {
+			lt = pick.worldToScreen(a);
+			rb = pick.worldToScreen(ci::Vec3f(rb.x, rb.y, a.z));
+		} else {
+			rb.y = a.y + h;
+		}
+		ci::Rectf							r(lt.x, lt.y, rb.x, rb.y);
+		if (r.contains(ci::Vec2f(pick.getScreenPt().x, pick.getScreenPt().y))) {
+			return this;
+		}
+	}
+
+	return nullptr;
 }
 
 void Sprite::setProcessTouchCallback( const std::function<void (Sprite *, const TouchInfo &)> &func )
@@ -1560,6 +1597,11 @@ void Sprite::setPerspective( const bool perspective )
   for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
   	(*it)->setPerspective(perspective);
   }
+}
+
+void Sprite::setIsInScreenCoordsHack(const bool b)
+{
+	mIsInScreenCoordsHack = b;
 }
 
 void Sprite::setUseDepthBuffer( bool useDepth )

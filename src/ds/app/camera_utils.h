@@ -2,6 +2,7 @@
 #ifndef DS_APP_CAMERAUTILS_H
 #define DS_APP_CAMERAUTILS_H
 
+#include <cinder/Camera.h>
 #include <cinder/Rect.h>
 #include <cinder/Vector.h>
 #include <cinder/Matrix22.h>
@@ -11,10 +12,31 @@
 namespace ds {
 
 /**
+ * \class ds::CameraPick
+ * Utility for picking a sprite.
+ */
+class CameraPick
+{
+	public:
+		CameraPick(	ci::Camera&, const ci::Vec3f& screenPt,
+								const float screenWidth, const float screenHeight);
+
+		const ci::Vec3f&	getScreenPt() const;
+		ci::Vec2f					worldToScreen(const ci::Vec3f &worldCoord) const;
+
+  private:
+		ci::Camera&				mCamera;
+		const ci::Vec3f		mScreenPt;
+		const float				mScreenW,
+											mScreenH;
+};
+
+/**
  * \class ds::ScreenToWorld
  * Utility for converting screen points to world points.
  * Pulled from cinder forums:
  *	http://forum.libcinder.org/topic/converting-the-mouse-position-to-3d-world-cordinates
+ * NOTE: Can't get it to work. So, it'd be nice, but...
  */
 class ScreenToWorld
 {
