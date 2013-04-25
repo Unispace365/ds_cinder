@@ -25,7 +25,7 @@
     <ClCompile Include="..\src\run_app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds_cinder_swig_wrap.cxx">
+    <ClCompile Include="..\src\ds_cinder_wrap.cxx">
       <Filter>Generated Files</Filter>
     </ClCompile>
     <ClCompile Include="..\src\callbacks.cpp">
@@ -39,9 +39,12 @@
     <ClInclude Include="..\src\callbacks.h">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds_cinder_wrap.h">
+      <Filter>Generated Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\lib\ds_cinder_swig.py">
+    <None Include="..\lib\ds_cinder.py">
       <Filter>Python Files</Filter>
     </None>
     <None Include="..\..\..\example\python_example\python_example.py">
@@ -49,7 +52,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Swig Include="..\src\ds_cinder_swig.i">
+    <Swig Include="..\src\ds_cinder.i">
       <Filter>Swig Files</Filter>
     </Swig>
   </ItemGroup>

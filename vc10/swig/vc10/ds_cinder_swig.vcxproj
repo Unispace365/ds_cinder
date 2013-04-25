@@ -14,7 +14,8 @@
     <ProjectGuid>{3F6FDEAA-3DB7-4387-B35C-7FF7A63555E3}</ProjectGuid>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <Keyword>ManagedCProj</Keyword>
-    <RootNamespace>ds_cinder_swig</RootNamespace>
+    <RootNamespace>ds_cinder</RootNamespace>
+    <ProjectName>ds_cinder</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -105,23 +106,23 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Swig Include="..\src\ds_cinder_swig.i">
-      <swigexe Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(UserProfile)\code\swig\swig.exe</swigexe>
-      <outdir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(OutDir)</outdir>
-    </Swig>
-  </ItemGroup>
-  <ItemGroup>
     <ClCompile Include="..\src\callbacks.cpp" />
-    <ClCompile Include="..\src\ds_cinder_swig_wrap.cxx" />
+    <ClCompile Include="..\src\ds_cinder_wrap.cxx" />
     <ClCompile Include="..\src\run_app.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\callbacks.h" />
+    <ClInclude Include="..\src\ds_cinder_wrap.h" />
     <ClInclude Include="..\src\run_app.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\example\python_example\python_example.py" />
-    <None Include="..\lib\ds_cinder_swig.py" />
+    <None Include="..\lib\ds_cinder.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Swig Include="..\src\ds_cinder.i">
+      <swigexe Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\..\swig\swig.exe</swigexe>
+    </Swig>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

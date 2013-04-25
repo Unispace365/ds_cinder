@@ -1,4 +1,4 @@
-%module (directors="1") ds_cinder_swig
+%module (directors="1") ds_cinder
 %feature("autodoc","1");
 
 %include "nice_exception.i"
@@ -15,6 +15,7 @@
 #define CINDER_MSW
 
 #include "cinder/app/KeyEvent.h"
+#include "cinder/Timeline.h"
 #include "ds/ui/tween/sprite_anim.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/image.h"
@@ -123,6 +124,7 @@ class AppBasic : public cinder::app::App {
 	virtual bool		isFullScreen() const;
 	virtual void		setFullScreen( bool fullScreen );
 	virtual ~AppBasic();
+	virtual void		setFrameRate( float frameRate );
 };
 
 } } //namespace app, cinder
@@ -261,36 +263,121 @@ namespace ds { namespace ui {
 %include "ds/ui/touch/drag_destination_info.h"
 
 %extend ds::ui::Sprite {
-	void tweenPositionTo( const Vec3f &pos, float d, cinder::EaseFn easeFunction = cinder::easeNone ) {
+	void tweenPositionTo( 
+			const Vec3f &pos,
+			float d, 
+			cinder::EaseFn easeFunction = cinder::easeNone, 
+			float delay = 0.0f ) {
 		$self->getEngine().getTweenline().apply(
 			*$self,
 			$self->ANIM_POSITION(),
-			pos, d,
-			easeFunction
-		);
+			pos, d, easeFunction, nullptr, delay );
+	}
+	void tweenPositionTo( 
+			float x, float y,
+			float d, 
+			cinder::EaseFn easeFunction = cinder::easeNone, 
+			float delay = 0.0f ) {
+		Vec3f pos( x, y, $self->getPosition().z );
+		$self->getEngine().getTweenline().apply(
+			*$self,
+			$self->ANIM_POSITION(),
+			pos, d, easeFunction, nullptr, delay );
 	}
 
-	void tweenScaleTo( const Vec3f &pos, float d, cinder::EaseFn easeFunction = cinder::easeNone ) {
+	void tweenScaleTo( 
+			const Vec3f &scale, 
+			float d, 
+			cinder::EaseFn easeFunction = cinder::easeNone, 
+			float delay = 0.0f ) {
 		$self->getEngine().getTweenline().apply(
 			*$self,
 			$self->ANIM_SCALE(),
-			pos, d,
-			easeFunction
-		);
+			scale, d, easeFunction, nullptr, delay );
 	}
 
-	void tweenRotationTo( const Vec3f &rot, float d, cinder::EaseFn easeFunction = cinder::easeNone ) {
+	void tweenScaleTo( 
+			float sx, float sy,
+			float d, 
+			cinder::EaseFn easeFunction = cinder::easeNone, 
+			float delay = 0.0f ) {
+		Vec3f scale( sx, sy, $self->getScale().z );
+		$self->getEngine().getTweenline().apply(
+			*$self,
+			$self->ANIM_SCALE(),
+			scale, d, easeFunction, nullptr, delay );
+	}
+
+	void tweenRotationTo(
+			const Vec3f &rot,
+			float d, 
+			cinder::EaseFn easeFunction = cinder::easeNone, 
+			float delay = 0.0f ) {
 		$self->getEngine().getTweenline().apply(
 			*$self,
 			$self->ANIM_ROTATION(),
-			rot, d,
-			easeFunction
-		);
+			rot, d, easeFunction, nullptr, delay );
 	}
+
+	void tweenSizeTo(
+			const Vec3f &size,
+			float d, 
+			cinder::EaseFn easeFunction = cinder::easeNone, 
+			float delay = 0.0f ) {
+		$self->getEngine().getTweenline().apply(
+			*$self,
+			$self->ANIM_SIZE(),
+			size, d, easeFunction, nullptr, delay );
+	}
+
+	void tweenSizeTo( 
+			float w, float h,
+			float d, 
+			cinder::EaseFn easeFunction = cinder::easeNone, 
+			float delay = 0.0f ) {
+		Vec3f size( w, h, $self->getDepth() );
+		$self->getEngine().getTweenline().apply(
+			*$self,
+			$self->ANIM_SIZE(),
+			size, d, easeFunction, nullptr, delay );
+	}
+
+	void tweenOpacityTo( 
+			float o,
+			float d,
+			cinder::EaseFn easeFunction = cinder::easeNone, 
+			float delay = 0.0f ) {
+		$self->getEngine().getTweenline().apply(
+			*$self,
+			$self->ANIM_OPACITY(),
+			o, d, easeFunction, nullptr, delay );
+	}
+
+	void tweenColorTo( 
+			const Vec3f &color,
+			float d,
+			cinder::EaseFn easeFunction = cinder::easeNone, 
+			float delay = 0.0f ) {
+
+		auto& timeline = $self->getEngine().getTweenline().getTimeline();
+		auto anim = new cinder::Anim<cinder::Vec3f>();
+
+		auto start_color = $self->getColor();
+		Vec3f start( start_color.r, start_color.g, start_color.b );
+
+		auto ans = timeline.apply( anim, start, color, d, easeFunction );
+		ds::ui::Sprite* s_ptr = $self;
+		const Vec3f* value_ptr = anim->ptr();
+		ans.updateFn( [s_ptr, value_ptr](){ s_ptr->setColor( value_ptr->x, value_ptr->y, value_ptr->z ); } );
+		ans.finishFn( [anim](){ delete anim; } );
+		ans.delay(delay);
+	}
+
 }
 
 %include "ds/app/engine.h"
 %include "ds/app/app.h"
+%include "ds/params/update_params.h"
 %include "run_app.h"
 namespace std {
 	%template(SpriteVector) vector< ds::ui::Sprite *>;
