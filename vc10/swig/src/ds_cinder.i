@@ -16,12 +16,14 @@
 
 #include "cinder/app/KeyEvent.h"
 #include "cinder/Timeline.h"
+#include "cinder/Color.h"
 #include "ds/ui/tween/sprite_anim.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/text_layout.h"
 #include "ds/ui/sprite/text.h"
 #include "ds/ui/sprite/multiline_text.h"
+#include "ds/ui/sprite/video.h"
 #include "ds/ui/sprite/util/blend.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 #include "ds/ui/sprite/dirty_state.h"
@@ -49,6 +51,16 @@
 %include "cinder/app/Event.h"
 %include "cinder/app/KeyEvent.h"
 %include "cinder/app/MouseEvent.h"
+
+%ignore cinder::ColorT::operator=;
+%ignore cinder::ColorT::operator[];
+%ignore cinder::ColorAT::operator=;
+%ignore cinder::ColorAT::operator[];
+%rename(to_float_ptr) "cinder::ColorT::operator T*";
+%rename(to_const_float_ptr) "cinder::ColorT::operator const T*";
+%include "stdint.i"
+%include "cinder/Color.h"
+%template(CinderColor) cinder::ColorT<float>;
 
 %ignore getSettings() const;
 %ignore getSettings;
@@ -211,8 +223,6 @@ namespace std {
 %ignore cinder::Vec3::operator=;
 %ignore cinder::Vec4::operator=;
 %ignore operator<<;
-%ignore operator<<;
-%ignore operator<<;
 %include "cinder/Vector.h"
 %template(Vec2i) cinder::Vec2<int>;
 %template(Vec2f) cinder::Vec2<float>;
@@ -257,7 +267,9 @@ namespace ds { namespace ui {
 %include "ds/ui/sprite/text_layout.h"
 %include "ds/ui/sprite/text.h"
 %include "ds/ui/sprite/multiline_text.h"
+%include "ds/ui/sprite/video.h"
 %include "ds/ui/touch/multi_touch_constraints.h"
+
 %include "ds/ui/touch/touch_info.h"
 %include "ds/ui/touch/tap_info.h"
 %include "ds/ui/touch/drag_destination_info.h"
