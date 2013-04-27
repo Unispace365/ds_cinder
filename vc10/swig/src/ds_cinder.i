@@ -371,17 +371,20 @@ namespace ds { namespace ui {
 			cinder::EaseFn easeFunction = cinder::easeNone, 
 			float delay = 0.0f ) {
 
-		auto& timeline = $self->getEngine().getTweenline().getTimeline();
-		auto anim = new cinder::Anim<cinder::Vec3f>();
+		static std::map< ds::ui::Sprite*, cinder::Anim<cinder::Vec3f> > animMap;
+		auto i = animMap.find( $self );
+		if ( i == animMap.end() )
+			animMap.insert( std::make_pair( $self, cinder::Anim<cinder::Vec3f>() ) );
+		auto& anim = animMap[$self];
 
+		auto& timeline = $self->getEngine().getTweenline().getTimeline();
 		auto start_color = $self->getColor();
 		Vec3f start( start_color.r, start_color.g, start_color.b );
 
-		auto ans = timeline.apply( anim, start, color, d, easeFunction );
+		auto ans = timeline.apply( &anim, start, color, d, easeFunction );
 		ds::ui::Sprite* s_ptr = $self;
-		const Vec3f* value_ptr = anim->ptr();
+		const Vec3f* value_ptr = anim.ptr();
 		ans.updateFn( [s_ptr, value_ptr](){ s_ptr->setColor( value_ptr->x, value_ptr->y, value_ptr->z ); } );
-		ans.finishFn( [anim](){ delete anim; } );
 		ans.delay(delay);
 	}
 
