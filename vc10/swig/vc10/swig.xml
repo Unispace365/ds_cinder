@@ -43,103 +43,103 @@
       HelpContext="0"
       DisplayName="Debug Classes"
       Description="Display information about the classes found in the interface"
-      Switch="-debug-classes" />
+      Switch="-debug-classes " />
     <BoolProperty
       Name="debugsymtabs"
       Category="Debug"
       HelpContext="0"
       DisplayName="Debug Symbol tables"
       Description="Display symbol tables information"
-      Switch="-debug-symtabs" />
+      Switch="-debug-symtabs " />
     <BoolProperty
       Name="debugsymbols"
       Category="Debug"
       HelpContext="0"
       DisplayName="Debug Symbols"
       Description="Display target language symbols in the symbol tables"
-      Switch="-debug-symbols" />
+      Switch="-debug-symbols " />
     <BoolProperty
       Name="debugcsymbols"
       Category="Debug"
       HelpContext="0"
       DisplayName="Debug C Symbols"
       Description="Display C symbols in the symbol tables"
-      Switch="-debug-csymbols" />
+      Switch="-debug-csymbols " />
     <BoolProperty
       Name="debuglsymbols"
       Category="Debug"
       HelpContext="0"
       DisplayName="Debug Layer Symbols"
       Description="Display target language layer symbols"
-      Switch="-debug-lsymbols" />
+      Switch="-debug-lsymbols " />
     <BoolProperty
       Name="debugtags"
       Category="Debug"
       HelpContext="0"
       DisplayName="Debug Tags"
       Description="Display information about the tags found in the interface"
-      Switch="-debug-tags" />
+      Switch="-debug-tags " />
     <BoolProperty
       Name="debugtemplate"
       Category="Debug"
       HelpContext="0"
       DisplayName="Debug Template"
       Description="Display information for debugging templates"
-      Switch="-debug-template" />
+      Switch="-debug-template " />
     <BoolProperty
       Name="debugtypedef"
       Category="Debug"
       HelpContext="0"
       DisplayName="Debug Typedef"
       Description="Display information about the types and typedefs in the interface"
-      Switch="-debug-typedef" />
+      Switch="-debug-typedef " />
     <BoolProperty
       Name="debugtypemap"
       Category="Debug"
       HelpContext="0"
       DisplayName="Debug Typemap"
       Description="Display typemap debugging information"
-      Switch="-debug-typemap" />
+      Switch="-debug-typemap " />
     <BoolProperty
       Name="debugtmsearch"
       Category="Debug"
       HelpContext="0"
       DisplayName="Debug Typemap Search"
       Description="Display typemap search debugging information"
-      Switch="-debug-tmsearch" />
+      Switch="-debug-tmsearch " />
     <BoolProperty
       Name="debugtmused"
       Category="Debug"
       HelpContext="0"
       DisplayName="Debug Typemap Used"
       Description="Display typemaps used debugging information"
-      Switch="-debug-tmused" />
+      Switch="-debug-tmused " />
     <StringProperty
       Name="swigexe"
       HelpContext="0"
       DisplayName="Swig Executable File"
       Description="Allows you to change the Swig executable filename and path"
-      Switch="[value]" />
+      Switch="[value] " />
     <StringListProperty
       Name="additionalincludes"
       HelpContext="0"
       DisplayName="Additional include directories"
       Description="Specifies one or more directories to add to the include path; use semi-colon delimited list if more than one."
       Separator=";"
-      Switch="-I[value]" />
+      Switch="-I[value] " />
     <StringListProperty
       Name="testincludes"
       HelpContext="0"
       DisplayName="OMG TEST"
       Description="OMG TEST"
       Separator=";"
-      Switch="-I[value]" />
+      Switch="-I[value] " />
     <StringProperty
       Name="outdir"
       HelpContext="0"
       DisplayName="Output Directory"
       Description="Directory where generated target-language moules shall be placed"
-      Switch="-outdir [value]" />
+      Switch="-outdir [value] " />
     <EnumProperty
       Name="sourcelanguage"
       HelpContext="0"
@@ -148,11 +148,11 @@
       <EnumValue
         Name="0"
         DisplayName="C"
-        Switch="-c" />
+        Switch="-c " />
       <EnumValue
         Name="1"
         DisplayName="C++"
-        Switch="-c++" />
+        Switch="-c++ " />
     </EnumProperty>
     <EnumProperty
       Name="targetlanguage"
@@ -162,11 +162,11 @@
       <EnumValue
         Name="0"
         DisplayName="Python"
-        Switch="-python" />
+        Switch="-python " />
       <EnumValue
         Name="1"
         DisplayName="Ruby"
-        Switch="-ruby" />
+        Switch="-ruby " />
     </EnumProperty>
     <StringProperty
       Name="CommandLineTemplate"
