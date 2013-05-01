@@ -17,6 +17,7 @@
 #include "cinder/app/KeyEvent.h"
 #include "cinder/Timeline.h"
 #include "cinder/Color.h"
+#include "cinder/gl/GlslProg.h"
 #include "ds/ui/tween/sprite_anim.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/image.h"
@@ -42,8 +43,13 @@
 %feature("director") cinder::app::AppBasic;
 %feature("director") ds::App;
 %feature("director") ds::ui::Sprite;
+%feature("director") ds::ui::ShaderSprite;
+%feature("nodirector") ds::ui::Sprite::drawClient;
+%feature("nodirector") ds::ui::Sprite::drawServer;
+%feature("nodirector") ds::ui::Sprite::updateClient;
+%feature("nodirector") ds::ui::Sprite::drawLocalClient;
+//%feature("nodirector") ds::ui::Sprite::updateServer;
 
-%import "ds/ui/sprite/shader/sprite_shader.h"
 %import "ds/ui/sprite/util/blend.h"
 %import "ds/ui/sprite/dirty_state.h"
 %include "ds/util/bit_mask.h"
@@ -51,6 +57,7 @@
 %include "cinder/app/Event.h"
 %include "cinder/app/KeyEvent.h"
 %include "cinder/app/MouseEvent.h"
+%include "ds/ui/sprite/shader/sprite_shader.h"
 
 %ignore cinder::ColorT::operator=;
 %ignore cinder::ColorT::operator[];
@@ -141,6 +148,8 @@ class AppBasic : public cinder::app::App {
 
 } } //namespace app, cinder
 
+%rename(to_unspecified_bool_type) "cinder::gl::GlslProg::operator unspecified_bool_type";
+%include "cinder/gl/GlslProg.h"
 
 //----------------------------------
 // Cinder Tweening/Easing functions
@@ -268,6 +277,7 @@ namespace ds { namespace ui {
 %include "ds/ui/sprite/text.h"
 %include "ds/ui/sprite/multiline_text.h"
 %include "ds/ui/sprite/video.h"
+%include "ds/ui/sprite/shader/sprite_shader.h"
 %include "ds/ui/touch/multi_touch_constraints.h"
 
 %include "ds/ui/touch/touch_info.h"

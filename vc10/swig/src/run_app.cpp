@@ -16,6 +16,34 @@ namespace ds {
 		cinder::app::AppBasic::executeLaunch( app, ren, "CinderApp" );
 		cinder::app::AppBasic::cleanupLaunch();
 		return 0;
-	} 
-}
+	}
+
+	namespace ui {
+
+	ShaderSprite::ShaderSprite( SpriteEngine &engine, float w, float h, const std::string &filename )
+		: Sprite(engine, w, h)
+	{
+		setTransparent( false );
+		if ( filename != "" )
+			setBaseShader( "data/shaders/", filename )
+	}
+
+	void ShaderSprite::drawLocalClient() {
+		ci::gl::GlslProg &shaderBase = mSpriteShader.getShader();
+		if (shaderBase) {
+			shaderBase.bind();
+			onBindShader( shaderBase );
+		}
+		Sprite::drawLocalClient();
+	}
+
+	void ShaderSprite::onBindShader( ci::gl::GlslProg &shader ) {
+	}
+
+	cinder::gl::GlslProg * ShaderSprite::getShader() {
+		return &getBaseShader().getShader();
+	}
+
+	} // namespace ui
+} //namespace ds
 
