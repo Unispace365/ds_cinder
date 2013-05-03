@@ -41,7 +41,18 @@
 
 //%feature("director") cinder::app::App;
 %feature("director") cinder::app::AppBasic;
+%feature("nodirector") cinder::app::App::getWindowHeight;
+%feature("nodirector") cinder::app::App::getWindowWidth;
+%feature("nodirector") cinder::app::AppBasic::getWindowHeight;
+%feature("nodirector") cinder::app::AppBasic::getWindowWidth;
 %feature("director") ds::App;
+%feature("nodirector") ds::App::touchesBegan;
+%feature("nodirector") ds::App::touchesMoved;
+%feature("nodirector") ds::App::touchesEnded;
+%feature("nodirector") ds::Engine::touchesBegin;
+%feature("nodirector") ds::Engine::touchesMoved;
+%feature("nodirector") ds::Engine::touchesEnded;
+
 %feature("director") ds::ui::Sprite;
 %feature("director") ds::ui::ShaderSprite;
 %feature("nodirector") ds::ui::Sprite::drawClient;
