@@ -140,8 +140,10 @@ class Sprite : public SpriteAnimatable
         // sends sprite to back of parents child list.
         void                sendToBack();
 
-        virtual void        setColor( const ci::Color &color );
-        virtual void        setColor( float r, float g, float b );
+        virtual void        setColor(const ci::Color&);
+        virtual void        setColor(float r, float g, float b);
+				// A convenience to set the color and the opacity
+				void								setColorA(const ci::ColorA&);
         ci::Color           getColor() const;
 
         void                setOpacity( float opacity );
