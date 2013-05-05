@@ -11,7 +11,10 @@
 #include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
 // For installing the image generators
+#include "ds/ui/image_source/image_arc.h"
 #include "ds/ui/image_source/image_file.h"
+// For verifying that the resources are installed
+#include "ds/app/FrameworkResources.h"
 
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
@@ -48,7 +51,15 @@ App::App(const std::vector<int>* roots)
                         [](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
 
 	// Initialize the engine image generator typess.
+	ds::ui::ImageArc::install(mEngine.getImageRegistry());
 	ds::ui::ImageFile::install(mEngine.getImageRegistry());
+
+	// Verify that the application has included the framework resources.
+	try {
+		ci::DataSourceRef ds = loadResource(RES_ARC_DROPSHADOW);
+	} catch (std::exception&) {
+		std::cout << "ERROR Failed to load framework resource -- did you include FrameworkResources.rc in your application project?" << std::endl;
+	}
 }
 
 App::~App()
