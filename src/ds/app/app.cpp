@@ -8,7 +8,10 @@
 #include "ds/debug/debug_defines.h"
 // For installing the sprite types
 #include "ds/ui/sprite/image.h"
+#include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
+// For installing the image generators
+#include "ds/ui/image_source/image_source_file.h"
 
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
@@ -39,8 +42,13 @@ App::App(const std::vector<int>* roots)
                         [](ds::BlobRegistry& r){ds::ui::Sprite::installAsClient(r);});
   mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Image::installAsServer(r);},
                         [](ds::BlobRegistry& r){ds::ui::Image::installAsClient(r);});
+  mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
+                        [](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
   mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
                         [](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
+
+	// Initialize the engine image generator typess.
+	ds::ui::ImageSourceFile::install(mEngine.getImageSourceRegistry());
 }
 
 App::~App()

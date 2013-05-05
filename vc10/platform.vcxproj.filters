@@ -94,6 +94,9 @@
     <Filter Include="src\lib\Awesomium">
       <UniqueIdentifier>{16413bf8-880a-440b-975d-6471bad2acdc}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\image_source">
+      <UniqueIdentifier>{75b81987-e661-4733-8256-dfb5ba9b9b0b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\app\app_defs.h">
@@ -384,6 +387,21 @@
     <ClInclude Include="..\src\ds\app\camera_utils.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_source.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_source_file.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\image_source_registry.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_client.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -607,6 +625,21 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\camera_utils.cpp">
       <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_source.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_source_file.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\image_source_registry.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_client.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
