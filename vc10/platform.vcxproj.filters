@@ -393,14 +393,17 @@
     <ClInclude Include="..\src\ds\ui\image_source\image_source.h">
       <Filter>src\ds\ui\image_source</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_source_file.h">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\image_source_registry.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\image_source\image_client.h">
       <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_generator.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_file.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\image_registry.h">
+      <Filter>src\ds\app</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -632,14 +635,17 @@
     <ClCompile Include="..\src\ds\ui\image_source\image_source.cpp">
       <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_source_file.cpp">
-      <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\image_source_registry.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\image_source\image_client.cpp">
       <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_generator.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\image_registry.cpp">
+      <Filter>src\ds\app</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

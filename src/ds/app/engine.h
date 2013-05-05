@@ -7,7 +7,7 @@
 #include "ds/app/app_defs.h"
 #include "ds/app/auto_update_list.h"
 #include "ds/app/blob_registry.h"
-#include "ds/app/image_source_registry.h"
+#include "ds/app/image_registry.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
 #include "ds/params/draw_params.h"
@@ -51,8 +51,7 @@ class Engine : public ui::SpriteEngine {
     virtual void                draw() = 0;
 
     virtual ds::AutoUpdateList &getAutoUpdateList() { return mAutoUpdate; }
-		virtual ds::ImageSourceRegistry
-																&getImageSourceRegistry() { return mImageSourceRegistry; }
+		virtual ds::ImageRegistry	 &getImageRegistry() { return mImageRegistry; }
     virtual ds::ui::Tweenline  &getTweenline() { return mTweenline; }
     virtual const ds::cfg::Settings
                                &getDebugSettings() { return mDebugSettings; }
@@ -157,7 +156,7 @@ class Engine : public ui::SpriteEngine {
   private:
 		std::vector<ui::Sprite*>		mRoots;
 
-		ImageSourceRegistry					mImageSourceRegistry;
+		ImageRegistry								mImageRegistry;
     ds::ui::Tweenline           mTweenline;
     // A cache of all the resources in the system
     ResourceList                mResources;

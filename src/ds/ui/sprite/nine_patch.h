@@ -20,7 +20,7 @@ class NinePatch : public Sprite
 public:
 	NinePatch(SpriteEngine&);
 
-	NinePatch&								setImageSource(ImageSource*);
+	NinePatch&								setImage(const ImageSource&);
 	void											clearImage();
 
 	virtual void							updateServer(const UpdateParams&);

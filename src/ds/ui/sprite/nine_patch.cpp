@@ -59,9 +59,9 @@ NinePatch::NinePatch(SpriteEngine& engine)
   setTransparent(false);
 }
 
-NinePatch& NinePatch::setImageSource(ImageSource* g)
+NinePatch& NinePatch::setImage(const ImageSource& src)
 {
-	mImageSource.setSource(g);
+	mImageSource.setSource(src);
 	setStatus(Status::STATUS_EMPTY);
   markAsDirty(IMG_SRC_DIRTY);
 	return *this;

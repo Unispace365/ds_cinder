@@ -1,4 +1,4 @@
-#include "ds/app/image_source_registry.h"
+#include "ds/app/image_registry.h"
 
 #include <assert.h>
 #include <iostream>
@@ -6,7 +6,7 @@
 
 namespace ds {
 
-ImageSourceRegistry::ImageSourceRegistry()
+ImageRegistry::ImageRegistry()
 {
   mFactory.reserve(32);
   // Install an empty handler at index 0, because we don't want anyone
@@ -14,7 +14,7 @@ ImageSourceRegistry::ImageSourceRegistry()
   mFactory.push_back(nullptr);
 }
 
-char ImageSourceRegistry::add(const std::function<ds::ui::ImageSource*(ds::ui::SpriteEngine&)>& factoryFn)
+char ImageRegistry::addGenerator(const std::function<ds::ui::ImageGenerator*(ds::ui::SpriteEngine&)>& factoryFn)
 {
   assert(mFactory.size() < 120);
   const char        index = static_cast<char>(mFactory.size());
@@ -22,7 +22,7 @@ char ImageSourceRegistry::add(const std::function<ds::ui::ImageSource*(ds::ui::S
   return index;
 }
 
-ds::ui::ImageSource* ImageSourceRegistry::make(const char n, ds::ui::SpriteEngine& se)
+ds::ui::ImageGenerator* ImageRegistry::makeGenerator(const char n, ds::ui::SpriteEngine& se)
 {
 	const size_t				idx = static_cast<int>(n);
 	if (idx < 0 || idx >= mFactory.size()) return nullptr;

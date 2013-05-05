@@ -1,8 +1,9 @@
 #include "image_client.h"
 
 #include "ds/app/app_defs.h"
-#include "ds/app/image_source_registry.h"
+#include "ds/app/image_registry.h"
 #include "ds/data/data_buffer.h"
+#include "ds/ui/image_source/image_generator.h"
 #include "ds/ui/image_source/image_source.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
@@ -14,7 +15,7 @@ namespace ui {
  */
 ImageClient::ImageClient(ds::ui::SpriteEngine& se)
 	: mEngine(se)
-	, mSource(nullptr)
+	, mGenerator(nullptr)
 {
 }
 
@@ -25,42 +26,43 @@ ImageClient::~ImageClient()
 
 void ImageClient::clear()
 {
-	delete mSource;
-	mSource = nullptr;
+	delete mGenerator;
+	mGenerator = nullptr;
 }
 
-void ImageClient::setSource(ImageSource* g)
+void ImageClient::setSource(const ImageSource& src)
 {
 	clear();
-	mSource = g;
+	mGenerator = src.newGenerator(mEngine);
 }
 
 const ci::gl::Texture* ImageClient::getImage()
 {
-	if (!mSource) return nullptr;
-	return mSource->getImage();
+	if (!mGenerator) return nullptr;
+	return mGenerator->getImage();
 }
 
 void ImageClient::writeTo(DataBuffer& buf) const
 {
-	if (mSource) {
-		buf.add(mSource->getBlobType());
-		mSource->writeTo(buf);
+	if (mGenerator) {
+		buf.add(mGenerator->getBlobType());
+		mGenerator->writeTo(buf);
 	}
   buf.add(ds::TERMINATOR_CHAR);
 }
 
 bool ImageClient::readFrom(DataBuffer& buf)
 {
+	clear();
+
 	// If all I have is a terminator, then my source didn't exist.
   if (!buf.canRead<char>()) return false;
-	const char		next = buf.read<char>();
+	const char			next = buf.read<char>();
 	if (next == ds::TERMINATOR_CHAR) return true;
-	ImageSource*	src = mEngine.getImageSourceRegistry().make(next, mEngine);
-	if (!src) return false;
+	mGenerator = mEngine.getImageRegistry().makeGenerator(next, mEngine);
+	if (!mGenerator) return false;
 
-	setSource(src);
-	const bool		ans = src->readFrom(buf);
+	const bool		ans = mGenerator->readFrom(buf);
 
 	// Consume the terminator charactor
 	while (buf.canRead<char>()) {

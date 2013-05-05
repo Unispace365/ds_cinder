@@ -2,32 +2,27 @@
 #ifndef DS_UI_IMAGESOURCE_IMAGESOURCE_H_
 #define DS_UI_IMAGESOURCE_IMAGESOURCE_H_
 
-#include <cinder/gl/Texture.h>
-
 namespace ds {
 class DataBuffer;
 
 namespace ui {
+class ImageGenerator;
+class SpriteEngine;
 
 /**
  * \class ds::ui::ImageSource
- * \brief A Source is responsible for creating the actual image.
+ * \brief The public API for setting image source config info. A source
+ * basically just stores settings info, and provides access to the
+ * ImageGenerator, which is what actually generates the image.
  */
 class ImageSource {
 public:
 	virtual ~ImageSource();
 
-	virtual const ci::gl::Texture*		getImage() = 0;
-
-	char															getBlobType() const;
-	virtual void											writeTo(DataBuffer&) const = 0;
-	virtual bool											readFrom(DataBuffer&) = 0;
+	virtual ImageGenerator*			newGenerator(SpriteEngine&) const = 0;
 
 protected:
-	ImageSource(const char blobType);
-
-private:
-	const char												mBlobType;
+	ImageSource();
 };
 
 } // namespace ui

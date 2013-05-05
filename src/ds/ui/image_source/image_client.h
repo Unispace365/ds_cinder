@@ -9,6 +9,7 @@ namespace ds {
 class DataBuffer;
 
 namespace ui {
+class ImageGenerator;
 class ImageSource;
 class SpriteEngine;
 
@@ -16,8 +17,9 @@ class SpriteEngine;
  * \class ds::ui::ImageClient
  * \brief An image client is an abstracted way for clients to
  * access images. An ImageClient is responsible for returning an
- * image, nothing else. It stores an instance of a class that
- * acquires the image.
+ * image, nothing else. It makes use of an ImageSource as the public
+ * API that provides config info, and an ImageGenerator to generate
+ * the actual image.
  */
 class ImageClient
 {
@@ -27,7 +29,7 @@ public:
 
 	void												clear();
 	// Set the device responsible for generating the image
-	void												setSource(ImageSource*);
+	void												setSource(const ImageSource&);
 
 	// Answer the generator image. If the texture is not null, then it will be valid.
 	const ci::gl::Texture*			getImage();
@@ -37,7 +39,7 @@ public:
 
 private:
 	ds::ui::SpriteEngine&				mEngine;
-	ImageSource*								mSource;
+	ImageGenerator*							mGenerator;
 };
 
 } // namespace ui
