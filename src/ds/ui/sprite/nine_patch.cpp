@@ -98,7 +98,7 @@ void NinePatch::drawLocalClient()
 		mPatch.buildSources(*tex);
 		// XXX Need a flag to rebuild when size changes.
 		mPatch.buildDestinations(getWidth(), getHeight());
-		mPatch.print();
+//		mPatch.print();
 	}
 
 	if (getPerspective()) {
@@ -224,10 +224,12 @@ void NinePatch::Patch::buildSources(ci::gl::Texture tex)
 											stretchY_start = tex.getHeight()/2;
 	int									stretchX_end = stretchX_start,
 											stretchY_end = stretchY_start;
-	int									l = 0, t = 0, r = tex.getWidth()-1, b = tex.getHeight()-1;
+	int									l = 0, t = 0, r = tex.getWidth(), b = tex.getHeight();
 // jus playin
 //stretchX_start = (int)(tex.getWidth()*0.35f);
 //stretchX_end = (int)(tex.getWidth()*0.65f);
+
+	// First do the four corners, which don't stretch
 
 	// LEFT TOP CELL
 	if (stretchX_start > l) {
@@ -239,13 +241,45 @@ void NinePatch::Patch::buildSources(ci::gl::Texture tex)
 		mCell[CELL_RT].mIsValid = true;
 		mCell[CELL_RT].mSrc = ci::Area(stretchX_end+1, t, r, stretchY_start-1);
 	}
+	// LEFT BOTTOM CELL
+	if (stretchX_start > l) {
+		mCell[CELL_LB].mIsValid = true;
+		mCell[CELL_LB].mSrc = ci::Area(l, stretchY_end+1, stretchX_start-1, b);
+	}
+	// RIGHT BOTTOM CELL
+	if (stretchX_end < tex.getWidth()) {
+		mCell[CELL_RB].mIsValid = true;
+		mCell[CELL_RB].mSrc = ci::Area(stretchX_end+1, stretchY_end+1, r, b);
+	}
+
+	// Interior stretchy cells, based on the corners
+
 	// MIDDLE TOP CELL
 	mCell[CELL_MT].mIsValid = true;
-	mCell[CELL_MT].mSrc = ci::Area(stretchX_start, t, stretchX_end, stretchY_start-1);
+	mCell[CELL_MT].mSrc = ci::Area(	mCell[CELL_LT].mSrc.x2, mCell[CELL_LT].mSrc.y1,
+																	mCell[CELL_RT].mSrc.x1, mCell[CELL_LT].mSrc.y2);
+	// LEFT MIDDLE CELL
+	mCell[CELL_LM].mIsValid = true;
+	mCell[CELL_LM].mSrc = ci::Area(	mCell[CELL_LT].mSrc.x1, mCell[CELL_LT].mSrc.y2,
+																	mCell[CELL_LT].mSrc.x2, mCell[CELL_LB].mSrc.y1);
+	// RIGHT MIDDLE CELL
+	mCell[CELL_RM].mIsValid = true;
+	mCell[CELL_RM].mSrc = ci::Area(	mCell[CELL_RT].mSrc.x1, mCell[CELL_LM].mSrc.y1,
+																	mCell[CELL_RT].mSrc.x2, mCell[CELL_LM].mSrc.y2);
+	// MIDDLE BOTTOM CELL
+	mCell[CELL_MB].mIsValid = true;
+	mCell[CELL_MB].mSrc = ci::Area(	mCell[CELL_LB].mSrc.x2, mCell[CELL_LB].mSrc.y1,
+																	mCell[CELL_RB].mSrc.x1, mCell[CELL_LB].mSrc.y2);
+	// MIDDLE MIDDLE CELL
+	mCell[CELL_MM].mIsValid = true;
+	mCell[CELL_MM].mSrc = ci::Area(	mCell[CELL_MT].mSrc.x1, mCell[CELL_LM].mSrc.y1,
+																	mCell[CELL_MT].mSrc.x2, mCell[CELL_LM].mSrc.y2);
 }
 
 void NinePatch::Patch::buildDestinations(const float width, const float height)
 {
+	// Corners first, which don't stretch
+
 	// LEFT TOP CELL
 	if (mCell[CELL_LT].mIsValid) {
 		const ci::Vec2f	size = mCell[CELL_LT].size();
@@ -256,11 +290,36 @@ void NinePatch::Patch::buildDestinations(const float width, const float height)
 		const ci::Vec2f	size = mCell[CELL_RT].size();
 		mCell[CELL_RT].mDst = ci::Rectf(width - size.x, 0.0f, width, size.y);
 	}
+	// LEFT BOTTOM CELL
+	if (mCell[CELL_LB].mIsValid) {
+		const ci::Vec2f	size = mCell[CELL_LB].size();
+		mCell[CELL_LB].mDst = ci::Rectf(0.0f, height-size.y, size.x, height);
+	}
+	// RIGHT BOTTOM CELL
+	if (mCell[CELL_RB].mIsValid) {
+		const ci::Vec2f	size = mCell[CELL_RB].size();
+		mCell[CELL_RB].mDst = ci::Rectf(width - size.x, height-size.y, width, height);
+	}
+
+	// Interior stretchy cells, based on the corners
+
 	// MIDDLE TOP CELL
 	if (mCell[CELL_MT].mIsValid) {
 		const ci::Vec2f	size = mCell[CELL_MT].size();
 		mCell[CELL_MT].mDst = ci::Rectf(mCell[CELL_LT].size().x, 0.0f, width - mCell[CELL_RT].size().x, size.y);
 	}
+	// LEFT MIDDLE CELL
+	mCell[CELL_LM].mDst = ci::Rectf(mCell[CELL_LT].mDst.x1, mCell[CELL_LT].mDst.y2,
+																	mCell[CELL_LT].mDst.x2, mCell[CELL_LB].mDst.y1);
+	// RIGHT MIDDLE CELL
+	mCell[CELL_RM].mDst = ci::Rectf(mCell[CELL_RT].mDst.x1, mCell[CELL_RT].mDst.y2,
+																	mCell[CELL_RT].mDst.x2, mCell[CELL_RB].mDst.y1);
+	// MIDDLE BOTTOM CELL
+	mCell[CELL_MB].mDst = ci::Rectf(mCell[CELL_LB].mDst.x2, mCell[CELL_LB].mDst.y1,
+																	mCell[CELL_RB].mDst.x1, mCell[CELL_LB].mDst.y2);
+	// MIDDLE MIDDLE CELL
+	mCell[CELL_MM].mDst = ci::Rectf(mCell[CELL_MB].mDst.x1, mCell[CELL_LM].mDst.y1,
+																	mCell[CELL_MB].mDst.x2, mCell[CELL_LM].mDst.y2);
 }
 
 void NinePatch::Patch::draw(const ci::gl::Texture& tex)
