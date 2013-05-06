@@ -2,4 +2,6 @@ vc10/obj
 *.suo
 *.vcxproj.user
 lib/*.lib
+*.sdf
 Thumbs.db
+Debug/
