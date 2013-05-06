@@ -418,6 +418,7 @@ namespace ds { namespace ui {
 %include "run_app.h"
 namespace std {
 	%template(SpriteVector) vector< ds::ui::Sprite *>;
+	%template(IntVector)    vector< int >;
 }
 
 %feature("director") ds::TouchInfoCallback;
