@@ -52,6 +52,7 @@ void NinePatch::installAsClient(ds::BlobRegistry& registry)
 NinePatch::NinePatch(SpriteEngine& engine)
     : mImageSource(engine)
 		, inherited(engine)
+		, mSizeDirty(true)
 {
   init();
   mBlobType = BLOB_TYPE;
@@ -64,6 +65,7 @@ NinePatch& NinePatch::setImage(const ImageSource& src)
 	mImageSource.setSource(src);
 	setStatus(Status::STATUS_EMPTY);
   markAsDirty(IMG_SRC_DIRTY);
+	mSizeDirty = true;
 	return *this;
 }
 
@@ -96,7 +98,10 @@ void NinePatch::drawLocalClient()
 	setStatus(Status::STATUS_LOADED);
 	if (mPatch.empty()) {
 		mPatch.buildSources(*tex);
-		// XXX Need a flag to rebuild when size changes.
+		mSizeDirty = true;
+	}
+	if (mSizeDirty) {
+		mSizeDirty = false;
 		mPatch.buildDestinations(getWidth(), getHeight());
 //		mPatch.print();
 	}
@@ -122,6 +127,12 @@ void NinePatch::setStatusCallback(const std::function<void(const Status&)>& fn)
 {
   DS_ASSERT_MSG(mEngine.getMode() == mEngine.CLIENTSERVER_MODE, "Currently only works in ClientServer mode, fill in the UDP callbacks if you want to use this otherwise");
   mStatusFn = fn;
+}
+
+void NinePatch::onSizeChanged()
+{
+	inherited::onSizeChanged();
+	mSizeDirty = true;
 }
 
 void NinePatch::writeAttributesTo(ds::DataBuffer& buf)

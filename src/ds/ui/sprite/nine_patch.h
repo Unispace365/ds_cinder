@@ -34,6 +34,7 @@ public:
 	void											setStatusCallback(const std::function<void(const Status&)>&);
 
 protected:
+	virtual void							onSizeChanged();
 	virtual void							writeAttributesTo(ds::DataBuffer&);
 	virtual void							readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
@@ -49,6 +50,8 @@ private:
 	bool											mStatusDirty;
 	std::function<void(const Status&)>
 														mStatusFn;
+
+	bool											mSizeDirty;
 
 	/**
 	 * \class ds::ui::NinePatch::Cell
