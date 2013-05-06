@@ -82,7 +82,7 @@ class LoadImageService : public ds::GlThreadClient<LoadImageService> {
 		op(const std::string& filename, const int flags);
 
 		std::string				mFilename;
-    ci::Surface32f    mSurface;
+    ci::Surface8u     mSurface;
 		int					      mFlags;
 
     void              clear();

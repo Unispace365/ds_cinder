@@ -131,9 +131,8 @@ void Image::drawLocalClient()
         setSize(prevWidth, prevHeight);
       }
     }
-    return;
-  }
-  //ci::gl::draw(mTexture);
+	}
+
   if (mTexture) {
     mTexture.bind();
     if (getPerspective())
