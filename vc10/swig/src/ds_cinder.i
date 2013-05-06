@@ -29,6 +29,7 @@
 #include "ds/ui/sprite/shader/sprite_shader.h"
 #include "ds/ui/sprite/dirty_state.h"
 #include "ds/ui/touch/multi_touch_constraints.h"
+#include "ds/ui/service/load_image_service.h"
 #include "ds/ui/touch/tap_info.h"
 #include "ds/ui/touch/touch_info.h"
 #include "ds/ui/touch/drag_destination_info.h"
@@ -277,6 +278,7 @@ namespace ds { namespace ui {
 	virtual float                  getWorldHeight() const = 0;
     void                           addToDragDestinationList(Sprite *sprite);
     void                           removeFromDragDestinationList(Sprite *sprite);
+    virtual ds::ui::LoadImageService &getLoadImageService() = 0;
 
 	protected:
 		virtual ~SpriteEngine();
@@ -291,6 +293,43 @@ namespace ds { namespace ui {
 %include "ds/ui/sprite/video.h"
 %include "ds/ui/sprite/shader/sprite_shader.h"
 %include "ds/ui/touch/multi_touch_constraints.h"
+
+//%import "ds/thread/gl_thread.h"
+namespace ds {
+	class GlThread;
+
+	template <class T>
+	class GlThreadClient {
+	public:
+		GlThreadClient(GlThread&);
+		//bool performOnWorkerThread(void(T::*callerMethod)(), const bool batch = false);
+	};
+
+	namespace ui {
+		class LoadImageService;
+	}
+
+	//%ignore performOnWorkerThread;
+	//%ignore ds::GlThreadClient<ds::ui::LoadImageService>::performOnWorkerThread;
+	%template(DsGlThreadClientLoadImageService) ds::GlThreadClient<ds::ui::LoadImageService>;
+	%nodefaultctor DsGlThreadClientLoadImageService;
+	%nodefaultdtor DsGlThreadClientLoadImageService;
+
+/*
+	namespace ui {
+		%nodefaultctor LoadImageService;
+		%nodefaultdtor LoadImageService;
+		class LoadImageService : public ds::GlThreadClient<LoadImageService> {
+		 public:
+			// Clients should call release() for every successful acquire
+			bool					acquire(const std::string& filename, const int flags);
+			bool					peekToken(const std::string& filename, int* flags = nullptr) const;
+			void					clear();
+		};
+	}
+*/
+}
+%include "ds/ui/service/load_image_service.h"
 
 %include "ds/ui/touch/touch_info.h"
 %include "ds/ui/touch/tap_info.h"
