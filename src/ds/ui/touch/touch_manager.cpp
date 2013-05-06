@@ -208,7 +208,14 @@ void TouchManager::setSpriteForFinger( const int fingerId, ui::Sprite* theSprite
 Sprite* TouchManager::getHit(const ci::Vec3f &point)
 {
 	for (int k=mEngine.getRootCount()-1; k>=0; --k) {
-		Sprite* s = mEngine.getRootSprite(k).getHit(point);
+		ui::Sprite&						root(mEngine.getRootSprite(k));
+		Sprite*								s = nullptr;
+		if (root.getPerspective()) {
+			ds::CameraPick			pick(mEngine.getPerspectiveCamera(), point, root.getWidth(), root.getHeight());
+			s = root.getPerspectiveHit(pick);
+		} else {
+			s = root.getHit(point);
+		}
 		if (s) return s;
 	}
   return nullptr;

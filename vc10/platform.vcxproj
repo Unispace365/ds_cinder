@@ -28,6 +28,7 @@
     <ClInclude Include="..\src\ds\app\auto_update_list.h" />
     <ClInclude Include="..\src\ds\app\blob_reader.h" />
     <ClInclude Include="..\src\ds\app\blob_registry.h" />
+    <ClInclude Include="..\src\ds\app\camera_utils.h" />
     <ClInclude Include="..\src\ds\app\engine.h" />
     <ClInclude Include="..\src\ds\app\engine_client.h" />
     <ClInclude Include="..\src\ds\app\engine_clientserver.h" />
@@ -38,6 +39,7 @@
     <ClInclude Include="..\src\ds\app\event.h" />
     <ClInclude Include="..\src\ds\app\event_client.h" />
     <ClInclude Include="..\src\ds\app\event_notifier.h" />
+    <ClInclude Include="..\src\ds\app\image_registry.h" />
     <ClInclude Include="..\src\ds\config\settings.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
@@ -77,12 +79,17 @@
     <ClInclude Include="..\src\ds\thread\work_manager.h" />
     <ClInclude Include="..\src\ds\thread\work_request.h" />
     <ClInclude Include="..\src\ds\thread\work_request_list.h" />
+    <ClInclude Include="..\src\ds\ui\image_source\image_client.h" />
+    <ClInclude Include="..\src\ds\ui\image_source\image_file.h" />
+    <ClInclude Include="..\src\ds\ui\image_source\image_generator.h" />
+    <ClInclude Include="..\src\ds\ui\image_source\image_source.h" />
     <ClInclude Include="..\src\ds\ui\service\load_image_service.h" />
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h" />
     <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\markdown.h" />
     <ClInclude Include="..\src\ds\ui\sprite\multiline_text.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h" />
     <ClInclude Include="..\src\ds\ui\sprite\shader\sprite_shader.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h" />
@@ -120,6 +127,7 @@
     <ClCompile Include="..\src\ds\app\auto_update_list.cpp" />
     <ClCompile Include="..\src\ds\app\blob_reader.cpp" />
     <ClCompile Include="..\src\ds\app\blob_registry.cpp" />
+    <ClCompile Include="..\src\ds\app\camera_utils.cpp" />
     <ClCompile Include="..\src\ds\app\engine.cpp" />
     <ClCompile Include="..\src\ds\app\engine_client.cpp" />
     <ClCompile Include="..\src\ds\app\engine_clientserver.cpp" />
@@ -130,6 +138,7 @@
     <ClCompile Include="..\src\ds\app\event.cpp" />
     <ClCompile Include="..\src\ds\app\event_client.cpp" />
     <ClCompile Include="..\src\ds\app\event_notifier.cpp" />
+    <ClCompile Include="..\src\ds\app\image_registry.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />
@@ -158,12 +167,17 @@
     <ClCompile Include="..\src\ds\thread\work_client.cpp" />
     <ClCompile Include="..\src\ds\thread\work_manager.cpp" />
     <ClCompile Include="..\src\ds\thread\work_request.cpp" />
+    <ClCompile Include="..\src\ds\ui\image_source\image_client.cpp" />
+    <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp" />
+    <ClCompile Include="..\src\ds\ui\image_source\image_generator.cpp" />
+    <ClCompile Include="..\src\ds\ui\image_source\image_source.cpp" />
     <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\markdown.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\multiline_text.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\shader\sprite_shader.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp" />

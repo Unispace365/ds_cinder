@@ -28,7 +28,7 @@ const std::string& Environment::RESOURCES()
   return SZ;
 }
 
-std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName)
+std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName, const bool verify)
 {
   Poco::Path      p(ds::App::envAppPath());
   std::string     ans;
@@ -39,6 +39,13 @@ std::string Environment::getAppFolder(const std::string& folderName, const std::
     p.popDirectory();
     if (count++ >= 3 || p.depth() < 2) return "";
   }
+	if (verify) {
+		try {
+			Poco::File		f(ans);
+			if (!f.exists()) return "";
+		} catch (std::exception const&) {
+		}
+	}
   return ans;
 }
 

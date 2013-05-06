@@ -7,6 +7,7 @@
 #include "ds/app/app_defs.h"
 #include "ds/app/auto_update_list.h"
 #include "ds/app/blob_registry.h"
+#include "ds/app/image_registry.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
 #include "ds/params/draw_params.h"
@@ -24,6 +25,7 @@
 #include "ds/network/zmq_connection.h"
 #include "ds/data/raw_data_buffer.h"
 #include "cinder/gl/Fbo.h"
+#include "ds/app/camera_utils.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -49,6 +51,7 @@ class Engine : public ui::SpriteEngine {
     virtual void                draw() = 0;
 
     virtual ds::AutoUpdateList &getAutoUpdateList() { return mAutoUpdate; }
+		virtual ds::ImageRegistry	 &getImageRegistry() { return mImageRegistry; }
     virtual ds::ui::Tweenline  &getTweenline() { return mTweenline; }
     virtual const ds::cfg::Settings
                                &getDebugSettings() { return mDebugSettings; }
@@ -106,6 +109,9 @@ class Engine : public ui::SpriteEngine {
     virtual ci::Vec3f           getPerspectiveCameraPosition() const;
     virtual void                setPerspectiveCameraTarget(const ci::Vec3f &tar);
     virtual ci::Vec3f           getPerspectiveCameraTarget() const;
+		// Tmp
+		ci::CameraPersp&						getPerspectiveCamera() { return mCameraPersp; }
+		ds::ScreenToWorld&					getScreenToWorld() { return mScreenToWorld; }
 
     // Can be used by apps to stop services before exiting.
     // This will happen automatically, but some apps might want
@@ -150,6 +156,7 @@ class Engine : public ui::SpriteEngine {
   private:
 		std::vector<ui::Sprite*>		mRoots;
 
+		ImageRegistry								mImageRegistry;
     ds::ui::Tweenline           mTweenline;
     // A cache of all the resources in the system
     ResourceList                mResources;
@@ -187,6 +194,8 @@ class Engine : public ui::SpriteEngine {
 
     ci::Vec3f                  mCameraPosition;
     ci::Vec3f                  mCameraTarget;
+
+		ds::ScreenToWorld						mScreenToWorld;
 
     ci::gl::Fbo                 mFbo;
 

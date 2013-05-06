@@ -92,11 +92,14 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings, const std::vecto
   mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(1.0f, 1000.0f));
   mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
 
+	mScreenToWorld.setScreenSize(mScreenRect.getWidth(), mScreenRect.getHeight());
+
   const bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		ds::ui::Sprite&			s = *(*it);
 		if (s.getPerspective()) {
+			s.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
 			s.setDrawSorted(true);
 		} else {
 			s.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
@@ -296,6 +299,7 @@ void Engine::setCameraForDraw(const bool perspective){
     gl::disableDepthWrite();
 	} else {
     gl::setMatrices(mCameraPersp);
+		mScreenToWorld.update();
     // enable the depth buffer (after all, we are doing 3D)
     //gl::enableDepthRead();
     //gl::enableDepthWrite();

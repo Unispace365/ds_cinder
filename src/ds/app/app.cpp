@@ -8,7 +8,10 @@
 #include "ds/debug/debug_defines.h"
 // For installing the sprite types
 #include "ds/ui/sprite/image.h"
+#include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
+// For installing the image generators
+#include "ds/ui/image_source/image_file.h"
 
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
@@ -39,8 +42,13 @@ App::App(const std::vector<int>* roots)
                         [](ds::BlobRegistry& r){ds::ui::Sprite::installAsClient(r);});
   mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Image::installAsServer(r);},
                         [](ds::BlobRegistry& r){ds::ui::Image::installAsClient(r);});
+  mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
+                        [](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
   mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
                         [](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
+
+	// Initialize the engine image generator typess.
+	ds::ui::ImageFile::install(mEngine.getImageRegistry());
 }
 
 App::~App()
@@ -85,6 +93,7 @@ void App::draw()
 
 void App::mouseDown( MouseEvent event )
 {
+//	DS_LOG_INFO_M("App::mouseDown (" << event.getX() << "," << event.getY() << ")", ds::IO_LOG);
   if (mCtrlDown) {
     if (!mSecondMouseDown) {
       mEngine.mouseTouchBegin(event, 2);
@@ -100,30 +109,36 @@ void App::mouseDown( MouseEvent event )
 
 void App::mouseMove( MouseEvent event )
 {
+//	DS_LOG_INFO_M("App::mouseMove (" << event.getX() << "," << event.getY() << ")", ds::IO_LOG);
 }
 
 void App::mouseDrag( MouseEvent event )
 {
+//	DS_LOG_INFO_M("App::mouseDrag (" << event.getX() << "," << event.getY() << ")", ds::IO_LOG);
   mEngine.mouseTouchMoved(event, 1);
 }
 
 void App::mouseUp( MouseEvent event )
 {
+//	DS_LOG_INFO_M("App::mouseUp (" << event.getX() << "," << event.getY() << ")", ds::IO_LOG);
   mEngine.mouseTouchEnded(event, 1);
 }
 
 void App::touchesBegan( TouchEvent event )
 {
+//	DS_LOG_INFO_M("App::touchesBegan", ds::IO_LOG);
   mEngine.touchesBegin(event);
 }
 
 void App::touchesMoved( TouchEvent event )
 {
+//	DS_LOG_INFO_M("App::touchesMoved", ds::IO_LOG);
   mEngine.touchesMoved(event);
 }
 
 void App::touchesEnded( TouchEvent event )
 {
+//	DS_LOG_INFO_M("App::touchesEnded", ds::IO_LOG);
   mEngine.touchesEnded(event);
 }
 

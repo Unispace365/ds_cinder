@@ -24,7 +24,9 @@ class Environment {
     // This function assumes that I don't actually know the location of the folderName
     // relative to my appPath, and searches up the appPath looking for it.  This makes
     // it so no configuration is needed between dev and production environments.
-    static std::string          getAppFolder(const std::string& folderName, const std::string& fileName = "");
+		// If verify is true, then verify that the folder or file exists, otherwise answer a blank string.
+    static std::string          getAppFolder(	const std::string& folderName, const std::string& fileName = "",
+																							const bool verify = false);
     //
     static std::string          getLocalResourcesFolder(const std::string& folderName, const std::string& fileName = "");
 
