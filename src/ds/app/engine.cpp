@@ -324,7 +324,7 @@ void Engine::drawClient()
 
       gl::enableAlphaBlending();
       //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-      gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
+      gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 			for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 				ds::ui::Sprite*			s = (*it);
@@ -341,8 +341,8 @@ void Engine::drawClient()
     gl::enableAlphaBlending();
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     setCamera();
-    gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
-    gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+    gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+ //   gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
     Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
 
     static ci::gl::GlslProg shader;
@@ -376,7 +376,7 @@ void Engine::drawClient()
   } else {	  
     gl::enableAlphaBlending();
     //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-    gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
+    gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 		for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 			ds::ui::Sprite*			s = (*it);
@@ -398,7 +398,7 @@ void Engine::drawServer()
   glEnable ( GL_ALPHA_TEST ) ;
 
   gl::enableAlphaBlending();
-  gl::clear( Color( 0.0f, 0.0f, 0.0f ) );
+  gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		ds::ui::Sprite*			s = (*it);
