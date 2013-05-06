@@ -108,11 +108,13 @@
   <ItemGroup>
     <ClCompile Include="..\src\callbacks.cpp" />
     <ClCompile Include="..\src\ds_cinder_wrap.cxx" />
+    <ClCompile Include="..\src\frustum_sprite.cpp" />
     <ClCompile Include="..\src\run_app.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\callbacks.h" />
     <ClInclude Include="..\src\ds_cinder_wrap.h" />
+    <ClInclude Include="..\src\frustum_sprite.h" />
     <ClInclude Include="..\src\run_app.h" />
   </ItemGroup>
   <ItemGroup>

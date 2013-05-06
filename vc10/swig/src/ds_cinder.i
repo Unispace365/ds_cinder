@@ -36,6 +36,7 @@
 
 #include "run_app.h"
 #include "callbacks.h"
+#include "frustum_sprite.h"
 %}
 %ignore prepareSettings;
 
@@ -427,6 +428,7 @@ namespace std {
 %feature("director") ds::DragDestinationInfoCallback;
 
 %include "callbacks.h"
+%include "frustum_sprite.h"
 
 /* vim: set noet fenc= ff=dos sts=0 sw=4 ts=4 : */
 
