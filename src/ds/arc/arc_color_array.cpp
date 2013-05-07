@@ -7,6 +7,8 @@
 namespace ds {
 namespace arc {
 
+static bool parse_color(const std::string& str, ci::ColorA& clr);
+
 /**
  * ds::arc::ColorArray
  */
@@ -14,6 +16,38 @@ ColorArray::ColorArray()
 {
 }
 
+
+ci::ColorA ColorArray::at(const double unit) const
+{
+	if (mColor.empty()) {
+		return ci::ColorA(0.0, 0.0, 0.0, static_cast<float>(unit));
+	}
+	if (mColor.size() == 1) {
+		const ci::ColorA&		c = mColor[0];
+		return ci::ColorA(c.r, c.g, c.b, c.a * static_cast<float>(unit));
+	}
+
+return ci::ColorA(0.0, 0.0, 0.0, static_cast<float>(unit));
+}
+
+void ColorArray::readXml(const ci::XmlTree& xml)
+{
+	mColor.clear();
+
+	for (auto it=xml.begin(), end=xml.end(); it != end; ++it) {
+		if (it->getTag() == "color") {
+			ci::ColorA					clr;
+			const std::string		rgb = it->getAttributeValue<std::string>("rgb", "");
+			if (parse_color(rgb, clr)) {
+				mColor.push_back(clr);
+			}
+		}
+	}
+}
+
+/**
+ * Misc
+ */
 static float constrain(float v)
 {
 	v /= 255.0f;
@@ -37,21 +71,6 @@ static bool parse_color(const std::string& str, ci::ColorA& clr)
 	}
 	clr.r = constrain(v[0]);	clr.g = constrain(v[1]);	clr.b = constrain(v[2]);	clr.a = constrain(v[3]);
 	return true;
-}
-
-void ColorArray::readXml(const ci::XmlTree& xml)
-{
-	mColor.clear();
-
-	for (auto it=xml.begin(), end=xml.end(); it != end; ++it) {
-		if (it->getTag() == "color") {
-			ci::ColorA					clr;
-			const std::string		rgb = it->getAttributeValue<std::string>("rgb", "");
-			if (parse_color(rgb, clr)) {
-				mColor.push_back(clr);
-			}
-		}
-	}
 }
 
 } // namespace arc

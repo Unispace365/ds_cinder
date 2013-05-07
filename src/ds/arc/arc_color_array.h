@@ -19,6 +19,8 @@ class ColorArray
 public:
 	ColorArray();
 
+	ci::ColorA							at(const double unit) const;
+
 	virtual void						readXml(const ci::XmlTree&);
 
 private:

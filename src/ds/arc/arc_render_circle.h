@@ -3,7 +3,7 @@
 #define DS_ARC_ARCRENDERCIRCLE_H_
 
 #include <string>
-#include <unordered_map>
+#include <cinder/Color.h>
 #include <cinder/Surface.h>
 #include "ds/arc/arc.h"
 
@@ -13,6 +13,12 @@ namespace arc {
 class RenderCircleParams {
   public:
     RenderCircleParams();
+
+		// In unit coords.
+		double					mDist,
+										mDegree;
+		// Output
+		ci::ColorA			mOutput;
 };
 
 /**

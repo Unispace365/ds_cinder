@@ -1,6 +1,6 @@
 <arc type="chain">
 	<!-- Drop shadow -->
 	<layer input="dist">
-		<color rgb="90, 10 ,50, 87" />
+		<color rgb="0,0,0" />
 	</layer>
 </arc>

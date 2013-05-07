@@ -25,6 +25,8 @@ public:
 private:
 	std::unique_ptr<Arc>	mArc;
 	ColorArray						mColor;
+	std::function<double(const RenderCircleParams&)>
+												mInput;
 };
 
 } // namespace arc
