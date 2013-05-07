@@ -97,6 +97,9 @@
     <Filter Include="src\ds\ui\image_source">
       <UniqueIdentifier>{75b81987-e661-4733-8256-dfb5ba9b9b0b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\arc">
+      <UniqueIdentifier>{0dabc65a-df40-4df3-9b7b-f2d4553611a0}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\app\app_defs.h">
@@ -405,8 +408,32 @@
     <ClInclude Include="..\src\ds\app\image_registry.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\util\file_meta_data.h">
-      <Filter>src\ds\util</Filter>
+    <ClInclude Include="..\src\ds\arc\arc_render.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_render_circle.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_chain.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_layer.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_arc.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_drop_shadow.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_io.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_color_array.h">
+      <Filter>src\ds\arc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -650,8 +677,32 @@
     <ClCompile Include="..\src\ds\app\image_registry.cpp">
       <Filter>src\ds\app</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\util\file_meta_data.cpp">
-      <Filter>src\ds\util</Filter>
+    <ClCompile Include="..\src\ds\arc\arc_render.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_chain.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_layer.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_arc.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_drop_shadow.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_io.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_color_array.cpp">
+      <Filter>src\ds\arc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -40,6 +40,13 @@
     <ClInclude Include="..\src\ds\app\event_client.h" />
     <ClInclude Include="..\src\ds\app\event_notifier.h" />
     <ClInclude Include="..\src\ds\app\image_registry.h" />
+    <ClInclude Include="..\src\ds\arc\arc.h" />
+    <ClInclude Include="..\src\ds\arc\arc_chain.h" />
+    <ClInclude Include="..\src\ds\arc\arc_color_array.h" />
+    <ClInclude Include="..\src\ds\arc\arc_io.h" />
+    <ClInclude Include="..\src\ds\arc\arc_layer.h" />
+    <ClInclude Include="..\src\ds\arc\arc_render.h" />
+    <ClInclude Include="..\src\ds\arc\arc_render_circle.h" />
     <ClInclude Include="..\src\ds\config\settings.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
@@ -79,7 +86,9 @@
     <ClInclude Include="..\src\ds\thread\work_manager.h" />
     <ClInclude Include="..\src\ds\thread\work_request.h" />
     <ClInclude Include="..\src\ds\thread\work_request_list.h" />
+    <ClInclude Include="..\src\ds\ui\image_source\image_arc.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_client.h" />
+    <ClInclude Include="..\src\ds\ui\image_source\image_drop_shadow.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_file.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_generator.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_source.h" />
@@ -140,6 +149,13 @@
     <ClCompile Include="..\src\ds\app\event_client.cpp" />
     <ClCompile Include="..\src\ds\app\event_notifier.cpp" />
     <ClCompile Include="..\src\ds\app\image_registry.cpp" />
+    <ClCompile Include="..\src\ds\arc\arc.cpp" />
+    <ClCompile Include="..\src\ds\arc\arc_chain.cpp" />
+    <ClCompile Include="..\src\ds\arc\arc_color_array.cpp" />
+    <ClCompile Include="..\src\ds\arc\arc_io.cpp" />
+    <ClCompile Include="..\src\ds\arc\arc_layer.cpp" />
+    <ClCompile Include="..\src\ds\arc\arc_render.cpp" />
+    <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />
@@ -168,7 +184,9 @@
     <ClCompile Include="..\src\ds\thread\work_client.cpp" />
     <ClCompile Include="..\src\ds\thread\work_manager.cpp" />
     <ClCompile Include="..\src\ds\thread\work_request.cpp" />
+    <ClCompile Include="..\src\ds\ui\image_source\image_arc.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_client.cpp" />
+    <ClCompile Include="..\src\ds\ui\image_source\image_drop_shadow.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_generator.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_source.cpp" />

@@ -1,0 +1,8 @@
+<arc type="chain">
+	<!-- Outer drop shadow -->
+	<layer color="0,0,0" input="dist">
+	</layer>
+	<!-- Inner rect -->
+	<layer color="255,0,0" input="dist">
+	</layer>
+</arc>

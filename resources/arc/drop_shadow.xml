@@ -1,0 +1,6 @@
+<arc type="chain">
+	<!-- Drop shadow -->
+	<layer input="dist">
+		<color rgb="0,0,0" />
+	</layer>
+</arc>

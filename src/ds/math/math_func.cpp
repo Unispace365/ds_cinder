@@ -92,5 +92,31 @@ bool isEqual( double a, float b )
   return false;
 }
 
+double degree(const double x2, const double y2)
+{
+	if (y2 == 0) {
+		if (x2 > 0) return 0.0;
+		else if (x2 < 0) return 180.0;
+		else return 0;
+	}
+	if (x2 == 0) {
+		if (y2 > 0) return 90.0;
+		else if (y2 < 0) return 270.0;
+	}
+
+	const double		x1 = 0, y1 = 0;
+	const double		m1 = 0;
+	const double		m2 = slope(x1, y1, x2, y2);
+	const double		tangent = (m2 - m1) / (1 + (m1 * m2));
+	const double		radians = atan(tangent);
+	const double		degree = radians * RADIAN2DEGREE;
+
+	if (x2 < 0 && y2 > 0) return degree + 180;
+	else if (x2 < 0 && y2 < 0) return degree + 180;
+	else if (x2 > 0 && y2 < 0) return degree + 360;
+
+	return degree;
+}
+
 } // namespace math
 } // namespace ds
