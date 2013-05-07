@@ -116,6 +116,7 @@
     <ClInclude Include="..\src\ds\ui\tween\sprite_anim.h" />
     <ClInclude Include="..\src\ds\ui\tween\tweenline.h" />
     <ClInclude Include="..\src\ds\util\bit_mask.h" />
+    <ClInclude Include="..\src\ds\util\file_meta_data.h" />
     <ClInclude Include="..\src\ds\util\file_name_parser.h" />
     <ClInclude Include="..\src\ds\util\idle_timer.h" />
     <ClInclude Include="..\src\ds\util\memory_ds.h" />
@@ -210,6 +211,7 @@
     <ClCompile Include="..\src\ds\ui\tween\sprite_anim.cpp" />
     <ClCompile Include="..\src\ds\ui\tween\tweenline.cpp" />
     <ClCompile Include="..\src\ds\util\bit_mask.cpp" />
+    <ClCompile Include="..\src\ds\util\file_meta_data.cpp" />
     <ClCompile Include="..\src\ds\util\file_name_parser.cpp" />
     <ClCompile Include="..\src\ds\util\idle_timer.cpp" />
     <ClCompile Include="..\src\ds\util\string_util.cpp" />

@@ -229,7 +229,7 @@ void Image::superSlowSetDimensions(const std::string& filename)
   // Just load the image to get the dimensions -- this will incur what is
   // unnecessarily overhead in one situation (I am in client/server mode),
   // but is otherwise the right thing to do.
-  auto s = ci::Surface32f(ci::loadImage(filename));
+  auto s = ci::Surface8u(ci::loadImage(filename));
   if (s) {
     Sprite::setSizeAll(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()), mDepth);
   }
