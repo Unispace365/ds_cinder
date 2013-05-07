@@ -4,9 +4,16 @@
 
 #include <string>
 #include <unordered_map>
+#include <cinder/Surface.h>
+#include "ds/arc/arc.h"
 
 namespace ds {
 namespace arc {
+
+class RenderCircleParams {
+  public:
+    RenderCircleParams();
+};
 
 /**
  * \class ds::arc::RenderCircle
@@ -17,6 +24,7 @@ class RenderCircle
   public:
     RenderCircle();
 
+		bool						on(ci::Surface8u&, ds::arc::Arc&);
 };
 
 } // namespace arc

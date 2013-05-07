@@ -17,6 +17,8 @@ class Chain : public Arc
 public:
 	Chain();
 	
+	virtual void				renderCircle(RenderCircleParams&) const;
+
 	virtual void				readXml(const ci::XmlTree&);
 
 private:

@@ -432,6 +432,9 @@
     <ClInclude Include="..\src\ds\arc\arc_io.h">
       <Filter>src\ds\arc</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_color_array.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -696,6 +699,9 @@
       <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_io.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_color_array.cpp">
       <Filter>src\ds\arc</Filter>
     </ClCompile>
   </ItemGroup>

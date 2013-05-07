@@ -12,6 +12,14 @@ Chain::Chain()
 {
 }
 
+void Chain::renderCircle(RenderCircleParams& p) const
+{
+	for (auto it=mArc.begin(), end=mArc.end(); it!=end; ++it) {
+		const Arc*		a = it->get();
+		if (a) a->renderCircle(p);
+	}
+}
+
 void Chain::readXml(const ci::XmlTree& xml)
 {
 	mArc.clear();

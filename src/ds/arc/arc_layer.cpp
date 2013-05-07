@@ -12,6 +12,10 @@ Layer::Layer()
 {
 }
 
+void Layer::renderCircle(RenderCircleParams& p) const
+{
+}
+
 void Layer::readXml(const ci::XmlTree& xml)
 {
 	mArc.reset();
@@ -23,6 +27,8 @@ void Layer::readXml(const ci::XmlTree& xml)
 			return;
 		}
 	}
+
+	mColor.readXml(xml);
 }
 
 } // namespace arc

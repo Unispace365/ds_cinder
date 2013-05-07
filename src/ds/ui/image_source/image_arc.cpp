@@ -1,7 +1,9 @@
 #include "image_arc.h"
 
+#include <cinder/Surface.h>
 #include "ds/app/image_registry.h"
 #include "ds/arc/arc_io.h"
+#include "ds/arc/arc_render_circle.h"
 #include "ds/data/data_buffer.h"
 #include "ds/ui/image_source/image_generator.h"
 #include "ds/ui/service/load_image_service.h"
@@ -27,24 +29,14 @@ class ArcGenerator : public ImageGenerator
 {
 public:
 	ArcGenerator(SpriteEngine&)
-			: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY) { }
-	ArcGenerator(SpriteEngine&, const std::string& fn, const std::vector<float>& floatInput)
-			: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mFilename(fn), mFloatInput(floatInput) { }
+			: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(0), mHeight(0) { }
+	ArcGenerator(SpriteEngine&, const int width, const int height, const std::string& fn, const std::vector<float>& floatInput)
+			: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(width), mHeight(height), mFilename(fn), mFloatInput(floatInput) { }
 
 	const ci::gl::Texture*		getImage() {
 		if (mStatus == STATUS_EMPTY) generate();
 		if (mStatus == STATUS_OK) return &mTexture;
 		return nullptr;
-#if 0
-		if (mTexture && mTexture.getWidth() > 0 && mTexture.getHeight() > 0) return &mTexture;
-
-		if (mToken.canAcquire()) {
-			mToken.acquire(mFilename, mFlags);
-		} else {
-			float						fade;
-			mTexture = mToken.getImage(fade);
-		}
-#endif
 	}
 
 	virtual void							writeTo(DataBuffer& buf) const {
@@ -75,15 +67,25 @@ public:
 
 private:
 	void											generate() {
-		std::unique_ptr<ds::arc::Arc>		a = std::move(ds::arc::load(mFilename));
-		if (!a) {
-			mStatus = STATUS_ERROR;
-			return;
-		}
 		mStatus = STATUS_ERROR;
+		if (mWidth < 1 || mHeight < 1) return;
+		std::unique_ptr<ds::arc::Arc>		a = std::move(ds::arc::load(mFilename));
+		if (!a) return;
+		ci::Surface8u		s(mWidth, mHeight, true, ci::SurfaceConstraintsDefault());
+		if (!s || s.getWidth() != mWidth || s.getHeight() != mHeight) return;
+
+		ds::arc::RenderCircle		render;
+		if (!render.on(s, *(a.get()))) return;
+
+		mTexture = ci::gl::Texture(s);
+		if (mTexture && mTexture.getWidth() == mWidth && mTexture.getHeight() == mHeight) {
+			mStatus = STATUS_OK;
+		}
 	}
 
 	int												mStatus;
+	const int									mWidth,
+														mHeight;
 	std::string								mFilename;
 	std::vector<float>				mFloatInput;
 	ci::gl::Texture						mTexture;
@@ -108,7 +110,7 @@ ImageArc::ImageArc(const int width, const int height, const std::string& filenam
 
 ImageGenerator* ImageArc::newGenerator(SpriteEngine& e) const
 {
-	return new ArcGenerator(e, mFilename, mFloatInput);
+	return new ArcGenerator(e, mWidth, mHeight, mFilename, mFloatInput);
 }
 
 void ImageArc::addInput(const float f)

@@ -7,6 +7,7 @@
 
 namespace ds {
 namespace arc {
+class RenderCircleParams;
 
 /**
  * \class ds::arc::Arc
@@ -16,6 +17,8 @@ class Arc
 {
 public:
 	virtual ~Arc();
+
+	virtual void				renderCircle(RenderCircleParams&) const;
 
 	virtual void				readXml(const ci::XmlTree&);
 

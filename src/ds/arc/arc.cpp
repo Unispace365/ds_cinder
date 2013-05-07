@@ -14,6 +14,10 @@ Arc::~Arc()
 {
 }
 
+void Arc::renderCircle(RenderCircleParams&) const
+{
+}
+
 void Arc::readXml(const ci::XmlTree&)
 {
 }
