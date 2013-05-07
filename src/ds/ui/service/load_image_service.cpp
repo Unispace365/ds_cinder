@@ -218,7 +218,7 @@ void LoadImageService::_load()
 		op&						           top = mTmp[k];
     try {
 //      DS_LOG_INFO_M("LoadImageService::_load() on file (" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
-      top.mSurface = ci::Surface32f(ci::loadImage(top.mFilename));
+      top.mSurface = ci::Surface8u(ci::loadImage(top.mFilename));
       DS_REPORT_GL_ERRORS();
       if (top.mSurface) {
         // This is to immediately place operations on the out put...
