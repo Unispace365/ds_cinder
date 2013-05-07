@@ -16,6 +16,15 @@ SpriteAnimatable::~SpriteAnimatable()
 {
 }
 
+const SpriteAnim<ci::Color>& SpriteAnimatable::ANIM_COLOR()
+{
+  static ds::ui::SpriteAnim<ci::Color>  ANIM(
+    [](ds::ui::Sprite& s)->ci::Anim<ci::Color>& { return s.mAnimColor; },
+    [](ds::ui::Sprite& s)->ci::Color { return s.getColor(); },
+    [](const ci::Color& v, ds::ui::Sprite& s) { s.setColor(v); });
+  return ANIM;
+}
+
 const SpriteAnim<float>& SpriteAnimatable::ANIM_OPACITY()
 {
   static ds::ui::SpriteAnim<float>  ANIM(
@@ -52,21 +61,22 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SIZE()
   return ANIM;
 }
 
-void SpriteAnimatable::animStop()
-{
-  mAnimOpacity.stop();
-  mAnimPosition.stop();
-  mAnimScale.stop();
-  mAnimSize.stop();
-}
-
-const SpriteAnim<ci::Vec3f> &SpriteAnimatable::ANIM_ROTATION()
+const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_ROTATION()
 {
   static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
     [](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimRotation; },
     [](ds::ui::Sprite& s)->ci::Vec3f { return s.getRotation(); },
     [](const ci::Vec3f& v, ds::ui::Sprite& s) { s.setRotation(v); });
   return ANIM;
+}
+
+void SpriteAnimatable::animStop()
+{
+  mAnimColor.stop();
+  mAnimOpacity.stop();
+  mAnimPosition.stop();
+  mAnimScale.stop();
+  mAnimSize.stop();
 }
 
 } // namespace ui

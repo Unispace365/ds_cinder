@@ -99,6 +99,24 @@ inline unsigned getNextPowerOf2( unsigned number )
   return 1<<++pos;
 }
 
+inline double dist(const double x0, const double y0, const double x1, const double y1)
+{
+	return sqrt(((x0-x1)*(x0-x1)) + ((y0-y1)*(y0-y1)));
+}
+
+inline double distSquared(const double x0, const double y0, const double x1, const double y1)
+{
+	return ((x0-x1)*(x0-x1)) + ((y0-y1)*(y0-y1));
+}
+
+inline double slope(const double x0, const double y0, const double x1, const double y1)
+{
+	return (y1 - y0) / (x1 - x0);
+}
+
+// 0 = right, clockwise (90 = down)
+double degree(const double x2, const double y2);
+
 } // namespace math
 } // namespace ds
 

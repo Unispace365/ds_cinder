@@ -2,6 +2,7 @@
 #ifndef DS_UI_TWEEN_SPRITEANIM_H_
 #define DS_UI_TWEEN_SPRITEANIM_H_
 
+#include <cinder/Color.h>
 #include <cinder/Tween.h>
 #include <cinder/Vector.h>
 
@@ -57,6 +58,7 @@ class SpriteAnimatable {
     SpriteAnimatable();
     virtual ~SpriteAnimatable();
 
+    static const SpriteAnim<ci::Color>&   ANIM_COLOR();
     static const SpriteAnim<float>&       ANIM_OPACITY();
     static const SpriteAnim<ci::Vec3f>&   ANIM_POSITION();
     static const SpriteAnim<ci::Vec3f>&   ANIM_SCALE();
@@ -66,6 +68,7 @@ class SpriteAnimatable {
     void                                  animStop();
 
   public:
+      ci::Anim<ci::Color>                 mAnimColor;
       ci::Anim<float>                     mAnimOpacity;
       ci::Anim<ci::Vec3f>                 mAnimPosition;
       ci::Anim<ci::Vec3f>                 mAnimScale;
