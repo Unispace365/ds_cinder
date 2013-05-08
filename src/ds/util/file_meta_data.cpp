@@ -66,7 +66,7 @@ void						super_slow_image_atts(const std::string& filename, ImageFileAtts& atts
 {
 	try {
 		if (filename.empty()) return;
-		DS_LOG_WARNING_M("Going to load image synchronously; this will affect performance", GENERAL_LOG);
+		DS_LOG_WARNING_M("ImageFileAtts Going to load image synchronously; this will affect performance", GENERAL_LOG);
 		// Just load the image to get the dimensions -- this will incur what is
 		// unnecessarily overhead in one situation (I am in client/server mode),
 		// but is otherwise the right thing to do.
@@ -90,8 +90,7 @@ ImageFileAtts::ImageFileAtts(const std::string& filename)
   try {
     mSize = parseFileMetaDataSize(filename);
 		return;
-  } catch (ParseFileMetaException &e) {
-		DS_LOG_WARNING_M("ImageFileAtts() error=" << e.what(), GENERAL_LOG);
+  } catch (ParseFileMetaException&) {
   }
 
 	// 2. Probe known file formats
