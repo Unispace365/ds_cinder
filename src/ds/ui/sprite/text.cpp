@@ -486,8 +486,11 @@ void Text::drawIntoFbo()
 
   if (mNeedRedrawing) {
     mNeedRedrawing = false;
-    const int w = (int)ceilf(getWidth());
-    const int h = (int)ceilf(getHeight());
+		// XXX I noticed some fonts were getting the bottom right row of pixels
+		// chopped off, so I did this, although realistically, it probably means
+		// the actual w/h of the sprite should be increased, not just the texture.
+    const int w = (int)ceilf(getWidth()) + 1;
+    const int h = (int)ceilf(getHeight()) + 1;
 
     if (w == 0 || h == 0)
       return;
