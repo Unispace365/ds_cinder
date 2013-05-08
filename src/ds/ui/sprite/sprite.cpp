@@ -777,7 +777,7 @@ Sprite *Sprite::getHit( const ci::Vec3f &point )
             Sprite *hitChild = child->getHit(point);
             if ( hitChild )
                 return hitChild;
-            if ( child->isEnabled() && child->contains(point) )
+            if ( child->visible() && child->isEnabled() && child->contains(point) )
                 return child;
         }
     }
@@ -792,7 +792,7 @@ Sprite *Sprite::getHit( const ci::Vec3f &point )
         for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
         {
             Sprite *child = *it;
-            if ( child->isEnabled() && child->contains(point) )
+            if ( child->visible() && child->isEnabled() && child->contains(point) )
                 return child;
             Sprite *hitChild = child->getHit(point);
             if ( hitChild )
