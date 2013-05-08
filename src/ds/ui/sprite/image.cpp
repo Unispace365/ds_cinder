@@ -9,7 +9,7 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
-#include "ds/util/file_name_parser.h"
+#include "ds/util/file_meta_data.h"
 
 using namespace ci;
 
@@ -61,13 +61,11 @@ Image::Image( SpriteEngine& engine, const std::string &filename )
   mBlobType = BLOB_TYPE;
   setUseShaderTextuer(true);
 
-  try {
-    Vec2f size = parseFileMetaDataSize(filename);
-    Sprite::setSizeAll(size.x, size.y, mDepth);
-  } catch (ParseFileMetaException &e) {
-    DS_LOG_WARNING_M("Image() error=" << e.what(), SPRITE_LOG);
-    superSlowSetDimensions(filename);
-  }
+	{
+		ImageFileAtts			atts(filename);
+    Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
+	}
+
   setTransparent(false);
   markAsDirty(RES_FN_DIRTY);
 }
@@ -155,13 +153,8 @@ Image& Image::setResourceFilename( const std::string &filename )
   setStatus(Status::STATUS_EMPTY);
 
   if (!filename.empty()) {
-    try {
-      Vec2f size = parseFileMetaDataSize(filename);
-      Sprite::setSizeAll(size.x, size.y, mDepth);
-    } catch (ParseFileMetaException &e) {
-      DS_LOG_WARNING_M("Image() error=" << e.what(), SPRITE_LOG);
-      superSlowSetDimensions(filename);
-    }
+		ImageFileAtts			atts(filename);
+    Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
   }
   return *this;
 }
@@ -220,19 +213,6 @@ void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
     } else {
       inherited::readAttributeFrom(attributeId, buf);
     }
-}
-
-void Image::superSlowSetDimensions(const std::string& filename)
-{
-  if (filename.empty()) return;
-  DS_LOG_WARNING_M("Going to load image synchronously; this will affect performance", SPRITE_LOG);
-  // Just load the image to get the dimensions -- this will incur what is
-  // unnecessarily overhead in one situation (I am in client/server mode),
-  // but is otherwise the right thing to do.
-  auto s = ci::Surface8u(ci::loadImage(filename));
-  if (s) {
-    Sprite::setSizeAll(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()), mDepth);
-  }
 }
 
 void Image::setStatus(const int code)

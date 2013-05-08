@@ -48,9 +48,6 @@ class Image: public Sprite
         typedef Sprite inherited;
 
         void                            requestImage();
-        // A horrible fallback when no meta info has been supplied about
-        // the image size.
-        void                            superSlowSetDimensions(const std::string& filename);
         void                            setStatus(const int);
         void                            init();
 
