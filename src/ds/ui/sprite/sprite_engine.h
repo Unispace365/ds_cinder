@@ -62,7 +62,8 @@ class SpriteEngine {
     virtual float                  getHeight() const = 0;
     virtual float                  getWorldWidth() const = 0;
     virtual float                  getWorldHeight() const = 0;
-    
+    float													 getFrameRate() const;
+
     std::unique_ptr<FboGeneral>    getFbo();
     void                           giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
 
@@ -89,14 +90,18 @@ class SpriteEngine {
 
     virtual Awesomium::WebCore    *getWebCore() const = 0;
     virtual Awesomium::WebSession *getWebSession() const = 0;
-  protected:
 
-    SpriteEngine()                 { }
+	protected:
+    SpriteEngine();
     virtual ~SpriteEngine()        { }
 
     std::list<Sprite *>            mDragDestinationSprites;
 
     std::list<std::unique_ptr<FboGeneral>> mFbos;
+		
+		// This is because of the growing number of virtuals, which of course impacts
+		// performance. We should probably unvirtualize all the trivial data types.
+		float													mFrameRate;
 };
 
 } // namespace ui

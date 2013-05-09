@@ -8,6 +8,14 @@ using namespace ci;
 namespace ds {
 namespace ui {
 
+/**
+ * \class ds::ui::SpriteEngine
+ */
+SpriteEngine::SpriteEngine()
+	: mFrameRate(60.0f)
+{
+}
+
 void SpriteEngine::addToDragDestinationList( Sprite *sprite )
 {
   if (!sprite)
@@ -39,6 +47,11 @@ Sprite *SpriteEngine::getDragDestinationSprite( const ci::Vec3f &globalPoint, Sp
   }
 
   return nullptr;
+}
+
+float SpriteEngine::getFrameRate() const
+{
+	return mFrameRate;
 }
 
 std::unique_ptr<FboGeneral> SpriteEngine::getFbo()
