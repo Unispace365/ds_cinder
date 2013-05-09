@@ -192,6 +192,11 @@ class Sprite : public SpriteAnimatable
         void                setDoubleTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func );
         void                setDragDestinationCallback( const std::function<void (Sprite *, const DragDestinationInfo &)> &func );
 
+				// true will size the sprite using setSize() on a touch scale gesture
+				// false (the default) will scale the sprite using setScale9) on a touch scale gesture.
+				// MULTITOUCH_CAN_SCALE has to be a touch flag as well as the sprite being enabled to take effect
+				void								setTouchScaleMode(bool doSizeScale){ mTouchScaleSizeMode = doSizeScale; };
+
         // Constraints defined in multi_touch_constraints.h
         void                enableMultiTouch(const BitMask &);
         void                disableMultiTouch();
@@ -244,7 +249,8 @@ class Sprite : public SpriteAnimatable
         /*
          * \brief must be passed inside handle touch Moved or else will result in an infinite loop.
          */
-		void				passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
+				void								passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
+
     protected:
         friend class        TouchManager;
         friend class        TouchProcess;
@@ -254,7 +260,7 @@ class Sprite : public SpriteAnimatable
         void                doubleTap(const ci::Vec3f &tapPos);
         void                dragDestination(Sprite *sprite, const DragDestinationInfo &dragInfo);
         void                processTouchInfo( const TouchInfo &touchInfo );
-		void                processTouchInfoCallback( const TouchInfo &touchInfo );
+				void                processTouchInfoCallback( const TouchInfo &touchInfo );
 
         void                buildTransform() const;
         void                buildGlobalTransform() const;
@@ -291,8 +297,7 @@ class Sprite : public SpriteAnimatable
         void                sendSpriteToFront(Sprite &sprite);
         void                sendSpriteToBack(Sprite &sprite);
 
-
-        void setPerspective(const bool);
+        void								setPerspective(const bool);
 
         mutable bool        mBoundsNeedChecking;
         mutable bool        mInBounds;
@@ -346,6 +351,7 @@ class Sprite : public SpriteAnimatable
 
         bool                mMultiTouchEnabled;
         BitMask             mMultiTouchConstraints;
+				bool								mTouchScaleSizeMode;
 
         // All touch processing happens in the process touch class
         TouchProcess				mTouchProcess;

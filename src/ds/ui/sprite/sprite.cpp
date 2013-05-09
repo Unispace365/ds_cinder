@@ -136,6 +136,7 @@ void Sprite::init(const ds::sprite_id_t id)
   mBlendMode = NORMAL;
   mUseShaderTexture = false;
 	mIsInScreenCoordsHack = false;
+	mTouchScaleSizeMode = false;
 
   setSpriteId(id);
 

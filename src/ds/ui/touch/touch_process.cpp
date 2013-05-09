@@ -105,7 +105,11 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
                         atan2(fingerCurrent1.y - fingerCurrent0.y, fingerCurrent1.x - fingerCurrent0.x);
 
         if (mSprite.hasMultiTouchConstraint(MULTITOUCH_CAN_SCALE)) {
-          mSprite.setScale(mStartScale*mCurrentScale);
+					if(mSprite.mTouchScaleSizeMode){
+							mSprite.setSize(mStartWidth * mCurrentScale, mStartHeight * mCurrentScale);
+					} else {
+							mSprite.setScale(mStartScale*mCurrentScale);
+					}
         }
 
         if (mSprite.hasMultiTouchConstraint(MULTITOUCH_CAN_ROTATE)) {
