@@ -336,6 +336,7 @@ void Engine::drawClient()
 				s->drawClient(ci::gl::getModelView(), mDrawParams);
 			}
 
+      setCameraForDraw(false);
       if (mDrawTouches)
         mTouchManager.drawTouches();
 
@@ -389,6 +390,7 @@ void Engine::drawClient()
 			s->drawClient(ci::gl::getModelView(), mDrawParams);
 		}
 
+    setCameraForDraw(false);
     if (mDrawTouches)
       mTouchManager.drawTouches();
   }
@@ -415,6 +417,7 @@ void Engine::drawServer()
 		}
 	}
 
+  setCameraForDraw(false);
   if (mDrawTouches)
     mTouchManager.drawTouches();
 
