@@ -84,8 +84,6 @@
 
 %ignore getSettings() const;
 %ignore getSettings;
-%ignore keyDown;
-%ignore keyUp;
 %ignore "resize";
 %ignore "fileDrop";
 namespace cinder {
@@ -279,6 +277,7 @@ namespace ds { namespace ui {
     void                           addToDragDestinationList(Sprite *sprite);
     void                           removeFromDragDestinationList(Sprite *sprite);
     virtual ds::ui::LoadImageService &getLoadImageService() = 0;
+    double                         getElapsedTimeSeconds() const;
 
 	protected:
 		virtual ~SpriteEngine();
