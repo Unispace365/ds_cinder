@@ -121,13 +121,13 @@ class Engine : public ui::SpriteEngine {
     bool                        systemMultitouchEnabled() const;
     bool                        hideMouse() const;
 
-  virtual void                clearFingers( const std::vector<int> &fingers );
-
-  void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
+		virtual void                clearFingers( const std::vector<int> &fingers );
+		void												setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 
     Awesomium::WebCore         *getWebCore() const;
     Awesomium::WebSession      *getWebSession() const;
-  protected:
+
+	protected:
     Engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
 
     ds::BlobRegistry            mBlobRegistry;

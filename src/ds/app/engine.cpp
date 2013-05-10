@@ -78,6 +78,7 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings, const std::vecto
   ds::Logger::setup(mDebugSettings);
   mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 640.0f, 0.0f, 400.0f));
   mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
+  mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
   mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
   mDrawTouches = settings.getBool("touch_overlay:debug", 0, false);
   mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
@@ -457,7 +458,7 @@ void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )
   mHideMouse = mSettings.getBool("hide_mouse", 0, false);
   mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
 
-  settings.setFrameRate(mSettings.getFloat("frame_rate", 0, 60.0f));
+  settings.setFrameRate(mFrameRate);
 
   if (mSettings.getText("screen:mode", 0, "") == "full")
     settings.setFullScreen(true);

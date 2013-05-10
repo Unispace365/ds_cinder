@@ -226,7 +226,7 @@ void LoadImageService::_load()
         mOutput.push_back(op(top));
       }
     } catch (std::exception const& ex) {
-      DS_LOG_WARNING_M("LoadImageService::_load() failed ex=" << ex.what(), LOAD_IMAGE_LOG_M);
+      DS_LOG_WARNING_M("LoadImageService::_load() failed ex=" << ex.what() << " (file=" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
     }
     top.clear();
 		DS_REPORT_GL_ERRORS();
