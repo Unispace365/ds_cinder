@@ -103,6 +103,12 @@ void Resource::Id::clear()
 	*this = Id();
 }
 
+void Resource::Id::swap(Id& id)
+{
+	std::swap(mType, id.mType);
+	std::swap(mValue, id.mValue);
+}
+
 static bool try_parse(const std::string& s, const std::string& typeStr, const char type, Resource::Id& out)
 {
 	if (s.compare(0, typeStr.size(), typeStr) != 0) return false;
@@ -286,6 +292,10 @@ void Resource::clear()
   mFileName.clear();
   mPath.clear();
   mThumbnailId = 0;
+}
+
+void Resource::swap(Resource& r)
+{
 }
 
 void Resource::setDbId(const Resource::Id& id)
