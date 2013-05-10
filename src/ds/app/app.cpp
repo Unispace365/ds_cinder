@@ -114,6 +114,62 @@ void App::mouseDown( MouseEvent event )
 
 void App::mouseMove( MouseEvent event )
 {
+    if ( event.isControlDown() )
+        autoMouseScroll( event );
+}
+
+bool App::autoMouseScroll( MouseEvent event )
+{
+    static Vec2i previousPos(-1, -1);
+    const Vec2i pos = event.getPos();
+
+	bool scrolled = false;
+    if ( previousPos == Vec2i( -1, -1 ) ) {
+        previousPos = pos;
+        return scrolled;
+    }
+
+    const Vec2f delta = pos - previousPos;
+    previousPos = pos;
+
+    const int scroll_border = 50;
+    ci::Rectf previousScreenRect = mEngine.getScreenRect();
+	ci::Rectf newScreenRect = previousScreenRect;
+
+	// keeps the cursor within the window bounds,
+	// so that we can continuously drag the mouse without
+	// ever hitting the sides of the screen
+#ifdef WIN32
+    POINT pt;
+    pt.x = pos.x;
+    pt.y = pos.y;
+
+	if ( pos.x < scroll_border && delta.x < 0 ) {
+        newScreenRect += Vec2f( delta.x, 0 );
+        previousPos.x = pt.x = scroll_border;
+    }
+    if ( pos.x > getWindowWidth() - scroll_border - 1 && delta.x > 0 ) {
+        newScreenRect += Vec2f( delta.x, 0 );
+        previousPos.x = pt.x = getWindowWidth() - scroll_border - 1;
+    }
+	if ( pos.y < scroll_border && delta.y < 0 ) {
+        newScreenRect += Vec2f( 0, delta.y );
+        previousPos.y = pt.y = scroll_border;
+    }
+    if ( pos.y > getWindowHeight() - scroll_border - 1 && delta.y > 0 ) {
+        newScreenRect += Vec2f( 0, delta.y );
+        previousPos.y = pt.y = getWindowHeight() - scroll_border - 1;
+    }
+
+    if ( newScreenRect.getCenter() != previousScreenRect.getCenter() ) {
+        mEngine.setScreenRect( newScreenRect );
+	    HWND hWnd = getRenderer()->getHwnd();
+		::ClientToScreen(hWnd, &pt);
+		::SetCursorPos(pt.x,pt.y);
+    }
+#endif
+
+	return scrolled;
 }
 
 void App::mouseDrag( MouseEvent event )

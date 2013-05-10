@@ -28,6 +28,7 @@ class App : public cinder::app::AppBasic {
     virtual void                mouseMove( MouseEvent event );
     virtual void                mouseDrag( MouseEvent event );
     virtual void                mouseUp( MouseEvent event );	
+    bool                        autoMouseScroll( MouseEvent event );
     virtual void                touchesBegan( TouchEvent event );
     virtual void                touchesMoved( TouchEvent event );
     virtual void                touchesEnded( TouchEvent event );
