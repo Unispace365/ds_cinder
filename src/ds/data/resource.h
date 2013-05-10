@@ -125,6 +125,8 @@ public:
     bool					existsInDb() const;
     // Query the DB for my contents. Obviously, this is also an expensive operation.
     bool					query(const Resource::Id&);
+	// The argument is the full thumbnail, if you want it.
+    bool					query(const Resource::Id&, Resource* outThumb);
 
 private:
 	friend class ResourceList;

@@ -9,14 +9,14 @@
 #include "ds/query/query_client.h"
 
 namespace {
-const std::string		  FONT_TYPE_SZ("f");
-const std::string		  IMAGE_TYPE_SZ("i");
-const std::string		  IMAGE_SEQUENCE_TYPE_SZ("s");
-const std::string		  PDF_TYPE_SZ("p");
-const std::string		  VIDEO_TYPE_SZ("v");
-const std::string		  WEB_TYPE_SZ("w");
+const std::string		FONT_TYPE_SZ("f");
+const std::string		IMAGE_TYPE_SZ("i");
+const std::string		IMAGE_SEQUENCE_TYPE_SZ("s");
+const std::string		PDF_TYPE_SZ("p");
+const std::string		VIDEO_TYPE_SZ("v");
+const std::string		WEB_TYPE_SZ("w");
 
-const std::string		  EMPTY_SZ("");
+const std::string		EMPTY_SZ("");
 
 const std::wstring		FONT_NAME_SZ(L"font");
 const std::wstring		IMAGE_NAME_SZ(L"image");
@@ -149,40 +149,40 @@ bool Resource::Id::verifyPaths() const
 
 void Resource::Id::writeTo(DataBuffer& buf) const
 {
-  buf.add(mType);
-  buf.add(mValue);
+	buf.add(mType);
+	buf.add(mValue);
 }
 
 bool Resource::Id::readFrom(DataBuffer& buf)
 {
-  if (!buf.canRead<char>()) return false;
-  mType = buf.read<char>();
-  if (!buf.canRead<int>()) return false;
-  mValue = buf.read<int>();
-  return true;
+	if (!buf.canRead<char>()) return false;
+	mType = buf.read<char>();
+	if (!buf.canRead<int>()) return false;
+	mValue = buf.read<int>();
+	return true;
 }
 
 /**
  * ds::Resource::id database path
  */
 namespace {
-std::string				  CMS_RESOURCE_PATH("");
-std::string				  CMS_DB_PATH("");
-std::string				  APP_RESOURCE_PATH("");
-std::string				  APP_DB_PATH("");
+std::string				CMS_RESOURCE_PATH("");
+std::string				CMS_DB_PATH("");
+std::string				APP_RESOURCE_PATH("");
+std::string				APP_DB_PATH("");
 const std::string		EMPTY_PATH("");
 // Function for generating custom paths
 std::function<const std::string&(const Resource::Id&)>
-                    CUSTOM_RESOURCE_PATH;
+						CUSTOM_RESOURCE_PATH;
 std::function<const std::string&(const Resource::Id&)>
-                    CUSTOM_DB_PATH;
+						CUSTOM_DB_PATH;
 }
 
 const std::string& Resource::Id::getResourcePath() const
 {
 	if (mType == CMS_TYPE)		return CMS_RESOURCE_PATH;
 	if (mType == APP_TYPE)		return APP_RESOURCE_PATH;
-  if (mType <= CUSTOM_TYPE && CUSTOM_RESOURCE_PATH) return CUSTOM_RESOURCE_PATH(*this);
+	if (mType <= CUSTOM_TYPE && CUSTOM_RESOURCE_PATH) return CUSTOM_RESOURCE_PATH(*this);
 	return EMPTY_PATH;
 }
 
@@ -190,7 +190,7 @@ const std::string& Resource::Id::getDatabasePath() const
 {
 	if (mType == CMS_TYPE)		return CMS_DB_PATH;
 	if (mType == APP_TYPE)		return APP_DB_PATH;
-  if (mType <= CUSTOM_TYPE && CUSTOM_DB_PATH) return CUSTOM_DB_PATH(*this);
+	if (mType <= CUSTOM_TYPE && CUSTOM_DB_PATH) return CUSTOM_DB_PATH(*this);
 	return EMPTY_PATH;
 }
 
@@ -198,11 +198,11 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
                               const std::string& projectPath)
 {
 	CMS_RESOURCE_PATH = resource;
-  {
-    Poco::Path      p(resource);
-    p.append(db);
-    CMS_DB_PATH = p.toString();
-  }
+	{
+		Poco::Path      p(resource);
+		p.append(db);
+		CMS_DB_PATH = p.toString();
+	}
 
 	// If the project path exists, then setup our app-local resources path.
 	if (!projectPath.empty()) {
@@ -226,8 +226,8 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 void Resource::Id::setupCustomPaths( const std::function<const std::string&(const Resource::Id&)>& resourcePath,
                                      const std::function<const std::string&(const Resource::Id&)>& dbPath)
 {
-  CUSTOM_RESOURCE_PATH = resourcePath;
-  CUSTOM_DB_PATH = dbPath;
+	CUSTOM_RESOURCE_PATH = resourcePath;
+	CUSTOM_DB_PATH = dbPath;
 }
 
 /**
@@ -235,20 +235,20 @@ void Resource::Id::setupCustomPaths( const std::function<const std::string&(cons
  */
 Resource::Resource()
 	: mType(ERROR_TYPE)
-  , mDuration(0)
-  , mWidth(0)
-  , mHeight(0)
-  , mThumbnailId(0)
+	, mDuration(0)
+	, mWidth(0)
+	, mHeight(0)
+	, mThumbnailId(0)
 {
 }
 
 Resource::Resource(const Resource::Id& dbId, const int type)
 	: mDbId(dbId)
 	, mType(type)
-  , mDuration(0)
-  , mWidth(0)
-  , mHeight(0)
-  , mThumbnailId(0)
+	, mDuration(0)
+	, mWidth(0)
+	, mHeight(0)
+	, mThumbnailId(0)
 {
 }
 
@@ -259,7 +259,7 @@ bool Resource::operator==(const Resource& o) const
 
 bool Resource::operator!=(const Resource& o) const
 {
-  return (!(*this == o));
+	return (!(*this == o));
 }
 
 const std::wstring& Resource::getTypeName() const
@@ -275,27 +275,35 @@ const std::wstring& Resource::getTypeName() const
 
 std::string Resource::getAbsoluteFilePath() const
 {
-  if (mFileName.empty()) return EMPTY_SZ;
-  Poco::Path        p(mDbId.getResourcePath());
-  if (p.depth() < 1) return EMPTY_SZ;
-  p.append(mPath).append(mFileName);
-  return p.toString();
+	if (mFileName.empty()) return EMPTY_SZ;
+	Poco::Path        p(mDbId.getResourcePath());
+	if (p.depth() < 1) return EMPTY_SZ;
+	p.append(mPath).append(mFileName);
+	return p.toString();
 }
 
 void Resource::clear()
 {
-  mDbId.clear();
-  mType = ERROR_TYPE;
-  mDuration = 0.0;
-  mWidth = 0.0f;
-  mHeight = 0.0f;
-  mFileName.clear();
-  mPath.clear();
-  mThumbnailId = 0;
+	mDbId.clear();
+	mType = ERROR_TYPE;
+	mDuration = 0.0;
+	mWidth = 0.0f;
+	mHeight = 0.0f;
+	mFileName.clear();
+	mPath.clear();
+	mThumbnailId = 0;
 }
 
 void Resource::swap(Resource& r)
 {
+	mDbId.swap(r.mDbId);
+	std::swap(mType, r.mType);
+	std::swap(mDuration, r.mDuration);
+	std::swap(mWidth, r.mWidth);
+	std::swap(mHeight, r.mHeight);
+	mFileName.swap(r.mFileName);
+	mPath.swap(r.mPath);
+	std::swap(mThumbnailId, r.mThumbnailId);
 }
 
 void Resource::setDbId(const Resource::Id& id)
@@ -323,32 +331,43 @@ return false;
 
 bool Resource::query(const Resource::Id& id)
 {
-  const std::string&          dbPath = id.getDatabasePath();
-  if (dbPath.empty()) return false;
+	const std::string&          dbPath = id.getDatabasePath();
+	if (dbPath.empty()) return false;
 
-  std::stringstream           buf;
-  buf.str("");
-  buf << "SELECT resourcestype,resourcesduration,resourceswidth,resourcesheight,resourcesfilename,resourcespath,resourcesthumbid FROM Resources WHERE resourcesid = " << id.mValue;
-  query::Result               r;
-  if (!query::Client::query(dbPath, buf.str(), r) || r.rowsAreEmpty()) {
-    return false;
-  }
+	std::stringstream           buf;
+	buf.str("");
+	buf << "SELECT resourcestype,resourcesduration,resourceswidth,resourcesheight,resourcesfilename,resourcespath,resourcesthumbid FROM Resources WHERE resourcesid = " << id.mValue;
+	query::Result               r;
+	if (!query::Client::query(dbPath, buf.str(), r) || r.rowsAreEmpty()) {
+		return false;
+	}
 
-  clear();
+	clear();
 
-  query::Result::RowIterator  it(r);
-  if (!it.hasValue()) return false;
+	query::Result::RowIterator  it(r);
+	if (!it.hasValue()) return false;
 
-  setDbId(id);
-  setTypeFromString(it.getString(0));
-  mDuration = it.getFloat(1);
-  mWidth = it.getFloat(2);
-  mHeight = it.getFloat(3);
-  mFileName = it.getString(4);
-  mPath = it.getString(5);
-  mThumbnailId = it.getInt(6);
+	setDbId(id);
+	setTypeFromString(it.getString(0));
+	mDuration = it.getFloat(1);
+	mWidth = it.getFloat(2);
+	mHeight = it.getFloat(3);
+	mFileName = it.getString(4);
+	mPath = it.getString(5);
+	mThumbnailId = it.getInt(6);
 
-  return true;
+	return true;
+}
+
+bool Resource::query(const Resource::Id& id, Resource* outThumb)
+{
+	const bool		ans = query(id);
+	if (ans && mThumbnailId > 0 && outThumb) {
+		ds::Resource::Id	tid(mDbId);
+		tid.mValue = mThumbnailId;
+		outThumb->query(tid);
+	}
+	return ans;
 }
 
 void Resource::setTypeFromString(const std::string& typeChar)
