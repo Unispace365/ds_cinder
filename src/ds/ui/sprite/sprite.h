@@ -77,8 +77,8 @@ class Sprite : public SpriteAnimatable
 
         void                setSize(float width, float height);
         virtual void        setSizeAll(float width, float height, float depth);
-        float       getWidth() const;
-        float       getHeight() const;
+        virtual float       getWidth() const;
+        virtual float       getHeight() const;
         float       getDepth() const;
         float       getScaleWidth() const;
         float       getScaleHeight() const;

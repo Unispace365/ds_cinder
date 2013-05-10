@@ -45,7 +45,7 @@ class Text: public Sprite
 
         // Name can be a full filename, or a short name, if the FontList has been filled out.
         Text&                     setFont(const std::string& name, const float fontSize);
-        void                      setSizeAll( float width, float height, float depth );
+        virtual void              setSizeAll( float width, float height, float depth );
         virtual float             getWidth() const;
         virtual float             getHeight() const;
         void                      setAlignment( int alignment );
