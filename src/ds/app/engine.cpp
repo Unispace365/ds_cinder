@@ -99,13 +99,10 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings, const std::vecto
 		if (s.getPerspective()) {
 			s.setDrawSorted(true);
 		} else {
+			s.setSize(getWorldWidth(), getWorldHeight());
 			if (scaleWorldToFit) {
-                s.setSize(getWorldWidth(), getWorldHeight());
 				s.setScale(getWidth()/getWorldWidth(), getHeight()/getWorldHeight());
 			}
-            else {
-                s.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
-            }
 		}
 	}
 
