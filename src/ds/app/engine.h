@@ -93,6 +93,7 @@ class Engine : public ui::SpriteEngine {
     float                       getDoubleTapTime() const;
 
     ci::Rectf                   getScreenRect() const;
+    void                        setScreenRect( const ci::Rectf &rect );
     float                       getWidth() const;
     float                       getHeight() const;
     float                       getWorldWidth() const;

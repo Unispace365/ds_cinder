@@ -88,13 +88,13 @@ void TouchManager::touchesEnded( TouchEvent event )
   }
 }
 
-void TouchManager::mouseTouchBegin( MouseEvent event, int id )
+void TouchManager::mouseTouchBegin( MouseEvent event, int id, const ci::Rectf &screenRect )
 {
   if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch())
     return;
 
   TouchInfo touchInfo;
-  touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
+  touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f) + Vec3f( screenRect.getUpperLeft() );
   touchInfo.mFingerId = id;
   touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
   mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
@@ -112,13 +112,13 @@ void TouchManager::mouseTouchBegin( MouseEvent event, int id )
   //std::cout << "mouse began: " << id << " @: x: " << touchInfo.mCurrentGlobalPoint.x << " | y: " << touchInfo.mCurrentGlobalPoint.y << std::endl;
 }
 
-void TouchManager::mouseTouchMoved( MouseEvent event, int id )
+void TouchManager::mouseTouchMoved( MouseEvent event, int id, const ci::Rectf &screenRect )
 {
   if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch())
     return;
 
   TouchInfo touchInfo;
-  touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
+  touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f) + Vec3f( screenRect.getUpperLeft() );
   touchInfo.mFingerId = id;
   touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
   touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -137,13 +137,13 @@ void TouchManager::mouseTouchMoved( MouseEvent event, int id )
   //std::cout << "mouse moved: " << id << " @: x: " << touchInfo.mCurrentGlobalPoint.x << " | y: " << touchInfo.mCurrentGlobalPoint.y << std::endl;
 }
 
-void TouchManager::mouseTouchEnded( MouseEvent event, int id )
+void TouchManager::mouseTouchEnded( MouseEvent event, int id, const ci::Rectf &screenRect )
 {
   if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch())
     return;
 
   TouchInfo touchInfo;
-  touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
+  touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f) + Vec3f( screenRect.getUpperLeft() );
   touchInfo.mFingerId = id;
   touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
   touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];

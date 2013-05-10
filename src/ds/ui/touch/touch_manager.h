@@ -5,6 +5,7 @@
 #include "cinder/app/TouchEvent.h"
 #include "cinder/app/MouseEvent.h"
 #include "cinder/Color.h"
+#include "cinder/Rect.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -22,9 +23,9 @@ class TouchManager
   public:
     TouchManager(Engine &engine);
 
-    void                        mouseTouchBegin( MouseEvent event, int id );
-    void                        mouseTouchMoved( MouseEvent event, int id );
-    void                        mouseTouchEnded( MouseEvent event, int id );
+    void                        mouseTouchBegin( MouseEvent event, int id, const ci::Rectf &screenRect=ci::Rectf() );
+    void                        mouseTouchMoved( MouseEvent event, int id, const ci::Rectf &screenRect=ci::Rectf() );
+    void                        mouseTouchEnded( MouseEvent event, int id, const ci::Rectf &screenRect=ci::Rectf() );
 
     void                        touchesBegin( TouchEvent event );
     void                        touchesMoved( TouchEvent event );

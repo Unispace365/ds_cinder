@@ -191,7 +191,7 @@ void Engine::updateServer()
       mIdling = false;
 
       for (auto it = mMouseBeginEvents.begin(), it2 = mMouseBeginEvents.end(); it != it2; ++it) {
-    	  mTouchManager.mouseTouchBegin(it->first, it->second);
+        mTouchManager.mouseTouchBegin(it->first, it->second, mScreenRect );
       }
       mMouseBeginEvents.clear();
     }
@@ -201,7 +201,7 @@ void Engine::updateServer()
       mIdling = false;
 
       for (auto it = mMouseMovedEvents.begin(), it2 = mMouseMovedEvents.end(); it != it2; ++it) {
-        mTouchManager.mouseTouchMoved(it->first, it->second);
+        mTouchManager.mouseTouchMoved(it->first, it->second, mScreenRect );
       }
       mMouseMovedEvents.clear();
     }
@@ -211,7 +211,7 @@ void Engine::updateServer()
       mIdling = false;
 
       for (auto it = mMouseEndEvents.begin(), it2 = mMouseEndEvents.end(); it != it2; ++it) {
-        mTouchManager.mouseTouchEnded(it->first, it->second);
+        mTouchManager.mouseTouchEnded(it->first, it->second, mScreenRect );
       }
       mMouseEndEvents.clear();
     }
@@ -270,7 +270,8 @@ void Engine::updateServer()
 void Engine::setCamera(const bool perspective)
 {
 	if(!perspective){
-		gl::setViewport(Area((int)mScreenRect.getX1(), (int)mScreenRect.getY2(), (int)mScreenRect.getX2(), (int)mScreenRect.getY1()));
+		const Area vp( 0, (int)getHeight(), (int)getWidth(), 0 );
+		gl::setViewport( vp );
 		mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1, 1);
 		//gl::setMatrices(mCamera);
 	} else {
@@ -628,6 +629,13 @@ float Engine::getDoubleTapTime() const
 ci::Rectf Engine::getScreenRect() const
 {
   return mScreenRect;
+}
+
+void Engine::setScreenRect( const ci::Rectf& rect )
+{
+  mScreenRect.set( rect.x1, rect.y1, rect.x2, rect.y2 );
+  setCamera(true);
+  setCamera();
 }
 
 float Engine::getWidth() const
