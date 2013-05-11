@@ -29,6 +29,7 @@ public:
 
 	void					addColorInput(const ci::ColorA&);
 	void					addFloatInput(const double);
+	void					addVec2Input(const ci::Vec2d&);
 	
 private:
 	const int				mWidth,

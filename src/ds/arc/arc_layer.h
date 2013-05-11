@@ -32,12 +32,12 @@ private:
 	void					setInput(const InputMode);
 	void					setCompositeMode(const CompositeMode);
 
-	ci::Vec2d				mOffset;
+	Vec2Param				mOffset;
 	ScaleMode				mScaleMode;
 	double					mScale;
 	std::unique_ptr<Arc>	mArc;
 	ColorArray				mColor;
-	std::function<double(const RenderCircleParams&)>
+	std::function<double(const RenderCircleParams&, const ci::Vec2d& offset)>
 							mScaleFn;
 	std::function<double(const double dist, const double degree)>
 							mInputFn;

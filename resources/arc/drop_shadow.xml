@@ -1,7 +1,7 @@
 <arc type="chain">
 	<!-- Drop shadow -->
 	<layer input="dist">
-		<offset x="0" y="0" />
+		<offset x="0" y="0" input="0" />
 		<scale mode="fit" amount="1" />
 		<color rgb="0,0,0" input="0" />
 		<arc type="pow">

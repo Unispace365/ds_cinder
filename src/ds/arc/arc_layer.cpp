@@ -12,8 +12,7 @@ namespace arc {
  * ds::arc::Layer
  */
 Layer::Layer()
-	: mOffset(0.0, 0.0)
-	, mScaleMode(SCALE_MULTIPLY)
+	: mScaleMode(SCALE_MULTIPLY)
 	, mScale(1.0)
 {
 	setInput(INPUT_DIST);
@@ -27,10 +26,11 @@ void Layer::renderCircle(const Input& ip, RenderCircleParams& p) const
 	const double	x = p.mX,
 					y = p.mY;
 	if (x < 0 || y < 0 || x >= p.mW || y >= p.mH) return;
-	const double	cenx = p.mCenX + mOffset.x,
-					ceny = p.mCenY + mOffset.y;
+	ci::Vec2d		offset = mOffset.getValue(ip);
+	const double	cenx = p.mCenX + offset.x,
+					ceny = p.mCenY + offset.y;
 	const double	dist = ds::math::dist(cenx, ceny, x, y);
-	const double	max_dist = mScaleFn(p);
+	const double	max_dist = mScaleFn(p, offset);
 	if (dist >= max_dist) return;
 
 	const double	unit_dist = 1.0 - ds::math::clamp(dist / max_dist, 0.0, 1.0);
@@ -66,8 +66,9 @@ void Layer::readXml(const ci::XmlTree& xml)
 
 	for (auto it=xml.begin(), end=xml.end(); it != end; ++it) {
 		if (it->getTag() == "offset") {
-			mOffset.x = it->getAttributeValue<double>("x", 0.0);
-			mOffset.y = it->getAttributeValue<double>("y", 0.0);
+			mOffset.readXml(*it);
+			mOffset.mValue.x = it->getAttributeValue<double>("x", 0.0);
+			mOffset.mValue.y = it->getAttributeValue<double>("y", 0.0);
 		} else if (it->getTag() == "scale") {
 			setScale(	it->getAttributeValue<std::string>("mode", ""),
 						it->getAttributeValue<double>("amount", 1.0));
@@ -90,15 +91,15 @@ void Layer::setScale(const ScaleMode& mode, const double amount)
 	if (mode == SCALE_FIT) {
 		mScaleMode = SCALE_FIT;
 		// The fit mode acounts for my current offset.
-		mScaleFn = [this](const RenderCircleParams& p)->double{
-			const double	cenx = p.mCenX - (abs(this->mOffset.x)),
-							ceny = p.mCenY - (abs(this->mOffset.y));
+		mScaleFn = [this](const RenderCircleParams& p, const ci::Vec2d& offset)->double{
+			const double	cenx = p.mCenX - (abs(offset.x)),
+							ceny = p.mCenY - (abs(offset.y));
 			const double	max_dist = ds::math::dist(cenx, ceny, cenx, 0.0);
 			return max_dist * this->mScale;
 		};
 	} else {
 		mScaleMode = SCALE_MULTIPLY;
-		mScaleFn = [this](const RenderCircleParams& p)->double{return p.mMaxDist * this->mScale;};
+		mScaleFn = [this](const RenderCircleParams& p, const ci::Vec2d&)->double{return p.mMaxDist * this->mScale;};
 	}
 }
 

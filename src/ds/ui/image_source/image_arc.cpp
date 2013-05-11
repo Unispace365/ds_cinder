@@ -123,5 +123,10 @@ void ImageArc::addFloatInput(const double f)
 	mInput.addFloat(f);
 }
 
+void ImageArc::addVec2Input(const ci::Vec2d& v)
+{
+	mInput.addVec2(v);
+}
+
 } // namespace ui
 } // namespace ds
