@@ -2,8 +2,7 @@
 #ifndef DS_ARC_ARCCOLORARRAY_H_
 #define DS_ARC_ARCCOLORARRAY_H_
 
-#include <cinder/Color.h>
-#include <cinder/Xml.h>
+#include "ds/arc/arc_input.h"
 
 namespace ds {
 namespace arc {
@@ -19,12 +18,12 @@ class ColorArray
 public:
 	ColorArray();
 
-	ci::ColorA							at(const double unit) const;
+	ci::ColorA				at(const Input&, const double unit) const;
 
-	virtual void						readXml(const ci::XmlTree&);
+	virtual void			readXml(const ci::XmlTree&);
 
 private:
-	std::vector<ci::ColorA>	mColor;
+	std::vector<ColorParam>	mColor;
 };
 
 } // namespace arc

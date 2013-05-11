@@ -13,13 +13,13 @@ namespace ds {
 namespace ui {
 
 namespace {
-char                BLOB_TYPE         = 0;
-const char          RES_FN_ATT        = 20;
-const char          RES_FLAGS_ATT     = 21;
+char				BLOB_TYPE		= 0;
+const char			RES_FN_ATT		= 20;
+const char			RES_FLAGS_ATT	= 21;
 
-const int						STATUS_ERROR			= -1;
-const int						STATUS_EMPTY			= 0;
-const int						STATUS_OK					= 1;
+const int			STATUS_ERROR	= -1;
+const int			STATUS_EMPTY	= 0;
+const int			STATUS_OK		= 1;
 
 /**
  * \class ArcGenerator
@@ -30,8 +30,8 @@ class ArcGenerator : public ImageGenerator
 public:
 	ArcGenerator(SpriteEngine&)
 		: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(0), mHeight(0) { }
-	ArcGenerator(SpriteEngine&, const int width, const int height, const std::string& fn, const std::vector<float>& floatInput)
-		: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(width), mHeight(height), mFilename(fn), mFloatInput(floatInput) { }
+	ArcGenerator(SpriteEngine&, const int width, const int height, const std::string& fn, const ds::arc::Input& input)
+		: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(width), mHeight(height), mFilename(fn), mInput(input) { }
 
 	const ci::gl::Texture*		getImage() {
 		if (mStatus == STATUS_EMPTY) generate();
@@ -75,7 +75,7 @@ private:
 		if (!s || s.getWidth() != mWidth || s.getHeight() != mHeight) return;
 
 		ds::arc::RenderCircle		render;
-		if (!render.on(s, *(a.get()))) return;
+		if (!render.on(mInput, s, *(a.get()))) return;
 
 		mTexture = ci::gl::Texture(s);
 		if (mTexture && mTexture.getWidth() == mWidth && mTexture.getHeight() == mHeight) {
@@ -87,7 +87,7 @@ private:
 	const int				mWidth,
 							mHeight;
 	std::string				mFilename;
-	std::vector<float>		mFloatInput;
+	ds::arc::Input			mInput;
 	ci::gl::Texture			mTexture;
 };
 
@@ -110,12 +110,17 @@ ImageArc::ImageArc(const int width, const int height, const std::string& filenam
 
 ImageGenerator* ImageArc::newGenerator(SpriteEngine& e) const
 {
-	return new ArcGenerator(e, mWidth, mHeight, mFilename, mFloatInput);
+	return new ArcGenerator(e, mWidth, mHeight, mFilename, mInput);
 }
 
-void ImageArc::addInput(const float f)
+void ImageArc::addColorInput(const ci::ColorA& c)
 {
-	mFloatInput.push_back(f);
+	mInput.addColor(c);
+}
+
+void ImageArc::addFloatInput(const double f)
+{
+	mInput.addFloat(f);
 }
 
 } // namespace ui

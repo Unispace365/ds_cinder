@@ -21,7 +21,7 @@ Layer::Layer()
 	setCompositeMode(COMPOSITE_SRCOVER);
 }
 
-void Layer::renderCircle(RenderCircleParams& p) const
+void Layer::renderCircle(const Input& ip, RenderCircleParams& p) const
 {
 	// Determine my input based on my parameters
 	const double	x = p.mX,
@@ -37,7 +37,12 @@ void Layer::renderCircle(RenderCircleParams& p) const
 	const double	unit_degree = ds::math::clamp(ds::math::degree(x - cenx, ceny - y) / 360.0, 0.0, 1.0);
 
 	// render
-	ci::ColorA		clr = mColor.at(mInputFn(unit_dist, unit_degree));
+	double			input = mInputFn(unit_dist, unit_degree);
+	if (mArc) {
+		input = mArc->run(ip, input);
+	}
+	ci::ColorA		clr = mColor.at(ip, input);
+
 	// draw into params
 	if (clr.a > 0.0f) {
 		// antialias
@@ -68,11 +73,10 @@ void Layer::readXml(const ci::XmlTree& xml)
 						it->getAttributeValue<double>("amount", 1.0));
 		} else if (it->getTag() == "color") {
 			// Colors handled by the color reader below
-		} else {
+		} else if (it->getTag() == "arc") {
 			std::unique_ptr<Arc>		a(ds::arc::create(*it));
 			if (a) {
 				mArc = std::move(a);
-				return;
 			}
 		}
 	}

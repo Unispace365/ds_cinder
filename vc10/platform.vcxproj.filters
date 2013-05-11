@@ -435,6 +435,12 @@
     <ClInclude Include="..\src\ds\util\file_meta_data.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_pow.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_input.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -703,6 +709,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\util\file_meta_data.cpp">
       <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_pow.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_input.cpp">
+      <Filter>src\ds\arc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

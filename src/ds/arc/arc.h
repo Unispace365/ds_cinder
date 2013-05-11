@@ -7,6 +7,7 @@
 
 namespace ds {
 namespace arc {
+class Input;
 class RenderCircleParams;
 
 /**
@@ -18,7 +19,10 @@ class Arc
 public:
 	virtual ~Arc();
 
-	virtual void				renderCircle(RenderCircleParams&) const;
+	// Basic perform operation. Translate the value based on subclass params
+	virtual double				run(const Input&, const double) const;
+
+	virtual void				renderCircle(const Input&, RenderCircleParams&) const;
 
 	virtual void				readXml(const ci::XmlTree&);
 
@@ -29,4 +33,4 @@ protected:
 } // namespace arc
 } // namespace ds
 
-#endif // DS_ARC_ARCRENDER_H_
+#endif // DS_ARC_ARC_H_

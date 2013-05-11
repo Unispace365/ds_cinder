@@ -17,13 +17,13 @@ ColorArray::ColorArray()
 }
 
 
-ci::ColorA ColorArray::at(const double unit) const
+ci::ColorA ColorArray::at(const Input& input, const double unit) const
 {
 	if (mColor.empty()) {
 		return ci::ColorA(0.0, 0.0, 0.0, static_cast<float>(unit));
 	}
 	if (mColor.size() == 1) {
-		const ci::ColorA&		c = mColor[0];
+		ci::ColorA		c = mColor[0].getValue(input);
 		return ci::ColorA(c.r, c.g, c.b, c.a * static_cast<float>(unit));
 	}
 
@@ -36,10 +36,12 @@ void ColorArray::readXml(const ci::XmlTree& xml)
 
 	for (auto it=xml.begin(), end=xml.end(); it != end; ++it) {
 		if (it->getTag() == "color") {
-			ci::ColorA					clr;
+			ci::ColorA				clr;
 			const std::string		rgb = it->getAttributeValue<std::string>("rgb", "");
 			if (parse_color(rgb, clr)) {
-				mColor.push_back(clr);
+				ColorParam			cp(clr);
+				cp.readXml(*it);
+				mColor.push_back(cp);
 			}
 		}
 	}

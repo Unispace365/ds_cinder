@@ -22,6 +22,12 @@ public:
    * \param falloff is how quickly the shadow decays.
    */
 	ImageDropShadow(const float radius, const float falloff);
+  /**
+   * \param radius is the radius of each corner of the drop shadow, in pixels.
+   * \param falloff is how quickly the shadow decays.
+   * \param color is the color of the drop shadow.
+   */
+	ImageDropShadow(const float radius, const float falloff, const ci::ColorA& color);
 };
 
 } // namespace ui

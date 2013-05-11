@@ -18,7 +18,7 @@ class Layer : public Arc
 public:
 	Layer();
 
-	virtual void			renderCircle(RenderCircleParams&) const;
+	virtual void			renderCircle(const Input&, RenderCircleParams&) const;
 
 	virtual void			readXml(const ci::XmlTree&);
 

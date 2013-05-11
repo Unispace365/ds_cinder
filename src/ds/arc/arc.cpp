@@ -14,7 +14,12 @@ Arc::~Arc()
 {
 }
 
-void Arc::renderCircle(RenderCircleParams&) const
+double Arc::run(const Input&, const double v) const
+{
+	return v;
+}
+
+void Arc::renderCircle(const Input&, RenderCircleParams&) const
 {
 }
 

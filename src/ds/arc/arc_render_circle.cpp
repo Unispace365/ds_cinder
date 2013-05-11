@@ -34,9 +34,9 @@ static inline uint8_t to_color(const float inv)
 	return static_cast<uint8_t>(inv*255.0f);
 }
 
-bool RenderCircle::on(ci::Surface8u& s, ds::arc::Arc& a)
+bool RenderCircle::on(const Input& input, ci::Surface8u& s, ds::arc::Arc& a)
 {
-	s.setPremultiplied(false);
+	s.setPremultiplied(true);
 
 	RenderCircleParams	params;
 	params.mW = s.getWidth();
@@ -44,15 +44,14 @@ bool RenderCircle::on(ci::Surface8u& s, ds::arc::Arc& a)
 	params.mCenX = (s.getWidth()-1)/2.0;
 	params.mCenY = (s.getHeight()-1)/2.0;
 	params.mMaxDist = ds::math::dist(params.mCenX, params.mCenY, params.mCenX, 0.0);
-	s.setPremultiplied(true);
 
 	auto			pix = s.getIter();
 	params.mY = 0.0;
 	while (pix.line()) {
 		params.mX = 0.0;
 		while (pix.pixel()) {
-			params.mOutput = ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f);
-			a.renderCircle(params);
+			params.mOutput = ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f);
+			a.renderCircle(input, params);
 			pix.r() = to_color(params.mOutput.r);
 			pix.g() = to_color(params.mOutput.g);
 			pix.b() = to_color(params.mOutput.b);

@@ -5,6 +5,7 @@
 #include <string>
 #include <vector>
 #include "ds/ui/image_source/image_source.h"
+#include "ds/arc/arc_input.h"
 
 namespace ds {
 class ImageRegistry;
@@ -18,26 +19,27 @@ namespace ui {
 class ImageArc : public ImageSource
 {
 public:
-  /**
-   * \param filename is the filename (and path) for the resource.
+	/**
+	 * \param filename is the filename (and path) for the resource.
 	 * If filename begins with "resource:" then this is a compiled-in resource.
-   */
+	 */
 	ImageArc(const int width, const int height, const std::string& filename);
 
-	virtual ImageGenerator*		newGenerator(SpriteEngine&) const;
+	virtual ImageGenerator*	newGenerator(SpriteEngine&) const;
 
-	void											addInput(const float);
-
+	void					addColorInput(const ci::ColorA&);
+	void					addFloatInput(const double);
+	
 private:
-	const int									mWidth,
-														mHeight;
-	const std::string					mFilename;
-	std::vector<float>				mFloatInput;
+	const int				mWidth,
+							mHeight;
+	const std::string		mFilename;
+	ds::arc::Input			mInput;
 
 	// Engine initialization
 public:
 	// Generators must be registered with the system at startup (i.e. in App constructor)
-	static void								install(ds::ImageRegistry&);
+	static void				install(ds::ImageRegistry&);
 };
 
 } // namespace ui

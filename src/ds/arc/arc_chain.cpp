@@ -12,11 +12,11 @@ Chain::Chain()
 {
 }
 
-void Chain::renderCircle(RenderCircleParams& p) const
+void Chain::renderCircle(const Input& input, RenderCircleParams& p) const
 {
 	for (auto it=mArc.begin(), end=mArc.end(); it!=end; ++it) {
 		const Arc*		a = it->get();
-		if (a) a->renderCircle(p);
+		if (a) a->renderCircle(input, p);
 	}
 }
 

@@ -35,7 +35,7 @@ class RenderCircle
 public:
 	RenderCircle();
 
-	bool				on(ci::Surface8u&, ds::arc::Arc&);
+	bool				on(const Input&, ci::Surface8u&, ds::arc::Arc&);
 };
 
 } // namespace arc
