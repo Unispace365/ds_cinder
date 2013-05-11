@@ -11,14 +11,19 @@ namespace ds {
 namespace arc {
 
 class RenderCircleParams {
-  public:
-    RenderCircleParams();
+public:
+	RenderCircleParams();
 
-		// In unit coords.
-		double					mDist,
-										mDegree;
-		// Output
-		ci::ColorA			mOutput;
+	// In pixels, for clients that want to render a custom circle]
+	double				mW, mH;
+	double				mX, mY,
+						mCenX, mCenY,
+						mMaxDist;
+	// In unit coords.
+	double				mDist,
+						mDegree;
+	// Output
+	ci::ColorA			mOutput;
 };
 
 /**
@@ -27,10 +32,10 @@ class RenderCircleParams {
  */
 class RenderCircle
 {
-  public:
-    RenderCircle();
+public:
+	RenderCircle();
 
-		bool						on(ci::Surface8u&, ds::arc::Arc&);
+	bool				on(ci::Surface8u&, ds::arc::Arc&);
 };
 
 } // namespace arc

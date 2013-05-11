@@ -2,6 +2,14 @@
 
 #include "ds/math/math_func.h"
 
+#ifdef _DEBUG
+#define			ARC_RENDER_SAVE_IMAGE		(1)
+#endif
+
+#ifdef ARC_RENDER_SAVE_IMAGE
+#include <cinder/ImageIo.h>
+#endif
+
 namespace ds {
 namespace arc {
 
@@ -19,13 +27,6 @@ RenderCircle::RenderCircle()
 {
 }
 
-static inline double clip(const double v, const double min, const double max)
-{
-	if (v <= min) return min;
-	if (v >= max) return max;
-	return v;
-}
-
 static inline uint8_t to_color(const float inv)
 {
 	if (inv <= 0.0f) return 0;
@@ -38,44 +39,38 @@ bool RenderCircle::on(ci::Surface8u& s, ds::arc::Arc& a)
 	s.setPremultiplied(false);
 
 	RenderCircleParams	params;
-	const double				cenx = (s.getWidth()-1)/2.0,
-											ceny = (s.getHeight()-1)/2.0;
-	const double				max_dist = ds::math::dist(cenx, ceny, cenx, 0.0);
+	params.mW = s.getWidth();
+	params.mH = s.getHeight();
+	params.mCenX = (s.getWidth()-1)/2.0;
+	params.mCenY = (s.getHeight()-1)/2.0;
+	params.mMaxDist = ds::math::dist(params.mCenX, params.mCenY, params.mCenX, 0.0);
+	s.setPremultiplied(true);
 
 	auto			pix = s.getIter();
-	double		y = 0;
+	params.mY = 0.0;
 	while (pix.line()) {
-		double	x = 0;
+		params.mX = 0.0;
 		while (pix.pixel()) {
-			pix.r() = 0;
-			pix.g() = 0;
-			pix.b() = 0;
-			pix.a() = 0;
-			
-			const double		dist = ds::math::dist(cenx, ceny, x, y);
-			if (dist < max_dist) {
-				params.mDist = 1.0 - clip(dist / max_dist, 0.0, 1.0);
-				params.mDegree = clip(ds::math::degree(x - cenx, ceny - y) / 360.0, 0.0, 1.0);
-				params.mOutput = ci::ColorA(1.0f, 0.0f, 0.0f, 1.0f);
+			params.mOutput = ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f);
+			a.renderCircle(params);
+			pix.r() = to_color(params.mOutput.r);
+			pix.g() = to_color(params.mOutput.g);
+			pix.b() = to_color(params.mOutput.b);
+			pix.a() = to_color(params.mOutput.a);
 
-				// render
-				a.renderCircle(params);
-				if (params.mOutput.a > 0.0f) {
-					// antialias
-					if (dist > (max_dist - 1.0)) {
-						params.mOutput.a *= static_cast<float>(max_dist-dist);
-					}
-					pix.r() = to_color(params.mOutput.r);
-					pix.g() = to_color(params.mOutput.g);
-					pix.b() = to_color(params.mOutput.b);
-					pix.a() = to_color(params.mOutput.a);
-				}
-			}
-
-			++x;
+			++params.mX;
 		}
-		++y;
+		++params.mY;
 	}
+
+#ifdef ARC_RENDER_SAVE_IMAGE
+	try {
+		ci::writeImage("C:\\Users\\downstream\\Documents\\tmp\\arc_render_circle.png", s);
+	} catch (std::exception const& ex) {
+		std::cout << "RenderCircle::on() save failed=" << ex.what() << std::endl;
+	}
+#endif
+
 	return true;
 }
 

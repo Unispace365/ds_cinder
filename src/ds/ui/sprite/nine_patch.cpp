@@ -226,16 +226,16 @@ void NinePatch::Patch::buildSources(ci::gl::Texture tex)
 {
 	mEmpty = false;
 	for (int k=0; k<CELL_SIZE; ++k) mCell[k].mIsValid = false;
-  if (!tex) return;
+	if (!tex) return;
 
 	// Really just need the left and top rows of pixels, so this could
 	// be more efficient.
-	ci::Surface8u				s(tex);
-	int									stretchX_start = tex.getWidth()/2,
-											stretchY_start = tex.getHeight()/2;
-	int									stretchX_end = stretchX_start,
-											stretchY_end = stretchY_start;
-	int									l = 0, t = 0, r = tex.getWidth(), b = tex.getHeight();
+	ci::Surface8u		s(tex);
+	int					stretchX_start = tex.getWidth()/2,
+						stretchY_start = tex.getHeight()/2;
+	int					stretchX_end = stretchX_start,
+						stretchY_end = stretchY_start;
+	int					l = 0, t = 0, r = tex.getWidth(), b = tex.getHeight();
 // jus playin
 //stretchX_start = (int)(tex.getWidth()*0.35f);
 //stretchX_end = (int)(tex.getWidth()*0.65f);

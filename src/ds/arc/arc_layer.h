@@ -18,15 +18,31 @@ class Layer : public Arc
 public:
 	Layer();
 
-	virtual void					renderCircle(RenderCircleParams&) const;
+	virtual void			renderCircle(RenderCircleParams&) const;
 
-	virtual void					readXml(const ci::XmlTree&);
+	virtual void			readXml(const ci::XmlTree&);
 
 private:
+	enum ScaleMode { SCALE_MULTIPLY, SCALE_FIT };
+	enum InputMode { INPUT_DIST, INPUT_DEGREE };
+	enum CompositeMode { COMPOSITE_SRCOVER };
+
+	void					setScale(const ScaleMode& mode, const double value);
+	void					setScale(const std::string& mode, const double value);
+	void					setInput(const InputMode);
+	void					setCompositeMode(const CompositeMode);
+
+	ci::Vec2d				mOffset;
+	ScaleMode				mScaleMode;
+	double					mScale;
 	std::unique_ptr<Arc>	mArc;
-	ColorArray						mColor;
+	ColorArray				mColor;
 	std::function<double(const RenderCircleParams&)>
-												mInput;
+							mScaleFn;
+	std::function<double(const double dist, const double degree)>
+							mInputFn;
+	std::function<void(ci::ColorA& dst, const ci::ColorA& src)>
+							mCompositeFn;
 };
 
 } // namespace arc

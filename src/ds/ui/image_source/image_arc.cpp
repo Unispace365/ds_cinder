@@ -29,9 +29,9 @@ class ArcGenerator : public ImageGenerator
 {
 public:
 	ArcGenerator(SpriteEngine&)
-			: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(0), mHeight(0) { }
+		: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(0), mHeight(0) { }
 	ArcGenerator(SpriteEngine&, const int width, const int height, const std::string& fn, const std::vector<float>& floatInput)
-			: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(width), mHeight(height), mFilename(fn), mFloatInput(floatInput) { }
+		: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(width), mHeight(height), mFilename(fn), mFloatInput(floatInput) { }
 
 	const ci::gl::Texture*		getImage() {
 		if (mStatus == STATUS_EMPTY) generate();
@@ -83,12 +83,12 @@ private:
 		}
 	}
 
-	int												mStatus;
-	const int									mWidth,
-														mHeight;
-	std::string								mFilename;
-	std::vector<float>				mFloatInput;
-	ci::gl::Texture						mTexture;
+	int						mStatus;
+	const int				mWidth,
+							mHeight;
+	std::string				mFilename;
+	std::vector<float>		mFloatInput;
+	ci::gl::Texture			mTexture;
 };
 
 }

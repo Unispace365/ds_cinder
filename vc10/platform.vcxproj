@@ -45,7 +45,6 @@
     <ClInclude Include="..\src\ds\arc\arc_color_array.h" />
     <ClInclude Include="..\src\ds\arc\arc_io.h" />
     <ClInclude Include="..\src\ds\arc\arc_layer.h" />
-    <ClInclude Include="..\src\ds\arc\arc_render.h" />
     <ClInclude Include="..\src\ds\arc\arc_render_circle.h" />
     <ClInclude Include="..\src\ds\config\settings.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
@@ -154,7 +153,6 @@
     <ClCompile Include="..\src\ds\arc\arc_color_array.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_io.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_layer.cpp" />
-    <ClCompile Include="..\src\ds\arc\arc_render.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp" />
     <ClCompile Include="..\src\ds\config\settings.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />

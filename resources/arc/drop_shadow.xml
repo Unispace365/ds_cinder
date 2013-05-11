@@ -1,6 +1,14 @@
 <arc type="chain">
 	<!-- Drop shadow -->
 	<layer input="dist">
-		<color rgb="0,0,0" />
+		<offset x="0" y="0" />
+		<scale mode="multiply" amount="0.001" />
+		<color rgb="0,255,0" />
+	</layer>
+<!-- testing -->
+	<layer input="dist">
+		<offset x="5" y="5" />
+		<scale mode="fit" amount="1" />
+		<color rgb="255,0,0" />
 	</layer>
 </arc>

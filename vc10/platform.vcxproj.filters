@@ -408,9 +408,6 @@
     <ClInclude Include="..\src\ds\app\image_registry.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\arc\arc_render.h">
-      <Filter>src\ds\arc</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\arc\arc_render_circle.h">
       <Filter>src\ds\arc</Filter>
     </ClInclude>
@@ -679,9 +676,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\image_registry.cpp">
       <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\arc\arc_render.cpp">
-      <Filter>src\ds\arc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp">
       <Filter>src\ds\arc</Filter>
