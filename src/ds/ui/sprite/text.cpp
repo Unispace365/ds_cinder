@@ -16,6 +16,9 @@
 #include <stdexcept>
 #include "ds/util/string_util.h"
 
+#include <cinder/Surface.h>
+#include <cinder/ImageIo.h>
+
 using namespace ci;
 
 namespace {
@@ -204,6 +207,32 @@ void Text::drawLocalClient()
 
 #ifdef TEXT_RENDER_ASYNC
 	if (mTestTexture) {
+
+if (mTextString == L"FCC Approval") {
+	int		fd = 32;
+//	std::cout << "w=" << mTestTexture.getWidth() << " h=" << mTestTexture.getHeight() << " C2010=" << (++C2010) << std::endl;
+}
+
+#if 0
+if (mTextString == L"2010") {
+	int		fd = 32;
+	static int	C2010 = 0;
+//	std::cout << "w=" << mTestTexture.getWidth() << " h=" << mTestTexture.getHeight() << " C2010=" << (++C2010) << std::endl;
+	if (C2010 < 2) {
+		ci::Surface8u	s(mTestTexture);
+		ci::writeImage("C:\\Users\\erich\\Documents\\downstream\\wtf2010.png", s);
+	}
+}
+if (mTextString == L"2012") {
+	int		fd = 32;
+	static int	C2012 = 0;
+	std::cout << "w=" << mTestTexture.getWidth() << " h=" << mTestTexture.getHeight() << " C2012=" << (++C2012) << std::endl;
+	if (C2012 < 2) {
+		ci::Surface8u	s(mTestTexture);
+		ci::writeImage("C:\\Users\\erich\\Documents\\downstream\\wtf2012.png", s);
+	}
+}
+#endif
 		mTestTexture.bind();
 		if (getPerspective())
 			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTestTexture.getWidth()), static_cast<float>(mTestTexture.getHeight())));
@@ -259,13 +288,7 @@ float Text::getHeight() const
 
 Text& Text::setText( const std::string &text )
 {
-	std::wstring temp = ds::wstr_from_utf8(text);
-
-	if (mTextString == temp) return *this;
-
-	mTextString = temp;
-	mNeedsLayout = true;
-	mNeedRedrawing = true;
+	setText(ds::wstr_from_utf8(text));
 	return *this;
 }
 
@@ -499,7 +522,14 @@ void Text::drawIntoFbo()
 
   if (mNeedRedrawing) {
 #ifdef TEXT_RENDER_ASYNC
-	mRenderClient.start(mShared);
+	int		code = 0;
+	if (mTextString == L"2010") code = 2010;
+	else if (mTextString == L"2012") code = 2012;
+	else if (mTextString == L"FCC Approval") {
+		std::cout << "HERE" << std::endl;
+		code = 900;
+	}
+	mRenderClient.start(mShared, code);
 #endif
     mNeedRedrawing = false;
 		// XXX I noticed some fonts were getting the bottom right row of pixels
@@ -567,8 +597,15 @@ float Text::getLeading() const
 void Text::onRenderFinished(RenderTextFinished& finished)
 {
 #ifdef TEXT_RENDER_ASYNC
+std::cout << "sds code=" << finished.mCode << std::endl;
+std::wcout << "onFinished code=" << finished.mCode << " text='" << mTextString << "'" << std::endl;
+if (mTextString == L"2010") {
+	std::cout << "Got 2010" << std::endl;
+}
+if (mTextString == L"2012") {
+	std::cout << "Got 2012" << std::endl;
+}
 	mTestTexture = finished.mTexture;
-	finished.mTexture = gl::Texture();
 #endif
 }
 

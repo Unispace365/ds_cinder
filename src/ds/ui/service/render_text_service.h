@@ -42,6 +42,7 @@ public:
 	RenderTextFinished();
 
 	ci::gl::Texture	mTexture;
+	int mCode;
 };
 
 /**
@@ -52,7 +53,7 @@ public:
 	RenderTextClient(RenderTextService&, const std::function<void(RenderTextFinished&)>& finishedFn);
 	~RenderTextClient();
 
-	void				start(std::weak_ptr<RenderTextShared> shared);
+	void				start(std::weak_ptr<RenderTextShared> shared, int code);
 
 private:
 	RenderTextService&	mService;
@@ -66,8 +67,12 @@ class RenderTextWorker {
 public:
 	RenderTextWorker();
 	RenderTextWorker(	const void* clientId,
-						std::weak_ptr<RenderTextShared>);
+						std::weak_ptr<RenderTextShared>,
+						int code);
 
+	void				clear();
+
+	int mCode;
 	const void*			mClientId;
 	// A reference to the current
 	std::weak_ptr<RenderTextShared>
@@ -87,7 +92,8 @@ public:
 	void					unregisterClient(const void*);
 
 	void					start(	const void* clientId,
-									std::weak_ptr<RenderTextShared> shared);
+									std::weak_ptr<RenderTextShared> shared,
+									int code);
 
 	void					update();
 
@@ -96,7 +102,7 @@ private:
 							mClientRegistry;
 
 	std::mutex				mLock;
-	std::vector<RenderTextWorker>
+	std::vector<std::unique_ptr<RenderTextWorker>>
 							mInput, mOutput,
 							mMainThreadTmp,
 							mWorkerThreadTmp;

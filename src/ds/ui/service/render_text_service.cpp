@@ -6,6 +6,11 @@
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/fbo/fbo.h"
 
+// tmp
+#include <cinder/Surface.h>
+#include <cinder/ImageIo.h>
+
+
 namespace {
 const ds::BitMask     RENDER_TEXT_LOG_M = ds::Logger::newModule("render_text");
 }
@@ -55,9 +60,9 @@ RenderTextClient::~RenderTextClient()
 	mService.unregisterClient(this);
 }
 
-void RenderTextClient::start(std::weak_ptr<RenderTextShared> shared)
+void RenderTextClient::start(std::weak_ptr<RenderTextShared> shared, int code)
 {
-	mService.start(this, shared);
+	mService.start(this, shared, code);
 }
 
 /**
@@ -69,10 +74,18 @@ RenderTextWorker::RenderTextWorker()
 }
 
 RenderTextWorker::RenderTextWorker(	const void* clientId,
-									std::weak_ptr<RenderTextShared> shared)
+									std::weak_ptr<RenderTextShared> shared,
+									int code)
 	: mClientId(clientId)
 	, mShared(shared)
+	, mCode(code)
 {
+}
+
+void RenderTextWorker::clear()
+{
+	mShared.reset();
+	mFinished.mTexture = ci::gl::Texture();
 }
 
 /**
@@ -102,11 +115,12 @@ void RenderTextService::unregisterClient(const void* clientId)
 }
 
 void RenderTextService::start(	const void* clientId,
-								std::weak_ptr<RenderTextShared> shared)
+								std::weak_ptr<RenderTextShared> shared,
+								int code)
 {
 	{
 		boost::lock_guard<boost::mutex> lock(mLock);
-		mInput.push_back(RenderTextWorker(clientId, shared));
+		mInput.push_back(std::unique_ptr<RenderTextWorker>(new RenderTextWorker(clientId, shared, code)));
 	}
 	performOnWorkerThread(&RenderTextService::_run);
 }
@@ -120,10 +134,15 @@ void RenderTextService::update()
 	}
 	if (mClientRegistry.empty()) return;
 	for (auto it=mMainThreadTmp.begin(), end=mMainThreadTmp.end(); it!=end; ++it) {
-		auto found = mClientRegistry.find(it->mClientId);
+		RenderTextWorker*		worker = it->get();
+		if (!worker) continue;
+
+		auto found = mClientRegistry.find(worker->mClientId);
 		if (found != mClientRegistry.end()) {
-			if (found->second) found->second(it->mFinished);
+			if (found->second) found->second(worker->mFinished);
 		}
+		worker->clear();
+		it->reset();
 	}
 //      if (glGetError() == GL_OUT_OF_MEMORY) {
 //        DS_LOG_ERROR_M("LoadImageService::update() called on filename: " << out.mFilename << " recieved an out of memory error. Image my be too big.", LOAD_IMAGE_LOG_M);
@@ -146,28 +165,44 @@ void RenderTextService::_run()
 	fbo.setup(true);
 
 	for (auto it=mWorkerThreadTmp.begin(), end=mWorkerThreadTmp.end(); it!=end; ++it) {
-		RenderTextWorker&	worker(*it);
+		RenderTextWorker*	worker = it->get();
+		if (!worker) continue;
+
 		ci::gl::Texture::Format format;
 		format.setTarget(GL_TEXTURE_2D);
 		ci::gl::Texture		tex;
-		tex = ci::gl::Texture(30, 30, format);
-		worker.mFinished.mTexture = tex;
-
-		FboGeneral::AutoAttach	attach(fbo, tex);
+		int					size = 30;
+		if (worker->mCode == 900) size = 50;
+		tex = ci::gl::Texture(size, size, format);
+		worker->mFinished.mTexture = tex;
+		worker->mFinished.mCode = worker->mCode;
 		{
-			FboGeneral::AutoRun	run(fbo);
-			ci::gl::clear(ci::ColorA(1.0f, 0.0f, 1.0f, 1.0f));
+			FboGeneral::AutoAttach	attach(fbo, tex);
+			{
+				FboGeneral::AutoRun	run(fbo);
+				ci::gl::clear(ci::ColorA(1.0f, 0.0f, 1.0f, 1.0f));
 
-		glPushAttrib(GL_COLOR);
-		ci::gl::color(ci::ColorA(0.0f, 1.0f, 0.0f, 1.0f));
-		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, 30, 30));
-		glPopAttrib();
+			glPushAttrib(GL_COLOR);
+			ci::gl::color(ci::ColorA(0.0f, 1.0f, 0.0f, 1.0f));
+			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, size, size));
+			glPopAttrib();
 
+			}
+		}
+
+		{
+			if (worker->mCode > 0) {
+				ci::Surface8u	s(worker->mFinished.mTexture);
+				std::stringstream	buf;
+				buf << "C:\\Users\\erich\\Documents\\downstream\\wtf_" << worker->mCode << ".png";
+				ci::writeImage(buf.str(), s);
+			}
 		}
 
 		boost::lock_guard<boost::mutex> lock(mLock);
-		mOutput.push_back(worker);
+		mOutput.push_back(std::move(*it));
 	}
+	mWorkerThreadTmp.clear();
 
 #if 0
 	// Load them all
