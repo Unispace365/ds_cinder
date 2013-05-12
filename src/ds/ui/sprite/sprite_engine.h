@@ -27,6 +27,7 @@ class Settings;
 
 namespace ui {
 class LoadImageService;
+class RenderTextService;
 class Sprite;
 class Tweenline;
 
@@ -35,17 +36,18 @@ class Tweenline;
  * Interface for the API that is supplied to sprites.
  */
 class SpriteEngine {
-  public:
-    // General engine services
-    virtual ds::WorkManager       &getWorkManager() = 0;
-    virtual ds::ResourceList      &getResources() = 0;
-    virtual const ds::FontList    &getFonts() const = 0;
-    virtual ds::AutoUpdateList    &getAutoUpdateList() = 0;
-    virtual LoadImageService      &getLoadImageService() = 0;
-		virtual ds::ImageRegistry			&getImageRegistry() = 0;
-    virtual Tweenline             &getTweenline() = 0;
-    virtual const ds::cfg::Settings
-                                  &getDebugSettings() = 0;
+public:
+	// General engine services
+	virtual ds::WorkManager&	getWorkManager() = 0;
+	virtual ds::ResourceList&	getResources() = 0;
+	virtual const ds::FontList&	getFonts() const = 0;
+	virtual ds::AutoUpdateList&	getAutoUpdateList() = 0;
+	virtual LoadImageService&	getLoadImageService() = 0;
+	virtual RenderTextService&	getRenderTextService() = 0;
+	virtual ds::ImageRegistry&	getImageRegistry() = 0;
+	virtual Tweenline&			getTweenline() = 0;
+	virtual const ds::cfg::Settings&
+								getDebugSettings() = 0;
 
     // Sprite management
     virtual ds::sprite_id_t        nextSpriteId() = 0;

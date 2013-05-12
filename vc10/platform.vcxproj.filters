@@ -441,6 +441,9 @@
     <ClInclude Include="..\src\ds\arc\arc_input.h">
       <Filter>src\ds\arc</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\service\render_text_service.h">
+      <Filter>src\ds\ui\service</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -715,6 +718,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_input.cpp">
       <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\service\render_text_service.cpp">
+      <Filter>src\ds\ui\service</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

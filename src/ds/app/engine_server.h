@@ -9,6 +9,7 @@
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
+#include "ds/ui/service/render_text_service.h"
 
 namespace ds {
 
@@ -21,8 +22,9 @@ class EngineServer : public Engine {
     EngineServer(ds::App&, const ds::cfg::Settings&, const std::vector<int>* = nullptr);
     ~EngineServer();
 
-    virtual ds::WorkManager       &getWorkManager()         { return mWorkManager; }
-    virtual ui::LoadImageService  &getLoadImageService()    { return mLoadImageService; }
+	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
+	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
+	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 
     virtual void                  installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
                                                 const std::function<void(ds::BlobRegistry&)>& asClient);
@@ -35,14 +37,16 @@ class EngineServer : public Engine {
     virtual void                  stopServices();
     virtual int                   getMode() const { return SERVER_MODE; }
 
-  private:
-    void                          receiveHeader(ds::DataBuffer&);
-    void                          receiveCommand(ds::DataBuffer&);
+private:
+	void                          receiveHeader(ds::DataBuffer&);
+	void                          receiveCommand(ds::DataBuffer&);
 
-    typedef Engine inherited;
-    WorkManager				            mWorkManager;
-    GlNoThread                    mLoadImageThread;
-    ui::LoadImageService          mLoadImageService;
+	typedef Engine inherited;
+	WorkManager					mWorkManager;
+	GlNoThread					mLoadImageThread;
+	ui::LoadImageService		mLoadImageService;
+	GlNoThread					mRenderTextThread;
+	ui::RenderTextService		mRenderTextService;
 
 //    ds::ZmqConnection             mConnection;
     ds::UdpConnection             mSendConnection;

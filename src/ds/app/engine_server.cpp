@@ -21,6 +21,7 @@ const char        TERMINATOR = 0;
 EngineServer::EngineServer(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
     : inherited(app, settings, roots)
     , mLoadImageService(mLoadImageThread)
+    , mRenderTextService(mRenderTextThread)
 //    , mConnection(NumberOfNetworkThreads)
     , mSender(mSendConnection)
     , mReceiver(mReceiveConnection)

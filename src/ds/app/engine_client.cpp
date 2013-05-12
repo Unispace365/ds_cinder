@@ -16,13 +16,14 @@ char              COMMAND_BLOB = 0;
  * \class ds::EngineClient
  */
 EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
-    : inherited(app, settings, roots)
-    , mLoadImageService(mLoadImageThread)
+	: inherited(app, settings, roots)
+	, mLoadImageService(mLoadImageThread)
+	, mRenderTextService(mRenderTextThread)
 //    , mConnection(NumberOfNetworkThreads)
-    , mSender(mSendConnection)
-    , mReceiver(mReceiveConnection)
-    , mBlobReader(mReceiver.getData(), *this)
-    , mState(nullptr)
+	, mSender(mSendConnection)
+	, mReceiver(mReceiveConnection)
+	, mBlobReader(mReceiver.getData(), *this)
+	, mState(nullptr)
 {
   // NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
   // so that the BLOB ids match.
@@ -63,6 +64,7 @@ void EngineClient::setup(ds::App& app)
   inherited::setup(app);
 
   mLoadImageThread.start(true);
+  mRenderTextThread.start(true);
 }
 
 void EngineClient::setupTuio(ds::App&)
@@ -72,6 +74,7 @@ void EngineClient::setupTuio(ds::App&)
 void EngineClient::update()
 {
   updateClient();
+  mRenderTextService.update();
 
   // Every update, receive data
   if (!mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader)) {

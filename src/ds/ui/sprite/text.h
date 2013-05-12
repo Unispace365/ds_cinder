@@ -5,9 +5,12 @@
 #include <cinder/gl/TextureFont.h>
 #include <cinder/Text.h>
 #include <cinder/Font.h>
+#include "ds/ui/service/render_text_service.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/text_layout.h"
 #include "cinder/gl/Fbo.h"
+
+//#define TEXT_RENDER_ASYNC		(1)
 
 namespace ds {
 namespace ui {
@@ -90,6 +93,8 @@ class Text: public Sprite
         // Only used when ResizeToText is on
         void                      calculateFrame(const int flags);
 
+		void						onRenderFinished(RenderTextFinished&);
+
         //ci::gl::TextureFontRef    mTextureFont;
         //ci::gl::TextureFont::DrawOptions
         //                          mDrawOptions;
@@ -111,8 +116,14 @@ class Text: public Sprite
         // When true, display the whole sprite area.
         const bool                mDebugShowFrame;
 
-        ci::gl::Fbo               mFbo;
         ci::gl::Texture           mTexture;
+
+#ifdef TEXT_RENDER_ASYNC
+		std::shared_ptr<RenderTextShared>
+									mShared;
+		RenderTextClient			mRenderClient;
+		ci::gl::Texture				mTestTexture;
+#endif
 
         // Initialization
     public:

@@ -8,8 +8,9 @@ namespace ds {
  * \class ds::EngineClientServer
  */
 EngineClientServer::EngineClientServer(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
-    : inherited(app, settings, roots)
-    , mLoadImageService(mLoadImageThread)
+	: inherited(app, settings, roots)
+	, mLoadImageService(mLoadImageThread)
+	, mRenderTextService(mRenderTextThread)
 {
 }
 
@@ -30,6 +31,7 @@ void EngineClientServer::setup(ds::App& app)
   inherited::setup(app);
 
   mLoadImageThread.start(true);
+  mRenderTextThread.start(true);
 
   app.setupServer();
 }
@@ -44,6 +46,7 @@ void EngineClientServer::setupTuio(ds::App& a)
 void EngineClientServer::update()
 {
   mWorkManager.update();
+  mRenderTextService.update();
   updateServer();
 }
 

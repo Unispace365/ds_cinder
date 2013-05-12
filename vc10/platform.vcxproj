@@ -94,6 +94,7 @@
     <ClInclude Include="..\src\ds\ui\image_source\image_generator.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_source.h" />
     <ClInclude Include="..\src\ds\ui\service\load_image_service.h" />
+    <ClInclude Include="..\src\ds\ui\service\render_text_service.h" />
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h" />
     <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
@@ -193,6 +194,7 @@
     <ClCompile Include="..\src\ds\ui\image_source\image_generator.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_source.cpp" />
     <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp" />
+    <ClCompile Include="..\src\ds\ui\service\render_text_service.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
