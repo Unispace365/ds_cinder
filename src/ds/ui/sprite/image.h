@@ -28,6 +28,7 @@ class Image: public Sprite
         virtual void                    updateServer(const UpdateParams&);
         virtual void                    drawLocalClient();
         Image&                          setResourceFilename( const std::string &filename );
+        Image&                          setPreloadedResourceFilename( const std::string &filename );
         Image                          &setResourceId(const ds::Resource::Id &resourceId);
         void                            loadImage( const std::string &filename );
         void                            clearResource();

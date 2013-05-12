@@ -166,6 +166,14 @@ Image& Image::setResourceFilename( const std::string &filename )
   return *this;
 }
 
+Image& Image::setPreloadedResourceFilename( const std::string &filename )
+{
+  clearResource();
+  mResourceFn = filename;
+  setStatus(Status::STATUS_EMPTY);
+  return *this;
+}
+
 void Image::loadImage( const std::string &filename )
 {
   setResourceFilename(filename);
