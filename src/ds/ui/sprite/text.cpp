@@ -208,11 +208,15 @@ void Text::drawLocalClient()
 #ifdef TEXT_RENDER_ASYNC
 	if (mTestTexture) {
 
-if (mTextString == L"FCC Approval") {
+#if 0
+//if (mTextString == L"FCC Approval") {
+//if (mTextString == L"01.") {
+if (mTextString == L"D. Encore") {
 	int		fd = 32;
-//	std::cout << "w=" << mTestTexture.getWidth() << " h=" << mTestTexture.getHeight() << " C2010=" << (++C2010) << std::endl;
+	static int	C400 = 0;
+	std::cout << "w=" << mTestTexture.getWidth() << " h=" << mTestTexture.getHeight() << " C400=" << (++C400) << std::endl;
 }
-
+#endif
 #if 0
 if (mTextString == L"2010") {
 	int		fd = 32;
@@ -526,10 +530,13 @@ void Text::drawIntoFbo()
 	if (mTextString == L"2010") code = 2010;
 	else if (mTextString == L"2012") code = 2012;
 	else if (mTextString == L"FCC Approval") {
-		std::cout << "HERE" << std::endl;
 		code = 900;
+	} else if (mTextString == L"D. Encore") {
+		std::cout << "HERE" << std::endl;
+		code = 400;
 	}
-	mRenderClient.start(mShared, code);
+std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
+	mRenderClient.start(mEngine.getFonts().getFileNameFromName(mFontFileName), mFontSize, mShared, code);
 #endif
     mNeedRedrawing = false;
 		// XXX I noticed some fonts were getting the bottom right row of pixels
@@ -597,8 +604,7 @@ float Text::getLeading() const
 void Text::onRenderFinished(RenderTextFinished& finished)
 {
 #ifdef TEXT_RENDER_ASYNC
-std::cout << "sds code=" << finished.mCode << std::endl;
-std::wcout << "onFinished code=" << finished.mCode << " text='" << mTextString << "'" << std::endl;
+std::cout << "onFinished code=" << finished.mCode << " text='" << ds::utf8_from_wstr(mTextString) << "'" << std::endl;
 if (mTextString == L"2010") {
 	std::cout << "Got 2010" << std::endl;
 }

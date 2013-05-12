@@ -53,7 +53,8 @@ public:
 	RenderTextClient(RenderTextService&, const std::function<void(RenderTextFinished&)>& finishedFn);
 	~RenderTextClient();
 
-	void				start(std::weak_ptr<RenderTextShared> shared, int code);
+	void				start(	const std::string& fontFilename, const float fontSize,
+								std::weak_ptr<RenderTextShared> shared, int code);
 
 private:
 	RenderTextService&	mService;
@@ -65,9 +66,10 @@ private:
  */
 class RenderTextWorker {
 public:
-	RenderTextWorker();
 	RenderTextWorker(	const void* clientId,
 						std::weak_ptr<RenderTextShared>,
+						const std::string& fontFilename,
+						const float fontSize,
 						int code);
 
 	void				clear();
@@ -77,7 +79,12 @@ public:
 	// A reference to the current
 	std::weak_ptr<RenderTextShared>
 						mShared;
+	const std::string	mFontFilename;
+	const float			mFontSize;
 	RenderTextFinished	mFinished;
+
+private:
+	RenderTextWorker();
 };
 
 /**
@@ -91,9 +98,7 @@ public:
 											const std::function<void(RenderTextFinished&)>&);
 	void					unregisterClient(const void*);
 
-	void					start(	const void* clientId,
-									std::weak_ptr<RenderTextShared> shared,
-									int code);
+	void					start(std::unique_ptr<RenderTextWorker>& worker);
 
 	void					update();
 

@@ -6,10 +6,12 @@
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/fbo/fbo.h"
 
+#include "ds/ui/sprite/text_layout.h"
+
 // tmp
 #include <cinder/Surface.h>
 #include <cinder/ImageIo.h>
-
+#include <cinder/Camera.h>
 
 namespace {
 const ds::BitMask     RENDER_TEXT_LOG_M = ds::Logger::newModule("render_text");
@@ -60,24 +62,24 @@ RenderTextClient::~RenderTextClient()
 	mService.unregisterClient(this);
 }
 
-void RenderTextClient::start(std::weak_ptr<RenderTextShared> shared, int code)
+void RenderTextClient::start(	const std::string& fontFilename, const float fontSize,
+								std::weak_ptr<RenderTextShared> shared, int code)
 {
-	mService.start(this, shared, code);
+	mService.start(std::unique_ptr<RenderTextWorker>(new RenderTextWorker(this, shared, fontFilename, fontSize, code)));
 }
 
 /**
  * \class ds::ui::RenderTextWorker
  */
-RenderTextWorker::RenderTextWorker()
-	: mClientId(nullptr)
-{
-}
-
 RenderTextWorker::RenderTextWorker(	const void* clientId,
 									std::weak_ptr<RenderTextShared> shared,
+									const std::string& fontFilename,
+									const float fontSize,
 									int code)
 	: mClientId(clientId)
 	, mShared(shared)
+	, mFontFilename(fontFilename)
+	, mFontSize(fontSize)
 	, mCode(code)
 {
 }
@@ -114,13 +116,11 @@ void RenderTextService::unregisterClient(const void* clientId)
 	}
 }
 
-void RenderTextService::start(	const void* clientId,
-								std::weak_ptr<RenderTextShared> shared,
-								int code)
+void RenderTextService::start(std::unique_ptr<RenderTextWorker>& worker)
 {
 	{
 		boost::lock_guard<boost::mutex> lock(mLock);
-		mInput.push_back(std::unique_ptr<RenderTextWorker>(new RenderTextWorker(clientId, shared, code)));
+		mInput.push_back(std::move(worker));
 	}
 	performOnWorkerThread(&RenderTextService::_run);
 }
@@ -160,43 +160,73 @@ void RenderTextService::_run()
 	}
 
 	DS_REPORT_GL_ERRORS();
-
+#if 1
+	static FontPtr	TMP_FONT = FontPtr(new OGLFT::Translucent("C:\\Users\\erich\\Documents\\downstream\\resources\\jci\\table\\ui\\fonts\\FRUTIGER45LIGHT.otf", 14));
+	if (TMP_FONT->isValid()) {
+		TMP_FONT->setCompileMode(OGLFT::Face::COMPILE);
+	}
+#endif
 	FboGeneral		fbo;
-	fbo.setup(true);
+
+	ci::gl::enableAlphaBlending();
 
 	for (auto it=mWorkerThreadTmp.begin(), end=mWorkerThreadTmp.end(); it!=end; ++it) {
 		RenderTextWorker*	worker = it->get();
 		if (!worker) continue;
 
-		ci::gl::Texture::Format format;
-		format.setTarget(GL_TEXTURE_2D);
-		ci::gl::Texture		tex;
-		int					size = 30;
-		if (worker->mCode == 900) size = 50;
-		tex = ci::gl::Texture(size, size, format);
-		worker->mFinished.mTexture = tex;
-		worker->mFinished.mCode = worker->mCode;
 		{
-			FboGeneral::AutoAttach	attach(fbo, tex);
+			ci::gl::Texture::Format format;
+			format.setTarget(GL_TEXTURE_2D);
+			ci::gl::Texture		tex;
+			int					size = 30;
+			if (worker->mCode == 900) size = 50;
+			if (worker->mCode == 400) size = 20;
+			tex = ci::gl::Texture(size, size, format);
+			worker->mFinished.mTexture = tex;
+			worker->mFinished.mCode = worker->mCode;
+
 			{
-				FboGeneral::AutoRun	run(fbo);
-				ci::gl::clear(ci::ColorA(1.0f, 0.0f, 1.0f, 1.0f));
+				fbo.setup(true);
+				FboGeneral::AutoAttach	attach(fbo, tex);
+				{
+					FboGeneral::AutoRun	run(fbo);
+					ci::gl::clear(ci::ColorA(1.0f, 0.0f, 1.0f, 1.0f));
 
-			glPushAttrib(GL_COLOR);
-			ci::gl::color(ci::ColorA(0.0f, 1.0f, 0.0f, 1.0f));
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, size, size));
-			glPopAttrib();
+					#if 0
+					glPushAttrib(GL_COLOR);
+					ci::gl::color(ci::ColorA(0.0f, 1.0f, 0.0f, 1.0f));
+					ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, size, size));
+					glPopAttrib();
+					#endif
+#if 1
+//					FontPtr font = FontPtr(new OGLFT::Translucent(worker->mFontFilename.c_str(), worker->mFontSize));
+					if (TMP_FONT->isValid()) {
+//						font->setCompileMode(OGLFT::Face::COMPILE);
 
+      ci::Area fboBounds(0, 0, fbo.getWidth(), fbo.getHeight());
+      ci::gl::setViewport(fboBounds);
+      ci::CameraOrtho camera;
+      camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
+
+      ci::gl::setMatrices(camera);
+
+
+						TMP_FONT->setForegroundColor( 1.0f, 1.0f, 1.0f, 0.99f );
+						TMP_FONT->setBackgroundColor( 1.0f, 1.0f, 1.0f, 0.0f );
+						TMP_FONT->draw(10, 20, "Helllo");
+					}
+#endif
+				}
 			}
 		}
 
 		{
-			if (worker->mCode > 0) {
+//			if (worker->mCode > 0) {
 				ci::Surface8u	s(worker->mFinished.mTexture);
-				std::stringstream	buf;
-				buf << "C:\\Users\\erich\\Documents\\downstream\\wtf_" << worker->mCode << ".png";
-				ci::writeImage(buf.str(), s);
-			}
+//				std::stringstream	buf;
+//				buf << "C:\\Users\\erich\\Documents\\downstream\\wtf_" << worker->mCode << ".png";
+//				ci::writeImage(buf.str(), s);
+//			}
 		}
 
 		boost::lock_guard<boost::mutex> lock(mLock);
