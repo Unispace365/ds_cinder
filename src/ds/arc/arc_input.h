@@ -5,7 +5,10 @@
 #include <vector>
 #include <cinder/Color.h>
 #include <cinder/Vector.h>
-#include <cinder/Xml.h>
+
+namespace cinder {
+class XmlTree;
+}
 
 namespace ds {
 namespace arc {

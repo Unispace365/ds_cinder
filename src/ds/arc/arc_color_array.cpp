@@ -2,6 +2,7 @@
 
 #include <boost/tokenizer.hpp>
 #include <Poco/String.h>
+#include <cinder/Xml.h>
 #include "ds/util/string_util.h"
 
 namespace ds {

@@ -1,5 +1,7 @@
 #include "ds/arc/arc_input.h"
 
+#include <cinder/Xml.h>
+
 namespace ds {
 namespace arc {
 
