@@ -31,8 +31,10 @@ class Video: public Sprite
         void                loop(bool flag);
         bool                isLooping() const;
         // value between 0.0f & 1.0f
-        void                setVolume(float volume);
+        void                setVolume(float volume, const bool turnOffMute = true);
         float               getVolume() const;
+		void				setMute(const bool on);
+		bool				getMute() const;
 
         struct Status {
           static const int  STATUS_STOPPED = 0;
@@ -46,14 +48,18 @@ class Video: public Sprite
         typedef Sprite inherited;
 
         void                setStatus(const int);
+		void				setMovieVolume();
 
         ci::qtime::MovieGl  mMovie;
         ci::gl::Texture     mFrameTexture;
         ci::gl::Fbo         mFbo;
 
         bool                mLooping;
-        bool                mMuted;
         float               mVolume;
+		bool				mMute;
+		// Not entirely sure but looks like jeremy is using this
+		// to control volume around playback starts.
+        bool                mInternalMuted;
 
         Status              mStatus;
         bool                mStatusDirty;

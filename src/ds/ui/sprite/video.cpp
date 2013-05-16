@@ -14,8 +14,9 @@ namespace ui {
 Video::Video( SpriteEngine& engine )
     : inherited(engine)
     , mLooping(false)
-    , mMuted(true)
+    , mInternalMuted(true)
     , mVolume(1.0f)
+	, mMute(false)
     , mStatusDirty(false)
     , mStatusFn(nullptr)
 {
@@ -51,17 +52,17 @@ void Video::drawLocalClient()
   }
 
   if (!inBounds()) {
-    if (mMovie && !mMuted) {
+    if (mMovie && !mInternalMuted) {
       mMovie.setVolume(0.0f);
-      mMuted = true;
+      mInternalMuted = true;
     }
     return;
   }
 
     if ( mMovie ) {
-      if (mMuted) {
-        mMovie.setVolume(mVolume);
-        mMuted = false;
+      if (mInternalMuted) {
+		setMovieVolume();
+        mInternalMuted = false;
       }
       mFrameTexture = mMovie.getTexture();
     }
@@ -116,11 +117,17 @@ Video& Video::loadVideo( const std::string &filename )
 {
   try
   {
+//std::cout << "loadVideo() 1" << std::endl;
     mMovie = ci::qtime::MovieGl( filename );
+//std::cout << "loadVideo() 2" << std::endl;
     mMovie.setLoop(mLooping);
+//std::cout << "loadVideo() 3" << std::endl;
     mMovie.play();
-    mMovie.setVolume(mVolume);
-    mMuted = true;
+//std::cout << "loadVideo() 4" << std::endl;
+	setMovieVolume();
+//std::cout << "loadVideo() 5" << std::endl;
+    mInternalMuted = true;
+//std::cout << "loadVideo() 6" << std::endl;
     setStatus(Status::STATUS_PLAYING);
   }
   catch (std::exception const& ex)
@@ -191,16 +198,29 @@ bool Video::isLooping() const
     return mLooping;
 }
 
-void Video::setVolume( float volume )
+void Video::setVolume( float volume, const bool turnOffMute )
 {
-  mVolume = volume;
-  if ( mMovie )
-    mMovie.setVolume(mVolume);
+	mVolume = volume;
+	if (turnOffMute) mMute = false;
+	setMovieVolume();
 }
 
 float Video::getVolume() const
 {
-  return mVolume;
+	return mVolume;
+}
+
+void Video::setMute(const bool on)
+{
+	if (on == mMute) return;
+
+	mMute = on;
+	setMovieVolume();
+}
+
+bool Video::getMute() const
+{
+	return mMute;
 }
 
 void Video::setStatusCallback(const std::function<void(const Status&)>& fn)
@@ -217,12 +237,20 @@ void Video::setStatus(const int code)
   mStatusDirty = true;
 }
 
+void Video::setMovieVolume()
+{
+	if (mMovie) {
+		if (mMute) mMovie.setVolume(0.0f);
+		else mMovie.setVolume(mVolume);
+	}
+}
+
 float Video::currentTime() const
 {
-  if (mMovie)
-    return mMovie.getCurrentTime();
-  else
-    return 0.0f;
+	if (mMovie)
+		return mMovie.getCurrentTime();
+	else
+		return 0.0f;
 }
 
 Video &Video::setResourceId( const ds::Resource::Id &resourceId )
@@ -237,8 +265,8 @@ Video &Video::setResourceId( const ds::Resource::Id &resourceId )
       mMovie = ci::qtime::MovieGl( filename );
       mMovie.setLoop(mLooping);
       mMovie.play();
-      mMovie.setVolume(mVolume);
-      mMuted = true;
+	  setMovieVolume();
+      mInternalMuted = true;
       setStatus(Status::STATUS_PLAYING);
     }
   }

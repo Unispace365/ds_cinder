@@ -64,7 +64,7 @@ bool RenderCircle::on(const Input& input, ci::Surface8u& s, ds::arc::Arc& a)
 
 #ifdef ARC_RENDER_SAVE_IMAGE
 	try {
-		ci::writeImage("C:\\Users\\downstream\\Documents\\tmp\\arc_render_circle.png", s);
+		ci::writeImage("C:\\Users\\erich\\Documents\\downstream\\arc_render_circle.png", s);
 	} catch (std::exception const& ex) {
 		std::cout << "RenderCircle::on() save failed=" << ex.what() << std::endl;
 	}
