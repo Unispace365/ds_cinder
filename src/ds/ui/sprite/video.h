@@ -51,7 +51,7 @@ class Video: public Sprite
 		void				setMovieVolume();
 
         ci::qtime::MovieGl  mMovie;
-        ci::gl::Texture     mFrameTexture;
+//        ci::gl::Texture     mFrameTexture;
         ci::gl::Fbo         mFbo;
 
         bool                mLooping;

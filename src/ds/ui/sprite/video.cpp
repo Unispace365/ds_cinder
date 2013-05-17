@@ -59,22 +59,24 @@ void Video::drawLocalClient()
     return;
   }
 
+    ci::gl::Texture     frameTexture;
+
     if ( mMovie ) {
       if (mInternalMuted) {
 		setMovieVolume();
         mInternalMuted = false;
       }
-      mFrameTexture = mMovie.getTexture();
+      frameTexture = mMovie.getTexture();
     }
-    if ( mFrameTexture ) {
+    if ( frameTexture ) {
       {
         gl::SaveFramebufferBinding bindingSaver;
 
         gl::pushMatrices();
         mSpriteShader.getShader().unbind();
-        ci::gl::setViewport(mFrameTexture.getBounds());
+        ci::gl::setViewport(frameTexture.getBounds());
         ci::CameraOrtho camera;
-        camera.setOrtho(float(mFrameTexture.getBounds().getX1()), float(mFrameTexture.getBounds().getX2()), float(mFrameTexture.getBounds().getY2()), float(mFrameTexture.getBounds().getY1()), -1.0f, 1.0f);
+        camera.setOrtho(float(frameTexture.getBounds().getX1()), float(frameTexture.getBounds().getX2()), float(frameTexture.getBounds().getY2()), float(frameTexture.getBounds().getY1()), -1.0f, 1.0f);
         gl::setMatrices(camera);
         // bind the framebuffer - now everything we draw will go there
         mFbo.bindFramebuffer();
@@ -86,7 +88,7 @@ void Video::drawLocalClient()
 
        // gl::clear(ci::Color(0.0f, 0.0f, 0.0f));
 		gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
-        ci::gl::draw(mFrameTexture);
+        ci::gl::draw(frameTexture);
 
         glPopAttrib();
 
