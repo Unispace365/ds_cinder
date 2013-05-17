@@ -181,14 +181,17 @@ void LoadImageService::update()
 {
 	Poco::Mutex::ScopedLock			l(mMutex);
 	for (int k=0; k<mOutput.size(); k++) {
-		op&							  out = mOutput[k];
+		op&							out = mOutput[k];
 		holder&						h = mImageResource[out.mFilename];
 		if (h.mTexture) {
 #ifdef _DEBUG
 			std::cout << "WHHAAAAT?  Duplicate images for id=" << out.mFilename << " refs=" << h.mRefs << std::endl;
 #endif
 		} else {
-			h.mTexture = out.mTexture;
+			h.mTexture = ci::gl::Texture(out.mSurface);
+			if (glGetError() == GL_OUT_OF_MEMORY) {
+				DS_LOG_ERROR_M("LoadImageService::update() called on filename: " << out.mFilename << " received an out of memory error. Image may be too big.", LOAD_IMAGE_LOG_M);
+			}
 			DS_REPORT_GL_ERRORS();
 		}
 		out.clear();
@@ -215,20 +218,12 @@ void LoadImageService::_load()
 		op&						           top = mTmp[k];
 		try {
 //			DS_LOG_INFO_M("LoadImageService::_load() on file (" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
-//			top.mSurface = ci::Surface8u(ci::loadImage(top.mFilename));
-			ci::Surface8u     surface = ci::Surface8u(ci::loadImage(top.mFilename));
+			top.mSurface = ci::Surface8u(ci::loadImage(top.mFilename));
 			DS_REPORT_GL_ERRORS();
-			if (surface) {
-				top.mTexture = ci::gl::Texture(surface);
-				if (glGetError() == GL_OUT_OF_MEMORY) {
-					DS_LOG_ERROR_M("LoadImageService::update() called on filename: " << top.mFilename << " received an out of memory error. Image may be too big.", LOAD_IMAGE_LOG_M);
-				}
-				DS_REPORT_GL_ERRORS();
-				if (top.mTexture) {
-					// This is to immediately place operations on the output...
-					Poco::Mutex::ScopedLock		l(mMutex);
-					mOutput.push_back(op(top));
-				}
+			if (top.mSurface) {
+				// This is to immediately place operations on the output...
+				Poco::Mutex::ScopedLock		l(mMutex);
+				mOutput.push_back(op(top));
 			}
 		} catch (std::exception const& ex) {
 			DS_LOG_WARNING_M("LoadImageService::_load() failed ex=" << ex.what() << " (file=" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
@@ -260,7 +255,7 @@ LoadImageService::op::op(const std::string& filename, const int flags)
 void LoadImageService::op::clear()
 {
   mFilename.clear();
-  mTexture.reset();
+  mSurface.reset();
   mFlags = 0;
 }
 

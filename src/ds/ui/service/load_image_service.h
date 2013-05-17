@@ -84,7 +84,9 @@ private:
 		void					clear();
 
 		std::string				mFilename;
-		ci::gl::Texture			mTexture;
+// This seems to cause problems with garbled images
+//		ci::gl::Texture			mTexture;
+		ci::Surface8u			mSurface;
 		int						mFlags;
 	};
 
