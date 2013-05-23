@@ -155,7 +155,7 @@ namespace std {
   template<>
   struct hash<ds::Resource::Id> : public unary_function<ds::Resource::Id, size_t> {
     size_t operator()(const ds::Resource::Id& id) const {
-      return id.mType + id.mValue;
+      return id.mType + (id.mValue << 8);
     }
   };
 }
