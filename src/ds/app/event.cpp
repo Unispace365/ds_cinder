@@ -33,7 +33,7 @@ static std::unordered_map<int, std::string>& get_events()
 static void register_event(const int what, const std::string& name)
 {
   Poco::Mutex::ScopedLock   l(get_register_lock());
-  auto e = get_events();
+  auto& e = get_events();
   if (!e.empty()) {
     auto f = e.find(what);
     if (f != e.end()) {
