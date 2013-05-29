@@ -35,6 +35,7 @@
 #include "ds/ui/touch/touch_info.h"
 #include "ds/ui/touch/drag_destination_info.h"
 #include "ds/util/bit_mask.h"
+#include "ds/data/resource.h"
 
 #include "run_app.h"
 #include "callbacks.h"
@@ -454,6 +455,15 @@ namespace ds {
 %include "ds/app/engine.h"
 %include "ds/app/app.h"
 %include "ds/params/update_params.h"
+
+namespace std {
+	template< class Key >
+	struct hash;
+}
+
+%include "resource_id.i"
+%include "ds/data/resource.h"
+
 %include "run_app.h"
 namespace std {
 	%template(SpriteVector) vector< ds::ui::Sprite *>;
