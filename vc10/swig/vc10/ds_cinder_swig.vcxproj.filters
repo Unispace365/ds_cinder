@@ -34,6 +34,9 @@
     <ClCompile Include="..\src\frustum_sprite.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\background_task.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\run_app.h">
@@ -46,6 +49,12 @@
       <Filter>Generated Files</Filter>
     </ClInclude>
     <ClInclude Include="..\src\frustum_sprite.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\background_task.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\background_task_runnable.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -40,6 +40,8 @@
 #include "run_app.h"
 #include "callbacks.h"
 #include "frustum_sprite.h"
+#include "background_task.h"
+
 %}
 %ignore prepareSettings;
 
@@ -476,9 +478,11 @@ namespace std {
 %feature("director") ds::TapInfoCallback;
 %feature("director") ds::SwipeCallback;
 %feature("director") ds::DragDestinationInfoCallback;
+%feature("director") ds::BackgroundTask;
 
 %include "callbacks.h"
 %include "frustum_sprite.h"
+%include "background_task.h"
 
 /* vim: set noet fenc= ff=dos sts=0 sw=4 ts=4 : */
 
