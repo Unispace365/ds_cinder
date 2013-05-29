@@ -341,7 +341,7 @@ std::vector<std::wstring> ds::partition( const std::wstring &str, const std::vec
   }
 
   std::vector<std::wstring> tokenPartitions;
-  for (int i = 0; i < partitions.size(); ++i) {
+  for (size_t i = 0; i < partitions.size(); ++i) {
     tokenPartitions.push_back(str.substr(partitions[i].pos, partitions[i].size));
   }
 
