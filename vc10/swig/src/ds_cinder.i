@@ -3,6 +3,7 @@
 
 %include "nice_exception.i"
 %include "std_string.i"
+%include "std_wstring.i"
 %include "std_vector.i"
 
 %{
