@@ -29,6 +29,13 @@ Video::~Video()
 {
 }
 
+void Video::clear()
+{
+	mMovie = ci::qtime::MovieGl();
+	mFbo = ci::gl::Fbo();
+	setStatus(Status::STATUS_STOPPED);
+}
+
 void Video::updateServer(const UpdateParams& up)
 {
   inherited::updateServer(up);

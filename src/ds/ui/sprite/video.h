@@ -16,6 +16,9 @@ class Video: public Sprite
     public:
         Video( SpriteEngine& );
         ~Video();
+
+		void				clear();
+
         void                setSize( float width, float height );
         virtual void        updateServer(const UpdateParams&);
         void                drawLocalClient();
