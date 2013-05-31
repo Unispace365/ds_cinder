@@ -56,12 +56,11 @@ void ComputerInfo::update()
 
   GetSystemTimeAsFileTime(&ftime);
   memcpy(&now, &ftime, sizeof(FILETIME));
-
+  
   GetProcessTimes(mProcessSelf, &ftime, &ftime, &fsys, &fuser);
   memcpy(&sys, &fsys, sizeof(FILETIME));
   memcpy(&user, &fuser, sizeof(FILETIME));
-  percent = (sys.QuadPart - mLastSysCPU.QuadPart) +
-    (user.QuadPart - mLastUserCPU.QuadPart);
+  percent = static_cast<double>((sys.QuadPart - mLastSysCPU.QuadPart) + (user.QuadPart - mLastUserCPU.QuadPart));
   percent /= (now.QuadPart - mLastCPU.QuadPart);
   percent /= mNumProcessors;
   mLastCPU = now;
