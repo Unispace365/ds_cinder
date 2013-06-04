@@ -376,6 +376,9 @@ class Sprite : public SpriteAnimatable
         void                dimensionalStateChanged();
         // Applies to all children, too.
         void                markClippingDirty();
+		// Store all children in mSortedTmp by z order.
+		// XXX Need to optimize this so only built when needed.
+		void				makeSortedChildren();
 
         ci::gl::Texture     mRenderTarget;
 

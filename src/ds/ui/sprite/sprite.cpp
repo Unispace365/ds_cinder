@@ -249,12 +249,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
     }
     else
     {
-        mSortedTmp = mChildren;
-        std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j)
-        {
-          return i->getPosition().z < j->getPosition().z;
-        });
-
+		makeSortedChildren();
         for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
         {
             (*it)->drawClient(totalTransformation, dParams);
@@ -812,6 +807,7 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 	if (!visible())
 		return nullptr;
 
+	makeSortedChildren();
 	for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it ) {
 		Sprite*		hit = (*it)->getPerspectiveHit(pick);
 		if (hit) {
@@ -1475,6 +1471,15 @@ void Sprite::markClippingDirty()
     Sprite*     s = *it;
     if (s) s->markClippingDirty();
   }
+}
+
+void Sprite::makeSortedChildren()
+{
+	mSortedTmp = mChildren;
+	std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j)
+	{
+		return i->getPosition().z < j->getPosition().z;
+	});
 }
 
 void Sprite::setSecondBeforeIdle( const double idleTime )
