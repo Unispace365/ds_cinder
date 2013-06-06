@@ -61,7 +61,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>$(platform_include_d);$(PYTHON_INCLUDE)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(platform_include_d);$(PYTHON_INCLUDE);../src/video_player;../src/video_player/gstreamer/include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>
@@ -72,15 +72,15 @@
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(platform_lib_d);%(AdditionalDependencies);$(PYTHON_LIB)\python33.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(platform_lib_include_d);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(platform_lib_d);%(AdditionalDependencies);$(PYTHON_LIB)\python33.lib;gstreamer-0.10.lib;glib-2.0.lib;gobject-2.0.lib;gstapp-0.10.lib;gstbase-0.10.lib;gstvideo-0.10.lib;gthread-2.0.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(platform_lib_include_d);../src/video_player/gstreamer/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <OutputFile>$(OutDir)$(TargetName).pyd</OutputFile>
       <IgnoreSpecificDefaultLibraries>$(platform_lib_ignore_d)</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(platform_include);$(PYTHON_INCLUDE)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(platform_include);$(PYTHON_INCLUDE);../src/video_player;../src/video_player/gstreamer/include</AdditionalIncludeDirectories>
       <WarningLevel>Level3</WarningLevel>
       <PreprocessorDefinitions>WIN32;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
@@ -89,13 +89,12 @@
       <PrecompiledHeaderOutputFile>
       </PrecompiledHeaderOutputFile>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
-      <Optimization>Disabled</Optimization>
       <MinimalRebuild>true</MinimalRebuild>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>$(platform_lib);%(AdditionalDependencies);$(PYTHON_LIB)\python33.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(platform_lib_include);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(platform_lib);%(AdditionalDependencies);$(PYTHON_LIB)\python33.lib;gstreamer-0.10.lib;glib-2.0.lib;gobject-2.0.lib;gstapp-0.10.lib;gstbase-0.10.lib;gstvideo-0.10.lib;gthread-2.0.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(platform_lib_include);../src/video_player/gstreamer/lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <IgnoreSpecificDefaultLibraries>$(platform_lib_ignore)</IgnoreSpecificDefaultLibraries>
       <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
     </Link>
@@ -111,6 +110,8 @@
     <ClCompile Include="..\src\ds_cinder_wrap.cxx" />
     <ClCompile Include="..\src\frustum_sprite.cpp" />
     <ClCompile Include="..\src\run_app.cpp" />
+    <ClCompile Include="..\src\video_player\gstreamer_video_sprite.cpp" />
+    <ClCompile Include="..\src\video_player\_2RealGStreamerWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\background_task.h" />
@@ -119,6 +120,8 @@
     <ClInclude Include="..\src\ds_cinder_wrap.h" />
     <ClInclude Include="..\src\frustum_sprite.h" />
     <ClInclude Include="..\src\run_app.h" />
+    <ClInclude Include="..\src\video_player\gstreamer_video_sprite.h" />
+    <ClInclude Include="..\src\video_player\_2RealGStreamerWrapper.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\example\python_example\python_example.py" />

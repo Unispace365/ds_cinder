@@ -37,10 +37,14 @@
 #include "ds/util/bit_mask.h"
 #include "ds/data/resource.h"
 
+
+
 #include "run_app.h"
 #include "callbacks.h"
 #include "frustum_sprite.h"
 #include "background_task.h"
+#include "video_player/_2RealGStreamerWrapper.h"
+#include "video_player/gstreamer_video_sprite.h"
 
 %}
 %ignore prepareSettings;
@@ -483,6 +487,8 @@ namespace std {
 %include "callbacks.h"
 %include "frustum_sprite.h"
 %include "background_task.h"
+%include "video_player/_2RealGStreamerWrapper.h"
+%include "video_player/gstreamer_video_sprite.h"
 
 /* vim: set noet fenc= ff=dos sts=0 sw=4 ts=4 : */
 

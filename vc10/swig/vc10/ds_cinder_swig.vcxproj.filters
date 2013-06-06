@@ -20,6 +20,9 @@
     <Filter Include="Python Files">
       <UniqueIdentifier>{11a5e5b4-a89a-48e3-8143-b244ec9fb74f}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\video_player">
+      <UniqueIdentifier>{4f184fca-6598-4a9d-80fe-a0501ce4cf61}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\run_app.cpp">
@@ -36,6 +39,12 @@
     </ClCompile>
     <ClCompile Include="..\src\background_task.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video_player\_2RealGStreamerWrapper.cpp">
+      <Filter>Source Files\video_player</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\video_player\gstreamer_video_sprite.cpp">
+      <Filter>Source Files\video_player</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -56,6 +65,12 @@
     </ClInclude>
     <ClInclude Include="..\src\background_task_runnable.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video_player\_2RealGStreamerWrapper.h">
+      <Filter>Source Files\video_player</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\video_player\gstreamer_video_sprite.h">
+      <Filter>Source Files\video_player</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
