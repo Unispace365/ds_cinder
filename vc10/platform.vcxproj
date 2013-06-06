@@ -39,6 +39,7 @@
     <ClInclude Include="..\src\ds\app\event.h" />
     <ClInclude Include="..\src\ds\app\event_client.h" />
     <ClInclude Include="..\src\ds\app\event_notifier.h" />
+    <ClInclude Include="..\src\ds\app\FrameworkResources.h" />
     <ClInclude Include="..\src\ds\app\image_registry.h" />
     <ClInclude Include="..\src\ds\arc\arc.h" />
     <ClInclude Include="..\src\ds\arc\arc_chain.h" />

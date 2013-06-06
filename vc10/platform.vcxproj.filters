@@ -7,9 +7,6 @@
     <Filter Include="src\ds">
       <UniqueIdentifier>{78d83269-245b-4726-9b7d-eed59de07506}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\app">
-      <UniqueIdentifier>{371cbcf6-40e2-4cc7-8de8-324884a1a41e}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\debug">
       <UniqueIdentifier>{f33039c8-3c8e-44ce-84fa-cb1e9ec7f1f1}</UniqueIdentifier>
     </Filter>
@@ -100,17 +97,11 @@
     <Filter Include="src\ds\arc">
       <UniqueIdentifier>{0dabc65a-df40-4df3-9b7b-f2d4553611a0}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\app">
+      <UniqueIdentifier>{a8305b29-38ed-490c-9351-bc0d0bab9de9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\src\ds\app\app_defs.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\environment.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\data\resource.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
@@ -228,9 +219,6 @@
     <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioObject.h">
       <Filter>blocks\tuio\include</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\app\app.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_process.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
@@ -239,15 +227,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h">
       <Filter>src\ds\ui\sprite</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_clientserver.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_settings.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_server.h">
-      <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\service\load_image_service.h">
       <Filter>src\ds\ui\service</Filter>
@@ -270,9 +249,6 @@
     <ClInclude Include="..\src\ds\data\resource_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_client.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
@@ -287,12 +263,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\debug\computer_info.h">
       <Filter>src\ds\debug</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\blob_registry.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\blob_reader.h">
-      <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\network\zmq_connection.h">
       <Filter>src\ds\network</Filter>
@@ -348,17 +318,8 @@
     <ClInclude Include="..\src\ds\thread\serial_runnable.h">
       <Filter>src\ds\thread</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\app\auto_update.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\auto_update_list.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\network\node_watcher.h">
       <Filter>src\ds\network</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_io.h">
-      <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\network\udp_connection.h">
       <Filter>src\ds\network</Filter>
@@ -369,15 +330,6 @@
     <ClInclude Include="..\src\ds\data\font_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\app\event.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\event_client.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\event_notifier.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\util\notifier_2.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
@@ -386,9 +338,6 @@
     </ClInclude>
     <ClInclude Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.h">
       <Filter>src\lib\Awesomium</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\camera_utils.h">
-      <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h">
       <Filter>src\ds\ui\sprite</Filter>
@@ -404,9 +353,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\image_source\image_file.h">
       <Filter>src\ds\ui\image_source</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\image_registry.h">
-      <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\arc\arc_render_circle.h">
       <Filter>src\ds\arc</Filter>
@@ -444,14 +390,65 @@
     <ClInclude Include="..\src\ds\ui\service\render_text_service.h">
       <Filter>src\ds\ui\service</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\app.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\app_defs.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\auto_update.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\auto_update_list.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\blob_reader.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\blob_registry.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\camera_utils.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine_client.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine_clientserver.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine_io.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine_server.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine_settings.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\environment.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\event.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\event_client.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\event_notifier.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\FrameworkResources.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\image_registry.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\ds\app\engine.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\environment.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\data\resource.cpp">
       <Filter>src\ds\data</Filter>
     </ClCompile>
@@ -530,23 +527,11 @@
     <ClCompile Include="$(CINDER)\blocks\tuio\src\TuioClient.cpp">
       <Filter>blocks\tuio\src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\app\app.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine_clientserver.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine_settings.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_process.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp">
       <Filter>src\ds\ui\touch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine_server.cpp">
-      <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\thread\gl_thread.cpp">
       <Filter>src\ds\thread</Filter>
@@ -569,9 +554,6 @@
     <ClCompile Include="..\src\ds\data\resource_list.cpp">
       <Filter>src\ds\data</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine_client.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
@@ -586,12 +568,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\debug\computer_info.cpp">
       <Filter>src\ds\debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\blob_registry.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\blob_reader.cpp">
-      <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\network\zmq_connection.cpp">
       <Filter>src\ds\network</Filter>
@@ -632,17 +608,8 @@
     <ClCompile Include="..\lib\OGLFT\OGLFT.cpp">
       <Filter>src\lib\OGLFT</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\app\auto_update.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\auto_update_list.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\network\node_watcher.cpp">
       <Filter>src\ds\network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine_io.cpp">
-      <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\network\udp_connection.cpp">
       <Filter>src\ds\network</Filter>
@@ -650,23 +617,11 @@
     <ClCompile Include="..\src\ds\data\font_list.cpp">
       <Filter>src\ds\data</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\app\event.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\event_client.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\event_notifier.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\markdown.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp">
       <Filter>src\lib\Awesomium</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\camera_utils.cpp">
-      <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp">
       <Filter>src\ds\ui\sprite</Filter>
@@ -682,9 +637,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp">
       <Filter>src\ds\ui\image_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\image_registry.cpp">
-      <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp">
       <Filter>src\ds\arc</Filter>
@@ -721,6 +673,57 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\service\render_text_service.cpp">
       <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\app.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\auto_update.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\auto_update_list.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\blob_reader.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\blob_registry.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\camera_utils.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine_client.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine_clientserver.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine_io.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine_server.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine_settings.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\environment.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\event.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\event_client.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\event_notifier.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\image_registry.cpp">
+      <Filter>src\ds\app</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
