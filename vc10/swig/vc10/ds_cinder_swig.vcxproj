@@ -127,6 +127,9 @@
   <ItemGroup>
     <Swig Include="..\src\ds_cinder.i">
       <swigexe Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">..\..\..\..\swig\swig.exe</swigexe>
+      <swigexe Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">..\..\..\..\swig\swig.exe</swigexe>
+      <additionalincludes Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(platform_include_d)</additionalincludes>
+      <testincludes Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">I$(platform_include_d.Replace("%3b", " -I"))</testincludes>
     </Swig>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
