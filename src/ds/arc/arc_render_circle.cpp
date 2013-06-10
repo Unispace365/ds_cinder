@@ -27,6 +27,14 @@ RenderCircle::RenderCircle()
 {
 }
 
+static inline float un_premult(const float v, const float a)
+{
+	if (a < 1.0f && a > 0.0f) {
+		return v / a;
+	}
+	return v;
+}
+
 static inline uint8_t to_color(const float inv)
 {
 	if (inv <= 0.0f) return 0;
@@ -36,7 +44,7 @@ static inline uint8_t to_color(const float inv)
 
 bool RenderCircle::on(const Input& input, ci::Surface8u& s, ds::arc::Arc& a)
 {
-	s.setPremultiplied(true);
+	s.setPremultiplied(false);
 
 	RenderCircleParams	params;
 	params.mW = s.getWidth();
@@ -52,9 +60,9 @@ bool RenderCircle::on(const Input& input, ci::Surface8u& s, ds::arc::Arc& a)
 		while (pix.pixel()) {
 			params.mOutput = ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f);
 			a.renderCircle(input, params);
-			pix.r() = to_color(params.mOutput.r);
-			pix.g() = to_color(params.mOutput.g);
-			pix.b() = to_color(params.mOutput.b);
+			pix.r() = to_color(un_premult(params.mOutput.r, params.mOutput.a));
+			pix.g() = to_color(un_premult(params.mOutput.g, params.mOutput.a));
+			pix.b() = to_color(un_premult(params.mOutput.b, params.mOutput.a));
 			pix.a() = to_color(params.mOutput.a);
 
 			++params.mX;
