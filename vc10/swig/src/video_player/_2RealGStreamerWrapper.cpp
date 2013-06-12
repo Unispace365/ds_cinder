@@ -955,7 +955,7 @@ void GStreamerWrapper::handleGStMessage()
 				}
 			}
 
-			gst_object_unref( m_GstMessage );
+			gst_message_unref( m_GstMessage );
 		}
 	}
 }
