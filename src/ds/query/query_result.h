@@ -16,6 +16,8 @@ namespace query {
 extern const int		QUERY_NO_TYPE;
 extern const int		QUERY_NUMERIC;
 extern const int		QUERY_STRING;
+// A special type that is used as a placeholder until I know the real type.
+extern const int		QUERY_NULL;
 
 /**
  * \class ds::query::Result

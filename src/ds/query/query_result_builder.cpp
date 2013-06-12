@@ -97,9 +97,15 @@ void ResultBuilder::build(const bool columnNames)
 
 	// Set up the columns
 	try {
-		int			ct;
-		for (int k=0; ((ct = getColumnType(k)) != QUERY_NO_TYPE); k++) {
-			if (!mResult.mCol.add(ct)) mError = true;
+		const int	count = getColumnCount();
+		if (count < 1) {
+			// I think a count of 0 isn't technically an error, because the result set might just be empty.
+			if (count < 0) mError = true;
+			return;
+		}
+		for (int k=0; k<count; ++k) {
+			const int	ct = getColumnType(k);
+			if (ct == QUERY_NO_TYPE || !mResult.mCol.add(ct)) mError = true;
 			if (columnNames) {
 				mResult.mColNames.push_back(getColumnName(k));
 			}
@@ -130,6 +136,19 @@ void ResultBuilder::build(const bool columnNames)
 				string		v;
 				if (!getString(k, v)) mError = true;
 				addString(v);
+			} else if (col == QUERY_NULL) {
+				// I can't determine at any point the actual type of the column,
+				// because it looks like sqlite always basis that info on the first
+				// row in the result set. So in this case, I've got to just get
+				// every type.
+				double		v = 0.0f;
+				if (!getDouble(k, v)) v = 0.0f;
+				addNumeric(v);
+
+				--mColIdx;
+				string		str;
+				getString(k, str);
+				addString(str);
 			}
 		}
 		next();

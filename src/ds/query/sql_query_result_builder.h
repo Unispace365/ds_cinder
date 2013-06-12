@@ -20,6 +20,7 @@ public:
 	SqlResultBuilder(Result&, sqlite3_stmt* = nullptr);
 	virtual ~SqlResultBuilder();
 
+	virtual int					getColumnCount() const;
 	virtual int					getColumnType(const int index) const;
 	virtual std::string			getColumnName(const int index);
 	virtual bool				hasNext() const;
