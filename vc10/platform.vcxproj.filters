@@ -447,6 +447,9 @@
     <ClInclude Include="..\src\ds\app\image_registry.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\fbo\auto_fbo.h">
+      <Filter>src\ds\ui\sprite\fbo</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -724,6 +727,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\image_registry.cpp">
       <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\fbo\auto_fbo.cpp">
+      <Filter>src\ds\ui\sprite\fbo</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
