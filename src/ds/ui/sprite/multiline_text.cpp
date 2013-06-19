@@ -44,5 +44,11 @@ MultilineText& MultilineText::setAlignment( const Alignment a )
   return *this;
 }
 
+float MultilineText::getLineHeightWithLeading() const
+{
+	if (!mFont) return 0.0f;
+	return mFont->pointSize() * (1.0 + getLeading() );
+}
+
 } // namespace ui
 } // namespace ds

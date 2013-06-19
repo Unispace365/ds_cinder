@@ -26,6 +26,7 @@ class MultilineText : public Text
 
         Alignment                   getAlignment() const;
         MultilineText&              setAlignment(const Alignment);
+        float                     	getLineHeightWithLeading() const;
 
     private:
         typedef Text                inherited;

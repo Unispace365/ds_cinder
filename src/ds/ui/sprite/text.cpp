@@ -339,6 +339,12 @@ float Text::getPixelFontHeight() const
   return p + y - (getFontDescender(mFont) * p);
 }
 
+float Text::getLineHeight() const
+{
+	if (!mFont) return 0.0f;
+	return mFont->pointSize();
+}
+
 void Text::debugPrint()
 {
   makeLayout();
