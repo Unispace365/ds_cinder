@@ -250,11 +250,27 @@ namespace std {
 %ignore cinder::Vec2::operator=;
 %ignore cinder::Vec3::operator=;
 %ignore cinder::Vec4::operator=;
+%ignore cinder::Vec4::squad;
 %ignore operator<<;
 %include "cinder/Vector.h"
 %template(Vec2i) cinder::Vec2<int>;
 %template(Vec2f) cinder::Vec2<float>;
 %template(Vec3f) cinder::Vec3<float>;
+%template(Vec4f) cinder::Vec4<float>;
+
+// Cinder matrix classes
+%ignore cinder::Matrix44::operator=;
+%ignore cinder::Matrix33::operator=;
+%ignore cinder::Matrix44::invertTransform() const;
+%rename(Mat33_to_const_ptr) "cinder::Matrix33::operator const T*";
+%rename(Mat44_to_const_ptr) "cinder::Matrix44::operator const T*";
+%rename(Mat33_to_ptr) "cinder::Matrix33::operator T*";
+%rename(Mat44_to_ptr) "cinder::Matrix44::operator T*";
+%include "cinder/Matrix44.h"
+%include "cinder/Matrix33.h"
+%template(Mat44f) cinder::Matrix44<float>;
+%template(Mat33f) cinder::Matrix33<float>;
+
 
 %pythoncode %{
 def vec3f_str(self):
