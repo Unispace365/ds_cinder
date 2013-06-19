@@ -380,6 +380,11 @@ float Text::getPixelFontHeight() const
 	return p + y - (getFontDescender(mFont) * p);
 }
 
+float Text::getFontFullHeight() const
+{
+	return ds::ui::getFontHeight(mFont, 0.0f);
+}
+
 void Text::debugPrint()
 {
 	makeLayout();
@@ -505,6 +510,8 @@ void Text::calculateFrame(const int flags)
     if (lineW > w) w = lineW;
     if (lineH > h) h = lineH;
   }
+
+std::cout << "lineH=" << h << " full=" << (getFontFullHeight() * lines.size()) << std::endl;
   w = mBorder.x1 + w + mBorder.x2;
   h = mBorder.y1 + h + mBorder.y2;
   // Only change the dimensions specified by the flags

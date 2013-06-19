@@ -28,6 +28,12 @@ float getFontDescender( const FontPtr &font )
   return font->descender() / (float)getFontSize(font);
 }
 
+float getFontHeight( const FontPtr &font, const float leading )
+{
+	if (!font) return 0.0f;
+	return font->pointSize()*leading + font->pointSize();
+}
+
 namespace {
   
 class LimitCheck {
