@@ -354,7 +354,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	}
 
 	// Print Media Info
-	printMediaFileInfo();
+	//printMediaFileInfo();
 
 	
 
