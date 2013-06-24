@@ -551,8 +551,9 @@ std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
     const int w = (int)ceilf(getWidth()) + 1;
     const int h = (int)ceilf(getHeight()) + 1;
 
-    if (w == 0 || h == 0)
+    if (w < 1 || h < 1){
       return;
+	}
 
     if (!mTexture || mTexture.getWidth() < w || mTexture.getHeight() < h) {
       ci::gl::Texture::Format format;
