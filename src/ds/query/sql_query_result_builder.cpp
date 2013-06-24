@@ -24,6 +24,12 @@ SqlResultBuilder::~SqlResultBuilder()
 	if (mStatement) sqlite3_finalize(mStatement);
 }
 
+int SqlResultBuilder::getColumnCount() const
+{
+	if (mStatementResult != SQLITE_ROW) return 0;
+	return sqlite3_data_count(mStatement);
+}
+
 int SqlResultBuilder::getColumnType(const int index) const
 {
 	if (mStatementResult != SQLITE_ROW) return QUERY_NO_TYPE;
@@ -34,6 +40,7 @@ int SqlResultBuilder::getColumnType(const int index) const
 	if (ans == SQLITE_INTEGER) return QUERY_NUMERIC;
 	if (ans == SQLITE_FLOAT) return QUERY_NUMERIC;
 	if (ans == SQLITE_TEXT) return QUERY_STRING;
+	if (ans == SQLITE_NULL) return QUERY_NULL;
 	return QUERY_NO_TYPE;
 }
 

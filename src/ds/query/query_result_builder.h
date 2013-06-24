@@ -32,6 +32,7 @@ public:
 	// Set columnNames to true if you want them in the result.
 	void						build(const bool columnNames = false);
 
+	virtual int					getColumnCount() const = 0;
 	virtual int					getColumnType(const int index) const = 0;
 	virtual std::string			getColumnName(const int index) = 0;
 	// Advance the row

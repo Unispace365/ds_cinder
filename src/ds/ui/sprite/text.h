@@ -74,6 +74,8 @@ class Text: public Sprite
         // Return the font height in pixels, including ascender and descender. Seems
         // like one of the other functions should do this, but they don't.
         float                     getPixelFontHeight() const;
+		// Hack in a function to get the full font height, including the leading
+		virtual float				getFontFullHeight() const;
 
         // Print my line info
         void                      debugPrint();
@@ -84,6 +86,8 @@ class Text: public Sprite
 
         bool                      mNeedsLayout;
         bool                      mNeedRedrawing;
+
+        FontPtr						mFont;
 
     private:
         typedef Sprite inherited;
@@ -98,7 +102,6 @@ class Text: public Sprite
         //ci::gl::TextureFontRef    mTextureFont;
         //ci::gl::TextureFont::DrawOptions
         //                          mDrawOptions;
-        FontPtr mFont;
         
         std::string               mFontFileName;
         float                     mFontSize;

@@ -44,5 +44,10 @@ MultilineText& MultilineText::setAlignment( const Alignment a )
   return *this;
 }
 
+float MultilineText::getFontFullHeight() const
+{
+	return ds::ui::getFontHeight(mFont, mMultilineLayout.mLeading);
+}
+
 } // namespace ui
 } // namespace ds

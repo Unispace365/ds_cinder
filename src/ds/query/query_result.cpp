@@ -22,6 +22,7 @@ namespace query {
 const int					QUERY_NO_TYPE = 0;
 const int					QUERY_STRING = 1;
 const int					QUERY_NUMERIC = 2;
+const int					QUERY_NULL = 3;
 
 /* QUERY-RESULT::STRING-FACTORY
  * Localize memory management of string instances.

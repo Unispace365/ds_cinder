@@ -39,6 +39,7 @@
     <ClInclude Include="..\src\ds\app\event.h" />
     <ClInclude Include="..\src\ds\app\event_client.h" />
     <ClInclude Include="..\src\ds\app\event_notifier.h" />
+    <ClInclude Include="..\src\ds\app\FrameworkResources.h" />
     <ClInclude Include="..\src\ds\app\image_registry.h" />
     <ClInclude Include="..\src\ds\arc\arc.h" />
     <ClInclude Include="..\src\ds\arc\arc_chain.h" />
@@ -96,6 +97,7 @@
     <ClInclude Include="..\src\ds\ui\service\load_image_service.h" />
     <ClInclude Include="..\src\ds\ui\service\render_text_service.h" />
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\fbo\auto_fbo.h" />
     <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\markdown.h" />
@@ -108,7 +110,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\text_layout.h" />
     <ClInclude Include="..\src\ds\ui\sprite\util\blend.h" />
     <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h" />
-    <ClInclude Include="..\src\ds\ui\sprite\video.h" />
     <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h" />
     <ClInclude Include="..\src\ds\ui\touch\multi_touch_constraints.h" />
     <ClInclude Include="..\src\ds\ui\touch\tap_info.h" />
@@ -196,6 +197,7 @@
     <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp" />
     <ClCompile Include="..\src\ds\ui\service\render_text_service.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\fbo\auto_fbo.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\markdown.cpp" />
@@ -208,7 +210,6 @@
     <ClCompile Include="..\src\ds\ui\sprite\text_layout.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\blend.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\video.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_process.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp" />
@@ -240,11 +241,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="PlatformSetup.props" />
+    <Import Project="PropertySheets\Platform.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="PlatformSetup_d.props" />
+    <Import Project="PropertySheets\Platform_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -260,8 +261,8 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src;$(DS_PLATFORM)\lib\zmq;$(DS_PLATFORM)\lib\snappy;$(FREETYPE)\include;$(DS_PLATFORM)\lib\OGLFT;$(DS_PLATFORM)\lib\paulhoux-Cinder-Awesomium\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0501;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -288,7 +289,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src;$(DS_PLATFORM)\lib\zmq;$(DS_PLATFORM)\lib\snappy;$(FREETYPE)\include;$(DS_PLATFORM)\lib\OGLFT;$(DS_PLATFORM)\lib\paulhoux-Cinder-Awesomium\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>

@@ -21,6 +21,7 @@ ci::Vec2f getSizeFromString(const FontPtr &font, const std::wstring &str);
 int getFontSize(const FontPtr &font);
 float getFontAscender(const FontPtr &font);
 float getFontDescender(const FontPtr &font);
+float getFontHeight(const FontPtr &font, const float leading);
 
 enum Alignment
 {
