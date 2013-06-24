@@ -10,7 +10,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(QUICKTIME)\Libraries;$(DS_PLATFORM)\lib\snappy;$(DS_PLATFORM)\lib\zmq\lib;$(FREETYPE)\lib;$(DS_PLATFORM)\lib\paulhoux-Cinder-Awesomium\build\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionaDependencies);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;cinder.lib;glu32.lib;osc.lib;PocoFoundationmt.lib;PocoNetmt.lib;platform.lib;CVClient.lib;QTMLClient.lib;psapi.lib;snappy.lib;libzmq.lib;freetype2410MT.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionaDependencies);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;cinder.lib;glu32.lib;osc.lib;PocoFoundationmt.lib;PocoNetmt.lib;platform.lib;psapi.lib;snappy.lib;libzmq.lib;freetype2410MT.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
     </Link>

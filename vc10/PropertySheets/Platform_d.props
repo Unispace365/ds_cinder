@@ -10,7 +10,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(QUICKTIME)\Libraries;$(DS_PLATFORM)\lib\snappy;$(DS_PLATFORM)\lib\zmq\lib;$(FREETYPE)\lib;$(DS_PLATFORM)\lib\paulhoux-Cinder-Awesomium\build\lib\msw</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionaDependencies);cinder_d.lib;glu32.lib;osc_d.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform_d.lib;CVClient.lib;QTMLClient.lib;psapi.lib;snappy_d.lib;libzmq_d.lib;freetype2410MT_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionaDependencies);cinder_d.lib;glu32.lib;osc_d.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform_d.lib;psapi.lib;snappy_d.lib;libzmq_d.lib;freetype2410MT_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT; LIBC.lib</IgnoreSpecificDefaultLibraries>
     </Link>
   </ItemDefinitionGroup>
