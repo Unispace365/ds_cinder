@@ -21,9 +21,6 @@
     <ClCompile Include="src\gstreamer\_2RealGStreamerWrapper.cpp">
       <Filter>src\gstreamer</Filter>
     </ClCompile>
-    <ClCompile Include="src\gstreamer\gst_gl_video_player.cpp">
-      <Filter>src\gstreamer</Filter>
-    </ClCompile>
     <ClCompile Include="src\gstreamer\video_meta_cache.cpp">
       <Filter>src\gstreamer</Filter>
     </ClCompile>
@@ -33,9 +30,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\gstreamer\_2RealGStreamerWrapper.h">
-      <Filter>src\gstreamer</Filter>
-    </ClInclude>
-    <ClInclude Include="src\gstreamer\gst_gl_video_player.h">
       <Filter>src\gstreamer</Filter>
     </ClInclude>
     <ClInclude Include="src\gstreamer\video_meta_cache.h">
