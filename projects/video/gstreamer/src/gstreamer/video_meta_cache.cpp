@@ -9,8 +9,6 @@
 
 #include "gstreamer/_2RealGStreamerWrapper.h"
 
-//#include "app/globals.h"
-
 #include "ds/ui/sprite/video.h"
 
 namespace ds {
@@ -49,24 +47,11 @@ int VideoMetaCache::getWidth(const std::string& videoPath, const int defaultValu
 	}
 
 	try {
-		// The wrapper currently seems to have some resources in another thread
-		// it doesn't wait for when you destruct it, so leave pointers hanging.
-		// However, it isn't the end of the world, since once a file is cached
-		// we'll no longer hit this code.]
-#if 0
 		_2RealGStreamerWrapper::GStreamerWrapper	movie;
 		movie.open(videoPath, true, false, false, -1);
 		int		width = movie.getWidth();
 		setWidth(videoPath, width);
 		return width;
-#else
-		_2RealGStreamerWrapper::GStreamerWrapper*	movie = new _2RealGStreamerWrapper::GStreamerWrapper();
-		if (!movie) return -1;
-		movie->open(videoPath, true, false, false, -1);
-		int		width = movie->getWidth();
-		setWidth(videoPath, width);
-		return width;
-#endif
 	} catch (std::exception const& ex) {
 		DS_LOG_WARNING("VideoMetaCache::getWith() error=" << ex.what());
 	}

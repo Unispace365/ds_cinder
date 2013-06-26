@@ -378,8 +378,10 @@ void GStreamerWrapper::close()
 		gst_element_set_state( m_GstPipeline, GST_STATE_NULL );
 		gst_object_unref( m_GstPipeline );
 		m_GstPipeline = NULL;
+		m_GstVideoSink = NULL;
 	}
-
+/* unreffing the pipeline does this
+ */
 	if ( m_GstVideoSink != NULL )
 	{
 		gst_object_unref( m_GstVideoSink );
