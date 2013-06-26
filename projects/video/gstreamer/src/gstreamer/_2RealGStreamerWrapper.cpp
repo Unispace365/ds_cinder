@@ -379,15 +379,17 @@ void GStreamerWrapper::close()
 		gst_object_unref( m_GstPipeline );
 		m_GstPipeline = NULL;
 		m_GstVideoSink = NULL;
+		m_GstAudioSink = NULL;
 	}
-/* unreffing the pipeline does this
- */
+
+	// unreffing the pipeline should free the sink
 	if ( m_GstVideoSink != NULL )
 	{
 		gst_object_unref( m_GstVideoSink );
 		m_GstVideoSink = NULL;
 	}
 
+	// unreffing the pipeline should free the sink
 	if ( m_GstAudioSink != NULL )
 	{
 		gst_object_unref( m_GstAudioSink );
