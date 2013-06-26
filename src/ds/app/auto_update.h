@@ -18,18 +18,18 @@ class SpriteEngine;
  * in my containing list.
  */
 class AutoUpdate {
-  public:
-    AutoUpdate(ds::ui::SpriteEngine&);
-    ~AutoUpdate();
+public:
+	AutoUpdate(ds::ui::SpriteEngine&);
+	~AutoUpdate();
 
-  protected:
-    virtual void update(const ds::UpdateParams &updateParams) = 0;
+protected:
+	virtual void		update(const ds::UpdateParams&) = 0;
 
-  private:
-    friend class AutoUpdateList;
-    AutoUpdate();
+private:
+	friend class AutoUpdateList;
+	AutoUpdate();
 
-    AutoUpdateList&       mOwner;
+	AutoUpdateList&		mOwner;
 };
 
 } // namespace ds
