@@ -6,6 +6,7 @@
 
 #include <GL/glu.h>
 #include "ds/app/app.h"
+#include "ds/app/engine_service.h"
 #include "ds/app/environment.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
@@ -137,13 +138,41 @@ Engine::Engine(ds::App& app, const ds::cfg::Settings &settings, const std::vecto
 
 Engine::~Engine()
 {
-  mTuio.disconnect();
+	if (!mServices.empty()) {
+		for (auto it=mServices.begin(), end=mServices.end(); it!=end; ++it) {
+			delete it->second;
+		}
+		mServices.clear();
+	}
+
+	mTuio.disconnect();
 
 #ifdef AWESOMIUM
   if (mWebCorePtr) {
     Awesomium::WebCore::Shutdown();
   }
 #endif
+}
+
+void Engine::addService(const std::string& str, ds::EngineService& service)
+{
+	if (mServices.empty()) {
+		mServices[str] = &service;
+	} else {
+		auto found = mServices.find(str);
+		if (found != mServices.end()) {
+			delete found->second;
+			found->second = nullptr;
+		}
+		mServices[str] = &service;
+	}
+}
+
+ds::EngineService& Engine::getService(const std::string& str)
+{
+	ds::EngineService*	s = mServices[str];
+	if (!s) throw std::runtime_error("Service does not exist");
+	return *s;
 }
 
 int Engine::getRootCount() const

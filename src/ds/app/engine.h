@@ -55,6 +55,9 @@ class Engine : public ui::SpriteEngine {
     virtual ds::ui::Tweenline  &getTweenline() { return mTweenline; }
     virtual const ds::cfg::Settings
                                &getDebugSettings() { return mDebugSettings; }
+	// I take ownership of any services added to me.
+	void						addService(const std::string&, ds::EngineService&);
+	virtual ds::EngineService&	getService(const std::string&);
 
     // only valid after setup() is called
 		int													getRootCount() const;
@@ -127,7 +130,9 @@ class Engine : public ui::SpriteEngine {
     Awesomium::WebCore         *getWebCore() const;
     Awesomium::WebSession      *getWebSession() const;
 
-	protected:
+	// Add or
+
+protected:
     Engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
 
     ds::BlobRegistry            mBlobRegistry;
@@ -150,11 +155,13 @@ class Engine : public ui::SpriteEngine {
     Awesomium::WebCore         *mWebCorePtr;
     Awesomium::WebSession      *mWebSessionPtr;
 
-  protected:
-    int                         mTuioPort;
+protected:
+	int                         mTuioPort;
 
-  private:
-		std::vector<ui::Sprite*>		mRoots;
+private:
+	std::vector<ui::Sprite*>	mRoots;
+	std::unordered_map<std::string, ds::EngineService*>
+								mServices;
 
 		ImageRegistry								mImageRegistry;
     ds::ui::Tweenline           mTweenline;

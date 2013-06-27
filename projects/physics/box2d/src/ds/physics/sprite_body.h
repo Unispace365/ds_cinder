@@ -1,0 +1,42 @@
+#pragma once
+#ifndef DS_PHYSICS_SPRITEBODY_H_
+#define DS_PHYSICS_SPRITEBODY_H_
+
+class b2Body;
+
+namespace ds {
+namespace ui {
+class Sprite;
+class SpriteEngine;
+}
+
+namespace physics {
+class World;
+
+/**
+ * \class ds::physics::SpriteBody
+ * \brief This serves as the sprite entry point to the physics system.
+ * Simply including this in a sprite subclass and calling create() is
+ * enough to enable physics on a sprite.
+ * NOTE: VERY PRELIMINARY!
+ */
+class SpriteBody {
+public:
+	SpriteBody(ds::ui::Sprite&);
+	~SpriteBody();
+
+	void					create();
+	void					destroy();
+
+	void					setLinearVelocity(const float x, const float y);
+
+private:
+	World&					mWorld;
+	ds::ui::Sprite&			mOwner;
+	b2Body*					mBody;
+};
+
+} // namespace physics
+} // namespace ds
+
+#endif // DS_PHYSICS_SPRITEBODY_H_

@@ -1,0 +1,30 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{a0ed5fcc-581b-4b7b-aef5-e80934580b0d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds">
+      <UniqueIdentifier>{9e470267-f71f-4538-872c-588a203ea64a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\physics">
+      <UniqueIdentifier>{c6ab769a-037d-4810-8c07-b898a2b352b5}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ds\physics\world.h">
+      <Filter>src\ds\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\physics\sprite_body.h">
+      <Filter>src\ds\physics</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ds\physics\world.cpp">
+      <Filter>src\ds\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\physics\sprite_body.cpp">
+      <Filter>src\ds\physics</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

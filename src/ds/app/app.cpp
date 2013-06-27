@@ -19,6 +19,12 @@
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
 
+static std::vector<std::function<void(ds::Engine&)>>& get_startups()
+{
+	static std::vector<std::function<void(ds::Engine&)>>	VEC;
+	return VEC;
+}
+
 namespace {
 std::string           APP_PATH;
 #ifdef _DEBUG
@@ -27,6 +33,11 @@ ds::Console		        GLOBAL_CONSOLE;
 }
 
 namespace ds {
+
+void App::AddStartup(const std::function<void(ds::Engine&)>& fn)
+{
+	if (fn != nullptr) get_startups().push_back(fn);
+}
 
 /**
  * \class ds::App
@@ -60,6 +71,13 @@ App::App(const std::vector<int>* roots)
 	} catch (std::exception&) {
 		std::cout << "ERROR Failed to load framework resource -- did you include FrameworkResources.rc in your application project?" << std::endl;
 	}
+
+	// Run all the statically-created initialization code.
+	std::vector<std::function<void(ds::Engine&)>>& startups = get_startups();
+	for (auto it=startups.begin(), end=startups.end(); it!=end; ++it) {
+		if (*it) (*it)(mEngine);
+	}
+	startups.clear();
 }
 
 App::~App()

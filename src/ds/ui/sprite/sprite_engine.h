@@ -16,6 +16,7 @@ class WebSession;
 
 namespace ds {
 class AutoUpdateList;
+class EngineService;
 class FontList;
 class ImageRegistry;
 class ResourceList;
@@ -48,6 +49,8 @@ public:
 	virtual Tweenline&			getTweenline() = 0;
 	virtual const ds::cfg::Settings&
 								getDebugSettings() = 0;
+	// Throws if the service doesn't exist
+	virtual ds::EngineService&	getService(const std::string&) = 0;
 
     // Sprite management
     virtual ds::sprite_id_t        nextSpriteId() = 0;

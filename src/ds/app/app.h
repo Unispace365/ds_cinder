@@ -14,11 +14,17 @@ class Environment;
  * Handle the main app setup.
  */
 class App : public ci::app::AppBasic {
-  public:
-		// Apps can provide a list of root sprites (Engine::CAMERA_ORTHO or Engine::CAMERA_PERSP), which
-		// can be accessed by index. If none supplied, you get 1 orthogonal.
-    App(const std::vector<int>* roots = nullptr);
-    ~App();
+public:
+	// This is used for external projects to perform some initialization
+	// on app startup time. It's intended to be called by clients from a
+	// static initializer.
+	// Note that throwing an exception in the function will exit the app.
+	static void AddStartup(const std::function<void(ds::Engine&)>&);
+
+	// Apps can provide a list of root sprites (Engine::CAMERA_ORTHO or Engine::CAMERA_PERSP), which
+	// can be accessed by index. If none supplied, you get 1 orthogonal.
+	App(const std::vector<int>* roots = nullptr);
+	~App();
 
     virtual void                mouseDown( MouseEvent event );	
     virtual void                mouseMove( MouseEvent event );
@@ -30,7 +36,7 @@ class App : public ci::app::AppBasic {
     virtual void                keyDown( KeyEvent event );
     virtual void                keyUp( KeyEvent event );
     virtual void                prepareSettings(Settings*);
-    virtual void				        setup();
+    virtual void				      setup();
     // This is where client applications would setup the initial UI.
     virtual void                setupServer()     { }
     virtual void	    			    update();

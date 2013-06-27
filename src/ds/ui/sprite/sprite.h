@@ -24,7 +24,6 @@
 #include "ds/util/idle_timer.h"
 
 namespace ds {
-
 class BlobReader;
 class BlobRegistry;
 class CameraPick;
@@ -34,7 +33,6 @@ class Engine;
 class UpdateParams;
 
 namespace ui {
-
 struct DragDestinationInfo;
 class SpriteEngine;
 struct TapInfo;
