@@ -453,24 +453,31 @@ void Engine::drawServer()
 
 void Engine::setup(ds::App&)
 {
-  //mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
-  //gl::setMatrices(mCamera);
-  setCamera(true);
-  setCamera();
-  //gl::disable(GL_CULL_FACE);
-  //////////////////////////////////////////////////////////////////////////
+	//mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
+	//gl::setMatrices(mCamera);
+	setCamera(true);
+	setCamera();
+	//gl::disable(GL_CULL_FACE);
+	//////////////////////////////////////////////////////////////////////////
 
-  gl::Fbo::Format format;
-  format.setColorInternalFormat(GL_RGBA32F);
-  mFbo = gl::Fbo((int)getWidth(), (int)getHeight(), format);
-  //////////////////////////////////////////////////////////////////////////
+	gl::Fbo::Format format;
+	format.setColorInternalFormat(GL_RGBA32F);
+	mFbo = gl::Fbo((int)getWidth(), (int)getHeight(), format);
+	//////////////////////////////////////////////////////////////////////////
 
-  float curr = static_cast<float>(getElapsedSeconds());
-  mLastTime = curr;
-  mLastTouchTime = 0;
+	float curr = static_cast<float>(getElapsedSeconds());
+	mLastTime = curr;
+	mLastTouchTime = 0;
   
-  mUpdateParams.setDeltaTime(0.0f);
-  mUpdateParams.setElapsedTime(curr);
+	mUpdateParams.setDeltaTime(0.0f);
+	mUpdateParams.setElapsedTime(curr);
+
+	// Start any library services
+  	if (!mServices.empty()) {
+		for (auto it=mServices.begin(), end=mServices.end(); it!=end; ++it) {
+			if (it->second) it->second->start();
+		}
+	}
 }
 
 void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )

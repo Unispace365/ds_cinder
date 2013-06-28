@@ -207,9 +207,9 @@ public:
 	GlThread();
 	virtual ~GlThread();
 
-  // Start needs to be called sometime after the app setup, where
-  // GL gets initialized.
-  virtual void        start(const bool makeGlCalls);
+	// Start needs to be called sometime after the app setup, where
+	// GL gets initialized.
+	virtual void				start(const bool makeGlCalls);
 
 	virtual bool				performOnWorkerThread(GlThreadCallback*);
 	// Block until all worker thread operations have finished.  Note there
@@ -223,29 +223,29 @@ private:
 	class Loop : public Poco::Runnable {
 	public:
 		Poco::Mutex				mMutex;
-		Poco::Condition		mCondition;
-		bool			    		mAbort;
-		HDC					    	mCurHDC;
-		HGLRC			    		mThreadContext;
-		bool			    		mError;
+		Poco::Condition			mCondition;
+		bool			    	mAbort;
+		HDC					    mCurHDC;
+		HGLRC			    	mThreadContext;
+		bool			    	mError;
 
 	public:
 		Loop();
 		~Loop();
 
-    bool              start(const bool makeGlCalls);
-		bool			    		makesGlCalls() const;
-		bool					    addInput(GlThreadCallback*);
+		bool					start(const bool makeGlCalls);
+		bool			    	makesGlCalls() const;
+		bool					addInput(GlThreadCallback*);
 		virtual void			run();
 
 	private:
 		std::vector<GlThreadCallback*> mInput;
 
-		void				    	consume(std::vector<GlThreadCallback*>&);
+		void				    consume(std::vector<GlThreadCallback*>&);
 	};
 
 protected:
-  Loop					    	mLoop;
+	Loop						mLoop;
 
 private:
 	GlThread(const GlThread&);

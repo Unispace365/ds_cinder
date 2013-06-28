@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{0647ce8a-bc6c-429b-b565-2f846c0acc6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds">
+      <UniqueIdentifier>{4ee4c9bf-ae2a-4c14-9e3f-b36c65b76e54}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui">
+      <UniqueIdentifier>{a1967c41-9df6-4d28-a5da-03cd7227a956}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\sprite">
+      <UniqueIdentifier>{534c6a14-e706-402c-aece-92e0812f54ab}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\private">
+      <UniqueIdentifier>{d4b5bec1-502b-4561-90aa-5a6e35c8cd7b}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\private\pdf_service.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\pdf.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="src\private\pdf_res.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\private\pdf_service.cpp">
+      <Filter>src\private</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\pdf.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\pdf_res.cpp">
+      <Filter>src\private</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

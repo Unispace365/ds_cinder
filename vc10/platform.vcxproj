@@ -34,6 +34,7 @@
     <ClInclude Include="..\src\ds\app\engine_clientserver.h" />
     <ClInclude Include="..\src\ds\app\engine_io.h" />
     <ClInclude Include="..\src\ds\app\engine_server.h" />
+    <ClInclude Include="..\src\ds\app\engine_service.h" />
     <ClInclude Include="..\src\ds\app\engine_settings.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
     <ClInclude Include="..\src\ds\app\event.h" />

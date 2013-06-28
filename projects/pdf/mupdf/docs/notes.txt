@@ -1,0 +1,5 @@
+Built from MuPDF 1.2:
+
+http://www.mupdf.com/
+
+Libraries are built with Code Generation->Runtime Library set to Multi-threaded (as opposed to Multi-threaded DLL). That seems to be the default for MuPDF, and it's the way Cinder apps are built; only worth mentioning because BigWorld was built with DLL, so the libraries used there are not compatible.
