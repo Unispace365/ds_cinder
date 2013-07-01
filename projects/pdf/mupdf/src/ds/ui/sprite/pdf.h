@@ -25,6 +25,7 @@ public:
 	virtual void				updateServer(const UpdateParams&);
 
 protected:
+	virtual void				onScaleChanged();
 	virtual void				drawLocalClient();
 
 private:
@@ -41,6 +42,11 @@ private:
 		void					setResourceFilename(const std::string& filename);
 		void					update();
 		void					drawLocalClient();
+		void					setScale(const ci::Vec3f&);
+		float					getWidth() const;
+		float					getHeight() const;
+		float					getTextureWidth() const;
+		float					getTextureHeight() const;
 
 	private:
 		ds::pdf::Service&		mService;

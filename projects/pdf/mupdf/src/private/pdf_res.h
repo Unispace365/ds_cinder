@@ -26,6 +26,9 @@ private:
 public:
 	bool loadPDF(const std::string &theFileName);
 
+	float					getTextureWidth() const;
+	float					getTextureHeight() const;
+
 	void update();
 #if 0
 	void setAnchorPercent(float xPct, float yPct);	//set the anchor as a percentage of the image width/height ( 0.0-1.0 range )
@@ -33,7 +36,6 @@ public:
 	void resetAnchor();															//resets the anchor to (0, 0)
 #endif
 
-	void draw(float x, float y, float w, float h);
 	void draw(float x, float y);
 
 	float getWidth() const { return (float)mState.mWidth; }

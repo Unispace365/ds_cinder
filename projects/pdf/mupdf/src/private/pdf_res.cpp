@@ -126,7 +126,8 @@ public:
 			// This is pretty ugly because MuPDF uses custom C++-like error handing that
 			// has stringent rules, like you're not allowed to return.
 			fz_try((&ctx)) {
-				const float		zoom = 1.0f;
+//				const float		zoom = 1.0f;
+				const float		zoom = static_cast<float>(mScaledWidth) / mWidth;
 				const float		rotation = 1.0f;
 				fz_matrix		transform = fz_identity;
 				fz_scale(&transform, zoom, zoom);
@@ -145,7 +146,7 @@ public:
 				// space has the origin at the top left corner and the x axis
 				// extends to the right and the y axis extends down.
 	//			fz_pixmap *pix = fz_new_pixmap_with_bbox(&ctx, fz_device_rgb, bbox);
-				int w = mWidth, h = mHeight;
+				int w = mScaledWidth, h = mScaledHeight;
 				if (mPixels.setSize(w, h)) {
 					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb, w, h, mPixels.getData());
 					if (pixmap) {
@@ -223,6 +224,18 @@ bool PdfRes::loadPDF(const std::string& fileName) {
 	return false;
 }
 
+float PdfRes::getTextureWidth() const
+{
+	if (!mTexture) return 0.0f;
+	return mTexture.getWidth();
+}
+
+float PdfRes::getTextureHeight() const
+{
+	if (!mTexture) return 0.0f;
+	return mTexture.getHeight();
+}
+
 #if 0
 void Pdf::setAnchorPercent(float xPct, float yPct) {
 	Poco::Mutex::ScopedLock		l(mMutex);
@@ -242,15 +255,6 @@ void Pdf::resetAnchor() {
 	mTex[1].resetAnchor();
 }
 #endif
-
-void PdfRes::draw(float _x, float _y, float _w, float _h)
-{
-	if (mPageCount > 0 && mTexture) {
-		ci::Area		src(0, 0, mTexture.getWidth(), mTexture.getHeight());
-		ci::Rectf		dst(_x, _y, _x + _w, _y + _h);
-		ci::gl::draw(mTexture, src, dst);
-	}
-}
 
 void PdfRes::draw(float x, float y)
 {
