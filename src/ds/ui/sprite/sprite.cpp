@@ -728,6 +728,10 @@ ci::Vec3f Sprite::localToGlobal( const ci::Vec3f &localPoint )
 
 bool Sprite::contains( const ci::Vec3f &point ) const
 {
+	// If I don't check this, then sprites with no size are always picked.
+	// Someone who knows the math can probably address the root issue.
+	if (mWidth < 0.001f || mHeight < 0.001f) return false;
+
     buildGlobalTransform();
 
     ci::Vec4f pR = ci::Vec4f(point.x, point.y, point.z, 1.0f);
