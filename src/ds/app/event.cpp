@@ -62,12 +62,12 @@ Event::Event(const int what)
 
 const std::string& Event::getName() const
 {
-  Poco::Mutex::ScopedLock   l(get_register_lock());
-  auto e = get_events();
-  if (e.empty()) return getEmptySz();
-  auto f = e.find(mWhat);
-  if (f != e.end()) return f->second;
-  return getEmptySz();
+	Poco::Mutex::ScopedLock   l(get_register_lock());
+	auto& e = get_events();
+	if (e.empty()) return getEmptySz();
+	auto f = e.find(mWhat);
+	if (f != e.end()) return f->second;
+	return getEmptySz();
 }
 
 Event::~Event()
