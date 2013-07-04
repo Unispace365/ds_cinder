@@ -15,8 +15,9 @@ char              COMMAND_BLOB = 0;
 /**
  * \class ds::EngineClient
  */
-EngineClient::EngineClient(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
-	: inherited(app, settings, roots)
+EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
+							ds::EngineInitParams& eip, const std::vector<int>* roots)
+	: inherited(app, settings, eip, roots)
 	, mLoadImageService(mLoadImageThread)
 	, mRenderTextService(mRenderTextThread)
 //    , mConnection(NumberOfNetworkThreads)

@@ -6,6 +6,7 @@
 #include "ds/debug/console.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
+#include "ds/params/engine_init_params.h"
 // For installing the sprite types
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
@@ -17,7 +18,7 @@
 #include "ds/app/FrameworkResources.h"
 
 // Answer a new engine based on the current settings
-static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
+static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, ds::EngineInitParams&, const std::vector<int>* roots);
 
 static std::vector<std::function<void(ds::Engine&)>>& get_startups()
 {
@@ -45,7 +46,7 @@ void App::AddStartup(const std::function<void(ds::Engine&)>& fn)
 App::App(const std::vector<int>* roots)
 	: mInitializer(getAppPath().generic_string())
 	, mEngineSettings()
-	, mEngine(new_engine(*this, mEngineSettings, roots))
+	, mEngine(new_engine(*this, mEngineSettings, ds::EngineInitParams(this->mNotifier), roots))
 	, mCtrlDown(false)
 	, mSecondMouseDown(false)
 	, mQKeyEnabled(false)
@@ -221,9 +222,10 @@ ds::App::Initializer::Initializer(const std::string& appPath)
 
 } // namespace ds
 
-static ds::Engine&    new_engine(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
+static ds::Engine&    new_engine(	ds::App& app, const ds::cfg::Settings& settings,
+									ds::EngineInitParams& eip, const std::vector<int>* roots)
 {
-  if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(app, settings, roots));
-  if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(app, settings, roots));
-  return *(new ds::EngineClientServer(app, settings, roots));
+  if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(app, settings, eip, roots));
+  if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(app, settings, eip, roots));
+  return *(new ds::EngineClientServer(app, settings, eip, roots));
 }

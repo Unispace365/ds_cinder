@@ -133,13 +133,13 @@ class Engine : public ui::SpriteEngine {
 	// Add or
 
 protected:
-    Engine(ds::App&, const ds::cfg::Settings&, const std::vector<int>* roots);
+    Engine(ds::App&, const ds::cfg::Settings&, ds::EngineInitParams&, const std::vector<int>* roots);
 
     ds::BlobRegistry            mBlobRegistry;
     std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
                                 mSprites;
 
-    void												initializeWeb();
+    void						initializeWeb();
     // Conveniences for the subclases
     void	                      updateClient();
     void	                      updateServer();

@@ -16,7 +16,9 @@ class WebSession;
 
 namespace ds {
 class AutoUpdateList;
+class EngineInitParams;
 class EngineService;
+class EventNotifier;
 class FontList;
 class ImageRegistry;
 class ResourceList;
@@ -38,6 +40,9 @@ class Tweenline;
  */
 class SpriteEngine {
 public:
+	// Access to the app-wide notification service. Use this to send a
+	// message to everyone who's registered an EventClient.
+	ds::EventNotifier&			getNotifier();
 	// General engine services
 	virtual ds::WorkManager&	getWorkManager() = 0;
 	virtual ds::ResourceList&	getResources() = 0;
@@ -67,7 +72,7 @@ public:
     virtual float                  getHeight() const = 0;
     virtual float                  getWorldWidth() const = 0;
     virtual float                  getWorldHeight() const = 0;
-    float													 getFrameRate() const;
+    float							getFrameRate() const;
 
     std::unique_ptr<FboGeneral>    getFbo();
     void                           giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
@@ -96,17 +101,20 @@ public:
     virtual Awesomium::WebCore    *getWebCore() const = 0;
     virtual Awesomium::WebSession *getWebSession() const = 0;
 
-	protected:
-    SpriteEngine();
+protected:
+    SpriteEngine(ds::EngineInitParams&);
     virtual ~SpriteEngine()        { }
 
     std::list<Sprite *>            mDragDestinationSprites;
 
     std::list<std::unique_ptr<FboGeneral>> mFbos;
 		
-		// This is because of the growing number of virtuals, which of course impacts
-		// performance. We should probably unvirtualize all the trivial data types.
-		float													mFrameRate;
+	// This is because of the growing number of virtuals, which of course impacts
+	// performance. We should probably unvirtualize all the trivial data types.
+	float							mFrameRate;
+
+private:
+	ds::EventNotifier&				mNotifier;
 };
 
 } // namespace ui

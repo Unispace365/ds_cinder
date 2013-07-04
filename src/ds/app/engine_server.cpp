@@ -18,8 +18,9 @@ const char        TERMINATOR = 0;
 /**
  * \class ds::EngineServer
  */
-EngineServer::EngineServer(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
-    : inherited(app, settings, roots)
+EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
+							ds::EngineInitParams& eip, const std::vector<int>* roots)
+    : inherited(app, settings, eip, roots)
     , mLoadImageService(mLoadImageThread)
     , mRenderTextService(mRenderTextThread)
 //    , mConnection(NumberOfNetworkThreads)

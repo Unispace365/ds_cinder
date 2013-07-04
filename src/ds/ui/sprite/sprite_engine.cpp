@@ -1,7 +1,8 @@
 #include "sprite_engine.h"
 #include "sprite.h"
+#include <cinder/app/App.h>
+#include "ds/params/engine_init_params.h"
 #include "ds/debug/debug_defines.h"
-#include "cinder/app/App.h"
 
 using namespace ci;
 
@@ -11,9 +12,15 @@ namespace ui {
 /**
  * \class ds::ui::SpriteEngine
  */
-SpriteEngine::SpriteEngine()
+SpriteEngine::SpriteEngine(ds::EngineInitParams& eip)
 	: mFrameRate(60.0f)
+	, mNotifier(eip.mNotifier)
 {
+}
+
+ds::EventNotifier& SpriteEngine::getNotifier()
+{
+	return mNotifier;
 }
 
 void SpriteEngine::addToDragDestinationList( Sprite *sprite )

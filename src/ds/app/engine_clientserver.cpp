@@ -7,8 +7,9 @@ namespace ds {
 /**
  * \class ds::EngineClientServer
  */
-EngineClientServer::EngineClientServer(ds::App& app, const ds::cfg::Settings& settings, const std::vector<int>* roots)
-	: inherited(app, settings, roots)
+EngineClientServer::EngineClientServer(	ds::App& app, const ds::cfg::Settings& settings,
+										ds::EngineInitParams& eip, const std::vector<int>* roots)
+	: inherited(app, settings, eip, roots)
 	, mLoadImageService(mLoadImageThread)
 	, mRenderTextService(mRenderTextThread)
 {

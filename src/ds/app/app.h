@@ -5,6 +5,7 @@
 #include <cinder/app/AppBasic.h>
 #include "ds/app/engine.h"
 #include "ds/app/engine_settings.h"
+#include "ds/app/event_notifier.h"
 
 namespace ds {
 class Environment;
@@ -50,6 +51,7 @@ public:
     class Initializer { public: Initializer(const std::string&); };
     Initializer                 mInitializer;
 
+	ds::EventNotifier			mNotifier;
     ds::EngineSettings          mEngineSettings;
     ds::Engine&                 mEngine;
 

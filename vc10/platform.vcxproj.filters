@@ -450,6 +450,9 @@
     <ClInclude Include="..\src\ds\app\engine_service.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\params\engine_init_params.h">
+      <Filter>src\ds\params</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -727,6 +730,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\params\engine_init_params.cpp">
+      <Filter>src\ds\params</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

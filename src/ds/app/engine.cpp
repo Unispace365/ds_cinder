@@ -40,22 +40,24 @@ const int Engine::NumberOfNetworkThreads = 2;
 /**
  * \class ds::Engine
  */
-Engine::Engine(ds::App& app, const ds::cfg::Settings &settings, const std::vector<int>* roots)
-  : mTweenline(app.timeline())
-  , mIdleTime(300.0f)
-  , mIdling(true)
-  , mTouchManager(*this)
-  , mMinTouchDistance(10.0f)
-  , mMinTapDistance(30.0f)
-  , mSwipeQueueSize(4)
-  , mDoubleTapTime(0.1f)
-  , mSettings(settings)
-  , mCameraPerspNearPlane(1.0f)
-  , mCameraPerspFarPlane(1000.0f)
-  , mSystemMultitouchEnabled(false)
-  , mApplyFxAA(false)
-  , mWebCorePtr(nullptr)
-  , mWebSessionPtr(nullptr)
+Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
+				ds::EngineInitParams& eip, const std::vector<int>* roots)
+	: ds::ui::SpriteEngine(eip)
+	, mTweenline(app.timeline())
+	, mIdleTime(300.0f)
+	, mIdling(true)
+	, mTouchManager(*this)
+	, mMinTouchDistance(10.0f)
+	, mMinTapDistance(30.0f)
+	, mSwipeQueueSize(4)
+	, mDoubleTapTime(0.1f)
+	, mSettings(settings)
+	, mCameraPerspNearPlane(1.0f)
+	, mCameraPerspFarPlane(1000.0f)
+	, mSystemMultitouchEnabled(false)
+	, mApplyFxAA(false)
+	, mWebCorePtr(nullptr)
+	, mWebSessionPtr(nullptr)
 {
 	// Construct the root sprites
 	if (roots) {

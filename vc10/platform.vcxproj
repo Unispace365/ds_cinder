@@ -70,6 +70,7 @@
     <ClInclude Include="..\src\ds\network\udp_connection.h" />
     <ClInclude Include="..\src\ds\network\zmq_connection.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
+    <ClInclude Include="..\src\ds\params\engine_init_params.h" />
     <ClInclude Include="..\src\ds\params\update_params.h" />
     <ClInclude Include="..\src\ds\query\query_client.h" />
     <ClInclude Include="..\src\ds\query\query_result.h" />
@@ -177,6 +178,7 @@
     <ClCompile Include="..\src\ds\network\udp_connection.cpp" />
     <ClCompile Include="..\src\ds\network\zmq_connection.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />
+    <ClCompile Include="..\src\ds\params\engine_init_params.cpp" />
     <ClCompile Include="..\src\ds\params\update_params.cpp" />
     <ClCompile Include="..\src\ds\query\query_client.cpp" />
     <ClCompile Include="..\src\ds\query\query_result.cpp" />
