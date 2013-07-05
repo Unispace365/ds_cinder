@@ -20,12 +20,7 @@ SpriteEngine::SpriteEngine(ds::EngineData& ed)
 
 SpriteEngine::~SpriteEngine()
 {
-	if (!mData.mServices.empty()) {
-		for (auto it=mData.mServices.begin(), end=mData.mServices.end(); it!=end; ++it) {
-			delete it->second;
-		}
-		mData.mServices.clear();
-	}
+	mData.clearServices();
 }
 
 ds::EventNotifier& SpriteEngine::getNotifier()

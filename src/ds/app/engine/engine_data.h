@@ -3,6 +3,7 @@
 #define DS_APP_ENGINE_ENGINEDATA_H_
 
 #include <unordered_map>
+#include <cinder/Rect.h>
 #include "ds/app/event_notifier.h"
 
 namespace ds
@@ -22,6 +23,9 @@ public:
 	EventNotifier			mNotifier;
 	std::unordered_map<std::string, ds::EngineService*>
 							mServices;
+
+	// Will stop and delete them.
+	void					clearServices();
 
 	float					mMinTouchDistance;
 	float					mMinTapDistance;

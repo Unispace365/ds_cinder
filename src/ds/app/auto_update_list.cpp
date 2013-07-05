@@ -11,16 +11,16 @@ namespace ds {
  */
 AutoUpdateList::AutoUpdateList()
 {
-  mUpdate.reserve(16);
+	mUpdate.reserve(16);
 }
 
 void AutoUpdateList::update( const ds::UpdateParams &updateParams )
 {
-  if (mUpdate.empty()) return;
+	if (mUpdate.empty()) return;
 
-  for (auto it=mUpdate.begin(), end=mUpdate.end(); it != end; ++it) {
-    (*it)->update(updateParams);
-  }
+	for (auto it=mUpdate.begin(), end=mUpdate.end(); it != end; ++it) {
+		(*it)->update(updateParams);
+	}
 }
 
 } // namespace ds

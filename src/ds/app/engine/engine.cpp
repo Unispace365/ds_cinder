@@ -1,9 +1,5 @@
 #include "ds/app/engine/engine.h"
 
-#ifdef AWESOMIUM
-#pragma comment(lib, "awesomium.lib")
-#endif
-
 #include <GL/glu.h>
 #include "ds/app/app.h"
 #include "ds/app/environment.h"
@@ -14,8 +10,6 @@
 #include "ds/config/settings.h"
 #include "Poco/Path.h"
 #include "cinder/Thread.h"
-#include "CinderAwesomium.h"
-#include "Awesomium/WebSession.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -52,8 +46,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mCameraPerspFarPlane(1000.0f)
 	, mSystemMultitouchEnabled(false)
 	, mApplyFxAA(false)
-	, mWebCorePtr(nullptr)
-	, mWebSessionPtr(nullptr)
 {
 	// Construct the root sprites
 	if (roots) {
@@ -138,11 +130,9 @@ Engine::~Engine()
 {
 	mTuio.disconnect();
 
-#ifdef AWESOMIUM
-  if (mWebCorePtr) {
-    Awesomium::WebCore::Shutdown();
-  }
-#endif
+	// Important to do this here before the auto update list is destructed.
+	// so any autoupdate services get removed.
+	mData.clearServices();
 }
 
 void Engine::addService(const std::string& str, ds::EngineService& service)
@@ -179,9 +169,6 @@ void Engine::updateClient()
   if (!mIdling && (curr - mLastTouchTime) >= mIdleTime ) {
     mIdling = true;
   }
-
-  if (mWebCorePtr)
-    mWebCorePtr->Update();
 
   mUpdateParams.setDeltaTime(dt);
   mUpdateParams.setElapsedTime(curr);
@@ -267,9 +254,6 @@ void Engine::updateServer()
   if (!mIdling && (curr - mLastTouchTime) >= mIdleTime ) {
     mIdling = true;
   }
-
-  if (mWebCorePtr)
-    mWebCorePtr->Update();
 
   mUpdateParams.setDeltaTime(dt);
   mUpdateParams.setElapsedTime(curr);
@@ -485,11 +469,6 @@ void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )
 		settings.setBorderless(true);
 	settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 
-	if (mSettings.getBool("web:use", 0, false)) {
-		//add falg to engine.xml to check here.
-		initializeWeb();
-	}
-
 	const std::string     nope = "ds:IllegalTitle";
 	const std::string     title = mSettings.getText("screen:title", 0, nope);
 	if (title != nope) settings.setTitle(title);
@@ -669,27 +648,6 @@ void Engine::setPerspectiveCameraTarget( const ci::Vec3f &tar )
 ci::Vec3f Engine::getPerspectiveCameraTarget() const
 {
   return mCameraPersp.getCenterOfInterestPoint();
-}
-
-void Engine::initializeWeb()
-{
-  #ifdef AWESOMIUM
-  Awesomium::WebConfig cnf;
-  cnf.log_level = Awesomium::kLogLevel_Verbose;
-
-  // initialize the Awesomium web engine
-  mWebCorePtr = Awesomium::WebCore::Initialize( cnf );
-  #endif
-}
-
-Awesomium::WebCore *Engine::getWebCore() const
-{
-  return mWebCorePtr;
-}
-
-Awesomium::WebSession *Engine::getWebSession() const
-{
-  return mWebSessionPtr;
 }
 
 } // namespace ds

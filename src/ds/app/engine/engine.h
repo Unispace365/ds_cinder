@@ -115,11 +115,8 @@ class Engine : public ui::SpriteEngine {
     bool                        systemMultitouchEnabled() const;
     bool                        hideMouse() const;
 
-		virtual void                clearFingers( const std::vector<int> &fingers );
-		void												setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
-
-    Awesomium::WebCore         *getWebCore() const;
-    Awesomium::WebSession      *getWebSession() const;
+	virtual void                clearFingers( const std::vector<int> &fingers );
+	void							setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 
 	// Add or
 
@@ -130,7 +127,6 @@ protected:
     std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
                                 mSprites;
 
-    void						initializeWeb();
     // Conveniences for the subclases
     void	                      updateClient();
     void	                      updateServer();
@@ -142,9 +138,6 @@ protected:
 		void												clearAllSprites();
 
     static const int            NumberOfNetworkThreads;
-
-    Awesomium::WebCore         *mWebCorePtr;
-    Awesomium::WebSession      *mWebSessionPtr;
 
 protected:
 	int                         mTuioPort;

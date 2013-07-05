@@ -9,11 +9,6 @@
 #include "fbo/fbo.h"
 #include <memory>
 
-namespace Awesomium {
-class WebCore;
-class WebSession;
-}
-
 namespace ds {
 class AutoUpdateList;
 class EngineData;
@@ -98,9 +93,6 @@ public:
     static const int               SERVER_MODE = 1;
     static const int               CLIENTSERVER_MODE = 2;
     virtual int                    getMode() const = 0;
-
-    virtual Awesomium::WebCore    *getWebCore() const = 0;
-    virtual Awesomium::WebSession *getWebSession() const = 0;
 
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,

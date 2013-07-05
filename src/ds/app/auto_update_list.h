@@ -16,7 +16,7 @@ class AutoUpdateList {
   public:
     AutoUpdateList();
 
-    void update(const ds::UpdateParams &updateParams);
+    void					update(const ds::UpdateParams &updateParams);
 
   private:
     friend class AutoUpdate;
