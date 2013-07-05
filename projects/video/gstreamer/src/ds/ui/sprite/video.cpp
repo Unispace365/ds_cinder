@@ -1,11 +1,11 @@
 #include "ds/ui/sprite/video.h"
 
-#include <cinder\Camera.h>
-#include <ds/app/engine.h>
+#include <cinder/Camera.h>
 #include <ds/data/resource_list.h>
 #include <ds/debug/debug_defines.h>
 #include <ds/debug/logger.h>
 #include <ds/math/math_func.h>
+#include <ds/ui/sprite/sprite_engine.h>
 #include <ds/util/file_name_parser.h>
 
 #include "gstreamer/_2RealGStreamerWrapper.h"

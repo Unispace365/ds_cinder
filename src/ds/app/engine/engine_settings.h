@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DS_APP_ENGINESETTINGS_H_
-#define DS_APP_ENGINESETTINGS_H_
+#ifndef DS_APP_ENGINE_ENGINESETTINGS_H_
+#define DS_APP_ENGINE_ENGINESETTINGS_H_
 
 #include "ds/config/settings.h"
 
@@ -42,4 +42,4 @@ private:
 
 } // namespace ds
 
-#endif // DS_APP_ENGINESETTINGS_H_
+#endif // DS_APP_ENGINE_ENGINESETTINGS_H_

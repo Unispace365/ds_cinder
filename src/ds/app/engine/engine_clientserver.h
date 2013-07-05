@@ -1,8 +1,8 @@
 #pragma once
-#ifndef DS_APP_ENGINECLIENTSERVER_H_
-#define DS_APP_ENGINECLIENTSERVER_H_
+#ifndef DS_APP_ENGINE_ENGINECLIENTSERVER_H_
+#define DS_APP_ENGINE_ENGINECLIENTSERVER_H_
 
-#include "ds/app/engine.h"
+#include "ds/app/engine/engine.h"
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
@@ -17,7 +17,7 @@ namespace ds {
  */
 class EngineClientServer : public Engine {
   public:
-    EngineClientServer(ds::App&, const ds::cfg::Settings&, ds::EngineInitParams&, const std::vector<int>* = nullptr);
+    EngineClientServer(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const std::vector<int>* = nullptr);
     ~EngineClientServer();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
@@ -46,4 +46,4 @@ private:
 
 } // namespace ds
 
-#endif // DS_APP_ENGINECLIENTSERVER_H_
+#endif // DS_APP_ENGINE_ENGINECLIENTSERVER_H_

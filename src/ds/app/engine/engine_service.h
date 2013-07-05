@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DS_APP_ENGINESERVICE_H_
-#define DS_APP_ENGINESERVICE_H_
+#ifndef DS_APP_ENGINE_ENGINESERVICE_H_
+#define DS_APP_ENGINE_ENGINESERVICE_H_
 
 namespace ds {
 
@@ -19,4 +19,4 @@ protected:
 
 } // namespace ds
 
-#endif // DS_APP_ENGINESERVICE_H_
+#endif // DS_APP_ENGINE_ENGINESERVICE_H_

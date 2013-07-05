@@ -1,4 +1,4 @@
-#include "ds/app/engine_server.h"
+#include "ds/app/engine/engine_server.h"
 
 #include "ds/app/app.h"
 #include "ds/app/blob_reader.h"
@@ -19,8 +19,8 @@ const char        TERMINATOR = 0;
  * \class ds::EngineServer
  */
 EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
-							ds::EngineInitParams& eip, const std::vector<int>* roots)
-    : inherited(app, settings, eip, roots)
+							ds::EngineData& ed, const std::vector<int>* roots)
+    : inherited(app, settings, ed, roots)
     , mLoadImageService(mLoadImageThread)
     , mRenderTextService(mRenderTextThread)
 //    , mConnection(NumberOfNetworkThreads)

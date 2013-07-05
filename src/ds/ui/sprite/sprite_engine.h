@@ -16,7 +16,7 @@ class WebSession;
 
 namespace ds {
 class AutoUpdateList;
-class EngineInitParams;
+class EngineData;
 class EngineService;
 class EventNotifier;
 class FontList;
@@ -42,36 +42,37 @@ class SpriteEngine {
 public:
 	// Access to the app-wide notification service. Use this to send a
 	// message to everyone who's registered an EventClient.
-	ds::EventNotifier&			getNotifier();
+	ds::EventNotifier&				getNotifier();
+
 	// General engine services
-	virtual ds::WorkManager&	getWorkManager() = 0;
-	virtual ds::ResourceList&	getResources() = 0;
-	virtual const ds::FontList&	getFonts() const = 0;
-	virtual ds::AutoUpdateList&	getAutoUpdateList() = 0;
-	virtual LoadImageService&	getLoadImageService() = 0;
+	virtual ds::WorkManager&		getWorkManager() = 0;
+	virtual ds::ResourceList&		getResources() = 0;
+	virtual const ds::FontList&		getFonts() const = 0;
+	virtual ds::AutoUpdateList&		getAutoUpdateList() = 0;
+	virtual LoadImageService&		getLoadImageService() = 0;
 	virtual RenderTextService&	getRenderTextService() = 0;
-	virtual ds::ImageRegistry&	getImageRegistry() = 0;
-	virtual Tweenline&			getTweenline() = 0;
+	virtual ds::ImageRegistry&		getImageRegistry() = 0;
+	virtual Tweenline&				getTweenline() = 0;
 	virtual const ds::cfg::Settings&
-								getDebugSettings() = 0;
+									getDebugSettings() = 0;
 	// Throws if the service doesn't exist
-	virtual ds::EngineService&	getService(const std::string&) = 0;
+	ds::EngineService&				getService(const std::string&);
 
-    // Sprite management
-    virtual ds::sprite_id_t        nextSpriteId() = 0;
-    virtual void                   registerSprite(Sprite&) = 0;
-    virtual void                   unregisterSprite(Sprite&) = 0;
-    virtual Sprite*                findSprite(const ds::sprite_id_t) = 0;
+	// Sprite management
+	virtual ds::sprite_id_t			nextSpriteId() = 0;
+	virtual void					registerSprite(Sprite&) = 0;
+	virtual void					unregisterSprite(Sprite&) = 0;
+	virtual Sprite*					findSprite(const ds::sprite_id_t) = 0;
 
-    virtual float                  getMinTouchDistance() const = 0;
-    virtual float                  getMinTapDistance() const = 0;
-    virtual unsigned               getSwipeQueueSize() const = 0;
-    virtual float                  getDoubleTapTime() const = 0;
-    virtual ci::Rectf              getScreenRect() const = 0;
-    virtual float                  getWidth() const = 0;
-    virtual float                  getHeight() const = 0;
-    virtual float                  getWorldWidth() const = 0;
-    virtual float                  getWorldHeight() const = 0;
+	float							getMinTouchDistance() const;
+	float							getMinTapDistance() const;
+	unsigned						getSwipeQueueSize() const;
+	float							getDoubleTapTime() const;
+	ci::Rectf						getScreenRect() const;
+	float							getWidth() const;
+	float							getHeight() const;
+	float							getWorldWidth() const;
+	float							getWorldHeight() const;
     float							getFrameRate() const;
 
     std::unique_ptr<FboGeneral>    getFbo();
@@ -102,19 +103,15 @@ public:
     virtual Awesomium::WebSession *getWebSession() const = 0;
 
 protected:
-    SpriteEngine(ds::EngineInitParams&);
-    virtual ~SpriteEngine()        { }
+	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
+	// which is how things work by default (the data and engine are owned by the App).
+	SpriteEngine(ds::EngineData&);
+	virtual ~SpriteEngine();
 
-    std::list<Sprite *>            mDragDestinationSprites;
+	ds::EngineData&					mData;
+	std::list<Sprite *>				mDragDestinationSprites;
 
-    std::list<std::unique_ptr<FboGeneral>> mFbos;
-		
-	// This is because of the growing number of virtuals, which of course impacts
-	// performance. We should probably unvirtualize all the trivial data types.
-	float							mFrameRate;
-
-private:
-	ds::EventNotifier&				mNotifier;
+	std::list<std::unique_ptr<FboGeneral>> mFbos;
 };
 
 } // namespace ui

@@ -1,7 +1,8 @@
 #include "sprite_engine.h"
 #include "sprite.h"
 #include <cinder/app/App.h>
-#include "ds/params/engine_init_params.h"
+#include "ds/app/engine/engine_data.h"
+#include "ds/app/engine/engine_service.h"
 #include "ds/debug/debug_defines.h"
 
 using namespace ci;
@@ -12,15 +13,76 @@ namespace ui {
 /**
  * \class ds::ui::SpriteEngine
  */
-SpriteEngine::SpriteEngine(ds::EngineInitParams& eip)
-	: mFrameRate(60.0f)
-	, mNotifier(eip.mNotifier)
+SpriteEngine::SpriteEngine(ds::EngineData& ed)
+	: mData(ed)
 {
+}
+
+SpriteEngine::~SpriteEngine()
+{
+	if (!mData.mServices.empty()) {
+		for (auto it=mData.mServices.begin(), end=mData.mServices.end(); it!=end; ++it) {
+			delete it->second;
+		}
+		mData.mServices.clear();
+	}
 }
 
 ds::EventNotifier& SpriteEngine::getNotifier()
 {
-	return mNotifier;
+	return mData.mNotifier;
+}
+
+ds::EngineService& SpriteEngine::getService(const std::string& str)
+{
+	ds::EngineService*	s = mData.mServices[str];
+	if (!s) throw std::runtime_error("Service does not exist");
+	return *s;
+}
+
+float SpriteEngine::getMinTouchDistance() const
+{
+	return mData.mMinTouchDistance;
+}
+
+float SpriteEngine::getMinTapDistance() const
+{
+	return mData.mMinTapDistance;
+}
+
+unsigned SpriteEngine::getSwipeQueueSize() const
+{
+	return mData.mSwipeQueueSize;
+}
+
+float SpriteEngine::getDoubleTapTime() const
+{
+	return mData.mDoubleTapTime;
+}
+
+ci::Rectf SpriteEngine::getScreenRect() const
+{
+	return mData.mScreenRect;
+}
+
+float SpriteEngine::getWidth() const
+{
+	return mData.mScreenRect.getWidth();
+}
+
+float SpriteEngine::getHeight() const
+{
+	return mData.mScreenRect.getHeight();
+}
+
+float SpriteEngine::getWorldWidth() const
+{
+	return mData.mWorldSize.x;
+}
+
+float SpriteEngine::getWorldHeight() const
+{
+	return mData.mWorldSize.y;
 }
 
 void SpriteEngine::addToDragDestinationList( Sprite *sprite )
@@ -58,7 +120,7 @@ Sprite *SpriteEngine::getDragDestinationSprite( const ci::Vec3f &globalPoint, Sp
 
 float SpriteEngine::getFrameRate() const
 {
-	return mFrameRate;
+	return mData.mFrameRate;
 }
 
 std::unique_ptr<FboGeneral> SpriteEngine::getFbo()

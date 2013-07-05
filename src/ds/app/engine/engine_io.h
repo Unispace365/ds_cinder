@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DS_APP_ENGINEIO_H_
-#define DS_APP_ENGINEIO_H_
+#ifndef DS_APP_ENGINE_ENGINEIO_H_
+#define DS_APP_ENGINE_ENGINEIO_H_
 
 #include "ds/data/data_buffer.h"
 #include "ds/data/raw_data_buffer.h"
@@ -73,4 +73,4 @@ class EngineReceiver {
 
 } // namespace ds
 
-#endif // DS_APP_ENGINEIO_H_
+#endif // DS_APP_ENGINE_ENGINEIO_H_

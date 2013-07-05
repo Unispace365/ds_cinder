@@ -1,6 +1,5 @@
 #include "ds/thread/work_client.h"
 
-#include "ds/app/engine.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/sprite/sprite_engine.h"
 

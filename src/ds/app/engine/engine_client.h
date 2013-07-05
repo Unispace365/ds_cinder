@@ -1,10 +1,10 @@
 #pragma once
-#ifndef DS_APP_ENGINESERVER_H_
-#define DS_APP_ENGINESERVER_H_
+#ifndef DS_APP_ENGINE_ENGINECLIENT_H_
+#define DS_APP_ENGINE_ENGINECLIENT_H_
 
 #include "ds/app/blob_reader.h"
-#include "ds/app/engine.h"
-#include "ds/app/engine_io.h"
+#include "ds/app/engine/engine.h"
+#include "ds/app/engine/engine_io.h"
 #include "ds/network/udp_connection.h"
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
@@ -14,17 +14,18 @@
 namespace ds {
 
 /**
- * \class ds::EngineServer
+ * \class ds::EngineClient
  * The Server engine contains all app-side behaviour, but no rendering.
  */
-class EngineServer : public Engine {
+class EngineClient : public Engine {
   public:
-    EngineServer(ds::App&, const ds::cfg::Settings&, ds::EngineInitParams&, const std::vector<int>* = nullptr);
-    ~EngineServer();
+    EngineClient(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const std::vector<int>* = nullptr);
+    ~EngineClient();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
 	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
+	virtual ds::sprite_id_t			nextSpriteId();
 
     virtual void                  installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
                                                 const std::function<void(ds::BlobRegistry&)>& asClient);
@@ -35,17 +36,17 @@ class EngineServer : public Engine {
     virtual void                  draw();
 
     virtual void                  stopServices();
-    virtual int                   getMode() const { return SERVER_MODE; }
+    virtual int                   getMode() const { return CLIENT_MODE; }
 
 private:
-	void                          receiveHeader(ds::DataBuffer&);
-	void                          receiveCommand(ds::DataBuffer&);
+    void                          receiveHeader(ds::DataBuffer&);
+    void                          receiveCommand(ds::DataBuffer&);
 
 	typedef Engine inherited;
 	WorkManager					mWorkManager;
-	GlNoThread					mLoadImageThread;
+	GlThread					mLoadImageThread;
 	ui::LoadImageService		mLoadImageService;
-	GlNoThread					mRenderTextThread;
+	GlThread					mRenderTextThread;
 	ui::RenderTextService		mRenderTextService;
 
 //    ds::ZmqConnection             mConnection;
@@ -60,36 +61,35 @@ private:
     class State {
     public:
       State();
-      virtual void                begin(EngineServer&);
-      virtual void                update(EngineServer&) = 0;
-
-    protected:
-      void                        addHeader(ds::DataBuffer&, const int frame);
+      virtual void                begin(EngineClient&);
+      virtual void                update(EngineClient&) = 0;
     };
 
     class RunningState : public State {
     public:
       RunningState();
-      virtual void                begin(EngineServer&);
-      virtual void                update(EngineServer&);
+      virtual void                update(EngineClient&);
+    };
+
+    // I have no data, and am waiting for a complete refresh
+    class BlankState : public State {
+    public:
+      BlankState();
+      virtual void                begin(EngineClient&);
+      virtual void                update(EngineClient&);
 
     private:
-      int                         mFrame;
+      // Avoid flooding the server with requests for the world.
+      int                         mSendFrame;
     };
 
-    class SendWorldState : public State {
-    public:
-      SendWorldState();
-      virtual void                update(EngineServer&);
-    };
+    State*                        mState;
+    RunningState                  mRunningState;
+    BlankState                    mBlankState;
 
-    State*                      mState;
-    RunningState                mRunningState;
-    SendWorldState              mSendWorldState;
-
-    void                        setState(State&);
+    void                          setState(State&);
 };
 
 } // namespace ds
 
-#endif // DS_APP_ENGINESERVER_H_
+#endif // DS_APP_ENGINE_ENGINECLIENT_H_

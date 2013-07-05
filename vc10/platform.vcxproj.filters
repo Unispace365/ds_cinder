@@ -100,6 +100,9 @@
     <Filter Include="src\ds\app">
       <UniqueIdentifier>{a8305b29-38ed-490c-9351-bc0d0bab9de9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\app\engine">
+      <UniqueIdentifier>{f8585ddc-6731-4e08-8c9b-1fc6e94d0720}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -405,24 +408,6 @@
     <ClInclude Include="..\src\ds\app\camera_utils.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_client.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_clientserver.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_io.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_server.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_settings.h">
-      <Filter>src\ds\app</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\app\environment.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
@@ -447,11 +432,29 @@
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine_service.h">
-      <Filter>src\ds\app</Filter>
+    <ClInclude Include="..\src\ds\app\engine\engine.h">
+      <Filter>src\ds\app\engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\params\engine_init_params.h">
-      <Filter>src\ds\params</Filter>
+    <ClInclude Include="..\src\ds\app\engine\engine_client.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_clientserver.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_data.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_io.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_server.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_service.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_settings.h">
+      <Filter>src\ds\app\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -692,24 +695,6 @@
     <ClCompile Include="..\src\ds\app\camera_utils.cpp">
       <Filter>src\ds\app</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine_client.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine_clientserver.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine_io.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine_server.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine_settings.cpp">
-      <Filter>src\ds\app</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\app\environment.cpp">
       <Filter>src\ds\app</Filter>
     </ClCompile>
@@ -731,8 +716,26 @@
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\params\engine_init_params.cpp">
-      <Filter>src\ds\params</Filter>
+    <ClCompile Include="..\src\ds\app\engine\engine.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_client.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_clientserver.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_data.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_io.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_server.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_settings.cpp">
+      <Filter>src\ds\app\engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

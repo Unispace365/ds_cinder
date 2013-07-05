@@ -1,4 +1,4 @@
-#include "ds/app/engine.h"
+#include "ds/app/engine/engine.h"
 
 #ifdef AWESOMIUM
 #pragma comment(lib, "awesomium.lib")
@@ -6,8 +6,8 @@
 
 #include <GL/glu.h>
 #include "ds/app/app.h"
-#include "ds/app/engine_service.h"
 #include "ds/app/environment.h"
+#include "ds/app/engine/engine_service.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
@@ -41,16 +41,12 @@ const int Engine::NumberOfNetworkThreads = 2;
  * \class ds::Engine
  */
 Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
-				ds::EngineInitParams& eip, const std::vector<int>* roots)
-	: ds::ui::SpriteEngine(eip)
+				ds::EngineData& ed, const std::vector<int>* roots)
+	: ds::ui::SpriteEngine(ed)
 	, mTweenline(app.timeline())
 	, mIdleTime(300.0f)
 	, mIdling(true)
 	, mTouchManager(*this)
-	, mMinTouchDistance(10.0f)
-	, mMinTapDistance(30.0f)
-	, mSwipeQueueSize(4)
-	, mDoubleTapTime(0.1f)
 	, mSettings(settings)
 	, mCameraPerspNearPlane(1.0f)
 	, mCameraPerspFarPlane(1000.0f)
@@ -75,38 +71,38 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mRoots.push_back(s);
 	}
 
-  const std::string     DEBUG_FILE("debug.xml");
-  mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
-  mDebugSettings.readFrom(ds::Environment::getLocalSettingsPath(DEBUG_FILE), true);
-  ds::Logger::setup(mDebugSettings);
-  mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 640.0f, 0.0f, 400.0f));
-  mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
-  mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
-  mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
-  mDrawTouches = settings.getBool("touch_overlay:debug", 0, false);
-  mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
-  mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
-  mApplyFxAA = settings.getBool("FxAA", 0, false);
-  mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
-  mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
-  mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
+	const std::string     DEBUG_FILE("debug.xml");
+	mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
+	mDebugSettings.readFrom(ds::Environment::getLocalSettingsPath(DEBUG_FILE), true);
+	ds::Logger::setup(mDebugSettings);
+	mData.mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 640.0f, 0.0f, 400.0f));
+	mData.mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
+	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
+	mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
+	mDrawTouches = settings.getBool("touch_overlay:debug", 0, false);
+	mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
+	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
+	mApplyFxAA = settings.getBool("FxAA", 0, false);
+	mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
+	mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
+	mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
-  mCameraPosition = ci::Vec3f(0.0f, 0.0f, 100.0f);
+	mCameraPosition = ci::Vec3f(0.0f, 0.0f, 100.0f);
   
-  mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(1.0f, 1000.0f));
-  mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
+	mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(1.0f, 1000.0f));
+	mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
 
-	mScreenToWorld.setScreenSize(mScreenRect.getWidth(), mScreenRect.getHeight());
+	mScreenToWorld.setScreenSize(mData.mScreenRect.getWidth(), mData.mScreenRect.getHeight());
 
   const bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		ds::ui::Sprite&			s = *(*it);
 		if (s.getPerspective()) {
-			s.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
+			s.setSize(mData.mScreenRect.getWidth(), mData.mScreenRect.getHeight());
 			s.setDrawSorted(true);
 		} else {
-			s.setSize(mScreenRect.getWidth(), mScreenRect.getHeight());
+			s.setSize(mData.mScreenRect.getWidth(), mData.mScreenRect.getHeight());
 			if (scaleWorldToFit) {
 				s.setScale(getWidth()/getWorldWidth(), getHeight()/getWorldHeight());
 			}
@@ -140,13 +136,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 Engine::~Engine()
 {
-	if (!mServices.empty()) {
-		for (auto it=mServices.begin(), end=mServices.end(); it!=end; ++it) {
-			delete it->second;
-		}
-		mServices.clear();
-	}
-
 	mTuio.disconnect();
 
 #ifdef AWESOMIUM
@@ -158,23 +147,16 @@ Engine::~Engine()
 
 void Engine::addService(const std::string& str, ds::EngineService& service)
 {
-	if (mServices.empty()) {
-		mServices[str] = &service;
+	if (mData.mServices.empty()) {
+		mData.mServices[str] = &service;
 	} else {
-		auto found = mServices.find(str);
-		if (found != mServices.end()) {
+		auto found = mData.mServices.find(str);
+		if (found != mData.mServices.end()) {
 			delete found->second;
 			found->second = nullptr;
 		}
-		mServices[str] = &service;
+		mData.mServices[str] = &service;
 	}
-}
-
-ds::EngineService& Engine::getService(const std::string& str)
-{
-	ds::EngineService*	s = mServices[str];
-	if (!s) throw std::runtime_error("Service does not exist");
-	return *s;
 }
 
 int Engine::getRootCount() const
@@ -302,14 +284,13 @@ void Engine::updateServer()
 void Engine::setCamera(const bool perspective)
 {
 	if(!perspective){
-		gl::setViewport(Area((int)mScreenRect.getX1(), (int)mScreenRect.getY2(), (int)mScreenRect.getX2(), (int)mScreenRect.getY1()));
-		mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1, 1);
+		gl::setViewport(Area((int)mData.mScreenRect.getX1(), (int)mData.mScreenRect.getY2(), (int)mData.mScreenRect.getX2(), (int)mData.mScreenRect.getY1()));
+		mCamera.setOrtho(mData.mScreenRect.getX1(), mData.mScreenRect.getX2(), mData.mScreenRect.getY2(), mData.mScreenRect.getY1(), -1, 1);
 		//gl::setMatrices(mCamera);
 	} else {
-
-    mCameraPersp.setEyePoint( Vec3f(0.0f, 0.0f, 100.0f) );
-    mCameraPersp.setCenterOfInterestPoint( Vec3f(0.0f, 0.0f, 0.0f) );
-    mCameraPersp.setPerspective( 60.0f, getWindowAspectRatio(), mCameraPerspNearPlane, mCameraPerspFarPlane );
+		mCameraPersp.setEyePoint( Vec3f(0.0f, 0.0f, 100.0f) );
+		mCameraPersp.setCenterOfInterestPoint( Vec3f(0.0f, 0.0f, 0.0f) );
+		mCameraPersp.setPerspective( 60.0f, getWindowAspectRatio(), mCameraPerspNearPlane, mCameraPerspFarPlane );
 		//mCameraPersp.setPerspective(mCameraFOV, getWindowAspectRatio(), mCameraZClipping.x, mCameraZClipping.y );
 		//mCameraPersp.lookAt( mCameraPosition, mCameraTarget, Vec3f(0.0f, 1.0f, 0.0f) );
 	}
@@ -475,8 +456,8 @@ void Engine::setup(ds::App&)
 	mUpdateParams.setElapsedTime(curr);
 
 	// Start any library services
-  	if (!mServices.empty()) {
-		for (auto it=mServices.begin(), end=mServices.end(); it!=end; ++it) {
+  	if (!mData.mServices.empty()) {
+		for (auto it=mData.mServices.begin(), end=mData.mServices.end(); it!=end; ++it) {
 			if (it->second) it->second->start();
 		}
 	}
@@ -484,49 +465,34 @@ void Engine::setup(ds::App&)
 
 void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )
 {
-  settings.setWindowSize( static_cast<int>(getWidth()),
-                          static_cast<int>(getHeight()));
-  settings.setResizable(false);
+	settings.setWindowSize( static_cast<int>(getWidth()),
+							static_cast<int>(getHeight()));
+	settings.setResizable(false);
 
-  if (mSettings.getBool("enable_system_multitouch", 0, false)) {
-    mSystemMultitouchEnabled = true;
-    settings.enableMultiTouch();
-  }
+	if (mSettings.getBool("enable_system_multitouch", 0, false)) {
+		mSystemMultitouchEnabled = true;
+		settings.enableMultiTouch();
+	}
 
-  mHideMouse = mSettings.getBool("hide_mouse", 0, false);
-  mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
+	mHideMouse = mSettings.getBool("hide_mouse", 0, false);
+	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
 
-  settings.setFrameRate(mFrameRate);
+	settings.setFrameRate(mData.mFrameRate);
 
-  if (mSettings.getText("screen:mode", 0, "") == "full")
-    settings.setFullScreen(true);
-  else if (mSettings.getText("screen:mode", 0, "") == "borderless")
-    settings.setBorderless(true);
-  settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
+	if (mSettings.getText("screen:mode", 0, "") == "full")
+		settings.setFullScreen(true);
+	else if (mSettings.getText("screen:mode", 0, "") == "borderless")
+		settings.setBorderless(true);
+	settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 
-  if (mSettings.getBool("web:use", 0, false)) {
-    //add falg to engine.xml to check here.
-    initializeWeb();
-  }
+	if (mSettings.getBool("web:use", 0, false)) {
+		//add falg to engine.xml to check here.
+		initializeWeb();
+	}
 
-  const std::string     nope = "ds:IllegalTitle";
-  const std::string     title = mSettings.getText("screen:title", 0, nope);
-  if (title != nope) settings.setTitle(title);
-}
-
-bool Engine::isIdling() const
-{
-  if (mIdling)
-    return true;
-  return false;
-}
-
-void Engine::startIdling()
-{
-  if (mIdling)
-    return;
-
-  mIdling = true;
+	const std::string     nope = "ds:IllegalTitle";
+	const std::string     title = mSettings.getText("screen:title", 0, nope);
+	if (title != nope) settings.setTitle(title);
 }
 
 ds::sprite_id_t Engine::nextSpriteId()
@@ -645,51 +611,6 @@ ds::FontList& Engine::editFonts()
   return mFonts;
 }
 
-float Engine::getMinTouchDistance() const
-{
-  return mMinTouchDistance;
-}
-
-float Engine::getMinTapDistance() const
-{
-  return mMinTapDistance;
-}
-
-unsigned Engine::getSwipeQueueSize() const
-{
-  return mSwipeQueueSize;
-}
-
-float Engine::getDoubleTapTime() const
-{
-  return mDoubleTapTime;
-}
-
-ci::Rectf Engine::getScreenRect() const
-{
-  return mScreenRect;
-}
-
-float Engine::getWidth() const
-{
-  return mScreenRect.getWidth();
-}
-
-float Engine::getHeight() const
-{
-  return mScreenRect.getHeight();
-}
-
-float Engine::getWorldWidth() const
-{
-  return mWorldSize.x;
-}
-
-float Engine::getWorldHeight() const
-{
-  return mWorldSize.y;
-}
-
 void Engine::stopServices()
 {
 }
@@ -709,12 +630,25 @@ void Engine::clearFingers( const std::vector<int> &fingers )
 	mTouchManager.clearFingers(fingers);
 }
 
+bool Engine::isIdling() const
+{
+	return mIdling;
+}
+
+void Engine::startIdling()
+{
+	if (mIdling)
+		return;
+
+	mIdling = true;
+}
+
 void Engine::resetIdleTimeOut()
 {
-  float curr = static_cast<float>(getElapsedSeconds());
-  mLastTime = curr;
-  mLastTouchTime = curr;
-  mIdling = false;
+	float curr = static_cast<float>(getElapsedSeconds());
+	mLastTime = curr;
+	mLastTouchTime = curr;
+	mIdling = false;
 }
 
 void Engine::setPerspectiveCameraPosition( const ci::Vec3f &pos )

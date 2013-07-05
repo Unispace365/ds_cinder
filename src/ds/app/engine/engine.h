@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DS_APP_ENGINE_H_
-#define DS_APP_ENGINE_H_
+#ifndef DS_APP_ENGINE_ENGINE_H_
+#define DS_APP_ENGINE_ENGINE_H_
 
 #include <memory>
 #include <unordered_map>
@@ -38,7 +38,10 @@ extern const ds::BitMask	ENGINE_LOG;
 
 /**
  * \class ds::Engine
- * Container and manager for all views.
+ * \brief Concrete implementation of the SpriteEngine. Contain all the
+ * behind-the-scenes pieces necessary for running the app. NOTE: This
+ * class should be internal to the framework. All clients should know
+ * about is SpriteEngine.
  */
 class Engine : public ui::SpriteEngine {
   public:
@@ -57,7 +60,6 @@ class Engine : public ui::SpriteEngine {
                                &getDebugSettings() { return mDebugSettings; }
 	// I take ownership of any services added to me.
 	void						addService(const std::string&, ds::EngineService&);
-	virtual ds::EngineService&	getService(const std::string&);
 
     // only valid after setup() is called
 		int													getRootCount() const;
@@ -93,17 +95,6 @@ class Engine : public ui::SpriteEngine {
     virtual const ds::FontList &getFonts() const;
     ds::FontList               &editFonts();
 
-    float                       getMinTouchDistance() const;
-    float                       getMinTapDistance() const;
-    unsigned                    getSwipeQueueSize() const;
-    float                       getDoubleTapTime() const;
-
-    ci::Rectf                   getScreenRect() const;
-    float                       getWidth() const;
-    float                       getHeight() const;
-    float                       getWorldWidth() const;
-    float                       getWorldHeight() const;
-
     virtual void                setCamera(const bool perspective = false);
     // Used by the perspective camera to set the near and far planes
     void                        setPerspectiveCameraPlanes(const float near, const float far);
@@ -133,7 +124,7 @@ class Engine : public ui::SpriteEngine {
 	// Add or
 
 protected:
-    Engine(ds::App&, const ds::cfg::Settings&, ds::EngineInitParams&, const std::vector<int>* roots);
+    Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const std::vector<int>* roots);
 
     ds::BlobRegistry            mBlobRegistry;
     std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
@@ -160,10 +151,8 @@ protected:
 
 private:
 	std::vector<ui::Sprite*>	mRoots;
-	std::unordered_map<std::string, ds::EngineService*>
-								mServices;
 
-		ImageRegistry								mImageRegistry;
+	ImageRegistry				mImageRegistry;
     ds::ui::Tweenline           mTweenline;
     // A cache of all the resources in the system
     ResourceList                mResources;
@@ -181,14 +170,14 @@ private:
     // Clients that will get update() called automatically at the start
     // of each update cycle
     AutoUpdateList              mAutoUpdate;
-
+#if 0
     float                       mMinTouchDistance;
     float                       mMinTapDistance;
     int                         mSwipeQueueSize;
     float                       mDoubleTapTime;
-
     ci::Rectf                   mScreenRect;
     ci::Vec2f                   mWorldSize;
+#endif
     const ds::cfg::Settings    &mSettings;
     ds::cfg::Settings           mDebugSettings;
     ci::CameraOrtho             mCamera;
@@ -199,10 +188,10 @@ private:
     float                      mCameraPerspNearPlane,
                                mCameraPerspFarPlane;
 
-    ci::Vec3f                  mCameraPosition;
-    ci::Vec3f                  mCameraTarget;
+	ci::Vec3f					mCameraPosition;
+	ci::Vec3f					mCameraTarget;
 
-		ds::ScreenToWorld						mScreenToWorld;
+	ds::ScreenToWorld			mScreenToWorld;
 
     ci::gl::Fbo                 mFbo;
 
@@ -231,4 +220,4 @@ extern const char             CMD_CLIENT_REQUEST_WORLD; // The client is request
 
 } // namespace ds
 
-#endif // DS_APP_ENGINE_H_
+#endif // DS_APP_ENGINE_ENGINE_H_

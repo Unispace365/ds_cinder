@@ -1,4 +1,4 @@
-#include "ds/app/engine_client.h"
+#include "ds/app/engine/engine_client.h"
 
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/image.h"
@@ -16,8 +16,8 @@ char              COMMAND_BLOB = 0;
  * \class ds::EngineClient
  */
 EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
-							ds::EngineInitParams& eip, const std::vector<int>* roots)
-	: inherited(app, settings, eip, roots)
+							ds::EngineData& ed, const std::vector<int>* roots)
+	: inherited(app, settings, ed, roots)
 	, mLoadImageService(mLoadImageThread)
 	, mRenderTextService(mRenderTextThread)
 //    , mConnection(NumberOfNetworkThreads)

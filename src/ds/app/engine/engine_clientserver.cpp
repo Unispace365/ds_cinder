@@ -1,4 +1,4 @@
-#include "ds/app/engine_clientserver.h"
+#include "ds/app/engine/engine_clientserver.h"
 
 #include "ds/app/app.h"
 
@@ -8,8 +8,8 @@ namespace ds {
  * \class ds::EngineClientServer
  */
 EngineClientServer::EngineClientServer(	ds::App& app, const ds::cfg::Settings& settings,
-										ds::EngineInitParams& eip, const std::vector<int>* roots)
-	: inherited(app, settings, eip, roots)
+										ds::EngineData& ed, const std::vector<int>* roots)
+	: inherited(app, settings, ed, roots)
 	, mLoadImageService(mLoadImageThread)
 	, mRenderTextService(mRenderTextThread)
 {

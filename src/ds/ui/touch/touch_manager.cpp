@@ -1,6 +1,6 @@
 #include "touch_manager.h"
 #include "touch_info.h"
-#include "ds/app/engine.h"
+#include "ds/app/engine/engine.h"
 #include "ds/math/math_defs.h"
 #include "ds/ui/sprite/util/blend.h"
 #include <cinder/System.h>
