@@ -51,11 +51,11 @@ public:
 	virtual Tweenline&				getTweenline() = 0;
 	virtual const ds::cfg::Settings&
 									getDebugSettings() = 0;
-	// Throws if the service doesn't exist
-	ds::EngineService&				getService(const std::string&);
-	// Convenience that handles the casting for you when getting a service.
+	// Access a service. Throw if the service doesn't exist.
+	// Handle casting for you (since the root ds::EngineService class
+	// is unuseable).
 	template <typename T>
-	T&								getServiceType(const std::string&);
+	T&								getService(const std::string&);
 
 	// Access to the current engine configuration info.
 	const ds::EngineCfg&			getEngineCfg() const;
@@ -111,12 +111,15 @@ protected:
 	std::list<Sprite *>				mDragDestinationSprites;
 
 	std::list<std::unique_ptr<FboGeneral>> mFbos;
+
+private:
+	ds::EngineService&				private_getService(const std::string&);
 };
 
 template <typename T>
-T& SpriteEngine::getServiceType(const std::string& str)
+T& SpriteEngine::getService(const std::string& str)
 {
-	return dynamic_cast<T&>(getService(str));
+	return dynamic_cast<T&>(private_getService(str));
 }
 
 } // namespace ui

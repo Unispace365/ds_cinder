@@ -100,7 +100,7 @@ void Pdf::drawLocalClient()
  * \class ds::ui::sprite::Pdf
  */
 Pdf::ResHolder::ResHolder(ds::ui::SpriteEngine& e)
-	: mService(static_cast<ds::pdf::Service&>(e.getService("pdf")))
+	: mService(e.getService<ds::pdf::Service>("pdf"))
 	, mRes(nullptr)
 {
 }

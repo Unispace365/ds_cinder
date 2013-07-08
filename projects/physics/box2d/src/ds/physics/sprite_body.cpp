@@ -36,7 +36,7 @@ Init				INIT;
  * \class ds::physics::SpriteBody
  */
 SpriteBody::SpriteBody(ds::ui::Sprite& owner)
-	: mWorld(static_cast<ds::physics::World&>(owner.getEngine().getService("physics")))
+	: mWorld(owner.getEngine().getService<ds::physics::World>("physics"))
 	, mOwner(owner)
 	, mBody(nullptr)
 {
