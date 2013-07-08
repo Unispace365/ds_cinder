@@ -35,6 +35,11 @@ ds::EngineService& SpriteEngine::getService(const std::string& str)
 	return *s;
 }
 
+const ds::EngineCfg& SpriteEngine::getEngineCfg() const
+{
+	return mData.mEngineCfg;
+}
+
 float SpriteEngine::getMinTouchDistance() const
 {
 	return mData.mMinTouchDistance;

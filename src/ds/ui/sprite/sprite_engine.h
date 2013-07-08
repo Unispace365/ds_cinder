@@ -11,6 +11,7 @@
 
 namespace ds {
 class AutoUpdateList;
+class EngineCfg;
 class EngineData;
 class EngineService;
 class EventNotifier;
@@ -55,6 +56,9 @@ public:
 	// Convenience that handles the casting for you when getting a service.
 	template <typename T>
 	T&								getServiceType(const std::string&);
+
+	// Access to the current engine configuration info.
+	const ds::EngineCfg&			getEngineCfg() const;
 
 	// Sprite management
 	virtual ds::sprite_id_t			nextSpriteId() = 0;

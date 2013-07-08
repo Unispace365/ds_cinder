@@ -149,6 +149,11 @@ void Engine::addService(const std::string& str, ds::EngineService& service)
 	}
 }
 
+void Engine::loadSettings(const std::string& name, const std::string& filename)
+{
+	mData.mEngineCfg.loadSettings(name, filename);
+}
+
 int Engine::getRootCount() const
 {
 	return mRoots.size();

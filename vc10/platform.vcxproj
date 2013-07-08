@@ -30,6 +30,7 @@
     <ClInclude Include="..\src\ds\app\blob_registry.h" />
     <ClInclude Include="..\src\ds\app\camera_utils.h" />
     <ClInclude Include="..\src\ds\app\engine\engine.h" />
+    <ClInclude Include="..\src\ds\app\engine\engine_cfg.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_client.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_clientserver.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_data.h" />
@@ -144,6 +145,7 @@
     <ClCompile Include="..\src\ds\app\blob_registry.cpp" />
     <ClCompile Include="..\src\ds\app\camera_utils.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine.cpp" />
+    <ClCompile Include="..\src\ds\app\engine\engine_cfg.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_client.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_clientserver.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_data.cpp" />
