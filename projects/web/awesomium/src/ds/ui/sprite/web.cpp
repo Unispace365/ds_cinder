@@ -34,7 +34,7 @@ namespace ui {
 
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	: Sprite(engine, width, height)
-	, mService(static_cast<ds::web::Service&>(engine.getService("web")))
+	, mService(engine.getServiceType<ds::web::Service>("web"))
 	, mWebViewPtr(nullptr)
 	, mLoadingAngle(0.0f)
 	, mActive(false)

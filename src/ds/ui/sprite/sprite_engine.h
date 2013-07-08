@@ -52,6 +52,9 @@ public:
 									getDebugSettings() = 0;
 	// Throws if the service doesn't exist
 	ds::EngineService&				getService(const std::string&);
+	// Convenience that handles the casting for you when getting a service.
+	template <typename T>
+	T&								getServiceType(const std::string&);
 
 	// Sprite management
 	virtual ds::sprite_id_t			nextSpriteId() = 0;
@@ -105,6 +108,12 @@ protected:
 
 	std::list<std::unique_ptr<FboGeneral>> mFbos;
 };
+
+template <typename T>
+T& SpriteEngine::getServiceType(const std::string& str)
+{
+	return dynamic_cast<T&>(getService(str));
+}
 
 } // namespace ui
 
