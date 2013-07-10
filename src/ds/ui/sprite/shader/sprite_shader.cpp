@@ -87,7 +87,7 @@ bool SpriteShader::isValid() const
   return mShader;
 }
 
-ci::gl::GlslProg & SpriteShader::getShader()
+cinder::gl::GlslProg & SpriteShader::getShader()
 {
   return mShader;
 }

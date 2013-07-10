@@ -16,7 +16,7 @@ class SpriteShader
     void loadShaders();
     bool isValid() const;
 
-    ci::gl::GlslProg &getShader();
+    cinder::gl::GlslProg &getShader();
 
     std::string getLocation() const;
     std::string getName() const;
