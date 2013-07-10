@@ -1,5 +1,6 @@
 #include <functional>
 #include "cinder/Vector.h"
+#include "ds/ui/sprite/shader/sprite_shader.h"
 
 namespace ds {
 	namespace ui {
@@ -15,7 +16,7 @@ namespace ds {
 	typedef std::function< bool (ds::ui::Sprite *, const ds::ui::TapInfo &)             > TapInfoCallbackFn;
 	typedef std::function< void (ds::ui::Sprite *, const cinder::Vec3f &)               > SwipeCallbackFn;
 	typedef std::function< void (ds::ui::Sprite *, const ds::ui::DragDestinationInfo &) > DragDestinationInfoCallbackFn;
-
+	typedef std::function< void (ds::ui::Sprite *, ds::ui::SpriteShader &)              > BindShaderCallbackFn;
 
 	class TouchInfoCallback {
 	public:
@@ -57,6 +58,13 @@ namespace ds {
 		virtual ~DragDestinationInfoCallback();
 		virtual void onDragDestinationInfo( ds::ui::Sprite *s, const ds::ui::DragDestinationInfo & );
 		DragDestinationInfoCallbackFn func();
+	};
+
+	class BindShaderCallback {
+	public:
+		virtual ~BindShaderCallback();
+		virtual void onBindShader( ds::ui::Sprite *s, ds::ui::SpriteShader & );
+		BindShaderCallbackFn func();
 	};
 }
 /* vim: set noet fenc= ff=dos sts=0 sw=4 ts=4 : */

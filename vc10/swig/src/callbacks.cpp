@@ -58,6 +58,14 @@ DragDestinationInfoCallbackFn DragDestinationInfoCallback::func() {
 	});
 }
 
+BindShaderCallback::~BindShaderCallback() {}
+void BindShaderCallback::onBindShader( ds::ui::Sprite *s, ds::ui::SpriteShader &ss ) {}
+BindShaderCallbackFn BindShaderCallback::func() {
+	return ( [this](ds::ui::Sprite *s, ds::ui::SpriteShader &ss ) {
+			this->onBindShader( s, ss );
+	});
+}
+
 } //namespace ds
 
 /* vim: set noet fenc= ff=dos sts=0 sw=4 ts=4 : */

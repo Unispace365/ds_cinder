@@ -20,12 +20,14 @@ namespace ds {
 
 	namespace ui {
 
-	ShaderSprite::ShaderSprite( SpriteEngine &engine, float w, float h, const std::string &filename )
+	ShaderSprite::ShaderSprite( SpriteEngine &engine,
+			float w, float h, const std::string &filename,
+			bool applyToChildren )
 		: Sprite(engine, w, h)
 	{
 		setTransparent( false );
 		if ( filename != "" )
-			setBaseShader( "data/shaders/", filename );
+			setBaseShader( "data/shaders/", filename, applyToChildren );
 	}
 
 	void ShaderSprite::drawLocalClient() {

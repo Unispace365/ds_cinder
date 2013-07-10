@@ -78,7 +78,6 @@
 %include "cinder/app/Event.h"
 %include "cinder/app/KeyEvent.h"
 %include "cinder/app/MouseEvent.h"
-%include "ds/ui/sprite/shader/sprite_shader.h"
 
 %ignore cinder::ColorT::operator=;
 %ignore cinder::ColorT::operator[];
@@ -104,9 +103,10 @@ namespace cinder {
 %rename(Cinder_App) cinder::app::App;
 %rename(Cinder_AppBasic) cinder::app::AppBasic;
 
+namespace ci = cinder;
 using namespace cinder;
 using namespace cinder::app;
-namespace ci = cinder;
+
 
 // Suppress SWIG warning about cinder::app::App*::Settings inner classes
 #pragma SWIG nowarn=325
@@ -168,7 +168,9 @@ class AppBasic : public cinder::app::App {
 } } //namespace app, cinder
 
 %rename(to_unspecified_bool_type) "cinder::gl::GlslProg::operator unspecified_bool_type";
+
 %include "cinder/gl/GlslProg.h"
+%include "ds/ui/sprite/shader/sprite_shader.h"
 
 //----------------------------------
 // Cinder Tweening/Easing functions
@@ -189,8 +191,7 @@ namespace std {
 %template(DsTapCallbackFn)                 std::function< void (ds::ui::Sprite *, const cinder::Vec3f &)               >;
 %template(DsTapInfoCallbackFn)             std::function< bool (ds::ui::Sprite *, const ds::ui::TapInfo &)             >;
 %template(DsDragDestinationInfoCallbackFn) std::function< void (ds::ui::Sprite *, const ds::ui::DragDestinationInfo &) >;
-
-
+%template(DsBindShaderCallbackFn)          std::function< void (ds::ui::Sprite *, ds::ui::SpriteShader &)              >;
 
 
 // Add an EaseFn conversion method to Ease functors that can be passed parameters
@@ -273,6 +274,11 @@ namespace std {
 
 
 %pythoncode %{
+def vec4f_str(self):
+	return "Vec4f[ %6.2f %6.2f %6.2f, %6.2f ]" % ( self.x, self.y, self.z, self.w )
+Vec4f.__str__ = vec4f_str
+Vec4f.__repr__ = vec4f_str
+
 def vec3f_str(self):
 	return "Vec3f[ %6.2f %6.2f %6.2f ]" % ( self.x, self.y, self.z )
 Vec3f.__str__ = vec3f_str
@@ -314,7 +320,6 @@ namespace ds { namespace ui {
 %include "ds/ui/sprite/text.h"
 %include "ds/ui/sprite/multiline_text.h"
 %include "ds/ui/sprite/video.h"
-%include "ds/ui/sprite/shader/sprite_shader.h"
 %include "ds/ui/touch/multi_touch_constraints.h"
 
 //%import "ds/thread/gl_thread.h"
@@ -498,6 +503,7 @@ namespace std {
 %feature("director") ds::TapInfoCallback;
 %feature("director") ds::SwipeCallback;
 %feature("director") ds::DragDestinationInfoCallback;
+%feature("director") ds::BindShaderCallback;
 %feature("director") ds::BackgroundTask;
 
 %include "callbacks.h"

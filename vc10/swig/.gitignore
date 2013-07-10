@@ -1,4 +1,4 @@
 src/*_wrap*
 lib/
-vc10/Debug/
-vc10/Release/
+vc10/Debug*
+vc10/Release*
