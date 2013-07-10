@@ -187,6 +187,7 @@ class Sprite : public SpriteAnimatable
         void                setTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func );
         void                setDoubleTapCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func );
         void                setDragDestinationCallback( const std::function<void (Sprite *, const DragDestinationInfo &)> &func );
+        void                setBindShaderCallback( const std::function<void (Sprite *, SpriteShader &)> &func );
 
         // Constraints defined in multi_touch_constraints.h
         void                enableMultiTouch(const BitMask &);
@@ -336,6 +337,7 @@ class Sprite : public SpriteAnimatable
         std::function<void (Sprite *, const ci::Vec3f &)> mTapCallback;
         std::function<void (Sprite *, const ci::Vec3f &)> mDoubleTapCallback;
         std::function<void (Sprite *, const DragDestinationInfo &)> mDragDestinationCallback;
+        std::function<void (Sprite *, SpriteShader & )> mBindShaderCallback;
 
         bool                mMultiTouchEnabled;
         BitMask             mMultiTouchConstraints;

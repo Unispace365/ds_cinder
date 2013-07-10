@@ -209,6 +209,8 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
         shaderBase.uniform("tex0", 0);
         shaderBase.uniform("useTexture", mUseShaderTexture);
         shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+		if (mBindShaderCallback)
+			mBindShaderCallback( this, mSpriteShader );
       }
 
       ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);
@@ -1072,6 +1074,11 @@ void Sprite::dragDestination( Sprite *sprite, const DragDestinationInfo &dragInf
 {
   if (mDragDestinationCallback)
     mDragDestinationCallback(sprite, dragInfo);
+}
+
+void Sprite::setBindShaderCallback( const std::function<void (Sprite *, SpriteShader &)> &func )
+{
+  mBindShaderCallback = func;
 }
 
 bool Sprite::isDirty() const
