@@ -7,23 +7,24 @@
 #include <ds/query/query_result.h>
 #include <ds/debug/logger.h>
 
-#include "app/globals.h"
+#include "gstreamer/_2RealGStreamerWrapper.h"
 
-#include "video/gstreamer_video_sprite.h"
+#include "ds/ui/sprite/video.h"
 
-using namespace dtv;
+namespace ds {
+namespace ui {
 
 namespace {
 
 std::string get_db_directory() {
 	Poco::Path		p("%USERPROFILE%");
-	p.append("documents").append("downstream").append("resources").append("dtv").append("video");
+	p.append("documents").append("downstream").append("cache").append("video");
 	return Poco::Path::expand(p.toString());
 }
 
-std::string get_db_file() {
+std::string get_db_file(const std::string& name) {
 	Poco::Path		p(get_db_directory());
-	p.append("memory.db");
+	p.append(name + ".sqlite");
 	return p.toString();
 }
 
@@ -32,28 +33,29 @@ std::string get_db_file() {
 /**
  * \class VideoMetaCache
  */
-VideoMetaCache::VideoMetaCache(Globals& g)
-	: mGlobals(g)
+VideoMetaCache::VideoMetaCache(const std::string& name)
+	: mName(name)
 {
 	load();
 }
 
-int VideoMetaCache::getWidth(const std::string& game, const int defaultValue)
+int VideoMetaCache::getWidth(const std::string& videoPath, const int defaultValue)
 {
 	for (auto it=mEntry.begin(), end=mEntry.end(); it!=end; ++it) {
 		const Entry&	e(*it);
-		if (e.mKey == game) return e.mValue;
+		if (e.mKey == videoPath) return e.mValue;
 	}
 
-	ds::ui::GstreamerVideoSprite* gsv = new ds::ui::GstreamerVideoSprite(mGlobals.mEngine);
-	gsv->loadVideo(game);
-	int width = (int)(gsv->getWidth());
-	setWidth(game, width);
-	//gsv->stop();
-	//gsv->unloadVideo();
-	//delete gsv;
-
-	return width;
+	try {
+		_2RealGStreamerWrapper::GStreamerWrapper	movie;
+		movie.open(videoPath, true, false, false, -1);
+		int		width = movie.getWidth();
+		setWidth(videoPath, width);
+		return width;
+	} catch (std::exception const& ex) {
+		DS_LOG_WARNING("VideoMetaCache::getWith() error=" << ex.what());
+	}
+	return 0;
 }
 
 void VideoMetaCache::setWidth(const std::string& path, const int value)
@@ -63,7 +65,7 @@ void VideoMetaCache::setWidth(const std::string& path, const int value)
 		return;
 	}
 	try {
-		const std::string				db = get_db_file();
+		const std::string				db = get_db_file(mName);
 		std::stringstream				buf;
 		buf << "SELECT id FROM video_meta WHERE path='" << path << "'";
 		ds::query::Result						ans;
@@ -91,7 +93,7 @@ void VideoMetaCache::load()
 	Poco::File					f(get_db_directory());
 	if (!f.exists()) f.createDirectories();
 
-	const std::string			db(get_db_file());
+	const std::string			db(get_db_file(mName));
 	f = Poco::File(db);
 	if (!f.exists()) {
 		f.createFile();
@@ -122,3 +124,6 @@ VideoMetaCache::Entry::Entry(const std::string& key, const int value)
 	, mValue(value)
 {
 }
+
+} // namespace ui
+} // namespace ds
