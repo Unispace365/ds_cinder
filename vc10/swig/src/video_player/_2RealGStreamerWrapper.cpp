@@ -56,7 +56,7 @@
     #include "_2RealGStreamerWrapper.h"
 #endif
 
-#include "ds/debug/logger.h"
+#include <ds/debug/logger.h>
 #include <iostream>
 
 namespace _2RealGStreamerWrapper
@@ -354,9 +354,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	}
 
 	// Print Media Info
-	//printMediaFileInfo();
-
-	
+	printMediaFileInfo();
 
 	// TODO: Check if everything was initialized correctly
 	// A file has been opened
@@ -382,14 +380,18 @@ void GStreamerWrapper::close()
 		gst_element_set_state( m_GstPipeline, GST_STATE_NULL );
 		gst_object_unref( m_GstPipeline );
 		m_GstPipeline = NULL;
+		m_GstVideoSink = NULL;
+		m_GstAudioSink = NULL;
 	}
 
+	// unreffing the pipeline should free the sink
 	if ( m_GstVideoSink != NULL )
 	{
 		gst_object_unref( m_GstVideoSink );
 		m_GstVideoSink = NULL;
 	}
 
+	// unreffing the pipeline should free the sink
 	if ( m_GstAudioSink != NULL )
 	{
 		gst_object_unref( m_GstAudioSink );
@@ -460,6 +462,8 @@ void GStreamerWrapper::pause()
 
 void GStreamerWrapper::printMediaFileInfo()
 {
+	return;
+
 	std::cout << "-----------------------------------------------------------------" << std::endl;
 	std::cout << "Loading file ..." << std::endl;
 	std::cout << "> File Uri: " << m_strFilename << std::endl;
