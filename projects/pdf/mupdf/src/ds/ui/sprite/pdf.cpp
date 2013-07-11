@@ -61,6 +61,26 @@ void Pdf::updateServer(const UpdateParams& p)
 	mHolder.update();
 }
 
+void Pdf::setPageNum(const int pageNum)
+{
+	mHolder.setPageNum(pageNum);
+}
+
+int Pdf::getPageCount()
+{
+	return mHolder.getPageCount();
+}
+
+void Pdf::goToNextPage()
+{
+	mHolder.goToNextPage();
+}
+
+void Pdf::goToPreviousPage()
+{
+	mHolder.goToPreviousPage();
+}
+
 void Pdf::onScaleChanged()
 {
 	inherited::onScaleChanged();
@@ -170,6 +190,27 @@ float Pdf::ResHolder::getTextureHeight() const
 {
 	if (mRes) return mRes->getTextureHeight();
 	return 0.0f;
+}
+
+void Pdf::ResHolder::setPageNum(const int pageNum)
+{
+	if (mRes) mRes->setPageNum(pageNum);
+}
+
+int Pdf::ResHolder::getPageCount()
+{
+	if (mRes) return mRes->getPageCount();
+	return 0;
+}
+
+void Pdf::ResHolder::goToNextPage()
+{
+	if (mRes) mRes->goToNextPage();
+}
+
+void Pdf::ResHolder::goToPreviousPage()
+{
+	if (mRes) mRes->goToPreviousPage();
 }
 
 } // using namespace ui
