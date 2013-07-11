@@ -459,6 +459,15 @@
     <ClInclude Include="..\src\ds\app\engine\engine_cfg.h">
       <Filter>src\ds\app\engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\network\tcp_client.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\tcp_server.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\async_queue.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -742,6 +751,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\engine_cfg.cpp">
       <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\tcp_client.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\tcp_server.cpp">
+      <Filter>src\ds\network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

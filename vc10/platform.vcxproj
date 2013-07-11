@@ -69,6 +69,8 @@
     <ClInclude Include="..\src\ds\network\http_client.h" />
     <ClInclude Include="..\src\ds\network\net_connection.h" />
     <ClInclude Include="..\src\ds\network\node_watcher.h" />
+    <ClInclude Include="..\src\ds\network\tcp_client.h" />
+    <ClInclude Include="..\src\ds\network\tcp_server.h" />
     <ClInclude Include="..\src\ds\network\udp_connection.h" />
     <ClInclude Include="..\src\ds\network\zmq_connection.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
@@ -81,6 +83,7 @@
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
     <ClInclude Include="..\src\ds\query\sql_query_result_builder.h" />
+    <ClInclude Include="..\src\ds\thread\async_queue.h" />
     <ClInclude Include="..\src\ds\thread\gl_thread.h" />
     <ClInclude Include="..\src\ds\thread\parallel_runnable.h" />
     <ClInclude Include="..\src\ds\thread\runnable_client.h" />
@@ -178,6 +181,8 @@
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
     <ClCompile Include="..\src\ds\network\http_client.cpp" />
     <ClCompile Include="..\src\ds\network\node_watcher.cpp" />
+    <ClCompile Include="..\src\ds\network\tcp_client.cpp" />
+    <ClCompile Include="..\src\ds\network\tcp_server.cpp" />
     <ClCompile Include="..\src\ds\network\udp_connection.cpp" />
     <ClCompile Include="..\src\ds\network\zmq_connection.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />
