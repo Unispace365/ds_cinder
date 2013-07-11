@@ -174,13 +174,7 @@
     <ClInclude Include="..\src\ds\ui\sprite\image.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\sprite.h">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\text.h">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\video.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h">
@@ -381,6 +375,9 @@
     <ClInclude Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.h">
       <Filter>src\lib\Awesomium</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\sprite.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\app\engine.cpp">
@@ -437,13 +434,7 @@
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\text.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\video.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp">
@@ -601,6 +592,9 @@
     </ClCompile>
     <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp">
       <Filter>src\lib\Awesomium</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
