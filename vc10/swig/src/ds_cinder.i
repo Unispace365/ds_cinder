@@ -25,7 +25,6 @@
 #include "ds/ui/sprite/text_layout.h"
 #include "ds/ui/sprite/text.h"
 #include "ds/ui/sprite/multiline_text.h"
-#include "ds/ui/sprite/video.h"
 #include "ds/ui/sprite/util/blend.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 #include "ds/ui/sprite/dirty_state.h"
@@ -319,7 +318,6 @@ namespace ds { namespace ui {
 %include "ds/ui/sprite/text_layout.h"
 %include "ds/ui/sprite/text.h"
 %include "ds/ui/sprite/multiline_text.h"
-%include "ds/ui/sprite/video.h"
 %include "ds/ui/touch/multi_touch_constraints.h"
 
 //%import "ds/thread/gl_thread.h"
