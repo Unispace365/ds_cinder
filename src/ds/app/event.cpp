@@ -51,6 +51,13 @@ static int register_event(const std::string& name)
 	Poco::Mutex::ScopedLock		l(get_register_lock());
 	auto&						e = get_events();
 	int							what = e.size() + 1;
+	DS_DBG_CODE(if (!e.empty()) {
+		auto f = e.find(what);
+		if (f != e.end()) {
+			std::cout << "ERROR Event::registerEvent() ALREADY REGISTERED " << what << " (requested " << name << ", have " << f->second << ")" << std::endl;
+			assert(false);
+		}
+	});
 	e[what] = name;
 	return what;
 }
