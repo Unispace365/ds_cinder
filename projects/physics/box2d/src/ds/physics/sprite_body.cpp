@@ -42,6 +42,8 @@ SpriteBody::SpriteBody(ds::ui::Sprite& owner)
 {
 	// This shouldn't be necessary, but I just want to make sure the static is referenced.
 	INIT.doNothing();
+
+	owner.setProcessTouchCallback([this](ds::ui::Sprite* s, const ds::ui::TouchInfo& ti) { this->processTouchInfo(s, ti); });
 }
 
 SpriteBody::~SpriteBody()
@@ -80,6 +82,11 @@ void SpriteBody::setLinearVelocity(const float x, const float y)
 	if (mBody != nullptr) {
 		mBody->SetLinearVelocity(b2Vec2(x, y));
 	}
+}
+
+void SpriteBody::processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo& ti)
+{
+	mWorld.processTouchInfo(*this, ti);
 }
 
 } // namespace physics

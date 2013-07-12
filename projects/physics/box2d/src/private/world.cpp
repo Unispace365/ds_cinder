@@ -5,10 +5,12 @@
 #include <ds/app/engine/engine.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite.h>
+#include <ds/physics/sprite_body.h>
 #include "Box2D/Collision/Shapes/b2EdgeShape.h"
 #include "Box2D/Dynamics/b2Body.h"
 #include "Box2D/Dynamics/b2World.h"
 #include "Box2D/Dynamics/b2Fixture.h"
+#include "Box2D/Dynamics/Joints/b2MouseJoint.h"
 
 namespace ds {
 namespace physics {
@@ -50,6 +52,31 @@ World::World(ds::ui::SpriteEngine& e)
 	} else if (mSettings.getRectSize("bounds:unit") > 0) {
 		const ci::Rectf&		r = mSettings.getRect("bounds:unit");
 		setBounds(ci::Rectf(r.x1 * e.getWorldWidth(), r.y1 * e.getWorldHeight(), r.x2 * e.getWorldWidth(), r.y2 * e.getWorldHeight()));
+	}
+}
+
+void World::processTouchInfo(const SpriteBody& body, const ds::ui::TouchInfo& ti)
+{
+	if (ti.mPhase == ti.Added) {
+		eraseTouch(ti.mFingerId);
+
+		if (body.mBody) {
+			b2MouseJointDef jointDef;
+			jointDef.target = Ci2BoxTranslation(ti.mStartPoint);
+			jointDef.bodyA = mGround;
+			jointDef.bodyB = body.mBody;
+			jointDef.maxForce = 10000.0f * body.mBody->GetMass();
+			jointDef.dampingRatio = 1.0f;
+			jointDef.frequencyHz = 25.0f;
+			mTouchJoints[ti.mFingerId] = mWorld->CreateJoint(&jointDef);
+		}
+	} else if (ti.mPhase == ti.Moved) {
+		b2MouseJoint*		j = getTouchJoint(ti.mFingerId);
+		if (j) {
+			j->SetTarget(Ci2BoxTranslation(ti.mCurrentGlobalPoint));
+		}
+	} else if (ti.mPhase == ti.Removed) {
+		eraseTouch(ti.mFingerId);
 	}
 }
 
@@ -170,6 +197,47 @@ void World::setBounds(const ci::Rectf& f)
 	shape.Set(	Ci2BoxTranslation(ci::Vec3f(f.x1, f.y2, 0.0f)),
 				Ci2BoxTranslation(ci::Vec3f(f.x2, f.y2, 0.0f)));
 	mBounds->CreateFixture(&fixtureDef);
+}
+
+void World::eraseTouch(const int fingerId)
+{
+	if (mTouchJoints.empty()) return;
+
+	auto it = mTouchJoints.find(fingerId);
+	if (it != mTouchJoints.end()) {
+		b2MouseJoint*	j = getTouchJointFromPtr(it->second);
+		if (j) mWorld->DestroyJoint(j);
+		mTouchJoints.erase(it);
+	}
+}
+
+b2MouseJoint* World::getTouchJoint(const int fingerId)
+{
+	if (mTouchJoints.empty()) return nullptr;
+
+	// Be safe about the touch joints -- they can get destroyed via things
+	// like destroying bodies (I think... if not, might rethink this), so
+	// look them up.
+	auto it = mTouchJoints.find(fingerId);
+	if (it != mTouchJoints.end()) {
+		return getTouchJointFromPtr(it->second);
+	}
+	return nullptr;
+}
+
+b2MouseJoint* World::getTouchJointFromPtr(const void* ptr)
+{
+	if (!ptr) return nullptr;
+
+	// Be safe about the touch joints -- they can get destroyed via things
+	// like destroying bodies (I think... if not, might rethink this), so
+	// look them up.
+	b2Joint*		j = mWorld->GetJointList();
+	while (j) {
+		if (j == ptr) return dynamic_cast<b2MouseJoint*>(j);
+		j = j->GetNext();
+	}
+	return nullptr;
 }
 
 } // namespace physics

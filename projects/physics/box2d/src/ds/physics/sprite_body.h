@@ -8,6 +8,7 @@ namespace ds {
 namespace ui {
 class Sprite;
 class SpriteEngine;
+struct TouchInfo;
 }
 
 namespace physics {
@@ -36,6 +37,9 @@ private:
 	friend class BodyBuilder;
 	friend class BodyBuilderBox;
 	friend class BodyBuilderCircle;
+	friend class World;
+
+	void					processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo&);
 
 	World&					mWorld;
 	ds::ui::Sprite&			mOwner;
