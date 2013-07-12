@@ -43,6 +43,7 @@ SpriteBody::SpriteBody(ds::ui::Sprite& owner)
 	// This shouldn't be necessary, but I just want to make sure the static is referenced.
 	INIT.doNothing();
 
+	owner.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 	owner.setProcessTouchCallback([this](ds::ui::Sprite* s, const ds::ui::TouchInfo& ti) { this->processTouchInfo(s, ti); });
 }
 
