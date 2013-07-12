@@ -11,6 +11,7 @@ class SpriteEngine;
 }
 
 namespace physics {
+class BodyBuilder;
 class World;
 
 /**
@@ -25,12 +26,16 @@ public:
 	SpriteBody(ds::ui::Sprite&);
 	~SpriteBody();
 
-	void					create();
+	void					create(const BodyBuilder&);
 	void					destroy();
 
 	void					setLinearVelocity(const float x, const float y);
 
 private:
+	friend class BodyBuilder;
+	friend class BodyBuilderBox;
+	friend class BodyBuilderCircle;
+
 	World&					mWorld;
 	ds::ui::Sprite&			mOwner;
 	b2Body*					mBody;

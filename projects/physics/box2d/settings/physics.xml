@@ -1,0 +1,17 @@
+<settings>
+	<!-- Example physcs.xml file.
+		The physics project will automatically try to load this file on initialization.
+	-->
+
+	<!-- Default values when creating bodies. Can be overriden per SpriteBody. -->
+	<float name="friction" value="0.5" />
+	<float name="dampening:linear" value="8" />
+	<float name="dampening:angular" value="8" />
+
+	<!-- Optional bounds around the world. You can specify in either unit or fixed.
+		Unit of course is more flexible, but might not work if your world bounds don't
+		match your physics bound. Fixed overrides unit. -->
+	<rect  name="bounds:unit" l="0" t="0" r="1" b="1" />
+<!--	<rect  name="bounds:fixed" l="0" t="0" r="0" b="0" /> -->
+	
+</settings>

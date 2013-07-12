@@ -1,9 +1,9 @@
 #include "ds/physics/sprite_body.h"
 
 #include <ds/app/app.h>
-#include "ds/physics/world.h"
+#include "ds/physics/body_builder.h"
+#include "private/world.h"
 #include <ds/ui/sprite/sprite_engine.h>
-#include "Box2D/Collision/Shapes/b2PolygonShape.h"
 #include "Box2D/Dynamics/b2Body.h"
 #include "Box2D/Dynamics/b2Fixture.h"
 #include "Box2D/Dynamics/b2World.h"
@@ -49,32 +49,21 @@ SpriteBody::~SpriteBody()
 	destroy();
 }
 
-void SpriteBody::create()
+void SpriteBody::create(const BodyBuilder& b)
 {
 	destroy();
 
-	b2BodyDef def;
+	b2BodyDef			def;
 	def.type = b2_dynamicBody;
 	def.userData = &mOwner;
 	def.position = mWorld.Ci2BoxTranslation(mOwner.getPosition());
+	def.linearDamping = b.mLinearDampening;
+	def.angularDamping = b.mAngularDampening;
+
 	mBody = mWorld.mWorld->CreateBody(&def);
 	if (!mBody) return;
 
-	b2PolygonShape dynamicBox;
-	dynamicBox.SetAsBox(mOwner.getScaleWidth() / 2.0f * mWorld.getCi2BoxScale(), mOwner.getScaleHeight() / 2.0f * mWorld.getCi2BoxScale());
-
-	// Define the dynamic body fixture.
-	b2FixtureDef fixtureDef;
-	fixtureDef.shape = &dynamicBox;
-
-	// Set the box density to be non-zero, so it will be dynamic.
-	fixtureDef.density = 1.0f;
-
-	// Override the default friction.
-	fixtureDef.friction = 1.0f; //mGlobals.mLayout.getFloat("node_friction", 0, 0.8f);
-
-	// Add the shape to the body.
-	mBody->CreateFixture(&fixtureDef);
+	b.createFixture(*this);
 }
 
 void SpriteBody::destroy()

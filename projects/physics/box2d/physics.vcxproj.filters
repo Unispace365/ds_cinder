@@ -10,21 +10,30 @@
     <Filter Include="src\ds\physics">
       <UniqueIdentifier>{c6ab769a-037d-4810-8c07-b898a2b352b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\private">
+      <UniqueIdentifier>{7e473505-1020-4a31-9dbc-62f6ba25032a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\ds\physics\world.h">
-      <Filter>src\ds\physics</Filter>
-    </ClInclude>
     <ClInclude Include="src\ds\physics\sprite_body.h">
       <Filter>src\ds\physics</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\physics\body_builder.h">
+      <Filter>src\ds\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\private\world.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="src\ds\physics\world.cpp">
-      <Filter>src\ds\physics</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\physics\sprite_body.cpp">
       <Filter>src\ds\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\physics\body_builder.cpp">
+      <Filter>src\ds\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\world.cpp">
+      <Filter>src\private</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
