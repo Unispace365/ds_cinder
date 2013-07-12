@@ -19,7 +19,8 @@ class World;
  * \brief This serves as the sprite entry point to the physics system.
  * Simply including this in a sprite subclass and calling create() is
  * enough to enable physics on a sprite.
- * NOTE: VERY PRELIMINARY!
+ * By default this class will take over touch processing; if you want
+ * to mix in your own behaviour, take it back.
  */
 class SpriteBody {
 public:

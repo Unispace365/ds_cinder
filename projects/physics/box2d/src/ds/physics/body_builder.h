@@ -20,6 +20,7 @@ public:
 						mFriction,
 						mLinearDampening,
 						mAngularDampening;
+	bool				mFixedRotation;
 	int					mCategoryBits;
 	int					mMaskBits;
 

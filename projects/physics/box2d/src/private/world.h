@@ -33,6 +33,7 @@ public:
 	float						getFriction() const;
 	float						getLinearDampening() const;
 	float						getAngularDampening() const;
+	bool						getFixedRotation() const;
 
 protected:
 	virtual void				update(const ds::UpdateParams&);
@@ -56,6 +57,7 @@ private:
 	float						mFriction,
 								mLinearDampening,
 								mAngularDampening;
+	bool						mFixedRotation;
 };
 
 } // namespace physics

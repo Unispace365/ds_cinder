@@ -31,6 +31,7 @@ World::World(ds::ui::SpriteEngine& e)
 	, mFriction(0.5f)
 	, mLinearDampening(0.0f)
 	, mAngularDampening(0.0f)
+	, mFixedRotation(true)
 {
 	mWorld = std::move(std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, 0.0f))));
 	if (mWorld.get() == nullptr) throw std::runtime_error("ds::physics::World() can't create b2World");
@@ -42,6 +43,7 @@ World::World(ds::ui::SpriteEngine& e)
 	mFriction = mSettings.getFloat("friction", 0, mFriction);
 	mLinearDampening = mSettings.getFloat("dampening:linear", 0, mLinearDampening);
 	mAngularDampening = mSettings.getFloat("dampening:angular", 0, mAngularDampening);
+	mFixedRotation = mSettings.getBool("rotation:fixed", 0, mFixedRotation);
 
 	if (mSettings.getRectSize("bounds:fixed") > 0) {
 		setBounds(mSettings.getRect("bounds:fixed"));
@@ -64,6 +66,11 @@ float World::getLinearDampening() const
 float World::getAngularDampening() const
 {
 	return mAngularDampening;
+}
+
+bool World::getFixedRotation() const
+{
+	return mFixedRotation;
 }
 
 void World::update(const ds::UpdateParams& p)

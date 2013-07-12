@@ -59,6 +59,7 @@ void SpriteBody::create(const BodyBuilder& b)
 	def.position = mWorld.Ci2BoxTranslation(mOwner.getPosition());
 	def.linearDamping = b.mLinearDampening;
 	def.angularDamping = b.mAngularDampening;
+	def.fixedRotation = b.mFixedRotation;
 
 	mBody = mWorld.mWorld->CreateBody(&def);
 	if (!mBody) return;
