@@ -1,6 +1,7 @@
 #include "ds/network/tcp_server.h"
 
 #include "ds/debug/debug_defines.h"
+#include "ds/debug/logger.h"
 
 namespace ds {
 namespace net {
@@ -21,10 +22,8 @@ namespace
 			Poco::Net::StreamSocket& ss = socket();
 			try
 			{
-			std::cout << "receive 1" << std::endl;
 				char buffer[256];
 				int n = ss.receiveBytes(buffer, sizeof(buffer));
-			std::cout << "receive 2" << std::endl;
 				while (n > 0)
 				{
 					mQueue.push(std::string(buffer, n));
@@ -96,6 +95,7 @@ void TcpServer::send(const std::string& data)
 		Poco::Net::StreamSocket		socket(mAddress);
 		socket.sendBytes(data.data(), data.size());
 	} catch (std::exception const& ex) {
+		DS_LOG_WARNING("TcpServer::send() error sending data=" << data << " (" << ex.what() << ")");
 		DS_DBG_CODE(std::cout << "TcpServer::send() error sending data=" << data << " (" << ex.what() << ")" << std::endl);
 	}
 }
