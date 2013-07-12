@@ -1,7 +1,7 @@
 #include "ds/physics/world.h"
 
 #include <ds/app/auto_update.h>
-#include <ds/app/engine.h>
+#include <ds/app/engine/engine.h>
 #include <ds/ui/sprite/sprite.h>
 #include "Box2D/Dynamics/b2World.h"
 #include "Box2D/Dynamics/b2Body.h"

@@ -4,7 +4,7 @@
 
 #include <cinder/Vector.h>
 #include <ds/app/auto_update.h>
-#include <ds/app/engine_service.h>
+#include <ds/app/engine/engine_service.h>
 class b2World;
 struct b2Vec2;
 
