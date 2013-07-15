@@ -904,10 +904,9 @@ void GStreamerWrapper::handleGStMessage()
 					GError* err;
 					gchar* debug;
 					gst_message_parse_error( m_GstMessage, &err, &debug );
-
+					DS_LOG_WARNING("GST_MESSAGE_ERROR module " << gst_element_get_name( GST_MESSAGE_SRC( m_GstMessage ) ) << " reported " << err->message);
 					std::cout << "Embedded video playback halted: module " << gst_element_get_name( GST_MESSAGE_SRC( m_GstMessage ) ) <<
 						" reported " << err->message << std::endl;
-
 					close();
 
 					g_error_free(err);

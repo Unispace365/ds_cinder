@@ -48,8 +48,16 @@ void BodyBuilderBox::createFixture(SpriteBody& body) const
 	fixtureDef.filter.maskBits = mMaskBits;
 
 	b2PolygonShape	dynamicBox;
-//	dynamicBox.SetAsBox(body.mOwner.getScaleWidth() / 2.0f * mWorld.getCi2BoxScale(), body.mOwner.getScaleHeight() / 2.0f * mWorld.getCi2BoxScale());
-	dynamicBox.SetAsBox(mWidth / 2.0f * body.mWorld.getCi2BoxScale(), mHeight / 2.0f * body.mWorld.getCi2BoxScale());
+	const float32			w = mWidth / 2.0f * body.mWorld.getCi2BoxScale(),
+							h = mHeight / 2.0f * body.mWorld.getCi2BoxScale();
+#if 1
+	dynamicBox.SetAsBox(w, h);
+#else
+	b2Vec2					center;
+	center.x = w;
+	center.y = 0.0f;
+	dynamicBox.SetAsBox(w, h, center, 0.0f);
+#endif
 	fixtureDef.shape = &dynamicBox;
 	body.mBody->CreateFixture(&fixtureDef);
 }

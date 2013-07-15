@@ -32,14 +32,13 @@ public:
 	void					destroy();
 
 	void					setLinearVelocity(const float x, const float y);
+	void					processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo&);
 
 private:
 	friend class BodyBuilder;
 	friend class BodyBuilderBox;
 	friend class BodyBuilderCircle;
 	friend class World;
-
-	void					processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo&);
 
 	World&					mWorld;
 	ds::ui::Sprite&			mOwner;
