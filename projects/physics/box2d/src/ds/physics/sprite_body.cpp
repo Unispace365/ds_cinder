@@ -4,6 +4,7 @@
 #include "ds/physics/body_builder.h"
 #include "private/world.h"
 #include <ds/ui/sprite/sprite_engine.h>
+#include "Box2D/Collision/Shapes/b2PolygonShape.h"
 #include "Box2D/Dynamics/b2Body.h"
 #include "Box2D/Dynamics/b2Fixture.h"
 #include "Box2D/Dynamics/b2World.h"
@@ -35,16 +36,16 @@ Init				INIT;
 /**
  * \class ds::physics::SpriteBody
  */
-SpriteBody::SpriteBody(ds::ui::Sprite& owner)
-	: mWorld(owner.getEngine().getService<ds::physics::World>("physics"))
-	, mOwner(owner)
+SpriteBody::SpriteBody(ds::ui::Sprite& s)
+	: mWorld(s.getEngine().getService<ds::physics::World>("physics"))
+	, mSprite(s)
 	, mBody(nullptr)
 {
 	// This shouldn't be necessary, but I just want to make sure the static is referenced.
 	INIT.doNothing();
 
-	owner.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	owner.setProcessTouchCallback([this](ds::ui::Sprite* s, const ds::ui::TouchInfo& ti) { this->processTouchInfo(s, ti); });
+	s.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	s.setProcessTouchCallback([this](ds::ui::Sprite* s, const ds::ui::TouchInfo& ti) { this->processTouchInfo(s, ti); });
 }
 
 SpriteBody::~SpriteBody()
@@ -58,8 +59,8 @@ void SpriteBody::create(const BodyBuilder& b)
 
 	b2BodyDef			def;
 	def.type = b2_dynamicBody;
-	def.userData = &mOwner;
-	def.position = mWorld.Ci2BoxTranslation(mOwner.getPosition());
+	def.userData = &mSprite;
+	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition());
 	def.linearDamping = b.mLinearDampening;
 	def.angularDamping = b.mAngularDampening;
 	def.fixedRotation = b.mFixedRotation;
@@ -88,6 +89,33 @@ void SpriteBody::setLinearVelocity(const float x, const float y)
 void SpriteBody::processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo& ti)
 {
 	mWorld.processTouchInfo(*this, ti);
+}
+
+void SpriteBody::onCenterChanged()
+{
+	if (mBody == nullptr) return;
+
+	// Currently there should only be 1 fixture.
+	b2Fixture*				fix = mBody->GetFixtureList();
+	while (fix) {
+		b2PolygonShape*		poly = dynamic_cast<b2PolygonShape*>(fix->GetShape());
+		if (poly) {
+//			void SetAsBox(float32 hx, float32 hy, const b2Vec2& center, float32 angle);
+			const float32	w = mSprite.getWidth() / 2.0f * mWorld.getCi2BoxScale(),
+							h = mSprite.getHeight() / 2.0f * mWorld.getCi2BoxScale();
+			// Convert the sprite center into a box2d center.
+			const ci::Vec2f	cen((mSprite.getCenter().x * 2) - 1.0f,
+								(mSprite.getCenter().y * 2) - 1.0f);
+			b2Vec2			box_cen;
+			box_cen.x = cen.x * w;
+			box_cen.y = cen.y * h;
+			poly->SetAsBox(w, h, box_cen, 0.0f);
+	std::cout << "POLY w=" << w << " h=" << h << " cen=" << box_cen.x << "," << box_cen.y << std::endl;
+
+			return;
+		}
+		fix = fix->GetNext();
+	}
 }
 
 } // namespace physics

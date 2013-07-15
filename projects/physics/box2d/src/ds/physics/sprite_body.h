@@ -34,6 +34,10 @@ public:
 	void					setLinearVelocity(const float x, const float y);
 	void					processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo&);
 
+	// The sprite owner is resonsible for telling me when the
+	// center changes. (Only necessary if the fixture is a box).
+	void					onCenterChanged();
+
 private:
 	friend class BodyBuilder;
 	friend class BodyBuilderBox;
@@ -41,7 +45,7 @@ private:
 	friend class World;
 
 	World&					mWorld;
-	ds::ui::Sprite&			mOwner;
+	ds::ui::Sprite&			mSprite;
 	b2Body*					mBody;
 };
 
