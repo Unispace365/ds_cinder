@@ -3,6 +3,7 @@
 #include <ds/app/app.h>
 #include "ds/physics/body_builder.h"
 #include "private/world.h"
+#include <ds/math/math_defs.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include "Box2D/Collision/Shapes/b2PolygonShape.h"
 #include "Box2D/Dynamics/b2Body.h"
@@ -73,10 +74,17 @@ void SpriteBody::create(const BodyBuilder& b)
 
 void SpriteBody::destroy()
 {
-	if (mBody != nullptr) {
-		mWorld.mWorld->DestroyBody(mBody);
-		mBody = nullptr;
-	}
+	if (mBody == nullptr) return;
+
+	mWorld.mWorld->DestroyBody(mBody);
+	mBody = nullptr;
+}
+
+void SpriteBody::update()
+{
+	if (mBody == nullptr) return;
+
+	mBody->SetAngularVelocity(0.0f);
 }
 
 void SpriteBody::setLinearVelocity(const float x, const float y)
@@ -91,6 +99,14 @@ void SpriteBody::processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo& ti)
 	mWorld.processTouchInfo(*this, ti);
 }
 
+void SpriteBody::setRotation(const float degree)
+{
+	if (mBody == nullptr) return;
+
+	const float		angle = degree * ds::math::DEGREE2RADIAN;
+	mBody->SetTransform(mBody->GetPosition(), angle);
+}
+
 void SpriteBody::onCenterChanged()
 {
 	if (mBody == nullptr) return;
@@ -100,17 +116,15 @@ void SpriteBody::onCenterChanged()
 	while (fix) {
 		b2PolygonShape*		poly = dynamic_cast<b2PolygonShape*>(fix->GetShape());
 		if (poly) {
-//			void SetAsBox(float32 hx, float32 hy, const b2Vec2& center, float32 angle);
 			const float32	w = mSprite.getWidth() / 2.0f * mWorld.getCi2BoxScale(),
 							h = mSprite.getHeight() / 2.0f * mWorld.getCi2BoxScale();
 			// Convert the sprite center into a box2d center.
 			const ci::Vec2f	cen((mSprite.getCenter().x * 2) - 1.0f,
 								(mSprite.getCenter().y * 2) - 1.0f);
 			b2Vec2			box_cen;
-			box_cen.x = cen.x * w;
-			box_cen.y = cen.y * h;
+			box_cen.x = cen.x * -w;
+			box_cen.y = cen.y * -h;
 			poly->SetAsBox(w, h, box_cen, 0.0f);
-	std::cout << "POLY w=" << w << " h=" << h << " cen=" << box_cen.x << "," << box_cen.y << std::endl;
 
 			return;
 		}
