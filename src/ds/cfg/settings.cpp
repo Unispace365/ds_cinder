@@ -1,4 +1,4 @@
-#include "ds/config/settings.h"
+#include "ds/cfg/settings.h"
 
 #include <cinder/Xml.h>
 #include <Poco/File.h>

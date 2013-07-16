@@ -52,7 +52,7 @@
     <ClInclude Include="..\src\ds\arc\arc_layer.h" />
     <ClInclude Include="..\src\ds\arc\arc_pow.h" />
     <ClInclude Include="..\src\ds\arc\arc_render_circle.h" />
-    <ClInclude Include="..\src\ds\config\settings.h" />
+    <ClInclude Include="..\src\ds\cfg\settings.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
     <ClInclude Include="..\src\ds\data\raw_data_buffer.h" />
@@ -168,7 +168,7 @@
     <ClCompile Include="..\src\ds\arc\arc_layer.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_pow.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp" />
-    <ClCompile Include="..\src\ds\config\settings.cpp" />
+    <ClCompile Include="..\src\ds\cfg\settings.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />
     <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp" />

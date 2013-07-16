@@ -3,7 +3,7 @@
 #define DS_APP_ENGINE_ENGINECFG_H_
 
 #include <unordered_map>
-#include "ds/config/settings.h"
+#include "ds/cfg/settings.h"
 
 namespace ds {
 

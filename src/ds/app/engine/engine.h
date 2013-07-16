@@ -17,7 +17,7 @@
 #include "TuioClient.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
-#include "ds/config/settings.h"
+#include "ds/cfg/settings.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/tween/tweenline.h"

@@ -8,7 +8,7 @@
 #include <Poco/Semaphore.h>
 #include <Poco/String.h>
 #include "ds/app/environment.h"
-#include "ds/config/settings.h"
+#include "ds/cfg/settings.h"
 #include "ds/util/string_util.h"
 
 using namespace ds;

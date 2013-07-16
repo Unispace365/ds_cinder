@@ -6,7 +6,7 @@
 #include <cinder/Vector.h>
 #include <ds/app/auto_update.h>
 #include <ds/app/engine/engine_service.h>
-#include <ds/config/settings.h>
+#include <ds/cfg/settings.h>
 #include <ds/ui/touch/touch_info.h>
 #include <ds/util/bit_mask.h>
 class b2Body;

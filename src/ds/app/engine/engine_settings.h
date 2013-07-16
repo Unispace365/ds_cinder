@@ -2,7 +2,7 @@
 #ifndef DS_APP_ENGINE_ENGINESETTINGS_H_
 #define DS_APP_ENGINE_ENGINESETTINGS_H_
 
-#include "ds/config/settings.h"
+#include "ds/cfg/settings.h"
 
 namespace ds {
 class Environment;

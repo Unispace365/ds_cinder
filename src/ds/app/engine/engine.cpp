@@ -7,7 +7,7 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
-#include "ds/config/settings.h"
+#include "ds/cfg/settings.h"
 #include "Poco/Path.h"
 #include "cinder/Thread.h"
 
