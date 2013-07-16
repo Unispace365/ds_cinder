@@ -80,13 +80,6 @@ void SpriteBody::destroy()
 	mBody = nullptr;
 }
 
-void SpriteBody::update()
-{
-	if (mBody == nullptr) return;
-
-	mBody->SetAngularVelocity(0.0f);
-}
-
 void SpriteBody::setLinearVelocity(const float x, const float y)
 {
 	if (mBody != nullptr) {

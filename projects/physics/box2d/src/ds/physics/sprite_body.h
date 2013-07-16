@@ -30,7 +30,6 @@ public:
 
 	void					create(const BodyBuilder&);
 	void					destroy();
-	void					update();
 
 	void					setLinearVelocity(const float x, const float y);
 	void					processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo&);
