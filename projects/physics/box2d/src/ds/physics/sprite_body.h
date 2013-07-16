@@ -2,6 +2,8 @@
 #ifndef DS_PHYSICS_SPRITEBODY_H_
 #define DS_PHYSICS_SPRITEBODY_H_
 
+#include <functional>
+
 class b2Body;
 
 namespace ds {
@@ -35,6 +37,9 @@ public:
 	void					processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo&);
 
 	void					setRotation(const float degree);
+	// Set a collision callback, called whenever this body
+	// collides with another physics object.
+	void					setCollisionCallback(const std::function<void(void)>& fn);
 
 	// The sprite owner is resonsible for telling me when the
 	// center changes. (Only necessary if the fixture is a box).

@@ -51,6 +51,7 @@ SpriteBody::SpriteBody(ds::ui::Sprite& s)
 
 SpriteBody::~SpriteBody()
 {
+	mWorld.setCollisionCallback(mSprite,  nullptr);
 	destroy();
 }
 
@@ -98,6 +99,11 @@ void SpriteBody::setRotation(const float degree)
 
 	const float		angle = degree * ds::math::DEGREE2RADIAN;
 	mBody->SetTransform(mBody->GetPosition(), angle);
+}
+
+void SpriteBody::setCollisionCallback(const std::function<void(void)>& fn)
+{
+	mWorld.setCollisionCallback(mSprite, fn);
 }
 
 void SpriteBody::onCenterChanged()

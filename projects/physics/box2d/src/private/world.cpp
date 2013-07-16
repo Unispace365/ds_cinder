@@ -27,6 +27,7 @@ const ds::BitMask			PHYSICS_LOG = ds::Logger::newModule("physics");
  */
 World::World(ds::ui::SpriteEngine& e)
 	: ds::AutoUpdate(e)
+	, mContactListenerRegistered(false)
 	, mGround(nullptr)
 	, mBounds(nullptr)
 	, mCi2BoxScale(0.02f)
@@ -102,11 +103,21 @@ bool World::getFixedRotation() const
 	return mFixedRotation;
 }
 
+void World::setCollisionCallback(const ds::ui::Sprite& s, const std::function<void(void)>& fn)
+{
+	mContactListener.setCollisionCallback(s, fn);
+	if (!mContactListenerRegistered) {
+		mContactListenerRegistered = true;
+		mWorld->SetContactListener(&mContactListener);
+	}
+}
+
 void World::update(const ds::UpdateParams& p)
 {
 	static const int	VELOCITY_ITERATIONS = 6;
 	static const int	POSITION_ITERATIONS = 2;
 
+	mContactListener.clear();
 	mWorld->Step(p.getDeltaTime(), VELOCITY_ITERATIONS, POSITION_ITERATIONS);
 
 	// Update all objects
@@ -117,7 +128,7 @@ void World::update(const ds::UpdateParams& p)
 		if ( b->IsAwake() )
 		{
 			ds::ui::Sprite*	sprite = reinterpret_cast<ds::ui::Sprite*>( b->GetUserData() );
-			if ( sprite )
+			if (sprite)
 			{
 				auto pos = box2CiTranslation(b->GetPosition());
 				sprite->setPosition(pos);
@@ -148,6 +159,8 @@ void World::update(const ds::UpdateParams& p)
 	//	(*i)->sendToFront();
 	//}
 #endif
+
+	mContactListener.report();
 }
 
 

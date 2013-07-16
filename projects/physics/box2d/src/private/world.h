@@ -9,6 +9,7 @@
 #include <ds/cfg/settings.h>
 #include <ds/ui/touch/touch_info.h>
 #include <ds/util/bit_mask.h>
+#include "private/contact_listener.h"
 class b2Body;
 class b2MouseJoint;
 class b2World;
@@ -37,6 +38,8 @@ public:
 	float							getAngularDampening() const;
 	bool							getFixedRotation() const;
 
+	void							setCollisionCallback(const ds::ui::Sprite&, const std::function<void(void)>& fn);
+
 protected:
 	virtual void					update(const ds::UpdateParams&);
 
@@ -54,6 +57,10 @@ private:
 	friend class ds::physics::SpriteBody;
 
 	std::unique_ptr<b2World>		mWorld;
+	ContactListener					mContactListener;
+	// Only register the listener with the world if there's someone listening;
+	// otherwise, this can incur a bit of overhead.
+	bool							mContactListenerRegistered;
 	b2Body*							mGround;
 	b2Body*							mBounds;
 

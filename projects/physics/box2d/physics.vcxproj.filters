@@ -24,6 +24,9 @@
     <ClInclude Include="src\private\world.h">
       <Filter>src\private</Filter>
     </ClInclude>
+    <ClInclude Include="src\private\contact_listener.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\physics\sprite_body.cpp">
@@ -33,6 +36,9 @@
       <Filter>src\ds\physics</Filter>
     </ClCompile>
     <ClCompile Include="src\private\world.cpp">
+      <Filter>src\private</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\contact_listener.cpp">
       <Filter>src\private</Filter>
     </ClCompile>
   </ItemGroup>
