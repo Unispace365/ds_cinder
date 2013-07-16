@@ -109,14 +109,14 @@ static void read_text_cfg(const std::string& path, std::unordered_map<std::strin
 		}
 	});
 
-	// Floats (size, lineheight)
+	// Floats (size, leading)
 	s.forEachFloatKey([&s, &out](const std::string& key) {
 		std::string			left, right;
 		if (split_key(key, left, right) && !out.empty()) {
 			auto			found = out.find(left);
 			if (found != out.end()) {
 				if (right == "size") found->second.mSize = s.getFloat(key, 0, found->second.mSize);
-				else if (right == "lineheight") found->second.mLineHeight = s.getFloat(key, 0, found->second.mLineHeight);
+				else if (right == "leading") found->second.mLeading = s.getFloat(key, 0, found->second.mLeading);
 			}
 		}
 	});

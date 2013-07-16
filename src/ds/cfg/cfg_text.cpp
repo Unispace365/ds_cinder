@@ -18,10 +18,10 @@ Text::Text()
 {
 }
 
-Text::Text(const std::string& font, const float size, const float lineH, const ci::ColorA& c)
+Text::Text(const std::string& font, const float size, const float leading, const ci::ColorA& c)
 	: mFont(font)
 	, mSize(size)
-	, mLineHeight(lineH)
+	, mLeading(leading)
 	, mColor(c)
 	, mCenter(0.0f, 0.0f)
 {
@@ -67,6 +67,10 @@ void Text::configure(ds::ui::Text& s) const
 {
 	s.setFont(mFont, mSize);
 	s.setColorA(mColor);
+	if (mLeading >= 0.0f) {
+		ds::ui::MultilineText*		mt = dynamic_cast<ds::ui::MultilineText*>(&s);
+		if (mt) mt->setLeading(mLeading);
+	}
 }
 
 } // namespace cfg
