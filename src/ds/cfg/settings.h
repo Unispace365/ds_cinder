@@ -67,6 +67,8 @@ public:
 	bool							  	getBool(const std::string& name, const int index, const bool defaultValue) const;
 
 	// Iterate over the keys
+	void								forEachColorAKey(const std::function<void(const std::string&)>&);
+	void								forEachFloatKey(const std::function<void(const std::string&)>&);
 	void								forEachTextKey(const std::function<void(const std::string&)>&);
 
 private:

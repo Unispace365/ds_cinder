@@ -65,6 +65,10 @@ class Engine : public ui::SpriteEngine {
 	// @param filename is the leaf path of the settings file (i.e. "data.xml").
 	// It will be loaded from all appropriate locations.
 	void						loadSettings(const std::string& name, const std::string& filename);
+	// Convenice to load a text cfg file into a collection of cfg objects.
+	// @param filename is the leaf path of the settings file (i.e. "text.xml").
+	// It will be loaded from all appropriate locations.
+	void						loadTextCfg(const std::string& filename);
 
     // only valid after setup() is called
 		int													getRootCount() const;

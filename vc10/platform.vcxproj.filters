@@ -468,6 +468,9 @@
     <ClInclude Include="..\src\ds\cfg\settings.h">
       <Filter>src\ds\cfg</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\cfg_text.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -756,6 +759,9 @@
       <Filter>src\ds\network</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\cfg\settings.cpp">
+      <Filter>src\ds\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\cfg_text.cpp">
       <Filter>src\ds\cfg</Filter>
     </ClCompile>
   </ItemGroup>
