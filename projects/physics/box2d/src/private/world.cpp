@@ -48,10 +48,12 @@ World::World(ds::ui::SpriteEngine& e)
 	mFixedRotation = mSettings.getBool("rotation:fixed", 0, mFixedRotation);
 
 	if (mSettings.getRectSize("bounds:fixed") > 0) {
-		setBounds(mSettings.getRect("bounds:fixed"));
+		setBounds(	mSettings.getRect("bounds:fixed"),
+					mSettings.getFloat("bounds:restitution", 0, 1.0f));
 	} else if (mSettings.getRectSize("bounds:unit") > 0) {
 		const ci::Rectf&		r = mSettings.getRect("bounds:unit");
-		setBounds(ci::Rectf(r.x1 * e.getWorldWidth(), r.y1 * e.getWorldHeight(), r.x2 * e.getWorldWidth(), r.y2 * e.getWorldHeight()));
+		setBounds(	ci::Rectf(r.x1 * e.getWorldWidth(), r.y1 * e.getWorldHeight(), r.x2 * e.getWorldWidth(), r.y2 * e.getWorldHeight()),
+					mSettings.getFloat("bounds:restitution", 0, 1.0f));
 	}
 }
 
@@ -164,7 +166,7 @@ b2Vec2 World::Ci2BoxTranslation(const ci::Vec3f &vec)
 	return b2Vec2(vec.x * mCi2BoxScale, vec.y * mCi2BoxScale);
 }
 
-void World::setBounds(const ci::Rectf& f)
+void World::setBounds(const ci::Rectf& f, const float restitution)
 {
 	if (f.x2 <= f.x1 || f.y2 <= f.y1) {
 		DS_LOG_WARNING_M("World constructed on invalid bounds (" << f << ")", PHYSICS_LOG);
@@ -172,6 +174,8 @@ void World::setBounds(const ci::Rectf& f)
 	}
 
 	b2BodyDef		def;
+	def.type = b2_staticBody;
+	def.fixedRotation = true;
 	mBounds = mWorld->CreateBody(&def);
 	if (!mBounds) throw std::runtime_error("ds::physics::World() can't create mBounds");
 
@@ -179,7 +183,8 @@ void World::setBounds(const ci::Rectf& f)
 	b2FixtureDef	fixtureDef;
 	fixtureDef.shape = &shape;
 	fixtureDef.density = 0.0f;
-	fixtureDef.friction = 0.1f;
+	fixtureDef.friction = mFriction;
+	fixtureDef.restitution = restitution;
 
 	// left
 	shape.Set(	Ci2BoxTranslation(ci::Vec3f(f.x1, f.y1, 0.0f)),

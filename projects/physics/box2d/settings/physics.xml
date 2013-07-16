@@ -14,5 +14,9 @@
 		match your physics bound. Fixed overrides unit. -->
 	<rect  name="bounds:unit" l="0" t="0" r="1" b="1" />
 <!--	<rect  name="bounds:fixed" l="0" t="0" r="0" b="0" /> -->
+	<!-- Used to determine how much bounce there is when an object interacts with the
+		bounds. 0 is none, 1 is full.
+	-->
+	<float name="bounds:restitution" value="1" />
 	
 </settings>

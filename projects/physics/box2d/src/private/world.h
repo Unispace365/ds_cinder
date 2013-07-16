@@ -44,7 +44,7 @@ private:
 	ci::Vec3f						box2CiTranslation(const b2Vec2&);
 	b2Vec2							Ci2BoxTranslation(const ci::Vec3f&);
 
-	void							setBounds(const ci::Rectf&);
+	void							setBounds(const ci::Rectf&, const float restitution);
 
 	// Answer a joint for a finger ID
 	void							eraseTouch(const int fingerId);
