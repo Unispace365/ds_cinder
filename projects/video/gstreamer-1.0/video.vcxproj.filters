@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{c6487098-2eaf-493d-ada3-1025bb854738}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds">
+      <UniqueIdentifier>{2271294b-f892-45e7-96c6-c38a347ec8be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui">
+      <UniqueIdentifier>{105dfbf8-441c-452f-a230-43a12ca874f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\sprite">
+      <UniqueIdentifier>{7035895f-5756-4b2e-ba21-ac6ad7bf4646}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\gstreamer">
+      <UniqueIdentifier>{e0a6d4c5-f92d-49a5-91b7-6dff93b80d74}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\gstreamer\_2RealGStreamerWrapper.cpp">
+      <Filter>src\gstreamer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\gstreamer\video_meta_cache.cpp">
+      <Filter>src\gstreamer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\video.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\gstreamer\_2RealGStreamerWrapper.h">
+      <Filter>src\gstreamer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gstreamer\video_meta_cache.h">
+      <Filter>src\gstreamer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\video.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
