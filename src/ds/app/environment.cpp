@@ -102,6 +102,23 @@ void Environment::loadSettings(const std::string& filename, ds::cfg::Settings& s
   settings.readFrom(ds::Environment::getLocalSettingsPath(filename), true);
 }
 
+std::string Environment::getLocalFile(	const std::string& category,
+										const bool includeProjectPath,
+										const std::string& filename)
+{
+	Poco::Path			p(getDownstreamDocumentsFolder());
+	if (!category.empty()) {
+		p.append(category);
+		if (includeProjectPath && !EngineSettings::envProjectPath().empty()) {
+			p.append(EngineSettings::envProjectPath());
+			if (!filename.empty()) {
+				p.append(filename);
+			}
+		}
+	}
+	return p.toString();
+}
+
 } // namespace ds
 
 static std::string    folder_from(const Poco::Path& parentP, const std::string& folder, const std::string& fileName)
