@@ -34,7 +34,7 @@ namespace ds {
 			void				play();
 			void				stop();
 			void				pause();
-			void				seek(float t);
+			void				seek(double t); // 0.0 to 1.0 value
 			double				duration();
 			double				currentTime();
 			bool				isPlaying();

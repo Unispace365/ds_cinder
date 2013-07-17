@@ -84,7 +84,7 @@ namespace ds {
 				mInternalMuted = false;
 				setMovieVolume();
 			}
-			if(mMovie.hasVideo() && mMovie.isNewVideoFrame()){
+			if(mMovie.isNewVideoFrame()){
 				unsigned char* pImg = mMovie.getVideo();
 				if(pImg != nullptr){		
 					int vidWidth( mMovie.getWidth()), vidHeight(mMovie.getHeight());
@@ -158,8 +158,10 @@ namespace ds {
 
 			try
 			{
-				const int videoWidth = CACHE.getWidth(filename);
-				mMovie.open( filename, true, false, mIsTransparent, videoWidth );
+				int videoWidth(-1), videoHeight(-1);
+				double videoDuration(0.0f);
+				CACHE.getValues(filename, videoWidth, videoHeight, videoDuration);
+				mMovie.open( filename, true, false, mIsTransparent, videoWidth, videoHeight, videoDuration );
 				if(mLooping){
 					mMovie.setLoopMode(LOOP);
 				} else {
@@ -228,9 +230,10 @@ namespace ds {
 			mMovie.pause();
 		}
 
-		void Video::seek( float t )
+		void Video::seek( double t )
 		{
-			mMovie.setTimePositionInMs(t);
+			mMovie.setPosition(t);
+			//mMovie.setTimePositionInMs(t * mMovie.getDurationInMs());
 			//	mMovie.seekToTime(t);
 		}
 
