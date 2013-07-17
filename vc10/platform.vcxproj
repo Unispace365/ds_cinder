@@ -30,6 +30,7 @@
     <ClInclude Include="..\src\ds\app\blob_registry.h" />
     <ClInclude Include="..\src\ds\app\camera_utils.h" />
     <ClInclude Include="..\src\ds\app\engine\engine.h" />
+    <ClInclude Include="..\src\ds\app\engine\engine_cfg.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_client.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_clientserver.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_data.h" />
@@ -51,7 +52,8 @@
     <ClInclude Include="..\src\ds\arc\arc_layer.h" />
     <ClInclude Include="..\src\ds\arc\arc_pow.h" />
     <ClInclude Include="..\src\ds\arc\arc_render_circle.h" />
-    <ClInclude Include="..\src\ds\config\settings.h" />
+    <ClInclude Include="..\src\ds\cfg\cfg_text.h" />
+    <ClInclude Include="..\src\ds\cfg\settings.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
     <ClInclude Include="..\src\ds\data\raw_data_buffer.h" />
@@ -68,6 +70,8 @@
     <ClInclude Include="..\src\ds\network\http_client.h" />
     <ClInclude Include="..\src\ds\network\net_connection.h" />
     <ClInclude Include="..\src\ds\network\node_watcher.h" />
+    <ClInclude Include="..\src\ds\network\tcp_client.h" />
+    <ClInclude Include="..\src\ds\network\tcp_server.h" />
     <ClInclude Include="..\src\ds\network\udp_connection.h" />
     <ClInclude Include="..\src\ds\network\zmq_connection.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
@@ -80,6 +84,7 @@
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
     <ClInclude Include="..\src\ds\query\sql_query_result_builder.h" />
+    <ClInclude Include="..\src\ds\thread\async_queue.h" />
     <ClInclude Include="..\src\ds\thread\gl_thread.h" />
     <ClInclude Include="..\src\ds\thread\parallel_runnable.h" />
     <ClInclude Include="..\src\ds\thread\runnable_client.h" />
@@ -144,6 +149,7 @@
     <ClCompile Include="..\src\ds\app\blob_registry.cpp" />
     <ClCompile Include="..\src\ds\app\camera_utils.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine.cpp" />
+    <ClCompile Include="..\src\ds\app\engine\engine_cfg.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_client.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_clientserver.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_data.cpp" />
@@ -163,7 +169,8 @@
     <ClCompile Include="..\src\ds\arc\arc_layer.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_pow.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp" />
-    <ClCompile Include="..\src\ds\config\settings.cpp" />
+    <ClCompile Include="..\src\ds\cfg\cfg_text.cpp" />
+    <ClCompile Include="..\src\ds\cfg\settings.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />
     <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp" />
@@ -176,6 +183,8 @@
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
     <ClCompile Include="..\src\ds\network\http_client.cpp" />
     <ClCompile Include="..\src\ds\network\node_watcher.cpp" />
+    <ClCompile Include="..\src\ds\network\tcp_client.cpp" />
+    <ClCompile Include="..\src\ds\network\tcp_server.cpp" />
     <ClCompile Include="..\src\ds\network\udp_connection.cpp" />
     <ClCompile Include="..\src\ds\network\zmq_connection.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />

@@ -2,7 +2,7 @@
 #ifndef PRIVATE_PDFSERVICE_H_
 #define PRIVATE_PDFSERVICE_H_
 
-#include <ds/app/engine_service.h>
+#include <ds/app/engine/engine_service.h>
 #include <ds/thread/gl_thread.h>
 
 namespace ds {

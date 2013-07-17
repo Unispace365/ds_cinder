@@ -11,8 +11,8 @@ namespace {
 
 const std::string& getEmptySz()
 {
-  static const std::string EMPTY_SZ("");
-  return EMPTY_SZ;
+	static const std::string EMPTY_SZ("");
+	return EMPTY_SZ;
 }
 
 // Currently, we are requiring lock protection on the event map,
@@ -20,29 +20,46 @@ const std::string& getEmptySz()
 
 static Poco::Mutex& get_register_lock()
 {
-  static Poco::Mutex  REGISTER_LOCK;
-  return REGISTER_LOCK;
+	static Poco::Mutex  REGISTER_LOCK;
+	return REGISTER_LOCK;
 }
 
 static std::unordered_map<int, std::string>& get_events()
 {
-  static std::unordered_map<int, std::string>   EVENTS;
-  return EVENTS;
+	static std::unordered_map<int, std::string>   EVENTS;
+	return EVENTS;
 }
 
-static void register_event(const int what, const std::string& name)
+// Old-style, where clients were supplying the what
+static void register_event_deprecated(const int what, const std::string& name)
 {
-  Poco::Mutex::ScopedLock   l(get_register_lock());
-  auto& e = get_events();
-  if (!e.empty()) {
-    auto f = e.find(what);
-    if (f != e.end()) {
-      DS_DBG_CODE(std::cout << "ERROR Event::registerEvent() ALREADY REGISTERED " << what << " (requested " << name << ", have " << f->second << ")" << std::endl);
-      assert(false);
-      return;
-    }
-  }
-  e[what] = name;
+	Poco::Mutex::ScopedLock   l(get_register_lock());
+	auto& e = get_events();
+	if (!e.empty()) {
+		auto f = e.find(what);
+		if (f != e.end()) {
+			DS_DBG_CODE(std::cout << "ERROR Event::registerEvent() ALREADY REGISTERED " << what << " (requested " << name << ", have " << f->second << ")" << std::endl);
+			assert(false);
+			return;
+		}
+	}
+	e[what] = name;
+}
+
+static int register_event(const std::string& name)
+{
+	Poco::Mutex::ScopedLock		l(get_register_lock());
+	auto&						e = get_events();
+	int							what = e.size() + 1;
+	DS_DBG_CODE(if (!e.empty()) {
+		auto f = e.find(what);
+		if (f != e.end()) {
+			std::cout << "ERROR Event::registerEvent() ALREADY REGISTERED " << what << " (requested " << name << ", have " << f->second << ")" << std::endl;
+			assert(false);
+		}
+	});
+	e[what] = name;
+	return what;
 }
 
 }
@@ -51,12 +68,12 @@ static void register_event(const int what, const std::string& name)
  * \class ds::Event
  */
 Event::Event()
-  : mWhat(0)
+	: mWhat(0)
 {
 }
 
 Event::Event(const int what)
-  : mWhat(what)
+	: mWhat(what)
 {
 }
 
@@ -77,10 +94,15 @@ Event::~Event()
 /**
  * \class ds::EventRegistry
  */
-EventRegistry::EventRegistry(const int what, const std::string& name)
-  : mWhat(what)
+EventRegistry::EventRegistry(const std::string& name)
+	: mWhat(register_event(name))
 {
-  register_event(what, name);
+}
+
+EventRegistry::EventRegistry(const int what, const std::string& name)
+	: mWhat(register_event(name))
+{
+//	register_event(what, name);
 }
 
 } // namespace ds

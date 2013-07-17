@@ -7,7 +7,7 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
-#include "ds/config/settings.h"
+#include "ds/cfg/settings.h"
 #include "Poco/Path.h"
 #include "cinder/Thread.h"
 
@@ -147,6 +147,16 @@ void Engine::addService(const std::string& str, ds::EngineService& service)
 		}
 		mData.mServices[str] = &service;
 	}
+}
+
+void Engine::loadSettings(const std::string& name, const std::string& filename)
+{
+	mData.mEngineCfg.loadSettings(name, filename);
+}
+
+void Engine::loadTextCfg(const std::string& filename)
+{
+	mData.mEngineCfg.loadText(filename);
 }
 
 int Engine::getRootCount() const

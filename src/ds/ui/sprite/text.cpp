@@ -9,7 +9,7 @@
 #include "ds/debug/logger.h"
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
-#include "ds/config/settings.h"
+#include "ds/cfg/settings.h"
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "cinder/Camera.h"

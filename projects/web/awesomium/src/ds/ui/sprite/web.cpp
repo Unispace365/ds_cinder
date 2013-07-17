@@ -34,13 +34,13 @@ namespace ui {
 
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	: Sprite(engine, width, height)
-	, mService(static_cast<ds::web::Service&>(engine.getService("web")))
+	, mService(engine.getService<ds::web::Service>("web"))
 	, mWebViewPtr(nullptr)
 	, mLoadingAngle(0.0f)
 	, mActive(false)
 	, mTransitionTime(0.35f)
 {
-	// Should be unnecessary, but really want to make sure that static gets initialiezd
+	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
 
 	setTransparent(false);

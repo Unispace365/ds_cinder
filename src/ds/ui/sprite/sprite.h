@@ -270,8 +270,9 @@ protected:
 	void				updateCheckBounds() const;
 	bool				checkBounds() const;
 
-	virtual void		onSizeChanged();
+	virtual void		onCenterChanged();
 	virtual void		onScaleChanged();
+	virtual void		onSizeChanged();
 
 	// Always access the bounds via this, which will build them if necessary
 	const ci::Rectf&	getClippingBounds();

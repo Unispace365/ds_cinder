@@ -28,9 +28,6 @@
     <Filter Include="src\ds\thread">
       <UniqueIdentifier>{b4621128-d54d-45b3-9b09-eff83bfa8402}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\config">
-      <UniqueIdentifier>{56cec190-0e30-45b0-b3af-cb6310f5130c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\params">
       <UniqueIdentifier>{211f71c8-e9c1-4fa5-87d6-c67cbf9b0195}</UniqueIdentifier>
     </Filter>
@@ -103,6 +100,9 @@
     <Filter Include="src\ds\app\engine">
       <UniqueIdentifier>{f8585ddc-6731-4e08-8c9b-1fc6e94d0720}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\cfg">
+      <UniqueIdentifier>{5e71772f-c261-47da-9b61-42260e961303}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -161,9 +161,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\util\string_util.h">
       <Filter>src\ds\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\config\settings.h">
-      <Filter>src\ds\config</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\params\draw_params.h">
       <Filter>src\ds\params</Filter>
@@ -456,6 +453,24 @@
     <ClInclude Include="..\src\ds\app\engine\engine_settings.h">
       <Filter>src\ds\app\engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_cfg.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\tcp_client.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\tcp_server.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\async_queue.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\settings.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\cfg_text.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -493,9 +508,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\util\string_util.cpp">
       <Filter>src\ds\util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\config\settings.cpp">
-      <Filter>src\ds\config</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\params\draw_params.cpp">
       <Filter>src\ds\params</Filter>
@@ -736,6 +748,21 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\engine_settings.cpp">
       <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_cfg.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\tcp_client.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\tcp_server.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\settings.cpp">
+      <Filter>src\ds\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\cfg_text.cpp">
+      <Filter>src\ds\cfg</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

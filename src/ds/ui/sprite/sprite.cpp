@@ -357,25 +357,26 @@ void Sprite::setScale( const ci::Vec3f &scale )
 	onScaleChanged();
 }
 
-const ci::Vec3f &Sprite::getScale() const
+const ci::Vec3f& Sprite::getScale() const
 {
-  return mScale;
+	return mScale;
 }
 
 void Sprite::setCenter( float x, float y, float z )
 {
-	mCenter = ci::Vec3f(x, y, z);
+	setCenter(ci::Vec3f(x, y, z));
+}
+
+void Sprite::setCenter(const ci::Vec3f& center)
+{
+	if (mCenter == center) return;
+	
+	mCenter = center;
 	mUpdateTransform = true;
 	mBoundsNeedChecking = true;
 	markAsDirty(CENTER_DIRTY);
 	dimensionalStateChanged();
-}
-
-void Sprite::setCenter( const ci::Vec3f &center )
-{
-	mCenter = center;
-	mUpdateTransform = true;
-	mBoundsNeedChecking = true;
+	onCenterChanged();
 }
 
 const ci::Vec3f &Sprite::getCenter() const
@@ -1455,11 +1456,15 @@ void Sprite::computeClippingBounds()
   }
 }
 
-void Sprite::onSizeChanged()
+void Sprite::onCenterChanged()
 {
 }
 
 void Sprite::onScaleChanged()
+{
+}
+
+void Sprite::onSizeChanged()
 {
 }
 

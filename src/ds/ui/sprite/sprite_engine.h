@@ -11,6 +11,7 @@
 
 namespace ds {
 class AutoUpdateList;
+class EngineCfg;
 class EngineData;
 class EngineService;
 class EventNotifier;
@@ -50,8 +51,14 @@ public:
 	virtual Tweenline&				getTweenline() = 0;
 	virtual const ds::cfg::Settings&
 									getDebugSettings() = 0;
-	// Throws if the service doesn't exist
-	ds::EngineService&				getService(const std::string&);
+	// Access a service. Throw if the service doesn't exist.
+	// Handle casting for you (since the root ds::EngineService class
+	// is unuseable).
+	template <typename T>
+	T&								getService(const std::string&);
+
+	// Access to the current engine configuration info.
+	const ds::EngineCfg&			getEngineCfg() const;
 
 	// Sprite management
 	virtual ds::sprite_id_t			nextSpriteId() = 0;
@@ -104,7 +111,16 @@ protected:
 	std::list<Sprite *>				mDragDestinationSprites;
 
 	std::list<std::unique_ptr<FboGeneral>> mFbos;
+
+private:
+	ds::EngineService&				private_getService(const std::string&);
 };
+
+template <typename T>
+T& SpriteEngine::getService(const std::string& str)
+{
+	return dynamic_cast<T&>(private_getService(str));
+}
 
 } // namespace ui
 

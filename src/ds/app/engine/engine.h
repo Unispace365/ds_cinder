@@ -17,7 +17,7 @@
 #include "TuioClient.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
-#include "ds/config/settings.h"
+#include "ds/cfg/settings.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/tween/tweenline.h"
@@ -60,6 +60,15 @@ class Engine : public ui::SpriteEngine {
                                &getDebugSettings() { return mDebugSettings; }
 	// I take ownership of any services added to me.
 	void						addService(const std::string&, ds::EngineService&);
+	// Convenice to load a setting file into the mEngineCfg settings.
+	// @param name is the name that the system will use to refer to the settings.
+	// @param filename is the leaf path of the settings file (i.e. "data.xml").
+	// It will be loaded from all appropriate locations.
+	void						loadSettings(const std::string& name, const std::string& filename);
+	// Convenice to load a text cfg file into a collection of cfg objects.
+	// @param filename is the leaf path of the settings file (i.e. "text.xml").
+	// It will be loaded from all appropriate locations.
+	void						loadTextCfg(const std::string& filename);
 
     // only valid after setup() is called
 		int													getRootCount() const;
@@ -163,14 +172,7 @@ private:
     // Clients that will get update() called automatically at the start
     // of each update cycle
     AutoUpdateList              mAutoUpdate;
-#if 0
-    float                       mMinTouchDistance;
-    float                       mMinTapDistance;
-    int                         mSwipeQueueSize;
-    float                       mDoubleTapTime;
-    ci::Rectf                   mScreenRect;
-    ci::Vec2f                   mWorldSize;
-#endif
+
     const ds::cfg::Settings    &mSettings;
     ds::cfg::Settings           mDebugSettings;
     ci::CameraOrtho             mCamera;

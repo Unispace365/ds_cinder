@@ -28,11 +28,9 @@ ds::EventNotifier& SpriteEngine::getNotifier()
 	return mData.mNotifier;
 }
 
-ds::EngineService& SpriteEngine::getService(const std::string& str)
+const ds::EngineCfg& SpriteEngine::getEngineCfg() const
 {
-	ds::EngineService*	s = mData.mServices[str];
-	if (!s) throw std::runtime_error("Service does not exist");
-	return *s;
+	return mData.mEngineCfg;
 }
 
 float SpriteEngine::getMinTouchDistance() const
@@ -145,7 +143,13 @@ double SpriteEngine::getElapsedTimeSeconds() const
 
 void SpriteEngine::clearFingers( const std::vector<int> &fingers )
 {
+}
 
+ds::EngineService& SpriteEngine::private_getService(const std::string& str)
+{
+	ds::EngineService*	s = mData.mServices[str];
+	if (!s) throw std::runtime_error("Service does not exist");
+	return *s;
 }
 
 } // namespace ui
