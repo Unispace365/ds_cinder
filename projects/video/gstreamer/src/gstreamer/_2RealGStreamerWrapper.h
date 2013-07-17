@@ -696,7 +696,8 @@ namespace _2RealGStreamerWrapper
 		GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 
 		int						mNumberOfLoops;
-		bool					mJustLooped;
+		int						mFramesSinceLoop;
+		//bool					mJustLooped;
 
 #ifdef THREADED_MESSAGE_HANDLER
 		friend					void threadedMessageHandler(GStreamerWrapper* obj); /* need for accessing private stuff in the threaded global function */

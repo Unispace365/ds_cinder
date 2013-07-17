@@ -183,7 +183,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	m_LoopMode = LOOP;
 	m_strFilename = strFilename;
 
-	mJustLooped = false;
+	mFramesSinceLoop = 0;
 
 	if( m_bFileIsOpen )
 	{
@@ -415,9 +415,7 @@ void GStreamerWrapper::update()
 	handleGStMessage();
 #endif
 
-	if(mJustLooped){
-		mJustLooped = false;
-	}
+	mFramesSinceLoop++;
 }
 
 void GStreamerWrapper::play()
@@ -923,15 +921,15 @@ void GStreamerWrapper::handleGStMessage()
 							break;
 
 						case LOOP:
-							if(mJustLooped){
+							if(mFramesSinceLoop < 10){
 								DS_LOG_WARNING("Looped twice before update! I think this might be the trubs! Trying to restart!");
 								close();
 								open(m_strFilename, true, false, true);
 								play();
-								mJustLooped = false;
+								mFramesSinceLoop = 0;
 							} else {
 								mNumberOfLoops++;
-								mJustLooped = true;
+								mFramesSinceLoop = 0;
 								//DS_LOG_INFO("Gstreamer Wrapper looping, number of loops: "<< mNumberOfLoops);
 								pause();
 								setPosition(0.0f);
@@ -1020,6 +1018,9 @@ void GStreamerWrapper::newVideoSinkPrerollCallback( GstBuffer* videoSinkBuffer )
 
 	// Copy the video appsink buffer data to our unsigned char array
 	memcpy( (unsigned char *)m_cVideoBuffer, (unsigned char *)GST_BUFFER_DATA( videoSinkBuffer ), GST_BUFFER_SIZE( videoSinkBuffer ) );
+	if(m_cVideoBuffer[0] == 255){
+		std::cout << "WHITE!" << std::endl;
+	}
 }
 
 void GStreamerWrapper::newVideoSinkBufferCallback( GstBuffer* videoSinkBuffer )
@@ -1028,6 +1029,9 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstBuffer* videoSinkBuffer )
 
 	// Copy the video appsink buffer data to our unsigned char array
 	memcpy( (unsigned char *)m_cVideoBuffer, (unsigned char *)GST_BUFFER_DATA( videoSinkBuffer ), GST_BUFFER_SIZE( videoSinkBuffer ) );
+	if(m_cVideoBuffer[0] == 255){
+		DS_LOG_WARNING("White frame detected");
+	}
 }
 
 void GStreamerWrapper::videoEosCallback()
