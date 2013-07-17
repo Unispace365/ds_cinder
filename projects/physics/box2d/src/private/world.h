@@ -38,7 +38,9 @@ public:
 	float							getAngularDampening() const;
 	bool							getFixedRotation() const;
 
-	void							setCollisionCallback(const ds::ui::Sprite&, const std::function<void(void)>& fn);
+	void							setCollisionCallback(const ds::ui::Sprite&, const std::function<void(const Collision&)>& fn);
+	// Fill out the collision object, if it applies to me, otherwise return false
+	bool							makeCollision(const b2Fixture&, Collision&) const;
 
 protected:
 	virtual void					update(const ds::UpdateParams&);

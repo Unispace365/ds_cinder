@@ -1,5 +1,8 @@
 #include "private/contact_listener.h"
 
+#include <ds/ui/sprite/sprite.h>
+#include "ds/physics/collision.h"
+#include "private/world.h"
 #include "Box2D/Dynamics/Contacts/b2Contact.h"
 
 namespace ds {
@@ -8,18 +11,23 @@ namespace physics {
 /**
  * \class ds::physics::ContactListener
  */
-ContactListener::ContactListener()
+ContactListener::ContactListener(World& w)
+	: mWorld(w)
 {
 }
 
-void ContactListener::BeginContact(b2Contact* c)
+void ContactListener::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 {
-	if (!c) return;
-	collide(c->GetFixtureA());
-	collide(c->GetFixtureB());
+	if (!contact || !impulse) return;
+
+	try {
+		collide(contact->GetFixtureA(), contact->GetFixtureB(), *impulse);
+		collide(contact->GetFixtureB(), contact->GetFixtureA(), *impulse);
+	} catch (std::exception const&) {
+	}
 }
 
-void ContactListener::setCollisionCallback(const ds::ui::Sprite& s, const std::function<void(void)>& fn)
+void ContactListener::setCollisionCallback(const ds::ui::Sprite& s, const std::function<void(const Collision&)>& fn)
 {
 	// Store a list of all sprites that need to be reported.
 	// The alternative is to directly report to the sprite here,
@@ -49,21 +57,41 @@ void ContactListener::report()
 	}
 
 	for (auto it=mReport.begin(), end=mReport.end(); it!=end; ++it) {
-		auto found = mRegistered.find(*it);
+		auto found = mRegistered.find(it->mSprite);
 		if (found != mRegistered.end() && found->second) {
-			found->second();
+			Collision		c;
+			c.mForce = it->mForce;
+			makeCollision(*it, c);
+			found->second(c);
 		}
 	}
 	mReport.clear();
 }
 
-void ContactListener::collide(const b2Fixture* fix)
+void ContactListener::collide(const b2Fixture* a, const b2Fixture* b, const b2ContactImpulse& impulse)
 {
-	const b2Body*			b = (fix ? fix->GetBody() : nullptr);
-	const ds::ui::Sprite*	sprite = reinterpret_cast<ds::ui::Sprite*>(b ? b->GetUserData() : nullptr);
-	if (sprite) {
-		mReport.insert(sprite);
-	}
+	if (!a || !b) return;
+
+	// A is considered to be my sprite object, b is what I'm colliding with.
+	const b2Body*			body = a->GetBody();
+	const ds::ui::Sprite*	sprite = reinterpret_cast<ds::ui::Sprite*>(body ? body->GetUserData() : nullptr);
+	if (!sprite) return;
+
+	mReport.insert(ContactKey(sprite, b, impulse.normalImpulses[0]));
+}
+
+void ContactListener::makeCollision(const ContactKey& key, Collision& collision) const
+{
+	// I *think* the sprite in the key can be ignored, because technically it should
+	// always be the object receiving the callback (although I bet I have some details
+	// to work out when it comes to sprites colliding with each other).
+	// That means it's the fixture I care about.
+	if (!key.mFixture) return;
+	if (mWorld.makeCollision(*key.mFixture, collision)) return;
+
+	const b2Body*			b = key.mFixture->GetBody();
+	ds::ui::Sprite*			sprite = reinterpret_cast<ds::ui::Sprite*>(b ? b->GetUserData() : nullptr);
+	if (sprite) collision.setToSprite(sprite->getId());
 }
 
 } // namespace physics

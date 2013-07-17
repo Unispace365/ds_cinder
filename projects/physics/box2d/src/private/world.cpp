@@ -5,6 +5,7 @@
 #include <ds/app/engine/engine.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite.h>
+#include <ds/physics/collision.h>
 #include <ds/physics/sprite_body.h>
 #include "Box2D/Collision/Shapes/b2EdgeShape.h"
 #include "Box2D/Dynamics/b2Body.h"
@@ -17,6 +18,18 @@ namespace physics {
 
 const ds::BitMask			PHYSICS_LOG = ds::Logger::newModule("physics");
 
+namespace {
+// All this just to keep track of the bound edges
+int							BOUNDS_LEFT = 1;
+int							BOUNDS_TOP = 2;
+int							BOUNDS_RIGHT = 3;
+int							BOUNDS_BOTTOM = 4;
+void*						BOUNDS_LEFT_PTR = reinterpret_cast<void*>(&BOUNDS_LEFT);
+void*						BOUNDS_TOP_PTR = reinterpret_cast<void*>(&BOUNDS_TOP);
+void*						BOUNDS_RIGHT_PTR = reinterpret_cast<void*>(&BOUNDS_RIGHT);
+void*						BOUNDS_BOTTOM_PTR = reinterpret_cast<void*>(&BOUNDS_BOTTOM);
+}
+
 // NOTE: Ideally we'd initialize the World as an Engine service in a static here.
 // However, because I'm in a library statically linked to the main application, that
 // initialization will get tossed, so it has to happen from a class that the app
@@ -27,6 +40,7 @@ const ds::BitMask			PHYSICS_LOG = ds::Logger::newModule("physics");
  */
 World::World(ds::ui::SpriteEngine& e)
 	: ds::AutoUpdate(e)
+	, mContactListener(*this)
 	, mContactListenerRegistered(false)
 	, mGround(nullptr)
 	, mBounds(nullptr)
@@ -103,13 +117,27 @@ bool World::getFixedRotation() const
 	return mFixedRotation;
 }
 
-void World::setCollisionCallback(const ds::ui::Sprite& s, const std::function<void(void)>& fn)
+void World::setCollisionCallback(const ds::ui::Sprite& s, const std::function<void(const Collision&)>& fn)
 {
 	mContactListener.setCollisionCallback(s, fn);
 	if (!mContactListenerRegistered) {
 		mContactListenerRegistered = true;
 		mWorld->SetContactListener(&mContactListener);
 	}
+}
+
+bool World::makeCollision(const b2Fixture& fix, Collision& c) const
+{
+	if (!mBounds) return false;
+	if (fix.GetBody() != mBounds) return false;
+
+	if (fix.GetUserData() == BOUNDS_LEFT_PTR) c.setToWorldBounds(Collision::LEFT);
+	else if (fix.GetUserData() == BOUNDS_TOP_PTR) c.setToWorldBounds(Collision::TOP);
+	else if (fix.GetUserData() == BOUNDS_RIGHT_PTR) c.setToWorldBounds(Collision::RIGHT);
+	else if (fix.GetUserData() == BOUNDS_BOTTOM_PTR) c.setToWorldBounds(Collision::BOTTOM);
+	else return false;
+
+	return true;
 }
 
 void World::update(const ds::UpdateParams& p)
@@ -202,18 +230,22 @@ void World::setBounds(const ci::Rectf& f, const float restitution)
 	// left
 	shape.Set(	Ci2BoxTranslation(ci::Vec3f(f.x1, f.y1, 0.0f)),
 				Ci2BoxTranslation(ci::Vec3f(f.x1, f.y2, 0.0f)));
+	fixtureDef.userData = BOUNDS_LEFT_PTR;
 	mBounds->CreateFixture(&fixtureDef);
 	// top
 	shape.Set(	Ci2BoxTranslation(ci::Vec3f(f.x1, f.y1, 0.0f)),
 				Ci2BoxTranslation(ci::Vec3f(f.x2, f.y1, 0.0f)));
+	fixtureDef.userData = BOUNDS_TOP_PTR;
 	mBounds->CreateFixture(&fixtureDef);
 	// right
 	shape.Set(	Ci2BoxTranslation(ci::Vec3f(f.x2, f.y1, 0.0f)),
 				Ci2BoxTranslation(ci::Vec3f(f.x2, f.y2, 0.0f)));
+	fixtureDef.userData = BOUNDS_RIGHT_PTR;
 	mBounds->CreateFixture(&fixtureDef);
 	// bottom
 	shape.Set(	Ci2BoxTranslation(ci::Vec3f(f.x1, f.y2, 0.0f)),
 				Ci2BoxTranslation(ci::Vec3f(f.x2, f.y2, 0.0f)));
+	fixtureDef.userData = BOUNDS_BOTTOM_PTR;
 	mBounds->CreateFixture(&fixtureDef);
 }
 

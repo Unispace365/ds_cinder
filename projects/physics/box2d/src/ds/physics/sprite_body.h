@@ -15,6 +15,7 @@ struct TouchInfo;
 
 namespace physics {
 class BodyBuilder;
+class Collision;
 class World;
 
 /**
@@ -39,7 +40,7 @@ public:
 	void					setRotation(const float degree);
 	// Set a collision callback, called whenever this body
 	// collides with another physics object.
-	void					setCollisionCallback(const std::function<void(void)>& fn);
+	void					setCollisionCallback(const std::function<void(const Collision&)>& fn);
 
 	// The sprite owner is resonsible for telling me when the
 	// center changes. (Only necessary if the fixture is a box).

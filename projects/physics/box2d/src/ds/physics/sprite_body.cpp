@@ -99,9 +99,14 @@ void SpriteBody::setRotation(const float degree)
 
 	const float		angle = degree * ds::math::DEGREE2RADIAN;
 	mBody->SetTransform(mBody->GetPosition(), angle);
+	if (!mBody->IsAwake()) {
+		// You'd think setting the transform would wake up the body,
+		// but nope.
+		mBody->SetAwake(true);
+	}
 }
 
-void SpriteBody::setCollisionCallback(const std::function<void(void)>& fn)
+void SpriteBody::setCollisionCallback(const std::function<void(const Collision&)>& fn)
 {
 	mWorld.setCollisionCallback(mSprite, fn);
 }

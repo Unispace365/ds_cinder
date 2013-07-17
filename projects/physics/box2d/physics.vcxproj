@@ -12,13 +12,17 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\physics\body_builder.h" />
+    <ClInclude Include="src\ds\physics\collision.h" />
     <ClInclude Include="src\ds\physics\sprite_body.h" />
+    <ClInclude Include="src\private\contact_key.h" />
     <ClInclude Include="src\private\contact_listener.h" />
     <ClInclude Include="src\private\world.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\physics\body_builder.cpp" />
+    <ClCompile Include="src\ds\physics\collision.cpp" />
     <ClCompile Include="src\ds\physics\sprite_body.cpp" />
+    <ClCompile Include="src\private\contact_key.cpp" />
     <ClCompile Include="src\private\contact_listener.cpp" />
     <ClCompile Include="src\private\world.cpp" />
   </ItemGroup>
