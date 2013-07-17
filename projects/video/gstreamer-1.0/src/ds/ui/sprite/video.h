@@ -56,6 +56,14 @@ namespace ds {
 
 			void				setVideoCompleteCallback(const std::function<void(Video* video)> &func);
 
+			// If true, will play the video as soon as it's loaded.
+			void				setAutoStart(const bool doAutoStart);
+
+			// Set's the video to play, then stops the video after that frame has played.
+			void				playAFrame();
+			// If a video is looping, will stop the video when the current loop completes.
+			void				stopAfterNextLoop();
+
 		private:
 			typedef Sprite inherited;
 
@@ -79,6 +87,9 @@ namespace ds {
 
 			Status              mStatus;
 			bool                mStatusDirty;
+
+			bool				mPlaySingleFrame;
+		
 			std::function<void(const Status&)>
 				mStatusFn;
 

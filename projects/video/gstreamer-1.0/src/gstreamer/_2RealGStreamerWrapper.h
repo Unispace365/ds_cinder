@@ -509,6 +509,17 @@ namespace _2RealGStreamerWrapper
 
 		void					setVideoCompleteCallback(const std::function<void(GStreamerWrapper* video)> &func);
 
+		/*
+		 *	Set the pipeline to play as soon as the video is loaded.
+		 */
+		void					setStartPlaying(const bool startPlaying){ m_StartPlaying = startPlaying; }
+
+		/*
+		 * Stop the pipeline at the end of the current loop (if looping) or on End of Stream.
+		 * This is a single shot, so as soon as the video get's stopped, it can be looped again.
+		 */
+		void					stopOnLoopComplete(){ m_StopOnLoopComplete = true; };
+
 
 	private:
 
@@ -695,8 +706,8 @@ namespace _2RealGStreamerWrapper
 		GstAppSinkCallbacks		m_GstVideoSinkCallbacks; /* Stores references to the callback methods for video preroll, new video buffer and video eos */
 		GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 
-		int						mNumberOfLoops;
-		bool					mJustLooped;
+		bool					m_StartPlaying;/* Play the video as soon as it's loaded */
+		bool					m_StopOnLoopComplete; /* Set the pipeline to NULL_STATE (Stopped) on the end of the current loop or on EOS */
 
 #ifdef THREADED_MESSAGE_HANDLER
 		friend					void threadedMessageHandler(GStreamerWrapper* obj); /* need for accessing private stuff in the threaded global function */

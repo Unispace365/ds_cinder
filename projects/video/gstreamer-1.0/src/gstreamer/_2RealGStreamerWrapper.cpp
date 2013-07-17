@@ -129,7 +129,9 @@ GStreamerWrapper::GStreamerWrapper() :
 	m_GstPipeline( NULL ),
 	m_GstVideoSink( NULL ),
 	m_GstAudioSink( NULL ),
-	m_GstBus( NULL )
+	m_GstBus( NULL ),
+	m_StartPlaying(true),
+	m_StopOnLoopComplete(false)
 {//
 	static bool initialized(false);
 	//if(!initialized){
@@ -163,7 +165,6 @@ GStreamerWrapper::~GStreamerWrapper()
 bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer, bool bGenerateAudioBuffer, bool isTransparent, int videoWidth, int videoHeight)
 {
 	// init property variables
-	mNumberOfLoops = 0;
 	m_iNumVideoStreams = 0;
 	m_iNumAudioStreams = 0;
 	m_iCurrentVideoStream = 0;
@@ -190,8 +191,6 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	m_LoopMode = LOOP;
 	m_strFilename = strFilename;
 
-	mJustLooped = false;
-
 	if( m_bFileIsOpen )
 	{
 		stop();
@@ -202,6 +201,11 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		m_MsgHandlingThread = boost::thread( boost::bind(threadedMessageHandler, this));
 #endif
 
+	if(videoWidth % 4 != 0){
+		videoWidth += 4 - videoWidth % 4;
+	}
+
+	m_iWidth = videoWidth;
 
 	if(isTransparent){
 		m_cVideoBuffer = new unsigned char[8 * 4 * videoWidth * videoHeight];
@@ -253,10 +257,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 			//"blue_mask",G_TYPE_INT,0x0000ff00,
 			//"alpha_mask",G_TYPE_INT,0x000000ff,
 			NULL );
-		} else if(videoWidth > 0) {
-			if(videoWidth % 4 != 0){
-				videoWidth += 4 - videoWidth % 4;
-			}
+		} else  {
 			caps= gst_caps_new_simple( "video/x-raw",
 				"format", G_TYPE_STRING, "RGB",
 				"pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
@@ -269,18 +270,6 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 			//	"green_mask",G_TYPE_INT,0x00ff00,
 			//	"blue_mask",G_TYPE_INT,0x0000ff,
 				NULL );
-		} else {
-			caps= gst_caps_new_simple( "video/x-raw",
-				"format", G_TYPE_STRING, "RGB",
-				"width", G_TYPE_INT, videoWidth,
-				"height", G_TYPE_INT, videoHeight,
-				//"bpp", G_TYPE_INT, 24,
-				//"depth", G_TYPE_INT, 24,
-				//"endianness",G_TYPE_INT,4321,
-				//"red_mask",G_TYPE_INT,0xff0000,
-				//"green_mask",G_TYPE_INT,0x00ff00,
-				//"blue_mask",G_TYPE_INT,0x0000ff,
-				NULL );
 		}
 
 
@@ -290,7 +279,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		// Set the configured video appsink to the main pipeline
 		g_object_set( m_GstPipeline, "video-sink", m_GstVideoSink, (void*)NULL );
 		// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-		g_object_set( m_GstVideoSink, "emit-signals", false, "sync", true, (void*)NULL );
+		g_object_set( m_GstVideoSink, "emit-signals", false, "sync", true, "async", false, (void*)NULL );
 
 		// Set Video Sink callback methods
 		m_GstVideoSinkCallbacks.eos = &GStreamerWrapper::onEosFromVideoSource;
@@ -348,7 +337,9 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		gst_element_get_state( m_GstPipeline, &state, NULL, 20 * GST_SECOND );
 		m_CurrentPlayState = OPENED;
 
-		gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+		if(m_StartPlaying){
+			gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+		}
 	}
 
 	// Retrieve and store all relevant Media Information
@@ -374,8 +365,6 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 void GStreamerWrapper::close()
 {
 
-	return; // just for now ok?
-
 	m_bFileIsOpen = false;
 	m_CurrentPlayState = NOT_INITIALIZED;
 
@@ -385,23 +374,26 @@ void GStreamerWrapper::close()
 	g_main_loop_quit(m_GMainLoop);
 	m_MsgHandlingThread.join();
 #endif
+	stop();
+
+	//if ( m_GstVideoSink != NULL )
+	//{
+	//	gst_object_unref( m_GstVideoSink );
+	//	m_GstVideoSink = NULL;
+	//}
+
+	//if ( m_GstAudioSink != NULL )
+	//{
+	//	gst_object_unref( m_GstAudioSink );
+	//	m_GstAudioSink = NULL;
+	//}
 
 	if ( m_GstPipeline != NULL )
 	{
-		gst_element_set_state( m_GstPipeline, GST_STATE_NULL );
+		//gst_element_set_state( m_GstPipeline, GST_STATE_NULL );
 		gst_object_unref( m_GstPipeline );
 		m_GstPipeline = NULL;
-	}
-
-	if ( m_GstVideoSink != NULL )
-	{
-		gst_object_unref( m_GstVideoSink );
 		m_GstVideoSink = NULL;
-	}
-
-	if ( m_GstAudioSink != NULL )
-	{
-		gst_object_unref( m_GstAudioSink );
 		m_GstAudioSink = NULL;
 	}
 
@@ -423,10 +415,6 @@ void GStreamerWrapper::update()
 #ifndef THREADED_MESSAGE_HANDLER
 	handleGStMessage();
 #endif
-
-	if(mJustLooped){
-		mJustLooped = false;
-	}
 
 	if(m_GstVideoSink && m_CurrentPlayState == PLAYING){
 
@@ -460,10 +448,10 @@ void GStreamerWrapper::stop()
 		// Stop in this context now means a full clearing of the buffers in gstreamer
 		gst_element_set_state( m_GstPipeline, GST_STATE_NULL );
 
-		if ( m_PlayDirection == FORWARD )
-			seekFrame( 0 );
-		else if ( m_PlayDirection == BACKWARD )
-			seekFrame( m_iDurationInNs );
+		//if ( m_PlayDirection == FORWARD )
+		//	seekFrame( 0 );
+		//else if ( m_PlayDirection == BACKWARD )
+		//	seekFrame( m_iDurationInNs );
 
 		m_CurrentPlayState = STOPPED;
 	}
@@ -882,11 +870,11 @@ void GStreamerWrapper::retrieveVideoInfo()
 	}
 
 	////////////////////////////////////////////////////////////////////////// Video Data
-	if ( m_iNumVideoStreams > 0 )
-	{
-		GstPad* gstPad = gst_element_get_static_pad( m_GstVideoSink, "sink" );
-		if ( gstPad )
-		{
+	//if ( m_iNumVideoStreams > 0 )
+	//{
+		//GstPad* gstPad = gst_element_get_static_pad( m_GstVideoSink, "sink" );
+		//if ( gstPad )
+		//{
 			
 			//const GstCaps* caps = gst_pad_get_allowed_caps(gstPad);
 			//gboolean isFixed = gst_caps_is_fixed(caps);
@@ -932,12 +920,12 @@ void GStreamerWrapper::retrieveVideoInfo()
 
 
 			//gst_object_unref( gstPad );
-		}
+		//}
 
-		if(m_iWidth < 1 || m_iHeight < 1){
-			DS_LOG_WARNING( "Error finding the size of the video!" );
-		}
-	}
+		//if(m_iWidth < 1 || m_iHeight < 1){
+		//	DS_LOG_WARNING( "Error finding the size of the video!" );
+		//}
+	//}
 }
 
 void GStreamerWrapper::handleGStMessage()
@@ -969,28 +957,28 @@ void GStreamerWrapper::handleGStMessage()
 					break;
 				case GST_MESSAGE_STATE_CHANGED:{
 					//retrieveVideoInfo();
-					GstState oldState;
-					GstState newState;
-					GstState pendingState;
-					gst_message_parse_state_changed(m_GstMessage, &oldState, &newState, &pendingState);
+					//GstState oldState;
+					//GstState newState;
+					//GstState pendingState;
+					//gst_message_parse_state_changed(m_GstMessage, &oldState, &newState, &pendingState);
 					//std::cout << "State changed: " << oldState << " " << newState << " " << pendingState << std::endl;
 
-					if(newState == GST_STATE_PLAYING){
-						GstPad* gstPad = gst_element_get_static_pad( m_GstVideoSink, "sink" );
-						if ( gstPad )
-						{
-						const GstCaps* caps = gst_pad_get_allowed_caps(gstPad);
-						gboolean isFixed = gst_caps_is_fixed(caps);
-					//	std::cout << "Is fixed caps: " << isFixed << std::endl;
-						const GstStructure *str;
-						gint widthy, heighty;
-						str = gst_caps_get_structure (caps, 0);
-						if (!gst_structure_get_int (str, "width", &widthy) ||
-						!gst_structure_get_int (str, "height", &heighty)) {
-						//std::cout << "No width/height available" << std::endl;
-						}
-						}
-					}
+					//if(newState == GST_STATE_PLAYING){
+					//	GstPad* gstPad = gst_element_get_static_pad( m_GstVideoSink, "sink" );
+					//	if ( gstPad )
+					//	{
+					//	const GstCaps* caps = gst_pad_get_allowed_caps(gstPad);
+					//	gboolean isFixed = gst_caps_is_fixed(caps);
+					////	std::cout << "Is fixed caps: " << isFixed << std::endl;
+					//	const GstStructure *str;
+					//	gint widthy, heighty;
+					//	str = gst_caps_get_structure (caps, 0);
+					//	if (!gst_structure_get_int (str, "width", &widthy) ||
+					//	!gst_structure_get_int (str, "height", &heighty)) {
+					//	//std::cout << "No width/height available" << std::endl;
+					//	}
+					//	}
+					//}
 
 											  }
 
@@ -998,20 +986,20 @@ void GStreamerWrapper::handleGStMessage()
 				break;
 
 				case GST_MESSAGE_ASYNC_DONE :{
-					GstPad* gstPad = gst_element_get_static_pad( m_GstVideoSink, "sink" );
-					if ( gstPad )
-					{
-						const GstCaps* caps = gst_pad_get_allowed_caps(gstPad);
-						gboolean isFixed = gst_caps_is_fixed(caps);
-						//std::cout << "Is fixed caps: " << isFixed << std::endl;
-						const GstStructure *str;
-						gint widthy, heighty;
-						str = gst_caps_get_structure (caps, 0);
-						if (!gst_structure_get_int (str, "width", &widthy) ||
-							!gst_structure_get_int (str, "height", &heighty)) {
-						//		std::cout << "No width/height available" << std::endl;
-						}
-					}
+					//GstPad* gstPad = gst_element_get_static_pad( m_GstVideoSink, "sink" );
+					//if ( gstPad )
+					//{
+					//	const GstCaps* caps = gst_pad_get_allowed_caps(gstPad);
+					//	gboolean isFixed = gst_caps_is_fixed(caps);
+					//	//std::cout << "Is fixed caps: " << isFixed << std::endl;
+					//	const GstStructure *str;
+					//	gint widthy, heighty;
+					//	str = gst_caps_get_structure (caps, 0);
+					//	if (!gst_structure_get_int (str, "width", &widthy) ||
+					//		!gst_structure_get_int (str, "height", &heighty)) {
+					//	//		std::cout << "No width/height available" << std::endl;
+					//	}
+					//}
 				}
 				break;
 
@@ -1023,16 +1011,21 @@ void GStreamerWrapper::handleGStMessage()
 
 				case GST_MESSAGE_SEGMENT_DONE : {
 
-					gst_element_seek( GST_ELEMENT( m_GstPipeline ),
-						m_fSpeed,
-						GST_FORMAT_TIME,
-						GST_SEEK_FLAG_SEGMENT,
-						GST_SEEK_TYPE_SET,
-						0,
-						GST_SEEK_TYPE_SET,
-						m_iDurationInNs );
+					if(m_StopOnLoopComplete){
+						stop();
+						m_StopOnLoopComplete = false;
+					} else {
+						gst_element_seek( GST_ELEMENT( m_GstPipeline ),
+							m_fSpeed,
+							GST_FORMAT_TIME,
+							GST_SEEK_FLAG_SEGMENT,
+							GST_SEEK_TYPE_SET,
+							0,
+							GST_SEEK_TYPE_SET,
+							m_iDurationInNs );
 
-												}
+					}
+					}
 												break;
 				case GST_MESSAGE_EOS:
 					switch ( m_LoopMode )
@@ -1058,7 +1051,10 @@ void GStreamerWrapper::handleGStMessage()
 								//stop();
 							//	play();
 							//}
-								
+							if(m_StopOnLoopComplete){
+								stop();
+								m_StopOnLoopComplete = false;
+							} else {
 								gst_element_seek( GST_ELEMENT( m_GstPipeline ),
 									m_fSpeed,
 									GST_FORMAT_TIME,
@@ -1068,6 +1064,7 @@ void GStreamerWrapper::handleGStMessage()
 									GST_SEEK_TYPE_SET,
 									m_iDurationInNs );
 								play();
+							}
 							break;
 
 

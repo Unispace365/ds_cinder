@@ -40,6 +40,7 @@ namespace ds {
 			, mStatusDirty(false)
 			, mStatusFn(nullptr)
 			, mIsTransparent(true)
+			, mPlaySingleFrame(false)
 		{
 			setUseShaderTextuer(true);
 			setTransparent(false);
@@ -93,7 +94,14 @@ namespace ds {
 					} else {
 						mFrameTexture = gl::Texture(pImg, GL_RGB, vidWidth, vidHeight);
 					}
-				// 	DS_LOG_INFO("New video frame, texture id: " <<mFrameTexture.getId());
+					// 	DS_LOG_INFO("New video frame, texture id: " <<mFrameTexture.getId());
+
+
+					DS_REPORT_GL_ERRORS();
+				}
+				if(mPlaySingleFrame){
+					stop();
+					mPlaySingleFrame = false;
 				}
 			}
 
@@ -119,8 +127,10 @@ namespace ds {
 					} else {
 						gl::clear(ci::Color(0.0f, 0.0f, 0.0f));
 					}
+					DS_REPORT_GL_ERRORS();
 
 					ci::gl::draw(mFrameTexture);
+					DS_REPORT_GL_ERRORS();
 
 					glPopAttrib();
 
@@ -332,6 +342,24 @@ namespace ds {
 				mVideoCompleteCallback(this);
 			}
 		}
+
+		void Video::setAutoStart( const bool doAutoStart ){
+			mMovie.setStartPlaying(doAutoStart);
+		}
+
+		void Video::playAFrame(){
+			mPlaySingleFrame = true;
+			if(!isPlaying()){
+				play();
+			}
+		}
+
+		void Video::stopAfterNextLoop(){
+			mMovie.stopOnLoopComplete();
+		}
+
+
+
 
 
 
