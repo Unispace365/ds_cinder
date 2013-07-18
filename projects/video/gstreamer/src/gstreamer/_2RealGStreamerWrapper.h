@@ -83,6 +83,15 @@ namespace _2RealGStreamerWrapper
 		STOPPED
 	};
 
+
+	enum GstPlayState
+	{
+		STATE_NULL,
+		STATE_READY,
+		STATE_PAUSED,
+		STATE_PLAYING
+	};
+
 	/*
 		enum PlayDirection
 
@@ -109,7 +118,7 @@ namespace _2RealGStreamerWrapper
 		BIDIRECTIONAL_LOOP
 	};
 
-	/*
+	/* DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED 
 		enum ContentType
 
 		Enumeration to describe what kind of file has been loaded, which is important to know which buffers (video / audio) contain information or not
@@ -117,12 +126,12 @@ namespace _2RealGStreamerWrapper
 		VIDEO --> loaded file contains at least one video stream but no audio streams
 		AUDIO --> loaded file contains at least one audio stream but no video streams
 	*/
-	enum ContentType
-	{
-		VIDEO_AND_AUDIO,
-		VIDEO,
-		AUDIO
-	};
+	//enum ContentType
+	//{
+	//	VIDEO_AND_AUDIO,
+	//	VIDEO,
+	//	AUDIO
+	//};DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED 
 
 	/*
 		enum Endianness
@@ -203,7 +212,7 @@ namespace _2RealGStreamerWrapper
 			@ 
 			@ videoWidth: Only applies to non-transparent videos! If greater than 0, this will enforce mod-4 widths for the video for the gstreamer capabilities, making some codecs play correctly for non-divisible-by-4 video widths
 		*/
-		bool					open( std::string strFilename, bool bGenerateVideoBuffer = true, bool bGenerateAudioBuffer = true, bool isTransparent = true, int videoWidth = -1.0f);
+		bool					open( std::string strFilename, bool bGenerateVideoBuffer = true, bool bGenerateAudioBuffer = true, bool isTransparent = true, int videoWidth = -1, int videoHeight = -1, double duration_inMs = -1.0f);
 
 		/*
 			Closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
@@ -326,15 +335,15 @@ namespace _2RealGStreamerWrapper
 		void					setPosition( float fPos );
 
 
-		/*
+		/* DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED 
 			Returns true if the loaded media file contains at least one video stream, false otherwise
 		*/
-		bool					hasVideo();
+		//bool					hasVideo();
 
-		/*
+		/*DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED 
 			Returns true if the loaded media file contains at least one audio stream, false otherwise
 		*/
-		bool					hasAudio();
+		//bool					hasAudio();
 
 		/*
 			Returns the URI of the currently opened media. If no file has been opened yet an empty string is returned
@@ -444,10 +453,10 @@ namespace _2RealGStreamerWrapper
 		*/
 		LoopMode				getLoopMode();
 
-		/*
+		/*DISABLED DISABLED DISABLED DISABLED DISABLED DISABLED 
 			Returns type of content of the loaded media file
 		*/
-		ContentType				getContentType();
+		//ContentType				getContentType();
 
 		////////////////////////////////////////////////////////////////////////// AUDIO
 
@@ -530,7 +539,7 @@ namespace _2RealGStreamerWrapper
 		/*
 			Retrieves all needed media information such as duration, video size and frame rate
 		*/
-		void					retrieveVideoInfo();
+		bool					retrieveVideoInfo();
 
 
 		////////////////////////////////////////////////////////////////////////// GSTREAMER
@@ -678,10 +687,11 @@ namespace _2RealGStreamerWrapper
 		gint64					m_iCurrentTimeInNs; /* Current time position in nanoseconds */
 		gint64					m_iDurationInNs; /* Duration of media file in nanoseconds */
 
+		GstPlayState			m_CurrentGstState; /* the current state of Gstreamer */
 		PlayState				m_CurrentPlayState; /* The current state of the wrapper */
 		PlayDirection			m_PlayDirection; /* The current playback direction */
 		LoopMode				m_LoopMode; /* The current loop mode */
-		ContentType				m_ContentType; /* Describes whether the currently loaded media file contains only video / audio streams or both */
+		//ContentType				m_ContentType; /* Describes whether the currently loaded media file contains only video / audio streams or both */DISABLED DISABLED DISABLED DISABLED 
 		Endianness				m_AudioEndianness; /* Audio endianness, either big or small endian */
 
 		unsigned char*			m_cVideoBuffer; /* Stores the video pixels */
@@ -695,8 +705,9 @@ namespace _2RealGStreamerWrapper
 		GstAppSinkCallbacks		m_GstVideoSinkCallbacks; /* Stores references to the callback methods for video preroll, new video buffer and video eos */
 		GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 
-		int						mNumberOfLoops;
-		bool					mJustLooped;
+		gint64					m_PendingSeekTime;
+		bool					m_PendingSeek;
+
 
 #ifdef THREADED_MESSAGE_HANDLER
 		friend					void threadedMessageHandler(GStreamerWrapper* obj); /* need for accessing private stuff in the threaded global function */

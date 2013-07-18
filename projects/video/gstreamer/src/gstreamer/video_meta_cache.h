@@ -17,10 +17,11 @@ class VideoMetaCache
 public:
 	VideoMetaCache(const std::string& name);
 
-	int						getWidth(const std::string& videoPath, const int defaultValue = -1);
+	// responds with true if it had to go get the values
+	bool					getValues(const std::string& videoPath, int& outWidth, int& outHeight, double& outDuration);
 
 protected:
-	void					setWidth(const std::string& videoPath, const int value);
+	void					setValues(const std::string& videoPath, const int width, const int height, const double duration);
 
 private:
 	void					load();
@@ -31,10 +32,12 @@ private:
 	class Entry {
 	public:
 		Entry();
-		Entry(const std::string& key, const int value);
+		Entry(const std::string& key, const int width, const int height, const double duration);
 
 		std::string			mKey;
-		int					mValue;
+		int					mWidth;
+		int					mHeight;
+		double				mDuration;
 	};
 	const std::string		mName;
 	std::vector<Entry>		mEntry;

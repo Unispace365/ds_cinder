@@ -40,6 +40,7 @@ namespace ds {
 			, mStatusDirty(false)
 			, mStatusFn(nullptr)
 			, mIsTransparent(true)
+			, mGeneratingSingleFrame(false)
 		{
 			setUseShaderTextuer(true);
 			setTransparent(false);
@@ -84,16 +85,19 @@ namespace ds {
 				mInternalMuted = false;
 				setMovieVolume();
 			}
-			if(mMovie.hasVideo() && mMovie.isNewVideoFrame()){
+
+			bool gotVideo(false);
+
+			if(mMovie.isNewVideoFrame()){
 				unsigned char* pImg = mMovie.getVideo();
-				if(pImg != nullptr){		
+				if(pImg != nullptr){	
+					gotVideo = true;
 					int vidWidth( mMovie.getWidth()), vidHeight(mMovie.getHeight());
 					if(mIsTransparent){
 						mFrameTexture = gl::Texture(pImg, GL_RGBA, vidWidth, vidHeight);
 					} else {
 						mFrameTexture = gl::Texture(pImg, GL_RGB, vidWidth, vidHeight);
 					}
-				// 	DS_LOG_INFO("New video frame, texture id: " <<mFrameTexture.getId());
 				}
 			}
 
@@ -142,6 +146,11 @@ namespace ds {
 
 				DS_REPORT_GL_ERRORS();
 			}
+
+			if(gotVideo && mGeneratingSingleFrame){
+				unloadVideo();
+				mGeneratingSingleFrame = false;
+			}
 		}
 
 		void Video::setSize( float width, float height )
@@ -158,8 +167,10 @@ namespace ds {
 
 			try
 			{
-				const int videoWidth = CACHE.getWidth(filename);
-				mMovie.open( filename, true, false, mIsTransparent, videoWidth );
+				int videoWidth(-1), videoHeight(-1);
+				double videoDuration(0.0f);
+				CACHE.getValues(filename, videoWidth, videoHeight, videoDuration);
+				mMovie.open( filename, true, false, mIsTransparent, videoWidth, videoHeight, videoDuration );
 				if(mLooping){
 					mMovie.setLoopMode(LOOP);
 				} else {
@@ -228,9 +239,10 @@ namespace ds {
 			mMovie.pause();
 		}
 
-		void Video::seek( float t )
+		void Video::seek( double t )
 		{
-			mMovie.setTimePositionInMs(t);
+			mMovie.setPosition(t);
+			//mMovie.setTimePositionInMs(t * mMovie.getDurationInMs());
 			//	mMovie.seekToTime(t);
 		}
 
@@ -326,6 +338,13 @@ namespace ds {
 				mVideoCompleteCallback(this);
 			}
 		}
+
+		void Video::generateSingleFrame( const std::string &filename ){
+			mGeneratingSingleFrame = true;
+			loadVideo(filename);
+			play();
+		}
+
 
 
 
