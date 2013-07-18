@@ -40,6 +40,7 @@ namespace ds {
 			, mStatusDirty(false)
 			, mStatusFn(nullptr)
 			, mIsTransparent(true)
+			, mGeneratingSingleFrame(false)
 		{
 			setUseShaderTextuer(true);
 			setTransparent(false);
@@ -84,16 +85,19 @@ namespace ds {
 				mInternalMuted = false;
 				setMovieVolume();
 			}
+
+			bool gotVideo(false);
+
 			if(mMovie.isNewVideoFrame()){
 				unsigned char* pImg = mMovie.getVideo();
-				if(pImg != nullptr){		
+				if(pImg != nullptr){	
+					gotVideo = true;
 					int vidWidth( mMovie.getWidth()), vidHeight(mMovie.getHeight());
 					if(mIsTransparent){
 						mFrameTexture = gl::Texture(pImg, GL_RGBA, vidWidth, vidHeight);
 					} else {
 						mFrameTexture = gl::Texture(pImg, GL_RGB, vidWidth, vidHeight);
 					}
-				// 	DS_LOG_INFO("New video frame, texture id: " <<mFrameTexture.getId());
 				}
 			}
 
@@ -141,6 +145,11 @@ namespace ds {
 				}
 
 				DS_REPORT_GL_ERRORS();
+			}
+
+			if(gotVideo && mGeneratingSingleFrame){
+				unloadVideo();
+				mGeneratingSingleFrame = false;
 			}
 		}
 
@@ -329,6 +338,13 @@ namespace ds {
 				mVideoCompleteCallback(this);
 			}
 		}
+
+		void Video::generateSingleFrame( const std::string &filename ){
+			mGeneratingSingleFrame = true;
+			loadVideo(filename);
+			play();
+		}
+
 
 
 

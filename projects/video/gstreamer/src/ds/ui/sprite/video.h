@@ -40,11 +40,15 @@ namespace ds {
 			bool				isPlaying();
 			void				loop(bool flag);
 			bool				isLooping() const;
-			// value between 0.0f & 1.0f
-			void				setVolume(float volume);
+			void				setVolume(float volume); // value between 0.0f & 1.0f
 			float				getVolume() const;
 
 			void				setMute(const bool doMute);
+
+			// Loads a video and waits for a single frame to be loaded into texture memory.
+			// After that, the video is stopped and unloaded. This is basically a "show poster frame" or a wait to create a thumbnail.
+			void				generateSingleFrame( const std::string &filename);
+			const bool			isGeneratingSingleFrame() const { return mGeneratingSingleFrame; }
 
 			struct Status {
 				static const int  STATUS_STOPPED = 0;
@@ -76,6 +80,8 @@ namespace ds {
 			bool                mInternalMuted;
 			float               mVolume;
 			bool				mIsTransparent;
+
+			bool				mGeneratingSingleFrame;
 
 			Status              mStatus;
 			bool                mStatusDirty;
