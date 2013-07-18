@@ -59,6 +59,8 @@ public:
 
 	// Access to the current engine configuration info.
 	const ds::EngineCfg&			getEngineCfg() const;
+	// Shortcuts
+	const ds::cfg::Settings&		getSettings(const std::string& name) const;
 
 	// Sprite management
 	virtual ds::sprite_id_t			nextSpriteId() = 0;

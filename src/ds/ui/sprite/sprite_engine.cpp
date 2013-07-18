@@ -33,6 +33,11 @@ const ds::EngineCfg& SpriteEngine::getEngineCfg() const
 	return mData.mEngineCfg;
 }
 
+const ds::cfg::Settings& SpriteEngine::getSettings(const std::string& name) const
+{
+	return mData.mEngineCfg.getSettings(name);
+}
+
 float SpriteEngine::getMinTouchDistance() const
 {
 	return mData.mMinTouchDistance;
