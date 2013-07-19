@@ -72,6 +72,7 @@ namespace ds {
 
 			ci::gl::Texture     mFrameTexture;
 			ci::gl::Fbo         mFbo;
+			bool				mFboCreated;
 
 			bool                mLooping;
 			// User-driven mute state

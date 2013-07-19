@@ -41,6 +41,7 @@ namespace ds {
 			, mStatusFn(nullptr)
 			, mIsTransparent(true)
 			, mGeneratingSingleFrame(false)
+			, mFboCreated(false)
 		{
 			setUseShaderTextuer(true);
 			setTransparent(false);
@@ -165,6 +166,9 @@ namespace ds {
 				return *this;
 			}
 
+			const float preWidth = getWidth();
+			const float preHeight = getHeight();
+
 			try
 			{
 				int videoWidth(-1), videoHeight(-1);
@@ -199,12 +203,17 @@ namespace ds {
 			if (getWidth() > 0 &&  getHeight() > 0) {
 				setSize(getWidth() * getScale().x,  getHeight() * getScale().y);
 			}
-			mFbo = ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), true);
+
+			if(!(mFboCreated && getWidth() == preWidth && getHeight() == preHeight)){
+				mFbo = ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), true);
+				mFboCreated = true;
+			} 
 			return *this;
 		}
 
 		Video &Video::setResourceId( const ds::Resource::Id &resourceId )
 		{
+			DS_LOG_WARNING("Set resource ID is currentlt not implemented!");
 			try
 			{
 				ds::Resource            res;
@@ -220,7 +229,7 @@ namespace ds {
 				return *this;
 			}
 
-			mFbo = ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), true);
+			//mFbo = ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), true);
 			return *this;
 		}
 

@@ -930,16 +930,31 @@ void GStreamerWrapper::handleGStMessage()
 			{
 				// std::cout << "Message Type: " << GST_MESSAGE_TYPE_NAME( m_GstMessage ) << std::endl;
 
+				GError* err;
+				gchar* debug;
+
 				switch ( GST_MESSAGE_TYPE( m_GstMessage ) )
 				{
+				case GST_MESSAGE_INFO:
+					gst_message_parse_info(m_GstMessage, &err, &debug);
+					DS_LOG_INFO("GST_MESSAGE_INFO module " << gst_element_get_name( GST_MESSAGE_SRC( m_GstMessage ) ) << " reported " << err->message);
+					g_error_free(err);
+					g_free(debug);
+					break;
+
+				case GST_MESSAGE_WARNING:
+					gst_message_parse_warning(m_GstMessage, &err, &debug);
+					DS_LOG_WARNING("GST_MESSAGE_WARNING module " << gst_element_get_name( GST_MESSAGE_SRC( m_GstMessage ) ) << " reported " << err->message);
+					g_error_free(err);
+					g_free(debug);
+					break;
 				case GST_MESSAGE_ERROR:
-					GError* err;
-					gchar* debug;
 					gst_message_parse_error( m_GstMessage, &err, &debug );
 					DS_LOG_WARNING("GST_MESSAGE_ERROR module " << gst_element_get_name( GST_MESSAGE_SRC( m_GstMessage ) ) << " reported " << err->message);
-					std::cout << "Embedded video playback halted: module " << gst_element_get_name( GST_MESSAGE_SRC( m_GstMessage ) ) <<
-						" reported " << err->message << std::endl;
-					close();
+				//	std::cout << "Embedded video playback halted: module " << gst_element_get_name( GST_MESSAGE_SRC( m_GstMessage ) ) <<
+				//		" reported " << err->message << std::endl;
+					//close();
+					//m_PendingClose = true;
 
 					g_error_free(err);
 					g_free(debug);
