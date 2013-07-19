@@ -66,6 +66,11 @@ void Pdf::setPageNum(const int pageNum)
 	mHolder.setPageNum(pageNum);
 }
 
+int Pdf::getPageNum()
+{
+	return mHolder.getPageNum();
+}
+
 int Pdf::getPageCount()
 {
 	return mHolder.getPageCount();
@@ -195,6 +200,12 @@ float Pdf::ResHolder::getTextureHeight() const
 void Pdf::ResHolder::setPageNum(const int pageNum)
 {
 	if (mRes) mRes->setPageNum(pageNum);
+}
+
+int Pdf::ResHolder::getPageNum()
+{
+	if (mRes) return mRes->getPageNum();
+	return 0;
 }
 
 int Pdf::ResHolder::getPageCount()

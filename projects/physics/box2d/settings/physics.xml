@@ -11,7 +11,10 @@
 
 	<!-- Optional bounds around the world. You can specify in either unit or fixed.
 		Unit of course is more flexible, but might not work if your world bounds don't
-		match your physics bound. Fixed overrides unit. -->
+		match your physics bound.
+		If you specify BOTH unit and fixed, then it starts with unit, and applies fixed
+		as an offset, so in that scenario fixed would typically be something like
+		l=-30 t=-30 r=30 b=30 to slightly increase the bounds. -->
 	<rect  name="bounds:unit" l="0" t="0" r="1" b="1" />
 <!--	<rect  name="bounds:fixed" l="0" t="0" r="0" b="0" /> -->
 	<!-- Used to determine how much bounce there is when an object interacts with the

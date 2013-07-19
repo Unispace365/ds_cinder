@@ -283,8 +283,12 @@ void PdfRes::setPageNum(int thePageNum)
 	mState.mPageNum = thePageNum;
 }
 
-int PdfRes::getPageCount()
-{
+int PdfRes::getPageNum() {
+	Poco::Mutex::ScopedLock		l(mMutex);
+	return mState.mPageNum;
+}
+
+int PdfRes::getPageCount() {
 	Poco::Mutex::ScopedLock		l(mMutex);
 	return mPageCount;
 }
