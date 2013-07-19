@@ -41,6 +41,7 @@ public:
 	float getWidth() const { return (float)mState.mWidth; }
 	float getHeight() const { return (float)mState.mHeight; }
 	void setPageNum(int thePageNum);
+	int getPageNum();
 	int getPageCount();
 	void goToNextPage();
 	void goToPreviousPage();

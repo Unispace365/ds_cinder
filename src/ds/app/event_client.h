@@ -14,18 +14,19 @@ class EventNotifier;
  */
 class EventClient
 {
-  public:
-    EventClient(EventNotifier&,
-                  // To be meaningful, clients should supply something
-                  // that handles notifications, or requests, or both.
-                  const std::function<void(const ds::Event *)>& notifyListener,
-                  const std::function<void(ds::Event &)>& requestListener = nullptr);
-    ~EventClient();
+public:
+	EventClient(EventNotifier&,
+				// To be meaningful, clients should supply something
+				// that handles notifications, or requests, or both.
+				const std::function<void(const ds::Event *)>& notifyListener,
+				const std::function<void(ds::Event &)>& requestListener = nullptr);
+	~EventClient();
 
-    void            notify(const ds::Event&);
+	void			notify(const ds::Event&);
+	void			request(ds::Event&);
 
-  private:
-    EventNotifier&  mNotifier;
+private:
+	EventNotifier&	mNotifier;
 };
 
 } // namespace ds

@@ -26,6 +26,7 @@ public:
 
 	// PDF API
 	void						setPageNum(const int pageNum);
+	int							getPageNum();
 	int							getPageCount();
 	void						goToNextPage();
 	void						goToPreviousPage();
@@ -54,6 +55,7 @@ private:
 		float					getTextureWidth() const;
 		float					getTextureHeight() const;
 		void					setPageNum(const int pageNum);
+		int						getPageNum();
 		int						getPageCount();
 		void					goToNextPage();
 		void					goToPreviousPage();
