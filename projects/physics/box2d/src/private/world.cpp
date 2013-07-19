@@ -62,7 +62,15 @@ World::World(ds::ui::SpriteEngine& e)
 	mAngularDampening = mSettings.getFloat("dampening:angular", 0, mAngularDampening);
 	mFixedRotation = mSettings.getBool("rotation:fixed", 0, mFixedRotation);
 
-	if (mSettings.getRectSize("bounds:fixed") > 0) {
+	// Slightly complicated, but flexible: Bounds can be either fixed or unit,
+	// or a combination of both, which applies the fixed as an offset.
+	if (mSettings.getRectSize("bounds:fixed") > 0 && mSettings.getRectSize("bounds:unit") > 0) {
+		const ci::Rectf&		unit = mSettings.getRect("bounds:unit");
+		const ci::Rectf&		fixed = mSettings.getRect("bounds:fixed");
+		ci::Rectf				r(	(unit.x1 * e.getWorldWidth()) + fixed.x1, (unit.y1 * e.getWorldHeight()) + fixed.y1,
+									(unit.x2 * e.getWorldWidth()) + fixed.x2, (unit.y2 * e.getWorldHeight()) + fixed.y2);
+		setBounds(r, mSettings.getFloat("bounds:restitution", 0, 1.0f));
+	} else if (mSettings.getRectSize("bounds:fixed") > 0) {
 		setBounds(	mSettings.getRect("bounds:fixed"),
 					mSettings.getFloat("bounds:restitution", 0, 1.0f));
 	} else if (mSettings.getRectSize("bounds:unit") > 0) {
