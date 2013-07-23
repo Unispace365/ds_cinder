@@ -2,6 +2,8 @@
 
 #include <Poco/Net/NetException.h>
 #include <iostream>
+#include <ds/debug/debug_defines.h>
+#include <ds/debug/logger.h>
 
 namespace ds {
 namespace net {
@@ -9,8 +11,9 @@ namespace net {
 /**
  * \class ds::TcpClient
  */
-TcpClient::TcpClient(const Poco::Net::SocketAddress& address)
-{
+TcpClient::TcpClient(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address)
+		: ds::AutoUpdate(e)
+		, mAddress(address) {
 	try {
 		mLoop.mSocket.connect(address);
 		mLoop.mSocket.setBlocking(false);
@@ -24,8 +27,7 @@ TcpClient::TcpClient(const Poco::Net::SocketAddress& address)
 	}
 }
 
-TcpClient::~TcpClient()
-{
+TcpClient::~TcpClient() {
 	{
 		Poco::Mutex::ScopedLock		l(mLoop.mMutex);
 		if (!mThread.isRunning()) return;
@@ -40,8 +42,7 @@ TcpClient::~TcpClient()
 	}
 }
 
-void TcpClient::add(const std::function<void(const std::string&)>& f)
-{
+void TcpClient::add(const std::function<void(const std::string&)>& f) {
 	if (!f) return;
 
 	try {
@@ -50,7 +51,19 @@ void TcpClient::add(const std::function<void(const std::string&)>& f)
 	}
 }
 
-void TcpClient::update()
+void TcpClient::send(const std::string& data) {
+	if (data.empty()) return;
+
+	try {
+		Poco::Net::StreamSocket		socket(mAddress);
+		socket.sendBytes(data.data(), data.size());
+	} catch (std::exception const& ex) {
+		DS_LOG_WARNING("TcpServer::send() error sending data=" << data << " (" << ex.what() << ")");
+		DS_DBG_CODE(std::cout << "TcpServer::send() error sending data=" << data << " (" << ex.what() << ")" << std::endl);
+	}
+}
+
+void TcpClient::update(const ds::UpdateParams&)
 {
 	std::vector<std::string>	popped;
 	{

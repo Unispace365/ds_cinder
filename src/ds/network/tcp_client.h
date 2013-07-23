@@ -9,6 +9,7 @@
 #include <Poco/Runnable.h>
 #include <Poco/Thread.h>
 #include <Poco/Net/StreamSocket.h>
+#include "ds/app/auto_update.h"
 
 namespace ds {
 namespace net {
@@ -17,16 +18,19 @@ namespace net {
  * \class ds::TcpClient
  * \brief Feed clients information about changes on a TCP socket.
  */
-class TcpClient {
+class TcpClient : public ds::AutoUpdate {
 public:
-	TcpClient(const Poco::Net::SocketAddress&);
+	TcpClient(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&);
 	~TcpClient();
 
 	void							add(const std::function<void(const std::string&)>&);
 
-	// Until we have a generic messaging system I'm stuck requiring clients to poll.
-	// This flushes any change notifications from the calling thread.
-	void							update();
+	// Send data to the server
+	void							send(const std::string& data);
+
+protected:
+	// Flush any change notifications from the calling thread.
+	virtual void					update(const ds::UpdateParams&);
 
 private:
 	class Loop : public Poco::Runnable {
@@ -45,6 +49,7 @@ private:
 		void						update(const std::string&);
 	};
 
+	const Poco::Net::SocketAddress	mAddress;
 	Poco::Thread					mThread;
 	Loop							mLoop;
 	std::vector<std::function<void(const std::string&)>>

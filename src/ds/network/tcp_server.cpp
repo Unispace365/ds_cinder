@@ -57,10 +57,10 @@ namespace
 /**
  * \class ds::TcpServer
  */
-TcpServer::TcpServer(const Poco::Net::SocketAddress& address)
-	: mAddress(address)
-	, mServer(new ConnectionFactory(mQueue), Poco::Net::ServerSocket(address))
-{
+TcpServer::TcpServer(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address)
+		: ds::AutoUpdate(e)
+		, mAddress(address)
+		, mServer(new ConnectionFactory(mQueue), Poco::Net::ServerSocket(address)) {
 	try {
 		mServer.start();
 	} catch (std::exception const&) {
@@ -77,16 +77,6 @@ void TcpServer::add(const std::function<void(const std::string&)>& f)
 	}
 }
 
-void TcpServer::update()
-{
-	const std::vector<std::string>* vec = mQueue.update();
-	if (!vec) return;
-
-	for (auto it=mListener.begin(), end=mListener.end(); it != end; ++it) {
-		for (auto pit=vec->begin(), pend=vec->end(); pit != pend; ++pit) (*it)(*pit);
-	}
-}
-
 void TcpServer::send(const std::string& data)
 {
 	if (data.empty()) return;
@@ -97,6 +87,16 @@ void TcpServer::send(const std::string& data)
 	} catch (std::exception const& ex) {
 		DS_LOG_WARNING("TcpServer::send() error sending data=" << data << " (" << ex.what() << ")");
 		DS_DBG_CODE(std::cout << "TcpServer::send() error sending data=" << data << " (" << ex.what() << ")" << std::endl);
+	}
+}
+
+void TcpServer::update(const ds::UpdateParams&)
+{
+	const std::vector<std::string>* vec = mQueue.update();
+	if (!vec) return;
+
+	for (auto it=mListener.begin(), end=mListener.end(); it != end; ++it) {
+		for (auto pit=vec->begin(), pend=vec->end(); pit != pend; ++pit) (*it)(*pit);
 	}
 }
 
