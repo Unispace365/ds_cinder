@@ -708,6 +708,8 @@ namespace _2RealGStreamerWrapper
 		gint64					m_PendingSeekTime;
 		bool					m_PendingSeek;
 
+		bool					m_PendingClose; /* gstreamer has reported an error. Attempt to close the video on the next update. Experimental.*/
+
 
 #ifdef THREADED_MESSAGE_HANDLER
 		friend					void threadedMessageHandler(GStreamerWrapper* obj); /* need for accessing private stuff in the threaded global function */
