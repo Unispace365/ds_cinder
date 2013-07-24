@@ -14,6 +14,7 @@ TcpSocketSender::TcpSocketSender() {
 	try {
 	    mThread.start(mWorker);
 	} catch (std::exception const&) {
+		std::cout << "ERERE" << std::endl;
 	}
 }
 
@@ -40,7 +41,8 @@ void TcpSocketSender::send(const std::string& data) {
 /**
  * \class ds::TcpSocketSender::Worker
  */
-TcpSocketSender::Worker::Worker() {
+TcpSocketSender::Worker::Worker()
+		: mAbort(false) {
 }
 
 void TcpSocketSender::Worker::addClient(const Poco::Net::SocketAddress& a) {
