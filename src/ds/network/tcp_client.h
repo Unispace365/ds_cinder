@@ -41,12 +41,14 @@ private:
 		Poco::Net::StreamSocket		mSocket;
 
 	public:
-		Loop();
+		Loop(const Poco::Net::SocketAddress&);
 
 		virtual void				run();
 
 	private:
 		void						update(const std::string&);
+
+		const Poco::Net::SocketAddress	mAddress;
 	};
 
 	const Poco::Net::SocketAddress	mAddress;
