@@ -69,8 +69,7 @@ TcpServer::TcpServer(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& ad
 	}
 }
 
-void TcpServer::add(const std::function<void(const std::string&)>& f)
-{
+void TcpServer::add(const std::function<void(const std::string&)>& f) {
 	if (!f) return;
 
 	try {
@@ -79,21 +78,11 @@ void TcpServer::add(const std::function<void(const std::string&)>& f)
 	}
 }
 
-void TcpServer::sendToClients(const std::string& data)
-{
-	if (data.empty()) return;
-
-	try {
-		Poco::Net::StreamSocket		socket(mAddress);
-		socket.sendBytes(data.data(), data.size());
-	} catch (std::exception const& ex) {
-		DS_LOG_WARNING("TcpServer::send() error sending data=" << data << " (" << ex.what() << ")");
-		DS_DBG_CODE(std::cout << "TcpServer::send() error sending data=" << data << " (" << ex.what() << ")" << std::endl);
-	}
+void TcpServer::sendToClients(const std::string& data) {
+	mClientManager.send(data);
 }
 
-void TcpServer::update(const ds::UpdateParams&)
-{
+void TcpServer::update(const ds::UpdateParams&) {
 	const std::vector<std::string>* vec = mQueue.update();
 	if (!vec) return;
 
@@ -114,7 +103,6 @@ void TcpServer::ClientManager::addClient(const Poco::Net::SocketAddress& a) {
 		mClients.push_back(a);
 	} catch (std::exception const&) {
 	}
-std::cout << "add, size=" << mClients.size() << std::endl;
 }
 
 void TcpServer::ClientManager::removeClient(const Poco::Net::SocketAddress& a) {
@@ -124,13 +112,26 @@ void TcpServer::ClientManager::removeClient(const Poco::Net::SocketAddress& a) {
 			Poco::Net::SocketAddress&	cmp(*it);
 			if (cmp == a) {
 				mClients.erase(it);
-std::cout << "remove, size=" << mClients.size() << std::endl;
 				return;
 			}
 		}
 	} catch (std::exception const&) {
 	}
-std::cout << "no remove, size=" << mClients.size() << std::endl;
+}
+
+void TcpServer::ClientManager::send(const std::string& data) {
+	if (data.empty()) return;
+
+	boost::lock_guard<boost::mutex> lock(mMutex);
+	for (auto it=mClients.begin(), end=mClients.end(); it!=end; ++it) {
+		try {
+			Poco::Net::StreamSocket	socket(*it);
+			socket.sendBytes(data.data(), data.size());
+		} catch (std::exception const& ex) {
+			DS_LOG_WARNING("TcpServer::send() error sending data=" << data << " (" << ex.what() << ")");
+			DS_DBG_CODE(std::cout << "TcpServer::send() error sending data=" << data << " (" << ex.what() << ")" << std::endl);
+		}
+	}
 }
 
 } // namespace net

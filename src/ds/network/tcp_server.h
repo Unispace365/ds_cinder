@@ -42,6 +42,7 @@ public:
 
 		void						addClient(const Poco::Net::SocketAddress&);
 		void						removeClient(const Poco::Net::SocketAddress&);
+		void						send(const std::string& data);
 
 	private:
 		std::mutex					mMutex;
