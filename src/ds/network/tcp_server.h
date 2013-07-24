@@ -20,8 +20,6 @@ public:
 	TcpServer(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&);
 
 	void							add(const std::function<void(const std::string&)>&);
-	// Send data through the server
-	void							sendToClients(const std::string& data);
 
 protected:
 	// Flush any change notifications from the calling thread.
@@ -33,25 +31,6 @@ private:
 	Poco::Net::TCPServer			mServer;
 	std::vector<std::function<void(const std::string&)>>
 									mListener;
-
-	// Keep track of clients as they exist.
-public:
-	class ClientManager {
-	public:
-		ClientManager();
-
-		void						addClient(const Poco::Net::SocketAddress&);
-		void						removeClient(const Poco::Net::SocketAddress&);
-		void						send(const std::string& data);
-
-	private:
-		std::mutex					mMutex;
-		std::vector<Poco::Net::SocketAddress>
-									mClients;
-	};
-private:
-	// Currently sending data synchronously, but really really need to put this in a thread.
-	ClientManager					mClientManager;
 };
 
 } // namespace net

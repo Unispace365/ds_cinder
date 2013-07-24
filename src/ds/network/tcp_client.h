@@ -10,6 +10,7 @@
 #include <Poco/Thread.h>
 #include <Poco/Net/StreamSocket.h>
 #include "ds/app/auto_update.h"
+#include "ds/network/tcp_socket_sender.h"
 
 namespace ds {
 namespace net {
@@ -51,11 +52,12 @@ private:
 		const Poco::Net::SocketAddress	mAddress;
 	};
 
-	const Poco::Net::SocketAddress	mAddress;
 	Poco::Thread					mThread;
 	Loop							mLoop;
 	std::vector<std::function<void(const std::string&)>>
 									mListener;
+
+	ds::net::TcpSocketSender		mSocketSender;
 };
 
 } // namespace net

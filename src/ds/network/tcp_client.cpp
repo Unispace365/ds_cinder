@@ -13,8 +13,8 @@ namespace net {
  */
 TcpClient::TcpClient(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address)
 		: ds::AutoUpdate(e)
-		, mAddress(address)
 		, mLoop(address) {
+	mSocketSender.addClient(address);
 	try {
 		mThread.start(mLoop);
 	} catch (Poco::Exception&) {
@@ -49,6 +49,8 @@ void TcpClient::add(const std::function<void(const std::string&)>& f) {
 }
 
 void TcpClient::send(const std::string& data) {
+	mSocketSender.send(data);
+#if 0
 	if (data.empty()) return;
 
 	try {
@@ -58,6 +60,7 @@ void TcpClient::send(const std::string& data) {
 		DS_LOG_WARNING("TcpServer::send() error sending data=" << data << " (" << ex.what() << ")");
 		DS_DBG_CODE(std::cout << "TcpServer::send() error sending data=" << data << " (" << ex.what() << ")" << std::endl);
 	}
+#endif
 }
 
 void TcpClient::update(const ds::UpdateParams&) {
