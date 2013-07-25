@@ -57,7 +57,8 @@ TcpServer::TcpServer(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& ad
 		, mServer(new ConnectionFactory(mQueue), Poco::Net::ServerSocket(address)) {
 	try {
 		mServer.start();
-	} catch (std::exception const&) {
+	} catch (std::exception const& ex) {
+		DS_LOG_ERROR("TcpServer failed to start (" << address.toString() << ") error=" << ex.what());
 	}
 }
 
