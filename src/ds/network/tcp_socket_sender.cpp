@@ -127,11 +127,12 @@ void TcpSocketSender::Worker::perform(const std::vector<std::string>& data) {
 		vec = mClients;
 	}
 
-	const Poco::Timespan				connect_timeout(1 * 100000);
+	const Poco::Timespan				net_timeout(1 * 100000);
 	for (auto it=vec.begin(), end=vec.end(); it!=end; ++it) {
 		try {
-			Poco::Net::StreamSocket	socket(*it);
-			socket.setSendTimeout(connect_timeout);
+			Poco::Net::StreamSocket	socket;
+			socket.connect(*it, net_timeout);
+			socket.setSendTimeout(net_timeout);
 			for (auto dit = data.begin(), dend=data.end(); dit!=dend; ++dit) {
 				const std::string&		d(*dit);
 				socket.sendBytes(d.data(), d.size());
