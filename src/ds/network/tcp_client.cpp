@@ -28,9 +28,7 @@ TcpClient::~TcpClient() {
 	{
 		Poco::Mutex::ScopedLock		l(mLoop.mMutex);
 		if (!mThread.isRunning()) return;
-
 		mLoop.mAbort = true;
-		mLoop.mSocket.shutdown();
 	}
 
 	try {
@@ -50,17 +48,6 @@ void TcpClient::add(const std::function<void(const std::string&)>& f) {
 
 void TcpClient::send(const std::string& data) {
 	mSocketSender.send(data);
-#if 0
-	if (data.empty()) return;
-
-	try {
-		Poco::Net::StreamSocket		socket(mAddress);
-		socket.sendBytes(data.data(), data.size());
-	} catch (std::exception const& ex) {
-		DS_LOG_WARNING("TcpServer::send() error sending data=" << data << " (" << ex.what() << ")");
-		DS_DBG_CODE(std::cout << "TcpServer::send() error sending data=" << data << " (" << ex.what() << ")" << std::endl);
-	}
-#endif
 }
 
 void TcpClient::update(const ds::UpdateParams&) {
@@ -90,13 +77,14 @@ void TcpClient::Loop::run() {
 
 	char						buf[BUF_SIZE];
 	bool						needsConnect = true;
+	const Poco::Timespan		connect_timeout(1 * 100000);
 
 	while (true) {
 		// Keep retrying the connection whenever it fails.
 		if (needsConnect) {
 			needsConnect = false;
 			try {
-				mSocket.connect(mAddress);
+				mSocket.connect(mAddress, connect_timeout);
 				mSocket.setBlocking(false);
 				mSocket.setReceiveTimeout(Poco::Timespan(10, 0));
 			} catch (std::exception&) {
@@ -130,6 +118,11 @@ void TcpClient::Loop::run() {
 			if (mAbort) break;
 		}
 	}
+
+	try {
+//		mSocket.shutdown();
+	} catch (std::exception&) {
+	}	
 }
 
 void TcpClient::Loop::update(const std::string& str) {

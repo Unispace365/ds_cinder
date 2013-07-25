@@ -14,11 +14,12 @@ TcpSocketSender::TcpSocketSender() {
 	try {
 	    mThread.start(mWorker);
 	} catch (std::exception const&) {
-		std::cout << "ERERE" << std::endl;
 	}
 }
 
 TcpSocketSender::~TcpSocketSender() {
+	if (!mThread.isRunning()) return;
+
 	mWorker.abort();
 	try {
 		mThread.join();
@@ -122,12 +123,15 @@ void TcpSocketSender::Worker::perform(const std::vector<std::string>& data) {
 	// Copy the list of addresses, so I don't block on them when sending
 	std::vector<Poco::Net::SocketAddress>	vec;
 	{
-		Poco::Mutex::ScopedLock		l(mMutex);
+		Poco::Mutex::ScopedLock			l(mMutex);
 		vec = mClients;
 	}
+
+	const Poco::Timespan				connect_timeout(1 * 100000);
 	for (auto it=vec.begin(), end=vec.end(); it!=end; ++it) {
 		try {
 			Poco::Net::StreamSocket	socket(*it);
+			socket.setSendTimeout(connect_timeout);
 			for (auto dit = data.begin(), dend=data.end(); dit!=dend; ++dit) {
 				const std::string&		d(*dit);
 				socket.sendBytes(d.data(), d.size());
