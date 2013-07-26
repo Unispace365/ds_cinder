@@ -10,41 +10,53 @@ namespace {
 	class EchoConnection: public Poco::Net::TCPServerConnection {
 	public:
 		EchoConnection(	const Poco::Net::StreamSocket& s,
-						ds::AsyncQueue<std::string>& q)
+						std::shared_ptr<ds::AsyncQueue<std::string>>& q,
+						std::shared_ptr<bool>& st)
 				: Poco::Net::TCPServerConnection(s)
-				, mQueue(q) {
+				, mQueue(q)
+				, mSt(st) {
+		}
+
+		~EchoConnection() {
 		}
 		
 		void run() {
+			const Poco::Timespan			net_timeout(1 * 500000);
 			Poco::Net::StreamSocket&		ss = socket();
-			try {
-				char buffer[256];
-				int n = ss.receiveBytes(buffer, sizeof(buffer));
-				while (n > 0) {
-					mQueue.push(std::string(buffer, n));
-//					std::cout << "handle size=" << n << " me=" << (void*)this << std::endl;
-					n = ss.receiveBytes(buffer, sizeof(buffer));
+			char							buffer[256];
+			ss.setReceiveTimeout(net_timeout);
+			// Keep running until the connection is closed externally
+			bool							keepRunning = true;
+			while (keepRunning) {
+				try {
+					const int				n = ss.receiveBytes(buffer, sizeof(buffer));
+					if (n > 0) mQueue->push(std::string(buffer, n));
+				} catch (Poco::TimeoutException const&) {
+					const bool				stopped = *mSt;
+					if (stopped) keepRunning = false;
+				} catch (std::exception const&) {
+					keepRunning = false;
 				}
-			}
-			catch (Poco::Exception&) {
-//				std::cerr << "EchoConnection: " << exc.displayText() << std::endl;
 			}
 		}
 
-		ds::AsyncQueue<std::string>&	mQueue;
+		std::shared_ptr<ds::AsyncQueue<std::string>>	mQueue;
+		std::shared_ptr<bool>							mSt;
 	};
 
 	class ConnectionFactory: public Poco::Net::TCPServerConnectionFactory {
 	public:
-		ConnectionFactory(ds::AsyncQueue<std::string>& q)
-				: mQueue(q) {
+		ConnectionFactory(std::shared_ptr<ds::AsyncQueue<std::string>>& q, std::shared_ptr<bool>& st)
+				: mQueue(q)
+				, mSt(st) {
 		}
 
 		Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket& socket) {
-			return new EchoConnection(socket, mQueue);
+			return new EchoConnection(socket, mQueue, mSt);
 		}
 
-		ds::AsyncQueue<std::string>&	mQueue;
+		std::shared_ptr<ds::AsyncQueue<std::string>>	mQueue;
+		std::shared_ptr<bool>							mSt;
 	};
 }
 
@@ -54,9 +66,23 @@ namespace {
 TcpServer::TcpServer(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address)
 		: ds::AutoUpdate(e)
 		, mAddress(address)
-		, mServer(new ConnectionFactory(mQueue), Poco::Net::ServerSocket(address)) {
+		, mStopped(new bool(false))
+		, mQueue(new ds::AsyncQueue<std::string>())
+		, mServer(new ConnectionFactory(mQueue, mStopped), Poco::Net::ServerSocket(address)) {
+	if (!mStopped) throw std::runtime_error("TcpServer failed making mStopped");
+	if (!mQueue) throw std::runtime_error("TcpServer failed making mQueue");
+
 	try {
 		mServer.start();
+	} catch (std::exception const&) {
+	}
+}
+
+TcpServer::~TcpServer() {
+	(*mStopped) = true;
+
+	try {
+		mServer.stop();
 	} catch (std::exception const&) {
 	}
 }
@@ -89,7 +115,7 @@ void TcpServer::send(const std::string& data) {
 #endif
 
 void TcpServer::update(const ds::UpdateParams&) {
-	const std::vector<std::string>* vec = mQueue.update();
+	const std::vector<std::string>* vec = mQueue->update();
 	if (!vec) return;
 
 	for (auto it=mListener.begin(), end=mListener.end(); it != end; ++it) {

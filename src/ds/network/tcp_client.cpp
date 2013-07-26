@@ -1,7 +1,7 @@
 #include "ds/network/tcp_client.h"
 
-#include <Poco/Net/NetException.h>
 #include <iostream>
+#include <Poco/Net/NetException.h>
 #include <ds/debug/debug_defines.h>
 #include <ds/debug/logger.h>
 

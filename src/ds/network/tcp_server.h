@@ -18,6 +18,7 @@ namespace net {
 class TcpServer : public ds::AutoUpdate {
 public:
 	TcpServer(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&);
+	~TcpServer();
 
 	void							add(const std::function<void(const std::string&)>&);
 
@@ -27,7 +28,11 @@ protected:
 
 private:
 	const Poco::Net::SocketAddress	mAddress;
-	ds::AsyncQueue<std::string>		mQueue;
+	// These shared_ptr objects are shared with each connection I create.
+	// Connections might exist past the life of this class.
+	std::shared_ptr<bool>			mStopped;
+	std::shared_ptr<ds::AsyncQueue<std::string>>
+									mQueue;
 	Poco::Net::TCPServer			mServer;
 	std::vector<std::function<void(const std::string&)>>
 									mListener;
