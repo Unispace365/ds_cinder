@@ -80,6 +80,7 @@
     <ClInclude Include="..\src\ds\query\query_client.h" />
     <ClInclude Include="..\src\ds\query\query_result.h" />
     <ClInclude Include="..\src\ds\query\query_result_builder.h" />
+    <ClInclude Include="..\src\ds\query\query_result_editor.h" />
     <ClInclude Include="..\src\ds\query\query_talkback.h" />
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3.h" />
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="..\src\ds\query\query_client.cpp" />
     <ClCompile Include="..\src\ds\query\query_result.cpp" />
     <ClCompile Include="..\src\ds\query\query_result_builder.cpp" />
+    <ClCompile Include="..\src\ds\query\query_result_editor.cpp" />
     <ClCompile Include="..\src\ds\query\sqlite\sqlite3.c" />
     <ClCompile Include="..\src\ds\query\sql_database.cpp" />
     <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp" />

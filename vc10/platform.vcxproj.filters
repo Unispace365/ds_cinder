@@ -474,6 +474,9 @@
     <ClInclude Include="..\src\ds\network\tcp_socket_sender.h">
       <Filter>src\ds\network</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\query\query_result_editor.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -769,6 +772,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\network\tcp_socket_sender.cpp">
       <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\query_result_editor.cpp">
+      <Filter>src\ds\query</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
