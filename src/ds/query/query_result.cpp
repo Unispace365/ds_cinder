@@ -91,8 +91,28 @@ Result& Result::operator=(const Result& o)
 	return *this;
 }
 
-void Result::clear()
-{
+Result& Result::operator=(const RowIterator& it) {
+	clear();
+	if (it.mResult) {
+		mCol = it.mResult->mCol;
+		mColNames = it.mResult->mColNames;
+		mRequestTime = it.mResult->mRequestTime;
+		mClientId = it.mResult->mClientId;
+	}
+
+	try {
+		if (it.mRowIt.hasValue()) {
+			const Row&		src = **(it.mRowIt);
+			Result::Row*	dst = mRow.pushBack();
+			*dst = src;
+		}
+	} catch (std::exception const&) {
+	}
+
+	return *this;
+}
+
+void Result::clear() {
 	mCol.setSize(0);
 	mColNames.clear();
 	mRow.clear();
@@ -229,6 +249,7 @@ void Result::Row::initialize(const int columns)
 Result::Row& Result::Row::operator=(const Row& o)
 {
 	if (this != &o) {
+		mName = o.mName;
 		mNumeric = o.mNumeric;
 		mString.clear();
 		try {
@@ -249,24 +270,27 @@ Result::Row& Result::Row::operator=(const Row& o)
 /* QUERY-RESULT::ROW-ITERATOR
  ******************************************************************/
 Result::RowIterator::RowIterator(const RowIterator& o)
-	: mRowIt(o.mRowIt)
-{
+		: mResult(o.mResult)
+		, mRowIt(o.mRowIt) {
 }
 
 Result::RowIterator::RowIterator(const Result& qr)
-	: mRowIt(qr.mRow)
-{
+		: mResult(&qr)
+		, mRowIt(qr.mRow) {
 }
 
 Result::RowIterator::RowIterator(const Result& qr, const std::string& str)
-	: mRowIt(qr.mRow)
-{
+		: mResult(&qr)
+		, mRowIt(qr.mRow) {
 	while (mRowIt.hasValue() && (**mRowIt).mName != str) ++mRowIt;
 }
 
 Result::RowIterator& Result::RowIterator::operator=(const RowIterator& o)
 {
-	if (this != &o) mRowIt = o.mRowIt;
+	if (this != &o) {
+		mResult = o.mResult;
+		mRowIt = o.mRowIt;
+	}
 	return *this;
 }
 

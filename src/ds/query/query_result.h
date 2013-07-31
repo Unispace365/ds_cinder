@@ -51,16 +51,20 @@ public:
 
 	private:
 		friend class ds::query::Result;
+		RowIterator();
 		void							operator++(int);
 
+		const Result*					mResult;
 		ManagedListIterator<Row*>		mRowIt;
 	};
 
 public:
 	Result();
-	Result(const Result&);
+	explicit Result(const Result&);
 
 	Result&					operator=(const Result&);
+	// Replace my contents with a single row from the row iterator
+	Result&					operator=(const RowIterator&);
 
 	void					clear();
 
