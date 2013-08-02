@@ -28,226 +28,205 @@ const char          RES_FN_ATT        = 81;
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("image sprite");
 }
 
-void Image::installAsServer(ds::BlobRegistry& registry)
-{
-  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
+void Image::installAsServer(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
 }
 
-void Image::installAsClient(ds::BlobRegistry& registry)
-{
-  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Image>(r);});
+void Image::installAsClient(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Image>(r);});
 }
 
-Image::Image( SpriteEngine& engine )
-    : inherited(engine)
-    , mImageService(engine.getLoadImageService())
-    , mImageToken(mImageService)
-    , mFlags(0)
-{
-  init();
-  mBlobType = BLOB_TYPE;
-  setUseShaderTextuer(true);
-  setTransparent(false);
+Image::Image(SpriteEngine& engine )
+		: inherited(engine)
+		, mImageService(engine.getLoadImageService())
+		, mImageToken(mImageService)
+		, mFlags(0) {
+	init();
+	mBlobType = BLOB_TYPE;
+	setUseShaderTextuer(true);
+	setTransparent(false);
 }
 
-Image::Image( SpriteEngine& engine, const std::string &filename )
-    : inherited(engine)
-    , mImageService(engine.getLoadImageService())
-    , mImageToken(mImageService)
-    , mFlags(0)
-    , mResourceFn(filename)
-{
-  init();
-  mBlobType = BLOB_TYPE;
-  setUseShaderTextuer(true);
+Image::Image(SpriteEngine& engine, const std::string &filename )
+		: inherited(engine)
+		, mImageService(engine.getLoadImageService())
+		, mImageToken(mImageService)
+		, mFlags(0)
+		, mResourceFn(filename) {
+	init();
+	mBlobType = BLOB_TYPE;
+	setUseShaderTextuer(true);
 
 	{
 		ImageFileAtts			atts(filename);
-    Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
+		Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
 	}
 
-  setTransparent(false);
-  markAsDirty(RES_FN_DIRTY);
+	setTransparent(false);
+	markAsDirty(RES_FN_DIRTY);
 }
 
 Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
-  : inherited(engine)
-  , mImageService(engine.getLoadImageService())
-  , mImageToken(mImageService)
-  , mFlags(0)
-  , mResourceId(resourceId)
-{
-  init();
-  mBlobType = BLOB_TYPE;
-  setUseShaderTextuer(true);
+		: inherited(engine)
+		, mImageService(engine.getLoadImageService())
+		, mImageToken(mImageService)
+		, mFlags(0)
+		, mResourceId(resourceId) {
+	init();
+	mBlobType = BLOB_TYPE;
+	setUseShaderTextuer(true);
 
-  ds::Resource            res;
-  if (engine.getResources().get(resourceId, res)) {
-    Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
-    mResourceFn = res.getAbsoluteFilePath();
-  }
-  setTransparent(false);
-  markAsDirty(RES_ID_DIRTY);
+	ds::Resource            res;
+	if (engine.getResources().get(resourceId, res)) {
+		Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
+		mResourceFn = res.getAbsoluteFilePath();
+	}
+	setTransparent(false);
+	markAsDirty(RES_ID_DIRTY);
 }
 
-Image::~Image()
-{
+Image::~Image() {
 }
 
-void Image::updateServer(const UpdateParams& up)
-{
-  inherited::updateServer(up);
+void Image::updateServer(const UpdateParams& up) {
+	inherited::updateServer(up);
 
-  if (mStatusDirty) {
-    mStatusDirty = false;
-    if (mStatusFn) mStatusFn(mStatus);
-  }
+	if (mStatusDirty) {
+		mStatusDirty = false;
+		if (mStatusFn) mStatusFn(mStatus);
+	}
 }
 
-void Image::drawLocalClient()
-{
-  if (!inBounds())
-    return;
+void Image::drawLocalClient() {
+	if (!inBounds())
+		return;
 
-  if (!mTexture) {
-    // XXX Do bounds check here
-    if (mImageToken.canAcquire()) { // && intersectsLocalScreen){
-      requestImage();
-    }
-    float         fade;
-    mTexture = mImageToken.getImage(fade);
-    // Keep up the bounds
-    if (mTexture) {
-      setStatus(Status::STATUS_LOADED);
-      const float         prevRealW = getWidth(), prevRealH = getHeight();
-      if (prevRealW <= 0 || prevRealH <= 0) {
-        Sprite::setSizeAll(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()), mDepth);
-      } else {
-        float             prevWidth = prevRealW * getScale().x;
-        float             prevHeight = prevRealH * getScale().y;
-        Sprite::setSizeAll(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()), mDepth);
-        setSize(prevWidth, prevHeight);
-      }
-    }
+	if (!mTexture) {
+		// XXX Do bounds check here
+		if (mImageToken.canAcquire()) { // && intersectsLocalScreen){
+			requestImage();
+		}
+		float         fade;
+		mTexture = mImageToken.getImage(fade);
+		// Keep up the bounds
+		if (mTexture) {
+			setStatus(Status::STATUS_LOADED);
+			const float         prevRealW = getWidth(), prevRealH = getHeight();
+			if (prevRealW <= 0 || prevRealH <= 0) {
+				Sprite::setSizeAll(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()), mDepth);
+			} else {
+				float             prevWidth = prevRealW * getScale().x;
+				float             prevHeight = prevRealH * getScale().y;
+				Sprite::setSizeAll(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()), mDepth);
+				setSize(prevWidth, prevHeight);
+			}
+		}
 	}
 
-  if (mTexture) {
-    mTexture.bind();
-    if (getPerspective())
-      ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture.getHeight()), static_cast<float>(mTexture.getWidth()), 0.0f));
-    else
-      ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight())));
-    mTexture.unbind();
-  }
+	if (mTexture) {
+		mTexture.bind();
+		if (getPerspective())
+			ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture.getHeight()), static_cast<float>(mTexture.getWidth()), 0.0f));
+		else
+			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight())));
+		mTexture.unbind();
+	}
 }
 
-void Image::setSizeAll( float width, float height, float depth )
-{
-  setScale( width / getWidth(), height / getHeight() );
+void Image::setSizeAll( float width, float height, float depth ) {
+	setScale( width / getWidth(), height / getHeight() );
 }
 
-Image& Image::setResourceFilename( const std::string &filename )
-{
-  clearResource();
-  mResourceFn = filename;
-  setStatus(Status::STATUS_EMPTY);
+Image& Image::setResourceFilename( const std::string &filename ) {
+	clearResource();
+	mResourceFn = filename;
+	setStatus(Status::STATUS_EMPTY);
 
-  if (!filename.empty()) {
+	if (!filename.empty()) {
 		ImageFileAtts			atts(filename);
-    Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
-  }
-  return *this;
+		Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
+	}
+	return *this;
 }
 
-void Image::loadImage( const std::string &filename )
-{
-  setResourceFilename(filename);
+void Image::loadImage( const std::string &filename ) {
+	setResourceFilename(filename);
 }
 
-void Image::clearResource()
-{
-  mTexture.reset();
-  mResourceFn.clear();
-  mImageToken.release();
-  setStatus(Status::STATUS_EMPTY);
+void Image::clearResource() {
+	mTexture.reset();
+	mResourceFn.clear();
+	mImageToken.release();
+	setStatus(Status::STATUS_EMPTY);
 }
 
-void Image::requestImage()
-{
-  if (mResourceFn.empty()) return;
+void Image::requestImage() {
+	if (mResourceFn.empty()) return;
 
-  mImageToken.acquire(mResourceFn, mFlags);
+	mImageToken.acquire(mResourceFn, mFlags);
 }
 
-bool Image::isLoaded() const
-{
-  return mTexture;
+bool Image::isLoaded() const {
+	return mTexture;
 }
 
-void Image::setStatusCallback(const std::function<void(const Status&)>& fn)
-{
-  DS_ASSERT_MSG(mEngine.getMode() == mEngine.CLIENTSERVER_MODE, "Currently only works in ClientServer mode, fill in the UDP callbacks if you want to use this otherwise");
-  mStatusFn = fn;
+void Image::setStatusCallback(const std::function<void(const Status&)>& fn) {
+	DS_ASSERT_MSG(mEngine.getMode() == mEngine.CLIENTSERVER_MODE, "Currently only works in ClientServer mode, fill in the UDP callbacks if you want to use this otherwise");
+	mStatusFn = fn;
 }
 
-void Image::writeAttributesTo(ds::DataBuffer& buf)
-{
-  inherited::writeAttributesTo(buf);
+void Image::writeAttributesTo(ds::DataBuffer& buf) {
+	inherited::writeAttributesTo(buf);
 
 	if (mDirty.has(RES_ID_DIRTY)) {
-    buf.add(RES_ID_ATT);
-    mResourceId.writeTo(buf);
-  }
+		buf.add(RES_ID_ATT);
+		mResourceId.writeTo(buf);
+	}
 	if (mDirty.has(RES_FN_DIRTY)) {
-    buf.add(RES_FN_ATT);
-    buf.add(mResourceFn);
-  }
+		buf.add(RES_FN_ATT);
+		buf.add(mResourceFn);
+	}
 }
 
-void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
-{
-    if (attributeId == RES_ID_ATT) {
-      mResourceId.readFrom(buf);
-    } else if (attributeId == RES_FN_ATT) {
-      mResourceFn = buf.read<std::string>();
-    } else {
-      inherited::readAttributeFrom(attributeId, buf);
-    }
+void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
+	if (attributeId == RES_ID_ATT) {
+		mResourceId.readFrom(buf);
+	} else if (attributeId == RES_FN_ATT) {
+		mResourceFn = buf.read<std::string>();
+	} else {
+		inherited::readAttributeFrom(attributeId, buf);
+	}
 }
 
-void Image::setStatus(const int code)
-{
-  if (code == mStatus.mCode) return;
+void Image::setStatus(const int code) {
+	if (code == mStatus.mCode) return;
 
-  mStatus.mCode = code;
-  mStatusDirty = true;
+	mStatus.mCode = code;
+	mStatusDirty = true;
 }
 
-void Image::init()
-{
-  mStatus.mCode = Status::STATUS_EMPTY;
-  mStatusDirty = false;
-  mStatusFn = nullptr;
+void Image::init() {
+	mStatus.mCode = Status::STATUS_EMPTY;
+	mStatusDirty = false;
+	mStatusFn = nullptr;
 }
 
-Image &Image::setResourceId( const ds::Resource::Id &resourceId )
-{
-  clearResource();
-  ds::Resource            res;
-  if (mEngine.getResources().get(resourceId, res)) {
-    Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
-    mTexture.reset();
-    mResourceFn = res.getAbsoluteFilePath();
-    setStatus(Status::STATUS_EMPTY);
-  }
-  markAsDirty(RES_ID_DIRTY);
+Image &Image::setResourceId( const ds::Resource::Id &resourceId ) {
+	clearResource();
+	ds::Resource            res;
+	if (mEngine.getResources().get(resourceId, res)) {
+		Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
+		mTexture.reset();
+		mResourceFn = res.getAbsoluteFilePath();
+		setStatus(Status::STATUS_EMPTY);
+	}
+	markAsDirty(RES_ID_DIRTY);
 
-  return *this;
+	return *this;
 }
 
-void Image::setSize( float width, float height )
-{
-  setSizeAll(width, height, mDepth);
+void Image::setSize( float width, float height ) {
+	setSizeAll(width, height, mDepth);
 }
 
 } // namespace ui
