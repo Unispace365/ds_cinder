@@ -17,9 +17,9 @@ public:
 	static const int                IMG_CACHE_F = (1<<0);
 
 public:
-	Image(SpriteEngine&);
-	Image(SpriteEngine&, const std::string& filename);
-	Image(SpriteEngine&, const ds::Resource::Id&);
+	Image(SpriteEngine&, const int flags = 0);
+	Image(SpriteEngine&, const std::string& filename, const int flags = 0);
+	Image(SpriteEngine&, const ds::Resource::Id&, const int flags = 0);
 	~Image();
 
 	void						setSize( float width, float height );

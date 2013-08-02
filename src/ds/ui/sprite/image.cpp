@@ -17,15 +17,17 @@ namespace ds {
 namespace ui {
 
 namespace {
-char                BLOB_TYPE         = 0;
+char				BLOB_TYPE			= 0;
 
-const DirtyState&   RES_ID_DIRTY 		  = INTERNAL_A_DIRTY;
-const DirtyState&   RES_FN_DIRTY 		  = INTERNAL_B_DIRTY;
+const DirtyState&	RES_ID_DIRTY		= INTERNAL_A_DIRTY;
+const DirtyState&	RES_FN_DIRTY		= INTERNAL_B_DIRTY;
+const DirtyState&	FLAGS_DIRTY			= INTERNAL_C_DIRTY;
 
-const char          RES_ID_ATT        = 80;
-const char          RES_FN_ATT        = 81;
+const char			RES_ID_ATT			= 80;
+const char			RES_FN_ATT			= 81;
+const char			FLAGS_ATT			= 82;
 
-const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("image sprite");
+const ds::BitMask   SPRITE_LOG			= ds::Logger::newModule("image sprite");
 }
 
 void Image::installAsServer(ds::BlobRegistry& registry) {
@@ -36,22 +38,24 @@ void Image::installAsClient(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Image>(r);});
 }
 
-Image::Image(SpriteEngine& engine )
+Image::Image(SpriteEngine& engine, const int flags)
 		: inherited(engine)
 		, mImageService(engine.getLoadImageService())
 		, mImageToken(mImageService)
-		, mFlags(0) {
+		, mFlags(flags) {
 	init();
 	mBlobType = BLOB_TYPE;
 	setUseShaderTextuer(true);
 	setTransparent(false);
+
+	if (mFlags != 0) markAsDirty(FLAGS_DIRTY);
 }
 
-Image::Image(SpriteEngine& engine, const std::string &filename )
+Image::Image(SpriteEngine& engine, const std::string &filename, const int flags)
 		: inherited(engine)
 		, mImageService(engine.getLoadImageService())
 		, mImageToken(mImageService)
-		, mFlags(0)
+		, mFlags(flags)
 		, mResourceFn(filename) {
 	init();
 	mBlobType = BLOB_TYPE;
@@ -64,13 +68,15 @@ Image::Image(SpriteEngine& engine, const std::string &filename )
 
 	setTransparent(false);
 	markAsDirty(RES_FN_DIRTY);
+
+	if (mFlags != 0) markAsDirty(FLAGS_DIRTY);
 }
 
-Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
+Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId, const int flags)
 		: inherited(engine)
 		, mImageService(engine.getLoadImageService())
 		, mImageToken(mImageService)
-		, mFlags(0)
+		, mFlags(flags)
 		, mResourceId(resourceId) {
 	init();
 	mBlobType = BLOB_TYPE;
@@ -83,6 +89,8 @@ Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId )
 	}
 	setTransparent(false);
 	markAsDirty(RES_ID_DIRTY);
+
+	if (mFlags != 0) markAsDirty(FLAGS_DIRTY);
 }
 
 Image::~Image() {
@@ -186,6 +194,10 @@ void Image::writeAttributesTo(ds::DataBuffer& buf) {
 		buf.add(RES_FN_ATT);
 		buf.add(mResourceFn);
 	}
+	if (mDirty.has(FLAGS_DIRTY)) {
+		buf.add(FLAGS_ATT);
+		buf.add(mFlags);
+	}
 }
 
 void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
@@ -193,6 +205,8 @@ void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 		mResourceId.readFrom(buf);
 	} else if (attributeId == RES_FN_ATT) {
 		mResourceFn = buf.read<std::string>();
+	} else if (attributeId == FLAGS_ATT) {
+		mFlags = buf.read<int>();
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
 	}
