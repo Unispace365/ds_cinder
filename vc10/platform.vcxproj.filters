@@ -477,6 +477,9 @@
     <ClInclude Include="..\src\ds\query\query_result_editor.h">
       <Filter>src\ds\query</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_touch_queue.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">

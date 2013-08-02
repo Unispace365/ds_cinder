@@ -16,13 +16,11 @@
 using namespace ci;
 using namespace ci::app;
 
-const char  ds::CMD_SERVER_SEND_WORLD = 1;
-const char  ds::CMD_CLIENT_REQUEST_WORLD = 2;
+const char			ds::CMD_SERVER_SEND_WORLD = 1;
+const char			ds::CMD_CLIENT_REQUEST_WORLD = 2;
 
 namespace {
-
-const int NUMBER_OF_NETWORK_THREADS = 2;
-
+const int			NUMBER_OF_NETWORK_THREADS = 2;
 }
 
 const ds::BitMask	ds::ENGINE_LOG = ds::Logger::newModule("engine");
@@ -44,6 +42,12 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mSettings(settings)
 	, mCameraPerspNearPlane(1.0f)
 	, mCameraPerspFarPlane(1000.0f)
+	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const TouchEvent& e) {this->mTouchManager.touchesBegin(e);})
+	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const TouchEvent& e) {this->mTouchManager.touchesMoved(e);})
+	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const TouchEvent& e) {this->mTouchManager.touchesEnded(e);})
+	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {this->mTouchManager.mouseTouchBegin(e.first, e.second);})
+	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {this->mTouchManager.mouseTouchMoved(e.first, e.second);})
+	, mMouseEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const MousePair& e)  {this->mTouchManager.mouseTouchEnded(e.first, e.second);})
 	, mSystemMultitouchEnabled(false)
 	, mApplyFxAA(false)
 {
@@ -188,87 +192,39 @@ void Engine::updateClient()
 	}
 }
 
+void Engine::updateServer() {
+	const float		curr = static_cast<float>(getElapsedSeconds());
+	const float		dt = curr - mLastTime;
+	mLastTime = curr;
 
-std::mutex myMutex;
+	//////////////////////////////////////////////////////////////////////////
+	{
+		boost::lock_guard<boost::mutex> lock(mTouchMutex);
+		mMouseBeginEvents.lockedUpdate();
+		mMouseMovedEvents.lockedUpdate();
+		mMouseEndEvents.lockedUpdate();
 
-void Engine::updateServer()
-{
-  float curr = static_cast<float>(getElapsedSeconds());
-  //////////////////////////////////////////////////////////////////////////
-  {
-    boost::lock_guard<boost::mutex> lock(myMutex);
-    if (!mMouseBeginEvents.empty()) {
-      mLastTouchTime = curr;
-      mIdling = false;
+		mTouchBeginEvents.lockedUpdate();
+		mTouchMovedEvents.lockedUpdate();
+		mTouchEndEvents.lockedUpdate();
+	} // unlock touch mutex
+	//////////////////////////////////////////////////////////////////////////
 
-      for (auto it = mMouseBeginEvents.begin(), it2 = mMouseBeginEvents.end(); it != it2; ++it) {
-    	  mTouchManager.mouseTouchBegin(it->first, it->second);
-      }
-      mMouseBeginEvents.clear();
-    }
+	mMouseBeginEvents.update(curr);
+	mMouseMovedEvents.update(curr);
+	mMouseEndEvents.update(curr);
+	mTouchBeginEvents.update(curr);
+	mTouchMovedEvents.update(curr);
+	mTouchEndEvents.update(curr);
 
-    if (!mMouseMovedEvents.empty()) {
-      mLastTouchTime = curr;
-      mIdling = false;
+	if (!mIdling && (curr - mLastTouchTime) >= mIdleTime) {
+		mIdling = true;
+	}
 
-      for (auto it = mMouseMovedEvents.begin(), it2 = mMouseMovedEvents.end(); it != it2; ++it) {
-        mTouchManager.mouseTouchMoved(it->first, it->second);
-      }
-      mMouseMovedEvents.clear();
-    }
-  
-    if (!mMouseEndEvents.empty()) {
-      mLastTouchTime = curr;
-      mIdling = false;
+	mUpdateParams.setDeltaTime(dt);
+	mUpdateParams.setElapsedTime(curr);
 
-      for (auto it = mMouseEndEvents.begin(), it2 = mMouseEndEvents.end(); it != it2; ++it) {
-        mTouchManager.mouseTouchEnded(it->first, it->second);
-      }
-      mMouseEndEvents.clear();
-    }
-    //////////////////////////////////////////////////////////////////////////
-    if (!mTouchBeginEvents.empty()) {
-      mLastTouchTime = curr;
-      mIdling = false;
-
-      for (auto it = mTouchBeginEvents.begin(), it2 = mTouchBeginEvents.end(); it != it2; ++it) {
-        mTouchManager.touchesBegin(*it);
-      }
-      mTouchBeginEvents.clear();
-    }
-
-    if (!mTouchMovedEvents.empty()) {
-      mLastTouchTime = curr;
-      mIdling = false;
-
-      for (auto it = mTouchMovedEvents.begin(), it2 = mTouchMovedEvents.end(); it != it2; ++it) {
-        mTouchManager.touchesMoved(*it);
-      }
-      mTouchMovedEvents.clear();
-    }
-
-    if (!mTouchEndEvents.empty()) {
-      mLastTouchTime = curr;
-      mIdling = false;
-
-      for (auto it = mTouchEndEvents.begin(), it2 = mTouchEndEvents.end(); it != it2; ++it) {
-        mTouchManager.touchesEnded(*it);
-      }
-      mTouchEndEvents.clear();
-    }
-  } // unlock myMutex
-  //////////////////////////////////////////////////////////////////////////
-  float dt = curr - mLastTime;
-  mLastTime = curr;
-
-  if (!mIdling && (curr - mLastTouchTime) >= mIdleTime ) {
-    mIdling = true;
-  }
-
-  mUpdateParams.setDeltaTime(dt);
-  mUpdateParams.setElapsedTime(curr);
-
-  mAutoUpdate.update(mUpdateParams);
+	mAutoUpdate.update(mUpdateParams);
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		(*it)->updateServer(mUpdateParams);
@@ -523,66 +479,32 @@ ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id)
   return it->second;
 }
 
-void Engine::touchesBegin( TouchEvent event )
-{
-  {
-    boost::lock_guard<boost::mutex> lock(myMutex);
-    mTouchBeginEvents.push_back(event);
-  }
-  //mTouchManager.touchesBegin(event);
+void Engine::touchesBegin(TouchEvent e) {
+	mTouchBeginEvents.incoming(e);
 }
 
-void Engine::touchesMoved( TouchEvent event )
-{
-  {
-    boost::lock_guard<boost::mutex> lock(myMutex);
-    mTouchMovedEvents.push_back(event);
-  }
-  //mTouchManager.touchesMoved(event);
+void Engine::touchesMoved(TouchEvent e) {
+	mTouchMovedEvents.incoming(e);
 }
 
-void Engine::touchesEnded( TouchEvent event )
-{
-  {
-    boost::lock_guard<boost::mutex> lock(myMutex);
-    mTouchEndEvents.push_back(event);
-  }
-  //mTouchManager.touchesEnded(event);
+void Engine::touchesEnded(TouchEvent e) {
+	mTouchEndEvents.incoming(e);
 }
 
-tuio::Client &Engine::getTuioClient()
-{
-  return mTuio;
+tuio::Client &Engine::getTuioClient() {
+	return mTuio;
 }
 
-void Engine::mouseTouchBegin( MouseEvent event, int id )
-{
-  {
-    boost::lock_guard<boost::mutex> lock(myMutex);
-    mMouseBeginEvents.push_back(MousePair(event, id));
-  }
-  //mTouchManager.mouseTouchBegin(event, id);
+void Engine::mouseTouchBegin(MouseEvent e, int id) {
+	mMouseBeginEvents.incoming(MousePair(e, id));
 }
 
-void Engine::mouseTouchMoved( MouseEvent event, int id )
-{
-  {
-    boost::lock_guard<boost::mutex> lock(myMutex);
-    mMouseMovedEvents.push_back(MousePair(event, id));
-  }
-  //mTouchManager.mouseTouchMoved(event, id);
+void Engine::mouseTouchMoved(MouseEvent e, int id) {
+	mMouseMovedEvents.incoming(MousePair(e, id));
 }
 
-void Engine::mouseTouchEnded( MouseEvent event, int id )
-{
-  mLastTouchTime = static_cast<float>(getElapsedSeconds());
-  mIdling = false;
-
-  {
-    boost::lock_guard<boost::mutex> lock(myMutex);
-    mMouseEndEvents.push_back(MousePair(event, id));
-  }
-  //mTouchManager.mouseTouchEnded(event, id);
+void Engine::mouseTouchEnded(MouseEvent e, int id) {
+	mMouseEndEvents.incoming(MousePair(e, id));
 }
 
 ds::ResourceList& Engine::getResources()

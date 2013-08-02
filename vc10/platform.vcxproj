@@ -38,6 +38,7 @@
     <ClInclude Include="..\src\ds\app\engine\engine_server.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_service.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_settings.h" />
+    <ClInclude Include="..\src\ds\app\engine\engine_touch_queue.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
     <ClInclude Include="..\src\ds\app\event.h" />
     <ClInclude Include="..\src\ds\app\event_client.h" />

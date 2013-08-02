@@ -15,6 +15,7 @@
 #include <cinder/app/TouchEvent.h>
 #include <cinder/app/AppBasic.h>
 #include "TuioClient.h"
+#include "ds/app/engine/engine_touch_queue.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
 #include "ds/cfg/settings.h"
@@ -189,13 +190,14 @@ private:
 
 	ci::gl::Fbo							mFbo;
 
-	std::vector<TouchEvent>				mTouchBeginEvents;
-	std::vector<TouchEvent>				mTouchMovedEvents;
-	std::vector<TouchEvent>				mTouchEndEvents;
+	std::mutex							mTouchMutex;
+	ds::EngineTouchQueue<TouchEvent>	mTouchBeginEvents;
+	ds::EngineTouchQueue<TouchEvent>	mTouchMovedEvents;
+	ds::EngineTouchQueue<TouchEvent>	mTouchEndEvents;
 	typedef std::pair<MouseEvent, int> MousePair;
-	std::vector<MousePair>				mMouseBeginEvents;
-	std::vector<MousePair>				mMouseMovedEvents;
-	std::vector<MousePair>				mMouseEndEvents;
+	ds::EngineTouchQueue<MousePair>		mMouseBeginEvents;
+	ds::EngineTouchQueue<MousePair>		mMouseMovedEvents;
+	ds::EngineTouchQueue<MousePair>		mMouseEndEvents;
 
 	bool								mSystemMultitouchEnabled;
 	bool								mHideMouse;
