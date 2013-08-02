@@ -16,6 +16,9 @@ public:
 	TuioObject();
 	TuioObject(const int objectId, const cinder::Vec2f& position);
 
+	int						getObjectId() const;
+	const cinder::Vec2f&	getPosition() const;
+
 private:
 	int						mObjectId;
 	cinder::Vec2f			mPosition;

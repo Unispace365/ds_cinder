@@ -14,4 +14,12 @@ TuioObject::TuioObject(const int objectId, const cinder::Vec2f& position)
 		, mPosition(position) {
 }
 
+int TuioObject::getObjectId() const {
+	return mObjectId;
+}
+
+const cinder::Vec2f& TuioObject::getPosition() const {
+	return mPosition;
+}
+
 } // namespace ds
