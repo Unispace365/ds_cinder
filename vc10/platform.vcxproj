@@ -61,6 +61,7 @@
     <ClInclude Include="..\src\ds\data\read_write_buffer.h" />
     <ClInclude Include="..\src\ds\data\resource.h" />
     <ClInclude Include="..\src\ds\data\resource_list.h" />
+    <ClInclude Include="..\src\ds\data\tuio_object.h" />
     <ClInclude Include="..\src\ds\debug\computer_info.h" />
     <ClInclude Include="..\src\ds\debug\console.h" />
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
@@ -180,6 +181,7 @@
     <ClCompile Include="..\src\ds\data\read_write_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\resource.cpp" />
     <ClCompile Include="..\src\ds\data\resource_list.cpp" />
+    <ClCompile Include="..\src\ds\data\tuio_object.cpp" />
     <ClCompile Include="..\src\ds\debug\computer_info.cpp" />
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />

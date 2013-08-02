@@ -480,6 +480,9 @@
     <ClInclude Include="..\src\ds\app\engine\engine_touch_queue.h">
       <Filter>src\ds\app\engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\data\tuio_object.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -778,6 +781,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\query\query_result_editor.cpp">
       <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\tuio_object.cpp">
+      <Filter>src\ds\data</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

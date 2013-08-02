@@ -48,6 +48,9 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {this->mTouchManager.mouseTouchBegin(e.first, e.second);})
 	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {this->mTouchManager.mouseTouchMoved(e.first, e.second);})
 	, mMouseEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const MousePair& e)  {this->mTouchManager.mouseTouchEnded(e.first, e.second);})
+	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);})
+	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);})
+	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
 	, mSystemMultitouchEnabled(false)
 	, mApplyFxAA(false)
 {
@@ -207,15 +210,24 @@ void Engine::updateServer() {
 		mTouchBeginEvents.lockedUpdate();
 		mTouchMovedEvents.lockedUpdate();
 		mTouchEndEvents.lockedUpdate();
+
+		mTuioObjectsBegin.lockedUpdate();
+		mTuioObjectsMoved.lockedUpdate();
+		mTuioObjectsEnd.lockedUpdate();
 	} // unlock touch mutex
 	//////////////////////////////////////////////////////////////////////////
 
 	mMouseBeginEvents.update(curr);
 	mMouseMovedEvents.update(curr);
 	mMouseEndEvents.update(curr);
+
 	mTouchBeginEvents.update(curr);
 	mTouchMovedEvents.update(curr);
 	mTouchEndEvents.update(curr);
+
+	mTuioObjectsBegin.update(curr);
+	mTuioObjectsMoved.update(curr);
+	mTuioObjectsEnd.update(curr);
 
 	if (!mIdling && (curr - mLastTouchTime) >= mIdleTime) {
 		mIdling = true;
@@ -274,6 +286,14 @@ void Engine::clearAllSprites()
 {
 	for (auto it=mRoots.begin(), end=mRoots.end(); it != end; ++it) {
 		(*it)->clearChildren();
+	}
+}
+
+void Engine::registerForTuioObjects(tuio::Client& client) {
+	if (mSettings.getBool("tuio:receive_objects", 0, false)) {
+		client.registerObjectAdded([this](tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos())); });
+		client.registerObjectUpdated([this](tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos())); });
+		client.registerObjectRemoved([this](tuio::Object o) { this->mTuioObjectsEnd.incoming(TuioObject(o.getFiducialId(), o.getPos())); });
 	}
 }
 

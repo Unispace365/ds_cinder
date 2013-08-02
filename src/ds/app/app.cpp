@@ -171,6 +171,15 @@ void App::touchesEnded( TouchEvent event )
   mEngine.touchesEnded(event);
 }
 
+void App::tuioObjectBegan(const TuioObject&) {
+}
+
+void App::tuioObjectMoved(const TuioObject&) {
+}
+
+void App::tuioObjectEnded(const TuioObject&) {
+}
+
 const std::string& App::envAppPath()
 {
   return APP_PATH;

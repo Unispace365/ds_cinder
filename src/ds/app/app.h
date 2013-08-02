@@ -9,6 +9,7 @@
 
 namespace ds {
 class Environment;
+class TuioObject;
 
 /**
  * \class ds::App
@@ -34,6 +35,11 @@ public:
     virtual void                touchesBegan( TouchEvent event );
     virtual void                touchesMoved( TouchEvent event );
     virtual void                touchesEnded( TouchEvent event );
+	// To receive TUIO Objects, the engine must have this setting:
+	//	<text name="tuio:receive_objects" value="true" />
+	virtual void				tuioObjectBegan(const TuioObject&);
+	virtual void				tuioObjectMoved(const TuioObject&);
+	virtual void				tuioObjectEnded(const TuioObject&);
     virtual void                keyDown( KeyEvent event );
     virtual void                keyUp( KeyEvent event );
     virtual void                prepareSettings(Settings*);

@@ -37,11 +37,11 @@ void EngineClientServer::setup(ds::App& app)
   app.setupServer();
 }
 
-void EngineClientServer::setupTuio(ds::App& a)
-{
-  tuio::Client &tuioClient = getTuioClient();
-  tuioClient.registerTouches(&a);
-  tuioClient.connect(mTuioPort);
+void EngineClientServer::setupTuio(ds::App& a) {
+	tuio::Client&		tuioClient = getTuioClient();
+	tuioClient.registerTouches(&a);
+	registerForTuioObjects(tuioClient);
+	tuioClient.connect(mTuioPort);
 }
 
 void EngineClientServer::update()

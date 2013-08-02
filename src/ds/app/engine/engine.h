@@ -18,6 +18,7 @@
 #include "ds/app/engine/engine_touch_queue.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
+#include "ds/data/tuio_object.h"
 #include "ds/cfg/settings.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
@@ -142,19 +143,19 @@ protected:
 	// Called from the destructor of all subclasses, so I can cleanup
 	// sprites before services go away.
 	void								clearAllSprites();
+	void								registerForTuioObjects(tuio::Client&);
 
 	static const int					NumberOfNetworkThreads;
 
 	ds::BlobRegistry					mBlobRegistry;
 	std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
 										mSprites;
-
-protected:
 	int									mTuioPort;
 
 private:
 	std::vector<ui::Sprite*>			mRoots;
 
+	const ds::cfg::Settings&			mSettings;
 	ImageRegistry						mImageRegistry;
 	ds::ui::Tweenline					mTweenline;
 	// A cache of all the resources in the system
@@ -174,7 +175,6 @@ private:
 	// of each update cycle
 	AutoUpdateList						mAutoUpdate;
 
-	const ds::cfg::Settings&			mSettings;
 	ds::cfg::Settings					mDebugSettings;
 	ci::CameraOrtho						mCamera;
 	ci::CameraPersp						mCameraPersp;
@@ -198,6 +198,10 @@ private:
 	ds::EngineTouchQueue<MousePair>		mMouseBeginEvents;
 	ds::EngineTouchQueue<MousePair>		mMouseMovedEvents;
 	ds::EngineTouchQueue<MousePair>		mMouseEndEvents;
+	// Only used if the settings file has "tuio:receive_objects" set to true
+	ds::EngineTouchQueue<TuioObject>	mTuioObjectsBegin;
+	ds::EngineTouchQueue<TuioObject>	mTuioObjectsMoved;
+	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnd;
 
 	bool								mSystemMultitouchEnabled;
 	bool								mHideMouse;
