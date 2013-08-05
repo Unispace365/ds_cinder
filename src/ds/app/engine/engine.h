@@ -92,6 +92,7 @@ public:
 	virtual void						registerSprite(ds::ui::Sprite&);
 	virtual void						unregisterSprite(ds::ui::Sprite&);
 	virtual ds::ui::Sprite*				findSprite(const ds::sprite_id_t);
+	virtual void						requestDeleteSprite(ds::ui::Sprite&);
 
 	tuio::Client&						getTuioClient();
 	void								mouseTouchBegin(MouseEvent, int id);
@@ -153,7 +154,10 @@ protected:
 	int									mTuioPort;
 
 private:
+	void								deleteRequestedSprites();
+
 	std::vector<ui::Sprite*>			mRoots;
+	std::vector<ds::sprite_id_t>		mRequestDelete;
 
 	const ds::cfg::Settings&			mSettings;
 	ImageRegistry						mImageRegistry;

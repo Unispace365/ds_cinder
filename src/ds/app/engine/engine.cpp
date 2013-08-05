@@ -54,6 +54,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mSystemMultitouchEnabled(false)
 	, mApplyFxAA(false)
 {
+	mRequestDelete.reserve(32);
+
 	// Construct the root sprites
 	if (roots) {
 		sprite_id_t				id = EMPTY_SPRITE_ID-1;
@@ -177,18 +179,19 @@ ui::Sprite& Engine::getRootSprite(const size_t index)
   return *(mRoots[index]);
 }
 
-void Engine::updateClient()
-{
-  float curr = static_cast<float>(getElapsedSeconds());
-  float dt = curr - mLastTime;
-  mLastTime = curr;
+void Engine::updateClient() {
+	deleteRequestedSprites();
 
-  if (!mIdling && (curr - mLastTouchTime) >= mIdleTime ) {
-    mIdling = true;
-  }
+	float curr = static_cast<float>(getElapsedSeconds());
+	float dt = curr - mLastTime;
+	mLastTime = curr;
 
-  mUpdateParams.setDeltaTime(dt);
-  mUpdateParams.setElapsedTime(curr);
+	if (!mIdling && (curr - mLastTouchTime) >= mIdleTime ) {
+		mIdling = true;
+	}
+
+	mUpdateParams.setDeltaTime(dt);
+	mUpdateParams.setElapsedTime(curr);
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		(*it)->updateClient(mUpdateParams);
@@ -196,6 +199,8 @@ void Engine::updateClient()
 }
 
 void Engine::updateServer() {
+	deleteRequestedSprites();
+
 	const float		curr = static_cast<float>(getElapsedSeconds());
 	const float		dt = curr - mLastTime;
 	mLastTime = curr;
@@ -499,6 +504,13 @@ ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id)
   return it->second;
 }
 
+void Engine::requestDeleteSprite(ds::ui::Sprite& s) {
+	try {
+		mRequestDelete.push_back(s.getId());
+	} catch (std::exception const&) {
+	}
+}
+
 void Engine::touchesBegin(TouchEvent e) {
 	mTouchBeginEvents.incoming(e);
 }
@@ -600,6 +612,17 @@ void Engine::setPerspectiveCameraTarget( const ci::Vec3f &tar )
 ci::Vec3f Engine::getPerspectiveCameraTarget() const
 {
   return mCameraPersp.getCenterOfInterestPoint();
+}
+
+void Engine::deleteRequestedSprites() {
+	for (auto it=mRequestDelete.begin(), end=mRequestDelete.end(); it!=end; ++it) {
+		try {
+			ds::ui::Sprite*		s = findSprite(*it);
+			if (s) ds::ui::Sprite::removeAndDelete(s);
+		} catch (std::exception const&) {
+		}
+	}
+	mRequestDelete.clear();
 }
 
 } // namespace ds

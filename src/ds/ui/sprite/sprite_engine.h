@@ -67,6 +67,8 @@ public:
 	virtual void					registerSprite(Sprite&) = 0;
 	virtual void					unregisterSprite(Sprite&) = 0;
 	virtual Sprite*					findSprite(const ds::sprite_id_t) = 0;
+	// Sprite won't be deleted until the next update, so all references are cleared.
+	virtual void					requestDeleteSprite(Sprite&) = 0;
 
 	float							getMinTouchDistance() const;
 	float							getMinTapDistance() const;
