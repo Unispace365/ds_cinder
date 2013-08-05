@@ -11,24 +11,26 @@ namespace ds {
  * \class ds::EventNotifier
  * Holder for an event notifier.
  */
-class EventNotifier
-{
-  public:
-    EventNotifier();
-    virtual ~EventNotifier();
+class EventNotifier {
+public:
+	EventNotifier();
+	virtual ~EventNotifier();
 
-    void                        addListener(void *id, const std::function<void(const ds::Event*)>&);
+	void						addListener(void *id, const std::function<void(const ds::Event*)>&);
+	void						addRequestListener(void *id, const std::function<void(ds::Event&)>&);
+	void						removeListener(void *id);
+	void						removeRequestListener(void *id);
 
-    // Send an event to the system, for clients that don't need
-    // an EventClient (i.e. don't need to receive events)
-    void                        notify(const ds::Event&);
-    // Request information from the system.
-    void                        request(ds::Event&);
+	// Send an event to the system, for clients that don't need
+	// an EventClient (i.e. don't need to receive events)
+	void						notify(const ds::Event&);
+	// Request information from the system.
+	void						request(ds::Event&);
 
-  protected:
-    friend class EventClient;
+protected:
+	friend class EventClient;
 
-    ds2::Notifier<ds::Event>    mEventNotifier;
+	ds2::Notifier<ds::Event>    mEventNotifier;
 };
 
 } // namespace ds
