@@ -80,29 +80,30 @@ World::World(ds::ui::SpriteEngine& e)
 	}
 }
 
-void World::processTouchInfo(const SpriteBody& body, const ds::ui::TouchInfo& ti)
-{
-	if (ti.mPhase == ti.Added) {
-		eraseTouch(ti.mFingerId);
+void World::processTouchAdded(const SpriteBody& body, const ds::ui::TouchInfo& ti) {
+	eraseTouch(ti.mFingerId);
 
-		if (body.mBody) {
-			b2MouseJointDef jointDef;
-			jointDef.target = Ci2BoxTranslation(ti.mStartPoint);
-			jointDef.bodyA = mGround;
-			jointDef.bodyB = body.mBody;
-			jointDef.maxForce = 10000.0f * body.mBody->GetMass();
-			jointDef.dampingRatio = 1.0f;
-			jointDef.frequencyHz = 25.0f;
-			mTouchJoints[ti.mFingerId] = mWorld->CreateJoint(&jointDef);
-		}
-	} else if (ti.mPhase == ti.Moved) {
-		b2MouseJoint*		j = getTouchJoint(ti.mFingerId);
-		if (j) {
-			j->SetTarget(Ci2BoxTranslation(ti.mCurrentGlobalPoint));
-		}
-	} else if (ti.mPhase == ti.Removed) {
-		eraseTouch(ti.mFingerId);
+	if (body.mBody) {
+		b2MouseJointDef jointDef;
+		jointDef.target = Ci2BoxTranslation(ti.mStartPoint);
+		jointDef.bodyA = mGround;
+		jointDef.bodyB = body.mBody;
+		jointDef.maxForce = 10000.0f * body.mBody->GetMass();
+		jointDef.dampingRatio = 1.0f;
+		jointDef.frequencyHz = 25.0f;
+		mTouchJoints[ti.mFingerId] = mWorld->CreateJoint(&jointDef);
 	}
+}
+
+void World::processTouchMoved(const SpriteBody& body, const ds::ui::TouchInfo& ti) {
+	b2MouseJoint*		j = getTouchJoint(ti.mFingerId);
+	if (j) {
+		j->SetTarget(Ci2BoxTranslation(ti.mCurrentGlobalPoint));
+	}
+}
+
+void World::processTouchRemoved(const SpriteBody& body, const ds::ui::TouchInfo& ti) {
+	eraseTouch(ti.mFingerId);
 }
 
 float World::getFriction() const

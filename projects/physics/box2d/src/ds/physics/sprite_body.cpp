@@ -55,8 +55,11 @@ SpriteBody::~SpriteBody()
 	destroy();
 }
 
-void SpriteBody::create(const BodyBuilder& b)
-{
+bool SpriteBody::empty() const {
+	return mBody == nullptr;
+}
+
+void SpriteBody::create(const BodyBuilder& b) {
 	destroy();
 
 	b2BodyDef			def;
@@ -73,28 +76,56 @@ void SpriteBody::create(const BodyBuilder& b)
 	b.createFixture(*this);
 }
 
-void SpriteBody::destroy()
-{
+void SpriteBody::destroy() {
 	if (mBody == nullptr) return;
 
 	mWorld.mWorld->DestroyBody(mBody);
 	mBody = nullptr;
 }
 
-void SpriteBody::setLinearVelocity(const float x, const float y)
-{
+void SpriteBody::processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo& ti) {
+	if (mBody == nullptr) return;
+
+	if (ti.mPhase == ti.Added) mWorld.processTouchAdded(*this, ti);
+	else if (ti.mPhase == ti.Moved) mWorld.processTouchMoved(*this, ti);
+	else if (ti.mPhase == ti.Removed) mWorld.processTouchRemoved(*this, ti);
+}
+
+void SpriteBody::processTouchAdded(const ds::ui::TouchInfo& ti) {
+	mWorld.processTouchAdded(*this, ti);
+}
+
+void SpriteBody::processTouchMoved(const ds::ui::TouchInfo& ti) {
+	mWorld.processTouchMoved(*this, ti);
+}
+
+void SpriteBody::processTouchRemoved(const ds::ui::TouchInfo& ti) {
+	mWorld.processTouchRemoved(*this, ti);
+}
+
+void SpriteBody::setPosition(const ci::Vec3f& pos) {
+	if (mBody == nullptr) return;
+
+	const b2Vec2		boxpos = mWorld.Ci2BoxTranslation(pos);
+	mBody->SetTransform(boxpos, mBody->GetAngle());
+}
+
+void SpriteBody::clearVelocity() {
+	if (mBody == nullptr) return;
+
+	b2Vec2			zeroVec;
+	zeroVec.SetZero();
+	mBody->SetLinearVelocity(zeroVec);
+	mBody->SetAngularVelocity(0);
+}
+
+void SpriteBody::setLinearVelocity(const float x, const float y) {
 	if (mBody != nullptr) {
 		mBody->SetLinearVelocity(b2Vec2(x, y));
 	}
 }
 
-void SpriteBody::processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo& ti)
-{
-	mWorld.processTouchInfo(*this, ti);
-}
-
-void SpriteBody::setRotation(const float degree)
-{
+void SpriteBody::setRotation(const float degree) {
 	if (mBody == nullptr) return;
 
 	const float		angle = degree * ds::math::DEGREE2RADIAN;
@@ -106,13 +137,11 @@ void SpriteBody::setRotation(const float degree)
 	}
 }
 
-void SpriteBody::setCollisionCallback(const std::function<void(const Collision&)>& fn)
-{
+void SpriteBody::setCollisionCallback(const std::function<void(const Collision&)>& fn) {
 	mWorld.setCollisionCallback(mSprite, fn);
 }
 
-void SpriteBody::onCenterChanged()
-{
+void SpriteBody::onCenterChanged() {
 	if (mBody == nullptr) return;
 
 	// Currently there should only be 1 fixture.

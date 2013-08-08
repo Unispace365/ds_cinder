@@ -3,6 +3,7 @@
 #define DS_PHYSICS_SPRITEBODY_H_
 
 #include <functional>
+#include <cinder/Vector.h>
 
 class b2Body;
 
@@ -31,11 +32,19 @@ public:
 	SpriteBody(ds::ui::Sprite&);
 	~SpriteBody();
 
+	bool					empty() const;
 	void					create(const BodyBuilder&);
 	void					destroy();
 
-	void					setLinearVelocity(const float x, const float y);
 	void					processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo&);
+	void					processTouchAdded(const ds::ui::TouchInfo&);
+	void					processTouchMoved(const ds::ui::TouchInfo&);
+	void					processTouchRemoved(const ds::ui::TouchInfo&);
+
+	void					setPosition(const ci::Vec3f&);
+
+	void					clearVelocity();
+	void					setLinearVelocity(const float x, const float y);
 
 	void					setRotation(const float degree);
 	// Set a collision callback, called whenever this body
