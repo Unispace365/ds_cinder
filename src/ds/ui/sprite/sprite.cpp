@@ -384,19 +384,15 @@ const ci::Vec3f &Sprite::getCenter() const
     return mCenter;
 }
 
-void Sprite::setRotation( float rotZ )
-{
-    if ( math::isEqual(mRotation.z, rotZ) )
-        return;
-
-    mRotation.z = rotZ;
-    mUpdateTransform = true;
-    mBoundsNeedChecking = true;
-    dimensionalStateChanged();
+void Sprite::setRotation(float rotZ) {
+	onSetRotation(ci::Vec3f(mRotation.x, mRotation.y, rotZ);
 }
 
-void Sprite::setRotation( const ci::Vec3f &rot )
-{
+void Sprite::setRotation(const ci::Vec3f& rot) {
+	onSetRotation(rot);
+}
+
+void Sprite::onSetRotation(const ci::Vec3f& rot) {
   if ( math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z) )
     return;
 
