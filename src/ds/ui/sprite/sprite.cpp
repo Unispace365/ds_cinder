@@ -385,7 +385,7 @@ const ci::Vec3f &Sprite::getCenter() const
 }
 
 void Sprite::setRotation(float rotZ) {
-	onSetRotation(ci::Vec3f(mRotation.x, mRotation.y, rotZ);
+	onSetRotation(ci::Vec3f(mRotation.x, mRotation.y, rotZ) );
 }
 
 void Sprite::setRotation(const ci::Vec3f& rot) {
