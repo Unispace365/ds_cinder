@@ -270,6 +270,8 @@ protected:
 	void				updateCheckBounds() const;
 	bool				checkBounds() const;
 
+	virtual void		onSetRotation(const ci::Vec3f&);
+
 	virtual void		onCenterChanged();
 	virtual void		onScaleChanged();
 	virtual void		onSizeChanged();
