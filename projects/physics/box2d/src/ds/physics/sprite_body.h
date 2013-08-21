@@ -34,6 +34,8 @@ public:
 
 	bool					empty() const;
 	void					create(const BodyBuilder&);
+	void					createStaticBody(const BodyBuilder&);
+	void					createDistanceJoint(const SpriteBody&, float length);
 	void					destroy();
 
 	void					processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo&);

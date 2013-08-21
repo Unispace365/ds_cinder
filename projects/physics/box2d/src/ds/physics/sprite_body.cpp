@@ -76,6 +76,27 @@ void SpriteBody::create(const BodyBuilder& b) {
 	b.createFixture(*this);
 }
 
+void SpriteBody::createStaticBody(const BodyBuilder& b) {
+	destroy();
+
+	b2BodyDef			def;
+	def.type = b2_staticBody;
+	def.userData = &mSprite;
+	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition());
+	def.linearDamping = b.mLinearDampening;
+	def.angularDamping = b.mAngularDampening;
+	def.fixedRotation = b.mFixedRotation;
+
+	mBody = mWorld.mWorld->CreateBody(&def);
+	if (!mBody) return;
+
+	b.createFixture(*this);
+}
+
+void SpriteBody::createDistanceJoint(const SpriteBody& body, float length) {
+	mWorld.createDistanceJoint(*this, body, length);
+}
+
 void SpriteBody::destroy() {
 	if (mBody == nullptr) return;
 

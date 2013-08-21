@@ -29,6 +29,8 @@ class World : public ds::EngineService
 public:
 	World(ds::ui::SpriteEngine&);
 
+	void							createDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
+
 	void							processTouchAdded(const SpriteBody&, const ds::ui::TouchInfo&);
 	void							processTouchMoved(const SpriteBody&, const ds::ui::TouchInfo&);
 	void							processTouchRemoved(const SpriteBody&, const ds::ui::TouchInfo&);

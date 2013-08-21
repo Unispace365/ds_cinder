@@ -11,6 +11,7 @@
 #include "Box2D/Dynamics/b2Body.h"
 #include "Box2D/Dynamics/b2World.h"
 #include "Box2D/Dynamics/b2Fixture.h"
+#include "Box2D/Dynamics/Joints/b2DistanceJoint.h"
 #include "Box2D/Dynamics/Joints/b2MouseJoint.h"
 
 namespace ds {
@@ -77,6 +78,21 @@ World::World(ds::ui::SpriteEngine& e)
 		const ci::Rectf&		r = mSettings.getRect("bounds:unit");
 		setBounds(	ci::Rectf(r.x1 * e.getWorldWidth(), r.y1 * e.getWorldHeight(), r.x2 * e.getWorldWidth(), r.y2 * e.getWorldHeight()),
 					mSettings.getFloat("bounds:restitution", 0, 1.0f));
+	}
+}
+
+void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length) {
+	if (body1.mBody && body2.mBody) {
+		b2DistanceJointDef jointDef;
+		jointDef.bodyA = body1.mBody;
+		jointDef.bodyB = body2.mBody;
+		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter());
+		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter());
+		jointDef.dampingRatio = 1.0f;
+		jointDef.frequencyHz = 1.0f;
+		jointDef.collideConnected = false;
+		jointDef.length = getCi2BoxScale()*(length);
+		mWorld->CreateJoint(&jointDef);
 	}
 }
 
