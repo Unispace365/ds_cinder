@@ -81,22 +81,32 @@ World::World(ds::ui::SpriteEngine& e)
 	}
 }
 
-void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length) {
+b2DistanceJoint* World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length) {
+	
 	if (body1.mBody && body2.mBody) {
 		b2DistanceJointDef jointDef;
 		jointDef.bodyA = body1.mBody;
 		jointDef.bodyB = body2.mBody;
 		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter());
 		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter());
-		jointDef.dampingRatio = 1.0f;
-		jointDef.frequencyHz = 1.0f;
+		// First try settings:
+		//jointDef.dampingRatio = 8.0f;
+		//jointDef.frequencyHz = 3.0f;
+		// Settings that work well if you don't have colliding bodies:
+		//jointDef.dampingRatio = 50.0f;
+		//jointDef.frequencyHz = 10.0f;
+		// Trying to find settings that work well with colliding bodies: (Grr!)
+		jointDef.dampingRatio = 0.95f;
+		jointDef.frequencyHz = 2.0f;
 		jointDef.collideConnected = false;
 		jointDef.length = getCi2BoxScale()*(length);
-		mWorld->CreateJoint(&jointDef);
+		return (b2DistanceJoint*) mWorld->CreateJoint(&jointDef);
 	}
+
+	return nullptr;
 }
 
-void World::processTouchAdded(const SpriteBody& body, const ds::ui::TouchInfo& ti) {
+void World::processTouchAdded(const SpriteBody& body, const ds::ui::TouchInfo& ti) {	
 	eraseTouch(ti.mFingerId);
 
 	if (body.mBody) {
@@ -107,6 +117,9 @@ void World::processTouchAdded(const SpriteBody& body, const ds::ui::TouchInfo& t
 		jointDef.maxForce = 10000.0f * body.mBody->GetMass();
 		jointDef.dampingRatio = 1.0f;
 		jointDef.frequencyHz = 25.0f;
+		//Experimenting with Tree Node mousejoints (assuming colliding bodies):
+		//jointDef.dampingRatio = 30.0f;
+		//jointDef.frequencyHz = 40.0f;
 		mTouchJoints[ti.mFingerId] = mWorld->CreateJoint(&jointDef);
 	}
 }

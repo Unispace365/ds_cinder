@@ -2,10 +2,12 @@
 #ifndef DS_PHYSICS_SPRITEBODY_H_
 #define DS_PHYSICS_SPRITEBODY_H_
 
+#include <vector>
 #include <functional>
 #include <cinder/Vector.h>
 
 class b2Body;
+class b2DistanceJoint;
 
 namespace ds {
 namespace ui {
@@ -35,8 +37,10 @@ public:
 	bool					empty() const;
 	void					create(const BodyBuilder&);
 	void					createStaticBody(const BodyBuilder&);
-	void					createDistanceJoint(const SpriteBody&, float length);
+	void					createDistanceJoint(SpriteBody&, float length);
 	void					destroy();
+
+	void					resizeDistanceJoint(SpriteBody& body, float length);
 
 	void					processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo&);
 	void					processTouchAdded(const ds::ui::TouchInfo&);
@@ -66,6 +70,7 @@ private:
 	World&					mWorld;
 	ds::ui::Sprite&			mSprite;
 	b2Body*					mBody;
+	std::vector<b2DistanceJoint*>		mJoints;
 };
 
 } // namespace physics

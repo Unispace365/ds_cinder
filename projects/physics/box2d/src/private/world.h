@@ -11,6 +11,7 @@
 #include <ds/util/bit_mask.h>
 #include "private/contact_listener.h"
 class b2Body;
+class b2DistanceJoint;
 class b2MouseJoint;
 class b2World;
 struct b2Vec2;
@@ -29,7 +30,7 @@ class World : public ds::EngineService
 public:
 	World(ds::ui::SpriteEngine&);
 
-	void							createDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
+	b2DistanceJoint*				createDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
 
 	void							processTouchAdded(const SpriteBody&, const ds::ui::TouchInfo&);
 	void							processTouchMoved(const SpriteBody&, const ds::ui::TouchInfo&);

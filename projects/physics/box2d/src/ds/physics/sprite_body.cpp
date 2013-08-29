@@ -9,6 +9,8 @@
 #include "Box2D/Dynamics/b2Body.h"
 #include "Box2D/Dynamics/b2Fixture.h"
 #include "Box2D/Dynamics/b2World.h"
+#include "Box2D/Dynamics/Joints/b2Joint.h"
+#include "Box2D/Dynamics/Joints/b2DistanceJoint.h"
 
 namespace ds {
 namespace physics {
@@ -93,15 +95,31 @@ void SpriteBody::createStaticBody(const BodyBuilder& b) {
 	b.createFixture(*this);
 }
 
-void SpriteBody::createDistanceJoint(const SpriteBody& body, float length) {
-	mWorld.createDistanceJoint(*this, body, length);
+void SpriteBody::createDistanceJoint(SpriteBody& body, float length) {
+	auto joint = mWorld.createDistanceJoint(*this, body, length);
+
+	mJoints.insert(mJoints.end(), joint);
+
+	//std::cout << "ANCHORS:" << std::endl;
+	//std::cout << "A " << joint->GetAnchorA().x << " " << joint->GetAnchorA().y << std::endl;
+	//std::cout << "B " << joint->GetAnchorB().x << " " << joint->GetAnchorB().y << std::endl;
 }
 
 void SpriteBody::destroy() {
 	if (mBody == nullptr) return;
-
+	
 	mWorld.mWorld->DestroyBody(mBody);
 	mBody = nullptr;
+}
+
+void SpriteBody::resizeDistanceJoint(SpriteBody& body, float length) {
+
+	for (auto it = mJoints.begin(); it != mJoints.end(); ++it) {
+		auto joint = *it;
+		if (joint) {
+			joint->SetLength(length*mWorld.getCi2BoxScale());
+		}
+	}
 }
 
 void SpriteBody::processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo& ti) {
