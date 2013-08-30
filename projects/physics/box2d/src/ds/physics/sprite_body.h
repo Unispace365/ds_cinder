@@ -39,6 +39,7 @@ public:
 	void					createStaticBody(const BodyBuilder&);
 	void					createDistanceJoint(SpriteBody&, float length);
 	void					destroy();
+	void					setActive(bool flag);
 
 	void					resizeDistanceJoint(SpriteBody& body, float length);
 

@@ -96,30 +96,26 @@ void SpriteBody::createStaticBody(const BodyBuilder& b) {
 }
 
 void SpriteBody::createDistanceJoint(SpriteBody& body, float length) {
-	auto joint = mWorld.createDistanceJoint(*this, body, length);
-
-	mJoints.insert(mJoints.end(), joint);
-
-	//std::cout << "ANCHORS:" << std::endl;
-	//std::cout << "A " << joint->GetAnchorA().x << " " << joint->GetAnchorA().y << std::endl;
-	//std::cout << "B " << joint->GetAnchorB().x << " " << joint->GetAnchorB().y << std::endl;
+	mWorld.createDistanceJoint(*this, body, length);
 }
-
+ 
 void SpriteBody::destroy() {
 	if (mBody == nullptr) return;
-	
+
+	// Destroying a body also destroys all joints associated with that body.
 	mWorld.mWorld->DestroyBody(mBody);
 	mBody = nullptr;
 }
 
+void SpriteBody::setActive(bool flag)
+{
+	// Setting a body as inactive also sets all associated joints as inactive, but does not delete them from the world.
+	mBody->SetActive(flag);
+}
+
 void SpriteBody::resizeDistanceJoint(SpriteBody& body, float length) {
 
-	for (auto it = mJoints.begin(); it != mJoints.end(); ++it) {
-		auto joint = *it;
-		if (joint) {
-			joint->SetLength(length*mWorld.getCi2BoxScale());
-		}
-	}
+	mWorld.resizeDistanceJoint(*this, body, length);
 }
 
 void SpriteBody::processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo& ti) {

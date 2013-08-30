@@ -30,7 +30,8 @@ class World : public ds::EngineService
 public:
 	World(ds::ui::SpriteEngine&);
 
-	b2DistanceJoint*				createDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
+	void							createDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
+	void							resizeDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
 
 	void							processTouchAdded(const SpriteBody&, const ds::ui::TouchInfo&);
 	void							processTouchMoved(const SpriteBody&, const ds::ui::TouchInfo&);
@@ -82,6 +83,7 @@ private:
 
 	// Store pointers to joints created with touches.
 	std::unordered_map<int, void*>	mTouchJoints;
+	std::vector<b2DistanceJoint*>	mDistanceJoints;
 };
 
 } // namespace physics
