@@ -16,9 +16,9 @@ namespace ui {
 
 namespace {
 
-const std::string	ERROR_TYPE_SZ("");
-const std::string	AUDIO_TYPE_SZ("a");
-const std::string	VIDEO_TYPE_SZ("v");
+const std::string&	ERROR_TYPE_SZ() { static const std::string	ANS(""); return ANS; }
+const std::string&	AUDIO_TYPE_SZ() { static const std::string	ANS("a"); return ANS; }
+const std::string&	VIDEO_TYPE_SZ() { static const std::string	ANS("v"); return ANS; }
 
 std::string get_db_directory() {
 	Poco::Path		p("%USERPROFILE%");
@@ -33,15 +33,15 @@ std::string get_db_file(const std::string& name) {
 }
 
 VideoMetaCache::Type type_from_db_type(const std::string& t) {
-	if (t == AUDIO_TYPE_SZ) return VideoMetaCache::AUDIO_TYPE;
-	if (t == VIDEO_TYPE_SZ) return VideoMetaCache::VIDEO_TYPE;
+	if (t == AUDIO_TYPE_SZ()) return VideoMetaCache::AUDIO_TYPE;
+	if (t == VIDEO_TYPE_SZ()) return VideoMetaCache::VIDEO_TYPE;
 	return VideoMetaCache::ERROR_TYPE;
 }
 
 const std::string& db_type_from_type(const VideoMetaCache::Type t) {
-	if (t == VideoMetaCache::AUDIO_TYPE) return AUDIO_TYPE_SZ;
-	if (t == VideoMetaCache::VIDEO_TYPE) return VIDEO_TYPE_SZ;
-	return ERROR_TYPE_SZ;
+	if (t == VideoMetaCache::AUDIO_TYPE) return AUDIO_TYPE_SZ();
+	if (t == VideoMetaCache::VIDEO_TYPE) return VIDEO_TYPE_SZ();
+	return ERROR_TYPE_SZ();
 }
 
 }
@@ -50,7 +50,7 @@ const std::string& db_type_from_type(const VideoMetaCache::Type t) {
  * \class VideoMetaCache
  */
 VideoMetaCache::VideoMetaCache(const std::string& name)
-	: mName(name) {
+		: mName(name) {
 	load();
 }
 

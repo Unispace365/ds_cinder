@@ -219,7 +219,6 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	// Open Uri
 	g_object_set( m_GstPipeline, "uri", strFilename.c_str(), NULL );
 
-
 	////////////////////////////////////////////////////////////////////////// VIDEO SINK
 	// Extract and Config Video Sink
 	if ( bGenerateVideoBuffer )
@@ -319,6 +318,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	{
 #ifdef _WIN32 // Use direct sound plugin if on Windows; Needed for features like play direction and playback speed to work correctly
 		GstElement* audioSink = gst_element_factory_make( "directsoundsink", NULL );
+		if (!audioSink) { DS_LOG_WARNING("GStreamer can't create audio sink"); }
 		g_object_set ( m_GstPipeline, "audio-sink", audioSink, NULL );
 #elif LINUX
 		GstElement* audioSink = gst_element_factory_make( "pulsesink", NULL );  //alternative: alsasink
@@ -364,7 +364,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	//}
 
 	// Print Media Info
-	//printMediaFileInfo();
+//	printMediaFileInfo();
 
 	// TODO: Check if everything was initialized correctly
 	// A file has been opened
@@ -433,8 +433,8 @@ void GStreamerWrapper::play()
 	if ( m_GstPipeline != NULL )
 	{
 		GstStateChangeReturn gscr = gst_element_set_state( m_GstPipeline, GST_STATE_PLAYING );
-		if(!gscr == GST_STATE_CHANGE_SUCCESS){
-			DS_LOG_WARNING("Error going to playing state!");
+		if (gscr == GST_STATE_CHANGE_FAILURE) {
+			DS_LOG_WARNING("Error going to playing state (error=" << gscr << ")");
 		}
 		m_CurrentPlayState = PLAYING;
 	}
@@ -471,7 +471,7 @@ void GStreamerWrapper::pause()
 
 void GStreamerWrapper::printMediaFileInfo()
 {
-	return;
+//	return;
 
 	std::cout << "-----------------------------------------------------------------" << std::endl;
 	std::cout << "Loading file ..." << std::endl;
@@ -581,6 +581,7 @@ void GStreamerWrapper::setPosition( float fPos )
 	else if( fPos > 1.0 )
 		fPos = 1.0;
 
+	// This isn't being used for anything, is probably wrong, and should probably be removed
 	m_dCurrentTimeInMs = fPos * m_dCurrentTimeInMs;
 	m_iCurrentFrameNumber = (gint64)(fPos * m_iNumberOfFrames);
 	m_iCurrentTimeInNs = (gint64)(fPos * m_iDurationInNs);
@@ -951,8 +952,7 @@ void GStreamerWrapper::handleGStMessage()
 				case GST_MESSAGE_ERROR:
 					gst_message_parse_error( m_GstMessage, &err, &debug );
 					DS_LOG_WARNING("GST_MESSAGE_ERROR module " << gst_element_get_name( GST_MESSAGE_SRC( m_GstMessage ) ) << " reported " << err->message);
-				//	std::cout << "Embedded video playback halted: module " << gst_element_get_name( GST_MESSAGE_SRC( m_GstMessage ) ) <<
-				//		" reported " << err->message << std::endl;
+					std::cout << "Embedded video playback halted: module " << gst_element_get_name( GST_MESSAGE_SRC( m_GstMessage ) ) <<" reported " << err->message << std::endl;
 					//close();
 					//m_PendingClose = true;
 
@@ -973,7 +973,7 @@ void GStreamerWrapper::handleGStMessage()
 						} else if(newState == GST_STATE_READY){
 							m_CurrentGstState = STATE_READY;
 						}
-
+//						std::cout << "\tstate=" << newState << " pending=" << pending << std::endl;
 						if(m_PendingSeek && (m_CurrentGstState == STATE_PLAYING || m_CurrentGstState == STATE_PAUSED)){
 							seekFrame(m_PendingSeekTime);
 						}

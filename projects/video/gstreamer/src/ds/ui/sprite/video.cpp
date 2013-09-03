@@ -161,16 +161,19 @@ Video& Video::loadVideo(const std::string& filename) {
 		return *this;
 	}
 
-	const float preWidth = getWidth();
-	const float preHeight = getHeight();
-
+	VideoMetaCache::Type		type(VideoMetaCache::ERROR_TYPE);
 	try {
-		VideoMetaCache::Type	type;
 		int						videoWidth(-1),
 								videoHeight(-1);
 		double					videoDuration(0.0f);
 		CACHE.getValues(filename, type, videoWidth, videoHeight, videoDuration);
-		mMovie.open(filename, true, false, mIsTransparent, videoWidth, videoHeight, videoDuration);
+		bool					generateVideoBuffer = true;
+		if (type == VideoMetaCache::AUDIO_TYPE) {
+			generateVideoBuffer = false;
+			// Otherwise I am permanently muted
+			mInternalMuted = false;
+		}
+		mMovie.open(filename, generateVideoBuffer, false, mIsTransparent, videoWidth, videoHeight, videoDuration);
 		if (mLooping) {
 			mMovie.setLoopMode(LOOP);
 		} else {
@@ -178,7 +181,12 @@ Video& Video::loadVideo(const std::string& filename) {
 		}
 		//mMovie.play();
 		setMovieVolume();
-		mInternalMuted = true;
+		if (type == VideoMetaCache::AUDIO_TYPE) {
+			// Otherwise I am permanently muted
+			mInternalMuted = false;
+		} else {
+			mInternalMuted = true;
+		}
 		mMovie.setVideoCompleteCallback([this](GStreamerWrapper* video){ handleVideoComplete(video);});
 
 		setStatus(Status::STATUS_PLAYING);
@@ -187,25 +195,11 @@ Video& Video::loadVideo(const std::string& filename) {
 		return *this;
 	}
 
-	if (mMovie.getWidth() < 1.0f || mMovie.getHeight() < 1.0f) {
-		DS_LOG_WARNING("Video is too small to be used or didn't load correctly! " << filename << " " << getWidth() << " " << getHeight());
-		return *this;
-	}
-
-	Sprite::setSizeAll(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()), mDepth);
-
-	if (getWidth() > 0 && getHeight() > 0) {
-		setSize(getWidth() * getScale().x,  getHeight() * getScale().y);
-	}
-
-	if(!(mFboCreated && getWidth() == preWidth && getHeight() == preHeight)){
-		mFbo = ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), true);
-		mFboCreated = true;
-	} 
+	if (type == VideoMetaCache::VIDEO_TYPE) setupForVideo(filename);
 	return *this;
 }
 
-Video &Video::setResourceId(const ds::Resource::Id &resourceId) {
+Video& Video::setResourceId(const ds::Resource::Id &resourceId) {
 	DS_LOG_WARNING("Set resource ID is currentlt not implemented!");
 	try {
 		ds::Resource            res;
@@ -328,6 +322,27 @@ void Video::generateSingleFrame(const std::string& filename) {
 	mGeneratingSingleFrame = true;
 	loadVideo(filename);
 	play();
+}
+
+void Video::setupForVideo(const std::string& filename) {
+	if (mMovie.getWidth() < 1.0f || mMovie.getHeight() < 1.0f) {
+		DS_LOG_WARNING("Video is too small to be used or didn't load correctly! " << filename << " " << getWidth() << " " << getHeight());
+		return;
+	}
+
+	const float					preWidth = getWidth();
+	const float					preHeight = getHeight();
+
+	Sprite::setSizeAll(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()), mDepth);
+
+	if (getWidth() > 0 && getHeight() > 0) {
+		setSize(getWidth() * getScale().x,  getHeight() * getScale().y);
+	}
+
+	if(!(mFboCreated && getWidth() == preWidth && getHeight() == preHeight)){
+		mFbo = ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), true);
+		mFboCreated = true;
+	} 
 }
 
 } // namespace ui

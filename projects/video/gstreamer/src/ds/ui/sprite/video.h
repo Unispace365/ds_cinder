@@ -61,7 +61,7 @@ public:
 	};
 	void					setStatusCallback(const std::function<void(const Status&)>&);
 
-	void					setVideoCompleteCallback(const std::function<void(Video* video)> &func);
+	void					setVideoCompleteCallback(const std::function<void(Video* video)>& func);
 
 private:
 	typedef Sprite inherited;
@@ -69,6 +69,8 @@ private:
 	void					setStatus(const int);
 	void					setMovieVolume();
 	void					handleVideoComplete(_2RealGStreamerWrapper::GStreamerWrapper*);
+
+	void					setupForVideo(const std::string& filename);
 
 	// Done this way so I can completely hide any dependencies
 	_2RealGStreamerWrapper::GStreamerWrapper*
