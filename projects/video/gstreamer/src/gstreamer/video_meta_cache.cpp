@@ -79,6 +79,7 @@ bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int&
 
 		setValues(t, videoPath, width, height, dur);
 
+		outType = t;
 		outWidth = width;
 		outHeight = height;
 		duration = dur;
