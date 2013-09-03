@@ -4,16 +4,15 @@
 
 #include <vector>
 
-/**
- * \class VideoMetaCache
- * \b Store values for video to be quickly looked up later.
- */
 namespace ds {
 namespace ui {
 class SpriteEngine;
 
-class VideoMetaCache
-{
+/**
+ * \class VideoMetaCache
+ * \brief Store values for video to be quickly looked up later.
+ */
+class VideoMetaCache {
 public:
 	static const enum Type { ERROR_TYPE, AUDIO_TYPE, VIDEO_TYPE };
 	VideoMetaCache(const std::string& name);
