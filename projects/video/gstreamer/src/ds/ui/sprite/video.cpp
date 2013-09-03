@@ -23,7 +23,8 @@ static _2RealGStreamerWrapper::GStreamerWrapper* new_movie()
 }
 
 namespace {
-ds::ui::VideoMetaCache		CACHE("gstreamer");
+// Previously was using a cache of "gstreamer" but I've changed the format, so let's make a new one
+ds::ui::VideoMetaCache		CACHE("gstreamer_2");
 }
 
 namespace ds {
@@ -159,9 +160,9 @@ namespace ds {
 			setScale( width / getWidth(), height / getHeight() );
 		}
 
-		Video& Video::loadVideo( const std::string &filename)
+		Video& Video::loadVideo(const std::string &filename)
 		{
-			if(filename.empty()){
+			if (filename.empty()) {
 				DS_LOG_WARNING("Video::loadVideo recieved a blank filename. Cancelling load.");
 				return *this;
 			}
@@ -169,13 +170,14 @@ namespace ds {
 			const float preWidth = getWidth();
 			const float preHeight = getHeight();
 
-			try
-			{
-				int videoWidth(-1), videoHeight(-1);
-				double videoDuration(0.0f);
-				CACHE.getValues(filename, videoWidth, videoHeight, videoDuration);
-				mMovie.open( filename, true, false, mIsTransparent, videoWidth, videoHeight, videoDuration );
-				if(mLooping){
+			try {
+				VideoMetaCache::Type	type;
+				int						videoWidth(-1),
+										videoHeight(-1);
+				double					videoDuration(0.0f);
+				CACHE.getValues(filename, type, videoWidth, videoHeight, videoDuration);
+				mMovie.open(filename, true, false, mIsTransparent, videoWidth, videoHeight, videoDuration);
+				if (mLooping) {
 					mMovie.setLoopMode(LOOP);
 				} else {
 					mMovie.setLoopMode(NO_LOOP);
@@ -187,20 +189,19 @@ namespace ds {
 
 				setStatus(Status::STATUS_PLAYING);
 			}
-			catch (std::exception const& ex)
-			{
+			catch (std::exception const& ex) {
 				DS_DBG_CODE(std::cout << "ERROR Video::loadVideo() ex=" << ex.what() << std::endl);
 				return *this;
 			}
 
-			if(mMovie.getWidth() < 1.0f || mMovie.getHeight() < 1.0f){
+			if (mMovie.getWidth() < 1.0f || mMovie.getHeight() < 1.0f) {
 				DS_LOG_WARNING("Video is too small to be used or didn't load correctly! " << filename << " " << getWidth() << " " << getHeight());
 				return *this;
 			}
 
 			Sprite::setSizeAll(static_cast<float>(mMovie.getWidth()), static_cast<float>(mMovie.getHeight()), mDepth);
 
-			if (getWidth() > 0 &&  getHeight() > 0) {
+			if (getWidth() > 0 && getHeight() > 0) {
 				setSize(getWidth() * getScale().x,  getHeight() * getScale().y);
 			}
 
@@ -250,7 +251,7 @@ namespace ds {
 
 		void Video::seek( double t )
 		{
-			mMovie.setPosition(t);
+			mMovie.setPosition(static_cast<float>(t));
 			//mMovie.setTimePositionInMs(t * mMovie.getDurationInMs());
 			//	mMovie.seekToTime(t);
 		}
