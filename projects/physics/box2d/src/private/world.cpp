@@ -105,9 +105,7 @@ void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 		jointDef.length = getCi2BoxScale()*(length);
 		b2DistanceJoint* joint = (b2DistanceJoint*) mWorld->CreateJoint(&jointDef);
 
-		std::cout << "JOINT ANCHORS: " << std::endl;
-		std::cout << "A " << joint->GetAnchorA().x << " " << joint->GetAnchorA().y << std::endl;
-		std::cout << "B " << joint->GetAnchorB().x << " " << joint->GetAnchorB().y << std::endl;
+		DS_LOG_INFO_M("Joint anchors a=(" << joint->GetAnchorA().x << ", " << joint->GetAnchorA().y << ") b=(" << joint->GetAnchorB().x << ", " << joint->GetAnchorB().y << ")", PHYSICS_LOG);
 
 		mDistanceJoints.insert(mDistanceJoints.end(), joint);
 	}
