@@ -273,6 +273,7 @@ protected:
 	virtual void		onSetRotation(const ci::Vec3f&);
 
 	virtual void		onCenterChanged();
+	virtual void		onPositionChanged();
 	virtual void		onScaleChanged();
 	virtual void		onSizeChanged();
 
