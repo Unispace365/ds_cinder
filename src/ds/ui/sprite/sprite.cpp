@@ -319,20 +319,19 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
   }
 }
 
-void Sprite::setPosition( float x, float y, float z )
-{
-  setPosition(ci::Vec3f(x, y, z));
+void Sprite::setPosition( float x, float y, float z ) {
+	setPosition(ci::Vec3f(x, y, z));
 }
 
-void Sprite::setPosition( const ci::Vec3f &pos )
-{
-  if (mPosition == pos) return;
+void Sprite::setPosition(const ci::Vec3f &pos) {
+	if (mPosition == pos) return;
 
-  mPosition = pos;
-  mUpdateTransform = true;
-  mBoundsNeedChecking = true;
+	mPosition = pos;
+	mUpdateTransform = true;
+	mBoundsNeedChecking = true;
 	markAsDirty(POSITION_DIRTY);
-  dimensionalStateChanged();
+	dimensionalStateChanged();
+	onPositionChanged();
 }
 
 const ci::Vec3f &Sprite::getPosition() const
@@ -1452,16 +1451,16 @@ void Sprite::computeClippingBounds()
   }
 }
 
-void Sprite::onCenterChanged()
-{
+void Sprite::onCenterChanged() {
 }
 
-void Sprite::onScaleChanged()
-{
+void Sprite::onPositionChanged() {
 }
 
-void Sprite::onSizeChanged()
-{
+void Sprite::onScaleChanged() {
+}
+
+void Sprite::onSizeChanged() {
 }
 
 void Sprite::dimensionalStateChanged()

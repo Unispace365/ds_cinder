@@ -38,6 +38,7 @@ public:
 
 		RowIterator&					operator=(const RowIterator&);
 		void							operator++();
+		void							operator+=(const int count);
 		bool							hasValue() const;
 
 		const std::string&				getName() const;

@@ -1,0 +1,9 @@
+Any machine that will be using GStreamer must first:
+
+1. Go to
+https://code.google.com/p/ossbuild/downloads/list
+
+2. Download
+GStreamer-WinBuilds-GPL-x86.msi 
+
+3. Install it.

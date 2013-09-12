@@ -294,9 +294,12 @@ Result::RowIterator& Result::RowIterator::operator=(const RowIterator& o)
 	return *this;
 }
 
-void Result::RowIterator::operator++()
-{
+void Result::RowIterator::operator++() {
 	++mRowIt;
+}
+
+void Result::RowIterator::operator+=(const int count) {
+	mRowIt += count;
 }
 
 bool Result::RowIterator::hasValue() const

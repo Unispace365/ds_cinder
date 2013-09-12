@@ -96,18 +96,16 @@ void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 		//jointDef.dampingRatio = 50.0f;
 		//jointDef.frequencyHz = 10.0f;
 		// Trying to find settings that work well with colliding bodies:
-		//jointDef.dampingRatio = 0.95f;
-		//jointDef.frequencyHz = 2.0f;
+		jointDef.dampingRatio = 0.95f;
+		jointDef.frequencyHz = 2.0f;
 		// Trying out yet more settings for colliding bodies. The previous ones were alright, but not perfect:
-		jointDef.dampingRatio = 0.7f;
-		jointDef.frequencyHz = 1.5f;
-		jointDef.collideConnected = true;
+		//jointDef.dampingRatio = 0.2f;
+		//jointDef.frequencyHz = 2.0f;
+		jointDef.collideConnected = false;
 		jointDef.length = getCi2BoxScale()*(length);
 		b2DistanceJoint* joint = (b2DistanceJoint*) mWorld->CreateJoint(&jointDef);
 
-		//std::cout << "JOINT ANCHORS: " << std::endl;
-		//std::cout << "A " << joint->GetAnchorA().x << " " << joint->GetAnchorA().y << std::endl;
-		//std::cout << "B " << joint->GetAnchorB().x << " " << joint->GetAnchorB().y << std::endl;
+		DS_LOG_INFO_M("Joint anchors a=(" << joint->GetAnchorA().x << ", " << joint->GetAnchorA().y << ") b=(" << joint->GetAnchorB().x << ", " << joint->GetAnchorB().y << ")", PHYSICS_LOG);
 
 		mDistanceJoints.insert(mDistanceJoints.end(), joint);
 	}
@@ -118,7 +116,7 @@ void World::resizeDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 		b2DistanceJoint* joint  = *it;
 		if (joint->GetBodyA() == body1.mBody && joint->GetBodyB() == body2.mBody
 			|| joint->GetBodyB() == body1.mBody && joint->GetBodyA() == body2.mBody) {
-				joint->SetLength(length * getCi2BoxScale());
+				joint->SetLength(length);
 		}
 	}
 }
