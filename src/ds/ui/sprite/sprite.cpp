@@ -723,11 +723,12 @@ ci::Vec3f Sprite::localToGlobal( const ci::Vec3f &localPoint )
     return ci::Vec3f(point.x, point.y, point.z);
 }
 
-bool Sprite::contains( const ci::Vec3f &point ) const
-{
+bool Sprite::contains( const ci::Vec3f &point ) const {
 	// If I don't check this, then sprites with no size are always picked.
 	// Someone who knows the math can probably address the root issue.
 	if (mWidth < 0.001f || mHeight < 0.001f) return false;
+	// Same deal as above.
+	if (mScale.x <= 0.0f || mScale.y <= 0.0f) return nullptr;
 
     buildGlobalTransform();
 
@@ -754,13 +755,12 @@ bool Sprite::contains( const ci::Vec3f &point ) const
 	);
 }
 
-Sprite *Sprite::getHit( const ci::Vec3f &point )
-{
+Sprite* Sprite::getHit(const ci::Vec3f &point) {
     // EH:  Not sure what bigworld was doing, but I don't see why we'd want to
     // select children of an invisible sprite.
-    if (!visible())
+    if (!visible()) {
       return nullptr;
-
+	}
     if (getClipping()) {
       if (!contains(point))
         return nullptr;
