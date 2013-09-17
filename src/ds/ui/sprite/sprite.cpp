@@ -761,6 +761,10 @@ Sprite* Sprite::getHit(const ci::Vec3f &point) {
     if (!visible()) {
       return nullptr;
 	}
+	// EH: Fix a bug where scales of 0,0,0 result in the sprite ALWAYS getting picked
+	if (mScale.x <= 0.0f || mScale.y <= 0.0f || mScale.z <= 0.0f) {
+		return nullptr;
+	}
     if (getClipping()) {
       if (!contains(point))
         return nullptr;
