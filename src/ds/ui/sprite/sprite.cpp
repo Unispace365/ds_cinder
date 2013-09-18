@@ -1590,12 +1590,15 @@ float Sprite::getScaleDepth() const
   return mScale.z * mDepth;
 }
 
-void Sprite::setSwipeCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func )
-{
+void Sprite::setSwipeCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func ) {
   mSwipeCallback = func;
 }
 
-void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touchInfo ){
+bool Sprite::hasTouches() const {
+	return mTouchProcess.hasTouches();
+}
+
+void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touchInfo ) {
 	if (!destinationSprite || this == destinationSprite) return;
 
 	// tell our current sprite we're through.

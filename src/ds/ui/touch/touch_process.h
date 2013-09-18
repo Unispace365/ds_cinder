@@ -28,6 +28,8 @@ public:
 	bool					processTouchInfo(const TouchInfo &touchInfo);
 	void					update(const UpdateParams &updateParams);
 
+	bool					hasTouches() const;
+
 private:
 	void					sendTouchInfo(const TouchInfo &touchInfo);
 	void					initializeFirstTouch();

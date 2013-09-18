@@ -177,6 +177,10 @@ void TouchProcess::update( const UpdateParams &updateParams )
 	}
 }
 
+bool TouchProcess::hasTouches() const {
+	return !mFingers.empty();
+}
+
 void TouchProcess::sendTouchInfo( const TouchInfo &touchInfo )
 {
 	TouchInfo t = touchInfo;

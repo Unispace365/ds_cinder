@@ -242,6 +242,8 @@ public:
 	void					setUseDepthBuffer(bool useDepth);
 	bool					getUseDepthBuffer() const;
 
+	// Answer true if this sprite currently has any touches.
+	bool					hasTouches() const;
 	/*
 	 * \brief must be passed inside handle touch Moved or else will result in an infinite loop.
 	 */
