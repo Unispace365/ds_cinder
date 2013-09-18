@@ -18,6 +18,7 @@ BodyBuilder::BodyBuilder(const SpriteBody& b)
 	, mLinearDampening(b.mWorld.getLinearDampening())
 	, mAngularDampening(b.mWorld.getAngularDampening())
 	, mFixedRotation(b.mWorld.getFixedRotation())
+	, mIsStaticBody(false)
 {
 	b2Filter		filter;
 	mCategoryBits = filter.categoryBits;

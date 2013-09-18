@@ -65,24 +65,13 @@ void SpriteBody::create(const BodyBuilder& b) {
 	destroy();
 
 	b2BodyDef			def;
-	def.type = b2_dynamicBody;
-	def.userData = &mSprite;
-	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition());
-	def.linearDamping = b.mLinearDampening;
-	def.angularDamping = b.mAngularDampening;
-	def.fixedRotation = b.mFixedRotation;
+	
+	if (b.mIsStaticBody) {
+		def.type = b2_staticBody;
+	} else {
+		def.type = b2_dynamicBody;
+	}
 
-	mBody = mWorld.mWorld->CreateBody(&def);
-	if (!mBody) return;
-
-	b.createFixture(*this);
-}
-
-void SpriteBody::createStaticBody(const BodyBuilder& b) {
-	destroy();
-
-	b2BodyDef			def;
-	def.type = b2_staticBody;
 	def.userData = &mSprite;
 	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition());
 	def.linearDamping = b.mLinearDampening;
