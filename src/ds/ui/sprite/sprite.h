@@ -367,6 +367,9 @@ protected:
 
 private:
 	friend class Engine;
+	// Disable copy constructor; sprites are managed by their parent and
+	// must be allocated
+	Sprite(const Sprite&);
 	// Internal constructor just for the Engine, used to create the root sprite,
 	// which always exists and is identical across all architectures.
 	Sprite(SpriteEngine&, const ds::sprite_id_t id, const bool perspective = false);
