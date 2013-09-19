@@ -119,6 +119,7 @@ public:
     std::string				getAbsoluteFilePath() const;
 
     void					clear();
+	bool					empty() const;
 	void					swap(Resource&);
 
     void					setDbId(const Resource::Id&);

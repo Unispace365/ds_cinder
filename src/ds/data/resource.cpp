@@ -309,6 +309,12 @@ void Resource::clear()
 	mDebugFileName.clear();
 }
 
+bool Resource::empty() const {
+	if (!mDebugFileName.empty()) return false;
+	if (!mFileName.empty()) return false;
+	return mDbId.empty();
+}
+
 void Resource::swap(Resource& r)
 {
 	mDbId.swap(r.mDbId);
