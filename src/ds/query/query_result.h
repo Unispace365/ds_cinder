@@ -2,6 +2,7 @@
 #ifndef DS_THREAD_QUERYRESULT_H_
 #define DS_THREAD_QUERYRESULT_H_
 
+#include <functional>
 #include <string>
 #include <vector>
 #include "Poco/Timestamp.h"
@@ -95,9 +96,9 @@ public:
 //	void					moveRow(Result&, const int from, const int to);
 	// Swap all data
 	void					swap(Result&);
+	// Sort by specific columns
+	void					sortByString(const int columnIndex, const std::function<bool(const std::string& a, const std::string& b)>&);
 
-	// Collections for memory management.  Strings can't be constructed
-	// with realloc(), hence the need for the list.
 private:
 	typedef RecycleArray<double>		NumericArray;
 

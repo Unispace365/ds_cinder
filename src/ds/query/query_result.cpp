@@ -1,5 +1,6 @@
 #include "ds/query/query_result.h"
 
+#include <algorithm>
 #include <iostream>
 #include <stdarg.h>
 #include <math.h>
@@ -166,6 +167,21 @@ void Result::swap(Result& o)  {
 	mRow.swap(o.mRow);
 	std::swap(mRequestTime, o.mRequestTime);
 	std::swap(mClientId, o.mClientId);
+}
+
+void Result::sortByString(const int columnIndex, const std::function<bool(const std::string& a, const std::string& b)>& clientFn) {
+	if (!clientFn) return;
+
+	auto fn = [columnIndex, &clientFn](const std::unique_ptr<Row>& a, const std::unique_ptr<Row>& b)->bool {
+		const size_t	ci(static_cast<size_t>(columnIndex));
+		const Row*		ar = a.get();
+		const Row*		br = b.get();
+		if (!ar || !br) return false;
+		if (ar->mString.size() <= ci || br->mString.size() <= ci) return false;
+		return clientFn(ar->mString[ci], br->mString[ci]);
+	};
+
+	std::sort(mRow.begin(), mRow.end(), fn);
 }
 
 Result::Row* Result::pushBackRow() {
