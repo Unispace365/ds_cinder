@@ -42,7 +42,7 @@ ResultEditor& ResultEditor::setColumn(const size_t index, const int type, const 
 ResultEditor& ResultEditor::startRow() {
 	mRow = nullptr;
 	try {
-		mRow = mResult.mRow.pushBack();
+		mRow = mResult.pushBackRow();
 		// Make sure the numbers are initialized to zero.  This is critical because of
 		// the design of SQLite -- any numeric fields with NULL values show up as text
 		// fields, but if the client is expecting a number, we want to default to zero
@@ -74,8 +74,8 @@ ResultEditor& ResultEditor::addString(const std::wstring& v)
 
 	try {
 		// First the utf-8 string.  Ideally this goes away
-		while (mRow->mString.size() < mColIdx) mRow->mString.pushBack();
-		*(mRow->mString.at(at)) = ds::utf8_from_wstr(v);
+		while (mRow->mString.size() < mColIdx) mRow->mString.push_back("");
+		mRow->mString[at] = ds::utf8_from_wstr(v);
 		// Now the wstring
 		while (mRow->mWString.size() < mColIdx) mRow->mWString.push_back(L"");
 		mRow->mWString[at] = v;
