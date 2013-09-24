@@ -26,49 +26,51 @@ namespace ds {
  * calling update()).
  ******************************************************************/
 template <class T>
-class TimedRunnable
-{
+class TimedRunnable {
 public:
 	// Clients need to tell the time (in seconds) between runs.
 	// Clients also need to supply the instance of the class that gets run.
 	TimedRunnable(ui::SpriteEngine&, const double interval, T * payload);
 
-	void								      update();
-	void								      update(const Poco::Timestamp::TimeVal&);
-  // This will cause an update as soon as the payload is available
-  void                      requestUpdate();
+	void						update();
+	void						update(const Poco::Timestamp::TimeVal&);
+	// This will cause an update as soon as the payload is available
+	void						requestUpdate();
 
 	// Set the interval (in seconds) between updates.  This won't affect the current
 	// update, which will happen according to the pre-changed interval.
 	void								      setInterval(const double interval);
 	Poco::Timestamp::TimeVal  getIntervalMu() const;
 
-  // Set a callback when I'm about to start processing (called from update() thread).
-  void                      setOnStartFn(const std::function<void(T&)>&);
+	// Set a callback when I'm about to start processing (called from update() thread).
+	void						setOnStartFn(const std::function<void(T&)>&);
+	// Called when I receive the results of a change. Called in the thread calling update().
+	void						setOnFinishedFn(const std::function<void(T&)>&);
 
 	// Answer 0 - 1, where 0 is the start of an update, and 1 is the next update.
-	double								    getProgress() const;
-	double								    getProgress(const Poco::Timestamp::TimeVal&) const;
+	double						getProgress() const;
+	double						getProgress(const Poco::Timestamp::TimeVal&) const;
     
 private:
-	void								      receive(std::unique_ptr<Poco::Runnable>&);
+	void						receive(std::unique_ptr<Poco::Runnable>&);
 
-	RunnableClient						mClient;
-	Poco::Timestamp::TimeVal  mInterval, mNextUpdate;
-	std::unique_ptr<T>				mPayload;
-  std::function<void(T&)>   mOnStartFn;
+	RunnableClient				mClient;
+	Poco::Timestamp::TimeVal	mInterval, mNextUpdate;
+	std::unique_ptr<T>			mPayload;
+	std::function<void(T&)>		mOnStartFn;
+	std::function<void(T&)>		mOnFinishedFn;
 };
 
 /* DS::TIMED-RUNNABLE impl
  ******************************************************************/
 template <class T>
 TimedRunnable<T>::TimedRunnable(ui::SpriteEngine& se, const double interval, T * payload)
-	: mClient(se)
-	, mNextUpdate(0)
-  , mOnStartFn(nullptr)
-{
+		: mClient(se)
+		, mNextUpdate(0)
+		, mOnStartFn(nullptr)
+		, mOnFinishedFn(nullptr) {
 	setInterval(interval);
-  mClient.setResultHandler([this](std::unique_ptr<Poco::Runnable>& r) { receive(r); });
+	mClient.setResultHandler([this](std::unique_ptr<Poco::Runnable>& r) { receive(r); });
 	// The data I will send and receive
 	mPayload = std::move(std::unique_ptr<T>(payload));
 }
@@ -113,9 +115,13 @@ Poco::Timestamp::TimeVal TimedRunnable<T>::getIntervalMu() const
 }
 
 template <class T>
-void TimedRunnable<T>::setOnStartFn(const std::function<void(T&)>& fn)
-{
-  mOnStartFn = fn;
+void TimedRunnable<T>::setOnStartFn(const std::function<void(T&)>& fn) {
+	mOnStartFn = fn;
+}
+
+template <class T>
+void TimedRunnable<T>::setOnFinishedFn(const std::function<void(T&)>& fn) {
+	mOnFinishedFn = fn;
 }
 
 template <class T>
@@ -139,6 +145,7 @@ void TimedRunnable<T>::receive(std::unique_ptr<Poco::Runnable>& r)
 	if (!payload) {
 		assert(false);
 	} else {
+		if (mOnFinishedFn) mOnFinishedFn(*(payload.get()));
 		payload->finished();
 		mPayload = std::move(payload);
 	}
