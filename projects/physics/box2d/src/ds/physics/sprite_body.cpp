@@ -84,8 +84,8 @@ void SpriteBody::create(const BodyBuilder& b) {
 	b.createFixture(*this);
 }
 
-void SpriteBody::createDistanceJoint(SpriteBody& body, float length) {
-	mWorld.createDistanceJoint(*this, body, length);
+void SpriteBody::createDistanceJoint(SpriteBody& body, float length, float dampingRatio, float frequencyHz) {
+	mWorld.createDistanceJoint(*this, body, length, dampingRatio, frequencyHz);
 }
  
 void SpriteBody::destroy() {

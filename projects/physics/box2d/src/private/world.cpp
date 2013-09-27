@@ -81,7 +81,7 @@ World::World(ds::ui::SpriteEngine& e)
 	}
 }
 
-void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length) {
+void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length, float dampingRatio, float frequencyHz) {
 	
 	if (body1.mBody && body2.mBody) {
 		b2DistanceJointDef jointDef;
@@ -99,13 +99,20 @@ void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 		//jointDef.dampingRatio = 0.95f;
 		//jointDef.frequencyHz = 2.0f;
 		// Trying out yet more settings for colliding bodies. The previous ones were alright, but not perfect:
-		jointDef.dampingRatio = 0.7f;
-		jointDef.frequencyHz = 1.5f;
-		jointDef.collideConnected = false;
+		//jointDef.dampingRatio = 0.7f;
+		//jointDef.frequencyHz = 1.5f;
+		// DNA Wall's settings:
+		//jointDef.dampingRatio = 1.0f;
+		//jointDef.frequencyHz = 5.0f;
+		
+		jointDef.dampingRatio = dampingRatio;
+		jointDef.frequencyHz = frequencyHz;
+		
+		jointDef.collideConnected = true;
 		jointDef.length = getCi2BoxScale()*(length);
 		b2DistanceJoint* joint = (b2DistanceJoint*) mWorld->CreateJoint(&jointDef);
 
-		DS_LOG_INFO_M("Joint anchors a=(" << joint->GetAnchorA().x << ", " << joint->GetAnchorA().y << ") b=(" << joint->GetAnchorB().x << ", " << joint->GetAnchorB().y << ")", PHYSICS_LOG);
+		//DS_LOG_INFO_M("Joint anchors a=(" << joint->GetAnchorA().x << ", " << joint->GetAnchorA().y << ") b=(" << joint->GetAnchorB().x << ", " << joint->GetAnchorB().y << ")", PHYSICS_LOG);
 
 		mDistanceJoints.insert(mDistanceJoints.end(), joint);
 	}

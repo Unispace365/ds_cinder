@@ -36,7 +36,7 @@ public:
 
 	bool					empty() const;
 	void					create(const BodyBuilder&);
-	void					createDistanceJoint(SpriteBody&, float length);
+	void					createDistanceJoint(SpriteBody&, float length, float dampingRatio, float frequencyHz);
 	void					destroy();
 	void					setActive(bool flag);
 

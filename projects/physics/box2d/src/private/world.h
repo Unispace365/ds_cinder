@@ -30,7 +30,7 @@ class World : public ds::EngineService
 public:
 	World(ds::ui::SpriteEngine&);
 
-	void							createDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
+	void							createDistanceJoint(const SpriteBody&, const SpriteBody&, float length, float dampingRatio, float frequencyHz);
 	void							resizeDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
 
 	void							processTouchAdded(const SpriteBody&, const ds::ui::TouchInfo&);
