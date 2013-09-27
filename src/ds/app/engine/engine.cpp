@@ -71,12 +71,12 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		if (!s) throw std::runtime_error("Engine can't create root sprite");
 		mRoots.push_back(s);
 	}
-
-	const std::string     DEBUG_FILE("debug.xml");
-	mDebugSettings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), DEBUG_FILE), false);
-	mDebugSettings.readFrom(ds::Environment::getLocalSettingsPath(DEBUG_FILE), true);
+	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
+	const float			DEFAULT_WINDOW_SCALE = 1.0f;
+	const float			window_scale = mDebugSettings.getFloat("window_scale", 0, DEFAULT_WINDOW_SCALE);
 	mData.mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 640.0f, 0.0f, 400.0f));
+	if (window_scale != DEFAULT_WINDOW_SCALE) mData.mScreenRect.scale(window_scale);
 	mData.mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
 	mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
@@ -95,7 +95,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	mScreenToWorld.setScreenSize(mData.mScreenRect.getWidth(), mData.mScreenRect.getHeight());
 
-  const bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
+	const bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		ds::ui::Sprite&			s = *(*it);
@@ -106,6 +106,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 			s.setSize(mData.mScreenRect.getWidth(), mData.mScreenRect.getHeight());
 			if (scaleWorldToFit) {
 				s.setScale(getWidth()/getWorldWidth(), getHeight()/getWorldHeight());
+			} else if (window_scale != DEFAULT_WINDOW_SCALE) {
+				s.setScale(window_scale, window_scale);
 			}
 		}
 	}
@@ -438,8 +440,7 @@ void Engine::setup(ds::App&)
 	}
 }
 
-void Engine::prepareSettings( ci::app::AppBasic::Settings &settings )
-{
+void Engine::prepareSettings(ci::app::AppBasic::Settings& settings) {
 	settings.setWindowSize( static_cast<int>(getWidth()),
 							static_cast<int>(getHeight()));
 	settings.setResizable(false);
