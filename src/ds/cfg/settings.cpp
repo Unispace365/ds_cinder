@@ -424,21 +424,21 @@ bool Settings::getBool(const std::string& name, const int index, const bool defa
 	return check_bool(getText(name, index, defaultValue ? TRUE_SZ : FALSE_SZ), false);
 }
 
-void Settings::forEachColorAKey(const std::function<void(const std::string&)>& fn)
+void Settings::forEachColorAKey(const std::function<void(const std::string&)>& fn) const
 {
 	if (!fn || mColorA.empty()) return;
 
 	for (auto it=mColorA.begin(), end=mColorA.end(); it != end; ++it) fn(it->first);
 }
 
-void Settings::forEachFloatKey(const std::function<void(const std::string&)>& fn)
+void Settings::forEachFloatKey(const std::function<void(const std::string&)>& fn) const
 {
 	if (!fn || mFloat.empty()) return;
 
 	for (auto it=mFloat.begin(), end=mFloat.end(); it != end; ++it) fn(it->first);
 }
 
-void Settings::forEachTextKey(const std::function<void(const std::string&)>& fn)
+void Settings::forEachTextKey(const std::function<void(const std::string&)>& fn) const
 {
 	if (!fn || mText.empty()) return;
 
