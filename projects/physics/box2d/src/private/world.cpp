@@ -7,7 +7,7 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/physics/collision.h>
 #include <ds/physics/sprite_body.h>
-#include "Box2D/Collision/Shapes/b2EdgeShape.h"
+#include "Box2D/Collision/Shapes/b2PolygonShape.h"
 #include "Box2D/Dynamics/b2Body.h"
 #include "Box2D/Dynamics/b2World.h"
 #include "Box2D/Dynamics/b2Fixture.h"
@@ -257,14 +257,27 @@ float World::getCi2BoxScale() const
 	return mCi2BoxScale;
 }
 
-ci::Vec3f World::box2CiTranslation(const b2Vec2 &vec)
+ci::Vec3f World::box2CiTranslation(const b2Vec2 &vec) const
 {
 	return ci::Vec3f(vec.x / mCi2BoxScale, vec.y / mCi2BoxScale, 0.0f);
 }
 
-b2Vec2 World::Ci2BoxTranslation(const ci::Vec3f &vec)
+b2Vec2 World::Ci2BoxTranslation(const ci::Vec3f &vec) const
 {
 	return b2Vec2(vec.x * mCi2BoxScale, vec.y * mCi2BoxScale);
+}
+
+static void set_polygon_shape(	const World& trans,
+								const float l, const float t, const float r, const float b,
+								b2PolygonShape& out) {
+	const b2Vec2	lt = trans.Ci2BoxTranslation(ci::Vec3f(l, t, 0.0f));
+	const b2Vec2	rb = trans.Ci2BoxTranslation(ci::Vec3f(r, b, 0.0f));
+	b2Vec2			vtx[4];
+	vtx[0].Set(lt.x, lt.y);
+	vtx[1].Set(rb.x, lt.y);
+	vtx[2].Set(rb.x, rb.y);
+	vtx[3].Set(lt.x, rb.y);
+	out.Set(vtx, 4);
 }
 
 void World::setBounds(const ci::Rectf& f, const float restitution)
@@ -280,31 +293,31 @@ void World::setBounds(const ci::Rectf& f, const float restitution)
 	mBounds = mWorld->CreateBody(&def);
 	if (!mBounds) throw std::runtime_error("ds::physics::World() can't create mBounds");
 
-	b2EdgeShape		shape;
+	b2PolygonShape	shape;
 	b2FixtureDef	fixtureDef;
 	fixtureDef.shape = &shape;
 	fixtureDef.density = 0.0f;
 	fixtureDef.friction = mFriction;
 	fixtureDef.restitution = restitution;
 
+	// Make the world walls large enough to prevent anything from flying outside.
+	const float		world_w = f.getWidth(),
+					world_h = f.getHeight();
+
 	// left
-	shape.Set(	Ci2BoxTranslation(ci::Vec3f(f.x1, f.y1, 0.0f)),
-				Ci2BoxTranslation(ci::Vec3f(f.x1, f.y2, 0.0f)));
+	set_polygon_shape(*this, f.x1-world_w, f.y1-world_h, f.x1, f.y2+world_h, shape);
 	fixtureDef.userData = BOUNDS_LEFT_PTR;
 	mBounds->CreateFixture(&fixtureDef);
 	// top
-	shape.Set(	Ci2BoxTranslation(ci::Vec3f(f.x1, f.y1, 0.0f)),
-				Ci2BoxTranslation(ci::Vec3f(f.x2, f.y1, 0.0f)));
+	set_polygon_shape(*this, f.x1-world_w, f.y1-world_h, f.x2+world_w, f.y1, shape);
 	fixtureDef.userData = BOUNDS_TOP_PTR;
 	mBounds->CreateFixture(&fixtureDef);
 	// right
-	shape.Set(	Ci2BoxTranslation(ci::Vec3f(f.x2, f.y1, 0.0f)),
-				Ci2BoxTranslation(ci::Vec3f(f.x2, f.y2, 0.0f)));
+	set_polygon_shape(*this, f.x2, f.y1-world_h, f.x2+world_w, f.y2+world_h, shape);
 	fixtureDef.userData = BOUNDS_RIGHT_PTR;
 	mBounds->CreateFixture(&fixtureDef);
 	// bottom
-	shape.Set(	Ci2BoxTranslation(ci::Vec3f(f.x1, f.y2, 0.0f)),
-				Ci2BoxTranslation(ci::Vec3f(f.x2, f.y2, 0.0f)));
+	set_polygon_shape(*this, f.x1-world_w, f.y2, f.x2+world_w, f.y2+world_h, shape);
 	fixtureDef.userData = BOUNDS_BOTTOM_PTR;
 	mBounds->CreateFixture(&fixtureDef);
 }
