@@ -20,6 +20,8 @@ public:
 	ImageToken(LoadImageService&);
 	~ImageToken();
 
+	// Answer true if I have neither an actual image nor a request for one.
+	bool					empty() const;
 	bool					canAcquire() const;
 	/**
 	 * \brief Request the resource be loaded.
