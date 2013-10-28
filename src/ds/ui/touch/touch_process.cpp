@@ -129,7 +129,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 				if (!mTappable && mSprite.hasMultiTouchConstraint(MULTITOUCH_CAN_POSITION_Y)) {
 					offset.y = fingerPositionOffset.y;
 				}
-
+std::cout << "offset x=" << offset.x << " y=" << offset.y << std::endl;
 				mSprite.setPosition(mStartPosition + offset);
 			}
 		}

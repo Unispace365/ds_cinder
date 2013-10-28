@@ -31,6 +31,7 @@ class BasicTweenApp : public ds::App {
     BasicTweenApp();
 
     void				setupServer();
+	void                keyDown(KeyEvent);
     void				mouseDown( MouseEvent event );
     void				draw();
 
@@ -123,6 +124,14 @@ void BasicTweenApp::setupServer()
 	ri.setPosition(60.0f, 60.0f);
 	ri.enable(true);
 	ri.enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
+}
+
+void BasicTweenApp::keyDown(KeyEvent e) {
+	inherited::keyDown(e);
+
+	if (e.getCode() == KeyEvent::KEY_ESCAPE) {
+		quit();
+	}
 }
 
 void BasicTweenApp::mouseDown( MouseEvent event )

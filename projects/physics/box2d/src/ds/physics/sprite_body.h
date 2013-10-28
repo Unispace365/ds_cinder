@@ -19,6 +19,7 @@ struct TouchInfo;
 namespace physics {
 class BodyBuilder;
 class Collision;
+class Touch;
 class World;
 
 /**
@@ -31,7 +32,11 @@ class World;
  */
 class SpriteBody {
 public:
-	SpriteBody(ds::ui::Sprite&);
+	// Create a physics body on the sprite using the given world.
+	// The default is the global world, which is only constructed
+	// if the physics.xml setting "create_world_0" is true. Otherwise,
+	// applications need to construct worlds as desired and reference them.
+	SpriteBody(ds::ui::Sprite&, const int world_id = 0);
 	~SpriteBody();
 
 	bool					empty() const;
@@ -66,6 +71,7 @@ private:
 	friend class BodyBuilderBox;
 	friend class BodyBuilderCircle;
 	friend class World;
+	friend class ds::physics::Touch;
 
 	World&					mWorld;
 	ds::ui::Sprite&			mSprite;

@@ -2,6 +2,7 @@
 
 #include <ds/app/app.h>
 #include "ds/physics/body_builder.h"
+#include "private/service.h"
 #include "private/world.h"
 #include <ds/math/math_defs.h>
 #include <ds/ui/sprite/sprite_engine.h>
@@ -17,15 +18,15 @@ namespace physics {
 
 namespace {
 
-// Statically initialize the world class. Done here because the Body is
+// Statically initialize the service class. Done here because the Body is
 // guaranteed to be referenced by the final application.
 class Init {
 public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
-			ds::physics::World*		w = new ds::physics::World(e);
-			if (!w) throw std::runtime_error("Can't create ds::physics::World");
-			e.addService("physics", *w);
+			ds::physics::Service*		s = new ds::physics::Service(e);
+			if (!s) throw std::runtime_error("Can't create ds::physics::Service");
+			e.addService(SERVICE_NAME, *s);
 		});
 
 	}
@@ -39,11 +40,10 @@ Init				INIT;
 /**
  * \class ds::physics::SpriteBody
  */
-SpriteBody::SpriteBody(ds::ui::Sprite& s)
-	: mWorld(s.getEngine().getService<ds::physics::World>("physics"))
-	, mSprite(s)
-	, mBody(nullptr)
-{
+SpriteBody::SpriteBody(ds::ui::Sprite& s, const int world_id)
+		: mWorld(s.getEngine().getService<ds::physics::Service>(SERVICE_NAME).getWorld(world_id))
+		, mSprite(s)
+		, mBody(nullptr) {
 	// This shouldn't be necessary, but I just want to make sure the static is referenced.
 	INIT.doNothing();
 
@@ -51,8 +51,7 @@ SpriteBody::SpriteBody(ds::ui::Sprite& s)
 	s.setProcessTouchCallback([this](ds::ui::Sprite* s, const ds::ui::TouchInfo& ti) { this->processTouchInfo(s, ti); });
 }
 
-SpriteBody::~SpriteBody()
-{
+SpriteBody::~SpriteBody() {
 	mWorld.setCollisionCallback(mSprite,  nullptr);
 	destroy();
 }

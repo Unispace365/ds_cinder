@@ -7,17 +7,15 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/physics/collision.h>
 #include <ds/physics/sprite_body.h>
+#include "private/service.h"
 #include "Box2D/Collision/Shapes/b2PolygonShape.h"
 #include "Box2D/Dynamics/b2Body.h"
 #include "Box2D/Dynamics/b2World.h"
 #include "Box2D/Dynamics/b2Fixture.h"
 #include "Box2D/Dynamics/Joints/b2DistanceJoint.h"
-#include "Box2D/Dynamics/Joints/b2MouseJoint.h"
 
 namespace ds {
 namespace physics {
-
-const ds::BitMask			PHYSICS_LOG = ds::Logger::newModule("physics");
 
 namespace {
 // All this just to keep track of the bound edges
@@ -39,18 +37,19 @@ void*						BOUNDS_BOTTOM_PTR = reinterpret_cast<void*>(&BOUNDS_BOTTOM);
 /**
  * \class ds::physics::World
  */
-World::World(ds::ui::SpriteEngine& e)
-	: ds::AutoUpdate(e)
-	, mContactListener(*this)
-	, mContactListenerRegistered(false)
-	, mGround(nullptr)
-	, mBounds(nullptr)
-	, mCi2BoxScale(0.02f)
-	, mFriction(0.5f)
-	, mLinearDampening(0.0f)
-	, mAngularDampening(0.0f)
-	, mFixedRotation(true)
-{
+World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& s)
+		: ds::AutoUpdate(e)
+		, mSprite(s)
+		, mTouch(*this)
+		, mContactListener(*this)
+		, mContactListenerRegistered(false)
+		, mGround(nullptr)
+		, mBounds(nullptr)
+		, mCi2BoxScale(0.02f)
+		, mFriction(0.5f)
+		, mLinearDampening(0.0f)
+		, mAngularDampening(0.0f)
+		, mFixedRotation(true) {
 	mWorld = std::move(std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, 0.0f))));
 	if (mWorld.get() == nullptr) throw std::runtime_error("ds::physics::World() can't create b2World");
 	b2BodyDef		def;
@@ -129,32 +128,15 @@ void World::resizeDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 }
 
 void World::processTouchAdded(const SpriteBody& body, const ds::ui::TouchInfo& ti) {	
-	eraseTouch(ti.mFingerId);
-
-	if (body.mBody) {
-		b2MouseJointDef jointDef;
-		jointDef.target = Ci2BoxTranslation(ti.mStartPoint);
-		jointDef.bodyA = mGround;
-		jointDef.bodyB = body.mBody;
-		jointDef.maxForce = 10000.0f * body.mBody->GetMass();
-		jointDef.dampingRatio = 1.0f;
-		jointDef.frequencyHz = 25.0f;
-		//Experimenting with Tree Node mousejoints (assuming colliding bodies):
-		//jointDef.dampingRatio = 30.0f;
-		//jointDef.frequencyHz = 40.0f;
-		mTouchJoints[ti.mFingerId] = mWorld->CreateJoint(&jointDef);
-	}
+	mTouch.processTouchAdded(body, ti);
 }
 
 void World::processTouchMoved(const SpriteBody& body, const ds::ui::TouchInfo& ti) {
-	b2MouseJoint*		j = getTouchJoint(ti.mFingerId);
-	if (j) {
-		j->SetTarget(Ci2BoxTranslation(ti.mCurrentGlobalPoint));
-	}
+	mTouch.processTouchMoved(body, ti);
 }
 
 void World::processTouchRemoved(const SpriteBody& body, const ds::ui::TouchInfo& ti) {
-	eraseTouch(ti.mFingerId);
+	mTouch.processTouchRemoved(body, ti);
 }
 
 float World::getFriction() const
@@ -320,47 +302,6 @@ void World::setBounds(const ci::Rectf& f, const float restitution)
 	set_polygon_shape(*this, f.x1-world_w, f.y2, f.x2+world_w, f.y2+world_h, shape);
 	fixtureDef.userData = BOUNDS_BOTTOM_PTR;
 	mBounds->CreateFixture(&fixtureDef);
-}
-
-void World::eraseTouch(const int fingerId)
-{
-	if (mTouchJoints.empty()) return;
-
-	auto it = mTouchJoints.find(fingerId);
-	if (it != mTouchJoints.end()) {
-		b2MouseJoint*	j = getTouchJointFromPtr(it->second);
-		if (j) mWorld->DestroyJoint(j);
-		mTouchJoints.erase(it);
-	}
-}
-
-b2MouseJoint* World::getTouchJoint(const int fingerId)
-{
-	if (mTouchJoints.empty()) return nullptr;
-
-	// Be safe about the touch joints -- they can get destroyed via things
-	// like destroying bodies (I think... if not, might rethink this), so
-	// look them up.
-	auto it = mTouchJoints.find(fingerId);
-	if (it != mTouchJoints.end()) {
-		return getTouchJointFromPtr(it->second);
-	}
-	return nullptr;
-}
-
-b2MouseJoint* World::getTouchJointFromPtr(const void* ptr)
-{
-	if (!ptr) return nullptr;
-
-	// Be safe about the touch joints -- they can get destroyed via things
-	// like destroying bodies (I think... if not, might rethink this), so
-	// look them up.
-	b2Joint*		j = mWorld->GetJointList();
-	while (j) {
-		if (j == ptr) return dynamic_cast<b2MouseJoint*>(j);
-		j = j->GetNext();
-	}
-	return nullptr;
 }
 
 } // namespace physics

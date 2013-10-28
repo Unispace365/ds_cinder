@@ -33,6 +33,15 @@
     <ClInclude Include="src\private\contact_key.h">
       <Filter>src\private</Filter>
     </ClInclude>
+    <ClInclude Include="src\private\service.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\physics\sprite_world.h">
+      <Filter>src\ds\physics</Filter>
+    </ClInclude>
+    <ClInclude Include="src\private\touch.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\physics\sprite_body.cpp">
@@ -51,6 +60,15 @@
       <Filter>src\ds\physics</Filter>
     </ClCompile>
     <ClCompile Include="src\private\contact_key.cpp">
+      <Filter>src\private</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\service.cpp">
+      <Filter>src\private</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\physics\sprite_world.cpp">
+      <Filter>src\ds\physics</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\touch.cpp">
       <Filter>src\private</Filter>
     </ClCompile>
   </ItemGroup>

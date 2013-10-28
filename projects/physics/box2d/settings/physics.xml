@@ -3,6 +3,11 @@
 		The physics project will automatically try to load this file on initialization.
 	-->
 
+	<!-- If true, then a default physics world with an ID of 0 is created on the
+		root sprite object. If you set this to false, that means the app is
+		responsible for creating its own physics world(s) on the desired sprite(s). -->
+	<text  name="create_root_world" value="true" />
+
 	<!-- Default values when creating bodies. Can be overriden per SpriteBody. -->
 	<float name="friction" value="0.5" />
 	<float name="dampening:linear" value="8" />

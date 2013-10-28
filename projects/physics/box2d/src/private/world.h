@@ -8,8 +8,8 @@
 #include <ds/app/engine/engine_service.h>
 #include <ds/cfg/settings.h>
 #include <ds/ui/touch/touch_info.h>
-#include <ds/util/bit_mask.h>
 #include "private/contact_listener.h"
+#include "private/touch.h"
 class b2Body;
 class b2DistanceJoint;
 class b2MouseJoint;
@@ -20,15 +20,13 @@ namespace ds {
 namespace physics {
 class SpriteBody;
 
-extern const ds::BitMask		PHYSICS_LOG;
-
 /**
  * \class ds::physics::World
  */
 class World : public ds::EngineService
 			, public ds::AutoUpdate {
 public:
-	World(ds::ui::SpriteEngine&);
+	World(ds::ui::SpriteEngine&, ds::ui::Sprite&);
 
 	void							createDistanceJoint(const SpriteBody&, const SpriteBody&, float length, float dampingRatio, float frequencyHz);
 	void							resizeDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
@@ -57,14 +55,12 @@ protected:
 private:
 	void							setBounds(const ci::Rectf&, const float restitution);
 
-	// Answer a joint for a finger ID
-	void							eraseTouch(const int fingerId);
-	b2MouseJoint*					getTouchJoint(const int fingerId);
-	b2MouseJoint*					getTouchJointFromPtr(const void*);
-
 	friend class ds::physics::SpriteBody;
+	friend class ds::physics::Touch;
 
+	ds::ui::Sprite&					mSprite;
 	std::unique_ptr<b2World>		mWorld;
+	ds::physics::Touch				mTouch;
 	ContactListener					mContactListener;
 	// Only register the listener with the world if there's someone listening;
 	// otherwise, this can incur a bit of overhead.
@@ -81,8 +77,6 @@ private:
 									mAngularDampening;
 	bool							mFixedRotation;
 
-	// Store pointers to joints created with touches.
-	std::unordered_map<int, void*>	mTouchJoints;
 	std::vector<b2DistanceJoint*>	mDistanceJoints;
 };
 
