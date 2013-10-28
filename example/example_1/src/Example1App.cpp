@@ -7,7 +7,7 @@
 #include <ds/data/resource_list.h>
 #include <ds/thread/runnable_client.h>
 #include <ds/query/query_client.h>
-#include <ds/config/settings.h>
+#include <ds/cfg/settings.h>
 #include <ds/ui/touch/touch_info.h>
 #include <ds/ui/sprite/image.h>
 
@@ -111,6 +111,18 @@ void BasicTweenApp::setupServer()
   child->enable(true);
   child->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
   rootSprite.addChild(*child);
+
+	// Example image sprite inside a rotated sprite.
+	ds::ui::Sprite&		rotated = ds::ui::Sprite::makeAlloc<ds::ui::Sprite>([this]()->ds::ui::Sprite*{return new ds::ui::Sprite(this->mEngine);}, &rootSprite);
+	rotated.setPosition(200.0f, 200.0f);
+	rotated.setSize(300.0f, 300.0f);
+	rotated.setRotation(90.0f);
+	rotated.setTransparent(false);
+	rotated.setColor(0.34f, 0.22f, 0.21f);
+	ds::ui::Image&		ri = ds::ui::Sprite::makeAlloc<ds::ui::Image>([this]()->ds::ui::Image*{return new ds::ui::Image(this->mEngine, ds::Environment::getAppFolder("data", "btn_left_up.png"));}, &rotated);
+	ri.setPosition(60.0f, 60.0f);
+	ri.enable(true);
+	ri.enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
 }
 
 void BasicTweenApp::mouseDown( MouseEvent event )
