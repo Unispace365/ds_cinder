@@ -35,6 +35,8 @@ public:
 		RowIterator(const Result&);
 		// This variant seeks to the first row with the supplied name.
 		RowIterator(const Result&, const std::string&);
+		// Find by row index
+		RowIterator(const Result&, const size_t index);
 
 		void							operator++();
 		void							operator+=(const int count);
@@ -87,6 +89,9 @@ public:
 	bool					rowsAreEmpty() const;
 	int						getRowSize() const;
 	RowIterator				getRows() const;
+	RowIterator				rowAt(const size_t index) const;
+	// Answer a RowIterator for the first row that has the given int field
+	// with the given value.
 	// Add all of source rows into me
 	bool					addRows(const Result& src);
 	// Remove my first row, optionally placing it 

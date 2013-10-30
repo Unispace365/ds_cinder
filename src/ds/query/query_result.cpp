@@ -128,6 +128,10 @@ Result::RowIterator Result::getRows() const {
 	return RowIterator(*this);
 }
 
+Result::RowIterator Result::rowAt(const size_t index) const {
+	return RowIterator(*this, index);
+}
+
 bool Result::addRows(const Result& src)
 {
 	_ASSERT(mCol.size() == src.mCol.size());
@@ -154,13 +158,6 @@ void Result::popRowFront() {
 		mRow.erase(mRow.begin());
 	}
 }
-
-#if 0
-void Result::moveRow(Result& dst, const int from, const int to)
-{
-	mRow.move(dst.mRow, from, to);
-}
-#endif
 
 void Result::swap(Result& o)  {
 	mCol.swap(o.mCol);
@@ -245,16 +242,11 @@ Result::RowIterator::RowIterator(const Result& qr, const std::string& str)
 	}
 }
 
-#if 0
-Result::RowIterator& Result::RowIterator::operator=(const RowIterator& o)
-{
-	if (this != &o) {
-		mResult = o.mResult;
-		mRowIt = o.mRowIt;
-	}
-	return *this;
+Result::RowIterator::RowIterator(const Result& qr, const size_t index)
+		: mResult(qr)
+		, mRowIt(qr.mRow.end()) {
+	if (index < qr.mRow.size()) mRowIt = qr.mRow.begin() + index;
 }
-#endif
 
 void Result::RowIterator::operator++() {
 	++mRowIt;
