@@ -82,8 +82,8 @@ public:
 	float					getScaleHeight() const;
 	float					getScaleDepth() const;
 
-	virtual void			setPosition(const ci::Vec3f &pos);
-	virtual void			setPosition(float x, float y, float z = 0.0f);
+	void					setPosition(const ci::Vec3f &pos);
+	void					setPosition(float x, float y, float z = 0.0f);
 	const ci::Vec3f&		getPosition() const;
 
 	void					move(const ci::Vec3f &delta);
@@ -271,6 +271,8 @@ protected:
 	void				setType(int type);
 	void				updateCheckBounds() const;
 	bool				checkBounds() const;
+
+	virtual void		doSetPosition(const ci::Vec3f&);
 
 	virtual void		onSetRotation(const ci::Vec3f&);
 

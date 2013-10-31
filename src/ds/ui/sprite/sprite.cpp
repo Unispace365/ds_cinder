@@ -320,10 +320,14 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
 }
 
 void Sprite::setPosition( float x, float y, float z ) {
-	setPosition(ci::Vec3f(x, y, z));
+	doSetPosition(ci::Vec3f(x, y, z));
 }
 
 void Sprite::setPosition(const ci::Vec3f &pos) {
+	doSetPosition(pos);
+}
+
+void Sprite::doSetPosition(const ci::Vec3f& pos) {
 	if (mPosition == pos) return;
 
 	mPosition = pos;
