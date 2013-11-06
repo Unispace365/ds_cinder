@@ -12,12 +12,14 @@ namespace {
 		EchoConnection(	const Poco::Net::StreamSocket& s,
 						std::shared_ptr<TcpServer::SendBucket>& b,
 						std::shared_ptr<ds::AsyncQueue<std::string>>& rq,
-						std::shared_ptr<bool>& st)
+						std::shared_ptr<bool>& st,
+						const std::string& wakeup)
 				: Poco::Net::TCPServerConnection(s)
 				, mBucket(b)
 				, mSendQueue(b->startQueue())
 				, mReceiveQueue(rq)
 				, mSt(st) {
+			if (mSendQueue && !wakeup.empty()) mSendQueue->push(wakeup);
 		}
 
 		~EchoConnection() {
@@ -27,7 +29,6 @@ namespace {
 		void run() {
 			Poco::Net::StreamSocket&		ss = socket();
 			ss.setBlocking(false);
-
 			// Keep running until the connection is closed externally
 			bool							keepRunning = true;
 			while (keepRunning) {
@@ -72,32 +73,35 @@ namespace {
 
 	class ConnectionFactory: public Poco::Net::TCPServerConnectionFactory {
 	public:
-		ConnectionFactory(std::shared_ptr<TcpServer::SendBucket>& b, std::shared_ptr<ds::AsyncQueue<std::string>>& rq, std::shared_ptr<bool>& st)
+		ConnectionFactory(	std::shared_ptr<TcpServer::SendBucket>& b, std::shared_ptr<ds::AsyncQueue<std::string>>& rq,
+							std::shared_ptr<bool>& st, const std::string& wakeup)
 				: mBucket(b)
 				, mReceiveQueue(rq)
-				, mSt(st) {
+				, mSt(st)
+				, mWakeup(wakeup) {
 		}
 
 		Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket& socket) {
-			return new EchoConnection(socket, mBucket, mReceiveQueue, mSt);
+			return new EchoConnection(socket, mBucket, mReceiveQueue, mSt, mWakeup);
 		}
 
 		std::shared_ptr<TcpServer::SendBucket>			mBucket;
 		std::shared_ptr<ds::AsyncQueue<std::string>>	mReceiveQueue;
 		std::shared_ptr<bool>							mSt;
+		const std::string								mWakeup;
 	};
 }
 
 /**
  * \class ds::TcpServer
  */
-TcpServer::TcpServer(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address)
+TcpServer::TcpServer(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address, const std::string& wakeup)
 		: ds::AutoUpdate(e)
 		, mAddress(address)
 		, mStopped(new bool(false))
 		, mBucket(new SendBucket())
 		, mReceiveQueue(new ds::AsyncQueue<std::string>())
-		, mServer(new ConnectionFactory(mBucket, mReceiveQueue, mStopped), Poco::Net::ServerSocket(address)) {
+		, mServer(new ConnectionFactory(mBucket, mReceiveQueue, mStopped, wakeup), Poco::Net::ServerSocket(address)) {
 	if (!mStopped) throw std::runtime_error("TcpServer failed making mStopped");
 	if (!mBucket) throw std::runtime_error("TcpServer failed making mBucket");
 	if (!mReceiveQueue) throw std::runtime_error("TcpServer failed making mReceiveQueue");
