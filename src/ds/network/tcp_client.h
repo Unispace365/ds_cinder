@@ -10,7 +10,6 @@
 #include <Poco/Thread.h>
 #include <Poco/Net/StreamSocket.h>
 #include "ds/app/auto_update.h"
-#include "ds/network/tcp_socket_sender.h"
 
 namespace ds {
 namespace net {
@@ -21,7 +20,17 @@ namespace net {
  */
 class TcpClient : public ds::AutoUpdate {
 public:
-	TcpClient(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&, const double poll_rate = 1.0);
+	class Options {
+	public:
+		explicit Options(const double poll_rate = 1.0, const int receive_buffer_size = 0, const int send_buffer_size = 0);
+
+		double						mPollRate;
+		int							mReceiveBufferSize;
+		int							mSendBufferSize;
+	};
+
+public:
+	TcpClient(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&, const Options& opt = Options());
 	~TcpClient();
 
 	void							add(const std::function<void(const std::string&)>&);
@@ -38,27 +47,27 @@ private:
 	public:
 		Poco::Mutex						mMutex;
 		bool							mAbort;
+		std::vector<std::string>		mSendData;
 		std::vector<std::string>		mUpdates;
 		Poco::Net::StreamSocket			mSocket;
 
 	public:
-		Loop(const Poco::Net::SocketAddress&, const double poll_rate);
+		Loop(const Poco::Net::SocketAddress&, const Options&);
 
 		virtual void					run();
 
 	private:
+		void							sendTo(Poco::Net::StreamSocket&);
 		void							update(const std::string&);
 
 		const Poco::Net::SocketAddress	mAddress;
-		const double					mPollRate;
+		const Options					mOptions;
 	};
 
 	Poco::Thread					mThread;
 	Loop							mLoop;
 	std::vector<std::function<void(const std::string&)>>
 									mListener;
-
-	ds::net::TcpSocketSender		mSocketSender;
 };
 
 } // namespace net

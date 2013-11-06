@@ -11,10 +11,9 @@ namespace net {
 /**
  * \class ds::TcpClient
  */
-TcpClient::TcpClient(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address, const double poll_rate)
+TcpClient::TcpClient(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address, const Options& opt)
 		: ds::AutoUpdate(e)
-		, mLoop(address, poll_rate) {
-	mSocketSender.addClient(address);
+		, mLoop(address, opt) {
 	try {
 		mThread.start(mLoop);
 	} catch (Poco::Exception&) {
@@ -42,12 +41,16 @@ void TcpClient::add(const std::function<void(const std::string&)>& f) {
 
 	try {
 		mListener.push_back(f);
-	} catch (std::exception&) {
+	} catch (std::exception const&) {
 	}
 }
 
 void TcpClient::send(const std::string& data) {
-	mSocketSender.send(data);
+	try {
+		Poco::Mutex::ScopedLock	l(mLoop.mMutex);
+		mLoop.mSendData.push_back(data);
+	} catch (std::exception const&) {
+	}
 }
 
 void TcpClient::update(const ds::UpdateParams&) {
@@ -66,11 +69,11 @@ void TcpClient::update(const ds::UpdateParams&) {
 /**
  * \class ds::NodeWatcher::Loop
  */
-TcpClient::Loop::Loop(const Poco::Net::SocketAddress& a, const double poll_rate)
+TcpClient::Loop::Loop(const Poco::Net::SocketAddress& a, const Options& opt)
 		: mAbort(false)
 		, mUpdates(0)
 		, mAddress(a)
-		, mPollRate(poll_rate) {
+		, mOptions(opt) {
 }
 
 void TcpClient::Loop::run() {
@@ -79,31 +82,42 @@ void TcpClient::Loop::run() {
 	char						buf[BUF_SIZE];
 	bool						needsConnect = true;
 	const Poco::Timespan		connect_timeout(1 * 100000);
-	const long					poll_rate(static_cast<long>(mPollRate * 1000.0));
+	const double				opt_poll = (mOptions.mPollRate > 0.0 ? mOptions.mPollRate : 1.0);
+	const long					poll_rate(static_cast<long>(opt_poll * 1000.0));
 	while (true) {
 		// Keep retrying the connection whenever it fails.
 		if (needsConnect) {
 			needsConnect = false;
 			try {
+				mSocket = Poco::Net::StreamSocket();
 				mSocket.connect(mAddress, connect_timeout);
-//				mSocket.setReceiveTimeout(poll_timeout);
 				mSocket.setBlocking(false);
-			} catch (std::exception&) {
+				if (mOptions.mReceiveBufferSize > 0) mSocket.setReceiveBufferSize(mOptions.mReceiveBufferSize);
+				if (mOptions.mSendBufferSize > 0) mSocket.setSendBufferSize(mOptions.mSendBufferSize);
+			} catch (std::exception& ex) {
 				needsConnect = true;
+//				std::cout << "CONNECT ERROR=" << ex.what() << std::endl;
 			}
 		}
 
 		int						length = 0;
-		try {
-			length = mSocket.receiveBytes(buf, BUF_SIZE);
-		} catch (Poco::TimeoutException&) {
-//			std::cout << "TcpWatcher timeout" << std::endl;
-//			std::cout << "TcpWatcher ex=" << ex.what() << std::endl;
-		} catch (Poco::Net::InvalidSocketException&) {
-			needsConnect = true;
-		} catch (std::exception&) {
-//			std::cout << "TcpWatcher exception " << ex.what() << std::endl;
-//			std::cout << "TcpWatcher ex=" << ex.what() << std::endl;
+		if (!needsConnect) {
+			try {
+				sendTo(mSocket);
+				length = mSocket.receiveBytes(buf, BUF_SIZE);
+			} catch (Poco::TimeoutException&) {
+//				std::cout << "TcpWatcher timeout" << std::endl;
+//				std::cout << "TcpWatcher ex=" << ex.what() << std::endl;
+			} catch (Poco::Net::ConnectionAbortedException&) {
+				needsConnect = true;
+			} catch (Poco::Net::ConnectionResetException&) {
+				needsConnect = true;
+			} catch (Poco::Net::InvalidSocketException&) {
+				needsConnect = true;
+			} catch (std::exception&) {
+//				std::cout << "TcpWatcher exception " << ex.what() << std::endl;
+//				std::cout << "TcpWatcher ex=" << ex.what() << std::endl;
+			}
 		}
 		// Throttle this down, so I'm not slamming the mutex
 		Poco::Thread::sleep(poll_rate);
@@ -124,12 +138,37 @@ void TcpClient::Loop::run() {
 	}	
 }
 
+void TcpClient::Loop::sendTo(Poco::Net::StreamSocket& socket) {
+	try {
+		std::vector<std::string>	data;
+		{
+			Poco::Mutex::ScopedLock	l(mMutex);
+			data.swap(mSendData);
+		}
+		for (auto dit = data.begin(), dend=data.end(); dit!=dend; ++dit) {
+			const std::string&		d(*dit);
+			std::cout << "SEND " << d << std::endl;
+			socket.sendBytes(d.data(), d.size());
+		}
+	} catch (std::exception const&) {
+	}
+}
+
 void TcpClient::Loop::update(const std::string& str) {
 	Poco::Mutex::ScopedLock	l(mMutex);
 	try {
 		mUpdates.push_back(str);
 	} catch (std::exception&) {
 	}
+}
+
+/**
+ * \class ds::NodeWatcher::Options
+ */
+TcpClient::Options::Options(const double poll_rate, const int receive_buffer_size, const int send_buffer_size)
+		: mPollRate(poll_rate)
+		, mReceiveBufferSize(receive_buffer_size)
+		, mSendBufferSize(send_buffer_size) {
 }
 
 } // namespace net
