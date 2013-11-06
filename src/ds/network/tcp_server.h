@@ -17,7 +17,8 @@ namespace net {
  */
 class TcpServer : public ds::AutoUpdate {
 public:
-	TcpServer(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&);
+	// Wakeup will be sent whenever a connection is made
+	TcpServer(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&, const std::string& wakeup = "");
 	~TcpServer();
 
 	void							add(const std::function<void(const std::string&)>&);
