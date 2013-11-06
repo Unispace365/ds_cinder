@@ -147,7 +147,6 @@ void TcpClient::Loop::sendTo(Poco::Net::StreamSocket& socket) {
 		}
 		for (auto dit = data.begin(), dend=data.end(); dit!=dend; ++dit) {
 			const std::string&		d(*dit);
-			std::cout << "SEND " << d << std::endl;
 			socket.sendBytes(d.data(), d.size());
 		}
 	} catch (std::exception const&) {
