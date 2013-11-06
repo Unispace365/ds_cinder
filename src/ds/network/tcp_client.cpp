@@ -11,9 +11,9 @@ namespace net {
 /**
  * \class ds::TcpClient
  */
-TcpClient::TcpClient(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address)
+TcpClient::TcpClient(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address, const double poll_rate)
 		: ds::AutoUpdate(e)
-		, mLoop(address) {
+		, mLoop(address, poll_rate) {
 	mSocketSender.addClient(address);
 	try {
 		mThread.start(mLoop);
@@ -66,10 +66,11 @@ void TcpClient::update(const ds::UpdateParams&) {
 /**
  * \class ds::NodeWatcher::Loop
  */
-TcpClient::Loop::Loop(const Poco::Net::SocketAddress& a)
+TcpClient::Loop::Loop(const Poco::Net::SocketAddress& a, const double poll_rate)
 		: mAbort(false)
 		, mUpdates(0)
-		, mAddress(a) {
+		, mAddress(a)
+		, mPollRate(poll_rate) {
 }
 
 void TcpClient::Loop::run() {
@@ -78,15 +79,15 @@ void TcpClient::Loop::run() {
 	char						buf[BUF_SIZE];
 	bool						needsConnect = true;
 	const Poco::Timespan		connect_timeout(1 * 100000);
-
+	const long					poll_rate(static_cast<long>(mPollRate * 1000.0));
 	while (true) {
 		// Keep retrying the connection whenever it fails.
 		if (needsConnect) {
 			needsConnect = false;
 			try {
 				mSocket.connect(mAddress, connect_timeout);
+//				mSocket.setReceiveTimeout(poll_timeout);
 				mSocket.setBlocking(false);
-				mSocket.setReceiveTimeout(Poco::Timespan(10, 0));
 			} catch (std::exception&) {
 				needsConnect = true;
 			}
@@ -95,9 +96,7 @@ void TcpClient::Loop::run() {
 		int						length = 0;
 		try {
 			length = mSocket.receiveBytes(buf, BUF_SIZE);
-			// I think a return of 0 here indicates that the connection is closed
-		}
-		catch (Poco::TimeoutException&) {
+		} catch (Poco::TimeoutException&) {
 //			std::cout << "TcpWatcher timeout" << std::endl;
 //			std::cout << "TcpWatcher ex=" << ex.what() << std::endl;
 		} catch (Poco::Net::InvalidSocketException&) {
@@ -107,7 +106,7 @@ void TcpClient::Loop::run() {
 //			std::cout << "TcpWatcher ex=" << ex.what() << std::endl;
 		}
 		// Throttle this down, so I'm not slamming the mutex
-		Poco::Thread::sleep(100);
+		Poco::Thread::sleep(poll_rate);
 
 		if ( length > 0 ) {
 			update(std::string(buf, length));

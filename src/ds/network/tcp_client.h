@@ -21,7 +21,7 @@ namespace net {
  */
 class TcpClient : public ds::AutoUpdate {
 public:
-	TcpClient(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&);
+	TcpClient(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&, const double poll_rate = 1.0);
 	~TcpClient();
 
 	void							add(const std::function<void(const std::string&)>&);
@@ -36,20 +36,21 @@ protected:
 private:
 	class Loop : public Poco::Runnable {
 	public:
-		Poco::Mutex					mMutex;
-		bool						mAbort;
-		std::vector<std::string>	mUpdates;
-		Poco::Net::StreamSocket		mSocket;
+		Poco::Mutex						mMutex;
+		bool							mAbort;
+		std::vector<std::string>		mUpdates;
+		Poco::Net::StreamSocket			mSocket;
 
 	public:
-		Loop(const Poco::Net::SocketAddress&);
+		Loop(const Poco::Net::SocketAddress&, const double poll_rate);
 
-		virtual void				run();
+		virtual void					run();
 
 	private:
-		void						update(const std::string&);
+		void							update(const std::string&);
 
 		const Poco::Net::SocketAddress	mAddress;
+		const double					mPollRate;
 	};
 
 	Poco::Thread					mThread;
