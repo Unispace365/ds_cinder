@@ -25,10 +25,9 @@ namespace {
 		}
 		
 		void run() {
-			const Poco::Timespan			net_timeout(1 * 500000);
 			Poco::Net::StreamSocket&		ss = socket();
-			ss.setSendTimeout(net_timeout);
-			ss.setReceiveTimeout(net_timeout);
+			ss.setBlocking(false);
+
 			// Keep running until the connection is closed externally
 			bool							keepRunning = true;
 			while (keepRunning) {
@@ -40,6 +39,9 @@ namespace {
 					if (stopped) keepRunning = false;
 				} catch (std::exception const&) {
 					keepRunning = false;
+				}
+				if (keepRunning) {
+					Poco::Thread::sleep(100);
 				}
 			}
 		}
