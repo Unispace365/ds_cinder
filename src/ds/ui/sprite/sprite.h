@@ -173,7 +173,7 @@ public:
 	ci::Vec3f				localToGlobal( const ci::Vec3f &localPoint );
 
 	// check if a point is inside the Sprite's bounds.
-	bool					contains( const ci::Vec3f &point ) const;
+	bool					contains(const ci::Vec3f& point, const float pad = 0.0f) const;
 
 	// finds Sprite at position
 	Sprite*					getHit( const ci::Vec3f &point );
@@ -405,6 +405,20 @@ private:
 	// This is used by the picking to let the touch system know that the sprite
 	// (position/dimensions) are in the screen coordinate space.
 	bool				mIsInScreenCoordsHack;
+
+public:
+	// This is a bit of a hack so I can temporarily set a scale value
+	// without causing the whole editing mechanism to kick in.
+	// Upon destruction, this class restores the scale.
+	class LockScale {
+	public:
+		LockScale(Sprite&, const ci::Vec3f& temporaryScale);
+		~LockScale();
+
+	private:
+		Sprite&			mSprite;
+		const ci::Vec3f	mScale;
+	};
 
 public:
 	static void			installAsServer(ds::BlobRegistry&);

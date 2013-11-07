@@ -94,7 +94,7 @@ void TcpClient::Loop::run() {
 				mSocket.setBlocking(false);
 				if (mOptions.mReceiveBufferSize > 0) mSocket.setReceiveBufferSize(mOptions.mReceiveBufferSize);
 				if (mOptions.mSendBufferSize > 0) mSocket.setSendBufferSize(mOptions.mSendBufferSize);
-			} catch (std::exception& ex) {
+			} catch (std::exception&) {
 				needsConnect = true;
 //				std::cout << "CONNECT ERROR=" << ex.what() << std::endl;
 			}

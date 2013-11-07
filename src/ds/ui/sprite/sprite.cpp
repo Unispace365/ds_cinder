@@ -343,13 +343,11 @@ const ci::Vec3f &Sprite::getPosition() const
     return mPosition;
 }
 
-void Sprite::setScale( float x, float y, float z )
-{
+void Sprite::setScale( float x, float y, float z ) {
 	setScale(ci::Vec3f(x, y, z));
 }
 
-void Sprite::setScale( const ci::Vec3f &scale )
-{
+void Sprite::setScale( const ci::Vec3f &scale ) {
 	if (mScale == scale) return;
 
 	mScale = scale;
@@ -727,7 +725,7 @@ ci::Vec3f Sprite::localToGlobal( const ci::Vec3f &localPoint )
     return ci::Vec3f(point.x, point.y, point.z);
 }
 
-bool Sprite::contains( const ci::Vec3f &point ) const {
+bool Sprite::contains(const ci::Vec3f& point, const float pad) const {
 	// If I don't check this, then sprites with no size are always picked.
 	// Someone who knows the math can probably address the root issue.
 	if (mWidth < 0.001f || mHeight < 0.001f) return false;
@@ -738,9 +736,9 @@ bool Sprite::contains( const ci::Vec3f &point ) const {
 
     ci::Vec4f pR = ci::Vec4f(point.x, point.y, point.z, 1.0f);
 
-    ci::Vec4f cA = mGlobalTransform * ci::Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-    ci::Vec4f cB = mGlobalTransform * ci::Vec4f(mWidth, 0.0f, 0.0f, 1.0f);
-    ci::Vec4f cC = mGlobalTransform * ci::Vec4f(mWidth, mHeight, 0.0f, 1.0f);
+    ci::Vec4f cA = mGlobalTransform * ci::Vec4f(-pad,			-pad,			0.0f, 1.0f);
+    ci::Vec4f cB = mGlobalTransform * ci::Vec4f(mWidth + pad,	-pad,			0.0f, 1.0f);
+    ci::Vec4f cC = mGlobalTransform * ci::Vec4f(mWidth + pad,	mHeight + pad,	0.0f, 1.0f);
     
     ci::Vec4f v1 = cA - cB;
     ci::Vec4f v2 = cC - cB;
@@ -1650,9 +1648,26 @@ bool Sprite::getUseDepthBuffer() const
   return mUseDepthBuffer;
 }
 
+/**
+ * \class ds::ui::Sprite::LockScale
+ */
+Sprite::LockScale::LockScale(Sprite& s, const ci::Vec3f& temporaryScale)
+		: mSprite(s)
+		, mScale(s.mScale) {
+	mSprite.mScale = temporaryScale;
 
+	mSprite.mUpdateTransform = true;
+	mSprite.buildTransform();
+	mSprite.computeClippingBounds();
+}
 
+Sprite::LockScale::~LockScale() {
+	mSprite.mScale = mScale;
 
+	mSprite.mUpdateTransform = true;
+	mSprite.buildTransform();
+	mSprite.computeClippingBounds();
+}
 
 } // namespace ui
 } // namespace ds
