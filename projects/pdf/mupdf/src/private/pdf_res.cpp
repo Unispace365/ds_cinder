@@ -336,31 +336,6 @@ void PdfRes::update()
 			}
 		}
 	}
-
-
-#if 0
-	{
-		Poco::Mutex::ScopedLock		l(mMutex);
-		if (mPixelsChanged) {
-			mPixelsChanged = false;
-			if (mPixels.empty()) {
-				mTexture = ci::gl::Texture();
-			} else {
-				if (!mTexture || mTexture.getWidth() != mPixels.getWidth() || mTexture.getHeight() != mPixels.getHeight()) {
-					mTexture = ci::gl::Texture(mPixels.getWidth(), mPixels.getHeight());
-					if (!mTexture) return;
-				}
-				glBindTexture(mTexture.getTarget(), mTexture.getId());
-//				ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
-				// Cinder Texture doesn't seem to support accessing the data type. I checked the code
-				// and it seems to always use GL_UNSIGNED_BYTE, so hopefully that's safe.
-//				glTexSubImage2D(mTexture.getTarget(), 0, 0, 0, mPixels.getWidth(), mTexture.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, mPixels.getData());
-				glBindTexture(mTexture.getTarget(), 0);
-				glFinish();
-			}
-		}
-	}
-#endif
 }
 
 bool PdfRes::needsUpdate()
