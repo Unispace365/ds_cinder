@@ -17,54 +17,50 @@ namespace ds {
 namespace ui {
 
 namespace {
-char                BLOB_TYPE         = 0;
+char				BLOB_TYPE		= 0;
 
-const DirtyState&   IMG_SRC_DIRTY 	  = INTERNAL_A_DIRTY;
+const DirtyState&	IMG_SRC_DIRTY	= INTERNAL_A_DIRTY;
 
-const char          IMG_SRC_ATT				= 80;
+const char			IMG_SRC_ATT		= 80;
 
-const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("ninepatch sprite");
+const ds::BitMask	SPRITE_LOG		= ds::Logger::newModule("ninepatch sprite");
 
-const int						CELL_LT						= 0;
-const int						CELL_MT						= 1;
-const int						CELL_RT						= 2;
-const int						CELL_LM						= 3;
-const int						CELL_MM						= 4;
-const int						CELL_RM						= 5;
-const int						CELL_LB						= 6;
-const int						CELL_MB						= 7;
-const int						CELL_RB						= 8;
+const int			CELL_LT			= 0;
+const int			CELL_MT			= 1;
+const int			CELL_RT			= 2;
+const int			CELL_LM			= 3;
+const int			CELL_MM			= 4;
+const int			CELL_RM			= 5;
+const int			CELL_LB			= 6;
+const int			CELL_MB			= 7;
+const int			CELL_RB			= 8;
 }
 
 /**
  * \class ds::ui::NinePatch
  */
-void NinePatch::installAsServer(ds::BlobRegistry& registry)
-{
-  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
+void NinePatch::installAsServer(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
 }
 
-void NinePatch::installAsClient(ds::BlobRegistry& registry)
-{
-  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<NinePatch>(r);});
+void NinePatch::installAsClient(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<NinePatch>(r);});
 }
 
 NinePatch::NinePatch(SpriteEngine& engine)
-    : mImageSource(engine)
+		: mImageSource(engine)
 		, inherited(engine)
-		, mSizeDirty(true)
-{
-  init();
-  mBlobType = BLOB_TYPE;
-  setUseShaderTextuer(true);
-  setTransparent(false);
+		, mSizeDirty(true) {
+	init();
+	mBlobType = BLOB_TYPE;
+	setUseShaderTextuer(true);
+	setTransparent(false);
 }
 
-NinePatch& NinePatch::setImage(const ImageSource& src)
-{
+NinePatch& NinePatch::setImage(const ImageSource& src) {
 	mImageSource.setSource(src);
 	setStatus(Status::STATUS_EMPTY);
-  markAsDirty(IMG_SRC_DIRTY);
+	markAsDirty(IMG_SRC_DIRTY);
 	mSizeDirty = true;
 	return *this;
 }
@@ -236,6 +232,7 @@ void NinePatch::Patch::buildSources(ci::gl::Texture tex)
 	int					stretchX_end = stretchX_start,
 						stretchY_end = stretchY_start;
 	int					l = 0, t = 0, r = tex.getWidth(), b = tex.getHeight();
+
 // jus playin
 //stretchX_start = (int)(tex.getWidth()*0.35f);
 //stretchX_end = (int)(tex.getWidth()*0.65f);
@@ -267,24 +264,24 @@ void NinePatch::Patch::buildSources(ci::gl::Texture tex)
 
 	// MIDDLE TOP CELL
 	mCell[CELL_MT].mIsValid = true;
-	mCell[CELL_MT].mSrc = ci::Area(	mCell[CELL_LT].mSrc.x2, mCell[CELL_LT].mSrc.y1,
-																	mCell[CELL_RT].mSrc.x1, mCell[CELL_LT].mSrc.y2);
+	mCell[CELL_MT].mSrc = ci::Area(	stretchX_start, mCell[CELL_LT].mSrc.y1,
+									stretchX_end, mCell[CELL_LT].mSrc.y2);
 	// LEFT MIDDLE CELL
 	mCell[CELL_LM].mIsValid = true;
-	mCell[CELL_LM].mSrc = ci::Area(	mCell[CELL_LT].mSrc.x1, mCell[CELL_LT].mSrc.y2,
-																	mCell[CELL_LT].mSrc.x2, mCell[CELL_LB].mSrc.y1);
+	mCell[CELL_LM].mSrc = ci::Area(	mCell[CELL_LT].mSrc.x1, stretchY_start,
+									mCell[CELL_LT].mSrc.x2, stretchY_end);
 	// RIGHT MIDDLE CELL
 	mCell[CELL_RM].mIsValid = true;
 	mCell[CELL_RM].mSrc = ci::Area(	mCell[CELL_RT].mSrc.x1, mCell[CELL_LM].mSrc.y1,
-																	mCell[CELL_RT].mSrc.x2, mCell[CELL_LM].mSrc.y2);
+									mCell[CELL_RT].mSrc.x2, mCell[CELL_LM].mSrc.y2);
 	// MIDDLE BOTTOM CELL
 	mCell[CELL_MB].mIsValid = true;
-	mCell[CELL_MB].mSrc = ci::Area(	mCell[CELL_LB].mSrc.x2, mCell[CELL_LB].mSrc.y1,
-																	mCell[CELL_RB].mSrc.x1, mCell[CELL_LB].mSrc.y2);
+	mCell[CELL_MB].mSrc = ci::Area(	stretchX_start, mCell[CELL_LB].mSrc.y1,
+									stretchX_end, mCell[CELL_LB].mSrc.y2);
 	// MIDDLE MIDDLE CELL
 	mCell[CELL_MM].mIsValid = true;
 	mCell[CELL_MM].mSrc = ci::Area(	mCell[CELL_MT].mSrc.x1, mCell[CELL_LM].mSrc.y1,
-																	mCell[CELL_MT].mSrc.x2, mCell[CELL_LM].mSrc.y2);
+									mCell[CELL_MT].mSrc.x2, mCell[CELL_LM].mSrc.y2);
 }
 
 void NinePatch::Patch::buildDestinations(const float width, const float height)
