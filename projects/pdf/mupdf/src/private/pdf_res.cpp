@@ -148,6 +148,7 @@ public:
 	//			fz_pixmap *pix = fz_new_pixmap_with_bbox(&ctx, fz_device_rgb, bbox);
 				int w = mScaledWidth, h = mScaledHeight;
 				if (mPixels.setSize(w, h)) {
+					mPixels.clearPixels();
 					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb, w, h, mPixels.getData());
 					if (pixmap) {
 						fz_clear_pixmap_with_value(&ctx, pixmap, 0xff);
@@ -319,15 +320,47 @@ void PdfRes::update()
 					mTexture = ci::gl::Texture(mPixels.getWidth(), mPixels.getHeight());
 					if (!mTexture) return;
 				}
-				glBindTexture(mTexture.getTarget(), mTexture.getId());
+
+				GLsizei width = mTexture.getWidth(),
+						height = mTexture.getHeight();
+				std::vector<GLubyte> emptyData(width * height * 4, 0);
+
+				mTexture.enableAndBind();
 				// Cinder Texture doesn't seem to support accessing the data type. I checked the code
 				// and it seems to always use GL_UNSIGNED_BYTE, so hopefully that's safe.
+				glTexSubImage2D(mTexture.getTarget(), 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, &emptyData[0]);
 				glTexSubImage2D(mTexture.getTarget(), 0, 0, 0, mPixels.getWidth(), mTexture.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, mPixels.getData());
+				mTexture.unbind();
+				mTexture.disable();
+				glFinish();
+			}
+		}
+	}
+
+
+#if 0
+	{
+		Poco::Mutex::ScopedLock		l(mMutex);
+		if (mPixelsChanged) {
+			mPixelsChanged = false;
+			if (mPixels.empty()) {
+				mTexture = ci::gl::Texture();
+			} else {
+				if (!mTexture || mTexture.getWidth() != mPixels.getWidth() || mTexture.getHeight() != mPixels.getHeight()) {
+					mTexture = ci::gl::Texture(mPixels.getWidth(), mPixels.getHeight());
+					if (!mTexture) return;
+				}
+				glBindTexture(mTexture.getTarget(), mTexture.getId());
+//				ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+				// Cinder Texture doesn't seem to support accessing the data type. I checked the code
+				// and it seems to always use GL_UNSIGNED_BYTE, so hopefully that's safe.
+//				glTexSubImage2D(mTexture.getTarget(), 0, 0, 0, mPixels.getWidth(), mTexture.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, mPixels.getData());
 				glBindTexture(mTexture.getTarget(), 0);
 				glFinish();
 			}
 		}
 	}
+#endif
 }
 
 bool PdfRes::needsUpdate()
@@ -434,9 +467,14 @@ bool PdfRes::Pixels::setSize(const int w, const int h)
 	return true;
 }
 
-unsigned char* PdfRes::Pixels::getData()
-{
+unsigned char* PdfRes::Pixels::getData() {
 	return mData;
+}
+
+void PdfRes::Pixels::clearPixels() {
+	if (mW < 1 || mH < 1) return;
+	const int			size = mW * mH * 4;
+	memset(mData, 0, size);
 }
 
 } // using namespace pdf

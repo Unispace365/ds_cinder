@@ -74,6 +74,7 @@ public:
 		int					getWidth() const		{ return mW; }
 		int					getHeight() const		{ return mH; }
 		unsigned char*		getData();
+		void				clearPixels();
 
 	private:
 		int					mW, mH;
