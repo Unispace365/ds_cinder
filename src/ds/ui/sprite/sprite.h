@@ -89,8 +89,8 @@ public:
 	void					move(const ci::Vec3f &delta);
 	void					move(float deltaX, float deltaY, float deltaZ = 0.0f);
 
-	virtual void			setScale(const ci::Vec3f &scale);
-	virtual void			setScale(float x, float y, float z = 1.0f);
+	void					setScale(const ci::Vec3f &scale);
+	void					setScale(float x, float y, float z = 1.0f);
 	const ci::Vec3f&		getScale() const;
 
 	// center of the Sprite. Where its positioned at and rotated at.
@@ -273,8 +273,8 @@ protected:
 	bool				checkBounds() const;
 
 	virtual void		doSetPosition(const ci::Vec3f&);
-
-	virtual void		onSetRotation(const ci::Vec3f&);
+	virtual void		doSetScale(const ci::Vec3f&);
+	virtual void		doSetRotation(const ci::Vec3f&);
 
 	virtual void		onCenterChanged();
 	virtual void		onPositionChanged();

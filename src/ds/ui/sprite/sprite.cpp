@@ -338,16 +338,7 @@ void Sprite::doSetPosition(const ci::Vec3f& pos) {
 	onPositionChanged();
 }
 
-const ci::Vec3f &Sprite::getPosition() const
-{
-    return mPosition;
-}
-
-void Sprite::setScale( float x, float y, float z ) {
-	setScale(ci::Vec3f(x, y, z));
-}
-
-void Sprite::setScale( const ci::Vec3f &scale ) {
+void Sprite::doSetScale(const ci::Vec3f& scale) {
 	if (mScale == scale) return;
 
 	mScale = scale;
@@ -356,6 +347,18 @@ void Sprite::setScale( const ci::Vec3f &scale ) {
 	markAsDirty(SCALE_DIRTY);
 	dimensionalStateChanged();
 	onScaleChanged();
+}
+
+const ci::Vec3f& Sprite::getPosition() const {
+    return mPosition;
+}
+
+void Sprite::setScale( float x, float y, float z ) {
+	doSetScale(ci::Vec3f(x, y, z));
+}
+
+void Sprite::setScale(const ci::Vec3f& scale) {
+	doSetScale(scale);
 }
 
 const ci::Vec3f& Sprite::getScale() const
@@ -380,27 +383,27 @@ void Sprite::setCenter(const ci::Vec3f& center)
 	onCenterChanged();
 }
 
-const ci::Vec3f &Sprite::getCenter() const
+const ci::Vec3f& Sprite::getCenter() const
 {
     return mCenter;
 }
 
 void Sprite::setRotation(float rotZ) {
-	onSetRotation(ci::Vec3f(mRotation.x, mRotation.y, rotZ) );
+	doSetRotation(ci::Vec3f(mRotation.x, mRotation.y, rotZ) );
 }
 
 void Sprite::setRotation(const ci::Vec3f& rot) {
-	onSetRotation(rot);
+	doSetRotation(rot);
 }
 
-void Sprite::onSetRotation(const ci::Vec3f& rot) {
-  if ( math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z) )
-    return;
+void Sprite::doSetRotation(const ci::Vec3f& rot) {
+	if ( math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z) )
+		return;
 
-  mRotation = rot;
-  mUpdateTransform = true;
-  mBoundsNeedChecking = true;
-  dimensionalStateChanged();
+	mRotation = rot;
+	mUpdateTransform = true;
+	mBoundsNeedChecking = true;
+	dimensionalStateChanged();
 }
 
 ci::Vec3f Sprite::getRotation() const
