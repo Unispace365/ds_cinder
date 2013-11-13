@@ -119,6 +119,10 @@ std::string Environment::getLocalFile(	const std::string& category,
 	return p.toString();
 }
 
+std::string Environment::getProjectPath() {
+	return EngineSettings::envProjectPath();
+}
+
 } // namespace ds
 
 static std::string    folder_from(const Poco::Path& parentP, const std::string& folder, const std::string& fileName)

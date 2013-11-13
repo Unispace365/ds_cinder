@@ -41,6 +41,9 @@ public:
 	// optional category (SETTINGS() etc.), project_path, and file name
 	static std::string			getLocalFile(const std::string& category, const bool includeProjectPath, const std::string& filename);
 
+	// Answer the current project path
+	static std::string			getProjectPath();
+
 private:
 	Environment();
 };
