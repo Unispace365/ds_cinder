@@ -12,6 +12,10 @@
       <AdditionalDependencies>%(AdditionalDependencies);awesomium.lib;web_awesomium_d.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM)\projects\web\awesomium\lib\paulhoux-Cinder-Awesomium\build\lib\msw;$(DS_PLATFORM)\projects\web\lib</AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>copy "%DS_PLATFORM%\projects\web\awesomium\lib\paulhoux-Cinder-Awesomium\build\bin\*.*" "$(TargetDir)"</Command>
+      <Message>copy awesome DLLs</Message>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>
