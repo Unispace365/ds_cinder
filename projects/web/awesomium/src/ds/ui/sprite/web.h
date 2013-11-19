@@ -9,13 +9,12 @@
 namespace Awesomium {
 class WebCore;
 class WebView;
-namespace WebViewListener {
-}
 }
 
 namespace ds {
 namespace web {
 class Service;
+class WebViewListener;
 }
 
 namespace ui {
@@ -34,8 +33,9 @@ public:
 
 	// After setting a URL, you need to call activate() to see anything. Not
 	// sure I like that API but that's what it is for now.
-	void loadUrl(const std::wstring &url);
-	void loadUrl(const std::string &url);
+	void					loadUrl(const std::wstring &url);
+	void					loadUrl(const std::string &url);
+	std::string				getUrl();
 
 	void sendKeyDownEvent(const ci::app::KeyEvent &event);
 	void sendKeyUpEvent(const ci::app::KeyEvent &event);
@@ -55,17 +55,23 @@ public:
 	bool					canGoBack();
 	bool					canGoForward();			
 
+	// For now, a simple communication about when the address changes.
+	// In the future I'd like to have a richer mechanism in place.
+	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
+
 protected:
 	virtual void			onSizeChanged();
 
 private:
-	void handleTouch(const ds::ui::TouchInfo &touchInfo);
+	void					handleTouch(const ds::ui::TouchInfo &touchInfo);
 
 	typedef ds::ui::Sprite	inherited;
 
 	ds::web::Service&		mService;
 	Awesomium::WebView*		mWebViewPtr;
-	
+	std::unique_ptr<ds::web::WebViewListener>
+							mWebViewListener;
+
 	ci::gl::Texture			mWebTexture;
 	ci::gl::Texture			mLoadingTexture;
 

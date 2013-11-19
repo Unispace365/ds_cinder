@@ -24,12 +24,18 @@
     <ClInclude Include="src\private\web_service.h">
       <Filter>src\private</Filter>
     </ClInclude>
+    <ClInclude Include="src\private\web_view_listener.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\sprite\web.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
     <ClCompile Include="src\private\web_service.cpp">
+      <Filter>src\private</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\web_view_listener.cpp">
       <Filter>src\private</Filter>
     </ClCompile>
   </ItemGroup>

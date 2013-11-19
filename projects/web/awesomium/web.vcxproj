@@ -13,10 +13,12 @@
   <ItemGroup>
     <ClInclude Include="src\ds\ui\sprite\web.h" />
     <ClInclude Include="src\private\web_service.h" />
+    <ClInclude Include="src\private\web_view_listener.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\sprite\web.cpp" />
     <ClCompile Include="src\private\web_service.cpp" />
+    <ClCompile Include="src\private\web_view_listener.cpp" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{FDE518C6-AFB7-4400-B252-82C978DE7D82}</ProjectGuid>
