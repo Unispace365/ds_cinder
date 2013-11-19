@@ -22,6 +22,9 @@ class Collision;
 class Touch;
 class World;
 
+// The collision category for the world.
+extern const int		WORLD_CATEGORY_BIT;
+
 /**
  * \class ds::physics::SpriteBody
  * \brief This serves as the sprite entry point to the physics system.

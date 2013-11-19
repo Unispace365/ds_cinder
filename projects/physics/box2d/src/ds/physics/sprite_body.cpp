@@ -16,6 +16,8 @@
 namespace ds {
 namespace physics {
 
+const int		WORLD_CATEGORY_BIT = 1;
+
 namespace {
 
 // Statically initialize the service class. Done here because the Body is
