@@ -182,6 +182,7 @@ std::string Web::getUrl() {
 		return str;
 	} catch (std::exception const&) {
 	}
+	return "";
 }
 
 void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {
