@@ -72,24 +72,19 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	}
 }
 
-Web::~Web()
-{
+Web::~Web() {
 	if (mWebViewPtr) {
 		mWebViewPtr->Destroy();
 	}
 }
 
-void Web::setSizeAll( float width, float height, float depth )
-{
-	if (ds::math::isEqual(width, getWidth()) &&
-			ds::math::isEqual(height, getHeight()) &&
-			ds::math::isEqual(depth, getDepth())) {
-		return;
-	}
-
-	Sprite::setSizeAll(width, height, depth);
+void Web::onSizeChanged() {
 	if (mWebViewPtr) {
-		mWebViewPtr->Resize(static_cast<int>(width), static_cast<int>(height));
+		const int			w = static_cast<int>(getWidth()),
+							h = static_cast<int>(getHeight());
+		std::cout << "Web set size w=" << w << ", h=" << h << std::endl;
+		if (w < 1 || h < 1) return;
+		mWebViewPtr->Resize(w, h);
 	}
 }
 
@@ -160,19 +155,23 @@ void Web::handleTouch( const ds::ui::TouchInfo &touchInfo )
   }
 }
 
-void Web::loadUrl( const std::wstring &url )
-{
-	if (mWebViewPtr) {
-		mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(ds::utf8_from_wstr(url).c_str())));
-		mWebViewPtr->Focus();
+void Web::loadUrl(const std::wstring &url) {
+	try {
+		loadUrl(ds::utf8_from_wstr(url));
+	} catch( const std::exception &e ) {
+		DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
 	}
 }
 
-void Web::loadUrl( const std::string &url )
-{
-	if (mWebViewPtr) {
-		mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url.c_str())));
-		mWebViewPtr->Focus();
+void Web::loadUrl(const std::string &url) {
+	try {
+		if (mWebViewPtr) {
+			DS_LOG_INFO("Web::loadUrl() on " << url);
+			mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url.c_str())));
+			mWebViewPtr->Focus();
+		}
+	} catch( const std::exception &e ) {
+		DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
 	}
 }
 
