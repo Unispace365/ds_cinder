@@ -78,16 +78,6 @@ Web::~Web() {
 	}
 }
 
-void Web::onSizeChanged() {
-	if (mWebViewPtr) {
-		const int			w = static_cast<int>(getWidth()),
-							h = static_cast<int>(getHeight());
-		std::cout << "Web set size w=" << w << ", h=" << h << std::endl;
-		if (w < 1 || h < 1) return;
-		mWebViewPtr->Resize(w, h);
-	}
-}
-
 void Web::updateServer( const ds::UpdateParams &updateParams )
 {
   Sprite::updateServer(updateParams);
@@ -242,14 +232,50 @@ void Web::deactivate()
 	});
 }
 
-bool Web::isActive() const
-{
-  return mActive;
+bool Web::isActive() const {
+	return mActive;
 }
 
-void Web::setTransitionTime( const float transitionTime )
-{
-  mTransitionTime = transitionTime;
+void Web::setTransitionTime( const float transitionTime ) {
+	mTransitionTime = transitionTime;
+}
+
+void Web::goBack() {
+	if (mWebViewPtr) {
+		mWebViewPtr->GoBack();
+	}
+}
+
+void Web::goForward() {
+	if (mWebViewPtr) {
+		mWebViewPtr->GoForward();
+	}
+}
+
+void Web::reload() {
+	if (mWebViewPtr) {
+		mWebViewPtr->Reload(true);
+	}
+}
+
+bool Web::canGoBack() {
+	if (!mWebViewPtr) return false;
+	return mWebViewPtr->CanGoBack();
+}
+
+bool Web::canGoForward() {
+	if (!mWebViewPtr) return false;
+	return mWebViewPtr->CanGoForward();
+}
+
+void Web::onSizeChanged() {
+	if (mWebViewPtr) {
+		const int			w = static_cast<int>(getWidth()),
+							h = static_cast<int>(getHeight());
+		std::cout << "Web set size w=" << w << ", h=" << h << std::endl;
+		if (w < 1 || h < 1) return;
+		mWebViewPtr->Resize(w, h);
+	}
 }
 
 } // namespace ui

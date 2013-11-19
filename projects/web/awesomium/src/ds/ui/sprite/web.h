@@ -9,6 +9,8 @@
 namespace Awesomium {
 class WebCore;
 class WebView;
+namespace WebViewListener {
+}
 }
 
 namespace ds {
@@ -46,8 +48,15 @@ public:
 	void activate();
 	void deactivate();
 
+	// Actions
+	void					goBack();
+	void					goForward();
+	void					reload();
+	bool					canGoBack();
+	bool					canGoForward();			
+
 protected:
-	virtual void		onSizeChanged();
+	virtual void			onSizeChanged();
 
 private:
 	void handleTouch(const ds::ui::TouchInfo &touchInfo);
