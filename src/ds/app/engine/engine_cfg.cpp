@@ -57,6 +57,14 @@ const ds::cfg::Text& EngineCfg::getText(const std::string& name) const
 	return it->second;
 }
 
+bool EngineCfg::hasText(const std::string& name) const {
+	if (name.empty()) return false;
+	if (mTextCfg.empty()) return false;
+	auto it = mTextCfg.find(name);
+	if (it == mTextCfg.end()) return  false;
+	return true;
+}
+
 void EngineCfg::loadSettings(const std::string& name, const std::string& filename)
 {
 	ds::cfg::Settings&	settings = mSettings[name];

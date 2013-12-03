@@ -22,6 +22,7 @@ public:
 	// Answer the requested text cfg. In debug mode, throw
 	// if it doesn't exist. In release mode, just answer an empty one.
 	const ds::cfg::Text&			getText(const std::string& name) const;
+	bool							hasText(const std::string& name) const;
 
 	// Convenice to load a setting file into the mEngineCfg settings.
 	// @param name is the name that the system will use to refer to the settings.
