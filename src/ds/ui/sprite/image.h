@@ -15,6 +15,8 @@ class Image: public Sprite {
 public:
 	// Cache any texture loaded by this sprite, never releasing it.
 	static const int                IMG_CACHE_F = (1<<0);
+	// Begin loading an image as soon as it's received.
+	static const int                IMG_PRELOAD_F = (1<<1);
 
 public:
 	Image(SpriteEngine&, const int flags = 0);

@@ -236,6 +236,16 @@ Image &Image::setResourceId( const ds::Resource::Id &resourceId ) {
 	}
 	markAsDirty(RES_ID_DIRTY);
 
+	// XXX This should check to see if I'm in client mode and only
+	// load it then. (or the service should be empty in server mode).
+	// Also, ideally this would happen in drawClient(), but that won't
+	// be reached if the sprite is not visible, negating a lot of the value.
+	if ((mFlags&IMG_PRELOAD_F) != 0) {
+		if (mImageToken.canAcquire()) {
+			requestImage();
+		}
+	}
+
 	return *this;
 }
 
