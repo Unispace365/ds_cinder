@@ -59,6 +59,7 @@ public:
 
 	void					clearVelocity();
 	void					setLinearVelocity(const float x, const float y);
+	void					applyForceToCenter(const float x, const float y);
 
 	void					setRotation(const float degree);
 	// Set a collision callback, called whenever this body

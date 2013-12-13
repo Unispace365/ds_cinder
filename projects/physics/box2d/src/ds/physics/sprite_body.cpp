@@ -150,6 +150,12 @@ void SpriteBody::setLinearVelocity(const float x, const float y) {
 	}
 }
 
+void SpriteBody::applyForceToCenter(const float x, const float y) {
+	if (mBody != nullptr) {
+		mBody->ApplyForceToCenter(b2Vec2(x, y));
+	}
+}
+
 void SpriteBody::setRotation(const float degree) {
 	if (mBody == nullptr) return;
 

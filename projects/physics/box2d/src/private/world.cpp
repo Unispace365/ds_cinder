@@ -88,21 +88,6 @@ void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 		jointDef.bodyB = body2.mBody;
 		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter());
 		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter());
-		// First try settings:
-		//jointDef.dampingRatio = 8.0f;
-		//jointDef.frequencyHz = 3.0f;
-		// Settings that work well if you don't have colliding bodies:
-		//jointDef.dampingRatio = 50.0f;
-		//jointDef.frequencyHz = 10.0f;
-		// Trying to find settings that work well with colliding bodies:
-		//jointDef.dampingRatio = 0.95f;
-		//jointDef.frequencyHz = 2.0f;
-		// Trying out yet more settings for colliding bodies. The previous ones were alright, but not perfect:
-		//jointDef.dampingRatio = 0.7f;
-		//jointDef.frequencyHz = 1.5f;
-		// DNA Wall's settings:
-		//jointDef.dampingRatio = 1.0f;
-		//jointDef.frequencyHz = 5.0f;
 		
 		jointDef.dampingRatio = dampingRatio;
 		jointDef.frequencyHz = frequencyHz;
