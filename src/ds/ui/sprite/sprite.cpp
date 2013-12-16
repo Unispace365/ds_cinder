@@ -327,6 +327,10 @@ void Sprite::setPosition(const ci::Vec3f &pos) {
 	doSetPosition(pos);
 }
 
+bool Sprite::getInnerHit(const ci::Vec3f&) const {
+	return true;
+}
+
 void Sprite::doSetPosition(const ci::Vec3f& pos) {
 	if (mPosition == pos) return;
 
@@ -783,7 +787,7 @@ Sprite* Sprite::getHit(const ci::Vec3f &point) {
             Sprite *hitChild = child->getHit(point);
             if ( hitChild )
                 return hitChild;
-            if ( child->visible() && child->isEnabled() && child->contains(point) )
+            if ( child->visible() && child->isEnabled() && child->contains(point) && child->getInnerHit(point) )
                 return child;
         }
     }
@@ -798,7 +802,7 @@ Sprite* Sprite::getHit(const ci::Vec3f &point) {
         for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
         {
             Sprite *child = *it;
-            if ( child->visible() && child->isEnabled() && child->contains(point) )
+            if ( child->visible() && child->isEnabled() && child->contains(point) && child->getInnerHit(point) )
                 return child;
             Sprite *hitChild = child->getHit(point);
             if ( hitChild )
@@ -806,7 +810,7 @@ Sprite* Sprite::getHit(const ci::Vec3f &point) {
         }
     }
 
-    if ( isEnabled() && contains(point) )
+    if ( isEnabled() && contains(point) && getInnerHit(point) )
         return this;
 
     return nullptr;

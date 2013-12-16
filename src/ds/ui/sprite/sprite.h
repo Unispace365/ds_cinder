@@ -272,6 +272,11 @@ protected:
 	void				updateCheckBounds() const;
 	bool				checkBounds() const;
 
+	// Once the sprite has passed the getHit() sprite bounds, this is a second
+	// stage that allows the sprite itself to determine if the point is interior,
+	// in the case that the sprite has transparency or other special rules.
+	virtual bool		getInnerHit(const ci::Vec3f&) const;
+
 	virtual void		doSetPosition(const ci::Vec3f&);
 	virtual void		doSetScale(const ci::Vec3f&);
 	virtual void		doSetRotation(const ci::Vec3f&);
