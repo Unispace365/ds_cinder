@@ -103,6 +103,9 @@
     <Filter Include="src\ds\cfg">
       <UniqueIdentifier>{5e71772f-c261-47da-9b61-42260e961303}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\gl">
+      <UniqueIdentifier>{a2c57887-62d6-4497-99fb-2e041a4938b5}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -483,6 +486,9 @@
     <ClInclude Include="..\src\ds\data\tuio_object.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\gl\uniform.h">
+      <Filter>src\ds\gl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -784,6 +790,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\tuio_object.cpp">
       <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\gl\uniform.cpp">
+      <Filter>src\ds\gl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -167,10 +167,10 @@ void TouchManager::drawTouches() const
     return;
 
   applyBlendingMode(NORMAL);
-  gl::color( mTouchColor );
+  ci::gl::color( mTouchColor );
 
   for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {
-  	gl::drawStrokedCircle( it->second.xy(), 20.0f );
+  	ci::gl::drawStrokedCircle( it->second.xy(), 20.0f );
   }
 }
 

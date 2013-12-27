@@ -212,6 +212,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
         shaderBase.uniform("tex0", 0);
         shaderBase.uniform("useTexture", mUseShaderTexture);
         shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+		mUniform.applyTo(shaderBase);
       }
 
       ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);

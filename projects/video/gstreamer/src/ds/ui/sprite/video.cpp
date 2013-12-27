@@ -95,21 +95,21 @@ void Video::drawLocalClient() {
 			gotVideo = true;
 			int vidWidth( mMovie.getWidth()), vidHeight(mMovie.getHeight());
 			if(mIsTransparent){
-				mFrameTexture = gl::Texture(pImg, GL_RGBA, vidWidth, vidHeight);
+				mFrameTexture = ci::gl::Texture(pImg, GL_RGBA, vidWidth, vidHeight);
 			} else {
-				mFrameTexture = gl::Texture(pImg, GL_RGB, vidWidth, vidHeight);
+				mFrameTexture = ci::gl::Texture(pImg, GL_RGB, vidWidth, vidHeight);
 			}
 		}
 	}
 
 	if ( mFrameTexture ) {
 		{
-			gl::pushMatrices();
+			ci::gl::pushMatrices();
 			mSpriteShader.getShader().unbind();
 			ci::gl::setViewport(mFrameTexture.getBounds());
 			ci::CameraOrtho camera;
 			camera.setOrtho(float(mFrameTexture.getBounds().getX1()), float(mFrameTexture.getBounds().getX2()), float(mFrameTexture.getBounds().getY2()), float(mFrameTexture.getBounds().getY1()), -1.0f, 1.0f);
-			gl::setMatrices(camera);
+			ci::gl::setMatrices(camera);
 			// bind the framebuffer - now everything we draw will go there
 			mFbo.bindFramebuffer();
 
@@ -119,9 +119,9 @@ void Video::drawLocalClient() {
 			}
 
 			if(mIsTransparent){
-				gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+				ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 			} else {
-				gl::clear(ci::Color(0.0f, 0.0f, 0.0f));
+				ci::gl::clear(ci::Color(0.0f, 0.0f, 0.0f));
 			}
 
 			ci::gl::draw(mFrameTexture);
@@ -129,18 +129,18 @@ void Video::drawLocalClient() {
 			glPopAttrib();
 			mFbo.unbindFramebuffer();
 			mSpriteShader.getShader().bind();
-			gl::popMatrices();
+			ci::gl::popMatrices();
 		}
 
 		Rectf screenRect = mEngine.getScreenRect();
-		gl::setViewport(Area((int)screenRect.getX1(), (int)screenRect.getY2(), (int)screenRect.getX2(), (int)screenRect.getY1()));
+		ci::gl::setViewport(Area((int)screenRect.getX1(), (int)screenRect.getY2(), (int)screenRect.getX2(), (int)screenRect.getY1()));
 
 		if (getPerspective()) {
 			Rectf area(0.0f, 0.0f, getWidth(), getHeight());
-			gl::draw( mFbo.getTexture(0), area );
+			ci::gl::draw( mFbo.getTexture(0), area );
 		} else {
 			Rectf area(0.0f, getHeight(), getWidth(), 0.0f);
-			gl::draw( mFbo.getTexture(0), area );
+			ci::gl::draw( mFbo.getTexture(0), area );
 		}
 		DS_REPORT_GL_ERRORS();
 	}

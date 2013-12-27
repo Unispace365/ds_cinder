@@ -189,7 +189,7 @@ void Text::drawLocalClient()
 	if (mDebugShowFrame) {
 		mSpriteShader.getShader().unbind();
 		glPushAttrib(GL_COLOR);
-		gl::color(0.25f, 0, 0, 0.5f);
+		ci::gl::color(0.25f, 0, 0, 0.5f);
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 		glPopAttrib();
 		mSpriteShader.getShader().bind();
@@ -562,10 +562,10 @@ std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
       mTexture = ci::gl::Texture(w, h, format);
     }
 
-    gl::enableAlphaBlending();
+    ci::gl::enableAlphaBlending();
     applyBlendingMode(LIGHTEN);
     {
-      gl::SaveFramebufferBinding bindingSaver;
+      ci::gl::SaveFramebufferBinding bindingSaver;
 
       std::unique_ptr<ds::ui::FboGeneral> fbo = std::move(mEngine.getFbo());
       fbo->attach(mTexture, true);

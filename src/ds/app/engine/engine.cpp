@@ -253,7 +253,7 @@ void Engine::updateServer() {
 void Engine::setCamera(const bool perspective)
 {
 	if(!perspective){
-		gl::setViewport(Area((int)mData.mScreenRect.getX1(), (int)mData.mScreenRect.getY2(), (int)mData.mScreenRect.getX2(), (int)mData.mScreenRect.getY1()));
+		ci::gl::setViewport(Area((int)mData.mScreenRect.getX1(), (int)mData.mScreenRect.getY2(), (int)mData.mScreenRect.getX2(), (int)mData.mScreenRect.getY1()));
 		mCamera.setOrtho(mData.mScreenRect.getX1(), mData.mScreenRect.getX2(), mData.mScreenRect.getY2(), mData.mScreenRect.getY1(), -1, 1);
 		//gl::setMatrices(mCamera);
 	} else {
@@ -276,11 +276,11 @@ void Engine::setPerspectiveCameraPlanes(const float nearPlane, const float farPl
 void Engine::setCameraForDraw(const bool perspective){
 	if(!perspective){
 		//mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
-    gl::setMatrices(mCamera);
-    gl::disableDepthRead();
-    gl::disableDepthWrite();
+    ci::gl::setMatrices(mCamera);
+    ci::gl::disableDepthRead();
+    ci::gl::disableDepthWrite();
 	} else {
-    gl::setMatrices(mCameraPersp);
+    ci::gl::setMatrices(mCameraPersp);
 		mScreenToWorld.update();
     // enable the depth buffer (after all, we are doing 3D)
     //gl::enableDepthRead();
@@ -311,14 +311,14 @@ void Engine::drawClient()
 
   if (mApplyFxAA) {
     {
-      gl::SaveFramebufferBinding bindingSaver;
+      ci::gl::SaveFramebufferBinding bindingSaver;
 
       // bind the framebuffer - now everything we draw will go there
       mFbo.bindFramebuffer();
 
-      gl::enableAlphaBlending();
+      ci::gl::enableAlphaBlending();
       //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-      gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+      ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 			for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 				ds::ui::Sprite*			s = (*it);
@@ -332,10 +332,10 @@ void Engine::drawClient()
       mFbo.unbindFramebuffer();
     }
 
-    gl::enableAlphaBlending();
+    ci::gl::enableAlphaBlending();
     glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
     setCamera();
-    gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+    ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
  //   gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
     Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
 
@@ -360,17 +360,17 @@ void Engine::drawClient()
       shader.uniform("FXAA_REDUCE_MIN", 1.0f / mFxAAReduceMin);
 
       //gl::draw( mFbo.getTexture(0), screen );
-      gl::drawSolidRect(screen);
+      ci::gl::drawSolidRect(screen);
 
       mFbo.unbindTexture();
       shader.unbind();
     } else {
-      gl::draw( mFbo.getTexture(0), screen );
+      ci::gl::draw( mFbo.getTexture(0), screen );
     }
   } else {	  
-    gl::enableAlphaBlending();
+    ci::gl::enableAlphaBlending();
     //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-    gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+    ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 		for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 			ds::ui::Sprite*			s = (*it);
@@ -386,13 +386,12 @@ void Engine::drawClient()
   glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
 }
 
-void Engine::drawServer()
-{
-  glAlphaFunc ( GL_GREATER, 0.001f ) ;
-  glEnable ( GL_ALPHA_TEST ) ;
+void Engine::drawServer() {
+	glAlphaFunc(GL_GREATER, 0.001f);
+	glEnable(GL_ALPHA_TEST);
 
-  gl::enableAlphaBlending();
-  gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+	ci::gl::enableAlphaBlending();
+	ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		ds::ui::Sprite*			s = (*it);
@@ -405,10 +404,10 @@ void Engine::drawServer()
 		}
 	}
 
-  if (mDrawTouches)
-    mTouchManager.drawTouches();
+	if (mDrawTouches)
+		mTouchManager.drawTouches();
 
-  glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
+	glAlphaFunc(GL_ALWAYS, 0.001f) ;
 }
 
 void Engine::setup(ds::App&)
@@ -420,9 +419,9 @@ void Engine::setup(ds::App&)
 	//gl::disable(GL_CULL_FACE);
 	//////////////////////////////////////////////////////////////////////////
 
-	gl::Fbo::Format format;
+	ci::gl::Fbo::Format format;
 	format.setColorInternalFormat(GL_RGBA32F);
-	mFbo = gl::Fbo((int)getWidth(), (int)getHeight(), format);
+	mFbo = ci::gl::Fbo((int)getWidth(), (int)getHeight(), format);
 	//////////////////////////////////////////////////////////////////////////
 
 	float curr = static_cast<float>(getElapsedSeconds());

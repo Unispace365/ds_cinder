@@ -1,23 +1,19 @@
 #pragma once
-#ifndef DS_OBJECT_INTERFACE_H
-#define DS_OBJECT_INTERFACE_H
+#ifndef DS_UI_SPRITE_SPRITE_H_
+#define DS_UI_SPRITE_SPRITE_H_
+
 #include <exception>
 #include "cinder/Cinder.h"
 #include <list>
 #include "cinder/Color.h"
-#include "cinder/Matrix22.h"
-#include "cinder/Matrix33.h"
-#include "cinder/MatrixAffine2.h"
-#include "cinder/Matrix44.h"
 #include "cinder/Tween.h"
-#include "cinder/Vector.h"
 #include "ds/app/app_defs.h"
+#include "ds/gl/uniform.h"
 #include "ds/util/bit_mask.h"
 #include "ds/ui/sprite/dirty_state.h"
 #include "ds/ui/touch/touch_process.h"
 #include "ds/ui/touch/multi_touch_constraints.h"
 #include "ds/ui/tween/sprite_anim.h"
-#include "cinder/gl/GlslProg.h"
 #include "cinder/gl/Texture.h"
 #include "shader/sprite_shader.h"
 #include "util/blend.h"
@@ -115,7 +111,7 @@ public:
 	const ci::Matrix44f&	getGlobalTransform() const;
 	const ci::Matrix44f&	getInverseGlobalTransform() const;
 
-	void					addChild( Sprite &child );
+	void					addChild(Sprite&);
 
 	// Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
 	// Jeremy
@@ -219,6 +215,7 @@ public:
 	void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
 	SpriteShader&			getBaseShader();
 	std::string				getBaseShaderName() const;
+	ds::gl::Uniform&		getUniform()					{ return mUniform; }
 
 	void					setClipping(bool flag);
 	bool					getClipping() const;
@@ -372,6 +369,9 @@ protected:
 	IdleTimer			mIdleTimer;
 	bool				mUseDepthBuffer;
 
+	// Transport uniform data to the shader
+	ds::gl::Uniform		mUniform;
+
 private:
 	friend class Engine;
 	// Disable copy constructor; sprites are managed by their parent and
@@ -488,4 +488,4 @@ static void Sprite::handleBlobFromServer(ds::BlobReader& r)
 } // namespace ui
 } // namespace ds
 
-#endif//DS_OBJECT_INTERFACE_H
+#endif // DS_UI_SPRITE_SPRITE_H_

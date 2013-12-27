@@ -66,6 +66,7 @@
     <ClInclude Include="..\src\ds\debug\console.h" />
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
     <ClInclude Include="..\src\ds\debug\logger.h" />
+    <ClInclude Include="..\src\ds\gl\uniform.h" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\math\math_func.h" />
     <ClInclude Include="..\src\ds\math\random.h" />
@@ -185,6 +186,7 @@
     <ClCompile Include="..\src\ds\debug\computer_info.cpp" />
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />
+    <ClCompile Include="..\src\ds\gl\uniform.cpp" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
     <ClCompile Include="..\src\ds\network\http_client.cpp" />
     <ClCompile Include="..\src\ds\network\node_watcher.cpp" />
