@@ -290,6 +290,7 @@ std::string Resource::getAbsoluteFilePath() const
 	if (!mDebugFileName.empty()) return mDebugFileName;
 
 	if (mFileName.empty()) return EMPTY_SZ;
+	if (mType == WEB_TYPE) return mFileName;
 	Poco::Path        p(mDbId.getResourcePath());
 	if (p.depth() < 1) return EMPTY_SZ;
 	p.append(mPath).append(mFileName);
