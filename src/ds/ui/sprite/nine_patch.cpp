@@ -82,10 +82,8 @@ void NinePatch::updateServer(const UpdateParams& up)
   }
 }
 
-void NinePatch::drawLocalClient()
-{
-  if (!inBounds())
-    return;
+void NinePatch::drawLocalClient() {
+	if (!inBounds()) return;
 
 	const ci::gl::Texture*		tex = mImageSource.getImage();
 	if (!tex) return;
@@ -95,6 +93,7 @@ void NinePatch::drawLocalClient()
 	if (mPatch.empty()) {
 		mPatch.buildSources(*tex);
 		mSizeDirty = true;
+//		mPatch.print();
 	}
 	if (mSizeDirty) {
 		mSizeDirty = false;
@@ -228,9 +227,9 @@ void NinePatch::Patch::buildSources(ci::gl::Texture tex)
 	// be more efficient.
 	ci::Surface8u		s(tex);
 	int					stretchX_start = tex.getWidth()/2,
-						stretchY_start = tex.getHeight()/2;
+						stretchY_start = (tex.getHeight()/2);
 	int					stretchX_end = stretchX_start,
-						stretchY_end = stretchY_start;
+						stretchY_end = (stretchY_start);
 	int					l = 0, t = 0, r = tex.getWidth(), b = tex.getHeight();
 
 // jus playin
@@ -284,8 +283,7 @@ void NinePatch::Patch::buildSources(ci::gl::Texture tex)
 									mCell[CELL_MT].mSrc.x2, mCell[CELL_LM].mSrc.y2);
 }
 
-void NinePatch::Patch::buildDestinations(const float width, const float height)
-{
+void NinePatch::Patch::buildDestinations(const float width, const float height) {
 	// Corners first, which don't stretch
 
 	// LEFT TOP CELL
@@ -307,6 +305,24 @@ void NinePatch::Patch::buildDestinations(const float width, const float height)
 	if (mCell[CELL_RB].mIsValid) {
 		const ci::Vec2f	size = mCell[CELL_RB].size();
 		mCell[CELL_RB].mDst = ci::Rectf(width - size.x, height-size.y, width, height);
+	}
+
+	// Now adjust for the case where the dest is smaller than the source
+	const float			src_w = static_cast<float>(mCell[CELL_RT].mSrc.getX2()),
+						src_h = static_cast<float>(mCell[CELL_RB].mSrc.getY2());
+	if (height < src_h) {
+		const float		half = floorf(height/2.0f);
+		mCell[CELL_LT].mDst.y2 = half-1.0f;
+		mCell[CELL_RT].mDst.y2 = mCell[CELL_LT].mDst.y2;
+		mCell[CELL_LB].mDst.y1 = half+1.0f;
+		mCell[CELL_RB].mDst.y1 = mCell[CELL_LB].mDst.y1;
+	}
+	if (width < src_w) {
+		const float		half = floorf(width/2.0f);
+		mCell[CELL_LT].mDst.x2 = half-1.0f;
+		mCell[CELL_LB].mDst.x2 = mCell[CELL_LT].mDst.x2;
+		mCell[CELL_RT].mDst.x1 = half+1.0f;
+		mCell[CELL_RB].mDst.x1 = mCell[CELL_RT].mDst.x1;
 	}
 
 	// Interior stretchy cells, based on the corners
