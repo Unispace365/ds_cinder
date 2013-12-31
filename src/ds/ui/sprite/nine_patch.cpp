@@ -329,8 +329,8 @@ void NinePatch::Patch::buildDestinations(const float width, const float height) 
 
 	// MIDDLE TOP CELL
 	if (mCell[CELL_MT].mIsValid) {
-		const ci::Vec2f	size = mCell[CELL_MT].size();
-		mCell[CELL_MT].mDst = ci::Rectf(mCell[CELL_LT].size().x, 0.0f, width - mCell[CELL_RT].size().x, size.y);
+		const Cell&		lt(mCell[CELL_LT]);
+		mCell[CELL_MT].mDst = ci::Rectf(lt.size().x, lt.mDst.y1, width - mCell[CELL_RT].size().x, lt.mDst.y2);
 	}
 	// LEFT MIDDLE CELL
 	mCell[CELL_LM].mDst = ci::Rectf(mCell[CELL_LT].mDst.x1, mCell[CELL_LT].mDst.y2,
