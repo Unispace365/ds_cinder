@@ -12,33 +12,29 @@ namespace ds {
 /**
  * \class ds::Environment
  */
-Environment::Environment()
-{
+Environment::Environment() {
 }
 
-const std::string& Environment::SETTINGS()
-{
-  static const std::string    SZ("settings");
-  return SZ;
+const std::string& Environment::SETTINGS() {
+	static const std::string    SZ("settings");
+	return SZ;
 }
 
-const std::string& Environment::RESOURCES()
-{
-  static const std::string    SZ("resources");
-  return SZ;
+const std::string& Environment::RESOURCES() {
+	static const std::string    SZ("resources");
+	return SZ;
 }
 
-std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName, const bool verify)
-{
-  Poco::Path      p(ds::App::envAppPath());
-  std::string     ans;
-  // A couple things limit the search -- the directory can't get
-  // too short, and right now nothing is more then 3 steps from the appPath.
-  int             count = 0;
-  while ((ans=folder_from(p, folderName, fileName)).empty()) {
-    p.popDirectory();
-    if (count++ >= 3 || p.depth() < 2) return "";
-  }
+std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName, const bool verify) {
+	Poco::Path      p(ds::App::envAppPath());
+	std::string     ans;
+	// A couple things limit the search -- the directory can't get
+	// too short, and right now nothing is more then 3 steps from the appPath.
+	int             count = 0;
+	while ((ans=folder_from(p, folderName, fileName)).empty()) {
+		p.popDirectory();
+		if (count++ >= 3 || p.depth() < 2) return "";
+	}
 	if (verify) {
 		try {
 			Poco::File		f(ans);
@@ -46,7 +42,13 @@ std::string Environment::getAppFolder(const std::string& folderName, const std::
 		} catch (std::exception const&) {
 		}
 	}
-  return ans;
+	return ans;
+}
+
+std::string Environment::getAppFile(const std::string& path) {
+	Poco::Path      p(ds::App::envAppDataPath());
+	p.append(path);
+	return p.toString();
 }
 
 std::string Environment::getLocalResourcesFolder( const std::string& folderName, const std::string& fileName /*= ""*/ )
@@ -125,16 +127,15 @@ std::string Environment::getProjectPath() {
 
 } // namespace ds
 
-static std::string    folder_from(const Poco::Path& parentP, const std::string& folder, const std::string& fileName)
-{
-  Poco::Path          p(parentP);
-  p.append(folder);
+static std::string    folder_from(const Poco::Path& parentP, const std::string& folder, const std::string& fileName) {
+	Poco::Path          p(parentP);
+	p.append(folder);
 
-  const Poco::File    f(p);
-  if (f.exists() && f.isDirectory()) {
-    if (fileName.empty()) return f.path();
-    p.append(fileName);
-    return p.toString();
-  }
-  return "";
+	const Poco::File    f(p);
+	if (f.exists() && f.isDirectory()) {
+		if (fileName.empty()) return f.path();
+		p.append(fileName);
+		return p.toString();
+	}
+	return "";
 }

@@ -1,5 +1,7 @@
 #include "ds/app/app.h"
 
+#include <Poco/File.h>
+#include <Poco/Path.h>
 #include "ds/app/engine/engine_client.h"
 #include "ds/app/engine/engine_clientserver.h"
 #include "ds/app/engine/engine_server.h"
@@ -26,9 +28,10 @@ static std::vector<std::function<void(ds::Engine&)>>& get_startups()
 }
 
 namespace {
-std::string           APP_PATH;
+std::string				APP_PATH;
+std::string				APP_DATA_PATH;
 #ifdef _DEBUG
-ds::Console		        GLOBAL_CONSOLE;
+ds::Console				GLOBAL_CONSOLE;
 #endif
 }
 
@@ -180,9 +183,12 @@ void App::tuioObjectMoved(const TuioObject&) {
 void App::tuioObjectEnded(const TuioObject&) {
 }
 
-const std::string& App::envAppPath()
-{
-  return APP_PATH;
+const std::string& App::envAppPath() {
+	return APP_PATH;
+}
+
+const std::string& App::envAppDataPath() {
+	return APP_DATA_PATH;
 }
 
 void App::keyDown( KeyEvent event )
@@ -222,10 +228,32 @@ void App::shutdown()
 /**
  * \class ds::App::Initializer
  */
-ds::App::Initializer::Initializer(const std::string& appPath)
-{
-  DS_DBG_CODE(GLOBAL_CONSOLE.create());
-  APP_PATH = appPath;
+static std::string data_folder_from(const Poco::Path& path) {
+	Poco::Path          parent(path);
+	Poco::Path			p(parent);
+	p.append("data");
+	const Poco::File    f(p);
+	if (f.exists() && f.isDirectory()) {
+		return parent.toString();
+	}
+	return "";
+}
+
+ds::App::Initializer::Initializer(const std::string& appPath) {
+	DS_DBG_CODE(GLOBAL_CONSOLE.create());
+	APP_PATH = appPath;
+
+	Poco::Path      p(appPath);
+	std::string     ans;
+	// A couple things limit the search -- the directory can't get too
+	// short, and right now nothing is more then 3 steps from the appPath
+	// (but pad that to 5).
+	int             count = 0;
+	while ((ans=data_folder_from(p)).empty()) {
+		p.popDirectory();
+		if (count++ >= 5 || p.depth() < 2) break;
+	}
+	APP_DATA_PATH = ans;
 }
 
 } // namespace ds

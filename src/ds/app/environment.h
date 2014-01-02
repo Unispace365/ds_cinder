@@ -26,7 +26,9 @@ public:
 	// it so no configuration is needed between dev and production environments.
 	// If verify is true, then verify that the folder or file exists, otherwise answer a blank string.
 	static std::string			getAppFolder(	const std::string& folderName, const std::string& fileName = "",
-																							const bool verify = false);
+												const bool verify = false);
+	// Path is relative to the app folder. It can end in a folder or file leaf.
+	static std::string			getAppFile(const std::string& path);
 	static std::string			getLocalResourcesFolder(const std::string& folderName, const std::string& fileName = "");
 
 	// Answer the Downstream documents folder.
