@@ -26,15 +26,10 @@ const std::string& Environment::RESOURCES() {
 }
 
 std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName, const bool verify) {
-	Poco::Path      p(ds::App::envAppPath());
-	std::string     ans;
-	// A couple things limit the search -- the directory can't get
-	// too short, and right now nothing is more then 3 steps from the appPath.
-	int             count = 0;
-	while ((ans=folder_from(p, folderName, fileName)).empty()) {
-		p.popDirectory();
-		if (count++ >= 3 || p.depth() < 2) return "";
-	}
+	Poco::Path				p(ds::App::envAppDataPath());
+	if (!folderName.empty()) p.append(folderName);
+	if (!fileName.empty()) p.append(fileName);
+	const std::string		ans(p.toString());
 	if (verify) {
 		try {
 			Poco::File		f(ans);
