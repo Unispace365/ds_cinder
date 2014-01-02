@@ -4,6 +4,7 @@
 #include <iostream>
 #include <stdarg.h>
 #include <math.h>
+#include <ds/util/string_util.h>
 
 using namespace std;
 
@@ -272,13 +273,31 @@ inline int query_round(const double d) {
 }
 
 int Result::RowIterator::getInt(const int columnIndex) const {
+	if (columnIndex < 0) return 0;
 	const Row&		row = **mRowIt;
+	// Deal with the case where the column got misinterpreted as a string --
+	// this can happen when there's a NULL in the data set.
+	if (columnIndex < row.mWString.size() && !row.mWString[columnIndex].empty()) {
+		int			ans = 0;
+		if (ds::wstring_to_value(row.mWString[columnIndex], ans)) {
+			return ans;
+		}
+	}
 	if (row.mNumeric.size() <= columnIndex) return 0;
 	return query_round(row.mNumeric.data()[columnIndex]);
 }
 
 float Result::RowIterator::getFloat(const int columnIndex) const {
+	if (columnIndex < 0) return 0;
 	const Row&		row = **mRowIt;
+	// Deal with the case where the column got misinterpreted as a string --
+	// this can happen when there's a NULL in the data set.
+	if (columnIndex < row.mWString.size() && !row.mWString[columnIndex].empty()) {
+		float		ans = 0.0f;
+		if (ds::wstring_to_value(row.mWString[columnIndex], ans)) {
+			return ans;
+		}
+	}
 	if (row.mNumeric.size() <= columnIndex) return 0.0f;
 	return (float)row.mNumeric.data()[columnIndex];
 }

@@ -138,7 +138,7 @@ void ResultBuilder::build(const bool columnNames)
 				addString(v);
 			} else if (col == QUERY_NULL) {
 				// I can't determine at any point the actual type of the column,
-				// because it looks like sqlite always basis that info on the first
+				// because it looks like sqlite always bases that info on the first
 				// row in the result set. So in this case, I've got to just get
 				// every type.
 				double		v = 0.0f;
