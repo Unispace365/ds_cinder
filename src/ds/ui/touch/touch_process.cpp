@@ -72,8 +72,9 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 
 		auto foundControl0 = mFingers.find(mControlFingerIndexes[0]);
 		auto foundControl1 = mFingers.find(mControlFingerIndexes[1]);
-
-		if (mSprite.multiTouchEnabled() && (touchInfo.mFingerId == foundControl0->second.mFingerId || touchInfo.mFingerId == foundControl1->second.mFingerId)) {
+		const bool			found_0 = foundControl0 != mFingers.end(),
+							found_1 = foundControl1 != mFingers.end();
+		if (mSprite.multiTouchEnabled() && found_0 && found_1 && (touchInfo.mFingerId == foundControl0->second.mFingerId || touchInfo.mFingerId == foundControl1->second.mFingerId)) {
 			Matrix44f parentTransform;
 			parentTransform.setToIdentity();
 
