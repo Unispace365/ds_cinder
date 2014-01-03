@@ -22,6 +22,11 @@ void apply(const std::map<std::string, T>& data, ci::gl::GlslProg& shader) {
 Uniform::Uniform() {
 }
 
+void Uniform::setFloat(const std::string& key, const float value) {
+	if (key.empty()) return;
+	mFloat[key] = value;
+}
+
 void Uniform::setMatrix44f(const std::string& key, const ci::Matrix44f& value) {
 	if (key.empty()) return;
 	mMatrix44f[key] = value;
@@ -38,6 +43,7 @@ void Uniform::setVec4f(const std::string& key, const ci::Vec4f& value) {
 }
 
 void Uniform::applyTo(ci::gl::GlslProg& shader) const {
+	apply<float>(mFloat, shader);
 	apply<ci::Matrix44f>(mMatrix44f, shader);
 	apply<ci::Vec2i>(mVec2i, shader);
 	apply<ci::Vec4f>(mVec4f, shader);

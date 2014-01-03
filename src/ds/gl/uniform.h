@@ -25,6 +25,7 @@ class Uniform {
 public:
 	Uniform();
 
+	void									setFloat(const std::string& name, const float);
 	void									setMatrix44f(const std::string& name, const ci::Matrix44f&);
 	void									setVec2i(const std::string& name, const ci::Vec2i&);
 	void									setVec4f(const std::string& name, const ci::Vec4f&);
@@ -32,6 +33,7 @@ public:
 	void									applyTo(ci::gl::GlslProg&) const;
 
 private:
+	std::map<std::string, float>			mFloat;
 	std::map<std::string, ci::Matrix44f>	mMatrix44f;
 	std::map<std::string, ci::Vec2i>		mVec2i;
 	std::map<std::string, ci::Vec4f>		mVec4f;
