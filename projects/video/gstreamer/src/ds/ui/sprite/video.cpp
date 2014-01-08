@@ -174,6 +174,7 @@ Video& Video::loadVideo(const std::string& filename) {
 			mInternalMuted = false;
 		}
 		mMovie.open(filename, generateVideoBuffer, false, mIsTransparent, videoWidth, videoHeight, videoDuration);
+		mMovie.setPosition(0);
 		if (mLooping) {
 			mMovie.setLoopMode(LOOP);
 		} else {
