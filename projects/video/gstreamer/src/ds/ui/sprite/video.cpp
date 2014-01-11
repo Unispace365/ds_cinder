@@ -191,9 +191,14 @@ Video& Video::loadVideo(const std::string& filename) {
 		mMovie.setVideoCompleteCallback([this](GStreamerWrapper* video){ handleVideoComplete(video);});
 
 		setStatus(Status::STATUS_PLAYING);
+#ifdef _DEBUG
 	} catch (std::exception const& ex) {
 		DS_DBG_CODE(std::cout << "ERROR Video::loadVideo() ex=" << ex.what() << std::endl);
 		return *this;
+#else
+	} catch (std::exception const&) {
+		return *this;
+#endif
 	}
 
 	if (type == VideoMetaCache::VIDEO_TYPE) setupForVideo(filename);
@@ -209,9 +214,14 @@ Video& Video::setResourceId(const ds::Resource::Id &resourceId) {
 			std::string filename = res.getAbsoluteFilePath();
 			loadVideo(filename);
 		}
+#ifdef _DEBUG
 	} catch (std::exception const& ex) {
 		DS_DBG_CODE(std::cout << "ERROR Video::loadVideo() ex=" << ex.what() << std::endl);
 		return *this;
+#else
+	} catch (std::exception const&) {
+		return *this;
+#endif
 	}
 
 	//mFbo = ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), true);
