@@ -489,6 +489,9 @@
     <ClInclude Include="..\src\ds\gl\uniform.h">
       <Filter>src\ds\gl</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\color_util.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -793,6 +796,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\gl\uniform.cpp">
       <Filter>src\ds\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\color_util.cpp">
+      <Filter>src\ds\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
