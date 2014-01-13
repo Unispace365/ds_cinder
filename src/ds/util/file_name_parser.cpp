@@ -26,6 +26,10 @@ const char *ParseFileMetaException::what() const throw() {
 FileMetaData::FileMetaData() {
 }
 
+FileMetaData::FileMetaData(const std::string& filename) {
+	parse(filename);
+}
+
 void FileMetaData::parse(const std::string& filename) {
 	mAttrib.clear();
 

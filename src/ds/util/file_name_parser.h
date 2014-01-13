@@ -30,6 +30,7 @@ private:
 class FileMetaData {
 public:
 	FileMetaData();
+	explicit FileMetaData(const std::string& filename);
 
 	void				parse(const std::string& filename);
 
