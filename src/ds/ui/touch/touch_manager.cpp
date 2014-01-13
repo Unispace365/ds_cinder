@@ -167,10 +167,10 @@ void TouchManager::drawTouches() const
     return;
 
   applyBlendingMode(NORMAL);
-  gl::color( mTouchColor );
+  ci::gl::color( mTouchColor );
 
   for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {
-  	gl::drawStrokedCircle( it->second.xy(), 20.0f );
+  	ci::gl::drawStrokedCircle( it->second.xy(), 20.0f );
   }
 }
 
@@ -205,8 +205,7 @@ void TouchManager::setSpriteForFinger( const int fingerId, ui::Sprite* theSprite
 	mFingerDispatcher[fingerId] = theSprite;
 }
 
-Sprite* TouchManager::getHit(const ci::Vec3f &point)
-{
+Sprite* TouchManager::getHit(const ci::Vec3f &point) {
 	for (int k=mEngine.getRootCount()-1; k>=0; --k) {
 		ui::Sprite&						root(mEngine.getRootSprite(k));
 		Sprite*								s = nullptr;
@@ -218,7 +217,7 @@ Sprite* TouchManager::getHit(const ci::Vec3f &point)
 		}
 		if (s) return s;
 	}
-  return nullptr;
+	return nullptr;
 }
 
 

@@ -212,6 +212,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
         shaderBase.uniform("tex0", 0);
         shaderBase.uniform("useTexture", mUseShaderTexture);
         shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+		mUniform.applyTo(shaderBase);
       }
 
       ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);
@@ -319,34 +320,30 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
   }
 }
 
-void Sprite::setPosition( float x, float y, float z )
-{
-  setPosition(ci::Vec3f(x, y, z));
+void Sprite::setPosition( float x, float y, float z ) {
+	doSetPosition(ci::Vec3f(x, y, z));
 }
 
-void Sprite::setPosition( const ci::Vec3f &pos )
-{
-  if (mPosition == pos) return;
+void Sprite::setPosition(const ci::Vec3f &pos) {
+	doSetPosition(pos);
+}
 
-  mPosition = pos;
-  mUpdateTransform = true;
-  mBoundsNeedChecking = true;
+bool Sprite::getInnerHit(const ci::Vec3f&) const {
+	return true;
+}
+
+void Sprite::doSetPosition(const ci::Vec3f& pos) {
+	if (mPosition == pos) return;
+
+	mPosition = pos;
+	mUpdateTransform = true;
+	mBoundsNeedChecking = true;
 	markAsDirty(POSITION_DIRTY);
-  dimensionalStateChanged();
+	dimensionalStateChanged();
+	onPositionChanged();
 }
 
-const ci::Vec3f &Sprite::getPosition() const
-{
-    return mPosition;
-}
-
-void Sprite::setScale( float x, float y, float z )
-{
-	setScale(ci::Vec3f(x, y, z));
-}
-
-void Sprite::setScale( const ci::Vec3f &scale )
-{
+void Sprite::doSetScale(const ci::Vec3f& scale) {
 	if (mScale == scale) return;
 
 	mScale = scale;
@@ -357,52 +354,61 @@ void Sprite::setScale( const ci::Vec3f &scale )
 	onScaleChanged();
 }
 
-const ci::Vec3f &Sprite::getScale() const
+const ci::Vec3f& Sprite::getPosition() const {
+    return mPosition;
+}
+
+void Sprite::setScale( float x, float y, float z ) {
+	doSetScale(ci::Vec3f(x, y, z));
+}
+
+void Sprite::setScale(const ci::Vec3f& scale) {
+	doSetScale(scale);
+}
+
+const ci::Vec3f& Sprite::getScale() const
 {
-  return mScale;
+	return mScale;
 }
 
 void Sprite::setCenter( float x, float y, float z )
 {
-	mCenter = ci::Vec3f(x, y, z);
+	setCenter(ci::Vec3f(x, y, z));
+}
+
+void Sprite::setCenter(const ci::Vec3f& center)
+{
+	if (mCenter == center) return;
+	
+	mCenter = center;
 	mUpdateTransform = true;
 	mBoundsNeedChecking = true;
 	markAsDirty(CENTER_DIRTY);
 	dimensionalStateChanged();
+	onCenterChanged();
 }
 
-void Sprite::setCenter( const ci::Vec3f &center )
-{
-	mCenter = center;
-	mUpdateTransform = true;
-	mBoundsNeedChecking = true;
-}
-
-const ci::Vec3f &Sprite::getCenter() const
+const ci::Vec3f& Sprite::getCenter() const
 {
     return mCenter;
 }
 
-void Sprite::setRotation( float rotZ )
-{
-    if ( math::isEqual(mRotation.z, rotZ) )
-        return;
-
-    mRotation.z = rotZ;
-    mUpdateTransform = true;
-    mBoundsNeedChecking = true;
-    dimensionalStateChanged();
+void Sprite::setRotation(float rotZ) {
+	doSetRotation(ci::Vec3f(mRotation.x, mRotation.y, rotZ) );
 }
 
-void Sprite::setRotation( const ci::Vec3f &rot )
-{
-  if ( math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z) )
-    return;
+void Sprite::setRotation(const ci::Vec3f& rot) {
+	doSetRotation(rot);
+}
 
-  mRotation = rot;
-  mUpdateTransform = true;
-  mBoundsNeedChecking = true;
-  dimensionalStateChanged();
+void Sprite::doSetRotation(const ci::Vec3f& rot) {
+	if ( math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z) )
+		return;
+
+	mRotation = rot;
+	mUpdateTransform = true;
+	mBoundsNeedChecking = true;
+	dimensionalStateChanged();
 }
 
 ci::Vec3f Sprite::getRotation() const
@@ -727,19 +733,20 @@ ci::Vec3f Sprite::localToGlobal( const ci::Vec3f &localPoint )
     return ci::Vec3f(point.x, point.y, point.z);
 }
 
-bool Sprite::contains( const ci::Vec3f &point ) const
-{
+bool Sprite::contains(const ci::Vec3f& point, const float pad) const {
 	// If I don't check this, then sprites with no size are always picked.
 	// Someone who knows the math can probably address the root issue.
 	if (mWidth < 0.001f || mHeight < 0.001f) return false;
+	// Same deal as above.
+	if (mScale.x <= 0.0f || mScale.y <= 0.0f) return nullptr;
 
     buildGlobalTransform();
 
     ci::Vec4f pR = ci::Vec4f(point.x, point.y, point.z, 1.0f);
 
-    ci::Vec4f cA = mGlobalTransform * ci::Vec4f(0.0f, 0.0f, 0.0f, 1.0f);
-    ci::Vec4f cB = mGlobalTransform * ci::Vec4f(mWidth, 0.0f, 0.0f, 1.0f);
-    ci::Vec4f cC = mGlobalTransform * ci::Vec4f(mWidth, mHeight, 0.0f, 1.0f);
+    ci::Vec4f cA = mGlobalTransform * ci::Vec4f(-pad,			-pad,			0.0f, 1.0f);
+    ci::Vec4f cB = mGlobalTransform * ci::Vec4f(mWidth + pad,	-pad,			0.0f, 1.0f);
+    ci::Vec4f cC = mGlobalTransform * ci::Vec4f(mWidth + pad,	mHeight + pad,	0.0f, 1.0f);
     
     ci::Vec4f v1 = cA - cB;
     ci::Vec4f v2 = cC - cB;
@@ -758,13 +765,16 @@ bool Sprite::contains( const ci::Vec3f &point ) const
 	);
 }
 
-Sprite *Sprite::getHit( const ci::Vec3f &point )
-{
+Sprite* Sprite::getHit(const ci::Vec3f &point) {
     // EH:  Not sure what bigworld was doing, but I don't see why we'd want to
     // select children of an invisible sprite.
-    if (!visible())
+    if (!visible()) {
       return nullptr;
-
+	}
+	// EH: Fix a bug where scales of 0,0,0 result in the sprite ALWAYS getting picked
+	if (mScale.x <= 0.0f || mScale.y <= 0.0f || mScale.z <= 0.0f) {
+		return nullptr;
+	}
     if (getClipping()) {
       if (!contains(point))
         return nullptr;
@@ -778,7 +788,7 @@ Sprite *Sprite::getHit( const ci::Vec3f &point )
             Sprite *hitChild = child->getHit(point);
             if ( hitChild )
                 return hitChild;
-            if ( child->visible() && child->isEnabled() && child->contains(point) )
+            if ( child->visible() && child->isEnabled() && child->contains(point) && child->getInnerHit(point) )
                 return child;
         }
     }
@@ -793,7 +803,7 @@ Sprite *Sprite::getHit( const ci::Vec3f &point )
         for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
         {
             Sprite *child = *it;
-            if ( child->visible() && child->isEnabled() && child->contains(point) )
+            if ( child->visible() && child->isEnabled() && child->contains(point) && child->getInnerHit(point) )
                 return child;
             Sprite *hitChild = child->getHit(point);
             if ( hitChild )
@@ -801,7 +811,7 @@ Sprite *Sprite::getHit( const ci::Vec3f &point )
         }
     }
 
-    if ( isEnabled() && contains(point) )
+    if ( isEnabled() && contains(point) && getInnerHit(point) )
         return this;
 
     return nullptr;
@@ -1455,12 +1465,16 @@ void Sprite::computeClippingBounds()
   }
 }
 
-void Sprite::onSizeChanged()
-{
+void Sprite::onCenterChanged() {
 }
 
-void Sprite::onScaleChanged()
-{
+void Sprite::onPositionChanged() {
+}
+
+void Sprite::onScaleChanged() {
+}
+
+void Sprite::onSizeChanged() {
 }
 
 void Sprite::dimensionalStateChanged()
@@ -1586,12 +1600,15 @@ float Sprite::getScaleDepth() const
   return mScale.z * mDepth;
 }
 
-void Sprite::setSwipeCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func )
-{
+void Sprite::setSwipeCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func ) {
   mSwipeCallback = func;
 }
 
-void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touchInfo ){
+bool Sprite::hasTouches() const {
+	return mTouchProcess.hasTouches();
+}
+
+void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touchInfo ) {
 	if (!destinationSprite || this == destinationSprite) return;
 
 	// tell our current sprite we're through.
@@ -1639,9 +1656,26 @@ bool Sprite::getUseDepthBuffer() const
   return mUseDepthBuffer;
 }
 
+/**
+ * \class ds::ui::Sprite::LockScale
+ */
+Sprite::LockScale::LockScale(Sprite& s, const ci::Vec3f& temporaryScale)
+		: mSprite(s)
+		, mScale(s.mScale) {
+	mSprite.mScale = temporaryScale;
 
+	mSprite.mUpdateTransform = true;
+	mSprite.buildTransform();
+	mSprite.computeClippingBounds();
+}
 
+Sprite::LockScale::~LockScale() {
+	mSprite.mScale = mScale;
 
+	mSprite.mUpdateTransform = true;
+	mSprite.buildTransform();
+	mSprite.computeClippingBounds();
+}
 
 } // namespace ui
 } // namespace ds

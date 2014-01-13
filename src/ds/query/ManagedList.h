@@ -190,6 +190,7 @@ public:
 	ManagedListIterator(const ManagedListIterator<T>&);
 
 	void						operator++();
+	void						operator+=(const int count);
 	ManagedListIterator<T>&		operator=(const ManagedList<T>&);
 	ManagedListIterator<T>&		operator=(const ManagedListIterator<T>&);
 
@@ -679,7 +680,15 @@ ManagedListIterator<T>& ManagedListIterator<T>::operator=(const ManagedListItera
 template <class T>
 void ManagedListIterator<T>::operator++()
 {
-	if (mN != NULL) mN = (Node*)(mN->mNext);
+	if (mN != nullptr) mN = (Node*)(mN->mNext);
+}
+
+template <class T>
+void ManagedListIterator<T>::operator+=(const int count) {
+	for (int k=0; k<count; ++k) {
+		if (mN == nullptr) return;
+		mN = (Node*)(mN->mNext);
+	}
 }
 
 template <class T>

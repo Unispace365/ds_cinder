@@ -101,6 +101,9 @@ public:
 public:
 	Resource();
 	Resource(const Resource::Id& dbId, const int type);
+	// This should only be used for debugging, as a way to bridge
+	// the hardcoded file paths before things move to being pulled from the CMS.
+	Resource(const std::string& fullPath, const int type);
 
 	bool					operator==(const Resource&) const;
 	bool					operator!=(const Resource&) const;
@@ -116,6 +119,7 @@ public:
     std::string				getAbsoluteFilePath() const;
 
     void					clear();
+	bool					empty() const;
 	void					swap(Resource&);
 
     void					setDbId(const Resource::Id&);
@@ -140,6 +144,8 @@ private:
 	std::string           mPath;
 	// Sorta hacked in for Kurt's model
 	int                   mThumbnailId;
+	// Only should be used for debugging
+	std::string				mDebugFileName;
 
 	void                  setTypeFromString(const std::string& typeChar);
 };

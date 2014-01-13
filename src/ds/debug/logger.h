@@ -166,7 +166,7 @@ Logger&                     getLogger();
 // with the previous logger, which had this functionality.  Probably shouldn't
 // be here in the logging stuff, but I don't think we have a place for things
 // like this right now.
-#define DS_FATAL_ERROR(streamExp)			{ std::stringstream	buf;	buf << streamExp; 	ds::getLogger().log(ds::Logger::LOG_FATAL, buf.str()); ds::getLogger().blockUntilReady(); Poco::Thread::sleep(4000); std::exit(-1); }
-#define DS_FATALW_ERROR(streamExp)			{ std::wstringstream	buf;	buf << streamExp; 	ds::getLogger().log(ds::Logger::LOG_FATAL, buf.str()); ds::getLogger().blockUntilReady(); Poco::Thread::sleep(4000); std::exit(-1); }
+#define DS_FATAL_ERROR(streamExp)			{ std::stringstream	buf;	buf << streamExp; 	ds::getLogger().log(ds::Logger::LOG_FATAL, buf.str()); ds::getLogger().blockUntilReady(); Poco::Thread::sleep(4000); std::terminate(); }
+#define DS_FATALW_ERROR(streamExp)			{ std::wstringstream	buf;	buf << streamExp; 	ds::getLogger().log(ds::Logger::LOG_FATAL, buf.str()); ds::getLogger().blockUntilReady(); Poco::Thread::sleep(4000); std::terminate(); }
 
 #endif // LOGGER_DS_H

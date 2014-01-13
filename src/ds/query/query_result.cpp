@@ -1,8 +1,10 @@
 #include "ds/query/query_result.h"
 
+#include <algorithm>
 #include <iostream>
 #include <stdarg.h>
 #include <math.h>
+#include <ds/util/string_util.h>
 
 using namespace std;
 
@@ -24,63 +26,16 @@ const int					QUERY_STRING = 1;
 const int					QUERY_NUMERIC = 2;
 const int					QUERY_NULL = 3;
 
-/* QUERY-RESULT::STRING-FACTORY
- * Localize memory management of string instances.
- ******************************************************************/
-class Result::StringFactory : public ManagedFactory<string*>
-{
-public:
-	StringFactory() { }
-
-	virtual string*			newObject() const {
-		string*				ans = new string();
-		if (ans == NULL) throw std::exception();
-		return ans;
-	}
-
-	virtual string*			nullObject() const { return NULL; }
-	virtual void			deleteObject(string* p) const { delete p; }
-	virtual void			initializeObject(string* p) const { if (p) p->clear(); }
-	virtual void			setObject(string* dst, string* src) const { assert(false); }
-};
-static Result::StringFactory	STRING_FACTORY;
-
-/* QUERY-RESULT::ROW-FACTORY
- * Localize memory management of Row instances.
- ******************************************************************/
-class Result::RowFactory : public ManagedFactory<Result::Row*>
-{
-public:
-	RowFactory() { }
-
-	virtual Row*			newObject() const {
-		Row*				ans = new Row();
-		if (ans == NULL) throw std::exception();
-		return ans;
-	}
-
-	virtual Row*			nullObject() const { return NULL; }
-	virtual void			deleteObject(Row* p) const { delete p; }
-	virtual void			initializeObject(Row* p) const { if (p) p->clear(); }
-	virtual void			setObject(Row* dst, Row* src) const { assert(false); }
-};
-static Result::RowFactory	ROW_FACTORY;
-
 /* QUERY-RESULT
  ******************************************************************/
-Result::Result()
-	: mRow(ROW_FACTORY)
-{
+Result::Result() {
 }
 
-Result::Result(const Result& o)
-	: mRow(ROW_FACTORY)
-{
+Result::Result(const Result& o) {
 	*this = o;
 }
 
-Result& Result::operator=(const Result& o)
-{
+Result& Result::operator=(const Result& o) {
 	if (this != &o) {
 		clear();
 		mCol = o.mCol;
@@ -91,8 +46,28 @@ Result& Result::operator=(const Result& o)
 	return *this;
 }
 
-void Result::clear()
-{
+Result& Result::operator=(const RowIterator& it) {
+	clear();
+	mCol = it.mResult.mCol;
+	mColNames = it.mResult.mColNames;
+	mRequestTime = it.mResult.mRequestTime;
+	mClientId = it.mResult.mClientId;
+
+	try {
+		if (it.mRowIt != it.mResult.mRow.end()) {
+			const Row*			src = it.mRowIt->get();
+			if (src) {
+				Result::Row*	dst = pushBackRow();
+				*dst = *src;
+			}
+		}
+	} catch (std::exception const&) {
+	}
+
+	return *this;
+}
+
+void Result::clear() {
 	mCol.setSize(0);
 	mColNames.clear();
 	mRow.clear();
@@ -124,41 +99,38 @@ bool Result::matches(const int* curType, ...) const
 	return ans;
 }
 
-Poco::Timestamp Result::getRequestTime() const
-{
+Poco::Timestamp Result::getRequestTime() const {
 	return mRequestTime;
 }
 
-int Result::getClientId() const
-{
+int Result::getClientId() const {
 	return mClientId;
 }
 
-int Result::getColumnSize() const
-{
+int Result::getColumnSize() const {
 	return mCol.size();
 }
 
-const std::string& Result::getColumnName(const int idx) const
-{
+const std::string& Result::getColumnName(const int idx) const {
 	static const std::string		BLANK("");
 	if (idx < 0 || idx >= mColNames.size()) return BLANK;
 	return mColNames[idx];
 }
 
-bool Result::rowsAreEmpty() const
-{
-	return mRow.isEmpty();
+bool Result::rowsAreEmpty() const {
+	return mRow.empty();
 }
 
-int Result::getRowSize() const
-{
+int Result::getRowSize() const {
 	return mRow.size();
 }
 
-Result::RowIterator Result::getRows() const
-{
+Result::RowIterator Result::getRows() const {
 	return RowIterator(*this);
+}
+
+Result::RowIterator Result::rowAt(const size_t index) const {
+	return RowIterator(*this, index);
 }
 
 bool Result::addRows(const Result& src)
@@ -169,7 +141,7 @@ bool Result::addRows(const Result& src)
 		bool				ans = true;
 		while (it.hasValue()) {
 			const Row&		src = **(it.mRowIt);
-			Row*			dst = mRow.pushBack();
+			Row*			dst = pushBackRow();
 			*dst = src;
 			// Not completely safe but the odds of not being able to
 			// allocate a few bytes for the ints and floats...  sheesh...
@@ -182,41 +154,52 @@ bool Result::addRows(const Result& src)
 	return false;
 }
 
-void Result::popRowFront()
-{
-	if (!mRow.isEmpty()) mRow.popFront();
+void Result::popRowFront() {
+	if (!mRow.empty()) {
+		mRow.erase(mRow.begin());
+	}
 }
 
-void Result::moveRow(Result& dst, const int from, const int to)
-{
-	mRow.move(dst.mRow, from, to);
-}
-
-void Result::swap(Result& o)
-{
+void Result::swap(Result& o)  {
 	mCol.swap(o.mCol);
 	mRow.swap(o.mRow);
 	std::swap(mRequestTime, o.mRequestTime);
 	std::swap(mClientId, o.mClientId);
 }
 
-/* QUERY-RESULT::ROW
- ******************************************************************/
-Result::Row::Row()
-	: mString(STRING_FACTORY)
-{
+void Result::sortByString(const int columnIndex, const std::function<bool(const std::string& a, const std::string& b)>& clientFn) {
+	if (!clientFn) return;
+
+	auto fn = [columnIndex, &clientFn](const std::unique_ptr<Row>& a, const std::unique_ptr<Row>& b)->bool {
+		const size_t	ci(static_cast<size_t>(columnIndex));
+		const Row*		ar = a.get();
+		const Row*		br = b.get();
+		if (!ar || !br) return false;
+		if (ar->mString.size() <= ci || br->mString.size() <= ci) return false;
+		return clientFn(ar->mString[ci], br->mString[ci]);
+	};
+
+	std::sort(mRow.begin(), mRow.end(), fn);
 }
 
-void Result::Row::clear()
-{
+Result::Row* Result::pushBackRow() {
+	mRow.push_back(std::move(std::unique_ptr<Row>(new Row())));
+	return mRow.back().get();
+}
+
+/* QUERY-RESULT::ROW
+ ******************************************************************/
+Result::Row::Row() {
+}
+
+void Result::Row::clear() {
 	mName.clear();
 	mNumeric.clear();
 	mString.clear();
 	mWString.clear();
 }
 
-void Result::Row::initialize(const int columns)
-{
+void Result::Row::initialize(const int columns) {
 	if (columns > 0) {
 		if (mNumeric.setSize(columns)) {
 			double*			d = mNumeric.data();
@@ -226,22 +209,15 @@ void Result::Row::initialize(const int columns)
 	}
 }
 
-Result::Row& Result::Row::operator=(const Row& o)
-{
+Result::Row& Result::Row::operator=(const Row& o) {
 	if (this != &o) {
-		mNumeric = o.mNumeric;
-		mString.clear();
 		try {
-			StringIterator			it(o.mString);
-			while (it.hasValue()) {
-				const string*		src = *it;
-				string*				dst = mString.pushBack();
-				if (dst && src) *dst = *src;
-				++it;
-			}
+			mName = o.mName;
+			mNumeric = o.mNumeric;
+			mString = o.mString;
+			mWString = o.mWString;
 		} catch (std::exception&) {
 		}
-		mWString = o.mWString;
 	}
 	return *this;
 }
@@ -249,84 +225,97 @@ Result::Row& Result::Row::operator=(const Row& o)
 /* QUERY-RESULT::ROW-ITERATOR
  ******************************************************************/
 Result::RowIterator::RowIterator(const RowIterator& o)
-	: mRowIt(o.mRowIt)
-{
+		: mResult(o.mResult)
+		, mRowIt(o.mRowIt) {
 }
 
 Result::RowIterator::RowIterator(const Result& qr)
-	: mRowIt(qr.mRow)
-{
+		: mResult(qr)
+		, mRowIt(qr.mRow.begin()) {
 }
 
 Result::RowIterator::RowIterator(const Result& qr, const std::string& str)
-	: mRowIt(qr.mRow)
-{
-	while (mRowIt.hasValue() && (**mRowIt).mName != str) ++mRowIt;
+		: mResult(qr)
+		, mRowIt(qr.mRow.begin()) {
+	while (mRowIt != mResult.mRow.end()) {
+		if (mRowIt->get()->mName == str) break;
+		++mRowIt;
+	}
 }
 
-Result::RowIterator& Result::RowIterator::operator=(const RowIterator& o)
-{
-	if (this != &o) mRowIt = o.mRowIt;
-	return *this;
+Result::RowIterator::RowIterator(const Result& qr, const size_t index)
+		: mResult(qr)
+		, mRowIt(qr.mRow.end()) {
+	if (index < qr.mRow.size()) mRowIt = qr.mRow.begin() + index;
 }
 
-void Result::RowIterator::operator++()
-{
+void Result::RowIterator::operator++() {
 	++mRowIt;
 }
 
-bool Result::RowIterator::hasValue() const
-{
-	return mRowIt.hasValue();
+void Result::RowIterator::operator+=(const int count) {
+	mRowIt += count;
 }
 
-const std::string& Result::RowIterator::getName() const
-{
-	if (!mRowIt.hasValue()) return RESULT_EMPTY_STR;
+bool Result::RowIterator::hasValue() const {
+	return mRowIt != mResult.mRow.end() && mRowIt->get() != nullptr;
+}
+
+const std::string& Result::RowIterator::getName() const {
+	if (!hasValue()) return RESULT_EMPTY_STR;
 	return (**mRowIt).mName;
 }
 
 // Surely somewhere in oF there's been a rounding function defined??  Well, use
 // symmetric rounding, which I believe will be implemented in C+xx10
-inline int query_round(const double d)
-{
+inline int query_round(const double d) {
 	return int(d > 0.0 ? floor(d + 0.5) : ceil(d - 0.5));
 }
 
-int Result::RowIterator::getInt(const int columnIndex) const
-{
+int Result::RowIterator::getInt(const int columnIndex) const {
+	if (columnIndex < 0) return 0;
 	const Row&		row = **mRowIt;
+	// Deal with the case where the column got misinterpreted as a string --
+	// this can happen when there's a NULL in the data set.
+	if (columnIndex < row.mWString.size() && !row.mWString[columnIndex].empty()) {
+		int			ans = 0;
+		if (ds::wstring_to_value(row.mWString[columnIndex], ans)) {
+			return ans;
+		}
+	}
 	if (row.mNumeric.size() <= columnIndex) return 0;
 	return query_round(row.mNumeric.data()[columnIndex]);
 }
 
-float Result::RowIterator::getFloat(const int columnIndex) const
-{
+float Result::RowIterator::getFloat(const int columnIndex) const {
+	if (columnIndex < 0) return 0;
 	const Row&		row = **mRowIt;
+	// Deal with the case where the column got misinterpreted as a string --
+	// this can happen when there's a NULL in the data set.
+	if (columnIndex < row.mWString.size() && !row.mWString[columnIndex].empty()) {
+		float		ans = 0.0f;
+		if (ds::wstring_to_value(row.mWString[columnIndex], ans)) {
+			return ans;
+		}
+	}
 	if (row.mNumeric.size() <= columnIndex) return 0.0f;
 	return (float)row.mNumeric.data()[columnIndex];
 }
 
-const std::string& Result::RowIterator::getString(const int columnIndex) const
-{
+const std::string& Result::RowIterator::getString(const int columnIndex) const {
 	const Row&		row = **mRowIt;
-	try {
-		return *(row.mString.at(columnIndex));
-	} catch (std::exception&) {
-	}
+	if (columnIndex >= 0 && columnIndex < row.mString.size()) return row.mString[columnIndex];
 	return RESULT_EMPTY_STR;
 }
 
-const std::wstring& Result::RowIterator::getWString(const int columnIndex) const
-{
+const std::wstring& Result::RowIterator::getWString(const int columnIndex) const {
 	const Row&		row = **mRowIt;
 	if (columnIndex >= 0 && columnIndex < row.mWString.size()) return row.mWString[columnIndex];
 	return RESULT_EMPTY_WSTR;
 }
 
 #ifdef _DEBUG
-void Result::print() const
-{
+void Result::print() const {
 	cout << "QueryResult columnSize=" << mCol.size() << " rows=" << mRow.size() << endl;
 	if (mCol.size() > 0) {
 		cout << "\tcols ";

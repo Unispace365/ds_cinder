@@ -4,23 +4,24 @@
 
 #include <vector>
 
-/**
- * \class VideoMetaCache
- * \b Store values for video to be quickly looked up later.
- */
 namespace ds {
 namespace ui {
 class SpriteEngine;
 
-class VideoMetaCache
-{
+/**
+ * \class VideoMetaCache
+ * \brief Store values for video to be quickly looked up later.
+ */
+class VideoMetaCache {
 public:
+	static const enum Type { ERROR_TYPE, AUDIO_TYPE, VIDEO_TYPE };
 	VideoMetaCache(const std::string& name);
 
-	int						getWidth(const std::string& videoPath, const int defaultValue = -1);
+	// responds with true if it had to go get the values
+	bool					getValues(const std::string& videoPath, Type&, int& outWidth, int& outHeight, double& outDuration);
 
 protected:
-	void					setWidth(const std::string& videoPath, const int value);
+	void					setValues(const Type, const std::string& videoPath, const int width, const int height, const double duration);
 
 private:
 	void					load();
@@ -31,10 +32,13 @@ private:
 	class Entry {
 	public:
 		Entry();
-		Entry(const std::string& key, const int value);
+		Entry(const std::string& key, const Type, const int width, const int height, const double duration);
 
 		std::string			mKey;
-		int					mValue;
+		Type				mType;
+		int					mWidth;
+		int					mHeight;
+		double				mDuration;
 	};
 	const std::string		mName;
 	std::vector<Entry>		mEntry;

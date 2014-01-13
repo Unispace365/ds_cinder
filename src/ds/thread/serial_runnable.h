@@ -5,6 +5,7 @@
 #include <functional>
 #include <vector>
 #include "ds/thread/runnable_client.h"
+#include "ds/util/memory_ds.h"
 
 namespace ds {
 
@@ -35,8 +36,8 @@ public:
 	typedef std::function<void (T&)>	HandlerFunc;
 
 public:
-  // If T has a constructor without arguments, ignore the alloc. If you need
-  // to supply info to the constructor, supply a custom alloc.
+	// If T has a constructor without arguments, ignore the alloc. If you need
+	// to supply info to the constructor, supply a custom alloc.
 	SerialRunnable(ui::SpriteEngine&, const std::function<T*(void)>& alloc = nullptr);
 	
 	void							  setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }

@@ -26,33 +26,34 @@ public:
 	typedef std::function<void (T&)>	HandlerFunc;
 
 public:
-	ParallelRunnable(ui::SpriteEngine&);
+	// If T has a constructor without arguments, ignore the alloc. If you need
+	// to supply info to the constructor, supply a custom alloc.
+	ParallelRunnable(ui::SpriteEngine&, const std::function<T*(void)>& alloc = nullptr);
 	
 	// Start a new runnable, intializing it via the handler block.
-	bool							    start(const HandlerFunc& = nullptr);
-	void							    setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }
+	bool							start(const HandlerFunc& = nullptr);
+	void							setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }
 
 private:
-	void								  receive(std::unique_ptr<Poco::Runnable>&);
+	void							receive(std::unique_ptr<Poco::Runnable>&);
 
-  RunnableClient			  mClient;
-	std::vector<std::unique_ptr<T>>
-                        mCache;
+	RunnableClient					mClient;
+	std::vector<std::unique_ptr<T>>	mCache;
 	HandlerFunc						mReplyHandler;
+	std::function<T*(void)>			mAlloc;
 };
 
 template <class T>
-ParallelRunnable<T>::ParallelRunnable(ui::SpriteEngine& se)
-	: mClient(se)
-	, mReplyHandler(nullptr)
-{
+ParallelRunnable<T>::ParallelRunnable(ui::SpriteEngine& se, const std::function<T*(void)>& alloc)
+		: mClient(se)
+		, mReplyHandler(nullptr)
+		, mAlloc(alloc) {
 	mCache.reserve(4);
-  mClient.setResultHandler([this](std::unique_ptr<Poco::Runnable>& r) { receive(r); });
+	mClient.setResultHandler([this](std::unique_ptr<Poco::Runnable>& r) { receive(r); });
 }
 
 template <class T>
-bool ParallelRunnable<T>::start(const HandlerFunc& f)
-{
+bool ParallelRunnable<T>::start(const HandlerFunc& f) {
 	// Get a new T to run.  Try to take from the cache.
 	std::unique_ptr<T>			up;
 	try {
@@ -60,7 +61,7 @@ bool ParallelRunnable<T>::start(const HandlerFunc& f)
 			up = std::move(mCache.back());
 			mCache.pop_back();
 		}
-		if (up.get() == nullptr) up = std::move(std::unique_ptr<T>(new T));
+		if (up.get() == nullptr) up = std::move(std::unique_ptr<T>( (mAlloc ? mAlloc() : new T)));
 	} catch (std::exception const&) {
 	}
 	if (up.get() == nullptr) return false;
@@ -73,17 +74,16 @@ bool ParallelRunnable<T>::start(const HandlerFunc& f)
 }
 
 template <class T>
-void ParallelRunnable<T>::receive(std::unique_ptr<Poco::Runnable>& r)
-{
+void ParallelRunnable<T>::receive(std::unique_ptr<Poco::Runnable>& r) {
 	std::unique_ptr<T>		payload(ds::unique_dynamic_cast<T, Poco::Runnable>(r));
 	if (!payload) {
 		assert(false);
 	} else {
-  	if (mReplyHandler) mReplyHandler(*(payload.get()));
-    try {
-      mCache.push_back(std::move(payload));
-    } catch (std::exception const&) {
-    }
+		if (mReplyHandler) mReplyHandler(*(payload.get()));
+		try {
+			mCache.push_back(std::move(payload));
+		} catch (std::exception const&) {
+		}
 	}
 }
 

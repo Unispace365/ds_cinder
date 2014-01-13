@@ -252,8 +252,20 @@ Resource::Resource(const Resource::Id& dbId, const int type)
 {
 }
 
+Resource::Resource(const std::string& fullPath, const int type)
+	: mDbId(0)
+	, mType(type)
+	, mDuration(0)
+	, mWidth(0)
+	, mHeight(0)
+	, mThumbnailId(0)
+	, mDebugFileName(fullPath)
+{
+}
+
 bool Resource::operator==(const Resource& o) const
 {
+	if (mDebugFileName != o.mDebugFileName) return false;
 	return mDbId == o.mDbId && mType == o.mType && mDuration == o.mDuration && mWidth == o.mWidth && mHeight == o.mHeight && mFileName == o.mFileName && mPath == o.mPath;
 }
 
@@ -275,7 +287,10 @@ const std::wstring& Resource::getTypeName() const
 
 std::string Resource::getAbsoluteFilePath() const
 {
+	if (!mDebugFileName.empty()) return mDebugFileName;
+
 	if (mFileName.empty()) return EMPTY_SZ;
+	if (mType == WEB_TYPE) return mFileName;
 	Poco::Path        p(mDbId.getResourcePath());
 	if (p.depth() < 1) return EMPTY_SZ;
 	p.append(mPath).append(mFileName);
@@ -292,6 +307,13 @@ void Resource::clear()
 	mFileName.clear();
 	mPath.clear();
 	mThumbnailId = 0;
+	mDebugFileName.clear();
+}
+
+bool Resource::empty() const {
+	if (!mDebugFileName.empty()) return false;
+	if (!mFileName.empty()) return false;
+	return mDbId.empty();
 }
 
 void Resource::swap(Resource& r)
@@ -304,6 +326,7 @@ void Resource::swap(Resource& r)
 	mFileName.swap(r.mFileName);
 	mPath.swap(r.mPath);
 	std::swap(mThumbnailId, r.mThumbnailId);
+	mDebugFileName.swap(r.mDebugFileName);
 }
 
 void Resource::setDbId(const Resource::Id& id)

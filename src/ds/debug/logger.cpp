@@ -8,7 +8,7 @@
 #include <Poco/Semaphore.h>
 #include <Poco/String.h>
 #include "ds/app/environment.h"
-#include "ds/config/settings.h"
+#include "ds/cfg/settings.h"
 #include "ds/util/string_util.h"
 
 using namespace ds;
@@ -303,6 +303,11 @@ void Logger::Loop::consume(vector<entry>& ins)
 
 		logToConsole(e, mBuf.str());
 		logToFile(e, mBuf.str());
+
+		if (e.mLevel == ds::Logger::LOG_FATAL) {
+			Poco::Thread::sleep(4*1000);
+			std::terminate();
+		}
 	}
 	ins.clear();
 }

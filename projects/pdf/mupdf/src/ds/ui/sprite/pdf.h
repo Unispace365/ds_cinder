@@ -24,6 +24,13 @@ public:
 	virtual void				updateClient(const UpdateParams&);
 	virtual void				updateServer(const UpdateParams&);
 
+	// PDF API
+	void						setPageNum(const int pageNum);
+	int							getPageNum();
+	int							getPageCount();
+	void						goToNextPage();
+	void						goToPreviousPage();
+
 protected:
 	virtual void				onScaleChanged();
 	virtual void				drawLocalClient();
@@ -47,6 +54,11 @@ private:
 		float					getHeight() const;
 		float					getTextureWidth() const;
 		float					getTextureHeight() const;
+		void					setPageNum(const int pageNum);
+		int						getPageNum();
+		int						getPageCount();
+		void					goToNextPage();
+		void					goToPreviousPage();
 
 	private:
 		ds::pdf::Service&		mService;

@@ -2,11 +2,11 @@
 #ifndef DS_THREAD_QUERYRESULT_H_
 #define DS_THREAD_QUERYRESULT_H_
 
+#include <functional>
 #include <string>
 #include <vector>
 #include "Poco/Timestamp.h"
 // I'd really like to weed these classes out, but it's not worth it for now.
-#include "ManagedList.h"
 #include "RecycleArray.h"
 
 namespace ds {
@@ -35,9 +35,11 @@ public:
 		RowIterator(const Result&);
 		// This variant seeks to the first row with the supplied name.
 		RowIterator(const Result&, const std::string&);
+		// Find by row index
+		RowIterator(const Result&, const size_t index);
 
-		RowIterator&					operator=(const RowIterator&);
 		void							operator++();
+		void							operator+=(const int count);
 		bool							hasValue() const;
 
 		const std::string&				getName() const;
@@ -51,16 +53,22 @@ public:
 
 	private:
 		friend class ds::query::Result;
+		RowIterator();
 		void							operator++(int);
+		RowIterator&					operator=(const RowIterator&);
 
-		ManagedListIterator<Row*>		mRowIt;
+		const Result&					mResult;
+		std::vector<std::unique_ptr<Row>>::const_iterator
+										mRowIt;
 	};
 
 public:
 	Result();
-	Result(const Result&);
+	explicit Result(const Result&);
 
 	Result&					operator=(const Result&);
+	// Replace my contents with a single row from the row iterator
+	Result&					operator=(const RowIterator&);
 
 	void					clear();
 
@@ -81,24 +89,28 @@ public:
 	bool					rowsAreEmpty() const;
 	int						getRowSize() const;
 	RowIterator				getRows() const;
+	RowIterator				rowAt(const size_t index) const;
+	// Answer a RowIterator for the first row that has the given int field
+	// with the given value.
 	// Add all of source rows into me
 	bool					addRows(const Result& src);
 	// Remove my first row, optionally placing it 
 	void					popRowFront();
 	// Access to ManagedList::move(), see it for args
-	void					moveRow(Result&, const int from, const int to);
+	// Turn this off for now, not sure if anyone's using it
+//	void					moveRow(Result&, const int from, const int to);
 	// Swap all data
 	void					swap(Result&);
-
-	// Collections for memory management.  Strings can't be constructed
-	// with realloc(), hence the need for the list.
-private:
-	typedef RecycleArray<double>				NumericArray;
-	typedef ManagedList<std::string*>			StringList;
-	typedef ManagedListIterator<std::string*>	StringIterator;
-	typedef ManagedList<Row*>					RowList;
+	// Sort by specific columns
+	void					sortByString(const int columnIndex, const std::function<bool(const std::string& a, const std::string& b)>&);
 
 private:
+	typedef RecycleArray<double>		NumericArray;
+
+private:
+	// Convenience to add a new row at the end, throwing if I fail
+	Row*								pushBackRow();
+
 	friend class ResultBuilder;
 	friend class ResultEditor;
 	friend class ResultRandomizer;
@@ -107,32 +119,28 @@ private:
 		// Rows have an optional name.  This isn't used when returning results from
 		// a query, but it is used when we are using the QueryResult as a general data
 		// storage mechanism locally in apps.
-		std::string					mName;
-		NumericArray				mNumeric;
-		StringList					mString;
-		std::vector<std::wstring>	mWString;
+		std::string						mName;
+		NumericArray					mNumeric;
+		std::vector<std::string>		mString;
+		std::vector<std::wstring>		mWString;
 
 		Row();
-		void						clear();
-		void						initialize(const int columns);
-		Row&						operator=(const Row&);
+		void							clear();
+		void							initialize(const int columns);
+		Row&							operator=(const Row&);
 	};
 
 	// column types
-	RecycleArray<int>				mCol;
-	std::vector<std::string>		mColNames;
-	RowList							mRow;
+	RecycleArray<int>					mCol;
+	std::vector<std::string>			mColNames;
+	std::vector<std::unique_ptr<Row>>	mRow;
 	// The time this query was requested.
-	Poco::Timestamp					mRequestTime;
-	int								mClientId;
-
-public:
-	class StringFactory;
-	class RowFactory;
+	Poco::Timestamp						mRequestTime;
+	int									mClientId;
 
 #ifdef _DEBUG
 public:
-	void							print() const;
+	void								print() const;
 #endif
 };
 

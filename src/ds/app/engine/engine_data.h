@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <cinder/Rect.h>
 #include "ds/app/event_notifier.h"
+#include "ds/app/engine/engine_cfg.h"
 
 namespace ds
 {
@@ -26,6 +27,8 @@ public:
 
 	// Will stop and delete them.
 	void					clearServices();
+
+	ds::EngineCfg			mEngineCfg;
 
 	float					mMinTouchDistance;
 	float					mMinTapDistance;

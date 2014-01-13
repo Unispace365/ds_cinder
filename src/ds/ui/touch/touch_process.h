@@ -2,96 +2,96 @@
 #ifndef DS_UI_TOUCH_PROCESS_H
 #define DS_UI_TOUCH_PROCESS_H
 
+#include <map>
+#include <deque>
+#include <list>
 #include "touch_info.h"
 #include "ds/params/update_params.h"
 #include "ds/ui/touch/tap_info.h"
 #include "cinder/Vector.h"
-#include <map>
-#include <deque>
-#include <list>
 
 namespace ds {
 namespace ui {
-
 class Sprite;
 class SpriteEngine;
 
-struct SwipeQueueEvent
-{
-  ci::Vec3f mCurrentGlobalPoint;
-  float     mTimeStamp;
+struct SwipeQueueEvent {
+	ci::Vec3f mCurrentGlobalPoint;
+	float     mTimeStamp;
 };
 
-class TouchProcess
-{
-  public:
-    TouchProcess(SpriteEngine &, Sprite &sprite);
-    ~TouchProcess();
+class TouchProcess {
+public:
+	TouchProcess(SpriteEngine &, Sprite &sprite);
+	~TouchProcess();
 
-    bool                    processTouchInfo(const TouchInfo &touchInfo);
-    void                    update(const UpdateParams &updateParams);
-  private:
-    SpriteEngine            &mSpriteEngine;
-    Sprite                  &mSprite;
+	bool					processTouchInfo(const TouchInfo &touchInfo);
+	void					update(const UpdateParams &updateParams);
 
-    void                     sendTouchInfo(const TouchInfo &touchInfo);
-    void                     initializeFirstTouch();
-    void                     initializeTouchPoints();
-    void                     resetTouchAnchor();
+	bool					hasTouches() const;
+
+private:
+	void					sendTouchInfo(const TouchInfo &touchInfo);
+	void					initializeFirstTouch();
+	void					initializeTouchPoints();
+	void					resetTouchAnchor();
     
-    void                     addToSwipeQueue(const ci::Vec3f &currentPoint, int queueNum);
-    bool                     swipeHappened();
+	void					addToSwipeQueue(const ci::Vec3f &currentPoint, int queueNum);
+	bool					swipeHappened();
 
-    void                     updateDragDestination(const TouchInfo &touchInfo);
-    int                      getFingerIndex(int id);
+	void					updateDragDestination(const TouchInfo &touchInfo);
+	int						getFingerIndex(int id);
 
-    std::map<int, TouchInfo> mFingers;
-    std::list<int> mFingerIndex;
+	void					processTap(const TouchInfo &touchInfo);
+	void					processTapInfo(const TouchInfo &touchInfo);
+	void					sendTapInfo(const TapInfo::State, const int count, const ci::Vec3f& pt = ci::Vec3f(-1.0f, -1.0f, -1.0f));
 
-    // the fingerIndexes of the current 2 control fingers
-    int                      mControlFingerIndexes[2];
+	SpriteEngine&			mSpriteEngine;
+	Sprite&					mSprite;
 
-    // the start point of the first finger, in local coordinates
-    ci::Vec3f                mMultiTouchAnchor;
+	std::map<int, TouchInfo> mFingers;
+	std::list<int>			mFingerIndex;
 
-    // Start properties are stored to determine deltas
-    ci::Vec3f                mStartPosition;
+	// the fingerIndexes of the current 2 control fingers
+	int						mControlFingerIndexes[2];
 
-    // and to reset the anchor on touch completion and switches
-    ci::Vec3f                mStartScale;
-    ci::Vec3f                mStartRotation;
-    ci::Vec3f                mStartAnchor;
+	// the start point of the first finger, in local coordinates
+	ci::Vec3f				mMultiTouchAnchor;
 
-    float                    mStartWidth;
-    float                    mStartHeight;
+	// Start properties are stored to determine deltas
+	ci::Vec3f				mStartPosition;
 
-    // These 4 variables are for calculating touch deltas.
-    float                    mStartDistance;
-    float                    mCurrentDistance;
-    float                    mCurrentScale;
-    float                    mCurrentAngle;
+	// and to reset the anchor on touch completion and switches
+	ci::Vec3f				mStartScale;
+	ci::Vec3f				mStartRotation;
+	ci::Vec3f				mStartAnchor;
 
-    ci::Vec3f                mSwipeVector;
-    int                      mSwipeFingerId;
+	float					mStartWidth;
+	float					mStartHeight;
 
-    // the last few touch events and their time, for calculating swipes
-    std::deque<SwipeQueueEvent> mSwipeQueue;
+	// These 4 variables are for calculating touch deltas.
+	float					mStartDistance;
+	float					mCurrentDistance;
+	float					mCurrentScale;
+	float					mCurrentAngle;
 
-    void                     processTap(const TouchInfo &touchInfo);
-    void                     processTapInfo(const TouchInfo &touchInfo);
-    void                     sendTapInfo(const TapInfo::State, const int count, const ci::Vec3f& pt = ci::Vec3f(-1.0f, -1.0f, -1.0f));
+	ci::Vec3f				mSwipeVector;
+	int						mSwipeFingerId;
 
-    // is the current finger action potentially a tap? If it is, the sprite won't move.
-    bool                     mTappable;
+	// the last few touch events and their time, for calculating swipes
+	std::deque<SwipeQueueEvent> mSwipeQueue;
 
-    // used to track for double taps
-    bool                     mOneTap;
-    float                    mDoubleTapTime;
-    ci::Vec3f                mFirstTapPos;
+	// is the current finger action potentially a tap? If it is, the sprite won't move.
+	bool					mTappable;
 
-    TapInfo                  mTapInfo;
+	// used to track for double taps
+	bool					mOneTap;
+	float					mDoubleTapTime;
+	ci::Vec3f				mFirstTapPos;
 
-    float                    mLastUpdateTime;
+	TapInfo					mTapInfo;
+
+	float					mLastUpdateTime;
 };
 
 } // namespace ui

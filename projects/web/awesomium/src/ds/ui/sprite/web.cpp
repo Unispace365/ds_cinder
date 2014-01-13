@@ -10,6 +10,7 @@
 #include <ds/util/string_util.h>
 #include "paulhoux-Cinder-Awesomium/include/CinderAwesomium.h"
 #include "private/web_service.h"
+#include "private/web_view_listener.h"
 
 namespace {
 // Statically initialize the world class. Done here because the Body is
@@ -34,13 +35,13 @@ namespace ui {
 
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	: Sprite(engine, width, height)
-	, mService(static_cast<ds::web::Service&>(engine.getService("web")))
+	, mService(engine.getService<ds::web::Service>("web"))
 	, mWebViewPtr(nullptr)
 	, mLoadingAngle(0.0f)
 	, mActive(false)
 	, mTransitionTime(0.35f)
 {
-	// Should be unnecessary, but really want to make sure that static gets initialiezd
+	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
 
 	setTransparent(false);
@@ -60,6 +61,10 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	Awesomium::WebCore*	webcore = mService.getWebCore();
 	if (webcore) {
 		mWebViewPtr = webcore->CreateWebView(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
+		if (mWebViewPtr) {
+			mWebViewListener = std::move(std::unique_ptr<ds::web::WebViewListener>(new ds::web::WebViewListener));
+			if (mWebViewListener) mWebViewPtr->set_view_listener(mWebViewListener.get());
+		}
 	}
 	//mWebViewPtr->LoadURL( Awesomium::WebURL( Awesomium::WSLit( "http://libcinder.org" ) ) );
 	//mWebViewPtr->Focus();
@@ -72,48 +77,33 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	}
 }
 
-Web::~Web()
-{
+Web::~Web() {
 	if (mWebViewPtr) {
+		mWebViewPtr->set_view_listener(nullptr);
 		mWebViewPtr->Destroy();
 	}
 }
 
-void Web::setSizeAll( float width, float height, float depth )
-{
-	if (ds::math::isEqual(width, getWidth()) &&
-			ds::math::isEqual(height, getHeight()) &&
-			ds::math::isEqual(depth, getDepth())) {
-		return;
+void Web::updateServer( const ds::UpdateParams &updateParams ) {
+	Sprite::updateServer(updateParams);
+
+	// create or update our OpenGL Texture from the webview
+	if (mWebViewPtr && !mWebViewPtr->IsLoading() && ph::awesomium::isDirty( mWebViewPtr )) {
+		try {
+			// set texture filter to NEAREST if you don't intend to transform (scale, rotate) it
+			ci::gl::Texture::Format fmt; 
+			fmt.setMagFilter( GL_NEAREST );
+
+			// get the texture using a handy conversion function
+			mWebTexture = ph::awesomium::toTexture( mWebViewPtr, fmt );
+		} catch( const std::exception &e ) {
+			DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
+		}
 	}
 
-	Sprite::setSizeAll(width, height, depth);
-	if (mWebViewPtr) {
-		mWebViewPtr->Resize(static_cast<int>(width), static_cast<int>(height));
-	}
-}
-
-void Web::updateServer( const ds::UpdateParams &updateParams )
-{
-  Sprite::updateServer(updateParams);
-
-  // create or update our OpenGL Texture from the webview
-  if (mWebViewPtr && !mWebViewPtr->IsLoading() && ph::awesomium::isDirty( mWebViewPtr )) {
-    try {
-      // set texture filter to NEAREST if you don't intend to transform (scale, rotate) it
-      ci::gl::Texture::Format fmt; 
-      fmt.setMagFilter( GL_NEAREST );
-
-      // get the texture using a handy conversion function
-      mWebTexture = ph::awesomium::toTexture( mWebViewPtr, fmt );
-    } catch( const std::exception &e ) {
-      DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
-    }
-  }
-
-  mLoadingAngle += updateParams.getDeltaTime() * 60.0f * 5.0f;
-  if (mLoadingAngle >= 360.0f)
-    mLoadingAngle = mLoadingAngle - 360.0f;
+	mLoadingAngle += updateParams.getDeltaTime() * 60.0f * 5.0f;
+	if (mLoadingAngle >= 360.0f)
+		mLoadingAngle = mLoadingAngle - 360.0f;
 }
 
 void Web::drawLocalClient()
@@ -160,24 +150,42 @@ void Web::handleTouch( const ds::ui::TouchInfo &touchInfo )
   }
 }
 
-void Web::loadUrl( const std::wstring &url )
-{
-	if (mWebViewPtr) {
-		mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(ds::utf8_from_wstr(url).c_str())));
-		mWebViewPtr->Focus();
+void Web::loadUrl(const std::wstring &url) {
+	try {
+		loadUrl(ds::utf8_from_wstr(url));
+	} catch( const std::exception &e ) {
+		DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
 	}
 }
 
-void Web::loadUrl( const std::string &url )
-{
-	if (mWebViewPtr) {
-		mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url.c_str())));
-		mWebViewPtr->Focus();
+void Web::loadUrl(const std::string &url) {
+	try {
+		if (mWebViewPtr) {
+			DS_LOG_INFO("Web::loadUrl() on " << url);
+			mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url.c_str())));
+			mWebViewPtr->Focus();
+		}
+	} catch( const std::exception &e ) {
+		DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
 	}
 }
 
-void Web::sendKeyDownEvent( const ci::app::KeyEvent &event )
-{
+std::string Web::getUrl() {
+	try {
+		if (!mWebViewPtr) return "";
+		Awesomium::WebURL		wurl = mWebViewPtr->url();
+		Awesomium::WebString	webstr = wurl.spec();
+		auto					len = webstr.ToUTF8(nullptr, 0);
+		if (len < 1) return "";
+		std::string				str(len+2, 0);
+		webstr.ToUTF8(const_cast<char*>(str.c_str()), len);
+		return str;
+	} catch (std::exception const&) {
+	}
+	return "";
+}
+
+void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {
 }
 
 void Web::sendKeyUpEvent( const ci::app::KeyEvent &event )
@@ -243,14 +251,53 @@ void Web::deactivate()
 	});
 }
 
-bool Web::isActive() const
-{
-  return mActive;
+bool Web::isActive() const {
+	return mActive;
 }
 
-void Web::setTransitionTime( const float transitionTime )
-{
-  mTransitionTime = transitionTime;
+void Web::setTransitionTime( const float transitionTime ) {
+	mTransitionTime = transitionTime;
+}
+
+void Web::goBack() {
+	if (mWebViewPtr) {
+		mWebViewPtr->GoBack();
+	}
+}
+
+void Web::goForward() {
+	if (mWebViewPtr) {
+		mWebViewPtr->GoForward();
+	}
+}
+
+void Web::reload() {
+	if (mWebViewPtr) {
+		mWebViewPtr->Reload(true);
+	}
+}
+
+bool Web::canGoBack() {
+	if (!mWebViewPtr) return false;
+	return mWebViewPtr->CanGoBack();
+}
+
+bool Web::canGoForward() {
+	if (!mWebViewPtr) return false;
+	return mWebViewPtr->CanGoForward();
+}
+
+void Web::setAddressChangedFn(const std::function<void(const std::string& new_address)>& fn) {
+	if (mWebViewListener) mWebViewListener->setAddressChangedFn(fn);
+}
+
+void Web::onSizeChanged() {
+	if (mWebViewPtr) {
+		const int			w = static_cast<int>(getWidth()),
+							h = static_cast<int>(getHeight());
+		if (w < 1 || h < 1) return;
+		mWebViewPtr->Resize(w, h);
+	}
 }
 
 } // namespace ui

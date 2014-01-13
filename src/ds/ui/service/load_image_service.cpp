@@ -16,28 +16,28 @@ namespace ui {
 /* DS::IMAGE-TOKEN
  ******************************************************************/
 ImageToken::ImageToken(LoadImageService& _srv)
-	: mSrv(_srv)
-{
+		: mSrv(_srv) {
 	init();
 }
 
-ImageToken::~ImageToken()
-{
+ImageToken::~ImageToken() {
 	release();
 }
 
-bool ImageToken::canAcquire() const
-{
+bool ImageToken::empty() const {
+	return !mAcquired;
+}
+
+bool ImageToken::canAcquire() const {
 	return !mAcquired && !mError;
 }
 
-void ImageToken::acquire(const std::string& _filename, const int flags)
-{
+void ImageToken::acquire(const std::string& _filename, const int flags) {
 	if (mAcquired) return;
 
 	if (_filename.empty()) {
 		mError = true;
-    DS_LOG_WARNING_M("ImageToken: Unable to load image resource (no filename)", LOAD_IMAGE_LOG_M);
+		DS_LOG_WARNING_M("ImageToken: Unable to load image resource (no filename)", LOAD_IMAGE_LOG_M);
 		return;
 	}
 
@@ -47,14 +47,12 @@ void ImageToken::acquire(const std::string& _filename, const int flags)
 	}
 }
 
-void ImageToken::release()
-{
+void ImageToken::release() {
 	if (mAcquired) mSrv.release(mFilename);
 	init();
 }
 
-ci::gl::Texture ImageToken::getImage(float& fade)
-{
+ci::gl::Texture ImageToken::getImage(float& fade) {
 	if (!mAcquired) return ci::gl::Texture();
 
 	if (!mTexture) {
@@ -65,14 +63,12 @@ ci::gl::Texture ImageToken::getImage(float& fade)
 	return mTexture;
 }
 
-const ci::gl::Texture ImageToken::peekImage(const std::string& filename) const
-{
+const ci::gl::Texture ImageToken::peekImage(const std::string& filename) const {
 	return mSrv.peekImage(filename);
 }
 
-void ImageToken::init()
-{
-  mFilename.clear();
+void ImageToken::init() {
+	mFilename.clear();
 	mAcquired = false;
 	mError = false;
 	mTexture.reset();

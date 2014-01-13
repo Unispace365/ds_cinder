@@ -14,6 +14,7 @@ class WebView;
 namespace ds {
 namespace web {
 class Service;
+class WebViewListener;
 }
 
 namespace ui {
@@ -22,17 +23,19 @@ namespace ui {
  * \class ds::ui::Web
  * \brief Display a web page.
  */
-class Web : public ds::ui::Sprite 
-{
+class Web : public ds::ui::Sprite {
 public:
 	Web(ds::ui::SpriteEngine &engine, float width = 0.0f, float height = 0.0f);
 	~Web();
-	void setSizeAll(float width, float height, float depth);
+
 	void updateServer(const ds::UpdateParams &updateParams);
 	void drawLocalClient();
 
-	void loadUrl(const std::wstring &url);
-	void loadUrl(const std::string &url);
+	// After setting a URL, you need to call activate() to see anything. Not
+	// sure I like that API but that's what it is for now.
+	void					loadUrl(const std::wstring &url);
+	void					loadUrl(const std::string &url);
+	std::string				getUrl();
 
 	void sendKeyDownEvent(const ci::app::KeyEvent &event);
 	void sendKeyUpEvent(const ci::app::KeyEvent &event);
@@ -44,12 +47,31 @@ public:
 	void setTransitionTime(const float transitionTime);
 	void activate();
 	void deactivate();
+
+	// Actions
+	void					goBack();
+	void					goForward();
+	void					reload();
+	bool					canGoBack();
+	bool					canGoForward();			
+
+	// For now, a simple communication about when the address changes.
+	// In the future I'd like to have a richer mechanism in place.
+	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
+
+protected:
+	virtual void			onSizeChanged();
+
 private:
-	void handleTouch(const ds::ui::TouchInfo &touchInfo);
+	void					handleTouch(const ds::ui::TouchInfo &touchInfo);
+
+	typedef ds::ui::Sprite	inherited;
 
 	ds::web::Service&		mService;
 	Awesomium::WebView*		mWebViewPtr;
-	
+	std::unique_ptr<ds::web::WebViewListener>
+							mWebViewListener;
+
 	ci::gl::Texture			mWebTexture;
 	ci::gl::Texture			mLoadingTexture;
 

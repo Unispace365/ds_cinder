@@ -10,14 +10,14 @@ namespace ds {
  * \class ds::Event
  */
 class Event {
-  public:
-    Event();
-    Event(const int what);
-    virtual ~Event();
+public:
+	Event();
+	Event(const int what);
+	virtual ~Event();
 
-    const std::string&          getName() const;
+	const std::string&		getName() const;
 
-    int                         mWhat;
+	int						mWhat;
 };
 
 /**
@@ -25,10 +25,13 @@ class Event {
  * Utility to make sure all event types are unique, and named.
  */
 class EventRegistry {
-  public:
-    EventRegistry(const int what, const std::string& name);
+public:
+	EventRegistry(const std::string& name);
+	// What is now obsolete, the value is generated automatically.
+	// This only exists for backwards compatibility
+	EventRegistry(const int what, const std::string& name);
 
-    const int             mWhat;
+	const int				mWhat;
 };
 
 } // namespace ds

@@ -1,0 +1,30 @@
+<settings>
+	<!-- Available fonts: gothic, etc...
+		To be helpful, list the font names that your app supports, as supplied in your app constructor:
+			mEngine.editFonts().install(ds::Environment::getAppFolder("data", "fonts/Gothic.otf"), "gothic");
+	-->
+
+	<!-- This file is in a standard format for loading fonts. Each font has a name that can be anything, and is always terminated
+		with one of the valid keys:
+			":name"			(text) The name of the font.
+			":size" 		(float) The size of the font.
+			":leading"		(float) The font leading, where = 0 no space between lines, 1 = full line height.
+			":color"		(color) The color of the font.
+	-->
+	
+	<!-- FONTS -->
+		<!-- slide caption -->
+		<text  name="slide:caption:name" value="gothic" />
+		<float name="slide:caption:size" value="44" />
+		<float name="slide:caption:leading" value="1.25" />
+		<color name="slide:caption:color" r="124" g="10" b="255" />
+
+		<!-- label -->
+		<text  name="label:name" value="gothic" />
+		<float name="label:size" value="44" />
+		<float name="label:leading" value="1.25" />
+		<color name="label:color" r="10" g="255" b="80" />
+
+	<!-- /FONTS -->
+
+</settings>

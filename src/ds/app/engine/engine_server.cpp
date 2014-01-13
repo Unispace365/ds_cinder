@@ -45,38 +45,34 @@ EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
   setState(mSendWorldState);
 }
 
-EngineServer::~EngineServer()
-{
-  // It's important to clean up the sprites before the services go away
+EngineServer::~EngineServer() {
+	// It's important to clean up the sprites before the services go away
 	clearAllSprites();
 }
 
 void EngineServer::installSprite( const std::function<void(ds::BlobRegistry&)>& asServer,
-                                  const std::function<void(ds::BlobRegistry&)>& asClient)
-{
-  if (asServer) asServer(mBlobRegistry);
+                                  const std::function<void(ds::BlobRegistry&)>& asClient) {
+	if (asServer) asServer(mBlobRegistry);
 }
 
-void EngineServer::setup(ds::App& app)
-{
-  inherited::setup(app);
+void EngineServer::setup(ds::App& app) {
+	inherited::setup(app);
 
-  app.setupServer();
+	app.setupServer();
 }
 
-void EngineServer::setupTuio(ds::App& a)
-{
-  tuio::Client &tuioClient = getTuioClient();
-  tuioClient.registerTouches(&a);
-  tuioClient.connect(mTuioPort);
+void EngineServer::setupTuio(ds::App& a) {
+	tuio::Client &tuioClient = getTuioClient();
+	tuioClient.registerTouches(&a);
+	registerForTuioObjects(tuioClient);
+	tuioClient.connect(mTuioPort);
 }
 
-void EngineServer::update()
-{
-  mWorkManager.update();
-  updateServer();
+void EngineServer::update() {
+	mWorkManager.update();
+	updateServer();
 
-  mState->update(*this);
+	mState->update(*this);
 }
 
 void EngineServer::draw()

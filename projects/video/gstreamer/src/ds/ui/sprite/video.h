@@ -8,85 +8,100 @@
 #include "cinder/gl/Fbo.h"
 #include "ds/data/resource.h"
 
-namespace _2RealGStreamerWrapper
-{
+namespace _2RealGStreamerWrapper {
 class GStreamerWrapper;
 }
 
 namespace ds {
-	namespace ui {
+namespace ui {
 	
-		class Video : public Sprite
-		{
-		public:
-			Video( SpriteEngine& );
-			~Video();
-			void				setAlphaMode(bool isTransparent);// set this before loading a video
-			void				setSize( float width, float height );
-			virtual void		updateServer(const UpdateParams&);
-			void				drawLocalClient();
+/**
+ * \class ds::ui::Video
+ * \brief Display video, or play an audio file.
+ */
+class Video : public Sprite {
+public:
+	Video(SpriteEngine&);
+	~Video();
 
-			Video&              loadVideo( const std::string &filename);
-			Video              &setResourceId(const ds::Resource::Id &resourceId);
+	void					setAlphaMode(bool isTransparent);// set this before loading a video
+	void					setSize( float width, float height );
+	virtual void			updateServer(const UpdateParams&);
+	void					drawLocalClient();
 
-			void				unloadVideo();
+	Video&					loadVideo( const std::string &filename);
+	Video&					setResourceId(const ds::Resource::Id &resourceId);
 
-			void				play();
-			void				stop();
-			void				pause();
-			void				seek(float t);
-			double				duration();
-			double				currentTime();
-			bool				isPlaying();
-			void				loop(bool flag);
-			bool				isLooping() const;
-			// value between 0.0f & 1.0f
-			void				setVolume(float volume);
-			float				getVolume() const;
+	void					unloadVideo();
 
-			void				setMute(const bool doMute);
+	void					play();
+	void					stop();
+	void					pause();
+	void					seek(double t); // 0.0 to 1.0 value
+	double					duration();
+	double					currentTime();
+	bool					isPlaying();
+	void					loop(bool flag);
+	bool					isLooping() const;
+	void					setVolume(float volume); // value between 0.0f & 1.0f
+	float					getVolume() const;
 
-			struct Status {
-				static const int  STATUS_STOPPED = 0;
-				static const int  STATUS_PLAYING = 1;
-				static const int  STATUS_PAUSED  = 2;
-				int               mCode;
-			};
-			void				setStatusCallback(const std::function<void(const Status&)>&);
+	void					setMute(const bool doMute);
 
-			void				setVideoCompleteCallback(const std::function<void(Video* video)> &func);
+	// Loads a video and waits for a single frame to be loaded into texture memory.
+	// After that, the video is stopped and unloaded. This is basically a "show poster frame" or a wait to create a thumbnail.
+	void					generateSingleFrame( const std::string &filename);
+	const bool				isGeneratingSingleFrame() const { return mGeneratingSingleFrame; }
 
-		private:
-			typedef Sprite inherited;
+	struct Status {
+		static const int	STATUS_STOPPED = 0;
+		static const int	STATUS_PLAYING = 1;
+		static const int	STATUS_PAUSED  = 2;
+		int					mCode;
+	};
+	void					setStatusCallback(const std::function<void(const Status&)>&);
 
-			void                setStatus(const int);
-			void				setMovieVolume();
+	void					setVideoCompleteCallback(const std::function<void(Video* video)>& func);
 
-			// Done this way so I can completely hide any dependencies
-			_2RealGStreamerWrapper::GStreamerWrapper*	mMoviePtr;
-			_2RealGStreamerWrapper::GStreamerWrapper&	mMovie;
+private:
+	typedef Sprite inherited;
 
-			ci::gl::Texture     mFrameTexture;
-			ci::gl::Fbo         mFbo;
+	void					setStatus(const int);
+	void					setMovieVolume();
+	void					handleVideoComplete(_2RealGStreamerWrapper::GStreamerWrapper*);
 
-			bool                mLooping;
-			// User-driven mute state
-			bool				mMuted;
-			// A mute state that gets turned on automatically in certain situations
-			bool                mInternalMuted;
-			float               mVolume;
-			bool				mIsTransparent;
+	void					setupForVideo(const std::string& filename);
 
-			Status              mStatus;
-			bool                mStatusDirty;
-			std::function<void(const Status&)>
-				mStatusFn;
+	// Done this way so I can completely hide any dependencies
+	_2RealGStreamerWrapper::GStreamerWrapper*
+							mMoviePtr;
+	_2RealGStreamerWrapper::GStreamerWrapper&
+							mMovie;
 
-			std::function<void(Video*)> mVideoCompleteCallback;
-			void				handleVideoComplete(_2RealGStreamerWrapper::GStreamerWrapper* wrapper);
-		};
+	ci::gl::Texture			mFrameTexture;
+	ci::gl::Fbo				mFbo;
+	bool					mFboCreated;
 
-	} // namespace ui
+	bool					mLooping;
+	// User-driven mute state
+	bool					mMuted;
+	// A mute state that gets turned on automatically in certain situations
+	bool					mInternalMuted;
+	float					mVolume;
+	bool					mIsTransparent;
+
+	bool					mGeneratingSingleFrame;
+
+	Status					mStatus;
+	bool					mStatusDirty;
+	std::function<void(const Status&)>
+							mStatusFn;
+
+	std::function<void(Video*)>
+							mVideoCompleteCallback;
+};
+
+} // namespace ui
 } // namespace ds
 
 #endif // DS_UI_SPRITE_VIDEO_GSTREAMER_VIDEOSPRITEGSTREAMER_H_
