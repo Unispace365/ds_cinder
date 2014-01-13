@@ -26,7 +26,7 @@ int				parse_component(const std::string& input, const size_t pos, const int def
  * \function ds::parse_color
  */
 ci::ColorA parse_color(const std::string& input) {
-	if (input.size() < 3) throw std::runtime_error("parse_color() invalid input (") + input + ")");
+	if (input.size() < 3) throw std::runtime_error("parse_color() invalid input (" + input + ")");
 	// Hex
 	if (input[0] == '#' || input[0] == 'x') {
 		const int	r = parse_component(input, 1, 0);
