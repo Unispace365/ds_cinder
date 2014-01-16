@@ -29,12 +29,12 @@ MultilineText& MultilineText::setLeading(const float v)
   return *this;
 }
 
-ds::ui::Alignment MultilineText::getAlignment() const
+ds::ui::Alignment::Enum MultilineText::getAlignment() const
 {
   return mMultilineLayout.mAlignment;
 }
 
-MultilineText& MultilineText::setAlignment( const Alignment a )
+MultilineText& MultilineText::setAlignment( const Alignment::Enum& a )
 {
   if (a == mMultilineLayout.mAlignment)
     return *this;

@@ -119,6 +119,7 @@
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h" />
     <ClInclude Include="..\src\ds\ui\sprite\text.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\text_defs.h" />
     <ClInclude Include="..\src\ds\ui\sprite\text_layout.h" />
     <ClInclude Include="..\src\ds\ui\sprite\util\blend.h" />
     <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h" />
@@ -229,6 +230,7 @@
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\text.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\text_defs.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\text_layout.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\blend.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp" />

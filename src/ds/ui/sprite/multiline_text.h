@@ -24,8 +24,8 @@ class MultilineText : public Text
         float                       getLeading() const;
         MultilineText&              setLeading(const float);
 
-        Alignment                   getAlignment() const;
-        MultilineText&              setAlignment(const Alignment);
+        Alignment::Enum             getAlignment() const;
+        MultilineText&              setAlignment(const Alignment::Enum&);
 
 		virtual float				getFontFullHeight() const;
 

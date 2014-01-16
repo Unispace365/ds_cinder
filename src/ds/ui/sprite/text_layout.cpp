@@ -158,30 +158,26 @@ const TextLayout::MAKE_FUNC& TextLayout::SINGLE_LINE()
  * \class ds::ui::TextLayoutVertical
  */
 TextLayoutVertical::TextLayoutVertical()
-  : mLeading(1)
-  , mAlignment(Left)
-{
+		: mLeading(1)
+		, mAlignment(Alignment::kLeft) {
 }
 
 TextLayoutVertical::TextLayoutVertical(Text& t)
-  : mLeading(1)
-  , mAlignment(Left)
-{
-  installOn(t);
+		: mLeading(1)
+		, mAlignment(Alignment::kLeft) {
+	installOn(t);
 }
 
-void TextLayoutVertical::installOn(Text& t)
-{
-  auto f = [this](const TextLayout::Input& in, TextLayout& out) { this->run(in, out); };
-  t.setLayoutFunction(f);
+void TextLayoutVertical::installOn(Text& t) {
+	auto f = [this](const TextLayout::Input& in, TextLayout& out) { this->run(in, out); };
+	t.setLayoutFunction(f);
 }
 
-ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str)
-{
-  OGLFT::BBox box = font->measureRaw(str);
-  ci::Vec2f   size(box.x_max_-box.x_min_, box.y_max_-box.y_min_);
+ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str) {
+	OGLFT::BBox box = font->measureRaw(str);
+	ci::Vec2f   size(box.x_max_-box.x_min_, box.y_max_-box.y_min_);
 
-  return size;
+	return size;
 }
 
 ci::Vec2f getSizeFromString( const FontPtr &font, const std::wstring &str )
@@ -387,9 +383,9 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
   	float y = it->first;
     std::wstring &str = it->second;
 
-    if (mAlignment == Left) {
+    if (mAlignment == Alignment::kLeft) {
       out.addLine(ci::Vec2f(0, y), str);
-    } else if (mAlignment == Right) {
+    } else if (mAlignment == Alignment::kRight) {
       float size = getSizeFromString(in.mFont, str).x;//in.mFont->measureString(lineText, in.mOptions).x;
       float x = maxWidth - size;
       out.addLine(ci::Vec2f(x, y), str);

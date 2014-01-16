@@ -5,6 +5,7 @@
 #include <string>
 #include <cinder/Color.h>
 #include <cinder/Vector.h>
+#include <ds/ui/sprite/text_defs.h>
 
 namespace ds {
 namespace ui {
@@ -24,7 +25,8 @@ class Settings;
 class Text {
 public:
 	Text();
-	Text(const std::string& font, const float size, const float leading, const ci::ColorA&);
+	Text(	const std::string& font, const float size, const float leading,
+			const ci::ColorA&, const ds::ui::Alignment::Enum& = ds::ui::Alignment::kLeft);
 
 	// Create a new text sprite from this cfg. The throw reference throws the error if anything goes wrong.
 	ds::ui::Text*			create(ds::ui::SpriteEngine&, ds::ui::Sprite* parent = nullptr) const;
@@ -39,6 +41,7 @@ public:
 	float					mLeading;
 	ci::ColorA				mColor;
 	ci::Vec2f				mCenter;
+	ds::ui::Alignment::Enum	mAlignment;
 };
 
 } // namespace cfg

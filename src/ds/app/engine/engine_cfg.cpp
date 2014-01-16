@@ -140,4 +140,17 @@ static void read_text_cfg(const std::string& path, std::unordered_map<std::strin
 		}
 	});
 
+	// Text (alignment)
+	s.forEachTextKey([&s, &out](const std::string& key) {
+		std::string			left, right;
+		if (split_key(key, left, right) && !out.empty()) {
+			auto			found = out.find(left);
+			if (found != out.end()) {
+				if (right == "alignment") {
+					found->second.mAlignment = ds::ui::Alignment::fromString(s.getText(key, 0, ""));
+				}
+			}
+		}
+	});
+
 }
