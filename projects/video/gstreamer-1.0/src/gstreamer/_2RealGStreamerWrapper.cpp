@@ -347,9 +347,9 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 
 	if( !hasVideo() && !hasAudio() )	// is a valid multimedia file?
 	{
-		DS_LOG_WARNING("Couldn't detect any audio or video streams in this file! " << strFilename);
+		//DS_LOG_WARNING("Couldn't detect any audio or video streams in this file! " << strFilename);
 		//close();
-		return false;
+		//return false;
 	}
 
 	// Print Media Info
@@ -865,8 +865,9 @@ void GStreamerWrapper::retrieveVideoInfo()
 		m_ContentType = AUDIO;
 	}
 	if(m_iNumVideoStreams < 1){
-		DS_LOG_WARNING("No video streams! Figure out why! ");
+	//	DS_LOG_WARNING("No video streams! Figure out why! ");
 		m_iNumVideoStreams = 1;
+		m_iNumAudioStreams = 1;
 	}
 
 	////////////////////////////////////////////////////////////////////////// Video Data
