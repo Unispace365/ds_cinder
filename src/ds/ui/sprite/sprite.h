@@ -197,6 +197,8 @@ public:
 	bool					multiTouchEnabled() const;
 	bool					hasMultiTouchConstraint( const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS ) const;
 
+	void					callAfterDelay(const std::function<void(void)>&, const float delay_in_seconds);
+
 	bool					inBounds() const;
 	void					setCheckBounds(bool checkBounds);
 	bool					getCheckBounds() const;
