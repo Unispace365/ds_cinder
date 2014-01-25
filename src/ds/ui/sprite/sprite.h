@@ -139,6 +139,7 @@ public:
 	// A convenience to set the color and the opacity
 	void					setColorA(const ci::ColorA&);
 	ci::Color				getColor() const;
+	ci::ColorA				getColorA() const;
 
 	void					setOpacity( float opacity );
 	float					getOpacity() const;

@@ -602,9 +602,12 @@ void Sprite::setColorA(const ci::ColorA& color)
 	setOpacity(color.a);
 }
 
-ci::Color Sprite::getColor() const
-{
+ci::Color Sprite::getColor() const {
     return mColor;
+}
+
+ci::ColorA Sprite::getColorA() const {
+	return ci::ColorA(mColor.r, mColor.g, mColor.b, mOpacity);
 }
 
 void Sprite::setOpacity( float opacity )
