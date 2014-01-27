@@ -19,6 +19,8 @@ public:
 	static const int                IMG_PRELOAD_F = (1<<1);
 
 public:
+	static Image&					makeImage(SpriteEngine&, const ds::Resource&, Sprite* parent = nullptr);
+
 	Image(SpriteEngine&, const int flags = 0);
 	Image(SpriteEngine&, const std::string& filename, const int flags = 0);
 	Image(SpriteEngine&, const ds::Resource::Id&, const int flags = 0);

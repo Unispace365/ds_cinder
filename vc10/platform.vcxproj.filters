@@ -106,6 +106,9 @@
     <Filter Include="src\ds\gl">
       <UniqueIdentifier>{a2c57887-62d6-4497-99fb-2e041a4938b5}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\time">
+      <UniqueIdentifier>{bd82e7a9-956c-4d26-a56b-bbfe3c2a2e72}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -498,6 +501,9 @@
     <ClInclude Include="..\src\ds\ui\image_source\image_resource.h">
       <Filter>src\ds\ui\image_source</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\time\timer.h">
+      <Filter>src\ds\time</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -811,6 +817,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\image_source\image_resource.cpp">
       <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\time\timer.cpp">
+      <Filter>src\ds\time</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

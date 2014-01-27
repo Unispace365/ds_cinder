@@ -38,6 +38,10 @@ void Image::installAsClient(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Image>(r);});
 }
 
+Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
+	return makeAlloc<ds::ui::Image>([&e, &r]()->ds::ui::Image*{ return new ds::ui::Image(e, r.getAbsoluteFilePath()); }, parent);
+}
+
 Image::Image(SpriteEngine& engine, const int flags)
 		: inherited(engine)
 		, mImageService(engine.getLoadImageService())

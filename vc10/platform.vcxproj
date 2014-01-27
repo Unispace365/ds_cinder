@@ -100,6 +100,7 @@
     <ClInclude Include="..\src\ds\thread\work_manager.h" />
     <ClInclude Include="..\src\ds\thread\work_request.h" />
     <ClInclude Include="..\src\ds\thread\work_request_list.h" />
+    <ClInclude Include="..\src\ds\time\timer.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_arc.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_client.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_drop_shadow.h" />
@@ -212,6 +213,7 @@
     <ClCompile Include="..\src\ds\thread\work_client.cpp" />
     <ClCompile Include="..\src\ds\thread\work_manager.cpp" />
     <ClCompile Include="..\src\ds\thread\work_request.cpp" />
+    <ClCompile Include="..\src\ds\time\timer.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_arc.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_client.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_drop_shadow.cpp" />
