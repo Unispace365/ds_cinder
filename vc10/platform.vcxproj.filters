@@ -495,6 +495,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\text_defs.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_resource.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -805,6 +808,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\text_defs.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_resource.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

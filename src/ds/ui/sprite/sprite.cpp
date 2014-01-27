@@ -1,17 +1,18 @@
 #include "sprite.h"
-#include "cinder/gl/gl.h"
+#include <cinder/Camera.h>
+#include <cinder/gl/gl.h>
 #include "gl/GL.h"
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
 #include "ds/app/camera_utils.h"
+#include "ds/app/environment.h"
 #include "ds/data/data_buffer.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
-#include "sprite_engine.h"
 #include "ds/math/math_func.h"
-#include "cinder/Camera.h"
 #include "ds/math/random.h"
-#include "ds/app/environment.h"
+#include "ds/ui/sprite/sprite_engine.h"
+#include "ds/ui/tween/tweenline.h"
 #include "ds/util/string_util.h"
 #include "util/clip_plane.h"
 #include "ds/params/draw_params.h"
@@ -601,9 +602,12 @@ void Sprite::setColorA(const ci::ColorA& color)
 	setOpacity(color.a);
 }
 
-ci::Color Sprite::getColor() const
-{
+ci::Color Sprite::getColor() const {
     return mColor;
+}
+
+ci::ColorA Sprite::getColorA() const {
+	return ci::ColorA(mColor.r, mColor.g, mColor.b, mOpacity);
 }
 
 void Sprite::setOpacity( float opacity )
@@ -893,15 +897,13 @@ const ci::Matrix44f    &Sprite::getInverseTransform() const
   return mInverseTransform;
 }
 
-bool Sprite::hasMultiTouchConstraint( const BitMask &constraint ) const
-{
-  return mMultiTouchConstraints & constraint;
+bool Sprite::hasMultiTouchConstraint( const BitMask &constraint ) const {
+	return mMultiTouchConstraints & constraint;
 }
 
-void Sprite::swipe( const ci::Vec3f &swipeVector )
-{
-  if (mSwipeCallback)
-    mSwipeCallback(this, swipeVector);
+void Sprite::swipe( const ci::Vec3f &swipeVector ) {
+	if (mSwipeCallback)
+		mSwipeCallback(this, swipeVector);
 }
 
 bool Sprite::hasDoubleTap() const
@@ -970,10 +972,15 @@ void Sprite::enableMultiTouch( const BitMask &constraints )
   mMultiTouchConstraints |= constraints;
 }
 
-void Sprite::disableMultiTouch()
-{
-  mMultiTouchEnabled = false;
-  mMultiTouchConstraints.clear();
+void Sprite::disableMultiTouch() {
+	mMultiTouchEnabled = false;
+	mMultiTouchConstraints.clear();
+}
+
+void Sprite::callAfterDelay(const std::function<void(void)>& fn, const float delay_in_seconds) {
+	if (!fn) return;
+	ci::Timeline&		t = mEngine.getTweenline().getTimeline();
+	t.add(fn, t.getCurrentTime() + delay_in_seconds);
 }
 
 bool Sprite::checkBounds() const

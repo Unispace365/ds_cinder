@@ -19,6 +19,7 @@ public:
 	// Answer the requested settings file. In debug mode, throw
 	// if it doesn't exist. In release mode, just answer an empty one.
 	const ds::cfg::Settings&		getSettings(const std::string& name) const;
+	ds::cfg::Settings&				editSettings(const std::string& name);
 	// Answer the requested text cfg. In debug mode, throw
 	// if it doesn't exist. In release mode, just answer an empty one.
 	const ds::cfg::Text&			getText(const std::string& name) const;

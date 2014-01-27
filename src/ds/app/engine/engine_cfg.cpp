@@ -10,6 +10,7 @@ namespace ds {
 
 namespace {
 const ds::cfg::Settings		EMPTY_SETTINGS;
+ds::cfg::Settings			EDIT_EMPTY_SETTINGS;
 const ds::cfg::Text			EMPTY_TEXT_CFG;
 const std::string			EMPTY_SZ;
 }
@@ -17,12 +18,10 @@ const std::string			EMPTY_SZ;
 /**
  * ds::EngineCfg
  */
-EngineCfg::EngineCfg()
-{
+EngineCfg::EngineCfg() {
 }
 
-const ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) const
-{
+const ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) const {
 	if (name.empty()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getSettings() on empty name"));
 		return EMPTY_SETTINGS;
@@ -39,8 +38,24 @@ const ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) const
 	return it->second;
 }
 
-const ds::cfg::Text& EngineCfg::getText(const std::string& name) const
-{
+ds::cfg::Settings& EngineCfg::editSettings(const std::string& name) {
+	if (name.empty()) {
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::editSettings() on empty name"));
+		return EDIT_EMPTY_SETTINGS;
+	}
+	if (mSettings.empty()) {
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::editSettings() on empty mSettings"));
+		return EDIT_EMPTY_SETTINGS;
+	}
+	auto it = mSettings.find(name);
+	if (it == mSettings.end()) {
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::editSettings() settings does not exist"));
+		return EDIT_EMPTY_SETTINGS;
+	}
+	return it->second;
+}
+
+const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 	if (name.empty()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getTextCfg() on empty name"));
 		return EMPTY_TEXT_CFG;
@@ -65,22 +80,19 @@ bool EngineCfg::hasText(const std::string& name) const {
 	return true;
 }
 
-void EngineCfg::loadSettings(const std::string& name, const std::string& filename)
-{
+void EngineCfg::loadSettings(const std::string& name, const std::string& filename) {
 	ds::cfg::Settings&	settings = mSettings[name];
 	ds::Environment::loadSettings(filename, settings);
 }
 
-void EngineCfg::loadText(const std::string& filename)
-{
+void EngineCfg::loadText(const std::string& filename) {
 	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextCfg);
 	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextCfg);
 }
 
 } // namespace ds
 
-static bool split_key(const std::string& key, std::string& left, std::string& right)
-{
+static bool split_key(const std::string& key, std::string& left, std::string& right) {
 	if (key.empty()) return false;
 	const size_t		pos = key.find_last_of(":");
 	if (pos != key.npos) {
@@ -92,8 +104,7 @@ static bool split_key(const std::string& key, std::string& left, std::string& ri
 	return false;
 }
 
-static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out)
-{
+static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out) {
 	ds::cfg::Settings		s;
 	s.readFrom(path, false);
 

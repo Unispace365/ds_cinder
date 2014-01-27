@@ -69,6 +69,7 @@ public:
 	// Iterate over the keys
 	void								forEachColorAKey(const std::function<void(const std::string&)>&) const;
 	void								forEachFloatKey(const std::function<void(const std::string&)>&) const;
+	void								forEachIntKey(const std::function<void(const std::string&)>&) const;
 	void								forEachTextKey(const std::function<void(const std::string&)>&) const;
 
 private:
@@ -101,6 +102,7 @@ public:
 
 		Editor&							setFloat(const std::string& name, const float);
 		Editor&							setResourceId(const std::string& name, const Resource::Id&);
+		Editor&							setRect(const std::string& name, const ci::Rectf&);
 		Editor&							setSize(const std::string& name, const ci::Vec2f&);
 		Editor&							setText(const std::string& name, const std::string&);
 		Editor&							setPoint(const std::string& name, const ci::Vec3f&);

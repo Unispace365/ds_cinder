@@ -8,11 +8,10 @@
 static bool check_bool(const std::string& text, const bool defaultValue);
 
 namespace ds {
-
 namespace cfg {
 
-static const std::string		FALSE_SZ("false");
-static const std::string		TRUE_SZ("true");
+static const std::string			FALSE_SZ("false");
+static const std::string			TRUE_SZ("true");
 
 static const std::string		  COLOR_NAME("color");
 static const std::string		  FLOAT_NAME("float");
@@ -424,22 +423,25 @@ bool Settings::getBool(const std::string& name, const int index, const bool defa
 	return check_bool(getText(name, index, defaultValue ? TRUE_SZ : FALSE_SZ), false);
 }
 
-void Settings::forEachColorAKey(const std::function<void(const std::string&)>& fn) const
-{
+void Settings::forEachColorAKey(const std::function<void(const std::string&)>& fn) const {
 	if (!fn || mColorA.empty()) return;
 
 	for (auto it=mColorA.begin(), end=mColorA.end(); it != end; ++it) fn(it->first);
 }
 
-void Settings::forEachFloatKey(const std::function<void(const std::string&)>& fn) const
-{
+void Settings::forEachFloatKey(const std::function<void(const std::string&)>& fn) const {
 	if (!fn || mFloat.empty()) return;
 
 	for (auto it=mFloat.begin(), end=mFloat.end(); it != end; ++it) fn(it->first);
 }
 
-void Settings::forEachTextKey(const std::function<void(const std::string&)>& fn) const
-{
+void Settings::forEachIntKey(const std::function<void(const std::string&)>& fn) const {
+	if (!fn || mInt.empty()) return;
+
+	for (auto it=mInt.begin(), end=mInt.end(); it != end; ++it) fn(it->first);
+}
+
+void Settings::forEachTextKey(const std::function<void(const std::string&)>& fn) const {
 	if (!fn || mText.empty()) return;
 
 	for (auto it=mText.begin(), end=mText.end(); it != end; ++it) fn(it->first);
@@ -522,52 +524,49 @@ static void editor_add_vec(const int mode, const std::string& name, A& container
 	}
 }
 
-Settings::Editor& Settings::Editor::setFloat(const std::string& name, const float v)
-{
+Settings::Editor& Settings::Editor::setFloat(const std::string& name, const float v) {
 	editor_set_vec(mMode, name, mSettings.mFloat, v);
 	return *this;
 }
 
-Settings::Editor& Settings::Editor::setResourceId(const std::string& name, const Resource::Id& v)
-{
+Settings::Editor& Settings::Editor::setRect(const std::string& name, const ci::Rectf& v) {
+	editor_set_vec(mMode, name, mSettings.mRect, v);
+	return *this;
+}
+
+Settings::Editor& Settings::Editor::setResourceId(const std::string& name, const Resource::Id& v) {
 	editor_set_vec(mMode, name, mSettings.mRes, v);
 	return *this;
 }
 
-Settings::Editor& Settings::Editor::setSize(const std::string& name, const cinder::Vec2f& v)
-{
+Settings::Editor& Settings::Editor::setSize(const std::string& name, const ci::Vec2f& v) {
 	editor_set_vec(mMode, name, mSettings.mSize, v);
 	return *this;
 }
 
-Settings::Editor& Settings::Editor::setText(const std::string& name, const std::string& v)
-{
-  editor_set_vec(mMode, name, mSettings.mText, v);
-  return *this;
+Settings::Editor& Settings::Editor::setText(const std::string& name, const std::string& v) {
+	editor_set_vec(mMode, name, mSettings.mText, v);
+	return *this;
 }
 
-Settings::Editor& Settings::Editor::addInt(const std::string& name, const int v)
-{
+Settings::Editor& Settings::Editor::addInt(const std::string& name, const int v) {
 	editor_add_vec(mMode, name, mSettings.mInt, v);
 	return *this;
 }
 
-Settings::Editor& Settings::Editor::addResourceId(const std::string& name, const Resource::Id& v)
-{
+Settings::Editor& Settings::Editor::addResourceId(const std::string& name, const Resource::Id& v) {
 	editor_add_vec(mMode, name, mSettings.mRes, v);
 	return *this;
 }
 
-Settings::Editor& Settings::Editor::addTextW(const std::string& name, const std::wstring& v)
-{
+Settings::Editor& Settings::Editor::addTextW(const std::string& name, const std::wstring& v) {
 	editor_add_vec(mMode, name, mSettings.mTextW, v);
 	return *this;
 }
 
-Settings::Editor& Settings::Editor::setPoint( const std::string& name, const ci::Vec3f& v)
-{
-  editor_add_vec(mMode, name, mSettings.mPoints, v);
-  return *this;
+Settings::Editor& Settings::Editor::setPoint( const std::string& name, const ci::Vec3f& v) {
+	editor_add_vec(mMode, name, mSettings.mPoints, v);
+	return *this;
 }
 
 } // namespace cfg

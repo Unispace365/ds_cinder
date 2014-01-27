@@ -139,6 +139,7 @@ public:
 	// A convenience to set the color and the opacity
 	void					setColorA(const ci::ColorA&);
 	ci::Color				getColor() const;
+	ci::ColorA				getColorA() const;
 
 	void					setOpacity( float opacity );
 	float					getOpacity() const;
@@ -196,6 +197,8 @@ public:
 	void					disableMultiTouch();
 	bool					multiTouchEnabled() const;
 	bool					hasMultiTouchConstraint( const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS ) const;
+
+	void					callAfterDelay(const std::function<void(void)>&, const float delay_in_seconds);
 
 	bool					inBounds() const;
 	void					setCheckBounds(bool checkBounds);

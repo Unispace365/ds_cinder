@@ -15,6 +15,7 @@
 // For installing the image generators
 #include "ds/ui/image_source/image_arc.h"
 #include "ds/ui/image_source/image_file.h"
+#include "ds/ui/image_source/image_resource.h"
 // For verifying that the resources are installed
 #include "ds/app/FrameworkResources.h"
 
@@ -67,6 +68,7 @@ App::App(const std::vector<int>* roots)
 	// Initialize the engine image generator typess.
 	ds::ui::ImageArc::install(mEngine.getImageRegistry());
 	ds::ui::ImageFile::install(mEngine.getImageRegistry());
+	ds::ui::ImageResource::install(mEngine.getImageRegistry());
 
 	// Verify that the application has included the framework resources.
 	try {
