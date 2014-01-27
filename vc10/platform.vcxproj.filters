@@ -504,6 +504,9 @@
     <ClInclude Include="..\src\ds\time\timer.h">
       <Filter>src\ds\time</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\debug\function_exists.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">

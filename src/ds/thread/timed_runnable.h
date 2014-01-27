@@ -6,6 +6,7 @@
 #include <functional>
 #include <vector>
 #include <Poco/Timestamp.h>
+#include <ds/debug/function_exists.h>
 #include "ds/thread/runnable_client.h"
 #include "ds/util/memory_ds.h"
 
@@ -22,8 +23,11 @@ namespace ds {
  * T is a subclass of Poco::Runnable (where run() runs in a worker
  * thread).
  *
+ * DEPRECATED
  * T implements T::finished() (which is called from the thread
- * calling update()).
+ * calling update()). -- No longer used,  clients should set an
+ * onFinished function. Compile-time assert happens if this
+ * function exists now.
  ******************************************************************/
 template <class T>
 class TimedRunnable {
@@ -69,6 +73,10 @@ TimedRunnable<T>::TimedRunnable(ui::SpriteEngine& se, const double interval, T *
 		, mNextUpdate(0)
 		, mOnStartFn(nullptr)
 		, mOnFinishedFn(nullptr) {
+	// Make sure the class isn't implementing the deprecated finished() function.
+	// Clients need to set an onFinishedFn() instead.
+	static_assert(!(ds::dbg::has_finished_fn<T>::value), "TimedRunnable template class implements finished(); set onFinishedFn() instead" );
+
 	setInterval(interval);
 	mClient.setResultHandler([this](std::unique_ptr<Poco::Runnable>& r) { receive(r); });
 	// The data I will send and receive
@@ -146,7 +154,6 @@ void TimedRunnable<T>::receive(std::unique_ptr<Poco::Runnable>& r)
 		assert(false);
 	} else {
 		if (mOnFinishedFn) mOnFinishedFn(*(payload.get()));
-		payload->finished();
 		mPayload = std::move(payload);
 	}
 }

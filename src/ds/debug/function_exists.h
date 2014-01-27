@@ -1,66 +1,31 @@
 #pragma once
-#ifndef DS_DEBUG_CONSOLE_H_
-#define DS_DEBUG_CONSOLE_H_
+#ifndef DS_DEBUG_FUNCTIONEXISTS_H_
+#define DS_DEBUG_FUNCTIONEXISTS_H_
 
-#include <Windows.h>
-#include <io.h>
-#include <fcntl.h>
+// This file contains a pattern that can be used to determine if a function
+// exists at compile time. The check simply determines the function name,
+// it can't distinguish between overloads. The convention is to name each
+// check like "has_(function name)_fn".
+// Clients make use of this functionality like so:
+// ds::dbg::has_(function name)_fn<(class name)>::value
+// i.e., if you want to check class Query for function run:
+// ds::dbg::has_run_fn<Query>::value
 
 namespace ds {
+namespace dbg {
 
-class Console
-{
+template <typename T>
+class has_finished_fn {
+    typedef char one;
+	typedef long two;
+    template <typename C> static one test( decltype(&C::finished) ) ;
+    template <typename C> static two test(...);
+
 public:
-	Console()
-		: mConsoleCreated(false)
-	{
-	}
-
-	~Console()
-	{
-		destroy();
-	}
-
-	void create()
-	{
-		if ( mConsoleCreated )
-			return;
-
-    // The app writes to the output before any console has been allocated, which puts
-    // it in an error state, so that needs to be cleared out before you'll see any output.
-    std::cout.clear();
-    std::cin.clear();
-
-		AllocConsole();
-
-		HANDLE handle_out = GetStdHandle(STD_OUTPUT_HANDLE);
-		int hCrt = _open_osfhandle((long) handle_out, _O_TEXT);
-		FILE* hf_out = _fdopen(hCrt, "w");
-		setvbuf(hf_out, NULL, _IONBF, 1);
-		*stdout = *hf_out;
-
-		HANDLE handle_in = GetStdHandle(STD_INPUT_HANDLE);
-		hCrt = _open_osfhandle((long) handle_in, _O_TEXT);
-		FILE* hf_in = _fdopen(hCrt, "r");
-		setvbuf(hf_in, NULL, _IONBF, 128);
-		*stdin = *hf_in;
-
-		mConsoleCreated = true;
-	}
-
-	void destroy()
-	{
-		if ( !mConsoleCreated )
-			return;
-
-		FreeConsole();
-		mConsoleCreated = false;
-	}
-
-private:
-	bool mConsoleCreated;
+    enum { value = std::is_same<decltype(test<T>(nullptr)), char>::value };
 };
 
-}
+} // namespace dbg
+} // namespace ds
 
-#endif // DS_DEBUG_CONSOLE_H_
+#endif // DS_DEBUG_FUNCTIONEXISTS_H_

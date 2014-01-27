@@ -65,6 +65,7 @@
     <ClInclude Include="..\src\ds\debug\computer_info.h" />
     <ClInclude Include="..\src\ds\debug\console.h" />
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
+    <ClInclude Include="..\src\ds\debug\function_exists.h" />
     <ClInclude Include="..\src\ds\debug\logger.h" />
     <ClInclude Include="..\src\ds\gl\uniform.h" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
