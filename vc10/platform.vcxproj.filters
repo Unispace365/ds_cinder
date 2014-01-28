@@ -109,6 +109,9 @@
     <Filter Include="src\ds\time">
       <UniqueIdentifier>{bd82e7a9-956c-4d26-a56b-bbfe3c2a2e72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\container">
+      <UniqueIdentifier>{a43b2868-c97a-4c8e-89c9-2ac00f44ab00}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -507,6 +510,12 @@
     <ClInclude Include="..\src\ds\util\image_meta_data.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\container\key_value_store.h">
+      <Filter>src\ds\container</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\user_data.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -823,6 +832,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\util\image_meta_data.cpp">
       <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\container\key_value_store.cpp">
+      <Filter>src\ds\container</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\user_data.cpp">
+      <Filter>src\ds\data</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

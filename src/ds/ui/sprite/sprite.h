@@ -8,6 +8,7 @@
 #include "cinder/Color.h"
 #include "cinder/Tween.h"
 #include "ds/app/app_defs.h"
+#include "ds/data/user_data.h"
 #include "ds/gl/uniform.h"
 #include "ds/util/bit_mask.h"
 #include "ds/ui/sprite/dirty_state.h"
@@ -110,6 +111,9 @@ public:
 	const ci::Matrix44f&	getInverseTransform() const;
 	const ci::Matrix44f&	getGlobalTransform() const;
 	const ci::Matrix44f&	getInverseGlobalTransform() const;
+
+	ds::UserData&			getUserData();
+	const ds::UserData&		getUserData() const;
 
 	void					addChild(Sprite&);
 
@@ -342,6 +346,8 @@ protected:
 
 	mutable ci::Matrix44f	mGlobalTransform;
 	mutable ci::Matrix44f	mInverseGlobalTransform;
+
+	ds::UserData			mUserData;
 
 	Sprite*					mParent;
 	std::vector<Sprite *>	mChildren; 

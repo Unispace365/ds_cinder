@@ -55,6 +55,7 @@
     <ClInclude Include="..\src\ds\arc\arc_render_circle.h" />
     <ClInclude Include="..\src\ds\cfg\cfg_text.h" />
     <ClInclude Include="..\src\ds\cfg\settings.h" />
+    <ClInclude Include="..\src\ds\container\key_value_store.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
     <ClInclude Include="..\src\ds\data\raw_data_buffer.h" />
@@ -62,6 +63,7 @@
     <ClInclude Include="..\src\ds\data\resource.h" />
     <ClInclude Include="..\src\ds\data\resource_list.h" />
     <ClInclude Include="..\src\ds\data\tuio_object.h" />
+    <ClInclude Include="..\src\ds\data\user_data.h" />
     <ClInclude Include="..\src\ds\debug\computer_info.h" />
     <ClInclude Include="..\src\ds\debug\console.h" />
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
@@ -181,6 +183,7 @@
     <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp" />
     <ClCompile Include="..\src\ds\cfg\cfg_text.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings.cpp" />
+    <ClCompile Include="..\src\ds\container\key_value_store.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />
     <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp" />
@@ -188,6 +191,7 @@
     <ClCompile Include="..\src\ds\data\resource.cpp" />
     <ClCompile Include="..\src\ds\data\resource_list.cpp" />
     <ClCompile Include="..\src\ds\data\tuio_object.cpp" />
+    <ClCompile Include="..\src\ds\data\user_data.cpp" />
     <ClCompile Include="..\src\ds\debug\computer_info.cpp" />
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />

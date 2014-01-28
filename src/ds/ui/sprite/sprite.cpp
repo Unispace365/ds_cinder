@@ -150,8 +150,7 @@ void Sprite::init(const ds::sprite_id_t id)
   dimensionalStateChanged();
 }
 
-Sprite::~Sprite()
-{
+Sprite::~Sprite() {
     remove();
     setSpriteId(0);
 }
@@ -881,20 +880,25 @@ void Sprite::move( float deltaX, float deltaY, float deltaZ )
   mBoundsNeedChecking = true;
 }
 
-bool Sprite::multiTouchEnabled() const
-{
-  return mMultiTouchEnabled;
+bool Sprite::multiTouchEnabled() const {
+	return mMultiTouchEnabled;
 }
 
-const ci::Matrix44f &Sprite::getInverseGlobalTransform() const
-{
-  return mInverseGlobalTransform;
+const ci::Matrix44f& Sprite::getInverseGlobalTransform() const {
+	return mInverseGlobalTransform;
 }
 
-const ci::Matrix44f    &Sprite::getInverseTransform() const
-{
-  buildTransform();
-  return mInverseTransform;
+const ci::Matrix44f& Sprite::getInverseTransform() const {
+	buildTransform();
+	return mInverseTransform;
+}
+
+ds::UserData& Sprite::getUserData() {
+	return mUserData;
+}
+
+const ds::UserData& Sprite::getUserData() const {
+	return mUserData;
 }
 
 bool Sprite::hasMultiTouchConstraint( const BitMask &constraint ) const {
