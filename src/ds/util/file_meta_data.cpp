@@ -1,8 +1,10 @@
 #include "file_meta_data.h"
 
 #include <intrin.h>
+#include <unordered_map>
 #include <cinder/ImageIo.h>
 #include <cinder/Surface.h>
+#include <Poco/File.h>
 #include <Poco/Path.h>
 #include <Poco/String.h>
 #include "ds/util/file_name_parser.h"
@@ -31,7 +33,7 @@ bool						is_little_endian()
 	return (*(char*)&n == 1);
 }
 
-bool						get_format_png(const std::string& filename, ImageFileAtts& atts)
+bool						get_format_png(const std::string& filename, ci::Vec2f& outSize)
 {
 	std::ifstream file(filename, std::ios_base::binary | std::ios_base::in);
 	if (!file.is_open() || !file) return false;
@@ -56,13 +58,13 @@ bool						get_format_png(const std::string& filename, ImageFileAtts& atts)
 		height = _byteswap_ulong(height);
 	}
 
-	atts.mSize.x = static_cast<float>(width);
-	atts.mSize.y = static_cast<float>(height);
+	outSize.x = static_cast<float>(width);
+	outSize.y = static_cast<float>(height);
 	return true;
 }
 
 // A horrible fallback when no meta info has been supplied about the image size.
-void						super_slow_image_atts(const std::string& filename, ImageFileAtts& atts)
+void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
 {
 	try {
 		if (filename.empty()) return;
@@ -72,37 +74,100 @@ void						super_slow_image_atts(const std::string& filename, ImageFileAtts& atts
 		// but is otherwise the right thing to do.
 		auto s = ci::Surface8u(ci::loadImage(filename));
 		if (s) {
-			atts.mSize = ci::Vec2f(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+			outSize = ci::Vec2f(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
 		}
-	} catch (std::exception const&) {
+	} catch (std::exception const& ex) {
+		std::cout << "ImageMetaData error loading file (" << filename << ") = " << ex.what() << std::endl;
 	}
 }
 
+}
+
+// Store a cache of parsed files.  We should have this cache to a database, but for now, just have
+// it generate at each run.
+namespace {
+class ImageAtts {
+public:
+	ImageAtts() {
+	}
+
+	ImageAtts(const ci::Vec2f& size) : mSize(size) {
+	}
+
+	Poco::Timestamp		mLastModified;
+	ci::Vec2f			mSize;
+};
+
+class ImageAttsCache {
+public:
+	ImageAttsCache() {
+	}
+
+	ci::Vec2f			getSize(const std::string& fn) {
+		// If I've got a cached item and the modified dates match, use that.
+		try {
+			auto f = mCache.find(fn);
+			if (f != mCache.end() && f->second.mLastModified == Poco::File(fn).getLastModified()) {
+				return f->second.mSize;
+			}
+		} catch (std::exception const&) {
+		}
+
+		try {
+			// Generate the cache:
+			ImageAtts		atts = generate(fn);
+			if (atts.mSize.x > 0.0f && atts.mSize.y > 0.0f) {
+				atts.mLastModified = Poco::File(fn).getLastModified();
+				mCache[fn] = atts;
+				return atts.mSize;
+			}
+		} catch (std::exception const&) {
+		}
+		return ci::Vec2f(0.0f, 0.0f);
+	}
+
+private:
+	ImageAtts			generate(const std::string& fn) const {
+		// 1. Look for meta data encoded in file name
+		try {
+			FileMetaData		meta(fn);
+			const int			w = meta.findValueType<int>("w", -1),
+								h = meta.findValueType<int>("h", -1);
+			if (w > 0 && h > 0) {
+				return ImageAtts(ci::Vec2f(static_cast<float>(w), static_cast<float>(h)));
+			}
+		} catch (ParseFileMetaException&) {
+		}
+
+		// 3. Probe known file formats
+		try {
+			ImageAtts			atts;
+			const int			format = get_format(fn);
+			if (format == FORMAT_PNG && get_format_png(fn, atts.mSize)) {
+				return atts;
+			}
+		} catch (std::exception const& e) {
+			DS_LOG_WARNING_M("ImageFileAtts() error=" << e.what(), GENERAL_LOG);
+		}
+
+		// 4. Load the whole damn image in and get that.
+		ImageAtts			atts;
+		super_slow_image_atts(fn, atts.mSize);
+		return atts;
+	}
+
+	std::unordered_map<std::string, ImageAtts>	mCache;
+};
+
+ImageAttsCache			CACHE;
 }
 
 /**
  * \class ds::ImageFileAtts
  */
 ImageFileAtts::ImageFileAtts(const std::string& filename)
-	: mSize(0.0f, 0.0f)
-{
-	// 1. Look for meta data encoded in file name
-  try {
-    mSize = parseFileMetaDataSize(filename);
-		return;
-  } catch (ParseFileMetaException&) {
-  }
-
-	// 2. Probe known file formats
-	try {
-		const int		format = get_format(filename);
-		if (format == FORMAT_PNG && get_format_png(filename, *this)) return;
-	} catch (std::exception const& e) {
-		DS_LOG_WARNING_M("ImageFileAtts() error=" << e.what(), GENERAL_LOG);
-	}
-
-	// 3. Load the whole damn image in and get that.
-	super_slow_image_atts(filename, *this);
+		: mSize(0.0f, 0.0f) {
+	mSize = CACHE.getSize(filename);
 }
 
 } // namespace ds

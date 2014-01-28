@@ -76,6 +76,12 @@ const std::string& FileMetaData::findValue(const std::string& key) const {
 	return EMPTY_SZ;
 }
 
+#if 0
+// throws ParseFileMetaException when parsing fails.
+int parseFileMetaData(const std::string& filename, const std::string& metaValue);
+// does not catch parseFileMetaData exception, so consider parseFileMetaDataSize throwing on failure.
+ci::Vec2f parseFileMetaDataSize(const std::string& filename);
+
 int parseFileMetaData( const std::string &filename, const std::string &metaValue ) {
   std::vector<std::string> splitString = ds::split(filename, ".");
 
@@ -114,5 +120,6 @@ ci::Vec2f parseFileMetaDataSize(const std::string &filename) {
 void getFileMetaData(const std::string& filename, std::vector<std::pair<std::string, std::string>>& out) {
 	
 }
+#endif
 
 }

@@ -47,11 +47,6 @@ private:
 						mAttrib;
 };
 
-// throws ParseFileMetaException when parsing fails.
-int parseFileMetaData(const std::string& filename, const std::string& metaValue);
-// does not catch parseFileMetaData exception, so consider parseFileMetaDataSize throwing on failure.
-ci::Vec2f parseFileMetaDataSize(const std::string& filename);
-
 template <typename T>
 T FileMetaData::findValueType(const std::string& key, const T error) const {
 	const std::string&	v = findValue(key);
