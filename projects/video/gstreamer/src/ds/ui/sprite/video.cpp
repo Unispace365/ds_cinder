@@ -6,7 +6,6 @@
 #include <ds/debug/logger.h>
 #include <ds/math/math_func.h>
 #include <ds/ui/sprite/sprite_engine.h>
-#include <ds/util/file_name_parser.h>
 
 #include "gstreamer/_2RealGStreamerWrapper.h"
 #include "gstreamer/video_meta_cache.h"

@@ -9,7 +9,6 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
-#include "ds/util/file_name_parser.h"
 
 using namespace ci;
 

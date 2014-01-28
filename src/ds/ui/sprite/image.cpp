@@ -9,7 +9,7 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
-#include "ds/util/file_meta_data.h"
+#include "ds/util/image_meta_data.h"
 
 using namespace ci;
 
@@ -66,7 +66,7 @@ Image::Image(SpriteEngine& engine, const std::string &filename, const int flags)
 	setUseShaderTextuer(true);
 
 	{
-		ImageFileAtts			atts(filename);
+		ImageMetaData			atts(filename);
 		Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
 	}
 
@@ -155,7 +155,7 @@ Image& Image::setResourceFilename( const std::string &filename ) {
 	setStatus(Status::STATUS_EMPTY);
 
 	if (!filename.empty()) {
-		ImageFileAtts			atts(filename);
+		ImageMetaData			atts(filename);
 		Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
 	}
 	return *this;
