@@ -1,0 +1,46 @@
+<settings>
+	<!-- Example engine.xml settings file.  -->
+	
+	<!-- The project path determines where all local data is stored. By default, the app looks for:
+	local resources in Documents/downstream/resources/(project_path)
+	local settings in Documents/downstream/settings/(project_path)
+	-->
+	<text name="project_path" value="downstream\example" />
+ 	<int name="num_clients" value="1" />
+
+	<text name="server:ip" value="239.255.42.58" />
+	<int name="server:send_port" value="10370" />
+	<int name="server:listen_port" value="10371" />
+
+	<size name="world_dimensions" x="5760" y="2160" />
+	<rect name="local_rect" l="0" r="1366" t="0" b="880" />
+
+	<size name="touch_overlay:dimensions" x="5760" y="2160" />
+	<size name="touch_overlay:offset" x="0" y="0" />
+	<text name="touch_overlay:debug" value="true" />
+
+	<!-- Set to true if you want your app to receive the tuio obects
+		via objectBegan() etc. -->
+	<text name="tuio:receive_objects" value="true" />
+
+	<float name="camera:fov" value="41.95" />
+	<size  name="camera:z_clip" x="-1" y="10000" />
+	<!-- possible values: ortho or perspective. DEPRECATED. -->
+	<text  name="camera:type" value="ortho" />
+	<!-- When > 0, the arrow keys can be used to reposition the camera. -->
+	<float name="camera:arrow_keys" value="0" />
+	
+	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\fidelity\gpw\" />
+	<text name="resource_db" value="db\gpw.sqlite" />
+
+	<float name="frame_rate" value="60" />
+	<float name="tap_threshold" value="10" />
+
+	<!-- full or window (default) -->
+	<text name="screen:mode" value="window" />
+	<text name="screen:always_on_top" value="false" />
+	<!-- title of the window -->
+	<text name="screen:title" value="Downstream Example App" />
+    <point name="window_pos" x="0.0" y="0.0" />
+
+</settings>

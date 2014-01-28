@@ -54,21 +54,31 @@ App::App(const std::vector<int>* roots)
 	, mSecondMouseDown(false)
 	, mQKeyEnabled(false)
 	, mEscKeyEnabled(false)
+	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
+	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
-  // Initialize each sprite type with a unique blob handler for network communication.
-  mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Sprite::installAsServer(r);},
-                        [](ds::BlobRegistry& r){ds::ui::Sprite::installAsClient(r);});
-  mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Image::installAsServer(r);},
-                        [](ds::BlobRegistry& r){ds::ui::Image::installAsClient(r);});
-  mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
-                        [](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
-  mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
-                        [](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
+	// Initialize each sprite type with a unique blob handler for network communication.
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Sprite::installAsServer(r);},
+							[](ds::BlobRegistry& r){ds::ui::Sprite::installAsClient(r);});
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Image::installAsServer(r);},
+							[](ds::BlobRegistry& r){ds::ui::Image::installAsClient(r);});
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
+							[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
+							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
 
 	// Initialize the engine image generator typess.
 	ds::ui::ImageArc::install(mEngine.getImageRegistry());
 	ds::ui::ImageFile::install(mEngine.getImageRegistry());
 	ds::ui::ImageResource::install(mEngine.getImageRegistry());
+
+	if (mArrowKeyCameraControl) {
+		// Currently this is necessary for the keyboard commands
+		// that change the screen rect. I don't understand things
+		// well enough to know why this is a problem or what turning
+		// it off could be doing, but everything LOOKS fine.
+		mEngine.disableSetViewport();
+	}
 
 	// Verify that the application has included the framework resources.
 	try {
@@ -85,11 +95,10 @@ App::App(const std::vector<int>* roots)
 	startups.clear();
 }
 
-App::~App()
-{
-  delete &(mEngine);
-  ds::getLogger().shutDown();
-  DS_DBG_CODE(GLOBAL_CONSOLE.destroy());
+App::~App() {
+	delete &(mEngine);
+	ds::getLogger().shutDown();
+	DS_DBG_CODE(GLOBAL_CONSOLE.destroy());
 }
 
 void App::prepareSettings(Settings *settings)
@@ -193,12 +202,33 @@ const std::string& App::envAppDataPath() {
 	return APP_DATA_PATH;
 }
 
-void App::keyDown( KeyEvent event )
-{
-  if ( ( mEscKeyEnabled && event.getCode() == KeyEvent::KEY_ESCAPE ) || ( mQKeyEnabled && event.getCode() == KeyEvent::KEY_q ) )
-    std::exit(0);
-  if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_RCTRL )
-    mCtrlDown = true;
+void App::keyDown(KeyEvent e) {
+	const int		code = e.getCode();
+	if ( ( mEscKeyEnabled && code == KeyEvent::KEY_ESCAPE ) || ( mQKeyEnabled && code == KeyEvent::KEY_q ) ) {
+		std::exit(0);
+	}
+	if (code == KeyEvent::KEY_LCTRL || code == KeyEvent::KEY_RCTRL) {
+		mCtrlDown = true;
+	}
+	if (mArrowKeyCameraControl) {
+		if (code == KeyEvent::KEY_LEFT) {
+			mEngineData.mScreenRect.x1 -= mArrowKeyCameraStep;
+			mEngineData.mScreenRect.x2 -= mArrowKeyCameraStep;
+			mEngineData.mCameraDirty = true;
+		} else if (code == KeyEvent::KEY_RIGHT) {
+			mEngineData.mScreenRect.x1 += mArrowKeyCameraStep;
+			mEngineData.mScreenRect.x2 += mArrowKeyCameraStep;
+			mEngineData.mCameraDirty = true;
+		} else if (code == KeyEvent::KEY_UP) {
+			mEngineData.mScreenRect.y1 -= mArrowKeyCameraStep;
+			mEngineData.mScreenRect.y2 -= mArrowKeyCameraStep;
+			mEngineData.mCameraDirty = true;
+		} else if (code == KeyEvent::KEY_DOWN) {
+			mEngineData.mScreenRect.y1 += mArrowKeyCameraStep;
+			mEngineData.mScreenRect.y2 += mArrowKeyCameraStep;
+			mEngineData.mCameraDirty = true;
+		}
+	}
 }
 
 void App::keyUp( KeyEvent event )

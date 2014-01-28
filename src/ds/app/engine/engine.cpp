@@ -42,6 +42,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mSettings(settings)
 	, mCameraPerspNearPlane(1.0f)
 	, mCameraPerspFarPlane(1000.0f)
+	, mSetViewport(true)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const TouchEvent& e) {this->mTouchManager.touchesBegin(e);})
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const TouchEvent& e) {this->mTouchManager.touchesMoved(e);})
 	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const TouchEvent& e) {this->mTouchManager.touchesEnded(e);})
@@ -92,8 +93,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
   
 	mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(1.0f, 1000.0f));
 	mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
-
-	mScreenToWorld.setScreenSize(mData.mScreenRect.getWidth(), mData.mScreenRect.getHeight());
 
 	const bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
 
@@ -250,10 +249,11 @@ void Engine::updateServer() {
 	}
 }
 
-void Engine::setCamera(const bool perspective)
-{
-	if(!perspective){
-		ci::gl::setViewport(Area((int)mData.mScreenRect.getX1(), (int)mData.mScreenRect.getY2(), (int)mData.mScreenRect.getX2(), (int)mData.mScreenRect.getY1()));
+void Engine::setCamera(const bool perspective) {
+	if (!perspective) {
+		if (mSetViewport) {
+			ci::gl::setViewport(Area((int)mData.mScreenRect.getX1(), (int)mData.mScreenRect.getY2(), (int)mData.mScreenRect.getX2(), (int)mData.mScreenRect.getY1()));
+		}
 		mCamera.setOrtho(mData.mScreenRect.getX1(), mData.mScreenRect.getX2(), mData.mScreenRect.getY2(), mData.mScreenRect.getY1(), -1, 1);
 		//gl::setMatrices(mCamera);
 	} else {
@@ -274,17 +274,16 @@ void Engine::setPerspectiveCameraPlanes(const float nearPlane, const float farPl
 }
 
 void Engine::setCameraForDraw(const bool perspective){
-	if(!perspective){
+	if (!perspective) {
 		//mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
-    ci::gl::setMatrices(mCamera);
-    ci::gl::disableDepthRead();
-    ci::gl::disableDepthWrite();
+		ci::gl::setMatrices(mCamera);
+		ci::gl::disableDepthRead();
+		ci::gl::disableDepthWrite();
 	} else {
-    ci::gl::setMatrices(mCameraPersp);
-		mScreenToWorld.update();
-    // enable the depth buffer (after all, we are doing 3D)
-    //gl::enableDepthRead();
-    //gl::enableDepthWrite();
+		ci::gl::setMatrices(mCameraPersp);
+		// enable the depth buffer (after all, we are doing 3D)
+		//gl::enableDepthRead();
+		//gl::enableDepthWrite();
 		//gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
 	}
 }
@@ -304,86 +303,93 @@ void Engine::registerForTuioObjects(tuio::Client& client) {
 	}
 }
 
-void Engine::drawClient()
-{
-  glAlphaFunc ( GL_GREATER, 0.001f ) ;
-  glEnable ( GL_ALPHA_TEST ) ;
+void Engine::drawClient() {
+	glAlphaFunc ( GL_GREATER, 0.001f ) ;
+	glEnable ( GL_ALPHA_TEST ) ;
 
-  if (mApplyFxAA) {
-    {
-      ci::gl::SaveFramebufferBinding bindingSaver;
-
-      // bind the framebuffer - now everything we draw will go there
-      mFbo.bindFramebuffer();
-
-      ci::gl::enableAlphaBlending();
-      //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-      ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+	if (mApplyFxAA) {
+		{
+			ci::gl::SaveFramebufferBinding bindingSaver;
+			// bind the framebuffer - now everything we draw will go there
+			mFbo.bindFramebuffer();
+			ci::gl::enableAlphaBlending();
+			//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+			ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 			for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 				ds::ui::Sprite*			s = (*it);
-				setCameraForDraw(s->getPerspective());
+				if (mData.mCameraDirty) {
+					setCamera(s->getPerspective());
+				} else {
+					setCameraForDraw(s->getPerspective());
+				}
 				s->drawClient(ci::gl::getModelView(), mDrawParams);
 			}
+			mData.mCameraDirty = false;
 
-      if (mDrawTouches)
-        mTouchManager.drawTouches();
+			if (mDrawTouches) {
+				mTouchManager.drawTouches();
+			}
+			mFbo.unbindFramebuffer();
+		}
+		ci::gl::enableAlphaBlending();
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		setCamera();
+		ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+		//   gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+		Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
 
-      mFbo.unbindFramebuffer();
-    }
+		static ci::gl::GlslProg shader;
+		if (!shader) {
+			std::string location = ds::Environment::getAppFolder("data/shaders");
+			std::string name = "fxaa";
+			try {
+				shader = ci::gl::GlslProg(ci::loadFile((location+"/"+name+".vert").c_str()), ci::loadFile((location+"/"+name+".frag").c_str()));
+			} catch (std::exception &e) {
+				std::cout << e.what() << std::endl;
+			}
+		}
 
-    ci::gl::enableAlphaBlending();
-    glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-    setCamera();
-    ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
- //   gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
-    Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
+		if (shader) {
+			shader.bind();
+			mFbo.bindTexture();
+			shader.uniform("tex0", 0);
+			shader.uniform("texcoordOffset", ci::Vec2f(1.0f / getWidth(), 1.0f / getHeight()));
+			shader.uniform("FXAA_SPAN_MAX", mFxAASpanMax);
+			shader.uniform("FXAA_REDUCE_MUL", 1.0f / mFxAAReduceMul);
+			shader.uniform("FXAA_REDUCE_MIN", 1.0f / mFxAAReduceMin);
 
-    static ci::gl::GlslProg shader;
-    if (!shader) {
-      std::string location = ds::Environment::getAppFolder("data/shaders");
-      std::string name = "fxaa";
-      try {
-        shader = ci::gl::GlslProg(ci::loadFile((location+"/"+name+".vert").c_str()), ci::loadFile((location+"/"+name+".frag").c_str()));
-      } catch (std::exception &e) {
-        std::cout << e.what() << std::endl;
-      }
-    }
+			//gl::draw( mFbo.getTexture(0), screen );
+			ci::gl::drawSolidRect(screen);
 
-    if (shader) {
-      shader.bind();
-      mFbo.bindTexture();
-      shader.uniform("tex0", 0);
-      shader.uniform("texcoordOffset", ci::Vec2f(1.0f / getWidth(), 1.0f / getHeight()));
-      shader.uniform("FXAA_SPAN_MAX", mFxAASpanMax);
-      shader.uniform("FXAA_REDUCE_MUL", 1.0f / mFxAAReduceMul);
-      shader.uniform("FXAA_REDUCE_MIN", 1.0f / mFxAAReduceMin);
-
-      //gl::draw( mFbo.getTexture(0), screen );
-      ci::gl::drawSolidRect(screen);
-
-      mFbo.unbindTexture();
-      shader.unbind();
-    } else {
-      ci::gl::draw( mFbo.getTexture(0), screen );
-    }
-  } else {	  
-    ci::gl::enableAlphaBlending();
-    //glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-    ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+			mFbo.unbindTexture();
+			shader.unbind();
+		} else {
+			ci::gl::draw( mFbo.getTexture(0), screen );
+		}
+	} else {	  
+		ci::gl::enableAlphaBlending();
+		//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
+		ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 		for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 			ds::ui::Sprite*			s = (*it);
-			setCameraForDraw(s->getPerspective());
+			if (mData.mCameraDirty) {
+				setCamera(s->getPerspective());
+			} else {
+				setCameraForDraw(s->getPerspective());
+			}
 			if (s->getPerspective()) glClear(GL_DEPTH_BUFFER_BIT);
 			s->drawClient(ci::gl::getModelView(), mDrawParams);
 		}
+		mData.mCameraDirty = false;
 
-    if (mDrawTouches)
-      mTouchManager.drawTouches();
-  }
+		if (mDrawTouches) {
+			mTouchManager.drawTouches();
+		}
+	}
 
-  glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
+	glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
 }
 
 void Engine::drawServer() {
@@ -599,19 +605,20 @@ void Engine::setPerspectiveCameraPosition( const ci::Vec3f &pos )
   mCameraPersp.setEyePoint(pos);
 }
 
-ci::Vec3f Engine::getPerspectiveCameraPosition() const
-{
-  return mCameraPersp.getEyePoint();
+ci::Vec3f Engine::getPerspectiveCameraPosition() const {
+	return mCameraPersp.getEyePoint();
 }
 
-void Engine::setPerspectiveCameraTarget( const ci::Vec3f &tar )
-{
-  mCameraPersp.setCenterOfInterestPoint(tar);
+void Engine::setPerspectiveCameraTarget( const ci::Vec3f &tar ) {
+	mCameraPersp.setCenterOfInterestPoint(tar);
 }
 
-ci::Vec3f Engine::getPerspectiveCameraTarget() const
-{
-  return mCameraPersp.getCenterOfInterestPoint();
+ci::Vec3f Engine::getPerspectiveCameraTarget() const {
+	return mCameraPersp.getCenterOfInterestPoint();
+}
+
+void Engine::disableSetViewport() {
+	mSetViewport = false;
 }
 
 void Engine::deleteRequestedSprites() {

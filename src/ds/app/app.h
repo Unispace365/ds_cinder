@@ -43,7 +43,7 @@ public:
     virtual void                keyDown( KeyEvent event );
     virtual void                keyUp( KeyEvent event );
     virtual void                prepareSettings(Settings*);
-    virtual void				      setup();
+    virtual void				setup();
     // This is where client applications would setup the initial UI.
     virtual void                setupServer()     { }
     virtual void	    			    update();
@@ -76,6 +76,9 @@ public:
     bool                        mSecondMouseDown;
 	bool						mQKeyEnabled;
 	bool						mEscKeyEnabled;
+	// When enabled, the arrow keys will move the camera.
+	const float					mArrowKeyCameraStep;
+	const bool					mArrowKeyCameraControl;
 };
 
 } // namespace ds
