@@ -34,9 +34,9 @@ namespace ds {
 			void				play();
 			void				stop();
 			void				pause();
-			void				seek(float t);
-			double				duration();
-			double				currentTime();
+			void				seek(float t); // seek to this in miliseconds
+			double				duration(); // duration in miliseconds
+			double				currentTime(); // current play percentage (why the hell is this percentage when it says time?)
 			bool				isPlaying();
 			void				loop(bool flag);
 			bool				isLooping() const;

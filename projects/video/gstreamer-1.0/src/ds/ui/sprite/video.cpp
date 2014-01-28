@@ -166,8 +166,7 @@ namespace ds {
 				return *this;
 			}
 
-			try
-			{
+			try	{
 				int videoWidth = (int)getWidth();
 				int videoHeight = (int)getHeight();
 				if(videoWidth < 1 || videoHeight < 1){

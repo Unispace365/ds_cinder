@@ -4,6 +4,7 @@
 #include <Poco/File.h>
 #include <Poco/String.h>
 #include "ds/debug/debug_defines.h"
+#include "ds/util/string_util.h"
 
 static bool check_bool(const std::string& text, const bool defaultValue);
 
@@ -233,6 +234,14 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
     add_item(name, mText, value);
   }
 
+  // TEXTW
+  const std::string  TEXTW_PATH("settings/wtext");
+  for (auto it = xml.begin(TEXTW_PATH); it != end; ++it) {
+	  const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
+	  const std::wstring       value = ds::wstr_from_utf8( it->getAttributeValue<std::string>(VALUE_SZ));
+	  add_item(name, mTextW, value);
+  }
+
   // POINT
   const std::string  POINT_PATH("settings/point");
   for (auto it = xml.begin(POINT_PATH); it != end; ++it) {
@@ -411,7 +420,7 @@ std::string Settings::getText(const std::string& name, const int index, const st
 
 std::wstring Settings::getTextW(const std::string& name, const int index, const std::wstring& defaultValue) const
 {
-	return get(name, mTextW, index, defaultValue, TEXT_NAME);
+	return get(name, mTextW, index, defaultValue, TEXTW_NAME);
 }
 
 const ci::Vec3f& Settings::getPoint( const std::string& name, const int index /*= 0*/, const ci::Vec3f& defaultValue ) const

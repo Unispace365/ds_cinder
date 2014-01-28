@@ -40,6 +40,10 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mLoadingAngle(0.0f)
 	, mActive(false)
 	, mTransitionTime(0.35f)
+	, mDrawWhileLoading(false)
+	, mDragScrolling(false)
+	, mDragScrollMinFingers(2)
+	, mClickDown(false)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -88,7 +92,9 @@ void Web::updateServer( const ds::UpdateParams &updateParams ) {
 	Sprite::updateServer(updateParams);
 
 	// create or update our OpenGL Texture from the webview
-	if (mWebViewPtr && !mWebViewPtr->IsLoading() && ph::awesomium::isDirty( mWebViewPtr )) {
+	if (mWebViewPtr 
+		&& (mDrawWhileLoading || !mWebViewPtr->IsLoading())
+		&& ph::awesomium::isDirty( mWebViewPtr )) {
 		try {
 			// set texture filter to NEAREST if you don't intend to transform (scale, rotate) it
 			ci::gl::Texture::Format fmt; 
@@ -133,21 +139,41 @@ void Web::drawLocalClient()
 
 void Web::handleTouch( const ds::ui::TouchInfo &touchInfo )
 {
-  if (touchInfo.mFingerIndex != 0)
-    return;
+	if (touchInfo.mFingerIndex != 0)
+		return;
 
-  ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
+	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
 
-  if (ds::ui::TouchInfo::Added == touchInfo.mPhase) {
-    ci::app::MouseEvent event(ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
-    sendMouseDownEvent(event);
-  } else if (ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
-    ci::app::MouseEvent event(0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
-    sendMouseDragEvent(event);
-  } else if (ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
-    ci::app::MouseEvent event(ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
-    sendMouseUpEvent(event);
-  }
+	if (ds::ui::TouchInfo::Added == touchInfo.mPhase) {
+		ci::app::MouseEvent event(ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+		sendMouseDownEvent(event);
+		if(mDragScrolling){
+			mClickDown = true;
+		}
+	} else if (ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
+		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
+			if(mWebViewPtr){
+				if(mClickDown){
+					ci::app::MouseEvent uevent(ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
+					sendMouseUpEvent(uevent);
+					mClickDown = false;
+				}
+				float yDelta = touchInfo.mCurrentGlobalPoint.y- mPreviousTouchPos.y;
+				ci::app::MouseEvent event(0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, yDelta, 1);
+				ph::awesomium::handleMouseWheel( mWebViewPtr, event, 1 );
+			
+			}
+		} else {
+			ci::app::MouseEvent event(0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+			sendMouseDragEvent(event);
+		}
+	} else if (ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
+		mClickDown = false;
+		ci::app::MouseEvent event(ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
+		sendMouseUpEvent(event);
+	}
+
+	mPreviousTouchPos = touchInfo.mCurrentGlobalPoint;
 }
 
 void Web::loadUrl(const std::wstring &url) {
@@ -186,14 +212,20 @@ std::string Web::getUrl() {
 }
 
 void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {
+	// untested!
+	if(mWebViewPtr){
+		ph::awesomium::handleKeyDown(mWebViewPtr, event);	
+	}
 }
 
-void Web::sendKeyUpEvent( const ci::app::KeyEvent &event )
-{
+void Web::sendKeyUpEvent( const ci::app::KeyEvent &event ){
+	// untested!
+	if(mWebViewPtr){
+		ph::awesomium::handleKeyUp(mWebViewPtr, event);	
+	}
 }
 
-void Web::sendMouseDownEvent( const ci::app::MouseEvent &event )
-{
+void Web::sendMouseDownEvent( const ci::app::MouseEvent &event ){
 	// send mouse events to Awesomium
 	if (mWebViewPtr) {
 		ci::app::MouseEvent eventMove(0, event.getX(), event.getY(), 0, 0, 0);
@@ -202,24 +234,21 @@ void Web::sendMouseDownEvent( const ci::app::MouseEvent &event )
 	}
 }
 
-void Web::sendMouseDragEvent( const ci::app::MouseEvent &event )
-{
+void Web::sendMouseDragEvent( const ci::app::MouseEvent &event ){
 	// send mouse events to Awesomium
 	if (mWebViewPtr) {
 		ph::awesomium::handleMouseDrag( mWebViewPtr, event );
 	}
 }
 
-void Web::sendMouseUpEvent( const ci::app::MouseEvent &event )
-{
+void Web::sendMouseUpEvent( const ci::app::MouseEvent &event ){
 	// send mouse events to Awesomium
 	if (mWebViewPtr) {
 		ph::awesomium::handleMouseUp( mWebViewPtr, event );
 	}
 }
 
-void Web::activate()
-{
+void Web::activate(){
 	if (mActive) {
 		return;
 	}
@@ -299,6 +328,15 @@ void Web::onSizeChanged() {
 		mWebViewPtr->Resize(w, h);
 	}
 }
+
+bool Web::isLoading(){
+	if(mWebViewPtr && mWebViewPtr->IsLoading()){
+		return true;
+	}
+	return false;
+}
+
+
 
 } // namespace ui
 } // namespace ds

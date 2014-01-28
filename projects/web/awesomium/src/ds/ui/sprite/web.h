@@ -37,13 +37,19 @@ public:
 	void					loadUrl(const std::string &url);
 	std::string				getUrl();
 
+	// untested!
 	void sendKeyDownEvent(const ci::app::KeyEvent &event);
+	// untested!
 	void sendKeyUpEvent(const ci::app::KeyEvent &event);
+
+	// This web sprite handles touch-to-mouse events by default.
+	// Though you can use these to roll your own touch stuff
 	void sendMouseDownEvent(const ci::app::MouseEvent &event);
 	void sendMouseDragEvent(const ci::app::MouseEvent &event);
 	void sendMouseUpEvent(const ci::app::MouseEvent &event);
 
 	bool isActive() const;
+	bool isLoading();
 	void setTransitionTime(const float transitionTime);
 	void activate();
 	void deactivate();
@@ -58,6 +64,13 @@ public:
 	// For now, a simple communication about when the address changes.
 	// In the future I'd like to have a richer mechanism in place.
 	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
+
+	// allows the view to be updated while the page is still being loaded. default=false
+	void					setDrawWhileLoading(const bool doDrawing){ mDrawWhileLoading = doDrawing; }
+
+	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
+	void					setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
+	void					setDragScrollingMinimumFingers(const int numFingers){ mDragScrollMinFingers = numFingers; }
 
 protected:
 	virtual void			onSizeChanged();
@@ -78,6 +91,12 @@ private:
 	float					mLoadingAngle;
 	bool					mActive;
 	float					mTransitionTime;
+	bool					mDrawWhileLoading;
+
+	ci::Vec3f				mPreviousTouchPos;
+	bool					mClickDown;
+	bool					mDragScrolling;
+	int						mDragScrollMinFingers;
 };
 
 } // namespace ui
