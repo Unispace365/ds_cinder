@@ -305,6 +305,7 @@ void Logger::Loop::consume(vector<entry>& ins)
 		logToFile(e, mBuf.str());
 
 		if (e.mLevel == ds::Logger::LOG_FATAL) {
+			std::string		msg = mBuf.str();
 			Poco::Thread::sleep(4*1000);
 			std::terminate();
 		}

@@ -57,16 +57,16 @@ ds::cfg::Settings& EngineCfg::editSettings(const std::string& name) {
 
 const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 	if (name.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getTextCfg() on empty name"));
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty name"));
 		return EMPTY_TEXT_CFG;
 	}
 	if (mTextCfg.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getTextCfg() on empty mTextCfg"));
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty mTextCfg (key=" + name + ")"));
 		return EMPTY_TEXT_CFG;
 	}
 	auto it = mTextCfg.find(name);
 	if (it == mTextCfg.end()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getTextCfg() cfg does not exist"));
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() cfg does not exist"));
 		return EMPTY_TEXT_CFG;
 	}
 	return it->second;
