@@ -164,9 +164,12 @@ void Engine::loadSettings(const std::string& name, const std::string& filename)
 	mData.mEngineCfg.loadSettings(name, filename);
 }
 
-void Engine::loadTextCfg(const std::string& filename)
-{
+void Engine::loadTextCfg(const std::string& filename) {
 	mData.mEngineCfg.loadText(filename);
+}
+
+void Engine::loadNinePatchCfg(const std::string& filename) {
+	mData.mEngineCfg.loadNinePatchCfg(filename);
 }
 
 int Engine::getRootCount() const

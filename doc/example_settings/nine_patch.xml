@@ -1,0 +1,14 @@
+<settings>
+	<!-- Create any number of nine patch entries here. Each entry should have the
+	 values described in the example. For the names of each field, everything before
+	 the last ":" determines the unique key for the nine patch; everything after that
+	 is a key to a specific property of the unique nine patch. -->
+
+	<!-- PANEL BACKGROUND -->
+		<!-- Currently the only valid type is "arc drop shadow" -->
+		<text  name="panel:bg:type" value="arc drop shadow" />
+		<float name="panel:bg:radius" value="4" />
+		<float name="panel:bg:falloff" value="0.5" />
+		<color name="panel:bg:color" r="255" g="255" b="255" a="180" />
+
+</settings>

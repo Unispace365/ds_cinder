@@ -516,6 +516,9 @@
     <ClInclude Include="..\src\ds\data\user_data.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\cfg_nine_patch.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -838,6 +841,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\user_data.cpp">
       <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\cfg_nine_patch.cpp">
+      <Filter>src\ds\cfg</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

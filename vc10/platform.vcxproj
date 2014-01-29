@@ -53,6 +53,7 @@
     <ClInclude Include="..\src\ds\arc\arc_layer.h" />
     <ClInclude Include="..\src\ds\arc\arc_pow.h" />
     <ClInclude Include="..\src\ds\arc\arc_render_circle.h" />
+    <ClInclude Include="..\src\ds\cfg\cfg_nine_patch.h" />
     <ClInclude Include="..\src\ds\cfg\cfg_text.h" />
     <ClInclude Include="..\src\ds\cfg\settings.h" />
     <ClInclude Include="..\src\ds\container\key_value_store.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="..\src\ds\arc\arc_layer.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_pow.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp" />
+    <ClCompile Include="..\src\ds\cfg\cfg_nine_patch.cpp" />
     <ClCompile Include="..\src\ds\cfg\cfg_text.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings.cpp" />
     <ClCompile Include="..\src\ds\container\key_value_store.cpp" />

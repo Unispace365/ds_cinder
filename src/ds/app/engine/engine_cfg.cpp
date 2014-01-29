@@ -4,6 +4,7 @@
 #include "ds/app/environment.h"
 #include "ds/debug/debug_defines.h"
 
+static void read_nine_patch_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::NinePatch>& out);
 static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out);
 
 namespace ds {
@@ -12,6 +13,7 @@ namespace {
 const ds::cfg::Settings		EMPTY_SETTINGS;
 ds::cfg::Settings			EDIT_EMPTY_SETTINGS;
 const ds::cfg::Text			EMPTY_TEXT_CFG;
+const ds::cfg::NinePatch	EMPTY_NINE_PATCH_CFG;
 const std::string			EMPTY_SZ;
 }
 
@@ -80,6 +82,31 @@ bool EngineCfg::hasText(const std::string& name) const {
 	return true;
 }
 
+const ds::cfg::NinePatch& EngineCfg::getNinePatch(const std::string& name) const {
+	if (name.empty()) {
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getNinePatch() on empty name"));
+		return EMPTY_NINE_PATCH_CFG;
+	}
+	if (mNinePatchCfg.empty()) {
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getNinePatch() on empty mNinePatchCfg (key=" + name + ")"));
+		return EMPTY_NINE_PATCH_CFG;
+	}
+	auto it = mNinePatchCfg.find(name);
+	if (it == mNinePatchCfg.end()) {
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getNinePatch() cfg does not exist"));
+		return EMPTY_NINE_PATCH_CFG;
+	}
+	return it->second;
+}
+
+bool EngineCfg::hasNinePatch(const std::string& name) const {
+	if (name.empty()) return false;
+	if (mNinePatchCfg.empty()) return false;
+	auto it = mNinePatchCfg.find(name);
+	if (it == mNinePatchCfg.end()) return  false;
+	return true;
+}
+
 void EngineCfg::loadSettings(const std::string& name, const std::string& filename) {
 	ds::cfg::Settings&	settings = mSettings[name];
 	ds::Environment::loadSettings(filename, settings);
@@ -88,6 +115,11 @@ void EngineCfg::loadSettings(const std::string& name, const std::string& filenam
 void EngineCfg::loadText(const std::string& filename) {
 	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextCfg);
 	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextCfg);
+}
+
+void EngineCfg::loadNinePatchCfg(const std::string& filename) {
+	read_nine_patch_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mNinePatchCfg);
+	read_nine_patch_cfg(ds::Environment::getLocalSettingsPath(filename), mNinePatchCfg);
 }
 
 } // namespace ds
@@ -102,6 +134,60 @@ static bool split_key(const std::string& key, std::string& left, std::string& ri
 		return !left.empty() && !right.empty();
 	}
 	return false;
+}
+
+static ds::cfg::NinePatch::Type type_from(const std::string& v) {
+	const std::string		s = Poco::toLower(v);
+	if (s == "arc drop shadow") return ds::cfg::NinePatch::ARC_DROP_SHADOW;
+	return ds::cfg::NinePatch::EMPTY; 
+}
+
+static void read_nine_patch_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::NinePatch>& out) {
+	ds::cfg::Settings		s;
+	s.readFrom(path, false);
+
+	// Do the type first, because that determines whether an entry exists.
+	s.forEachTextKey([&s, &out](const std::string& key) {
+		std::string			left, right;
+		if (split_key(key, left, right) && right == "type") {
+			ds::cfg::NinePatch::Type type = type_from(s.getText(key, 0, ds::EMPTY_SZ));
+			if (type != ds::cfg::NinePatch::EMPTY) {
+				if (out.empty()) {
+					out[left] = ds::cfg::NinePatch(type);
+				} else {
+					auto	found = out.find(left);
+					if (found != out.end()) {
+						found->second.mType = type;
+					} else {
+						out[left] = ds::cfg::NinePatch(type);
+					}
+				}
+			}
+		}
+	});
+
+	// Floats
+	s.forEachFloatKey([&s, &out](const std::string& key) {
+		std::string			left, right;
+		if (split_key(key, left, right) && !out.empty()) {
+			auto			found = out.find(left);
+			if (found != out.end()) {
+				found->second.mStore.setFloat(right, s.getFloat(key, 0, 0.0f));
+			}
+		}
+	});
+
+	// Color (color)
+	s.forEachColorAKey([&s, &out](const std::string& key) {
+		std::string			left, right;
+		if (split_key(key, left, right) && !out.empty()) {
+			auto			found = out.find(left);
+			if (found != out.end()) {
+				found->second.mStore.setColorA(right, s.getColorA(key, 0, ci::ColorA()));
+			}
+		}
+	});
+
 }
 
 static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out) {
