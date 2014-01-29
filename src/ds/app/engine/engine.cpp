@@ -620,8 +620,24 @@ ci::Vec3f Engine::getPerspectiveCameraTarget() const {
 	return mCameraPersp.getCenterOfInterestPoint();
 }
 
-void Engine::disableSetViewport() {
+namespace {
+ci::app::MouseEvent offset_mouse_event(const ci::app::MouseEvent& e, const ci::Rectf& offset) {
+	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
+	// Currently I believe that's fine -- and since our target is touch platforms without those things
+	// hopefully it always will be.
+	return ci::app::MouseEvent(	0, e.getX() + static_cast<int>(offset.x1), e.getY() + static_cast<int>(offset.y1),
+								0, e.getWheelIncrement(), e.getNativeModifiers());
+}
+
+}
+
+void Engine::setToUserCamera() {
 	mSetViewport = false;
+
+	// When using a user camera, offset the event inputs.
+	mMouseBeginEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchBegin(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
+	mMouseMovedEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchMoved(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
+	mMouseEndEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchEnded(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
 }
 
 void Engine::deleteRequestedSprites() {

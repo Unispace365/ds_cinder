@@ -118,11 +118,12 @@ public:
 	virtual ci::Vec3f					getPerspectiveCameraPosition() const;
 	virtual void						setPerspectiveCameraTarget(const ci::Vec3f &tar);
 	virtual ci::Vec3f					getPerspectiveCameraTarget() const;
+	// Modal -- prepare for the user to be able to move the camera.
 	// I discovered there's a call to setViewport() when the camera is set up that *seems* to
 	// do nothing except prevent me from dynamically changing the camera bounds. However, I
 	// know I'll discover it's significance at some point down the road, so this just lets
 	// specific apps turn off this behaviour.
-	void								disableSetViewport();
+	void								setToUserCamera();
 	
 	// Tmp
 	ci::CameraPersp&					getPerspectiveCamera() { return mCameraPersp; }

@@ -358,6 +358,14 @@ const ci::Vec3f& Sprite::getPosition() const {
     return mPosition;
 }
 
+ci::Vec3f Sprite::getCenterPosition() const {
+	return mPosition + getLocalCenterPosition();
+}
+ 
+ci::Vec3f Sprite::getLocalCenterPosition() const {
+	return ci::Vec3f(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
+}
+
 void Sprite::setScale( float x, float y, float z ) {
 	doSetScale(ci::Vec3f(x, y, z));
 }

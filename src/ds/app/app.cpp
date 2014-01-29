@@ -77,7 +77,7 @@ App::App(const std::vector<int>* roots)
 		// that change the screen rect. I don't understand things
 		// well enough to know why this is a problem or what turning
 		// it off could be doing, but everything LOOKS fine.
-		mEngine.disableSetViewport();
+		mEngine.setToUserCamera();
 	}
 
 	// Verify that the application has included the framework resources.

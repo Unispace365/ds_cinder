@@ -21,6 +21,8 @@ public:
 	EngineTouchQueue(	std::mutex&, float& lastTouchTime, bool& idling,
 						const std::function<void(const T&)>&);
 
+	void					setUpdateFn(const std::function<void(const T&)>&);
+
 	// Call this as new events arrive. I will handle locking
 	void					incoming(const T&);
 
@@ -52,6 +54,11 @@ EngineTouchQueue<T>::EngineTouchQueue(	std::mutex& m, float& lastTouchTime, bool
 		, mUpdateFn(updateFn) {
 	mIncoming.reserve(32);
 	mUpdating.reserve(32);
+}
+
+template <typename T>
+void EngineTouchQueue<T>::setUpdateFn(const std::function<void(const T&)>& fn) {
+	mUpdateFn = fn;
 }
 
 template <typename T>
