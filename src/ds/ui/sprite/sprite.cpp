@@ -515,6 +515,12 @@ void Sprite::removeParent()
     }
 }
 
+void Sprite::remove()
+{
+    clearChildren();
+    removeParent();
+}
+
 bool Sprite::containsChild( Sprite *child ) const
 {
     auto found = std::find(mChildren.begin(), mChildren.end(), child);
@@ -565,12 +571,6 @@ void Sprite::buildTransform() const
     //mTransformation.translate(Vec3f(mPosition.x, mPosition.y, 1.0f));
 
     mInverseTransform = mTransformation.inverted();
-}
-
-void Sprite::remove()
-{
-    clearChildren();
-    removeParent();
 }
 
 void Sprite::setSizeAll( float width, float height, float depth )

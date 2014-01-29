@@ -130,6 +130,8 @@ public:
 	void					setParent( Sprite *parent );
 	// remove child from parent, does not delete.
 	void					removeParent();
+	// removes Sprite from parent and deletes all children. Does not delete Sprite.
+	void					remove();
 
 	// check to see if Sprite contains child
 	bool					containsChild( Sprite *child ) const;
@@ -163,9 +165,6 @@ public:
 	bool					visible() const;
 
 	int						getType() const;
-
-	// removes Sprite from parent and deletes all children. Does not delete Sprite.
-	void					remove();
 
 	// check to see if Sprite can be touched
 	void					enable(bool flag);
