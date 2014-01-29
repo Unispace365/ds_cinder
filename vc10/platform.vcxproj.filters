@@ -519,6 +519,9 @@
     <ClInclude Include="..\src\ds\cfg\cfg_nine_patch.h">
       <Filter>src\ds\cfg</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_map.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -844,6 +847,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\cfg\cfg_nine_patch.cpp">
       <Filter>src\ds\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_map.cpp">
+      <Filter>src\ds\arc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

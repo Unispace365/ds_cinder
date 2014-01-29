@@ -28,14 +28,17 @@ ImageDropShadow::ImageDropShadow(const float radius, const float falloff, const 
 /**
  * \class ds::ui::ImageDropShadow
  */
-ImageDropShadow::ImageDropShadow(	const float radius, const float falloff,
+ImageDropShadow::ImageDropShadow(	const float radius,
+									const float falloff,
 									const ci::Vec2f& offset,
-									const ci::ColorA& color)
+									const ci::ColorA& color,
+									const float border)
 	: ImageArc(static_cast<int>(radius*2.0f)+1, static_cast<int>(radius*2.0f)+1, "resource:drop_shadow")
 {
 	addColorInput(color);
 	addFloatInput(falloff);
 	addVec2Input(ci::Vec2d(offset.x, offset.y));
+	addFloatInput(border);
 }
 
 } // namespace ui

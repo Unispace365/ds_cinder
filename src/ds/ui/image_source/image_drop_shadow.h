@@ -33,9 +33,12 @@ public:
 	 * \param falloff is how quickly the shadow decays.
 	 * \param offset is an offset from 0,0
 	 * \param color is the color of the drop shadow.
+	 * \param border lets you control the border thickness before the shading
+	 * kicks in; at 1 there is no border, you can go up anywhere from there.
 	 */
 	ImageDropShadow(const float radius, const float falloff,
-					const ci::Vec2f& offset, const ci::ColorA& color);
+					const ci::Vec2f& offset, const ci::ColorA& color,
+					const float border = 1.0);
 };
 
 } // namespace ui

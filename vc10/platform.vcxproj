@@ -51,6 +51,7 @@
     <ClInclude Include="..\src\ds\arc\arc_input.h" />
     <ClInclude Include="..\src\ds\arc\arc_io.h" />
     <ClInclude Include="..\src\ds\arc\arc_layer.h" />
+    <ClInclude Include="..\src\ds\arc\arc_map.h" />
     <ClInclude Include="..\src\ds\arc\arc_pow.h" />
     <ClInclude Include="..\src\ds\arc\arc_render_circle.h" />
     <ClInclude Include="..\src\ds\cfg\cfg_nine_patch.h" />
@@ -180,6 +181,7 @@
     <ClCompile Include="..\src\ds\arc\arc_input.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_io.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_layer.cpp" />
+    <ClCompile Include="..\src\ds\arc\arc_map.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_pow.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp" />
     <ClCompile Include="..\src\ds\cfg\cfg_nine_patch.cpp" />

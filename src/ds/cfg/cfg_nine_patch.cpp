@@ -11,6 +11,7 @@ const std::string	EMPTY_SZ("");
 const std::string	RADIUS_SZ("radius");
 const std::string	FALLOFF_SZ("falloff");
 const std::string	COLOR_SZ("color");
+const std::string	BORDER_SZ("border");
 const float			DEFAULT_RADIUS(5.0f);
 const char*			CREATE_ERROR = "ds::cfg::NinePatch can't create NinePatch sprite";
 }
@@ -44,9 +45,10 @@ ds::ui::NinePatch& NinePatch::createOrThrow(ds::ui::SpriteEngine& se, ds::ui::Sp
 void NinePatch::configure(ds::ui::NinePatch& s) const {
 	if (mType == ARC_DROP_SHADOW) {
 		const float			radius = mStore.getFloat(RADIUS_SZ, 0, DEFAULT_RADIUS),
-							falloff = mStore.getFloat(FALLOFF_SZ, 0, 1.0f);
+							falloff = mStore.getFloat(FALLOFF_SZ, 0, 1.0f),
+							border = mStore.getFloat(BORDER_SZ, 0, 1.0f);
 		const ci::ColorA	clr = mStore.getColorA(COLOR_SZ, 0, ci::ColorA(1.0f, 1.0f, 1.0f));
-		s.setImage(ds::ui::ImageDropShadow(radius, falloff, ci::Vec2f(0.0f, 0.0f), clr));
+		s.setImage(ds::ui::ImageDropShadow(radius, falloff, ci::Vec2f(0.0f, 0.0f), clr, border));
 	}
 }
 

@@ -7,17 +7,14 @@ namespace arc {
  * ds::arc::Pow
  */
 Pow::Pow()
-	: mExp(1.0)
-{
+		: mExp(1.0) {
 }
 
-double Pow::run(const Input& input, const double v) const
-{
+double Pow::run(const Input& input, const double v) const {
 	return pow(v, mExp.getValue(input));
 }
 
-void Pow::readXml(const ci::XmlTree& xml)
-{
+void Pow::readXml(const ci::XmlTree& xml) {
 	mExp = FloatParam(1.0);
 
 	for (auto it=xml.begin(), end=xml.end(); it != end; ++it) {

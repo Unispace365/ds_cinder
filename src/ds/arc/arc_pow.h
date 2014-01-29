@@ -29,4 +29,4 @@ private:
 } // namespace arc
 } // namespace ds
 
-#endif // DS_ARC_ARCRENDER_H_
+#endif // DS_ARC_ARCPOW_H_

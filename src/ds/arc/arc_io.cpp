@@ -6,6 +6,7 @@
 // arc classes
 #include "ds/arc/arc_chain.h"
 #include "ds/arc/arc_layer.h"
+#include "ds/arc/arc_map.h"
 #include "ds/arc/arc_pow.h"
 
 namespace ds {
@@ -50,6 +51,7 @@ std::unique_ptr<Arc>		load(const std::string& filename) {
 std::unique_ptr<Arc>		create(const std::string& classname)
 {
 	if (classname == "chain") return std::unique_ptr<Arc>(new ds::arc::Chain());
+	if (classname == "map") return std::unique_ptr<Arc>(new ds::arc::Map());
 	if (classname == "pow") return std::unique_ptr<Arc>(new ds::arc::Pow());
 	return nullptr;
 }
