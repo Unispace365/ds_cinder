@@ -151,8 +151,14 @@ void Sprite::init(const ds::sprite_id_t id)
 }
 
 Sprite::~Sprite() {
-    remove();
-    setSpriteId(0);
+    setSpriteId(ds::EMPTY_SPRITE_ID);
+	// Parent management should have happened before we get to the delete.
+//    remove();
+
+	for (auto it=mChildren.begin(), end=mChildren.end(); it!=end; ++it) {
+		delete (*it);
+	}
+	mChildren.clear();
 }
 
 void Sprite::updateClient( const UpdateParams &updateParams )
@@ -496,8 +502,7 @@ void Sprite::removeChild( Sprite &child )
     }
 }
 
-void Sprite::setParent( Sprite *parent )
-{
+void Sprite::setParent( Sprite *parent ) {
     removeParent();
     mParent = parent;
     if (mParent)
@@ -505,20 +510,22 @@ void Sprite::setParent( Sprite *parent )
     markAsDirty(PARENT_DIRTY);
 }
 
-void Sprite::removeParent()
-{
-    if ( mParent )
-    {
-        mParent->removeChild(*this);
-        mParent = nullptr;
-        markAsDirty(PARENT_DIRTY);
-    }
+void Sprite::removeParent() {
+	if (mParent) {
+		mParent->removeChild(*this);
+		mParent = nullptr;
+		markAsDirty(PARENT_DIRTY);
+	}
 }
 
-void Sprite::remove()
-{
+void Sprite::remove() {
     clearChildren();
     removeParent();
+}
+
+void Sprite::release() {
+	removeParent();
+	delete this;
 }
 
 bool Sprite::containsChild( Sprite *child ) const
@@ -544,6 +551,18 @@ void Sprite::clearChildren()
       (*it)->setParent(nullptr);
       delete *it;
     }
+}
+
+void Sprite::forEachChild(const std::function<void(Sprite&)>& fn, const bool recurse) {
+	if (!fn) return;
+
+    for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
+		Sprite*		s(*it);
+		if (s) {
+			fn(*s);
+			if (recurse) s->forEachChild(fn, recurse);
+		}
+	}
 }
 
 void Sprite::buildTransform() const
@@ -1308,14 +1327,13 @@ void Sprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
 {
 }
 
-void Sprite::setSpriteId(const ds::sprite_id_t& id)
-{
-  if (mId == id) return;
+void Sprite::setSpriteId(const ds::sprite_id_t& id) {
+	if (mId == id) return;
 
-  if (mId != ds::EMPTY_SPRITE_ID) mEngine.unregisterSprite(*this);
-  mId = id;
-  if (mId != ds::EMPTY_SPRITE_ID) mEngine.registerSprite(*this);
-  markAsDirty(ID_DIRTY);
+	if (mId != ds::EMPTY_SPRITE_ID) mEngine.unregisterSprite(*this);
+	mId = id;
+	if (mId != ds::EMPTY_SPRITE_ID) mEngine.registerSprite(*this);
+	markAsDirty(ID_DIRTY);
 }
 
 void Sprite::setFlag(const int newBit, const bool on, const DirtyState& dirty, int& oldFlags)

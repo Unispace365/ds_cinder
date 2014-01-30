@@ -132,11 +132,17 @@ public:
 	void					removeParent();
 	// removes Sprite from parent and deletes all children. Does not delete Sprite.
 	void					remove();
+	// OK, sprite/child management has become REALLY messy. And the painful thing
+	// is none of the existing functions manage memory -- you still need to delete,
+	// and I don't know that anyone does. So this function is intended to remove
+	// myself from my parent, delete all children, and delete myself.
+	void					release();
 
 	// check to see if Sprite contains child
 	bool					containsChild( Sprite *child ) const;
 	// removes and deletes all children
 	void					clearChildren();
+	void					forEachChild(const std::function<void(Sprite&)>&, const bool recurse = false);
 
 	// sends sprite to front of parents child list.
 	void					sendToFront();
