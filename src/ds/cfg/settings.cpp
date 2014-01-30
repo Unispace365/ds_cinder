@@ -441,6 +441,12 @@ void Settings::forEachIntKey(const std::function<void(const std::string&)>& fn) 
 	for (auto it=mInt.begin(), end=mInt.end(); it != end; ++it) fn(it->first);
 }
 
+void Settings::forEachSizeKey(const std::function<void(const std::string&)>& fn) const {
+	if (!fn || mSize.empty()) return;
+
+	for (auto it=mSize.begin(), end=mSize.end(); it != end; ++it) fn(it->first);
+}
+
 void Settings::forEachTextKey(const std::function<void(const std::string&)>& fn) const {
 	if (!fn || mText.empty()) return;
 

@@ -70,6 +70,7 @@ public:
 	void								forEachColorAKey(const std::function<void(const std::string&)>&) const;
 	void								forEachFloatKey(const std::function<void(const std::string&)>&) const;
 	void								forEachIntKey(const std::function<void(const std::string&)>&) const;
+	void								forEachSizeKey(const std::function<void(const std::string&)>&) const;
 	void								forEachTextKey(const std::function<void(const std::string&)>&) const;
 
 private:
