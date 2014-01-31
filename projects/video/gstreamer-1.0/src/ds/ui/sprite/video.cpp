@@ -1,12 +1,12 @@
 #include "ds/ui/sprite/video.h"
 
 #include <cinder/Camera.h>
+#include <ds/app/app.h>
 #include <ds/data/resource_list.h>
 #include <ds/debug/debug_defines.h>
 #include <ds/debug/logger.h>
 #include <ds/math/math_func.h>
 #include <ds/ui/sprite/sprite_engine.h>
-//#include <ds/util/file_name_parser.h>
 
 #include "gstreamer/_2RealGStreamerWrapper.h"
 #include "gstreamer/video_meta_cache.h"
@@ -14,6 +14,36 @@
 using namespace ci;
 
 using namespace _2RealGStreamerWrapper;
+
+namespace {
+// Statically initialize in the app thread.
+class Init {
+public:
+	Init() {
+		ds::App::AddStartup([](ds::Engine& e) {
+#if 0
+			std::string		new_path("PATH=");
+			const char*		path_env = getenv("PATH");
+			if (path_env) {
+				new_path += path_env;
+			}
+			if (new_path.length() > 0) {
+				if (!(new_path.back() == '=' || new_path.back() == ';')) {
+					new_path += ";";
+				}
+			}
+			new_path += "C:\\gstreamer\\1.0\\x86\\bin;C:\\gstreamer\\1.0\\x86\\lib\\gstreamer-1.0";
+			_putenv(new_path.c_str());
+#endif
+
+			std::string		plugin_path("GST_PLUGIN_PATH=C:\\gstreamer\\1.0\\x86\\lib\\gstreamer-1.0");
+			_putenv(plugin_path.c_str());
+		});
+
+	}
+};
+Init				INIT;
+}
 
 static _2RealGStreamerWrapper::GStreamerWrapper* new_movie() {
 	_2RealGStreamerWrapper::GStreamerWrapper*	ans = new _2RealGStreamerWrapper::GStreamerWrapper();

@@ -54,6 +54,7 @@ Compiling
 - Currently, dll's aren't checked into git, so you'll need to copy them yourself. When we go into production, we may want to check in the needed dll's
                 - Copy  the contents of "C:\gstreamer\1.0\x86\bin" to "RenderEngine/bin". There will be conflicts. Overwrite the existing versions with the GStreamer versions.
                 - Copy the contents of "C:\gstreamer\1.0\x86\lib\gstreamer-1.0" to "RenderEngine/bin/plugins". The plugins are what drive all the different formats and streaming and such.
+				- NOTE: You don't have to copy files for cinder if you don't want to. You can set your PATH variable to include "C:\gstreamer\1.0\x86\bin"; after that,  the cinder framework will set the path to the plugins (although currently cinder assumes it's at the default path supplied above, there's no setting to override this).
 - Property sheets are setup to link to the default location (c:/gstreamer/1.0/x86/), which should be made into an environment variable at some point
 - We'll only be supporting GStreamer 1.0+ in BigWorld, as pre-1.0 GStreamer is no longer being maintained or supported. We should be able to easily keep up with newer GStreamer releases, as they tend to keep the API's the same or similar over time.
 - GStreamer video sprite is a separate video sprite from the CUDA one. Since each video system has it's advantages (CUDA can play more simultaneous syncronized videos and GStreamer can stream and play more formats), it makes sense to support both for the time being.
