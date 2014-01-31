@@ -4,6 +4,7 @@
 
 #include <functional>
 #include <cinder/gl/Texture.h>
+#include "ds/util/image_meta_data.h"
 
 namespace ds {
 class DataBuffer;
@@ -21,25 +22,26 @@ class SpriteEngine;
  * API that provides config info, and an ImageGenerator to generate
  * the actual image.
  */
-class ImageClient
-{
+class ImageClient {
 public:
 	ImageClient(ds::ui::SpriteEngine&);
 	~ImageClient();
 
-	void												clear();
+	void					clear();
 	// Set the device responsible for generating the image
-	void												setSource(const ImageSource&);
+	void					setSource(const ImageSource&);
 
+	// Answer meta data about this image.
+	bool					getMetaData(ImageMetaData&) const;
 	// Answer the generator image. If the texture is not null, then it will be valid.
-	const ci::gl::Texture*			getImage();
+	const ci::gl::Texture*	getImage();
 
-	void												writeTo(DataBuffer&) const;
-	bool												readFrom(DataBuffer&);
+	void					writeTo(DataBuffer&) const;
+	bool					readFrom(DataBuffer&);
 
 private:
-	ds::ui::SpriteEngine&				mEngine;
-	ImageGenerator*							mGenerator;
+	ds::ui::SpriteEngine&	mEngine;
+	ImageGenerator*			mGenerator;
 };
 
 } // namespace ui

@@ -1,25 +1,24 @@
 #pragma once
 #ifndef DS_IMAGE_H
 #define DS_IMAGE_H
-#include "sprite.h"
+
 #include <string>
-#include <cinder/gl/Texture.h>
-#include "ds/data/resource.h"
-#include "ds/ui/service/load_image_service.h"
+#include "ds/ui/sprite/sprite.h"
+#include "ds/ui/image_source/image_owner.h"
 
 namespace ds {
 namespace ui {
-class LoadImageService;
 
-class Image: public Sprite {
+class Image : public Sprite
+			, public ImageOwner {
 public:
 	// Cache any texture loaded by this sprite, never releasing it.
-	static const int                IMG_CACHE_F = (1<<0);
+	static const int			IMG_CACHE_F = (1<<0);
 	// Begin loading an image as soon as it's received.
-	static const int                IMG_PRELOAD_F = (1<<1);
+	static const int			IMG_PRELOAD_F = (1<<1);
 
 public:
-	static Image&					makeImage(SpriteEngine&, const ds::Resource&, Sprite* parent = nullptr);
+	static Image&				makeImage(SpriteEngine&, const ds::Resource&, Sprite* parent = nullptr);
 
 	Image(SpriteEngine&, const int flags = 0);
 	Image(SpriteEngine&, const std::string& filename, const int flags = 0);
@@ -30,11 +29,12 @@ public:
 	void						setSizeAll( float width, float height, float depth );
 	virtual void				updateServer(const UpdateParams&);
 	virtual void				drawLocalClient();
+	bool						isLoaded() const;
+	// Deprecated, see ImageOwner API
+	void						loadImage( const std::string &filename );
 	Image&						setResourceFilename( const std::string &filename );
 	Image&						setResourceId(const ds::Resource::Id &resourceId);
-	void						loadImage( const std::string &filename );
 	void						clearResource();
-	bool						isLoaded() const;
 
 	struct Status {
 		static const int		STATUS_EMPTY = 0;
@@ -44,23 +44,15 @@ public:
 	void						setStatusCallback(const std::function<void(const Status&)>&);
 
 protected:
+	virtual void				onImageChanged();
 	virtual void				writeAttributesTo(ds::DataBuffer&);
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
 private:
-	typedef Sprite inherited;
+	typedef Sprite				inherited;
 
-	void						requestImage();
 	void						setStatus(const int);
 	void						init();
-
-	LoadImageService&			mImageService;
-	ImageToken					mImageToken;
-	ci::gl::Texture				mTexture;
-
-	int							mFlags;
-	ds::Resource::Id			mResourceId;
-	std::string					mResourceFn;
 
 	Status						mStatus;
 	bool						mStatusDirty;

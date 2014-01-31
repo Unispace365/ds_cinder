@@ -2,8 +2,10 @@
 
 #include "ds/app/image_registry.h"
 #include "ds/data/data_buffer.h"
+#include "ds/data/resource_list.h"
 #include "ds/ui/image_source/image_generator.h"
 #include "ds/ui/service/load_image_service.h"
+#include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {
@@ -24,7 +26,15 @@ public:
 	FileGenerator(SpriteEngine& e)
 			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()) { }
 	FileGenerator(SpriteEngine& e, const ds::Resource& res, const int f)
-			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()), mResource(res), mFlags(f) { }
+			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()), mResource(res), mFlags(f) { preload(); }
+
+	bool						getMetaData(ImageMetaData& d) const {
+		const std::string&		fn = mResource.getAbsoluteFilePath();
+		if (fn.empty()) return false;
+		ImageMetaData			atts(fn);
+		d = atts;
+		return !d.empty();
+	}
 
 	const ci::gl::Texture*		getImage() {
 		if (mTexture && mTexture.getWidth() > 0 && mTexture.getHeight() > 0) return &mTexture;
@@ -55,10 +65,20 @@ public:
 		if (buf.read<char>() != RES_FLAGS_ATT) return false;
 		mFlags = buf.read<int>();
 
+		preload();
+
 		return true;
 	}
 
 private:
+	void								preload() {
+		// XXX This should check to see if I'm in client mode and only
+		// load it then. (or the service should be empty in server mode).
+		if ((mFlags&ds::ui::Image::IMG_PRELOAD_F) != 0 && mToken.canAcquire()) {
+			mToken.acquire(mResource.getAbsoluteFilePath(), mFlags);
+		}
+	}
+
 	ImageToken				mToken;
 	ds::Resource			mResource;
 	int						mFlags;
@@ -79,8 +99,17 @@ ImageResource::ImageResource(const ds::Resource& res, const int flags)
 		, mFlags(flags) {
 }
 
+ImageResource::ImageResource(const ds::Resource::Id& id, const int flags)
+		: mResourceId(id)
+		, mFlags(flags) {
+}
+
 ImageGenerator* ImageResource::newGenerator(SpriteEngine& e) const {
-	return new FileGenerator(e, mResource, mFlags);
+	ds::Resource			r(mResource);
+	if (r.empty() && !mResourceId.empty()) {
+		e.getResources().get(mResourceId, r);
+	}
+	return new FileGenerator(e, r, mFlags);
 }
 
 } // namespace ui

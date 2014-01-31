@@ -33,6 +33,12 @@ public:
 	ArcGenerator(SpriteEngine&, const int width, const int height, const std::string& fn, const ds::arc::Input& input)
 		: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(width), mHeight(height), mFilename(fn), mInput(input) { }
 
+	bool						getMetaData(ImageMetaData& d) const {
+		d.mSize.x = static_cast<float>(mWidth);
+		d.mSize.y = static_cast<float>(mHeight);
+		return !d.empty();
+	}
+
 	const ci::gl::Texture*		getImage() {
 		if (mStatus == STATUS_EMPTY) generate();
 		if (mStatus == STATUS_OK) return &mTexture;

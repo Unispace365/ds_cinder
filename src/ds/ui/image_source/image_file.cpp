@@ -4,6 +4,7 @@
 #include "ds/data/data_buffer.h"
 #include "ds/ui/image_source/image_generator.h"
 #include "ds/ui/service/load_image_service.h"
+#include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {
@@ -24,7 +25,14 @@ public:
 	FileGenerator(SpriteEngine& e)
 			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()) { }
 	FileGenerator(SpriteEngine& e, const std::string& fn, const int f)
-			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()), mFilename(fn), mFlags(f) { }
+			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()), mFilename(fn), mFlags(f) { preload(); }
+
+	bool						getMetaData(ImageMetaData& d) const {
+		if (mFilename.empty()) return false;
+		ImageMetaData			atts(mFilename);
+		d = atts;
+		return !d.empty();
+	}
 
 	const ci::gl::Texture*		getImage() {
 		if (mTexture && mTexture.getWidth() > 0 && mTexture.getHeight() > 0) return &mTexture;
@@ -55,13 +63,23 @@ public:
 		if (buf.read<char>() != RES_FLAGS_ATT) return false;
 		mFlags = buf.read<int>();
 
+		preload();
+
 		return true;
 	}
 
 private:
-	ImageToken								mToken;
-	std::string								mFilename;
-	int												mFlags;
+	void								preload() {
+		// XXX This should check to see if I'm in client mode and only
+		// load it then. (or the service should be empty in server mode).
+		if ((mFlags&ds::ui::Image::IMG_PRELOAD_F) != 0 && mToken.canAcquire()) {
+			mToken.acquire(mFilename, mFlags);
+		}
+	}
+
+	ImageToken							mToken;
+	std::string							mFilename;
+	int									mFlags;
 	ci::gl::Texture						mTexture;
 };
 
@@ -70,19 +88,16 @@ private:
 /**
  * \class ds::ui::ImageFile
  */
-void ImageFile::install(ds::ImageRegistry& registry)
-{
-  BLOB_TYPE = registry.addGenerator([](ds::ui::SpriteEngine& se)->ImageGenerator* { return new FileGenerator(se); });
+void ImageFile::install(ds::ImageRegistry& registry) {
+	BLOB_TYPE = registry.addGenerator([](ds::ui::SpriteEngine& se)->ImageGenerator* { return new FileGenerator(se); });
 }
 
 ImageFile::ImageFile(const std::string& filename, const int flags)
-	: mFilename(filename)
-	, mFlags(flags)
-{
+		: mFilename(filename)
+		, mFlags(flags) {
 }
 
-ImageGenerator* ImageFile::newGenerator(SpriteEngine& e) const
-{
+ImageGenerator* ImageFile::newGenerator(SpriteEngine& e) const {
 	return new FileGenerator(e, mFilename, mFlags);
 }
 

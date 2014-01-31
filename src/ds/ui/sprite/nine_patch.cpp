@@ -47,8 +47,8 @@ void NinePatch::installAsClient(ds::BlobRegistry& registry) {
 }
 
 NinePatch::NinePatch(SpriteEngine& engine)
-		: mImageSource(engine)
-		, inherited(engine)
+		: inherited(engine)
+		, ImageOwner(engine)
 		, mSizeDirty(true) {
 	init();
 	mBlobType = BLOB_TYPE;
@@ -56,29 +56,13 @@ NinePatch::NinePatch(SpriteEngine& engine)
 	setTransparent(false);
 }
 
-NinePatch& NinePatch::setImage(const ImageSource& src) {
-	mImageSource.setSource(src);
-	setStatus(Status::STATUS_EMPTY);
-	markAsDirty(IMG_SRC_DIRTY);
-	mSizeDirty = true;
-	return *this;
-}
+void NinePatch::updateServer(const UpdateParams& up) {
+	inherited::updateServer(up);
 
-void NinePatch::clearImage()
-{
-  mImageSource.clear();
-  setStatus(Status::STATUS_EMPTY);
-  markAsDirty(IMG_SRC_DIRTY);
-}
-
-void NinePatch::updateServer(const UpdateParams& up)
-{
-  inherited::updateServer(up);
-
-  if (mStatusDirty) {
-    mStatusDirty = false;
-    if (mStatusFn) mStatusFn(mStatus);
-  }
+	if (mStatusDirty) {
+		mStatusDirty = false;
+		if (mStatusFn) mStatusFn(mStatus);
+	}
 }
 
 void NinePatch::drawLocalClient() {
@@ -117,35 +101,37 @@ void NinePatch::drawLocalClient() {
 	}
 }
 
-void NinePatch::setStatusCallback(const std::function<void(const Status&)>& fn)
-{
-  DS_ASSERT_MSG(mEngine.getMode() == mEngine.CLIENTSERVER_MODE, "Currently only works in ClientServer mode, fill in the UDP callbacks if you want to use this otherwise");
-  mStatusFn = fn;
+void NinePatch::setStatusCallback(const std::function<void(const Status&)>& fn) {
+	DS_ASSERT_MSG(mEngine.getMode() == mEngine.CLIENTSERVER_MODE, "Currently only works in ClientServer mode, fill in the UDP callbacks if you want to use this otherwise");
+	mStatusFn = fn;
 }
 
-void NinePatch::onSizeChanged()
-{
+void NinePatch::onSizeChanged() {
 	inherited::onSizeChanged();
 	mSizeDirty = true;
 }
 
-void NinePatch::writeAttributesTo(ds::DataBuffer& buf)
-{
-  inherited::writeAttributesTo(buf);
-
-	if (mDirty.has(IMG_SRC_DIRTY)) {
-    buf.add(IMG_SRC_ATT);
-    mImageSource.writeTo(buf);
-  }
+void NinePatch::onImageChanged() {
+	setStatus(Status::STATUS_EMPTY);
+	markAsDirty(IMG_SRC_DIRTY);
+	mSizeDirty = true;
 }
 
-void NinePatch::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
-{
-    if (attributeId == IMG_SRC_ATT) {
-      mImageSource.readFrom(buf);
-    } else {
-      inherited::readAttributeFrom(attributeId, buf);
-    }
+void NinePatch::writeAttributesTo(ds::DataBuffer& buf) {
+	inherited::writeAttributesTo(buf);
+
+	if (mDirty.has(IMG_SRC_DIRTY)) {
+		buf.add(IMG_SRC_ATT);
+		mImageSource.writeTo(buf);
+	}
+}
+
+void NinePatch::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
+	if (attributeId == IMG_SRC_ATT) {
+		mImageSource.readFrom(buf);
+	} else {
+		inherited::readAttributeFrom(attributeId, buf);
+	}
 }
 
 void NinePatch::setStatus(const int code)

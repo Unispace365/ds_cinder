@@ -3,6 +3,7 @@
 #define DS_UI_IMAGESOURCE_IMAGEGENERATOR_H_
 
 #include <cinder/gl/Texture.h>
+#include "ds/util/image_meta_data.h"
 
 namespace ds {
 class DataBuffer;
@@ -18,17 +19,19 @@ class ImageGenerator {
 public:
 	virtual ~ImageGenerator();
 
-	virtual const ci::gl::Texture*		getImage() = 0;
+	// Answer meta data about this image.
+	virtual bool					getMetaData(ImageMetaData&) const = 0;
+	virtual const ci::gl::Texture*	getImage() = 0;
 
-	char															getBlobType() const;
-	virtual void											writeTo(DataBuffer&) const = 0;
-	virtual bool											readFrom(DataBuffer&) = 0;
+	char							getBlobType() const;
+	virtual void					writeTo(DataBuffer&) const = 0;
+	virtual bool					readFrom(DataBuffer&) = 0;
 
 protected:
 	ImageGenerator(const char blobType);
 
 private:
-	const char												mBlobType;
+	const char						mBlobType;
 };
 
 } // namespace ui

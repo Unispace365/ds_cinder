@@ -14,7 +14,10 @@ namespace ds {
  */
 class ImageMetaData {
 public:
+	ImageMetaData();
 	ImageMetaData(const std::string& filename);
+
+	bool						empty() const;
 
 	ci::Vec2f					mSize;
 };

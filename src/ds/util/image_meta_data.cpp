@@ -165,9 +165,17 @@ ImageAttsCache			CACHE;
 /**
  * \class ds::ImageMetaData
  */
+ImageMetaData::ImageMetaData()
+		: mSize(0.0f, 0.0f) {
+}
+
 ImageMetaData::ImageMetaData(const std::string& filename)
 		: mSize(0.0f, 0.0f) {
 	mSize = CACHE.getSize(filename);
+}
+
+bool ImageMetaData::empty() const {
+	return mSize.x < 0.5f || mSize.y < 0.5;
 }
 
 } // namespace ds

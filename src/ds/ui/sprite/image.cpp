@@ -5,7 +5,6 @@
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
 #include "ds/data/data_buffer.h"
-#include "ds/data/resource_list.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
@@ -19,13 +18,9 @@ namespace ui {
 namespace {
 char				BLOB_TYPE			= 0;
 
-const DirtyState&	RES_ID_DIRTY		= INTERNAL_A_DIRTY;
-const DirtyState&	RES_FN_DIRTY		= INTERNAL_B_DIRTY;
-const DirtyState&	FLAGS_DIRTY			= INTERNAL_C_DIRTY;
+const DirtyState&	IMG_SRC_DIRTY		= INTERNAL_A_DIRTY;
 
-const char			RES_ID_ATT			= 80;
-const char			RES_FN_ATT			= 81;
-const char			FLAGS_ATT			= 82;
+const char			IMG_SRC_ATT			= 80;
 
 const ds::BitMask   SPRITE_LOG			= ds::Logger::newModule("image sprite");
 }
@@ -44,25 +39,21 @@ Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) 
 
 Image::Image(SpriteEngine& engine, const int flags)
 		: inherited(engine)
-		, mImageService(engine.getLoadImageService())
-		, mImageToken(mImageService)
-		, mFlags(flags) {
+		, ImageOwner(engine) {
 	init();
 	mBlobType = BLOB_TYPE;
-	setUseShaderTextuer(true);
 	setTransparent(false);
+	setUseShaderTextuer(true);
 
-	if (mFlags != 0) markAsDirty(FLAGS_DIRTY);
+	markAsDirty(IMG_SRC_DIRTY);
 }
 
-Image::Image(SpriteEngine& engine, const std::string &filename, const int flags)
+Image::Image(SpriteEngine& engine, const std::string& filename, const int flags)
 		: inherited(engine)
-		, mImageService(engine.getLoadImageService())
-		, mImageToken(mImageService)
-		, mFlags(flags)
-		, mResourceFn(filename) {
+		, ImageOwner(engine) {
 	init();
 	mBlobType = BLOB_TYPE;
+	setTransparent(false);
 	setUseShaderTextuer(true);
 
 	{
@@ -70,31 +61,20 @@ Image::Image(SpriteEngine& engine, const std::string &filename, const int flags)
 		Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
 	}
 
-	setTransparent(false);
-	markAsDirty(RES_FN_DIRTY);
+	markAsDirty(IMG_SRC_DIRTY);
 
-	if (mFlags != 0) markAsDirty(FLAGS_DIRTY);
+	setImageFile(filename, flags);
 }
 
-Image::Image( SpriteEngine& engine, const ds::Resource::Id &resourceId, const int flags)
+Image::Image(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int flags)
 		: inherited(engine)
-		, mImageService(engine.getLoadImageService())
-		, mImageToken(mImageService)
-		, mFlags(flags)
-		, mResourceId(resourceId) {
+		, ImageOwner(engine) {
 	init();
 	mBlobType = BLOB_TYPE;
+	setTransparent(false);
 	setUseShaderTextuer(true);
 
-	ds::Resource            res;
-	if (engine.getResources().get(resourceId, res)) {
-		Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
-		mResourceFn = res.getAbsoluteFilePath();
-	}
-	setTransparent(false);
-	markAsDirty(RES_ID_DIRTY);
-
-	if (mFlags != 0) markAsDirty(FLAGS_DIRTY);
+	setImageResource(resourceId, flags);
 }
 
 Image::~Image() {
@@ -110,46 +90,48 @@ void Image::updateServer(const UpdateParams& up) {
 }
 
 void Image::drawLocalClient() {
-	if (!inBounds())
-		return;
+	if (!inBounds()) return;
 
-	if (!mTexture) {
-		// XXX Do bounds check here
-		if (mImageToken.canAcquire()) { // && intersectsLocalScreen){
-			requestImage();
-		}
-		float         fade;
-		mTexture = mImageToken.getImage(fade);
-		// Keep up the bounds
-		if (mTexture) {
-			setStatus(Status::STATUS_LOADED);
-			const float         prevRealW = getWidth(), prevRealH = getHeight();
-			if (prevRealW <= 0 || prevRealH <= 0) {
-				Sprite::setSizeAll(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()), mDepth);
-			} else {
-				float             prevWidth = prevRealW * getScale().x;
-				float             prevHeight = prevRealH * getScale().y;
-				Sprite::setSizeAll(static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight()), mDepth);
-				setSize(prevWidth, prevHeight);
-			}
+	const ci::gl::Texture*		tex = mImageSource.getImage();
+	if (!tex) return;
+
+	// Do texture-based initialization.
+	// EH: I don't like this at all, why was it done this way? It makes no sense
+	// when the app is in client server mode and the server is never loading the image.
+	if (mStatus.mCode != Status::STATUS_LOADED) {
+		setStatus(Status::STATUS_LOADED);
+		const float         prevRealW = getWidth(), prevRealH = getHeight();
+		if (prevRealW <= 0 || prevRealH <= 0) {
+			Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
+		} else {
+			float             prevWidth = prevRealW * getScale().x;
+			float             prevHeight = prevRealH * getScale().y;
+			Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
+			setSize(prevWidth, prevHeight);
 		}
 	}
 
-	if (mTexture) {
-		mTexture.bind();
-		if (getPerspective())
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture.getHeight()), static_cast<float>(mTexture.getWidth()), 0.0f));
-		else
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture.getWidth()), static_cast<float>(mTexture.getHeight())));
-		mTexture.unbind();
-	}
+	tex->bind();
+	if (getPerspective())
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(tex->getHeight()), static_cast<float>(tex->getWidth()), 0.0f));
+	else
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight())));
+	tex->unbind();
 }
 
 void Image::setSizeAll( float width, float height, float depth ) {
 	setScale( width / getWidth(), height / getHeight() );
 }
 
+void Image::loadImage( const std::string &filename ) {
+//	DS_DBG_CODE(std::cout << "Image::loadImage() is deprecated, use setImageFile()" << std::endl);
+	setResourceFilename(filename);
+}
+
 Image& Image::setResourceFilename( const std::string &filename ) {
+//	DS_DBG_CODE(std::cout << "Image::setResourceFilename() is deprecated, use setImageFile()" << std::endl);
+	setImageFile(filename);
+#if 0
 	clearResource();
 	mResourceFn = filename;
 	setStatus(Status::STATUS_EMPTY);
@@ -158,28 +140,40 @@ Image& Image::setResourceFilename( const std::string &filename ) {
 		ImageMetaData			atts(filename);
 		Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
 	}
+#endif
 	return *this;
 }
 
-void Image::loadImage( const std::string &filename ) {
-	setResourceFilename(filename);
+Image& Image::setResourceId(const ds::Resource::Id& resourceId) {
+//	DS_DBG_CODE(std::cout << "Image::setResourceId() is deprecated, use setImageResource()" << std::endl);
+	setImageResource(resourceId);
+#if 0
+	clearResource();
+	ds::Resource            res;
+	if (mEngine.getResources().get(resourceId, res)) {
+		Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
+		mTexture.reset();
+		mResourceFn = res.getAbsoluteFilePath();
+		setStatus(Status::STATUS_EMPTY);
+	}
+	markAsDirty(RES_ID_DIRTY);
+#endif
+	return *this;
 }
 
 void Image::clearResource() {
+	DS_DBG_CODE(std::cout << "Image::clearResource() is deprecated, use clearImage()" << std::endl);
+	clearImage();
+#if 0
 	mTexture.reset();
 	mResourceFn.clear();
 	mImageToken.release();
 	setStatus(Status::STATUS_EMPTY);
-}
-
-void Image::requestImage() {
-	if (mResourceFn.empty()) return;
-
-	mImageToken.acquire(mResourceFn, mFlags);
+#endif
 }
 
 bool Image::isLoaded() const {
-	return mTexture;
+	return mStatus.mCode == Status::STATUS_LOADED;
 }
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn) {
@@ -187,30 +181,29 @@ void Image::setStatusCallback(const std::function<void(const Status&)>& fn) {
 	mStatusFn = fn;
 }
 
+void Image::onImageChanged() {
+	setStatus(Status::STATUS_EMPTY);
+	markAsDirty(IMG_SRC_DIRTY);
+
+	// Make my size match
+	ImageMetaData		d;
+	if (mImageSource.getMetaData(d) && !d.empty()) {
+		Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
+	}
+}
+
 void Image::writeAttributesTo(ds::DataBuffer& buf) {
 	inherited::writeAttributesTo(buf);
 
-	if (mDirty.has(RES_ID_DIRTY)) {
-		buf.add(RES_ID_ATT);
-		mResourceId.writeTo(buf);
-	}
-	if (mDirty.has(RES_FN_DIRTY)) {
-		buf.add(RES_FN_ATT);
-		buf.add(mResourceFn);
-	}
-	if (mDirty.has(FLAGS_DIRTY)) {
-		buf.add(FLAGS_ATT);
-		buf.add(mFlags);
+	if (mDirty.has(IMG_SRC_DIRTY)) {
+		buf.add(IMG_SRC_ATT);
+		mImageSource.writeTo(buf);
 	}
 }
 
 void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
-	if (attributeId == RES_ID_ATT) {
-		mResourceId.readFrom(buf);
-	} else if (attributeId == RES_FN_ATT) {
-		mResourceFn = buf.read<std::string>();
-	} else if (attributeId == FLAGS_ATT) {
-		mFlags = buf.read<int>();
+	if (attributeId == IMG_SRC_ATT) {
+		mImageSource.readFrom(buf);
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
 	}
@@ -227,30 +220,6 @@ void Image::init() {
 	mStatus.mCode = Status::STATUS_EMPTY;
 	mStatusDirty = false;
 	mStatusFn = nullptr;
-}
-
-Image &Image::setResourceId( const ds::Resource::Id &resourceId ) {
-	clearResource();
-	ds::Resource            res;
-	if (mEngine.getResources().get(resourceId, res)) {
-		Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
-		mTexture.reset();
-		mResourceFn = res.getAbsoluteFilePath();
-		setStatus(Status::STATUS_EMPTY);
-	}
-	markAsDirty(RES_ID_DIRTY);
-
-	// XXX This should check to see if I'm in client mode and only
-	// load it then. (or the service should be empty in server mode).
-	// Also, ideally this would happen in drawClient(), but that won't
-	// be reached if the sprite is not visible, negating a lot of the value.
-	if ((mFlags&IMG_PRELOAD_F) != 0) {
-		if (mImageToken.canAcquire()) {
-			requestImage();
-		}
-	}
-
-	return *this;
 }
 
 void Image::setSize( float width, float height ) {

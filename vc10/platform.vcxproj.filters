@@ -522,6 +522,9 @@
     <ClInclude Include="..\src\ds\arc\arc_map.h">
       <Filter>src\ds\arc</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_owner.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -850,6 +853,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_map.cpp">
       <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_owner.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
