@@ -126,51 +126,24 @@ void Image::setSizeAll( float width, float height, float depth ) {
 #if 1
 void Image::loadImage( const std::string &filename ) {
 	DS_DBG_CODE(std::cout << "Image::loadImage() is deprecated, use setImageFile()" << std::endl);
-	setResourceFilename(filename);
+	setImageFile(filename);
 }
 
 Image& Image::setResourceFilename( const std::string &filename ) {
 	DS_DBG_CODE(std::cout << "Image::setResourceFilename() is deprecated, use setImageFile()" << std::endl);
 	setImageFile(filename);
-#if 0
-	clearResource();
-	mResourceFn = filename;
-	setStatus(Status::STATUS_EMPTY);
-
-	if (!filename.empty()) {
-		ImageMetaData			atts(filename);
-		Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
-	}
-#endif
 	return *this;
 }
 
 Image& Image::setResourceId(const ds::Resource::Id& resourceId) {
 	DS_DBG_CODE(std::cout << "Image::setResourceId() is deprecated, use setImageResource()" << std::endl);
 	setImageResource(resourceId);
-#if 0
-	clearResource();
-	ds::Resource            res;
-	if (mEngine.getResources().get(resourceId, res)) {
-		Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
-		mTexture.reset();
-		mResourceFn = res.getAbsoluteFilePath();
-		setStatus(Status::STATUS_EMPTY);
-	}
-	markAsDirty(RES_ID_DIRTY);
-#endif
 	return *this;
 }
 
 void Image::clearResource() {
 	DS_DBG_CODE(std::cout << "Image::clearResource() is deprecated, use clearImage()" << std::endl);
 	clearImage();
-#if 0
-	mTexture.reset();
-	mResourceFn.clear();
-	mImageToken.release();
-	setStatus(Status::STATUS_EMPTY);
-#endif
 }
 #endif
 
