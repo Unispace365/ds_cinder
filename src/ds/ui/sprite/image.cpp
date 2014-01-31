@@ -123,13 +123,14 @@ void Image::setSizeAll( float width, float height, float depth ) {
 	setScale( width / getWidth(), height / getHeight() );
 }
 
+#if 1
 void Image::loadImage( const std::string &filename ) {
-//	DS_DBG_CODE(std::cout << "Image::loadImage() is deprecated, use setImageFile()" << std::endl);
+	DS_DBG_CODE(std::cout << "Image::loadImage() is deprecated, use setImageFile()" << std::endl);
 	setResourceFilename(filename);
 }
 
 Image& Image::setResourceFilename( const std::string &filename ) {
-//	DS_DBG_CODE(std::cout << "Image::setResourceFilename() is deprecated, use setImageFile()" << std::endl);
+	DS_DBG_CODE(std::cout << "Image::setResourceFilename() is deprecated, use setImageFile()" << std::endl);
 	setImageFile(filename);
 #if 0
 	clearResource();
@@ -145,7 +146,7 @@ Image& Image::setResourceFilename( const std::string &filename ) {
 }
 
 Image& Image::setResourceId(const ds::Resource::Id& resourceId) {
-//	DS_DBG_CODE(std::cout << "Image::setResourceId() is deprecated, use setImageResource()" << std::endl);
+	DS_DBG_CODE(std::cout << "Image::setResourceId() is deprecated, use setImageResource()" << std::endl);
 	setImageResource(resourceId);
 #if 0
 	clearResource();
@@ -171,6 +172,7 @@ void Image::clearResource() {
 	setStatus(Status::STATUS_EMPTY);
 #endif
 }
+#endif
 
 bool Image::isLoaded() const {
 	return mStatus.mCode == Status::STATUS_LOADED;
