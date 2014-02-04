@@ -1,8 +1,10 @@
 ﻿#include "ds/ui/service/glsl_image_service.h"
 
+#include <cinder/Camera.h>
 #include <cinder/ImageIo.h>
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
+#include "ds/ui/sprite/fbo/auto_fbo.h"
 #include "ds/ui/sprite/image.h"
 
 namespace {
@@ -109,7 +111,8 @@ void ImageToken::release() {
 
 /* DS::LOAD-IMAGE-SERVICE
  ******************************************************************/
-ImageService::ImageService() {
+ImageService::ImageService(ds::ui::SpriteEngine& e)
+		: mEngine(e) {
 	mInput.reserve(8);
 	mOutput.reserve(8);
 	mTmp.reserve(8);
@@ -193,37 +196,64 @@ ImageService::holder* ImageService::find(const ImageKey& key, int* index) {
 }
 
 void ImageService::renderInput() {
-	// Pop off the items I need
+	// Pop off the items I need. This design is a hold over from
+	// the original attempt to make this run in a separate thread.
 	mTmp.clear();
 	{
 		Poco::Mutex::ScopedLock			l(mMutex);
 		mInput.swap(mTmp);
 	}
-
-if (!mInput.empty()) std::cout << "RENDER size=" << mInput.size() << std::endl;
-
-#if 0
-	// Load them all
-	vector<op>							outs;
-	for (int k=0; k<mTmp.size(); k++) {
-		const op&						top = mTmp[k];
-		GlTexture*						img = _render(top.mKey, manager);
-		if (img) {
-			try {
-				outs.push_back(op(top.mKey, img));
-			} catch (std::exception&) {
-				delete img;
-			}
+	std::vector<op>						outs;
+	for (auto it=mTmp.begin(), end=mTmp.end(); it!=end; ++it) {
+		op&								top(*it);
+		try {
+			renderInput(top);
+			if (top.mImg) outs.push_back(top);
+		} catch (std::exception const&) {
 		}
 	}
-
-	// Push the outs to the output, restore my reusable pixels
+	mTmp.clear();
+	// Push the outs to the output
 	{
 		Poco::Mutex::ScopedLock			l(mMutex);
 		mOutput.insert(mOutput.end(), outs.begin(), outs.end());
 	}
-	mTmp.clear();
-#endif
+}
+
+void ImageService::renderInput(op& input) {
+	input.mImg = ci::gl::Texture();
+	// Load the shader -- no shader, no output
+	ci::gl::GlslProg shader = ci::gl::GlslProg(ci::loadFile(input.mKey.getVertex()), ci::loadFile(input.mKey.getFragment()));
+	if (!shader) return;
+
+	// Set up the texture
+	const int w = input.mKey.getWidth(), h = input.mKey.getHeight();
+	if (w < 1 || h < 1) return;
+	input.mImg = ci::gl::Texture(w, h);
+	if (!input.mImg) return;
+
+	ci::gl::SaveFramebufferBinding bindingSaver;
+	ds::ui::AutoFbo		afbo(mEngine, input.mImg);
+	{
+		afbo.mFbo->offsetViewport(0, 0);
+		ci::CameraOrtho camera;
+		camera.setOrtho(0.0f, static_cast<float>(afbo.mFbo->getWidth()), static_cast<float>(afbo.mFbo->getHeight()), 0.0f, -1.0f, 1.0f);
+
+		ci::gl::pushMatrices();
+		ci::gl::setMatrices(camera);
+		ci::gl::disableAlphaBlending();
+		ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+
+        shader.bind();
+        shader.uniform("tex0", 0);
+		input.mKey.getUnifom().applyTo(shader);
+		ci::gl::color(ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(w), static_cast<float>(h)));
+		shader.unbind();
+
+		ci::gl::popMatrices();
+	}
+	mEngine.setCamera();
 }
 
 /* DS::LOAD-IMAGE-SERVICE::HOLDER

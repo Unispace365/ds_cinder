@@ -9,6 +9,7 @@
 #include <Poco/Mutex.h>
 #include "ds/app/engine/engine_service.h"
 #include "ds/gl/uniform.h"
+#include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {
 namespace glsl {
@@ -90,7 +91,7 @@ private:
  */
 class ImageService : public ds::EngineService {
 public:
-	ImageService();
+	ImageService(ds::ui::SpriteEngine&);
 	~ImageService();
 
 	// Clients should call release() for every successful acquire
@@ -130,18 +131,14 @@ private:
 
 	// NOTE:  This is running in the main thread.  I think it has to.
 	void					renderInput();
-//	GlTexture*				_render(const ImageRendererKey&, ds::ShaderManager&);
+	void					renderInput(op&);
 
-//	ds::ofxFboGeneral*		_getFbo();
-
+	ds::ui::SpriteEngine&	mEngine;
 	std::vector<holder>		mCache;
 
 	Poco::Mutex				mMutex;
 	// Input and output stacks for thread processing
 	std::vector<op>			mInput, mOutput, mTmp;
-
-	// Used solely in the worker thread
-//	std::unique_ptr<ds::ofxFboGeneral> mFbo;
 };
 
 } // namespace glsl

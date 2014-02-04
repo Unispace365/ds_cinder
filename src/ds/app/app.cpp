@@ -75,7 +75,7 @@ App::App(const std::vector<int>* roots)
 	ds::ui::ImageResource::install(mEngine.getImageRegistry());
 
 	// Install the framework services
-	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService));
+	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService(mEngine)));
 
 	if (mArrowKeyCameraControl) {
 		// Currently this is necessary for the keyboard commands

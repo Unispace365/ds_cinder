@@ -31,6 +31,7 @@ public:
 			: ImageGenerator(BLOB_TYPE), mToken(e.getService<ds::glsl::ImageService>(ds::glsl::IMAGE_SERVICE)), mWidth(width), mHeight(height), mVertexFilename(vfn), mFragmentFilename(ffn), mUniform(uniform) {
 		ds::glsl::ImageKey		key;
 		key.setTo(vfn, ffn, uniform, width, height, 0);
+		mToken.setTo(key);
 	}
 
 	bool						getMetaData(ImageMetaData& d) const {
