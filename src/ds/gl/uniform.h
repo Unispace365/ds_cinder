@@ -25,7 +25,9 @@ class Uniform {
 public:
 	Uniform();
 
-	bool									empty();
+	bool									operator==(const Uniform&) const;
+	bool									empty() const;
+	void									clear();
 
 	void									setFloat(const std::string& name, const float);
 	void									setFloats(const std::string& name, const std::vector<float>&);
@@ -44,8 +46,8 @@ private:
 	std::map<std::string, ci::Vec2i>		mVec2i;
 	std::map<std::string, ci::Vec4f>		mVec4f;
 
-	bool									mIsEmpty;
-	bool									mEmptyDirty;
+	mutable bool							mIsEmpty;
+	mutable bool							mEmptyDirty;
 };
 
 } // namespace gl

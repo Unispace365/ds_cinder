@@ -111,9 +111,11 @@
     <ClInclude Include="..\src\ds\ui\image_source\image_drop_shadow.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_file.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_generator.h" />
+    <ClInclude Include="..\src\ds\ui\image_source\image_glsl.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_owner.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_resource.h" />
     <ClInclude Include="..\src\ds\ui\image_source\image_source.h" />
+    <ClInclude Include="..\src\ds\ui\service\glsl_image_service.h" />
     <ClInclude Include="..\src\ds\ui\service\load_image_service.h" />
     <ClInclude Include="..\src\ds\ui\service\render_text_service.h" />
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h" />
@@ -229,9 +231,11 @@
     <ClCompile Include="..\src\ds\ui\image_source\image_drop_shadow.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_generator.cpp" />
+    <ClCompile Include="..\src\ds\ui\image_source\image_glsl.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_owner.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_resource.cpp" />
     <ClCompile Include="..\src\ds\ui\image_source\image_source.cpp" />
+    <ClCompile Include="..\src\ds\ui\service\glsl_image_service.cpp" />
     <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp" />
     <ClCompile Include="..\src\ds\ui\service\render_text_service.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp" />

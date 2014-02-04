@@ -440,6 +440,26 @@ float Sprite::getZLevel() const
     return mZLevel;
 }
 
+namespace {
+inline float	min(const float a, const float b) { return a <= b ? a : b; }
+inline float	max(const float a, const float b) { return a >= b ? a : b; }
+}
+
+ci::Rectf Sprite::getBoundingBox() const {
+	const ci::Matrix44f&	t = getTransform();
+
+	ci::Vec3f				ul = t * ci::Vec3f(0,0,0);
+	ci::Vec3f				ll = t * ci::Vec3f(0, getHeight(), 0);
+	ci::Vec3f				lr = t * ci::Vec3f(getWidth(), getHeight(), 0);
+	ci::Vec3f				ur = t * ci::Vec3f(getWidth(), 0, 0);
+
+	const float				left = min(min(min(ul.x,ll.x),lr.x),ur.x);
+	const float				right = max(max(max(ul.x,ll.x),lr.x),ur.x);
+	const float				top = min(min(min(ul.y,ll.y),lr.y),ur.y);
+	const float				bottom = max(max(max(ul.y,ll.y),lr.y),ur.y);
+	return ci::Rectf(left, top, right, bottom);
+}
+
 void Sprite::setDrawSorted( bool drawSorted )
 {
   setFlag(DRAW_SORTED_F, drawSorted, FLAGS_DIRTY, mSpriteFlags);

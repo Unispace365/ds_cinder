@@ -6,7 +6,6 @@
 #include "ds/arc/arc_render_circle.h"
 #include "ds/data/data_buffer.h"
 #include "ds/ui/image_source/image_generator.h"
-#include "ds/ui/service/load_image_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {

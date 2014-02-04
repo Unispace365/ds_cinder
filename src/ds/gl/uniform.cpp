@@ -35,7 +35,17 @@ Uniform::Uniform()
 		, mEmptyDirty(true) {
 }
 
-bool Uniform::empty() {
+bool Uniform::operator==(const Uniform& o) const {
+	if (mFloat != o.mFloat) return false;
+	if (mFloats != o.mFloats) return false;
+	if (mInt != o.mInt) return false;
+	if (mMatrix44f != o.mMatrix44f) return false;
+	if (mVec2i != o.mVec2i) return false;
+	if (mVec4f != o.mVec4f) return false;
+	return true;
+}
+
+bool Uniform::empty() const {
 	if (mEmptyDirty) {
 		mIsEmpty = true;
 		if (!mFloat.empty()) mIsEmpty = false;
@@ -47,6 +57,17 @@ bool Uniform::empty() {
 		mEmptyDirty = false;
 	}
 	return mIsEmpty;
+}
+
+void Uniform::clear() {
+	mFloat.clear();
+	mFloats.clear();
+	mInt.clear();
+	mMatrix44f.clear();
+	mVec2i.clear();
+	mVec4f.clear();
+	mIsEmpty = true;
+	mEmptyDirty = false;
 }
 
 void Uniform::setFloat(const std::string& key, const float value) {

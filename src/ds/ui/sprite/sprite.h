@@ -105,6 +105,8 @@ public:
 	void					setZLevel( float zlevel );
 	float					getZLevel() const;
 
+	ci::Rectf				getBoundingBox() const;
+
 	// whether to draw be by Sprite order or z level.
 	// Only works on a per Sprite base.
 	void					setDrawSorted( bool drawSorted );

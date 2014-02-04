@@ -15,15 +15,17 @@
 // For installing the image generators
 #include "ds/ui/image_source/image_arc.h"
 #include "ds/ui/image_source/image_file.h"
+#include "ds/ui/image_source/image_glsl.h"
 #include "ds/ui/image_source/image_resource.h"
+// For installing the framework services
+#include "ds/ui/service/glsl_image_service.h"
 // For verifying that the resources are installed
 #include "ds/app/FrameworkResources.h"
 
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const std::vector<int>* roots);
 
-static std::vector<std::function<void(ds::Engine&)>>& get_startups()
-{
+static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 	static std::vector<std::function<void(ds::Engine&)>>	VEC;
 	return VEC;
 }
@@ -38,8 +40,7 @@ ds::Console				GLOBAL_CONSOLE;
 
 namespace ds {
 
-void App::AddStartup(const std::function<void(ds::Engine&)>& fn)
-{
+void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
 	if (fn != nullptr) get_startups().push_back(fn);
 }
 
@@ -70,7 +71,11 @@ App::App(const std::vector<int>* roots)
 	// Initialize the engine image generator typess.
 	ds::ui::ImageArc::install(mEngine.getImageRegistry());
 	ds::ui::ImageFile::install(mEngine.getImageRegistry());
+	ds::ui::ImageGlsl::install(mEngine.getImageRegistry());
 	ds::ui::ImageResource::install(mEngine.getImageRegistry());
+
+	// Install the framework services
+	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService));
 
 	if (mArrowKeyCameraControl) {
 		// Currently this is necessary for the keyboard commands

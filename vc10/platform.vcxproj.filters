@@ -525,6 +525,12 @@
     <ClInclude Include="..\src\ds\ui\image_source\image_owner.h">
       <Filter>src\ds\ui\image_source</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\service\glsl_image_service.h">
+      <Filter>src\ds\ui\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_glsl.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -855,6 +861,12 @@
       <Filter>src\ds\arc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\image_source\image_owner.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\service\glsl_image_service.cpp">
+      <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_glsl.cpp">
       <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
   </ItemGroup>
