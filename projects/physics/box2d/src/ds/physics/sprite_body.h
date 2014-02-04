@@ -62,6 +62,7 @@ public:
 	void					applyForceToCenter(const float x, const float y);
 
 	void					setRotation(const float degree);
+	float					getRotation() const;
 	// Set a collision callback, called whenever this body
 	// collides with another physics object.
 	void					setCollisionCallback(const std::function<void(const Collision&)>& fn);

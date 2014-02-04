@@ -168,6 +168,11 @@ void SpriteBody::setRotation(const float degree) {
 	}
 }
 
+float SpriteBody::getRotation() const {
+	if (mBody == nullptr) return 0.0f;
+	return mBody->GetAngle() * ds::math::RADIAN2DEGREE;
+}
+
 void SpriteBody::setCollisionCallback(const std::function<void(const Collision&)>& fn) {
 	mWorld.setCollisionCallback(mSprite, fn);
 }
