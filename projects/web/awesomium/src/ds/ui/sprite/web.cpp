@@ -259,6 +259,16 @@ void Web::setTransitionTime( const float transitionTime ) {
 	mTransitionTime = transitionTime;
 }
 
+void Web::setZoom(const double v) {
+	if (!mWebViewPtr) return;
+	mWebViewPtr->SetZoom(static_cast<int>(v * 100.0));
+}
+
+double Web::getZoom() const {
+	if (!mWebViewPtr) return 1.0;
+	return static_cast<double>(mWebViewPtr->GetZoom()) / 100.0;
+}
+
 void Web::goBack() {
 	if (mWebViewPtr) {
 		mWebViewPtr->GoBack();

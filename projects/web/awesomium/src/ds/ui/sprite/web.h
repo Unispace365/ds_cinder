@@ -48,6 +48,10 @@ public:
 	void activate();
 	void deactivate();
 
+	// Get the zoom level, where 1 = 100%, 0.25 = 25% etc.
+	void					setZoom(const double);
+	double					getZoom() const;
+
 	// Actions
 	void					goBack();
 	void					goForward();
