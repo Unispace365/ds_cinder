@@ -419,8 +419,7 @@ void Engine::drawServer() {
 	glAlphaFunc(GL_ALWAYS, 0.001f) ;
 }
 
-void Engine::setup(ds::App&)
-{
+void Engine::setup(ds::App&) {
 	//mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
 	//gl::setMatrices(mCamera);
 	setCamera(true);
@@ -430,7 +429,14 @@ void Engine::setup(ds::App&)
 
 	ci::gl::Fbo::Format format;
 	format.setColorInternalFormat(GL_RGBA32F);
-	mFbo = ci::gl::Fbo((int)getWidth(), (int)getHeight(), format);
+	const int		w = static_cast<int>(getWidth()),
+					h = static_cast<int>(getHeight());
+	if (w < 1 || h < 1) {
+		DS_LOG_FATAL("Engine::setup() on 0 size width or height");
+		std::cout << "ERROR Engine::setup() on 0 size width or height" << std::endl;
+		throw std::runtime_error("Engine::setup() on 0 size width or height");
+	}
+	mFbo = ci::gl::Fbo(w, h, format);
 	//////////////////////////////////////////////////////////////////////////
 
 	float curr = static_cast<float>(getElapsedSeconds());
