@@ -1055,14 +1055,8 @@ void GStreamerWrapper::handleGStMessage()
 								stop();
 								m_StopOnLoopComplete = false;
 							} else {
-								gst_element_seek( GST_ELEMENT( m_GstPipeline ),
-									m_fSpeed,
-									GST_FORMAT_TIME,
-									(GstSeekFlags)(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT),
-									GST_SEEK_TYPE_SET,
-									0,
-									GST_SEEK_TYPE_SET,
-									m_iDurationInNs );
+								stop();
+								setPosition(0);
 								play();
 							}
 							break;
