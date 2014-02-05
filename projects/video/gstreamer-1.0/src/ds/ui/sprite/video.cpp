@@ -242,6 +242,37 @@ Video &Video::setResourceId( const ds::Resource::Id &resourceId ) {
 	return *this;
 }
 
+void Video::setLooping(const bool on) {
+	mLooping = on;
+	if(mLooping){
+		mMovie.setLoopMode(LOOP);
+	} else {
+		mMovie.setLoopMode(NO_LOOP);
+	}
+}
+
+bool Video::getIsLooping() const {
+	return mLooping;
+}
+		
+void Video::setMute( const bool doMute ) {
+	mMuted = doMute;
+	setMovieVolume();
+}
+
+bool Video::getIsMuted() const {
+	return mMuted;
+}
+
+void Video::setVolume(const float volume ) {
+	mVolume = volume;
+	setMovieVolume();
+}
+
+float Video::getVolume() const {
+	return mVolume;
+}
+
 void Video::play() {
 	mMovie.play();
 }
@@ -253,17 +284,8 @@ void Video::stop() {
 void Video::pause() {
 	mMovie.pause();
 }
-		
-void Video::seek( float t ) {
-	mMovie.setTimePositionInMs(t);
-	//	mMovie.seekToTime(t);
-}
 
-double Video::duration() {
-	return mMovie.getDurationInMs();
-}
-
-bool Video::isPlaying() {
+bool Video::getIsPlaying() const {
 	if(mMovie.getState() == PLAYING){
 		return true;
 	} else {
@@ -271,31 +293,24 @@ bool Video::isPlaying() {
 	}
 }
 
-void Video::loop( bool flag ) {
-	mLooping = flag;
-	if(mLooping){
-		mMovie.setLoopMode(LOOP);
-	} else {
-		mMovie.setLoopMode(NO_LOOP);
-	}
+double Video::getDuration() const {
+	return mMovie.getDurationInMs() / 1000.0;
 }
 
-bool Video::isLooping() const {
-	return mLooping;
-}
-
-void Video::setVolume( float volume ) {
-	mVolume = volume;
-	setMovieVolume();
+double Video::getCurrentTime() const {
+	return mMovie.getPosition() * getDuration();
 }
 		
-void Video::setMute( const bool doMute ) {
-	mMuted = doMute;
-	setMovieVolume();
+void Video::seekTime(const double t) {
+	mMovie.setTimePositionInMs(t * 1000.0);
 }
 
-float Video::getVolume() const {
-	return mVolume;
+double Video::getCurrentPosition() const {
+	return mMovie.getPosition();
+}
+
+void Video::seekPosition(const double t) {
+	mMovie.setPosition(t);
 }
 
 void Video::setStatusCallback(const std::function<void(const Status&)>& fn) {
@@ -316,10 +331,6 @@ void Video::setMovieVolume() {
 	} else {
 		mMovie.setVolume(mVolume);
 	}
-}
-
-double Video::currentTime() {
-	return mMovie.getPosition();
 }
 
 void Video::unloadVideo() {
@@ -348,7 +359,7 @@ void Video::setAutoStart( const bool doAutoStart ) {
 
 void Video::playAFrame() {
 	mPlaySingleFrame = true;
-	if(!isPlaying()) {
+	if(!getIsPlaying()) {
 		play();
 	}
 }

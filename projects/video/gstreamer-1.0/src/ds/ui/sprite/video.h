@@ -26,23 +26,31 @@ public:
 
 	Video&              loadVideo( const std::string &filename);
 	Video              &setResourceId(const ds::Resource::Id &resourceId);
-
 	void				unloadVideo();
 
+	// Setup
+	void				setLooping(const bool on);
+	bool				getIsLooping() const;
+	void				setMute(const bool on);
+	bool				getIsMuted() const;
+	// value between 0.0f and 1.0f
+	void				setVolume(const float volume);
+	float				getVolume() const;
+
+	// Commands
 	void				play();
 	void				stop();
 	void				pause();
-	void				seek(float t);
-	double				duration();
-	double				currentTime();
-	bool				isPlaying();
-	void				loop(bool flag);
-	bool				isLooping() const;
-	// value between 0.0f & 1.0f
-	void				setVolume(float volume);
-	float				getVolume() const;
+	bool				getIsPlaying() const;
 
-	void				setMute(const bool doMute);
+	// Time operations (in seconds)
+	double				getDuration() const;
+	double				getCurrentTime() const;
+	void				seekTime(const double);
+
+    // Position operations (in unit values, 0 - 1)
+	double				getCurrentPosition() const;
+	void				seekPosition(const double);
 
 	struct Status {
 		static const int  STATUS_STOPPED = 0;

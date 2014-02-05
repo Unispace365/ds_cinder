@@ -323,7 +323,7 @@ namespace _2RealGStreamerWrapper
 			@fPos: The percentage value between 0.0f (= 0 percent) and 1.0f (= 100 percent). Values that are negative or greater than 1.0f
 			are being clamped to 0.0f and 1.0f respectively
 		*/
-		void					setPosition( float fPos );
+		void					setPosition(double fPos);
 
 
 		/*
@@ -397,7 +397,7 @@ namespace _2RealGStreamerWrapper
 		/*
 			Returns the current percentaged position of the stream which is a value between 0.0f (= 0 percent) and 1.0f (= 100 percent)
 		*/
-		float					getPosition();
+		double					getPosition() const;
 
 		/*
 			Returns the current frame number of the stream
@@ -417,12 +417,12 @@ namespace _2RealGStreamerWrapper
 		/*
 			Returns the duration of the stream in milliseconds
 		*/
-		double					getDurationInMs();
+		double					getDurationInMs() const;
 
 		/*
 			Returns the current position of the stream in nanoseconds
 		*/
-		gint64					getCurrentTimeInNs();
+		gint64					getCurrentTimeInNs() const;
 
 		/*
 			Returns the duration of the stream in nanoseconds
@@ -432,7 +432,7 @@ namespace _2RealGStreamerWrapper
 		/*
 			Returns the current PlayState
 		*/
-		PlayState				getState();
+		PlayState				getState() const;
 
 		/*
 			Returns the current playback direction
@@ -686,7 +686,7 @@ namespace _2RealGStreamerWrapper
 		double					m_dDurationInMs; /* Media duration in milliseconds */
 		gint64					m_iCurrentFrameNumber; /* Current frame number */
 		gint64					m_iNumberOfFrames; /* Total number of frames in media file */
-		gint64					m_iCurrentTimeInNs; /* Current time position in nanoseconds */
+		mutable gint64			m_iCurrentTimeInNs; /* Current time position in nanoseconds */
 		gint64					m_iDurationInNs; /* Duration of media file in nanoseconds */
 
 		PlayState				m_CurrentPlayState; /* The current state of the wrapper */

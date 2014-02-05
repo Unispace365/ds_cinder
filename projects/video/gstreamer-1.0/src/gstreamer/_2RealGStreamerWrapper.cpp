@@ -571,7 +571,7 @@ void GStreamerWrapper::setTimePositionInNs( gint64 iTargetTimeInNs )
 	seekFrame( m_iCurrentTimeInNs );
 }
 
-void GStreamerWrapper::setPosition( float fPos )
+void GStreamerWrapper::setPosition(double fPos)
 {
 	if( fPos < 0.0 )
 		fPos = 0.0;
@@ -651,9 +651,9 @@ float GStreamerWrapper::getSpeed()
 	return m_fSpeed;
 }
 
-float GStreamerWrapper::getPosition()
+double GStreamerWrapper::getPosition() const
 {
-	return (float)getCurrentTimeInNs() / (float)m_iDurationInNs;
+	return static_cast<double>(getCurrentTimeInNs()) / static_cast<double>(m_iDurationInNs);
 }
 
 gint64 GStreamerWrapper::getCurrentFrameNumber()
@@ -672,12 +672,12 @@ double GStreamerWrapper::getCurrentTimeInMs()
 	return (double)(getCurrentTimeInNs() / 1000000);
 }
 
-double GStreamerWrapper::getDurationInMs()
+double GStreamerWrapper::getDurationInMs() const
 {
 	return m_dDurationInMs;
 }
 
-gint64 GStreamerWrapper::getCurrentTimeInNs()
+gint64 GStreamerWrapper::getCurrentTimeInNs() const
 {
 	GstFormat gstFormat = GST_FORMAT_TIME;
 	gst_element_query_position( GST_ELEMENT( m_GstPipeline ), gstFormat, &m_iCurrentTimeInNs );
@@ -689,7 +689,7 @@ gint64 GStreamerWrapper::getDurationInNs()
 	return m_iDurationInNs;
 }
 
-PlayState GStreamerWrapper::getState()
+PlayState GStreamerWrapper::getState() const
 {
 	return m_CurrentPlayState;
 }
