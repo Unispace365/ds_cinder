@@ -183,7 +183,7 @@ bool VideoMetaCache::getVideoInfo(const std::string& path, float& outDuration, i
 	} else {
 		int hours = atoi(duration.substr(0,1).c_str());
 		int minutes = atoi(duration.substr(2,2).c_str());
-		float seconds = atof(duration.substr(5).c_str());
+		float seconds = static_cast<float>(atof(duration.substr(5).c_str()));
 		outDuration = static_cast<float>(hours * 60 * 60) + static_cast<float>(minutes * 60) + seconds;
 	}
 

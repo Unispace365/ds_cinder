@@ -24,7 +24,7 @@
     <ClCompile Include="src\gstreamer\video_meta_cache.cpp">
       <Filter>src\gstreamer</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\sprite\video.cpp">
+    <ClCompile Include="src\ds\ui\sprite\gst_video.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
@@ -36,6 +36,9 @@
       <Filter>src\gstreamer</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\sprite\video.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\gst_video.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
