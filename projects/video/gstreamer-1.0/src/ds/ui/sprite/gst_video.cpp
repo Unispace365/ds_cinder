@@ -69,7 +69,8 @@ GstVideo::GstVideo( SpriteEngine& engine )
 		, mStatusDirty(false)
 		, mStatusFn(nullptr)
 		, mIsTransparent(true)
-		, mPlaySingleFrame(false) {
+		, mPlaySingleFrame(false)
+		, mPlaySingleFrameFn(nullptr) {
 	setUseShaderTextuer(true);
 	setTransparent(false);
 	setStatus(Status::STATUS_STOPPED);
@@ -126,6 +127,8 @@ void GstVideo::drawLocalClient() {
 		if(mPlaySingleFrame){
 			stop();
 			mPlaySingleFrame = false;
+			if (mPlaySingleFrameFn) mPlaySingleFrameFn(*this);
+			mPlaySingleFrameFn = nullptr;
 		}
 	}
 
@@ -357,11 +360,16 @@ void GstVideo::setAutoStart( const bool doAutoStart ) {
 	mMovie.setStartPlaying(doAutoStart);
 }
 
-void GstVideo::playAFrame() {
+void GstVideo::playAFrame(const std::function<void(GstVideo&)>& fn) {
 	mPlaySingleFrame = true;
+	mPlaySingleFrameFn = fn;
 	if(!getIsPlaying()) {
 		play();
 	}
+}
+
+bool GstVideo::isPlayingAFrame() const {
+	return mPlaySingleFrame;
 }
 
 void GstVideo::stopAfterNextLoop() {

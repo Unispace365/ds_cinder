@@ -73,10 +73,12 @@ public:
 	void				setAutoStart(const bool doAutoStart);
 
 	// Set's the video to play, then stops the video after that frame has played.
-	void				playAFrame();
+	// Optionally supply a function called once I've played a frame.
+	void				playAFrame(const std::function<void(GstVideo&)>& fn = nullptr);
+	bool				isPlayingAFrame() const;
 	// If a video is looping, will stop the video when the current loop completes.
 	void				stopAfterNextLoop();
-
+	
 private:
 	typedef Sprite		inherited;
 
@@ -103,7 +105,9 @@ private:
 	bool                mStatusDirty;
 
 	bool				mPlaySingleFrame;
-		
+	std::function<void(GstVideo&)>
+						mPlaySingleFrameFn;
+
 	std::function<void(const Status&)>
 						mStatusFn;
 	std::function<void(GstVideo*)>
