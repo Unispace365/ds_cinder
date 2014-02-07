@@ -188,6 +188,16 @@ static void read_nine_patch_cfg(const std::string& path, std::unordered_map<std:
 		}
 	});
 
+	// Strings (everything but type)
+	s.forEachTextKey([&s, &out](const std::string& key) {
+		std::string			left, right;
+		if (split_key(key, left, right) && !out.empty() && right != "type") {
+			auto			found = out.find(left);
+			if (found != out.end()) {
+				found->second.mStore.setString(right, s.getText(key, 0, ""));
+			}
+		}
+	});
 }
 
 static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out) {

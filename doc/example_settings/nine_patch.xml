@@ -19,5 +19,8 @@
 		to create rounded rects that have highly rounded corners but only a little
 		shading. -->
 		<float name="panel:bg:border" value="1.0" />
+		<!-- Write the rendered image to the provided file. Completely optional,
+		and should be kept off in release builds. -->
+		<text  name="center:bg:black:file" value="C:\path\to\file.png" />
 
 </settings>

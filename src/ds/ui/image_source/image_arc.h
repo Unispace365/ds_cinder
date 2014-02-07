@@ -16,8 +16,7 @@ namespace ui {
  * \class ds::ui::ImageArc
  * \brief Generate an image with an arc.
  */
-class ImageArc : public ImageSource
-{
+class ImageArc : public ImageSource {
 public:
 	/**
 	 * \param filename is the filename (and path) for the resource.
@@ -30,12 +29,15 @@ public:
 	void					addColorInput(const ci::ColorA&);
 	void					addFloatInput(const double);
 	void					addVec2Input(const ci::Vec2d&);
-	
+	// A filename to write the rendered image to, for debugging.
+	void					setWriteFile(const std::string&);
+
 private:
 	const int				mWidth,
 							mHeight;
 	const std::string		mFilename;
 	ds::arc::Input			mInput;
+	std::string				mWriteFile;
 
 	// Engine initialization
 public:

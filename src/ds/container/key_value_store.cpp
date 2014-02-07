@@ -100,6 +100,18 @@ std::int32_t KeyValueStore::getInt(const std::string& key, const size_t index, c
 	return notFound;
 }
 
+std::string KeyValueStore::getString(const std::string& key, const size_t index) const {
+	return get_value<std::string>(mString, key, index);
+}
+
+std::string KeyValueStore::getString(const std::string& key, const size_t index, const std::string& notFound) const {
+	try {
+		return getString(key, index);
+	} catch (std::exception const&) {
+	}
+	return notFound;
+}
+
 void KeyValueStore::setColorA(const std::string& key, const ci::ColorA& value, const size_t index) {
 	try {
 		set_value<ci::ColorA>(mColorA, key, value, index);
@@ -117,6 +129,13 @@ void KeyValueStore::setFloat(const std::string& key, const float value, const si
 void KeyValueStore::setInt(const std::string& key, const std::int32_t value, const size_t index) {
 	try {
 		set_value<std::int32_t>(mInt, key, value, index);
+	} catch (std::exception const&) {
+	}
+}
+
+void KeyValueStore::setString(const std::string& key, const std::string& value, const size_t index) {
+	try {
+		set_value<std::string>(mString, key, value, index);
 	} catch (std::exception const&) {
 	}
 }

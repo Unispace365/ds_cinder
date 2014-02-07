@@ -1,10 +1,12 @@
 #include "image_arc.h"
 
+#include <cinder/ImageIo.h>
 #include <cinder/Surface.h>
 #include "ds/app/image_registry.h"
 #include "ds/arc/arc_io.h"
 #include "ds/arc/arc_render_circle.h"
 #include "ds/data/data_buffer.h"
+#include "ds/debug/logger.h"
 #include "ds/ui/image_source/image_generator.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
@@ -29,8 +31,8 @@ class ArcGenerator : public ImageGenerator
 public:
 	ArcGenerator(SpriteEngine&)
 		: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(0), mHeight(0) { }
-	ArcGenerator(SpriteEngine&, const int width, const int height, const std::string& fn, const ds::arc::Input& input)
-		: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(width), mHeight(height), mFilename(fn), mInput(input) { }
+	ArcGenerator(SpriteEngine&, const int width, const int height, const std::string& fn, const ds::arc::Input& input, const std::string& write_file)
+		: ImageGenerator(BLOB_TYPE), mStatus(STATUS_EMPTY), mWidth(width), mHeight(height), mFilename(fn), mInput(input), mWriteFile(write_file) { }
 
 	bool						getMetaData(ImageMetaData& d) const {
 		d.mSize.x = static_cast<float>(mWidth);
@@ -82,9 +84,20 @@ private:
 		ds::arc::RenderCircle		render;
 		if (!render.on(mInput, s, *(a.get()))) return;
 
+		writeFile(s);
 		mTexture = ci::gl::Texture(s);
 		if (mTexture && mTexture.getWidth() == mWidth && mTexture.getHeight() == mHeight) {
 			mStatus = STATUS_OK;
+		}
+	}
+
+	void					writeFile(const ci::Surface8u& s) {
+		if (s.getWidth() > 0 && s.getHeight() > 0 && !mWriteFile.empty()) {
+			try {
+				ci::writeImage(mWriteFile, s);
+			} catch (std::exception const&) {
+				DS_LOG_WARNING("Error writing rendered arc to file (" << mWriteFile << ")");
+			}
 		}
 	}
 
@@ -93,6 +106,7 @@ private:
 							mHeight;
 	std::string				mFilename;
 	ds::arc::Input			mInput;
+	std::string				mWriteFile;
 	ci::gl::Texture			mTexture;
 };
 
@@ -107,30 +121,29 @@ void ImageArc::install(ds::ImageRegistry& registry)
 }
 
 ImageArc::ImageArc(const int width, const int height, const std::string& filename)
-	: mWidth(width)
-	, mHeight(height)
-	, mFilename(filename)
-{
+		: mWidth(width)
+		, mHeight(height)
+		, mFilename(filename) {
 }
 
-ImageGenerator* ImageArc::newGenerator(SpriteEngine& e) const
-{
-	return new ArcGenerator(e, mWidth, mHeight, mFilename, mInput);
+ImageGenerator* ImageArc::newGenerator(SpriteEngine& e) const {
+	return new ArcGenerator(e, mWidth, mHeight, mFilename, mInput, mWriteFile);
 }
 
-void ImageArc::addColorInput(const ci::ColorA& c)
-{
+void ImageArc::addColorInput(const ci::ColorA& c) {
 	mInput.addColor(c);
 }
 
-void ImageArc::addFloatInput(const double f)
-{
+void ImageArc::addFloatInput(const double f) {
 	mInput.addFloat(f);
 }
 
-void ImageArc::addVec2Input(const ci::Vec2d& v)
-{
+void ImageArc::addVec2Input(const ci::Vec2d& v) {
 	mInput.addVec2(v);
+}
+
+void ImageArc::setWriteFile(const std::string& fn) {
+	mWriteFile = fn;
 }
 
 } // namespace ui
