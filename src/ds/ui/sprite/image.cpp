@@ -33,8 +33,12 @@ void Image::installAsClient(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Image>(r);});
 }
 
+Image& Image::makeImage(SpriteEngine& e, const std::string& fn, Sprite* parent) {
+	return makeAlloc<ds::ui::Image>([&e, &fn]()->ds::ui::Image*{ return new ds::ui::Image(e, fn); }, parent);
+}
+
 Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
-	return makeAlloc<ds::ui::Image>([&e, &r]()->ds::ui::Image*{ return new ds::ui::Image(e, r.getAbsoluteFilePath()); }, parent);
+	return makeImage(e, r.getAbsoluteFilePath(), parent);
 }
 
 Image::Image(SpriteEngine& engine, const int flags)
