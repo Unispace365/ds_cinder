@@ -17,8 +17,7 @@ namespace arc {
  * \class ds::arc::Input
  * \brief Provide input to an arc from an external source.
  */
-class Input
-{
+class Input {
 public:
 	Input();
 
@@ -41,8 +40,7 @@ private:
  * \brief A standard color, but one with the potential to be replaced
  * by a value from an Input.
  */
-class ColorParam
-{
+class ColorParam {
 public:
 	ColorParam(const ci::ColorA& clr = ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f));
 
@@ -59,8 +57,7 @@ public:
  * \brief A standard float, but one with the potential to be replaced
  * by a value from an Input.
  */
-class FloatParam
-{
+class FloatParam {
 public:
 	FloatParam(const double value = 0.0);
 
@@ -70,6 +67,10 @@ public:
 
 	double			mValue;
 	int				mInputIndex;
+
+private:
+	std::size_t		mFlags;
+	double			mMin, mMax;
 };
 
 /**
@@ -77,8 +78,7 @@ public:
  * \brief A standard Vec2, but one with the potential to be replaced
  * by a value from an Input.
  */
-class Vec2Param
-{
+class Vec2Param {
 public:
 	Vec2Param(const ci::Vec2d& v = ci::Vec2d(0.0f, 0.0f));
 
