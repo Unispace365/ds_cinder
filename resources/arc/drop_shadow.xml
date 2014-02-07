@@ -9,7 +9,6 @@
 			border by decreasing the amount of area used for the pow() shaping.
 			1 means there is no border, then go up as high as you want. -->
 			<arc type="map">
-				<to_min value="1" min="1" />
 				<to_max value="1" input="1" min="1" />
 			</arc>
 			<!-- Clip the saturated value back to 0 - 1. -->
