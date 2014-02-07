@@ -151,6 +151,7 @@ void Sprite::init(const ds::sprite_id_t id)
 }
 
 Sprite::~Sprite() {
+	animStop();
     setSpriteId(ds::EMPTY_SPRITE_ID);
 	// Parent management should have happened before we get to the delete.
 //    remove();
