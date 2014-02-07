@@ -6,12 +6,14 @@ namespace ui {
 /**
  * \class ds::ui::ImageSource
  */
-ImageSource::ImageSource()
-{
+ImageSource::ImageSource() {
 }
 
-ImageSource::~ImageSource()
-{
+ImageSource::~ImageSource() {
+}
+
+bool ImageSource::generatorMatches(const ImageGenerator&) const {
+	return false;
 }
 
 } // namespace ui

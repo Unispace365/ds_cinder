@@ -20,6 +20,8 @@ public:
 	virtual ~ImageSource();
 
 	virtual ImageGenerator*			newGenerator(SpriteEngine&) const = 0;
+	// Return true if I would result in an identical generator
+	virtual bool					generatorMatches(const ImageGenerator&) const;
 
 protected:
 	ImageSource();

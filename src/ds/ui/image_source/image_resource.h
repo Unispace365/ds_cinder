@@ -25,6 +25,7 @@ public:
 	ImageResource(const ds::Resource::Id&, const int flags = 0);
 
 	virtual ImageGenerator*		newGenerator(SpriteEngine&) const;
+	virtual bool				generatorMatches(const ImageGenerator&) const;
 
 private:
 	const ds::Resource			mResource;

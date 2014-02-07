@@ -24,15 +24,16 @@ public:
 	ImageFile(const std::string& filename, const int flags = 0);
 
 	virtual ImageGenerator*		newGenerator(SpriteEngine&) const;
+	virtual bool				generatorMatches(const ImageGenerator&) const;
 
 private:
-	const std::string					mFilename;
-	const int									mFlags;
+	const std::string			mFilename;
+	const int					mFlags;
 
 	// Engine initialization
 public:
 	// Generators must be registered with the system at startup (i.e. in App constructor)
-	static void								install(ds::ImageRegistry&);
+	static void					install(ds::ImageRegistry&);
 };
 
 } // namespace ui

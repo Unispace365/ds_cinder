@@ -19,13 +19,20 @@ const char          RES_FLAGS_ATT     = 21;
  * \class FileGenerator
  * This does all the work of loading the file and transporting settings across the network.
  */
-class FileGenerator : public ImageGenerator
-{
+class FileGenerator : public ImageGenerator {
 public:
 	FileGenerator(SpriteEngine& e)
 			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()) { }
 	FileGenerator(SpriteEngine& e, const std::string& fn, const int f)
 			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()), mFilename(fn), mFlags(f) { preload(); }
+
+	const std::string&			getFilename() const {
+		return mFilename;
+	}
+
+	const int					getFlags() const {
+		return mFlags;
+	}
 
 	bool						getMetaData(ImageMetaData& d) const {
 		if (mFilename.empty()) return false;
@@ -35,18 +42,18 @@ public:
 	}
 
 	const ci::gl::Texture*		getImage() {
-		if (mTexture && mTexture.getWidth() > 0 && mTexture.getHeight() > 0) return &mTexture;
+		if (mTexture) return &mTexture;
 
 		if (mToken.canAcquire()) {
 			mToken.acquire(mFilename, mFlags);
-		} else {
-			float						fade;
-			mTexture = mToken.getImage(fade);
 		}
+		float						fade;
+		mTexture = mToken.getImage(fade);
+		if (mTexture) return &mTexture;
 		return nullptr;
 	}
 
-	virtual void							writeTo(DataBuffer& buf) const {
+	virtual void				writeTo(DataBuffer& buf) const {
 		buf.add(RES_FN_ATT);
 		buf.add(mFilename);
 
@@ -54,7 +61,7 @@ public:
 		buf.add(mFlags);
 	}
 
-	virtual bool							readFrom(DataBuffer& buf) {
+	virtual bool				readFrom(DataBuffer& buf) {
 		if (!buf.canRead<char>()) return false;
 		if (buf.read<char>() != RES_FN_ATT) return false;
 		mFilename = buf.read<std::string>();
@@ -69,7 +76,7 @@ public:
 	}
 
 private:
-	void								preload() {
+	void					preload() {
 		// XXX This should check to see if I'm in client mode and only
 		// load it then. (or the service should be empty in server mode).
 		if ((mFlags&ds::ui::Image::IMG_PRELOAD_F) != 0 && mToken.canAcquire()) {
@@ -77,10 +84,10 @@ private:
 		}
 	}
 
-	ImageToken							mToken;
-	std::string							mFilename;
-	int									mFlags;
-	ci::gl::Texture						mTexture;
+	ImageToken				mToken;
+	std::string				mFilename;
+	int						mFlags;
+	ci::gl::Texture			mTexture;
 };
 
 }
@@ -99,6 +106,14 @@ ImageFile::ImageFile(const std::string& filename, const int flags)
 
 ImageGenerator* ImageFile::newGenerator(SpriteEngine& e) const {
 	return new FileGenerator(e, mFilename, mFlags);
+}
+
+bool ImageFile::generatorMatches(const ImageGenerator& gen) const {
+	const FileGenerator*	fgen = dynamic_cast<const FileGenerator*>(&gen);
+	if (fgen) {
+		return mFilename == fgen->getFilename() && mFlags == fgen->getFlags();
+	}
+	return false;
 }
 
 } // namespace ui

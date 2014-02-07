@@ -28,6 +28,14 @@ public:
 	FileGenerator(SpriteEngine& e, const ds::Resource& res, const int f)
 			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()), mResource(res), mFlags(f) { preload(); }
 
+	const ds::Resource&			getResource() const {
+		return mResource;
+	}
+
+	const int					getFlags() const {
+		return mFlags;
+	}
+
 	bool						getMetaData(ImageMetaData& d) const {
 		const std::string&		fn = mResource.getAbsoluteFilePath();
 		if (fn.empty()) return false;
@@ -37,14 +45,14 @@ public:
 	}
 
 	const ci::gl::Texture*		getImage() {
-		if (mTexture && mTexture.getWidth() > 0 && mTexture.getHeight() > 0) return &mTexture;
+		if (mTexture) return &mTexture;
 
 		if (mToken.canAcquire()) {
 			mToken.acquire(mResource.getAbsoluteFilePath(), mFlags);
-		} else {
-			float						fade;
-			mTexture = mToken.getImage(fade);
 		}
+		float						fade;
+		mTexture = mToken.getImage(fade);
+		if (mTexture) return &mTexture;
 		return nullptr;
 	}
 
@@ -110,6 +118,14 @@ ImageGenerator* ImageResource::newGenerator(SpriteEngine& e) const {
 		e.getResources().get(mResourceId, r);
 	}
 	return new FileGenerator(e, r, mFlags);
+}
+
+bool ImageResource::generatorMatches(const ImageGenerator& gen) const {
+	const FileGenerator*	fgen = dynamic_cast<const FileGenerator*>(&gen);
+	if (fgen) {
+		return mResource == fgen->getResource() && mFlags == fgen->getFlags();
+	}
+	return false;
 }
 
 } // namespace ui

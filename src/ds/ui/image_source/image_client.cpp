@@ -28,6 +28,8 @@ void ImageClient::clear() {
 }
 
 void ImageClient::setSource(const ImageSource& src) {
+	if (mGenerator && src.generatorMatches(*mGenerator)) return;
+
 	clear();
 	mGenerator = src.newGenerator(mEngine);
 }
