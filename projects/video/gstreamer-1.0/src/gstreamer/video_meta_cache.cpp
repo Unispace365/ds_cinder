@@ -194,7 +194,7 @@ bool VideoMetaCache::getVideoInfo(const std::string& path, float& outDuration, i
 	//}
 	//} 
 	if (outWidth < 1 || outHeight < 1){
-		DS_LOG_WARNING("Width or height are invalid, width=" << outWidth << " height=" << outHeight);
+		DS_LOG_WARNING("Width or height are invalid, width=" << outWidth << " height=" << outHeight << " (output was " << out << ")");
 		return false;
 	}
 
