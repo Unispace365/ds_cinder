@@ -17,6 +17,7 @@ public:
 	TouchEvent();
 
 	Phase			mPhase;
+	ci::Vec2f		mPosition;
 	ci::Vec2f		mUnitPosition;
 };
 

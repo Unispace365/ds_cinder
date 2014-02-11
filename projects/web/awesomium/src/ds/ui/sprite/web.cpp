@@ -282,10 +282,12 @@ void Web::setTouchListener(const std::function<void(const ds::web::TouchEvent&)>
 void Web::handleListenerTouchEvent(const ds::web::TouchEvent& te) {
 	if (!mWebViewPtr) return;
 
-	const ci::Vec2f			doc_size(getDocumentSize()),
-							doc_scroll(getDocumentScroll());
-	const ci::Vec2i			pos(static_cast<int>((te.mUnitPosition.x*doc_size.x)-doc_scroll.x),
-								static_cast<int>((te.mUnitPosition.y*doc_size.y)-doc_scroll.y));
+//	const ci::Vec2f			doc_size(getDocumentSize());
+	const ci::Vec2f			doc_scroll(getDocumentScroll());
+//	const ci::Vec2i			pos(static_cast<int>((te.mUnitPosition.x*doc_size.x)-doc_scroll.x),
+//								static_cast<int>((te.mUnitPosition.y*doc_size.y)-doc_scroll.y));
+	const ci::Vec2i			pos(static_cast<int>((te.mPosition.x)-doc_scroll.x),
+								static_cast<int>((te.mPosition.y)-doc_scroll.y));
 	if (te.mPhase == te.kAdded) {
 		sendMouseDownEvent(ci::app::MouseEvent(1, pos.x, pos.y, 0, 0, 0));
 	} else if (te.mPhase == te.kMoved) {
@@ -403,8 +405,10 @@ void Web::sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Ph
 							doc_scroll(getDocumentScroll());
 	ds::web::TouchEvent		te;
 	te.mPhase = phase;
-	te.mUnitPosition.x = (doc_scroll.x + static_cast<float>(x)) / doc_size.x;
-	te.mUnitPosition.y = (doc_scroll.y + static_cast<float>(y)) / doc_size.y;
+	te.mPosition.x = (doc_scroll.x + static_cast<float>(x));
+	te.mPosition.y = (doc_scroll.y + static_cast<float>(y));
+	te.mUnitPosition.x = te.mPosition.x / doc_size.x;
+	te.mUnitPosition.y = te.mPosition.y / doc_size.y;
 
 	mTouchListener(te);
 }
