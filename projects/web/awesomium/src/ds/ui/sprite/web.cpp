@@ -301,6 +301,49 @@ void Web::setAddressChangedFn(const std::function<void(const std::string& new_ad
 	if (mWebViewListener) mWebViewListener->setAddressChangedFn(fn);
 }
 
+ci::Vec2f Web::geDocumentSize() {
+	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
+
+	const std::string		utf8_width("width");
+	const std::string		utf8_height("height");
+	Awesomium::WebString	width_key(Awesomium::WebString::CreateFromUTF8(utf8_width.c_str(), utf8_width.size()));
+	Awesomium::WebString	height_key(Awesomium::WebString::CreateFromUTF8(utf8_height.c_str(), utf8_height.size()));
+	const std::string		utf8("(function() { var result = {height:$(document).height(), width:$(document).width()}; return result; }) ();");
+	Awesomium::WebString	str(Awesomium::WebString::CreateFromUTF8(utf8.c_str(), utf8.size()));
+	Awesomium::JSValue jsv = mWebViewPtr->ExecuteJavascriptWithResult(str, Awesomium::WebString());
+	const size_t			MAX_BUF = 256;
+	char					buf[MAX_BUF];
+	ci::Vec2f				ans(0.0f, 0.0f);
+	if (jsv.IsObject()) {
+		const Awesomium::JSObject&	jobj(jsv.ToObject());
+		if (jobj.HasProperty(width_key) && jobj.HasProperty(height_key)) {
+			Awesomium::JSValue		w = jobj.GetProperty(width_key),
+									h = jobj.GetProperty(height_key);
+
+			Awesomium::WebString	wweb(w.ToString());
+			int						size = wweb.ToUTF8(buf, MAX_BUF);
+			const std::string		wstr(buf, size);
+			Awesomium::WebString	hweb(h.ToString());
+			size = hweb.ToUTF8(buf, MAX_BUF);
+			const std::string		hstr(buf, size);
+
+			string_to_value(wstr, ans.x);
+			string_to_value(hstr, ans.y);
+		}
+#if 0
+		Awesomium::JSArray			names(jobj.GetPropertyNames());
+		for (unsigned int k=0; k<names.size(); ++k) {
+			Awesomium::JSValue&		jname(names.At(k));
+			Awesomium::WebString	wname(jname.ToString());
+			int						size = wname.ToUTF8(buf, 4000);
+			const std::string		jeez(buf, size);
+			std::cout << "\t" << k << "=" << jeez << std::endl;
+		}
+#endif
+	}
+	return ans;
+}
+
 void Web::onSizeChanged() {
 	if (mWebViewPtr) {
 		const int			w = static_cast<int>(getWidth()),

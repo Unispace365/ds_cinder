@@ -63,6 +63,11 @@ public:
 	// In the future I'd like to have a richer mechanism in place.
 	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
 
+	// Convenience to get the page size of the rendered document. Not
+	// sure if I'll ever need this but it's such a pain to do I don't
+	// want to lose it.
+	ci::Vec2f				geDocumentSize();
+
 protected:
 	virtual void			onSizeChanged();
 
