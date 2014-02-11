@@ -57,9 +57,9 @@
     <ClInclude Include="..\src\ds\cfg\cfg_nine_patch.h" />
     <ClInclude Include="..\src\ds\cfg\cfg_text.h" />
     <ClInclude Include="..\src\ds\cfg\settings.h" />
-    <ClInclude Include="..\src\ds\container\key_value_store.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
+    <ClInclude Include="..\src\ds\data\key_value_store.h" />
     <ClInclude Include="..\src\ds\data\raw_data_buffer.h" />
     <ClInclude Include="..\src\ds\data\read_write_buffer.h" />
     <ClInclude Include="..\src\ds\data\resource.h" />
@@ -190,9 +190,9 @@
     <ClCompile Include="..\src\ds\cfg\cfg_nine_patch.cpp" />
     <ClCompile Include="..\src\ds\cfg\cfg_text.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings.cpp" />
-    <ClCompile Include="..\src\ds\container\key_value_store.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />
+    <ClCompile Include="..\src\ds\data\key_value_store.cpp" />
     <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\read_write_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\resource.cpp" />

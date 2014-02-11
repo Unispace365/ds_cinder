@@ -2,7 +2,7 @@
 #ifndef DS_CFG_CFGNINEPATCH_H_
 #define DS_CFG_CFGNINEPATCH_H_
 
-#include "ds/container/key_value_store.h"
+#include "ds/data/key_value_store.h"
 
 namespace ds {
 namespace ui {

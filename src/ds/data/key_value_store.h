@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DS_CONTAINER_KEYVALUESTORE_H_
-#define DS_CONTAINER_KEYVALUESTORE_H_
+#ifndef DS_DATA_KEYVALUESTORE_H_
+#define DS_DATA_KEYVALUESTORE_H_
 
 #include <cstdint>
 #include <string>
@@ -53,4 +53,4 @@ private:
 
 } // namespace ds
 
-#endif // DS_CONTAINER_KEYVALUESTORE_H_
+#endif // DS_DATA_KEYVALUESTORE_H_
