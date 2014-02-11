@@ -33,6 +33,70 @@ Init				INIT;
 namespace ds {
 namespace ui {
 
+namespace {
+// Utility to get x,y data as a result of running some javascript. It's assumed that
+// the javascript is returning an array value with two named keys that match prop_x and prop_y.
+ci::Vec2f get_javascript_xy(Awesomium::WebView& view, const std::string& prop_x, const std::string& prop_y, const std::string& javascript) {
+	const std::string		utf8_width(prop_x);
+	const std::string		utf8_height(prop_y);
+	Awesomium::WebString	width_key(Awesomium::WebString::CreateFromUTF8(utf8_width.c_str(), utf8_width.size()));
+	Awesomium::WebString	height_key(Awesomium::WebString::CreateFromUTF8(utf8_height.c_str(), utf8_height.size()));
+	Awesomium::WebString	str(Awesomium::WebString::CreateFromUTF8(javascript.c_str(), javascript.size()));
+	Awesomium::JSValue		jsv = view.ExecuteJavascriptWithResult(str, Awesomium::WebString());
+	const size_t			MAX_BUF = 256;
+	char					buf[MAX_BUF];
+	ci::Vec2f				ans(0.0f, 0.0f);
+	if (jsv.IsObject()) {
+		const Awesomium::JSObject&	jobj(jsv.ToObject());
+		if (jobj.HasProperty(width_key) && jobj.HasProperty(height_key)) {
+			Awesomium::JSValue		w = jobj.GetProperty(width_key),
+									h = jobj.GetProperty(height_key);
+
+			Awesomium::WebString	wweb(w.ToString());
+			int						size = wweb.ToUTF8(buf, MAX_BUF);
+			const std::string		wstr(buf, size);
+			Awesomium::WebString	hweb(h.ToString());
+			size = hweb.ToUTF8(buf, MAX_BUF);
+			const std::string		hstr(buf, size);
+
+			string_to_value(wstr, ans.x);
+			string_to_value(hstr, ans.y);
+		}
+#if 0
+		Awesomium::JSArray			names(jobj.GetPropertyNames());
+		for (unsigned int k=0; k<names.size(); ++k) {
+			Awesomium::JSValue&		jname(names.At(k));
+			Awesomium::WebString	wname(jname.ToString());
+			int						size = wname.ToUTF8(buf, 4000);
+			const std::string		jeez(buf, size);
+			std::cout << "\t" << k << "=" << jeez << std::endl;
+		}
+#endif
+	}
+	return ans;
+}
+
+// Get the current document scroll position
+ci::Vec2f get_document_scroll(Awesomium::WebView& view) {
+	const std::string		prop_x("x");
+	const std::string		prop_y("y");
+	const std::string		javascript("(function() { \
+		var doc = document.documentElement; \
+		var left = (window.pageXOffset || doc.scrollLeft) - (doc.clientLeft || 0); \
+		var top = (window.pageYOffset || doc.scrollTop)  - (doc.clientTop || 0); \
+		return {x:left, y:top}; }) ();");
+	return get_javascript_xy(view, prop_x, prop_y, javascript);
+}
+
+ci::Vec2f get_document_size(Awesomium::WebView& view) {
+	const std::string		prop_x("width");
+	const std::string		prop_y("height");
+	const std::string		javascript("(function() { var result = {height:$(document).height(), width:$(document).width()}; return result; }) ();");
+	return get_javascript_xy(view, prop_x, prop_y, javascript);
+}
+
+} // anonymous namespace
+
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	: Sprite(engine, width, height)
 	, mService(engine.getService<ds::web::Service>("web"))
@@ -106,8 +170,7 @@ void Web::updateServer( const ds::UpdateParams &updateParams ) {
 		mLoadingAngle = mLoadingAngle - 360.0f;
 }
 
-void Web::drawLocalClient()
-{
+void Web::drawLocalClient() {
   if (mWebTexture) {
     //ci::gl::color(ci::Color::white());
     ci::gl::draw(mWebTexture);
@@ -131,8 +194,7 @@ void Web::drawLocalClient()
   }
 }
 
-void Web::handleTouch( const ds::ui::TouchInfo &touchInfo )
-{
+void Web::handleTouch( const ds::ui::TouchInfo &touchInfo ) {
   if (touchInfo.mFingerIndex != 0)
     return;
 
@@ -188,12 +250,10 @@ std::string Web::getUrl() {
 void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {
 }
 
-void Web::sendKeyUpEvent( const ci::app::KeyEvent &event )
-{
+void Web::sendKeyUpEvent( const ci::app::KeyEvent &event ) {
 }
 
-void Web::sendMouseDownEvent( const ci::app::MouseEvent &event )
-{
+void Web::sendMouseDownEvent( const ci::app::MouseEvent &event ) {
 	// send mouse events to Awesomium
 	if (mWebViewPtr) {
 		ci::app::MouseEvent eventMove(0, event.getX(), event.getY(), 0, 0, 0);
@@ -202,24 +262,21 @@ void Web::sendMouseDownEvent( const ci::app::MouseEvent &event )
 	}
 }
 
-void Web::sendMouseDragEvent( const ci::app::MouseEvent &event )
-{
+void Web::sendMouseDragEvent( const ci::app::MouseEvent &event ) {
 	// send mouse events to Awesomium
 	if (mWebViewPtr) {
 		ph::awesomium::handleMouseDrag( mWebViewPtr, event );
 	}
 }
 
-void Web::sendMouseUpEvent( const ci::app::MouseEvent &event )
-{
+void Web::sendMouseUpEvent( const ci::app::MouseEvent &event ) {
 	// send mouse events to Awesomium
 	if (mWebViewPtr) {
 		ph::awesomium::handleMouseUp( mWebViewPtr, event );
 	}
 }
 
-void Web::activate()
-{
+void Web::activate() {
 	if (mActive) {
 		return;
 	}
@@ -234,8 +291,7 @@ void Web::activate()
 	mEngine.getTweenline().apply(*this, ANIM_OPACITY(), 1.0f, mTransitionTime, ci::EaseOutQuad());
 }
 
-void Web::deactivate()
-{
+void Web::deactivate() {
 	if (!mActive) {
 		return;
 	}
@@ -258,6 +314,7 @@ bool Web::isActive() const {
 void Web::setTransitionTime( const float transitionTime ) {
 	mTransitionTime = transitionTime;
 }
+
 
 void Web::setZoom(const double v) {
 	if (!mWebViewPtr) return;
@@ -303,45 +360,12 @@ void Web::setAddressChangedFn(const std::function<void(const std::string& new_ad
 
 ci::Vec2f Web::geDocumentSize() {
 	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
+	return get_document_size(*mWebViewPtr);
+}
 
-	const std::string		utf8_width("width");
-	const std::string		utf8_height("height");
-	Awesomium::WebString	width_key(Awesomium::WebString::CreateFromUTF8(utf8_width.c_str(), utf8_width.size()));
-	Awesomium::WebString	height_key(Awesomium::WebString::CreateFromUTF8(utf8_height.c_str(), utf8_height.size()));
-	const std::string		utf8("(function() { var result = {height:$(document).height(), width:$(document).width()}; return result; }) ();");
-	Awesomium::WebString	str(Awesomium::WebString::CreateFromUTF8(utf8.c_str(), utf8.size()));
-	Awesomium::JSValue jsv = mWebViewPtr->ExecuteJavascriptWithResult(str, Awesomium::WebString());
-	const size_t			MAX_BUF = 256;
-	char					buf[MAX_BUF];
-	ci::Vec2f				ans(0.0f, 0.0f);
-	if (jsv.IsObject()) {
-		const Awesomium::JSObject&	jobj(jsv.ToObject());
-		if (jobj.HasProperty(width_key) && jobj.HasProperty(height_key)) {
-			Awesomium::JSValue		w = jobj.GetProperty(width_key),
-									h = jobj.GetProperty(height_key);
-
-			Awesomium::WebString	wweb(w.ToString());
-			int						size = wweb.ToUTF8(buf, MAX_BUF);
-			const std::string		wstr(buf, size);
-			Awesomium::WebString	hweb(h.ToString());
-			size = hweb.ToUTF8(buf, MAX_BUF);
-			const std::string		hstr(buf, size);
-
-			string_to_value(wstr, ans.x);
-			string_to_value(hstr, ans.y);
-		}
-#if 0
-		Awesomium::JSArray			names(jobj.GetPropertyNames());
-		for (unsigned int k=0; k<names.size(); ++k) {
-			Awesomium::JSValue&		jname(names.At(k));
-			Awesomium::WebString	wname(jname.ToString());
-			int						size = wname.ToUTF8(buf, 4000);
-			const std::string		jeez(buf, size);
-			std::cout << "\t" << k << "=" << jeez << std::endl;
-		}
-#endif
-	}
-	return ans;
+ci::Vec2f Web::geDocumentScroll() {
+	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
+	return get_document_scroll(*mWebViewPtr);
 }
 
 void Web::onSizeChanged() {
