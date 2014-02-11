@@ -2,9 +2,10 @@
 #ifndef DS_UI_SPRITE_WEB_H_
 #define DS_UI_SPRITE_WEB_H_
 
+#include <cinder/app/KeyEvent.h>
+#include <cinder/app/MouseEvent.h>
 #include "ds/ui/sprite/sprite.h"
-#include "cinder/app/KeyEvent.h"
-#include "cinder/app/MouseEvent.h"
+#include "ds/ui/sprite/web_listener.h"
 
 namespace Awesomium {
 class WebCore;
@@ -42,6 +43,11 @@ public:
 	void sendMouseDownEvent(const ci::app::MouseEvent &event);
 	void sendMouseDragEvent(const ci::app::MouseEvent &event);
 	void sendMouseUpEvent(const ci::app::MouseEvent &event);
+	// Clients can listen to touch events. Kind of a hack to
+	// try and sync client/server arrangements.
+	void					setTouchListener(const std::function<void(const ds::web::TouchEvent&)>&);
+	// Intended to be set as a result of the server sending out events from setTouchListener results.
+	void					handleListenerTouchEvent(const ds::web::TouchEvent&);
 
 	bool isActive() const;
 	void setTransitionTime(const float transitionTime);
@@ -66,14 +72,15 @@ public:
 	// Convenience to access various document properties. Note that
 	// the document probably needs to have passed onLoaded() for this
 	// to be reliable.
-	ci::Vec2f				geDocumentSize();
-	ci::Vec2f				geDocumentScroll();
+	ci::Vec2f				getDocumentSize();
+	ci::Vec2f				getDocumentScroll();
 
 protected:
 	virtual void			onSizeChanged();
 
 private:
-	void					handleTouch(const ds::ui::TouchInfo &touchInfo);
+	void					handleTouch(const ds::ui::TouchInfo&);
+	void					sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase&);
 
 	typedef ds::ui::Sprite	inherited;
 
@@ -88,6 +95,9 @@ private:
 	float					mLoadingAngle;
 	bool					mActive;
 	float					mTransitionTime;
+
+	std::function<void(const ds::web::TouchEvent&)>
+							mTouchListener;
 };
 
 } // namespace ui

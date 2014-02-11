@@ -113,8 +113,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	setUseShaderTextuer(true);
 	hide();
 	setOpacity(0.0f);
-	setProcessTouchCallback([this](ds::ui::Sprite *, const ds::ui::TouchInfo &info)
-	{
+	setProcessTouchCallback([this](ds::ui::Sprite *, const ds::ui::TouchInfo &info) {
 		handleTouch(info);
 	});
 
@@ -194,7 +193,7 @@ void Web::drawLocalClient() {
   }
 }
 
-void Web::handleTouch( const ds::ui::TouchInfo &touchInfo ) {
+void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
   if (touchInfo.mFingerIndex != 0)
     return;
 
@@ -253,26 +252,46 @@ void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {
 void Web::sendKeyUpEvent( const ci::app::KeyEvent &event ) {
 }
 
-void Web::sendMouseDownEvent( const ci::app::MouseEvent &event ) {
-	// send mouse events to Awesomium
-	if (mWebViewPtr) {
-		ci::app::MouseEvent eventMove(0, event.getX(), event.getY(), 0, 0, 0);
-		ph::awesomium::handleMouseMove( mWebViewPtr, eventMove );
-		ph::awesomium::handleMouseDown( mWebViewPtr, event );
-	}
+void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
+	if (!mWebViewPtr) return;
+
+	ci::app::MouseEvent eventMove(0, e.getX(), e.getY(), 0, 0, 0);
+	ph::awesomium::handleMouseMove( mWebViewPtr, eventMove );
+	ph::awesomium::handleMouseDown( mWebViewPtr, e);
+	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kAdded);
 }
 
-void Web::sendMouseDragEvent( const ci::app::MouseEvent &event ) {
-	// send mouse events to Awesomium
-	if (mWebViewPtr) {
-		ph::awesomium::handleMouseDrag( mWebViewPtr, event );
-	}
+void Web::sendMouseDragEvent(const ci::app::MouseEvent& e) {
+	if (!mWebViewPtr) return;
+
+	ph::awesomium::handleMouseDrag(mWebViewPtr, e);
+	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kMoved);
 }
 
-void Web::sendMouseUpEvent( const ci::app::MouseEvent &event ) {
-	// send mouse events to Awesomium
-	if (mWebViewPtr) {
-		ph::awesomium::handleMouseUp( mWebViewPtr, event );
+void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
+	if (!mWebViewPtr) return;
+
+	ph::awesomium::handleMouseUp( mWebViewPtr, e);
+	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kRemoved);
+}
+
+void Web::setTouchListener(const std::function<void(const ds::web::TouchEvent&)>& fn) {
+	mTouchListener = fn;
+}
+
+void Web::handleListenerTouchEvent(const ds::web::TouchEvent& te) {
+	if (!mWebViewPtr) return;
+
+	const ci::Vec2f			doc_size(getDocumentSize()),
+							doc_scroll(getDocumentScroll());
+	const ci::Vec2i			pos(static_cast<int>((te.mUnitPosition.x*doc_size.x)-doc_scroll.x),
+								static_cast<int>((te.mUnitPosition.y*doc_size.y)-doc_scroll.y));
+	if (te.mPhase == te.kAdded) {
+		sendMouseDownEvent(ci::app::MouseEvent(1, pos.x, pos.y, 0, 0, 0));
+	} else if (te.mPhase == te.kMoved) {
+		sendMouseDragEvent(ci::app::MouseEvent(1, pos.x, pos.y, 0, 0, 0));
+	} else if (te.mPhase == te.kRemoved) {
+		sendMouseUpEvent(ci::app::MouseEvent(1, pos.x, pos.y, 0, 0, 0));
 	}
 }
 
@@ -358,12 +377,12 @@ void Web::setAddressChangedFn(const std::function<void(const std::string& new_ad
 	if (mWebViewListener) mWebViewListener->setAddressChangedFn(fn);
 }
 
-ci::Vec2f Web::geDocumentSize() {
+ci::Vec2f Web::getDocumentSize() {
 	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
 	return get_document_size(*mWebViewPtr);
 }
 
-ci::Vec2f Web::geDocumentScroll() {
+ci::Vec2f Web::getDocumentScroll() {
 	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
 	return get_document_scroll(*mWebViewPtr);
 }
@@ -375,6 +394,19 @@ void Web::onSizeChanged() {
 		if (w < 1 || h < 1) return;
 		mWebViewPtr->Resize(w, h);
 	}
+}
+
+void Web::sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase& phase) {
+	if (!mWebViewPtr || !mTouchListener) return;
+
+	const ci::Vec2f			doc_size(getDocumentSize()),
+							doc_scroll(getDocumentScroll());
+	ds::web::TouchEvent		te;
+	te.mPhase = phase;
+	te.mUnitPosition.x = (doc_scroll.x + static_cast<float>(x)) / doc_size.x;
+	te.mUnitPosition.y = (doc_scroll.y + static_cast<float>(y)) / doc_size.y;
+
+	mTouchListener(te);
 }
 
 } // namespace ui
