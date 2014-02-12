@@ -82,6 +82,14 @@ namespace _2RealGStreamerWrapper
 		PAUSED,
 		STOPPED
 	};
+	
+	enum GstPlayState
+	{
+		STATE_NULL,
+		STATE_READY,
+		STATE_PAUSED,
+		STATE_PLAYING
+	};
 
 	/*
 		enum PlayDirection
@@ -689,6 +697,7 @@ namespace _2RealGStreamerWrapper
 		mutable gint64			m_iCurrentTimeInNs; /* Current time position in nanoseconds */
 		gint64					m_iDurationInNs; /* Duration of media file in nanoseconds */
 
+		GstPlayState			m_CurrentGstState; /* the current state of Gstreamer */
 		PlayState				m_CurrentPlayState; /* The current state of the wrapper */
 		PlayDirection			m_PlayDirection; /* The current playback direction */
 		LoopMode				m_LoopMode; /* The current loop mode */
@@ -709,6 +718,8 @@ namespace _2RealGStreamerWrapper
 		bool					m_StartPlaying;/* Play the video as soon as it's loaded */
 		bool					m_StopOnLoopComplete; /* Set the pipeline to NULL_STATE (Stopped) on the end of the current loop or on EOS */
 
+		gint64					m_PendingSeekTime;
+		bool					m_PendingSeek;
 #ifdef THREADED_MESSAGE_HANDLER
 		friend					void threadedMessageHandler(GStreamerWrapper* obj); /* need for accessing private stuff in the threaded global function */
 		boost::thread			m_MsgHandlingThread;

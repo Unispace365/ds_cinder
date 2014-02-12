@@ -29,6 +29,8 @@ void Service::start()
 
 	// initialize the Awesomium web engine
 	mWebCorePtr = Awesomium::WebCore::Initialize(cnf);
+
+	std::cout << mWebCorePtr->version_string() << std::endl;
 }
 
 Awesomium::WebCore* Service::getWebCore() const
