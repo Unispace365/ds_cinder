@@ -74,7 +74,14 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 		auto foundControl1 = mFingers.find(mControlFingerIndexes[1]);
 		const bool			found_0 = foundControl0 != mFingers.end(),
 							found_1 = foundControl1 != mFingers.end();
-		if (mSprite.multiTouchEnabled() && found_0 && found_1 && (touchInfo.mFingerId == foundControl0->second.mFingerId || touchInfo.mFingerId == foundControl1->second.mFingerId)) {
+		// the logic here is: 
+			// is the sprite multitouch enabled?
+			// does the first finger exists? is this finger the first finger?
+			// or does the second finger exist and is this finger the second finger?
+		if (mSprite.multiTouchEnabled() 
+			&& ( (found_0 && touchInfo.mFingerId == foundControl0->second.mFingerId) 
+				|| ( found_1 && touchInfo.mFingerId == foundControl1->second.mFingerId) 
+			)) {
 			Matrix44f parentTransform;
 			parentTransform.setToIdentity();
 
@@ -130,7 +137,6 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 				if (!mTappable && mSprite.hasMultiTouchConstraint(MULTITOUCH_CAN_POSITION_Y)) {
 					offset.y = fingerPositionOffset.y;
 				}
-std::cout << "offset x=" << offset.x << " y=" << offset.y << std::endl;
 				mSprite.setPosition(mStartPosition + offset);
 			}
 		}
