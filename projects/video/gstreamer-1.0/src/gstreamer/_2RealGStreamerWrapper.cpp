@@ -141,7 +141,7 @@ GStreamerWrapper::GStreamerWrapper() :
  
 	m_CurrentPlayState = NOT_INITIALIZED;
 	
-	std::cout << "Gstreamer version: " << GST_VERSION_MAJOR << " " << GST_VERSION_MICRO << " " << GST_VERSION_MINOR << std::endl;
+	//std::cout << "Gstreamer version: " << GST_VERSION_MAJOR << " " << GST_VERSION_MICRO << " " << GST_VERSION_MINOR << std::endl;
 }
 
 //GStreamerWrapper::GStreamerWrapper( std::string strFilename, bool bGenerateVideoBuffer, bool bGenerateAudioBuffer ) :
@@ -241,9 +241,9 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		// Create the video appsink and configure it
 		m_GstVideoSink = gst_element_factory_make( "appsink", "videosink" );
 		gst_base_sink_set_sync( GST_BASE_SINK( m_GstVideoSink ), true );
-		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 8 );
-		gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ),true );
-		gst_base_sink_set_max_lateness( GST_BASE_SINK( m_GstVideoSink ), -1);
+		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 1 );
+		gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
+		gst_base_sink_set_max_lateness( GST_BASE_SINK( m_GstVideoSink ), 100000000); // 1000000000 = 1 second
 
 		// Set some fix caps for the video sink
 		// It would seem that GStreamer then tries to transform any incoming video stream according to these caps
@@ -318,7 +318,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	}
 	else
 	{
-		GstElement* audioSink = gst_element_factory_make( "directsoundsink", NULL );
+		GstElement* audioSink = gst_element_factory_make( "autoaudiosink", NULL );
 		g_object_set ( m_GstPipeline, "audio-sink", audioSink, NULL );
 	}
 
@@ -341,9 +341,9 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		//gst_element_get_state( m_GstPipeline, &state, NULL, 20 * GST_SECOND );
 		m_CurrentPlayState = OPENED;
 
-		if(m_StartPlaying){
-			gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
-		}
+// 		if(m_StartPlaying){
+// 			gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+// 		}
 	}
 
 	// Retrieve and store all relevant Media Information
@@ -877,10 +877,9 @@ void GStreamerWrapper::retrieveVideoInfo()
 	} else if ( m_iNumAudioStreams > 0 ){
 		m_ContentType = AUDIO;
 	}
-	if(m_iNumVideoStreams < 1){
-		DS_LOG_WARNING("No video streams! Figure out why! ");
-		m_iNumVideoStreams = 1;
-	}
+	//if(m_iNumVideoStreams < 1){
+	//	m_iNumVideoStreams = 1;
+	//}
 
 	////////////////////////////////////////////////////////////////////////// Video Data
 	//if ( m_iNumVideoStreams > 0 )
@@ -955,6 +954,13 @@ void GStreamerWrapper::handleGStMessage()
 
 				switch ( GST_MESSAGE_TYPE( m_GstMessage ) )
 				{
+				case GST_MESSAGE_INFO:{
+					GError* err;
+					gchar* debug;
+					gst_message_parse_info(m_GstMessage, &err, &debug);
+					std::cout <<"Gst info: " << err->message << " " << debug << std::endl;
+					}
+					break;
 				case GST_MESSAGE_ERROR:
 					GError* err;
 					gchar* debug;
@@ -975,7 +981,7 @@ void GStreamerWrapper::handleGStMessage()
 					GstState pendingState;
 					gst_message_parse_state_changed(m_GstMessage, &oldState, &newState, &pendingState);
 
-					std::cout << "State changed: " << oldState << " " << newState << " " << pendingState << std::endl;
+				//	std::cout << "State changed: " << oldState << " " << newState << " " << pendingState << std::endl;
 
 					if (newState == GST_STATE_PLAYING) {
 						m_CurrentGstState = STATE_PLAYING;
@@ -1028,7 +1034,7 @@ void GStreamerWrapper::handleGStMessage()
 					}
 												break;
 				case GST_MESSAGE_EOS:
-					std::cout << "EOS" << std::endl;
+					//std::cout << "EOS" << std::endl;
 					switch ( m_LoopMode )
 					{
 						case NO_LOOP:

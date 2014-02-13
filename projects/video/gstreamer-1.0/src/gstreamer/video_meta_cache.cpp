@@ -15,19 +15,36 @@
 namespace ds {
 namespace ui {
 
-namespace {
+	namespace {
+		const std::string&	ERROR_TYPE_SZ() { static const std::string	ANS(""); return ANS; }
+		const std::string&	AUDIO_TYPE_SZ() { static const std::string	ANS("a"); return ANS; }
+		const std::string&	VIDEO_TYPE_SZ() { static const std::string	ANS("v"); return ANS; }
 
-std::string get_db_directory() {
-	Poco::Path		p("%USERPROFILE%");
-	p.append("documents").append("downstream").append("cache").append("video");
-	return Poco::Path::expand(p.toString());
-}
 
-std::string get_db_file(const std::string& name) {
-	Poco::Path		p(get_db_directory());
-	p.append(name + ".sqlite");
-	return p.toString();
-}
+		std::string get_db_directory() {
+			Poco::Path		p("%USERPROFILE%");
+			p.append("documents").append("downstream").append("cache").append("video");
+			return Poco::Path::expand(p.toString());
+		}
+
+		std::string get_db_file(const std::string& name) {
+			Poco::Path		p(get_db_directory());
+			p.append(name + ".sqlite");
+			return p.toString();
+		}
+
+		VideoMetaCache::Type type_from_db_type(const std::string& t) {
+			if (t == AUDIO_TYPE_SZ()) return VideoMetaCache::AUDIO_TYPE;
+			if (t == VIDEO_TYPE_SZ()) return VideoMetaCache::VIDEO_TYPE;
+			return VideoMetaCache::ERROR_TYPE;
+		}
+
+		const std::string& db_type_from_type(const VideoMetaCache::Type t) {
+			if (t == VideoMetaCache::AUDIO_TYPE) return AUDIO_TYPE_SZ();
+			if (t == VideoMetaCache::VIDEO_TYPE) return VIDEO_TYPE_SZ();
+			return ERROR_TYPE_SZ();
+		}
+
 
 }
 
@@ -40,14 +57,15 @@ VideoMetaCache::VideoMetaCache(const std::string& name)
 	load();
 }
 
-bool VideoMetaCache::getSize(const std::string& videoPath, int& widthOut, int& heightOut)
-{
+bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int& outWidth, int& outHeight, double& outDuration) {
 	for (auto it=mEntry.begin(), end=mEntry.end(); it!=end; ++it) {
 		const Entry&	e(*it);
 		if (e.mKey == videoPath){
-			widthOut = e.mWidth;
-			heightOut = e.mHeight;
-			return false;
+			outType = e.mType;
+			outWidth = e.mWidth;
+			outHeight = e.mHeight;
+			outDuration = e.mDuration;
+			return true;
 		}
 	}
 
@@ -58,17 +76,18 @@ bool VideoMetaCache::getSize(const std::string& videoPath, int& widthOut, int& h
 		//int		height = movie.getHeight();
 
 		int width(0), height(0), valid(0);
+		Type	t = VIDEO_TYPE;
 		float duration(0.0f);
 
-		if(!getVideoInfo(videoPath, duration, width, height, valid)){
-			DS_LOG_WARNING("Error finding video info!");
-			return false;
-		}
+		getVideoInfo(videoPath, duration, width, height, valid);
+		if(width < 1 || height < 1) t = AUDIO_TYPE;
 
-		setValue(videoPath, width, height);
 
-		widthOut = width;
-		heightOut = height;
+		setValues(t, videoPath, width, height, duration);
+
+		outWidth = width;
+		outHeight = height;
+		outDuration = duration;
 		return true;
 	} catch (std::exception const& ex) {
 		DS_LOG_WARNING("VideoMetaCache::getWith() error=" << ex.what());
@@ -76,10 +95,17 @@ bool VideoMetaCache::getSize(const std::string& videoPath, int& widthOut, int& h
 	return true;
 }
 
-void VideoMetaCache::setValue(const std::string& path, const int widthy, const int heighty)
-{
-	if(widthy < 1 || heighty < 1){
-		DS_LOG_WARNING("Attempted to set the width or height of a video to an invalid value. Video=" << path);
+void VideoMetaCache::setValues(const Type t, const std::string& path, const int width, const int height, const double duration) {
+	if (t == ERROR_TYPE) {
+		DS_LOG_WARNING("Attempted to cache an invalid media (path=" << path << ")");
+		return;
+	}
+	if (duration < 0.0f) {
+		DS_LOG_WARNING("Attempted to cache media with no duration (path=" << path << ")");
+		return;
+	}
+	if (t == VIDEO_TYPE && (width < 1 || height < 1)) {
+		DS_LOG_WARNING("Attempted to cache video with no size (path=" << path << ", width=" << width << ", height=" << height << ")");
 		return;
 	}
 	try {
@@ -89,13 +115,13 @@ void VideoMetaCache::setValue(const std::string& path, const int widthy, const i
 		ds::query::Result						ans;
 		if (ds::query::Client::query(db, buf.str(), ans) && !ans.rowsAreEmpty()) {
 			buf.str("");
-			buf << "UPDATE video_meta SET width=" << widthy << ", height=" << heighty << " WHERE path='" << path << "'";
+			buf << "UPDATE video_meta SET type='" << db_type_from_type(t) << "', width=" << width << ", height=" << height << ", duration=" << duration << " WHERE path='" << path << "'";
 			ds::query::Client::queryWrite(db, buf.str(), ans);
 			load();
 			return;
 		}
 		buf.str("");
-		buf << "INSERT INTO video_meta (path, width, height) values ('" << path << "', " << widthy << ", " << heighty << ")";
+		buf << "INSERT INTO video_meta (type, path, width, height, duration) values ('" << db_type_from_type(t) << "', '" << path << "', " << width << ", " << height << ", " << duration << ")";
 		ds::query::Client::queryWrite(db, buf.str(), ans);
 	} catch (std::exception const&) {
 	}
@@ -103,28 +129,27 @@ void VideoMetaCache::setValue(const std::string& path, const int widthy, const i
 	load();
 }
 
-void VideoMetaCache::load()
-{
+void VideoMetaCache::load() {
 	mEntry.clear();
 
 	// Load in the high scores
-	Poco::File					f(get_db_directory());
+	Poco::File						f(get_db_directory());
 	if (!f.exists()) f.createDirectories();
 
-	const std::string			db(get_db_file(mName));
+	const std::string				db(get_db_file(mName));
 	f = Poco::File(db);
 	if (!f.exists()) {
 		f.createFile();
-		ds::query::Result				r;
-		ds::query::Client::queryWrite(db, "CREATE TABLE video_meta(id INTEGER PRIMARY KEY AUTOINCREMENT, path TEXT NOT NULL DEFAULT '', width INT NOT NULL DEFAULT '0', height INT NOT NULL DEFAULT '0');", r);
+		ds::query::Result			r;
+		ds::query::Client::queryWrite(db, "CREATE TABLE video_meta(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT NOT NULL DEFAULT '', path TEXT NOT NULL DEFAULT '', width INT NOT NULL DEFAULT '0', height INT NOT NULL DEFAULT '0', duration DOUBLE NOT NULL DEFAULT '0');", r);
 	}
 
-	ds::query::Result					ans;
-	ds::query::Client::query(db, "SELECT path,width,height FROM video_meta", ans);
+	ds::query::Result				ans;
+	ds::query::Client::query(db, "SELECT type,path,width,height,duration FROM video_meta", ans);
 	ds::query::Result::RowIterator	it(ans);
 	while (it.hasValue()) {
-		const std::string&		game(it.getString(0));
-		if (!game.empty()) mEntry.push_back(Entry(game, it.getInt(1), it.getInt(2)));
+		const std::string&			game(it.getString(1));
+		if (!game.empty()) mEntry.push_back(Entry(game, type_from_db_type(it.getString(0)), it.getInt(2), it.getInt(3), it.getFloat(4)));
 		++it;
 	}
 }
@@ -188,15 +213,15 @@ bool VideoMetaCache::getVideoInfo(const std::string& path, float& outDuration, i
 	}
 
 	// disabling duration checking for gstreamer caching	
-	//if (outDuration < 0 || outDuration > 360000){
-	//	DS_LOG_WARNING("Duration is negative or too long (must be less than 100 hours in length) " << outDuration);	
-	//	return false;
-	//}
-	//} 
-	if (outWidth < 1 || outHeight < 1){
-		DS_LOG_WARNING("Width or height are invalid, width=" << outWidth << " height=" << outHeight << " (output was " << out << ")");
+	if (outDuration < 0 || outDuration > 360000){
+		DS_LOG_WARNING("Duration is negative or too long (must be less than 100 hours in length) " << outDuration);	
 		return false;
 	}
+	//} 
+	//if (outWidth < 1 || outHeight < 1){
+	//	DS_LOG_WARNING("Width or height are invalid, width=" << outWidth << " height=" << outHeight << " (output was " << out << ")");
+	//	return false;
+	//}
 
 	return true;
 }
@@ -215,20 +240,23 @@ std::string VideoMetaCache::parseVariable(std::string varName, std::string break
 }
 
 
+
 /**
  * \class HighScore::Entry
  */
 VideoMetaCache::Entry::Entry()
-	: mWidth(0)
+	: mType(ERROR_TYPE)
+	, mWidth(0)
 	, mHeight(0)
-{
+	, mDuration(0.0f) {
 }
 
-VideoMetaCache::Entry::Entry(const std::string& key, const int widthy, const int height)
+VideoMetaCache::Entry::Entry(const std::string& key, const Type t, const int width, const int height, const double duration)
 	: mKey(key)
-	, mWidth(widthy)
+	, mType(t)
+	, mWidth(width)
 	, mHeight(height)
-{
+	, mDuration(duration) {
 }
 
 } // namespace ui

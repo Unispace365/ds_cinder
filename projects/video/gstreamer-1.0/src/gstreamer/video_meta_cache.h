@@ -15,21 +15,18 @@ class SpriteEngine;
 class VideoMetaCache
 {
 public:
+	static const enum Type { ERROR_TYPE, AUDIO_TYPE, VIDEO_TYPE };
 	VideoMetaCache(const std::string& name);
 
-	// returns true if the cache had to create a new entry
-	bool					getSize(const std::string& videoPath, int& widthOut, int& heightOut);
+	// responds with true if it had to go get the values
+	bool					getValues(const std::string& videoPath, Type&, int& outWidth, int& outHeight, double& outDuration);
 
 protected:
-	void					setValue(const std::string& videoPath, const int width, const int height);
+	void					setValues(const Type, const std::string& videoPath, const int width, const int height, const double duration);
 
 private:
-	static const int		ERROR_TYPE = 0;
-	static const int		TRANSCODE_NEEDS = 1;
-	static const int		TRANSCODE_IN_PROGRESS = 2;
-	static const int		TRANSCODE_COMPLETE = 3;
-
 	void					load();
+
 
 	VideoMetaCache(const VideoMetaCache&);
 	VideoMetaCache&			operator=(const VideoMetaCache&);
@@ -38,14 +35,17 @@ private:
 	bool					getVideoInfo(const std::string& path, float& outDuration, int& outWidth, int& outHeight, int& valid);
 	std::string				parseVariable(std::string varName, std::string breakChar, std::string& stringToParse);
 
+
 	class Entry {
 	public:
 		Entry();
-		Entry(const std::string& key, const int width, const int height);
+		Entry(const std::string& key, const Type, const int width, const int height, const double duration);
 
 		std::string			mKey;
+		Type				mType;
 		int					mWidth;
 		int					mHeight;
+		double				mDuration;
 	};
 	const std::string		mName;
 	std::vector<Entry>		mEntry;

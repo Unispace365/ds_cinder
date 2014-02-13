@@ -189,15 +189,20 @@ GstVideo& GstVideo::loadVideo( const std::string &filename) {
 		DS_LOG_WARNING("GstVideo::loadVideo recieved a blank filename. Cancelling load.");
 		return *this;
 	}
+	VideoMetaCache::Type		type(VideoMetaCache::ERROR_TYPE);
 
 	try {
 		int videoWidth = static_cast<int>(getWidth());
 		int videoHeight = static_cast<int>(getHeight());
-		if(videoWidth < 1 || videoHeight < 1){
-			CACHE.getSize(filename, videoWidth, videoHeight);
+		double					videoDuration(0.0f);
+		CACHE.getValues(filename, type, videoWidth, videoHeight, videoDuration);
+		bool					generateVideoBuffer = true;
+		if (type == VideoMetaCache::AUDIO_TYPE) {
+			generateVideoBuffer = false;
+			mInternalMuted = false;
 		}
 
-		mMovie.open( filename, true, false, mIsTransparent, videoWidth, videoHeight );
+		mMovie.open( filename, generateVideoBuffer, false, mIsTransparent, videoWidth, videoHeight );
 
 		if(mLooping){
 			mMovie.setLoopMode(LOOP);
@@ -206,7 +211,12 @@ GstVideo& GstVideo::loadVideo( const std::string &filename) {
 		}
 		//mMovie.play();
 		setMovieVolume();
-		mInternalMuted = true;
+		if (type == VideoMetaCache::AUDIO_TYPE) {
+			// Otherwise I am permanently muted
+			mInternalMuted = false;
+		} else {
+			mInternalMuted = true;
+		}
 		mMovie.setVideoCompleteCallback([this](GStreamerWrapper* video){ handleVideoComplete(video);});
 		setStatus(Status::STATUS_PLAYING);
 	} catch (std::exception const& ex) {
@@ -215,7 +225,10 @@ GstVideo& GstVideo::loadVideo( const std::string &filename) {
 	}
 
 	if(mMovie.getWidth() < 1.0f || mMovie.getHeight() < 1.0f){
-		DS_LOG_WARNING("GstVideo::loadVideo() Video is too small to be used or didn't load correctly! " << filename << " " << getWidth() << " " << getHeight());
+		if(type != VideoMetaCache::AUDIO_TYPE){
+			DS_LOG_WARNING("GstVideo::loadVideo() Video is too small to be used or didn't load correctly! " << filename << " " << getWidth() << " " << getHeight());
+		} 	
+
 		return *this;
 	}
 
