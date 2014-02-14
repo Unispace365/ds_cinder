@@ -240,10 +240,12 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	{
 		// Create the video appsink and configure it
 		m_GstVideoSink = gst_element_factory_make( "appsink", "videosink" );
-		gst_base_sink_set_sync( GST_BASE_SINK( m_GstVideoSink ), true );
-		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 1 );
+
+		//gst_base_sink_set_sync( GST_BASE_SINK( m_GstVideoSink ), true );
+		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 8 );
 		gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
-		gst_base_sink_set_max_lateness( GST_BASE_SINK( m_GstVideoSink ), 100000000); // 1000000000 = 1 second
+		gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
+		gst_base_sink_set_max_lateness( GST_BASE_SINK( m_GstVideoSink ), 40000000); // 1000000000 = 1 second, 40000000 = 40 ms
 
 		// Set some fix caps for the video sink
 		// It would seem that GStreamer then tries to transform any incoming video stream according to these caps
@@ -341,9 +343,9 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		//gst_element_get_state( m_GstPipeline, &state, NULL, 20 * GST_SECOND );
 		m_CurrentPlayState = OPENED;
 
-// 		if(m_StartPlaying){
-// 			gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
-// 		}
+ 		if(m_StartPlaying){
+ 			gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+ 		}
 	}
 
 	// Retrieve and store all relevant Media Information
@@ -1126,9 +1128,20 @@ GstFlowReturn GStreamerWrapper::onNewPrerollFromAudioSource( GstAppSink* appsink
 
 GstFlowReturn GStreamerWrapper::onNewBufferFromVideoSource( GstAppSink* appsink, void* listener )
 {
+	//Poco::Timestamp::TimeVal pre = Poco::Timestamp().epochMicroseconds();
+	
 	GstSample* gstVideoSinkBuffer = gst_app_sink_pull_sample( GST_APP_SINK( appsink ) );
+
+	//Poco::Timestamp::TimeVal mid = Poco::Timestamp().epochMicroseconds();
+	
 	( ( GStreamerWrapper * )listener )->newVideoSinkBufferCallback( gstVideoSinkBuffer );
+
+	//Poco::Timestamp::TimeVal copied = Poco::Timestamp().epochMicroseconds();
+	
 	gst_sample_unref( gstVideoSinkBuffer );
+
+	//Poco::Timestamp::TimeVal post = Poco::Timestamp().epochMicroseconds();
+	//std::cout <<  "mid: " << (float)(mid - pre) / 1000000.0f << " copied: " << (float)(copied - mid) / 1000000.0f << " post: " << (float)(post - copied) / 1000000.0f << std::endl;
 
 	return GST_FLOW_OK;
 }
@@ -1144,7 +1157,7 @@ GstFlowReturn GStreamerWrapper::onNewBufferFromAudioSource( GstAppSink* appsink,
 
 void GStreamerWrapper::newVideoSinkPrerollCallback( GstSample* videoSinkSample )
 {
-	//return;
+
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
 
 

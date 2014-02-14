@@ -182,11 +182,7 @@ bool VideoMetaCache::getVideoInfo(const std::string& path, float& outDuration, i
 	ss << "cd \"" << pPath << "\"";
 	pPath = ss.str();
 	const char* cdPath = pPath.c_str();
-	//int ret = system(cdPath);
-	//std::string  pPath = "cd " + ofToDataPath("..\\", true);
-	//cout << "ffprobe path = " << pPath << endl;
-	//const char* cPath = pPath.c_str();
-	//system(cPath);
+
 	ss.str("");
 	ss << "ffprobe.exe -show_streams -pretty -sexagesimal -pretty -print_format compact -i \"" + path  + "\" 2>&1"; 
 	std::string s = ss.str();
