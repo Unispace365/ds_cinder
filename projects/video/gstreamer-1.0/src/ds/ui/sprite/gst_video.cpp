@@ -20,22 +20,25 @@ namespace {
 class Init {
 public:
 	Init() {
-		ds::App::AddStartup([](ds::Engine& e) {
-#if 0
-			std::string		new_path("PATH=");
-			const char*		path_env = getenv("PATH");
-			if (path_env) {
-				new_path += path_env;
+		// Set the main gstreamer path. (We're assuming it's in the standard location)
+		std::string		new_path("PATH=");
+		const char*		path_env = getenv("PATH");
+		if (path_env) {
+			new_path += path_env;
+		}
+		if (new_path.length() > 0) {
+			if (!(new_path.back() == '=' || new_path.back() == ';')) {
+				new_path += ";";
 			}
-			if (new_path.length() > 0) {
-				if (!(new_path.back() == '=' || new_path.back() == ';')) {
-					new_path += ";";
-				}
-			}
-			new_path += "C:\\gstreamer\\1.0\\x86\\bin;C:\\gstreamer\\1.0\\x86\\lib\\gstreamer-1.0";
-			_putenv(new_path.c_str());
-#endif
+		}
+//		new_path += "C:\\gstreamer\\1.0\\x86\\bin;C:\\gstreamer\\1.0\\x86\\lib\\gstreamer-1.0";
+		new_path += "C:\\gstreamer\\1.0\\x86\\bin";
+		_putenv(new_path.c_str());
 
+		// Add a startup object to set the plugin path. This is how we'd prefer to
+		// do both path setups, but we had to delay-load some DLLs for gstreamer,
+		// so we're being extracautious about the path variable.
+		ds::App::AddStartup([](ds::Engine& e) {
 			std::string		plugin_path("GST_PLUGIN_PATH=C:\\gstreamer\\1.0\\x86\\lib\\gstreamer-1.0");
 			_putenv(plugin_path.c_str());
 		});
