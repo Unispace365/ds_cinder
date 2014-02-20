@@ -2,6 +2,7 @@
 
 #include <cinder/Camera.h>
 #include <ds/app/app.h>
+#include <ds/app/environment.h>
 #include <ds/data/resource_list.h>
 #include <ds/debug/debug_defines.h>
 #include <ds/debug/logger.h>
@@ -21,19 +22,7 @@ class Init {
 public:
 	Init() {
 		// Set the main gstreamer path. (We're assuming it's in the standard location)
-		std::string		new_path("PATH=");
-		const char*		path_env = getenv("PATH");
-		if (path_env) {
-			new_path += path_env;
-		}
-		if (new_path.length() > 0) {
-			if (!(new_path.back() == '=' || new_path.back() == ';')) {
-				new_path += ";";
-			}
-		}
-//		new_path += "C:\\gstreamer\\1.0\\x86\\bin;C:\\gstreamer\\1.0\\x86\\lib\\gstreamer-1.0";
-		new_path += "C:\\gstreamer\\1.0\\x86\\bin";
-		_putenv(new_path.c_str());
+		ds::Environment::addToEnvironmentVariable("PATH", "C:\\gstreamer\\1.0\\x86\\bin");
 
 		// Add a startup object to set the plugin path. This is how we'd prefer to
 		// do both path setups, but we had to delay-load some DLLs for gstreamer,
@@ -188,6 +177,7 @@ void GstVideo::setSize( float width, float height ) {
 }
 
 GstVideo& GstVideo::loadVideo( const std::string &filename) {
+	DS_LOG_INFO("GstVideo::loadVideo() on " << filename);
 	if(filename.empty()){
 		DS_LOG_WARNING("GstVideo::loadVideo recieved a blank filename. Cancelling load.");
 		return *this;
@@ -205,6 +195,7 @@ GstVideo& GstVideo::loadVideo( const std::string &filename) {
 			mInternalMuted = false;
 		}
 
+		DS_LOG_INFO("GstVideo::loadVideo() movieOpen");
 		mMovie.open( filename, generateVideoBuffer, false, mIsTransparent, videoWidth, videoHeight );
 
 		if(mLooping){
@@ -293,14 +284,17 @@ float GstVideo::getVolume() const {
 }
 
 void GstVideo::play() {
+	DS_LOG_INFO("GstVideo::play()");
 	mMovie.play();
 }
 
 void GstVideo::stop() {
+	DS_LOG_INFO("GstVideo::stop()");
 	mMovie.stop();
 }
 
 void GstVideo::pause() {
+	DS_LOG_INFO("GstVideo::pause()");
 	mMovie.pause();
 }
 

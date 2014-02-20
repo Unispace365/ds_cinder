@@ -88,6 +88,8 @@ public:
 	ci::Vec2f				getDocumentSize();
 	ci::Vec2f				getDocumentScroll();
 
+void testJs();
+
 protected:
 	virtual void			onSizeChanged();
 

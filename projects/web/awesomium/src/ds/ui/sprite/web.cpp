@@ -423,6 +423,28 @@ ci::Vec2f Web::getDocumentScroll() {
 	return get_document_scroll(*mWebViewPtr);
 }
 
+void Web::testJs() {
+	if (!mWebViewPtr) return;
+	const std::string		window_utf8("window");
+	Awesomium::WebString	window_ws(Awesomium::WebString::CreateFromUTF8(window_utf8.c_str(), window_utf8.size()));
+	const std::string		test_utf8("test");
+	Awesomium::WebString	test_ws(Awesomium::WebString::CreateFromUTF8(test_utf8.c_str(), test_utf8.size()));
+	Awesomium::JSValue		window = mWebViewPtr->ExecuteJavascriptWithResult(window_ws, Awesomium::WebString());
+	if (window.IsObject()) {
+		Awesomium::JSArray args;
+//		args.push_back("Bob");
+//		args.push_back("Hello world!");
+
+		Awesomium::JSValue	ans = window.ToObject().Invoke(test_ws, args);
+		Awesomium::WebString	ans_str = ans.ToString();
+		char buf[1024];
+		const int len = ans_str.ToUTF8(buf, 1024);
+		std::string				ans_str_str(buf, len);
+		std::cout << "ANS=" << ans_str_str << std::endl;
+		std::cout << "YEAH!" << std::endl;
+	}
+}
+
 void Web::onSizeChanged() {
 	if (mWebViewPtr) {
 		const int			w = static_cast<int>(getWidth()),
@@ -438,8 +460,6 @@ bool Web::isLoading(){
 	}
 	return false;
 }
-
-
 
 void Web::sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase& phase) {
 	if (!mWebViewPtr || !mTouchListener) return;

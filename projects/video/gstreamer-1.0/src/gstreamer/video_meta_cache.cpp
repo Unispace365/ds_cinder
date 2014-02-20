@@ -1,5 +1,13 @@
 #include "video_meta_cache.h"
 
+#define USE_MEDIAINFO		(1)
+//#define USE_FFPROBE			(1)
+
+#ifdef USE_MEDIAINFO
+// Keep this at the front, can get messed if it comes later
+#include "MediaInfoDLL.h"
+#endif // USE_MEDIAINFO
+
 #include <sstream>
 #include <Poco/Path.h>
 #include <Poco/File.h>
@@ -7,6 +15,7 @@
 #include <ds/query/query_result.h>
 #include <ds/debug/logger.h>
 #include <ds/app/environment.h>
+#include <ds/util/string_util.h>
 
 //#include "gstreamer/_2RealGStreamerWrapper.h"
 
@@ -15,36 +24,34 @@
 namespace ds {
 namespace ui {
 
-	namespace {
-		const std::string&	ERROR_TYPE_SZ() { static const std::string	ANS(""); return ANS; }
-		const std::string&	AUDIO_TYPE_SZ() { static const std::string	ANS("a"); return ANS; }
-		const std::string&	VIDEO_TYPE_SZ() { static const std::string	ANS("v"); return ANS; }
+namespace {
+const std::string&	ERROR_TYPE_SZ() { static const std::string	ANS(""); return ANS; }
+const std::string&	AUDIO_TYPE_SZ() { static const std::string	ANS("a"); return ANS; }
+const std::string&	VIDEO_TYPE_SZ() { static const std::string	ANS("v"); return ANS; }
 
+std::string get_db_directory() {
+	Poco::Path		p("%USERPROFILE%");
+	p.append("documents").append("downstream").append("cache").append("video");
+	return Poco::Path::expand(p.toString());
+}
 
-		std::string get_db_directory() {
-			Poco::Path		p("%USERPROFILE%");
-			p.append("documents").append("downstream").append("cache").append("video");
-			return Poco::Path::expand(p.toString());
-		}
+std::string get_db_file(const std::string& name) {
+	Poco::Path		p(get_db_directory());
+	p.append(name + ".sqlite");
+	return p.toString();
+}
 
-		std::string get_db_file(const std::string& name) {
-			Poco::Path		p(get_db_directory());
-			p.append(name + ".sqlite");
-			return p.toString();
-		}
+VideoMetaCache::Type type_from_db_type(const std::string& t) {
+	if (t == AUDIO_TYPE_SZ()) return VideoMetaCache::AUDIO_TYPE;
+	if (t == VIDEO_TYPE_SZ()) return VideoMetaCache::VIDEO_TYPE;
+	return VideoMetaCache::ERROR_TYPE;
+}
 
-		VideoMetaCache::Type type_from_db_type(const std::string& t) {
-			if (t == AUDIO_TYPE_SZ()) return VideoMetaCache::AUDIO_TYPE;
-			if (t == VIDEO_TYPE_SZ()) return VideoMetaCache::VIDEO_TYPE;
-			return VideoMetaCache::ERROR_TYPE;
-		}
-
-		const std::string& db_type_from_type(const VideoMetaCache::Type t) {
-			if (t == VideoMetaCache::AUDIO_TYPE) return AUDIO_TYPE_SZ();
-			if (t == VideoMetaCache::VIDEO_TYPE) return VIDEO_TYPE_SZ();
-			return ERROR_TYPE_SZ();
-		}
-
+const std::string& db_type_from_type(const VideoMetaCache::Type t) {
+	if (t == VideoMetaCache::AUDIO_TYPE) return AUDIO_TYPE_SZ();
+	if (t == VideoMetaCache::VIDEO_TYPE) return VIDEO_TYPE_SZ();
+	return ERROR_TYPE_SZ();
+}
 
 }
 
@@ -169,7 +176,29 @@ std::string VideoMetaCache::executeCommand(const char* cmd){
 }
 
 
-bool VideoMetaCache::getVideoInfo(const std::string& path, float& outDuration, int& outWidth, int& outHeight, int& valid){
+bool VideoMetaCache::getVideoInfo(const std::string& path, float& outDuration, int& outWidth, int& outHeight, int& valid) {
+#ifdef USE_MEDIAINFO
+	try {
+		MediaInfoDLL::MediaInfo		media_info;
+		if (!media_info.IsReady()) {
+			// Indicates the DLL couldn't be loaded
+			DS_LOG_ERROR("VideoMetaCache::getVideoInfo() MediaInfo not loaded, does dll/MediaInfo.dll exist in the app folder?");
+			return false;
+		}
+		media_info.Open(ds::wstr_from_utf8(path));
+		if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Width", MediaInfoDLL::Info_Text), outWidth)) return false;
+		if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Height", MediaInfoDLL::Info_Text), outHeight)) return false;
+		if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Duration", MediaInfoDLL::Info_Text), outDuration)) return false;
+		outDuration /= 1000.0f;
+		if (outDuration <= 0.0f || outDuration > 360000.0f) {
+			DS_LOG_WARNING("VideoMetaCache::getVideoInfo() illegal duration (" << outDuration << ") for file (" << path << ")");
+			return false;
+		}
+		return true;
+	} catch (std::exception const&) {
+	}
+	return false;
+#elif defined USE_FFPROBE
 	// ffprobe.exe needs to be in the bin folder
 	// "-show_streams" will print info about every stream
 	// "sexagesimal" prints time in HH:MM:SS.MICROSECONDS
@@ -220,6 +249,7 @@ bool VideoMetaCache::getVideoInfo(const std::string& path, float& outDuration, i
 	//}
 
 	return true;
+#endif
 }
 
 std::string VideoMetaCache::parseVariable(std::string varName, std::string breakChar, std::string& stringToParse){
@@ -234,8 +264,6 @@ std::string VideoMetaCache::parseVariable(std::string varName, std::string break
 	}
 	return "";
 }
-
-
 
 /**
  * \class HighScore::Entry

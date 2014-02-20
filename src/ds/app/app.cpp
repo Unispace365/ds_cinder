@@ -5,6 +5,7 @@
 #include "ds/app/engine/engine_client.h"
 #include "ds/app/engine/engine_clientserver.h"
 #include "ds/app/engine/engine_server.h"
+#include "ds/app/environment.h"
 #include "ds/debug/console.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
@@ -36,6 +37,20 @@ std::string				APP_DATA_PATH;
 #ifdef _DEBUG
 ds::Console				GLOBAL_CONSOLE;
 #endif
+
+void					add_dll_path() {
+	// If there's a DLL folder, then add it to my PATH environment variable.
+	try {
+		if (APP_DATA_PATH.empty()) return;
+		Poco::Path		p(APP_DATA_PATH);
+		p.append("dll");
+		if (Poco::File(p).exists()) {
+			ds::Environment::addToEnvironmentVariable("PATH", p.toString());
+		}
+	} catch (std::exception const&) {
+	}
+}
+
 }
 
 namespace ds {
@@ -58,6 +73,8 @@ App::App(const std::vector<int>* roots)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
+	add_dll_path();
+
 	// Initialize each sprite type with a unique blob handler for network communication.
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Sprite::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Sprite::installAsClient(r);});
