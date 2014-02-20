@@ -9,6 +9,7 @@
 #include <ds/ui/tween/tweenline.h>
 #include <ds/util/string_util.h>
 #include "paulhoux-Cinder-Awesomium/include/CinderAwesomium.h"
+#include "private/script_translator.h"
 #include "private/web_service.h"
 #include "private/web_view_listener.h"
 
@@ -34,6 +35,8 @@ namespace ds {
 namespace ui {
 
 namespace {
+const ds::web::ScriptTree	EMPTY_SCRIPT_TREE;
+
 // Utility to get x,y data as a result of running some javascript. It's assumed that
 // the javascript is returning an array value with two named keys that match prop_x and prop_y.
 ci::Vec2f get_javascript_xy(Awesomium::WebView& view, const std::string& prop_x, const std::string& prop_y, const std::string& javascript) {
@@ -423,26 +426,26 @@ ci::Vec2f Web::getDocumentScroll() {
 	return get_document_scroll(*mWebViewPtr);
 }
 
-void Web::testJs() {
-	if (!mWebViewPtr) return;
-	const std::string		window_utf8("window");
-	Awesomium::WebString	window_ws(Awesomium::WebString::CreateFromUTF8(window_utf8.c_str(), window_utf8.size()));
-	const std::string		test_utf8("test");
-	Awesomium::WebString	test_ws(Awesomium::WebString::CreateFromUTF8(test_utf8.c_str(), test_utf8.size()));
-	Awesomium::JSValue		window = mWebViewPtr->ExecuteJavascriptWithResult(window_ws, Awesomium::WebString());
-	if (window.IsObject()) {
-		Awesomium::JSArray args;
-//		args.push_back("Bob");
-//		args.push_back("Hello world!");
+ds::web::ScriptTree Web::RunJavaScript(	const std::string& object_utf8, const std::string& function_utf8,
+										const ds::web::ScriptTree& args) {
+	if (!mWebViewPtr) return ds::web::ScriptTree();
 
-		Awesomium::JSValue	ans = window.ToObject().Invoke(test_ws, args);
-		Awesomium::WebString	ans_str = ans.ToString();
-		char buf[1024];
-		const int len = ans_str.ToUTF8(buf, 1024);
-		std::string				ans_str_str(buf, len);
-		std::cout << "ANS=" << ans_str_str << std::endl;
-		std::cout << "YEAH!" << std::endl;
+	Awesomium::WebString		object_ws(Awesomium::WebString::CreateFromUTF8(object_utf8.c_str(), object_utf8.size()));
+	Awesomium::JSValue			object = mWebViewPtr->ExecuteJavascriptWithResult(object_ws, Awesomium::WebString());
+	if (object.IsObject()) {
+		Awesomium::WebString	function_ws(Awesomium::WebString::CreateFromUTF8(function_utf8.c_str(), function_utf8.size()));
+		Awesomium::JSArray		args(jsarray_from_tree(args));
+		Awesomium::JSValue		ans = object.ToObject().Invoke(function_ws, args);
+#if 0
+	Awesomium::WebString	ans_str = ans.ToString();
+	char buf[1024];
+	const int len = ans_str.ToUTF8(buf, 1024);
+	std::string				ans_str_str(buf, len);
+	std::cout << "ANS=" << ans_str_str << std::endl;
+#endif
+		return ds::web::tree_from_jsvalue(ans);
 	}
+	return ds::web::ScriptTree();
 }
 
 void Web::onSizeChanged() {

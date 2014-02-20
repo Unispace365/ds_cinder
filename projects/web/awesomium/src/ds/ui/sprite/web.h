@@ -6,6 +6,7 @@
 #include <cinder/app/MouseEvent.h>
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/web_listener.h"
+#include "ds/script/web_script.h"
 
 namespace Awesomium {
 class WebCore;
@@ -88,7 +89,9 @@ public:
 	ci::Vec2f				getDocumentSize();
 	ci::Vec2f				getDocumentScroll();
 
-void testJs();
+	// Scripting. Run asynchronously and synchronously.
+	ds::web::ScriptTree		RunJavaScript(	const std::string& object, const std::string& function,
+											const ds::web::ScriptTree& args);
 
 protected:
 	virtual void			onSizeChanged();
