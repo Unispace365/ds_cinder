@@ -89,7 +89,9 @@ public:
 	ci::Vec2f				getDocumentSize();
 	ci::Vec2f				getDocumentScroll();
 
-	// Scripting. Run asynchronously and synchronously.
+	// Scripting.
+	// Send function to object with supplied args. For example, if you want to just invoke the global
+	// function "makeItHappen()" you'd call: RunJavaScript("window", "makeItHappen", ds::web::ScriptTree());
 	ds::web::ScriptTree		RunJavaScript(	const std::string& object, const std::string& function,
 											const ds::web::ScriptTree& args);
 
