@@ -1,6 +1,8 @@
 #include "web.h"
 
+#include <algorithm>
 #include <cinder/ImageIo.h>
+#include <boost/filesystem.hpp>
 #include <ds/app/app.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
@@ -273,6 +275,45 @@ std::string Web::getUrl() {
 	} catch (std::exception const&) {
 	}
 	return "";
+}
+
+void Web::setUrl(const std::string& url) {
+	try {
+		setUrlOrThrow(url);
+	} catch (std::exception const&) {
+	}
+}
+
+namespace {
+
+bool			validate_url(const std::string& url) {
+	try {
+		std::string ext = boost::filesystem3::path(url).extension().string();
+		std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+		if (ext == ".pdf") return false;
+	} catch (std::exception const&) {
+	}
+	return true;
+}
+
+}
+
+void Web::setUrlOrThrow(const std::string& url) {
+	DS_LOG_INFO("Web::setUrlOrThrow() on " << url);
+	// Some simple validation, because clients have a tendency to put PDFs where
+	// web pages should go.
+	if (!validate_url(url)) throw std::runtime_error("URL is not the correct format (" + url + ").");
+
+	try {
+		if (mWebViewPtr) {
+			mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url.c_str())));
+			mWebViewPtr->Focus();
+			activate();
+			return;
+		}
+	} catch (std::exception const&) {
+	}
+	throw std::runtime_error("Web service is not available.");
 }
 
 void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {

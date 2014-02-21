@@ -38,6 +38,9 @@ public:
 	void					loadUrl(const std::wstring &url);
 	void					loadUrl(const std::string &url);
 	std::string				getUrl();
+	// New-style API, set the URL and activate (and optionally throw on errors).
+	void					setUrl(const std::string&);
+	void					setUrlOrThrow(const std::string&);
 
 	// untested!
 	void sendKeyDownEvent(const ci::app::KeyEvent &event);
