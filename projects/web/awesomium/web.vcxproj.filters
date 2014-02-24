@@ -39,6 +39,9 @@
     <ClInclude Include="src\private\script_translator.h">
       <Filter>src\private</Filter>
     </ClInclude>
+    <ClInclude Include="src\private\js_method_handler.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\sprite\web.cpp">
@@ -57,6 +60,9 @@
       <Filter>src\ds\script</Filter>
     </ClCompile>
     <ClCompile Include="src\private\script_translator.cpp">
+      <Filter>src\private</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\js_method_handler.cpp">
       <Filter>src\private</Filter>
     </ClCompile>
   </ItemGroup>

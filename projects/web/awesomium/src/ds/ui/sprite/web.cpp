@@ -11,6 +11,7 @@
 #include <ds/ui/tween/tweenline.h>
 #include <ds/util/string_util.h>
 #include "paulhoux-Cinder-Awesomium/include/CinderAwesomium.h"
+#include "private/js_method_handler.h"
 #include "private/script_translator.h"
 #include "private/web_service.h"
 #include "private/web_view_listener.h"
@@ -136,6 +137,13 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		if (mWebViewPtr) {
 			mWebViewListener = std::move(std::unique_ptr<ds::web::WebViewListener>(new ds::web::WebViewListener));
 			if (mWebViewListener) mWebViewPtr->set_view_listener(mWebViewListener.get());
+			mWebLoadListener = std::move(std::unique_ptr<ds::web::WebLoadListener>(new ds::web::WebLoadListener));
+			if (mWebLoadListener) {
+				mWebViewPtr->set_load_listener(mWebLoadListener.get());
+				mWebLoadListener->setOnDocumentReady([this](const std::string& url) { onDocumentReady(); });
+			}
+			mJsMethodHandler = std::move(std::unique_ptr<ds::web::JsMethodHandler>(new ds::web::JsMethodHandler));
+			if (mJsMethodHandler) mWebViewPtr->set_js_method_handler(mJsMethodHandler.get());
 		}
 	}
 	//mWebViewPtr->LoadURL( Awesomium::WebURL( Awesomium::WSLit( "http://libcinder.org" ) ) );
@@ -467,7 +475,7 @@ ci::Vec2f Web::getDocumentScroll() {
 	return get_document_scroll(*mWebViewPtr);
 }
 
-ds::web::ScriptTree Web::RunJavaScript(	const std::string& object_utf8, const std::string& function_utf8,
+ds::web::ScriptTree Web::runJavaScript(	const std::string& object_utf8, const std::string& function_utf8,
 										const ds::web::ScriptTree& args) {
 	if (!mWebViewPtr) return ds::web::ScriptTree();
 
@@ -477,16 +485,16 @@ ds::web::ScriptTree Web::RunJavaScript(	const std::string& object_utf8, const st
 		Awesomium::WebString	function_ws(Awesomium::WebString::CreateFromUTF8(function_utf8.c_str(), function_utf8.size()));
 		Awesomium::JSArray		args(jsarray_from_tree(args));
 		Awesomium::JSValue		ans = object.ToObject().Invoke(function_ws, args);
-#if 0
-	Awesomium::WebString	ans_str = ans.ToString();
-	char buf[1024];
-	const int len = ans_str.ToUTF8(buf, 1024);
-	std::string				ans_str_str(buf, len);
-	std::cout << "ANS=" << ans_str_str << std::endl;
-#endif
 		return ds::web::tree_from_jsvalue(ans);
 	}
 	return ds::web::ScriptTree();
+}
+
+void Web::registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
+									const std::function<void(const ds::web::ScriptTree&)>& fn) {
+	if (!mWebViewPtr || !mJsMethodHandler) return;
+
+	mJsMethodHandler->registerMethod(*mWebViewPtr, class_name, method_name, fn);
 }
 
 void Web::onSizeChanged() {
@@ -503,6 +511,12 @@ bool Web::isLoading(){
 		return true;
 	}
 	return false;
+}
+
+void Web::onDocumentReady() {
+	if (!mWebViewPtr || !mJsMethodHandler) return;
+
+	mJsMethodHandler->setDomIsReady(*mWebViewPtr);
 }
 
 void Web::sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase& phase) {

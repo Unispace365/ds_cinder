@@ -15,7 +15,9 @@ class WebView;
 
 namespace ds {
 namespace web {
+class JsMethodHandler;
 class Service;
+class WebLoadListener;
 class WebViewListener;
 }
 
@@ -95,13 +97,17 @@ public:
 	// Scripting.
 	// Send function to object with supplied args. For example, if you want to just invoke the global
 	// function "makeItHappen()" you'd call: RunJavaScript("window", "makeItHappen", ds::web::ScriptTree());
-	ds::web::ScriptTree		RunJavaScript(	const std::string& object, const std::string& function,
+	ds::web::ScriptTree		runJavaScript(	const std::string& object, const std::string& function,
 											const ds::web::ScriptTree& args);
+	// Register a handler for a callback from javascript
+	void					registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
+														const std::function<void(const ds::web::ScriptTree&)>&);
 
 protected:
 	virtual void			onSizeChanged();
 
 private:
+	void					onDocumentReady();
 	void					handleTouch(const ds::ui::TouchInfo&);
 	void					sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase&);
 
@@ -111,6 +117,10 @@ private:
 	Awesomium::WebView*		mWebViewPtr;
 	std::unique_ptr<ds::web::WebViewListener>
 							mWebViewListener;
+	std::unique_ptr<ds::web::WebLoadListener>
+							mWebLoadListener;
+	std::unique_ptr<ds::web::JsMethodHandler>
+							mJsMethodHandler;
 
 	ci::gl::Texture			mWebTexture;
 	ci::gl::Texture			mLoadingTexture;

@@ -11,8 +11,7 @@ namespace web {
 
 /**
  * \class ds::web::WebViewListener
- * \brief The engine service object that provides access to the
- * web service.
+ * \brief Handle View callbacks.
  */
 class WebViewListener : public Awesomium::WebViewListener::View {
 public:
@@ -47,6 +46,32 @@ public:
 private:
 	std::function<void(const std::string& new_address)>
 									mAddressChangedFn;
+};
+
+/**
+ * \class ds::web::WebLoadListener
+ * \brief Handle Load callbacks.
+ */
+class WebLoadListener : public Awesomium::WebViewListener::Load {
+public:
+	WebLoadListener();
+	virtual ~WebLoadListener();
+
+	void					setOnDocumentReady(const std::function<void(const std::string& url)>&);
+
+	virtual void			OnBeginLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
+													bool is_main_frame, const Awesomium::WebURL& url,
+													bool is_error_page) { }
+	virtual void			OnFailLoadingFrame(		Awesomium::WebView* caller, int64 frame_id,
+													bool is_main_frame, const Awesomium::WebURL& url,
+													int error_code, const Awesomium::WebString& error_desc) { }
+	virtual void			OnFinishLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
+													bool is_main_frame, const Awesomium::WebURL& url) { }
+	virtual void			OnDocumentReady(		Awesomium::WebView* caller, const Awesomium::WebURL& url);
+
+private:
+	std::function<void(const std::string& url)>
+							mOnDocumentReadyFn;
 };
 
 } // namespace web
