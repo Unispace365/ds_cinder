@@ -27,7 +27,6 @@ public:
 			if (!w) throw std::runtime_error("Can't create ds::web::Service");
 			e.addService("web", *w);
 		});
-
 	}
 	void			doNothing() { }
 };
@@ -36,7 +35,6 @@ Init				INIT;
 
 namespace ds {
 namespace ui {
-
 namespace {
 const ds::web::ScriptTree	EMPTY_SCRIPT_TREE;
 
@@ -100,7 +98,6 @@ ci::Vec2f get_document_size(Awesomium::WebView& view) {
 	const std::string		javascript("(function() { var result = {height:$(document).height(), width:$(document).width()}; return result; }) ();");
 	return get_javascript_xy(view, prop_x, prop_y, javascript);
 }
-
 } // anonymous namespace
 
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
@@ -114,6 +111,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mDragScrolling(false)
 	, mDragScrollMinFingers(2)
 	, mClickDown(false)
+	, mPageScrollCount(0)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -167,13 +165,15 @@ Web::~Web() {
 void Web::updateServer( const ds::UpdateParams &updateParams ) {
 	Sprite::updateServer(updateParams);
 
+	mPageScrollCount = 0;
+
 	// create or update our OpenGL Texture from the webview
-	if (mWebViewPtr 
+	if (mWebViewPtr
 		&& (mDrawWhileLoading || !mWebViewPtr->IsLoading())
 		&& ph::awesomium::isDirty( mWebViewPtr )) {
 		try {
 			// set texture filter to NEAREST if you don't intend to transform (scale, rotate) it
-			ci::gl::Texture::Format fmt; 
+			ci::gl::Texture::Format fmt;
 			fmt.setMagFilter( GL_NEAREST );
 
 			// get the texture using a handy conversion function
@@ -194,7 +194,7 @@ void Web::drawLocalClient() {
     ci::gl::draw(mWebTexture);
   }
 
-  // show spinner while loading 
+  // show spinner while loading
   if (mLoadingTexture && mWebViewPtr && mWebViewPtr->IsLoading()) {
     ci::gl::pushModelView();
 
@@ -235,7 +235,6 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 				float yDelta = touchInfo.mCurrentGlobalPoint.y- mPreviousTouchPos.y;
 				ci::app::MouseEvent event(0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, yDelta, 1);
 				ph::awesomium::handleMouseWheel( mWebViewPtr, event, 1 );
-			
 			}
 		} else {
 			ci::app::MouseEvent event(0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
@@ -293,7 +292,6 @@ void Web::setUrl(const std::string& url) {
 }
 
 namespace {
-
 bool			validate_url(const std::string& url) {
 	try {
 		std::string ext = boost::filesystem3::path(url).extension().string();
@@ -303,7 +301,6 @@ bool			validate_url(const std::string& url) {
 	}
 	return true;
 }
-
 }
 
 void Web::setUrlOrThrow(const std::string& url) {
@@ -327,14 +324,14 @@ void Web::setUrlOrThrow(const std::string& url) {
 void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {
 	// untested!
 	if(mWebViewPtr){
-		ph::awesomium::handleKeyDown(mWebViewPtr, event);	
+		ph::awesomium::handleKeyDown(mWebViewPtr, event);
 	}
 }
 
 void Web::sendKeyUpEvent( const ci::app::KeyEvent &event ){
 	// untested!
 	if(mWebViewPtr){
-		ph::awesomium::handleKeyUp(mWebViewPtr, event);	
+		ph::awesomium::handleKeyUp(mWebViewPtr, event);
 	}
 }
 
@@ -421,7 +418,6 @@ bool Web::isActive() const {
 void Web::setTransitionTime( const float transitionTime ) {
 	mTransitionTime = transitionTime;
 }
-
 
 void Web::setZoom(const double v) {
 	if (!mWebViewPtr) return;
@@ -522,14 +518,22 @@ void Web::onDocumentReady() {
 void Web::sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase& phase) {
 	if (!mWebViewPtr || !mTouchListener) return;
 
-	const ci::Vec2f			doc_size(getDocumentSize()),
-							doc_scroll(getDocumentScroll());
+	if (phase == ds::web::TouchEvent::kAdded) {
+		mPageSizeCache = getDocumentSize();
+	}
+	if (mPageScrollCount <= 0) {
+		mPageScrollCache = getDocumentScroll();
+	}
+	++mPageScrollCount;
+
 	ds::web::TouchEvent		te;
 	te.mPhase = phase;
-	te.mPosition.x = (doc_scroll.x + static_cast<float>(x));
-	te.mPosition.y = (doc_scroll.y + static_cast<float>(y));
-	te.mUnitPosition.x = te.mPosition.x / doc_size.x;
-	te.mUnitPosition.y = te.mPosition.y / doc_size.y;
+	te.mPosition.x = (mPageScrollCache.x + static_cast<float>(x));
+	te.mPosition.y = (mPageScrollCache.y + static_cast<float>(y));
+	te.mPosition.x = (static_cast<float>(x));
+	te.mPosition.y = (static_cast<float>(y));
+	te.mUnitPosition.x = te.mPosition.x / mPageSizeCache.x;
+	te.mUnitPosition.y = te.mPosition.y / mPageSizeCache.y;
 
 	mTouchListener(te);
 }

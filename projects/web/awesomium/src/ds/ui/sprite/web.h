@@ -22,7 +22,6 @@ class WebViewListener;
 }
 
 namespace ui {
-
 /**
  * \class ds::ui::Web
  * \brief Display a web page.
@@ -32,8 +31,8 @@ public:
 	Web(ds::ui::SpriteEngine &engine, float width = 0.0f, float height = 0.0f);
 	~Web();
 
-	void updateServer(const ds::UpdateParams &updateParams);
-	void drawLocalClient();
+	virtual void			updateServer(const ds::UpdateParams&);
+	virtual void			drawLocalClient();
 
 	// After setting a URL, you need to call activate() to see anything. Not
 	// sure I like that API but that's what it is for now.
@@ -75,7 +74,7 @@ public:
 	void					goForward();
 	void					reload();
 	bool					canGoBack();
-	bool					canGoForward();			
+	bool					canGoForward();
 
 	// For now, a simple communication about when the address changes.
 	// In the future I'd like to have a richer mechanism in place.
@@ -134,11 +133,15 @@ private:
 	bool					mClickDown;
 	bool					mDragScrolling;
 	int						mDragScrollMinFingers;
+	// Cache the page size and scroll during touch events
+	ci::Vec2f				mPageSizeCache,
+							mPageScrollCache;
+	// Prevent the scroll from being cached more than once in an update.
+	int32_t					mPageScrollCount;
 
 	std::function<void(const ds::web::TouchEvent&)>
 							mTouchListener;
 };
-
 } // namespace ui
 } // namespace ds
 
