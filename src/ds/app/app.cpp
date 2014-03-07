@@ -65,6 +65,7 @@ void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
 App::App(const std::vector<int>* roots)
 	: mInitializer(getAppPath().generic_string())
 	, mEngineSettings()
+	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
 	, mCtrlDown(false)
 	, mSecondMouseDown(false)

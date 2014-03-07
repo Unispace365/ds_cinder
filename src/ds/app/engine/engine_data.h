@@ -7,8 +7,7 @@
 #include "ds/app/event_notifier.h"
 #include "ds/app/engine/engine_cfg.h"
 
-namespace ds
-{
+namespace ds {
 class EngineService;
 
 /**
@@ -16,10 +15,9 @@ class EngineService;
  * \brief Store all the data for an engine. Primarily a
  * programmer convenience, to hide and group info.
  */
-class EngineData
-{
+class EngineData {
 public:
-	EngineData();
+	EngineData(const ds::cfg::Settings& engine_settings);
 
 	EventNotifier			mNotifier;
 	std::unordered_map<std::string, ds::EngineService*>

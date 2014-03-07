@@ -15,7 +15,7 @@ namespace ds {
  */
 class EngineCfg {
 public:
-	EngineCfg();
+	EngineCfg(const ds::cfg::Settings& engine_settings);
 
 	// Answer the requested settings file. In debug mode, throw
 	// if it doesn't exist. In release mode, just answer an empty one.
@@ -47,6 +47,8 @@ public:
 private:
 	EngineCfg(const EngineCfg&);
 
+	// Make it easy for clients to access the engine settings.
+	const ds::cfg::Settings&		mEngineSettings;
 	std::unordered_map<std::string, ds::cfg::Settings>
 									mSettings;
 	std::unordered_map<std::string, ds::cfg::Text>

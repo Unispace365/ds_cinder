@@ -15,12 +15,14 @@ ds::cfg::Settings			EDIT_EMPTY_SETTINGS;
 const ds::cfg::Text			EMPTY_TEXT_CFG;
 const ds::cfg::NinePatch	EMPTY_NINE_PATCH_CFG;
 const std::string			EMPTY_SZ;
+const std::string			ENGINE_SZ("engine");
 }
 
 /**
  * ds::EngineCfg
  */
-EngineCfg::EngineCfg() {
+EngineCfg::EngineCfg(const ds::cfg::Settings& engine_settings)
+		: mEngineSettings(engine_settings) {
 }
 
 const ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) const {
@@ -29,11 +31,13 @@ const ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) const {
 		return EMPTY_SETTINGS;
 	}
 	if (mSettings.empty()) {
+		if (name == ENGINE_SZ) return mEngineSettings;
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getSettings() on empty mSettings"));
 		return EMPTY_SETTINGS;
 	}
 	auto it = mSettings.find(name);
 	if (it == mSettings.end()) {
+		if (name == ENGINE_SZ) return mEngineSettings;
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getSettings() settings does not exist"));
 		return EMPTY_SETTINGS;
 	}
