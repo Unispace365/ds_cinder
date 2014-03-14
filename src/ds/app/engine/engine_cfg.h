@@ -55,6 +55,13 @@ private:
 									mTextCfg;
 	std::unordered_map<std::string, ds::cfg::NinePatch>
 									mNinePatchCfg;
+
+	// Empty settings for when some are missing. Here because we're getting
+	// a shutdown crash with this as statics.
+	const ds::cfg::Settings			mEmptySettings;
+	ds::cfg::Settings				mEditEmptySettings;
+	const ds::cfg::Text				mEmptyTextCfg;
+	const ds::cfg::NinePatch		mEmptyNinePatchCfg;
 };
 
 } // namespace ds
