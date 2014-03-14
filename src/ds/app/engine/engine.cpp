@@ -1,14 +1,16 @@
 #include "ds/app/engine/engine.h"
 
 #include <GL/glu.h>
+#include "Poco/Path.h"
 #include "ds/app/app.h"
 #include "ds/app/environment.h"
 #include "ds/app/engine/engine_service.h"
+#include "ds/cfg/settings.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
-#include "ds/cfg/settings.h"
-#include "Poco/Path.h"
+#include "ds/ui/ip/ip_defs.h"
+#include "ds/ui/ip/functions/ip_circle_mask.h"
 #include "cinder/Thread.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
@@ -56,6 +58,11 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mApplyFxAA(false)
 {
 	mRequestDelete.reserve(32);
+
+	// For now, install some default image processing functions here, for convenience. These are
+	// so lightweight it probably makes sense just to have them always available for clients instead
+	// of requiring some sort of configuration.
+	mIpFunctions.add(ds::ui::ip::CIRCLE_MASK, ds::ui::ip::FunctionRef(std::shared_ptr<ds::ui::ip::Function>(new ds::ui::ip::CircleMask())));
 
 	// Construct the root sprites
 	if (roots) {

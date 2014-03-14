@@ -109,6 +109,12 @@
     <Filter Include="src\ds\time">
       <UniqueIdentifier>{bd82e7a9-956c-4d26-a56b-bbfe3c2a2e72}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\ip">
+      <UniqueIdentifier>{480bdf66-e8fe-43b8-9627-e8eaacd8f2dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\ip\functions">
+      <UniqueIdentifier>{03cb731e-c5f5-44bd-9745-6afa3e648d94}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -528,6 +534,18 @@
     <ClInclude Include="..\src\ds\data\key_value_store.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\ip\ip_function.h">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\ip\ip_function_list.h">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\ip\functions\ip_circle_mask.h">
+      <Filter>src\ds\ui\ip\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\ip\ip_defs.h">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -865,6 +883,18 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\key_value_store.cpp">
       <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\ip\ip_function.cpp">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\ip\ip_function_list.cpp">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\ip\functions\ip_circle_mask.cpp">
+      <Filter>src\ds\ui\ip\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\ip\ip_defs.cpp">
+      <Filter>src\ds\ui\ip</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

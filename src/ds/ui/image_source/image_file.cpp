@@ -11,9 +11,11 @@ namespace ds {
 namespace ui {
 
 namespace {
-char                BLOB_TYPE         = 0;
-const char          RES_FN_ATT        = 20;
-const char          RES_FLAGS_ATT     = 21;
+char                BLOB_TYPE			= 0;
+const char          RES_FN_ATT			= 20;
+const char          RES_FLAGS_ATT		= 21;
+const char          RES_IPKEY_ATT		= 22;
+const char          RES_IPPARAMS_ATT	= 23;
 
 /**
  * \class FileGenerator
@@ -23,8 +25,8 @@ class FileGenerator : public ImageGenerator {
 public:
 	FileGenerator(SpriteEngine& e)
 			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()) { }
-	FileGenerator(SpriteEngine& e, const std::string& fn, const int f)
-			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()), mFilename(fn), mFlags(f) { preload(); }
+	FileGenerator(SpriteEngine& e, const std::string& fn, const std::string& ip_key, const std::string& ip_params, const int f)
+			: ImageGenerator(BLOB_TYPE), mToken(e.getLoadImageService()), mFilename(fn), mIpKey(ip_key), mIpParams(ip_params), mFlags(f) { preload(); }
 
 	const std::string&			getFilename() const {
 		return mFilename;
@@ -45,7 +47,7 @@ public:
 		if (mTexture) return &mTexture;
 
 		if (mToken.canAcquire()) {
-			mToken.acquire(mFilename, mFlags);
+			mToken.acquire(mFilename, mIpKey, mIpParams, mFlags);
 		}
 		float						fade;
 		mTexture = mToken.getImage(fade);
@@ -57,6 +59,12 @@ public:
 		buf.add(RES_FN_ATT);
 		buf.add(mFilename);
 
+		buf.add(RES_IPKEY_ATT);
+		buf.add(mIpKey);
+
+		buf.add(RES_IPPARAMS_ATT);
+		buf.add(mIpParams);
+
 		buf.add(RES_FLAGS_ATT);
 		buf.add(mFlags);
 	}
@@ -65,6 +73,14 @@ public:
 		if (!buf.canRead<char>()) return false;
 		if (buf.read<char>() != RES_FN_ATT) return false;
 		mFilename = buf.read<std::string>();
+
+		if (!buf.canRead<char>()) return false;
+		if (buf.read<char>() != RES_IPKEY_ATT) return false;
+		mIpKey = buf.read<std::string>();
+
+		if (!buf.canRead<char>()) return false;
+		if (buf.read<char>() != RES_IPPARAMS_ATT) return false;
+		mIpParams = buf.read<std::string>();
 
 		if (!buf.canRead<char>()) return false;
 		if (buf.read<char>() != RES_FLAGS_ATT) return false;
@@ -80,12 +96,14 @@ private:
 		// XXX This should check to see if I'm in client mode and only
 		// load it then. (or the service should be empty in server mode).
 		if ((mFlags&ds::ui::Image::IMG_PRELOAD_F) != 0 && mToken.canAcquire()) {
-			mToken.acquire(mFilename, mFlags);
+			mToken.acquire(mFilename, mIpKey, mIpParams, mFlags);
 		}
 	}
 
 	ImageToken				mToken;
 	std::string				mFilename;
+	std::string				mIpKey,
+							mIpParams;
 	int						mFlags;
 	ci::gl::Texture			mTexture;
 };
@@ -104,8 +122,16 @@ ImageFile::ImageFile(const std::string& filename, const int flags)
 		, mFlags(flags) {
 }
 
+ImageFile::ImageFile(	const std::string& filename, const std::string& ip_key,
+						const std::string& ip_params, const int flags)
+		: mFilename(filename)
+		, mIpKey(ip_key)
+		, mIpParams(ip_params)
+		, mFlags(flags) {
+}
+
 ImageGenerator* ImageFile::newGenerator(SpriteEngine& e) const {
-	return new FileGenerator(e, mFilename, mFlags);
+	return new FileGenerator(e, mFilename, mIpKey, mIpParams, mFlags);
 }
 
 bool ImageFile::generatorMatches(const ImageGenerator& gen) const {

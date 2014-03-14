@@ -20,6 +20,7 @@
 #include "ds/data/resource_list.h"
 #include "ds/data/tuio_object.h"
 #include "ds/cfg/settings.h"
+#include "ds/ui/ip/ip_function_list.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/tween/tweenline.h"
@@ -161,6 +162,9 @@ protected:
 	std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
 										mSprites;
 	int									mTuioPort;
+
+	// All the installed image processing functions.
+	ds::ui::ip::FunctionList			mIpFunctions;
 
 private:
 	void								deleteRequestedSprites();

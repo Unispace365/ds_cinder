@@ -18,7 +18,7 @@ char              COMMAND_BLOB = 0;
 EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 							ds::EngineData& ed, const std::vector<int>* roots)
 	: inherited(app, settings, ed, roots)
-	, mLoadImageService(mLoadImageThread)
+	, mLoadImageService(mLoadImageThread, mIpFunctions)
 	, mRenderTextService(mRenderTextThread)
 //    , mConnection(NumberOfNetworkThreads)
 	, mSender(mSendConnection)
