@@ -2,7 +2,7 @@
 #ifndef DS_UI_SERVICE_LOADIMAGESERVICE_H_
 #define DS_UI_SERVICE_LOADIMAGESERVICE_H_
 
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <cinder/Surface.h>
 #include <cinder/gl/Texture.h>
@@ -22,7 +22,7 @@ public:
 	ImageKey();
 	ImageKey(const std::string& filename, const std::string& ip_key, const std::string& ip_params, const int flags);
 
-	bool					operator<(const ImageKey&) const;
+	bool					operator==(const ImageKey&) const;
 	void					clear();
 
 	std::string				mFilename,
@@ -30,6 +30,24 @@ public:
 							mIpParams;
 	int						mFlags;
 };
+
+} // namespace ui
+} // namespace ds
+
+// Make the ImageKey available for hashing functions
+namespace std {
+	template<>
+	struct hash<ds::ui::ImageKey> : public unary_function<ds::ui::ImageKey, size_t> {
+		size_t operator()(const ds::ui::ImageKey& id) const {
+			std::size_t h1 = std::hash<std::string>()(id.mFilename);
+			std::size_t h2 = std::hash<std::string>()(id.mIpKey);
+			return h1 ^ (h2 << 1);
+		}
+	};
+}
+
+namespace ds {
+namespace ui {
 
 /**
  * \class ds::ui::ImageToken
@@ -127,7 +145,7 @@ private:
 	ds::ui::ip::FunctionList&	mFunctions;
 	// Hmm, had problems getting the hashing implemented for ImageKey
 //	std::unordered_map<ImageKey, holder>
-	std::map<ImageKey, holder>
+	std::unordered_map<ImageKey, holder>
 								mImageResource;
 
 	Poco::Mutex					mMutex;

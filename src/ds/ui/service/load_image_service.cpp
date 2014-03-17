@@ -28,11 +28,9 @@ ImageKey::ImageKey(const std::string& filename, const std::string& ip_key, const
 		, mFlags(flags&IMAGE_FLAGS_KEY_MASK) {
 }
 
-bool ImageKey::operator<(const ImageKey& o) const {
-	if (mFilename < o.mFilename) return true;
-	if (mIpKey < o.mIpKey) return true;
-	if (mIpParams < o.mIpParams) return true;
-	return mFlags < o.mFlags;
+bool ImageKey::operator==(const ImageKey& o) const {
+	if (this == &o) return true;
+	return mFilename == o.mFilename && mIpKey == o.mIpKey && mIpParams == o.mIpParams && mFlags == o.mFlags;
 }
 
 void ImageKey::clear() {
