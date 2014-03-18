@@ -83,7 +83,7 @@ void BodyBuilderCircle::createFixture(SpriteBody& body) const
 	fixtureDef.filter.maskBits = mMaskBits;
 
 	b2CircleShape	circle;
-	circle.m_radius = mRadius; 
+	circle.m_radius = mRadius * body.mWorld.getCi2BoxScale(); 
 	fixtureDef.shape = &circle;
 	body.mBody->CreateFixture(&fixtureDef);
 }
