@@ -47,6 +47,10 @@ public:
 	void					createDistanceJoint(SpriteBody&, float length, float dampingRatio, float frequencyHz);
 	void					destroy();
 	void					setActive(bool flag);
+	// Set this to false to turn the fixture into a sensor, which will cause collisions
+	// on this body to stop. NOTE: This state is not tracked. If the body is empty(),
+	// this does nothing, and will not effect the body when it's created.
+	void					enableCollisions(const bool);
 
 	void					resizeDistanceJoint(SpriteBody& body, float length);
 

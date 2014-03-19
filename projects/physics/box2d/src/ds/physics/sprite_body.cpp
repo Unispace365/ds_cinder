@@ -97,10 +97,20 @@ void SpriteBody::destroy() {
 	mBody = nullptr;
 }
 
-void SpriteBody::setActive(bool flag)
-{
+void SpriteBody::setActive(bool flag) {
 	// Setting a body as inactive also sets all associated joints as inactive, but does not delete them from the world.
 	mBody->SetActive(flag);
+}
+
+void SpriteBody::enableCollisions(const bool on) {
+	if (!mBody) return;
+
+	const bool		sensor = !on;
+	b2Fixture*		fix = mBody->GetFixtureList();
+	while (fix) {
+		fix->SetSensor(sensor);
+		fix = fix->GetNext();
+	}
 }
 
 void SpriteBody::resizeDistanceJoint(SpriteBody& body, float length) {
