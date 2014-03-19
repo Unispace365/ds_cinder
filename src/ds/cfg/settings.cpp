@@ -79,7 +79,7 @@ static void merge_vec(V& dst, const V& src)
 			dst[it->first] = it->second;
 		} else {
 			for (std::size_t k=0; k<it->second.size(); k++) {
-				if (k <= f->second.size()) f->second[k] = it->second[k];
+				if (k < f->second.size()) f->second[k] = it->second[k];
 				else f->second.push_back(it->second[k]);
 			}
 		}
