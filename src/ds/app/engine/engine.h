@@ -62,6 +62,8 @@ public:
 	virtual const ds::cfg::Settings&	getDebugSettings() { return mDebugSettings; }
 	// I take ownership of any services added to me.
 	void								addService(const std::string&, ds::EngineService&);
+	// Add the image processing function to my global pool
+	void								addIp(const std::string& key, const ds::ui::ip::FunctionRef&);
 	// Convenice to load a setting file into the mEngineCfg settings.
 	// @param name is the name that the system will use to refer to the settings.
 	// @param filename is the leaf path of the settings file (i.e. "data.xml").

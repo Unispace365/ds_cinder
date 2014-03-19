@@ -32,7 +32,9 @@ protected:
 class FunctionRef {
 public:
 	FunctionRef();
-	FunctionRef(const std::shared_ptr<Function>&);
+	explicit FunctionRef(const std::shared_ptr<Function>&);
+	// Must supply a raw, unmanaged pointer (and you are relinquishing ownership).
+	explicit FunctionRef(Function*);
 	
 	bool						empty() const;
 	void						clear();

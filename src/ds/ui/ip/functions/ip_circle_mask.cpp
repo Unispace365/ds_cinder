@@ -28,7 +28,7 @@ void CircleMask::on(const std::string& parameters, ci::Surface8u& s) const {
 			if (d > max) {
 				alpha_f = 0.0f;
 			} else if (d > max - 1.0f) {
-				alpha_f = d-(max-1.0f);
+				alpha_f = 1.0f-(d-(max-1.0f));
 			} 
 			int32_t			a = static_cast<int32_t>(static_cast<float>(iter.a()) * alpha_f);
 			if (a < 0) a = 0;

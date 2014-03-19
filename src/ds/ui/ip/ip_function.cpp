@@ -23,6 +23,10 @@ FunctionRef::FunctionRef(const std::shared_ptr<Function>& fn)
 		: mFn(fn) {
 }
 
+FunctionRef::FunctionRef(Function* fn) {
+	mFn.reset(fn);
+}
+
 bool FunctionRef::empty() const {
 	return !mFn;
 }
