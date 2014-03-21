@@ -789,7 +789,7 @@ bool Sprite::contains(const ci::Vec3f& point, const float pad) const {
 	// Someone who knows the math can probably address the root issue.
 	if (mWidth < 0.001f || mHeight < 0.001f) return false;
 	// Same deal as above.
-	if (mScale.x <= 0.0f || mScale.y <= 0.0f) return nullptr;
+	if (mScale.x <= 0.0f || mScale.y <= 0.0f) return false;
 
     buildGlobalTransform();
 
