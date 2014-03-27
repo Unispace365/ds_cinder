@@ -10,32 +10,32 @@ static void read_text_cfg(const std::string& path, std::unordered_map<std::strin
 namespace ds {
 
 namespace {
-const ds::cfg::Settings		EMPTY_SETTINGS;
-ds::cfg::Settings			EDIT_EMPTY_SETTINGS;
-const ds::cfg::Text			EMPTY_TEXT_CFG;
-const ds::cfg::NinePatch	EMPTY_NINE_PATCH_CFG;
 const std::string			EMPTY_SZ;
+const std::string			ENGINE_SZ("engine");
 }
 
 /**
  * ds::EngineCfg
  */
-EngineCfg::EngineCfg() {
+EngineCfg::EngineCfg(const ds::cfg::Settings& engine_settings)
+		: mEngineSettings(engine_settings) {
 }
 
 const ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) const {
 	if (name.empty()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getSettings() on empty name"));
-		return EMPTY_SETTINGS;
+		return mEmptySettings;
 	}
 	if (mSettings.empty()) {
+		if (name == ENGINE_SZ) return mEngineSettings;
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getSettings() on empty mSettings"));
-		return EMPTY_SETTINGS;
+		return mEmptySettings;
 	}
 	auto it = mSettings.find(name);
 	if (it == mSettings.end()) {
+		if (name == ENGINE_SZ) return mEngineSettings;
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getSettings() settings does not exist"));
-		return EMPTY_SETTINGS;
+		return mEmptySettings;
 	}
 	return it->second;
 }
@@ -43,16 +43,16 @@ const ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) const {
 ds::cfg::Settings& EngineCfg::editSettings(const std::string& name) {
 	if (name.empty()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::editSettings() on empty name"));
-		return EDIT_EMPTY_SETTINGS;
+		return mEditEmptySettings;
 	}
 	if (mSettings.empty()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::editSettings() on empty mSettings"));
-		return EDIT_EMPTY_SETTINGS;
+		return mEditEmptySettings;
 	}
 	auto it = mSettings.find(name);
 	if (it == mSettings.end()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::editSettings() settings does not exist"));
-		return EDIT_EMPTY_SETTINGS;
+		return mEditEmptySettings;
 	}
 	return it->second;
 }
@@ -60,16 +60,16 @@ ds::cfg::Settings& EngineCfg::editSettings(const std::string& name) {
 const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 	if (name.empty()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty name"));
-		return EMPTY_TEXT_CFG;
+		return mEmptyTextCfg;
 	}
 	if (mTextCfg.empty()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty mTextCfg (key=" + name + ")"));
-		return EMPTY_TEXT_CFG;
+		return mEmptyTextCfg;
 	}
 	auto it = mTextCfg.find(name);
 	if (it == mTextCfg.end()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() cfg does not exist"));
-		return EMPTY_TEXT_CFG;
+		return mEmptyTextCfg;
 	}
 	return it->second;
 }
@@ -85,16 +85,16 @@ bool EngineCfg::hasText(const std::string& name) const {
 const ds::cfg::NinePatch& EngineCfg::getNinePatch(const std::string& name) const {
 	if (name.empty()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getNinePatch() on empty name"));
-		return EMPTY_NINE_PATCH_CFG;
+		return mEmptyNinePatchCfg;
 	}
 	if (mNinePatchCfg.empty()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getNinePatch() on empty mNinePatchCfg (key=" + name + ")"));
-		return EMPTY_NINE_PATCH_CFG;
+		return mEmptyNinePatchCfg;
 	}
 	auto it = mNinePatchCfg.find(name);
 	if (it == mNinePatchCfg.end()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getNinePatch() cfg does not exist"));
-		return EMPTY_NINE_PATCH_CFG;
+		return mEmptyNinePatchCfg;
 	}
 	return it->second;
 }

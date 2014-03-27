@@ -6,6 +6,7 @@
 #include <cinder/app/MouseEvent.h>
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/web_listener.h"
+#include "ds/script/web_script.h"
 
 namespace Awesomium {
 class WebCore;
@@ -14,12 +15,13 @@ class WebView;
 
 namespace ds {
 namespace web {
+class JsMethodHandler;
 class Service;
+class WebLoadListener;
 class WebViewListener;
 }
 
 namespace ui {
-
 /**
  * \class ds::ui::Web
  * \brief Display a web page.
@@ -29,14 +31,17 @@ public:
 	Web(ds::ui::SpriteEngine &engine, float width = 0.0f, float height = 0.0f);
 	~Web();
 
-	void updateServer(const ds::UpdateParams &updateParams);
-	void drawLocalClient();
+	virtual void			updateServer(const ds::UpdateParams&);
+	virtual void			drawLocalClient();
 
 	// After setting a URL, you need to call activate() to see anything. Not
 	// sure I like that API but that's what it is for now.
 	void					loadUrl(const std::wstring &url);
 	void					loadUrl(const std::string &url);
 	std::string				getUrl();
+	// New-style API, set the URL and activate (and optionally throw on errors).
+	void					setUrl(const std::string&);
+	void					setUrlOrThrow(const std::string&);
 
 	// untested!
 	void sendKeyDownEvent(const ci::app::KeyEvent &event);
@@ -69,7 +74,7 @@ public:
 	void					goForward();
 	void					reload();
 	bool					canGoBack();
-	bool					canGoForward();			
+	bool					canGoForward();
 
 	// For now, a simple communication about when the address changes.
 	// In the future I'd like to have a richer mechanism in place.
@@ -88,10 +93,20 @@ public:
 	ci::Vec2f				getDocumentSize();
 	ci::Vec2f				getDocumentScroll();
 
+	// Scripting.
+	// Send function to object with supplied args. For example, if you want to just invoke the global
+	// function "makeItHappen()" you'd call: RunJavaScript("window", "makeItHappen", ds::web::ScriptTree());
+	ds::web::ScriptTree		runJavaScript(	const std::string& object, const std::string& function,
+											const ds::web::ScriptTree& args);
+	// Register a handler for a callback from javascript
+	void					registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
+														const std::function<void(const ds::web::ScriptTree&)>&);
+
 protected:
 	virtual void			onSizeChanged();
 
 private:
+	void					onDocumentReady();
 	void					handleTouch(const ds::ui::TouchInfo&);
 	void					sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase&);
 
@@ -101,6 +116,10 @@ private:
 	Awesomium::WebView*		mWebViewPtr;
 	std::unique_ptr<ds::web::WebViewListener>
 							mWebViewListener;
+	std::unique_ptr<ds::web::WebLoadListener>
+							mWebLoadListener;
+	std::unique_ptr<ds::web::JsMethodHandler>
+							mJsMethodHandler;
 
 	ci::gl::Texture			mWebTexture;
 	ci::gl::Texture			mLoadingTexture;
@@ -114,11 +133,15 @@ private:
 	bool					mClickDown;
 	bool					mDragScrolling;
 	int						mDragScrollMinFingers;
+	// Cache the page size and scroll during touch events
+	ci::Vec2f				mPageSizeCache,
+							mPageScrollCache;
+	// Prevent the scroll from being cached more than once in an update.
+	int32_t					mPageScrollCount;
 
 	std::function<void(const ds::web::TouchEvent&)>
 							mTouchListener;
 };
-
 } // namespace ui
 } // namespace ds
 

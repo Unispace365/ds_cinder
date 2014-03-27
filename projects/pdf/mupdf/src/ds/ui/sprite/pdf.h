@@ -17,9 +17,18 @@ namespace ui {
  */
 class Pdf : public ds::ui::Sprite {
 public:
+	// Constant size will cause the sprite to size itself to the first PDF
+	// and scale all subsequent PDF pages to match.
+	// Auto resize will cause the view to resize when the page size changes.
+	enum						PageSizeMode { kConstantSize, kAutoResize };
+
 	Pdf(ds::ui::SpriteEngine&);
 
+	Pdf&						setPageSizeMode(const PageSizeMode&);
 	Pdf&						setResourceFilename(const std::string& filename);
+
+	// Callback when the page size changes (only triggered in kAutoResize mode).
+	void						setPageSizeChangedFn(const std::function<void(void)>&);
 
 	virtual void				updateClient(const UpdateParams&);
 	virtual void				updateServer(const UpdateParams&);
@@ -38,6 +47,13 @@ protected:
 private:
 	typedef ds::ui::Sprite		inherited;
 
+	// STATE
+	PageSizeMode				mPageSizeMode;
+	std::function<void(void)>	mPageSizeChangeFn;
+	// CACHE
+	float						mPdfWidth,
+								mPdfHeight;
+
 	// It'd be nice just have the PdfRes in a unique_ptr,
 	// but it has rules around destruction
 	class ResHolder {
@@ -46,10 +62,11 @@ private:
 		~ResHolder();
 
 		void					clear();
-		void					setResourceFilename(const std::string& filename);
+		void					setResourceFilename(const std::string& filename, const PageSizeMode&);
 		void					update();
 		void					drawLocalClient();
 		void					setScale(const ci::Vec3f&);
+		void					setPageSizeMode(const PageSizeMode&);
 		float					getWidth() const;
 		float					getHeight() const;
 		float					getTextureWidth() const;

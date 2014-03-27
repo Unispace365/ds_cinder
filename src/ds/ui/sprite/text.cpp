@@ -187,6 +187,7 @@ void Text::updateClient(const UpdateParams& p)
 void Text::drawLocalClient()
 {
 	if (mDebugShowFrame) {
+		ci::gl::SaveColorState		scs;
 		mSpriteShader.getShader().unbind();
 		glPushAttrib(GL_COLOR);
 		ci::gl::color(0.25f, 0, 0, 0.5f);

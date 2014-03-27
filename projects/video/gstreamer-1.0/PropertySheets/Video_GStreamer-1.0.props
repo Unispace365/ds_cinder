@@ -9,17 +9,9 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM)\projects\video\gstreamer-1.0\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);
-	  gstreamer-1.0.lib;
-	  glib-2.0.lib;
-	  gobject-2.0.lib;
-	  gstapp-1.0.lib;
-	  gstbase-1.0.lib;
-	  gstvideo-1.0.lib;
-	  gthread-2.0.lib;
-	  gstnet-1.0.lib;
-	  video_gstreamer-1.0.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);gstreamer-1.0.lib;glib-2.0.lib;gobject-2.0.lib;gstapp-1.0.lib;gstbase-1.0.lib;gstvideo-1.0.lib;gthread-2.0.lib;gstnet-1.0.lib;video_gstreamer-1.0.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);C:\gstreamer\1.0\x86\lib;$(DS_PLATFORM)\projects\video\lib</AdditionalLibraryDirectories>
+      <DelayLoadDLLs>libgstreamer-1.0-0.dll;libglib-2.0-0.dll;libgobject-2.0-0.dll;libgstapp-1.0-0.dll;libgstbase-1.0-0.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

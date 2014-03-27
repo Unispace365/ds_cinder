@@ -114,11 +114,35 @@ public:
 		: mPixels(pixels)
 		, mScaledWidth(scaledWidth)
 		, mScaledHeight(scaledHeight)
+		, mScale(1.0f)
 		, mWidth(width)
 		, mHeight(height)
+		, mMode(0)
 		{ }
 
+	Draw(ds::pdf::PdfRes::Pixels& pixels, const float scale)
+		: mPixels(pixels)
+		, mScaledWidth(0)
+		, mScaledHeight(0)
+		, mScale(scale)
+		, mWidth(0)
+		, mHeight(0)
+		, mMode(1)
+		{ }
+
+
+	const ci::Vec2i&	getPageSize() const {
+		return mOutSize;
+	}
+
 	virtual bool	run(fz_context& ctx, fz_document& doc, fz_page& page) {
+		if (mMode == 0) return runMode0(ctx, doc, page);
+		if (mMode == 1) return runMode1(ctx, doc, page);
+		return false;
+	}
+
+private:
+	virtual bool	runMode0(fz_context& ctx, fz_document& doc, fz_page& page) {
 		bool					ans = false;
 		try {
 			fz_pixmap*			pixmap = nullptr;
@@ -173,12 +197,85 @@ public:
 		return ans;
 	}
 
-private:
+	virtual bool	runMode1(fz_context& ctx, fz_document& doc, fz_page& page) {
+		bool					ans = false;
+		try {
+			fz_pixmap*			pixmap = nullptr;
+			fz_device*			device = nullptr;
+			// This is pretty ugly because MuPDF uses custom C++-like error handing that
+			// has stringent rules, like you're not allowed to return.
+			fz_try((&ctx)) {
+				if (!getPageSize(doc, page)) return false;
+
+				mWidth = static_cast<float>(mOutSize.x);
+				mHeight = static_cast<float>(mOutSize.y);
+				mScaledWidth = static_cast<int>(mScale * mWidth);
+				mScaledHeight = static_cast<int>(mScale * mHeight);
+
+//				const float		zoom = 1.0f;
+				const float		zoom = static_cast<float>(mScaledWidth) / mWidth;
+				const float		rotation = 1.0f;
+				fz_matrix		transform = fz_identity;
+				fz_scale(&transform, zoom, zoom);
+	//			transform = fz_concat(transform, fz_rotate(rotation));
+
+				// Take the page bounds and transform them by the same matrix that
+				// we will use to render the page.
+				fz_rect			rect;
+				fz_bound_page(&doc, &page, &rect);
+				fz_transform_rect(&rect, &transform);
+	//			fz_bbox bbox = fz_round_rect(rect);
+
+				// Create a blank pixmap to hold the result of rendering. The
+				// pixmap bounds used here are the same as the transformed page
+				// bounds, so it will contain the entire page. The page coordinate
+				// space has the origin at the top left corner and the x axis
+				// extends to the right and the y axis extends down.
+	//			fz_pixmap *pix = fz_new_pixmap_with_bbox(&ctx, fz_device_rgb, bbox);
+				int w = mScaledWidth, h = mScaledHeight;
+				if (mPixels.setSize(w, h)) {
+					mPixels.clearPixels();
+					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb, w, h, mPixels.getData());
+					if (pixmap) {
+						fz_clear_pixmap_with_value(&ctx, pixmap, 0xff);
+						// Run the page with the transform.
+						device = fz_new_draw_device(&ctx, pixmap);
+						if (device) {
+							fz_run_page(&doc, &page, device, &transform, NULL);
+							ans = true;
+						}
+					}
+				}
+			}
+			fz_always((&ctx))
+			{
+			}
+			fz_catch((&ctx))
+			{
+			}
+			if (device) fz_free_device(device);
+			if (pixmap) fz_drop_pixmap(&ctx, pixmap);
+		} catch (std::exception const&) { }
+		return ans;
+	}
+
+	virtual bool	getPageSize(fz_document& doc, fz_page& page) {
+		fz_rect bounds;
+		fz_bound_page(&doc, &page, &bounds);
+		if (fz_is_empty_rect(&bounds) || fz_is_infinite_rect(&bounds)) return false;
+		mOutSize.x = bounds.x1 - bounds.x0;
+		mOutSize.y = bounds.y1 - bounds.y0;
+		return mOutSize.x > 0 && mOutSize.y > 0;
+	}
+
 	ds::pdf::PdfRes::Pixels&	mPixels;
-	const int					mScaledWidth,
+	int							mScaledWidth,
 								mScaledHeight;
-	const float					mWidth,
+	const float					mScale;
+	float						mWidth,
 								mHeight;
+	int							mMode;
+	ci::Vec2i					mOutSize;
 };
 
 } // namespace
@@ -187,28 +284,24 @@ private:
  * \class ds::ui::sprite::PdfRes
  */
 PdfRes::PdfRes(ds::GlThread& t)
-	: ds::GlThreadClient<PdfRes>(t)
-	, mPageCount(0)
-	, mPixelsChanged(false)
-{
+		: ds::GlThreadClient<PdfRes>(t)
+		, mPageCount(0)
+		, mPixelsChanged(false) {
 	mDrawState.mPageNum = 0;
 }
 
-void PdfRes::scheduleDestructor()
-{
+void PdfRes::scheduleDestructor() {
 	performOnWorkerThread(&PdfRes::_destructor);
 }
 
-void PdfRes::_destructor()
-{
+void PdfRes::_destructor() {
 	delete this;
 }
 
-PdfRes::~PdfRes()
-{
+PdfRes::~PdfRes() {
 }
 
-bool PdfRes::loadPDF(const std::string& fileName) {
+bool PdfRes::loadPDF(const std::string& fileName, const ds::ui::Pdf::PageSizeMode& pageSizeMode) {
 	// I'd really like to do this initial examine stuff in the
 	// worker thread, but I suspect the client is expecting this
 	// info to be valid as soon as this is called.
@@ -219,20 +312,19 @@ bool PdfRes::loadPDF(const std::string& fileName) {
 		mFileName = fileName;
 		mState.mWidth = examine.mWidth;
 		mState.mHeight = examine.mHeight;
+		mState.mPageSizeMode = pageSizeMode;
 		mPageCount = examine.mPageCount;
 		return mPageCount > 0;
 	}
 	return false;
 }
 
-float PdfRes::getTextureWidth() const
-{
+float PdfRes::getTextureWidth() const {
 	if (!mTexture) return 0.0f;
 	return mTexture.getWidth();
 }
 
-float PdfRes::getTextureHeight() const
-{
+float PdfRes::getTextureHeight() const {
 	if (!mTexture) return 0.0f;
 	return mTexture.getHeight();
 }
@@ -257,25 +349,31 @@ void Pdf::resetAnchor() {
 }
 #endif
 
-void PdfRes::draw(float x, float y)
-{
+void PdfRes::draw(float x, float y) {
 	if (mPageCount > 0 && mTexture) {
 		ci::gl::draw(mTexture, ci::Vec2f(x, y));
 	}
 }
 
-void PdfRes::goToNextPage()
-{
+void PdfRes::goToNextPage() {
 	setPageNum(mState.mPageNum+1);
 }
 
-void PdfRes::goToPreviousPage()
-{
+void PdfRes::goToPreviousPage() {
 	setPageNum(mState.mPageNum-1);
 }
 
-void PdfRes::setPageNum(int thePageNum)
-{
+float PdfRes::getWidth() const {
+	if (mTexture) return mTexture.getWidth();
+	return (float)mState.mWidth;
+}
+
+float PdfRes::getHeight() const {
+	if (mTexture) return mTexture.getHeight();
+	return (float)mState.mHeight;
+}
+
+void PdfRes::setPageNum(int thePageNum) {
 	Poco::Mutex::ScopedLock		l(mMutex);
 
 	if (thePageNum < 1) thePageNum = 1;
@@ -294,16 +392,19 @@ int PdfRes::getPageCount() {
 	return mPageCount;
 }
 
-void PdfRes::setScale(const float theScale)
-{
+void PdfRes::setScale(const float theScale) {
 	if (mState.mScale == theScale) return;
 
 	Poco::Mutex::ScopedLock		l(mMutex);
 	mState.mScale = theScale;	
 }
 
-void PdfRes::update()
-{
+void PdfRes::setPageSizeMode(const ds::ui::Pdf::PageSizeMode& m) {
+	Poco::Mutex::ScopedLock		l(mMutex);
+	mState.mPageSizeMode = m;	
+}
+
+void PdfRes::update() {
 	// Update the page, if necessary.  Batch process -- once my value has been
 	// set, I only need the next pending redraw to perform, everything else
 	// is unnecessary.
@@ -334,19 +435,18 @@ void PdfRes::update()
 				mTexture.disable();
 				glFinish();
 			}
+
 		}
 	}
 }
 
-bool PdfRes::needsUpdate()
-{
+bool PdfRes::needsUpdate() {
 	Poco::Mutex::ScopedLock		l(mMutex);
 	if (mPageCount < 1) return false;
 	return mState != mDrawState;
 }
 
-void PdfRes::_redrawPage()
-{
+void PdfRes::_redrawPage() {
 	// Pop out the pieces we need
 	state							drawState;
 	std::string						fn;
@@ -370,11 +470,20 @@ void PdfRes::_redrawPage()
 	if (scaledHeight < 1) scaledHeight = 1;
 
 	// Render to the texture
-	Draw							draw(mPixels, scaledWidth, scaledHeight, drawState.mWidth, drawState.mHeight);
-	Load							load;
-	if (!load.run(draw, fn, drawState.mPageNum)) {
-		DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
-		return;
+	if (drawState.mPageSizeMode == ds::ui::Pdf::kConstantSize) {
+		Draw							draw(mPixels, scaledWidth, scaledHeight, drawState.mWidth, drawState.mHeight);
+		Load							load;
+		if (!load.run(draw, fn, drawState.mPageNum)) {
+			DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
+			return;
+		}
+	} else if (drawState.mPageSizeMode == ds::ui::Pdf::kAutoResize) {
+		Draw							draw(mPixels, drawState.mScale);
+		Load							load;
+		if (!load.run(draw, fn, drawState.mPageNum)) {
+			DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
+			return;
+		}
 	}
 
 	Poco::Mutex::ScopedLock			l(mMutex);
@@ -388,20 +497,17 @@ void PdfRes::_redrawPage()
  * \class ds::ui::sprite::Pdf::state
  */
 PdfRes::state::state()
-	: mWidth(0)
-	, mHeight(0)
-	, mPageNum(1)
-	, mScale(1.0f)
-{
+		: mWidth(0)
+		, mHeight(0)
+		, mPageNum(1)
+		, mScale(1.0f) {
 }
 
-bool PdfRes::state::operator==(const PdfRes::state& o)
-{
+bool PdfRes::state::operator==(const PdfRes::state& o) {
 	return mPageNum == o.mPageNum && mScale == o.mScale && mWidth == o.mWidth && mHeight == o.mHeight;
 }
 
-bool PdfRes::state::operator!=(const PdfRes::state& o)
-{
+bool PdfRes::state::operator!=(const PdfRes::state& o) {
 	return !(*this == o);
 }
 
@@ -409,24 +515,20 @@ bool PdfRes::state::operator!=(const PdfRes::state& o)
  * \class ds::ui::sprite::Pdf::Pixels
  */
 PdfRes::Pixels::Pixels()
-	: mW(0)
-	, mH(0)
-	, mData(nullptr)
-{
+		: mW(0)
+		, mH(0)
+		, mData(nullptr) {
 }
 
-PdfRes::Pixels::~Pixels()
-{
+PdfRes::Pixels::~Pixels() {
 	delete mData;
 }
 
-bool PdfRes::Pixels::empty() const
-{
+bool PdfRes::Pixels::empty() const {
 	return mW < 1 || mH < 1 || !mData;
 }
 
-bool PdfRes::Pixels::setSize(const int w, const int h)
-{
+bool PdfRes::Pixels::setSize(const int w, const int h) {
 	if (mW == w && mH == h) return true;
 	delete mData;
 	mData = nullptr;

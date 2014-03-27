@@ -1,14 +1,16 @@
 #include "ds/app/engine/engine.h"
 
 #include <GL/glu.h>
+#include "Poco/Path.h"
 #include "ds/app/app.h"
 #include "ds/app/environment.h"
 #include "ds/app/engine/engine_service.h"
+#include "ds/cfg/settings.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
-#include "ds/cfg/settings.h"
-#include "Poco/Path.h"
+#include "ds/ui/ip/ip_defs.h"
+#include "ds/ui/ip/functions/ip_circle_mask.h"
 #include "cinder/Thread.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
@@ -56,6 +58,11 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mApplyFxAA(false)
 {
 	mRequestDelete.reserve(32);
+
+	// For now, install some default image processing functions here, for convenience. These are
+	// so lightweight it probably makes sense just to have them always available for clients instead
+	// of requiring some sort of configuration.
+	mIpFunctions.add(ds::ui::ip::CIRCLE_MASK, ds::ui::ip::FunctionRef(new ds::ui::ip::CircleMask()));
 
 	// Construct the root sprites
 	if (roots) {
@@ -111,33 +118,18 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		}
 	}
 
-  // SETUP RESOURCES
-  std::string resourceLocation = settings.getText("resource_location", 0, "");
-  if (resourceLocation.empty()) {
-    // This is valid, though unusual
-    std::cout << "Engine() has no resource_location setting, is that intentional?" << std::endl;
-  } else {
-    resourceLocation = Poco::Path::expand(resourceLocation);
-    Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
-    //std::cout << "db location: " << resourceLocation << std::endl;
-    //std::cout << "resource location: " << settings.getText("resource_db", 0) << std::endl;
-    //std::cout << "project path location: " << settings.getText("project_path", 0) << std::endl;
-    //std::fstream file;
-    //file.open("locations.txt", std::fstream::out);
-    //if (file.is_open()) {
-    //  //std::stringstream ss;
-
-    //  file << "db location: " << resourceLocation << std::endl;
-    //  file << "resource location: " << settings.getText("resource_db", 0) << std::endl;
-    //  file << "project path location: " << settings.getText("project_path", 0) << std::endl;
- 
-    //  file.close();
-    //}
-  }
+	// SETUP RESOURCES
+	std::string resourceLocation = settings.getText("resource_location", 0, "");
+	if (resourceLocation.empty()) {
+		// This is valid, though unusual
+		std::cout << "Engine() has no resource_location setting, is that intentional?" << std::endl;
+	} else {
+		resourceLocation = Poco::Path::expand(resourceLocation);
+		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
+	}
 }
 
-Engine::~Engine()
-{
+Engine::~Engine() {
 	mTuio.disconnect();
 
 	// Important to do this here before the auto update list is destructed.
@@ -145,8 +137,7 @@ Engine::~Engine()
 	mData.clearServices();
 }
 
-void Engine::addService(const std::string& str, ds::EngineService& service)
-{
+void Engine::addService(const std::string& str, ds::EngineService& service) {
 	if (mData.mServices.empty()) {
 		mData.mServices[str] = &service;
 	} else {
@@ -159,8 +150,11 @@ void Engine::addService(const std::string& str, ds::EngineService& service)
 	}
 }
 
-void Engine::loadSettings(const std::string& name, const std::string& filename)
-{
+void Engine::addIp(const std::string& key, const ds::ui::ip::FunctionRef& fn) {
+	mIpFunctions.add(key, fn);
+}
+
+void Engine::loadSettings(const std::string& name, const std::string& filename) {
 	mData.mEngineCfg.loadSettings(name, filename);
 }
 
@@ -172,13 +166,11 @@ void Engine::loadNinePatchCfg(const std::string& filename) {
 	mData.mEngineCfg.loadNinePatchCfg(filename);
 }
 
-int Engine::getRootCount() const
-{
+int Engine::getRootCount() const {
 	return mRoots.size();
 }
 
-ui::Sprite& Engine::getRootSprite(const size_t index)
-{
+ui::Sprite& Engine::getRootSprite(const size_t index) {
 	if (index < 0 || index >= mRoots.size()) throw std::runtime_error("Engine::getRootSprite() on invalid index");
   return *(mRoots[index]);
 }

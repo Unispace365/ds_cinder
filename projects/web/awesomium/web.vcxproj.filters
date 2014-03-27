@@ -16,6 +16,9 @@
     <Filter Include="src\private">
       <UniqueIdentifier>{f70a31eb-2624-4e17-807d-459cc2365e31}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\script">
+      <UniqueIdentifier>{ac766f2d-b7db-41a4-8947-1d100acc128e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\sprite\web.h">
@@ -30,6 +33,15 @@
     <ClInclude Include="src\ds\ui\sprite\web_listener.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\script\web_script.h">
+      <Filter>src\ds\script</Filter>
+    </ClInclude>
+    <ClInclude Include="src\private\script_translator.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
+    <ClInclude Include="src\private\js_method_handler.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\sprite\web.cpp">
@@ -43,6 +55,15 @@
     </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\web_listener.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\script\web_script.cpp">
+      <Filter>src\ds\script</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\script_translator.cpp">
+      <Filter>src\private</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\js_method_handler.cpp">
+      <Filter>src\private</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

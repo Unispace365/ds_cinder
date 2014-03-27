@@ -31,9 +31,12 @@ Init				INIT;
  * \class ds::ui::sprite::Pdf
  */
 Pdf::Pdf(ds::ui::SpriteEngine& e)
-	: inherited(e)
-	, mHolder(e)
-{
+		: inherited(e)
+		, mPageSizeMode(kConstantSize)
+		, mPageSizeChangeFn(nullptr)
+		, mPdfWidth(0.0f)
+		, mPdfHeight(0.0f)
+		, mHolder(e) {
 	// Should be unnecessary, but make sure we reference the static.
 	INIT.doNothing();
 
@@ -41,59 +44,69 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 	setUseShaderTextuer(true);
 }
 
-Pdf& Pdf::setResourceFilename(const std::string& filename)
-{
-	mHolder.setResourceFilename(filename);
+Pdf& Pdf::setPageSizeMode(const PageSizeMode& m) {
+	mPageSizeMode = m;
+	mHolder.setPageSizeMode(m);
+	return *this;
+}
+
+Pdf& Pdf::setResourceFilename(const std::string& filename) {
+	mPdfWidth = 0.0f;
+	mPdfHeight = 0.0f;
+	mHolder.setResourceFilename(filename, mPageSizeMode);
 	mHolder.setScale(mScale);
 	setSize(mHolder.getWidth(), mHolder.getHeight());
 	return *this;
 }
 
-void Pdf::updateClient(const UpdateParams& p)
-{
+void Pdf::setPageSizeChangedFn(const std::function<void(void)>& fn) {
+	mPageSizeChangeFn = fn;
+}
+
+void Pdf::updateClient(const UpdateParams& p) {
 	inherited::updateClient(p);
 	mHolder.update();
 }
 
-void Pdf::updateServer(const UpdateParams& p)
-{
+void Pdf::updateServer(const UpdateParams& p) {
 	inherited::updateServer(p);
 	mHolder.update();
+	if (mPageSizeMode == kAutoResize) {
+		if (mPdfWidth != mHolder.getWidth() || mPdfHeight != mHolder.getHeight()) {
+			mPdfWidth = mHolder.getWidth();
+			mPdfHeight = mHolder.getHeight();
+			setSize(mHolder.getWidth(), mHolder.getHeight());
+			if (mPageSizeChangeFn) mPageSizeChangeFn();
+		}
+	}
 }
 
-void Pdf::setPageNum(const int pageNum)
-{
+void Pdf::setPageNum(const int pageNum) {
 	mHolder.setPageNum(pageNum);
 }
 
-int Pdf::getPageNum()
-{
+int Pdf::getPageNum() {
 	return mHolder.getPageNum();
 }
 
-int Pdf::getPageCount()
-{
+int Pdf::getPageCount() {
 	return mHolder.getPageCount();
 }
 
-void Pdf::goToNextPage()
-{
+void Pdf::goToNextPage() {
 	mHolder.goToNextPage();
 }
 
-void Pdf::goToPreviousPage()
-{
+void Pdf::goToPreviousPage() {
 	mHolder.goToPreviousPage();
 }
 
-void Pdf::onScaleChanged()
-{
+void Pdf::onScaleChanged() {
 	inherited::onScaleChanged();
 	mHolder.setScale(mScale);
 }
 
-void Pdf::drawLocalClient()
-{
+void Pdf::drawLocalClient() {
 	inherited::drawLocalClient();
 
 	// When drawing, we have to go through some histrionics because we
@@ -130,30 +143,26 @@ Pdf::ResHolder::ResHolder(ds::ui::SpriteEngine& e)
 {
 }
 
-Pdf::ResHolder::~ResHolder()
-{
+Pdf::ResHolder::~ResHolder() {
 	clear();
 }
 
-void Pdf::ResHolder::clear()
-{
+void Pdf::ResHolder::clear() {
 	if (mRes) {
 		mRes->scheduleDestructor();
 		mRes = nullptr;
 	}
 }
 
-void Pdf::ResHolder::setResourceFilename(const std::string& filename)
-{
+void Pdf::ResHolder::setResourceFilename(const std::string& filename, const PageSizeMode& m) {
 	clear();
 	mRes = new ds::pdf::PdfRes(mService.mThread);
 	if (mRes) {
-		mRes->loadPDF(filename);
+		mRes->loadPDF(filename, m);
 	}
 }
 
-void Pdf::ResHolder::update()
-{
+void Pdf::ResHolder::update() {
 	if (mRes) {
 		mRes->update();
 	}
@@ -166,10 +175,15 @@ void Pdf::ResHolder::drawLocalClient()
 	}
 }
 
-void Pdf::ResHolder::setScale(const ci::Vec3f& scale)
-{
+void Pdf::ResHolder::setScale(const ci::Vec3f& scale) {
 	if (mRes) {
 		mRes->setScale(scale.x);
+	}
+}
+
+void Pdf::ResHolder::setPageSizeMode(const PageSizeMode& m) {
+	if (mRes) {
+		mRes->setPageSizeMode(m);
 	}
 }
 

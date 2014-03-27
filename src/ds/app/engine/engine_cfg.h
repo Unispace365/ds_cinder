@@ -15,7 +15,7 @@ namespace ds {
  */
 class EngineCfg {
 public:
-	EngineCfg();
+	EngineCfg(const ds::cfg::Settings& engine_settings);
 
 	// Answer the requested settings file. In debug mode, throw
 	// if it doesn't exist. In release mode, just answer an empty one.
@@ -47,12 +47,21 @@ public:
 private:
 	EngineCfg(const EngineCfg&);
 
+	// Make it easy for clients to access the engine settings.
+	const ds::cfg::Settings&		mEngineSettings;
 	std::unordered_map<std::string, ds::cfg::Settings>
 									mSettings;
 	std::unordered_map<std::string, ds::cfg::Text>
 									mTextCfg;
 	std::unordered_map<std::string, ds::cfg::NinePatch>
 									mNinePatchCfg;
+
+	// Empty settings for when some are missing. Here because we're getting
+	// a shutdown crash with this as statics.
+	const ds::cfg::Settings			mEmptySettings;
+	ds::cfg::Settings				mEditEmptySettings;
+	const ds::cfg::Text				mEmptyTextCfg;
+	const ds::cfg::NinePatch		mEmptyNinePatchCfg;
 };
 
 } // namespace ds

@@ -20,6 +20,7 @@
 #include "ds/data/resource_list.h"
 #include "ds/data/tuio_object.h"
 #include "ds/cfg/settings.h"
+#include "ds/ui/ip/ip_function_list.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/tween/tweenline.h"
@@ -61,6 +62,8 @@ public:
 	virtual const ds::cfg::Settings&	getDebugSettings() { return mDebugSettings; }
 	// I take ownership of any services added to me.
 	void								addService(const std::string&, ds::EngineService&);
+	// Add the image processing function to my global pool
+	void								addIp(const std::string& key, const ds::ui::ip::FunctionRef&);
 	// Convenice to load a setting file into the mEngineCfg settings.
 	// @param name is the name that the system will use to refer to the settings.
 	// @param filename is the leaf path of the settings file (i.e. "data.xml").
@@ -161,6 +164,9 @@ protected:
 	std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
 										mSprites;
 	int									mTuioPort;
+
+	// All the installed image processing functions.
+	ds::ui::ip::FunctionList			mIpFunctions;
 
 private:
 	void								deleteRequestedSprites();

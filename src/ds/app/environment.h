@@ -46,6 +46,10 @@ public:
 	// Answer the current project path
 	static std::string			getProjectPath();
 
+	// Utility to add a value to an environment variable. Probably this is a bad place
+	// for this, and it should be hidden in the app.
+	static void					addToEnvironmentVariable(const std::string& variable, const std::string& value);
+
 private:
 	Environment();
 };

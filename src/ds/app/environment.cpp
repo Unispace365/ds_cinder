@@ -120,6 +120,21 @@ std::string Environment::getProjectPath() {
 	return EngineSettings::envProjectPath();
 }
 
+void Environment::addToEnvironmentVariable(const std::string& variable, const std::string& value) {
+	std::string		new_path(variable + "=");
+	const char*		path_env = getenv(variable.c_str());
+	if (path_env) {
+		new_path += path_env;
+	}
+	if (new_path.length() > 0) {
+		if (!(new_path.back() == '=' || new_path.back() == ';')) {
+			new_path += ";";
+		}
+	}
+	new_path += value;
+	_putenv(new_path.c_str());
+}
+
 } // namespace ds
 
 static std::string    folder_from(const Poco::Path& parentP, const std::string& folder, const std::string& fileName) {

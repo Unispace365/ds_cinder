@@ -61,8 +61,8 @@ public:
 
 	// Sprite behaviour can vary whether this is running on the server
 	// or client.
-	virtual void			updateClient(const UpdateParams &updateParams);
-	virtual void			updateServer(const UpdateParams &updateParams);
+	virtual void			updateClient(const ds::UpdateParams&);
+	virtual void			updateServer(const ds::UpdateParams&);
 
 	virtual void			drawClient( const ci::Matrix44f &trans, const DrawParams &drawParams );
 	virtual void			drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams );

@@ -48,7 +48,7 @@ public:
 		if (mTexture) return &mTexture;
 
 		if (mToken.canAcquire()) {
-			mToken.acquire(mResource.getAbsoluteFilePath(), mFlags);
+			mToken.acquire(mResource.getAbsoluteFilePath(), "", "", mFlags);
 		}
 		float						fade;
 		mTexture = mToken.getImage(fade);
@@ -83,7 +83,7 @@ private:
 		// XXX This should check to see if I'm in client mode and only
 		// load it then. (or the service should be empty in server mode).
 		if ((mFlags&ds::ui::Image::IMG_PRELOAD_F) != 0 && mToken.canAcquire()) {
-			mToken.acquire(mResource.getAbsoluteFilePath(), mFlags);
+			mToken.acquire(mResource.getAbsoluteFilePath(), "", "", mFlags);
 		}
 	}
 

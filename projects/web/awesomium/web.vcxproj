@@ -11,14 +11,20 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ds\script\web_script.h" />
     <ClInclude Include="src\ds\ui\sprite\web.h" />
     <ClInclude Include="src\ds\ui\sprite\web_listener.h" />
+    <ClInclude Include="src\private\js_method_handler.h" />
+    <ClInclude Include="src\private\script_translator.h" />
     <ClInclude Include="src\private\web_service.h" />
     <ClInclude Include="src\private\web_view_listener.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ds\script\web_script.cpp" />
     <ClCompile Include="src\ds\ui\sprite\web.cpp" />
     <ClCompile Include="src\ds\ui\sprite\web_listener.cpp" />
+    <ClCompile Include="src\private\js_method_handler.cpp" />
+    <ClCompile Include="src\private\script_translator.cpp" />
     <ClCompile Include="src\private\web_service.cpp" />
     <ClCompile Include="src\private\web_view_listener.cpp" />
   </ItemGroup>

@@ -31,7 +31,15 @@ void BasicTweenApp::setupServer() {
 
 	ds::ui::Pdf&	pdf = ds::ui::Sprite::makeAlloc<ds::ui::Pdf>([this]()->ds::ui::Pdf*{return new ds::ui::Pdf(this->mEngine);}, &rootSprite);
 	mPdf = &pdf;
+#if 0
+	// By default the PDF sprite will use the first page size, and scale any subsequent...
 	pdf.setResourceFilename(ds::Environment::getAppFolder("data", "bitcoin.pdf"));
+#else
+	// Or you can turn on auto resize and the sprite will resize when the page size changes
+	pdf.setPageSizeMode(ds::ui::Pdf::kAutoResize);
+	pdf.setResourceFilename(ds::Environment::getAppFolder("data", "multi_sizes.pdf"));
+	pdf.setPageSizeChangedFn([](){std::cout << "change" << std::endl;});
+#endif
 	pdf.setCenter(0.5f, 0.5f);
 	pdf.setPosition(floorf(mEngine.getWorldWidth()/2.0f), floorf(mEngine.getWorldHeight()/2.0f));
 }
@@ -41,9 +49,9 @@ void BasicTweenApp::keyDown(KeyEvent e) {
 
 	if (e.getCode() == KeyEvent::KEY_ESCAPE) {
 		quit();
-	} else if (e.getCode() == KeyEvent::KEY_PLUS) {
+	} else if (e.getCode() == KeyEvent::KEY_PLUS || e.getCode() == KeyEvent::KEY_n) {
 		if (mPdf) mPdf->goToNextPage();
-	} else if (e.getCode() == KeyEvent::KEY_MINUS) {
+	} else if (e.getCode() == KeyEvent::KEY_MINUS || e.getCode() == KeyEvent::KEY_p) {
 		if (mPdf) mPdf->goToPreviousPage();
 	}
 }

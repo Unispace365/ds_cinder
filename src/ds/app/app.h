@@ -57,8 +57,8 @@ public:
     class Initializer { public: Initializer(const std::string&); };
     Initializer                 mInitializer;
 
-	ds::EngineData				mEngineData;
     ds::EngineSettings          mEngineSettings;
+	ds::EngineData				mEngineData;
     ds::Engine&                 mEngine;
 
   private:

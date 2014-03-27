@@ -1,6 +1,8 @@
 #include "web.h"
 
+#include <algorithm>
 #include <cinder/ImageIo.h>
+#include <boost/filesystem.hpp>
 #include <ds/app/app.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
@@ -9,6 +11,8 @@
 #include <ds/ui/tween/tweenline.h>
 #include <ds/util/string_util.h>
 #include "paulhoux-Cinder-Awesomium/include/CinderAwesomium.h"
+#include "private/js_method_handler.h"
+#include "private/script_translator.h"
 #include "private/web_service.h"
 #include "private/web_view_listener.h"
 
@@ -23,7 +27,6 @@ public:
 			if (!w) throw std::runtime_error("Can't create ds::web::Service");
 			e.addService("web", *w);
 		});
-
 	}
 	void			doNothing() { }
 };
@@ -32,8 +35,9 @@ Init				INIT;
 
 namespace ds {
 namespace ui {
-
 namespace {
+const ds::web::ScriptTree	EMPTY_SCRIPT_TREE;
+
 // Utility to get x,y data as a result of running some javascript. It's assumed that
 // the javascript is returning an array value with two named keys that match prop_x and prop_y.
 ci::Vec2f get_javascript_xy(Awesomium::WebView& view, const std::string& prop_x, const std::string& prop_y, const std::string& javascript) {
@@ -94,7 +98,6 @@ ci::Vec2f get_document_size(Awesomium::WebView& view) {
 	const std::string		javascript("(function() { var result = {height:$(document).height(), width:$(document).width()}; return result; }) ();");
 	return get_javascript_xy(view, prop_x, prop_y, javascript);
 }
-
 } // anonymous namespace
 
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
@@ -108,6 +111,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mDragScrolling(false)
 	, mDragScrollMinFingers(2)
 	, mClickDown(false)
+	, mPageScrollCount(0)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -131,6 +135,13 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		if (mWebViewPtr) {
 			mWebViewListener = std::move(std::unique_ptr<ds::web::WebViewListener>(new ds::web::WebViewListener));
 			if (mWebViewListener) mWebViewPtr->set_view_listener(mWebViewListener.get());
+			mWebLoadListener = std::move(std::unique_ptr<ds::web::WebLoadListener>(new ds::web::WebLoadListener));
+			if (mWebLoadListener) {
+				mWebViewPtr->set_load_listener(mWebLoadListener.get());
+				mWebLoadListener->setOnDocumentReady([this](const std::string& url) { onDocumentReady(); });
+			}
+			mJsMethodHandler = std::move(std::unique_ptr<ds::web::JsMethodHandler>(new ds::web::JsMethodHandler));
+			if (mJsMethodHandler) mWebViewPtr->set_js_method_handler(mJsMethodHandler.get());
 		}
 	}
 	//mWebViewPtr->LoadURL( Awesomium::WebURL( Awesomium::WSLit( "http://libcinder.org" ) ) );
@@ -154,13 +165,15 @@ Web::~Web() {
 void Web::updateServer( const ds::UpdateParams &updateParams ) {
 	Sprite::updateServer(updateParams);
 
+	mPageScrollCount = 0;
+
 	// create or update our OpenGL Texture from the webview
-	if (mWebViewPtr 
+	if (mWebViewPtr
 		&& (mDrawWhileLoading || !mWebViewPtr->IsLoading())
 		&& ph::awesomium::isDirty( mWebViewPtr )) {
 		try {
 			// set texture filter to NEAREST if you don't intend to transform (scale, rotate) it
-			ci::gl::Texture::Format fmt; 
+			ci::gl::Texture::Format fmt;
 			fmt.setMagFilter( GL_NEAREST );
 
 			// get the texture using a handy conversion function
@@ -181,7 +194,7 @@ void Web::drawLocalClient() {
     ci::gl::draw(mWebTexture);
   }
 
-  // show spinner while loading 
+  // show spinner while loading
   if (mLoadingTexture && mWebViewPtr && mWebViewPtr->IsLoading()) {
     ci::gl::pushModelView();
 
@@ -222,7 +235,6 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 				float yDelta = touchInfo.mCurrentGlobalPoint.y- mPreviousTouchPos.y;
 				ci::app::MouseEvent event(0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, yDelta, 1);
 				ph::awesomium::handleMouseWheel( mWebViewPtr, event, 1 );
-			
 			}
 		} else {
 			ci::app::MouseEvent event(0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
@@ -272,17 +284,54 @@ std::string Web::getUrl() {
 	return "";
 }
 
+void Web::setUrl(const std::string& url) {
+	try {
+		setUrlOrThrow(url);
+	} catch (std::exception const&) {
+	}
+}
+
+namespace {
+bool			validate_url(const std::string& url) {
+	try {
+		std::string ext = boost::filesystem3::path(url).extension().string();
+		std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
+		if (ext == ".pdf") return false;
+	} catch (std::exception const&) {
+	}
+	return true;
+}
+}
+
+void Web::setUrlOrThrow(const std::string& url) {
+	DS_LOG_INFO("Web::setUrlOrThrow() on " << url);
+	// Some simple validation, because clients have a tendency to put PDFs where
+	// web pages should go.
+	if (!validate_url(url)) throw std::runtime_error("URL is not the correct format (" + url + ").");
+
+	try {
+		if (mWebViewPtr) {
+			mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url.c_str())));
+			mWebViewPtr->Focus();
+			activate();
+			return;
+		}
+	} catch (std::exception const&) {
+	}
+	throw std::runtime_error("Web service is not available.");
+}
+
 void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {
 	// untested!
 	if(mWebViewPtr){
-		ph::awesomium::handleKeyDown(mWebViewPtr, event);	
+		ph::awesomium::handleKeyDown(mWebViewPtr, event);
 	}
 }
 
 void Web::sendKeyUpEvent( const ci::app::KeyEvent &event ){
 	// untested!
 	if(mWebViewPtr){
-		ph::awesomium::handleKeyUp(mWebViewPtr, event);	
+		ph::awesomium::handleKeyUp(mWebViewPtr, event);
 	}
 }
 
@@ -370,7 +419,6 @@ void Web::setTransitionTime( const float transitionTime ) {
 	mTransitionTime = transitionTime;
 }
 
-
 void Web::setZoom(const double v) {
 	if (!mWebViewPtr) return;
 	mWebViewPtr->SetZoom(static_cast<int>(v * 100.0));
@@ -423,6 +471,28 @@ ci::Vec2f Web::getDocumentScroll() {
 	return get_document_scroll(*mWebViewPtr);
 }
 
+ds::web::ScriptTree Web::runJavaScript(	const std::string& object_utf8, const std::string& function_utf8,
+										const ds::web::ScriptTree& args) {
+	if (!mWebViewPtr) return ds::web::ScriptTree();
+
+	Awesomium::WebString		object_ws(Awesomium::WebString::CreateFromUTF8(object_utf8.c_str(), object_utf8.size()));
+	Awesomium::JSValue			object = mWebViewPtr->ExecuteJavascriptWithResult(object_ws, Awesomium::WebString());
+	if (object.IsObject()) {
+		Awesomium::WebString	function_ws(Awesomium::WebString::CreateFromUTF8(function_utf8.c_str(), function_utf8.size()));
+		Awesomium::JSArray		args(jsarray_from_tree(args));
+		Awesomium::JSValue		ans = object.ToObject().Invoke(function_ws, args);
+		return ds::web::tree_from_jsvalue(ans);
+	}
+	return ds::web::ScriptTree();
+}
+
+void Web::registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
+									const std::function<void(const ds::web::ScriptTree&)>& fn) {
+	if (!mWebViewPtr || !mJsMethodHandler) return;
+
+	mJsMethodHandler->registerMethod(*mWebViewPtr, class_name, method_name, fn);
+}
+
 void Web::onSizeChanged() {
 	if (mWebViewPtr) {
 		const int			w = static_cast<int>(getWidth()),
@@ -439,19 +509,31 @@ bool Web::isLoading(){
 	return false;
 }
 
+void Web::onDocumentReady() {
+	if (!mWebViewPtr || !mJsMethodHandler) return;
 
+	mJsMethodHandler->setDomIsReady(*mWebViewPtr);
+}
 
 void Web::sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase& phase) {
 	if (!mWebViewPtr || !mTouchListener) return;
 
-	const ci::Vec2f			doc_size(getDocumentSize()),
-							doc_scroll(getDocumentScroll());
+	if (phase == ds::web::TouchEvent::kAdded) {
+		mPageSizeCache = getDocumentSize();
+	}
+	if (mPageScrollCount <= 0) {
+		mPageScrollCache = getDocumentScroll();
+	}
+	++mPageScrollCount;
+
 	ds::web::TouchEvent		te;
 	te.mPhase = phase;
-	te.mPosition.x = (doc_scroll.x + static_cast<float>(x));
-	te.mPosition.y = (doc_scroll.y + static_cast<float>(y));
-	te.mUnitPosition.x = te.mPosition.x / doc_size.x;
-	te.mUnitPosition.y = te.mPosition.y / doc_size.y;
+	te.mPosition.x = (mPageScrollCache.x + static_cast<float>(x));
+	te.mPosition.y = (mPageScrollCache.y + static_cast<float>(y));
+	te.mPosition.x = (static_cast<float>(x));
+	te.mPosition.y = (static_cast<float>(y));
+	te.mUnitPosition.x = te.mPosition.x / mPageSizeCache.x;
+	te.mUnitPosition.y = te.mPosition.y / mPageSizeCache.y;
 
 	mTouchListener(te);
 }
