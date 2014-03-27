@@ -7,6 +7,7 @@
 #include <cinder/Surface.h>
 #include <cinder/gl/Texture.h>
 #include <ds/thread/gl_thread.h>
+#include <ds/ui/sprite/pdf.h>
 
 namespace ds {
 namespace pdf {
@@ -24,7 +25,7 @@ private:
 	virtual ~PdfRes();
 
 public:
-	bool loadPDF(const std::string &theFileName);
+	bool loadPDF(const std::string &theFileName, const ds::ui::Pdf::PageSizeMode&);
 
 	float					getTextureWidth() const;
 	float					getTextureHeight() const;
@@ -38,14 +39,16 @@ public:
 
 	void draw(float x, float y);
 
-	float getWidth() const { return (float)mState.mWidth; }
-	float getHeight() const { return (float)mState.mHeight; }
+	float getWidth() const;
+	float getHeight() const;
 	void setPageNum(int thePageNum);
 	int getPageNum();
 	int getPageCount();
 	void goToNextPage();
 	void goToPreviousPage();
 	void setScale(const float theScale);
+
+	void setPageSizeMode(const ds::ui::Pdf::PageSizeMode&);
 
 protected:
 	// worker thread calls
@@ -60,6 +63,8 @@ private:
 
 		int			mWidth, mHeight, mPageNum;
 		float		mScale;
+		ds::ui::Pdf::PageSizeMode
+					mPageSizeMode;
 	};
 
 public:
@@ -88,7 +93,7 @@ private:
 
 	// MAIN THREAD
 	ci::gl::Texture				mTexture;
-
+	
 	// WORKER THREAD
 
 	// SHARED
