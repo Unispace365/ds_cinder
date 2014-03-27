@@ -46,6 +46,10 @@ class TouchManager
     std::map<int, Vec3f>        mTouchStartPoint;
     std::map<int, Vec3f>        mTouchPreviousPoint;
     ci::Color                   mTouchColor;
+
+	// If system multitouch is on, Cinder will get both mouse and touch events for the first touch.
+	// So we track the first touch id to ignore that finger (cause the mouse will count for that)
+	int							mIgnoreFirstTouchId;
 };
 
 } // namespace ui
