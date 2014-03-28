@@ -34,8 +34,7 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 		: inherited(e)
 		, mPageSizeMode(kConstantSize)
 		, mPageSizeChangeFn(nullptr)
-		, mPdfWidth(0.0f)
-		, mPdfHeight(0.0f)
+		, mPageSizeCache(0, 0)
 		, mHolder(e) {
 	// Should be unnecessary, but make sure we reference the static.
 	INIT.doNothing();
@@ -51,8 +50,7 @@ Pdf& Pdf::setPageSizeMode(const PageSizeMode& m) {
 }
 
 Pdf& Pdf::setResourceFilename(const std::string& filename) {
-	mPdfWidth = 0.0f;
-	mPdfHeight = 0.0f;
+	mPageSizeCache = ci::Vec2i(0, 0);
 	mHolder.setResourceFilename(filename, mPageSizeMode);
 	mHolder.setScale(mScale);
 	setSize(mHolder.getWidth(), mHolder.getHeight());
@@ -72,10 +70,10 @@ void Pdf::updateServer(const UpdateParams& p) {
 	inherited::updateServer(p);
 	mHolder.update();
 	if (mPageSizeMode == kAutoResize) {
-		if (mPdfWidth != mHolder.getWidth() || mPdfHeight != mHolder.getHeight()) {
-			mPdfWidth = mHolder.getWidth();
-			mPdfHeight = mHolder.getHeight();
-			setSize(mHolder.getWidth(), mHolder.getHeight());
+		const ci::Vec2i			page_size(mHolder.getPageSize());
+		if (mPageSizeCache != page_size) {
+			mPageSizeCache = page_size;
+			setSize(static_cast<float>(mPageSizeCache.x), static_cast<float>(mPageSizeCache.y));
 			if (mPageSizeChangeFn) mPageSizeChangeFn();
 		}
 	}
@@ -211,25 +209,26 @@ float Pdf::ResHolder::getTextureHeight() const
 	return 0.0f;
 }
 
-void Pdf::ResHolder::setPageNum(const int pageNum)
-{
+void Pdf::ResHolder::setPageNum(const int pageNum) {
 	if (mRes) mRes->setPageNum(pageNum);
 }
 
-int Pdf::ResHolder::getPageNum()
-{
+int Pdf::ResHolder::getPageNum() {
 	if (mRes) return mRes->getPageNum();
 	return 0;
 }
 
-int Pdf::ResHolder::getPageCount()
-{
+int Pdf::ResHolder::getPageCount() {
 	if (mRes) return mRes->getPageCount();
 	return 0;
 }
 
-void Pdf::ResHolder::goToNextPage()
-{
+ci::Vec2i Pdf::ResHolder::getPageSize() {
+	if (!mRes) return ci::Vec2i(0, 0);
+	return mRes->getPageSize();
+}
+
+void Pdf::ResHolder::goToNextPage() {
 	if (mRes) mRes->goToNextPage();
 }
 

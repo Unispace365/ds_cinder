@@ -51,8 +51,7 @@ private:
 	PageSizeMode				mPageSizeMode;
 	std::function<void(void)>	mPageSizeChangeFn;
 	// CACHE
-	float						mPdfWidth,
-								mPdfHeight;
+	ci::Vec2i					mPageSizeCache;
 
 	// It'd be nice just have the PdfRes in a unique_ptr,
 	// but it has rules around destruction
@@ -74,6 +73,7 @@ private:
 		void					setPageNum(const int pageNum);
 		int						getPageNum();
 		int						getPageCount();
+		ci::Vec2i				getPageSize();
 		void					goToNextPage();
 		void					goToPreviousPage();
 
