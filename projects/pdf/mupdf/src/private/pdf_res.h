@@ -39,16 +39,17 @@ public:
 
 	void draw(float x, float y);
 
-	float getWidth() const;
-	float getHeight() const;
-	void setPageNum(int thePageNum);
-	int getPageNum();
-	int getPageCount();
-	void goToNextPage();
-	void goToPreviousPage();
-	void setScale(const float theScale);
+	float					getWidth() const;
+	float					getHeight() const;
+	void					setPageNum(int thePageNum);
+	int						getPageNum();
+	int						getPageCount();
+	ci::Vec2i				getPageSize();
+	void					goToNextPage();
+	void					goToPreviousPage();
+	void					setScale(const float theScale);
 
-	void setPageSizeMode(const ds::ui::Pdf::PageSizeMode&);
+	void					setPageSizeMode(const ds::ui::Pdf::PageSizeMode&);
 
 protected:
 	// worker thread calls
@@ -65,6 +66,8 @@ private:
 		float		mScale;
 		ds::ui::Pdf::PageSizeMode
 					mPageSizeMode;
+		// NOTE: These items are not part of the equality test
+		ci::Vec2i	mPageSize;
 	};
 
 public:
@@ -93,10 +96,12 @@ private:
 
 	// MAIN THREAD
 	ci::gl::Texture				mTexture;
+	state						mLastDrawState;
 	
 	// WORKER THREAD
 
 	// SHARED
+	bool						mRequestUpdate;
 	int							mPageCount;		// Page count < 1 means no PDF has been loaded
 	Pixels						mPixels;		// The buffer of data.
 	bool						mPixelsChanged;	// Indicates the main thread needs to load in the pixels.

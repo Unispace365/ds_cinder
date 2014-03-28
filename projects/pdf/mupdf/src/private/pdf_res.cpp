@@ -132,7 +132,7 @@ public:
 
 
 	const ci::Vec2i&	getPageSize() const {
-		return mOutSize;
+		return mPageSize;
 	}
 
 	virtual bool	run(fz_context& ctx, fz_document& doc, fz_page& page) {
@@ -207,8 +207,8 @@ private:
 			fz_try((&ctx)) {
 				if (!getPageSize(doc, page)) return false;
 
-				mWidth = static_cast<float>(mOutSize.x);
-				mHeight = static_cast<float>(mOutSize.y);
+				mWidth = static_cast<float>(mPageSize.x);
+				mHeight = static_cast<float>(mPageSize.y);
 				mScaledWidth = static_cast<int>(mScale * mWidth);
 				mScaledHeight = static_cast<int>(mScale * mHeight);
 
@@ -263,9 +263,9 @@ private:
 		fz_rect bounds;
 		fz_bound_page(&doc, &page, &bounds);
 		if (fz_is_empty_rect(&bounds) || fz_is_infinite_rect(&bounds)) return false;
-		mOutSize.x = bounds.x1 - bounds.x0;
-		mOutSize.y = bounds.y1 - bounds.y0;
-		return mOutSize.x > 0 && mOutSize.y > 0;
+		mPageSize.x = bounds.x1 - bounds.x0;
+		mPageSize.y = bounds.y1 - bounds.y0;
+		return mPageSize.x > 0 && mPageSize.y > 0;
 	}
 
 	ds::pdf::PdfRes::Pixels&	mPixels;
@@ -275,7 +275,8 @@ private:
 	float						mWidth,
 								mHeight;
 	int							mMode;
-	ci::Vec2i					mOutSize;
+	ci::Vec2i					mOutSize,
+								mPageSize;
 };
 
 } // namespace
@@ -392,6 +393,11 @@ int PdfRes::getPageCount() {
 	return mPageCount;
 }
 
+ci::Vec2i PdfRes::getPageSize() {
+	Poco::Mutex::ScopedLock		l(mMutex);
+	return mState.mPageSize;
+}
+
 void PdfRes::setScale(const float theScale) {
 	if (mState.mScale == theScale) return;
 
@@ -435,8 +441,8 @@ void PdfRes::update() {
 				mTexture.disable();
 				glFinish();
 			}
-
 		}
+		mState.mPageSize = mDrawState.mPageSize;
 	}
 }
 
@@ -484,6 +490,7 @@ void PdfRes::_redrawPage() {
 			DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
 			return;
 		}
+		drawState.mPageSize = draw.getPageSize();
 	}
 
 	Poco::Mutex::ScopedLock			l(mMutex);
@@ -500,11 +507,12 @@ PdfRes::state::state()
 		: mWidth(0)
 		, mHeight(0)
 		, mPageNum(1)
-		, mScale(1.0f) {
+		, mScale(1.0f)
+		, mPageSize(0, 0) {
 }
 
 bool PdfRes::state::operator==(const PdfRes::state& o) {
-	return mPageNum == o.mPageNum && mScale == o.mScale && mWidth == o.mWidth && mHeight == o.mHeight;
+	return mPageNum == o.mPageNum && mScale == o.mScale && mWidth == o.mWidth && mHeight == o.mHeight && mPageSizeMode == o.mPageSizeMode;
 }
 
 bool PdfRes::state::operator!=(const PdfRes::state& o) {

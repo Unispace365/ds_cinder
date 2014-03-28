@@ -49,9 +49,9 @@ void BasicTweenApp::keyDown(KeyEvent e) {
 
 	if (e.getCode() == KeyEvent::KEY_ESCAPE) {
 		quit();
-	} else if (e.getCode() == KeyEvent::KEY_PLUS || e.getCode() == KeyEvent::KEY_n) {
+	} else if (e.getCode() == KeyEvent::KEY_PLUS || e.getCode() == KeyEvent::KEY_n || e.getCode() == KeyEvent::KEY_RIGHT) {
 		if (mPdf) mPdf->goToNextPage();
-	} else if (e.getCode() == KeyEvent::KEY_MINUS || e.getCode() == KeyEvent::KEY_p) {
+	} else if (e.getCode() == KeyEvent::KEY_MINUS || e.getCode() == KeyEvent::KEY_p || e.getCode() == KeyEvent::KEY_LEFT) {
 		if (mPdf) mPdf->goToPreviousPage();
 	}
 }
