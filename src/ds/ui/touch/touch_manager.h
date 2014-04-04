@@ -40,6 +40,9 @@ class TouchManager
     // Utility to get the hit sprite in either the othorganal or perspective root sprites
     Sprite*                     getHit(const ci::Vec3f &point);
 
+	// If the window is stretched, the mouse points will be off. Fix that shit!
+	ci::Vec2f					translateMousePoint(const ci::Vec2i);
+
     Engine &mEngine;
 
     std::map<int, ui::Sprite *> mFingerDispatcher;

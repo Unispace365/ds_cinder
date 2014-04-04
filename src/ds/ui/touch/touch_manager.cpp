@@ -19,11 +19,8 @@ TouchManager::TouchManager( Engine &engine )
   mTouchColor = Color( 1, 1, 0 );
 }
 
-void TouchManager::touchesBegin( TouchEvent event )
-{
+void TouchManager::touchesBegin( TouchEvent event ){
 	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
-
-//		std::cout << "touch began: " << touchIt->getId() << " @: x: " << touchIt->getPos().x << " | y: " << touchIt->getPos().y << std::endl;
 		if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch() && mIgnoreFirstTouchId < 0){
 			mIgnoreFirstTouchId = touchIt->getId();
 			return;
@@ -48,8 +45,7 @@ void TouchManager::touchesBegin( TouchEvent event )
 	}
 }
 
-void TouchManager::touchesMoved( TouchEvent event )
-{
+void TouchManager::touchesMoved( TouchEvent event ){
 	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
 		if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId){
@@ -64,22 +60,15 @@ void TouchManager::touchesMoved( TouchEvent event )
 		touchInfo.mPhase = TouchInfo::Moved;
 		touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
 
-// 		if (fabs(touchInfo.mDeltaPoint.length()) < math::EPSILON){
-// 			continue;
-// 		}
-
 		if (mFingerDispatcher[touchInfo.mFingerId]) {
 			mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
 		}
 
 		mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
-
-		//std::cout << "touch moved: " << touchIt->getId() << " @: x: " << touchIt->getPos().x << " | y: " << touchIt->getPos().y << std::endl;
 	}
 }
 
-void TouchManager::touchesEnded( TouchEvent event )
-{
+void TouchManager::touchesEnded( TouchEvent event ){
 	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
 		if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId){
@@ -103,18 +92,14 @@ void TouchManager::touchesEnded( TouchEvent event )
 		mTouchStartPoint.erase(touchInfo.mFingerId);
 		mTouchPreviousPoint.erase(touchInfo.mFingerId);
 		mFingerDispatcher.erase(touchInfo.mFingerId);
-		//std::cout << "touch ended: " << touchIt->getId() << " @: x: " << touchIt->getPos().x << " | y: " << touchIt->getPos().y << std::endl;
 	}
 }
 
-void TouchManager::mouseTouchBegin( MouseEvent event, int id )
-{
-//	std::cout << "mouse began: " << id << " @: x: " << event.getPos().x << " | y: " << event.getPos().y << std::endl;
-// 	if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch())
-// 		return;
+void TouchManager::mouseTouchBegin( MouseEvent event, int id ){
+
 
 	TouchInfo touchInfo;
-	touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
+	touchInfo.mCurrentGlobalPoint = Vec3f(translateMousePoint(event.getPos()), 0.0f);
 	touchInfo.mFingerId = id;
 	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 	mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
@@ -128,42 +113,28 @@ void TouchManager::mouseTouchBegin( MouseEvent event, int id )
 		mFingerDispatcher[touchInfo.mFingerId] = currentSprite;
 		currentSprite->processTouchInfo(touchInfo);
 	}
-
-	//std::cout << "mouse began: " << id << " @: x: " << touchInfo.mCurrentGlobalPoint.x << " | y: " << touchInfo.mCurrentGlobalPoint.y << std::endl;
 }
 
-void TouchManager::mouseTouchMoved( MouseEvent event, int id )
-{
-// 	if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch())
-// 		return;
+void TouchManager::mouseTouchMoved( MouseEvent event, int id ){
 
 	TouchInfo touchInfo;
-	touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
+	touchInfo.mCurrentGlobalPoint = Vec3f(translateMousePoint(event.getPos()), 0.0f);
 	touchInfo.mFingerId = id;
 	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 	touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 	touchInfo.mPhase = TouchInfo::Moved;
 	touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
 
-	if (fabs(touchInfo.mDeltaPoint.length()) < math::EPSILON)
-		return;
-
 	if (mFingerDispatcher[touchInfo.mFingerId]) {
 		mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
 	}
 
 	mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
-
-	//std::cout << "mouse moved: " << id << " @: x: " << touchInfo.mCurrentGlobalPoint.x << " | y: " << touchInfo.mCurrentGlobalPoint.y << std::endl;
 }
 
-void TouchManager::mouseTouchEnded( MouseEvent event, int id )
-{
-// 	if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch())
-// 		return;
-
+void TouchManager::mouseTouchEnded( MouseEvent event, int id ){
 	TouchInfo touchInfo;
-	touchInfo.mCurrentGlobalPoint = Vec3f(event.getPos(), 0.0f);
+	touchInfo.mCurrentGlobalPoint = Vec3f(translateMousePoint(event.getPos()), 0.0f);
 	touchInfo.mFingerId = id;
 	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 	touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -178,11 +149,9 @@ void TouchManager::mouseTouchEnded( MouseEvent event, int id )
 	mTouchStartPoint.erase(touchInfo.mFingerId);
 	mTouchPreviousPoint.erase(touchInfo.mFingerId);
 	mFingerDispatcher.erase(touchInfo.mFingerId);
-	//std::cout << "mouse ended: " << id << " @: x: " << touchInfo.mCurrentGlobalPoint.x << " | y: " << touchInfo.mCurrentGlobalPoint.y << std::endl;
 }
 
-void TouchManager::drawTouches() const
-{
+void TouchManager::drawTouches() const {
 	if (mTouchPreviousPoint.empty())
 		return;
 
@@ -194,13 +163,11 @@ void TouchManager::drawTouches() const
 	}
 }
 
-void TouchManager::setTouchColor( const ci::Color &color )
-{
+void TouchManager::setTouchColor( const ci::Color &color ){
 	mTouchColor = color;
 }
 
-void TouchManager::clearFingers( const std::vector<int> &fingers )
-{
+void TouchManager::clearFingers( const std::vector<int> &fingers ){
 	for ( auto i = fingers.begin(), e = fingers.end(); i != e; ++i )
 	{
 		auto dispatcher = mFingerDispatcher.find(*i);
@@ -240,6 +207,17 @@ Sprite* TouchManager::getHit(const ci::Vec3f &point) {
 	return nullptr;
 }
 
+ci::Vec2f TouchManager::translateMousePoint( const ci::Vec2i inputPoint ){
+
+	
+	float yScaleFactor = getWindowHeight() / mEngine.getScreenRect().getHeight();
+	float xScaleFactor = getWindowWidth() / mEngine.getScreenRect().getWidth();
+	ci::Vec2f eventPos = ci::Vec2f((float)inputPoint.x, (float)inputPoint.y);
+	eventPos.x /= xScaleFactor;
+	eventPos.y /= yScaleFactor;
+
+	return eventPos;
+}
 
 } // namespace ui
 } // namespace ds
