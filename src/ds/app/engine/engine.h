@@ -141,6 +141,7 @@ public:
 
 	virtual void						clearFingers( const std::vector<int> &fingers );
 	void								setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
+	ds::ui::Sprite*						getSpriteForFinger( const int fingerId ){ return mTouchManager.getSpriteForFinger(fingerId); }
 
 	// Add or
 

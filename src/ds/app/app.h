@@ -28,52 +28,52 @@ public:
 	App(const std::vector<int>* roots = nullptr);
 	~App();
 
-    virtual void                mouseDown( MouseEvent event );	
-    virtual void                mouseMove( MouseEvent event );
-    virtual void                mouseDrag( MouseEvent event );
-    virtual void                mouseUp( MouseEvent event );	
-    virtual void                touchesBegan( TouchEvent event );
-    virtual void                touchesMoved( TouchEvent event );
-    virtual void                touchesEnded( TouchEvent event );
+	virtual void				mouseDown( MouseEvent event );	
+	virtual void				mouseMove( MouseEvent event );
+	virtual void				mouseDrag( MouseEvent event );
+	virtual void				mouseUp(   MouseEvent event );	
+	virtual void				touchesBegan( TouchEvent event );
+	virtual void				touchesMoved( TouchEvent event );
+	virtual void				touchesEnded( TouchEvent event );
 	// To receive TUIO Objects, the engine must have this setting:
 	//	<text name="tuio:receive_objects" value="true" />
-	virtual void				tuioObjectBegan(const TuioObject&);
-	virtual void				tuioObjectMoved(const TuioObject&);
-	virtual void				tuioObjectEnded(const TuioObject&);
-    virtual void                keyDown( KeyEvent event );
-    virtual void                keyUp( KeyEvent event );
-    virtual void                prepareSettings(Settings*);
-    virtual void				setup();
-    // This is where client applications would setup the initial UI.
-    virtual void                setupServer()     { }
-    virtual void	    			    update();
-    virtual void	    			    draw();
-    virtual void                quit();
-    virtual void                shutdown();
+	virtual void				tuioObjectBegan( const TuioObject& );
+	virtual void				tuioObjectMoved( const TuioObject& );
+	virtual void				tuioObjectEnded( const TuioObject& );
+	virtual void				keyDown( KeyEvent event );
+	virtual void				keyUp( KeyEvent event );
+	virtual void				prepareSettings( Settings* );
+	virtual void				setup();
+	// This is where client applications would setup the initial UI.
+	virtual void				setupServer() { }
+	virtual void				update();
+	virtual void				draw();
+	virtual void				quit();
+	virtual void				shutdown();
 
 	void						enableCommonKeystrokes(bool q = true, bool esc = true);
 
-  protected:
-    class Initializer { public: Initializer(const std::string&); };
-    Initializer                 mInitializer;
+protected:
+	class Initializer { public: Initializer(const std::string&); };
+	Initializer					mInitializer;
 
-    ds::EngineSettings          mEngineSettings;
+	ds::EngineSettings			mEngineSettings;
 	ds::EngineData				mEngineData;
-    ds::Engine&                 mEngine;
+	ds::Engine&					mEngine;
 
   private:
-    typedef ci::app::AppBasic   inherited;
+	typedef ci::app::AppBasic   inherited;
 
-    friend class Environment;
+	friend class Environment;
 	// Path to the executable (which realistically we never want)
-    static const std::string&   envAppPath();
+	static const std::string&   envAppPath();
 	// Path to the folder that contains the "data" folder
 	// (but not including "data", you still need to add that
 	// if it's what you want
-    static const std::string&   envAppDataPath();
+	static const std::string&   envAppDataPath();
 
-    bool                        mCtrlDown;
-    bool                        mSecondMouseDown;
+	bool						mCtrlDown;
+	bool						mSecondMouseDown;
 	bool						mQKeyEnabled;
 	bool						mEscKeyEnabled;
 	// When enabled, the arrow keys will move the camera.

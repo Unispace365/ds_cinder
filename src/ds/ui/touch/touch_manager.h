@@ -36,6 +36,8 @@ class TouchManager
 	void                        clearFingers( const std::vector<int> &fingers );
 
 	void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite );
+	Sprite*						getSpriteForFinger( const int fingerId );
+
   private:
     // Utility to get the hit sprite in either the othorganal or perspective root sprites
     Sprite*                     getHit(const ci::Vec3f &point);

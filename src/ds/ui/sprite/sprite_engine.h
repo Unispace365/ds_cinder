@@ -46,7 +46,7 @@ public:
 	virtual const ds::FontList&		getFonts() const = 0;
 	virtual ds::AutoUpdateList&		getAutoUpdateList() = 0;
 	virtual LoadImageService&		getLoadImageService() = 0;
-	virtual RenderTextService&	getRenderTextService() = 0;
+	virtual RenderTextService&		getRenderTextService() = 0;
 	virtual ds::ImageRegistry&		getImageRegistry() = 0;
 	virtual Tweenline&				getTweenline() = 0;
 	virtual const ds::cfg::Settings&
@@ -79,31 +79,32 @@ public:
 	float							getHeight() const;
 	float							getWorldWidth() const;
 	float							getWorldHeight() const;
-    float							getFrameRate() const;
+	float							getFrameRate() const;
 
-    std::unique_ptr<FboGeneral>    getFbo();
-    void                           giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
+	std::unique_ptr<FboGeneral>		getFbo();
+	void							giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
 
-    virtual void                   setCamera(const bool perspective = false) = 0;
-    // Camera control
-    virtual void                   setPerspectiveCameraPosition(const ci::Vec3f &pos) = 0;
-    virtual ci::Vec3f              getPerspectiveCameraPosition() const = 0;
-    virtual void                   setPerspectiveCameraTarget(const ci::Vec3f &tar) = 0;
-    virtual ci::Vec3f              getPerspectiveCameraTarget() const = 0;
+	virtual void					setCamera(const bool perspective = false) = 0;
+	// Camera control
+	virtual void					setPerspectiveCameraPosition(const ci::Vec3f &pos) = 0;
+	virtual ci::Vec3f				getPerspectiveCameraPosition() const = 0;
+	virtual void					setPerspectiveCameraTarget(const ci::Vec3f &tar) = 0;
+	virtual ci::Vec3f				getPerspectiveCameraTarget() const = 0;
 
-    void                           addToDragDestinationList(Sprite *sprite);
-    void                           removeFromDragDestinationList(Sprite *sprite);
-    Sprite                        *getDragDestinationSprite(const ci::Vec3f &globalPoint, Sprite *draggingSprite);
+	void							addToDragDestinationList(Sprite *sprite);
+	void							removeFromDragDestinationList(Sprite *sprite);
+	Sprite*							getDragDestinationSprite(const ci::Vec3f &globalPoint, Sprite *draggingSprite);
 
-    double                         getElapsedTimeSeconds() const;
+	double							getElapsedTimeSeconds() const;
 
-	virtual void                   clearFingers( const std::vector<int> &fingers );
-	virtual void				   setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;
+	virtual void					clearFingers( const std::vector<int> &fingers );
+	virtual void					setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;
+	virtual ui::Sprite*				getSpriteForFinger( const int fingerId ) = 0;
 
-    static const int               CLIENT_MODE = 0;
-    static const int               SERVER_MODE = 1;
-    static const int               CLIENTSERVER_MODE = 2;
-    virtual int                    getMode() const = 0;
+	static const int				CLIENT_MODE = 0;
+	static const int				SERVER_MODE = 1;
+	static const int				CLIENTSERVER_MODE = 2;
+	virtual int						getMode() const = 0;
 
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
