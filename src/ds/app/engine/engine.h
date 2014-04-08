@@ -142,6 +142,8 @@ public:
 	virtual void						clearFingers( const std::vector<int> &fingers );
 	void								setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 	ds::ui::Sprite*						getSpriteForFinger( const int fingerId ){ return mTouchManager.getSpriteForFinger(fingerId); }
+	// translate a touch event point to the overlay bounds specified in the settings
+	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint ){ mTouchManager.overrideTouchTranslation(inOutPoint); };
 
 	// Add or
 

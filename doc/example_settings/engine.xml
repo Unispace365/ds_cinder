@@ -65,7 +65,10 @@
 	<!---------------------->
 	<!-- TOUCH SETTINGS ---->
 	<!---------------------->
-	<!-- touch dimensions and offset not implemented.
+	<!-- Override the built-in touch scale and offset parsing.
+		 It's uncommon you'll need to do this. 
+		 Default is to use the built-in Cinder touch translation (default=false)-->
+	<text name="touch_overlay:override_translation" value="true" />
 	<size name="touch_overlay:dimensions" x="1920" y="1080" />
 	<size name="touch_overlay:offset" x="0" y="0" />
 	-->

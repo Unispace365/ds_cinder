@@ -38,6 +38,13 @@ class TouchManager
 	void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite );
 	Sprite*						getSpriteForFinger( const int fingerId );
 
+	void						setOverrideTranslation( const bool doOverride ){ mOverrideTranslation = doOverride; }
+	void						setOverrideDimensions( const ci::Vec2f& dimensions ){ mTouchDimensions = dimensions; }
+	void						setOverrideOffset( const ci::Vec2f& offset ){ mTouchOffset = offset; }
+
+	// If you've set the override for translation, actually do that translation
+	void						overrideTouchTranslation(ci::Vec2f& inOutPoint);
+
   private:
     // Utility to get the hit sprite in either the othorganal or perspective root sprites
     Sprite*                     getHit(const ci::Vec3f &point);
@@ -51,6 +58,10 @@ class TouchManager
     std::map<int, Vec3f>        mTouchStartPoint;
     std::map<int, Vec3f>        mTouchPreviousPoint;
     ci::Color                   mTouchColor;
+
+	ci::Vec2f					mTouchDimensions;
+	ci::Vec2f					mTouchOffset;
+	bool						mOverrideTranslation;
 
 	// If system multitouch is on, Cinder will get both mouse and touch events for the first touch.
 	// So we track the first touch id to ignore that finger (cause the mouse will count for that)

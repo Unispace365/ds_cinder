@@ -101,6 +101,9 @@ public:
 	virtual void					setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;
 	virtual ui::Sprite*				getSpriteForFinger( const int fingerId ) = 0;
 
+	// translate a touch event point to the overlay bounds specified in the settings
+	virtual void					translateTouchPoint( ci::Vec2f& inOutPoint ) = 0;
+
 	static const int				CLIENT_MODE = 0;
 	static const int				SERVER_MODE = 1;
 	static const int				CLIENTSERVER_MODE = 2;

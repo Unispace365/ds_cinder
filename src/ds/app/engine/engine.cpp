@@ -87,10 +87,16 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	if (window_scale != DEFAULT_WINDOW_SCALE) mData.mScreenRect.scale(window_scale);
 	mData.mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
+
+	// touch settings
+	mTouchManager.setOverrideTranslation(settings.getBool("touch_overlay:override_translation", 0, false));
+	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::Vec2f(1920.0f, 1080.0f)));
+	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
 	mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
 	mDrawTouches = settings.getBool("touch_overlay:debug", 0, false);
-	mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
+
+	mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
 	mApplyFxAA = settings.getBool("FxAA", 0, false);
 	mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
 	mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
