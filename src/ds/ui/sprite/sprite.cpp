@@ -1673,6 +1673,8 @@ void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touc
 	TouchInfo newTouchInfo = touchInfo;
 	newTouchInfo.mCurrentGlobalPoint = localToGlobal(ci::Vec3f(-10.0f,-10.0f, 0.0f));	// make sure we touch up outside the sprite area, so buttons don't think they're hit
 	newTouchInfo.mPhase = TouchInfo::Removed;
+	newTouchInfo.mPassedTouch = true;
+
 	processTouchInfo(newTouchInfo);
 	// switch to the new sprite
 	mEngine.setSpriteForFinger(touchInfo.mFingerId, destinationSprite);

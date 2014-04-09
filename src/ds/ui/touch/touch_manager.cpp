@@ -44,6 +44,7 @@ void TouchManager::touchesBegin( TouchEvent event ){
 		mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 		touchInfo.mPhase = TouchInfo::Added;
+		touchInfo.mPassedTouch = false;
 
 		Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
 		touchInfo.mPickedSprite = currentSprite;
@@ -74,6 +75,7 @@ void TouchManager::touchesMoved( TouchEvent event ){
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 		touchInfo.mPhase = TouchInfo::Moved;
+		touchInfo.mPassedTouch = false;
 		touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
 
 		if (mFingerDispatcher[touchInfo.mFingerId]) {
@@ -104,6 +106,7 @@ void TouchManager::touchesEnded( TouchEvent event ){
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 		touchInfo.mPhase = TouchInfo::Removed;
+		touchInfo.mPassedTouch = false;
 		touchInfo.mPickedSprite = nullptr;
 
 		if (mFingerDispatcher[touchInfo.mFingerId]) {

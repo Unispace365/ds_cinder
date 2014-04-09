@@ -10,26 +10,29 @@ class Sprite;
 
 struct TouchInfo
 {
-  enum Phase
-  {
-    Added,
-    Moved,
-    Removed
-  };
+	enum Phase
+	{
+		Added,
+		Moved,
+		Removed
+	};
 
-  int         mFingerIndex;
-  int         mNumberFingers;
-  int         mFingerId;
-  Phase       mPhase;
-  ci::Vec3f   mStartPoint;
-  ci::Vec3f   mCurrentGlobalPoint;
-  ci::Vec3f   mDeltaPoint;
-  Sprite     *mPickedSprite;
-  bool        mActive;
-  float       mStartDistance;
-  float       mCurrentDistance;
-  float       mCurrentScale;
-  float       mCurrentAngle;
+	int			mFingerIndex;
+	int			mNumberFingers;
+	int			mFingerId;
+	Phase		mPhase;
+	ci::Vec3f	mStartPoint;
+	ci::Vec3f	mCurrentGlobalPoint;
+	ci::Vec3f	mDeltaPoint;
+	Sprite*		mPickedSprite;
+	bool		mActive;
+	float		mStartDistance;
+	float		mCurrentDistance;
+	float		mCurrentScale;
+	float		mCurrentAngle;
+
+	// This touch is being removed from it's previous owner if true
+	bool		mPassedTouch;
 };
 
 } // namespace ui

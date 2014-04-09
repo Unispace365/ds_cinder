@@ -31,6 +31,11 @@ class Text: public Sprite
         Text(SpriteEngine&);
         ~Text();
 
+		// The comments below are a little obtuse. 90% of the time you'll want one of these:
+		// 1. Single line of text at any width: use this Text, set the text, done!
+		// 2. Multiple lines of text where you set the width and it wraps to any height: use MultilineText and call setResizeLimit(yourWidth, 0), set the text.
+		// Forget about everything else. You're welcome, future me.
+
         // The text allows a lot of control between auto resizing and forcing specific
         // sizes.  In general, resizeToText will do exactly what it says, and resize
         // the sprite after a layout to match the text.  However, you can set a limit,

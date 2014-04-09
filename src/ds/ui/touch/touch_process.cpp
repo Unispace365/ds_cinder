@@ -196,6 +196,7 @@ void TouchProcess::sendTouchInfo( const TouchInfo &touchInfo )
 	t.mCurrentDistance = mCurrentDistance;
 	t.mStartDistance = mStartDistance;
 	t.mNumberFingers = mFingers.size();
+	t.mPassedTouch = touchInfo.mPassedTouch;
 
 	if (touchInfo.mPhase == TouchInfo::Removed && t.mNumberFingers > 0)
 	t.mNumberFingers -= 1;
@@ -382,7 +383,7 @@ void TouchProcess::processTap( const TouchInfo &touchInfo )
 	if (touchInfo.mPhase == TouchInfo::Added && mFingers.empty()) {
 		mTappable = true;
 	} else if (mTappable) {
-		if (mFingers.size() > 1 || (touchInfo.mPhase == TouchInfo::Moved && touchInfo.mCurrentGlobalPoint.distance(touchInfo.mStartPoint) > mSpriteEngine.getMinTapDistance())) {
+		if (mFingers.size() > 1 || touchInfo.mPassedTouch || (touchInfo.mPhase == TouchInfo::Moved && touchInfo.mCurrentGlobalPoint.distance(touchInfo.mStartPoint) > mSpriteEngine.getMinTapDistance())) {
 			mTappable = false;
 		} else if (touchInfo.mPhase == TouchInfo::Removed) {
 			if (mSprite.hasTap() && !mSprite.hasDoubleTap()) {
@@ -424,7 +425,7 @@ void TouchProcess::processTapInfo( const TouchInfo &touchInfo )
 			mTappable = false;
 			return;
 		}
-		if (mFingers.size() > 1 || (touchInfo.mPhase == TouchInfo::Moved && touchInfo.mCurrentGlobalPoint.distance(touchInfo.mStartPoint) > mSpriteEngine.getMinTapDistance())) {
+		if (mFingers.size() > 1 || touchInfo.mPassedTouch || (touchInfo.mPhase == TouchInfo::Moved && touchInfo.mCurrentGlobalPoint.distance(touchInfo.mStartPoint) > mSpriteEngine.getMinTapDistance())) {
 			mTappable = false;
 			sendTapInfo(TapInfo::Done, 0);
 		} else if (touchInfo.mPhase == TouchInfo::Removed) {

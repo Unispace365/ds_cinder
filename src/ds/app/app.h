@@ -32,9 +32,18 @@ public:
 	virtual void				mouseMove( MouseEvent event );
 	virtual void				mouseDrag( MouseEvent event );
 	virtual void				mouseUp(   MouseEvent event );	
+
+	// These are called from the boost thread
+	// These events are sent to the engine to be queued for the next update
 	virtual void				touchesBegan( TouchEvent event );
 	virtual void				touchesMoved( TouchEvent event );
 	virtual void				touchesEnded( TouchEvent event );
+
+	// These are safe to override
+	virtual void				onTouchesBegan( TouchEvent event ){};
+	virtual void				onTouchesMoved( TouchEvent event ){};
+	virtual void				onTouchesEnded( TouchEvent event ){};
+
 	// To receive TUIO Objects, the engine must have this setting:
 	//	<text name="tuio:receive_objects" value="true" />
 	virtual void				tuioObjectBegan( const TuioObject& );
