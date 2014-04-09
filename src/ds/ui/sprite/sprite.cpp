@@ -461,6 +461,19 @@ ci::Rectf Sprite::getBoundingBox() const {
 	return ci::Rectf(left, top, right, bottom);
 }
 
+ci::Rectf Sprite::getChildBoundingBox() const{
+	if (mChildren.empty()) return getBoundingBox();
+
+	auto it=mChildren.begin();
+	// initialize the box to the first child and expand from there
+	ci::Rectf result = (*it)->getBoundingBox();	
+	for (auto end=mChildren.end(); it != end; ++it) {
+		ci::Rectf curBounds = (*it)->getBoundingBox();
+		result.include(curBounds);
+	}
+	return result;
+}
+
 void Sprite::setDrawSorted( bool drawSorted )
 {
   setFlag(DRAW_SORTED_F, drawSorted, FLAGS_DIRTY, mSpriteFlags);
@@ -628,6 +641,19 @@ void Sprite::setSizeAll( float width, float height, float depth )
 void Sprite::setSize( float width, float height )
 {
   setSizeAll(width, height, mDepth);
+}
+
+void Sprite::sizeToChildBounds(){
+	ci::Rectf childBounds = getChildBoundingBox();
+
+	move(childBounds.x1, childBounds.y1);
+	setSize(childBounds.getWidth(), childBounds.getHeight());
+
+	// move the children to compensate
+	for (auto it = mChildren.begin(), end = mChildren.end(); it != end; ++it){
+		(*it)->move(-childBounds.x1, -childBounds.y1);
+	}
+	
 }
 
 void Sprite::setColor( const ci::Color &color )
