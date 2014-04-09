@@ -261,6 +261,10 @@ public:
 	void					setUseDepthBuffer(bool useDepth);
 	bool					getUseDepthBuffer() const;
 
+	// If this sprite renders locally and the radius is > 0, will draw a rounded rect
+	void					setCornerRadius(const float newRadius);
+	float					getCornerRadius() const;
+
 	// Answer true if this sprite currently has any touches.
 	bool					hasTouches() const;
 	/*
@@ -392,6 +396,7 @@ protected:
 	Sprite*				mDragDestination;
 	IdleTimer			mIdleTimer;
 	bool				mUseDepthBuffer;
+	float				mCornerRadius;
 
 	// Transport uniform data to the shader
 	ds::gl::Uniform		mUniform;
