@@ -546,6 +546,9 @@
     <ClInclude Include="..\src\ds\ui\ip\ip_defs.h">
       <Filter>src\ds\ui\ip</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\gradient_sprite.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -895,6 +898,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\ip\ip_defs.cpp">
       <Filter>src\ds\ui\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\gradient_sprite.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
