@@ -24,6 +24,7 @@ public:
 	Image(SpriteEngine&, const int flags = 0);
 	Image(SpriteEngine&, const std::string& filename, const int flags = 0);
 	Image(SpriteEngine&, const ds::Resource::Id&, const int flags = 0);
+	Image(SpriteEngine&, const ds::Resource& resource, const int flags = 0);
 	~Image();
 
 	void						setSize( float width, float height );

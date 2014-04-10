@@ -81,6 +81,17 @@ Image::Image(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int
 	setImageResource(resourceId, flags);
 }
 
+Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags)
+	: inherited(engine)
+	, ImageOwner(engine) {
+		init();
+		mBlobType = BLOB_TYPE;
+		setTransparent(false);
+		setUseShaderTextuer(true);
+
+		setImageResource(resource, flags);
+}
+
 Image::~Image() {
 }
 

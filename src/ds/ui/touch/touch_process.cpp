@@ -78,6 +78,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 			// is the sprite multitouch enabled?
 			// does the first finger exists? is this finger the first finger?
 			// or does the second finger exist and is this finger the second finger?
+			// Basically, is this one of the first two fingers? Otherwise we don't care
 		if (mSprite.multiTouchEnabled() 
 			&& ( (found_0 && touchInfo.mFingerId == foundControl0->second.mFingerId) 
 				|| ( found_1 && touchInfo.mFingerId == foundControl1->second.mFingerId) 
