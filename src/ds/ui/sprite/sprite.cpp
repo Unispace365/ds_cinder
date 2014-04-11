@@ -84,7 +84,8 @@ void Sprite::handleBlobFromClient(ds::BlobReader& r)
 }
 
 Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.0f*/ )
-    : mEngine(engine)
+    : SpriteAnimatable(*this, engine)
+	, mEngine(engine)
     , mId(ds::EMPTY_SPRITE_ID)
     , mWidth(width)
     , mHeight(height)
@@ -96,12 +97,13 @@ Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0
     , mPerspective(false)
     , mUseDepthBuffer(false)
 {
-  init(mEngine.nextSpriteId());
-  setSize(width, height);
+	init(mEngine.nextSpriteId());
+	setSize(width, height);
 }
 
 Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id, const bool perspective )
-    : mEngine(engine)
+    : SpriteAnimatable(*this, engine)
+    , mEngine(engine)
     , mId(ds::EMPTY_SPRITE_ID)
     , mTouchProcess(engine, *this)
     , mSpriteShader(Environment::getAppFolder("data/shaders"), "base")

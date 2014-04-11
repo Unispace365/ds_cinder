@@ -3,12 +3,14 @@
 #define DS_UI_TWEEN_SPRITEANIM_H_
 
 #include <cinder/Color.h>
+#include <cinder/Easing.h>
 #include <cinder/Tween.h>
 #include <cinder/Vector.h>
 
 namespace ds {
 namespace ui {
 class Sprite;
+class SpriteEngine;
 
 /**
  * \class ds::ui::SpriteAnim
@@ -54,26 +56,33 @@ class SpriteAnim {
  * be animated on a sprite.
  */
 class SpriteAnimatable {
-  public:
-    SpriteAnimatable();
-    virtual ~SpriteAnimatable();
+public:
+	SpriteAnimatable(Sprite&, SpriteEngine&);
+	virtual ~SpriteAnimatable();
 
-    static const SpriteAnim<ci::Color>&   ANIM_COLOR();
-    static const SpriteAnim<float>&       ANIM_OPACITY();
-    static const SpriteAnim<ci::Vec3f>&   ANIM_POSITION();
-    static const SpriteAnim<ci::Vec3f>&   ANIM_SCALE();
-    static const SpriteAnim<ci::Vec3f>&   ANIM_SIZE();
-    static const SpriteAnim<ci::Vec3f>&   ANIM_ROTATION();
+	static const SpriteAnim<ci::Color>&		ANIM_COLOR();
+	static const SpriteAnim<float>&			ANIM_OPACITY();
+	static const SpriteAnim<ci::Vec3f>&		ANIM_POSITION();
+	static const SpriteAnim<ci::Vec3f>&		ANIM_SCALE();
+	static const SpriteAnim<ci::Vec3f>&		ANIM_SIZE();
+	static const SpriteAnim<ci::Vec3f>&		ANIM_ROTATION();
 
-    void                                  animStop();
+	void									tweenOpacity(	const float opacity, const float duration = 1.0f, const float delay = 0.0f,
+															const ci::EaseFn& = ci::easeNone,
+															const std::function<void(void)>& finishFn = nullptr);
+	void									animStop();
 
-  public:
-      ci::Anim<ci::Color>                 mAnimColor;
-      ci::Anim<float>                     mAnimOpacity;
-      ci::Anim<ci::Vec3f>                 mAnimPosition;
-      ci::Anim<ci::Vec3f>                 mAnimScale;
-      ci::Anim<ci::Vec3f>                 mAnimSize;
-      ci::Anim<ci::Vec3f>                 mAnimRotation;
+public:
+	ci::Anim<ci::Color>						mAnimColor;
+	ci::Anim<float>							mAnimOpacity;
+	ci::Anim<ci::Vec3f>						mAnimPosition;
+	ci::Anim<ci::Vec3f>						mAnimScale;
+	ci::Anim<ci::Vec3f>						mAnimSize;
+	ci::Anim<ci::Vec3f>						mAnimRotation;
+
+private:
+	Sprite&									mOwner;
+	SpriteEngine&							mEngine;
 };
 
 } // namespace ui

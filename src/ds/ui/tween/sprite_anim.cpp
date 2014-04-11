@@ -1,6 +1,8 @@
 #include "ds/ui/tween/sprite_anim.h"
 
 #include "ds/ui/sprite/sprite.h"
+#include "ds/ui/sprite/sprite_engine.h"
+#include "ds/ui/tween/tweenline.h"
 
 namespace ds {
 namespace ui {
@@ -8,16 +10,15 @@ namespace ui {
 /**
  * \class ds::ui::SpriteAnimatable
  */
-SpriteAnimatable::SpriteAnimatable()
-{
+SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
+		: mOwner(s)
+		, mEngine(e) {
 }
 
-SpriteAnimatable::~SpriteAnimatable()
-{
+SpriteAnimatable::~SpriteAnimatable() {
 }
 
-const SpriteAnim<ci::Color>& SpriteAnimatable::ANIM_COLOR()
-{
+const SpriteAnim<ci::Color>& SpriteAnimatable::ANIM_COLOR() {
   static ds::ui::SpriteAnim<ci::Color>  ANIM(
     [](ds::ui::Sprite& s)->ci::Anim<ci::Color>& { return s.mAnimColor; },
     [](ds::ui::Sprite& s)->ci::Color { return s.getColor(); },
@@ -25,8 +26,7 @@ const SpriteAnim<ci::Color>& SpriteAnimatable::ANIM_COLOR()
   return ANIM;
 }
 
-const SpriteAnim<float>& SpriteAnimatable::ANIM_OPACITY()
-{
+const SpriteAnim<float>& SpriteAnimatable::ANIM_OPACITY() {
   static ds::ui::SpriteAnim<float>  ANIM(
           [](ds::ui::Sprite& s)->ci::Anim<float>& { return s.mAnimOpacity; },
           [](ds::ui::Sprite& s)->float { return s.getOpacity(); },
@@ -34,8 +34,7 @@ const SpriteAnim<float>& SpriteAnimatable::ANIM_OPACITY()
   return ANIM;
 }
 
-const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_POSITION()
-{
+const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_POSITION() {
   static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
           [](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimPosition; },
           [](ds::ui::Sprite& s)->ci::Vec3f { return s.getPosition(); },
@@ -43,8 +42,7 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_POSITION()
   return ANIM;
 }
 
-const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SCALE()
-{
+const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SCALE() {
   static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
           [](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimScale; },
           [](ds::ui::Sprite& s)->ci::Vec3f { return s.getScale(); },
@@ -52,8 +50,7 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SCALE()
   return ANIM;
 }
 
-const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SIZE()
-{
+const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SIZE() {
   static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
           [](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimSize; },
           [](ds::ui::Sprite& s)->ci::Vec3f { return ci::Vec3f(s.getWidth(), s.getHeight(), s.getDepth()); },
@@ -61,8 +58,7 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SIZE()
   return ANIM;
 }
 
-const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_ROTATION()
-{
+const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_ROTATION() {
   static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
     [](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimRotation; },
     [](ds::ui::Sprite& s)->ci::Vec3f { return s.getRotation(); },
@@ -70,13 +66,18 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_ROTATION()
   return ANIM;
 }
 
-void SpriteAnimatable::animStop()
-{
-  mAnimColor.stop();
-  mAnimOpacity.stop();
-  mAnimPosition.stop();
-  mAnimScale.stop();
-  mAnimSize.stop();
+void SpriteAnimatable::tweenOpacity(const float opacity, const float duration, const float delay,
+									const ci::EaseFn& ease, const std::function<void(void)>& finishFn) {
+	mAnimOpacity.stop();
+	mEngine.getTweenline().apply(mOwner, ANIM_OPACITY(), opacity, duration, ease, finishFn, delay);
+}
+
+void SpriteAnimatable::animStop() {
+	mAnimColor.stop();
+	mAnimOpacity.stop();
+	mAnimPosition.stop();
+	mAnimScale.stop();
+	mAnimSize.stop();
 }
 
 } // namespace ui
