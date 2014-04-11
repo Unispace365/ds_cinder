@@ -112,6 +112,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mDragScrollMinFingers(2)
 	, mClickDown(false)
 	, mPageScrollCount(0)
+	, mDocumentReadyFn(nullptr)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -461,6 +462,10 @@ void Web::setAddressChangedFn(const std::function<void(const std::string& new_ad
 	if (mWebViewListener) mWebViewListener->setAddressChangedFn(fn);
 }
 
+void Web::setDocumentReadyFn(const std::function<void(void)>& fn) {
+	mDocumentReadyFn = fn;
+}
+
 ci::Vec2f Web::getDocumentSize() {
 	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
 	return get_document_size(*mWebViewPtr);
@@ -513,6 +518,7 @@ void Web::onDocumentReady() {
 	if (!mWebViewPtr || !mJsMethodHandler) return;
 
 	mJsMethodHandler->setDomIsReady(*mWebViewPtr);
+	if (mDocumentReadyFn) mDocumentReadyFn();
 }
 
 void Web::sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase& phase) {

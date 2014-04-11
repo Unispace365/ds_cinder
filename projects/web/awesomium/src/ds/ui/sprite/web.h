@@ -79,6 +79,7 @@ public:
 	// For now, a simple communication about when the address changes.
 	// In the future I'd like to have a richer mechanism in place.
 	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
+	void					setDocumentReadyFn(const std::function<void(void)>&);
 
 	// allows the view to be updated while the page is still being loaded. default=false
 	void					setDrawWhileLoading(const bool doDrawing){ mDrawWhileLoading = doDrawing; }
@@ -141,7 +142,10 @@ private:
 
 	std::function<void(const ds::web::TouchEvent&)>
 							mTouchListener;
+	std::function<void(void)>
+							mDocumentReadyFn;
 };
+
 } // namespace ui
 } // namespace ds
 
