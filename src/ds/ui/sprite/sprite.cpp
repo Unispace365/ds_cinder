@@ -118,38 +118,39 @@ Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id, const bool persp
 
 void Sprite::init(const ds::sprite_id_t id)
 {
-  mSpriteFlags = VISIBLE_F | TRANSPARENT_F;
-  mWidth = 0;
-  mHeight = 0;
-  mCenter = ci::Vec3f(0.0f, 0.0f, 0.0f);
-  mRotation = ci::Vec3f(0.0f, 0.0f, 0.0f);
-  mZLevel = 0.0f;
-  mScale = ci::Vec3f(1.0f, 1.0f, 1.0f);
-  mUpdateTransform = true;
-  mParent = nullptr;
-  mOpacity = 1.0f;
-  mColor = ci::Color(1.0f, 1.0f, 1.0f);
-  mMultiTouchEnabled = false;
-  mCheckBounds = false;
-  mBoundsNeedChecking = true;
-  mInBounds = true;
-  mDepth = 1.0f;
-  mDragDestination = nullptr;
-  mBlobType = BLOB_TYPE;
-  mBlendMode = NORMAL;
-  mUseShaderTexture = false;
+	mSpriteFlags = VISIBLE_F | TRANSPARENT_F;
+	mWidth = 0;
+	mHeight = 0;
+	mCenter = ci::Vec3f(0.0f, 0.0f, 0.0f);
+	mRotation = ci::Vec3f(0.0f, 0.0f, 0.0f);
+	mZLevel = 0.0f;
+	mScale = ci::Vec3f(1.0f, 1.0f, 1.0f);
+	mUpdateTransform = true;
+	mParent = nullptr;
+	mOpacity = 1.0f;
+	mColor = ci::Color(1.0f, 1.0f, 1.0f);
+	mMultiTouchEnabled = false;
+	mCheckBounds = false;
+	mBoundsNeedChecking = true;
+	mInBounds = true;
+	mDepth = 1.0f;
+	mDragDestination = nullptr;
+	mBlobType = BLOB_TYPE;
+	mBlendMode = NORMAL;
+	mUseShaderTexture = false;
 	mIsInScreenCoordsHack = false;
 	mTouchScaleSizeMode = false;
+	mCornerRadius = 0.0f;
 
-  setSpriteId(id);
+	setSpriteId(id);
 
-  mServerColor = ci::ColorA(static_cast<float>(math::random()*0.5 + 0.5),
-                            static_cast<float>(math::random()*0.5 + 0.5),
-                            static_cast<float>(math::random()*0.5 + 0.5),
-                            0.4f);
-  mClippingBounds.set(0.0f, 0.0f, 0.0f, 0.0f);
-  mClippingBoundsDirty = false;
-  dimensionalStateChanged();
+	mServerColor = ci::ColorA(static_cast<float>(math::random()*0.5 + 0.5),
+		static_cast<float>(math::random()*0.5 + 0.5),
+		static_cast<float>(math::random()*0.5 + 0.5),
+		0.4f);
+	mClippingBounds.set(0.0f, 0.0f, 0.0f, 0.0f);
+	mClippingBoundsDirty = false;
+	dimensionalStateChanged();
 }
 
 Sprite::~Sprite() {
@@ -463,6 +464,19 @@ ci::Rectf Sprite::getBoundingBox() const {
 	return ci::Rectf(left, top, right, bottom);
 }
 
+ci::Rectf Sprite::getChildBoundingBox() const{
+	if (mChildren.empty()) return getBoundingBox();
+
+	auto it=mChildren.begin();
+	// initialize the box to the first child and expand from there
+	ci::Rectf result = (*it)->getBoundingBox();	
+	for (auto end=mChildren.end(); it != end; ++it) {
+		ci::Rectf curBounds = (*it)->getBoundingBox();
+		result.include(curBounds);
+	}
+	return result;
+}
+
 void Sprite::setDrawSorted( bool drawSorted )
 {
   setFlag(DRAW_SORTED_F, drawSorted, FLAGS_DIRTY, mSpriteFlags);
@@ -632,6 +646,19 @@ void Sprite::setSize( float width, float height )
   setSizeAll(width, height, mDepth);
 }
 
+void Sprite::sizeToChildBounds(){
+	ci::Rectf childBounds = getChildBoundingBox();
+
+	move(childBounds.x1, childBounds.y1);
+	setSize(childBounds.getWidth(), childBounds.getHeight());
+
+	// move the children to compensate
+	for (auto it = mChildren.begin(), end = mChildren.end(); it != end; ++it){
+		(*it)->move(-childBounds.x1, -childBounds.y1);
+	}
+	
+}
+
 void Sprite::setColor( const ci::Color &color )
 {
   if (mColor == color) return;
@@ -674,19 +701,20 @@ float Sprite::getOpacity() const
 
 void Sprite::drawLocalClient()
 {
-    //glBegin(GL_QUADS);
-    //ci::gl::vertex( 0 , 0 );
-    //ci::gl::vertex( mWidth, 0 );
-    //ci::gl::vertex( mWidth, mHeight );
-    //ci::gl::vertex( 0, mHeight );
-    //glEnd();
-
-  ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+	if(mCornerRadius > 0.0f){
+		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
+	} else {
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+	}
 }
 
 void Sprite::drawLocalServer()
 {
-  ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+	if(mCornerRadius > 0.0f){
+		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
+	} else {
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+	}
 }
 
 void Sprite::setTransparent( bool transparent )
@@ -1675,6 +1703,8 @@ void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touc
 	TouchInfo newTouchInfo = touchInfo;
 	newTouchInfo.mCurrentGlobalPoint = localToGlobal(ci::Vec3f(-10.0f,-10.0f, 0.0f));	// make sure we touch up outside the sprite area, so buttons don't think they're hit
 	newTouchInfo.mPhase = TouchInfo::Removed;
+	newTouchInfo.mPassedTouch = true;
+
 	processTouchInfo(newTouchInfo);
 	// switch to the new sprite
 	mEngine.setSpriteForFinger(touchInfo.mFingerId, destinationSprite);
@@ -1715,6 +1745,16 @@ bool Sprite::getUseDepthBuffer() const
 {
   return mUseDepthBuffer;
 }
+
+void Sprite::setCornerRadius( const float newRadius ){
+	mCornerRadius = newRadius;
+}
+
+float Sprite::getCornerRadius() const{
+	return mCornerRadius;
+}
+
+
 
 /**
  * \class ds::ui::Sprite::LockScale

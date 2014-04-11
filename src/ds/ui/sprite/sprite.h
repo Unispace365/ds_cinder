@@ -72,6 +72,10 @@ public:
 
 	void					setSize(float width, float height);
 	virtual void			setSizeAll(float width, float height, float depth);
+
+	// sets the size based on the size of it's immediate children, not recursive
+	void					sizeToChildBounds();
+
 	virtual float			getWidth() const;
 	virtual float			getHeight() const;
 	float					getDepth() const;
@@ -106,6 +110,7 @@ public:
 	float					getZLevel() const;
 
 	ci::Rectf				getBoundingBox() const;
+	ci::Rectf				getChildBoundingBox() const;
 
 	// whether to draw be by Sprite order or z level.
 	// Only works on a per Sprite base.
@@ -256,6 +261,10 @@ public:
 	void					setUseDepthBuffer(bool useDepth);
 	bool					getUseDepthBuffer() const;
 
+	// If this sprite renders locally and the radius is > 0, will draw a rounded rect
+	void					setCornerRadius(const float newRadius);
+	float					getCornerRadius() const;
+
 	// Answer true if this sprite currently has any touches.
 	bool					hasTouches() const;
 	/*
@@ -387,6 +396,7 @@ protected:
 	Sprite*				mDragDestination;
 	IdleTimer			mIdleTimer;
 	bool				mUseDepthBuffer;
+	float				mCornerRadius;
 
 	// Transport uniform data to the shader
 	ds::gl::Uniform		mUniform;

@@ -159,52 +159,45 @@ void App::draw()
 
 void App::mouseDown( MouseEvent event )
 {
-//	DS_LOG_INFO_M("App::mouseDown (" << event.getX() << "," << event.getY() << ")", ds::IO_LOG);
-  if (mCtrlDown) {
-    if (!mSecondMouseDown) {
-      mEngine.mouseTouchBegin(event, 2);
-      mSecondMouseDown = true;
-    } else {
-      mEngine.mouseTouchEnded(event, 2);
-      mSecondMouseDown = false;
-    }
-  } else {
-    mEngine.mouseTouchBegin(event, 1);
-  }
+	if (mCtrlDown) {
+		if (!mSecondMouseDown) {
+			mEngine.mouseTouchBegin(event, 2);
+			mSecondMouseDown = true;
+		} else {
+			mEngine.mouseTouchEnded(event, 2);
+			mSecondMouseDown = false;
+		}
+	} else {
+		mEngine.mouseTouchBegin(event, 1);
+	}
 }
 
 void App::mouseMove( MouseEvent event )
 {
-//	DS_LOG_INFO_M("App::mouseMove (" << event.getX() << "," << event.getY() << ")", ds::IO_LOG);
 }
 
 void App::mouseDrag( MouseEvent event )
 {
-//	DS_LOG_INFO_M("App::mouseDrag (" << event.getX() << "," << event.getY() << ")", ds::IO_LOG);
   mEngine.mouseTouchMoved(event, 1);
 }
 
 void App::mouseUp( MouseEvent event )
 {
-//	DS_LOG_INFO_M("App::mouseUp (" << event.getX() << "," << event.getY() << ")", ds::IO_LOG);
   mEngine.mouseTouchEnded(event, 1);
 }
 
 void App::touchesBegan( TouchEvent event )
 {
-//	DS_LOG_INFO_M("App::touchesBegan", ds::IO_LOG);
   mEngine.touchesBegin(event);
 }
 
 void App::touchesMoved( TouchEvent event )
 {
-//	DS_LOG_INFO_M("App::touchesMoved", ds::IO_LOG);
   mEngine.touchesMoved(event);
 }
 
 void App::touchesEnded( TouchEvent event )
 {
-//	DS_LOG_INFO_M("App::touchesEnded", ds::IO_LOG);
   mEngine.touchesEnded(event);
 }
 

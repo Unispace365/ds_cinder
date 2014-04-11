@@ -16,24 +16,24 @@ namespace ds {
  * and server, and no communication pipe replicating sprite changes.
  */
 class EngineClientServer : public Engine {
-  public:
-    EngineClientServer(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const std::vector<int>* = nullptr);
-    ~EngineClientServer();
+public:
+	EngineClientServer(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const std::vector<int>* = nullptr);
+	~EngineClientServer();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
 	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 
-    virtual void                  installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
-                                                const std::function<void(ds::BlobRegistry&)>& asClient);
+	virtual void					installSprite(const std::function<void(ds::BlobRegistry&)>& asServer,
+													const std::function<void(ds::BlobRegistry&)>& asClient);
 
-    virtual void				          setup(ds::App&);
-    virtual void                  setupTuio(ds::App&);
-    virtual void	                update();
-    virtual void                  draw();
+	virtual void					setup(ds::App&);
+	virtual void					setupTuio(ds::App&);
+	virtual void					update();
+	virtual void					draw();
 
-    virtual void                  stopServices();
-    virtual int                   getMode() const { return CLIENTSERVER_MODE; }
+	virtual void					stopServices();
+	virtual int						getMode() const { return CLIENTSERVER_MODE; }
 
 private:
 	typedef Engine inherited;

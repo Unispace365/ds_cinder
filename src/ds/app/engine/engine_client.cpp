@@ -32,11 +32,12 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
   COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 
   try {
-//   mConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
-   mSendConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
-   mReceiveConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+	  if(settings.getBool("server:connect", 0, true)){
+		  mSendConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
+		  mReceiveConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+	  }
   } catch(std::exception &e) {
-    DS_LOG_ERROR_M("EngineClient() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
+	  DS_LOG_ERROR_M("EngineClient() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
   }
 
   setState(mBlankState);

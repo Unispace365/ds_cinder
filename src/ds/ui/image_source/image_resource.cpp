@@ -105,6 +105,9 @@ void ImageResource::install(ds::ImageRegistry& registry) {
 ImageResource::ImageResource(const ds::Resource& res, const int flags)
 		: mResource(res)
 		, mFlags(flags) {
+			ImageMetaData md;
+			md.add(res.getAbsoluteFilePath(), ci::Vec2f(res.getWidth(), res.getHeight()));
+
 }
 
 ImageResource::ImageResource(const ds::Resource::Id& id, const int flags)

@@ -103,6 +103,18 @@ public:
 	ImageAttsCache() {
 	}
 
+	void				add(const std::string& filePath, const ci::Vec2f size){
+		if(size.x> 0 && size.y > 0){
+			try{
+				ImageAtts atts(size);
+				atts.mLastModified = Poco::File(filePath).getLastModified();
+				mCache[filePath] = atts;
+			} catch(std::exception const&){
+				//HAHAHAHAHAHAHAHA
+			}
+		}
+	}
+
 	ci::Vec2f			getSize(const std::string& fn) {
 		// If I've got a cached item and the modified dates match, use that.
 		try {
@@ -177,5 +189,10 @@ ImageMetaData::ImageMetaData(const std::string& filename)
 bool ImageMetaData::empty() const {
 	return mSize.x < 0.5f || mSize.y < 0.5;
 }
+
+void ImageMetaData::add( const std::string& filePath, const ci::Vec2f size ){
+	CACHE.add(filePath, size);
+}
+
 
 } // namespace ds

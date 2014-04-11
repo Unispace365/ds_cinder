@@ -18,6 +18,7 @@ public:
 	ImageMetaData(const std::string& filename);
 
 	bool						empty() const;
+	void						add(const std::string& filePath, const ci::Vec2f size );
 
 	ci::Vec2f					mSize;
 };
