@@ -94,6 +94,7 @@
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
     <ClInclude Include="..\src\ds\query\sql_query_result_builder.h" />
+    <ClInclude Include="..\src\ds\storage\persistent_cache.h" />
     <ClInclude Include="..\src\ds\thread\async_queue.h" />
     <ClInclude Include="..\src\ds\thread\gl_thread.h" />
     <ClInclude Include="..\src\ds\thread\parallel_runnable.h" />
@@ -225,6 +226,7 @@
     <ClCompile Include="..\src\ds\query\sqlite\sqlite3.c" />
     <ClCompile Include="..\src\ds\query\sql_database.cpp" />
     <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp" />
+    <ClCompile Include="..\src\ds\storage\persistent_cache.cpp" />
     <ClCompile Include="..\src\ds\thread\gl_thread.cpp" />
     <ClCompile Include="..\src\ds\thread\runnable_client.cpp" />
     <ClCompile Include="..\src\ds\thread\work_client.cpp" />

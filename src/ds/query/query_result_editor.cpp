@@ -22,7 +22,7 @@ bool ResultEditor::isValid() const {
 }
 
 ResultEditor& ResultEditor::setColumnType(const size_t index, const int type) {
-	while (mResult.mCol.size() <= index) mResult.mCol.add(QUERY_NO_TYPE);
+	while (mResult.mCol.size() <= index) mResult.mCol.push_back(QUERY_NO_TYPE);
 	mResult.mCol[index] = type;
 	return *this;
 }
@@ -61,8 +61,8 @@ ResultEditor& ResultEditor::addNumeric(const double v)
 	const int			at = mColIdx;
 	mColIdx++;
 
-	if (!mRow->mNumeric.setSize(mColIdx)) mError = true;
-	else mRow->mNumeric.data()[at] = v;
+	mRow->mNumeric.resize(mColIdx);
+	mRow->mNumeric[at] = v;
 	return *this;
 }
 

@@ -66,8 +66,8 @@ ResultBuilder& ResultBuilder::addNumeric(const double v)
 	const int			at = mColIdx;
 	mColIdx++;
 
-	if (!mRow->mNumeric.setSize(mColIdx)) mError = true;
-	else mRow->mNumeric.data()[at] = v;
+	mRow->mNumeric.resize(mColIdx);
+	mRow->mNumeric[at] = v;
 	return *this;
 }
 
@@ -105,7 +105,8 @@ void ResultBuilder::build(const bool columnNames)
 		}
 		for (int k=0; k<count; ++k) {
 			const int	ct = getColumnType(k);
-			if (ct == QUERY_NO_TYPE || !mResult.mCol.add(ct)) mError = true;
+			if (ct == QUERY_NO_TYPE) mError = true;
+			else mResult.mCol.push_back(ct);
 			if (columnNames) {
 				mResult.mColNames.push_back(getColumnName(k));
 			}

@@ -115,6 +115,9 @@
     <Filter Include="src\ds\ui\ip\functions">
       <UniqueIdentifier>{03cb731e-c5f5-44bd-9745-6afa3e648d94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\storage">
+      <UniqueIdentifier>{2368de55-a922-4afc-8a0d-1314142d9f04}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -549,6 +552,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\gradient_sprite.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\storage\persistent_cache.h">
+      <Filter>src\ds\storage</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -901,6 +907,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\gradient_sprite.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\storage\persistent_cache.cpp">
+      <Filter>src\ds\storage</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

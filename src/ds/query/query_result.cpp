@@ -68,7 +68,7 @@ Result& Result::operator=(const RowIterator& it) {
 }
 
 void Result::clear() {
-	mCol.setSize(0);
+	mCol.clear();
 	mColNames.clear();
 	mRow.clear();
 	mRequestTime = Poco::Timestamp(0);
@@ -82,7 +82,7 @@ bool Result::matches(const int* curType, ...) const
 	int				idx = 0;
 	va_start(ap, curType);
 	while (curType != NULL) {
-		if (idx+1 > mCol.size() || mCol.data()[idx] != *curType) {
+		if (idx >= mCol.size() || mCol[idx] != *curType) {
 			ans = false;
 			break;
 		}
@@ -201,10 +201,7 @@ void Result::Row::clear() {
 
 void Result::Row::initialize(const int columns) {
 	if (columns > 0) {
-		if (mNumeric.setSize(columns)) {
-			double*			d = mNumeric.data();
-			for (int k=0; k<columns; k++) d[k] = 0.0;
-		}
+		mNumeric.resize(columns, 0.0);
 		mNumeric.clear();
 	}
 }
@@ -272,6 +269,10 @@ inline int query_round(const double d) {
 	return int(d > 0.0 ? floor(d + 0.5) : ceil(d - 0.5));
 }
 
+inline int64_t query_round_64(const double d) {
+	return int64_t(d > 0.0 ? floor(d + 0.5) : ceil(d - 0.5));
+}
+
 int Result::RowIterator::getInt(const int columnIndex) const {
 	if (columnIndex < 0) return 0;
 	const Row&		row = **mRowIt;
@@ -284,7 +285,22 @@ int Result::RowIterator::getInt(const int columnIndex) const {
 		}
 	}
 	if (row.mNumeric.size() <= columnIndex) return 0;
-	return query_round(row.mNumeric.data()[columnIndex]);
+	return query_round(row.mNumeric[columnIndex]);
+}
+
+int64_t Result::RowIterator::getInt64(const int columnIndex) const {
+	if (columnIndex < 0) return 0;
+	const Row&		row = **mRowIt;
+	// Deal with the case where the column got misinterpreted as a string --
+	// this can happen when there's a NULL in the data set.
+	if (columnIndex < row.mWString.size() && !row.mWString[columnIndex].empty()) {
+		int64_t		ans = 0;
+		if (ds::wstring_to_value(row.mWString[columnIndex], ans)) {
+			return ans;
+		}
+	}
+	if (row.mNumeric.size() <= columnIndex) return 0;
+	return query_round_64(row.mNumeric[columnIndex]);
 }
 
 float Result::RowIterator::getFloat(const int columnIndex) const {
@@ -299,7 +315,7 @@ float Result::RowIterator::getFloat(const int columnIndex) const {
 		}
 	}
 	if (row.mNumeric.size() <= columnIndex) return 0.0f;
-	return (float)row.mNumeric.data()[columnIndex];
+	return static_cast<float>(row.mNumeric[columnIndex]);
 }
 
 const std::string& Result::RowIterator::getString(const int columnIndex) const {
@@ -319,8 +335,8 @@ void Result::print() const {
 	cout << "QueryResult columnSize=" << mCol.size() << " rows=" << mRow.size() << endl;
 	if (mCol.size() > 0) {
 		cout << "\tcols ";
-		for (int k=0; k<mCol.size(); k++) {
-			const int	col = mCol.data()[k];
+		for (auto it=mCol.begin(), end=mCol.end(); it!=end; ++it) {
+			const int	col(*it);
 			if (col == QUERY_NUMERIC) cout << "NUMERIC ";
 			else if (col == QUERY_STRING) cout << "STRING ";
 			else cout << "? ";
@@ -330,8 +346,8 @@ void Result::print() const {
 
 	RowIterator				it(getRows());
 	while (it.hasValue()) {
-		for (int k=0; k<mCol.size(); k++) {
-			const int		col = mCol.data()[k];
+		for (size_t k=0; k<mCol.size(); ++k) {
+			const int		col = mCol[k];
 			if (col == QUERY_NUMERIC)		cout << "\t" << k << " = " << it.getFloat(k) << endl;
 			else if (col == QUERY_STRING)	cout << "\t" << k << " = " << it.getString(k) << endl;
 		}
