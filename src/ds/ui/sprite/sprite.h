@@ -27,6 +27,7 @@ class CameraPick;
 class DataBuffer;
 class DrawParams;
 class Engine;
+class EngineRoot;
 class UpdateParams;
 
 namespace ui {
@@ -403,6 +404,7 @@ protected:
 
 private:
 	friend class Engine;
+	friend class EngineRoot;
 	// Disable copy constructor; sprites are managed by their parent and
 	// must be allocated
 	Sprite(const Sprite&);

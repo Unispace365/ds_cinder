@@ -233,6 +233,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
         ci::gl::disableDepthRead();
         ci::gl::disableDepthWrite();
       }
+
       drawLocalClient();
 
       if (shaderBase) {
@@ -282,7 +283,7 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
   ci::Matrix44f totalTransformation = trans*mTransformation;
 
   ci::gl::pushModelView();
-  //glLoadIdentity();d
+  //glLoadIdentity();
   ci::gl::multModelView(totalTransformation);
 
   if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {

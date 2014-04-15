@@ -36,6 +36,7 @@ using namespace ci::app;
 namespace ds {
 class App;
 class AutoUpdate;
+class EngineRoot;
 
 extern const ds::BitMask	ENGINE_LOG;
 
@@ -113,23 +114,16 @@ public:
 	virtual const ds::FontList&			getFonts() const;
 	ds::FontList&						editFonts();
 
-	virtual void						setCamera(const bool perspective = false);
-	// Used by the perspective camera to set the near and far planes
-	void								setPerspectiveCameraPlanes(const float near, const float far);
+	void								markCameraDirty();
+	virtual PerspCameraParams			getPerspectiveCamera(const size_t index) const;
+	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&);
 
-	virtual void						setPerspectiveCameraPosition(const ci::Vec3f &pos);
-	virtual ci::Vec3f					getPerspectiveCameraPosition() const;
-	virtual void						setPerspectiveCameraTarget(const ci::Vec3f &tar);
-	virtual ci::Vec3f					getPerspectiveCameraTarget() const;
 	// Modal -- prepare for the user to be able to move the camera.
 	// I discovered there's a call to setViewport() when the camera is set up that *seems* to
 	// do nothing except prevent me from dynamically changing the camera bounds. However, I
 	// know I'll discover it's significance at some point down the road, so this just lets
 	// specific apps turn off this behaviour.
 	void								setToUserCamera();
-	
-	// Tmp
-	ci::CameraPersp&					getPerspectiveCamera() { return mCameraPersp; }
 
 	// Can be used by apps to stop services before exiting.
 	// This will happen automatically, but some apps might want
@@ -139,13 +133,16 @@ public:
 	bool								systemMultitouchEnabled() const;
 	bool								hideMouse() const;
 
+	ds::ui::Sprite*						getHit(const ci::Vec3f& point);
+
 	virtual void						clearFingers( const std::vector<int> &fingers );
 	void								setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 	ds::ui::Sprite*						getSpriteForFinger( const int fingerId ){ return mTouchManager.getSpriteForFinger(fingerId); }
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint ){ mTouchManager.overrideTouchTranslation(inOutPoint); };
 
-	// Add or
+	// Root support
+	const ci::Rectf&					getScreenRect() const;
 
 protected:
 	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const std::vector<int>* roots);
@@ -155,7 +152,6 @@ protected:
 	void								updateServer();
 	void								drawClient();
 	void								drawServer();
-	void								setCameraForDraw(const bool perspective = false);
 	// Called from the destructor of all subclasses, so I can cleanup
 	// sprites before services go away.
 	void								clearAllSprites();
@@ -172,9 +168,12 @@ protected:
 	ds::ui::ip::FunctionList			mIpFunctions;
 
 private:
+	// Special function to set the camera to the current screen and clear it.
+	void								clearScreen();
 	void								deleteRequestedSprites();
 
-	std::vector<ui::Sprite*>			mRoots;
+	std::vector<std::unique_ptr<EngineRoot>>
+										mRoots;
 	std::vector<ds::sprite_id_t>		mRequestDelete;
 
 	const ds::cfg::Settings&			mSettings;
@@ -198,17 +197,6 @@ private:
 	AutoUpdateList						mAutoUpdate;
 
 	ds::cfg::Settings					mDebugSettings;
-	ci::CameraOrtho						mCamera;
-	ci::CameraPersp						mCameraPersp;
-	ci::Vec2f							mCameraZClipping;
-	float								mCameraFOV;
-	int									mCameraType;
-	float								mCameraPerspNearPlane,
-										mCameraPerspFarPlane;
-	ci::Vec3f							mCameraPosition;
-	ci::Vec3f							mCameraTarget;
-	// See disableSetViewport()
-	bool								mSetViewport;
 
 	ci::gl::Fbo							mFbo;
 

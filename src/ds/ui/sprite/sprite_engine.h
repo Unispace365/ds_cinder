@@ -17,6 +17,7 @@ class EngineService;
 class EventNotifier;
 class FontList;
 class ImageRegistry;
+class PerspCameraParams;
 class ResourceList;
 class WorkManager;
 
@@ -84,12 +85,11 @@ public:
 	std::unique_ptr<FboGeneral>		getFbo();
 	void							giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
 
-	virtual void					setCamera(const bool perspective = false) = 0;
-	// Camera control
-	virtual void					setPerspectiveCameraPosition(const ci::Vec3f &pos) = 0;
-	virtual ci::Vec3f				getPerspectiveCameraPosition() const = 0;
-	virtual void					setPerspectiveCameraTarget(const ci::Vec3f &tar) = 0;
-	virtual ci::Vec3f				getPerspectiveCameraTarget() const = 0;
+	// Camera control. Will throw if the root at the index is the wrong type.
+	// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call
+	// no earlier than App::setup().
+	virtual PerspCameraParams		getPerspectiveCamera(const size_t index) const = 0;
+	virtual void					setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
 
 	void							addToDragDestinationList(Sprite *sprite);
 	void							removeFromDragDestinationList(Sprite *sprite);
@@ -125,8 +125,7 @@ private:
 };
 
 template <typename T>
-T& SpriteEngine::getService(const std::string& str)
-{
+T& SpriteEngine::getService(const std::string& str) {
 	return dynamic_cast<T&>(private_getService(str));
 }
 

@@ -4,6 +4,7 @@
 #include "Poco/Path.h"
 #include "ds/app/app.h"
 #include "ds/app/environment.h"
+#include "ds/app/engine/engine_roots.h"
 #include "ds/app/engine/engine_service.h"
 #include "ds/cfg/settings.h"
 #include "ds/debug/debug_defines.h"
@@ -42,9 +43,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mIdling(true)
 	, mTouchManager(*this)
 	, mSettings(settings)
-	, mCameraPerspNearPlane(1.0f)
-	, mCameraPerspFarPlane(1000.0f)
-	, mSetViewport(true)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);})
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);})
 	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);})
@@ -66,18 +64,21 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	// Construct the root sprites
 	if (roots) {
-		sprite_id_t				id = EMPTY_SPRITE_ID-1;
+		sprite_id_t							id = EMPTY_SPRITE_ID-1;
 		for (auto it=roots->begin(), end=roots->end(); it != end; ++it) {
-			ui::Sprite*		s = new ui::Sprite(*this, id, (*it) == Engine::CAMERA_PERSP);
-			if (!s) throw std::runtime_error("Engine can't create root sprite");
-			mRoots.push_back(s);
+			std::unique_ptr<EngineRoot>		root;
+			if (*it == Engine::CAMERA_ORTHO) root.reset(new OrthRoot(*this, id));
+			else if (*it == Engine::CAMERA_PERSP) root.reset(new PerspRoot(*this, id));
+			if (!root) throw std::runtime_error("Engine can't create root");
+			mRoots.push_back(std::move(root));
 			--id;
 		}
 	}
 	if (mRoots.empty()) {
-		ui::Sprite*		s = new ui::Sprite(*this, EMPTY_SPRITE_ID - 1);
-		if (!s) throw std::runtime_error("Engine can't create root sprite");
-		mRoots.push_back(s);
+		std::unique_ptr<EngineRoot>		root;
+		root.reset(new OrthRoot(*this, EMPTY_SPRITE_ID - 1));
+		if (!root) throw std::runtime_error("Engine can't create single root");
+		mRoots.push_back(std::move(root));
 	}
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
@@ -102,28 +103,19 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
 	mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
+// These were not being used in the old system. Not sure if I should keep them in the
+// new -- there's an argument for mainly doing this stuff in code.
+#if 0
 	mCameraPosition = ci::Vec3f(0.0f, 0.0f, 100.0f);
-  
 	mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(1.0f, 1000.0f));
 	mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
+#endif
 
-	const bool scaleWorldToFit = mDebugSettings.getBool("scale_world_to_fit", 0, false);
-
+	const EngineRoot::Settings	er_settings(mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-		ds::ui::Sprite&			s = *(*it);
-		if (s.getPerspective()) {
-			s.setSize(mData.mScreenRect.getWidth(), mData.mScreenRect.getHeight());
-			s.setDrawSorted(true);
-		} else {
-			s.setSize(mData.mScreenRect.getWidth(), mData.mScreenRect.getHeight());
-			if (scaleWorldToFit) {
-				s.setScale(getWidth()/getWorldWidth(), getHeight()/getWorldHeight());
-			} else if (window_scale != DEFAULT_WINDOW_SCALE) {
-				s.setScale(window_scale, window_scale);
-			}
-		}
+		EngineRoot&				r(*(it->get()));
+		r.setup(er_settings);
 	}
-
 	// SETUP RESOURCES
 	std::string resourceLocation = settings.getText("resource_location", 0, "");
 	if (resourceLocation.empty()) {
@@ -178,7 +170,9 @@ int Engine::getRootCount() const {
 
 ui::Sprite& Engine::getRootSprite(const size_t index) {
 	if (index < 0 || index >= mRoots.size()) throw std::runtime_error("Engine::getRootSprite() on invalid index");
-  return *(mRoots[index]);
+	ui::Sprite*		s = mRoots[index]->getSprite();
+	if (!s) throw std::runtime_error("Engine::getRootSprite() on null sprite");
+	return *s;
 }
 
 void Engine::updateClient() {
@@ -250,47 +244,41 @@ void Engine::updateServer() {
 	}
 }
 
-void Engine::setCamera(const bool perspective) {
-	if (!perspective) {
-		if (mSetViewport) {
-			ci::gl::setViewport(Area((int)mData.mScreenRect.getX1(), (int)mData.mScreenRect.getY2(), (int)mData.mScreenRect.getX2(), (int)mData.mScreenRect.getY1()));
-		}
-		mCamera.setOrtho(mData.mScreenRect.getX1(), mData.mScreenRect.getX2(), mData.mScreenRect.getY2(), mData.mScreenRect.getY1(), -1, 1);
-		//gl::setMatrices(mCamera);
-	} else {
-		mCameraPersp.setEyePoint( Vec3f(0.0f, 0.0f, 100.0f) );
-		mCameraPersp.setCenterOfInterestPoint( Vec3f(0.0f, 0.0f, 0.0f) );
-		mCameraPersp.setPerspective( 60.0f, getWindowAspectRatio(), mCameraPerspNearPlane, mCameraPerspFarPlane );
-		//mCameraPersp.setPerspective(mCameraFOV, getWindowAspectRatio(), mCameraZClipping.x, mCameraZClipping.y );
-		//mCameraPersp.lookAt( mCameraPosition, mCameraTarget, Vec3f(0.0f, 1.0f, 0.0f) );
-	}
+void Engine::clearScreen() {
+// Do I need this?
+//	ci::gl::setViewport(Area((int)mData.mScreenRect.getX1(), (int)mData.mScreenRect.getY2(), (int)mData.mScreenRect.getX2(), (int)mData.mScreenRect.getY1()));
+//	mCamera.setOrtho(mData.mScreenRect.getX1(), mData.mScreenRect.getX2(), mData.mScreenRect.getY2(), mData.mScreenRect.getY1(), -1, 1);
 
-	setCameraForDraw(perspective);
+	ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 }
 
-void Engine::setPerspectiveCameraPlanes(const float nearPlane, const float farPlane)
-{
-  mCameraPerspNearPlane = nearPlane;
-  mCameraPerspFarPlane = farPlane;
-}
-
-void Engine::setCameraForDraw(const bool perspective){
-	if (!perspective) {
-		//mCamera.setOrtho(mFbo.getBounds().getX1(), mFbo.getBounds().getX2(), mFbo.getBounds().getY2(), mFbo.getBounds().getY1(), -1.0f, 1.0f);
-		ci::gl::setMatrices(mCamera);
-		ci::gl::disableDepthRead();
-		ci::gl::disableDepthWrite();
-	} else {
-		ci::gl::setMatrices(mCameraPersp);
-		// enable the depth buffer (after all, we are doing 3D)
-		//gl::enableDepthRead();
-		//gl::enableDepthWrite();
-		//gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
+void Engine::markCameraDirty() {
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		(*it)->markCameraDirty();
 	}
 }
 
-void Engine::clearAllSprites()
-{
+PerspCameraParams Engine::getPerspectiveCamera(const size_t index) const {
+	const PerspRoot*			root = nullptr;
+	if (index < mRoots.size()) root = dynamic_cast<const PerspRoot*>(mRoots[index].get());
+	if (root) {
+		return root->getCamera();
+	}
+	DS_LOG_ERROR(" Engine::getPerspectiveCamera() on invalid root (" << index << ")");
+	throw std::runtime_error("getPerspectiveCamera() on non-perspective root.");
+}
+
+void Engine::setPerspectiveCamera(const size_t index, const PerspCameraParams& p) {
+	PerspRoot*					root = nullptr;
+	if (index < mRoots.size()) root = dynamic_cast<PerspRoot*>(mRoots[index].get());
+	if (root) {
+		root->setCamera(p);
+	} else {
+		DS_LOG_ERROR(" Engine::setPerspectiveCamera() on invalid root (" << index << ")");
+	}
+}
+
+void Engine::clearAllSprites() {
 	for (auto it=mRoots.begin(), end=mRoots.end(); it != end; ++it) {
 		(*it)->clearChildren();
 	}
@@ -318,16 +306,8 @@ void Engine::drawClient() {
 			ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 			for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-				ds::ui::Sprite*			s = (*it);
-				if (mData.mCameraDirty) {
-					setCamera(s->getPerspective());
-				} else {
-					setCameraForDraw(s->getPerspective());
-				}
-				s->drawClient(ci::gl::getModelView(), mDrawParams);
+				(*it)->drawClient(mDrawParams);
 			}
-			mData.mCameraDirty = false;
-
 			if (mDrawTouches) {
 				mTouchManager.drawTouches();
 			}
@@ -335,8 +315,9 @@ void Engine::drawClient() {
 		}
 		ci::gl::enableAlphaBlending();
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-		setCamera();
-		ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+		clearScreen();
+//		setCamera();
+//		ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 		//   gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 		Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
 
@@ -374,17 +355,8 @@ void Engine::drawClient() {
 		ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 		for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-			ds::ui::Sprite*			s = (*it);
-			if (mData.mCameraDirty) {
-				setCamera(s->getPerspective());
-			} else {
-				setCameraForDraw(s->getPerspective());
-			}
-			if (s->getPerspective()) glClear(GL_DEPTH_BUFFER_BIT);
-			s->drawClient(ci::gl::getModelView(), mDrawParams);
+			(*it)->drawClient(mDrawParams);
 		}
-		mData.mCameraDirty = false;
-
 		if (mDrawTouches) {
 			mTouchManager.drawTouches();
 		}
@@ -401,29 +373,29 @@ void Engine::drawServer() {
 	ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-		ds::ui::Sprite*			s = (*it);
-		const bool					persp = s->getPerspective();
-		setCameraForDraw(persp);
-		if (persp) {
-			s->drawClient(ci::gl::getModelView(), mDrawParams);
-		} else {
-			s->drawServer(ci::gl::getModelView(), mDrawParams);
-		}
+		(*it)->drawServer(mDrawParams);
 	}
 
-	if (mDrawTouches)
+	if (mDrawTouches) {
+		// XXX This should probably be in a separate ortho root at the top of the hieararchy.
 		mTouchManager.drawTouches();
+	}
 
 	glAlphaFunc(GL_ALWAYS, 0.001f) ;
 }
 
 void Engine::setup(ds::App&) {
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		(*it)->setCinderCamera();
+	}
+#if 0
 	//mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
 	//gl::setMatrices(mCamera);
 	setCamera(true);
 	setCamera();
 	//gl::disable(GL_CULL_FACE);
 	//////////////////////////////////////////////////////////////////////////
+#endif
 
 	ci::gl::Fbo::Format format;
 	format.setColorInternalFormat(GL_RGBA32F);
@@ -467,10 +439,11 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings) {
 
 	settings.setFrameRate(mData.mFrameRate);
 
-	if (mSettings.getText("screen:mode", 0, "") == "full")
+	if (mSettings.getText("screen:mode", 0, "") == "full") {
 		settings.setFullScreen(true);
-	else if (mSettings.getText("screen:mode", 0, "") == "borderless")
+	} else if (mSettings.getText("screen:mode", 0, "") == "borderless") {
 		settings.setBorderless(true);
+	}
 	settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 
 	const std::string     nope = "ds:IllegalTitle";
@@ -478,23 +451,21 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings) {
 	if (title != nope) settings.setTitle(title);
 }
 
-ds::sprite_id_t Engine::nextSpriteId()
-{
-  static ds::sprite_id_t              ID = 0;
-  ++ID;
+ds::sprite_id_t Engine::nextSpriteId() {
+	static ds::sprite_id_t              ID = 0;
+	++ID;
 	// Skip negative values.
 	if (ID <= EMPTY_SPRITE_ID) ID = EMPTY_SPRITE_ID + 1;
-  return ID;
+	return ID;
 }
 
-void Engine::registerSprite(ds::ui::Sprite& s)
-{
-  if (s.getId() == ds::EMPTY_SPRITE_ID) {
-    DS_LOG_WARNING_M("Engine::registerSprite() on empty sprite ID", ds::ENGINE_LOG);
-    assert(false);
-    return;
-  }
-  mSprites[s.getId()] = &s;
+void Engine::registerSprite(ds::ui::Sprite& s) {
+	if (s.getId() == ds::EMPTY_SPRITE_ID) {
+		DS_LOG_WARNING_M("Engine::registerSprite() on empty sprite ID", ds::ENGINE_LOG);
+		assert(false);
+		return;
+	}
+	mSprites[s.getId()] = &s;
 }
 
 void Engine::unregisterSprite(ds::ui::Sprite& s)
@@ -552,76 +523,61 @@ void Engine::mouseTouchEnded(MouseEvent e, int id) {
 	mMouseEndEvents.incoming(MousePair(e, id));
 }
 
-ds::ResourceList& Engine::getResources()
-{
-  return mResources;
+ds::ResourceList& Engine::getResources() {
+	return mResources;
 }
 
-const ds::FontList& Engine::getFonts() const
-{
-  return mFonts;
+const ds::FontList& Engine::getFonts() const {
+	return mFonts;
 }
 
-ds::FontList& Engine::editFonts()
-{
-  return mFonts;
+ds::FontList& Engine::editFonts() {
+	return mFonts;
 }
 
-void Engine::stopServices()
-{
+void Engine::stopServices() {
 }
 
-bool Engine::systemMultitouchEnabled() const
-{
-  return mSystemMultitouchEnabled;
+bool Engine::systemMultitouchEnabled() const {
+	return mSystemMultitouchEnabled;
 }
 
-bool Engine::hideMouse() const
-{
-  return mHideMouse;
+bool Engine::hideMouse() const {
+	return mHideMouse;
 }
 
-void Engine::clearFingers( const std::vector<int> &fingers )
-{
+ds::ui::Sprite* Engine::getHit(const ci::Vec3f& point) {
+	for (auto it=mRoots.rbegin(), end=mRoots.rend(); it!=end; ++it) {
+		ds::ui::Sprite*		s = (*it)->getHit(point);
+		if (s) return s;
+	}
+	return nullptr;
+}
+
+void Engine::clearFingers( const std::vector<int> &fingers ) {
 	mTouchManager.clearFingers(fingers);
 }
 
-bool Engine::isIdling() const
-{
+const ci::Rectf& Engine::getScreenRect() const {
+	return mData.mScreenRect;
+}
+
+bool Engine::isIdling() const {
 	return mIdling;
 }
 
-void Engine::startIdling()
-{
+void Engine::startIdling() {
 	if (mIdling)
 		return;
 
 	mIdling = true;
 }
 
-void Engine::resetIdleTimeOut()
-{
+void Engine::resetIdleTimeOut() {
 	float curr = static_cast<float>(getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = curr;
 	mIdling = false;
-}
-
-void Engine::setPerspectiveCameraPosition( const ci::Vec3f &pos )
-{
-  mCameraPersp.setEyePoint(pos);
-}
-
-ci::Vec3f Engine::getPerspectiveCameraPosition() const {
-	return mCameraPersp.getEyePoint();
-}
-
-void Engine::setPerspectiveCameraTarget( const ci::Vec3f &tar ) {
-	mCameraPersp.setCenterOfInterestPoint(tar);
-}
-
-ci::Vec3f Engine::getPerspectiveCameraTarget() const {
-	return mCameraPersp.getCenterOfInterestPoint();
 }
 
 namespace {
@@ -636,7 +592,9 @@ ci::app::MouseEvent offset_mouse_event(const ci::app::MouseEvent& e, const ci::R
 }
 
 void Engine::setToUserCamera() {
-	mSetViewport = false;
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		(*it)->setViewport(false);
+	}
 
 	// When using a user camera, offset the event inputs.
 	mMouseBeginEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchBegin(offset_mouse_event(e.first, mData.mScreenRect), e.second);});

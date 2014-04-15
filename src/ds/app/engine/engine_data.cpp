@@ -15,7 +15,6 @@ EngineData::EngineData(const ds::cfg::Settings& engine_settings)
 	, mSwipeQueueSize(4)
 	, mDoubleTapTime(0.1f)
 	, mFrameRate(60.0f)
-	, mCameraDirty(false)
 {
 }
 

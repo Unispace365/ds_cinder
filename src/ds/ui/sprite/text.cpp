@@ -11,6 +11,7 @@
 #include "ds/app/blob_registry.h"
 #include "ds/cfg/settings.h"
 #include "ds/data/data_buffer.h"
+#include <ds/gl/save_camera.h>
 #include "ds/ui/sprite/sprite_engine.h"
 #include "cinder/Camera.h"
 #include <stdexcept>
@@ -532,6 +533,7 @@ void Text::drawIntoFbo()
   if (lines.empty()) return;
 
   if (mNeedRedrawing) {
+	ds::gl::SaveCamera		save_camera;
 #ifdef TEXT_RENDER_ASYNC
 	int		code = 0;
 	if (mTextString == L"2010") code = 2010;
@@ -598,7 +600,8 @@ std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
       fbo->detach();
       mEngine.giveBackFbo(std::move(fbo));
     }
-    mEngine.setCamera();
+	// handled by SaveCamera now
+//    mEngine.setCamera();
   }
   
   //std::cout << "time taken: " << (double)(clock() - start) / CLOCKS_PER_SEC << std::endl;
