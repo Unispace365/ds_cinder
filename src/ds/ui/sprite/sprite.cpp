@@ -576,6 +576,7 @@ bool Sprite::containsChild( Sprite *child ) const
 
 void Sprite::clearChildren()
 {
+	if(mChildren.empty()) return;
     auto tempList = mChildren;
     mChildren.clear();
 
