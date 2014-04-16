@@ -564,6 +564,12 @@
     <ClInclude Include="..\src\ds\params\camera_params.h">
       <Filter>src\ds\params</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\util\mesh_file.h">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\mesh.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -928,6 +934,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\params\camera_params.cpp">
       <Filter>src\ds\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\util\mesh_file.cpp">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\mesh.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -252,7 +252,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
     DrawParams dParams = drawParams;
     dParams.mParentOpacity *= mOpacity;
 
-    if ((mSpriteFlags&DRAW_SORTED_F) == 0)
+      if ((mSpriteFlags&DRAW_SORTED_F) == 0)
     {
         for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
         {

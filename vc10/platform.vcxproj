@@ -132,6 +132,7 @@
     <ClInclude Include="..\src\ds\ui\sprite\gradient_sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\markdown.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\mesh.h" />
     <ClInclude Include="..\src\ds\ui\sprite\multiline_text.h" />
     <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h" />
     <ClInclude Include="..\src\ds\ui\sprite\shader\sprite_shader.h" />
@@ -142,6 +143,7 @@
     <ClInclude Include="..\src\ds\ui\sprite\text_layout.h" />
     <ClInclude Include="..\src\ds\ui\sprite\util\blend.h" />
     <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\util\mesh_file.h" />
     <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h" />
     <ClInclude Include="..\src\ds\ui\touch\multi_touch_constraints.h" />
     <ClInclude Include="..\src\ds\ui\touch\tap_info.h" />
@@ -261,6 +263,7 @@
     <ClCompile Include="..\src\ds\ui\sprite\gradient_sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\markdown.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\mesh.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\multiline_text.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\shader\sprite_shader.cpp" />
@@ -271,6 +274,7 @@
     <ClCompile Include="..\src\ds\ui\sprite\text_layout.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\blend.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\util\mesh_file.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_process.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp" />
