@@ -3,11 +3,10 @@
 #define DS_THREAD_QUERYRESULT_H_
 
 #include <functional>
+#include <stdint.h>
 #include <string>
 #include <vector>
-#include "Poco/Timestamp.h"
-// I'd really like to weed these classes out, but it's not worth it for now.
-#include "RecycleArray.h"
+#include <Poco/Timestamp.h>
 
 namespace ds {
 
@@ -47,6 +46,7 @@ public:
 		// error, and you've checked matches(), and you ask for the right
 		// column, you should be fine.
 		int								getInt(const int columnIndex) const;
+		int64_t							getInt64(const int columnIndex) const;
 		float							getFloat(const int columnIndex) const;
 		const std::string&				getString(const int columnIndex) const;
 		const std::wstring&				getWString(const int columnIndex) const;
@@ -105,9 +105,6 @@ public:
 	void					sortByString(const int columnIndex, const std::function<bool(const std::string& a, const std::string& b)>&);
 
 private:
-	typedef RecycleArray<double>		NumericArray;
-
-private:
 	// Convenience to add a new row at the end, throwing if I fail
 	Row*								pushBackRow();
 
@@ -120,7 +117,7 @@ private:
 		// a query, but it is used when we are using the QueryResult as a general data
 		// storage mechanism locally in apps.
 		std::string						mName;
-		NumericArray					mNumeric;
+		std::vector<double>				mNumeric;
 		std::vector<std::string>		mString;
 		std::vector<std::wstring>		mWString;
 
@@ -131,7 +128,7 @@ private:
 	};
 
 	// column types
-	RecycleArray<int>					mCol;
+	std::vector<int>					mCol;
 	std::vector<std::string>			mColNames;
 	std::vector<std::unique_ptr<Row>>	mRow;
 	// The time this query was requested.

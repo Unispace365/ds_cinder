@@ -115,6 +115,12 @@
     <Filter Include="src\ds\ui\ip\functions">
       <UniqueIdentifier>{03cb731e-c5f5-44bd-9745-6afa3e648d94}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\storage">
+      <UniqueIdentifier>{2368de55-a922-4afc-8a0d-1314142d9f04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\mesh_source">
+      <UniqueIdentifier>{cbc57e74-972d-4ce0-96b6-dd570de55259}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -549,6 +555,36 @@
     <ClInclude Include="..\src\ds\ui\sprite\gradient_sprite.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\storage\persistent_cache.h">
+      <Filter>src\ds\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_roots.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\gl\save_camera.h">
+      <Filter>src\ds\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\params\camera_params.h">
+      <Filter>src\ds\params</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\mesh.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_source.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_sphere.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_owner.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file_loader.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -901,6 +937,36 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\gradient_sprite.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\storage\persistent_cache.cpp">
+      <Filter>src\ds\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_roots.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\gl\save_camera.cpp">
+      <Filter>src\ds\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\params\camera_params.cpp">
+      <Filter>src\ds\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\mesh.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_source.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_sphere.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_owner.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file_loader.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

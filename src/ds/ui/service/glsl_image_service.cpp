@@ -4,6 +4,7 @@
 #include <cinder/ImageIo.h>
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
+#include <ds/gl/save_camera.h>
 #include "ds/ui/sprite/fbo/auto_fbo.h"
 #include "ds/ui/sprite/image.h"
 
@@ -232,8 +233,9 @@ void ImageService::renderInput(op& input) {
 	input.mImg = ci::gl::Texture(w, h);
 	if (!input.mImg) return;
 
-	ci::gl::SaveFramebufferBinding bindingSaver;
-	ds::ui::AutoFbo		afbo(mEngine, input.mImg);
+	ci::gl::SaveFramebufferBinding	bindingSaver;
+	ds::gl::SaveCamera				save_camera;
+	ds::ui::AutoFbo					afbo(mEngine, input.mImg);
 	{
 		afbo.mFbo->offsetViewport(0, 0);
 		ci::CameraOrtho camera;
@@ -253,7 +255,8 @@ void ImageService::renderInput(op& input) {
 
 		ci::gl::popMatrices();
 	}
-	mEngine.setCamera();
+	// SaveCamera should be handling this.
+//	mEngine.setCamera();
 }
 
 /* DS::LOAD-IMAGE-SERVICE::HOLDER

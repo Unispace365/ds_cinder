@@ -230,19 +230,19 @@ void App::keyDown(KeyEvent e) {
 		if (code == KeyEvent::KEY_LEFT) {
 			mEngineData.mScreenRect.x1 -= mArrowKeyCameraStep;
 			mEngineData.mScreenRect.x2 -= mArrowKeyCameraStep;
-			mEngineData.mCameraDirty = true;
+			mEngine.markCameraDirty();
 		} else if (code == KeyEvent::KEY_RIGHT) {
 			mEngineData.mScreenRect.x1 += mArrowKeyCameraStep;
 			mEngineData.mScreenRect.x2 += mArrowKeyCameraStep;
-			mEngineData.mCameraDirty = true;
+			mEngine.markCameraDirty();
 		} else if (code == KeyEvent::KEY_UP) {
 			mEngineData.mScreenRect.y1 -= mArrowKeyCameraStep;
 			mEngineData.mScreenRect.y2 -= mArrowKeyCameraStep;
-			mEngineData.mCameraDirty = true;
+			mEngine.markCameraDirty();
 		} else if (code == KeyEvent::KEY_DOWN) {
 			mEngineData.mScreenRect.y1 += mArrowKeyCameraStep;
 			mEngineData.mScreenRect.y2 += mArrowKeyCameraStep;
-			mEngineData.mCameraDirty = true;
+			mEngine.markCameraDirty();
 		}
 	}
 }

@@ -7,34 +7,39 @@
 #include <Poco/File.h>
 #include <Poco/Path.h>
 #include <Poco/String.h>
-#include "ds/util/file_meta_data.h"
 #include "ds/debug/logger.h"
+#include "ds/storage/persistent_cache.h"
+#include "ds/util/file_meta_data.h"
 
 namespace ds {
 
 namespace {
 
 // Should have universal formats somewhere
-const int				FORMAT_UNKNOWN = 0;
-const int				FORMAT_PNG = 1;
+const int					FORMAT_UNKNOWN = 0;
+const int					FORMAT_PNG = 1;
 
-int							get_format(const std::string& filename)
-{
-	const Poco::Path	path(filename);
+// Storage object
+const std::string			PATH_SZ("q");
+const std::string			WIDTH_SZ("w");
+const std::string			HEIGHT_SZ("h");
+const std::string			TIMESTAMP_SZ("ts");
+//PersistentCache				DB("ds/imagemetadata", 1, PersistentCache::FieldList().addString(PATH_SZ).addInt(WIDTH_SZ).addInt(HEIGHT_SZ).addInt(TIMESTAMP_SZ));
+
+int							get_format(const std::string& filename) {
+	const Poco::Path		path(filename);
 	std::string				ext = path.getExtension();
 	Poco::toLowerInPlace(ext);
 	if (ext == "png") return FORMAT_PNG;
 	return FORMAT_UNKNOWN;
 }
 
-bool						is_little_endian()
-{
+bool						is_little_endian() {
 	int n = 1;
 	return (*(char*)&n == 1);
 }
 
-bool						get_format_png(const std::string& filename, ci::Vec2f& outSize)
-{
+bool						get_format_png(const std::string& filename, ci::Vec2f& outSize) {
 	std::ifstream file(filename, std::ios_base::binary | std::ios_base::in);
 	if (!file.is_open() || !file) return false;
 
@@ -64,8 +69,7 @@ bool						get_format_png(const std::string& filename, ci::Vec2f& outSize)
 }
 
 // A horrible fallback when no meta info has been supplied about the image size.
-void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
-{
+void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize) {
 	try {
 		if (filename.empty()) return;
 		DS_LOG_WARNING_M("ImageFileAtts Going to load image synchronously; this will affect performance, filename: " << filename, GENERAL_LOG);

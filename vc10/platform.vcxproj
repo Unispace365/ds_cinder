@@ -35,6 +35,7 @@
     <ClInclude Include="..\src\ds\app\engine\engine_clientserver.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_data.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_io.h" />
+    <ClInclude Include="..\src\ds\app\engine\engine_roots.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_server.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_service.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_settings.h" />
@@ -71,6 +72,7 @@
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
     <ClInclude Include="..\src\ds\debug\function_exists.h" />
     <ClInclude Include="..\src\ds\debug\logger.h" />
+    <ClInclude Include="..\src\ds\gl\save_camera.h" />
     <ClInclude Include="..\src\ds\gl\uniform.h" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\math\math_func.h" />
@@ -83,6 +85,7 @@
     <ClInclude Include="..\src\ds\network\tcp_socket_sender.h" />
     <ClInclude Include="..\src\ds\network\udp_connection.h" />
     <ClInclude Include="..\src\ds\network\zmq_connection.h" />
+    <ClInclude Include="..\src\ds\params\camera_params.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
     <ClInclude Include="..\src\ds\params\update_params.h" />
     <ClInclude Include="..\src\ds\query\query_client.h" />
@@ -94,6 +97,7 @@
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
     <ClInclude Include="..\src\ds\query\sql_query_result_builder.h" />
+    <ClInclude Include="..\src\ds\storage\persistent_cache.h" />
     <ClInclude Include="..\src\ds\thread\async_queue.h" />
     <ClInclude Include="..\src\ds\thread\gl_thread.h" />
     <ClInclude Include="..\src\ds\thread\parallel_runnable.h" />
@@ -119,6 +123,11 @@
     <ClInclude Include="..\src\ds\ui\ip\ip_defs.h" />
     <ClInclude Include="..\src\ds\ui\ip\ip_function.h" />
     <ClInclude Include="..\src\ds\ui\ip\ip_function_list.h" />
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file.h" />
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file_loader.h" />
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_owner.h" />
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_source.h" />
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_sphere.h" />
     <ClInclude Include="..\src\ds\ui\service\glsl_image_service.h" />
     <ClInclude Include="..\src\ds\ui\service\load_image_service.h" />
     <ClInclude Include="..\src\ds\ui\service\render_text_service.h" />
@@ -128,6 +137,7 @@
     <ClInclude Include="..\src\ds\ui\sprite\gradient_sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\markdown.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\mesh.h" />
     <ClInclude Include="..\src\ds\ui\sprite\multiline_text.h" />
     <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h" />
     <ClInclude Include="..\src\ds\ui\sprite\shader\sprite_shader.h" />
@@ -176,6 +186,7 @@
     <ClCompile Include="..\src\ds\app\engine\engine_clientserver.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_data.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_io.cpp" />
+    <ClCompile Include="..\src\ds\app\engine\engine_roots.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_server.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_settings.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
@@ -207,6 +218,7 @@
     <ClCompile Include="..\src\ds\debug\computer_info.cpp" />
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />
+    <ClCompile Include="..\src\ds\gl\save_camera.cpp" />
     <ClCompile Include="..\src\ds\gl\uniform.cpp" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
     <ClCompile Include="..\src\ds\network\http_client.cpp" />
@@ -216,6 +228,7 @@
     <ClCompile Include="..\src\ds\network\tcp_socket_sender.cpp" />
     <ClCompile Include="..\src\ds\network\udp_connection.cpp" />
     <ClCompile Include="..\src\ds\network\zmq_connection.cpp" />
+    <ClCompile Include="..\src\ds\params\camera_params.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />
     <ClCompile Include="..\src\ds\params\update_params.cpp" />
     <ClCompile Include="..\src\ds\query\query_client.cpp" />
@@ -225,6 +238,7 @@
     <ClCompile Include="..\src\ds\query\sqlite\sqlite3.c" />
     <ClCompile Include="..\src\ds\query\sql_database.cpp" />
     <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp" />
+    <ClCompile Include="..\src\ds\storage\persistent_cache.cpp" />
     <ClCompile Include="..\src\ds\thread\gl_thread.cpp" />
     <ClCompile Include="..\src\ds\thread\runnable_client.cpp" />
     <ClCompile Include="..\src\ds\thread\work_client.cpp" />
@@ -244,6 +258,11 @@
     <ClCompile Include="..\src\ds\ui\ip\ip_defs.cpp" />
     <ClCompile Include="..\src\ds\ui\ip\ip_function.cpp" />
     <ClCompile Include="..\src\ds\ui\ip\ip_function_list.cpp" />
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file.cpp" />
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file_loader.cpp" />
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_owner.cpp" />
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_source.cpp" />
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_sphere.cpp" />
     <ClCompile Include="..\src\ds\ui\service\glsl_image_service.cpp" />
     <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp" />
     <ClCompile Include="..\src\ds\ui\service\render_text_service.cpp" />
@@ -253,6 +272,7 @@
     <ClCompile Include="..\src\ds\ui\sprite\gradient_sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\markdown.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\mesh.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\multiline_text.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\shader\sprite_shader.cpp" />

@@ -1,6 +1,7 @@
 #include "touch_manager.h"
 #include "touch_info.h"
 #include "ds/app/engine/engine.h"
+#include "ds/app/engine/engine_roots.h"
 #include "ds/math/math_defs.h"
 #include "ds/ui/sprite/util/blend.h"
 #include <cinder/System.h>
@@ -225,18 +226,7 @@ Sprite* TouchManager::getSpriteForFinger( const int fingerId ){
 }
 
 Sprite* TouchManager::getHit(const ci::Vec3f &point) {
-	for (int k=mEngine.getRootCount()-1; k>=0; --k) {
-		ui::Sprite&						root(mEngine.getRootSprite(k));
-		Sprite*								s = nullptr;
-		if (root.getPerspective()) {
-			ds::CameraPick			pick(mEngine.getPerspectiveCamera(), point, root.getWidth(), root.getHeight());
-			s = root.getPerspectiveHit(pick);
-		} else {
-			s = root.getHit(point);
-		}
-		if (s) return s;
-	}
-	return nullptr;
+	return mEngine.getHit(point);
 }
 
 ci::Vec2f TouchManager::translateMousePoint( const ci::Vec2i inputPoint ){

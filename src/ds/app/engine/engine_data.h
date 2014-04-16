@@ -35,8 +35,6 @@ public:
 	ci::Rectf				mScreenRect;
 	ci::Vec2f				mWorldSize;
 	float					mFrameRate;
-	// Used by the app to tell the engine the camera has changed
-	bool					mCameraDirty;
 
 private:
 	EngineData(const EngineData&);
