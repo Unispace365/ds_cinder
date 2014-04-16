@@ -7,7 +7,6 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
-#include "ds/ui/sprite/util/mesh_file.h"
 
 using namespace ci;
 
@@ -54,73 +53,10 @@ Mesh::Mesh(SpriteEngine& engine, const std::string& filename)
 		, ImageOwner(engine)
 {
 	init();
-	setMeshFile(filename);
-}
-
-Mesh::Mesh(SpriteEngine& engine, cinder::gl::VboMesh mesh)
-		: inherited(engine)
-		, ImageOwner(engine)
-{
-	init();
-	mVboMesh = mesh;
-}
-
-void Mesh::setMeshFile( const std::string &filename ) {
-
-	// TODO: This should be cached somewhere, or maybe just discard it? 
-	// Eric, want to implement a caching layer?
-	mMeshFile.Load( filename );
-
-	// Convert ds::ui::util::MeshFile data into cinder::TriMesh data...
-	std::vector<uint32_t> indices;
-	std::vector<Vec3f> normals;
-	std::vector<Vec3f> vertices;
-	std::vector<Vec2f> texCoords;
-
-	// Indices
-	for (int i=0; i<mMeshFile.mNumIndices; i++ )
-		indices.push_back( mMeshFile.mIndices[i] );
-
-	// Normals
-	for (int i=0; i<mMeshFile.mNumNorm; i++ ) {
-		const util::MeshFile::Vec3 &v = mMeshFile.mNorm[i];
-		normals.push_back( Vec3f( v.x, v.y, v.z ) );
-	}
-	// Vertices
-	for (int i=0; i<mMeshFile.mNumVert; i++ ) {
-		const util::MeshFile::Vec3 &v = mMeshFile.mVert[i];
-		vertices.push_back( Vec3f( v.x, v.y, v.z ) );
-	}
-	// Texture Coordinates
-	for (int i=0; i<mMeshFile.mNumTex; i++ ) {
-		const util::MeshFile::Vec2 &v = mMeshFile.mTex[i];
-		texCoords.push_back( Vec2f( v.x, v.y ) );
-	}
-
-	// Populate the TriMesh
-	cinder::TriMesh mesh;
-	if ( indices.size() > 0 ) {
-		mesh.appendIndices( &indices[ 0 ], indices.size() );
-	}
-	if ( normals.size() > 0 ) {
-		for ( auto iter = normals.begin(); iter != normals.end(); ++iter ) {
-			mesh.appendNormal( *iter );
-		}
-	}
-	if ( vertices.size() > 0 ) {
-		mesh.appendVertices( &vertices[ 0 ], vertices.size() );
-	}
-	if ( texCoords.size() > 0 ) {
-		for ( auto iter = texCoords.begin(); iter != texCoords.end(); ++iter ) {
-			mesh.appendTexCoord( *iter );
-		}
-	}
-
-	mVboMesh = cinder::gl::VboMesh( mesh );
+	setFileMesh(filename);
 }
 
 Mesh::~Mesh() {
-	mMeshFile.clear();
 }
 
 void Mesh::updateServer(const UpdateParams& up) {
@@ -137,6 +73,13 @@ void Mesh::drawLocalClient() {
 
 	const ci::gl::Texture*		tex = mImageSource.getImage();
 	if (!tex) return;
+
+	if (!mVboMesh) {
+		const ci::TriMesh*		mesh = getMesh();
+		if (!mesh) return;
+		mVboMesh = ci::gl::VboMesh(*mesh);
+		if (!mVboMesh) return;
+	}
 
 	// TODO: Not sure if this will be needed with the Perspective root sprite updates...
 	// Or if there will be some other mechanism to enable this?

@@ -118,6 +118,9 @@
     <Filter Include="src\ds\storage">
       <UniqueIdentifier>{2368de55-a922-4afc-8a0d-1314142d9f04}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\mesh_source">
+      <UniqueIdentifier>{cbc57e74-972d-4ce0-96b6-dd570de55259}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -564,11 +567,23 @@
     <ClInclude Include="..\src\ds\params\camera_params.h">
       <Filter>src\ds\params</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\util\mesh_file.h">
-      <Filter>src\ds\ui\sprite\util</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\mesh.h">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_source.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_sphere.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_owner.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file_loader.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -935,11 +950,23 @@
     <ClCompile Include="..\src\ds\params\camera_params.cpp">
       <Filter>src\ds\params</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\util\mesh_file.cpp">
-      <Filter>src\ds\ui\sprite\util</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\mesh.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_source.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_sphere.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_owner.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file_loader.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

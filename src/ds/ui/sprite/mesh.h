@@ -6,26 +6,23 @@
 #include <cinder/gl/Vbo.h>
 #include <cinder/gl/Light.h>
 #include "ds/ui/sprite/sprite.h"
-#include "ds/ui/sprite/util/mesh_file.h"
 #include "ds/ui/image_source/image_owner.h"
+#include "ds/ui/mesh_source/mesh_owner.h"
 
 namespace ds {
 namespace ui {
 
 class Mesh : public Sprite
 	       , public ImageOwner
-{
+		   , public MeshOwner {
 public:
 	static Mesh&				makeMesh(SpriteEngine&, const std::string& filename, Sprite* parent = nullptr);
 	static Mesh&				makeMesh(SpriteEngine&, const ds::Resource&, Sprite* parent = nullptr);
 
 	Mesh(SpriteEngine&);
 	Mesh(SpriteEngine&, const std::string& filename);
-	Mesh(SpriteEngine&, cinder::gl::VboMesh mesh );
 	~Mesh();
 
-	void						setMeshFile(const std::string& filename);
-	void						Mesh::onMeshChanged();
 	virtual void				updateServer(const UpdateParams&);
 	virtual void				drawLocalClient();
 	bool						isLoaded() const;
@@ -38,6 +35,7 @@ public:
 	void						setStatusCallback(const std::function<void(const Status&)>&);
 
 protected:
+	virtual void				onMeshChanged();
 	virtual void				writeAttributesTo(ds::DataBuffer&);
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
@@ -53,7 +51,6 @@ private:
 								mStatusFn;
 
 	cinder::gl::VboMesh			mVboMesh;
-	ds::ui::util::MeshFile		mMeshFile;
 
 	// Initialization
 public:
