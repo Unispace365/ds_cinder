@@ -36,7 +36,7 @@ const int Engine::NumberOfNetworkThreads = 2;
  * \class ds::Engine
  */
 Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
-				ds::EngineData& ed, const std::vector<int>* roots)
+				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
 	, mTweenline(app.timeline())
 	, mIdleTime(300.0f)
@@ -63,22 +63,20 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mIpFunctions.add(ds::ui::ip::CIRCLE_MASK, ds::ui::ip::FunctionRef(new ds::ui::ip::CircleMask()));
 
 	// Construct the root sprites
-	if (roots) {
-		sprite_id_t							id = EMPTY_SPRITE_ID-1;
-		for (auto it=roots->begin(), end=roots->end(); it != end; ++it) {
-			std::unique_ptr<EngineRoot>		root;
-			if (*it == Engine::CAMERA_ORTHO) root.reset(new OrthRoot(*this, id));
-			else if (*it == Engine::CAMERA_PERSP) root.reset(new PerspRoot(*this, id));
-			if (!root) throw std::runtime_error("Engine can't create root");
-			mRoots.push_back(std::move(root));
-			--id;
-		}
+	RootList				roots(_roots);
+	if (roots.empty()) roots.ortho();
+	sprite_id_t							id = EMPTY_SPRITE_ID-1;
+	for (auto it=roots.mRoots.begin(), end=roots.mRoots.end(); it!=end; ++it) {
+		const RootList::Root&			r(*it);
+		std::unique_ptr<EngineRoot>		root;
+		if (r.mType == r.kOrtho) root.reset(new OrthRoot(*this, id));
+		else if (r.mType == r.kPerspective) root.reset(new PerspRoot(*this, id, r.mPersp));
+		if (!root) throw std::runtime_error("Engine can't create root");
+		mRoots.push_back(std::move(root));
+		--id;
 	}
 	if (mRoots.empty()) {
-		std::unique_ptr<EngineRoot>		root;
-		root.reset(new OrthRoot(*this, EMPTY_SPRITE_ID - 1));
-		if (!root) throw std::runtime_error("Engine can't create single root");
-		mRoots.push_back(std::move(root));
+		throw std::runtime_error("Engine can't create single root");
 	}
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);

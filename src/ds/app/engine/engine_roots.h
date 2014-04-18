@@ -98,7 +98,7 @@ private:
  */
 class PerspRoot : public EngineRoot {
 public:
-	PerspRoot(Engine&, const sprite_id_t);
+	PerspRoot(Engine&, const sprite_id_t, const PerspCameraParams&);
 
 	virtual void				setup(const Settings&);
 	virtual ds::ui::Sprite*		getSprite();

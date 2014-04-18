@@ -145,7 +145,7 @@ public:
 	const ci::Rectf&					getScreenRect() const;
 
 protected:
-	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const std::vector<int>* roots);
+	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);
 
 	// Conveniences for the subclases
 	void								updateClient();

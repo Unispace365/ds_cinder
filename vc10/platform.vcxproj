@@ -150,6 +150,7 @@
     <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h" />
     <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h" />
     <ClInclude Include="..\src\ds\ui\touch\multi_touch_constraints.h" />
+    <ClInclude Include="..\src\ds\ui\touch\select_picking.h" />
     <ClInclude Include="..\src\ds\ui\touch\tap_info.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_process.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="..\lib\OGLFT\OGLFT.cpp" />
     <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
+    <ClCompile Include="..\src\ds\app\app_defs.cpp" />
     <ClCompile Include="..\src\ds\app\auto_update.cpp" />
     <ClCompile Include="..\src\ds\app\auto_update_list.cpp" />
     <ClCompile Include="..\src\ds\app\blob_reader.cpp" />
@@ -284,6 +286,7 @@
     <ClCompile Include="..\src\ds\ui\sprite\util\blend.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\select_picking.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_process.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp" />
     <ClCompile Include="..\src\ds\ui\tween\sprite_anim.cpp" />

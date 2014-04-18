@@ -109,12 +109,11 @@ void OrthRoot::setGlCamera() {
 /**
  * \class ds::PerspRoot
  */
-PerspRoot::PerspRoot(Engine& e, const sprite_id_t id)
+PerspRoot::PerspRoot(Engine& e, const sprite_id_t id, const PerspCameraParams& p)
 		: inherited(id)
 		, mEngine(e)
 		, mCameraDirty(false)
 		, mSprite(EngineRoot::make(e, id, true)) {
-	PerspCameraParams		p;
 	mCamera.setEyePoint(p.mPosition);
 	mCamera.setCenterOfInterestPoint(p.mTarget);
 	mCamera.setFov(p.mFov);

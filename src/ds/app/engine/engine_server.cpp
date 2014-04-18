@@ -19,7 +19,7 @@ const char        TERMINATOR = 0;
  * \class ds::EngineServer
  */
 EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
-							ds::EngineData& ed, const std::vector<int>* roots)
+							ds::EngineData& ed, const ds::RootList& roots)
     : inherited(app, settings, ed, roots)
     , mLoadImageService(mLoadImageThread, mIpFunctions)
     , mRenderTextService(mRenderTextThread)

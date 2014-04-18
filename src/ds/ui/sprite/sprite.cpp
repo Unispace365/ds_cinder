@@ -193,142 +193,128 @@ void Sprite::updateServer( const UpdateParams &updateParams )
   }
 }
 
-void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParams )
-{
-    if ((mSpriteFlags&VISIBLE_F) == 0)
-        return;
+void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParams ) {
+	if ((mSpriteFlags&VISIBLE_F) == 0) {
+		return;
+	}
 
-    if (!mSpriteShader.isValid()) {
-      mSpriteShader.loadShaders();
-    }
+	if (!mSpriteShader.isValid()) {
+		mSpriteShader.loadShaders();
+	}
 
-    buildTransform();
+	buildTransform();
 
-    ci::Matrix44f totalTransformation = trans*mTransformation;
+	ci::Matrix44f totalTransformation = trans*mTransformation;
 
-    ci::gl::pushModelView();
-    glLoadIdentity();
-    ci::gl::multModelView(totalTransformation);
+	ci::gl::pushModelView();
+	glLoadIdentity();
+	ci::gl::multModelView(totalTransformation);
 
-    if ((mSpriteFlags&TRANSPARENT_F) == 0) {
+	if ((mSpriteFlags&TRANSPARENT_F) == 0) {
+		ci::gl::enableAlphaBlending();
+		applyBlendingMode(mBlendMode);
+		ci::gl::GlslProg shaderBase = mSpriteShader.getShader();
+		if (shaderBase) {
+			shaderBase.bind();
+			shaderBase.uniform("tex0", 0);
+			shaderBase.uniform("useTexture", mUseShaderTexture);
+			shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+			mUniform.applyTo(shaderBase);
+		}
 
-      ci::gl::enableAlphaBlending();
-      applyBlendingMode(mBlendMode);
+		ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);
+		if (mUseDepthBuffer) {
+			ci::gl::enableDepthRead();
+			ci::gl::enableDepthWrite();
+		} else {
+			ci::gl::disableDepthRead();
+			ci::gl::disableDepthWrite();
+		}
 
-      ci::gl::GlslProg shaderBase = mSpriteShader.getShader();
+		drawLocalClient();
 
-      if (shaderBase) {
-        shaderBase.bind();
-        shaderBase.uniform("tex0", 0);
-        shaderBase.uniform("useTexture", mUseShaderTexture);
-        shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
-		mUniform.applyTo(shaderBase);
-      }
-
-      ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);
-      if (mUseDepthBuffer) {
-        ci::gl::enableDepthRead();
-        ci::gl::enableDepthWrite();
-      } else {
-        ci::gl::disableDepthRead();
-        ci::gl::disableDepthWrite();
-      }
-
-      drawLocalClient();
-
-      if (shaderBase) {
-        shaderBase.unbind();
-      }
-
-    }
+		if (shaderBase) {
+			shaderBase.unbind();
+		}
+	}
     
-    if ((mSpriteFlags&CLIP_F) != 0) {
-      const ci::Rectf&      clippingBounds = getClippingBounds();
-      enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
-    }
+	if ((mSpriteFlags&CLIP_F) != 0) {
+		const ci::Rectf&      clippingBounds = getClippingBounds();
+		enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
+	}
 
-    ci::gl::popModelView();
+	ci::gl::popModelView();
 
-    DrawParams dParams = drawParams;
-    dParams.mParentOpacity *= mOpacity;
+	DrawParams dParams = drawParams;
+	dParams.mParentOpacity *= mOpacity;
 
-      if ((mSpriteFlags&DRAW_SORTED_F) == 0)
-    {
-        for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
-        {
-            (*it)->drawClient(totalTransformation, dParams);
-        }
-    }
-    else
-    {
+	if ((mSpriteFlags&DRAW_SORTED_F) == 0) {
+		for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it ) {
+			(*it)->drawClient(totalTransformation, dParams);
+		}
+	} else {
 		makeSortedChildren();
-        for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
-        {
-            (*it)->drawClient(totalTransformation, dParams);
-        }
-    }
+		for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it ) {
+			(*it)->drawClient(totalTransformation, dParams);
+		}
+	}
 
-    if ((mSpriteFlags&CLIP_F) != 0) {
-      disableClipping();
-    }
+	if ((mSpriteFlags&CLIP_F) != 0) {
+		disableClipping();
+	}
 }
 
-void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams )
-{
-  if ((mSpriteFlags&VISIBLE_F) == 0)
-    return;
+void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams ) {
+	if ((mSpriteFlags&VISIBLE_F) == 0) {
+		return;
+	}
+	if (mId > 0) {
+		glLoadName(mId);
+	}
 
-  buildTransform();
+	buildTransform();
+	ci::Matrix44f totalTransformation = trans*mTransformation;
+	ci::gl::pushModelView();
+	//glLoadIdentity();
+	ci::gl::multModelView(totalTransformation);
 
-  ci::Matrix44f totalTransformation = trans*mTransformation;
+	if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
+		ci::gl::color(mServerColor);
+		if (mUseDepthBuffer) {
+			ci::gl::enableDepthRead();
+			ci::gl::enableDepthWrite();
+		} else {
+			ci::gl::disableDepthRead();
+			ci::gl::disableDepthWrite();
+		}
+		drawLocalServer();
+	}
 
-  ci::gl::pushModelView();
-  //glLoadIdentity();
-  ci::gl::multModelView(totalTransformation);
+	if ((mSpriteFlags&CLIP_F) != 0) {
+		const ci::Rectf&      clippingBounds = getClippingBounds();
+		enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
+	}
 
-  if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
-    ci::gl::color(mServerColor);
-    if (mUseDepthBuffer) {
-      ci::gl::enableDepthRead();
-      ci::gl::enableDepthWrite();
-    } else {
-      ci::gl::disableDepthRead();
-      ci::gl::disableDepthWrite();
-    }
-    drawLocalServer();
-  }
+	ci::gl::popModelView();
 
-  if ((mSpriteFlags&CLIP_F) != 0) {
-    const ci::Rectf&      clippingBounds = getClippingBounds();
-    enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
-  }
+	if ((mSpriteFlags&DRAW_SORTED_F) == 0) {
+		for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it ) {
+			(*it)->drawServer(totalTransformation, drawParams);
+		}
+	} else {
+		std::vector<Sprite *> mCopy = mChildren;
+		std::sort( mCopy.begin(), mCopy.end(), [](Sprite *i, Sprite *j) {
+			return i->getZLevel() < j->getZLevel();
+		});
 
-  ci::gl::popModelView();
+		for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it ) {
+			(*it)->drawServer(totalTransformation, drawParams);
+		}
+	}
 
-  if ((mSpriteFlags&DRAW_SORTED_F) == 0)
-  {
-    for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
-    {
-      (*it)->drawServer(totalTransformation, drawParams);
-    }
-  }
-  else
-  {
-    std::vector<Sprite *> mCopy = mChildren;
-    std::sort( mCopy.begin(), mCopy.end(), [](Sprite *i, Sprite *j)
-    {
-      return i->getZLevel() < j->getZLevel();
-    });
-
-    for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
-    {
-      (*it)->drawServer(totalTransformation, drawParams);
-    }
-  }
-
-  if ((mSpriteFlags&CLIP_F) != 0) {
-    disableClipping();
-  }
+	if ((mSpriteFlags&CLIP_F) != 0) {
+		disableClipping();
+	}
 }
 
 void Sprite::setPosition( float x, float y, float z ) {
