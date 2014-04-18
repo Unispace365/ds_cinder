@@ -168,6 +168,7 @@ void PerspRoot::drawServer(const DrawParams& p) {
 }
 
 ui::Sprite* PerspRoot::getHit(const ci::Vec3f& point) {
+	setGlCamera();
 	return mPicking.pickAt(point.xy(), *(mSprite.get()));
 }
 

@@ -2,16 +2,18 @@
 #ifndef DS_DRAW_PARAMS_H
 #define DS_DRAW_PARAMS_H
 
-namespace ds
-{
+namespace ds {
 
-class DrawParams
-{
-    public:
-      DrawParams();
-      float mParentOpacity;
+/**
+ * \class ds::DrawParams
+ * \brief Provided to sprites for draw()ing functions.
+ */
+class DrawParams {
+public:
+	DrawParams();
+	float mParentOpacity;
 };
 
-}
+} // namespace ds
 
-#endif//DS_DRAW_PARAMS_H
+#endif

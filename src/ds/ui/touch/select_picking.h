@@ -20,6 +20,18 @@ public:
 private:
 	static const size_t		SELECT_BUFFER_SIZE = 99999;
 	GLuint					mSelectBuffer[SELECT_BUFFER_SIZE];
+
+	class Hit {
+	public:
+		Hit();
+		Hit(const sprite_id_t, const int z);
+
+		bool				operator<(const Hit&) const;
+
+		sprite_id_t			mId;
+		int					mZ;
+	};
+	std::vector<Hit>		mHits;
 };
 
 } // namespace ds

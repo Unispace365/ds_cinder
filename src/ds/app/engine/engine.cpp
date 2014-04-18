@@ -468,24 +468,22 @@ void Engine::registerSprite(ds::ui::Sprite& s) {
 	mSprites[s.getId()] = &s;
 }
 
-void Engine::unregisterSprite(ds::ui::Sprite& s)
-{
-  if (mSprites.empty()) return;
-  if (s.getId() == ds::EMPTY_SPRITE_ID) {
-    DS_LOG_WARNING_M("Engine::unregisterSprite() on empty sprite ID", ds::ENGINE_LOG);
-    assert(false);
-    return;
-  }
-  auto it = mSprites.find(s.getId());
-  if (it != mSprites.end()) mSprites.erase(it);
+void Engine::unregisterSprite(ds::ui::Sprite& s) {
+	if (mSprites.empty()) return;
+	if (s.getId() == ds::EMPTY_SPRITE_ID) {
+		DS_LOG_WARNING_M("Engine::unregisterSprite() on empty sprite ID", ds::ENGINE_LOG);
+		assert(false);
+		return;
+	}
+	auto it = mSprites.find(s.getId());
+	if (it != mSprites.end()) mSprites.erase(it);
 }
 
-ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id)
-{
-  if (mSprites.empty()) return nullptr;
-  auto it = mSprites.find(id);
-  if (it == mSprites.end()) return nullptr;
-  return it->second;
+ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id) {
+	if (mSprites.empty()) return nullptr;
+	auto it = mSprites.find(id);
+	if (it == mSprites.end()) return nullptr;
+	return it->second;
 }
 
 void Engine::requestDeleteSprite(ds::ui::Sprite& s) {

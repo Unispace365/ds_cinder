@@ -1,16 +1,21 @@
 #include "select_picking.h"
 
+#include "ds/params/draw_params.h"
+#include "ds/ui/sprite/sprite_engine.h"
+
 namespace ds {
 
 /**
  * \class ds::SelectPicking
+ * Useful reference:
+ * http://web.engr.oregonstate.edu/~mjb/cs553/Handouts/Picking/picking.pdf
  */
 SelectPicking::SelectPicking() {
 }
 
 ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root) {
-std::cout << "SELECT!" << std::endl;
-return nullptr;
+	mHits.clear();
+
 #if 0
 	glPushAttrib( GL_VIEWPORT_BIT );
 	glViewport( 0, 0, masterWidth + mPickingOffset, masterHeight );
@@ -37,55 +42,55 @@ return nullptr;
 	glInitNames();
 	glPushName(0);
 
-//	root.drawServer();
+	ds::DrawParams			dp;
+	dp.mParentOpacity = 1.0f;
+	root.drawServer(ci::gl::getModelView(), dp);
 
 //	glPopAttrib();
 
-#if 0
 	// Process Hits
-	int numHits = glRenderMode( GL_RENDER );
-	map< int, unsigned > depthIdMap;
-	vector< int > hitIds;
-	hitIds.reserve( numHits );
-
-
-	GLuint *ptr = selectBuf;
-	for ( int i=0; i<numHits; i++ ) {
+	const int				num_hits = glRenderMode(GL_RENDER);
+	GLuint*					ptr = mSelectBuffer;
+	for (int i=0; i<num_hits; i++) {
 		int numNamesInHit = *(ptr+0);
-		unsigned z = *(ptr+1);
-		int id = numNamesInHit > 0 ? *(ptr+3) : -1;
-
-		depthIdMap[id] = z;
-		hitIds.push_back(id);
+		// There might be multiple names in this hit, but the framework
+		// only puts one on the stack, so just take the first.
+		if (numNamesInHit > 0) {
+			unsigned min_z = *(ptr+1);
+//			unsigned max_z = *(ptr+2);
+			int id = *(ptr+3);
+			mHits.push_back(Hit(id, min_z));
+		}
 
 		ptr += 3 + numNamesInHit;
 	}
 
-	std::map<int, BaseSprite*>			hitSprites;
-	masterWindow->getAllSpritesForIds(hitIds, hitSprites);
+	if (mHits.empty()) return nullptr;
 
-	// Traverse backwards through the hit list
-	BaseSprite *ret = 0;
-	for (auto it=hitIds.rbegin(), end=hitIds.rend(); it != end; ++it) {
-		BaseSprite *s = hitSprites[*it];
+	// The z value is a GL-internal representation. The item with the lowest
+	// z is closet to the user.
+	std::sort(mHits.begin(), mHits.end());
+	// Note -- taking the back. The docs say the low z is the closest, but
+	// it seems like the reverse is true, at least in the current app using this.
+//	return root.getEngine().findSprite(mHits.front().mId);
+	return root.getEngine().findSprite(mHits.back().mId);
+}
 
-		// Determine if this hit has an anscestor that is pick-by-3d
-		WindowSprite *curWindow = s->parent;
-		while( curWindow ) {
-			if ( curWindow->is3dPickingEnabled() ) {
-				return findNearestPickHit( curWindow, hitIds, depthIdMap, hitSprites); 
-			}
-			curWindow = curWindow->parent;
-		}
+/**
+ * \class ds::SelectPicking::Hit
+ */
+SelectPicking::Hit::Hit()
+		: mId(-1)
+		, mZ(0) {
+}
 
-		// No 3dPickEnabled ancestor -- return this sprite
-		ret = s;
-		break;
-	}
+SelectPicking::Hit::Hit(const sprite_id_t id , const int z)
+		: mId(id)
+		, mZ(z) {
+}
 
-	return ret;
-#endif
-return nullptr;
+bool SelectPicking::Hit::operator<(const Hit& o) const {
+	return mZ < o.mZ;
 }
 
 } // namespace ds
