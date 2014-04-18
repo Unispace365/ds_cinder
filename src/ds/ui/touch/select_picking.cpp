@@ -8,9 +8,9 @@ namespace ds {
 SelectPicking::SelectPicking() {
 }
 
-ds::ui::Sprite* SelectPicking::pickAt(	const ci::Vec2f& pt,
-										const std::function<void(void)>& draw_fn) {
-	if (!draw_fn) return nullptr;
+ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root) {
+std::cout << "SELECT!" << std::endl;
+return nullptr;
 #if 0
 	glPushAttrib( GL_VIEWPORT_BIT );
 	glViewport( 0, 0, masterWidth + mPickingOffset, masterHeight );
@@ -37,7 +37,7 @@ ds::ui::Sprite* SelectPicking::pickAt(	const ci::Vec2f& pt,
 	glInitNames();
 	glPushName(0);
 
-	draw_fn();
+//	root.drawServer();
 
 //	glPopAttrib();
 

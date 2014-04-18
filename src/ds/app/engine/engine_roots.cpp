@@ -109,11 +109,13 @@ void OrthRoot::setGlCamera() {
 /**
  * \class ds::PerspRoot
  */
-PerspRoot::PerspRoot(Engine& e, const sprite_id_t id, const PerspCameraParams& p)
+PerspRoot::PerspRoot(Engine& e, const sprite_id_t id, const PerspCameraParams& p, Picking* picking)
 		: inherited(id)
 		, mEngine(e)
 		, mCameraDirty(false)
-		, mSprite(EngineRoot::make(e, id, true)) {
+		, mSprite(EngineRoot::make(e, id, true))
+		, mOldPick(mCamera)
+		, mPicking(picking ? *picking : mOldPick) {
 	mCamera.setEyePoint(p.mPosition);
 	mCamera.setCenterOfInterestPoint(p.mTarget);
 	mCamera.setFov(p.mFov);
@@ -166,8 +168,7 @@ void PerspRoot::drawServer(const DrawParams& p) {
 }
 
 ui::Sprite* PerspRoot::getHit(const ci::Vec3f& point) {
-	ds::CameraPick			pick(mCamera, point, mSprite->getWidth(), mSprite->getHeight());
-	return mSprite->getPerspectiveHit(pick);
+	return mPicking.pickAt(point.xy(), *(mSprite.get()));
 }
 
 PerspCameraParams PerspRoot::getCamera() const {
@@ -206,6 +207,18 @@ void PerspRoot::setGlCamera() {
 	//gl::enableDepthRead();
 	//gl::enableDepthWrite();
 	//gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
+}
+
+/**
+ * \class ds::PerspRoot
+ */
+PerspRoot::OldPick::OldPick(ci::Camera& c)
+		: mCamera(c) {
+}
+
+ds::ui::Sprite* PerspRoot::OldPick::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root) {
+	ds::CameraPick			pick(mCamera, ci::Vec3f(pt.x, pt.y, 0.0f), root.getWidth(), root.getHeight());
+	return root.getPerspectiveHit(pick);
 }
 
 } // namespace ds

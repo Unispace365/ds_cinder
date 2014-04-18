@@ -4,6 +4,8 @@
 
 #include <memory>
 #include <unordered_map>
+#include <cinder/Camera.h>
+#include <cinder/gl/Fbo.h>
 #include "ds/app/app_defs.h"
 #include "ds/app/auto_update_list.h"
 #include "ds/app/blob_registry.h"
@@ -22,12 +24,11 @@
 #include "ds/cfg/settings.h"
 #include "ds/ui/ip/ip_function_list.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/ui/touch/select_picking.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/tween/tweenline.h"
-#include "cinder/Camera.h"
 #include "ds/network/zmq_connection.h"
 #include "ds/data/raw_data_buffer.h"
-#include "cinder/gl/Fbo.h"
 #include "ds/app/camera_utils.h"
 
 using namespace ci;
@@ -212,6 +213,8 @@ private:
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsBegin;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsMoved;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnd;
+
+	ds::SelectPicking					mSelectPicking;
 
 	bool								mSystemMultitouchEnabled;
 	bool								mHideMouse;

@@ -68,9 +68,11 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	sprite_id_t							id = EMPTY_SPRITE_ID-1;
 	for (auto it=roots.mRoots.begin(), end=roots.mRoots.end(); it!=end; ++it) {
 		const RootList::Root&			r(*it);
+		Picking*						picking = nullptr;
+		if (r.mPick == r.kSelect) picking = &mSelectPicking;
 		std::unique_ptr<EngineRoot>		root;
 		if (r.mType == r.kOrtho) root.reset(new OrthRoot(*this, id));
-		else if (r.mType == r.kPerspective) root.reset(new PerspRoot(*this, id, r.mPersp));
+		else if (r.mType == r.kPerspective) root.reset(new PerspRoot(*this, id, r.mPersp, picking));
 		if (!root) throw std::runtime_error("Engine can't create root");
 		mRoots.push_back(std::move(root));
 		--id;
