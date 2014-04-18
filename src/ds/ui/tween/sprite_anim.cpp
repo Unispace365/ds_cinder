@@ -72,6 +72,12 @@ void SpriteAnimatable::tweenOpacity(const float opacity, const float duration, c
 	mEngine.getTweenline().apply(mOwner, ANIM_OPACITY(), opacity, duration, ease, finishFn, delay);
 }
 
+void SpriteAnimatable::tweenPosition(const ci::Vec3f& pos, const float duration, const float delay,
+									const ci::EaseFn& ease, const std::function<void(void)>& finishFn) {
+	mAnimPosition.stop();
+	mEngine.getTweenline().apply(mOwner, ANIM_POSITION(), pos, duration, ease, finishFn, delay);
+}
+
 void SpriteAnimatable::animStop() {
 	mAnimColor.stop();
 	mAnimOpacity.stop();
