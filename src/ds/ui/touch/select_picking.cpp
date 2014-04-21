@@ -42,29 +42,6 @@ ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root)
 	gluPickMatrix(pt.x, mWorldSize.y-pt.y, 8, 8, viewport);
 	ci::gl::multProjection(m);
 
-	// Scale Model-View matrix to simulator scale
-//	glMatrixMode( GL_MODELVIEW );
-
-#if 0
-	glPushAttrib( GL_VIEWPORT_BIT );
-	glViewport( 0, 0, masterWidth + mPickingOffset, masterHeight );
-	GLint viewport[4];
-	glGetIntegerv( GL_VIEWPORT, viewport );
-	if(mPickingOffset != 0)	viewport[2] = masterWidth;
-	// Set Projection matrix to frustrum around the pick-point
-	setupSimulatorView();
-
-	GLfloat mat[16];
-	glGetFloatv( GL_PROJECTION_MATRIX, mat );
-	glMatrixMode( GL_PROJECTION );
-	glLoadIdentity();
-	gluPickMatrix( x, masterHeight-y, 8, 8, viewport );
-	glMultMatrixf( mat );
-
-	// Scale Model-View matrix to simulator scale
-	glMatrixMode( GL_MODELVIEW );
-#endif
-
 	// Set up picking buffer
 	glSelectBuffer(SELECT_BUFFER_SIZE, mSelectBuffer);
 	glRenderMode(GL_SELECT);
@@ -98,11 +75,8 @@ ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root)
 
 	// The z value is a GL-internal representation. The item with the lowest
 	// z is closet to the user.
-	std::sort(mHits.begin(), mHits.end(), [](const Hit& a, const Hit& b)->bool { return a > b; });
-	// Note -- taking the back. The docs say the low z is the closest, but
-	// it seems like the reverse is true, at least in the current app using this.
-//	return root.getEngine().findSprite(mHits.front().mId);
-	return root.getEngine().findSprite(mHits.back().mId);
+	std::sort(mHits.begin(), mHits.end());
+	return root.getEngine().findSprite(mHits.front().mId);
 }
 
 /**
@@ -116,10 +90,6 @@ SelectPicking::Hit::Hit()
 SelectPicking::Hit::Hit(const sprite_id_t id , const int z)
 		: mId(id)
 		, mZ(z) {
-}
-
-bool SelectPicking::Hit::operator>(const Hit& o) const {
-	return mZ > o.mZ;
 }
 
 bool SelectPicking::Hit::operator<(const Hit& o) const {

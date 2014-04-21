@@ -26,7 +26,6 @@ private:
 		Hit();
 		Hit(const sprite_id_t, const int z);
 
-		bool				operator>(const Hit&) const;
 		bool				operator<(const Hit&) const;
 
 		sprite_id_t			mId;
