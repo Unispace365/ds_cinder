@@ -26,8 +26,9 @@ public:
 
 	class Settings {
 	public:
-		Settings(const ci::Rectf& screen_rect, const ds::cfg::Settings& debug_settings, const float default_scale)
-				: mScreenRect(screen_rect), mDebugSettings(debug_settings), mDefaultScale(default_scale) { }
+		Settings(const ci::Vec2f& world_size, const ci::Rectf& screen_rect, const ds::cfg::Settings& debug_settings, const float default_scale)
+				: mWorldSize(world_size), mScreenRect(screen_rect), mDebugSettings(debug_settings), mDefaultScale(default_scale) { }
+		ci::Vec2f					mWorldSize;
 		ci::Rectf					mScreenRect;
 		const ds::cfg::Settings&	mDebugSettings;
 		const float					mDefaultScale;

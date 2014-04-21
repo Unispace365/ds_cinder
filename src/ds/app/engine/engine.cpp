@@ -112,11 +112,15 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
 #endif
 
-	const EngineRoot::Settings	er_settings(mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
 	}
+
+	// SETUP PICKING
+	mSelectPicking.setWorldSize(mData.mWorldSize);
+
 	// SETUP RESOURCES
 	std::string resourceLocation = settings.getText("resource_location", 0, "");
 	if (resourceLocation.empty()) {
