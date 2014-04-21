@@ -37,6 +37,11 @@ RootList& RootList::pickSelect() {
 	return *this;
 }
 
+RootList& RootList::pickColor() {
+	if (!mRoots.empty()) mRoots.back().mPick = Root::kColor;
+	return *this;
+}
+
 RootList& RootList::perspFov(const float v) {
 	if (!mRoots.empty()) mRoots.back().mPersp.mFov = v;
 	return *this;

@@ -102,6 +102,7 @@ public:
 	virtual void						unregisterSprite(ds::ui::Sprite&);
 	virtual ds::ui::Sprite*				findSprite(const ds::sprite_id_t);
 	virtual void						requestDeleteSprite(ds::ui::Sprite&);
+	virtual ci::Color8u					getUniqueColor();
 
 	tuio::Client&						getTuioClient();
 	void								mouseTouchBegin(MouseEvent, int id);
@@ -223,6 +224,7 @@ private:
 	float								mFxAASpanMax;
 	float								mFxAAReduceMul;
 	float								mFxAAReduceMin;
+	ci::Color8u							mUniqueColor;
 };
 
 // Server -> Client communication
