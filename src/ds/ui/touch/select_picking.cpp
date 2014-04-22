@@ -1,5 +1,7 @@
 #include "select_picking.h"
 
+#include <cinder/gl/gl.h>
+#include "ds/app/engine/engine_roots.h"
 #include "ds/params/draw_params.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
@@ -13,28 +15,32 @@ namespace ds {
 SelectPicking::SelectPicking() {
 }
 
+static void gluPickMatrix(double x, double y, double deltax, double deltay, int* viewport) {
+	if (deltax <= 0 || deltay <= 0) {
+		return;
+	}
+
+	ci::gl::translate(	static_cast<float>((viewport[2] - 2 * (x - viewport[0])) / deltax),
+						static_cast<float>((viewport[3] - 2 * (y - viewport[1])) / deltay),
+						0.0f);
+	ci::gl::scale(		static_cast<float>(viewport[2] / deltax),
+						static_cast<float>(viewport[3] / deltay),
+						1.0);
+}
+
 ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root) {
 	mHits.clear();
 
-#if 0
 	glPushAttrib( GL_VIEWPORT_BIT );
-	glViewport( 0, 0, masterWidth + mPickingOffset, masterHeight );
-	GLint viewport[4];
-	glGetIntegerv( GL_VIEWPORT, viewport );
-	if(mPickingOffset != 0)	viewport[2] = masterWidth;
-	// Set Projection matrix to frustrum around the pick-point
-	setupSimulatorView();
-
-	GLfloat mat[16];
-	glGetFloatv( GL_PROJECTION_MATRIX, mat );
-	glMatrixMode( GL_PROJECTION );
+//	const float		picking_offset = 0.0f;
+//	glViewport( 0, 0, static_cast<int>(mWorldSize.x + picking_offset), static_cast<int>(mWorldSize.y));
+	GLint			viewport[4];
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	ci::Matrix44f	m = ci::gl::getProjection();
+	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
-	gluPickMatrix( x, masterHeight-y, 8, 8, viewport );
-	glMultMatrixf( mat );
-
-	// Scale Model-View matrix to simulator scale
-	glMatrixMode( GL_MODELVIEW );
-#endif
+	gluPickMatrix(pt.x, mWorldSize.y-pt.y, 8, 8, viewport);
+	ci::gl::multProjection(m);
 
 	// Set up picking buffer
 	glSelectBuffer(SELECT_BUFFER_SIZE, mSelectBuffer);
@@ -46,7 +52,7 @@ ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root)
 	dp.mParentOpacity = 1.0f;
 	root.drawServer(ci::gl::getModelView(), dp);
 
-//	glPopAttrib();
+	glPopAttrib();
 
 	// Process Hits
 	const int				num_hits = glRenderMode(GL_RENDER);
@@ -70,10 +76,7 @@ ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root)
 	// The z value is a GL-internal representation. The item with the lowest
 	// z is closet to the user.
 	std::sort(mHits.begin(), mHits.end());
-	// Note -- taking the back. The docs say the low z is the closest, but
-	// it seems like the reverse is true, at least in the current app using this.
-//	return root.getEngine().findSprite(mHits.front().mId);
-	return root.getEngine().findSprite(mHits.back().mId);
+	return root.getEngine().findSprite(mHits.front().mId);
 }
 
 /**

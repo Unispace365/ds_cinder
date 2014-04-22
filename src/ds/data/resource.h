@@ -99,6 +99,9 @@ public:
 	static const int		WEB_TYPE            = 6;
 
 public:
+	// Mainly for debugging
+	static Resource			fromImage(const std::string& full_path);
+
 	Resource();
 	Resource(const Resource::Id& dbId, const int type);
 	// This should only be used for debugging, as a way to bridge

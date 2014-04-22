@@ -3,12 +3,13 @@
 #define DS_UI_MESHSOURCE_MESHSOURCE_H_
 
 #include <memory>
-#include <cinder/TriMesh.h>
+#include <cinder/gl/Vbo.h>
 
 namespace ds {
 class DataBuffer;
 
 namespace ui {
+class SpriteEngine;
 
 /**
  * \class ds::ui::MeshSource
@@ -19,28 +20,33 @@ public:
 	MeshSource();
 	virtual ~MeshSource();
 
-	bool							operator==(const MeshSource&) const;
-	bool							empty() const;
+	bool								operator==(const MeshSource&) const;
+	bool								empty() const;
 
-	const ci::TriMesh*				getMesh();
+	const ci::gl::VboMesh*				getMesh();
 
 protected:
+	// Internal maintenance
+	void								setEngine(SpriteEngine*);
+
+	friend class MeshOwner;
 	class Data {
 	public:
 		Data();
 		virtual ~Data();
-		virtual bool				isEqual(const Data&) const = 0;
-		virtual const ci::TriMesh*	getMesh() = 0;
-
+		virtual bool					isEqual(const Data&) const = 0;
+		virtual const ci::gl::VboMesh*	getMesh() = 0;
+		// If a subclass needs the engine, then handle this.
+		virtual void					setEngine(SpriteEngine*);
 		// Network replication
 #if 0
-		virtual char				getBlobType() const = 0;
-		virtual void				writeTo(DataBuffer&) const = 0;
-		virtual bool				readFrom(DataBuffer&) = 0;
+		virtual char					getBlobType() const = 0;
+		virtual void					writeTo(DataBuffer&) const = 0;
+		virtual bool					readFrom(DataBuffer&) = 0;
 #endif
 	};
 	MeshSource(const std::shared_ptr<Data>&);
-	std::shared_ptr<Data>			mData;
+	std::shared_ptr<Data>				mData;
 };
 
 } // namespace ui

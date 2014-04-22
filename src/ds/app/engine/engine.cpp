@@ -54,6 +54,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
 	, mSystemMultitouchEnabled(false)
 	, mApplyFxAA(false)
+	, mUniqueColor(0, 0, 0)
 {
 	mRequestDelete.reserve(32);
 
@@ -111,11 +112,15 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
 #endif
 
-	const EngineRoot::Settings	er_settings(mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
 	}
+
+	// SETUP PICKING
+	mSelectPicking.setWorldSize(mData.mWorldSize);
+
 	// SETUP RESOURCES
 	std::string resourceLocation = settings.getText("resource_location", 0, "");
 	if (resourceLocation.empty()) {
@@ -491,6 +496,15 @@ void Engine::requestDeleteSprite(ds::ui::Sprite& s) {
 		mRequestDelete.push_back(s.getId());
 	} catch (std::exception const&) {
 	}
+}
+
+ci::Color8u Engine::getUniqueColor() {
+	int32_t			i = (mUniqueColor.r << 16) | (mUniqueColor.g << 8) | mUniqueColor.b;
+	++i;
+	mUniqueColor.r = (i>>16)&0xff;
+	mUniqueColor.g = (i>>8)&0xff;
+	mUniqueColor.b = (i)&0xff;
+	return mUniqueColor;
 }
 
 void Engine::touchesBegin(TouchEvent e) {

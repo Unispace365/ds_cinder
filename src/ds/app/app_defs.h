@@ -37,6 +37,8 @@ public:
 	// SET ROOT PARAMETERS. All of these apply to the currently active root.
 	// Use OpenGL SELECT for picking.
 	RootList&						pickSelect();
+	// Use unique colour rendering for picking.
+	RootList&						pickColor();
 	
 	RootList&						perspFov(const float);
 	RootList&						perspPosition(const ci::Vec3f&);
@@ -53,7 +55,7 @@ private:
 
 		enum Type					{ kOrtho, kPerspective };
 		Type						mType;
-		enum Pick					{ kDefault, kSelect };
+		enum Pick					{ kDefault, kSelect, kColor };
 		Pick						mPick;
 		PerspCameraParams			mPersp;
 	};

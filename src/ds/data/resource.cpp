@@ -7,6 +7,7 @@
 #include "ds/data/data_buffer.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/query/query_client.h"
+#include "ds/util/image_meta_data.h"
 
 namespace {
 const std::string		FONT_TYPE_SZ("f");
@@ -233,6 +234,16 @@ void Resource::Id::setupCustomPaths( const std::function<const std::string&(cons
 /**
  * ds::Resource
  */
+Resource Resource::fromImage(const std::string& full_path) {
+	Resource		r;
+	r.mType = IMAGE_TYPE;
+	r.mDebugFileName = full_path;
+	ImageMetaData	meta(full_path);
+	r.mWidth = meta.mSize.x;
+	r.mHeight = meta.mSize.y;
+	return r;
+}
+
 Resource::Resource()
 	: mType(ERROR_TYPE)
 	, mDuration(0)
@@ -263,19 +274,16 @@ Resource::Resource(const std::string& fullPath, const int type)
 {
 }
 
-bool Resource::operator==(const Resource& o) const
-{
+bool Resource::operator==(const Resource& o) const {
 	if (mDebugFileName != o.mDebugFileName) return false;
 	return mDbId == o.mDbId && mType == o.mType && mDuration == o.mDuration && mWidth == o.mWidth && mHeight == o.mHeight && mFileName == o.mFileName && mPath == o.mPath;
 }
 
-bool Resource::operator!=(const Resource& o) const
-{
+bool Resource::operator!=(const Resource& o) const {
 	return (!(*this == o));
 }
 
-const std::wstring& Resource::getTypeName() const
-{
+const std::wstring& Resource::getTypeName() const {
 	if (mType == FONT_TYPE) return FONT_NAME_SZ;
 	else if (mType == IMAGE_TYPE) return IMAGE_NAME_SZ;
 	else if (mType == IMAGE_SEQUENCE_TYPE) return IMAGE_SEQUENCE_NAME_SZ;
@@ -285,8 +293,7 @@ const std::wstring& Resource::getTypeName() const
 	return ERROR_NAME_SZ;
 }
 
-std::string Resource::getAbsoluteFilePath() const
-{
+std::string Resource::getAbsoluteFilePath() const {
 	if (!mDebugFileName.empty()) return mDebugFileName;
 
 	if (mFileName.empty()) return EMPTY_SZ;
@@ -297,8 +304,7 @@ std::string Resource::getAbsoluteFilePath() const
 	return p.toString();
 }
 
-void Resource::clear()
-{
+void Resource::clear() {
 	mDbId.clear();
 	mType = ERROR_TYPE;
 	mDuration = 0.0;
@@ -316,8 +322,7 @@ bool Resource::empty() const {
 	return mDbId.empty();
 }
 
-void Resource::swap(Resource& r)
-{
+void Resource::swap(Resource& r) {
 	mDbId.swap(r.mDbId);
 	std::swap(mType, r.mType);
 	std::swap(mDuration, r.mDuration);
@@ -329,18 +334,15 @@ void Resource::swap(Resource& r)
 	mDebugFileName.swap(r.mDebugFileName);
 }
 
-void Resource::setDbId(const Resource::Id& id)
-{
+void Resource::setDbId(const Resource::Id& id) {
 	mDbId = id;
 }
 
-void Resource::setType(const int type)
-{
+void Resource::setType(const int type) {
 	mType = type;
 }
 
-bool Resource::existsInDb() const
-{
+bool Resource::existsInDb() const {
 return false;
 #if 0
 	static const std::string		SELECT("SELECT resourcesid FROM Resources WHERE resourcesid = ");
@@ -352,8 +354,7 @@ return false;
 #endif
 }
 
-bool Resource::query(const Resource::Id& id)
-{
+bool Resource::query(const Resource::Id& id) {
 	const std::string&          dbPath = id.getDatabasePath();
 	if (dbPath.empty()) return false;
 
@@ -382,8 +383,7 @@ bool Resource::query(const Resource::Id& id)
 	return true;
 }
 
-bool Resource::query(const Resource::Id& id, Resource* outThumb)
-{
+bool Resource::query(const Resource::Id& id, Resource* outThumb) {
 	const bool		ans = query(id);
 	if (ans && mThumbnailId > 0 && outThumb) {
 		ds::Resource::Id	tid(mDbId);
@@ -393,8 +393,7 @@ bool Resource::query(const Resource::Id& id, Resource* outThumb)
 	return ans;
 }
 
-void Resource::setTypeFromString(const std::string& typeChar)
-{
+void Resource::setTypeFromString(const std::string& typeChar) {
 	if (FONT_TYPE_SZ == typeChar) mType = FONT_TYPE;
 	else if (IMAGE_TYPE_SZ == typeChar) mType = IMAGE_TYPE;
 	else if (IMAGE_SEQUENCE_TYPE_SZ == typeChar) mType = IMAGE_SEQUENCE_TYPE;
@@ -403,7 +402,6 @@ void Resource::setTypeFromString(const std::string& typeChar)
 	else if (WEB_TYPE_SZ == typeChar) mType = WEB_TYPE;
 	else mType = ERROR_TYPE;
 }
-
 
 } // namespace ds
 

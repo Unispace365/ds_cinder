@@ -203,9 +203,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
 	}
 
 	buildTransform();
-
 	ci::Matrix44f totalTransformation = trans*mTransformation;
-
 	ci::gl::pushModelView();
 	glLoadIdentity();
 	ci::gl::multModelView(totalTransformation);
@@ -275,7 +273,7 @@ void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParam
 	buildTransform();
 	ci::Matrix44f totalTransformation = trans*mTransformation;
 	ci::gl::pushModelView();
-	//glLoadIdentity();
+	glLoadIdentity();
 	ci::gl::multModelView(totalTransformation);
 
 	if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {

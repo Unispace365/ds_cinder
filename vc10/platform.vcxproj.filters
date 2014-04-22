@@ -591,6 +591,9 @@
     <ClInclude Include="..\src\ds\ui\touch\picking.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_cache_service.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -982,6 +985,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\picking.cpp">
       <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_cache_service.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -123,6 +123,7 @@
     <ClInclude Include="..\src\ds\ui\ip\ip_defs.h" />
     <ClInclude Include="..\src\ds\ui\ip\ip_function.h" />
     <ClInclude Include="..\src\ds\ui\ip\ip_function_list.h" />
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_cache_service.h" />
     <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file.h" />
     <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file_loader.h" />
     <ClInclude Include="..\src\ds\ui\mesh_source\mesh_owner.h" />
@@ -261,6 +262,7 @@
     <ClCompile Include="..\src\ds\ui\ip\ip_defs.cpp" />
     <ClCompile Include="..\src\ds\ui\ip\ip_function.cpp" />
     <ClCompile Include="..\src\ds\ui\ip\ip_function_list.cpp" />
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_cache_service.cpp" />
     <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file.cpp" />
     <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file_loader.cpp" />
     <ClCompile Include="..\src\ds\ui\mesh_source\mesh_owner.cpp" />

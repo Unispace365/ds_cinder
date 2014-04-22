@@ -44,14 +44,14 @@ Mesh& Mesh::makeMesh(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
 Mesh::Mesh(SpriteEngine& engine)
 		: inherited(engine)
 		, ImageOwner(engine)
-{
+		, MeshOwner(engine) {
 	init();
 }
 
 Mesh::Mesh(SpriteEngine& engine, const std::string& filename)
 		: inherited(engine)
 		, ImageOwner(engine)
-{
+		, MeshOwner(engine) {
 	init();
 	setFileMesh(filename);
 }
@@ -75,9 +75,9 @@ void Mesh::drawLocalClient() {
 	if (!tex) return;
 
 	if (!mVboMesh) {
-		const ci::TriMesh*		mesh = getMesh();
+		const ci::gl::VboMesh*	mesh = getMesh();
 		if (!mesh) return;
-		mVboMesh = ci::gl::VboMesh(*mesh);
+		mVboMesh = *mesh;
 		if (!mVboMesh) return;
 	}
 
