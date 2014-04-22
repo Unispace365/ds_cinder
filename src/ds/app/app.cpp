@@ -18,6 +18,8 @@
 #include "ds/ui/image_source/image_file.h"
 #include "ds/ui/image_source/image_glsl.h"
 #include "ds/ui/image_source/image_resource.h"
+// For installing mesh caches
+#include "ds/ui/mesh_source/mesh_cache_service.h"
 // For installing the framework services
 #include "ds/ui/service/glsl_image_service.h"
 // For verifying that the resources are installed
@@ -94,6 +96,7 @@ App::App(const RootList& roots)
 
 	// Install the framework services
 	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService(mEngine)));
+	mEngine.addService(ds::MESH_CACHE_SERVICE_NAME, *(new ds::MeshCacheService()));
 
 	if (mArrowKeyCameraControl) {
 		// Currently this is necessary for the keyboard commands

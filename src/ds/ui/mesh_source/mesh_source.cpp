@@ -27,9 +27,13 @@ bool MeshSource::empty() const {
 	return !mData;
 }
 
-const ci::TriMesh* MeshSource::getMesh() {
+const ci::gl::VboMesh* MeshSource::getMesh() {
 	if (!mData) return nullptr;
 	return mData->getMesh();
+}
+
+void MeshSource::setEngine(SpriteEngine* e) {
+	if (mData) mData->setEngine(e);
 }
 
 /**
@@ -39,6 +43,9 @@ MeshSource::Data::Data() {
 }
 
 MeshSource::Data::~Data() {
+}
+
+void MeshSource::Data::setEngine(SpriteEngine*) {
 }
 
 } // namespace ui

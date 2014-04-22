@@ -9,13 +9,16 @@ namespace ui {
 /**
  * \class ds::ui::MeshOwner
  */
-MeshOwner::MeshOwner() {
+MeshOwner::MeshOwner(SpriteEngine& e)
+		: mEngineForMesh(e) {
 }
 
 void MeshOwner::setMesh(const MeshSource& src) {
 	if (mMeshSource == src) return;
 
+	mMeshSource.setEngine(nullptr);
 	mMeshSource = src;
+	mMeshSource.setEngine(&mEngineForMesh);
 	onMeshChanged();
 }
 
@@ -23,7 +26,7 @@ void MeshOwner::clearMesh() {
 	setMesh(MeshSource());
 }
 
-const ci::TriMesh* MeshOwner::getMesh() {
+const ci::gl::VboMesh* MeshOwner::getMesh() {
 	return mMeshSource.getMesh();
 }
 

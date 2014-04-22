@@ -7,27 +7,34 @@ namespace ui {
 class MeshFile::FileData : public MeshSource::Data {
 public:
 	FileData(const std::string& filename)
-			: mFilename(filename)
+			: mEngine(nullptr)
+			, mFilename(filename)
 			, mMeshBuilt(false) {
 	}
 
-	virtual bool				isEqual(const Data& o) const {
+	virtual bool					isEqual(const Data& o) const {
 		const FileData*	ds = dynamic_cast<const FileData*>(&o);
 		if (!ds) return false;
 		return mFilename == ds->mFilename;
 	}
 
-	virtual const ci::TriMesh*	getMesh() {
+	virtual const ci::gl::VboMesh*	getMesh() {
 		if (!mMeshBuilt) buildMesh();
 		if (mMesh.getNumIndices() < 1) return nullptr;
 		return &mMesh;
 	}
 
+	virtual void					setEngine(SpriteEngine* e) {
+		mEngine = e;
+	}
+
 private:
 	void						buildMesh() {
 		mMeshBuilt = true;
-		mMesh.clear();
-
+		mMesh = ci::gl::VboMesh();
+		
+		ci::TriMesh							mesh;
+	
 		ds::ui::util::MeshFileLoader		loader;
 
 		// TODO: This should be cached somewhere, or maybe just discard it? 
@@ -59,27 +66,29 @@ private:
 
 		// Populate the TriMesh
 		if ( indices.size() > 0 ) {
-			mMesh.appendIndices( &indices[ 0 ], indices.size() );
+			mesh.appendIndices( &indices[ 0 ], indices.size() );
 		}
 		if ( normals.size() > 0 ) {
 			for ( auto iter = normals.begin(); iter != normals.end(); ++iter ) {
-				mMesh.appendNormal( *iter );
+				mesh.appendNormal( *iter );
 			}
 		}
 		if ( vertices.size() > 0 ) {
-			mMesh.appendVertices( &vertices[ 0 ], vertices.size() );
+			mesh.appendVertices( &vertices[ 0 ], vertices.size() );
 		}
 		if ( texCoords.size() > 0 ) {
 			for ( auto iter = texCoords.begin(); iter != texCoords.end(); ++iter ) {
-				mMesh.appendTexCoord( *iter );
+				mesh.appendTexCoord( *iter );
 			}
 		}
+		mMesh = ci::gl::VboMesh(mesh);
 	}
 
-	std::string			mFilename;
+	ds::ui::SpriteEngine*	mEngine;
+	std::string				mFilename;
 	// Building
-	ci::TriMesh			mMesh;
-	bool				mMeshBuilt;
+	ci::gl::VboMesh			mMesh;
+	bool					mMeshBuilt;
 };
 
 /**
