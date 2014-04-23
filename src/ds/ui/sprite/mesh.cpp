@@ -92,6 +92,10 @@ void Mesh::drawLocalClient() {
 	tex->unbind();
 }
 
+void Mesh::drawLocalServer() {
+	drawLocalClient();
+}
+
 bool Mesh::isLoaded() const {
 	return mStatus.mCode == Status::STATUS_LOADED;
 }
