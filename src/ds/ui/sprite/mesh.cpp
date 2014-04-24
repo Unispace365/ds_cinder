@@ -83,6 +83,9 @@ void Mesh::drawLocalClient() {
 
 	// TODO: Not sure if this will be needed with the Perspective root sprite updates...
 	// Or if there will be some other mechanism to enable this?
+	// It's set in the root, but unfortunately necessary right now because every sprite
+	// sets (or unsets) the depth buffer in its draw, which I don't think is how that
+	// should be done (but maybe, what do I know).
 	ci::gl::enableDepthRead();
 	ci::gl::enableDepthWrite();
 
