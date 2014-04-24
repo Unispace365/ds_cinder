@@ -105,6 +105,10 @@ public:
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void					translateTouchPoint( ci::Vec2f& inOutPoint ) = 0;
 
+	// Get the sprite at the global touch point. NOTE: performance intensive. Use carefully.
+	virtual ds::ui::Sprite*			getHit(const ci::Vec3f& point) = 0;
+
+
 	static const int				CLIENT_MODE = 0;
 	static const int				SERVER_MODE = 1;
 	static const int				CLIENTSERVER_MODE = 2;

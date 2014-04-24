@@ -120,6 +120,7 @@ public:
 
 private:
 	void							setGlCamera();
+	void							drawFunc(const std::function<void(void)>& fn);
 
 	typedef EngineRoot				inherited;
 	PerspRoot(const PerspRoot&);

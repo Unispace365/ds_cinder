@@ -25,6 +25,7 @@ public:
 
 	virtual void				updateServer(const UpdateParams&);
 	virtual void				drawLocalClient();
+	virtual void				drawLocalServer();
 	bool						isLoaded() const;
 
 	struct Status {
