@@ -24,6 +24,7 @@ namespace ui {
  */
 class GstVideo : public Sprite {
 public:
+	static GstVideo&	makeVideo(SpriteEngine&, Sprite* parent = nullptr);
 	GstVideo(SpriteEngine&);
 	~GstVideo();
 	void				setAlphaMode(bool isTransparent);// set this before loading a video
@@ -33,7 +34,10 @@ public:
 
 	GstVideo&			loadVideo( const std::string &filename);
 	GstVideo&			setResourceId(const ds::Resource::Id &resourceId);
-	void				unloadVideo();
+	// If clear frame is true then the current frame texture is removed. I
+	// would think this should default to true but I'm maintaining compatibility
+	// with existing behaviour.
+	void				unloadVideo(const bool clearFrame = false);
 
 	// Setup
 	void				setLooping(const bool on);

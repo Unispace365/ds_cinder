@@ -17,6 +17,7 @@ namespace ui {
  */
 class Pdf : public ds::ui::Sprite {
 public:
+	static Pdf&					makePdf(SpriteEngine&, Sprite* parent = nullptr);
 	// Constant size will cause the sprite to size itself to the first PDF
 	// and scale all subsequent PDF pages to match.
 	// Auto resize will cause the view to resize when the page size changes.
