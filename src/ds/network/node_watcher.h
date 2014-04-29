@@ -39,30 +39,31 @@ public:
 	void							add(const std::function<void(const Message&)>&);
 
 protected:
-	virtual void      update(const ds::UpdateParams &);
+	virtual void					update(const ds::UpdateParams &);
 
 private:
 	class Loop : public Poco::Runnable {
 	public:
 		Poco::Mutex					mMutex;
-		bool						    mAbort;
-		Message						  mMsg;
+		bool						mAbort;
+		Message						mMsg;
 
 	public:
-		Loop(const std::string& host, const int port);
+		Loop(ds::ui::SpriteEngine&, const std::string& host, const int port);
 
 		virtual void				run();
 
 	private:
-		const std::string		mHost;
-		const int           mPort;
+		const std::string			mHost;
+		const int					mPort;
+		const long					mRefreshRateMs;	// in milliseconds
 	};
 
-	Poco::Thread          mThread;
-	Loop                  mLoop;
+	Poco::Thread					mThread;
+	Loop							mLoop;
 	std::vector<std::function<void(const Message&)>>
-	                      mListener;
-	Message               mMsg;
+									mListener;
+	Message							mMsg;
 };
 
 } // namespace ds
