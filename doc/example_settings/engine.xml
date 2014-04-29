@@ -1,6 +1,6 @@
 <settings>
 	<!-- Project path for locating app resources  -->
-	<text name="project_path" value="surrey\pdf" />
+	<text name="project_path" value="downstream\example" />
 	
 	<!---------------------->
 	<!-- SERVER SETTINGS --->
@@ -90,7 +90,6 @@
 	
 	<!-- How far a touch moves before it's not a tap, in pixels -->
 	<float name="tap_threshold" value="20" />
-
 	
 	<!----------------------->
 	<!-- RESOURCE SETTINGS -->
@@ -99,5 +98,10 @@
 	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\northeastern\" />
 	<text name="resource_db" value="db\northeastern.sqlite" />
 
+	<!---------------------->
+	<!-- NETWORK SETTINGS -->
+	<!---------------------->
+	<!-- Seconds delay between checking the node for new messages. -->
+	<float name="node:refresh_rate" value="0.1" />
 
 </settings>
