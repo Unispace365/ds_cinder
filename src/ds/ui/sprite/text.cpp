@@ -521,19 +521,15 @@ void Text::calculateFrame(const int flags)
   inherited::setSizeAll(w, h, mDepth);
 }
 
-void Text::drawIntoFbo()
-{
-  //clock_t start = clock();
+void Text::drawIntoFbo() {
+	mTexture.reset();
+	if (!mFont) return;
 
-  mTexture.reset();
+	auto& lines = mLayout.getLines();
+	if (lines.empty()) return;
 
-  if (!mFont) return;
-
-  auto& lines = mLayout.getLines();
-  if (lines.empty()) return;
-
-  if (mNeedRedrawing) {
-	ds::gl::SaveCamera		save_camera;
+	if (mNeedRedrawing) {
+		ds::gl::SaveCamera		save_camera;
 #ifdef TEXT_RENDER_ASYNC
 	int		code = 0;
 	if (mTextString == L"2010") code = 2010;
@@ -547,64 +543,62 @@ void Text::drawIntoFbo()
 std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
 	mRenderClient.start(mEngine.getFonts().getFileNameFromName(mFontFileName), mFontSize, mShared, code);
 #endif
-    mNeedRedrawing = false;
+		mNeedRedrawing = false;
 		// XXX I noticed some fonts were getting the bottom right row of pixels
 		// chopped off, so I did this, although realistically, it probably means
 		// the actual w/h of the sprite should be increased, not just the texture.
-    const int w = (int)ceilf(getWidth()) + 1;
-    const int h = (int)ceilf(getHeight()) + 1;
+		const int w = (int)ceilf(getWidth()) + 1;
+		const int h = (int)ceilf(getHeight()) + 1;
+		if (w < 1 || h < 1) {
+			return;
+		}
 
-    if (w < 1 || h < 1){
-      return;
+		if (!mTexture || mTexture.getWidth() < w || mTexture.getHeight() < h) {
+			ci::gl::Texture::Format format;
+			format.setTarget(GL_TEXTURE_2D);
+			//format.setMagFilter(GL_NEAREST);
+			mTexture = ci::gl::Texture(w, h, format);
+		}
+
+		ci::gl::enableAlphaBlending();
+		applyBlendingMode(LIGHTEN);
+		{
+			ci::gl::SaveFramebufferBinding bindingSaver;
+			std::unique_ptr<ds::ui::FboGeneral> fbo = std::move(mEngine.getFbo());
+			fbo->attach(mTexture, true);
+			fbo->begin();
+
+//			glLoadIdentity();
+			ci::Area fboBounds(0, 0, fbo->getWidth(), fbo->getHeight());
+			ci::gl::setViewport(fboBounds);
+			ci::CameraOrtho camera;
+			camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
+			ci::gl::setMatrices(camera);
+
+			ci::gl::clear(ColorA(1.0f, 1.0f, 1.0f, 0.0f));
+			ci::gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+
+			mFont->setForegroundColor( 1.0f, 1.0f, 1.0f, 0.99f );
+			mFont->setBackgroundColor( 1.0f, 1.0f, 1.0f, 0.0f );
+			//std::cout << "Size: " << lines.size() << std::endl;
+			const float						height = mFont->pointSize();
+			for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
+				const TextLayout::Line&		line(*it);
+				//mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
+				OGLFT::BBox box = mFont->measureRaw(line.mText);
+
+				// Make sure textures are disabled, or else I can end up not
+				// drawing and it can be very difficult to know why.
+				ci::gl::BoolState	tex_2d_state(GL_TEXTURE_2D);
+				glDisable(GL_TEXTURE_2D);
+				mFont->draw(line.mPos.x+mBorder.x1 - box.x_min_, line.mPos.y+mBorder.y1 + height, line.mText);
+			}
+
+			fbo->end();
+			fbo->detach();
+			mEngine.giveBackFbo(std::move(fbo));
+		}
 	}
-
-    if (!mTexture || mTexture.getWidth() < w || mTexture.getHeight() < h) {
-      ci::gl::Texture::Format format;
-      format.setTarget(GL_TEXTURE_2D);
-      //format.setMagFilter(GL_NEAREST);
-      mTexture = ci::gl::Texture(w, h, format);
-    }
-
-    ci::gl::enableAlphaBlending();
-    applyBlendingMode(LIGHTEN);
-    {
-      ci::gl::SaveFramebufferBinding bindingSaver;
-
-      std::unique_ptr<ds::ui::FboGeneral> fbo = std::move(mEngine.getFbo());
-      fbo->attach(mTexture, true);
-      fbo->begin();
-
-      ci::Area fboBounds(0, 0, fbo->getWidth(), fbo->getHeight());
-      ci::gl::setViewport(fboBounds);
-      ci::CameraOrtho camera;
-      camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
-
-      ci::gl::setMatrices(camera);
-
-
-      ci::gl::clear(ColorA(1.0f, 1.0f, 1.0f, 0.0f));
-      ci::gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
-
-      mFont->setForegroundColor( 1.0f, 1.0f, 1.0f, 0.99f );
-      mFont->setBackgroundColor( 1.0f, 1.0f, 1.0f, 0.0f );
-      //std::cout << "Size: " << lines.size() << std::endl;
-      float height = mFont->pointSize();
-      for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
-        const TextLayout::Line&   line(*it);
-        //mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
-        OGLFT::BBox box = mFont->measureRaw(line.mText);
-        mFont->draw(line.mPos.x+mBorder.x1 - box.x_min_, line.mPos.y+mBorder.y1 + height, line.mText);
-      }
-
-      fbo->end();
-      fbo->detach();
-      mEngine.giveBackFbo(std::move(fbo));
-    }
-	// handled by SaveCamera now
-//    mEngine.setCamera();
-  }
-  
-  //std::cout << "time taken: " << (double)(clock() - start) / CLOCKS_PER_SEC << std::endl;
 }
 
 float Text::getLeading() const

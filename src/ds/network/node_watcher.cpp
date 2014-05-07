@@ -101,7 +101,7 @@ void NodeWatcher::Loop::run() {
 		{
 			try {
 				std::string		msg(buf, length);
-				DS_DBG_CODE(std::cout << "DsNode watcher receive: " << msg << std::endl);
+//				DS_DBG_CODE(std::cout << "DsNode watcher receive: " << msg << std::endl);
 				Poco::Mutex::ScopedLock	l(mMutex);
 				mMsg.mData.push_back(msg);
 			} catch (std::exception&) {
