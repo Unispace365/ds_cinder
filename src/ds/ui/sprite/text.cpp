@@ -324,10 +324,12 @@ bool Text::hasText() const
 	return !mTextString.empty();
 }
 
+#if 0
 void Text::setAlignment( int alignment )
 {
 // This will be handled in a layout
 }
+#endif
 
 Text& Text::setBorder(const ci::Rectf& r)
 {

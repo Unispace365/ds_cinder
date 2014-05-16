@@ -56,7 +56,8 @@ class Text: public Sprite
         virtual void              setSizeAll( float width, float height, float depth );
         virtual float             getWidth() const;
         virtual float             getHeight() const;
-        void                      setAlignment( int alignment );
+		// This got messed up -- it's only implemented in the multiline subclass.
+//        void                      setAlignment( int alignment );
         Text&                     setBorder(const ci::Rectf&);
         virtual void              updateClient(const UpdateParams &updateParams);
         virtual void              updateServer(const UpdateParams&);
