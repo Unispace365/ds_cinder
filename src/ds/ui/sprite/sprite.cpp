@@ -1660,12 +1660,12 @@ ds::ui::SpriteShader &Sprite::getBaseShader()
 
 float Sprite::getScaleWidth() const
 {
-  return mScale.x * mWidth;
+  return mScale.x * getWidth();
 }
 
 float Sprite::getScaleHeight() const
 {
-  return mScale.y * mHeight;
+  return mScale.y * getHeight();
 }
 
 float Sprite::getScaleDepth() const
