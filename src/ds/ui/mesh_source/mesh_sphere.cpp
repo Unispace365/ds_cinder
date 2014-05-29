@@ -58,7 +58,7 @@ ci::TriMesh createSphere(float radius, int x_res, int y_res) {
 			float y = radius * cinder::math<float>::cos( phi );
 			cinder::Vec3f position( x, y, z );
 			cinder::Vec3f normal = position.normalized();
-			cinder::Vec2f texCoord = cinder::Vec2f( (float)t/(float)(x_res), (float)p/(float)(y_res-1) );
+			cinder::Vec2f texCoord = cinder::Vec2f( (float)t/(float)(x_res), (float)p/(float)y_res );
 
 			normals.push_back( normal );
 			positions.push_back( position );
