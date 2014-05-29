@@ -160,6 +160,7 @@ Sprite::~Sprite() {
 //    remove();
 
 	for (auto it=mChildren.begin(), end=mChildren.end(); it!=end; ++it) {
+		(*it)->mParent = nullptr;
 		delete (*it);
 	}
 	mChildren.clear();
@@ -1569,60 +1570,50 @@ void Sprite::markClippingDirty()
   }
 }
 
-void Sprite::makeSortedChildren()
-{
+void Sprite::makeSortedChildren() {
 	mSortedTmp = mChildren;
-	std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j)
-	{
+	std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j) {
 		return i->getPosition().z < j->getPosition().z;
 	});
 }
 
-void Sprite::setSecondBeforeIdle( const double idleTime )
-{
-  mIdleTimer.setSecondBeforeIdle(idleTime);
+void Sprite::setSecondBeforeIdle( const double idleTime ) {
+	mIdleTimer.setSecondBeforeIdle(idleTime);
 }
 
-double Sprite::secondsToIdle() const
-{
-  return mIdleTimer.secondsToIdle();
+double Sprite::secondsToIdle() const {
+	return mIdleTimer.secondsToIdle();
 }
 
-bool Sprite::isIdling() const
-{
-  return mIdleTimer.isIdling();
+bool Sprite::isIdling() const {
+	return mIdleTimer.isIdling();
 }
 
-void Sprite::startIdling()
-{
-  mIdleTimer.startIdling();
+void Sprite::startIdling() {
+	mIdleTimer.startIdling();
 }
 
-void Sprite::resetIdleTimer()
-{
-  mIdleTimer.resetIdleTimer();
+void Sprite::resetIdleTimer() {
+	mIdleTimer.resetIdleTimer();
 }
 
-void Sprite::clear()
-{
-  mIdleTimer.clear();
+void Sprite::clear() {
+	mIdleTimer.clear();
 }
 
-void Sprite::markTreeAsDirty()
-{
-  markAsDirty(ds::BitMask::newFilled());
-  markChildrenAsDirty(ds::BitMask::newFilled());
+void Sprite::markTreeAsDirty() {
+	markAsDirty(ds::BitMask::newFilled());
+	markChildrenAsDirty(ds::BitMask::newFilled());
 }
 
-void Sprite::userInputReceived()
-{
-  if (mParent)
-    mParent->userInputReceived();
-  resetIdleTimer();
+void Sprite::userInputReceived() {
+	if (mParent) {
+		mParent->userInputReceived();
+	}
+	resetIdleTimer();
 }
 
-void Sprite::sendSpriteToFront( Sprite &sprite )
-{
+void Sprite::sendSpriteToFront( Sprite &sprite ) {
   if (!containsChild(&sprite))
     return;
 

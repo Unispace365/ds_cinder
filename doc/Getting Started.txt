@@ -35,3 +35,6 @@ Copying ZMQ
 
 4.
 For using markdown. add AWESOMIUM to the dscinder defines and it will compile the awesomium stuff in. Then copy the files in the "for_markdown" folder to there correct locations.
+
+5.
+To compile with GSTREAMER, install Gstreamer 1.2.3 runtime and development files available from the gstreamer site. Use the x86, not x64 versions.
