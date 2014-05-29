@@ -160,6 +160,7 @@ Sprite::~Sprite() {
 //    remove();
 
 	for (auto it=mChildren.begin(), end=mChildren.end(); it!=end; ++it) {
+		(*it)->mParent = nullptr;
 		delete (*it);
 	}
 	mChildren.clear();
