@@ -34,6 +34,12 @@ ci::ColorA parse_color(const std::string& input) {
 		const int	b = parse_component(input, 5, 0);
 		const int	a = parse_component(input, 7, 255);
 		return ci::ColorA(r/255.0f, g/255.0f, b/255.0f, a/255.0f);
+	// Common input formats
+	} else if (input.size() == 6) {
+		const int	r = parse_component(input, 0, 0);
+		const int	g = parse_component(input, 2, 0);
+		const int	b = parse_component(input, 4, 0);
+		return ci::ColorA(r/255.0f, g/255.0f, b/255.0f, 1.0f);
 	}
 	throw std::runtime_error("parse_color() invalid input (" + input + ")");
 }
