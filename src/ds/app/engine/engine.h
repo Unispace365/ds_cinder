@@ -142,6 +142,7 @@ public:
 	ds::ui::Sprite*						getSpriteForFinger( const int fingerId ){ return mTouchManager.getSpriteForFinger(fingerId); }
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint ){ mTouchManager.overrideTouchTranslation(inOutPoint); };
+	virtual bool						shouldDiscardTouch( ci::Vec2f& p ){ return mTouchManager.shouldDiscardTouch(p); }
 
 	// Root support
 	const ci::Rectf&					getScreenRect() const;

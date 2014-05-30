@@ -19,6 +19,7 @@ TouchManager::TouchManager( Engine &engine )
   , mOverrideTranslation(false)
   , mTouchDimensions(0.0f, 0.0f)
   , mTouchOffset(0.0f, 0.0f)
+  , mTouchFilterRect(0.0f, 0.0f, 0.0f, 0.0f)
 {
   mTouchColor = Color( 1, 1, 0 );
 }
@@ -37,6 +38,9 @@ void TouchManager::touchesBegin( TouchEvent event ){
 		if(mOverrideTranslation){
 			overrideTouchTranslation(touchPos);
 		}
+
+		if (shouldDiscardTouch(touchPos))
+			return;
 
 		TouchInfo touchInfo;
 		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
@@ -70,6 +74,9 @@ void TouchManager::touchesMoved( TouchEvent event ){
 			overrideTouchTranslation(touchPos);
 		}
 
+		if (shouldDiscardTouch(touchPos))
+			return;
+
 		TouchInfo touchInfo;
 		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
 		touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
@@ -100,6 +107,10 @@ void TouchManager::touchesEnded( TouchEvent event ){
 		if(mOverrideTranslation){
 			overrideTouchTranslation(touchPos);
 		}
+
+		if (shouldDiscardTouch(touchPos))
+			return;
+
 
 		TouchInfo touchInfo;
 		touchInfo.mCurrentGlobalPoint = Vec3f(touchIt->getPos(), 0.0f);
@@ -238,6 +249,13 @@ ci::Vec2f TouchManager::translateMousePoint( const ci::Vec2i inputPoint ){
 	eventPos.y /= yScaleFactor;
 
 	return eventPos;
+}
+
+bool TouchManager::shouldDiscardTouch( const ci::Vec2f& p ) {
+	if (mTouchFilterRect.getWidth() != 0.0f ) {
+		return !mTouchFilterRect.contains(p);
+	}
+	return false;
 }
 
 void TouchManager::overrideTouchTranslation( ci::Vec2f& inOutPoint){
