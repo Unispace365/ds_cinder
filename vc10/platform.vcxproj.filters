@@ -594,6 +594,9 @@
     <ClInclude Include="..\src\ds\ui\mesh_source\mesh_cache_service.h">
       <Filter>src\ds\ui\mesh_source</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\storage\directory_watcher.h">
+      <Filter>src\ds\storage</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -988,6 +991,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\mesh_source\mesh_cache_service.cpp">
       <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\storage\directory_watcher_win32.cpp">
+      <Filter>src\ds\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\storage\directory_watcher.cpp">
+      <Filter>src\ds\storage</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
