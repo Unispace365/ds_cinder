@@ -1,5 +1,8 @@
 #include "mesh_sphere.h"
 
+#include <ds/ui/sprite/sprite_engine.h>
+#include "mesh_cache_service.h"
+
 namespace ds {
 namespace ui {
 
@@ -55,7 +58,7 @@ ci::TriMesh createSphere(float radius, int x_res, int y_res) {
 			float y = radius * cinder::math<float>::cos( phi );
 			cinder::Vec3f position( x, y, z );
 			cinder::Vec3f normal = position.normalized();
-			cinder::Vec2f texCoord = cinder::Vec2f( (float)t/(float)(x_res), (float)p/(float)(y_res-1) );
+			cinder::Vec2f texCoord = cinder::Vec2f( (float)t/(float)(x_res), (float)p/(float)y_res );
 
 			normals.push_back( normal );
 			positions.push_back( position );
@@ -89,35 +92,57 @@ ci::TriMesh createSphere(float radius, int x_res, int y_res) {
 class MeshSphere::SphereData : public MeshSource::Data {
 public:
 	SphereData(const float radius, const int x_res, const int y_res)
-			: mRadius(radius)
+			: mEngine(nullptr)
+			, mRadius(radius)
 			, mXRes(x_res)
 			, mYRes(y_res)
 			, mMeshBuilt(false) {
 	}
 
-	virtual bool				isEqual(const Data& o) const {
+	virtual bool					isEqual(const Data& o) const {
 		const SphereData*	ds = dynamic_cast<const SphereData*>(&o);
 		if (!ds) return false;
 		return mRadius == ds->mRadius && mXRes == ds->mXRes && mYRes == ds->mYRes;
 	}
 
-	virtual const ci::TriMesh*	getMesh() {
+	virtual const ci::gl::VboMesh*	getMesh() {
 		if (!mMeshBuilt) buildMesh();
 		if (mMesh.getNumIndices() < 1) return nullptr;
 		return &mMesh;
 	}
 
-private:
-	void						buildMesh() {
-		mMeshBuilt = true;
-		mMesh = createSphere(mRadius, mXRes, mYRes);
+	virtual void					setEngine(SpriteEngine* e) {
+		mEngine = e;
 	}
 
-	float				mRadius;
-	int					mXRes, mYRes;
+private:
+	void							buildMesh() {
+		mMeshBuilt = true;
+		cacheMesh();
+		if (!mMesh) {
+			ci::TriMesh			mesh;
+			mesh = createSphere(mRadius, mXRes, mYRes);
+			mMesh = ci::gl::VboMesh(mesh);
+		}
+	}
+
+	void							cacheMesh() {
+		if (!mEngine) return;
+
+		MeshCacheService&			s(mEngine->getService<ds::MeshCacheService>(ds::MESH_CACHE_SERVICE_NAME));
+		std::stringstream			buf;
+		// Currently getting a couple duplicates, should clip radius to some int value.
+		buf << "sphere;r="<< mRadius << ";x=" << mXRes << ";y=" << mYRes;
+		mMesh = s.get(buf.str(), [this]()->ci::TriMesh { ci::TriMesh t; t = createSphere(mRadius, mXRes, mYRes); return t;});
+	}
+
+
+	ds::ui::SpriteEngine*	mEngine;
+	float					mRadius;
+	int						mXRes, mYRes;
 	// Building
-	ci::TriMesh			mMesh;
-	bool				mMeshBuilt;
+	ci::gl::VboMesh			mMesh;
+	bool					mMeshBuilt;
 };
 
 /**

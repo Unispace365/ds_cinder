@@ -23,9 +23,12 @@ public:
 	// Note that throwing an exception in the function will exit the app.
 	static void AddStartup(const std::function<void(ds::Engine&)>&);
 
-	// Apps can provide a list of root sprites (Engine::CAMERA_ORTHO or Engine::CAMERA_PERSP), which
-	// can be accessed by index. If none supplied, you get 1 orthogonal.
-	App(const std::vector<int>* roots = nullptr);
+	// Apps can provide a list of root sprites by chaining commands to a RootList.
+	// For example, if you want a single perspective root, do this:
+	// App(ds::RootList().persp())
+	// See RootList class for full use. By default, you get a single
+	// orthogonal root.
+	App(const RootList& = RootList());
 	~App();
 
 	virtual void				mouseDown( MouseEvent event );	

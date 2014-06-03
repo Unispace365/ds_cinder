@@ -30,6 +30,10 @@ Init				INIT;
 /**
  * \class ds::ui::sprite::Pdf
  */
+Pdf& Pdf::makePdf(SpriteEngine& e, Sprite* parent) {
+	return makeAlloc<ds::ui::Pdf>([&e]()->ds::ui::Pdf*{ return new ds::ui::Pdf(e); }, parent);
+}
+
 Pdf::Pdf(ds::ui::SpriteEngine& e)
 		: inherited(e)
 		, mPageSizeMode(kConstantSize)

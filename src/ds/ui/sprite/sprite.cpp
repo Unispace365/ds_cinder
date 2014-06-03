@@ -160,6 +160,7 @@ Sprite::~Sprite() {
 //    remove();
 
 	for (auto it=mChildren.begin(), end=mChildren.end(); it!=end; ++it) {
+		(*it)->mParent = nullptr;
 		delete (*it);
 	}
 	mChildren.clear();
@@ -193,142 +194,126 @@ void Sprite::updateServer( const UpdateParams &updateParams )
   }
 }
 
-void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParams )
-{
-    if ((mSpriteFlags&VISIBLE_F) == 0)
-        return;
+void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParams ) {
+	if ((mSpriteFlags&VISIBLE_F) == 0) {
+		return;
+	}
 
-    if (!mSpriteShader.isValid()) {
-      mSpriteShader.loadShaders();
-    }
+	if (!mSpriteShader.isValid()) {
+		mSpriteShader.loadShaders();
+	}
 
-    buildTransform();
+	buildTransform();
+	ci::Matrix44f totalTransformation = trans*mTransformation;
+	ci::gl::pushModelView();
+	glLoadIdentity();
+	ci::gl::multModelView(totalTransformation);
 
-    ci::Matrix44f totalTransformation = trans*mTransformation;
+	if ((mSpriteFlags&TRANSPARENT_F) == 0) {
+		ci::gl::enableAlphaBlending();
+		applyBlendingMode(mBlendMode);
+		ci::gl::GlslProg shaderBase = mSpriteShader.getShader();
+		if (shaderBase) {
+			shaderBase.bind();
+			shaderBase.uniform("tex0", 0);
+			shaderBase.uniform("useTexture", mUseShaderTexture);
+			shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+			mUniform.applyTo(shaderBase);
+		}
 
-    ci::gl::pushModelView();
-    glLoadIdentity();
-    ci::gl::multModelView(totalTransformation);
+		ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);
+		if (mUseDepthBuffer) {
+			ci::gl::enableDepthRead();
+			ci::gl::enableDepthWrite();
+		} else {
+			ci::gl::disableDepthRead();
+			ci::gl::disableDepthWrite();
+		}
 
-    if ((mSpriteFlags&TRANSPARENT_F) == 0) {
+		drawLocalClient();
 
-      ci::gl::enableAlphaBlending();
-      applyBlendingMode(mBlendMode);
-
-      ci::gl::GlslProg shaderBase = mSpriteShader.getShader();
-
-      if (shaderBase) {
-        shaderBase.bind();
-        shaderBase.uniform("tex0", 0);
-        shaderBase.uniform("useTexture", mUseShaderTexture);
-        shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
-		mUniform.applyTo(shaderBase);
-      }
-
-      ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);
-      if (mUseDepthBuffer) {
-        ci::gl::enableDepthRead();
-        ci::gl::enableDepthWrite();
-      } else {
-        ci::gl::disableDepthRead();
-        ci::gl::disableDepthWrite();
-      }
-
-      drawLocalClient();
-
-      if (shaderBase) {
-        shaderBase.unbind();
-      }
-
-    }
+		if (shaderBase) {
+			shaderBase.unbind();
+		}
+	}
     
-    if ((mSpriteFlags&CLIP_F) != 0) {
-      const ci::Rectf&      clippingBounds = getClippingBounds();
-      enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
-    }
+	if ((mSpriteFlags&CLIP_F) != 0) {
+		const ci::Rectf&      clippingBounds = getClippingBounds();
+		enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
+	}
 
-    ci::gl::popModelView();
+	ci::gl::popModelView();
 
-    DrawParams dParams = drawParams;
-    dParams.mParentOpacity *= mOpacity;
+	DrawParams dParams = drawParams;
+	dParams.mParentOpacity *= mOpacity;
 
-      if ((mSpriteFlags&DRAW_SORTED_F) == 0)
-    {
-        for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
-        {
-            (*it)->drawClient(totalTransformation, dParams);
-        }
-    }
-    else
-    {
+	if ((mSpriteFlags&DRAW_SORTED_F) == 0) {
+		for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it ) {
+			(*it)->drawClient(totalTransformation, dParams);
+		}
+	} else {
 		makeSortedChildren();
-        for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
-        {
-            (*it)->drawClient(totalTransformation, dParams);
-        }
-    }
+		for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it ) {
+			(*it)->drawClient(totalTransformation, dParams);
+		}
+	}
 
-    if ((mSpriteFlags&CLIP_F) != 0) {
-      disableClipping();
-    }
+	if ((mSpriteFlags&CLIP_F) != 0) {
+		disableClipping();
+	}
 }
 
-void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams )
-{
-  if ((mSpriteFlags&VISIBLE_F) == 0)
-    return;
+void Sprite::drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams ) {
+	if ((mSpriteFlags&VISIBLE_F) == 0) {
+		return;
+	}
+	if (mId > 0) {
+		glLoadName(mId);
+	}
 
-  buildTransform();
+	buildTransform();
+	ci::Matrix44f totalTransformation = trans*mTransformation;
+	ci::gl::pushModelView();
+	glLoadIdentity();
+	ci::gl::multModelView(totalTransformation);
 
-  ci::Matrix44f totalTransformation = trans*mTransformation;
+	if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
+		ci::gl::color(mServerColor);
+		if (mUseDepthBuffer) {
+			ci::gl::enableDepthRead();
+			ci::gl::enableDepthWrite();
+		} else {
+			ci::gl::disableDepthRead();
+			ci::gl::disableDepthWrite();
+		}
+		drawLocalServer();
+	}
 
-  ci::gl::pushModelView();
-  //glLoadIdentity();
-  ci::gl::multModelView(totalTransformation);
+	if ((mSpriteFlags&CLIP_F) != 0) {
+		const ci::Rectf&      clippingBounds = getClippingBounds();
+		enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
+	}
 
-  if ((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
-    ci::gl::color(mServerColor);
-    if (mUseDepthBuffer) {
-      ci::gl::enableDepthRead();
-      ci::gl::enableDepthWrite();
-    } else {
-      ci::gl::disableDepthRead();
-      ci::gl::disableDepthWrite();
-    }
-    drawLocalServer();
-  }
+	ci::gl::popModelView();
 
-  if ((mSpriteFlags&CLIP_F) != 0) {
-    const ci::Rectf&      clippingBounds = getClippingBounds();
-    enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
-  }
+	if ((mSpriteFlags&DRAW_SORTED_F) == 0) {
+		for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it ) {
+			(*it)->drawServer(totalTransformation, drawParams);
+		}
+	} else {
+		std::vector<Sprite *> mCopy = mChildren;
+		std::sort( mCopy.begin(), mCopy.end(), [](Sprite *i, Sprite *j) {
+			return i->getZLevel() < j->getZLevel();
+		});
 
-  ci::gl::popModelView();
+		for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it ) {
+			(*it)->drawServer(totalTransformation, drawParams);
+		}
+	}
 
-  if ((mSpriteFlags&DRAW_SORTED_F) == 0)
-  {
-    for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
-    {
-      (*it)->drawServer(totalTransformation, drawParams);
-    }
-  }
-  else
-  {
-    std::vector<Sprite *> mCopy = mChildren;
-    std::sort( mCopy.begin(), mCopy.end(), [](Sprite *i, Sprite *j)
-    {
-      return i->getZLevel() < j->getZLevel();
-    });
-
-    for ( auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it )
-    {
-      (*it)->drawServer(totalTransformation, drawParams);
-    }
-  }
-
-  if ((mSpriteFlags&CLIP_F) != 0) {
-    disableClipping();
-  }
+	if ((mSpriteFlags&CLIP_F) != 0) {
+		disableClipping();
+	}
 }
 
 void Sprite::setPosition( float x, float y, float z ) {
@@ -1586,60 +1571,50 @@ void Sprite::markClippingDirty()
   }
 }
 
-void Sprite::makeSortedChildren()
-{
+void Sprite::makeSortedChildren() {
 	mSortedTmp = mChildren;
-	std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j)
-	{
+	std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j) {
 		return i->getPosition().z < j->getPosition().z;
 	});
 }
 
-void Sprite::setSecondBeforeIdle( const double idleTime )
-{
-  mIdleTimer.setSecondBeforeIdle(idleTime);
+void Sprite::setSecondBeforeIdle( const double idleTime ) {
+	mIdleTimer.setSecondBeforeIdle(idleTime);
 }
 
-double Sprite::secondsToIdle() const
-{
-  return mIdleTimer.secondsToIdle();
+double Sprite::secondsToIdle() const {
+	return mIdleTimer.secondsToIdle();
 }
 
-bool Sprite::isIdling() const
-{
-  return mIdleTimer.isIdling();
+bool Sprite::isIdling() const {
+	return mIdleTimer.isIdling();
 }
 
-void Sprite::startIdling()
-{
-  mIdleTimer.startIdling();
+void Sprite::startIdling() {
+	mIdleTimer.startIdling();
 }
 
-void Sprite::resetIdleTimer()
-{
-  mIdleTimer.resetIdleTimer();
+void Sprite::resetIdleTimer() {
+	mIdleTimer.resetIdleTimer();
 }
 
-void Sprite::clear()
-{
-  mIdleTimer.clear();
+void Sprite::clear() {
+	mIdleTimer.clear();
 }
 
-void Sprite::markTreeAsDirty()
-{
-  markAsDirty(ds::BitMask::newFilled());
-  markChildrenAsDirty(ds::BitMask::newFilled());
+void Sprite::markTreeAsDirty() {
+	markAsDirty(ds::BitMask::newFilled());
+	markChildrenAsDirty(ds::BitMask::newFilled());
 }
 
-void Sprite::userInputReceived()
-{
-  if (mParent)
-    mParent->userInputReceived();
-  resetIdleTimer();
+void Sprite::userInputReceived() {
+	if (mParent) {
+		mParent->userInputReceived();
+	}
+	resetIdleTimer();
 }
 
-void Sprite::sendSpriteToFront( Sprite &sprite )
-{
+void Sprite::sendSpriteToFront( Sprite &sprite ) {
   if (!containsChild(&sprite))
     return;
 
@@ -1677,12 +1652,12 @@ ds::ui::SpriteShader &Sprite::getBaseShader()
 
 float Sprite::getScaleWidth() const
 {
-  return mScale.x * mWidth;
+  return mScale.x * getWidth();
 }
 
 float Sprite::getScaleHeight() const
 {
-  return mScale.y * mHeight;
+  return mScale.y * getHeight();
 }
 
 float Sprite::getScaleDepth() const

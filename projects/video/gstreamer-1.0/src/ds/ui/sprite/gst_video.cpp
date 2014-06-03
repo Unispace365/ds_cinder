@@ -21,7 +21,8 @@ namespace {
 class Init {
 public:
 	Init() {
-		// Set the main gstreamer path. (We're assuming it's in the standard location)
+		// Set the main gstreamer path. We're assuming it's in the standard location;
+		// if that ever changes, then load up a settings file here and get the path from that.
 		ds::Environment::addToEnvironmentVariable("PATH", "C:\\gstreamer\\1.0\\x86\\bin");
 
 		// Add a startup object to set the plugin path. This is how we'd prefer to
@@ -49,6 +50,10 @@ ds::ui::VideoMetaCache		CACHE("gstreamer");
 
 namespace ds {
 namespace ui {
+
+GstVideo& GstVideo::makeVideo(SpriteEngine& e, Sprite* parent) {
+	return makeAlloc<ds::ui::GstVideo>([&e]()->ds::ui::GstVideo*{ return new ds::ui::GstVideo(e); }, parent);
+}
 
 GstVideo::GstVideo( SpriteEngine& engine )
 		: inherited(engine)
@@ -346,9 +351,12 @@ void GstVideo::setMovieVolume() {
 	}
 }
 
-void GstVideo::unloadVideo() {
+void GstVideo::unloadVideo(const bool clearFrame) {
 	mMovie.stop();
 	mMovie.close();
+	if (clearFrame) {
+		mFrameTexture.reset();
+	}
 }
 
 // set this before loading a video

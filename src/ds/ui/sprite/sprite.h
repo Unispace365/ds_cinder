@@ -342,6 +342,7 @@ protected:
 	// The ID must always be assigned through setSpriteId(), which has some
 	// behaviour associated with the ID changing.
 	ds::sprite_id_t		mId;
+	ci::Color8u			mUniqueColor;
 
 	float				mWidth,
 						mHeight,

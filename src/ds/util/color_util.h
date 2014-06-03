@@ -11,8 +11,10 @@ namespace ds {
  * \brief Read a colour from a string. The version with no
  * default throws on error.
  */
-ci::ColorA parse_color(const std::string& input);
-ci::ColorA parse_color(const std::string& input, const ci::ColorA&);
+ci::Color  parse_color(const std::string& input);
+ci::Color  parse_color(const std::string& input, const ci::Color&);
+ci::ColorA parse_colora(const std::string& input);
+ci::ColorA parse_colora(const std::string& input, const ci::ColorA&);
 
 } // namespace ds
 

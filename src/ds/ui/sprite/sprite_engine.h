@@ -70,6 +70,7 @@ public:
 	virtual Sprite*					findSprite(const ds::sprite_id_t) = 0;
 	// Sprite won't be deleted until the next update, so all references are cleared.
 	virtual void					requestDeleteSprite(Sprite&) = 0;
+	virtual ci::Color8u				getUniqueColor() = 0;
 
 	float							getMinTouchDistance() const;
 	float							getMinTapDistance() const;
@@ -103,6 +104,10 @@ public:
 
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void					translateTouchPoint( ci::Vec2f& inOutPoint ) = 0;
+
+	// Get the sprite at the global touch point. NOTE: performance intensive. Use carefully.
+	virtual ds::ui::Sprite*			getHit(const ci::Vec3f& point) = 0;
+
 
 	static const int				CLIENT_MODE = 0;
 	static const int				SERVER_MODE = 1;

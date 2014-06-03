@@ -4,6 +4,8 @@
 
 #include <memory>
 #include <unordered_map>
+#include <cinder/Camera.h>
+#include <cinder/gl/Fbo.h>
 #include "ds/app/app_defs.h"
 #include "ds/app/auto_update_list.h"
 #include "ds/app/blob_registry.h"
@@ -22,12 +24,11 @@
 #include "ds/cfg/settings.h"
 #include "ds/ui/ip/ip_function_list.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/ui/touch/select_picking.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/tween/tweenline.h"
-#include "cinder/Camera.h"
 #include "ds/network/zmq_connection.h"
 #include "ds/data/raw_data_buffer.h"
-#include "cinder/gl/Fbo.h"
 #include "ds/app/camera_utils.h"
 
 using namespace ci;
@@ -101,6 +102,7 @@ public:
 	virtual void						unregisterSprite(ds::ui::Sprite&);
 	virtual ds::ui::Sprite*				findSprite(const ds::sprite_id_t);
 	virtual void						requestDeleteSprite(ds::ui::Sprite&);
+	virtual ci::Color8u					getUniqueColor();
 
 	tuio::Client&						getTuioClient();
 	void								mouseTouchBegin(MouseEvent, int id);
@@ -140,12 +142,13 @@ public:
 	ds::ui::Sprite*						getSpriteForFinger( const int fingerId ){ return mTouchManager.getSpriteForFinger(fingerId); }
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint ){ mTouchManager.overrideTouchTranslation(inOutPoint); };
+	virtual bool						shouldDiscardTouch( ci::Vec2f& p ){ return mTouchManager.shouldDiscardTouch(p); }
 
 	// Root support
 	const ci::Rectf&					getScreenRect() const;
 
 protected:
-	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const std::vector<int>* roots);
+	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);
 
 	// Conveniences for the subclases
 	void								updateClient();
@@ -213,13 +216,18 @@ private:
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsMoved;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnd;
 
+	ds::SelectPicking					mSelectPicking;
+
 	bool								mSystemMultitouchEnabled;
+	// If true, I will receive and handle mouse events. If false, I won't. Default = true.
+	bool								mEnableMouseEvents;
 	bool								mHideMouse;
 
 	bool								mApplyFxAA;
 	float								mFxAASpanMax;
 	float								mFxAAReduceMul;
 	float								mFxAAReduceMin;
+	ci::Color8u							mUniqueColor;
 };
 
 // Server -> Client communication

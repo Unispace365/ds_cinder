@@ -97,6 +97,7 @@
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
     <ClInclude Include="..\src\ds\query\sql_query_result_builder.h" />
+    <ClInclude Include="..\src\ds\storage\directory_watcher.h" />
     <ClInclude Include="..\src\ds\storage\persistent_cache.h" />
     <ClInclude Include="..\src\ds\thread\async_queue.h" />
     <ClInclude Include="..\src\ds\thread\gl_thread.h" />
@@ -123,6 +124,7 @@
     <ClInclude Include="..\src\ds\ui\ip\ip_defs.h" />
     <ClInclude Include="..\src\ds\ui\ip\ip_function.h" />
     <ClInclude Include="..\src\ds\ui\ip\ip_function_list.h" />
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_cache_service.h" />
     <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file.h" />
     <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file_loader.h" />
     <ClInclude Include="..\src\ds\ui\mesh_source\mesh_owner.h" />
@@ -150,6 +152,8 @@
     <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h" />
     <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h" />
     <ClInclude Include="..\src\ds\ui\touch\multi_touch_constraints.h" />
+    <ClInclude Include="..\src\ds\ui\touch\picking.h" />
+    <ClInclude Include="..\src\ds\ui\touch\select_picking.h" />
     <ClInclude Include="..\src\ds\ui\touch\tap_info.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_process.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h" />
@@ -175,6 +179,7 @@
     <ClCompile Include="..\lib\OGLFT\OGLFT.cpp" />
     <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
+    <ClCompile Include="..\src\ds\app\app_defs.cpp" />
     <ClCompile Include="..\src\ds\app\auto_update.cpp" />
     <ClCompile Include="..\src\ds\app\auto_update_list.cpp" />
     <ClCompile Include="..\src\ds\app\blob_reader.cpp" />
@@ -238,6 +243,8 @@
     <ClCompile Include="..\src\ds\query\sqlite\sqlite3.c" />
     <ClCompile Include="..\src\ds\query\sql_database.cpp" />
     <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp" />
+    <ClCompile Include="..\src\ds\storage\directory_watcher.cpp" />
+    <ClCompile Include="..\src\ds\storage\directory_watcher_win32.cpp" />
     <ClCompile Include="..\src\ds\storage\persistent_cache.cpp" />
     <ClCompile Include="..\src\ds\thread\gl_thread.cpp" />
     <ClCompile Include="..\src\ds\thread\runnable_client.cpp" />
@@ -258,6 +265,7 @@
     <ClCompile Include="..\src\ds\ui\ip\ip_defs.cpp" />
     <ClCompile Include="..\src\ds\ui\ip\ip_function.cpp" />
     <ClCompile Include="..\src\ds\ui\ip\ip_function_list.cpp" />
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_cache_service.cpp" />
     <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file.cpp" />
     <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file_loader.cpp" />
     <ClCompile Include="..\src\ds\ui\mesh_source\mesh_owner.cpp" />
@@ -284,6 +292,8 @@
     <ClCompile Include="..\src\ds\ui\sprite\util\blend.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\picking.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\select_picking.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_process.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp" />
     <ClCompile Include="..\src\ds\ui\tween\sprite_anim.cpp" />

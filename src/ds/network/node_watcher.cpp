@@ -1,7 +1,9 @@
 #include "ds/network/node_watcher.h"
 
 #include <Poco/Net/DatagramSocket.h>
-#include "ds/debug/debug_defines.h"
+#include <ds/cfg/settings.h>
+#include <ds/debug/debug_defines.h>
+#include <ds/ui/sprite/sprite_engine.h>
 
 namespace ds {
 
@@ -9,14 +11,12 @@ namespace ds {
  * \class ds::NodeWatcher
  */
 NodeWatcher::NodeWatcher(ds::ui::SpriteEngine& se, const std::string& host, const int port)
-	: ds::AutoUpdate(se)
-  , mLoop(host, port)
-{
+		: ds::AutoUpdate(se)
+		, mLoop(se, host, port) {
 	mThread.start(mLoop);
 }
 
-NodeWatcher::~NodeWatcher()
-{
+NodeWatcher::~NodeWatcher() {
 	{
 		Poco::Mutex::ScopedLock		l(mLoop.mMutex);
 		mLoop.mAbort = true;
@@ -30,8 +30,7 @@ NodeWatcher::~NodeWatcher()
 	}
 }
 
-void NodeWatcher::add(const std::function<void(const Message&)>& f)
-{
+void NodeWatcher::add(const std::function<void(const Message&)>& f) {
 	if (!f) return;
 
 	try {
@@ -40,8 +39,7 @@ void NodeWatcher::add(const std::function<void(const Message&)>& f)
 	}
 }
 
-void NodeWatcher::update(const ds::UpdateParams &)
-{
+void NodeWatcher::update(const ds::UpdateParams &) {
 	mMsg.clear();
 	{
 		Poco::Mutex::ScopedLock	l(mLoop.mMutex);
@@ -57,15 +55,24 @@ void NodeWatcher::update(const ds::UpdateParams &)
 /**
  * \class ds::NodeWatcher::Loop
  */
-NodeWatcher::Loop::Loop(const std::string& host, const int port)
-	: mAbort(false)
-	, mHost(host)
-	, mPort(port)
-{
+static long get_refresh_rate(ds::ui::SpriteEngine& e) {
+	// Default to one second
+	const ds::cfg::Settings&		settings = e.getSettings("engine");
+	float							rate = settings.getFloat("node:refresh_rate", 0, 1.0f);
+	long							ans = static_cast<long>(rate * 1000.0f);
+	if (ans < 10) return 10;
+	else if (ans > 1000 * 10) return 1000 * 10;
+	return ans;
 }
 
-void NodeWatcher::Loop::run()
-{
+NodeWatcher::Loop::Loop(ds::ui::SpriteEngine& e, const std::string& host, const int port)
+		: mAbort(false)
+		, mHost(host)
+		, mPort(port)
+		, mRefreshRateMs(get_refresh_rate(e)) {
+}
+
+void NodeWatcher::Loop::run() {
 	static const int			BUF_SIZE = 512;
 
 	Poco::Net::DatagramSocket	cmsReceiver;
@@ -94,14 +101,13 @@ void NodeWatcher::Loop::run()
 		{
 			try {
 				std::string		msg(buf, length);
-				DS_DBG_CODE(std::cout << "DsNode watcher receive: " << msg << std::endl);
+//				DS_DBG_CODE(std::cout << "DsNode watcher receive: " << msg << std::endl);
 				Poco::Mutex::ScopedLock	l(mMutex);
 				mMsg.mData.push_back(msg);
 			} catch (std::exception&) {
 			}
 		}
-		// Sleep for a second, I guess.
-		Poco::Thread::sleep(1000*1);
+		Poco::Thread::sleep(mRefreshRateMs);
 		{
 			Poco::Mutex::ScopedLock	l(mMutex);
 			if (mAbort) break;

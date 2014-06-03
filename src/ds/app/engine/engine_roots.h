@@ -9,6 +9,7 @@
 #include "ds/params/camera_params.h"
 #include "ds/params/draw_params.h"
 #include "ds/params/update_params.h"
+#include "ds/ui/touch/picking.h"
 
 namespace ds {
 class Engine;
@@ -25,37 +26,38 @@ public:
 
 	class Settings {
 	public:
-		Settings(const ci::Rectf& screen_rect, const ds::cfg::Settings& debug_settings, const float default_scale)
-				: mScreenRect(screen_rect), mDebugSettings(debug_settings), mDefaultScale(default_scale) { }
+		Settings(const ci::Vec2f& world_size, const ci::Rectf& screen_rect, const ds::cfg::Settings& debug_settings, const float default_scale)
+				: mWorldSize(world_size), mScreenRect(screen_rect), mDebugSettings(debug_settings), mDefaultScale(default_scale) { }
+		ci::Vec2f					mWorldSize;
 		ci::Rectf					mScreenRect;
 		const ds::cfg::Settings&	mDebugSettings;
 		const float					mDefaultScale;
 	};
-	virtual void				setup(const Settings&) = 0;
+	virtual void					setup(const Settings&) = 0;
 
 	// Sprite management. Note that ideally Roots don't require having a sprite. Currently everything
 	// does, and that was the initial design, but it would be nice to move away from that instead of
 	// letting it get more entrenched.
-	virtual ds::ui::Sprite*		getSprite() = 0;
-	virtual void				clearChildren() = 0;
+	virtual ds::ui::Sprite*			getSprite() = 0;
+	virtual void					clearChildren() = 0;
 	// Sprite passthrough
-	virtual void				updateClient(const ds::UpdateParams&) = 0;
-	virtual void				updateServer(const ds::UpdateParams&) = 0;
-	virtual void				drawClient(const DrawParams&) = 0;
-	virtual void				drawServer(const DrawParams&) = 0;
+	virtual void					updateClient(const ds::UpdateParams&) = 0;
+	virtual void					updateServer(const ds::UpdateParams&) = 0;
+	virtual void					drawClient(const DrawParams&) = 0;
+	virtual void					drawServer(const DrawParams&) = 0;
 	// Camera
-	virtual void				markCameraDirty() = 0;
-	virtual void				setCinderCamera() = 0;
-	virtual ui::Sprite*			getHit(const ci::Vec3f& point) = 0;
+	virtual void					markCameraDirty() = 0;
+	virtual void					setCinderCamera() = 0;
+	virtual ui::Sprite*				getHit(const ci::Vec3f& point) = 0;
 	// Hack for manually positioning the screen.
-	virtual void				setViewport(const bool) { }
+	virtual void					setViewport(const bool) { }
 
 protected:
-	const sprite_id_t			mSpriteId;
+	const sprite_id_t				mSpriteId;
 
 private:
 	EngineRoot(const EngineRoot&);
-	EngineRoot&					operator=(const EngineRoot&);
+	EngineRoot&						operator=(const EngineRoot&);
 };
 
 /**
@@ -66,30 +68,30 @@ class OrthRoot : public EngineRoot {
 public:
 	OrthRoot(Engine&, const sprite_id_t);
 
-	virtual void				setup(const Settings&);
-	virtual ds::ui::Sprite*		getSprite();
-	virtual void				clearChildren();
-	virtual void				updateClient(const ds::UpdateParams&);
-	virtual void				updateServer(const ds::UpdateParams&);
-	virtual void				drawClient(const DrawParams&);
-	virtual void				drawServer(const DrawParams&);
-	virtual void				setCinderCamera();
-	virtual void				setViewport(const bool b);
-	virtual void				markCameraDirty();
-	virtual ui::Sprite*			getHit(const ci::Vec3f& point);
+	virtual void					setup(const Settings&);
+	virtual ds::ui::Sprite*			getSprite();
+	virtual void					clearChildren();
+	virtual void					updateClient(const ds::UpdateParams&);
+	virtual void					updateServer(const ds::UpdateParams&);
+	virtual void					drawClient(const DrawParams&);
+	virtual void					drawServer(const DrawParams&);
+	virtual void					setCinderCamera();
+	virtual void					setViewport(const bool b);
+	virtual void					markCameraDirty();
+	virtual ui::Sprite*				getHit(const ci::Vec3f& point);
 
 private:
-	void						setGlCamera();
+	void							setGlCamera();
 
-	typedef EngineRoot			inherited;
+	typedef EngineRoot				inherited;
 	OrthRoot(const OrthRoot&);
-	OrthRoot&					operator=(const OrthRoot&);
+	OrthRoot&						operator=(const OrthRoot&);
 
-	Engine&						mEngine;
-	ci::CameraOrtho				mCamera;
-	bool						mCameraDirty;
-	bool						mSetViewport;
-	std::unique_ptr<ui::Sprite>	mSprite;
+	Engine&							mEngine;
+	ci::CameraOrtho					mCamera;
+	bool							mCameraDirty;
+	bool							mSetViewport;
+	std::unique_ptr<ui::Sprite>		mSprite;
 };
 
 /**
@@ -98,35 +100,49 @@ private:
  */
 class PerspRoot : public EngineRoot {
 public:
-	PerspRoot(Engine&, const sprite_id_t);
+	PerspRoot(Engine&, const sprite_id_t, const PerspCameraParams&, Picking* = nullptr);
 
-	virtual void				setup(const Settings&);
-	virtual ds::ui::Sprite*		getSprite();
-	virtual void				clearChildren();
-	virtual void				updateClient(const ds::UpdateParams&);
-	virtual void				updateServer(const ds::UpdateParams&);
-	virtual void				drawClient(const DrawParams&);
-	virtual void				drawServer(const DrawParams&);
-	virtual ui::Sprite*			getHit(const ci::Vec3f& point);
+	virtual void					setup(const Settings&);
+	virtual ds::ui::Sprite*			getSprite();
+	virtual void					clearChildren();
+	virtual void					updateClient(const ds::UpdateParams&);
+	virtual void					updateServer(const ds::UpdateParams&);
+	virtual void					drawClient(const DrawParams&);
+	virtual void					drawServer(const DrawParams&);
+	virtual ui::Sprite*				getHit(const ci::Vec3f& point);
 
 	// Camera
-	PerspCameraParams			getCamera() const;
-	void						setCamera(const PerspCameraParams&);
-	virtual void				markCameraDirty();
+	PerspCameraParams				getCamera() const;
+	void							setCamera(const PerspCameraParams&);
+	virtual void					markCameraDirty();
 
-	virtual void				setCinderCamera();
+	virtual void					setCinderCamera();
 
 private:
-	void						setGlCamera();
+	void							setGlCamera();
+	void							drawFunc(const std::function<void(void)>& fn);
 
-	typedef EngineRoot			inherited;
+	typedef EngineRoot				inherited;
 	PerspRoot(const PerspRoot&);
-	PerspRoot&					operator=(const PerspRoot&);
+	PerspRoot&						operator=(const PerspRoot&);
 
-	Engine&						mEngine;
-	ci::CameraPersp				mCamera;
-	bool						mCameraDirty;
-	std::unique_ptr<ui::Sprite>	mSprite;
+	Engine&							mEngine;
+	ci::CameraPersp					mCamera;
+	bool							mCameraDirty;
+	std::unique_ptr<ui::Sprite>		mSprite;
+
+	// Maintain old and new-style picking
+	class OldPick : public Picking {
+	public:
+		OldPick(ci::Camera&);
+
+		virtual ds::ui::Sprite*		pickAt(const ci::Vec2f&, ds::ui::Sprite& root);
+
+	private:
+		ci::Camera&					mCamera;
+	};
+	OldPick							mOldPick;
+	Picking&						mPicking;
 };
 
 } // namespace ds

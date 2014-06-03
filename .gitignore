@@ -1,0 +1,8 @@
+*.user
+*.suo
+*.sdf
+lib/platform*.lib
+obj/
+Debug/
+lib/
+*.orig

@@ -1,6 +1,5 @@
 #include "gradient_sprite.h"
 
-#include <ds/app/app.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
 

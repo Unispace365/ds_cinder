@@ -109,12 +109,13 @@ void OrthRoot::setGlCamera() {
 /**
  * \class ds::PerspRoot
  */
-PerspRoot::PerspRoot(Engine& e, const sprite_id_t id)
+PerspRoot::PerspRoot(Engine& e, const sprite_id_t id, const PerspCameraParams& p, Picking* picking)
 		: inherited(id)
 		, mEngine(e)
 		, mCameraDirty(false)
-		, mSprite(EngineRoot::make(e, id, true)) {
-	PerspCameraParams		p;
+		, mSprite(EngineRoot::make(e, id, true))
+		, mOldPick(mCamera)
+		, mPicking(picking ? *picking : mOldPick) {
 	mCamera.setEyePoint(p.mPosition);
 	mCamera.setCenterOfInterestPoint(p.mTarget);
 	mCamera.setFov(p.mFov);
@@ -144,31 +145,18 @@ void PerspRoot::updateServer(const ds::UpdateParams& p) {
 }
 
 void PerspRoot::drawClient(const DrawParams& p) {
-	// XXX This shouldn't be necessary - the OrthoRoot should be setting
-	// all camera properties whenever it draws. But for some reason, without
-	// this, no later ortho roots will draw (but then it's fine once you go
-	// back to the first root). This inspite of the fact that the ortho
-	// setGlCamera code calls everything this does.
-	gl::SaveCamera		save_camera;
-
-	if (mCameraDirty) {
-		setCinderCamera();
-	}
-	setGlCamera();
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-	mSprite->drawClient(ci::gl::getModelView(), p);
+	drawFunc([this, &p](){mSprite->drawClient(ci::gl::getModelView(), p);});
 }
 
 void PerspRoot::drawServer(const DrawParams& p) {
-	setGlCamera();
 	// Redirect to client draw for now
-	mSprite->drawClient(ci::gl::getModelView(), p);
+	drawFunc([this, &p](){mSprite->drawClient(ci::gl::getModelView(), p);});
 }
 
 ui::Sprite* PerspRoot::getHit(const ci::Vec3f& point) {
-	ds::CameraPick			pick(mCamera, point, mSprite->getWidth(), mSprite->getHeight());
-	return mSprite->getPerspectiveHit(pick);
+	ui::Sprite*		s = nullptr;
+	drawFunc([this, &point, &s](){s = mPicking.pickAt(point.xy(), *(mSprite.get()));});
+	return s;
 }
 
 PerspCameraParams PerspRoot::getCamera() const {
@@ -207,6 +195,38 @@ void PerspRoot::setGlCamera() {
 	//gl::enableDepthRead();
 	//gl::enableDepthWrite();
 	//gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
+}
+
+void PerspRoot::drawFunc(const std::function<void(void)>& fn) {
+	// XXX This shouldn't be necessary - the OrthoRoot should be setting
+	// all camera properties whenever it draws. But for some reason, without
+	// this, no later ortho roots will draw (but then it's fine once you go
+	// back to the first root). This inspite of the fact that the ortho
+	// setGlCamera code calls everything this does.
+	gl::SaveCamera		save_camera;
+
+	if (mCameraDirty) {
+		setCinderCamera();
+	}
+	setGlCamera();
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+	ci::gl::enableDepthRead();
+	ci::gl::enableDepthWrite();
+
+	fn();
+}
+
+/**
+ * \class ds::PerspRoot
+ */
+PerspRoot::OldPick::OldPick(ci::Camera& c)
+		: mCamera(c) {
+}
+
+ds::ui::Sprite* PerspRoot::OldPick::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root) {
+	ds::CameraPick			pick(mCamera, ci::Vec3f(pt.x, pt.y, 0.0f), root.getWidth(), root.getHeight());
+	return root.getPerspectiveHit(pick);
 }
 
 } // namespace ds

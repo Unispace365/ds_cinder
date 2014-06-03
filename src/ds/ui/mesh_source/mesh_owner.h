@@ -6,26 +6,30 @@
 
 namespace ds {
 namespace ui {
+class SpriteEngine;
 
 /**
  * \class ds::ui::MeshOwner
  */
 class MeshOwner {
 public:
-	MeshOwner();
+	MeshOwner(SpriteEngine&);
 
-	void				setMesh(const MeshSource&);
-	void				clearMesh();
-	const ci::TriMesh*	getMesh();
+	void					setMesh(const MeshSource&);
+	void					clearMesh();
+	const ci::gl::VboMesh*	getMesh();
 
-	void				setSphereMesh(const float radius, const int x_res=36, const int y_res=12);
-	void				setFileMesh(const std::string& filename);
+	void					setSphereMesh(const float radius, const int x_res=36, const int y_res=12);
+	void					setFileMesh(const std::string& filename);
 
 protected:
-	virtual void		onMeshChanged();
+	virtual void			onMeshChanged();
 
 private:
-	MeshSource			mMeshSource;
+	MeshOwner();
+
+	SpriteEngine&			mEngineForMesh;
+	MeshSource				mMeshSource;
 };
 
 } // namespace ui

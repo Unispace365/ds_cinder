@@ -25,8 +25,21 @@ int				parse_component(const std::string& input, const size_t pos, const int def
 /**
  * \function ds::parse_color
  */
-ci::ColorA parse_color(const std::string& input) {
-	if (input.size() < 3) throw std::runtime_error("parse_color() invalid input (" + input + ")");
+ci::Color parse_color(const std::string& input) {
+	const ci::ColorA	ca(parse_colora(input));
+	return ci::Color(ca.r, ca.g, ca.b);
+}
+
+ci::Color parse_color(const std::string& input, const ci::Color& dv) {
+	try {
+		return parse_color(input);
+	} catch (std::exception const&) {
+	}
+	return dv;
+}
+
+ci::ColorA parse_colora(const std::string& input) {
+	if (input.size() < 3) throw std::runtime_error("parse_colora() invalid input (" + input + ")");
 	// Hex
 	if (input[0] == '#' || input[0] == 'x') {
 		const int	r = parse_component(input, 1, 0);
@@ -34,13 +47,19 @@ ci::ColorA parse_color(const std::string& input) {
 		const int	b = parse_component(input, 5, 0);
 		const int	a = parse_component(input, 7, 255);
 		return ci::ColorA(r/255.0f, g/255.0f, b/255.0f, a/255.0f);
+	// Common input formats
+	} else if (input.size() == 6) {
+		const int	r = parse_component(input, 0, 0);
+		const int	g = parse_component(input, 2, 0);
+		const int	b = parse_component(input, 4, 0);
+		return ci::ColorA(r/255.0f, g/255.0f, b/255.0f, 1.0f);
 	}
 	throw std::runtime_error("parse_color() invalid input (" + input + ")");
 }
 
-ci::ColorA parse_color(const std::string& input, const ci::ColorA& dv) {
+ci::ColorA parse_colora(const std::string& input, const ci::ColorA& dv) {
 	try {
-		return parse_color(input);
+		return parse_colora(input);
 	} catch (std::exception const&) {
 	}
 	return dv;

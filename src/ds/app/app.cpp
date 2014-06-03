@@ -18,13 +18,15 @@
 #include "ds/ui/image_source/image_file.h"
 #include "ds/ui/image_source/image_glsl.h"
 #include "ds/ui/image_source/image_resource.h"
+// For installing mesh caches
+#include "ds/ui/mesh_source/mesh_cache_service.h"
 // For installing the framework services
 #include "ds/ui/service/glsl_image_service.h"
 // For verifying that the resources are installed
 #include "ds/app/FrameworkResources.h"
 
 // Answer a new engine based on the current settings
-static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const std::vector<int>* roots);
+static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList& roots);
 
 static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 	static std::vector<std::function<void(ds::Engine&)>>	VEC;
@@ -62,7 +64,7 @@ void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
 /**
  * \class ds::App
  */
-App::App(const std::vector<int>* roots)
+App::App(const RootList& roots)
 	: mInitializer(getAppPath().generic_string())
 	, mEngineSettings()
 	, mEngineData(mEngineSettings)
@@ -94,6 +96,7 @@ App::App(const std::vector<int>* roots)
 
 	// Install the framework services
 	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService(mEngine)));
+	mEngine.addService(ds::MESH_CACHE_SERVICE_NAME, *(new ds::MeshCacheService()));
 
 	if (mArrowKeyCameraControl) {
 		// Currently this is necessary for the keyboard commands
@@ -307,7 +310,7 @@ ds::App::Initializer::Initializer(const std::string& appPath) {
 } // namespace ds
 
 static ds::Engine&    new_engine(	ds::App& app, const ds::cfg::Settings& settings,
-									ds::EngineData& ed, const std::vector<int>* roots)
+									ds::EngineData& ed, const ds::RootList& roots)
 {
   if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(app, settings, ed, roots));
   if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(app, settings, ed, roots));

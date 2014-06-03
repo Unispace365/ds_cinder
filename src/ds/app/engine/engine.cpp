@@ -36,7 +36,7 @@ const int Engine::NumberOfNetworkThreads = 2;
  * \class ds::Engine
  */
 Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
-				ds::EngineData& ed, const std::vector<int>* roots)
+				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
 	, mTweenline(app.timeline())
 	, mIdleTime(300.0f)
@@ -53,7 +53,10 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);})
 	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
 	, mSystemMultitouchEnabled(false)
+	, mEnableMouseEvents(true)
+	, mHideMouse(false)
 	, mApplyFxAA(false)
+	, mUniqueColor(0, 0, 0)
 {
 	mRequestDelete.reserve(32);
 
@@ -63,22 +66,22 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mIpFunctions.add(ds::ui::ip::CIRCLE_MASK, ds::ui::ip::FunctionRef(new ds::ui::ip::CircleMask()));
 
 	// Construct the root sprites
-	if (roots) {
-		sprite_id_t							id = EMPTY_SPRITE_ID-1;
-		for (auto it=roots->begin(), end=roots->end(); it != end; ++it) {
-			std::unique_ptr<EngineRoot>		root;
-			if (*it == Engine::CAMERA_ORTHO) root.reset(new OrthRoot(*this, id));
-			else if (*it == Engine::CAMERA_PERSP) root.reset(new PerspRoot(*this, id));
-			if (!root) throw std::runtime_error("Engine can't create root");
-			mRoots.push_back(std::move(root));
-			--id;
-		}
+	RootList				roots(_roots);
+	if (roots.empty()) roots.ortho();
+	sprite_id_t							id = EMPTY_SPRITE_ID-1;
+	for (auto it=roots.mRoots.begin(), end=roots.mRoots.end(); it!=end; ++it) {
+		const RootList::Root&			r(*it);
+		Picking*						picking = nullptr;
+		if (r.mPick == r.kSelect) picking = &mSelectPicking;
+		std::unique_ptr<EngineRoot>		root;
+		if (r.mType == r.kOrtho) root.reset(new OrthRoot(*this, id));
+		else if (r.mType == r.kPerspective) root.reset(new PerspRoot(*this, id, r.mPersp, picking));
+		if (!root) throw std::runtime_error("Engine can't create root");
+		mRoots.push_back(std::move(root));
+		--id;
 	}
 	if (mRoots.empty()) {
-		std::unique_ptr<EngineRoot>		root;
-		root.reset(new OrthRoot(*this, EMPTY_SPRITE_ID - 1));
-		if (!root) throw std::runtime_error("Engine can't create single root");
-		mRoots.push_back(std::move(root));
+		throw std::runtime_error("Engine can't create single root");
 	}
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
@@ -93,6 +96,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mTouchManager.setOverrideTranslation(settings.getBool("touch_overlay:override_translation", 0, false));
 	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::Vec2f(1920.0f, 1080.0f)));
 	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
+	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
 	mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
 	mDrawTouches = settings.getBool("touch_overlay:debug", 0, false);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
@@ -111,11 +115,15 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
 #endif
 
-	const EngineRoot::Settings	er_settings(mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
 	}
+
+	// SETUP PICKING
+	mSelectPicking.setWorldSize(mData.mWorldSize);
+
 	// SETUP RESOURCES
 	std::string resourceLocation = settings.getText("resource_location", 0, "");
 	if (resourceLocation.empty()) {
@@ -433,8 +441,9 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings) {
 		mSystemMultitouchEnabled = true;
 		settings.enableMultiTouch();
 	}
+	mEnableMouseEvents = mSettings.getBool("enable_mouse_events", 0, mEnableMouseEvents);
 
-	mHideMouse = mSettings.getBool("hide_mouse", 0, false);
+	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
 
 	settings.setFrameRate(mData.mFrameRate);
@@ -468,24 +477,22 @@ void Engine::registerSprite(ds::ui::Sprite& s) {
 	mSprites[s.getId()] = &s;
 }
 
-void Engine::unregisterSprite(ds::ui::Sprite& s)
-{
-  if (mSprites.empty()) return;
-  if (s.getId() == ds::EMPTY_SPRITE_ID) {
-    DS_LOG_WARNING_M("Engine::unregisterSprite() on empty sprite ID", ds::ENGINE_LOG);
-    assert(false);
-    return;
-  }
-  auto it = mSprites.find(s.getId());
-  if (it != mSprites.end()) mSprites.erase(it);
+void Engine::unregisterSprite(ds::ui::Sprite& s) {
+	if (mSprites.empty()) return;
+	if (s.getId() == ds::EMPTY_SPRITE_ID) {
+		DS_LOG_WARNING_M("Engine::unregisterSprite() on empty sprite ID", ds::ENGINE_LOG);
+		assert(false);
+		return;
+	}
+	auto it = mSprites.find(s.getId());
+	if (it != mSprites.end()) mSprites.erase(it);
 }
 
-ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id)
-{
-  if (mSprites.empty()) return nullptr;
-  auto it = mSprites.find(id);
-  if (it == mSprites.end()) return nullptr;
-  return it->second;
+ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id) {
+	if (mSprites.empty()) return nullptr;
+	auto it = mSprites.find(id);
+	if (it == mSprites.end()) return nullptr;
+	return it->second;
 }
 
 void Engine::requestDeleteSprite(ds::ui::Sprite& s) {
@@ -493,6 +500,15 @@ void Engine::requestDeleteSprite(ds::ui::Sprite& s) {
 		mRequestDelete.push_back(s.getId());
 	} catch (std::exception const&) {
 	}
+}
+
+ci::Color8u Engine::getUniqueColor() {
+	int32_t			i = (mUniqueColor.r << 16) | (mUniqueColor.g << 8) | mUniqueColor.b;
+	++i;
+	mUniqueColor.r = (i>>16)&0xff;
+	mUniqueColor.g = (i>>8)&0xff;
+	mUniqueColor.b = (i)&0xff;
+	return mUniqueColor;
 }
 
 void Engine::touchesBegin(TouchEvent e) {
@@ -512,15 +528,21 @@ tuio::Client &Engine::getTuioClient() {
 }
 
 void Engine::mouseTouchBegin(MouseEvent e, int id) {
-	mMouseBeginEvents.incoming(MousePair(e, id));
+	if (mEnableMouseEvents) {
+		mMouseBeginEvents.incoming(MousePair(e, id));
+	}
 }
 
 void Engine::mouseTouchMoved(MouseEvent e, int id) {
-	mMouseMovedEvents.incoming(MousePair(e, id));
+	if (mEnableMouseEvents) {
+		mMouseMovedEvents.incoming(MousePair(e, id));
+	}
 }
 
 void Engine::mouseTouchEnded(MouseEvent e, int id) {
-	mMouseEndEvents.incoming(MousePair(e, id));
+	if (mEnableMouseEvents) {
+		mMouseEndEvents.incoming(MousePair(e, id));
+	}
 }
 
 ds::ResourceList& Engine::getResources() {

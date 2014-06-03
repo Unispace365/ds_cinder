@@ -8,6 +8,8 @@
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
+#include <gl/GL.h>
+
 using namespace ci;
 
 namespace ds {
@@ -44,14 +46,14 @@ Mesh& Mesh::makeMesh(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
 Mesh::Mesh(SpriteEngine& engine)
 		: inherited(engine)
 		, ImageOwner(engine)
-{
+		, MeshOwner(engine) {
 	init();
 }
 
 Mesh::Mesh(SpriteEngine& engine, const std::string& filename)
 		: inherited(engine)
 		, ImageOwner(engine)
-{
+		, MeshOwner(engine) {
 	init();
 	setFileMesh(filename);
 }
@@ -75,21 +77,36 @@ void Mesh::drawLocalClient() {
 	if (!tex) return;
 
 	if (!mVboMesh) {
-		const ci::TriMesh*		mesh = getMesh();
+		const ci::gl::VboMesh*	mesh = getMesh();
 		if (!mesh) return;
-		mVboMesh = ci::gl::VboMesh(*mesh);
+		mVboMesh = *mesh;
 		if (!mVboMesh) return;
 	}
 
-	// TODO: Not sure if this will be needed with the Perspective root sprite updates...
-	// Or if there will be some other mechanism to enable this?
+	// Save the depth-read state...
+	ci::gl::BoolState( GL_DEPTH_TEST );
+	GLboolean oldDepthWriteMask;
+	glGetBooleanv( GL_DEPTH_WRITEMASK, &oldDepthWriteMask );
+
+	// Depth read/write is enabled in the root, but unfortunately necessary
+	// right now because every sprite sets (or unsets) the depth buffer in its
+	// draw, which I don't think is how that should be done (but maybe, what do
+	// I know).  At least now we are safely restoring this state to whatever it
+	// was before this draw call.
 	ci::gl::enableDepthRead();
 	ci::gl::enableDepthWrite();
 
 	tex->bind();
 	ci::gl::draw( mVboMesh );
-
 	tex->unbind();
+
+	// Restore depth-write state.  GL_DEPTH_TEST (depth-read) is automagically
+	// restored via Cinder's BoolState destructor
+	glDepthMask( oldDepthWriteMask );
+}
+
+void Mesh::drawLocalServer() {
+	drawLocalClient();
 }
 
 bool Mesh::isLoaded() const {

@@ -98,6 +98,7 @@ void SpriteBody::destroy() {
 }
 
 void SpriteBody::setActive(bool flag) {
+	if (!mBody) return;
 	// Setting a body as inactive also sets all associated joints as inactive, but does not delete them from the world.
 	mBody->SetActive(flag);
 }

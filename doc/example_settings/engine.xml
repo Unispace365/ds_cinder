@@ -1,6 +1,6 @@
 <settings>
 	<!-- Project path for locating app resources  -->
-	<text name="project_path" value="surrey\pdf" />
+	<text name="project_path" value="downstream\example" />
 	
 	<!---------------------->
 	<!-- SERVER SETTINGS --->
@@ -71,7 +71,7 @@
 	<text name="touch_overlay:override_translation" value="true" />
 	<size name="touch_overlay:dimensions" x="1920" y="1080" />
 	<size name="touch_overlay:offset" x="0" y="0" />
-	-->
+
 	<!-- sets the color of debug touch points. default=255,255,255 -->
 	<color name="touch_color" r="255" g="255" b="255" />
 	<!-- draw circles around touch points -->
@@ -81,6 +81,8 @@
 	<!-- NOTE: if this is on and the touch system is also transmitting TUIO, it's
 				possible to receive double touch events. Use one or the other -->
 	<text name="enable_system_multitouch" value="true" />
+	<!-- When true, the app will receive all mouse events. Default = true. -->
+	<text name="enable_mouse_events" value="true" />
 	
 	<!-- port to listen to tuio stream. default=3333 -->
 	<int name="tuio_port" value="3000" />
@@ -90,7 +92,6 @@
 	
 	<!-- How far a touch moves before it's not a tap, in pixels -->
 	<float name="tap_threshold" value="20" />
-
 	
 	<!----------------------->
 	<!-- RESOURCE SETTINGS -->
@@ -99,5 +100,10 @@
 	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\northeastern\" />
 	<text name="resource_db" value="db\northeastern.sqlite" />
 
+	<!---------------------->
+	<!-- NETWORK SETTINGS -->
+	<!---------------------->
+	<!-- Seconds delay between checking the node for new messages. -->
+	<float name="node:refresh_rate" value="0.1" />
 
 </settings>
