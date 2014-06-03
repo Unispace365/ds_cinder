@@ -53,6 +53,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);})
 	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
 	, mSystemMultitouchEnabled(false)
+	, mEnableMouseEvents(true)
+	, mHideMouse(false)
 	, mApplyFxAA(false)
 	, mUniqueColor(0, 0, 0)
 {
@@ -439,8 +441,9 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings) {
 		mSystemMultitouchEnabled = true;
 		settings.enableMultiTouch();
 	}
+	mEnableMouseEvents = mSettings.getBool("enable_mouse_events", 0, mEnableMouseEvents);
 
-	mHideMouse = mSettings.getBool("hide_mouse", 0, false);
+	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
 
 	settings.setFrameRate(mData.mFrameRate);
@@ -525,15 +528,21 @@ tuio::Client &Engine::getTuioClient() {
 }
 
 void Engine::mouseTouchBegin(MouseEvent e, int id) {
-	mMouseBeginEvents.incoming(MousePair(e, id));
+	if (mEnableMouseEvents) {
+		mMouseBeginEvents.incoming(MousePair(e, id));
+	}
 }
 
 void Engine::mouseTouchMoved(MouseEvent e, int id) {
-	mMouseMovedEvents.incoming(MousePair(e, id));
+	if (mEnableMouseEvents) {
+		mMouseMovedEvents.incoming(MousePair(e, id));
+	}
 }
 
 void Engine::mouseTouchEnded(MouseEvent e, int id) {
-	mMouseEndEvents.incoming(MousePair(e, id));
+	if (mEnableMouseEvents) {
+		mMouseEndEvents.incoming(MousePair(e, id));
+	}
 }
 
 ds::ResourceList& Engine::getResources() {

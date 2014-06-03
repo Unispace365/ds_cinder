@@ -219,6 +219,8 @@ private:
 	ds::SelectPicking					mSelectPicking;
 
 	bool								mSystemMultitouchEnabled;
+	// If true, I will receive and handle mouse events. If false, I won't. Default = true.
+	bool								mEnableMouseEvents;
 	bool								mHideMouse;
 
 	bool								mApplyFxAA;

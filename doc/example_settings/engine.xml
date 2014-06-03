@@ -71,7 +71,7 @@
 	<text name="touch_overlay:override_translation" value="true" />
 	<size name="touch_overlay:dimensions" x="1920" y="1080" />
 	<size name="touch_overlay:offset" x="0" y="0" />
-	-->
+
 	<!-- sets the color of debug touch points. default=255,255,255 -->
 	<color name="touch_color" r="255" g="255" b="255" />
 	<!-- draw circles around touch points -->
@@ -81,6 +81,8 @@
 	<!-- NOTE: if this is on and the touch system is also transmitting TUIO, it's
 				possible to receive double touch events. Use one or the other -->
 	<text name="enable_system_multitouch" value="true" />
+	<!-- When true, the app will receive all mouse events. Default = true. -->
+	<text name="enable_mouse_events" value="true" />
 	
 	<!-- port to listen to tuio stream. default=3333 -->
 	<int name="tuio_port" value="3000" />
