@@ -1,10 +1,11 @@
 #pragma once
 #ifndef DS_UI_SPRITE_SPRITEENGINE_H_
 #define DS_UI_SPRITE_SPRITEENGINE_H_
-#include "cinder/Rect.h"
 #include <list>
 #include <unordered_map>
-#include "cinder/Vector.h"
+#include <cinder/Camera.h>
+#include <cinder/Rect.h>
+#include <cinder/Vector.h>
 #include "ds/app/app_defs.h"
 #include "fbo/fbo.h"
 #include <memory>
@@ -89,8 +90,10 @@ public:
 	// Camera control. Will throw if the root at the index is the wrong type.
 	// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call
 	// no earlier than App::setup().
-	virtual PerspCameraParams		getPerspectiveCamera(const size_t index) const = 0;
-	virtual void					setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
+	virtual PerspCameraParams			getPerspectiveCamera(const size_t index) const = 0;
+	// For clients that frequently read the camera params, they can cache a direct reference.
+	virtual const ci::CameraPersp&		getPerspectiveCameraRef(const size_t index) const = 0;
+	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
 
 	void							addToDragDestinationList(Sprite *sprite);
 	void							removeFromDragDestinationList(Sprite *sprite);

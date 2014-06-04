@@ -190,7 +190,7 @@ public:
 	ci::Vec3f				localToGlobal( const ci::Vec3f &localPoint );
 
 	// check if a point is inside the Sprite's bounds.
-	bool					contains(const ci::Vec3f& point, const float pad = 0.0f) const;
+	virtual bool			contains(const ci::Vec3f& point, const float pad = 0.0f) const;
 
 	// finds Sprite at position
 	Sprite*					getHit( const ci::Vec3f &point );

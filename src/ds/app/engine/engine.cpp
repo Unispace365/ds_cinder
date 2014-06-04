@@ -276,6 +276,16 @@ PerspCameraParams Engine::getPerspectiveCamera(const size_t index) const {
 	throw std::runtime_error("getPerspectiveCamera() on non-perspective root.");
 }
 
+const ci::CameraPersp& Engine::getPerspectiveCameraRef(const size_t index) const {
+	const PerspRoot*			root = nullptr;
+	if (index < mRoots.size()) root = dynamic_cast<const PerspRoot*>(mRoots[index].get());
+	if (root) {
+		return root->getCameraRef();
+	}
+	DS_LOG_ERROR(" Engine::getPerspectiveCamera() on invalid root (" << index << ")");
+	throw std::runtime_error("getPerspectiveCamera() on non-perspective root.");
+}
+
 void Engine::setPerspectiveCamera(const size_t index, const PerspCameraParams& p) {
 	PerspRoot*					root = nullptr;
 	if (index < mRoots.size()) root = dynamic_cast<PerspRoot*>(mRoots[index].get());

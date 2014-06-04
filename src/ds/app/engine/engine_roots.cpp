@@ -169,6 +169,10 @@ PerspCameraParams PerspRoot::getCamera() const {
 	return p;
 }
 
+const ci::CameraPersp& PerspRoot::getCameraRef() const {
+	return mCamera;
+}
+
 void PerspRoot::setCamera(const PerspCameraParams& p) {
 	if (p == getCamera()) return;
 

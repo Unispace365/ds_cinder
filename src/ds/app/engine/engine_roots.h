@@ -113,6 +113,7 @@ public:
 
 	// Camera
 	PerspCameraParams				getCamera() const;
+	const ci::CameraPersp&			getCameraRef() const;
 	void							setCamera(const PerspCameraParams&);
 	virtual void					markCameraDirty();
 
