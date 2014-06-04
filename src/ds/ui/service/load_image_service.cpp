@@ -135,6 +135,7 @@ bool LoadImageService::acquire(const ImageKey& key, const int flags) {
 	}
 	h.mRefs++;
 	if ((flags&Image::IMG_CACHE_F) != 0) h.mFlags |= Image::IMG_CACHE_F;
+	if ((flags&Image::IMG_ENABLE_MIPMAP_F) != 0) h.mFlags |= Image::IMG_ENABLE_MIPMAP_F;
 
 	return true;
 }
@@ -201,7 +202,12 @@ void LoadImageService::update() {
 			std::cout << "WHHAAAAT?  Duplicate images for id=" << out.mKey.mFilename << " refs=" << h.mRefs << std::endl;
 #endif
 		} else {
-			h.mTexture = ci::gl::Texture(out.mSurface);
+			ci::gl::Texture::Format	fmt;
+			if ((h.mFlags&ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
+				fmt.enableMipmapping(true);
+				fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+			}
+			h.mTexture = ci::gl::Texture(out.mSurface, fmt);
 			if (glGetError() == GL_OUT_OF_MEMORY) {
 				DS_LOG_ERROR_M("LoadImageService::update() called on filename: " << out.mKey.mFilename << " received an out of memory error. Image may be too big.", LOAD_IMAGE_LOG_M);
 			}
