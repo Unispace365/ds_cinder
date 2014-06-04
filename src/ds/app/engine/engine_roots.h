@@ -21,7 +21,7 @@ class Engine;
 class EngineRoot {
 public:
 	static ds::ui::Sprite*		make(ui::SpriteEngine&, const ds::sprite_id_t, const bool perspective);
-	EngineRoot(const sprite_id_t);
+	EngineRoot(const RootList::Root&, const sprite_id_t);
 	virtual ~EngineRoot();
 
 	class Settings {
@@ -34,7 +34,10 @@ public:
 		const float					mDefaultScale;
 	};
 	virtual void					setup(const Settings&) = 0;
+	// Initialize myself as a slave to the master
+	virtual void					slaveTo(EngineRoot*) = 0;
 
+	const RootList::Root&			getBuilder() const;
 	// Sprite management. Note that ideally Roots don't require having a sprite. Currently everything
 	// does, and that was the initial design, but it would be nice to move away from that instead of
 	// letting it get more entrenched.
@@ -51,8 +54,10 @@ public:
 	virtual ui::Sprite*				getHit(const ci::Vec3f& point) = 0;
 	// Hack for manually positioning the screen.
 	virtual void					setViewport(const bool) { }
-
+	
 protected:
+	// The builder object for this root. Params only used during initialization.
+	const RootList::Root			mRootBuilder;
 	const sprite_id_t				mSpriteId;
 
 private:
@@ -66,9 +71,10 @@ private:
  */
 class OrthRoot : public EngineRoot {
 public:
-	OrthRoot(Engine&, const sprite_id_t);
+	OrthRoot(Engine&, const RootList::Root&, const sprite_id_t);
 
 	virtual void					setup(const Settings&);
+	virtual void					slaveTo(EngineRoot*);
 	virtual ds::ui::Sprite*			getSprite();
 	virtual void					clearChildren();
 	virtual void					updateClient(const ds::UpdateParams&);
@@ -100,9 +106,10 @@ private:
  */
 class PerspRoot : public EngineRoot {
 public:
-	PerspRoot(Engine&, const sprite_id_t, const PerspCameraParams&, Picking* = nullptr);
+	PerspRoot(Engine&, const RootList::Root&, const sprite_id_t, const PerspCameraParams&, Picking* = nullptr);
 
 	virtual void					setup(const Settings&);
+	virtual void					slaveTo(EngineRoot*);
 	virtual ds::ui::Sprite*			getSprite();
 	virtual void					clearChildren();
 	virtual void					updateClient(const ds::UpdateParams&);
@@ -131,6 +138,8 @@ private:
 	ci::CameraPersp					mCamera;
 	bool							mCameraDirty;
 	std::unique_ptr<ui::Sprite>		mSprite;
+	// If I have a master, use it for my camera
+	PerspRoot*						mMaster;
 
 	// Maintain old and new-style picking
 	class OldPick : public Picking {

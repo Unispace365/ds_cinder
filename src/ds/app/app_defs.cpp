@@ -67,12 +67,23 @@ RootList& RootList::perspFar(const float v) {
 	return *this;
 }
 
+RootList& RootList::master() {
+	if (!mRoots.empty()) mRoots.back().mMaster = Root::kMaster;
+	return *this;
+}
+
+RootList& RootList::slave() {
+	if (!mRoots.empty()) mRoots.back().mMaster = Root::kSlave;
+	return *this;
+}
+
 /**
  * \class ds::RootList::Root
  */
 RootList::Root::Root()
 		: mType(kOrtho)
-		, mPick(kDefault) {
+		, mPick(kDefault)
+		, mMaster(kIndependent) {
 }
 
 
