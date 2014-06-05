@@ -3,6 +3,7 @@
 #include <cinder/Xml.h>
 #include <Poco/File.h>
 #include <Poco/String.h>
+#include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/util/string_util.h"
 
@@ -87,11 +88,15 @@ static void merge_vec(V& dst, const V& src)
 }
 
 template <typename A, typename V>
-const V& get_or_throw(const std::string& name, const A& container, const int index, const V&, const std::string& typeName)
+const V& get_or_throw(const std::string& name, const A& container, const int index, const V& v, const std::string& typeName)
 {
 	auto it = container.find(name);
 	if (it != container.end() && index >= 0 && index < (int)it->second.size()) return it->second[index];
-	throw std::logic_error("Settings " + typeName + " (" + name + ") does not exist");
+#ifdef _DEBUG
+	throw std::logic_error("Setting " + typeName + " (" + name + ") does not exist");
+#endif
+	DS_LOG_ERROR("Setting " << typeName << " (" << name << ") does not exist");
+	return v;
 }
 
 template <typename A, typename V>
