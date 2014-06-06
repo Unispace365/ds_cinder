@@ -646,6 +646,10 @@ void Sprite::sizeToChildBounds(){
 	
 }
 
+ci::Vec3f Sprite::getPreferredSize() const {
+	return ci::Vec3f(0.0f, 0.0f, 0.0f);
+}
+
 void Sprite::setColor( const ci::Color &color )
 {
   if (mColor == color) return;

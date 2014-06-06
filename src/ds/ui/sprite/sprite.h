@@ -76,6 +76,10 @@ public:
 
 	// sets the size based on the size of it's immediate children, not recursive
 	void					sizeToChildBounds();
+	// Answer the preferred size for this object. This is intended to be part of a
+	// layout pass, so the default preferred size is 0 not width/height. Subclasses
+	// need to override this to be meaningful.
+	virtual ci::Vec3f		getPreferredSize() const;
 
 	virtual float			getWidth() const;
 	virtual float			getHeight() const;
