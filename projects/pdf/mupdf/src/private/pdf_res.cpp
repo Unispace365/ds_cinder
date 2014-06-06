@@ -284,6 +284,25 @@ private:
 /**
  * \class ds::ui::sprite::PdfRes
  */
+ci::Surface8u PdfRes::renderPage(const std::string& path) {
+	ci::Surface8u			s;
+
+	Examine					examine;
+	Load					load;
+	const int				page_num = 1;
+	if (!load.run(examine, path, page_num)) return s;
+	if (examine.mWidth < 1 || examine.mHeight < 1) return s;
+
+	Pixels					pixels;
+	pixels.setSize(examine.mWidth, examine.mHeight);
+	Draw					draw(pixels, examine.mWidth, examine.mHeight, examine.mWidth, examine.mHeight);
+	if (!load.run(draw, path, page_num)) return s;
+
+	s = ci::Surface8u(pixels.getData(), examine.mWidth, examine.mHeight, examine.mWidth * 4, ci::SurfaceChannelOrder(ci::SurfaceChannelOrder::BGRA));
+	if (s) return s.clone(true);
+	return s;
+}
+
 PdfRes::PdfRes(ds::GlThread& t)
 		: ds::GlThreadClient<PdfRes>(t)
 		, mPageCount(0)

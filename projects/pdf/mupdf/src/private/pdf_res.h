@@ -17,6 +17,9 @@ namespace pdf {
  */
 class PdfRes : public ds::GlThreadClient<PdfRes> {
 public:
+	// Utility to get a render of the first page of a PDF.
+	static ci::Surface8u		renderPage(const std::string& path);
+
 	PdfRes(ds::GlThread&);
 	// Clients should never delete this class, instead schedule it for deletion and consider it invalid.
 	void scheduleDestructor();

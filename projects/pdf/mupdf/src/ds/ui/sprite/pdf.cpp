@@ -34,6 +34,10 @@ Pdf& Pdf::makePdf(SpriteEngine& e, Sprite* parent) {
 	return makeAlloc<ds::ui::Pdf>([&e]()->ds::ui::Pdf*{ return new ds::ui::Pdf(e); }, parent);
 }
 
+ci::Surface8u Pdf::renderPage(const std::string& path) {
+	return ds::pdf::PdfRes::renderPage(path);
+}
+
 Pdf::Pdf(ds::ui::SpriteEngine& e)
 		: inherited(e)
 		, mPageSizeMode(kConstantSize)
