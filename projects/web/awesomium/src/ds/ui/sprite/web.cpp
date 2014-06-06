@@ -152,7 +152,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	try {
 		mLoadingTexture = ci::gl::Texture(ci::loadImage(ds::Environment::getAppFolder("data/images", "loading.png")));
 	} catch( const std::exception &e ) {
-		DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
+		DS_LOG_ERROR("Exception loading loading image for websprite: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
 	}
 }
 
@@ -175,7 +175,8 @@ void Web::updateServer( const ds::UpdateParams &updateParams ) {
 		try {
 			// set texture filter to NEAREST if you don't intend to transform (scale, rotate) it
 			ci::gl::Texture::Format fmt;
-			fmt.setMagFilter( GL_NEAREST );
+		//	fmt.setMagFilter( GL_NEAREST );
+			fmt.setMagFilter( GL_LINEAR );
 
 			// get the texture using a handy conversion function
 			mWebTexture = ph::awesomium::toTexture( mWebViewPtr, fmt );
