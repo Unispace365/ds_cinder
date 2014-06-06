@@ -118,6 +118,7 @@ public:
 
 	void								markCameraDirty();
 	virtual PerspCameraParams			getPerspectiveCamera(const size_t index) const;
+	virtual const ci::CameraPersp&		getPerspectiveCameraRef(const size_t index) const;
 	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&);
 
 	// Modal -- prepare for the user to be able to move the camera.

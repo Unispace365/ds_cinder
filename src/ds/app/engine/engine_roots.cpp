@@ -12,18 +12,23 @@ ds::ui::Sprite* EngineRoot::make(ui::SpriteEngine& e, const ds::sprite_id_t id, 
 	return new ds::ui::Sprite(e, id, perspective);
 }
 
-EngineRoot::EngineRoot(const sprite_id_t id)
-		: mSpriteId(id) {
+EngineRoot::EngineRoot(const RootList::Root& r, const sprite_id_t id)
+		: mRootBuilder(r)
+		, mSpriteId(id) {
 }
 
 EngineRoot::~EngineRoot() {
 }
 
+const RootList::Root& EngineRoot::getBuilder() const {
+	return mRootBuilder;
+}
+
 /**
  * \class ds::OrthRoot
  */
-OrthRoot::OrthRoot(Engine& e, const sprite_id_t id)
-		: inherited(id)
+OrthRoot::OrthRoot(Engine& e, const RootList::Root& r, const sprite_id_t id)
+		: inherited(r, id)
 		, mEngine(e)
 		, mCameraDirty(false)
 		, mSetViewport(true)
@@ -40,6 +45,9 @@ void OrthRoot::setup(const Settings& s) {
 	} else if (window_scale != s.mDefaultScale) {
 		mSprite->setScale(window_scale, window_scale);
 	}
+}
+
+void OrthRoot::slaveTo(EngineRoot*) {
 }
 
 ds::ui::Sprite* OrthRoot::getSprite() {
@@ -109,11 +117,12 @@ void OrthRoot::setGlCamera() {
 /**
  * \class ds::PerspRoot
  */
-PerspRoot::PerspRoot(Engine& e, const sprite_id_t id, const PerspCameraParams& p, Picking* picking)
-		: inherited(id)
+PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, const PerspCameraParams& p, Picking* picking)
+		: inherited(r, id)
 		, mEngine(e)
 		, mCameraDirty(false)
 		, mSprite(EngineRoot::make(e, id, true))
+		, mMaster(nullptr)
 		, mOldPick(mCamera)
 		, mPicking(picking ? *picking : mOldPick) {
 	mCamera.setEyePoint(p.mPosition);
@@ -126,6 +135,11 @@ PerspRoot::PerspRoot(Engine& e, const sprite_id_t id, const PerspCameraParams& p
 void PerspRoot::setup(const Settings& s) {
 	mSprite->setSize(s.mScreenRect.getWidth(), s.mScreenRect.getHeight());
 	mSprite->setDrawSorted(true);
+}
+
+void PerspRoot::slaveTo(EngineRoot* r) {
+	mMaster = dynamic_cast<PerspRoot*>(r);
+	if (!mMaster) return;
 }
 
 ds::ui::Sprite* PerspRoot::getSprite() {
@@ -160,6 +174,8 @@ ui::Sprite* PerspRoot::getHit(const ci::Vec3f& point) {
 }
 
 PerspCameraParams PerspRoot::getCamera() const {
+	if (mMaster) return mMaster->getCamera();
+
 	PerspCameraParams		p;
 	p.mPosition = mCamera.getEyePoint();
 	p.mTarget = mCamera.getCenterOfInterestPoint();
@@ -169,7 +185,19 @@ PerspCameraParams PerspRoot::getCamera() const {
 	return p;
 }
 
+const ci::CameraPersp& PerspRoot::getCameraRef() const {
+	if (mMaster) return mMaster->getCameraRef();
+
+	return mCamera;
+}
+
 void PerspRoot::setCamera(const PerspCameraParams& p) {
+	if (mMaster) {
+#ifdef _DEBUG
+		throw std::runtime_error("PerspRoot::setCamera() illegal: root is a slave");
+#endif
+		return;
+	}
 	if (p == getCamera()) return;
 
 	mCamera.setEyePoint(p.mPosition);
@@ -184,13 +212,20 @@ void PerspRoot::markCameraDirty() {
 
 void PerspRoot::setCinderCamera() {
 	mCameraDirty = false;
-//	mCamera.setEyePoint( Vec3f(0.0f, 0.0f, 100.0f) );
-//	mCamera.setCenterOfInterestPoint( Vec3f(0.0f, 0.0f, 0.0f) );
-	mCamera.setPerspective(mCamera.getFov(), getWindowAspectRatio(), mCamera.getNearClip(), mCamera.getFarClip());
+
+	if (mMaster) {
+		if (mMaster->mCameraDirty) mMaster->setCinderCamera();
+	} else {
+		mCamera.setPerspective(mCamera.getFov(), getWindowAspectRatio(), mCamera.getNearClip(), mCamera.getFarClip());
+	}
 }
 
 void PerspRoot::setGlCamera() {
-	ci::gl::setMatrices(mCamera);
+	if (mMaster) {
+		ci::gl::setMatrices(mMaster->mCamera);
+	} else {
+		ci::gl::setMatrices(mCamera);
+	}
 	// enable the depth buffer (after all, we are doing 3D)
 	//gl::enableDepthRead();
 	//gl::enableDepthWrite();
@@ -218,7 +253,7 @@ void PerspRoot::drawFunc(const std::function<void(void)>& fn) {
 }
 
 /**
- * \class ds::PerspRoot
+ * \class ds::PerspRoot::OldPick
  */
 PerspRoot::OldPick::OldPick(ci::Camera& c)
 		: mCamera(c) {

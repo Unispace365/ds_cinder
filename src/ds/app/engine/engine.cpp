@@ -24,6 +24,8 @@ const char			ds::CMD_CLIENT_REQUEST_WORLD = 2;
 
 namespace {
 const int			NUMBER_OF_NETWORK_THREADS = 2;
+
+void				root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>&);
 }
 
 const ds::BitMask	ds::ENGINE_LOG = ds::Logger::newModule("engine");
@@ -74,8 +76,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		Picking*						picking = nullptr;
 		if (r.mPick == r.kSelect) picking = &mSelectPicking;
 		std::unique_ptr<EngineRoot>		root;
-		if (r.mType == r.kOrtho) root.reset(new OrthRoot(*this, id));
-		else if (r.mType == r.kPerspective) root.reset(new PerspRoot(*this, id, r.mPersp, picking));
+		if (r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, id));
+		else if (r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, id, r.mPersp, picking));
 		if (!root) throw std::runtime_error("Engine can't create root");
 		mRoots.push_back(std::move(root));
 		--id;
@@ -83,6 +85,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	if (mRoots.empty()) {
 		throw std::runtime_error("Engine can't create single root");
 	}
+	root_setup(mRoots);
+
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
 	const float			DEFAULT_WINDOW_SCALE = 1.0f;
@@ -271,6 +275,16 @@ PerspCameraParams Engine::getPerspectiveCamera(const size_t index) const {
 	if (index < mRoots.size()) root = dynamic_cast<const PerspRoot*>(mRoots[index].get());
 	if (root) {
 		return root->getCamera();
+	}
+	DS_LOG_ERROR(" Engine::getPerspectiveCamera() on invalid root (" << index << ")");
+	throw std::runtime_error("getPerspectiveCamera() on non-perspective root.");
+}
+
+const ci::CameraPersp& Engine::getPerspectiveCameraRef(const size_t index) const {
+	const PerspRoot*			root = nullptr;
+	if (index < mRoots.size()) root = dynamic_cast<const PerspRoot*>(mRoots[index].get());
+	if (root) {
+		return root->getCameraRef();
 	}
 	DS_LOG_ERROR(" Engine::getPerspectiveCamera() on invalid root (" << index << ")");
 	throw std::runtime_error("getPerspectiveCamera() on non-perspective root.");
@@ -636,3 +650,33 @@ void Engine::deleteRequestedSprites() {
 }
 
 } // namespace ds
+
+
+namespace {
+
+ds::EngineRoot*		find_master(const ds::RootList::Root::Type t, std::vector<std::unique_ptr<ds::EngineRoot>>& list) {
+	for (auto it=list.begin(), end=list.end(); it!=end; ++it) {
+		ds::EngineRoot*		r(it->get());
+		if (!r) continue;
+		if (r->getBuilder().mType == t && r->getBuilder().mMaster == ds::RootList::Root::kMaster) {
+			return r;
+		}
+	}
+	return nullptr;
+}
+
+void				root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>& dst) {
+	// Go through each of my roots, searching for a master. If I have a master, hook up all my slaves.
+	for (auto it=dst.begin(), end=dst.end(); it!=end; ++it) {
+		ds::EngineRoot*		r(it->get());
+		if (!r) continue;
+		if (r->getBuilder().mMaster == ds::RootList::Root::kSlave) {
+			ds::EngineRoot*	master = find_master(r->getBuilder().mType, dst);
+			if (master && master != r) {
+				r->slaveTo(master);
+			}
+		}
+	}
+}
+
+}

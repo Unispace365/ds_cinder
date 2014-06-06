@@ -46,9 +46,12 @@ public:
 	RootList&						perspNear(const float);
 	RootList&						perspFar(const float);
 
+	// Set to master or slave mode. Currently only perspectives can
+	// be master or slave, there can only be a single master, and all
+	// slaves will follow the master's camera settings.
+	RootList&						master();
+	RootList&						slave();
 
-private:
-	friend class Engine;
 	class Root {
 	public:
 		Root();
@@ -57,8 +60,13 @@ private:
 		Type						mType;
 		enum Pick					{ kDefault, kSelect, kColor };
 		Pick						mPick;
+		enum Master					{ kIndependent, kMaster, kSlave };
+		Master						mMaster;
 		PerspCameraParams			mPersp;
 	};
+
+private:
+	friend class Engine;
 	std::vector<Root>				mRoots;
 };
 

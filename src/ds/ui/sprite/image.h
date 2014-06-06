@@ -12,10 +12,13 @@ namespace ui {
 class Image : public Sprite
 			, public ImageOwner {
 public:
+	// NOTE: These really belong elsewhere now, like ImgeSource or probably ImageDefs.
 	// Cache any texture loaded by this sprite, never releasing it.
 	static const int			IMG_CACHE_F = (1<<0);
 	// Begin loading an image as soon as it's received.
 	static const int			IMG_PRELOAD_F = (1<<1);
+	// Enable mipmapping. This only applies to an image source, so being here is weird.
+	static const int			IMG_ENABLE_MIPMAP_F = (1<<2);
 
 public:
 	static Image&				makeImage(SpriteEngine&, const std::string& filename, Sprite* parent = nullptr);
