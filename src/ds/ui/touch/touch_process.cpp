@@ -49,6 +49,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 			mSwipeQueue.clear();
 			mSwipeFingerId = touchInfo.mFingerId;
 			addToSwipeQueue(touchInfo.mCurrentGlobalPoint, 0);
+			mStartAnchor = mSprite.getCenter();
 		}
 
 		initializeTouchPoints();
@@ -336,8 +337,8 @@ bool TouchProcess::swipeHappened()
 	return (averageDistance >= minSpeed * 0.016f && (mLastUpdateTime - mSwipeQueue.front().mTimeStamp) < maxTimeThreshold);
 }
 
-void TouchProcess::updateDragDestination( const TouchInfo &touchInfo )
-{
+void TouchProcess::updateDragDestination( const TouchInfo &touchInfo ) {
+	if (mFingers.empty()) return;
 	auto found = mFingers.find(touchInfo.mFingerId);
 	if (found == mFingers.end()){
 		return;
