@@ -8,9 +8,9 @@
 #include "ds/thread/work_request_list.h"
 
 namespace Poco {
- namespace Net {
-  class HTMLForm;
- }
+namespace Net {
+	class HTMLForm;
+}
 }
 
 namespace ds {
@@ -25,11 +25,11 @@ public:
 
 public:
 	std::wstring			mMsg;
-	int						    mStatus;
+	int						mStatus;
 
 	HttpReply();
 
-	void					    clear();
+	void					clear();
 };
 
 /* HTTP-CLIENT
@@ -38,66 +38,63 @@ public:
  * I don't want to open.  Also, currently don't support any
  * actual reply, this is a fire and forget for now.
  ******************************************************************/
-class HttpClient : public ds::WorkClient
-{
+class HttpClient : public ds::WorkClient {
 public:
 	// If the URL contains a query part it needs to be URL encoded, that won't happen automatically.
 	static bool						httpGetAndReply(const std::wstring& url, ds::HttpReply*);
 	static bool						httpPostAndReply(const std::wstring& url, const std::string& body, ds::HttpReply*);
-  // Do a post with complete control over what goes in the form. Poco supplies utilities for
-  // adding strings and files. An example of posting a file into the form would be this:
-  // const std::string  filename("c:\\tempfile.png")'
-  // auto postFn = [filename](Poco::Net::HTMLForm& f) {
-  //    Poco::Net::FilePartSource*  ps = new Poco::Net::FilePartSource(filename, "temp.png", "binary/octet-stream");
-  //    if (ps) f.addPart("file", ps);
-  // };
+	// Do a post with complete control over what goes in the form. Poco supplies utilities for
+	// adding strings and files. An example of posting a file into the form would be this:
+	// const std::string  filename("c:\\tempfile.png")'
+	// auto postFn = [filename](Poco::Net::HTMLForm& f) {
+	//    Poco::Net::FilePartSource*  ps = new Poco::Net::FilePartSource(filename, "temp.png", "binary/octet-stream");
+	//    if (ps) f.addPart("file", ps);
+	// };
 	static bool						httpPostAndReply(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>&, ds::HttpReply*);
 
 public:
 	HttpClient(ui::SpriteEngine&, const std::function<void(const HttpReply&)>& = nullptr);
 
-  void                  setResultHandler(const std::function<void(const HttpReply&)>&);
+	void							setResultHandler(const std::function<void(const HttpReply&)>&);
 
-	bool							    httpGet(const std::wstring& url);
-	bool							    httpPost(const std::wstring& url, const std::string& body);
-	bool							    httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn);
+	bool							httpGet(const std::wstring& url);
+	bool							httpPost(const std::wstring& url, const std::string& body);
+	bool							httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn);
 
 protected:
-  virtual void          handleResult(std::unique_ptr<WorkRequest>&);
+	virtual void					handleResult(std::unique_ptr<WorkRequest>&);
 
 private:
     typedef ds::WorkClient  inherited;
 
-    class Request : public ds::WorkRequest {
-      public:
-        Request(const void* clientId);
+	class Request : public ds::WorkRequest {
+	public:
+		Request(const void* clientId);
 
-        // input
-//        int                 mRunId;
-		    int							    mOpt;
-		    std::wstring				mUrl;
-		    std::string					mBody;
-        // Utility to write multipart form data in a post
-        std::function<void(Poco::Net::HTMLForm&)>
-                            mPostFn;
+		// input
+		int							mOpt;
+		std::wstring				mUrl;
+		std::string					mBody;
+		// Utility to write multipart form data in a post
+		std::function<void(Poco::Net::HTMLForm&)>
+									mPostFn;
 
         // output
-		    ds::HttpReply				mReply;
+		ds::HttpReply				mReply;
 
-        virtual void        run();
-    };
+		virtual void				run();
+	};
 
-    ds::WorkRequestList<Request>
-                            mCache;
+	ds::WorkRequestList<Request>	mCache;
     std::function<void(const HttpReply&)>
-			    						      mResultHandler;
+									mResultHandler;
 
 private:
-	bool							        sendHttp(     const int opt, const std::wstring& url, const std::string& body,
-                                          const std::function<void(Poco::Net::HTMLForm&)>& postFn);
-	static bool						    httpAndReply( const int opt, const std::wstring& url, const std::string& body,
-                                          const std::function<void(Poco::Net::HTMLForm&)>& postFn,
-                                          ds::HttpReply*);
+	bool							sendHttp(	const int opt, const std::wstring& url, const std::string& body,
+												const std::function<void(Poco::Net::HTMLForm&)>& postFn);
+	static bool						httpAndReply(	const int opt, const std::wstring& url, const std::string& body,
+													const std::function<void(Poco::Net::HTMLForm&)>& postFn,
+													ds::HttpReply*);
 };
 
 } // namespace ds

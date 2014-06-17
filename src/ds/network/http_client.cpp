@@ -98,10 +98,10 @@ bool HttpClient::sendHttp(const int opt, const std::wstring& url, const std::str
 	std::unique_ptr<Request>		r(std::move(mCache.next()));
 	if (!r) return false;
 
-  r->mOpt = opt;
+	r->mOpt = opt;
 	r->mUrl = url;
 	r->mBody = body;
-  r->mPostFn = postFn;
+	r->mPostFn = postFn;
 	r->mReply.clear();
 	return mManager.sendRequest(ds::unique_dynamic_cast<WorkRequest, Request>(r));
 }
@@ -114,7 +114,7 @@ bool HttpClient::httpAndReply(const int opt, const std::wstring& url, const std:
 	r.mOpt = opt;
 	r.mUrl = url;
 	r.mBody = body;
-  r.mPostFn = postFn;
+	r.mPostFn = postFn;
 	r.run();
 	if (ans) (*ans) = r.mReply;
 	return true;
@@ -141,8 +141,7 @@ HttpClient::Request::Request(const void* clientId)
 {
 }
 
-void HttpClient::Request::run()
-{
+void HttpClient::Request::run() {
 	mReply.clear();
 	const string						url8 = ds::utf8_from_wstr(mUrl);
 	if (url8.empty()) return;
@@ -163,22 +162,22 @@ void HttpClient::Request::run()
 
 		if ((mOpt&HTTP_POST_OPT) != 0) {
 			Poco::Net::HTTPRequest		request(Poco::Net::HTTPRequest::HTTP_POST, path, Poco::Net::HTTPMessage::HTTP_1_1);
-      Poco::Net::HTMLForm		    form(request);
-      form.setEncoding(Poco::Net::HTMLForm::ENCODING_MULTIPART);
-      if (!mBody.empty()) {
-        request.setKeepAlive(true);
-        // XXX Obviously we need to provide more parameters to use this properly.
-        // Clients should use the postFn... probably should obsolete this, or make it URL-encoded only.
-	      Poco::Net::StringPartSource*  ps = new Poco::Net::StringPartSource(mBody, "binary/octet-stream", "unknown_file");
-        if (ps) form.addPart("file", ps);
-      } else if (mPostFn != nullptr) {
-        request.setKeepAlive(true);
-        mPostFn(form);
-      }
-      form.prepareSubmit(request);
+			Poco::Net::HTMLForm		    form(request);
+			form.setEncoding(Poco::Net::HTMLForm::ENCODING_MULTIPART);
+			if (!mBody.empty()) {
+				request.setKeepAlive(true);
+				// XXX Obviously we need to provide more parameters to use this properly.
+				// Clients should use the postFn... probably should obsolete this, or make it URL-encoded only.
+				Poco::Net::StringPartSource*  ps = new Poco::Net::StringPartSource(mBody, "binary/octet-stream", "unknown_file");
+				if (ps) form.addPart("file", ps);
+			} else if (mPostFn != nullptr) {
+				request.setKeepAlive(true);
+				mPostFn(form);
+			}
+			form.prepareSubmit(request);
 
 			std::ostream&   ostr = s.sendRequest(request); // << mBody;
-      form.write(ostr);
+			form.write(ostr);
 		} else {
 			Poco::Net::HTTPRequest		request(Poco::Net::HTTPRequest::HTTP_GET, path, Poco::Net::HTTPMessage::HTTP_1_1);
 			s.sendRequest(request);
