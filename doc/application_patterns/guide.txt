@@ -1,0 +1,70 @@
+Application Design Patterns
+
+This is a proposal for some general patterns to use in our application development. For the most part, there's little here that is amenable to templatizing; mostly this will be suggested practices. There are a few pieces that should be part of the core framework, which will be noted.
+
+The example code and small aspects of the design are based on BigWorld, but translating to DsCinder is trivial. All examples were pulled from NetApp DataWall if you want the full code, quickly modified into more digestible pieces for this doc. Where applicable, I've placed lots of comments in the code, so it's an important part of this doc, too.
+
+The structure below will follow the suggested folder structure.
+
+1. APP
+The app/ folder stores all classes that are either viewed globally throughout the system or involved in the internal workings of the app.
+
+The traditional class is the actual App (app.h/.cpp) class, which in this system is responsible for storing all model data and handling all async querying chores.
+
+Less traditional is the Globals (globals.h/.cpp) class, which is responsible for exposing the model data to all parts of the app. The distinction between App and Globals is explicitly defined: The App actually stores the data, the Globals serves as a pass-through for client access. This means that all model classes should be forward declared in the Globals, so that only classes that actually deal with a part of the model will need to include the appropriate headers, and we can cut down on compile time.
+
+In addition to providing access to model data, I generally set convenience pass-throughs to access the various framework cfg files. This means the settings files, text configs and nine patch configs. The settings files are all application dependent; the other types are generally stored in a single standard file that is loaded in the app constructor.
+
+
+1.1. EVENTS
+Events are a key part of the design. As expected, an event is simply an object passed from one part of the system to another. Events are subclassed from app/event.h, which provides little more than a base class and a unique identifier. In most cases, an event is subclassed to add additional relevant data for that event type, but at the very least an event subclass needs to be created to create a new unique ID.
+
+Events are sent from an EventNotifier (app/event_notifier.h) and received by an EventClient (app/event_client.h). There is a global EventNotifier found in the SpriteEngine, which could be thought of as a single system-wide communication channel. If an app has an event that might be sent often and generate a large amount of traffic, it might be wise to create a specific EventNotifier and provide it to any interested EventClients, thereby creating a new communication channel.
+
+The EventNotifier has two ways to send events: notify() sends a const Event, meaning it's a fire-and-forget operation that can't have any response. request() is used to send a non-const Event, so an EventClients that handle request()ed events can modify the Event to provide some feedback to the caller. Applications will almost always just send notify(); request() can be thought of as a system-wide query and can be extremely useful at specific times but is not generally needed.
+
+1.1.1. Routes
+
+Routes are simply a standard way of multiple identical clients handling different events of the same type. For example, if you have a panel class called InfoPanel, and you have two InfoPanels opened, when a button is pressed, we need a way to identify which panel needs to handle it. So a route is just a unique int defined in each InfoPanel that it assigns to any events it generates so it knows only it should handle them.
+
+Routes are currently not defined or used in the system. It's just a concept apps can implement to localize event handling. It's worth mentioning because it might become part of the system at some point, but until then is a useful concept.
+
+1.1.2. Asynchronous
+
+All functionality in the application should happen via an event: Opening panels, clicking buttons, navigating pages (note that there are always exceptions as you get down to smaller and smaller bits of functionality; there are some cases where it's not worth being pedantic, and you just want to directly handle a button press). Since events have no return behaviour, this immediately makes your app designed for asynchronous behaviour: You will generally have an event that initiates an action, and then some class in your app that responds to the results of that action. For example, a button on a home screen might send an event requesting a panel open, and then a panel layer would respond to that event, opening the panel.
+
+Since this design is enforced, it makes it trivial to delay decisions about caching. My applications are designed so that certain events are querying events, which are always handled by the App class itself. The App can then either look up the results in a cache or perform a query; it makes no difference to either the event sender or the receiver of the operation. Once it has the information, it then generates an appropriate event with the included model data.
+
+1.1.3. Localized
+
+A single global event system means we can create truly localized behaviour that still can communicate with any part of the system. Let's take the example of a VideoQueue: Behaviour that enforces only a single video playing at a time. When this was implemented in Northeastern, some behaviour was added to the Globals because, of course, multiple panels need some way of accessing shared data.
+
+Not anymore. In this system, the correct way to implement this behaviour is to create a completely localized VideoQueue class, which is than an instance variable on any objects that want queueing behaviour. The VideoQueue defines a private request event that, when necessary, it sends to all of its sibling instances, and any queue that has an active video playing notes this in the request. The originating queue then checks the request to see if the video can play. All reliance on global or any information outside the VideoQueue is gone.
+
+
+2. CFG
+The cfg/ folder stores a simple pattern I've started using for configuring model classes. Ideally, a model can be configured either through a settings file or hard coded in the app, depending on need. The simple example here shows how I've set things up. Three classes determine a full cfg: The Cfg class is the basic data store, specific to the model in question (note that this is in addition to the standard Settings object, which would work fine, but I eventually decided this pattern was for cases where you specifically want a defined model for your config data). The CfgKeys stores the names used in a Settings file for each piece of data in the Cfg, and the CfgReader is used to translate a settings and Keys into a Cfg (and as an addition, the reader should probably take an optional Cfg* in its constructor, so clients can easily mix and match hardcoded and Settings-loaded data).
+
+
+3. EVENTS
+The events/ folder should store all application-specific events. There should ideally be a separate file for each part of the model, to avoid dependencies as much as possible.
+
+
+4. MODEL
+The model/ folder stores local domain objects, and as such is completely dependent on the app. Included is an example model class ("node") that shows a pattern for a memory-managed model class. It's not required to handle things this way, although it can simplify the application design by removing memory issues.
+
+
+5. QUERY
+The query/ folder contains all code specific to translating the data store into the model classes. I've chosen an example that demonstrates several things: One is the use of the Generator class, a convenience used to hide randomization, making it look to clients like a single table has an infinite randomzied list.
+
+More important is the actual querying behaviour, which has two key pieces: One is that the query term is defined by a select statement, generally hidden behind some convenience functions. The other is that reading the results of the query happens through an array of result handlers (as seen in buildFields()). This is an important piece of design because it makes queries very resilient and robust. It works by translating the name of each column from each result into a specific function handler. This means that the input can be anything there's a handler to support, which in turn means a single query object can be used to grab just a couple fields from a large table, or the entire table, in either case with no overhead of wasted event generation because the result handling is expecting a defined structure to the results.
+
+Additionally, the original author can provide warnings when there's a field mismatch, which will catch changes in the database that might otherwise silently break some unnoticed part of the application.
+
+Of course, there's an alternative of not dealing with querying at all and just caching the entire database into the model on startup. I keep toying with doing that but over time, as I've built conveniences for keeping things asynchronours, it's seemed less and less worth exploring. One of the big issues going on is liveness: If we ever hit an app that needs to be highly responsive but has a large amount of data, we're going to want to have something like the current design I use, and since it handles all cases well, I've just stuck with it.
+
+
+6. UI
+This is where I've been placing basically anything that subclasses a sprite, and is what would map to the V part of MVC (as such I've debated calling it view/ instead, and I've also debated making a stronger distinction, like view/ for all clearly app-specific classes, and ui/ for more support-based classes).
+
+For the most part there's not much to say about this, but I have been developing some UI support functions that are probably worth talking about. The most common is a function for creating and adding a sprite, and explicitly throwing on any allocation or construction errors.
