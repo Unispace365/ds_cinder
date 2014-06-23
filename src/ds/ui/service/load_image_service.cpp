@@ -1,6 +1,7 @@
 ﻿#include "ds/ui/service/load_image_service.h"
 
 #include <cinder/ImageIo.h>
+#include "ds/app/environment.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/image.h"
@@ -241,7 +242,8 @@ void LoadImageService::_load()
 			// who knows what the function will need. Otherwise let cinder do its thing.
 			boost::tribool					alpha = boost::logic::indeterminate;
 			if (!top.mIpFunction.empty()) alpha = boost::tribool(true);
-			top.mSurface = ci::Surface8u(ci::loadImage(top.mKey.mFilename), ci::SurfaceConstraintsDefault(), alpha);
+			const std::string				fn = ds::Environment::expand(top.mKey.mFilename);
+			top.mSurface = ci::Surface8u(ci::loadImage(fn), ci::SurfaceConstraintsDefault(), alpha);
 			DS_REPORT_GL_ERRORS();
 			if (top.mSurface) {
 				top.mIpFunction.on(top.mKey.mIpParams, top.mSurface);

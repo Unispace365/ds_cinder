@@ -309,9 +309,8 @@ ds::App::Initializer::Initializer(const std::string& appPath) {
 } // namespace ds
 
 static ds::Engine&    new_engine(	ds::App& app, const ds::cfg::Settings& settings,
-									ds::EngineData& ed, const ds::RootList& roots)
-{
-  if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(app, settings, ed, roots));
-  if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(app, settings, ed, roots));
-  return *(new ds::EngineClientServer(app, settings, ed, roots));
+									ds::EngineData& ed, const ds::RootList& roots) {
+	if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(app, settings, ed, roots));
+	if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(app, settings, ed, roots));
+	return *(new ds::EngineClientServer(app, settings, ed, roots));
 }

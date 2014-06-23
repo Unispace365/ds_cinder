@@ -7,6 +7,7 @@
 #include <Poco/File.h>
 #include <Poco/Path.h>
 #include <Poco/String.h>
+#include "ds/app/environment.h"
 #include "ds/debug/logger.h"
 #include "ds/storage/persistent_cache.h"
 #include "ds/util/file_meta_data.h"
@@ -121,9 +122,11 @@ public:
 
 	ci::Vec2f			getSize(const std::string& fn) {
 		// If I've got a cached item and the modified dates match, use that.
+		// Note: for the actual path, use the expanded fn.
+		const std::string	expanded_fn(ds::Environment::expand(fn));
 		try {
 			auto f = mCache.find(fn);
-			if (f != mCache.end() && f->second.mLastModified == Poco::File(fn).getLastModified()) {
+			if (f != mCache.end() && f->second.mLastModified == Poco::File(expanded_fn).getLastModified()) {
 				return f->second.mSize;
 			}
 		} catch (std::exception const&) {
@@ -131,9 +134,9 @@ public:
 
 		try {
 			// Generate the cache:
-			ImageAtts		atts = generate(fn);
+			ImageAtts		atts = generate(expanded_fn);
 			if (atts.mSize.x > 0.0f && atts.mSize.y > 0.0f) {
-				atts.mLastModified = Poco::File(fn).getLastModified();
+				atts.mLastModified = Poco::File(expanded_fn).getLastModified();
 				mCache[fn] = atts;
 				return atts.mSize;
 			}

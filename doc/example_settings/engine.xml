@@ -13,8 +13,9 @@
 	<int name="server:send_port" value="10370" />
 	<int name="server:listen_port" value="10371" />
 	
-	<!-- if this is a server (world engine), a client (render engine) or both (world + render). 
-	default ="", which is an EngineClientServer, aka "both"-->
+	<!-- if this is a server (world engine), a client (render engine) or both (world + render).
+	values: "client", "server", ""
+	default = "", which is an EngineClientServer, aka "both"-->
 	<text name="platform:architecture" value="" />
 
 	<!---------------------->

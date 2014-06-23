@@ -46,6 +46,10 @@ public:
 	// Answer the current project path
 	static std::string			getProjectPath();
 
+	// Return the same path but with any environment variables expanded. Current variables:
+	//	%APP% -- expanded to app folder
+	static std::string			expand(const std::string& path);
+		
 	// Utility to add a value to an environment variable. Probably this is a bad place
 	// for this, and it should be hidden in the app.
 	static void					addToEnvironmentVariable(const std::string& variable, const std::string& value);

@@ -1,5 +1,6 @@
 #include "ds/app/environment.h"
 
+#include <boost/algorithm/string.hpp>
 #include <Poco/File.h>
 #include <Poco/Path.h>
 #include "ds/app/app.h"
@@ -73,18 +74,6 @@ std::string Environment::getDownstreamDocumentsFolder()
 	return p.toString();
 }
 
-#if 0
-// Answer the settings folder for this project.
-//    static std::string		      getProjectSettingsFolder(const std::string& projectPath);
-std::string Environment::getProjectSettingsFolder(const std::string& projectPath)
-{
-	Poco::Path			p(getDownstreamDocumentsFolder());
-	p.append(SETTINGS());
-	if (!projectPath.empty()) p.append(projectPath);
-	return p.toString();
-}
-#endif
-
 std::string Environment::getLocalSettingsPath(const std::string& fileName)
 {
   if (EngineSettings::envProjectPath().empty()) return "";
@@ -93,10 +82,9 @@ std::string Environment::getLocalSettingsPath(const std::string& fileName)
   return p.toString();
 }
 
-void Environment::loadSettings(const std::string& filename, ds::cfg::Settings& settings)
-{
-  settings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), false);
-  settings.readFrom(ds::Environment::getLocalSettingsPath(filename), true);
+void Environment::loadSettings(const std::string& filename, ds::cfg::Settings& settings) {
+	settings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), false);
+	settings.readFrom(ds::Environment::getLocalSettingsPath(filename), true);
 }
 
 std::string Environment::getLocalFile(	const std::string& category,
@@ -118,6 +106,12 @@ std::string Environment::getLocalFile(	const std::string& category,
 
 std::string Environment::getProjectPath() {
 	return EngineSettings::envProjectPath();
+}
+
+std::string Environment::expand(const std::string& _path) {
+	std::string		p(_path);
+	boost::replace_all(p, "%APP%", ds::App::envAppDataPath());
+	return p;
 }
 
 void Environment::addToEnvironmentVariable(const std::string& variable, const std::string& value) {
