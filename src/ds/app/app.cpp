@@ -127,41 +127,43 @@ App::~App() {
 	DS_DBG_CODE(GLOBAL_CONSOLE.destroy());
 }
 
-void App::prepareSettings(Settings *settings)
-{
-  inherited::prepareSettings(settings);
+void App::prepareSettings(Settings *settings) {
+	inherited::prepareSettings(settings);
 
-  if (settings) {
-    mEngine.prepareSettings(*settings);
+	if (settings) {
+		mEngine.prepareSettings(*settings);
 
-    // set in the engine.xml
-    ci::Vec3f pos = mEngineSettings.getPoint("window_pos", 0, ci::Vec3f(0.0f, 0.0f, 0.0f));
-    settings->setWindowPos(static_cast<unsigned>(pos.x), static_cast<unsigned>(pos.y));
-  }
+		// set in the engine.xml
+		// Maintain backwards compatibility with now-obsoleted window_pos
+		const ci::Rectf		dst_rect(mEngineSettings.getRect("dst_rect", 0, ci::Rectf(0.0f, 0.0f, -1.0f, -1.0f)));
+		if (dst_rect.x2 > dst_rect.x1 && dst_rect.y2 > dst_rect.y1) {
+			settings->setWindowPos(static_cast<unsigned>(dst_rect.x1), static_cast<unsigned>(dst_rect.y1));
+		} else {
+			ci::Vec3f pos = mEngineSettings.getPoint("window_pos", 0, ci::Vec3f(0.0f, 0.0f, 0.0f));
+			settings->setWindowPos(static_cast<unsigned>(pos.x), static_cast<unsigned>(pos.y));
+		}
+	}
 }
 
-void App::setup()
-{
-  inherited::setup();
+void App::setup() {
+	inherited::setup();
 
-  mEngine.setup(*this);
-  mEngine.setupTuio(*this);
+	mEngine.setup(*this);
+	mEngine.setupTuio(*this);
 }
 
-void App::update()
-{
-  if (mEngine.hideMouse())
-    hideCursor();
-  mEngine.update();
+void App::update() {
+	if (mEngine.hideMouse()) {
+		hideCursor();
+	}
+	mEngine.update();
 }
 
-void App::draw()
-{
-  mEngine.draw();
+void App::draw() {
+	mEngine.draw();
 }
 
-void App::mouseDown( MouseEvent event )
-{
+void App::mouseDown( MouseEvent event ) {
 	if (mCtrlDown) {
 		if (!mSecondMouseDown) {
 			mEngine.mouseTouchBegin(event, 2);
@@ -175,18 +177,15 @@ void App::mouseDown( MouseEvent event )
 	}
 }
 
-void App::mouseMove( MouseEvent event )
-{
+void App::mouseMove(MouseEvent e) {
 }
 
-void App::mouseDrag( MouseEvent event )
-{
-  mEngine.mouseTouchMoved(event, 1);
+void App::mouseDrag(MouseEvent e) {
+	mEngine.mouseTouchMoved(e, 1);
 }
 
-void App::mouseUp( MouseEvent event )
-{
-  mEngine.mouseTouchEnded(event, 1);
+void App::mouseUp(MouseEvent e) {
+	mEngine.mouseTouchEnded(e, 1);
 }
 
 void App::touchesBegan( TouchEvent event )

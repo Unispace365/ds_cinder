@@ -35,6 +35,11 @@ public:
 	ci::Rectf				mScreenRect;
 	ci::Vec2f				mWorldSize;
 	float					mFrameRate;
+	// The source rect in world bounds and the destination
+	// local rect. Together these should obsolete mScreenRect.
+	// The dest local rect.
+	ci::Rectf				mSrcRect,
+							mDstRect;
 
 private:
 	EngineData(const EngineData&);

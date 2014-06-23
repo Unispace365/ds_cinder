@@ -32,18 +32,34 @@ OrthRoot::OrthRoot(Engine& e, const RootList::Root& r, const sprite_id_t id)
 		, mEngine(e)
 		, mCameraDirty(false)
 		, mSetViewport(true)
-		, mSprite(EngineRoot::make(e, id, false)) {
+		, mSprite(EngineRoot::make(e, id, false))
+		, mSrcRect(0.0f, 0.0f, -1.0f, -1.0f)
+		, mDstRect(0.0f, 0.0f, -1.0f, -1.0f) {
 }
 
 void OrthRoot::setup(const Settings& s) {
-	const bool			scaleWorldToFit = s.mDebugSettings.getBool("scale_world_to_fit", 0, false);
-	const float			window_scale = s.mDebugSettings.getFloat("window_scale", 0, s.mDefaultScale);
+	mSrcRect = s.mSrcRect;
+	mDstRect = s.mDstRect;
 
-	mSprite->setSize(s.mScreenRect.getWidth(), s.mScreenRect.getHeight());
-	if (scaleWorldToFit) {
-		mSprite->setScale(mEngine.getWidth()/mEngine.getWorldWidth(), mEngine.getHeight()/mEngine.getWorldHeight());
-	} else if (window_scale != s.mDefaultScale) {
-		mSprite->setScale(window_scale, window_scale);
+	// Src rect and dst rect is the new way of managing screen size, offset and position.
+	if (mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1
+			&& mDstRect.x2 > mDstRect.x1 && mDstRect.y2 > mDstRect.y1) {
+		mSprite->setSize(mSrcRect.getWidth(), mSrcRect.getHeight());
+		const float			sx = mDstRect.getWidth() / mSrcRect.getWidth(),
+							sy = mDstRect.getHeight() / mSrcRect.getHeight();
+		if (sx < 0.99999f || sx > 1.00000f || sy < 0.99999f || sy > 1.00000f) {
+			mSprite->setScale(sx, sy);
+		}
+	} else {
+		const bool			scaleWorldToFit = s.mDebugSettings.getBool("scale_world_to_fit", 0, false);
+		const float			window_scale = s.mDebugSettings.getFloat("window_scale", 0, s.mDefaultScale);
+
+		mSprite->setSize(s.mScreenRect.getWidth(), s.mScreenRect.getHeight());
+		if (scaleWorldToFit) {
+			mSprite->setScale(mEngine.getWidth()/mEngine.getWorldWidth(), mEngine.getHeight()/mEngine.getWorldHeight());
+		} else if (window_scale != s.mDefaultScale) {
+			mSprite->setScale(window_scale, window_scale);
+		}
 	}
 }
 
@@ -72,7 +88,12 @@ void OrthRoot::drawClient(const DrawParams& p) {
 	}
 	setGlCamera();
 
-	mSprite->drawClient(ci::gl::getModelView(), p);
+	ci::Matrix44f		m(ci::gl::getModelView());
+	// Account for src rect translation
+	if (mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1) {
+		m.translate(ci::Vec3f((-mSrcRect.x1)*mSprite->getScale().x, (-mSrcRect.y1)*mSprite->getScale().y, 0.0f));
+	}
+	mSprite->drawClient(m, p);
 }
 
 void OrthRoot::drawServer(const DrawParams& p) {

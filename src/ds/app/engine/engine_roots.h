@@ -26,12 +26,17 @@ public:
 
 	class Settings {
 	public:
-		Settings(const ci::Vec2f& world_size, const ci::Rectf& screen_rect, const ds::cfg::Settings& debug_settings, const float default_scale)
-				: mWorldSize(world_size), mScreenRect(screen_rect), mDebugSettings(debug_settings), mDefaultScale(default_scale) { }
+		Settings(	const ci::Vec2f& world_size, const ci::Rectf& screen_rect, const ds::cfg::Settings& debug_settings,
+					const float default_scale, const ci::Rectf& src_rect, const ci::Rectf& dst_rect)
+				: mWorldSize(world_size), mScreenRect(screen_rect), mDebugSettings(debug_settings)
+				, mDefaultScale(default_scale), mSrcRect(src_rect), mDstRect(dst_rect) { }
 		ci::Vec2f					mWorldSize;
 		ci::Rectf					mScreenRect;
 		const ds::cfg::Settings&	mDebugSettings;
 		const float					mDefaultScale;
+		// Obsolete scrren rect and default scale
+		ci::Rectf					mSrcRect,
+									mDstRect;
 	};
 	virtual void					setup(const Settings&) = 0;
 	// Initialize myself as a slave to the master
@@ -98,6 +103,8 @@ private:
 	bool							mCameraDirty;
 	bool							mSetViewport;
 	std::unique_ptr<ui::Sprite>		mSprite;
+	// Hack in the src_rect, dst_rect stuff as I figure that out.
+	ci::Rectf						mSrcRect, mDstRect;
 };
 
 /**

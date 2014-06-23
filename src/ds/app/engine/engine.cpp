@@ -111,15 +111,22 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
 	mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
-// These were not being used in the old system. Not sure if I should keep them in the
-// new -- there's an argument for mainly doing this stuff in code.
-#if 0
-	mCameraPosition = ci::Vec3f(0.0f, 0.0f, 100.0f);
-	mCameraZClipping = settings.getSize("camera:z_clip", 0, ci::Vec2f(1.0f, 1000.0f));
-	mCameraFOV = settings.getFloat("camera:fov", 0, 60.0f);
-#endif
+	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
+	// which makes them get ignored.
+	mData.mSrcRect = ci::Rectf(0.0f, 0.0f, -1.0f, -1.0f);
+	mData.mDstRect = ci::Rectf(0.0f, 0.0f, -1.0f, -1.0f);
+	mData.mSrcRect = settings.getRect("src_rect", 0, mData.mSrcRect);
+	mData.mDstRect = settings.getRect("dst_rect", 0, mData.mDstRect);
+	// Override the screen rect if we're using the new-style mode. I inherit behaviour like setting
+	// the window size from this.
+	if (mData.mDstRect.x2 > mData.mDstRect.x1 && mData.mDstRect.y2 > mData.mDstRect.y1) {
+//		mData.mScreenRect = mData.mDstRect;
+		// Hmmm... suspect the screen rect does not support setting x1, y1, because when I do
+		// everything goes black. That really needs to be weeded out in favour of the new system.
+		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
+	}
 
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
