@@ -16,13 +16,11 @@ const char        TERMINATOR = 0;
 }
 
 /**
- * \class ds::EngineServer
+ * \class ds::AbstractEngineServer
  */
-EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
-							ds::EngineData& ed, const ds::RootList& roots)
+AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Settings& settings,
+											ds::EngineData& ed, const ds::RootList& roots)
     : inherited(app, settings, ed, roots)
-    , mLoadImageService(mLoadImageThread, mIpFunctions)
-    , mRenderTextService(mRenderTextThread)
 //    , mConnection(NumberOfNetworkThreads)
     , mSender(mSendConnection)
     , mReceiver(mReceiveConnection)
@@ -46,86 +44,78 @@ EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
   setState(mSendWorldState);
 }
 
-EngineServer::~EngineServer() {
+AbstractEngineServer::~AbstractEngineServer() {
 	// It's important to clean up the sprites before the services go away
 	clearAllSprites();
 }
 
-void EngineServer::installSprite( const std::function<void(ds::BlobRegistry&)>& asServer,
-                                  const std::function<void(ds::BlobRegistry&)>& asClient) {
+void AbstractEngineServer::installSprite( const std::function<void(ds::BlobRegistry&)>& asServer,
+										 const std::function<void(ds::BlobRegistry&)>& asClient) {
 	if (asServer) asServer(mBlobRegistry);
 }
 
-void EngineServer::setup(ds::App& app) {
+void AbstractEngineServer::setup(ds::App& app) {
 	inherited::setup(app);
 
 	app.setupServer();
 }
 
-void EngineServer::setupTuio(ds::App& a) {
+void AbstractEngineServer::setupTuio(ds::App& a) {
 	tuio::Client &tuioClient = getTuioClient();
 	tuioClient.registerTouches(&a);
 	registerForTuioObjects(tuioClient);
 	tuioClient.connect(mTuioPort);
 }
 
-void EngineServer::update() {
+void AbstractEngineServer::update() {
 	mWorkManager.update();
 	updateServer();
 
 	mState->update(*this);
 }
 
-void EngineServer::draw()
-{
-  drawServer();
+void AbstractEngineServer::draw() {
+	drawServer();
 }
 
-void EngineServer::stopServices()
-{
-  inherited::stopServices();
-  mWorkManager.stopManager();
+void AbstractEngineServer::stopServices() {
+	inherited::stopServices();
+	mWorkManager.stopManager();
 }
 
-void EngineServer::receiveHeader(ds::DataBuffer& data)
-{
-  char            id;
-  while (data.canRead<char>() && (id=data.read<char>()) != ds::TERMINATOR_CHAR) {
-    // Nothing in the header right now.
-  }
+void AbstractEngineServer::receiveHeader(ds::DataBuffer& data) {
+	char            id;
+	while (data.canRead<char>() && (id=data.read<char>()) != ds::TERMINATOR_CHAR) {
+		// Nothing in the header right now.
+	}
 }
 
-void EngineServer::receiveCommand(ds::DataBuffer& data)
-{
-  char            cmd;
-  while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
-    if (cmd == CMD_CLIENT_REQUEST_WORLD) {
-      setState(mSendWorldState);
-    }
-  }
+void AbstractEngineServer::receiveCommand(ds::DataBuffer& data) {
+	char            cmd;
+	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
+		if (cmd == CMD_CLIENT_REQUEST_WORLD) {
+			setState(mSendWorldState);
+		}
+	}
 }
 
-void EngineServer::setState(State& s)
-{
-  if (&s == mState) return;
+void AbstractEngineServer::setState(State& s) {
+	if (&s == mState) return;
   
-  s.begin(*this);
-  mState = &s;
+	s.begin(*this);
+	mState = &s;
 }
 
 /**
- * EngineServer::State
+ * AbstractEngineServer::State
  */
-EngineServer::State::State()
-{
+AbstractEngineServer::State::State() {
 }
 
-void EngineServer::State::begin(EngineServer&)
-{
+void AbstractEngineServer::State::begin(AbstractEngineServer&) {
 }
 
-void EngineServer::State::addHeader(ds::DataBuffer& data, const int frame)
-{
+void AbstractEngineServer::State::addHeader(ds::DataBuffer& data, const int frame) {
     data.add(HEADER_BLOB);
     data.add(frame);
     data.add(ds::TERMINATOR_CHAR);
@@ -135,17 +125,14 @@ void EngineServer::State::addHeader(ds::DataBuffer& data, const int frame)
  * EngineServer::RunningState
  */
 EngineServer::RunningState::RunningState()
-  : mFrame(0)
-{
+	: mFrame(0) {
 }
 
-void EngineServer::RunningState::begin(EngineServer&)
-{
-  mFrame = 0;
+void EngineServer::RunningState::begin(AbstractEngineServer&) {
+	mFrame = 0;
 }
 
-void EngineServer::RunningState::update(EngineServer& engine)
-{
+void EngineServer::RunningState::update(AbstractEngineServer& engine) {
   // Send data to clients
   {
     EngineSender::AutoSend  send(engine.mSender);
@@ -167,12 +154,10 @@ void EngineServer::RunningState::update(EngineServer& engine)
 /**
  * EngineServer::SendWorldState
  */
-EngineServer::SendWorldState::SendWorldState()
-{
+EngineServer::SendWorldState::SendWorldState() {
 }
 
-void EngineServer::SendWorldState::update(EngineServer& engine)
-{
+void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
   {
     EngineSender::AutoSend  send(engine.mSender);
 //    std::cout << "SEND WORLD " << std::time(0) << std::endl;
@@ -188,6 +173,19 @@ void EngineServer::SendWorldState::update(EngineServer& engine)
   }
 
   engine.setState(engine.mRunningState);
+}
+
+/**
+ * \class ds::EngineServer
+ */
+EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
+							ds::EngineData& ed, const ds::RootList& roots)
+    : inherited(app, settings, ed, roots)
+    , mLoadImageService(mLoadImageThread, mIpFunctions)
+    , mRenderTextService(mRenderTextThread) {
+}
+
+EngineServer::~EngineServer() {
 }
 
 } // namespace ds

@@ -5,6 +5,7 @@
 #include "ds/app/engine/engine_client.h"
 #include "ds/app/engine/engine_clientserver.h"
 #include "ds/app/engine/engine_server.h"
+#include "ds/app/engine/engine_standalone.h"
 #include "ds/app/environment.h"
 #include "ds/debug/console.h"
 #include "ds/debug/logger.h"
@@ -255,23 +256,23 @@ void App::keyUp( KeyEvent event )
     mCtrlDown = false;
 }
 
-void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
-  if (q)
-	mQKeyEnabled = true;
-  if (esc)
-    mEscKeyEnabled = true;
+void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ) {
+	if (q) {
+		mQKeyEnabled = true;
+	}
+	if (esc) {
+		mEscKeyEnabled = true;
+	}
 }
 
-void App::quit()
-{
-  ci::app::AppBasic::quit();
+void App::quit() {
+	ci::app::AppBasic::quit();
 }
 
-void App::shutdown()
-{
-  mEngine.getRootSprite().clearChildren();
-  ds::ui::clearFontCache();
-  ci::app::AppBasic::shutdown();
+void App::shutdown() {
+	mEngine.getRootSprite().clearChildren();
+	ds::ui::clearFontCache();
+	ci::app::AppBasic::shutdown();
 }
 
 
@@ -310,7 +311,9 @@ ds::App::Initializer::Initializer(const std::string& appPath) {
 
 static ds::Engine&    new_engine(	ds::App& app, const ds::cfg::Settings& settings,
 									ds::EngineData& ed, const ds::RootList& roots) {
-	if (settings.getText("platform:architecture", 0, "") == "client") return *(new ds::EngineClient(app, settings, ed, roots));
-	if (settings.getText("platform:architecture", 0, "") == "server") return *(new ds::EngineServer(app, settings, ed, roots));
-	return *(new ds::EngineClientServer(app, settings, ed, roots));
+	const std::string	arch(settings.getText("platform:architecture", 0, ""));
+	if (arch == "client") return *(new ds::EngineClient(app, settings, ed, roots));
+	if (arch == "server") return *(new ds::EngineServer(app, settings, ed, roots));
+	if (arch == "clientserver") return *(new ds::EngineClientServer(app, settings, ed, roots));
+	return *(new ds::EngineStandalone(app, settings, ed, roots));
 }

@@ -450,9 +450,6 @@
     <ClInclude Include="..\src\ds\app\engine\engine_client.h">
       <Filter>src\ds\app\engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine\engine_clientserver.h">
-      <Filter>src\ds\app\engine</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\app\engine\engine_data.h">
       <Filter>src\ds\app\engine</Filter>
     </ClInclude>
@@ -596,6 +593,12 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\storage\directory_watcher.h">
       <Filter>src\ds\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_standalone.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_clientserver.h">
+      <Filter>src\ds\app\engine</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -857,9 +860,6 @@
     <ClCompile Include="..\src\ds\app\engine\engine_client.cpp">
       <Filter>src\ds\app\engine</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine\engine_clientserver.cpp">
-      <Filter>src\ds\app\engine</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\engine_data.cpp">
       <Filter>src\ds\app\engine</Filter>
     </ClCompile>
@@ -997,6 +997,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\storage\directory_watcher.cpp">
       <Filter>src\ds\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_standalone.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_clientserver.cpp">
+      <Filter>src\ds\app\engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

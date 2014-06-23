@@ -13,9 +13,12 @@
 	<int name="server:send_port" value="10370" />
 	<int name="server:listen_port" value="10371" />
 	
-	<!-- if this is a server (world engine), a client (render engine) or both (world + render).
-	values: "client", "server", ""
-	default = "", which is an EngineClientServer, aka "both"-->
+	<!-- Set the basic architecture, either a server (world engine), a client (render engine), a
+	both client and server (i.e. world + render, for cases where you want the app running as a
+	standalone app on one wall while also driving clients on other walls) or a standalone app
+	(no client server architecture at all).
+	values: "client", "server", "clientserver", ""
+	default = "", which is the standalone app -->
 	<text name="platform:architecture" value="" />
 
 	<!---------------------->

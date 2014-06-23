@@ -114,7 +114,8 @@ bool Mesh::isLoaded() const {
 }
 
 void Mesh::setStatusCallback(const std::function<void(const Status&)>& fn) {
-	DS_ASSERT_MSG(mEngine.getMode() == mEngine.CLIENTSERVER_MODE, "Currently only works in ClientServer mode, fill in the UDP callbacks if you want to use this otherwise");
+	DS_ASSERT_MSG(	mEngine.getMode() == mEngine.STANDALONE_MODE,
+					"Currently only works in Standalone mode, fill in the UDP callbacks if you want to use this otherwise");
 	mStatusFn = fn;
 }
 

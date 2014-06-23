@@ -6,6 +6,7 @@
 #include <vector>
 #include <cinder/Surface.h>
 #include <cinder/gl/Texture.h>
+#include "ds/app/engine/engine_service.h"
 #include "ds/thread/gl_thread.h"
 #include "ds/ui/ip/ip_function_list.h"
 

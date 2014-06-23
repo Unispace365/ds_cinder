@@ -115,6 +115,7 @@ public:
 	static const int				CLIENT_MODE = 0;
 	static const int				SERVER_MODE = 1;
 	static const int				CLIENTSERVER_MODE = 2;
+	static const int				STANDALONE_MODE = 3;
 	virtual int						getMode() const = 0;
 
 protected:
