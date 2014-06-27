@@ -113,11 +113,10 @@ Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id, const bool persp
     , mPerspective(perspective)
     , mUseDepthBuffer(false)
 {
-  init(id);
+	init(id);
 }
 
-void Sprite::init(const ds::sprite_id_t id)
-{
+void Sprite::init(const ds::sprite_id_t id) {
 	mSpriteFlags = VISIBLE_F | TRANSPARENT_F;
 	mWidth = 0;
 	mHeight = 0;
@@ -141,6 +140,7 @@ void Sprite::init(const ds::sprite_id_t id)
 	mIsInScreenCoordsHack = false;
 	mTouchScaleSizeMode = false;
 	mCornerRadius = 0.0f;
+	mDrawOpacityHack = 1.0f;
 
 	setSpriteId(id);
 
@@ -221,7 +221,8 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
 			mUniform.applyTo(shaderBase);
 		}
 
-		ci::gl::color(mColor.r, mColor.g, mColor.b, mOpacity*drawParams.mParentOpacity);
+		mDrawOpacityHack = mOpacity*drawParams.mParentOpacity;
+		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacityHack);
 		if (mUseDepthBuffer) {
 			ci::gl::enableDepthRead();
 			ci::gl::enableDepthWrite();

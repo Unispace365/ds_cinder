@@ -403,7 +403,11 @@ protected:
 	IdleTimer			mIdleTimer;
 	bool				mUseDepthBuffer;
 	float				mCornerRadius;
-
+	// Hack for clients that do their own drawing -- this is the current parent * me opacity.
+	// Essentially anyone who sets alpha in drawLocalClient should probably use this value.
+	// This is a hack because this value should really be supplied as an argument to drawLocalClient().
+	float				mDrawOpacityHack;
+	
 	// Transport uniform data to the shader
 	ds::gl::Uniform		mUniform;
 
