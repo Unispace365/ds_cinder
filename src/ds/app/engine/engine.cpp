@@ -54,6 +54,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);})
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);})
 	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
+	, mMouseOffsetX(0)
+	, mMouseOffsetY(0)
 	, mSystemMultitouchEnabled(false)
 	, mEnableMouseEvents(true)
 	, mHideMouse(false)
@@ -124,6 +126,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		// Hmmm... suspect the screen rect does not support setting x1, y1, because when I do
 		// everything goes black. That really needs to be weeded out in favour of the new system.
 		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
+		mMouseOffsetX = static_cast<int>(mData.mDstRect.x1);
+		mMouseOffsetY = static_cast<int>(mData.mDstRect.y1);
 	}
 
 	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
@@ -550,20 +554,30 @@ tuio::Client &Engine::getTuioClient() {
 
 void Engine::mouseTouchBegin(MouseEvent e, int id) {
 	if (mEnableMouseEvents) {
-		mMouseBeginEvents.incoming(MousePair(e, id));
+		mMouseBeginEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
 void Engine::mouseTouchMoved(MouseEvent e, int id) {
 	if (mEnableMouseEvents) {
-		mMouseMovedEvents.incoming(MousePair(e, id));
+		mMouseMovedEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
 void Engine::mouseTouchEnded(MouseEvent e, int id) {
 	if (mEnableMouseEvents) {
-		mMouseEndEvents.incoming(MousePair(e, id));
+		mMouseEndEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
+}
+
+MouseEvent Engine::alteredMouseEvent(const MouseEvent& e) const {
+	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
+	// Currently I believe that's fine -- and since our target is touch platforms without those things
+	// hopefully it always will be.
+	// Note that you CAN get to this if you want to interpret what's there. I *think* I saw that
+	// the newer version of cinder gave access so hopefully can just wait for that if we need it.
+	return ci::app::MouseEvent(	0, e.getX() + mMouseOffsetX, e.getY() + mMouseOffsetY,
+								0, e.getWheelIncrement(), e.getNativeModifiers());
 }
 
 ds::ResourceList& Engine::getResources() {

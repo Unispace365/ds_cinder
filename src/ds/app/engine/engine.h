@@ -108,6 +108,7 @@ public:
 	void								mouseTouchBegin(MouseEvent, int id);
 	void								mouseTouchMoved(MouseEvent, int id);
 	void								mouseTouchEnded(MouseEvent, int id);
+	MouseEvent							alteredMouseEvent(const MouseEvent&) const;
 	void								touchesBegin(TouchEvent);
 	void								touchesMoved(TouchEvent);
 	void								touchesEnded(TouchEvent);
@@ -216,6 +217,9 @@ private:
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsBegin;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsMoved;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnd;
+	// Offset the mouse point based on current parameters.
+	int									mMouseOffsetX,
+										mMouseOffsetY;
 
 	ds::SelectPicking					mSelectPicking;
 
