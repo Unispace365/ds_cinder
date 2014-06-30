@@ -111,7 +111,8 @@ std::string Environment::getProjectPath() {
 std::string Environment::expand(const std::string& _path) {
 	std::string		p(_path);
 	boost::replace_all(p, "%APP%", ds::App::envAppDataPath());
-	return p;
+	// This can result in double path separators, so flatten
+	return Poco::Path(p).toString();
 }
 
 void Environment::addToEnvironmentVariable(const std::string& variable, const std::string& value) {
