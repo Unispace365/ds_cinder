@@ -266,9 +266,9 @@ void PerspRoot::drawFunc(const std::function<void(void)>& fn) {
 	}
 	setGlCamera();
 
-	glClear(GL_DEPTH_BUFFER_BIT);
 	ci::gl::enableDepthRead();
 	ci::gl::enableDepthWrite();
+	glClear(GL_DEPTH_BUFFER_BIT);
 
 	fn();
 }
