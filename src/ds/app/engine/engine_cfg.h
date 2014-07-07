@@ -23,12 +23,13 @@ public:
 	ds::cfg::Settings&				editSettings(const std::string& name);
 	// Answer the requested text cfg. In debug mode, throw
 	// if it doesn't exist. In release mode, just answer an empty one.
-	const ds::cfg::Text&			getText(const std::string& name) const;
 	bool							hasText(const std::string& name) const;
+	const ds::cfg::Text&			getText(const std::string& name) const;
+	void							setText(const std::string& name, const ds::cfg::Text&);
 	// Answer the requested text cfg. In debug mode, throw
 	// if it doesn't exist. In release mode, just answer an empty one.
-	const ds::cfg::NinePatch&		getNinePatch(const std::string&) const;
 	bool							hasNinePatch(const std::string& name) const;
+	const ds::cfg::NinePatch&		getNinePatch(const std::string&) const;
 
 	// Convenice to load a setting file into the mEngineCfg settings.
 	// @param name is the name that the system will use to refer to the settings.

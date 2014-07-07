@@ -57,6 +57,14 @@ ds::cfg::Settings& EngineCfg::editSettings(const std::string& name) {
 	return it->second;
 }
 
+bool EngineCfg::hasText(const std::string& name) const {
+	if (name.empty()) return false;
+	if (mTextCfg.empty()) return false;
+	auto it = mTextCfg.find(name);
+	if (it == mTextCfg.end()) return  false;
+	return true;
+}
+
 const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 	if (name.empty()) {
 		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty name"));
@@ -74,11 +82,18 @@ const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 	return it->second;
 }
 
-bool EngineCfg::hasText(const std::string& name) const {
+void EngineCfg::setText(const std::string& name, const ds::cfg::Text& t) {
+	try {
+		mTextCfg[name] = t;
+	} catch (std::exception const&) {
+	}
+}
+
+bool EngineCfg::hasNinePatch(const std::string& name) const {
 	if (name.empty()) return false;
-	if (mTextCfg.empty()) return false;
-	auto it = mTextCfg.find(name);
-	if (it == mTextCfg.end()) return  false;
+	if (mNinePatchCfg.empty()) return false;
+	auto it = mNinePatchCfg.find(name);
+	if (it == mNinePatchCfg.end()) return  false;
 	return true;
 }
 
@@ -97,14 +112,6 @@ const ds::cfg::NinePatch& EngineCfg::getNinePatch(const std::string& name) const
 		return mEmptyNinePatchCfg;
 	}
 	return it->second;
-}
-
-bool EngineCfg::hasNinePatch(const std::string& name) const {
-	if (name.empty()) return false;
-	if (mNinePatchCfg.empty()) return false;
-	auto it = mNinePatchCfg.find(name);
-	if (it == mNinePatchCfg.end()) return  false;
-	return true;
 }
 
 void EngineCfg::loadSettings(const std::string& name, const std::string& filename) {
