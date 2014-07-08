@@ -126,8 +126,10 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		// Hmmm... suspect the screen rect does not support setting x1, y1, because when I do
 		// everything goes black. That really needs to be weeded out in favour of the new system.
 		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
-		mMouseOffsetX = static_cast<int>(mData.mDstRect.x1);
-		mMouseOffsetY = static_cast<int>(mData.mDstRect.y1);
+	}
+	if (mData.mSrcRect.x2 > mData.mSrcRect.x1 && mData.mSrcRect.y2 > mData.mSrcRect.y1) {
+		mMouseOffsetX = static_cast<int>(mData.mSrcRect.x1);
+		mMouseOffsetY = static_cast<int>(mData.mSrcRect.y1);
 	}
 
 	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
