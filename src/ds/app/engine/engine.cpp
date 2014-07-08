@@ -615,6 +615,10 @@ void Engine::clearFingers( const std::vector<int> &fingers ) {
 	mTouchManager.clearFingers(fingers);
 }
 
+ci::Vec2f Engine::getMouseOffset() const {
+	return ci::Vec2f(static_cast<float>(mMouseOffsetX), static_cast<float>(mMouseOffsetY));
+}
+
 const ci::Rectf& Engine::getScreenRect() const {
 	return mData.mScreenRect;
 }

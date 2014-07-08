@@ -146,6 +146,8 @@ public:
 	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint ){ mTouchManager.overrideTouchTranslation(inOutPoint); };
 	virtual bool						shouldDiscardTouch( ci::Vec2f& p ){ return mTouchManager.shouldDiscardTouch(p); }
 
+	ci::Vec2f							getMouseOffset() const;
+
 	// Root support
 	const ci::Rectf&					getScreenRect() const;
 

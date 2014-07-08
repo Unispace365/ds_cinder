@@ -198,8 +198,12 @@ void TouchManager::drawTouches() const {
 	applyBlendingMode(NORMAL);
 	ci::gl::color( mTouchColor );
 
+	ci::Vec2f			mouse_offset(mEngine.getMouseOffset());
 	for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {
-		ci::gl::drawStrokedCircle( it->second.xy(), 20.0f );
+		ci::Vec2f		pos(it->second.xy());
+		pos.x -= mouse_offset.x;
+		pos.y -= mouse_offset.y;
+		ci::gl::drawStrokedCircle(pos, 20.0f);
 	}
 }
 
@@ -248,6 +252,7 @@ ci::Vec2f TouchManager::translateMousePoint( const ci::Vec2i inputPoint ){
 	eventPos.x /= xScaleFactor;
 	eventPos.y /= yScaleFactor;
 
+	const ci::Vec2i		mouseOffset(mEngine.getMouseOffset());
 	return eventPos;
 }
 
