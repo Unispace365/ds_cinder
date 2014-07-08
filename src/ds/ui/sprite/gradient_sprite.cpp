@@ -6,11 +6,26 @@
 namespace ds {
 namespace ui {
 
-
 /**
  * \class ds::ui::sprite::GradientSprite
  */
-GradientSprite::GradientSprite(ds::ui::SpriteEngine& e, ci::ColorA tlColor, ci::ColorA trColor, ci::ColorA brColor, ci::ColorA blColor)
+Gradient& Gradient::makeH(SpriteEngine& e, const ci::ColorA& x1, const ci::ColorA& x2, Sprite* parent) {
+	return makeAlloc<ds::ui::Gradient>([&e, &x1, &x2]()->ds::ui::Gradient*{
+		Gradient* s = new ds::ui::Gradient(e);
+		if (s) s->setColorsH(x1, x2);
+		return s;
+	}, parent);
+}
+
+Gradient& Gradient::makeV(SpriteEngine& e, const ci::ColorA& y1, const ci::ColorA& y2, Sprite* parent) {
+	return makeAlloc<ds::ui::Gradient>([&e, &y1, &y2]()->ds::ui::Gradient*{
+		Gradient* s = new ds::ui::Gradient(e);
+		if (s) s->setColorsV(y1, y2);
+		return s;
+	}, parent);
+}
+
+Gradient::Gradient(ds::ui::SpriteEngine& e, ci::ColorA tlColor, ci::ColorA trColor, ci::ColorA brColor, ci::ColorA blColor)
 		: inherited(e)
 		, mTLColor(tlColor)
 		, mTRColor(trColor)
@@ -20,17 +35,7 @@ GradientSprite::GradientSprite(ds::ui::SpriteEngine& e, ci::ColorA tlColor, ci::
 	setTransparent(false);
 }
 
-
-void GradientSprite::updateClient(const UpdateParams& p) {
-	inherited::updateClient(p);
-}
-
-void GradientSprite::updateServer(const UpdateParams& p) {
-	inherited::updateServer(p);
-	
-}
-
-void GradientSprite::drawLocalClient() {
+void Gradient::drawLocalClient() {
 	// the magic!
 	ci::gl::begin(GL_QUADS);
 	ci::gl::color(mTLColor.r, mTLColor.g, mTLColor.b, mTLColor.a * mDrawOpacityHack);
@@ -44,30 +49,27 @@ void GradientSprite::drawLocalClient() {
 	ci::gl::end();
 }
 
-void GradientSprite::setColorsH( ci::ColorA leftColor, ci::ColorA rightColor ){
+void Gradient::setColorsH(const ci::ColorA& leftColor, const ci::ColorA& rightColor ){
 	mTLColor = leftColor;
 	mBLColor = leftColor;
 	mTRColor = rightColor;
 	mBRColor = rightColor;
 }
 
-void GradientSprite::setColorsV( ci::ColorA topColor, ci::ColorA botColor ){
+void Gradient::setColorsV(const ci::ColorA& topColor, const ci::ColorA& botColor ){
 	mTLColor = topColor;
 	mTRColor = topColor;
 	mBLColor = botColor;
 	mBRColor = botColor;
-
 }
 
-void GradientSprite::setColorsAll( ci::ColorA tlColor, ci::ColorA trColor, ci::ColorA brColor, ci::ColorA blColor ){
+void Gradient::setColorsAll(const ci::ColorA& tlColor, const ci::ColorA& trColor,
+							const ci::ColorA& brColor, const ci::ColorA& blColor) {
 	mTLColor = tlColor;
 	mTRColor = trColor;
 	mBLColor = blColor;
 	mBRColor = brColor;
 }
-
-
-
 
 } // using namespace ui
 } // using namespace ds

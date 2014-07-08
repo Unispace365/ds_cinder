@@ -11,22 +11,20 @@ namespace ui {
  * \class ds::ui::sprite::GradientSprite
  * Draw a rectangle with 2-color top-to-bottom gradient
  */
-class GradientSprite : public ds::ui::Sprite {
+class Gradient : public ds::ui::Sprite {
 public:
+	static Gradient&			makeH(SpriteEngine&, const ci::ColorA& left, const ci::ColorA& right, Sprite* parent = nullptr);
+	static Gradient&			makeV(SpriteEngine&, const ci::ColorA& top, const ci::ColorA& bottom, Sprite* parent = nullptr);
 
-	GradientSprite(ds::ui::SpriteEngine&, 
+	Gradient(ds::ui::SpriteEngine&, 
 		ci::ColorA tlColor = ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f), 
 		ci::ColorA trColor = ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f), 
 		ci::ColorA brColor = ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f), 
 		ci::ColorA blColor = ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f));
 
-	void						setColorsH(ci::ColorA leftColor, ci::ColorA rightColor);
-	void						setColorsV(ci::ColorA topColor, ci::ColorA botColor);
-	void						setColorsAll(ci::ColorA tlColor, ci::ColorA trColor, ci::ColorA brColor, ci::ColorA blColor);
-
-	virtual void				updateClient(const UpdateParams&);
-	virtual void				updateServer(const UpdateParams&);
-
+	void						setColorsH(const ci::ColorA& left, const ci::ColorA& right);
+	void						setColorsV(const ci::ColorA& top, const ci::ColorA& bottom);
+	void						setColorsAll(const ci::ColorA& tl, const ci::ColorA& tr, const ci::ColorA& br, const ci::ColorA& bl);
 
 protected:
 	virtual void				drawLocalClient();
@@ -39,6 +37,8 @@ private:
 
 	typedef ds::ui::Sprite		inherited;
 };
+
+typedef Gradient GradientSprite;
 
 } // namespace ui
 } // namespace ds
