@@ -6,12 +6,16 @@ namespace ds {
  * \class ds::TuioObject
  */
 TuioObject::TuioObject()
-		: mObjectId(-1) {
+		: mObjectId(-1)
+		, mAngle(0.0f)
+{
 }
 
-TuioObject::TuioObject(const int objectId, const cinder::Vec2f& position)
+TuioObject::TuioObject(const int objectId, const cinder::Vec2f& position, const float angle)
 		: mObjectId(objectId)
-		, mPosition(position) {
+		, mPosition(position)
+		, mAngle(angle)
+{
 }
 
 int TuioObject::getObjectId() const {
@@ -20,6 +24,10 @@ int TuioObject::getObjectId() const {
 
 const cinder::Vec2f& TuioObject::getPosition() const {
 	return mPosition;
+}
+
+const float TuioObject::getAngle() const {
+	return mAngle;
 }
 
 } // namespace ds
