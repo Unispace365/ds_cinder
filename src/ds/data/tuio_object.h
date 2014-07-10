@@ -14,14 +14,16 @@ namespace ds {
 class TuioObject {
 public:
 	TuioObject();
-	TuioObject(const int objectId, const cinder::Vec2f& position);
+	TuioObject(const int objectId, const cinder::Vec2f& position, const float angle = 0.0f);
 
 	int						getObjectId() const;
 	const cinder::Vec2f&	getPosition() const;
+	const float				getAngle() const;
 
 private:
 	int						mObjectId;
 	cinder::Vec2f			mPosition;
+	float					mAngle;
 };
 
 } // namespace ds
