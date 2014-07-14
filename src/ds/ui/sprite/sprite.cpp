@@ -552,12 +552,12 @@ void Sprite::release() {
 	delete this;
 }
 
-bool Sprite::containsChild( Sprite *child ) const
-{
+bool Sprite::containsChild(Sprite *child) const {
     auto found = std::find(mChildren.begin(), mChildren.end(), child);
 
-    if ( found != mChildren.end() )
+    if (found != mChildren.end()) {
         return true;
+	}
     return false;
 }
 
@@ -1619,22 +1619,20 @@ void Sprite::userInputReceived() {
 	resetIdleTimer();
 }
 
-void Sprite::sendSpriteToFront( Sprite &sprite ) {
-	if (!containsChild(&sprite)) {
-		return;
-	}
-
+void Sprite::sendSpriteToFront(Sprite &sprite) {
 	auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
+	if (found == mChildren.end()) return;
+	if (*found == mChildren.back()) return;
+
 	mChildren.erase(found);
 	mChildren.push_back(&sprite);
 }
 
-void Sprite::sendSpriteToBack( Sprite &sprite ) {
-	if (!containsChild(&sprite)) {
-		return;
-	}
-
+void Sprite::sendSpriteToBack(Sprite &sprite) {
 	auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
+	if (found == mChildren.end()) return;
+	if (*found == mChildren.front()) return;
+
 	mChildren.erase(found);
 	mChildren.insert(mChildren.begin(), &sprite);
 }
