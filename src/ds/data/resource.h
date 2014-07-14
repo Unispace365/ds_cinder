@@ -101,6 +101,7 @@ public:
 public:
 	// Mainly for debugging
 	static Resource			fromImage(const std::string& full_path);
+	static Resource			fromQuery(const Resource::Id&);
 
 	Resource();
 	Resource(const Resource::Id& dbId, const int type);

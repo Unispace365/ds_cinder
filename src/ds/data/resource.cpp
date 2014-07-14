@@ -244,6 +244,12 @@ Resource Resource::fromImage(const std::string& full_path) {
 	return r;
 }
 
+Resource Resource::fromQuery(const Resource::Id& id) {
+	Resource		r;
+	r.query(id);
+	return r;
+}
+
 Resource::Resource()
 	: mType(ERROR_TYPE)
 	, mDuration(0)
