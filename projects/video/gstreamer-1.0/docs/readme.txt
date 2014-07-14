@@ -47,9 +47,9 @@ GStreamer pipelines
 - This means that in the future, it should be easy to do cool stuff like add video effects (like old-timey aged film), flip video (in case it needs to be projected on glass or something), adjust color, contrast, gamma, saturation, etc, add subtitles, audio filters, and a bunch of other things
  
 Compiling
-- download and install Gstreamer 1.2.0: http://gstreamer.freedesktop.org/data/pkg/windows/
-                - gstreamer-1.0-x86-1.2.0.msi
-                - gstreamer-1.0-devel-x86-1.2.0.msi
+- download and install Gstreamer 1.2.3: http://gstreamer.freedesktop.org/data/pkg/windows/
+                - gstreamer-1.0-x86-1.2.3.msi
+                - gstreamer-1.0-devel-x86-1.2.3.msi
 - Install them with complete packages in the default location.
 - Currently, dll's aren't checked into git, so you'll need to copy them yourself. When we go into production, we may want to check in the needed dll's
                 - Copy  the contents of "C:\gstreamer\1.0\x86\bin" to "RenderEngine/bin". There will be conflicts. Overwrite the existing versions with the GStreamer versions.
