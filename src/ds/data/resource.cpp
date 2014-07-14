@@ -246,6 +246,7 @@ Resource Resource::fromImage(const std::string& full_path) {
 
 Resource Resource::fromQuery(const Resource::Id& id) {
 	Resource		r;
+	if (id.mValue < 1) return r;
 	r.query(id);
 	return r;
 }
