@@ -79,6 +79,7 @@ private:
 	friend class BodyBuilder;
 	friend class BodyBuilderBox;
 	friend class BodyBuilderCircle;
+	friend class BodyBuilderPolygon;
 	friend class World;
 	friend class ds::physics::Touch;
 
