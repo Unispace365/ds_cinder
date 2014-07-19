@@ -49,7 +49,11 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& s)
 		, mFriction(0.5f)
 		, mLinearDampening(0.0f)
 		, mAngularDampening(0.0f)
-		, mFixedRotation(true) {
+		, mFixedRotation(true) 
+		, mMouseMaxForce(10000.0f)
+		, mMouseDampening(1.0f)
+		, mMouseFrequencyHz(25.0f)
+{
 	mWorld = std::move(std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, 0.0f))));
 	if (mWorld.get() == nullptr) throw std::runtime_error("ds::physics::World() can't create b2World");
 	b2BodyDef		def;
@@ -61,6 +65,10 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& s)
 	mLinearDampening = mSettings.getFloat("dampening:linear", 0, mLinearDampening);
 	mAngularDampening = mSettings.getFloat("dampening:angular", 0, mAngularDampening);
 	mFixedRotation = mSettings.getBool("rotation:fixed", 0, mFixedRotation);
+
+	mMouseMaxForce = mSettings.getFloat("mouse:max_force", 0, mMouseMaxForce);
+	mMouseDampening = mSettings.getFloat("mouse:dampening", 0, mMouseDampening);
+	mMouseFrequencyHz = mSettings.getFloat("mouse:frequency_hz", 0, mMouseFrequencyHz);
 
 	// Slightly complicated, but flexible: Bounds can be either fixed or unit,
 	// or a combination of both, which applies the fixed as an offset.

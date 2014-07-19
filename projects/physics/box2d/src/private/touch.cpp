@@ -29,12 +29,9 @@ void Touch::processTouchAdded(const SpriteBody& body, const ds::ui::TouchInfo& t
 		jointDef.target = mWorld.Ci2BoxTranslation(ti.mStartPoint);
 		jointDef.bodyA = mWorld.mGround;
 		jointDef.bodyB = body.mBody;
-		jointDef.maxForce = 10000.0f * body.mBody->GetMass();
-		jointDef.dampingRatio = 1.0f;
-		jointDef.frequencyHz = 25.0f;
-		//Experimenting with Tree Node mousejoints (assuming colliding bodies):
-		//jointDef.dampingRatio = 30.0f;
-		//jointDef.frequencyHz = 40.0f;
+		jointDef.maxForce = mWorld.mMouseMaxForce * body.mBody->GetMass();
+		jointDef.dampingRatio = mWorld.mMouseDampening;
+		jointDef.frequencyHz = mWorld.mMouseFrequencyHz;
 		mTouchJoints[ti.mFingerId] = mWorld.mWorld->CreateJoint(&jointDef);
 	}
 }
