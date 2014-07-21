@@ -2,6 +2,9 @@
 #ifndef DS_PHYSICS_BODYBUILDER_H_
 #define DS_PHYSICS_BODYBUILDER_H_
 
+#include <vector>
+#include <cinder/Vector.h>
+
 namespace ds {
 namespace physics {
 class SpriteBody;
@@ -54,6 +57,20 @@ public:
 	virtual void		createFixture(SpriteBody&) const;
 
 	float				mRadius;
+};
+
+
+/**
+ * \class ds::physics::BodyBuilderPolygon
+ * \brief Create an arbitrary polygon. See the box2d manual for specifics on polygon shapes
+ */
+class BodyBuilderPolygon : public BodyBuilder {
+public:
+	BodyBuilderPolygon(const SpriteBody&);
+
+	virtual void		createFixture(SpriteBody&) const;
+
+	 std::vector<ci::Vec2f> mPoints;
 };
 
 } // namespace physics

@@ -253,6 +253,7 @@ public:
 	bool					isIdling() const;
 	void					startIdling();
 	void					resetIdleTimer();
+	// clears the idle timer, not the whole sprite or anything
 	void					clear();
 
 	// Special function to mark every sprite from me down as dirty.

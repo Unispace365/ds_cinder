@@ -4,6 +4,7 @@
 #include "Box2D/Collision/Shapes/b2CircleShape.h"
 #include "Box2D/Dynamics/b2Fixture.h"
 #include "ds/physics/sprite_body.h"
+#include "ds/debug/logger.h"
 #include "private/world.h"
 
 namespace ds {
@@ -86,6 +87,55 @@ void BodyBuilderCircle::createFixture(SpriteBody& body) const
 	circle.m_radius = mRadius * body.mWorld.getCi2BoxScale(); 
 	fixtureDef.shape = &circle;
 	body.mBody->CreateFixture(&fixtureDef);
+}
+
+
+/**
+ * \class ds::physics::BodyBuilderPolygon
+ */
+BodyBuilderPolygon::BodyBuilderPolygon(const SpriteBody& sb)
+	: BodyBuilder(sb)
+{
+}
+
+void BodyBuilderPolygon::createFixture(SpriteBody& body) const
+{
+	if (!body.mBody) return;
+
+	if(mPoints.empty() || mPoints.size() < 3){
+		DS_LOG_ERROR("Not enough points supplied to polygon body builder!");
+		return;
+	}
+
+	// Define the dynamic body fixture.
+	b2FixtureDef		fixtureDef;
+	fixtureDef.density = mDensity;
+	fixtureDef.friction = mFriction;
+	fixtureDef.filter.categoryBits = mCategoryBits;
+	fixtureDef.filter.maskBits = mMaskBits;
+
+ 	int32 count = mPoints.size();
+ 	b2Vec2 * vertices = new b2Vec2[count];
+ 	int i = 0;
+ 	for (auto it = mPoints.begin(); it < mPoints.end(); ++it){
+ 		vertices[i].Set((*it).x* body.mWorld.getCi2BoxScale(), (*it).y* body.mWorld.getCi2BoxScale());
+ 	//	vertices[i].Set((*it).x, (*it).y);
+		i++;
+ 	}
+
+
+// 	b2Vec2 vertices[3];
+// 	vertices[0].Set(0.0f, 0.0f);
+// 	vertices[1].Set(200.0f * body.mWorld.getCi2BoxScale(), 0.0f);
+// 	vertices[2].Set(0.0f, 200.0f * body.mWorld.getCi2BoxScale());
+// 	int32 count = 3;
+
+	b2PolygonShape	polygon;
+	polygon.Set(vertices, count);
+	fixtureDef.shape = &polygon;
+	body.mBody->CreateFixture(&fixtureDef);
+
+	delete vertices;
 }
 
 } // namespace physics

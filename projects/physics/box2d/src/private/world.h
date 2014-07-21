@@ -77,6 +77,10 @@ private:
 									mAngularDampening;
 	bool							mFixedRotation;
 
+	float							mMouseMaxForce,
+									mMouseDampening,
+									mMouseFrequencyHz;
+
 	std::vector<b2DistanceJoint*>	mDistanceJoints;
 };
 
