@@ -86,7 +86,6 @@ private:
 	World&					mWorld;
 	ds::ui::Sprite&			mSprite;
 	b2Body*					mBody;
-	std::vector<b2DistanceJoint*>		mJoints;
 };
 
 } // namespace physics

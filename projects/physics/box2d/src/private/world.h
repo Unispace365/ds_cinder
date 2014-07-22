@@ -13,6 +13,7 @@
 class b2Body;
 class b2DistanceJoint;
 class b2MouseJoint;
+class b2WeldJoint;
 class b2World;
 struct b2Vec2;
 
@@ -30,6 +31,7 @@ public:
 
 	void							createDistanceJoint(const SpriteBody&, const SpriteBody&, float length, float dampingRatio, float frequencyHz);
 	void							resizeDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
+	void							releaseJoints(const SpriteBody&);
 
 	void							processTouchAdded(const SpriteBody&, const ds::ui::TouchInfo&);
 	void							processTouchMoved(const SpriteBody&, const ds::ui::TouchInfo&);
@@ -82,6 +84,7 @@ private:
 									mMouseFrequencyHz;
 
 	std::vector<b2DistanceJoint*>	mDistanceJoints;
+	std::vector<b2WeldJoint*>		mWeldJoints;
 };
 
 } // namespace physics

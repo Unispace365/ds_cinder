@@ -13,6 +13,7 @@
 #include "Box2D/Dynamics/b2World.h"
 #include "Box2D/Dynamics/b2Fixture.h"
 #include "Box2D/Dynamics/Joints/b2DistanceJoint.h"
+#include "Box2D/Dynamics/Joints/b2WeldJoint.h"
 
 namespace ds {
 namespace physics {
@@ -119,6 +120,17 @@ void World::resizeDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 		}
 	}
 }
+
+void World::releaseJoints(const SpriteBody& body) {
+	if(!body.mBody) return;
+	for (int i = 0; i < mDistanceJoints.size(); i++){
+		if(mDistanceJoints[i]->GetBodyA() == body.mBody || mDistanceJoints[i]->GetBodyB() == body.mBody){
+			mDistanceJoints.erase(mDistanceJoints.begin() + i);
+			i--;
+		}
+	}
+}
+
 
 void World::processTouchAdded(const SpriteBody& body, const ds::ui::TouchInfo& ti) {	
 	mTouch.processTouchAdded(body, ti);
