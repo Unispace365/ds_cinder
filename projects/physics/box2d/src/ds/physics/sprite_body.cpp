@@ -88,7 +88,11 @@ void SpriteBody::create(const BodyBuilder& b) {
 void SpriteBody::createDistanceJoint(SpriteBody& body, float length, float dampingRatio, float frequencyHz) {
 	mWorld.createDistanceJoint(*this, body, length, dampingRatio, frequencyHz);
 }
- 
+
+void SpriteBody::createWeldJoint(SpriteBody& body,const float damping, const float frequency, const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
+	mWorld.createWeldJoint(*this, body, damping, frequency, bodyAOffset, bodyBOffset);
+}
+
 void SpriteBody::destroy() {
 	if (mBody == nullptr) return;
 
