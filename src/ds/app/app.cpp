@@ -11,6 +11,7 @@
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 // For installing the sprite types
+#include "ds/ui/sprite/gradient_sprite.h"
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
@@ -82,6 +83,8 @@ App::App(const RootList& roots)
 	// Initialize each sprite type with a unique blob handler for network communication.
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Sprite::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Sprite::installAsClient(r);});
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Gradient::installAsServer(r);},
+							[](ds::BlobRegistry& r){ds::ui::Gradient::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Image::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Image::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
