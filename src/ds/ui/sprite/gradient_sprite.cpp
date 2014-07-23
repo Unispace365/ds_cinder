@@ -58,6 +58,8 @@ Gradient::Gradient(	ds::ui::SpriteEngine& e,
 					const ci::ColorA& brColor, const ci::ColorA& blColor)
 		: inherited(e)
 {
+	mBlobType = BLOB_TYPE;
+
 	setTransparent(false);
 	setColorsAll(tlColor, trColor, brColor, blColor);
 }
