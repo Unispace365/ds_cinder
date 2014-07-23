@@ -89,14 +89,15 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& s)
 	}
 }
 
-void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length, float dampingRatio, float frequencyHz) {
+void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length, float dampingRatio, float frequencyHz,
+	const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
 	
 	if (body1.mBody && body2.mBody) {
 		b2DistanceJointDef jointDef;
 		jointDef.bodyA = body1.mBody;
 		jointDef.bodyB = body2.mBody;
-		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter());
-		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter());
+		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter() + bodyAOffset);
+		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter() + bodyBOffset);
 		
 		jointDef.dampingRatio = dampingRatio;
 		jointDef.frequencyHz = frequencyHz;

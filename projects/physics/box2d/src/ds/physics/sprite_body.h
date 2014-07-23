@@ -48,13 +48,16 @@ public:
 	// Distance joints will move the bodies to keep them at the length specified, but they can be at any angle.
 	// damping ratio: 0.0 = no damping (faster), 1.0 = full damping (no movement)
 	// frequency: how many times it's applied a second. higher frequency for smoother resolution, lower frequency for better performance (generally)
-	void					createDistanceJoint(SpriteBody&, float length, float dampingRatio, float frequencyHz);
+	void					createDistanceJoint(SpriteBody&, float length, float dampingRatio, float frequencyHz, const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
 	void					resizeDistanceJoint(SpriteBody& body, float length);
 
 	// Weld joints attempt to keep the two bodies at the same relative position. There will be a little bit of elasticness between the two.
 	// To make a completely rigid connection, combine two fixtures into the same body (may need to add some API to handle that)
 	// By default, the positioning will place the center of one body on the center of the other body, use the offsets to place the bodies somewhere else
 	void					createWeldJoint(SpriteBody&, const float damping, const float frequencyHz, const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
+
+	// Remove all joints associated with this body. destroy also does this.
+	void					releaseJoints();
 
 	// Removes the physics attached with this body, but doesn't remove the sprite.
 	// Also releases any joints attached to this body (including joints initiated from a different body)
