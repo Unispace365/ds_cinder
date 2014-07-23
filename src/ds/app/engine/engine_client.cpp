@@ -89,9 +89,10 @@ void EngineClient::update() {
 	// by a couple seconds. For now, limit the amount of blocks I might
 	// slurp up, to guarantee I don't go into an infinite loop on some
 	// weird condition.
-	if (mReceiveConnection.canRecv()) {
+	int32_t		limit = 10;
+	while (mReceiveConnection.canRecv()) {
 		mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
-		if (mReceiveConnection.canRecv()) mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
+		if (--limit <= 0) break;
 	}
 
 	mState->update(*this);
