@@ -1,6 +1,7 @@
 #include "ds/arc/arc_input.h"
 
 #include <cinder/Xml.h>
+#include "ds/data/data_buffer.h"
 
 namespace ds {
 namespace arc {
@@ -8,6 +9,11 @@ namespace arc {
 namespace {
 const size_t		FLOAT_MIN_F = (1<<0);
 const size_t		FLOAT_MAX_F = (1<<1);
+
+const char			COLOR_ATT		= 20;
+const char			FLOAT_ATT		= 21;
+const char			VEC2_ATT		= 22;
+const char			END_ATT			= 0;
 }
 
 /**
@@ -41,6 +47,43 @@ void Input::addFloat(const double v) {
 
 void Input::addVec2(const ci::Vec2d& v) {
 	mVec2.push_back(v);
+}
+
+void Input::writeTo(DataBuffer& buf) const {
+	for (auto it=mColor.begin(), end=mColor.end(); it!=end; ++it) {
+		buf.add(COLOR_ATT);
+		buf.add(*it);
+	}
+	for (auto it=mFloat.begin(), end=mFloat.end(); it!=end; ++it) {
+		buf.add(FLOAT_ATT);
+		buf.add(*it);
+	}
+	for (auto it=mVec2.begin(), end=mVec2.end(); it!=end; ++it) {
+		buf.add(VEC2_ATT);
+		buf.add(*it);
+	}
+	buf.add(END_ATT);
+}
+
+bool Input::readFrom(DataBuffer& buf) {
+	try {
+		while (buf.canRead<char>()) {
+			const char		att = buf.read<char>();
+			if (att == COLOR_ATT) {
+				mColor.push_back(buf.read<ci::ColorA>());
+			} else if (att == FLOAT_ATT) {
+				mFloat.push_back(buf.read<double>());
+			} else if (att == VEC2_ATT) {
+				mVec2.push_back(buf.read<ci::Vec2d>());
+			} else if (att == END_ATT) {
+				return true;
+			} else {
+				return false;
+			}
+		}
+	} catch (std::exception const&) {
+	}
+	return false;
 }
 
 /**

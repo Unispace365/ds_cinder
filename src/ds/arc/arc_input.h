@@ -11,6 +11,8 @@ class XmlTree;
 }
 
 namespace ds {
+class DataBuffer;
+
 namespace arc {
 
 /**
@@ -28,6 +30,9 @@ public:
 	void					addColor(const ci::ColorA&);
 	void					addFloat(const double);
 	void					addVec2(const ci::Vec2d&);
+
+	void					writeTo(DataBuffer&) const;
+	bool					readFrom(DataBuffer&);
 
 private:
 	std::vector<ci::ColorA>	mColor;
