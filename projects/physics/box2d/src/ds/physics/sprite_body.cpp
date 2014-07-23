@@ -92,7 +92,9 @@ void SpriteBody::createDistanceJoint(SpriteBody& body, float length, float dampi
 void SpriteBody::destroy() {
 	if (mBody == nullptr) return;
 
+	
 	// Destroying a body also destroys all joints associated with that body.
+	mWorld.releaseJoints(*this);
 	mWorld.mWorld->DestroyBody(mBody);
 	mBody = nullptr;
 }
