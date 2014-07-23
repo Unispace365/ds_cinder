@@ -36,6 +36,7 @@ using namespace ci::app;
 
 namespace ds {
 class App;
+class AutoDrawService;
 class AutoUpdate;
 class EngineRoot;
 
@@ -202,6 +203,8 @@ private:
 	// Clients that will get update() called automatically at the start
 	// of each update cycle
 	AutoUpdateList						mAutoUpdate;
+	// Quick hack to get any ol' client participating in draw
+	AutoDrawService*					mAutoDraw;
 
 	ds::cfg::Settings					mDebugSettings;
 

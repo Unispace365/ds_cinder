@@ -4,6 +4,7 @@
 
 #include <unordered_map>
 #include <cinder/Vector.h>
+#include <ds/app/auto_draw.h>
 #include <ds/app/auto_update.h>
 #include <ds/app/engine/engine_service.h>
 #include <ds/cfg/settings.h>
@@ -19,6 +20,7 @@ struct b2Vec2;
 
 namespace ds {
 namespace physics {
+class DebugDraw;
 class SpriteBody;
 
 /**
@@ -85,6 +87,8 @@ private:
 
 	std::vector<b2DistanceJoint*>	mDistanceJoints;
 	std::vector<b2WeldJoint*>		mWeldJoints;
+
+	std::unique_ptr<DebugDraw>		mDebugDraw;
 };
 
 } // namespace physics

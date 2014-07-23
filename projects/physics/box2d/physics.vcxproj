@@ -17,6 +17,7 @@
     <ClInclude Include="src\ds\physics\sprite_world.h" />
     <ClInclude Include="src\private\contact_key.h" />
     <ClInclude Include="src\private\contact_listener.h" />
+    <ClInclude Include="src\private\debug_draw.h" />
     <ClInclude Include="src\private\service.h" />
     <ClInclude Include="src\private\touch.h" />
     <ClInclude Include="src\private\world.h" />
@@ -28,6 +29,7 @@
     <ClCompile Include="src\ds\physics\sprite_world.cpp" />
     <ClCompile Include="src\private\contact_key.cpp" />
     <ClCompile Include="src\private\contact_listener.cpp" />
+    <ClCompile Include="src\private\debug_draw.cpp" />
     <ClCompile Include="src\private\service.cpp" />
     <ClCompile Include="src\private\touch.cpp" />
     <ClCompile Include="src\private\world.cpp" />

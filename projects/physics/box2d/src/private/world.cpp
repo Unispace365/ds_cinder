@@ -7,6 +7,7 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/physics/collision.h>
 #include <ds/physics/sprite_body.h>
+#include "private/debug_draw.h"
 #include "private/service.h"
 #include "Box2D/Collision/Shapes/b2PolygonShape.h"
 #include "Box2D/Dynamics/b2Body.h"
@@ -86,6 +87,10 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& s)
 		const ci::Rectf&		r = mSettings.getRect("bounds:unit");
 		setBounds(	ci::Rectf(r.x1 * e.getWorldWidth(), r.y1 * e.getWorldHeight(), r.x2 * e.getWorldWidth(), r.y2 * e.getWorldHeight()),
 					mSettings.getFloat("bounds:restitution", 0, 1.0f));
+	}
+
+	if (mSettings.getBool("draw_debug", 0, false)) {
+		mDebugDraw.reset(new DebugDraw(e, *(mWorld.get())));
 	}
 }
 
@@ -187,8 +192,7 @@ bool World::makeCollision(const b2Fixture& fix, Collision& c) const
 	return true;
 }
 
-void World::update(const ds::UpdateParams& p)
-{
+void World::update(const ds::UpdateParams &p) {
 	static const int	VELOCITY_ITERATIONS = 6;
 	static const int	POSITION_ITERATIONS = 2;
 
@@ -238,9 +242,7 @@ void World::update(const ds::UpdateParams& p)
 	mContactListener.report();
 }
 
-
-float World::getCi2BoxScale() const
-{
+float World::getCi2BoxScale() const {
 	return mCi2BoxScale;
 }
 
@@ -267,8 +269,7 @@ static void set_polygon_shape(	const World& trans,
 	out.Set(vtx, 4);
 }
 
-void World::setBounds(const ci::Rectf& f, const float restitution)
-{
+void World::setBounds(const ci::Rectf& f, const float restitution) {
 	if (f.x2 <= f.x1 || f.y2 <= f.y1) {
 		DS_LOG_WARNING_M("World constructed on invalid bounds (" << f << ")", PHYSICS_LOG);
 		return;

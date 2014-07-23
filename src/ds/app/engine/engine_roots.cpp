@@ -1,6 +1,7 @@
 #include "ds/app/engine/engine_roots.h"
 
 #include "ds/app/engine/engine.h"
+#include "ds/app/auto_draw.h"
 #include "ds/gl/save_camera.h"
 
 namespace ds {
@@ -82,7 +83,7 @@ void OrthRoot::updateServer(const ds::UpdateParams& p) {
 	mSprite->updateServer(p);
 }
 
-void OrthRoot::drawClient(const DrawParams& p) {
+void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
 	if (mCameraDirty) {
 		setCinderCamera();
 	}
@@ -94,6 +95,8 @@ void OrthRoot::drawClient(const DrawParams& p) {
 		m.translate(ci::Vec3f((-mSrcRect.x1)*mSprite->getScale().x, (-mSrcRect.y1)*mSprite->getScale().y, 0.0f));
 	}
 	mSprite->drawClient(m, p);
+
+	if (auto_draw) auto_draw->drawClient(m, p);
 }
 
 void OrthRoot::drawServer(const DrawParams& p) {
@@ -179,8 +182,10 @@ void PerspRoot::updateServer(const ds::UpdateParams& p) {
 	mSprite->updateServer(p);
 }
 
-void PerspRoot::drawClient(const DrawParams& p) {
+void PerspRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
 	drawFunc([this, &p](){mSprite->drawClient(ci::gl::getModelView(), p);});
+
+	if (auto_draw) auto_draw->drawClient(ci::gl::getModelView(), p);
 }
 
 void PerspRoot::drawServer(const DrawParams& p) {
