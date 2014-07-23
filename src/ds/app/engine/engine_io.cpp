@@ -12,32 +12,29 @@ namespace ds {
  * \class ds::EngineSender
  */
 EngineSender::EngineSender(ds::NetConnection& con)
-    : mConnection(con)
-{
+		: mConnection(con) {
 }
 
 /**
  * \class ds::EngineSender::AutoSend
  */
 EngineSender::AutoSend::AutoSend(EngineSender& sender)
-  : mData(sender.mSendBuffer)
-  , mSender(sender)
-{
+		: mData(sender.mSendBuffer)
+		, mSender(sender) {
   mData.clear();
 }
 
-EngineSender::AutoSend::~AutoSend()
-{
-  // Send data to client
-  if (!mSender.mConnection.initialized()) return;
-  if (mData.size() < 1) return;
+EngineSender::AutoSend::~AutoSend() {
+	// Send data to client
+	if (!mSender.mConnection.initialized()) return;
+	if (mData.size() < 1) return;
 
-  const int size = mData.size();
-  mSender.mRawDataBuffer.setSize(size);
-  mData.readRaw(mSender.mRawDataBuffer.data(), size);
-  snappy::Compress(mSender.mRawDataBuffer.data(), size, &mSender.mCompressionBuffer);
-  mSender.mConnection.sendMessage(mSender.mCompressionBuffer);
-  mData.clear();
+	const int size = mData.size();
+	mSender.mRawDataBuffer.setSize(size);
+	mData.readRaw(mSender.mRawDataBuffer.data(), size);
+	snappy::Compress(mSender.mRawDataBuffer.data(), size, &mSender.mCompressionBuffer);
+	mSender.mConnection.sendMessage(mSender.mCompressionBuffer);
+	mData.clear();
 }
 
 /**
