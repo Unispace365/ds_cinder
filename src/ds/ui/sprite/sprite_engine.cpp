@@ -4,6 +4,7 @@
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_service.h"
 #include "ds/debug/debug_defines.h"
+#include "ds/debug/logger.h"
 
 using namespace ci;
 
@@ -136,24 +137,24 @@ std::unique_ptr<FboGeneral> SpriteEngine::getFbo()
   return std::move(fbo);
 }
 
-void SpriteEngine::giveBackFbo( std::unique_ptr<FboGeneral> &fbo )
-{
-  mFbos.push_back(std::move(fbo));
+void SpriteEngine::giveBackFbo( std::unique_ptr<FboGeneral> &fbo ) {
+	mFbos.push_back(std::move(fbo));
 }
 
-double SpriteEngine::getElapsedTimeSeconds() const
-{
-  return ci::app::getElapsedSeconds();
+double SpriteEngine::getElapsedTimeSeconds() const {
+	return ci::app::getElapsedSeconds();
 }
 
-void SpriteEngine::clearFingers( const std::vector<int> &fingers )
-{
+void SpriteEngine::clearFingers( const std::vector<int> &fingers ) {
 }
 
-ds::EngineService& SpriteEngine::private_getService(const std::string& str)
-{
+ds::EngineService& SpriteEngine::private_getService(const std::string& str) {
 	ds::EngineService*	s = mData.mServices[str];
-	if (!s) throw std::runtime_error("Service does not exist");
+	if (!s) {
+		const std::string	msg = "Service (" + str + ") does not exist";
+		DS_LOG_ERROR(msg);
+		throw std::runtime_error(msg);
+	}
 	return *s;
 }
 

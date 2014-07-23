@@ -629,9 +629,8 @@ void Sprite::setSizeAll( float width, float height, float depth )
   dimensionalStateChanged();
 }
 
-void Sprite::setSize( float width, float height )
-{
-  setSizeAll(width, height, mDepth);
+void Sprite::setSize(float width, float height) {
+	setSizeAll(width, height, mDepth);
 }
 
 void Sprite::sizeToChildBounds(){
