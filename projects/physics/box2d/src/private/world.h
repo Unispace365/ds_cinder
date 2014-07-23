@@ -31,8 +31,11 @@ class World : public ds::EngineService
 public:
 	World(ds::ui::SpriteEngine&, ds::ui::Sprite&);
 
-	void							createDistanceJoint(const SpriteBody&, const SpriteBody&, float length, float dampingRatio, float frequencyHz);
+	void							createDistanceJoint(const SpriteBody&, const SpriteBody&, float length, float dampingRatio, float frequencyHz,
+													const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
 	void							resizeDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
+	void							createWeldJoint(const SpriteBody&, const SpriteBody&, const float dampingRation, const float frequencyHz,
+													const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
 	void							releaseJoints(const SpriteBody&);
 
 	void							processTouchAdded(const SpriteBody&, const ds::ui::TouchInfo&);

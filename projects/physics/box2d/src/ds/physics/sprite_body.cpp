@@ -85,18 +85,26 @@ void SpriteBody::create(const BodyBuilder& b) {
 	b.createFixture(*this);
 }
 
-void SpriteBody::createDistanceJoint(SpriteBody& body, float length, float dampingRatio, float frequencyHz) {
-	mWorld.createDistanceJoint(*this, body, length, dampingRatio, frequencyHz);
+void SpriteBody::createDistanceJoint(SpriteBody& body, float length, float dampingRatio, float frequencyHz, const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
+	mWorld.createDistanceJoint(*this, body, length, dampingRatio, frequencyHz, bodyAOffset, bodyBOffset);
 }
- 
+
+void SpriteBody::createWeldJoint(SpriteBody& body,const float damping, const float frequency, const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
+	mWorld.createWeldJoint(*this, body, damping, frequency, bodyAOffset, bodyBOffset);
+}
+
 void SpriteBody::destroy() {
 	if (mBody == nullptr) return;
 
 	
 	// Destroying a body also destroys all joints associated with that body.
-	mWorld.releaseJoints(*this);
+	releaseJoints();
 	mWorld.mWorld->DestroyBody(mBody);
 	mBody = nullptr;
+}
+
+void SpriteBody::releaseJoints() {
+	mWorld.releaseJoints(*this);
 }
 
 void SpriteBody::setActive(bool flag) {
