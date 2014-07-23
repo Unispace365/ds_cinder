@@ -121,11 +121,40 @@ void World::resizeDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 	}
 }
 
+void World::createWeldJoint(const SpriteBody& body1, const SpriteBody& body2, const float damping, const float frequency, const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
+	if (body1.mBody && body2.mBody) {
+		b2WeldJointDef jointDef;
+		jointDef.bodyA = body1.mBody;
+		jointDef.bodyB = body2.mBody;
+		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter() + bodyAOffset);
+		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter() + bodyBOffset);
+		jointDef.dampingRatio = damping;
+		jointDef.frequencyHz = frequency;
+		jointDef.referenceAngle = jointDef.bodyA->GetAngle() - jointDef.bodyB->GetAngle();
+		jointDef.collideConnected = false;
+
+		b2WeldJoint* joint = (b2WeldJoint*) mWorld->CreateJoint(&jointDef);
+
+		//DS_LOG_INFO_M("Joint anchors a=(" << joint->GetAnchorA().x << ", " << joint->GetAnchorA().y << ") b=(" << joint->GetAnchorB().x << ", " << joint->GetAnchorB().y << ")", PHYSICS_LOG);
+
+		mWeldJoints.insert(mWeldJoints.end(), joint);
+	}
+}
+
 void World::releaseJoints(const SpriteBody& body) {
 	if(!body.mBody) return;
 	for (int i = 0; i < mDistanceJoints.size(); i++){
 		if(mDistanceJoints[i]->GetBodyA() == body.mBody || mDistanceJoints[i]->GetBodyB() == body.mBody){
+			mWorld->DestroyJoint(mDistanceJoints[i]);
 			mDistanceJoints.erase(mDistanceJoints.begin() + i);
+			i--;
+		}
+	}
+
+	for (int i = 0; i < mWeldJoints.size(); i++){
+		if(mWeldJoints[i]->GetBodyA() == body.mBody || mWeldJoints[i]->GetBodyB() == body.mBody){
+			mWorld->DestroyJoint(mWeldJoints[i]);
+			mWeldJoints.erase(mWeldJoints.begin() + i);
 			i--;
 		}
 	}
