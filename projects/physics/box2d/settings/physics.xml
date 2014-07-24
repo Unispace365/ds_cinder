@@ -14,6 +14,16 @@
 	<float name="dampening:angular" value="8" />
 	<text  name="rotation:fixed" value="true" />	
 	
+	<!-- Step controls how box 2d handles integrations for each frame of physics.
+			higher numbers of iterations are slower, but more accurate. -->
+	<int   name="step:velocity_iterations" value="8" />
+	<int   name="step:position_iterations" value="3" />
+	<!-- Box 2d recommends fixing the update to a set amount, regardless of framerate, 
+	but the legacy behaviour is variable (delta time). 
+	If you specify fixed, you should also specify the amount, which should be 1 / <frame_rate> -->
+	<text  name="step:fixed" value="true" />
+	<float name="step:fixed_amount" value="0.01666666666" />
+	
 	<!-- settings for all mouse joints
 			max_force: maximum amount of strongness
 			dampening: Damping is used to reduce the world velocity of bodies. Values go from 0.0 to infinity, with 0 being off, and infinity being full dampening

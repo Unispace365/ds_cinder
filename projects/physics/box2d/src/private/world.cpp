@@ -71,6 +71,11 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& s)
 	mMouseDampening = mSettings.getFloat("mouse:dampening", 0, mMouseDampening);
 	mMouseFrequencyHz = mSettings.getFloat("mouse:frequency_hz", 0, mMouseFrequencyHz);
 
+	mVelocityIterations = mSettings.getInt("step:velocity_iterations", 0, 6);
+	mPositionIterations = mSettings.getInt("step:position_iterations", 0, 2);
+	mFixedStep = mSettings.getBool("step:fixed", 0, false);
+	mFixedStepAmount = mSettings.getFloat("step:fixed_amount", 0, 1.0f/60.0f);
+
 	// Slightly complicated, but flexible: Bounds can be either fixed or unit,
 	// or a combination of both, which applies the fixed as an offset.
 	if (mSettings.getRectSize("bounds:fixed") > 0 && mSettings.getRectSize("bounds:unit") > 0) {
@@ -219,12 +224,14 @@ bool World::makeCollision(const b2Fixture& fix, Collision& c) const
 
 void World::update(const ds::UpdateParams& p)
 {
-	static const int	VELOCITY_ITERATIONS = 6;
-	static const int	POSITION_ITERATIONS = 2;
-
 	mContactListener.clear();
-	mWorld->Step(p.getDeltaTime(), VELOCITY_ITERATIONS, POSITION_ITERATIONS);
-
+	
+	if(mFixedStep){
+		mWorld->Step(mFixedStepAmount, mVelocityIterations, mPositionIterations);
+	} else {
+		mWorld->Step(p.getDeltaTime(), mVelocityIterations, mPositionIterations);
+	}
+	
 	// Update all objects
 	for ( b2Body* b = mWorld->GetBodyList(); b; b = b->GetNext() )
 	{

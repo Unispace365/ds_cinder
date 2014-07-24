@@ -86,6 +86,11 @@ private:
 									mMouseDampening,
 									mMouseFrequencyHz;
 
+	int								mVelocityIterations,
+									mPositionIterations;
+	bool							mFixedStep;
+	float							mFixedStepAmount;
+
 	std::vector<b2DistanceJoint*>	mDistanceJoints;
 	std::vector<b2WeldJoint*>		mWeldJoints;
 };
