@@ -12,6 +12,7 @@
 #include "ds/ui/touch/picking.h"
 
 namespace ds {
+class AutoDrawService;
 class Engine;
 
 /**
@@ -51,7 +52,7 @@ public:
 	// Sprite passthrough
 	virtual void					updateClient(const ds::UpdateParams&) = 0;
 	virtual void					updateServer(const ds::UpdateParams&) = 0;
-	virtual void					drawClient(const DrawParams&) = 0;
+	virtual void					drawClient(const DrawParams&, AutoDrawService*) = 0;
 	virtual void					drawServer(const DrawParams&) = 0;
 	// Camera
 	virtual void					markCameraDirty() = 0;
@@ -84,7 +85,7 @@ public:
 	virtual void					clearChildren();
 	virtual void					updateClient(const ds::UpdateParams&);
 	virtual void					updateServer(const ds::UpdateParams&);
-	virtual void					drawClient(const DrawParams&);
+	virtual void					drawClient(const DrawParams&, AutoDrawService*);
 	virtual void					drawServer(const DrawParams&);
 	virtual void					setCinderCamera();
 	virtual void					setViewport(const bool b);
@@ -121,7 +122,7 @@ public:
 	virtual void					clearChildren();
 	virtual void					updateClient(const ds::UpdateParams&);
 	virtual void					updateServer(const ds::UpdateParams&);
-	virtual void					drawClient(const DrawParams&);
+	virtual void					drawClient(const DrawParams&, AutoDrawService*);
 	virtual void					drawServer(const DrawParams&);
 	virtual ui::Sprite*				getHit(const ci::Vec3f& point);
 

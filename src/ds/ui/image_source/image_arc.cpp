@@ -15,8 +15,11 @@ namespace ui {
 
 namespace {
 char				BLOB_TYPE		= 0;
-const char			RES_FN_ATT		= 20;
-const char			RES_FLAGS_ATT	= 21;
+const char			W_ATT			= 20;
+const char			H_ATT			= 21;
+const char			FN_ATT			= 22;
+const char			INPUT_ATT		= 23;
+const char			WRITEFN_ATT		= 24;
 
 const int			STATUS_ERROR	= -1;
 const int			STATUS_EMPTY	= 0;
@@ -47,27 +50,42 @@ public:
 	}
 
 	virtual void							writeTo(DataBuffer& buf) const {
-		assert(false);
-#if 0
-		buf.add(RES_FN_ATT);
+		buf.add(W_ATT);
+		buf.add(mWidth);
+
+		buf.add(H_ATT);
+		buf.add(mHeight);
+
+		buf.add(FN_ATT);
 		buf.add(mFilename);
 
-		buf.add(RES_FLAGS_ATT);
-		buf.add(mFlags);
-#endif
+		buf.add(INPUT_ATT);
+		mInput.writeTo(buf);
+
+		buf.add(WRITEFN_ATT);
+		buf.add(mWriteFile);
 	}
 
 	virtual bool							readFrom(DataBuffer& buf) {
-		assert(false);
-#if 0
 		if (!buf.canRead<char>()) return false;
-		if (buf.read<char>() != RES_FN_ATT) return false;
+		if (buf.read<char>() != W_ATT) return false;
+		mWidth = buf.read<int>();
+
+		if (!buf.canRead<char>()) return false;
+		if (buf.read<char>() != H_ATT) return false;
+		mHeight = buf.read<int>();
+
+		if (!buf.canRead<char>()) return false;
+		if (buf.read<char>() != FN_ATT) return false;
 		mFilename = buf.read<std::string>();
 
 		if (!buf.canRead<char>()) return false;
-		if (buf.read<char>() != RES_FLAGS_ATT) return false;
-		mFlags = buf.read<int>();
-#endif
+		if (buf.read<char>() != INPUT_ATT) return false;
+		mInput.readFrom(buf);
+
+		if (!buf.canRead<char>()) return false;
+		if (buf.read<char>() != WRITEFN_ATT) return false;
+		mWriteFile = buf.read<int>();
 
 		return true;
 	}
@@ -102,7 +120,7 @@ private:
 	}
 
 	int						mStatus;
-	const int				mWidth,
+	int						mWidth,
 							mHeight;
 	std::string				mFilename;
 	ds::arc::Input			mInput;

@@ -20,7 +20,7 @@ class SpriteEngine;
 class AutoUpdate {
 public:
 	AutoUpdate(ds::ui::SpriteEngine&);
-	~AutoUpdate();
+	virtual ~AutoUpdate();
 
 protected:
 	virtual void		update(const ds::UpdateParams&) = 0;

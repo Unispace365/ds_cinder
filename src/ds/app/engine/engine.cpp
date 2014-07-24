@@ -3,6 +3,7 @@
 #include <GL/glu.h>
 #include "Poco/Path.h"
 #include "ds/app/app.h"
+#include "ds/app/auto_draw.h"
 #include "ds/app/environment.h"
 #include "ds/app/engine/engine_roots.h"
 #include "ds/app/engine/engine_service.h"
@@ -61,6 +62,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mHideMouse(false)
 	, mApplyFxAA(false)
 	, mUniqueColor(0, 0, 0)
+	, mAutoDraw(new AutoDrawService())
 {
 	mRequestDelete.reserve(32);
 
@@ -68,6 +70,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	// so lightweight it probably makes sense just to have them always available for clients instead
 	// of requiring some sort of configuration.
 	mIpFunctions.add(ds::ui::ip::CIRCLE_MASK, ds::ui::ip::FunctionRef(new ds::ui::ip::CircleMask()));
+
+	if (mAutoDraw) addService("AUTODRAW", *mAutoDraw);
 
 	// Construct the root sprites
 	RootList				roots(_roots);
@@ -341,7 +345,7 @@ void Engine::drawClient() {
 			ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 			for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-				(*it)->drawClient(mDrawParams);
+				(*it)->drawClient(mDrawParams, mAutoDraw);
 			}
 			if (mDrawTouches) {
 				mTouchManager.drawTouches();
@@ -390,7 +394,7 @@ void Engine::drawClient() {
 		ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 
 		for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-			(*it)->drawClient(mDrawParams);
+			(*it)->drawClient(mDrawParams, mAutoDraw);
 		}
 		if (mDrawTouches) {
 			mTouchManager.drawTouches();

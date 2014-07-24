@@ -24,6 +24,7 @@
     <ClInclude Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.h" />
     <ClInclude Include="..\src\ds\app\app.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
+    <ClInclude Include="..\src\ds\app\auto_draw.h" />
     <ClInclude Include="..\src\ds\app\auto_update.h" />
     <ClInclude Include="..\src\ds\app\auto_update_list.h" />
     <ClInclude Include="..\src\ds\app\blob_reader.h" />
@@ -181,6 +182,7 @@
     <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
     <ClCompile Include="..\src\ds\app\app_defs.cpp" />
+    <ClCompile Include="..\src\ds\app\auto_draw.cpp" />
     <ClCompile Include="..\src\ds\app\auto_update.cpp" />
     <ClCompile Include="..\src\ds\app\auto_update_list.cpp" />
     <ClCompile Include="..\src\ds\app\blob_reader.cpp" />

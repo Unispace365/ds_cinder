@@ -73,7 +73,7 @@ protected:
 	ds::EngineData				mEngineData;
 	ds::Engine&					mEngine;
 
-  private:
+private:
 	typedef ci::app::AppBasic   inherited;
 
 	friend class Environment;

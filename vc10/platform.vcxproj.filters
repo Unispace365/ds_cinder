@@ -600,6 +600,9 @@
     <ClInclude Include="..\src\ds\app\engine\engine_clientserver.h">
       <Filter>src\ds\app\engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\auto_draw.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1003,6 +1006,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\engine_clientserver.cpp">
       <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\auto_draw.cpp">
+      <Filter>src\ds\app</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

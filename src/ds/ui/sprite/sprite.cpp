@@ -552,12 +552,12 @@ void Sprite::release() {
 	delete this;
 }
 
-bool Sprite::containsChild( Sprite *child ) const
-{
+bool Sprite::containsChild(Sprite *child) const {
     auto found = std::find(mChildren.begin(), mChildren.end(), child);
 
-    if ( found != mChildren.end() )
+    if (found != mChildren.end()) {
         return true;
+	}
     return false;
 }
 
@@ -629,9 +629,8 @@ void Sprite::setSizeAll( float width, float height, float depth )
   dimensionalStateChanged();
 }
 
-void Sprite::setSize( float width, float height )
-{
-  setSizeAll(width, height, mDepth);
+void Sprite::setSize(float width, float height) {
+	setSizeAll(width, height, mDepth);
 }
 
 void Sprite::sizeToChildBounds(){
@@ -1619,59 +1618,54 @@ void Sprite::userInputReceived() {
 	resetIdleTimer();
 }
 
-void Sprite::sendSpriteToFront( Sprite &sprite ) {
-  if (!containsChild(&sprite))
-    return;
+void Sprite::sendSpriteToFront(Sprite &sprite) {
+	auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
+	if (found == mChildren.end()) return;
+	if (*found == mChildren.back()) return;
 
-  auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
-  mChildren.erase(found);
-  mChildren.push_back(&sprite);
+	mChildren.erase(found);
+	mChildren.push_back(&sprite);
 }
 
-void Sprite::sendSpriteToBack( Sprite &sprite )
-{
-  if (!containsChild(&sprite))
-    return;
+void Sprite::sendSpriteToBack(Sprite &sprite) {
+	auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
+	if (found == mChildren.end()) return;
+	if (*found == mChildren.front()) return;
 
-  auto found = std::find(mChildren.begin(), mChildren.end(), &sprite);
-  mChildren.erase(found);
-  mChildren.insert(mChildren.begin(), &sprite);
+	mChildren.erase(found);
+	mChildren.insert(mChildren.begin(), &sprite);
 }
 
-void Sprite::sendToFront()
-{
-  if (mParent)
-    mParent->sendSpriteToFront(*this);
+void Sprite::sendToFront() {
+	if (mParent) {
+		mParent->sendSpriteToFront(*this);
+	}
 }
 
-void Sprite::sendToBack()
-{
-  if (mParent)
-    mParent->sendSpriteToBack(*this);
+void Sprite::sendToBack() {
+	if (mParent) {
+		mParent->sendSpriteToBack(*this);
+	}
 }
 
-ds::ui::SpriteShader &Sprite::getBaseShader()
-{
-  return mSpriteShader;
+ds::ui::SpriteShader &Sprite::getBaseShader() {
+	return mSpriteShader;
 }
 
-float Sprite::getScaleWidth() const
-{
-  return mScale.x * getWidth();
+float Sprite::getScaleWidth() const {
+	return mScale.x * getWidth();
 }
 
-float Sprite::getScaleHeight() const
-{
-  return mScale.y * getHeight();
+float Sprite::getScaleHeight() const {
+	return mScale.y * getHeight();
 }
 
-float Sprite::getScaleDepth() const
-{
-  return mScale.z * mDepth;
+float Sprite::getScaleDepth() const {
+	return mScale.z * mDepth;
 }
 
 void Sprite::setSwipeCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func ) {
-  mSwipeCallback = func;
+	mSwipeCallback = func;
 }
 
 bool Sprite::hasTouches() const {

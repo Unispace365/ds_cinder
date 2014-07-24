@@ -26,8 +26,6 @@ public:
 	~AbstractEngineServer();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
-//	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
-//	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 
 	virtual void					installSprite(	const std::function<void(ds::BlobRegistry&)>& asServer,
 													const std::function<void(ds::BlobRegistry&)>& asClient);
@@ -46,10 +44,6 @@ private:
 
 	typedef Engine inherited;
 	WorkManager						mWorkManager;
-//	GlNoThread						mLoadImageThread;
-//	ui::LoadImageService			mLoadImageService;
-//	GlNoThread						mRenderTextThread;
-//	ui::RenderTextService			mRenderTextService;
 
 //    ds::ZmqConnection             mConnection;
 	ds::UdpConnection				mSendConnection;
@@ -69,6 +63,8 @@ private:
 		void						addHeader(ds::DataBuffer&, const int frame);
 	};
 
+	/* Default state: Gathers all changes in the app and sends them out each frame.
+	 */
 	class RunningState : public State {
 	public:
 		RunningState();
@@ -79,6 +75,10 @@ private:
 		int							mFrame;
 	};
 
+	/* This state is used to send the entire world info. It is the initial default
+	 * state, and becomes the active state whenever a client requests the world.
+	 * It sends out the world once, then moves to the running state.
+	 */
 	class SendWorldState : public State {
 	public:
 		SendWorldState();
