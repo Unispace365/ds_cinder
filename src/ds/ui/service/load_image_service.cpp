@@ -67,7 +67,7 @@ void ImageToken::acquire(	const std::string& _filename, const std::string& ip_ke
 
 	if (_filename.empty()) {
 		mError = true;
-		DS_LOG_WARNING_M("ImageToken: Unable to load image resource (no filename)", LOAD_IMAGE_LOG_M);
+//		DS_LOG_WARNING_M("ImageToken: Unable to load image resource (no filename)", LOAD_IMAGE_LOG_M);
 		return;
 	}
 	const ImageKey			key(_filename, ip_key, ip_params, flags);
