@@ -73,8 +73,8 @@ App::App(const RootList& roots)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
 	, mCtrlDown(false)
 	, mSecondMouseDown(false)
-	, mQKeyEnabled(false)
-	, mEscKeyEnabled(false)
+	, mQKeyEnabled(true)
+	, mEscKeyEnabled(true)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
@@ -261,10 +261,10 @@ void App::keyUp( KeyEvent event )
 
 void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ) {
 	if (q) {
-		mQKeyEnabled = true;
+		mQKeyEnabled = q;
 	}
 	if (esc) {
-		mEscKeyEnabled = true;
+		mEscKeyEnabled = esc;
 	}
 }
 
