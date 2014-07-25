@@ -282,15 +282,22 @@ void App::shutdown() {
 /**
  * \class ds::App::Initializer
  */
-static std::string data_folder_from(const Poco::Path& path) {
+static std::string app_sub_folder_from(const std::string &sub, const Poco::Path &path) {
 	Poco::Path          parent(path);
 	Poco::Path			p(parent);
-	p.append("data");
+	p.append(sub);
 	const Poco::File    f(p);
 	if (f.exists() && f.isDirectory()) {
 		return parent.toString();
 	}
 	return "";
+}
+
+static std::string app_folder_from(const Poco::Path& path) {
+	// Look for either a "data" or "settings" folder; either indicates I'm in the right place.
+	std::string			fn(app_sub_folder_from("data", path));
+	if (!fn.empty()) return fn;
+	return app_sub_folder_from("settings", path);
 }
 
 ds::App::Initializer::Initializer(const std::string& appPath) {
@@ -303,7 +310,7 @@ ds::App::Initializer::Initializer(const std::string& appPath) {
 	// short, and right now nothing is more then 3 steps from the appPath
 	// (but pad that to 5).
 	int             count = 0;
-	while ((ans=data_folder_from(p)).empty()) {
+	while ((ans=app_folder_from(p)).empty()) {
 		p.popDirectory();
 		if (count++ >= 5 || p.depth() < 2) break;
 	}
