@@ -1,0 +1,25 @@
+<settings>
+
+	<!-- Example settings for nine patches that can be used as drop shadow and rounded
+	panel foreground. A nine patch config has four entries, each entry has a key that
+	starts with a name uniquely identifying that nine patch and ends in a value specific
+	to that entry. For example, if you have a nine patch named "panel:bg" then you would
+	create settings for "panel:bg:type" "panel:bg:radius" etc. as below. -->
+
+	<!-- PANEL BACKGROUND -->
+		<!-- Image generation algorithm, currently must always be "arc drop shadow" -->
+		<text  name="panel:bg:type" value="arc drop shadow" />
+		<!-- Size of the corners, in pixels. -->
+		<float name="panel:bg:radius" value="62" />
+		<!-- Essentially a pow() function to shape the falloff towards the edges. -->
+		<float name="panel:bg:falloff" value="4.5" />
+		<color name="panel:bg:color" r="0" g="0" b="0" a="60" />
+
+	<!-- PANEL FOREGROUND -->
+		<text  name="panel:fg:type" value="arc drop shadow" />
+		<float name="panel:fg:radius" value="4" />
+		<float name="panel:fg:falloff" value="0.0" />
+		<color name="panel:fg:color" r="171" g="171" b="171" />
+
+
+</settings>

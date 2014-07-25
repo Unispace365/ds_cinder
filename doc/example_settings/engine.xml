@@ -32,6 +32,14 @@
 	to scale the window. -->
 	<rect name="src_rect" l="0" r="1920" t="0" b="1080" />
 	<rect name="dst_rect" l="0" r="1920" t="0" b="1080" />
+
+	<!-- title of the window -->
+	<text name="screen:title" value="Starter" />	
+	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
+	<text name="screen:mode" value="full" />
+	<!-- makes the window an always-on-top sort of window. default=false -->
+	<text name="screen:always_on_top" value="true" />
+	
 	<!-- the size of the local client, sets the window size 
 	NOTE: OBSOLETED BY src_rect/dst_rect -->
 	<rect name="local_rect" l="0" r="1920" t="0" b="1080" />
@@ -43,12 +51,6 @@
 		default=0.0,0.0,0.0
 	NOTE: OBSOLETED BY dst_rect -->
 	<point name="window_pos" x="10.0" y="100.0" z="0.0" />
-	<!-- title of the window -->
-	<text name="screen:title" value="Starter" />	
-	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
-	<text name="screen:mode" value="full" />
-	<!-- makes the window an always-on-top sort of window. default=false -->
-	<text name="screen:always_on_top" value="true" />
 	
 	<!---------------------->
 	<!-- RENDER SETTINGS --->
