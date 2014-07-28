@@ -147,8 +147,6 @@ public:
 	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint ){ mTouchManager.overrideTouchTranslation(inOutPoint); };
 	virtual bool						shouldDiscardTouch( ci::Vec2f& p ){ return mTouchManager.shouldDiscardTouch(p); }
 
-	ci::Vec2f							getMouseOffset() const;
-
 	// Root support
 	const ci::Rectf&					getScreenRect() const;
 
@@ -199,7 +197,6 @@ private:
 
 	tuio::Client						mTuio;
 	ui::TouchManager					mTouchManager;
-	bool								mDrawTouches;
 	// Clients that will get update() called automatically at the start
 	// of each update cycle
 	AutoUpdateList						mAutoUpdate;
@@ -222,9 +219,6 @@ private:
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsBegin;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsMoved;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnd;
-	// Offset the mouse point based on current parameters.
-	int									mMouseOffsetX,
-										mMouseOffsetY;
 
 	ds::SelectPicking					mSelectPicking;
 

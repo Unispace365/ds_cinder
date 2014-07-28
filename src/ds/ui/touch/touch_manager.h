@@ -18,21 +18,19 @@ namespace ui {
 
 class Sprite;
 
-class TouchManager
-{
-  public:
-    TouchManager(Engine &engine);
+class TouchManager {
+public:
+	TouchManager(Engine &engine);
 
-    void                        mouseTouchBegin( MouseEvent event, int id );
-    void                        mouseTouchMoved( MouseEvent event, int id );
-    void                        mouseTouchEnded( MouseEvent event, int id );
+	void                        mouseTouchBegin( MouseEvent event, int id );
+	void                        mouseTouchMoved( MouseEvent event, int id );
+	void                        mouseTouchEnded( MouseEvent event, int id );
 
-    void                        touchesBegin( TouchEvent event );
-    void                        touchesMoved( TouchEvent event );
-    void                        touchesEnded( TouchEvent event );
+	void                        touchesBegin( TouchEvent event );
+	void                        touchesMoved( TouchEvent event );
+	void                        touchesEnded( TouchEvent event );
 
-    void                        drawTouches() const;
-    void                        setTouchColor(const ci::Color &color);
+	void                        drawTouches() const;
 
 	void                        clearFingers( const std::vector<int> &fingers );
 
@@ -63,7 +61,6 @@ class TouchManager
     std::map<int, ui::Sprite *> mFingerDispatcher;
     std::map<int, Vec3f>        mTouchStartPoint;
     std::map<int, Vec3f>        mTouchPreviousPoint;
-    ci::Color                   mTouchColor;
 
 	ci::Vec2f					mTouchDimensions;
 	ci::Vec2f					mTouchOffset;

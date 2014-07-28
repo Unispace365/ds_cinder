@@ -46,12 +46,8 @@ void OrthRoot::setup(const Settings& s) {
 	if (mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1
 			&& mDstRect.x2 > mDstRect.x1 && mDstRect.y2 > mDstRect.y1) {
 		mSprite->setSize(mSrcRect.getWidth(), mSrcRect.getHeight());
-		const float			sx = mDstRect.getWidth() / mSrcRect.getWidth(),
-							sy = mDstRect.getHeight() / mSrcRect.getHeight();
-		if (sx < 0.99999f || sx > 1.00000f || sy < 0.99999f || sy > 1.00000f) {
-			mSprite->setScale(sx, sy);
-		}
 	} else {
+		// This is deprecated, and should never be hit
 		const bool			scaleWorldToFit = s.mDebugSettings.getBool("scale_world_to_fit", 0, false);
 		const float			window_scale = s.mDebugSettings.getFloat("window_scale", 0, s.mDefaultScale);
 
@@ -92,7 +88,10 @@ void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
 	ci::Matrix44f		m(ci::gl::getModelView());
 	// Account for src rect translation
 	if (mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1) {
-		m.translate(ci::Vec3f((-mSrcRect.x1)*mSprite->getScale().x, (-mSrcRect.y1)*mSprite->getScale().y, 0.0f));
+		const float			sx = mDstRect.getWidth() / mSrcRect.getWidth(),
+							sy = mDstRect.getHeight() / mSrcRect.getHeight();
+		m.translate(ci::Vec3f(-mSrcRect.x1*sx, -mSrcRect.y1*sy, 0.0f));
+		m.scale(ci::Vec3f(sx, sy, 1.0f));
 	}
 	mSprite->drawClient(m, p);
 

@@ -27,6 +27,27 @@ namespace {
 const int			NUMBER_OF_NETWORK_THREADS = 2;
 
 void				root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>&);
+
+// View for drawing touches
+class DrawTouchView : public ds::ui::Sprite {
+public:
+	DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &settings, ds::ui::TouchManager& tm)
+			: ds::ui::Sprite(e)
+			, mTouchManager(tm) {
+		setTransparent(false);
+		setColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
+	}
+
+	virtual void		drawLocalClient() {
+		// No reason to draw my parent
+//		ds::ui::Sprite::drawLocalClient();
+		mTouchManager.drawTouches();
+	}
+
+private:
+	ds::ui::TouchManager&	mTouchManager;
+};
+
 }
 
 const ds::BitMask	ds::ENGINE_LOG = ds::Logger::newModule("engine");
@@ -55,8 +76,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);})
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);})
 	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
-	, mMouseOffsetX(0)
-	, mMouseOffsetY(0)
 	, mSystemMultitouchEnabled(false)
 	, mEnableMouseEvents(true)
 	, mHideMouse(false)
@@ -76,17 +95,17 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	// Construct the root sprites
 	RootList				roots(_roots);
 	if (roots.empty()) roots.ortho();
-	sprite_id_t							id = EMPTY_SPRITE_ID-1;
+	sprite_id_t							root_id = EMPTY_SPRITE_ID-1;
 	for (auto it=roots.mRoots.begin(), end=roots.mRoots.end(); it!=end; ++it) {
 		const RootList::Root&			r(*it);
 		Picking*						picking = nullptr;
 		if (r.mPick == r.kSelect) picking = &mSelectPicking;
 		std::unique_ptr<EngineRoot>		root;
-		if (r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, id));
-		else if (r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, id, r.mPersp, picking));
+		if (r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, root_id));
+		else if (r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, root_id, r.mPersp, picking));
 		if (!root) throw std::runtime_error("Engine can't create root");
 		mRoots.push_back(std::move(root));
-		--id;
+		--root_id;
 	}
 	if (mRoots.empty()) {
 		throw std::runtime_error("Engine can't create single root");
@@ -95,47 +114,65 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
-	const float			DEFAULT_WINDOW_SCALE = 1.0f;
-	const float			window_scale = mDebugSettings.getFloat("window_scale", 0, DEFAULT_WINDOW_SCALE);
-	mData.mScreenRect = settings.getRect("local_rect", 0, Rectf(0.0f, 640.0f, 0.0f, 400.0f));
-	if (window_scale != DEFAULT_WINDOW_SCALE) mData.mScreenRect.scale(window_scale);
-	mData.mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
-	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
 
 	// touch settings
 	mTouchManager.setOverrideTranslation(settings.getBool("touch_overlay:override_translation", 0, false));
 	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::Vec2f(1920.0f, 1080.0f)));
 	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
 	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
-	mTouchManager.setTouchColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
-	mDrawTouches = settings.getBool("touch_overlay:debug", 0, false);
+	const bool			drawTouches = settings.getBool("touch_overlay:debug", 0, false);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
-
+	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
 	mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
 	mApplyFxAA = settings.getBool("FxAA", 0, false);
 	mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
 	mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
 	mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
+	mData.mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
+	// Backwards compatibility with pre src-dst rect days
+	const float				DEFAULT_WINDOW_SCALE = 1.0f;
+	if (settings.getRectSize("local_rect") > 0) {
+		const float			window_scale = mDebugSettings.getFloat("window_scale", 0, DEFAULT_WINDOW_SCALE);
+		mData.mSrcRect = settings.getRect("local_rect", 0, mData.mSrcRect);
+		mData.mDstRect = ci::Rectf(0.0f, 0.0f, mData.mSrcRect.getWidth(), mData.mSrcRect.getHeight());
+		if (settings.getPointSize("window_pos") > 0) {
+			const ci::Vec3f	size(settings.getPoint("window_pos"));
+			mData.mDstRect.offset(size.xy());
+		}
+	}
 	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
 	// which makes them get ignored.
-	mData.mSrcRect = ci::Rectf(0.0f, 0.0f, -1.0f, -1.0f);
-	mData.mDstRect = ci::Rectf(0.0f, 0.0f, -1.0f, -1.0f);
-	mData.mSrcRect = settings.getRect("src_rect", 0, mData.mSrcRect);
-	mData.mDstRect = settings.getRect("dst_rect", 0, mData.mDstRect);
+	if (settings.getRectSize("src_rect") > 0 || settings.getRectSize("dst_rect") > 0) {
+		const ci::Rectf		empty_rect(0.0f, 0.0f, -1.0f, -1.0f);
+		mData.mSrcRect = settings.getRect("src_rect", 0, empty_rect);
+		mData.mDstRect = settings.getRect("dst_rect", 0, empty_rect);
+	}
 	// Override the screen rect if we're using the new-style mode. I inherit behaviour like setting
 	// the window size from this.
 	if (mData.mDstRect.x2 > mData.mDstRect.x1 && mData.mDstRect.y2 > mData.mDstRect.y1) {
-//		mData.mScreenRect = mData.mDstRect;
 		// Hmmm... suspect the screen rect does not support setting x1, y1, because when I do
 		// everything goes black. That really needs to be weeded out in favour of the new system.
 		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
 	}
-	if (mData.mSrcRect.x2 > mData.mSrcRect.x1 && mData.mSrcRect.y2 > mData.mSrcRect.y1) {
-		mMouseOffsetX = static_cast<int>(mData.mSrcRect.x1);
-		mMouseOffsetY = static_cast<int>(mData.mSrcRect.y1);
+	// If we're drawing the touches, create a separate top-level root to do that
+	if (drawTouches) {
+		RootList::Root					root_cfg;
+		root_cfg.mType = root_cfg.kOrtho;
+		std::unique_ptr<EngineRoot>		root;
+		root.reset(new OrthRoot(*this, root_cfg, root_id));
+		if (root) {
+			ds::ui::Sprite*				parent = root->getSprite();
+			if (parent) {
+				DrawTouchView*			v = new DrawTouchView(*this, settings, mTouchManager);
+				if (v) {
+					parent->addChild(*v);
+					mRoots.push_back(std::move(root));
+				}
+			}
+		}
 	}
-
+	// Initialize the roots
 	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot&				r(*(it->get()));
@@ -347,9 +384,6 @@ void Engine::drawClient() {
 			for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 				(*it)->drawClient(mDrawParams, mAutoDraw);
 			}
-			if (mDrawTouches) {
-				mTouchManager.drawTouches();
-			}
 			mFbo.unbindFramebuffer();
 		}
 		ci::gl::enableAlphaBlending();
@@ -396,9 +430,6 @@ void Engine::drawClient() {
 		for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 			(*it)->drawClient(mDrawParams, mAutoDraw);
 		}
-		if (mDrawTouches) {
-			mTouchManager.drawTouches();
-		}
 	}
 
 	glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
@@ -413,11 +444,6 @@ void Engine::drawServer() {
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		(*it)->drawServer(mDrawParams);
-	}
-
-	if (mDrawTouches) {
-		// XXX This should probably be in a separate ortho root at the top of the hieararchy.
-		mTouchManager.drawTouches();
 	}
 
 	glAlphaFunc(GL_ALWAYS, 0.001f) ;
@@ -582,7 +608,13 @@ MouseEvent Engine::alteredMouseEvent(const MouseEvent& e) const {
 	// hopefully it always will be.
 	// Note that you CAN get to this if you want to interpret what's there. I *think* I saw that
 	// the newer version of cinder gave access so hopefully can just wait for that if we need it.
-	return ci::app::MouseEvent(	0, e.getX() + mMouseOffsetX, e.getY() + mMouseOffsetY,
+
+	// Translate the mouse from the actual window to the desired rect in world coordinates.
+	const float		win_sx = mData.mSrcRect.getWidth() / getWindowWidth(),
+					win_sy = mData.mSrcRect.getHeight() / getWindowHeight();
+	float			x = mData.mSrcRect.x1 + (static_cast<float>(e.getX()) * win_sx),
+					y = mData.mSrcRect.y1 + (static_cast<float>(e.getY()) * win_sy);
+	return ci::app::MouseEvent(	0, static_cast<int>(x), static_cast<int>(y),
 								0, e.getWheelIncrement(), e.getNativeModifiers());
 }
 
@@ -619,10 +651,6 @@ ds::ui::Sprite* Engine::getHit(const ci::Vec3f& point) {
 
 void Engine::clearFingers( const std::vector<int> &fingers ) {
 	mTouchManager.clearFingers(fingers);
-}
-
-ci::Vec2f Engine::getMouseOffset() const {
-	return ci::Vec2f(static_cast<float>(mMouseOffsetX), static_cast<float>(mMouseOffsetY));
 }
 
 const ci::Rectf& Engine::getScreenRect() const {

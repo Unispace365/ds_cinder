@@ -136,16 +136,7 @@ void App::prepareSettings(Settings *settings) {
 
 	if (settings) {
 		mEngine.prepareSettings(*settings);
-
-		// set in the engine.xml
-		// Maintain backwards compatibility with now-obsoleted window_pos
-		const ci::Rectf		dst_rect(mEngineSettings.getRect("dst_rect", 0, ci::Rectf(0.0f, 0.0f, -1.0f, -1.0f)));
-		if (dst_rect.x2 > dst_rect.x1 && dst_rect.y2 > dst_rect.y1) {
-			settings->setWindowPos(static_cast<unsigned>(dst_rect.x1), static_cast<unsigned>(dst_rect.y1));
-		} else {
-			ci::Vec3f pos = mEngineSettings.getPoint("window_pos", 0, ci::Vec3f(0.0f, 0.0f, 0.0f));
-			settings->setWindowPos(static_cast<unsigned>(pos.x), static_cast<unsigned>(pos.y));
-		}
+		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
 	}
 }
 

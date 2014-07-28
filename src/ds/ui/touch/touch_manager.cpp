@@ -14,14 +14,13 @@ namespace ds {
 namespace ui {
 
 TouchManager::TouchManager( Engine &engine )
-  : mEngine(engine)
-  , mIgnoreFirstTouchId(-1)
-  , mOverrideTranslation(false)
-  , mTouchDimensions(0.0f, 0.0f)
-  , mTouchOffset(0.0f, 0.0f)
-  , mTouchFilterRect(0.0f, 0.0f, 0.0f, 0.0f)
+		: mEngine(engine)
+		, mIgnoreFirstTouchId(-1)
+		, mOverrideTranslation(false)
+		, mTouchDimensions(0.0f, 0.0f)
+		, mTouchOffset(0.0f, 0.0f)
+		, mTouchFilterRect(0.0f, 0.0f, 0.0f, 0.0f)
 {
-  mTouchColor = Color( 1, 1, 0 );
 }
 
 void TouchManager::touchesBegin( TouchEvent event ){
@@ -196,19 +195,11 @@ void TouchManager::drawTouches() const {
 		return;
 
 	applyBlendingMode(NORMAL);
-	ci::gl::color( mTouchColor );
 
-	ci::Vec2f			mouse_offset(mEngine.getMouseOffset());
 	for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {
 		ci::Vec2f		pos(it->second.xy());
-		pos.x -= mouse_offset.x;
-		pos.y -= mouse_offset.y;
 		ci::gl::drawStrokedCircle(pos, 20.0f);
 	}
-}
-
-void TouchManager::setTouchColor( const ci::Color &color ){
-	mTouchColor = color;
 }
 
 void TouchManager::clearFingers( const std::vector<int> &fingers ){
@@ -245,15 +236,8 @@ Sprite* TouchManager::getHit(const ci::Vec3f &point) {
 }
 
 ci::Vec2f TouchManager::translateMousePoint( const ci::Vec2i inputPoint ){
-	
-	float yScaleFactor = getWindowHeight() / mEngine.getScreenRect().getHeight();
-	float xScaleFactor = getWindowWidth() / mEngine.getScreenRect().getWidth();
-	ci::Vec2f eventPos = ci::Vec2f((float)inputPoint.x, (float)inputPoint.y);
-	eventPos.x /= xScaleFactor;
-	eventPos.y /= yScaleFactor;
-
-	const ci::Vec2i		mouseOffset(mEngine.getMouseOffset());
-	return eventPos;
+	// The translation has been moved to the engine
+	return ci::Vec2f(static_cast<float>(inputPoint.x), static_cast<float>(inputPoint.y));
 }
 
 bool TouchManager::shouldDiscardTouch( const ci::Vec2f& p ) {
