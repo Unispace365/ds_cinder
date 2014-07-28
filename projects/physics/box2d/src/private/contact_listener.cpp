@@ -21,8 +21,11 @@ void ContactListener::PostSolve(b2Contact* contact, const b2ContactImpulse* impu
 	if (!contact || !impulse) return;
 
 	try {
-		collide(contact->GetFixtureA(), contact->GetFixtureB(), *impulse);
-		collide(contact->GetFixtureB(), contact->GetFixtureA(), *impulse);
+		b2WorldManifold manifold;
+		contact->GetWorldManifold(&manifold);
+
+		collide(contact->GetFixtureA(), contact->GetFixtureB(), *impulse, manifold.points[0], manifold.points[1], manifold.normal);
+		collide(contact->GetFixtureB(), contact->GetFixtureA(), *impulse, manifold.points[0], manifold.points[1], manifold.normal);
 	} catch (std::exception const&) {
 	}
 }
@@ -68,7 +71,7 @@ void ContactListener::report()
 	mReport.clear();
 }
 
-void ContactListener::collide(const b2Fixture* a, const b2Fixture* b, const b2ContactImpulse& impulse)
+void ContactListener::collide(const b2Fixture* a, const b2Fixture* b, const b2ContactImpulse& impulse, const b2Vec2 pointOne, const b2Vec2 pointTwo, const b2Vec2 normal)
 {
 	if (!a || !b) return;
 
@@ -77,11 +80,16 @@ void ContactListener::collide(const b2Fixture* a, const b2Fixture* b, const b2Co
 	const ds::ui::Sprite*	sprite = reinterpret_cast<ds::ui::Sprite*>(body ? body->GetUserData() : nullptr);
 	if (!sprite) return;
 
-	mReport.insert(ContactKey(sprite, b, impulse.normalImpulses[0]));
+	mReport.insert(ContactKey(sprite, b, impulse.normalImpulses[0], pointOne, pointTwo, normal));
 }
 
 void ContactListener::makeCollision(const ContactKey& key, Collision& collision) const
 {
+	
+	collision.mContactOne = mWorld.box2CiTranslation(key.mContactPointOne);
+	collision.mContactTwo = mWorld.box2CiTranslation(key.mContactPointTwo);
+	collision.mNormal = ci::Vec2f(key.mNormal.x, key.mNormal.y);
+
 	// I *think* the sprite in the key can be ignored, because technically it should
 	// always be the object receiving the callback (although I bet I have some details
 	// to work out when it comes to sprites colliding with each other).

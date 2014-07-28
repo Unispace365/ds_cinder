@@ -37,7 +37,7 @@ public:
 	void				report();
 
 private:
-	void				collide(const b2Fixture* a, const b2Fixture* b, const b2ContactImpulse&);
+	void				collide(const b2Fixture* a, const b2Fixture* b, const b2ContactImpulse&, const b2Vec2 pointOne, const b2Vec2 pointTwo, const b2Vec2 normal);
 	void				makeCollision(const ContactKey&, Collision&) const;
 
 	World&				mWorld;

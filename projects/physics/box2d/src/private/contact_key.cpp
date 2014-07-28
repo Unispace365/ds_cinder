@@ -13,10 +13,13 @@ ContactKey::ContactKey()
 {
 }
 
-ContactKey::ContactKey(const ds::ui::Sprite* s, const b2Fixture* f, const float force)
+ContactKey::ContactKey(const ds::ui::Sprite* s, const b2Fixture* f, const float force, const b2Vec2 pointUno, const b2Vec2 pointNino, const b2Vec2 normal)
 	: mSprite(s)
 	, mFixture(f)
 	, mForce(force)
+	, mContactPointOne(pointUno)
+	, mContactPointTwo(pointNino)
+	, mNormal(normal)
 {
 }
 

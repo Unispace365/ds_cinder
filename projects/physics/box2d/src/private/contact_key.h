@@ -4,6 +4,8 @@
 
 #include <functional>
 
+#include <Box2D/Common/b2Math.h>
+
 class b2Fixture;
 
 namespace ds {
@@ -20,15 +22,18 @@ class ContactKey
 {
 public:
 	ContactKey();
-	ContactKey(const ds::ui::Sprite*, const b2Fixture*, const float force);
+	ContactKey(const ds::ui::Sprite*, const b2Fixture*, const float force, const b2Vec2 pointOne, const b2Vec2 pointTwo, const b2Vec2 normal);
 
 	bool					operator==(const ContactKey&) const;
 	bool					operator!=(const ContactKey&) const;
 
 	const ds::ui::Sprite*	mSprite;
 	const b2Fixture*		mFixture;
-	// Note: force is ignored in terms equality and hashing.
+	// Note: force and points are ignored in terms equality and hashing.
 	const float				mForce;
+	const b2Vec2			mContactPointOne;
+	const b2Vec2			mContactPointTwo;
+	const b2Vec2			mNormal;
 };
 
 } // namespace physics
