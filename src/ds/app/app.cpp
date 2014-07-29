@@ -218,7 +218,7 @@ const std::string& App::envAppDataPath() {
 void App::keyDown(KeyEvent e) {
 	const int		code = e.getCode();
 	if ( ( mEscKeyEnabled && code == KeyEvent::KEY_ESCAPE ) || ( mQKeyEnabled && code == KeyEvent::KEY_q ) ) {
-		std::exit(0);
+		quit();
 	}
 	if (code == KeyEvent::KEY_LCTRL || code == KeyEvent::KEY_RCTRL) {
 		mCtrlDown = true;
