@@ -57,6 +57,9 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
 	, mMouseOffsetX(0)
 	, mMouseOffsetY(0)
+	, mTouchTrailsUse(false)
+	, mTouchTrailsLength(5)
+	, mTouchTrailsIncrement(5.0f)
 	, mSystemMultitouchEnabled(false)
 	, mEnableMouseEvents(true)
 	, mHideMouse(false)
@@ -135,6 +138,10 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mMouseOffsetX = static_cast<int>(mData.mSrcRect.x1);
 		mMouseOffsetY = static_cast<int>(mData.mSrcRect.y1);
 	}
+
+	mTouchTrailsUse = settings.getBool("touch_overlay:trails:use", 0, mTouchTrailsUse);
+	mTouchTrailsLength = settings.getInt("touch_overlay:trails:length", 0, mTouchTrailsLength);
+	mTouchTrailsIncrement = settings.getFloat("touch_overlay:trails:increment", 0, mTouchTrailsIncrement);
 
 	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
@@ -623,6 +630,18 @@ void Engine::clearFingers( const std::vector<int> &fingers ) {
 
 ci::Vec2f Engine::getMouseOffset() const {
 	return ci::Vec2f(static_cast<float>(mMouseOffsetX), static_cast<float>(mMouseOffsetY));
+}
+
+bool Engine::getUseTouchTrails() const {
+	return mTouchTrailsUse;
+}
+
+int Engine::getTouchTrailLength() const {
+	return mTouchTrailsLength;
+}
+
+float Engine::getTouchTrailIncrement() const {
+	return mTouchTrailsIncrement;
 }
 
 const ci::Rectf& Engine::getScreenRect() const {

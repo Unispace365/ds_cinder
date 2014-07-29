@@ -51,6 +51,11 @@ void TouchManager::touchesBegin( TouchEvent event ){
 		touchInfo.mPhase = TouchInfo::Added;
 		touchInfo.mPassedTouch = false;
 
+		if(mEngine.getUseTouchTrails()){
+			mTouchPointHistory[touchInfo.mFingerId] = std::vector<ci::Vec3f>();
+			mTouchPointHistory[touchInfo.mFingerId].push_back(touchInfo.mCurrentGlobalPoint);
+		}
+
 		Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
 		touchInfo.mPickedSprite = currentSprite;
 
@@ -85,6 +90,13 @@ void TouchManager::touchesMoved( TouchEvent event ){
 		touchInfo.mPhase = TouchInfo::Moved;
 		touchInfo.mPassedTouch = false;
 		touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
+
+		if(mEngine.getUseTouchTrails()){
+			mTouchPointHistory[touchInfo.mFingerId].push_back(touchInfo.mCurrentGlobalPoint);
+			if((int)mTouchPointHistory[touchInfo.mFingerId].size() > mEngine.getTouchTrailLength() - 1){
+				mTouchPointHistory[touchInfo.mFingerId].erase(mTouchPointHistory[touchInfo.mFingerId].begin());
+			}
+		}
 
 		if (mFingerDispatcher[touchInfo.mFingerId]) {
 			mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
@@ -129,6 +141,10 @@ void TouchManager::touchesEnded( TouchEvent event ){
 		mTouchStartPoint.erase(touchInfo.mFingerId);
 		mTouchPreviousPoint.erase(touchInfo.mFingerId);
 		mFingerDispatcher.erase(touchInfo.mFingerId);
+
+		if(mEngine.getUseTouchTrails()){
+			mTouchPointHistory.erase(touchInfo.mFingerId);
+		}
 	}
 }
 
@@ -142,6 +158,11 @@ void TouchManager::mouseTouchBegin( MouseEvent event, int id ){
 	touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 	touchInfo.mPhase = TouchInfo::Added;
 	touchInfo.mPassedTouch = false;
+
+	if(mEngine.getUseTouchTrails()){
+		mTouchPointHistory[touchInfo.mFingerId] = std::vector<ci::Vec3f>();
+		mTouchPointHistory[touchInfo.mFingerId].push_back(touchInfo.mCurrentGlobalPoint);
+	}
 
 	Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
 	touchInfo.mPickedSprite = currentSprite;
@@ -162,6 +183,14 @@ void TouchManager::mouseTouchMoved( MouseEvent event, int id ){
 	touchInfo.mPhase = TouchInfo::Moved;
 	touchInfo.mPassedTouch = false;
 	touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
+
+
+	if(mEngine.getUseTouchTrails()){
+		mTouchPointHistory[touchInfo.mFingerId].push_back(touchInfo.mCurrentGlobalPoint);
+		if((int)mTouchPointHistory[touchInfo.mFingerId].size() > mEngine.getTouchTrailLength() - 1 ){
+			mTouchPointHistory[touchInfo.mFingerId].erase(mTouchPointHistory[touchInfo.mFingerId].begin());
+		}
+	}
 
 	if (mFingerDispatcher[touchInfo.mFingerId]) {
 		mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
@@ -189,21 +218,66 @@ void TouchManager::mouseTouchEnded( MouseEvent event, int id ){
 	mTouchStartPoint.erase(touchInfo.mFingerId);
 	mTouchPreviousPoint.erase(touchInfo.mFingerId);
 	mFingerDispatcher.erase(touchInfo.mFingerId);
+
+	if(mEngine.getUseTouchTrails()){
+		mTouchPointHistory.erase(touchInfo.mFingerId);
+	}
 }
 
 void TouchManager::drawTouches() const {
-	if (mTouchPreviousPoint.empty())
-		return;
+	if(mEngine.getUseTouchTrails()){
+		applyBlendingMode(NORMAL);
+		ci::gl::color( mTouchColor );
 
-	applyBlendingMode(NORMAL);
-	ci::gl::color( mTouchColor );
+		const float incrementy = mEngine.getTouchTrailIncrement();
+		ci::Vec2f			mouse_offset(mEngine.getMouseOffset());
+		for ( auto it = mTouchPointHistory.begin(), it2 = mTouchPointHistory.end(); it != it2; ++it ) {
+			float sizey = incrementy;
+			int secondSize = it->second.size();
+			ci::Vec2f prevPos = ci::Vec2f::zero();
+			for (int i = 0; i < secondSize; i++){
+				ci::Vec2f		pos(it->second[i].xy());
+				pos -= mouse_offset;
+				ci::gl::drawSolidCircle(pos, sizey);
 
-	ci::Vec2f			mouse_offset(mEngine.getMouseOffset());
-	for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {
-		ci::Vec2f		pos(it->second.xy());
-		pos.x -= mouse_offset.x;
-		pos.y -= mouse_offset.y;
-		ci::gl::drawStrokedCircle(pos, 20.0f);
+				if(i < secondSize - 1 && i > 0){ 
+					// Find the angle between this point and the previous point
+					// PI / 2 is a 90 degree rotation, or perpendicular
+					float angle = atan2f(pos.y - prevPos.y, pos.x - prevPos.x) + ds::math::PI / 2.0f;
+					float smallSize = (sizey - incrementy);
+					float bigSize = sizey;
+					ci::Vec2f p1 = ci::Vec2f(pos.x + bigSize * cos(angle), pos.y + bigSize * sin(angle));
+					ci::Vec2f p2 = ci::Vec2f(pos.x - bigSize * cos(angle), pos.y - bigSize * sin(angle));
+					ci::Vec2f p3 = ci::Vec2f(prevPos.x + smallSize * cos(angle), prevPos.y + smallSize * sin(angle));
+					ci::Vec2f p4 = ci::Vec2f(prevPos.x - smallSize * cos(angle), prevPos.y - smallSize * sin(angle));
+					glBegin(GL_QUADS);
+					ci::gl::vertex(p1);
+					ci::gl::vertex(p3);
+					ci::gl::vertex(p4);
+					ci::gl::vertex(p2);
+					glEnd();
+				}
+
+				sizey += incrementy;
+
+				prevPos = pos;
+			}
+		}
+
+	} else {
+		if (mTouchPreviousPoint.empty())
+			return;
+
+		applyBlendingMode(NORMAL);
+		ci::gl::color( mTouchColor );
+
+		ci::Vec2f			mouse_offset(mEngine.getMouseOffset());
+		for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {
+			ci::Vec2f		pos(it->second.xy());
+			pos.x -= mouse_offset.x;
+			pos.y -= mouse_offset.y;
+			ci::gl::drawStrokedCircle(pos, 20.0f);
+		}
 	}
 }
 

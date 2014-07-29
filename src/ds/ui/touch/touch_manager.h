@@ -2,6 +2,7 @@
 #ifndef DS_UI_TOUCH_MANAGER_H
 #define DS_UI_TOUCH_MANAGER_H
 #include <map>
+#include <vector>
 #include "cinder/app/TouchEvent.h"
 #include "cinder/app/MouseEvent.h"
 #include "cinder/Color.h"
@@ -60,19 +61,20 @@ class TouchManager
 
     Engine &mEngine;
 
-    std::map<int, ui::Sprite *> mFingerDispatcher;
-    std::map<int, Vec3f>        mTouchStartPoint;
-    std::map<int, Vec3f>        mTouchPreviousPoint;
-    ci::Color                   mTouchColor;
+    std::map<int, ui::Sprite *>			mFingerDispatcher;
+    std::map<int, Vec3f>				mTouchStartPoint;
+    std::map<int, Vec3f>				mTouchPreviousPoint;
+	std::map<int, std::vector<Vec3f>>	mTouchPointHistory;
+    ci::Color							mTouchColor;
 
-	ci::Vec2f					mTouchDimensions;
-	ci::Vec2f					mTouchOffset;
-	bool						mOverrideTranslation;
-	ci::Rectf					mTouchFilterRect;
+	ci::Vec2f							mTouchDimensions;
+	ci::Vec2f							mTouchOffset;
+	bool								mOverrideTranslation;
+	ci::Rectf							mTouchFilterRect;
 
 	// If system multitouch is on, Cinder will get both mouse and touch events for the first touch.
 	// So we track the first touch id to ignore that finger (cause the mouse will count for that)
-	int							mIgnoreFirstTouchId;
+	int									mIgnoreFirstTouchId;
 };
 
 } // namespace ui

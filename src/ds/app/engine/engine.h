@@ -148,6 +148,9 @@ public:
 	virtual bool						shouldDiscardTouch( ci::Vec2f& p ){ return mTouchManager.shouldDiscardTouch(p); }
 
 	ci::Vec2f							getMouseOffset() const;
+	bool								getUseTouchTrails() const;
+	int									getTouchTrailLength() const;
+	float								getTouchTrailIncrement() const;
 
 	// Root support
 	const ci::Rectf&					getScreenRect() const;
@@ -225,6 +228,10 @@ private:
 	// Offset the mouse point based on current parameters.
 	int									mMouseOffsetX,
 										mMouseOffsetY;
+
+	bool								mTouchTrailsUse;
+	int									mTouchTrailsLength;
+	float								mTouchTrailsIncrement;
 
 	ds::SelectPicking					mSelectPicking;
 
