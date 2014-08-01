@@ -14,6 +14,7 @@
 #include "ds/math/math_defs.h"
 #include "ds/ui/ip/ip_defs.h"
 #include "ds/ui/ip/functions/ip_circle_mask.h"
+#include "ds/ui/sprite/util/blend.h"
 #include "cinder/Thread.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
@@ -30,23 +31,103 @@ const int			NUMBER_OF_NETWORK_THREADS = 2;
 void				root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>&);
 
 // View for drawing touches
-class DrawTouchView : public ds::ui::Sprite {
+class DrawTouchView : public ds::ui::Sprite
+					, public ds::ui::TouchManager::Capture {
 public:
 	DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &settings, ds::ui::TouchManager& tm)
 			: ds::ui::Sprite(e)
-			, mTouchManager(tm) {
+			, mTouchManager(tm)
+			, mTouchTrailsUse(false)
+			, mTouchTrailsLength(5)
+			, mTouchTrailsIncrement(5.0f) {
+		mTouchTrailsUse = settings.getBool("touch_overlay:trails:use", 0, mTouchTrailsUse);
+		mTouchTrailsLength = settings.getInt("touch_overlay:trails:length", 0, mTouchTrailsLength);
+		mTouchTrailsIncrement = settings.getFloat("touch_overlay:trails:increment", 0, mTouchTrailsIncrement);
+
 		setTransparent(false);
 		setColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
+
+		if (mTouchTrailsUse) {
+			tm.setCapture(this);
+		}
+	}
+
+	virtual void		touchBegin(const ds::ui::TouchInfo &ti) {
+		if (mTouchTrailsUse) {
+			mTouchPointHistory[ti.mFingerId] = std::vector<ci::Vec3f>();
+			mTouchPointHistory[ti.mFingerId].push_back(ti.mCurrentGlobalPoint);
+		}
+	}
+
+	virtual void		touchMoved(const ds::ui::TouchInfo &ti) {
+		if (mTouchTrailsUse) {
+			mTouchPointHistory[ti.mFingerId].push_back(ti.mCurrentGlobalPoint);
+			if ((int)mTouchPointHistory[ti.mFingerId].size() > mTouchTrailsLength - 1) {
+				mTouchPointHistory[ti.mFingerId].erase(mTouchPointHistory[ti.mFingerId].begin());
+			}
+		}
+	}
+
+	virtual void		touchEnd(const ds::ui::TouchInfo &ti) {
+		if (mTouchTrailsUse) {
+			mTouchPointHistory.erase(ti.mFingerId);
+		}
 	}
 
 	virtual void		drawLocalClient() {
 		// No reason to draw my parent
 //		ds::ui::Sprite::drawLocalClient();
-		mTouchManager.drawTouches();
+
+		if (mTouchTrailsUse) {
+			drawTrails();
+		} else {
+			mTouchManager.drawTouches();
+		}
 	}
 
 private:
-	ds::ui::TouchManager&	mTouchManager;
+	void					drawTrails() {
+		ds::ui::applyBlendingMode(ds::ui::NORMAL);
+
+		const float			incrementy = mTouchTrailsIncrement;
+		for ( auto it = mTouchPointHistory.begin(), it2 = mTouchPointHistory.end(); it != it2; ++it ) {
+			float sizey = incrementy;
+			int secondSize = it->second.size();
+			ci::Vec2f prevPos = ci::Vec2f::zero();
+			for (int i = 0; i < secondSize; i++){
+				ci::Vec2f		pos(it->second[i].xy());
+				ci::gl::drawSolidCircle(pos, sizey);
+
+				if(i < secondSize - 1 && i > 0){ 
+					// Find the angle between this point and the previous point
+					// PI / 2 is a 90 degree rotation, or perpendicular
+					float angle = atan2f(pos.y - prevPos.y, pos.x - prevPos.x) + ds::math::PI / 2.0f;
+					float smallSize = (sizey - incrementy);
+					float bigSize = sizey;
+					ci::Vec2f p1 = ci::Vec2f(pos.x + bigSize * cos(angle), pos.y + bigSize * sin(angle));
+					ci::Vec2f p2 = ci::Vec2f(pos.x - bigSize * cos(angle), pos.y - bigSize * sin(angle));
+					ci::Vec2f p3 = ci::Vec2f(prevPos.x + smallSize * cos(angle), prevPos.y + smallSize * sin(angle));
+					ci::Vec2f p4 = ci::Vec2f(prevPos.x - smallSize * cos(angle), prevPos.y - smallSize * sin(angle));
+					glBegin(GL_QUADS);
+					ci::gl::vertex(p1);
+					ci::gl::vertex(p3);
+					ci::gl::vertex(p4);
+					ci::gl::vertex(p2);
+					glEnd();
+				}
+
+				sizey += incrementy;
+
+				prevPos = pos;
+			}
+		}
+	}
+
+	ds::ui::TouchManager&				mTouchManager;
+	std::map<int, std::vector<Vec3f>>	mTouchPointHistory;
+	bool								mTouchTrailsUse;
+	int									mTouchTrailsLength;
+	float								mTouchTrailsIncrement;
 };
 
 }

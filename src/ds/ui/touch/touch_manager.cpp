@@ -21,6 +21,7 @@ TouchManager::TouchManager(Engine &engine, const TouchMode::Enum &mode)
 		, mTouchFilterRect(0.0f, 0.0f, 0.0f, 0.0f)
 		, mTouchMode(mode)
 		, mIgnoreFirstTouchId(-1)
+		, mCapture(nullptr)
 {
 }
 
@@ -54,6 +55,8 @@ void TouchManager::touchesBegin( TouchEvent event ){
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 		touchInfo.mPhase = TouchInfo::Added;
 		touchInfo.mPassedTouch = false;
+
+		if (mCapture) mCapture->touchBegin(touchInfo);
 
 		Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
 		touchInfo.mPickedSprite = currentSprite;
@@ -89,6 +92,8 @@ void TouchManager::touchesMoved( TouchEvent event ){
 		touchInfo.mPhase = TouchInfo::Moved;
 		touchInfo.mPassedTouch = false;
 		touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
+
+		if (mCapture) mCapture->touchMoved(touchInfo);
 
 		if (mFingerDispatcher[touchInfo.mFingerId]) {
 			mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
@@ -133,6 +138,8 @@ void TouchManager::touchesEnded( TouchEvent event ){
 		mTouchStartPoint.erase(touchInfo.mFingerId);
 		mTouchPreviousPoint.erase(touchInfo.mFingerId);
 		mFingerDispatcher.erase(touchInfo.mFingerId);
+
+		if (mCapture) mCapture->touchEnd(touchInfo);
 	}
 }
 
@@ -146,6 +153,8 @@ void TouchManager::mouseTouchBegin( MouseEvent event, int id ){
 	touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 	touchInfo.mPhase = TouchInfo::Added;
 	touchInfo.mPassedTouch = false;
+
+	if (mCapture) mCapture->touchBegin(touchInfo);
 
 	Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
 	touchInfo.mPickedSprite = currentSprite;
@@ -166,6 +175,8 @@ void TouchManager::mouseTouchMoved( MouseEvent event, int id ){
 	touchInfo.mPhase = TouchInfo::Moved;
 	touchInfo.mPassedTouch = false;
 	touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
+
+	if (mCapture) mCapture->touchMoved(touchInfo);
 
 	if (mFingerDispatcher[touchInfo.mFingerId]) {
 		mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
@@ -193,6 +204,8 @@ void TouchManager::mouseTouchEnded( MouseEvent event, int id ){
 	mTouchStartPoint.erase(touchInfo.mFingerId);
 	mTouchPreviousPoint.erase(touchInfo.mFingerId);
 	mFingerDispatcher.erase(touchInfo.mFingerId);
+
+	if (mCapture) mCapture->touchEnd(touchInfo);
 }
 
 void TouchManager::drawTouches() const {
@@ -250,6 +263,10 @@ bool TouchManager::shouldDiscardTouch( const ci::Vec2f& p ) {
 		return !mTouchFilterRect.contains(p);
 	}
 	return false;
+}
+
+void TouchManager::setCapture(Capture *c) {
+	mCapture = c;
 }
 
 void TouchManager::overrideTouchTranslation( ci::Vec2f& inOutPoint){

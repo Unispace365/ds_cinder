@@ -7,6 +7,7 @@
 #include <cinder/Color.h>
 #include <cinder/Rect.h>
 #include "touch_mode.h"
+#include "touch_info.h"
 
 using namespace ci;
 using namespace ci::app;
@@ -18,6 +19,16 @@ namespace ui {
 class Sprite;
 
 class TouchManager {
+public:
+class Capture {
+public:
+	Capture()				{ }
+	virtual ~Capture()		{ }
+	virtual void			touchBegin(const TouchInfo&) = 0;
+	virtual void			touchMoved(const TouchInfo&) = 0;
+	virtual void			touchEnd(const TouchInfo&) = 0;
+};
+
 public:
 	TouchManager(Engine&, const TouchMode::Enum&);
 
@@ -49,6 +60,8 @@ public:
 	// If we have a rect defined to discard touches, discard that shit!
 	bool						shouldDiscardTouch( const ci::Vec2f& p );
 
+	void						setCapture(Capture*);
+
   private:
     // Utility to get the hit sprite in either the othorganal or perspective root sprites
     Sprite*                     getHit(const ci::Vec3f &point);
@@ -72,6 +85,8 @@ public:
 	// If system multitouch is on, Cinder will get both mouse and touch events for the first touch.
 	// So we track the first touch id to ignore that finger (cause the mouse will count for that)
 	int							mIgnoreFirstTouchId;
+	// Hack to support the touch trails
+	Capture*					mCapture;
 };
 
 } // namespace ui
