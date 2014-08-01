@@ -26,6 +26,7 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/select_picking.h"
 #include "ds/ui/touch/touch_manager.h"
+#include "ds/ui/touch/touch_translator.h"
 #include "ds/ui/tween/tweenline.h"
 #include "ds/network/zmq_connection.h"
 #include "ds/data/raw_data_buffer.h"
@@ -211,6 +212,7 @@ private:
 
 	ci::gl::Fbo							mFbo;
 
+	ds::ui::TouchTranslator				mTouchTranslator;
 	std::mutex							mTouchMutex;
 	ds::EngineTouchQueue<TouchEvent>	mTouchBeginEvents;
 	ds::EngineTouchQueue<TouchEvent>	mTouchMovedEvents;
@@ -233,6 +235,8 @@ private:
 	float								mFxAAReduceMul;
 	float								mFxAAReduceMin;
 	ci::Color8u							mUniqueColor;
+
+	int									mCachedWindowW, mCachedWindowH;
 };
 
 // Server -> Client communication

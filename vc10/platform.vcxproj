@@ -162,6 +162,7 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_process.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_manager.h" />
+    <ClInclude Include="..\src\ds\ui\touch\touch_translator.h" />
     <ClInclude Include="..\src\ds\ui\tween\sprite_anim.h" />
     <ClInclude Include="..\src\ds\ui\tween\tweenline.h" />
     <ClInclude Include="..\src\ds\util\bit_mask.h" />
@@ -304,6 +305,7 @@
     <ClCompile Include="..\src\ds\ui\touch\touch_mode.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_process.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\touch_translator.cpp" />
     <ClCompile Include="..\src\ds\ui\tween\sprite_anim.cpp" />
     <ClCompile Include="..\src\ds\ui\tween\tweenline.cpp" />
     <ClCompile Include="..\src\ds\util\bit_mask.cpp" />

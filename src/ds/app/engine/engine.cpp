@@ -163,6 +163,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mApplyFxAA(false)
 	, mUniqueColor(0, 0, 0)
 	, mAutoDraw(new AutoDrawService())
+	, mCachedWindowW(0)
+	, mCachedWindowH(0)
 {
 	mRequestDelete.reserve(32);
 
@@ -361,6 +363,13 @@ void Engine::updateClient() {
 }
 
 void Engine::updateServer() {
+	if (mCachedWindowW != getWindowWidth() || mCachedWindowH != getWindowHeight()) {
+		mCachedWindowW = getWindowWidth();
+		mCachedWindowH = getWindowHeight();
+		mTouchTranslator.setScale(	mData.mSrcRect.getWidth() / static_cast<float>(mCachedWindowW),
+									mData.mSrcRect.getHeight() / static_cast<float>(mCachedWindowH));
+	}
+
 	deleteRequestedSprites();
 
 	const float		curr = static_cast<float>(getElapsedSeconds());
@@ -550,6 +559,9 @@ void Engine::drawServer() {
 }
 
 void Engine::setup(ds::App&) {
+	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
+	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / getWindowWidth(), mData.mSrcRect.getHeight() / getWindowHeight());
+
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		(*it)->setCinderCamera();
 	}
@@ -666,16 +678,40 @@ ci::Color8u Engine::getUniqueColor() {
 	return mUniqueColor;
 }
 
+namespace {
+
+void		alter_touch_events(	const ds::ui::TouchTranslator &trans, const TouchEvent &src,
+								std::vector<ci::app::TouchEvent::Touch> &out) {
+	for (auto it=src.getTouches().begin(), end=src.getTouches().end(); it!=end; ++it) {
+		out.push_back(ci::app::TouchEvent::Touch(	trans.toWorldf(it->getPos().x, it->getPos().y),
+														it->getPrevPos(),
+														it->getId(),
+														it->getTime(),
+														(void*)it->getNative()));
+	}
+}
+
+}
+
 void Engine::touchesBegin(TouchEvent e) {
-	mTouchBeginEvents.incoming(e);
+	// Translate the positions
+	std::vector<ci::app::TouchEvent::Touch>	touches;
+	alter_touch_events(mTouchTranslator, e, touches);
+	mTouchBeginEvents.incoming(ci::app::TouchEvent(touches));
 }
 
 void Engine::touchesMoved(TouchEvent e) {
-	mTouchMovedEvents.incoming(e);
+	// Translate the positions
+	std::vector<ci::app::TouchEvent::Touch>	touches;
+	alter_touch_events(mTouchTranslator, e, touches);
+	mTouchMovedEvents.incoming(ci::app::TouchEvent(touches));
 }
 
 void Engine::touchesEnded(TouchEvent e) {
-	mTouchEndEvents.incoming(e);
+	// Translate the positions
+	std::vector<ci::app::TouchEvent::Touch>	touches;
+	alter_touch_events(mTouchTranslator, e, touches);
+	mTouchEndEvents.incoming(ci::app::TouchEvent(touches));
 }
 
 tuio::Client &Engine::getTuioClient() {
@@ -708,11 +744,8 @@ MouseEvent Engine::alteredMouseEvent(const MouseEvent& e) const {
 	// the newer version of cinder gave access so hopefully can just wait for that if we need it.
 
 	// Translate the mouse from the actual window to the desired rect in world coordinates.
-	const float		win_sx = mData.mSrcRect.getWidth() / getWindowWidth(),
-					win_sy = mData.mSrcRect.getHeight() / getWindowHeight();
-	float			x = mData.mSrcRect.x1 + (static_cast<float>(e.getX()) * win_sx),
-					y = mData.mSrcRect.y1 + (static_cast<float>(e.getY()) * win_sy);
-	return ci::app::MouseEvent(	0, static_cast<int>(x), static_cast<int>(y),
+	const ci::Vec2i	pos(mTouchTranslator.toWorldi(e.getX(), e.getY()));
+	return ci::app::MouseEvent(	0, pos.x, pos.y,
 								0, e.getWheelIncrement(), e.getNativeModifiers());
 }
 
