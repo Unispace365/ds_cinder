@@ -91,13 +91,15 @@
 	<color name="touch_color" r="255" g="255" b="255" />
 	<!-- draw circles around touch points -->
 	<text name="touch_overlay:debug" value="true" />
-	
-	<!-- will use native (windows 7) touch events when true. default=false -->
-	<!-- NOTE: if this is on and the touch system is also transmitting TUIO, it's
-				possible to receive double touch events. Use one or the other -->
-	<text name="enable_system_multitouch" value="true" />
-	<!-- When true, the app will receive all mouse events. Default = true. -->
-	<text name="enable_mouse_events" value="true" />
+
+	<!-- Set the current touch mode. Options:
+		"Tuio" -- Receive events over TUIO.
+		"TuioAndMouse" -- Receive both TUIO and mouse events. The default.
+		"System" -- Receive native (Windows) system touch events.
+		"SystemAndMouse" -- Receive both native touch events and mouse events. Will
+		cause the first touch event to be discarded, because it is also a mouse event.
+	-->
+	<text name="touch_mode" value="TuioAndMouse" />
 	
 	<!-- port to listen to tuio stream. default=3333 -->
 	<int name="tuio_port" value="3000" />
@@ -120,5 +122,17 @@
 	<!---------------------->
 	<!-- Seconds delay between checking the node for new messages. -->
 	<float name="node:refresh_rate" value="0.1" />
+
+	<!---------------------->
+	<!-- DEPRECATED     ---->
+	<!---------------------->
+	<!-- DEPRECATED. Use touch_mode -->
+	<!-- will use native (windows 7) touch events when true. default=false -->
+	<!-- NOTE: if this is on and the touch system is also transmitting TUIO, it's
+				possible to receive double touch events. Use one or the other -->
+	<text name="enable_system_multitouch" value="true" />
+	<!-- DEPRECATED. Use touch_mode -->
+	<!-- When true, the app will receive all mouse events. Default = true. -->
+	<text name="enable_mouse_events" value="true" />
 
 </settings>

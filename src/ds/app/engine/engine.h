@@ -135,7 +135,6 @@ public:
 	// to make sure everything is stopped before they go away.
 	virtual void						stopServices();
 
-	bool								systemMultitouchEnabled() const;
 	bool								hideMouse() const;
 
 	ds::ui::Sprite*						getHit(const ci::Vec3f& point);
@@ -177,6 +176,7 @@ private:
 	// Special function to set the camera to the current screen and clear it.
 	void								clearScreen();
 	void								deleteRequestedSprites();
+	void								setTouchMode(const ds::ui::TouchMode::Enum&);
 
 	std::vector<std::unique_ptr<EngineRoot>>
 										mRoots;
@@ -195,6 +195,7 @@ private:
 	float								mLastTouchTime;
 	float								mIdleTime;
 
+	ds::ui::TouchMode::Enum				mTouchMode;
 	tuio::Client						mTuio;
 	ui::TouchManager					mTouchManager;
 	// Clients that will get update() called automatically at the start
@@ -222,9 +223,6 @@ private:
 
 	ds::SelectPicking					mSelectPicking;
 
-	bool								mSystemMultitouchEnabled;
-	// If true, I will receive and handle mouse events. If false, I won't. Default = true.
-	bool								mEnableMouseEvents;
 	bool								mHideMouse;
 
 	bool								mApplyFxAA;

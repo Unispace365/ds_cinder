@@ -2,25 +2,26 @@
 #ifndef DS_UI_TOUCH_MANAGER_H
 #define DS_UI_TOUCH_MANAGER_H
 #include <map>
-#include "cinder/app/TouchEvent.h"
-#include "cinder/app/MouseEvent.h"
-#include "cinder/Color.h"
-#include "cinder/Rect.h"
+#include <cinder/app/TouchEvent.h>
+#include <cinder/app/MouseEvent.h>
+#include <cinder/Color.h>
+#include <cinder/Rect.h>
+#include "touch_mode.h"
 
 using namespace ci;
 using namespace ci::app;
 
 namespace ds {
-
 class Engine;
 
 namespace ui {
-
 class Sprite;
 
 class TouchManager {
 public:
-	TouchManager(Engine &engine);
+	TouchManager(Engine&, const TouchMode::Enum&);
+
+	void						setTouchMode(const TouchMode::Enum&);
 
 	void                        mouseTouchBegin( MouseEvent event, int id );
 	void                        mouseTouchMoved( MouseEvent event, int id );
@@ -67,6 +68,7 @@ public:
 	bool						mOverrideTranslation;
 	ci::Rectf					mTouchFilterRect;
 
+	TouchMode::Enum				mTouchMode;
 	// If system multitouch is on, Cinder will get both mouse and touch events for the first touch.
 	// So we track the first touch id to ignore that finger (cause the mouse will count for that)
 	int							mIgnoreFirstTouchId;

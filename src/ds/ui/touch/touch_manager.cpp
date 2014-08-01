@@ -13,14 +13,19 @@ namespace {
 namespace ds {
 namespace ui {
 
-TouchManager::TouchManager( Engine &engine )
+TouchManager::TouchManager(Engine &engine, const TouchMode::Enum &mode)
 		: mEngine(engine)
-		, mIgnoreFirstTouchId(-1)
-		, mOverrideTranslation(false)
 		, mTouchDimensions(0.0f, 0.0f)
 		, mTouchOffset(0.0f, 0.0f)
+		, mOverrideTranslation(false)
 		, mTouchFilterRect(0.0f, 0.0f, 0.0f, 0.0f)
+		, mTouchMode(mode)
+		, mIgnoreFirstTouchId(-1)
 {
+}
+
+void TouchManager::setTouchMode(const TouchMode::Enum &m) {
+	mTouchMode = m;
 }
 
 void TouchManager::touchesBegin( TouchEvent event ){
@@ -28,7 +33,7 @@ void TouchManager::touchesBegin( TouchEvent event ){
 
 		// This system uses a mouse click for the first touch, which allows for use of the mouse and touches simultaneously
 		// It's possible we'll run into a scenario where we need to reverse this, which we can just add a bool flag to the settings to use all touches and ignore all mouses.
-		if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch() && mIgnoreFirstTouchId < 0){
+		if (TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && TouchMode::hasMouse(mTouchMode)) {
 			mIgnoreFirstTouchId = touchIt->getId();
 			return;
 		}
@@ -64,7 +69,7 @@ void TouchManager::touchesBegin( TouchEvent event ){
 void TouchManager::touchesMoved( TouchEvent event ){
 	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
-		if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId){
+		if (TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId) {
 			continue;
 		}
 
@@ -96,7 +101,7 @@ void TouchManager::touchesMoved( TouchEvent event ){
 void TouchManager::touchesEnded( TouchEvent event ){
 	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
-		if (mEngine.systemMultitouchEnabled() && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId){
+		if (TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId){
 			mIgnoreFirstTouchId = -1;
 			continue;
 		}

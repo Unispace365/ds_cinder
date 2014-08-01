@@ -65,7 +65,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTweenline(app.timeline())
 	, mIdleTime(300.0f)
 	, mIdling(true)
-	, mTouchManager(*this)
+	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
+	, mTouchManager(*this, mTouchMode)
 	, mSettings(settings)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);})
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);})
@@ -76,8 +77,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);})
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);})
 	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
-	, mSystemMultitouchEnabled(false)
-	, mEnableMouseEvents(true)
 	, mHideMouse(false)
 	, mApplyFxAA(false)
 	, mUniqueColor(0, 0, 0)
@@ -116,6 +115,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	ds::Logger::setup(mDebugSettings);
 
 	// touch settings
+	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
+	setTouchMode(mTouchMode);
 	mTouchManager.setOverrideTranslation(settings.getBool("touch_overlay:override_translation", 0, false));
 	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::Vec2f(1920.0f, 1080.0f)));
 	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
@@ -494,11 +495,9 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings) {
 							static_cast<int>(getHeight()));
 	settings.setResizable(false);
 
-	if (mSettings.getBool("enable_system_multitouch", 0, false)) {
-		mSystemMultitouchEnabled = true;
+	if (ds::ui::TouchMode::hasSystem(mTouchMode)) {
 		settings.enableMultiTouch();
 	}
-	mEnableMouseEvents = mSettings.getBool("enable_mouse_events", 0, mEnableMouseEvents);
 
 	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
@@ -585,19 +584,19 @@ tuio::Client &Engine::getTuioClient() {
 }
 
 void Engine::mouseTouchBegin(MouseEvent e, int id) {
-	if (mEnableMouseEvents) {
+	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseBeginEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
 void Engine::mouseTouchMoved(MouseEvent e, int id) {
-	if (mEnableMouseEvents) {
+	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseMovedEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
 void Engine::mouseTouchEnded(MouseEvent e, int id) {
-	if (mEnableMouseEvents) {
+	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseEndEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
@@ -631,10 +630,6 @@ ds::FontList& Engine::editFonts() {
 }
 
 void Engine::stopServices() {
-}
-
-bool Engine::systemMultitouchEnabled() const {
-	return mSystemMultitouchEnabled;
 }
 
 bool Engine::hideMouse() const {
@@ -706,6 +701,11 @@ void Engine::deleteRequestedSprites() {
 		}
 	}
 	mRequestDelete.clear();
+}
+
+void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {
+	mTouchMode = mode;
+	mTouchManager.setTouchMode(mode);
 }
 
 } // namespace ds

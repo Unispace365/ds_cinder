@@ -157,6 +157,7 @@
     <ClInclude Include="..\src\ds\ui\touch\picking.h" />
     <ClInclude Include="..\src\ds\ui\touch\select_picking.h" />
     <ClInclude Include="..\src\ds\ui\touch\tap_info.h" />
+    <ClInclude Include="..\src\ds\ui\touch\touch_mode.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_process.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_manager.h" />
@@ -298,6 +299,7 @@
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\picking.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\select_picking.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\touch_mode.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_process.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp" />
     <ClCompile Include="..\src\ds\ui\tween\sprite_anim.cpp" />

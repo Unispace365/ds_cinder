@@ -28,6 +28,7 @@ public:
 	bool								empty() const;
 	void							  	clear();
 
+	int								  	getBoolSize(const std::string& name) const;
 	// This applies to both RGB and RGBA colours, which are always identical.
 	int								  	getColorSize(const std::string& name) const;
 	int								  	getFloatSize(const std::string& name) const;

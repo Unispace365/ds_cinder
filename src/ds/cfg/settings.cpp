@@ -287,43 +287,39 @@ void Settings::clear()
   mPoints.clear();
 }
 
-int Settings::getColorSize(const std::string& name) const
-{
+int Settings::getBoolSize(const std::string& name) const {
+	return getTextSize(name);
+}
+
+int Settings::getColorSize(const std::string& name) const {
 	return get_size(name, mColor);
 }
 
-int Settings::getFloatSize(const std::string& name) const
-{
+int Settings::getFloatSize(const std::string& name) const {
 	return get_size(name, mFloat);
 }
 
-int Settings::getIntSize(const std::string& name) const
-{
+int Settings::getIntSize(const std::string& name) const {
 	return get_size(name, mInt);
 }
 
-int Settings::getRectSize(const std::string& name) const
-{
+int Settings::getRectSize(const std::string& name) const {
 	return get_size(name, mRect);
 }
 
-int Settings::getResourceIdSize(const std::string& name) const
-{
+int Settings::getResourceIdSize(const std::string& name) const {
 	return get_size(name, mRes);
 }
 
-int Settings::getTextSize(const std::string& name) const
-{
+int Settings::getTextSize(const std::string& name) const {
 	return get_size(name, mText);
 }
 
-int Settings::getTextWSize(const std::string& name) const
-{
+int Settings::getTextWSize(const std::string& name) const {
 	return get_size(name, mTextW);
 }
 
-int Settings::getPointSize( const std::string& name ) const
-{
+int Settings::getPointSize( const std::string& name ) const {
   return get_size(name, mPoints);
 }
 
