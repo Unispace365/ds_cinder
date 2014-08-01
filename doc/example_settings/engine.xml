@@ -39,19 +39,7 @@
 	<text name="screen:mode" value="full" />
 	<!-- makes the window an always-on-top sort of window. default=false -->
 	<text name="screen:always_on_top" value="true" />
-	
-	<!-- the size of the local client, sets the window size 
-	NOTE: OBSOLETED BY src_rect/dst_rect -->
-	<rect name="local_rect" l="0" r="1920" t="0" b="1080" />
-	<!-- the scale of the local window. default=1.0
-	NOTE: OBSOLETED BY src_rect/dst_rect -->
-	<float name="window_scale" value="1.0"/>
-	<!-- where to place the window in Windows.
-		0,0 is the upper left corner of the main screen. Chrome is not taken into account with the position
-		default=0.0,0.0,0.0
-	NOTE: OBSOLETED BY dst_rect -->
-	<point name="window_pos" x="10.0" y="100.0" z="0.0" />
-	
+		
 	<!---------------------->
 	<!-- RENDER SETTINGS --->
 	<!---------------------->
@@ -135,6 +123,18 @@
 	<!---------------------->
 	<!-- DEPRECATED     ---->
 	<!---------------------->
+	<!-- DEPRECATED. Use src_rect/dst_rect -->
+	<!-- the size of the local client, sets the window size -->
+	<rect name="local_rect" l="0" r="1920" t="0" b="1080" />
+	<!-- DEPRECATED. Use src_rect/dst_rect -->
+	<!-- the scale of the local window. default=1.0 -->
+	<float name="window_scale" value="1.0"/>
+	<!-- DEPRECATED. Use src_rect/dst_rect -->
+	<!-- where to place the window in Windows.
+		0,0 is the upper left corner of the main screen. Chrome is not taken into account with the position
+		default=0.0,0.0,0.0 -->
+	<point name="window_pos" x="10.0" y="100.0" z="0.0" />
+
 	<!-- DEPRECATED. Use touch_mode -->
 	<!-- will use native (windows 7) touch events when true. default=false -->
 	<!-- NOTE: if this is on and the touch system is also transmitting TUIO, it's
