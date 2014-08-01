@@ -21,7 +21,7 @@ class Engine;
  */
 class EngineStatsView : public ds::ui::Sprite {
 public:
-	EngineStatsView(ds::Engine&);
+	EngineStatsView(ds::Engine&, const ci::Rectf &src_rect);
 
 	virtual void				updateServer(const ds::UpdateParams&);
 	virtual void				drawLocalClient();
@@ -39,6 +39,7 @@ private:
 	ci::gl::TextureFontRef		mTextureFont;
 	// SETTINGS
 	const float					mFontSize;
+	const ci::Vec2f				mLT;
 	const ci::Vec2f				mBorder;
 
 	// EVENTS

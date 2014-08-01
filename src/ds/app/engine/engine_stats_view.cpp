@@ -21,11 +21,12 @@ std::string			make_line(const std::string &key, const std::string &v) {
 /**
  * \class ds::EngineStatsView
  */
-EngineStatsView::EngineStatsView(ds::Engine &e)
+EngineStatsView::EngineStatsView(ds::Engine &e, const ci::Rectf &src_rect)
 		: inherited(e)
 		, mEngine(e)
 		, mEventClient(e.getNotifier(), [this](const ds::Event *e) { if (e) onAppEvent(*e); })
 		, mFontSize(20.0f)
+		, mLT(src_rect.x1, src_rect.y1)
 		, mBorder(20.0f, 20.0f) {
 	hide();
 	setTransparent(false);
@@ -58,7 +59,7 @@ void EngineStatsView::drawLocalClient() {
 
 	ci::gl::color(1, 1, 1, 1);
 
-	float				y = mBorder.y;
+	float				y = mLT.y + mBorder.y;
 	const float			gap = 5.0f;
 	y = drawLine(make_line("Sprites", mEngine.mSprites.size()), y) + gap;
 	y = drawLine(make_line("Touch mode (t)", ds::ui::TouchMode::toString(mEngine.mTouchMode)), y) + gap;
@@ -66,7 +67,7 @@ void EngineStatsView::drawLocalClient() {
 
 float EngineStatsView::drawLine(const std::string &v, const float y) {
 	const float			ascent = mFont.getAscent();
-	mTextureFont->drawString(v, ci::Vec2f(mBorder.x, y + ascent));
+	mTextureFont->drawString(v, ci::Vec2f(mLT.x + mBorder.x, y + ascent));
 	return y + ascent + mFont.getDescent();
 }
 
