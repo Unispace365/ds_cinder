@@ -148,6 +148,8 @@ public:
 
 	// Root support
 	const ci::Rectf&					getScreenRect() const;
+	// Utility to change touch mode
+	void								nextTouchMode();
 
 protected:
 	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);
@@ -178,6 +180,7 @@ private:
 	void								deleteRequestedSprites();
 	void								setTouchMode(const ds::ui::TouchMode::Enum&);
 
+	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot>>
 										mRoots;
 	std::vector<ds::sprite_id_t>		mRequestDelete;

@@ -41,6 +41,7 @@
     <ClInclude Include="..\src\ds\app\engine\engine_service.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_settings.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_standalone.h" />
+    <ClInclude Include="..\src\ds\app\engine\engine_stats_view.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_touch_queue.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
     <ClInclude Include="..\src\ds\app\event.h" />
@@ -199,6 +200,7 @@
     <ClCompile Include="..\src\ds\app\engine\engine_server.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_settings.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_standalone.cpp" />
+    <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\app\event.cpp" />
     <ClCompile Include="..\src\ds\app\event_client.cpp" />

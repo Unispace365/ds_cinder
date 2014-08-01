@@ -28,6 +28,14 @@ TouchMode::Enum TouchMode::fromString(const std::string &_str) {
 	return mode;
 }
 
+std::string TouchMode::toString(const TouchMode::Enum &m) {
+	if (m == TouchMode::kTuio) return "Tuio";
+	if (m == TouchMode::kTuioAndMouse) return "TuioAndMouse";
+	if (m == TouchMode::kSystem) return "System";
+	if (m == TouchMode::kSystemAndMouse) return "SystemAndMouse";
+	return "Unknown";
+}
+
 TouchMode::Enum TouchMode::fromSettings(const ds::cfg::Settings &s) {
 	// Default to tuio and mouse being enabled.
 	TouchMode::Enum		mode(TouchMode::kTuioAndMouse);
@@ -46,6 +54,14 @@ TouchMode::Enum TouchMode::fromSettings(const ds::cfg::Settings &s) {
 		mode = TouchMode::fromString(s.getText("touch_mode", 0, ""));
 	}
 	return mode;
+}
+
+TouchMode::Enum TouchMode::next(const TouchMode::Enum &m) {
+	if (m == TouchMode::kTuio) return kTuioAndMouse;
+	if (m == TouchMode::kTuioAndMouse) return kTuio;
+	if (m == TouchMode::kSystem) return kSystemAndMouse;
+	if (m == TouchMode::kSystemAndMouse) return kSystem;
+	return kTuioAndMouse;
 }
 
 } // namespace ui

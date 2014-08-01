@@ -7,6 +7,7 @@
 #include "ds/app/environment.h"
 #include "ds/app/engine/engine_roots.h"
 #include "ds/app/engine/engine_service.h"
+#include "ds/app/engine/engine_stats_view.h"
 #include "ds/cfg/settings.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
@@ -166,6 +167,23 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 			ds::ui::Sprite*				parent = root->getSprite();
 			if (parent) {
 				DrawTouchView*			v = new DrawTouchView(*this, settings, mTouchManager);
+				if (v) {
+					parent->addChild(*v);
+					mRoots.push_back(std::move(root));
+				}
+			}
+		}
+	}
+	// Add a view for displaying the stats.
+	{
+		RootList::Root					root_cfg;
+		root_cfg.mType = root_cfg.kOrtho;
+		std::unique_ptr<EngineRoot>		root;
+		root.reset(new OrthRoot(*this, root_cfg, root_id));
+		if (root) {
+			ds::ui::Sprite*				parent = root->getSprite();
+			if (parent) {
+				EngineStatsView*		v = new EngineStatsView(*this);
 				if (v) {
 					parent->addChild(*v);
 					mRoots.push_back(std::move(root));
@@ -650,6 +668,10 @@ void Engine::clearFingers( const std::vector<int> &fingers ) {
 
 const ci::Rectf& Engine::getScreenRect() const {
 	return mData.mScreenRect;
+}
+
+void Engine::nextTouchMode() {
+	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
 }
 
 bool Engine::isIdling() const {

@@ -6,6 +6,7 @@
 #include "ds/app/engine/engine_clientserver.h"
 #include "ds/app/engine/engine_server.h"
 #include "ds/app/engine/engine_standalone.h"
+#include "ds/app/engine/engine_stats_view.h"
 #include "ds/app/environment.h"
 #include "ds/debug/console.h"
 #include "ds/debug/logger.h"
@@ -183,19 +184,16 @@ void App::mouseUp(MouseEvent e) {
 	mEngine.mouseTouchEnded(e, 1);
 }
 
-void App::touchesBegan( TouchEvent event )
-{
-  mEngine.touchesBegin(event);
+void App::touchesBegan(TouchEvent e) {
+	mEngine.touchesBegin(e);
 }
 
-void App::touchesMoved( TouchEvent event )
-{
-  mEngine.touchesMoved(event);
+void App::touchesMoved(TouchEvent e) {
+	mEngine.touchesMoved(e);
 }
 
-void App::touchesEnded( TouchEvent event )
-{
-  mEngine.touchesEnded(event);
+void App::touchesEnded(TouchEvent e) {
+	mEngine.touchesEnded(e);
 }
 
 void App::tuioObjectBegan(const TuioObject&) {
@@ -222,7 +220,12 @@ void App::keyDown(KeyEvent e) {
 	}
 	if (code == KeyEvent::KEY_LCTRL || code == KeyEvent::KEY_RCTRL) {
 		mCtrlDown = true;
+	} else if (KeyEvent::KEY_s == code) {
+		mEngine.getNotifier().notify(EngineStatsView::Toggle());
+	} else if (KeyEvent::KEY_t == code) {
+		mEngine.nextTouchMode();
 	}
+
 	if (mArrowKeyCameraControl) {
 		if (code == KeyEvent::KEY_LEFT) {
 			mEngineData.mScreenRect.x1 -= mArrowKeyCameraStep;
