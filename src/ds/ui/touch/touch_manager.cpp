@@ -29,7 +29,7 @@ void TouchManager::setTouchMode(const TouchMode::Enum &m) {
 	mTouchMode = m;
 }
 
-void TouchManager::touchesBegin( TouchEvent event ){
+void TouchManager::touchesBegin(const TouchEvent &event) {
 	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
 		// This system uses a mouse click for the first touch, which allows for use of the mouse and touches simultaneously
@@ -69,7 +69,7 @@ void TouchManager::touchesBegin( TouchEvent event ){
 	}
 }
 
-void TouchManager::touchesMoved( TouchEvent event ){
+void TouchManager::touchesMoved(const TouchEvent &event) {
 	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
 		if (TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId) {
@@ -103,7 +103,7 @@ void TouchManager::touchesMoved( TouchEvent event ){
 	}
 }
 
-void TouchManager::touchesEnded( TouchEvent event ){
+void TouchManager::touchesEnded(const TouchEvent &event) {
 	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
 		if (TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId){
@@ -143,7 +143,7 @@ void TouchManager::touchesEnded( TouchEvent event ){
 	}
 }
 
-void TouchManager::mouseTouchBegin( MouseEvent event, int id ){
+void TouchManager::mouseTouchBegin(const MouseEvent &event, int id ){
 
 	TouchInfo touchInfo;
 	touchInfo.mCurrentGlobalPoint = Vec3f(translateMousePoint(event.getPos()), 0.0f);
@@ -165,7 +165,7 @@ void TouchManager::mouseTouchBegin( MouseEvent event, int id ){
 	}
 }
 
-void TouchManager::mouseTouchMoved( MouseEvent event, int id ){
+void TouchManager::mouseTouchMoved(const MouseEvent &event, int id ){
 
 	TouchInfo touchInfo;
 	touchInfo.mCurrentGlobalPoint = Vec3f(translateMousePoint(event.getPos()), 0.0f);
@@ -185,7 +185,7 @@ void TouchManager::mouseTouchMoved( MouseEvent event, int id ){
 	mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 }
 
-void TouchManager::mouseTouchEnded( MouseEvent event, int id ){
+void TouchManager::mouseTouchEnded(const MouseEvent &event, int id ){
 
 	TouchInfo touchInfo;
 	touchInfo.mCurrentGlobalPoint = Vec3f(translateMousePoint(event.getPos()), 0.0f);

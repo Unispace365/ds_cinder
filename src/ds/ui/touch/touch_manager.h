@@ -34,13 +34,13 @@ public:
 
 	void						setTouchMode(const TouchMode::Enum&);
 
-	void                        mouseTouchBegin( MouseEvent event, int id );
-	void                        mouseTouchMoved( MouseEvent event, int id );
-	void                        mouseTouchEnded( MouseEvent event, int id );
+	void                        mouseTouchBegin(const MouseEvent&, int id );
+	void                        mouseTouchMoved(const MouseEvent&, int id );
+	void                        mouseTouchEnded(const MouseEvent&, int id );
 
-	void                        touchesBegin( TouchEvent event );
-	void                        touchesMoved( TouchEvent event );
-	void                        touchesEnded( TouchEvent event );
+	void                        touchesBegin(const TouchEvent&);
+	void                        touchesMoved(const TouchEvent&);
+	void                        touchesEnded(const TouchEvent&);
 
 	void                        drawTouches() const;
 

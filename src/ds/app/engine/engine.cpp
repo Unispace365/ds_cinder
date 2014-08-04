@@ -693,21 +693,21 @@ void		alter_touch_events(	const ds::ui::TouchTranslator &trans, const TouchEvent
 
 }
 
-void Engine::touchesBegin(TouchEvent e) {
+void Engine::touchesBegin(const TouchEvent &e) {
 	// Translate the positions
 	std::vector<ci::app::TouchEvent::Touch>	touches;
 	alter_touch_events(mTouchTranslator, e, touches);
 	mTouchBeginEvents.incoming(ci::app::TouchEvent(touches));
 }
 
-void Engine::touchesMoved(TouchEvent e) {
+void Engine::touchesMoved(const TouchEvent &e) {
 	// Translate the positions
 	std::vector<ci::app::TouchEvent::Touch>	touches;
 	alter_touch_events(mTouchTranslator, e, touches);
 	mTouchMovedEvents.incoming(ci::app::TouchEvent(touches));
 }
 
-void Engine::touchesEnded(TouchEvent e) {
+void Engine::touchesEnded(const TouchEvent &e) {
 	// Translate the positions
 	std::vector<ci::app::TouchEvent::Touch>	touches;
 	alter_touch_events(mTouchTranslator, e, touches);
@@ -718,19 +718,19 @@ tuio::Client &Engine::getTuioClient() {
 	return mTuio;
 }
 
-void Engine::mouseTouchBegin(MouseEvent e, int id) {
+void Engine::mouseTouchBegin(const MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseBeginEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
-void Engine::mouseTouchMoved(MouseEvent e, int id) {
+void Engine::mouseTouchMoved(const MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseMovedEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
-void Engine::mouseTouchEnded(MouseEvent e, int id) {
+void Engine::mouseTouchEnded(const MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseEndEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}

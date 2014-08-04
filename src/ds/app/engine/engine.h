@@ -107,13 +107,13 @@ public:
 	virtual ci::Color8u					getUniqueColor();
 
 	tuio::Client&						getTuioClient();
-	void								mouseTouchBegin(MouseEvent, int id);
-	void								mouseTouchMoved(MouseEvent, int id);
-	void								mouseTouchEnded(MouseEvent, int id);
+	void								touchesBegin(const TouchEvent&);
+	void								touchesMoved(const TouchEvent&);
+	void								touchesEnded(const TouchEvent&);
+	void								mouseTouchBegin(const MouseEvent&, int id);
+	void								mouseTouchMoved(const MouseEvent&, int id);
+	void								mouseTouchEnded(const MouseEvent&, int id);
 	MouseEvent							alteredMouseEvent(const MouseEvent&) const;
-	void								touchesBegin(TouchEvent);
-	void								touchesMoved(TouchEvent);
-	void								touchesEnded(TouchEvent);
 
 	virtual ds::ResourceList&			getResources();
 	virtual const ds::FontList&			getFonts() const;
