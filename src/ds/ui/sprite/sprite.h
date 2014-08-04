@@ -182,7 +182,14 @@ public:
 
 	bool					visible() const;
 
-	int						getType() const;
+#if 0
+	// EH: No clue where this came from or what it's supposed to be used for.
+	// Shouldn't be part of the framework services, so anyone who's depending
+	// on it, use user-data instead.
+	void					setType(int type)	{ mType = type; }
+	int						getType() const		{ return mType; }
+	int						mType;
+#endif
 
 	// check to see if Sprite can be touched
 	void					enable(bool flag);
@@ -297,7 +304,6 @@ protected:
 	bool				hasDoubleTap() const;
 	bool				hasTap() const;
 	bool				hasTapInfo() const;
-	void				setType(int type);
 	void				updateCheckBounds() const;
 	bool				checkBounds() const;
 
@@ -365,7 +371,6 @@ protected:
 	float				mZLevel;
 	float				mOpacity;
 	ci::Color			mColor;
-	int					mType;
 	ci::Rectf			mClippingBounds;
 	bool				mClippingBoundsDirty;
 	SpriteShader		mSpriteShader;

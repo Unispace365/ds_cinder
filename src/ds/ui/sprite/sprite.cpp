@@ -733,16 +733,6 @@ bool Sprite::visible() const
   return getFlag(VISIBLE_F, mSpriteFlags);
 }
 
-int Sprite::getType() const
-{
-    return mType;
-}
-
-void Sprite::setType( int type )
-{
-    mType = type;
-}
-
 float Sprite::getWidth() const
 {
     return mWidth;
