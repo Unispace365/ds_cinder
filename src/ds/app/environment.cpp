@@ -26,6 +26,15 @@ const std::string& Environment::RESOURCES() {
 	return SZ;
 }
 
+std::string Environment::expand(const std::string& _path) {
+	std::string		p(_path);
+	boost::replace_all(p, "%APP%", ds::App::envAppDataPath());
+	boost::replace_all(p, "%PP%", EngineSettings::envProjectPath());
+	boost::replace_all(p, "%LOCAL%", getDownstreamDocumentsFolder());
+	// This can result in double path separators, so flatten
+	return Poco::Path(p).toString();
+}
+
 std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName, const bool verify) {
 	Poco::Path				p(ds::App::envAppDataPath());
 	if (!folderName.empty()) p.append(folderName);
@@ -106,13 +115,6 @@ std::string Environment::getLocalFile(	const std::string& category,
 
 std::string Environment::getProjectPath() {
 	return EngineSettings::envProjectPath();
-}
-
-std::string Environment::expand(const std::string& _path) {
-	std::string		p(_path);
-	boost::replace_all(p, "%APP%", ds::App::envAppDataPath());
-	// This can result in double path separators, so flatten
-	return Poco::Path(p).toString();
 }
 
 void Environment::addToEnvironmentVariable(const std::string& variable, const std::string& value) {
