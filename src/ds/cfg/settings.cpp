@@ -540,6 +540,18 @@ static void editor_add_vec(const int mode, const std::string& name, A& container
 	}
 }
 
+Settings::Editor& Settings::Editor::setColor(const std::string& name, const ci::Color &v) {
+	editor_set_vec(mMode, name, mSettings.mColor, v);
+	editor_set_vec(mMode, name, mSettings.mColorA, ci::ColorA(v.r, v.g, v.b, 1.0f));
+	return *this;
+}
+
+Settings::Editor& Settings::Editor::setColorA(const std::string& name, const ci::ColorA &v) {
+	editor_set_vec(mMode, name, mSettings.mColorA, v);
+	editor_set_vec(mMode, name, mSettings.mColor, ci::Color(v.r, v.g, v.b));
+	return *this;
+}
+
 Settings::Editor& Settings::Editor::setFloat(const std::string& name, const float v) {
 	editor_set_vec(mMode, name, mSettings.mFloat, v);
 	return *this;

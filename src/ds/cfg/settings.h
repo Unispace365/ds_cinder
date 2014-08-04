@@ -102,6 +102,8 @@ public:
 
 		Editor&							setMode(const int);
 
+		Editor&							setColor(const std::string& name, const ci::Color&);
+		Editor&							setColorA(const std::string& name, const ci::ColorA&);
 		Editor&							setFloat(const std::string& name, const float);
 		Editor&							setResourceId(const std::string& name, const Resource::Id&);
 		Editor&							setRect(const std::string& name, const ci::Rectf&);
