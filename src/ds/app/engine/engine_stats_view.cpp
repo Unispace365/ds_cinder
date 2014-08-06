@@ -1,10 +1,15 @@
 #include "engine_stats_view.h"
 
+#include "ds/app/blob_reader.h"
+#include "ds/data/data_buffer.h"
+#include "engine_data.h"
+
 #pragma warning(disable: 4355)
 
 namespace ds {
 
 namespace {
+char				BLOB_TYPE			= 0;
 
 std::string			make_line(const std::string &key, const int v) {
 	std::stringstream	buf;
@@ -21,13 +26,26 @@ std::string			make_line(const std::string &key, const std::string &v) {
 /**
  * \class ds::EngineStatsView
  */
-EngineStatsView::EngineStatsView(ds::Engine &e, const ci::Rectf &src_rect)
+void EngineStatsView::installAsServer(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {ds::ui::Sprite::handleBlobFromClient(r);});
+}
+
+void EngineStatsView::installAsClient(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {ds::ui::Sprite::handleBlobFromServer<EngineStatsView>(r);});
+}
+
+/**
+ * \class ds::EngineStatsView
+ */
+EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 		: inherited(e)
-		, mEngine(e)
+		, mEngine((ds::Engine&)e)
 		, mEventClient(e.getNotifier(), [this](const ds::Event *e) { if (e) onAppEvent(*e); })
 		, mFontSize(20.0f)
-		, mLT(src_rect.x1, src_rect.y1)
+		, mLT(mEngine.getEngineData().mSrcRect.x1, mEngine.getEngineData().mSrcRect.y1)
 		, mBorder(20.0f, 20.0f) {
+	mBlobType = BLOB_TYPE;
+
 	hide();
 	setTransparent(false);
 	setColor(0, 0, 0);

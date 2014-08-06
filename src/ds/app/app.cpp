@@ -12,6 +12,7 @@
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 // For installing the sprite types
+#include "ds/app/engine/engine_stats_view.h"
 #include "ds/ui/sprite/gradient_sprite.h"
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
@@ -92,6 +93,8 @@ App::App(const RootList& roots)
 							[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
+	mEngine.installSprite(	[](ds::BlobRegistry& r){EngineStatsView::installAsServer(r);},
+							[](ds::BlobRegistry& r){EngineStatsView::installAsClient(r);});
 
 	// Initialize the engine image generator typess.
 	ds::ui::ImageArc::install(mEngine.getImageRegistry());

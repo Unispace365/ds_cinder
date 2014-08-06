@@ -8,6 +8,7 @@
 
 #include <cinder/Font.h>
 #include <cinder/gl/TextureFont.h>
+#include "ds/app/blob_registry.h"
 #include "ds/app/event.h"
 #include "ds/app/event_client.h"
 #include "ds/ui/sprite/sprite.h"
@@ -21,7 +22,9 @@ class Engine;
  */
 class EngineStatsView : public ds::ui::Sprite {
 public:
-	EngineStatsView(ds::Engine&, const ci::Rectf &src_rect);
+	static void					installAsServer(ds::BlobRegistry&);
+	static void					installAsClient(ds::BlobRegistry&);
+	EngineStatsView(ds::ui::SpriteEngine&);
 
 	virtual void				updateServer(const ds::UpdateParams&);
 	virtual void				drawLocalClient();

@@ -82,6 +82,7 @@ public:
 	// It will be loaded from all appropriate locations.
 	void								loadNinePatchCfg(const std::string& filename);
 
+	const ds::EngineData&				getEngineData() const		{ return mData; }
 	// only valid after setup() is called
 	int									getRootCount() const;
 	ui::Sprite&							getRootSprite(const size_t index = 0);

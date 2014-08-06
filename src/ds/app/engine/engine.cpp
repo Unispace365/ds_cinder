@@ -266,7 +266,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		if (root) {
 			ds::ui::Sprite*				parent = root->getSprite();
 			if (parent) {
-				EngineStatsView*		v = new EngineStatsView(*this, mData.mSrcRect);
+				EngineStatsView*		v = new EngineStatsView(*this);
 				if (v) {
 					parent->addChild(*v);
 					mRoots.push_back(std::move(root));
