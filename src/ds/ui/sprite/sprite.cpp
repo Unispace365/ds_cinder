@@ -561,9 +561,8 @@ bool Sprite::containsChild(Sprite *child) const {
     return false;
 }
 
-void Sprite::clearChildren()
-{
-	if(mChildren.empty()) return;
+void Sprite::clearChildren() {
+	if (mChildren.empty()) return;
     auto tempList = mChildren;
     mChildren.clear();
 
@@ -572,7 +571,6 @@ void Sprite::clearChildren()
     	if ( !(*it) || (*it)->getParent() != this )
             continue;
       (*it)->removeParent();
-      (*it)->clearChildren();
       (*it)->setParent(nullptr);
       delete *it;
     }
