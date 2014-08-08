@@ -28,6 +28,7 @@ class DataBuffer;
 class DrawParams;
 class Engine;
 class EngineRoot;
+class Event;
 class UpdateParams;
 
 namespace ui {
@@ -192,6 +193,11 @@ public:
 	int						getType() const		{ return mType; }
 	int						mType;
 #endif
+
+	// Subclasses can handle the event
+	virtual void			eventReceived(const ds::Event&);
+	// Convenience to pass an event up through my parents
+	void					parentEventReceived(const ds::Event&);
 
 	// check to see if Sprite can be touched
 	void					enable(bool flag);

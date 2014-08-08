@@ -732,24 +732,20 @@ bool Sprite::visible() const
   return getFlag(VISIBLE_F, mSpriteFlags);
 }
 
-float Sprite::getWidth() const
-{
-    return mWidth;
+float Sprite::getWidth() const {
+	return mWidth;
 }
 
-float Sprite::getHeight() const
-{
-    return mHeight;
+float Sprite::getHeight() const {
+	return mHeight;
 }
 
-void Sprite::enable( bool flag )
-{
-  setFlag(ENABLED_F, flag, FLAGS_DIRTY, mSpriteFlags);
+void Sprite::enable(bool flag) {
+	setFlag(ENABLED_F, flag, FLAGS_DIRTY, mSpriteFlags);
 }
 
-bool Sprite::isEnabled() const
-{
-  return getFlag(ENABLED_F, mSpriteFlags);
+bool Sprite::isEnabled() const {
+	return getFlag(ENABLED_F, mSpriteFlags);
 }
 
 void Sprite::buildGlobalTransform() const
@@ -767,9 +763,19 @@ void Sprite::buildGlobalTransform() const
     mInverseGlobalTransform = mGlobalTransform.inverted();
 }
 
-Sprite *Sprite::getParent() const
-{
-    return mParent;
+void Sprite::eventReceived(const ds::Event&) {
+}
+
+void Sprite::parentEventReceived(const ds::Event &e) {
+	Sprite*		p = mParent;
+	while (p) {
+		p->eventReceived(e);
+		p = p->mParent;
+	}
+}
+
+Sprite *Sprite::getParent() const {
+	return mParent;
 }
 
 const ci::Matrix44f &Sprite::getGlobalTransform() const
