@@ -1233,70 +1233,69 @@ void Sprite::writeTo(ds::DataBuffer& buf)
   }
 }
 
-void Sprite::writeAttributesTo(ds::DataBuffer& buf)
-{
-		if (mDirty.has(PARENT_DIRTY)) {
-      buf.add(PARENT_ATT);
-      if (mParent) buf.add(mParent->getId());
-      else buf.add(ds::EMPTY_SPRITE_ID);
-    }
-		if (mDirty.has(SIZE_DIRTY)) {
-      buf.add(SIZE_ATT);
-      buf.add(mWidth);
-      buf.add(mHeight);
-      buf.add(mDepth);
-    }
-		if (mDirty.has(FLAGS_DIRTY)) {
-      buf.add(FLAGS_ATT);
-      buf.add(mSpriteFlags);
-    }
-		if (mDirty.has(POSITION_DIRTY)) {
-      buf.add(POSITION_ATT);
-      // I'm sure there's a better way to do this, but I need to compensate
-      // for the fact that touching down on a sprite will set the center, which
-      // affects the position.
-//      buf.add(mPosition.x);
-//      buf.add(mPosition.y);
-//      buf.add(mPosition.z);
-      buildTransform();
-      auto v = this->mTransformation.getTranslate();
-      buf.add(v.x);
-      buf.add(v.y);
-      buf.add(v.z);
-    }
-		if (mDirty.has(CENTER_DIRTY)) {
-      buf.add(CENTER_ATT);
-      buf.add(mCenter.x);
-      buf.add(mCenter.y);
-      buf.add(mCenter.z);
-    }
-		if (mDirty.has(SCALE_DIRTY)) {
-      buf.add(SCALE_ATT);
-      buf.add(mScale.x);
-      buf.add(mScale.y);
-      buf.add(mScale.z);
-    }
-		if (mDirty.has(COLOR_DIRTY)) {
-      buf.add(COLOR_ATT);
-      buf.add(mColor.r);
-      buf.add(mColor.g);
-      buf.add(mColor.b);
-    }
-		if (mDirty.has(OPACITY_DIRTY)) {
-      buf.add(OPACITY_ATT);
-      buf.add(mOpacity);
-    }
-    if (mDirty.has(BLEND_MODE)) {
-      buf.add(BLEND_ATT);
-      buf.add(mBlendMode);
-    }
-    if (mDirty.has(CLIPPING_BOUNDS)) {
-      buf.add(CLIP_BOUNDS_ATT);
-      buf.add(mClippingBounds.getX1());
-      buf.add(mClippingBounds.getY1());
-      buf.add(mClippingBounds.getX2());
-      buf.add(mClippingBounds.getY2());
-    }
+void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
+	if (mDirty.has(PARENT_DIRTY)) {
+		buf.add(PARENT_ATT);
+		if (mParent) buf.add(mParent->getId());
+		else buf.add(ds::EMPTY_SPRITE_ID);
+	}
+	if (mDirty.has(SIZE_DIRTY)) {
+		buf.add(SIZE_ATT);
+		buf.add(mWidth);
+		buf.add(mHeight);
+		buf.add(mDepth);
+	}
+	if (mDirty.has(FLAGS_DIRTY)) {
+		buf.add(FLAGS_ATT);
+		buf.add(mSpriteFlags);
+	}
+	if (mDirty.has(POSITION_DIRTY)) {
+		buf.add(POSITION_ATT);
+//		I'm sure there's a better way to do this, but I need to compensate
+//		for the fact that touching down on a sprite will set the center, which
+//		affects the position.
+//		buf.add(mPosition.x);
+//		buf.add(mPosition.y);
+//		buf.add(mPosition.z);
+		buildTransform();
+		auto v = this->mTransformation.getTranslate();
+		buf.add(v.x);
+		buf.add(v.y);
+		buf.add(v.z);
+	}
+	if (mDirty.has(CENTER_DIRTY)) {
+		buf.add(CENTER_ATT);
+		buf.add(mCenter.x);
+		buf.add(mCenter.y);
+		buf.add(mCenter.z);
+	}
+	if (mDirty.has(SCALE_DIRTY)) {
+		buf.add(SCALE_ATT);
+		buf.add(mScale.x);
+		buf.add(mScale.y);
+		buf.add(mScale.z);
+	}
+	if (mDirty.has(COLOR_DIRTY)) {
+		buf.add(COLOR_ATT);
+		buf.add(mColor.r);
+		buf.add(mColor.g);
+		buf.add(mColor.b);
+	}
+	if (mDirty.has(OPACITY_DIRTY)) {
+		buf.add(OPACITY_ATT);
+		buf.add(mOpacity);
+	}
+	if (mDirty.has(BLEND_MODE)) {
+		buf.add(BLEND_ATT);
+		buf.add(mBlendMode);
+	}
+	if (mDirty.has(CLIPPING_BOUNDS)) {
+		buf.add(CLIP_BOUNDS_ATT);
+		buf.add(mClippingBounds.getX1());
+		buf.add(mClippingBounds.getY1());
+		buf.add(mClippingBounds.getX2());
+		buf.add(mClippingBounds.getY2());
+	}
 }
 
 void Sprite::readFrom(ds::BlobReader& blob)
