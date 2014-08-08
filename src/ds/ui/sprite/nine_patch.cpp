@@ -46,6 +46,10 @@ void NinePatch::installAsClient(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<NinePatch>(r);});
 }
 
+NinePatch& NinePatch::makeNinePatch(SpriteEngine& e, Sprite* parent) {
+	return makeAlloc<ds::ui::NinePatch>([&e]()->ds::ui::NinePatch*{ return new ds::ui::NinePatch(e); }, parent);
+}
+
 NinePatch::NinePatch(SpriteEngine& engine)
 		: inherited(engine)
 		, ImageOwner(engine)
