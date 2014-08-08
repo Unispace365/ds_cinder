@@ -28,10 +28,10 @@ const int			LOG_LEVEL_BLOCK_CODE = LOG_LEVEL_ERROR_CODE-1;
 
 const int			LEVEL_SIZE = 4;
 // Only assign during setup()
-bool				  HAS_LEVEL[LEVEL_SIZE];
-ds::BitMask		HAS_MODULE = ds::BitMask::newFilled();
-bool			  	HAS_ASYNC = true;
-std::string		LOG_FILE;
+bool				HAS_LEVEL[LEVEL_SIZE];
+ds::BitMask			HAS_MODULE = ds::BitMask::newFilled();
+bool				HAS_ASYNC = true;
+std::string			LOG_FILE;
 
 Poco::Semaphore		BLOCK_SEM(0, 1);
 
@@ -41,8 +41,7 @@ std::map<int, std::string>*  MODULE_MAP = nullptr;
 
 /* DS::LOGGER static
  ******************************************************************/
-static void setup_level(const std::string& level)
-{
+static void setup_level(const std::string& level) {
 	std::string					s = Poco::trim(level);
 	Poco::toLowerInPlace(s);
 	if (s == "all")				{ for (int k=0; k<LEVEL_SIZE; ++k) HAS_LEVEL[k] = true; }
@@ -52,25 +51,25 @@ static void setup_level(const std::string& level)
 	else if (s == "fatal")		HAS_LEVEL[ds::Logger::LOG_FATAL] = true;
 }
 
-static void setup_module(const std::string& module)
-{
+static void setup_module(const std::string& module) {
 	const std::string			s = Poco::trim(module);
 	int							v;
 	if (s == "all")				HAS_MODULE = ds::BitMask::newFilled();
 	else if (ds::string_to_value(s, v)) HAS_MODULE |= ds::BitMask(v);
 }
 
-static const std::string& level_name(const int level)
-{
-	static const std::string	INFO(	"info   "),
+static const std::string& level_name(const int level) {
+	static const std::string				INFO(	"info   "),
 								            WARNING("warning"),
 								            ERROR_(	"error  "),
 								            FATAL(	"fatal  "),
+								            STARTUP("startup"),
 								            UNKNOWN("       ");
 	if (level == ds::Logger::LOG_INFO) return INFO;
 	if (level == ds::Logger::LOG_WARNING) return WARNING;
 	if (level == ds::Logger::LOG_ERROR) return ERROR_;
 	if (level == ds::Logger::LOG_FATAL) return FATAL;
+	if (level == ds::Logger::LOG_STARTUP) return STARTUP;
 	return UNKNOWN;
 }
 
@@ -142,18 +141,17 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
   }
 }
 
-ds::BitMask Logger::newModule(const std::string& name)
-{
-  static std::map<int, std::string>   MAP;
+ds::BitMask Logger::newModule(const std::string& name) {
+	static std::map<int, std::string>   MAP;
 	static int			                    NEXT_DS = 0;
 	const ds::BitMask	ans = ds::BitMask(NEXT_DS++);
-  if (!MODULE_MAP) MODULE_MAP = &MAP;
-  MAP[ans.getFirstIndex()] = name;
+	if (!MODULE_MAP) MODULE_MAP = &MAP;
+	MAP[ans.getFirstIndex()] = name;
 	return ans;
 }
 
-bool Logger::hasLevel(const int level)
-{
+bool Logger::hasLevel(const int level) {
+	if (level == LOG_STARTUP) return true;
 	if (level < 0 || level >= LEVEL_SIZE) return false;
 	return HAS_LEVEL[level];
 }

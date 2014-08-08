@@ -35,9 +35,8 @@ extern const ds::BitMask	VIDEO_LOG;
  * runtime, modules can be turned on and off.  All logging ideally happens
  * through the DS_LOG_* convenience macros.
  */
-class Logger
-{
-  public:
+class Logger {
+public:
     /**
      * \brief Initialize the logger.  Settings files are in the standard ds::cfg::Settings format.  Here's what's available:
      *	"logger:level" string -- all,none,info,warning,error,fatal (can be specific levels, like "error,fatal") DEFAULT=none
@@ -47,15 +46,16 @@ class Logger
      */
     static void						  setup(const ds::cfg::Settings&);
 
-    /**
-     * LEVELS
-     */
-    static const int				LOG_INFO = 0;
-    static const int				LOG_WARNING = 1;
-    static const int				LOG_ERROR = 2;
-    static const int				LOG_FATAL = 3;
-    // Verification that the given parameter is valid to log.
-    static bool						  hasLevel(const int level);
+	/**
+	 * LEVELS
+	 */
+	static const int				LOG_INFO = 0;
+	static const int				LOG_WARNING = 1;
+	static const int				LOG_ERROR = 2;
+	static const int				LOG_FATAL = 3;
+	static const int				LOG_STARTUP = 100;	// Special code that will always log, regardless of the level.
+	// Verification that the given parameter is valid to log.
+	static bool						hasLevel(const int level);
 
     /**
      * MODULES
@@ -143,6 +143,7 @@ Logger&                     getLogger();
 #define DS_LOGW(level, streamExp, module)	{ if (ds::Logger::hasLevel(level) && ds::Logger::hasModule(module)) { std::wstringstream	buf;	buf << streamExp; 	ds::getLogger().log(level, buf.str()); } }
 
 // Logging convenience
+#define DS_LOG_STARTUP(streamExp)			DS_LOG(ds::Logger::LOG_STARTUP,	streamExp, ds::BitMask::newFilled())
 #define DS_LOG_INFO(streamExp)				DS_LOG(ds::Logger::LOG_INFO,	streamExp, ds::BitMask::newFilled())
 #define DS_LOG_INFO_M(streamExp, module)	DS_LOG(ds::Logger::LOG_INFO,	streamExp, module)
 #define DS_LOG_WARNING(streamExp)			DS_LOG(ds::Logger::LOG_WARNING, streamExp, ds::BitMask::newFilled())
@@ -153,6 +154,7 @@ Logger&                     getLogger();
 #define DS_LOG_FATAL_M(streamExp, module)	DS_LOG(ds::Logger::LOG_FATAL,	streamExp, module)
 
 // Logging convenience
+#define DS_LOGW_STARTUP(streamExp)			DS_LOGW(ds::Logger::LOG_STARTUP,	streamExp, ds::BitMask::newFilled())
 #define DS_LOGW_INFO(streamExp)				DS_LOGW(ds::Logger::LOG_INFO,	streamExp, ds::BitMask::newFilled())
 #define DS_LOGW_INFO_M(streamExp, module)	DS_LOGW(ds::Logger::LOG_INFO,	streamExp, module)
 #define DS_LOGW_WARNING(streamExp)			DS_LOGW(ds::Logger::LOG_WARNING, streamExp, ds::BitMask::newFilled())
