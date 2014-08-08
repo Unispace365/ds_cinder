@@ -64,23 +64,24 @@ const int           SHADER_CHILDREN_F = (1<<5);
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
 
-void Sprite::installAsServer(ds::BlobRegistry& registry)
-{
-  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
+Sprite& Sprite::makeSprite(SpriteEngine &e, Sprite *parent) {
+	return makeAlloc<Sprite>([&e]()->Sprite*{return new Sprite(e); }, parent);
 }
 
-void Sprite::installAsClient(ds::BlobRegistry& registry)
-{
-  BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Sprite>(r);});
+void Sprite::installAsServer(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
 }
 
-void Sprite::handleBlobFromClient(ds::BlobReader& r)
-{
-  ds::DataBuffer&       buf(r.mDataBuffer);
-  if (buf.read<char>() != SPRITE_ID_ATTRIBUTE) return;
-  ds::sprite_id_t       id = buf.read<ds::sprite_id_t>();
-  Sprite*               s = r.mSpriteEngine.findSprite(id);
-  if (s) s->readFrom(r);
+void Sprite::installAsClient(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Sprite>(r);});
+}
+
+void Sprite::handleBlobFromClient(ds::BlobReader& r) {
+	ds::DataBuffer&       buf(r.mDataBuffer);
+	if (buf.read<char>() != SPRITE_ID_ATTRIBUTE) return;
+	ds::sprite_id_t       id = buf.read<ds::sprite_id_t>();
+	Sprite*               s = r.mSpriteEngine.findSprite(id);
+	if (s) s->readFrom(r);
 }
 
 Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.0f*/ )
