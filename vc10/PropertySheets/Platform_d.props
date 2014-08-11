@@ -6,10 +6,10 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>_WIN32_WINNT=0x0501;OGLFT_NO_QT;OGLFT_NO_SOLID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(DS_PLATFORM)\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\osc\include;$(DS_PLATFORM)\lib\snappy;$(DS_PLATFORM)\lib\zmq;$(FREETYPE)\include;$(DS_PLATFORM)\lib\OGLFT;$(DS_PLATFORM)\lib\paulhoux-Cinder-Awesomium\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(DS_PLATFORM)\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\osc\include;$(DS_PLATFORM)\lib\snappy;$(DS_PLATFORM)\lib\zmq;$(DS_PLATFORM)\lib\freetype-2.4.10\include;$(DS_PLATFORM)\lib\OGLFT;$(DS_PLATFORM)\lib\paulhoux-Cinder-Awesomium\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(QUICKTIME)\Libraries;$(DS_PLATFORM)\lib\snappy;$(DS_PLATFORM)\lib\zmq\lib;$(FREETYPE)\lib;$(DS_PLATFORM)\lib\paulhoux-Cinder-Awesomium\build\lib\msw</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(CINDER)\lib;$(CINDER)\lib\msw;$(CINDER)\blocks\osc\lib\vc10;$(DS_PLATFORM)\lib\poco\lib\vs2010;$(DS_PLATFORM)\lib;$(QUICKTIME)\Libraries;$(DS_PLATFORM)\lib\snappy;$(DS_PLATFORM)\lib\zmq\lib;$(DS_PLATFORM)\lib\freetype-2.4.10\lib;$(DS_PLATFORM)\lib\paulhoux-Cinder-Awesomium\build\lib\msw</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionaDependencies);cinder_d.lib;glu32.lib;osc_d.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform_d.lib;psapi.lib;snappy_d.lib;libzmq_d.lib;freetype2410MT_D.lib;CVClient.lib;QTMLClient.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT; LIBC.lib</IgnoreSpecificDefaultLibraries>
     </Link>
