@@ -6,6 +6,7 @@ BigWorld framework implemented in Cinder.
 
 Installation
 ------------
+This version of DS Cinder requires **Visual Studio 2010 + SP1 installed.**
 
  -  You'll need **three** environment variables set:
    - `CINDER` should point to the current cinder dist (cinder_0.8.4_vc2010
@@ -70,10 +71,12 @@ Install **Gstreamer 1.2.3** runtime and development files available [from the gs
 Troubleshooting installation
 --------------------------------
 
- - if you get errors for `xaudio.h`: install [latest DirectX SDK][2]
+ - If you get errors for `xaudio.h`: install [latest DirectX SDK][2]
  - If you get errors for `Gstreamer` and you **DO** know that you have installed the correct version (**1.2.3**), make sure you installed it on root level of drive `c:\` (make a symbolic link to wherever else you might have installed it incorrectly)
  - If you get errors of missing `Boost cstdint` headers: make sure your cinder distribution does include Boost!
+ - If you get `LNK1123: failure during conversion to COFF: file invalid or corrupt'`: [Install SP1 for your Visual Studio 2010][3]
 
 
   [1]: http://gstreamer.freedesktop.org/data/pkg/windows/
   [2]: http://lmgtfy.com/?q=directx%20sdk%20download
+  [3]: http://stackoverflow.com/a/10890428/1055628
