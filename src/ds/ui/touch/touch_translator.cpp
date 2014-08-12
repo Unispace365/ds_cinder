@@ -36,3 +36,19 @@ void TouchTranslator::setScale(const float x, const float y) {
 
 } // namespace ui
 } // namespace ds
+
+template<typename T>
+static void write_trans(T& os, const ds::ui::TouchTranslator& o) {
+	os << "Touch Translator t=(" << o.getTranslate().x << "," << o.getTranslate().y << ") s=("
+			<< o.getScale().x << "," << o.getScale().y << ")";
+}
+
+std::ostream& operator<<(std::ostream& os, const ds::ui::TouchTranslator& o) {
+	write_trans(os, o);
+	return os;
+}
+
+std::wostream& operator<<(std::wostream& os, const ds::ui::TouchTranslator& o) {
+	write_trans(os, o);
+	return os;
+}

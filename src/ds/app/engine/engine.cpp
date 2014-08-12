@@ -684,10 +684,10 @@ void		alter_touch_events(	const ds::ui::TouchTranslator &trans, const TouchEvent
 								std::vector<ci::app::TouchEvent::Touch> &out) {
 	for (auto it=src.getTouches().begin(), end=src.getTouches().end(); it!=end; ++it) {
 		out.push_back(ci::app::TouchEvent::Touch(	trans.toWorldf(it->getPos().x, it->getPos().y),
-														it->getPrevPos(),
-														it->getId(),
-														it->getTime(),
-														(void*)it->getNative()));
+													trans.toWorldf(it->getPrevPos().x, it->getPrevPos().y),
+													it->getId(),
+													it->getTime(),
+													(void*)it->getNative()));
 	}
 }
 
