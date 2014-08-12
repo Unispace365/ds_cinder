@@ -21,6 +21,9 @@ public:
 	void			setTranslation(const float x, const float y);
 	void			setScale(const float x, const float y);
 
+	ci::Vec2f		getTranslate() const		{ return ci::Vec2f(mTx, mTy); }
+	ci::Vec2f		getScale() const			{ return ci::Vec2f(mSx, mSy); }
+
 private:
 	float			mTx, mTy,
 					mSx, mSy;
@@ -28,5 +31,9 @@ private:
 
 } // namespace ui
 } // namespace ds
+
+// Make the TouchTranslator available to standard stream operators
+std::ostream&			operator<<(std::ostream&, const ds::ui::TouchTranslator&);
+std::wostream&			operator<<(std::wostream&, const ds::ui::TouchTranslator&);
 
 #endif
