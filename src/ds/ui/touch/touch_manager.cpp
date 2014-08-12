@@ -49,7 +49,6 @@ void TouchManager::touchesBegin(const TouchEvent &event) {
 
 		TouchInfo touchInfo;
 		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
-std::cout << "Touch down pt=" << touchInfo.mCurrentGlobalPoint << std::endl;
 		touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 		mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
@@ -124,7 +123,6 @@ void TouchManager::touchesEnded(const TouchEvent &event) {
 
 		TouchInfo touchInfo;
 		touchInfo.mCurrentGlobalPoint = Vec3f(touchIt->getPos(), 0.0f);
-std::cout << "Touch up pt=" << touchInfo.mCurrentGlobalPoint << std::endl;
 		touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
