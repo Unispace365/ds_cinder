@@ -20,6 +20,10 @@
 	values: "client", "server", "clientserver", ""
 	default = "", which is the standalone app -->
 	<text name="platform:architecture" value="" />
+	
+	<!-- Show console will create a console window, or not if this is false. 
+		If this setting is missing, debug mode will create a console, release will not. -->
+	<text name="console:show" value="true" />
 
 	<!---------------------->
 	<!-- WINDOW SETTINGS --->

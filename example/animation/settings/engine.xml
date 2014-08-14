@@ -1,25 +1,103 @@
 <settings>
-	<!-- Example engine_settings.xml file.  -->
-	<text name="project_path" value="northeastern\wall" />
- 	<int name="num_clients" value="1" />
-
+	<!-- Project path for locating app resources  -->
+	<text name="project_path" value="surrey\pdf" />
+	
+	<!---------------------->
+	<!-- SERVER SETTINGS --->
+	<!---------------------->
+	<!-- if false, won't connect udp sender / listener for server or client -->
+	<text name="server:connect" value="false" />
+	
+	<!-- the multicast ip address and port of the server -->
 	<text name="server:ip" value="239.255.42.58" />
 	<int name="server:send_port" value="10370" />
 	<int name="server:listen_port" value="10371" />
+	
+	<!-- if this is a server (world engine), a client (render engine) or both (world + render). 
+	default ="", which is an EngineClientServer, aka "both"-->
+	<text name="platform:architecture" value="" />
 
-	<size name="world_dimensions" x="2350" y="1366" />
-	<rect name="local_rect" l="0" r="1280" t="0" b="720" />
-
-	<size name="touch_overlay:dimensions" x="2350" y="1366" />
-	<size name="touch_overlay:offset" x="0" y="0" />
-	<text name="touch_overlay:debug" value="true" />
-
+	<!---------------------->
+	<!-- WINDOW SETTINGS --->
+	<!---------------------->
+	<!-- how big the world size is, in pixels -->
+	<size name="world_dimensions" x="1920" y="1200" />
+	<!-- the size of the local client, sets the window size -->
+	<rect name="local_rect" l="0" r="1920" t="0" b="1200" />
+	<!-- the scale of the local window. default=1.0-->
+	<float name="window_scale" value="1.0"/>
+	<!-- where to place the window in Windows.
+		0,0 is the upper left corner of the main screen. Chrome is not taken into account with the position
+		default=0.0,0.0,0.0 -->
+	<point name="window_pos" x="10.0" y="100.0" z="0.0" />
+	<!-- title of the window -->
+	<text name="screen:title" value="Starter" />	
+	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
+	<text name="screen:mode" value="window" />
+	<!-- makes the window an always-on-top sort of window. default=false -->
+	<text name="screen:always_on_top" value="false" />
+	
+	<!---------------------->
+	<!-- RENDER SETTINGS --->
+	<!---------------------->
+	<!-- attempt to run the app at this rate -->
+	<float name="frame_rate" value="60" />
+	
+	<!-- false=no cursor visible, true=visible cursor. default=false -->
+	<text name="hide_mouse" value="false" />
+	
+	<!-- turns Fx Anti-aliasing on or off. default=false -->
+	<text name="FxAA" value="false" />
+	<float name="FxAA:SpanMax" value="2.0"/>
+	<float name="FxAA;ReduceMul" value="8.0" />
+	<float name="FxAA;ReduceMin" value="128.0" />
+	
+	<!-- for perspective cameras, how near and far away to clip crap. default: x=1, y=1000 -->
+	<size name="camera:z_clip" x="1.0" y="1000.0" />
+	<!-- the field of view of the perspective camera? -->
 	<float name="camera:fov" value="30" />
 	
+	<!-- how much to step the camera when using the arrow keys.
+		set to a value above 0.025 to enable arrow key usage.
+		default=-1.0 -->
+	<float name="camera:arrow_keys" value="-1.0" />
+
+	<!---------------------->
+	<!-- TOUCH SETTINGS ---->
+	<!---------------------->
+	<!-- Override the built-in touch scale and offset parsing.
+		 It's uncommon you'll need to do this. 
+		 Default is to use the built-in Cinder touch translation (default=false)-->
+	<text name="touch_overlay:override_translation" value="false" />
+	<size name="touch_overlay:dimensions" x="1920" y="1080" />
+	<size name="touch_overlay:offset" x="0" y="0" />
+	-->
+	<!-- sets the color of debug touch points. default=255,255,255 -->
+	<color name="touch_color" r="255" g="255" b="255" />
+	<!-- draw circles around touch points -->
+	<text name="touch_overlay:debug" value="true" />
+	
+	<!-- will use native (windows 7) touch events when true. default=false -->
+	<!-- NOTE: if this is on and the touch system is also transmitting TUIO, it's
+				possible to receive double touch events. Use one or the other -->
+	<text name="enable_system_multitouch" value="true" />
+	
+	<!-- port to listen to tuio stream. default=3333 -->
+	<int name="tuio_port" value="3000" />
+	
+	<!-- will allow tuio to receive object data. default=false -->
+	<text name="tuio:receive_objects" value="false" />
+	
+	<!-- How far a touch moves before it's not a tap, in pixels -->
+	<float name="tap_threshold" value="20" />
+
+	
+	<!----------------------->
+	<!-- RESOURCE SETTINGS -->
+	<!----------------------->
+	<!-- resource location and database for cms content-->
 	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\northeastern\" />
 	<text name="resource_db" value="db\northeastern.sqlite" />
 
-	<float name="frame_rate" value="30" />
-	<float name="tap_threshold" value="10" />
 
 </settings>

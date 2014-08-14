@@ -40,9 +40,10 @@ static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 namespace {
 std::string				APP_PATH;
 std::string				APP_DATA_PATH;
-#ifdef _DEBUG
+
+//#ifdef _DEBUG
 ds::Console				GLOBAL_CONSOLE;
-#endif
+//#endif
 
 void					add_dll_path() {
 	// If there's a DLL folder, then add it to my PATH environment variable.
@@ -70,6 +71,7 @@ void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
  */
 App::App(const RootList& roots)
 	: mInitializer(getAppPath().generic_string())
+	, mShowConsole(false)
 	, mEngineSettings()
 	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
@@ -132,7 +134,9 @@ App::App(const RootList& roots)
 App::~App() {
 	delete &(mEngine);
 	ds::getLogger().shutDown();
-	DS_DBG_CODE(GLOBAL_CONSOLE.destroy());
+	if(mShowConsole){
+		GLOBAL_CONSOLE.destroy();
+	}
 }
 
 void App::prepareSettings(Settings *settings) {
@@ -275,6 +279,14 @@ void App::shutdown() {
 	ci::app::AppBasic::shutdown();
 }
 
+void App::showConsole(){
+	// prevent calling create multiple times
+	if(mShowConsole) return;
+
+	mShowConsole = true;
+	GLOBAL_CONSOLE.create();
+}
+
 
 /**
  * \class ds::App::Initializer
@@ -298,7 +310,6 @@ static std::string app_folder_from(const Poco::Path& path) {
 }
 
 ds::App::Initializer::Initializer(const std::string& appPath) {
-	DS_DBG_CODE(GLOBAL_CONSOLE.create());
 	APP_PATH = appPath;
 
 	Poco::Path      p(appPath);
@@ -318,6 +329,13 @@ ds::App::Initializer::Initializer(const std::string& appPath) {
 
 static ds::Engine&    new_engine(	ds::App& app, const ds::cfg::Settings& settings,
 									ds::EngineData& ed, const ds::RootList& roots) {
+
+	bool defaultShowConsole = false;
+	DS_DBG_CODE(defaultShowConsole = true);
+	if(settings.getBool("console:show", 0, defaultShowConsole)){
+		app.showConsole();
+	}
+
 	const std::string	arch(settings.getText("platform:architecture", 0, ""));
 	if (arch == "client") return *(new ds::EngineClient(app, settings, ed, roots));
 	if (arch == "server") return *(new ds::EngineServer(app, settings, ed, roots));

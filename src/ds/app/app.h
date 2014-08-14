@@ -63,12 +63,15 @@ public:
 	virtual void				quit();
 	virtual void				shutdown();
 
+	void						showConsole();
+
 	void						enableCommonKeystrokes(bool q = true, bool esc = true);
 
 protected:
 	class Initializer { public: Initializer(const std::string&); };
 	Initializer					mInitializer;
 
+	bool						mShowConsole;
 	ds::EngineSettings			mEngineSettings;
 	ds::EngineData				mEngineData;
 	ds::Engine&					mEngine;
