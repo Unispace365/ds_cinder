@@ -784,6 +784,10 @@ const ci::Rectf& Engine::getScreenRect() const {
 	return mData.mScreenRect;
 }
 
+void Engine::translateTouchPoint(ci::Vec2f& inOutPoint) {
+	inOutPoint = mTouchTranslator.toWorldf(inOutPoint.x, inOutPoint.y);
+};
+
 void Engine::nextTouchMode() {
 	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
 }
