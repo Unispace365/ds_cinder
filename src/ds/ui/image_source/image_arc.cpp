@@ -2,6 +2,7 @@
 
 #include <cinder/ImageIo.h>
 #include <cinder/Surface.h>
+#include "ds/app/environment.h"
 #include "ds/app/image_registry.h"
 #include "ds/arc/arc_io.h"
 #include "ds/arc/arc_render_circle.h"
@@ -112,7 +113,8 @@ private:
 	void					writeFile(const ci::Surface8u& s) {
 		if (s.getWidth() > 0 && s.getHeight() > 0 && !mWriteFile.empty()) {
 			try {
-				ci::writeImage(mWriteFile, s);
+				const std::string		fn = ds::Environment::expand(mWriteFile);
+				ci::writeImage(fn, s);
 			} catch (std::exception const&) {
 				DS_LOG_WARNING("Error writing rendered arc to file (" << mWriteFile << ")");
 			}
