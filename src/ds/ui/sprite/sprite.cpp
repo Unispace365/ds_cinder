@@ -1735,7 +1735,11 @@ void Sprite::write(std::ostream &s, const size_t tab) const {
 
 void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	for (size_t k=0; k<tab; ++k) s << "\t";
-	s << "id=" << mId << " pos=" << mPosition << " size=" << mWidth << "x" << mHeight << " scale=" << mScale << std::endl;
+	s << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=" << mWidth << "x" << mHeight << "x" << mDepth << " scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << std::endl;
+	for (size_t k=0; k<tab+2; ++k) s << "\t";
+	s << "STATE opacity=" << mOpacity << " z_level=" << mZLevel << " use_shader=" << mUseShaderTexture << std::endl;
+	for (size_t k=0; k<tab+2; ++k) s << "\t";
+	s << "STATE need_bounds_check=" << mBoundsNeedChecking << " in_bounds=" << mInBounds << " clip_dirty=" << mClippingBoundsDirty << std::endl;
 }
 #endif
 
