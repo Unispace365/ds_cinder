@@ -255,7 +255,15 @@ void App::keyDown(KeyEvent e) {
 
 #ifdef _DEBUG
 	if (code == KeyEvent::KEY_d) {
-		std::cout << "WRITING OUT SPRITE HIERARCHY!" << std::endl;
+		std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
+		std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
+	    std::fstream	filestr;
+	    filestr.open(path, std::fstream::out);
+	    if (filestr.is_open()) {
+			mEngine.writeSprites(filestr);
+			filestr.close();
+	    }
+		// and to console
 		std::stringstream		buf;
 		mEngine.writeSprites(buf);
 		std::cout << buf.str() << std::endl;
