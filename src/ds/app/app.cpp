@@ -252,6 +252,15 @@ void App::keyDown(KeyEvent e) {
 			mEngine.markCameraDirty();
 		}
 	}
+
+#ifdef _DEBUG
+	if (code == KeyEvent::KEY_d) {
+		std::cout << "WRITING OUT SPRITE HIERARCHY!" << std::endl;
+		std::stringstream		buf;
+		mEngine.writeSprites(buf);
+		std::cout << buf.str() << std::endl;
+	}
+#endif
 }
 
 void App::keyUp( KeyEvent event )

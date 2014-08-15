@@ -479,6 +479,13 @@ public:
 		const ci::Vec3f	mScale;
 	};
 
+#ifdef _DEBUG
+	// Debugging aids to write out my state. write() calls writeState
+	// on me and all my children.
+	void				write(std::ostream&, const size_t tab) const;
+	virtual void		writeState(std::ostream&, const size_t tab) const;
+#endif
+
 public:
 	static void			installAsServer(ds::BlobRegistry&);
 	static void			installAsClient(ds::BlobRegistry&);

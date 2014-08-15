@@ -792,6 +792,14 @@ void Engine::nextTouchMode() {
 	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
 }
 
+void Engine::writeSprites(std::ostream &s) const {
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		EngineRoot*		er(it->get());
+		ds::ui::Sprite*	sprite(er ? er->getSprite() : nullptr);
+		if (sprite) sprite->write(s, 0);
+	}
+}
+
 bool Engine::isIdling() const {
 	return mIdling;
 }

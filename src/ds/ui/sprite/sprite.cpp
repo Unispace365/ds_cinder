@@ -1724,7 +1724,20 @@ float Sprite::getCornerRadius() const{
 	return mCornerRadius;
 }
 
+#ifdef _DEBUG
+void Sprite::write(std::ostream &s, const size_t tab) const {
+	writeState(s, tab);
+	for (auto it=mChildren.begin(), end=mChildren.end(); it!=end; ++it) {
+		Sprite*		child(*it);
+		if (child) child->write(s, tab + 1);
+	}
+}
 
+void Sprite::writeState(std::ostream &s, const size_t tab) const {
+	for (size_t k=0; k<tab; ++k) s << "\t";
+	s << "id=" << mId << " pos=" << mPosition << " size=" << mWidth << "x" << mHeight << " scale=" << mScale << std::endl;
+}
+#endif
 
 /**
  * \class ds::ui::Sprite::LockScale
