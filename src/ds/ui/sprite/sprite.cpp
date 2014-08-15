@@ -1739,11 +1739,11 @@ void			write_matrix44f(const ci::Matrix44f &m, std::ostream &s) {
 
 void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	for (size_t k=0; k<tab; ++k) s << "\t";
-	s << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=" << mWidth << "x" << mHeight << "x" << mDepth << " scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << std::endl;
+	s << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=[" << mWidth << "x" << mHeight << "x" << mDepth << "] scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << " clip=" << mClippingBounds << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
-	s << "STATE opacity=" << mOpacity << " z_level=" << mZLevel << " use_shader=" << mUseShaderTexture << std::endl;
+	s << "STATE opacity=" << mOpacity << " z_level=" << mZLevel << " use_shader=" << mUseShaderTexture << " use_depthbuffer=" << mUseDepthBuffer << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
-	s << "STATE need_bounds_check=" << mBoundsNeedChecking << " in_bounds=" << mInBounds << " clip_dirty=" << mClippingBoundsDirty << std::endl;
+	s << "STATE need_bounds_check=" << mBoundsNeedChecking << " in_bounds=" << mInBounds << " check_bounds=" << mCheckBounds << " clip_dirty=" << mClippingBoundsDirty << std::endl;
 	// Transform
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
 	s << "STATE transform=";
