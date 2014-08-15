@@ -182,6 +182,21 @@ void Result::sortByString(const int columnIndex, const std::function<bool(const 
 	std::sort(mRow.begin(), mRow.end(), fn);
 }
 
+void Result::sort_if(const std::function<bool(const RowIterator& a, const RowIterator& b)> &clientFn) {
+	if (!clientFn) return;
+
+	auto fn = [this, &clientFn](const std::unique_ptr<Row> &_a, const std::unique_ptr<Row> &_b)->bool {
+		const RowIterator	a(*this, _a),
+							b(*this, _b);
+		if (!a.hasValue() || !b.hasValue()) {
+			return false;
+		}
+		return clientFn(a, b);
+	};
+
+	std::sort(mRow.begin(), mRow.end(), fn);
+}
+
 Result::Row* Result::pushBackRow() {
 	mRow.push_back(std::move(std::unique_ptr<Row>(new Row())));
 	return mRow.back().get();
@@ -223,17 +238,20 @@ Result::Row& Result::Row::operator=(const Row& o) {
  ******************************************************************/
 Result::RowIterator::RowIterator(const RowIterator& o)
 		: mResult(o.mResult)
-		, mRowIt(o.mRowIt) {
+		, mRowIt(o.mRowIt)
+		, mOverride(nullptr) {
 }
 
 Result::RowIterator::RowIterator(const Result& qr)
 		: mResult(qr)
-		, mRowIt(qr.mRow.begin()) {
+		, mRowIt(qr.mRow.begin())
+		, mOverride(nullptr) {
 }
 
 Result::RowIterator::RowIterator(const Result& qr, const std::string& str)
 		: mResult(qr)
-		, mRowIt(qr.mRow.begin()) {
+		, mRowIt(qr.mRow.begin())
+		, mOverride(nullptr) {
 	while (mRowIt != mResult.mRow.end()) {
 		if (mRowIt->get()->mName == str) break;
 		++mRowIt;
@@ -242,23 +260,38 @@ Result::RowIterator::RowIterator(const Result& qr, const std::string& str)
 
 Result::RowIterator::RowIterator(const Result& qr, const size_t index)
 		: mResult(qr)
-		, mRowIt(qr.mRow.end()) {
+		, mRowIt(qr.mRow.end())
+		, mOverride(nullptr) {
 	if (index < qr.mRow.size()) mRowIt = qr.mRow.begin() + index;
 }
 
+Result::RowIterator::RowIterator(const Result &qr, const std::unique_ptr<Row> &r)
+		: mResult(qr)
+		, mRowIt(qr.mRow.end())
+		, mOverride(r.get()) {
+}
+
 void Result::RowIterator::operator++() {
-	++mRowIt;
+	if (mOverride) {
+		mOverride = nullptr;
+	} else {
+		++mRowIt;
+	}
 }
 
 void Result::RowIterator::operator+=(const int count) {
-	mRowIt += count;
+	if (!mOverride) mRowIt += count;
 }
 
 bool Result::RowIterator::hasValue() const {
+	if (mOverride) return true;
 	return mRowIt != mResult.mRow.end() && mRowIt->get() != nullptr;
 }
 
 const std::string& Result::RowIterator::getName() const {
+	if (mOverride) {
+		return mOverride->mName;
+	}
 	if (!hasValue()) return RESULT_EMPTY_STR;
 	return (**mRowIt).mName;
 }
@@ -275,7 +308,7 @@ inline int64_t query_round_64(const double d) {
 
 int Result::RowIterator::getInt(const int columnIndex) const {
 	if (columnIndex < 0) return 0;
-	const Row&		row = **mRowIt;
+	const Row&		row = (mOverride ? *mOverride : **mRowIt);
 	// Deal with the case where the column got misinterpreted as a string --
 	// this can happen when there's a NULL in the data set.
 	if (columnIndex < row.mWString.size() && !row.mWString[columnIndex].empty()) {
@@ -290,7 +323,7 @@ int Result::RowIterator::getInt(const int columnIndex) const {
 
 int64_t Result::RowIterator::getInt64(const int columnIndex) const {
 	if (columnIndex < 0) return 0;
-	const Row&		row = **mRowIt;
+	const Row&		row = (mOverride ? *mOverride : **mRowIt);
 	// Deal with the case where the column got misinterpreted as a string --
 	// this can happen when there's a NULL in the data set.
 	if (columnIndex < row.mWString.size() && !row.mWString[columnIndex].empty()) {
@@ -305,7 +338,7 @@ int64_t Result::RowIterator::getInt64(const int columnIndex) const {
 
 float Result::RowIterator::getFloat(const int columnIndex) const {
 	if (columnIndex < 0) return 0;
-	const Row&		row = **mRowIt;
+	const Row&		row = (mOverride ? *mOverride : **mRowIt);
 	// Deal with the case where the column got misinterpreted as a string --
 	// this can happen when there's a NULL in the data set.
 	if (columnIndex < row.mWString.size() && !row.mWString[columnIndex].empty()) {
@@ -319,13 +352,13 @@ float Result::RowIterator::getFloat(const int columnIndex) const {
 }
 
 const std::string& Result::RowIterator::getString(const int columnIndex) const {
-	const Row&		row = **mRowIt;
+	const Row&		row = (mOverride ? *mOverride : **mRowIt);
 	if (columnIndex >= 0 && columnIndex < row.mString.size()) return row.mString[columnIndex];
 	return RESULT_EMPTY_STR;
 }
 
 const std::wstring& Result::RowIterator::getWString(const int columnIndex) const {
-	const Row&		row = **mRowIt;
+	const Row&		row = (mOverride ? *mOverride : **mRowIt);
 	if (columnIndex >= 0 && columnIndex < row.mWString.size()) return row.mWString[columnIndex];
 	return RESULT_EMPTY_WSTR;
 }
