@@ -1296,59 +1296,60 @@ void Sprite::readFrom(ds::BlobReader& blob)
   readAttributesFrom(buf);
 }
 
-void Sprite::readAttributesFrom(ds::DataBuffer& buf)
-{
-  char          id;
-  bool          transformChanged = false;
-  while (buf.canRead<char>() && (id=buf.read<char>()) != ds::TERMINATOR_CHAR) {
-    if (id == PARENT_ATT) {
-      const sprite_id_t     parentId = buf.read<sprite_id_t>();
-      Sprite*               parent = mEngine.findSprite(parentId);
-      if (parent) parent->addChild(*this);
-    } else if (id == SIZE_ATT) {
-      mWidth = buf.read<float>();
-      mHeight = buf.read<float>();
-      mDepth = buf.read<float>();
-    } else if (id == FLAGS_ATT) {
-      mSpriteFlags = buf.read<int>();
-    } else if (id == POSITION_ATT) {
-      mPosition.x = buf.read<float>();
-      mPosition.y = buf.read<float>();
-      mPosition.z = buf.read<float>();
-      transformChanged = true;
-    } else if (id == CENTER_ATT) {
-      mCenter.x = buf.read<float>();
-      mCenter.y = buf.read<float>();
-      mCenter.z = buf.read<float>();
-      transformChanged = true;
-    } else if (id == SCALE_ATT) {
-      mScale.x = buf.read<float>();
-      mScale.y = buf.read<float>();
-      mScale.z = buf.read<float>();
-      transformChanged = true;
-    } else if (id == COLOR_ATT) {
-      mColor.r = buf.read<float>();
-      mColor.g = buf.read<float>();
-      mColor.b = buf.read<float>();
-    } else if (id == OPACITY_ATT) {
-      mOpacity = buf.read<float>();
-    } else if (id == BLEND_ATT) {
-      mBlendMode = buf.read<BlendMode>();
-    } else if (id == CLIP_BOUNDS_ATT) {
-      float x1 = buf.read<float>();
-      float y1 = buf.read<float>();
-      float x2 = buf.read<float>();
-      float y2 = buf.read<float>();
-      mClippingBounds.set(x1, y1, x2, y2);
-      mClippingBoundsDirty = false;
-    } else {
-      readAttributeFrom(id, buf);
-    }
-  }
-  if (transformChanged) {
-    mUpdateTransform = true;
-    mBoundsNeedChecking = true;
-  }
+void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
+	char          id;
+	bool          transformChanged = false;
+	while (buf.canRead<char>() && (id=buf.read<char>()) != ds::TERMINATOR_CHAR) {
+		if (id == PARENT_ATT) {
+			const sprite_id_t     parentId = buf.read<sprite_id_t>();
+			Sprite*               parent = mEngine.findSprite(parentId);
+			if (parent) parent->addChild(*this);
+		} else if (id == SIZE_ATT) {
+			mWidth = buf.read<float>();
+			mHeight = buf.read<float>();
+			mDepth = buf.read<float>();
+			transformChanged = true;
+		} else if (id == FLAGS_ATT) {
+			mSpriteFlags = buf.read<int>();
+		} else if (id == POSITION_ATT) {
+			mPosition.x = buf.read<float>();
+			mPosition.y = buf.read<float>();
+			mPosition.z = buf.read<float>();
+			transformChanged = true;
+		} else if (id == CENTER_ATT) {
+			mCenter.x = buf.read<float>();
+			mCenter.y = buf.read<float>();
+			mCenter.z = buf.read<float>();
+			transformChanged = true;
+		} else if (id == SCALE_ATT) {
+			mScale.x = buf.read<float>();
+			mScale.y = buf.read<float>();
+			mScale.z = buf.read<float>();
+			transformChanged = true;
+		} else if (id == COLOR_ATT) {
+			mColor.r = buf.read<float>();
+			mColor.g = buf.read<float>();
+			mColor.b = buf.read<float>();
+		} else if (id == OPACITY_ATT) {
+			mOpacity = buf.read<float>();
+		} else if (id == BLEND_ATT) {
+			mBlendMode = buf.read<BlendMode>();
+		} else if (id == CLIP_BOUNDS_ATT) {
+			float x1 = buf.read<float>();
+			float y1 = buf.read<float>();
+			float x2 = buf.read<float>();
+			float y2 = buf.read<float>();
+			mClippingBounds.set(x1, y1, x2, y2);
+			markClippingDirty();
+		} else {
+			readAttributeFrom(id, buf);
+		}
+	}
+	if (transformChanged) {
+		mUpdateTransform = true;
+		mBoundsNeedChecking = true;
+		dimensionalStateChanged();
+	}
 }
 
 void Sprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
