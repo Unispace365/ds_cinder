@@ -1742,18 +1742,28 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	for (size_t k=0; k<tab; ++k) s << "\t";
 	s << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=[" << mWidth << "x" << mHeight << "x" << mDepth << "] scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << " clip=" << mClippingBounds << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
-	s << "STATE opacity=" << mOpacity << " z_level=" << mZLevel << " use_shader=" << mUseShaderTexture << " use_depthbuffer=" << mUseDepthBuffer << std::endl;
+	s << "STATE opacity=" << mOpacity << " z_level=" << mZLevel << " use_shader=" << mUseShaderTexture << " use_depthbuffer=" << mUseDepthBuffer << " last_w=" << mLastWidth << " last_h=" << mLastHeight << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
-	s << "STATE need_bounds_check=" << mBoundsNeedChecking << " in_bounds=" << mInBounds << " check_bounds=" << mCheckBounds << " clip_dirty=" << mClippingBoundsDirty << std::endl;
+	s << "STATE need_bounds_check=" << mBoundsNeedChecking << " in_bounds=" << mInBounds << " check_bounds=" << mCheckBounds << " clip_dirty=" << mClippingBoundsDirty << " update_transform=" << mUpdateTransform << std::endl;
 	// Transform
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
 	s << "STATE transform=";
 	write_matrix44f(mTransformation, s);
 	s << std::endl;
+	// Inv transform
+	for (size_t k=0; k<tab+2; ++k) s << "\t";
+	s << "STATE inv_tform=";
+	write_matrix44f(mInverseTransform, s);
+	s << std::endl;
 	// Global transform
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
 	s << "STATE global_tx=";
 	write_matrix44f(mGlobalTransform, s);
+	s << std::endl;
+	// Global inverse transform
+	for (size_t k=0; k<tab+2; ++k) s << "\t";
+	s << "STATE gl_inv_tx=";
+	write_matrix44f(mInverseGlobalTransform, s);
 	s << std::endl;
 }
 #endif
