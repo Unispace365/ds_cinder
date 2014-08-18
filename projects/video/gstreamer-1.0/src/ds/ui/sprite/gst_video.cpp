@@ -23,7 +23,7 @@ public:
 	Init() {
 		// Set the main gstreamer path. We're assuming it's in the standard location;
 		// if that ever changes, then load up a settings file here and get the path from that.
-		ds::Environment::addToEnvironmentVariable("PATH", "C:\\gstreamer\\1.0\\x86\\bin");
+		ds::Environment::addToFrontEnvironmentVariable("PATH", "C:\\gstreamer\\1.0\\x86\\bin");
 
 		// Add a startup object to set the plugin path. This is how we'd prefer to
 		// do both path setups, but we had to delay-load some DLLs for gstreamer,
