@@ -153,6 +153,9 @@ public:
 	// Utility to change touch mode
 	void								nextTouchMode();
 
+	// Debugging aid to write out the sprites
+	void								writeSprites(std::ostream&) const;
+
 protected:
 	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);
 

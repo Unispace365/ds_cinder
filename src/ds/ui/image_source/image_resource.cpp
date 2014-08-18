@@ -58,7 +58,7 @@ public:
 
 	virtual void							writeTo(DataBuffer& buf) const {
 		buf.add(RES_RES_ATT);
-		buf.add(mResource.getAbsoluteFilePath());
+		buf.add(mResource.getPortableFilePath());
 
 		buf.add(RES_FLAGS_ATT);
 		buf.add(mFlags);
@@ -105,8 +105,8 @@ void ImageResource::install(ds::ImageRegistry& registry) {
 ImageResource::ImageResource(const ds::Resource& res, const int flags)
 		: mResource(res)
 		, mFlags(flags) {
-			ImageMetaData md;
-			md.add(res.getAbsoluteFilePath(), ci::Vec2f(res.getWidth(), res.getHeight()));
+	ImageMetaData md;
+	md.add(res.getAbsoluteFilePath(), ci::Vec2f(res.getWidth(), res.getHeight()));
 
 }
 

@@ -61,6 +61,9 @@ public:
 		// database (which will always be in the resource path).
 		const std::string&	getResourcePath() const;
 		const std::string&	getDatabasePath() const;
+		// These are used when transporting a resource across a network.
+		// They can be resolved to correct paths with ds::Environment::expand()
+		const std::string&	getPortableResourcePath() const;
 
 		// Utility to report and log an error if I'm missing path information
 		bool				verifyPaths() const;
@@ -121,6 +124,9 @@ public:
 	int						getThumbnailId() const  { return mThumbnailId; }
     // Answer the full path to my file
     std::string				getAbsoluteFilePath() const;
+	// Answer an abstract file path that can be resolved to an absolute
+	// one via ds::Environment::expand().
+	std::string				getPortableFilePath() const;
 
     void					clear();
 	bool					empty() const;

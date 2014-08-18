@@ -1251,17 +1251,9 @@ void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 	}
 	if (mDirty.has(POSITION_DIRTY)) {
 		buf.add(POSITION_ATT);
-//		I'm sure there's a better way to do this, but I need to compensate
-//		for the fact that touching down on a sprite will set the center, which
-//		affects the position.
-//		buf.add(mPosition.x);
-//		buf.add(mPosition.y);
-//		buf.add(mPosition.z);
-		buildTransform();
-		auto v = this->mTransformation.getTranslate();
-		buf.add(v.x);
-		buf.add(v.y);
-		buf.add(v.z);
+		buf.add(mPosition.x);
+		buf.add(mPosition.y);
+		buf.add(mPosition.z);
 	}
 	if (mDirty.has(CENTER_DIRTY)) {
 		buf.add(CENTER_ATT);
@@ -1304,59 +1296,60 @@ void Sprite::readFrom(ds::BlobReader& blob)
   readAttributesFrom(buf);
 }
 
-void Sprite::readAttributesFrom(ds::DataBuffer& buf)
-{
-  char          id;
-  bool          transformChanged = false;
-  while (buf.canRead<char>() && (id=buf.read<char>()) != ds::TERMINATOR_CHAR) {
-    if (id == PARENT_ATT) {
-      const sprite_id_t     parentId = buf.read<sprite_id_t>();
-      Sprite*               parent = mEngine.findSprite(parentId);
-      if (parent) parent->addChild(*this);
-    } else if (id == SIZE_ATT) {
-      mWidth = buf.read<float>();
-      mHeight = buf.read<float>();
-      mDepth = buf.read<float>();
-    } else if (id == FLAGS_ATT) {
-      mSpriteFlags = buf.read<int>();
-    } else if (id == POSITION_ATT) {
-      mPosition.x = buf.read<float>();
-      mPosition.y = buf.read<float>();
-      mPosition.z = buf.read<float>();
-      transformChanged = true;
-    } else if (id == CENTER_ATT) {
-      mCenter.x = buf.read<float>();
-      mCenter.y = buf.read<float>();
-      mCenter.z = buf.read<float>();
-      transformChanged = true;
-    } else if (id == SCALE_ATT) {
-      mScale.x = buf.read<float>();
-      mScale.y = buf.read<float>();
-      mScale.z = buf.read<float>();
-      transformChanged = true;
-    } else if (id == COLOR_ATT) {
-      mColor.r = buf.read<float>();
-      mColor.g = buf.read<float>();
-      mColor.b = buf.read<float>();
-    } else if (id == OPACITY_ATT) {
-      mOpacity = buf.read<float>();
-    } else if (id == BLEND_ATT) {
-      mBlendMode = buf.read<BlendMode>();
-    } else if (id == CLIP_BOUNDS_ATT) {
-      float x1 = buf.read<float>();
-      float y1 = buf.read<float>();
-      float x2 = buf.read<float>();
-      float y2 = buf.read<float>();
-      mClippingBounds.set(x1, y1, x2, y2);
-      mClippingBoundsDirty = false;
-    } else {
-      readAttributeFrom(id, buf);
-    }
-  }
-  if (transformChanged) {
-    mUpdateTransform = true;
-    mBoundsNeedChecking = true;
-  }
+void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
+	char          id;
+	bool          transformChanged = false;
+	while (buf.canRead<char>() && (id=buf.read<char>()) != ds::TERMINATOR_CHAR) {
+		if (id == PARENT_ATT) {
+			const sprite_id_t     parentId = buf.read<sprite_id_t>();
+			Sprite*               parent = mEngine.findSprite(parentId);
+			if (parent) parent->addChild(*this);
+		} else if (id == SIZE_ATT) {
+			mWidth = buf.read<float>();
+			mHeight = buf.read<float>();
+			mDepth = buf.read<float>();
+			transformChanged = true;
+		} else if (id == FLAGS_ATT) {
+			mSpriteFlags = buf.read<int>();
+		} else if (id == POSITION_ATT) {
+			mPosition.x = buf.read<float>();
+			mPosition.y = buf.read<float>();
+			mPosition.z = buf.read<float>();
+			transformChanged = true;
+		} else if (id == CENTER_ATT) {
+			mCenter.x = buf.read<float>();
+			mCenter.y = buf.read<float>();
+			mCenter.z = buf.read<float>();
+			transformChanged = true;
+		} else if (id == SCALE_ATT) {
+			mScale.x = buf.read<float>();
+			mScale.y = buf.read<float>();
+			mScale.z = buf.read<float>();
+			transformChanged = true;
+		} else if (id == COLOR_ATT) {
+			mColor.r = buf.read<float>();
+			mColor.g = buf.read<float>();
+			mColor.b = buf.read<float>();
+		} else if (id == OPACITY_ATT) {
+			mOpacity = buf.read<float>();
+		} else if (id == BLEND_ATT) {
+			mBlendMode = buf.read<BlendMode>();
+		} else if (id == CLIP_BOUNDS_ATT) {
+			float x1 = buf.read<float>();
+			float y1 = buf.read<float>();
+			float x2 = buf.read<float>();
+			float y2 = buf.read<float>();
+			mClippingBounds.set(x1, y1, x2, y2);
+			markClippingDirty();
+		} else {
+			readAttributeFrom(id, buf);
+		}
+	}
+	if (transformChanged) {
+		mUpdateTransform = true;
+		mBoundsNeedChecking = true;
+		dimensionalStateChanged();
+	}
 }
 
 void Sprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
@@ -1724,7 +1717,56 @@ float Sprite::getCornerRadius() const{
 	return mCornerRadius;
 }
 
+#ifdef _DEBUG
+void Sprite::write(std::ostream &s, const size_t tab) const {
+	writeState(s, tab);
+	for (auto it=mChildren.begin(), end=mChildren.end(); it!=end; ++it) {
+		Sprite*		child(*it);
+		if (child) child->write(s, tab + 1);
+	}
+}
 
+namespace {
+
+void			write_matrix44f(const ci::Matrix44f &m, std::ostream &s) {
+	for (int k=0; k<4; ++k) {
+		auto row = m.getRow(k);
+		if (k > 0) s << ", ";
+		s << row;
+	}
+}
+
+}
+
+void Sprite::writeState(std::ostream &s, const size_t tab) const {
+	for (size_t k=0; k<tab; ++k) s << "\t";
+	s << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=[" << mWidth << "x" << mHeight << "x" << mDepth << "] scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << " clip=" << mClippingBounds << std::endl;
+	for (size_t k=0; k<tab+2; ++k) s << "\t";
+	s << "STATE opacity=" << mOpacity << " z_level=" << mZLevel << " use_shader=" << mUseShaderTexture << " use_depthbuffer=" << mUseDepthBuffer << " last_w=" << mLastWidth << " last_h=" << mLastHeight << std::endl;
+	for (size_t k=0; k<tab+2; ++k) s << "\t";
+	s << "STATE need_bounds_check=" << mBoundsNeedChecking << " in_bounds=" << mInBounds << " check_bounds=" << mCheckBounds << " clip_dirty=" << mClippingBoundsDirty << " update_transform=" << mUpdateTransform << std::endl;
+	// Transform
+	for (size_t k=0; k<tab+2; ++k) s << "\t";
+	s << "STATE transform=";
+	write_matrix44f(mTransformation, s);
+	s << std::endl;
+	// Inv transform
+	for (size_t k=0; k<tab+2; ++k) s << "\t";
+	s << "STATE inv_tform=";
+	write_matrix44f(mInverseTransform, s);
+	s << std::endl;
+	// Global transform
+	for (size_t k=0; k<tab+2; ++k) s << "\t";
+	s << "STATE global_tx=";
+	write_matrix44f(mGlobalTransform, s);
+	s << std::endl;
+	// Global inverse transform
+	for (size_t k=0; k<tab+2; ++k) s << "\t";
+	s << "STATE gl_inv_tx=";
+	write_matrix44f(mInverseGlobalTransform, s);
+	s << std::endl;
+}
+#endif
 
 /**
  * \class ds::ui::Sprite::LockScale
