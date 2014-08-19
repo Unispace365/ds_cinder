@@ -9,13 +9,15 @@ class b2World;
 namespace ds {
 namespace physics {
 
+class World;
+
 /**
  * \class ds::physics::DebugDraw
  */
 class DebugDraw : public b2Draw
 				, public ds::AutoDraw {
 public:
-	DebugDraw(ds::ui::SpriteEngine&, b2World&);
+	DebugDraw(ds::ui::SpriteEngine&, b2World&, ds::physics::World &);
 
 	virtual void		DrawPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color);
 	virtual void		DrawSolidPolygon(const b2Vec2* vertices, int32 vertexCount, const b2Color& color);
@@ -28,7 +30,8 @@ protected:
 	virtual void		drawClient(const ci::Matrix44f&, const DrawParams&);
 
 private:
-	b2World&			mWorld;
+	ds::physics::World	&mPhysicsWorld;
+	b2World				&mB2World;
 };
 
 } // namespace physics
