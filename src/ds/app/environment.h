@@ -38,10 +38,13 @@ public:
 	// Convenience to load in a settings file, first from the app path, then the local path
 	static void					loadSettings(const std::string& filename, ds::cfg::Settings&);
 		
-	// Utility to add a value to an environment variable. Probably this is a bad place
-	// for this, and it should be hidden in the app.
+	// Utility to add a value to an environment variable. 
+	// This adds the value to the end of any existing value
 	static void					addToEnvironmentVariable(const std::string& variable, const std::string& value);
 
+	// Utility to add a value to an environment variable. 
+	// This adds the value to the beginning of any existing value
+	static void					addToFrontEnvironmentVariable(const std::string& variable, const std::string& value);
 
 	// DEPRECATED
 	static const std::string&	SETTINGS();

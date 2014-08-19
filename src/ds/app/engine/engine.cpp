@@ -784,8 +784,22 @@ const ci::Rectf& Engine::getScreenRect() const {
 	return mData.mScreenRect;
 }
 
+void Engine::translateTouchPoint(ci::Vec2f& inOutPoint) {
+	inOutPoint = mTouchTranslator.toWorldf(inOutPoint.x, inOutPoint.y);
+};
+
 void Engine::nextTouchMode() {
 	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
+}
+
+void Engine::writeSprites(std::ostream &s) const {
+#ifdef _DEBUG
+	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		EngineRoot*		er(it->get());
+		ds::ui::Sprite*	sprite(er ? er->getSprite() : nullptr);
+		if (sprite) sprite->write(s, 0);
+	}
+#endif
 }
 
 bool Engine::isIdling() const {

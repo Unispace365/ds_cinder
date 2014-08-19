@@ -145,13 +145,16 @@ public:
 	void								setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 	ds::ui::Sprite*						getSpriteForFinger( const int fingerId ){ return mTouchManager.getSpriteForFinger(fingerId); }
 	// translate a touch event point to the overlay bounds specified in the settings
-	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint ){ mTouchManager.overrideTouchTranslation(inOutPoint); };
+	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint );
 	virtual bool						shouldDiscardTouch( ci::Vec2f& p ){ return mTouchManager.shouldDiscardTouch(p); }
 
 	// Root support
 	const ci::Rectf&					getScreenRect() const;
 	// Utility to change touch mode
 	void								nextTouchMode();
+
+	// Debugging aid to write out the sprites
+	void								writeSprites(std::ostream&) const;
 
 protected:
 	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);

@@ -2,10 +2,12 @@
 
 #include <iostream>
 #include <sstream>
+#include <boost/algorithm/string.hpp>
 #include <Poco/Path.h>
 #include "ds/app/environment.h"
 #include "ds/data/data_buffer.h"
 #include "ds/debug/debug_defines.h"
+#include "ds/debug/logger.h"
 #include "ds/query/query_client.h"
 #include "ds/util/image_meta_data.h"
 
@@ -168,6 +170,7 @@ bool Resource::Id::readFrom(DataBuffer& buf)
  */
 namespace {
 std::string				CMS_RESOURCE_PATH("");
+std::string				CMS_PORTABLE_RESOURCE_PATH("");
 std::string				CMS_DB_PATH("");
 std::string				APP_RESOURCE_PATH("");
 std::string				APP_DB_PATH("");
@@ -195,6 +198,11 @@ const std::string& Resource::Id::getDatabasePath() const
 	return EMPTY_PATH;
 }
 
+const std::string& Resource::Id::getPortableResourcePath() const {
+	if (mType == CMS_TYPE)		return CMS_PORTABLE_RESOURCE_PATH;
+	return EMPTY_PATH;
+}
+
 void Resource::Id::setupPaths(const std::string& resource, const std::string& db,
                               const std::string& projectPath)
 {
@@ -203,6 +211,14 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 		Poco::Path      p(resource);
 		p.append(db);
 		CMS_DB_PATH = p.toString();
+	}
+
+	// Portable path
+	std::string			local = ds::Environment::expand("%LOCAL%");
+	if (boost::starts_with(resource, local)) {
+		CMS_PORTABLE_RESOURCE_PATH = "%LOCAL%" + resource.substr(local.size());
+	} else {
+		DS_LOG_ERROR("CMS resource path (" << CMS_RESOURCE_PATH << ") does not start with %LOCAL% (" << local << ")");
 	}
 
 	// If the project path exists, then setup our app-local resources path.
@@ -306,6 +322,17 @@ std::string Resource::getAbsoluteFilePath() const {
 	if (mFileName.empty()) return EMPTY_SZ;
 	if (mType == WEB_TYPE) return mFileName;
 	Poco::Path        p(mDbId.getResourcePath());
+	if (p.depth() < 1) return EMPTY_SZ;
+	p.append(mPath).append(mFileName);
+	return p.toString();
+}
+
+std::string Resource::getPortableFilePath() const {
+	if (!mDebugFileName.empty()) return mDebugFileName;
+
+	if (mFileName.empty()) return EMPTY_SZ;
+	if (mType == WEB_TYPE) return mFileName;
+	Poco::Path        p(mDbId.getPortableResourcePath());
 	if (p.depth() < 1) return EMPTY_SZ;
 	p.append(mPath).append(mFileName);
 	return p.toString();

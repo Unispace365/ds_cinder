@@ -18,7 +18,8 @@ namespace ui {
 class NinePatch : public Sprite
 				, public ImageOwner {
 public:
-	static NinePatch&					makeNinePatch(SpriteEngine&, Sprite* parent = nullptr);
+	static NinePatch&					makeNinePatch(SpriteEngine&, Sprite *parent = nullptr);
+	static NinePatch&					makeNinePatch(SpriteEngine&, const std::string &file, Sprite *parent = nullptr);
 	NinePatch(SpriteEngine&);
 
 	virtual void						updateServer(const UpdateParams&);

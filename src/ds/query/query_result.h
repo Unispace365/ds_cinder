@@ -54,12 +54,15 @@ public:
 	private:
 		friend class ds::query::Result;
 		RowIterator();
+		RowIterator(const Result&, const std::unique_ptr<Row>&);
 		void							operator++(int);
 		RowIterator&					operator=(const RowIterator&);
 
 		const Result&					mResult;
 		std::vector<std::unique_ptr<Row>>::const_iterator
 										mRowIt;
+		// A utility -- directly override my current item. Can't increment
+		Row*							mOverride;
 	};
 
 public:
@@ -103,6 +106,7 @@ public:
 	void					swap(Result&);
 	// Sort by specific columns
 	void					sortByString(const int columnIndex, const std::function<bool(const std::string& a, const std::string& b)>&);
+	void					sort_if(const std::function<bool(const RowIterator& a, const RowIterator& b)>&);
 
 private:
 	// Convenience to add a new row at the end, throwing if I fail

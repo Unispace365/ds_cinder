@@ -50,6 +50,14 @@ NinePatch& NinePatch::makeNinePatch(SpriteEngine& e, Sprite* parent) {
 	return makeAlloc<ds::ui::NinePatch>([&e]()->ds::ui::NinePatch*{ return new ds::ui::NinePatch(e); }, parent);
 }
 
+NinePatch& NinePatch::makeNinePatch(SpriteEngine& e, const std::string &file, Sprite *parent) {
+	return makeAlloc<ds::ui::NinePatch>([&e, &file]()->ds::ui::NinePatch*{
+			ds::ui::NinePatch*	s = new ds::ui::NinePatch(e);
+			if (s) s->setImageFile(file);
+			return s;
+		}, parent);
+}
+
 NinePatch::NinePatch(SpriteEngine& engine)
 		: inherited(engine)
 		, ImageOwner(engine)
