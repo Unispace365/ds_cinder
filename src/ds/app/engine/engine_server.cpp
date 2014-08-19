@@ -2,6 +2,7 @@
 
 #include "ds/app/app.h"
 #include "ds/app/blob_reader.h"
+#include <ds/app/engine/engine_io_defs.h>
 #include "ds/debug/logger.h"
 #include "snappy.h"
 #include "ds/util/string_util.h"
@@ -29,8 +30,8 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Setting
 {
 	// NOTE:  Must be EXACTLY the same items as in EngineClient, in same order,
 	// so that the BLOB ids match.
-	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
-	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
+	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});
+	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveCommand(r.mDataBuffer);});
 
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
@@ -90,12 +91,26 @@ void AbstractEngineServer::receiveHeader(ds::DataBuffer& data) {
 	}
 }
 
-void AbstractEngineServer::receiveCommand(ds::DataBuffer& data) {
+void AbstractEngineServer::receiveCommand(ds::DataBuffer &data) {
 	char            cmd;
 	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
 		if (cmd == CMD_CLIENT_REQUEST_WORLD) {
 			setState(mSendWorldState);
+		} else if (cmd == CMD_CLIENT_STARTED) {
+			onClientStartedCommand(data);
 		}
+	}
+}
+
+void AbstractEngineServer::onClientStartedCommand(ds::DataBuffer &data) {
+	if (!data.canRead<char>()) return;
+	char				att = data.read<char>();
+	if (att != ATT_GLOBAL_ID) return;
+	const std::string	guid = data.read<std::string>();
+	const int32_t		sessionid = mClients.startClient(guid);
+	if (sessionid > 0) {
+		mClientStartedReplyState.mClients.push_back(sessionid);
+		setState(mClientStartedReplyState);
 	}
 }
 
@@ -129,6 +144,7 @@ EngineServer::RunningState::RunningState()
 }
 
 void EngineServer::RunningState::begin(AbstractEngineServer&) {
+	DS_LOG_INFO_M("RunningState", ds::IO_LOG);
 	mFrame = 0;
 }
 
@@ -152,9 +168,56 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 }
 
 /**
+ * EngineServer::ClientStartedReplyState
+ */
+EngineServer::ClientStartedReplyState::ClientStartedReplyState() {
+	mClients.reserve(8);
+}
+
+void EngineServer::ClientStartedReplyState::clear() {
+	mClients.clear();
+}
+
+void EngineServer::ClientStartedReplyState::begin(AbstractEngineServer&) {
+	DS_LOG_INFO_M("ClientStartedReplyState", ds::IO_LOG);
+}
+
+void EngineServer::ClientStartedReplyState::update(AbstractEngineServer& engine) {
+	{
+		EngineSender::AutoSend  send(engine.mSender);
+		DS_LOG_INFO_M("Send ClientStartedReply " << std::time(0), ds::IO_LOG);
+		// Always send the header
+		addHeader(send.mData, -1);
+		send.mData.add(COMMAND_BLOB);
+		send.mData.add(CMD_CLIENT_STARTED_REPLY);
+		// Send each client
+		for (auto it=mClients.begin(), end=mClients.end(); it!=end; ++it) {
+			const EngineClientList::State*	s(engine.mClients.findClient(*it));
+			if (s) {
+				send.mData.add(ATT_CLIENT);
+				send.mData.add(ATT_GLOBAL_ID);
+				send.mData.add(s->mGuid);
+				send.mData.add(ATT_SESSION_ID);
+				send.mData.add(s->mSessionId);
+				send.mData.add(ds::TERMINATOR_CHAR);
+			}
+		}
+
+		send.mData.add(ds::TERMINATOR_CHAR);
+	}
+
+	clear();
+	engine.setState(engine.mSendWorldState);
+}
+
+/**
  * EngineServer::SendWorldState
  */
 EngineServer::SendWorldState::SendWorldState() {
+}
+
+void EngineServer::SendWorldState::begin(AbstractEngineServer&) {
+	DS_LOG_INFO_M("SendWorldState", ds::IO_LOG);
 }
 
 void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {

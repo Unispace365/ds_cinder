@@ -612,6 +612,12 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_translator.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_io_defs.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_client_list.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1027,6 +1033,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_translator.cpp">
       <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_io_defs.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_client_list.cpp">
+      <Filter>src\ds\app\engine</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

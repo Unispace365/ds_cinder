@@ -1,5 +1,12 @@
+// Turn off an unnecessary warning in the boost GUID
+#define _SCL_SECURE_NO_WARNINGS
+
 #include "ds/app/engine/engine_client.h"
 
+#include <boost/uuid/uuid.hpp>
+#include <boost/uuid/uuid_generators.hpp>
+#include <boost/uuid/uuid_io.hpp>
+#include <ds/app/engine/engine_io_defs.h>
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/ui/sprite/image.h"
@@ -25,11 +32,17 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 		, mSender(mSendConnection)
 		, mReceiver(mReceiveConnection)
 		, mBlobReader(mReceiver.getData(), *this)
+		, mSessionId(0)
 		, mState(nullptr) {
 	// NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
 	// so that the BLOB ids match.
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
 	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
+	mReceiver.setHeaderAndCommandIds(HEADER_BLOB, COMMAND_BLOB);
+	boost::uuids::uuid		uuid = boost::uuids::random_generator()();
+	std::stringstream		buf;
+	buf << uuid;
+	mGlobalId = buf.str();
 
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
@@ -40,7 +53,7 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 		DS_LOG_ERROR_M("EngineClient::EngineClient() initializing UDP: " << e.what(), ds::ENGINE_LOG);
 	}
 
-	setState(mBlankState);
+	setState(mClientStartedState);
 }
 
 EngineClient::~EngineClient() {
@@ -73,6 +86,7 @@ void EngineClient::update() {
 	mRenderTextService.update();
 
 	// Every update, receive data
+	mReceiver.setHeaderAndCommandOnly(mState->getHeaderAndCommandOnly());
 	if (!mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader)) {
 		// If I didn't receive any data, then don't send any data. This is
 		// pretty important -- 0MQ will buffer sent commands if there's
@@ -122,9 +136,40 @@ void EngineClient::receiveCommand(ds::DataBuffer& data) {
 	char            cmd;
 	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
 		if (cmd == CMD_SERVER_SEND_WORLD) {
-			DS_DBG_CODE(std::cout << "receive world" << std::endl);
+			DS_LOG_INFO_M("Receive world, sessionid=" << mSessionId, ds::IO_LOG);
 			clearAllSprites();
-			setState(mRunningState);
+			if (mSessionId < 1) {
+				setState(mClientStartedState);
+			} else {
+				setState(mRunningState);
+			}
+		} else if (cmd == CMD_CLIENT_STARTED_REPLY) {
+			DS_LOG_INFO_M("Receive ClientStartedReply", ds::IO_LOG);
+			onClientStartedReplyCommand(data);
+		}
+	}
+}
+
+void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
+	clearAllSprites();
+	
+	char					cmd;
+	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
+		if (cmd == ATT_CLIENT) {
+			char			att;
+			std::string		guid;
+			int32_t			sessionid(0);
+			while (data.canRead<char>() && (att=data.read<char>()) != ds::TERMINATOR_CHAR) {
+				if (att == ATT_GLOBAL_ID) {
+					guid = data.read<std::string>();
+				} else if (att == ATT_SESSION_ID) {
+					sessionid = data.read<int32_t>();
+				}
+			}
+			if (guid == mGlobalId) {
+				mSessionId = sessionid;
+				setState(mBlankState);
+			}
 		}
 	}
 }
@@ -151,7 +196,38 @@ void EngineClient::State::begin(EngineClient&) {
 EngineClient::RunningState::RunningState() {
 }
 
+void EngineClient::RunningState::begin(EngineClient&) {
+	DS_LOG_INFO_M("RunningState", ds::IO_LOG);
+}
+
 void EngineClient::RunningState::update(EngineClient& engine) {
+}
+
+/**
+ * EngineClient::ClientStartedState
+ */
+EngineClient::ClientStartedState::ClientStartedState()
+		: mSendFrame(0) {
+}
+
+void EngineClient::ClientStartedState::begin(EngineClient&) {
+	DS_LOG_INFO_M("ClientStartedState", ds::IO_LOG);
+	mSendFrame = 0;
+}
+
+void EngineClient::ClientStartedState::update(EngineClient& engine) {
+	if (mSendFrame <= 0) {
+		EngineSender::AutoSend  send(engine.mSender);
+		ds::DataBuffer&   buf = send.mData;
+		buf.add(COMMAND_BLOB);
+		buf.add(CMD_CLIENT_STARTED);
+		buf.add(ATT_GLOBAL_ID);
+		buf.add(engine.mGlobalId);
+		buf.add(ds::TERMINATOR_CHAR);
+
+		mSendFrame = 10;
+	}
+	--mSendFrame;
 }
 
 /**
@@ -162,6 +238,7 @@ EngineClient::BlankState::BlankState()
 }
 
 void EngineClient::BlankState::begin(EngineClient&) {
+	DS_LOG_INFO_M("BlankState", ds::IO_LOG);
 	mSendFrame = 0;
 }
 
@@ -179,3 +256,5 @@ void EngineClient::BlankState::update(EngineClient& engine) {
 }
 
 } // namespace ds
+
+//#pragma warning(pop)

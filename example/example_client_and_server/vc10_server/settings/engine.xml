@@ -8,11 +8,11 @@
 	<int name="server:send_port" value="5000" />
 	<int name="server:listen_port" value="5001" />
 
-	<size name="world_dimensions" x="960" y="540" />
-	<rect name="local_rect" l="0" r="960" t="0" b="540" />
-    <point name="window_pos" x="960" y="0" />
+	<size name="world_dimensions" x="400" y="400" />
+	<rect name="src_rect" l="0" r="400" t="0" b="400" />
+	<rect name="dst_rect" l="0" r="400" t="0" b="400" />
 
-	<size name="touch_overlay:dimensions" x="960" y="540" />
+	<size name="touch_overlay:dimensions" x="400" y="400" />
 	<size name="touch_overlay:offset" x="0" y="0" />
 	<text name="touch_overlay:debug" value="true" />
 

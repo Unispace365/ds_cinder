@@ -4,6 +4,7 @@
 
 #include "ds/app/blob_reader.h"
 #include "ds/app/engine/engine.h"
+#include "ds/app/engine/engine_client_list.h"
 #include "ds/app/engine/engine_io.h"
 #include "ds/network/udp_connection.h"
 #include "ds/thread/gl_thread.h"
@@ -41,9 +42,11 @@ public:
 private:
 	void							receiveHeader(ds::DataBuffer&);
 	void							receiveCommand(ds::DataBuffer&);
+	void							onClientStartedCommand(ds::DataBuffer&);
 
 	typedef Engine inherited;
 	WorkManager						mWorkManager;
+	EngineClientList				mClients;
 
 //    ds::ZmqConnection             mConnection;
 	ds::UdpConnection				mSendConnection;
@@ -75,6 +78,17 @@ private:
 		int							mFrame;
 	};
 
+	/* This state is used to send a client started reply.
+	 */
+	class ClientStartedReplyState : public State {
+	public:
+		ClientStartedReplyState();
+		void						clear();
+		virtual void				begin(AbstractEngineServer&);
+		virtual void				update(AbstractEngineServer&);
+		std::vector<int32_t>		mClients;
+	};
+
 	/* This state is used to send the entire world info. It is the initial default
 	 * state, and becomes the active state whenever a client requests the world.
 	 * It sends out the world once, then moves to the running state.
@@ -82,11 +96,13 @@ private:
 	class SendWorldState : public State {
 	public:
 		SendWorldState();
+		virtual void				begin(AbstractEngineServer&);
 		virtual void				update(AbstractEngineServer&);
 	};
 
 	State*							mState;
 	RunningState					mRunningState;
+	ClientStartedReplyState			mClientStartedReplyState;
 	SendWorldState					mSendWorldState;
 
 	void							setState(State&);
