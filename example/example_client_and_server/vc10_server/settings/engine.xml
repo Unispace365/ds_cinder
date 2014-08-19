@@ -1,5 +1,5 @@
 <settings>
-	<text name="platform:architecture" value="server" />
+	<text name="platform:architecture" value="clientserver" />
 	<text name="project_path" value="dscinder_example\clientserver_s" />
  	<int name="num_clients" value="1" />
 

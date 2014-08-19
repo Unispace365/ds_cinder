@@ -4,8 +4,8 @@
 
 #include <ds/app/app.h>
 #include <ds/app/environment.h>
+#include <ds/cfg/settings.h>
 #include <ds/data/resource_list.h>
-#include <ds/config/settings.h>
 #include <ds/ui/touch/touch_info.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/multiline_text.h>
