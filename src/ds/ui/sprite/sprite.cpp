@@ -925,23 +925,30 @@ void Sprite::setProcessTouchCallback( const std::function<void (Sprite *, const 
   mProcessTouchInfoCallback = func;
 }
 
-void Sprite::processTouchInfo( const TouchInfo &touchInfo )
-{
-  mTouchProcess.processTouchInfo(touchInfo);
+void Sprite::processTouchInfo(const TouchInfo &touchInfo) {
+	mTouchProcess.processTouchInfo(touchInfo);
 }
 
-void Sprite::move( const ci::Vec3f &delta )
-{
-  mPosition += delta;
-  mUpdateTransform = true;
-  mBoundsNeedChecking = true;
+void Sprite::move(const ci::Vec3f &delta) {
+	mPosition += delta;
+	mUpdateTransform = true;
+	mBoundsNeedChecking = true;
+	// XXX This REALLY should be going through doSetPosition().
+	// Don't know what the original thought was, but now I'm
+	// nrevous to hook that up.
+	markAsDirty(POSITION_DIRTY);
+	dimensionalStateChanged();
 }
 
-void Sprite::move( float deltaX, float deltaY, float deltaZ )
-{
-  mPosition += ci::Vec3f(deltaX, deltaY, deltaZ);
-  mUpdateTransform = true;
-  mBoundsNeedChecking = true;
+void Sprite::move( float deltaX, float deltaY, float deltaZ ) {
+	mPosition += ci::Vec3f(deltaX, deltaY, deltaZ);
+	mUpdateTransform = true;
+	mBoundsNeedChecking = true;
+	// XXX This REALLY should be going through doSetPosition().
+	// Don't know what the original thought was, but now I'm
+	// nrevous to hook that up.
+	markAsDirty(POSITION_DIRTY);
+	dimensionalStateChanged();
 }
 
 bool Sprite::multiTouchEnabled() const {

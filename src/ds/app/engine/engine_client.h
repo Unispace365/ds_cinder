@@ -41,6 +41,7 @@ public:
 private:
 	void							receiveHeader(ds::DataBuffer&);
 	void							receiveCommand(ds::DataBuffer&);
+	void							onClientStartedReplyCommand(ds::DataBuffer&);
 
 	typedef Engine inherited;
 	WorkManager						mWorkManager;
@@ -55,11 +56,16 @@ private:
 	EngineSender					mSender;
 	EngineReceiver					mReceiver;
 	ds::BlobReader					mBlobReader;
+	// Clients create a GUID on startup, which gets converted to a
+	// much shorter sessionID by the server.
+	std::string						mGlobalId;
+	int32_t							mSessionId;
 
     // STATES
 	class State {
 	public:
 		State();
+		virtual bool				getHeaderAndCommandOnly() const = 0;
 		virtual void				begin(EngineClient&);
 		virtual void				update(EngineClient&) = 0;
 	};
@@ -67,13 +73,31 @@ private:
 	class RunningState : public State {
 	public:
 		RunningState();
+		virtual bool				getHeaderAndCommandOnly() const { return false; }
+		virtual void				begin(EngineClient&);
 		virtual void				update(EngineClient&);
+	};
+
+	// I have just started, and am sending the server the
+	// CMD_CLIENT_STARTED command. I will wait here until
+	// I receive CMD_CLIENT_STARTED_REPLY.
+	class ClientStartedState : public State {
+	public:
+		ClientStartedState();
+		virtual bool				getHeaderAndCommandOnly() const { return true; }
+		virtual void				begin(EngineClient&);
+		virtual void				update(EngineClient&);
+
+	private:
+		// Avoid flooding the server with requests for the world.
+		int							mSendFrame;
 	};
 
 	// I have no data, and am waiting for a complete refresh
 	class BlankState : public State {
 	public:
 		BlankState();
+		virtual bool				getHeaderAndCommandOnly() const { return false; }
 		virtual void				begin(EngineClient&);
 		virtual void				update(EngineClient&);
 
@@ -83,6 +107,7 @@ private:
 	};
 
 	State*							mState;
+	ClientStartedState				mClientStartedState;
 	RunningState					mRunningState;
 	BlankState						mBlankState;
 

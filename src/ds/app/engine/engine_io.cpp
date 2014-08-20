@@ -41,40 +41,53 @@ EngineSender::AutoSend::~AutoSend() {
  * \class ds::EngineReceiver
  */
 EngineReceiver::EngineReceiver(ds::NetConnection& con)
-    : mConnection(con)
-{
+		: mConnection(con)
+		, mHeaderId(0)
+		, mCommandId(0)
+		, mHeaderAndCommandOnly(false) {
+	setHeaderAndCommandOnly();
 }
 
-ds::DataBuffer& EngineReceiver::getData()
-{
-  return mReceiveBuffer;
+void EngineReceiver::setHeaderAndCommandIds(const char header, const char command) {
+	mHeaderId = header;
+	mCommandId = command;
 }
 
-bool EngineReceiver::receiveAndHandle(ds::BlobRegistry& registry, ds::BlobReader& reader)
-{
-  EngineReceiver::AutoReceive   receive(*this);
-  if (mReceiveBuffer.size() < 1) return false;
+void EngineReceiver::setHeaderAndCommandOnly(const bool b) {
+	mHeaderAndCommandOnly = b;
+}
 
-  const int receiveSize = mReceiveBuffer.size();
-  const char                    size = static_cast<char>(registry.mReader.size());
-  while (receive.mData.canRead<char>()) {
-    const char  token = receive.mData.read<char>();
-    if (token > 0 && token < size) registry.mReader[token](reader);
-  }
-  return true;
+ds::DataBuffer& EngineReceiver::getData() {
+	return mReceiveBuffer;
+}
+
+bool EngineReceiver::receiveAndHandle(ds::BlobRegistry& registry, ds::BlobReader& reader) {
+	EngineReceiver::AutoReceive   receive(*this);
+	if (mReceiveBuffer.size() < 1) return false;
+
+	const int receiveSize = mReceiveBuffer.size();
+	const char                    size = static_cast<char>(registry.mReader.size());
+	while (receive.mData.canRead<char>()) {
+		const char  token = receive.mData.read<char>();
+		if (token > 0 && token < size) {
+			if (!mHeaderAndCommandOnly || (token == mHeaderId || token == mCommandId)) {
+				registry.mReader[token](reader);
+			}
+		}
+	}
+	return true;
 }
 
 /**
  * \class ds::EngineReceiver::AutoReceive
  */
 EngineReceiver::AutoReceive::AutoReceive(EngineReceiver& receiver)
-  : mData(receiver.mReceiveBuffer)
-{
-  mData.clear();
-  if (receiver.mConnection.recvMessage(receiver.mCompressionBufferWrite)) {
-    snappy::Uncompress(receiver.mCompressionBufferWrite.c_str(), receiver.mCompressionBufferWrite.size(), &receiver.mCompressionBufferRead);
-    mData.addRaw(receiver.mCompressionBufferRead.c_str(), receiver.mCompressionBufferRead.size());
-  }
+		: mData(receiver.mReceiveBuffer) {
+	mData.clear();
+	if (receiver.mConnection.recvMessage(receiver.mCompressionBufferWrite)) {
+		snappy::Uncompress(receiver.mCompressionBufferWrite.c_str(), receiver.mCompressionBufferWrite.size(), &receiver.mCompressionBufferRead);
+		mData.addRaw(receiver.mCompressionBufferRead.c_str(), receiver.mCompressionBufferRead.size());
+	}
 }
 
 } // namespace ds

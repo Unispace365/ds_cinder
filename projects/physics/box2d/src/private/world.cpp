@@ -95,7 +95,7 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& s)
 	}
 
 	if (mSettings.getBool("draw_debug", 0, false)) {
-		mDebugDraw.reset(new DebugDraw(e, *(mWorld.get())));
+		mDebugDraw.reset(new DebugDraw(e, *(mWorld.get()), *this));
 	}
 }
 
