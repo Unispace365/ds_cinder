@@ -8,12 +8,18 @@ Installation
 ------------
 This version of DS Cinder requires **Visual Studio 2010 + SP1 installed.**
 
- -  You'll need **three** environment variables set:
-   - `CINDER` should point to the current cinder dist (cinder_0.8.4_vc2010
-   as of this writing)
-   - `DS_PLATFORM` should point to this repository.
-   - `QUICKTIME` should point to quicktime dist (QuickTimeSDK-7.3 or
-   whatever version is needed)
+ -  You'll need **two** environment variables set:
+   - `CINDER` should point to the current cinder dist ([Version 0.8.4 for VC 2010](http://libcinder.org/releases/cinder_0.8.4_vc2010.zip) as of this writing). e.g:
+
+     ```Batchfile
+     setx CINDER %USERPROFILE%\code\cinder_0.8.4_vc2010
+     ```
+
+   - `DS_PLATFORM` should point to this repository. e.g:
+
+     ```Batchfile
+     setx DS_PLATFORM %USERPROFILE%\code\ds_cinder
+     ```
 
  -  You should currently start by copying the example/starter as the basis for your new app.  If you do this, everything will be setup correctly and ready to go.  You can stop reading right here! **(if you DON'T do this step and copy the starter project, then you will need to manually set up the new solution yourself.)**
 
