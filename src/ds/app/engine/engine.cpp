@@ -759,6 +759,12 @@ ds::FontList& Engine::editFonts() {
 }
 
 void Engine::stopServices() {
+	if (mData.mServices.empty()) return;
+
+	for (auto it=mData.mServices.begin(), end=mData.mServices.end(); it!=end; ++it) {
+		ds::EngineService*	s = it->second;
+		if (s) s->stop();
+	}
 }
 
 bool Engine::hideMouse() const {

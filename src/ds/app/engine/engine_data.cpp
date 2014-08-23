@@ -18,8 +18,7 @@ EngineData::EngineData(const ds::cfg::Settings& engine_settings)
 {
 }
 
-void EngineData::clearServices()
-{
+void EngineData::clearServices() {
 	if (mServices.empty()) return;
 
 	for (auto it=mServices.begin(), end=mServices.end(); it!=end; ++it) {

@@ -12,6 +12,7 @@ class EngineService {
 public:
 	virtual ~EngineService()				{ }
 	virtual void				start()		{ }
+	virtual void				stop()		{ }
 
 protected:
 	EngineService()							{ }
