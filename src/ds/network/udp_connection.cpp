@@ -48,6 +48,8 @@ bool UdpConnection::initialize( bool server, const std::string &ip, const std::s
     throw BadIpException(ip);
 
   mServer = server;
+  mIp = ip;
+  mPort = portSz;
   try
   {
     unsigned short        port;
@@ -104,6 +106,13 @@ void UdpConnection::close()
     std::cout << e.what() << std::endl;
   }
 }
+
+void UdpConnection::renew() {
+	const bool		server = mServer;
+	close();
+	initialize(server, mIp, mPort);
+}
+
 
 bool UdpConnection::sendMessage( const std::string &data )
 {

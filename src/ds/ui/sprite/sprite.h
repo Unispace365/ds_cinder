@@ -293,6 +293,10 @@ public:
 	 */
 	void					passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
 
+	// A hack needed by the engine, which constructs root types
+	// before the blobs are assigned
+	void					postAppSetup();
+
 protected:
 	friend class        TouchManager;
 	friend class        TouchProcess;

@@ -580,6 +580,7 @@ void Engine::setup(ds::App&) {
 	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / getWindowWidth(), mData.mSrcRect.getHeight() / getWindowHeight());
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
+		(*it)->postAppSetup();
 		(*it)->setCinderCamera();
 	}
 #if 0

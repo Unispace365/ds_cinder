@@ -38,6 +38,9 @@ public:
 	virtual void					stopServices();
 	virtual int						getMode() const { return CLIENT_MODE; }
 
+	// The most recent frame received from the server.
+	int32_t							mServerFrame;
+
 private:
 	void							receiveHeader(ds::DataBuffer&);
 	void							receiveCommand(ds::DataBuffer&);
@@ -60,6 +63,9 @@ private:
 	// much shorter sessionID by the server.
 	std::string						mGlobalId;
 	int32_t							mSessionId;
+	// True if I lost the connection, renewed it, and am
+	// waiting to hear back.
+	bool							mConnectionRenewed;
 
     // STATES
 	class State {
@@ -97,7 +103,7 @@ private:
 	class BlankState : public State {
 	public:
 		BlankState();
-		virtual bool				getHeaderAndCommandOnly() const { return false; }
+		virtual bool				getHeaderAndCommandOnly() const { return true; }
 		virtual void				begin(EngineClient&);
 		virtual void				update(EngineClient&);
 

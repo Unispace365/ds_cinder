@@ -60,6 +60,8 @@ public:
 	// Convenience for clients with a blob reader, automatically
 	// receive and handle the data. Answer true if there was data.
 	bool						receiveAndHandle(ds::BlobRegistry&, ds::BlobReader&);
+	bool						hasLostConnection() const;
+	void						clearLostConnection();
 
 private:
 	ds::NetConnection&			mConnection;
@@ -71,6 +73,10 @@ private:
 	char						mHeaderId,
 								mCommandId;
 	bool						mHeaderAndCommandOnly;
+
+	// Track when I try to receive but don't have any data. If this happens
+	// enough, then my network connection has likely dropped.
+	int							mNoDataCount;
 
 public:
 	// Clients can use this to handle a raw stream of

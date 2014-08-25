@@ -60,6 +60,10 @@ void OrthRoot::setup(const Settings& s) {
 	}
 }
 
+void OrthRoot::postAppSetup() {
+	mSprite->postAppSetup();
+}
+
 void OrthRoot::slaveTo(EngineRoot*) {
 }
 
@@ -158,6 +162,10 @@ PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, c
 void PerspRoot::setup(const Settings& s) {
 	mSprite->setSize(s.mScreenRect.getWidth(), s.mScreenRect.getHeight());
 	mSprite->setDrawSorted(true);
+}
+
+void PerspRoot::postAppSetup() {
+	mSprite->postAppSetup();
 }
 
 void PerspRoot::slaveTo(EngineRoot* r) {

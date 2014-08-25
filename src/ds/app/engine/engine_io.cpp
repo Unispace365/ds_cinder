@@ -44,7 +44,8 @@ EngineReceiver::EngineReceiver(ds::NetConnection& con)
 		: mConnection(con)
 		, mHeaderId(0)
 		, mCommandId(0)
-		, mHeaderAndCommandOnly(false) {
+		, mHeaderAndCommandOnly(false)
+		, mNoDataCount(0) {
 	setHeaderAndCommandOnly();
 }
 
@@ -63,19 +64,40 @@ ds::DataBuffer& EngineReceiver::getData() {
 
 bool EngineReceiver::receiveAndHandle(ds::BlobRegistry& registry, ds::BlobReader& reader) {
 	EngineReceiver::AutoReceive   receive(*this);
-	if (mReceiveBuffer.size() < 1) return false;
+	if (mReceiveBuffer.size() < 1) {
+		++mNoDataCount;
+		return false;
+	}
 
-	const int receiveSize = mReceiveBuffer.size();
-	const char                    size = static_cast<char>(registry.mReader.size());
+	mNoDataCount = 0;
+
+	const int					receiveSize = mReceiveBuffer.size();
+	const char					size = static_cast<char>(registry.mReader.size());
 	while (receive.mData.canRead<char>()) {
-		const char  token = receive.mData.read<char>();
+		const char				token = receive.mData.read<char>();
 		if (token > 0 && token < size) {
-			if (!mHeaderAndCommandOnly || (token == mHeaderId || token == mCommandId)) {
+			// If we're doing header and command only, as soon as we hit a
+			// non-header, non-command, we need to bail
+			if (mHeaderAndCommandOnly) {
+				if (token == mHeaderId || token == mCommandId) {
+					registry.mReader[token](reader);
+				} else {
+					return true;
+				}
+			} else {
 				registry.mReader[token](reader);
 			}
 		}
 	}
 	return true;
+}
+
+bool EngineReceiver::hasLostConnection() const {
+	return mNoDataCount > 10;
+}
+
+void EngineReceiver::clearLostConnection() {
+	mNoDataCount = 0;
 }
 
 /**

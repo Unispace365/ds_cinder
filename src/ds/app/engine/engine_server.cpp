@@ -29,6 +29,7 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Setting
     , mBlobReader(mReceiver.getData(), *this)
     , mState(nullptr)
 {
+	mClients.setErrorChannel(&getChannel(ERROR_CHANNEL));
 	// NOTE:  Must be EXACTLY the same items as in EngineClient, in same order,
 	// so that the BLOB ids match.
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});
@@ -95,11 +96,16 @@ void AbstractEngineServer::receiveHeader(ds::DataBuffer& data) {
 void AbstractEngineServer::receiveCommand(ds::DataBuffer &data) {
 	char            cmd;
 	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
-		if (cmd == CMD_CLIENT_REQUEST_WORLD) {
-			setState(mSendWorldState);
-		} else if (cmd == CMD_CLIENT_STARTED) {
+		if (cmd == CMD_CLIENT_STARTED) {
+			DS_LOG_INFO_M("CMD_CLIENT_STARTED", ds::IO_LOG);
 			onClientStartedCommand(data);
+		} else if (cmd == CMD_CLIENT_RUNNING) {
+			onClientRunningCommand(data);
+		} else if (cmd == CMD_CLIENT_REQUEST_WORLD) {
+			DS_LOG_INFO_M("CMD_CLIENT_REQUEST_WORLD", ds::IO_LOG);
+			setState(mSendWorldState);
 		} else if (cmd == CMD_SERVER_SEND_WORLD) {
+			DS_LOG_INFO_M("CMD_SERVER_SEND_WORLD", ds::IO_LOG);
 			static const ErrorRef		MULTIPLE_SERVERS_ERROR(ErrorRef::getNextId(), L"Multiple servers", L"This app is running in server mode, but has received a command sent from another server. Check that there are not multiple servers sending to the same IP address");
 			getChannel(ERROR_CHANNEL).notify(AddErrorEvent(MULTIPLE_SERVERS_ERROR));
 		}
@@ -116,6 +122,22 @@ void AbstractEngineServer::onClientStartedCommand(ds::DataBuffer &data) {
 		mClientStartedReplyState.mClients.push_back(sessionid);
 		setState(mClientStartedReplyState);
 	}
+}
+
+void AbstractEngineServer::onClientRunningCommand(ds::DataBuffer &data) {
+	if (!data.canRead<char>()) return;
+
+	// Session ID
+	char				att = data.read<char>();
+	if (att != ATT_SESSION_ID) return;
+	const int32_t		session_id = data.read<int32_t>();
+
+	// Frame
+	att = data.read<char>();
+	if (att != ATT_FRAME) return;
+	const int32_t		frame = data.read<int32_t>();
+
+	mClients.reportingIn(session_id, frame);
 }
 
 void AbstractEngineServer::setState(State& s) {
@@ -136,6 +158,7 @@ void AbstractEngineServer::State::begin(AbstractEngineServer&) {
 
 void AbstractEngineServer::State::addHeader(ds::DataBuffer& data, const int frame) {
     data.add(HEADER_BLOB);
+
     data.add(frame);
     data.add(ds::TERMINATOR_CHAR);
 }
@@ -153,11 +176,18 @@ void EngineServer::RunningState::begin(AbstractEngineServer&) {
 }
 
 void EngineServer::RunningState::update(AbstractEngineServer& engine) {
+	if (engine.mReceiver.hasLostConnection()) {
+DS_LOG_INFO_M("server receiver lost connection", ds::IO_LOG);
+		engine.mReceiveConnection.renew();
+		engine.mReceiver.clearLostConnection();
+	}
+
 	// Send data to clients
 	{
 		EngineSender::AutoSend  send(engine.mSender);
 		// Always send the header
 		addHeader(send.mData, mFrame);
+DS_LOG_INFO_M("running frame=" << mFrame, ds::IO_LOG);
 //		std::cout << "send frame=" << mFrame << std::endl;
 		ui::Sprite                 &root = engine.getRootSprite();
 		if (root.isDirty()) {
@@ -165,10 +195,12 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		}
 	}
 
-  // Receive data from clients
-  engine.mReceiver.receiveAndHandle(engine.mBlobRegistry, engine.mBlobReader);
+	// Receive data from clients
+	engine.mReceiver.receiveAndHandle(engine.mBlobRegistry, engine.mBlobReader);
+	// Track how far behind any clients are
+	engine.mClients.compare(mFrame);
 
-  mFrame++;
+	mFrame++;
 }
 
 /**
