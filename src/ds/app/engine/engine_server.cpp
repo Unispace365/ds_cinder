@@ -1,8 +1,9 @@
 #include "ds/app/engine/engine_server.h"
 
+#include <ds/app/engine/engine_io_defs.h>
 #include "ds/app/app.h"
 #include "ds/app/blob_reader.h"
-#include <ds/app/engine/engine_io_defs.h>
+#include <ds/app/error.h>
 #include "ds/debug/logger.h"
 #include "snappy.h"
 #include "ds/util/string_util.h"
@@ -10,10 +11,10 @@
 namespace ds {
 
 namespace {
-char              HEADER_BLOB = 0;
-char              COMMAND_BLOB = 0;
+char				HEADER_BLOB = 0;
+char				COMMAND_BLOB = 0;
 
-const char        TERMINATOR = 0;
+const char			TERMINATOR = 0;
 }
 
 /**
@@ -98,6 +99,9 @@ void AbstractEngineServer::receiveCommand(ds::DataBuffer &data) {
 			setState(mSendWorldState);
 		} else if (cmd == CMD_CLIENT_STARTED) {
 			onClientStartedCommand(data);
+		} else if (cmd == CMD_SERVER_SEND_WORLD) {
+			static const ErrorRef		MULTIPLE_SERVERS_ERROR(ErrorRef::getNextId(), L"Multiple servers", L"This app is running in server mode, but has received a command sent from another server. Check that there are not multiple servers sending to the same IP address");
+			getChannel(ERROR_CHANNEL).notify(AddErrorEvent(MULTIPLE_SERVERS_ERROR));
 		}
 	}
 }
