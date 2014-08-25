@@ -1,6 +1,7 @@
 #include "error.h"
 
 #include <ds/app/engine/engine.h>
+#include <ds/debug/logger.h>
 
 #pragma warning(disable: 4355)
 
@@ -216,6 +217,7 @@ void ErrorService::onEvent(const ds::Event &_e) {
 		if (mErrors.findById(e.mError.getId()).empty()) {
 			mErrors.push_back(e.mError);
 			mEventClient->notify(ErrorsChangedEvent(mErrors));
+			DS_LOGW_ERROR("AddErrorEvent id=" << e.mError.getId() << " name=" << e.mError.getName());
 		}
 	} else if (RemoveErrorEvent::WHAT() == _e.mWhat) {
 		const RemoveErrorEvent&		e((const RemoveErrorEvent&)_e);

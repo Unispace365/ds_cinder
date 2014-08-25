@@ -90,6 +90,8 @@ private:
 /********************************************
  * EVENTS
  * Handle communication about error changes.
+ * All events sent and received over the
+ * engine.getChannel(ERROR_CHANNEL) notifier.
  ********************************************/
 /**
  * \class ds::AddErrorEvent
