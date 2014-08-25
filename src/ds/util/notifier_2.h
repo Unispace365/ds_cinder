@@ -40,14 +40,21 @@ class Notifier
 
     void request(T&);
 
+	/* Set an event that gets fired when a new listener is added.
+	 * DANGEROUS: The caller needs to guarantee the T* it's returning is valid
+	 * outside the scope of the fn.
+	 */
+	void setOnAddListenerFn(const std::function<T*(void)> &fn);
+
   private:
     std::map<void *, std::function<void(const T *)>> mFunctions;
     std::map<void *, std::function<void(T&)>> mRequestFn;
+	std::function<T*(void)>	mOnAddListenerFn;
 };
 
 template <typename T>
 Notifier<T>::Notifier()
-{
+		: mOnAddListenerFn(nullptr) {
 }
 
 template <typename T>
@@ -64,13 +71,17 @@ void Notifier<T>::removeAllListeners()
 }
 
 template <typename T>
-void Notifier<T>::addListener( void *id, const std::function<void(const T *)> &func )
-{
+void Notifier<T>::addListener( void *id, const std::function<void(const T *)> &func ) {
+	if (!func) return;
     try
     {
         mFunctions[id] = func;
+		if (mOnAddListenerFn) {
+			T*	t = mOnAddListenerFn();
+			if (t) func(t);
+		}
     }
-    catch (std::exception &)
+    catch (std::exception const&)
     {
     }
 }
@@ -136,6 +147,11 @@ void Notifier<T>::request( T& v )
     }
 }
 
-} // namespace {template_namespace}2
+template <typename T>
+void Notifier<T>::setOnAddListenerFn(const std::function<T*(void)> &fn) {
+	mOnAddListenerFn = fn;
+}
+
+} // ds2
 
 #endif

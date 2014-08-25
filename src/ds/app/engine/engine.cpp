@@ -8,6 +8,7 @@
 #include "ds/app/engine/engine_roots.h"
 #include "ds/app/engine/engine_service.h"
 #include "ds/app/engine/engine_stats_view.h"
+#include "ds/app/error.h"
 #include "ds/cfg/settings.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
@@ -163,6 +164,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mCachedWindowW(0)
 	, mCachedWindowH(0)
 {
+	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
+	addService("ds/error", *(new ErrorService(*this)));
 	mRequestDelete.reserve(32);
 
 	// For now, install some default image processing functions here, for convenience. These are
@@ -298,6 +301,23 @@ Engine::~Engine() {
 	// Important to do this here before the auto update list is destructed.
 	// so any autoupdate services get removed.
 	mData.clearServices();
+}
+
+ds::EventNotifier& Engine::getChannel(const std::string &name) {
+	if (name.empty()) throw std::runtime_error("Engine::getChannel() on empty name");
+	if (!mChannels.empty()) {
+		auto f = mChannels.find(name);
+		if (f != mChannels.end()) return f->second.mNotifier;
+	}
+	mChannels[name] = Channel();
+	auto f = mChannels.find(name);
+	if (f != mChannels.end()) return f->second.mNotifier;
+	throw std::runtime_error("Engine::getChannel() no channel named " + name);
+}
+
+void Engine::addChannel(const std::string &name, const std::string &description) {
+	if (name.empty()) throw std::runtime_error("Engine::addChannel() on empty name");
+	mChannels[name] = Channel(description);
 }
 
 void Engine::addService(const std::string& str, ds::EngineService& service) {
@@ -859,6 +879,16 @@ void Engine::deleteRequestedSprites() {
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {
 	mTouchMode = mode;
 	mTouchManager.setTouchMode(mode);
+}
+
+/**
+ * \class ds::Engine::Channel
+ */
+Engine::Channel::Channel() {
+}
+
+Engine::Channel::Channel(const std::string &description)
+		: mDescription(description) {
 }
 
 } // namespace ds
