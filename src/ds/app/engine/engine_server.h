@@ -43,6 +43,7 @@ private:
 	void							receiveHeader(ds::DataBuffer&);
 	void							receiveCommand(ds::DataBuffer&);
 	void							onClientStartedCommand(ds::DataBuffer&);
+	void							onClientRunningCommand(ds::DataBuffer&);
 
 	typedef Engine inherited;
 	WorkManager						mWorkManager;
@@ -75,7 +76,7 @@ private:
 		virtual void				update(AbstractEngineServer&);
 
 	private:
-		int							mFrame;
+		int32_t						mFrame;
 	};
 
 	/* This state is used to send a client started reply.

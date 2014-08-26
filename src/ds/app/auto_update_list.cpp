@@ -1,5 +1,6 @@
 #include "ds/app/auto_update_list.h"
 
+#include <algorithm>
 #include <Poco/Timestamp.h>
 #include "ds/app/auto_update.h"
 #include "ds/params/update_params.h"
@@ -9,18 +10,34 @@ namespace ds {
 /**
  * \class ds::AutoUpdateList
  */
-AutoUpdateList::AutoUpdateList()
-{
-	mUpdate.reserve(16);
+AutoUpdateList::AutoUpdateList() {
+	mRunning.reserve(32);
+	mWaiting.reserve(8);
 }
 
-void AutoUpdateList::update( const ds::UpdateParams &updateParams )
-{
-	if (mUpdate.empty()) return;
-
-	for (auto it=mUpdate.begin(), end=mUpdate.end(); it != end; ++it) {
-		(*it)->update(updateParams);
+void AutoUpdateList::update(const ds::UpdateParams &p) {
+	if (!mWaiting.empty()) {
+		for (auto it=mWaiting.begin(), end=mWaiting.end(); it!=end; ++it) {
+			mRunning.push_back(*it);
+		}
+		mWaiting.clear();
 	}
+	if (mRunning.empty()) return;
+
+	for (auto it=mRunning.begin(), end=mRunning.end(); it != end; ++it) {
+		(*it)->update(p);
+	}
+}
+
+void AutoUpdateList::addWaiting(AutoUpdate *v) {
+	if (!v) return;
+	mWaiting.push_back(v);
+}
+
+void AutoUpdateList::remove(AutoUpdate *v) {
+	if (!v) return;
+	mRunning.erase(std::remove(mRunning.begin(), mRunning.end(), v), mRunning.end());
+	mWaiting.erase(std::remove(mWaiting.begin(), mWaiting.end(), v), mWaiting.end());
 }
 
 } // namespace ds

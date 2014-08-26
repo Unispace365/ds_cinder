@@ -41,6 +41,9 @@ public:
 	// Access to the app-wide notification service. Use this to send a
 	// message to everyone who's registered an EventClient.
 	ds::EventNotifier&				getNotifier();
+	// New-style notifier, access a  named channel. Create the
+	// channel if it doesn't exist.
+	virtual ds::EventNotifier&		getChannel(const std::string&) = 0;
 
 	// General engine services
 	virtual ds::WorkManager&		getWorkManager() = 0;

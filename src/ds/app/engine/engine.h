@@ -9,6 +9,7 @@
 #include "ds/app/app_defs.h"
 #include "ds/app/auto_update_list.h"
 #include "ds/app/blob_registry.h"
+#include "ds/app/event_notifier.h"
 #include "ds/app/image_registry.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
@@ -60,6 +61,8 @@ public:
 	virtual void						update() = 0;
 	virtual void						draw() = 0;
 
+	virtual ds::EventNotifier&			getChannel(const std::string&);
+	void								addChannel(const std::string &name, const std::string &description);
 	virtual ds::AutoUpdateList&			getAutoUpdateList() { return mAutoUpdate; }
 	virtual ds::ImageRegistry&			getImageRegistry() { return mImageRegistry; }
 	virtual ds::ui::Tweenline&			getTweenline() { return mTweenline; }
@@ -241,6 +244,18 @@ private:
 	ci::Color8u							mUniqueColor;
 
 	int									mCachedWindowW, mCachedWindowH;
+
+	// Channels. A channel is simply a notifier, with an optional description.
+	class Channel {
+	public:
+		Channel();
+		Channel(const std::string &description);
+
+		ds::EventNotifier				mNotifier;
+		std::string						mDescription;
+	};
+	std::unordered_map<std::string, Channel>
+										mChannels;
 };
 
 } // namespace ds

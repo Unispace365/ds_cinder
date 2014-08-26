@@ -1683,6 +1683,10 @@ void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touc
 	destinationSprite->processTouchInfo(newTouchInfo);
 }
 
+void Sprite::postAppSetup() {
+	mBlobType = BLOB_TYPE;
+}
+
 bool Sprite::getPerspective() const
 {
   return mPerspective;

@@ -40,6 +40,7 @@ public:
 									mDstRect;
 	};
 	virtual void					setup(const Settings&) = 0;
+	virtual void					postAppSetup() = 0;
 	// Initialize myself as a slave to the master
 	virtual void					slaveTo(EngineRoot*) = 0;
 
@@ -80,6 +81,7 @@ public:
 	OrthRoot(Engine&, const RootList::Root&, const sprite_id_t);
 
 	virtual void					setup(const Settings&);
+	virtual void					postAppSetup();
 	virtual void					slaveTo(EngineRoot*);
 	virtual ds::ui::Sprite*			getSprite();
 	virtual void					clearChildren();
@@ -117,6 +119,7 @@ public:
 	PerspRoot(Engine&, const RootList::Root&, const sprite_id_t, const PerspCameraParams&, Picking* = nullptr);
 
 	virtual void					setup(const Settings&);
+	virtual void					postAppSetup();
 	virtual void					slaveTo(EngineRoot*);
 	virtual ds::ui::Sprite*			getSprite();
 	virtual void					clearChildren();

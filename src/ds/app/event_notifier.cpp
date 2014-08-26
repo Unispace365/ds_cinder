@@ -35,4 +35,8 @@ void EventNotifier::request(ds::Event& e) {
 	mEventNotifier.request(e);
 }
 
+void EventNotifier::setOnAddListenerFn(const std::function<ds::Event*(void)> &fn) {
+	mEventNotifier.setOnAddListenerFn(fn);
+}
+
 } // namespace ds
