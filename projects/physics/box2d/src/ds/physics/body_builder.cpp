@@ -16,6 +16,7 @@ namespace physics {
 BodyBuilder::BodyBuilder(const SpriteBody& b)
 	: mDensity(1.0f)
 	, mFriction(b.mWorld.getFriction())
+	, mRestitution(0.5f)
 	, mLinearDampening(b.mWorld.getLinearDampening())
 	, mAngularDampening(b.mWorld.getAngularDampening())
 	, mFixedRotation(b.mWorld.getFixedRotation())
@@ -46,6 +47,7 @@ void BodyBuilderBox::createFixture(SpriteBody& body) const
 	b2FixtureDef		fixtureDef;
 	fixtureDef.density = mDensity;
 	fixtureDef.friction = mFriction;
+	fixtureDef.restitution = mRestitution;
 	fixtureDef.filter.categoryBits = mCategoryBits;
 	fixtureDef.filter.maskBits = mMaskBits;
 
@@ -80,6 +82,7 @@ void BodyBuilderCircle::createFixture(SpriteBody& body) const
 	b2FixtureDef		fixtureDef;
 	fixtureDef.density = mDensity;
 	fixtureDef.friction = mFriction;
+	fixtureDef.restitution = mRestitution;
 	fixtureDef.filter.categoryBits = mCategoryBits;
 	fixtureDef.filter.maskBits = mMaskBits;
 
@@ -111,6 +114,7 @@ void BodyBuilderPolygon::createFixture(SpriteBody& body) const
 	b2FixtureDef		fixtureDef;
 	fixtureDef.density = mDensity;
 	fixtureDef.friction = mFriction;
+	fixtureDef.restitution = mRestitution;
 	fixtureDef.filter.categoryBits = mCategoryBits;
 	fixtureDef.filter.maskBits = mMaskBits;
 

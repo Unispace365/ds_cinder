@@ -21,6 +21,7 @@ public:
 
 	float				mDensity,
 						mFriction,
+						mRestitution,
 						mLinearDampening,
 						mAngularDampening;
 	bool				mFixedRotation;
