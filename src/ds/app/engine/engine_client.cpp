@@ -45,7 +45,7 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 	std::stringstream		buf;
 	buf << uuid;
 	mGlobalId = buf.str();
-
+	
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
 			mSendConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
@@ -137,8 +137,7 @@ void EngineClient::stopServices() {
 void EngineClient::receiveHeader(ds::DataBuffer& data) {
 	if (data.canRead<int32_t>()) {
 		mServerFrame = data.read<int32_t>();
-		DS_LOG_INFO_M("Receive frame=" << mServerFrame, ds::IO_LOG);
-//		DS_DBG_CODE(std::cout << "receive frame=" << frame << std::endl);
+//		DS_LOG_INFO_M("Receive frame=" << mServerFrame, ds::IO_LOG);
 	}
 	// Terminator
 	if (data.canRead<char>()) {
@@ -229,7 +228,7 @@ void EngineClient::RunningState::update(EngineClient &e) {
 	buf.add(e.mServerFrame);
 	buf.add(ds::TERMINATOR_CHAR);
 
-	DS_LOG_INFO_M("RunningState send reply frame=" << e.mServerFrame, ds::IO_LOG);
+//	DS_LOG_INFO_M("RunningState send reply frame=" << e.mServerFrame, ds::IO_LOG);
 }
 
 /**
@@ -255,7 +254,7 @@ void EngineClient::ClientStartedState::update(EngineClient& engine) {
 		buf.add(ds::TERMINATOR_CHAR);
 
 		mSendFrame = 10;
-DS_LOG_INFO_M("Send CMD_CLIENT_STARTED", ds::IO_LOG);
+//DS_LOG_INFO_M("Send CMD_CLIENT_STARTED", ds::IO_LOG);
 	}
 	--mSendFrame;
 }
