@@ -160,5 +160,10 @@ std::string SpriteShader::getName() const
   return mName;
 }
 
+
+void SpriteShader::clearShaderCache() {
+	GlslProgs.clear();
+}
+
 }
 }
