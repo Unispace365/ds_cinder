@@ -119,6 +119,8 @@ void AbstractEngineServer::onClientStartedCommand(ds::DataBuffer &data) {
 	const std::string	guid = data.read<std::string>();
 	const int32_t		sessionid = mClients.startClient(guid);
 	if (sessionid > 0) {
+		DS_LOG_INFO_M("onClientStartedCommand guid=" << guid, ds::IO_LOG);
+
 		mClientStartedReplyState.mClients.push_back(sessionid);
 		setState(mClientStartedReplyState);
 	}
@@ -195,8 +197,15 @@ DS_LOG_INFO_M("running frame=" << mFrame, ds::IO_LOG);
 		}
 	}
 
-	// Receive data from clients
-	engine.mReceiver.receiveAndHandle(engine.mBlobRegistry, engine.mBlobReader);
+	// Handle data from all the clients. Technically this will limit
+	// my client count to 10, which is fine for now, but if that grows
+	// we can revisit.
+	int32_t		limit = 10;
+	while (engine.mReceiveConnection.canRecv()) {
+		engine.mReceiver.receiveAndHandle(engine.mBlobRegistry, engine.mBlobReader);
+		if (--limit <= 0) break;
+	}
+
 	// Track how far behind any clients are
 	engine.mClients.compare(mFrame);
 

@@ -45,7 +45,7 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 	std::stringstream		buf;
 	buf << uuid;
 	mGlobalId = buf.str();
-
+	
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
 			mSendConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
