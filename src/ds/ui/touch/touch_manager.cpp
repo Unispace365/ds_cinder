@@ -122,7 +122,7 @@ void TouchManager::touchesEnded(const TouchEvent &event) {
 
 
 		TouchInfo touchInfo;
-		touchInfo.mCurrentGlobalPoint = Vec3f(touchIt->getPos(), 0.0f);
+		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
 		touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
