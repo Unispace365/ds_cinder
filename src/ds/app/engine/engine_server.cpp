@@ -179,7 +179,7 @@ void EngineServer::RunningState::begin(AbstractEngineServer&) {
 
 void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 	if (engine.mReceiver.hasLostConnection()) {
-DS_LOG_INFO_M("server receiver lost connection", ds::IO_LOG);
+//DS_LOG_INFO_M("server receiver lost connection", ds::IO_LOG);
 		engine.mReceiveConnection.renew();
 		engine.mReceiver.clearLostConnection();
 	}
@@ -189,8 +189,7 @@ DS_LOG_INFO_M("server receiver lost connection", ds::IO_LOG);
 		EngineSender::AutoSend  send(engine.mSender);
 		// Always send the header
 		addHeader(send.mData, mFrame);
-DS_LOG_INFO_M("running frame=" << mFrame, ds::IO_LOG);
-//		std::cout << "send frame=" << mFrame << std::endl;
+//		DS_LOG_INFO_M("running frame=" << mFrame, ds::IO_LOG);
 		ui::Sprite                 &root = engine.getRootSprite();
 		if (root.isDirty()) {
 			root.writeTo(send.mData);
