@@ -27,6 +27,12 @@ public:
 	// Request information from the system.
 	void						request(ds::Event&);
 
+	/* Set an event that gets fired when a new listener is added.
+	 * DANGEROUS: The caller needs to guarantee the T* it's returning is valid
+	 * outside the scope of the fn.
+	 */
+	void						setOnAddListenerFn(const std::function<ds::Event*(void)> &fn);
+
 protected:
 	friend class EventClient;
 

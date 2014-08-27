@@ -33,6 +33,8 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 		, mReceiver(mReceiveConnection)
 		, mBlobReader(mReceiver.getData(), *this)
 		, mSessionId(0)
+		, mConnectionRenewed(false)
+		, mServerFrame(-1)
 		, mState(nullptr) {
 	// NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
 	// so that the BLOB ids match.
@@ -85,8 +87,18 @@ void EngineClient::update() {
 	updateClient();
 	mRenderTextService.update();
 
+	if (!mConnectionRenewed && mReceiver.hasLostConnection()) {
+		mConnectionRenewed = true;
+		// This can happen because the network connection drops, so
+		// refresh it, and let the world now I'm ready again.
+		mReceiveConnection.renew();
+		clearAllSprites();
+		setState(mClientStartedState);
+		return;
+	}
 	// Every update, receive data
 	mReceiver.setHeaderAndCommandOnly(mState->getHeaderAndCommandOnly());
+//	mReceiver.setHeaderAndCommandOnly(false);
 	if (!mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader)) {
 		// If I didn't receive any data, then don't send any data. This is
 		// pretty important -- 0MQ will buffer sent commands if there's
@@ -96,6 +108,7 @@ void EngineClient::update() {
 		// to receive anything.
 		return;
 	}
+	mConnectionRenewed = false;
 
 	// Oh this is interesting... There can be more data in the pipe
 	// after handling, so make sure to slurp it all up, or else you
@@ -122,12 +135,14 @@ void EngineClient::stopServices() {
 }
 
 void EngineClient::receiveHeader(ds::DataBuffer& data) {
-	if (data.canRead<int>()) {
-		const int frame = data.read<int>();
+	if (data.canRead<int32_t>()) {
+		mServerFrame = data.read<int32_t>();
+		DS_LOG_INFO_M("Receive frame=" << mServerFrame, ds::IO_LOG);
 //		DS_DBG_CODE(std::cout << "receive frame=" << frame << std::endl);
 	}
 	// Terminator
 	if (data.canRead<char>()) {
+//		const char			term = data.read<char>();
 		data.read<char>();
 	}
 }
@@ -141,6 +156,8 @@ void EngineClient::receiveCommand(ds::DataBuffer& data) {
 			if (mSessionId < 1) {
 				setState(mClientStartedState);
 			} else {
+				// Make sure the rest of the blobs are handled
+				mReceiver.setHeaderAndCommandOnly(false);
 				setState(mRunningState);
 			}
 		} else if (cmd == CMD_CLIENT_STARTED_REPLY) {
@@ -196,11 +213,23 @@ void EngineClient::State::begin(EngineClient&) {
 EngineClient::RunningState::RunningState() {
 }
 
-void EngineClient::RunningState::begin(EngineClient&) {
+void EngineClient::RunningState::begin(EngineClient &c) {
 	DS_LOG_INFO_M("RunningState", ds::IO_LOG);
+	c.mServerFrame = -1;
 }
 
-void EngineClient::RunningState::update(EngineClient& engine) {
+void EngineClient::RunningState::update(EngineClient &e) {
+	EngineSender::AutoSend  send(e.mSender);
+	ds::DataBuffer&   buf = send.mData;
+	buf.add(COMMAND_BLOB);
+	buf.add(CMD_CLIENT_RUNNING);
+	buf.add(ATT_SESSION_ID);
+	buf.add(e.mSessionId);
+	buf.add(ATT_FRAME);
+	buf.add(e.mServerFrame);
+	buf.add(ds::TERMINATOR_CHAR);
+
+	DS_LOG_INFO_M("RunningState send reply frame=" << e.mServerFrame, ds::IO_LOG);
 }
 
 /**
@@ -226,6 +255,7 @@ void EngineClient::ClientStartedState::update(EngineClient& engine) {
 		buf.add(ds::TERMINATOR_CHAR);
 
 		mSendFrame = 10;
+DS_LOG_INFO_M("Send CMD_CLIENT_STARTED", ds::IO_LOG);
 	}
 	--mSendFrame;
 }

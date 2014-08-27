@@ -20,6 +20,8 @@ class UdpConnection : public NetConnection
 
     bool initialize(bool server, const std::string &ip, const std::string &port);
     void close();
+	// Convenience to close and reinitialize
+	void renew();
 
     bool sendMessage(const std::string &data);
     bool sendMessage(const char *data, int size);
@@ -34,10 +36,13 @@ class UdpConnection : public NetConnection
 
   private:
 		Poco::Net::MulticastSocket	mSocket;
-    bool                        mServer;
     bool                        mInitialized;
     int                         mReceiveBufferMaxSize;
     RawDataBuffer               mReceiveBuffer;
+	// Initialization valuea
+    bool                        mServer;
+	std::string					mIp;
+	std::string					mPort;
 };
 
 }

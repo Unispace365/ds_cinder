@@ -2,14 +2,6 @@
 
 #include "ds/math/math_func.h"
 
-#ifdef _DEBUG
-#define			ARC_RENDER_SAVE_IMAGE		(1)
-#endif
-
-#ifdef ARC_RENDER_SAVE_IMAGE
-#include <cinder/ImageIo.h>
-#endif
-
 namespace ds {
 namespace arc {
 
@@ -69,14 +61,6 @@ bool RenderCircle::on(const Input& input, ci::Surface8u& s, ds::arc::Arc& a)
 		}
 		++params.mY;
 	}
-
-#ifdef ARC_RENDER_SAVE_IMAGE
-	try {
-		ci::writeImage("C:\\Users\\erich\\Documents\\downstream\\arc_render_circle.png", s);
-	} catch (std::exception const& ex) {
-		std::cout << "RenderCircle::on() save failed=" << ex.what() << std::endl;
-	}
-#endif
 
 	return true;
 }
