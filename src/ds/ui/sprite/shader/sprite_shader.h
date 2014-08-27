@@ -16,6 +16,14 @@ class SpriteShader
     void loadShaders();
     bool isValid() const;
 
+	/**
+	 * Clears the cache of loaded GLSL shaders, so that the next time
+	 * a sprite sets a shader, it will reload that shader from the
+	 * source file.  This is particularly useful during development if
+	 * you want to test changes to a shader without restarting the app.
+	 */
+	static void clearShaderCache();
+
     ci::gl::GlslProg &getShader();
 
     std::string getLocation() const;
