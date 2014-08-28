@@ -38,6 +38,10 @@ void Service::start() {
 	}
 }
 
+void Service::stop() {
+	mWorlds.clear();
+}
+
 void Service::createWorld(ds::ui::Sprite& owner, const int id) {
 	std::unique_ptr<World>		up(new World(mEngine, owner));
 	World*						w(up.get());
