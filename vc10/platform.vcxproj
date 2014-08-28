@@ -156,7 +156,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\text_layout.h" />
     <ClInclude Include="..\src\ds\ui\sprite\util\blend.h" />
     <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h" />
+    <ClInclude Include="..\src\ds\ui\touch\button_behaviour.h" />
     <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h" />
+    <ClInclude Include="..\src\ds\ui\touch\momentum.h" />
     <ClInclude Include="..\src\ds\ui\touch\multi_touch_constraints.h" />
     <ClInclude Include="..\src\ds\ui\touch\picking.h" />
     <ClInclude Include="..\src\ds\ui\touch\select_picking.h" />
@@ -305,6 +307,8 @@
     <ClCompile Include="..\src\ds\ui\sprite\text_layout.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\blend.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\button_behaviour.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\momentum.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\picking.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\select_picking.cpp" />
