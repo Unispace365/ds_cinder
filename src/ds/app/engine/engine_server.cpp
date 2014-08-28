@@ -196,10 +196,12 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		}
 	}
 
-	// Handle data from all the clients. Technically this will limit
-	// my client count to 10, which is fine for now, but if that grows
-	// we can revisit.
-	int32_t		limit = 10;
+	// Handle data from all the clients. This high number is used
+	// to compensate for catching up when things cause me to get
+	// behind (which could be as simple as LogMeIn taking over a
+	// machine). It might be that we just want to wait until all
+	// registered clients have reported the current frame.
+	int32_t		limit = 100;
 	while (engine.mReceiveConnection.canRecv()) {
 		engine.mReceiver.receiveAndHandle(engine.mBlobRegistry, engine.mBlobReader);
 		if (--limit <= 0) break;

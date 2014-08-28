@@ -13,7 +13,7 @@ namespace ds {
  */
 EngineClientList::EngineClientList()
 		: mNextSessionId(1)
-		, mDisconnectionLag(10)
+		, mDisconnectionLag(20)
 		, mErrorChannel(nullptr) {
 }
 
