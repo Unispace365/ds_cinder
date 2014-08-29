@@ -19,7 +19,6 @@ class Sprite;
  * 
  * Use:
  *  - Construct as a normal property on your Sprite.
- *  - Update on every update (regardless of whether it's active or not)
  *  - When you want momentum to take over (say when there are no fingers on your sprite) call activate.
  *  - When the velocity goes below the deactivation threshold, this will deactivate itself.
  *  - If momentum is active and moves the sprite, update will return true so you can check bounds or update graphics, etc.

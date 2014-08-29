@@ -142,6 +142,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mTouchScaleSizeMode = false;
 	mCornerRadius = 0.0f;
 	mDrawOpacityHack = 1.0f;
+	mDelayedCallCueRef = nullptr;
 
 	setSpriteId(id);
 
@@ -156,6 +157,8 @@ void Sprite::init(const ds::sprite_id_t id) {
 
 Sprite::~Sprite() {
 	animStop();
+	cancelDelayedCall();
+
     setSpriteId(ds::EMPTY_SPRITE_ID);
 	// Parent management should have happened before we get to the delete.
 //    remove();
@@ -1055,7 +1058,14 @@ void Sprite::disableMultiTouch() {
 void Sprite::callAfterDelay(const std::function<void(void)>& fn, const float delay_in_seconds) {
 	if (!fn) return;
 	ci::Timeline&		t = mEngine.getTweenline().getTimeline();
-	t.add(fn, t.getCurrentTime() + delay_in_seconds);
+	mDelayedCallCueRef = t.add(fn, t.getCurrentTime() + delay_in_seconds);
+}
+
+void Sprite::cancelDelayedCall(){
+	if(mDelayedCallCueRef){
+		mDelayedCallCueRef->removeSelf();
+		mDelayedCallCueRef = nullptr;
+	}
 }
 
 bool Sprite::checkBounds() const

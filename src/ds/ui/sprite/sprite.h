@@ -7,6 +7,7 @@
 #include <list>
 #include "cinder/Color.h"
 #include "cinder/Tween.h"
+#include "cinder/Timeline.h"
 #include "ds/app/app_defs.h"
 #include "ds/data/user_data.h"
 #include "ds/gl/uniform.h"
@@ -238,6 +239,7 @@ public:
 	bool					hasMultiTouchConstraint( const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS ) const;
 
 	void					callAfterDelay(const std::function<void(void)>&, const float delay_in_seconds);
+	void					cancelDelayedCall();
 
 	bool					inBounds() const;
 	void					setCheckBounds(bool checkBounds);
@@ -468,6 +470,10 @@ private:
 	// This is used by the picking to let the touch system know that the sprite
 	// (position/dimensions) are in the screen coordinate space.
 	bool				mIsInScreenCoordsHack;
+
+	// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
+	// Cleared automatically on destruction
+	ci::CueRef			mDelayedCallCueRef;
 
 public:
 	// This is a bit of a hack so I can temporarily set a scale value
