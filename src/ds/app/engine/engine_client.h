@@ -5,6 +5,7 @@
 #include "ds/app/blob_reader.h"
 #include "ds/app/engine/engine.h"
 #include "ds/app/engine/engine_io.h"
+#include "ds/app/engine/engine_io_defs.h"
 #include "ds/network/udp_connection.h"
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
@@ -53,15 +54,13 @@ private:
 	GlThread						mRenderTextThread;
 	ui::RenderTextService			mRenderTextService;
 
+	EngineIoInfo					mIoInfo;
 //	ds::ZmqConnection				mConnection;
 	ds::UdpConnection				mSendConnection;
 	ds::UdpConnection				mReceiveConnection;
 	EngineSender					mSender;
 	EngineReceiver					mReceiver;
 	ds::BlobReader					mBlobReader;
-	// Clients create a GUID on startup, which gets converted to a
-	// much shorter sessionID by the server.
-	std::string						mGlobalId;
 	int32_t							mSessionId;
 	// True if I lost the connection, renewed it, and am
 	// waiting to hear back.

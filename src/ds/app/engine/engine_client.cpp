@@ -1,11 +1,5 @@
-// Turn off an unnecessary warning in the boost GUID
-#define _SCL_SECURE_NO_WARNINGS
-
 #include "ds/app/engine/engine_client.h"
 
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
 #include <ds/app/engine/engine_io_defs.h>
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
@@ -41,10 +35,6 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
 	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
 	mReceiver.setHeaderAndCommandIds(HEADER_BLOB, COMMAND_BLOB);
-	boost::uuids::uuid		uuid = boost::uuids::random_generator()();
-	std::stringstream		buf;
-	buf << uuid;
-	mGlobalId = buf.str();
 	
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
@@ -182,7 +172,7 @@ void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
 					sessionid = data.read<int32_t>();
 				}
 			}
-			if (guid == mGlobalId) {
+			if (guid == mIoInfo.mGlobalId) {
 				mSessionId = sessionid;
 				setState(mBlankState);
 			}
@@ -250,7 +240,7 @@ void EngineClient::ClientStartedState::update(EngineClient& engine) {
 		buf.add(COMMAND_BLOB);
 		buf.add(CMD_CLIENT_STARTED);
 		buf.add(ATT_GLOBAL_ID);
-		buf.add(engine.mGlobalId);
+		buf.add(engine.mIoInfo.mGlobalId);
 		buf.add(ds::TERMINATOR_CHAR);
 
 		mSendFrame = 10;
@@ -285,5 +275,3 @@ void EngineClient::BlankState::update(EngineClient& engine) {
 }
 
 } // namespace ds
-
-//#pragma warning(pop)

@@ -2,6 +2,8 @@
 #ifndef DS_APP_ENGINE_ENGINEIODEFS_H_
 #define DS_APP_ENGINE_ENGINEIODEFS_H_
 
+#include <string>
+
 namespace ds {
 
 // Server -> Client communication
@@ -22,6 +24,19 @@ extern const char				ATT_CLIENT;					// Header for a client, which might have: A
 extern const char				ATT_GLOBAL_ID;				// A string, which is a GUID
 extern const char				ATT_SESSION_ID;				// An int32, which is a client-unique ID
 extern const char				ATT_FRAME;					// A frame number
+
+/**
+ * \class ds::EngineIoInfo
+ * \brief Store information related to doing IO.
+ */
+class EngineIoInfo {
+public:
+	class EngineIoInfo();
+
+	// Clients create a GUID on startup, which gets converted to a
+	// much shorter sessionID by the server.
+	std::string					mGlobalId;
+};
 
 } // namespace ds
 

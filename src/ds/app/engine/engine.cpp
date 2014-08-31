@@ -1,7 +1,9 @@
 #include "ds/app/engine/engine.h"
 
 #include <GL/glu.h>
-#include "Poco/Path.h"
+#include <Poco/File.h>
+#include <Poco/Path.h>
+#include <cinder/Json.h>
 #include "ds/app/app.h"
 #include "ds/app/auto_draw.h"
 #include "ds/app/environment.h"
