@@ -1057,6 +1057,7 @@ void Sprite::disableMultiTouch() {
 
 void Sprite::callAfterDelay(const std::function<void(void)>& fn, const float delay_in_seconds) {
 	if (!fn) return;
+	cancelDelayedCall();
 	ci::Timeline&		t = mEngine.getTweenline().getTimeline();
 	mDelayedCallCueRef = t.add(fn, t.getCurrentTime() + delay_in_seconds);
 }
