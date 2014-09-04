@@ -54,7 +54,7 @@ EngineIoInfo::EngineIoInfo() {
 		// problem machine when this gets used in an error report. It's entirely
 		// possible that in practice, the machine name is the only thing needed,
 		// but we'll play it safe.
-		buf << boost::asio::ip::host_name() << "-" << buf << uuid;
+		buf << boost::asio::ip::host_name() << "-" << uuid;
 		mGlobalId = buf.str();
 	}
 
