@@ -7,6 +7,7 @@
 
 namespace Awesomium {
 class WebCore;
+class WebSession;
 }
 
 namespace ds {
@@ -28,12 +29,14 @@ public:
 	virtual void			start();
 
 	Awesomium::WebCore*		getWebCore() const;
+	Awesomium::WebSession*	getWebSession() const;
 
 protected:
 	virtual void			update(const ds::UpdateParams&);
 
 private:
 	Awesomium::WebCore*		mWebCorePtr;
+	Awesomium::WebSession*	mWebSessionPtr;
 };
 
 } // namespace web

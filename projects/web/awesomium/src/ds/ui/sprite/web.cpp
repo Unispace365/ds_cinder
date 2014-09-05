@@ -132,7 +132,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	// create a webview
 	Awesomium::WebCore*	webcore = mService.getWebCore();
 	if (webcore) {
-		mWebViewPtr = webcore->CreateWebView(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
+		mWebViewPtr = webcore->CreateWebView(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mService.getWebSession());
 		if (mWebViewPtr) {
 			mWebViewListener = std::move(std::unique_ptr<ds::web::WebViewListener>(new ds::web::WebViewListener));
 			if (mWebViewListener) mWebViewPtr->set_view_listener(mWebViewListener.get());
