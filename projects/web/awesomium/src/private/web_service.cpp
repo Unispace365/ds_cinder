@@ -10,34 +10,42 @@ namespace web {
  * \class ds::web::Service
  */
 Service::Service(ds::Engine& e)
-	: ds::AutoUpdate(e)
-	, mWebCorePtr(nullptr)
-{
+		: ds::AutoUpdate(e)
+		, mWebCorePtr(nullptr)
+		, mWebSessionPtr(nullptr) {
 }
 
-Service::~Service()
-{
+Service::~Service() {
+	if (mWebSessionPtr) {
+		mWebSessionPtr->Release();
+	}
 	if (mWebCorePtr) {
 		Awesomium::WebCore::Shutdown();
 	}
 }
 
-void Service::start()
-{
+void Service::start() {
 	Awesomium::WebConfig cnf;
 	cnf.log_level = Awesomium::kLogLevel_Verbose;
 
 	// initialize the Awesomium web engine
 	mWebCorePtr = Awesomium::WebCore::Initialize(cnf);
+	if (mWebCorePtr) {
+		Awesomium::WebPreferences		prefs;
+		prefs.allow_scripts_to_open_windows = false;
+		mWebSessionPtr = mWebCorePtr->CreateWebSession(Awesomium::WebString(), prefs);
+	}
 }
 
-Awesomium::WebCore* Service::getWebCore() const
-{
+Awesomium::WebCore* Service::getWebCore() const {
 	return mWebCorePtr;
 }
 
-void Service::update(const ds::UpdateParams&)
-{
+Awesomium::WebSession* Service::getWebSession() const {
+	return mWebSessionPtr;
+}
+
+void Service::update(const ds::UpdateParams&) {
 	if (mWebCorePtr) {
 		mWebCorePtr->Update();
 	}
