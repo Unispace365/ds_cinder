@@ -221,7 +221,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
 
 	if (ds::ui::TouchInfo::Added == touchInfo.mPhase) {
-		ci::app::MouseEvent event(ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+		ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
 		sendMouseDownEvent(event);
 		if(mDragScrolling){
 			mClickDown = true;
@@ -230,21 +230,21 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
 			if(mWebViewPtr){
 				if(mClickDown){
-					ci::app::MouseEvent uevent(ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
+					ci::app::MouseEvent uevent(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
 					sendMouseUpEvent(uevent);
 					mClickDown = false;
 				}
 				float yDelta = touchInfo.mCurrentGlobalPoint.y- mPreviousTouchPos.y;
-				ci::app::MouseEvent event(0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, yDelta, 1);
+				ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, yDelta, 1);
 				ph::awesomium::handleMouseWheel( mWebViewPtr, event, 1 );
 			}
 		} else {
-			ci::app::MouseEvent event(0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+			ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
 			sendMouseDragEvent(event);
 		}
 	} else if (ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
 		mClickDown = false;
-		ci::app::MouseEvent event(ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
+		ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
 		sendMouseUpEvent(event);
 	}
 
@@ -296,7 +296,7 @@ void Web::setUrl(const std::string& url) {
 namespace {
 bool			validate_url(const std::string& url) {
 	try {
-		std::string ext = boost::filesystem3::path(url).extension().string();
+		std::string ext = boost::filesystem::path(url).extension().string();
 		std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
 		if (ext == ".pdf") return false;
 	} catch (std::exception const&) {
@@ -340,7 +340,7 @@ void Web::sendKeyUpEvent( const ci::app::KeyEvent &event ){
 void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
 	if (!mWebViewPtr) return;
 
-	ci::app::MouseEvent eventMove(0, e.getX(), e.getY(), 0, 0, 0);
+	ci::app::MouseEvent eventMove(mEngine.getWindow(), 0, e.getX(), e.getY(), 0, 0, 0);
 	ph::awesomium::handleMouseMove( mWebViewPtr, eventMove );
 	ph::awesomium::handleMouseDown( mWebViewPtr, e);
 	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kAdded);
@@ -374,11 +374,11 @@ void Web::handleListenerTouchEvent(const ds::web::TouchEvent& te) {
 	const ci::Vec2i			pos(static_cast<int>((te.mPosition.x)-doc_scroll.x),
 								static_cast<int>((te.mPosition.y)-doc_scroll.y));
 	if (te.mPhase == te.kAdded) {
-		sendMouseDownEvent(ci::app::MouseEvent(1, pos.x, pos.y, 0, 0, 0));
+		sendMouseDownEvent(ci::app::MouseEvent(mEngine.getWindow(), 1, pos.x, pos.y, 0, 0, 0));
 	} else if (te.mPhase == te.kMoved) {
-		sendMouseDragEvent(ci::app::MouseEvent(1, pos.x, pos.y, 0, 0, 0));
+		sendMouseDragEvent(ci::app::MouseEvent(mEngine.getWindow(), 1, pos.x, pos.y, 0, 0, 0));
 	} else if (te.mPhase == te.kRemoved) {
-		sendMouseUpEvent(ci::app::MouseEvent(1, pos.x, pos.y, 0, 0, 0));
+		sendMouseUpEvent(ci::app::MouseEvent(mEngine.getWindow(), 1, pos.x, pos.y, 0, 0, 0));
 	}
 }
 

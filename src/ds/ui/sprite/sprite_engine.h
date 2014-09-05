@@ -6,6 +6,7 @@
 #include <cinder/Camera.h>
 #include <cinder/Rect.h>
 #include <cinder/Vector.h>
+#include <cinder/app/Window.h>
 #include "ds/app/app_defs.h"
 #include "fbo/fbo.h"
 #include <memory>
@@ -56,6 +57,8 @@ public:
 	virtual Tweenline&				getTweenline() = 0;
 	virtual const ds::cfg::Settings&
 									getDebugSettings() = 0;
+	virtual ci::app::WindowRef		getWindow() = 0;
+
 	// Access a service. Throw if the service doesn't exist.
 	// Handle casting for you (since the root ds::EngineService class
 	// is unuseable).

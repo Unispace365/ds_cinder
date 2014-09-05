@@ -40,9 +40,6 @@
     <Filter Include="blocks">
       <UniqueIdentifier>{f15b674a-6660-4f54-aded-258e0acbdae2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="blocks\osc">
-      <UniqueIdentifier>{67b00306-1537-48e6-b0b9-5b01df324518}</UniqueIdentifier>
-    </Filter>
     <Filter Include="blocks\tuio">
       <UniqueIdentifier>{797d5636-a345-4fc7-8a3a-2e934d4d9afe}</UniqueIdentifier>
     </Filter>
@@ -51,12 +48,6 @@
     </Filter>
     <Filter Include="blocks\tuio\src">
       <UniqueIdentifier>{afe9eb27-af5e-499f-8a15-c7f275640b37}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="blocks\osc\include">
-      <UniqueIdentifier>{4b0125fa-0db2-4110-b441-6ff21f995a2b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="blocks\osc\src">
-      <UniqueIdentifier>{49a4cc56-68d0-49c5-b6fc-c43c839acc55}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ds\math">
       <UniqueIdentifier>{9fb4c09e-660e-4216-93c1-e3dd8ff0f9e0}</UniqueIdentifier>
@@ -120,6 +111,9 @@
     </Filter>
     <Filter Include="src\ds\ui\mesh_source">
       <UniqueIdentifier>{cbc57e74-972d-4ce0-96b6-dd570de55259}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="blocks\osc">
+      <UniqueIdentifier>{091be761-4e68-43a6-9bc4-a5fdf702c20b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -203,21 +197,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\math\math_defs.h">
       <Filter>src\ds\math</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER)\blocks\osc\include\OscArg.h">
-      <Filter>blocks\osc\include</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER)\blocks\osc\include\OscBundle.h">
-      <Filter>blocks\osc\include</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER)\blocks\osc\include\OscListener.h">
-      <Filter>blocks\osc\include</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER)\blocks\osc\include\OscMessage.h">
-      <Filter>blocks\osc\include</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER)\blocks\osc\include\OscSender.h">
-      <Filter>blocks\osc\include</Filter>
     </ClInclude>
     <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioClient.h">
       <Filter>blocks\tuio\include</Filter>
@@ -627,6 +606,60 @@
     <ClInclude Include="..\src\ds\ui\touch\button_behaviour.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscListener.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscMessage.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscSender.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscArg.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscBundle.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscPacketListener.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscPrintReceivedElements.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscReceivedElements.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscTypes.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\MessageMappingOscPacketListener.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscException.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscHostEndianness.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscOutboundPacketStream.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\PacketListener.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\TimerListener.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\UdpSocket.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\IpEndpointName.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\NetworkingUtils.h">
+      <Filter>blocks\osc</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -682,18 +715,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\util\bit_mask.cpp">
       <Filter>src\ds\util</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER)\blocks\osc\src\OscBundle.cpp">
-      <Filter>blocks\osc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER)\blocks\osc\src\OscSender.cpp">
-      <Filter>blocks\osc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER)\blocks\osc\src\OscListener.cpp">
-      <Filter>blocks\osc\src</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER)\blocks\osc\src\OscMessage.cpp">
-      <Filter>blocks\osc\src</Filter>
     </ClCompile>
     <ClCompile Include="$(CINDER)\blocks\tuio\src\TuioClient.cpp">
       <Filter>blocks\tuio\src</Filter>
@@ -1057,6 +1078,39 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\button_behaviour.cpp">
       <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscListener.cpp">
+      <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscMessage.cpp">
+      <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscSender.cpp">
+      <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscBundle.cpp">
+      <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscPrintReceivedElements.cpp">
+      <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscReceivedElements.cpp">
+      <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscTypes.cpp">
+      <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscOutboundPacketStream.cpp">
+      <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\IpEndpointName.cpp">
+      <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\win32\NetworkingUtils.cpp">
+      <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\win32\UdpSocket.cpp">
+      <Filter>blocks\osc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

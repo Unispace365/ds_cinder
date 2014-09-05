@@ -30,13 +30,13 @@ RenderTextShared::RenderTextShared()
 
 void RenderTextShared::setLatestRequestId(const int id)
 {
-    boost::lock_guard<boost::mutex> lock(mLock);
+    std::lock_guard<std::mutex> lock(mLock);
 	mLatestRequestId = id;
 }
 
 int RenderTextShared::getLatestRequestId()
 {
-    boost::lock_guard<boost::mutex> lock(mLock);
+	std::lock_guard<std::mutex> lock(mLock);
 	return mLatestRequestId;
 }
 
@@ -119,7 +119,7 @@ void RenderTextService::unregisterClient(const void* clientId)
 void RenderTextService::start(std::unique_ptr<RenderTextWorker>& worker)
 {
 	{
-		boost::lock_guard<boost::mutex> lock(mLock);
+		std::lock_guard<std::mutex> lock(mLock);
 		mInput.push_back(std::move(worker));
 	}
 	performOnWorkerThread(&RenderTextService::_run);
@@ -129,7 +129,7 @@ void RenderTextService::update()
 {
 	mMainThreadTmp.clear();
 	{
-		boost::lock_guard<boost::mutex> lock(mLock);
+		std::lock_guard<std::mutex> lock(mLock);
 		mMainThreadTmp.swap(mOutput); 
 	}
 	if (mClientRegistry.empty()) return;
@@ -155,7 +155,7 @@ void RenderTextService::_run()
 	// Pop off the items I need
 	mWorkerThreadTmp.clear();
 	{
-		boost::lock_guard<boost::mutex> lock(mLock);
+		std::lock_guard<std::mutex> lock(mLock);
 		mInput.swap(mWorkerThreadTmp);
 	}
 
@@ -229,7 +229,7 @@ void RenderTextService::_run()
 //			}
 		}
 
-		boost::lock_guard<boost::mutex> lock(mLock);
+		std::lock_guard<std::mutex> lock(mLock);
 		mOutput.push_back(std::move(*it));
 	}
 	mWorkerThreadTmp.clear();

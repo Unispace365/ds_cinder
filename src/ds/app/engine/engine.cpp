@@ -397,7 +397,7 @@ void Engine::updateServer() {
 
 	//////////////////////////////////////////////////////////////////////////
 	{
-		boost::lock_guard<boost::mutex> lock(mTouchMutex);
+		std::lock_guard<std::mutex> lock(mTouchMutex);
 		mMouseBeginEvents.lockedUpdate();
 		mMouseMovedEvents.lockedUpdate();
 		mMouseEndEvents.lockedUpdate();
@@ -577,7 +577,10 @@ void Engine::drawServer() {
 	glAlphaFunc(GL_ALWAYS, 0.001f) ;
 }
 
-void Engine::setup(ds::App&) {
+void Engine::setup(ds::App& app) {
+
+	mCinderWindow = app.getWindow();
+
 	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
 	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / getWindowWidth(), mData.mSrcRect.getHeight() / getWindowHeight());
 
@@ -717,21 +720,21 @@ void Engine::touchesBegin(const TouchEvent &e) {
 	// Translate the positions
 	std::vector<ci::app::TouchEvent::Touch>	touches;
 	alter_touch_events(mTouchTranslator, e, touches);
-	mTouchBeginEvents.incoming(ci::app::TouchEvent(touches));
+	mTouchBeginEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
 }
 
 void Engine::touchesMoved(const TouchEvent &e) {
 	// Translate the positions
 	std::vector<ci::app::TouchEvent::Touch>	touches;
 	alter_touch_events(mTouchTranslator, e, touches);
-	mTouchMovedEvents.incoming(ci::app::TouchEvent(touches));
+	mTouchMovedEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
 }
 
 void Engine::touchesEnded(const TouchEvent &e) {
 	// Translate the positions
 	std::vector<ci::app::TouchEvent::Touch>	touches;
 	alter_touch_events(mTouchTranslator, e, touches);
-	mTouchEndEvents.incoming(ci::app::TouchEvent(touches));
+	mTouchEndEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
 }
 
 tuio::Client &Engine::getTuioClient() {
@@ -765,8 +768,8 @@ MouseEvent Engine::alteredMouseEvent(const MouseEvent& e) const {
 
 	// Translate the mouse from the actual window to the desired rect in world coordinates.
 	const ci::Vec2i	pos(mTouchTranslator.toWorldi(e.getX(), e.getY()));
-	return ci::app::MouseEvent(	0, pos.x, pos.y,
-								0, e.getWheelIncrement(), e.getNativeModifiers());
+	return ci::app::MouseEvent(e.getWindow(),	0, pos.x, pos.y,
+												0, e.getWheelIncrement(), e.getNativeModifiers());
 }
 
 ds::ResourceList& Engine::getResources() {
@@ -851,7 +854,7 @@ ci::app::MouseEvent offset_mouse_event(const ci::app::MouseEvent& e, const ci::R
 	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
 	// Currently I believe that's fine -- and since our target is touch platforms without those things
 	// hopefully it always will be.
-	return ci::app::MouseEvent(	0, e.getX() + static_cast<int>(offset.x1), e.getY() + static_cast<int>(offset.y1),
+	return ci::app::MouseEvent(	e.getWindow(), 0, e.getX() + static_cast<int>(offset.x1), e.getY() + static_cast<int>(offset.y1),
 								0, e.getWheelIncrement(), e.getNativeModifiers());
 }
 
@@ -882,6 +885,10 @@ void Engine::deleteRequestedSprites() {
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {
 	mTouchMode = mode;
 	mTouchManager.setTouchMode(mode);
+}
+
+ci::app::WindowRef Engine::getWindow(){
+	return mCinderWindow;
 }
 
 /**

@@ -159,6 +159,8 @@ public:
 	// Debugging aid to write out the sprites
 	void								writeSprites(std::ostream&) const;
 
+	virtual ci::app::WindowRef			getWindow();
+
 protected:
 	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);
 
@@ -244,6 +246,8 @@ private:
 	ci::Color8u							mUniqueColor;
 
 	int									mCachedWindowW, mCachedWindowH;
+
+	ci::app::WindowRef					mCinderWindow;
 
 	// Channels. A channel is simply a notifier, with an optional description.
 	class Channel {

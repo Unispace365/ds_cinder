@@ -4,6 +4,7 @@
 
 #include <stdint.h>
 #include <vector>
+#include <memory>
 #include <ds/app/engine/engine_service.h>
 #include <ds/app/event.h>
 #include <ds/app/event_client.h>

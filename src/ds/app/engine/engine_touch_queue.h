@@ -63,7 +63,7 @@ void EngineTouchQueue<T>::setUpdateFn(const std::function<void(const T&)>& fn) {
 
 template <typename T>
 void EngineTouchQueue<T>::incoming(const T& t) {
-	boost::lock_guard<boost::mutex> lock(mMutex);
+	std::lock_guard<std::mutex> lock(mMutex);
 	mIncoming.push_back(t);
 }
 

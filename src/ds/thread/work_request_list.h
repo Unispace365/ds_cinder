@@ -3,6 +3,7 @@
 #define DS_THREAD_WORKREQUESTLIST_H_
 
 #include <vector>
+#include <memory>
 
 namespace ds {
 

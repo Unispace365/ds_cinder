@@ -3,6 +3,7 @@
 #define DS_THREAD_WORKCLIENT_H_
 
 #include <vector>
+#include <memory>
 #include "ds/thread/work_request.h"
 
 namespace ds {

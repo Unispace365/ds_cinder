@@ -58,6 +58,7 @@
 
 #include "ds/debug/logger.h"
 #include <iostream>
+#include <algorithm>
 
 #include "gstreamer-1.0/gst/net/gstnetclientclock.h"
 

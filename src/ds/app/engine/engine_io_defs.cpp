@@ -1,5 +1,6 @@
 // Turn off an unnecessary warning in the boost GUID
 #define _SCL_SECURE_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include "ds/app/engine/engine_io_defs.h"
 
@@ -12,6 +13,7 @@
 #include <Poco/Path.h>
 #include <cinder/Json.h>
 #include <ds/app/environment.h>
+
 
 namespace ds {
 
@@ -54,7 +56,7 @@ EngineIoInfo::EngineIoInfo() {
 		// problem machine when this gets used in an error report. It's entirely
 		// possible that in practice, the machine name is the only thing needed,
 		// but we'll play it safe.
-		buf << boost::asio::ip::host_name() << "-" << buf << uuid;
+		buf << boost::asio::ip::host_name() << "-" << uuid;
 		mGlobalId = buf.str();
 	}
 

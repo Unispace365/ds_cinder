@@ -19,7 +19,7 @@ void MeshCacheService::start() {
 
 ci::gl::VboMesh MeshCacheService::get(	const std::string& key,
 										const std::function<ci::TriMesh(void)>& generate_fn) {
-	std::mutex::scoped_lock	lock(mMutex);
+	std::unique_lock<std::mutex>	lock(mMutex);
 	if (!mCache.empty()) {
 		auto f = mCache.find(key);
 		if (f != mCache.end()) return f->second;

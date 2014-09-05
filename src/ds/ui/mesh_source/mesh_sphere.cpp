@@ -1,5 +1,7 @@
 #include "mesh_sphere.h"
 
+#include <sstream>
+
 #include <ds/ui/sprite/sprite_engine.h>
 #include "mesh_cache_service.h"
 

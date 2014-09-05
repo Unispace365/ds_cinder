@@ -5,7 +5,6 @@
 #include "ds/app/blob_reader.h"
 #include <ds/app/error.h>
 #include "ds/debug/logger.h"
-#include "snappy.h"
 #include "ds/util/string_util.h"
 
 namespace ds {

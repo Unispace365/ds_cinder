@@ -4,6 +4,7 @@
 
 #include <string>
 #include <vector>
+#include <memory>
 #include <Poco/ThreadPool.h>
 #include "ds/thread/thread_defs.h"
 #include "ds/thread/work_request.h"

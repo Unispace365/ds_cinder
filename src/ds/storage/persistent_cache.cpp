@@ -44,7 +44,7 @@ PersistentCache::Row PersistentCache::fetchOne(const std::string& field_name, co
 	}
 	if (idx >= mFieldFormats.mFields.size()) return Row();
 
-	std::mutex::scoped_lock		lock(mMutex);
+	std::unique_lock<std::mutex>		lock(mMutex);
 	for (auto it=mRows.begin(), end=mRows.end(); it!=end; ++it) {
 		const Row&				r(*it);
 		if (r.mFields[idx].mString == value) return r;
@@ -98,7 +98,7 @@ void PersistentCache::setValues(const Row& row) {
 	}
 
 	// sync
-	std::mutex::scoped_lock		lock(mMutex);
+	std::unique_lock<std::mutex>		lock(mMutex);
 	loadDatabase(mFieldFormats);
 }
 
