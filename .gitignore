@@ -17,4 +17,6 @@
 *.idb
 *.pdb
 *.lastbuildstate
+*.unsuccessfulbuild
+*.successfulbuild
 *.cache
