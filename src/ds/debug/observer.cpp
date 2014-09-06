@@ -7,19 +7,7 @@
 const ds::BitMask	ds::OBSERVER_LOG = ds::Logger::newModule("observer");
 
 namespace ds {
-	void Observer::mIntialize(std::string aSettingsFileName, bool aLiveMode) {
-		observerSetSettings(aSettingsFileName);
-		observeLive(aLiveMode);
-		mTweaker = nullptr;
-	}
-
-	Observer::Observer() {
-		mIntialize("", false);
-	}
-
-	Observer::Observer(std::string settingsFileName, bool liveMode /* = false */) {
-		mIntialize(settingsFileName, liveMode);
-	}
+	Observer::Observer() : mTweaker(nullptr) {}
 
 	Observer::~Observer() {
 		if (mTweaker)
@@ -29,24 +17,8 @@ namespace ds {
 		}
 	}
 
-	void Observer::observerSetSettings(std::string name) {
-		mSettingsFileName.assign(name);
-	}
-
-	void Observer::observeLive(bool mode /* = true */) {
-		mLiveMode = mode;
-	}
-
-	bool Observer::observingLive() const {
-		return mLiveMode;
-	}
-
-	std::string Observer::observerGetSettings() const {
-		return mSettingsFileName;
-	}
-
 	std::string Observer::observerHashGenerator() const {
-		
+
 		DS_LOG_WARNING_M("You are using the default observers' hash generator"
 			<< std::endl
 			<< "This is not reliable and you have to provide a unique hash generator for your class"

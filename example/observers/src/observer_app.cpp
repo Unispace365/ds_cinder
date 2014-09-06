@@ -8,11 +8,24 @@ using namespace ci::app;
 class ObservedSprite : public ds::ui::Sprite {
 public:
 	ObservedSprite(ds::ui::SpriteEngine& engine) : inherited(engine) {
+		mDouble = 0;
+		mVar = 0;
+
 		installObserver();
+		observe<int>("integer", &mVar, READ_WRITE, nullptr, nullptr, "");
+		observe<double>("double", &mDouble, READ_WRITE, nullptr, nullptr, "");
+		observe("color", &mColor, Observer::READ_ONLY);
 	}
+
+	void setInt(int val) {mVar = val;}
+	int getInt() {return mVar;}
 
 private:
 	typedef ds::ui::Sprite inherited;
+	int						mVar;
+	double					mDouble;
+	ci::Vec3f				mVec;
+	ci::Color8u				mColor;
 };
 
 class ObersverApp : public ds::App {
