@@ -88,7 +88,8 @@
       </Message>
     </PreLinkEvent>
     <PostBuildEvent>
-      <Command>copy /Y "$(DS_PLATFORM)\lib\zmq\lib\*" "$(OutDir)"</Command>
+      <Command>copy /Y "$(DS_PLATFORM)\lib\zmq\lib\*" "$(OutDir)"
+copy /Y "$(DS_PLATFORM)\lib\AntTweakBar\lib\AntTweakBar.dll" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying 0MQ</Message>

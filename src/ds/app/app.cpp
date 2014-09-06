@@ -29,6 +29,10 @@
 // For verifying that the resources are installed
 #include "ds/app/FrameworkResources.h"
 
+#ifdef _DEBUG
+#include "AntTweakBar.h"
+#endif
+
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList& roots);
 
@@ -153,6 +157,11 @@ void App::setup() {
 
 	mEngine.setup(*this);
 	mEngine.setupTuio(*this);
+
+#ifdef _DEBUG
+	TwInit(TW_OPENGL, NULL);
+	TwWindowSize(static_cast<int>(mEngine.getWidth()), static_cast<int>(mEngine.getHeight()));
+#endif
 }
 
 void App::update() {
@@ -164,9 +173,20 @@ void App::update() {
 
 void App::draw() {
 	mEngine.draw();
+#ifdef _DEBUG
+	TwDraw(); //drawing after engine, on top of everything else
+#endif // _DEBUG
 }
 
 void App::mouseDown( MouseEvent event ) {
+#ifdef _DEBUG
+	int isObserverHandling = 0;
+	isObserverHandling += event.isLeftDown() ? TwMouseButton(TW_MOUSE_PRESSED, TW_MOUSE_LEFT) : 0;
+	isObserverHandling += event.isRightDown() ? TwMouseButton(TW_MOUSE_PRESSED, TW_MOUSE_RIGHT) : 0;
+	isObserverHandling += event.isMiddleDown() ? TwMouseButton(TW_MOUSE_PRESSED, TW_MOUSE_MIDDLE) + TwMouseWheel(static_cast<int>(event.getWheelIncrement())) : 0;
+	if (isObserverHandling > 0)
+		return; //event handled by Observers
+#endif
 	if (mCtrlDown) {
 		if (!mSecondMouseDown) {
 			mEngine.mouseTouchBegin(event, 2);
@@ -181,13 +201,34 @@ void App::mouseDown( MouseEvent event ) {
 }
 
 void App::mouseMove(MouseEvent e) {
+#ifdef _DEBUG
+	if (TwMouseMotion(static_cast<int>(e.getX()), static_cast<int>(e.getY())) == 1)
+		return; //event handled by Observers
+#endif
 }
 
 void App::mouseDrag(MouseEvent e) {
+#ifdef _DEBUG
+	int isObserverHandling = 0;
+	isObserverHandling += e.isLeftDown() ? TwMouseButton(TW_MOUSE_PRESSED, TW_MOUSE_LEFT) : 0;
+	isObserverHandling += e.isRightDown() ? TwMouseButton(TW_MOUSE_PRESSED, TW_MOUSE_RIGHT) : 0;
+	isObserverHandling += e.isMiddleDown() ? TwMouseButton(TW_MOUSE_PRESSED, TW_MOUSE_MIDDLE) + TwMouseWheel(static_cast<int>(e.getWheelIncrement())) : 0;
+	isObserverHandling += TwMouseMotion(static_cast<int>(e.getX()), static_cast<int>(e.getY()));
+	if (isObserverHandling > 0)
+		return; //event handled by Observers
+#endif
 	mEngine.mouseTouchMoved(e, 1);
 }
 
 void App::mouseUp(MouseEvent e) {
+#ifdef _DEBUG
+	int isObserverHandling = 0;
+	isObserverHandling += e.isLeft() ? TwMouseButton(TW_MOUSE_RELEASED, TW_MOUSE_LEFT) : 0;
+	isObserverHandling += e.isRight() ? TwMouseButton(TW_MOUSE_RELEASED, TW_MOUSE_RIGHT) : 0;
+	isObserverHandling += e.isMiddle() ? TwMouseButton(TW_MOUSE_RELEASED, TW_MOUSE_MIDDLE) : 0;
+	if (isObserverHandling > 0)
+		return; //event handled by Observers
+#endif
 	mEngine.mouseTouchEnded(e, 1);
 }
 
@@ -220,8 +261,65 @@ const std::string& App::envAppDataPath() {
 	return APP_DATA_PATH;
 }
 
+#ifdef _DEBUG
+
+inline static bool routeKeyToObserver(KeyEvent &e) {
+	int isHandled = 0;
+	int modifier = TW_KMOD_NONE;
+	if (e.isShiftDown())
+		modifier |= TW_KMOD_SHIFT;
+	if (e.isControlDown())
+		modifier |= TW_KMOD_CTRL;
+	if (e.isAltDown())
+		modifier |= TW_KMOD_ALT;
+
+	if (e.getCode() == KeyEvent::KEY_BACKSPACE) isHandled += TwKeyPressed(TW_KEY_BACKSPACE, modifier);
+	else if (e.getCode() == KeyEvent::KEY_TAB) isHandled += TwKeyPressed(TW_KEY_TAB, modifier);
+	else if (e.getCode() == KeyEvent::KEY_CLEAR) isHandled += TwKeyPressed(TW_KEY_CLEAR, modifier);
+	else if (e.getCode() == KeyEvent::KEY_RETURN) isHandled += TwKeyPressed(TW_KEY_RETURN, modifier);
+	else if (e.getCode() == KeyEvent::KEY_PAUSE) isHandled += TwKeyPressed(TW_KEY_PAUSE, modifier);
+	else if (e.getCode() == KeyEvent::KEY_ESCAPE) isHandled += TwKeyPressed(TW_KEY_ESCAPE, modifier);
+	else if (e.getCode() == KeyEvent::KEY_SPACE) isHandled += TwKeyPressed(TW_KEY_SPACE, modifier);
+	else if (e.getCode() == KeyEvent::KEY_DELETE) isHandled += TwKeyPressed(TW_KEY_DELETE, modifier);
+	else if (e.getCode() == KeyEvent::KEY_UP) isHandled += TwKeyPressed(TW_KEY_UP, modifier);
+	else if (e.getCode() == KeyEvent::KEY_DOWN) isHandled += TwKeyPressed(TW_KEY_DOWN, modifier);
+	else if (e.getCode() == KeyEvent::KEY_RIGHT) isHandled += TwKeyPressed(TW_KEY_RIGHT, modifier);
+	else if (e.getCode() == KeyEvent::KEY_LEFT) isHandled += TwKeyPressed(TW_KEY_LEFT, modifier);
+	else if (e.getCode() == KeyEvent::KEY_INSERT) isHandled += TwKeyPressed(TW_KEY_INSERT, modifier);
+	else if (e.getCode() == KeyEvent::KEY_HOME) isHandled += TwKeyPressed(TW_KEY_HOME, modifier);
+	else if (e.getCode() == KeyEvent::KEY_END) isHandled += TwKeyPressed(TW_KEY_END, modifier);
+	else if (e.getCode() == KeyEvent::KEY_PAGEUP) isHandled += TwKeyPressed(TW_KEY_PAGE_UP, modifier);
+	else if (e.getCode() == KeyEvent::KEY_PAGEDOWN) isHandled += TwKeyPressed(TW_KEY_PAGE_DOWN, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F1) isHandled += TwKeyPressed(TW_KEY_F1, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F2) isHandled += TwKeyPressed(TW_KEY_F2, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F3) isHandled += TwKeyPressed(TW_KEY_F3, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F4) isHandled += TwKeyPressed(TW_KEY_F4, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F5) isHandled += TwKeyPressed(TW_KEY_F5, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F6) isHandled += TwKeyPressed(TW_KEY_F6, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F7) isHandled += TwKeyPressed(TW_KEY_F7, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F8) isHandled += TwKeyPressed(TW_KEY_F8, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F9) isHandled += TwKeyPressed(TW_KEY_F9, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F10) isHandled += TwKeyPressed(TW_KEY_F10, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F11) isHandled += TwKeyPressed(TW_KEY_F11, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F12) isHandled += TwKeyPressed(TW_KEY_F12, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F13) isHandled += TwKeyPressed(TW_KEY_F13, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F14) isHandled += TwKeyPressed(TW_KEY_F14, modifier);
+	else if (e.getCode() == KeyEvent::KEY_F15) isHandled += TwKeyPressed(TW_KEY_F15, modifier);
+	else isHandled += TwKeyPressed(e.getChar(), modifier);
+
+	return isHandled > 0 ? true : false;
+}
+
+#endif // _DEBUG
+
 void App::keyDown(KeyEvent e) {
 	const int		code = e.getCode();
+
+#ifdef _DEBUG
+	if (routeKeyToObserver(e))
+		return;
+#endif // _DEBUG
+
 	if ( ( mEscKeyEnabled && code == KeyEvent::KEY_ESCAPE ) || ( mQKeyEnabled && code == KeyEvent::KEY_q ) ) {
 		quit();
 	}
@@ -291,6 +389,9 @@ void App::quit() {
 }
 
 void App::shutdown() {
+#ifdef _DEBUG
+	TwTerminate();
+#endif
 	mEngine.getRootSprite().clearChildren();
 	mEngine.stopServices();
 	ds::ui::clearFontCache();
