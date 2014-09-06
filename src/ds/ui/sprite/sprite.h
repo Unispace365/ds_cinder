@@ -20,6 +20,9 @@
 #include "shader/sprite_shader.h"
 #include "util/blend.h"
 #include "ds/util/idle_timer.h"
+#ifdef _DEBUG
+#include "ds/debug/observer.h"
+#endif
 
 namespace ds {
 class BlobReader;
@@ -47,7 +50,11 @@ extern const char     SPRITE_ID_ATTRIBUTE;
  * basic scene container for app. objects implement a few functions to abstract functionality.
  * Sprite will delete children when clearing.
  */
-class Sprite : public SpriteAnimatable
+class Sprite
+	: public SpriteAnimatable
+#ifdef _DEBUG
+	, public Observer
+#endif
 {
 public:
 	// Sprite creation convenience, throw on failure.

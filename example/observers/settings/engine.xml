@@ -42,7 +42,7 @@
 	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
 	<text name="screen:mode" value="window" />
 	<!-- makes the window an always-on-top sort of window. default=false -->
-	<text name="screen:always_on_top" value="true" />
+	<text name="screen:always_on_top" value="false" />
 	
 	<!---------------------->
 	<!-- RENDER SETTINGS --->

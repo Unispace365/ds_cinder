@@ -78,6 +78,7 @@
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
     <ClInclude Include="..\src\ds\debug\function_exists.h" />
     <ClInclude Include="..\src\ds\debug\logger.h" />
+    <ClInclude Include="..\src\ds\debug\observer.h" />
     <ClInclude Include="..\src\ds\gl\save_camera.h" />
     <ClInclude Include="..\src\ds\gl\uniform.h" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
@@ -239,6 +240,7 @@
     <ClCompile Include="..\src\ds\debug\computer_info.cpp" />
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />
+    <ClCompile Include="..\src\ds\debug\observer.cpp" />
     <ClCompile Include="..\src\ds\gl\save_camera.cpp" />
     <ClCompile Include="..\src\ds\gl\uniform.cpp" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />

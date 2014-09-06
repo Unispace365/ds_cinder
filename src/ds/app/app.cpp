@@ -133,9 +133,17 @@ App::App(const RootList& roots)
 		if (*it) (*it)(mEngine);
 	}
 	startups.clear();
+
+#ifdef _DEBUG
+	TwInit(TW_OPENGL, NULL);
+	TwWindowSize(static_cast<int>(mEngine.getWidth()), static_cast<int>(mEngine.getHeight()));
+#endif
 }
 
 App::~App() {
+#ifdef _DEBUG
+	TwTerminate();
+#endif
 	delete &(mEngine);
 	ds::getLogger().shutDown();
 	if(mShowConsole){
@@ -157,11 +165,6 @@ void App::setup() {
 
 	mEngine.setup(*this);
 	mEngine.setupTuio(*this);
-
-#ifdef _DEBUG
-	TwInit(TW_OPENGL, NULL);
-	TwWindowSize(static_cast<int>(mEngine.getWidth()), static_cast<int>(mEngine.getHeight()));
-#endif
 }
 
 void App::update() {
@@ -389,9 +392,6 @@ void App::quit() {
 }
 
 void App::shutdown() {
-#ifdef _DEBUG
-	TwTerminate();
-#endif
 	mEngine.getRootSprite().clearChildren();
 	mEngine.stopServices();
 	ds::ui::clearFontCache();
