@@ -198,7 +198,6 @@ void TW_CALL getTransO(void* val, void* data) {
 void TW_CALL setColorO(const void* val, void* data) {
 	auto self = static_cast<Sprite *>(data);
 	const auto BarValue = static_cast<const float *>(val);
-	std::cout << BarValue[0] << " " << BarValue[1] << " " << BarValue[2] << " " << BarValue[3] << std::endl;
 	if(self) self->setColorA(ci::ColorA(BarValue[0], BarValue[1], BarValue[2], BarValue[3]));
 }
 void TW_CALL getColorO(void* val, void* data) {
