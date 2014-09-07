@@ -311,6 +311,11 @@ public:
 	// before the blobs are assigned
 	void					postAppSetup();
 
+#ifdef _DEBUG //Observer API
+	virtual std::string		observerHashGenerator() const;
+	virtual void			installObserver();
+#endif //!Observer API
+
 protected:
 	friend class        TouchManager;
 	friend class        TouchProcess;

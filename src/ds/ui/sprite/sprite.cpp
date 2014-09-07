@@ -172,6 +172,24 @@ Sprite::~Sprite() {
 	mChildren.clear();
 }
 
+#ifdef _DEBUG //Observer API
+
+// Provides hashed name to observers. If name of the sprite
+// was empty, it'll generate it from Sprite's mId
+std::string Sprite::observerHashGenerator() const {
+	if (getName().empty())
+		return "Sprite: " + value_to_string(getId());
+	else
+		return getName() + " (id: " + value_to_string(getId()) + ")";
+}
+
+void Sprite::installObserver()
+{
+	Observer::installObserver(); //This will add the empty observer GUI
+}
+
+#endif //!Observer API
+
 void Sprite::updateClient( const UpdateParams &updateParams )
 {
   mIdleTimer.update();

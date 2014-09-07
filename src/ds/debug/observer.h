@@ -5,6 +5,7 @@
 #include "ds\util\bit_mask.h"
 #include "ds\util\string_util.h"
 #include "cinder\Color.h"
+#include "logger.h"
 
 // A handy typedef for variables that need to be observed
 // via setters/getters. Example of these kind of variables
@@ -37,7 +38,12 @@ namespace ds {
 		Observer();
 		~Observer();
 
-	public:
+		// Supplies observer with a unique hash as their name
+		// Classes should override this to supply unique names
+		// for their Observers. For example Sprites override
+		// this and return their mId.
+		virtual std::string	observerHashGenerator() const;
+
 		// Initializes the Observer.
 		// Sprites (or classes) can override this
 		// to add more variables to the Tweaker GUI
@@ -54,19 +60,11 @@ namespace ds {
 		// **WARNING** If you add variables through the pointer, they
 		// won't be enabled in live mode. use Observer::observe API instead.
 		TwBar*				getObserver();
-	
-	protected:
-		// Supplies observer with a unique hash as their name
-		// Classes should override this to supply unique names
-		// for their Observers. For example Sprites override
-		// this and return their mId.
-		virtual std::string	observerHashGenerator() const;
 
 	public:
 		enum ACCESS_TYPE {
 			READ_ONLY,
-			READ_WRITE,
-			USER_DEFINED
+			READ_WRITE
 		};
 	
 	public:
@@ -132,10 +130,6 @@ namespace ds {
 			{
 				TwAddVarRO(getObserver(), name.c_str(), TW_TYPE_INT32, var, AntTweakBarParamSyntaxDef.c_str());
 			}
-			else if (type == USER_DEFINED)
-			{
-				TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_INT32, setter, getter, this, AntTweakBarParamSyntaxDef.c_str());
-			}
 		}
 		template<>
 		void 				observe<int>(std::string name, int* var, int min, int max, ACCESS_TYPE type, ObserverSetter setter, ObserverGetter getter) {
@@ -163,10 +157,6 @@ namespace ds {
 			else if (type == READ_ONLY)
 			{
 				TwAddVarRO(getObserver(), name.c_str(), TW_TYPE_DOUBLE, var, AntTweakBarParamSyntaxDef.c_str());
-			}
-			else if (type == USER_DEFINED)
-			{
-				TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_DOUBLE, setter, getter, this, AntTweakBarParamSyntaxDef.c_str());
 			}
 		}
 		template<>
@@ -196,10 +186,6 @@ namespace ds {
 			{
 				TwAddVarRO(getObserver(), name.c_str(), TW_TYPE_FLOAT, var, AntTweakBarParamSyntaxDef.c_str());
 			}
-			else if (type == USER_DEFINED)
-			{
-				TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_FLOAT, setter, getter, this, AntTweakBarParamSyntaxDef.c_str());
-			}
 		}
 		template<>
 		void 				observe<float>(std::string name, float* var, float min, float max, ACCESS_TYPE type, ObserverSetter setter, ObserverGetter getter) {
@@ -228,10 +214,6 @@ namespace ds {
 			{
 				TwAddVarRO(getObserver(), name.c_str(), TW_TYPE_BOOLCPP, var, AntTweakBarParamSyntaxDef.c_str());
 			}
-			else if (type == USER_DEFINED)
-			{
-				TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_BOOLCPP, setter, getter, this, AntTweakBarParamSyntaxDef.c_str());
-			}
 		}
 
 		// char
@@ -244,10 +226,6 @@ namespace ds {
 			else if (type == READ_ONLY)
 			{
 				TwAddVarRO(getObserver(), name.c_str(), TW_TYPE_CHAR, var, AntTweakBarParamSyntaxDef.c_str());
-			}
-			else if (type == USER_DEFINED)
-			{
-				TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_CHAR, setter, getter, this, AntTweakBarParamSyntaxDef.c_str());
 			}
 		}
 
@@ -262,10 +240,6 @@ namespace ds {
 			{
 				TwAddVarRO(getObserver(), name.c_str(), TW_TYPE_DIR3F, var->ptr(), AntTweakBarParamSyntaxDef.c_str());
 			}
-			else if (type == USER_DEFINED)
-			{
-				TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_DIR3F, setter, getter, this, AntTweakBarParamSyntaxDef.c_str());
-			}
 		}
 
 		// Vec3d
@@ -278,10 +252,6 @@ namespace ds {
 			else if (type == READ_ONLY)
 			{
 				TwAddVarRO(getObserver(), name.c_str(), TW_TYPE_DIR3D, var->ptr(), AntTweakBarParamSyntaxDef.c_str());
-			}
-			else if (type == USER_DEFINED)
-			{
-				TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_DIR3D, setter, getter, this, AntTweakBarParamSyntaxDef.c_str());
 			}
 		}
 
@@ -296,10 +266,6 @@ namespace ds {
 			{
 				TwAddVarRO(getObserver(), name.c_str(), TW_TYPE_COLOR3F, var->ptr(), AntTweakBarParamSyntaxDef.c_str());
 			}
-			else if (type == USER_DEFINED)
-			{
-				TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_COLOR3F, setter, getter, this, AntTweakBarParamSyntaxDef.c_str());
-			}
 		}
 
 		// ci::ColorA8u
@@ -313,10 +279,6 @@ namespace ds {
 			{
 				TwAddVarRO(getObserver(), name.c_str(), TW_TYPE_COLOR4F, var->ptr(), AntTweakBarParamSyntaxDef.c_str());
 			}
-			else if (type == USER_DEFINED)
-			{
-				TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_COLOR4F, setter, getter, this, AntTweakBarParamSyntaxDef.c_str());
-			}
 		}
 
 		// unsigned int
@@ -329,10 +291,6 @@ namespace ds {
 			else if (type == READ_ONLY)
 			{
 				TwAddVarRO(getObserver(), name.c_str(), TW_TYPE_UINT32, var, AntTweakBarParamSyntaxDef.c_str());
-			}
-			else if (type == USER_DEFINED)
-			{
-				TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_UINT32, setter, getter, this, AntTweakBarParamSyntaxDef.c_str());
 			}
 		}
 		template<>
@@ -350,6 +308,43 @@ namespace ds {
 			std::string def = " step="+value_to_string(step)+" ";
 			observe(name, var, type, setter, getter, def);
 		}
+
+		// User Defined Observers with getters/setter
+		template<typename T>
+		void				observe(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef = "");
+		template<>
+		void				observe<bool>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_BOOLCPP, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
+		template<>
+		void				observe<int>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_INT32, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
+		template<>
+		void				observe<float>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_FLOAT, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
+		template<>
+		void				observe<double>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_DOUBLE, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
+		template<>
+		void				observe<unsigned int>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_UINT32, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
+		template<>
+		void				observe<char>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_CHAR, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
+		template<>
+		void				observe<ci::Color>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_COLOR3F, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
+		template<>
+		void				observe<ci::Vec3f>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_DIR3F, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
+		template<>
+		void				observe<ci::Vec3d>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_DIR3D, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
+		template<>
+		void				observe<ci::Vec2f>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_DIR3F, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
+		template<>
+		void				observe<ci::Vec2d>(std::string name, ObserverSetter setter, ObserverGetter getter, std::string AntTweakBarParamSyntaxDef) {
+			TwAddVarCB(getObserver(), name.c_str(), TW_TYPE_DIR3D, setter, getter, this, AntTweakBarParamSyntaxDef.c_str()); }
 
 	}; //!class Observer
 
