@@ -68,10 +68,10 @@ public:
 	template <typename T>
 	static void				removeAndDelete(T *&sprite);
 
-	Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f);
+	Sprite(SpriteEngine&, float width = 0.0f, float height = 0.0f, std::string name = "");
 	virtual ~Sprite();
 
-	// Sprite behaviour can vary whether this is running on the server
+	// Sprite behavior can vary whether this is running on the server
 	// or client.
 	virtual void			updateClient(const ds::UpdateParams&);
 	virtual void			updateServer(const ds::UpdateParams&);
@@ -80,6 +80,11 @@ public:
 	virtual void			drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams );
 
 	ds::sprite_id_t			getId() const		{ return mId; }
+
+public:
+	void					setName(const std::string& name)
+												{ mName.assign(name); }
+	std::string				getName() const		{ return mName; }
 	ds::ui::SpriteEngine&	getEngine()			{ return mEngine; }
 
 	void					setSize(float width, float height);
@@ -374,6 +379,7 @@ protected:
 	// The ID must always be assigned through setSpriteId(), which has some
 	// behaviour associated with the ID changing.
 	ds::sprite_id_t		mId;
+	std::string			mName;
 	ci::Color8u			mUniqueColor;
 
 	float				mWidth,

@@ -107,6 +107,7 @@ public:
 	virtual void						registerSprite(ds::ui::Sprite&);
 	virtual void						unregisterSprite(ds::ui::Sprite&);
 	virtual ds::ui::Sprite*				findSprite(const ds::sprite_id_t);
+	virtual ds::ui::Sprite*				findSprite(const std::string& name);
 	virtual void						requestDeleteSprite(ds::ui::Sprite&);
 	virtual ci::Color8u					getUniqueColor();
 
@@ -177,6 +178,8 @@ protected:
 	ds::BlobRegistry					mBlobRegistry;
 	std::unordered_map<ds::sprite_id_t, ds::ui::Sprite*>
 										mSprites;
+	std::unordered_map<std::string , ds::sprite_id_t>
+										mSpritesNamePool;
 	int									mTuioPort;
 
 	// All the installed image processing functions.

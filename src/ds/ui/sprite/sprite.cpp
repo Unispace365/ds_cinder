@@ -84,10 +84,11 @@ void Sprite::handleBlobFromClient(ds::BlobReader& r) {
 	if (s) s->readFrom(r);
 }
 
-Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.0f*/ )
+Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.0f*/, std::string name /* = "" */)
     : SpriteAnimatable(*this, engine)
 	, mEngine(engine)
     , mId(ds::EMPTY_SPRITE_ID)
+	, mName(name)
     , mWidth(width)
     , mHeight(height)
     , mTouchProcess(engine, *this)
@@ -143,6 +144,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mCornerRadius = 0.0f;
 	mDrawOpacityHack = 1.0f;
 	mDelayedCallCueRef = nullptr;
+	mName = "";
 
 	setSpriteId(id);
 
