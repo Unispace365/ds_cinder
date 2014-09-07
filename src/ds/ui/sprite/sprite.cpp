@@ -183,9 +183,121 @@ std::string Sprite::observerHashGenerator() const {
 		return getName() + " (id: " + value_to_string(getId()) + ")";
 }
 
+// Observer Getter and Setters
+
+// Transparency (Sprite::setTransparent)
+void TW_CALL setTransO(const void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	if (self) self->setTransparent(*(bool *) val);
+}
+void TW_CALL getTransO(void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	if (self) *(bool *) val = self->getTransparent();
+}
+
+void TW_CALL setColorO(const void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	const auto BarValue = static_cast<const float *>(val);
+	std::cout << BarValue[0] << " " << BarValue[1] << " " << BarValue[2] << " " << BarValue[3] << std::endl;
+	if(self) self->setColorA(ci::ColorA(BarValue[0], BarValue[1], BarValue[2], BarValue[3]));
+}
+void TW_CALL getColorO(void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	// Outgoing values should be ci::ColorA8u
+	auto BarValue = static_cast<float *>(val);
+	if(self) {
+		const auto myColor = self->getColorA();
+		BarValue[0] = myColor.r;
+		BarValue[1] = myColor.g;
+		BarValue[2] = myColor.b;
+		BarValue[3] = myColor.a;
+	}
+}
+
+// Set size
+void TW_CALL setSizeO(const void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	const auto BarValue = static_cast<const float *>(val);
+	if (self) self->setSize(BarValue[0], BarValue[1]);
+}
+void TW_CALL getSizeO(void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	auto BarValue = static_cast<float *>(val);
+	const auto mySize = ci::Vec2f(self->getWidth(), self->getHeight());
+	BarValue[0] = mySize.x;
+	BarValue[1] = mySize.y;
+	BarValue[2] = 0.0f;
+}
+
+// Set pos
+void TW_CALL setPosO(const void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	const auto BarValue = static_cast<const float *>(val);
+	if (self) self->setPosition(BarValue[0], BarValue[1], BarValue[2]);
+}
+void TW_CALL getPosO(void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	auto BarValue = static_cast<float *>(val);
+	const auto myPos = self->getPosition();
+	BarValue[0] = myPos.x;
+	BarValue[1] = myPos.y;
+	BarValue[2] = myPos.z;
+}
+
+// Set scale
+void TW_CALL setScaleO(const void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	const auto BarValue = static_cast<const float *>(val);
+	if (self) self->setScale(BarValue[0], BarValue[1], BarValue[2]);
+}
+void TW_CALL getScaleO(void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	auto BarValue = static_cast<float *>(val);
+	const auto myScale = self->getScale();
+	BarValue[0] = myScale.x;
+	BarValue[1] = myScale.y;
+	BarValue[2] = myScale.z;
+}
+
+// Set cornet radius
+void TW_CALL setRadiusO(const void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	const auto BarValue = static_cast<const float *>(val);
+	if (self) self->setCornerRadius(*BarValue);
+}
+void TW_CALL getRadiusO(void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	auto BarValue = static_cast<float *>(val);
+	const auto myRadius = self->getCornerRadius();
+	*BarValue = myRadius;
+}
+
+// Set rotation
+void TW_CALL setRotationO(const void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	const auto BarValue = static_cast<const float *>(val);
+	if (self) self->setRotation(ci::Vec3f(BarValue[0], BarValue[1], BarValue[2]));
+}
+void TW_CALL getRotationO(void* val, void* data) {
+	auto self = static_cast<Sprite *>(data);
+	auto BarValue = static_cast<float *>(val);
+	const auto myRotation = self->getRotation();
+	BarValue[0] = myRotation.x;
+	BarValue[1] = myRotation.y;
+	BarValue[2] = myRotation.z;
+}
+
 void Sprite::installObserver()
 {
 	Observer::installObserver(); //This will add the empty observer GUI
+
+	observe<bool>("transparent", setTransO, getTransO, this, "");
+	observe<Color>("color", setColorO, getColorO, this, "");
+	observe<Vec3f>("size", setSizeO, getSizeO, this, "");
+	observe<Vec3f>("position", setPosO, getPosO, this, "");
+	observe<Vec3f>("scale", setScaleO, getScaleO, this, "");
+	observe<Vec3f>("rotation", setRotationO, getRotationO, this, "");
+	observe<float>("corner radius", setRadiusO, getRadiusO, this, "");
 }
 
 #endif //!Observer API
