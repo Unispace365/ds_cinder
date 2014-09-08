@@ -1,11 +1,14 @@
 *.user
 *.suo
 *.sdf
+*.ipch
+*.orig
 lib/platform*.lib
 obj/
 Debug/
-*.orig
-/example/animation/vc10/ipch/animation-a8791b83/*.ipch
-*.ipch
+Release/
 
-/example/pdf/vs2013/Release/
+projects/pdf/lib/
+projects/physics/lib/
+projects/video/lib/
+projects/web/lib/
