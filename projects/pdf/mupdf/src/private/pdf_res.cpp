@@ -3,8 +3,11 @@
 #include <ds/debug/logger.h>
 
 extern "C" {
-#include "MuPDF/fitz.h"
-#include "MuPDF/mupdf.h"
+#include "mupdf/fitz.h"
+#include "mupdf/pdf.h"
+#include "mupdf/fitz/pixmap.h"
+#include "mupdf/fitz/colorspace.h"
+#include "mupdf/fitz/context.h"
 }
 
 namespace ds {
@@ -40,6 +43,9 @@ private:
 		try {
 			bool			ans = false;
 			if ((mCtx = fz_new_context(NULL, NULL, FZ_STORE_UNLIMITED)) == nullptr) return false;
+
+			fz_register_document_handlers(mCtx);
+
 			// This is pretty ugly because MuPDF uses custom C++-like error handing that
 			// has stringent rules, like you're not allowed to return.
 			fz_try(mCtx) {
@@ -173,7 +179,7 @@ private:
 				int w = mScaledWidth, h = mScaledHeight;
 				if (mPixels.setSize(w, h)) {
 					mPixels.clearPixels();
-					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb, w, h, mPixels.getData());
+					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, mPixels.getData());
 					if (pixmap) {
 						fz_clear_pixmap_with_value(&ctx, pixmap, 0xff);
 						// Run the page with the transform.
@@ -235,7 +241,7 @@ private:
 				int w = mScaledWidth, h = mScaledHeight;
 				if (mPixels.setSize(w, h)) {
 					mPixels.clearPixels();
-					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb, w, h, mPixels.getData());
+					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, mPixels.getData());
 					if (pixmap) {
 						fz_clear_pixmap_with_value(&ctx, pixmap, 0xff);
 						// Run the page with the transform.

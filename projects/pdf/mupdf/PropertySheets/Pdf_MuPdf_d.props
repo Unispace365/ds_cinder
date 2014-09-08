@@ -9,7 +9,7 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM)\projects\pdf\mupdf\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);libthirdparty.lib;libmupdf-nov8.lib;libmupdf.lib;pdf_mupdf_d.lib</AdditionalDependencies>
+      <AdditionalDependencies>%(AdditionalDependencies);libthirdparty.lib;libmupdf.lib;pdf_mupdf_d.lib</AdditionalDependencies>
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM)\projects\pdf\mupdf\lib\MuPDF\lib\debug;$(DS_PLATFORM)\projects\pdf\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>

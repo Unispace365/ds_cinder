@@ -4,7 +4,8 @@
 lib/platform*.lib
 obj/
 Debug/
-lib/
 *.orig
 /example/animation/vc10/ipch/animation-a8791b83/*.ipch
 *.ipch
+
+/example/pdf/vs2013/Release/
