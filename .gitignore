@@ -1,6 +1,7 @@
 *.user
 *.suo
 *.sdf
+*.opensdf
 *.ipch
 *.orig
 lib/platform*.lib
