@@ -18,7 +18,10 @@ namespace net {
 class TcpServer : public ds::AutoUpdate {
 public:
 	// Wakeup will be sent whenever a connection is made
-	TcpServer(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&, const std::string& wakeup = "");
+	// If there's a terminator character, then I will split input by the terminator,
+	// and hold onto anything that's missing it.
+	TcpServer(	ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&,
+				const std::string& wakeup = "", const std::string &terminator = "");
 	~TcpServer();
 
 	void							add(const std::function<void(const std::string&)>&);

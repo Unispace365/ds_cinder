@@ -30,7 +30,10 @@ public:
 	};
 
 public:
-	TcpClient(ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&, const Options& opt = Options());
+	// If there's a terminator character, then I will split input by the terminator,
+	// and hold onto anything that's missing it.
+	TcpClient(	ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&,
+				const Options& opt = Options(), const std::string &terminator = "");
 	~TcpClient();
 
 	void							add(const std::function<void(const std::string&)>&);
@@ -52,7 +55,7 @@ private:
 		Poco::Net::StreamSocket			mSocket;
 
 	public:
-		Loop(const Poco::Net::SocketAddress&, const Options&);
+		Loop(const Poco::Net::SocketAddress&, const Options&, const std::string &terminator);
 
 		virtual void					run();
 
@@ -62,6 +65,10 @@ private:
 
 		const Poco::Net::SocketAddress	mAddress;
 		const Options					mOptions;
+		// If there's a terminator char, I'll hold onto any incoming
+		// data without it.
+		const std::string				mTerminator;
+		std::string						mWaiting;
 	};
 
 	Poco::Thread					mThread;
