@@ -69,7 +69,8 @@ To compile with GSTREAMER
 -------------------------
 
 Install **Gstreamer 1.2.3** runtime and development files available [from the gstreamer site][1]. Use the x86, not x64 versions.
-
+  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.2.3/gstreamer-1.0-x86-1.2.3.msi)
+  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.2.3/gstreamer-1.0-devel-x86-1.2.3.msi)
 
 ----------
 
