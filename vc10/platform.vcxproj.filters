@@ -627,6 +627,9 @@
     <ClInclude Include="..\src\ds\ui\touch\button_behaviour.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\debug\observer.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1057,6 +1060,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\button_behaviour.cpp">
       <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\observer.cpp">
+      <Filter>src\ds\debug</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

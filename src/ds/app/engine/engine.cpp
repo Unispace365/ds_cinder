@@ -661,7 +661,13 @@ void Engine::registerSprite(ds::ui::Sprite& s) {
 		assert(false);
 		return;
 	}
+	
 	mSprites[s.getId()] = &s;
+	
+	if (!s.getName().empty() && mSpritesNamePool.find(s.getName()) == mSpritesNamePool.end())
+		mSpritesNamePool[s.getName()] = s.getId();
+	else if (!s.getName().empty())
+		DS_LOG_WARNING_M("Engine::registerSprite() duplicate sprite name ignored! name is: " << s.getName(), ds::ENGINE_LOG);
 }
 
 void Engine::unregisterSprite(ds::ui::Sprite& s) {
@@ -671,6 +677,12 @@ void Engine::unregisterSprite(ds::ui::Sprite& s) {
 		assert(false);
 		return;
 	}
+
+	if (!s.getName().empty() && mSpritesNamePool.find(s.getName()) != mSpritesNamePool.end())
+		mSpritesNamePool.erase(s.getName());
+	else if (!s.getName().empty())
+		DS_LOG_WARNING_M("Engine::unregisterSprite() rmoving sprite with invalid name ignored! name was: " << s.getName(), ds::ENGINE_LOG);
+
 	auto it = mSprites.find(s.getId());
 	if (it != mSprites.end()) mSprites.erase(it);
 }
@@ -680,6 +692,17 @@ ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id) {
 	auto it = mSprites.find(id);
 	if (it == mSprites.end()) return nullptr;
 	return it->second;
+}
+
+ds::ui::Sprite* Engine::findSprite(const std::string& name) {
+	if (name.empty() || mSprites.empty()) return nullptr;
+	// First let's see if we have it in cache
+	if (mSpritesNamePool.find(name) != mSpritesNamePool.end()) return mSprites[mSpritesNamePool[name]];
+	// Try one more time in case the sprite is not registered with the engine
+	for(auto it = mSprites.begin(); it != mSprites.end(); ++it)
+		if (it->second->getName() == name) return it->second;
+	// Nope.
+	return nullptr;
 }
 
 void Engine::requestDeleteSprite(ds::ui::Sprite& s) {
