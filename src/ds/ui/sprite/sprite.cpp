@@ -893,7 +893,7 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 		return nullptr;
 
 	makeSortedChildren();
-	for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it ) {
+	for ( auto it = mSortedTmp.rbegin(), it2 = mSortedTmp.rend(); it != it2; ++it ) {
 		Sprite*		hit = (*it)->getPerspectiveHit(pick);
 		if (hit) {
 			return hit;
@@ -901,11 +901,12 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 	}
 
 	if (isEnabled()) {
-		const float						w = getWidth(),
-													h = getHeight();
+		const float							w = getWidth(),
+											h = getHeight();
 		ci::Vec3f							a = getPosition();
-		a.x += (-mCenter.x*w);
-		a.y += (mCenter.y*h);
+											a.x += (-mCenter.x*w);
+											a.y += (mCenter.y*h);
+
 		ci::Vec2f							lt = ci::Vec2f(a.x, a.y);
 		ci::Vec2f							rb(a.x + w, a.y - h);
 		if (!mIsInScreenCoordsHack) {
@@ -915,6 +916,7 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 			rb.y = a.y + h;
 		}
 		ci::Rectf							r(lt.x, lt.y, rb.x, rb.y);
+
 		if (r.contains(ci::Vec2f(pick.getScreenPt().x, pick.getScreenPt().y))) {
 			return this;
 		}
