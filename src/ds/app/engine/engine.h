@@ -181,6 +181,7 @@ protected:
 
 	// All the installed image processing functions.
 	ds::ui::ip::FunctionList			mIpFunctions;
+	ds::ui::TouchMode::Enum				mTouchMode;
 
 private:
 	// Special function to set the camera to the current screen and clear it.
@@ -203,7 +204,6 @@ private:
 	float								mLastTouchTime;
 	float								mIdleTime;
 
-	ds::ui::TouchMode::Enum				mTouchMode;
 	tuio::Client						mTuio;
 	ui::TouchManager					mTouchManager;
 	// Clients that will get update() called automatically at the start
