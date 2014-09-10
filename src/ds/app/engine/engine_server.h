@@ -39,9 +39,12 @@ public:
 	virtual void					stopServices();
 	virtual int						getMode() const { return SERVER_MODE; }
 
+	virtual void					spriteDeleted(const ds::sprite_id_t&);
+
 private:
 	void							receiveHeader(ds::DataBuffer&);
 	void							receiveCommand(ds::DataBuffer&);
+	void							receiveDeleteSprite(ds::DataBuffer&);
 	void							onClientStartedCommand(ds::DataBuffer&);
 	void							onClientRunningCommand(ds::DataBuffer&);
 
@@ -62,6 +65,7 @@ private:
 		State();
 		virtual void				begin(AbstractEngineServer&);
 		virtual void				update(AbstractEngineServer&) = 0;
+		virtual void				spriteDeleted(const ds::sprite_id_t&) { }
 
 	protected:
 		void						addHeader(ds::DataBuffer&, const int frame);
@@ -74,9 +78,13 @@ private:
 		RunningState();
 		virtual void				begin(AbstractEngineServer&);
 		virtual void				update(AbstractEngineServer&);
+		virtual void				spriteDeleted(const ds::sprite_id_t&);
 
 	private:
+		void						addDeletedSprites(ds::DataBuffer&) const;
+
 		int32_t						mFrame;
+		std::vector<sprite_id_t>	mDeletedSprites;
 	};
 
 	/* This state is used to send a client started reply.

@@ -27,17 +27,22 @@ std::string                     EMPTY_CUSTOM_PATH("");
 }
 
 class CsApp : public ds::App {
-  public:
-    CsApp();
+public:
+	CsApp();
 
-    void				      setupServer();
-    void              keyDown( KeyEvent event );
+	void				setupServer();
+	void				keyDown(KeyEvent);
 
-  private:
-    typedef ds::App   inherited;
+private:
+	ds::ui::Sprite*		newToggleSprite() const;
+
+	typedef ds::App		inherited;
+	// Test delete by having a sprite I can toggle on or off
+	ds::ui::Sprite*		mToggleSprite;
 };
 
-CsApp::CsApp() {
+CsApp::CsApp()
+		: mToggleSprite(nullptr) {
 	try {
 		// Setup my custom database info
 		CUSTOM_RESOURCE_PATH = ds::Environment::getAppFolder("data", "resources");
@@ -94,14 +99,41 @@ void CsApp::setupServer() {
 	rootSprite.addChild(*text);
 }
 
-void CsApp::keyDown( KeyEvent event )
-{
-  inherited::keyDown(event);
+void CsApp::keyDown(KeyEvent e) {
+	inherited::keyDown(e);
 
-  if ( event.getCode() == KeyEvent::KEY_ESCAPE )
-  {
-    quit();
-  }
+	const int		code = e.getCode();
+	if (code == KeyEvent::KEY_z) {
+		if (!mToggleSprite) {
+			mToggleSprite = newToggleSprite();
+		} else {
+			mToggleSprite->release();
+			mToggleSprite = nullptr;
+		}
+	}
+}
+
+ds::ui::Sprite* CsApp::newToggleSprite() const {
+	ds::ui::Sprite&		root(mEngine.getRootSprite());
+	ds::ui::Sprite*		s = new ds::ui::Sprite(mEngine);
+	if (!s) return nullptr;
+	s->setTransparent(false);
+	s->setColor(0.8f, 0.12f, 0.21f);
+	s->enable(true);
+	s->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
+	s->setPosition(root.getWidth()*0.2f, root.getHeight()*0.2f);
+	s->setSize(root.getWidth()*0.4f, root.getHeight()*0.4f);
+	root.addChild(*s);
+
+	// Add a little child so delete is REALLY tested
+	ds::ui::Sprite*		child = new ds::ui::Sprite(mEngine);
+	if (child) {
+		child->setTransparent(false);
+		child->setColorA(ci::ColorA(0.0f, 0.0f, 0.0f, 0.24f));
+		child->setSize(s->getWidth()*0.4f, s->getHeight()*0.4f);
+		s->addChild(*child);
+	}
+	return s;
 }
 
 // This line tells Cinder to actually create the application

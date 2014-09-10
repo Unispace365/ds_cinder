@@ -45,6 +45,7 @@ public:
 private:
 	void							receiveHeader(ds::DataBuffer&);
 	void							receiveCommand(ds::DataBuffer&);
+	void							receiveDeleteSprite(ds::DataBuffer&);
 	void							onClientStartedReplyCommand(ds::DataBuffer&);
 
 	typedef Engine inherited;

@@ -10,8 +10,9 @@
 namespace ds {
 
 namespace {
-char              HEADER_BLOB = 0;
-char              COMMAND_BLOB = 0;
+char				HEADER_BLOB = 0;
+char				COMMAND_BLOB = 0;
+char				DELETE_SPRITE_BLOB = 0;
 }
 
 /**
@@ -34,6 +35,7 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 	// so that the BLOB ids match.
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
 	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
+	DELETE_SPRITE_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveDeleteSprite(r.mDataBuffer);});
 	mReceiver.setHeaderAndCommandIds(HEADER_BLOB, COMMAND_BLOB);
 	
 	try {
@@ -153,6 +155,36 @@ void EngineClient::receiveCommand(ds::DataBuffer& data) {
 			DS_LOG_INFO_M("Receive ClientStartedReply", ds::IO_LOG);
 			onClientStartedReplyCommand(data);
 		}
+	}
+}
+
+void EngineClient::receiveDeleteSprite(ds::DataBuffer& data) {
+	// First data is the count
+	if (!data.canRead<size_t>()) return;
+	size_t		size = data.read<size_t>();
+	for (size_t k=0; k<size; ++k) {
+		if (data.canRead<sprite_id_t>()) {
+			const sprite_id_t	id = data.read<sprite_id_t>();
+//			std::cout << "DELETE=" << id << std::endl;
+			if (!mSprites.empty()) {
+				auto f = mSprites.find(id);
+				if (f != mSprites.end()) {
+					// Once I delete this item, mSprites will have been updated,
+					// with f->second and all children removed, so do not reference f again.
+					if (f->second) f->second->release();
+				}
+			}
+		} else {
+			break;
+		}
+	}
+	if (!data.canRead<char>()) {
+		DS_LOG_ERROR("EngineClient::receiveDeleteSprite() no space for an ending terminator");
+		return;
+	}
+	const char		cmd(data.read<char>());
+	if (cmd != ds::TERMINATOR_CHAR) {
+		DS_LOG_ERROR("EngineClient::receiveDeleteSprite() no ending terminator");
 	}
 }
 

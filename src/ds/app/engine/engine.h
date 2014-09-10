@@ -107,7 +107,7 @@ public:
 	virtual void						registerSprite(ds::ui::Sprite&);
 	virtual void						unregisterSprite(ds::ui::Sprite&);
 	virtual ds::ui::Sprite*				findSprite(const ds::sprite_id_t);
-	virtual void						requestDeleteSprite(ds::ui::Sprite&);
+	virtual void						spriteDeleted(const ds::sprite_id_t&);
 	virtual ci::Color8u					getUniqueColor();
 
 	tuio::Client&						getTuioClient();
@@ -185,14 +185,11 @@ protected:
 private:
 	// Special function to set the camera to the current screen and clear it.
 	void								clearScreen();
-	void								deleteRequestedSprites();
 	void								setTouchMode(const ds::ui::TouchMode::Enum&);
 
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot>>
 										mRoots;
-	std::vector<ds::sprite_id_t>		mRequestDelete;
-
 	const ds::cfg::Settings&			mSettings;
 	ImageRegistry						mImageRegistry;
 	ds::ui::Tweenline					mTweenline;

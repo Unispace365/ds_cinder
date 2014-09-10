@@ -159,43 +159,46 @@ Sprite::~Sprite() {
 	animStop();
 	cancelDelayedCall();
 
+//	std::cout << "delete " << mId << std::endl;
+	// We only want to request a delete for the sprite at the head of a tree,
+	const sprite_id_t	id = mId;
     setSpriteId(ds::EMPTY_SPRITE_ID);
-	// Parent management should have happened before we get to the delete.
-//    remove();
 
 	for (auto it=mChildren.begin(), end=mChildren.end(); it!=end; ++it) {
 		(*it)->mParent = nullptr;
+		// Make sure the destructor doesn't ask the engine to delete
+		(*it)->setSpriteId(ds::EMPTY_SPRITE_ID);
 		delete (*it);
 	}
 	mChildren.clear();
+
+	if (id != ds::EMPTY_SPRITE_ID) {
+		mEngine.spriteDeleted(id);
+	}
 }
 
-void Sprite::updateClient( const UpdateParams &updateParams )
-{
-  mIdleTimer.update();
+void Sprite::updateClient(const UpdateParams &p) {
+	mIdleTimer.update();
 
-  if (mCheckBounds) {
-    updateCheckBounds();
-  }
+	if (mCheckBounds) {
+		updateCheckBounds();
+	}
 
-    for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
-    {
-        (*it)->updateClient(updateParams);
-    }
+	for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it ) {
+		(*it)->updateClient(p);
+	}
 }
 
-void Sprite::updateServer( const UpdateParams &updateParams )
-{
-  mIdleTimer.update();
+void Sprite::updateServer(const UpdateParams &p) {
+	mIdleTimer.update();
 
-  if (mCheckBounds) {
-    updateCheckBounds();
-  }
+	if (mCheckBounds) {
+		updateCheckBounds();
+	}
 
-  for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it )
-  {
-    (*it)->updateServer(updateParams);
-  }
+	for ( auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it ) {
+		(*it)->updateServer(p);
+	}
 }
 
 void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParams ) {
