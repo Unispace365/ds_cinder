@@ -1,5 +1,7 @@
 #include "ds/network/tcp_server.h"
 
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string.hpp>
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 
@@ -13,12 +15,14 @@ namespace {
 						std::shared_ptr<TcpServer::SendBucket>& b,
 						std::shared_ptr<ds::AsyncQueue<std::string>>& rq,
 						std::shared_ptr<bool>& st,
-						const std::string& wakeup)
+						const std::string& wakeup,
+						const std::string &terminator)
 				: Poco::Net::TCPServerConnection(s)
 				, mBucket(b)
 				, mSendQueue(b->startQueue())
 				, mReceiveQueue(rq)
-				, mSt(st) {
+				, mSt(st)
+				, mTerminator(terminator) {
 			if (mSendQueue && !wakeup.empty()) mSendQueue->push(wakeup);
 		}
 
@@ -61,7 +65,26 @@ namespace {
 
 		void		receiveFrom(Poco::Net::StreamSocket& socket) {
 			const int		n = socket.receiveBytes(mBuffer, sizeof(mBuffer));
-			if (n > 0) mReceiveQueue->push(std::string(mBuffer, n));
+			if (n <= 0) return;
+			
+			if (mTerminator.empty()) {
+				mReceiveQueue->push(std::string(mBuffer, n));
+			} else {
+				mWaiting += std::string(mBuffer, n);
+				std::vector<std::string> all;
+				boost::split(all, mWaiting, boost::is_any_of(mTerminator));
+				mWaiting.clear();
+				// The last element will be an empty string if this update() str ended
+				// with the terminator; if it's not, then it's a partial, so track that.
+				if (!all.empty() && !all.back().empty()) {
+					mWaiting = all.back();
+					all.pop_back();
+				}
+				for (auto it=all.begin(), end=all.end(); it!=end; ++it) {
+					if (it->empty()) continue;
+					mReceiveQueue->push(*it);
+				}
+			}
 		}
 
 		char										mBuffer[256];
@@ -69,39 +92,44 @@ namespace {
 		ds::AsyncQueue<std::string>*				mSendQueue;
 		std::shared_ptr<ds::AsyncQueue<std::string>>	mReceiveQueue;
 		std::shared_ptr<bool>							mSt;
+		const std::string								mTerminator;
+		std::string										mWaiting;
 	};
 
 	class ConnectionFactory: public Poco::Net::TCPServerConnectionFactory {
 	public:
 		ConnectionFactory(	std::shared_ptr<TcpServer::SendBucket>& b, std::shared_ptr<ds::AsyncQueue<std::string>>& rq,
-							std::shared_ptr<bool>& st, const std::string& wakeup)
+							std::shared_ptr<bool>& st, const std::string& wakeup, const std::string &terminator)
 				: mBucket(b)
 				, mReceiveQueue(rq)
 				, mSt(st)
-				, mWakeup(wakeup) {
+				, mWakeup(wakeup)
+				, mTerminator(terminator) {
 		}
 
 		Poco::Net::TCPServerConnection* createConnection(const Poco::Net::StreamSocket& socket) {
-			return new EchoConnection(socket, mBucket, mReceiveQueue, mSt, mWakeup);
+			return new EchoConnection(socket, mBucket, mReceiveQueue, mSt, mWakeup, mTerminator);
 		}
 
 		std::shared_ptr<TcpServer::SendBucket>			mBucket;
 		std::shared_ptr<ds::AsyncQueue<std::string>>	mReceiveQueue;
 		std::shared_ptr<bool>							mSt;
 		const std::string								mWakeup;
+		const std::string								mTerminator;
 	};
 }
 
 /**
  * \class ds::TcpServer
  */
-TcpServer::TcpServer(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address, const std::string& wakeup)
+TcpServer::TcpServer(	ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address,
+						const std::string& wakeup, const std::string &terminator)
 		: ds::AutoUpdate(e)
 		, mAddress(address)
 		, mStopped(new bool(false))
 		, mBucket(new SendBucket())
 		, mReceiveQueue(new ds::AsyncQueue<std::string>())
-		, mServer(new ConnectionFactory(mBucket, mReceiveQueue, mStopped, wakeup), Poco::Net::ServerSocket(address)) {
+		, mServer(new ConnectionFactory(mBucket, mReceiveQueue, mStopped, wakeup, terminator), Poco::Net::ServerSocket(address)) {
 	if (!mStopped) throw std::runtime_error("TcpServer failed making mStopped");
 	if (!mBucket) throw std::runtime_error("TcpServer failed making mBucket");
 	if (!mReceiveQueue) throw std::runtime_error("TcpServer failed making mReceiveQueue");

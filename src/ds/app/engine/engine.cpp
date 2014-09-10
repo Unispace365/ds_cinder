@@ -168,7 +168,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 {
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));
-	mRequestDelete.reserve(32);
 
 	// For now, install some default image processing functions here, for convenience. These are
 	// so lightweight it probably makes sense just to have them always available for clients instead
@@ -363,8 +362,6 @@ ui::Sprite& Engine::getRootSprite(const size_t index) {
 }
 
 void Engine::updateClient() {
-	deleteRequestedSprites();
-
 	float curr = static_cast<float>(getElapsedSeconds());
 	float dt = curr - mLastTime;
 	mLastTime = curr;
@@ -388,8 +385,6 @@ void Engine::updateServer() {
 		mTouchTranslator.setScale(	mData.mSrcRect.getWidth() / static_cast<float>(mCachedWindowW),
 									mData.mSrcRect.getHeight() / static_cast<float>(mCachedWindowH));
 	}
-
-	deleteRequestedSprites();
 
 	const float		curr = static_cast<float>(getElapsedSeconds());
 	const float		dt = curr - mLastTime;
@@ -685,11 +680,9 @@ ds::ui::Sprite* Engine::findSprite(const ds::sprite_id_t id) {
 	return it->second;
 }
 
-void Engine::requestDeleteSprite(ds::ui::Sprite& s) {
-	try {
-		mRequestDelete.push_back(s.getId());
-	} catch (std::exception const&) {
-	}
+void Engine::spriteDeleted(const ds::sprite_id_t&) {
+	// Only a server cares about this; everything else just
+	// deletes in-place.
 }
 
 ci::Color8u Engine::getUniqueColor() {
@@ -869,17 +862,6 @@ void Engine::setToUserCamera() {
 	mMouseBeginEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchBegin(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
 	mMouseMovedEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchMoved(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
 	mMouseEndEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchEnded(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
-}
-
-void Engine::deleteRequestedSprites() {
-	for (auto it=mRequestDelete.begin(), end=mRequestDelete.end(); it!=end; ++it) {
-		try {
-			ds::ui::Sprite*		s = findSprite(*it);
-			if (s) ds::ui::Sprite::removeAndDelete(s);
-		} catch (std::exception const&) {
-		}
-	}
-	mRequestDelete.clear();
 }
 
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {

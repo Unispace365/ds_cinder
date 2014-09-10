@@ -12,6 +12,7 @@ namespace ds {
 namespace {
 char				HEADER_BLOB = 0;
 char				COMMAND_BLOB = 0;
+char				DELETE_SPRITE_BLOB = 0;
 
 const char			TERMINATOR = 0;
 }
@@ -33,6 +34,7 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Setting
 	// so that the BLOB ids match.
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});
 	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveCommand(r.mDataBuffer);});
+	DELETE_SPRITE_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveDeleteSprite(r.mDataBuffer);});
 
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
@@ -63,10 +65,12 @@ void AbstractEngineServer::setup(ds::App& app) {
 }
 
 void AbstractEngineServer::setupTuio(ds::App& a) {
-	tuio::Client &tuioClient = getTuioClient();
-	tuioClient.registerTouches(&a);
-	registerForTuioObjects(tuioClient);
-	tuioClient.connect(mTuioPort);
+	if (ds::ui::TouchMode::hasTuio(mTouchMode)) {
+		tuio::Client &tuioClient = getTuioClient();
+		tuioClient.registerTouches(&a);
+		registerForTuioObjects(tuioClient);
+		tuioClient.connect(mTuioPort);
+	}
 }
 
 void AbstractEngineServer::update() {
@@ -83,6 +87,10 @@ void AbstractEngineServer::draw() {
 void AbstractEngineServer::stopServices() {
 	inherited::stopServices();
 	mWorkManager.stopManager();
+}
+
+void AbstractEngineServer::spriteDeleted(const ds::sprite_id_t &id) {
+	mState->spriteDeleted(id);
 }
 
 void AbstractEngineServer::receiveHeader(ds::DataBuffer& data) {
@@ -109,6 +117,10 @@ void AbstractEngineServer::receiveCommand(ds::DataBuffer &data) {
 			getChannel(ERROR_CHANNEL).notify(AddErrorEvent(MULTIPLE_SERVERS_ERROR));
 		}
 	}
+}
+
+void AbstractEngineServer::receiveDeleteSprite(ds::DataBuffer&) {
+	// Whaaaat? Client should never be sending this.
 }
 
 void AbstractEngineServer::onClientStartedCommand(ds::DataBuffer &data) {
@@ -168,12 +180,14 @@ void AbstractEngineServer::State::addHeader(ds::DataBuffer& data, const int fram
  * EngineServer::RunningState
  */
 EngineServer::RunningState::RunningState()
-	: mFrame(0) {
+		: mFrame(0) {
+	mDeletedSprites.reserve(128);
 }
 
 void EngineServer::RunningState::begin(AbstractEngineServer&) {
 	DS_LOG_INFO_M("RunningState", ds::IO_LOG);
 	mFrame = 0;
+	mDeletedSprites.clear();
 }
 
 void EngineServer::RunningState::update(AbstractEngineServer& engine) {
@@ -193,6 +207,10 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		if (root.isDirty()) {
 			root.writeTo(send.mData);
 		}
+		if (!mDeletedSprites.empty()) {
+			addDeletedSprites(send.mData);
+			mDeletedSprites.clear();
+		}
 	}
 
 	// Handle data from all the clients. This high number is used
@@ -210,6 +228,24 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 	engine.mClients.compare(mFrame);
 
 	mFrame++;
+}
+
+void EngineServer::RunningState::spriteDeleted(const ds::sprite_id_t &id) {
+	try {
+		mDeletedSprites.push_back(id);
+	} catch (std::exception const&) {
+	}
+}
+
+void EngineServer::RunningState::addDeletedSprites(ds::DataBuffer &data) const {
+	if (mDeletedSprites.empty()) return;
+
+    data.add(DELETE_SPRITE_BLOB);
+	data.add(mDeletedSprites.size());
+	for (auto it=mDeletedSprites.begin(), end=mDeletedSprites.end(); it!=end; ++it) {
+		data.add(*it);
+	}
+    data.add(ds::TERMINATOR_CHAR);
 }
 
 /**

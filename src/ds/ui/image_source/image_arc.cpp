@@ -63,8 +63,9 @@ public:
 		buf.add(INPUT_ATT);
 		mInput.writeTo(buf);
 
-		buf.add(WRITEFN_ATT);
-		buf.add(mWriteFile);
+		// Don't allow this to replicate, it's just a debugging thing.
+//		buf.add(WRITEFN_ATT);
+//		buf.add(mWriteFile);
 	}
 
 	virtual bool							readFrom(DataBuffer& buf) {
@@ -83,10 +84,6 @@ public:
 		if (!buf.canRead<char>()) return false;
 		if (buf.read<char>() != INPUT_ATT) return false;
 		mInput.readFrom(buf);
-
-		if (!buf.canRead<char>()) return false;
-		if (buf.read<char>() != WRITEFN_ATT) return false;
-		mWriteFile = buf.read<int>();
 
 		return true;
 	}

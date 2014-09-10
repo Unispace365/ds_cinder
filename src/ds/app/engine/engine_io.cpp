@@ -93,7 +93,7 @@ bool EngineReceiver::receiveAndHandle(ds::BlobRegistry& registry, ds::BlobReader
 }
 
 bool EngineReceiver::hasLostConnection() const {
-	return mNoDataCount > 10;
+	return mNoDataCount > 60;
 }
 
 void EngineReceiver::clearLostConnection() {

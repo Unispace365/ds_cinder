@@ -1,6 +1,8 @@
 #include "ds/network/tcp_client.h"
 
 #include <iostream>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string.hpp>
 #include <Poco/Net/NetException.h>
 #include <ds/debug/debug_defines.h>
 #include <ds/debug/logger.h>
@@ -11,9 +13,10 @@ namespace net {
 /**
  * \class ds::TcpClient
  */
-TcpClient::TcpClient(ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address, const Options& opt)
+TcpClient::TcpClient(	ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& address,
+						const Options& opt, const std::string &terminator)
 		: ds::AutoUpdate(e)
-		, mLoop(address, opt) {
+		, mLoop(address, opt, terminator) {
 	try {
 		mThread.start(mLoop);
 	} catch (Poco::Exception&) {
@@ -69,11 +72,12 @@ void TcpClient::update(const ds::UpdateParams&) {
 /**
  * \class ds::NodeWatcher::Loop
  */
-TcpClient::Loop::Loop(const Poco::Net::SocketAddress& a, const Options& opt)
+TcpClient::Loop::Loop(const Poco::Net::SocketAddress& a, const Options& opt, const std::string &terminator)
 		: mAbort(false)
 		, mUpdates(0)
 		, mAddress(a)
-		, mOptions(opt) {
+		, mOptions(opt)
+		, mTerminator(terminator) {
 }
 
 void TcpClient::Loop::run() {
@@ -154,10 +158,33 @@ void TcpClient::Loop::sendTo(Poco::Net::StreamSocket& socket) {
 }
 
 void TcpClient::Loop::update(const std::string& str) {
-	Poco::Mutex::ScopedLock	l(mMutex);
-	try {
-		mUpdates.push_back(str);
-	} catch (std::exception&) {
+	if (mTerminator.empty()) {
+		Poco::Mutex::ScopedLock	l(mMutex);
+		try {
+			mUpdates.push_back(str);
+		} catch (std::exception&) {
+		}
+	} else {
+		// If I've got a terminator, then split the string based on the
+		// terminator, and hold onto the last token if it doesn't have the terminator.
+		mWaiting += str;
+		std::vector<std::string> all;
+		boost::split(all, mWaiting, boost::is_any_of(mTerminator));
+		mWaiting.clear();
+		// The last element will be an empty string if this update() str ended
+		// with the terminator; if it's not, then it's a partial, so track that.
+		if (!all.empty() && !all.back().empty()) {
+			mWaiting = all.back();
+			all.pop_back();
+		}
+		Poco::Mutex::ScopedLock	l(mMutex);
+		try {
+			for (auto it=all.begin(), end=all.end(); it!=end; ++it) {
+				if (it->empty()) continue;
+				mUpdates.push_back(*it);
+			}
+		} catch (std::exception&) {
+		}
 	}
 }
 
