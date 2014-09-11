@@ -906,7 +906,7 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 	if (isEnabled()) {
 		const float							w = getWidth(),
 											h = getHeight();
-		ci::Vec3f							a = getPosition();
+		ci::Vec3f							a = getParent()->localToGlobal(getPosition());
 											a.x += (-mCenter.x*w);
 											a.y += (mCenter.y*h);
 

@@ -59,7 +59,7 @@ SpriteBody::~SpriteBody() {
 }
 
 bool SpriteBody::empty() const {
-	return mBody == nullptr;
+	return !mBody;
 }
 
 void SpriteBody::create(const BodyBuilder& b) {
@@ -94,7 +94,7 @@ void SpriteBody::createWeldJoint(SpriteBody& body,const float damping, const flo
 }
 
 void SpriteBody::destroy() {
-	if (mBody == nullptr) return;
+	if (!mBody) return;
 
 	
 	// Destroying a body also destroys all joints associated with that body.
@@ -130,7 +130,7 @@ void SpriteBody::resizeDistanceJoint(SpriteBody& body, float length) {
 }
 
 void SpriteBody::processTouchInfo(ds::ui::Sprite*, const ds::ui::TouchInfo& ti) {
-	if (mBody == nullptr) return;
+	if (!mBody) return;
 
 	if (ti.mPhase == ti.Added) mWorld.processTouchAdded(*this, ti);
 	else if (ti.mPhase == ti.Moved) mWorld.processTouchMoved(*this, ti);
@@ -150,14 +150,14 @@ void SpriteBody::processTouchRemoved(const ds::ui::TouchInfo& ti) {
 }
 
 void SpriteBody::setPosition(const ci::Vec3f& pos) {
-	if (mBody == nullptr) return;
+	if (!mBody) return;
 
 	const b2Vec2		boxpos = mWorld.Ci2BoxTranslation(pos);
 	mBody->SetTransform(boxpos, mBody->GetAngle());
 }
 
 void SpriteBody::clearVelocity() {
-	if (mBody == nullptr) return;
+	if (!mBody) return;
 
 	b2Vec2			zeroVec;
 	zeroVec.SetZero();
@@ -166,19 +166,19 @@ void SpriteBody::clearVelocity() {
 }
 
 void SpriteBody::setLinearVelocity(const float x, const float y) {
-	if (mBody != nullptr) {
+	if (mBody) {
 		mBody->SetLinearVelocity(b2Vec2(x, y));
 	}
 }
 
 void SpriteBody::applyForceToCenter(const float x, const float y) {
-	if (mBody != nullptr) {
-		mBody->ApplyForceToCenter(b2Vec2(x, y));
+	if (mBody) {
+		mBody->ApplyForceToCenter(b2Vec2(x, y), true);
 	}
 }
 
 void SpriteBody::setRotation(const float degree) {
-	if (mBody == nullptr) return;
+	if (!mBody) return;
 
 	const float		angle = degree * ds::math::DEGREE2RADIAN;
 	mBody->SetTransform(mBody->GetPosition(), angle);
@@ -190,7 +190,7 @@ void SpriteBody::setRotation(const float degree) {
 }
 
 float SpriteBody::getRotation() const {
-	if (mBody == nullptr) return 0.0f;
+	if (!mBody) return 0.0f;
 	return mBody->GetAngle() * ds::math::RADIAN2DEGREE;
 }
 
@@ -199,7 +199,7 @@ void SpriteBody::setCollisionCallback(const std::function<void(const Collision&)
 }
 
 void SpriteBody::onCenterChanged() {
-	if (mBody == nullptr) return;
+	if (!mBody) return;
 
 	// Currently there should only be 1 fixture.
 	b2Fixture*				fix = mBody->GetFixtureList();
