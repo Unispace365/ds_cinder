@@ -2,6 +2,7 @@
 
 #include <ds/app/app.h>
 #include <ds/app/blob_reader.h>
+#include <ds/app/environment.h>
 #include <ds/data/data_buffer.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
@@ -133,6 +134,15 @@ void Pdf::goToPreviousPage() {
 	mHolder.goToPreviousPage();
 }
 
+#ifdef _DEBUG
+void Pdf::writeState(std::ostream &s, const size_t tab) const {
+	for (size_t k=0; k<tab; ++k) s << "\t";
+	s << "PDF (" << mResourceFilename << ", mode=" << mPageSizeMode << ")" << std::endl;
+	inherited::writeState(s, tab);
+	s << std::endl;
+}
+#endif
+
 void Pdf::onScaleChanged() {
 	inherited::onScaleChanged();
 	mHolder.setScale(mScale);
@@ -215,7 +225,7 @@ void Pdf::ResHolder::setResourceFilename(const std::string& filename, const Page
 	clear();
 	mRes = new ds::pdf::PdfRes(mService.mThread);
 	if (mRes) {
-		mRes->loadPDF(filename, m);
+		mRes->loadPDF(ds::Environment::expand(filename), m);
 	}
 }
 

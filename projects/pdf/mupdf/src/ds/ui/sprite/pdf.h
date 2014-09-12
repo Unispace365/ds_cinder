@@ -44,6 +44,10 @@ public:
 	void						goToNextPage();
 	void						goToPreviousPage();
 
+#ifdef _DEBUG
+	virtual void				writeState(std::ostream&, const size_t tab) const;
+#endif
+
 protected:
 	virtual void				onScaleChanged();
 	virtual void				drawLocalClient();
