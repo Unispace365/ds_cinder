@@ -48,10 +48,14 @@ protected:
 	virtual void				onScaleChanged();
 	virtual void				drawLocalClient();
 
+	virtual void				writeAttributesTo(ds::DataBuffer&);
+	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
+
 private:
 	typedef ds::ui::Sprite		inherited;
 
 	// STATE
+	std::string					mResourceFilename;
 	PageSizeMode				mPageSizeMode;
 	std::function<void(void)>	mPageSizeChangeFn;
 	// CACHE
@@ -86,6 +90,11 @@ private:
 		ds::pdf::PdfRes*		mRes;
 	};
 	ResHolder					mHolder;
+
+	// Initialization
+public:
+	static void					installAsServer(ds::BlobRegistry&);
+	static void					installAsClient(ds::BlobRegistry&);
 };
 
 } // namespace ui
