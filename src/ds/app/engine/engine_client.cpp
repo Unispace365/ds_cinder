@@ -275,7 +275,7 @@ void EngineClient::ClientStartedState::update(EngineClient& engine) {
 		buf.add(engine.mIoInfo.mGlobalId);
 		buf.add(ds::TERMINATOR_CHAR);
 
-		mSendFrame = 10;
+		mSendFrame = 60;
 //DS_LOG_INFO_M("Send CMD_CLIENT_STARTED", ds::IO_LOG);
 	}
 	--mSendFrame;
@@ -301,7 +301,7 @@ void EngineClient::BlankState::update(EngineClient& engine) {
 		buf.add(CMD_CLIENT_REQUEST_WORLD);
 		buf.add(ds::TERMINATOR_CHAR);
 
-		mSendFrame = 10;
+		mSendFrame = 60;
 	}
 	--mSendFrame;
 }

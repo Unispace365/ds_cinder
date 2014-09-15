@@ -38,7 +38,7 @@ Image& Image::makeImage(SpriteEngine& e, const std::string& fn, Sprite* parent) 
 }
 
 Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
-	return makeImage(e, r.getAbsoluteFilePath(), parent);
+	return makeImage(e, r.getPortableFilePath(), parent);
 }
 
 Image::Image(SpriteEngine& engine, const int flags)

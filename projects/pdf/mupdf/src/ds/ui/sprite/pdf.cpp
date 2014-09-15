@@ -1,6 +1,9 @@
 #include "ds/ui/sprite/pdf.h"
 
 #include <ds/app/app.h>
+#include <ds/app/blob_reader.h>
+#include <ds/app/environment.h>
+#include <ds/data/data_buffer.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include "private/pdf_res.h"
@@ -19,12 +22,32 @@ public:
 			ds::pdf::Service*		w = new ds::pdf::Service();
 			if (!w) throw std::runtime_error("Can't create ds::pdf::Service");
 			e.addService("pdf", *w);
+
+			e.installSprite([](ds::BlobRegistry& r){ds::ui::Pdf::installAsServer(r);},
+							[](ds::BlobRegistry& r){ds::ui::Pdf::installAsClient(r);});
 		});
 
 	}
 	void			doNothing() { }
 };
 Init				INIT;
+
+char				BLOB_TYPE			= 0;
+const DirtyState&	PDF_FN_DIRTY		= INTERNAL_A_DIRTY;
+const DirtyState&	PDF_PAGEMODE_DIRTY	= INTERNAL_B_DIRTY;
+const char			PDF_FN_ATT			= 80;
+const char			PDF_PAGEMODE_ATT	= 81;
+}
+
+/**
+ * \class ds::ui::sprite::Pdf static
+ */
+void Pdf::installAsServer(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
+}
+
+void Pdf::installAsClient(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Pdf>(r);});
 }
 
 /**
@@ -47,6 +70,7 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 	// Should be unnecessary, but make sure we reference the static.
 	INIT.doNothing();
 
+	mBlobType = BLOB_TYPE;
 	setTransparent(false);
 	setUseShaderTextuer(true);
 }
@@ -54,14 +78,17 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 Pdf& Pdf::setPageSizeMode(const PageSizeMode& m) {
 	mPageSizeMode = m;
 	mHolder.setPageSizeMode(m);
+	markAsDirty(PDF_PAGEMODE_DIRTY);
 	return *this;
 }
 
 Pdf& Pdf::setResourceFilename(const std::string& filename) {
+	mResourceFilename = filename;
 	mPageSizeCache = ci::Vec2i(0, 0);
 	mHolder.setResourceFilename(filename, mPageSizeMode);
 	mHolder.setScale(mScale);
 	setSize(mHolder.getWidth(), mHolder.getHeight());
+	markAsDirty(PDF_FN_DIRTY);
 	return *this;
 }
 
@@ -107,6 +134,15 @@ void Pdf::goToPreviousPage() {
 	mHolder.goToPreviousPage();
 }
 
+#ifdef _DEBUG
+void Pdf::writeState(std::ostream &s, const size_t tab) const {
+	for (size_t k=0; k<tab; ++k) s << "\t";
+	s << "PDF (" << mResourceFilename << ", mode=" << mPageSizeMode << ")" << std::endl;
+	inherited::writeState(s, tab);
+	s << std::endl;
+}
+#endif
+
 void Pdf::onScaleChanged() {
 	inherited::onScaleChanged();
 	mHolder.setScale(mScale);
@@ -140,6 +176,31 @@ void Pdf::drawLocalClient() {
     ci::gl::popModelView();
 }
 
+void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
+	inherited::writeAttributesTo(buf);
+
+	if (mDirty.has(PDF_FN_DIRTY)) {
+		buf.add(PDF_FN_ATT);
+		buf.add(mResourceFilename);
+	}
+	if (mDirty.has(PDF_PAGEMODE_DIRTY)) {
+		buf.add(PDF_PAGEMODE_ATT);
+		buf.add<int32_t>(static_cast<int32_t>(mPageSizeMode));
+	}
+}
+
+void Pdf::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
+	if (attributeId == PDF_FN_ATT) {
+		setResourceFilename(buf.read<std::string>());
+	} else if (attributeId == PDF_PAGEMODE_ATT) {
+		const int32_t		mode = buf.read<int32_t>();
+		if (mode == 0) setPageSizeMode(kConstantSize);
+		else if (mode == 1) setPageSizeMode(kAutoResize);
+	} else {
+		inherited::readAttributeFrom(attributeId, buf);
+	}
+}
+
 /**
  * \class ds::ui::sprite::Pdf
  */
@@ -164,7 +225,7 @@ void Pdf::ResHolder::setResourceFilename(const std::string& filename, const Page
 	clear();
 	mRes = new ds::pdf::PdfRes(mService.mThread);
 	if (mRes) {
-		mRes->loadPDF(filename, m);
+		mRes->loadPDF(ds::Environment::expand(filename), m);
 	}
 }
 
