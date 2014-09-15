@@ -51,7 +51,7 @@ class Sprite : public SpriteAnimatable
 {
 public:
 	// Sprite creation convenience, throw on failure.
-	Sprite&					makeSprite(SpriteEngine&, Sprite* parent = nullptr);
+	static Sprite&			makeSprite(SpriteEngine&, Sprite* parent = nullptr);
 	// Generic sprite creation function
 	template <typename T>
 	static T&				make(SpriteEngine&, Sprite* parent = nullptr);
