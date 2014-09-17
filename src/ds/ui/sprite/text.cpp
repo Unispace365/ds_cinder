@@ -580,7 +580,7 @@ std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
 			ci::gl::clear(ColorA(1.0f, 1.0f, 1.0f, 0.0f));
 			ci::gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 
-			mFont->setForegroundColor( 1.0f, 1.0f, 1.0f, 0.99f );
+			mFont->setForegroundColor( 1.0f, 1.0f, 1.0f, 1.0f );
 			mFont->setBackgroundColor( 1.0f, 1.0f, 1.0f, 0.0f );
 			//std::cout << "Size: " << lines.size() << std::endl;
 			const float						height = mFont->pointSize();

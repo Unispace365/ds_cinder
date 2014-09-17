@@ -4879,7 +4879,7 @@ namespace OGLFT {
     if ( error != 0 )
       return;
 
-    error = FT_Render_Glyph( face->glyph, FT_RENDER_MODE_NORMAL );
+	error = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_MONO);
 	
     if ( error != 0 )
       return;
@@ -4891,7 +4891,7 @@ namespace OGLFT {
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT );
     glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST );
-    glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
+	glTexParameteri( GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST );
 
     // Texture maps have be a power of 2 in size (is 1 a power of 2?), so
     // pad it out while flipping it over
