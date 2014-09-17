@@ -75,7 +75,7 @@ public:
 	// Adds a member of a sprite inherited class to the list of animatable behaviors
 	// use const std::string& key argument to later reference it via "tween" or "remove" API calls
 	template<typename PropType>
-	bool									add(const std::string& key, std::function<PropType()>& getter, std::function<void(const PropType&)>& setter) {
+	bool									add(const std::string& key, std::function<PropType()> getter, std::function<void(const PropType&)> setter) {
 		if (!contains(key)) {
 			mAnimatedProperties.insert(std::make_pair(key, std::make_pair(ds::ui::SpriteAnim<PropType>(
 				[&key, this](ds::ui::Sprite& s)->ci::Anim<PropType>& { return boost::any_cast<cinder::Anim<PropType> &>(mAnimatedProperties[key].second); },
