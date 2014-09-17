@@ -78,9 +78,9 @@ public:
 	bool									add(const std::string& key, std::function<PropType()> getter, std::function<void(const PropType&)> setter) {
 		if (!contains(key)) {
 			mAnimatedProperties.insert(std::make_pair(key, std::make_pair(ds::ui::SpriteAnim<PropType>(
-				[&key, this](ds::ui::Sprite& s)->ci::Anim<PropType>& { return boost::any_cast<cinder::Anim<PropType> &>(mAnimatedProperties[key].second); },
-				[&getter](ds::ui::Sprite& s)->PropType { return getter(); },
-				[&setter](const PropType& v, ds::ui::Sprite& s) { setter(v); }), ci::Anim<PropType>())));
+				[key, this](ds::ui::Sprite& s)->ci::Anim<PropType>& { return boost::any_cast<cinder::Anim<PropType> &>(mAnimatedProperties[key].second); },
+				[getter](ds::ui::Sprite& s)->PropType { return getter(); },
+				[setter](const PropType& v, ds::ui::Sprite& s) { setter(v); }), ci::Anim<PropType>())));
 			return true;
 		}
 		else return false;
