@@ -660,6 +660,9 @@
     <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\NetworkingUtils.h">
       <Filter>blocks\osc</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\tween\sprite_anim_behavior.h">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1111,6 +1114,9 @@
     </ClCompile>
     <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\win32\UdpSocket.cpp">
       <Filter>blocks\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\tween\sprite_anim_behavior.cpp">
+      <Filter>src\ds\ui\tweenline</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
