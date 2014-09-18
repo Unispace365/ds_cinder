@@ -663,6 +663,9 @@
     <ClInclude Include="..\src\ds\ui\tween\sprite_anim_behavior.h">
       <Filter>src\ds\ui\tweenline</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\tween\sprite_tween_events.h">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1116,6 +1119,9 @@
       <Filter>blocks\osc</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\tween\sprite_anim_behavior.cpp">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\tween\sprite_tween_events.cpp">
       <Filter>src\ds\ui\tweenline</Filter>
     </ClCompile>
   </ItemGroup>

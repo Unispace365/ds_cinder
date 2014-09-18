@@ -183,6 +183,7 @@
     <ClInclude Include="..\src\ds\ui\touch\touch_translator.h" />
     <ClInclude Include="..\src\ds\ui\tween\sprite_anim.h" />
     <ClInclude Include="..\src\ds\ui\tween\sprite_anim_behavior.h" />
+    <ClInclude Include="..\src\ds\ui\tween\sprite_tween_events.h" />
     <ClInclude Include="..\src\ds\ui\tween\tweenline.h" />
     <ClInclude Include="..\src\ds\util\bit_mask.h" />
     <ClInclude Include="..\src\ds\util\color_util.h" />
@@ -339,6 +340,7 @@
     <ClCompile Include="..\src\ds\ui\touch\touch_translator.cpp" />
     <ClCompile Include="..\src\ds\ui\tween\sprite_anim.cpp" />
     <ClCompile Include="..\src\ds\ui\tween\sprite_anim_behavior.cpp" />
+    <ClCompile Include="..\src\ds\ui\tween\sprite_tween_events.cpp" />
     <ClCompile Include="..\src\ds\ui\tween\tweenline.cpp" />
     <ClCompile Include="..\src\ds\util\bit_mask.cpp" />
     <ClCompile Include="..\src\ds\util\color_util.cpp" />
