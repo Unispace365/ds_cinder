@@ -394,7 +394,7 @@ namespace OGLFT {
     if ( f < faces_.size() && glyph_index != rotation_reference_glyph_ ) {
 
       FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-				      FT_LOAD_DEFAULT );
+				      FT_LOAD_FORCE_AUTOHINT );
 
       if ( error != 0 ) return;
 
@@ -446,7 +446,7 @@ namespace OGLFT {
       if ( glyph_index == 0 ) continue;
 
       FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-				      FT_LOAD_DEFAULT );
+				      FT_LOAD_FORCE_AUTOHINT );
       if ( error != 0 ) continue;
 
       FT_Glyph glyph;
@@ -512,7 +512,7 @@ namespace OGLFT {
       }
 
       FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-				      FT_LOAD_DEFAULT );
+				      FT_LOAD_FORCE_AUTOHINT );
       if ( error != 0 ) continue;
 
       FT_Glyph glyph;
@@ -604,7 +604,7 @@ namespace OGLFT {
       }
 
       FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-        FT_LOAD_DEFAULT );
+        FT_LOAD_FORCE_AUTOHINT );
       if ( error != 0 ) continue;
 
       FT_Glyph glyph;
@@ -654,7 +654,7 @@ namespace OGLFT {
       }
 
       FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-        FT_LOAD_DEFAULT );
+        FT_LOAD_FORCE_AUTOHINT );
       if ( error != 0 ) continue;
 
       FT_Glyph glyph;
@@ -2163,7 +2163,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-				    FT_LOAD_DEFAULT );
+				    FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -2234,7 +2234,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-				    FT_LOAD_DEFAULT );
+				    FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -2306,7 +2306,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-      FT_LOAD_DEFAULT );
+      FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -2376,7 +2376,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-      FT_LOAD_DEFAULT );
+      FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -2520,7 +2520,7 @@ namespace OGLFT {
   {
     // Start by retrieving the glyph's data.
 
-    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_FORCE_AUTOHINT );
 
     if ( error != 0 )
       return;
@@ -2642,7 +2642,7 @@ namespace OGLFT {
 
   void Grayscale::renderGlyph ( FT_Face face, FT_UInt glyph_index )
   {
-    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_FORCE_AUTOHINT );
 
     if ( error != 0 )
       return;
@@ -2782,7 +2782,7 @@ namespace OGLFT {
 
   void Translucent::renderGlyph ( FT_Face face, FT_UInt glyph_index )
   {
-    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_FORCE_AUTOHINT );
 
     if ( error != 0 )
       return;
@@ -2831,7 +2831,7 @@ namespace OGLFT {
       error = FT_Glyph_Transform( glyph, &rotation_matrix, &rotation_offset );
     }
 
-    error = FT_Glyph_To_Bitmap( &glyph, FT_RENDER_MODE_NORMAL, 0, 1 );
+    error = FT_Glyph_To_Bitmap( &glyph, FT_RENDER_MODE_LIGHT, 0, 1 );
 
     if ( error != 0 ) {
       FT_Done_Glyph( glyph );
@@ -3080,7 +3080,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-				    FT_LOAD_DEFAULT );
+				    FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -3118,7 +3118,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-				    FT_LOAD_DEFAULT );
+				    FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -3158,7 +3158,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-      FT_LOAD_DEFAULT );
+      FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -3196,7 +3196,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-      FT_LOAD_DEFAULT );
+      FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -3272,7 +3272,7 @@ namespace OGLFT {
 
   void Outline::renderGlyph ( FT_Face face, FT_UInt glyph_index )
   {
-    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_FORCE_AUTOHINT );
 
     if ( error != 0 )
       return;
@@ -3548,7 +3548,7 @@ namespace OGLFT {
 
   void Filled::renderGlyph ( FT_Face face, FT_UInt glyph_index )
   {
-    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_FORCE_AUTOHINT );
 
     if ( error != 0 )
       return;
@@ -3901,7 +3901,7 @@ namespace OGLFT {
 
   void Solid::renderGlyph ( FT_Face face, FT_UInt glyph_index )
   {
-    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_FORCE_AUTOHINT );
 
     if ( error != 0 )
       return;
@@ -4337,7 +4337,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-				    FT_LOAD_DEFAULT );
+				    FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -4383,7 +4383,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-				    FT_LOAD_DEFAULT );
+				    FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -4421,7 +4421,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-      FT_LOAD_DEFAULT );
+      FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -4457,7 +4457,7 @@ namespace OGLFT {
       return bbox;
 
     FT_Error error = FT_Load_Glyph( faces_[f].face_, glyph_index,
-      FT_LOAD_DEFAULT );
+      FT_LOAD_FORCE_AUTOHINT );
     if ( error != 0 )
       return bbox;
 
@@ -4494,7 +4494,7 @@ namespace OGLFT {
 
   void Texture::renderGlyph ( FT_Face face, FT_UInt glyph_index )
   {
-    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_FORCE_AUTOHINT );
 
     if ( error != 0 )
       return;
@@ -4666,7 +4666,7 @@ namespace OGLFT {
 
     // Retrieve the glyph's data.
 
-    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_FORCE_AUTOHINT );
 
     if ( error != 0 )
       return;
@@ -4769,7 +4769,7 @@ namespace OGLFT {
 
     // Retrieve the glyph's data.
 
-    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_FORCE_AUTOHINT );
 
     if ( error != 0 )
       return;
@@ -4874,7 +4874,7 @@ namespace OGLFT {
 
     // Retrieve the glyph's data.
 
-    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_DEFAULT );
+    FT_Error error = FT_Load_Glyph( face, glyph_index, FT_LOAD_FORCE_AUTOHINT );
 
     if ( error != 0 )
       return;

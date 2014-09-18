@@ -558,7 +558,8 @@ std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
 		if (!mTexture || mTexture.getWidth() < w || mTexture.getHeight() < h) {
 			ci::gl::Texture::Format format;
 			format.setTarget(GL_TEXTURE_2D);
-			//format.setMagFilter(GL_NEAREST);
+			format.setMagFilter(GL_LINEAR);
+			format.setMinFilter(GL_LINEAR);
 			mTexture = ci::gl::Texture(w, h, format);
 		}
 
