@@ -63,6 +63,9 @@ public:
 	// Removes an animatble behavior with a given key
 	void									remove(const std::string& key);
 
+	// returns the communication channel name used by the current instance.
+	const std::string&						getChannelName() const;
+
 private:
 	// NOTE: first boost::any will always be cinder::Anim<...>
 	//       second boost::any will always be ds::ui::SpriteAnim<...>
