@@ -4,11 +4,13 @@
 #include "sprite_anim.h"
 
 #include <ds/app/event_client.h>
+#include "ds/app/event_notifier.h"
+#include "ds/ui/sprite/sprite_engine.h"
 #include "sprite_tween_events.h"
+#include "tweenline.h"
 
 #include <boost/any.hpp>
 #include <unordered_map>
-
 namespace ds {
 namespace ui {
 class Sprite;
@@ -41,12 +43,12 @@ public:
 	// use const std::string& key argument to later reference it via "tween" or "remove" API calls
 	template<typename PropType>
 	bool									add(const std::string& key, std::function<PropType()> getter, std::function<void(const PropType&)> setter) {
-		mEventNotifier.notify(TweenEventAdded(key));
 		if (!contains(key)) {
 			mAnimatedProperties.insert(std::make_pair(key, std::make_pair(ds::ui::SpriteAnim<PropType>(
 				[key,	 this](ds::ui::Sprite& s)->ci::Anim<PropType>& { return boost::any_cast<cinder::Anim<PropType> &>(mAnimatedProperties[key].second); },
 				[getter, key, this](ds::ui::Sprite& s)->PropType { return getterWrapper<PropType>(key, &getter); },
 				[setter, key, this](const PropType& v, ds::ui::Sprite& s) { setterWrapper<PropType>(key, &setter, v); }), ci::Anim<PropType>())));
+			mEventNotifier.notify(TweenEventAdded(key));
 			return true;
 		}
 		else return false;
