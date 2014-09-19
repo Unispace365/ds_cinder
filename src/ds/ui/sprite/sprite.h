@@ -233,6 +233,7 @@ public:
 	void					setTouchScaleMode(bool doSizeScale){ mTouchScaleSizeMode = doSizeScale; };
 
 	// Constraints defined in multi_touch_constraints.h
+	// ds::ui::MULTITOUCH_XX
 	void					enableMultiTouch(const BitMask &);
 	void					disableMultiTouch();
 	bool					multiTouchEnabled() const;
