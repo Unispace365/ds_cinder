@@ -35,13 +35,13 @@ public:
 	virtual void				updateServer(const UpdateParams&);
 	virtual void				drawLocalClient();
 	bool						isLoaded() const;
+	
 	// Deprecated, see ImageOwner API
-#if 1
-	void						loadImage( const std::string &filename );
-	Image&						setResourceFilename( const std::string &filename );
-	Image&						setResourceId(const ds::Resource::Id &resourceId);
-	void						clearResource();
-#endif
+	DEPRECATED void				loadImage( const std::string &filename );
+	DEPRECATED Image&			setResourceFilename(const std::string &filename);
+	DEPRECATED Image&			setResourceId(const ds::Resource::Id &resourceId);
+	DEPRECATED void				clearResource();
+	
 	struct Status {
 		static const int		STATUS_EMPTY = 0;
 		static const int		STATUS_LOADED = 1;
