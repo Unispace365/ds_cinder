@@ -5,9 +5,6 @@
 #include <cinder/Timeline.h>
 #include "ds/ui/tween/sprite_anim.h"
 
-// I REALLY don't want this here but it's sorta required for the tweenLerp to work
-using namespace ci;
-
 namespace ds {
 namespace ui {
 

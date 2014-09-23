@@ -117,7 +117,7 @@ void OrthRoot::setCinderCamera() {
 
 	// I think this should be in setGlCamera, but keeping it compatible for now.
 	if (mSetViewport) {
-		ci::gl::setViewport(Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
+		ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
 	}
 	mCamera.setOrtho(screen_rect.getX1(), screen_rect.getX2(), screen_rect.getY2(), screen_rect.getY1(), -1, 1);
 	//gl::setMatrices(mCamera);
@@ -134,7 +134,7 @@ void OrthRoot::markCameraDirty() {
 void OrthRoot::setGlCamera() {
 	if (mSetViewport) {
 		const ci::Rectf&		screen_rect(mEngine.getScreenRect());
-		ci::gl::setViewport(Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
+		ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
 	}
 	ci::gl::setMatrices(mCamera);
 	ci::gl::disableDepthRead();
@@ -235,7 +235,7 @@ void PerspRoot::setCamera(const PerspCameraParams& p) {
 
 	mCamera.setEyePoint(p.mPosition);
 	mCamera.setCenterOfInterestPoint(p.mTarget);
-	mCamera.setPerspective(p.mFov, getWindowAspectRatio(), p.mNearPlane, p.mFarPlane);
+	mCamera.setPerspective(p.mFov, ci::app::getWindowAspectRatio(), p.mNearPlane, p.mFarPlane);
 	mCameraDirty = true;
 }
 
@@ -249,7 +249,7 @@ void PerspRoot::setCinderCamera() {
 	if (mMaster) {
 		if (mMaster->mCameraDirty) mMaster->setCinderCamera();
 	} else {
-		mCamera.setPerspective(mCamera.getFov(), getWindowAspectRatio(), mCamera.getNearClip(), mCamera.getFarClip());
+		mCamera.setPerspective(mCamera.getFov(), ci::app::getWindowAspectRatio(), mCamera.getNearClip(), mCamera.getFarClip());
 	}
 }
 

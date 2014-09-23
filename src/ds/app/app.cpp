@@ -60,6 +60,9 @@ void					add_dll_path() {
 
 }
 
+using namespace ci;
+using namespace ci::app;
+
 namespace ds {
 
 void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {

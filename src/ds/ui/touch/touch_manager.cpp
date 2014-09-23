@@ -10,6 +10,9 @@ namespace {
   const int MOUSE_RESERVED_IDS = 2;
 }
 
+using namespace ci;
+using namespace ci::app;
+
 namespace ds {
 namespace ui {
 

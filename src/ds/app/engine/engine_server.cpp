@@ -66,7 +66,7 @@ void AbstractEngineServer::setup(ds::App& app) {
 
 void AbstractEngineServer::setupTuio(ds::App& a) {
 	if (ds::ui::TouchMode::hasTuio(mTouchMode)) {
-		tuio::Client &tuioClient = getTuioClient();
+		ci::tuio::Client &tuioClient = getTuioClient();
 		tuioClient.registerTouches(&a);
 		registerForTuioObjects(tuioClient);
 		tuioClient.connect(mTuioPort);

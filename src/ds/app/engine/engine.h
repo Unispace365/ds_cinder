@@ -33,9 +33,6 @@
 #include "ds/data/raw_data_buffer.h"
 #include "ds/app/camera_utils.h"
 
-using namespace ci;
-using namespace ci::app;
-
 namespace ds {
 class App;
 class AutoDrawService;
@@ -110,14 +107,14 @@ public:
 	virtual void						spriteDeleted(const ds::sprite_id_t&);
 	virtual ci::Color8u					getUniqueColor();
 
-	tuio::Client&						getTuioClient();
-	void								touchesBegin(const TouchEvent&);
-	void								touchesMoved(const TouchEvent&);
-	void								touchesEnded(const TouchEvent&);
-	void								mouseTouchBegin(const MouseEvent&, int id);
-	void								mouseTouchMoved(const MouseEvent&, int id);
-	void								mouseTouchEnded(const MouseEvent&, int id);
-	MouseEvent							alteredMouseEvent(const MouseEvent&) const;
+	ci::tuio::Client&					getTuioClient();
+	void								touchesBegin(const ci::app::TouchEvent&);
+	void								touchesMoved(const ci::app::TouchEvent&);
+	void								touchesEnded(const ci::app::TouchEvent&);
+	void								mouseTouchBegin(const ci::app::MouseEvent&, int id);
+	void								mouseTouchMoved(const ci::app::MouseEvent&, int id);
+	void								mouseTouchEnded(const ci::app::MouseEvent&, int id);
+	ci::app::MouseEvent					alteredMouseEvent(const ci::app::MouseEvent&) const;
 
 	virtual ds::ResourceList&			getResources();
 	virtual const ds::FontList&			getFonts() const;
@@ -172,7 +169,7 @@ protected:
 	// Called from the destructor of all subclasses, so I can cleanup
 	// sprites before services go away.
 	void								clearAllSprites();
-	void								registerForTuioObjects(tuio::Client&);
+	void								registerForTuioObjects(ci::tuio::Client&);
 
 	static const int					NumberOfNetworkThreads;
 
@@ -206,7 +203,7 @@ private:
 	float								mLastTouchTime;
 	float								mIdleTime;
 
-	tuio::Client						mTuio;
+	ci::tuio::Client					mTuio;
 	ui::TouchManager					mTouchManager;
 	// Clients that will get update() called automatically at the start
 	// of each update cycle
@@ -220,10 +217,14 @@ private:
 
 	ds::ui::TouchTranslator				mTouchTranslator;
 	std::mutex							mTouchMutex;
-	ds::EngineTouchQueue<TouchEvent>	mTouchBeginEvents;
-	ds::EngineTouchQueue<TouchEvent>	mTouchMovedEvents;
-	ds::EngineTouchQueue<TouchEvent>	mTouchEndEvents;
-	typedef std::pair<MouseEvent, int> MousePair;
+	ds::EngineTouchQueue<ci::app::TouchEvent>
+										mTouchBeginEvents;
+	ds::EngineTouchQueue<ci::app::TouchEvent>
+										mTouchMovedEvents;
+	ds::EngineTouchQueue<ci::app::TouchEvent>
+										mTouchEndEvents;
+	typedef std::pair<ci::app::MouseEvent, int>
+										MousePair;
 	ds::EngineTouchQueue<MousePair>		mMouseBeginEvents;
 	ds::EngineTouchQueue<MousePair>		mMouseMovedEvents;
 	ds::EngineTouchQueue<MousePair>		mMouseEndEvents;

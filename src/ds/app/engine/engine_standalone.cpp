@@ -38,7 +38,7 @@ void EngineStandalone::setup(ds::App& app) {
 
 void EngineStandalone::setupTuio(ds::App& a) {
 	if (ds::ui::TouchMode::hasTuio(mTouchMode)) {
-		tuio::Client&		tuioClient = getTuioClient();
+		ci::tuio::Client&		tuioClient = getTuioClient();
 		tuioClient.registerTouches(&a);
 		registerForTuioObjects(tuioClient);
 		tuioClient.connect(mTuioPort);
