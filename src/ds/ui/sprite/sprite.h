@@ -55,9 +55,19 @@ class Sprite : public SpriteAnimatable
 public:
 	// Sprite creation convenience, throw on failure.
 	Sprite&					makeSprite(SpriteEngine&, Sprite* parent = nullptr);
+	
 	// Generic sprite creation function
+#if (_MSC_VER >= 1800) // Visual Studio 2013 +
+	// Variadic args added by Sepehr
+	// the variadic will be passed in the same order to your Sprite's constructor
+	// after a reference to SpriteEngine.
+	template <typename T, typename... Args>
+	static T&				make(SpriteEngine&, Sprite* parent = nullptr, Args... args);
+#else
 	template <typename T>
 	static T&				make(SpriteEngine&, Sprite* parent = nullptr);
+#endif
+
 	template <typename T>
 	static T&				makeAlloc(const std::function<T*(void)>& allocFn, Sprite* parent = nullptr);
 
@@ -507,14 +517,29 @@ public:
 	static void			handleBlobFromClient(ds::BlobReader&);
 };
 
-template <typename T>
-static T& Sprite:: make(SpriteEngine& e, Sprite* parent)
+#if (_MSC_VER >= 1800)
+
+template <typename T, typename... Args>
+static T& Sprite:: make(SpriteEngine& e, Sprite* parent, Args... args)
 {
-  T*                    s = new T(e);
+  T*                    s = new T(e, args...);
   if (!s) throw std::runtime_error("Can't create sprite");
   if (parent) parent->addChild(*s);
   return *s;
 }
+
+#else
+
+template <typename T>
+static T& Sprite::make(SpriteEngine& e, Sprite* parent)
+{
+	T*                    s = new T(e);
+	if (!s) throw std::runtime_error("Can't create sprite");
+	if (parent) parent->addChild(*s);
+	return *s;
+}
+
+#endif
 
 template <typename T>
 static T& Sprite:: makeAlloc(const std::function<T*(void)>& allocFn, Sprite* parent)
