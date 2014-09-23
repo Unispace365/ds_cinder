@@ -1,13 +1,16 @@
-#pragma once
 #ifndef DS_UI_SPRITE_SPRITE_H_
 #define DS_UI_SPRITE_SPRITE_H_
 
-#include <exception>
+// Cinder includes
 #include "cinder/Cinder.h"
-#include <list>
 #include "cinder/Color.h"
 #include "cinder/Tween.h"
 #include "cinder/Timeline.h"
+#include "cinder/gl/Texture.h"
+// STL includes
+#include <list>
+#include <exception>
+// DS includes
 #include "ds/app/app_defs.h"
 #include "ds/data/user_data.h"
 #include "ds/gl/uniform.h"
@@ -16,9 +19,8 @@
 #include "ds/ui/touch/touch_process.h"
 #include "ds/ui/touch/multi_touch_constraints.h"
 #include "ds/ui/tween/sprite_anim.h"
-#include "cinder/gl/Texture.h"
-#include "shader/sprite_shader.h"
-#include "util/blend.h"
+#include "ds/ui/sprite/shader/sprite_shader.h"
+#include "ds/ui/sprite/util/blend.h"
 #include "ds/util/idle_timer.h"
 
 namespace ds {
