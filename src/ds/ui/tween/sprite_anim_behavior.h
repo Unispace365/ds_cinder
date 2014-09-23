@@ -65,6 +65,17 @@ public:
 		}
 	}
 	
+	// Stops a tween previously added via SpriteAnimatableBehaviors::add API call, need to add a dummy val to determine type
+	template<typename PropType>
+	void									stop(const std::string& key, const PropType& val) {
+		mEventNotifier.notify(TweenEventEnd(key));
+		if (contains(key)) {
+			boost::any_cast<cinder::Anim<PropType> &>(mAnimatedProperties[key].second).stop();
+			//mOwner.getEngine().getTweenline().apply(mOwner, boost::any_cast<const ds::ui::SpriteAnim<PropType> &>(mAnimatedProperties[key].first), val, duration, ease, [finishFn, key, this](){mEventNotifier.notify(TweenEventEnd(key)); finishFn(); }, delay);
+		}
+	}
+
+
 	// Checks if an animatble behavior exists with a given key
 	bool									contains(const std::string& key);
 	
