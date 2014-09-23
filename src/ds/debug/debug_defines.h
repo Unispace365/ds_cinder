@@ -1,6 +1,12 @@
-#pragma once
 #ifndef DS_DEBUG_DEBUGDEFINES_H_
 #define DS_DEBUG_DEBUGDEFINES_H_
+
+// Deprecated indicator
+// This is here because engine.h is the only
+// guaranteed header on EVERY single DS app
+#ifndef DEPRECATED
+#define DEPRECATED __declspec(deprecated)
+#endif
 
 #ifdef _DEBUG
 #include <Poco/Debugger.h>
