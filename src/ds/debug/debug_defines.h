@@ -1,11 +1,6 @@
 #ifndef DS_DEBUG_DEBUGDEFINES_H_
 #define DS_DEBUG_DEBUGDEFINES_H_
 
-// Deprecated indicator
-#ifndef DEPRECATED
-#define DEPRECATED __declspec(deprecated)
-#endif
-
 #ifdef _DEBUG
 #include <Poco/Debugger.h>
 #endif

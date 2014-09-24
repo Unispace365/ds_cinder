@@ -45,7 +45,7 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\..\..\vc10\PropertySheets\Platform_d.props" />
+    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -61,7 +61,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories);$(DS_PLATFORM)\lib\gstreamer\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories);$(DS_PLATFORM_086)\lib\gstreamer\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -75,11 +75,11 @@
       </ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER)\lib;$(CINDER)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -91,7 +91,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER)\include;$(CINDER)\boost;$(DS_PLATFORM)\lib\poco\include;$(CINDER)\blocks\osc\include;$(CINDER)\blocks\osc\src;$(CINDER)\blocks\tuio\include;$(CINDER)\blocks\tuio\src;$(DS_PLATFORM)\lib\zmq;$(DS_PLATFORM)\lib\snappy;$(FREETYPE)\include;$(DS_PLATFORM)\lib\OGLFT;$(DS_PLATFORM)\lib\paulhoux-Cinder-Awesomium\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER_086)\include;$(CINDER_086)\boost;$(DS_PLATFORM_086)\lib\poco\include;$(CINDER_086)\blocks\osc\include;$(CINDER_086)\blocks\osc\src;$(CINDER_086)\blocks\tuio\include;$(CINDER_086)\blocks\tuio\src;$(DS_PLATFORM_086)\lib\zmq;$(DS_PLATFORM_086)\lib\snappy;$(FREETYPE)\include;$(DS_PLATFORM_086)\lib\OGLFT;$(DS_PLATFORM_086)\lib\paulhoux-Cinder-Awesomium\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>

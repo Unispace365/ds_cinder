@@ -32,13 +32,13 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM)\vc10\PropertySheets\Platform.props" />
-    <Import Project="$(DS_PLATFORM)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf.props" />
+    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="$(DS_PLATFORM_086)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM)\vc10\PropertySheets\Platform_d.props" />
-    <Import Project="$(DS_PLATFORM)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf_d.props" />
+    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
+    <Import Project="$(DS_PLATFORM_086)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -66,7 +66,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -92,7 +92,7 @@
       </Message>
     </PreLinkEvent>
     <PostBuildEvent>
-      <Command>copy /Y "$(DS_PLATFORM)\lib\zmq\lib\*" "$(OutDir)"</Command>
+      <Command>copy /Y "$(DS_PLATFORM_086)\lib\zmq\lib\*" "$(OutDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying 0MQ</Message>
@@ -112,7 +112,7 @@
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -130,7 +130,7 @@
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy /Y "$(DS_PLATFORM)\lib\zmq\lib\*" "$(OutDir)"</Command>
+      <Command>copy /Y "$(DS_PLATFORM_086)\lib\zmq\lib\*" "$(OutDir)"</Command>
       <Message>Copying 0MQ</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
@@ -141,7 +141,7 @@
     <ClInclude Include="..\include\Resources.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM)\vc10\FrameworkResources.rc" />
+    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

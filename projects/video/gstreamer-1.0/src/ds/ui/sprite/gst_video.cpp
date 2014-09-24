@@ -8,6 +8,9 @@
 #include <ds/debug/logger.h>
 #include <ds/math/math_func.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <sstream>
+
+#include <Poco/Path.h>
 
 #include "gstreamer/_2RealGStreamerWrapper.h"
 #include "gstreamer/video_meta_cache.h"
@@ -21,15 +24,16 @@ namespace {
 class Init {
 public:
 	Init() {
-		// Set the main gstreamer path. We're assuming it's in the standard location;
-		// if that ever changes, then load up a settings file here and get the path from that.
-		ds::Environment::addToFrontEnvironmentVariable("PATH", "C:\\gstreamer\\1.0\\x86\\bin");
+		// Set the main gstreamer path from the environment variable
+		ds::Environment::addToFrontEnvironmentVariable("PATH", Poco::Path::expand("%DS_CINDER_GSTREAMER_1-0%\\bin"));
 
 		// Add a startup object to set the plugin path. This is how we'd prefer to
 		// do both path setups, but we had to delay-load some DLLs for gstreamer,
 		// so we're being extracautious about the path variable.
 		ds::App::AddStartup([](ds::Engine& e) {
-			std::string		plugin_path("GST_PLUGIN_PATH=C:\\gstreamer\\1.0\\x86\\lib\\gstreamer-1.0");
+			std::stringstream ss;
+			ss << "GST_PLUGIN_PATH=" << Poco::Path::expand("%DS_CINDER_GSTREAMER_1-0%\\lib\\gstreamer-1.0");
+			std::string		plugin_path(ss.str());
 			_putenv(plugin_path.c_str());
 		});
 

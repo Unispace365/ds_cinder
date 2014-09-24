@@ -11,28 +11,28 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioClient.h" />
-    <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioCursor.h" />
-    <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioObject.h" />
-    <ClInclude Include="$(CINDER)\blocks\tuio\include\TuioProfileBase.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\IpEndpointName.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\NetworkingUtils.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\PacketListener.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\TimerListener.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\UdpSocket.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscArg.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscBundle.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscListener.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscMessage.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscSender.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\MessageMappingOscPacketListener.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscException.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscHostEndianness.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscOutboundPacketStream.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscPacketListener.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscPrintReceivedElements.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscReceivedElements.h" />
-    <ClInclude Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscTypes.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioClient.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioCursor.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioObject.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioProfileBase.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\IpEndpointName.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\NetworkingUtils.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\PacketListener.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\TimerListener.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\UdpSocket.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscArg.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscBundle.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscListener.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscMessage.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscSender.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\MessageMappingOscPacketListener.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscException.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscHostEndianness.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscOutboundPacketStream.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscPacketListener.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscPrintReceivedElements.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscReceivedElements.h" />
+    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscTypes.h" />
     <ClInclude Include="..\lib\OGLFT\OGLFT.h" />
     <ClInclude Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.h" />
     <ClInclude Include="..\src\ds\app\app.h" />
@@ -196,18 +196,18 @@
     <ClInclude Include="..\src\ds\util\string_util.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(CINDER)\blocks\tuio\src\TuioClient.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\IpEndpointName.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\win32\NetworkingUtils.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\ip\win32\UdpSocket.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscBundle.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscListener.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscMessage.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\OscSender.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscOutboundPacketStream.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscPrintReceivedElements.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscReceivedElements.cpp" />
-    <ClCompile Include="..\..\cinder_0.8.6_vc2013\blocks\OSC\src\osc\OscTypes.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\tuio\src\TuioClient.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\IpEndpointName.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\win32\NetworkingUtils.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\win32\UdpSocket.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscBundle.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscListener.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscMessage.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscSender.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscOutboundPacketStream.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscPrintReceivedElements.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscReceivedElements.cpp" />
+    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscTypes.cpp" />
     <ClCompile Include="..\lib\OGLFT\OGLFT.cpp" />
     <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
@@ -403,11 +403,11 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER)\lib;$(CINDER)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>

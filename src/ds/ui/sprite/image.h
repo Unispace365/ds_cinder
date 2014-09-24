@@ -37,10 +37,13 @@ public:
 	bool						isLoaded() const;
 	
 	// Deprecated, see ImageOwner API
-	DEPRECATED void				loadImage( const std::string &filename );
-	DEPRECATED Image&			setResourceFilename(const std::string &filename);
-	DEPRECATED Image&			setResourceId(const ds::Resource::Id &resourceId);
-	DEPRECATED void				clearResource();
+	void						loadImage(const std::string &filename);
+	// Deprecated, see ImageOwner API
+	Image&						setResourceFilename(const std::string &filename);
+	// Deprecated, see ImageOwner API
+	Image&						setResourceId(const ds::Resource::Id &resourceId);
+	// Deprecated, see ImageOwner API
+	void						clearResource();
 	
 	struct Status {
 		static const int		STATUS_EMPTY = 0;

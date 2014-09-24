@@ -6,11 +6,11 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM)\projects\video\gstreamer\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_086)\projects\video\gstreamer\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);gstreamer-0.10.lib;glib-2.0.lib;gobject-2.0.lib;gstapp-0.10.lib;gstbase-0.10.lib;gstvideo-0.10.lib;gthread-2.0.lib;video_gstreamer_d.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM)\lib\gstreamer\lib;$(DS_PLATFORM)\projects\video\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_086)\lib\gstreamer\lib;$(DS_PLATFORM_086)\projects\video\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

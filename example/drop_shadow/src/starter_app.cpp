@@ -42,4 +42,4 @@ void ExampleApp::setupServer() {
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC( ExampleApp,  RendererGl(RendererGl::AA_MSAA_4) )
+CINDER_APP_BASIC( ExampleApp,  ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4) )

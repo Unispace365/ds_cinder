@@ -199,13 +199,6 @@ public:
 
 	bool					visible() const;
 
-	// EH: No clue where this came from or what it's supposed to be used for.
-	// Shouldn't be part of the framework services, so anyone who's depending
-	// on it, use user-data instead.
-	DEPRECATED void			setType(int type)	{ mType = type; }
-	DEPRECATED int			getType() const		{ return mType; }
-	DEPRECATED int			mType;
-
 	// Subclasses can handle the event
 	virtual void			eventReceived(const ds::Event&);
 	// Convenience to pass an event up through my parents
