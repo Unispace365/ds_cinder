@@ -2,6 +2,9 @@
 
 #include "ds/app/app.h"
 
+using namespace ci;
+using namespace ci::app;
+
 namespace ds {
 
 /**
