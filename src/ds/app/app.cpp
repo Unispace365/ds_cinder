@@ -341,7 +341,7 @@ ds::App::Initializer::Initializer(const std::string& appPath) {
 	int             count = 0;
 	while ((ans=app_folder_from(p)).empty()) {
 		p.popDirectory();
-		if (count++ >= 5 || p.depth() < 2) break;
+		if (count++ >= 5 || p.depth() < 1) break;
 	}
 	APP_DATA_PATH = ans;
 }
