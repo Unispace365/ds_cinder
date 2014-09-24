@@ -2,7 +2,7 @@ Updating to Cinder 0.8.6 and ds_cinder 0.8.6
 ===================================
 
 * Grab Visual Studio 2013 (Express is fine, get the Desktop version)
-* Grab Cinder 0.8.6 and uncompress it
+* Grab Cinder 0.8.6 for visual studio 2013 and uncompress it: http://libcinder.org/download/
 * Checkout the 086-develop branch of ds_cinder (at some point this will be the master branch)
 * Create a CINDER_086 environment variable will now need to point to Cinder 0.8.6 (not ds_cinder, regular cinder)
 * Create a DS_PLATFORM_086 environment variable and point it at ds_cinder. *Note:* this allows you to have side-by-side 0.8.4 and 0.8.6 cinder and ds_cinder installs. Simply clone a second ds_cinder repo and point DS_PLATFORM_086 at it.
