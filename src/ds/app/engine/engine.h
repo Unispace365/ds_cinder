@@ -223,8 +223,7 @@ private:
 										mTouchMovedEvents;
 	ds::EngineTouchQueue<ci::app::TouchEvent>
 										mTouchEndEvents;
-	typedef std::pair<ci::app::MouseEvent, int>
-										MousePair;
+	typedef std::pair<ci::app::MouseEvent, int> MousePair;
 	ds::EngineTouchQueue<MousePair>		mMouseBeginEvents;
 	ds::EngineTouchQueue<MousePair>		mMouseMovedEvents;
 	ds::EngineTouchQueue<MousePair>		mMouseEndEvents;

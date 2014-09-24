@@ -32,8 +32,8 @@ public:
 	void						setTouchMode(const TouchMode::Enum&);
 
 	void                        mouseTouchBegin(const ci::app::MouseEvent&, int id );
-	void                        mouseTouchMoved(const ci::app::MouseEvent&, int id);
-	void                        mouseTouchEnded(const ci::app::MouseEvent&, int id);
+	void                        mouseTouchMoved(const ci::app::MouseEvent&, int id );
+	void                        mouseTouchEnded(const ci::app::MouseEvent&, int id );
 
 	void                        touchesBegin(const ci::app::TouchEvent&);
 	void                        touchesMoved(const ci::app::TouchEvent&);
@@ -70,8 +70,8 @@ public:
     Engine &mEngine;
 
     std::map<int, ui::Sprite *> mFingerDispatcher;
-    std::map<int, ci::Vec3f>        mTouchStartPoint;
-	std::map<int, ci::Vec3f>        mTouchPreviousPoint;
+    std::map<int, ci::Vec3f>    mTouchStartPoint;
+    std::map<int, ci::Vec3f>    mTouchPreviousPoint;
 
 	ci::Vec2f					mTouchDimensions;
 	ci::Vec2f					mTouchOffset;

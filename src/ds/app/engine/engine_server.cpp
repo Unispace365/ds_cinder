@@ -17,6 +17,9 @@ char				DELETE_SPRITE_BLOB = 0;
 const char			TERMINATOR = 0;
 }
 
+using namespace ci;
+using namespace ci::app;
+
 /**
  * \class ds::AbstractEngineServer
  */

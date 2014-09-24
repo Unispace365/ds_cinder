@@ -31,29 +31,29 @@ public:
 	App(const RootList& = RootList());
 	~App();
 
-	virtual void				mouseDown(ci::app::MouseEvent event);
-	virtual void				mouseMove(ci::app::MouseEvent event);
-	virtual void				mouseDrag(ci::app::MouseEvent event);
-	virtual void				mouseUp(ci::app::MouseEvent event);
+	virtual void				mouseDown( ci::app::MouseEvent event );	
+	virtual void				mouseMove( ci::app::MouseEvent event );
+	virtual void				mouseDrag( ci::app::MouseEvent event );
+	virtual void				mouseUp(   ci::app::MouseEvent event );	
 
 	// These are called from the boost thread
 	// These events are sent to the engine to be queued for the next update
-	virtual void				touchesBegan(ci::app::TouchEvent event);
-	virtual void				touchesMoved(ci::app::TouchEvent event);
-	virtual void				touchesEnded(ci::app::TouchEvent event);
+	virtual void				touchesBegan( ci::app::TouchEvent event );
+	virtual void				touchesMoved( ci::app::TouchEvent event );
+	virtual void				touchesEnded( ci::app::TouchEvent event );
 
 	// These are safe to override
-	virtual void				onTouchesBegan(ci::app::TouchEvent event){};
-	virtual void				onTouchesMoved(ci::app::TouchEvent event){};
-	virtual void				onTouchesEnded(ci::app::TouchEvent event){};
+	virtual void				onTouchesBegan( ci::app::TouchEvent event ){};
+	virtual void				onTouchesMoved( ci::app::TouchEvent event ){};
+	virtual void				onTouchesEnded( ci::app::TouchEvent event ){};
 
 	// To receive TUIO Objects, the engine must have this setting:
 	//	<text name="tuio:receive_objects" value="true" />
 	virtual void				tuioObjectBegan( const TuioObject& );
 	virtual void				tuioObjectMoved( const TuioObject& );
 	virtual void				tuioObjectEnded( const TuioObject& );
-	virtual void				keyDown(ci::app::KeyEvent event);
-	virtual void				keyUp(ci::app::KeyEvent event);
+	virtual void				keyDown( ci::app::KeyEvent event );
+	virtual void				keyUp( ci::app::KeyEvent event );
 	virtual void				prepareSettings( Settings* );
 	virtual void				setup();
 	// This is where client applications would setup the initial UI.
