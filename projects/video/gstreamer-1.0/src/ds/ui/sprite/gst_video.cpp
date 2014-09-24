@@ -24,15 +24,34 @@ namespace {
 class Init {
 public:
 	Init() {
-		// Set the main gstreamer path from the environment variable
-		ds::Environment::addToFrontEnvironmentVariable("PATH", Poco::Path::expand("%DS_CINDER_GSTREAMER_1-0%\\bin"));
+
+		// Load the environment variable and check if it exists.
+		// If it does not exist, use the default legacy install location
+		char * cindEnv = getenv("DS_CINDER_GSTREAMER_1-0");
+		std::string cinderGstreamerPath = "";
+		if (cindEnv){
+			cinderGstreamerPath = cindEnv;
+		} else {
+			cinderGstreamerPath = "c:/gstreamer/1.0/x86";
+		}
+
+		// Add the bin to the env path
+		std::stringstream pathy;
+		pathy << cinderGstreamerPath << "\\bin";
+
+		// Set the main gstreamer path from the environment variable or default
+		ds::Environment::addToFrontEnvironmentVariable("PATH", Poco::Path::expand(pathy.str()));
 
 		// Add a startup object to set the plugin path. This is how we'd prefer to
 		// do both path setups, but we had to delay-load some DLLs for gstreamer,
 		// so we're being extracautious about the path variable.
-		ds::App::AddStartup([](ds::Engine& e) {
+		ds::App::AddStartup([cinderGstreamerPath](ds::Engine& e) {
+
+			// Use the previously determined base path and add the dll location
+			std::stringstream pathToExpand;
+			pathToExpand << cinderGstreamerPath << "\\lib\\gstreamer-1.0";
 			std::stringstream ss;
-			ss << "GST_PLUGIN_PATH=" << Poco::Path::expand("%DS_CINDER_GSTREAMER_1-0%\\lib\\gstreamer-1.0");
+			ss << "GST_PLUGIN_PATH=" << Poco::Path::expand(pathToExpand.str());
 			std::string		plugin_path(ss.str());
 			_putenv(plugin_path.c_str());
 		});
