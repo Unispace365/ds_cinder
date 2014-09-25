@@ -29,29 +29,31 @@ const char          SPRITE_ID_ATTRIBUTE = 1;
 namespace {
 char                BLOB_TYPE         = 0;
 
-const DirtyState    ID_DIRTY 			    = newUniqueDirtyState();
-const DirtyState    PARENT_DIRTY 			= newUniqueDirtyState();
-const DirtyState    CHILD_DIRTY 			= newUniqueDirtyState();
-const DirtyState    FLAGS_DIRTY 	   	= newUniqueDirtyState();
-const DirtyState    SIZE_DIRTY 	    	= newUniqueDirtyState();
-const DirtyState    POSITION_DIRTY 		= newUniqueDirtyState();
-const DirtyState    CENTER_DIRTY 		  = newUniqueDirtyState();
-const DirtyState    SCALE_DIRTY 	  	= newUniqueDirtyState();
-const DirtyState    COLOR_DIRTY 	  	= newUniqueDirtyState();
-const DirtyState    OPACITY_DIRTY 	  = newUniqueDirtyState();
-const DirtyState    BLEND_MODE        = newUniqueDirtyState();
-const DirtyState    CLIPPING_BOUNDS   = newUniqueDirtyState();
+const DirtyState	ID_DIRTY			= newUniqueDirtyState();
+const DirtyState	PARENT_DIRTY		= newUniqueDirtyState();
+const DirtyState	CHILD_DIRTY			= newUniqueDirtyState();
+const DirtyState	FLAGS_DIRTY 	   	= newUniqueDirtyState();
+const DirtyState	SIZE_DIRTY 	    	= newUniqueDirtyState();
+const DirtyState	POSITION_DIRTY		= newUniqueDirtyState();
+const DirtyState	CENTER_DIRTY		= newUniqueDirtyState();
+const DirtyState	SCALE_DIRTY			= newUniqueDirtyState();
+const DirtyState	COLOR_DIRTY			= newUniqueDirtyState();
+const DirtyState	OPACITY_DIRTY		= newUniqueDirtyState();
+const DirtyState	BLEND_MODE			= newUniqueDirtyState();
+const DirtyState	CLIPPING_BOUNDS		= newUniqueDirtyState();
+const DirtyState	SORTORDER_DIRTY		= newUniqueDirtyState();
 
-const char          PARENT_ATT        = 2;
-const char          SIZE_ATT          = 3;
-const char          FLAGS_ATT         = 4;
-const char          POSITION_ATT      = 5;
-const char          CENTER_ATT        = 6;
-const char          SCALE_ATT         = 7;
-const char          COLOR_ATT         = 8;
-const char          OPACITY_ATT       = 9;
-const char          BLEND_ATT         = 10;
-const char          CLIP_BOUNDS_ATT   = 11;
+const char			PARENT_ATT			= 2;
+const char			SIZE_ATT			= 3;
+const char			FLAGS_ATT			= 4;
+const char			POSITION_ATT		= 5;
+const char			CENTER_ATT			= 6;
+const char			SCALE_ATT			= 7;
+const char			COLOR_ATT			= 8;
+const char			OPACITY_ATT			= 9;
+const char			BLEND_ATT			= 10;
+const char			CLIP_BOUNDS_ATT		= 11;
+const char			SORTORDER_ATT		= 12;
 
 // flags
 const int           VISIBLE_F         = (1<<0);
@@ -1230,28 +1232,27 @@ bool Sprite::isDirty() const
   return !mDirty.isEmpty();
 }
 
-void Sprite::writeTo(ds::DataBuffer& buf)
-{
-  if (mDirty.isEmpty()) return;
-  if (mId == ds::EMPTY_SPRITE_ID) {
-    // This shouldn't be possible
-    DS_LOG_WARNING_M("Sprite::writeTo() on empty sprite ID", SPRITE_LOG);
-    return;
-  }
+void Sprite::writeTo(ds::DataBuffer& buf) {
+	if (mDirty.isEmpty()) return;
+	if (mId == ds::EMPTY_SPRITE_ID) {
+		// This shouldn't be possible
+		DS_LOG_WARNING_M("Sprite::writeTo() on empty sprite ID", SPRITE_LOG);
+		return;
+	}
 
-  buf.add(mBlobType);
-  buf.add(SPRITE_ID_ATTRIBUTE);
-  buf.add(mId);
+	buf.add(mBlobType);
+	buf.add(SPRITE_ID_ATTRIBUTE);
+	buf.add(mId);
 
-  writeAttributesTo(buf);
-  // Terminate the sprite and attribute list
-  buf.add(ds::TERMINATOR_CHAR);
-  // If I wrote any attributes then make sure to terminate the block
-  mDirty.clear();
+	writeAttributesTo(buf);
+	// Terminate the sprite and attribute list
+	buf.add(ds::TERMINATOR_CHAR);
+	// If I wrote any attributes then make sure to terminate the block
+	mDirty.clear();
 
-  for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
-    (*it)->writeTo(buf);
-  }
+	for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
+		(*it)->writeTo(buf);
+	}
 }
 
 void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
@@ -1309,12 +1310,19 @@ void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(mClippingBounds.getX2());
 		buf.add(mClippingBounds.getY2());
 	}
+	if (mDirty.has(SORTORDER_DIRTY)) {
+		// A flat list of ints, the first value is the number of ints
+		buf.add(SORTORDER_ATT);
+		buf.add<int32_t>(mChildren.size());
+		for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
+			buf.add<sprite_id_t>((*it) ? (*it)->getId() : 0);
+		}
+	}
 }
 
-void Sprite::readFrom(ds::BlobReader& blob)
-{
-  ds::DataBuffer&       buf(blob.mDataBuffer);
-  readAttributesFrom(buf);
+void Sprite::readFrom(ds::BlobReader& blob) {
+	ds::DataBuffer&       buf(blob.mDataBuffer);
+	readAttributesFrom(buf);
 }
 
 void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
@@ -1362,6 +1370,19 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 			float y2 = buf.read<float>();
 			mClippingBounds.set(x1, y1, x2, y2);
 			markClippingDirty();
+		} else if (id == SORTORDER_ATT) {
+			int32_t						size = buf.read<int32_t>();
+			// I'll assume anything beyond a certain size is a broken packet.
+			if (size > 0 && size < 10000) {
+				try {
+					std::vector<sprite_id_t>	order;
+					for (int32_t k=0; k<size; ++k) {
+						order.push_back(buf.read<sprite_id_t>());
+					}
+					setSpriteOrder(order);
+				} catch (std::exception const&) {
+				}
+			}
 		} else {
 			readAttributeFrom(id, buf);
 		}
@@ -1633,6 +1654,8 @@ void Sprite::sendSpriteToFront(Sprite &sprite) {
 
 	mChildren.erase(found);
 	mChildren.push_back(&sprite);
+
+	markAsDirty(SORTORDER_DIRTY);
 }
 
 void Sprite::sendSpriteToBack(Sprite &sprite) {
@@ -1642,6 +1665,8 @@ void Sprite::sendSpriteToBack(Sprite &sprite) {
 
 	mChildren.erase(found);
 	mChildren.insert(mChildren.begin(), &sprite);
+
+	markAsDirty(SORTORDER_DIRTY);
 }
 
 void Sprite::sendToFront() {
@@ -1653,6 +1678,18 @@ void Sprite::sendToFront() {
 void Sprite::sendToBack() {
 	if (mParent) {
 		mParent->sendSpriteToBack(*this);
+	}
+}
+
+void Sprite::setSpriteOrder(const std::vector<sprite_id_t> &order) {
+	for (auto it=order.begin(), end=order.end(); it!=end; ++it) {
+		const sprite_id_t	id(*it);
+		auto found = std::find_if(mChildren.begin(), mChildren.end(), [id](Sprite *s)->bool { return s && s->getId() == id; });
+		if (found != mChildren.end()) {
+			Sprite*			s(*found);
+			mChildren.erase(found);
+			mChildren.push_back(s);
+		}
 	}
 }
 

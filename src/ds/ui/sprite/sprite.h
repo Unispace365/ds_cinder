@@ -432,6 +432,9 @@ protected:
 	ds::gl::Uniform		mUniform;
 
 private:
+	// Utility to reorder the sprites
+	void				setSpriteOrder(const std::vector<sprite_id_t>&);
+
 	friend class Engine;
 	friend class EngineRoot;
 	// Disable copy constructor; sprites are managed by their parent and
