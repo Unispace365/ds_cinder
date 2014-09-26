@@ -174,6 +174,7 @@ void HttpClient::Request::run() {
 			if (!mBody.empty()) request.setContentLength(mBody.size());
 			if (mRequestFn != nullptr) {
 				request.setKeepAlive(true);
+				s.setKeepAliveTimeout(Poco::Timespan(30, 0));
 				mRequestFn(request);
 			}
 
