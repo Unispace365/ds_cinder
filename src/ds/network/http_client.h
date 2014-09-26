@@ -9,7 +9,8 @@
 
 namespace Poco {
 namespace Net {
-	class HTMLForm;
+class HTMLForm;
+class HTTPRequest;
 }
 }
 
@@ -60,6 +61,8 @@ public:
 	bool							httpGet(const std::wstring& url);
 	bool							httpPost(const std::wstring& url, const std::string& body);
 	bool							httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn);
+	bool							http(	const std::string &verb, const std::string& url, const std::string &body,
+											const std::function<void(Poco::Net::HTTPRequest&)>& postFn);
 
 protected:
 	virtual void					handleResult(std::unique_ptr<WorkRequest>&);
@@ -73,11 +76,15 @@ private:
 
 		// input
 		int							mOpt;
+		std::string					mVerb;
 		std::wstring				mUrl;
 		std::string					mBody;
 		// Utility to write multipart form data in a post
 		std::function<void(Poco::Net::HTMLForm&)>
 									mPostFn;
+		// Utility to write to the message
+		std::function<void(Poco::Net::HTTPRequest&)>
+									mRequestFn;
 
         // output
 		ds::HttpReply				mReply;
@@ -90,8 +97,9 @@ private:
 									mResultHandler;
 
 private:
-	bool							sendHttp(	const int opt, const std::wstring& url, const std::string& body,
-												const std::function<void(Poco::Net::HTMLForm&)>& postFn);
+	bool							sendHttp(	const int opt, const std::string &verb, const std::wstring& url, const std::string& body,
+												const std::function<void(Poco::Net::HTMLForm&)>& postFn,
+												const std::function<void(Poco::Net::HTTPRequest&)>& requestFn = nullptr);
 	static bool						httpAndReply(	const int opt, const std::wstring& url, const std::string& body,
 													const std::function<void(Poco::Net::HTMLForm&)>& postFn,
 													ds::HttpReply*);

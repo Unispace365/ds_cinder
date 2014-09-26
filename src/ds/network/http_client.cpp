@@ -23,28 +23,27 @@ using namespace std;
 namespace ds {
 
 namespace {
-static const int		  HTTP_GET_OPT = (1<<0);
-static const int		  HTTP_POST_OPT = (1<<1);
+static const int			HTTP_GET_OPT = (1<<0);
+static const int			HTTP_POST_OPT = (1<<1);
 
-static const string		EMPTY_SZ("");
+static const string			EMPTY_SZ("");
+static const wstring		EMPTY_WSZ(L"");
 
-const ds::BitMask		  HTTP_LOG = ds::Logger::newModule("http");
+const ds::BitMask			HTTP_LOG = ds::Logger::newModule("http");
 }
 
 /* HTTP-CLIENT static
  ******************************************************************/
-bool HttpClient::httpGetAndReply(const std::wstring& url, ds::HttpReply* ans)
-{
+bool HttpClient::httpGetAndReply(const std::wstring& url, ds::HttpReply* ans) {
 	return httpAndReply(HTTP_GET_OPT, url, EMPTY_SZ, nullptr, ans);
 }
 
-bool HttpClient::httpPostAndReply(const std::wstring& url, const std::string& body, ds::HttpReply* ans)
-{
+bool HttpClient::httpPostAndReply(const std::wstring& url, const std::string& body, ds::HttpReply* ans) {
 	return httpAndReply(HTTP_POST_OPT, url, body, nullptr, ans);
 }
 
-bool HttpClient::httpPostAndReply(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn, ds::HttpReply* ans)
-{
+bool HttpClient::httpPostAndReply(	const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn,
+									ds::HttpReply* ans) {
 	return httpAndReply(HTTP_POST_OPT, url, EMPTY_SZ, postFn, ans);
 }
 
@@ -64,17 +63,21 @@ void HttpClient::setResultHandler(const std::function<void(const HttpReply&)>& h
 
 bool HttpClient::httpGet(const std::wstring& url)
 {
-	return sendHttp(HTTP_GET_OPT, url, EMPTY_SZ, nullptr);
+	return sendHttp(HTTP_GET_OPT, EMPTY_SZ, url, EMPTY_SZ, nullptr);
 }
 
 bool HttpClient::httpPost(const std::wstring& url, const std::string& body)
 {
-	return sendHttp(HTTP_POST_OPT, url, body, nullptr);
+	return sendHttp(HTTP_POST_OPT, EMPTY_SZ, url, body, nullptr);
 }
 
-bool HttpClient::httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn)
-{
-	return sendHttp(HTTP_POST_OPT, url, EMPTY_SZ, postFn);
+bool HttpClient::httpPost(const std::wstring& url, const std::function<void(Poco::Net::HTMLForm&)>& postFn) {
+	return sendHttp(HTTP_POST_OPT, EMPTY_SZ, url, EMPTY_SZ, postFn);
+}
+
+bool HttpClient::http(	const std::string &verb, const std::string &url, const std::string &body,
+						const std::function<void(Poco::Net::HTTPRequest&)> &requestFn) {
+	return sendHttp(HTTP_POST_OPT, verb, ds::wstr_from_utf8(url), body, nullptr, requestFn);
 }
 
 void HttpClient::handleResult(std::unique_ptr<WorkRequest>& wr)
@@ -87,8 +90,9 @@ void HttpClient::handleResult(std::unique_ptr<WorkRequest>& wr)
 	mCache.push(r);
 }
 
-bool HttpClient::sendHttp(const int opt, const std::wstring& url, const std::string& body,
-                          const std::function<void(Poco::Net::HTMLForm&)>& postFn)
+bool HttpClient::sendHttp(	const int opt, const std::string &verb, const std::wstring& url, const std::string& body,
+							const std::function<void(Poco::Net::HTMLForm&)>& postFn,
+							const std::function<void(Poco::Net::HTTPRequest&)>& requestFn)
 {
 	if (url.empty()) {
 		DS_DBG_CODE(std::cout << "ERROR ds::HttpClient() empty url" << std::endl);
@@ -99,9 +103,11 @@ bool HttpClient::sendHttp(const int opt, const std::wstring& url, const std::str
 	if (!r) return false;
 
 	r->mOpt = opt;
+	r->mVerb = verb;
 	r->mUrl = url;
 	r->mBody = body;
 	r->mPostFn = postFn;
+	r->mRequestFn = requestFn;
 	r->mReply.clear();
 	return mManager.sendRequest(ds::unique_dynamic_cast<WorkRequest, Request>(r));
 }
@@ -160,7 +166,30 @@ void HttpClient::Request::run() {
 		s.setHost(uri.getHost());
 		s.setPort(uri.getPort());
 
-		if ((mOpt&HTTP_POST_OPT) != 0) {
+		// NEW NEW NEW STYLE!
+		if (!mVerb.empty()) {
+			// Ignore having a form for now; seems like a big enough topic that
+			// I might require everyone to handle it in the callback.
+			Poco::Net::HTTPRequest		request(mVerb, path, Poco::Net::HTTPMessage::HTTP_1_1);
+			if (!mBody.empty()) request.setContentLength(mBody.size());
+			if (mRequestFn != nullptr) {
+				request.setKeepAlive(true);
+				mRequestFn(request);
+			}
+
+			std::ostream&   ostr = s.sendRequest(request);
+			// Send the body
+			if (!mBody.empty()) {
+				std::istringstream		ifs(mBody);
+				Poco::StreamCopier::copyStream(ifs, ostr);
+			}
+#if 0
+std::cout << "REQUEST=";
+request.write(std::cout);
+std::cout << std::endl;
+std::cout << "DONE" << std::endl;
+#endif
+		} else if ((mOpt&HTTP_POST_OPT) != 0) {
 			Poco::Net::HTTPRequest		request(Poco::Net::HTTPRequest::HTTP_POST, path, Poco::Net::HTTPMessage::HTTP_1_1);
 			Poco::Net::HTMLForm		    form(request);
 			form.setEncoding(Poco::Net::HTMLForm::ENCODING_MULTIPART);
