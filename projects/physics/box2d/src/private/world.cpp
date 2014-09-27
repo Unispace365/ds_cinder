@@ -1,5 +1,6 @@
 #include "private/world.h"
 
+#include <cinder/CinderMath.h>
 #include <ds/app/auto_update.h>
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine.h>
@@ -39,9 +40,9 @@ void*						BOUNDS_BOTTOM_PTR = reinterpret_cast<void*>(&BOUNDS_BOTTOM);
 /**
  * \class ds::physics::World
  */
-World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& s)
+World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& spriddy)
 		: ds::AutoUpdate(e)
-		, mSprite(s)
+		, mSprite(spriddy)
 		, mTouch(*this)
 		, mContactListener(*this)
 		, mContactListenerRegistered(false)
@@ -55,6 +56,7 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& s)
 		, mMouseMaxForce(10000.0f)
 		, mMouseDampening(1.0f)
 		, mMouseFrequencyHz(25.0f)
+		, mTranslateToLocalSpace(false)
 {
 	mWorld = std::move(std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, 0.0f))));
 	if (mWorld.get() == nullptr) throw std::runtime_error("ds::physics::World() can't create b2World");
@@ -63,6 +65,7 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& s)
 	if (!mGround) throw std::runtime_error("ds::physics::World() can't create mGround");
 
 	ds::Environment::loadSettings("physics.xml", mSettings);
+	mTranslateToLocalSpace = mSettings.getBool("use_local_translation", 0, false);
 	mFriction = mSettings.getFloat("friction", 0, mFriction);
 	mLinearDampening = mSettings.getFloat("dampening:linear", 0, mLinearDampening);
 	mAngularDampening = mSettings.getFloat("dampening:angular", 0, mAngularDampening);
@@ -106,8 +109,8 @@ void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 		b2DistanceJointDef jointDef;
 		jointDef.bodyA = body1.mBody;
 		jointDef.bodyB = body2.mBody;
-		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter() + bodyAOffset);
-		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter() + bodyBOffset);
+		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter() + bodyAOffset, nullptr);
+		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter() + bodyBOffset, nullptr);
 		
 		jointDef.dampingRatio = dampingRatio;
 		jointDef.frequencyHz = frequencyHz;
@@ -137,8 +140,8 @@ void World::createWeldJoint(const SpriteBody& body1, const SpriteBody& body2, co
 		b2WeldJointDef jointDef;
 		jointDef.bodyA = body1.mBody;
 		jointDef.bodyB = body2.mBody;
-		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter() + bodyAOffset);
-		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter() + bodyBOffset);
+		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter() + bodyAOffset, nullptr);
+		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter() + bodyBOffset, nullptr);
 		jointDef.dampingRatio = damping;
 		jointDef.frequencyHz = frequency;
 		jointDef.referenceAngle = jointDef.bodyA->GetAngle() - jointDef.bodyB->GetAngle();
@@ -247,9 +250,9 @@ void World::update(const ds::UpdateParams& p)
 			ds::ui::Sprite*	sprite = reinterpret_cast<ds::ui::Sprite*>( b->GetUserData() );
 			if (sprite)
 			{
-				auto pos = box2CiTranslation(b->GetPosition());
+				auto pos = box2CiTranslation(b->GetPosition(), sprite);
 				sprite->setPosition(pos);
-				sprite->setRotation(b->GetAngle() * 180.0f / 3.1415926f);
+				sprite->setRotation(ci::toDegrees(b->GetAngle()));
 			}
 		}
 	}
@@ -284,21 +287,30 @@ float World::getCi2BoxScale() const {
 	return mCi2BoxScale;
 }
 
-ci::Vec3f World::box2CiTranslation(const b2Vec2 &vec) const
+ci::Vec3f World::box2CiTranslation(const b2Vec2 &vec, ds::ui::Sprite* sp) const
 {
-	return ci::Vec3f(vec.x / mCi2BoxScale, vec.y / mCi2BoxScale, 0.0f);
+	if(mTranslateToLocalSpace && sp && sp->getParent()){
+		return  sp->getParent()->globalToLocal(ci::Vec3f(vec.x / mCi2BoxScale, vec.y / mCi2BoxScale, 0.0f));
+	} else {
+		return ci::Vec3f(vec.x / mCi2BoxScale, vec.y / mCi2BoxScale, 0.0f);
+	}
 }
 
-b2Vec2 World::Ci2BoxTranslation(const ci::Vec3f &vec) const
+b2Vec2 World::Ci2BoxTranslation(const ci::Vec3f &vec, ds::ui::Sprite* sp) const
 {
-	return b2Vec2(vec.x * mCi2BoxScale, vec.y * mCi2BoxScale);
+	if(mTranslateToLocalSpace && sp && sp->getParent()){
+		ci::Vec3f globalPoint = sp->getParent()->localToGlobal(vec) * mCi2BoxScale;
+		return b2Vec2(globalPoint.x, globalPoint.y);
+	} else {
+		return b2Vec2(vec.x * mCi2BoxScale, vec.y * mCi2BoxScale);
+	}
 }
 
 static void set_polygon_shape(	const World& trans,
 								const float l, const float t, const float r, const float b,
 								b2PolygonShape& out) {
-	const b2Vec2	lt = trans.Ci2BoxTranslation(ci::Vec3f(l, t, 0.0f));
-	const b2Vec2	rb = trans.Ci2BoxTranslation(ci::Vec3f(r, b, 0.0f));
+	const b2Vec2	lt = trans.Ci2BoxTranslation(ci::Vec3f(l, t, 0.0f), nullptr); // using nullptr for the sprite will make the polygon be in world space
+	const b2Vec2	rb = trans.Ci2BoxTranslation(ci::Vec3f(r, b, 0.0f), nullptr);
 	b2Vec2			vtx[4];
 	vtx[0].Set(lt.x, lt.y);
 	vtx[1].Set(rb.x, lt.y);

@@ -26,7 +26,7 @@ void Touch::processTouchAdded(const SpriteBody& body, const ds::ui::TouchInfo& t
 
 	if (body.mBody) {
 		b2MouseJointDef jointDef;
-		jointDef.target = mWorld.Ci2BoxTranslation(ti.mStartPoint);
+		jointDef.target = mWorld.Ci2BoxTranslation(ti.mStartPoint, nullptr);
 		jointDef.bodyA = mWorld.mGround;
 		jointDef.bodyB = body.mBody;
 		jointDef.maxForce = mWorld.mMouseMaxForce * body.mBody->GetMass();
@@ -65,9 +65,9 @@ void Touch::processTouchMoved(const SpriteBody& body, const ds::ui::TouchInfo& t
 		ci::Vec3f		offset = ti.mCurrentGlobalPoint - ti.mStartPoint;
 		ci::Vec3f		new_position(offset);
 		const float		r = ci::toRadians(-rotation.z);
-		new_position.rotateZ(r);
+		//new_position.rotateZ(r);
 
-		j->SetTarget(mWorld.Ci2BoxTranslation(ti.mStartPoint + new_position));
+		j->SetTarget(mWorld.Ci2BoxTranslation(ti.mStartPoint + new_position, nullptr));
 	}
 }
 

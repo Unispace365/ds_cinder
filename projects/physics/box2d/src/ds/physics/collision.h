@@ -32,6 +32,7 @@ public:
 	// If type is SPRITE
 	ds::sprite_id_t	mSpriteId;
 
+	// Contact positions are in world space
 	ci::Vec3f		mContactOne;
 	ci::Vec3f		mContactTwo;
 	ci::Vec2f		mNormal;

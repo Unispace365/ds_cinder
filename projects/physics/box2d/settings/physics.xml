@@ -8,6 +8,9 @@
 		responsible for creating its own physics world(s) on the desired sprite(s). -->
 	<text  name="create_root_world" value="true" />
 
+	<!-- translate input/output from box2d into local sprite coordinate space. default=false -->
+	<text  name="use_local_translation" value="false" />
+	
 	<!-- If true, draw the physics shapes for debugging. -->
 	<text  name="draw_debug" value="false" />	
 

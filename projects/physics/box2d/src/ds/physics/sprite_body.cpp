@@ -74,7 +74,7 @@ void SpriteBody::create(const BodyBuilder& b) {
 	}
 
 	def.userData = &mSprite;
-	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition());
+	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition(), &mSprite);
 	def.linearDamping = b.mLinearDampening;
 	def.angularDamping = b.mAngularDampening;
 	def.fixedRotation = b.mFixedRotation;
@@ -152,7 +152,7 @@ void SpriteBody::processTouchRemoved(const ds::ui::TouchInfo& ti) {
 void SpriteBody::setPosition(const ci::Vec3f& pos) {
 	if (!mBody) return;
 
-	const b2Vec2		boxpos = mWorld.Ci2BoxTranslation(pos);
+	const b2Vec2		boxpos = mWorld.Ci2BoxTranslation(pos, &mSprite);
 	mBody->SetTransform(boxpos, mBody->GetAngle());
 }
 
