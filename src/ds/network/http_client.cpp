@@ -188,6 +188,7 @@ void HttpClient::Request::run() {
 std::cout << "REQUEST=";
 request.write(std::cout);
 std::cout << std::endl;
+if (!mBody.empty()) std::cout << mBody << std::endl;
 std::cout << "DONE" << std::endl;
 #endif
 		} else if ((mOpt&HTTP_POST_OPT) != 0) {
