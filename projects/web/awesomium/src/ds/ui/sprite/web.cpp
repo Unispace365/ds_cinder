@@ -4,7 +4,9 @@
 #include <cinder/ImageIo.h>
 #include <boost/filesystem.hpp>
 #include <ds/app/app.h>
+#include <ds/app/blob_reader.h>
 #include <ds/app/environment.h>
+#include <ds/data/data_buffer.h>
 #include <ds/debug/logger.h>
 #include <ds/math/math_func.h>
 #include <ds/ui/sprite/sprite_engine.h>
@@ -26,11 +28,20 @@ public:
 			ds::web::Service*		w = new ds::web::Service(e);
 			if (!w) throw std::runtime_error("Can't create ds::web::Service");
 			e.addService("web", *w);
+
+			e.installSprite([](ds::BlobRegistry& r){ds::ui::Web::installAsServer(r);},
+							[](ds::BlobRegistry& r){ds::ui::Web::installAsClient(r);});
 		});
 	}
-	void			doNothing() { }
+	void					doNothing() { }
 };
-Init				INIT;
+Init						INIT;
+
+char						BLOB_TYPE			= 0;
+const ds::ui::DirtyState&	URL_DIRTY			= ds::ui::INTERNAL_A_DIRTY;
+const ds::ui::DirtyState&	PDF_PAGEMODE_DIRTY	= ds::ui::INTERNAL_B_DIRTY;
+const char					URL_ATT				= 80;
+const char					PDF_PAGEMODE_ATT	= 81;
 }
 
 namespace ds {
@@ -98,8 +109,23 @@ ci::Vec2f get_document_size(Awesomium::WebView& view) {
 	const std::string		javascript("(function() { var result = {height:$(document).height(), width:$(document).width()}; return result; }) ();");
 	return get_javascript_xy(view, prop_x, prop_y, javascript);
 }
+
 } // anonymous namespace
 
+/**
+ * \class ds::ui::sprite::Web static
+ */
+void Web::installAsServer(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
+}
+
+void Web::installAsClient(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Web>(r);});
+}
+
+/**
+ * \class ds::ui::sprite::Web
+ */
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	: Sprite(engine, width, height)
 	, mService(engine.getService<ds::web::Service>("web"))
@@ -116,6 +142,8 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
+
+	mBlobType = BLOB_TYPE;
 
 	setTransparent(false);
 	setColor(1.0f, 1.0f, 1.0f);
@@ -265,6 +293,7 @@ void Web::loadUrl(const std::string &url) {
 			DS_LOG_INFO("Web::loadUrl() on " << url);
 			mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url.c_str())));
 			mWebViewPtr->Focus();
+			onUrlSet(url);
 		}
 	} catch( const std::exception &e ) {
 		DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
@@ -316,6 +345,7 @@ void Web::setUrlOrThrow(const std::string& url) {
 			mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url.c_str())));
 			mWebViewPtr->Focus();
 			activate();
+			onUrlSet(url);
 			return;
 		}
 	} catch (std::exception const&) {
@@ -508,11 +538,33 @@ void Web::onSizeChanged() {
 	}
 }
 
-bool Web::isLoading(){
+void Web::writeAttributesTo(ds::DataBuffer &buf) {
+	inherited::writeAttributesTo(buf);
+
+	if (mDirty.has(URL_DIRTY)) {
+		buf.add(URL_ATT);
+		buf.add(mUrl);
+	}
+}
+
+void Web::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
+	if (attributeId == URL_ATT) {
+		setUrl(buf.read<std::string>());
+	} else {
+		inherited::readAttributeFrom(attributeId, buf);
+	}
+}
+
+bool Web::isLoading() {
 	if(mWebViewPtr && mWebViewPtr->IsLoading()){
 		return true;
 	}
 	return false;
+}
+
+void Web::onUrlSet(const std::string &url) {
+	mUrl = url;
+	markAsDirty(URL_DIRTY);
 }
 
 void Web::onDocumentReady() {
