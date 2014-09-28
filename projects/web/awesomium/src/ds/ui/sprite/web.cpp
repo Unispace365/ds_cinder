@@ -178,9 +178,10 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 
 	// load and create a "loading" icon
 	try {
-		mLoadingTexture = ci::gl::Texture(ci::loadImage(ds::Environment::getAppFolder("data/images", "loading.png")));
+		mLoadingTexture = ci::gl::Texture(ci::loadImage(ds::Environment::expand("%APP%/data/images/loading.png")));
 	} catch( const std::exception &e ) {
-		DS_LOG_ERROR("Exception loading loading image for websprite: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
+		DS_LOG_ERROR("Exception loading loading image for websprite: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__
+				<< " missing file=" << ds::Environment::expand("%APP%/data/images/loading.png"));
 	}
 }
 
@@ -191,55 +192,42 @@ Web::~Web() {
 	}
 }
 
-void Web::updateServer( const ds::UpdateParams &updateParams ) {
-	Sprite::updateServer(updateParams);
+void Web::updateClient(const ds::UpdateParams &p) {
+	Sprite::updateClient(p);
+
+	update(p);
+}
+
+void Web::updateServer(const ds::UpdateParams &p) {
+	Sprite::updateServer(p);
 
 	mPageScrollCount = 0;
 
-	// create or update our OpenGL Texture from the webview
-	if (mWebViewPtr
-		&& (mDrawWhileLoading || !mWebViewPtr->IsLoading())
-		&& ph::awesomium::isDirty( mWebViewPtr )) {
-		try {
-			// set texture filter to NEAREST if you don't intend to transform (scale, rotate) it
-			ci::gl::Texture::Format fmt;
-		//	fmt.setMagFilter( GL_NEAREST );
-			fmt.setMagFilter( GL_LINEAR );
-
-			// get the texture using a handy conversion function
-			mWebTexture = ph::awesomium::toTexture( mWebViewPtr, fmt );
-		} catch( const std::exception &e ) {
-			DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
-		}
-	}
-
-	mLoadingAngle += updateParams.getDeltaTime() * 60.0f * 5.0f;
-	if (mLoadingAngle >= 360.0f)
-		mLoadingAngle = mLoadingAngle - 360.0f;
+	update(p);
 }
 
 void Web::drawLocalClient() {
-  if (mWebTexture) {
-    //ci::gl::color(ci::Color::white());
-    ci::gl::draw(mWebTexture);
-  }
+	if (mWebTexture) {
+		//ci::gl::color(ci::Color::white());
+		ci::gl::draw(mWebTexture);
+	}
 
-  // show spinner while loading
-  if (mLoadingTexture && mWebViewPtr && mWebViewPtr->IsLoading()) {
-    ci::gl::pushModelView();
+	// show spinner while loading
+	if (mLoadingTexture && mWebViewPtr && mWebViewPtr->IsLoading()) {
+		ci::gl::pushModelView();
 
-    ci::gl::translate(0.5f * ci::Vec2f(getWidth(), getHeight()));
-    ci::gl::scale(0.5f, 0.5f );
-    ci::gl::rotate(mLoadingAngle);
-    ci::gl::translate(-0.5f * ci::Vec2f(mLoadingTexture.getSize()));
+		ci::gl::translate(0.5f * ci::Vec2f(getWidth(), getHeight()));
+		ci::gl::scale(0.5f, 0.5f );
+		ci::gl::rotate(mLoadingAngle);
+		ci::gl::translate(-0.5f * ci::Vec2f(mLoadingTexture.getSize()));
 
-    //ci::gl::color(ci::Color::white());
-    //ci::gl::enableAlphaBlending();
-    ci::gl::draw(mLoadingTexture);
-    //ci::gl::disableAlphaBlending();
+		//ci::gl::color(ci::Color::white());
+		//ci::gl::enableAlphaBlending();
+		ci::gl::draw(mLoadingTexture);
+		//ci::gl::disableAlphaBlending();
 
-    ci::gl::popModelView();
-  }
+		ci::gl::popModelView();
+	}
 }
 
 void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
@@ -354,14 +342,12 @@ void Web::setUrlOrThrow(const std::string& url) {
 }
 
 void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {
-	// untested!
 	if(mWebViewPtr){
 		ph::awesomium::handleKeyDown(mWebViewPtr, event);
 	}
 }
 
 void Web::sendKeyUpEvent( const ci::app::KeyEvent &event ){
-	// untested!
 	if(mWebViewPtr){
 		ph::awesomium::handleKeyUp(mWebViewPtr, event);
 	}
@@ -560,6 +546,29 @@ bool Web::isLoading() {
 		return true;
 	}
 	return false;
+}
+
+void Web::update(const ds::UpdateParams &p) {
+	// create or update our OpenGL Texture from the webview
+	if (mWebViewPtr
+		&& (mDrawWhileLoading || !mWebViewPtr->IsLoading())
+		&& ph::awesomium::isDirty( mWebViewPtr )) {
+		try {
+			// set texture filter to NEAREST if you don't intend to transform (scale, rotate) it
+			ci::gl::Texture::Format fmt;
+		//	fmt.setMagFilter( GL_NEAREST );
+			fmt.setMagFilter( GL_LINEAR );
+
+			// get the texture using a handy conversion function
+			mWebTexture = ph::awesomium::toTexture( mWebViewPtr, fmt );
+		} catch( const std::exception &e ) {
+			DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
+		}
+	}
+
+	mLoadingAngle += p.getDeltaTime() * 60.0f * 5.0f;
+	if (mLoadingAngle >= 360.0f)
+		mLoadingAngle = mLoadingAngle - 360.0f;
 }
 
 void Web::onUrlSet(const std::string &url) {

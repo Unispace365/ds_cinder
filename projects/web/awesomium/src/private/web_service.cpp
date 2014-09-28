@@ -10,7 +10,7 @@ namespace web {
  * \class ds::web::Service
  */
 Service::Service(ds::Engine& e)
-		: ds::AutoUpdate(e)
+		: ds::AutoUpdate(e, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
 		, mWebCorePtr(nullptr)
 		, mWebSessionPtr(nullptr) {
 }

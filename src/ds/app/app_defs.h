@@ -14,6 +14,12 @@ static const sprite_id_t    EMPTY_SPRITE_ID = 0;
 // Blob termination for network traffic
 static const char           TERMINATOR_CHAR = 0;
 
+// Types of auto updates
+namespace AutoUpdateType {
+	static const int		SERVER = (1<<0);
+	static const int		CLIENT = (1<<1);
+}
+
 /**
  * \class ds::RootList
  * \brief Used during the app constructor to supply a list

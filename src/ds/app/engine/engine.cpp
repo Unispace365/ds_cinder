@@ -321,6 +321,13 @@ void Engine::addChannel(const std::string &name, const std::string &description)
 	mChannels[name] = Channel(description);
 }
 
+ds::AutoUpdateList& Engine::getAutoUpdateList(const int mask) {
+	if ((mask&AutoUpdateType::SERVER) != 0) return mAutoUpdateServer;
+	if ((mask&AutoUpdateType::CLIENT) != 0) return mAutoUpdateClient;
+	throw std::runtime_error("Engine::getAutoUpdateList() on illegal param");
+	return mAutoUpdateServer;
+}
+
 void Engine::addService(const std::string& str, ds::EngineService& service) {
 	if (mData.mServices.empty()) {
 		mData.mServices[str] = &service;
@@ -372,6 +379,8 @@ void Engine::updateClient() {
 
 	mUpdateParams.setDeltaTime(dt);
 	mUpdateParams.setElapsedTime(curr);
+
+	mAutoUpdateClient.update(mUpdateParams);
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		(*it)->updateClient(mUpdateParams);
@@ -426,7 +435,7 @@ void Engine::updateServer() {
 	mUpdateParams.setDeltaTime(dt);
 	mUpdateParams.setElapsedTime(curr);
 
-	mAutoUpdate.update(mUpdateParams);
+	mAutoUpdateServer.update(mUpdateParams);
 
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		(*it)->updateServer(mUpdateParams);

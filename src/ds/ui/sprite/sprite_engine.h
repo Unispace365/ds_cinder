@@ -49,7 +49,7 @@ public:
 	virtual ds::WorkManager&		getWorkManager() = 0;
 	virtual ds::ResourceList&		getResources() = 0;
 	virtual const ds::FontList&		getFonts() const = 0;
-	virtual ds::AutoUpdateList&		getAutoUpdateList() = 0;
+	virtual ds::AutoUpdateList&		getAutoUpdateList(const int = AutoUpdateType::SERVER) = 0;
 	virtual LoadImageService&		getLoadImageService() = 0;
 	virtual RenderTextService&		getRenderTextService() = 0;
 	virtual ds::ImageRegistry&		getImageRegistry() = 0;

@@ -31,6 +31,7 @@ public:
 	Web(ds::ui::SpriteEngine &engine, float width = 0.0f, float height = 0.0f);
 	~Web();
 
+	virtual void			updateClient(const ds::UpdateParams&);
 	virtual void			updateServer(const ds::UpdateParams&);
 	virtual void			drawLocalClient();
 
@@ -109,6 +110,7 @@ protected:
 	virtual void			readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
 private:
+	void					update(const ds::UpdateParams&);
 	void					onUrlSet(const std::string&);
 	void					onDocumentReady();
 	void					handleTouch(const ds::ui::TouchInfo&);

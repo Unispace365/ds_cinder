@@ -4,6 +4,7 @@
 
 #include <vector>
 #include <Poco/Timestamp.h>
+#include <ds/app/app_defs.h>
 
 namespace ds {
 class AutoUpdateList;
@@ -19,17 +20,18 @@ class SpriteEngine;
  */
 class AutoUpdate {
 public:
-	AutoUpdate(ds::ui::SpriteEngine&);
+	AutoUpdate(ds::ui::SpriteEngine&, const int mask = AutoUpdateType::SERVER);
 	virtual ~AutoUpdate();
 
 protected:
-	virtual void		update(const ds::UpdateParams&) = 0;
+	friend class			AutoUpdateList;
+	virtual void			update(const ds::UpdateParams&) = 0;
 
 private:
-	friend class AutoUpdateList;
 	AutoUpdate();
 
-	AutoUpdateList&		mOwner;
+	ds::ui::SpriteEngine&	mEngine;
+	const int				mMask;
 };
 
 } // namespace ds
