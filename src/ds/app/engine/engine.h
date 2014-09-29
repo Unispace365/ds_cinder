@@ -60,7 +60,7 @@ public:
 
 	virtual ds::EventNotifier&			getChannel(const std::string&);
 	void								addChannel(const std::string &name, const std::string &description);
-	virtual ds::AutoUpdateList&			getAutoUpdateList() { return mAutoUpdate; }
+	virtual ds::AutoUpdateList&			getAutoUpdateList(const int = AutoUpdateType::SERVER);
 	virtual ds::ImageRegistry&			getImageRegistry() { return mImageRegistry; }
 	virtual ds::ui::Tweenline&			getTweenline() { return mTweenline; }
 	virtual const ds::cfg::Settings&	getDebugSettings() { return mDebugSettings; }
@@ -207,7 +207,8 @@ private:
 	ui::TouchManager					mTouchManager;
 	// Clients that will get update() called automatically at the start
 	// of each update cycle
-	AutoUpdateList						mAutoUpdate;
+	AutoUpdateList						mAutoUpdateServer;
+	AutoUpdateList						mAutoUpdateClient;
 	// Quick hack to get any ol' client participating in draw
 	AutoDrawService*					mAutoDraw;
 

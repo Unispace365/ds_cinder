@@ -24,6 +24,29 @@ const ds::Resource::Id          KITTY_RES_ID(EXAMPLE_DB_TYPE, 44);
 std::string                     CUSTOM_RESOURCE_PATH;
 std::string                     CUSTOM_DB_PATH;
 std::string                     EMPTY_CUSTOM_PATH("");
+
+// Test sending sort order by putting to the front anyone that's touched
+class FrontSprite : public ds::ui::Sprite {
+public:
+	FrontSprite(ds::ui::SpriteEngine &e, float width = 0.0f, float height = 0.0f) : ds::ui::Sprite(e, width, height) { }
+
+	virtual void			userInputReceived() {
+		ds::ui::Sprite::userInputReceived();
+		sendToFront();
+	}
+};
+
+class FrontImage : public ds::ui::Image {
+public:
+	FrontImage(ds::ui::SpriteEngine &e, const std::string &fn, const int flags = 0) : ds::ui::Image(e, fn, flags) { }
+	FrontImage(ds::ui::SpriteEngine &e, const ds::Resource::Id &id, const int flags = 0) : ds::ui::Image(e, id, flags) { }
+
+	virtual void			userInputReceived() {
+		ds::ui::Image::userInputReceived();
+		sendToFront();
+	}
+};
+
 }
 
 class CsApp : public ds::App {
@@ -66,14 +89,14 @@ void CsApp::setupServer() {
 	ds::ui::Image   *imgSprite;
  
 	// Example image sprite from a hardcoded filename.
-	imgSprite = new ds::ui::Image(mEngine, ds::Environment::getAppFolder("data", "lorem_kicksum.w_1170.h_1146.png"));
+	imgSprite = new FrontImage(mEngine, "%APP%/data/lorem_kicksum.w_1170.h_1146.png");
 	imgSprite->setScale(0.25f, 0.25f);
 	imgSprite->enable(true);
 	imgSprite->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
 	rootSprite.addChild(*imgSprite);
 
 	// Example image sprite from a resource.
-	imgSprite = new ds::ui::Image(mEngine, KITTY_RES_ID);
+	imgSprite = new FrontImage(mEngine, KITTY_RES_ID);
 	imgSprite->setScale(0.5f, 0.5f);
 	imgSprite->setPosition(200, 200);
 	imgSprite->enable(true);
@@ -81,7 +104,7 @@ void CsApp::setupServer() {
 	rootSprite.addChild(*imgSprite);
  
 	// Example sprite
-	ds::ui::Sprite *child = new ds::ui::Sprite(mEngine, 100.0f, 100.0f);
+	ds::ui::Sprite *child = new FrontSprite(mEngine, 100.0f, 100.0f);
 	child->setPosition(getWindowWidth() / 4.0f, getWindowHeight() / 4.0f);
 	child->setCenter(0.5f, 0.5f);
 	child->setColor(1.0f, 1.0f, 0.0f);

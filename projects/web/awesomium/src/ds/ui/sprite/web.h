@@ -31,6 +31,7 @@ public:
 	Web(ds::ui::SpriteEngine &engine, float width = 0.0f, float height = 0.0f);
 	~Web();
 
+	virtual void			updateClient(const ds::UpdateParams&);
 	virtual void			updateServer(const ds::UpdateParams&);
 	virtual void			drawLocalClient();
 
@@ -105,8 +106,12 @@ public:
 
 protected:
 	virtual void			onSizeChanged();
+	virtual void			writeAttributesTo(ds::DataBuffer&);
+	virtual void			readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
 private:
+	void					update(const ds::UpdateParams&);
+	void					onUrlSet(const std::string&);
 	void					onDocumentReady();
 	void					handleTouch(const ds::ui::TouchInfo&);
 	void					sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase&);
@@ -144,6 +149,14 @@ private:
 							mTouchListener;
 	std::function<void(void)>
 							mDocumentReadyFn;
+
+	// Replicated state
+	std::string				mUrl;
+
+	// Initialization
+public:
+	static void				installAsServer(ds::BlobRegistry&);
+	static void				installAsClient(ds::BlobRegistry&);
 };
 
 } // namespace ui
