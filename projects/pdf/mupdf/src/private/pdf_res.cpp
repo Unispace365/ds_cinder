@@ -402,17 +402,17 @@ void PdfRes::setPageNum(int thePageNum) {
 	mState.mPageNum = thePageNum;
 }
 
-int PdfRes::getPageNum() {
+int PdfRes::getPageNum() const {
 	Poco::Mutex::ScopedLock		l(mMutex);
 	return mState.mPageNum;
 }
 
-int PdfRes::getPageCount() {
+int PdfRes::getPageCount() const {
 	Poco::Mutex::ScopedLock		l(mMutex);
 	return mPageCount;
 }
 
-ci::Vec2i PdfRes::getPageSize() {
+ci::Vec2i PdfRes::getPageSize() const {
 	Poco::Mutex::ScopedLock		l(mMutex);
 	return mState.mPageSize;
 }

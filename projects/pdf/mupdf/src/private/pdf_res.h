@@ -45,9 +45,9 @@ public:
 	float					getWidth() const;
 	float					getHeight() const;
 	void					setPageNum(int thePageNum);
-	int						getPageNum();
-	int						getPageCount();
-	ci::Vec2i				getPageSize();
+	int						getPageNum() const;
+	int						getPageCount() const;
+	ci::Vec2i				getPageSize() const;
 	void					goToNextPage();
 	void					goToPreviousPage();
 	void					setScale(const float theScale);
@@ -95,7 +95,7 @@ public:
 private:
 	bool						needsUpdate();
 
-	Poco::Mutex					mMutex;
+	mutable Poco::Mutex			mMutex;
 
 	// MAIN THREAD
 	ci::gl::Texture				mTexture;

@@ -118,11 +118,11 @@ void Pdf::setPageNum(const int pageNum) {
 	mHolder.setPageNum(pageNum);
 }
 
-int Pdf::getPageNum() {
+int Pdf::getPageNum() const {
 	return mHolder.getPageNum();
 }
 
-int Pdf::getPageCount() {
+int Pdf::getPageCount() const {
 	return mHolder.getPageCount();
 }
 
@@ -282,17 +282,17 @@ void Pdf::ResHolder::setPageNum(const int pageNum) {
 	if (mRes) mRes->setPageNum(pageNum);
 }
 
-int Pdf::ResHolder::getPageNum() {
+int Pdf::ResHolder::getPageNum() const {
 	if (mRes) return mRes->getPageNum();
 	return 0;
 }
 
-int Pdf::ResHolder::getPageCount() {
+int Pdf::ResHolder::getPageCount() const {
 	if (mRes) return mRes->getPageCount();
 	return 0;
 }
 
-ci::Vec2i Pdf::ResHolder::getPageSize() {
+ci::Vec2i Pdf::ResHolder::getPageSize() const {
 	if (!mRes) return ci::Vec2i(0, 0);
 	return mRes->getPageSize();
 }
