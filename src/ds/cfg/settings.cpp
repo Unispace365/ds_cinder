@@ -261,22 +261,21 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
   }
 }
 
-bool Settings::empty() const
-{
+bool Settings::empty() const {
 	if (!mFloat.empty()) return false;
 	if (!mRect.empty()) return false;
 	if (!mInt.empty()) return false;
 	if (!mColor.empty()) return false;
 	if (!mSize.empty()) return false;
 	if (!mText.empty()) return false;
-  if (!mTextW.empty()) return false;
-  if (!mPoints.empty()) return false;
+	if (!mTextW.empty()) return false;
+	if (!mPoints.empty()) return false;
 	return true;
 }
 
-void Settings::clear()
-{
+void Settings::clear() {
 	mFloat.clear();
+	mInt.clear();
 	mRect.clear();
 	mRes.clear();
 	mColor.clear();
@@ -284,7 +283,7 @@ void Settings::clear()
 	mSize.clear();
 	mText.clear();
 	mTextW.clear();
-  mPoints.clear();
+	mPoints.clear();
 }
 
 int Settings::getBoolSize(const std::string& name) const {
