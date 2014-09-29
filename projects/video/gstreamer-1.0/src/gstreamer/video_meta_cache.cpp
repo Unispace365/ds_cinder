@@ -89,7 +89,6 @@ bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int&
 		getVideoInfo(videoPath, duration, width, height, valid);
 		if(width < 1 || height < 1) t = AUDIO_TYPE;
 
-
 		setValues(t, videoPath, width, height, duration);
 
 		outWidth = width;
@@ -178,26 +177,23 @@ std::string VideoMetaCache::executeCommand(const char* cmd){
 
 bool VideoMetaCache::getVideoInfo(const std::string& path, float& outDuration, int& outWidth, int& outHeight, int& valid) {
 #ifdef USE_MEDIAINFO
-	try {
-		MediaInfoDLL::MediaInfo		media_info;
-		if (!media_info.IsReady()) {
-			// Indicates the DLL couldn't be loaded
-			DS_LOG_ERROR("VideoMetaCache::getVideoInfo() MediaInfo not loaded, does dll/MediaInfo.dll exist in the app folder?");
-			return false;
-		}
-		media_info.Open(ds::wstr_from_utf8(path));
-		if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Width", MediaInfoDLL::Info_Text), outWidth)) return false;
-		if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Height", MediaInfoDLL::Info_Text), outHeight)) return false;
-		if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Duration", MediaInfoDLL::Info_Text), outDuration)) return false;
-		outDuration /= 1000.0f;
-		if (outDuration <= 0.0f || outDuration > 360000.0f) {
-			DS_LOG_WARNING("VideoMetaCache::getVideoInfo() illegal duration (" << outDuration << ") for file (" << path << ")");
-			return false;
-		}
-		return true;
-	} catch (std::exception const&) {
+	MediaInfoDLL::MediaInfo		media_info;
+	if (!media_info.IsReady()) {
+		// Indicates the DLL couldn't be loaded
+		DS_LOG_ERROR("VideoMetaCache::getVideoInfo() MediaInfo not loaded, does dll/MediaInfo.dll exist in the app folder?");
+		throw std::runtime_error("VideoMetaCache::getVideoInfo() MediaInfo not loaded, does dll/MediaInfo.dll exist in the app folder?");
+		return false;
 	}
-	return false;
+	media_info.Open(ds::wstr_from_utf8(path));
+	if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Width", MediaInfoDLL::Info_Text), outWidth)) return false;
+	if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Height", MediaInfoDLL::Info_Text), outHeight)) return false;
+	if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Duration", MediaInfoDLL::Info_Text), outDuration)) return false;
+	outDuration /= 1000.0f;
+	if (outDuration <= 0.0f || outDuration > 360000.0f) {
+		DS_LOG_WARNING("VideoMetaCache::getVideoInfo() illegal duration (" << outDuration << ") for file (" << path << ")");
+		return false;
+	}
+	return true;
 #elif defined USE_FFPROBE
 	// ffprobe.exe needs to be in the bin folder
 	// "-show_streams" will print info about every stream
