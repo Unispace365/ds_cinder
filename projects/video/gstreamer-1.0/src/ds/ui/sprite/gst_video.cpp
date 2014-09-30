@@ -181,8 +181,9 @@ void GstVideo::setSize( float width, float height ) {
 	setScale( width / getWidth(), height / getHeight() );
 }
 
-GstVideo& GstVideo::loadVideo( const std::string &filename) {
-	DS_LOG_INFO("GstVideo::loadVideo() on " << filename);
+GstVideo& GstVideo::loadVideo( const std::string &_filename) {
+	DS_LOG_INFO("GstVideo::loadVideo() on " << _filename);
+	const std::string			filename(ds::Environment::expand(_filename));
 	if(filename.empty()){
 		DS_LOG_WARNING("GstVideo::loadVideo recieved a blank filename. Cancelling load.");
 		return *this;
@@ -201,7 +202,7 @@ GstVideo& GstVideo::loadVideo( const std::string &filename) {
 		}
 
 		DS_LOG_INFO("GstVideo::loadVideo() movieOpen");
-		mMovie.open( filename, generateVideoBuffer, false, mIsTransparent, videoWidth, videoHeight );
+		mMovie.open(filename, generateVideoBuffer, false, mIsTransparent, videoWidth, videoHeight);
 
 		if(mLooping){
 			mMovie.setLoopMode(LOOP);

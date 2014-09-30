@@ -8,6 +8,7 @@
 #include <ds/data/resource_list.h>
 #include <ds/ui/touch/touch_info.h>
 #include <ds/ui/sprite/image.h>
+#include <ds/ui/sprite/video.h>
 #include <ds/ui/sprite/web.h>
 
 using namespace std;
@@ -16,33 +17,14 @@ using namespace ci::app;
 
 namespace {
 const std::string               FONT_NAME("din-medium");
-const char                      EXAMPLE_DB_TYPE = ds::Resource::Id::CUSTOM_TYPE;
-// A hardcoded resource from the example database
-const ds::Resource::Id          KITTY_RES_ID(EXAMPLE_DB_TYPE, 44);
-
-// Custom database info
-std::string                     CUSTOM_RESOURCE_PATH;
-std::string                     CUSTOM_DB_PATH;
-std::string                     EMPTY_CUSTOM_PATH("");
 
 // Test sending sort order by putting to the front anyone that's touched
-class FrontSprite : public ds::ui::Sprite {
+class FrontVideo : public ds::ui::Video {
 public:
-	FrontSprite(ds::ui::SpriteEngine &e, float width = 0.0f, float height = 0.0f) : ds::ui::Sprite(e, width, height) { }
+	FrontVideo(ds::ui::SpriteEngine &e) : ds::ui::Video(e) { }
 
 	virtual void			userInputReceived() {
 		ds::ui::Sprite::userInputReceived();
-		sendToFront();
-	}
-};
-
-class FrontImage : public ds::ui::Image {
-public:
-	FrontImage(ds::ui::SpriteEngine &e, const std::string &fn, const int flags = 0) : ds::ui::Image(e, fn, flags) { }
-	FrontImage(ds::ui::SpriteEngine &e, const ds::Resource::Id &id, const int flags = 0) : ds::ui::Image(e, id, flags) { }
-
-	virtual void			userInputReceived() {
-		ds::ui::Image::userInputReceived();
 		sendToFront();
 	}
 };
@@ -76,12 +58,20 @@ CsApp::CsApp() {
 void CsApp::setupServer() {
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
  
-//	ds::ui::Web*			web(new ds::ui::Web(mEngine, 1024.0f, 768.0f));
 	ds::ui::Web*			web(new ds::ui::Web(mEngine, 400.0f, 400.0f));
 	if (web) {
-//		web->setUrl("http://www.pinterest.com/cutiesnfuzzies/cute-n-fuzzy-kitties/");
 		web->setUrl("http://google.com/");
 		rootSprite.addChild(*web);
+	}
+
+	ds::ui::Video*			vid(new FrontVideo(mEngine));
+	if (vid) {
+		vid->setLooping(true);
+		vid->loadVideo("%APP%/data/video/jci_video_test_small.mp4");
+		vid->enable(true);
+		vid->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
+		vid->setPosition(400.0f, 400.0f);
+		rootSprite.addChild(*vid);
 	}
 }
 
