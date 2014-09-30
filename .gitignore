@@ -8,3 +8,5 @@ lib/
 *.orig
 /example/animation/vc10/ipch/animation-a8791b83/*.ipch
 *.ipch
+/example/example_client_and_server_media/vc10_client/*.opensdf
+/example/example_client_and_server_media/vc10_server/*.opensdf
