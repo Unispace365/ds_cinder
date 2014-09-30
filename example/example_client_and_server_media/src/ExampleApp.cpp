@@ -21,12 +21,47 @@ const std::string               FONT_NAME("din-medium");
 // Test sending sort order by putting to the front anyone that's touched
 class FrontVideo : public ds::ui::Video {
 public:
-	FrontVideo(ds::ui::SpriteEngine &e) : ds::ui::Video(e) { }
+	FrontVideo(ds::ui::SpriteEngine &e)
+			: ds::ui::Video(e)
+			, mPosBg(ds::ui::Sprite::makeSprite(e, this))
+			, mPosFg(ds::ui::Sprite::makeSprite(e, this)) {
+		mPosBg.setTransparent(false);
+		mPosBg.setColorA(ci::ColorA(0.0f, 0.0f, 0.0f, 0.5f));
+		mPosBg.setCenter(0.0f, 1.0f);
+
+		mPosFg.setTransparent(false);
+		mPosFg.setColorA(ci::ColorA(1.0f, 1.0f, 1.0f, 0.75f));
+		mPosFg.setCenter(0.0f, 1.0f);
+	}
+
+	virtual void			updateServer(const ds::UpdateParams &p) {
+		ds::ui::Video::updateServer(p);
+		layoutPosition();
+	}
 
 	virtual void			userInputReceived() {
 		ds::ui::Sprite::userInputReceived();
 		sendToFront();
 	}
+
+protected:
+	virtual void			onSizeChanged() {
+		ds::ui::Video::onSizeChanged();
+		layoutPosition();
+	}
+
+private:
+	void					layoutPosition() {
+		const float			ph(10.0f), border(2.0f);
+		mPosBg.setPosition(0.0f, getHeight());
+		mPosBg.setSize(static_cast<float>(getWidth()*getCurrentPosition()), ph);
+
+		mPosFg.setPosition(0.0f, getHeight()-border);
+		mPosFg.setSize(static_cast<float>(getWidth()*getCurrentPosition()), ph-(border*2.0f));
+	}
+
+	ds::ui::Sprite&			mPosBg;
+	ds::ui::Sprite&			mPosFg;
 };
 
 }
@@ -38,6 +73,8 @@ public:
 	void				setupServer();
 
 private:
+	ds::ui::Video*		addVideo(ds::ui::Sprite &root, const ci::Vec2f &pos);
+
 	typedef ds::App		inherited;
 };
 
@@ -64,15 +101,24 @@ void CsApp::setupServer() {
 		rootSprite.addChild(*web);
 	}
 
+	addVideo(rootSprite, ci::Vec2f(0.0f, 400.0f));
+	ds::ui::Video*			vid(addVideo(rootSprite, ci::Vec2f(400.0f, 400.0f)));
+	if (vid) {
+		vid->setServerModeHack(true);
+	}
+}
+
+ds::ui::Video* CsApp::addVideo(ds::ui::Sprite &root, const ci::Vec2f &pos) {
 	ds::ui::Video*			vid(new FrontVideo(mEngine));
 	if (vid) {
 		vid->setLooping(true);
 		vid->loadVideo("%APP%/data/video/jci_video_test_small.mp4");
 		vid->enable(true);
 		vid->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
-		vid->setPosition(400.0f, 400.0f);
-		rootSprite.addChild(*vid);
+		vid->setPosition(pos.x, pos.y);
+		root.addChild(*vid);
 	}
+	return vid;
 }
 
 // This line tells Cinder to actually create the application

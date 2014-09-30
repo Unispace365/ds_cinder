@@ -85,6 +85,13 @@ public:
 	// If a video is looping, will stop the video when the current loop completes.
 	void				stopAfterNextLoop();
 	
+	// Total hack as I begin to work in the UDP replication. When a video sprite
+	// is in server mode, it will never load or play a video, instead it becomes
+	// a passthrough to a video running somewhere on a client machine, reporting
+	// its play position etc. This would go away if we had fully sync'd, bounds-
+	// checked video.
+	void				setServerModeHack(const bool);
+
 protected:
 	virtual void		writeAttributesTo(ds::DataBuffer&);
 	virtual void		writeClientAttributesTo(ds::DataBuffer&) const;
@@ -99,6 +106,7 @@ private:
 	void				onSetFilename(const std::string&);
 	void                setStatus(const int);
 	void				setMovieVolume();
+	void				setMovieLooping();
 	void				handleVideoComplete(_2RealGStreamerWrapper::GStreamerWrapper*);
 
 	// Done this way so I can completely hide any dependencies
@@ -117,6 +125,9 @@ private:
 	bool                mInternalMuted;
 	float               mVolume;
 	bool				mIsTransparent;
+	enum Cmd			{ kCmdPlay, kCmdPause, kCmdStop };
+	Cmd					mCmd;
+	void				setCmd(const Cmd);
 
 	Status              mStatus;
 	bool                mStatusDirty;
@@ -129,6 +140,13 @@ private:
 						mStatusFn;
 	std::function<void(GstVideo*)>
 						mVideoCompleteCallback;
+
+	// Total hack as I begin to work in the UDP replication. When a video sprite
+	// is in server mode, it will never load or play a video, instead it becomes
+	// a passthrough to a video running somewhere on a client machine, reporting
+	// its play position etc.
+	bool				mServerModeHack;
+	double				mReportedCurrentPosition;
 
 	// Initialization
 public:

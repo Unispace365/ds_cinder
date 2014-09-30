@@ -44,8 +44,12 @@ Init						INIT;
 char						BLOB_TYPE			= 0;
 const ds::ui::DirtyState&	FILENAME_DIRTY		= ds::ui::INTERNAL_A_DIRTY;
 const ds::ui::DirtyState&	VOLUME_DIRTY		= ds::ui::INTERNAL_B_DIRTY;
+const ds::ui::DirtyState&	LOOPING_DIRTY		= ds::ui::INTERNAL_C_DIRTY;
+const ds::ui::DirtyState&	CMD_DIRTY			= ds::ui::INTERNAL_D_DIRTY;
 const char					FILENAME_ATT		= 80;
 const char					VOLUME_ATT			= 81;
+const char					LOOPING_ATT			= 82;
+const char					CMD_ATT				= 83;
 
 // Status atts
 const char					STATUS_POSITION_ATT	= 100;
@@ -94,8 +98,11 @@ GstVideo::GstVideo(SpriteEngine& engine)
 		, mStatusDirty(false)
 		, mStatusFn(nullptr)
 		, mIsTransparent(true)
+		, mCmd(kCmdStop)
 		, mPlaySingleFrame(false)
-		, mPlaySingleFrameFn(nullptr) {
+		, mPlaySingleFrameFn(nullptr)
+		, mServerModeHack(false)
+		, mReportedCurrentPosition(0.0) {
 	mBlobType = BLOB_TYPE;
 
 	setUseShaderTextuer(true);
@@ -266,11 +273,8 @@ GstVideo &GstVideo::setResourceId( const ds::Resource::Id &resourceId ) {
 
 void GstVideo::setLooping(const bool on) {
 	mLooping = on;
-	if(mLooping){
-		mMovie.setLoopMode(LOOP);
-	} else {
-		mMovie.setLoopMode(NO_LOOP);
-	}
+	markAsDirty(LOOPING_DIRTY);
+	setMovieLooping();
 }
 
 bool GstVideo::getIsLooping() const {
@@ -299,19 +303,26 @@ float GstVideo::getVolume() const {
 void GstVideo::play() {
 	DS_LOG_INFO("GstVideo::play()");
 	mMovie.play();
+	setCmd(kCmdPlay);
 }
 
 void GstVideo::stop() {
 	DS_LOG_INFO("GstVideo::stop()");
 	mMovie.stop();
+	setCmd(kCmdStop);
 }
 
 void GstVideo::pause() {
 	DS_LOG_INFO("GstVideo::pause()");
 	mMovie.pause();
+	setCmd(kCmdPause);
 }
 
 bool GstVideo::getIsPlaying() const {
+	if (mServerModeHack) {
+		return mCmd == kCmdPlay;
+	}
+
 	if(mMovie.getState() == PLAYING){
 		return true;
 	} else {
@@ -332,6 +343,9 @@ void GstVideo::seekTime(const double t) {
 }
 
 double GstVideo::getCurrentPosition() const {
+	if (mServerModeHack) {
+		return mReportedCurrentPosition;
+	}
 	return mMovie.getPosition();
 }
 
@@ -355,6 +369,14 @@ void GstVideo::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(VOLUME_ATT);
 		buf.add(mVolume);
 	}
+	if (mDirty.has(LOOPING_DIRTY)) {
+		buf.add(LOOPING_ATT);
+		buf.add(mLooping);
+	}
+	if (mDirty.has(CMD_DIRTY)) {
+		buf.add(CMD_ATT);
+		buf.add(mCmd);
+	}
 }
 
 void GstVideo::writeClientAttributesTo(ds::DataBuffer &buf) const {
@@ -369,13 +391,20 @@ void GstVideo::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 		doLoadVideoMeta(fn);
 	} else if (attributeId == VOLUME_ATT) {
 		setVolume(buf.read<float>());
+	} else if (attributeId == LOOPING_ATT) {
+		setLooping(buf.read<bool>());
+	} else if (attributeId == CMD_ATT) {
+		setCmd(buf.read<Cmd>());
+		if (mCmd == kCmdPlay) play();
+		else if (mCmd == kCmdPause) pause();
+		else if (mCmd == kCmdStop) stop();
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
 	}
 }
 
 void GstVideo::readClientFrom(ds::DataBuffer &buf) {
-	const float		pos = buf.read<float>();
+	mReportedCurrentPosition = buf.read<float>();
 }
 
 void GstVideo::doLoadVideoMeta(const std::string &filename) {
@@ -407,6 +436,7 @@ void GstVideo::doLoadVideoMeta(const std::string &filename) {
 
 void GstVideo::doLoadVideo(const std::string &filename) {
 	DS_LOG_INFO("GstVideo::doLoadVideo() on " << filename);
+	if (mServerModeHack) return;
 	if (filename.empty()) return;
 	
 	VideoMetaCache::Type		type(VideoMetaCache::ERROR_TYPE);
@@ -430,11 +460,7 @@ void GstVideo::doLoadVideo(const std::string &filename) {
 		DS_LOG_INFO("GstVideo::doLoadVideo() movieOpen");
 		mMovie.open(filename, generateVideoBuffer, false, mIsTransparent, videoWidth, videoHeight);
 
-		if(mLooping){
-			mMovie.setLoopMode(LOOP);
-		} else {
-			mMovie.setLoopMode(NO_LOOP);
-		}
+		setMovieLooping();
 		//mMovie.play();
 		setMovieVolume();
 		if (type == VideoMetaCache::AUDIO_TYPE) {
@@ -481,6 +507,14 @@ void GstVideo::setMovieVolume() {
 	}
 }
 
+void GstVideo::setMovieLooping() {
+	if (mLooping) {
+		mMovie.setLoopMode(LOOP);
+	} else {
+		mMovie.setLoopMode(NO_LOOP);
+	}
+}
+
 void GstVideo::unloadVideo(const bool clearFrame) {
 	mMovie.stop();
 	mMovie.close();
@@ -499,7 +533,7 @@ void GstVideo::setVideoCompleteCallback( const std::function<void(GstVideo* vide
 }
 
 void GstVideo::handleVideoComplete(GStreamerWrapper* wrapper) {
-	if(mVideoCompleteCallback){
+	if (mVideoCompleteCallback) {
 		mVideoCompleteCallback(this);
 	}
 }
@@ -522,6 +556,15 @@ bool GstVideo::isPlayingAFrame() const {
 
 void GstVideo::stopAfterNextLoop() {
 	mMovie.stopOnLoopComplete();
+}
+
+void GstVideo::setServerModeHack(const bool b) {
+	mServerModeHack = b;
+}
+
+void GstVideo::setCmd(const Cmd c) {
+	mCmd = c;
+	markAsDirty(CMD_DIRTY);
 }
 
 } // namespace ui

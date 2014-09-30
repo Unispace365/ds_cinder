@@ -131,7 +131,6 @@ void AbstractEngineServer::receiveDeleteSprite(ds::DataBuffer&) {
 }
 
 void AbstractEngineServer::receiveClientStatus(ds::DataBuffer& data) {
-	std::cout << "receive client status" << std::endl;
 	if (!data.canRead<sprite_id_t>()) {
 		// Error, run to the next terminator
 		while (data.canRead<char>()) {
