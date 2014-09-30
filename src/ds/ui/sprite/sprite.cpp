@@ -1255,6 +1255,13 @@ void Sprite::writeTo(ds::DataBuffer& buf) {
 	}
 }
 
+void Sprite::writeClientTo(ds::DataBuffer &buf) const {
+	writeClientAttributesTo(buf);
+	for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
+		(*it)->writeClientTo(buf);
+	}
+}
+
 void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 	if (mDirty.has(PARENT_DIRTY)) {
 		buf.add(PARENT_ATT);

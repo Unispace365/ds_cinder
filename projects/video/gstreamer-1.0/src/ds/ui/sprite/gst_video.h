@@ -27,13 +27,15 @@ public:
 	static GstVideo&	makeVideo(SpriteEngine&, Sprite* parent = nullptr);
 	GstVideo(SpriteEngine&);
 	~GstVideo();
+
 	void				setAlphaMode(bool isTransparent);// set this before loading a video
 	void				setSize( float width, float height );
+	virtual void		updateClient(const UpdateParams&);
 	virtual void		updateServer(const UpdateParams&);
 	void				drawLocalClient();
 
-	GstVideo&			loadVideo( const std::string &filename);
-	GstVideo&			setResourceId(const ds::Resource::Id &resourceId);
+	GstVideo&			loadVideo(const std::string &filename);
+	GstVideo&			setResourceId(const ds::Resource::Id&);
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility
 	// with existing behaviour.
@@ -83,9 +85,18 @@ public:
 	// If a video is looping, will stop the video when the current loop completes.
 	void				stopAfterNextLoop();
 	
+protected:
+	virtual void		writeAttributesTo(ds::DataBuffer&);
+	virtual void		writeClientAttributesTo(ds::DataBuffer&) const;
+	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&);
+	virtual void		readClientFrom(ds::DataBuffer&);
+
 private:
 	typedef Sprite		inherited;
 
+	void				doLoadVideoMeta(const std::string &filename);
+	void				doLoadVideo(const std::string &filename);
+	void				onSetFilename(const std::string&);
 	void                setStatus(const int);
 	void				setMovieVolume();
 	void				handleVideoComplete(_2RealGStreamerWrapper::GStreamerWrapper*);
@@ -97,6 +108,8 @@ private:
 	ci::gl::Texture     mFrameTexture;
 	ci::gl::Fbo         mFbo;
 
+	std::string			mFilename;
+	bool				mFilenameChanged;
 	bool                mLooping;
 	// User-driven mute state
 	bool				mMuted;
@@ -116,6 +129,11 @@ private:
 						mStatusFn;
 	std::function<void(GstVideo*)>
 						mVideoCompleteCallback;
+
+	// Initialization
+public:
+	static void			installAsServer(ds::BlobRegistry&);
+	static void			installAsClient(ds::BlobRegistry&);
 };
 
 } // namespace ui

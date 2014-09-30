@@ -14,6 +14,8 @@ namespace {
 char				HEADER_BLOB = 0;
 char				COMMAND_BLOB = 0;
 char				DELETE_SPRITE_BLOB = 0;
+// Used for clients to get info to the server
+char				CLIENT_STATUS_BLOB = 0;
 
 const char			TERMINATOR = 0;
 }
@@ -39,6 +41,7 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Setting
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});
 	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveCommand(r.mDataBuffer);});
 	DELETE_SPRITE_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveDeleteSprite(r.mDataBuffer);});
+	CLIENT_STATUS_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientStatus(r.mDataBuffer);});
 
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
@@ -125,6 +128,33 @@ void AbstractEngineServer::receiveCommand(ds::DataBuffer &data) {
 
 void AbstractEngineServer::receiveDeleteSprite(ds::DataBuffer&) {
 	// Whaaaat? Client should never be sending this.
+}
+
+void AbstractEngineServer::receiveClientStatus(ds::DataBuffer& data) {
+	std::cout << "receive client status" << std::endl;
+	if (!data.canRead<sprite_id_t>()) {
+		// Error, run to the next terminator
+		while (data.canRead<char>()) {
+			const char		cmd(data.read<char>());
+			if (cmd == ds::TERMINATOR_CHAR) return;
+		}	
+	}
+	// Find the sprite, and let it read
+	const sprite_id_t		id(data.read<sprite_id_t>());
+	ds::ui::Sprite*			s(findSprite(id));
+	if (!s) {
+		DS_LOG_WARNING_M("receiveClientStatus missing sprite id=" << id, ds::IO_LOG);
+	} else {
+		s->readClientFrom(data);
+	}
+
+	// Verify we're at the end
+	if (data.canRead<char>()) {
+		const char			cmd(data.read<char>());
+		if (cmd != ds::TERMINATOR_CHAR) {
+			DS_LOG_WARNING_M("receiveClientStatus missing terminator", ds::IO_LOG);
+		}
+	}
 }
 
 void AbstractEngineServer::onClientStartedCommand(ds::DataBuffer &data) {

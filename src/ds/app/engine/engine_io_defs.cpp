@@ -1,12 +1,7 @@
-// Turn off an unnecessary warning in the boost GUID
-#define _SCL_SECURE_NO_WARNINGS
-
+#include "ds/app/engine/engine_client.h"
 #include "ds/app/engine/engine_io_defs.h"
-
-#include <boost/asio.hpp>
-#include <boost/uuid/uuid.hpp>
-#include <boost/uuid/uuid_generators.hpp>
-#include <boost/uuid/uuid_io.hpp>
+#include "ds/app/engine/unique_id.h"
+#include "ds/data/data_buffer.h"
 
 #include <Poco/File.h>
 #include <Poco/Path.h>
@@ -48,19 +43,25 @@ EngineIoInfo::EngineIoInfo() {
 	Poco::File(path).createDirectories();
 
 	if (mGlobalId.empty()) {
-		std::stringstream		buf;
-		boost::uuids::uuid		uuid = boost::uuids::random_generator()();
-		// I stuff the machine name in there solely so it's easier to identify a
-		// problem machine when this gets used in an error report. It's entirely
-		// possible that in practice, the machine name is the only thing needed,
-		// but we'll play it safe.
-		buf << boost::asio::ip::host_name() << "-" << uuid;
-		mGlobalId = buf.str();
+		mGlobalId = get_unique_id();
 	}
 
 	ci::JsonTree				tree(ci::JsonTree::makeArray());
 	tree.pushBack(ci::JsonTree(GUID, mGlobalId));
 	tree.write(cache_path);
+}
+
+/**
+ * \class ds::ScopedClientAtts
+ */
+ScopedClientAtts::ScopedClientAtts(ds::DataBuffer &b, const sprite_id_t id)
+		: mBuffer(b) {
+	mBuffer.add(EngineClient::getClientStatusBlob());
+	mBuffer.add(id);
+}
+
+ScopedClientAtts::~ScopedClientAtts() {
+	mBuffer.add(TERMINATOR_CHAR);
 }
 
 } // namespace ds

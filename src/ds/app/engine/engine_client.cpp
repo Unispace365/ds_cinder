@@ -13,11 +13,17 @@ namespace {
 char				HEADER_BLOB = 0;
 char				COMMAND_BLOB = 0;
 char				DELETE_SPRITE_BLOB = 0;
+// Used for clients to get info to the server
+char				CLIENT_STATUS_BLOB = 0;
 }
 
 /**
  * \class ds::EngineClient
  */
+char EngineClient::getClientStatusBlob() {
+	return CLIENT_STATUS_BLOB;
+}
+
 EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
@@ -33,9 +39,10 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 		, mState(nullptr) {
 	// NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
 	// so that the BLOB ids match.
-	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveHeader(r.mDataBuffer);});
-	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveCommand(r.mDataBuffer);});
-	DELETE_SPRITE_BLOB = mBlobRegistry.add([this](BlobReader& r) {this->receiveDeleteSprite(r.mDataBuffer);});
+	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});
+	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveCommand(r.mDataBuffer);});
+	DELETE_SPRITE_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveDeleteSprite(r.mDataBuffer);});
+	CLIENT_STATUS_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientStatus(r.mDataBuffer);});
 	mReceiver.setHeaderAndCommandIds(HEADER_BLOB, COMMAND_BLOB);
 	
 	try {
@@ -188,6 +195,14 @@ void EngineClient::receiveDeleteSprite(ds::DataBuffer& data) {
 	}
 }
 
+void EngineClient::receiveClientStatus(ds::DataBuffer& data) {
+	// Whaaaat? Server should never be sending this.
+	while (data.canRead<char>()) {
+		const char		cmd(data.read<char>());
+		if (cmd == ds::TERMINATOR_CHAR) return;
+	}
+}
+
 void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
 	clearAllSprites();
 	
@@ -249,6 +264,12 @@ void EngineClient::RunningState::update(EngineClient &e) {
 	buf.add(ATT_FRAME);
 	buf.add(e.mServerFrame);
 	buf.add(ds::TERMINATOR_CHAR);
+
+	const int				count(e.getRootCount());
+	for (int k=0; k<count; ++k) {
+		const ui::Sprite&	s(e.getRootSprite(k));
+		s.writeClientTo(buf);
+	}
 
 //	DS_LOG_INFO_M("RunningState send reply frame=" << e.mServerFrame, ds::IO_LOG);
 }
