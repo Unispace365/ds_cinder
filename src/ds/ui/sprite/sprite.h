@@ -276,6 +276,9 @@ public:
 	// clears the idle timer, not the whole sprite or anything
 	void					clear();
 
+	// Prevent this sprite (and all children) from replicating. NOTE: Should
+	// only be done once on construction, if you change it, weird things could happen.
+	void					setNoReplicationOptimization(const bool = false);
 	// Special function to mark every sprite from me down as dirty.
 	void					markTreeAsDirty();
 
