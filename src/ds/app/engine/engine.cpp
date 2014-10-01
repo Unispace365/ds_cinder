@@ -206,6 +206,9 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::Vec2f(1920.0f, 1080.0f)));
 	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
 	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
+	mTouchTranslator.setTouchOverlay(	settings.getRect("touch:src_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)),
+										settings.getRect("touch:dst_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
+
 	const bool			drawTouches = settings.getBool("touch_overlay:debug", 0, false);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
