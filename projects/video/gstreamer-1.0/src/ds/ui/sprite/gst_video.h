@@ -91,6 +91,11 @@ public:
 	// its play position etc. This would go away if we had fully sync'd, bounds-
 	// checked video.
 	void				setServerModeHack(const bool);
+	// This is a hack because it only does the check once, not continuously,
+	// so any sprites that move into or out of bound won't work.
+	// NOTE: Needs to be set BEFORE loadVideo(), that's where the check is
+	// occurring right now.
+	void				setCheckBoundsHack(const bool = false);
 
 protected:
 	virtual void		writeAttributesTo(ds::DataBuffer&);
@@ -107,6 +112,7 @@ private:
 	void                setStatus(const int);
 	void				setMovieVolume();
 	void				setMovieLooping();
+	void				setVideoFlag(const uint32_t, const bool on);
 	void				handleVideoComplete(_2RealGStreamerWrapper::GStreamerWrapper*);
 
 	// Done this way so I can completely hide any dependencies
@@ -147,6 +153,7 @@ private:
 	// its play position etc.
 	bool				mServerModeHack;
 	double				mReportedCurrentPosition;
+	uint32_t			mVideoFlags;
 
 	// Initialization
 public:
