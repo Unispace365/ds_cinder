@@ -1,1 +1,0 @@
-NOTE: PlatformSetup property sheets are DEPRECATED. Use the property sheets in PropertySheets/. The difference is that those are properly configured so you can inherit values; these deprecated ones were a first pass that required you to put various variables in your project file.

@@ -1,5 +1,6 @@
 // Turn off an unnecessary warning in the boost GUID
 #define _SCL_SECURE_NO_WARNINGS
+#define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include <boost/asio.hpp>
 #include <boost/uuid/uuid.hpp>
