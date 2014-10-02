@@ -84,8 +84,8 @@ void TouchManager::touchesMoved(const TouchEvent &event) {
 			overrideTouchTranslation(touchPos);
 		}
 
-		if (shouldDiscardTouch(touchPos))
-			return;
+		//if (shouldDiscardTouch(touchPos))
+		//	return;
 
 		TouchInfo touchInfo;
 		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
@@ -120,8 +120,8 @@ void TouchManager::touchesEnded(const TouchEvent &event) {
 			overrideTouchTranslation(touchPos);
 		}
 
-		if (shouldDiscardTouch(touchPos))
-			return;
+		//if (shouldDiscardTouch(touchPos))
+		//	return;
 
 
 		TouchInfo touchInfo;
