@@ -80,6 +80,9 @@ public:
 	float							getMinTapDistance() const;
 	unsigned						getSwipeQueueSize() const;
 	float							getDoubleTapTime() const;
+	const ci::Rectf&				getSrcRect() const;
+	const ci::Rectf&				getDstRect() const;
+	// This should be obsoleted, everyone should be using src and dst rects now
 	ci::Rectf						getScreenRect() const;
 	float							getWidth() const;
 	float							getHeight() const;
