@@ -56,12 +56,13 @@ const char			CLIP_BOUNDS_ATT		= 11;
 const char			SORTORDER_ATT		= 12;
 
 // flags
-const int           VISIBLE_F         = (1<<0);
-const int           TRANSPARENT_F     = (1<<1);
-const int           ENABLED_F         = (1<<2);
-const int           DRAW_SORTED_F     = (1<<3);
-const int           CLIP_F            = (1<<4);
-const int           SHADER_CHILDREN_F = (1<<5);
+const int           VISIBLE_F			= (1<<0);
+const int           TRANSPARENT_F		= (1<<1);
+const int           ENABLED_F			= (1<<2);
+const int           DRAW_SORTED_F		= (1<<3);
+const int           CLIP_F				= (1<<4);
+const int           SHADER_CHILDREN_F	= (1<<5);
+const int           NO_REPLICATION_F	= (1<<6);
 
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
@@ -175,7 +176,9 @@ Sprite::~Sprite() {
 	mChildren.clear();
 
 	if (id != ds::EMPTY_SPRITE_ID) {
-		mEngine.spriteDeleted(id);
+		if ((mSpriteFlags&NO_REPLICATION_F) == 0) {
+			mEngine.spriteDeleted(id);
+		}
 	}
 }
 
@@ -1235,6 +1238,7 @@ bool Sprite::isDirty() const
 }
 
 void Sprite::writeTo(ds::DataBuffer& buf) {
+	if ((mSpriteFlags&NO_REPLICATION_F) != 0) return;
 	if (mDirty.isEmpty()) return;
 	if (mId == ds::EMPTY_SPRITE_ID) {
 		// This shouldn't be possible
@@ -1254,6 +1258,13 @@ void Sprite::writeTo(ds::DataBuffer& buf) {
 
 	for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
 		(*it)->writeTo(buf);
+	}
+}
+
+void Sprite::writeClientTo(ds::DataBuffer &buf) const {
+	writeClientAttributesTo(buf);
+	for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
+		(*it)->writeClientTo(buf);
 	}
 }
 
@@ -1396,8 +1407,7 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 	}
 }
 
-void Sprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
-{
+void Sprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 }
 
 void Sprite::setSpriteId(const ds::sprite_id_t& id) {
@@ -1478,30 +1488,25 @@ void Sprite::setBaseShader(const std::string &location, const std::string &shade
   }
 }
 
-std::string Sprite::getBaseShaderName() const
-{
-  return mSpriteShader.getName();
+std::string Sprite::getBaseShaderName() const {
+	return mSpriteShader.getName();
 }
 
-bool Sprite::getUseShaderTextuer() const
-{
-  return mUseShaderTexture;
+bool Sprite::getUseShaderTextuer() const {
+	return mUseShaderTexture;
 }
 
-void Sprite::setUseShaderTextuer( bool flag )
-{
-  mUseShaderTexture = flag;
+void Sprite::setUseShaderTextuer( bool flag ) {
+	mUseShaderTexture = flag;
 }
 
-void Sprite::setClipping( bool flag )
-{
-  setFlag(CLIP_F, flag, FLAGS_DIRTY, mSpriteFlags);
-  markClippingDirty();
+void Sprite::setClipping( bool flag ) {
+	setFlag(CLIP_F, flag, FLAGS_DIRTY, mSpriteFlags);
+	markClippingDirty();
 }
 
-bool Sprite::getClipping() const
-{
-  return getFlag(CLIP_F, mSpriteFlags);
+bool Sprite::getClipping() const {
+	return getFlag(CLIP_F, mSpriteFlags);
 }
 
 const ci::Rectf& Sprite::getClippingBounds()
@@ -1635,6 +1640,12 @@ void Sprite::resetIdleTimer() {
 
 void Sprite::clear() {
 	mIdleTimer.clear();
+}
+
+void Sprite::setNoReplicationOptimization(const bool on) {
+	// This doesn't need to be replicated. Obviously.
+	if (on) mSpriteFlags |= NO_REPLICATION_F;
+	else mSpriteFlags &= ~NO_REPLICATION_F;
 }
 
 void Sprite::markTreeAsDirty() {

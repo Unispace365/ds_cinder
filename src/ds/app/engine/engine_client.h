@@ -20,6 +20,7 @@ namespace ds {
  */
 class EngineClient : public Engine {
 public:
+	static char						getClientStatusBlob();
 	EngineClient(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList&);
 	~EngineClient();
 
@@ -46,6 +47,7 @@ private:
 	void							receiveHeader(ds::DataBuffer&);
 	void							receiveCommand(ds::DataBuffer&);
 	void							receiveDeleteSprite(ds::DataBuffer&);
+	void							receiveClientStatus(ds::DataBuffer&);
 	void							onClientStartedReplyCommand(ds::DataBuffer&);
 
 	typedef Engine inherited;

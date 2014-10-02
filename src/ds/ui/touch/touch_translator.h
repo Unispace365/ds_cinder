@@ -2,6 +2,7 @@
 #ifndef DS_UI_TOUCH_TOUCHTRANSLATOR_H_
 #define DS_UI_TOUCH_TOUCHTRANSLATOR_H_
 
+#include <cinder/Rect.h>
 #include <cinder/Vector.h>
 
 namespace ds {
@@ -24,7 +25,12 @@ public:
 	ci::Vec2f		getTranslate() const		{ return ci::Vec2f(mTx, mTy); }
 	ci::Vec2f		getScale() const			{ return ci::Vec2f(mSx, mSy); }
 
+	void			setTouchOverlay(const ci::Rectf &src, const ci::Rectf &dst);
+
 private:
+	bool			mHasTouch;
+	ci::Rectf		mTouchSrc,
+					mTouchDst;
 	float			mTx, mTy,
 					mSx, mSy;
 };

@@ -3,8 +3,10 @@
 #define DS_APP_ENGINE_ENGINEIODEFS_H_
 
 #include <string>
+#include "ds/app/app_defs.h"
 
 namespace ds {
+class DataBuffer;
 
 // Server -> Client communication
 extern const char				CMD_SERVER_SEND_WORLD;		// The server is sending the entire world
@@ -31,11 +33,25 @@ extern const char				ATT_FRAME;					// A frame number
  */
 class EngineIoInfo {
 public:
-	class EngineIoInfo();
+	EngineIoInfo();
 
 	// Clients create a GUID on startup, which gets converted to a
 	// much shorter sessionID by the server.
 	std::string					mGlobalId;
+};
+
+/**
+ * \class ds::ScopedClientAtts
+ * \brief Used during Sprite::writeClientAttributesTo() to add the
+ * header and footer boilerplate to the buffer.
+ */
+class ScopedClientAtts {
+public:
+	ScopedClientAtts(ds::DataBuffer&, const sprite_id_t);
+	~ScopedClientAtts();
+
+private:
+	ds::DataBuffer&				mBuffer;
 };
 
 } // namespace ds

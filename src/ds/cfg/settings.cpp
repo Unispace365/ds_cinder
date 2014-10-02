@@ -261,8 +261,7 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
 	}
 }
 
-bool Settings::empty() const
-{
+bool Settings::empty() const {
 	if (!mFloat.empty()) return false;
 	if (!mRect.empty()) return false;
 	if (!mInt.empty()) return false;
@@ -274,8 +273,7 @@ bool Settings::empty() const
 	return true;
 }
 
-void Settings::clear()
-{
+void Settings::clear() {
 	mFloat.clear();
 	mInt.clear();
 	mRect.clear();

@@ -257,6 +257,9 @@ public:
 	bool					isDirty() const;
 	void					writeTo(ds::DataBuffer&);
 	void					readFrom(ds::BlobReader&);
+	// Only used when running in client mode
+	void					writeClientTo(ds::DataBuffer&) const;
+	virtual void			readClientFrom(ds::DataBuffer&) { }
 
 	void					setBlendMode(const BlendMode &blendMode);
 	BlendMode				getBlendMode() const;
@@ -278,6 +281,9 @@ public:
 	// clears the idle timer, not the whole sprite or anything
 	void					clear();
 
+	// Prevent this sprite (and all children) from replicating. NOTE: Should
+	// only be done once on construction, if you change it, weird things could happen.
+	void					setNoReplicationOptimization(const bool = false);
 	// Special function to mark every sprite from me down as dirty.
 	void					markTreeAsDirty();
 
@@ -353,6 +359,9 @@ protected:
 	// Special function that marks all children as dirty, without sending anything up the hierarchy.
 	virtual void		markChildrenAsDirty(const DirtyState&);
 	virtual void		writeAttributesTo(ds::DataBuffer&);
+	// Used during client mode, to let clients get info back to the server. Use the
+	// engine_io.defs::ScopedClientAtts at the top of the function to do all the boilerplate.
+	virtual void		writeClientAttributesTo(ds::DataBuffer&) const { }
 	// Read a single attribute
 	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&);
 

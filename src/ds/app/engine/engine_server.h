@@ -45,6 +45,7 @@ private:
 	void							receiveHeader(ds::DataBuffer&);
 	void							receiveCommand(ds::DataBuffer&);
 	void							receiveDeleteSprite(ds::DataBuffer&);
+	void							receiveClientStatus(ds::DataBuffer&);
 	void							onClientStartedCommand(ds::DataBuffer&);
 	void							onClientRunningCommand(ds::DataBuffer&);
 

@@ -39,8 +39,8 @@ public:
 
 	// PDF API
 	void						setPageNum(const int pageNum);
-	int							getPageNum();
-	int							getPageCount();
+	int							getPageNum() const;
+	int							getPageCount() const;
 	void						goToNextPage();
 	void						goToPreviousPage();
 
@@ -83,9 +83,9 @@ private:
 		float					getTextureWidth() const;
 		float					getTextureHeight() const;
 		void					setPageNum(const int pageNum);
-		int						getPageNum();
-		int						getPageCount();
-		ci::Vec2i				getPageSize();
+		int						getPageNum() const;
+		int						getPageCount() const;
+		ci::Vec2i				getPageSize() const;
 		void					goToNextPage();
 		void					goToPreviousPage();
 
