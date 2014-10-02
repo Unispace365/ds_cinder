@@ -12,29 +12,29 @@ static bool check_bool(const std::string& text, const bool defaultValue);
 namespace ds {
 namespace cfg {
 
-static const std::string			FALSE_SZ("false");
-static const std::string			TRUE_SZ("true");
+static const std::string		FALSE_SZ("false");
+static const std::string		TRUE_SZ("true");
 
-static const std::string		  COLOR_NAME("color");
-static const std::string		  FLOAT_NAME("float");
-static const std::string		  INT_NAME("int");
-static const std::string		  RECT_NAME("rect");
-static const std::string		  RESOURCE_ID_NAME("resource id");
-static const std::string		  SIZE_NAME("size");
-static const std::string		  TEXT_NAME("text");
-static const std::string		  TEXTW_NAME("wtext");
-static const std::string		  POINT_NAME("point");
+static const std::string		COLOR_NAME("color");
+static const std::string		FLOAT_NAME("float");
+static const std::string		INT_NAME("int");
+static const std::string		RECT_NAME("rect");
+static const std::string		RESOURCE_ID_NAME("resource id");
+static const std::string		SIZE_NAME("size");
+static const std::string		TEXT_NAME("text");
+static const std::string		TEXTW_NAME("wtext");
+static const std::string		POINT_NAME("point");
 
-static const cinder::Color    COLOR_TYPE;
-static const cinder::ColorA   COLORA_TYPE;
-static const float				    FLOAT_TYPE(0.0f);
-static const int				      INT_TYPE(0);
-static const ci::Rectf        RECT_TYPE;
-static const Resource::Id     RESOURCE_ID_TYPE;
-static const ci::Vec2f        SIZE_TYPE;
-static const std::string      TEXT_TYPE;
-static const std::wstring     TEXTW_TYPE;
-static const ci::Vec3f        POINT_TYPE;
+static const cinder::Color		COLOR_TYPE;
+static const cinder::ColorA		COLORA_TYPE;
+static const float				FLOAT_TYPE(0.0f);
+static const int				INT_TYPE(0);
+static const ci::Rectf			RECT_TYPE;
+static const Resource::Id		RESOURCE_ID_TYPE;
+static const ci::Vec2f			SIZE_TYPE;
+static const std::string		TEXT_TYPE;
+static const std::wstring		TEXTW_TYPE;
+static const ci::Vec3f			POINT_TYPE;
 
 namespace {
 
@@ -136,129 +136,129 @@ void Settings::readFrom(const std::string& filename, const bool append)
 	merge_vec(mColorA, s.mColorA);
 	merge(mSize, s.mSize);
 	merge_vec(mText, s.mText);
-  merge_vec(mTextW, s.mTextW);
-  merge_vec(mPoints, s.mPoints);
+	merge_vec(mTextW, s.mTextW);
+	merge_vec(mPoints, s.mPoints);
 }
 
 void Settings::directReadFrom(const std::string& filename, const bool clearAll)
 {
-  if (filename.empty()) {
-    return;
-  }
+	if(filename.empty()) {
+		return;
+	}
 
-  // Load based on the file format.
-  try {
-    const cinder::fs::path  extPath(cinder::fs::path(filename).extension());
-    const std::string       ext(Poco::toLower(extPath.generic_string()));
-    if (ext == ".xml") {
-      directReadXmlFrom(filename, clearAll);
-    } else {
-      throw std::exception("unsupported format");
-    }
-  } catch (std::exception const& ex) {
-    // TODO:  Really need this writing to a log file, because it easily happens during construction of the app
-    std::cout << "ds::cfg::Settings::directReadFrom() failed on " << filename << " exception=" << ex.what() << std::endl;
-  }
+	// Load based on the file format.
+	try {
+		const cinder::fs::path  extPath(cinder::fs::path(filename).extension());
+		const std::string       ext(Poco::toLower(extPath.generic_string()));
+		if(ext == ".xml") {
+			directReadXmlFrom(filename, clearAll);
+		} else {
+			throw std::exception("unsupported format");
+		}
+	} catch(std::exception const& ex) {
+		// TODO:  Really need this writing to a log file, because it easily happens during construction of the app
+		std::cout << "ds::cfg::Settings::directReadFrom() failed on " << filename << " exception=" << ex.what() << std::endl;
+	}
 }
 
 void Settings::directReadXmlFrom(const std::string& filename, const bool clearAll)
 {
-  if (!Poco::File(filename).exists()) return;
-  cinder::XmlTree     xml(cinder::loadFile(filename));
+	if(!Poco::File(filename).exists()) return;
+	cinder::XmlTree     xml(cinder::loadFile(filename));
 
-  if (clearAll) clear();
+	if(clearAll) clear();
 
-  // GENERIC DEFINES
-  const std::string   NAME_SZ("name");
-  const std::string   VALUE_SZ("value");
-  const std::string   L_SZ("l");
-  const std::string   T_SZ("t");
-  const std::string   R_SZ("r");
-  const std::string   B_SZ("b");
-  const std::string   G_SZ("g");
-  const std::string   A_SZ("a");
-  const std::string   X_SZ("x");
-  const std::string   Y_SZ("y");
-  const std::string   Z_SZ("z");
+	// GENERIC DEFINES
+	const std::string   NAME_SZ("name");
+	const std::string   VALUE_SZ("value");
+	const std::string   L_SZ("l");
+	const std::string   T_SZ("t");
+	const std::string   R_SZ("r");
+	const std::string   B_SZ("b");
+	const std::string   G_SZ("g");
+	const std::string   A_SZ("a");
+	const std::string   X_SZ("x");
+	const std::string   Y_SZ("y");
+	const std::string   Z_SZ("z");
 
-  // FLOAT
-  const std::string   FLOAT_PATH("settings/float");
-  auto                end = xml.end();
-  for (auto it = xml.begin(FLOAT_PATH); it != end; ++it) {
-    const std::string name = it->getAttributeValue<std::string>(NAME_SZ);
-    add_item(name, mFloat, it->getAttributeValue<float>(VALUE_SZ));
-  }
+	// FLOAT
+	const std::string   FLOAT_PATH("settings/float");
+	auto                end = xml.end();
+	for(auto it = xml.begin(FLOAT_PATH); it != end; ++it) {
+		const std::string name = it->getAttributeValue<std::string>(NAME_SZ);
+		add_item(name, mFloat, it->getAttributeValue<float>(VALUE_SZ));
+	}
 
-  // RECT
-  const std::string   RECT_PATH("settings/rect");
-  for (auto it = xml.begin(RECT_PATH); it != end; ++it) {
-    const std::string   name = it->getAttributeValue<std::string>(NAME_SZ);
-    const cinder::Rectf value( it->getAttributeValue<float>(L_SZ),
-                              it->getAttributeValue<float>(T_SZ),
-                              it->getAttributeValue<float>(R_SZ),
-                              it->getAttributeValue<float>(B_SZ));
-    add_item(name, mRect, value);
-  }
+	// RECT
+	const std::string   RECT_PATH("settings/rect");
+	for(auto it = xml.begin(RECT_PATH); it != end; ++it) {
+		const std::string   name = it->getAttributeValue<std::string>(NAME_SZ);
+		const cinder::Rectf value(it->getAttributeValue<float>(L_SZ),
+								  it->getAttributeValue<float>(T_SZ),
+								  it->getAttributeValue<float>(R_SZ),
+								  it->getAttributeValue<float>(B_SZ));
+		add_item(name, mRect, value);
+	}
 
-  // INT
-  const std::string   INT_PATH("settings/int");
-  for (auto it = xml.begin(INT_PATH); it != end; ++it) {
-    const std::string name = it->getAttributeValue<std::string>(NAME_SZ);
-    add_item(name, mInt, it->getAttributeValue<int>(VALUE_SZ));
-  }
+	// INT
+	const std::string   INT_PATH("settings/int");
+	for(auto it = xml.begin(INT_PATH); it != end; ++it) {
+		const std::string name = it->getAttributeValue<std::string>(NAME_SZ);
+		add_item(name, mInt, it->getAttributeValue<int>(VALUE_SZ));
+	}
 
-  // COLOR
-  const std::string  COLOR_PATH("settings/color");
-  for (auto it = xml.begin(COLOR_PATH); it != end; ++it) {
-    const float             DEFV = 255.0f;
-    const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-    const cinder::ColorA		c(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
-                              it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
-                              it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
-                              it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
-    add_item(name, mColor, cinder::Color(c.r, c.g, c.b));
-    add_item(name, mColorA, c);
-  }
+	// COLOR
+	const std::string  COLOR_PATH("settings/color");
+	for(auto it = xml.begin(COLOR_PATH); it != end; ++it) {
+		const float             DEFV = 255.0f;
+		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
+		const cinder::ColorA		c(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
+									  it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
+									  it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
+									  it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
+		add_item(name, mColor, cinder::Color(c.r, c.g, c.b));
+		add_item(name, mColorA, c);
+	}
 
-  // SIZE
-  const std::string  SIZE_PATH("settings/size");
-  for (auto it = xml.begin(SIZE_PATH); it != end; ++it) {
-    const float             DEFV = 0.0f;
-    const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-    const cinder::Vec2f     value( it->getAttributeValue<float>(X_SZ, DEFV),
-                                  it->getAttributeValue<float>(Y_SZ, DEFV));
-    add_item(name, mSize, value);
-  }
+	// SIZE
+	const std::string  SIZE_PATH("settings/size");
+	for(auto it = xml.begin(SIZE_PATH); it != end; ++it) {
+		const float             DEFV = 0.0f;
+		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
+		const cinder::Vec2f     value(it->getAttributeValue<float>(X_SZ, DEFV),
+									  it->getAttributeValue<float>(Y_SZ, DEFV));
+		add_item(name, mSize, value);
+	}
 
-  // TEXT
-  const std::string  TEXT_PATH("settings/text");
-  for (auto it = xml.begin(TEXT_PATH); it != end; ++it) {
-    const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-    const std::string       value = it->getAttributeValue<std::string>(VALUE_SZ);
-    add_item(name, mText, value);
-  }
+	// TEXT
+	const std::string  TEXT_PATH("settings/text");
+	for(auto it = xml.begin(TEXT_PATH); it != end; ++it) {
+		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
+		const std::string       value = it->getAttributeValue<std::string>(VALUE_SZ);
+		add_item(name, mText, value);
+	}
 
-  // TEXTW
-  const std::string  TEXTW_PATH("settings/wtext");
-  for (auto it = xml.begin(TEXTW_PATH); it != end; ++it) {
-	  const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-	  const std::wstring       value = ds::wstr_from_utf8( it->getAttributeValue<std::string>(VALUE_SZ));
-	  add_item(name, mTextW, value);
-  }
+	// TEXTW
+	const std::string  TEXTW_PATH("settings/wtext");
+	for(auto it = xml.begin(TEXTW_PATH); it != end; ++it) {
+		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
+		const std::wstring       value = ds::wstr_from_utf8(it->getAttributeValue<std::string>(VALUE_SZ));
+		add_item(name, mTextW, value);
+	}
 
-  // POINT
-  const std::string  POINT_PATH("settings/point");
-  for (auto it = xml.begin(POINT_PATH); it != end; ++it) {
-    const float             DEFV = 0.0f;
-    const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-    cinder::Vec3f           value( it->getAttributeValue<float>(X_SZ, DEFV),
-                                   it->getAttributeValue<float>(Y_SZ, DEFV), DEFV);
-    if (it->hasAttribute(Z_SZ)) {
-      value.z = it->getAttributeValue<float>(Z_SZ, DEFV);
-    }
+	// POINT
+	const std::string  POINT_PATH("settings/point");
+	for(auto it = xml.begin(POINT_PATH); it != end; ++it) {
+		const float             DEFV = 0.0f;
+		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
+		cinder::Vec3f           value(it->getAttributeValue<float>(X_SZ, DEFV),
+									  it->getAttributeValue<float>(Y_SZ, DEFV), DEFV);
+		if(it->hasAttribute(Z_SZ)) {
+			value.z = it->getAttributeValue<float>(Z_SZ, DEFV);
+		}
 
-    add_item(name, mPoints, value);
-  }
+		add_item(name, mPoints, value);
+	}
 }
 
 bool Settings::empty() const
@@ -269,14 +269,15 @@ bool Settings::empty() const
 	if (!mColor.empty()) return false;
 	if (!mSize.empty()) return false;
 	if (!mText.empty()) return false;
-  if (!mTextW.empty()) return false;
-  if (!mPoints.empty()) return false;
+	if (!mTextW.empty()) return false;
+	if (!mPoints.empty()) return false;
 	return true;
 }
 
 void Settings::clear()
 {
 	mFloat.clear();
+	mInt.clear();
 	mRect.clear();
 	mRes.clear();
 	mColor.clear();
@@ -284,7 +285,7 @@ void Settings::clear()
 	mSize.clear();
 	mText.clear();
 	mTextW.clear();
-  mPoints.clear();
+	mPoints.clear();
 }
 
 int Settings::getBoolSize(const std::string& name) const {
@@ -319,8 +320,8 @@ int Settings::getTextWSize(const std::string& name) const {
 	return get_size(name, mTextW);
 }
 
-int Settings::getPointSize( const std::string& name ) const {
-  return get_size(name, mPoints);
+int Settings::getPointSize( const std::string& name ) const {	
+	return get_size(name, mPoints);
 }
 
 float Settings::getFloat(const std::string& name, const int index) const
@@ -425,7 +426,7 @@ std::wstring Settings::getTextW(const std::string& name, const int index, const 
 
 const ci::Vec3f& Settings::getPoint( const std::string& name, const int index /*= 0*/, const ci::Vec3f& defaultValue ) const
 {
-  return get(name, mPoints, index, defaultValue, POINT_NAME);
+	return get(name, mPoints, index, defaultValue, POINT_NAME);
 }
 
 bool Settings::getBool(const std::string& name, const int index, const bool defaultValue) const
@@ -489,8 +490,8 @@ Settings::Editor& Settings::Editor::clear()
 	clear_vec(mSettings.mColorA);
 	mSettings.mSize.clear();
 	clear_vec(mSettings.mText);
-  clear_vec(mSettings.mTextW);
-  clear_vec(mSettings.mPoints);
+	clear_vec(mSettings.mTextW);
+	clear_vec(mSettings.mPoints);
 	return *this;
 }
 
