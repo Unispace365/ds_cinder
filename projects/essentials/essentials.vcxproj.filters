@@ -1,0 +1,66 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{c6487098-2eaf-493d-ada3-1025bb854738}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds">
+      <UniqueIdentifier>{2271294b-f892-45e7-96c6-c38a347ec8be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui">
+      <UniqueIdentifier>{105dfbf8-441c-452f-a230-43a12ca874f9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\sprite">
+      <UniqueIdentifier>{7035895f-5756-4b2e-ba21-ac6ad7bf4646}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\debug">
+      <UniqueIdentifier>{614a484e-f3b2-4cf3-b620-364d9c79768e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\debug\automator">
+      <UniqueIdentifier>{70d4b1ae-c46c-4e5c-aa1e-2960e7a748d4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\debug\automator\actions">
+      <UniqueIdentifier>{37c45674-f0db-41af-a690-16d479dcffc4}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ds\debug\automator\automator.cpp">
+      <Filter>src\ds\debug\automator</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\debug\automator\actions\multifinger_tap_action.cpp">
+      <Filter>src\ds\debug\automator\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\debug\automator\actions\tap_action.cpp">
+      <Filter>src\ds\debug\automator\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\debug\automator\actions\base_action.cpp">
+      <Filter>src\ds\debug\automator\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\debug\automator\actions\drag_action.cpp">
+      <Filter>src\ds\debug\automator\actions</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\debug\automator\actions\callback_action.cpp">
+      <Filter>src\ds\debug\automator\actions</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ds\debug\automator\automator.h">
+      <Filter>src\ds\debug\automator</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\debug\automator\actions\drag_action.h">
+      <Filter>src\ds\debug\automator\actions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\debug\automator\actions\multifinger_tap_action.h">
+      <Filter>src\ds\debug\automator\actions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\debug\automator\actions\tap_action.h">
+      <Filter>src\ds\debug\automator\actions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\debug\automator\actions\base_action.h">
+      <Filter>src\ds\debug\automator\actions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\debug\automator\actions\callback_action.h">
+      <Filter>src\ds\debug\automator\actions</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

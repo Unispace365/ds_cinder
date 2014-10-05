@@ -116,6 +116,16 @@ public:
 	void								mouseTouchEnded(const ci::app::MouseEvent&, int id);
 	ci::app::MouseEvent					alteredMouseEvent(const ci::app::MouseEvent&) const;
 
+	// If you want to create touch events from your client app, use these functions.
+	// The touch events will use the same pathways that normal touches would.
+	// This is generally only recommended for debugging stuff (like automators) 
+	// or if you have an unusual input situation (like a kinect or something) and want to use touch
+	// These are separate functions from the touchesBegin, etc from above so the general
+	// use functions are not virtual and to indicate that these touchpoints are not coming from hardware
+	virtual void						injectTouchesBegin(const ci::app::TouchEvent&);
+	virtual void						injectTouchesMoved(const ci::app::TouchEvent&);
+	virtual void						injectTouchesEnded(const ci::app::TouchEvent&);
+
 	virtual ds::ResourceList&			getResources();
 	virtual const ds::FontList&			getFonts() const;
 	ds::FontList&						editFonts();

@@ -777,6 +777,19 @@ MouseEvent Engine::alteredMouseEvent(const MouseEvent& e) const {
 												0, e.getWheelIncrement(), e.getNativeModifiers());
 }
 
+void Engine::injectTouchesBegin(const ci::app::TouchEvent& e){
+	touchesBegin(e);
+}
+
+void Engine::injectTouchesMoved(const ci::app::TouchEvent& e){
+	touchesMoved(e);
+}
+
+void Engine::injectTouchesEnded(const ci::app::TouchEvent& e){
+	touchesEnded(e);
+}
+
+
 ds::ResourceList& Engine::getResources() {
 	return mResources;
 }

@@ -27,10 +27,11 @@ protected:
 	friend class			AutoUpdateList;
 	virtual void			update(const ds::UpdateParams&) = 0;
 
+	ds::ui::SpriteEngine&	mEngine;
+
 private:
 	AutoUpdate();
 
-	ds::ui::SpriteEngine&	mEngine;
 	const int				mMask;
 };
 
