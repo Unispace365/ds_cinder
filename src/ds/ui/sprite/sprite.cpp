@@ -752,6 +752,7 @@ float Sprite::getHeight() const {
 }
 
 void Sprite::enable(bool flag) {
+	mTouchProcess.clearTouches();
 	setFlag(ENABLED_F, flag, FLAGS_DIRTY, mSpriteFlags);
 }
 

@@ -30,6 +30,8 @@ public:
 
 	bool					hasTouches() const;
 
+	void					clearTouches();
+
 private:
 	void					sendTouchInfo(const TouchInfo &touchInfo);
 	void					initializeFirstTouch();

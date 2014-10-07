@@ -21,10 +21,14 @@ TouchProcess::TouchProcess( SpriteEngine &engine, Sprite &sprite )
 
 TouchProcess::~TouchProcess()
 {
+	clearTouches();
+}
+
+void TouchProcess::clearTouches(){
+
 	std::vector<int> fingers;
-	for ( auto i = mFingers.begin(), e = mFingers.end(); i != e; ++i )
-	{
-	fingers.push_back(i->first);
+	for(auto i = mFingers.begin(), e = mFingers.end(); i != e; ++i){
+		fingers.push_back(i->first);
 	}
 	mSpriteEngine.clearFingers(fingers);
 
