@@ -59,6 +59,14 @@ float SpriteEngine::getDoubleTapTime() const
 	return mData.mDoubleTapTime;
 }
 
+const ci::Rectf& SpriteEngine::getSrcRect() const {
+	return mData.mSrcRect;
+}
+
+const ci::Rectf& SpriteEngine::getDstRect() const {
+	return mData.mDstRect;
+}
+
 ci::Rectf SpriteEngine::getScreenRect() const
 {
 	return mData.mScreenRect;

@@ -1087,7 +1087,8 @@ bool Sprite::checkBounds() const
   mBoundsNeedChecking = false;
   mInBounds = false;
 
-  ci::Rectf screenRect = mEngine.getScreenRect();
+  const ci::Rectf&		screenRect(mEngine.getSrcRect());
+//  ci::Rectf screenRect = mEngine.getScreenRect();
 
   float screenMinX = screenRect.getX1();
   float screenMaxX = screenRect.getX2();

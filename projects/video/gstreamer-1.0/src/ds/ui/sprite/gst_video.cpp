@@ -69,10 +69,14 @@ const ds::ui::DirtyState&	FILENAME_DIRTY		= ds::ui::INTERNAL_A_DIRTY;
 const ds::ui::DirtyState&	VOLUME_DIRTY		= ds::ui::INTERNAL_B_DIRTY;
 const ds::ui::DirtyState&	LOOPING_DIRTY		= ds::ui::INTERNAL_C_DIRTY;
 const ds::ui::DirtyState&	CMD_DIRTY			= ds::ui::INTERNAL_D_DIRTY;
+const ds::ui::DirtyState&	VIDEO_FLAGS_DIRTY	= ds::ui::INTERNAL_E_DIRTY;
 const char					FILENAME_ATT		= 80;
 const char					VOLUME_ATT			= 81;
 const char					LOOPING_ATT			= 82;
 const char					CMD_ATT				= 83;
+const char					VIDEO_FLAGS_ATT		= 84;
+
+const uint32_t				CHECKBOUNDSHACK_F	= (1<<0);
 
 // Status atts
 const char					STATUS_POSITION_ATT	= 100;
@@ -125,7 +129,8 @@ GstVideo::GstVideo(SpriteEngine& engine)
 		, mPlaySingleFrame(false)
 		, mPlaySingleFrameFn(nullptr)
 		, mServerModeHack(false)
-		, mReportedCurrentPosition(0.0) {
+		, mReportedCurrentPosition(0.0)
+		, mVideoFlags(0) {
 	mBlobType = BLOB_TYPE;
 
 	setUseShaderTextuer(true);
@@ -141,6 +146,12 @@ GstVideo::~GstVideo() {
 
 void GstVideo::updateClient(const UpdateParams &up) {
 	inherited::updateClient(up);
+
+	// Total check bounds hack, stop if out of bounds
+	if (checkBounds() && !inBounds()) {
+		mMovie.stop();
+		return;
+	}
 
 	if (mFilenameChanged) {
 		mFilenameChanged = false;
@@ -325,12 +336,14 @@ float GstVideo::getVolume() const {
 
 void GstVideo::play() {
 	DS_LOG_INFO("GstVideo::play()");
+
 	mMovie.play();
 	setCmd(kCmdPlay);
 }
 
 void GstVideo::stop() {
 	DS_LOG_INFO("GstVideo::stop()");
+
 	mMovie.stop();
 	setCmd(kCmdStop);
 }
@@ -400,6 +413,10 @@ void GstVideo::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(CMD_ATT);
 		buf.add(mCmd);
 	}
+	if (mDirty.has(VIDEO_FLAGS_DIRTY)) {
+		buf.add(VIDEO_FLAGS_ATT);
+		buf.add(mVideoFlags);
+	}
 }
 
 void GstVideo::writeClientAttributesTo(ds::DataBuffer &buf) const {
@@ -421,6 +438,9 @@ void GstVideo::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 		if (mCmd == kCmdPlay) play();
 		else if (mCmd == kCmdPause) pause();
 		else if (mCmd == kCmdStop) stop();
+	} else if (attributeId == VIDEO_FLAGS_ATT) {
+		mVideoFlags = buf.read<uint32_t>();
+		setCheckBounds((mVideoFlags&CHECKBOUNDSHACK_F) != 0);
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
 	}
@@ -585,9 +605,24 @@ void GstVideo::setServerModeHack(const bool b) {
 	mServerModeHack = b;
 }
 
+void GstVideo::setCheckBoundsHack(const bool b) {
+	setVideoFlag(CHECKBOUNDSHACK_F, b);
+	setCheckBounds((mVideoFlags&CHECKBOUNDSHACK_F) != 0);
+}
+
 void GstVideo::setCmd(const Cmd c) {
 	mCmd = c;
 	markAsDirty(CMD_DIRTY);
+}
+
+void GstVideo::setVideoFlag(const uint32_t f, const bool on) {
+	const uint32_t		old(mVideoFlags);
+	if (on) mVideoFlags |= f;
+	else mVideoFlags &= ~f;
+
+	if (old != mVideoFlags) {
+		markAsDirty(VIDEO_FLAGS_DIRTY);
+	}
 }
 
 } // namespace ui
