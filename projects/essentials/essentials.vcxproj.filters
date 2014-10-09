@@ -42,6 +42,9 @@
     <ClCompile Include="src\ds\debug\automator\actions\callback_action.cpp">
       <Filter>src\ds\debug\automator\actions</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\png_sequence_sprite.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\debug\automator\actions\callback_action.h">
       <Filter>src\ds\debug\automator\actions</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
