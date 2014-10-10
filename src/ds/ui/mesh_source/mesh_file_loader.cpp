@@ -39,7 +39,7 @@ void MeshFileLoader::ChunkWrite( std::fstream &filestr, char *src, unsigned size
     if (!size)
         return;
 
-    int filesize = filestr.tellg();
+    int filesize = (int)filestr.tellg();
     int chunks = size / chunksize;
     for ( int i = 0; i < chunks; ++i )
     {
@@ -58,7 +58,7 @@ bool MeshFileLoader::Load( const std::string &filename, unsigned chunk /*= 256*/
     {
         int header = 0;
         filestr.seekg(0, std::fstream::end);
-        int filesize = filestr.tellg();
+        int filesize = (int)filestr.tellg();
         filestr.seekg(0, std::fstream::beg);
 
         if ( filesize < 5 * sizeof(unsigned) )

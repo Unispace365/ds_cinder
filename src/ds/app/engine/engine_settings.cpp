@@ -108,6 +108,7 @@ static bool       get_key_value(const std::wstring& arg, std::string& key, std::
 // Platform dependent code for getting the command line args
 
 #if defined( CINDER_MSW )
+#include <winsock2.h> // need to include winsock2 before windows
 #include <windows.h>
 #include <shellapi.h>
 

@@ -1,4 +1,5 @@
 #include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/pdf.h>
 

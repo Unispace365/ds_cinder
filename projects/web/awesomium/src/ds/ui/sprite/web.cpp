@@ -4,6 +4,7 @@
 #include <cinder/ImageIo.h>
 #include <boost/filesystem.hpp>
 #include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/blob_reader.h>
 #include <ds/app/environment.h>
 #include <ds/data/data_buffer.h>

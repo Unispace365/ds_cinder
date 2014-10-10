@@ -1,6 +1,7 @@
 #include "ds/ui/sprite/pdf.h"
 
 #include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/blob_reader.h>
 #include <ds/app/environment.h>
 #include <ds/data/data_buffer.h>

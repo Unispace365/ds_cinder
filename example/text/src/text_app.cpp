@@ -1,5 +1,6 @@
 #include <cinder/app/AppBasic.h>
 #include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/cfg/cfg_text.h>
 #include <ds/ui/sprite/text.h>

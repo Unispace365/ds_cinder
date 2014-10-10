@@ -1,11 +1,13 @@
 #include "ds/physics/sprite_body.h"
 
 #include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
+#include <ds/math/math_defs.h>
+
 #include "ds/physics/body_builder.h"
 #include "private/service.h"
 #include "private/world.h"
-#include <ds/math/math_defs.h>
-#include <ds/ui/sprite/sprite_engine.h>
+
 #include "Box2D/Collision/Shapes/b2PolygonShape.h"
 #include "Box2D/Dynamics/b2Body.h"
 #include "Box2D/Dynamics/b2Fixture.h"

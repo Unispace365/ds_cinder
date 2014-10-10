@@ -3,13 +3,14 @@
 #define DS_APP_APP_H_
 
 #include <cinder/app/AppBasic.h>
-#include "ds/app/engine/engine.h"
+#include "ds/app/app_defs.h"
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_settings.h"
 
 namespace ds {
 class Environment;
 class TuioObject;
+class Engine;
 
 /**
  * \class ds::App

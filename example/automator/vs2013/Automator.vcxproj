@@ -114,7 +114,7 @@
     <ClInclude Include="..\include\Resources.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\..\vs2013\FrameworkResources.rc" />
+    <ResourceCompile Include="%DS_PLATFORM_086%\vs2013\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>

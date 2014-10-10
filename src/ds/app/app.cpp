@@ -2,6 +2,8 @@
 
 #include <Poco/File.h>
 #include <Poco/Path.h>
+
+#include "ds/app/engine/engine.h"
 #include "ds/app/engine/engine_client.h"
 #include "ds/app/engine/engine_clientserver.h"
 #include "ds/app/engine/engine_server.h"
@@ -11,21 +13,26 @@
 #include "ds/debug/console.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
+
 // For installing the sprite types
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/ui/sprite/gradient_sprite.h"
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
+
 // For installing the image generators
 #include "ds/ui/image_source/image_arc.h"
 #include "ds/ui/image_source/image_file.h"
 #include "ds/ui/image_source/image_glsl.h"
 #include "ds/ui/image_source/image_resource.h"
+
 // For installing mesh caches
 #include "ds/ui/mesh_source/mesh_cache_service.h"
+
 // For installing the framework services
 #include "ds/ui/service/glsl_image_service.h"
+
 // For verifying that the resources are installed
 #include "ds/app/FrameworkResources.h"
 

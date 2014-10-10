@@ -1,9 +1,7 @@
 #include <cinder/app/AppBasic.h>
 #include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 
-using namespace std;
-using namespace ci;
-using namespace ci::app;
 
 class BasicTweenApp : public ds::App {
   public:
@@ -26,4 +24,4 @@ void BasicTweenApp::setupServer()
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC( BasicTweenApp, RendererGl )
+CINDER_APP_BASIC(BasicTweenApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))

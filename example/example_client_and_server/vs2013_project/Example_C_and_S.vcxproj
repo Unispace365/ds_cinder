@@ -111,6 +111,9 @@
   <ItemGroup>
     <ClCompile Include="..\src\ExampleApp.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="%DS_PLATFORM_086%\vs2013\FrameworkResources.rc" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -2,6 +2,7 @@
 
 #include <cinder/Camera.h>
 #include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/blob_reader.h>
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine_io_defs.h>

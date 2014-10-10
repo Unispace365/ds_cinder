@@ -2,6 +2,7 @@
 #ifndef DS_DEBUG_CONSOLE_H_
 #define DS_DEBUG_CONSOLE_H_
 
+#include <WinSock2.h>
 #include <Windows.h>
 #include <io.h>
 #include <fcntl.h>

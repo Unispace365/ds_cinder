@@ -4,8 +4,10 @@
 
 #include <memory>
 #include <unordered_map>
+
 #include <cinder/Camera.h>
 #include <cinder/gl/Fbo.h>
+
 #include "ds/app/app_defs.h"
 #include "ds/app/auto_update_list.h"
 #include "ds/app/blob_registry.h"
@@ -14,10 +16,13 @@
 #include "ds/ui/sprite/sprite.h"
 #include "ds/params/update_params.h"
 #include "ds/params/draw_params.h"
+
 #include <cinder/app/App.h>
 #include <cinder/app/TouchEvent.h>
 #include <cinder/app/AppBasic.h>
+
 #include "TuioClient.h"
+
 #include "ds/app/engine/engine_touch_queue.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
@@ -29,7 +34,6 @@
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/touch/touch_translator.h"
 #include "ds/ui/tween/tweenline.h"
-#include "ds/network/zmq_connection.h"
 #include "ds/data/raw_data_buffer.h"
 #include "ds/app/camera_utils.h"
 

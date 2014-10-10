@@ -1,5 +1,6 @@
 #include <cinder/app/AppBasic.h>
 #include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 #include <ds/ui/sprite/nine_patch.h>
 
 class ExampleApp : public ds::App {

@@ -6,6 +6,7 @@
 
 #ifdef CINDER_MSW
 
+#include <WinSock2.h>
 #include <windows.h>
 #include <psapi.h>
 #include <tchar.h>

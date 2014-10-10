@@ -3,6 +3,7 @@
 #include <Poco/Path.h>
 
 #include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/data/resource_list.h>
 #include <ds/thread/runnable_client.h>

@@ -2,6 +2,7 @@
 #include <Poco/Random.h>
 
 #include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/debug/automator/automator.h>
