@@ -1,0 +1,28 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "yaml_importer", "yaml_importer.vcxproj", "{F836C3BE-11C1-4505-BB16-0CC8A91C14AE}"
+	ProjectSection(ProjectDependencies) = postProject
+		{D66469E5-B8D3-4356-A386-C7C54306B6DC} = {D66469E5-B8D3-4356-A386-C7C54306B6DC}
+	EndProjectSection
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platform", "%DS_PLATFORM_086%\vs2013\platform.vcxproj", "{D66469E5-B8D3-4356-A386-C7C54306B6DC}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Win32 = Debug|Win32
+		Release|Win32 = Release|Win32
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F836C3BE-11C1-4505-BB16-0CC8A91C14AE}.Debug|Win32.ActiveCfg = Debug|Win32
+		{F836C3BE-11C1-4505-BB16-0CC8A91C14AE}.Debug|Win32.Build.0 = Debug|Win32
+		{F836C3BE-11C1-4505-BB16-0CC8A91C14AE}.Release|Win32.ActiveCfg = Release|Win32
+		{F836C3BE-11C1-4505-BB16-0CC8A91C14AE}.Release|Win32.Build.0 = Release|Win32
+		{D66469E5-B8D3-4356-A386-C7C54306B6DC}.Debug|Win32.ActiveCfg = Debug|Win32
+		{D66469E5-B8D3-4356-A386-C7C54306B6DC}.Debug|Win32.Build.0 = Debug|Win32
+		{D66469E5-B8D3-4356-A386-C7C54306B6DC}.Release|Win32.ActiveCfg = Release|Win32
+		{D66469E5-B8D3-4356-A386-C7C54306B6DC}.Release|Win32.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
