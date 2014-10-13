@@ -1,0 +1,16 @@
+<settings>
+	<!-- Used to support multiple resolutions of the same app. If this value exists,
+	then all settings files found in the supplied folder will get applied on top of
+	their base files, including engine.xml.
+	OK settings-file afficionados, what this means is that, for any given setting, it
+	will be a composite of potentially up to four locations. They get applied in this
+	order, so later items take precedence:
+	1. %APP%\settings\...
+	2. %APP%\settings\1920x1080\... (if the "configuration.xml:folder" setting exists, and
+	its value is "1920x1080")
+	3. C:\users\(user)\Documents\downstream\settings\(project_path)\...
+	4. C:\users\(user)\Documents\downstream\settings\(project_path)\1920x1080\...
+	-->
+	<text name="folder" value="1920x1080" />
+	
+</settings>

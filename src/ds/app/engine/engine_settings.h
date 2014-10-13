@@ -32,12 +32,15 @@ class Environment;
  * specified in the app settings.
  */
 class EngineSettings : public ds::cfg::Settings {
-  public:
-    EngineSettings();
+public:
+	EngineSettings();
 
 private:
-    friend class Environment;
-    static const std::string&   envProjectPath();
+	friend class Environment;
+	static const std::string&		envProjectPath();
+	// Answer the configuration.xml if it exists.
+	static const ds::cfg::Settings&	getConfiguration();
+	static const std::string&		getConfigurationFolder();
 };
 
 } // namespace ds

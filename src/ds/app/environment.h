@@ -21,6 +21,7 @@ public:
 	//	%APP% -- expanded to app folder
 	//	%LOCAL% -- expanded to downstream documents folder
 	//  %PP% -- expand the project path, i.e. "%LOCAL%/cache/%PP%/images/"
+	//  %CFG_FOLDER% -- expand to the configuration folder, if it exists
 	static std::string			expand(const std::string& path);
 
 	// Answer an app folder -- currently only SETTINGS() is valid for arg 1.
