@@ -25,7 +25,7 @@ StoryElement:
     tableName: storyElement
     columns:
         id:
-            type: integer(4)
+            type: integer(4) 
             unsigned: true
             primary: true
             autoincrement: true
@@ -49,8 +49,6 @@ StoryElement:
         bodyTwo:
             type: string(255)
         resourceId:
-            type: integer(4)
-        filterableId:
             type: integer(4)
     relations:
         Story:
