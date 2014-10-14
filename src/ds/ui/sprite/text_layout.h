@@ -31,77 +31,77 @@ float getFontHeight(const FontPtr &font, const float leading);
  */
 class TextLayout
 {
-  public:
-    // A single line of text
-    class Line {
-      public:
-        Line();
-        ci::Vec2f         mPos;
-        std::wstring       mText;
-    };
-    // A bundle of all data necessary to create a layout
-    class Input {
-      public:
-        Input(const Text&, const FontPtr &,
-              const ci::Vec2f& size, const std::wstring& text);
-        const Text&           mSprite;
-        const FontPtr &mFont;
-        const ci::Vec2f&      mSize;
-        const std::wstring&    mText;
-      private:
-        Input();
-    };
+public:
+	// A single line of text
+	class Line {
+	public:
+		Line();
+		ci::Vec2f			mPos;
+		std::wstring		mText;
+	};
+	// A bundle of all data necessary to create a layout
+	class Input {
+	public:
+		Input(const Text&, const FontPtr &,
+			const ci::Vec2f& size, const std::wstring& text);
+		const Text&			mSprite;
+		const FontPtr&		mFont;
+		const ci::Vec2f&	mSize;
+		const std::wstring&	mText;
+	private:
+		Input();
+	};
 
-  public:
-    TextLayout();
+public:
+	TextLayout();
 
-    void                    clear();
+	void					clear();
 
-    void                    addLine(const ci::Vec2f&, const std::wstring&);
+	void					addLine(const ci::Vec2f&, const std::wstring&);
 
-    const std::vector<Line> getLines() const    { return mLines; }
+	const std::vector<Line> getLines() const	{ return mLines; }
 
- 	  void						        writeTo(ds::DataBuffer&) const;
- 		bool						        readFrom(ds::DataBuffer&);
+	void					writeTo(ds::DataBuffer&) const;
+	bool					readFrom(ds::DataBuffer&);
 
-    // Print my line info
-    void                    debugPrint() const;
+	// Print my line info
+	void					debugPrint() const;
 
-  private:
-    std::vector<Line>       mLines;
+private:
+	std::vector<Line>		mLines;
 
-  public:
-    // Predefined layout functions.  A layout function needs to install
-    // lines, typically where the Y value of each line is the baseline
-    // (i.e. font ascent for the first line)
-    typedef std::function<void(const TextLayout::Input&, TextLayout&)> MAKE_FUNC;
+public:
+	// Predefined layout functions. A layout function needs to install
+	// lines, typically where the Y value of each line is the baseline
+	// (i.e. font ascent for the first line)
+	typedef std::function<void(const TextLayout::Input&, TextLayout&)> MAKE_FUNC;
 
-    static const MAKE_FUNC&   SINGLE_LINE();
+	static const MAKE_FUNC&	SINGLE_LINE();
 
-    // Any layout function that needs additional information is supplied
-    // as a separate class, below.
+	// Any layout function that needs additional information is supplied
+	// as a separate class, below.
 };
 
 /**
  * \class ds::ui::TextLayoutVertical
  * A text layout that is bound by the text width, but will add lines
- * as necessary.  This class provides additional controls beyond the
+ * as necessary. This class provides additional controls beyond the
  * standard text sprite.
  */
 class TextLayoutVertical {
 public:
-  TextLayoutVertical();
-  // Automatically install on the text object
-  TextLayoutVertical(Text&);
+	TextLayoutVertical();
+	// Automatically install on the text object
+	TextLayoutVertical(Text&);
 
-  void                  installOn(Text&);
+	void					installOn(Text&);
 
-  // Adjust the font leading value, where 0 = no space between lines,
-  // and 1 = the default leading.
-  float                 mLeading;
-  Alignment::Enum       mAlignment;
+	// Adjust the font leading value, where 0 = no space between lines,
+	// and 1 = the default leading.
+	float					mLeading;
+	Alignment::Enum			mAlignment;
 private:
-  void                  run(const TextLayout::Input&, TextLayout&);
+	void					run(const TextLayout::Input&, TextLayout&);
 };
 
 } // namespace ui

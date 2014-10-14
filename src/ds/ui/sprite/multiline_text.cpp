@@ -6,9 +6,9 @@ namespace ds {
 namespace ui {
 
 MultilineText::MultilineText(SpriteEngine& engine)
-    : inherited(engine)
+	: inherited(engine)
 {
-  mMultilineLayout.installOn(*this);
+	mMultilineLayout.installOn(*this);
 }
 
 MultilineText::~MultilineText()
@@ -17,31 +17,31 @@ MultilineText::~MultilineText()
 
 float MultilineText::getLeading() const
 {
-  return mMultilineLayout.mLeading;
+	return mMultilineLayout.mLeading;
 }
 
 MultilineText& MultilineText::setLeading(const float v)
 {
-  if (v == mMultilineLayout.mLeading) return *this;
+	if(v == mMultilineLayout.mLeading) return *this;
 
-  mMultilineLayout.mLeading = v;
-  mNeedsLayout = true;
-  return *this;
+	mMultilineLayout.mLeading = v;
+	mNeedsLayout = true;
+	return *this;
 }
 
 ds::ui::Alignment::Enum MultilineText::getAlignment() const
 {
-  return mMultilineLayout.mAlignment;
+	return mMultilineLayout.mAlignment;
 }
 
-MultilineText& MultilineText::setAlignment( const Alignment::Enum& a )
+MultilineText& MultilineText::setAlignment(const Alignment::Enum& a)
 {
-  if (a == mMultilineLayout.mAlignment)
-    return *this;
+	if(a == mMultilineLayout.mAlignment)
+		return *this;
 
-  mMultilineLayout.mAlignment = a;
-  mNeedsLayout = true;
-  return *this;
+	mMultilineLayout.mAlignment = a;
+	mNeedsLayout = true;
+	return *this;
 }
 
 float MultilineText::getFontFullHeight() const

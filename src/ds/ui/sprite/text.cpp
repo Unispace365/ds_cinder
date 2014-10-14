@@ -437,7 +437,7 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
 		}
 	} else if (attributeId == FONTID_ATT) {
 		const std::string filename = mEngine.getFonts().getFileNameFromId(buf.read<int>());
-		const float       fontSize = buf.read<float>();
+		const float fontSize = buf.read<float>();
 		if (!filename.empty()) {
 			setFont(filename, fontSize);
 			mNeedRedrawing = true;
@@ -469,7 +469,7 @@ void Text::makeLayout()
 		mNeedsLayout = false;
 		mLayout.clear();
 		if (mLayoutFunc && mFont) {
-			ci::Vec2f      size(mWidth-mBorder.x1-mBorder.x2, mHeight-mBorder.y1-mBorder.y2);
+			ci::Vec2f	size(mWidth-mBorder.x1-mBorder.x2, mHeight-mBorder.y1-mBorder.y2);
 			// If we're auto resizing, then the area to perform the layout should be unlimited.
 			if ((mResizeToTextF&RESIZE_W) != 0) {
 				size.x = 100000;
@@ -479,7 +479,7 @@ void Text::makeLayout()
 				size.y = 100000;
 				if (mResizeLimitHeight > 0) size.y = mResizeLimitHeight;
 			}
-			TextLayout::Input    in(*this, mFont, size, mTextString);
+			TextLayout::Input	in(*this, mFont, size, mTextString);
 			mLayoutFunc(in, mLayout);
 		}
 		markAsDirty(LAYOUT_DIRTY);
@@ -492,35 +492,35 @@ void Text::makeLayout()
 
 void Text::calculateFrame(const int flags)
 {
-  if (!mFont) return;
+	if(!mFont) return;
 
-  //const float     descent = mFont->descender();
-  const float     lineHeight = static_cast<float>(mFont->height());
-  const float     height = mFont->pointSize();
-  float           w = 0, h = 0;
-  auto&           lines = mLayout.getLines();
+	//const float	descent = mFont->descender();
+	const float		lineHeight = static_cast<float>(mFont->height());
+	const float		height = mFont->pointSize();
+	float			w = 0, h = 0;
+	auto&			lines = mLayout.getLines();
 
-  for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
-    const TextLayout::Line&   line(*it);
-    const ci::Vec2f           size = getSizeFromString(mFont, line.mText);//mFont->measureRaw(line.mText.c_str());
-    const float               lineW = line.mPos.x + size.x;
-          float               lineH = line.mPos.y + height;
-    if (it + 1 != lines.end()) {
-      lineH += lineHeight;
-    } else {
-      OGLFT::BBox box = mFont->measureRaw(line.mText.c_str());
-      lineH += -box.y_min_;
-    }
-    if (lineW > w) w = lineW;
-    if (lineH > h) h = lineH;
-  }
+	for(auto it = lines.begin(), end = lines.end(); it != end; ++it) {
+		const TextLayout::Line&		line(*it);
+		const ci::Vec2f				size = getSizeFromString(mFont, line.mText);//mFont->measureRaw(line.mText.c_str());
+		const float					lineW = line.mPos.x + size.x;
+		float						lineH = line.mPos.y + height;
+		if(it + 1 != lines.end()) {
+			lineH += lineHeight;
+		} else {
+			OGLFT::BBox box = mFont->measureRaw(line.mText.c_str());
+			lineH += -box.y_min_;
+		}
+		if(lineW > w) w = lineW;
+		if(lineH > h) h = lineH;
+	}
 
-  w = mBorder.x1 + w + mBorder.x2;
-  h = mBorder.y1 + h + mBorder.y2;
-  // Only change the dimensions specified by the flags
-  if ((flags&RESIZE_W) == 0) w = mWidth;
-  if ((flags&RESIZE_H) == 0) h = mHeight;
-  inherited::setSizeAll(w, h, mDepth);
+	w = mBorder.x1 + w + mBorder.x2;
+	h = mBorder.y1 + h + mBorder.y2;
+	// Only change the dimensions specified by the flags
+	if((flags&RESIZE_W) == 0) w = mWidth;
+	if((flags&RESIZE_H) == 0) h = mHeight;
+	inherited::setSizeAll(w, h, mDepth);
 }
 
 void Text::drawIntoFbo() {
@@ -604,9 +604,8 @@ std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
 	}
 }
 
-float Text::getLeading() const
-{
-  return 1.0f;
+float Text::getLeading() const {
+	return 1.0f;
 }
 
 void Text::onRenderFinished(RenderTextFinished& finished)
@@ -628,29 +627,29 @@ if (mTextString == L"2012") {
 
 //static ci::gl::TextureFontRef get_font(const std::string& filename, const float size)
 //{
-//    auto found = mTextureFonts.find(filename);
-//    if ( found != mTextureFonts.end() )
-//    {
-//        auto found2 = found->second.find(size);
-//        if ( found2 != found->second.end() )
-//            return found2->second;
-//    }
+//	auto found = mTextureFonts.find(filename);
+//	if(found != mTextureFonts.end())
+//	{
+//		auto found2 = found->second.find(size);
+//		if(found2 != found->second.end())
+//			return found2->second;
+//	}
 //
-//    ci::DataSourcePathRef src = ci::DataSourcePath::create(filename);
-//    ci::Font              f(src, size);
-//    if (!f) {
-//      DS_LOG_ERROR_M("Text::get_font() failed to load font (" << filename << ")", SPRITE_LOG);
-//      DS_ASSERT(false);
-//      return nullptr;
-//    }
-//    ci::gl::TextureFontRef  tf = ci::gl::TextureFont::create(f);
-//    if (!tf) {
-//      DS_LOG_ERROR_M("Text::get_font() failed to create font texture (" << filename << ")", SPRITE_LOG);
-//      DS_ASSERT(false);
-//      return nullptr;
-//    }
-//    mTextureFonts[filename][size] = tf;
-//    return tf;
+//	ci::DataSourcePathRef src = ci::DataSourcePath::create(filename);
+//	ci::Font				f(src, size);
+//	if(!f) {
+//		DS_LOG_ERROR_M("Text::get_font() failed to load font (" << filename << ")", SPRITE_LOG);
+//		DS_ASSERT(false);
+//		return nullptr;
+//	}
+//	ci::gl::TextureFontRef	tf = ci::gl::TextureFont::create(f);
+//	if(!tf) {
+//		DS_LOG_ERROR_M("Text::get_font() failed to create font texture (" << filename << ")", SPRITE_LOG);
+//		DS_ASSERT(false);
+//		return nullptr;
+//	}
+//	mTextureFonts[filename][size] = tf;
+//	return tf;
 //}
 
 /**
@@ -658,21 +657,21 @@ if (mTextString == L"2012") {
  */
 static FontPtr get_font(const std::string& filename, const float size)
 {
-  auto found = mFontCache.find(filename);
-  if ( found != mFontCache.end() )
-  {
-    auto found2 = found->second.find(size);
-    if ( found2 != found->second.end() )
-      return found2->second;
-  }
+	auto found = mFontCache.find(filename);
+	if(found != mFontCache.end())
+	{
+		auto found2 = found->second.find(size);
+		if(found2 != found->second.end())
+			return found2->second;
+	}
 
-  FontPtr font = FontPtr(new OGLFT::Translucent(filename.c_str(), size));
+	FontPtr font = FontPtr(new OGLFT::Translucent(filename.c_str(), size));
 
-  if (!font->isValid())
-    throw std::runtime_error("Font: " + filename + " was unable to load.");
+	if(!font->isValid())
+		throw std::runtime_error("Font: " + filename + " was unable to load.");
 
-  font->setCompileMode(OGLFT::Face::COMPILE);
+	font->setCompileMode(OGLFT::Face::COMPILE);
 
-  mFontCache[filename][size] = font;
-  return font;
+	mFontCache[filename][size] = font;
+	return font;
 }
