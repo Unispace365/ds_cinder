@@ -120,15 +120,22 @@ void YamlLoadService::run() {
 		YAML::Node nodey = (*it);
 		if(nodey.Type() == YAML::NodeType::Map){
 			for(auto mit = (*it).begin(); mit != (*it).end(); ++mit){
-				parseTable((*mit).second);
+				std::string tableName = (*mit).first.as<std::string>();
+
+				// one of the root tables can be options, and we don't care about it
+				if(tableName == "options") continue;
+
+				parseTable(tableName, (*mit).second);
 			}
 		}
 		//parseTable((*it));
 	}
 }
 
-void YamlLoadService::parseTable(YAML::Node mainComponentsMap){
+void YamlLoadService::parseTable(const std::string& tableName, YAML::Node mainComponentsMap){
 	ModelModel mm;
+
+	mm.setTableName(tableName);
 
 	// This holds the top level of tableName, columns, relations, actAs, options
 	if(mainComponentsMap.Type() != YAML::NodeType::Map){
@@ -139,11 +146,13 @@ void YamlLoadService::parseTable(YAML::Node mainComponentsMap){
 	for(auto it = mainComponentsMap.begin(); it != mainComponentsMap.end(); ++it){
 		std::string key = (*it).first.as<std::string>();
 		YAML::Node mappedNode = (*it).second;
+
+		// We're now loading the table name from the root object
 		if(key == "tableName"){
-			if(mappedNode.Type() == YAML::NodeType::Scalar){
-				std::string tableName = mappedNode.as<std::string>();
-				mm.setTableName(tableName);
-			}
+// 			if(mappedNode.Type() == YAML::NodeType::Scalar){
+// 				std::string tableName = mappedNode.as<std::string>();
+// 				mm.setTableName(tableName);
+// 			}
 
 		} else if(key == "columns"){
 			if(mappedNode.Type() == YAML::NodeType::Map){
@@ -156,21 +165,17 @@ void YamlLoadService::parseTable(YAML::Node mainComponentsMap){
 			}
 
 		} else if(key == "relations"){
-
 			parseRelations((*it).second, mm);
-			// load relations
-		//	std::cout << "Relations" << std::endl;
 
 		} else if(key == "actAs"){
-			// load actAs
-		//	std::cout << "actAs" << std::endl;
+			parseActAs((*it).second, mm);
 
 		} else if(key == "options"){
 			// load options
 		//	std::cout << "options" << std::endl;
 
 		} else {
-		//	std::cout << "Unknown main component: " << key << std::endl;
+			DS_LOG_WARNING("Unknown main component: " << key << " in " << mm.getTableName());
 		}
 	}
 
@@ -265,6 +270,49 @@ void YamlLoadService::parseRelations(YAML::Node relationsNode, ModelModel& mm){
 		mm.addRelation(mr);
 	}
 }
+
+void YamlLoadService::parseActAs(YAML::Node actAsNode, ModelModel& mm){
+	if(actAsNode.Type() != YAML::NodeType::Map){
+		DS_LOG_WARNING("Incorrect yaml node type for actAs from: " << mm.getTableName());
+		return;
+	}
+	// look through the map of relations
+	for(auto relIt = actAsNode.begin(); relIt != actAsNode.end(); ++relIt){
+		std::string actionType = (*relIt).first.as<std::string>();
+		if(actionType == "Timestampable"){
+			// Timestamps?
+		} else if(actionType == "Sortable"){
+			// add sort by?
+		} else if(actionType == "Resourceable"){
+			YAML::Node resourceNode = (*relIt).second;
+			if(resourceNode.Type() != YAML::NodeType::Map){
+				DS_LOG_WARNING("Problem with resourable actAs in " << mm.getTableName());
+				continue;
+			}
+
+			for(auto it = resourceNode.begin(); it != resourceNode.end(); ++it){
+				std::string propertyType = (*it).first.as<std::string>();
+
+				// I got 99 columns, but an ingoretype or mediatable aint one.
+				// Or, the only thing we care about in Resourceable is which columns
+				if(propertyType == "columns"){
+					YAML::Node resourceColumns = (*it).second;
+					if(resourceColumns.Type() != YAML::NodeType::Sequence){
+						DS_LOG_WARNING("Trubs reading columns in resourceable actAs in " << mm.getTableName());
+						continue;
+					}
+
+					std::vector<std::string> columnStrings;
+					for(auto cit = resourceColumns.begin(); cit != resourceColumns.end(); ++cit){
+						columnStrings.push_back((*cit).as<std::string>());
+					}
+					mm.setResourceColumns(columnStrings);
+				}
+			}
+		}
+	}
+}
+
 
 // go through everything and print it out
 void YamlLoadService::printYamlRecursive(YAML::Node doc, const int level){

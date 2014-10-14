@@ -133,18 +133,6 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\generated\city_model.cpp" />
-    <ClCompile Include="..\generated\country_model.cpp" />
-    <ClCompile Include="..\generated\currentstory_model.cpp" />
-    <ClCompile Include="..\generated\current_model.cpp" />
-    <ClCompile Include="..\generated\exxontag_model.cpp" />
-    <ClCompile Include="..\generated\filterableexxontag_model.cpp" />
-    <ClCompile Include="..\generated\filterable_model.cpp" />
-    <ClCompile Include="..\generated\patent_model.cpp" />
-    <ClCompile Include="..\generated\region_model.cpp" />
-    <ClCompile Include="..\generated\storyelementitem_model.cpp" />
-    <ClCompile Include="..\generated\storyelement_model.cpp" />
-    <ClCompile Include="..\generated\story_model.cpp" />
     <ClCompile Include="..\src\model\model_model.cpp" />
     <ClCompile Include="..\src\model\sample_model.cpp" />
     <ClCompile Include="..\src\service\model_maker.cpp" />
@@ -152,18 +140,6 @@
     <ClCompile Include="..\src\yaml_importer_app.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\generated\city_model.h" />
-    <ClInclude Include="..\generated\country_model.h" />
-    <ClInclude Include="..\generated\currentstory_model.h" />
-    <ClInclude Include="..\generated\current_model.h" />
-    <ClInclude Include="..\generated\exxontag_model.h" />
-    <ClInclude Include="..\generated\filterableexxontag_model.h" />
-    <ClInclude Include="..\generated\filterable_model.h" />
-    <ClInclude Include="..\generated\patent_model.h" />
-    <ClInclude Include="..\generated\region_model.h" />
-    <ClInclude Include="..\generated\storyelementitem_model.h" />
-    <ClInclude Include="..\generated\storyelement_model.h" />
-    <ClInclude Include="..\generated\story_model.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\model\model_model.h" />
     <ClInclude Include="..\src\model\sample_model.h" />

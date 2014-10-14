@@ -27,9 +27,10 @@ public:
 
 private:
 	void						printYamlRecursive(YAML::Node doc, const int level);
-	void						parseTable(YAML::Node doc);
+	void						parseTable(const std::string& tableName, YAML::Node doc);
 	void						parseColumn(YAML::Node mappedNode, ModelModel& modelModel);
 	void						parseRelations(YAML::Node relationsNode, ModelModel& mm);
+	void						parseActAs(YAML::Node relationsNode, ModelModel& mm);
 
 	bool						parseBool(const std::string& value);
 };
