@@ -111,9 +111,9 @@ void YamlLoadService::run() {
 	}
 
 	std::vector<YAML::Node> nodes = YAML::LoadAll(iff);
-	for(auto it = nodes.begin(); it < nodes.end(); ++it){
+//	for(auto it = nodes.begin(); it < nodes.end(); ++it){
 //		printYamlRecursive((*it), 0);
-	}
+//	}
 
 	// create a ModelModel for each root node
 	for(auto it = nodes.begin(); it < nodes.end(); ++it){
@@ -156,6 +156,8 @@ void YamlLoadService::parseTable(YAML::Node mainComponentsMap){
 			}
 
 		} else if(key == "relations"){
+
+			parseRelations((*it).second, mm);
 			// load relations
 		//	std::cout << "Relations" << std::endl;
 
@@ -219,6 +221,48 @@ void YamlLoadService::parseColumn(YAML::Node mappedNode, ModelModel& modelModel)
 		}
 
 		modelModel.addColumn(modelColumn);
+	}
+}
+
+void YamlLoadService::parseRelations(YAML::Node relationsNode, ModelModel& mm){
+	if(relationsNode.Type() != YAML::NodeType::Map){
+		DS_LOG_WARNING("Incorrect yaml node type for relations from: " << mm.getTableName());
+		return;
+	}
+	// look through the map of relations
+	for(auto relIt = relationsNode.begin(); relIt != relationsNode.end(); ++relIt){
+		ModelRelation mr;
+		mr.setForeignKeyTable((*relIt).first.as<std::string>());
+		YAML::Node relationMap = (*relIt).second;
+		if(relationMap.Type() != YAML::NodeType::Map){
+			DS_LOG_WARNING("Problem reading relation property maps for relation: " << mr.getForeignKeyTable() << " from: " << mm.getTableName());
+			continue;
+		}
+		for(auto it = relationMap.begin(); it != relationMap.end(); ++it){
+			std::string propertyType = (*it).first.as<std::string>();
+			if((*it).second.Type() != YAML::NodeType::Scalar){
+				DS_LOG_WARNING("Trubs reading relation property: " << propertyType << " on: " << mr.getForeignKeyTable() << " from: " << mm.getTableName());
+				continue;
+			}
+			std::string valueString = (*it).second.as<std::string>();
+			if(propertyType == "local"){
+				mr.setLocalKeyColumn(valueString);
+			} else if(propertyType == "foreign"){
+				mr.setForeignKeyColumn(valueString);
+			} else if(propertyType == "type"){
+				if(valueString == "one"){
+					mr.setType(ModelRelation::One);
+				} else if(valueString == "many"){
+					mr.setType(ModelRelation::Many);
+				} else {
+					DS_LOG_WARNING("Incorrect value received for relation type on: " << mr.getForeignKeyTable() << " from: " << mm.getTableName());
+				}
+			} else if(propertyType == "class"){
+				mr.setForeignKeyTable(valueString);
+			}
+		} 
+
+		mm.addRelation(mr);
 	}
 }
 

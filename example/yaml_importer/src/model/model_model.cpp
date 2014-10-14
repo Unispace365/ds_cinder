@@ -35,6 +35,8 @@ public:
 	bool					mAutoincrement;
 	bool					mPrimary;
 	bool					mUnsigned;
+	std::string				mCustomDataType;
+	std::string				mEmptyDataName;
 };
 
 ModelColumn::ModelColumn()
@@ -63,6 +65,16 @@ const bool ModelColumn::getAutoincrement()const{
 const bool ModelColumn::getIsPrimaryKey()const{
 	if(!mData) return false;
 	return mData->mPrimary;
+}
+
+const std::string& ModelColumn::getCustomDataType()const{
+	if(!mData) return EMPTY_STRING;
+	return mData->mCustomDataType;
+}
+
+const std::string& ModelColumn::getCustomEmptyDataName()const{
+	if(!mData) return EMPTY_STRING;
+	return mData->mEmptyDataName;
 }
 
 const bool ModelColumn::getIsUnsigned()const{
@@ -100,6 +112,18 @@ ModelColumn& ModelColumn::setIsUnsigned(const bool isUnsigned){
 	return *this;
 }
 
+ModelColumn& ModelColumn::setCustomDataType(const std::string& name){
+	if(!mData) mData.reset(new Data());
+	if(mData) mData->mCustomDataType = name;
+	return *this;
+}
+
+ModelColumn& ModelColumn::setCustomEmptyDataName(const std::string& name){
+	if(!mData) mData.reset(new Data());
+	if(mData) mData->mEmptyDataName = name;
+	return *this;
+}
+
 ModelColumn::Type ModelColumn::getTypeForString(const std::string& typeString){
 
 	if(typeString.find("int") != std::string::npos){
@@ -131,7 +155,7 @@ ModelColumn::Type ModelColumn::getTypeForString(const std::string& typeString){
 */
 class ModelRelation::Data {
 public:
-	Data() { }
+	Data() { mType = ModelRelation::Invalid;  }
 
 	bool					operator==(const Data& o) const {
 		return mLocalColumn == o.mLocalColumn && mForeignColumn == o.mForeignColumn && mForeignTable == o.mForeignTable && mType == o.mType;
@@ -282,4 +306,11 @@ ModelModel& ModelModel::setSortColumn(const std::string& sortColumn){
 	if(mData) mData->mSortColumn = sortColumn;
 	return *this;
 }
+
+ModelModel& ModelModel::addRelation(const ModelRelation& relation){
+	if(!mData) mData.reset(new Data());
+	if(mData) mData->mRelations.push_back(relation);
+	return *this;
+}
+
 }

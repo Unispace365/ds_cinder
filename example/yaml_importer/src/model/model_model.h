@@ -15,7 +15,7 @@ namespace ds {
 */
 class ModelColumn {
 public:
-	typedef enum {Integer = 0, UnsignedInt, Float, String, Resource, Invalid} Type;
+	typedef enum {Integer = 0, UnsignedInt, Float, String, Resource, Custom, Invalid} Type;
 
 	ModelColumn();
 	ModelColumn(const std::string& columnName, const Type& dataType, const bool autoIncrement, const bool isPrimary);
@@ -27,12 +27,16 @@ public:
 	const bool				getAutoincrement() const;
 	const bool				getIsPrimaryKey() const;
 	const bool				getIsUnsigned() const;
+	const std::string&		getCustomDataType() const;
+	const std::string&		getCustomEmptyDataName() const;
 
 	ModelColumn&			setColumnName(const std::string& name);
 	ModelColumn&			setType(const Type& dataType);
 	ModelColumn&			setAutoincrement(const bool autoInc);
 	ModelColumn&			setIsPrimary(const bool isPrimary);
 	ModelColumn&			setIsUnsigned(const bool isUnsigned);
+	ModelColumn&			setCustomDataType(const std::string& dataType); // eg. std::vector<ds::Resource>
+	ModelColumn&			setCustomEmptyDataName(const std::string& emptyName); // eg. EMPTY_RESOURCE_VECTOR
 
 private:
 	class Data;
@@ -45,7 +49,7 @@ private:
 */
 class ModelRelation {
 public:
-	typedef enum {One = 0, Many} Type;
+	typedef enum {One = 0, Many, Invalid} Type;
 
 	ModelRelation();
 	ModelRelation(const std::string& localColumn, const std::string& foreignColumn, const std::string& foreignTable, const Type& relationType);
@@ -90,6 +94,7 @@ public:
 	ModelModel&							setColumns(const std::vector<ModelColumn>& columns);
 	ModelModel&							addColumn(const ModelColumn& column);
 	ModelModel&							setRelations(const std::vector<ModelRelation>& columns);
+	ModelModel&							addRelation(const ModelRelation& relation);
 	ModelModel&							setResourceColumns(const std::vector<std::string>& resourcedColumns);
 	ModelModel&							setSortColumn(const std::string& sortColumn);
 

@@ -24,6 +24,7 @@ public:
 	virtual void				run();
 	static std::string			replaceString(std::string &fullString, std::string toReplace, std::string replaceWith);
 	static std::string			replaceAllString(std::string& fullString, std::string toReplace, std::string replaceWith);
+	std::string					getFileName(const std::string& tableName, const bool isHeader);
 	std::string					mYamlFileLocation;
 
 private:

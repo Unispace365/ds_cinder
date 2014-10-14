@@ -45,8 +45,6 @@ void YamlImporterApp::setupServer()
 }
 
 void YamlImporterApp::fileDrop(ci::app::FileDropEvent event){
-	std::cout << "File drop! " << event.getFile(0) << std::endl;
-
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
 		ModelMaker mm;
 		mm.mYamlFileLocation = (*it).string();
