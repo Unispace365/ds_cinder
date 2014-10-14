@@ -14,6 +14,18 @@
     <ClCompile Include="..\src\service\model_maker.cpp">
       <Filter>service</Filter>
     </ClCompile>
+    <ClCompile Include="..\generated\filterableexxontag_model.cpp">
+      <Filter>generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\generated\storyelementitem_model.cpp">
+      <Filter>generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\generated\exxontag_model.cpp">
+      <Filter>generated</Filter>
+    </ClCompile>
+    <ClCompile Include="..\generated\filterable_model.cpp">
+      <Filter>generated</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\include\Resources.h" />
@@ -28,6 +40,18 @@
     </ClInclude>
     <ClInclude Include="..\src\service\model_maker.h">
       <Filter>service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\generated\filterableexxontag_model.h">
+      <Filter>generated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\generated\storyelementitem_model.h">
+      <Filter>generated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\generated\exxontag_model.h">
+      <Filter>generated</Filter>
+    </ClInclude>
+    <ClInclude Include="..\generated\filterable_model.h">
+      <Filter>generated</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

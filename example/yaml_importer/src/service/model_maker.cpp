@@ -53,11 +53,11 @@ const std::string baseCpp = \
 "namespace ds {\n" \
 "namespace model {\n" \
 "namespace {\n" \
+"const int							EMPTY_INT = 0;\n" \
+"const unsigned int					EMPTY_UINT = 0;\n" \
+"const float							EMPTY_FLOAT = 0.0f;\n" \
 "const std::wstring					EMPTY_WSTRING;\n" \
-"const std::string					EMPTY_STRING;\n" \
 "const ds::Resource					EMPTY_RESOURCE;\n" \
-"const ci::Vec2f						EMPTY_VEC2F;\n" \
-"const std::vector<std::string>		EMPTY_STRING_VECTOR;\n" \
 "}\n" \
 "\n" \
 "/**\n" \
@@ -82,86 +82,25 @@ const std::string baseCpp = \
 "} // namespace model\n" \
 "} // namespace ds";
 
-
-// Header Getters
-const std::string intColumnGetter =			"	const int				getColumnName() const;";
-const std::string uintColumnGetter =		"	const unsigned int		getColumnName() const;";
-const std::string floatColumnGetter =		"	const float				getColumnName() const;";
-const std::string stringColumnGetter =		"	const std::wstring&		getColumnName() const;";
-const std::string resourceColumnGetter =	"	const ds::Resource&		getColumnName() const;";
-
-// Header Setters
-const std::string intColumnSetter =			"	TableNameRef&			setColumnName(const int ColumnName);";
-const std::string uintColumnSetter =		"	TableNameRef&			setColumnName(const unsigned int ColumnName);";
-const std::string floatColumnSetter =		"	TableNameRef&			setColumnName(const float ColumnName);";
-const std::string stringColumnSetter =		"	TableNameRef&			setColumnName(const std::wstring& ColumnName);";
-const std::string resourceColumnSetter =	"	TableNameRef&			setColumnName(const ds::Resource& ColumnName);";
-
-// Implementation data class columns
-const std::string intColumnData =			"int				mColumnName;";
-const std::string uintColumnData =			"unsigned int	mColumnName;";
-const std::string floatColumnData =			"float			mColumnName;";
-const std::string stringColumnData =		"std::wstring	mColumnName;";
-const std::string resourceColumnData =		"ds::Resource	mColumnName;";
-
-// Getter Implementations
-const std::string intGetterImplementation = "const int TableNameRef::getColumnName() const {\n" \
-"	if(!mData) return 0; \n" \
+const std::string headerGetter = "	const DATA_TYPE getColumnName() const;";
+const std::string headerSetter = "	TableNameRef& setColumnName(const DATA_TYPE& ColumnName);";
+const std::string dataMember = "DATA_TYPE mColumnName;";
+const std::string impGetter = "const DATA_TYPE TableNameRef::getColumnName() const {\n" \
+"	if(!mData) return EMPTY_EMPTYDATATYPE; \n" \
 "	return mData->mColumnName; \n" \
 "}";
-
-const std::string uintGetterImplementation = "const unsigned int TableNameRef::getColumnName() const {\n" \
-"	if(!mData) return 0; \n" \
-"	return mData->mColumnName; \n" \
-"}";
-
-const std::string floatGetterImplementation = "const float TableNameRef::getColumnName() const {\n" \
-"	if(!mData) return 0.0f; \n" \
-"	return mData->mColumnName; \n" \
-"}";
-
-const std::string stringGetterImplementation = "const std::wstring& TableNameRef::getColumnName() const {\n" \
-"	if(!mData) return EMPTY_WSTRING; \n" \
-"	return mData->mColumnName; \n" \
-"}";
-
-const std::string resourceGetterImplementation = "const ds::Resource& TableNameRef::getColumnName() const {\n" \
-"	if(!mData) return EMPTY_RESOURCE; \n" \
-"	return mData->mColumnName; \n" \
-"}";
-
-// Setter Implementations
-const std::string intSetterImplementation = "TableNameRef& TableNameRef::setColumnName(const int ColumnName){\n" \
+const std::string impSetter = "TableNameRef& TableNameRef::setColumnName(const DATA_TYPE& ColumnName){\n" \
 "	if(!mData) mData.reset(new Data()); \n" \
 "	if(mData) mData->mColumnName = ColumnName; \n" \
 "	return *this; \n" \
 "}";
 
-const std::string uintSetterImplementation = "TableNameRef& TableNameRef::setColumnName(const unsigned int ColumnName){\n" \
-"	if(!mData) mData.reset(new Data()); \n" \
-"	if(mData) mData->mColumnName = ColumnName; \n" \
-"	return *this; \n" \
-"}";
-
-const std::string floatSetterImplementation = "TableNameRef& TableNameRef::setColumnName(const float ColumnName){\n" \
-"	if(!mData) mData.reset(new Data()); \n" \
-"	if(mData) mData->mColumnName = ColumnName; \n" \
-"	return *this; \n" \
-"}";
-
-const std::string stringSetterImplementation = "TableNameRef& TableNameRef::setColumnName(const std::wstring& ColumnName){\n" \
-"	if(!mData) mData.reset(new Data()); \n" \
-"	if(mData) mData->mColumnName = ColumnName; \n" \
-"	return *this; \n" \
-"}";
-
-const std::string resourceSetterImplementation = "TableNameRef& TableNameRef::setColumnName(const ds::Resource& ColumnName){\n" \
-"	if(!mData) mData.reset(new Data()); \n" \
-"	if(mData) mData->mColumnName = ColumnName; \n" \
-"	return *this; \n" \
-"}";
+const std::string intDataType = "int";
+const std::string uintDataType = "unsigned int";
+const std::string floatDataType = "float";
+const std::string stringDataType = "std::wstring";
+const std::string resourceDataType = "ds::Resource";
 }
-
 
 /**
 * \class ds::ModelMaker
@@ -189,6 +128,8 @@ void ModelMaker::run() {
 		return;
 	}
 
+	std::cout << "Parsing yaml file: " << mYamlFileLocation << std::endl;
+
 	mYamlLoadService.mFileLocation = mYamlFileLocation;
 	mYamlLoadService.run();
 
@@ -202,12 +143,26 @@ void ModelMaker::run() {
 	for(auto it = models.begin(); it < models.end(); ++it){
 		ModelModel& mm = (*it);
 
-		std::stringstream headerGetters;
-		std::stringstream headerSetters;
-		std::stringstream dataMembers;
-		std::stringstream impGetters;
-		std::stringstream impSetters;
+		// make the first letter of the table name uppercase
+		std::string tableName = mm.getTableName();
+		std::transform(tableName.begin(), tableName.begin() + 1, tableName.begin(), ::toupper);
 
+		// push all the nearby getters/setters/members into stringstreams
+		std::stringstream sHeaderGetters;
+		std::stringstream sHeaderSetters;
+		std::stringstream sDataMembers;
+		std::stringstream sImpGetters;
+		std::stringstream sImpSetters;
+
+		// strings for each column
+		std::string thisHeaderGetter;
+		std::string thisHeaderSetter;
+		std::string thisEmptyData;
+		std::string thisDataMember;
+		std::string thisImpGetter;
+		std::string thisImpSetter;
+
+		// make all 'resource' flagged columns into proper resources
 		for(auto mit = mm.getResourceColumns().begin(); mit < mm.getResourceColumns().end(); ++mit){
 			for(auto cit = mm.getColumns().begin(); cit < mm.getColumns().end(); ++cit){
 
@@ -222,13 +177,18 @@ void ModelMaker::run() {
 			}
 		}
 
+
+		// add the getters, setters, empty data and data members for each column to the stringstreams
 		for(auto cit = mm.getColumns().begin(); cit < mm.getColumns().end(); ++cit){
 
-			std::string thisHeaderGetter;
-			std::string thisHeaderSetter;
-			std::string thisDataMember;
-			std::string thisImpGetter;
-			std::string thisImpSetter;
+			thisHeaderGetter = headerGetter;
+			thisHeaderSetter = headerSetter;
+			thisEmptyData = "";
+			thisDataMember = dataMember;
+			thisImpGetter = impGetter;
+			thisImpSetter = impSetter;
+
+			std::string dataType = "";
 
 			const ModelColumn& mc = (*cit);
 
@@ -236,58 +196,56 @@ void ModelMaker::run() {
 			if(mc.getType() == ModelColumn::Invalid){
 				continue;
 
-			// if it's an int, check for unsigned int too
+				// if it's an int, check for unsigned int too
 			} else if(mc.getType() == ModelColumn::Integer || mc.getType() == ModelColumn::UnsignedInt){
 				if(mc.getIsUnsigned()){
-					thisHeaderGetter = uintColumnGetter;
-					thisHeaderSetter = uintColumnSetter;
-					thisDataMember = uintColumnData;
-					thisImpGetter = uintGetterImplementation;
-					thisImpSetter = uintSetterImplementation;
+					dataType = uintDataType;
+					thisEmptyData = "UINT";
 
 				} else {
-					thisHeaderGetter = intColumnGetter;
-					thisHeaderSetter = intColumnSetter;
-					thisDataMember = intColumnData;
-					thisImpGetter = intGetterImplementation;
-					thisImpSetter = intSetterImplementation;
+					dataType = intDataType;
+					thisEmptyData = "INT";
 				}
 
 			} else if(mc.getType() == ModelColumn::Float){
-				thisHeaderGetter = floatColumnGetter;
-				thisHeaderSetter = floatColumnSetter;
-				thisDataMember = floatColumnData;
-				thisImpGetter = floatGetterImplementation;
-				thisImpSetter = floatSetterImplementation;
+				dataType = floatDataType;
+				thisEmptyData = "FLOAT";
 
 			} else if(mc.getType() == ModelColumn::String){
-				thisHeaderGetter = stringColumnGetter;
-				thisHeaderSetter = stringColumnSetter;
-				thisDataMember = stringColumnData;
-				thisImpGetter = stringGetterImplementation;
-				thisImpSetter = stringSetterImplementation;
+				dataType = stringDataType;
+				thisEmptyData = "WSTRING";
 
 			} else if(mc.getType() == ModelColumn::Resource){
-				thisHeaderGetter = resourceColumnGetter;
-				thisHeaderSetter = resourceColumnSetter;
-				thisDataMember = resourceColumnData;
-				thisImpGetter = resourceGetterImplementation;
-				thisImpSetter = resourceSetterImplementation;
+				dataType = resourceDataType;
+				thisEmptyData = "RESOURCE";
 
 			}
 
-			headerGetters << replaceAllString(thisHeaderGetter, "ColumnName", mc.getColumnName()) << std::endl;
-			headerSetters << replaceAllString(thisHeaderSetter, "ColumnName", mc.getColumnName()) << std::endl;
-			dataMembers << replaceAllString(thisDataMember, "ColumnName", mc.getColumnName()) << std::endl;
-			impGetters << replaceAllString(thisImpGetter, "ColumnName", mc.getColumnName()) << std::endl;
-			impSetters << replaceAllString(thisImpSetter, "ColumnName", mc.getColumnName()) << std::endl;
+
+			std::string columnName = mc.getColumnName();
+			std::transform(columnName.begin(), columnName.begin() + 1, columnName.begin(), ::toupper);
+
+			thisImpGetter = replaceAllString(thisImpGetter, "EMPTYDATATYPE", thisEmptyData);
+
+			thisHeaderGetter = replaceAllString(thisHeaderGetter, "DATA_TYPE", dataType);
+			thisHeaderSetter = replaceAllString(thisHeaderSetter, "DATA_TYPE", dataType); 	
+			thisDataMember = replaceAllString(thisDataMember, "DATA_TYPE", dataType);
+			thisImpGetter = replaceAllString(thisImpGetter, "DATA_TYPE", dataType);
+			thisImpSetter = replaceAllString(thisImpSetter, "DATA_TYPE", dataType);
+
+			sHeaderGetters << replaceAllString(thisHeaderGetter, "ColumnName", columnName) << std::endl;
+			sHeaderSetters << replaceAllString(thisHeaderSetter, "ColumnName", columnName) << std::endl;
+			sDataMembers << replaceAllString(thisDataMember, "ColumnName", columnName) << std::endl;
+			sImpGetters << replaceAllString(thisImpGetter, "ColumnName", columnName) << std::endl;
+			sImpSetters << replaceAllString(thisImpSetter, "ColumnName", columnName) << std::endl;
 
 		}
 
+		// add all the stringstreams to the header and put in the table name / model name
 		std::string header = baseHeader;
-		header = replaceAllString(header, "COLUMN_GETTERS", headerGetters.str());
-		header = replaceAllString(header, "COLUMN_SETTERS", headerSetters.str());
-		header = replaceAllString(header, "TableName", mm.getTableName());
+		header = replaceAllString(header, "COLUMN_GETTERS", sHeaderGetters.str());
+		header = replaceAllString(header, "COLUMN_SETTERS", sHeaderSetters.str());
+		header = replaceAllString(header, "TableName", tableName);
 
 		//std::cout << std::endl << std::endl << header << std::endl << std::endl;
 
@@ -295,18 +253,22 @@ void ModelMaker::run() {
 
 
 		std::string imp = baseCpp;
-		imp = replaceAllString(imp, "DATA_MEMBERS", dataMembers.str());
-		imp = replaceAllString(imp, "IMP_GETTERS", impGetters.str());
-		imp = replaceAllString(imp, "IMP_SETTERS", impSetters.str());
-		imp = replaceAllString(imp, "TableName", mm.getTableName());
+		imp = replaceAllString(imp, "DATA_MEMBERS", sDataMembers.str());
+		imp = replaceAllString(imp, "IMP_GETTERS", sImpGetters.str());
+		imp = replaceAllString(imp, "IMP_SETTERS", sImpSetters.str());
+		imp = replaceAllString(imp, "TableName", tableName);
 
-	//	std::cout << std::endl << std::endl << imp << std::endl << std::endl;
+		//	std::cout << std::endl << std::endl << imp << std::endl << std::endl;
 
-
+		// make the filename a lowercase title
 		std::string lower_case_table = mm.getTableName();
 		std::transform(lower_case_table.begin(), lower_case_table.end(), lower_case_table.begin(), ::tolower);
+
+		// write out the header and implementation
 		std::stringstream filename;
-		filename << "%APP%/src/generated/" << lower_case_table << "_model.h";
+		filename << "%APP%/generated/" << lower_case_table << "_model.h";
+
+		std::cout << "Writing header to: " << filename.str() << std::endl;
 
 		std::ofstream headerWriter;
 		headerWriter.open(ds::Environment::expand(filename.str()));
@@ -315,7 +277,10 @@ void ModelMaker::run() {
 
 		filename.str("");
 
-		filename << "%APP%/src/generated/" << lower_case_table << "_model.cpp";
+		filename << "%APP%/generated/" << lower_case_table << "_model.cpp";
+		std::cout << "Writing implementation to: " << filename.str() << std::endl;
+
+
 		std::ofstream impWriter;
 		impWriter.open(ds::Environment::expand(filename.str()));
 		impWriter << imp;

@@ -133,6 +133,10 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="..\generated\exxontag_model.cpp" />
+    <ClCompile Include="..\generated\filterableexxontag_model.cpp" />
+    <ClCompile Include="..\generated\filterable_model.cpp" />
+    <ClCompile Include="..\generated\storyelementitem_model.cpp" />
     <ClCompile Include="..\src\model\model_model.cpp" />
     <ClCompile Include="..\src\model\sample_model.cpp" />
     <ClCompile Include="..\src\service\model_maker.cpp" />
@@ -140,6 +144,10 @@
     <ClCompile Include="..\src\yaml_importer_app.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\generated\exxontag_model.h" />
+    <ClInclude Include="..\generated\filterableexxontag_model.h" />
+    <ClInclude Include="..\generated\filterable_model.h" />
+    <ClInclude Include="..\generated\storyelementitem_model.h" />
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\model\model_model.h" />
     <ClInclude Include="..\src\model\sample_model.h" />
