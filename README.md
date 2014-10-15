@@ -8,7 +8,7 @@ Installation
 ------------
 This version of DS Cinder requires **Visual Studio 2013** installed.
 
- -  You'll need **2+1** environment variables set:
+ -  You'll need some environment variables set:
    - `CINDER_086` should point to the 0.8.6 cinder dist ([Version 0.8.6 for VC 2013](http://libcinder.org/releases/cinder_0.8.6_vc2013.zip)). e.g:
 
      ```Batchfile
