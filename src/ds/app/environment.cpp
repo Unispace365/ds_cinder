@@ -31,6 +31,7 @@ std::string Environment::expand(const std::string& _path) {
 	boost::replace_all(p, "%APP%", ds::App::envAppDataPath());
 	boost::replace_all(p, "%PP%", EngineSettings::envProjectPath());
 	boost::replace_all(p, "%LOCAL%", getDownstreamDocumentsFolder());
+	boost::replace_all(p, "%CFG_FOLDER%", EngineSettings::getConfigurationFolder());
 	// This can result in double path separators, so flatten
 	return Poco::Path(p).toString();
 }
@@ -94,6 +95,12 @@ std::string Environment::getLocalSettingsPath(const std::string& fileName)
 void Environment::loadSettings(const std::string& filename, ds::cfg::Settings& settings) {
 	settings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), false);
 	settings.readFrom(ds::Environment::getLocalSettingsPath(filename), true);
+	if (!ds::EngineSettings::getConfigurationFolder().empty()) {
+		const std::string		app = ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + filename);
+		const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
+		settings.readFrom(app, true);
+		settings.readFrom(local, true);
+	}
 }
 
 std::string Environment::getLocalFile(	const std::string& category,

@@ -18,6 +18,9 @@ const std::string		IMAGE_SEQUENCE_TYPE_SZ("s");
 const std::string		PDF_TYPE_SZ("p");
 const std::string		VIDEO_TYPE_SZ("v");
 const std::string		WEB_TYPE_SZ("w");
+// This gets reduced to being a video type; here to support B&R CMSs, which
+// can't have audio files that are typed as video.
+const std::string		AUDIO_TYPE_SZ("a");
 
 const std::string		EMPTY_SZ("");
 
@@ -434,6 +437,7 @@ void Resource::setTypeFromString(const std::string& typeChar) {
 	else if (PDF_TYPE_SZ == typeChar) mType = PDF_TYPE;
 	else if (VIDEO_TYPE_SZ == typeChar) mType = VIDEO_TYPE;
 	else if (WEB_TYPE_SZ == typeChar) mType = WEB_TYPE;
+	else if (AUDIO_TYPE_SZ == typeChar) mType = VIDEO_TYPE;
 	else mType = ERROR_TYPE;
 }
 
