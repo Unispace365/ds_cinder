@@ -12,19 +12,19 @@ This version of DS Cinder requires **Visual Studio 2013** installed.
    - `CINDER_086` should point to the 0.8.6 cinder dist ([Version 0.8.6 for VC 2013](http://libcinder.org/releases/cinder_0.8.6_vc2013.zip)). e.g:
 
      ```Batchfile
-     setx CINDER %USERPROFILE%\code\cinder_0.8.6_vc2013
+     setx "CINDER_086" "%USERPROFILE%\code\cinder_0.8.6_vc2013"
      ```
 
    - `DS_PLATFORM_086` should point to this repository. e.g:
 
      ```Batchfile
-     setx DS_PLATFORM %USERPROFILE%\code\ds_cinder
+     setx "DS_PLATFORM_086" "%USERPROFILE%\code\ds_cinder"
      ```
 
    - ***[optional]*** `DS_CINDER_GSTREAMER_1-0` should point to Gstreamer (if your project uses Gstreamer). e.g:
 
      ```Batchfile
-     setx DS_PLATFORM c:/gstreamer/1.0/x86/
+     setx "DS_CINDER_GSTREAMER_1-0" "c:/gstreamer/1.0/x86/"
      ```
 
  -  You should start by copying one of the example projects located in the `examples` folder as the basis for your new app.  If you do this, everything will be setup correctly and ready to go.  You can stop reading right here! **(if you DON'T do this step and copy the starter project, then you will need to manually set up the new solution yourself.)**
