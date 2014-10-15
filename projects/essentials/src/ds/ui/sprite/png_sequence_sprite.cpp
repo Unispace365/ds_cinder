@@ -75,6 +75,14 @@ const bool PngSequenceSprite::isPlaying()const{
 void PngSequenceSprite::setCurrentFrameIndex(const int frameIndex){
 	if(frameIndex < 0 || frameIndex > mFrames.size() - 1) return;
 	mCurrentFrameIndex = frameIndex;
+
+	for(int i = 0; i < mFrames.size(); i++){
+		if(i == mCurrentFrameIndex){
+			mFrames[i]->show();
+		} else {
+			mFrames[i]->hide();
+		}
+	}
 }
 
 const int PngSequenceSprite::getCurrentFrameIndex()const{

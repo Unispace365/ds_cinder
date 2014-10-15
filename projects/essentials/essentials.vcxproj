@@ -29,7 +29,7 @@
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{80CC472C-E968-46A3-B770-93615FF1A70B}</ProjectGuid>
+    <ProjectGuid>{FDE518C6-AFB7-4400-B252-82C978DE7D82}</ProjectGuid>
     <RootNamespace>BasicTweenApp</RootNamespace>
     <Keyword>Win32Proj</Keyword>
   </PropertyGroup>
