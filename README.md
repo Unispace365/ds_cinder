@@ -27,7 +27,7 @@ This version of DS Cinder requires **Visual Studio 2013** installed.
      setx "DS_CINDER_GSTREAMER_1-0" "c:/gstreamer/1.0/x86/"
      ```
 
- -  You should start by copying one of the example projects located in the `examples` folder as the basis for your new app.  If you do this, everything will be setup correctly and ready to go.  You can stop reading right here! **(if you DON'T do this step and copy the starter project, then you will need to manually set up the new solution yourself.)**
+ -  ~~You should start by copying one of the example projects located in the `examples` folder as the basis for your new app.  If you do this, everything will be setup correctly and ready to go.  You can stop reading right here! **(if you DON'T do this step and copy the starter project, then you will need to manually set up the new solution yourself.)**~~ You no longer need to do this. Use the project generator (`pg.exe`).
 
 ----------
 
