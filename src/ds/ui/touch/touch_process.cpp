@@ -101,7 +101,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 			Vec3f fingerCurrent0 = foundControl0->second.mCurrentGlobalPoint;
 			Vec3f fingerPositionOffset = (parentTransform * Vec4f(fingerCurrent0.x, fingerCurrent0.y, 0.0f, 1.0f) - parentTransform * Vec4f(fingerStart0.x, fingerStart0.y, 0.0f, 1.0f)).xyz();
 
-			if (mFingers.size() > 1) {
+			if (mFingers.size() > 1 && found_0 && found_1) {
 				Vec3f fingerStart1 = foundControl1->second.mStartPoint;
 				Vec3f fingerCurrent1 = foundControl1->second.mCurrentGlobalPoint;
 
