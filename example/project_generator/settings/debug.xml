@@ -1,0 +1,4 @@
+<settings>
+	<text name="logger:level" value="none" />
+	<text name="logger:module" value="none" />
+</settings>
