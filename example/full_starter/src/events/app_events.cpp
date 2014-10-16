@@ -1,4 +1,3 @@
-
 #include "app_events.h"
 
 namespace fullstarter {
@@ -21,4 +20,4 @@ IdleEndedEvent::IdleEndedEvent(  )
 {
 }
 
-} // namespace fullstarter
+} // !namespace fullstarter

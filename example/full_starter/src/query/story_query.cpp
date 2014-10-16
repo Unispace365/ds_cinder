@@ -29,4 +29,4 @@ void StoryQuery::query(AllStories& output) {
 
 }
 
-} // namespace fullstarter
+} // !namespace fullstarter

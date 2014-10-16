@@ -1,6 +1,5 @@
-#pragma once
-#ifndef EXCHANGELOOP_APP_EXCHANGELOOPAPP_H
-#define EXCHANGELOOP_APP_EXCHANGELOOPAPP_H
+#ifndef _FULLSTARTER_APP_H_
+#define _FULLSTARTER_APP_H_
 
 #include <cinder/app/AppBasic.h>
 #include <ds/app/app.h>
@@ -24,7 +23,7 @@ private:
 	// Data
 	AllData				mAllData;
 
-	// Data acquision
+	// Data acquisition
 	Globals				mGlobals;
 	QueryHandler		mQueryHandler;
 
@@ -35,6 +34,6 @@ private:
 	void				moveCamera(const ci::Vec3f& deltaMove);
 };
 
-} // namespace fullstarter
+} // !namespace fullstarter
 
-#endif
+#endif // !_FULLSTARTER_APP_H_

@@ -1,11 +1,9 @@
-
-#pragma once
-#ifndef EVENTS_APPEVENTS_H_
-#define EVENTS_APPEVENTS_H_
+#ifndef _FULLSTARTER_APP_APPEVENTS_H_
+#define _FULLSTARTER_APP_APPEVENTS_H_
 
 #include <ds/app/event.h>
 
-namespace fullstarter{
+namespace fullstarter {
 
 class IdleStartedEvent : public ds::Event {
 public:
@@ -25,6 +23,6 @@ public:
 
 };
 
-}//namespace fullstarter
+} // !namespace fullstarter
 
-#endif
+#endif // !_FULLSTARTER_APP_APPEVENTS_H_

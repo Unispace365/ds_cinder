@@ -1,6 +1,5 @@
-#pragma once
-#ifndef EXCHANGELOOP_APP_GLOBALS
-#define EXCHANGELOOP_APP_GLOBALS
+#ifndef _FULLSTARTER_APP_GLOBALS_
+#define _FULLSTARTER_APP_GLOBALS_
 
 #include <ds/app/event_notifier.h>
 #include <ds/cfg/cfg_text.h>
@@ -39,6 +38,6 @@ public:
 
 };
 
-} // namespace fullstarter
+} // !namespace fullstarter
 
-#endif 
+#endif // !_FULLSTARTER_APP_GLOBALS_

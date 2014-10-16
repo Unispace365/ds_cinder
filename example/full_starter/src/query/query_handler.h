@@ -1,6 +1,5 @@
-#pragma once
-#ifndef QUERY_QUERYHANDLER_H_
-#define QUERY_QUERYHANDLER_H_
+#ifndef _FULLSTARTER_APP_QUERY_QUERYHANDLER_H_
+#define _FULLSTARTER_APP_QUERY_QUERYHANDLER_H_
 
 #include <ds/app/event_client.h>
 #include <ds/data/resource_list.h>
@@ -38,6 +37,6 @@ private:
 	ds::ResourceList					mResources;
 };
 
-} // namespace fullstarter
+} // !namespace fullstarter
 
-#endif
+#endif // !_FULLSTARTER_APP_QUERY_QUERYHANDLER_H_
