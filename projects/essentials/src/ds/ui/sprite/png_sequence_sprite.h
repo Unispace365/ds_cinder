@@ -55,6 +55,10 @@ PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFil
 	// Don't release this frame, it'll cause trubs
 	ds::ui::Image*				getFrameAtIndex(const int frameIndex);
 
+	// Makes the size of this sprite the same size as the first image
+	// If there are no images, the size will be 0,0
+	void						sizeToFirstImage();
+
 private:
 	typedef ds::ui::Sprite		inherited;
 

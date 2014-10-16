@@ -98,6 +98,14 @@ ds::ui::Image* PngSequenceSprite::getFrameAtIndex(const int frameIndex){
 	return mFrames[frameIndex];
 }
 
+void PngSequenceSprite::sizeToFirstImage(){
+	if(mFrames.empty()){
+		setSize(0.0f, 0.0f);
+	} else {
+		setSize(mFrames[0]->getScaleWidth(), mFrames[0]->getScaleHeight());
+	}
+}
+
 void PngSequenceSprite::updateServer(const ds::UpdateParams& p){
 	inherited::updateServer(p);
 
@@ -140,6 +148,5 @@ void PngSequenceSprite::updateServer(const ds::UpdateParams& p){
 
 	}
 }
-
 } // namespace ui
 } // namespace ds
