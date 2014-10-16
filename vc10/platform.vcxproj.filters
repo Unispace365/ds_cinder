@@ -630,6 +630,9 @@
     <ClInclude Include="..\src\ds\app\engine\unique_id.h">
       <Filter>src\ds\app\engine</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\rotation_translator.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1063,6 +1066,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\unique_id.cpp">
       <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\rotation_translator.cpp">
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

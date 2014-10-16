@@ -282,6 +282,10 @@ public:
 	// Special function to mark every sprite from me down as dirty.
 	void					markTreeAsDirty();
 
+	// When true, the touch input is automatically rotated to account for my rotation.
+	void					setRotateTouches(const bool = false);
+	bool					isRotateTouches() const;
+
 	bool					getPerspective() const;
 	// Total hack resulting from my unfamiliarity with 3D systems. This can sometimes be necessary for
 	// views that are inside of perspective cameras, but are expressed in screen coordinates.
