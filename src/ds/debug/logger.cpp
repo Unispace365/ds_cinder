@@ -26,7 +26,7 @@ const std::string	EMPTY_SZ("");
 const int			LOG_LEVEL_ERROR_CODE = -1;
 const int			LOG_LEVEL_BLOCK_CODE = LOG_LEVEL_ERROR_CODE-1;
 
-const int			LEVEL_SIZE = 4;
+const int			LEVEL_SIZE = 5;
 // Only assign during setup()
 bool				HAS_LEVEL[LEVEL_SIZE];
 ds::BitMask			HAS_MODULE = ds::BitMask::newFilled();
@@ -49,6 +49,7 @@ static void setup_level(const std::string& level) {
 	else if (s == "warning")	HAS_LEVEL[ds::Logger::LOG_WARNING] = true;
 	else if (s == "error")		HAS_LEVEL[ds::Logger::LOG_ERROR] = true;
 	else if (s == "fatal")		HAS_LEVEL[ds::Logger::LOG_FATAL] = true;
+	else if (s == "metric")		HAS_LEVEL[ds::Logger::LOG_METRIC] = true;
 }
 
 static void setup_module(const std::string& module) {
@@ -63,12 +64,14 @@ static const std::string& level_name(const int level) {
 								            WARNING("warning"),
 								            ERROR_(	"error  "),
 								            FATAL(	"fatal  "),
-								            STARTUP("startup"),
+											METRIC( "metric "),
+											STARTUP("startup"),
 								            UNKNOWN("       ");
 	if (level == ds::Logger::LOG_INFO) return INFO;
 	if (level == ds::Logger::LOG_WARNING) return WARNING;
 	if (level == ds::Logger::LOG_ERROR) return ERROR_;
 	if (level == ds::Logger::LOG_FATAL) return FATAL;
+	if (level == ds::Logger::LOG_METRIC) return METRIC;
 	if (level == ds::Logger::LOG_STARTUP) return STARTUP;
 	return UNKNOWN;
 }

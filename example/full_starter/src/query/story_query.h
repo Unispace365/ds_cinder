@@ -1,6 +1,5 @@
-#pragma once
-#ifndef QUERY_INDUSTRY_QUERY_H_
-#define QUERY_INDUSTRY_QUERY_H_
+#ifndef _FULLSTARTER_APP_QUERY_INDUSTRY_QUERY_H_
+#define _FULLSTARTER_APP_QUERY_INDUSTRY_QUERY_H_
 
 #include <functional>
 #include <Poco/Runnable.h>
@@ -25,6 +24,6 @@ private:
 	void					query(AllStories& output);
 };
 
-} // namespace fullstarter
+} // !namespace fullstarter
 
-#endif
+#endif //!_FULLSTARTER_APP_QUERY_INDUSTRY_QUERY_H_

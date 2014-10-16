@@ -1,6 +1,5 @@
-#pragma once
-#ifndef UI_BUTTON_IMAGEBUTTON_H_
-#define UI_BUTTON_IMAGEBUTTON_H_
+#ifndef _FULLSTARTER_APP_UI_BUTTON_IMAGEBUTTON_H_
+#define _FULLSTARTER_APP_UI_BUTTON_IMAGEBUTTON_H_
 
 #include <ds/ui/sprite/image.h>
 #include "ds/ui/touch/button_behaviour.h"

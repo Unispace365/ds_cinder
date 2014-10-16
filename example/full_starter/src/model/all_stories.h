@@ -1,6 +1,5 @@
-#pragma once
-#ifndef MODEL_ALLSTORIES_H_
-#define MODEL_ALLSTORIES_H_
+#ifndef _FULLSTARTER_APP_MODEL_ALLSTORIES_H_
+#define _FULLSTARTER_APP_MODEL_ALLSTORIES_H_
 
 #include "model/generated/story_model.h"
 
@@ -19,6 +18,6 @@ public:
 
 };
 
-} // namespace fullstarter
+} // !namespace fullstarter
 
-#endif // COMMON_MODEL_ALLDATA_H_
+#endif // !_FULLSTARTER_APP_MODEL_ALLSTORIES_H_

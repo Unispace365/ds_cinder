@@ -1,6 +1,5 @@
-#pragma once
-#ifndef UI_TOUCH_VIEWDRAGGER_H_
-#define UI_TOUCH_VIEWDRAGGER_H_
+#ifndef _FULLSTARTER_APP_UI_TOUCH_VIEWDRAGGER_H_
+#define _FULLSTARTER_APP_UI_TOUCH_VIEWDRAGGER_H_
 
 #include <ds/ui/sprite/sprite.h>
 #include "ds/ui/touch/momentum.h"
@@ -38,4 +37,4 @@ private:
 
 } // namespace fullstarter
 
-#endif
+#endif //!_FULLSTARTER_APP_UI_TOUCH_VIEWDRAGGER_H_

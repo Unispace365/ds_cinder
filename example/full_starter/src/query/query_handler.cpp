@@ -32,4 +32,4 @@ void QueryHandler::onStoryQuery(StoryQuery& q) {
 }
 
 
-} // namespace fullstarter
+} // !namespace fullstarter

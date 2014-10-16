@@ -1,6 +1,5 @@
-#pragma once
-#ifndef UI_TABLE_UTIL_SPRITECACHE_H_
-#define UI_TABLE_UTIL_SPRITECACHE_H_
+#ifndef _FULLSTARTER_APP_UI_TABLE_UTIL_SPRITECACHE_H_
+#define _FULLSTARTER_APP_UI_TABLE_UTIL_SPRITECACHE_H_
 
 #include <functional>
 #include <vector>
@@ -123,4 +122,4 @@ void SpriteCache<T>::forEachActive(const std::function<void(const T&)>& fn) cons
 
 } // namespace ds
 
-#endif // UI_TABLE_UTIL_SPRITECACHE_H_
+#endif // !_FULLSTARTER_APP_UI_TABLE_UTIL_SPRITECACHE_H_

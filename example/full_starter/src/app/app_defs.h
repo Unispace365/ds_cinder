@@ -1,6 +1,5 @@
-#pragma once
-#ifndef EXCHANGELOOP_APP_APPDEFS_H_
-#define EXCHANGELOOP_APP_APPDEFS_H_
+#ifndef _FULLSTARTER_APP_APPDEFS_H_
+#define _FULLSTARTER_APP_APPDEFS_H_
 
 #include <string>
 #include <ds/util/bit_mask.h>
@@ -31,6 +30,6 @@ extern const int				PHYSICS_INDUSTRIES_LAYER_1_CATEGORY;
 extern const int				PHYSICS_INDUSTRIES_LAYER_2_CATEGORY;
 extern const int				PHYSICS_INDUSTRIES_LAYER_3_CATEGORY;
 
-} // namespace fullstarter
+} // !namespace fullstarter
 
-#endif
+#endif // !_FULLSTARTER_APP_APPDEFS_H_
