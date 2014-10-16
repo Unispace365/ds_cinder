@@ -53,6 +53,7 @@ public:
 	static const int				LOG_WARNING = 1;
 	static const int				LOG_ERROR = 2;
 	static const int				LOG_FATAL = 3;
+	static const int				LOG_METRIC = 4;		// Used for capturing metric information
 	static const int				LOG_STARTUP = 100;	// Special code that will always log, regardless of the level.
 	// Verification that the given parameter is valid to log.
 	static bool						hasLevel(const int level);
@@ -152,6 +153,8 @@ Logger&                     getLogger();
 #define DS_LOG_ERROR_M(streamExp, module)	DS_LOG(ds::Logger::LOG_ERROR,	streamExp, module)
 #define DS_LOG_FATAL(streamExp)				DS_LOG(ds::Logger::LOG_FATAL,	streamExp, ds::BitMask::newFilled())
 #define DS_LOG_FATAL_M(streamExp, module)	DS_LOG(ds::Logger::LOG_FATAL,	streamExp, module)
+#define DS_LOG_METRIC(streamExp)			DS_LOG(ds::Logger::LOG_METRIC,	streamExp, ds::BitMask::newFilled())
+#define DS_LOG_METRIC_M(streamExp, module)	DS_LOG(ds::Logger::LOG_METRIC,	streamExp, module)
 
 // Logging convenience
 #define DS_LOGW_STARTUP(streamExp)			DS_LOGW(ds::Logger::LOG_STARTUP,	streamExp, ds::BitMask::newFilled())
@@ -161,8 +164,10 @@ Logger&                     getLogger();
 #define DS_LOGW_WARNING_M(streamExp, module)	DS_LOGW(ds::Logger::LOG_WARNING, streamExp, module)
 #define DS_LOGW_ERROR(streamExp)				DS_LOGW(ds::Logger::LOG_ERROR,	streamExp, ds::BitMask::newFilled())
 #define DS_LOGW_ERROR_M(streamExp, module)	DS_LOGW(ds::Logger::LOG_ERROR,	streamExp, module)
-#define DS_LOGW_FATAL(streamExp)				DS_LOGW(ds::Logger::LOG_FATAL,	streamExp, ds::BitMask::newFilled())
+#define DS_LOGW_FATAL(streamExp)			DS_LOGW(ds::Logger::LOG_FATAL,	streamExp, ds::BitMask::newFilled())
 #define DS_LOGW_FATAL_M(streamExp, module)	DS_LOGW(ds::Logger::LOG_FATAL,	streamExp, module)
+#define DS_LOGW_METRIC(streamExp)			DS_LOGW(ds::Logger::LOG_METRIC,	streamExp, ds::BitMask::newFilled())
+#define DS_LOGW_METRIC_M(streamExp, module)	DS_LOGW(ds::Logger::LOG_METRIC,	streamExp, module)
 
 // Utility for logging a fatal error then ending the app, to maintain compatibility
 // with the previous logger, which had this functionality.  Probably shouldn't
