@@ -10,7 +10,6 @@
 
 #include "events/app_events.h"
 
-using namespace ci::app;
 namespace fullstarter {
 
 FullStarterApp::FullStarterApp()
@@ -68,17 +67,18 @@ void FullStarterApp::update() {
 
 }
 
-void FullStarterApp::keyDown(KeyEvent event){
+void FullStarterApp::keyDown(ci::app::KeyEvent event){
+	using ci::app::KeyEvent;
 	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
-	} else if(event.getCode() == KeyEvent::KEY_RIGHT){
+	} else if(event.getCode() == KeyEvent::KEY_d){
 		moveCamera(ci::Vec3f(1.0f, 0.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_LEFT){
+	} else if(event.getCode() == KeyEvent::KEY_a){
 		moveCamera(ci::Vec3f(-1.0f, 0.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_UP){
+	} else if(event.getCode() == KeyEvent::KEY_w){
 		moveCamera(ci::Vec3f(0.0f, -1.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_DOWN){
+	} else if(event.getCode() == KeyEvent::KEY_s){
 		moveCamera(ci::Vec3f(0.0f, 1.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_RIGHTBRACKET){
 		moveCamera(ci::Vec3f(0.0f, 0.0f, 1.0f));
@@ -107,4 +107,4 @@ void FullStarterApp::moveCamera(const ci::Vec3f& deltaMove){
 } // namespace fullstarter
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC( fullstarter::FullStarterApp, RendererGl(RendererGl::AA_MSAA_4) )
+CINDER_APP_BASIC(fullstarter::FullStarterApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
