@@ -1,7 +1,9 @@
 #pragma once
 #ifndef DS_UI_TOUCH_MANAGER_H
 #define DS_UI_TOUCH_MANAGER_H
+
 #include <map>
+#include <memory>
 #include <cinder/app/TouchEvent.h>
 #include <cinder/app/MouseEvent.h>
 #include <cinder/Color.h>
@@ -13,6 +15,7 @@ namespace ds {
 class Engine;
 
 namespace ui {
+class RotationTranslator;
 class Sprite;
 
 class TouchManager {
@@ -66,12 +69,11 @@ public:
 	// If the window is stretched, the mouse points will be off. Fix that shit!
 	ci::Vec2f					translateMousePoint(const ci::Vec2i);
 
-
     Engine &mEngine;
 
-    std::map<int, ui::Sprite *> mFingerDispatcher;
-    std::map<int, ci::Vec3f>    mTouchStartPoint;
-    std::map<int, ci::Vec3f>    mTouchPreviousPoint;
+    std::map<int, ui::Sprite*>	mFingerDispatcher;
+    std::map<int, ci::Vec3f>	mTouchStartPoint;
+    std::map<int, ci::Vec3f>	mTouchPreviousPoint;
 
 	ci::Vec2f					mTouchDimensions;
 	ci::Vec2f					mTouchOffset;
@@ -84,6 +86,11 @@ public:
 	int							mIgnoreFirstTouchId;
 	// Hack to support the touch trails
 	Capture*					mCapture;
+
+	// This is overkill but done this way so I can make changes to
+	// the rotation translator without causing a recompile.
+	std::shared_ptr<RotationTranslator>	mRotationTranslatorPtr;
+	RotationTranslator&					mRotationTranslator;
 };
 
 } // namespace ui

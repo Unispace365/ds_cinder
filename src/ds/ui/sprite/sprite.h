@@ -54,7 +54,7 @@ class Sprite : public SpriteAnimatable
 {
 public:
 	// Sprite creation convenience, throw on failure.
-	Sprite&					makeSprite(SpriteEngine&, Sprite* parent = nullptr);
+	static Sprite&			makeSprite(SpriteEngine&, Sprite* parent = nullptr);
 	
 	// Generic sprite creation function
 #if (_MSC_VER >= 1800) // Visual Studio 2013 +
@@ -286,6 +286,10 @@ public:
 	void					setNoReplicationOptimization(const bool = false);
 	// Special function to mark every sprite from me down as dirty.
 	void					markTreeAsDirty();
+
+	// When true, the touch input is automatically rotated to account for my rotation.
+	void					setRotateTouches(const bool = false);
+	bool					isRotateTouches() const;
 
 	bool					getPerspective() const;
 	// Total hack resulting from my unfamiliarity with 3D systems. This can sometimes be necessary for

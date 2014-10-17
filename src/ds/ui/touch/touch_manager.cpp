@@ -5,6 +5,7 @@
 #include "ds/math/math_defs.h"
 #include "ds/ui/sprite/util/blend.h"
 #include <cinder/System.h>
+#include "rotation_translator.h"
 
 namespace {
   const int MOUSE_RESERVED_IDS = 2;
@@ -25,6 +26,8 @@ TouchManager::TouchManager(Engine &engine, const TouchMode::Enum &mode)
 		, mTouchMode(mode)
 		, mIgnoreFirstTouchId(-1)
 		, mCapture(nullptr)
+		, mRotationTranslatorPtr(new RotationTranslator())
+		, mRotationTranslator(*(mRotationTranslatorPtr.get()))
 {
 }
 
@@ -63,12 +66,12 @@ void TouchManager::touchesBegin(const TouchEvent &event) {
 
 		Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
 		touchInfo.mPickedSprite = currentSprite;
+		mRotationTranslator.down(touchInfo);
 
 		if ( currentSprite ) {
 			mFingerDispatcher[touchInfo.mFingerId] = currentSprite;
 			currentSprite->processTouchInfo(touchInfo);
 		}
-
 	}
 }
 
@@ -95,6 +98,7 @@ void TouchManager::touchesMoved(const TouchEvent &event) {
 		touchInfo.mPhase = TouchInfo::Moved;
 		touchInfo.mPassedTouch = false;
 		touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
+		mRotationTranslator.move(touchInfo, mTouchPreviousPoint[touchInfo.mFingerId]);
 
 		if (mCapture) mCapture->touchMoved(touchInfo);
 
@@ -132,7 +136,8 @@ void TouchManager::touchesEnded(const TouchEvent &event) {
 		touchInfo.mPhase = TouchInfo::Removed;
 		touchInfo.mPassedTouch = false;
 		touchInfo.mPickedSprite = nullptr;
-
+		mRotationTranslator.up(touchInfo);
+	
 		if (mFingerDispatcher[touchInfo.mFingerId]) {
 			mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
 			mFingerDispatcher[touchInfo.mFingerId] = nullptr;

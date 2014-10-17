@@ -63,6 +63,7 @@ const int           DRAW_SORTED_F		= (1<<3);
 const int           CLIP_F				= (1<<4);
 const int           SHADER_CHILDREN_F	= (1<<5);
 const int           NO_REPLICATION_F	= (1<<6);
+const int           ROTATE_TOUCHES_F	= (1<<7);
 
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
@@ -1653,6 +1654,16 @@ void Sprite::setNoReplicationOptimization(const bool on) {
 void Sprite::markTreeAsDirty() {
 	markAsDirty(ds::BitMask::newFilled());
 	markChildrenAsDirty(ds::BitMask::newFilled());
+}
+
+void Sprite::setRotateTouches(const bool on) {
+	// This doesn't need to be replicated. Obviously.
+	if (on) mSpriteFlags |= ROTATE_TOUCHES_F;
+	else mSpriteFlags &= ~ROTATE_TOUCHES_F;
+}
+
+bool Sprite::isRotateTouches() const {
+	return ((mSpriteFlags&ROTATE_TOUCHES_F) != 0);
 }
 
 void Sprite::userInputReceived() {
