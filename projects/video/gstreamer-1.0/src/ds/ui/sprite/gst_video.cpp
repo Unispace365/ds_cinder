@@ -302,6 +302,8 @@ bool GstVideo::getIsMuted() const {
 }
 
 void GstVideo::setVolume(const float volume) {
+	if (mVolume == volume) return;
+
 	mVolume = volume;
 	setMovieVolume();
 	markAsDirty(VOLUME_DIRTY);
