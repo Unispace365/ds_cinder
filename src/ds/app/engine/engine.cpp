@@ -177,7 +177,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	if (mAutoDraw) addService("AUTODRAW", *mAutoDraw);
 
 	// Construct the root sprites
-	RootList				roots(_roots);
+	RootList				roots(_roots.runInitFn());
 	if (roots.empty()) roots.ortho();
 	sprite_id_t							root_id = EMPTY_SPRITE_ID-1;
 	for (auto it=roots.mRoots.begin(), end=roots.mRoots.end(); it!=end; ++it) {

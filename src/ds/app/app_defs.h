@@ -2,6 +2,7 @@
 #ifndef DS_APP_APPDEFS_H_
 #define DS_APP_APPDEFS_H_
 
+#include <functional>
 #include <vector>
 #include "ds/params/camera_params.h"
 
@@ -33,8 +34,15 @@ public:
 	// Not explicit on purpose. Provide backwards compatibilty
 	// for the old way of specifying roots.
 	RootList(const std::vector<int>* roots = nullptr);
+	// With this variant, the function is called before the
+	// roots are installed in the engine, which occurs after
+	// some of the engine setup (like settings).
+	RootList(const std::function<RootList(void)>&);
 
 	bool							empty() const;
+	// Answer the result of running my init fn, if I have one,
+	// or just a copy of me.
+	RootList						runInitFn() const;
 
 	// ADD ROOT TYPES.
 	RootList&						ortho();
@@ -74,6 +82,9 @@ public:
 private:
 	friend class Engine;
 	std::vector<Root>				mRoots;
+	// This allows clients to initialize the root list after the
+	// engine has been (mostly) constructed.
+	std::function<RootList(void)>	mInitFn;
 };
 
 } // namespace ds
