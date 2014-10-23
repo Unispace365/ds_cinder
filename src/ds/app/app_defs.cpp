@@ -16,8 +16,17 @@ RootList::RootList(const std::vector<int>* roots) {
 	}
 }
 
+RootList::RootList(const std::function<RootList(void)> &fn)
+		: mInitFn(fn) {
+}
+
 bool RootList::empty() const {
 	return mRoots.empty();
+}
+
+RootList RootList::runInitFn() const {
+	if (mInitFn) return mInitFn();
+	return RootList(*this);
 }
 
 RootList& RootList::ortho() {
