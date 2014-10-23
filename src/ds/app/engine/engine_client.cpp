@@ -63,7 +63,7 @@ EngineClient::~EngineClient() {
 }
 
 void EngineClient::installSprite( const std::function<void(ds::BlobRegistry&)>& asServer,
-                                  const std::function<void(ds::BlobRegistry&)>& asClient) {
+								  const std::function<void(ds::BlobRegistry&)>& asClient) {
 	if (asClient) asClient(mBlobRegistry);
 }
 

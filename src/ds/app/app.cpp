@@ -264,15 +264,15 @@ void App::keyDown(KeyEvent e) {
 	}
 
 #ifdef _DEBUG
-	if (code == KeyEvent::KEY_d) {
+	if (code == KeyEvent::KEY_d){
 		std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
 		std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
-	    std::fstream	filestr;
-	    filestr.open(path, std::fstream::out);
-	    if (filestr.is_open()) {
+		std::fstream	filestr;
+		filestr.open(path, std::fstream::out);
+		if (filestr.is_open()) {
 			mEngine.writeSprites(filestr);
 			filestr.close();
-	    }
+		}
 		// and to console
 		std::stringstream		buf;
 		mEngine.writeSprites(buf);
@@ -281,13 +281,12 @@ void App::keyDown(KeyEvent e) {
 #endif
 }
 
-void App::keyUp( KeyEvent event )
-{
+void App::keyUp( KeyEvent event ){
   if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_RCTRL )
-    mCtrlDown = false;
+	mCtrlDown = false;
 }
 
-void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ) {
+void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
 	if (q) {
 		mQKeyEnabled = q;
 	}
@@ -296,11 +295,11 @@ void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ) {
 	}
 }
 
-void App::quit() {
+void App::quit(){
 	ci::app::AppBasic::quit();
 }
 
-void App::shutdown() {
+void App::shutdown(){
 	mEngine.getRootSprite().clearChildren();
 	mEngine.stopServices();
 	ds::ui::clearFontCache();
@@ -319,7 +318,7 @@ void App::showConsole(){
 /**
  * \class ds::App::Initializer
  */
-static std::string app_sub_folder_from(const std::string &sub, const Poco::Path &path) {
+static std::string app_sub_folder_from(const std::string &sub, const Poco::Path &path){
 	Poco::Path          parent(path);
 	Poco::Path			p(parent);
 	p.append(sub);
@@ -330,14 +329,14 @@ static std::string app_sub_folder_from(const std::string &sub, const Poco::Path 
 	return "";
 }
 
-static std::string app_folder_from(const Poco::Path& path) {
+static std::string app_folder_from(const Poco::Path& path){
 	// Look for either a "data" or "settings" folder; either indicates I'm in the right place.
 	std::string			fn(app_sub_folder_from("data", path));
 	if (!fn.empty()) return fn;
 	return app_sub_folder_from("settings", path);
 }
 
-ds::App::Initializer::Initializer(const std::string& appPath) {
+ds::App::Initializer::Initializer(const std::string& appPath){
 	APP_PATH = appPath;
 
 	Poco::Path      p(appPath);
@@ -356,7 +355,7 @@ ds::App::Initializer::Initializer(const std::string& appPath) {
 } // namespace ds
 
 static ds::Engine&    new_engine(	ds::App& app, const ds::cfg::Settings& settings,
-									ds::EngineData& ed, const ds::RootList& roots) {
+									ds::EngineData& ed, const ds::RootList& roots){
 
 	bool defaultShowConsole = false;
 	DS_DBG_CODE(defaultShowConsole = true);

@@ -624,7 +624,7 @@ void Engine::setup(ds::App& app) {
 	mUpdateParams.setElapsedTime(curr);
 
 	// Start any library services
-  	if (!mData.mServices.empty()) {
+	if (!mData.mServices.empty()) {
 		for (auto it=mData.mServices.begin(), end=mData.mServices.end(); it!=end; ++it) {
 			if (it->second) it->second->start();
 		}

@@ -69,7 +69,7 @@ private:
 	// waiting to hear back.
 	bool							mConnectionRenewed;
 
-    // STATES
+	// STATES
 	class State {
 	public:
 		State();

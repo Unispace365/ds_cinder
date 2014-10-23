@@ -89,34 +89,34 @@ void Sprite::handleBlobFromClient(ds::BlobReader& r) {
 }
 
 Sprite::Sprite( SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.0f*/ )
-    : SpriteAnimatable(*this, engine)
+	: SpriteAnimatable(*this, engine)
 	, mEngine(engine)
-    , mId(ds::EMPTY_SPRITE_ID)
-    , mWidth(width)
-    , mHeight(height)
-    , mTouchProcess(engine, *this)
-    , mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
-    , mIdleTimer(engine)
-    , mLastWidth(width)
-    , mLastHeight(height)
-    , mPerspective(false)
-    , mUseDepthBuffer(false)
+	, mId(ds::EMPTY_SPRITE_ID)
+	, mWidth(width)
+	, mHeight(height)
+	, mTouchProcess(engine, *this)
+	, mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
+	, mIdleTimer(engine)
+	, mLastWidth(width)
+	, mLastHeight(height)
+	, mPerspective(false)
+	, mUseDepthBuffer(false)
 {
 	init(mEngine.nextSpriteId());
 	setSize(width, height);
 }
 
 Sprite::Sprite( SpriteEngine& engine, const ds::sprite_id_t id, const bool perspective )
-    : SpriteAnimatable(*this, engine)
-    , mEngine(engine)
-    , mId(ds::EMPTY_SPRITE_ID)
-    , mTouchProcess(engine, *this)
-    , mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
-    , mIdleTimer(engine)
-    , mLastWidth(0)
-    , mLastHeight(0)
-    , mPerspective(perspective)
-    , mUseDepthBuffer(false)
+	: SpriteAnimatable(*this, engine)
+	, mEngine(engine)
+	, mId(ds::EMPTY_SPRITE_ID)
+	, mTouchProcess(engine, *this)
+	, mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
+	, mIdleTimer(engine)
+	, mLastWidth(0)
+	, mLastHeight(0)
+	, mPerspective(perspective)
+	, mUseDepthBuffer(false)
 {
 	init(id);
 }
@@ -166,7 +166,7 @@ Sprite::~Sprite() {
 //	std::cout << "delete " << mId << std::endl;
 	// We only want to request a delete for the sprite at the head of a tree,
 	const sprite_id_t	id = mId;
-    setSpriteId(ds::EMPTY_SPRITE_ID);
+	setSpriteId(ds::EMPTY_SPRITE_ID);
 
 	for (auto it=mChildren.begin(), end=mChildren.end(); it!=end; ++it) {
 		(*it)->mParent = nullptr;
@@ -250,7 +250,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
 			shaderBase.unbind();
 		}
 	}
-    
+	
 	if ((mSpriteFlags&CLIP_F) != 0) {
 		const ci::Rectf&      clippingBounds = getClippingBounds();
 		enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
@@ -365,7 +365,7 @@ void Sprite::doSetScale(const ci::Vec3f& scale) {
 }
 
 const ci::Vec3f& Sprite::getPosition() const {
-    return mPosition;
+	return mPosition;
 }
 
 ci::Vec3f Sprite::getCenterPosition() const {
@@ -408,7 +408,7 @@ void Sprite::setCenter(const ci::Vec3f& center)
 
 const ci::Vec3f& Sprite::getCenter() const
 {
-    return mCenter;
+	return mCenter;
 }
 
 void Sprite::setRotation(float rotZ) {
@@ -431,17 +431,17 @@ void Sprite::doSetRotation(const ci::Vec3f& rot) {
 
 ci::Vec3f Sprite::getRotation() const
 {
-    return mRotation;
+	return mRotation;
 }
 
 void Sprite::setZLevel( float zlevel )
 {
-    mZLevel = zlevel;
+	mZLevel = zlevel;
 }
 
 float Sprite::getZLevel() const
 {
-    return mZLevel;
+	return mZLevel;
 }
 
 namespace {
@@ -489,28 +489,28 @@ bool Sprite::getDrawSorted() const
 
 const ci::Matrix44f &Sprite::getTransform() const
 {
-    buildTransform();
-    return mTransformation;
+	buildTransform();
+	return mTransformation;
 }
 
 void Sprite::addChild( Sprite &child )
 {
   if (this == &child) {
-    throw std::runtime_error("Trying to add a Sprite to itself.");
+	throw std::runtime_error("Trying to add a Sprite to itself.");
   }
 
-    if ( containsChild(&child) )
-        return;
+	if ( containsChild(&child) )
+		return;
 
-    if (getFlag(SHADER_CHILDREN_F, mSpriteFlags)) {
-      child.setBaseShader(mSpriteShader.getLocation(), mSpriteShader.getName(), true);
-    }
+	if (getFlag(SHADER_CHILDREN_F, mSpriteFlags)) {
+	  child.setBaseShader(mSpriteShader.getLocation(), mSpriteShader.getName(), true);
+	}
 
-    mChildren.push_back(&child);
-    child.setParent(this);
-    child.setPerspective(mPerspective);
-    child.setDrawSorted(getDrawSorted());
-    child.setUseDepthBuffer(mUseDepthBuffer);
+	mChildren.push_back(&child);
+	child.setParent(this);
+	child.setPerspective(mPerspective);
+	child.setDrawSorted(getDrawSorted());
+	child.setUseDepthBuffer(mUseDepthBuffer);
 }
 
 // Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
@@ -518,7 +518,7 @@ void Sprite::addChild( Sprite &child )
 void Sprite::addChildHack( Sprite &child )
 {
   if ( containsChild(&child) )
-    return;
+	return;
 
   mChildren.push_back(&child);
   child.setPerspective(mPerspective);
@@ -528,23 +528,23 @@ void Sprite::addChildHack( Sprite &child )
 
 void Sprite::removeChild( Sprite &child )
 {
-    if ( !containsChild(&child) )
-        return;
+	if ( !containsChild(&child) )
+		return;
 
-    auto found = std::find(mChildren.begin(), mChildren.end(), &child);
-    mChildren.erase(found);
-    if (child.getParent() == this) {
-      child.setParent(nullptr);
-      child.setPerspective(false);
-    }
+	auto found = std::find(mChildren.begin(), mChildren.end(), &child);
+	mChildren.erase(found);
+	if (child.getParent() == this) {
+	  child.setParent(nullptr);
+	  child.setPerspective(false);
+	}
 }
 
 void Sprite::setParent( Sprite *parent ) {
-    removeParent();
-    mParent = parent;
-    if (mParent)
-        mParent->addChild(*this);
-    markAsDirty(PARENT_DIRTY);
+	removeParent();
+	mParent = parent;
+	if (mParent)
+		mParent->addChild(*this);
+	markAsDirty(PARENT_DIRTY);
 }
 
 void Sprite::removeParent() {
@@ -556,8 +556,8 @@ void Sprite::removeParent() {
 }
 
 void Sprite::remove() {
-    clearChildren();
-    removeParent();
+	clearChildren();
+	removeParent();
 }
 
 void Sprite::release() {
@@ -566,33 +566,33 @@ void Sprite::release() {
 }
 
 bool Sprite::containsChild(Sprite *child) const {
-    auto found = std::find(mChildren.begin(), mChildren.end(), child);
+	auto found = std::find(mChildren.begin(), mChildren.end(), child);
 
-    if (found != mChildren.end()) {
-        return true;
+	if (found != mChildren.end()) {
+		return true;
 	}
-    return false;
+	return false;
 }
 
 void Sprite::clearChildren() {
 	if (mChildren.empty()) return;
-    auto tempList = mChildren;
-    mChildren.clear();
+	auto tempList = mChildren;
+	mChildren.clear();
 
-    for ( auto it = tempList.begin(), it2 = tempList.end(); it != it2; ++it )
-    {
-    	if ( !(*it) || (*it)->getParent() != this )
-            continue;
-      (*it)->removeParent();
-      (*it)->setParent(nullptr);
-      delete *it;
-    }
+	for ( auto it = tempList.begin(), it2 = tempList.end(); it != it2; ++it )
+	{
+		if ( !(*it) || (*it)->getParent() != this )
+			continue;
+	  (*it)->removeParent();
+	  (*it)->setParent(nullptr);
+	  delete *it;
+	}
 }
 
 void Sprite::forEachChild(const std::function<void(Sprite&)>& fn, const bool recurse) {
 	if (!fn) return;
 
-    for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
+	for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
 		Sprite*		s(*it);
 		if (s) {
 			fn(*s);
@@ -604,28 +604,28 @@ void Sprite::forEachChild(const std::function<void(Sprite&)>& fn, const bool rec
 void Sprite::buildTransform() const
 {
   if (!mUpdateTransform)
-    return;
+	return;
 
-    mUpdateTransform = false;
+	mUpdateTransform = false;
 
-    mTransformation = ci::Matrix44f::identity();
+	mTransformation = ci::Matrix44f::identity();
 
-    mTransformation.setToIdentity();
-    mTransformation.translate(ci::Vec3f(mPosition.x, mPosition.y, mPosition.z));
-    mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
-    mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
-    mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
-    mTransformation.scale(ci::Vec3f(mScale.x, mScale.y, mScale.z));
-    mTransformation.translate(ci::Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
-    //mTransformation.setToIdentity();
-    //mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
-    //mTransformation.scale(Vec3f(mScale.x, mScale.y, mScale.z));
-    //mTransformation.rotate(Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
-    //mTransformation.rotate(Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
-    //mTransformation.rotate(Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
-    //mTransformation.translate(Vec3f(mPosition.x, mPosition.y, 1.0f));
+	mTransformation.setToIdentity();
+	mTransformation.translate(ci::Vec3f(mPosition.x, mPosition.y, mPosition.z));
+	mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+	mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+	mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+	mTransformation.scale(ci::Vec3f(mScale.x, mScale.y, mScale.z));
+	mTransformation.translate(ci::Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
+	//mTransformation.setToIdentity();
+	//mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
+	//mTransformation.scale(Vec3f(mScale.x, mScale.y, mScale.z));
+	//mTransformation.rotate(Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+	//mTransformation.rotate(Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+	//mTransformation.rotate(Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+	//mTransformation.translate(Vec3f(mPosition.x, mPosition.y, 1.0f));
 
-    mInverseTransform = mTransformation.inverted();
+	mInverseTransform = mTransformation.inverted();
 }
 
 void Sprite::setSizeAll( float width, float height, float depth )
@@ -681,7 +681,7 @@ void Sprite::setColorA(const ci::ColorA& color)
 }
 
 ci::Color Sprite::getColor() const {
-    return mColor;
+	return mColor;
 }
 
 ci::ColorA Sprite::getColorA() const {
@@ -698,7 +698,7 @@ void Sprite::setOpacity( float opacity )
 
 float Sprite::getOpacity() const
 {
-    return mOpacity;
+	return mOpacity;
 }
 
 void Sprite::drawLocalClient()
@@ -763,17 +763,17 @@ bool Sprite::isEnabled() const {
 
 void Sprite::buildGlobalTransform() const
 {
-    buildTransform();
+	buildTransform();
 
-    mGlobalTransform = mTransformation;
+	mGlobalTransform = mTransformation;
 
-    for ( Sprite *parent = mParent; parent; parent = parent->getParent() )
-    {
-      parent->buildTransform();
-      mGlobalTransform = parent->mTransformation * mGlobalTransform;
-    }
+	for ( Sprite *parent = mParent; parent; parent = parent->getParent() )
+	{
+	  parent->buildTransform();
+	  mGlobalTransform = parent->mTransformation * mGlobalTransform;
+	}
 
-    mInverseGlobalTransform = mGlobalTransform.inverted();
+	mInverseGlobalTransform = mGlobalTransform.inverted();
 }
 
 void Sprite::eventReceived(const ds::Event&) {
@@ -793,24 +793,24 @@ Sprite *Sprite::getParent() const {
 
 const ci::Matrix44f &Sprite::getGlobalTransform() const
 {
-    buildGlobalTransform();
+	buildGlobalTransform();
 
-    return mGlobalTransform;
+	return mGlobalTransform;
 }
 
 ci::Vec3f Sprite::globalToLocal( const ci::Vec3f &globalPoint )
 {
-    buildGlobalTransform();
+	buildGlobalTransform();
 
-    ci::Vec4f point = mInverseGlobalTransform * ci::Vec4f(globalPoint.x, globalPoint.y, globalPoint.z, 1.0f);
-    return ci::Vec3f(point.x, point.y, point.z);
+	ci::Vec4f point = mInverseGlobalTransform * ci::Vec4f(globalPoint.x, globalPoint.y, globalPoint.z, 1.0f);
+	return ci::Vec3f(point.x, point.y, point.z);
 }
 
 ci::Vec3f Sprite::localToGlobal( const ci::Vec3f &localPoint )
 {
-    buildGlobalTransform();
-    ci::Vec4f point = mGlobalTransform * ci::Vec4f(localPoint.x, localPoint.y, localPoint.z, 1.0f);
-    return ci::Vec3f(point.x, point.y, point.z);
+	buildGlobalTransform();
+	ci::Vec4f point = mGlobalTransform * ci::Vec4f(localPoint.x, localPoint.y, localPoint.z, 1.0f);
+	return ci::Vec3f(point.x, point.y, point.z);
 }
 
 bool Sprite::contains(const ci::Vec3f& point, const float pad) const {
@@ -820,81 +820,81 @@ bool Sprite::contains(const ci::Vec3f& point, const float pad) const {
 	// Same deal as above.
 	if (mScale.x <= 0.0f || mScale.y <= 0.0f) return false;
 
-    buildGlobalTransform();
+	buildGlobalTransform();
 
-    ci::Vec4f pR = ci::Vec4f(point.x, point.y, point.z, 1.0f);
+	ci::Vec4f pR = ci::Vec4f(point.x, point.y, point.z, 1.0f);
 
-    ci::Vec4f cA = mGlobalTransform * ci::Vec4f(-pad,			-pad,			0.0f, 1.0f);
-    ci::Vec4f cB = mGlobalTransform * ci::Vec4f(mWidth + pad,	-pad,			0.0f, 1.0f);
-    ci::Vec4f cC = mGlobalTransform * ci::Vec4f(mWidth + pad,	mHeight + pad,	0.0f, 1.0f);
-    
-    ci::Vec4f v1 = cA - cB;
-    ci::Vec4f v2 = cC - cB;
-    ci::Vec4f v = pR - cB;
+	ci::Vec4f cA = mGlobalTransform * ci::Vec4f(-pad,			-pad,			0.0f, 1.0f);
+	ci::Vec4f cB = mGlobalTransform * ci::Vec4f(mWidth + pad,	-pad,			0.0f, 1.0f);
+	ci::Vec4f cC = mGlobalTransform * ci::Vec4f(mWidth + pad,	mHeight + pad,	0.0f, 1.0f);
+	
+	ci::Vec4f v1 = cA - cB;
+	ci::Vec4f v2 = cC - cB;
+	ci::Vec4f v = pR - cB;
 
-    float dot1 = v.dot(v1);
-    float dot2 = v.dot(v2);
-    float dot3 = v1.dot(v1);
-    float dot4 = v2.dot(v2);
+	float dot1 = v.dot(v1);
+	float dot2 = v.dot(v2);
+	float dot3 = v1.dot(v1);
+	float dot4 = v2.dot(v2);
 
 	return (
-        dot1 >= 0 &&
-        dot2 >= 0 &&
-        dot1 <= dot3 &&
-        dot2 <= dot4
+		dot1 >= 0 &&
+		dot2 >= 0 &&
+		dot1 <= dot3 &&
+		dot2 <= dot4
 	);
 }
 
 Sprite* Sprite::getHit(const ci::Vec3f &point) {
-    // EH:  Not sure what bigworld was doing, but I don't see why we'd want to
-    // select children of an invisible sprite.
-    if (!visible()) {
-      return nullptr;
+	// EH:  Not sure what bigworld was doing, but I don't see why we'd want to
+	// select children of an invisible sprite.
+	if (!visible()) {
+	  return nullptr;
 	}
 	// EH: Fix a bug where scales of 0,0,0 result in the sprite ALWAYS getting picked
 	if (mScale.x <= 0.0f || mScale.y <= 0.0f || mScale.z <= 0.0f) {
 		return nullptr;
 	}
-    if (getClipping()) {
-      if (!contains(point))
-        return nullptr;
-    }
+	if (getClipping()) {
+	  if (!contains(point))
+		return nullptr;
+	}
 
-    if ( !getFlag(DRAW_SORTED_F, mSpriteFlags) )
-    {
-        for ( auto it = mChildren.rbegin(), it2 = mChildren.rend(); it != it2; ++it )
-        {
-            Sprite *child = *it;
-            Sprite *hitChild = child->getHit(point);
-            if ( hitChild )
-                return hitChild;
-            if ( child->visible() && child->isEnabled() && child->contains(point) && child->getInnerHit(point) )
-                return child;
-        }
-    }
-    else
-    {
-      mSortedTmp = mChildren;
-      std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j)
-      {
-        return i->getZLevel() < j->getZLevel();
-      });
+	if ( !getFlag(DRAW_SORTED_F, mSpriteFlags) )
+	{
+		for ( auto it = mChildren.rbegin(), it2 = mChildren.rend(); it != it2; ++it )
+		{
+			Sprite *child = *it;
+			Sprite *hitChild = child->getHit(point);
+			if ( hitChild )
+				return hitChild;
+			if ( child->visible() && child->isEnabled() && child->contains(point) && child->getInnerHit(point) )
+				return child;
+		}
+	}
+	else
+	{
+	  mSortedTmp = mChildren;
+	  std::sort( mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j)
+	  {
+		return i->getZLevel() < j->getZLevel();
+	  });
 
-        for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
-        {
-            Sprite *child = *it;
-            if ( child->visible() && child->isEnabled() && child->contains(point) && child->getInnerHit(point) )
-                return child;
-            Sprite *hitChild = child->getHit(point);
-            if ( hitChild )
-                return hitChild;
-        }
-    }
+		for ( auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it )
+		{
+			Sprite *child = *it;
+			if ( child->visible() && child->isEnabled() && child->contains(point) && child->getInnerHit(point) )
+				return child;
+			Sprite *hitChild = child->getHit(point);
+			if ( hitChild )
+				return hitChild;
+		}
+	}
 
-    if ( isEnabled() && contains(point) && getInnerHit(point) )
-        return this;
+	if ( isEnabled() && contains(point) && getInnerHit(point) )
+		return this;
 
-    return nullptr;
+	return nullptr;
 }
 
 Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
@@ -999,33 +999,33 @@ void Sprite::swipe( const ci::Vec3f &swipeVector ) {
 bool Sprite::hasDoubleTap() const
 {
   if (mDoubleTapCallback)
-    return true;
+	return true;
   return false;
 }
 
 bool Sprite::tapInfo( const TapInfo& ti )
 {
   if (mTapInfoCallback)
-    return mTapInfoCallback(this, ti);
+	return mTapInfoCallback(this, ti);
   return false;
 }
 
 void Sprite::tap( const ci::Vec3f &tapPos )
 {
   if (mTapCallback)
-    mTapCallback(this, tapPos);
+	mTapCallback(this, tapPos);
 }
 
 void Sprite::doubleTap( const ci::Vec3f &tapPos )
 {
   if (mDoubleTapCallback)
-    mDoubleTapCallback(this, tapPos);
+	mDoubleTapCallback(this, tapPos);
 }
 
 bool Sprite::hasTap() const
 {
   if (mTapCallback)
-    return true;
+	return true;
   return false;
 }
 
@@ -1037,7 +1037,7 @@ bool Sprite::hasTapInfo() const
 void Sprite::processTouchInfoCallback( const TouchInfo &touchInfo )
 {
   if (mProcessTouchInfoCallback)
-    mProcessTouchInfoCallback(this, touchInfo);
+	mProcessTouchInfoCallback(this, touchInfo);
 }
 
 void Sprite::setTapInfoCallback( const std::function<bool (Sprite *, const TapInfo &)> &func )
@@ -1084,7 +1084,7 @@ void Sprite::cancelDelayedCall(){
 bool Sprite::checkBounds() const
 {
   if (!mCheckBounds)
-    return true;
+	return true;
 
   mBoundsNeedChecking = false;
   mInBounds = false;
@@ -1116,34 +1116,34 @@ bool Sprite::checkBounds() const
   spriteMinY = spriteMaxY = positions[0].y;
 
   for ( int i = 1; i < 4; ++i ) {
-    if ( positions[i].x < spriteMinX )
-      spriteMinX = positions[i].x;
-    if ( positions[i].y < spriteMinY )
-      spriteMinY = positions[i].y;
-    if ( positions[i].x > spriteMaxX )
-      spriteMaxX = positions[i].x;
-    if ( positions[i].y > spriteMaxY )
-      spriteMaxY = positions[i].y;
+	if ( positions[i].x < spriteMinX )
+	  spriteMinX = positions[i].x;
+	if ( positions[i].y < spriteMinY )
+	  spriteMinY = positions[i].y;
+	if ( positions[i].x > spriteMaxX )
+	  spriteMaxX = positions[i].x;
+	if ( positions[i].y > spriteMaxY )
+	  spriteMaxY = positions[i].y;
   }
 
   if ( spriteMinX == spriteMaxX || spriteMinY == spriteMaxY ) {
-    return false;
+	return false;
   }
 
   if (spriteMinX > screenMaxX)
-    return false;
+	return false;
   if (spriteMaxX < screenMinX)
-    return false;
+	return false;
   if (spriteMinY > screenMaxY)
-    return false;
+	return false;
   if (spriteMaxY < screenMinY)
-    return false;
+	return false;
 
   for ( int i = 0; i < 4; ++i ) {
-    if ( positions[i].x >= screenMinX && positions[i].x <= screenMaxX && positions[i].y >= screenMinY && positions[i].y <= screenMaxY ) {
-      mInBounds = true;
-      return true;
-    }
+	if ( positions[i].x >= screenMinX && positions[i].x <= screenMaxX && positions[i].y >= screenMinY && positions[i].y <= screenMaxY ) {
+	  mInBounds = true;
+	  return true;
+	}
   }
 
   ci::Vec3f screenpos[4];
@@ -1154,20 +1154,20 @@ bool Sprite::checkBounds() const
   screenpos[3] = ci::Vec3f(screenMaxX, screenMaxY, 0.0f);
 
   for ( int i = 0; i < 4; ++i ) {
-    if ( screenpos[i].x >= spriteMinX && screenpos[i].x <= spriteMaxX && screenpos[i].y >= spriteMinY && screenpos[i].y <= spriteMaxY ) {
-      mInBounds = true;
-      return true;
-    }
+	if ( screenpos[i].x >= spriteMinX && screenpos[i].x <= spriteMaxX && screenpos[i].y >= spriteMinY && screenpos[i].y <= spriteMaxY ) {
+	  mInBounds = true;
+	  return true;
+	}
   }
 
 
   for ( int i = 0; i < 4; ++i ) {
-    for ( int j = 0; j < 4; ++j ) {
-      if ( math::intersect2D( screenpos[i%4], screenpos[(i+1)%4], positions[i%4], positions[(i+1)%4] ) ) {
-        mInBounds = true;
-        return true;
-      }
-    }
+	for ( int j = 0; j < 4; ++j ) {
+	  if ( math::intersect2D( screenpos[i%4], screenpos[(i+1)%4], positions[i%4], positions[(i+1)%4] ) ) {
+		mInBounds = true;
+		return true;
+	  }
+	}
   }
   
   mInBounds = true;
@@ -1189,7 +1189,7 @@ bool Sprite::getCheckBounds() const
 void Sprite::updateCheckBounds() const
 {
   if (mBoundsNeedChecking)
-    checkBounds();
+	checkBounds();
 }
 
 bool Sprite::inBounds() const
@@ -1232,7 +1232,7 @@ void Sprite::setDragDestinationCallback( const std::function<void (Sprite *, con
 void Sprite::dragDestination( Sprite *sprite, const DragDestinationInfo &dragInfo )
 {
   if (mDragDestinationCallback)
-    mDragDestinationCallback(sprite, dragInfo);
+	mDragDestinationCallback(sprite, dragInfo);
 }
 
 bool Sprite::isDirty() const
@@ -1435,7 +1435,7 @@ void Sprite::setFlag(const int newBit, const bool on, const DirtyState& dirty, i
 
 bool Sprite::getFlag(const int bit, const int flags) const
 {
-    return (flags&bit) != 0;
+	return (flags&bit) != 0;
 }
 
 void Sprite::markAsDirty(const DirtyState& dirty)
@@ -1468,7 +1468,7 @@ void Sprite::markChildrenAsDirty(const DirtyState& dirty)
 void Sprite::setBlendMode( const BlendMode &blendMode )
 {
   if (mBlendMode == blendMode)
-    return;
+	return;
 
   mBlendMode = blendMode;
   markAsDirty(BLEND_MODE);
@@ -1485,9 +1485,9 @@ void Sprite::setBaseShader(const std::string &location, const std::string &shade
   setFlag(SHADER_CHILDREN_F, applyToChildren, FLAGS_DIRTY, mSpriteFlags);
 
   if (applyToChildren) {    
-    for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
-    	(*it)->setBaseShader(location, shadername, applyToChildren);
-    }
+	for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+		(*it)->setBaseShader(location, shadername, applyToChildren);
+	}
   }
 }
 
@@ -1515,8 +1515,8 @@ bool Sprite::getClipping() const {
 const ci::Rectf& Sprite::getClippingBounds()
 {
   if (mClippingBoundsDirty) {
-    mClippingBoundsDirty = false;
-    computeClippingBounds();
+	mClippingBoundsDirty = false;
+	computeClippingBounds();
   }
   return mClippingBounds;
 }
@@ -1524,62 +1524,62 @@ const ci::Rectf& Sprite::getClippingBounds()
 void Sprite::computeClippingBounds()
 {
   if (getClipping()) {
-    float l = 0.0f, t = 0.0f;
-    float r = mWidth;
-    float b = mHeight;
+	float l = 0.0f, t = 0.0f;
+	float r = mWidth;
+	float b = mHeight;
 
 
-    // first find the outermost clipped window and use it as our reference
-    Sprite *outerClippedSprite = nullptr;
-    Sprite *curSprite = this;
-    while (curSprite) {
-      if (curSprite->getClipping())
-        outerClippedSprite = curSprite;
-      curSprite = curSprite->mParent;
-    }
+	// first find the outermost clipped window and use it as our reference
+	Sprite *outerClippedSprite = nullptr;
+	Sprite *curSprite = this;
+	while (curSprite) {
+	  if (curSprite->getClipping())
+		outerClippedSprite = curSprite;
+	  curSprite = curSprite->mParent;
+	}
 
-    float old_l = mClippingBounds.getX1();
-    float old_r = mClippingBounds.getX2();
-    float old_t = mClippingBounds.getY1();
-    float old_b = mClippingBounds.getY2();
+	float old_l = mClippingBounds.getX1();
+	float old_r = mClippingBounds.getX2();
+	float old_t = mClippingBounds.getY1();
+	float old_b = mClippingBounds.getY2();
 
-    if (outerClippedSprite) {
-      curSprite = mParent;
-      while (curSprite) {
-        if (curSprite->getClipping()) {
-          float ww = curSprite->getWidth();
-          float wh = curSprite->getHeight();
+	if (outerClippedSprite) {
+	  curSprite = mParent;
+	  while (curSprite) {
+		if (curSprite->getClipping()) {
+		  float ww = curSprite->getWidth();
+		  float wh = curSprite->getHeight();
 
-          ci::Vec3f tl, br;
-          tl = globalToLocal(curSprite->localToGlobal(ci::Vec3f( 0,  0, 0)));
-          br = globalToLocal(curSprite->localToGlobal(ci::Vec3f(ww, wh, 0)));
+		  ci::Vec3f tl, br;
+		  tl = globalToLocal(curSprite->localToGlobal(ci::Vec3f( 0,  0, 0)));
+		  br = globalToLocal(curSprite->localToGlobal(ci::Vec3f(ww, wh, 0)));
 
-          float wl = tl.x;
-          float wt = tl.y;
-          float wr = br.x;
-          float wb = br.y;
+		  float wl = tl.x;
+		  float wt = tl.y;
+		  float wr = br.x;
+		  float wb = br.y;
 
-          if ( wl > l) l = wl;
-          if ( wr < r) r = wr;
-          if ( wt > t) t = wt;
-          if ( wb < b) b = wb;
+		  if ( wl > l) l = wl;
+		  if ( wr < r) r = wr;
+		  if ( wt > t) t = wt;
+		  if ( wb < b) b = wb;
 
-          if ( wl > r) r = wl+1;
-          if ( wr < l) l = wr-1;
-          if ( wt > b) b = wt+1;
-          if ( wb < t) t = wb-1;
-        }
-        curSprite = curSprite->mParent;
-      }
+		  if ( wl > r) r = wl+1;
+		  if ( wr < l) l = wr-1;
+		  if ( wt > b) b = wt+1;
+		  if ( wb < t) t = wb-1;
+		}
+		curSprite = curSprite->mParent;
+	  }
 
-      if (l == r) r += 1;
-      if (t == b) b += 1;
-    }
+	  if (l == r) r += 1;
+	  if (t == b) b += 1;
+	}
 
-    if (!math::isEqual(old_l, l) || !math::isEqual(old_r, r) || !math::isEqual(old_t, t) || !math::isEqual(old_b, b)) {
-      mClippingBounds.set(l, t, r, b);
-      markAsDirty(CLIPPING_BOUNDS);
-    }
+	if (!math::isEqual(old_l, l) || !math::isEqual(old_r, r) || !math::isEqual(old_t, t) || !math::isEqual(old_b, b)) {
+	  mClippingBounds.set(l, t, r, b);
+	  markAsDirty(CLIPPING_BOUNDS);
+	}
   }
 }
 
@@ -1599,9 +1599,9 @@ void Sprite::dimensionalStateChanged()
 {
   markClippingDirty();
   if (mLastWidth != mWidth || mLastHeight != mHeight) {
-    mLastWidth = mWidth;
-    mLastHeight = mHeight;
-    onSizeChanged();
+	mLastWidth = mWidth;
+	mLastHeight = mHeight;
+	onSizeChanged();
   }
 }
 
@@ -1609,8 +1609,8 @@ void Sprite::markClippingDirty()
 {
   mClippingBoundsDirty = true;
   for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
-    Sprite*     s = *it;
-    if (s) s->markClippingDirty();
+	Sprite*     s = *it;
+	if (s) s->markClippingDirty();
   }
 }
 
@@ -1774,7 +1774,7 @@ void Sprite::setPerspective( const bool perspective )
   mPerspective = perspective;
 
   for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
-  	(*it)->setPerspective(perspective);
+	(*it)->setPerspective(perspective);
   }
 }
 
@@ -1788,7 +1788,7 @@ void Sprite::setUseDepthBuffer( bool useDepth )
   mUseDepthBuffer = useDepth;
 
   for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
-  	(*it)->setUseDepthBuffer(mUseDepthBuffer);
+	(*it)->setUseDepthBuffer(mUseDepthBuffer);
   }
 }
 
