@@ -137,5 +137,25 @@ void Gradient::writeGradientColor(const DirtyState& dirty, const ci::ColorA& src
 	}
 }
 
+ci::ColorA& Gradient::getColorTL()
+{
+	return mTLColor;
+}
+
+ci::ColorA& Gradient::getColorTR()
+{
+	return mTRColor;
+}
+
+ci::ColorA& Gradient::getColorBL()
+{
+	return mBLColor;
+}
+
+ci::ColorA& Gradient::getColorBR()
+{
+	return mBRColor;
+}
+
 } // using namespace ui
 } // using namespace ds
