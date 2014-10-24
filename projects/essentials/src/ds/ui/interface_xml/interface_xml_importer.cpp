@@ -7,6 +7,7 @@
 #include <ds/ui/sprite/text.h>
 #include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/button/image_button.h>
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/cfg/cfg_text.h>
@@ -169,6 +170,35 @@ static void setSpriteProperty( ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, 
 			DS_LOG_WARNING( "Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name() );
 		}
 	}
+
+
+	// Image Button properties
+	else if(property == "down_image") {
+		auto image = dynamic_cast<ImageButton *>(&sprite);
+		if(image) {
+			image->setHighImage(filePathRelativeTo(referer, attr.getValue()));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+	else if(property == "up_image") {
+		auto image = dynamic_cast<ImageButton *>(&sprite);
+		if(image) {
+			image->setNormalImage(filePathRelativeTo(referer, attr.getValue()));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} 
+	else if(property == "btn_touch_padding") {
+		auto image = dynamic_cast<ImageButton *>(&sprite);
+		if(image) {
+			image->getNormalImage().setImageFile(filePathRelativeTo(referer, attr.getValue()));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+
+
 	else {
 		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
 	}
@@ -362,6 +392,14 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		boost::trim(content);
 		text->setText(content);
 		spriddy = text;
+	}
+	else if(type == "image_button") {
+		auto content = node->getValue();
+		boost::trim(content);
+		float touchPad = 0.0f;
+		if(content.size() > 0) touchPad = (float)atof(content.c_str());
+		auto imgButton = new ds::ui::ImageButton(engine, "", "", touchPad);
+		spriddy = imgButton;
 	}
 	else if (mCustomImporter) {
 		spriddy = mCustomImporter(type, *node);
