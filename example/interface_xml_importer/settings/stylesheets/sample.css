@@ -1,0 +1,42 @@
+
+.identical_boxes {
+	rotation: 0,0,15; 
+	blend_mode: screen;
+}
+
+#sample_image{
+	src: ../../data/images/this_is_real.jpg;
+	position: 800, 110;
+	opacity: 0.7;
+	scale: 2.0, 2.0, 1.0;
+}
+
+#text_holder{
+	position: 50, 50;
+	color: #333333;
+	size: 500, 500;
+}
+
+#title {
+	font: sample:config;
+	position: 20, 20;
+}
+
+#body {
+	font: sample:config;
+	position: 20, 80;
+	resize_limit: 250: 0;
+}
+
+#box_1 {
+	size: 960, 100;
+	position: 550, 450;
+}
+
+#box_2 {
+	position: 550, 650;
+}
+#box_3 {
+	position: 550, 850;
+}
+

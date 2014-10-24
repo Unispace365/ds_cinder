@@ -1,0 +1,22 @@
+<link rel="stylesheet" href="../stylesheets/common.css" />
+<link rel="stylesheet" href="../stylesheets/sample.css" />
+
+<interface name="sample_xml">
+
+	<image name="sample_image" />
+
+	<sprite name="text_holder">
+		<text name="title" >SAMPLE</multiline_text>
+		<multiline_text name="body" >
+			Text content can wrap to multiple lines, if you let it!
+			
+Change some settings in the xml or css files and press 'r' to reload the app on the fly. Whee!
+		</multiline_text>
+		
+		<sprite class="identical_boxes" name="box_1" />
+		<sprite class="identical_boxes" name="box_2" />
+		<sprite class="identical_boxes" name="box_3" />
+		
+	</sprite>
+</interface>
+

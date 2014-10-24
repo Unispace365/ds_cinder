@@ -22,6 +22,9 @@
     <Filter Include="src\ds\debug\automator\actions">
       <UniqueIdentifier>{37c45674-f0db-41af-a690-16d479dcffc4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\interface_xml">
+      <UniqueIdentifier>{4ef0ddea-47c5-41b1-a726-039d9baa7560}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -45,6 +48,12 @@
     <ClCompile Include="src\ds\ui\sprite\png_sequence_sprite.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\interface_xml\stylesheet_parser.cpp">
+      <Filter>src\ds\ui\interface_xml</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp">
+      <Filter>src\ds\ui\interface_xml</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -67,6 +76,12 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h">
+      <Filter>src\ds\ui\interface_xml</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h">
+      <Filter>src\ds\ui\interface_xml</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
