@@ -26,6 +26,11 @@ public:
 	void						setColorsV(const ci::ColorA& top, const ci::ColorA& bottom);
 	void						setColorsAll(const ci::ColorA& tl, const ci::ColorA& tr, const ci::ColorA& br, const ci::ColorA& bl);
 
+	ci::ColorA&					getColorTL();
+	ci::ColorA&					getColorTR();
+	ci::ColorA&					getColorBL();
+	ci::ColorA&					getColorBR();
+
 protected:
 	virtual void				drawLocalClient();
 	virtual void				writeAttributesTo(ds::DataBuffer&);
