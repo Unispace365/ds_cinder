@@ -248,6 +248,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	if (drawTouches) {
 		RootList::Root					root_cfg;
 		root_cfg.mType = root_cfg.kOrtho;
+		root_cfg.mDebugDraw = true;
 		std::unique_ptr<EngineRoot>		root;
 		root.reset(new OrthRoot(*this, root_cfg, root_id));
 		if (root) {
@@ -369,6 +370,11 @@ ui::Sprite& Engine::getRootSprite(const size_t index) {
 	ui::Sprite*		s = mRoots[index]->getSprite();
 	if (!s) throw std::runtime_error("Engine::getRootSprite() on null sprite");
 	return *s;
+}
+
+const RootList::Root& Engine::getRootBuilder(const size_t index){
+	if(index < 0 || index >= mRoots.size()) throw std::runtime_error("Engine::getRootBuilder() on invalid index");
+	return mRoots[index]->getBuilder();
 }
 
 void Engine::updateClient() {

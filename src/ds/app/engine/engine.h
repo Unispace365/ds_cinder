@@ -90,6 +90,8 @@ public:
 	// only valid after setup() is called
 	int									getRootCount() const;
 	ui::Sprite&							getRootSprite(const size_t index = 0);
+	// Access to the configuration settings that created a root. Allows you to inspect pick style, debug drawing, perspective, etc
+	const RootList::Root&				getRootBuilder(const size_t index = 0);
 
 	void								prepareSettings( ci::app::AppBasic::Settings& );
 	//called in app setup; loads settings files and what not.

@@ -77,6 +77,8 @@ public:
 		enum Master					{ kIndependent, kMaster, kSlave };
 		Master						mMaster;
 		PerspCameraParams			mPersp;
+		
+		bool						mDebugDraw;
 	};
 
 private:

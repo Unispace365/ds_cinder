@@ -92,7 +92,9 @@ RootList& RootList::slave() {
 RootList::Root::Root()
 		: mType(kOrtho)
 		, mPick(kDefault)
-		, mMaster(kIndependent) {
+		, mMaster(kIndependent)
+		, mDebugDraw(false)
+{
 }
 
 
