@@ -3,7 +3,8 @@
 
 <interface name="sample_xml">
 
-	<image name="sample_image" />
+	<image name="sample_image">	
+	</image>
 
 	<sprite name="text_holder">
 		<text name="title" >SAMPLE</multiline_text>
@@ -17,6 +18,10 @@ Change some settings in the xml or css files and press 'r' to reload the app on 
 		<sprite class="identical_boxes" name="box_2" />
 		<sprite class="identical_boxes" name="box_3" />
 		
+		<image_button name="sample_image_btn" >10</image_button>
+		
 	</sprite>
+	
+	
 </interface>
 

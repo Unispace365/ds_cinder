@@ -25,6 +25,9 @@
     <Filter Include="src\ds\ui\interface_xml">
       <UniqueIdentifier>{4ef0ddea-47c5-41b1-a726-039d9baa7560}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\button">
+      <UniqueIdentifier>{61cae238-1a76-4498-a57f-7da0bc32075e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -54,6 +57,9 @@
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp">
       <Filter>src\ds\ui\interface_xml</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\button\image_button.cpp">
+      <Filter>src\ds\ui\button</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -82,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h">
       <Filter>src\ds\ui\interface_xml</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\button\image_button.h">
+      <Filter>src\ds\ui\button</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

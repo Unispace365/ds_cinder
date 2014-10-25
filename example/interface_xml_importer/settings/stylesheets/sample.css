@@ -28,6 +28,13 @@
 	resize_limit: 250: 0;
 }
 
+#sample_image_btn {
+	down_image: ../../data/images/CloseBlack.png;
+	up_image: ../../data/images/CloseWhite.png;
+	color: #444444;
+	position: 447, 0;
+}
+
 #box_1 {
 	size: 960, 100;
 	position: 550, 450;
