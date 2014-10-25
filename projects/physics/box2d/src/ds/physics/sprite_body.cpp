@@ -71,6 +71,8 @@ void SpriteBody::create(const BodyBuilder& b) {
 	
 	if (b.mIsStaticBody) {
 		def.type = b2_staticBody;
+	} else if (b.mIsKinematicBody) {
+		def.type = b2_kinematicBody;
 	} else {
 		def.type = b2_dynamicBody;
 	}

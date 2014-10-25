@@ -26,6 +26,7 @@ public:
 						mAngularDampening;
 	bool				mFixedRotation;
 	bool				mIsStaticBody;
+	bool				mIsKinematicBody;
 	int					mCategoryBits;
 	int					mMaskBits;
 
