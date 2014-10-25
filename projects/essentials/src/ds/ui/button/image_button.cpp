@@ -62,8 +62,8 @@ void ImageButton::showDown() {
 		mUp.setOpacity(0.0f);
 		mDown.setOpacity(1.0f);
 	} else {
-		mUp.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseNone());
-		mDown.tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseNone());
+		mUp.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic());
+		mDown.tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseOutCubic());
 	}
 }
 
@@ -72,8 +72,8 @@ void ImageButton::showUp() {
 		mUp.setOpacity(1.0f);
 		mDown.setOpacity(0.0f);
 	} else {
-		mUp.tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseNone());
-		mDown.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseNone());
+		mUp.tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseOutCubic());
+		mDown.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic());
 	}
 }
 

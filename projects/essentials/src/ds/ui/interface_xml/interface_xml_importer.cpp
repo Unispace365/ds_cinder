@@ -192,7 +192,7 @@ static void setSpriteProperty( ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, 
 	else if(property == "btn_touch_padding") {
 		auto image = dynamic_cast<ImageButton *>(&sprite);
 		if(image) {
-			image->getNormalImage().setImageFile(filePathRelativeTo(referer, attr.getValue()));
+			image->setTouchPad(attr.getValue<float>());
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
