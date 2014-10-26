@@ -8,6 +8,10 @@
 #include <cinder/Rect.h>
 #include "ds/data/resource.h"
 
+namespace cinder {
+class XmlTree;
+}
+
 namespace ds {
 namespace cfg {
 
@@ -19,11 +23,11 @@ class Settings {
 public:
 	Settings();
     
-	// Load the supplied file.  Currently only XML files are supported.
+	// Load the supplied file/string.  Currently only XML format is supported.
 	// If append is true, merge all results into my existing data.  If it's
 	// false, clear me out first (although only clear if the file actually
 	// exists, otherwise leave me alone).
-	void								readFrom(const std::string&, const bool append = true);
+	void								readFrom(const std::string&, const bool append = true, const bool rawXmlText = false);
 
 	bool								empty() const;
 	void							  	clear();
@@ -86,8 +90,10 @@ private:
 	std::map<std::string, std::vector<std::wstring>>	mTextW;
 	std::map<std::string, std::vector<ci::Vec3f>>		mPoints;
 
-	void								directReadFrom(const std::string& filename, const bool clear);
+	void								directReadFrom(const std::string& filename, const bool clear, const bool rawXmlText = false);
 	void								directReadXmlFrom(const std::string& filename, const bool clear);
+	void								directReadXmlFromString(const std::string& xmlStr, const bool clear);
+	void								directReadXmlFromTree(const cinder::XmlTree& tree, const bool clear);
 
 public:
 	class Editor {

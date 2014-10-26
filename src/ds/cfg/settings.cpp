@@ -116,17 +116,17 @@ Settings::Settings()
 {
 }
 
-void Settings::readFrom(const std::string& filename, const bool append)
+void Settings::readFrom(const std::string& filename, const bool append, const bool rawXmlText)
 {
 	if (!append) {
-		directReadFrom(filename, true);
+		directReadFrom(filename, true, rawXmlText);
 		return;
 	}
 
 	// We're appending, so create a temporary object, then merge all the changes
 	// on top of me.
 	Settings		s;
-	s.directReadFrom(filename, false);
+	s.directReadFrom(filename, false, rawXmlText);
 
 	merge(mFloat, s.mFloat);
 	merge(mRect, s.mRect);
@@ -140,7 +140,7 @@ void Settings::readFrom(const std::string& filename, const bool append)
 	merge_vec(mPoints, s.mPoints);
 }
 
-void Settings::directReadFrom(const std::string& filename, const bool clearAll)
+void Settings::directReadFrom(const std::string& filename, const bool clearAll, const bool rawXmlText)
 {
 	if(filename.empty()) {
 		return;
@@ -148,12 +148,16 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll)
 
 	// Load based on the file format.
 	try {
-		const cinder::fs::path  extPath(cinder::fs::path(filename).extension());
-		const std::string       ext(Poco::toLower(extPath.generic_string()));
-		if(ext == ".xml") {
-			directReadXmlFrom(filename, clearAll);
+		if (rawXmlText) {
+			directReadXmlFromString(filename, clearAll);
 		} else {
-			throw std::exception("unsupported format");
+			const cinder::fs::path  extPath(cinder::fs::path(filename).extension());
+			const std::string       ext(Poco::toLower(extPath.generic_string()));
+			if(ext == ".xml") {
+				directReadXmlFrom(filename, clearAll);
+			} else {
+				throw std::exception("unsupported format");
+			}
 		}
 	} catch(std::exception const& ex) {
 		// TODO:  Really need this writing to a log file, because it easily happens during construction of the app
@@ -161,12 +165,16 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll)
 	}
 }
 
-void Settings::directReadXmlFrom(const std::string& filename, const bool clearAll)
+void Settings::directReadXmlFromString(const std::string& xmlStr, const bool clearAll)
 {
-	if(!Poco::File(filename).exists()) return;
-	cinder::XmlTree     xml(cinder::loadFile(filename));
+	if (xmlStr.empty()) return;
+	cinder::XmlTree     xml(xmlStr);
+	directReadXmlFromTree(xml, clearAll);
+}
 
-	if(clearAll) clear();
+void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clearAll)
+{
+	if (clearAll) clear();
 
 	// GENERIC DEFINES
 	const std::string   NAME_SZ("name");
@@ -184,55 +192,55 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
 	// FLOAT
 	const std::string   FLOAT_PATH("settings/float");
 	auto                end = xml.end();
-	for(auto it = xml.begin(FLOAT_PATH); it != end; ++it) {
+	for (auto it = xml.begin(FLOAT_PATH); it != end; ++it) {
 		const std::string name = it->getAttributeValue<std::string>(NAME_SZ);
 		add_item(name, mFloat, it->getAttributeValue<float>(VALUE_SZ));
 	}
 
 	// RECT
 	const std::string   RECT_PATH("settings/rect");
-	for(auto it = xml.begin(RECT_PATH); it != end; ++it) {
+	for (auto it = xml.begin(RECT_PATH); it != end; ++it) {
 		const std::string   name = it->getAttributeValue<std::string>(NAME_SZ);
 		const cinder::Rectf value(it->getAttributeValue<float>(L_SZ),
-								  it->getAttributeValue<float>(T_SZ),
-								  it->getAttributeValue<float>(R_SZ),
-								  it->getAttributeValue<float>(B_SZ));
+			it->getAttributeValue<float>(T_SZ),
+			it->getAttributeValue<float>(R_SZ),
+			it->getAttributeValue<float>(B_SZ));
 		add_item(name, mRect, value);
 	}
 
 	// INT
 	const std::string   INT_PATH("settings/int");
-	for(auto it = xml.begin(INT_PATH); it != end; ++it) {
+	for (auto it = xml.begin(INT_PATH); it != end; ++it) {
 		const std::string name = it->getAttributeValue<std::string>(NAME_SZ);
 		add_item(name, mInt, it->getAttributeValue<int>(VALUE_SZ));
 	}
 
 	// COLOR
 	const std::string  COLOR_PATH("settings/color");
-	for(auto it = xml.begin(COLOR_PATH); it != end; ++it) {
+	for (auto it = xml.begin(COLOR_PATH); it != end; ++it) {
 		const float             DEFV = 255.0f;
 		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
 		const cinder::ColorA		c(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
-									  it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
-									  it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
-									  it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
+			it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
+			it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
+			it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
 		add_item(name, mColor, cinder::Color(c.r, c.g, c.b));
 		add_item(name, mColorA, c);
 	}
 
 	// SIZE
 	const std::string  SIZE_PATH("settings/size");
-	for(auto it = xml.begin(SIZE_PATH); it != end; ++it) {
+	for (auto it = xml.begin(SIZE_PATH); it != end; ++it) {
 		const float             DEFV = 0.0f;
 		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
 		const cinder::Vec2f     value(it->getAttributeValue<float>(X_SZ, DEFV),
-									  it->getAttributeValue<float>(Y_SZ, DEFV));
+			it->getAttributeValue<float>(Y_SZ, DEFV));
 		add_item(name, mSize, value);
 	}
 
 	// TEXT
 	const std::string  TEXT_PATH("settings/text");
-	for(auto it = xml.begin(TEXT_PATH); it != end; ++it) {
+	for (auto it = xml.begin(TEXT_PATH); it != end; ++it) {
 		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
 		const std::string       value = it->getAttributeValue<std::string>(VALUE_SZ);
 		add_item(name, mText, value);
@@ -240,7 +248,7 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
 
 	// TEXTW
 	const std::string  TEXTW_PATH("settings/wtext");
-	for(auto it = xml.begin(TEXTW_PATH); it != end; ++it) {
+	for (auto it = xml.begin(TEXTW_PATH); it != end; ++it) {
 		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
 		const std::wstring       value = ds::wstr_from_utf8(it->getAttributeValue<std::string>(VALUE_SZ));
 		add_item(name, mTextW, value);
@@ -248,17 +256,24 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
 
 	// POINT
 	const std::string  POINT_PATH("settings/point");
-	for(auto it = xml.begin(POINT_PATH); it != end; ++it) {
+	for (auto it = xml.begin(POINT_PATH); it != end; ++it) {
 		const float             DEFV = 0.0f;
 		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
 		cinder::Vec3f           value(it->getAttributeValue<float>(X_SZ, DEFV),
-									  it->getAttributeValue<float>(Y_SZ, DEFV), DEFV);
-		if(it->hasAttribute(Z_SZ)) {
+			it->getAttributeValue<float>(Y_SZ, DEFV), DEFV);
+		if (it->hasAttribute(Z_SZ)) {
 			value.z = it->getAttributeValue<float>(Z_SZ, DEFV);
 		}
 
 		add_item(name, mPoints, value);
 	}
+}
+
+void Settings::directReadXmlFrom(const std::string& filename, const bool clearAll)
+{
+	if(!Poco::File(filename).exists()) return;
+	cinder::XmlTree     xml(cinder::loadFile(filename));
+	directReadXmlFromTree(xml, clearAll);
 }
 
 bool Settings::empty() const {
