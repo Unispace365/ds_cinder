@@ -222,9 +222,9 @@ void TouchProcess::initializeFirstTouch()
 	mFingers[mControlFingerIndexes[0]].mActive = true;
 	mFingers[mControlFingerIndexes[0]].mStartPoint = mFingers[mControlFingerIndexes[0]].mCurrentGlobalPoint;
 	mMultiTouchAnchor = mSprite.globalToLocal(mFingers[mControlFingerIndexes[0]].mStartPoint);
-	mMultiTouchAnchor.x /= mSprite.getWidth();
-	mMultiTouchAnchor.y /= mSprite.getHeight();
-	mMultiTouchAnchor.z /= mSprite.getDepth();
+	if (mSprite.getWidth() != 0.0f)	mMultiTouchAnchor.x /= mSprite.getWidth();
+	if (mSprite.getHeight() != 0.0f) mMultiTouchAnchor.y /= mSprite.getHeight();
+	if (mSprite.getDepth() != 0.0f) mMultiTouchAnchor.z /= mSprite.getDepth();
 	mStartAnchor = mSprite.getCenter();
 
 	Vec3f positionOffset = mMultiTouchAnchor - mStartAnchor;
