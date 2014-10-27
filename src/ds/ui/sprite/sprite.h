@@ -88,7 +88,9 @@ public:
 	ds::sprite_id_t			getId() const		{ return mId; }
 	ds::ui::SpriteEngine&	getEngine()			{ return mEngine; }
 
+	void					setSize(const ci::Vec2f& size2d);
 	void					setSize(float width, float height);
+	virtual void			setSizeAll(const ci::Vec3f& size3d);
 	virtual void			setSizeAll(float width, float height, float depth);
 
 	// sets the size based on the size of it's immediate children, not recursive

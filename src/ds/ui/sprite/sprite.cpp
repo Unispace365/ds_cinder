@@ -640,6 +640,15 @@ void Sprite::setSizeAll( float width, float height, float depth )
   dimensionalStateChanged();
 }
 
+void Sprite::setSizeAll(const ci::Vec3f& size3d)
+{
+	setSizeAll(size3d.x, size3d.y, size3d.z);
+}
+
+void Sprite::setSize(const ci::Vec2f& size2d) {
+	setSize(size2d.x, size2d.y);
+}
+
 void Sprite::setSize(float width, float height) {
 	setSizeAll(width, height, mDepth);
 }
