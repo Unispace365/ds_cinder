@@ -99,12 +99,6 @@
       <Message>
       </Message>
     </PreLinkEvent>
-    <PostBuildEvent>
-      <Command>copy /Y "$(DS_PLATFORM_086)\lib\zmq\lib\*" "$(OutDir)"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>Copying 0MQ</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -140,10 +134,6 @@
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
-    <PostBuildEvent>
-      <Command>copy /Y "$(DS_PLATFORM_086)\lib\zmq\lib\*" "$(OutDir)"</Command>
-      <Message>Copying 0MQ</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\app\app_defs.cpp" />
