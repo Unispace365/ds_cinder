@@ -315,9 +315,6 @@
     <ClInclude Include="..\src\ds\util\notifier_2.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\markdown.h">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClInclude>
     <ClInclude Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.h">
       <Filter>src\lib\Awesomium</Filter>
     </ClInclude>
@@ -820,9 +817,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\font_list.cpp">
       <Filter>src\ds\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\markdown.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
     <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp">
       <Filter>src\lib\Awesomium</Filter>

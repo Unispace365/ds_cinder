@@ -158,7 +158,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h" />
     <ClInclude Include="..\src\ds\ui\sprite\gradient_sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
-    <ClInclude Include="..\src\ds\ui\sprite\markdown.h" />
     <ClInclude Include="..\src\ds\ui\sprite\mesh.h" />
     <ClInclude Include="..\src\ds\ui\sprite\multiline_text.h" />
     <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h" />
@@ -320,7 +319,6 @@
     <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\gradient_sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\markdown.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\mesh.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\multiline_text.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp" />
