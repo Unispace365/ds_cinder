@@ -110,26 +110,30 @@ void YamlLoadService::run() {
 		return;
 	}
 
-	std::vector<YAML::Node> nodes = YAML::LoadAll(iff);
-//	for(auto it = nodes.begin(); it < nodes.end(); ++it){
-//		printYamlRecursive((*it), 0);
-//	}
+	try{
+		std::vector<YAML::Node> nodes = YAML::LoadAll(iff);
 
-	// create a ModelModel for each root node
-	for(auto it = nodes.begin(); it < nodes.end(); ++it){
-		YAML::Node nodey = (*it);
-		if(nodey.Type() == YAML::NodeType::Map){
-			for(auto mit = (*it).begin(); mit != (*it).end(); ++mit){
-				std::string tableName = (*mit).first.as<std::string>();
+		// create a ModelModel for each root node
+		for(auto it = nodes.begin(); it < nodes.end(); ++it){
+			YAML::Node nodey = (*it);
+			if(nodey.Type() == YAML::NodeType::Map){
+				for(auto mit = (*it).begin(); mit != (*it).end(); ++mit){
+					std::string tableName = (*mit).first.as<std::string>();
 
-				// one of the root tables can be options, and we don't care about it
-				if(tableName == "options") continue;
+					// one of the root tables can be options, and we don't care about it
+					if(tableName == "options") continue;
 
-				parseTable(tableName, (*mit).second);
+					parseTable(tableName, (*mit).second);
+				}
 			}
+			//parseTable((*it));
 		}
-		//parseTable((*it));
+
+	} catch(std::exception ex){
+		std::cout << "exception: " << ex.what() << std::endl;
 	}
+
+
 }
 
 void YamlLoadService::parseTable(const std::string& tableName, YAML::Node mainComponentsMap){
