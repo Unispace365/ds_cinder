@@ -36,6 +36,12 @@
 // For verifying that the resources are installed
 #include "ds/app/FrameworkResources.h"
 
+// For the screenshot
+#include <Poco/Timestamp.h>
+#include <Poco/Path.h>
+#include <cinder/ip/Flip.h>
+#include <cinder/ImageIo.h>
+
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList& roots);
 
@@ -241,6 +247,8 @@ void App::keyDown(KeyEvent e) {
 		mEngine.getNotifier().notify(EngineStatsView::Toggle());
 	} else if (KeyEvent::KEY_t == code) {
 		mEngine.nextTouchMode();
+	} else if(KeyEvent::KEY_F8 == code){
+		saveTransparentScreenshot();
 	}
 
 	if (mArrowKeyCameraControl) {
@@ -284,6 +292,28 @@ void App::keyDown(KeyEvent e) {
 void App::keyUp( KeyEvent event ){
   if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_RCTRL )
 	mCtrlDown = false;
+}
+
+void App::saveTransparentScreenshot(){
+
+	const auto		area = getWindowBounds();
+	ci::Surface s(area.getWidth(), area.getHeight(), true);
+	glFlush(); // there is some disagreement about whether this is necessary, but ideally performance-conscious users will use FBOs anyway
+
+
+	GLint oldPackAlignment;
+	glGetIntegerv(GL_PACK_ALIGNMENT, &oldPackAlignment);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glReadPixels(area.x1, getWindowHeight() - area.y2, area.getWidth(), area.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, s.getData());
+	glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
+	ci::ip::flipVertical(&s);
+
+	Poco::Path		p("%USERPROFILE%");
+	Poco::Timestamp::TimeVal t = Poco::Timestamp().epochMicroseconds();
+	std::stringstream filepath;
+	filepath << "ds_cinder.screenshot." << t << ".png";
+	p.append("Desktop").append(filepath.str());
+	ci::writeImage(Poco::Path::expand(p.toString()), s);
 }
 
 void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){

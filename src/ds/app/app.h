@@ -68,6 +68,9 @@ public:
 
 	void						enableCommonKeystrokes(bool q = true, bool esc = true);
 
+	// Triggered by F8 key, saves a transparent png on the desktop
+	void						saveTransparentScreenshot();
+
 protected:
 	class Initializer { public: Initializer(const std::string&); };
 	Initializer					mInitializer;
@@ -87,7 +90,6 @@ private:
 	// (but not including "data", you still need to add that
 	// if it's what you want
 	static const std::string&   envAppDataPath();
-
 	bool						mCtrlDown;
 	bool						mSecondMouseDown;
 	bool						mQKeyEnabled;
