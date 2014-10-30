@@ -215,6 +215,8 @@ PerspCameraParams PerspRoot::getCamera() const {
 	p.mFov = mCamera.getFov();
 	p.mNearPlane = mCamera.getNearClip();
 	p.mFarPlane = mCamera.getFarClip();
+	p.mLensShiftH = mCamera.getLensShiftHorizontal();
+	p.mLensShiftV = mCamera.getLensShiftVertical();
 	return p;
 }
 
@@ -236,6 +238,11 @@ void PerspRoot::setCamera(const PerspCameraParams& p) {
 	mCamera.setEyePoint(p.mPosition);
 	mCamera.setCenterOfInterestPoint(p.mTarget);
 	mCamera.setPerspective(p.mFov, ci::app::getWindowAspectRatio(), p.mNearPlane, p.mFarPlane);
+	mCamera.setLensShiftHorizontal(p.mLensShiftH);
+	mCamera.setLensShiftVertical(p.mLensShiftV);
+
+	//mCamera.setLensShiftHorizontal(1.0f);
+
 	mCameraDirty = true;
 }
 

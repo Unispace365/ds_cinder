@@ -19,7 +19,10 @@ public:
 						mTarget;
 	float				mFov,
 						mNearPlane,
-						mFarPlane;
+						mFarPlane,
+						mLensShiftH,
+						mLensShiftV;
+
 };
 
 }

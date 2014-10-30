@@ -164,8 +164,6 @@ public:
 
 	// removes child from Sprite, but does not delete it.
 	void					removeChild( Sprite &child );
-	// calls removeParent then addChild to parent.
-	void					setParent( Sprite *parent );
 	// remove child from parent, does not delete.
 	void					removeParent();
 	// removes Sprite from parent and deletes all children. Does not delete Sprite.
@@ -480,6 +478,10 @@ private:
 	// Store all children in mSortedTmp by z order.
 	// XXX Need to optimize this so only built when needed.
 	void				makeSortedChildren();
+	// calls removeParent then addChild to parent.
+	// setParent was previously public, but calling it by itself can cause an infinite loop
+	// Use addChild() from outside sprite.cpp
+	void					setParent(Sprite *parent);
 
 	ci::gl::Texture		mRenderTarget;
 	BlendMode			mBlendMode;
@@ -572,7 +574,7 @@ template <typename T>
 void Sprite::removeAndDelete( T *&sprite )
 {
   if (!sprite)
-    return;
+	return;
 
   sprite->remove();
   delete sprite;
@@ -587,17 +589,17 @@ static void Sprite::handleBlobFromServer(ds::BlobReader& r)
   ds::sprite_id_t       id = buf.read<ds::sprite_id_t>();
   Sprite*               s = r.mSpriteEngine.findSprite(id);
   if (s) {
-    s->readFrom(r);
+	s->readFrom(r);
   } else if ((s = new T(r.mSpriteEngine)) != nullptr) {
-    s->setSpriteId(id);
-    s->readFrom(r);
-    // If it didn't get assigned to a parent, something is wrong,
-    // and it would disappear forever from memory management if I didn't
-    // clean up here.
-    if (!s->mParent) {
-      assert(false);
-      delete s;
-    }
+	s->setSpriteId(id);
+	s->readFrom(r);
+	// If it didn't get assigned to a parent, something is wrong,
+	// and it would disappear forever from memory management if I didn't
+	// clean up here.
+	if (!s->mParent) {
+	  assert(false);
+	  delete s;
+	}
   }
 }
 
