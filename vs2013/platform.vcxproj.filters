@@ -603,12 +603,6 @@
     <ClInclude Include="..\src\ds\ui\touch\rotation_translator.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\tween\sprite_anim_behavior.h">
-      <Filter>src\ds\ui\tweenline</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\tween\sprite_tween_events.h">
-      <Filter>src\ds\ui\tweenline</Filter>
-    </ClInclude>
     <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\IpEndpointName.h">
       <Filter>src\osc</Filter>
     </ClInclude>
@@ -1093,12 +1087,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\rotation_translator.cpp">
       <Filter>src\ds\ui\touch</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\tween\sprite_anim_behavior.cpp">
-      <Filter>src\ds\ui\tweenline</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\tween\sprite_tween_events.cpp">
-      <Filter>src\ds\ui\tweenline</Filter>
     </ClCompile>
     <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\IpEndpointName.cpp">
       <Filter>src\osc</Filter>
