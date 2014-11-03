@@ -2,12 +2,20 @@
 #ifndef DS_APP_EVENT_H_
 #define DS_APP_EVENT_H_
 
-#include <string>
+#include "event_registry.h"
 
 namespace ds {
 
 /**
  * \class ds::Event
+ * \brief Abstract message class. Ignore this, and derive from RegisteredEvent.
+ *
+ * EXAMPLE DECLARATION of an event class:
+
+	class ChangeEvent : public RegisteredEvent<ChangeEvent> {
+	public:
+		ChangeEvent() { }
+	};
  */
 class Event {
 public:
@@ -21,19 +29,28 @@ public:
 };
 
 /**
- * \class ds::EventRegistry
- * Utility to make sure all event types are unique, and named.
- */
-class EventRegistry {
+* \class ds::event::RegisteredEvent
+* \brief All events should derive from this class, to be properly
+* registered with the system.
+*/
+template<class Derived>
+class RegisteredEvent : public Event {
 public:
-	EventRegistry(const std::string& name);
-	// What is now obsolete, the value is generated automatically.
-	// This only exists for backwards compatibility
-	EventRegistry(const int what, const std::string& name);
+	// Unique identifier for this message
+	static int						WHAT() { return sENTRY.getWhat(); }
+	// Unique channel name for this message
+	static const std::string&		CHANNEL() { return sENTRY.getChannel(); }
 
-	const int				mWhat;
+protected:
+	RegisteredEvent()				: Event(sENTRY.getWhat()) { }
+
+private:
+	static event::Registry::Entry	sENTRY;
 };
+
+template<class Derived>
+event::Registry::Entry RegisteredEvent<Derived>::sENTRY(typeid(Derived).name());
 
 } // namespace ds
 
-#endif // DS_APP_EVENT_H_
+#endif

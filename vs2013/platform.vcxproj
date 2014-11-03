@@ -64,6 +64,7 @@
     <ClInclude Include="..\src\ds\app\event.h" />
     <ClInclude Include="..\src\ds\app\event_client.h" />
     <ClInclude Include="..\src\ds\app\event_notifier.h" />
+    <ClInclude Include="..\src\ds\app\event_registry.h" />
     <ClInclude Include="..\src\ds\app\FrameworkResources.h" />
     <ClInclude Include="..\src\ds\app\image_registry.h" />
     <ClInclude Include="..\src\ds\arc\arc.h" />
@@ -236,6 +237,7 @@
     <ClCompile Include="..\src\ds\app\event.cpp" />
     <ClCompile Include="..\src\ds\app\event_client.cpp" />
     <ClCompile Include="..\src\ds\app\event_notifier.cpp" />
+    <ClCompile Include="..\src\ds\app\event_registry.cpp" />
     <ClCompile Include="..\src\ds\app\image_registry.cpp" />
     <ClCompile Include="..\src\ds\arc\arc.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_chain.cpp" />
