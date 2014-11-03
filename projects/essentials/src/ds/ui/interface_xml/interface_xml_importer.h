@@ -49,7 +49,7 @@ protected:
 	NamedSpriteMap &			mNamedSpriteMap;
 	std::string 				mXmlFile;
 	ds::ui::Sprite *			mTargetSprite;
-	SpriteImporter &			mCustomImporter;
+	SpriteImporter				mCustomImporter;
 	std::vector< Stylesheet * >	mStylesheets;
 };
 

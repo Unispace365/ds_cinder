@@ -44,6 +44,7 @@ public:
 	Text&						setResizeToText(const bool width, const bool height);
 	bool						autoResizeWidth() const;
 	bool						autoResizeHeight() const;
+
 	// When the limit is <= 0 it is unusued. When it's a valid value, then it is
 	// ignored if resize is OFF, but if resize is ON, it prevents the view from
 	// being resized beyond the limit.
@@ -94,6 +95,7 @@ protected:
 
 	bool						mNeedsLayout;
 	bool						mNeedRedrawing;
+	int							mResizeToTextF;
 
 	FontPtr						mFont;
 
@@ -118,7 +120,6 @@ private:
 
 	// After performing the layout, this determines if my width and/or height
 	// will be set to the layout bounds.
-	int							mResizeToTextF;
 	TextLayout					mLayout;
 	TextLayout::MAKE_FUNC		mLayoutFunc;
 	float						mResizeLimitWidth,
