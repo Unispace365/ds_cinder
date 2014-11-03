@@ -551,6 +551,8 @@ std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
 		// the actual w/h of the sprite should be increased, not just the texture.
 		const int w = (int)ceilf(getWidth()) + 1;
 		const int h = (int)ceilf(getHeight()) + 1;
+		//const int w = (int)ceilf(getWidth());
+		//const int h = (int)ceilf(getHeight());
 		if (w < 1 || h < 1) {
 			return;
 		}
