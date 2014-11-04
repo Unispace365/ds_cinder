@@ -94,6 +94,10 @@ public:
 	virtual void					markCameraDirty();
 	virtual ui::Sprite*				getHit(const ci::Vec3f& point);
 
+	float							getNearPlane() const { return mNearPlane; };
+	float							getFarPlane() const { return mFarPlane; };
+	void							setViewPlanes(const float nearPlane, const float farPlane){ mNearPlane = nearPlane; mFarPlane = farPlane; }
+
 private:
 	void							setGlCamera();
 
@@ -108,6 +112,11 @@ private:
 	std::unique_ptr<ui::Sprite>		mSprite;
 	// Hack in the src_rect, dst_rect stuff as I figure that out.
 	ci::Rectf						mSrcRect, mDstRect;
+
+	// The drawing distance near and far, default = -1 and 1
+	float							mNearPlane;
+	float							mFarPlane;
+
 };
 
 /**

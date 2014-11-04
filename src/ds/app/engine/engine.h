@@ -141,6 +141,11 @@ public:
 	virtual const ci::CameraPersp&		getPerspectiveCameraRef(const size_t index) const;
 	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&);
 
+	// Will throw if the root at the index is the wrong type
+	virtual float						getOrthoFarPlane(const size_t index) const;
+	virtual float						getOrthoNearPlane(const size_t index) const;
+	virtual void						setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane);
+
 	// Modal -- prepare for the user to be able to move the camera.
 	// I discovered there's a call to setViewport() when the camera is set up that *seems* to
 	// do nothing except prevent me from dynamically changing the camera bounds. However, I

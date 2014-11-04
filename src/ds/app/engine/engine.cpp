@@ -495,6 +495,37 @@ void Engine::setPerspectiveCamera(const size_t index, const PerspCameraParams& p
 	}
 }
 
+float Engine::getOrthoFarPlane(const size_t index)const{
+	const OrthRoot*				root = nullptr;
+	if(index < mRoots.size()) root = dynamic_cast<const OrthRoot*>(mRoots[index].get());
+	if(root) {
+		return root->getFarPlane();
+	}
+	DS_LOG_ERROR(" Engine::getOrthoFarPlane() on invalid root (" << index << ")");
+	throw std::runtime_error("getOrthoFarPlane() on non-perspective root.");
+}
+
+float Engine::getOrthoNearPlane(const size_t index)const{
+	const OrthRoot*				root = nullptr;
+	if(index < mRoots.size()) root = dynamic_cast<const OrthRoot*>(mRoots[index].get());
+	if(root) {
+		return root->getNearPlane();
+	}
+	DS_LOG_ERROR(" Engine::getOrthoNearPlane() on invalid root (" << index << ")");
+	throw std::runtime_error("getOrthoNearPlane() on non-perspective root.");
+}
+
+void Engine::setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane){
+	OrthRoot*				root = nullptr;
+	if(index < mRoots.size()) root = dynamic_cast<OrthRoot*>(mRoots[index].get());
+	if(root) {
+		root->setViewPlanes(nearPlane, farPlane);
+		root->setCinderCamera();
+		return;
+	}
+	DS_LOG_ERROR(" Engine::setOrthoViewPlanes() on invalid root (" << index << ")");
+	throw std::runtime_error("setOrthoViewPlanes() on non-perspective root.");
+}
 void Engine::clearAllSprites() {
 	for (auto it=mRoots.begin(), end=mRoots.end(); it != end; ++it) {
 		(*it)->clearChildren();

@@ -104,6 +104,11 @@ public:
 	virtual const ci::CameraPersp&		getPerspectiveCameraRef(const size_t index) const = 0;
 	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
 
+	// Will throw if the root at the index is the wrong type
+	virtual float						getOrthoFarPlane(const size_t index) const = 0;
+	virtual float						getOrthoNearPlane(const size_t index) const = 0;
+	virtual void						setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane) = 0;
+
 	void							addToDragDestinationList(Sprite *sprite);
 	void							removeFromDragDestinationList(Sprite *sprite);
 	Sprite*							getDragDestinationSprite(const ci::Vec3f &globalPoint, Sprite *draggingSprite);

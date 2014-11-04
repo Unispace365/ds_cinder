@@ -35,7 +35,10 @@ OrthRoot::OrthRoot(Engine& e, const RootList::Root& r, const sprite_id_t id)
 		, mSetViewport(true)
 		, mSprite(EngineRoot::make(e, id, false))
 		, mSrcRect(0.0f, 0.0f, -1.0f, -1.0f)
-		, mDstRect(0.0f, 0.0f, -1.0f, -1.0f) {
+		, mDstRect(0.0f, 0.0f, -1.0f, -1.0f)
+		, mNearPlane(-1.0f)
+		, mFarPlane(1.0f)
+{
 }
 
 void OrthRoot::setup(const Settings& s) {
@@ -119,7 +122,7 @@ void OrthRoot::setCinderCamera() {
 	if (mSetViewport) {
 		ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
 	}
-	mCamera.setOrtho(screen_rect.getX1(), screen_rect.getX2(), screen_rect.getY2(), screen_rect.getY1(), -1, 1);
+	mCamera.setOrtho(screen_rect.getX1(), screen_rect.getX2(), screen_rect.getY2(), screen_rect.getY1(), mNearPlane, mFarPlane);
 	//gl::setMatrices(mCamera);
 }
 
