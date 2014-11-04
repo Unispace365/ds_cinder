@@ -140,6 +140,10 @@ template bool parse_stylesheet<std::string::const_iterator>(std::string::const_i
 } // namespace stylesheets
 
 bool Stylesheet::loadFile( const std::string &filename, const std::string &referer ) {
+	if(filename.size() < 1){
+		DS_LOG_WARNING("Blank stylesheet refferred from " << referer);
+		return false;
+	}
 	mReferer = referer;
 	namespace spirit = boost::spirit;
 
