@@ -31,7 +31,7 @@ extern const int		WORLD_CATEGORY_BIT;
  * Simply including this in a sprite subclass and calling create() is
  * enough to enable physics on a sprite.
  * By default this class will take over touch processing; if you want
- * to mix in your own behaviour, take it back.
+ * to mix in your own behavior, take it back.
  */
 class SpriteBody {
 public:
@@ -87,9 +87,17 @@ public:
 	// collides with another physics object.
 	void					setCollisionCallback(const std::function<void(const Collision&)>& fn);
 
-	// The sprite owner is resonsible for telling me when the
+	// The sprite owner is responsible for telling me when the
 	// center changes. (Only necessary if the fixture is a box).
 	void					onCenterChanged();
+
+	// Returns true if the underlying b2World is locked
+	// A locked world means that the physics service is
+	// in the middle of a time step. it's not safe to
+	// call create() or destroy() if world is locked.
+	// generally it's not safe at all to manipulate world
+	// while it's locked.
+	bool					isWorldLocked() const;
 
 private:
 	friend class BodyBuilder;

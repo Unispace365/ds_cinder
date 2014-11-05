@@ -360,5 +360,10 @@ void World::setBounds(const ci::Rectf& f, const float restitution) {
 	mBounds->CreateFixture(&fixtureDef);
 }
 
+bool World::isLocked() const
+{
+	return mWorld->IsLocked();
+}
+
 } // namespace physics
 } // namespace ds
