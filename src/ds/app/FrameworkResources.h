@@ -1,5 +1,5 @@
 #pragma once
-#include "cinder/CinderResources.h"
+#include <cinder/CinderResources.h>
 
 /* Used to define all the framework resources.
  * Apps need to include the FrameworkResources.rc file found in the project folder.

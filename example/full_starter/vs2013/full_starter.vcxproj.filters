@@ -19,9 +19,6 @@
     <ClCompile Include="..\src\query\story_query.cpp">
       <Filter>src\query</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ui\button\image_button.cpp">
-      <Filter>src\ui\button</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ui\touch\view_dragger.cpp">
       <Filter>src\ui\touch</Filter>
     </ClCompile>
@@ -59,9 +56,6 @@
     </ClInclude>
     <ClInclude Include="..\src\model\all_stories.h">
       <Filter>src\model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ui\button\image_button.h">
-      <Filter>src\ui\button</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ui\touch\view_dragger.h">
       <Filter>src\ui\touch</Filter>
@@ -105,9 +99,6 @@
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{3eca459a-2fc2-4471-8dd4-6c188d47d4f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ui\button">
-      <UniqueIdentifier>{23a2ab60-c31f-4bf8-ae8e-d0fa7fce0170}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ui\touch">
       <UniqueIdentifier>{91fc60c0-7144-40ea-8d94-f2a2acd9b5b8}</UniqueIdentifier>

@@ -33,10 +33,11 @@ public:
 
 	void						layout();
 
-private:
-	void						onClicked();
 	void						showDown();
 	void						showUp();
+
+private:
+	void						onClicked();
 	typedef ds::ui::Sprite		inherited;
 	std::function<void(void)>	mClickFn;
 

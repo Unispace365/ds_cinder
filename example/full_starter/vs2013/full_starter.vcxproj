@@ -143,7 +143,6 @@
     <ClCompile Include="..\src\model\generated\story_model.cpp" />
     <ClCompile Include="..\src\query\query_handler.cpp" />
     <ClCompile Include="..\src\query\story_query.cpp" />
-    <ClCompile Include="..\src\ui\button\image_button.cpp" />
     <ClCompile Include="..\src\ui\touch\view_dragger.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -157,7 +156,6 @@
     <ClInclude Include="..\src\model\generated\story_model.h" />
     <ClInclude Include="..\src\query\query_handler.h" />
     <ClInclude Include="..\src\query\story_query.h" />
-    <ClInclude Include="..\src\ui\button\image_button.h" />
     <ClInclude Include="..\src\ui\touch\view_dragger.h" />
     <ClInclude Include="..\src\util\sprite_cache.h" />
   </ItemGroup>
