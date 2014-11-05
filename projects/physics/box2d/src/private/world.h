@@ -56,6 +56,8 @@ public:
 	ci::Vec3f						box2CiTranslation(const b2Vec2&, ds::ui::Sprite*) const;
 	b2Vec2							Ci2BoxTranslation(const ci::Vec3f&, ds::ui::Sprite*) const;
 
+	bool							isLocked() const;
+
 protected:
 	virtual void					update(const ds::UpdateParams&);
 

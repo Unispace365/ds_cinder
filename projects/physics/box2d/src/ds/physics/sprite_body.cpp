@@ -226,5 +226,10 @@ void SpriteBody::onCenterChanged() {
 	}
 }
 
+bool SpriteBody::isWorldLocked() const
+{
+	return mWorld.isLocked();
+}
+
 } // namespace physics
 } // namespace ds
