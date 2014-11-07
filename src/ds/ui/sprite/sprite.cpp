@@ -42,6 +42,7 @@ const DirtyState	OPACITY_DIRTY		= newUniqueDirtyState();
 const DirtyState	BLEND_MODE			= newUniqueDirtyState();
 const DirtyState	CLIPPING_BOUNDS		= newUniqueDirtyState();
 const DirtyState	SORTORDER_DIRTY		= newUniqueDirtyState();
+const DirtyState	ROTATION_DIRTY		= newUniqueDirtyState();
 
 const char			PARENT_ATT			= 2;
 const char			SIZE_ATT			= 3;
@@ -54,6 +55,7 @@ const char			OPACITY_ATT			= 9;
 const char			BLEND_ATT			= 10;
 const char			CLIP_BOUNDS_ATT		= 11;
 const char			SORTORDER_ATT		= 12;
+const char			ROTATION_ATT		= 13;
 
 // flags
 const int           VISIBLE_F			= (1<<0);
@@ -426,6 +428,7 @@ void Sprite::doSetRotation(const ci::Vec3f& rot) {
 	mRotation = rot;
 	mUpdateTransform = true;
 	mBoundsNeedChecking = true;
+	markAsDirty(ROTATION_DIRTY);
 	dimensionalStateChanged();
 }
 
@@ -1308,6 +1311,12 @@ void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(mCenter.y);
 		buf.add(mCenter.z);
 	}
+	if (mDirty.has(ROTATION_DIRTY)) {
+		buf.add(ROTATION_ATT);
+		buf.add(mRotation.x);
+		buf.add(mRotation.y);
+		buf.add(mRotation.z);
+	}
 	if (mDirty.has(SCALE_DIRTY)) {
 		buf.add(SCALE_ATT);
 		buf.add(mScale.x);
@@ -1362,6 +1371,11 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 			mWidth = buf.read<float>();
 			mHeight = buf.read<float>();
 			mDepth = buf.read<float>();
+			transformChanged = true;
+		} else if (id == ROTATION_ATT) {
+			mRotation.x = buf.read<float>();
+			mRotation.y = buf.read<float>();
+			mRotation.z = buf.read<float>();
 			transformChanged = true;
 		} else if (id == FLAGS_ATT) {
 			mSpriteFlags = buf.read<int>();
