@@ -49,6 +49,8 @@ void FullStarterApp::setupServer(){
 	mEngine.getRootSprite(2).clearChildren();
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+	rootSprite.setTransparent(false);
+	rootSprite.setColor(ci::Color(0.2f, 0.1f, 0.6f));
 	// add sprites
 }
 

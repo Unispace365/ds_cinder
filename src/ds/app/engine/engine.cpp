@@ -165,6 +165,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mAutoDraw(new AutoDrawService())
 	, mCachedWindowW(0)
 	, mCachedWindowH(0)
+	, mAverageFps(0.0f)
 {
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));
@@ -266,6 +267,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	{
 		RootList::Root					root_cfg;
 		root_cfg.mType = root_cfg.kOrtho;
+		root_cfg.mDebugDraw = true;
 		std::unique_ptr<EngineRoot>		root;
 		root.reset(new OrthRoot(*this, root_cfg, root_id));
 		if (root) {

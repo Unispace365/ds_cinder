@@ -179,6 +179,11 @@ public:
 
 	virtual ci::app::WindowRef			getWindow();
 
+	// Should only be used by the app class to record the average fps. 
+	// Allows for debug drawing of the fps
+	void								setAverageFps(const float fps){ mAverageFps = fps; }
+	const float							getAverageFps() const { return mAverageFps; }
+
 protected:
 	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);
 
@@ -279,6 +284,8 @@ private:
 	};
 	std::unordered_map<std::string, Channel>
 										mChannels;
+
+	float								mAverageFps;
 };
 
 } // namespace ds

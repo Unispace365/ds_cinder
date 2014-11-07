@@ -21,6 +21,12 @@ std::string			make_line(const std::string &key, const std::string &v) {
 	return key + ": " + v;
 }
 
+std::string			make_line(const std::string &key, const float v) {
+	std::stringstream	buf;
+	buf << key << ": " << v;
+	return buf.str();
+}
+
 }
 
 /**
@@ -41,7 +47,7 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 		: inherited(e)
 		, mEngine((ds::Engine&)e)
 		, mEventClient(e.getNotifier(), [this](const ds::Event *e) { if (e) onAppEvent(*e); })
-		, mFontSize(20.0f)
+		, mFontSize(30.0f)
 		, mLT(mEngine.getEngineData().mSrcRect.x1, mEngine.getEngineData().mSrcRect.y1)
 		, mBorder(20.0f, 20.0f) {
 	mBlobType = BLOB_TYPE;
@@ -51,7 +57,7 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	setColor(0, 0, 0);
 	setOpacity(0.5f);
 
-	setSize(e.getWorldWidth(), e.getWorldHeight());
+	setSize(400.0f, 400.0f);
 }
 
 void EngineStatsView::updateServer(const ds::UpdateParams &p) {
@@ -79,8 +85,9 @@ void EngineStatsView::drawLocalClient() {
 
 	float				y = mLT.y + mBorder.y;
 	const float			gap = 5.0f;
-	y = drawLine(make_line("Sprites", mEngine.mSprites.size()), y) + gap;
+	y = drawLine(make_line("Sprites", (int)mEngine.mSprites.size()), y) + gap;
 	y = drawLine(make_line("Touch mode (t)", ds::ui::TouchMode::toString(mEngine.mTouchMode)), y) + gap;
+	y = drawLine(make_line("FPS", mEngine.getAverageFps()), y) + gap;
 }
 
 float EngineStatsView::drawLine(const std::string &v, const float y) {
@@ -100,8 +107,9 @@ void EngineStatsView::makeTextureFont() {
 	try {
 		// Fonts I'm looking for, in order of precendence
 		std::vector<std::string>	cmp;
-		cmp.push_back("Segoe UI");
+		cmp.push_back("Helvetica");
 		cmp.push_back("Arial");
+		cmp.push_back("Segoe UI");
 		cmp.push_back("Times New Roman");
 
 		// Find the best match in the list

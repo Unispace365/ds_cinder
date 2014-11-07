@@ -172,6 +172,7 @@ void App::setup() {
 }
 
 void App::update() {
+	mEngine.setAverageFps(getAverageFps());
 	if (mEngine.hideMouse()) {
 		hideCursor();
 	}
