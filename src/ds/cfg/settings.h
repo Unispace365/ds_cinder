@@ -22,7 +22,7 @@ namespace cfg {
 class Settings {
 public:
 	Settings();
-    
+	
 	// Load the supplied file/string.  Currently only XML format is supported.
 	// If append is true, merge all results into my existing data.  If it's
 	// false, clear me out first (although only clear if the file actually
