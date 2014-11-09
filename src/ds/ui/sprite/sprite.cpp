@@ -1877,6 +1877,17 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	write_matrix44f(mInverseGlobalTransform, s);
 	s << std::endl;
 }
+
+ds::gl::Uniform& Sprite::getUniform()
+{
+	return mUniform;
+}
+
+ds::ui::SpriteEngine& Sprite::getEngine()
+{
+	return mEngine;
+}
+
 #endif
 
 /**
