@@ -514,6 +514,8 @@ void Sprite::addChild( Sprite &child )
 	child.setPerspective(mPerspective);
 	child.setDrawSorted(getDrawSorted());
 	child.setUseDepthBuffer(mUseDepthBuffer);
+
+	onChildAdded(child);
 }
 
 // Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
@@ -1877,6 +1879,42 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	write_matrix44f(mInverseGlobalTransform, s);
 	s << std::endl;
 }
+
+ds::sprite_id_t Sprite::getId() const
+{
+	return mId;
+}
+
+ds::ui::SpriteEngine& Sprite::getEngine()
+{
+	return mEngine;
+}
+
+void Sprite::setTouchScaleMode(bool doSizeScale)
+{
+	mTouchScaleSizeMode = doSizeScale;
+}
+
+void Sprite::readClientFrom(ds::DataBuffer&)
+{
+	// virtual method
+}
+
+ds::gl::Uniform& Sprite::getUniform()
+{
+	return mUniform;
+}
+
+void Sprite::writeClientAttributesTo(ds::DataBuffer&) const
+{
+	// virtual method
+}
+
+void Sprite::onChildAdded(Sprite& child)
+{
+	// virtual method
+}
+
 #endif
 
 /**
