@@ -516,19 +516,6 @@ void Sprite::addChild( Sprite &child )
 	child.setUseDepthBuffer(mUseDepthBuffer);
 }
 
-// Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
-// Jeremy
-void Sprite::addChildHack( Sprite &child )
-{
-  if ( containsChild(&child) )
-	return;
-
-  mChildren.push_back(&child);
-  child.setPerspective(mPerspective);
-  child.setDrawSorted(getDrawSorted());
-  child.setUseDepthBuffer(mUseDepthBuffer);
-}
-
 void Sprite::removeChild( Sprite &child )
 {
 	if ( !containsChild(&child) )

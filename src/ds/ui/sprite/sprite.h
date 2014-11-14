@@ -151,17 +151,6 @@ public:
 
 	void					addChild(Sprite&);
 
-	template <typename T>
-	T*					addChildPtr(T* e) {
-		if (!e) return nullptr;
-		addChild(*e);
-		return e;
-	};
-
-	// Hack! Hack! Hack to fix crash in AT&T Tech Wall! DO NOT USE THIS FOR ANY OTHER REASON!
-	// Jeremy
-	void					addChildHack( Sprite &child );
-
 	// removes child from Sprite, but does not delete it.
 	void					removeChild( Sprite &child );
 	// remove child from parent, does not delete.
