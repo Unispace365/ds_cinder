@@ -85,8 +85,8 @@ public:
 	virtual void			drawClient( const ci::Matrix44f &trans, const DrawParams &drawParams );
 	virtual void			drawServer( const ci::Matrix44f &trans, const DrawParams &drawParams );
 
-	ds::sprite_id_t			getId() const		{ return mId; }
-	ds::ui::SpriteEngine&	getEngine()			{ return mEngine; }
+	ds::sprite_id_t			getId() const;
+	ds::ui::SpriteEngine&	getEngine();
 
 	void					setSize(const ci::Vec2f& size2d);
 	void					setSize(float width, float height);
@@ -230,7 +230,7 @@ public:
 	// true will size the sprite using setSize() on a touch scale gesture
 	// false (the default) will scale the sprite using setScale9) on a touch scale gesture.
 	// MULTITOUCH_CAN_SCALE has to be a touch flag as well as the sprite being enabled to take effect
-	void					setTouchScaleMode(bool doSizeScale){ mTouchScaleSizeMode = doSizeScale; };
+	void					setTouchScaleMode(bool doSizeScale);;
 
 	// Constraints defined in multi_touch_constraints.h
 	// ds::ui::MULTITOUCH_XX
@@ -255,7 +255,7 @@ public:
 	void					readFrom(ds::BlobReader&);
 	// Only used when running in client mode
 	void					writeClientTo(ds::DataBuffer&) const;
-	virtual void			readClientFrom(ds::DataBuffer&) { }
+	virtual void			readClientFrom(ds::DataBuffer&);
 
 	void					setBlendMode(const BlendMode &blendMode);
 	BlendMode				getBlendMode() const;
@@ -263,7 +263,7 @@ public:
 	void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
 	SpriteShader&			getBaseShader();
 	std::string				getBaseShaderName() const;
-	ds::gl::Uniform&		getUniform()					{ return mUniform; }
+	ds::gl::Uniform&		getUniform();
 
 	void					setClipping(bool flag);
 	bool					getClipping() const;
@@ -345,6 +345,7 @@ protected:
 	virtual void		onPositionChanged();
 	virtual void		onScaleChanged();
 	virtual void		onSizeChanged();
+	virtual void		onChildAdded(Sprite& child);
 
 	// Always access the bounds via this, which will build them if necessary
 	const ci::Rectf&	getClippingBounds();
@@ -361,7 +362,7 @@ protected:
 	virtual void		writeAttributesTo(ds::DataBuffer&);
 	// Used during client mode, to let clients get info back to the server. Use the
 	// engine_io.defs::ScopedClientAtts at the top of the function to do all the boilerplate.
-	virtual void		writeClientAttributesTo(ds::DataBuffer&) const { }
+	virtual void		writeClientAttributesTo(ds::DataBuffer&) const;
 	// Read a single attribute
 	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
@@ -590,6 +591,13 @@ static void Sprite::handleBlobFromServer(ds::BlobReader& r)
 	  delete s;
 	}
   }
+}
+
+template<class T>
+T* Sprite::addChildPtr(T* e) {
+	if (!e) return nullptr;
+	addChild(*e);
+	return e;
 }
 
 } // namespace ui
