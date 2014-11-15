@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project DefaultTargets="Build" ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
       <Configuration>Debug</Configuration>
@@ -20,25 +20,27 @@
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
     <WholeProgramOptimization>true</WholeProgramOptimization>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <CharacterSet>Unicode</CharacterSet>
+    <PlatformToolset>v120</PlatformToolset>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM)\vc10\PropertySheets\Platform.props" />
-    <Import Project="$(DS_PLATFORM)\projects\web\awesomium\PropertySheets\Web_Awesomium.props" />
-    <Import Project="$(DS_PLATFORM)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0.props" />
+    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="$(DS_PLATFORM_086)\projects\web\awesomium\PropertySheets\Web_Awesomium.props" />
+    <Import Project="$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM)\vc10\PropertySheets\Platform_d.props" />
-    <Import Project="$(DS_PLATFORM)\projects\web\awesomium\PropertySheets\Web_Awesomium_d.props" />
-    <Import Project="$(DS_PLATFORM)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0_d.props" />
+    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
+    <Import Project="$(DS_PLATFORM_086)\projects\web\awesomium\PropertySheets\Web_Awesomium_d.props" />
+    <Import Project="$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -78,7 +80,7 @@
       <IgnoreSpecificDefaultLibraries>$(platform_lib_ignore_d)</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>copy "%DS_PLATFORM%\projects\web\awesomium\lib\paulhoux-Cinder-Awesomium\build\bin\*.*" "$(TargetDir)"</Command>
+      <Command>copy "%DS_PLATFORM_086%\projects\web\awesomium\lib\paulhoux-Cinder-Awesomium\build\bin\*.*" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy awesome DLLs</Message>
@@ -98,7 +100,7 @@
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>$(platform_lib);%(AdditionalDependencies)</AdditionalDependencies>

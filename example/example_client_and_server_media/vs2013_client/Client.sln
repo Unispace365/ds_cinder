@@ -1,17 +1,17 @@
-Microsoft Visual Studio Solution File, Format Version 11.00
-# Visual Studio 2010
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platform", "%DS_PLATFORM%\vc10\platform.vcxproj", "{D66469E5-B8D3-4356-A386-C7C54306B6DC}"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "platform", "%DS_PLATFORM_086%\vs2013\platform.vcxproj", "{D66469E5-B8D3-4356-A386-C7C54306B6DC}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example_C_and_S", "..\vc10_project\Example_C_and_S.vcxproj", "{F836C3BE-11C1-4505-BB16-0CC8A91C14AE}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Example_C_and_S", "..\vs2013_project\Example_C_and_S.vcxproj", "{F836C3BE-11C1-4505-BB16-0CC8A91C14AE}"
 	ProjectSection(ProjectDependencies) = postProject
 		{EDC54D75-EC44-4587-8A0F-141FA45CE652} = {EDC54D75-EC44-4587-8A0F-141FA45CE652}
 		{FDE518C6-AFB7-4400-B252-82C978DE7D82} = {FDE518C6-AFB7-4400-B252-82C978DE7D82}
 		{D66469E5-B8D3-4356-A386-C7C54306B6DC} = {D66469E5-B8D3-4356-A386-C7C54306B6DC}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "web", "%DS_PLATFORM%\projects\web\awesomium\web.vcxproj", "{FDE518C6-AFB7-4400-B252-82C978DE7D82}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "web", "%DS_PLATFORM_086%\projects\web\awesomium\web.vcxproj", "{FDE518C6-AFB7-4400-B252-82C978DE7D82}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "video", "%DS_PLATFORM%\projects\video\gstreamer-1.0\video.vcxproj", "{EDC54D75-EC44-4587-8A0F-141FA45CE652}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "video", "%DS_PLATFORM_086%\projects\video\gstreamer-1.0\video.vcxproj", "{EDC54D75-EC44-4587-8A0F-141FA45CE652}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
