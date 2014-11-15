@@ -151,6 +151,13 @@ public:
 
 	void					addChild(Sprite&);
 
+	template<class T> 
+	T*						addChildPtr(T* e){
+		if(!e) return nullptr;
+		addChild(*e);
+		return e;
+	}
+
 	// removes child from Sprite, but does not delete it.
 	void					removeChild( Sprite &child );
 	// remove child from parent, does not delete.
@@ -591,13 +598,6 @@ static void Sprite::handleBlobFromServer(ds::BlobReader& r)
 	  delete s;
 	}
   }
-}
-
-template<class T>
-T* Sprite::addChildPtr(T* e) {
-	if (!e) return nullptr;
-	addChild(*e);
-	return e;
 }
 
 } // namespace ui

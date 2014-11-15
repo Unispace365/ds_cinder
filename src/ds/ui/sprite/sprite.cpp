@@ -496,8 +496,7 @@ const ci::Matrix44f &Sprite::getTransform() const
 	return mTransformation;
 }
 
-void Sprite::addChild( Sprite &child )
-{
+void Sprite::addChild( Sprite &child ){
   if (this == &child) {
 	throw std::runtime_error("Trying to add a Sprite to itself.");
   }
@@ -518,8 +517,7 @@ void Sprite::addChild( Sprite &child )
 	onChildAdded(child);
 }
 
-void Sprite::removeChild( Sprite &child )
-{
+void Sprite::removeChild( Sprite &child ){
 	if ( !containsChild(&child) )
 		return;
 
