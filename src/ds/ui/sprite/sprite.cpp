@@ -1815,6 +1815,41 @@ float Sprite::getCornerRadius() const{
 	return mCornerRadius;
 }
 
+ds::sprite_id_t Sprite::getId() const
+{
+	return mId;
+}
+
+ds::ui::SpriteEngine& Sprite::getEngine()
+{
+	return mEngine;
+}
+
+void Sprite::setTouchScaleMode(bool doSizeScale)
+{
+	mTouchScaleSizeMode = doSizeScale;
+}
+
+void Sprite::readClientFrom(ds::DataBuffer&)
+{
+	// virtual method
+}
+
+ds::gl::Uniform& Sprite::getUniform()
+{
+	return mUniform;
+}
+
+void Sprite::writeClientAttributesTo(ds::DataBuffer&) const
+{
+	// virtual method
+}
+
+void Sprite::onChildAdded(Sprite& child)
+{
+	// virtual method
+}
+
 #ifdef _DEBUG
 void Sprite::write(std::ostream &s, const size_t tab) const {
 	writeState(s, tab);
@@ -1863,41 +1898,6 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	s << "STATE gl_inv_tx=";
 	write_matrix44f(mInverseGlobalTransform, s);
 	s << std::endl;
-}
-
-ds::sprite_id_t Sprite::getId() const
-{
-	return mId;
-}
-
-ds::ui::SpriteEngine& Sprite::getEngine()
-{
-	return mEngine;
-}
-
-void Sprite::setTouchScaleMode(bool doSizeScale)
-{
-	mTouchScaleSizeMode = doSizeScale;
-}
-
-void Sprite::readClientFrom(ds::DataBuffer&)
-{
-	// virtual method
-}
-
-ds::gl::Uniform& Sprite::getUniform()
-{
-	return mUniform;
-}
-
-void Sprite::writeClientAttributesTo(ds::DataBuffer&) const
-{
-	// virtual method
-}
-
-void Sprite::onChildAdded(Sprite& child)
-{
-	// virtual method
 }
 
 #endif
