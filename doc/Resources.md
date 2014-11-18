@@ -1,7 +1,7 @@
 Application Resources
 =========================
 
-The preferred method to add images or resources to your project is to include them in the data folder, and refer to them like so:
+When you're adding GUI elements that live with your app, the preferred method is to include them in the data folder, and refer to them like so:
 
     mImage.setImageFile("%APP%/data/images/ImageImage.png");
     
