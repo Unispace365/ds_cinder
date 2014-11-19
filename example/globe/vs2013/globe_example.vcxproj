@@ -137,7 +137,6 @@
     <ClCompile Include="..\src\ui\touch\delayed_momentum.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\app\app_defs.h" />
     <ClInclude Include="..\src\app\globals.h" />
     <ClInclude Include="..\src\app\globeexample_app.h" />
@@ -145,7 +144,7 @@
     <ClInclude Include="..\src\ui\touch\delayed_momentum.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="%DS_PLATFORM_086%\vs2013\FrameworkResources.rc" />
+    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

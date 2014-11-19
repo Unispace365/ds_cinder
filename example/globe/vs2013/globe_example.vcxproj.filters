@@ -24,9 +24,6 @@
     <ClInclude Include="..\src\app\globals.h">
       <Filter>src\app</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Resources.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\app\globeexample_app.h">
       <Filter>src\app</Filter>
     </ClInclude>
@@ -38,10 +35,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="%DS_PLATFORM_086%\vs2013\FrameworkResources.rc">
+    <ResourceCompile Include="Resources.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="Resources.rc">
+    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>
