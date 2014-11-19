@@ -33,19 +33,12 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
-<<<<<<< HEAD
-    <Import Project="$(DS_PLATFORM_086)\projects\physics\box2d\PropertySheets\Physics_Box2d.props" />
-=======
->>>>>>> 400726ba38c34074a4f9e03858c38251cc9982af
+
     <Import Project="$(DS_PLATFORM_086)\projects\essentials\PropertySheets\Essentials.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
-<<<<<<< HEAD
-    <Import Project="$(DS_PLATFORM_086)\projects\physics\box2d\PropertySheets\Physics_Box2d_d.props" />
-=======
->>>>>>> 400726ba38c34074a4f9e03858c38251cc9982af
     <Import Project="$(DS_PLATFORM_086)\projects\essentials\PropertySheets\Essentials_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
