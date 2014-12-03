@@ -61,12 +61,12 @@ static void setup_module(const std::string& module) {
 
 static const std::string& level_name(const int level) {
 	static const std::string				INFO(	"info   "),
-								            WARNING("warning"),
-								            ERROR_(	"error  "),
-								            FATAL(	"fatal  "),
+											WARNING("warning"),
+											ERROR_(	"error  "),
+											FATAL(	"fatal  "),
 											METRIC( "metric "),
 											STARTUP("startup"),
-								            UNKNOWN("       ");
+											UNKNOWN("       ");
 	if (level == ds::Logger::LOG_INFO) return INFO;
 	if (level == ds::Logger::LOG_WARNING) return WARNING;
 	if (level == ds::Logger::LOG_ERROR) return ERROR_;
@@ -92,9 +92,9 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 	for (int k=0; k<LEVEL_SIZE; ++k) HAS_LEVEL[k] = false;
 
 	string				level = settings.getText("logger:level", 0, EMPTY_SZ),
-						    module = settings.getText("logger:module", 0, EMPTY_SZ),
-						    async = settings.getText("logger:async", 0, EMPTY_SZ),
-						    file = settings.getText("logger:file", 0, EMPTY_SZ);
+							module = settings.getText("logger:module", 0, EMPTY_SZ),
+							async = settings.getText("logger:async", 0, EMPTY_SZ),
+							file = settings.getText("logger:file", 0, EMPTY_SZ);
 	ds::tokenize(level, ',', [](const std::string& s) { setup_level(s); });
 	if (!module.empty()) {
 		HAS_MODULE = ds::BitMask::newEmpty();
@@ -105,48 +105,48 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 	Poco::toLowerInPlace(async);
 	if (async == "false") HAS_ASYNC = false;
 
-  // If I wasn't supplied a filename, try and find a logs folder
-  if (file.empty()) {
-    file = ds::Environment::getAppFolder("logs");
-  }
-  if (!file.empty()) {
-    Poco::Path                      path(file);
-	  const Poco::Timestamp::TimeVal	t = Poco::Timestamp().epochMicroseconds();
-	  static const std::string		    DATE_FORMAT("%Y-%m-%d");
-    std::string                     fn;
-	  // If an actual file name was supplied, then do something to separate the date stamp
-    // XXX -- not currently supported, assume the default log name
-//	  if (!file.empty() && !ends_in_separator(file)) file.append(" ");
-	  fn.append(Poco::DateTimeFormatter::format(Poco::Timestamp(), DATE_FORMAT));
-	  fn.append(".log.txt");
-    path.append(fn);
-	  LOG_FILE = path.toString();
+	// If I wasn't supplied a filename, try and find a logs folder
+	if (file.empty()) {
+	file = ds::Environment::getAppFolder("logs");
+	}
+	if (!file.empty()) {
+		Poco::Path path(file);
+		const Poco::Timestamp::TimeVal	t = Poco::Timestamp().epochMicroseconds();
+		static const std::string		DATE_FORMAT("%Y-%m-%d");
+		std::string						fn;
+		// If an actual file name was supplied, then do something to separate the date stamp
+		// XXX -- not currently supported, assume the default log name
+		//if (!file.empty() && !ends_in_separator(file)) file.append(" ");
+		fn.append(Poco::DateTimeFormatter::format(Poco::Timestamp(), DATE_FORMAT));
+		fn.append(".log.txt");
+		path.append(fn);
+		LOG_FILE = path.toString();
 
-	  cout << "Logging to file " << LOG_FILE << endl;
-	  // Verify the directory exists
-	  try {
-		  path.makeAbsolute();
-		  path.makeParent();
-		  Poco::File			f(path);
-		  if (!f.exists()) cout << "WARNING:  Log directory does not exist.  No log will be created." << endl << "\t" << path.toString() << endl;
-	  } catch (std::exception&) {
-	  }
-  }
+		cout << "Logging to file " << LOG_FILE << endl;
+		// Verify the directory exists
+		try {
+			path.makeAbsolute();
+			path.makeParent();
+			Poco::File			f(path);
+			if (!f.exists()) cout << "WARNING:  Log directory does not exist.  No log will be created." << endl << "\t" << path.toString() << endl;
+		} catch (std::exception&) {
+		}
+	}
 
-  // Inform user of what modules are active (and available)
-  if (MODULE_MAP) {
-    for (auto it=MODULE_MAP->begin(), end=MODULE_MAP->end(); it != end; ++it) {
-      std::cout << "Logger module " << it->first << " (" << it->second << ")";
-      if (HAS_MODULE&(ds::BitMask(it->first))) std::cout << " is ON";
-      std::cout << std::endl;
-    }
-    std::cout << "logger level is " << level << std::endl;
-  }
+	// Inform user of what modules are active (and available)
+	if (MODULE_MAP) {
+		for (auto it=MODULE_MAP->begin(), end=MODULE_MAP->end(); it != end; ++it) {
+			std::cout << "Logger module " << it->first << " (" << it->second << ")";
+			if (HAS_MODULE&(ds::BitMask(it->first))) std::cout << " is ON";
+			std::cout << std::endl;
+		}
+		std::cout << "logger level is " << level << std::endl;
+	}
 }
 
 ds::BitMask Logger::newModule(const std::string& name) {
-	static std::map<int, std::string>   MAP;
-	static int			                    NEXT_DS = 0;
+	static std::map<int, std::string>	MAP;
+	static int							NEXT_DS = 0;
 	const ds::BitMask	ans = ds::BitMask(NEXT_DS++);
 	if (!MODULE_MAP) MODULE_MAP = &MAP;
 	MAP[ans.getFirstIndex()] = name;
@@ -184,7 +184,7 @@ Logger::Logger()
 
 Logger::~Logger()
 {
-  shutDown();
+	shutDown();
 }
 
 void Logger::log(const int level, const std::string& str)
@@ -194,7 +194,7 @@ void Logger::log(const int level, const std::string& str)
 
 void ds::Logger::log( const int level, const std::wstring& str)
 {
-  log(level, ds::utf8_from_wstr(str));
+	log(level, ds::utf8_from_wstr(str));
 }
 
 void Logger::blockUntilReady()
@@ -251,7 +251,7 @@ void Logger::Loop::log(const int level, const std::string& str)
 
 void ds::Logger::Loop::log( const int level, const std::wstring& str)
 {
-  log(level, ds::utf8_from_wstr(str));
+	log(level, ds::utf8_from_wstr(str));
 }
 
 void Logger::Loop::run()
@@ -321,7 +321,7 @@ void Logger::Loop::logToConsole(const entry& e, const std::string& formattedMsg)
 
 void Logger::Loop::logToFile(const entry& e, const std::string& formattedMsg)
 {
-  if (LOG_FILE.empty()) return;
+	if (LOG_FILE.empty()) return;
 
 	ofstream outFile;
 	outFile.open(LOG_FILE.c_str(), ios_base::app);
@@ -331,12 +331,12 @@ void Logger::Loop::logToFile(const entry& e, const std::string& formattedMsg)
 
 void ds::Logger::Loop::logToConsole( const entry& e, const std::wstring& formattedMsg )
 {
-  logToConsole(e, ds::utf8_from_wstr(formattedMsg));
+	logToConsole(e, ds::utf8_from_wstr(formattedMsg));
 }
 
 void ds::Logger::Loop::logToFile( const entry& e, const std::wstring& formattedMsg )
 {
-  logToFile(e, ds::utf8_from_wstr(formattedMsg));
+	logToFile(e, ds::utf8_from_wstr(formattedMsg));
 }
 
 /* DS::LOGGER singleton

@@ -295,7 +295,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	std::string resourceLocation = settings.getText("resource_location", 0, "");
 	if (resourceLocation.empty()) {
 		// This is valid, though unusual
-		std::cout << "Engine() has no resource_location setting, is that intentional?" << std::endl;
+		std::cout << "Engine() has no resource_location setting" << std::endl;
 	} else {
 		resourceLocation = Poco::Path::expand(resourceLocation);
 		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
