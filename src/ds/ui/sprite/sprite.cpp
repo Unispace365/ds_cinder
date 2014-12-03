@@ -915,7 +915,6 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 	}
 
 	if(!candidates.empty()){
-		std::cout << "Candidates: " << candidates.size() << std::endl;
 		if(candidates.size() == 1){
 			return candidates.front();
 		}
@@ -925,7 +924,6 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 		ds::ui::Sprite* hit = candidates.front();
 		for(auto it = candidates.begin() + 1; it < candidates.end(); ++it){
 			float newZ = localToGlobal((*it)->getPosition()).z;
-			std::cout << "Hit candidate: " << newZ << " " << (*it)->getId() << std::endl;
 			if(newZ > closestZ){
 				hit = (*it);
 				closestZ = newZ;
