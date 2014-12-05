@@ -596,7 +596,16 @@ std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
 				// drawing and it can be very difficult to know why.
 				ci::gl::BoolState	tex_2d_state(GL_TEXTURE_2D);
 				glDisable(GL_TEXTURE_2D);
-				mFont->draw(line.mPos.x+mBorder.x1 - box.x_min_, line.mPos.y+mBorder.y1 + height, line.mText);
+
+				float xPos = line.mPos.x + mBorder.x1 - box.x_min_;
+				float yPos = line.mPos.y + mBorder.y1 + height;
+
+				// If x or y are negative, nothing will draw.
+				// This is technically an error condition, but I suspect it's caused by float imprecision.
+				// Better to draw a pixel or two off then to not draw at all.
+				if(xPos < 0.0f) xPos = 0.0f;
+				if(yPos < 0.0f) yPos = 0.0f;
+				mFont->draw(xPos, yPos, line.mText);
 			}
 
 			fbo->end();
