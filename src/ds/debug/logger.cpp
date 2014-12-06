@@ -238,7 +238,7 @@ void Logger::Loop::log(const int level, const std::string& str)
 		entry&					e = mInput.back();
 		e.mMsg = str;
 		e.mLevel = level;
-		e.mTime = Poco::Timestamp().epochMicroseconds();
+		e.mTime = Poco::LocalDateTime().timestamp().epochMicroseconds();
 	} catch(std::exception&) {
 		return;
 	}
