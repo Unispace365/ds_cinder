@@ -634,14 +634,6 @@ void Engine::setup(ds::App& app) {
 		(*it)->postAppSetup();
 		(*it)->setCinderCamera();
 	}
-#if 0
-	//mCamera.setOrtho(mScreenRect.getX1(), mScreenRect.getX2(), mScreenRect.getY2(), mScreenRect.getY1(), -1.0f, 1.0f);
-	//gl::setMatrices(mCamera);
-	setCamera(true);
-	setCamera();
-	//gl::disable(GL_CULL_FACE);
-	//////////////////////////////////////////////////////////////////////////
-#endif
 
 	ci::gl::Fbo::Format format;
 	format.setColorInternalFormat(GL_RGBA32F);
