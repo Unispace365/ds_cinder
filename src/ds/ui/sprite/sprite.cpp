@@ -920,10 +920,14 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 		}
 
 
-		float closestZ = localToGlobal(candidates.front()->getPosition()).z;
+		float closestZ = -10000000.0f;
+		if(candidates.front()->getParent()){
+			closestZ = candidates.front()->getParent()->localToGlobal(candidates.front()->getPosition()).z;
+		}
 		ds::ui::Sprite* hit = candidates.front();
 		for(auto it = candidates.begin() + 1; it < candidates.end(); ++it){
-			float newZ = localToGlobal((*it)->getPosition()).z;
+			if(!(*it)->getParent()) continue;
+			float newZ = (*it)->getParent()->localToGlobal((*it)->getPosition()).z;
 			if(newZ > closestZ){
 				hit = (*it);
 				closestZ = newZ;

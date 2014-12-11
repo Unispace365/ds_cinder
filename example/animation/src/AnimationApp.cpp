@@ -1,5 +1,5 @@
 #include <cinder/app/AppBasic.h>
-#include <Poco/Random.h>
+#include <cinder/Rand.h>
 
 #include <ds/app/app.h>
 #include <ds/app/engine/engine.h>
@@ -51,16 +51,14 @@ void AnimationApp::mouseDown( MouseEvent event )
 {
   inherited::mouseDown(event);
 
-  static Poco::Random   RND;
-
   // Tween to current mouse position
   const ci::Vec3f       posEnd(ci::Vec3f(float(event.getPos().x), float(event.getPos().y), 0));
-  mEngine.getTweenline().apply(mSprite1, mSprite1.ANIM_POSITION(), posEnd, 1.0f, EaseInCubic());
+  mSprite1.tweenPosition(posEnd, 1.0f, 0.0f, ci::EaseInOutExpo());
 
   // Tween to a randomized scale
-  const float           nextScale = 0.25f + RND.nextFloat()*2;
+  const float           nextScale = ci::Rand::randFloat(0.25f, 1.5f);
   const ci::Vec3f       scaleEnd(ci::Vec3f(nextScale, nextScale, 1));
-  mEngine.getTweenline().apply(mSprite1, mSprite1.ANIM_SCALE(), scaleEnd, 1.0f);
+  mSprite1.tweenScale(scaleEnd, 1.0f, 0.0f, ci::EaseInOutExpo());
 
   // A custom tween parameter -- only position y (also could have been done by
   // setting the end position.x and .z values to the same as the start, this is
