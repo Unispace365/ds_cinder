@@ -210,7 +210,12 @@ void Web::updateServer(const ds::UpdateParams &p) {
 void Web::drawLocalClient() {
 	if (mWebTexture) {
 		//ci::gl::color(ci::Color::white());
-		ci::gl::draw(mWebTexture);
+
+		if(getPerspective()){
+			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture.getHeight()), static_cast<float>(mWebTexture.getWidth()), 0.0f));
+		} else {
+			ci::gl::draw(mWebTexture);
+		}
 	}
 
 	// show spinner while loading
@@ -597,8 +602,8 @@ void Web::sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Ph
 
 	ds::web::TouchEvent		te;
 	te.mPhase = phase;
-	te.mPosition.x = (mPageScrollCache.x + static_cast<float>(x));
-	te.mPosition.y = (mPageScrollCache.y + static_cast<float>(y));
+//	te.mPosition.x = (mPageScrollCache.x + static_cast<float>(x));
+//	te.mPosition.y = (mPageScrollCache.y + static_cast<float>(y));
 	te.mPosition.x = (static_cast<float>(x));
 	te.mPosition.y = (static_cast<float>(y));
 	te.mUnitPosition.x = te.mPosition.x / mPageSizeCache.x;

@@ -902,11 +902,39 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 		return nullptr;
 
 	makeSortedChildren();
+
+	std::vector<ds::ui::Sprite*> candidates;
+
 	for ( auto it = mSortedTmp.rbegin(), it2 = mSortedTmp.rend(); it != it2; ++it ) {
 		Sprite*		hit = (*it)->getPerspectiveHit(pick);
 		if (hit) {
-			return hit;
+			candidates.push_back(hit);
+		//	std::cout << "Found pick candidate: " << hit->getParent()->localToGlobal(hit->getPosition()).z << " " << hit->getId() << std::endl;
+		//	return hit;
 		}
+	}
+
+	if(!candidates.empty()){
+		if(candidates.size() == 1){
+			return candidates.front();
+		}
+
+
+		float closestZ = -10000000.0f;
+		if(candidates.front()->getParent()){
+			closestZ = candidates.front()->getParent()->localToGlobal(candidates.front()->getPosition()).z;
+		}
+		ds::ui::Sprite* hit = candidates.front();
+		for(auto it = candidates.begin() + 1; it < candidates.end(); ++it){
+			if(!(*it)->getParent()) continue;
+			float newZ = (*it)->getParent()->localToGlobal((*it)->getPosition()).z;
+			if(newZ > closestZ){
+				hit = (*it);
+				closestZ = newZ;
+			}
+		}
+
+		return hit;
 	}
 
 	if (isEnabled()) {

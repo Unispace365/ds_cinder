@@ -114,9 +114,10 @@ public:
 				ImageAtts atts(size);
 				atts.mLastModified = Poco::File(filePath).getLastModified();
 				mCache[filePath] = atts;
-			} catch(std::exception const&){
+			} catch(std::exception const& ex){
 				//HAHAHAHAHAHAHAHA
-			}
+				DS_LOG_WARNING("ImageAttsCache exception: " << ex.what());
+			} 
 		}
 	}
 
