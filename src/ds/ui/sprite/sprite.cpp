@@ -914,7 +914,7 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 											h = getHeight();
 		ci::Vec3f							a = getParent()->localToGlobal(getPosition());
 											a.x += (-mCenter.x*w);
-											a.y += (mCenter.y*h);
+											a.y += h - (mCenter.y*h);
 
 		ci::Vec2f							lt = ci::Vec2f(a.x, a.y);
 		ci::Vec2f							rb(a.x + w, a.y - h);
