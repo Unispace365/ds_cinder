@@ -198,10 +198,8 @@ void LoadImageService::update() {
 	for (int k=0; k<mOutput.size(); k++) {
 		op&							out = mOutput[k];
 		holder&						h = mImageResource[out.mKey];
-		if (h.mTexture) {
-#ifdef _DEBUG
-			std::cout << "WHHAAAAT?  Duplicate images for id=" << out.mKey.mFilename << " refs=" << h.mRefs << std::endl;
-#endif
+		if(h.mTexture) {
+			DS_LOG_WARNING_M("Duplicate images for id=" << out.mKey.mFilename << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
 		} else {
 			ci::gl::Texture::Format	fmt;
 			if ((h.mFlags&ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
