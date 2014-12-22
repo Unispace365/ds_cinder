@@ -5,6 +5,7 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/image.h"
+#include "Poco/File.h"
 
 namespace {
 const ds::BitMask	LOAD_IMAGE_LOG_M = ds::Logger::newModule("load_image");
@@ -241,13 +242,18 @@ void LoadImageService::_load()
 			boost::tribool					alpha = boost::logic::indeterminate;
 			if (!top.mIpFunction.empty()) alpha = boost::tribool(true);
 			const std::string				fn = ds::Environment::expand(top.mKey.mFilename);
-			top.mSurface = ci::Surface8u(ci::loadImage(fn), ci::SurfaceConstraintsDefault(), alpha);
-			DS_REPORT_GL_ERRORS();
-			if (top.mSurface) {
-				top.mIpFunction.on(top.mKey.mIpParams, top.mSurface);
-				// This is to immediately place operations on the output...
-				Poco::Mutex::ScopedLock		l(mMutex);
-				mOutput.push_back(op(top));
+			const Poco::File file(fn);
+			if (file.exists()) {
+				top.mSurface = ci::Surface8u(ci::loadImage(fn), ci::SurfaceConstraintsDefault(), alpha);
+				DS_REPORT_GL_ERRORS();
+				if (top.mSurface) {
+					top.mIpFunction.on(top.mKey.mIpParams, top.mSurface);
+					// This is to immediately place operations on the output...
+					Poco::Mutex::ScopedLock		l(mMutex);
+					mOutput.push_back(op(top));
+				}
+			} else {
+				DS_LOG_WARNING_M("LoadImageService::_load() failed. File does not exist: " << top.mKey.mFilename, LOAD_IMAGE_LOG_M);
 			}
 		} catch (std::exception const& ex) {
 			DS_LOG_WARNING_M("LoadImageService::_load() failed ex=" << ex.what() << " (file=" << top.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
