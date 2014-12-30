@@ -94,6 +94,8 @@ static std::string filePathRelativeTo( const std::string &base, const std::strin
 static void setSpriteProperty( ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer="" ) {
 	std::string property = attr.getName();
 	
+	// TODO: make these a map? or something for faster lookup?
+
 	if ( property == "name" || property == "class") {
 		// Do nothing, these are handled elsewhere
 	}
