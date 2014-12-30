@@ -29,6 +29,11 @@ ds::EventNotifier& SpriteEngine::getNotifier()
 	return mData.mNotifier;
 }
 
+
+void SpriteEngine::loadSettings(const std::string& name, const std::string& filename) {
+	mData.mEngineCfg.loadSettings(name, filename);
+}
+
 const ds::EngineCfg& SpriteEngine::getEngineCfg() const
 {
 	return mData.mEngineCfg;
