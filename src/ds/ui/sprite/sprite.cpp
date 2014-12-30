@@ -730,12 +730,26 @@ bool Sprite::getTransparent() const
 
 void Sprite::show()
 {
+  const auto before = visible();
   setFlag(VISIBLE_F, true, FLAGS_DIRTY, mSpriteFlags);
+  const auto now = visible();
+  if (before != now)
+  {
+	  onAppearanceChanged(now);
+  }
+  doPropagateVisibilityChange(before, now);
 }
 
 void Sprite::hide()
 {
+  const auto before = visible();
   setFlag(VISIBLE_F, false, FLAGS_DIRTY, mSpriteFlags);
+  const auto now = visible();
+  if (before != now)
+  {
+	  onAppearanceChanged(now);
+  }
+  doPropagateVisibilityChange(before, now);
 }
 
 bool Sprite::visible() const
@@ -1929,6 +1943,39 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 }
 
 #endif
+
+void Sprite::onAppearanceChanged(bool visible)
+{
+	// virtual method
+}
+
+void Sprite::doPropagateVisibilityChange(bool before, bool after)
+{
+	if (before == after) return;
+
+	for (auto it = mChildren.cbegin(), it2 = mChildren.cend(); it != it2; ++it)
+	{
+		if ((*it)->visible()) {
+			// if we were visible, and now we're hidden and our child is visible...
+			// our child will vanish.
+			if (before && !after) {
+				(*it)->onAppearanceChanged(false);
+			}
+
+			// if we were hidden, and now we're visible and our child is visible...
+			// our child will show up.
+			else if (!before && after) {
+				(*it)->onAppearanceChanged(true);
+			}
+
+			// continue propagating
+			(*it)->doPropagateVisibilityChange(before, after);
+		}
+
+		// DO NOT propagate this change to hidden children!
+		// visibility change of a parent has no effect on hidden children.
+	}
+}
 
 /**
  * \class ds::ui::Sprite::LockScale

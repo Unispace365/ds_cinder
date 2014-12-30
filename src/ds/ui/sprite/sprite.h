@@ -347,12 +347,22 @@ protected:
 	virtual void		doSetPosition(const ci::Vec3f&);
 	virtual void		doSetScale(const ci::Vec3f&);
 	virtual void		doSetRotation(const ci::Vec3f&);
+	void				doPropagateVisibilityChange(bool before, bool after);
 
 	virtual void		onCenterChanged();
 	virtual void		onPositionChanged();
 	virtual void		onScaleChanged();
 	virtual void		onSizeChanged();
 	virtual void		onChildAdded(Sprite& child);
+	// Note: there's a reason this is not called onVisibilityChanged().
+	// TLDR;the visible flag arg here is NOT equal to Sprite::visible()
+	// The reason is that,  the final visibility of a sprite is decided
+	// by the visibility of itself and its parents.  the "visible" flag
+	// here is the result of the calculation based on calls to self and
+	// parents' hide() / show() methods. The "visible" flag here is NOT
+	// the same as Sprite::visible()! Sprite::visible() is only limited
+	// to the sprite itself while visible flag here is described above.
+	virtual void		onAppearanceChanged(bool visible);
 
 	// Always access the bounds via this, which will build them if necessary
 	const ci::Rectf&	getClippingBounds();
