@@ -520,7 +520,9 @@ void Sprite::addChild( Sprite &child ){
 void Sprite::removeChild( Sprite &child ){
 	if ( !containsChild(&child) )
 		return;
-
+	
+	onChildRemoved(child);
+	
 	auto found = std::find(mChildren.begin(), mChildren.end(), &child);
 	mChildren.erase(found);
 	if (child.getParent() == this) {
@@ -1975,6 +1977,11 @@ void Sprite::doPropagateVisibilityChange(bool before, bool after)
 		// DO NOT propagate this change to hidden children!
 		// visibility change of a parent has no effect on hidden children.
 	}
+}
+
+void Sprite::onChildRemoved(Sprite& child)
+{
+	// virtual method
 }
 
 /**

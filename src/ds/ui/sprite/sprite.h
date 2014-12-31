@@ -354,6 +354,7 @@ protected:
 	virtual void		onScaleChanged();
 	virtual void		onSizeChanged();
 	virtual void		onChildAdded(Sprite& child);
+	virtual void		onChildRemoved(Sprite& child);
 	// Note: there's a reason this is not called onVisibilityChanged().
 	// TLDR;the visible flag arg here is NOT equal to Sprite::visible()
 	// The reason is that,  the final visibility of a sprite is decided
