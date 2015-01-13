@@ -36,6 +36,8 @@ ImageButton::ImageButton(SpriteEngine& eng, const std::string& downImage, const 
 	mButtonBehaviour.setOnEnterFn([this](){showDown(); });
 	mButtonBehaviour.setOnExitFn([this](){showUp(); });
 	mButtonBehaviour.setOnUpFn([this](){showUp(); });
+
+	layout();
 }
 
 void ImageButton::layout(){
