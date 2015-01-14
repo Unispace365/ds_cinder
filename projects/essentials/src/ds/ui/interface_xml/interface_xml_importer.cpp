@@ -3,6 +3,7 @@
 #include "stylesheet_parser.h"
 
 #include <ds/ui/sprite/sprite.h>
+#include <ds/ui/sprite/gradient_sprite.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/text.h>
 #include <ds/ui/sprite/multiline_text.h>
@@ -35,6 +36,7 @@ static const std::string INVALID_VALUE = "UNACCEPTABLE!!!!";
 //HACK!
 static std::string sCurrentFile;
 
+// Color format: #AARRGGBB OR #RRGGBB
 static ci::ColorA parseColor( const std::string &color ) {
 	std::string s = color;
 
@@ -200,6 +202,22 @@ static void setSpriteProperty( ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, 
 		}
 	}
 
+	// Gradient sprite properties
+	else if(property == "colorTop"){
+		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
+		if(gradient){
+			gradient->setColorsV(parseColor(attr.getValue()), gradient->getColorBL());
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "colorBot"){
+		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
+		if(gradient){
+			gradient->setColorsV(gradient->getColorTL(), parseColor(attr.getValue()));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
 
 	else {
 		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
@@ -364,13 +382,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 	auto &engine = parent->getEngine();
 	if (type == "sprite") {
-		ds::ui::Sprite* wspriddy = new ds::ui::Sprite(engine);
-
-		int i = 0;
-		BOOST_FOREACH(auto &sprite, node->getChildren()) {
-			readSprite(wspriddy, sprite);
-		}
-		spriddy = wspriddy;
+		spriddy = new ds::ui::Sprite(engine);
 	}
 	else if (type == "image") {
 		auto image = new ds::ui::Image(engine);
@@ -403,6 +415,10 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		auto imgButton = new ds::ui::ImageButton(engine, "", "", touchPad);
 		spriddy = imgButton;
 	}
+	else if(type == "gradient"){
+		auto gradient = new ds::ui::GradientSprite(engine);
+		spriddy = gradient;
+	}
 	else if (mCustomImporter) {
 		spriddy = mCustomImporter(type, *node);
 	}
@@ -410,6 +426,10 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	if (!spriddy) {
 		DS_LOG_WARNING("Error creating sprite! Type=" << type);
 		return false;
+	}
+
+	BOOST_FOREACH(auto &sprite, node->getChildren()) {
+		readSprite(spriddy, sprite);
 	}
 
 	parent->addChild(*spriddy);
