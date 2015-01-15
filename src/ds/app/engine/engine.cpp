@@ -288,6 +288,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		r.setup(er_settings);
 	}
 
+	mRotateTouchesDefault = settings.getBool("touch:rotate_touches_default", 0, false);
+
 	// SETUP PICKING
 	mSelectPicking.setWorldSize(mData.mWorldSize);
 
@@ -927,6 +929,10 @@ void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {
 
 ci::app::WindowRef Engine::getWindow(){
 	return mCinderWindow;
+}
+
+bool Engine::getRotateTouchesDefault(){
+	return mRotateTouchesDefault;
 }
 
 /**

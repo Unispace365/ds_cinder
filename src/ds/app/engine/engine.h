@@ -132,6 +132,10 @@ public:
 	virtual void						injectTouchesMoved(const ci::app::TouchEvent&);
 	virtual void						injectTouchesEnded(const ci::app::TouchEvent&);
 
+	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
+	// Sprites can still turn this off after creation
+	virtual bool						getRotateTouchesDefault();
+
 	virtual ds::ResourceList&			getResources();
 	virtual const ds::FontList&			getFonts() const;
 	ds::FontList&						editFonts();
@@ -260,6 +264,8 @@ private:
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnd;
 
 	ds::SelectPicking					mSelectPicking;
+
+	bool								mRotateTouchesDefault;
 
 	bool								mHideMouse;
 

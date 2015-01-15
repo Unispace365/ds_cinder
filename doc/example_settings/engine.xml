@@ -115,6 +115,9 @@
 	<!-- How far a touch moves before it's not a tap, in pixels -->
 	<float name="tap_threshold" value="20" />
 	
+	<!-- rotates touch points around the picked sprite's rotation. Allows for handling inverted sprites (on the opposite side of a table for instance) without having to enable rotateTouches on every sprite. Sprites can turn this on or off at will after the are created regardless of this setting -->
+	<text name="touch:rotate_touches_default" value="false" />
+	
 	<!----------------------->
 	<!-- RESOURCE SETTINGS -->
 	<!----------------------->

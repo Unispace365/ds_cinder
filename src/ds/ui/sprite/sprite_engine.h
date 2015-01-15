@@ -132,6 +132,10 @@ public:
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void					translateTouchPoint( ci::Vec2f& inOutPoint ) = 0;
 
+	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
+	// Sprites can still turn this off after creation
+	virtual bool					getRotateTouchesDefault() = 0;
+
 	// Get the sprite at the global touch point. NOTE: performance intensive. Use carefully.
 	virtual ds::ui::Sprite*			getHit(const ci::Vec3f& point) = 0;
 

@@ -150,6 +150,10 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mDrawOpacityHack = 1.0f;
 	mDelayedCallCueRef = nullptr;
 
+	if(mEngine.getRotateTouchesDefault()){
+		setRotateTouches(true);
+	}
+
 	setSpriteId(id);
 
 	mServerColor = ci::ColorA(static_cast<float>(math::random()*0.5 + 0.5),
