@@ -338,21 +338,21 @@ float GstVideo::getVolume() const {
 }
 
 void GstVideo::play() {
-	DS_LOG_INFO("GstVideo::play()");
+	DS_LOG_INFO("GstVideo::play() " << mFilename);
 
 	mMovie.play();
 	setCmd(kCmdPlay);
 }
 
 void GstVideo::stop() {
-	DS_LOG_INFO("GstVideo::stop()");
+	DS_LOG_INFO("GstVideo::stop() " << mFilename);
 
 	mMovie.stop();
 	setCmd(kCmdStop);
 }
 
 void GstVideo::pause() {
-	DS_LOG_INFO("GstVideo::pause()");
+	DS_LOG_INFO("GstVideo::pause() " << mFilename);
 	mMovie.pause();
 	setCmd(kCmdPause);
 }
