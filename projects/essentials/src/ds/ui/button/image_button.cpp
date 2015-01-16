@@ -80,9 +80,9 @@ void ImageButton::showUp() {
 }
 
 void ImageButton::onClicked() {
+	showUp();
 	if(mClickFn) mClickFn();
 
-	showUp();
 }
 
 ds::ui::Image& ImageButton::getHighImage(){
