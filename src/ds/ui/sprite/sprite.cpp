@@ -1878,9 +1878,19 @@ void Sprite::setTouchScaleMode(bool doSizeScale)
 	mTouchScaleSizeMode = doSizeScale;
 }
 
-void Sprite::readClientFrom(ds::DataBuffer&)
+void Sprite::readClientFrom(ds::DataBuffer& buf)
 {
-	// virtual method
+	while (buf.canRead<char>())
+	{
+		char cmd = buf.read<char>();
+		if (cmd != TERMINATOR_CHAR) {
+			readClientAttributeFrom(cmd, buf);
+		}
+		else
+		{
+			return;
+		}
+	}
 }
 
 ds::gl::Uniform& Sprite::getUniform()
@@ -1984,6 +1994,11 @@ void Sprite::doPropagateVisibilityChange(bool before, bool after)
 }
 
 void Sprite::onChildRemoved(Sprite& child)
+{
+	// virtual method
+}
+
+void Sprite::readClientAttributeFrom(const char attributeId, ds::DataBuffer&)
 {
 	// virtual method
 }
