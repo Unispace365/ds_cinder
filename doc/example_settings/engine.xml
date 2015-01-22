@@ -115,6 +115,19 @@
 	<!-- How far a touch moves before it's not a tap, in pixels -->
 	<float name="tap_threshold" value="20" />
 	
+	<!-- How far from each other touch points are enforced to be. Makes rotation and the like smoother
+			default = 10-->
+	<float name="touch:minimum_distance" value="10" />
+	
+	<!-- Swipe settings. Only affects the swipe callback functions.
+			Queue: how many frames of touch data need to be present to count as a swipe. Default = 4
+			Min velocity: How fast the touch needs to be moving to count. Default: 800
+			Max time: How long in seconds the touch point has been around before it doesn't count. Default: 0.5
+		-->
+	<int   name="touch:swipe:queue_size" value="4" />
+	<float name="touch:swipe:minimum_velocity" value="800" />
+	<float name="touch:swipe:maximum_time" value="0.5" />
+	
 	<!-- rotates touch points around the picked sprite's rotation. Allows for handling inverted sprites (on the opposite side of a table for instance) without having to enable rotateTouches on every sprite. Sprites can turn this on or off at will after the are created regardless of this setting -->
 	<text name="touch:rotate_touches_default" value="false" />
 	

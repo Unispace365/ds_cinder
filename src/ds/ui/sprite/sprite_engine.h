@@ -84,6 +84,8 @@ public:
 	float							getMinTouchDistance() const;
 	float							getMinTapDistance() const;
 	unsigned						getSwipeQueueSize() const;
+	float							getSwipeMinVelocity() const;
+	float							getSwipeMaxTime() const;
 	float							getDoubleTapTime() const;
 	const ci::Rectf&				getSrcRect() const;
 	const ci::Rectf&				getDstRect() const;

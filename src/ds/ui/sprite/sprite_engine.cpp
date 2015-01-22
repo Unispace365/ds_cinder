@@ -59,6 +59,16 @@ unsigned SpriteEngine::getSwipeQueueSize() const
 	return mData.mSwipeQueueSize;
 }
 
+float SpriteEngine::getSwipeMinVelocity() const
+{
+	return mData.mSwipeMinVelocity;
+}
+
+float SpriteEngine::getSwipeMaxTime() const
+{
+	return mData.mSwipeMaxTime;
+}
+
 float SpriteEngine::getDoubleTapTime() const
 {
 	return mData.mDoubleTapTime;
