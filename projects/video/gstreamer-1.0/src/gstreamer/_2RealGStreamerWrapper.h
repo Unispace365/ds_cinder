@@ -127,6 +127,7 @@ namespace _2RealGStreamerWrapper
 	*/
 	enum ContentType
 	{
+		NONE,
 		VIDEO_AND_AUDIO,
 		VIDEO,
 		AUDIO

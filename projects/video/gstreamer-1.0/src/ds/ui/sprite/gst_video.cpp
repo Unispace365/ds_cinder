@@ -183,6 +183,11 @@ void GstVideo::updateServer(const UpdateParams &up) {
 	}
 			
 	mMovie.update();
+
+	if (mMovie.hasVideo() && mDoPlay) {
+		play();
+		mDoPlay = false;
+	}
 }
 
 void GstVideo::drawLocalClient() {
@@ -342,6 +347,11 @@ void GstVideo::play() {
 
 	mMovie.play();
 	setCmd(kCmdPlay);
+
+	//If movie not yet loaded, remember to play it later once it has
+	if (!mMovie.hasVideo())  {
+		mDoPlay = true;
+	}
 }
 
 void GstVideo::stop() {

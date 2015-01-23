@@ -376,7 +376,7 @@ void GStreamerWrapper::close()
 
 	m_bFileIsOpen = false;
 	m_CurrentPlayState = NOT_INITIALIZED;
-
+	m_ContentType = NONE;
 
 // get rid of message handler thread
 #ifdef THREADED_MESSAGE_HANDLER
