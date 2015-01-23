@@ -212,6 +212,10 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	const bool			drawTouches = settings.getBool("touch_overlay:debug", 0, false);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
+	mData.mMinTouchDistance = settings.getFloat("touch:minimum_distance", 0, 10.0f);
+	mData.mSwipeQueueSize = settings.getInt("touch:swipe:queue_size", 0, 4);
+	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
+	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
 	mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
 	mApplyFxAA = settings.getBool("FxAA", 0, false);
@@ -287,6 +291,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
 	}
+
+	mRotateTouchesDefault = settings.getBool("touch:rotate_touches_default", 0, false);
 
 	// SETUP PICKING
 	mSelectPicking.setWorldSize(mData.mWorldSize);
@@ -927,6 +933,10 @@ void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {
 
 ci::app::WindowRef Engine::getWindow(){
 	return mCinderWindow;
+}
+
+bool Engine::getRotateTouchesDefault(){
+	return mRotateTouchesDefault;
 }
 
 /**

@@ -470,8 +470,14 @@ void GStreamerWrapper::pause()
 {
 	if ( m_GstPipeline != NULL )
 	{
-		gst_element_set_state( m_GstPipeline, GST_STATE_PAUSED );
-		m_CurrentPlayState = PAUSED;
+		GstStateChangeReturn gscr = gst_element_set_state(m_GstPipeline, GST_STATE_PAUSED);
+		if(gscr == GST_STATE_CHANGE_FAILURE){
+			DS_LOG_WARNING("GStreamerWrapper: State change failure trying to pause");
+		} else {
+			m_CurrentPlayState = PAUSED;
+		}
+	} else {
+		DS_LOG_WARNING("GStreamerWrapper: Pipeline doesn't exist when trying to pause video.");
 	}
 }
 

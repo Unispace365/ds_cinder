@@ -150,6 +150,10 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mDrawOpacityHack = 1.0f;
 	mDelayedCallCueRef = nullptr;
 
+	if(mEngine.getRotateTouchesDefault()){
+		setRotateTouches(true);
+	}
+
 	setSpriteId(id);
 
 	mServerColor = ci::ColorA(static_cast<float>(math::random()*0.5 + 0.5),
@@ -520,7 +524,9 @@ void Sprite::addChild( Sprite &child ){
 void Sprite::removeChild( Sprite &child ){
 	if ( !containsChild(&child) )
 		return;
-
+	
+	onChildRemoved(child);
+	
 	auto found = std::find(mChildren.begin(), mChildren.end(), &child);
 	mChildren.erase(found);
 	if (child.getParent() == this) {
@@ -730,12 +736,26 @@ bool Sprite::getTransparent() const
 
 void Sprite::show()
 {
+  const auto before = visible();
   setFlag(VISIBLE_F, true, FLAGS_DIRTY, mSpriteFlags);
+  const auto now = visible();
+  if (before != now)
+  {
+	  onAppearanceChanged(now);
+  }
+  doPropagateVisibilityChange(before, now);
 }
 
 void Sprite::hide()
 {
+  const auto before = visible();
   setFlag(VISIBLE_F, false, FLAGS_DIRTY, mSpriteFlags);
+  const auto now = visible();
+  if (before != now)
+  {
+	  onAppearanceChanged(now);
+  }
+  doPropagateVisibilityChange(before, now);
 }
 
 bool Sprite::visible() const
@@ -920,10 +940,14 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 		}
 
 
-		float closestZ = localToGlobal(candidates.front()->getPosition()).z;
+		float closestZ = -10000000.0f;
+		if(candidates.front()->getParent()){
+			closestZ = candidates.front()->getParent()->localToGlobal(candidates.front()->getPosition()).z;
+		}
 		ds::ui::Sprite* hit = candidates.front();
 		for(auto it = candidates.begin() + 1; it < candidates.end(); ++it){
-			float newZ = localToGlobal((*it)->getPosition()).z;
+			if(!(*it)->getParent()) continue;
+			float newZ = (*it)->getParent()->localToGlobal((*it)->getPosition()).z;
 			if(newZ > closestZ){
 				hit = (*it);
 				closestZ = newZ;
@@ -938,7 +962,7 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 											h = getHeight();
 		ci::Vec3f							a = getParent()->localToGlobal(getPosition());
 											a.x += (-mCenter.x*w);
-											a.y += (mCenter.y*h);
+											a.y += h - (mCenter.y*h);
 
 		ci::Vec2f							lt = ci::Vec2f(a.x, a.y);
 		ci::Vec2f							rb(a.x + w, a.y - h);
@@ -1854,9 +1878,19 @@ void Sprite::setTouchScaleMode(bool doSizeScale)
 	mTouchScaleSizeMode = doSizeScale;
 }
 
-void Sprite::readClientFrom(ds::DataBuffer&)
+void Sprite::readClientFrom(ds::DataBuffer& buf)
 {
-	// virtual method
+	while (buf.canRead<char>())
+	{
+		char cmd = buf.read<char>();
+		if (cmd != TERMINATOR_CHAR) {
+			readClientAttributeFrom(cmd, buf);
+		}
+		else
+		{
+			return;
+		}
+	}
 }
 
 ds::gl::Uniform& Sprite::getUniform()
@@ -1925,6 +1959,49 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 }
 
 #endif
+
+void Sprite::onAppearanceChanged(bool visible)
+{
+	// virtual method
+}
+
+void Sprite::doPropagateVisibilityChange(bool before, bool after)
+{
+	if (before == after) return;
+
+	for (auto it = mChildren.cbegin(), it2 = mChildren.cend(); it != it2; ++it)
+	{
+		if ((*it)->visible()) {
+			// if we were visible, and now we're hidden and our child is visible...
+			// our child will vanish.
+			if (before && !after) {
+				(*it)->onAppearanceChanged(false);
+			}
+
+			// if we were hidden, and now we're visible and our child is visible...
+			// our child will show up.
+			else if (!before && after) {
+				(*it)->onAppearanceChanged(true);
+			}
+
+			// continue propagating
+			(*it)->doPropagateVisibilityChange(before, after);
+		}
+
+		// DO NOT propagate this change to hidden children!
+		// visibility change of a parent has no effect on hidden children.
+	}
+}
+
+void Sprite::onChildRemoved(Sprite& child)
+{
+	// virtual method
+}
+
+void Sprite::readClientAttributeFrom(const char attributeId, ds::DataBuffer&)
+{
+	// virtual method
+}
 
 /**
  * \class ds::ui::Sprite::LockScale

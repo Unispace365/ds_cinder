@@ -66,6 +66,8 @@ public:
 	T&								getService(const std::string&);
 
 	// Access to the current engine configuration info.
+	void SpriteEngine::loadSettings(const std::string& name, const std::string& filename);
+	
 	const ds::EngineCfg&			getEngineCfg() const;
 	// Shortcuts
 	const ds::cfg::Settings&		getSettings(const std::string& name) const;
@@ -82,6 +84,8 @@ public:
 	float							getMinTouchDistance() const;
 	float							getMinTapDistance() const;
 	unsigned						getSwipeQueueSize() const;
+	float							getSwipeMinVelocity() const;
+	float							getSwipeMaxTime() const;
 	float							getDoubleTapTime() const;
 	const ci::Rectf&				getSrcRect() const;
 	const ci::Rectf&				getDstRect() const;
@@ -129,6 +133,10 @@ public:
 
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void					translateTouchPoint( ci::Vec2f& inOutPoint ) = 0;
+
+	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
+	// Sprites can still turn this off after creation
+	virtual bool					getRotateTouchesDefault() = 0;
 
 	// Get the sprite at the global touch point. NOTE: performance intensive. Use carefully.
 	virtual ds::ui::Sprite*			getHit(const ci::Vec3f& point) = 0;

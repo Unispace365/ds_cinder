@@ -5,21 +5,14 @@
 
 namespace fullstarter {
 
-class IdleStartedEvent : public ds::Event {
+class IdleStartedEvent : public ds::RegisteredEvent < IdleStartedEvent > {
 public:
-
-	static int		WHAT();
-
-	IdleStartedEvent( );
-
+	IdleStartedEvent(){};
 };
 
-class IdleEndedEvent : public ds::Event {
+class IdleEndedEvent : public ds::RegisteredEvent < IdleEndedEvent > {
 public:
-
-	static int		WHAT();
-
-	IdleEndedEvent( );
+	IdleEndedEvent(){};
 
 };
 

@@ -172,7 +172,11 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 			}
 			mJsMethodHandler = std::move(std::unique_ptr<ds::web::JsMethodHandler>(new ds::web::JsMethodHandler));
 			if (mJsMethodHandler) mWebViewPtr->set_js_method_handler(mJsMethodHandler.get());
+
+
+			mWebViewPtr->SetTransparent(true);
 		}
+;
 	}
 	//mWebViewPtr->LoadURL( Awesomium::WebURL( Awesomium::WSLit( "http://libcinder.org" ) ) );
 	//mWebViewPtr->Focus();

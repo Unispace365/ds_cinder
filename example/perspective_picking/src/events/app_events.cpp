@@ -1,6 +1,6 @@
 #include "app_events.h"
 
-namespace fullstarter {
+namespace perspective_picking {
 
 
 static ds::EventRegistry	ISE("IdleStartedEvent");
@@ -20,4 +20,4 @@ IdleEndedEvent::IdleEndedEvent(  )
 {
 }
 
-} // !namespace fullstarter
+} // !namespace perspective_picking

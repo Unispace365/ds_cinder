@@ -29,6 +29,11 @@ ds::EventNotifier& SpriteEngine::getNotifier()
 	return mData.mNotifier;
 }
 
+
+void SpriteEngine::loadSettings(const std::string& name, const std::string& filename) {
+	mData.mEngineCfg.loadSettings(name, filename);
+}
+
 const ds::EngineCfg& SpriteEngine::getEngineCfg() const
 {
 	return mData.mEngineCfg;
@@ -52,6 +57,16 @@ float SpriteEngine::getMinTapDistance() const
 unsigned SpriteEngine::getSwipeQueueSize() const
 {
 	return mData.mSwipeQueueSize;
+}
+
+float SpriteEngine::getSwipeMinVelocity() const
+{
+	return mData.mSwipeMinVelocity;
+}
+
+float SpriteEngine::getSwipeMaxTime() const
+{
+	return mData.mSwipeMaxTime;
 }
 
 float SpriteEngine::getDoubleTapTime() const

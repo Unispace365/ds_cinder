@@ -31,6 +31,8 @@ public:
 	float					mMinTouchDistance;
 	float					mMinTapDistance;
 	int						mSwipeQueueSize;
+	float					mSwipeMinVelocity;
+	float					mSwipeMaxTime;
 	float					mDoubleTapTime;
 	ci::Rectf				mScreenRect;
 	ci::Vec2f				mWorldSize;
