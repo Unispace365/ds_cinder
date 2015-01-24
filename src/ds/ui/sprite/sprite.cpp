@@ -231,7 +231,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
 	if ((mSpriteFlags&TRANSPARENT_F) == 0) {
 		ci::gl::enableAlphaBlending();
 		applyBlendingMode(mBlendMode);
-		ci::gl::GlslProg shaderBase = mSpriteShader.getShader();
+		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
 		if (shaderBase) {
 			shaderBase.bind();
 			shaderBase.uniform("tex0", 0);
