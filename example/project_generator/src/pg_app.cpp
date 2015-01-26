@@ -66,6 +66,11 @@ public:
 		, mProjectFolder(DOT)
 		, mWorkingDirectory(ELIPSIS)
 		, mWarningCount(0)
+		, mTemplatePath("%ds_platform_086%\\example\\full_starter")
+		, mTemplateName("full_starter")
+		, mTemplateClassName("FullStarterApp")
+		, mTemplateNamespace("fullstarter")
+		, mTemplateHeadguard("FULLSTARTER")
 	{
 		mParams = ci::params::InterfaceGl::create(ci::app::getWindow(), "App parameters", ci::app::toPixels(ci::Vec2i(600, 250)));
 		setTransparent(false);
@@ -84,6 +89,22 @@ public:
 		
 		mParams->addButton("Generate", [this](){ generate(); }, "");
 		mParams->setOptions("", "valueswidth=450");
+
+		if (mEngine.getDebugSettings().getTextSize("template:path") > 0) {
+			mTemplatePath = mEngine.getDebugSettings().getText("template:path");
+		}
+		if (mEngine.getDebugSettings().getTextSize("template:name") > 0) {
+			mTemplateName = mEngine.getDebugSettings().getText("template:name");
+		}
+		if (mEngine.getDebugSettings().getTextSize("template:classname") > 0) {
+			mTemplateClassName = mEngine.getDebugSettings().getText("template:classname");
+		}
+		if (mEngine.getDebugSettings().getTextSize("template:namespace") > 0) {
+			mTemplateNamespace = mEngine.getDebugSettings().getText("template:namespace");
+		}
+		if (mEngine.getDebugSettings().getTextSize("template:headguard") > 0) {
+			mTemplateHeadguard = mEngine.getDebugSettings().getText("template:headguard");
+		}
 	}
 
 	void SettingsSprite::generate()
@@ -101,18 +122,18 @@ public:
 		mParams->setPosition(ci::Vec2i(20, 25));
 	}
 
-	void copyFullStarter() {
-		const auto cmd = "xcopy /y /e \"%ds_platform_086%\\example\\full_starter\" \"" + mProjectFolder + "\\" + mAppName + "\\\"";
+	void copyTemplate() {
+		const auto cmd = "xcopy /y /e \"" + mTemplatePath + "\" \"" + mProjectFolder + "\\" + mAppName + "\\\"";
 		if (system(cmd.c_str()) != 0) {
-			die("Project Generation failed. Failed to xcopy Full Starter example.");
+			die("Project Generation failed. Failed to xcopy template project: " + mTemplatePath);
 		} else {
 			mWorkingDirectory.assign(mProjectFolder + "\\" + mAppName + "\\");
 		}
 	}
 
 	void analyzeWorkingDirectory() {
-		// Copy the full starter example
-		copyFullStarter();
+		// Copy the template
+		copyTemplate();
 		// Find all files to be configured by RegExp
 		std::string f = getTargetFiles();
 		// Process output of "dir" command
@@ -123,7 +144,7 @@ public:
 			files.push_back(file);
 		}
 
-		std::cout << "Found " << files.size() << " project files to be configured in the Full Starter copied project" << std::endl;
+		std::cout << "Found " << files.size() << " project files to be configured in the copied template project" << std::endl;
 
 		doIt(files);
 	}
@@ -224,13 +245,13 @@ private:
 		for (auto& file : files) {
 			if (extension(file) == ".vcxproj" || extension(file) == ".filters" || extension(file) == ".h" || extension(file) == ".cpp") {
 				std::cout << "Touching " << file << " for references..." << std::endl;
-				str_replace(file, "full_starter_app.cpp", boost::to_lower_copy(mAppName) + "_app.cpp");
-				str_replace(file, "full_starter_app.h", boost::to_lower_copy(mAppName) + "_app.h");
+				str_replace(file, mTemplateName + "_app.cpp", boost::to_lower_copy(mAppName) + "_app.cpp");
+				str_replace(file, mTemplateName + "_app.h", boost::to_lower_copy(mAppName) + "_app.h");
 			}
 			else if (extension(file) == ".sln") {
 				std::cout << "Touching " << file << " for references..." << std::endl;
-				str_replace(file, "full_starter.vcxproj", boost::to_lower_copy(mProjectName) + ".vcxproj");
-				str_replace(file, "full_starter", mProjectName);
+				str_replace(file, mTemplateName + ".vcxproj", boost::to_lower_copy(mProjectName) + ".vcxproj");
+				str_replace(file, mTemplateName, mProjectName);
 			}
 		}
 	}
@@ -249,10 +270,10 @@ private:
 		for (auto& file : files) {
 			if (extension(file) == ".h" || extension(file) == ".cpp") {
 				std::cout << "Touching " << file << " for class names..." << std::endl;
-				str_replace(file, "class\\s+FullStarterApp", "class " + mAppName);
-				str_replace(file, "FullStarterApp::", mAppName+"::");
-				str_replace(file, "::FullStarterApp", "::"+mAppName);
-				str_replace(file, "FullStarterApp\\s*\\(", mAppName+"\\(");
+				str_replace(file, "class\\s+" + mTemplateClassName, "class " + mAppName);
+				str_replace(file, mTemplateClassName + "::", mAppName+"::");
+				str_replace(file, "::" + mTemplateClassName, "::"+mAppName);
+				str_replace(file, mTemplateClassName + "\\s*\\(", mAppName+"\\(");
 			}
 		}
 	}
@@ -273,10 +294,10 @@ private:
 				boost::filesystem::rename(file, p.parent_path().generic_string() + "\\" + boost::to_lower_copy(mSolutionName) + ".sln");
 			} else {
 				boost::filesystem::path p(file);
-				if (p.filename() == "full_starter_app.cpp") {
+				if (p.filename() == mTemplateName + "_app.cpp") {
 					std::cout << "Renaming " << file << std::endl;
 					boost::filesystem::rename(file, p.parent_path().generic_string() + "\\" + boost::to_lower_copy(mAppName) + "_app.cpp");
-				} else if (p.filename() == "full_starter_app.h") {
+				} else if (p.filename() == mTemplateName + "_app.h") {
 					std::cout << "Renaming " << file << std::endl;
 					boost::filesystem::rename(file, p.parent_path().generic_string() + "\\" + boost::to_lower_copy(mAppName) + "_app.h");
 				}
@@ -288,8 +309,8 @@ private:
 		for (auto& file : files) {
 			if (extension(file) == ".cpp" || extension(file) == ".h") {
 				std::cout << "Touching " << file << " for namespace..." << std::endl;
-				str_replace(file, "namespace\\s+fullstarter", "namespace " + mRootNamespace);
-				str_replace(file, "fullstarter::", mRootNamespace+"::");
+				str_replace(file, "namespace\\s+" + mTemplateNamespace, "namespace " + mRootNamespace);
+				str_replace(file, mTemplateNamespace + "::", mRootNamespace+"::");
 			}
 		}
 	}
@@ -298,7 +319,7 @@ private:
 		for (auto& file : files) {
 			if (extension(file) == ".cpp" || extension(file) == ".h") {
 				std::cout << "Touching " << file << " for header guard..." << std::endl;
-				str_replace(file, "_FULLSTARTER_APP", "_"+boost::to_upper_copy(mAppName)+"_APP");
+				str_replace(file, "_" + mTemplateHeadguard + "_APP", "_"+boost::to_upper_copy(mAppName)+"_APP");
 			}
 		}
 	}
@@ -317,6 +338,11 @@ private:
 	std::string				mWindowTitle; // Oracle Media Wall App 
 	std::string				mProjectFolder; // c:/users/you/documents/projects/whatever/path/
 	std::string				mWorkingDirectory;
+	std::string				mTemplatePath;
+	std::string				mTemplateName;
+	std::string				mTemplateClassName;
+	std::string				mTemplateNamespace;
+	std::string				mTemplateHeadguard;
 	size_t					mWarningCount;
 };
 
