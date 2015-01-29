@@ -131,7 +131,9 @@ GstVideo::GstVideo(SpriteEngine& engine)
 		, mPlaySingleFrameFn(nullptr)
 		, mServerModeHack(false)
 		, mReportedCurrentPosition(0.0)
-		, mVideoFlags(0) {
+		, mVideoFlags(0)
+		, mDoPlay(false)
+{
 	mBlobType = BLOB_TYPE;
 
 	setUseShaderTextuer(true);
@@ -357,12 +359,17 @@ void GstVideo::play() {
 void GstVideo::stop() {
 	DS_LOG_INFO("GstVideo::stop() " << mFilename);
 
+	mDoPlay = false;
+
 	mMovie.stop();
 	setCmd(kCmdStop);
 }
 
 void GstVideo::pause() {
 	DS_LOG_INFO("GstVideo::pause() " << mFilename);
+
+	mDoPlay = false;
+
 	mMovie.pause();
 	setCmd(kCmdPause);
 }
