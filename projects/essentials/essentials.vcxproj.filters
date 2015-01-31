@@ -28,6 +28,9 @@
     <Filter Include="src\ds\ui\button">
       <UniqueIdentifier>{61cae238-1a76-4498-a57f-7da0bc32075e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\touch">
+      <UniqueIdentifier>{6ab169de-3b25-4751-8241-426e54959e13}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -63,6 +66,9 @@
     <ClCompile Include="src\ds\ui\button\sprite_button.cpp">
       <Filter>src\ds\ui\button</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\touch\five_finger_cluster.cpp">
+      <Filter>src\ds\touch</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -97,6 +103,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\button\sprite_button.h">
       <Filter>src\ds\ui\button</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\touch\five_finger_cluster.h">
+      <Filter>src\ds\touch</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
