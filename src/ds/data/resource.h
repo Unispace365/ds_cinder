@@ -69,7 +69,7 @@ public:
 		bool				verifyPaths() const;
 
 		void			    writeTo(DataBuffer&) const;
-  		bool			    readFrom(DataBuffer&);
+		bool			    readFrom(DataBuffer&);
 
 		// The engines are required to set paths to the various resource database before
 		// anyone does anything.  This assumes the traditional CMS path -- a resource
@@ -122,25 +122,25 @@ public:
 	float					getWidth() const        { return mWidth; }
 	float					getHeight() const       { return mHeight; }
 	int						getThumbnailId() const  { return mThumbnailId; }
-    // Answer the full path to my file
-    std::string				getAbsoluteFilePath() const;
+	// Answer the full path to my file
+	std::string				getAbsoluteFilePath() const;
 	// Answer an abstract file path that can be resolved to an absolute
 	// one via ds::Environment::expand().
 	std::string				getPortableFilePath() const;
 
-    void					clear();
+	void					clear();
 	bool					empty() const;
 	void					swap(Resource&);
 
-    void					setDbId(const Resource::Id&);
-    void					setType(const int);
+	void					setDbId(const Resource::Id&);
+	void					setType(const int);
 
-    // Warning: Expensive operation (database lookup).  Use with care.
-    bool					existsInDb() const;
-    // Query the DB for my contents. Obviously, this is also an expensive operation.
-    bool					query(const Resource::Id&);
+	// Warning: Expensive operation (database lookup).  Use with care.
+	bool					existsInDb() const;
+	// Query the DB for my contents. Obviously, this is also an expensive operation.
+	bool					query(const Resource::Id&);
 	// The argument is the full thumbnail, if you want it.
-    bool					query(const Resource::Id&, Resource* outThumb);
+	bool					query(const Resource::Id&, Resource* outThumb);
 
 private:
 	friend class ResourceList;
@@ -149,7 +149,7 @@ private:
 	int                   mType;
 	double                mDuration;
 	float                 mWidth,
-                          mHeight;
+						  mHeight;
 	std::string           mFileName;
 	std::string           mPath;
 	// Sorta hacked in for Kurt's model
@@ -168,12 +168,12 @@ std::wostream&            operator<<(std::wostream&, const ds::Resource::Id&);
 
 // Make the resource ID available for hashing functions
 namespace std {
-  template<>
-  struct hash<ds::Resource::Id> : public unary_function<ds::Resource::Id, size_t> {
-    size_t operator()(const ds::Resource::Id& id) const {
-      return id.mType + (id.mValue << 8);
-    }
-  };
+template<>
+struct hash<ds::Resource::Id> : public unary_function < ds::Resource::Id, size_t > {
+	size_t operator()(const ds::Resource::Id& id) const {
+		return id.mType + (id.mValue << 8);
+	}
+};
 }
 
 #endif // DS_DATA_RESOURCE_H_

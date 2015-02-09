@@ -54,6 +54,8 @@ public:
 	void						setOverrideOffset( const ci::Vec2f& offset ){ mTouchOffset = offset; }
 	void						setTouchFilterRect( const ci::Rectf &filterRect ){ mTouchFilterRect = filterRect; }
 
+	bool						getOverrideEnabled(){ return mOverrideTranslation; }
+
 	// If you've set the override for translation, actually do that translation
 	void						overrideTouchTranslation(ci::Vec2f& inOutPoint);
 

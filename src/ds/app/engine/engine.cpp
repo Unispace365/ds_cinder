@@ -870,6 +870,9 @@ const ci::Rectf& Engine::getScreenRect() const {
 
 void Engine::translateTouchPoint(ci::Vec2f& inOutPoint) {
 	inOutPoint = mTouchTranslator.toWorldf(inOutPoint.x, inOutPoint.y);
+	if(mTouchManager.getOverrideEnabled()){
+		mTouchManager.overrideTouchTranslation(inOutPoint);
+	}
 };
 
 void Engine::nextTouchMode() {

@@ -207,7 +207,7 @@ const std::string& Resource::Id::getPortableResourcePath() const {
 }
 
 void Resource::Id::setupPaths(const std::string& resource, const std::string& db,
-                              const std::string& projectPath)
+							  const std::string& projectPath)
 {
 	CMS_RESOURCE_PATH = resource;
 	{
@@ -244,7 +244,7 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 }
 
 void Resource::Id::setupCustomPaths( const std::function<const std::string&(const Resource::Id&)>& resourcePath,
-                                     const std::function<const std::string&(const Resource::Id&)>& dbPath)
+									 const std::function<const std::string&(const Resource::Id&)>& dbPath)
 {
 	CUSTOM_RESOURCE_PATH = resourcePath;
 	CUSTOM_DB_PATH = dbPath;
