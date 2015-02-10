@@ -69,6 +69,9 @@
     <ClCompile Include="src\ds\touch\five_finger_cluster.cpp">
       <Filter>src\ds\touch</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\touch\delayed_momentum.cpp">
+      <Filter>src\ds\touch</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -105,6 +108,9 @@
       <Filter>src\ds\ui\button</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\touch\five_finger_cluster.h">
+      <Filter>src\ds\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\touch\delayed_momentum.h">
       <Filter>src\ds\touch</Filter>
     </ClInclude>
   </ItemGroup>
