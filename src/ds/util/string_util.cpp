@@ -56,7 +56,7 @@ std::string			ds::utf8_from_wstr(const std::wstring& wstr)
 }
 
 
-std::wstring ds::string_to_wstring(const std::string& input){
+std::wstring ds::iso_8859_1_string_to_wstring(const std::string& input){
 	// you may notice that this implementation is different than the reverse.
 	// good eye.
 	// wstring and string conversion is A TOTAL MOTHERFUCKER.
@@ -70,7 +70,7 @@ std::wstring ds::string_to_wstring(const std::string& input){
 	return conv.str();
 }
 
-std::string ds::wstring_to_string(const std::wstring& input){
+std::string ds::iso_8859_1_wstring_to_string(const std::wstring& input){
 	typedef std::codecvt_utf8<wchar_t> convert_typeX;
 	std::wstring_convert<convert_typeX, wchar_t> converterX;
 
