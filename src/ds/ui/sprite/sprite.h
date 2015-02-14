@@ -119,6 +119,7 @@ public:
 
 	void					setScale(const ci::Vec3f &scale);
 	void					setScale(float x, float y, float z = 1.0f);
+	void					setScale(float scale);
 	const ci::Vec3f&		getScale() const;
 
 	// center of the Sprite. Where its positioned at and rotated at.
