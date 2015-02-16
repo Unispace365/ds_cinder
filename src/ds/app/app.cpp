@@ -160,7 +160,11 @@ void App::prepareSettings(Settings *settings) {
 
 	if (settings) {
 		mEngine.prepareSettings(*settings);
-		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
+
+		if (mEngineData.mWorldSlices.empty())
+			settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
+		else
+			settings->setWindowPos(static_cast<unsigned>(mEngineData.mScreenRect.x1), static_cast<unsigned>(mEngineData.mScreenRect.y1));
 	}
 }
 

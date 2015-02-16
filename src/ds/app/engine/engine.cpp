@@ -238,9 +238,56 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
 	// which makes them get ignored.
 	if (settings.getRectSize("src_rect") > 0 || settings.getRectSize("dst_rect") > 0) {
+
+	    //! Size of dst_rect must match src_rect. This is a must! otherwise how stuff should be rendered?
+		DS_ASSERT_MSG(settings.getRectSize("src_rect") == settings.getRectSize("dst_rect"), "src_rect num must match dst_rect num.");
+
 		const ci::Rectf		empty_rect(0.0f, 0.0f, -1.0f, -1.0f);
-		mData.mSrcRect = settings.getRect("src_rect", 0, empty_rect);
-		mData.mDstRect = settings.getRect("dst_rect", 0, empty_rect);
+
+		//! If we are asked to render discontinuous parts of the world, special care is required.
+		// here's the procedure:
+		// in case I found more than on dst_rect / src_rect in engine.xml, I know I have been asked
+		// to render discontinued parts of the world. Therefore, what I will do is that I will first
+		// render the entire world into one single FBO and then take little "chunks" of its texture (
+		// specified by src_rect's) and will draw at specific locations (marked by dst_rect's). In this
+		// setup however, I will need good'ol screen_rect config entry back to figure out the window
+		// position / size because src_rect's and dst_rect's do not specify anything about the window
+		// anymore.
+
+		if (settings.getRectSize("src_rect") > 1)
+		{
+			// make sure I have the screen_rect config entry to specify the window
+			DS_ASSERT_MSG(settings.getRectSize("screen_rect") > 0, "in case of world slicing, screen_rect must be set.");
+
+			mData.mScreenRect = settings.getRect("screen_rect", 0, empty_rect);
+			
+			// mData.mSrcRect and mData.mDstRect equal to world will force the entire world
+			// to be rendered into a single FBO.
+			mData.mSrcRect = ci::Rectf(ci::Vec2f::zero(), mData.mWorldSize);
+			mData.mDstRect = ci::Rectf(ci::Vec2f::zero(), mData.mWorldSize);
+
+			// Get all "chunks" of the world we've been asked to render.
+			for (auto index = 0, end = settings.getRectSize("src_rect"); index < end; ++index)
+			{
+				const auto src_rect = settings.getRect("src_rect", index, empty_rect);
+				const auto dst_rect = settings.getRect("dst_rect", index, empty_rect);
+
+				mData.mWorldSlices.push_back(std::make_pair(
+					ci::Area(	static_cast<int>(src_rect.getUpperLeft().x),
+								static_cast<int>(src_rect.getUpperLeft().y),
+								static_cast<int>(src_rect.getLowerRight().x),
+								static_cast<int>(src_rect.getLowerRight().y))
+					, // FBOs are flipped, therefore subtract world height from my Y pos
+					ci::Rectf(dst_rect.x1, mData.mWorldSize.y - dst_rect.y1, dst_rect.x2, mData.mWorldSize.y - dst_rect.y2)
+					));
+			}
+		}
+		else
+		{
+			// normal continuous-render engine behavior.
+			mData.mSrcRect = settings.getRect("src_rect", 0, empty_rect);
+			mData.mDstRect = settings.getRect("dst_rect", 0, empty_rect);
+		}
 	}
 	// Override the screen rect if we're using the new-style mode. I inherit behaviour like setting
 	// the window size from this.
@@ -602,13 +649,32 @@ void Engine::drawClient() {
 		} else {
 			ci::gl::draw( mFbo.getTexture(0), screen );
 		}
-	} else {	  
-		ci::gl::enableAlphaBlending();
-		//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-		ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
+	} else {
+		// if rendering discontinuous, draw to FBO first then chunks.
+		if (mData.mWorldSlices.empty())
+		{
+			ci::gl::enableAlphaBlending();
+			ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 
-		for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-			(*it)->drawClient(mDrawParams, mAutoDraw);
+			for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
+				(*it)->drawClient(mDrawParams, mAutoDraw);
+			}
+		}
+		else
+		{
+			ci::gl::SaveFramebufferBinding bindingSaver;
+			mFbo.bindFramebuffer();
+			ci::gl::enableAlphaBlending();
+			ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+
+			for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
+				(*it)->drawClient(mDrawParams, mAutoDraw);
+			}
+			mFbo.unbindFramebuffer();
+			for (const auto& world_slice : mData.mWorldSlices)
+			{
+				ci::gl::draw(mFbo.getTexture(), world_slice.first, world_slice.second);
+			}
 		}
 	}
 
