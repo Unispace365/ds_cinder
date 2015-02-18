@@ -121,6 +121,9 @@
     <Filter Include="src\tuio">
       <UniqueIdentifier>{9be7ff39-27e0-45e4-890a-65e91ab4e28e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\app\engine\renderers">
+      <UniqueIdentifier>{0d3f99b8-44cb-4266-b9aa-e57cc95746ad}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -672,6 +675,18 @@
     <ClInclude Include="..\src\ds\app\event_registry.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_continuous.h">
+      <Filter>src\ds\app\engine\renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_discontinuous.h">
+      <Filter>src\ds\app\engine\renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_interface.h">
+      <Filter>src\ds\app\engine\renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_continuous_fxaa.h">
+      <Filter>src\ds\app\engine\renderers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1129,6 +1144,18 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\event_registry.cpp">
       <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_continuous.cpp">
+      <Filter>src\ds\app\engine\renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_discontinuous.cpp">
+      <Filter>src\ds\app\engine\renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_continuous_fxaa.cpp">
+      <Filter>src\ds\app\engine\renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_interface.cpp">
+      <Filter>src\ds\app\engine\renderers</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
