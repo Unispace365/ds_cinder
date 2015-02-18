@@ -1,5 +1,7 @@
 #include "button_behaviour.h"
 
+#include <ds/debug/logger.h>
+
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/tween/tweenline.h>
@@ -140,7 +142,8 @@ void ButtonBehaviour::handleTouch(const ds::ui::TouchInfo& ti) {
 			}
 		}
 
-	} catch (std::exception const&) {
+	} catch (std::exception const& ex) {
+		DS_LOG_WARNING("Exception handling touch in button behaviour: " << ex.what());
 	}
 }
 
