@@ -5,5 +5,5 @@
 
 void ds::EngineRenderer::clearScreen()
 {
-	ci::gl::clear(ci::ColorA( 0.85f, 0.85f, 0.85f, 1 ));
+	ci::gl::clear(ci::ColorA( 0.0f, 0.0f, 0.0f, 0.0f ));
 }
