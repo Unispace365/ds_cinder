@@ -23,6 +23,7 @@
 
 #include "TuioClient.h"
 
+#include "ds/app/engine/renderers/engine_renderer_interface.h"
 #include "ds/app/engine/engine_touch_queue.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
@@ -212,9 +213,32 @@ protected:
 	ds::ui::ip::FunctionList			mIpFunctions;
 	ds::ui::TouchMode::Enum				mTouchMode;
 
+	// This really should move somewhere else (TODO: SL)
+	struct FxaaOptions
+	{
+		bool								mApplyFxAA{ false };
+		float								mFxAASpanMax;
+		float								mFxAAReduceMul;
+		float								mFxAAReduceMin;
+	} mFxaaOptions;
+
+public:
+	//! **** IMPORTANT NOTE ****
+	//! Leave these methods to be here so they get in-lined properly.
+	//! In-lining these methods are crucial since they get fired every frame!
+	inline const std::vector<std::unique_ptr<EngineRoot>>&
+										getRoots() const { return mRoots; }
+	inline const ds::DrawParams&		getDrawParams() const { return mDrawParams; }
+	inline ds::AutoDrawService* const	getAutoDrawService() { return mAutoDraw; }
+	inline const FxaaOptions&			getFxaaOptions() const { return mFxaaOptions; }
+
 private:
-	// Special function to set the camera to the current screen and clear it.
-	void								clearScreen();
+	//! a pointer to the currently active renderer
+	std::unique_ptr<EngineRenderer>		mRenderer;
+	//! decides a renderer based on engine configurations. MUST be called inside "setup".
+	void								setupRenderer();
+
+private:
 	void								setTouchMode(const ds::ui::TouchMode::Enum&);
 
 	friend class EngineStatsView;
@@ -243,9 +267,6 @@ private:
 	AutoDrawService*					mAutoDraw;
 
 	ds::cfg::Settings					mDebugSettings;
-
-	ci::gl::Fbo							mFbo;
-
 	ds::ui::TouchTranslator				mTouchTranslator;
 	std::mutex							mTouchMutex;
 	ds::EngineTouchQueue<ci::app::TouchEvent>
@@ -266,17 +287,9 @@ private:
 	ds::SelectPicking					mSelectPicking;
 
 	bool								mRotateTouchesDefault;
-
 	bool								mHideMouse;
-
-	bool								mApplyFxAA;
-	float								mFxAASpanMax;
-	float								mFxAAReduceMul;
-	float								mFxAAReduceMin;
 	ci::Color8u							mUniqueColor;
-
 	int									mCachedWindowW, mCachedWindowH;
-
 	ci::app::WindowRef					mCinderWindow;
 
 	// Channels. A channel is simply a notifier, with an optional description.

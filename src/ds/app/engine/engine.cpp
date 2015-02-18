@@ -20,6 +20,10 @@
 #include "ds/ui/sprite/util/blend.h"
 #include "cinder/Thread.h"
 
+#include "renderers/engine_renderer_continuous_fxaa.h"
+#include "renderers/engine_renderer_continuous.h"
+#include "renderers/engine_renderer_discontinuous.h"
+
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
 using namespace ci;
@@ -160,7 +164,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);})
 	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
 	, mHideMouse(false)
-	, mApplyFxAA(false)
 	, mUniqueColor(0, 0, 0)
 	, mAutoDraw(new AutoDrawService())
 	, mCachedWindowW(0)
@@ -218,10 +221,10 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
 	mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
-	mApplyFxAA = settings.getBool("FxAA", 0, false);
-	mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
-	mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
-	mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
+	mFxaaOptions.mApplyFxAA = settings.getBool("FxAA", 0, false);
+	mFxaaOptions.mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
+	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
+	mFxaaOptions.mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
 	mData.mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
 	// Backwards compatibility with pre src-dst rect days
@@ -256,10 +259,31 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 		if (settings.getRectSize("src_rect") > 1)
 		{
-			// make sure I have the screen_rect config entry to specify the window
-			DS_ASSERT_MSG(settings.getRectSize("screen_rect") > 0, "in case of world slicing, screen_rect must be set.");
+			mData.mScreenRect = ci::Rectf::zero();
+			auto expand_screen_rect_by_dst_rect = [this](const ci::Rectf& dst) { 
+				static std::once_flag initial_flag;
+				std::call_once(initial_flag, [this, dst]{ mData.mScreenRect = dst; });
 
-			mData.mScreenRect = settings.getRect("screen_rect", 0, empty_rect);
+				if (dst.getUpperLeft().x < mData.mScreenRect.getUpperLeft().x)
+				{
+					mData.mScreenRect.x1 = dst.getUpperLeft().x;
+				}
+
+				if (dst.getUpperLeft().y < mData.mScreenRect.getUpperLeft().y)
+				{
+					mData.mScreenRect.y1 = dst.getUpperLeft().y;
+				}
+
+				if (dst.getLowerRight().x > mData.mScreenRect.getLowerRight().x)
+				{
+					mData.mScreenRect.x2 = dst.getLowerRight().x;
+				}
+
+				if (dst.getLowerRight().y > mData.mScreenRect.getLowerRight().y)
+				{
+					mData.mScreenRect.y2 = dst.getLowerRight().y;
+				}
+			};
 			
 			// mData.mSrcRect and mData.mDstRect equal to world will force the entire world
 			// to be rendered into a single FBO.
@@ -271,6 +295,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 			{
 				const auto src_rect = settings.getRect("src_rect", index, empty_rect);
 				const auto dst_rect = settings.getRect("dst_rect", index, empty_rect);
+
+				expand_screen_rect_by_dst_rect(dst_rect);
 
 				mData.mWorldSlices.push_back(std::make_pair(
 					ci::Area(	static_cast<int>(src_rect.getUpperLeft().x),
@@ -506,14 +532,6 @@ void Engine::updateServer() {
 	}
 }
 
-void Engine::clearScreen() {
-// Do I need this?
-//	ci::gl::setViewport(Area((int)mData.mScreenRect.getX1(), (int)mData.mScreenRect.getY2(), (int)mData.mScreenRect.getX2(), (int)mData.mScreenRect.getY1()));
-//	mCamera.setOrtho(mData.mScreenRect.getX1(), mData.mScreenRect.getX2(), mData.mScreenRect.getY2(), mData.mScreenRect.getY1(), -1, 1);
-
-	ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
-}
-
 void Engine::markCameraDirty() {
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		(*it)->markCameraDirty();
@@ -596,103 +614,11 @@ void Engine::registerForTuioObjects(tuio::Client& client) {
 }
 
 void Engine::drawClient() {
-	glAlphaFunc ( GL_GREATER, 0.001f ) ;
-	glEnable ( GL_ALPHA_TEST ) ;
-
-	if (mApplyFxAA) {
-		{
-			ci::gl::SaveFramebufferBinding bindingSaver;
-			// bind the framebuffer - now everything we draw will go there
-			mFbo.bindFramebuffer();
-			ci::gl::enableAlphaBlending();
-			//glBlendFuncSeparate(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE, GL_ONE);
-			ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
-
-			for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-				(*it)->drawClient(mDrawParams, mAutoDraw);
-			}
-			mFbo.unbindFramebuffer();
-		}
-		ci::gl::enableAlphaBlending();
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-		clearScreen();
-//		setCamera();
-//		ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
-		//   gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
-		Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
-
-		static ci::gl::GlslProg shader;
-		if (!shader) {
-			std::string location = ds::Environment::getAppFolder("data/shaders");
-			std::string name = "fxaa";
-			try {
-				shader = ci::gl::GlslProg(ci::loadFile((location+"/"+name+".vert").c_str()), ci::loadFile((location+"/"+name+".frag").c_str()));
-			} catch (std::exception &e) {
-				std::cout << e.what() << std::endl;
-			}
-		}
-
-		if (shader) {
-			shader.bind();
-			mFbo.bindTexture();
-			shader.uniform("tex0", 0);
-			shader.uniform("texcoordOffset", ci::Vec2f(1.0f / getWidth(), 1.0f / getHeight()));
-			shader.uniform("FXAA_SPAN_MAX", mFxAASpanMax);
-			shader.uniform("FXAA_REDUCE_MUL", 1.0f / mFxAAReduceMul);
-			shader.uniform("FXAA_REDUCE_MIN", 1.0f / mFxAAReduceMin);
-
-			//gl::draw( mFbo.getTexture(0), screen );
-			ci::gl::drawSolidRect(screen);
-
-			mFbo.unbindTexture();
-			shader.unbind();
-		} else {
-			ci::gl::draw( mFbo.getTexture(0), screen );
-		}
-	} else {
-		// if rendering discontinuous, draw to FBO first then chunks.
-		if (mData.mWorldSlices.empty())
-		{
-			ci::gl::enableAlphaBlending();
-			ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
-
-			for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-				(*it)->drawClient(mDrawParams, mAutoDraw);
-			}
-		}
-		else
-		{
-			ci::gl::SaveFramebufferBinding bindingSaver;
-			mFbo.bindFramebuffer();
-			ci::gl::enableAlphaBlending();
-			ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
-
-			for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
-				(*it)->drawClient(mDrawParams, mAutoDraw);
-			}
-			mFbo.unbindFramebuffer();
-			for (const auto& world_slice : mData.mWorldSlices)
-			{
-				ci::gl::draw(mFbo.getTexture(), world_slice.first, world_slice.second);
-			}
-		}
-	}
-
-	glAlphaFunc ( GL_ALWAYS, 0.001f ) ;
+	mRenderer->drawClient();
 }
 
 void Engine::drawServer() {
-	glAlphaFunc(GL_GREATER, 0.001f);
-	glEnable(GL_ALPHA_TEST);
-
-	ci::gl::enableAlphaBlending();
-	ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
-
-	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-		(*it)->drawServer(mDrawParams);
-	}
-
-	glAlphaFunc(GL_ALWAYS, 0.001f) ;
+	mRenderer->drawServer();
 }
 
 void Engine::setup(ds::App& app) {
@@ -707,8 +633,6 @@ void Engine::setup(ds::App& app) {
 		(*it)->setCinderCamera();
 	}
 
-	ci::gl::Fbo::Format format;
-	format.setColorInternalFormat(GL_RGBA32F);
 	const int		w = static_cast<int>(getWidth()),
 					h = static_cast<int>(getHeight());
 	if (w < 1 || h < 1) {
@@ -716,7 +640,6 @@ void Engine::setup(ds::App& app) {
 		std::cout << "ERROR Engine::setup() on 0 size width or height" << std::endl;
 		throw std::runtime_error("Engine::setup() on 0 size width or height");
 	}
-	mFbo = ci::gl::Fbo(w, h, format);
 	//////////////////////////////////////////////////////////////////////////
 
 	float curr = static_cast<float>(getElapsedSeconds());
@@ -732,6 +655,8 @@ void Engine::setup(ds::App& app) {
 			if (it->second) it->second->start();
 		}
 	}
+
+	setupRenderer();
 }
 
 void Engine::prepareSettings(ci::app::AppBasic::Settings& settings) {
@@ -1006,6 +931,41 @@ ci::app::WindowRef Engine::getWindow(){
 
 bool Engine::getRotateTouchesDefault(){
 	return mRotateTouchesDefault;
+}
+
+void Engine::setupRenderer()
+{
+	//! multiple calls to this method should do nothing
+	//! but also should not crash the whole thing!
+	static std::once_flag renderer_initialized;
+	
+	//! decide and pick the most appropriate renderer and set it up.
+	//! based on engine.xml entries.
+	std::call_once(renderer_initialized, [this] {
+		if (mData.mWorldSlices.empty()) //if continuous
+		{
+			if (mFxaaOptions.mApplyFxAA) //if with FXAA
+			{
+				mRenderer = std::make_unique<EngineRendererContinuousFxaa>(*this);
+			}
+			else //if no FXAA
+			{
+				mRenderer = std::make_unique<EngineRendererContinuous>(*this);
+			}
+		}
+		else //if discontinuous
+		{
+			if (mFxaaOptions.mApplyFxAA) //if with FXAA
+			{
+				//! I can't figure out a way to mix these two yet. Pending! (TODO: SL)
+				throw std::logic_error("FXAA is not supported in discontinuous rendering mode.");
+			}
+			else //if no FXAA
+			{
+				mRenderer = std::make_unique<EngineRendererDiscontinuous>(*this);
+			}
+		}
+	});
 }
 
 /**
