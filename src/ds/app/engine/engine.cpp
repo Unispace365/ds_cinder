@@ -256,10 +256,31 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 		if (settings.getRectSize("src_rect") > 1)
 		{
-			// make sure I have the screen_rect config entry to specify the window
-			DS_ASSERT_MSG(settings.getRectSize("screen_rect") > 0, "in case of world slicing, screen_rect must be set.");
+			mData.mScreenRect = ci::Rectf::zero();
+			auto expand_screen_rect_by_dst_rect = [this](const ci::Rectf& dst) { 
+				static std::once_flag initial_flag;
+				std::call_once(initial_flag, [this, dst]{ mData.mScreenRect = dst; });
 
-			mData.mScreenRect = settings.getRect("screen_rect", 0, empty_rect);
+				if (dst.getUpperLeft().x < mData.mScreenRect.getUpperLeft().x)
+				{
+					mData.mScreenRect.x1 = dst.getUpperLeft().x;
+				}
+
+				if (dst.getUpperLeft().y < mData.mScreenRect.getUpperLeft().y)
+				{
+					mData.mScreenRect.y1 = dst.getUpperLeft().y;
+				}
+
+				if (dst.getLowerRight().x > mData.mScreenRect.getLowerRight().x)
+				{
+					mData.mScreenRect.x2 = dst.getLowerRight().x;
+				}
+
+				if (dst.getLowerRight().y > mData.mScreenRect.getLowerRight().y)
+				{
+					mData.mScreenRect.y2 = dst.getLowerRight().y;
+				}
+			};
 			
 			// mData.mSrcRect and mData.mDstRect equal to world will force the entire world
 			// to be rendered into a single FBO.
@@ -271,6 +292,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 			{
 				const auto src_rect = settings.getRect("src_rect", index, empty_rect);
 				const auto dst_rect = settings.getRect("dst_rect", index, empty_rect);
+
+				expand_screen_rect_by_dst_rect(dst_rect);
 
 				mData.mWorldSlices.push_back(std::make_pair(
 					ci::Area(	static_cast<int>(src_rect.getUpperLeft().x),
@@ -507,10 +530,6 @@ void Engine::updateServer() {
 }
 
 void Engine::clearScreen() {
-// Do I need this?
-//	ci::gl::setViewport(Area((int)mData.mScreenRect.getX1(), (int)mData.mScreenRect.getY2(), (int)mData.mScreenRect.getX2(), (int)mData.mScreenRect.getY1()));
-//	mCamera.setOrtho(mData.mScreenRect.getX1(), mData.mScreenRect.getX2(), mData.mScreenRect.getY2(), mData.mScreenRect.getY1(), -1, 1);
-
 	ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
 }
 
@@ -616,9 +635,6 @@ void Engine::drawClient() {
 		ci::gl::enableAlphaBlending();
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		clearScreen();
-//		setCamera();
-//		ci::gl::clear( ColorA( 0.0f, 0.0f, 0.0f, 0.0f ) );
-		//   gl::color(ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 		Rectf screen(0.0f, getHeight(), getWidth(), 0.0f);
 
 		static ci::gl::GlslProg shader;
@@ -641,7 +657,6 @@ void Engine::drawClient() {
 			shader.uniform("FXAA_REDUCE_MUL", 1.0f / mFxAAReduceMul);
 			shader.uniform("FXAA_REDUCE_MIN", 1.0f / mFxAAReduceMin);
 
-			//gl::draw( mFbo.getTexture(0), screen );
 			ci::gl::drawSolidRect(screen);
 
 			mFbo.unbindTexture();
@@ -654,7 +669,7 @@ void Engine::drawClient() {
 		if (mData.mWorldSlices.empty())
 		{
 			ci::gl::enableAlphaBlending();
-			ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+			clearScreen();
 
 			for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
 				(*it)->drawClient(mDrawParams, mAutoDraw);
@@ -662,15 +677,16 @@ void Engine::drawClient() {
 		}
 		else
 		{
-			ci::gl::SaveFramebufferBinding bindingSaver;
+			//ci::gl::SaveFramebufferBinding bindingSaver;
 			mFbo.bindFramebuffer();
 			ci::gl::enableAlphaBlending();
-			ci::gl::clear(ColorA(0.0f, 0.0f, 0.0f, 0.0f));
-
+			clearScreen();
 			for (auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
 				(*it)->drawClient(mDrawParams, mAutoDraw);
 			}
 			mFbo.unbindFramebuffer();
+			
+			clearScreen();
 			for (const auto& world_slice : mData.mWorldSlices)
 			{
 				ci::gl::draw(mFbo.getTexture(), world_slice.first, world_slice.second);
