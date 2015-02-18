@@ -192,7 +192,10 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 
 Web::~Web() {
 	if (mWebViewPtr) {
+		mWebViewPtr->set_js_method_handler(nullptr);
+		mWebViewPtr->set_load_listener(nullptr);
 		mWebViewPtr->set_view_listener(nullptr);
+		mWebViewPtr->Stop();
 		mWebViewPtr->Destroy();
 	}
 }
