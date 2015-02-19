@@ -62,6 +62,7 @@
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_continuous_fxaa.h" />
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_discontinuous.h" />
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_interface.h" />
+    <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_null.h" />
     <ClInclude Include="..\src\ds\app\engine\unique_id.h" />
     <ClInclude Include="..\src\ds\app\environment.h" />
     <ClInclude Include="..\src\ds\app\error.h" />

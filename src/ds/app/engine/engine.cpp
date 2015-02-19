@@ -1,9 +1,4 @@
 #include "ds/app/engine/engine.h"
-
-#include <GL/glu.h>
-#include <Poco/File.h>
-#include <Poco/Path.h>
-#include <cinder/Json.h>
 #include "ds/app/app.h"
 #include "ds/app/auto_draw.h"
 #include "ds/app/environment.h"
@@ -17,9 +12,15 @@
 #include "ds/math/math_defs.h"
 #include "ds/ui/ip/ip_defs.h"
 #include "ds/ui/ip/functions/ip_circle_mask.h"
-#include "ds/ui/sprite/util/blend.h"
-#include "cinder/Thread.h"
 
+//! This entire header is included for one single
+//! function Poco::Path::expand. This slowly needs
+//! to get removed. Poco is not part of the Cinder.
+#include <Poco/Path.h>
+
+#include <boost/algorithm/string/predicate.hpp>
+
+#include "renderers/engine_renderer_null.h"
 #include "renderers/engine_renderer_continuous_fxaa.h"
 #include "renderers/engine_renderer_continuous.h"
 #include "renderers/engine_renderer_discontinuous.h"
@@ -659,9 +660,30 @@ void Engine::setup(ds::App& app) {
 	setupRenderer();
 }
 
-void Engine::prepareSettings(ci::app::AppBasic::Settings& settings) {
-	settings.setWindowSize( static_cast<int>(getWidth()),
-							static_cast<int>(getHeight()));
+void Engine::prepareSettings(ci::app::AppBasic::Settings& settings)
+{
+	if (mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
+	{
+		// a 50x25 window for null renderer.
+		settings.setWindowSize(50, 25);
+		settings.setFullScreen(false);
+		settings.setBorderless(false);
+		settings.setAlwaysOnTop(false);
+	}
+	else
+	{
+		settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
+		if (boost::algorithm::icontains(mSettings.getText("screen:mode", 0, ""), "full"))
+		{
+			settings.setFullScreen(true);
+		}
+		else if (boost::algorithm::icontains(mSettings.getText("screen:mode", 0, ""), "borderless"))
+		{
+			settings.setBorderless(true);
+		}
+		settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
+	}
+
 	settings.setResizable(false);
 
 	if (ds::ui::TouchMode::hasSystem(mTouchMode)) {
@@ -672,13 +694,6 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings) {
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
 
 	settings.setFrameRate(mData.mFrameRate);
-
-	if (mSettings.getText("screen:mode", 0, "") == "full") {
-		settings.setFullScreen(true);
-	} else if (mSettings.getText("screen:mode", 0, "") == "borderless") {
-		settings.setBorderless(true);
-	}
-	settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 
 	const std::string     nope = "ds:IllegalTitle";
 	const std::string     title = mSettings.getText("screen:title", 0, nope);
@@ -942,7 +957,11 @@ void Engine::setupRenderer()
 	//! decide and pick the most appropriate renderer and set it up.
 	//! based on engine.xml entries.
 	std::call_once(renderer_initialized, [this] {
-		if (mData.mWorldSlices.empty()) //if continuous
+		if (mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
+		{
+			mRenderer = std::make_unique<EngineRendererNull>(*this);
+		}
+		else if (mData.mWorldSlices.empty()) //if continuous
 		{
 			if (mFxaaOptions.mApplyFxAA) //if with FXAA
 			{

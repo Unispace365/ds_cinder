@@ -687,6 +687,9 @@
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_continuous_fxaa.h">
       <Filter>src\ds\app\engine\renderers</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_null.h">
+      <Filter>src\ds\app\engine\renderers</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
