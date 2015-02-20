@@ -93,6 +93,22 @@ Pdf& Pdf::setResourceFilename(const std::string& filename) {
 	return *this;
 }
 
+Pdf &Pdf::setResourceId(const ds::Resource::Id &resourceId) {
+	try {
+		ds::Resource            res;
+		if (mEngine.getResources().get(resourceId, res)) {
+			Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
+			std::string filename = res.getAbsoluteFilePath();
+			setResourceFilename(filename);
+		}
+	}
+	catch (std::exception const& ex) {
+		DS_DBG_CODE(std::cout << "ERROR Pdf::setResourceFilename() ex=" << ex.what() << std::endl);
+		return *this;
+	}
+	return *this;
+}
+
 void Pdf::setPageSizeChangedFn(const std::function<void(void)>& fn) {
 	mPageSizeChangeFn = fn;
 }
