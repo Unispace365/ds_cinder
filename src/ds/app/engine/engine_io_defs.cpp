@@ -33,6 +33,14 @@ const char			ATT_FRAME = 4;
 EngineIoInfo::EngineIoInfo(ds::Engine& engine) {
 	if (engine.getSettings("engine").getTextSize("platform:guid") > 0)
 	{
+		/*!
+		 * \note I figured there's no advantage of having the server dispatching
+		 * world events over multiple IP addresses / ports. After all, this is -
+		 * called multi casting for a reason! All it takes to run multiple clients
+		 * on the same machine is to set "platform:guid" text entry inside engine.xml.
+		 * You should make sure that each client has a unique string as its ID.
+		 * With this ID, engine can track disconnected clients / etc.
+		 */
 		mGlobalId = engine.getSettings("engine").getText("platform:guid");
 	}
 	else
