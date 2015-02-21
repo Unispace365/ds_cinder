@@ -36,7 +36,9 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 		, mSessionId(0)
 		, mConnectionRenewed(false)
 		, mServerFrame(-1)
-		, mState(nullptr) {
+		, mState(nullptr)
+		, mIoInfo(*this)
+{
 	// NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
 	// so that the BLOB ids match.
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});

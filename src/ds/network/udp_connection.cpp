@@ -64,10 +64,12 @@ bool UdpConnection::initialize( bool server, const std::string &ip, const std::s
     }
     else
     {
-		  mSocket = Poco::Net::MulticastSocket(Poco::Net::SocketAddress(Poco::Net::IPAddress(), port));
+		  mSocket = Poco::Net::MulticastSocket(Poco::Net::SocketAddress(Poco::Net::IPAddress(), port), true);
+		  mSocket.setReusePort(true);
+		  mSocket.setReuseAddress(true);
+		  mSocket.joinGroup(Poco::Net::IPAddress(ip));
 		  mSocket.setReuseAddress(true);
 		  mSocket.setReusePort(true);
-		  mSocket.joinGroup(Poco::Net::IPAddress(ip));
 		  mSocket.setBlocking(false);
 		  mSocket.setReceiveBufferSize(ds::NET_MAX_UDP_PACKET_SIZE);
 		  mSocket.setReceiveTimeout(1000);

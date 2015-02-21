@@ -33,7 +33,7 @@ extern const char				ATT_FRAME;					// A frame number
  */
 class EngineIoInfo {
 public:
-	EngineIoInfo();
+	EngineIoInfo(ds::Engine&);
 
 	// Clients create a GUID on startup, which gets converted to a
 	// much shorter sessionID by the server.
