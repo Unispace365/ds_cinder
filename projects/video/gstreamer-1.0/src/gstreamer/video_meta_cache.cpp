@@ -68,6 +68,32 @@ bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int&
 	for (auto it=mEntry.begin(), end=mEntry.end(); it!=end; ++it) {
 		const Entry&	e(*it);
 		if (e.mKey == videoPath){
+
+			// Sort of a long story, but here's the deal:
+			//		1. Try to load a video that doesn't exist yet, type gets saved as audio, width=0, height=0
+			//		2. Try to load that same video again, but now it exists. The cache will pull up audio, width & height = 0
+			//		3. The video will then never play until the cache is cleared manually.
+			//		4. So to fix that, we just re-query media info every time width or height are < 1. 
+			//		5. This means audio files are queried every time. If this becomes an issue performance-wise, we can try to short-cut this.
+			if(e.mWidth < 1 || e.mHeight < 1){
+
+				int width(0), height(0), valid(0);
+				Type	t = VIDEO_TYPE;
+				float duration(0.0f);
+
+				if(getVideoInfo(videoPath, duration, width, height, valid)){
+					if(width > 0 && height > 0){
+						setValues(t, videoPath, width, height, duration);
+						outType = t;
+						outWidth = width;
+						outHeight = height;
+						outDuration = duration;
+						return true;
+					}
+				}
+
+			}
+
 			outType = e.mType;
 			outWidth = e.mWidth;
 			outHeight = e.mHeight;
