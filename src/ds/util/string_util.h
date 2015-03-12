@@ -16,6 +16,10 @@ class conversion_error : public std::exception { };
 std::wstring		wstr_from_utf8(const std::string&);		// throws conversion_error
 std::string			utf8_from_wstr(const std::wstring&);	// throws conversion_error
 
+// If you have some ANSI text, iso 8859-1
+std::wstring		iso_8859_1_string_to_wstring(const std::string& input);
+std::string			iso_8859_1_wstring_to_string(const std::wstring& input);
+
 // Number conversions
 template <typename T>
 bool wstring_to_value(const std::wstring& str, T& ans)

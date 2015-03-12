@@ -390,6 +390,11 @@ void Sprite::setScale(const ci::Vec3f& scale) {
 	doSetScale(scale);
 }
 
+void Sprite::setScale(float scale)
+{
+	setScale(scale, scale, scale);
+}
+
 const ci::Vec3f& Sprite::getScale() const
 {
 	return mScale;

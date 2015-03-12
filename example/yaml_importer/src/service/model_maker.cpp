@@ -72,7 +72,9 @@ const std::string baseCpp = \
 "*/\n" \
 "class TableNameRef::Data {\n" \
 "public:\n" \
-"	Data(){}\n" \
+"	Data()\n"\
+"INITIALIZE_DATA_MEMBERS"\
+"{}\n" \
 "\n" \
 "DATA_MEMBERS\n" \
 "\n" \
@@ -180,6 +182,8 @@ void ModelMaker::run() {
 		std::string thisDataMember;
 		std::string thisImpGetter;
 		std::string thisImpSetter;
+
+		std::map<std::string, std::string> dataMemberInitializers;
 
 		// make all 'resource' flagged columns into proper resources
 		for(auto mit = mm.getResourceColumns().begin(); mit < mm.getResourceColumns().end(); ++mit){
@@ -290,6 +294,8 @@ void ModelMaker::run() {
 			std::string columnName = mc.getColumnName();
 			std::transform(columnName.begin(), columnName.begin() + 1, columnName.begin(), ::toupper);
 
+			dataMemberInitializers[columnName] = thisEmptyData;
+
 			thisImpGetter = replaceAllString(thisImpGetter, "EMPTYDATATYPE", thisEmptyData);
 
 			thisHeaderGetter = replaceAllString(thisHeaderGetter, "DATA_TYPE", dataType);
@@ -306,6 +312,20 @@ void ModelMaker::run() {
 
 		}
 
+		// add initializers to empty data when Data() is constructed
+		std::stringstream memberInitializers;
+		bool firstInitializer = true;
+		for(auto it = dataMemberInitializers.begin(); it != dataMemberInitializers.end(); ++it){
+			if(firstInitializer){
+				memberInitializers << "\t: m";
+				firstInitializer = false;
+			} else {
+				memberInitializers << "\t, m";
+			}
+
+			memberInitializers << it->first << "(EMPTY_" << it->second << ")\n";
+		}
+
 		// add all the stringstreams to the header and put in the table name / model name
 		std::string header = baseHeader;
 		header = replaceAllString(header, "FORWARD_DECLARES", sCustomForwardDeclares.str());
@@ -320,6 +340,7 @@ void ModelMaker::run() {
 		std::string imp = baseCpp;
 		imp = replaceAllString(imp, "CUSTOM_INCLUDES", sCustomImpIncludes.str());
 		imp = replaceAllString(imp, "CUSTOM_EMPTY_DATA", sCustomEmptyData.str());
+		imp = replaceAllString(imp, "INITIALIZE_DATA_MEMBERS", memberInitializers.str());
 		imp = replaceAllString(imp, "DATA_MEMBERS", sDataMembers.str());
 		imp = replaceAllString(imp, "IMP_GETTERS", sImpGetters.str());
 		imp = replaceAllString(imp, "IMP_SETTERS", sImpSetters.str());

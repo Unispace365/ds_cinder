@@ -4,7 +4,7 @@
 
 #include <cinder/Surface.h>
 #include <ds/ui/sprite/sprite.h>
-
+#include "ds/data/resource.h"
 namespace ds {
 namespace pdf {
 class PdfRes;
@@ -30,7 +30,7 @@ public:
 
 	Pdf&						setPageSizeMode(const PageSizeMode&);
 	Pdf&						setResourceFilename(const std::string& filename);
-
+	Pdf&						setResourceId(const ds::Resource::Id&);
 	// Callback when the page size changes (only triggered in kAutoResize mode).
 	void						setPageSizeChangedFn(const std::function<void(void)>&);
 
