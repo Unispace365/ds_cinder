@@ -475,6 +475,12 @@ void Web::reload() {
 	}
 }
 
+void Web::stop() {
+	if (mWebViewPtr) {
+		mWebViewPtr->Stop();
+	}
+}
+
 bool Web::canGoBack() {
 	if (!mWebViewPtr) return false;
 	return mWebViewPtr->CanGoBack();
