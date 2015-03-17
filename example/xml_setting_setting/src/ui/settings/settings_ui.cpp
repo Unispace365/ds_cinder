@@ -70,12 +70,26 @@ void SettingsUi::registerSettings(const ds::cfg::Settings* settings){
 
 	settings->forEachIntKey([this, settings](const std::string& key){
 
-		const std::function<void(ci::ColorA)> &setterFn = [this, settings, key](ci::ColorA value){
+		const std::function<void(int)> &setterFn = [this, settings, key](int value){
 			ds::cfg::Settings::Editor editor(*const_cast<ds::cfg::Settings*>(settings));
-			editor.setColorA(key, value); };
+			editor.setInt(key, value); };
 
-		const std::function<ci::ColorA()> &getterFn = [this, settings, key](){
-			return settings->getColorA(key);
+		const std::function<int()> &getterFn = [this, settings, key](){
+			return settings->getInt(key);
+		};
+
+		mParams->addParam(key, setterFn, getterFn);
+	});
+
+	settings->forEachSizeKey([this, settings](const std::string& key){
+
+		const std::function<void(ci::Vec3f)> &setterFn = [this, settings, key](ci::Vec3f value){
+			ds::cfg::Settings::Editor editor(*const_cast<ds::cfg::Settings*>(settings));
+			editor.setSize(key, value.xy()); };
+
+		const std::function<ci::Vec3f()> &getterFn = [this, settings, key](){
+			ci::Vec2f sizey = settings->getSize(key);
+			return ci::Vec3f(sizey.x, sizey.y, 0.0f);
 		};
 
 		mParams->addParam(key, setterFn, getterFn);
