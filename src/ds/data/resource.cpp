@@ -300,6 +300,21 @@ Resource::Resource(const std::string& fullPath, const int type)
 {
 }
 
+Resource::Resource(const Resource::Id dbid, const int type, const double duration, 
+				   const float width, const float height, const std::string filename, 
+				   const std::string path, const int thumbnailId, const std::string debugFileName)
+	: mDbId(dbid)
+	, mType(type)
+	, mDuration(duration)
+	, mWidth(width)
+	, mHeight(height)
+	, mFileName(filename)
+	, mPath(path)
+	, mThumbnailId(thumbnailId)
+	, mDebugFileName(debugFileName)
+{}
+	
+
 bool Resource::operator==(const Resource& o) const {
 	if (mDebugFileName != o.mDebugFileName) return false;
 	return mDbId == o.mDbId && mType == o.mType && mDuration == o.mDuration && mWidth == o.mWidth && mHeight == o.mHeight && mFileName == o.mFileName && mPath == o.mPath;

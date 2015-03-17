@@ -112,6 +112,11 @@ public:
 	// the hardcoded file paths before things move to being pulled from the CMS.
 	Resource(const std::string& fullPath, const int type);
 
+	// In case you have this queried/constructed already
+	Resource(const Resource::Id dbid, const int type, const double duration, 
+			 const float width, const float height, const std::string filename, 
+			 const std::string path, const int thumbnailId, const std::string debugFileName);
+
 	bool					operator==(const Resource&) const;
 	bool					operator!=(const Resource&) const;
 
@@ -134,6 +139,7 @@ public:
 
 	void					setDbId(const Resource::Id&);
 	void					setType(const int);
+	void					setTypeFromString(const std::string& typeChar);
 
 	// Warning: Expensive operation (database lookup).  Use with care.
 	bool					existsInDb() const;
@@ -157,7 +163,6 @@ private:
 	// Only should be used for debugging
 	std::string				mDebugFileName;
 
-	void                  setTypeFromString(const std::string& typeChar);
 };
 
 } // namespace ds
