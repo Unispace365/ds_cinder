@@ -7,6 +7,14 @@
 #include <Poco/Mutex.h>
 #include <ds/debug/debug_defines.h>
 
+
+namespace {
+	const std::string& getEmptySz() {
+		static const std::string EMPTY_SZ("");
+		return EMPTY_SZ;
+	}
+}
+
 namespace ds {
 
 namespace event {
@@ -38,6 +46,15 @@ void Registry::report() {
 	}
 }
 
+const std::string& Registry::getName(const int what){
+	auto f = mMsgs.find(what);
+	if(f != mMsgs.end()){
+		return f->second;
+	}
+
+	return getEmptySz();
+}
+
 /**
  * \class ds::event::Registry::Entry
  */
@@ -58,10 +75,6 @@ Registry::Entry::Entry(const std::string &name)
 
 namespace {
 
-const std::string& getEmptySz() {
-	static const std::string EMPTY_SZ("");
-	return EMPTY_SZ;
-}
 
 // Currently, we are requiring lock protection on the event map,
 // although really, this stuff should always happen during initialization
@@ -117,7 +130,8 @@ const std::string& EventRegistry::getName(const int what) {
 	if (e.empty()) return getEmptySz();
 	auto f = e.find(what);
 	if (f != e.end()) return f->second;
-	return getEmptySz();
+	return event::Registry::get().getName(what);
+	//return getEmptySz();
 }
 
 EventRegistry::EventRegistry(const std::string& name)

@@ -25,6 +25,8 @@ public:
 	// Print out all registered messages
 	void						report();
 
+	const std::string&			getName(const int what);
+
 public:
 	class Entry {
 	public:
