@@ -74,6 +74,7 @@ public:
 	void					goBack();
 	void					goForward();
 	void					reload();
+	void					stop();
 	bool					canGoBack();
 	bool					canGoForward();
 
