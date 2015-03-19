@@ -571,6 +571,11 @@ Settings::Editor& Settings::Editor::setFloat(const std::string& name, const floa
 	return *this;
 }
 
+Settings::Editor& Settings::Editor::setInt(const std::string& name, const int v) {
+	editor_set_vec(mMode, name, mSettings.mInt, v);
+	return *this;
+}
+
 Settings::Editor& Settings::Editor::setRect(const std::string& name, const ci::Rectf& v) {
 	editor_set_vec(mMode, name, mSettings.mRect, v);
 	return *this;

@@ -45,26 +45,26 @@ public:
 	void					setUrlOrThrow(const std::string&);
 
 	// untested!
-	void sendKeyDownEvent(const ci::app::KeyEvent &event);
+	void					sendKeyDownEvent(const ci::app::KeyEvent &event);
 	// untested!
-	void sendKeyUpEvent(const ci::app::KeyEvent &event);
+	void					sendKeyUpEvent(const ci::app::KeyEvent &event);
 
 	// This web sprite handles touch-to-mouse events by default.
 	// Though you can use these to roll your own touch stuff
-	void sendMouseDownEvent(const ci::app::MouseEvent &event);
-	void sendMouseDragEvent(const ci::app::MouseEvent &event);
-	void sendMouseUpEvent(const ci::app::MouseEvent &event);
+	void					sendMouseDownEvent(const ci::app::MouseEvent &event);
+	void					sendMouseDragEvent(const ci::app::MouseEvent &event);
+	void					sendMouseUpEvent(const ci::app::MouseEvent &event);
 	// Clients can listen to touch events. Kind of a hack to
 	// try and sync client/server arrangements.
 	void					setTouchListener(const std::function<void(const ds::web::TouchEvent&)>&);
 	// Intended to be set as a result of the server sending out events from setTouchListener results.
 	void					handleListenerTouchEvent(const ds::web::TouchEvent&);
 
-	bool isActive() const;
-	bool isLoading();
-	void setTransitionTime(const float transitionTime);
-	void activate();
-	void deactivate();
+	bool					isActive() const;
+	bool					isLoading();
+	void					setTransitionTime(const float transitionTime);
+	void					activate();
+	void					deactivate();
 
 	// Get the zoom level, where 1 = 100%, 0.25 = 25% etc.
 	void					setZoom(const double);
@@ -74,6 +74,7 @@ public:
 	void					goBack();
 	void					goForward();
 	void					reload();
+	void					stop();
 	bool					canGoBack();
 	bool					canGoForward();
 
