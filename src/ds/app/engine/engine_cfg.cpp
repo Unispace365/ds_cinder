@@ -119,6 +119,11 @@ void EngineCfg::loadSettings(const std::string& name, const std::string& filenam
 	ds::Environment::loadSettings(filename, settings);
 }
 
+void EngineCfg::appendSettings(const std::string& name, const std::string& filename) {
+	ds::cfg::Settings&	settings = mSettings[name];
+	settings.readFrom(filename, true);
+}
+
 void EngineCfg::loadText(const std::string& filename) {
 	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextCfg);
 	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextCfg);
