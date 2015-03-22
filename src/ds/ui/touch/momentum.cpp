@@ -110,4 +110,8 @@ void Momentum::deactivate() {
 	mActive = false;
 }
 
+const ci::Vec2f& Momentum::getVelocity() {
+	return mVelocity;
+}
+
 } // namespace ds
