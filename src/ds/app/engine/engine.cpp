@@ -435,6 +435,10 @@ void Engine::loadSettings(const std::string& name, const std::string& filename) 
 	mData.mEngineCfg.loadSettings(name, filename);
 }
 
+void Engine::appendSettings(const std::string& name, const std::string& filename) {
+	mData.mEngineCfg.appendSettings(name, filename);
+}
+
 void Engine::loadTextCfg(const std::string& filename) {
 	mData.mEngineCfg.loadText(filename);
 }

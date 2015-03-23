@@ -36,6 +36,13 @@ public:
 	// @param filename is the leaf path of the settings file (i.e. "data.xml").
 	// It will be loaded from all appropriate locations.
 	void							loadSettings(const std::string& name, const std::string& filename);
+	// Convenice to append a setting file into the existing mEngineCfg settings.
+	// @param name is the name that the system will use to refer to the settings.
+	// @param filename is the FULL path of the settings file (i.e. "C:/projects/settings/data.xml").
+	// It will NOT be loaded from all appropriate locations.
+
+	void							appendSettings(const std::string& name, const std::string& filename);
+
 	// Convenice to load a text cfg file into a collection of cfg objects.
 	// @param filename is the leaf path of the settings file (i.e. "text.xml").
 	// It will be loaded from all appropriate locations.
@@ -47,7 +54,6 @@ public:
 
 private:
 	EngineCfg(const EngineCfg&);
-
 	// Make it easy for clients to access the engine settings.
 	const ds::cfg::Settings&		mEngineSettings;
 	std::unordered_map<std::string, ds::cfg::Settings>

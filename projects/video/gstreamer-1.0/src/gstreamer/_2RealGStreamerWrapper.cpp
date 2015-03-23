@@ -60,7 +60,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include "gstreamer-1.0/gst/net/gstnetclientclock.h"
+//#include "gstreamer-1.0/gst/net/gstnetclientclock.h"
 
 namespace _2RealGStreamerWrapper
 {
@@ -267,7 +267,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		} else  {
 			caps= gst_caps_new_simple( "video/x-raw",
 				"format", G_TYPE_STRING, "RGB",
-				"pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+				//"pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
 				//"bpp", G_TYPE_INT, 24,
 				//"depth", G_TYPE_INT, 24,
 				"width", G_TYPE_INT, videoWidth,

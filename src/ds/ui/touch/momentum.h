@@ -53,6 +53,9 @@ public:
 	// If the sprite moved on the last update, returns true. Otherwise false;
 	bool						recentlyMoved(){ return mMoved; }
 
+	// returns the current velocity
+	const ci::Vec2f&			getVelocity();
+
 protected:
 	virtual void				update(const ds::UpdateParams&);
 
