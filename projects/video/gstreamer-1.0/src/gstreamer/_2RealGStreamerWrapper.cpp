@@ -49,11 +49,11 @@
  */
 
 #ifdef LINUX
-    #include <math.h>
-    #include <cstring>
-    #include "_2RealGStreamerWrapper.h"
+	#include <math.h>
+	#include <cstring>
+	#include "_2RealGStreamerWrapper.h"
 #else
-    #include "_2RealGStreamerWrapper.h"
+	#include "_2RealGStreamerWrapper.h"
 #endif
 
 #include "ds/debug/logger.h"
@@ -71,9 +71,9 @@ namespace _2RealGStreamerWrapper
 #ifdef THREADED_MESSAGE_HANDLER
 gboolean onHandleGstMessages(GstBus *bus, GstMessage *msg, gpointer data)
 {
-     GStreamerWrapper* obj = (GStreamerWrapper*)(data);
-     switch (GST_MESSAGE_TYPE(msg))
-     {
+	 GStreamerWrapper* obj = (GStreamerWrapper*)(data);
+	 switch (GST_MESSAGE_TYPE(msg))
+	 {
 		 case GST_MESSAGE_ERROR:
 					GError *err;
 					gchar *debug;
@@ -84,7 +84,7 @@ gboolean onHandleGstMessages(GstBus *bus, GstMessage *msg, gpointer data)
 					g_free(debug);
 			break;
 
-        case GST_MESSAGE_EOS:
+		case GST_MESSAGE_EOS:
 				switch ( obj->getLoopMode() )
 					{
 						case NO_LOOP:
@@ -106,11 +106,11 @@ gboolean onHandleGstMessages(GstBus *bus, GstMessage *msg, gpointer data)
 							break;
 					}
 
-            break;
-        default:
-            break;
-    }
-    return TRUE;
+			break;
+		default:
+			break;
+	}
+	return TRUE;
 }
 
 void threadedMessageHandler(GStreamerWrapper* obj)
@@ -246,7 +246,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 8 );
 		gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
 		gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
-		gst_base_sink_set_max_lateness( GST_BASE_SINK( m_GstVideoSink ), 40000000); // 1000000000 = 1 second, 40000000 = 40 ms
+		gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), 20000000); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
 
 		// Set some fix caps for the video sink
 		// It would seem that GStreamer then tries to transform any incoming video stream according to these caps
@@ -346,9 +346,9 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		//gst_element_get_state( m_GstPipeline, &state, NULL, 20 * GST_SECOND );
 		m_CurrentPlayState = OPENED;
 
- 		if(m_StartPlaying){
- 			gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
- 		}
+		if(m_StartPlaying){
+			gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+		}
 	}
 
 	// Retrieve and store all relevant Media Information
@@ -1027,10 +1027,10 @@ void GStreamerWrapper::handleGStMessage()
 				case GST_MESSAGE_SEGMENT_DONE : {
 
 					std::cout << "Segment done" << std::endl;
- 					if(m_StopOnLoopComplete){
- 						stop();
- 						m_StopOnLoopComplete = false;
- 					} else {
+					if(m_StopOnLoopComplete){
+						stop();
+						m_StopOnLoopComplete = false;
+					} else {
 						std::cout << "Segment done seek " << m_iDurationInNs << std::endl;
 						gst_element_seek( GST_ELEMENT( m_GstPipeline ),
 							m_fSpeed,
