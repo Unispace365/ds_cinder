@@ -14,7 +14,9 @@ float TapActionFactory::getLimit() const {
 }
 
 int TapActionFactory::getNumberOfFingers() const {
-	return ci::randInt(0, 5);
+	return 1;
+	// Our taps are considered 1-finger, so dunno why you would ever want a 0 or 4 finger tap since that wouldnt do shit
+	//	return ci::randInt(0, 5);
 }
 
 BaseAction* TapActionFactory::build(std::vector<int> &freeList, ds::ui::SpriteEngine& engine, const ci::Rectf& frame) const {
