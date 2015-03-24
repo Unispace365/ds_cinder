@@ -119,6 +119,7 @@ public:
 
 	void					setScale(const ci::Vec3f &scale);
 	void					setScale(float x, float y, float z = 1.0f);
+	void					setScale(float scale);
 	const ci::Vec3f&		getScale() const;
 
 	// center of the Sprite. Where its positioned at and rotated at.
@@ -262,7 +263,9 @@ public:
 	void					readFrom(ds::BlobReader&);
 	// Only used when running in client mode
 	void					writeClientTo(ds::DataBuffer&) const;
-	virtual void			readClientFrom(ds::DataBuffer&);
+	// IMPORTANT: readClientFrom must not be virtual. If any of the clients try to communicate
+	// back with server, the communication must happen through "readClientAttributeFrom".
+	void					readClientFrom(ds::DataBuffer&);
 
 	void					setBlendMode(const BlendMode &blendMode);
 	BlendMode				getBlendMode() const;
@@ -347,12 +350,23 @@ protected:
 	virtual void		doSetPosition(const ci::Vec3f&);
 	virtual void		doSetScale(const ci::Vec3f&);
 	virtual void		doSetRotation(const ci::Vec3f&);
+	void				doPropagateVisibilityChange(bool before, bool after);
 
 	virtual void		onCenterChanged();
 	virtual void		onPositionChanged();
 	virtual void		onScaleChanged();
 	virtual void		onSizeChanged();
 	virtual void		onChildAdded(Sprite& child);
+	virtual void		onChildRemoved(Sprite& child);
+	// Note: there's a reason this is not called onVisibilityChanged().
+	// TLDR;the visible flag arg here is NOT equal to Sprite::visible()
+	// The reason is that,  the final visibility of a sprite is decided
+	// by the visibility of itself and its parents.  the "visible" flag
+	// here is the result of the calculation based on calls to self and
+	// parents' hide() / show() methods. The "visible" flag here is NOT
+	// the same as Sprite::visible()! Sprite::visible() is only limited
+	// to the sprite itself while visible flag here is described above.
+	virtual void		onAppearanceChanged(bool visible);
 
 	// Always access the bounds via this, which will build them if necessary
 	const ci::Rectf&	getClippingBounds();
@@ -370,6 +384,7 @@ protected:
 	// Used during client mode, to let clients get info back to the server. Use the
 	// engine_io.defs::ScopedClientAtts at the top of the function to do all the boilerplate.
 	virtual void		writeClientAttributesTo(ds::DataBuffer&) const;
+	virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&);
 	// Read a single attribute
 	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&);
 

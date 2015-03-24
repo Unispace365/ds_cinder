@@ -139,7 +139,6 @@
     <ClCompile Include="..\src\app\app_defs.cpp" />
     <ClCompile Include="..\src\app\globals.cpp" />
     <ClCompile Include="..\src\app\full_starter_app.cpp" />
-    <ClCompile Include="..\src\events\app_events.cpp" />
     <ClCompile Include="..\src\model\generated\story_model.cpp" />
     <ClCompile Include="..\src\query\query_handler.cpp" />
     <ClCompile Include="..\src\query\story_query.cpp" />

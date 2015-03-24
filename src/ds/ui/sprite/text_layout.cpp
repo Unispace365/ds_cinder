@@ -37,27 +37,27 @@ float getFontHeight( const FontPtr &font, const float leading )
 namespace {
   
 class LimitCheck {
-  public:
-    LimitCheck(const TextLayout::Input& in)
-      : mLimitToHeight(!(in.mSprite.autoResizeHeight()))
-      , mDescent(getFontDescender(in.mFont))
-      , mMaxY(in.mSize.y)
-    {
-    }
+public:
+	LimitCheck(const TextLayout::Input& in)
+		: mLimitToHeight(!(in.mSprite.autoResizeHeight()))
+		, mDescent(getFontDescender(in.mFont))
+		, mMaxY(in.mSize.y)
+	{
+	}
 
-    inline bool outOfBounds(const float y) const
-    {
-      // Not doing the limit check any more -- it just makes sense to never bother
-      // with this, instead always having a limit, but using an unreasonably high one
-      // for "unlimited"
-//      if (!limitToHeight) return false;
-      return (y + mDescent > mMaxY);
-    }
+	inline bool outOfBounds(const float y) const
+	{
+	// Not doing the limit check any more -- it just makes sense to never bother
+	// with this, instead always having a limit, but using an unreasonably high one
+	// for "unlimited"
+	//if (!limitToHeight) return false;
+		return (y + mDescent > mMaxY);
+	}
 
-  private:
-    const bool    mLimitToHeight;
-    const float   mDescent;
-    const float   mMaxY;
+private:
+	const bool    mLimitToHeight;
+	const float   mDescent;
+	const float   mMaxY;
 };
 
 }

@@ -60,7 +60,7 @@
 #include <iostream>
 #include <algorithm>
 
-#include "gstreamer-1.0/gst/net/gstnetclientclock.h"
+//#include "gstreamer-1.0/gst/net/gstnetclientclock.h"
 
 namespace _2RealGStreamerWrapper
 {
@@ -267,7 +267,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		} else  {
 			caps= gst_caps_new_simple( "video/x-raw",
 				"format", G_TYPE_STRING, "RGB",
-				"pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
+				//"pixel-aspect-ratio", GST_TYPE_FRACTION, 1, 1,
 				//"bpp", G_TYPE_INT, 24,
 				//"depth", G_TYPE_INT, 24,
 				"width", G_TYPE_INT, videoWidth,
@@ -376,7 +376,7 @@ void GStreamerWrapper::close()
 
 	m_bFileIsOpen = false;
 	m_CurrentPlayState = NOT_INITIALIZED;
-
+	m_ContentType = NONE;
 
 // get rid of message handler thread
 #ifdef THREADED_MESSAGE_HANDLER
@@ -470,8 +470,14 @@ void GStreamerWrapper::pause()
 {
 	if ( m_GstPipeline != NULL )
 	{
-		gst_element_set_state( m_GstPipeline, GST_STATE_PAUSED );
-		m_CurrentPlayState = PAUSED;
+		GstStateChangeReturn gscr = gst_element_set_state(m_GstPipeline, GST_STATE_PAUSED);
+		if(gscr == GST_STATE_CHANGE_FAILURE){
+			DS_LOG_WARNING("GStreamerWrapper: State change failure trying to pause");
+		} else {
+			m_CurrentPlayState = PAUSED;
+		}
+	} else {
+		DS_LOG_WARNING("GStreamerWrapper: Pipeline doesn't exist when trying to pause video.");
 	}
 }
 

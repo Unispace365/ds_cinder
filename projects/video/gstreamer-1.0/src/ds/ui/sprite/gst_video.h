@@ -134,6 +134,7 @@ private:
 	enum Cmd			{ kCmdPlay, kCmdPause, kCmdStop };
 	Cmd					mCmd;
 	void				setCmd(const Cmd);
+	bool				mDoPlay; //remember to play file if it hasn't loaded yet
 
 	Status              mStatus;
 	bool                mStatusDirty;

@@ -30,31 +30,46 @@ const char			ATT_FRAME = 4;
 /**
  * \class ds::EngineIoInfo
  */
-EngineIoInfo::EngineIoInfo() {
-	const std::string	GUID("guid");
-	std::string			cache_path(ds::Environment::expand("%LOCAL%/cache/ds/engine.json"));
-	if (Poco::File(cache_path).exists()) {
-		ci::JsonTree	tree(ci::loadFile(cache_path));
-		for (auto it=tree.begin(), end=tree.end(); it!=end; ++it) {
-			if (it->getKey() == GUID) {
-				mGlobalId = it->getValue();
+EngineIoInfo::EngineIoInfo(ds::Engine& engine) {
+	if (engine.getSettings("engine").getTextSize("platform:guid") > 0)
+	{
+		/*!
+		 * \note I figured there's no advantage of having the server dispatching
+		 * world events over multiple IP addresses / ports. After all, this is -
+		 * called multi casting for a reason! All it takes to run multiple clients
+		 * on the same machine is to set "platform:guid" text entry inside engine.xml.
+		 * You should make sure that each client has a unique string as its ID.
+		 * With this ID, engine can track disconnected clients / etc.
+		 */
+		mGlobalId = engine.getSettings("engine").getText("platform:guid");
+	}
+	else
+	{
+		const std::string	GUID("guid");
+		std::string			cache_path(ds::Environment::expand("%LOCAL%/cache/ds/engine.json"));
+		if (Poco::File(cache_path).exists()) {
+			ci::JsonTree	tree(ci::loadFile(cache_path));
+			for (auto it = tree.begin(), end = tree.end(); it != end; ++it) {
+				if (it->getKey() == GUID) {
+					mGlobalId = it->getValue();
+				}
 			}
 		}
+		// Designed for multiple cached values eventually (though don't know what they'd be)
+		if (!mGlobalId.empty()) return;
+
+		Poco::Path					path(cache_path);
+		path = path.parent();
+		Poco::File(path).createDirectories();
+
+		if (mGlobalId.empty()) {
+			mGlobalId = get_unique_id();
+		}
+
+		ci::JsonTree				tree(ci::JsonTree::makeArray());
+		tree.pushBack(ci::JsonTree(GUID, mGlobalId));
+		tree.write(cache_path);
 	}
-	// Designed for multiple cached values eventually (though don't know what they'd be)
-	if (!mGlobalId.empty()) return;
-
-	Poco::Path					path(cache_path);
-	path = path.parent();
-	Poco::File(path).createDirectories();
-
-	if (mGlobalId.empty()) {
-		mGlobalId = get_unique_id();
-	}
-
-	ci::JsonTree				tree(ci::JsonTree::makeArray());
-	tree.pushBack(ci::JsonTree(GUID, mGlobalId));
-	tree.write(cache_path);
 }
 
 /**

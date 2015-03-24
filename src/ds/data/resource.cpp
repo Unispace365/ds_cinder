@@ -207,7 +207,7 @@ const std::string& Resource::Id::getPortableResourcePath() const {
 }
 
 void Resource::Id::setupPaths(const std::string& resource, const std::string& db,
-                              const std::string& projectPath)
+							  const std::string& projectPath)
 {
 	CMS_RESOURCE_PATH = resource;
 	{
@@ -244,7 +244,7 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 }
 
 void Resource::Id::setupCustomPaths( const std::function<const std::string&(const Resource::Id&)>& resourcePath,
-                                     const std::function<const std::string&(const Resource::Id&)>& dbPath)
+									 const std::function<const std::string&(const Resource::Id&)>& dbPath)
 {
 	CUSTOM_RESOURCE_PATH = resourcePath;
 	CUSTOM_DB_PATH = dbPath;
@@ -299,6 +299,21 @@ Resource::Resource(const std::string& fullPath, const int type)
 	, mDebugFileName(fullPath)
 {
 }
+
+Resource::Resource(const Resource::Id dbid, const int type, const double duration, 
+				   const float width, const float height, const std::string filename, 
+				   const std::string path, const int thumbnailId, const std::string debugFileName)
+	: mDbId(dbid)
+	, mType(type)
+	, mDuration(duration)
+	, mWidth(width)
+	, mHeight(height)
+	, mFileName(filename)
+	, mPath(path)
+	, mThumbnailId(thumbnailId)
+	, mDebugFileName(debugFileName)
+{}
+	
 
 bool Resource::operator==(const Resource& o) const {
 	if (mDebugFileName != o.mDebugFileName) return false;

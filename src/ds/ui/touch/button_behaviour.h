@@ -18,6 +18,9 @@ struct TouchInfo;
  */
 class ButtonBehaviour {
 public:
+
+	static const enum State { STATE_EMPTY, STATE_INSIDE, STATE_OUTSIDE };
+
 	ButtonBehaviour(ds::ui::Sprite&);
 
 	void						setOnDownFn(const std::function<void(const ds::ui::TouchInfo&)>&);
@@ -42,13 +45,14 @@ public:
 	void						enable();
 	void						disable();
 
+	const State					getState(){ return mState; }
+
 private:
 	void						handleTouch(const ds::ui::TouchInfo&);
 	bool						ownerContains(const ci::Vec3f& point) const;
 
 	ds::ui::Sprite&				mOwner;
 
-	static const enum State { STATE_EMPTY, STATE_INSIDE, STATE_OUTSIDE };
 	State						mState;
 
 	std::function<void(const ds::ui::TouchInfo&)>

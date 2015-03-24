@@ -17,7 +17,10 @@
     <ClCompile Include="src\ds\debug\automator\actions\multifinger_tap_action.cpp" />
     <ClCompile Include="src\ds\debug\automator\actions\tap_action.cpp" />
     <ClCompile Include="src\ds\debug\automator\automator.cpp" />
+    <ClCompile Include="src\ds\touch\delayed_momentum.cpp" />
+    <ClCompile Include="src\ds\touch\five_finger_cluster.cpp" />
     <ClCompile Include="src\ds\ui\button\image_button.cpp" />
+    <ClCompile Include="src\ds\ui\button\sprite_button.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\stylesheet_parser.cpp" />
     <ClCompile Include="src\ds\ui\sprite\png_sequence_sprite.cpp" />
@@ -29,7 +32,10 @@
     <ClInclude Include="src\ds\debug\automator\actions\multifinger_tap_action.h" />
     <ClInclude Include="src\ds\debug\automator\actions\tap_action.h" />
     <ClInclude Include="src\ds\debug\automator\automator.h" />
+    <ClInclude Include="src\ds\touch\delayed_momentum.h" />
+    <ClInclude Include="src\ds\touch\five_finger_cluster.h" />
     <ClInclude Include="src\ds\ui\button\image_button.h" />
+    <ClInclude Include="src\ds\ui\button\sprite_button.h" />
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h" />
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />

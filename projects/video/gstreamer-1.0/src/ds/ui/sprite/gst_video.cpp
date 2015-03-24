@@ -131,7 +131,9 @@ GstVideo::GstVideo(SpriteEngine& engine)
 		, mPlaySingleFrameFn(nullptr)
 		, mServerModeHack(false)
 		, mReportedCurrentPosition(0.0)
-		, mVideoFlags(0) {
+		, mVideoFlags(0)
+		, mDoPlay(false)
+{
 	mBlobType = BLOB_TYPE;
 
 	setUseShaderTextuer(true);
@@ -183,6 +185,11 @@ void GstVideo::updateServer(const UpdateParams &up) {
 	}
 			
 	mMovie.update();
+
+	if (mMovie.hasVideo() && mDoPlay) {
+		play();
+		mDoPlay = false;
+	}
 }
 
 void GstVideo::drawLocalClient() {
@@ -338,21 +345,31 @@ float GstVideo::getVolume() const {
 }
 
 void GstVideo::play() {
-	DS_LOG_INFO("GstVideo::play()");
+	DS_LOG_INFO("GstVideo::play() " << mFilename);
 
 	mMovie.play();
 	setCmd(kCmdPlay);
+
+	//If movie not yet loaded, remember to play it later once it has
+	if (!mMovie.hasVideo())  {
+		mDoPlay = true;
+	}
 }
 
 void GstVideo::stop() {
-	DS_LOG_INFO("GstVideo::stop()");
+	DS_LOG_INFO("GstVideo::stop() " << mFilename);
+
+	mDoPlay = false;
 
 	mMovie.stop();
 	setCmd(kCmdStop);
 }
 
 void GstVideo::pause() {
-	DS_LOG_INFO("GstVideo::pause()");
+	DS_LOG_INFO("GstVideo::pause() " << mFilename);
+
+	mDoPlay = false;
+
 	mMovie.pause();
 	setCmd(kCmdPause);
 }

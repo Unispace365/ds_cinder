@@ -64,10 +64,20 @@ bool UdpConnection::initialize( bool server, const std::string &ip, const std::s
     }
     else
     {
-		  mSocket = Poco::Net::MulticastSocket(Poco::Net::SocketAddress(Poco::Net::IPAddress(), port));
+		/*!
+		 * \note
+		 * notice the "set_reuse" flag is set at three places! this is necessary for some odd reason!
+		 * Poco apparently resets / clears / ignores this set_reuse request. Magically this three
+		 * combination of setters work! This should be resolved maybe by upgrading Poco / figuring out
+		 * the reason why the flag gets ignored but for now, I am going to leave it like that. (SL)
+		 */
+
+		  mSocket = Poco::Net::MulticastSocket(Poco::Net::SocketAddress(Poco::Net::IPAddress(), port), true);
+		  mSocket.setReusePort(true);
+		  mSocket.setReuseAddress(true);
+		  mSocket.joinGroup(Poco::Net::IPAddress(ip));
 		  mSocket.setReuseAddress(true);
 		  mSocket.setReusePort(true);
-		  mSocket.joinGroup(Poco::Net::IPAddress(ip));
 		  mSocket.setBlocking(false);
 		  mSocket.setReceiveBufferSize(ds::NET_MAX_UDP_PACKET_SIZE);
 		  mSocket.setReceiveTimeout(1000);

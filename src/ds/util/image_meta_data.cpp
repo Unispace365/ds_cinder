@@ -11,6 +11,7 @@
 #include "ds/debug/logger.h"
 #include "ds/storage/persistent_cache.h"
 #include "ds/util/file_meta_data.h"
+#include "ds/debug/debug_defines.h"
 
 namespace ds {
 
@@ -77,9 +78,15 @@ void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
 		// Just load the image to get the dimensions -- this will incur what is
 		// unnecessarily overhead in one situation (I am in client/server mode),
 		// but is otherwise the right thing to do.
-		auto s = ci::Surface8u(ci::loadImage(filename));
-		if (s) {
-			outSize = ci::Vec2f(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+		const Poco::File file(filename);
+		if (file.exists()) {
+			auto s = ci::Surface8u(ci::loadImage(filename));
+			if (s) {
+				outSize = ci::Vec2f(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+			} else {
+				DS_LOG_WARNING_M("super_slow_image_atts: filename does not exist " << filename, GENERAL_LOG);
+				outSize = ci::Vec2f::zero();
+			}
 		}
 	} catch (std::exception const& ex) {
 		std::cout << "ImageMetaData error loading file (" << filename << ") = " << ex.what() << std::endl;
@@ -112,10 +119,15 @@ public:
 		if(size.x> 0 && size.y > 0){
 			try{
 				ImageAtts atts(size);
-				atts.mLastModified = Poco::File(filePath).getLastModified();
-				mCache[filePath] = atts;
-			} catch(std::exception const&){
-				//HAHAHAHAHAHAHAHA
+				const auto file = Poco::File(filePath);
+				if (file.exists()) {
+					atts.mLastModified = file.getLastModified();
+					mCache[filePath] = atts;
+				} else {
+					DS_LOG_WARNING_M("ImageAttsCache::add : parameter passed to me does not represent a physical file on disk." << filePath, GENERAL_LOG);
+				}
+			} catch (std::exception const& ex){
+				DS_LOG_WARNING("ImageAttsCache exception: " << ex.what());
 			}
 		}
 	}

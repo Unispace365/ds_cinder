@@ -15,6 +15,7 @@ namespace ui {
 */
 class ImageButton : public ds::ui::Sprite {
 public:
+
 	static ImageButton&			makeButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage, const float touchPad = 0.0f, ds::ui::Sprite* parent = nullptr);
 	ImageButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage, const float touchPad = 0.0f);
 
@@ -36,6 +37,8 @@ public:
 	void						showDown();
 	void						showUp();
 
+	const ButtonBehaviour::State getButtonState(){ return mButtonBehaviour.getState(); }
+
 private:
 	void						onClicked();
 	typedef ds::ui::Sprite		inherited;
@@ -51,6 +54,8 @@ private:
 	// SETTINGS
 	float						mPad;
 	const float					mAnimDuration;
+
+
 };
 
 } // namespace ui

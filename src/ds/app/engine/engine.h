@@ -23,6 +23,7 @@
 
 #include "TuioClient.h"
 
+#include "ds/app/engine/renderers/engine_renderer_interface.h"
 #include "ds/app/engine/engine_touch_queue.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
@@ -77,6 +78,11 @@ public:
 	// @param filename is the leaf path of the settings file (i.e. "data.xml").
 	// It will be loaded from all appropriate locations.
 	void								loadSettings(const std::string& name, const std::string& filename);
+	// Convenice to append a setting file into the existing mEngineCfg settings.
+	// @param name is the name that the system will use to refer to the settings.
+	// @param filename is the FULL path of the settings file (i.e. "C:\projects\settings\data.xml").
+	// It will NOT be loaded from all appropriate locations.
+	void								appendSettings(const std::string& name, const std::string& filename);
 	// Convenice to load a text cfg file into a collection of cfg objects.
 	// @param filename is the leaf path of the settings file (i.e. "text.xml").
 	// It will be loaded from all appropriate locations.
@@ -131,6 +137,10 @@ public:
 	virtual void						injectTouchesBegin(const ci::app::TouchEvent&);
 	virtual void						injectTouchesMoved(const ci::app::TouchEvent&);
 	virtual void						injectTouchesEnded(const ci::app::TouchEvent&);
+
+	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
+	// Sprites can still turn this off after creation
+	virtual bool						getRotateTouchesDefault();
 
 	virtual ds::ResourceList&			getResources();
 	virtual const ds::FontList&			getFonts() const;
@@ -208,11 +218,33 @@ protected:
 	ds::ui::ip::FunctionList			mIpFunctions;
 	ds::ui::TouchMode::Enum				mTouchMode;
 
-private:
-	// Special function to set the camera to the current screen and clear it.
-	void								clearScreen();
-	void								setTouchMode(const ds::ui::TouchMode::Enum&);
+	// This really should move somewhere else (TODO: SL)
+	struct FxaaOptions
+	{
+		bool								mApplyFxAA{ false };
+		float								mFxAASpanMax;
+		float								mFxAAReduceMul;
+		float								mFxAAReduceMin;
+	} mFxaaOptions;
 
+public:
+	//! **** IMPORTANT NOTE ****
+	//! Leave these methods to be here so they get in-lined properly.
+	//! In-lining these methods are crucial since they get fired every frame!
+	inline const std::vector<std::unique_ptr<EngineRoot>>&
+										getRoots() const { return mRoots; }
+	inline const ds::DrawParams&		getDrawParams() const { return mDrawParams; }
+	inline ds::AutoDrawService* const	getAutoDrawService() { return mAutoDraw; }
+	inline const FxaaOptions&			getFxaaOptions() const { return mFxaaOptions; }
+
+private:
+	//! a pointer to the currently active renderer
+	std::unique_ptr<EngineRenderer>		mRenderer;
+	//! decides a renderer based on engine configurations. MUST be called inside "setup".
+	void								setupRenderer();
+
+private:
+	void								setTouchMode(const ds::ui::TouchMode::Enum&);
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot>>
 										mRoots;
@@ -239,9 +271,6 @@ private:
 	AutoDrawService*					mAutoDraw;
 
 	ds::cfg::Settings					mDebugSettings;
-
-	ci::gl::Fbo							mFbo;
-
 	ds::ui::TouchTranslator				mTouchTranslator;
 	std::mutex							mTouchMutex;
 	ds::EngineTouchQueue<ci::app::TouchEvent>
@@ -261,16 +290,10 @@ private:
 
 	ds::SelectPicking					mSelectPicking;
 
+	bool								mRotateTouchesDefault;
 	bool								mHideMouse;
-
-	bool								mApplyFxAA;
-	float								mFxAASpanMax;
-	float								mFxAAReduceMul;
-	float								mFxAAReduceMin;
 	ci::Color8u							mUniqueColor;
-
 	int									mCachedWindowW, mCachedWindowH;
-
 	ci::app::WindowRef					mCinderWindow;
 
 	// Channels. A channel is simply a notifier, with an optional description.

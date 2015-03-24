@@ -172,7 +172,11 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 			}
 			mJsMethodHandler = std::move(std::unique_ptr<ds::web::JsMethodHandler>(new ds::web::JsMethodHandler));
 			if (mJsMethodHandler) mWebViewPtr->set_js_method_handler(mJsMethodHandler.get());
+
+
+			mWebViewPtr->SetTransparent(true);
 		}
+;
 	}
 	//mWebViewPtr->LoadURL( Awesomium::WebURL( Awesomium::WSLit( "http://libcinder.org" ) ) );
 	//mWebViewPtr->Focus();
@@ -188,7 +192,10 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 
 Web::~Web() {
 	if (mWebViewPtr) {
+		mWebViewPtr->set_js_method_handler(nullptr);
+		mWebViewPtr->set_load_listener(nullptr);
 		mWebViewPtr->set_view_listener(nullptr);
+		mWebViewPtr->Stop();
 		mWebViewPtr->Destroy();
 	}
 }
@@ -210,7 +217,12 @@ void Web::updateServer(const ds::UpdateParams &p) {
 void Web::drawLocalClient() {
 	if (mWebTexture) {
 		//ci::gl::color(ci::Color::white());
-		ci::gl::draw(mWebTexture);
+
+		if(getPerspective()){
+			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture.getHeight()), static_cast<float>(mWebTexture.getWidth()), 0.0f));
+		} else {
+			ci::gl::draw(mWebTexture);
+		}
 	}
 
 	// show spinner while loading
@@ -466,6 +478,12 @@ void Web::reload() {
 	}
 }
 
+void Web::stop() {
+	if (mWebViewPtr) {
+		mWebViewPtr->Stop();
+	}
+}
+
 bool Web::canGoBack() {
 	if (!mWebViewPtr) return false;
 	return mWebViewPtr->CanGoBack();
@@ -597,8 +615,8 @@ void Web::sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Ph
 
 	ds::web::TouchEvent		te;
 	te.mPhase = phase;
-	te.mPosition.x = (mPageScrollCache.x + static_cast<float>(x));
-	te.mPosition.y = (mPageScrollCache.y + static_cast<float>(y));
+//	te.mPosition.x = (mPageScrollCache.x + static_cast<float>(x));
+//	te.mPosition.y = (mPageScrollCache.y + static_cast<float>(y));
 	te.mPosition.x = (static_cast<float>(x));
 	te.mPosition.y = (static_cast<float>(y));
 	te.mUnitPosition.x = te.mPosition.x / mPageSizeCache.x;

@@ -37,14 +37,14 @@ extern const ds::BitMask	VIDEO_LOG;
  */
 class Logger {
 public:
-    /**
-     * \brief Initialize the logger.  Settings files are in the standard ds::cfg::Settings format.  Here's what's available:
-     *	"logger:level" string -- all,none,info,warning,error,fatal (can be specific levels, like "error,fatal") DEFAULT=none
-     *  "logger:module" string -- all,none, or numbers (i.e. "0,1,2,3").  applications map the numbers to specific modules DEFAULT=all
-     *  "logger:file" string -- filename (and location).  a date stamp is appended.  DEFAULT=../logs/
-     *  "logger:async" text -- (true,false) If this is false, then logging is synchronous.  DEFAULT=true
-     */
-    static void						  setup(const ds::cfg::Settings&);
+	/**
+	 * \brief Initialize the logger.  Settings files are in the standard ds::cfg::Settings format.  Here's what's available:
+	 *	"logger:level" string -- all,none,info,warning,error,fatal (can be specific levels, like "error,fatal") DEFAULT=none
+	 *  "logger:module" string -- all,none, or numbers (i.e. "0,1,2,3").  applications map the numbers to specific modules DEFAULT=all
+	 *  "logger:file" string -- filename (and location).  a date stamp is appended.  DEFAULT=../logs/
+	 *  "logger:async" text -- (true,false) If this is false, then logging is synchronous.  DEFAULT=true
+	 */
+	static void						  setup(const ds::cfg::Settings&);
 
 	/**
 	 * LEVELS
@@ -58,77 +58,77 @@ public:
 	// Verification that the given parameter is valid to log.
 	static bool						hasLevel(const int level);
 
-    /**
-     * MODULES
-     */
-    /**
-     * \brief Create a new, globally unique module.  This is meant
-     * to be run statically or in the main thread.  The module names and indexes will
-     * be printed on app startup.  Typical usage might look like:
-     * namespace {
-     * const ds::BitMask	QUERY_MODULE = ds::Logger::newModule();
-     * }
-     */
-    static ds::BitMask      newModule(const std::string& name);
+	/**
+	 * MODULES
+	 */
+	/**
+	 * \brief Create a new, globally unique module.  This is meant
+	 * to be run statically or in the main thread.  The module names and indexes will
+	 * be printed on app startup.  Typical usage might look like:
+	 * namespace {
+	 * const ds::BitMask	QUERY_MODULE = ds::Logger::newModule();
+	 * }
+	 */
+	static ds::BitMask      newModule(const std::string& name);
 
-    // Verification that the given parameter is valid to log.
-    static bool             hasModule(const ds::BitMask&);
+	// Verification that the given parameter is valid to log.
+	static bool             hasModule(const ds::BitMask&);
 
-    // A run-time switch to toggle specific modules on and off.  This isn't
-    // 100% safe but the consequences aren't exactly dire -- extra logging or
-    // missing logging for a fraction of a second.
-    static void             toggleModule(const ds::BitMask& module, const bool on);
+	// A run-time switch to toggle specific modules on and off.  This isn't
+	// 100% safe but the consequences aren't exactly dire -- extra logging or
+	// missing logging for a fraction of a second.
+	static void             toggleModule(const ds::BitMask& module, const bool on);
 
   public:
-    Logger();
-    ~Logger();
+	Logger();
+	~Logger();
 
-    void                    log(const int level, const std::string&);
-    void                    log(const int level, const std::wstring&);
+	void                    log(const int level, const std::string&);
+	void                    log(const int level, const std::wstring&);
 
-    // Block until all current inputs have finished writing
-    void                    blockUntilReady();
+	// Block until all current inputs have finished writing
+	void                    blockUntilReady();
 
-    // called by the app to make sure I'm shut down.
-    void                    shutDown();
-
-  private:
-    struct entry {
-      Poco::Timestamp::TimeVal
-                            mTime;
-      int                   mLevel;
-      std::string           mMsg;
-    };
+	// called by the app to make sure I'm shut down.
+	void                    shutDown();
 
   private:
-    class Loop : public Poco::Runnable {
-      public:
-        Poco::Mutex         mMutex;
-        Poco::Condition     mCondition;
-        bool                mAbort;
-        std::vector<entry>  mInput;
-
-      public:
-        Loop();
-
-        void                log(const int level, const std::string&);
-        void                log(const int level, const std::wstring&);
-
-        virtual void        run();
-
-      private:
-        std::stringstream   mBuf;
-
-        void                consume(std::vector<entry>&);
-        void                logToConsole(const entry&, const std::string& formattedMsg);
-        void                logToFile(const entry&, const std::string& formattedMsg);
-        void                logToConsole(const entry&, const std::wstring& formattedMsg);
-        void                logToFile(const entry&, const std::wstring& formattedMsg);
-    };
+	struct entry {
+	  Poco::Timestamp::TimeVal
+							mTime;
+	  int                   mLevel;
+	  std::string           mMsg;
+	};
 
   private:
-    Loop                    mLoop;
-    Poco::Thread            mThread;
+	class Loop : public Poco::Runnable {
+	  public:
+		Poco::Mutex         mMutex;
+		Poco::Condition     mCondition;
+		bool                mAbort;
+		std::vector<entry>  mInput;
+
+	  public:
+		Loop();
+
+		void                log(const int level, const std::string&);
+		void                log(const int level, const std::wstring&);
+
+		virtual void        run();
+
+	  private:
+		std::stringstream   mBuf;
+
+		void                consume(std::vector<entry>&);
+		void                logToConsole(const entry&, const std::string& formattedMsg);
+		void                logToFile(const entry&, const std::string& formattedMsg);
+		void                logToConsole(const entry&, const std::wstring& formattedMsg);
+		void                logToFile(const entry&, const std::wstring& formattedMsg);
+	};
+
+  private:
+	Loop                    mLoop;
+	Poco::Thread            mThread;
 };
 
 

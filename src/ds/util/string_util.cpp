@@ -2,6 +2,7 @@
 
 #include <sstream>
 #include <fstream>
+#include <codecvt>
 
 using namespace std;
 using namespace ds;
@@ -53,6 +54,29 @@ std::string			ds::utf8_from_wstr(const std::wstring& wstr)
 {
 	return str_from_wstr(wstr, CP_UTF8);
 }
+
+
+std::wstring ds::iso_8859_1_string_to_wstring(const std::string& input){
+	// you may notice that this implementation is different than the reverse.
+	// good eye.
+	// wstring and string conversion is A TOTAL MOTHERFUCKER.
+	// This way seems to keep some special characters, like accent marks.
+	// the other way seems to throw A SILENT EXCEPTION FOR NO FUCKING REASON AND JUST SKIPS ON OUT OF YOUR CODE
+	// LIKE A MOTHER FUCKER AND DOESN'T DO SHIT CAUSE WHAT THE FUCK.
+	// So, yeah. 
+	// Here you go.
+	std::wostringstream conv;
+	conv << input.c_str();
+	return conv.str();
+}
+
+std::string ds::iso_8859_1_wstring_to_string(const std::wstring& input){
+	typedef std::codecvt_utf8<wchar_t> convert_typeX;
+	std::wstring_convert<convert_typeX, wchar_t> converterX;
+
+	return converterX.to_bytes(input);
+}
+
 
 #else
 /* Linux equivalent?

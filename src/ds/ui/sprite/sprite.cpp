@@ -150,6 +150,10 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mDrawOpacityHack = 1.0f;
 	mDelayedCallCueRef = nullptr;
 
+	if(mEngine.getRotateTouchesDefault()){
+		setRotateTouches(true);
+	}
+
 	setSpriteId(id);
 
 	mServerColor = ci::ColorA(static_cast<float>(math::random()*0.5 + 0.5),
@@ -227,7 +231,7 @@ void Sprite::drawClient( const ci::Matrix44f &trans, const DrawParams &drawParam
 	if ((mSpriteFlags&TRANSPARENT_F) == 0) {
 		ci::gl::enableAlphaBlending();
 		applyBlendingMode(mBlendMode);
-		ci::gl::GlslProg shaderBase = mSpriteShader.getShader();
+		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
 		if (shaderBase) {
 			shaderBase.bind();
 			shaderBase.uniform("tex0", 0);
@@ -386,6 +390,11 @@ void Sprite::setScale(const ci::Vec3f& scale) {
 	doSetScale(scale);
 }
 
+void Sprite::setScale(float scale)
+{
+	setScale(scale, scale, scale);
+}
+
 const ci::Vec3f& Sprite::getScale() const
 {
 	return mScale;
@@ -520,7 +529,9 @@ void Sprite::addChild( Sprite &child ){
 void Sprite::removeChild( Sprite &child ){
 	if ( !containsChild(&child) )
 		return;
-
+	
+	onChildRemoved(child);
+	
 	auto found = std::find(mChildren.begin(), mChildren.end(), &child);
 	mChildren.erase(found);
 	if (child.getParent() == this) {
@@ -730,12 +741,26 @@ bool Sprite::getTransparent() const
 
 void Sprite::show()
 {
+  const auto before = visible();
   setFlag(VISIBLE_F, true, FLAGS_DIRTY, mSpriteFlags);
+  const auto now = visible();
+  if (before != now)
+  {
+	  onAppearanceChanged(now);
+  }
+  doPropagateVisibilityChange(before, now);
 }
 
 void Sprite::hide()
 {
+  const auto before = visible();
   setFlag(VISIBLE_F, false, FLAGS_DIRTY, mSpriteFlags);
+  const auto now = visible();
+  if (before != now)
+  {
+	  onAppearanceChanged(now);
+  }
+  doPropagateVisibilityChange(before, now);
 }
 
 bool Sprite::visible() const
@@ -902,33 +927,83 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 		return nullptr;
 
 	makeSortedChildren();
+
+	std::vector<ds::ui::Sprite*> candidates;
+
 	for ( auto it = mSortedTmp.rbegin(), it2 = mSortedTmp.rend(); it != it2; ++it ) {
 		Sprite*		hit = (*it)->getPerspectiveHit(pick);
 		if (hit) {
-			return hit;
+			candidates.push_back(hit);
+		//	std::cout << "Found pick candidate: " << hit->getParent()->localToGlobal(hit->getPosition()).z << " " << hit->getId() << std::endl;
+		//	return hit;
 		}
 	}
 
+	if (!candidates.empty()){
+		if (candidates.size() == 1){
+			return candidates.front();
+		}
+
+
+		float closestZ = -10000000.0f;
+		if (candidates.front()->getParent()){
+			closestZ = candidates.front()->getParent()->localToGlobal(candidates.front()->getPosition()).z;
+		}
+		ds::ui::Sprite* hit = candidates.front();
+		for (auto it = candidates.begin() + 1; it < candidates.end(); ++it){
+			if (!(*it)->getParent()) continue;
+			float newZ = (*it)->getParent()->localToGlobal((*it)->getPosition()).z;
+			if (newZ > closestZ){
+				hit = (*it);
+				closestZ = newZ;
+			}
+		}
+
+		return hit;
+	}
+
 	if (isEnabled()) {
-		const float							w = getWidth(),
-											h = getHeight();
-		ci::Vec3f							a = getParent()->localToGlobal(getPosition());
-											a.x += (-mCenter.x*w);
-											a.y += (mCenter.y*h);
+		const float	w = getWidth(),
+					h = getHeight();
 
-		ci::Vec2f							lt = ci::Vec2f(a.x, a.y);
-		ci::Vec2f							rb(a.x + w, a.y - h);
-		if (!mIsInScreenCoordsHack) {
-			lt = pick.worldToScreen(a);
-			rb = pick.worldToScreen(ci::Vec3f(rb.x, rb.y, a.z));
-		} else {
-			rb.y = a.y + h;
-		}
-		ci::Rectf							r(lt.x, lt.y, rb.x, rb.y);
+		ci::Vec3f ptR = pick.getScreenPt();
+		ci::Vec3f a = getPosition();
+		ci::Vec3f ptA = a;
+		ci::Vec3f ptB = a;
+		ci::Vec3f ptC = a;
+		ci::Vec3f ptD = a;
 
-		if (r.contains(ci::Vec2f(pick.getScreenPt().x, pick.getScreenPt().y))) {
-			return this;
-		}
+		ci::Vec2f ptA_s;
+		ci::Vec2f ptB_s;
+		ci::Vec2f ptC_s;
+		ci::Vec2f ptD_s;
+
+		ptA.x -=  mCenter.x*w;
+		ptA.y +=  mCenter.y*h;
+		ptA_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptA)));
+
+		ptB.x += mCenter.x*w;
+		ptB.y += mCenter.y*h;
+		ptB_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptB)));
+
+		ptC.x += mCenter.x*w;
+		ptC.y -= mCenter.y*h;
+		ptC_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptC)));
+
+		ci::Vec2f v1 = ptA_s - ptB_s;
+		ci::Vec2f v2 = ptC_s - ptB_s;
+		ci::Vec2f v;
+
+		v.x = ptR.x - ptB_s.x;
+		v.y = ptR.y - ptB_s.y;
+
+		float dot1 = v.dot(v1);
+		float dot2 = v.dot(v2);
+		if (dot1 >= 0 && 
+			dot2 >= 0 &&
+			dot1 <= v1.dot(v1) &&
+			dot2 <= v2.dot(v2)
+			) return this;
 	}
 
 	return nullptr;
@@ -1830,9 +1905,19 @@ void Sprite::setTouchScaleMode(bool doSizeScale)
 	mTouchScaleSizeMode = doSizeScale;
 }
 
-void Sprite::readClientFrom(ds::DataBuffer&)
+void Sprite::readClientFrom(ds::DataBuffer& buf)
 {
-	// virtual method
+	while (buf.canRead<char>())
+	{
+		char cmd = buf.read<char>();
+		if (cmd != TERMINATOR_CHAR) {
+			readClientAttributeFrom(cmd, buf);
+		}
+		else
+		{
+			return;
+		}
+	}
 }
 
 ds::gl::Uniform& Sprite::getUniform()
@@ -1901,6 +1986,49 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 }
 
 #endif
+
+void Sprite::onAppearanceChanged(bool visible)
+{
+	// virtual method
+}
+
+void Sprite::doPropagateVisibilityChange(bool before, bool after)
+{
+	if (before == after) return;
+
+	for (auto it = mChildren.cbegin(), it2 = mChildren.cend(); it != it2; ++it)
+	{
+		if ((*it)->visible()) {
+			// if we were visible, and now we're hidden and our child is visible...
+			// our child will vanish.
+			if (before && !after) {
+				(*it)->onAppearanceChanged(false);
+			}
+
+			// if we were hidden, and now we're visible and our child is visible...
+			// our child will show up.
+			else if (!before && after) {
+				(*it)->onAppearanceChanged(true);
+			}
+
+			// continue propagating
+			(*it)->doPropagateVisibilityChange(before, after);
+		}
+
+		// DO NOT propagate this change to hidden children!
+		// visibility change of a parent has no effect on hidden children.
+	}
+}
+
+void Sprite::onChildRemoved(Sprite& child)
+{
+	// virtual method
+}
+
+void Sprite::readClientAttributeFrom(const char attributeId, ds::DataBuffer&)
+{
+	// virtual method
+}
 
 /**
  * \class ds::ui::Sprite::LockScale

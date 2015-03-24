@@ -4,9 +4,6 @@
     <ClCompile Include="..\src\app\app_defs.cpp">
       <Filter>src\app</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\events\app_events.cpp">
-      <Filter>src\events</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\app\globals.cpp">
       <Filter>src\app</Filter>
     </ClCompile>
