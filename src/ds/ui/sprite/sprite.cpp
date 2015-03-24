@@ -939,21 +939,21 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 		}
 	}
 
-	if(!candidates.empty()){
-		if(candidates.size() == 1){
+	if (!candidates.empty()){
+		if (candidates.size() == 1){
 			return candidates.front();
 		}
 
 
 		float closestZ = -10000000.0f;
-		if(candidates.front()->getParent()){
+		if (candidates.front()->getParent()){
 			closestZ = candidates.front()->getParent()->localToGlobal(candidates.front()->getPosition()).z;
 		}
 		ds::ui::Sprite* hit = candidates.front();
-		for(auto it = candidates.begin() + 1; it < candidates.end(); ++it){
-			if(!(*it)->getParent()) continue;
+		for (auto it = candidates.begin() + 1; it < candidates.end(); ++it){
+			if (!(*it)->getParent()) continue;
 			float newZ = (*it)->getParent()->localToGlobal((*it)->getPosition()).z;
-			if(newZ > closestZ){
+			if (newZ > closestZ){
 				hit = (*it);
 				closestZ = newZ;
 			}
@@ -963,25 +963,47 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 	}
 
 	if (isEnabled()) {
-		const float							w = getWidth(),
-											h = getHeight();
-		ci::Vec3f							a = getParent()->localToGlobal(getPosition());
-											a.x += (-mCenter.x*w);
-											a.y += h - (mCenter.y*h);
+		const float	w = getWidth(),
+					h = getHeight();
 
-		ci::Vec2f							lt = ci::Vec2f(a.x, a.y);
-		ci::Vec2f							rb(a.x + w, a.y - h);
-		if (!mIsInScreenCoordsHack) {
-			lt = pick.worldToScreen(a);
-			rb = pick.worldToScreen(ci::Vec3f(rb.x, rb.y, a.z));
-		} else {
-			rb.y = a.y + h;
-		}
-		ci::Rectf							r(lt.x, lt.y, rb.x, rb.y);
+		ci::Vec3f ptR = pick.getScreenPt();
+		ci::Vec3f a = getPosition();
+		ci::Vec3f ptA = a;
+		ci::Vec3f ptB = a;
+		ci::Vec3f ptC = a;
+		ci::Vec3f ptD = a;
 
-		if (r.contains(ci::Vec2f(pick.getScreenPt().x, pick.getScreenPt().y))) {
-			return this;
-		}
+		ci::Vec2f ptA_s;
+		ci::Vec2f ptB_s;
+		ci::Vec2f ptC_s;
+		ci::Vec2f ptD_s;
+
+		ptA.x -=  mCenter.x*w;
+		ptA.y +=  mCenter.y*h;
+		ptA_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptA)));
+
+		ptB.x += mCenter.x*w;
+		ptB.y += mCenter.y*h;
+		ptB_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptB)));
+
+		ptC.x += mCenter.x*w;
+		ptC.y -= mCenter.y*h;
+		ptC_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptC)));
+
+		ci::Vec2f v1 = ptA_s - ptB_s;
+		ci::Vec2f v2 = ptC_s - ptB_s;
+		ci::Vec2f v;
+
+		v.x = ptR.x - ptB_s.x;
+		v.y = ptR.y - ptB_s.y;
+
+		float dot1 = v.dot(v1);
+		float dot2 = v.dot(v2);
+		if (dot1 >= 0 && 
+			dot2 >= 0 &&
+			dot1 <= v1.dot(v1) &&
+			dot2 <= v2.dot(v2)
+			) return this;
 	}
 
 	return nullptr;
