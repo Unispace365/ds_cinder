@@ -50,12 +50,18 @@ void TouchManager::touchesBegin(const TouchEvent &event) {
 			overrideTouchTranslation(touchPos);
 		}
 
-		if (shouldDiscardTouch(touchPos))
-			return;
+		int fingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
+  
+		if(shouldDiscardTouch(touchPos)){
+			mDiscardTouchMap[fingerId] = true;
+			continue;
+		}
+
+		mDiscardTouchMap[fingerId] = false;
 
 		TouchInfo touchInfo;
 		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
-		touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
+		touchInfo.mFingerId = fingerId;
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 		mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -82,6 +88,12 @@ void TouchManager::touchesMoved(const TouchEvent &event) {
 			continue;
 		}
 
+		int fingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
+
+		if(mDiscardTouchMap[fingerId]){
+			continue;
+		}
+
 		ci::Vec2f touchPos = touchIt->getPos();
 		if(mOverrideTranslation){
 			overrideTouchTranslation(touchPos);
@@ -92,7 +104,7 @@ void TouchManager::touchesMoved(const TouchEvent &event) {
 
 		TouchInfo touchInfo;
 		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
-		touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
+		touchInfo.mFingerId = fingerId;
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 		touchInfo.mPhase = TouchInfo::Moved;
@@ -100,7 +112,9 @@ void TouchManager::touchesMoved(const TouchEvent &event) {
 		touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
 		mRotationTranslator.move(touchInfo, mTouchPreviousPoint[touchInfo.mFingerId]);
 
-		if (mCapture) mCapture->touchMoved(touchInfo);
+		if(mCapture){
+			mCapture->touchMoved(touchInfo);
+		}
 
 		if (mFingerDispatcher[touchInfo.mFingerId]) {
 			mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
@@ -119,6 +133,12 @@ void TouchManager::touchesEnded(const TouchEvent &event) {
 		}
 
 
+		int fingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
+
+		if(mDiscardTouchMap[fingerId]){
+			continue;
+		}
+
 		ci::Vec2f touchPos = touchIt->getPos();
 		if(mOverrideTranslation){
 			overrideTouchTranslation(touchPos);
@@ -130,7 +150,7 @@ void TouchManager::touchesEnded(const TouchEvent &event) {
 
 		TouchInfo touchInfo;
 		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
-		touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
+		touchInfo.mFingerId = fingerId;
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 		touchInfo.mPhase = TouchInfo::Removed;
@@ -161,6 +181,8 @@ void TouchManager::mouseTouchBegin(const MouseEvent &event, int id ){
 	touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 	touchInfo.mPhase = TouchInfo::Added;
 	touchInfo.mPassedTouch = false;
+
+	std::cout << "should discard: " << shouldDiscardTouch(touchInfo.mCurrentGlobalPoint.xy()) << std::endl;
 
 	if (mCapture) mCapture->touchBegin(touchInfo);
 

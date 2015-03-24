@@ -76,6 +76,7 @@ public:
     std::map<int, ui::Sprite*>	mFingerDispatcher;
     std::map<int, ci::Vec3f>	mTouchStartPoint;
     std::map<int, ci::Vec3f>	mTouchPreviousPoint;
+	std::map<int, bool>			mDiscardTouchMap;
 
 	ci::Vec2f					mTouchDimensions;
 	ci::Vec2f					mTouchOffset;
