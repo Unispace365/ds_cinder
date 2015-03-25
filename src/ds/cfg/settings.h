@@ -72,11 +72,15 @@ public:
 	bool							  	getBool(const std::string& name, const int index, const bool defaultValue) const;
 
 	// Iterate over the keys
-	void								forEachColorAKey(const std::function<void(const std::string&)>&) const;
 	void								forEachFloatKey(const std::function<void(const std::string&)>&) const;
+	void								forEachRectKey(const std::function<void(const std::string&)>&) const;
 	void								forEachIntKey(const std::function<void(const std::string&)>&) const;
+	void								forEachColorKey(const std::function<void(const std::string&)>&) const;
+	void								forEachColorAKey(const std::function<void(const std::string&)>&) const;
 	void								forEachSizeKey(const std::function<void(const std::string&)>&) const;
 	void								forEachTextKey(const std::function<void(const std::string&)>&) const;
+	void								forEachTextWKey(const std::function<void(const std::string&)>&) const;
+	void								forEachPointKey(const std::function<void(const std::string&)>&) const;
 
 private:
 	std::map<std::string, std::vector<float>>			mFloat;

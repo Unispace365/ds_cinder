@@ -477,6 +477,34 @@ void Settings::forEachTextKey(const std::function<void(const std::string&)>& fn)
 	for (auto it=mText.begin(), end=mText.end(); it != end; ++it) fn(it->first);
 }
 
+void Settings::forEachRectKey(const std::function<void(const std::string&)>& fn) const
+{
+	if (!fn || mRect.empty()) return;
+
+	for (auto it = mRect.cbegin(), end = mRect.cend(); it != end; ++it) fn(it->first);
+}
+
+void Settings::forEachColorKey(const std::function<void(const std::string&)>& fn) const
+{
+	if (!fn || mColor.empty()) return;
+
+	for (auto it = mColor.cbegin(), end = mColor.cend(); it != end; ++it) fn(it->first);
+}
+
+void Settings::forEachTextWKey(const std::function<void(const std::string&)>& fn) const
+{
+	if (!fn || mTextW.empty()) return;
+
+	for (auto it = mTextW.cbegin(), end = mTextW.cend(); it != end; ++it) fn(it->first);
+}
+
+void Settings::forEachPointKey(const std::function<void(const std::string&)>& fn) const
+{
+	if (!fn || mPoints.empty()) return;
+
+	for (auto it = mPoints.cbegin(), end = mPoints.cend(); it != end; ++it) fn(it->first);
+}
+
 /**
  * ds::xml::Settings::Editor
  */
