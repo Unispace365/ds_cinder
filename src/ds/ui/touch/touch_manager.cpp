@@ -182,8 +182,6 @@ void TouchManager::mouseTouchBegin(const MouseEvent &event, int id ){
 	touchInfo.mPhase = TouchInfo::Added;
 	touchInfo.mPassedTouch = false;
 
-	std::cout << "should discard: " << shouldDiscardTouch(touchInfo.mCurrentGlobalPoint.xy()) << std::endl;
-
 	if (mCapture) mCapture->touchBegin(touchInfo);
 
 	Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);

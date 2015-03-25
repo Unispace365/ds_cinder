@@ -13,7 +13,8 @@ enum BlendMode
   ADD,
   SUBTRACT,
   LIGHTEN,
-  DARKEN
+  DARKEN,
+  TRANSPARENT_BLACK
 };
 
 bool premultiplyAlpha(const BlendMode &blendMode);
