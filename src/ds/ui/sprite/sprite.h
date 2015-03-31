@@ -131,6 +131,10 @@ public:
 	void					setRotation(const ci::Vec3f &rot);
 	ci::Vec3f				getRotation() const;
 
+	// \note This ZLevel is not analogous to 3D position z value at all.
+	// This value affects drawing order of sprites. The higher this value is,
+	// the later this sprite gets drawn.
+	// \see Sprite::drawServer
 	void					setZLevel( float zlevel );
 	float					getZLevel() const;
 
