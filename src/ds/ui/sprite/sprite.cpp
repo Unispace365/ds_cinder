@@ -966,6 +966,9 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 		const float	w = getWidth(),
 					h = getHeight();
 
+		if (w <= 0.0f || h <= 0.0f)
+			return nullptr;
+
 		ci::Vec3f ptR = pick.getScreenPt();
 		ci::Vec3f a = getPosition();
 		ci::Vec3f ptA = a;

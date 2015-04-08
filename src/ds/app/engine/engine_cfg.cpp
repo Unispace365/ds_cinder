@@ -114,6 +114,10 @@ const ds::cfg::NinePatch& EngineCfg::getNinePatch(const std::string& name) const
 	return it->second;
 }
 
+bool EngineCfg::hasSettings(const std::string& name) const {
+	return mSettings.find(name) != mSettings.cend();
+}
+
 void EngineCfg::loadSettings(const std::string& name, const std::string& filename) {
 	ds::cfg::Settings&	settings = mSettings[name];
 	ds::Environment::loadSettings(filename, settings);

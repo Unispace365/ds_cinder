@@ -31,6 +31,9 @@ public:
 	bool							hasNinePatch(const std::string& name) const;
 	const ds::cfg::NinePatch&		getNinePatch(const std::string&) const;
 
+	// Answers true if settings with given key is already loaded
+	bool							hasSettings(const std::string& name) const;
+
 	// Convenice to load a setting file into the mEngineCfg settings.
 	// @param name is the name that the system will use to refer to the settings.
 	// @param filename is the leaf path of the settings file (i.e. "data.xml").
