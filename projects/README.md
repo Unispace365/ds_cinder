@@ -1,4 +1,4 @@
-Take a look at [boilerplate](/boilerplate) if you are looking into developing a plug-in.
+Take a look at [boilerplate](/projects/boilerplate) if you are looking into developing a plug-in.
 
 
 ----------
