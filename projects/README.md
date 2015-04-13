@@ -1,3 +1,9 @@
+Take a look at [boilerplate](/boilerplate) if you are looking into developing a plug-in.
+
+
+----------
+
+
 This folder contains all the optional projects that can be added to a DsCinder project.
 
 The structure is intended to allow for mutually exclusive objects. There should always be a top-level item (i.e. "video"), then any folders underneath that contain the list of mutually exclusive projects. For example, video/ has gstreamer/ and quicktime; a solution can't mix both, since they both will add a "ds::ui::Video" class to the solution.
