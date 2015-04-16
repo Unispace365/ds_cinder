@@ -127,6 +127,11 @@ bool Text::autoResizeHeight() const
 	return (mResizeToTextF&RESIZE_H) != 0;
 }
 
+bool Text::autoResize() const
+{
+	return autoResizeWidth() && autoResizeHeight();
+}
+
 float Text::getResizeLimitWidth() const
 {
 	return mResizeLimitWidth;

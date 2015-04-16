@@ -44,6 +44,7 @@ public:
 	Text&						setResizeToText(const bool width, const bool height);
 	bool						autoResizeWidth() const;
 	bool						autoResizeHeight() const;
+	bool						autoResize() const;
 
 	// When the limit is <= 0 it is unusued. When it's a valid value, then it is
 	// ignored if resize is OFF, but if resize is ON, it prevents the view from
