@@ -143,6 +143,9 @@ public:
 
 	// Warning: Expensive operation (database lookup).  Use with care.
 	bool					existsInDb() const;
+	// Answers true if ds::Resource was constructed from a local
+	// file instead of an actual element in db. via fromImage method for example.
+	bool					isLocal() const;
 	// Query the DB for my contents. Obviously, this is also an expensive operation.
 	bool					query(const Resource::Id&);
 	// The argument is the full thumbnail, if you want it.

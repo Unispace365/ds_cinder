@@ -406,6 +406,12 @@ return false;
 #endif
 }
 
+bool Resource::isLocal() const
+{
+	// parameters mFileName and mPath correspond to their fields in the resources table
+	return !mDebugFileName.empty() && mFileName.empty() && mPath.empty();
+}
+
 bool Resource::query(const Resource::Id& id) {
 	const std::string&          dbPath = id.getDatabasePath();
 	if (dbPath.empty()) return false;
