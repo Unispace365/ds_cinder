@@ -6,14 +6,14 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_086)\projects\web\awesomium\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_086)\projects\web\awesomium\src;$(DS_PLATFORM_086)\projects\web\awesomium\lib\include</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);awesomium.lib;web_awesomium.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_086)\projects\web\awesomium\lib\paulhoux-Cinder-Awesomium\build\lib\msw;$(DS_PLATFORM_086)\projects\web\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\lib;$(DS_PLATFORM_086)\projects\web\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "%DS_PLATFORM_086%\projects\web\awesomium\lib\paulhoux-Cinder-Awesomium\build\bin\*.*" "$(TargetDir)"</Command>
+      <Command>copy "%DS_PLATFORM_086%\projects\web\awesomium\lib\build\bin\*.*" "$(TargetDir)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>copy awesomium DLLs</Message>

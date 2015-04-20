@@ -19,6 +19,8 @@ class JsMethodHandler;
 class Service;
 class WebLoadListener;
 class WebViewListener;
+class WebProcessListener;
+class WebDialogListener;
 }
 
 namespace ui {
@@ -109,6 +111,7 @@ protected:
 	virtual void			onSizeChanged();
 	virtual void			writeAttributesTo(ds::DataBuffer&);
 	virtual void			readAttributeFrom(const char attributeId, ds::DataBuffer&);
+	bool					webViewDirty();
 
 private:
 	void					update(const ds::UpdateParams&);
@@ -121,12 +124,11 @@ private:
 
 	ds::web::Service&		mService;
 	Awesomium::WebView*		mWebViewPtr;
-	std::unique_ptr<ds::web::WebViewListener>
-							mWebViewListener;
-	std::unique_ptr<ds::web::WebLoadListener>
-							mWebLoadListener;
-	std::unique_ptr<ds::web::JsMethodHandler>
-							mJsMethodHandler;
+	std::unique_ptr<ds::web::WebViewListener>		mWebViewListener;
+	std::unique_ptr<ds::web::WebLoadListener>		mWebLoadListener;
+	std::unique_ptr<ds::web::WebProcessListener>	mWebProcessListener;
+	std::unique_ptr<ds::web::WebDialogListener>		mWebDialogListener;
+	std::unique_ptr<ds::web::JsMethodHandler>		mJsMethodHandler;
 
 	ci::gl::Texture			mWebTexture;
 	ci::gl::Texture			mLoadingTexture;

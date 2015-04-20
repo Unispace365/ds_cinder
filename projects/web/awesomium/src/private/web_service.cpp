@@ -1,7 +1,8 @@
 #include "private/web_service.h"
 
 #include <ds/app/engine/engine.h>
-#include "CinderAwesomium.h"
+#include <Awesomium/WebCore.h>
+#include <Awesomium/WebConfig.h>
 
 namespace ds {
 namespace web {
@@ -30,11 +31,11 @@ void Service::start() {
 
 	// initialize the Awesomium web engine
 	mWebCorePtr = Awesomium::WebCore::Initialize(cnf);
-	if (mWebCorePtr) {
-		Awesomium::WebPreferences		prefs;
-		prefs.allow_scripts_to_open_windows = false;
-		mWebSessionPtr = mWebCorePtr->CreateWebSession(Awesomium::WebString(), prefs);
-	}
+// 	if (mWebCorePtr) {
+// 		Awesomium::WebPreferences		prefs;
+// 		prefs.allow_scripts_to_open_windows = false;
+// 		mWebSessionPtr = mWebCorePtr->CreateWebSession(Awesomium::WebString(), prefs);
+// 	}
 }
 
 Awesomium::WebCore* Service::getWebCore() const {

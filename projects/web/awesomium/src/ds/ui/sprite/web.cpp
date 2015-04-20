@@ -13,11 +13,12 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/tween/tweenline.h>
 #include <ds/util/string_util.h>
-#include "paulhoux-Cinder-Awesomium/include/CinderAwesomium.h"
 #include "private/js_method_handler.h"
 #include "private/script_translator.h"
 #include "private/web_service.h"
 #include "private/web_view_listener.h"
+
+#include "private/web_key_translator.h"
 
 namespace {
 // Statically initialize the world class. Done here because the Body is
@@ -161,7 +162,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	// create a webview
 	Awesomium::WebCore*	webcore = mService.getWebCore();
 	if (webcore) {
-		mWebViewPtr = webcore->CreateWebView(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mService.getWebSession());
+		mWebViewPtr = webcore->CreateWebView(static_cast<int>(getWidth()), static_cast<int>(getHeight()));// , mService.getWebSession());
 		if (mWebViewPtr) {
 			mWebViewListener = std::move(std::unique_ptr<ds::web::WebViewListener>(new ds::web::WebViewListener));
 			if (mWebViewListener) mWebViewPtr->set_view_listener(mWebViewListener.get());
@@ -173,6 +174,15 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 			mJsMethodHandler = std::move(std::unique_ptr<ds::web::JsMethodHandler>(new ds::web::JsMethodHandler));
 			if (mJsMethodHandler) mWebViewPtr->set_js_method_handler(mJsMethodHandler.get());
 
+			mWebDialogListener = std::move(std::unique_ptr<ds::web::WebDialogListener>(new ds::web::WebDialogListener));
+			if(mWebDialogListener){
+				mWebViewPtr->set_dialog_listener(mWebDialogListener.get());
+			}
+
+			mWebProcessListener = std::move(std::unique_ptr<ds::web::WebProcessListener>(new ds::web::WebProcessListener));
+			if(mWebProcessListener){
+				mWebViewPtr->set_process_listener(mWebProcessListener.get());
+			}
 
 			mWebViewPtr->SetTransparent(true);
 		}
@@ -265,7 +275,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 				}
 				float yDelta = touchInfo.mCurrentGlobalPoint.y- mPreviousTouchPos.y;
 				ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, yDelta, 1);
-				ph::awesomium::handleMouseWheel( mWebViewPtr, event, 1 );
+				ds::web::handleMouseWheel( mWebViewPtr, event, 1 );
 			}
 		} else {
 			ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
@@ -356,13 +366,13 @@ void Web::setUrlOrThrow(const std::string& url) {
 
 void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {
 	if(mWebViewPtr){
-		ph::awesomium::handleKeyDown(mWebViewPtr, event);
+		ds::web::handleKeyDown(mWebViewPtr, event);
 	}
 }
 
 void Web::sendKeyUpEvent( const ci::app::KeyEvent &event ){
 	if(mWebViewPtr){
-		ph::awesomium::handleKeyUp(mWebViewPtr, event);
+		ds::web::handleKeyUp(mWebViewPtr, event);
 	}
 }
 
@@ -370,22 +380,22 @@ void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
 	if (!mWebViewPtr) return;
 
 	ci::app::MouseEvent eventMove(mEngine.getWindow(), 0, e.getX(), e.getY(), 0, 0, 0);
-	ph::awesomium::handleMouseMove( mWebViewPtr, eventMove );
-	ph::awesomium::handleMouseDown( mWebViewPtr, e);
+	ds::web::handleMouseMove( mWebViewPtr, eventMove );
+	ds::web::handleMouseDown( mWebViewPtr, e);
 	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kAdded);
 }
 
 void Web::sendMouseDragEvent(const ci::app::MouseEvent& e) {
 	if (!mWebViewPtr) return;
 
-	ph::awesomium::handleMouseDrag(mWebViewPtr, e);
+	ds::web::handleMouseDrag(mWebViewPtr, e);
 	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kMoved);
 }
 
 void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
 	if (!mWebViewPtr) return;
 
-	ph::awesomium::handleMouseUp( mWebViewPtr, e);
+	ds::web::handleMouseUp( mWebViewPtr, e);
 	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kRemoved);
 }
 
@@ -462,6 +472,7 @@ double Web::getZoom() const {
 
 void Web::goBack() {
 	if (mWebViewPtr) {
+		mWebViewPtr->Focus();
 		mWebViewPtr->GoBack();
 	}
 }
@@ -567,19 +578,37 @@ bool Web::isLoading() {
 	return false;
 }
 
+bool Web::webViewDirty(){
+	if(!mWebViewPtr){
+		return false;
+	}
+
+	Awesomium::BitmapSurface* surface = (Awesomium::BitmapSurface*) mWebViewPtr->surface();
+	if(!surface) return false; 
+
+	return surface->is_dirty();
+}
+
 void Web::update(const ds::UpdateParams &p) {
 	// create or update our OpenGL Texture from the webview
 	if (mWebViewPtr
 		&& (mDrawWhileLoading || !mWebViewPtr->IsLoading())
-		&& ph::awesomium::isDirty( mWebViewPtr )) {
+		&& webViewDirty()) {
 		try {
 			// set texture filter to NEAREST if you don't intend to transform (scale, rotate) it
 			ci::gl::Texture::Format fmt;
 		//	fmt.setMagFilter( GL_NEAREST );
 			fmt.setMagFilter( GL_LINEAR );
 
-			// get the texture using a handy conversion function
-			mWebTexture = ph::awesomium::toTexture( mWebViewPtr, fmt );
+
+			Awesomium::BitmapSurface* surface = (Awesomium::BitmapSurface*)mWebViewPtr->surface();
+			if(surface && surface->buffer()){
+				// create the gl::Texture by copying the data directly
+				mWebTexture = ci::gl::Texture(surface->buffer(), GL_BGRA, surface->width(), surface->height(), fmt);
+				// set isDirty to false, because we are manually copying the data
+				surface->set_is_dirty(false);
+			}
+
 		} catch( const std::exception &e ) {
 			DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
 		}

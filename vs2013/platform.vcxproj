@@ -34,7 +34,6 @@
     <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscReceivedElements.h" />
     <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscTypes.h" />
     <ClInclude Include="..\lib\OGLFT\OGLFT.h" />
-    <ClInclude Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.h" />
     <ClInclude Include="..\src\ds\app\app.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
     <ClInclude Include="..\src\ds\app\auto_draw.h" />
@@ -214,7 +213,6 @@
     <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscReceivedElements.cpp" />
     <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscTypes.cpp" />
     <ClCompile Include="..\lib\OGLFT\OGLFT.cpp" />
-    <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
     <ClCompile Include="..\src\ds\app\app_defs.cpp" />
     <ClCompile Include="..\src\ds\app\auto_draw.cpp" />

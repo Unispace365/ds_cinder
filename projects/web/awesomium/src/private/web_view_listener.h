@@ -74,6 +74,85 @@ private:
 							mOnDocumentReadyFn;
 };
 
+/**
+* \class ds::web::WebProcessListener
+* \brief Handle Process callbacks.
+*/
+class WebProcessListener : public Awesomium::WebViewListener::Process {
+public:
+	WebProcessListener(){};
+	virtual ~WebProcessListener(){};
+	/// This event occurs when the process hangs.
+	virtual void OnUnresponsive(Awesomium::WebView* caller);
+
+	/// This event occurs when the process becomes responsive after
+	/// a hang.
+	virtual void OnResponsive(Awesomium::WebView* caller);
+
+	/// This event occurs when the process crashes.
+	virtual void OnCrashed(Awesomium::WebView* caller,
+						   Awesomium::TerminationStatus status);
+
+	/// This even occurs when a new WebView render process is launched.
+	virtual void OnLaunch(Awesomium::WebView* caller);
+};
+
+
+/**
+* \class ds::web::WebDialogListener
+* \brief Handle Dialog callbacks.
+*/
+class WebDialogListener : public Awesomium::WebViewListener::Dialog {
+public:
+	WebDialogListener(){};
+	virtual ~WebDialogListener(){};
+	/// This event occurs when the page requests to display a file chooser
+	/// dialog. This is usually the result of a user clicking on an HTML
+	/// input element with `type='file`. It is your responsibility to display
+	/// this menu in your application. This event is not modal.
+	///
+	/// @see WebView::DidChooseFiles
+	///
+	virtual void OnShowFileChooser(Awesomium::WebView* caller,
+								   const Awesomium::WebFileChooserInfo& chooser_info);
+
+	///
+	/// This event occurs when the page needs authentication from the user (for
+	/// example, Basic HTTP Auth, NTLM Auth, etc). It is your responsibility to
+	/// display a dialog so that users can input their username and password.
+	/// This event is not modal.
+	///
+	/// @see WebView::DidLogin
+	/// @see WebView::DidCancelLogin
+	///
+	virtual void OnShowLoginDialog(Awesomium::WebView* caller,
+								   const Awesomium::WebLoginDialogInfo& dialog_info);
+
+	///
+	/// This event occurs when an SSL certificate error is encountered. This is
+	/// equivalent to when Chrome presents a dark-red screen with a warning about
+	/// a 'security certificate'. You may be able to ignore this error and
+	/// continue loading the page if is_overridable is true.
+	///
+	/// @see WebView::DidOverrideCertificateError
+	///
+	virtual void OnShowCertificateErrorDialog(Awesomium::WebView* caller,
+											  bool is_overridable,
+											  const Awesomium::WebURL& url,
+											  Awesomium::CertError error);
+
+	///
+	/// This event occurs as a result of an asynchronous call to 
+	/// WebView::RequestPageInfo. You can use this event to display additional
+	/// information about a page's SSL certificate or security status.
+	///
+	/// @see WebView::RequestPageInfo
+	///
+	virtual void OnShowPageInfoDialog(Awesomium::WebView* caller,
+									  const Awesomium::WebPageInfo& page_info);
+
+};
+
 } // namespace web
 } // namespace ds
 

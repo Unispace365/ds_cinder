@@ -76,9 +76,6 @@
     <Filter Include="src\lib\OGLFT">
       <UniqueIdentifier>{d9dd9d0c-956b-4b14-bba6-ecdb842728d4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\lib\Awesomium">
-      <UniqueIdentifier>{16413bf8-880a-440b-975d-6471bad2acdc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\ui\image_source">
       <UniqueIdentifier>{75b81987-e661-4733-8256-dfb5ba9b9b0b}</UniqueIdentifier>
     </Filter>
@@ -317,9 +314,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\util\notifier_2.h">
       <Filter>src\ds\util</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.h">
-      <Filter>src\lib\Awesomium</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h">
       <Filter>src\ds\ui\sprite</Filter>
@@ -832,9 +826,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\font_list.cpp">
       <Filter>src\ds\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\paulhoux-Cinder-Awesomium\include\CinderAwesomium.cpp">
-      <Filter>src\lib\Awesomium</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp">
       <Filter>src\ds\ui\sprite</Filter>
