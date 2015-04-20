@@ -80,8 +80,8 @@ private:
 */
 class WebProcessListener : public Awesomium::WebViewListener::Process {
 public:
-	WebProcessListener(){};
-	virtual ~WebProcessListener(){};
+	WebProcessListener();
+	virtual ~WebProcessListener();;
 	/// This event occurs when the process hangs.
 	virtual void OnUnresponsive(Awesomium::WebView* caller);
 
@@ -104,8 +104,8 @@ public:
 */
 class WebDialogListener : public Awesomium::WebViewListener::Dialog {
 public:
-	WebDialogListener(){};
-	virtual ~WebDialogListener(){};
+	WebDialogListener();
+	virtual ~WebDialogListener();
 	/// This event occurs when the page requests to display a file chooser
 	/// dialog. This is usually the result of a user clicking on an HTML
 	/// input element with `type='file`. It is your responsibility to display

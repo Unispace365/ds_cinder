@@ -133,6 +133,8 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mService(engine.getService<ds::web::Service>("web"))
 	, mWebViewPtr(nullptr)
 	, mLoadingAngle(0.0f)
+	, mLoadingOffset(ci::Vec2f::zero())
+	, mLoadingOpacity(1.0f)
 	, mActive(false)
 	, mTransitionTime(0.35f)
 	, mDrawWhileLoading(false)
@@ -186,10 +188,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 
 			mWebViewPtr->SetTransparent(true);
 		}
-;
 	}
-	//mWebViewPtr->LoadURL( Awesomium::WebURL( Awesomium::WSLit( "http://libcinder.org" ) ) );
-	//mWebViewPtr->Focus();
 
 	// load and create a "loading" icon
 	try {
@@ -236,15 +235,16 @@ void Web::drawLocalClient() {
 	}
 
 	// show spinner while loading
-	if (mLoadingTexture && mWebViewPtr && mWebViewPtr->IsLoading()) {
+	if (mLoadingTexture && mWebViewPtr){// && mWebViewPtr->IsLoading()) {
 		ci::gl::pushModelView();
 
 		ci::gl::translate(0.5f * ci::Vec2f(getWidth(), getHeight()));
+		ci::gl::translate(mLoadingOffset);
 		ci::gl::scale(0.5f, 0.5f );
 		ci::gl::rotate(mLoadingAngle);
 		ci::gl::translate(-0.5f * ci::Vec2f(mLoadingTexture.getSize()));
 
-		//ci::gl::color(ci::Color::white());
+		ci::gl::color(1.0f, 1.0f, 1.0f, mLoadingOpacity);
 		//ci::gl::enableAlphaBlending();
 		ci::gl::draw(mLoadingTexture);
 		//ci::gl::disableAlphaBlending();
@@ -652,6 +652,14 @@ void Web::sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Ph
 	te.mUnitPosition.y = te.mPosition.y / mPageSizeCache.y;
 
 	mTouchListener(te);
+}
+
+void Web::setLoadingIconOpacity(const float iconOpacity){
+	mLoadingOpacity = iconOpacity;
+}
+
+void Web::setLoadingIconOffset(const ci::Vec2f& offset){
+	mLoadingOffset = offset;
 }
 
 } // namespace ui

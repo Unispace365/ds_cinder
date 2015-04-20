@@ -68,6 +68,9 @@ public:
 	void					activate();
 	void					deactivate();
 
+	void					setLoadingIconOffset(const ci::Vec2f& offset);
+	void					setLoadingIconOpacity(const float iconOpacity);
+
 	// Get the zoom level, where 1 = 100%, 0.25 = 25% etc.
 	void					setZoom(const double);
 	double					getZoom() const;
@@ -132,6 +135,8 @@ private:
 
 	ci::gl::Texture			mWebTexture;
 	ci::gl::Texture			mLoadingTexture;
+	ci::Vec2f				mLoadingOffset;
+	float					mLoadingOpacity;
 
 	float					mLoadingAngle;
 	bool					mActive;
