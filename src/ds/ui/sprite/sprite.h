@@ -128,6 +128,7 @@ public:
 	const ci::Vec3f&		getCenter() const;
 
 	void					setRotation(float rotZ);
+	void					setRotation(const float xRot, const float yRot, const float zRot);
 	void					setRotation(const ci::Vec3f &rot);
 	ci::Vec3f				getRotation() const;
 

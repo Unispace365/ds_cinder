@@ -426,6 +426,10 @@ void Sprite::setRotation(float rotZ) {
 	doSetRotation(ci::Vec3f(mRotation.x, mRotation.y, rotZ) );
 }
 
+void Sprite::setRotation(const float xRot, const float yRot, const float zRot) {
+	doSetRotation(ci::Vec3f(xRot, yRot, zRot));
+}
+
 void Sprite::setRotation(const ci::Vec3f& rot) {
 	doSetRotation(rot);
 }
