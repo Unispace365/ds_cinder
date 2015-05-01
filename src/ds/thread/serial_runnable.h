@@ -33,13 +33,26 @@ namespace ds {
 template <class T>
 class SerialRunnable {
 public:
+	/*!
+	 * \note The previous implementation of this class had a templatized
+	 * lambda (!!) as constructor's default argument. VS2010 fearlessly
+	 * accepts such a miserable mistake but templatized lambdas
+	 * (aka polymorphic lambdas) are not standard C++11. They are,
+	 * however standard in C++14 and C++17. (SL.)
+	 *
+	 * Replaced with a static factory to prevent future compiler errors.
+	 * Also a factory static is more readable than a polymorphic lambda!
+	 */
+	static T* raw_pointer_factory() { return new T; }
+
+public:
 	typedef std::function<void (T&)>	HandlerFunc;
 
 public:
 	SerialRunnable(	ui::SpriteEngine&,
 					// If T has a constructor without arguments, ignore the alloc. If you need
 					// to supply info to the constructor, supply a custom alloc.
-					const std::function<T*(void)>& alloc = []()->T*{return new T();});
+					const std::function<T*(void)>& alloc = SerialRunnable<T>::raw_pointer_factory);
 	
 	void					setReplyHandler(const HandlerFunc& f) { mReplyHandler = f; }
 	// Start a new runnable, intializing it via the handler block.  Any previous, unfinished runs
