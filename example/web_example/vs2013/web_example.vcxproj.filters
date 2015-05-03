@@ -1,28 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <ClCompile Include="..\src\app\app_defs.cpp">
-      <Filter>src\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\app\globals.cpp">
-      <Filter>src\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\app\web_example_app.cpp">
-      <Filter>src\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ui\web\web_view.cpp">
-      <Filter>src\ui\web</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
+    <ClInclude Include="..\include\Resources.h">
+      <Filter>Resources</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\app\app_defs.h">
       <Filter>src\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\app\globals.h">
       <Filter>src\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\include\Resources.h">
-      <Filter>Resources</Filter>
     </ClInclude>
     <ClInclude Include="..\src\app\web_example_app.h">
       <Filter>src\app</Filter>
@@ -53,7 +39,21 @@
       <UniqueIdentifier>{3eca459a-2fc2-4471-8dd4-6c188d47d4f9}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ui\web">
-      <UniqueIdentifier>{ad2dd74c-cbdc-465c-99e2-f9be360ee99f}</UniqueIdentifier>
+      <UniqueIdentifier>{8856dc8d-89dd-4150-b7ef-98f9474dee99}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\app\app_defs.cpp">
+      <Filter>src\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\app\globals.cpp">
+      <Filter>src\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\app\web_example_app.cpp">
+      <Filter>src\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\web\web_view.cpp">
+      <Filter>src\ui\web</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

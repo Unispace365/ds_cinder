@@ -235,7 +235,7 @@ void Web::drawLocalClient() {
 	}
 
 	// show spinner while loading
-	if (mLoadingTexture && mWebViewPtr){// && mWebViewPtr->IsLoading()) {
+	if (mLoadingTexture && mWebViewPtr && mWebViewPtr->IsLoading()) {
 		ci::gl::pushModelView();
 
 		ci::gl::translate(0.5f * ci::Vec2f(getWidth(), getHeight()));

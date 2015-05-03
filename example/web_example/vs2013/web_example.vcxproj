@@ -136,12 +136,6 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="..\src\app\app_defs.cpp" />
-    <ClCompile Include="..\src\app\globals.cpp" />
-    <ClCompile Include="..\src\app\web_example_app.cpp" />
-    <ClCompile Include="..\src\ui\web\web_view.cpp" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\app\app_defs.h" />
     <ClInclude Include="..\src\app\globals.h" />
@@ -151,6 +145,12 @@
   <ItemGroup>
     <ResourceCompile Include="%DS_PLATFORM_086%\vs2013\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\app\app_defs.cpp" />
+    <ClCompile Include="..\src\app\globals.cpp" />
+    <ClCompile Include="..\src\app\web_example_app.cpp" />
+    <ClCompile Include="..\src\ui\web\web_view.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
