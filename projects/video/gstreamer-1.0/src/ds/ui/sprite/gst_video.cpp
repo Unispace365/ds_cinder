@@ -133,6 +133,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 		, mReportedCurrentPosition(0.0)
 		, mVideoFlags(0)
 		, mDoPlay(false)
+		, mAutoStart(false)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -603,7 +604,15 @@ void GstVideo::handleVideoComplete(GStreamerWrapper* wrapper) {
 }
 
 void GstVideo::setAutoStart( const bool doAutoStart ) {
-	mMovie.setStartPlaying(doAutoStart);
+	// do not check for mAutoStart == doAutoStart. There is no
+	// correlation between them. mAutoStart is a cache value. Might be out of sync.
+	mAutoStart = doAutoStart;
+	mMovie.setStartPlaying(mAutoStart);
+}
+
+bool GstVideo::getAutoStart() const
+{
+	return mAutoStart;
 }
 
 void GstVideo::playAFrame(const std::function<void(GstVideo&)>& fn) {

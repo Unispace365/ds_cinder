@@ -77,6 +77,7 @@ public:
 
 	// If true, will play the video as soon as it's loaded.
 	void				setAutoStart(const bool doAutoStart);
+	bool				getAutoStart() const;
 
 	// Set's the video to play, then stops the video after that frame has played.
 	// Optionally supply a function called once I've played a frame.
@@ -127,6 +128,8 @@ private:
 	bool                mLooping;
 	// User-driven mute state
 	bool				mMuted;
+	// Cached value of autoStart (wrapper does not supply a getter)
+	bool				mAutoStart;
 	// A mute state that gets turned on automatically in certain situations
 	bool                mInternalMuted;
 	float               mVolume;
