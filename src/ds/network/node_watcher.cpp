@@ -72,46 +72,69 @@ NodeWatcher::Loop::Loop(ds::ui::SpriteEngine& e, const std::string& host, const 
 		, mRefreshRateMs(get_refresh_rate(e)) {
 }
 
+// WARNING: this class can throw in constructor thanks to
+// awesome architecture of Poco. Use with try-catch.
+struct ScopedDatagramSocket
+{
+	ScopedDatagramSocket(const std::string& host, int port)
+		: mCmsReceiver(Poco::Net::SocketAddress(host, port))
+	{}
+
+	~ScopedDatagramSocket() { try { mCmsReceiver.close(); } catch (...) {} }
+
+	Poco::Net::DatagramSocket	mCmsReceiver;
+};
+
 void NodeWatcher::Loop::run() {
 	static const int			BUF_SIZE = 512;
-
-	Poco::Net::DatagramSocket	cmsReceiver;
 	char						buf[BUF_SIZE];
-	Poco::Net::SocketAddress	address;
 
-	cmsReceiver.bind( Poco::Net::SocketAddress(mHost, mPort) );
-	cmsReceiver.setBlocking(false);
-//	cmsReceiver.setReceiveTimeout( Poco::Timespan(1000000*500) );
-	cmsReceiver.setReceiveTimeout(Poco::Timespan(0));
+	try
+	{
+		ScopedDatagramSocket so{ mHost, mPort };
+		
+		so.mCmsReceiver.setBlocking(false);
+		so.mCmsReceiver.setReceiveTimeout(0);
 
-	while (true) {
-		int						length = 0;
-		try
+		while (true)
 		{
-			length = cmsReceiver.receiveFrom(buf, BUF_SIZE, address);
-		}
-		catch (Poco::TimeoutException&)
-		{
-		}
-		catch (std::exception&)
-		{
-		}
+			int						length = 0;
 
-		if ( length > 0 )
-		{
-			try {
-				std::string		msg(buf, length);
-//				DS_DBG_CODE(std::cout << "DsNode watcher receive: " << msg << std::endl);
+			try
+			{
+				length = so.mCmsReceiver.receiveBytes(buf, BUF_SIZE);
+			}
+			catch (const Poco::TimeoutException&)
+			{
+			}
+			catch (const std::exception&)
+			{
+			}
+
+			if (length > 0)
+			{
+				try
+				{
+					std::string		msg(buf, length);
+					Poco::Mutex::ScopedLock	l(mMutex);
+					mMsg.mData.push_back(msg);
+				}
+				catch (const std::exception&)
+				{
+				}
+			}
+			Poco::Thread::sleep(mRefreshRateMs);
+			{
 				Poco::Mutex::ScopedLock	l(mMutex);
-				mMsg.mData.push_back(msg);
-			} catch (std::exception&) {
+				if (mAbort) break;
 			}
 		}
-		Poco::Thread::sleep(mRefreshRateMs);
-		{
-			Poco::Mutex::ScopedLock	l(mMutex);
-			if (mAbort) break;
-		}
+	}
+	catch (...)
+	{
+		// WARNING: you must not use DS_LOG_XX here. We are in a thread and logger class
+		// is not thread-safe.
+		std::cerr << "Unable to construct the DatagramSocket to DS Node." << std::endl;
 	}
 }
 
