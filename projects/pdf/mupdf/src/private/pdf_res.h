@@ -1,11 +1,11 @@
-#pragma once
 #ifndef PRIVATE_PDFRES_H_
 #define PRIVATE_PDFRES_H_
 
-#include <Poco/Mutex.h>
-#include <Poco/Timestamp.h>
+#include <mutex>
+
 #include <cinder/Surface.h>
 #include <cinder/gl/Texture.h>
+
 #include <ds/thread/gl_thread.h>
 #include <ds/ui/sprite/pdf.h>
 
@@ -95,11 +95,10 @@ public:
 private:
 	bool						needsUpdate();
 
-	mutable Poco::Mutex			mMutex;
+	mutable std::mutex			mMutex;
 
 	// MAIN THREAD
 	ci::gl::Texture				mTexture;
-	state						mLastDrawState;
 	
 	// WORKER THREAD
 

@@ -334,7 +334,7 @@ bool PdfRes::loadPDF(const std::string& fileName, const ds::ui::Pdf::PageSizeMod
 	Examine							examine;
 	Load							load;
 	if (load.run(examine, fileName, 1)) {
-		Poco::Mutex::ScopedLock		l(mMutex);
+		std::lock_guard<decltype(mMutex)>	l(mMutex);
 		mFileName = fileName;
 		mState.mWidth = examine.mWidth;
 		mState.mHeight = examine.mHeight;
@@ -400,7 +400,7 @@ float PdfRes::getHeight() const {
 }
 
 void PdfRes::setPageNum(int thePageNum) {
-	Poco::Mutex::ScopedLock		l(mMutex);
+	std::lock_guard<decltype(mMutex)>		l(mMutex);
 
 	if (thePageNum < 1) thePageNum = 1;
 	if (thePageNum > mPageCount) thePageNum = mPageCount;
@@ -409,29 +409,29 @@ void PdfRes::setPageNum(int thePageNum) {
 }
 
 int PdfRes::getPageNum() const {
-	Poco::Mutex::ScopedLock		l(mMutex);
+	std::lock_guard<decltype(mMutex)>		l(mMutex);
 	return mState.mPageNum;
 }
 
 int PdfRes::getPageCount() const {
-	Poco::Mutex::ScopedLock		l(mMutex);
+	std::lock_guard<decltype(mMutex)>		l(mMutex);
 	return mPageCount;
 }
 
 ci::Vec2i PdfRes::getPageSize() const {
-	Poco::Mutex::ScopedLock		l(mMutex);
+	std::lock_guard<decltype(mMutex)>		l(mMutex);
 	return mState.mPageSize;
 }
 
 void PdfRes::setScale(const float theScale) {
 	if (mState.mScale == theScale) return;
 
-	Poco::Mutex::ScopedLock		l(mMutex);
+	std::lock_guard<decltype(mMutex)>		l(mMutex);
 	mState.mScale = theScale;	
 }
 
 void PdfRes::setPageSizeMode(const ds::ui::Pdf::PageSizeMode& m) {
-	Poco::Mutex::ScopedLock		l(mMutex);
+	std::lock_guard<decltype(mMutex)>		l(mMutex);
 	mState.mPageSizeMode = m;	
 }
 
@@ -442,7 +442,7 @@ void PdfRes::update() {
 	if (needsUpdate()) performOnWorkerThread(&PdfRes::_redrawPage, true);
 
 	{
-		Poco::Mutex::ScopedLock		l(mMutex);
+		std::lock_guard<decltype(mMutex)>		l(mMutex);
 		if (mPixelsChanged) {
 			mPixelsChanged = false;
 			if (mPixels.empty()) {
@@ -472,7 +472,7 @@ void PdfRes::update() {
 }
 
 bool PdfRes::needsUpdate() {
-	Poco::Mutex::ScopedLock		l(mMutex);
+	std::lock_guard<decltype(mMutex)>		l(mMutex);
 	if (mPageCount < 1) return false;
 	return mState != mDrawState;
 }
@@ -482,7 +482,7 @@ void PdfRes::_redrawPage() {
 	state							drawState;
 	std::string						fn;
 	{
-		Poco::Mutex::ScopedLock		l(mMutex);
+		std::lock_guard<decltype(mMutex)>		l(mMutex);
 		// No reason to regenerate the same page.
 		if (mDrawState == mState && mDrawFileName == mFileName) {
 			return;
@@ -518,7 +518,7 @@ void PdfRes::_redrawPage() {
 		drawState.mPageSize = draw.getPageSize();
 	}
 
-	Poco::Mutex::ScopedLock			l(mMutex);
+	std::lock_guard<decltype(mMutex)>			l(mMutex);
 	mPixelsChanged = true;
 	mDrawState = drawState;
 	// No reason to copy the string which will generally be the same
