@@ -1,4 +1,5 @@
 #include "ds/query/sql_database.h"
+#include "ds/debug/logger.h"
 
 #include <iostream>
 #include <Poco/Thread.h>
@@ -20,12 +21,9 @@ SqlDatabase::SqlDatabase(const std::string& sDB, int flags, int *errorCode)
 	if (result == SQLITE_OK) {
 		sqlite3_busy_timeout(db, 1500);
 	} else {
-		stringstream s;
-		s << "SqlDatabase: Unable to access the database " << sDB << " (SQLite error " << result << ")." << endl;
-#ifdef _DEBUG
-		cout << s.str();
+		// Actually a fatal error but ...
+		DS_LOG_ERROR("  SqlDatabase: Unable to access the database " << sDB << " (SQLite error " << result << ")." << endl);
 		Poco::Thread::sleep(1000*10);
-#endif
 	}
 }
 
@@ -40,11 +38,7 @@ sqlite3_stmt* SqlDatabase::rawSelect(const std::string& rawSqlSelect)
 	const int			err = sqlite3_prepare_v2(db, rawSqlSelect.c_str(), -1, &statement, 0);
 	if (err != SQLITE_OK) {
 		sqlite3_finalize(statement);
-#ifdef _DEBUG
-		stringstream	s;
-		s << "SqlDatabase::rawSelect SQL error = " << err << " on select=" << rawSqlSelect << endl;
-		cout << s.str() << endl;
-#endif
+		DS_LOG_ERROR( "SqlDatabase::rawSelect SQL error = " << err << " on select=" << rawSqlSelect << endl);
 		return NULL;
 	}
 	return statement;
