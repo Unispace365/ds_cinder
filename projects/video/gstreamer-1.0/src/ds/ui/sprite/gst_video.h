@@ -109,23 +109,22 @@ private:
 	void				setMovieLooping();
 
 private:
-	std::shared_ptr<class Impl>	mGstreamerWrapper;
-	ci::gl::Texture     mFrameTexture;
-	ci::gl::Fbo         mFbo;
-	std::string			mFilename;
-	bool				mFilenameChanged;
-	bool                mLooping;
-	bool				mMuted;
-	bool				mAutoStart;
-	bool                mInternalMuted;
-	float               mVolume;
-	bool				mShouldPlay;
-	Status              mStatus;
-	bool                mStatusDirty;
+	std::shared_ptr<class Impl> mGstreamerWrapper;
+	ci::gl::Texture             mFrameTexture;
+	ci::gl::Fbo                 mFbo;
+	std::string                 mFilename;
+	bool                        mFilenameChanged;
+	bool                        mLooping;
+	bool                        mMuted;
+	bool                        mAutoStart;
+	bool                        mInternalMuted;
+	float                       mVolume;
+	bool                        mShouldPlay;
+	Status                      mStatus;
+	bool                        mStatusDirty;
+    std::function<void()>       mVideoCompleteFn;
 	std::function<void(const Status&)>
-						mStatusFn;
-	std::function<void(GstVideo*)>
-						mVideoCompleteFn;
+                                mStatusFn;
 };
 
 } //!namespace ui
