@@ -82,14 +82,12 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mVolume(1.0f)
 	, mStatusDirty(false)
 	, mStatusFn(nullptr)
-	, mIsTransparent(true)
 	, mPlaySingleFrame(false)
 	, mPlaySingleFrameFn(nullptr)
 	, mDoPlay(false)
 	, mAutoStart(false)
 {
 	setUseShaderTextuer(true);
-	setTransparent(false);
 	setStatus(Status::STATUS_STOPPED);
 }
 
@@ -140,11 +138,7 @@ void GstVideo::drawLocalClient() {
 		unsigned char* pImg = mGstreamerWrapper->getMovieRef().getVideo();
 		if(pImg != nullptr){		
 			int vidWidth(mGstreamerWrapper->getMovieRef().getWidth()), vidHeight(mGstreamerWrapper->getMovieRef().getHeight());
-			if(mIsTransparent){
-				mFrameTexture = ci::gl::Texture(pImg, GL_RGBA, vidWidth, vidHeight);
-			} else {
-				mFrameTexture = ci::gl::Texture(pImg, GL_RGB, vidWidth, vidHeight);
-			}
+		    mFrameTexture = ci::gl::Texture(pImg, GL_RGBA, vidWidth, vidHeight);
 			DS_REPORT_GL_ERRORS();
 		}
 		if(mPlaySingleFrame){
@@ -171,11 +165,7 @@ void GstVideo::drawLocalClient() {
 				glDisable( GL_CLIP_PLANE0 + i );
 			}
 
-			if(mIsTransparent){
-				ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
-			} else {
-				ci::gl::clear(ci::Color(0.0f, 0.0f, 0.0f));
-			}
+			ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 			DS_REPORT_GL_ERRORS();
 
 			ci::gl::draw(mFrameTexture);
@@ -376,7 +366,7 @@ void GstVideo::doLoadVideo(const std::string &filename) {
 		}
 
 		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen", GSTREAMER_LOG);
-		mGstreamerWrapper->getMovieRef().open(filename, generateVideoBuffer, false, mIsTransparent, videoWidth, videoHeight);
+		mGstreamerWrapper->getMovieRef().open(filename, generateVideoBuffer, false, true, videoWidth, videoHeight);
 
 		setMovieLooping();
 		setMovieVolume();
@@ -438,11 +428,6 @@ void GstVideo::unloadVideo(const bool clearFrame) {
 	if (clearFrame) {
 		mFrameTexture.reset();
 	}
-}
-
-// set this before loading a video
-void GstVideo::setAlphaMode( bool isTransparent ) {
-	mIsTransparent = isTransparent;
 }
 
 void GstVideo::setVideoCompleteCallback( const std::function<void(GstVideo* video)> &func ) {

@@ -30,10 +30,6 @@ public:
 	// Destructor, simply a no-op. Made virtual for polymorphisms.
 	virtual ~GstVideo();
 
-	// Sets the video alpha mode. If transparent, video texture will be RGBA
-	// \note Set this before loading a video
-	void				setAlphaMode(bool isTransparent);
-
 	// Sets the video sprite size. Internally just scales the texture
 	void				setSize( float width, float height );
 	
@@ -127,7 +123,6 @@ private:
 	bool				mAutoStart;
 	bool                mInternalMuted;
 	float               mVolume;
-	bool				mIsTransparent;
 	bool				mDoPlay;
 	Status              mStatus;
 	bool                mStatusDirty;
