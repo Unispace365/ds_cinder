@@ -27,6 +27,9 @@
     <ClCompile Include="src\ds\ui\sprite\gst_video.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
+    <ClCompile Include="src\gstreamer\gstreamer_env_check.cpp">
+      <Filter>src\gstreamer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\gstreamer\_2RealGStreamerWrapper.h">
@@ -40,6 +43,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\sprite\gst_video.h">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gstreamer\gstreamer_env_check.h">
+      <Filter>src\gstreamer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

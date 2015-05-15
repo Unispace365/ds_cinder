@@ -19,54 +19,17 @@
 #include <Poco/Path.h>
 
 #include "gstreamer/_2RealGStreamerWrapper.h"
+#include "gstreamer/gstreamer_env_check.h"
 #include "gstreamer/video_meta_cache.h"
 
 using namespace ci;
 using namespace _2RealGStreamerWrapper;
 
 namespace {
-// Statically initialize in the app thread.
-class Init {
-public:
-	Init() {
-
-		// Load the environment variable and check if it exists.
-		// If it does not exist, use the default legacy install location
-		char * cindEnv = getenv("DS_CINDER_GSTREAMER_1-0");
-		std::string cinderGstreamerPath = "";
-		if (cindEnv){
-			cinderGstreamerPath = cindEnv;
-		} else {
-			cinderGstreamerPath = "c:/gstreamer/1.0/x86";
-		}
-
-		// Add the bin to the env path
-		std::stringstream pathy;
-		pathy << cinderGstreamerPath << "\\bin";
-
-		// Set the main gstreamer path from the environment variable or default
-		ds::Environment::addToFrontEnvironmentVariable("PATH", Poco::Path::expand(pathy.str()));
-
-		// Add a startup object to set the plugin path. This is how we'd prefer to
-		// do both path setups, but we had to delay-load some DLLs for gstreamer,
-		// so we're being extracautious about the path variable.
-		ds::App::AddStartup([cinderGstreamerPath](ds::Engine& e) {
-
-			// Use the previously determined base path and add the dll location
-			std::stringstream pathToExpand;
-			pathToExpand << cinderGstreamerPath << "\\lib\\gstreamer-1.0";
-			std::stringstream ss;
-			ss << "GST_PLUGIN_PATH=" << Poco::Path::expand(pathToExpand.str());
-			std::string		plugin_path(ss.str());
-			_putenv(plugin_path.c_str());
-		});
-	}
-};
-Init						INIT;
-
-ds::ui::VideoMetaCache		CACHE("gstreamer");
-const ds::BitMask			GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
-}
+static ds::gstreamer::EnvCheck  ENV_CHECK;
+ds::ui::VideoMetaCache          CACHE("gstreamer");
+const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
+} //!anonymous namespace
 
 namespace ds {
 namespace ui {
