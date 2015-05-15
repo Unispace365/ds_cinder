@@ -82,7 +82,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mVolume(1.0f)
 	, mStatusDirty(false)
 	, mStatusFn(nullptr)
-	, mDoPlay(false)
+	, mShouldPlay(false)
 	, mAutoStart(false)
 {
 	setUseShaderTextuer(true);
@@ -107,9 +107,9 @@ void GstVideo::updateServer(const UpdateParams &up) {
 			
 	mGstreamerWrapper->getMovieRef().update();
 
-	if (mGstreamerWrapper->getMovieRef().hasVideo() && mDoPlay) {
+	if (mGstreamerWrapper->getMovieRef().hasVideo() && mShouldPlay) {
 		play();
-		mDoPlay = false;
+		mShouldPlay = false;
 	}
 }
 
@@ -255,14 +255,14 @@ void GstVideo::play() {
 
 	//If movie not yet loaded, remember to play it later once it has
 	if (!mGstreamerWrapper->getMovieRef().hasVideo())  {
-		mDoPlay = true;
+		mShouldPlay = true;
 	}
 }
 
 void GstVideo::stop() {
 	DS_LOG_INFO_M("GstVideo::stop() " << mFilename, GSTREAMER_LOG);
 
-	mDoPlay = false;
+	mShouldPlay = false;
 
 	mGstreamerWrapper->getMovieRef().stop();
 }
@@ -270,7 +270,7 @@ void GstVideo::stop() {
 void GstVideo::pause() {
 	DS_LOG_INFO_M("GstVideo::pause() " << mFilename, GSTREAMER_LOG);
 
-	mDoPlay = false;
+	mShouldPlay = false;
 
 	mGstreamerWrapper->getMovieRef().pause();
 }
@@ -423,13 +423,13 @@ void GstVideo::unloadVideo(const bool clearFrame) {
 }
 
 void GstVideo::setVideoCompleteCallback( const std::function<void(GstVideo* video)> &func ) {
-	mVideoCompleteCallback = func;
+	mVideoCompleteFn = func;
 }
 
 void GstVideo::triggerVideoCompleteCallback()
 {
-	if (mVideoCompleteCallback) {
-		mVideoCompleteCallback(this);
+	if (mVideoCompleteFn) {
+		mVideoCompleteFn(this);
 	}
 }
 

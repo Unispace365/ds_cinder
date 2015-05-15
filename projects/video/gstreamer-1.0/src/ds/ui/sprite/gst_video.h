@@ -119,13 +119,13 @@ private:
 	bool				mAutoStart;
 	bool                mInternalMuted;
 	float               mVolume;
-	bool				mDoPlay;
+	bool				mShouldPlay;
 	Status              mStatus;
 	bool                mStatusDirty;
 	std::function<void(const Status&)>
 						mStatusFn;
 	std::function<void(GstVideo*)>
-						mVideoCompleteCallback;
+						mVideoCompleteFn;
 };
 
 } //!namespace ui
