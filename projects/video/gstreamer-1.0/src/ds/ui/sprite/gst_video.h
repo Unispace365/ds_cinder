@@ -1,16 +1,11 @@
-#pragma once
 #ifndef DS_UI_SPRITE_GST_VIDEO_H_
 #define DS_UI_SPRITE_GST_VIDEO_H_
 
-#include <ds/ui/sprite/sprite.h>
-#include <string>
-#include "cinder/gl/Texture.h"
-#include "cinder/gl/Fbo.h"
-#include "ds/data/resource.h"
+#include <cinder/gl/Texture.h>
+#include <cinder/gl/Fbo.h>
 
-namespace _2RealGStreamerWrapper {
-class GStreamerWrapper;
-}
+#include <ds/ui/sprite/sprite.h>
+#include <ds/data/resource.h>
 
 namespace ds {
 namespace ui {
@@ -24,33 +19,53 @@ namespace ui {
  */
 class GstVideo : public Sprite {
 public:
+
+	// Convenience for allocating a Video sprite pointer and optionally adding it
+	// to another Sprite as child.
 	static GstVideo&	makeVideo(SpriteEngine&, Sprite* parent = nullptr);
+
+	// Generic constuctor. To be used with Sprite::addChilePtr(...)
 	GstVideo(SpriteEngine&);
-	~GstVideo();
 
-	void				setAlphaMode(bool isTransparent);// set this before loading a video
+	// Destructor, simply a no-op. Made virtual for polymorphisms.
+	virtual ~GstVideo();
+
+	// Sets the video alpha mode. If transparent, video texture will be RGBA
+	// \note Set this before loading a video
+	void				setAlphaMode(bool isTransparent);
+
+	// Sets the video sprite size. Internally just scales the texture
 	void				setSize( float width, float height );
-	virtual void		updateClient(const UpdateParams&);
-	virtual void		updateServer(const UpdateParams&);
-	void				drawLocalClient();
+	
+protected:
+	virtual void		updateClient(const UpdateParams&) override;
+	virtual void		updateServer(const UpdateParams&) override;
+	virtual void		drawLocalClient() override;
 
+public:
+	// Loads a video from a file path.
 	GstVideo&			loadVideo(const std::string &filename);
+	// Loads a vodeo from a ds::Resource::Id
 	GstVideo&			setResourceId(const ds::Resource::Id&);
+
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility
-	// with existing behaviour.
+	// with existing behavior.
 	void				unloadVideo(const bool clearFrame = false);
 
-	// Setup
+	// Looping (play again after video complete)
 	void				setLooping(const bool on);
 	bool				getIsLooping() const;
+
+	// Mutes the video
 	void				setMute(const bool on);
 	bool				getIsMuted() const;
-	// value between 0.0f and 1.0f
+	
+	// Volume control. value between 0.0f and 1.0f
 	void				setVolume(const float volume);
 	float				getVolume() const;
 
-	// Commands
+	// Playback control API
 	void				play();
 	void				stop();
 	void				pause();
@@ -65,19 +80,25 @@ public:
 	double				getCurrentPosition() const;
 	void				seekPosition(const double);
 
+	// If true, will play the video as soon as it's loaded.
+	void				setAutoStart(const bool doAutoStart);
+	bool				getAutoStart() const;
+
 	struct Status {
 		static const int  STATUS_STOPPED = 0;
 		static const int  STATUS_PLAYING = 1;
 		static const int  STATUS_PAUSED  = 2;
 		int               mCode;
 	};
+
+	// Callback when video changes its status (play / pause / stop).
 	void				setStatusCallback(const std::function<void(const Status&)>&);
 
+	// Sets the video complete callback. It's called when video is finished.
 	void				setVideoCompleteCallback(const std::function<void(GstVideo* video)> &func);
-
-	// If true, will play the video as soon as it's loaded.
-	void				setAutoStart(const bool doAutoStart);
-	bool				getAutoStart() const;
+	// Triggers the video complete callback. Ideally you will not need to use this but this is here
+	// to give sufficient access to the Impl class without making it a 'friend' of GstVideo.
+	void				triggerVideoCompleteCallback();
 
 	// Set's the video to play, then stops the video after that frame has played.
 	// Optionally supply a function called once I've played a frame.
@@ -99,10 +120,10 @@ public:
 	void				setCheckBoundsHack(const bool = false);
 
 protected:
-	virtual void		writeAttributesTo(ds::DataBuffer&);
-	virtual void		writeClientAttributesTo(ds::DataBuffer&) const;
-	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&);
-	virtual void		readClientFrom(ds::DataBuffer&);
+	virtual void		writeAttributesTo(ds::DataBuffer&) override;
+	virtual void		writeClientAttributesTo(ds::DataBuffer&) const override;
+	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&) override;
+	virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&) override;
 
 private:
 	typedef Sprite		inherited;
@@ -114,12 +135,10 @@ private:
 	void				setMovieVolume();
 	void				setMovieLooping();
 	void				setVideoFlag(const uint32_t, const bool on);
-	void				handleVideoComplete(_2RealGStreamerWrapper::GStreamerWrapper*);
 
-	// Done this way so I can completely hide any dependencies
-	_2RealGStreamerWrapper::GStreamerWrapper*	mMoviePtr;
-	_2RealGStreamerWrapper::GStreamerWrapper&	mMovie;
-
+private:
+	// Done this way so I can completely hide any dependencies (even fwd decl's)
+	std::shared_ptr<class Impl>	mGstreamerWrapper;
 	ci::gl::Texture     mFrameTexture;
 	ci::gl::Fbo         mFbo;
 
@@ -165,7 +184,7 @@ public:
 	static void			installAsClient(ds::BlobRegistry&);
 };
 
-} // namespace ui
-} // namespace ds
+} //!namespace ui
+} //!namespace ds
 
-#endif // DS_UI_SPRITE_GST_VIDEO_H_
+#endif //!DS_UI_SPRITE_GST_VIDEO_H_
