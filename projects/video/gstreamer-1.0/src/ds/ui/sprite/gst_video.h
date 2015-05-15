@@ -121,7 +121,7 @@ private:
 	float                       mVolume;
 	bool                        mShouldPlay;
 	Status                      mStatus;
-	bool                        mStatusDirty;
+	bool                        mStatusChanged;
     std::function<void()>       mVideoCompleteFn;
 	std::function<void(const Status&)>
                                 mStatusFn;

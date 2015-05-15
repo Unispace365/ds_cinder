@@ -80,7 +80,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mMuted(false)
 	, mInternalMuted(true)
 	, mVolume(1.0f)
-	, mStatusDirty(false)
+	, mStatusChanged(false)
 	, mStatusFn(nullptr)
 	, mShouldPlay(false)
 	, mAutoStart(false)
@@ -100,8 +100,8 @@ void GstVideo::updateServer(const UpdateParams &up) {
 		doLoadVideo(fn);
 	}
 
-	if (mStatusDirty) {
-		mStatusDirty = false;
+	if (mStatusChanged) {
+		mStatusChanged = false;
 		if (mStatusFn) mStatusFn(mStatus);
 	}
 			
@@ -394,7 +394,7 @@ void GstVideo::setStatus(const int code) {
 	if (code == mStatus.mCode) return;
 
 	mStatus.mCode = code;
-	mStatusDirty = true;
+	mStatusChanged = true;
 }
 
 void GstVideo::setMovieVolume() {
