@@ -95,10 +95,6 @@ public:
 	// to give sufficient access to the Impl class without making it a 'friend' of GstVideo.
 	void				triggerVideoCompleteCallback();
 
-	// Set's the video to play, then stops the video after that frame has played.
-	// Optionally supply a function called once I've played a frame.
-	void				playAFrame(const std::function<void(GstVideo&)>& fn = nullptr);
-	bool				isPlayingAFrame() const;
 	// If a video is looping, will stop the video when the current loop completes.
 	void				stopAfterNextLoop();
 	
@@ -126,9 +122,6 @@ private:
 	bool				mDoPlay;
 	Status              mStatus;
 	bool                mStatusDirty;
-	bool				mPlaySingleFrame;
-	std::function<void(GstVideo&)>
-						mPlaySingleFrameFn;
 	std::function<void(const Status&)>
 						mStatusFn;
 	std::function<void(GstVideo*)>
