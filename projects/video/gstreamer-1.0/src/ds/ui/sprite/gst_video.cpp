@@ -82,8 +82,6 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mVolume(1.0f)
 	, mStatusDirty(false)
 	, mStatusFn(nullptr)
-	, mPlaySingleFrame(false)
-	, mPlaySingleFrameFn(nullptr)
 	, mDoPlay(false)
 	, mAutoStart(false)
 {
@@ -140,12 +138,6 @@ void GstVideo::drawLocalClient() {
 			int vidWidth(mGstreamerWrapper->getMovieRef().getWidth()), vidHeight(mGstreamerWrapper->getMovieRef().getHeight());
 		    mFrameTexture = ci::gl::Texture(pImg, GL_RGBA, vidWidth, vidHeight);
 			DS_REPORT_GL_ERRORS();
-		}
-		if(mPlaySingleFrame){
-			stop();
-			mPlaySingleFrame = false;
-			if (mPlaySingleFrameFn) mPlaySingleFrameFn(*this);
-			mPlaySingleFrameFn = nullptr;
 		}
 	}
 
@@ -451,18 +443,6 @@ void GstVideo::setAutoStart( const bool doAutoStart ) {
 bool GstVideo::getAutoStart() const
 {
 	return mAutoStart;
-}
-
-void GstVideo::playAFrame(const std::function<void(GstVideo&)>& fn) {
-	mPlaySingleFrame = true;
-	mPlaySingleFrameFn = fn;
-	if(!getIsPlaying()) {
-		play();
-	}
-}
-
-bool GstVideo::isPlayingAFrame() const {
-	return mPlaySingleFrame;
 }
 
 void GstVideo::stopAfterNextLoop() {
