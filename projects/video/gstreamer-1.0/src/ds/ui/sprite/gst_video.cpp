@@ -59,33 +59,12 @@ public:
 			ss << "GST_PLUGIN_PATH=" << Poco::Path::expand(pathToExpand.str());
 			std::string		plugin_path(ss.str());
 			_putenv(plugin_path.c_str());
-
-			e.installSprite([](ds::BlobRegistry& r){ds::ui::GstVideo::installAsServer(r);},
-							[](ds::BlobRegistry& r){ds::ui::GstVideo::installAsClient(r);});
 		});
 	}
 };
 Init						INIT;
 
-char						BLOB_TYPE			= 0;
-const ds::ui::DirtyState&	FILENAME_DIRTY		= ds::ui::INTERNAL_A_DIRTY;
-const ds::ui::DirtyState&	VOLUME_DIRTY		= ds::ui::INTERNAL_B_DIRTY;
-const ds::ui::DirtyState&	LOOPING_DIRTY		= ds::ui::INTERNAL_C_DIRTY;
-const ds::ui::DirtyState&	CMD_DIRTY			= ds::ui::INTERNAL_D_DIRTY;
-const ds::ui::DirtyState&	VIDEO_FLAGS_DIRTY	= ds::ui::INTERNAL_E_DIRTY;
-const char					FILENAME_ATT		= 80;
-const char					VOLUME_ATT			= 81;
-const char					LOOPING_ATT			= 82;
-const char					CMD_ATT				= 83;
-const char					VIDEO_FLAGS_ATT		= 84;
-
-const uint32_t				CHECKBOUNDSHACK_F	= (1<<0);
-
-// Status atts
-const char					STATUS_POSITION_ATT	= 100;
-
 ds::ui::VideoMetaCache		CACHE("gstreamer");
-
 const ds::BitMask			GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
 }
 
@@ -123,17 +102,6 @@ private:
 	std::unique_ptr<GStreamerWrapper> mMoviePtr;
 };
 
-/**
- * \class ds::ui::sprite::Video static
- */
-void GstVideo::installAsServer(ds::BlobRegistry& registry) {
-	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
-}
-
-void GstVideo::installAsClient(ds::BlobRegistry& registry) {
-	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<GstVideo>(r);});
-}
-
 GstVideo& GstVideo::makeVideo(SpriteEngine& e, Sprite* parent) {
 	return makeAlloc<ds::ui::GstVideo>([&e]()->ds::ui::GstVideo*{ return new ds::ui::GstVideo(e); }, parent);
 }
@@ -152,46 +120,17 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mStatusDirty(false)
 	, mStatusFn(nullptr)
 	, mIsTransparent(true)
-	, mCmd(kCmdStop)
 	, mPlaySingleFrame(false)
 	, mPlaySingleFrameFn(nullptr)
-	, mServerModeHack(false)
-	, mReportedCurrentPosition(0.0)
-	, mVideoFlags(0)
 	, mDoPlay(false)
 	, mAutoStart(false)
 {
-	mBlobType = BLOB_TYPE;
-
 	setUseShaderTextuer(true);
 	setTransparent(false);
 	setStatus(Status::STATUS_STOPPED);
 }
 
 GstVideo::~GstVideo() {}
-
-void GstVideo::updateClient(const UpdateParams &up) {
-	inherited::updateClient(up);
-
-	// Total check bounds hack, stop if out of bounds
-	if (checkBounds() && !inBounds()) {
-		mGstreamerWrapper->getMovieRef().stop();
-		return;
-	}
-
-	if (mFilenameChanged) {
-		mFilenameChanged = false;
-		const std::string		fn(ds::Environment::expand(mFilename));
-		doLoadVideo(fn);
-	}
-
-	if (mStatusDirty) {
-		mStatusDirty = false;
-		if (mStatusFn) mStatusFn(mStatus);
-	}
-			
-	mGstreamerWrapper->getMovieRef().update();
-}
 
 void GstVideo::updateServer(const UpdateParams &up) {
 	inherited::updateServer(up);
@@ -243,7 +182,6 @@ void GstVideo::drawLocalClient() {
 			} else {
 				mFrameTexture = ci::gl::Texture(pImg, GL_RGB, vidWidth, vidHeight);
 			}
-			// 	DS_LOG_INFO_M("New video frame, texture id: " <<mFrameTexture.getId(), GSTREAMER_LOG);
 			DS_REPORT_GL_ERRORS();
 		}
 		if(mPlaySingleFrame){
@@ -338,7 +276,6 @@ GstVideo &GstVideo::setResourceId( const ds::Resource::Id &resourceId ) {
 
 void GstVideo::setLooping(const bool on) {
 	mLooping = on;
-	markAsDirty(LOOPING_DIRTY);
 	setMovieLooping();
 }
 
@@ -360,7 +297,6 @@ void GstVideo::setVolume(const float volume) {
 
 	mVolume = volume;
 	setMovieVolume();
-	markAsDirty(VOLUME_DIRTY);
 }
 
 float GstVideo::getVolume() const {
@@ -371,7 +307,6 @@ void GstVideo::play() {
 	DS_LOG_INFO_M("GstVideo::play() " << mFilename, GSTREAMER_LOG);
 
 	mGstreamerWrapper->getMovieRef().play();
-	setCmd(kCmdPlay);
 
 	//If movie not yet loaded, remember to play it later once it has
 	if (!mGstreamerWrapper->getMovieRef().hasVideo())  {
@@ -385,7 +320,6 @@ void GstVideo::stop() {
 	mDoPlay = false;
 
 	mGstreamerWrapper->getMovieRef().stop();
-	setCmd(kCmdStop);
 }
 
 void GstVideo::pause() {
@@ -394,14 +328,9 @@ void GstVideo::pause() {
 	mDoPlay = false;
 
 	mGstreamerWrapper->getMovieRef().pause();
-	setCmd(kCmdPause);
 }
 
 bool GstVideo::getIsPlaying() const {
-	if (mServerModeHack) {
-		return mCmd == kCmdPlay;
-	}
-
 	if (mGstreamerWrapper->getMovieRef().getState() == PLAYING){
 		return true;
 	} else {
@@ -422,9 +351,6 @@ void GstVideo::seekTime(const double t) {
 }
 
 double GstVideo::getCurrentPosition() const {
-	if (mServerModeHack) {
-		return mReportedCurrentPosition;
-	}
 	return mGstreamerWrapper->getMovieRef().getPosition();
 }
 
@@ -435,70 +361,6 @@ void GstVideo::seekPosition(const double t) {
 void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn) {
 	DS_ASSERT_MSG(mEngine.getMode() == mEngine.CLIENTSERVER_MODE || mEngine.getMode() == mEngine.STANDALONE_MODE, "Currently only works in ClientServer mode, fill in the UDP callbacks if you want to use this otherwise");
 	mStatusFn = fn;
-}
-
-void GstVideo::writeAttributesTo(ds::DataBuffer &buf) {
-	inherited::writeAttributesTo(buf);
-
-	if (mDirty.has(FILENAME_DIRTY)) {
-		buf.add(FILENAME_ATT);
-		buf.add(mFilename);
-	}
-	if (mDirty.has(VOLUME_DIRTY)) {
-		buf.add(VOLUME_ATT);
-		buf.add(mVolume);
-	}
-	if (mDirty.has(LOOPING_DIRTY)) {
-		buf.add(LOOPING_ATT);
-		buf.add(mLooping);
-	}
-	if (mDirty.has(CMD_DIRTY)) {
-		buf.add(CMD_ATT);
-		buf.add(mCmd);
-	}
-	if (mDirty.has(VIDEO_FLAGS_DIRTY)) {
-		buf.add(VIDEO_FLAGS_ATT);
-		buf.add(mVideoFlags);
-	}
-}
-
-void GstVideo::writeClientAttributesTo(ds::DataBuffer &buf) const {
-	inherited::writeClientAttributesTo(buf);
-
-	ScopedClientAtts		scope(buf, getId());
-	buf.add(static_cast<float>(getCurrentPosition()));
-}
-
-void GstVideo::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
-	if (attributeId == FILENAME_ATT) {
-		onSetFilename(buf.read<std::string>());
-		const std::string	fn(ds::Environment::expand(mFilename));
-		doLoadVideoMeta(fn);
-	} else if (attributeId == VOLUME_ATT) {
-		setVolume(buf.read<float>());
-	} else if (attributeId == LOOPING_ATT) {
-		setLooping(buf.read<bool>());
-	} else if (attributeId == CMD_ATT) {
-		setCmd(buf.read<Cmd>());
-		if (mCmd == kCmdPlay) play();
-		else if (mCmd == kCmdPause) pause();
-		else if (mCmd == kCmdStop) stop();
-	} else if (attributeId == VIDEO_FLAGS_ATT) {
-		mVideoFlags = buf.read<uint32_t>();
-		setCheckBounds((mVideoFlags&CHECKBOUNDSHACK_F) != 0);
-	} else {
-		inherited::readAttributeFrom(attributeId, buf);
-	}
-}
-
-void GstVideo::readClientAttributeFrom(const char attributeId, ds::DataBuffer& buf)
-{
-	// Server hack mode was coded for GMI and it does not do anything anymore (SL.)
-	/*if (attributeId == CURR_POS_ATT) {
-		mReportedCurrentPosition = buf.read<float>();
-	} else */{
-		inherited::readClientAttributeFrom(attributeId, buf);
-	}
 }
 
 void GstVideo::doLoadVideoMeta(const std::string &filename) {
@@ -530,7 +392,6 @@ void GstVideo::doLoadVideoMeta(const std::string &filename) {
 
 void GstVideo::doLoadVideo(const std::string &filename) {
 	DS_LOG_INFO_M("GstVideo::doLoadVideo() on " << filename, GSTREAMER_LOG);
-	if (mServerModeHack) return;
 	if (filename.empty()) return;
 	
 	VideoMetaCache::Type		type(VideoMetaCache::ERROR_TYPE);
@@ -555,7 +416,6 @@ void GstVideo::doLoadVideo(const std::string &filename) {
 		mGstreamerWrapper->getMovieRef().open(filename, generateVideoBuffer, false, mIsTransparent, videoWidth, videoHeight);
 
 		setMovieLooping();
-		//mMovie.play();
 		setMovieVolume();
 		if (type == VideoMetaCache::AUDIO_TYPE) {
 			// Otherwise I am permanently muted
@@ -583,7 +443,6 @@ void GstVideo::doLoadVideo(const std::string &filename) {
 void GstVideo::onSetFilename(const std::string &fn) {
 	mFilename = fn;
 	mFilenameChanged = true;
-	markAsDirty(FILENAME_DIRTY);
 }
 
 void GstVideo::setStatus(const int code) {
@@ -660,30 +519,6 @@ bool GstVideo::isPlayingAFrame() const {
 
 void GstVideo::stopAfterNextLoop() {
 	mGstreamerWrapper->getMovieRef().stopOnLoopComplete();
-}
-
-void GstVideo::setServerModeHack(const bool b) {
-	mServerModeHack = b;
-}
-
-void GstVideo::setCheckBoundsHack(const bool b) {
-	setVideoFlag(CHECKBOUNDSHACK_F, b);
-	setCheckBounds((mVideoFlags&CHECKBOUNDSHACK_F) != 0);
-}
-
-void GstVideo::setCmd(const Cmd c) {
-	mCmd = c;
-	markAsDirty(CMD_DIRTY);
-}
-
-void GstVideo::setVideoFlag(const uint32_t f, const bool on) {
-	const uint32_t		old(mVideoFlags);
-	if (on) mVideoFlags |= f;
-	else mVideoFlags &= ~f;
-
-	if (old != mVideoFlags) {
-		markAsDirty(VIDEO_FLAGS_DIRTY);
-	}
 }
 
 } //!namespace ui

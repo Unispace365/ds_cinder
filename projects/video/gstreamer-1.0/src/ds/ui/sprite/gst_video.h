@@ -38,7 +38,6 @@ public:
 	void				setSize( float width, float height );
 	
 protected:
-	virtual void		updateClient(const UpdateParams&) override;
 	virtual void		updateServer(const UpdateParams&) override;
 	virtual void		drawLocalClient() override;
 
@@ -107,24 +106,6 @@ public:
 	// If a video is looping, will stop the video when the current loop completes.
 	void				stopAfterNextLoop();
 	
-	// Total hack as I begin to work in the UDP replication. When a video sprite
-	// is in server mode, it will never load or play a video, instead it becomes
-	// a passthrough to a video running somewhere on a client machine, reporting
-	// its play position etc. This would go away if we had fully sync'd, bounds-
-	// checked video.
-	void				setServerModeHack(const bool);
-	// This is a hack because it only does the check once, not continuously,
-	// so any sprites that move into or out of bound won't work.
-	// NOTE: Needs to be set BEFORE loadVideo(), that's where the check is
-	// occurring right now.
-	void				setCheckBoundsHack(const bool = false);
-
-protected:
-	virtual void		writeAttributesTo(ds::DataBuffer&) override;
-	virtual void		writeClientAttributesTo(ds::DataBuffer&) const override;
-	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&) override;
-	virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&) override;
-
 private:
 	typedef Sprite		inherited;
 
@@ -134,54 +115,29 @@ private:
 	void                setStatus(const int);
 	void				setMovieVolume();
 	void				setMovieLooping();
-	void				setVideoFlag(const uint32_t, const bool on);
 
 private:
-	// Done this way so I can completely hide any dependencies (even fwd decl's)
 	std::shared_ptr<class Impl>	mGstreamerWrapper;
 	ci::gl::Texture     mFrameTexture;
 	ci::gl::Fbo         mFbo;
-
 	std::string			mFilename;
 	bool				mFilenameChanged;
 	bool                mLooping;
-	// User-driven mute state
 	bool				mMuted;
-	// Cached value of autoStart (wrapper does not supply a getter)
 	bool				mAutoStart;
-	// A mute state that gets turned on automatically in certain situations
 	bool                mInternalMuted;
 	float               mVolume;
 	bool				mIsTransparent;
-	enum Cmd			{ kCmdPlay, kCmdPause, kCmdStop };
-	Cmd					mCmd;
-	void				setCmd(const Cmd);
-	bool				mDoPlay; //remember to play file if it hasn't loaded yet
-
+	bool				mDoPlay;
 	Status              mStatus;
 	bool                mStatusDirty;
-
 	bool				mPlaySingleFrame;
 	std::function<void(GstVideo&)>
 						mPlaySingleFrameFn;
-
 	std::function<void(const Status&)>
 						mStatusFn;
 	std::function<void(GstVideo*)>
 						mVideoCompleteCallback;
-
-	// Total hack as I begin to work in the UDP replication. When a video sprite
-	// is in server mode, it will never load or play a video, instead it becomes
-	// a passthrough to a video running somewhere on a client machine, reporting
-	// its play position etc.
-	bool				mServerModeHack;
-	double				mReportedCurrentPosition;
-	uint32_t			mVideoFlags;
-
-	// Initialization
-public:
-	static void			installAsServer(ds::BlobRegistry&);
-	static void			installAsClient(ds::BlobRegistry&);
 };
 
 } //!namespace ui
