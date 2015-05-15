@@ -429,7 +429,7 @@ void GstVideo::setVideoCompleteCallback( const std::function<void(GstVideo* vide
 void GstVideo::triggerVideoCompleteCallback()
 {
 	if (mVideoCompleteFn) {
-		mVideoCompleteFn(this);
+		mVideoCompleteFn();
 	}
 }
 
