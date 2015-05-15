@@ -27,7 +27,7 @@ This version of DS Cinder requires **Visual Studio 2013** installed.
      setx "DS_CINDER_GSTREAMER_1-0" "c:/gstreamer/1.0/x86/"
      ```
 
- -  ~~You should start by copying one of the example projects located in the `examples` folder as the basis for your new app.  If you do this, everything will be setup correctly and ready to go.  You can stop reading right here! **(if you DON'T do this step and copy the starter project, then you will need to manually set up the new solution yourself.)**~~ You no longer need to do this. Use the project generator (`pg.exe`).
+ -  Use the project generator to create a new project. This will make a copy of the "full_starter" example project, which contains all the projects you'll need to get started (PDF, Video, etc) and a bare-bones app structure. 
 
 ----------
 
@@ -35,9 +35,9 @@ Troubleshooting installation
 --------------------------------
 
  - If you get errors for `xaudio.h`: install [latest DirectX SDK][2]
- - If you get errors of missing `Boost cstdint` headers: make sure your cinder distribution does include Boost!
+ - If you get errors of missing `Boost cstdint` headers: make sure your cinder distribution does include Boost! Be sure to use the download on the cinder home page, and not a release from the cinder github.
  - If you get `LNK1123: failure during conversion to COFF: file invalid or corrupt'`: Install latest update for your Visual Studio!
- - `SerialRunnable`: You may need to pass an alloc function when initializing
+ - `SerialRunnable`: You may need to pass an alloc function when initializing a SerialRunnbale. 
  - `boost::mutex` to `std::mutex`. In most cases for threading, the `boost` versions are supplanted with the `STL` version. Check stack overflow / google, there's plenty of upgrade examples
  - `Not defined`s: Many `STL` elements now need to have `#include`s, most commonly `<memory>`, `<cctype>` and `<sstring>`.
  - `KeyEvent Not Defined`: Since the removal of using namespace `ci::*` from `ds_cinder` files, you'll need to make sure everything is namespaced properly.
@@ -77,9 +77,9 @@ We are currently making use of ZeroMQ, which requires a DLL to be located in the
 To compile with GSTREAMER
 -------------------------
 
-Install **Gstreamer 1.2.3** runtime and development files available [from the gstreamer site][1] and make sure you have Gstreamer's environment variable defined (*refer to installation section of this document*). Use the x86, not x64 versions.
-  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.2.3/gstreamer-1.0-x86-1.2.3.msi)
-  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.2.3/gstreamer-1.0-devel-x86-1.2.3.msi)
+Install **Gstreamer 1.4.5** runtime and development files available [from the gstreamer site][1] and make sure you have Gstreamer's environment variable defined (*refer to installation section of this document*). Use the x86, not x64 versions.
+  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.4.5/gstreamer-1.0-x86-1.4.5.msi)
+  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.4.5/gstreamer-1.0-devel-x86-1.4.5.msi)
 
 ----------
 
