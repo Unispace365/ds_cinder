@@ -79,7 +79,9 @@ public:
 	void				setAutoStart(const bool doAutoStart);
 	bool				getAutoStart() const;
 
-	struct Status {
+	struct Status
+    {
+        Status(int code);
 		static const int  STATUS_STOPPED = 0;
 		static const int  STATUS_PLAYING = 1;
 		static const int  STATUS_PAUSED  = 2;
@@ -90,7 +92,7 @@ public:
 	void				setStatusCallback(const std::function<void(const Status&)>&);
 
 	// Sets the video complete callback. It's called when video is finished.
-	void				setVideoCompleteCallback(const std::function<void(GstVideo* video)> &func);
+	void				setVideoCompleteCallback(const std::function<void()> &func);
 	// Triggers the video complete callback. Ideally you will not need to use this but this is here
 	// to give sufficient access to the Impl class without making it a 'friend' of GstVideo.
 	void				triggerVideoCompleteCallback();
