@@ -33,8 +33,11 @@ public:
 	void				setSize( float width, float height );
 	
 protected:
+	virtual void		updateClient(const UpdateParams&) override;
 	virtual void		updateServer(const UpdateParams&) override;
 	virtual void		drawLocalClient() override;
+    void			    writeAttributesTo(DataBuffer&) override;
+    void			    readAttributeFrom(const char, DataBuffer&) override;
 
 public:
 	// Loads a video from a file path.
@@ -92,6 +95,9 @@ public:
 		
         int               mCode;
 	};
+
+    const Status&       getCurrentStatus() const;
+    const std::string&  getLoadedVideoPath() const;
 
 	// Callback when video changes its status (play / pause / stop).
 	void				setStatusCallback(const std::function<void(const Status&)>&);

@@ -35,7 +35,7 @@ class Impl {
 public:
 	Impl(GstVideo& holder)
 		: mHolder(holder)
-        , mTimer(*holder.addChildPtr(new ds::ui::TimerSprite(holder.getEngine())))
+        , mTimer(nullptr)
 		, mMoviePtr(std::make_unique<GStreamerWrapper>())
         , mNetHandler(holder)
 	{}
@@ -49,7 +49,11 @@ public:
 	}
 
     TimerSprite& getTimerRef() {
-        return mTimer;
+        return *mTimer;
+    }
+
+    void registerTimer(TimerSprite* const timer) {
+        mTimer = timer;
     }
 
     GstVideoNet& getNetHandler() {
@@ -63,7 +67,7 @@ public:
 
 private:
 	GstVideo& mHolder;
-    TimerSprite& mTimer;
+    TimerSprite* mTimer;
     GstVideoNet mNetHandler;
 	std::unique_ptr<GStreamerWrapper> mMoviePtr;
 };
@@ -93,6 +97,12 @@ GstVideo::GstVideo(SpriteEngine& engine)
 
 	setUseShaderTextuer(true);
     setTransparent(false);
+
+    mGstreamerWrapper->registerTimer(addChildPtr(new ds::ui::TimerSprite(mEngine)));
+
+    mGstreamerWrapper->getTimerRef().setTimerCallback([this]{
+        markAsDirty(mGstreamerWrapper->getNetHandler().mParamsDirty);
+    });
 }
 
 GstVideo::~GstVideo() {}
@@ -112,6 +122,13 @@ void GstVideo::updateServer(const UpdateParams &up)
 		play();
 		mShouldPlay = false;
 	}
+}
+
+void GstVideo::updateClient(const UpdateParams& up)
+{
+    inherited::updateClient(up);
+
+    mGstreamerWrapper->getMovieRef().update();
 }
 
 void GstVideo::drawLocalClient()
@@ -347,6 +364,8 @@ void GstVideo::doLoadVideo(const std::string &filename)
         ci::gl::Texture::Format fmt;
         fmt.setInternalFormat(GL_RGBA);
         mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+
+        mFilename = filename;
     }
 }
 
@@ -461,6 +480,38 @@ void GstVideo::checkOutOfBounds()
     {
         mOutOfBoundsMuted = false;
         applyMovieVolume();
+    }
+}
+
+const GstVideo::Status& GstVideo::getCurrentStatus() const
+{
+    return mStatus;
+}
+
+const std::string& GstVideo::getLoadedVideoPath() const
+{
+    return mFilename;
+}
+
+void GstVideo::writeAttributesTo(DataBuffer& buf)
+{
+    inherited::writeAttributesTo(buf);
+
+    if (mDirty.has(mGstreamerWrapper->getNetHandler().mParamsDirty))
+    {
+        mGstreamerWrapper->getNetHandler().writeAttributesTo(buf);
+    }
+}
+
+void GstVideo::readAttributeFrom(const char id, DataBuffer& buf)
+{
+    if (id == mGstreamerWrapper->getNetHandler().mParamsAtt)
+    {
+        mGstreamerWrapper->getNetHandler().readAttributeFrom(buf);
+    }
+    else
+    {
+        inherited::readAttributeFrom(id, buf);
     }
 }
 
