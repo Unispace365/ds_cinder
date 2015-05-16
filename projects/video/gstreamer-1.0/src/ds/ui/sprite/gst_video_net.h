@@ -5,6 +5,7 @@
 
 namespace ds {
 class BlobRegistry;
+class DataBuffer;
 class Engine;
 namespace ui {
 class GstVideo;
@@ -20,8 +21,13 @@ public:
     static void		installAsClient(BlobRegistry&);
     static void		installSprite(Engine&);
 
+    void			writeAttributesTo(DataBuffer&);
+    void			readAttributeFrom(DataBuffer&);
+
 private:
     GstVideo&                   mVideoSprite;
+
+public:
     const ds::ui::DirtyState&   mParamsDirty;
     const char                  mParamsAtt;
 };
