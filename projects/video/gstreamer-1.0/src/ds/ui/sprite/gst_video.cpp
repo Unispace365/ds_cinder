@@ -11,6 +11,8 @@
 #include "gstreamer/gstreamer_env_check.h"
 #include "gstreamer/video_meta_cache.h"
 
+#include <mutex>
+
 using namespace ci;
 using namespace _2RealGStreamerWrapper;
 
@@ -161,6 +163,7 @@ GstVideo& GstVideo::loadVideo(const std::string& filename)
 	}
 
 	doLoadVideo(filename);
+    markAsDirty(mGstreamerWrapper->getNetHandler().mPathDirty);
 	return *this;
 }
 
@@ -193,6 +196,7 @@ void GstVideo::setLooping(const bool on)
 {
 	mLooping = on;
 	applyMovieLooping();
+    markAsDirty(mGstreamerWrapper->getNetHandler().mLoopingDirty);
 }
 
 bool GstVideo::getIsLooping() const
@@ -204,6 +208,7 @@ void GstVideo::setMute( const bool doMute )
 {
 	mMuted = doMute;
 	applyMovieVolume();
+    markAsDirty(mGstreamerWrapper->getNetHandler().mMuteDirty);
 }
 
 bool GstVideo::getIsMuted() const
@@ -217,6 +222,8 @@ void GstVideo::setVolume(const float volume)
 
 	mVolume = volume;
 	applyMovieVolume();
+
+    markAsDirty(mGstreamerWrapper->getNetHandler().mVolumeDirty);
 }
 
 float GstVideo::getVolume() const
@@ -233,18 +240,22 @@ void GstVideo::play()
     {
 		mShouldPlay = true;
 	}
+
+    markAsDirty(mGstreamerWrapper->getNetHandler().mStatusDirty);
 }
 
 void GstVideo::stop()
 {
 	mShouldPlay = false;
 	mGstreamerWrapper->getMovieRef().stop();
+    markAsDirty(mGstreamerWrapper->getNetHandler().mStatusDirty);
 }
 
 void GstVideo::pause()
 {
 	mShouldPlay = false;
 	mGstreamerWrapper->getMovieRef().pause();
+    markAsDirty(mGstreamerWrapper->getNetHandler().mStatusDirty);
 }
 
 bool GstVideo::getIsPlaying() const
@@ -363,6 +374,8 @@ void GstVideo::setStatus(const int code)
 
 	mStatus.mCode = code;
 	mStatusChanged = true;
+
+    markAsDirty(mGstreamerWrapper->getNetHandler().mStatusDirty);
 }
 
 void GstVideo::applyMovieVolume()
@@ -491,31 +504,20 @@ const std::string& GstVideo::getLoadedVideoPath() const
 void GstVideo::writeAttributesTo(DataBuffer& buf)
 {
     inherited::writeAttributesTo(buf);
-
-    if (mDirty.has(mGstreamerWrapper->getNetHandler().mParamsDirty))
-    {
-        mGstreamerWrapper->getNetHandler().writeAttributesTo(buf);
-    }
+    mGstreamerWrapper->getNetHandler().writeAttributesTo(mDirty, buf);
 }
 
 void GstVideo::readAttributeFrom(const char id, DataBuffer& buf)
 {
-    if (id == mGstreamerWrapper->getNetHandler().mParamsAtt)
-    {
-        mGstreamerWrapper->getNetHandler().readAttributeFrom(buf);
-    }
-    else
-    {
+    if (!mGstreamerWrapper->getNetHandler().readAttributeFrom(id, buf))
         inherited::readAttributeFrom(id, buf);
-    }
 }
 
-void GstVideo::attachTimer()
+void GstVideo::enableSynchronization()
 {
-    mGstreamerWrapper->registerTimer(addChildPtr(new ds::ui::TimerSprite(mEngine)));
-
-    mGstreamerWrapper->getTimerRef().setTimerCallback([this]{
-        markAsDirty(mGstreamerWrapper->getNetHandler().mParamsDirty);
+    static std::once_flag _call_once;
+    std::call_once(_call_once, [this]{
+        mGstreamerWrapper->registerTimer(addChildPtr(new ds::ui::TimerSprite(mEngine)));
     });
 }
 

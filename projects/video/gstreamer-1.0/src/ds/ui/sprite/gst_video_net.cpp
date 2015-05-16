@@ -22,8 +22,20 @@ namespace ds {
 namespace ui {
 
 char GstVideoNet::mBlobType = 0;
-const char GstVideoNet::mParamsAtt = 99;
-const DirtyState& GstVideoNet::mParamsDirty = newUniqueDirtyState();
+
+const char GstVideoNet::mMuteAtt        = 'S';
+const char GstVideoNet::mStatusAtt      = 'E';
+const char GstVideoNet::mVolumeAtt      = 'P';
+const char GstVideoNet::mLoopingAtt     = '3';
+const char GstVideoNet::mAutoStartAtt   = 'H';
+const char GstVideoNet::mPathAtt        = 'R';
+
+const DirtyState& GstVideoNet::mMuteDirty       = newUniqueDirtyState();
+const DirtyState& GstVideoNet::mStatusDirty     = newUniqueDirtyState();
+const DirtyState& GstVideoNet::mVolumeDirty     = newUniqueDirtyState();
+const DirtyState& GstVideoNet::mLoopingDirty    = newUniqueDirtyState();
+const DirtyState& GstVideoNet::mAutoStartDirty  = newUniqueDirtyState();
+const DirtyState& GstVideoNet::mPathDirty       = newUniqueDirtyState();
 
 GstVideoNet::GstVideoNet(GstVideo& video)
     : mVideoSprite(video)
@@ -50,49 +62,98 @@ void GstVideoNet::installSprite(Engine& engine)
     engine.installSprite(installAsServer, installAsClient);
 }
 
-void GstVideoNet::writeAttributesTo(DataBuffer& buf)
+void GstVideoNet::writeAttributesTo(const DirtyState& dirty, DataBuffer& buf)
 {
-    buf.add(mParamsAtt);
-    buf.add(mVideoSprite.getLoadedVideoPath());
-    buf.add(mVideoSprite.getAutoStart());
-    buf.add(mVideoSprite.getIsLooping());
-    buf.add(mVideoSprite.getIsMuted());
-    buf.add(mVideoSprite.getCurrentStatus().mCode);
-    buf.add(mVideoSprite.getVolume());
-    buf.add(mVideoSprite.getCurrentTime());
+    if (dirty.has(mPathDirty))
+    {
+        buf.add(mPathAtt);
+        buf.add(mVideoSprite.getLoadedVideoPath());
+    }
+
+    if (dirty.has(mAutoStartDirty))
+    {
+        buf.add(mAutoStartAtt);
+        buf.add(mVideoSprite.getAutoStart());
+    }
+
+    if (dirty.has(mLoopingDirty))
+    {
+        buf.add(mLoopingAtt);
+        buf.add(mVideoSprite.getIsLooping());
+    }
+
+    if (dirty.has(mStatusDirty))
+    {
+        buf.add(mStatusAtt);
+        buf.add(mVideoSprite.getCurrentStatus().mCode);
+    }
+
+    if (dirty.has(mVolumeDirty))
+    {
+        buf.add(mVolumeAtt);
+        buf.add(mVideoSprite.getVolume());
+    }
+
+    if (dirty.has(mMuteDirty))
+    {
+        buf.add(mMuteAtt);
+        buf.add(mVideoSprite.getIsMuted());
+    }
 }
 
-void GstVideoNet::readAttributeFrom(DataBuffer& buf)
+bool GstVideoNet::readAttributeFrom(const char attrid, DataBuffer& buf)
 {
-    auto video_path     = buf.read<std::string>();
-    auto auto_start     = buf.read<bool>();
-    auto is_looping     = buf.read<bool>();
-    auto is_muted       = buf.read<bool>();
-    auto status_code    = buf.read<int>();
-    auto volume_level   = buf.read<float>();
+    bool read_attrib = true;
 
-    if (mVideoSprite.getLoadedVideoPath() != video_path) mVideoSprite.loadVideo(video_path);
-    if (mVideoSprite.getAutoStart() != auto_start) mVideoSprite.setAutoStart(auto_start);
-    if (mVideoSprite.getIsLooping() != is_looping) mVideoSprite.setLooping(is_looping);
-    if (mVideoSprite.getIsMuted() != is_muted) mVideoSprite.setMute(is_muted);
-    if (mVideoSprite.getVolume() != volume_level) mVideoSprite.setVolume(volume_level);
-
-    if (mVideoSprite.getCurrentStatus() != status_code)
-    {
-        if (status_code == GstVideo::Status::STATUS_PAUSED)
+    if (attrid == mPathAtt) {
+        auto video_path = buf.read<std::string>();
+        if (mVideoSprite.getLoadedVideoPath() != video_path)
+            mVideoSprite.loadVideo(video_path);
+    }
+    else if (attrid == mAutoStartAtt) {
+        auto auto_start = buf.read<bool>();
+        if (mVideoSprite.getAutoStart() != auto_start)
+            mVideoSprite.setAutoStart(auto_start);
+    }
+    else if (attrid == mLoopingAtt) {
+        auto is_looping = buf.read<bool>();
+        if (mVideoSprite.getIsLooping() != is_looping)
+            mVideoSprite.setLooping(is_looping);
+    }
+    else if (attrid == mMuteAtt) {
+        auto is_muted = buf.read<bool>();
+        if (mVideoSprite.getIsMuted() != is_muted)
+            mVideoSprite.setMute(is_muted);
+    }
+    else if (attrid == mVolumeAtt) {
+        auto volume_level = buf.read<float>();
+        if (mVideoSprite.getVolume() != volume_level)
+            mVideoSprite.setVolume(volume_level);
+    }
+    else if (attrid == mStatusAtt) {
+        auto status_code = buf.read<int>();
+        if (mVideoSprite.getCurrentStatus() != status_code)
         {
-            mVideoSprite.pause();
-        }
-        else if (status_code == GstVideo::Status::STATUS_STOPPED)
-        {
-            mVideoSprite.stop();
-        }
-        else if (status_code == GstVideo::Status::STATUS_PLAYING)
-        {
-            mVideoSprite.play();
+            if (status_code == GstVideo::Status::STATUS_PAUSED)
+            {
+                mVideoSprite.pause();
+            }
+            else if (status_code == GstVideo::Status::STATUS_STOPPED)
+            {
+                mVideoSprite.stop();
+            }
+            else if (status_code == GstVideo::Status::STATUS_PLAYING)
+            {
+                mVideoSprite.play();
+            }
         }
     }
+    else {
+        read_attrib = false;
+    }
     // To do: latency check.
+
+    return read_attrib;
 }
 
 }

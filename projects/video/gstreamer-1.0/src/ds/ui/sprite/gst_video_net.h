@@ -21,15 +21,26 @@ public:
     static void		installAsClient(BlobRegistry&);
     static void		installSprite(Engine&);
 
-    void			writeAttributesTo(DataBuffer&);
-    void			readAttributeFrom(DataBuffer&);
+    void			writeAttributesTo(const DirtyState&, DataBuffer&);
+    bool			readAttributeFrom(const char attrib, DataBuffer&);
 
 private:
     GstVideo&                   mVideoSprite;
 
 public:
-    static const DirtyState&   mParamsDirty;
-    static const char          mParamsAtt;
+    static const DirtyState&   mPathDirty;
+    static const DirtyState&   mAutoStartDirty;
+    static const DirtyState&   mLoopingDirty;
+    static const DirtyState&   mVolumeDirty;
+    static const DirtyState&   mStatusDirty;
+    static const DirtyState&   mMuteDirty;
+
+    static const char          mPathAtt;
+    static const char          mAutoStartAtt;
+    static const char          mLoopingAtt;
+    static const char          mVolumeAtt;
+    static const char          mStatusAtt;
+    static const char          mMuteAtt;
 };
 
 }} //!ds::ui
