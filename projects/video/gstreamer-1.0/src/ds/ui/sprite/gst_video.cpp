@@ -115,19 +115,13 @@ void GstVideo::updateServer(const UpdateParams &up)
     checkOutOfBounds();
 
 	mGstreamerWrapper->getMovieRef().update();
-
-	if (mStatus != Status::STATUS_PLAYING
-        && mGstreamerWrapper->getMovieRef().hasVideo() && mShouldPlay)
-    {
-		play();
-		mShouldPlay = false;
-	}
 }
 
 void GstVideo::updateClient(const UpdateParams& up)
 {
     inherited::updateClient(up);
 
+    checkStatus();
     mGstreamerWrapper->getMovieRef().update();
 }
 
@@ -462,6 +456,13 @@ void GstVideo::checkStatus()
         && mStatus != Status::STATUS_PAUSED)
     {
         setStatus(Status::STATUS_PAUSED);
+    }
+    
+    if (mStatus != Status::STATUS_PLAYING
+        && mGstreamerWrapper->getMovieRef().hasVideo() && mShouldPlay)
+    {
+        play();
+        mShouldPlay = false;
     }
 }
 
