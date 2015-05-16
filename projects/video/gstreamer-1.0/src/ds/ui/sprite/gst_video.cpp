@@ -1,5 +1,6 @@
 #include "gst_video.h"
 #include "timer_sprite.h"
+#include "gst_video_net.h"
 
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/data/resource_list.h>
@@ -36,6 +37,7 @@ public:
 		: mHolder(holder)
         , mTimer(*holder.addChildPtr(new ds::ui::TimerSprite(holder.getEngine())))
 		, mMoviePtr(std::make_unique<GStreamerWrapper>())
+        , mNetHandler(holder)
 	{}
 
 	void handleVideoComplete() {
@@ -50,6 +52,10 @@ public:
         return mTimer;
     }
 
+    GstVideoNet& getNetHandler() {
+        return mNetHandler;
+    }
+
 	~Impl() {
 		mMoviePtr->stop();
 		mMoviePtr->close();
@@ -58,6 +64,7 @@ public:
 private:
 	GstVideo& mHolder;
     TimerSprite& mTimer;
+    GstVideoNet mNetHandler;
 	std::unique_ptr<GStreamerWrapper> mMoviePtr;
 };
 
@@ -82,6 +89,8 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mAutoStart(false)
     , mStatus(Status::STATUS_STOPPED)
 {
+    mBlobType = GstVideoNet::mBlobType;
+
 	setUseShaderTextuer(true);
     setTransparent(false);
 }
