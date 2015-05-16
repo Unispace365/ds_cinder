@@ -1,22 +1,9 @@
 #include "ds/ui/sprite/gst_video.h"
 
-#include <cinder/Camera.h>
-
-#include <ds/app/app.h>
-#include <ds/app/engine/engine.h>
-#include <ds/app/blob_reader.h>
-#include <ds/app/environment.h>
-#include <ds/app/engine/engine_io_defs.h>
-#include <ds/data/data_buffer.h>
-#include <ds/data/resource_list.h>
-#include <ds/debug/debug_defines.h>
-#include <ds/debug/logger.h>
-#include <ds/math/math_func.h>
 #include <ds/ui/sprite/sprite_engine.h>
-
-#include <sstream>
-
-#include <Poco/Path.h>
+#include <ds/app/environment.h>
+#include <ds/data/resource_list.h>
+#include <ds/debug/logger.h>
 
 #include "gstreamer/_2RealGStreamerWrapper.h"
 #include "gstreamer/gstreamer_env_check.h"
@@ -82,7 +69,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mMuted(false)
 	, mInternalMuted(true)
 	, mVolume(1.0f)
-	, mStatusChanged(false)
+	, mStatusChanged(true)
     , mStatusFn(noop<const Status&>)
     , mVideoCompleteFn(noop)
 	, mShouldPlay(false)
@@ -90,6 +77,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
     , mStatus(Status::STATUS_STOPPED)
 {
 	setUseShaderTextuer(true);
+    setTransparent(false);
 }
 
 GstVideo::~GstVideo() {}
@@ -121,8 +109,6 @@ void GstVideo::updateServer(const UpdateParams &up)
 
 void GstVideo::drawLocalClient()
 {
-	if (!mFbo) return;
-
 	if (mGstreamerWrapper->getMovieRef().getState() == STOPPED)
     {
         setStatus(Status::STATUS_STOPPED);
@@ -153,60 +139,19 @@ void GstVideo::drawLocalClient()
 
 	if (mGstreamerWrapper->getMovieRef().hasVideo() && mGstreamerWrapper->getMovieRef().isNewVideoFrame())
     {
-		unsigned char* pImg = mGstreamerWrapper->getMovieRef().getVideo();
-		if(pImg)
-        {
-			int vidWidth(mGstreamerWrapper->getMovieRef().getWidth()), vidHeight(mGstreamerWrapper->getMovieRef().getHeight());
-		    mFrameTexture = ci::gl::Texture(pImg, GL_RGBA, vidWidth, vidHeight);
-			DS_REPORT_GL_ERRORS();
-		}
+        ci::Surface video_surface(
+            mGstreamerWrapper->getMovieRef().getVideo(),
+            mGstreamerWrapper->getMovieRef().getWidth(),
+            mGstreamerWrapper->getMovieRef().getHeight(),
+            mGstreamerWrapper->getMovieRef().getWidth() * 4,
+            ci::SurfaceChannelOrder::RGBA);
+		
+        mFrameTexture.update(video_surface);
 	}
 
 	if (mFrameTexture)
     {
-		{
-			ci::gl::pushMatrices();
-			mSpriteShader.getShader().unbind();
-			ci::gl::setViewport(mFrameTexture.getBounds());
-			ci::CameraOrtho camera;
-			camera.setOrtho(float(mFrameTexture.getBounds().getX1()), float(mFrameTexture.getBounds().getX2()), float(mFrameTexture.getBounds().getY2()), float(mFrameTexture.getBounds().getY1()), -1.0f, 1.0f);
-			ci::gl::setMatrices(camera);
-			// bind the framebuffer - now everything we draw will go there
-			mFbo.bindFramebuffer();
-
-			glPushAttrib( GL_TRANSFORM_BIT | GL_ENABLE_BIT );
-			for (int i = 0; i < 4; ++i) {
-				glDisable( GL_CLIP_PLANE0 + i );
-			}
-
-			ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
-			DS_REPORT_GL_ERRORS();
-
-			ci::gl::draw(mFrameTexture);
-			DS_REPORT_GL_ERRORS();
-
-			glPopAttrib();
-
-			mFbo.unbindFramebuffer();
-			mSpriteShader.getShader().bind();
-			ci::gl::popMatrices();
-		}
-
-		Rectf screenRect = mEngine.getScreenRect();
-		ci::gl::setViewport(Area((int)screenRect.getX1(), (int)screenRect.getY2(), (int)screenRect.getX2(), (int)screenRect.getY1()));
-
-		if (getPerspective())
-        {
-			Rectf area(0.0f, 0.0f, getWidth(), getHeight());
-			ci::gl::draw( mFbo.getTexture(0), area );
-		}
-        else
-        {
-			Rectf area(0.0f, getHeight(), getWidth(), 0.0f);
-			ci::gl::draw( mFbo.getTexture(0), area );
-		}
-
-		DS_REPORT_GL_ERRORS();
+        ci::gl::draw(mFrameTexture);
 	}
 }
 
@@ -452,7 +397,10 @@ void GstVideo::doLoadVideo(const std::string &filename)
 		}
 		return;
 	}
-	mFbo = ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), true);
+
+    ci::gl::Texture::Format fmt;
+    fmt.setInternalFormat(GL_RGBA);
+    mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()) , static_cast<int>(getHeight()), fmt);
 }
 
 void GstVideo::onSetFilename(const std::string &fn)

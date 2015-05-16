@@ -2,7 +2,6 @@
 #define DS_UI_SPRITE_GST_VIDEO_H_
 
 #include <cinder/gl/Texture.h>
-#include <cinder/gl/Fbo.h>
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/data/resource.h>
@@ -113,7 +112,6 @@ private:
 private:
 	std::shared_ptr<class Impl> mGstreamerWrapper;
 	ci::gl::Texture             mFrameTexture;
-	ci::gl::Fbo                 mFbo;
 	std::string                 mFilename;
 	bool                        mFilenameChanged;
 	bool                        mLooping;
