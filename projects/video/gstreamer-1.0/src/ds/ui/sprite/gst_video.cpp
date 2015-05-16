@@ -150,8 +150,7 @@ GstVideo &GstVideo::loadVideo(const ds::Resource::Id &resourceId)
 		ds::Resource res;
 		if (mEngine.getResources().get(resourceId, res))
         {
-            Sprite::setSizeAll(res.getWidth(), res.getHeight(), mDepth);
-            loadVideo(res.getAbsoluteFilePath());
+            loadVideo(res);
 		}
 	}
     catch (const std::exception& ex)
@@ -164,6 +163,7 @@ GstVideo &GstVideo::loadVideo(const ds::Resource::Id &resourceId)
 
 GstVideo& GstVideo::loadVideo(const ds::Resource& resource)
 {
+    Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
     loadVideo(resource.getAbsoluteFilePath());
     return *this;
 }
