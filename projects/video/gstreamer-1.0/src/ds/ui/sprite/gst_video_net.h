@@ -1,12 +1,13 @@
 #ifndef DS_VIDEO_GST_VIDEO_NET_H_
 #define DS_VIDEO_GST_VIDEO_NET_H_
 
+#include <ds/ui/sprite/dirty_state.h>
+
 namespace ds {
 class BlobRegistry;
 class Engine;
 namespace ui {
 class GstVideo;
-class DirtyState;
 
 class GstVideoNet
 {

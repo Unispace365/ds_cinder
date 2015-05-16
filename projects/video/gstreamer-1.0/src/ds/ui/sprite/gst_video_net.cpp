@@ -1,9 +1,11 @@
 #include "gst_video_net.h"
+#include "gst_video.h" //ugh.
 
-#include <ds/ui/sprite/dirty_state.h>
+#include <ds/data/data_buffer.h>
 #include <ds/app/blob_registry.h>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/app/engine/engine.h>
+#include <ds/app/blob_reader.h>
 #include <ds/app/app.h>
 
 namespace {
