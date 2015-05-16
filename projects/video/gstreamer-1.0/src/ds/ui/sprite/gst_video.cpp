@@ -1,4 +1,5 @@
-#include "ds/ui/sprite/gst_video.h"
+#include "gst_video.h"
+#include "timer_sprite.h"
 
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/data/resource_list.h>
@@ -33,6 +34,7 @@ class Impl {
 public:
 	Impl(GstVideo& holder)
 		: mHolder(holder)
+        , mTimer(*holder.addChildPtr(new ds::ui::TimerSprite(holder.getEngine())))
 		, mMoviePtr(std::make_unique<GStreamerWrapper>())
 	{}
 
@@ -44,6 +46,10 @@ public:
 		return *mMoviePtr;
 	}
 
+    TimerSprite& getTimerRef() {
+        return mTimer;
+    }
+
 	~Impl() {
 		mMoviePtr->stop();
 		mMoviePtr->close();
@@ -51,6 +57,7 @@ public:
 
 private:
 	GstVideo& mHolder;
+    TimerSprite& mTimer;
 	std::unique_ptr<GStreamerWrapper> mMoviePtr;
 };
 
