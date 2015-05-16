@@ -4,6 +4,17 @@
 #include <ds/app/blob_registry.h>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/app/engine/engine.h>
+#include <ds/app/app.h>
+
+namespace {
+static struct Initializer {
+    Initializer() {
+        ds::App::AddStartup([](ds::Engine& engine) {
+            ds::ui::GstVideoNet::installSprite(engine);
+        });
+    }
+} INIT;
+}
 
 namespace ds {
 namespace ui {
