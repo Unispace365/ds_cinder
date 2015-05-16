@@ -15,7 +15,7 @@ namespace
 // Will be filled after registration
 char						BLOB_TYPE	= 0;
 // Marks internal changes that needs to be synced
-const ds::ui::DirtyState&	TIME_DIRTY	= ds::ui::INTERNAL_A_DIRTY;
+const ds::ui::DirtyState&	TIME_DIRTY	= ds::ui::newUniqueDirtyState();
 // Arbitrary ID's
 const char					TIME_ATT	= 99;
 

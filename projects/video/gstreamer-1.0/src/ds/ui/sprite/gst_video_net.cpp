@@ -22,11 +22,11 @@ namespace ds {
 namespace ui {
 
 char GstVideoNet::mBlobType = 0;
+const char GstVideoNet::mParamsAtt = 99;
+const DirtyState& GstVideoNet::mParamsDirty = newUniqueDirtyState();
 
 GstVideoNet::GstVideoNet(GstVideo& video)
-    : mParamsDirty(ds::ui::INTERNAL_A_DIRTY)
-    , mParamsAtt(99)
-    , mVideoSprite(video)
+    : mVideoSprite(video)
 {}
 
 void GstVideoNet::installAsServer(BlobRegistry& registry)

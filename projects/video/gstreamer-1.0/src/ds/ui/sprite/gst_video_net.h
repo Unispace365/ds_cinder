@@ -28,8 +28,8 @@ private:
     GstVideo&                   mVideoSprite;
 
 public:
-    const ds::ui::DirtyState&   mParamsDirty;
-    const char                  mParamsAtt;
+    static const DirtyState&   mParamsDirty;
+    static const char          mParamsAtt;
 };
 
 }} //!ds::ui

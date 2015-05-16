@@ -31,6 +31,8 @@ public:
 
 	// Sets the video sprite size. Internally just scales the texture
 	void				setSize( float width, float height );
+
+    void                attachTimer();
 	
 protected:
 	virtual void		updateClient(const UpdateParams&) override;

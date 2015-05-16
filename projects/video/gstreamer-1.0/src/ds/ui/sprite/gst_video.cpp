@@ -97,12 +97,6 @@ GstVideo::GstVideo(SpriteEngine& engine)
 
 	setUseShaderTextuer(true);
     setTransparent(false);
-
-    mGstreamerWrapper->registerTimer(addChildPtr(new ds::ui::TimerSprite(mEngine)));
-
-    mGstreamerWrapper->getTimerRef().setTimerCallback([this]{
-        markAsDirty(mGstreamerWrapper->getNetHandler().mParamsDirty);
-    });
 }
 
 GstVideo::~GstVideo() {}
@@ -514,6 +508,15 @@ void GstVideo::readAttributeFrom(const char id, DataBuffer& buf)
     {
         inherited::readAttributeFrom(id, buf);
     }
+}
+
+void GstVideo::attachTimer()
+{
+    mGstreamerWrapper->registerTimer(addChildPtr(new ds::ui::TimerSprite(mEngine)));
+
+    mGstreamerWrapper->getTimerRef().setTimerCallback([this]{
+        markAsDirty(mGstreamerWrapper->getNetHandler().mParamsDirty);
+    });
 }
 
 GstVideo::Status::Status(int code)
