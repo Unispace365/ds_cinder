@@ -57,6 +57,8 @@ static struct Initialize
 
 } INIT;
 
+void noop() {}
+
 } //! anonymous namespace
 
 namespace ds {
@@ -67,6 +69,7 @@ namespace ui {
  */
 TimerSprite::TimerSprite(ds::ui::SpriteEngine& eng)
 	: inherited(eng)
+    , mCallbackFn(noop)
 {
 	mBlobType = BLOB_TYPE;
 	
@@ -117,7 +120,10 @@ void TimerSprite::updateServer(const ds::UpdateParams& p)
 	mSyncUpdateParams = p;
 
 	if (ci::app::getElapsedFrames() % mSyncFrequency == 0)
-		markAsDirty(TIME_DIRTY);
+	{
+        markAsDirty(TIME_DIRTY);
+        mCallbackFn();
+    }
 }
 
 /*!
@@ -226,6 +232,16 @@ void TimerSprite::setTimerFrequency(int freq)
 {
 	if (freq == mSyncFrequency || freq <= 0) return;
 	mSyncFrequency = freq;
+}
+
+void TimerSprite::setTimerCallback(const std::function<void()>& fn)
+{
+    mCallbackFn = fn;
+}
+
+int TimerSprite::getTimerFrequency() const
+{
+    return mSyncFrequency;
 }
 
 }

@@ -48,6 +48,9 @@ public:
 	 */
 	void			setTimerFrequency(int frames);
 
+    void            setTimerCallback(const std::function<void()>&);
+    int             getTimerFrequency() const;
+
 	/*!
 	 * \name setDrawTime
 	 * \brief DEBUG ONLY! draws a little string on top left of the app
@@ -62,6 +65,8 @@ private:
     bool            mDebugDrawTime  { false };
     int             mSyncFrequency  { 5 }; // in frames
 	UpdateParams	mSyncUpdateParams;
+    std::function < void() >
+                    mCallbackFn;
 
 private:
 	void			writeAttributesTo(DataBuffer&) override;
