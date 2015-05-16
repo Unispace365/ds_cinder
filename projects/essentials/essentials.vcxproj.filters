@@ -31,6 +31,9 @@
     <Filter Include="src\ds\touch">
       <UniqueIdentifier>{6ab169de-3b25-4751-8241-426e54959e13}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\scroll">
+      <UniqueIdentifier>{c1a8659d-b10a-4817-a1ae-f2229b81bae6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -72,6 +75,9 @@
     <ClCompile Include="src\ds\touch\delayed_momentum.cpp">
       <Filter>src\ds\touch</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -112,6 +118,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\touch\delayed_momentum.h">
       <Filter>src\ds\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\scroll\scroll_area.h">
+      <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

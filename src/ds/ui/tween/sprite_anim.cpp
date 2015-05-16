@@ -79,9 +79,9 @@ void SpriteAnimatable::tweenOpacity(const float opacity, const float duration, c
 }
 
 void SpriteAnimatable::tweenPosition(const ci::Vec3f& pos, const float duration, const float delay,
-									const ci::EaseFn& ease, const std::function<void(void)>& finishFn) {
+									 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimPosition.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_POSITION(), pos, duration, ease, finishFn, delay);
+	mEngine.getTweenline().apply(mOwner, ANIM_POSITION(), pos, duration, ease, finishFn, delay, updateFn);
 }
 
 void SpriteAnimatable::tweenRotation(const ci::Vec3f& rot, const float duration, const float delay,
