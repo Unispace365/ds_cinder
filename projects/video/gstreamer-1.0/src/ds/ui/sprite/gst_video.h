@@ -40,7 +40,9 @@ public:
 	// Loads a video from a file path.
 	GstVideo&			loadVideo(const std::string &filename);
 	// Loads a vodeo from a ds::Resource::Id
-	GstVideo&			setResourceId(const ds::Resource::Id&);
+	GstVideo&			loadVideo(const ds::Resource::Id& resource_id);
+	// Loads a vodeo from a ds::Resource
+	GstVideo&			loadVideo(const ds::Resource& resource);
 
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility
@@ -81,10 +83,14 @@ public:
 	struct Status
     {
         Status(int code);
+        bool operator ==(int status) const;
+        bool operator !=(int status) const;
+
 		static const int  STATUS_STOPPED = 0;
 		static const int  STATUS_PLAYING = 1;
 		static const int  STATUS_PAUSED  = 2;
-		int               mCode;
+		
+        int               mCode;
 	};
 
 	// Callback when video changes its status (play / pause / stop).
@@ -100,24 +106,22 @@ public:
 	void				stopAfterNextLoop();
 	
 private:
-	typedef Sprite		inherited;
-
-	void				doLoadVideoMeta(const std::string &filename);
 	void				doLoadVideo(const std::string &filename);
-	void				onSetFilename(const std::string&);
-	void                setStatus(const int);
-	void				setMovieVolume();
-	void				setMovieLooping();
+	void				applyMovieVolume();
+	void				applyMovieLooping();
+    void                checkOutOfBounds();
+    void                setStatus(const int);
+    void                checkStatus();
 
 private:
+    typedef Sprite              inherited;
 	std::shared_ptr<class Impl> mGstreamerWrapper;
 	ci::gl::Texture             mFrameTexture;
 	std::string                 mFilename;
-	bool                        mFilenameChanged;
 	bool                        mLooping;
 	bool                        mMuted;
 	bool                        mAutoStart;
-	bool                        mInternalMuted;
+	bool                        mOutOfBoundsMuted;
 	float                       mVolume;
 	bool                        mShouldPlay;
 	Status                      mStatus;
