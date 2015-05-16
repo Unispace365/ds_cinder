@@ -33,6 +33,9 @@
     <ClCompile Include="src\ds\ui\sprite\timer_sprite.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\gst_video_net.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\gstreamer\_2RealGStreamerWrapper.h">
@@ -51,6 +54,9 @@
       <Filter>src\gstreamer</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\sprite\timer_sprite.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\gst_video_net.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
