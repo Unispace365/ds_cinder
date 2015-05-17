@@ -12,6 +12,7 @@
 #include "gstreamer/video_meta_cache.h"
 
 #include <mutex>
+#include "ds/app/engine/engine.h"
 
 using namespace ci;
 using namespace _2RealGStreamerWrapper;
@@ -57,6 +58,10 @@ public:
     void registerTimer(TimerSprite* const timer) {
         mTimer = timer;
     }
+    void removeTimer() {
+        mTimer = nullptr;
+    }
+    bool hasTimer() const { return mTimer != nullptr; }
 
     GstVideoNet& getNetHandler() {
         return mNetHandler;
@@ -105,6 +110,8 @@ GstVideo::~GstVideo() {}
 
 void GstVideo::updateServer(const UpdateParams &up)
 {
+    mTimeSnapshot = mGstreamerWrapper->getMovieRef().getCurrentTimeInMs();
+
 	inherited::updateServer(up);
     
     checkStatus();
@@ -518,7 +525,69 @@ void GstVideo::enableSynchronization()
     static std::once_flag _call_once;
     std::call_once(_call_once, [this]{
         mGstreamerWrapper->registerTimer(addChildPtr(new ds::ui::TimerSprite(mEngine)));
+        mGstreamerWrapper->getTimerRef().setTimerCallback([this]{
+            markAsDirty(mGstreamerWrapper->getNetHandler().mPosDirty);
+        });
     });
+}
+
+void GstVideo::syncWithServer(double server_time)
+{
+    static double EPSILON   = 50;
+    static double COEFF     = 7.5;
+    static double LAST_DIFF = 1;
+
+    if (mGstreamerWrapper->hasTimer())
+    {
+        auto frames_tick = mGstreamerWrapper->getTimerRef().getUpdateParams().getDeltaTime() * 1000.0f * COEFF;
+        
+        auto my_expected_time =
+            server_time
+            + mGstreamerWrapper->getTimerRef().getLatency();
+
+        auto my_current_time = mGstreamerWrapper->getMovieRef().getCurrentTimeInMs();
+        
+        auto time_diff = ci::math<double>::abs(my_current_time - my_expected_time);
+
+        if (time_diff > EPSILON)
+        {
+            if (time_diff > LAST_DIFF)
+                COEFF -= (1 / EPSILON);
+            else
+                COEFF += (1 / EPSILON);
+
+            mGstreamerWrapper->getMovieRef().setTimePositionInMs(my_expected_time + frames_tick);
+
+            LAST_DIFF = time_diff;
+        }
+    }
+}
+
+void GstVideo::onChildAdded(Sprite& child)
+{
+    if (auto timer = dynamic_cast<TimerSprite*>(&child))
+    {
+        mGstreamerWrapper->registerTimer(timer);
+        mGstreamerWrapper->getTimerRef().setTimerFrequency(7);
+    }
+}
+
+void GstVideo::onChildRemoved(Sprite& child)
+{
+    if (auto timer = dynamic_cast<TimerSprite*>(&child))
+    {
+        mGstreamerWrapper->removeTimer();
+    }
+}
+
+double GstVideo::getCurrentTimeMs() const
+{
+    return mGstreamerWrapper->getMovieRef().getCurrentTimeInMs();
+}
+
+double GstVideo::getTimeSnapshot() const
+{
+    return mTimeSnapshot;
 }
 
 GstVideo::Status::Status(int code)

@@ -34,6 +34,7 @@ public:
     static const DirtyState&   mVolumeDirty;
     static const DirtyState&   mStatusDirty;
     static const DirtyState&   mMuteDirty;
+    static const DirtyState&   mPosDirty;
 
     static const char          mPathAtt;
     static const char          mAutoStartAtt;
@@ -41,6 +42,7 @@ public:
     static const char          mVolumeAtt;
     static const char          mStatusAtt;
     static const char          mMuteAtt;
+    static const char          mPosAtt;
 };
 
 }} //!ds::ui

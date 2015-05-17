@@ -33,6 +33,7 @@ public:
 	void				setSize( float width, float height );
 
     void                enableSynchronization();
+    void                syncWithServer(double server_time);
 	
 protected:
 	virtual void		updateClient(const UpdateParams&) override;
@@ -40,6 +41,8 @@ protected:
 	virtual void		drawLocalClient() override;
     void			    writeAttributesTo(DataBuffer&) override;
     void			    readAttributeFrom(const char, DataBuffer&) override;
+    void                onChildAdded(Sprite& child) override;
+    void                onChildRemoved(Sprite& child) override;
 
 public:
 	// Loads a video from a file path.
@@ -75,6 +78,7 @@ public:
 	// Time operations (in seconds)
 	double				getDuration() const;
 	double				getCurrentTime() const;
+	double				getCurrentTimeMs() const;
 	void				seekTime(const double);
 
     // Position operations (in unit values, 0 - 1)
@@ -137,6 +141,10 @@ private:
     std::function<void()>       mVideoCompleteFn;
 	std::function<void(const Status&)>
                                 mStatusFn;
+    double                      mTimeSnapshot;
+
+public:
+    double                      getTimeSnapshot() const;
 };
 
 } //!namespace ui

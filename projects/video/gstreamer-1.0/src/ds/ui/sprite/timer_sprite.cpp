@@ -122,7 +122,8 @@ void TimerSprite::updateServer(const ds::UpdateParams& p)
 	if (ci::app::getElapsedFrames() % mSyncFrequency == 0)
 	{
         markAsDirty(TIME_DIRTY);
-        mCallbackFn();
+        //if (ci::app::getElapsedFrames() % 8 * mSyncFrequency == 0)
+            mCallbackFn();
     }
 }
 
@@ -151,7 +152,7 @@ void TimerSprite::writeAttributesTo(ds::DataBuffer& buf)
 	{
 		buf.add(TIME_ATT);
 		_packet.mServerTime = mSyncUpdateParams.getElapsedTime();
-		_packet.mSendTime = now();
+		_packet.mSendTime = ::now();
 		_packet.write_to_ds_buffer(buf);
 	}
 }
@@ -188,10 +189,13 @@ void TimerSprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
 		 * divided by two.
 		 */
 		
-		mClientLatency = static_cast<float>(now() - _packet.mSendTime) * 0.0005f; //0.0005f is 0.001 / 2
+		mClientLatency = (now() - _packet.mSendTime);
 		auto _oldServerTime = mSyncUpdateParams.getElapsedTime();
-		mSyncUpdateParams.setElapsedTime(_packet.mServerTime + mClientLatency);
-		mSyncUpdateParams.setDeltaTime(mSyncUpdateParams.getElapsedTime() - _oldServerTime);
+        mSyncUpdateParams.setElapsedTime(_packet.mServerTime);
+
+        auto delta_time = ci::math<float>::abs(mSyncUpdateParams.getElapsedTime() - _oldServerTime) / mSyncFrequency;
+        if (delta_time > 1.0f) delta_time = 0;
+		mSyncUpdateParams.setDeltaTime(delta_time);
 	}
 	else
 	{
@@ -199,7 +203,7 @@ void TimerSprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
 	}
 }
 
-float TimerSprite::getLatency() const
+double TimerSprite::getLatency() const
 {
 	return mClientLatency;
 }
@@ -242,6 +246,11 @@ void TimerSprite::setTimerCallback(const std::function<void()>& fn)
 int TimerSprite::getTimerFrequency() const
 {
     return mSyncFrequency;
+}
+
+double TimerSprite::now() const
+{
+    return static_cast<double>(::now());
 }
 
 }

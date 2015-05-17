@@ -29,6 +29,7 @@ const char GstVideoNet::mVolumeAtt      = 'P';
 const char GstVideoNet::mLoopingAtt     = '3';
 const char GstVideoNet::mAutoStartAtt   = 'H';
 const char GstVideoNet::mPathAtt        = 'R';
+const char GstVideoNet::mPosAtt         = 'L';
 
 const DirtyState& GstVideoNet::mMuteDirty       = newUniqueDirtyState();
 const DirtyState& GstVideoNet::mStatusDirty     = newUniqueDirtyState();
@@ -36,6 +37,7 @@ const DirtyState& GstVideoNet::mVolumeDirty     = newUniqueDirtyState();
 const DirtyState& GstVideoNet::mLoopingDirty    = newUniqueDirtyState();
 const DirtyState& GstVideoNet::mAutoStartDirty  = newUniqueDirtyState();
 const DirtyState& GstVideoNet::mPathDirty       = newUniqueDirtyState();
+const DirtyState& GstVideoNet::mPosDirty        = newUniqueDirtyState();
 
 GstVideoNet::GstVideoNet(GstVideo& video)
     : mVideoSprite(video)
@@ -99,6 +101,12 @@ void GstVideoNet::writeAttributesTo(const DirtyState& dirty, DataBuffer& buf)
         buf.add(mMuteAtt);
         buf.add(mVideoSprite.getIsMuted());
     }
+
+    if (dirty.has(mPosDirty))
+    {
+        buf.add(mPosAtt);
+        buf.add(mVideoSprite.getTimeSnapshot());
+    }
 }
 
 bool GstVideoNet::readAttributeFrom(const char attrid, DataBuffer& buf)
@@ -129,6 +137,10 @@ bool GstVideoNet::readAttributeFrom(const char attrid, DataBuffer& buf)
         auto volume_level = buf.read<float>();
         if (mVideoSprite.getVolume() != volume_level)
             mVideoSprite.setVolume(volume_level);
+    }
+    else if (attrid == mPosAtt) {
+        auto server_video_pos = buf.read<double>();
+        mVideoSprite.syncWithServer(server_video_pos);
     }
     else if (attrid == mStatusAtt) {
         auto status_code = buf.read<int>();

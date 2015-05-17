@@ -39,7 +39,7 @@ public:
 	 * \brief returns the approximate latency between client and server.
 	 * \note returns 0 in server mode. (Unit: seconds)
 	 */
-	float			getLatency() const;
+	double			getLatency() const;
 
 	/*!
 	 * \name setTimerFrequency
@@ -58,10 +58,12 @@ public:
 	 */
 	void			setDrawTime(bool on);
 
+    double          now() const;
+
 private:
 	using inherited	= Sprite;
 
-	float			mClientLatency	{ 0.0f };
+	double			mClientLatency	{ 0 };
     bool            mDebugDrawTime  { false };
     int             mSyncFrequency  { 5 }; // in frames
 	UpdateParams	mSyncUpdateParams;
