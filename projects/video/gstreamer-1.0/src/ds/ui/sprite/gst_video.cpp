@@ -122,6 +122,8 @@ void GstVideo::updateServer(const UpdateParams &up)
 
 void GstVideo::updateClient(const UpdateParams& up)
 {
+    mTimeSnapshot = mGstreamerWrapper->getMovieRef().getCurrentTimeInMs();
+
     inherited::updateClient(up);
 
     checkStatus();
@@ -533,32 +535,23 @@ void GstVideo::enableSynchronization()
 
 void GstVideo::syncWithServer(double server_time)
 {
-    static double EPSILON   = 50;
-    static double COEFF     = 7.5;
-    static double LAST_DIFF = 1;
+    static double TIME_EPSILON = 30;
 
     if (mGstreamerWrapper->hasTimer())
     {
-        auto frames_tick = mGstreamerWrapper->getTimerRef().getUpdateParams().getDeltaTime() * 1000.0f * COEFF;
-        
+        auto server_diff =
+            mGstreamerWrapper->getTimerRef().now()
+            - mGstreamerWrapper->getTimerRef().send_time();
+
         auto my_expected_time =
             server_time
             + mGstreamerWrapper->getTimerRef().getLatency();
 
-        auto my_current_time = mGstreamerWrapper->getMovieRef().getCurrentTimeInMs();
-        
-        auto time_diff = ci::math<double>::abs(my_current_time - my_expected_time);
+        auto time_diff = ci::math<double>::abs(mTimeSnapshot - my_expected_time);
 
-        if (time_diff > EPSILON)
+        if (time_diff > TIME_EPSILON)
         {
-            if (time_diff > LAST_DIFF)
-                COEFF -= (1 / EPSILON);
-            else
-                COEFF += (1 / EPSILON);
-
-            mGstreamerWrapper->getMovieRef().setTimePositionInMs(my_expected_time + frames_tick);
-
-            LAST_DIFF = time_diff;
+            mGstreamerWrapper->getMovieRef().setTimePositionInMs(my_expected_time + server_diff);
         }
     }
 }

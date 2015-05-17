@@ -190,6 +190,7 @@ void TimerSprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
 		 */
 		
 		mClientLatency = (now() - _packet.mSendTime);
+        mSendTime = static_cast<double>(_packet.mSendTime);
 		auto _oldServerTime = mSyncUpdateParams.getElapsedTime();
         mSyncUpdateParams.setElapsedTime(_packet.mServerTime);
 

@@ -59,11 +59,13 @@ public:
 	void			setDrawTime(bool on);
 
     double          now() const;
+    double          send_time() const { return mSendTime; }
 
 private:
 	using inherited	= Sprite;
 
 	double			mClientLatency	{ 0 };
+    double          mSendTime       { 0 };
     bool            mDebugDrawTime  { false };
     int             mSyncFrequency  { 5 }; // in frames
 	UpdateParams	mSyncUpdateParams;
