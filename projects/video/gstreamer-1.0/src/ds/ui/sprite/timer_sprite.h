@@ -42,14 +42,18 @@ public:
 	double			getLatency() const;
 
 	/*!
-	 * \name setTimerFrequency
+	 * \name TimerFrequency
 	 * \brief How frequent server should update its clients' timers? in
 	 * terms of frame numbers. (Unit: Hz)
 	 */
 	void			setTimerFrequency(int frames);
-
-    void            setTimerCallback(const std::function<void()>&);
     int             getTimerFrequency() const;
+
+    /*!
+     * \name setTimerCallback
+     * \brief a callback to be called every time server sends out packet
+     */
+    void            setTimerCallback(const std::function<void()>&);
 
 	/*!
 	 * \name setDrawTime
@@ -58,16 +62,23 @@ public:
 	 */
 	void			setDrawTime(bool on);
 
+    /*!
+     * \name now
+     * \brief similar to PHP's now() function. returns time since epoch.
+     */
     double          now() const;
-    double          send_time() const { return mSendTime; }
+
+    /*!
+	 * \name getServerSendTime
+	 * \brief The time that server sent out the time packet.
+	 */
+    double          getServerSendTime() const;
 
 private:
-	using inherited	= Sprite;
-
-	double			mClientLatency	{ 0 };
-    double          mSendTime       { 0 };
-    bool            mDebugDrawTime  { false };
-    int             mSyncFrequency  { 5 }; // in frames
+    double			mClientLatency;
+    double          mSendTime;
+    bool            mDebugDrawTime;
+    int             mSyncFrequency;
 	UpdateParams	mSyncUpdateParams;
     std::function < void() >
                     mCallbackFn;

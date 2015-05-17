@@ -68,8 +68,12 @@ namespace ui {
  * \brief: Constructor, nothing special.
  */
 TimerSprite::TimerSprite(ds::ui::SpriteEngine& eng)
-	: inherited(eng)
+    : Sprite(eng)
     , mCallbackFn(noop)
+    , mClientLatency(0)
+    , mSendTime(0)
+    , mDebugDrawTime(false)
+    , mSyncFrequency(5)
 {
 	mBlobType = BLOB_TYPE;
 	
@@ -88,7 +92,7 @@ void TimerSprite::installAsServer(ds::BlobRegistry& registry)
 {
 	BLOB_TYPE = registry.add([](ds::BlobReader& r)
 	{
-		inherited::handleBlobFromClient(r);
+        Sprite::handleBlobFromClient(r);
 	});
 }
 
@@ -100,7 +104,7 @@ void TimerSprite::installAsClient(ds::BlobRegistry& registry)
 {
 	BLOB_TYPE = registry.add([](ds::BlobReader& r)
 	{
-		inherited::handleBlobFromServer<TimerSprite>(r);
+        Sprite::handleBlobFromServer<TimerSprite>(r);
 	});
 }
 
@@ -115,15 +119,14 @@ void TimerSprite::installSprite(Engine& engine)
 */
 void TimerSprite::updateServer(const ds::UpdateParams& p)
 {
-	inherited::updateServer(p);
+    Sprite::updateServer(p);
 	
 	mSyncUpdateParams = p;
 
 	if (ci::app::getElapsedFrames() % mSyncFrequency == 0)
 	{
         markAsDirty(TIME_DIRTY);
-        //if (ci::app::getElapsedFrames() % 8 * mSyncFrequency == 0)
-            mCallbackFn();
+        mCallbackFn();
     }
 }
 
@@ -132,7 +135,7 @@ void TimerSprite::updateServer(const ds::UpdateParams& p)
 */
 void TimerSprite::drawLocalClient()
 {
-	inherited::drawLocalClient();
+    Sprite::drawLocalClient();
 	
 #if _DEBUG
 	if (mDebugDrawTime)
@@ -146,7 +149,7 @@ void TimerSprite::drawLocalClient()
 void TimerSprite::writeAttributesTo(ds::DataBuffer& buf)
 {
 	// TIME SEND IN SERVER MODE
-	inherited::writeAttributesTo(buf);
+    Sprite::writeAttributesTo(buf);
 
 	if (mDirty.has(TIME_DIRTY))
 	{
@@ -189,8 +192,8 @@ void TimerSprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
 		 * divided by two.
 		 */
 		
-		mClientLatency = (now() - _packet.mSendTime);
         mSendTime = static_cast<double>(_packet.mSendTime);
+        mClientLatency = (now() - mSendTime);
 		auto _oldServerTime = mSyncUpdateParams.getElapsedTime();
         mSyncUpdateParams.setElapsedTime(_packet.mServerTime);
 
@@ -200,7 +203,7 @@ void TimerSprite::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
 	}
 	else
 	{
-		inherited::readAttributeFrom(attributeId, buf);
+        Sprite::readAttributeFrom(attributeId, buf);
 	}
 }
 
@@ -252,6 +255,11 @@ int TimerSprite::getTimerFrequency() const
 double TimerSprite::now() const
 {
     return static_cast<double>(::now());
+}
+
+double TimerSprite::getServerSendTime() const
+{
+    return mSendTime;
 }
 
 }

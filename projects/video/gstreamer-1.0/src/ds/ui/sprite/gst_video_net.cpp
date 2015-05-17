@@ -69,7 +69,7 @@ void GstVideoNet::writeAttributesTo(const DirtyState& dirty, DataBuffer& buf)
     if (dirty.has(mPathDirty))
     {
         buf.add(mPathAtt);
-        buf.add(mVideoSprite.getLoadedVideoPath());
+        buf.add(mVideoSprite.getLoadedFilename());
     }
 
     if (dirty.has(mAutoStartDirty))
@@ -105,7 +105,7 @@ void GstVideoNet::writeAttributesTo(const DirtyState& dirty, DataBuffer& buf)
     if (dirty.has(mPosDirty))
     {
         buf.add(mPosAtt);
-        buf.add(mVideoSprite.getTimeSnapshot());
+        buf.add(mVideoSprite.getCurrentTimeMs());
     }
 }
 
@@ -115,7 +115,7 @@ bool GstVideoNet::readAttributeFrom(const char attrid, DataBuffer& buf)
 
     if (attrid == mPathAtt) {
         auto video_path = buf.read<std::string>();
-        if (mVideoSprite.getLoadedVideoPath() != video_path)
+        if (mVideoSprite.getLoadedFilename() != video_path)
             mVideoSprite.loadVideo(video_path);
     }
     else if (attrid == mAutoStartAtt) {

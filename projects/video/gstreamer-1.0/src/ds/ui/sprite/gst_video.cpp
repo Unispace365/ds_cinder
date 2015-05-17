@@ -29,12 +29,12 @@ namespace ds {
 namespace ui {
 
 /*!
- * \class Impl
+ * \class GstVideo::Impl
  * \namespace ds::ui
  * \brief Pimpl provider of GstVideo.
  * \note moved here to hide the forward declaration of GStreamerWrapper.
  */
-class Impl {
+class GstVideo::Impl {
 public:
 	Impl(GstVideo& holder)
 		: mHolder(holder)
@@ -44,7 +44,7 @@ public:
 	{}
 
 	void handleVideoComplete() {
-		mHolder.triggerVideoCompleteCallback();
+        mHolder.mVideoCompleteFn();
 	}
 
 	GStreamerWrapper& getMovieRef() {
@@ -55,16 +55,20 @@ public:
         return *mTimer;
     }
 
+    GstVideoNet& getNetHandler() {
+        return mNetHandler;
+    }
+
     void registerTimer(TimerSprite* const timer) {
         mTimer = timer;
     }
-    void removeTimer() {
-        mTimer = nullptr;
-    }
-    bool hasTimer() const { return mTimer != nullptr; }
 
-    GstVideoNet& getNetHandler() {
-        return mNetHandler;
+    void removeTimer() {
+        if (hasTimer()) mTimer->release();
+    }
+
+    bool hasTimer() const {
+        return mTimer != nullptr;
     }
 
 	~Impl() {
@@ -87,7 +91,7 @@ GstVideo& GstVideo::makeVideo(SpriteEngine& e, Sprite* parent) {
  * \class ds::ui::sprite::Video static
  */
 GstVideo::GstVideo(SpriteEngine& engine)
-	: inherited(engine)
+	: Sprite(engine)
 	, mGstreamerWrapper(std::make_shared<Impl>(*this))
 	, mLooping(false)
 	, mMuted(false)
@@ -98,6 +102,8 @@ GstVideo::GstVideo(SpriteEngine& engine)
     , mVideoCompleteFn(noop)
 	, mShouldPlay(false)
 	, mAutoStart(false)
+    , mShouldSync(false)
+    , mSyncTolerance(35) // 35 ms
     , mStatus(Status::STATUS_STOPPED)
 {
     mBlobType = GstVideoNet::mBlobType;
@@ -110,9 +116,7 @@ GstVideo::~GstVideo() {}
 
 void GstVideo::updateServer(const UpdateParams &up)
 {
-    mTimeSnapshot = mGstreamerWrapper->getMovieRef().getCurrentTimeInMs();
-
-	inherited::updateServer(up);
+    Sprite::updateServer(up);
     
     checkStatus();
     checkOutOfBounds();
@@ -122,9 +126,7 @@ void GstVideo::updateServer(const UpdateParams &up)
 
 void GstVideo::updateClient(const UpdateParams& up)
 {
-    mTimeSnapshot = mGstreamerWrapper->getMovieRef().getCurrentTimeInMs();
-
-    inherited::updateClient(up);
+    Sprite::updateClient(up);
 
     checkStatus();
     mGstreamerWrapper->getMovieRef().update();
@@ -132,6 +134,8 @@ void GstVideo::updateClient(const UpdateParams& up)
 
 void GstVideo::drawLocalClient()
 {
+    Sprite::drawLocalClient();
+
 	if (mGstreamerWrapper->getMovieRef().hasVideo()
         && mGstreamerWrapper->getMovieRef().isNewVideoFrame())
     {
@@ -149,6 +153,21 @@ void GstVideo::drawLocalClient()
     {
         ci::gl::draw(mFrameTexture);
 	}
+}
+
+void GstVideo::onChildAdded(Sprite& child)
+{
+    if (!mGstreamerWrapper->hasTimer())
+    {
+        if (auto timer = dynamic_cast<TimerSprite*>(&child))
+        {
+            mGstreamerWrapper->registerTimer(timer);
+            // every 10 frames is enough
+            mGstreamerWrapper->getTimerRef().setTimerFrequency(5);
+        }
+    }
+
+    Sprite::onChildAdded(child);
 }
 
 void GstVideo::setSize( float width, float height )
@@ -427,11 +446,6 @@ void GstVideo::setVideoCompleteCallback( const std::function<void()> &func )
 	mVideoCompleteFn = func;
 }
 
-void GstVideo::triggerVideoCompleteCallback()
-{
-	mVideoCompleteFn();
-}
-
 void GstVideo::setAutoStart( const bool doAutoStart )
 {
 	// do not check for mAutoStart == doAutoStart. There is no
@@ -505,71 +519,62 @@ const GstVideo::Status& GstVideo::getCurrentStatus() const
     return mStatus;
 }
 
-const std::string& GstVideo::getLoadedVideoPath() const
+const std::string& GstVideo::getLoadedFilename() const
 {
     return mFilename;
 }
 
 void GstVideo::writeAttributesTo(DataBuffer& buf)
 {
-    inherited::writeAttributesTo(buf);
+    Sprite::writeAttributesTo(buf);
     mGstreamerWrapper->getNetHandler().writeAttributesTo(mDirty, buf);
 }
 
 void GstVideo::readAttributeFrom(const char id, DataBuffer& buf)
 {
     if (!mGstreamerWrapper->getNetHandler().readAttributeFrom(id, buf))
-        inherited::readAttributeFrom(id, buf);
+        Sprite::readAttributeFrom(id, buf);
 }
 
-void GstVideo::enableSynchronization()
+void GstVideo::enableSynchronization(bool on /*= true*/)
 {
-    static std::once_flag _call_once;
-    std::call_once(_call_once, [this]{
-        mGstreamerWrapper->registerTimer(addChildPtr(new ds::ui::TimerSprite(mEngine)));
-        mGstreamerWrapper->getTimerRef().setTimerCallback([this]{
-            markAsDirty(mGstreamerWrapper->getNetHandler().mPosDirty);
+    if (mShouldSync == on) return;
+    mShouldSync = on;
+
+    if (mShouldSync)
+    {
+        static std::once_flag _call_once;
+        std::call_once(_call_once, [this]{
+            mGstreamerWrapper->registerTimer(addChildPtr(new ds::ui::TimerSprite(mEngine)));
+            mGstreamerWrapper->getTimerRef().setTimerCallback([this]{
+                markAsDirty(mGstreamerWrapper->getNetHandler().mPosDirty);
+            });
         });
-    });
+    }
+    else
+    {
+        mGstreamerWrapper->removeTimer();
+    }
 }
 
 void GstVideo::syncWithServer(double server_time)
 {
-    static double TIME_EPSILON = 30;
-
     if (mGstreamerWrapper->hasTimer())
     {
         auto server_diff =
             mGstreamerWrapper->getTimerRef().now()
-            - mGstreamerWrapper->getTimerRef().send_time();
+            - mGstreamerWrapper->getTimerRef().getServerSendTime();
 
         auto my_expected_time =
             server_time
             + mGstreamerWrapper->getTimerRef().getLatency();
 
-        auto time_diff = ci::math<double>::abs(mTimeSnapshot - my_expected_time);
+        auto time_diff = ci::math<double>::abs(getCurrentTimeMs() - my_expected_time);
 
-        if (time_diff > TIME_EPSILON)
+        if (time_diff > mSyncTolerance)
         {
             mGstreamerWrapper->getMovieRef().setTimePositionInMs(my_expected_time + server_diff);
         }
-    }
-}
-
-void GstVideo::onChildAdded(Sprite& child)
-{
-    if (auto timer = dynamic_cast<TimerSprite*>(&child))
-    {
-        mGstreamerWrapper->registerTimer(timer);
-        mGstreamerWrapper->getTimerRef().setTimerFrequency(7);
-    }
-}
-
-void GstVideo::onChildRemoved(Sprite& child)
-{
-    if (auto timer = dynamic_cast<TimerSprite*>(&child))
-    {
-        mGstreamerWrapper->removeTimer();
     }
 }
 
@@ -578,9 +583,10 @@ double GstVideo::getCurrentTimeMs() const
     return mGstreamerWrapper->getMovieRef().getCurrentTimeInMs();
 }
 
-double GstVideo::getTimeSnapshot() const
+void GstVideo::setSyncTolerance(double time_ms)
 {
-    return mTimeSnapshot;
+    if (mSyncTolerance == time_ms) return;
+    mSyncTolerance = time_ms;
 }
 
 GstVideo::Status::Status(int code)

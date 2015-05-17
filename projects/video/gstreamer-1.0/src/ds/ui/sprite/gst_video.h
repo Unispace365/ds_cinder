@@ -16,9 +16,24 @@ namespace ui {
  * uniquely-named class. If you want to have one playback system that you can
  * swap out easily, include "video.h" and just use the Video class.
  */
-class GstVideo : public Sprite {
+class GstVideo : public Sprite
+{
 public:
+    // Valid statuses for this player instance.
+    struct Status
+    {
+        Status(int code);
+        bool operator ==(int status) const;
+        bool operator !=(int status) const;
 
+        static const int  STATUS_STOPPED = 0;
+        static const int  STATUS_PLAYING = 1;
+        static const int  STATUS_PAUSED = 2;
+
+        int               mCode;
+    };
+
+public:
 	// Convenience for allocating a Video sprite pointer and optionally adding it
 	// to another Sprite as child.
 	static GstVideo&	makeVideo(SpriteEngine&, Sprite* parent = nullptr);
@@ -31,21 +46,8 @@ public:
 
 	// Sets the video sprite size. Internally just scales the texture
 	void				setSize( float width, float height );
-
-    void                enableSynchronization();
-    void                syncWithServer(double server_time);
 	
-protected:
-	virtual void		updateClient(const UpdateParams&) override;
-	virtual void		updateServer(const UpdateParams&) override;
-	virtual void		drawLocalClient() override;
-    void			    writeAttributesTo(DataBuffer&) override;
-    void			    readAttributeFrom(const char, DataBuffer&) override;
-    void                onChildAdded(Sprite& child) override;
-    void                onChildRemoved(Sprite& child) override;
-
-public:
-	// Loads a video from a file path.
+    // Loads a video from a file path.
 	GstVideo&			loadVideo(const std::string &filename);
 	// Loads a vodeo from a ds::Resource::Id
 	GstVideo&			loadVideo(const ds::Resource::Id& resource_id);
@@ -89,34 +91,38 @@ public:
 	void				setAutoStart(const bool doAutoStart);
 	bool				getAutoStart() const;
 
-	struct Status
-    {
-        Status(int code);
-        bool operator ==(int status) const;
-        bool operator !=(int status) const;
-
-		static const int  STATUS_STOPPED = 0;
-		static const int  STATUS_PLAYING = 1;
-		static const int  STATUS_PAUSED  = 2;
-		
-        int               mCode;
-	};
-
+    // Gets the current status of the player, in case you need if out of callback.
     const Status&       getCurrentStatus() const;
-    const std::string&  getLoadedVideoPath() const;
+    
+    // Gets the currently loaded filename (if any)
+    const std::string&  getLoadedFilename() const;
 
 	// Callback when video changes its status (play / pause / stop).
 	void				setStatusCallback(const std::function<void(const Status&)>&);
 
 	// Sets the video complete callback. It's called when video is finished.
 	void				setVideoCompleteCallback(const std::function<void()> &func);
-	// Triggers the video complete callback. Ideally you will not need to use this but this is here
-	// to give sufficient access to the Impl class without making it a 'friend' of GstVideo.
-	void				triggerVideoCompleteCallback();
 
 	// If a video is looping, will stop the video when the current loop completes.
 	void				stopAfterNextLoop();
-	
+
+    // Enables synchronizing all client instances.
+    void                enableSynchronization(bool on = true);
+
+    // Sets the error tolerance of synchronization (in ms)
+    void                setSyncTolerance(double time_ms);
+
+    // Sync call. Was not mean to be called directly. For debugging only.
+    void                syncWithServer(double server_time);
+
+protected:
+    virtual void		updateClient(const UpdateParams&) override;
+    virtual void		updateServer(const UpdateParams&) override;
+    virtual void		drawLocalClient() override;
+    virtual void		writeAttributesTo(DataBuffer&) override;
+    virtual void		readAttributeFrom(const char, DataBuffer&) override;
+    virtual void        onChildAdded(Sprite& child) override;
+
 private:
 	void				doLoadVideo(const std::string &filename);
 	void				applyMovieVolume();
@@ -126,25 +132,24 @@ private:
     void                checkStatus();
 
 private:
-    typedef Sprite              inherited;
-	std::shared_ptr<class Impl> mGstreamerWrapper;
-	ci::gl::Texture             mFrameTexture;
-	std::string                 mFilename;
-	bool                        mLooping;
-	bool                        mMuted;
-	bool                        mAutoStart;
-	bool                        mOutOfBoundsMuted;
-	float                       mVolume;
-	bool                        mShouldPlay;
-	Status                      mStatus;
-	bool                        mStatusChanged;
-    std::function<void()>       mVideoCompleteFn;
+    class Impl;
+    friend class Impl;
+	std::shared_ptr<Impl>   mGstreamerWrapper;
+	ci::gl::Texture         mFrameTexture;
+	std::string             mFilename;
+	bool                    mLooping;
+	bool                    mMuted;
+	bool                    mAutoStart;
+	bool                    mOutOfBoundsMuted;
+	float                   mVolume;
+	bool                    mShouldPlay;
+    bool                    mShouldSync;
+    double                  mSyncTolerance;
+	Status                  mStatus;
+	bool                    mStatusChanged;
+    std::function<void()>   mVideoCompleteFn;
 	std::function<void(const Status&)>
-                                mStatusFn;
-    double                      mTimeSnapshot;
-
-public:
-    double                      getTimeSnapshot() const;
+                            mStatusFn;
 };
 
 } //!namespace ui
