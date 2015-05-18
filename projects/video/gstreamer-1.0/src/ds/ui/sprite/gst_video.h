@@ -1,16 +1,10 @@
-#pragma once
 #ifndef DS_UI_SPRITE_GST_VIDEO_H_
 #define DS_UI_SPRITE_GST_VIDEO_H_
 
-#include <ds/ui/sprite/sprite.h>
-#include <string>
-#include "cinder/gl/Texture.h"
-#include "cinder/gl/Fbo.h"
-#include "ds/data/resource.h"
+#include <cinder/gl/Texture.h>
 
-namespace _2RealGStreamerWrapper {
-class GStreamerWrapper;
-}
+#include <ds/ui/sprite/sprite.h>
+#include <ds/data/resource.h>
 
 namespace ds {
 namespace ui {
@@ -22,35 +16,62 @@ namespace ui {
  * uniquely-named class. If you want to have one playback system that you can
  * swap out easily, include "video.h" and just use the Video class.
  */
-class GstVideo : public Sprite {
+class GstVideo : public Sprite
+{
 public:
+    // Valid statuses for this player instance.
+    struct Status
+    {
+        Status(int code);
+        bool operator ==(int status) const;
+        bool operator !=(int status) const;
+
+        static const int  STATUS_STOPPED = 0;
+        static const int  STATUS_PLAYING = 1;
+        static const int  STATUS_PAUSED = 2;
+
+        int               mCode;
+    };
+
+public:
+	// Convenience for allocating a Video sprite pointer and optionally adding it
+	// to another Sprite as child.
 	static GstVideo&	makeVideo(SpriteEngine&, Sprite* parent = nullptr);
+
+	// Generic constuctor. To be used with Sprite::addChilePtr(...)
 	GstVideo(SpriteEngine&);
-	~GstVideo();
 
-	void				setAlphaMode(bool isTransparent);// set this before loading a video
+	// Destructor, simply a no-op. Made virtual for polymorphisms.
+	virtual ~GstVideo();
+
+	// Sets the video sprite size. Internally just scales the texture
 	void				setSize( float width, float height );
-	virtual void		updateClient(const UpdateParams&);
-	virtual void		updateServer(const UpdateParams&);
-	void				drawLocalClient();
-
+	
+    // Loads a video from a file path.
 	GstVideo&			loadVideo(const std::string &filename);
-	GstVideo&			setResourceId(const ds::Resource::Id&);
+	// Loads a vodeo from a ds::Resource::Id
+	GstVideo&			loadVideo(const ds::Resource::Id& resource_id);
+	// Loads a vodeo from a ds::Resource
+	GstVideo&			loadVideo(const ds::Resource& resource);
+
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility
-	// with existing behaviour.
+	// with existing behavior.
 	void				unloadVideo(const bool clearFrame = false);
 
-	// Setup
+	// Looping (play again after video complete)
 	void				setLooping(const bool on);
 	bool				getIsLooping() const;
+
+	// Mutes the video
 	void				setMute(const bool on);
 	bool				getIsMuted() const;
-	// value between 0.0f and 1.0f
+	
+	// Volume control. value between 0.0f and 1.0f
 	void				setVolume(const float volume);
 	float				getVolume() const;
 
-	// Commands
+	// Playback control API
 	void				play();
 	void				stop();
 	void				pause();
@@ -59,113 +80,79 @@ public:
 	// Time operations (in seconds)
 	double				getDuration() const;
 	double				getCurrentTime() const;
+	double				getCurrentTimeMs() const;
 	void				seekTime(const double);
 
     // Position operations (in unit values, 0 - 1)
 	double				getCurrentPosition() const;
 	void				seekPosition(const double);
 
-	struct Status {
-		static const int  STATUS_STOPPED = 0;
-		static const int  STATUS_PLAYING = 1;
-		static const int  STATUS_PAUSED  = 2;
-		int               mCode;
-	};
-	void				setStatusCallback(const std::function<void(const Status&)>&);
-
-	void				setVideoCompleteCallback(const std::function<void(GstVideo* video)> &func);
-
 	// If true, will play the video as soon as it's loaded.
 	void				setAutoStart(const bool doAutoStart);
 	bool				getAutoStart() const;
 
-	// Set's the video to play, then stops the video after that frame has played.
-	// Optionally supply a function called once I've played a frame.
-	void				playAFrame(const std::function<void(GstVideo&)>& fn = nullptr);
-	bool				isPlayingAFrame() const;
+    // Gets the current status of the player, in case you need if out of callback.
+    const Status&       getCurrentStatus() const;
+    
+    // Gets the currently loaded filename (if any)
+    const std::string&  getLoadedFilename() const;
+
+	// Callback when video changes its status (play / pause / stop).
+	void				setStatusCallback(const std::function<void(const Status&)>&);
+
+	// Sets the video complete callback. It's called when video is finished.
+	void				setVideoCompleteCallback(const std::function<void()> &func);
+
 	// If a video is looping, will stop the video when the current loop completes.
 	void				stopAfterNextLoop();
-	
-	// Total hack as I begin to work in the UDP replication. When a video sprite
-	// is in server mode, it will never load or play a video, instead it becomes
-	// a passthrough to a video running somewhere on a client machine, reporting
-	// its play position etc. This would go away if we had fully sync'd, bounds-
-	// checked video.
-	void				setServerModeHack(const bool);
-	// This is a hack because it only does the check once, not continuously,
-	// so any sprites that move into or out of bound won't work.
-	// NOTE: Needs to be set BEFORE loadVideo(), that's where the check is
-	// occurring right now.
-	void				setCheckBoundsHack(const bool = false);
+
+    // Enables synchronizing all client instances.
+    void                enableSynchronization(bool on = true);
+
+    // Sets the error tolerance of synchronization (in ms)
+    void                setSyncTolerance(double time_ms);
+
+    // Sync call. Was not mean to be called directly. For debugging only.
+    void                syncWithServer(double server_time);
 
 protected:
-	virtual void		writeAttributesTo(ds::DataBuffer&);
-	virtual void		writeClientAttributesTo(ds::DataBuffer&) const;
-	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&);
-	virtual void		readClientFrom(ds::DataBuffer&);
+    virtual void		updateClient(const UpdateParams&) override;
+    virtual void		updateServer(const UpdateParams&) override;
+    virtual void		drawLocalClient() override;
+    virtual void		writeAttributesTo(DataBuffer&) override;
+    virtual void		readAttributeFrom(const char, DataBuffer&) override;
+    virtual void        onChildAdded(Sprite& child) override;
 
 private:
-	typedef Sprite		inherited;
-
-	void				doLoadVideoMeta(const std::string &filename);
 	void				doLoadVideo(const std::string &filename);
-	void				onSetFilename(const std::string&);
-	void                setStatus(const int);
-	void				setMovieVolume();
-	void				setMovieLooping();
-	void				setVideoFlag(const uint32_t, const bool on);
-	void				handleVideoComplete(_2RealGStreamerWrapper::GStreamerWrapper*);
+	void				applyMovieVolume();
+	void				applyMovieLooping();
+    void                checkOutOfBounds();
+    void                setStatus(const int);
+    void                checkStatus();
 
-	// Done this way so I can completely hide any dependencies
-	_2RealGStreamerWrapper::GStreamerWrapper*	mMoviePtr;
-	_2RealGStreamerWrapper::GStreamerWrapper&	mMovie;
-
-	ci::gl::Texture     mFrameTexture;
-	ci::gl::Fbo         mFbo;
-
-	std::string			mFilename;
-	bool				mFilenameChanged;
-	bool                mLooping;
-	// User-driven mute state
-	bool				mMuted;
-	// Cached value of autoStart (wrapper does not supply a getter)
-	bool				mAutoStart;
-	// A mute state that gets turned on automatically in certain situations
-	bool                mInternalMuted;
-	float               mVolume;
-	bool				mIsTransparent;
-	enum Cmd			{ kCmdPlay, kCmdPause, kCmdStop };
-	Cmd					mCmd;
-	void				setCmd(const Cmd);
-	bool				mDoPlay; //remember to play file if it hasn't loaded yet
-
-	Status              mStatus;
-	bool                mStatusDirty;
-
-	bool				mPlaySingleFrame;
-	std::function<void(GstVideo&)>
-						mPlaySingleFrameFn;
-
+private:
+    class Impl;
+    friend class Impl;
+	std::shared_ptr<Impl>   mGstreamerWrapper;
+	ci::gl::Texture         mFrameTexture;
+	std::string             mFilename;
+	bool                    mLooping;
+	bool                    mMuted;
+	bool                    mAutoStart;
+	bool                    mOutOfBoundsMuted;
+	float                   mVolume;
+	bool                    mShouldPlay;
+    bool                    mShouldSync;
+    double                  mSyncTolerance;
+	Status                  mStatus;
+	bool                    mStatusChanged;
+    std::function<void()>   mVideoCompleteFn;
 	std::function<void(const Status&)>
-						mStatusFn;
-	std::function<void(GstVideo*)>
-						mVideoCompleteCallback;
-
-	// Total hack as I begin to work in the UDP replication. When a video sprite
-	// is in server mode, it will never load or play a video, instead it becomes
-	// a passthrough to a video running somewhere on a client machine, reporting
-	// its play position etc.
-	bool				mServerModeHack;
-	double				mReportedCurrentPosition;
-	uint32_t			mVideoFlags;
-
-	// Initialization
-public:
-	static void			installAsServer(ds::BlobRegistry&);
-	static void			installAsClient(ds::BlobRegistry&);
+                            mStatusFn;
 };
 
-} // namespace ui
-} // namespace ds
+} //!namespace ui
+} //!namespace ds
 
-#endif // DS_UI_SPRITE_GST_VIDEO_H_
+#endif //!DS_UI_SPRITE_GST_VIDEO_H_

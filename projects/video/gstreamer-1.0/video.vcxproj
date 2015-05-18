@@ -12,12 +12,18 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\sprite\gst_video.cpp" />
+    <ClCompile Include="src\ds\ui\sprite\gst_video_net.cpp" />
+    <ClCompile Include="src\ds\ui\sprite\timer_sprite.cpp" />
+    <ClCompile Include="src\gstreamer\gstreamer_env_check.cpp" />
     <ClCompile Include="src\gstreamer\video_meta_cache.cpp" />
     <ClCompile Include="src\gstreamer\_2RealGStreamerWrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\sprite\gst_video.h" />
+    <ClInclude Include="src\ds\ui\sprite\gst_video_net.h" />
+    <ClInclude Include="src\ds\ui\sprite\timer_sprite.h" />
     <ClInclude Include="src\ds\ui\sprite\video.h" />
+    <ClInclude Include="src\gstreamer\gstreamer_env_check.h" />
     <ClInclude Include="src\gstreamer\video_meta_cache.h" />
     <ClInclude Include="src\gstreamer\_2RealGStreamerWrapper.h" />
   </ItemGroup>

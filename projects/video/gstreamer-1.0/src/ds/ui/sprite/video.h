@@ -1,4 +1,3 @@
-#pragma once
 #ifndef DS_UI_SPRITE_VIDEO_H_
 #define DS_UI_SPRITE_VIDEO_H_
 
@@ -7,13 +6,18 @@
 namespace ds {
 namespace ui {
 
-/**
- * A convenience for apps that have a single playback system and want to
- * use a generic class that might be replaced at some point.
+/*!
+ * \typedef GstVideo Video
+ *
+ * \brief A convenience for clients who wish to use ONLY GStreamer for
+ * their video requirements.
+ *
+ * \note If you are planning to use more than one video implementation
+ * make sure you include individual headers.
  */
 typedef GstVideo Video;
 
 } // namespace ui
 } // namespace ds
 
-#endif // DS_UI_SPRITE_VIDEO_H_
+#endif //!DS_UI_SPRITE_VIDEO_H_
