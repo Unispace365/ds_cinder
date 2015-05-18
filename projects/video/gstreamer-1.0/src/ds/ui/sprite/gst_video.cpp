@@ -146,7 +146,8 @@ void GstVideo::drawLocalClient()
             mGstreamerWrapper->getMovieRef().getWidth() * 4, // RGBA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
             ci::SurfaceChannelOrder::RGBA);
 		
-        mFrameTexture.update(video_surface);
+        if (video_surface.getData())
+            mFrameTexture.update(video_surface);
 	}
 
 	if (mFrameTexture)
