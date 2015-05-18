@@ -21,6 +21,7 @@ class WebLoadListener;
 class WebViewListener;
 class WebProcessListener;
 class WebDialogListener;
+class WebMenuListener;
 }
 
 namespace ui {
@@ -110,6 +111,8 @@ public:
 	void					registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
 														const std::function<void(const ds::web::ScriptTree&)>&);
 
+	void					executeJavascript(const std::string& theScript);
+
 protected:
 	virtual void			onSizeChanged();
 	virtual void			writeAttributesTo(ds::DataBuffer&);
@@ -131,6 +134,7 @@ private:
 	std::unique_ptr<ds::web::WebLoadListener>		mWebLoadListener;
 	std::unique_ptr<ds::web::WebProcessListener>	mWebProcessListener;
 	std::unique_ptr<ds::web::WebDialogListener>		mWebDialogListener;
+	std::unique_ptr<ds::web::WebMenuListener>		mWebMenuListener;
 	std::unique_ptr<ds::web::JsMethodHandler>		mJsMethodHandler;
 
 	ci::gl::Texture			mWebTexture;

@@ -129,5 +129,18 @@ WebDialogListener::~WebDialogListener(){
 
 }
 
+
+void WebMenuListener::OnShowPopupMenu(Awesomium::WebView* caller, const Awesomium::WebPopupMenuInfo& menu_info){
+ 	std::cout << "show popup! " << std::endl;
+ 	for(int i = 0; i < menu_info.items.size(); i++){
+		std::cout << "Menu item: " << str_from_webstr(menu_info.items[i].label) << std::endl;
+ 	}
+}
+
+void WebMenuListener::OnShowContextMenu(Awesomium::WebView* caller, const Awesomium::WebContextMenuInfo& menu_info){
+//	std::cout << "Context menu! " << std::endl;
+
+}
+
 } // namespace web
 } // namespace ds

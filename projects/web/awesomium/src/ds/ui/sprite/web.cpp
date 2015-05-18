@@ -186,6 +186,11 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 				mWebViewPtr->set_process_listener(mWebProcessListener.get());
 			}
 
+			mWebMenuListener = std::move(std::unique_ptr<ds::web::WebMenuListener>(new ds::web::WebMenuListener));
+			if(mWebMenuListener){
+				mWebViewPtr->set_menu_listener(mWebMenuListener.get());
+			}
+
 			mWebViewPtr->SetTransparent(true);
 		}
 	}
@@ -204,6 +209,7 @@ Web::~Web() {
 		mWebViewPtr->set_js_method_handler(nullptr);
 		mWebViewPtr->set_load_listener(nullptr);
 		mWebViewPtr->set_view_listener(nullptr);
+		mWebViewPtr->set_menu_listener(nullptr);
 		mWebViewPtr->Stop();
 		mWebViewPtr->Destroy();
 	}
@@ -523,6 +529,8 @@ ci::Vec2f Web::getDocumentScroll() {
 	return get_document_scroll(*mWebViewPtr);
 }
 
+#include "private/script_translator.h"
+
 ds::web::ScriptTree Web::runJavaScript(	const std::string& object_utf8, const std::string& function_utf8,
 										const ds::web::ScriptTree& args) {
 	if (!mWebViewPtr) return ds::web::ScriptTree();
@@ -536,6 +544,13 @@ ds::web::ScriptTree Web::runJavaScript(	const std::string& object_utf8, const st
 		return ds::web::tree_from_jsvalue(ans);
 	}
 	return ds::web::ScriptTree();
+}
+
+void Web::executeJavascript(const std::string& theScript){
+
+	Awesomium::WebString		object_ws(Awesomium::WebString::CreateFromUTF8(theScript.c_str(), theScript.size()));
+	Awesomium::JSValue			object = mWebViewPtr->ExecuteJavascriptWithResult(object_ws, Awesomium::WebString());
+	std::cout << "Object return: " << ds::web::str_from_webstr(object.ToString()) << std::endl;
 }
 
 void Web::registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
