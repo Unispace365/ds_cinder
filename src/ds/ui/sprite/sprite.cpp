@@ -537,7 +537,7 @@ void Sprite::removeChild( Sprite &child ){
 	onChildRemoved(child);
 	
 	auto found = std::find(mChildren.begin(), mChildren.end(), &child);
-	mChildren.erase(found);
+	if(found != mChildren.end()) mChildren.erase(found);
 	if (child.getParent() == this) {
 	  child.setParent(nullptr);
 	  child.setPerspective(false);
