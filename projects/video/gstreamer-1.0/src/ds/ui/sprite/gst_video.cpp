@@ -4,6 +4,7 @@
 
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/data/resource_list.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 
@@ -11,8 +12,9 @@
 #include "gstreamer/gstreamer_env_check.h"
 #include "gstreamer/video_meta_cache.h"
 
+#include <cinder/gl/Fbo.h>
+
 #include <mutex>
-#include "ds/app/engine/engine.h"
 
 using namespace ci;
 using namespace _2RealGStreamerWrapper;
@@ -23,7 +25,14 @@ ds::ui::VideoMetaCache          CACHE("gstreamer");
 const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
 template<typename T> void       noop(T) { /* no op */ };
 void                            noop()  { /* no op */ };
-} //!anonymous namespace
+inline void                     cleanTex(const ci::gl::Texture& tex) {
+    ci::gl::Fbo fbo(tex.getWidth(), tex.getHeight());
+    fbo.bindFramebuffer();
+    fbo.bindTexture(tex.getId());
+    ci::gl::clear(ci::Color::black());
+    fbo.unbindTexture();
+    fbo.unbindFramebuffer();
+}} //!anonymous namespace
 
 namespace ds {
 namespace ui {
@@ -103,13 +112,17 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mShouldPlay(false)
 	, mAutoStart(false)
     , mShouldSync(false)
+    , mFilename("")
     , mSyncTolerance(35) // 35 ms
     , mStatus(Status::STATUS_STOPPED)
+    , mFrameTexture(10, 10)
 {
     mBlobType = GstVideoNet::mBlobType;
 
 	setUseShaderTextuer(true);
     setTransparent(false);
+
+    cleanTex(mFrameTexture);
 }
 
 GstVideo::~GstVideo() {}
@@ -392,6 +405,8 @@ void GstVideo::doLoadVideo(const std::string &filename)
         ci::gl::Texture::Format fmt;
         fmt.setInternalFormat(GL_RGBA);
         mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+
+        cleanTex(mFrameTexture);
 
         mFilename = filename;
     }
