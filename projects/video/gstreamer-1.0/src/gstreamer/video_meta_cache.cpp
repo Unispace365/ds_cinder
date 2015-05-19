@@ -17,8 +17,6 @@
 #include <ds/app/environment.h>
 #include <ds/util/string_util.h>
 
-//#include "gstreamer/_2RealGStreamerWrapper.h"
-
 #include "ds/ui/sprite/video.h"
 
 namespace ds {
@@ -103,11 +101,6 @@ bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int&
 	}
 
 	try {
-		//_2RealGStreamerWrapper::GStreamerWrapper	movie;
-		//movie.open(videoPath, true, false, false, -1, -1);
-		//int		width = movie.getWidth();
-		//int		height = movie.getHeight();
-
 		int width(0), height(0), valid(0);
 		Type	t = VIDEO_TYPE;
 		float duration(0.0f);

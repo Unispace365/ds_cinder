@@ -50,9 +50,9 @@ public:
 	// Loads a video from a file path.
 	GstVideo&			loadVideo(const std::string &filename);
 	// Loads a vodeo from a ds::Resource::Id
-	GstVideo&			loadVideo(const ds::Resource::Id& resource_id);
+	GstVideo&			setResourceId(const ds::Resource::Id& resource_id);
 	// Loads a vodeo from a ds::Resource
-	GstVideo&			loadVideo(const ds::Resource& resource);
+	GstVideo&			setResource(const ds::Resource& resource);
 
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility

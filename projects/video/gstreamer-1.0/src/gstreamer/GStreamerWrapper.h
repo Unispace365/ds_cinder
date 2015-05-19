@@ -50,14 +50,6 @@
 
 #pragma once
 
-// us this for threaded message handling so you don't need update, but it needs a dependency for boost threads...
-//#define THREADED_MESSAGE_HANDLER
-
-#ifdef THREADED_MESSAGE_HANDLER
-	#include <boost/thread.hpp>
-	#include <glib.h>
-#endif
-
 #include <gstreamer-1.0/gst/gst.h>
 #include <gstreamer-1.0/gst/gstbin.h>
 #include <gstreamer-1.0/gst/app/gstappsink.h>
@@ -67,8 +59,7 @@
 #include <string>
 #include <functional>
 
-namespace _2RealGStreamerWrapper
-{
+namespace gstwrapper{
 	/*
 		enum PlayState
 
@@ -96,8 +87,7 @@ namespace _2RealGStreamerWrapper
 
 		Enumeration to describe the play direction of the loaded file
 	*/
-	enum PlayDirection
-	{
+	enum PlayDirection {
 		FORWARD = 1,
 		BACKWARD = -1
 	};
@@ -110,8 +100,7 @@ namespace _2RealGStreamerWrapper
 		LOOP --> seek back to the start of the file and play again
 		BIDIRECTIONAL_LOOP --> play the file again from the position where the stream ended and change the play direction
 	*/
-	enum LoopMode
-	{
+	enum LoopMode {
 		NO_LOOP,
 		LOOP,
 		BIDIRECTIONAL_LOOP
@@ -125,8 +114,7 @@ namespace _2RealGStreamerWrapper
 		VIDEO --> loaded file contains at least one video stream but no audio streams
 		AUDIO --> loaded file contains at least one audio stream but no video streams
 	*/
-	enum ContentType
-	{
+	enum ContentType {
 		NONE,
 		VIDEO_AND_AUDIO,
 		VIDEO,
@@ -138,18 +126,13 @@ namespace _2RealGStreamerWrapper
 
 		Enumeration to describe the byte order (big endian = 4321 / little endian = 1234) of either video or audio stream
 	*/
-	#ifdef LINUX    //NOTE: I don't really like this here but it's necessary. Go here if you have probs with constants defs (ottona)
-        #undef BIG_ENDIAN
-        #undef LITTLE_ENDIAN
-    #endif
-	enum Endianness
-	{
+	enum Endianness {
 		BIG_ENDIAN = 4321,
 		LITTLE_ENDIAN = 1234
 	};
 
 	/*
-		class _2RealGStreamerWrapper
+		class GStreamerWrapper
 
 		Class that provides the functionality to open any kind of media file (movie and sound files) and the possibility to interact with the file
 		(play, stop, pause, seek, playing speed / direction, loop modes). Furthermore the user has direct access to both the video and audio buffers
@@ -158,33 +141,12 @@ namespace _2RealGStreamerWrapper
 
 		This Wrapper is based on the GStreamer library, which means all the decoding and synchronization of the media files is done internally by that library.
 	*/
-	class GStreamerWrapper
-	{
+	class GStreamerWrapper	{
 	public:
 		/*
 			Constructor that initializes GStreamer
 		*/
 		GStreamerWrapper();
-
-		/*
-			Constructor that initializes GStreamer and automatically opens the file provided by the string parameter.
-			Sets the wrapper's PlayState to OPENED
-
-			params:
-			@strFilename: The filepath to the desired file; Note: It has to be in a URI format, means it always begins with
-			"file:/" or "file:///" and only contains absolute paths, relative paths do not work
-			example: "file:/C:/MyFolder/myFile.mp4" or "file:///C:/MyFolder/myFile.mp4"
-
-			@generateVideoBuffer: If true, the user can manually retrieve the video buffer via the getVideo() method. If false, no
-			video buffer will be generated which means getVideo() will return NULL. Instead, GStreamer will open a new video player window
-			by itself and will render the video inside that new window while automatically choosing the appropriate video codec
-
-			@generateAudioBuffer: If true, the user can manually retrieve the audio buffer via the getAudio() method. If false, no
-			audio buffer will be generated which means getAudio() will return NULL. Instead, GStreamer will choose an appropriate
-			audio codec of the operating system and play the sound synchronized to the video (or just play the sound if there is no video
-			data)
-		*/
-	//	GStreamerWrapper( std::string strFilename, bool bGenerateVideoBuffer = true, bool bGenerateAudioBuffer = true );
 
 		/*
 			Destructor which closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
@@ -209,8 +171,9 @@ namespace _2RealGStreamerWrapper
 			data)
 
 			@ transparent: If true, will set the bits per pixel to 32 and generate alpha values, even if the source video doesn't have them (all opaque in that case).
-			@ 
-			@ videoWidth: Only applies to non-transparent videos! If greater than 0, this will enforce mod-4 widths for the video for the gstreamer capabilities, making some codecs play correctly for non-divisible-by-4 video widths
+			 
+			@ videoWidth: Specify the size of the video. Required before creating a pipeline
+			@ videoHeight: Specify the size of the video. Required before creating a pipeline
 		*/
 		bool					open( std::string strFilename, bool bGenerateVideoBuffer, bool bGenerateAudioBuffer, bool isTransparent, int videoWidth, int videoHeight);
 
@@ -241,13 +204,6 @@ namespace _2RealGStreamerWrapper
 			Sets the wrapper's PlayState to PAUSED
 		*/
 		void					pause();
-
-		////////////////////////////////////////////////////////////////////////// VIDEO
-
-		/*
-			Prints information on the opened media file (number of streams, video size, audio channels, audio sample rate and so on)
-		*/
-		void					printMediaFileInfo();
 
 		/*
 			Sets the current video stream
@@ -458,7 +414,7 @@ namespace _2RealGStreamerWrapper
 		*/
 		ContentType				getContentType();
 
-		////////////////////////////////////////////////////////////////////////// AUDIO
+		//  ------------------------------------  AUDIO -------------------------------- //
 
 		/*
 			Sets the Pipeline volume
@@ -516,6 +472,10 @@ namespace _2RealGStreamerWrapper
 		*/
 		Endianness				getAudioEndianness();
 
+
+		/*
+			Lamda is called when GStreamer gets an EOS message (not called when looping)
+		*/
 		void					setVideoCompleteCallback(const std::function<void(GStreamerWrapper* video)> &func);
 
 		/*
@@ -560,17 +520,6 @@ namespace _2RealGStreamerWrapper
 			detecting if a stream has reached the end
 		*/
 		void					handleGStMessage();
-
-
-		/*
-			GStreamer callback method that is called when the end of the video stream has been reached
-		*/
-		static void				onEosFromVideoSource( GstAppSink* appsink, void* listener );
-
-		/*
-			GStreamer callback method that is called when the end of the audio stream has been reached
-		*/
-		static void				onEosFromAudioSource( GstAppSink* appsink, void* listener );
 
 		/*
 			GStreamer callback method that is called when the Pipeline is set to a paused state. Through the appsink
@@ -638,12 +587,6 @@ namespace _2RealGStreamerWrapper
 		*/
 		void					newVideoSinkBufferCallback( GstSample* videoSinkBuffer );
 
-		/*
-			Non-static method that is called inside "onEosVideoSource()" in order to handle
-			member variables that are non-static
-		*/
-		void					videoEosCallback();
-
 
 		/*
 			Non-static method that is called inside "onNewPrerollFromAudioSource()" in order to handle
@@ -664,12 +607,10 @@ namespace _2RealGStreamerWrapper
 		*/
 		void					newAudioSinkBufferCallback( GstSample* audioSinkBuffer );
 
-		/*
-			Non-static method that is called inside "onEosAudioSource()" in order to handle
-			member variables that are non-static
-		*/
-		void					audioEosCallback();
-
+		// Getting app callbacks for new sinks requires registereing EOS callbacks.
+		// However, we handle EoS events from the message bus, so these don't do anything, but don't delete them.
+		static void				onEosFromVideoSource(GstAppSink* appsink, void* listener);
+	 	static void				onEosFromAudioSource(GstAppSink* appsink, void* listener);
 
 		bool					m_bFileIsOpen; /* Flag that tracks if a file has been opened or not */
 		bool					m_bIsAudioSigned; /* Flag that tracks if the audio buffer is signed or not */
@@ -721,10 +662,6 @@ namespace _2RealGStreamerWrapper
 
 		gint64					m_PendingSeekTime;
 		bool					m_PendingSeek;
-#ifdef THREADED_MESSAGE_HANDLER
-		friend					void threadedMessageHandler(GStreamerWrapper* obj); /* need for accessing private stuff in the threaded global function */
-		boost::thread			m_MsgHandlingThread;
-		GMainLoop*				m_GMainLoop;
-#endif
+
 	};
 };

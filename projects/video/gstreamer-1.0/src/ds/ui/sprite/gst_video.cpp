@@ -8,7 +8,7 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 
-#include "gstreamer/_2RealGStreamerWrapper.h"
+#include "gstreamer/GStreamerWrapper.h"
 #include "gstreamer/gstreamer_env_check.h"
 #include "gstreamer/video_meta_cache.h"
 
@@ -17,7 +17,7 @@
 #include <mutex>
 
 using namespace ci;
-using namespace _2RealGStreamerWrapper;
+using namespace gstwrapper;
 
 namespace {
 	static ds::gstreamer::EnvCheck  ENV_CHECK;
@@ -73,7 +73,6 @@ public:
 	}
 
 	~Impl() {
-		mMoviePtr->stop();
 		mMoviePtr->close();
 	}
 
@@ -140,7 +139,6 @@ void GstVideo::updateClient(const UpdateParams& up)
 
 void GstVideo::drawLocalClient()
 {
-	//Sprite::drawLocalClient();
 
 	if(mGstreamerWrapper->getMovieRef().hasVideo()
 	   && mGstreamerWrapper->getMovieRef().isNewVideoFrame())
@@ -154,7 +152,7 @@ void GstVideo::drawLocalClient()
 				mVideoSize.x,
 				mVideoSize.y,
 				mVideoSize.x * 4, // RGBA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
-				ci::SurfaceChannelOrder::RGBA);
+				ci::SurfaceChannelOrder::BGRA);
 
 			if(video_surface.getData()){
 				mFrameTexture.update(video_surface);
@@ -173,7 +171,6 @@ void GstVideo::drawLocalClient()
 	if(mFrameTexture && mDrawable){
 		if(getPerspective()){
 			mFrameTexture.setFlipped(true);
-			//ci::gl::draw(mFrameTexture, ci::Rectf(0.0f, static_cast<float>(mFrameTexture.getHeight()), static_cast<float>(mFrameTexture.getWidth()), 0.0f));
 		} 
 			
 		ci::gl::draw(mFrameTexture);
@@ -220,14 +217,14 @@ GstVideo& GstVideo::loadVideo(const std::string& filename)
 	return *this;
 }
 
-GstVideo &GstVideo::loadVideo(const ds::Resource::Id &resourceId)
+GstVideo &GstVideo::setResourceId(const ds::Resource::Id &resourceId)
 {
 	try
 	{
 		ds::Resource res;
 		if (mEngine.getResources().get(resourceId, res))
 		{
-			loadVideo(res);
+			setResource(res);
 		}
 	}
 	catch (const std::exception& ex)
@@ -238,7 +235,7 @@ GstVideo &GstVideo::loadVideo(const ds::Resource::Id &resourceId)
 	return *this;
 }
 
-GstVideo& GstVideo::loadVideo(const ds::Resource& resource)
+GstVideo& GstVideo::setResource(const ds::Resource& resource)
 {
 	Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
 	loadVideo(resource.getAbsoluteFilePath());
