@@ -19,19 +19,19 @@ namespace ui {
 class GstVideo : public Sprite
 {
 public:
-    // Valid statuses for this player instance.
-    struct Status
-    {
-        Status(int code);
-        bool operator ==(int status) const;
-        bool operator !=(int status) const;
+	// Valid statuses for this player instance.
+	struct Status
+	{
+		Status(int code);
+		bool operator ==(int status) const;
+		bool operator !=(int status) const;
 
-        static const int  STATUS_STOPPED = 0;
-        static const int  STATUS_PLAYING = 1;
-        static const int  STATUS_PAUSED = 2;
+		static const int	STATUS_STOPPED = 0;
+		static const int	STATUS_PLAYING = 1;
+		static const int	STATUS_PAUSED = 2;
 
-        int               mCode;
-    };
+		int					 mCode;
+	};
 
 public:
 	// Convenience for allocating a Video sprite pointer and optionally adding it
@@ -47,7 +47,7 @@ public:
 	// Sets the video sprite size. Internally just scales the texture
 	void				setSize( float width, float height );
 	
-    // Loads a video from a file path.
+	// Loads a video from a file path.
 	GstVideo&			loadVideo(const std::string &filename);
 	// Loads a vodeo from a ds::Resource::Id
 	GstVideo&			loadVideo(const ds::Resource::Id& resource_id);
@@ -83,7 +83,7 @@ public:
 	double				getCurrentTimeMs() const;
 	void				seekTime(const double);
 
-    // Position operations (in unit values, 0 - 1)
+	// Position operations (in unit values, 0 - 1)
 	double				getCurrentPosition() const;
 	void				seekPosition(const double);
 
@@ -91,11 +91,11 @@ public:
 	void				setAutoStart(const bool doAutoStart);
 	bool				getAutoStart() const;
 
-    // Gets the current status of the player, in case you need if out of callback.
-    const Status&       getCurrentStatus() const;
-    
-    // Gets the currently loaded filename (if any)
-    const std::string&  getLoadedFilename() const;
+	// Gets the current status of the player, in case you need if out of callback.
+	const Status&	 getCurrentStatus() const;
+	
+	// Gets the currently loaded filename (if any)
+	const std::string&getLoadedFilename() const;
 
 	// Callback when video changes its status (play / pause / stop).
 	void				setStatusCallback(const std::function<void(const Status&)>&);
@@ -106,50 +106,66 @@ public:
 	// If a video is looping, will stop the video when the current loop completes.
 	void				stopAfterNextLoop();
 
-    // Enables synchronizing all client instances.
-    void                enableSynchronization(bool on = true);
+	// Enables synchronizing all client instances.
+	void				enableSynchronization(bool on = true);
 
-    // Sets the error tolerance of synchronization (in ms)
-    void                setSyncTolerance(double time_ms);
+	// Sets the error tolerance of synchronization (in ms)
+	void				setSyncTolerance(double time_ms);
 
-    // Sync call. Was not mean to be called directly. For debugging only.
-    void                syncWithServer(double server_time);
+	// Sync call. Was not mean to be called directly. For debugging only.
+	void				syncWithServer(double server_time);
+
+	// Play a single frame, then stop. Useful to show a thumbnail-like frame, or to keep a video in the background, but visible
+	// Optional: Supply the time in ms to display
+	// Optional: Supply a function called once that frame has been displayed (to unload the video, or animate or whatever)
+	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr);
+	bool				isPlayingAFrame() const;
+
+	virtual void		updateClient(const UpdateParams&) override;
+	virtual void		updateServer(const UpdateParams&) override;
 
 protected:
-    virtual void		updateClient(const UpdateParams&) override;
-    virtual void		updateServer(const UpdateParams&) override;
-    virtual void		drawLocalClient() override;
-    virtual void		writeAttributesTo(DataBuffer&) override;
-    virtual void		readAttributeFrom(const char, DataBuffer&) override;
-    virtual void        onChildAdded(Sprite& child) override;
+	virtual void		drawLocalClient() override;
+	virtual void		writeAttributesTo(DataBuffer&) override;
+	virtual void		readAttributeFrom(const char, DataBuffer&) override;
+	virtual void		onChildAdded(Sprite& child) override;
 
 private:
 	void				doLoadVideo(const std::string &filename);
 	void				applyMovieVolume();
 	void				applyMovieLooping();
-    void                checkOutOfBounds();
-    void                setStatus(const int);
-    void                checkStatus();
+	void				checkOutOfBounds();
+	void				setStatus(const int);
+	void				checkStatus();
 
 private:
-    class Impl;
-    friend class Impl;
-	std::shared_ptr<Impl>   mGstreamerWrapper;
-	ci::gl::Texture         mFrameTexture;
-	std::string             mFilename;
-	bool                    mLooping;
-	bool                    mMuted;
-	bool                    mAutoStart;
-	bool                    mOutOfBoundsMuted;
-	float                   mVolume;
-	bool                    mShouldPlay;
-    bool                    mShouldSync;
-    double                  mSyncTolerance;
-	Status                  mStatus;
-	bool                    mStatusChanged;
-    std::function<void()>   mVideoCompleteFn;
+	class Impl;
+	friend class Impl;
+	std::shared_ptr<Impl>	mGstreamerWrapper;
+	ci::gl::Texture			mFrameTexture;
+	ci::Vec2i				mVideoSize;
+	std::string				mFilename;
+	bool					mLooping;
+	bool					mMuted;
+	bool					mAutoStart;
+	bool					mOutOfBoundsMuted;
+	float					mVolume;
+	bool					mShouldPlay;
+	bool					mShouldSync;
+
+	// There is actual video data ready to be drawn
+	bool					mDrawable;
+	
+	// Playing a single frame, then stopping.
+	bool					mPlaySingleFrame;
+	std::function<void()>	mPlaySingleFrameFunction;
+
+	double					mSyncTolerance;
+	Status					mStatus;
+	bool					mStatusChanged;
+	std::function<void()>	mVideoCompleteFn;
 	std::function<void(const Status&)>
-                            mStatusFn;
+							mStatusFn;
 };
 
 } //!namespace ui
