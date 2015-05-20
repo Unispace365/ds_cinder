@@ -155,10 +155,10 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	// Extract and Config Video Sink
 	if ( bGenerateVideoBuffer ){
 		// Create the video appsink and configure it
-		m_GstVideoSink = gst_element_factory_make( "appsink", "videosink" );
+		m_GstVideoSink = gst_element_factory_make("appsink", "videosink");
 
 		//gst_base_sink_set_sync( GST_BASE_SINK( m_GstVideoSink ), true );
-		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 8 );
+		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 2 );
 		gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
 		gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
 		gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), 20000000); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
@@ -645,6 +645,7 @@ void GStreamerWrapper::retrieveVideoInfo(){
 	}
 }
 
+#include "gst/net/gstnettimeprovider.h"
 void GStreamerWrapper::handleGStMessage(){
 	if ( m_GstBus )	{
 
@@ -715,6 +716,8 @@ void GStreamerWrapper::handleGStMessage(){
 				break;
 
 				case GST_MESSAGE_NEW_CLOCK :{
+				// For example on net sync: http://noraisin.net/diary/?p=954
+
 					//GstClock* clock = gst_net_client_clock_new("new", "127.0.0.1", 6767, 0);
 					//gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
 				}
@@ -814,20 +817,20 @@ GstFlowReturn GStreamerWrapper::onNewPrerollFromAudioSource( GstAppSink* appsink
 }
 
 GstFlowReturn GStreamerWrapper::onNewBufferFromVideoSource( GstAppSink* appsink, void* listener ){
-	Poco::Timestamp::TimeVal pre = Poco::Timestamp().epochMicroseconds();
+	//Poco::Timestamp::TimeVal pre = Poco::Timestamp().epochMicroseconds();
 	
 	GstSample* gstVideoSinkBuffer = gst_app_sink_pull_sample( GST_APP_SINK( appsink ) );
 
-	Poco::Timestamp::TimeVal mid = Poco::Timestamp().epochMicroseconds();
+	//Poco::Timestamp::TimeVal mid = Poco::Timestamp().epochMicroseconds();
 	
 	( ( GStreamerWrapper * )listener )->newVideoSinkBufferCallback( gstVideoSinkBuffer );
 
-	Poco::Timestamp::TimeVal copied = Poco::Timestamp().epochMicroseconds();
+	//Poco::Timestamp::TimeVal copied = Poco::Timestamp().epochMicroseconds();
 	
 	gst_sample_unref( gstVideoSinkBuffer );
 
-	Poco::Timestamp::TimeVal post = Poco::Timestamp().epochMicroseconds();
-	std::cout <<  "mid: " << (float)(mid - pre) / 1000000.0f << " copied: " << (float)(copied - mid) / 1000000.0f << " post: " << (float)(post - copied) / 1000000.0f << std::endl;
+// 	Poco::Timestamp::TimeVal post = Poco::Timestamp().epochMicroseconds();
+// 	std::cout <<  "mid: " << (float)(mid - pre) / 1000000.0f << " copied: " << (float)(copied - mid) / 1000000.0f << " post: " << (float)(post - copied) / 1000000.0f << std::endl;
 
 	return GST_FLOW_OK;
 }

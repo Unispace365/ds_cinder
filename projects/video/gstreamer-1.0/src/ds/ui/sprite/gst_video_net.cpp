@@ -139,8 +139,8 @@ bool GstVideoNet::readAttributeFrom(const char attrid, DataBuffer& buf)
             mVideoSprite.setVolume(volume_level);
     }
     else if (attrid == mPosAtt) {
-        auto server_video_pos = buf.read<double>();
-        mVideoSprite.syncWithServer(server_video_pos);
+//         auto server_video_pos = buf.read<double>();
+//         mVideoSprite.syncWithServer(server_video_pos);
     }
     else if (attrid == mStatusAtt) {
         auto status_code = buf.read<int>();

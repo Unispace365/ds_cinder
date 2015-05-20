@@ -5,6 +5,11 @@
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/data/resource.h>
+#include "gst_video_net.h"
+
+namespace gstwrapper {
+	class GStreamerWrapper;
+}
 
 namespace ds {
 namespace ui {
@@ -106,15 +111,6 @@ public:
 	// If a video is looping, will stop the video when the current loop completes.
 	void				stopAfterNextLoop();
 
-	// Enables synchronizing all client instances.
-	void				enableSynchronization(bool on = true);
-
-	// Sets the error tolerance of synchronization (in ms)
-	void				setSyncTolerance(double time_ms);
-
-	// Sync call. Was not mean to be called directly. For debugging only.
-	void				syncWithServer(double server_time);
-
 	// Play a single frame, then stop. Useful to show a thumbnail-like frame, or to keep a video in the background, but visible
 	// Optional: Supply the time in ms to display
 	// Optional: Supply a function called once that frame has been displayed (to unload the video, or animate or whatever)
@@ -128,7 +124,6 @@ protected:
 	virtual void		drawLocalClient() override;
 	virtual void		writeAttributesTo(DataBuffer&) override;
 	virtual void		readAttributeFrom(const char, DataBuffer&) override;
-	virtual void		onChildAdded(Sprite& child) override;
 
 private:
 	void				doLoadVideo(const std::string &filename);
@@ -139,9 +134,10 @@ private:
 	void				checkStatus();
 
 private:
-	class Impl;
-	friend class Impl;
-	std::shared_ptr<Impl>	mGstreamerWrapper;
+
+	GstVideoNet							mNetHandler;
+	gstwrapper::GStreamerWrapper*		mGstreamerWrapper;
+
 	ci::gl::Texture			mFrameTexture;
 	ci::Vec2i				mVideoSize;
 	std::string				mFilename;
@@ -160,7 +156,6 @@ private:
 	bool					mPlaySingleFrame;
 	std::function<void()>	mPlaySingleFrameFunction;
 
-	double					mSyncTolerance;
 	Status					mStatus;
 	bool					mStatusChanged;
 	std::function<void()>	mVideoCompleteFn;
