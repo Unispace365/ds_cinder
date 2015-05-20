@@ -54,6 +54,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mDrawable(false)
 	, mVideoSize(0, 0)
 	, mNetHandler(*this)
+	, mAutoExtendIdle(false)
 {
 	mBlobType = GstVideoNet::mBlobType;
 
@@ -68,31 +69,32 @@ GstVideo::~GstVideo() {
 	}
 }
 
-void GstVideo::updateServer(const UpdateParams &up)
-{
+void GstVideo::updateServer(const UpdateParams &up){
 	Sprite::updateServer(up);
-	
+
+	mGstreamerWrapper->update();
+
 	checkStatus();
 	checkOutOfBounds();
 
-	mGstreamerWrapper->update();
+	if(mAutoExtendIdle && mStatus == Status::STATUS_PLAYING){
+		mEngine.resetIdleTimeOut();
+	}
 }
 
-void GstVideo::updateClient(const UpdateParams& up)
-{
+void GstVideo::updateClient(const UpdateParams& up){
 	Sprite::updateClient(up);
 
-	checkStatus();
 	mGstreamerWrapper->update();
+
+	checkStatus();
 }
 
-void GstVideo::drawLocalClient()
-{
+void GstVideo::drawLocalClient(){
 	if(!mGstreamerWrapper) return;
 
-	if(mGstreamerWrapper->hasVideo()
-	   && mGstreamerWrapper->isNewVideoFrame())
-	{
+	if(mGstreamerWrapper->hasVideo() && mGstreamerWrapper->isNewVideoFrame()){
+
 		if(mGstreamerWrapper->getWidth() != mVideoSize.x){
 			DS_LOG_WARNING_M("Different sizes detected for video and texture. Do not change the size of a video sprite, use setScale to enlarge. Widths: " << getWidth() << " " << mGstreamerWrapper->getWidth(), GSTREAMER_LOG);
 			unloadVideo();
@@ -127,22 +129,18 @@ void GstVideo::drawLocalClient()
 	}
 }
 
-void GstVideo::setSize( float width, float height )
-{
+void GstVideo::setSize( float width, float height ){
 	setScale( width / getWidth(), height / getHeight() );
 }
 
-GstVideo& GstVideo::loadVideo(const std::string& filename)
-{
-	if (mFilename == filename)
-	{
+GstVideo& GstVideo::loadVideo(const std::string& filename){
+	if (mFilename == filename){
 		return *this;
 	}
 
 	const std::string _filename(ds::Environment::expand(filename));
 
-	if (_filename.empty())
-	{
+	if (_filename.empty()){
 		DS_LOG_WARNING_M("GstVideo::loadVideo recieved a blank filename. Cancelling load.", GSTREAMER_LOG);
 		return *this;
 	}
@@ -152,57 +150,46 @@ GstVideo& GstVideo::loadVideo(const std::string& filename)
 	return *this;
 }
 
-GstVideo &GstVideo::setResourceId(const ds::Resource::Id &resourceId)
-{
-	try
-	{
+GstVideo &GstVideo::setResourceId(const ds::Resource::Id &resourceId){
+	try	{
 		ds::Resource res;
-		if (mEngine.getResources().get(resourceId, res))
-		{
+		if (mEngine.getResources().get(resourceId, res)){
 			setResource(res);
 		}
-	}
-	catch (const std::exception& ex)
-	{
+	} catch (const std::exception& ex)	{
 		DS_LOG_WARNING_M("GstVideo::loadVideo() ex=" << ex.what(), GSTREAMER_LOG);
 	}
 
 	return *this;
 }
 
-GstVideo& GstVideo::setResource(const ds::Resource& resource)
-{
+GstVideo& GstVideo::setResource(const ds::Resource& resource){
 	Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
 	loadVideo(resource.getAbsoluteFilePath());
 	return *this;
 }
 
-void GstVideo::setLooping(const bool on)
-{
+void GstVideo::setLooping(const bool on){
 	mLooping = on;
 	applyMovieLooping();
 	markAsDirty(mNetHandler.mLoopingDirty);
 }
 
-bool GstVideo::getIsLooping() const
-{
+bool GstVideo::getIsLooping() const {
 	return mLooping;
 }
 		
-void GstVideo::setMute( const bool doMute )
-{
+void GstVideo::setMute( const bool doMute ){
 	mMuted = doMute;
 	applyMovieVolume();
 	markAsDirty(mNetHandler.mMuteDirty);
 }
 
-bool GstVideo::getIsMuted() const
-{
+bool GstVideo::getIsMuted() const {
 	return mMuted;
 }
 
-void GstVideo::setVolume(const float volume)
-{
+void GstVideo::setVolume(const float volume) {
 	if (mVolume == volume) return;
 
 	mVolume = volume;
@@ -211,88 +198,71 @@ void GstVideo::setVolume(const float volume)
 	markAsDirty(mNetHandler.mVolumeDirty);
 }
 
-float GstVideo::getVolume() const
-{
+float GstVideo::getVolume() const {
 	return mVolume;
 }
 
-void GstVideo::play()
-{
+void GstVideo::play(){
 	mGstreamerWrapper->play();
 
 	//If movie not yet loaded, remember to play it later once it has
-	if (!mGstreamerWrapper->hasVideo())
-	{
+	if (!mGstreamerWrapper->hasVideo()){
 		mShouldPlay = true;
 	}
 
 	markAsDirty(mNetHandler.mStatusDirty);
 }
 
-void GstVideo::stop()
-{
+void GstVideo::stop(){
 	mShouldPlay = false;
 	mGstreamerWrapper->stop();
 	markAsDirty(mNetHandler.mStatusDirty);
 }
 
-void GstVideo::pause()
-{
+void GstVideo::pause(){
 	mShouldPlay = false;
 	mGstreamerWrapper->pause();
 	markAsDirty(mNetHandler.mStatusDirty);
 }
 
-bool GstVideo::getIsPlaying() const
-{
-	if (mGstreamerWrapper->getState() == PLAYING)
-	{
+bool GstVideo::getIsPlaying() const {
+	if (mGstreamerWrapper->getState() == PLAYING)	{
 		return true;
-	}
-	else
-	{
+	} else {
 		return false;
 	}
 }
 
-double GstVideo::getDuration() const
-{
+double GstVideo::getDuration() const {
 	return mGstreamerWrapper->getDurationInMs() / 1000.0;
 }
 
-double GstVideo::getCurrentTime() const
-{
+double GstVideo::getCurrentTime() const {
 	return mGstreamerWrapper->getPosition() * getDuration();
 }
 		
-void GstVideo::seekTime(const double t)
-{
+void GstVideo::seekTime(const double t){
 	mGstreamerWrapper->setTimePositionInMs(t * 1000.0);
 }
 
-double GstVideo::getCurrentPosition() const
-{
+double GstVideo::getCurrentPosition() const {
 	return mGstreamerWrapper->getPosition();
 }
 
-void GstVideo::seekPosition(const double t)
-{
+void GstVideo::seekPosition(const double t){
 	mGstreamerWrapper->setPosition(t);
 }
 
-void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn)
-{
+void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn){
 	mStatusFn = fn;
 }
 
-void GstVideo::doLoadVideo(const std::string &filename)
-{
+void GstVideo::doLoadVideo(const std::string &filename){
 	if (filename.empty()) return;
 	
 	VideoMetaCache::Type		type(VideoMetaCache::ERROR_TYPE);
 
-	try
-	{
+	try	{
 		int						videoWidth = static_cast<int>(getWidth());
 		int						videoHeight = static_cast<int>(getHeight());
 		double					videoDuration(0.0f);
@@ -322,28 +292,18 @@ void GstVideo::doLoadVideo(const std::string &filename)
 
 		setStatus(Status::STATUS_PLAYING);
 
-	}
-	catch (std::exception const& ex)
-	{
+	} catch (std::exception const& ex)	{
 		DS_LOG_ERROR_M("GstVideo::doLoadVideo() ex=" << ex.what(), GSTREAMER_LOG);
 		return;
 	}
 
-	if (mGstreamerWrapper->getWidth() < 1.0f || mGstreamerWrapper->getHeight() < 1.0f)
-	{
-		if (type != VideoMetaCache::AUDIO_TYPE)
-		{
+	if (mGstreamerWrapper->getWidth() < 1.0f || mGstreamerWrapper->getHeight() < 1.0f){
+		if (type != VideoMetaCache::AUDIO_TYPE)	{
 			DS_LOG_WARNING_M("GstVideo::doLoadVideo() Video is too small to be used or didn't load correctly! "
-				<< filename
-				<< " "
-				<< getWidth()
-				<< " "
-				<< getHeight(), GSTREAMER_LOG);
+				<< filename	<< " " << getWidth() << " "	<< getHeight(), GSTREAMER_LOG);
 		}
 		return;
-	}
-	else
-	{
+	} else {
 		ci::gl::Texture::Format fmt;
 		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 
@@ -351,8 +311,7 @@ void GstVideo::doLoadVideo(const std::string &filename)
 	}
 }
 
-void GstVideo::setStatus(const int code)
-{
+void GstVideo::setStatus(const int code){
 	if (code == mStatus.mCode) return;
 
 	mStatus.mCode = code;
@@ -361,20 +320,15 @@ void GstVideo::setStatus(const int code)
 	markAsDirty(mNetHandler.mStatusDirty);
 }
 
-void GstVideo::applyMovieVolume()
-{
-	if (mMuted || mOutOfBoundsMuted)
-	{
+void GstVideo::applyMovieVolume(){
+	if (mMuted || mOutOfBoundsMuted)	{
 		mGstreamerWrapper->setVolume(0.0f);
-	}
-	else
-	{
+	} else {
 		mGstreamerWrapper->setVolume(mVolume);
 	}
 }
 
-void GstVideo::applyMovieLooping()
-{
+void GstVideo::applyMovieLooping(){
 	if (mLooping)
 	{
 		mGstreamerWrapper->setLoopMode(LOOP);
@@ -385,119 +339,91 @@ void GstVideo::applyMovieLooping()
 	}
 }
 
-void GstVideo::unloadVideo(const bool clearFrame)
-{
+void GstVideo::unloadVideo(const bool clearFrame){
 	mGstreamerWrapper->stop();
 	mGstreamerWrapper->close();
 	mFilename.clear();
-	if (clearFrame)
-	{
+
+	if (clearFrame)	{
 		mFrameTexture.reset();
 	}
 }
 
-void GstVideo::setVideoCompleteCallback( const std::function<void()> &func )
-{
+void GstVideo::setVideoCompleteCallback( const std::function<void()> &func ){
 	mVideoCompleteFn = func;
 }
 
-void GstVideo::setAutoStart( const bool doAutoStart )
-{
+void GstVideo::setAutoStart( const bool doAutoStart ) {
 	// do not check for mAutoStart == doAutoStart. There is no
 	// correlation between them. mAutoStart is a cache value. Might be out of sync.
 	mAutoStart = doAutoStart;
 	mGstreamerWrapper->setStartPlaying(mAutoStart);
 }
 
-bool GstVideo::getAutoStart() const
-{
+bool GstVideo::getAutoStart() const {
 	return mAutoStart;
 }
 
-void GstVideo::stopAfterNextLoop()
-{
+void GstVideo::stopAfterNextLoop(){
 	mGstreamerWrapper->stopOnLoopComplete();
 }
 
-void GstVideo::checkStatus()
-{
-	if (mStatusChanged)
-	{
+void GstVideo::checkStatus(){
+	if (mStatusChanged){
 		mStatusFn(mStatus);
 		mStatusChanged = false;
 	}
 
-	if (mGstreamerWrapper->getState() == STOPPED
-		&& mStatus != Status::STATUS_STOPPED)
-	{
+	if (mGstreamerWrapper->getState() == STOPPED && mStatus != Status::STATUS_STOPPED){
 		setStatus(Status::STATUS_STOPPED);
-	}
-	else if (mGstreamerWrapper->getState() == PLAYING
-		&& mStatus != Status::STATUS_PLAYING)
-	{
+	} else if (mGstreamerWrapper->getState() == PLAYING	&& mStatus != Status::STATUS_PLAYING){
 		setStatus(Status::STATUS_PLAYING);
-	}
-	else if (mGstreamerWrapper->getState() == PAUSED
-		&& mStatus != Status::STATUS_PAUSED)
-	{
+	} else if (mGstreamerWrapper->getState() == PAUSED && mStatus != Status::STATUS_PAUSED){
 		setStatus(Status::STATUS_PAUSED);
 	}
 	
-	if (mStatus != Status::STATUS_PLAYING
-		&& mGstreamerWrapper->hasVideo() && mShouldPlay)
-	{
+	if (mStatus != Status::STATUS_PLAYING && mGstreamerWrapper->hasVideo() && mShouldPlay){
 		play();
 		mShouldPlay = false;
 	}
 }
 
-void GstVideo::checkOutOfBounds()
-{
-	if (!inBounds())
-	{
-		if (!mOutOfBoundsMuted)
-		{
+void GstVideo::checkOutOfBounds() {
+	if (!inBounds()){
+		if (!mOutOfBoundsMuted)	{
 			mGstreamerWrapper->setVolume(0.0f);
 			mOutOfBoundsMuted = true;
 		}
 		return;
-	}
-	else if (mOutOfBoundsMuted)
-	{
+	} else if (mOutOfBoundsMuted) {
 		mOutOfBoundsMuted = false;
 		applyMovieVolume();
 	}
 }
 
-const GstVideo::Status& GstVideo::getCurrentStatus() const
-{
+const GstVideo::Status& GstVideo::getCurrentStatus() const {
 	return mStatus;
 }
 
-const std::string& GstVideo::getLoadedFilename() const
-{
+const std::string& GstVideo::getLoadedFilename() const {
 	return mFilename;
 }
 
-void GstVideo::writeAttributesTo(DataBuffer& buf)
-{
+void GstVideo::writeAttributesTo(DataBuffer& buf){
 	Sprite::writeAttributesTo(buf);
 	mNetHandler.writeAttributesTo(mDirty, buf);
 }
 
-void GstVideo::readAttributeFrom(const char id, DataBuffer& buf)
-{
+void GstVideo::readAttributeFrom(const char id, DataBuffer& buf){
 	if (!mNetHandler.readAttributeFrom(id, buf))
 		Sprite::readAttributeFrom(id, buf);
 }
 
-double GstVideo::getCurrentTimeMs() const
-{
+double GstVideo::getCurrentTimeMs() const {
 	return mGstreamerWrapper->getCurrentTimeInMs();
 }
 
-void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn)
-{
+void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn){
 	mPlaySingleFrame = true;
 	mPlaySingleFrameFunction = fn;
 	if(!getIsPlaying()) {
@@ -509,9 +435,16 @@ void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn)
 	}
 }
 
-bool GstVideo::isPlayingAFrame()const
-{
+bool GstVideo::isPlayingAFrame()const {
 	return mPlaySingleFrame;
+}
+
+bool GstVideo::getAutoExtendIdle()const {
+	return mAutoExtendIdle;
+}
+
+void GstVideo::setAutoExtendIdle(const bool doAutoextend){
+	mAutoExtendIdle = doAutoextend;
 }
 
 GstVideo::Status::Status(int code)
@@ -519,13 +452,11 @@ GstVideo::Status::Status(int code)
 	mCode = code;
 }
 
-bool GstVideo::Status::operator==(int status) const
-{
+bool GstVideo::Status::operator==(int status) const {
 	return mCode == status;
 }
 
-bool GstVideo::Status::operator!=(int status) const
-{
+bool GstVideo::Status::operator!=(int status) const {
 	return mCode != status;
 }
 

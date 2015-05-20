@@ -645,7 +645,6 @@ void GStreamerWrapper::retrieveVideoInfo(){
 	}
 }
 
-#include "gst/net/gstnettimeprovider.h"
 void GStreamerWrapper::handleGStMessage(){
 	if ( m_GstBus )	{
 
@@ -716,7 +715,8 @@ void GStreamerWrapper::handleGStMessage(){
 				break;
 
 				case GST_MESSAGE_NEW_CLOCK :{
-				// For example on net sync: http://noraisin.net/diary/?p=954
+					// For example on net sync: http://noraisin.net/diary/?p=954
+					// also: #include "gst/net/gstnettimeprovider.h"
 
 					//GstClock* clock = gst_net_client_clock_new("new", "127.0.0.1", 6767, 0);
 					//gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);

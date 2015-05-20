@@ -119,6 +119,8 @@ public:
 
 	double							getElapsedTimeSeconds() const;
 
+	virtual void					resetIdleTimeOut(){};
+
 	virtual void					clearFingers( const std::vector<int> &fingers );
 	virtual void					setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;
 	virtual ui::Sprite*				getSpriteForFinger( const int fingerId ) = 0;

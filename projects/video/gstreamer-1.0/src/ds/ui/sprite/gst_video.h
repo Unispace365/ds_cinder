@@ -117,6 +117,10 @@ public:
 	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr);
 	bool				isPlayingAFrame() const;
 
+	// Extends the idle timer for this sprite when the video is playing. Default = false
+	void				setAutoExtendIdle(const bool doAutoextend);
+	bool				getAutoExtendIdle() const;
+
 	virtual void		updateClient(const UpdateParams&) override;
 	virtual void		updateServer(const UpdateParams&) override;
 
@@ -141,16 +145,22 @@ private:
 	ci::gl::Texture						mFrameTexture;
 	ci::Vec2i							mVideoSize;
 	std::string							mFilename;
+
 	bool								mLooping;
+
 	bool								mMuted;
-	bool								mAutoStart;
 	bool								mOutOfBoundsMuted;
 	float								mVolume;
+
+	bool								mAutoStart;
 	bool								mShouldPlay;
 	bool								mShouldSync;
 
 	// There is actual video data ready to be drawn
 	bool								mDrawable;
+
+	// When the video is playing, extend the idle timer, or not
+	bool								mAutoExtendIdle;
 	
 	// Playing a single frame, then stopping.
 	bool								mPlaySingleFrame;
