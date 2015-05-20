@@ -97,10 +97,10 @@ public:
 	bool				getAutoStart() const;
 
 	// Gets the current status of the player, in case you need if out of callback.
-	const Status&	 getCurrentStatus() const;
+	const Status&		getCurrentStatus() const;
 	
 	// Gets the currently loaded filename (if any)
-	const std::string&getLoadedFilename() const;
+	const std::string&	getLoadedFilename() const;
 
 	// Callback when video changes its status (play / pause / stop).
 	void				setStatusCallback(const std::function<void(const Status&)>&);
@@ -138,29 +138,28 @@ private:
 	GstVideoNet							mNetHandler;
 	gstwrapper::GStreamerWrapper*		mGstreamerWrapper;
 
-	ci::gl::Texture			mFrameTexture;
-	ci::Vec2i				mVideoSize;
-	std::string				mFilename;
-	bool					mLooping;
-	bool					mMuted;
-	bool					mAutoStart;
-	bool					mOutOfBoundsMuted;
-	float					mVolume;
-	bool					mShouldPlay;
-	bool					mShouldSync;
+	ci::gl::Texture						mFrameTexture;
+	ci::Vec2i							mVideoSize;
+	std::string							mFilename;
+	bool								mLooping;
+	bool								mMuted;
+	bool								mAutoStart;
+	bool								mOutOfBoundsMuted;
+	float								mVolume;
+	bool								mShouldPlay;
+	bool								mShouldSync;
 
 	// There is actual video data ready to be drawn
-	bool					mDrawable;
+	bool								mDrawable;
 	
 	// Playing a single frame, then stopping.
-	bool					mPlaySingleFrame;
-	std::function<void()>	mPlaySingleFrameFunction;
+	bool								mPlaySingleFrame;
+	std::function<void()>				mPlaySingleFrameFunction;
 
-	Status					mStatus;
-	bool					mStatusChanged;
-	std::function<void()>	mVideoCompleteFn;
-	std::function<void(const Status&)>
-							mStatusFn;
+	Status								mStatus;
+	bool								mStatusChanged;
+	std::function<void()>				mVideoCompleteFn;
+	std::function<void(const Status&)>	mStatusFn;
 };
 
 } //!namespace ui
