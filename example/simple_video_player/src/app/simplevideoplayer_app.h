@@ -7,6 +7,8 @@
 #include "app/globals.h"
 #include "query/query_handler.h"
 #include "ds/ui/sprite/video.h"
+#include "ds/ui/button/sprite_button.h"
+#include "ds/ui/sprite/text.h"
 
 namespace example {
 class AllData;
@@ -19,7 +21,7 @@ public:
 	virtual void		keyDown(ci::app::KeyEvent event);
 	void				setupServer();
 	void				update();
-	void				startVideo(const std::string& vidPath);
+	void				startVideos(const std::vector<std::string> vidPaths);
 private:
 	typedef ds::App		inherited;
 
@@ -30,7 +32,14 @@ private:
 	Globals				mGlobals;
 	QueryHandler		mQueryHandler;
 
-	ds::ui::Video*		mVideo;
+	ds::ui::SpriteButton*		mStressTestButton;
+	ds::ui::Text*				mStressText;
+	bool						mStressTesting;
+
+	void						fitVideoInArea(ci::Rectf area, ds::ui::Video* video);
+
+	std::vector<ds::ui::Video*>	mVideos;
+	std::vector<std::string>	mVideoPaths;
 };
 
 } // !namespace example
