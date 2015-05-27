@@ -24,19 +24,19 @@ void EnvCheck::setDefaultLoc(const std::string& loc)
 
 void EnvCheck::verifyPathVar()
 {
-    // Get the path variable
-    std::string _path_variable{ std::getenv("PATH") };
+    // Get the GST environment variable
+    std::string _gstreamer_path{ std::getenv(mGstreamerEnvVarName.c_str()) };
 
     // If GStreamer is not set...
-    if (_path_variable.find(mGstreamerEnvVarName) == std::string::npos && !ci::fs::exists(mGstreamerDefaultLoc))
+    if (_gstreamer_path.empty() && !ci::fs::exists(mGstreamerDefaultLoc))
     {
-        DS_LOG_WARNING("GStreamer could not be found. "
+        DS_LOG_FATAL("GStreamer could not be found. "
             << "Please install GStreamer and set "
             << "DS_CINDER_GSTREAMER_1-0 env var.");
     }
     else
     {
-        std::string _gstreamer_path{ std::getenv(mGstreamerEnvVarName.c_str()) };
+        std::string _path_variable{ std::getenv("PATH") };
         
         if (_gstreamer_path.empty())
         {
@@ -45,6 +45,7 @@ void EnvCheck::verifyPathVar()
         }
 
         auto _gstreamer_binary_path = (_gstreamer_path + "\\bin");
+        // this could be a regex but pfft. whatever.
         boost::algorithm::replace_all(_gstreamer_binary_path, "/", "\\");
         boost::algorithm::replace_all(_gstreamer_binary_path, "\\\\", "\\");
 
@@ -57,6 +58,7 @@ void EnvCheck::verifyPathVar()
         if (!std::getenv(mGstreamerPluginPath.c_str()))
         {
             auto _gstreamer_plugin_path = (_gstreamer_path + "\\lib\\gstreamer");
+            // this could be a regex but pfft. whatever (#2).
             boost::algorithm::replace_all(_gstreamer_plugin_path, "/", "\\");
             boost::algorithm::replace_all(_gstreamer_plugin_path, "\\\\", "\\");
 
