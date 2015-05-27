@@ -67,15 +67,15 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_ROTATION() {
 }
 
 void SpriteAnimatable::tweenColor(	const ci::Color& c, const float duration, const float delay,
-									const ci::EaseFn& ease, const std::function<void(void)>& finishFn) {
+									const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimColor.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_COLOR(), c, duration, ease, finishFn, delay);
+	mEngine.getTweenline().apply(mOwner, ANIM_COLOR(), c, duration, ease, finishFn, delay, updateFn);
 }
 
 void SpriteAnimatable::tweenOpacity(const float opacity, const float duration, const float delay,
-									const ci::EaseFn& ease, const std::function<void(void)>& finishFn) {
+									const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimOpacity.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_OPACITY(), opacity, duration, ease, finishFn, delay);
+	mEngine.getTweenline().apply(mOwner, ANIM_OPACITY(), opacity, duration, ease, finishFn, delay, updateFn);
 }
 
 void SpriteAnimatable::tweenPosition(const ci::Vec3f& pos, const float duration, const float delay,
@@ -85,21 +85,21 @@ void SpriteAnimatable::tweenPosition(const ci::Vec3f& pos, const float duration,
 }
 
 void SpriteAnimatable::tweenRotation(const ci::Vec3f& rot, const float duration, const float delay,
-									const ci::EaseFn& ease, const std::function<void(void)>& finishFn) {
+									 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimRotation.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_ROTATION(), rot, duration, ease, finishFn, delay);
+	mEngine.getTweenline().apply(mOwner, ANIM_ROTATION(), rot, duration, ease, finishFn, delay, updateFn);
 }
 
 void SpriteAnimatable::tweenScale(	const ci::Vec3f& scale, const float duration, const float delay,
-									const ci::EaseFn& ease, const std::function<void(void)>& finishFn) {
+									const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimScale.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_SCALE(), scale, duration, ease, finishFn, delay);
+	mEngine.getTweenline().apply(mOwner, ANIM_SCALE(), scale, duration, ease, finishFn, delay, updateFn);
 }
 
 void SpriteAnimatable::tweenSize(	const ci::Vec3f& size, const float duration, const float delay,
-									const ci::EaseFn& ease, const std::function<void(void)>& finishFn) {
+									const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimSize.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_SIZE(), size, duration, ease, finishFn, delay);
+	mEngine.getTweenline().apply(mOwner, ANIM_SIZE(), size, duration, ease, finishFn, delay, updateFn);
 }
 
 void SpriteAnimatable::animStop() {

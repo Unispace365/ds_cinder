@@ -69,23 +69,28 @@ public:
 
 	void									tweenColor(		const ci::Color&, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
-															const std::function<void(void)>& finishFn = nullptr);
+															const std::function<void(void)>& finishFn = nullptr,
+															const std::function<void(void)>& updateFn = nullptr);
 	void									tweenOpacity(	const float opacity, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
-															const std::function<void(void)>& finishFn = nullptr);
+															const std::function<void(void)>& finishFn = nullptr,
+															const std::function<void(void)>& updateFn = nullptr);
 	void									tweenPosition(	const ci::Vec3f& pos, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
 															const std::function<void(void)>& finishFn = nullptr,
 															const std::function<void(void)>& updateFn = nullptr);
 	void									tweenRotation(	const ci::Vec3f& rot, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
-															const std::function<void(void)>& finishFn = nullptr);
+															const std::function<void(void)>& finishFn = nullptr,
+															const std::function<void(void)>& updateFn = nullptr);
 	void									tweenScale(		const ci::Vec3f& scale, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
-															const std::function<void(void)>& finishFn = nullptr);
+															const std::function<void(void)>& finishFn = nullptr,
+															const std::function<void(void)>& updateFn = nullptr);
 	void									tweenSize(		const ci::Vec3f& size, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
-															const std::function<void(void)>& finishFn = nullptr);
+															const std::function<void(void)>& finishFn = nullptr,
+															const std::function<void(void)>& updateFn = nullptr);
 	void									animStop();
 
 public:
