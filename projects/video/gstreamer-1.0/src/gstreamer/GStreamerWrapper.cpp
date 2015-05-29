@@ -158,10 +158,11 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		m_GstVideoSink = gst_element_factory_make("appsink", "videosink");
 
 		//gst_base_sink_set_sync( GST_BASE_SINK( m_GstVideoSink ), true );
-		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 2 );
+		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 0 );
 		gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
 		gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
-		gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), 20000000); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
+	//	gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), 20000000); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
+		gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), -1); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
 
 		// Set some fix caps for the video sink
 		GstCaps* caps;
@@ -221,7 +222,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		gst_app_sink_set_callbacks( GST_APP_SINK( m_GstAudioSink ), &m_GstAudioSinkCallbacks, this, NULL );
 
 	} else {
-		GstElement* audioSink = gst_element_factory_make( "autoaudiosink", NULL );
+		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
 		g_object_set ( m_GstPipeline, "audio-sink", audioSink, NULL );
 	}
 
