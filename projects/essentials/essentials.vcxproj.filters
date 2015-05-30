@@ -78,6 +78,9 @@
     <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -120,6 +123,9 @@
       <Filter>src\ds\touch</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\scroll\scroll_list.h">
       <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
   </ItemGroup>

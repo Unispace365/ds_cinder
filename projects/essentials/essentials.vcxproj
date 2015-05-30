@@ -24,6 +24,7 @@
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\stylesheet_parser.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp" />
+    <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp" />
     <ClCompile Include="src\ds\ui\sprite\png_sequence_sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -40,6 +41,7 @@
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h" />
+    <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
