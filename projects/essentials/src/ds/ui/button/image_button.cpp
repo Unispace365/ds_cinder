@@ -25,7 +25,8 @@ ImageButton::ImageButton(SpriteEngine& eng, const std::string& downImage, const 
 	, mPad(touchPad)
 	, mAnimDuration(0.1f) 
 {
-	setTransparent(true);
+// 	setTransparent(false);
+// 	setColor(ci::Color(0.5f, 0.8f, 0.2f));
 
 
 	mDown.setOpacity(0.0f);

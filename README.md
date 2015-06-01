@@ -2,6 +2,8 @@ DS Cinder
 =========
 DS Cinder is a framework for interactive applications built on top of the fantastic Cinder framework. DS Cinder provides conveniences for getting graphics onscreen; loading data from a sqlite database; displaying PDFs, videos and web pages; providing touch interaction; and loading settings. The DS version also provides the ability to syncronize multiple clients to display the same graphics, as well as conveniences for touch handling.
 
+**Note:** If you've been using DS Cinder before today (5/15/2015), you've been on the 0.8.4 branch in Visual Studio 2010, which is available under tags. This new master branch is based on Cinder 0.8.6, and requires Visual Studio 2013. You can continue using 0.8.4, but there will be no more development or updates of that version.
+
 ----------
 
 Installation
