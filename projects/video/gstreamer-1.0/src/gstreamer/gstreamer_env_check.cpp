@@ -2,12 +2,27 @@
 
 #include <Poco/Path.h>
 
-#include <boost/algorithm/string/replace.hpp>
+#include <regex>
 
 #include <cinder/Filesystem.h>
 
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
+
+namespace {
+// Replaces forward slash with back slash and replaces all multiple repeats of back slashes with a single back slash
+void normalizePath(std::string& path) {
+    try {
+        static std::regex path_anomalies("\\\\+|/");
+        path = std::regex_replace(path, path_anomalies, "/");
+    }
+    catch (...) {}
+}
+// Long story short, this is here to prevent a Release mode exception in VS2013
+std::string getEnv(const std::string& name) {
+    auto _env_var_ptr = std::getenv(name.c_str());
+    return std::string{ _env_var_ptr == nullptr ? "" : _env_var_ptr };
+}}
 
 namespace ds {
 namespace gstreamer {
@@ -25,7 +40,7 @@ void EnvCheck::setDefaultLoc(const std::string& loc)
 void EnvCheck::verifyPathVar()
 {
     // Get the GST environment variable
-    std::string _gstreamer_path{ std::getenv(mGstreamerEnvVarName.c_str()) };
+    std::string _gstreamer_path{ getEnv(mGstreamerEnvVarName) };
 
     // If GStreamer is not set...
     if (_gstreamer_path.empty() && !ci::fs::exists(mGstreamerDefaultLoc))
@@ -36,7 +51,7 @@ void EnvCheck::verifyPathVar()
     }
     else
     {
-        std::string _path_variable{ std::getenv("PATH") };
+        std::string _path_variable{ getEnv("PATH") };
         
         if (_gstreamer_path.empty())
         {
@@ -45,9 +60,7 @@ void EnvCheck::verifyPathVar()
         }
 
         auto _gstreamer_binary_path = (_gstreamer_path + "\\bin");
-        // this could be a regex but pfft. whatever.
-        boost::algorithm::replace_all(_gstreamer_binary_path, "/", "\\");
-        boost::algorithm::replace_all(_gstreamer_binary_path, "\\\\", "\\");
+        normalizePath(_gstreamer_binary_path);
 
         // Add binary dir to path
         if (_path_variable.find(_gstreamer_binary_path) == std::string::npos)
@@ -55,12 +68,10 @@ void EnvCheck::verifyPathVar()
             ds::Environment::addToFrontEnvironmentVariable("PATH", Poco::Path::expand(_gstreamer_binary_path));
         }
 
-        if (!std::getenv(mGstreamerPluginPath.c_str()))
+        if (getEnv(mGstreamerPluginPath).empty())
         {
-            auto _gstreamer_plugin_path = (_gstreamer_path + "\\lib\\gstreamer");
-            // this could be a regex but pfft. whatever (#2).
-            boost::algorithm::replace_all(_gstreamer_plugin_path, "/", "\\");
-            boost::algorithm::replace_all(_gstreamer_plugin_path, "\\\\", "\\");
+            auto _gstreamer_plugin_path = (_gstreamer_path + "\\lib\\gstreamer-1.0");
+            normalizePath(_gstreamer_plugin_path);
 
             ds::Environment::addToEnvironmentVariable(mGstreamerPluginPath, _gstreamer_plugin_path);
         }
@@ -75,5 +86,4 @@ EnvCheck::EnvCheck()
     verifyPathVar();
 }
 
-}
-}
+}} //!ds::gstreamer
