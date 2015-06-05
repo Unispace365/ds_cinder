@@ -633,6 +633,10 @@ void Sprite::buildTransform() const
 	mInverseTransform = mTransformation.inverted();
 }
 
+const ci::Vec3f Sprite::getSize()const{
+	return ci::Vec3f(mWidth, mHeight, mDepth);
+}
+
 void Sprite::setSizeAll( float width, float height, float depth )
 {
   if (mWidth == width && mHeight == height && mDepth == depth) return;

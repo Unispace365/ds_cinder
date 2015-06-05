@@ -88,6 +88,8 @@ public:
 	ds::sprite_id_t			getId() const;
 	ds::ui::SpriteEngine&	getEngine();
 
+	const ci::Vec3f			getSize() const;
+
 	void					setSize(const ci::Vec2f& size2d);
 	void					setSize(float width, float height);
 	virtual void			setSizeAll(const ci::Vec3f& size3d);
