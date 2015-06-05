@@ -971,8 +971,8 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick)
 	}
 
 	if (isEnabled()) {
-		const float	w = getWidth(),
-					h = getHeight();
+		const float	w = getScaleWidth(),
+					h = getScaleHeight();
 
 		if (w <= 0.0f || h <= 0.0f)
 			return nullptr;
