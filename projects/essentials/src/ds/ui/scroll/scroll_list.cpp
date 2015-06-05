@@ -239,5 +239,11 @@ void ScrollList::setStateChangeCallback(const std::function<void(ds::ui::Sprite*
 	mStateChangeCallback = func;
 }
 
+void ScrollList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount){
+	mStartPositionX = startPositionX;
+	mStartPositionY = startPositionY;
+	mIncrementAmount = incremenetAmount;
+}
+
 }
 }

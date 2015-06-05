@@ -220,7 +220,7 @@ void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTra
 		if(mVertical){
 			mTopFade->setColorsAll(fadeColorFull, fadeColorFull, fadeColorTrans, fadeColorTrans);
 		} else {
-			mTopFade->setColorsAll(fadeColorFull, fadeColorTrans, fadeColorFull, fadeColorTrans);
+			mTopFade->setColorsAll(fadeColorFull, fadeColorTrans, fadeColorTrans, fadeColorFull);
 		}
 	}
 
@@ -228,7 +228,7 @@ void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTra
 		if(mVertical){
 			mBottomFade->setColorsAll(fadeColorTrans, fadeColorTrans, fadeColorFull, fadeColorFull);
 		} else {
-			mBottomFade->setColorsAll(fadeColorTrans, fadeColorFull, fadeColorTrans, fadeColorFull);
+			mBottomFade->setColorsAll(fadeColorTrans, fadeColorFull, fadeColorFull, fadeColorTrans);
 		}
 	}
 }

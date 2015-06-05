@@ -12,9 +12,11 @@
 #include "events/app_events.h"
 
 #include <ds/ui/scroll/scroll_area.h>
+#include <ds/ui/scroll/scroll_list.h>
 
 #include "model/generated/story_model.h"
 #include "ui/info_list/info_list.h"
+#include "ui/info_list/info_list_item.h"
 
 namespace example {
 
@@ -57,8 +59,19 @@ void ScrollExample::setupServer(){
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
+
+
+
+	ds::ui::Text* outputTexter = new ds::ui::Text(mEngine);
+	outputTexter->setFont("noto-sans", 18.0f);
+	outputTexter->setColor(ci::Color::white());
+	outputTexter->setPosition(100.0f, 800.0f);
+	outputTexter->setText("Above on the left is a simple scroll area. The right side is a scroll list.");
+	rootSprite.addChildPtr(outputTexter);
+
 	// add sprites
 
+	// ----------- A basic scroll area with a couple colors ------------------------------- //
 	ds::ui::ScrollArea* sa = new ds::ui::ScrollArea(mEngine, 400.0f, 200.0f);
 	sa->setFadeColors(ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f), ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 	sa->setFadeHeight(50.0f);
@@ -79,6 +92,9 @@ void ScrollExample::setupServer(){
 	testerB->setPosition(0.0f, 120.0f);
 	sa->addSpriteToScroll(testerB);
 
+
+	// ------------ A scroll list to display some info with custom graphics ---------------//
+	// ------------ Info list extends ScrollList  ----------------------------------------//
 	mInfoList = new InfoList(mGlobals);
 	rootSprite.addChildPtr(mInfoList);
 	mInfoList->setPosition(600.0f, 100.0f);
@@ -86,16 +102,70 @@ void ScrollExample::setupServer(){
 	// In a real app, you would also call this from an event dispatched when the query completed
 	mInfoList->setInfo(mAllData.mAllStories.mStories);
 
-	ds::ui::Text* outputTexter = new ds::ui::Text(mEngine);
-	outputTexter->setFont("noto-sans", 18.0f);
-	outputTexter->setColor(ci::Color::white());
-	outputTexter->setPosition(100.0f, 800.0f);
-	outputTexter->setText("Above on the left is a simple scroll area. The right side is a scroll list.");
-	rootSprite.addChildPtr(outputTexter);
-
 	mInfoList->setInfoItemCallback([this, outputTexter](ds::model::StoryRef infoThing, ci::Vec3f possy){
 		outputTexter->setText(infoThing.getName());
 	});
+
+
+
+	// ----------- A scroll list just like InfoList, but implemented here instead of a separate class ----------//
+	ds::ui::ScrollList* instanceList = new ds::ui::ScrollList(mEngine, false);
+	const float itemSize = mGlobals.getSettingsLayout().getFloat("info_list:item:height", 0, 100.0f);
+	instanceList->setSize(600.0f, itemSize);
+	instanceList->enable(false);
+
+
+	instanceList->setItemTappedCallback([this, outputTexter](ds::ui::Sprite* bs, const ci::Vec3f& cent){
+		InfoListItem* rpi = dynamic_cast<InfoListItem*>(bs);
+		if(rpi){
+			outputTexter->setText(rpi->getInfo().getName());
+		}
+	});
+
+	instanceList->setCreateItemCallback([this, instanceList]()->ds::ui::Sprite* {
+		const float itemSize = mGlobals.getSettingsLayout().getFloat("info_list:item:height", 0, 100.0f);
+		return new InfoListItem(mGlobals, instanceList->getWidth(), itemSize);
+	});
+
+	instanceList->setDataCallback([this](ds::ui::Sprite* bs, int dbId){
+		InfoListItem* rpi = dynamic_cast<InfoListItem*>(bs);
+		if(rpi){
+			rpi->setInfo(mInfoMap[dbId]);
+		}
+	});
+
+	instanceList->setAnimateOnCallback([this](ds::ui::Sprite* bs, const float delay){
+		InfoListItem* rpi = dynamic_cast<InfoListItem*>(bs);
+		if(rpi){
+			rpi->animateOn(delay);
+		}
+	});
+
+	instanceList->setStateChangeCallback([this](ds::ui::Sprite* bs, const bool highlighted){
+		InfoListItem* rpi = dynamic_cast<InfoListItem*>(bs);
+		if(rpi){
+			rpi->setState(highlighted);
+		}
+	});
+
+
+	const float padding = mGlobals.getSettingsLayout().getFloat("info_list:item:pad", 0, 20.0f);
+	instanceList->setLayoutParams(0.0f, 0.0f, instanceList->getWidth() + padding);
+
+	mInfoMap.clear();
+
+	// The vector of ints is how ScrollList keeps track of items.
+	// Db Id's are unique.
+	// We keep a map of the ids in this class so we can match up the UI with the content when new items scroll into view
+	std::vector<int> productIds;
+	for(auto it = mAllData.mAllStories.mStories.begin(); it < mAllData.mAllStories.mStories.end(); ++it){
+		productIds.push_back((*it).getId());
+		mInfoMap[(*it).getId()] = (*it);
+	}
+
+	instanceList->setPosition(1300.0f, 100.0f);
+	instanceList->setContent(productIds);
+	rootSprite.addChildPtr(instanceList);
 }
 
 void ScrollExample::update() {

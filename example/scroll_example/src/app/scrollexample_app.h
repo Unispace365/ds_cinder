@@ -33,6 +33,9 @@ private:
 
 	InfoList*			mInfoList;
 
+	// For an instantiated scroll list
+	std::map<int, ds::model::StoryRef>							mInfoMap;
+
 	void				moveCamera(const ci::Vec3f& deltaMove);
 };
 

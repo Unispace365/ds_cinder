@@ -40,6 +40,13 @@ class ScrollArea;
 
 		void						animateItemsOn();
 
+		void						setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount);
+
+		// Use caution when modifying the scroll area
+		// Recommend only using this to reset the scroll position and change the fade graphics
+		// Setting your own scroll position callback will break the scroll list
+		ds::ui::ScrollArea*			getScrollArea(){ return mScrollArea; }
+
 	protected:
 
 		// We only create enough sprites that are onscreen at one time.
@@ -67,7 +74,6 @@ class ScrollArea;
 		};
 
 
-		ds::ui::ScrollArea*					getScrollArea(){ return mScrollArea; }
 		virtual void						onSizeChanged();
 		virtual void						layout();
 		virtual void						layoutItems();
