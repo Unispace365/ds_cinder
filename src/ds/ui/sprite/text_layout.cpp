@@ -279,6 +279,9 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
 			continue;
 		} else if(token == L"\r") {
 			continue;
+		}else if (token == L"-") {
+			lineText.append(L"-");
+			continue;
 		}
 
 		newLine.append(token);
