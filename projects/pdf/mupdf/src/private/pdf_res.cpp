@@ -50,9 +50,9 @@ private:
 			// has stringent rules, like you're not allowed to return.
 			fz_try(mCtx) {
 				if ((mDoc = fz_open_document(mCtx, (char *)file.c_str()))) {
-					const int		pageCount = fz_count_pages(mDoc);
+					const int		pageCount = fz_count_pages(mCtx, mDoc);
 					if (!(pageCount <= 0 || pageNumber > pageCount)) {
-						if ((mPage = fz_load_page(mDoc, pageNumber - 1))) {
+						if ((mPage = fz_load_page(mCtx, mDoc, pageNumber - 1))) {
 							ans = true;
 						}
 					}
@@ -75,9 +75,9 @@ private:
 	}
 
 	void clear() {
-		if (mPage) fz_free_page(mDoc, mPage);
-		if (mDoc) fz_close_document(mDoc);
-		if (mCtx) fz_free_context(mCtx);
+		if (mPage) fz_drop_page(mCtx, mPage);
+		if (mDoc) fz_drop_document(mCtx, mDoc);
+		if(mCtx) fz_drop_context(mCtx);
 		mPage = nullptr;
 		mDoc = nullptr;
 		mCtx = nullptr;
@@ -98,15 +98,15 @@ public:
 public:
 	Examine() : mWidth(0), mHeight(0), mPageCount(0) { }
 
-	virtual bool	run(fz_context&, fz_document& doc, fz_page& page) {
+	virtual bool	run(fz_context& ctx, fz_document& doc, fz_page& page) {
 		fz_rect bounds;
-		fz_bound_page(&doc, &page, &bounds);
+		fz_bound_page(&ctx, &page, &bounds);
 		if (fz_is_empty_rect(&bounds) || fz_is_infinite_rect(&bounds)) return false;
 		mWidth = bounds.x1 - bounds.x0;
 		mHeight = bounds.y1 - bounds.y0;
 //		mWidth = page.mediabox.x1;
 //		mHeight = page.mediabox.y1;
-		mPageCount = fz_count_pages(&doc);
+		mPageCount = fz_count_pages(&ctx, &doc);
 		return mWidth > 0 && mHeight > 0 && mPageCount > 0;
 	}
 };
@@ -166,7 +166,7 @@ private:
 				// Take the page bounds and transform them by the same matrix that
 				// we will use to render the page.
 				fz_rect			rect;
-				fz_bound_page(&doc, &page, &rect);
+				fz_bound_page(&ctx, &page, &rect);
 				fz_transform_rect(&rect, &transform);
 	//			fz_bbox bbox = fz_round_rect(rect);
 
@@ -185,7 +185,7 @@ private:
 						// Run the page with the transform.
 						device = fz_new_draw_device(&ctx, pixmap);
 						if (device) {
-							fz_run_page(&doc, &page, device, &transform, NULL);
+							fz_run_page(&ctx, &page, device, &transform, NULL);
 							ans = true;
 						}
 					}
@@ -197,7 +197,7 @@ private:
 			fz_catch((&ctx))
 			{
 			}
-			if (device) fz_free_device(device);
+			if (device) fz_drop_device(&ctx, device);
 			if (pixmap) fz_drop_pixmap(&ctx, pixmap);
 		} catch (std::exception const&) { }
 		return ans;
@@ -211,7 +211,7 @@ private:
 			// This is pretty ugly because MuPDF uses custom C++-like error handing that
 			// has stringent rules, like you're not allowed to return.
 			fz_try((&ctx)) {
-				if (!getPageSize(doc, page)) return false;
+				if (!getPageSize(ctx, page)) return false;
 
 				mWidth = static_cast<float>(mPageSize.x);
 				mHeight = static_cast<float>(mPageSize.y);
@@ -228,7 +228,7 @@ private:
 				// Take the page bounds and transform them by the same matrix that
 				// we will use to render the page.
 				fz_rect			rect;
-				fz_bound_page(&doc, &page, &rect);
+				fz_bound_page(&ctx, &page, &rect);
 				fz_transform_rect(&rect, &transform);
 	//			fz_bbox bbox = fz_round_rect(rect);
 
@@ -247,7 +247,7 @@ private:
 						// Run the page with the transform.
 						device = fz_new_draw_device(&ctx, pixmap);
 						if (device) {
-							fz_run_page(&doc, &page, device, &transform, NULL);
+							fz_run_page(&ctx, &page, device, &transform, NULL);
 							ans = true;
 						}
 					}
@@ -259,15 +259,15 @@ private:
 			fz_catch((&ctx))
 			{
 			}
-			if (device) fz_free_device(device);
+			if (device) fz_drop_device(&ctx, device);
 			if (pixmap) fz_drop_pixmap(&ctx, pixmap);
 		} catch (std::exception const&) { }
 		return ans;
 	}
 
-	virtual bool	getPageSize(fz_document& doc, fz_page& page) {
+	virtual bool	getPageSize(fz_context& ctx, fz_page& page) {
 		fz_rect bounds;
-		fz_bound_page(&doc, &page, &bounds);
+		fz_bound_page(&ctx, &page, &bounds);
 		if (fz_is_empty_rect(&bounds) || fz_is_infinite_rect(&bounds)) return false;
 		mPageSize.x = bounds.x1 - bounds.x0;
 		mPageSize.y = bounds.y1 - bounds.y0;
