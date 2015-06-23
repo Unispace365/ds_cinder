@@ -273,9 +273,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\text_layout.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\util\notifier.h">
-      <Filter>src\ds\util</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\network\http_client.h">
       <Filter>src\ds\network</Filter>
     </ClInclude>
@@ -311,9 +308,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\data\font_list.h">
       <Filter>src\ds\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\util\notifier_2.h">
-      <Filter>src\ds\util</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h">
       <Filter>src\ds\ui\sprite</Filter>
@@ -683,6 +677,15 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_null.h">
       <Filter>src\ds\app\engine\renderers</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\notifier.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\recycle_node.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\recycle_array.h">
+      <Filter>src\ds\query</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -18,9 +18,13 @@ namespace query {
 class ResultBuilder
 {
 public:
-	// Hack to get access to setting the QueryResult request time
-	static void					setRequestTime(Result&, const Poco::Timestamp&);
-	static void					setClientId(Result&, const int);
+	/*
+	* Get access to setting the QueryResult request time
+	* \param result The QueryResult to set the time
+	* \param timestamp The poco timestamp
+	*/
+	static void					setRequestTime(Result& result, const Poco::Timestamp& timestamp);
+	static void					setClientId(Result& result, const int id);
 
 public:
 	ResultBuilder(Result&);

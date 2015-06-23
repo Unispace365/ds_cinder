@@ -118,6 +118,8 @@
     <ClInclude Include="..\src\ds\query\query_result_builder.h" />
     <ClInclude Include="..\src\ds\query\query_result_editor.h" />
     <ClInclude Include="..\src\ds\query\query_talkback.h" />
+    <ClInclude Include="..\src\ds\query\recycle_array.h" />
+    <ClInclude Include="..\src\ds\query\recycle_node.h" />
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3.h" />
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
@@ -196,7 +198,6 @@
     <ClInclude Include="..\src\ds\util\image_meta_data.h" />
     <ClInclude Include="..\src\ds\util\memory_ds.h" />
     <ClInclude Include="..\src\ds\util\notifier.h" />
-    <ClInclude Include="..\src\ds\util\notifier_2.h" />
     <ClInclude Include="..\src\ds\util\string_util.h" />
   </ItemGroup>
   <ItemGroup>

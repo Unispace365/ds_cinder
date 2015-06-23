@@ -9,9 +9,7 @@ namespace ds {
 
 namespace query {
 
-/**
- * \class ds::query::ResultBuilder static
- */
+//static
 void ResultBuilder::setRequestTime(Result& qr, const Poco::Timestamp& ts)
 {
 	qr.mRequestTime = ts;
@@ -22,9 +20,6 @@ void ResultBuilder::setClientId(Result& qr, const int id)
 	qr.mClientId = id;
 }
 
-/**
- * \class ds::query::ResultBuilder
- */
 ResultBuilder::ResultBuilder(Result& qr)
 	: mResult(qr)
 	, mRow(NULL)

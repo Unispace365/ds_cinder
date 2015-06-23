@@ -20,9 +20,6 @@ namespace ds {
 
 namespace query {
 
-/**
- * \class ds::query::Client static
- */
 bool Client::query(	const std::string& database, const std::string& select,
 					          Result& qr, const int flags)
 {
@@ -93,9 +90,6 @@ void Client::handleResult(std::unique_ptr<WorkRequest>& wr)
 	mCache.push(r);
 }
 
-/**
- * \class ds::QueryClient::Request
- */
 Client::Request::Request(const void* clientId)
 	: WorkRequest(clientId)
 	, mRunId(0)

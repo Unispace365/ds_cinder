@@ -18,11 +18,16 @@ namespace ui {
 class ImageResource : public ImageSource {
 public:
 	/**
-	 * \param resource is the resource.
+	 * \param resource is the resource to be loaded.
 	 * \param flags provides scope info (i.e. ds::IMG_CACHE).
 	 */
-	ImageResource(const ds::Resource&, const int flags = 0);
-	ImageResource(const ds::Resource::Id&, const int flags = 0);
+	ImageResource(const ds::Resource& resource, const int flags = 0);
+
+	/**
+	* \param resourceId is the resource.
+	* \param flags provides scope info (i.e. ds::IMG_CACHE).
+	*/
+	ImageResource(const ds::Resource::Id& resourceId, const int flags = 0);
 
 	virtual ImageGenerator*		newGenerator(SpriteEngine&) const;
 	virtual bool				generatorMatches(const ImageGenerator&) const;

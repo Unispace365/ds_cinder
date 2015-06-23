@@ -27,7 +27,7 @@ void				signalWakeup() {
 }
 
 /**
- * \class rep::DirectoryWatcher
+ * \class ds::DirectoryWatcher
  */
 void DirectoryWatcher::wakeup()
 {
@@ -35,7 +35,7 @@ void DirectoryWatcher::wakeup()
 }
 
 /**
- * \class rep::DirectoryWatcherOp
+ * \class ds::DirectoryWatcherOp
  */
 void DirectoryWatcher::Waiter::run()
 {

@@ -1,7 +1,7 @@
 #pragma once
 #ifndef DS_RAW_DATA_BUFFER_H
 #define DS_RAW_DATA_BUFFER_H
-#include "ds/query/RecycleArray.h"
+#include "ds/query/recycle_array.h"
 
 namespace ds {
 

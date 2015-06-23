@@ -20,7 +20,7 @@ DirectoryWatcher::Changed::Changed(const std::string& path)
 }
 
 /**
- * \class rep::DirectoryWatcher
+ * \class ds::DirectoryWatcher
  */
 DirectoryWatcher::DirectoryWatcher(ds::ui::SpriteEngine& se)
 		: ds::AutoUpdate(se)
@@ -59,7 +59,7 @@ void DirectoryWatcher::update(const ds::UpdateParams&) {
 }
 
 /**
- * \class rep::DirectoryWatcher::Waiter
+ * \class ds::DirectoryWatcher::Waiter
  * \brief Handle waiting on directory changes and sending notices.
  */
 DirectoryWatcher::Waiter::Waiter(	const Poco::AtomicCounter& stop,

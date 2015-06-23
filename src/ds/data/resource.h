@@ -174,7 +174,9 @@ private:
 std::ostream&             operator<<(std::ostream&, const ds::Resource::Id&);
 std::wostream&            operator<<(std::wostream&, const ds::Resource::Id&);
 
-// Make the resource ID available for hashing functions
+/*\cond Have doxygen ignore this, since it's an internal function that pops the std namespace on the main list
+		 Make the resource ID available for hashing functions
+*/
 namespace std {
 template<>
 struct hash<ds::Resource::Id> : public unary_function < ds::Resource::Id, size_t > {
@@ -182,6 +184,7 @@ struct hash<ds::Resource::Id> : public unary_function < ds::Resource::Id, size_t
 		return id.mType + (id.mValue << 8);
 	}
 };
+/* \endcond */
 }
 
 #endif // DS_DATA_RESOURCE_H_

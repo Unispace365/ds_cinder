@@ -136,6 +136,7 @@ private:
 	std::vector<int>					mCol;
 	std::vector<std::string>			mColNames;
 	std::vector<std::unique_ptr<Row>>	mRow;
+
 	// The time this query was requested.
 	Poco::Timestamp						mRequestTime;
 	int									mClientId;

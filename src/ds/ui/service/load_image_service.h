@@ -35,7 +35,9 @@ public:
 } // namespace ui
 } // namespace ds
 
-// Make the ImageKey available for hashing functions
+/* \cond Ignore this function in Doxygen
+	Make the ImageKey available for hashing functions
+*/
 namespace std {
 	template<>
 	struct hash<ds::ui::ImageKey> : public unary_function<ds::ui::ImageKey, size_t> {
@@ -46,6 +48,7 @@ namespace std {
 		}
 	};
 }
+/* \endcond */
 
 namespace ds {
 namespace ui {

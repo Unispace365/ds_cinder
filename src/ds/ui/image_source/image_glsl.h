@@ -19,13 +19,19 @@ namespace ui {
 class ImageGlsl : public ImageSource {
 public:
 	/**
+	 * \param width The width of the image
+	 * \param height The height of the image
 	 * \param filestem is the file stem for both the vertex and fragment shaders.
 	 * It's assumed to be located in the standard app data/shaders path, and the
 	 * files have the .vert and .frag extensions.
 	 */
 	ImageGlsl(const int width, const int height, const std::string& filestem);
+
 	/**
-	 * \param vertex, fragment are the absolute paths to the vertex and fragment shaders.
+	 * \param width The width of the image
+	 * \param height The height of the image
+	 * \param vertexFilename The absolute paths to the vertex shader.
+	 * \param fragmentFilename The absolute paths to the fragment shader.
 	 */
 	ImageGlsl(const int width, const int height, const std::string& vertexFilename, const std::string& fragmentFilename);
 

@@ -3,13 +3,13 @@
 #define DS_APP_EVENTNOTIFIER_H
 
 #include <ds/app/event.h>
-#include <ds/util/notifier_2.h>
+#include <ds/util/notifier.h>
 
 namespace ds {
 
 /**
  * \class ds::EventNotifier
- * Holder for an event notifier.
+ * \brief Holder for an event notifier.
  */
 class EventNotifier {
 public:
@@ -24,19 +24,24 @@ public:
 	// Send an event to the system, for clients that don't need
 	// an EventClient (i.e. don't need to receive events)
 	void						notify(const ds::Event&);
-	// Request information from the system.
-	void						request(ds::Event&);
 
-	/* Set an event that gets fired when a new listener is added.
+	/**
+	* Request information from the system.
+	* \param requestEvent The event to be sent as a request to the event system
+	*/
+	void						request(ds::Event& requestEvent);
+
+	/** \brief Set an event that gets fired when a new listener is added.
 	 * DANGEROUS: The caller needs to guarantee the T* it's returning is valid
 	 * outside the scope of the fn.
+	 * \param onAddListenerFunction The function to be called when a new listener has been added 
 	 */
-	void						setOnAddListenerFn(const std::function<ds::Event*(void)> &fn);
+	void						setOnAddListenerFn(const std::function<ds::Event*(void)> &onAddListenerFunction);
 
 protected:
 	friend class EventClient;
 
-	ds2::Notifier<ds::Event>    mEventNotifier;
+	ds::Notifier<ds::Event>    mEventNotifier;
 };
 
 } // namespace ds

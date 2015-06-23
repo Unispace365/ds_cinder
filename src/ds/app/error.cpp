@@ -95,7 +95,7 @@ ErrorRef& ErrorRef::setDescription(const std::wstring& s) {
 }
 
 /**
- * \class gm::ErrorList
+ * \class ds::ErrorList
  */
 ErrorList::ErrorList() {
 }

@@ -23,9 +23,7 @@ const char			BL_ATT				= 82;
 const char			BR_ATT				= 83;
 }
 
-/**
- * \class ds::ui::sprite::GradientSprite static
- */
+
 void Gradient::installAsServer(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
 }
@@ -34,9 +32,6 @@ void Gradient::installAsClient(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Gradient>(r);});
 }
 
-/**
- * \class ds::ui::sprite::GradientSprite
- */
 Gradient& Gradient::makeH(SpriteEngine& e, const ci::ColorA& x1, const ci::ColorA& x2, Sprite* parent) {
 	return makeAlloc<ds::ui::Gradient>([&e, &x1, &x2]()->ds::ui::Gradient*{
 		Gradient* s = new ds::ui::Gradient(e);
