@@ -1,9 +1,10 @@
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+VisualStudioVersion = 12.0.31101.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "pdf_example", "pdf_example.vcxproj", "{F836C3BE-11C1-4505-BB16-0CC8A91C14AE}"
 	ProjectSection(ProjectDependencies) = postProject
+		{BA6D6227-5B3F-4967-B005-1A9573FF6A69} = {BA6D6227-5B3F-4967-B005-1A9573FF6A69}
 		{D66469E5-B8D3-4356-A386-C7C54306B6DC} = {D66469E5-B8D3-4356-A386-C7C54306B6DC}
 	EndProjectSection
 EndProject

@@ -14,6 +14,7 @@ public:
 	void				setupServer();
 	void                keyDown(KeyEvent);
 	virtual void		mouseUp(MouseEvent);
+	virtual void		fileDrop(ci::app::FileDropEvent event);
 
 private:
 	typedef ds::App		inherited;
@@ -43,6 +44,15 @@ void BasicTweenApp::setupServer() {
 #endif
 	pdf.setCenter(0.5f, 0.5f);
 	pdf.setPosition(floorf(mEngine.getWorldWidth()/2.0f), floorf(mEngine.getWorldHeight()/2.0f));
+}
+
+void BasicTweenApp::fileDrop(ci::app::FileDropEvent event){
+	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
+		if(mPdf){
+			mPdf->setResourceFilename((*it).string());
+			break; //only use the first file
+		}
+	}
 }
 
 void BasicTweenApp::keyDown(KeyEvent e) {
