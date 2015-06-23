@@ -36,15 +36,6 @@ public:
 	virtual void				drawLocalClient();
 	bool						isLoaded() const;
 	
-	// Deprecated, see ImageOwner API
-	void						loadImage(const std::string &filename);
-	// Deprecated, see ImageOwner API
-	Image&						setResourceFilename(const std::string &filename);
-	// Deprecated, see ImageOwner API
-	Image&						setResourceId(const ds::Resource::Id &resourceId);
-	// Deprecated, see ImageOwner API
-	void						clearResource();
-	
 	struct Status {
 		static const int		STATUS_EMPTY = 0;
 		static const int		STATUS_LOADED = 1;

@@ -74,19 +74,24 @@ bool						get_format_png(const std::string& filename, ci::Vec2f& outSize) {
 void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize) {
 	try {
 		if (filename.empty()) return;
-		DS_LOG_WARNING_M("ImageFileAtts Going to load image synchronously; this will affect performance, filename: " << filename, GENERAL_LOG);
 		// Just load the image to get the dimensions -- this will incur what is
 		// unnecessarily overhead in one situation (I am in client/server mode),
 		// but is otherwise the right thing to do.
 		const Poco::File file(filename);
-		if (file.exists()) {
-			auto s = ci::Surface8u(ci::loadImage(filename));
-			if (s) {
-				outSize = ci::Vec2f(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
-			} else {
-				DS_LOG_WARNING_M("super_slow_image_atts: filename does not exist " << filename, GENERAL_LOG);
-				outSize = ci::Vec2f::zero();
-			}
+
+		if(!file.exists()){
+			DS_LOG_WARNING_M("ImageFileAtts: image file does not exist, filename: " << filename, GENERAL_LOG);
+			return;
+		}
+
+		DS_LOG_WARNING_M("ImageFileAtts Going to load image synchronously; this will affect performance, filename: " << filename, GENERAL_LOG);
+
+		auto s = ci::Surface8u(ci::loadImage(filename));
+		if(s) {
+			outSize = ci::Vec2f(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+		} else {
+			DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
+			outSize = ci::Vec2f::zero();
 		}
 	} catch (std::exception const& ex) {
 		std::cout << "ImageMetaData error loading file (" << filename << ") = " << ex.what() << std::endl;
