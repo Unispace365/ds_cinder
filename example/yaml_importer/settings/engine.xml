@@ -107,7 +107,7 @@
 	<text name="touch_mode" value="TuioAndMouse" />
 	
 	<!-- port to listen to tuio stream. default=3333 -->
-	<int name="tuio_port" value="3333" />
+	<int name="tuio_port" value="33333" />
 	
 	<!-- will allow tuio to receive object data. default=false -->
 	<text name="tuio:receive_objects" value="false" />

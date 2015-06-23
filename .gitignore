@@ -24,3 +24,4 @@ projects/video/lib/
 projects/web/lib/
 projects/essentials/lib/essentials_d.lib
 projects/essentials/lib/essentials.lib
+/example/simple_video_player/MediaInfo.dll

@@ -9,7 +9,7 @@
 namespace ds {
 
 /**
- * \class gpw::PersistentCache
+ * \class ds::PersistentCache
  * \brief Abstract persistent storage. Define a data format, then add and query.
  * I am thread safe (meaning I block on all calls).
  */
