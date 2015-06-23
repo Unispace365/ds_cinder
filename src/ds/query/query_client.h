@@ -65,6 +65,8 @@ class Client : public ds::WorkClient {
 									  Poco::Timestamp* sendTime = nullptr, int* id = nullptr);
 
   protected:
+	 /** 
+	 */
 	virtual void            handleResult(std::unique_ptr<WorkRequest>&);
 
   private:

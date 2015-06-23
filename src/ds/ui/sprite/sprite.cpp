@@ -70,10 +70,6 @@ const int           ROTATE_TOUCHES_F	= (1<<7);
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
 
-Sprite& Sprite::makeSprite(SpriteEngine &e, Sprite *parent) {
-	return makeAlloc<Sprite>([&e]()->Sprite*{return new Sprite(e); }, parent);
-}
-
 void Sprite::installAsServer(ds::BlobRegistry& registry) {
 	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
 }
@@ -169,7 +165,6 @@ Sprite::~Sprite() {
 	animStop();
 	cancelDelayedCall();
 
-//	std::cout << "delete " << mId << std::endl;
 	// We only want to request a delete for the sprite at the head of a tree,
 	const sprite_id_t	id = mId;
 	setSpriteId(ds::EMPTY_SPRITE_ID);
