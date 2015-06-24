@@ -52,8 +52,7 @@ namespace ui {
 		- Sprite will release all children when removing. Use release() to remove the sprite from it's parent and delete it.
 		- The base Sprite class can be set to display a solid rectangle, assuming it has a size, is non-transparent, and has a color.
 		- Sprites can be animated using the SpriteAnimatable functions to gracefully change size, position, opacity, scale, color, and rotation.
-		- Sprites can clip their children along their bounds using setClipping(true)
-	 */
+		- Sprites can clip their children along their bounds using setClipping(true)	 */
 	class Sprite : public SpriteAnimatable
 	{
 	public:
@@ -62,88 +61,162 @@ namespace ui {
 			The variadic args will be passed in the same order to your Sprite's constructor.
 			\param engine The SpriteEngine for your app.
 			\param parent An optional parent for the new sprite to be added to as a child.
-			\param args Parameter arguments that are passed to your custom sprite type, in order, on construction
-		*/
+			\param args Parameter arguments that are passed to your custom sprite type, in order, on construction		*/
 		template <typename T, typename... Args>
 		static T&				make(SpriteEngine& engine, Sprite* parent = nullptr, Args... args);
 
 		/** Sprite creation convenience, throw on failure.
-			\param engine The SpriteEngine for your app.
-			\param parent An optional parent for the new sprite to be added to as a child.
-		*/
+			\param allocFn A function to be called to create the sprite. See makeSprite() for an example.
+			\param parent An optional parent for the new sprite to be added to as a child.		*/
 		template <typename T>
 		static T&				makeAlloc(const std::function<T*(void)>& allocFn, Sprite* parent = nullptr);
 
 		/** Sprite creation convenience for this basic sprite type, throws on failure.
 			\param engine The SpriteEngine for your app.
-			\param parent An optional parent for the new sprite to be added to as a child.
-		*/
+			\param parent An optional parent for the new sprite to be added to as a child.		*/
 		static Sprite&			makeSprite(SpriteEngine& engine, Sprite* parent = nullptr){ return makeAlloc<Sprite>([&engine]()->Sprite*{return new Sprite(engine); }, parent); }
 
 		/** Constructor for Sprite.
 			\param engine The SpriteEngine for your app.
 			\param width Initial horizontal size of the sprite.
-			\param height Initial vertical size of the sprite.
-		*/
+			\param height Initial vertical size of the sprite.		*/
 		Sprite(SpriteEngine& engine, float width = 0.0f, float height = 0.0f);
 		virtual ~Sprite();
 
 		/** Update function for when this app is set to be a client.
 			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
-			\param updateParams UpdateParams containing some conveniences such as delta time.
-		*/
+			\param updateParams UpdateParams containing some conveniences such as delta time.		*/
 		virtual void			updateClient(const ds::UpdateParams& updateParams);
 
 		/** Update function for when this app is set to be a server.
 			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
 			In most cases, you'll override this function for logic on updates, rather than updateClient()
-			\param updateParams UpdateParams containing some conveniences such as delta time.
-		*/
+			\param updateParams UpdateParams containing some conveniences such as delta time.		*/
 		virtual void			updateServer(const ds::UpdateParams& updateParams);
 
 		/** Draw function for when this app is set to be a client.
 			In most cases, you'll want to override drawLocalClient() to do custom drawing, as this function handles drawing for children as well.
 			\param transformMatrix The transform matrix of the parent.
-			\param drawParams Parameters for drawing, such as the opacity of the parent.
-		*/
+			\param drawParams Parameters for drawing, such as the opacity of the parent.		*/
 		virtual void			drawClient(const ci::Matrix44f &transformMatrix, const DrawParams &drawParams);
 
 		/** Draw function for when this app is set to be a server.
 			In most cases, you'll want to override drawLocalClient() to do custom drawing, as this function handles drawing for children as well.
 			\param transformMatrix The transform matrix of the parent.
-			\param drawParams Parameters for drawing, such as the opacity of the parent.
-		*/
+			\param drawParams Parameters for drawing, such as the opacity of the parent.		*/
 		virtual void			drawServer(const ci::Matrix44f &transformMatrix, const DrawParams &drawParams);
 
-		ds::sprite_id_t			getId() const;
-		ds::ui::SpriteEngine&	getEngine();
+		/** Returns the unique id for this Sprite. The SpriteEngine will automatically generate an id for the sprite when constructed.
+			We recommend you use references or pointers to keep track of sprites, rather than looking up by Id.
+			\return Unique sprite id.		*/
+		ds::sprite_id_t			getId() const { return mId; }
 
+		/** Gets the SpriteEngine that was passed to this Sprite upon construction.
+			\return The app's SpriteEngine.		*/
+		ds::ui::SpriteEngine&	getEngine() { return mEngine; }
+
+		/** Get the width, height, and depth of this Sprite. Convenience for getWidth(), getHeight() and getDepth().
+			\return Returns a 3-dimensional vector equivalent to ci::Vec3f(width, height, depth).		*/
 		const ci::Vec3f			getSize() const;
 
+		/** Sets the width and height of the Sprite. 
+			This does not affect the scale of the Sprite. Many subclasses set the size of the Sprite themselves, such as Image and Text.
+			\param size2d The size to set in the form of ci::Vec2f(width, height).		*/
 		void					setSize(const ci::Vec2f& size2d);
+
+		/** Sets the width and height of the Sprite.
+			This does not affect the scale of the Sprite.
+			Many subclasses set the size of the Sprite themselves, such as Image and Text, and in those cases you should not call this function yourself.
+			\param width The new width of the Sprite.
+			\param height The new height of the Sprite.		*/
 		void					setSize(float width, float height);
+
+		/** Sets the width, height, and depth of the Sprite.
+			This does not affect the scale of the Sprite.
+			Many subclasses set the size of the Sprite themselves, such as Image and Text, and in those cases you should not call this function yourself.
+			This is identical to setSize(), except it also sets the depth.
+			\param size3d The size to set in the form of ci::Vec2f(width, height, depth).		*/
 		virtual void			setSizeAll(const ci::Vec3f& size3d);
+
+		/** Sets the width, height, and depth of the Sprite.
+			This does not affect the scale of the Sprite.
+			Many subclasses set the size of the Sprite themselves, such as Image and Text, and in those cases you should not call this function yourself.
+			This is identical to setSize(), except it also sets the depth.
+			\param width The new width of the Sprite.
+			\param height The new height of the Sprite.
+			\param depth The new depth of the Sprite.		*/
 		virtual void			setSizeAll(float width, float height, float depth);
 
-		// sets the size based on the size of it's immediate children, not recursive
+		/** Sets the size based on the boundaries of this Sprite's immediate children, not recursive		*/
 		void					sizeToChildBounds();
-		// Answer the preferred size for this object. This is intended to be part of a
-		// layout pass, so the default preferred size is 0 not width/height. Subclasses
-		// need to override this to be meaningful.
+
+		/** Answer the preferred size for this object. 
+			This is intended to be part of a layout pass, so the default preferred size is 0 not width/height. 
+			Subclasses need to override this to be meaningful.
+			\return The 3d vector of the size this sprite should be. Override this function and return a meaningful value.		 */
 		virtual ci::Vec3f		getPreferredSize() const;
 
+		/** The width of this sprite, not including scale.
+			For instance, an Image Sprite will always return the width of the image from this function, even if the Sprite has been scaled.
+			\return The width in pixels of this Sprite.		*/
 		virtual float			getWidth() const;
+
+		/** The height of this sprite, not including scale.
+			For instance, an Image Sprite will always return the height of the image from this function, even if the Sprite has been scaled.
+			\return The height in pixels of this Sprite.		*/
 		virtual float			getHeight() const;
+
+		/** The depth of this sprite, not including scale.
+			For instance, an Image Sprite will always return the height of the image from this function, even if the Sprite has been scaled.
+			\return The height in pixels of this Sprite.		*/
 		float					getDepth() const;
+
+		/** The local display width of this sprite.
+			Assuming all parents are scale=1.0, this will return the number of pixels this Sprite displays.
+			\return The display width of this Sprite, width * scale.x		*/
 		float					getScaleWidth() const;
+
+		/** The local display height of this sprite.
+			Assuming all parents are scale=1.0, this will return the number of pixels this Sprite displays.
+			\return The display height of this Sprite, height * scale.y		*/
 		float					getScaleHeight() const;
+
+		/** The local display depth of this sprite.
+			Assuming all parents are scale=1.0, this will return the number of pixels this Sprite displays.
+			\return The display depth of this Sprite, depth * scale.z		*/
 		float					getScaleDepth() const;
 
+		/** Set the position of the Sprite in local space (the parent's relative co-ordinates).
+			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
+			For ortho Sprites, positive y position is downwards.
+			Z position forwards or backwards depends on your camera setup.
+			\param pos The 3d vector of the new position, in pixels. */
 		void					setPosition(const ci::Vec3f &pos);
+
+		/** Set the position of the Sprite in local space (the parent's relative co-ordinates).
+			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
+			For ortho Sprites, positive y position is downwards.
+			Z position forwards or backwards depends on your camera setup.
+			\param x The x (horizontal) position, in pixels.
+			\param y The y (vertical) position, in pixels.
+			\param z The z (depth) position, in pixels. */
 		void					setPosition(float x, float y, float z = 0.0f);
+
+		/** Get the position of the Sprite in local space (the parent's relative co-ordinates).
+			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
+			For ortho Sprites, positive y position is downwards.
+			Z position forwards or backwards depends on your camera setup.
+			\return The 3d vector of the new position, in pixels. */
 		const ci::Vec3f&		getPosition() const;
 
+		/** The center of the Sprite, in the parent's co-ordinate space. See getCenter() and setCenter().
+			Effectively mPosition + getLocalCenterPosition();
+			\return 3d Vector of the pixel position of the center of this Sprite. */
 		ci::Vec3f				getCenterPosition() const;
+
+		/** The center of the Sprite, in this Sprite's co-ordinate space. See getCenter() and setCenter().
+			Effectively ci::Vec3f(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
+			\return 3d Vector of the pixel position of the center of this Sprite, in local space. */
 		ci::Vec3f				getLocalCenterPosition() const;
 
 		void					move(const ci::Vec3f &delta);
@@ -241,7 +314,7 @@ namespace ui {
 		bool					visible() const;
 
 		// Subclasses can handle the event
-		virtual void			eventReceived(const ds::Event&);
+		virtual void			eventReceived(const ds::Event&){};
 		// Convenience to pass an event up through my parents
 		void					parentEventReceived(const ds::Event&);
 
@@ -389,12 +462,12 @@ namespace ui {
 		virtual void		doSetRotation(const ci::Vec3f&);
 		void				doPropagateVisibilityChange(bool before, bool after);
 
-		virtual void		onCenterChanged();
-		virtual void		onPositionChanged();
-		virtual void		onScaleChanged();
-		virtual void		onSizeChanged();
-		virtual void		onChildAdded(Sprite& child);
-		virtual void		onChildRemoved(Sprite& child);
+		virtual void		onCenterChanged(){}
+		virtual void		onPositionChanged(){}
+		virtual void		onScaleChanged(){}
+		virtual void		onSizeChanged(){}
+		virtual void		onChildAdded(Sprite& child){}
+		virtual void		onChildRemoved(Sprite& child){}
 		// Note: there's a reason this is not called onVisibilityChanged().
 		// TLDR;the visible flag arg here is NOT equal to Sprite::visible()
 		// The reason is that,  the final visibility of a sprite is decided
@@ -403,7 +476,7 @@ namespace ui {
 		// parents' hide() / show() methods. The "visible" flag here is NOT
 		// the same as Sprite::visible()! Sprite::visible() is only limited
 		// to the sprite itself while visible flag here is described above.
-		virtual void		onAppearanceChanged(bool visible);
+		virtual void		onAppearanceChanged(bool visible){}
 
 		// Always access the bounds via this, which will build them if necessary
 		const ci::Rectf&	getClippingBounds();
@@ -420,10 +493,10 @@ namespace ui {
 		virtual void		writeAttributesTo(ds::DataBuffer&);
 		// Used during client mode, to let clients get info back to the server. Use the
 		// engine_io.defs::ScopedClientAtts at the top of the function to do all the boilerplate.
-		virtual void		writeClientAttributesTo(ds::DataBuffer&) const;
-		virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&);
+		virtual void		writeClientAttributesTo(ds::DataBuffer&) const {};
+		virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&){}
 		// Read a single attribute
-		virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&);
+		virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&){}
 
 		void				setUseShaderTextuer(bool flag);
 		bool				getUseShaderTextuer() const;
