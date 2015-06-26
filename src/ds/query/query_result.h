@@ -100,7 +100,7 @@ public:
 	bool					addRows(const Result& src);
 	// Remove my first row, optionally placing it 
 	void					popRowFront();
-	// Access to ManagedList::move(), see it for args
+
 	// Turn this off for now, not sure if anyone's using it
 //	void					moveRow(Result&, const int from, const int to);
 	// Swap all data
