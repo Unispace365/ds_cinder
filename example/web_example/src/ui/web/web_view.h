@@ -29,6 +29,8 @@ public:
 	void			goForward(){ mWeb.goForward();}
 	void			reload(){ mWeb.reload(); }
 
+	void			setUrl(const std::string& newUrl){ mWeb.setUrl(newUrl); }
+
 private:
 
 	typedef ds::ui::Sprite inherited;

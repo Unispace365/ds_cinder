@@ -1,5 +1,7 @@
 #include "web_example_app.h"
 
+#include <cinder/Clipboard.h>
+
 #include <Poco/String.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
@@ -50,7 +52,12 @@ void web_example::update() {
 void web_example::keyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 	inherited::keyDown(event);
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
+
+	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown()){
+		if(ci::Clipboard::hasString() && mWebView){
+			mWebView->setUrl(ci::Clipboard::getString());
+		}
+	} else if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	} else if(event.getChar() == KeyEvent::KEY_b){
 		if(mWebView){

@@ -30,6 +30,7 @@ WebView::WebView(Globals& g)
 
 	mWeb.setDragScrolling(true);
 	mWeb.setDragScrollingMinimumFingers(1);
+	mWeb.setDrawWhileLoading(true);
 	mWeb.setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	mWeb.loadUrl(url);
 	mWeb.activate();
