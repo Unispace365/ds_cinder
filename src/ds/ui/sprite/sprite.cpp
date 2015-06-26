@@ -1633,7 +1633,7 @@ void Sprite::resetIdleTimer() {
 	mIdleTimer.resetIdleTimer();
 }
 
-void Sprite::clear() {
+void Sprite::clearIdleTimer() {
 	mIdleTimer.clear();
 }
 

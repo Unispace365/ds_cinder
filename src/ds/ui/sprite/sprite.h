@@ -556,7 +556,7 @@ namespace ui {
 		void					startIdling();
 		void					resetIdleTimer();
 		// clears the idle timer, not the whole sprite or anything
-		void					clear();
+		void					clearIdleTimer();
 
 		// Prevent this sprite (and all children) from replicating. NOTE: Should
 		// only be done once on construction, if you change it, weird things could happen.
