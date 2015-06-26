@@ -2,6 +2,7 @@
 
 namespace {
 
+	/** \cond Ignore this file for doxygen as it creates a bunch of duplicates */
 ds::BitMask newUniqueBitMask()
 {
   static unsigned category = 0;
@@ -32,3 +33,5 @@ const BitMask &MULTITOUCH_NO_CONSTRAINTS = MULTITOUCH_NO_CONSTRAINTS_;
 
 } // namespace ui
 } // namespace ds
+
+/** \endcond */

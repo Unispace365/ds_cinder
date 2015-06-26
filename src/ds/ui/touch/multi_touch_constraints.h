@@ -6,6 +6,8 @@
 namespace ds {
 namespace ui {
 
+	/** \property MULTITOUCH_INFO_ONLY 
+					Only return information about touch handling in Sprite's setTouchInfoFunction(). Does not modify the sprite in any way when touch hits the Sprite. */
 extern const BitMask &MULTITOUCH_INFO_ONLY;
 extern const BitMask &MULTITOUCH_CAN_SCALE;
 extern const BitMask &MULTITOUCH_CAN_ROTATE;

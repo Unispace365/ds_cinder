@@ -22,9 +22,6 @@ int				parse_component(const std::string& input, const size_t pos, const int def
 
 }
 
-/**
- * \function ds::parse_color
- */
 ci::Color parse_color(const std::string& input) {
 	const ci::ColorA	ca(parse_colora(input));
 	return ci::Color(ca.r, ca.g, ca.b);

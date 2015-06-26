@@ -22,12 +22,14 @@ class Environment;
  *
  * The command line can be used to provide the location of one or both of
  * these files:
- *   APP_SETTINGS="filename.xml" to provide the filename for the app settings.
- *   LOCAL_SETTINGS="filename.xml" to provide the filename for the local
+ * \code
+ *   APP_SETTINGS="filename.xml" //to provide the filename for the app settings.
+ *   LOCAL_SETTINGS="filename.xml" //to provide the filename for the local
+ * \endcode
  * settings.  The app settings will need a project_path setting to provide
- * the path to locate this file.  The root is always Documents\downstream\settings,
+ * the path to locate this file.  The root is always \code Documents\downstream\settings \endcode
  * then the project_path, then the filename.
- *   LOCAL_PATH="project_path\filename.xml" Using this variant, you automatically
+ *   \code LOCAL_PATH="project_path\filename.xml" \endcode Using this variant, you automatically
  * assign a project path to the system that will overwrite any project_path
  * specified in the app settings.
  */

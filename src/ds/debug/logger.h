@@ -29,7 +29,7 @@ extern const ds::BitMask	VIDEO_LOG;
 /**
  * \class ds::Logger
  * \brief Standard logging behaviour.
- * \description A run-time configurable logger that supports clients
+ * A run-time configurable logger that supports clients
  * supplying log level (INFO, WARN etc) and application-defined modules.
  * The logger is initially configured from a settings file, and then at
  * runtime, modules can be turned on and off.  All logging ideally happens
@@ -58,7 +58,7 @@ public:
 	// Verification that the given parameter is valid to log.
 	static bool						hasLevel(const int level);
 
-	/**
+	/*
 	 * MODULES
 	 */
 	/**
@@ -71,12 +71,12 @@ public:
 	 */
 	static ds::BitMask      newModule(const std::string& name);
 
-	// Verification that the given parameter is valid to log.
+	/// Verification that the given parameter is valid to log.
 	static bool             hasModule(const ds::BitMask&);
 
-	// A run-time switch to toggle specific modules on and off.  This isn't
-	// 100% safe but the consequences aren't exactly dire -- extra logging or
-	// missing logging for a fraction of a second.
+	/** A run-time switch to toggle specific modules on and off.  This isn't
+	* 100% safe but the consequences aren't exactly dire -- extra logging or
+	* missing logging for a fraction of a second. */
 	static void             toggleModule(const ds::BitMask& module, const bool on);
 
   public:
@@ -86,10 +86,10 @@ public:
 	void                    log(const int level, const std::string&);
 	void                    log(const int level, const std::wstring&);
 
-	// Block until all current inputs have finished writing
+	/// Block until all current inputs have finished writing
 	void                    blockUntilReady();
 
-	// called by the app to make sure I'm shut down.
+	/// called by the app to make sure I'm shut down.
 	void                    shutDown();
 
   private:

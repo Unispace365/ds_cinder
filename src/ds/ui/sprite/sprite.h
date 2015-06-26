@@ -209,6 +209,54 @@ namespace ui {
 			\return The 3d vector of the new position, in pixels. */
 		const ci::Vec3f&		getPosition() const;
 
+		/** Change the position of the Sprite relative to it's current position.
+			\param delta 3d vector of the amount to move the Sprite in pixels		*/
+		void					move(const ci::Vec3f &delta);
+
+		/** Change the position of the Sprite relative to it's current position.
+			\param deltaX Horizontal amount to move the Sprite in pixels
+			\param deltaY Vertical amount to move the Sprite in pixels. Inverted for perspective Sprites.
+			\param deltaZ Depth amount to move the Sprite in pixels	*/
+		void					move(float deltaX, float deltaY, float deltaZ = 0.0f);
+		
+		/** Change the scale of the Sprite.
+			\param scale 3d vector of the new scale of the Sprite		*/
+		void					setScale(const ci::Vec3f &scale);
+
+		/** Change the scale of the Sprite.
+			\param x New horizontal scale of the Sprite
+			\param y New vertical scale of the Sprite
+			\param z New depth scale of the Sprite		*/
+		void					setScale(float x, float y, float z = 1.0f);
+
+		/** Change the scale of the Sprite. Scales proportional in all 3 directions
+			\param scale New scale (x, y, and z will be the same) of the Sprite */
+		void					setScale(float scale);
+
+		/** The scale of the Sprite.
+			\return scale 3d vector of the current scale of the Sprite		*/
+		const ci::Vec3f&		getScale() const;
+
+		/** Center point of the Sprite for transform calculations as a percentage (0.0 - 1.0).
+			Scale, rotate and position will happen around this center point.
+			Default is 0.0, 0.0, 0.0, which is the top left corner of the Sprite.
+			\param center 3d vector of the center percentage. */
+		virtual void			setCenter(const ci::Vec3f &center);
+
+		/** Center point of the Sprite for transform calculations as a percentage (0.0 - 1.0).
+			Scale, rotate and position will happen around this center point.
+			Default is 0.0, 0.0, 0.0, which is the top left corner of the Sprite.
+			\param x Horizontal center percentage.
+			\param y Vertical center percentage.
+			\param z Depth center percentage.  */
+		virtual void			setCenter(float x, float y, float z = 0.0f);
+
+		/** Center point of the Sprite for transform calculations as a percentage (0.0 - 1.0).
+			Scale, rotate and position happen around this center point.
+			Default is 0.0, 0.0, 0.0, which is the top left corner of the Sprite.
+			\return center 3d vector of the center percentage. */
+		const ci::Vec3f&		getCenter() const;
+
 		/** The center of the Sprite, in the parent's co-ordinate space. See getCenter() and setCenter().
 			Effectively mPosition + getLocalCenterPosition();
 			\return 3d Vector of the pixel position of the center of this Sprite. */
@@ -219,37 +267,45 @@ namespace ui {
 			\return 3d Vector of the pixel position of the center of this Sprite, in local space. */
 		ci::Vec3f				getLocalCenterPosition() const;
 
-		void					move(const ci::Vec3f &delta);
-		void					move(float deltaX, float deltaY, float deltaZ = 0.0f);
+		/** Set the rotation around the z-axis, in degrees.
+			Leaves the x and y axis rotations alone.
+			\param zRot Sets the rotation around the z-axis, in degrees. 	*/
+		void					setRotation(float zRot);
 
-		void					setScale(const ci::Vec3f &scale);
-		void					setScale(float x, float y, float z = 1.0f);
-		void					setScale(float scale);
-		const ci::Vec3f&		getScale() const;
-
-		// center of the Sprite. Where its positioned at and rotated at.
-		virtual void			setCenter(const ci::Vec3f &center);
-		virtual void			setCenter(float x, float y, float z = 0.0f);
-		const ci::Vec3f&		getCenter() const;
-
-		void					setRotation(float rotZ);
+		/** Set the rotation around all 3 axis'es, in degrees.
+			\param xRot Sets the rotation around the x-axis, in degrees.
+			\param yRot Sets the rotation around the y-axis, in degrees.
+			\param zRot Sets the rotation around the z-axis, in degrees. 	*/
 		void					setRotation(const float xRot, const float yRot, const float zRot);
+
+		/** Set the rotation around all 3 axis'es, in degrees.
+			\param rot 3d vector of the new rotation, in degrees.*/
 		void					setRotation(const ci::Vec3f &rot);
+
+		/** Get the rotation around all 3 axis'es, in degrees.
+			\return 3d vector of the current rotation, in degrees.*/
 		ci::Vec3f				getRotation() const;
 
-		// \note This ZLevel is not analogous to 3D position z value at all.
-		// This value affects drawing order of sprites. The higher this value is,
-		// the later this sprite gets drawn.
-		// \see Sprite::drawServer
-		void					setZLevel(float zlevel);
-		float					getZLevel() const;
-
+		/** Get the rectangle that contains this sprite, in Parent's local space.
+			Includes all transformation, including scale and rotation.
+			\return Rectangle that contains this sprite, in Parent's local space.		*/
 		ci::Rectf				getBoundingBox() const;
+
+		/** Get the rectangle that contains all children, in this Sprite's space.
+			Includes all transformation, including scale and rotation.
+			\return Rectangle that contains this sprite, in Parent's local space.		*/
 		ci::Rectf				getChildBoundingBox() const;
 
-		// whether to draw be by Sprite order or z level.
-		// Only works on a per Sprite base.
+		/** Whether to draw be by Sprite order or z position.
+			Only works on a per Sprite basis, not recursive.
+			See sendToFront(), sendToBack() for sprite order drawing control.
+			\param drawSorted True for drawing by z-position of children, false to draw by sprite order. */
 		void					setDrawSorted(bool drawSorted);
+
+		/** Whether to draw be by Sprite order or z position.
+			Only works on a per Sprite basis, not recursive.
+			See sendToFront(), sendToBack() for sprite order drawing control.
+			\return True for drawing by z-position of children, false to draw by sprite order. */
 		bool					getDrawSorted() const;
 
 		const ci::Matrix44f&	getTransform() const;
@@ -257,82 +313,194 @@ namespace ui {
 		const ci::Matrix44f&	getGlobalTransform() const;
 		const ci::Matrix44f&	getInverseGlobalTransform() const;
 
+		/** Arbitrary data (float's and int's) on this sprite. See UserData for storage usage. */
 		ds::UserData&			getUserData();
+		/** Arbitrary data (float's and int's) on this sprite. See UserData for storage usage. */
 		const ds::UserData&		getUserData() const;
 
-		void					addChild(Sprite&);
+		/** Adds a sprite as a child of this Sprite.
+			The child will be placed at it's position in this Sprite's coordinate space,
+			and take on this Sprite's rotation, scale, position, and opacity.
+			Transform changes to this Sprite will also affect the new child. 
+			New children are added at the bottom of the Sprite and will display on top of other children and this Sprite.
+			If you have a pointer to a Sprite, you can use addChildPtr().
+			\param newChild The Sprite to be added as a child*/
+		void					addChild(Sprite& newChild);
 
+		/** Adds a sprite as a child of this Sprite.
+			The child will be placed at it's position in this Sprite's coordinate space,
+			and take on this Sprite's rotation, scale, position, and opacity.
+			Transform changes to this Sprite will also affect the new child.
+			New children are added at the bottom of the Sprite and will display on top of other children and this Sprite.
+			If you have a reference to a Sprite, you can use addChild().
+			\param newChild The Sprite to be added as a child*/
 		template<class T>
-		T*						addChildPtr(T* e){
-			if(!e) return nullptr;
-			addChild(*e);
-			return e;
+		T*						addChildPtr(T* newChild){
+			if(!newChild) return nullptr;
+			addChild(*newChild);
+			return newChild;
 		}
 
-		// removes child from Sprite, but does not delete it.
+		/** Removes child from this Sprite, but does not delete it.
+			It's only recommend to use this function if you want to reuse the child sprite later.
+			\param child The Sprite to be removed from this Sprite. Must be a child of this Sprite. */
 		void					removeChild(Sprite &child);
-		// remove child from parent, does not delete.
+
+		/** Remove this Sprite from it's parent, does not delete.
+			It's only recommend to use this function if you want to reuse this sprite later. */
 		void					removeParent();
-		// removes Sprite from parent and deletes all children. Does not delete Sprite.
+
+		/** Removes this Sprite from parent; removes and deletes all it's children. Does not delete this Sprite.
+			It's only recommend to use this function if you want to reuse this sprite later. */
 		void					remove();
-		// OK, sprite/child management has become REALLY messy. And the painful thing
-		// is none of the existing functions manage memory -- you still need to delete,
-		// and I don't know that anyone does. So this function is intended to remove
-		// myself from my parent, delete all children, and delete myself.
+
+
+		/** The recommended "removal" API: removes this Sprite from parent; removes and deletes all it's children, deletes this Sprite.
+			In most cases, you will want to use this function to get rid of sprites. 
+			This removes this sprite and it's children from the display list and clears all of that memory.
+			Remember to clear any pointers related to this Sprite or any references in any vectors you have saved yourself. */
 		void					release();
 
-		// check to see if Sprite contains child
-		bool					containsChild(Sprite *child) const;
-		// removes and deletes all children
+		/** Removes and deletes all children. 
+			Equivalent to calling release() on every child. */
 		void					clearChildren();
-		void					forEachChild(const std::function<void(Sprite&)>&, const bool recurse = false);
 
-		// sends sprite to front of parents child list.
+		/** Check to see if this Sprite contains child.
+			\param child The child to check if it is contained on this Sprite.
+			\return True if the child is a child of this Sprite. False if the child is a damn stranger. */
+		bool					containsChild(Sprite *child) const;
+
+		/** Run a function for every child of this Sprite.
+			\param funkyTown The lambda function to be called for each Sprite.
+			\param recurse Call this function for all children of all children of all my children. */
+		void					forEachChild(const std::function<void(Sprite&)>& funkyTown, const bool recurse = false);
+
+		/** Sends sprite to front of parents child list. */
 		void					sendToFront();
-		// sends sprite to back of parents child list.
+		/** Sends sprite to back of parents child list.	*/
 		void					sendToBack();
 
+		/** Set the display color of this Sprite. Implementation can vary by Sprite type. */
 		virtual void			setColor(const ci::Color&);
+		/** Set the display color of this Sprite. Implementation can vary by Sprite type. 
+			\param r Red component of the color from 0.0 to 1.0
+			\param g Green component of the color from 0.0 to 1.0
+			\param b Blue component of the color from 0.0 to 1.0 */
 		virtual void			setColor(float r, float g, float b);
-		// A convenience to set the color and the opacity
-		void					setColorA(const ci::ColorA&);
+
+		/** Get the display color of this Sprite. Implementation can vary by Sprite type. */
 		ci::Color				getColor() const;
+
+		/** A convenience to set the color and the opacity. 
+			The alpha component of the color will set the opacity.
+			Setting the opacity after this call will overwrite this value. */
+		void					setColorA(const ci::ColorA&);
+
+		/** A convenience to get the color and the opacity.
+			The alpha component of the color is the opacity.*/
 		ci::ColorA				getColorA() const;
 
+		/** Set the opacity of this Sprite (transparency). 
+			0.0 is invisible, 1.0 is fully opaque.
+			\param opacity The new opacity value of this Sprite. */
 		void					setOpacity(float opacity);
+
+		/** Get the opacity of this Sprite (transparency).
+			0.0 is invisible, 1.0 is fully opaque.
+			\return The current opacity value of this Sprite. */
 		float					getOpacity() const;
 
-		// Whether or not to show the entity; does not hide children.
+		/** Whether or not to render this Sprite in the draw cycle; does not affect children.
+			For basic Sprites, to draw a rectangle, this needs to be set to false. 
+			\param transparent True means this sprite will not draw (but it's children could). False will render this Sprite. */
 		void					setTransparent(bool transparent);
+		/** Whether or not to render this Sprite in the draw cycle; does not affect children.
+			\return True means this sprite will not draw (but it's children could). False will render this Sprite. */
 		bool					getTransparent() const;
 
-		// will show all children that are visible
+		/** The opposite of hide(), affects this Sprite and it's children.
+			Does not set the value of children recursively, just shortcuts the draw loop. */
 		virtual void			show();
-		// will hide all children as well.
+
+		/** The opposite of show(), affects this Sprite and it's children.
+			A hidden Sprite doesn't participate in drawing or touch picking, but does get updated and can be animated. */
 		virtual void			hide();
 
+		/** If this sprite is show() or hide().
+			\return True == this Sprite is visible (show()), or false == hide()*/
 		bool					visible() const;
 
-		// Subclasses can handle the event
-		virtual void			eventReceived(const ds::Event&){};
-		// Convenience to pass an event up through my parents
-		void					parentEventReceived(const ds::Event&);
+		/** Subclasses can handle the event, a convenience for handling events without setting up event clients. 
+			\param event The Event to be handled. */
+		virtual void			eventReceived(const ds::Event& event){};
 
-		// check to see if Sprite can be touched
-		void					enable(bool flag);
-		bool					isEnabled() const;
+		/** A convenience for notifying parents of events. Passes the event up through the parent hierarchy to the root Sprite.
+			Calls eventReceived() for each parent.
+			\param event The Event to be passed up the chain. */
+		void					parentEventReceived(const ds::Event& event);
 
+		/** Returns the parent for this Sprite, if any. Can return nullptr if there is no parent, so check before using. */
 		Sprite*					getParent() const;
 
+		/** Convert coordinate space from global (world) space to the local coordinate space of this Sprite. May not work for perspective Sprites.
+			For example, if you have a global touch point, you can find it's local location like this:
+			\code	if(getParent()){
+						ci::Vec3f localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
+					}
+			\endcode
+			\param globalPoint The 3d vector in global coordinate space to be converted.
+			\return A local 3d vector in the coordinate space of this Sprite. */
 		ci::Vec3f				globalToLocal(const ci::Vec3f &globalPoint);
+
+		/** Convert coordinate space from local coordinate space of this Sprite to global (world) coordinate space. May not work for perspective Sprites.
+			For example, you could figure out where to launch a media viewer from a button on a panel like this:
+			\code //In the button click handler
+					ci::Vec3f globalPosition = localToGlobal(mTheLaunchButton.getPosition());
+					mEngine.getNotifier().notify(CustomMediaViewerLaunchEvent(globalPosition));
+			\endcode
+			\param localPoint The 3d vector in local coordinate space to be converted.
+			\return A local 3d vector in the coordinate space of this Sprite. */
 		ci::Vec3f				localToGlobal(const ci::Vec3f &localPoint);
 
-		// check if a point is inside the Sprite's bounds.
+		/** Check if a global point is inside the Sprite's bounding box, does not take perspective into account.
+			\param point The global point to check if it's inside this Sprite's bounding box. 
+			\param pad Extra pixel size outside this Sprite's bounding box. Useful for ad-hoc touch padding.
+			\return True if the point is inside the bounding box, false for outside. */
 		virtual bool			contains(const ci::Vec3f& point, const float pad = 0.0f) const;
 
-		// finds Sprite at position
+		/** Recursively checks the Sprite hierarchy list for an enabled, visible sprite with a scale > 0.0 and any size for touch picking.
+			This is for Ortho Sprites. Perspective Sprites use getPerspectiveHit() 
+			\param point The global point to check. 
+			\return The Sprite that is the best candidate for touch picking. Can return nullptr if there was no valid pick.*/
 		Sprite*					getHit(const ci::Vec3f &point);
-		Sprite*					getPerspectiveHit(CameraPick&);
+
+		/** Recursively checks the Sprite hierarchy list for an enabled, visible sprite with a scale > 0.0 and any size for touch picking.
+			This is for Perspective Sprites. Ortho Sprites use getHit()
+			\param pick Some parameters for perspective picking.
+			\return The Sprite that is the best candidate for touch picking. Can return nullptr if there was no valid pick.*/
+		Sprite*					getPerspectiveHit(CameraPick& pick);
+
+		/** Touch handling enabling and disabling. Does not affect children. Sprite needs to be visible to handle touches.
+			\param flag True to enable touch handling, false disables this Sprite. */
+		void					enable(bool flag);
+
+		/** Is this Sprite enabled to handle touch events? */
+		bool					isEnabled() const;
+
+		/**	Defines the type of touch handling for this Sprite. Requires enable(true); to have been called at some point.
+			Constraints defined in multi_touch_constraints.h. For example: ds::ui::MULTITOUCH_INFO_ONLY. 
+			\param constraints A bitmask of how touch is handled. For example: ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_ROTATE */
+		void					enableMultiTouch(const BitMask & constraints);
+
+		/** Disables specific MultiTouch handling, but leaves the enable() setting alone. 
+			After calling this, the Sprite will still grab touch events, but not do any specific multitouch handling (like position, rotate, etc). Will send out tap and touchinfo callbacks. */
+		void					disableMultiTouch();
+
+		/** Has enableMultiTouch() been called?  */
+		bool					multiTouchEnabled() const;
+
+		/** Does this Sprite have a specific Multitouch bitmask set? see ds::ui::MULTITOUCH_INFO_ONLY */
+		bool					hasMultiTouchConstraint(const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS) const;
 
 		void					setProcessTouchCallback(const std::function<void(Sprite *, const TouchInfo &)> &func);
 		// Stateful tap is the new-style and should be preferred over others.  It lets you
@@ -348,14 +516,7 @@ namespace ui {
 		// true will size the sprite using setSize() on a touch scale gesture
 		// false (the default) will scale the sprite using setScale9) on a touch scale gesture.
 		// MULTITOUCH_CAN_SCALE has to be a touch flag as well as the sprite being enabled to take effect
-		void					setTouchScaleMode(bool doSizeScale);;
-
-		// Constraints defined in multi_touch_constraints.h
-		// ds::ui::MULTITOUCH_XX
-		void					enableMultiTouch(const BitMask &);
-		void					disableMultiTouch();
-		bool					multiTouchEnabled() const;
-		bool					hasMultiTouchConstraint(const BitMask &constraint = MULTITOUCH_NO_CONSTRAINTS) const;
+		void					setTouchScaleMode(bool doSizeScale);
 
 		void					callAfterDelay(const std::function<void(void)>&, const float delay_in_seconds);
 		void					cancelDelayedCall();

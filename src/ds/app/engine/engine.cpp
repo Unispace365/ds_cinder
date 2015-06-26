@@ -143,9 +143,6 @@ namespace ds {
 
 const int Engine::NumberOfNetworkThreads = 2;
 
-/**
- * \class ds::Engine
- */
 Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)

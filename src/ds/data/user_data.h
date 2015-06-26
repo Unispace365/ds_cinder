@@ -7,10 +7,10 @@
 namespace ds {
 
 /**
- * \class ds::UserData
- * \brief Arbitrary data supplied by a user, with a dynamically allocated
- * data store (i.e. very efficient for classes with a lot of subclasses,
- * only a few of which will have user data).
+	\class UserData
+	\brief Arbitrary data supplied by a user, with a dynamically allocated
+	data store (i.e. very efficient for classes with a lot of subclasses,
+	only a few of which will have user data).
  */
 class UserData {
 public:

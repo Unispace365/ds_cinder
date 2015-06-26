@@ -62,12 +62,12 @@ public:
 	ImageToken(LoadImageService&);
 	~ImageToken();
 
-	// Answer true if I have neither an actual image nor a request for one.
+	/// Answer true if I have neither an actual image nor a request for one.
 	bool					empty() const;
 	bool					canAcquire() const;
+
 	/**
 	 * \brief Request the resource be loaded.
-	 * \param resourceId is the resource to load.
 	 * \param filename is the filename (and path) for the resource ID.
 	 * \param ip_key is a key to an IpFunction, which must be one of the
 	 * system ones in ip_defs.h, or installed by the app.
@@ -80,7 +80,8 @@ public:
 	void					release();
 
 	ci::gl::Texture			getImage(float& fade);
-	// No refs are acquired, no image is loaded -- if it exists, answer it
+
+	/// No refs are acquired, no image is loaded -- if it exists, answer it
 	const ci::gl::Texture	peekImage(const std::string& filename) const;
 
 private:
@@ -88,7 +89,6 @@ private:
 
 	LoadImageService&		mSrv;
 	ImageKey				mKey;
-//	std::string				mFilename;
 	bool					mAcquired;
 	bool					mError;
 	ci::gl::Texture			mTexture;

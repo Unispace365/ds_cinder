@@ -41,7 +41,7 @@ Troubleshooting installation
  - If you get `LNK1123: failure during conversion to COFF: file invalid or corrupt'`: Install latest update for your Visual Studio!
  - `SerialRunnable`: You may need to pass an alloc function when initializing a SerialRunnbale. 
  - `boost::mutex` to `std::mutex`. In most cases for threading, the `boost` versions are supplanted with the `STL` version. Check stack overflow / google, there's plenty of upgrade examples
- - `Not defined`s: Many `STL` elements now need to have `#include`s, most commonly `<memory>`, `<cctype>` and `<sstring>`.
+ - `Not defined`s: Many `STL` elements now need to have `include`s, most commonly `<memory>`, `<cctype>` and `<sstring>`.
  - `KeyEvent Not Defined`: Since the removal of using namespace `ci::*` from `ds_cinder` files, you'll need to make sure everything is namespaced properly.
 
 ----------

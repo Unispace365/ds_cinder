@@ -4,9 +4,6 @@
 
 namespace ds {
 
-/**
- * ds::UserData
- */
 UserData::UserData() {
 }
 

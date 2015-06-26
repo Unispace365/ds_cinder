@@ -36,6 +36,7 @@ public:
 	// Answer a complete path to a local settings file.  Supply an empty file name
 	// to just get the local settings folder.
 	static std::string			getLocalSettingsPath(const std::string& fileName);
+
 	// Convenience to load in a settings file, first from the app path, then the local path
 	static void					loadSettings(const std::string& filename, ds::cfg::Settings&);
 		

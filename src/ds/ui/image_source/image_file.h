@@ -26,6 +26,8 @@ public:
 	 * system ones in ip_defs.h, or installed by the app.
 	 * \param ip_params is parameters to the IpFunction. Format is dependent
 	 * on the function.
+	 * \param filename is the filename (and path) for the resource.
+	 * \param flags provides scope info (i.e. ds::IMG_CACHE).
 	 */
 	ImageFile(	const std::string& filename, const std::string& ip_key,
 				const std::string& ip_params, const int flags = 0);

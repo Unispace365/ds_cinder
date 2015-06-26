@@ -60,6 +60,8 @@ class Client : public ds::WorkClient {
 				also get the unique ID of this operation.
 		\param database The filepath of the sqlite db to query
 		\param query The string of the query statement to run on the db. E.g. "SELECT * FROM tablename"
+		\param sendTime The time the query was started?
+		\param id
 	*/
 	bool                    runAsync(	const std::string& database, const std::string& query,
 									  Poco::Timestamp* sendTime = nullptr, int* id = nullptr);

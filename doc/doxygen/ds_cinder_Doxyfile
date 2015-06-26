@@ -51,14 +51,14 @@ PROJECT_BRIEF          = "Downstream's Cinder framework"
 # pixels and the maximum width should not exceed 200 pixels. Doxygen will copy
 # the logo to the output directory.
 
-PROJECT_LOGO           = "$DS_PLATFORM_086/vs2013/ds_app_icon.ico"
+PROJECT_LOGO           = E:/code/ds_cinder_0.8.6/vs2013/ds_app_icon.ico
 
 # The OUTPUT_DIRECTORY tag is used to specify the (relative or absolute) path
 # into which the generated documentation will be written. If a relative path is
 # entered, it will be relative to the location where doxygen was started. If
 # left blank the current directory will be used.
 
-OUTPUT_DIRECTORY       = ${DS_PLATFORM_086}/doc/doxygen/generated
+OUTPUT_DIRECTORY       = ./doc/doxygen/generated
 
 # If the CREATE_SUBDIRS tag is set to YES then doxygen will create 4096 sub-
 # directories (in 2 levels) under the output directory of each output format and
@@ -187,7 +187,7 @@ SHORT_NAMES            = NO
 # description.)
 # The default value is: NO.
 
-JAVADOC_AUTOBRIEF      = NO
+JAVADOC_AUTOBRIEF      = YES
 
 # If the QT_AUTOBRIEF tag is set to YES then doxygen will interpret the first
 # line (until the first dot) of a Qt-style comment as the brief description. If
@@ -768,7 +768,7 @@ WARN_LOGFILE           =
 # spaces.
 # Note: If this tag is empty the current directory is searched.
 
-INPUT                  = E:/code/ds_cinder_0.8.6
+INPUT                  = ./
 
 # This tag can be used to specify the character encoding of the source files
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding. Doxygen uses
@@ -868,7 +868,10 @@ EXCLUDE_PATTERNS       = */doc/* \
                          */vs2013/* \
                          "*/project generator/*" \
                          */boilerplate/* \
-                         */sqlite3.c
+                         */sqlite3.c \
+                         */poco/* \
+                         *sqlite3* \
+                         */projects/*
 
 # The EXCLUDE_SYMBOLS tag can be used to specify one or more symbol names
 # (namespaces, classes, functions, etc.) that should be excluded from the
@@ -879,7 +882,10 @@ EXCLUDE_PATTERNS       = */doc/* \
 # Note that the wildcards are matched against the file with absolute path, so to
 # exclude all test directories use the pattern */test/*
 
-EXCLUDE_SYMBOLS        = 
+EXCLUDE_SYMBOLS        = cinder::* \
+                         Poco::* \
+                         Poco \
+                         cinder
 
 # The EXAMPLE_PATH tag can be used to specify one or more files or directories
 # that contain example code fragments that are included (see the \include

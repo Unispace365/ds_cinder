@@ -316,12 +316,8 @@ void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams
 			(*it)->drawServer(totalTransformation, drawParams);
 		}
 	} else {
-		std::vector<Sprite *> mCopy = mChildren;
-		std::sort(mCopy.begin(), mCopy.end(), [](Sprite *i, Sprite *j) {
-			return i->getZLevel() < j->getZLevel();
-		});
-
-		for(auto it = mCopy.begin(), it2 = mCopy.end(); it != it2; ++it) {
+		makeSortedChildren();
+		for(auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it) {
 			(*it)->drawServer(totalTransformation, drawParams);
 		}
 	}
@@ -438,15 +434,6 @@ void Sprite::doSetRotation(const ci::Vec3f& rot) {
 ci::Vec3f Sprite::getRotation() const
 {
 	return mRotation;
-}
-
-void Sprite::setZLevel(float zlevel){
-	mZLevel = zlevel;
-}
-
-
-float Sprite::getZLevel() const {
-	return mZLevel;
 }
 
 namespace {
@@ -865,12 +852,7 @@ Sprite* Sprite::getHit(const ci::Vec3f &point) {
 				return child;
 		}
 	} else {
-		mSortedTmp = mChildren;
-		std::sort(mSortedTmp.begin(), mSortedTmp.end(), [](Sprite *i, Sprite *j)
-		{
-			return i->getZLevel() < j->getZLevel();
-		});
-
+		makeSortedChildren();
 		for(auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it)
 		{
 			Sprite *child = *it;
@@ -1859,7 +1841,7 @@ void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	for (size_t k=0; k<tab; ++k) s << "\t";
 	s << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=[" << mWidth << "x" << mHeight << "x" << mDepth << "] scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << " clip=" << mClippingBounds << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
-	s << "STATE opacity=" << mOpacity << " z_level=" << mZLevel << " use_shader=" << mUseShaderTexture << " use_depthbuffer=" << mUseDepthBuffer << " last_w=" << mLastWidth << " last_h=" << mLastHeight << std::endl;
+	s << "STATE opacity=" << mOpacity << " use_shader=" << mUseShaderTexture << " use_depthbuffer=" << mUseDepthBuffer << " last_w=" << mLastWidth << " last_h=" << mLastHeight << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
 	s << "STATE need_bounds_check=" << mBoundsNeedChecking << " in_bounds=" << mInBounds << " check_bounds=" << mCheckBounds << " clip_dirty=" << mClippingBoundsDirty << " update_transform=" << mUpdateTransform << std::endl;
 	// Transform

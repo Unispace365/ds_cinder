@@ -10,9 +10,6 @@ static std::string    folder_from(const Poco::Path&, const std::string& folder, 
 
 namespace ds {
 
-/**
- * \class ds::Environment
- */
 Environment::Environment() {
 }
 

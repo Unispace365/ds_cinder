@@ -21,6 +21,8 @@ public:
 	/**
 	 * \param filename is the filename (and path) for the resource.
 	 * If filename begins with "resource:" then this is a compiled-in resource.
+	 * \param width Width in pixels
+	 * \param height Height in pixels
 	 */
 	ImageArc(const int width, const int height, const std::string& filename);
 

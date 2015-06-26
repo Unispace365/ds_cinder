@@ -39,11 +39,12 @@ class Tweenline;
  */
 class SpriteEngine {
 public:
-	// Access to the app-wide notification service. Use this to send a
-	// message to everyone who's registered an EventClient.
+	/** Access to the app-wide notification service. Use this to send a
+	 message to everyone who's registered an EventClient. */
 	ds::EventNotifier&				getNotifier();
-	// New-style notifier, access a  named channel. Create the
-	// channel if it doesn't exist.
+
+	/** New-style notifier, access a  named channel. Create the
+		 channel if it doesn't exist. */
 	virtual ds::EventNotifier&		getChannel(const std::string&) = 0;
 
 	// General engine services
@@ -59,13 +60,12 @@ public:
 									getDebugSettings() = 0;
 	virtual ci::app::WindowRef		getWindow() = 0;
 
-	// Access a service. Throw if the service doesn't exist.
-	// Handle casting for you (since the root ds::EngineService class
-	// is unuseable).
+	/** Access a service. Throw if the service doesn't exist.
+		Handle casting for you (since the root ds::EngineService class is unuseable). */
 	template <typename T>
 	T&								getService(const std::string&);
 
-	// Access to the current engine configuration info.
+	/** Access to the current engine configuration info. */
 	void SpriteEngine::loadSettings(const std::string& name, const std::string& filename);
 	
 	const ds::EngineCfg&			getEngineCfg() const;

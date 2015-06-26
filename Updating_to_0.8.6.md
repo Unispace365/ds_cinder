@@ -21,5 +21,5 @@ Possible compilation issues:
 
 * SerialRunnable: You may need to pass an alloc function when initializing
 * Boost::mutex to std::mutex. In most cases for threading, the boost versions are supplanted with the std version. Check stack overflow / google, there's plenty of upgrad examples
-* "Not defined": Many std elements now need to have #includes, most commonly <memory>, <cctype> and <sstring>
+* "Not defined": Many std elements now need to have include's explicitly defined, most commonly memory, cctype and sstring
 * "KeyEvent Not Defined": Since the removal of using namespace ci::* from ds_cinder files, you'll need to make sure everything is namespaced properly. 

@@ -6,14 +6,9 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 
-using namespace ci;
-
 namespace ds {
 namespace ui {
 
-/**
- * \class ds::ui::SpriteEngine
- */
 SpriteEngine::SpriteEngine(ds::EngineData& ed)
 	: mData(ed)
 {
@@ -28,11 +23,11 @@ ds::EventNotifier& SpriteEngine::getNotifier()
 {
 	return mData.mNotifier;
 }
-
-
+/** \cond Doxygen is having trouble deducing this function so ignore it. */
 void SpriteEngine::loadSettings(const std::string& name, const std::string& filename) {
 	mData.mEngineCfg.loadSettings(name, filename);
 }
+/** \endcond */
 
 const ds::EngineCfg& SpriteEngine::getEngineCfg() const
 {
@@ -110,7 +105,7 @@ float SpriteEngine::getWorldHeight() const
 void SpriteEngine::addToDragDestinationList( Sprite *sprite )
 {
   if (!sprite)
-    return;
+	return;
   
   removeFromDragDestinationList(sprite);
 
@@ -120,21 +115,21 @@ void SpriteEngine::addToDragDestinationList( Sprite *sprite )
 void SpriteEngine::removeFromDragDestinationList( Sprite *sprite )
 {
   if (!sprite)
-    return;
+	return;
 
   auto found = std::find(mDragDestinationSprites.begin(), mDragDestinationSprites.end(), sprite);
   if (found != mDragDestinationSprites.end())
-    mDragDestinationSprites.erase(found);
+	mDragDestinationSprites.erase(found);
 }
 
 Sprite *SpriteEngine::getDragDestinationSprite( const ci::Vec3f &globalPoint, Sprite *draggingSprite )
 {
   for (auto it = mDragDestinationSprites.begin(), it2 = mDragDestinationSprites.end(); it != it2; ++it) {
-  	Sprite *sprite = *it;
-    if (sprite == draggingSprite)
-      continue;
-    if (sprite->contains(globalPoint))
-      return sprite;
+	Sprite *sprite = *it;
+	if (sprite == draggingSprite)
+	  continue;
+	if (sprite->contains(globalPoint))
+	  return sprite;
   }
 
   return nullptr;
@@ -150,9 +145,9 @@ std::unique_ptr<FboGeneral> SpriteEngine::getFbo()
   //DS_VALIDATE(width > 0 && height > 0, return nullptr);
 
   if (!mFbos.empty()) {
-    std::unique_ptr<FboGeneral> fbo = std::move(mFbos.front());
-    mFbos.pop_front();
-    return std::move(fbo);
+	std::unique_ptr<FboGeneral> fbo = std::move(mFbos.front());
+	mFbos.pop_front();
+	return std::move(fbo);
   }
 
   std::unique_ptr<FboGeneral> fbo = std::move(std::unique_ptr<FboGeneral>(new FboGeneral()));

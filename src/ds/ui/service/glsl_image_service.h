@@ -44,7 +44,7 @@ public:
 	 * \param flags provides scope info (i.e. ds::IMG_CACHE).
 	 */
 	void					setTo(	const std::string& vertex, const std::string& fragment,
-									const ds::gl::Uniform&,
+								  const ds::gl::Uniform& shaderValues,
 									const int w, const int h, const int flags);
 	void					clear();
 
