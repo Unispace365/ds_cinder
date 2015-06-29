@@ -19,6 +19,7 @@
     <ClCompile Include="src\ds\debug\automator\automator.cpp" />
     <ClCompile Include="src\ds\touch\delayed_momentum.cpp" />
     <ClCompile Include="src\ds\touch\five_finger_cluster.cpp" />
+    <ClCompile Include="src\ds\touch\view_dragger.cpp" />
     <ClCompile Include="src\ds\ui\button\image_button.cpp" />
     <ClCompile Include="src\ds\ui\button\sprite_button.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp" />
@@ -36,6 +37,7 @@
     <ClInclude Include="src\ds\debug\automator\automator.h" />
     <ClInclude Include="src\ds\touch\delayed_momentum.h" />
     <ClInclude Include="src\ds\touch\five_finger_cluster.h" />
+    <ClInclude Include="src\ds\touch\view_dragger.h" />
     <ClInclude Include="src\ds\ui\button\image_button.h" />
     <ClInclude Include="src\ds\ui\button\sprite_button.h" />
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
@@ -43,6 +45,7 @@
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />
+    <ClInclude Include="src\ds\ui\util\sprite_cache.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{80CC472C-E968-46A3-B770-93615FF1A70B}</ProjectGuid>
