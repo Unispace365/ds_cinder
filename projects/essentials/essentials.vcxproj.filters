@@ -34,6 +34,9 @@
     <Filter Include="src\ds\ui\scroll">
       <UniqueIdentifier>{c1a8659d-b10a-4817-a1ae-f2229b81bae6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\util">
+      <UniqueIdentifier>{509ed608-4269-4952-abb2-195b290af1be}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -127,6 +130,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h">
       <Filter>src\ds\ui\scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\util\sprite_cache.h">
+      <Filter>src\ds\ui\util</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

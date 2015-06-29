@@ -10,6 +10,8 @@
 
 #include "events/app_events.h"
 
+#include "ui/story/story_view.h"
+
 namespace fullstarter {
 
 FullStarterApp::FullStarterApp()
@@ -32,7 +34,7 @@ FullStarterApp::FullStarterApp()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "font-name-here");
+	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
 
 	enableCommonKeystrokes(true);
 }
@@ -50,8 +52,10 @@ void FullStarterApp::setupServer(){
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);
-	rootSprite.setColor(ci::Color(0.2f, 0.1f, 0.6f));
+	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
+	
 	// add sprites
+	rootSprite.addChildPtr(new StoryView(mGlobals));
 }
 
 void FullStarterApp::update() {

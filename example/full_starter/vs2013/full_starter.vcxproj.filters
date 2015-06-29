@@ -16,11 +16,11 @@
     <ClCompile Include="..\src\query\story_query.cpp">
       <Filter>src\query</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ui\touch\view_dragger.cpp">
-      <Filter>src\ui\touch</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\app\full_starter_app.cpp">
       <Filter>src\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\story\story_view.cpp">
+      <Filter>src\ui\story</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -35,9 +35,6 @@
     </ClInclude>
     <ClInclude Include="..\src\query\query_handler.h">
       <Filter>src\query</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\util\sprite_cache.h">
-      <Filter>src\util</Filter>
     </ClInclude>
     <ClInclude Include="..\include\Resources.h">
       <Filter>Resources</Filter>
@@ -54,11 +51,11 @@
     <ClInclude Include="..\src\model\all_stories.h">
       <Filter>src\model</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ui\touch\view_dragger.h">
-      <Filter>src\ui\touch</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\app\full_starter_app.h">
       <Filter>src\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\story\story_view.h">
+      <Filter>src\ui\story</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -85,9 +82,6 @@
     <Filter Include="src\ui">
       <UniqueIdentifier>{9b9f5de1-cbd5-4cb7-a580-46be59c2cf82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\util">
-      <UniqueIdentifier>{323e382a-4878-4487-81c9-e08fe46e05dc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\app">
       <UniqueIdentifier>{dd1b41ab-1751-4126-9ac0-507d8fee6176}</UniqueIdentifier>
     </Filter>
@@ -97,8 +91,8 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{3eca459a-2fc2-4471-8dd4-6c188d47d4f9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ui\touch">
-      <UniqueIdentifier>{91fc60c0-7144-40ea-8d94-f2a2acd9b5b8}</UniqueIdentifier>
+    <Filter Include="src\ui\story">
+      <UniqueIdentifier>{6ee7ca9f-f1f5-4bd4-a2c4-ec43623a5071}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
