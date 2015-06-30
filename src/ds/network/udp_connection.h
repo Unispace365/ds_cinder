@@ -4,7 +4,7 @@
 
 #include <memory>
 #include <Poco/Net/MulticastSocket.h>
-#include "ds/data/raw_data_buffer.h"
+#include "ds/query/recycle_array.h"
 #include "ds/network/net_connection.h"
 
 namespace ds
@@ -38,7 +38,7 @@ class UdpConnection : public NetConnection
 		Poco::Net::MulticastSocket	mSocket;
     bool                        mInitialized;
     int                         mReceiveBufferMaxSize;
-    RawDataBuffer               mReceiveBuffer;
+	RecycleArray<char>          mReceiveBuffer;
 	// Initialization valuea
     bool                        mServer;
 	std::string					mIp;

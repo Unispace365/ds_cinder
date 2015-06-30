@@ -3,7 +3,7 @@
 #define DS_APP_ENGINE_ENGINEIO_H_
 
 #include "ds/data/data_buffer.h"
-#include "ds/data/raw_data_buffer.h"
+#include "ds/query/recycle_array.h"
 #include "ds/network/net_connection.h"
 
 /**
@@ -25,7 +25,7 @@ public:
 private:
 	ds::NetConnection&			mConnection;
 	ds::DataBuffer				mSendBuffer;
-	RawDataBuffer				mRawDataBuffer;
+	RecycleArray<char>			mRawDataBuffer;
 	std::string					mCompressionBuffer;
 
 public:

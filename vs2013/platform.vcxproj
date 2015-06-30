@@ -86,7 +86,6 @@
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
     <ClInclude Include="..\src\ds\data\key_value_store.h" />
-    <ClInclude Include="..\src\ds\data\raw_data_buffer.h" />
     <ClInclude Include="..\src\ds\data\read_write_buffer.h" />
     <ClInclude Include="..\src\ds\data\resource.h" />
     <ClInclude Include="..\src\ds\data\resource_list.h" />
@@ -109,7 +108,6 @@
     <ClInclude Include="..\src\ds\network\tcp_server.h" />
     <ClInclude Include="..\src\ds\network\tcp_socket_sender.h" />
     <ClInclude Include="..\src\ds\network\udp_connection.h" />
-    <ClInclude Include="..\src\ds\network\zmq_connection.h" />
     <ClInclude Include="..\src\ds\params\camera_params.h" />
     <ClInclude Include="..\src\ds\params\draw_params.h" />
     <ClInclude Include="..\src\ds\params\update_params.h" />
@@ -262,7 +260,6 @@
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />
     <ClCompile Include="..\src\ds\data\key_value_store.cpp" />
-    <ClCompile Include="..\src\ds\data\raw_data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\read_write_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\resource.cpp" />
     <ClCompile Include="..\src\ds\data\resource_list.cpp" />
@@ -280,7 +277,6 @@
     <ClCompile Include="..\src\ds\network\tcp_server.cpp" />
     <ClCompile Include="..\src\ds\network\tcp_socket_sender.cpp" />
     <ClCompile Include="..\src\ds\network\udp_connection.cpp" />
-    <ClCompile Include="..\src\ds\network\zmq_connection.cpp" />
     <ClCompile Include="..\src\ds\params\camera_params.cpp" />
     <ClCompile Include="..\src\ds\params\draw_params.cpp" />
     <ClCompile Include="..\src\ds\params\update_params.cpp" />

@@ -35,7 +35,6 @@
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/touch/touch_translator.h"
 #include "ds/ui/tween/tweenline.h"
-#include "ds/data/raw_data_buffer.h"
 #include "ds/app/camera_utils.h"
 
 namespace ds {

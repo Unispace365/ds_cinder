@@ -139,7 +139,7 @@ void media_tester::loadMedia(const std::string& newMedia){
 void media_tester::fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy){
 	if(!mMedia) return;
 
- 	const float engAsp = area.getWidth() / area.getHeight();
+	const float engAsp = area.getWidth() / area.getHeight();
 	const float vidAsp = spriddy->getWidth() / spriddy->getHeight();
 	float vidScale = area.getHeight() / spriddy->getHeight();
 	if(vidAsp > engAsp){
