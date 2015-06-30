@@ -1,0 +1,12 @@
+<settings>
+
+<!-- Font names are installed in the root app class on startup	-->
+	
+	<!-- Sample Text -->
+		<text  name="header:label:name" value="noto-bold" />
+		<float name="header:label:size" value="16" />
+		<float name="header:label:leading" value="0.75" />
+		<color name="header:label:color" r="255" g="255" b="255" />
+
+	
+</settings>
