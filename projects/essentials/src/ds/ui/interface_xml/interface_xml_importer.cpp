@@ -313,7 +313,7 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData
 
 bool XmlImporter::load( ci::XmlTree &xml ) {
 	if (!xml.hasChild("interface")) {
-		DS_LOG_WARNING( "No interface found in xml." );
+		DS_LOG_WARNING( "No interface found in xml file: " << mXmlFile );
 		return false;
 	}
 
@@ -321,7 +321,7 @@ bool XmlImporter::load( ci::XmlTree &xml ) {
 	auto& sprites = interface.getChildren();
 	int count = sprites.size();
 	if ( count < 1 ) {
-		DS_LOG_WARNING( "No sprites found in xml." );
+		DS_LOG_WARNING( "No sprites found in xml file: " << mXmlFile );
 		return false;
 	}
 

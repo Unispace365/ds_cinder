@@ -31,6 +31,9 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 
 	mScroller = new Sprite(mEngine);
 	if(mScroller){
+// 		mScroller->setTransparent(false);
+// 		mScroller->setColor(ci::Color(0.1f, 0.56f, 0.3f));
+
 		mScroller->setSize(startWidth, startHeight);
 		mScroller->enable(true);
 		mScroller->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
@@ -96,28 +99,59 @@ void ScrollArea::checkBounds(){
 		mScroller->tweenPosition(ci::Vec3f::zero(), mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
 		scrollerUpdated(ci::Vec2f(0.0f, 0.0f));
 	} else {
+		bool isPerspective = getPerspective();
 		float scrollerPos(0.0f);
-		const float theTop = scrollWindow - scrollerSize;
+		float theTop = scrollWindow - scrollerSize;
 		if(mVertical){
 			scrollerPos = mScroller->getPosition().y;
 		} else {
 			scrollerPos = mScroller->getPosition().x;
 		}
 
-		if(scrollerPos > 0){
-			mSpriteMomentum.deactivate();
-			mScroller->tweenPosition(ci::Vec3f::zero(), mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
-			scrollerUpdated(ci::Vec2f(0.0f, 0.0f));
-		} else if(scrollerPos < theTop){
-			mSpriteMomentum.deactivate();
-			ci::Vec3f desty;
-			if(mVertical){
-				desty = ci::Vec3f(0.0f, theTop, 0.0f);
+		bool doTween = true;
+		ci::Vec3f tweenDestination = ci::Vec3f::zero();
+
+		// Perspective y-position works in opposite
+		if(isPerspective && mVertical){
+			std::cout << "Perspective top: " << theTop << " scroller pos: " << scrollerPos << std::endl;
+			if(scrollerPos > 0){
+				doTween = true;
+				tweenDestination = ci::Vec3f::zero();
+
+			} else if(scrollerPos < theTop){
+				doTween = true;
+				tweenDestination = ci::Vec3f(0.0f, theTop, 0.0f);
 			} else {
-				desty = ci::Vec3f(theTop, 0.0f, 0.0f);
+				doTween = false;
 			}
-			mScroller->tweenPosition(desty, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
-			scrollerUpdated(desty.xy());
+
+		} else {
+
+			// Can't scroll down any more
+			if(scrollerPos > 0){
+				doTween = true;
+				tweenDestination = ci::Vec3f::zero();
+
+			// Can't scroll up any more
+			} else if(scrollerPos < theTop){
+				doTween = true;
+				if(mVertical){
+					tweenDestination = ci::Vec3f(0.0f, theTop, 0.0f);
+				} else {
+					tweenDestination = ci::Vec3f(theTop, 0.0f, 0.0f);
+				}
+
+			// In bounds
+			} else {
+				doTween = false;
+			}
+		}
+
+
+		if(doTween){
+			mSpriteMomentum.deactivate();
+			mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
+			scrollerUpdated(tweenDestination.xy());
 		} else {
 			scrollerUpdated(mScroller->getPosition().xy());
 		}
@@ -140,7 +174,11 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 	} else if(ti.mPhase == ds::ui::TouchInfo::Moved && ti.mNumberFingers > 0){
 		if(mScroller){
 			if(mVertical){
-				mScroller->move(0.0f, ti.mDeltaPoint.y / ti.mNumberFingers);
+				float yDelta = ti.mDeltaPoint.y / ti.mNumberFingers;
+				if(getPerspective()){
+					yDelta = -yDelta;
+				}
+				mScroller->move(0.0f, yDelta);
 			} else {
 				mScroller->move(ti.mDeltaPoint.x / ti.mNumberFingers, 0.0f);
 			}
@@ -287,7 +325,14 @@ const ci::Vec2f ScrollArea::getScrollerPosition(){
 
 void ScrollArea::resetScrollerPosition() {
 	if(mScroller){
-		mScroller->setPosition(0.0f, 0.0f);
+		mScroller->animStop();
+		if(getPerspective() && mVertical){
+			const float theTop = getHeight() - mScroller->getHeight();
+			std::cout << "Reset scroller, top: " << theTop << std::endl;
+			mScroller->setPosition(0.0f, getHeight()-mScroller->getHeight());
+		} else {
+			mScroller->setPosition(0.0f, 0.0f);
+		}
 		checkBounds();
 	}
 }

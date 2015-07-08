@@ -1,6 +1,6 @@
 #pragma once
-#ifndef _FULLSTARTER_UI_STORY_STORY_VIEW_H_
-#define _FULLSTARTER_UI_STORY_STORY_VIEW_H_
+#ifndef _FULLSTARTER_APP_UI_STORY_STORY_VIEW_H_
+#define _FULLSTARTER_APP_UI_STORY_STORY_VIEW_H_
 
 
 #include <ds/ui/sprite/sprite.h>

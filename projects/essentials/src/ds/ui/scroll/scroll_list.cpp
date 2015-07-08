@@ -44,6 +44,9 @@ void ScrollList::setContent(const std::vector<int>& models){
 	}
 
 	layout();
+	if(mScrollArea){
+		mScrollArea->resetScrollerPosition();
+	}
 	animateItemsOn();
 }
 
@@ -97,20 +100,34 @@ void ScrollList::layoutItems(){
 
 	float xp = mStartPositionX;
 	float yp = mStartPositionY;
+	const bool isPerspective = Sprite::getPerspective();
+	float totalHeight = yp;
+	if(isPerspective && mVerticalScrolling){
+		totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY;
+		yp = totalHeight - mIncrementAmount;
+	}
 
 	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
 		(*it).mX = xp;
 		(*it).mY = yp;
 
 		if(mVerticalScrolling){
-			yp += mIncrementAmount;
+			if(isPerspective){
+				yp -= mIncrementAmount;
+			} else {
+				yp += mIncrementAmount;
+			}
 		} else {
 			xp += mIncrementAmount;
 		}
 	}
 
 	if(mVerticalScrolling){
-		mScrollableHolder->setSize(getWidth(), yp);
+		if(isPerspective){
+			mScrollableHolder->setSize(getWidth(), totalHeight);
+		} else {
+			mScrollableHolder->setSize(getWidth(), yp);
+		}
 	} else {
 		mScrollableHolder->setSize(xp, getHeight());
 	}
