@@ -115,6 +115,9 @@ void WebDialogListener::OnShowLoginDialog(Awesomium::WebView* caller, const Awes
 
 void WebDialogListener::OnShowCertificateErrorDialog(Awesomium::WebView* caller, bool is_overridable, const Awesomium::WebURL& url, Awesomium::CertError error){
 	DS_LOG_WARNING("Certificate error " << str_from_webstr(caller->url().spec()));
+	if(caller){
+		caller->DidOverrideCertificateError();
+	}
 }
 
 void WebDialogListener::OnShowPageInfoDialog(Awesomium::WebView* caller, const Awesomium::WebPageInfo& page_info){
