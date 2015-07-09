@@ -167,71 +167,71 @@ std::string		ds::utf8_from_wstr(const std::wstring& src) {
 //variation on a function found on stackoverflow
 std::vector<std::string> ds::split( const std::string &str, const std::string &delimiters, bool dropEmpty )
 {
-    std::size_t pos;
-    std::size_t lastPos = 0;
-    std::vector<std::string> splitWords;
+	std::size_t pos;
+	std::size_t lastPos = 0;
+	std::vector<std::string> splitWords;
 
-    while ( true )
-    {
-        pos = str.find( delimiters, lastPos );
-        if ( pos == std::string::npos )
-        {
-            pos = str.length();
+	while ( true )
+	{
+		pos = str.find( delimiters, lastPos );
+		if ( pos == std::string::npos )
+		{
+			pos = str.length();
 
-            if ( pos != lastPos || !dropEmpty )
-                splitWords.push_back( std::string( str.data() + lastPos, pos-lastPos ) );
+			if ( pos != lastPos || !dropEmpty )
+				splitWords.push_back( std::string( str.data() + lastPos, pos-lastPos ) );
 
-            break;
-        }
-        else
-        {
-            if ( pos != lastPos || !dropEmpty ) {
-              std::string tstr = std::string( str.data() + lastPos, pos-lastPos );
-              if (!tstr.empty())
-                splitWords.push_back( tstr );
-              lastPos = pos + delimiters.size();
-              continue;
-            }
-        }
+			break;
+		}
+		else
+		{
+			if ( pos != lastPos || !dropEmpty ) {
+			  std::string tstr = std::string( str.data() + lastPos, pos-lastPos );
+			  if (!tstr.empty())
+				splitWords.push_back( tstr );
+			  lastPos = pos + delimiters.size();
+			  continue;
+			}
+		}
 
-        lastPos = pos + 1;
-    }
+		lastPos = pos + 1;
+	}
 
-    return splitWords;
+	return splitWords;
 }
 
 std::vector<std::wstring> ds::split( const std::wstring &str, const std::wstring &delimiters, bool dropEmpty )
 {
-    std::size_t pos;
-    std::size_t lastPos = 0;
-    std::vector<std::wstring> splitWords;
+	std::size_t pos;
+	std::size_t lastPos = 0;
+	std::vector<std::wstring> splitWords;
 
-    while ( true )
-    {
-        pos = str.find( delimiters, lastPos );
-        if ( pos == std::wstring::npos )
-        {
-            pos = str.length();
+	while ( true )
+	{
+		pos = str.find( delimiters, lastPos );
+		if ( pos == std::wstring::npos )
+		{
+			pos = str.length();
 
-            if ( pos != lastPos || !dropEmpty )
-                splitWords.push_back( std::wstring( str.data() + lastPos, pos-lastPos ) );
+			if ( pos != lastPos || !dropEmpty )
+				splitWords.push_back( std::wstring( str.data() + lastPos, pos-lastPos ) );
 
-            break;
-        }
-        else
-        {
-            if ( pos != lastPos || !dropEmpty )
-            {
-                splitWords.push_back( std::wstring( str.data() + lastPos, pos-lastPos/* + delimiters.size()*/ ) );
-                lastPos = pos + delimiters.size();
-                continue;
-            }
-        }
+			break;
+		}
+		else
+		{
+			if ( pos != lastPos || !dropEmpty )
+			{
+				splitWords.push_back( std::wstring( str.data() + lastPos, pos-lastPos/* + delimiters.size()*/ ) );
+				lastPos = pos + delimiters.size();
+				continue;
+			}
+		}
 
-        lastPos = pos + 1;
-    }
+		lastPos = pos + 1;
+	}
 
-    return splitWords;
+	return splitWords;
 }
 
 std::vector<std::string> ds::partition( const std::string &str, const std::string &partitioner )
@@ -242,26 +242,26 @@ std::vector<std::string> ds::partition( const std::string &str, const std::strin
   std::size_t lastPos = 0;
 
   while (lastPos != std::string::npos) {
-    pos = str.find_first_of(partitioner, lastPos);
-    if (pos != std::string::npos) {
-      if (pos == lastPos) {
-        partitions.push_back(std::string(str.data() + lastPos, pos-lastPos+partitioner.size()));
-        lastPos += partitioner.size();
-        continue;
-      } else {
-        partitions.push_back(std::string(str.data() + lastPos, pos-lastPos));
-        partitions.push_back(partitioner);
-        lastPos = pos;
-        lastPos += partitioner.size();
-        continue;
-      }
-    } else {
-      pos = str.length();
-      if (pos != lastPos)
-        partitions.push_back(std::string(str.data() + lastPos, pos-lastPos));
-      break;
-    }
-    lastPos += 1;
+	pos = str.find_first_of(partitioner, lastPos);
+	if (pos != std::string::npos) {
+	  if (pos == lastPos) {
+		partitions.push_back(std::string(str.data() + lastPos, pos-lastPos+partitioner.size()));
+		lastPos += partitioner.size();
+		continue;
+	  } else {
+		partitions.push_back(std::string(str.data() + lastPos, pos-lastPos));
+		partitions.push_back(partitioner);
+		lastPos = pos;
+		lastPos += partitioner.size();
+		continue;
+	  }
+	} else {
+	  pos = str.length();
+	  if (pos != lastPos)
+		partitions.push_back(std::string(str.data() + lastPos, pos-lastPos));
+	  break;
+	}
+	lastPos += 1;
   }
 
   return partitions;
@@ -273,15 +273,15 @@ std::vector<std::string> ds::partition( const std::string &str, const std::vecto
   partitions.push_back(str);
 
   for (auto it = partitioners.begin(), it2 = partitioners.end(); it != it2; ++it) {
-    std::vector<std::string> tPartitions;
-    for (auto itt = partitions.begin(), itt2 = partitions.end(); itt != itt2; ++itt) {
-      std::vector<std::string> splitWords = ds::partition(*itt, *it);
+	std::vector<std::string> tPartitions;
+	for (auto itt = partitions.begin(), itt2 = partitions.end(); itt != itt2; ++itt) {
+	  std::vector<std::string> splitWords = ds::partition(*itt, *it);
 
-      for (auto ittt = splitWords.begin(), ittt2 = splitWords.end(); ittt != ittt2; ++ittt) {
-        tPartitions.push_back(*ittt);
-      }
-    }
-    partitions = tPartitions;
+	  for (auto ittt = splitWords.begin(), ittt2 = splitWords.end(); ittt != ittt2; ++ittt) {
+		tPartitions.push_back(*ittt);
+	  }
+	}
+	partitions = tPartitions;
   }
 
   return partitions;
@@ -325,8 +325,8 @@ namespace {
 bool strEqual(const wchar_t *str1, const wchar_t *str2, int size)
 {
   for (int i = 0; i < size; ++i) {
-    if (str1[i] != str2[i])
-      return false;
+	if (str1[i] != str2[i])
+	  return false;
   }
   return true;
 }
@@ -338,15 +338,15 @@ void ds::partition( const std::wstring &str, const std::wstring &partitioner, co
   int lastPos = token.pos;
   const int size = token.pos + token.size - (partitioner.size()-1);
   for (int i = token.pos; i < size; ++i) {
-    if (strEqual(&str[i], partitioner.c_str(), partitioner.size())) {
-      if (i - lastPos > 0)
-        partitions.push_back(Token(lastPos, i - lastPos));
-      partitions.push_back(Token(i, partitioner.size()));
-      lastPos = i + partitioner.size();
-    }
+	if (strEqual(&str[i], partitioner.c_str(), partitioner.size())) {
+	  if (i - lastPos > 0)
+		partitions.push_back(Token(lastPos, i - lastPos));
+	  partitions.push_back(Token(i, partitioner.size()));
+	  lastPos = i + partitioner.size();
+	}
   }
   if (lastPos != token.pos + token.size)
-    partitions.push_back(Token(lastPos, token.pos + token.size - lastPos));
+	partitions.push_back(Token(lastPos, token.pos + token.size - lastPos));
 }
 
 std::vector<std::wstring> ds::partition( const std::wstring &str, const std::vector<std::wstring> &partitioners )
@@ -357,16 +357,16 @@ std::vector<std::wstring> ds::partition( const std::wstring &str, const std::vec
 
   std::vector<Token> tPartitions;
   for (auto it = partitioners.begin(), it2 = partitioners.end(); it != it2; ++it) {
-    for (auto itt = partitions.begin(), itt2 = partitions.end(); itt != itt2; ++itt) {
-      partition(str, *it, *itt, tPartitions);
-    }
-    partitions = tPartitions;
-    tPartitions.clear();
+	for (auto itt = partitions.begin(), itt2 = partitions.end(); itt != itt2; ++itt) {
+	  partition(str, *it, *itt, tPartitions);
+	}
+	partitions = tPartitions;
+	tPartitions.clear();
   }
 
   std::vector<std::wstring> tokenPartitions;
   for (size_t i = 0; i < partitions.size(); ++i) {
-    tokenPartitions.push_back(str.substr(partitions[i].pos, partitions[i].size));
+	tokenPartitions.push_back(str.substr(partitions[i].pos, partitions[i].size));
   }
 
   //std::cout << "time taken: " << (double)(clock() - start) / CLOCKS_PER_SEC << std::endl;
@@ -414,159 +414,159 @@ std::vector<std::wstring> ds::partition( const std::wstring &str, const std::vec
 
 int ds::find_count( const std::string &str, const std::string &token )
 {
-    std::size_t pos;
-    std::size_t lastPos = 0;
-    int count = 0;
+	std::size_t pos;
+	std::size_t lastPos = 0;
+	int count = 0;
 
-    while ( true )
-    {
-        pos = str.find_first_of( token, lastPos );
-        if ( pos == std::string::npos )
-        {
-            break;
-        }
-        
-        ++count;
-        lastPos = pos + 1;
-    }
+	while ( true )
+	{
+		pos = str.find_first_of( token, lastPos );
+		if ( pos == std::string::npos )
+		{
+			break;
+		}
+		
+		++count;
+		lastPos = pos + 1;
+	}
 
-    return count;
+	return count;
 }
 
 int ds::find_count( const std::wstring &str, const std::wstring &token )
 {
-    std::size_t pos;
-    std::size_t lastPos = 0;
-    int count = 0;
+	std::size_t pos;
+	std::size_t lastPos = 0;
+	int count = 0;
 
-    while ( true )
-    {
-        pos = str.find_first_of( token, lastPos );
-        if ( pos == std::wstring::npos )
-        {
-            break;
-        }
+	while ( true )
+	{
+		pos = str.find_first_of( token, lastPos );
+		if ( pos == std::wstring::npos )
+		{
+			break;
+		}
 
-        ++count;
-        lastPos = pos + 1;
-    }
+		++count;
+		lastPos = pos + 1;
+	}
 
-    return count;
+	return count;
 }
 
 void ds::replace( std::string &str, const std::string &oldToken, const std::string &newToken )
 {
-    std::size_t pos;
-    std::size_t lastPos = 0;
-    std::string tStr = str;
-    str.clear();
+	std::size_t pos;
+	std::size_t lastPos = 0;
+	std::string tStr = str;
+	str.clear();
 
-    while ( true )
-    {
-        pos = tStr.find( oldToken, lastPos );
-        if ( pos == std::string::npos )
-        {
-            pos = tStr.length();
+	while ( true )
+	{
+		pos = tStr.find( oldToken, lastPos );
+		if ( pos == std::string::npos )
+		{
+			pos = tStr.length();
 
-            if ( pos != lastPos )
-            {
-                str += std::string( tStr.data() + lastPos, pos-lastPos );
-                //str += newToken;
-            }
+			if ( pos != lastPos )
+			{
+				str += std::string( tStr.data() + lastPos, pos-lastPos );
+				//str += newToken;
+			}
 
-            break;
-        }
-        else
-        {
-            str += std::string( tStr.data() + lastPos, pos-lastPos );
-            str += newToken;
-            lastPos = pos + oldToken.size();
-            continue;
-        }
+			break;
+		}
+		else
+		{
+			str += std::string( tStr.data() + lastPos, pos-lastPos );
+			str += newToken;
+			lastPos = pos + oldToken.size();
+			continue;
+		}
 
-        lastPos = pos + 1;
-    }
+		lastPos = pos + 1;
+	}
 }
 
 void ds::replace( std::wstring &str, const std::wstring &oldToken, const std::wstring &newToken )
 {
-    std::size_t pos;
-    std::size_t lastPos = 0;
-    std::wstring tStr = str;
-    str.clear();
+	std::size_t pos;
+	std::size_t lastPos = 0;
+	std::wstring tStr = str;
+	str.clear();
 
-    while ( true )
-    {
-        pos = tStr.find( oldToken, lastPos );
-        if ( pos == std::wstring::npos )
-        {
-            pos = tStr.length();
+	while ( true )
+	{
+		pos = tStr.find( oldToken, lastPos );
+		if ( pos == std::wstring::npos )
+		{
+			pos = tStr.length();
 
-            if ( pos != lastPos )
-            {
-                str += std::wstring( tStr.data() + lastPos, pos-lastPos );
-                //str += newToken;
-            }
+			if ( pos != lastPos )
+			{
+				str += std::wstring( tStr.data() + lastPos, pos-lastPos );
+				//str += newToken;
+			}
 
-            break;
-        }
-        else
-        {
-            if ( pos != lastPos )
-            {
-                str += std::wstring( tStr.data() + lastPos, pos-lastPos );
-                str += newToken;
-                lastPos = pos + oldToken.size();
-                continue;
-            }
-        }
+			break;
+		}
+		else
+		{
+			if ( pos != lastPos )
+			{
+				str += std::wstring( tStr.data() + lastPos, pos-lastPos );
+				str += newToken;
+				lastPos = pos + oldToken.size();
+				continue;
+			}
+		}
 
-        lastPos = pos + 1;
-    }
+		lastPos = pos + 1;
+	}
 }
 
 void ds::loadFileIntoString( const std::string &filename, std::string &destination )
 {
-    std::fstream filestr;
-    filestr.open( filename.c_str(), std::fstream::in );
-    if ( filestr.is_open() )
-    {
-        filestr.seekg( 0, std::fstream::end );
-        unsigned count = static_cast<unsigned>(filestr.tellg());
-        filestr.seekg( 0, std::fstream::beg );
-        char *str = new char[count];
-        if ( str )
-        {
-            filestr.read( str, count );
-            count = static_cast<unsigned>(filestr.gcount());
-            destination = std::string( str, count );
-            //destination += '\0';
-            delete [] str;
-        }
-        filestr.close();
-    }
+	std::fstream filestr;
+	filestr.open( filename.c_str(), std::fstream::in );
+	if ( filestr.is_open() )
+	{
+		filestr.seekg( 0, std::fstream::end );
+		unsigned count = static_cast<unsigned>(filestr.tellg());
+		filestr.seekg( 0, std::fstream::beg );
+		char *str = new char[count];
+		if ( str )
+		{
+			filestr.read( str, count );
+			count = static_cast<unsigned>(filestr.gcount());
+			destination = std::string( str, count );
+			//destination += '\0';
+			delete [] str;
+		}
+		filestr.close();
+	}
 }
 
 void ds::loadFileIntoString( const std::wstring &filename, std::wstring &destination )
 {
-    std::wfstream filestr;
-    filestr.open( ds::utf8_from_wstr(filename).c_str(), std::wfstream::in );
-    if ( filestr.is_open() )
-    {
-        filestr.seekg( 0, std::wfstream::end );
-        unsigned count = static_cast<unsigned>(filestr.tellg());
-        filestr.seekg( 0, std::wfstream::beg );
-        wchar_t *str = new wchar_t[count];
-        if ( str )
-        {
-            filestr.read( str, count );
-            count = static_cast<unsigned>(filestr.gcount());
-            destination = std::wstring( str, count );
-            //destination += L'\0';
-            delete [] str;
-        }
-        filestr.close();
-    }
+	std::wfstream filestr;
+	filestr.open( ds::utf8_from_wstr(filename).c_str(), std::wfstream::in );
+	if ( filestr.is_open() )
+	{
+		filestr.seekg( 0, std::wfstream::end );
+		unsigned count = static_cast<unsigned>(filestr.tellg());
+		filestr.seekg( 0, std::wfstream::beg );
+		wchar_t *str = new wchar_t[count];
+		if ( str )
+		{
+			filestr.read( str, count );
+			count = static_cast<unsigned>(filestr.gcount());
+			destination = std::wstring( str, count );
+			//destination += L'\0';
+			delete [] str;
+		}
+		filestr.close();
+	}
 }
 
 void ds::loadFileIntoStringByLine(const std::string& filename, const std::function<void(const std::string& line)>& func)
@@ -617,24 +617,24 @@ void ds::loadFileIntoStringByLine(const std::wstring& filename, const std::funct
 
 void ds::saveStringToFile( const std::string &filename, const std::string &src )
 {
-    std::fstream filestr;
-    filestr.open( filename.c_str(), std::fstream::out );
-    if ( filestr.is_open() )
-    {
-        filestr.write( src.c_str(), src.size() );
-        filestr.close();
-    }
+	std::fstream filestr;
+	filestr.open( filename.c_str(), std::fstream::out );
+	if ( filestr.is_open() )
+	{
+		filestr.write( src.c_str(), src.size() );
+		filestr.close();
+	}
 }
 
 void ds::saveStringToFile( const std::wstring &filename, const std::wstring &src )
 {
-    std::wfstream filestr;
-    filestr.open( ds::utf8_from_wstr(filename).c_str(), std::wfstream::out );
-    if ( filestr.is_open() )
-    {
-        filestr.write( src.c_str(), src.size() );
-        filestr.close();
-    }
+	std::wfstream filestr;
+	filestr.open( ds::utf8_from_wstr(filename).c_str(), std::wfstream::out );
+	if ( filestr.is_open() )
+	{
+		filestr.write( src.c_str(), src.size() );
+		filestr.close();
+	}
 }
 
 void ds::tokenize(const std::string& input, const char delim, const std::function<void(const std::string&)>& f)

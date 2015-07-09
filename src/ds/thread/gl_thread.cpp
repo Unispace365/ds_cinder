@@ -30,15 +30,15 @@ GlThread::GlThread()
 void GlThread::start(const bool makeGlCalls)
 {
   if (mThread.isRunning()) {
-    DS_LOG_WARNING_M("ds::GlThread::start() thread already running", GLTHREAD_LOG_M);
-    return;
+	DS_LOG_WARNING_M("ds::GlThread::start() thread already running", GLTHREAD_LOG_M);
+	return;
   }
 
   mLoop.start(makeGlCalls);
   if (!mLoop.mError) {
-    mThread.start(mLoop);
-    // We want to serialize this thread with the main thread, for the wglMakeCurrent() call.
-    if (makeGlCalls && mThread.isRunning()) waitForNoInput();
+	mThread.start(mLoop);
+	// We want to serialize this thread with the main thread, for the wglMakeCurrent() call.
+	if (makeGlCalls && mThread.isRunning()) waitForNoInput();
   }
 }
 
@@ -64,7 +64,7 @@ bool GlThread::performOnWorkerThread(GlThreadCallback* cb)
 	// If the thread isn't running, prevent items from being endlessly
 	// pushed on the stack, and also give the callback a chance to memory manage itself.
 	if (!mThread.isRunning()) {
-    DS_LOG_WARNING_M("ds::GlThread::performOnWorkerThread() thread is not running, operation consumed without executing", GLTHREAD_LOG_M);
+	DS_LOG_WARNING_M("ds::GlThread::performOnWorkerThread() thread is not running, operation consumed without executing", GLTHREAD_LOG_M);
 		cb->consume(false);
 		return false;
 	}
@@ -98,24 +98,24 @@ GlThread::Loop::~Loop()
 
 bool GlThread::Loop::start(const bool makeGlCalls)
 {
-  if (makeGlCalls) {
-    DS_REPORT_GL_ERRORS();
-    mCurHDC = wglGetCurrentDC();
-    DS_REPORT_GL_ERRORS();
-    if (!mCurHDC) DS_LOG_WARNING_M("ds::GlThread::Loop() unable to create mCurHDC", GLTHREAD_LOG_M);
-    HGLRC			mainContext = wglGetCurrentContext();
-    DS_REPORT_GL_ERRORS();
-    mThreadContext = wglCreateContext(mCurHDC);
-    DS_REPORT_GL_ERRORS();
-    if (!mThreadContext) DS_LOG_WARNING_M("ds::GlThread::Loop() unable to create mThreadContext", GLTHREAD_LOG_M);
-    if (mThreadContext && wglShareLists(mainContext, mThreadContext)) {
-      mError = false;
-    }
-    DS_REPORT_GL_ERRORS();
-  } else {
-    mError = false;
-  }
-  return !mError;
+	if(makeGlCalls) {
+		DS_REPORT_GL_ERRORS();
+		mCurHDC = wglGetCurrentDC();
+		DS_REPORT_GL_ERRORS();
+		if(!mCurHDC) DS_LOG_WARNING_M("ds::GlThread::Loop() unable to create mCurHDC", GLTHREAD_LOG_M);
+		HGLRC			mainContext = wglGetCurrentContext();
+		DS_REPORT_GL_ERRORS();
+		mThreadContext = wglCreateContext(mCurHDC);
+		DS_REPORT_GL_ERRORS();
+		if(!mThreadContext) DS_LOG_WARNING_M("ds::GlThread::Loop() unable to create mThreadContext", GLTHREAD_LOG_M);
+		if(mThreadContext && wglShareLists(mainContext, mThreadContext)) {
+			mError = false;
+		}
+		DS_REPORT_GL_ERRORS();
+	} else {
+		mError = false;
+	}
+	return !mError;
 }
 
 bool GlThread::Loop::makesGlCalls() const

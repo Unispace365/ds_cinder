@@ -113,7 +113,6 @@ void ScrollArea::checkBounds(){
 
 		// Perspective y-position works in opposite
 		if(isPerspective && mVertical){
-			std::cout << "Perspective top: " << theTop << " scroller pos: " << scrollerPos << std::endl;
 			if(scrollerPos > 0){
 				doTween = true;
 				tweenDestination = ci::Vec3f::zero();
@@ -328,7 +327,6 @@ void ScrollArea::resetScrollerPosition() {
 		mScroller->animStop();
 		if(getPerspective() && mVertical){
 			const float theTop = getHeight() - mScroller->getHeight();
-			std::cout << "Reset scroller, top: " << theTop << std::endl;
 			mScroller->setPosition(0.0f, getHeight()-mScroller->getHeight());
 		} else {
 			mScroller->setPosition(0.0f, 0.0f);
