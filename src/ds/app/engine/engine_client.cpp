@@ -13,8 +13,12 @@ namespace {
 char				HEADER_BLOB = 0;
 char				COMMAND_BLOB = 0;
 char				DELETE_SPRITE_BLOB = 0;
+
 // Used for clients to get info to the server
 char				CLIENT_STATUS_BLOB = 0;
+
+// Used for clients to send mouse and/or touch input back to server
+char				CLIENT_INPUT_BLOB = 0;
 }
 
 /**
@@ -39,12 +43,14 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 		, mState(nullptr)
 		, mIoInfo(*this)
 {
+
 	// NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
 	// so that the BLOB ids match.
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});
 	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveCommand(r.mDataBuffer);});
 	DELETE_SPRITE_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveDeleteSprite(r.mDataBuffer);});
-	CLIENT_STATUS_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientStatus(r.mDataBuffer);});
+	CLIENT_STATUS_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientStatus(r.mDataBuffer); });
+	CLIENT_INPUT_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientInput(r.mDataBuffer); });
 	mReceiver.setHeaderAndCommandIds(HEADER_BLOB, COMMAND_BLOB);
 	
 	try {
@@ -87,6 +93,7 @@ void EngineClient::setupTuio(ds::App&) {
 void EngineClient::update() {
 	updateClient();
 	mRenderTextService.update();
+
 
 	if (!mConnectionRenewed && mReceiver.hasLostConnection()) {
 		mConnectionRenewed = true;
@@ -205,6 +212,14 @@ void EngineClient::receiveClientStatus(ds::DataBuffer& data) {
 	}
 }
 
+void EngineClient::receiveClientInput(ds::DataBuffer& data) {
+	// Whaaaat? Server should never be sending this.
+	while(data.canRead<char>()) {
+		const char		cmd(data.read<char>());
+		if(cmd == ds::TERMINATOR_CHAR) return;
+	}
+}
+
 void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
 	clearAllSprites();
 	
@@ -234,6 +249,41 @@ void EngineClient::setState(State& s) {
   
 	s.begin(*this);
 	mState = &s;
+}
+
+void EngineClient::handleMouseTouchBegin(const ci::app::MouseEvent& e, int id){
+	EngineSender::AutoSend  send(mSender);
+	ds::DataBuffer&   buf = send.mData;
+	buf.add(CLIENT_INPUT_BLOB);
+	buf.add(0); // for down
+	buf.add(16);
+	buf.add(e.getPos().x);
+	buf.add(e.getPos().y);
+	buf.add(ds::TERMINATOR_CHAR);
+}
+
+void EngineClient::handleMouseTouchMoved(const ci::app::MouseEvent& e, int id){
+	EngineSender::AutoSend  send(mSender);
+	ds::DataBuffer&   buf = send.mData;
+	buf.add(CLIENT_INPUT_BLOB);
+	buf.add(1); // for move
+	buf.add(16);
+	buf.add(e.getPos().x);
+	buf.add(e.getPos().y);
+	buf.add(ds::TERMINATOR_CHAR);
+
+}
+
+void EngineClient::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id){
+	EngineSender::AutoSend  send(mSender);
+	ds::DataBuffer&   buf = send.mData;
+	buf.add(CLIENT_INPUT_BLOB);
+	buf.add(2); // for up
+	buf.add(16);
+	buf.add(e.getPos().x);
+	buf.add(e.getPos().y);
+	buf.add(ds::TERMINATOR_CHAR);
+
 }
 
 /**

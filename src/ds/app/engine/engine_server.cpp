@@ -13,8 +13,12 @@ namespace {
 char				HEADER_BLOB = 0;
 char				COMMAND_BLOB = 0;
 char				DELETE_SPRITE_BLOB = 0;
+
 // Used for clients to get info to the server
 char				CLIENT_STATUS_BLOB = 0;
+
+// Used for clients to send mouse and/or touch input back to server
+char				CLIENT_INPUT_BLOB = 0;
 
 const char			TERMINATOR = 0;
 }
@@ -27,12 +31,12 @@ using namespace ci::app;
  */
 AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Settings& settings,
 											ds::EngineData& ed, const ds::RootList& roots)
-    : inherited(app, settings, ed, roots)
+	: inherited(app, settings, ed, roots)
 //    , mConnection(NumberOfNetworkThreads)
-    , mSender(mSendConnection)
-    , mReceiver(mReceiveConnection)
-    , mBlobReader(mReceiver.getData(), *this)
-    , mState(nullptr)
+	, mSender(mSendConnection)
+	, mReceiver(mReceiveConnection)
+	, mBlobReader(mReceiver.getData(), *this)
+	, mState(nullptr)
 {
 	mClients.setErrorChannel(&getChannel(ERROR_CHANNEL));
 	// NOTE:  Must be EXACTLY the same items as in EngineClient, in same order,
@@ -40,7 +44,8 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Setting
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});
 	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveCommand(r.mDataBuffer);});
 	DELETE_SPRITE_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveDeleteSprite(r.mDataBuffer);});
-	CLIENT_STATUS_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientStatus(r.mDataBuffer);});
+	CLIENT_STATUS_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientStatus(r.mDataBuffer); });
+	CLIENT_INPUT_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientInput(r.mDataBuffer); });
 
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
@@ -155,6 +160,40 @@ void AbstractEngineServer::receiveClientStatus(ds::DataBuffer& data) {
 	}
 }
 
+void AbstractEngineServer::receiveClientInput(ds::DataBuffer& data) {
+	if(!data.canRead<sprite_id_t>()) {
+		// Error, run to the next terminator
+		while(data.canRead<char>()) {
+			const char		cmd(data.read<char>());
+			if(cmd == ds::TERMINATOR_CHAR) return;
+		}
+	}
+
+	const int				state(data.read<int>());
+	const int				id(data.read<int>());
+	const float				xp((float)data.read<int>());
+	const float				yp((float)data.read<int>());
+
+	std::vector<ci::app::TouchEvent::Touch> touches;
+	touches.push_back(ci::app::TouchEvent::Touch(ci::Vec2f(xp, yp), ci::Vec2f(xp, yp), id, 0.0, nullptr));
+	ci::app::TouchEvent te = ci::app::TouchEvent(getWindow(), touches);
+	if(state == 0){
+		injectTouchesBegin(te);
+	} else if(state == 1){
+		injectTouchesMoved(te);
+	} else if(state == 2){
+		injectTouchesEnded(te);
+	}
+
+	// Verify we're at the end
+	if(data.canRead<char>()) {
+		const char			cmd(data.read<char>());
+		if(cmd != ds::TERMINATOR_CHAR) {
+			DS_LOG_WARNING_M("receiveClientInput missing terminator", ds::IO_LOG);
+		}
+	}
+}
+
 void AbstractEngineServer::onClientStartedCommand(ds::DataBuffer &data) {
 	if (!data.canRead<char>()) return;
 	char				att = data.read<char>();
@@ -192,6 +231,18 @@ void AbstractEngineServer::setState(State& s) {
 	mState = &s;
 }
 
+void AbstractEngineServer::handleMouseTouchBegin(const ci::app::MouseEvent& e, int id){
+	mTouchManager.mouseTouchBegin(e, id);
+}
+
+void AbstractEngineServer::handleMouseTouchMoved(const ci::app::MouseEvent& e, int id){
+	mTouchManager.mouseTouchMoved(e, id);
+}
+
+void AbstractEngineServer::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id){
+	mTouchManager.mouseTouchEnded(e, id);
+}
+
 /**
  * AbstractEngineServer::State
  */
@@ -202,10 +253,10 @@ void AbstractEngineServer::State::begin(AbstractEngineServer&) {
 }
 
 void AbstractEngineServer::State::addHeader(ds::DataBuffer& data, const int frame) {
-    data.add(HEADER_BLOB);
+	data.add(HEADER_BLOB);
 
-    data.add(frame);
-    data.add(ds::TERMINATOR_CHAR);
+	data.add(frame);
+	data.add(ds::TERMINATOR_CHAR);
 }
 
 /**
@@ -272,12 +323,12 @@ void EngineServer::RunningState::spriteDeleted(const ds::sprite_id_t &id) {
 void EngineServer::RunningState::addDeletedSprites(ds::DataBuffer &data) const {
 	if (mDeletedSprites.empty()) return;
 
-    data.add(DELETE_SPRITE_BLOB);
+	data.add(DELETE_SPRITE_BLOB);
 	data.add(mDeletedSprites.size());
 	for (auto it=mDeletedSprites.begin(), end=mDeletedSprites.end(); it!=end; ++it) {
 		data.add(*it);
 	}
-    data.add(ds::TERMINATOR_CHAR);
+	data.add(ds::TERMINATOR_CHAR);
 }
 
 /**
@@ -356,9 +407,9 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
  */
 EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
-    : inherited(app, settings, ed, roots)
-    , mLoadImageService(mLoadImageThread, mIpFunctions)
-    , mRenderTextService(mRenderTextThread) {
+	: inherited(app, settings, ed, roots)
+	, mLoadImageService(mLoadImageThread, mIpFunctions)
+	, mRenderTextService(mRenderTextThread) {
 }
 
 EngineServer::~EngineServer() {

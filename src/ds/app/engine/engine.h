@@ -206,6 +206,15 @@ protected:
 	void								clearAllSprites();
 	void								registerForTuioObjects(ci::tuio::Client&);
 
+	/** When mouse events are ready to be handled by the touch manager. 
+		These are enforced virtual functions to be sure the engine handles mouse events.
+		Servers will send directly to the touch manager, and clients can send back to the server */
+	virtual void						handleMouseTouchBegin(const ci::app::MouseEvent&, int id) = 0;
+	virtual void						handleMouseTouchMoved(const ci::app::MouseEvent&, int id) = 0;
+	virtual void						handleMouseTouchEnded(const ci::app::MouseEvent&, int id) = 0;
+
+	ui::TouchManager					mTouchManager;
+
 	static const int					NumberOfNetworkThreads;
 
 	ds::BlobRegistry					mBlobRegistry;
@@ -261,7 +270,6 @@ private:
 	float								mIdleTime;
 
 	ci::tuio::Client					mTuio;
-	ui::TouchManager					mTouchManager;
 	// Clients that will get update() called automatically at the start
 	// of each update cycle
 	AutoUpdateList						mAutoUpdateServer;
