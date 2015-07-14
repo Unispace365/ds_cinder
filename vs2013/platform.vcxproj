@@ -158,6 +158,7 @@
     <ClInclude Include="..\src\ds\ui\service\glsl_image_service.h" />
     <ClInclude Include="..\src\ds\ui\service\load_image_service.h" />
     <ClInclude Include="..\src\ds\ui\service\render_text_service.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\circle.h" />
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h" />
     <ClInclude Include="..\src\ds\ui\sprite\fbo\auto_fbo.h" />
     <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h" />
@@ -176,6 +177,7 @@
     <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h" />
     <ClInclude Include="..\src\ds\ui\touch\button_behaviour.h" />
     <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h" />
+    <ClInclude Include="..\src\ds\ui\touch\draw_touch_view.h" />
     <ClInclude Include="..\src\ds\ui\touch\momentum.h" />
     <ClInclude Include="..\src\ds\ui\touch\multi_touch_constraints.h" />
     <ClInclude Include="..\src\ds\ui\touch\picking.h" />
@@ -318,6 +320,7 @@
     <ClCompile Include="..\src\ds\ui\service\glsl_image_service.cpp" />
     <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp" />
     <ClCompile Include="..\src\ds\ui\service\render_text_service.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\circle.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\fbo\auto_fbo.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp" />
@@ -335,6 +338,7 @@
     <ClCompile Include="..\src\ds\ui\sprite\util\blend.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\button_behaviour.cpp" />
+    <ClCompile Include="..\src\ds\ui\touch\draw_touch_view.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\momentum.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp" />
     <ClCompile Include="..\src\ds\ui\touch\picking.cpp" />

@@ -79,6 +79,10 @@ public:
 		PerspCameraParams			mPersp;
 		
 		bool						mDebugDraw;
+
+		/// If true (the default), uses src/dst rect scaling
+		/// If false, will always display at a static scale (like the engine stats view)
+		bool						mDrawScaled;
 	};
 
 private:

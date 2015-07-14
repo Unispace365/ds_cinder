@@ -201,9 +201,11 @@ protected:
 	void								updateServer();
 	void								drawClient();
 	void								drawServer();
-	// Called from the destructor of all subclasses, so I can cleanup
-	// sprites before services go away.
-	void								clearAllSprites();
+
+	/** Called from the destructor of all subclasses, so I can cleanup sprites before services go away.
+		\param clearDebug If true, will clear all the children from the debug roots too. 
+							If false, leaves them alone (for instance, in client situations) */
+	void								clearAllSprites(const bool clearDebug = true);
 	void								registerForTuioObjects(ci::tuio::Client&);
 
 	/** When mouse events are ready to be handled by the touch manager. 

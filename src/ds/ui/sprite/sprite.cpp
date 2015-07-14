@@ -66,6 +66,7 @@ const int           CLIP_F				= (1<<4);
 const int           SHADER_CHILDREN_F	= (1<<5);
 const int           NO_REPLICATION_F	= (1<<6);
 const int           ROTATE_TOUCHES_F	= (1<<7);
+const int			DRAW_DEBUG_F		= (1<<8);
 
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
@@ -292,8 +293,18 @@ void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams
 	glLoadIdentity();
 	ci::gl::multModelView(totalTransformation);
 
-	if((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
-		ci::gl::color(mServerColor);
+	bool debugDraw = getDrawDebug();
+	if((mSpriteFlags&TRANSPARENT_F) == 0 && (isEnabled() || debugDraw)) {
+		if(debugDraw){
+			ci::gl::enableAlphaBlending();
+			applyBlendingMode(mBlendMode);
+
+			mDrawOpacityHack = mOpacity*drawParams.mParentOpacity;
+			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacityHack);
+		} else {
+			ci::gl::disableAlphaBlending();
+			ci::gl::color(mServerColor);
+		}
 		if(mUseDepthBuffer) {
 			ci::gl::enableDepthRead();
 			ci::gl::enableDepthWrite();
@@ -1224,11 +1235,6 @@ void Sprite::setDragDestination(Sprite *dragDestination){
 	mDragDestination = dragDestination;
 }
 
-void Sprite::setDragDestiantion(Sprite *dragDestination){
-	Poco::Debugger::enter("Obsolete Function! (misspelled API call)  Replace with setDragDestination()");
-	setDragDestination(dragDestination);
-}
-
 Sprite *Sprite::getDragDestination() const{
 	return mDragDestination;
 }
@@ -1895,8 +1901,17 @@ void Sprite::doPropagateVisibilityChange(bool before, bool after){
 	}
 }
 
-/**
- * \class ds::ui::Sprite::LockScale
+void Sprite::setDrawDebug(const bool doDebug){
+	if(doDebug) mSpriteFlags |= DRAW_DEBUG_F;
+	else mSpriteFlags &= ~DRAW_DEBUG_F;
+}
+
+bool Sprite::getDrawDebug(){
+	return getFlag(DRAW_DEBUG_F, mSpriteFlags);
+}
+
+/*
+ * --------------------LockScale
  */
 Sprite::LockScale::LockScale(Sprite& s, const ci::Vec3f& temporaryScale)
 		: mSprite(s)

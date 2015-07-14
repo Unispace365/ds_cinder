@@ -53,7 +53,7 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Setting
 			mReceiveConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
 		}
 	} catch (std::exception &e) {
-		DS_LOG_ERROR_M("EngineServer() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
+		DS_LOG_ERROR_M("EngineServer() initializing connection: " << e.what(), ds::ENGINE_LOG);
 	}
 
 	setState(mSendWorldState);
@@ -286,6 +286,14 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		// Always send the header
 		addHeader(send.mData, mFrame);
 //		DS_LOG_INFO_M("running frame=" << mFrame, ds::IO_LOG);
+
+// 		const int numRoots = engine.getRootCount();
+// 		for(int i = 0; i < numRoots - 1; i++){
+// 			ds::ui::Sprite& rooty = engine.getRootSprite(i);
+// 			if(rooty.isDirty()){
+// 				rooty.writeTo(send.mData);
+// 			}
+// 		}
 		ui::Sprite                 &root = engine.getRootSprite();
 		if (root.isDirty()) {
 			root.writeTo(send.mData);

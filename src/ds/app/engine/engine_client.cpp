@@ -100,7 +100,11 @@ void EngineClient::update() {
 		// This can happen because the network connection drops, so
 		// refresh it, and let the world now I'm ready again.
 		mReceiveConnection.renew();
-		clearAllSprites();
+
+		// GN: Trying out not clearing sprites on lost connections
+		// It might be nice to keeping showing stuff until connection resumes...
+		// clearAllSprites(false);
+
 		setState(mClientStartedState);
 		return;
 	}
@@ -159,7 +163,7 @@ void EngineClient::receiveCommand(ds::DataBuffer& data) {
 	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
 		if (cmd == CMD_SERVER_SEND_WORLD) {
 			DS_LOG_INFO_M("Receive world, sessionid=" << mSessionId, ds::IO_LOG);
-			clearAllSprites();
+			clearAllSprites(false);
 			if (mSessionId < 1) {
 				setState(mClientStartedState);
 			} else {
@@ -221,7 +225,7 @@ void EngineClient::receiveClientInput(ds::DataBuffer& data) {
 }
 
 void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
-	clearAllSprites();
+	clearAllSprites(false);
 	
 	char					cmd;
 	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {

@@ -526,7 +526,6 @@ namespace ui {
 		bool					getCheckBounds() const;
 		virtual bool			isLoaded() const;
 		void					setDragDestination(Sprite *dragDestination);
-		void					setDragDestiantion(Sprite *dragDestination);
 		Sprite*					getDragDestination() const;
 
 		bool					isDirty() const;
@@ -587,9 +586,18 @@ namespace ui {
 		 */
 		void					passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
 
-		// A hack needed by the engine, which constructs root types
-		// before the blobs are assigned
+		/** A hack needed by the engine, which constructs root types before the blobs are assigned. */
 		void					postAppSetup();
+
+		/** Mark this sprite to be a debug sprite layer.
+			The primary use case is server-only or client-only setups, so the stats view can draw when not enabled and not be colored weird.
+			Client apps don't generally need to set this flag, as it happens automagically.			
+		*/
+		void					setDrawDebug(const bool doDebug);
+
+		/** If this sprite has been flagged to draw as a debug layer. Will draw in the server draw loop even if disabled.
+		*/
+		bool					getDrawDebug();
 
 	protected:
 		friend class        TouchManager;

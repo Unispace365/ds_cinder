@@ -94,6 +94,7 @@ RootList::Root::Root()
 		, mPick(kDefault)
 		, mMaster(kIndependent)
 		, mDebugDraw(false)
+		, mDrawScaled(true)
 {
 }
 

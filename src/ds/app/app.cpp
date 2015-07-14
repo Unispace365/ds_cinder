@@ -20,6 +20,7 @@
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
+#include "ds/ui/sprite/circle.h"
 
 // For installing the image generators
 #include "ds/ui/image_source/image_arc.h"
@@ -112,7 +113,9 @@ App::App(const RootList& roots)
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){EngineStatsView::installAsServer(r);},
-							[](ds::BlobRegistry& r){EngineStatsView::installAsClient(r);});
+							[](ds::BlobRegistry& r){EngineStatsView::installAsClient(r); });
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Circle::installAsServer(r); },
+							[](ds::BlobRegistry& r){ds::ui::Circle::installAsClient(r); });
 
 	// Initialize the engine image generator typess.
 	ds::ui::ImageArc::install(mEngine.getImageRegistry());
