@@ -70,6 +70,8 @@ private:
 	float						mFrameTime;
 	double						mLastFrameTime;
 	std::vector<ds::ui::Image*>	mFrames;
+
+	int							mNumFrames;
 };
 
 } // namespace ui

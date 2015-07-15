@@ -10,11 +10,12 @@ class ScrollArea;
 
 
 
-	/*
+	/**
 	* ScrollList is an advanced Scroll Area that handles an arbitrarily large set of items.
 	* ScrollList handles keeping a cache of placeholders and assigning sprites to onscreen items.
 	* This assumes that you can refer to your content by integers only, so you may have to keep a map in your super class.
 	*
+	* NOTE: In perspective sprites, the list will fill up from the bottom. If you need to modify this, leave filling from the bottom the default.
 	*/
 
 	class ScrollList : public ds::ui::Sprite {

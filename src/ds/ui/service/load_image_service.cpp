@@ -132,7 +132,7 @@ bool LoadImageService::acquire(const ImageKey& key, const int flags) {
 		{
 			Poco::Mutex::ScopedLock		l(mMutex);
 			mInput.push_back(op(key, flags, mFunctions.find(key.mIpKey)));
- 		}
+		}
 		performOnWorkerThread(&LoadImageService::_load);
 	}
 	h.mRefs++;

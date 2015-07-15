@@ -22,8 +22,9 @@ namespace example {
 
 ScrollExample::ScrollExample()
 	: inherited(ds::RootList()
-								.ortho() // sample ortho view
-								.pickColor()
+							//	.persp() // sample ortho view
+							//  .ortho()
+							//	.pickColor()
 
 								.persp() // sample perp view
 								.perspFov(60.0f)
@@ -31,7 +32,7 @@ ScrollExample::ScrollExample()
 								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
 								.perspFar(20.0f)
-
+								.ortho()
 								.ortho() ) // ortho view on top
 	, mGlobals(mEngine , mAllData )
 	, mQueryHandler(mEngine, mAllData)
@@ -52,9 +53,27 @@ void ScrollExample::setupServer(){
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
 	mEngine.loadTextCfg("text.xml");
 
-	mEngine.getRootSprite(0).clearChildren();
-	mEngine.getRootSprite(1).clearChildren();
-	mEngine.getRootSprite(2).clearChildren();
+	const int numRoots = mEngine.getRootCount();
+	for(int i = 0; i < numRoots - 1; i++){
+		// don't clear the last root, which is the debug draw
+		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
+
+		ds::ui::Sprite& rooty = mEngine.getRootSprite(i);
+		if(rooty.getPerspective()){
+			const float clippFar = mGlobals.getSettingsLayout().getFloat("trends:sphere:clipping_far", 0, mEngine.getWorldWidth());
+			const float fov = mGlobals.getSettingsLayout().getFloat("trends:sphere:fov", 0, 60.0f);
+			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
+			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mFarPlane = clippFar;
+			p.mFov = fov;
+			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			mEngine.setPerspectiveCamera(i, p);
+		} else {
+			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
+		}
+
+		rooty.clearChildren();
+	}
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);

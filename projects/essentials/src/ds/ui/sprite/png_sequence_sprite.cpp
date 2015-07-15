@@ -13,6 +13,7 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine, const std::vector<std
 	, mCurrentFrameIndex(0)
 	, mPlaying(true)
 	, mFrameTime(0.0f)
+	, mNumFrames(0)
 {
 
 	setImages(imageFiles);
@@ -32,14 +33,30 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine)
 }
 
 void PngSequenceSprite::setImages(const std::vector<std::string>& imageFiles){
+	int i=0;
 	for(auto it = imageFiles.begin(); it < imageFiles.end(); ++it){
-		ds::ui::Image* img = new ds::ui::Image(mEngine, (*it), ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F);
-		addChild(*img);
-		mFrames.push_back(img);
-		img->hide();
+		bool created_new_frames = false;
+		while ( mFrames.size() < i+1 ) {
+			ds::ui::Image* img = new ds::ui::Image( mEngine, (*it), ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F );
+			addChild( *img );
+			img->hide();
+			mFrames.push_back( img );
+			created_new_frames = true;
+		}
+
+		if (!created_new_frames)
+			mFrames[i]->setImageFile( *it, ds::ui::Image::IMG_CACHE_F | ds::ui::Image::IMG_PRELOAD_F );
+
+		i++;
 	}
 
-	if(mFrames.empty()){
+	mNumFrames = imageFiles.size();
+
+	// Hide all the old frames if there were previously more frames than there are now
+	for ( i=mNumFrames; i<mFrames.size(); i++ )
+		mFrames[i]->hide();
+
+	if( mNumFrames == 0 ){
 		DS_LOG_WARNING("Png Sequence didn't load any frames. Whoops.");
 		mPlaying = false;
 		return;
@@ -73,10 +90,10 @@ const bool PngSequenceSprite::isPlaying()const{
 }
 
 void PngSequenceSprite::setCurrentFrameIndex(const int frameIndex){
-	if(frameIndex < 0 || frameIndex > mFrames.size() - 1) return;
+	if(frameIndex < 0 || frameIndex > mNumFrames - 1) return;
 	mCurrentFrameIndex = frameIndex;
 
-	for(int i = 0; i < mFrames.size(); i++){
+	for(int i = 0; i < mNumFrames; i++){
 		if(i == mCurrentFrameIndex){
 			mFrames[i]->show();
 		} else {
@@ -90,11 +107,11 @@ const int PngSequenceSprite::getCurrentFrameIndex()const{
 }
 
 const int PngSequenceSprite::getNumberOfFrames(){
-	return mFrames.size();
+	return mNumFrames;
 }
 
 ds::ui::Image* PngSequenceSprite::getFrameAtIndex(const int frameIndex){
-	if(frameIndex < 0 || frameIndex > mFrames.size() - 1) return nullptr;
+	if(frameIndex < 0 || frameIndex > mNumFrames - 1) return nullptr;
 	return mFrames[frameIndex];
 }
 
@@ -109,7 +126,14 @@ void PngSequenceSprite::sizeToFirstImage(){
 void PngSequenceSprite::updateServer(const ds::UpdateParams& p){
 	inherited::updateServer(p);
 
-	if(mPlaying && !mFrames.empty()){
+	// Remove old (unused) Image sprites from the back of the frames if the count has changed...
+	while ( mFrames.size() > mNumFrames ) {
+		auto last_frame = mFrames.back();
+		last_frame->release();
+		mFrames.pop_back();
+	}
+
+	if(mPlaying && mNumFrames > 0){
 
 		bool advanceFrame(true);
 
@@ -130,14 +154,14 @@ void PngSequenceSprite::updateServer(const ds::UpdateParams& p){
 
 			// advance the frame
 			mCurrentFrameIndex++;
-			if(mCurrentFrameIndex > mFrames.size() - 1){
+			if(mCurrentFrameIndex > mNumFrames - 1){
 				if(mLoopStyle == Loop){
 					mCurrentFrameIndex = 0;
 				} else if(mLoopStyle == Once){
-					mCurrentFrameIndex = mFrames.size() - 1;
+					mCurrentFrameIndex = mNumFrames - 1;
 					pause();
 				} else {
-					mCurrentFrameIndex = mFrames.size() - 1;
+					mCurrentFrameIndex = mNumFrames - 1;
 					pause();
 				}
 			}

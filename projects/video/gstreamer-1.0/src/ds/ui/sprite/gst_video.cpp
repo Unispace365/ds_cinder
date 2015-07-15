@@ -208,6 +208,9 @@ float GstVideo::getVolume() const {
 }
 
 void GstVideo::play(){
+	if (mPlaySingleFrame)
+		mPlaySingleFrame = false;
+
 	mGstreamerWrapper->play();
 
 	//If movie not yet loaded, remember to play it later once it has
