@@ -84,13 +84,13 @@ void Gradient::setColorsAll(const ci::ColorA& tlColor, const ci::ColorA& trColor
 void Gradient::drawLocalClient() {
 	// the magic!
 	ci::gl::begin(GL_QUADS);
-	ci::gl::color(mTLColor.r, mTLColor.g, mTLColor.b, mTLColor.a * mDrawOpacityHack);
+	ci::gl::color(mTLColor.r, mTLColor.g, mTLColor.b, mTLColor.a * getDrawOpacity());
 	ci::gl::vertex(0, 0);
-	ci::gl::color(mTRColor.r, mTRColor.g, mTRColor.b, mTRColor.a * mDrawOpacityHack);
+	ci::gl::color(mTRColor.r, mTRColor.g, mTRColor.b, mTRColor.a * getDrawOpacity());
 	ci::gl::vertex(getWidth(), 0.0f);
-	ci::gl::color(mBRColor.r, mBRColor.g, mBRColor.b, mBRColor.a * mDrawOpacityHack);
+	ci::gl::color(mBRColor.r, mBRColor.g, mBRColor.b, mBRColor.a * getDrawOpacity());
 	ci::gl::vertex(getWidth(), getHeight());
-	ci::gl::color(mBLColor.r, mBLColor.g, mBLColor.b, mBLColor.a * mDrawOpacityHack);
+	ci::gl::color(mBLColor.r, mBLColor.g, mBLColor.b, mBLColor.a * getDrawOpacity());
 	ci::gl::vertex(0.0f, getHeight());
 	ci::gl::end();
 }
