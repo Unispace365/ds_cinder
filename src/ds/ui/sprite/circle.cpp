@@ -41,6 +41,7 @@ Circle::Circle(SpriteEngine& engine)
 	, mRadius(0.0f)
 	, mVertices(nullptr)
 {
+	mBlobType = BLOB_TYPE;
 	setTransparent(false);
 }
 
@@ -50,7 +51,10 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	, mRadius(radius)
 	, mVertices(nullptr)
 {
+	mBlobType = BLOB_TYPE;
 	setTransparent(false);
+	setRadius(mRadius);
+	setFilled(mFilled);
 	init();
 }
 
@@ -91,6 +95,7 @@ void Circle::writeAttributesTo(ds::DataBuffer& buf) {
 void Circle::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if(attributeId == RADIUS_ATT) {
 		mRadius = buf.read<float>();
+		std::cout << "Read circle radius" << std::endl;
 		init();
 
 	} else if(attributeId == FILLED_ATT) {
@@ -103,8 +108,6 @@ void Circle::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 }
 
 void Circle::init() {
-	mBlobType = BLOB_TYPE;
-
 	if(mVertices){
 		delete [] mVertices;
 		mVertices = nullptr;

@@ -8,6 +8,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/touch/touch_manager.h>
 #include <ds/cfg/settings.h>
+#include <ds/data/data_buffer.h>
 
 #include <cinder/gl/Vbo.h>
 
@@ -19,6 +20,7 @@ namespace ui{
 class DrawTouchView : public ds::ui::Sprite
 	, public ds::ui::TouchManager::Capture {
 public:
+	DrawTouchView(ds::ui::SpriteEngine& e);
 	DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &settings, ds::ui::TouchManager& tm);
 
 	virtual void							touchBegin(const ds::ui::TouchInfo &ti);
@@ -27,18 +29,12 @@ public:
 
 	virtual void							drawLocalClient();
 	virtual void							drawLocalServer();
-
-	// Temp, until multi-root sync is working.
-	virtual void							updateServer(const ds::UpdateParams& updateParams);
-
 private:
 	void									drawTrails();
 	void									drawCircles();
-	void									drawTouches();
 
 	std::map<int, Circle*>					mCircles;
 
-	ds::ui::TouchManager&					mTouchManager;
 	std::map<int, std::vector<ci::Vec3f>>	mTouchPointHistory;
 	bool									mTouchTrailsUse;
 	int										mTouchTrailsLength;

@@ -54,6 +54,7 @@ private:
 	virtual void					handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
+	void							sendMouseTouch(const int phase, const ci::Vec2i pos);
 
 	typedef Engine inherited;
 	WorkManager						mWorkManager;

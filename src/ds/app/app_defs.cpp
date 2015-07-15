@@ -95,6 +95,7 @@ RootList::Root::Root()
 		, mMaster(kIndependent)
 		, mDebugDraw(false)
 		, mDrawScaled(true)
+		, mSyncronize(true)
 {
 }
 

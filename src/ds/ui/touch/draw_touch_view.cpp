@@ -1,6 +1,8 @@
 #include "draw_touch_view.h"
 
 #include <ds/math/math_defs.h>
+#include "ds/app/blob_reader.h"
+#include "ds/app/blob_registry.h"
 
 #include <cinder/TriMesh.h>
 #include <cinder/Triangulate.h>
@@ -10,9 +12,14 @@
 namespace ds{
 namespace ui{
 
+DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e)
+	: ds::ui::Sprite(e)
+	, mTouchTrailsUse(false)
+{
+}
+
 DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &settings, ds::ui::TouchManager& tm)
 	: ds::ui::Sprite(e)
-	, mTouchManager(tm)
 	, mTouchTrailsUse(false)
 	, mTouchTrailsLength(5)
 	, mTouchTrailsIncrement(5.0f) {
@@ -20,42 +27,8 @@ DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &s
 	mTouchTrailsLength = settings.getInt("touch_overlay:trails:length", 0, mTouchTrailsLength);
 	mTouchTrailsIncrement = settings.getFloat("touch_overlay:trails:increment", 0, mTouchTrailsIncrement);
 
-	setTransparent(false);
-	setColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
 
 	tm.setCapture(this);
-	setDrawDebug(true);
-#if 0
-	if(mTouchTrailsUse) {
-		tm.setCapture(this);
-	} else {
-
-		// Create a vertex buffer for the circle
-		float numPoints = 20.0f;
-		float radius = 20.0f;
-		float angle = 2 * ds::math::PI / numPoints;
-		float centerX = radius;
-		float centerY = radius;
-
-		std::vector<ci::Vec2f> points;
-		for(int i = 0; i < numPoints; i++) {
-			float t = angle * (float)i;
-			points.push_back(ci::Vec2f(
-				centerX + radius * cos(t),
-				centerY + radius * sin(t)
-				));
-		}
-
-		ci::Shape2d shape = ci::Shape2d();
-		shape.moveTo(points[0].x, points[0].y);
-		for(auto it = points.begin() + 1; it < points.end(); ++it) {
-			shape.lineTo((*it).x, (*it).y);
-		}
-
-		ci::TriMesh2d mesh = ci::Triangulator(shape, 1.0f).calcMesh(ci::Triangulator::WINDING_ODD);
-		mCircleVbo = ci::gl::VboMesh(mesh);
-	}
-#endif
 }
 
 void DrawTouchView::drawTrails(){
@@ -95,26 +68,11 @@ void DrawTouchView::drawTrails(){
 	}
 }
 
-void DrawTouchView::drawTouches() {
-	return;
-
-	std::map<int, ci::Vec3f>& prevTouches = mTouchManager.getPreviousTouchPoints();
-	if(prevTouches.empty())
-		return;
-
-	applyBlendingMode(NORMAL);
-
-	for(auto it = prevTouches.begin(), it2 = prevTouches.end(); it != it2; ++it) {
-		ci::Vec2f		pos(it->second.xy());
-		ci::gl::drawStrokedCircle(pos, 20.0f);
-	}
-}
-
 void DrawTouchView::drawLocalServer(){
 	if(mTouchTrailsUse) {
 		drawTrails();
 	} else {
-		drawTouches();
+		Sprite::drawLocalClient();
 	}
 }
 
@@ -122,7 +80,7 @@ void DrawTouchView::drawLocalClient(){
 	if(mTouchTrailsUse) {
 		drawTrails();
 	} else {
-		drawTouches();
+		Sprite::drawLocalClient();
 	}
 }
 
@@ -164,12 +122,6 @@ void DrawTouchView::touchEnd(const ds::ui::TouchInfo &ti){
 		mCircles[ti.mFingerId]->hide();
 	}
 }
-
-void DrawTouchView::updateServer(const ds::UpdateParams& updateParams){
-	Sprite::updateServer(updateParams);
-	sendToFront();
-}
-
 
 }
 }

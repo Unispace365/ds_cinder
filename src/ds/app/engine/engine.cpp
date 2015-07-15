@@ -79,26 +79,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	if (mAutoDraw) addService("AUTODRAW", *mAutoDraw);
 
-	// Construct the root sprites
-	RootList				roots(_roots.runInitFn());
-	if (roots.empty()) roots.ortho();
-	sprite_id_t							root_id = EMPTY_SPRITE_ID-1;
-	for (auto it=roots.mRoots.begin(), end=roots.mRoots.end(); it!=end; ++it) {
-		const RootList::Root&			r(*it);
-		Picking*						picking = nullptr;
-		if (r.mPick == r.kSelect) picking = &mSelectPicking;
-		std::unique_ptr<EngineRoot>		root;
-		if (r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, root_id));
-		else if (r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, root_id, r.mPersp, picking));
-		if (!root) throw std::runtime_error("Engine can't create root");
-		mRoots.push_back(std::move(root));
-		--root_id;
-	}
-	if (mRoots.empty()) {
-		throw std::runtime_error("Engine can't create single root");
-	}
-	root_setup(mRoots);
-
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
 
@@ -221,47 +201,60 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		// everything goes black. That really needs to be weeded out in favour of the new system.
 		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
 	}
+
+
+	// Don't construct roots on startup for clients, and instead create them when we connect to a server
+	const std::string	arch(settings.getText("platform:architecture", 0, ""));
+	bool isClient = false;
+	if(arch == "client") isClient = true;
+
+	sprite_id_t							root_id = EMPTY_SPRITE_ID - 1;
+	// Construct the root sprites
+	if(!isClient){
+		RootList				roots(_roots.runInitFn());
+		if(roots.empty()) roots.ortho();
+		for(auto it = roots.mRoots.begin(), end = roots.mRoots.end(); it != end; ++it) {
+			RootList::Root&			r(*it);
+			r.mRootId = root_id;
+			Picking*						picking = nullptr;
+			if(r.mPick == r.kSelect) picking = &mSelectPicking;
+			std::unique_ptr<EngineRoot>		root;
+			if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, r.mRootId));
+			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp, picking));
+			if(!root) throw std::runtime_error("Engine can't create root");
+			mRoots.push_back(std::move(root));
+			--root_id;
+		}
+		if(mRoots.empty()) {
+			throw std::runtime_error("Engine can't create single root");
+		}
+		root_setup(mRoots);
+	}
+
 	// If we're drawing the touches, create a separate top-level root to do that
-	if (drawTouches) {
+	// For clients, the debug touch root is created by the server and synced
+
+	if (drawTouches && !isClient) {
 		RootList::Root					root_cfg;
 		root_cfg.mType = root_cfg.kOrtho;
 		root_cfg.mDebugDraw = true;
 		root_cfg.mDrawScaled = true;
+		root_cfg.mRootId = root_id;
 		std::unique_ptr<EngineRoot>		root;
 		root.reset(new OrthRoot(*this, root_cfg, root_id));
 		if (root) {
 			ds::ui::Sprite*				parent = root->getSprite();
 			if (parent) {
 				parent->setDrawDebug(true);
-				ds::ui::DrawTouchView* v = new ds::ui::DrawTouchView(*this, settings, mTouchManager);
-				if (v) {
-					v->setDrawDebug(true);
-					parent->addChild(*v);
-					mRoots.push_back(std::move(root));
-				}
+				mRoots.push_back(std::move(root));
+				
 			}
 		}
 	}
 	// Add a view for displaying the stats.
-	{
-		RootList::Root					root_cfg;
-		root_cfg.mType = root_cfg.kOrtho;
-		root_cfg.mDebugDraw = true;
-		root_cfg.mDrawScaled = false;
-		std::unique_ptr<EngineRoot>		root;
-		root.reset(new OrthRoot(*this, root_cfg, root_id));
-		if (root) {
-			ds::ui::Sprite*				parent = root->getSprite();
-			if (parent) {
-				parent->setDrawDebug(true);
-				EngineStatsView*		v = new EngineStatsView(*this);
-				if (v) {
-					parent->addChild(*v);
-					mRoots.push_back(std::move(root));
-				}
-			}
-		}
-	}
+	//if(!isClient) 
+		createStatsView(root_id);
+
 	// Initialize the roots
 	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
@@ -283,6 +276,64 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		resourceLocation = Poco::Path::expand(resourceLocation);
 		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
 	}
+}
+
+void Engine::clearRoots(){
+	mRoots.clear();
+}
+
+void Engine::createClientRoots(std::vector<RootList::Root> roots){
+	sprite_id_t	root_id = 0;
+
+	for(auto it = roots.begin(), end = roots.end(); it != end; ++it) {
+		const RootList::Root&			r(*it);
+		std::unique_ptr<EngineRoot>		root;
+		sprite_id_t thisRootId = (*it).mRootId;
+		if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, thisRootId));
+		else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, thisRootId, r.mPersp));
+		if(!root) throw std::runtime_error("Engine can't create root");
+		mRoots.push_back(std::move(root));
+		if(thisRootId < root_id){
+			root_id = thisRootId;
+		}
+	}
+
+	--root_id;
+	createStatsView(root_id);
+	root_setup(mRoots);
+
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, 1.0f, mData.mSrcRect, mData.mDstRect);
+	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
+		EngineRoot&				r(*(it->get()));
+		r.setup(er_settings);
+	}
+
+	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
+		(*it)->postAppSetup();
+		(*it)->setCinderCamera();
+	}
+}
+
+void Engine::createStatsView(sprite_id_t root_id){
+	RootList::Root					root_cfg;
+	root_cfg.mType = root_cfg.kOrtho;
+	root_cfg.mDebugDraw = true;
+	root_cfg.mDrawScaled = false;
+	root_cfg.mSyncronize = false;
+	std::unique_ptr<EngineRoot>		root;
+	root.reset(new OrthRoot(*this, root_cfg, root_id));
+	if(root) {
+		ds::ui::Sprite*				parent = root->getSprite();
+		if(parent) {
+			parent->setDrawDebug(true);
+			EngineStatsView*		v = new EngineStatsView(*this);
+			if(v) {
+				parent->addChild(*v);
+				mRoots.push_back(std::move(root));
+			}
+		}
+	}
+
 }
 
 Engine::~Engine() {
@@ -547,9 +598,21 @@ void Engine::setup(ds::App& app) {
 	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
 	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / getWindowWidth(), mData.mSrcRect.getHeight() / getWindowHeight());
 
+
+	const std::string	arch(mSettings.getText("platform:architecture", 0, ""));
+	bool isClient = false;
+	if(arch == "client") isClient = true;
+	const bool			drawTouches = mSettings.getBool("touch_overlay:debug", 0, false);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		(*it)->postAppSetup();
 		(*it)->setCinderCamera();
+
+		// Assume only one debug syncronized root? oh boy I hope so!
+		if(!isClient && drawTouches && (*it)->getBuilder().mDebugDraw && (*it)->getBuilder().mSyncronize){
+
+			ds::ui::DrawTouchView* v = new ds::ui::DrawTouchView(*this, mSettings, mTouchManager);
+			(*it)->getSprite()->addChildPtr(v);
+		}
 	}
 
 	const int		w = static_cast<int>(getWidth()),
@@ -670,10 +733,16 @@ ci::Color8u Engine::getUniqueColor() {
 namespace {
 
 void		alter_touch_events(	const ds::ui::TouchTranslator &trans, const TouchEvent &src,
-								std::vector<ci::app::TouchEvent::Touch> &out) {
+								std::vector<ci::app::TouchEvent::Touch> &out, const bool inWorldSpace = false) {
 	for (auto it=src.getTouches().begin(), end=src.getTouches().end(); it!=end; ++it) {
-		out.push_back(ci::app::TouchEvent::Touch(	trans.toWorldf(it->getPos().x, it->getPos().y),
-													trans.toWorldf(it->getPrevPos().x, it->getPrevPos().y),
+		ci::Vec2f possy = it->getPos();
+		ci::Vec2f prevPossy = it->getPrevPos();
+		if(!inWorldSpace){
+			possy = trans.toWorldf(possy.x, possy.y);
+			prevPossy = trans.toWorldf(prevPossy.x, prevPossy.y);
+		}
+		out.push_back(ci::app::TouchEvent::Touch(	possy,
+													prevPossy,
 													it->getId(),
 													it->getTime(),
 													(void*)it->getNative()));
@@ -682,24 +751,24 @@ void		alter_touch_events(	const ds::ui::TouchTranslator &trans, const TouchEvent
 
 }
 
-void Engine::touchesBegin(const TouchEvent &e) {
+void Engine::touchesBegin(const TouchEvent &e, const bool inWorldSpace) {
 	// Translate the positions
 	std::vector<ci::app::TouchEvent::Touch>	touches;
-	alter_touch_events(mTouchTranslator, e, touches);
+	alter_touch_events(mTouchTranslator, e, touches, inWorldSpace);
 	mTouchBeginEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
 }
 
-void Engine::touchesMoved(const TouchEvent &e) {
+void Engine::touchesMoved(const TouchEvent &e, const bool inWorldSpace) {
 	// Translate the positions
 	std::vector<ci::app::TouchEvent::Touch>	touches;
-	alter_touch_events(mTouchTranslator, e, touches);
+	alter_touch_events(mTouchTranslator, e, touches, inWorldSpace);
 	mTouchMovedEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
 }
 
-void Engine::touchesEnded(const TouchEvent &e) {
+void Engine::touchesEnded(const TouchEvent &e, const bool inWorldSpace) {
 	// Translate the positions
 	std::vector<ci::app::TouchEvent::Touch>	touches;
-	alter_touch_events(mTouchTranslator, e, touches);
+	alter_touch_events(mTouchTranslator, e, touches, inWorldSpace);
 	mTouchEndEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
 }
 
@@ -738,16 +807,16 @@ MouseEvent Engine::alteredMouseEvent(const MouseEvent& e) const {
 												0, e.getWheelIncrement(), e.getNativeModifiers());
 }
 
-void Engine::injectTouchesBegin(const ci::app::TouchEvent& e){
-	touchesBegin(e);
+void Engine::injectTouchesBegin(const ci::app::TouchEvent& e, const bool inWorldSpace){
+	touchesBegin(e, inWorldSpace);
 }
 
-void Engine::injectTouchesMoved(const ci::app::TouchEvent& e){
-	touchesMoved(e);
+void Engine::injectTouchesMoved(const ci::app::TouchEvent& e, const bool inWorldSpace){
+	touchesMoved(e, inWorldSpace);
 }
 
-void Engine::injectTouchesEnded(const ci::app::TouchEvent& e){
-	touchesEnded(e);
+void Engine::injectTouchesEnded(const ci::app::TouchEvent& e, const bool inWorldSpace){
+	touchesEnded(e, inWorldSpace);
 }
 
 

@@ -171,18 +171,18 @@ void AbstractEngineServer::receiveClientInput(ds::DataBuffer& data) {
 
 	const int				state(data.read<int>());
 	const int				id(data.read<int>());
-	const float				xp((float)data.read<int>());
-	const float				yp((float)data.read<int>());
+	const float				xp(data.read<float>());
+	const float				yp(data.read<float>());
 
 	std::vector<ci::app::TouchEvent::Touch> touches;
 	touches.push_back(ci::app::TouchEvent::Touch(ci::Vec2f(xp, yp), ci::Vec2f(xp, yp), id, 0.0, nullptr));
 	ci::app::TouchEvent te = ci::app::TouchEvent(getWindow(), touches);
 	if(state == 0){
-		injectTouchesBegin(te);
+		injectTouchesBegin(te, true);
 	} else if(state == 1){
-		injectTouchesMoved(te);
+		injectTouchesMoved(te, true);
 	} else if(state == 2){
-		injectTouchesEnded(te);
+		injectTouchesEnded(te, true);
 	}
 
 	// Verify we're at the end
@@ -287,17 +287,15 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		addHeader(send.mData, mFrame);
 //		DS_LOG_INFO_M("running frame=" << mFrame, ds::IO_LOG);
 
-// 		const int numRoots = engine.getRootCount();
-// 		for(int i = 0; i < numRoots - 1; i++){
-// 			ds::ui::Sprite& rooty = engine.getRootSprite(i);
-// 			if(rooty.isDirty()){
-// 				rooty.writeTo(send.mData);
-// 			}
-// 		}
-		ui::Sprite                 &root = engine.getRootSprite();
-		if (root.isDirty()) {
-			root.writeTo(send.mData);
+		const int numRoots = engine.getRootCount();
+		for(int i = 0; i < numRoots - 1; i++){
+			if(!engine.getRootBuilder(i).mSyncronize) continue;
+			ds::ui::Sprite& rooty = engine.getRootSprite(i);
+			if(rooty.isDirty()){
+				rooty.writeTo(send.mData);
+			}
 		}
+
 		if (!mDeletedSprites.empty()) {
 			addDeletedSprites(send.mData);
 			mDeletedSprites.clear();
@@ -371,6 +369,30 @@ void EngineServer::ClientStartedReplyState::update(AbstractEngineServer& engine)
 				send.mData.add(s->mGuid);
 				send.mData.add(ATT_SESSION_ID);
 				send.mData.add(s->mSessionId);
+
+				send.mData.add(ATT_ROOTS);
+				int rootCount = engine.getRootCount();
+				int numActualRoots = 0;
+				std::vector<RootList::Root> roots;
+
+				for(int i = 0; i < rootCount; i++){
+					if(!engine.getRootBuilder(i).mSyncronize) continue;
+					numActualRoots++;
+					RootList::Root newRoot = RootList::Root();
+					newRoot.mRootId = engine.getRootBuilder(i).mRootId;
+					newRoot.mType = engine.getRootBuilder(i).mType;
+					roots.push_back(newRoot);
+				}
+				if(numActualRoots > 0){
+					send.mData.add(numActualRoots);
+					for(int i = 0; i < numActualRoots; i++){
+						send.mData.add(roots[i].mRootId);
+						send.mData.add(roots[i].mType);
+					}
+				} else {
+					send.mData.add(0); // no roots? well, whatever
+				}
+
 				send.mData.add(ds::TERMINATOR_CHAR);
 			}
 		}
@@ -402,9 +424,18 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 		send.mData.add(CMD_SERVER_SEND_WORLD);
 		send.mData.add(ds::TERMINATOR_CHAR);
 
-		ui::Sprite                 &root = engine.getRootSprite();
-		root.markTreeAsDirty();
-		root.writeTo(send.mData);
+		const int numRoots = engine.getRootCount();
+		for(int i = 0; i < numRoots - 1; i++){
+			if(!engine.getRootBuilder(i).mSyncronize) continue;
+			ds::ui::Sprite& rooty = engine.getRootSprite(i);
+			rooty.markTreeAsDirty();
+			rooty.writeTo(send.mData);
+			
+		}
+
+// 		ui::Sprite                 &root = engine.getRootSprite();
+// 		root.markTreeAsDirty();
+// 		root.writeTo(send.mData);
 	}
 
 	engine.setState(engine.mRunningState);

@@ -26,6 +26,7 @@ extern const char				ATT_CLIENT;					// Header for a client, which might have: A
 extern const char				ATT_GLOBAL_ID;				// A string, which is a GUID
 extern const char				ATT_SESSION_ID;				// An int32, which is a client-unique ID
 extern const char				ATT_FRAME;					// A frame number
+extern const char				ATT_ROOTS;					// A list of the roots being sent from the server
 
 /**
  * \class ds::EngineIoInfo

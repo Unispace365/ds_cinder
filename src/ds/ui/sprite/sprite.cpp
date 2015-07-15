@@ -1284,10 +1284,14 @@ void Sprite::writeClientTo(ds::DataBuffer &buf) const {
 }
 
 void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
-	if (mDirty.has(PARENT_DIRTY)) {
-		buf.add(PARENT_ATT);
-		if (mParent) buf.add(mParent->getId());
-		else buf.add(ds::EMPTY_SPRITE_ID);
+	if(mDirty.has(PARENT_DIRTY)) {
+		if(mParent){
+			buf.add(PARENT_ATT);
+			buf.add(mParent->getId());
+		} 
+
+		// Why would you send an empty sprite id?
+		//buf.add(ds::EMPTY_SPRITE_ID);
 	}
 	if (mDirty.has(SIZE_DIRTY)) {
 		buf.add(SIZE_ATT);
@@ -1412,7 +1416,7 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 		} else if (id == SORTORDER_ATT) {
 			int32_t						size = buf.read<int32_t>();
 			// I'll assume anything beyond a certain size is a broken packet.
-			if (size > 0 && size < 10000) {
+			if (size > 0 && size < 100000) {
 				try {
 					std::vector<sprite_id_t>	order;
 					for (int32_t k=0; k<size; ++k) {
@@ -1421,11 +1425,12 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 					setSpriteOrder(order);
 				} catch (std::exception const&) {
 				}
-			}
+			} 
 		} else {
 			readAttributeFrom(id, buf);
 		}
 	}
+
 	if (transformChanged) {
 		mUpdateTransform = true;
 		mBoundsNeedChecking = true;
