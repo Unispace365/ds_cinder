@@ -76,10 +76,10 @@ public:
 	void				setVolume(const float volume);
 	float				getVolume() const;
 
-	// Playback control API
-	void				play();
-	void				stop();
-	void				pause();
+	// Playback control API 
+	virtual void		play();
+	virtual void		stop();
+	virtual void		pause();
 	bool				getIsPlaying() const;
 
 	// Time operations (in seconds)
@@ -124,6 +124,9 @@ public:
 	virtual void		updateClient(const UpdateParams&) override;
 	virtual void		updateServer(const UpdateParams&) override;
 
+	//Allow for custom audio output
+	void				generateAudioBuffer(bool enableAudioBuffer);
+
 protected:
 	virtual void		drawLocalClient() override;
 	virtual void		writeAttributesTo(DataBuffer&) override;
@@ -137,10 +140,12 @@ private:
 	void				setStatus(const int);
 	void				checkStatus();
 
+protected:
+	gstwrapper::GStreamerWrapper*		mGstreamerWrapper;
+
 private:
 
 	GstVideoNet							mNetHandler;
-	gstwrapper::GStreamerWrapper*		mGstreamerWrapper;
 
 	ci::gl::Texture						mFrameTexture;
 	ci::Vec2i							mVideoSize;
@@ -170,6 +175,9 @@ private:
 	bool								mStatusChanged;
 	std::function<void()>				mVideoCompleteFn;
 	std::function<void(const Status&)>	mStatusFn;
+
+	//Allow for custom audio output
+	bool								mGenerateAudioBuffer;
 };
 
 } //!namespace ui

@@ -82,6 +82,11 @@ void GstVideo::updateServer(const UpdateParams &up){
 	}
 }
 
+void GstVideo::generateAudioBuffer(bool enableAudioBuffer)
+{
+	 mGenerateAudioBuffer = enableAudioBuffer; 
+}
+
 void GstVideo::updateClient(const UpdateParams& up){
 	Sprite::updateClient(up);
 
@@ -277,7 +282,7 @@ void GstVideo::doLoadVideo(const std::string &filename){
 		}
 
 		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen", GSTREAMER_LOG);
-		mGstreamerWrapper->open(filename, generateVideoBuffer, false, true, videoWidth, videoHeight);
+		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, true, videoWidth, videoHeight);
 
 		mVideoSize.x = mGstreamerWrapper->getWidth();
 		mVideoSize.y = mGstreamerWrapper->getHeight();

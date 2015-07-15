@@ -71,7 +71,8 @@ GStreamerWrapper::GStreamerWrapper() :
 	m_GstAudioSink( NULL ),
 	m_GstBus( NULL ),
 	m_StartPlaying(true),
-	m_StopOnLoopComplete(false)
+	m_StopOnLoopComplete(false),
+	mCustomPipeline(false)
 {
 		
 	gst_init( NULL, NULL );
@@ -197,7 +198,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		gst_app_sink_set_callbacks( GST_APP_SINK( m_GstVideoSink ), &m_GstVideoSinkCallbacks, this, NULL );
 
 	} else {
-		//GstElement* videoSink = gst_element_factory_make( "directdrawsink", NULL );
+		//GstElement* videoSinkbi = gst_element_factory_make( "directdrawsink", NULL );
 		if(!bGenerateAudioBuffer) DS_LOG_WARNING("Video size not detected or video buffer not set to be created. Ignoring video output.");
 		GstElement* videoSink = gst_element_factory_make( "faksesink", NULL );
 		g_object_set( m_GstPipeline, "video-sink", videoSink, NULL );
@@ -207,19 +208,25 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	// AUDIO SINK
 	// Extract and config Audio Sink
 	if ( bGenerateAudioBuffer ){
-		// Create and configure audio appsink
-		m_GstAudioSink = gst_element_factory_make( "appsink", "audiosink" );
-		gst_base_sink_set_sync( GST_BASE_SINK( m_GstAudioSink ), true );
-		// Set the configured audio appsink to the main pipeline
-		g_object_set( m_GstPipeline, "audio-sink", m_GstAudioSink, (void*)NULL );
-		// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-		g_object_set( m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL );
+		if (mCustomPipeline){
+			setCustomFunction();
+		}
+		else {
+			// Create and configure audio appsink
+			m_GstAudioSink = gst_element_factory_make("appsink", "audiosink");
+			gst_base_sink_set_sync(GST_BASE_SINK(m_GstAudioSink), true);
+			// Set the configured audio appsink to the main pipeline
+			g_object_set(m_GstPipeline, "audio-sink", m_GstAudioSink, (void*)NULL);
+			// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
+			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL);
+			//Set up converter  to convert to mono if enabled
+		}
 
 		// Set Audio Sink callback methods
 		m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
 		m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
 		m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
-		gst_app_sink_set_callbacks( GST_APP_SINK( m_GstAudioSink ), &m_GstAudioSinkCallbacks, this, NULL );
+		gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
 
 	} else {
 		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
