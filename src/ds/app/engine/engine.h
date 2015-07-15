@@ -245,7 +245,7 @@ private:
 private:
 	void								setTouchMode(const ds::ui::TouchMode::Enum&);
 	friend class EngineStatsView;
-	std::vector<std::unique_ptr<EngineRoot>>
+	std::vector<std::unique_ptr<EngineRoot> >
 										mRoots;
 	const ds::cfg::Settings&			mSettings;
 	ImageRegistry						mImageRegistry;

@@ -16,7 +16,7 @@ class Engine;
  * \class ds::App
  * Handle the main app setup.
  */
-class App : public ci::app::AppBasic {
+class App : public cinder::app::AppBasic {
 public:
 	// This is used for external projects to perform some initialization
 	// on app startup time. It's intended to be called by clients from a

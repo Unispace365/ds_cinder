@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #ifndef DS_UI_SERVICE_LOADIMAGESERVICE_H_
 #define DS_UI_SERVICE_LOADIMAGESERVICE_H_
 
