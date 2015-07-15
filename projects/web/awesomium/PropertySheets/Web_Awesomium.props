@@ -13,10 +13,8 @@
       <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\lib;$(DS_PLATFORM_086)\projects\web\lib</AdditionalLibraryDirectories>
     </Link>
     <PostBuildEvent>
-      <Command>copy "%DS_PLATFORM_086%\projects\web\awesomium\lib\build\bin\*.*" "$(TargetDir)"</Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>copy awesomium DLLs</Message>
+      <Command>copy "$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\*" "$(OutDir)"</Command>
+      <Message>copy awesome DLLs</Message>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup />

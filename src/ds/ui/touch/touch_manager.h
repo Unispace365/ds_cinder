@@ -42,8 +42,6 @@ public:
 	void                        touchesMoved(const ci::app::TouchEvent&);
 	void                        touchesEnded(const ci::app::TouchEvent&);
 
-	void                        drawTouches() const;
-
 	void                        clearFingers( const std::vector<int> &fingers );
 
 	void						setSpriteForFinger( const int fingerId, ui::Sprite* theSprite );
@@ -64,18 +62,20 @@ public:
 
 	void						setCapture(Capture*);
 
+	std::map<int, ci::Vec3f>&	getPreviousTouchPoints(){ return mTouchPreviousPoint;  }
+
   private:
-    // Utility to get the hit sprite in either the othorganal or perspective root sprites
-    Sprite*                     getHit(const ci::Vec3f &point);
+	// Utility to get the hit sprite in either the othorganal or perspective root sprites
+	Sprite*                     getHit(const ci::Vec3f &point);
 
 	// If the window is stretched, the mouse points will be off. Fix that shit!
 	ci::Vec2f					translateMousePoint(const ci::Vec2i);
 
-    Engine &mEngine;
+	Engine &mEngine;
 
-    std::map<int, ui::Sprite*>	mFingerDispatcher;
-    std::map<int, ci::Vec3f>	mTouchStartPoint;
-    std::map<int, ci::Vec3f>	mTouchPreviousPoint;
+	std::map<int, ui::Sprite*>	mFingerDispatcher;
+	std::map<int, ci::Vec3f>	mTouchStartPoint;
+	std::map<int, ci::Vec3f>	mTouchPreviousPoint;
 	std::map<int, bool>			mDiscardTouchMap;
 
 	ci::Vec2f					mTouchDimensions;

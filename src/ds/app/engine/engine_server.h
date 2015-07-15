@@ -46,8 +46,13 @@ private:
 	void							receiveCommand(ds::DataBuffer&);
 	void							receiveDeleteSprite(ds::DataBuffer&);
 	void							receiveClientStatus(ds::DataBuffer&);
+	void							receiveClientInput(ds::DataBuffer&);
 	void							onClientStartedCommand(ds::DataBuffer&);
 	void							onClientRunningCommand(ds::DataBuffer&);
+
+	virtual void					handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
+	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
+	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
 
 	typedef Engine inherited;
 	WorkManager						mWorkManager;
@@ -60,7 +65,7 @@ private:
 	EngineReceiver					mReceiver;
 	ds::BlobReader					mBlobReader;
 
-    // STATES
+	// STATES
 	class State {
 	public:
 		State();
