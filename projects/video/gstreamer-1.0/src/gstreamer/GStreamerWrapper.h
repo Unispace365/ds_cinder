@@ -504,12 +504,25 @@ namespace gstwrapper{
 			int						m_iNumAudioChannels; /* Number of audio channels */
 			int						m_iAudioSampleRate; /* Audio sample rate */
 
+			/*
+			Here the GStreamer messages are read and processed. Needed for error checking while streaming and
+			detecting if a stream has reached the end
+			*/
 			virtual void			handleGStMessage();
 			GstBus*					m_GstBus; /* The pipeline's bus, needed to track messages that are passed while streaming */
 			GstMessage*				m_GstMessage; /* Message gathered from the bus */
 			gint64					m_PendingSeekTime;
 			GstPlayState			m_CurrentGstState; /* the current state of Gstreamer */
+			/*
+			Seeks to the desired position in the media file using nanoseconds
+
+			params:
+			@iTargetTimeInNs: Time position in nanoseconds
+			*/
 			bool					seekFrame(gint64 iTargetTimeInNs);
+			/*
+			Retrieves all needed media information such as duration, video size and frame rate
+			*/
 			void					retrieveVideoInfo();
 			bool					m_StopOnLoopComplete; /* Set the pipeline to NULL_STATE (Stopped) on the end of the current loop or on EOS */
 			float					m_fSpeed; /* The current playback speed */
@@ -524,34 +537,16 @@ namespace gstwrapper{
 
 	private:
 
-		//std::function<void(GStreamerWrapper*)> mVideoCompleteCallback;
-
-		/*
-			Seeks to the desired position in the media file using nanoseconds
-
-			params:
-			@iTargetTimeInNs: Time position in nanoseconds
-		*/
-		//bool					seekFrame( gint64 iTargetTimeInNs );
 
 		/*
 			Helper method in order to apply either changes to the playback speed or direction in GStreamer
 		*/
 		bool					changeSpeedAndDirection( float fSpeed, PlayDirection direction );
 
-		/*
-			Retrieves all needed media information such as duration, video size and frame rate
-		*/
-		//void					retrieveVideoInfo();
 
 
 		////////////////////////////////////////////////////////////////////////// GSTREAMER
 
-		/*
-			Here the GStreamer messages are read and processed. Needed for error checking while streaming and
-			detecting if a stream has reached the end
-		*/
-		//void					handleGStMessage();
 
 		/*
 			GStreamer callback method that is called when the Pipeline is set to a paused state. Through the appsink
@@ -645,7 +640,6 @@ namespace gstwrapper{
 	 	static void				onEosFromAudioSource(GstAppSink* appsink, void* listener);
 
 		bool					m_bFileIsOpen; /* Flag that tracks if a file has been opened or not */
-		//bool					m_bIsAudioSigned; /* Flag that tracks if the audio buffer is signed or not */
 		bool					m_bIsNewVideoFrame; /* Flag that tracks if there is actually a new frame or not */
 		std::string				m_strFilename; /* Stores filepath of the opened media file */
 		std::string				m_strCodecName;
@@ -656,45 +650,24 @@ namespace gstwrapper{
 		int						m_iWidth; /* Video width */
 		int						m_iHeight; /* Video height */
 		int						m_iBitrate; /* Video bitrate */
-		//int						m_iNumAudioChannels; /* Number of audio channels */
-		//int						m_iAudioSampleRate; /* Audio sample rate */
-		//int						m_iAudioDecodeBufferSize; /* Size of the audio buffer without the channels and audio width */
-		//int						m_iAudioBufferSize; /* Size of the audio buffer */
-		//int						m_iAudioWidth; /* Width of the audio data (8, 16, 24 or 32) */
 		float					m_fVolume; /* Volume of the pipeline */
 		float					m_fFps; /* Frames per second of the video */
-		//float					m_fSpeed; /* The current playback speed */
 		double					m_dCurrentTimeInMs; /* Current time position in milliseconds */
 		double					m_dDurationInMs; /* Media duration in milliseconds */
 		gint64					m_iCurrentFrameNumber; /* Current frame number */
 		gint64					m_iNumberOfFrames; /* Total number of frames in media file */
 		mutable gint64			m_iCurrentTimeInNs; /* Current time position in nanoseconds */
-		//gint64					m_iDurationInNs; /* Duration of media file in nanoseconds */
-
-		//GstPlayState			m_CurrentGstState; /* the current state of Gstreamer */
 		PlayState				m_CurrentPlayState; /* The current state of the wrapper */
 		PlayDirection			m_PlayDirection; /* The current playback direction */
-		//LoopMode				m_LoopMode; /* The current loop mode */
 		ContentType				m_ContentType; /* Describes whether the currently loaded media file contains only video / audio streams or both */
-		//Endianness				m_AudioEndianness; /* Audio endianness, either big or small endian */
 
 		unsigned char*			m_cVideoBuffer; /* Stores the video pixels */
-		//unsigned char*			m_cAudioBuffer; /* Stores the audio data */
 
-		//GstElement*				m_GstPipeline; /* The main GStreamer pipeline */
 		GstElement*				m_GstVideoSink; /* Video sink that contains the raw video buffer. Gathered from the pipeline */
-		//GstElement*				m_GstAudioSink; /* Audio sink that contains the raw audio buffer. Gathered from the pipeline */
-		//GstBus*					m_GstBus; /* The pipeline's bus, needed to track messages that are passed while streaming */
-		//GstMessage*				m_GstMessage; /* Message gathered from the bus */
 		GstAppSinkCallbacks		m_GstVideoSinkCallbacks; /* Stores references to the callback methods for video preroll, new video buffer and video eos */
 		GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 
 		bool					m_StartPlaying;/* Play the video as soon as it's loaded */
-		//bool					m_StopOnLoopComplete; /* Set the pipeline to NULL_STATE (Stopped) on the end of the current loop or on EOS */
-
-		//gint64					m_PendingSeekTime;
-		//bool					m_PendingSeek;
-
 
 		//Custom
 		bool					mCustomPipeline;
