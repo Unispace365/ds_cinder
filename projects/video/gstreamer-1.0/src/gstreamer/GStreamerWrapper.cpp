@@ -72,7 +72,7 @@ GStreamerWrapper::GStreamerWrapper() :
 	m_GstBus( NULL ),
 	m_StartPlaying(true),
 	m_StopOnLoopComplete(false),
-	mCustomPipeline(false),
+	m_CustomPipeline(false),
 	m_VideoLock(m_VideoMutex, std::defer_lock)
 {
 		
@@ -219,7 +219,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	// AUDIO SINK
 	// Extract and config Audio Sink
 	if ( bGenerateAudioBuffer ){
-		if (mCustomPipeline){
+		if (m_CustomPipeline){
 			setCustomFunction();
 		}
 		else {

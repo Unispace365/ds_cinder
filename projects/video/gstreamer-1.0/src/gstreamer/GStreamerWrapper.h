@@ -494,7 +494,7 @@ namespace gstwrapper{
 
 		//Custom pipeline function call
 		virtual void			setCustomFunction(){};
-		void					enableCustomPipeline(bool enable) { mCustomPipeline = enable; }
+		void					enableCustomPipeline(bool enable) { m_CustomPipeline = enable; }
 
 		protected:
 			int						m_iAudioBufferSize; /* Size of the audio buffer */
@@ -704,7 +704,7 @@ namespace gstwrapper{
 
 
 		//Custom
-		bool					mCustomPipeline;
+		bool					m_CustomPipeline;
 
 	};
 };
