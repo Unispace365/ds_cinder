@@ -55,6 +55,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mVideoSize(0, 0)
 	, mNetHandler(*this)
 	, mAutoExtendIdle(false)
+	, mGenerateAudioBuffer(false)
 {
 	mBlobType = GstVideoNet::mBlobType;
 
