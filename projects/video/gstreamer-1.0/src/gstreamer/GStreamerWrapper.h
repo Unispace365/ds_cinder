@@ -56,6 +56,8 @@
 #include <gstreamer-1.0/gst/video/video.h>
 #include <gstreamer-1.0/gst/audio/audio.h>
 
+#include <mutex>
+#include <atomic>
 #include <string>
 #include <functional>
 
@@ -644,9 +646,14 @@ namespace gstwrapper{
 		static void				onEosFromVideoSource(GstAppSink* appsink, void* listener);
 	 	static void				onEosFromAudioSource(GstAppSink* appsink, void* listener);
 
+	private:
+
+		std::mutex				m_VideoMutex;
+		std::unique_lock < std::mutex >
+								m_VideoLock;
 		bool					m_bFileIsOpen; /* Flag that tracks if a file has been opened or not */
 		//bool					m_bIsAudioSigned; /* Flag that tracks if the audio buffer is signed or not */
-		bool					m_bIsNewVideoFrame; /* Flag that tracks if there is actually a new frame or not */
+		std::atomic<bool>		m_bIsNewVideoFrame; /* Flag that tracks if there is actually a new frame or not */
 		std::string				m_strFilename; /* Stores filepath of the opened media file */
 		std::string				m_strCodecName;
 		int						m_iCurrentVideoStream; /* Index of the current video stream */
