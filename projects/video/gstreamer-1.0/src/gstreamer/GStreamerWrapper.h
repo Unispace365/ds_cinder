@@ -56,10 +56,14 @@
 #include <gstreamer-1.0/gst/video/video.h>
 #include <gstreamer-1.0/gst/audio/audio.h>
 
+#include <mutex>
+#include <atomic>
 #include <string>
 #include <functional>
 
-namespace gstwrapper{
+namespace gstwrapper
+{
+
 	/*
 		enum PlayState
 
@@ -492,7 +496,7 @@ namespace gstwrapper{
 
 		//Custom pipeline function call
 		virtual void			setCustomFunction(){};
-		void					enableCustomPipeline(bool enable) { mCustomPipeline = enable; }
+	void					enableCustomPipeline(bool enable) { m_CustomPipeline = enable; }
 
 		protected:
 			int						m_iAudioBufferSize; /* Size of the audio buffer */
@@ -639,8 +643,13 @@ namespace gstwrapper{
 		static void				onEosFromVideoSource(GstAppSink* appsink, void* listener);
 	 	static void				onEosFromAudioSource(GstAppSink* appsink, void* listener);
 
+private:
+
+	std::mutex				m_VideoMutex;
+	std::unique_lock < std::mutex >
+							m_VideoLock;
 		bool					m_bFileIsOpen; /* Flag that tracks if a file has been opened or not */
-		bool					m_bIsNewVideoFrame; /* Flag that tracks if there is actually a new frame or not */
+	std::atomic<bool>		m_bIsNewVideoFrame; /* Flag that tracks if there is actually a new frame or not */
 		std::string				m_strFilename; /* Stores filepath of the opened media file */
 		std::string				m_strCodecName;
 		int						m_iCurrentVideoStream; /* Index of the current video stream */
@@ -670,7 +679,7 @@ namespace gstwrapper{
 		bool					m_StartPlaying;/* Play the video as soon as it's loaded */
 
 		//Custom
-		bool					mCustomPipeline;
+	bool					m_CustomPipeline;
 
-	};
-};
+}; //!class GStreamerWrapper
+}; //!namespace gstwrapper

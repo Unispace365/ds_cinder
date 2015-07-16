@@ -72,7 +72,8 @@ GStreamerWrapper::GStreamerWrapper() :
 	m_GstBus( NULL ),
 	m_StartPlaying(true),
 	m_StopOnLoopComplete(false),
-	mCustomPipeline(false)
+	m_CustomPipeline(false),
+	m_VideoLock(m_VideoMutex, std::defer_lock)
 {
 		
 	gst_init( NULL, NULL );
@@ -85,6 +86,16 @@ GStreamerWrapper::GStreamerWrapper() :
 GStreamerWrapper::~GStreamerWrapper()
 {
 	close();
+
+	if (m_VideoLock.owns_lock()) {
+		try {
+			m_VideoLock.unlock();
+		} catch (std::exception& ex) {
+			std::cerr	<< "A fatal deadlock occurred and I can't survive from this one :(" << std::endl
+						<< "Probably your screen is stuck and this is the last log line you are reading." << std::endl
+						<< "Exception: " << ex.what() << std::endl;
+		}
+	}
 }
 
 bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer, bool bGenerateAudioBuffer, bool isTransparent, int videoWidth, int videoHeight)
@@ -208,7 +219,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	// AUDIO SINK
 	// Extract and config Audio Sink
 	if ( bGenerateAudioBuffer ){
-		if (mCustomPipeline){
+		if (m_CustomPipeline){
 			setCustomFunction();
 		}
 		else {
@@ -415,6 +426,7 @@ std::string GStreamerWrapper::getFileName(){
 }
 
 unsigned char* GStreamerWrapper::getVideo(){
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	m_bIsNewVideoFrame = false;
 	return m_cVideoBuffer;
 }
@@ -853,7 +865,7 @@ GstFlowReturn GStreamerWrapper::onNewBufferFromAudioSource( GstAppSink* appsink,
 }
 
 void GStreamerWrapper::newVideoSinkPrerollCallback( GstSample* videoSinkSample ){
-
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
 
 
@@ -874,6 +886,7 @@ void GStreamerWrapper::newVideoSinkPrerollCallback( GstSample* videoSinkSample )
 }
 
 void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
