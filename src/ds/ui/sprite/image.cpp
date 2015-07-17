@@ -1,14 +1,15 @@
 #include "image.h"
 
 #include <map>
+
 #include <cinder/ImageIo.h>
-#include "ds/app/blob_reader.h"
-#include "ds/app/blob_registry.h"
-#include "ds/data/data_buffer.h"
-#include "ds/debug/debug_defines.h"
+
 #include "ds/debug/logger.h"
-#include "ds/ui/sprite/sprite_engine.h"
+#include "ds/app/blob_reader.h"
+#include "ds/data/data_buffer.h"
+#include "ds/app/blob_registry.h"
 #include "ds/util/image_meta_data.h"
+#include "ds/ui/sprite/sprite_engine.h"
 
 using namespace ci;
 
@@ -38,10 +39,15 @@ Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) 
 }
 
 Image::Image(SpriteEngine& engine, const int flags)
-		: inherited(engine)
-		, ImageOwner(engine) {
-	init();
+	: inherited(engine)
+	, ImageOwner(engine)
+	, mStatusFn(nullptr)
+{
+	mStatus.mCode = Status::STATUS_EMPTY;
+	mDrawRect.mOrthoRect = ci::Rectf::zero();
+	mDrawRect.mPerspRect = ci::Rectf::zero();
 	mBlobType = BLOB_TYPE;
+
 	setTransparent(false);
 	setUseShaderTextuer(true);
 
@@ -49,54 +55,42 @@ Image::Image(SpriteEngine& engine, const int flags)
 }
 
 Image::Image(SpriteEngine& engine, const std::string& filename, const int flags)
-		: inherited(engine)
-		, ImageOwner(engine) {
-	init();
-	mBlobType = BLOB_TYPE;
-	setTransparent(false);
-	setUseShaderTextuer(true);
-
-	{
-		ImageMetaData			atts(filename);
-		Sprite::setSizeAll(atts.mSize.x, atts.mSize.y, mDepth);
-	}
-
-	markAsDirty(IMG_SRC_DIRTY);
-
+	: Image(engine, flags)
+{
+	// WARNING: This constructor internally calls a virtual method (onImageLoaded)
+	// internally. This can be problematic. BE AWARE! I don't know why this was
+	// done this way...
 	setImageFile(filename, flags);
 }
 
 Image::Image(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int flags)
-		: inherited(engine)
-		, ImageOwner(engine) {
-	init();
-	mBlobType = BLOB_TYPE;
-	setTransparent(false);
-	setUseShaderTextuer(true);
-
+	: Image(engine, flags)
+{
+	// WARNING: This constructor internally calls a virtual method (onImageLoaded)
+	// internally. This can be problematic. BE AWARE! I don't know why this was
+	// done this way...
 	setImageResource(resourceId, flags);
 }
 
 Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags)
-	: inherited(engine)
-	, ImageOwner(engine) {
-		init();
-		mBlobType = BLOB_TYPE;
-		setTransparent(false);
-		setUseShaderTextuer(true);
-
-		setImageResource(resource, flags);
+	: Image(engine)
+{
+	// WARNING: This constructor internally calls a virtual method (onImageLoaded)
+	// internally. This can be problematic. BE AWARE! I don't know why this was
+	// done this way...
+	setImageResource(resource, flags);
 }
 
-Image::~Image() {
-}
+Image::~Image() { /* no-op */ }
 
-void Image::updateServer(const UpdateParams& up) {
+void Image::updateServer(const UpdateParams& up)
+{
 	inherited::updateServer(up);
 	checkStatus();
 }
 
-void Image::drawLocalClient() {
+void Image::drawLocalClient()
+{
 	if (!inBounds() || !isLoaded()) return;
 
 	if (auto tex = mImageSource.getImage())
@@ -106,21 +100,25 @@ void Image::drawLocalClient() {
 	}
 }
 
-void Image::setSizeAll( float width, float height, float depth ) {
+void Image::setSizeAll( float width, float height, float depth )
+{
 	setScale( width / getWidth(), height / getHeight() );
 }
 
-bool Image::isLoaded() const {
+bool Image::isLoaded() const
+{
 	return mStatus.mCode == Status::STATUS_LOADED;
 }
 
-void Image::setStatusCallback(const std::function<void(const Status&)>& fn) {
+void Image::setStatusCallback(const std::function<void(const Status&)>& fn)
+{
 	DS_ASSERT_MSG(mEngine.getMode() == mEngine.STANDALONE_MODE,
 		"Currently only works in Standalone mode, fill in the UDP callbacks if you want to use this otherwise");
 	mStatusFn = fn;
 }
 
-void Image::onImageChanged() {
+void Image::onImageChanged()
+{
 	setStatus(Status::STATUS_EMPTY);
 	markAsDirty(IMG_SRC_DIRTY);
 	doOnImageUnloaded();
@@ -190,13 +188,6 @@ void Image::doOnImageLoaded()
 void Image::doOnImageUnloaded()
 {
 	onImageUnloaded();
-}
-
-void Image::init() {
-	mStatus.mCode = Status::STATUS_EMPTY;
-	mStatusFn = nullptr;
-	mDrawRect.mOrthoRect = ci::Rectf::zero();
-	mDrawRect.mPerspRect = ci::Rectf::zero();
 }
 
 void Image::setSize( float width, float height ) {

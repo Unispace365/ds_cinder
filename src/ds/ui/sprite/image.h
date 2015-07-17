@@ -107,7 +107,6 @@ private:
 	void						checkStatus();
 	void						doOnImageLoaded();
 	void						doOnImageUnloaded();
-	void						init();
 
 private:
 	Status						mStatus;
