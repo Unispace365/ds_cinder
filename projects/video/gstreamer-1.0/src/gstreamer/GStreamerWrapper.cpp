@@ -210,7 +210,8 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 
 	} else {
 		//GstElement* videoSinkbi = gst_element_factory_make( "directdrawsink", NULL );
-		if(!bGenerateAudioBuffer) DS_LOG_WARNING("Video size not detected or video buffer not set to be created. Ignoring video output.");
+		//if(!bGenerateAudioBuffer)   //Shoud be bGenerateVideoBuffer - Redundant CEE
+			DS_LOG_WARNING("Video size not detected or video buffer not set to be created. Ignoring video output.");
 		GstElement* videoSink = gst_element_factory_make( "faksesink", NULL );
 		g_object_set( m_GstPipeline, "video-sink", videoSink, NULL );
 
