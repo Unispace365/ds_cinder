@@ -36,16 +36,23 @@ public:
 	void						drawLocalClient() override;
 	// A soft status check on cached mStatus member
 	bool						isLoaded() const;
-	
+
+	/// @warning this is deprecated and it inhibits all sort of code
+	///          smells and breaks object orientation of this class.
+	///          prefer using onImageLoaded() or onImageUnloaded().
 	struct Status {
 		static const int		STATUS_EMPTY = 0;
 		static const int		STATUS_LOADED = 1;
 		int						mCode;
 	};
+	/// @warning this is deprecated. Use onImageLoaded() or onImageUnloaded() instead.
 	void						setStatusCallback(const std::function<void(const Status&)>&);
 
 protected:
 	void						onImageChanged() override;
+	virtual void				onImageLoaded() {}
+	virtual void				onImageUnloaded() {}
+
 	void						writeAttributesTo(ds::DataBuffer&) override;
 	void						readAttributeFrom(const char attributeId, ds::DataBuffer&) override;
 
@@ -54,11 +61,15 @@ private:
 
 	void						setStatus(const int);
 	void						checkStatus();
+	void						doOnImageLoaded();
+	void						doOnImageUnloaded();
 	void						init();
 
 	Status						mStatus;
 	std::function<void(const Status&)>
 								mStatusFn;
+	struct { ci::Rectf mPerspRect; ci::Rectf mOrthoRect; }
+								mDrawRect;
 
 	// Initialization
 public:

@@ -17,12 +17,8 @@ namespace ui {
 
 namespace {
 char				BLOB_TYPE			= 0;
-
 const DirtyState&	IMG_SRC_DIRTY		= INTERNAL_A_DIRTY;
-
 const char			IMG_SRC_ATT			= 80;
-
-const ds::BitMask   SPRITE_LOG			= ds::Logger::newModule("image sprite");
 }
 
 void Image::installAsServer(ds::BlobRegistry& registry) {
@@ -101,17 +97,13 @@ void Image::updateServer(const UpdateParams& up) {
 }
 
 void Image::drawLocalClient() {
-	if (!inBounds()) return;
+	if (!inBounds() || !isLoaded()) return;
 
-	const ci::gl::Texture*		tex = mImageSource.getImage();
-	if (!tex) return;
-
-	tex->bind();
-	if (getPerspective())
-		ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(tex->getHeight()), static_cast<float>(tex->getWidth()), 0.0f));
-	else
-		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight())));
-	tex->unbind();
+	if (auto tex = mImageSource.getImage())
+	{
+		if (getPerspective()) ci::gl::draw(*tex, mDrawRect.mPerspRect);
+		else ci::gl::draw(*tex, mDrawRect.mOrthoRect);
+	}
 }
 
 void Image::setSizeAll( float width, float height, float depth ) {
@@ -131,6 +123,7 @@ void Image::setStatusCallback(const std::function<void(const Status&)>& fn) {
 void Image::onImageChanged() {
 	setStatus(Status::STATUS_EMPTY);
 	markAsDirty(IMG_SRC_DIRTY);
+	doOnImageUnloaded();
 
 	// Make my size match
 	ImageMetaData		d;
@@ -169,6 +162,7 @@ void Image::checkStatus()
 	{
 		auto tex = mImageSource.getImage();
 		setStatus(Status::STATUS_LOADED);
+		doOnImageLoaded();
 		const float         prevRealW = getWidth(), prevRealH = getHeight();
 		if (prevRealW <= 0 || prevRealH <= 0) {
 			Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
@@ -182,9 +176,27 @@ void Image::checkStatus()
 	}
 }
 
+void Image::doOnImageLoaded()
+{
+	if (auto tex = mImageSource.getImage())
+	{
+		mDrawRect.mPerspRect = ci::Rectf(0.0f, static_cast<float>(tex->getHeight()), static_cast<float>(tex->getWidth()), 0.0f);
+		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()));
+	}
+
+	onImageLoaded();
+}
+
+void Image::doOnImageUnloaded()
+{
+	onImageUnloaded();
+}
+
 void Image::init() {
 	mStatus.mCode = Status::STATUS_EMPTY;
 	mStatusFn = nullptr;
+	mDrawRect.mOrthoRect = ci::Rectf::zero();
+	mDrawRect.mPerspRect = ci::Rectf::zero();
 }
 
 void Image::setSize( float width, float height ) {
