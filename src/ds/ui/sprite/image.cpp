@@ -165,8 +165,9 @@ void Image::setStatus(const int code) {
 
 void Image::checkStatus()
 {
-	if (mImageSource.getImage() && mStatus.mCode != Status::STATUS_LOADED)
+	if (mImageSource.getImage() && !isLoaded())
 	{
+		auto tex = mImageSource.getImage();
 		setStatus(Status::STATUS_LOADED);
 		const float         prevRealW = getWidth(), prevRealH = getHeight();
 		if (prevRealW <= 0 || prevRealH <= 0) {
