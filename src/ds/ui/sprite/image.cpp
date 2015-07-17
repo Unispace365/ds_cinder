@@ -97,13 +97,7 @@ Image::~Image() {
 
 void Image::updateServer(const UpdateParams& up) {
 	inherited::updateServer(up);
-	
 	checkStatus();
-
-	if (mStatusDirty) {
-		mStatusDirty = false;
-		if (mStatusFn) mStatusFn(mStatus);
-	}
 }
 
 void Image::drawLocalClient() {
@@ -129,8 +123,8 @@ bool Image::isLoaded() const {
 }
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn) {
-	DS_ASSERT_MSG(	mEngine.getMode() == mEngine.STANDALONE_MODE,
-					"Currently only works in Standalone mode, fill in the UDP callbacks if you want to use this otherwise");
+	DS_ASSERT_MSG(mEngine.getMode() == mEngine.STANDALONE_MODE,
+		"Currently only works in Standalone mode, fill in the UDP callbacks if you want to use this otherwise");
 	mStatusFn = fn;
 }
 
@@ -166,7 +160,7 @@ void Image::setStatus(const int code) {
 	if (code == mStatus.mCode) return;
 
 	mStatus.mCode = code;
-	mStatusDirty = true;
+	if (mStatusFn) mStatusFn(mStatus);
 }
 
 void Image::checkStatus()
@@ -189,7 +183,6 @@ void Image::checkStatus()
 
 void Image::init() {
 	mStatus.mCode = Status::STATUS_EMPTY;
-	mStatusDirty = false;
 	mStatusFn = nullptr;
 }
 

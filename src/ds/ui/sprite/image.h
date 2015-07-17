@@ -57,7 +57,6 @@ private:
 	void						init();
 
 	Status						mStatus;
-	bool						mStatusDirty;
 	std::function<void(const Status&)>
 								mStatusFn;
 
