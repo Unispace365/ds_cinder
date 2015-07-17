@@ -97,6 +97,8 @@ Image::~Image() {
 
 void Image::updateServer(const UpdateParams& up) {
 	inherited::updateServer(up);
+	
+	checkStatus();
 
 	if (mStatusDirty) {
 		mStatusDirty = false;
@@ -109,22 +111,6 @@ void Image::drawLocalClient() {
 
 	const ci::gl::Texture*		tex = mImageSource.getImage();
 	if (!tex) return;
-
-	// Do texture-based initialization.
-	// EH: I don't like this at all, why was it done this way? It makes no sense
-	// when the app is in client server mode and the server is never loading the image.
-	if (mStatus.mCode != Status::STATUS_LOADED) {
-		setStatus(Status::STATUS_LOADED);
-		const float         prevRealW = getWidth(), prevRealH = getHeight();
-		if (prevRealW <= 0 || prevRealH <= 0) {
-			Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
-		} else {
-			float             prevWidth = prevRealW * getScale().x;
-			float             prevHeight = prevRealH * getScale().y;
-			Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
-			setSize(prevWidth, prevHeight);
-		}
-	}
 
 	tex->bind();
 	if (getPerspective())
@@ -181,6 +167,24 @@ void Image::setStatus(const int code) {
 
 	mStatus.mCode = code;
 	mStatusDirty = true;
+}
+
+void Image::checkStatus()
+{
+	if (mImageSource.getImage() && mStatus.mCode != Status::STATUS_LOADED)
+	{
+		setStatus(Status::STATUS_LOADED);
+		const float         prevRealW = getWidth(), prevRealH = getHeight();
+		if (prevRealW <= 0 || prevRealH <= 0) {
+			Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
+		}
+		else {
+			float             prevWidth = prevRealW * getScale().x;
+			float             prevHeight = prevRealH * getScale().y;
+			Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
+			setSize(prevWidth, prevHeight);
+		}
+	}
 }
 
 void Image::init() {

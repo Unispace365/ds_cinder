@@ -53,6 +53,7 @@ private:
 	typedef Sprite				inherited;
 
 	void						setStatus(const int);
+	void						checkStatus();
 	void						init();
 
 	Status						mStatus;
