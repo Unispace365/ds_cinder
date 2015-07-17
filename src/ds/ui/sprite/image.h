@@ -31,9 +31,10 @@ public:
 	~Image();
 
 	void						setSize( float width, float height );
-	void						setSizeAll( float width, float height, float depth );
-	virtual void				updateServer(const UpdateParams&);
-	virtual void				drawLocalClient();
+	void						setSizeAll( float width, float height, float depth ) override;
+	void						updateServer(const UpdateParams&) override;
+	void						drawLocalClient() override;
+	// A soft status check on cached mStatus member
 	bool						isLoaded() const;
 	
 	struct Status {
@@ -44,9 +45,9 @@ public:
 	void						setStatusCallback(const std::function<void(const Status&)>&);
 
 protected:
-	virtual void				onImageChanged();
-	virtual void				writeAttributesTo(ds::DataBuffer&);
-	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
+	void						onImageChanged() override;
+	void						writeAttributesTo(ds::DataBuffer&) override;
+	void						readAttributeFrom(const char attributeId, ds::DataBuffer&) override;
 
 private:
 	typedef Sprite				inherited;
