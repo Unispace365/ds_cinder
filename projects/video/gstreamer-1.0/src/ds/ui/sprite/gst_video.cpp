@@ -252,6 +252,7 @@ double GstVideo::getCurrentTime() const {
 		
 void GstVideo::seekTime(const double t){
 	mGstreamerWrapper->setTimePositionInMs(t * 1000.0);
+	markAsDirty(mNetHandler.mPosDirty);
 }
 
 double GstVideo::getCurrentPosition() const {
@@ -260,6 +261,7 @@ double GstVideo::getCurrentPosition() const {
 
 void GstVideo::seekPosition(const double t){
 	mGstreamerWrapper->setPosition(t);
+	markAsDirty(mNetHandler.mPosDirty);
 }
 
 void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn){

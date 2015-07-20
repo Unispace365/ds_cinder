@@ -105,7 +105,7 @@ void GstVideoNet::writeAttributesTo(const DirtyState& dirty, DataBuffer& buf)
     if (dirty.has(mPosDirty))
     {
         buf.add(mPosAtt);
-        buf.add(mVideoSprite.getCurrentTimeMs());
+		buf.add(mVideoSprite.getCurrentPosition());
     }
 }
 
@@ -139,8 +139,8 @@ bool GstVideoNet::readAttributeFrom(const char attrid, DataBuffer& buf)
             mVideoSprite.setVolume(volume_level);
     }
     else if (attrid == mPosAtt) {
-//         auto server_video_pos = buf.read<double>();
-//         mVideoSprite.syncWithServer(server_video_pos);
+         auto server_video_pos = buf.read<double>();
+		 mVideoSprite.seekPosition(server_video_pos);
     }
     else if (attrid == mStatusAtt) {
         auto status_code = buf.read<int>();
@@ -163,7 +163,6 @@ bool GstVideoNet::readAttributeFrom(const char attrid, DataBuffer& buf)
     else {
         read_attrib = false;
     }
-    // To do: latency check.
 
     return read_attrib;
 }
