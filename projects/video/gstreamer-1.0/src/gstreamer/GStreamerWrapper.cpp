@@ -232,13 +232,13 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 			// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
 			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL);
 			//Set up converter  to convert to mono if enabled
-		}
 
 		// Set Audio Sink callback methods
 		m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
 		m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
 		m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
 		gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
+		}
 
 	} else {
 		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);

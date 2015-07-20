@@ -535,8 +535,6 @@ namespace gstwrapper
 			std::function<void(GStreamerWrapper*)> mVideoCompleteCallback;
 			GstElement*				m_GstPipeline; /* The main GStreamer pipeline */
 			bool					m_PendingSeek;
-			GstElement*				m_GstConverter; /* Audio sink that contains the raw audio buffer. Gathered from the pipeline */
-			GstElement*				m_GstPanorama;
 			GstElement*				m_GstAudioSink; /* Audio sink that contains the raw audio buffer. Gathered from the pipeline */
 
 	private:
