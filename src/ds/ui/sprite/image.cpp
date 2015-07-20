@@ -123,10 +123,28 @@ void Image::onImageChanged()
 	markAsDirty(IMG_SRC_DIRTY);
 	doOnImageUnloaded();
 
+	/*
+	I am not sure what was the intention here or why this was done this
+	way. This is onImageChanged() virtual not set metadata callback! but
+	anyway, at this point I suspect someone needed it at some point and
+	taking it out will cause side effects, hence I caught a corner case
+	where clearImage() is called but no other images is set after it. In
+	that scenario all internal states will reset because client code is
+	dependent on size of the image and if you clearImage(), it should
+	return 0. (SL.)
+	*/
+
 	// Make my size match
 	ImageMetaData		d;
 	if (mImageSource.getMetaData(d) && !d.empty()) {
 		Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
+	}
+	else {
+		// Metadata not found, reset all internal states
+		ds::ui::Sprite::setSizeAll(0, 0, 1.0f);
+		ds::ui::Sprite::setScale(1.0f, 1.0f, 1.0f);
+		mDrawRect.mOrthoRect = ci::Rectf::zero();
+		mDrawRect.mPerspRect = ci::Rectf::zero();
 	}
 }
 
