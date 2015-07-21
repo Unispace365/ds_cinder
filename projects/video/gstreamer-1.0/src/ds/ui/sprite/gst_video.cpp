@@ -6,7 +6,7 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 
-#include "gstreamer/GStreamerWrapper.h"
+#include "gstreamer/gstreamer_wrapper.h"
 #include "gstreamer/gstreamer_env_check.h"
 #include "gstreamer/video_meta_cache.h"
 

@@ -1,54 +1,4 @@
-/*
-	CADET - Center for Advances in Digital Entertainment Technologies
-	Copyright 2012 University of Applied Science Salzburg / MultiMediaTechnology
-
-	http://www.cadet.at
-	http://multimediatechnology.at/
-
-	Licensed under the Apache License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
-
-	http://www.apache.org/licenses/LICENSE-2.0
-
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
-
-	CADET - Center for Advances in Digital Entertainment Technologies
-
-	Authors: Steven Stojanovic, Robert Praxmarer
-	Web: http://www.1n0ut.com
-	Email: stevesparrow07@googlemail.com, support@cadet.at
-	Created: 07-09-2011
-
-	This wrapper uses GStreamer, and is credited as follows:
-*/
-/* GStreamer
- * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
- *                    2000 Wim Taymans <wtay@chello.be>
- *
- * gst.h: Main header for GStreamer, apps should include this
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- */
-
-#include "GStreamerWrapper.h"
+#include "gstreamer_wrapper.h"
 
 #include "ds/debug/logger.h"
 #include <iostream>
@@ -60,27 +10,22 @@ namespace gstwrapper
 {
 
 
-/******************************************************************************/
-
-GStreamerWrapper::GStreamerWrapper() :
-	m_bFileIsOpen( false ),
-	m_cVideoBuffer( NULL ),
-	m_cAudioBuffer( NULL ),
-	m_GstPipeline( NULL ),
-	m_GstVideoSink( NULL ),
-	m_GstAudioSink( NULL ),
-	m_GstBus( NULL ),
-	m_StartPlaying(true),
-	m_StopOnLoopComplete(false),
-	m_CustomPipeline(false),
-	m_VideoLock(m_VideoMutex, std::defer_lock)
+GStreamerWrapper::GStreamerWrapper()
+	: m_bFileIsOpen( false )
+	, m_cVideoBuffer( NULL )
+	, m_cAudioBuffer( NULL )
+	, m_GstPipeline( NULL )
+	, m_GstVideoSink( NULL )
+	, m_GstAudioSink( NULL )
+	, m_GstBus( NULL )
+	, m_StartPlaying(true)
+	, m_StopOnLoopComplete(false)
+	, m_CustomPipeline(false)
+	, m_VideoLock(m_VideoMutex, std::defer_lock)
 {
 		
 	gst_init( NULL, NULL );
- 
 	m_CurrentPlayState = NOT_INITIALIZED;
-	
-	//std::cout << "Gstreamer version: " << GST_VERSION_MAJOR << " " << GST_VERSION_MICRO << " " << GST_VERSION_MINOR << std::endl;
 }
 
 GStreamerWrapper::~GStreamerWrapper()
@@ -119,7 +64,6 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	m_fFps = 0;
 	m_dDurationInMs = 0;
 	m_iNumberOfFrames = 0;
-
 	m_fVolume = 1.0f;
 	m_fSpeed = 1.0f;
 	m_PlayDirection = FORWARD;
