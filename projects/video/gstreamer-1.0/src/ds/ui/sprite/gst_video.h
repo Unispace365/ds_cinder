@@ -115,6 +115,7 @@ public:
 	// Optional: Supply the time in ms to display
 	// Optional: Supply a function called once that frame has been displayed (to unload the video, or animate or whatever)
 	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr);
+	void				enablePlayingAFrame(bool on = true);
 	bool				isPlayingAFrame() const;
 
 	// Extends the idle timer for this sprite when the video is playing. Default = false

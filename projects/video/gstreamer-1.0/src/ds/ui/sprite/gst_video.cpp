@@ -209,9 +209,6 @@ float GstVideo::getVolume() const {
 }
 
 void GstVideo::play(){
-	if (mPlaySingleFrame)
-		mPlaySingleFrame = false;
-
 	mGstreamerWrapper->play();
 
 	//If movie not yet loaded, remember to play it later once it has
@@ -444,6 +441,12 @@ void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn){
 	if(time_ms >= 0.0){
 		seekTime(time_ms);
 	}
+}
+
+void GstVideo::enablePlayingAFrame(bool on /*= true*/)
+{
+	if (mPlaySingleFrame == on) return;
+	mPlaySingleFrame = on;
 }
 
 bool GstVideo::isPlayingAFrame()const {
