@@ -166,6 +166,11 @@ double SpriteEngine::getElapsedTimeSeconds() const {
 void SpriteEngine::clearFingers( const std::vector<int> &fingers ) {
 }
 
+bool SpriteEngine::hasService(const std::string& key) const
+{
+	return mData.mServices.find(key) != mData.mServices.cend();
+}
+
 ds::EngineService& SpriteEngine::private_getService(const std::string& str) {
 	ds::EngineService*	s = mData.mServices[str];
 	if (!s) {
