@@ -94,6 +94,7 @@ protected:
 	/// @cond ds::ui::Sprite overrides
 
 	void						updateServer(const UpdateParams&) override;
+	void						updateClient(const UpdateParams&) override;
 	void						drawLocalClient() override;
 	void						writeAttributesTo(ds::DataBuffer&) override;
 	void						readAttributeFrom(const char attributeId, ds::DataBuffer&) override;

@@ -89,6 +89,12 @@ void Image::updateServer(const UpdateParams& up)
 	checkStatus();
 }
 
+void Image::updateClient(const UpdateParams& up)
+{
+	inherited::updateClient(up);
+	checkStatus();
+}
+
 void Image::drawLocalClient()
 {
 	if (!inBounds() || !isLoaded()) return;
@@ -176,18 +182,26 @@ void Image::checkStatus()
 {
 	if (mImageSource.getImage() && !isLoaded())
 	{
-		auto tex = mImageSource.getImage();
-		setStatus(Status::STATUS_LOADED);
-		doOnImageLoaded();
-		const float         prevRealW = getWidth(), prevRealH = getHeight();
-		if (prevRealW <= 0 || prevRealH <= 0) {
-			Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
+		if (mEngine.getMode() == mEngine.CLIENT_MODE)
+		{
+			setStatus(Status::STATUS_LOADED);
+			doOnImageLoaded();
 		}
-		else {
-			float             prevWidth = prevRealW * getScale().x;
-			float             prevHeight = prevRealH * getScale().y;
-			Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
-			setSize(prevWidth, prevHeight);
+		else
+		{
+			auto tex = mImageSource.getImage();
+			setStatus(Status::STATUS_LOADED);
+			doOnImageLoaded();
+			const float         prevRealW = getWidth(), prevRealH = getHeight();
+			if (prevRealW <= 0 || prevRealH <= 0) {
+				Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
+			}
+			else {
+				float             prevWidth = prevRealW * getScale().x;
+				float             prevHeight = prevRealH * getScale().y;
+				Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
+				setSize(prevWidth, prevHeight);
+			}
 		}
 	}
 }
