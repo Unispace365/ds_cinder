@@ -299,8 +299,8 @@ void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams
 			ci::gl::enableAlphaBlending();
 			applyBlendingMode(mBlendMode);
 
-			mDrawOpacityHack = mOpacity*drawParams.mParentOpacity;
-			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacityHack);
+			mDrawOpacity = mOpacity*drawParams.mParentOpacity;
+			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
 		} else {
 			ci::gl::disableAlphaBlending();
 			ci::gl::color(mServerColor);
