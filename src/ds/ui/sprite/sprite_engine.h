@@ -64,6 +64,8 @@ public:
 		Handle casting for you (since the root ds::EngineService class is unuseable). */
 	template <typename T>
 	T&								getService(const std::string&);
+	// Answers true if the requested service exists and registered with Engine.
+	bool							hasService(const std::string&) const;
 
 	/** Access to the current engine configuration info. */
 	void SpriteEngine::loadSettings(const std::string& name, const std::string& filename);

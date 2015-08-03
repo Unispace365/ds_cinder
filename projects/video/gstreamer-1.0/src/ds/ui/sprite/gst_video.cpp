@@ -6,7 +6,7 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 
-#include "gstreamer/GStreamerWrapper.h"
+#include "gstreamer/gstreamer_wrapper.h"
 #include "gstreamer/gstreamer_env_check.h"
 #include "gstreamer/video_meta_cache.h"
 
@@ -55,6 +55,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mVideoSize(0, 0)
 	, mNetHandler(*this)
 	, mAutoExtendIdle(false)
+	, mGenerateAudioBuffer(false)
 {
 	mBlobType = GstVideoNet::mBlobType;
 
@@ -80,6 +81,11 @@ void GstVideo::updateServer(const UpdateParams &up){
 	if(mAutoExtendIdle && mStatus == Status::STATUS_PLAYING){
 		mEngine.resetIdleTimeOut();
 	}
+}
+
+void GstVideo::generateAudioBuffer(bool enableAudioBuffer)
+{
+	 mGenerateAudioBuffer = enableAudioBuffer; 
 }
 
 void GstVideo::updateClient(const UpdateParams& up){
@@ -243,6 +249,7 @@ double GstVideo::getCurrentTime() const {
 		
 void GstVideo::seekTime(const double t){
 	mGstreamerWrapper->setTimePositionInMs(t * 1000.0);
+	markAsDirty(mNetHandler.mPosDirty);
 }
 
 double GstVideo::getCurrentPosition() const {
@@ -251,6 +258,7 @@ double GstVideo::getCurrentPosition() const {
 
 void GstVideo::seekPosition(const double t){
 	mGstreamerWrapper->setPosition(t);
+	markAsDirty(mNetHandler.mPosDirty);
 }
 
 void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn){
@@ -277,7 +285,7 @@ void GstVideo::doLoadVideo(const std::string &filename){
 		}
 
 		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen", GSTREAMER_LOG);
-		mGstreamerWrapper->open(filename, generateVideoBuffer, false, true, videoWidth, videoHeight);
+		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, true, videoWidth, videoHeight);
 
 		mVideoSize.x = mGstreamerWrapper->getWidth();
 		mVideoSize.y = mGstreamerWrapper->getHeight();
@@ -433,6 +441,12 @@ void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn){
 	if(time_ms >= 0.0){
 		seekTime(time_ms);
 	}
+}
+
+void GstVideo::enablePlayingAFrame(bool on /*= true*/)
+{
+	if (mPlaySingleFrame == on) return;
+	mPlaySingleFrame = on;
 }
 
 bool GstVideo::isPlayingAFrame()const {

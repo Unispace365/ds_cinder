@@ -1,54 +1,4 @@
-/*
-	CADET - Center for Advances in Digital Entertainment Technologies
-	Copyright 2012 University of Applied Science Salzburg / MultiMediaTechnology
-
-	http://www.cadet.at
-	http://multimediatechnology.at/
-
-	Licensed under the Apache License, Version 2.0 (the "License");
-	you may not use this file except in compliance with the License.
-	You may obtain a copy of the License at
-
-	http://www.apache.org/licenses/LICENSE-2.0
-
-	Unless required by applicable law or agreed to in writing, software
-	distributed under the License is distributed on an "AS IS" BASIS,
-	WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-	See the License for the specific language governing permissions and
-	limitations under the License.
-
-	CADET - Center for Advances in Digital Entertainment Technologies
-
-	Authors: Steven Stojanovic, Robert Praxmarer
-	Web: http://www.1n0ut.com
-	Email: stevesparrow07@googlemail.com, support@cadet.at
-	Created: 07-09-2011
-
-	This wrapper uses GStreamer, and is credited as follows:
-*/
-/* GStreamer
- * Copyright (C) 1999,2000 Erik Walthinsen <omega@cse.ogi.edu>
- *                    2000 Wim Taymans <wtay@chello.be>
- *
- * gst.h: Main header for GStreamer, apps should include this
- *
- * This library is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Library General Public
- * License as published by the Free Software Foundation; either
- * version 2 of the License, or (at your option) any later version.
- *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * Library General Public License for more details.
- *
- * You should have received a copy of the GNU Library General Public
- * License along with this library; if not, write to the
- * Free Software Foundation, Inc., 59 Temple Place - Suite 330,
- * Boston, MA 02111-1307, USA.
- */
-
-#include "GStreamerWrapper.h"
+#include "gstreamer_wrapper.h"
 
 #include "ds/debug/logger.h"
 #include <iostream>
@@ -60,30 +10,37 @@ namespace gstwrapper
 {
 
 
-/******************************************************************************/
-
-GStreamerWrapper::GStreamerWrapper() :
-	m_bFileIsOpen( false ),
-	m_cVideoBuffer( NULL ),
-	m_cAudioBuffer( NULL ),
-	m_GstPipeline( NULL ),
-	m_GstVideoSink( NULL ),
-	m_GstAudioSink( NULL ),
-	m_GstBus( NULL ),
-	m_StartPlaying(true),
-	m_StopOnLoopComplete(false)
+GStreamerWrapper::GStreamerWrapper()
+	: m_bFileIsOpen( false )
+	, m_cVideoBuffer( NULL )
+	, m_cAudioBuffer( NULL )
+	, m_GstPipeline( NULL )
+	, m_GstVideoSink( NULL )
+	, m_GstAudioSink( NULL )
+	, m_GstBus( NULL )
+	, m_StartPlaying(true)
+	, m_StopOnLoopComplete(false)
+	, m_CustomPipeline(false)
+	, m_VideoLock(m_VideoMutex, std::defer_lock)
 {
 		
 	gst_init( NULL, NULL );
- 
 	m_CurrentPlayState = NOT_INITIALIZED;
-	
-	//std::cout << "Gstreamer version: " << GST_VERSION_MAJOR << " " << GST_VERSION_MICRO << " " << GST_VERSION_MINOR << std::endl;
 }
 
 GStreamerWrapper::~GStreamerWrapper()
 {
 	close();
+
+	if (m_VideoLock.owns_lock()) {
+		try {
+			m_VideoLock.unlock();
+		} catch (std::exception& ex) {
+			std::cerr	<< "A fatal deadlock occurred and I can't survive from this one :(" << std::endl
+						<< "Probably your screen is stuck and this is the last log line you are reading." << std::endl
+						<< "Exception: " << ex.what() << std::endl;
+		}
+	}
 }
 
 bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer, bool bGenerateAudioBuffer, bool isTransparent, int videoWidth, int videoHeight)
@@ -107,7 +64,6 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	m_fFps = 0;
 	m_dDurationInMs = 0;
 	m_iNumberOfFrames = 0;
-
 	m_fVolume = 1.0f;
 	m_fSpeed = 1.0f;
 	m_PlayDirection = FORWARD;
@@ -197,8 +153,9 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		gst_app_sink_set_callbacks( GST_APP_SINK( m_GstVideoSink ), &m_GstVideoSinkCallbacks, this, NULL );
 
 	} else {
-		//GstElement* videoSink = gst_element_factory_make( "directdrawsink", NULL );
-		if(!bGenerateAudioBuffer) DS_LOG_WARNING("Video size not detected or video buffer not set to be created. Ignoring video output.");
+		//GstElement* videoSinkbi = gst_element_factory_make( "directdrawsink", NULL );
+		//if(!bGenerateAudioBuffer)   //Shoud be bGenerateVideoBuffer - Redundant CEE
+			DS_LOG_WARNING("Video size not detected or video buffer not set to be created. Ignoring video output.");
 		GstElement* videoSink = gst_element_factory_make( "faksesink", NULL );
 		g_object_set( m_GstPipeline, "video-sink", videoSink, NULL );
 
@@ -207,19 +164,25 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	// AUDIO SINK
 	// Extract and config Audio Sink
 	if ( bGenerateAudioBuffer ){
-		// Create and configure audio appsink
-		m_GstAudioSink = gst_element_factory_make( "appsink", "audiosink" );
-		gst_base_sink_set_sync( GST_BASE_SINK( m_GstAudioSink ), true );
-		// Set the configured audio appsink to the main pipeline
-		g_object_set( m_GstPipeline, "audio-sink", m_GstAudioSink, (void*)NULL );
-		// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-		g_object_set( m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL );
+		if (m_CustomPipeline){
+			setCustomFunction();
+		}
+		else {
+			// Create and configure audio appsink
+			m_GstAudioSink = gst_element_factory_make("appsink", "audiosink");
+			gst_base_sink_set_sync(GST_BASE_SINK(m_GstAudioSink), true);
+			// Set the configured audio appsink to the main pipeline
+			g_object_set(m_GstPipeline, "audio-sink", m_GstAudioSink, (void*)NULL);
+			// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
+			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL);
+			//Set up converter  to convert to mono if enabled
 
 		// Set Audio Sink callback methods
 		m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
 		m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
 		m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
-		gst_app_sink_set_callbacks( GST_APP_SINK( m_GstAudioSink ), &m_GstAudioSinkCallbacks, this, NULL );
+		gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
+		}
 
 	} else {
 		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
@@ -408,6 +371,7 @@ std::string GStreamerWrapper::getFileName(){
 }
 
 unsigned char* GStreamerWrapper::getVideo(){
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	m_bIsNewVideoFrame = false;
 	return m_cVideoBuffer;
 }
@@ -846,7 +810,7 @@ GstFlowReturn GStreamerWrapper::onNewBufferFromAudioSource( GstAppSink* appsink,
 }
 
 void GStreamerWrapper::newVideoSinkPrerollCallback( GstSample* videoSinkSample ){
-
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
 
 
@@ -867,6 +831,7 @@ void GStreamerWrapper::newVideoSinkPrerollCallback( GstSample* videoSinkSample )
 }
 
 void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	

@@ -76,10 +76,10 @@ public:
 	void				setVolume(const float volume);
 	float				getVolume() const;
 
-	// Playback control API
-	void				play();
-	void				stop();
-	void				pause();
+	// Playback control API 
+	virtual void		play();
+	virtual void		stop();
+	virtual void		pause();
 	bool				getIsPlaying() const;
 
 	// Time operations (in seconds)
@@ -115,6 +115,7 @@ public:
 	// Optional: Supply the time in ms to display
 	// Optional: Supply a function called once that frame has been displayed (to unload the video, or animate or whatever)
 	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr);
+	void				enablePlayingAFrame(bool on = true);
 	bool				isPlayingAFrame() const;
 
 	// Extends the idle timer for this sprite when the video is playing. Default = false
@@ -123,6 +124,9 @@ public:
 
 	virtual void		updateClient(const UpdateParams&) override;
 	virtual void		updateServer(const UpdateParams&) override;
+
+	//Allow for custom audio output
+	void				generateAudioBuffer(bool enableAudioBuffer);
 
 protected:
 	virtual void		drawLocalClient() override;
@@ -138,38 +142,38 @@ private:
 	void				checkStatus();
 
 private:
-
-	GstVideoNet							mNetHandler;
-	gstwrapper::GStreamerWrapper*		mGstreamerWrapper;
-
-	ci::gl::Texture						mFrameTexture;
-	ci::Vec2i							mVideoSize;
-	std::string							mFilename;
-
-	bool								mLooping;
-
-	bool								mMuted;
-	bool								mOutOfBoundsMuted;
-	float								mVolume;
-
-	bool								mAutoStart;
-	bool								mShouldPlay;
-	bool								mShouldSync;
-
-	// There is actual video data ready to be drawn
-	bool								mDrawable;
-
-	// When the video is playing, extend the idle timer, or not
-	bool								mAutoExtendIdle;
+	GstVideoNet			mNetHandler;
 	
+protected:
+	gstwrapper::GStreamerWrapper*
+						mGstreamerWrapper;
+private:
+	ci::gl::Texture		mFrameTexture;
+	ci::Vec2i			mVideoSize;
+	std::string			mFilename;
+	Status				mStatus;
+	std::function<void()>
+						mPlaySingleFrameFunction;
+	std::function<void()>
+						mVideoCompleteFn;
+	std::function<void(const Status&)>
+						mStatusFn;
+	float				mVolume;
+	bool				mLooping;
+	bool				mMuted;
+	bool				mOutOfBoundsMuted;
+	bool				mAutoStart;
+	bool				mShouldPlay;
+	bool				mShouldSync;
+	// There is actual video data ready to be drawn
+	bool				mDrawable;
+	// When the video is playing, extend the idle timer, or not
+	bool				mAutoExtendIdle;
 	// Playing a single frame, then stopping.
-	bool								mPlaySingleFrame;
-	std::function<void()>				mPlaySingleFrameFunction;
-
-	Status								mStatus;
-	bool								mStatusChanged;
-	std::function<void()>				mVideoCompleteFn;
-	std::function<void(const Status&)>	mStatusFn;
+	bool				mPlaySingleFrame;
+	bool				mStatusChanged;
+	//Allow for custom audio output
+	bool				mGenerateAudioBuffer;
 };
 
 } //!namespace ui

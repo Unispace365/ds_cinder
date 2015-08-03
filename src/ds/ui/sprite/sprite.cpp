@@ -144,7 +144,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mIsInScreenCoordsHack = false;
 	mTouchScaleSizeMode = false;
 	mCornerRadius = 0.0f;
-	mDrawOpacityHack = 1.0f;
+	mDrawOpacity = 1.0f;
 	mDelayedCallCueRef = nullptr;
 
 	if(mEngine.getRotateTouchesDefault()){
@@ -236,8 +236,8 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 			mUniform.applyTo(shaderBase);
 		}
 
-		mDrawOpacityHack = mOpacity*drawParams.mParentOpacity;
-		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacityHack);
+		mDrawOpacity = mOpacity*drawParams.mParentOpacity;
+		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
 		if(mUseDepthBuffer) {
 			ci::gl::enableDepthRead();
 			ci::gl::enableDepthWrite();
@@ -691,6 +691,11 @@ void Sprite::setOpacity(float opacity){
 
 float Sprite::getOpacity() const {
 	return mOpacity;
+}
+
+float Sprite::getDrawOpacity() const
+{
+	return mDrawOpacity;
 }
 
 void Sprite::drawLocalClient(){

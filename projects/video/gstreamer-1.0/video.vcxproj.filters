@@ -30,7 +30,7 @@
     <ClCompile Include="src\ds\ui\sprite\gst_video_net.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="src\gstreamer\GStreamerWrapper.cpp">
+    <ClCompile Include="src\gstreamer\gstreamer_wrapper.cpp">
       <Filter>src\gstreamer</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,7 +50,7 @@
     <ClInclude Include="src\ds\ui\sprite\gst_video_net.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="src\gstreamer\GStreamerWrapper.h">
+    <ClInclude Include="src\gstreamer\gstreamer_wrapper.h">
       <Filter>src\gstreamer</Filter>
     </ClInclude>
   </ItemGroup>

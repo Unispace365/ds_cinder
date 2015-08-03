@@ -409,6 +409,12 @@ namespace ui {
 			0.0 is invisible, 1.0 is fully opaque.
 			\return The current opacity value of this Sprite. */
 		float					getOpacity() const;
+		/** Returns the final opacity of the Sprite decided based on all its parents.
+			Useful for custom drawing routines where getOpacity() does not work.
+			The difference between this and getOpacity() is that, getOpacity() is the opacity
+			that user decides what it needs to be via setOpacity() but getDrawOpacity() is
+			the opacity calculated in the scene-graph by sprite's parent.*/
+		float					getDrawOpacity() const;
 
 		/** Whether or not to render this Sprite in the draw cycle; does not affect children.
 			For basic Sprites, to draw a rectangle, this needs to be set to false. 
@@ -739,10 +745,10 @@ namespace ui {
 		IdleTimer			mIdleTimer;
 		bool				mUseDepthBuffer;
 		float				mCornerRadius;
-		// Hack for clients that do their own drawing -- this is the current parent * me opacity.
+		// For clients that do their own drawing -- this is the current parent * me opacity.
 		// Essentially anyone who sets alpha in drawLocalClient should probably use this value.
-		// This is a hack because this value should really be supplied as an argument to drawLocalClient().
-		float				mDrawOpacityHack;
+		// \see Sprite::getDrawOpacity()
+		float				mDrawOpacity;
 
 		// Transport uniform data to the shader
 		ds::gl::Uniform		mUniform;

@@ -15,7 +15,7 @@
     <ClCompile Include="src\ds\ui\sprite\gst_video_net.cpp" />
     <ClCompile Include="src\gstreamer\gstreamer_env_check.cpp" />
     <ClCompile Include="src\gstreamer\video_meta_cache.cpp" />
-    <ClCompile Include="src\gstreamer\GStreamerWrapper.cpp" />
+    <ClCompile Include="src\gstreamer\gstreamer_wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\sprite\gst_video.h" />
@@ -23,7 +23,7 @@
     <ClInclude Include="src\ds\ui\sprite\video.h" />
     <ClInclude Include="src\gstreamer\gstreamer_env_check.h" />
     <ClInclude Include="src\gstreamer\video_meta_cache.h" />
-    <ClInclude Include="src\gstreamer\GStreamerWrapper.h" />
+    <ClInclude Include="src\gstreamer\gstreamer_wrapper.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EDC54D75-EC44-4587-8A0F-141FA45CE652}</ProjectGuid>
