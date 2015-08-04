@@ -1297,6 +1297,10 @@ void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 	if (mDirty.has(FLAGS_DIRTY)) {
 		buf.add(FLAGS_ATT);
 		buf.add(mSpriteFlags);
+		// This is being sent here because I do not want to introduce a
+		// new dirty state and the previous code already sets flag to false.
+		buf.add(mSpriteShader.getLocation());
+		buf.add(mSpriteShader.getName());
 	}
 	if (mDirty.has(POSITION_DIRTY)) {
 		buf.add(POSITION_ATT);
@@ -1378,6 +1382,15 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 			transformChanged = true;
 		} else if (id == FLAGS_ATT) {
 			mSpriteFlags = buf.read<int>();
+			// This is being read here because I do not want to introduce a
+			// new dirty state and the previous code already sets flag to false.
+			// This is a no-op if it's the same shader.
+			// NOTE: in a __thiscall function, usually order of argument execution
+			// is from right to left. but I am just gonna play safe and copy the
+			// strings once.
+			auto loc = buf.read<std::string>();
+			auto name = buf.read<std::string>();
+			mSpriteShader.setShaders(loc, name);
 		} else if (id == POSITION_ATT) {
 			mPosition.x = buf.read<float>();
 			mPosition.y = buf.read<float>();

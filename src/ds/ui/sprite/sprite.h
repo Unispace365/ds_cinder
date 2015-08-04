@@ -547,6 +547,8 @@ namespace ui {
 		void					setBlendMode(const BlendMode &blendMode);
 		BlendMode				getBlendMode() const;
 
+		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
+		// this is only suitable for shaders without uniforms.
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
 		SpriteShader&			getBaseShader();
 		std::string				getBaseShaderName() const;
