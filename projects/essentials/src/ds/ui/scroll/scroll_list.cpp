@@ -75,6 +75,10 @@ void ScrollList::layout(){
 		if(mScrollableHolder){
 			mScrollableHolder->setSize(getWidth(), scrollyHeight);
 		}
+		if (mFillFromTop){
+			pushItemsTop();
+		}
+
 	} else {
 		float scrollyWidth = mScrollableHolder->getWidth();
 
@@ -91,13 +95,28 @@ void ScrollList::layout(){
 		mScrollArea->setScrollSize(getWidth(), getHeight());
 	}
 
+
 	assignItems();
 }
 
+void ScrollList::pushItemsTop(){
+	if (mVerticalScrolling){
+		float scrollHeight = mScrollableHolder->getHeight();
+		if (mItemPlaceHolders.size() > 0 &&
+			mItemPlaceHolders[0].mY < scrollHeight - mStartPositionY
+			){
+			float delta = scrollHeight - mItemPlaceHolders[0].mY - mStartPositionY;
+				for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+					(*it).mY += delta;
+			}
+		}
+
+	}
+
+}
 
 // Override if you need to do something special with the layout, otherwise just set start positions and increment amounts
 void ScrollList::layoutItems(){
-
 	float xp = mStartPositionX;
 	float yp = mStartPositionY;
 	const bool isPerspective = Sprite::getPerspective();
@@ -106,7 +125,6 @@ void ScrollList::layoutItems(){
 		totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY;
 		yp = totalHeight - mIncrementAmount;
 	}
-
 	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
 		(*it).mX = xp;
 		(*it).mY = yp;
@@ -121,6 +139,7 @@ void ScrollList::layoutItems(){
 			xp += mIncrementAmount;
 		}
 	}
+
 
 	if(mVerticalScrolling){
 		if(isPerspective){
@@ -256,10 +275,11 @@ void ScrollList::setStateChangeCallback(const std::function<void(ds::ui::Sprite*
 	mStateChangeCallback = func;
 }
 
-void ScrollList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount){
+void ScrollList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top){
 	mStartPositionX = startPositionX;
 	mStartPositionY = startPositionY;
 	mIncrementAmount = incremenetAmount;
+	mFillFromTop = fill_from_top;
 }
 
 }

@@ -41,8 +41,10 @@ class ScrollArea;
 
 		void						animateItemsOn();
 
-		void						setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount);
+		void						setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top = false);
 
+		//When mOriginTop==true, shift items to top of scroll list
+		void						pushItemsTop();
 		// Use caution when modifying the scroll area
 		// Recommend only using this to reset the scroll position and change the fade graphics
 		// Setting your own scroll position callback will break the scroll list
@@ -95,6 +97,7 @@ class ScrollArea;
 		float								mStartPositionY;
 		float								mStartPositionX;
 		float								mIncrementAmount;
+		bool								mFillFromTop;
 
 		// for animate on
 		float								mAnimateOnDeltaDelay;
