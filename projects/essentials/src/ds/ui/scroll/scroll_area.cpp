@@ -31,9 +31,10 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 
 	mScroller = new Sprite(mEngine);
 	if(mScroller){
-// 		mScroller->setTransparent(false);
-// 		mScroller->setColor(ci::Color(0.1f, 0.56f, 0.3f));
-
+#if 0
+ 		mScroller->setTransparent(false);
+ 		mScroller->setColor(ci::Color(0.1f, 0.56f, 0.3f));
+#endif
 		mScroller->setSize(startWidth, startHeight);
 		mScroller->enable(true);
 		mScroller->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
@@ -325,12 +326,8 @@ const ci::Vec2f ScrollArea::getScrollerPosition(){
 void ScrollArea::resetScrollerPosition() {
 	if(mScroller){
 		mScroller->animStop();
-		if(getPerspective() && mVertical){
 			const float theTop = getHeight() - mScroller->getHeight();
-			mScroller->setPosition(0.0f, getHeight()-mScroller->getHeight());
-		} else {
-			mScroller->setPosition(0.0f, 0.0f);
-		}
+			mScroller->setPosition(0.0f, theTop);
 		checkBounds();
 	}
 }

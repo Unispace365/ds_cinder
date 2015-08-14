@@ -10,7 +10,6 @@ namespace ui{
 ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	: ds::ui::Sprite(engine)
 	, mScrollArea(nullptr)
-	, mStartPositionY(10.0f)
 	, mStartPositionX(10.0f)
 	, mIncrementAmount(50.0f)
 	, mAnimateOnDeltaDelay(0.0f)
@@ -27,6 +26,7 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	}
 
 	mScrollableHolder = new ds::ui::Sprite(mEngine);
+
 
 	if(mScrollableHolder){
 		mScrollArea->addSpriteToScroll(mScrollableHolder);
@@ -121,10 +121,11 @@ void ScrollList::layoutItems(){
 	float yp = mStartPositionY;
 	const bool isPerspective = Sprite::getPerspective();
 	float totalHeight = yp;
-	if(isPerspective && mVerticalScrolling){
+	if (mVerticalScrolling){
 		totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY;
-		yp = totalHeight - mIncrementAmount;
+		if (isPerspective) yp = totalHeight - mIncrementAmount;
 	}
+
 	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
 		(*it).mX = xp;
 		(*it).mY = yp;
@@ -133,7 +134,7 @@ void ScrollList::layoutItems(){
 			if(isPerspective){
 				yp -= mIncrementAmount;
 			} else {
-				yp += mIncrementAmount;
+				yp -= mIncrementAmount;
 			}
 		} else {
 			xp += mIncrementAmount;
@@ -142,11 +143,7 @@ void ScrollList::layoutItems(){
 
 
 	if(mVerticalScrolling){
-		if(isPerspective){
 			mScrollableHolder->setSize(getWidth(), totalHeight);
-		} else {
-			mScrollableHolder->setSize(getWidth(), yp);
-		}
 	} else {
 		mScrollableHolder->setSize(xp, getHeight());
 	}
