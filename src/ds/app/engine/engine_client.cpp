@@ -232,9 +232,6 @@ void EngineClient::receiveClientInput(ds::DataBuffer& data) {
 }
 
 void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
-	//CHANGED
-	//clearAllSprites(false);
-	std::cout << "client started reply command, clearing roots" << std::endl;
 	clearRoots();
 	
 	char					cmd;
@@ -265,7 +262,6 @@ void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
 							continue;
 						}
 
-						std::cout << "creating root with id: " << rootId << std::endl;
 
 						root.mRootId = rootId;
 						roots.push_back(root);

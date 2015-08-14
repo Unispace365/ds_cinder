@@ -35,7 +35,7 @@ public:
 	virtual void OnAddConsoleMessage(Awesomium::WebView* caller,
                                    const Awesomium::WebString& message,
                                    int line_number,
-                                   const Awesomium::WebString& source) { }
+                                   const Awesomium::WebString& source);
 	virtual void OnShowCreatedWebView(Awesomium::WebView* caller,
                                     Awesomium::WebView* new_view,
                                     const Awesomium::WebURL& opener_url,

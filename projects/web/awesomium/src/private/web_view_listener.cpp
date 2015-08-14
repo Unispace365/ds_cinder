@@ -27,7 +27,7 @@ void WebViewListener::OnChangeAddressBar(Awesomium::WebView*, const Awesomium::W
 
 	Awesomium::WebString	webstr = url.spec();
 	mAddressChangedFn(ds::web::str_from_webstr(webstr));
-//	std::cout << "Address changed: " << str_from_webstr(webstr) << std::endl;
+	std::cout << "Address changed: " << str_from_webstr(webstr) << std::endl;
 }
 
 void WebViewListener::OnShowCreatedWebView(	Awesomium::WebView* caller,
@@ -37,6 +37,10 @@ void WebViewListener::OnShowCreatedWebView(	Awesomium::WebView* caller,
 											const Awesomium::Rect& initial_pos,
 											bool is_popup) {
 //	std::cout << "OnShowCreatedWebView is_popup=" << is_popup << " target=" << str_from_webstr(target_url.spec()) << std::endl;
+}
+
+void WebViewListener::OnAddConsoleMessage(Awesomium::WebView* caller, const Awesomium::WebString& message, int line_number, const Awesomium::WebString& source){
+	std::cout << "Console message: " << str_from_webstr(message) << " Line: " << line_number << " From: " << str_from_webstr(source) <<  std::endl;
 }
 
 /**
@@ -57,25 +61,25 @@ void WebLoadListener::setOnDocumentReady(const std::function<void(const std::str
 void WebLoadListener::OnBeginLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
 											bool is_main_frame, const Awesomium::WebURL& url,
 											bool is_error_page) {
-//	std::cout << "OnBeginLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()) << std::endl;
+	std::cout << "OnBeginLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()) << std::endl;
 }
 
 void WebLoadListener::OnFailLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
 											bool is_main_frame, const Awesomium::WebURL& url,
 											int error_code, const Awesomium::WebString& error_desc) {
-//	std::cout << "OnFailLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()) << std::endl;
+	std::cout << "OnFailLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()) << std::endl;
 }
 
 void WebLoadListener::OnFinishLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
 													bool is_main_frame, const Awesomium::WebURL& url) {
-//	std::cout << "OnFinishLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()) << std::endl;
+	std::cout << "OnFinishLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()) << std::endl;
 }
 
 void WebLoadListener::OnDocumentReady(Awesomium::WebView* v, const Awesomium::WebURL& url) {
 	if (!mOnDocumentReadyFn) return;
 
-//	std::cout << "On Document ready" << std::endl;
 	Awesomium::WebString	webstr = url.spec();
+	std::cout << "On Document ready " << ds::web::str_from_webstr(webstr) << std::endl;
 	mOnDocumentReadyFn(ds::web::str_from_webstr(webstr));
 }
 

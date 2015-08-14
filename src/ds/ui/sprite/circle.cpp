@@ -95,7 +95,6 @@ void Circle::writeAttributesTo(ds::DataBuffer& buf) {
 void Circle::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if(attributeId == RADIUS_ATT) {
 		mRadius = buf.read<float>();
-		std::cout << "Read circle radius" << std::endl;
 		init();
 
 	} else if(attributeId == FILLED_ATT) {
