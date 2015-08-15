@@ -15,6 +15,7 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	, mAnimateOnDeltaDelay(0.0f)
 	, mAnimateOnStartDelay(0.0f)
 	, mVerticalScrolling(vertical)
+	, mFillFromTop(true)
 {
 	mScrollArea = new ds::ui::ScrollArea(mEngine, getWidth(), getHeight(), mVerticalScrolling);
 	if(mScrollArea){
@@ -75,7 +76,11 @@ void ScrollList::layout(){
 		if(mScrollableHolder){
 			mScrollableHolder->setSize(getWidth(), scrollyHeight);
 		}
-		if (mFillFromTop){
+		if (getPerspective()){
+			if(mFillFromTop){
+				pushItemsTop();
+			}
+		} else if(!mFillFromTop){
 			pushItemsTop();
 		}
 
@@ -102,12 +107,23 @@ void ScrollList::layout(){
 void ScrollList::pushItemsTop(){
 	if (mVerticalScrolling){
 		float scrollHeight = mScrollableHolder->getHeight();
-		if (mItemPlaceHolders.size() > 0 &&
-			mItemPlaceHolders[0].mY < scrollHeight - mStartPositionY
-			){
-			float delta = scrollHeight - mItemPlaceHolders[0].mY - mStartPositionY;
-				for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+		if(getPerspective()){
+			if(!mItemPlaceHolders.empty() &&
+			   mItemPlaceHolders[0].mY < scrollHeight - mStartPositionY - mIncrementAmount
+			   ){
+				float delta = scrollHeight - mItemPlaceHolders[0].mY - mStartPositionY - mIncrementAmount;
+				for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
 					(*it).mY += delta;
+				}
+			}
+		} else {
+			if(!mItemPlaceHolders.empty() &&
+			   mItemPlaceHolders.back().mY < scrollHeight - mIncrementAmount
+			   ){
+				float delta = scrollHeight - mItemPlaceHolders.back().mY - mIncrementAmount;
+				for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+					(*it).mY += delta;
+				}
 			}
 		}
 
@@ -134,7 +150,7 @@ void ScrollList::layoutItems(){
 			if(isPerspective){
 				yp -= mIncrementAmount;
 			} else {
-				yp -= mIncrementAmount;
+				yp += mIncrementAmount;
 			}
 		} else {
 			xp += mIncrementAmount;
@@ -143,7 +159,7 @@ void ScrollList::layoutItems(){
 
 
 	if(mVerticalScrolling){
-			mScrollableHolder->setSize(getWidth(), totalHeight);
+		mScrollableHolder->setSize(getWidth(), totalHeight);
 	} else {
 		mScrollableHolder->setSize(xp, getHeight());
 	}

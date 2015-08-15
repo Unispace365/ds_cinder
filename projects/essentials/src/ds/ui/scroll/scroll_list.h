@@ -41,7 +41,12 @@ class ScrollArea;
 
 		void						animateItemsOn();
 
-		void						setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top = false);
+		// REQUIRED TO LOOK OK: 
+		// @param startPositionX Where to start the items horizontally
+		// @param startPositionY Where to start the items Vertically
+		// @param incremenetAmount How much distance between the start of one item and the start of the next item
+		// @param fill_from_top Whether to align to the bottom of the scroll area or the top. For instance, if there's not enough items to fill the whole space, will start filling and align to the bottom if this param is false.
+		void						setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top = true);
 
 		//When mOriginTop==true, shift items to top of scroll list
 		void						pushItemsTop();

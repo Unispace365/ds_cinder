@@ -326,8 +326,12 @@ const ci::Vec2f ScrollArea::getScrollerPosition(){
 void ScrollArea::resetScrollerPosition() {
 	if(mScroller){
 		mScroller->animStop();
+		if(getPerspective() && mVertical){
 			const float theTop = getHeight() - mScroller->getHeight();
-			mScroller->setPosition(0.0f, theTop);
+			mScroller->setPosition(0.0f, getHeight() - mScroller->getHeight());
+		} else {
+			mScroller->setPosition(0.0f, 0.0f);
+		}
 		checkBounds();
 	}
 }
