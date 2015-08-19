@@ -216,12 +216,13 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 		CMS_DB_PATH = p.toString();
 	}
 
-	// Portable path
+	// Portable path. We want it as small as possible to ease network traffic.
 	std::string			local = ds::Environment::expand("%LOCAL%");
 	if (boost::starts_with(resource, local)) {
 		CMS_PORTABLE_RESOURCE_PATH = "%LOCAL%" + resource.substr(local.size());
 	} else {
 		DS_LOG_ERROR("CMS resource path (" << CMS_RESOURCE_PATH << ") does not start with %LOCAL% (" << local << ")");
+		CMS_PORTABLE_RESOURCE_PATH = resource;
 	}
 
 	// If the project path exists, then setup our app-local resources path.
