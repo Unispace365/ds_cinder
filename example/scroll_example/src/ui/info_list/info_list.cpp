@@ -56,6 +56,7 @@ InfoList::InfoList(Globals& g)
 	mStartPositionX = 0.0f;
 	mStartPositionY = padding;
 	mIncrementAmount = itemSize + padding;
+	mFillFromTop = true;
 }
 
 // Another part of the app has given us new data
