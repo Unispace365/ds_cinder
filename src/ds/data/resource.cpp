@@ -4,6 +4,7 @@
 #include <sstream>
 #include <boost/algorithm/string.hpp>
 #include <Poco/Path.h>
+#include <Poco/File.h>
 #include "ds/app/environment.h"
 #include "ds/data/data_buffer.h"
 #include "ds/debug/debug_defines.h"
@@ -460,6 +461,41 @@ void Resource::setTypeFromString(const std::string& typeChar) {
 	else if (WEB_TYPE_SZ == typeChar) mType = WEB_TYPE;
 	else if (AUDIO_TYPE_SZ == typeChar) mType = VIDEO_TYPE;
 	else mType = ERROR_TYPE;
+}
+
+const int Resource::parseTypeFromFilename(const std::string& newMedia){
+
+	// creating a Poco::File from an empty string and performing
+	// any checks throws a runtime exception
+	if(newMedia.empty()){
+		return ds::Resource::ERROR_TYPE;
+	}
+
+	Poco::File filey = Poco::File(newMedia);
+	if(!filey.exists() || filey.isDirectory()){
+		return ds::Resource::ERROR_TYPE;
+	}
+
+	std::string extensionay = Poco::Path(filey.path()).getExtension();
+	std::transform(extensionay.begin(), extensionay.end(), extensionay.begin(), ::tolower);
+	if(newMedia.find("http") != std::string::npos || extensionay.find("gif") != std::string::npos){
+		return ds::Resource::WEB_TYPE;
+
+	} else if(extensionay.find("pdf") != std::string::npos){
+		return ds::Resource::PDF_TYPE;
+
+	} else if(extensionay.find("png") != std::string::npos
+			  || extensionay.find("jpg") != std::string::npos
+			  || extensionay.find("jpeg") != std::string::npos
+			  ){
+		return ds::Resource::IMAGE_TYPE;
+
+	} else if(extensionay.find("ttf") != std::string::npos
+				|| extensionay.find("otf") != std::string::npos){
+		return ds::Resource::FONT_TYPE;
+	}
+
+	return ds::Resource::VIDEO_TYPE;
 }
 
 } // namespace ds
