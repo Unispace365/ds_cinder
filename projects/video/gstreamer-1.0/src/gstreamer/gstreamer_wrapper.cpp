@@ -205,6 +205,7 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 
 		if(m_StartPlaying){
 			gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+			m_CurrentPlayState = PLAYING;
 		}
 	}
 
@@ -654,7 +655,7 @@ void GStreamerWrapper::handleGStMessage(){
 						GstState pendingState;
 						gst_message_parse_state_changed(m_GstMessage, &oldState, &newState, &pendingState);
 
-					//	std::cout << "State changed: " << oldState << " " << newState << " " << pendingState << std::endl;
+						//std::cout << "State changed: " << oldState << " " << newState << " " << pendingState << std::endl;
 
 						if (newState == GST_STATE_PLAYING) {
 							m_CurrentGstState = STATE_PLAYING;
