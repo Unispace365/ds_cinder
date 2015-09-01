@@ -1520,11 +1520,11 @@ std::string Sprite::getBaseShaderName() const {
 	return mSpriteShader.getName();
 }
 
-bool Sprite::getUseShaderTextuer() const {
+bool Sprite::getUseShaderTexture() const {
 	return mUseShaderTexture;
 }
 
-void Sprite::setUseShaderTextuer( bool flag ) {
+void Sprite::setUseShaderTexture( bool flag ) {
 	mUseShaderTexture = flag;
 }
 
