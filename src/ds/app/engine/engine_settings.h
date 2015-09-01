@@ -17,7 +17,7 @@ class Environment;
  * file.  The local file is optional, and if it exists, is layered on top
  * of the app, replacing existing items and adding any new ones.
  *
- * By default, there is a single settings file named engine_settings.xml
+ * By default, there is a single settings file named engine.xml
  * located in the settings/ directory below the application folder.
  *
  * The command line can be used to provide the location of one or both of
