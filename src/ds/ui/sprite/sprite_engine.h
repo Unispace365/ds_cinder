@@ -109,6 +109,7 @@ public:
 	// For clients that frequently read the camera params, they can cache a direct reference.
 	virtual const ci::CameraPersp&		getPerspectiveCameraRef(const size_t index) const = 0;
 	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
+	virtual void						setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&) = 0;
 
 	// Will throw if the root at the index is the wrong type
 	virtual float						getOrthoFarPlane(const size_t index) const = 0;

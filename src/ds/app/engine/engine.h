@@ -149,6 +149,7 @@ public:
 	virtual PerspCameraParams			getPerspectiveCamera(const size_t index) const;
 	virtual const ci::CameraPersp&		getPerspectiveCameraRef(const size_t index) const;
 	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&);
+	virtual void						setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&);
 
 	// Will throw if the root at the index is the wrong type
 	virtual float						getOrthoFarPlane(const size_t index) const;
