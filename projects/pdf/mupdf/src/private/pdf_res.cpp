@@ -484,7 +484,17 @@ void PdfRes::_redrawPage() {
 	{
 		std::lock_guard<decltype(mMutex)>		l(mMutex);
 		// No reason to regenerate the same page.
-		if (mDrawState == mState && mDrawFileName == mFileName) {
+		bool isSameStateIgnoringScale = false;
+		float savedDrawStateScale = mDrawState.mScale;
+		float savedStateScale = mState.mScale;
+		mDrawState.mScale = 1.0f;
+		mState.mScale = 1.0f;
+		isSameStateIgnoringScale = (mDrawState == mState);
+		mDrawState.mScale = savedDrawStateScale;
+		mState.mScale = savedStateScale;
+
+		bool isSameFile = (mDrawFileName == mFileName);
+		if(isSameStateIgnoringScale && isSameFile) {
 			return;
 		}
 		drawState = mState;
