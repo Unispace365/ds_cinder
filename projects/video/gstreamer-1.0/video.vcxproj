@@ -96,7 +96,8 @@
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(OutDir)\MediaInfo.dll" copy /Y "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll" "$(OutDir)"</Command>
+      <Command>if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+if not exist "$(SolutionDir)\$(Configuration)\MediaInfo.dll" copy /Y "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll" "$(SolutionDir)\$(Configuration)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying video DLLs to output directory</Message>
@@ -134,7 +135,8 @@
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
     <PostBuildEvent>
-      <Command>if not exist "$(OutDir)\MediaInfo.dll" copy /Y "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll" "$(OutDir)"</Command>
+      <Command>if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+if not exist "$(SolutionDir)\$(Configuration)\MediaInfo.dll" copy /Y "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll" "$(SolutionDir)\$(Configuration)"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message>Copying video DLLs to output directory</Message>

@@ -16,7 +16,6 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\model\model_model.h">
       <Filter>model</Filter>
     </ClInclude>
@@ -31,8 +30,8 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="%DS_PLATFORM_086%\vs2013\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
+    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="model">
