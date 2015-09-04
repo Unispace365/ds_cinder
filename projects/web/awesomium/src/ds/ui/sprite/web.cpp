@@ -1,6 +1,7 @@
 #include "web.h"
 
 #include <algorithm>
+#include <regex>
 #include <cinder/ImageIo.h>
 #include <boost/filesystem.hpp>
 #include <ds/app/app.h>
@@ -143,6 +144,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mClickDown(false)
 	, mPageScrollCount(0)
 	, mDocumentReadyFn(nullptr)
+	, mHasError(false)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -164,24 +166,26 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	// create a webview
 	Awesomium::WebCore*	webcore = mService.getWebCore();
 	if (webcore) {
-		mWebViewPtr = webcore->CreateWebView(static_cast<int>(getWidth()), static_cast<int>(getHeight()));// , mService.getWebSession());
+		mWebViewPtr = webcore->CreateWebView(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
 		if (mWebViewPtr) {
-			mWebViewListener = std::move(std::unique_ptr<ds::web::WebViewListener>(new ds::web::WebViewListener));
+			mWebViewListener = std::move(std::unique_ptr<ds::web::WebViewListener>(new ds::web::WebViewListener(this)));
 			if (mWebViewListener) mWebViewPtr->set_view_listener(mWebViewListener.get());
-			mWebLoadListener = std::move(std::unique_ptr<ds::web::WebLoadListener>(new ds::web::WebLoadListener));
+
+			mWebLoadListener = std::move(std::unique_ptr<ds::web::WebLoadListener>(new ds::web::WebLoadListener(this)));
 			if (mWebLoadListener) {
 				mWebViewPtr->set_load_listener(mWebLoadListener.get());
 				mWebLoadListener->setOnDocumentReady([this](const std::string& url) { onDocumentReady(); });
 			}
-			mJsMethodHandler = std::move(std::unique_ptr<ds::web::JsMethodHandler>(new ds::web::JsMethodHandler));
+			
+			mJsMethodHandler = std::move(std::unique_ptr<ds::web::JsMethodHandler>(new ds::web::JsMethodHandler(this)));
 			if (mJsMethodHandler) mWebViewPtr->set_js_method_handler(mJsMethodHandler.get());
 
-			mWebDialogListener = std::move(std::unique_ptr<ds::web::WebDialogListener>(new ds::web::WebDialogListener));
+			mWebDialogListener = std::move(std::unique_ptr<ds::web::WebDialogListener>(new ds::web::WebDialogListener(this)));
 			if(mWebDialogListener){
 				mWebViewPtr->set_dialog_listener(mWebDialogListener.get());
 			}
 
-			mWebProcessListener = std::move(std::unique_ptr<ds::web::WebProcessListener>(new ds::web::WebProcessListener));
+			mWebProcessListener = std::move(std::unique_ptr<ds::web::WebProcessListener>(new ds::web::WebProcessListener(this)));
 			if(mWebProcessListener){
 				mWebViewPtr->set_process_listener(mWebProcessListener.get());
 			}
@@ -197,6 +201,11 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		DS_LOG_ERROR("Exception loading loading image for websprite: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__
 				<< " missing file=" << ds::Environment::expand("%APP%/data/images/loading.png"));
 	}
+
+	mErrorText = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, this);
+	mErrorText->setColor(ci::Color::black());
+	mErrorText->setResizeToText(true);
+	addChildPtr(mErrorText);
 }
 
 Web::~Web() {
@@ -334,14 +343,37 @@ void Web::setUrl(const std::string& url) {
 }
 
 namespace {
-bool			validate_url(const std::string& url) {
+bool validateUrl(const std::string& url) {
 	try {
 		std::string ext = boost::filesystem::path(url).extension().string();
 		std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-		if (ext == ".pdf") return false;
-	} catch (std::exception const&) {
+		if(ext == ".pdf") return false;
+	}
+	catch(std::exception const&) {
 	}
 	return true;
+}
+
+std::string cleanupUrl(const std::string& url) {
+	std::string output(url);
+	try {
+		std::regex pattern("((http[s]?):\\/\\/)?(.*)");
+		std::smatch matches;
+		if(std::regex_match(url, matches, pattern))
+		{
+			int count = matches.size();
+			std::string protocol = matches.str(2);
+			std::string theRemainder = matches.str(3);
+			if(protocol == "")
+			{
+				output = "http://";
+				output.append(theRemainder);
+			}
+		}
+	}
+	catch(std::exception const&) {
+	}
+	return output;
 }
 }
 
@@ -349,19 +381,20 @@ void Web::setUrlOrThrow(const std::string& url) {
 	DS_LOG_INFO("Web::setUrlOrThrow() on " << url);
 	// Some simple validation, because clients have a tendency to put PDFs where
 	// web pages should go.
-	if (!validate_url(url)) throw std::runtime_error("URL is not the correct format (" + url + ").");
+	if (!validateUrl(url)) throw std::runtime_error("URL is not the correct format (" + url + ").");
+
+	std::string cleanUrl = cleanupUrl(url);
 
 	try {
 		if (mWebViewPtr) {
-			mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url.c_str())));
+			mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(cleanUrl.c_str())));
 			mWebViewPtr->Focus();
 			activate();
-			onUrlSet(url);
-			return;
+			onUrlSet(cleanUrl);
 		}
 	} catch (std::exception const&) {
+		throw std::runtime_error("Web service is not available.");
 	}
-	throw std::runtime_error("Web service is not available.");
 }
 
 void Web::sendKeyDownEvent( const ci::app::KeyEvent &event ) {
@@ -511,6 +544,22 @@ void Web::setAddressChangedFn(const std::function<void(const std::string& new_ad
 
 void Web::setDocumentReadyFn(const std::function<void(void)>& fn) {
 	mDocumentReadyFn = fn;
+}
+
+void Web::setErrorMessage(const std::string &message)
+{
+	mHasError = true;
+	mErrorMessage = message;
+
+	mErrorText->setText(mErrorMessage);
+	mErrorText->setPosition((getWidth() - mErrorText->getWidth()) * 0.5f, (getHeight() - mErrorText->getHeight()) * 0.5f);
+	mErrorText->show();
+}
+
+void Web::clearError()
+{
+	mHasError = false;
+	mErrorText->hide();
 }
 
 ci::Vec2f Web::getDocumentSize() {
