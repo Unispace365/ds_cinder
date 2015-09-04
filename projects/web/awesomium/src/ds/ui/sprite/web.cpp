@@ -145,6 +145,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mPageScrollCount(0)
 	, mDocumentReadyFn(nullptr)
 	, mHasError(false)
+	, mErrorText(nullptr)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -202,10 +203,18 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 				<< " missing file=" << ds::Environment::expand("%APP%/data/images/loading.png"));
 	}
 
-	mErrorText = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, this);
-	mErrorText->setColor(ci::Color::black());
-	mErrorText->setResizeToText(true);
-	addChildPtr(mErrorText);
+	// disable this until we have default fonts
+	try {
+		mErrorText = mEngine.getEngineCfg().getText("default:error").create(mEngine, this);
+	}
+	catch( const std::exception & ) {
+		DS_LOG_WARNING("Web errors not rendered because font \"default:error\" is not defined");
+	}
+	if(mErrorText){
+		mErrorText->setColor(ci::Color::black());
+		mErrorText->setResizeToText(true);
+		addChildPtr(mErrorText);
+	}
 }
 
 Web::~Web() {
@@ -551,15 +560,19 @@ void Web::setErrorMessage(const std::string &message)
 	mHasError = true;
 	mErrorMessage = message;
 
-	mErrorText->setText(mErrorMessage);
-	mErrorText->setPosition((getWidth() - mErrorText->getWidth()) * 0.5f, (getHeight() - mErrorText->getHeight()) * 0.5f);
-	mErrorText->show();
+	if(mErrorText){
+		mErrorText->setText(mErrorMessage);
+		mErrorText->setPosition((getWidth() - mErrorText->getWidth()) * 0.5f, (getHeight() - mErrorText->getHeight()) * 0.5f);
+		mErrorText->show();
+	}
 }
 
 void Web::clearError()
 {
 	mHasError = false;
-	mErrorText->hide();
+	if(mErrorText){
+		mErrorText->hide();
+	}
 }
 
 ci::Vec2f Web::getDocumentSize() {
