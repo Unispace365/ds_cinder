@@ -203,7 +203,6 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 				<< " missing file=" << ds::Environment::expand("%APP%/data/images/loading.png"));
 	}
 
-	// disable this until we have default fonts
 	try {
 		mErrorText = mEngine.getEngineCfg().getText("default:error").create(mEngine, this);
 	}
