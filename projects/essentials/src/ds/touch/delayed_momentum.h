@@ -18,7 +18,7 @@ namespace ui {
 * Currently single-direction only.
 */
 
-class DelayedMomentum final : public ds::AutoUpdate {
+class DelayedMomentum : public ds::AutoUpdate {
 public:
 	DelayedMomentum(ds::ui::SpriteEngine& enging, const float deltaBurndown = 0.95f, const int maxSmoothFrames = 20);
 
