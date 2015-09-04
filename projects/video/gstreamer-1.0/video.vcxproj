@@ -95,22 +95,13 @@
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
-    <PostBuildEvent>
-      <Message>
-      </Message>
-    </PostBuildEvent>
     <CustomBuildStep>
+      <Message>Copying video DLLs to output directory</Message>
       <Command>echo Copying video DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-copy /Y "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll" "$(SolutionDir)\$(Configuration)"</Command>
-    </CustomBuildStep>
-    <CustomBuildStep>
+xcopy /y /d "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\MediaInfo.dll</Outputs>
-      <Message>Copying video DLLs to output directory</Message>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -153,13 +144,12 @@ copy /Y "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll
       </Message>
     </PostBuildEvent>
     <CustomBuildStep>
+      <Message>Copying video DLLs to output directory</Message>
       <Command>echo Copying video DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-copy /Y "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll" "$(SolutionDir)\$(Configuration)"</Command>
-    </CustomBuildStep>
-    <CustomBuildStep>
+xcopy /y /d "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\MediaInfo.dll</Outputs>
-      <Message>Copying video DLLs to output directory</Message>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
