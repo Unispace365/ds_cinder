@@ -80,6 +80,7 @@ TextLayout::Input::Input(const Text& sprite,
 						 , mFont(f)
 						 , mSize(size)
 						 , mText(text)
+						 , mLineWasSplit(false)
 {
 }
 
@@ -150,7 +151,7 @@ void TextLayout::debugPrint() const
 
 const TextLayout::MAKE_FUNC& TextLayout::SINGLE_LINE()
 {
-	static const MAKE_FUNC ANS = [](const TextLayout::Input& i, TextLayout& l) { l.addLine(ci::Vec2f(0, ceilf((1.0f - getFontAscender(i.mFont)) * i.mFont->pointSize())), i.mText); };
+	static const MAKE_FUNC ANS = [](TextLayout::Input& i, TextLayout& l) { l.addLine(ci::Vec2f(0, ceilf((1.0f - getFontAscender(i.mFont)) * i.mFont->pointSize())), i.mText); };
 	return ANS;
 }
 
@@ -169,7 +170,7 @@ TextLayoutVertical::TextLayoutVertical(Text& t)
 }
 
 void TextLayoutVertical::installOn(Text& t) {
-	auto f = [this](const TextLayout::Input& in, TextLayout& out) { this->run(in, out); };
+	auto f = [this](TextLayout::Input& in, TextLayout& out) { this->run(in, out); };
 	t.setLayoutFunction(f);
 }
 
@@ -196,7 +197,7 @@ float getDifference(const FontPtr &font, const std::wstring &str, float lineH, f
 	return 0.0f;
 }
 
-void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
+void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 {
 	if(in.mText.empty())
 		return;
@@ -320,6 +321,8 @@ void TextLayoutVertical::run(const TextLayout::Input& in, TextLayout& out)
 						std::wstring sub = lineText.substr(0, i - 1);
 						lineText = lineText.substr(i - 1, lineText.size() - i + 1);
 						if(!sub.empty()) {
+							in.mLineWasSplit = true;
+
 							float inSize = getSizeFromString(in.mFont, sub).x;
 							if(inSize > maxWidth)
 								maxWidth = inSize;
