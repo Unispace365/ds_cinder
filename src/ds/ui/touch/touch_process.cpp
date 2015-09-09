@@ -181,6 +181,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 
 void TouchProcess::update( const UpdateParams &updateParams )
 {
+	mLastUpdateTime = updateParams.getElapsedTime();
 	if (!mSprite.visible() || !mSprite.isEnabled() || !mOneTap || !mSprite.hasDoubleTap())
 		return;
 	if (mLastUpdateTime - mDoubleTapTime > mSpriteEngine.getDoubleTapTime()) {
@@ -390,6 +391,7 @@ void TouchProcess::processTap( const TouchInfo &touchInfo )
 		if (mFingers.size() > 1 || touchInfo.mPassedTouch || (touchInfo.mPhase == TouchInfo::Moved && touchInfo.mCurrentGlobalPoint.distance(touchInfo.mStartPoint) > mSpriteEngine.getMinTapDistance())) {
 			mTappable = false;
 		} else if (touchInfo.mPhase == TouchInfo::Removed) {
+
 			if (mSprite.hasTap() && !mSprite.hasDoubleTap()) {
 				mSprite.tap(touchInfo.mCurrentGlobalPoint);
 				mOneTap = false;
