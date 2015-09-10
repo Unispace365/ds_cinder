@@ -472,6 +472,10 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 		return ds::Resource::ERROR_TYPE;
 	}
 
+	if(newMedia.find("http") == 0){
+		return ds::Resource::WEB_TYPE;
+	}
+
 	Poco::File filey = Poco::File(newMedia);
 	if(!filey.exists() || filey.isDirectory()){
 		return ds::Resource::ERROR_TYPE;
@@ -479,7 +483,7 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 
 	std::string extensionay = Poco::Path(filey.path()).getExtension();
 	std::transform(extensionay.begin(), extensionay.end(), extensionay.begin(), ::tolower);
-	if(newMedia.find("http") != std::string::npos || extensionay.find("gif") != std::string::npos){
+	if(extensionay.find("gif") != std::string::npos){
 		return ds::Resource::WEB_TYPE;
 
 	} else if(extensionay.find("pdf") != std::string::npos){
