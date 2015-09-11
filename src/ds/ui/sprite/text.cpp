@@ -84,6 +84,7 @@ Text::Text(SpriteEngine& engine)
 	, mLayoutFunc(TextLayout::SINGLE_LINE())
 	, mResizeLimitWidth(0)
 	, mResizeLimitHeight(0)
+	, mHasSplitLine(false)
 	, mDebugShowFrame(engine.getDebugSettings().getBool("text:show_frame", 0, false))
 #ifdef TEXT_RENDER_ASYNC
 	, mShared(new RenderTextShared())
@@ -92,7 +93,7 @@ Text::Text(SpriteEngine& engine)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
-	setUseShaderTextuer(true);
+	setUseShaderTexture(true);
 }
 
 Text::~Text()
@@ -162,6 +163,20 @@ Text& Text::setFont(const std::string& name, const float fontSize)
 	mNeedsLayout = true;
 	mNeedRedrawing = true;
 	return *this;
+}
+
+float Text::getFontSize()
+{
+	return mFontSize;
+}
+
+void Text::setFontSize(float fontSize)
+{
+	mFont = get_font(mEngine.getFonts().getFileNameFromName(mFontFileName), fontSize);
+	mFontSize = fontSize;
+	markAsDirty(FONT_DIRTY);
+	mNeedsLayout = true;
+	mNeedRedrawing = true;
 }
 
 void Text::updateServer(const UpdateParams& p)
@@ -486,6 +501,7 @@ void Text::makeLayout()
 			}
 			TextLayout::Input	in(*this, mFont, size, mTextString);
 			mLayoutFunc(in, mLayout);
+			mHasSplitLine = in.mLineWasSplit;
 		}
 		markAsDirty(LAYOUT_DIRTY);
 

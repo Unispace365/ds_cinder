@@ -10,8 +10,10 @@ namespace web {
 /**
  * \class ds::web::JsMethodHandler
  */
-JsMethodHandler::JsMethodHandler()
-		: mDomIsReady(false) {
+JsMethodHandler::JsMethodHandler(ds::ui::Web* web)
+	: mWeb(web)
+	, mDomIsReady(false)
+{
 }
 
 JsMethodHandler::~JsMethodHandler() {

@@ -73,7 +73,7 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
-	setUseShaderTextuer(true);
+	setUseShaderTexture(true);
 }
 
 Pdf& Pdf::setPageSizeMode(const PageSizeMode& m) {

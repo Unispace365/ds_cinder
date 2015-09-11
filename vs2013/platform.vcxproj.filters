@@ -37,18 +37,6 @@
     <Filter Include="src\ds\ui\touch">
       <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="blocks">
-      <UniqueIdentifier>{f15b674a-6660-4f54-aded-258e0acbdae2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="blocks\tuio">
-      <UniqueIdentifier>{797d5636-a345-4fc7-8a3a-2e934d4d9afe}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="blocks\tuio\include">
-      <UniqueIdentifier>{87b48932-d918-41a2-b81b-e1035291f6d6}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="blocks\tuio\src">
-      <UniqueIdentifier>{afe9eb27-af5e-499f-8a15-c7f275640b37}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\math">
       <UniqueIdentifier>{9fb4c09e-660e-4216-93c1-e3dd8ff0f9e0}</UniqueIdentifier>
     </Filter>
@@ -108,9 +96,6 @@
     </Filter>
     <Filter Include="src\ds\ui\mesh_source">
       <UniqueIdentifier>{cbc57e74-972d-4ce0-96b6-dd570de55259}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="blocks\osc">
-      <UniqueIdentifier>{091be761-4e68-43a6-9bc4-a5fdf702c20b}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\osc">
       <UniqueIdentifier>{3751695d-68b3-432a-b561-cc7a7ee5ce2c}</UniqueIdentifier>

@@ -33,9 +33,6 @@
     <ClInclude Include="..\src\query\query_handler.h">
       <Filter>src\query</Filter>
     </ClInclude>
-    <ClInclude Include="..\include\Resources.h">
-      <Filter>Resources</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\model\all_data.h">
       <Filter>src\model</Filter>
     </ClInclude>
@@ -53,10 +50,10 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="%DS_PLATFORM_086%\vs2013\FrameworkResources.rc">
+    <ResourceCompile Include="Resources.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="Resources.rc">
+    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>

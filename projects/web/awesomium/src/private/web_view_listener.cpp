@@ -4,6 +4,7 @@
 #include "script_translator.h"
 #include "Awesomium/WebView.h"
 #include <ds/debug/logger.h>
+#include <ds/ui/sprite/web.h>
 
 namespace ds {
 namespace web {
@@ -11,8 +12,10 @@ namespace web {
 /**
  * \class ds::web::WebViewListener
  */
-WebViewListener::WebViewListener()
-		: mAddressChangedFn(nullptr) {
+WebViewListener::WebViewListener(ds::ui::Web* web)
+	: mWeb(web)
+	, mAddressChangedFn(nullptr)
+{
 }
 
 WebViewListener::~WebViewListener() {
@@ -23,11 +26,11 @@ void WebViewListener::setAddressChangedFn(const std::function<void(const std::st
 }
 
 void WebViewListener::OnChangeAddressBar(Awesomium::WebView*, const Awesomium::WebURL& url) {
-	if (!mAddressChangedFn) return;
-
-	Awesomium::WebString	webstr = url.spec();
-	mAddressChangedFn(ds::web::str_from_webstr(webstr));
-//	std::cout << "Address changed: " << str_from_webstr(webstr) << std::endl;
+	Awesomium::WebString webstr = url.spec();
+	DS_LOG_INFO("Address changed: " << str_from_webstr(webstr));
+	if(mAddressChangedFn) {
+		mAddressChangedFn(ds::web::str_from_webstr(webstr));
+	}
 }
 
 void WebViewListener::OnShowCreatedWebView(	Awesomium::WebView* caller,
@@ -42,8 +45,10 @@ void WebViewListener::OnShowCreatedWebView(	Awesomium::WebView* caller,
 /**
  * \class ds::web::WebLoadListener
  */
-WebLoadListener::WebLoadListener()
-		: mOnDocumentReadyFn(nullptr) {
+WebLoadListener::WebLoadListener(ds::ui::Web* web)
+	: mWeb(web)
+	, mOnDocumentReadyFn(nullptr)
+{
 }
 
 WebLoadListener::~WebLoadListener() {
@@ -57,26 +62,32 @@ void WebLoadListener::setOnDocumentReady(const std::function<void(const std::str
 void WebLoadListener::OnBeginLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
 											bool is_main_frame, const Awesomium::WebURL& url,
 											bool is_error_page) {
-//	std::cout << "OnBeginLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()) << std::endl;
+	DS_LOG_INFO("OnBeginLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()));
 }
 
 void WebLoadListener::OnFailLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
 											bool is_main_frame, const Awesomium::WebURL& url,
 											int error_code, const Awesomium::WebString& error_desc) {
-//	std::cout << "OnFailLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()) << std::endl;
+	DS_LOG_WARNING("OnFailLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()));
+	if(mWeb)
+	{
+		std::string msg("Failed to load URL ");
+		msg.append(str_from_webstr(url.spec()));
+		mWeb->setErrorMessage(msg);
+	}
 }
 
 void WebLoadListener::OnFinishLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
 													bool is_main_frame, const Awesomium::WebURL& url) {
-//	std::cout << "OnFinishLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()) << std::endl;
+	DS_LOG_INFO("OnFinishLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()));
 }
 
 void WebLoadListener::OnDocumentReady(Awesomium::WebView* v, const Awesomium::WebURL& url) {
-	if (!mOnDocumentReadyFn) return;
-
-//	std::cout << "On Document ready" << std::endl;
-	Awesomium::WebString	webstr = url.spec();
-	mOnDocumentReadyFn(ds::web::str_from_webstr(webstr));
+	Awesomium::WebString webstr = url.spec();
+	DS_LOG_INFO("On document ready: " << str_from_webstr(webstr));
+	if(mOnDocumentReadyFn){
+		mOnDocumentReadyFn(ds::web::str_from_webstr(webstr));
+	}
 }
 
 
@@ -85,7 +96,7 @@ void WebProcessListener::OnUnresponsive(Awesomium::WebView* caller){
 }
 
 void WebProcessListener::OnResponsive(Awesomium::WebView* caller){
-//	DS_LOG_INFO("Web view responsive, url: " << str_from_webstr(caller->url().spec()));
+	DS_LOG_INFO("Web view responsive, url: " << str_from_webstr(caller->url().spec()));
 }
 
 void WebProcessListener::OnCrashed(Awesomium::WebView* caller, Awesomium::TerminationStatus status){
@@ -93,11 +104,12 @@ void WebProcessListener::OnCrashed(Awesomium::WebView* caller, Awesomium::Termin
 }
 
 void WebProcessListener::OnLaunch(Awesomium::WebView* caller){
-//	DS_LOG_INFO("On process launch " << str_from_webstr(caller->url().spec()));
+	DS_LOG_INFO("On process launch " << str_from_webstr(caller->url().spec()));
 }
 
-WebProcessListener::WebProcessListener(){
-
+WebProcessListener::WebProcessListener(ds::ui::Web* web)
+	: mWeb(web)
+{
 }
 
 WebProcessListener::~WebProcessListener(){
@@ -126,8 +138,9 @@ void WebDialogListener::OnShowPageInfoDialog(Awesomium::WebView* caller, const A
 	DS_LOG_INFO("Show page info dialog " << str_from_webstr(caller->url().spec()));
 }
 
-WebDialogListener::WebDialogListener(){
-
+WebDialogListener::WebDialogListener(ds::ui::Web* web)
+	: mWeb(web)
+{
 }
 
 WebDialogListener::~WebDialogListener(){

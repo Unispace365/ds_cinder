@@ -12,6 +12,9 @@ class WebView;
 }
 
 namespace ds {
+namespace ui {
+class Web;
+}
 namespace web {
 
 /**
@@ -20,7 +23,7 @@ namespace web {
  */
 class JsMethodHandler : public Awesomium::JSMethodHandler {
 public:
-	JsMethodHandler();
+	JsMethodHandler(ds::ui::Web* web);
 	virtual ~JsMethodHandler();
 
 	// Provide a convenience for registering methods: They can't be registered
@@ -36,6 +39,7 @@ public:
 												const Awesomium::WebString& method_name, const Awesomium::JSArray& args);
 
 private:
+	ds::ui::Web*				mWeb;
 	void						doRegisterMethod(Awesomium::WebView&, const std::string& class_name, const std::string& method_name);
 
 	// Buffer up any method registrations until the DOM is ready.

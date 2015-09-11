@@ -39,6 +39,11 @@ void ImageOwner::setImageResource(const ds::Resource::Id& rid, const int flags) 
 	setImage(ImageResource(rid, flags));
 }
 
+
+const ci::gl::Texture* ImageOwner::getImageTexture(){
+	return mImageSource.getImage();
+}
+
 void ImageOwner::onImageChanged() {
 }
 
