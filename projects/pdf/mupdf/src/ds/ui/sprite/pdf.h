@@ -38,10 +38,16 @@ public:
 	virtual void				updateServer(const UpdateParams&);
 
 	// PDF API
+	/** Displays the page given, from 1 to getPageCount() */
 	void						setPageNum(const int pageNum);
+	/** Returns the page currently being displayed, 1-indexed (page 1 is the first page, there is no page 0) */
 	int							getPageNum() const;
+	/** Returns the number of pages in this document. PDF's are 1-indexed, so the number returned from this function can be set as the last page */
 	int							getPageCount() const;
+
+	/** Advance the current page by 1, does not wrap */
 	void						goToNextPage();
+	/** Decrement the current page by 1, does not wrap */
 	void						goToPreviousPage();
 
 #ifdef _DEBUG

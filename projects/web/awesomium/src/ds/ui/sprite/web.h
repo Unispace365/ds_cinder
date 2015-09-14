@@ -5,6 +5,7 @@
 #include <cinder/app/KeyEvent.h>
 #include <cinder/app/MouseEvent.h>
 #include "ds/ui/sprite/sprite.h"
+#include "ds/ui/sprite/text.h"
 #include "ds/ui/sprite/web_listener.h"
 #include "ds/script/web_script.h"
 
@@ -95,6 +96,10 @@ public:
 	void					setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
 	void					setDragScrollingMinimumFingers(const int numFingers){ mDragScrollMinFingers = numFingers; }
 
+	// method to show an error message
+	void					setErrorMessage(const std::string &message);
+	void					clearError();
+
 	// Convenience to access various document properties. Note that
 	// the document probably needs to have passed onLoaded() for this
 	// to be reliable.
@@ -160,6 +165,10 @@ private:
 
 	// Replicated state
 	std::string				mUrl;
+
+	bool					mHasError;
+	std::string				mErrorMessage;
+	ds::ui::Text*			mErrorText;
 
 	// Initialization
 public:

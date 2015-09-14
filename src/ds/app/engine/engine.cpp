@@ -570,6 +570,16 @@ void Engine::setPerspectiveCamera(const size_t index, const PerspCameraParams& p
 	}
 }
 
+void Engine::setPerspectiveCameraRef(const size_t index, const ci::CameraPersp& p){
+	PerspRoot*					root = nullptr;
+	if(index < mRoots.size()) root = dynamic_cast<PerspRoot*>(mRoots[index].get());
+	if(root) {
+		root->setCameraRef(p);
+	} else {
+		DS_LOG_ERROR(" Engine::setPerspectiveCameraRef() on invalid root (" << index << ")");
+	}
+}
+
 float Engine::getOrthoFarPlane(const size_t index)const{
 	const OrthRoot*				root = nullptr;
 	if(index < mRoots.size()) root = dynamic_cast<const OrthRoot*>(mRoots[index].get());

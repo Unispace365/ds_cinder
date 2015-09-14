@@ -197,6 +197,8 @@ void Sprite::updateClient(const UpdateParams &p) {
 }
 
 void Sprite::updateServer(const UpdateParams &p) {
+	mTouchProcess.update(p);
+
 	mIdleTimer.update();
 
 	if(mCheckBounds) {
@@ -1520,11 +1522,11 @@ std::string Sprite::getBaseShaderName() const {
 	return mSpriteShader.getName();
 }
 
-bool Sprite::getUseShaderTextuer() const {
+bool Sprite::getUseShaderTexture() const {
 	return mUseShaderTexture;
 }
 
-void Sprite::setUseShaderTextuer( bool flag ) {
+void Sprite::setUseShaderTexture( bool flag ) {
 	mUseShaderTexture = flag;
 }
 

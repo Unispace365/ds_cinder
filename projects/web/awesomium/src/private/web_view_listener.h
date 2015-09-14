@@ -7,6 +7,9 @@
 #include "Awesomium/WebViewListener.h"
 
 namespace ds {
+namespace ui {
+class Web;
+}
 namespace web {
 
 /**
@@ -15,10 +18,10 @@ namespace web {
  */
 class WebViewListener : public Awesomium::WebViewListener::View {
 public:
-	WebViewListener();
+	WebViewListener(ds::ui::Web* web);
 	virtual ~WebViewListener();
 
-	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
+	void setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
 
 	virtual void OnChangeTitle(Awesomium::WebView* caller,
                              const Awesomium::WebString& title) { }
@@ -44,6 +47,7 @@ public:
                                     bool is_popup);
 
 private:
+	ds::ui::Web *mWeb;
 	std::function<void(const std::string& new_address)>
 									mAddressChangedFn;
 };
@@ -54,7 +58,7 @@ private:
  */
 class WebLoadListener : public Awesomium::WebViewListener::Load {
 public:
-	WebLoadListener();
+	WebLoadListener(ds::ui::Web* web);
 	virtual ~WebLoadListener();
 
 	void					setOnDocumentReady(const std::function<void(const std::string& url)>&);
@@ -70,6 +74,7 @@ public:
 	virtual void			OnDocumentReady(		Awesomium::WebView* caller, const Awesomium::WebURL& url);
 
 private:
+	ds::ui::Web* mWeb;
 	std::function<void(const std::string& url)>
 							mOnDocumentReadyFn;
 };
@@ -80,7 +85,7 @@ private:
 */
 class WebProcessListener : public Awesomium::WebViewListener::Process {
 public:
-	WebProcessListener();
+	WebProcessListener(ds::ui::Web* web);
 	virtual ~WebProcessListener();;
 	/// This event occurs when the process hangs.
 	virtual void OnUnresponsive(Awesomium::WebView* caller);
@@ -95,6 +100,9 @@ public:
 
 	/// This even occurs when a new WebView render process is launched.
 	virtual void OnLaunch(Awesomium::WebView* caller);
+
+private:
+	ds::ui::Web *mWeb;
 };
 
 
@@ -104,7 +112,7 @@ public:
 */
 class WebDialogListener : public Awesomium::WebViewListener::Dialog {
 public:
-	WebDialogListener();
+	WebDialogListener(ds::ui::Web* web);
 	virtual ~WebDialogListener();
 	/// This event occurs when the page requests to display a file chooser
 	/// dialog. This is usually the result of a user clicking on an HTML
@@ -151,6 +159,8 @@ public:
 	virtual void OnShowPageInfoDialog(Awesomium::WebView* caller,
 									  const Awesomium::WebPageInfo& page_info);
 
+private:
+	ds::ui::Web *mWeb;
 };
 
 } // namespace web

@@ -86,7 +86,8 @@ void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
  * \class ds::App
  */
 App::App(const RootList& roots)
-	: mInitializer(getAppPath().generic_string())
+	: mEnvironmentInitialized(ds::Environment::initialize())
+	, mInitializer(getAppPath().generic_string())
 	, mShowConsole(false)
 	, mEngineSettings()
 	, mEngineData(mEngineSettings)
@@ -351,7 +352,7 @@ void App::showConsole(){
 /**
  * \class ds::App::Initializer
  */
-static std::string app_sub_folder_from(const std::string &sub, const Poco::Path &path){
+static std::string app_sub_folder_from(const std::string &sub, const Poco::Path &path) {
 	Poco::Path          parent(path);
 	Poco::Path			p(parent);
 	p.append(sub);
@@ -362,14 +363,14 @@ static std::string app_sub_folder_from(const std::string &sub, const Poco::Path 
 	return "";
 }
 
-static std::string app_folder_from(const Poco::Path& path){
+static std::string app_folder_from(const Poco::Path& path) {
 	// Look for either a "data" or "settings" folder; either indicates I'm in the right place.
 	std::string			fn(app_sub_folder_from("data", path));
 	if (!fn.empty()) return fn;
 	return app_sub_folder_from("settings", path);
 }
 
-ds::App::Initializer::Initializer(const std::string& appPath){
+ds::App::Initializer::Initializer(const std::string& appPath) {
 	APP_PATH = appPath;
 
 	Poco::Path      p(appPath);

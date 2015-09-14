@@ -667,8 +667,15 @@ namespace ui {
 		// Read a single attribute
 		virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&){}
 
-		void				setUseShaderTextuer(bool flag);
-		bool				getUseShaderTextuer() const;
+		void				setUseShaderTexture(bool flag);
+		bool				getUseShaderTexture() const;
+
+		// DEPRECATED
+		// Obsolete -- use setUseShaderTexture
+		void				setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
+		// Obsolete -- use getUseShaderTexture
+		bool				getUseShaderTextuer() const { return getUseShaderTexture(); }
+		
 
 		void				sendSpriteToFront(Sprite &sprite);
 		void				sendSpriteToBack(Sprite &sprite);

@@ -95,6 +95,7 @@ void TcpClient::Loop::run() {
 			try {
 				mSocket = Poco::Net::StreamSocket();
 				mSocket.connect(mAddress, connect_timeout);
+				mSocket.setNoDelay(true);
 				mSocket.setBlocking(false);
 				if (mOptions.mReceiveBufferSize > 0) mSocket.setReceiveBufferSize(mOptions.mReceiveBufferSize);
 				if (mOptions.mSendBufferSize > 0) mSocket.setSendBufferSize(mOptions.mSendBufferSize);
@@ -110,8 +111,8 @@ void TcpClient::Loop::run() {
 				sendTo(mSocket);
 				length = mSocket.receiveBytes(buf, BUF_SIZE);
 			} catch (Poco::TimeoutException&) {
-//				std::cout << "TcpWatcher timeout" << std::endl;
-//				std::cout << "TcpWatcher ex=" << ex.what() << std::endl;
+//				std::cout << "TcpClient timeout" << std::endl;
+//				std::cout << "TcpClient ex=" << ex.what() << std::endl;
 			} catch (Poco::Net::ConnectionAbortedException&) {
 				needsConnect = true;
 			} catch (Poco::Net::ConnectionResetException&) {
@@ -119,8 +120,8 @@ void TcpClient::Loop::run() {
 			} catch (Poco::Net::InvalidSocketException&) {
 				needsConnect = true;
 			} catch (std::exception&) {
-//				std::cout << "TcpWatcher exception " << ex.what() << std::endl;
-//				std::cout << "TcpWatcher ex=" << ex.what() << std::endl;
+//				std::cout << "TcpClient exception " << ex.what() << std::endl;
+//				std::cout << "TcpClient ex=" << ex.what() << std::endl;
 			}
 		}
 		// Throttle this down, so I'm not slamming the mutex
@@ -144,13 +145,24 @@ void TcpClient::Loop::run() {
 
 void TcpClient::Loop::sendTo(Poco::Net::StreamSocket& socket) {
 	try {
+		// Get data to send
 		std::vector<std::string>	data;
 		{
 			Poco::Mutex::ScopedLock	l(mMutex);
 			data.swap(mSendData);
 		}
-		for (auto dit = data.begin(), dend=data.end(); dit!=dend; ++dit) {
-			const std::string&		d(*dit);
+
+		// Compile into a single chunk of data. Note that I've seen
+		// messages not go through when we try to make a series
+		// of sendBytes() calls, so this prevents that.
+		std::stringstream				buf;
+		for (const auto& d : data) {
+			if (!d.empty()) buf << d << mTerminator;
+		}
+
+		// Send the data
+		std::string						d = buf.str();
+		if (!d.empty()) {
 			socket.sendBytes(d.data(), d.size());
 		}
 	} catch (std::exception const&) {

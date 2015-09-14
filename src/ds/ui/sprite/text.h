@@ -55,9 +55,13 @@ public:
 
 	// Name can be a full filename, or a short name, if the FontList has been filled out.
 	Text&						setFont(const std::string& name, const float fontSize);
+	float						getFontSize();
+	void						setFontSize(float fontSize);
+
 	virtual void				setSizeAll(float width, float height, float depth);
 	virtual float				getWidth() const;
 	virtual float				getHeight() const;
+	bool						getHasSplitLine() { return mHasSplitLine; }
 	// This got messed up -- it's only implemented in the multiline subclass.
 	//void						setAlignment( int alignment );
 	Text&						setBorder(const ci::Rectf&);
@@ -125,6 +129,7 @@ private:
 	TextLayout::MAKE_FUNC		mLayoutFunc;
 	float						mResizeLimitWidth,
 								mResizeLimitHeight;
+	bool						mHasSplitLine;
 
 	// When true, display the whole sprite area.
 	const bool					mDebugShowFrame;

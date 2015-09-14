@@ -4,6 +4,7 @@
 #include <sstream>
 #include <boost/algorithm/string.hpp>
 #include <Poco/Path.h>
+#include <Poco/File.h>
 #include "ds/app/environment.h"
 #include "ds/data/data_buffer.h"
 #include "ds/debug/debug_defines.h"
@@ -216,12 +217,13 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 		CMS_DB_PATH = p.toString();
 	}
 
-	// Portable path
+	// Portable path. We want it as small as possible to ease network traffic.
 	std::string			local = ds::Environment::expand("%LOCAL%");
 	if (boost::starts_with(resource, local)) {
 		CMS_PORTABLE_RESOURCE_PATH = "%LOCAL%" + resource.substr(local.size());
 	} else {
 		DS_LOG_ERROR("CMS resource path (" << CMS_RESOURCE_PATH << ") does not start with %LOCAL% (" << local << ")");
+		CMS_PORTABLE_RESOURCE_PATH = resource;
 	}
 
 	// If the project path exists, then setup our app-local resources path.
@@ -460,6 +462,45 @@ void Resource::setTypeFromString(const std::string& typeChar) {
 	else if (WEB_TYPE_SZ == typeChar) mType = WEB_TYPE;
 	else if (AUDIO_TYPE_SZ == typeChar) mType = VIDEO_TYPE;
 	else mType = ERROR_TYPE;
+}
+
+const int Resource::parseTypeFromFilename(const std::string& newMedia){
+
+	// creating a Poco::File from an empty string and performing
+	// any checks throws a runtime exception
+	if(newMedia.empty()){
+		return ds::Resource::ERROR_TYPE;
+	}
+
+	if(newMedia.find("http") == 0){
+		return ds::Resource::WEB_TYPE;
+	}
+
+	Poco::File filey = Poco::File(newMedia);
+	if(!filey.exists() || filey.isDirectory()){
+		return ds::Resource::ERROR_TYPE;
+	}
+
+	std::string extensionay = Poco::Path(filey.path()).getExtension();
+	std::transform(extensionay.begin(), extensionay.end(), extensionay.begin(), ::tolower);
+	if(extensionay.find("gif") != std::string::npos){
+		return ds::Resource::WEB_TYPE;
+
+	} else if(extensionay.find("pdf") != std::string::npos){
+		return ds::Resource::PDF_TYPE;
+
+	} else if(extensionay.find("png") != std::string::npos
+			  || extensionay.find("jpg") != std::string::npos
+			  || extensionay.find("jpeg") != std::string::npos
+			  ){
+		return ds::Resource::IMAGE_TYPE;
+
+	} else if(extensionay.find("ttf") != std::string::npos
+				|| extensionay.find("otf") != std::string::npos){
+		return ds::Resource::FONT_TYPE;
+	}
+
+	return ds::Resource::VIDEO_TYPE;
 }
 
 } // namespace ds

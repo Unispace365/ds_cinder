@@ -12,4 +12,5 @@
 	<text name="hide_mouse" value="false" />
 	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\" />
 	<text name="resource_db" value="db\nodb.sqlite" />
+	<int name="tuio_port" value="1" />
 </settings>

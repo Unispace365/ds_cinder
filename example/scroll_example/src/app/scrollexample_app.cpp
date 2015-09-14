@@ -23,7 +23,7 @@ namespace example {
 ScrollExample::ScrollExample()
 	: inherited(ds::RootList()
 							//	.persp() // sample ortho view
-							//  .ortho()
+							  .ortho()
 							//	.pickColor()
 
 								.persp() // sample perp view

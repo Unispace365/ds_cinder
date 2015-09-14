@@ -19,8 +19,8 @@ ImageButton& ImageButton::makeButton(SpriteEngine& eng, const std::string& downI
 
 ImageButton::ImageButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage, const float touchPad)
 	: inherited(eng)
-	, mDown(ds::ui::Image::makeImage(eng, downImage, this))
-	, mUp(ds::ui::Image::makeImage(eng, upImage, this))
+	, mDown(*(new ds::ui::Image(mEngine, downImage, ds::ui::Image::IMG_CACHE_F)))
+	, mUp(*(new ds::ui::Image(mEngine, upImage, ds::ui::Image::IMG_CACHE_F)))
 	, mButtonBehaviour(*this)
 	, mPad(touchPad)
 	, mAnimDuration(0.1f) 
@@ -28,6 +28,8 @@ ImageButton::ImageButton(SpriteEngine& eng, const std::string& downImage, const 
 // 	setTransparent(false);
 // 	setColor(ci::Color(0.5f, 0.8f, 0.2f));
 
+	addChild(mDown);
+	addChild(mUp);
 
 	mDown.setOpacity(0.0f);
 

@@ -1,0 +1,14 @@
+
+ProductDetail:
+   tableName: ProductDetail
+   columns:
+      Id:
+         primary: true
+         autoincrement: true
+         type: integer(4)
+      Title:
+         type: string(25)
+      Description:
+         type: string(4)
+         default: 0
+     

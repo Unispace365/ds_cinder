@@ -57,20 +57,30 @@ namespace {
 			const std::vector<std::string>*	send = mSendQueue->update();
 			if (!send) return;
 
-			for (auto it=send->begin(), end=send->end(); it!=end; ++it) {
-				const std::string&	data(*it);
-				if (!data.empty()) socket.sendBytes(data.data(), data.size());
+			// Compile into a single chunk of data. Note that I've seen
+			// messages not go through when we try to make a series
+			// of sendBytes() calls, so this prevents that.
+			std::stringstream				buf;
+			for (const auto& d : *send) {
+				if (!d.empty()) buf << d << mTerminator;
+			}
+
+			// Send the data
+			std::string						d = buf.str();
+			if (!d.empty()) {
+				socket.sendBytes(d.data(), d.size());
 			}
 		}
 
 		void		receiveFrom(Poco::Net::StreamSocket& socket) {
-			const int		n = socket.receiveBytes(mBuffer, sizeof(mBuffer));
+			const int			n = socket.receiveBytes(mBuffer, sizeof(mBuffer));
 			if (n <= 0) return;
-			
+
+			const std::string	incoming(mBuffer, n);
 			if (mTerminator.empty()) {
-				mReceiveQueue->push(std::string(mBuffer, n));
+				mReceiveQueue->push(incoming);
 			} else {
-				mWaiting += std::string(mBuffer, n);
+				mWaiting += incoming;
 				std::vector<std::string> all;
 				boost::split(all, mWaiting, boost::is_any_of(mTerminator));
 				mWaiting.clear();

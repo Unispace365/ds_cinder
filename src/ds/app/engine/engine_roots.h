@@ -140,8 +140,11 @@ public:
 
 	// Camera
 	PerspCameraParams				getCamera() const;
-	const ci::CameraPersp&			getCameraRef() const;
 	void							setCamera(const PerspCameraParams&);
+
+	const ci::CameraPersp&			getCameraRef() const;
+	void							setCameraRef(const ci::CameraPersp&);
+
 	virtual void					markCameraDirty();
 
 	virtual void					setCinderCamera();

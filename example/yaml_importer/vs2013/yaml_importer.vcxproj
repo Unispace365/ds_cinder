@@ -130,14 +130,13 @@
     <ClCompile Include="..\src\yaml_importer_app.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\model\model_model.h" />
     <ClInclude Include="..\src\model\sample_model.h" />
     <ClInclude Include="..\src\service\model_maker.h" />
     <ClInclude Include="..\src\service\yaml_load_service.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="%DS_PLATFORM_086%\vs2013\FrameworkResources.rc" />
+    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
