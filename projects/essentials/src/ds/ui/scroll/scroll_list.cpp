@@ -139,7 +139,7 @@ void ScrollList::layoutItems(){
 	float totalHeight = yp;
 	if (mVerticalScrolling){
 		totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY;
-		if (isPerspective) yp = totalHeight - mStartPositionY ;
+		if(isPerspective) yp = totalHeight - mIncrementAmount;
 	}
 
 	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
