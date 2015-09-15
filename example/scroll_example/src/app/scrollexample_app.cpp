@@ -75,7 +75,7 @@ void ScrollExample::setupServer(){
 		rooty.clearChildren();
 	}
 
-	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+	ds::ui::Sprite &rootSprite = mEngine.getRootSprite(1);
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
 
@@ -110,6 +110,7 @@ void ScrollExample::setupServer(){
 	testerB->enable(false);
 	testerB->setPosition(0.0f, 120.0f);
 	sa->addSpriteToScroll(testerB);
+	sa->resetScrollerPosition();
 
 
 	// ------------ A scroll list to display some info with custom graphics ---------------//
