@@ -75,6 +75,8 @@ void ScrollExample::setupServer(){
 		rooty.clearChildren();
 	}
 
+	// Change the root sprite id to be ortho (0) or persp (1) to test the different kinds
+	//ds::ui::Sprite &rootSprite = mEngine.getRootSprite(0);
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite(1);
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
@@ -170,7 +172,7 @@ void ScrollExample::setupServer(){
 
 
 	const float padding = mGlobals.getSettingsLayout().getFloat("info_list:item:pad", 0, 20.0f);
-	instanceList->setLayoutParams(0.0f, 0.0f, instanceList->getWidth() + padding);
+	instanceList->setLayoutParams(20.0f, 0.0f, instanceList->getWidth() + padding);
 
 	mInfoMap.clear();
 

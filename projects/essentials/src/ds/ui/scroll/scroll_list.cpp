@@ -138,8 +138,8 @@ void ScrollList::layoutItems(){
 	const bool isPerspective = Sprite::getPerspective();
 	float totalHeight = yp;
 	if (mVerticalScrolling){
-		totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY;
-		if(isPerspective) yp = totalHeight - mIncrementAmount;
+		totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY * 2.0f;
+		if(isPerspective) yp = totalHeight - mIncrementAmount - mStartPositionY;
 	}
 
 	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
@@ -161,6 +161,7 @@ void ScrollList::layoutItems(){
 	if(mVerticalScrolling){
 		mScrollableHolder->setSize(getWidth(), totalHeight);
 	} else {
+		xp += mStartPositionX;
 		mScrollableHolder->setSize(xp, getHeight());
 	}
 }
