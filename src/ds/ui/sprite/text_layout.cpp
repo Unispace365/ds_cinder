@@ -20,12 +20,22 @@ int getFontSize( const FontPtr &font )
 
 float getFontAscender( const FontPtr &font )
 {
-  return font->ascender() / (float)getFontSize(font);
+	int size = getFontSize(font);
+	if(size > 0){
+		return font->ascender() / (float)size;
+	} else {
+		return font->ascender();
+	}
 }
 
 float getFontDescender( const FontPtr &font )
 {
-  return font->descender() / (float)getFontSize(font);
+	int size = getFontSize(font);
+	if(size > 0){
+		return font->descender() / (float)size;
+	} else {
+		return font->descender();
+	}
 }
 
 float getFontHeight( const FontPtr &font, const float leading )
