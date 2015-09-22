@@ -860,9 +860,11 @@ Sprite* Sprite::getHit(const ci::Vec3f &point) {
 		}
 	} else {
 		makeSortedChildren();
-		for(auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it)
+		// picks happen in reverse sorted order (front to back)
+		for(auto it = mSortedTmp.rbegin(), it2 = mSortedTmp.rend(); it != it2; ++it)
 		{
 			Sprite *child = *it;
+			
 			if(child->visible() && child->isEnabled() && child->contains(point) && child->getInnerHit(point))
 				return child;
 			Sprite *hitChild = child->getHit(point);
