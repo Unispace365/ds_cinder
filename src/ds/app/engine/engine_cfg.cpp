@@ -130,6 +130,11 @@ void EngineCfg::loadSettings(const std::string& name, const std::string& filenam
 	ds::Environment::loadSettings(filename, settings);
 }
 
+void EngineCfg::saveSettings(const std::string& name, const std::string& filename) {
+	ds::cfg::Settings&	settings = mSettings[name];
+	ds::Environment::saveSettings(filename, settings);
+}
+
 void EngineCfg::appendSettings(const std::string& name, const std::string& filename) {
 	ds::cfg::Settings&	settings = mSettings[name];
 	settings.readFrom(filename, true);

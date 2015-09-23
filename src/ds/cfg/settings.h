@@ -28,6 +28,8 @@ public:
 	// false, clear me out first (although only clear if the file actually
 	// exists, otherwise leave me alone).
 	void								readFrom(const std::string&, const bool append = true, const bool rawXmlText = false);
+	
+	void								writeTo(const std::string&);
 
 	bool								empty() const;
 	void							  	clear();

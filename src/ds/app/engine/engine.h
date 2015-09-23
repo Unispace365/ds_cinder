@@ -77,6 +77,10 @@ public:
 	// @param filename is the leaf path of the settings file (i.e. "data.xml").
 	// It will be loaded from all appropriate locations.
 	void								loadSettings(const std::string& name, const std::string& filename);
+	// @param name is the name that the system will use to refer to the settings.
+	// @param filename is the leaf path of the settings file (i.e. "data.xml").
+	// It will be saved ONLY in the user settings location.
+	void								saveSettings(const std::string& name, const std::string& filename);
 	// Convenice to append a setting file into the existing mEngineCfg settings.
 	// @param name is the name that the system will use to refer to the settings.
 	// @param filename is the FULL path of the settings file (i.e. "C:\projects\settings\data.xml").

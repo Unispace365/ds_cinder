@@ -110,6 +110,14 @@ void Environment::loadSettings(const std::string& filename, ds::cfg::Settings& s
 	}
 }
 
+void Environment::saveSettings(const std::string& filename, ds::cfg::Settings& settings) {
+	if(!ds::EngineSettings::getConfigurationFolder().empty()) {
+		const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
+		settings.writeTo(local);
+	}
+}
+
+
 std::string Environment::getLocalFile(	const std::string& category,
 										const bool includeProjectPath,
 										const std::string& filename)
