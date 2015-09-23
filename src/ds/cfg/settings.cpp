@@ -113,11 +113,13 @@ const V& get(const std::string& name, const A& container, const int index, const
  * ds::cfg::Settings
  */
 Settings::Settings()
+	: mChanged(false)
 {
 }
 
 void Settings::readFrom(const std::string& filename, const bool append, const bool rawXmlText)
 {
+	mChanged = false;
 	if (!append) {
 		directReadFrom(filename, true, rawXmlText);
 		return;
@@ -609,6 +611,8 @@ static void clear_vec(A& container)
 
 Settings::Editor& Settings::Editor::clear()
 {
+	mSettings.mChanged = true;
+
 	mSettings.mFloat.clear();
 	mSettings.mRect.clear();
 	clear_vec(mSettings.mInt);
@@ -668,65 +672,147 @@ static void editor_add_vec(const int mode, const std::string& name, A& container
 	}
 }
 
+template <typename A>
+static void editor_delete_vec(const int mode, const std::string& name, A& container)
+{
+	auto it = container.find(name);
+	if(it != container.end()) {
+		container.erase(it);
+	}
+}
+
 Settings::Editor& Settings::Editor::setColor(const std::string& name, const ci::Color &v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mColor, v);
 	editor_set_vec(mMode, name, mSettings.mColorA, ci::ColorA(v.r, v.g, v.b, 1.0f));
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setColorA(const std::string& name, const ci::ColorA &v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mColorA, v);
 	editor_set_vec(mMode, name, mSettings.mColor, ci::Color(v.r, v.g, v.b));
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setFloat(const std::string& name, const float v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mFloat, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setInt(const std::string& name, const int v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mInt, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setRect(const std::string& name, const ci::Rectf& v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mRect, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setResourceId(const std::string& name, const Resource::Id& v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mRes, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setSize(const std::string& name, const ci::Vec2f& v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mSize, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setText(const std::string& name, const std::string& v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mText, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::addInt(const std::string& name, const int v) {
+	mSettings.mChanged = true;
 	editor_add_vec(mMode, name, mSettings.mInt, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::addResourceId(const std::string& name, const Resource::Id& v) {
+	mSettings.mChanged = true;
 	editor_add_vec(mMode, name, mSettings.mRes, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::addTextW(const std::string& name, const std::wstring& v) {
+	mSettings.mChanged = true;
 	editor_add_vec(mMode, name, mSettings.mTextW, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setPoint( const std::string& name, const ci::Vec3f& v) {
+	mSettings.mChanged = true;
 	editor_add_vec(mMode, name, mSettings.mPoints, v);
+	return *this;
+}
+
+Settings::Editor& Settings::Editor::deleteColor(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mColor);
+	editor_delete_vec(mMode, name, mSettings.mColorA);
+	return *this;
+}
+
+Settings::Editor& Settings::Editor::deleteColorA(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mColor);
+	editor_delete_vec(mMode, name, mSettings.mColorA);
+	return *this;
+}
+
+Settings::Editor& Settings::Editor::deleteFloat(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mFloat);
+	return *this;
+}
+
+Settings::Editor& Settings::Editor::deleteInt(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mInt);
+	return *this;
+}
+
+
+Settings::Editor& Settings::Editor::deleteResourceId(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mRes);
+	return *this;
+}
+
+
+Settings::Editor& Settings::Editor::deleteRect(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mRect);
+	return *this;
+}
+
+
+Settings::Editor& Settings::Editor::deleteSize(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mSize);
+	return *this;
+}
+
+
+Settings::Editor& Settings::Editor::deleteText(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mText);
+	return *this;
+}
+
+
+Settings::Editor& Settings::Editor::deletePoint(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mPoints);
 	return *this;
 }
 

@@ -70,6 +70,7 @@ public:
 	/** Access to the current engine configuration info. */
 	void SpriteEngine::loadSettings(const std::string& name, const std::string& filename);
 	
+	ds::EngineCfg&					getEngineCfg();
 	const ds::EngineCfg&			getEngineCfg() const;
 	// Shortcuts
 	const ds::cfg::Settings&		getSettings(const std::string& name) const;

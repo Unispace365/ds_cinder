@@ -29,6 +29,11 @@ void SpriteEngine::loadSettings(const std::string& name, const std::string& file
 }
 /** \endcond */
 
+ds::EngineCfg& SpriteEngine::getEngineCfg()
+{
+	return mData.mEngineCfg;
+}
+
 const ds::EngineCfg& SpriteEngine::getEngineCfg() const
 {
 	return mData.mEngineCfg;
