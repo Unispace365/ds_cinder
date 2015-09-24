@@ -731,6 +731,12 @@ Settings::Editor& Settings::Editor::setText(const std::string& name, const std::
 	return *this;
 }
 
+Settings::Editor& Settings::Editor::setPoint(const std::string& name, const ci::Vec3f& v) {
+	mSettings.mChanged = true;
+	editor_set_vec(mMode, name, mSettings.mPoints, v);
+	return *this;
+}
+
 Settings::Editor& Settings::Editor::addInt(const std::string& name, const int v) {
 	mSettings.mChanged = true;
 	editor_add_vec(mMode, name, mSettings.mInt, v);
@@ -746,12 +752,6 @@ Settings::Editor& Settings::Editor::addResourceId(const std::string& name, const
 Settings::Editor& Settings::Editor::addTextW(const std::string& name, const std::wstring& v) {
 	mSettings.mChanged = true;
 	editor_add_vec(mMode, name, mSettings.mTextW, v);
-	return *this;
-}
-
-Settings::Editor& Settings::Editor::setPoint( const std::string& name, const ci::Vec3f& v) {
-	mSettings.mChanged = true;
-	editor_add_vec(mMode, name, mSettings.mPoints, v);
 	return *this;
 }
 
