@@ -134,6 +134,7 @@ void media_tester::loadMedia(const std::string& newMedia){
 	} else {
 		DS_LOG_INFO("Guessing that the new media is a video or playable by gstreamer: " << newMedia);
 		ds::ui::Video* vid = new ds::ui::Video(mEngine);
+		vid->setTransparentVideo(false);
 		vid->loadVideo(newMedia);
 		vid->play();
 		mEngine.getRootSprite().addChildPtr(vid);
