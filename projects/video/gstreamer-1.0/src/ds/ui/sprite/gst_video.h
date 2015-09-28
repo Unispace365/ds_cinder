@@ -51,6 +51,9 @@ public:
 
 	// Sets the video sprite size. Internally just scales the texture
 	void				setSize( float width, float height );
+
+	// Set before loadVideo, default is true (has an alpha channel)
+	void				setTransparentVideo(const bool transparentVideo){ mTransparentVideo = transparentVideo; }
 	
 	// Loads a video from a file path.
 	GstVideo&			loadVideo(const std::string &filename);
@@ -174,6 +177,8 @@ private:
 	bool				mStatusChanged;
 	//Allow for custom audio output
 	bool				mGenerateAudioBuffer;
+
+	bool				mTransparentVideo;
 };
 
 } //!namespace ui
