@@ -23,6 +23,9 @@ public:
 	void							mouseDrag(const ci::app::MouseEvent&);
 	void							mouseUp(const ci::app::MouseEvent&);
 
+	/** The distance between the touches for 5-finger touch simulation (shift-click) */
+	void							setFiveTouchRadius(const float fiveTouchRadius){ mFiveTouchRadius = fiveTouchRadius; }
+
 private:
 
 	ds::Engine&						mEngine;
@@ -36,6 +39,7 @@ private:
 	ci::Vec2i						mTwoTouchDown;
 
 	bool							mDropTouched;
+	float							mFiveTouchRadius;
 };
 
 } // namespace ds
