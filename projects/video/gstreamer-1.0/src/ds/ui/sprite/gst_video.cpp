@@ -151,7 +151,7 @@ GstVideo& GstVideo::loadVideo(const std::string& filename){
 		return *this;
 	}
 
-	doLoadVideo(filename);
+	doLoadVideo(_filename);
 	markAsDirty(mNetHandler.mPathDirty);
 	return *this;
 }
