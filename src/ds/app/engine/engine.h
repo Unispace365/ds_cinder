@@ -109,7 +109,7 @@ public:
 
 	bool								isIdling() const;
 	void								startIdling();
-	virtual void						resetIdleTimeOut();
+	virtual void						resetIdleTimeout();
 	
 	// Called during app construction, to register the sprites as blob handlers.
 	virtual void						installSprite(	const std::function<void(ds::BlobRegistry&)>& asServer,
@@ -263,7 +263,6 @@ private:
 	float								mLastTime;
 	bool								mIdling;
 	float								mLastTouchTime;
-	float								mIdleTime;
 
 	ci::tuio::Client					mTuio;
 	ui::TouchManager					mTouchManager;

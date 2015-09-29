@@ -17,6 +17,7 @@ EngineData::EngineData(const ds::cfg::Settings& engine_settings)
 	, mSwipeMaxTime(0.5f)
 	, mDoubleTapTime(0.35f)
 	, mFrameRate(60.0f)
+	, mIdleTimeout(300)
 {
 }
 

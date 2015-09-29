@@ -614,6 +614,7 @@ namespace ui {
 		void				buildTransform() const;
 		void				buildGlobalTransform() const;
 		virtual void		drawLocalClient();
+		virtual void		drawLocalClientPost() {}
 		virtual void		drawLocalServer();
 		bool				hasDoubleTap() const;
 		bool				hasTap() const;
@@ -722,6 +723,8 @@ namespace ui {
 		// A cache for when I need to sort my children. This could be
 		// a lot more efficient, only running the sort when Z changes.
 		std::vector<Sprite*>	mSortedTmp;
+
+		bool					mHasDrawLocalClientPost;
 
 		// Class-unique key for this type.  Subclasses can replace.
 		char				mBlobType;

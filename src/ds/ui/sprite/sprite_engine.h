@@ -123,7 +123,11 @@ public:
 
 	double							getElapsedTimeSeconds() const;
 
-	virtual void					resetIdleTimeOut(){};
+	int								getIdleTimeout() const;
+	void							setIdleTimeout(int idleTimeout);
+	virtual void					resetIdleTimeout(){};
+	// deprecated -- use resetIdleTimeout()
+	virtual void					resetIdleTimeOut() { resetIdleTimeout(); }
 
 	virtual void					clearFingers( const std::vector<int> &fingers );
 	virtual void					setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;
