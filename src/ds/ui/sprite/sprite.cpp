@@ -145,6 +145,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mCornerRadius = 0.0f;
 	mDrawOpacity = 1.0f;
 	mDelayedCallCueRef = nullptr;
+	mHasDrawLocalClientPost = false;
 
 	if(mEngine.getRotateTouchesDefault()){
 		setRotateTouches(true);
@@ -277,6 +278,39 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 
 	if((mSpriteFlags&CLIP_F) != 0) {
 		disableClipping();
+	}
+
+	if(mHasDrawLocalClientPost && ((mSpriteFlags&TRANSPARENT_F) == 0)) {
+		ci::gl::pushModelView();
+		glLoadIdentity();
+		ci::gl::multModelView(totalTransformation);
+
+		ci::gl::enableAlphaBlending();
+		applyBlendingMode(mBlendMode);
+		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
+		if(shaderBase) {
+			shaderBase.bind();
+			shaderBase.uniform("tex0", 0);
+			shaderBase.uniform("useTexture", mUseShaderTexture);
+			shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+			mUniform.applyTo(shaderBase);
+		}
+
+		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
+		if(mUseDepthBuffer) {
+			ci::gl::enableDepthRead();
+			ci::gl::enableDepthWrite();
+		} else {
+			ci::gl::disableDepthRead();
+			ci::gl::disableDepthWrite();
+		}
+
+		drawLocalClientPost();
+
+		if(shaderBase) {
+			shaderBase.unbind();
+		}
+		ci::gl::popModelView();
 	}
 }
 

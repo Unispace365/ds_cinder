@@ -147,7 +147,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
 	, mTweenline(app.timeline())
-	, mIdleTime(300.0f)
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
@@ -218,7 +217,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
 	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
-	mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
 	mFxaaOptions.mApplyFxAA = settings.getBool("FxAA", 0, false);
 	mFxaaOptions.mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
 	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
@@ -469,7 +467,7 @@ void Engine::updateClient() {
 	float dt = curr - mLastTime;
 	mLastTime = curr;
 
-	if (!mIdling && (curr - mLastTouchTime) >= mIdleTime ) {
+	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
 		mIdling = true;
 	}
 
@@ -524,7 +522,7 @@ void Engine::updateServer() {
 	mTuioObjectsMoved.update(curr);
 	mTuioObjectsEnd.update(curr);
 
-	if (!mIdling && (curr - mLastTouchTime) >= mIdleTime) {
+	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
 		mIdling = true;
 	}
 
@@ -921,7 +919,7 @@ void Engine::startIdling() {
 	mIdling = true;
 }
 
-void Engine::resetIdleTimeOut() {
+void Engine::resetIdleTimeout() {
 	float curr = static_cast<float>(getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = curr;
