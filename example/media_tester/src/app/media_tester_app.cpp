@@ -72,6 +72,8 @@ void media_tester::keyDown(ci::app::KeyEvent event){
 		
 	} else if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
+	} else if(event.getChar() == KeyEvent::KEY_l){
+		loadMedia("c:/test.mp4");
 	}
 }
 
@@ -134,6 +136,7 @@ void media_tester::loadMedia(const std::string& newMedia){
 	} else {
 		DS_LOG_INFO("Guessing that the new media is a video or playable by gstreamer: " << newMedia);
 		ds::ui::Video* vid = new ds::ui::Video(mEngine);
+		vid->setVerboseLogging(true);
 		vid->setTransparentVideo(false);
 		vid->loadVideo(newMedia);
 		vid->play();

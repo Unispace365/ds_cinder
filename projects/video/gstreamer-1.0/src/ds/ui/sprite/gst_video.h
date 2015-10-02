@@ -126,10 +126,14 @@ public:
 	bool				getAutoExtendIdle() const;
 
 	virtual void		updateClient(const UpdateParams&) override;
+	void				drawSharedTexture();
 	virtual void		updateServer(const UpdateParams&) override;
 
 	//Allow for custom audio output
 	void				generateAudioBuffer(bool enableAudioBuffer);
+
+	// In case you want a ton of info from gstreamer about what's going on
+	void				setVerboseLogging(const bool doVerbose);
 
 protected:
 	virtual void		drawLocalClient() override;
@@ -152,6 +156,8 @@ protected:
 						mGstreamerWrapper;
 private:
 	ci::gl::Texture		mFrameTexture;
+	ci::gl::Texture		mUFrameTexture;
+	ci::gl::Texture		mVFrameTexture;
 	ci::Vec2i			mVideoSize;
 	std::string			mFilename;
 	Status				mStatus;
@@ -179,6 +185,9 @@ private:
 	bool				mGenerateAudioBuffer;
 
 	bool				mTransparentVideo;
+
+	// YUV/I420 -> RGB conversion
+	ci::gl::GlslProg	mShader;
 };
 
 } //!namespace ui

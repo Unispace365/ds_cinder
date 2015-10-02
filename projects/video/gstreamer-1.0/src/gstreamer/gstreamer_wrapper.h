@@ -1,10 +1,12 @@
 #pragma once
 
-#include <gstreamer-1.0/gst/gst.h>
-#include <gstreamer-1.0/gst/gstbin.h>
-#include <gstreamer-1.0/gst/app/gstappsink.h>
-#include <gstreamer-1.0/gst/video/video.h>
-#include <gstreamer-1.0/gst/audio/audio.h>
+#define GST_USE_UNSTABLE_API
+#include <gst/gl/gl.h>
+#include <gst/gst.h>
+#include <gst/gstbin.h>
+#include <gst/app/gstappsink.h>
+#include <gst/video/video.h>
+#include <gst/audio/audio.h>
 
 #include <mutex>
 #include <atomic>
@@ -89,6 +91,10 @@ public:
 	// Destructor which closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
 	virtual ~GStreamerWrapper();
 
+	//gboolean reshapeCallback(void *gl_sink, void *gl_ctx, GLuint width, GLuint height, gpointer data);
+	//gboolean drawCallback(void * gl_sink, void * gl_ctx, GLuint width, GLuint height, GLuint texture, gpointer data);
+	void debugGlOpen();
+	void debugAppsinkShaderColorspaceOpen();
 	/*
 	Opens a file according to the string parameter. Sets the wrapper's PlayState to OPENED
 
@@ -116,7 +122,7 @@ public:
 	/*
 	Closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
 	*/
-	virtual void					close();
+	virtual void			close();
 
 	/*
 	Updates the internal GStreamer messages that are passed during the streaming process. This method is also needed to detect
@@ -447,6 +453,15 @@ public:
 	*/
 	void					retrieveVideoInfo();
 
+	/** Spite out a ton of messages when running gstreamer pipelines. */
+	void					setVerboseLogging(const bool verboseOn);
+
+
+	bool					getSharedDrawable();
+	int						getSharedTextureId();
+
+	void					setSharedParams(const bool drawable, const int textureId);
+
 private:
 	/*
 	Helper method in order to apply either changes to the playback speed or direction in GStreamer
@@ -600,6 +615,12 @@ private:
 	GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 	bool					m_StartPlaying;/* Play the video as soon as it's loaded */
 	bool					m_CustomPipeline;
+
+	bool					m_VerboseLogging;
+
+	int						m_SharedTextureId;
+	bool					m_SharedDrawable;
+
 
 }; //!class GStreamerWrapper
 }; //!namespace gstwrapper

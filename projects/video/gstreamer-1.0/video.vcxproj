@@ -68,7 +68,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>src;MediaInfo;$(DS_CINDER_GSTREAMER_1-0)\include\gstreamer-1.0;$(DS_CINDER_GSTREAMER_1-0)\lib\glib-2.0\include;$(DS_CINDER_GSTREAMER_1-0)\include\glib-2.0;$(DS_CINDER_GSTREAMER_1-0)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;MediaInfo;$(DS_CINDER_GSTREAMER_1-0)\include\gstreamer-1.0;$(DS_CINDER_GSTREAMER_1-0)\lib\glib-2.0\include;$(DS_CINDER_GSTREAMER_1-0)\include\glib-2.0;$(DS_CINDER_GSTREAMER_1-0)\include;$(DS_CINDER_GSTREAMER_1-0)\lib\gstreamer-1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -80,6 +80,7 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <ForcedIncludeFiles>
       </ForcedIncludeFiles>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -106,7 +107,7 @@ xcopy /y /d "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>src;MediaInfo;%(AdditionalIncludeDirectories);$(DS_CINDER_GSTREAMER_1-0)\include;$(DS_CINDER_GSTREAMER_1-0)\include\glib-2.0;$(DS_CINDER_GSTREAMER_1-0)\lib\glib-2.0\include;$(DS_CINDER_GSTREAMER_1-0)\include\gstreamer-1.0</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;MediaInfo;%(AdditionalIncludeDirectories);$(DS_CINDER_GSTREAMER_1-0)\include;$(DS_CINDER_GSTREAMER_1-0)\include\glib-2.0;$(DS_CINDER_GSTREAMER_1-0)\lib\glib-2.0\include;$(DS_CINDER_GSTREAMER_1-0)\include\gstreamer-1.0;$(DS_CINDER_GSTREAMER_1-0)\lib\gstreamer-1.0\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>

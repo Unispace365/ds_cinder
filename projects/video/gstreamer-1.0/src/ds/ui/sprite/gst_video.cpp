@@ -60,7 +60,15 @@ GstVideo::GstVideo(SpriteEngine& engine)
 {
 	mBlobType = GstVideoNet::mBlobType;
 
-	setUseShaderTextuer(true);
+//	setUseShaderTextuer(true);
+//	setBaseShader("", "");
+
+	try {
+		mShader = ci::gl::GlslProg(ci::loadFile(ds::Environment::expand("%APP%/data/shaders/video_vert.glsl")), ci::loadFile(ds::Environment::expand("%APP%/data/shaders/video_frag.glsl")));
+	} catch(const std::exception &e) {
+		DS_LOG_WARNING("Could not load & compile shader for the video:" << e.what());
+	}
+
 	setTransparent(false);
 }
 
@@ -89,6 +97,10 @@ void GstVideo::generateAudioBuffer(bool enableAudioBuffer)
 	 mGenerateAudioBuffer = enableAudioBuffer; 
 }
 
+void GstVideo::setVerboseLogging(const bool doVerbose){
+	mGstreamerWrapper->setVerboseLogging(doVerbose);
+}
+
 void GstVideo::updateClient(const UpdateParams& up){
 	Sprite::updateClient(up);
 
@@ -97,8 +109,52 @@ void GstVideo::updateClient(const UpdateParams& up){
 	checkStatus();
 }
 
+void GstVideo::drawSharedTexture(){
+	if(!mGstreamerWrapper || !mGstreamerWrapper->getSharedDrawable()) return;
+
+	ci::gl::SaveTextureBindState saveBindState(GL_TEXTURE_2D);
+	ci::gl::BoolState saveEnabledState(GL_TEXTURE_2D);
+	ci::gl::ClientBoolState vertexArrayState(GL_VERTEX_ARRAY);
+	ci::gl::ClientBoolState texCoordArrayState(GL_TEXTURE_COORD_ARRAY);
+
+	glEnable(GL_TEXTURE_2D);
+	glBindTexture(GL_TEXTURE_2D, mGstreamerWrapper->getSharedTextureId());
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	GLfloat verts[8];
+	glVertexPointer(2, GL_FLOAT, 0, verts);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	GLfloat texCoords[8];
+	glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
+
+	ci::Rectf destRect = ci::Rectf(0.0f, 0.0f, mVideoSize.x, mVideoSize.y);
+	ci::Rectf srcArea = ci::Rectf(0.0f, 0.0f, mVideoSize.x, mVideoSize.y);
+
+
+	verts[0 * 2 + 0] = destRect.getX2(); verts[0 * 2 + 1] = destRect.getY1();
+	verts[1 * 2 + 0] = destRect.getX1(); verts[1 * 2 + 1] = destRect.getY1();
+	verts[2 * 2 + 0] = destRect.getX2(); verts[2 * 2 + 1] = destRect.getY2();
+	verts[3 * 2 + 0] = destRect.getX1(); verts[3 * 2 + 1] = destRect.getY2();
+
+	Rectf srcCoords = ci::Rectf();
+	srcCoords.x1 = srcArea.x1 / (float)mVideoSize.x;
+	srcCoords.x2 = srcArea.x2 / (float)mVideoSize.x;
+	srcCoords.y1 = srcArea.y1 / (float)mVideoSize.y;
+	srcCoords.y2 = srcArea.y2 / (float)mVideoSize.y;
+
+	texCoords[0 * 2 + 0] = srcCoords.getX2(); texCoords[0 * 2 + 1] = srcCoords.getY1();
+	texCoords[1 * 2 + 0] = srcCoords.getX1(); texCoords[1 * 2 + 1] = srcCoords.getY1();
+	texCoords[2 * 2 + 0] = srcCoords.getX2(); texCoords[2 * 2 + 1] = srcCoords.getY2();
+	texCoords[3 * 2 + 0] = srcCoords.getX1(); texCoords[3 * 2 + 1] = srcCoords.getY2();
+
+	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+}
+
 void GstVideo::drawLocalClient(){
 	if(!mGstreamerWrapper) return;
+
+	//drawSharedTexture();
+	//return;
 
 	if(mGstreamerWrapper->hasVideo() && mGstreamerWrapper->isNewVideoFrame()){
 
@@ -110,22 +166,31 @@ void GstVideo::drawLocalClient(){
 			int videoDepth = mVideoSize.x * 4; // BGRA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
 			ci::SurfaceChannelOrder co = ci::SurfaceChannelOrder::BGRA;
 			if(!mTransparentVideo){
-				videoDepth = mVideoSize.x * 3;
-				co = ci::SurfaceChannelOrder::BGR;
+				videoDepth = mVideoSize.x;
+				co = ci::SurfaceChannelOrder::CHAN_RED;
 			}
 			
+			unsigned char * dat = mGstreamerWrapper->getVideo();
+			ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
+			ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
+			ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4)  );
 
-			ci::Surface video_surface(
-				mGstreamerWrapper->getVideo(),
-				mVideoSize.x,
-				mVideoSize.y,
-				videoDepth, 
-				co);
+			mFrameTexture.update(yChannel, ci::Area(0.0f, 0.0f, mVideoSize.x, mVideoSize.y));
+			mUFrameTexture.update(uChannel, ci::Area(0.0f, 0.0f, mVideoSize.x/2, mVideoSize.y/2));
+			mVFrameTexture.update(vChannel, ci::Area(0.0f, 0.0f, mVideoSize.x/2, mVideoSize.y/2));
 
-			if(video_surface.getData()){
-				mFrameTexture.update(video_surface);
-				mDrawable = true;
-			}
+			mDrawable = true;
+// 			ci::Surface video_surface(
+// 				dat,
+// 				mVideoSize.x,
+// 				mVideoSize.y,
+// 				videoDepth, 
+// 				co);
+
+// 			if(video_surface.getData()){
+// 				mFrameTexture.update(video_surface);
+// 				mDrawable = true;
+// 			}
 
 			if(mPlaySingleFrame){
 				stop();
@@ -140,8 +205,29 @@ void GstVideo::drawLocalClient(){
 		if(getPerspective()){
 			mFrameTexture.setFlipped(true);
 		} 
-			
+#if 1
+		if(mShader) {
+			mShader.bind();
+			mShader.uniform("gsuTexture0", 0);// (int)mFrameTexture.getId());
+			mShader.uniform("gsuTexture1", 1);
+			mShader.uniform("gsuTexture2", 2);
+// 			mShader.uniform("width", mVideoSize.x);
+// 			mShader.uniform("tex_scale0", 1.0f);
+// 			mShader.uniform("tex_scale1", 1.0f);
+// 			mShader.uniform("tex_scale2", 1.0f);
+		}
+		if(mUFrameTexture) mUFrameTexture.bind(1);
+		if(mVFrameTexture) mVFrameTexture.bind(2);
+#endif
 		ci::gl::draw(mFrameTexture);
+
+#if 1
+		if(mUFrameTexture) mUFrameTexture.unbind(1);
+		if(mVFrameTexture) mVFrameTexture.unbind(2);
+		if(mShader){
+			mShader.unbind();
+		}
+#endif
 	}
 }
 
@@ -324,7 +410,8 @@ void GstVideo::doLoadVideo(const std::string &filename){
 	} else {
 		ci::gl::Texture::Format fmt;
 		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
-
+		mUFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		mVFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
 		mFilename = filename;
 	}
 }
