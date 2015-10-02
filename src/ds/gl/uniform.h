@@ -49,7 +49,7 @@ class UniformVisitor final : public boost::static_visitor < void >
 public:
 	// A typedef of all (20) Cinder supported uniforms.
 	typedef boost::variant <
-		int, float, const int*, const float*,
+		int, float, const int*, std::vector<float>,
 		ci::Vec2f, ci::Vec2i, ci::Vec3f, ci::Vec4f,
 		const ci::Vec2f*, const ci::Vec2i*, const ci::Vec3f*, const ci::Vec4f*,
 		ci::Matrix22f, ci::Matrix33f, ci::Matrix44f,
@@ -74,7 +74,7 @@ public:
 	void					operator()(const ci::Matrix22f &data);
 	void					operator()(const ci::Matrix33f &data);
 	void					operator()(const ci::Matrix44f &data);
-	void					operator()(const float *data);
+	void					operator()(const std::vector<float> &data);
 	void					operator()(const ci::Vec2f *data);
 	void					operator()(const ci::Vec3f *data);
 	void					operator()(const ci::Vec4f *data);
@@ -122,6 +122,7 @@ public:
 	void			set(const std::string &name, const ci::Matrix33f &data, bool transpose = false);
 	void			set(const std::string &name, const ci::Matrix44f &data, bool transpose = false);
 	void			set(const std::string &name, const float *data, int count);
+	void			set(const std::string &name, const std::vector<float> &data);
 	void			set(const std::string &name, const ci::Vec2f *data, int count);
 	void			set(const std::string &name, const ci::Vec3f *data, int count);
 	void			set(const std::string &name, const ci::Vec4f *data, int count);

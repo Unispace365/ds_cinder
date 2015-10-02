@@ -48,6 +48,7 @@ public:
 		const FontPtr&		mFont;
 		const ci::Vec2f&	mSize;
 		const std::wstring&	mText;
+		bool				mLineWasSplit;
 	private:
 		Input();
 	};
@@ -74,7 +75,7 @@ public:
 	// Predefined layout functions. A layout function needs to install
 	// lines, typically where the Y value of each line is the baseline
 	// (i.e. font ascent for the first line)
-	typedef std::function<void(const TextLayout::Input&, TextLayout&)> MAKE_FUNC;
+	typedef std::function<void(TextLayout::Input&, TextLayout&)> MAKE_FUNC;
 
 	static const MAKE_FUNC&	SINGLE_LINE();
 
@@ -101,7 +102,7 @@ public:
 	float					mLeading;
 	Alignment::Enum			mAlignment;
 private:
-	void					run(const TextLayout::Input&, TextLayout&);
+	void					run(TextLayout::Input&, TextLayout&);
 };
 
 } // namespace ui

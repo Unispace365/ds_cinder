@@ -1,11 +1,18 @@
 #include "ds/app/engine/engine_cfg.h"
+#include <cinder/app/App.h>
+#include <ds/debug/logger.h>
+#include "ds/app/FrameworkResources.h"
 
 #include <Poco/String.h>
 #include "ds/app/environment.h"
 #include "ds/debug/debug_defines.h"
 
 static void read_nine_patch_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::NinePatch>& out);
+
+static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& out);
 static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out);
+static void interpret_text_settings(const ds::cfg::Settings &s, std::unordered_map<std::string, ds::cfg::Text>& out);
+
 
 namespace ds {
 
@@ -123,12 +130,18 @@ void EngineCfg::loadSettings(const std::string& name, const std::string& filenam
 	ds::Environment::loadSettings(filename, settings);
 }
 
+void EngineCfg::saveSettings(const std::string& name, const std::string& filename) {
+	ds::cfg::Settings&	settings = mSettings[name];
+	ds::Environment::saveSettings(filename, settings);
+}
+
 void EngineCfg::appendSettings(const std::string& name, const std::string& filename) {
 	ds::cfg::Settings&	settings = mSettings[name];
 	settings.readFrom(filename, true);
 }
 
 void EngineCfg::loadText(const std::string& filename) {
+	read_text_defaults(mTextCfg);
 	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextCfg);
 	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextCfg);
 }
@@ -216,10 +229,31 @@ static void read_nine_patch_cfg(const std::string& path, std::unordered_map<std:
 	});
 }
 
-static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out) {
-	ds::cfg::Settings		s;
-	s.readFrom(path, false);
+static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& out) {
+	ds::cfg::Settings s;
 
+	try {
+		ci::DataSourceRef ds = ci::app::App::loadResource(RES_TEXT);
+		ci::Buffer&	buf = ds->getBuffer();
+		if(buf.getDataSize() > 0 && buf.getDataSize() < 100000) {
+			std::string	str(static_cast<const char*>(buf.getData()), buf.getDataSize());
+			s.readFrom(str, true, true);
+		}
+	}
+	catch(std::exception& e) {
+		DS_LOG_WARNING("Failed to load default text settings: " << e.what());
+	}
+
+	interpret_text_settings(s, out);
+}
+
+static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out) {
+	ds::cfg::Settings s;
+	s.readFrom(path, false);
+	interpret_text_settings(s, out);
+}
+
+static void interpret_text_settings(const ds::cfg::Settings &s, std::unordered_map<std::string, ds::cfg::Text>& out) {
 	// Do the name first, because that determines whether an entry exists.
 	s.forEachTextKey([&s, &out](const std::string& key) {
 		std::string			left, right;

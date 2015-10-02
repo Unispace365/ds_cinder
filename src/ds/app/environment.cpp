@@ -10,7 +10,16 @@ static std::string    folder_from(const Poco::Path&, const std::string& folder, 
 
 namespace ds {
 
-Environment::Environment() {
+namespace {
+std::string				DOCUMENTS("%DOCUMENTS%");
+}
+
+bool Environment::initialize() {
+	// We will need to do something different for linux, no doubt
+	Poco::Path			p(Poco::Path::expand("%USERPROFILE%"));
+	p.append("Documents");
+	DOCUMENTS = p.toString();
+	return true;
 }
 
 const std::string& Environment::SETTINGS() {
@@ -29,6 +38,7 @@ std::string Environment::expand(const std::string& _path) {
 	boost::replace_all(p, "%PP%", EngineSettings::envProjectPath());
 	boost::replace_all(p, "%LOCAL%", getDownstreamDocumentsFolder());
 	boost::replace_all(p, "%CFG_FOLDER%", EngineSettings::getConfigurationFolder());
+	boost::replace_all(p, "%DOCUMENTS%", DOCUMENTS);
 	// This can result in double path separators, so flatten
 	return Poco::Path(p).toString();
 }
@@ -99,6 +109,14 @@ void Environment::loadSettings(const std::string& filename, ds::cfg::Settings& s
 		settings.readFrom(local, true);
 	}
 }
+
+void Environment::saveSettings(const std::string& filename, ds::cfg::Settings& settings) {
+	if(!ds::EngineSettings::getConfigurationFolder().empty()) {
+		const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
+		settings.writeTo(local);
+	}
+}
+
 
 std::string Environment::getLocalFile(	const std::string& category,
 										const bool includeProjectPath,

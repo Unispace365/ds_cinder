@@ -28,7 +28,10 @@ public:
 	// false, clear me out first (although only clear if the file actually
 	// exists, otherwise leave me alone).
 	void								readFrom(const std::string&, const bool append = true, const bool rawXmlText = false);
+	
+	void								writeTo(const std::string&);
 
+	bool								isChanged() const { return mChanged; }
 	bool								empty() const;
 	void							  	clear();
 
@@ -83,6 +86,8 @@ public:
 	void								forEachPointKey(const std::function<void(const std::string&)>&) const;
 
 private:
+	bool								mChanged;
+
 	std::map<std::string, std::vector<float>>			mFloat;
 	std::map<std::string, std::vector<ci::Rectf>>		mRect;
 	std::map<std::string, std::vector<int>>				mInt;
@@ -125,6 +130,16 @@ public:
 		Editor&							addInt(const std::string& name, const int);
 		Editor&							addResourceId(const std::string& name, const Resource::Id&);
 		Editor&							addTextW(const std::string& name, const std::wstring&);
+
+		Editor&							deleteColor(const std::string& name);
+		Editor&							deleteColorA(const std::string& name);
+		Editor&							deleteFloat(const std::string& name);
+		Editor&							deleteInt(const std::string& name);
+		Editor&							deleteResourceId(const std::string& name);
+		Editor&							deleteRect(const std::string& name);
+		Editor&							deleteSize(const std::string& name);
+		Editor&							deleteText(const std::string& name);
+		Editor&							deletePoint(const std::string& name);
 
 	private:
 		Settings&						mSettings;

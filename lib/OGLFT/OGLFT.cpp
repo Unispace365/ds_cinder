@@ -31,6 +31,8 @@
 
 namespace OGLFT {
 
+  // BJW remove static initialization
+  /*
   // This is the static instance of the FreeType library wrapper ...
 
   Library Library::library;
@@ -41,12 +43,16 @@ namespace OGLFT {
 
   // The static instance above causes this constructor to be called
   // when the object module is loaded.
+  */
+
+  // BJW add dynamic initialization
+  FT_Library Library::library_ = nullptr;
+  Library* Library::libraryPtr = nullptr;
 
   Library::Library ( void )
   {
-
-    FT_Error error = FT_Init_FreeType( &library_ );
-
+	FT_Error error = FT_Init_FreeType( &library_ );
+	
     if ( error != 0 ) {
       std::cerr << "Could not initialize the FreeType library. Exiting." << std::endl;
       exit( 1 );
@@ -55,8 +61,8 @@ namespace OGLFT {
 
   Library::~Library ( void )
   {
-    FT_Error error = FT_Done_FreeType( library_ );
-
+	FT_Error error = FT_Done_FreeType(library_);
+	
     if ( error != 0 ) {
       std::cerr << "Could not terminate the FreeType library." << std::endl;
     }
@@ -66,7 +72,22 @@ namespace OGLFT {
 
   FT_Library& Library::instance ( void )
   {
-    return library_;
+	// BJW add dynamic initialization
+	if(!Library::libraryPtr)
+	{
+	  Library::libraryPtr = new Library();
+	}
+    return Library::library_;
+  }
+
+  // BJW add dynamic initialization
+  void Library::destroyInstance(void)
+  {
+	if(Library::libraryPtr)
+	{
+	  delete Library::libraryPtr;
+	  Library::libraryPtr = nullptr;
+	}
   }
 
   // Load a new face

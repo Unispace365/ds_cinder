@@ -34,6 +34,7 @@ bool ViewDragger::hasTouches() const {
 
 void ViewDragger::onTouched(const ds::ui::TouchInfo& ti) {
 	mParent.sendToFront();
+	mParent.animStop();
 	if(ti.mPhase == ds::ui::TouchInfo::Removed && ti.mNumberFingers == 0) {
 		mIsTouchy = false;
 		mMomentum.activate();

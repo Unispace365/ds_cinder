@@ -48,7 +48,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
 	, mTweenline(app.timeline())
-	, mIdleTime(300.0f)
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
@@ -99,7 +98,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
 	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
-	mIdleTime = settings.getFloat("idle_time", 0, 300.0f);
 	mFxaaOptions.mApplyFxAA = settings.getBool("FxAA", 0, false);
 	mFxaaOptions.mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
 	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
@@ -389,6 +387,10 @@ void Engine::loadSettings(const std::string& name, const std::string& filename) 
 	mData.mEngineCfg.loadSettings(name, filename);
 }
 
+void Engine::saveSettings(const std::string& name, const std::string& filename) {
+	mData.mEngineCfg.saveSettings(name, filename);
+}
+
 void Engine::appendSettings(const std::string& name, const std::string& filename) {
 	mData.mEngineCfg.appendSettings(name, filename);
 }
@@ -422,7 +424,7 @@ void Engine::updateClient() {
 	float dt = curr - mLastTime;
 	mLastTime = curr;
 
-	if (!mIdling && (curr - mLastTouchTime) >= mIdleTime ) {
+	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
 		mIdling = true;
 	}
 	{
@@ -487,7 +489,7 @@ void Engine::updateServer() {
 	mTuioObjectsMoved.update(curr);
 	mTuioObjectsEnd.update(curr);
 
-	if (!mIdling && (curr - mLastTouchTime) >= mIdleTime) {
+	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
 		mIdling = true;
 	}
 
@@ -534,6 +536,16 @@ void Engine::setPerspectiveCamera(const size_t index, const PerspCameraParams& p
 		root->setCamera(p);
 	} else {
 		DS_LOG_ERROR(" Engine::setPerspectiveCamera() on invalid root (" << index << ")");
+	}
+}
+
+void Engine::setPerspectiveCameraRef(const size_t index, const ci::CameraPersp& p){
+	PerspRoot*					root = nullptr;
+	if(index < mRoots.size()) root = dynamic_cast<PerspRoot*>(mRoots[index].get());
+	if(root) {
+		root->setCameraRef(p);
+	} else {
+		DS_LOG_ERROR(" Engine::setPerspectiveCameraRef() on invalid root (" << index << ")");
 	}
 }
 
@@ -893,7 +905,7 @@ void Engine::startIdling() {
 	mIdling = true;
 }
 
-void Engine::resetIdleTimeOut() {
+void Engine::resetIdleTimeout() {
 	float curr = static_cast<float>(getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = curr;

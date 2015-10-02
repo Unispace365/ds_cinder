@@ -546,6 +546,8 @@ namespace ui {
 		void					setBlendMode(const BlendMode &blendMode);
 		BlendMode				getBlendMode() const;
 
+		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
+		// this is only suitable for shaders without uniforms.
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
 		SpriteShader&			getBaseShader();
 		std::string				getBaseShaderName() const;
@@ -620,6 +622,7 @@ namespace ui {
 		void				buildTransform() const;
 		void				buildGlobalTransform() const;
 		virtual void		drawLocalClient();
+		virtual void		drawLocalClientPost() {}
 		virtual void		drawLocalServer();
 		bool				hasDoubleTap() const;
 		bool				hasTap() const;
@@ -673,8 +676,15 @@ namespace ui {
 		// Read a single attribute
 		virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&){}
 
-		void				setUseShaderTextuer(bool flag);
-		bool				getUseShaderTextuer() const;
+		void				setUseShaderTexture(bool flag);
+		bool				getUseShaderTexture() const;
+
+		// DEPRECATED
+		// Obsolete -- use setUseShaderTexture
+		void				setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
+		// Obsolete -- use getUseShaderTexture
+		bool				getUseShaderTextuer() const { return getUseShaderTexture(); }
+		
 
 		void				sendSpriteToFront(Sprite &sprite);
 		void				sendSpriteToBack(Sprite &sprite);
@@ -721,6 +731,8 @@ namespace ui {
 		// A cache for when I need to sort my children. This could be
 		// a lot more efficient, only running the sort when Z changes.
 		std::vector<Sprite*>	mSortedTmp;
+
+		bool					mHasDrawLocalClientPost;
 
 		// Class-unique key for this type.  Subclasses can replace.
 		char				mBlobType;

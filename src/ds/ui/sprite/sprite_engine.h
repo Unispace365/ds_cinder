@@ -70,6 +70,7 @@ public:
 	/** Access to the current engine configuration info. */
 	void SpriteEngine::loadSettings(const std::string& name, const std::string& filename);
 	
+	ds::EngineCfg&					getEngineCfg();
 	const ds::EngineCfg&			getEngineCfg() const;
 	// Shortcuts
 	const ds::cfg::Settings&		getSettings(const std::string& name) const;
@@ -109,6 +110,7 @@ public:
 	// For clients that frequently read the camera params, they can cache a direct reference.
 	virtual const ci::CameraPersp&		getPerspectiveCameraRef(const size_t index) const = 0;
 	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
+	virtual void						setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&) = 0;
 
 	// Will throw if the root at the index is the wrong type
 	virtual float						getOrthoFarPlane(const size_t index) const = 0;
@@ -121,7 +123,11 @@ public:
 
 	double							getElapsedTimeSeconds() const;
 
-	virtual void					resetIdleTimeOut(){};
+	int								getIdleTimeout() const;
+	void							setIdleTimeout(int idleTimeout);
+	virtual void					resetIdleTimeout(){};
+	// deprecated -- use resetIdleTimeout()
+	virtual void					resetIdleTimeOut() { resetIdleTimeout(); }
 
 	virtual void					clearFingers( const std::vector<int> &fingers );
 	virtual void					setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ) = 0;

@@ -112,6 +112,16 @@ void media_tester::loadMedia(const std::string& newMedia){
 		ds::ui::Pdf* pdfy = new ds::ui::Pdf(mEngine);
 		mEngine.getRootSprite().addChildPtr(pdfy);
 		pdfy->setResourceFilename(newMedia);
+		pdfy->enable(true);
+		pdfy->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+		pdfy->setTapCallback([this, pdfy](ds::ui::Sprite* sp, const ci::Vec3f& pos){
+			int curPage = pdfy->getPageNum();
+			curPage++;
+			if(curPage > pdfy->getPageCount()){
+				curPage = 1;
+			}
+			pdfy->setPageNum(curPage);
+		});
 		mMedia = pdfy;
 	} else if(extensionay.find("png") != std::string::npos
 			|| extensionay.find("jpg") != std::string::npos
@@ -124,6 +134,7 @@ void media_tester::loadMedia(const std::string& newMedia){
 	} else {
 		DS_LOG_INFO("Guessing that the new media is a video or playable by gstreamer: " << newMedia);
 		ds::ui::Video* vid = new ds::ui::Video(mEngine);
+		vid->setTransparentVideo(false);
 		vid->loadVideo(newMedia);
 		vid->play();
 		mEngine.getRootSprite().addChildPtr(vid);

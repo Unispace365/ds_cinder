@@ -237,6 +237,10 @@ const ci::CameraPersp& PerspRoot::getCameraRef() const {
 	return mCamera;
 }
 
+void PerspRoot::setCameraRef(const ci::CameraPersp& cam){
+	mCamera = cam;
+}
+
 void PerspRoot::setCamera(const PerspCameraParams& p) {
 	if (mMaster) {
 #ifdef _DEBUG

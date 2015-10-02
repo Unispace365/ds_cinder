@@ -146,6 +146,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mCornerRadius = 0.0f;
 	mDrawOpacity = 1.0f;
 	mDelayedCallCueRef = nullptr;
+	mHasDrawLocalClientPost = false;
 
 	if(mEngine.getRotateTouchesDefault()){
 		setRotateTouches(true);
@@ -198,6 +199,8 @@ void Sprite::updateClient(const UpdateParams &p) {
 }
 
 void Sprite::updateServer(const UpdateParams &p) {
+	mTouchProcess.update(p);
+
 	mIdleTimer.update();
 
 	if(mCheckBounds) {
@@ -276,6 +279,39 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 
 	if((mSpriteFlags&CLIP_F) != 0) {
 		disableClipping();
+	}
+
+	if(mHasDrawLocalClientPost && ((mSpriteFlags&TRANSPARENT_F) == 0)) {
+		ci::gl::pushModelView();
+		glLoadIdentity();
+		ci::gl::multModelView(totalTransformation);
+
+		ci::gl::enableAlphaBlending();
+		applyBlendingMode(mBlendMode);
+		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
+		if(shaderBase) {
+			shaderBase.bind();
+			shaderBase.uniform("tex0", 0);
+			shaderBase.uniform("useTexture", mUseShaderTexture);
+			shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+			mUniform.applyTo(shaderBase);
+		}
+
+		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
+		if(mUseDepthBuffer) {
+			ci::gl::enableDepthRead();
+			ci::gl::enableDepthWrite();
+		} else {
+			ci::gl::disableDepthRead();
+			ci::gl::disableDepthWrite();
+		}
+
+		drawLocalClientPost();
+
+		if(shaderBase) {
+			shaderBase.unbind();
+		}
+		ci::gl::popModelView();
 	}
 }
 
@@ -869,9 +905,11 @@ Sprite* Sprite::getHit(const ci::Vec3f &point) {
 		}
 	} else {
 		makeSortedChildren();
-		for(auto it = mSortedTmp.begin(), it2 = mSortedTmp.end(); it != it2; ++it)
+		// picks happen in reverse sorted order (front to back)
+		for(auto it = mSortedTmp.rbegin(), it2 = mSortedTmp.rend(); it != it2; ++it)
 		{
 			Sprite *child = *it;
+			
 			if(child->visible() && child->isEnabled() && child->contains(point) && child->getInnerHit(point))
 				return child;
 			Sprite *hitChild = child->getHit(point);
@@ -1307,6 +1345,10 @@ void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 	if (mDirty.has(FLAGS_DIRTY)) {
 		buf.add(FLAGS_ATT);
 		buf.add(mSpriteFlags);
+		// This is being sent here because I do not want to introduce a
+		// new dirty state and the previous code already sets flag to false.
+		buf.add(mSpriteShader.getLocation());
+		buf.add(mSpriteShader.getName());
 	}
 	if (mDirty.has(POSITION_DIRTY)) {
 		buf.add(POSITION_ATT);
@@ -1388,6 +1430,15 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 			transformChanged = true;
 		} else if (id == FLAGS_ATT) {
 			mSpriteFlags = buf.read<int>();
+			// This is being read here because I do not want to introduce a
+			// new dirty state and the previous code already sets flag to false.
+			// This is a no-op if it's the same shader.
+			// NOTE: in a __thiscall function, usually order of argument execution
+			// is from right to left. but I am just gonna play safe and copy the
+			// strings once.
+			auto loc = buf.read<std::string>();
+			auto name = buf.read<std::string>();
+			mSpriteShader.setShaders(loc, name);
 		} else if (id == POSITION_ATT) {
 			mPosition.x = buf.read<float>();
 			mPosition.y = buf.read<float>();
@@ -1518,11 +1569,11 @@ std::string Sprite::getBaseShaderName() const {
 	return mSpriteShader.getName();
 }
 
-bool Sprite::getUseShaderTextuer() const {
+bool Sprite::getUseShaderTexture() const {
 	return mUseShaderTexture;
 }
 
-void Sprite::setUseShaderTextuer( bool flag ) {
+void Sprite::setUseShaderTexture( bool flag ) {
 	mUseShaderTexture = flag;
 }
 

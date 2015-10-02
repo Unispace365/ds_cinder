@@ -116,7 +116,7 @@ public:
 	/*
 	Closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
 	*/
-	void					close();
+	virtual void					close();
 
 	/*
 	Updates the internal GStreamer messages that are passed during the streaming process. This method is also needed to detect

@@ -99,6 +99,15 @@
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
+    <CustomBuildStep>
+      <Message>Copying web DLLs to output directory</Message>
+	  <Inputs>$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\avcodec-53.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\avformat-53.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\avutil-51.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\awesomium.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\awesomium_process.exe;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\icudt.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\libEGL.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\libGLESv2.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\xinput9_1_0.dll</Inputs>
+	  <Outputs>$(SolutionDir)\$(Configuration)\avcodec-53.dll;$(SolutionDir)\$(Configuration)\avformat-53.dll;$(SolutionDir)\$(Configuration)\avutil-51.dll;$(SolutionDir)\$(Configuration)\awesomium.dll;$(SolutionDir)\$(Configuration)\awesomium_process.exe;$(SolutionDir)\$(Configuration)\icudt.dll;$(SolutionDir)\$(Configuration)\libEGL.dll;$(SolutionDir)\$(Configuration)\libGLESv2.dll;$(SolutionDir)\$(Configuration)\xinput9_1_0.dll</Outputs>
+	  <Command>echo Copying web DLLs to output directory
+if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+xcopy /y /d "$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\*.dll" "$(SolutionDir)\$(Configuration)"
+xcopy /y /d "$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\*process.exe" "$(SolutionDir)\$(Configuration)"</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -131,6 +140,21 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+      <Message>
+      </Message>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Message>Copying web DLLs to output directory</Message>
+	  <Inputs>$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\avcodec-53.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\avformat-53.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\avutil-51.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\awesomium.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\awesomium_process.exe;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\icudt.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\libEGL.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\libGLESv2.dll;$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\xinput9_1_0.dll</Inputs>
+	  <Outputs>$(SolutionDir)\$(Configuration)\avcodec-53.dll;$(SolutionDir)\$(Configuration)\avformat-53.dll;$(SolutionDir)\$(Configuration)\avutil-51.dll;$(SolutionDir)\$(Configuration)\awesomium.dll;$(SolutionDir)\$(Configuration)\awesomium_process.exe;$(SolutionDir)\$(Configuration)\icudt.dll;$(SolutionDir)\$(Configuration)\libEGL.dll;$(SolutionDir)\$(Configuration)\libGLESv2.dll;$(SolutionDir)\$(Configuration)\xinput9_1_0.dll</Outputs>
+	  <Command>echo Copying web DLLs to output directory
+if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+xcopy /y /d "$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\*.dll" "$(SolutionDir)\$(Configuration)"
+xcopy /y /d "$(DS_PLATFORM_086)\projects\web\awesomium\lib\build\bin\*process.exe" "$(SolutionDir)\$(Configuration)"</Command>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

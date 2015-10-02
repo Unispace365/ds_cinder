@@ -99,6 +99,12 @@
       <Message>
       </Message>
     </PreLinkEvent>
+    <PostBuildEvent>
+      <Command />
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message />
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -134,16 +140,21 @@
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command />
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message />
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\app\media_tester_app.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\include\Resources.h" />
     <ClInclude Include="..\src\app\media_tester_app.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="%DS_PLATFORM_086%\vs2013\FrameworkResources.rc" />
+    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />
     <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

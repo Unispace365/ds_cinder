@@ -56,6 +56,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mNetHandler(*this)
 	, mAutoExtendIdle(false)
 	, mGenerateAudioBuffer(false)
+	, mTransparentVideo(true)
 {
 	mBlobType = GstVideoNet::mBlobType;
 
@@ -105,12 +106,21 @@ void GstVideo::drawLocalClient(){
 			DS_LOG_WARNING_M("Different sizes detected for video and texture. Do not change the size of a video sprite, use setScale to enlarge. Widths: " << getWidth() << " " << mGstreamerWrapper->getWidth(), GSTREAMER_LOG);
 			unloadVideo();
 		} else {
+
+			int videoDepth = mVideoSize.x * 4; // BGRA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
+			ci::SurfaceChannelOrder co = ci::SurfaceChannelOrder::BGRA;
+			if(!mTransparentVideo){
+				videoDepth = mVideoSize.x * 3;
+				co = ci::SurfaceChannelOrder::BGR;
+			}
+			
+
 			ci::Surface video_surface(
 				mGstreamerWrapper->getVideo(),
 				mVideoSize.x,
 				mVideoSize.y,
-				mVideoSize.x * 4, // BGRA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
-				ci::SurfaceChannelOrder::BGRA);
+				videoDepth, 
+				co);
 
 			if(video_surface.getData()){
 				mFrameTexture.update(video_surface);
@@ -151,7 +161,7 @@ GstVideo& GstVideo::loadVideo(const std::string& filename){
 		return *this;
 	}
 
-	doLoadVideo(filename);
+	doLoadVideo(_filename);
 	markAsDirty(mNetHandler.mPathDirty);
 	return *this;
 }
@@ -285,7 +295,7 @@ void GstVideo::doLoadVideo(const std::string &filename){
 		}
 
 		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen", GSTREAMER_LOG);
-		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, true, videoWidth, videoHeight);
+		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, mTransparentVideo, videoWidth, videoHeight);
 
 		mVideoSize.x = mGstreamerWrapper->getWidth();
 		mVideoSize.y = mGstreamerWrapper->getHeight();

@@ -77,6 +77,10 @@ public:
 	// @param filename is the leaf path of the settings file (i.e. "data.xml").
 	// It will be loaded from all appropriate locations.
 	void								loadSettings(const std::string& name, const std::string& filename);
+	// @param name is the name that the system will use to refer to the settings.
+	// @param filename is the leaf path of the settings file (i.e. "data.xml").
+	// It will be saved ONLY in the user settings location.
+	void								saveSettings(const std::string& name, const std::string& filename);
 	// Convenice to append a setting file into the existing mEngineCfg settings.
 	// @param name is the name that the system will use to refer to the settings.
 	// @param filename is the FULL path of the settings file (i.e. "C:\projects\settings\data.xml").
@@ -105,7 +109,7 @@ public:
 
 	bool								isIdling() const;
 	void								startIdling();
-	virtual void						resetIdleTimeOut();
+	virtual void						resetIdleTimeout();
 	
 	// Called during app construction, to register the sprites as blob handlers.
 	virtual void						installSprite(	const std::function<void(ds::BlobRegistry&)>& asServer,
@@ -150,6 +154,7 @@ public:
 	virtual PerspCameraParams			getPerspectiveCamera(const size_t index) const;
 	virtual const ci::CameraPersp&		getPerspectiveCameraRef(const size_t index) const;
 	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&);
+	virtual void						setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&);
 
 	// Will throw if the root at the index is the wrong type
 	virtual float						getOrthoFarPlane(const size_t index) const;
@@ -276,7 +281,6 @@ private:
 	float								mLastTime;
 	bool								mIdling;
 	float								mLastTouchTime;
-	float								mIdleTime;
 
 	ci::tuio::Client					mTuio;
 	// Clients that will get update() called automatically at the start

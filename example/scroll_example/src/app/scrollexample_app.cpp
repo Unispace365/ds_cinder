@@ -23,7 +23,7 @@ namespace example {
 ScrollExample::ScrollExample()
 	: inherited(ds::RootList()
 							//	.persp() // sample ortho view
-							//  .ortho()
+							  .ortho()
 							//	.pickColor()
 
 								.persp() // sample perp view
@@ -75,7 +75,9 @@ void ScrollExample::setupServer(){
 		rooty.clearChildren();
 	}
 
-	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+	// Change the root sprite id to be ortho (0) or persp (1) to test the different kinds
+	//ds::ui::Sprite &rootSprite = mEngine.getRootSprite(0);
+	ds::ui::Sprite &rootSprite = mEngine.getRootSprite(1);
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
 
@@ -110,6 +112,7 @@ void ScrollExample::setupServer(){
 	testerB->enable(false);
 	testerB->setPosition(0.0f, 120.0f);
 	sa->addSpriteToScroll(testerB);
+	sa->resetScrollerPosition();
 
 
 	// ------------ A scroll list to display some info with custom graphics ---------------//
@@ -169,7 +172,7 @@ void ScrollExample::setupServer(){
 
 
 	const float padding = mGlobals.getSettingsLayout().getFloat("info_list:item:pad", 0, 20.0f);
-	instanceList->setLayoutParams(0.0f, 0.0f, instanceList->getWidth() + padding);
+	instanceList->setLayoutParams(20.0f, 0.0f, instanceList->getWidth() + padding);
 
 	mInfoMap.clear();
 

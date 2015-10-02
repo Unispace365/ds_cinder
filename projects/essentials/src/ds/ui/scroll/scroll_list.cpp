@@ -10,12 +10,12 @@ namespace ui{
 ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	: ds::ui::Sprite(engine)
 	, mScrollArea(nullptr)
-	, mStartPositionY(10.0f)
 	, mStartPositionX(10.0f)
 	, mIncrementAmount(50.0f)
 	, mAnimateOnDeltaDelay(0.0f)
 	, mAnimateOnStartDelay(0.0f)
 	, mVerticalScrolling(vertical)
+	, mFillFromTop(true)
 {
 	mScrollArea = new ds::ui::ScrollArea(mEngine, getWidth(), getHeight(), mVerticalScrolling);
 	if(mScrollArea){
@@ -27,6 +27,7 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	}
 
 	mScrollableHolder = new ds::ui::Sprite(mEngine);
+
 
 	if(mScrollableHolder){
 		mScrollArea->addSpriteToScroll(mScrollableHolder);
@@ -75,6 +76,14 @@ void ScrollList::layout(){
 		if(mScrollableHolder){
 			mScrollableHolder->setSize(getWidth(), scrollyHeight);
 		}
+		if (getPerspective()){
+			if(mFillFromTop){
+				pushItemsTop();
+			}
+		} else if(!mFillFromTop){
+			pushItemsTop();
+		}
+
 	} else {
 		float scrollyWidth = mScrollableHolder->getWidth();
 
@@ -91,20 +100,46 @@ void ScrollList::layout(){
 		mScrollArea->setScrollSize(getWidth(), getHeight());
 	}
 
+
 	assignItems();
 }
 
+void ScrollList::pushItemsTop(){
+	if (mVerticalScrolling){
+		float scrollHeight = mScrollableHolder->getHeight();
+		if(getPerspective()){
+			if(!mItemPlaceHolders.empty() &&
+			   mItemPlaceHolders[0].mY < scrollHeight - mStartPositionY - mIncrementAmount
+			   ){
+				float delta = scrollHeight - mItemPlaceHolders[0].mY - mStartPositionY - mIncrementAmount;
+				for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+					(*it).mY += delta;
+				}
+			}
+		} else {
+			if(!mItemPlaceHolders.empty() &&
+			   mItemPlaceHolders.back().mY < scrollHeight - mIncrementAmount
+			   ){
+				float delta = scrollHeight - mItemPlaceHolders.back().mY - mIncrementAmount;
+				for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+					(*it).mY += delta;
+				}
+			}
+		}
+
+	}
+
+}
 
 // Override if you need to do something special with the layout, otherwise just set start positions and increment amounts
 void ScrollList::layoutItems(){
-
 	float xp = mStartPositionX;
 	float yp = mStartPositionY;
 	const bool isPerspective = Sprite::getPerspective();
 	float totalHeight = yp;
-	if(isPerspective && mVerticalScrolling){
-		totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY;
-		yp = totalHeight - mIncrementAmount;
+	if (mVerticalScrolling){
+		totalHeight = (float)(mItemPlaceHolders.size()) * mIncrementAmount + mStartPositionY * 2.0f;
+		if(isPerspective) yp = totalHeight - mIncrementAmount - mStartPositionY;
 	}
 
 	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
@@ -122,13 +157,11 @@ void ScrollList::layoutItems(){
 		}
 	}
 
+
 	if(mVerticalScrolling){
-		if(isPerspective){
-			mScrollableHolder->setSize(getWidth(), totalHeight);
-		} else {
-			mScrollableHolder->setSize(getWidth(), yp);
-		}
+		mScrollableHolder->setSize(getWidth(), totalHeight);
 	} else {
+		xp += mStartPositionX;
 		mScrollableHolder->setSize(xp, getHeight());
 	}
 }
@@ -256,10 +289,11 @@ void ScrollList::setStateChangeCallback(const std::function<void(ds::ui::Sprite*
 	mStateChangeCallback = func;
 }
 
-void ScrollList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount){
+void ScrollList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top){
 	mStartPositionX = startPositionX;
 	mStartPositionY = startPositionY;
 	mIncrementAmount = incremenetAmount;
+	mFillFromTop = fill_from_top;
 }
 
 }

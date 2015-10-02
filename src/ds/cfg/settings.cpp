@@ -113,11 +113,13 @@ const V& get(const std::string& name, const A& container, const int index, const
  * ds::cfg::Settings
  */
 Settings::Settings()
+	: mChanged(false)
 {
 }
 
 void Settings::readFrom(const std::string& filename, const bool append, const bool rawXmlText)
 {
+	mChanged = false;
 	if (!append) {
 		directReadFrom(filename, true, rawXmlText);
 		return;
@@ -274,6 +276,92 @@ void Settings::directReadXmlFrom(const std::string& filename, const bool clearAl
 	if(!Poco::File(filename).exists()) return;
 	cinder::XmlTree     xml(cinder::loadFile(filename));
 	directReadXmlFromTree(xml, clearAll);
+}
+
+void Settings::writeTo(const std::string& filename)
+{
+	cinder::XmlTree tree("settings", "");
+
+	for(auto it = mFloat.begin(); it != mFloat.end(); it++)
+	{
+		cinder::XmlTree sub("float", "");
+		sub.setAttribute("name", (*it).first);
+		sub.setAttribute<float>("value", (*it).second.at(0));
+		tree.push_back(sub);
+	}
+
+	for(auto it = mRect.begin(); it != mRect.end(); it++)
+	{
+		cinder::XmlTree sub("rect", "");
+		sub.setAttribute("name", (*it).first);
+		ci::Rectf value((*it).second.at(0));
+		sub.setAttribute<float>("l", value.x1);
+		sub.setAttribute<float>("t", value.y1);
+		sub.setAttribute<float>("r", value.x2);
+		sub.setAttribute<float>("b", value.y2);
+		tree.push_back(sub);
+	}
+
+	for(auto it = mInt.begin(); it != mInt.end(); it++)
+	{
+		cinder::XmlTree sub("int", "");
+		sub.setAttribute("name", (*it).first);
+		sub.setAttribute<int>("value", (*it).second.at(0));
+		tree.push_back(sub);
+	}
+
+	for(auto it = mColorA.begin(); it != mColorA.end(); it++)
+	{
+		cinder::XmlTree sub("color", "");
+		sub.setAttribute("name", (*it).first);
+		ci::ColorA value((*it).second.at(0));
+		sub.setAttribute<int>("r", (int)(value.r * 255.0f));
+		sub.setAttribute<int>("g", (int)(value.g * 255.0f));
+		sub.setAttribute<int>("b", (int)(value.b * 255.0f));
+		if(value.a < 1.0f) {
+			sub.setAttribute<int>("a", (int)(value.a * 255.0f));
+		}
+		tree.push_back(sub);
+	}
+
+	for(auto it = mSize.begin(); it != mSize.end(); it++)
+	{
+		cinder::XmlTree sub("size", "");
+		sub.setAttribute("name", (*it).first);
+		ci::Vec2f value((*it).second.at(0));
+		sub.setAttribute<float>("x", value.x);
+		sub.setAttribute<float>("y", value.y);
+		tree.push_back(sub);
+	}
+
+	for(auto it = mText.begin(); it != mText.end(); it++)
+	{
+		cinder::XmlTree sub("text", "");
+		sub.setAttribute("name", (*it).first);
+		sub.setAttribute("value", (*it).second.at(0));
+		tree.push_back(sub);
+	}
+
+	for(auto it = mTextW.begin(); it != mTextW.end(); it++)
+	{
+		cinder::XmlTree sub("wtext", "");
+		sub.setAttribute("name", (*it).first);
+		sub.setAttribute("value", ds::utf8_from_wstr((*it).second.at(0)));
+		tree.push_back(sub);
+	}
+
+	for(auto it = mPoints.begin(); it != mPoints.end(); it++)
+	{
+		cinder::XmlTree sub("point", "");
+		sub.setAttribute("name", (*it).first);
+		ci::Vec3f value((*it).second.at(0));
+		sub.setAttribute<float>("x", value.x);
+		sub.setAttribute<float>("y", value.y);
+		sub.setAttribute<float>("z", value.z);
+		tree.push_back(sub);
+	}
+
+	tree.write(cinder::writeFile(filename));
 }
 
 bool Settings::empty() const {
@@ -523,6 +611,8 @@ static void clear_vec(A& container)
 
 Settings::Editor& Settings::Editor::clear()
 {
+	mSettings.mChanged = true;
+
 	mSettings.mFloat.clear();
 	mSettings.mRect.clear();
 	clear_vec(mSettings.mInt);
@@ -582,65 +672,147 @@ static void editor_add_vec(const int mode, const std::string& name, A& container
 	}
 }
 
+template <typename A>
+static void editor_delete_vec(const int mode, const std::string& name, A& container)
+{
+	auto it = container.find(name);
+	if(it != container.end()) {
+		container.erase(it);
+	}
+}
+
 Settings::Editor& Settings::Editor::setColor(const std::string& name, const ci::Color &v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mColor, v);
 	editor_set_vec(mMode, name, mSettings.mColorA, ci::ColorA(v.r, v.g, v.b, 1.0f));
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setColorA(const std::string& name, const ci::ColorA &v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mColorA, v);
 	editor_set_vec(mMode, name, mSettings.mColor, ci::Color(v.r, v.g, v.b));
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setFloat(const std::string& name, const float v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mFloat, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setInt(const std::string& name, const int v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mInt, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setRect(const std::string& name, const ci::Rectf& v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mRect, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setResourceId(const std::string& name, const Resource::Id& v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mRes, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setSize(const std::string& name, const ci::Vec2f& v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mSize, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::setText(const std::string& name, const std::string& v) {
+	mSettings.mChanged = true;
 	editor_set_vec(mMode, name, mSettings.mText, v);
 	return *this;
 }
 
+Settings::Editor& Settings::Editor::setPoint(const std::string& name, const ci::Vec3f& v) {
+	mSettings.mChanged = true;
+	editor_set_vec(mMode, name, mSettings.mPoints, v);
+	return *this;
+}
+
 Settings::Editor& Settings::Editor::addInt(const std::string& name, const int v) {
+	mSettings.mChanged = true;
 	editor_add_vec(mMode, name, mSettings.mInt, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::addResourceId(const std::string& name, const Resource::Id& v) {
+	mSettings.mChanged = true;
 	editor_add_vec(mMode, name, mSettings.mRes, v);
 	return *this;
 }
 
 Settings::Editor& Settings::Editor::addTextW(const std::string& name, const std::wstring& v) {
+	mSettings.mChanged = true;
 	editor_add_vec(mMode, name, mSettings.mTextW, v);
 	return *this;
 }
 
-Settings::Editor& Settings::Editor::setPoint( const std::string& name, const ci::Vec3f& v) {
-	editor_add_vec(mMode, name, mSettings.mPoints, v);
+Settings::Editor& Settings::Editor::deleteColor(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mColor);
+	editor_delete_vec(mMode, name, mSettings.mColorA);
+	return *this;
+}
+
+Settings::Editor& Settings::Editor::deleteColorA(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mColor);
+	editor_delete_vec(mMode, name, mSettings.mColorA);
+	return *this;
+}
+
+Settings::Editor& Settings::Editor::deleteFloat(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mFloat);
+	return *this;
+}
+
+Settings::Editor& Settings::Editor::deleteInt(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mInt);
+	return *this;
+}
+
+
+Settings::Editor& Settings::Editor::deleteResourceId(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mRes);
+	return *this;
+}
+
+
+Settings::Editor& Settings::Editor::deleteRect(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mRect);
+	return *this;
+}
+
+
+Settings::Editor& Settings::Editor::deleteSize(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mSize);
+	return *this;
+}
+
+
+Settings::Editor& Settings::Editor::deleteText(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mText);
+	return *this;
+}
+
+
+Settings::Editor& Settings::Editor::deletePoint(const std::string& name) {
+	mSettings.mChanged = true;
+	editor_delete_vec(mMode, name, mSettings.mPoints);
 	return *this;
 }
 

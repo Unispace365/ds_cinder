@@ -133,6 +133,12 @@ public:
 	// one via ds::Environment::expand().
 	std::string				getPortableFilePath() const;
 
+	/** If you want to simply store a path to a thumbnail
+	*	This is NOT filled out by default in the query() methods, you need to supply this yourself
+	**/
+	std::string				getThumbnailFilePath() const { return mThumbnailFilePath; }
+	void					setThumbnailFilePath(const std::string& thumbPath) { mThumbnailFilePath = thumbPath; }
+
 	void					clear();
 	bool					empty() const;
 	void					swap(Resource&);
@@ -140,6 +146,8 @@ public:
 	void					setDbId(const Resource::Id&);
 	void					setType(const int);
 	void					setTypeFromString(const std::string& typeChar);
+
+	static const int		parseTypeFromFilename(const std::string& fileName);
 
 	// Warning: Expensive operation (database lookup).  Use with care.
 	bool					existsInDb() const;
@@ -154,17 +162,19 @@ public:
 private:
 	friend class ResourceList;
 
-	Resource::Id          mDbId;
-	int                   mType;
-	double                mDuration;
-	float                 mWidth,
-						  mHeight;
-	std::string           mFileName;
-	std::string           mPath;
+	Resource::Id			mDbId;
+	int						mType;
+	double					mDuration;
+	float					mWidth,
+							mHeight;
+	std::string				mFileName;
+	std::string				mPath;
 	// Sorta hacked in for Kurt's model
-	int                   mThumbnailId;
+	int						mThumbnailId;
 	// Only should be used for debugging
 	std::string				mDebugFileName;
+
+	std::string				mThumbnailFilePath;
 
 };
 

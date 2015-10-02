@@ -27,27 +27,27 @@ class SpriteEngine;
 template<typename T>
 class SpriteAnim {
   public:
-    SpriteAnim( // Provide access to the Anim<> object that holds the value we will animate
-                const std::function<ci::Anim<T>&(Sprite&)>& getAnim,
-                // Answer the current value of the property we will animate
-                const std::function<T(Sprite&)>& getStartValue,
-                // Assign the new property value
-                const std::function<void(const T&, Sprite&)>& assignValue)
-        : mGetAnim(getAnim)
-        , mGetStartValue(getStartValue)
-        , mAssignValue(assignValue)
-    {
-    }
+	SpriteAnim( // Provide access to the Anim<> object that holds the value we will animate
+				const std::function<ci::Anim<T>&(Sprite&)>& getAnim,
+				// Answer the current value of the property we will animate
+				const std::function<T(Sprite&)>& getStartValue,
+				// Assign the new property value
+				const std::function<void(const T&, Sprite&)>& assignValue)
+		: mGetAnim(getAnim)
+		, mGetStartValue(getStartValue)
+		, mAssignValue(assignValue)
+	{
+	}
 
-    ci::Anim<T>&        getAnim(Sprite& s) const        { return mGetAnim(s); }
-    const T             getStartValue(Sprite& s) const  { return mGetStartValue(s); }
-    const std::function<void(const T&, Sprite&)>&
-                        getAssignValue() const          { return mAssignValue; }
+	ci::Anim<T>&        getAnim(Sprite& s) const        { return mGetAnim(s); }
+	const T             getStartValue(Sprite& s) const  { return mGetStartValue(s); }
+	const std::function<void(const T&, Sprite&)>&
+						getAssignValue() const          { return mAssignValue; }
 
   private:
-    const std::function<ci::Anim<T>&(Sprite&)>          mGetAnim;
-    const std::function<T(Sprite&)>                     mGetStartValue;
-    const std::function<void(const T&, Sprite&)>        mAssignValue;
+	const std::function<ci::Anim<T>&(Sprite&)>          mGetAnim;
+	const std::function<T(Sprite&)>                     mGetStartValue;
+	const std::function<void(const T&, Sprite&)>        mAssignValue;
 };
 
 /**

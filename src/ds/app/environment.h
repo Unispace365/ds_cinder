@@ -17,11 +17,15 @@ class Settings;
  */
 class Environment {
 public:
+	Environment() = delete;
+	Environment(const Environment&) = delete;
+
 	// Return the same path but with any environment variables expanded. Current variables:
 	//	%APP% -- expanded to app folder
 	//	%LOCAL% -- expanded to downstream documents folder
 	//  %PP% -- expand the project path, i.e. "%LOCAL%/cache/%PP%/images/"
 	//  %CFG_FOLDER% -- expand to the configuration folder, if it exists
+	// "%DOCUMENTS%" -- expand to current user documents folder
 	static std::string			expand(const std::string& path);
 
 	// Answer an app folder -- currently only SETTINGS() is valid for arg 1.
@@ -39,7 +43,10 @@ public:
 
 	// Convenience to load in a settings file, first from the app path, then the local path
 	static void					loadSettings(const std::string& filename, ds::cfg::Settings&);
-		
+	
+	// Convenience to save a settings file to the local path
+	static void					saveSettings(const std::string& filename, ds::cfg::Settings&);
+
 	// Utility to add a value to an environment variable. 
 	// This adds the value to the end of any existing value
 	static void					addToEnvironmentVariable(const std::string& variable, const std::string& value);
@@ -68,7 +75,8 @@ public:
 	static std::string			getLocalFile(const std::string& category, const bool includeProjectPath, const std::string& filename);
 
 private:
-	Environment();
+	friend class App;
+	static bool					initialize();
 };
 
 } // namespace ds

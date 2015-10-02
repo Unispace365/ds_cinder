@@ -99,6 +99,9 @@ namespace OGLFT {
      */
     static FT_Library& instance ( void );
 
+	// BJW add dynamic initialization
+	static void destroyInstance ( void );
+
   protected:
     /*!
      * The constructor for this class is automatically called when
@@ -111,9 +114,16 @@ namespace OGLFT {
      */
     ~Library( void );
 
-  private:
-    static Library library;
+	private:
+    // BJW remove static initialization
+	/*
+	static Library library;
     static FT_Library library_;
+	*/
+
+	// BJW add dynamic initialization
+	static Library* libraryPtr;
+	static FT_Library library_;
   };
 
   //! Advance describes the "advance" of a glyph, namely the distance in

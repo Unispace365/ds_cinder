@@ -17,6 +17,9 @@ class Engine;
  * Handle the main app setup.
  */
 class App : public cinder::app::AppBasic {
+private:
+	const bool			mEnvironmentInitialized;
+
 public:
 	// This is used for external projects to perform some initialization
 	// on app startup time. It's intended to be called by clients from a

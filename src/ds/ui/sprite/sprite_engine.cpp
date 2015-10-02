@@ -29,6 +29,11 @@ void SpriteEngine::loadSettings(const std::string& name, const std::string& file
 }
 /** \endcond */
 
+ds::EngineCfg& SpriteEngine::getEngineCfg()
+{
+	return mData.mEngineCfg;
+}
+
 const ds::EngineCfg& SpriteEngine::getEngineCfg() const
 {
 	return mData.mEngineCfg;
@@ -161,6 +166,14 @@ void SpriteEngine::giveBackFbo( std::unique_ptr<FboGeneral> &fbo ) {
 
 double SpriteEngine::getElapsedTimeSeconds() const {
 	return ci::app::getElapsedSeconds();
+}
+
+int SpriteEngine::getIdleTimeout() const {
+	return mData.mIdleTimeout;
+}
+
+void SpriteEngine::setIdleTimeout(int idleTimeout) {
+	mData.mIdleTimeout = idleTimeout;
 }
 
 void SpriteEngine::clearFingers( const std::vector<int> &fingers ) {

@@ -13,6 +13,9 @@
       <AdditionalDependencies>%(AdditionaDependencies);cinder-v120_d.lib;glu32.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform_d.lib;psapi.lib;snappy32_d.lib;freetype2410MT_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT; LIBC.lib</IgnoreSpecificDefaultLibraries>
     </Link>
+    <ResourceCompile>
+      <AdditionalIncludeDirectories>$(CINDER_086)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

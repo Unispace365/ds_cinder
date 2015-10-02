@@ -117,6 +117,7 @@ LoadImageService::LoadImageService(GlThread& t, ds::ui::ip::FunctionList& list)
 
 LoadImageService::~LoadImageService()
 {
+	waitForNoInput();
 	clear();
 }
 

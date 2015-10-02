@@ -90,9 +90,9 @@ void UniformVisitor::operator()(const ci::Matrix44f &data)
 	mShader.uniform(mName, data, mData.mTranspose);
 }
 
-void UniformVisitor::operator()(const float *data)
+void UniformVisitor::operator()(const std::vector<float> &data)
 {
-	mShader.uniform(mName, data, mData.mCount);
+	mShader.uniform(mName, &(data.front()), data.size());
 }
 
 void UniformVisitor::operator()(const ci::Vec2f *data)
@@ -160,7 +160,7 @@ void Uniform::setFloat(const std::string& key, const float value) {
 
 void Uniform::setFloats(const std::string& key, const std::vector<float>& value) {
 	if (key.empty()) return;
-	setInternal(key, UniformVisitor::SupportedVariants((float*)value.data()), UniformData(value.size()));
+	set(key, value);
 }
 
 void Uniform::setInt(const std::string& key, const int value) {
@@ -274,7 +274,23 @@ void Uniform::set(const std::string &name, const ci::Matrix44f &data, bool trans
 
 void Uniform::set(const std::string &name, const float *data, int count)
 {
-	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(count));
+#ifdef _DEBUG
+	std::cout << "Uniform::set(const std::string&, const float *, int) -- this variant should be deprecated. Use set(const std::string&, const std::vector<float>&) instead. This version is slow and copies the data in (which it should, but would be confusing if you were thinking you could free the array after the call)" << std::endl;
+#endif
+	if (data && count > 0) {
+		std::vector<float>		d;
+		const float*			_d(data);
+		for (int k=0; k<count; ++k) {
+			d.push_back(*_d);
+			++_d;
+		}
+		set(name, d);
+	}
+}
+
+void Uniform::set(const std::string &name, const std::vector<float> &data)
+{
+	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(data.size()));
 }
 
 void Uniform::set(const std::string &name, const ci::Vec2f *data, int count)
