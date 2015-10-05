@@ -57,6 +57,9 @@ public:
 	void					sendMouseDownEvent(const ci::app::MouseEvent &event);
 	void					sendMouseDragEvent(const ci::app::MouseEvent &event);
 	void					sendMouseUpEvent(const ci::app::MouseEvent &event);
+
+	void					sendMouseClick(const ci::Vec3f& globalClickPoint);
+
 	// Clients can listen to touch events. Kind of a hack to
 	// try and sync client/server arrangements.
 	void					setTouchListener(const std::function<void(const ds::web::TouchEvent&)>&);

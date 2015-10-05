@@ -440,6 +440,19 @@ void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
 	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kRemoved);
 }
 
+void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
+	ci::Vec2f pos = globalToLocal(globalClickPoint).xy();
+
+	ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+	sendMouseDownEvent(event);
+
+	ci::app::MouseEvent eventD(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+	sendMouseDragEvent(eventD);
+
+	ci::app::MouseEvent eventU(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
+	sendMouseUpEvent(eventU);
+}
+
 void Web::setTouchListener(const std::function<void(const ds::web::TouchEvent&)>& fn) {
 	mTouchListener = fn;
 }
