@@ -4,11 +4,6 @@
 #include <iostream>
 #include <algorithm>
 
-namespace {
-static GstGLDisplay*  this_gl_display = NULL;
-static GstGLContext* this_context = NULL;
-}
-
 //#include "gstreamer-1.0/gst/net/gstnetclientclock.h"
 
 namespace gstwrapper
@@ -50,78 +45,6 @@ GStreamerWrapper::~GStreamerWrapper()
 	}
 }
 
-gboolean reshapeCallback(void *gl_sink, void *gl_ctx, GLuint width, GLuint height, gpointer data)
-{
-//	std::cout << "Reshape: width=" << width << " height=" << height << "\n";
-	//glViewport(0, 0, width, height);
-	return TRUE;
-}
-
-gboolean drawCallback(void * gl_sink, GstGLContext * gl_ctx, GstSample* sample, gpointer data)
-{
-
-	GstVideoFrame v_frame;
-	GstVideoInfo v_info;
-	guint texture = 0;
-	GstBuffer *buf = gst_sample_get_buffer(sample);
-	GstCaps *caps = gst_sample_get_caps(sample);
-	
-		gst_video_info_from_caps(&v_info, caps);
-	
-	if(!gst_video_frame_map(&v_frame, &v_info, buf, (GstMapFlags)(GST_MAP_READ | GST_MAP_GL))) {
-		g_warning("Failed to map the video buffer");
-		return TRUE;
-		
-	}
-	
-	texture = *(guint *)v_frame.data[0];
-
-	GStreamerWrapper* gwrap = (GStreamerWrapper*)(data);
-	if(gwrap){
-		//std::cout << "What what!!! " << gwrap->getContentType() << std::endl;
-		gwrap->setSharedParams(true, texture);
-	}
-
-	//std::cout << "Draw callback: " << gl_ctx << " " << sample << " " << texture << std::endl;
-
-	gst_video_frame_unmap(&v_frame);
-
-	
-	return TRUE;
-}
-
-void GStreamerWrapper::debugGlOpen(){
-	GError* err = nullptr;
-	std::string pipeline = "uridecodebin uri=file:///c:/test.mp4 ! glimagesink enable-last-sample=true name=glimagesink0";
-
-	m_GstPipeline = gst_parse_launch(pipeline.c_str(), &err); 
-	m_GstBus = gst_pipeline_get_bus(GST_PIPELINE(m_GstPipeline));
-
-	m_GstVideoSink = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "glimagesink0");
-
-	HGLRC this_gl_context = 0;
-	HDC this_dc = 0;
-	this_gl_context = wglGetCurrentContext();
-	this_dc = wglGetCurrentDC();
-	//wglMakeCurrent(0, 0);
-	const gchar* platform = "wgl";
-	this_gl_display = gst_gl_display_new();
-	this_context = gst_gl_context_new_wrapped(this_gl_display, (guintptr)this_gl_context,	gst_gl_platform_from_string(platform), GST_GL_API_OPENGL);
-
-	//wglMakeCurrent(this_dc, this_gl_context);
-	//g_object_set(G_OBJECT(m_GstVideoSink), "other-context", gl_context, NULL);
-
-	g_signal_connect(G_OBJECT(m_GstVideoSink), "client-reshape", G_CALLBACK(reshapeCallback), NULL);
-	g_signal_connect(G_OBJECT(m_GstVideoSink), "client-draw", G_CALLBACK(drawCallback), NULL);
-
-
-	gst_element_set_state(m_GstPipeline, GST_STATE_READY);
-	gst_element_set_state(m_GstPipeline, GST_STATE_PAUSED);
-	gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
-	m_bFileIsOpen = true;
-	m_CurrentPlayState = PLAYING;
-	m_ContentType = VIDEO;
-}
 
 void GStreamerWrapper::debugAppsinkShaderColorspaceOpen(){
 	GError* err = nullptr;
@@ -233,13 +156,13 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	m_iHeight = videoHeight;
 
 //	debugGlOpen();
-	debugAppsinkShaderColorspaceOpen();
-	return true;
+	//debugAppsinkShaderColorspaceOpen();
+	//return true;
 
 	if(isTransparent){
-		m_cVideoBuffer = new unsigned char[8 * 4 * videoWidth * videoHeight];
+		m_cVideoBuffer = new unsigned char[4 * videoWidth * videoHeight];
 	} else {
-		m_cVideoBuffer = new unsigned char[8 * 3 * videoWidth * videoHeight];
+		m_cVideoBuffer = new unsigned char[3 * videoWidth * videoHeight];
 	}
 
 	// PIPELINE
@@ -393,14 +316,6 @@ void GStreamerWrapper::close(){
 
 void GStreamerWrapper::update(){
 	handleGStMessage();
-
-// 	if(m_GstVideoSink){
-// 		GstSample* sample = NULL;
-// 		sample = gst_base_sink_get_last_sample(GST_BASE_SINK(m_GstVideoSink));
-// 		if(sample){
-// 			std::cout << " valid samples? " << std::endl;
-// 		}
-// 	}
 }
 
 void GStreamerWrapper::play(){
@@ -761,6 +676,10 @@ void GStreamerWrapper::retrieveVideoInfo(){
 	} else if ( m_iNumAudioStreams > 0 ){
 		m_ContentType = AUDIO;
 	}
+
+	if(m_VerboseLogging){
+		DS_LOG_INFO("Got video info, duration=" << m_iDurationInNs << " Number of video streams: " << m_iNumVideoStreams << " audio: " << m_iNumAudioStreams);
+	}
 }
 
 void GStreamerWrapper::handleGStMessage(){
@@ -783,66 +702,6 @@ void GStreamerWrapper::handleGStMessage(){
 					if(m_VerboseLogging){
 						DS_LOG_INFO("Gst QoS message, seconds processed: " << processed << " frames dropped:" << dropped);
 					}
-				}
-				break;
-
-				case GST_MESSAGE_NEED_CONTEXT:
-				{
-				//	static GstGLDisplay* gl_display = NULL;
-					const gchar *context_type;
-					GstContext *context = NULL;
-					GstGLContext* glContext = NULL;
-
-					gst_message_parse_context_type(m_GstMessage, &context_type);
-				//	g_print("got need context %s\n", context_type);
-
-					if(m_VerboseLogging){
-						DS_LOG_INFO("Need context message: " << context_type);
-					}
-
-
-					if(g_strcmp0(context_type, GST_GL_DISPLAY_CONTEXT_TYPE) == 0) {
-						GstContext *display_context =
-							gst_context_new(GST_GL_DISPLAY_CONTEXT_TYPE, TRUE);
-						gst_context_set_gl_display(display_context, this_gl_display);
-						gst_element_set_context(GST_ELEMENT(m_GstMessage->src), display_context);
-					//	return TRUE;
-					} else if(g_strcmp0(context_type, "gst.gl.app_context") == 0) {
-						GstContext *app_context = gst_context_new("gst.gl.app_context", TRUE);
-						GstStructure *s = gst_context_writable_structure(app_context);
-						gst_structure_set(s, "context", GST_GL_TYPE_CONTEXT, this_context,
-										  NULL);
-						gst_element_set_context(GST_ELEMENT(m_GstMessage->src), app_context);
-					//	return TRUE;
-					}
-
-// 					if(g_strcmp0(context_type, GST_GL_DISPLAY_CONTEXT_TYPE) == 0) {
-// 						if(m_VerboseLogging){
-// 							DS_LOG_INFO("Setting gst gl context");
-// 						}
-						//_open_x11();
-// 						HGLRC gl_context = 0;
-// 						HDC gl_dc = 0;
-
-					//	gl_context = wglGetCurrentContext();
-						//gl_dc = wglGetCurrentDC();
-						//wglMakeCurrent(0, 0);
-
-					//	if(!gl_display)
-							//gl_display = GST_GL_DISPLAY(gst_gl_display_new());
-
-						//glContext = gst_gl_con
-						//context = gst_context_new(GST_GL_DISPLAY_CONTEXT_TYPE, TRUE);
-						//gst_context_set_gl_display(context, gl_display);
-
-						//gst_element_set_context(GST_ELEMENT(m_GstMessage->src), context);
-					//}
-
-					/* Here you'd retrieve the GstGLContext like in [4] and [5] and do a
-					* similar thing as above with the display but matching types/names
-					* with the "gst.gl.app_context" case in [6] */
-
-				//	if(context) gst_context_unref(context);
 				}
 				break;
 
@@ -914,7 +773,10 @@ void GStreamerWrapper::handleGStMessage(){
 				}
 				break;
 
-				case GST_MESSAGE_NEW_CLOCK :{
+				case GST_MESSAGE_NEW_CLOCK:{
+					if(m_VerboseLogging){
+						DS_LOG_INFO("Gst New clock");
+					}
 					// For example on net sync: http://noraisin.net/diary/?p=954
 					// also: #include "gst/net/gstnettimeprovider.h"
 

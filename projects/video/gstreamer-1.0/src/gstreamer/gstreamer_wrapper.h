@@ -1,7 +1,5 @@
 #pragma once
 
-#define GST_USE_UNSTABLE_API
-#include <gst/gl/gl.h>
 #include <gst/gst.h>
 #include <gst/gstbin.h>
 #include <gst/app/gstappsink.h>
@@ -91,9 +89,7 @@ public:
 	// Destructor which closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
 	virtual ~GStreamerWrapper();
 
-	//gboolean reshapeCallback(void *gl_sink, void *gl_ctx, GLuint width, GLuint height, gpointer data);
-	//gboolean drawCallback(void * gl_sink, void * gl_ctx, GLuint width, GLuint height, GLuint texture, gpointer data);
-	void debugGlOpen();
+
 	void debugAppsinkShaderColorspaceOpen();
 	/*
 	Opens a file according to the string parameter. Sets the wrapper's PlayState to OPENED
