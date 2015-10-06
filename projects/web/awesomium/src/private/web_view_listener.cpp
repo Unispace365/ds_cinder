@@ -27,7 +27,7 @@ void WebViewListener::setAddressChangedFn(const std::function<void(const std::st
 
 void WebViewListener::OnChangeAddressBar(Awesomium::WebView*, const Awesomium::WebURL& url) {
 	Awesomium::WebString webstr = url.spec();
-	DS_LOG_INFO("Address changed: " << str_from_webstr(webstr));
+//	DS_LOG_INFO("Address changed: " << str_from_webstr(webstr));
 	if(mAddressChangedFn) {
 		mAddressChangedFn(ds::web::str_from_webstr(webstr));
 	}
@@ -62,7 +62,7 @@ void WebLoadListener::setOnDocumentReady(const std::function<void(const std::str
 void WebLoadListener::OnBeginLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
 											bool is_main_frame, const Awesomium::WebURL& url,
 											bool is_error_page) {
-	DS_LOG_INFO("OnBeginLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()));
+//	DS_LOG_INFO("OnBeginLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()));
 }
 
 void WebLoadListener::OnFailLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
@@ -79,12 +79,12 @@ void WebLoadListener::OnFailLoadingFrame(	Awesomium::WebView* caller, int64 fram
 
 void WebLoadListener::OnFinishLoadingFrame(	Awesomium::WebView* caller, int64 frame_id,
 													bool is_main_frame, const Awesomium::WebURL& url) {
-	DS_LOG_INFO("OnFinishLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()));
+//	DS_LOG_INFO("OnFinishLoadingFrame is_main=" << is_main_frame << " url=" << str_from_webstr(url.spec()));
 }
 
 void WebLoadListener::OnDocumentReady(Awesomium::WebView* v, const Awesomium::WebURL& url) {
 	Awesomium::WebString webstr = url.spec();
-	DS_LOG_INFO("On document ready: " << str_from_webstr(webstr));
+//	DS_LOG_INFO("On document ready: " << str_from_webstr(webstr));
 	if(mOnDocumentReadyFn){
 		mOnDocumentReadyFn(ds::web::str_from_webstr(webstr));
 	}
@@ -96,7 +96,7 @@ void WebProcessListener::OnUnresponsive(Awesomium::WebView* caller){
 }
 
 void WebProcessListener::OnResponsive(Awesomium::WebView* caller){
-	DS_LOG_INFO("Web view responsive, url: " << str_from_webstr(caller->url().spec()));
+//	DS_LOG_INFO("Web view responsive, url: " << str_from_webstr(caller->url().spec()));
 }
 
 void WebProcessListener::OnCrashed(Awesomium::WebView* caller, Awesomium::TerminationStatus status){
@@ -104,7 +104,7 @@ void WebProcessListener::OnCrashed(Awesomium::WebView* caller, Awesomium::Termin
 }
 
 void WebProcessListener::OnLaunch(Awesomium::WebView* caller){
-	DS_LOG_INFO("On process launch " << str_from_webstr(caller->url().spec()));
+//	DS_LOG_INFO("On process launch " << str_from_webstr(caller->url().spec()));
 }
 
 WebProcessListener::WebProcessListener(ds::ui::Web* web)
@@ -144,6 +144,20 @@ WebDialogListener::WebDialogListener(ds::ui::Web* web)
 }
 
 WebDialogListener::~WebDialogListener(){
+
+}
+
+
+void WebMenuListener::OnShowPopupMenu(Awesomium::WebView* caller, const Awesomium::WebPopupMenuInfo& menu_info){
+	//TODO: set a callback?
+ 	//std::cout << "show popup! " << std::endl;
+//  	for(int i = 0; i < menu_info.items.size(); i++){
+// 		std::cout << "Menu item: " << str_from_webstr(menu_info.items[i].label) << std::endl;
+//  	}
+}
+
+void WebMenuListener::OnShowContextMenu(Awesomium::WebView* caller, const Awesomium::WebContextMenuInfo& menu_info){
+//	std::cout << "Context menu! " << std::endl;
 
 }
 
