@@ -23,6 +23,32 @@ namespace {
 	const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
 	template<typename T> void       noop(T) { /* no op */ };
 	void                            noop()  { /* no op */ };
+
+
+	static std::string yuv_vert = 
+		"varying   vec2 gsvTexCoord;"
+		"void main(){ "
+		"gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
+		"gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;"
+		"gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
+		"gl_FrontColor = gl_Color;"
+		"gsvTexCoord = gl_TexCoord[0];"
+		"}";
+
+	static std::string yuv_frag =
+		"precision mediump float;"
+		"uniform sampler2D gsuTexture0;"
+		"uniform sampler2D gsuTexture1;"
+		"uniform sampler2D gsuTexture2;"
+		"varying vec2 gsvTexCoord;"
+		"void main(){"
+		"float y = texture2D(gsuTexture0, gsvTexCoord).r;"
+		"float u = texture2D(gsuTexture1, gsvTexCoord).r;"
+		"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
+		"u = u - 0.5;"
+		"v = v - 0.5;"
+		"gl_FragColor = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), 1.0);"
+		"}";
 }
 namespace ds {
 namespace ui {
@@ -61,7 +87,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	mBlobType = GstVideoNet::mBlobType;
 
 	try {
-		mShader = ci::gl::GlslProg(ci::loadFile(ds::Environment::expand("%APP%/data/shaders/video_vert.glsl")), ci::loadFile(ds::Environment::expand("%APP%/data/shaders/video_frag.glsl")));
+		mShader = ci::gl::GlslProg(yuv_vert.c_str(), yuv_frag.c_str());
 	} catch(const std::exception &e) {
 		DS_LOG_WARNING("Could not load & compile shader for the video:" << e.what());
 	}
