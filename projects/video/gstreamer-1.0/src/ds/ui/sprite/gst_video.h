@@ -7,6 +7,8 @@
 #include <ds/data/resource.h>
 #include "gst_video_net.h"
 
+#include <Poco/Timestamp.h>
+
 namespace gstwrapper {
 	class GStreamerWrapper;
 }
@@ -25,8 +27,7 @@ class GstVideo : public Sprite
 {
 public:
 	// Valid statuses for this player instance.
-	struct Status
-	{
+	struct Status {
 		Status(int code);
 		bool operator ==(int status) const;
 		bool operator !=(int status) const;
@@ -37,6 +38,12 @@ public:
 
 		int					 mCode;
 	};
+
+	// A simple enum for specifying how the video gets rendered.
+	// Transparent: retains an alpha channel through the whole pipeline, gstreamer handles the colorspace conversion to RGBA (or BGRA)
+	// Solid: has no alpha channel, and gstreamer handles the colorspace conversion to RGB (or BGR)
+	// ShaderTransform: has no alpha channel, and colorspace conversion is handled in a shader when drawing to the screen, uses I420 YUV colorspace conversion only
+	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform} ColorType;
 
 public:
 	// Convenience for allocating a Video sprite pointer and optionally adding it
@@ -51,16 +58,13 @@ public:
 
 	// Sets the video sprite size. Internally just scales the texture
 	void				setSize( float width, float height );
-
-	// Set before loadVideo, default is true (has an alpha channel)
-	void				setTransparentVideo(const bool transparentVideo){ mTransparentVideo = transparentVideo; }
 	
 	// Loads a video from a file path.
-	GstVideo&			loadVideo(const std::string &filename);
+	GstVideo&			loadVideo(const std::string &filename, const ColorType colorType = kColorTypeTransparent );
 	// Loads a vodeo from a ds::Resource::Id
-	GstVideo&			setResourceId(const ds::Resource::Id& resource_id);
+	GstVideo&			setResourceId(const ds::Resource::Id& resource_id, const ColorType colorType = kColorTypeTransparent);
 	// Loads a vodeo from a ds::Resource
-	GstVideo&			setResource(const ds::Resource& resource);
+	GstVideo&			setResource(const ds::Resource& resource, const ColorType colorType = kColorTypeTransparent);
 
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility
@@ -135,13 +139,16 @@ public:
 	// In case you want a ton of info from gstreamer about what's going on
 	void				setVerboseLogging(const bool doVerbose);
 
+	// Calculates a rough fps for how many actual buffers we're displaying per second
+	float				getVideoPlayingFramerate();
+
 protected:
 	virtual void		drawLocalClient() override;
 	virtual void		writeAttributesTo(DataBuffer&) override;
 	virtual void		readAttributeFrom(const char, DataBuffer&) override;
 
 private:
-	void				doLoadVideo(const std::string &filename);
+	void				doLoadVideo(const std::string &filename, const ColorType colorType = kColorTypeTransparent);
 	void				applyMovieVolume();
 	void				applyMovieLooping();
 	void				checkOutOfBounds();
@@ -155,9 +162,13 @@ protected:
 	gstwrapper::GStreamerWrapper*
 						mGstreamerWrapper;
 private:
+
+	ColorType			mColorType;
+
 	ci::gl::Texture		mFrameTexture;
 	ci::gl::Texture		mUFrameTexture;
 	ci::gl::Texture		mVFrameTexture;
+
 	ci::Vec2i			mVideoSize;
 	std::string			mFilename;
 	Status				mStatus;
@@ -184,10 +195,11 @@ private:
 	//Allow for custom audio output
 	bool				mGenerateAudioBuffer;
 
-	bool				mTransparentVideo;
-
 	// YUV/I420 -> RGB conversion
 	ci::gl::GlslProg	mShader;
+
+	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
+	float									mCurrentGstFrameRate;
 };
 
 } //!namespace ui

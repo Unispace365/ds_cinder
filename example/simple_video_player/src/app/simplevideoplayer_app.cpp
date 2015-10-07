@@ -24,6 +24,8 @@ SimpleVideoPlayer::SimpleVideoPlayer()
 	, mQueryHandler(mEngine, mAllData)
 	, mStressTestButton(nullptr)
 	, mStressTesting(false)
+	, mColorType(0)
+	, mFpsDisplay(nullptr)
 {
 
 
@@ -87,6 +89,13 @@ void SimpleVideoPlayer::setupServer(){
 	rootSprite.addChildPtr(mStressTestButton);
 
 
+
+	mFpsDisplay = new ds::ui::Text(mEngine);
+	mFpsDisplay->setFont("noto-thin", 24.0f);
+	mFpsDisplay->setColor(ci::Color::white());
+	mFpsDisplay->setText("GstFps");
+	mFpsDisplay->setPosition(mEngine.getWorldWidth()/2.0f, 30.0f);
+	rootSprite.addChildPtr(mFpsDisplay);
 }
 
 void SimpleVideoPlayer::update() {
@@ -99,6 +108,12 @@ void SimpleVideoPlayer::update() {
 			startVideos(mVideoPaths);
 		}
 	}
+
+	if(!mVideos.empty() && mFpsDisplay){
+		std::stringstream ss;
+		ss << "fps: " << mVideos.front()->getVideoPlayingFramerate();
+		mFpsDisplay->setText(ss.str());
+	}
 }
 
 void SimpleVideoPlayer::keyDown(ci::app::KeyEvent event){
@@ -106,6 +121,24 @@ void SimpleVideoPlayer::keyDown(ci::app::KeyEvent event){
 	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
+	} else if(event.getChar() == KeyEvent::KEY_c){
+		mColorType++;
+		if(mColorType > 2){
+			mColorType = 0;
+		}
+
+		std::cout << "Color type is ";
+		if(mColorType == 0){
+			std::cout << "Transparent";
+		} else if(mColorType == 1){
+			std::cout << "Solid";
+		} else if(mColorType == 2){
+			std::cout << "YUV Shader";
+		}
+
+		std::cout << "." << std::endl;
+
+		startVideos(mVideoPaths);
 	} 
 }
 
@@ -142,10 +175,16 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 
 	int curVideo = 0;
 
+	ds::ui::GstVideo::ColorType colorType = ds::ui::GstVideo::kColorTypeTransparent;
+	if(mColorType == 1) colorType = ds::ui::GstVideo::kColorTypeSolid;
+	if(mColorType == 2) colorType = ds::ui::GstVideo::kColorTypeShaderTransform;
+
 	for(int i = 0; i < numVideos; i++){
 		ds::ui::Video* video = new ds::ui::Video(mEngine);
 		video->setLooping(true);
-		video->loadVideo(mVideoPaths[curVideo]);
+
+
+		video->loadVideo(mVideoPaths[curVideo], colorType);
 		curVideo++;
 		if(curVideo > mVideoPaths.size() - 1){
 			curVideo = 0;
@@ -173,6 +212,10 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 		mVideos.push_back(video);
 
 		mEngine.getRootSprite().addChildPtr(video);
+	}
+
+	if(mFpsDisplay){
+		mFpsDisplay->sendToFront();
 	}
 }
 

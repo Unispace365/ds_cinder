@@ -45,75 +45,14 @@ GStreamerWrapper::~GStreamerWrapper()
 	}
 }
 
-
-void GStreamerWrapper::debugAppsinkShaderColorspaceOpen(){
-	GError* err = nullptr;
-
-	//std::string pipeline = "uridecodebin uri=file:///c:/test.mp4 name=dec dec. ! glcolorscale ! appsink qos=true name=appsink0 dec. ! autoaudiosink sync=true qos=true";
-//	std::string pipeline = "uridecodebin uri=file:///c:/test.mp4 name=dec dec. ! videoconvert ! appsink qos=true name=appsink0 dec. ! autoaudiosink sync=true qos=true";
-//	std::string pipeline = "uridecodebin uri=file:///c:/test.mp4  name=dec dec. ! appsink qos=true name=appsink0 dec. ! autoaudiosink"; // for some reason, audio like this kills the pipeline
-	std::stringstream pipeline;
-	pipeline << "playbin uri=\"";
-	pipeline << m_strFilename << "\"";
- //file:///c:/test.mp4";
-	m_GstPipeline = gst_parse_launch(pipeline.str().c_str(), &err);
-	m_GstBus = gst_pipeline_get_bus(GST_PIPELINE(m_GstPipeline));
-	// appsink  stuff
-	int numVideoBuffers = (int)(1.5 * m_iWidth * m_iHeight);
-	std::cout << "Num video chars: " << numVideoBuffers << std::endl;
-	m_cVideoBuffer = new unsigned char[numVideoBuffers]; // 8 * 1.5 * w * h, for I420 color space
-	//m_cVideoBuffer = new unsigned char[(int)(8 * 3 * m_iWidth * m_iHeight)]; // 8 * 1.5 * w * h, for I420 color space
-
-	// Configure app sink
-//	m_GstVideoSink = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "appsink0");
-
-	m_GstVideoSink = gst_element_factory_make("appsink", "videosink");
-	g_object_set(m_GstPipeline, "video-sink", m_GstVideoSink, (void*)NULL);
-
-
-	// Set some fix caps for the video sink
-	GstCaps* caps = gst_caps_new_simple("video/x-raw",
-										"format", G_TYPE_STRING, "I420",
-										"width", G_TYPE_INT, m_iWidth,
-										"height", G_TYPE_INT, m_iHeight,
-										NULL);
-
-
-	gst_app_sink_set_caps(GST_APP_SINK(m_GstVideoSink), caps);
-	gst_caps_unref(caps);
-
-	gst_app_sink_set_max_buffers(GST_APP_SINK(m_GstVideoSink), 0);
-	gst_app_sink_set_drop(GST_APP_SINK(m_GstVideoSink), true);
-	gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
-	gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), -1); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
-
-	// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-	g_object_set(m_GstVideoSink, "emit-signals", false, "sync", true, "async", true, "qos", true, (void*)NULL);
-
-	// Set Video Sink callback methods
-	m_GstVideoSinkCallbacks.eos = &GStreamerWrapper::onEosFromVideoSource;
-	m_GstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromVideoSource;
-	m_GstVideoSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromVideoSource;
-	gst_app_sink_set_callbacks(GST_APP_SINK(m_GstVideoSink), &m_GstVideoSinkCallbacks, this, NULL);
-
-
-	gst_element_set_state(m_GstPipeline, GST_STATE_READY);
-	gst_element_set_state(m_GstPipeline, GST_STATE_PAUSED);
-	gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
-	m_bFileIsOpen = true;
-	m_CurrentPlayState = PLAYING;
-	m_ContentType = VIDEO;
-}
-
-bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer, bool bGenerateAudioBuffer, bool isTransparent, int videoWidth, int videoHeight)
-{
+void GStreamerWrapper::resetProperties(){
 	// init property variables
 	m_iNumVideoStreams = 0;
 	m_iNumAudioStreams = 0;
 	m_iCurrentVideoStream = 0;
 	m_iCurrentAudioStream = 0;
-	m_iWidth = videoWidth;		
-	m_iHeight = videoHeight;
+	m_iWidth = 0;
+	m_iHeight = 0;
 	m_iCurrentFrameNumber = 0;	// set to invalid, as it is not decoded yet
 	m_dCurrentTimeInMs = 0;	// set to invalid, as it is not decoded yet
 	m_bIsAudioSigned = false;
@@ -133,12 +72,10 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	m_CurrentGstState = STATE_NULL;
 	m_LoopMode = LOOP;
 	m_PendingSeek = false;
+}
 
-	if( m_bFileIsOpen )	{
-		stop();
-		close();
-	}
-
+void GStreamerWrapper::parseFilename(const std::string& theFile){
+	std::string strFilename = theFile;
 	std::replace(strFilename.begin(), strFilename.end(), '\\', '/');
 	// Check and re-arrange filename string
 	if(strFilename.find("file:/", 0) == std::string::npos &&
@@ -148,30 +85,36 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		strFilename = "file:///" + strFilename;
 	}
 	m_strFilename = strFilename;
+}
+
+void GStreamerWrapper::enforceModFourWidth(const int vidWidth, const int vidHeight){
+	int videoWidth = vidWidth;
+	int videoHeight = vidHeight;
 
 	if(videoWidth % 4 != 0){
 		videoWidth += 4 - videoWidth % 4;
 	}
 	m_iWidth = videoWidth;
 	m_iHeight = videoHeight;
+}
 
-//	debugGlOpen();
-	//debugAppsinkShaderColorspaceOpen();
-	//return true;
+bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight){
+	resetProperties();
 
-	if(isTransparent){
-		m_cVideoBuffer = new unsigned char[4 * videoWidth * videoHeight];
-	} else {
-		m_cVideoBuffer = new unsigned char[3 * videoWidth * videoHeight];
+	if( m_bFileIsOpen )	{
+		stop();
+		close();
 	}
+
+	parseFilename(strFilename);
+	enforceModFourWidth(videoWidth, videoHeight);
 
 	// PIPELINE
 	// Init main pipeline --> playbin
 	m_GstPipeline = gst_element_factory_make( "playbin", "pipeline" );
 
-
 	// Open Uri
-	g_object_set( m_GstPipeline, "uri", strFilename.c_str(), NULL );
+	g_object_set(m_GstPipeline, "uri", m_strFilename.c_str(), NULL);
 
 
 	// VIDEO SINK
@@ -180,29 +123,45 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		// Create the video appsink and configure it
 		m_GstVideoSink = gst_element_factory_make("appsink", "videosink");
 
-		//gst_base_sink_set_sync( GST_BASE_SINK( m_GstVideoSink ), true );
 		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 0 );
 		gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
 		gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
-	//	gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), 20000000); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
 		gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), -1); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
 
 		// Set some fix caps for the video sink
 		GstCaps* caps;
-		if(isTransparent){
-			caps = gst_caps_new_simple( "video/x-raw",
-				"format", G_TYPE_STRING, "BGRA",
-				"width", G_TYPE_INT, videoWidth,
-				"height", G_TYPE_INT, videoHeight,
-			NULL );
-		} else  {
-			caps= gst_caps_new_simple( "video/x-raw",
-				"format", G_TYPE_STRING, "BGR",
-				"width", G_TYPE_INT, videoWidth,
-				"height", G_TYPE_INT, videoHeight,
-				NULL );
+
+		int numVideoBuffers = 0;
+		if(colorSpace == kColorSpaceTransparent){
+			numVideoBuffers = 4 * videoWidth * videoHeight;
+			caps = gst_caps_new_simple("video/x-raw",
+									   "format", G_TYPE_STRING, "BGRA",
+									   "width", G_TYPE_INT, videoWidth,
+									   "height", G_TYPE_INT, videoHeight,
+									   NULL);
+
+		} else if(colorSpace == kColorSpaceSolid){
+			numVideoBuffers = 3 * videoWidth * videoHeight;
+
+			caps = gst_caps_new_simple("video/x-raw",
+									   "format", G_TYPE_STRING, "BGR",
+									   "width", G_TYPE_INT, videoWidth,
+									   "height", G_TYPE_INT, videoHeight,
+									   NULL);
+
+		} else if(colorSpace == kColorSpaceI420){
+			// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
+			numVideoBuffers = (int)(1.5 * m_iWidth * m_iHeight);
+
+
+			caps = gst_caps_new_simple("video/x-raw",
+									   "format", G_TYPE_STRING, "I420",
+									   "width", G_TYPE_INT, videoWidth,
+									   "height", G_TYPE_INT, videoHeight,
+									   NULL);
 		}
 
+		m_cVideoBuffer = new unsigned char[numVideoBuffers];
 
 		gst_app_sink_set_caps( GST_APP_SINK( m_GstVideoSink ), caps );
 		gst_caps_unref( caps );
@@ -933,9 +892,8 @@ void GStreamerWrapper::newVideoSinkPrerollCallback( GstSample* videoSinkSample )
 	GstMapFlags flags = GST_MAP_READ;
 	gst_buffer_map(buff, &map, flags);
 
-	unsigned int videoBufferSize = map.size; //(unsigned int)(gst_buffer_get_size(buff));
+	unsigned int videoBufferSize = map.size; 
 
-	std::cout << "Gst video buffer size: " << videoBufferSize << std::endl;
 	// Allocate memory for the video pixels according to the vide appsink buffer size
 	if ( m_cVideoBuffer == NULL ){
 		if(!m_PendingSeek) m_bIsNewVideoFrame = true;

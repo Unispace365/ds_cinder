@@ -91,6 +91,9 @@ public:
 
 
 	void debugAppsinkShaderColorspaceOpen();
+
+	typedef enum { kColorSpaceTransparent = 0, kColorSpaceSolid, kColorSpaceI420 } ColorSpace;
+
 	/*
 	Opens a file according to the string parameter. Sets the wrapper's PlayState to OPENED
 
@@ -108,12 +111,12 @@ public:
 	audio codec of the operating system and play the sound synchronized to the video (or just play the sound if there is no video
 	data)
 
-	@ transparent: If true, will set the bits per pixel to 32 and generate alpha values, even if the source video doesn't have them (all opaque in that case).
+	@ colorSpace: See the color space enum above. Transparent will output BGRA, solid will be BGR, and I420 will output raw I420 YUV and you'll have to colorspace convert yourself.
 			 
 	@ videoWidth: Specify the size of the video. Required before creating a pipeline
 	@ videoHeight: Specify the size of the video. Required before creating a pipeline
 	*/
-	bool					open( std::string strFilename, bool bGenerateVideoBuffer, bool bGenerateAudioBuffer, bool isTransparent, int videoWidth, int videoHeight);
+	bool					open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight);
 
 	/*
 	Closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
@@ -554,6 +557,14 @@ private:
 	static void				onEosFromVideoSource(GstAppSink* appsink, void* listener);
 	static void				onEosFromAudioSource(GstAppSink* appsink, void* listener);
 
+	// Clears out member properties
+	void					resetProperties();
+
+	// Adds appropriate file:/// if needed
+	void					parseFilename(const std::string& filename);
+
+	// Makes sure videos widths are divisible by 4, for video blanking
+	void					enforceModFourWidth(const int videoWidth, const int videoHeight);
 
 protected:
 
