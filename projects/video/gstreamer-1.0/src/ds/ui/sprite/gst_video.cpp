@@ -47,7 +47,7 @@ namespace {
 		"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
 		"u = u - 0.5;"
 		"v = v - 0.5;"
-		"gl_FragColor = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), 1.0);"
+		"gl_FragColor = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);"
 		"}";
 }
 namespace ds {

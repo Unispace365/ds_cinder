@@ -12,6 +12,8 @@
 
 #include <ds/ui/sprite/image.h>
 
+#include <cinder/Rand.h>
+
 namespace example {
 
 SimpleVideoPlayer::SimpleVideoPlayer()
@@ -201,6 +203,8 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 				}
 			}
 		});
+
+		video->setOpacity(ci::randFloat());
 
 		fitVideoInArea(ci::Rectf(xp, yp, xp + vidWidth, yp + vidHeight), video);
 		xp += vidWidth;
