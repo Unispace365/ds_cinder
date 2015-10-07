@@ -19,7 +19,7 @@ using namespace gstwrapper;
 
 namespace {
 	static ds::gstreamer::EnvCheck  ENV_CHECK;
-	ds::ui::VideoMetaCache          CACHE("gstreamer");
+	ds::ui::VideoMetaCache          CACHE("gstreamer-2");
 	const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
 	template<typename T> void       noop(T) { /* no op */ };
 	void                            noop()  { /* no op */ };
@@ -228,8 +228,8 @@ void GstVideo::setSize( float width, float height ){
 	setScale( width / getWidth(), height / getHeight() );
 }
 
-GstVideo& GstVideo::loadVideo(const std::string& filename, const ColorType colorType){
-	if (mFilename == filename && mColorType == colorType){
+GstVideo& GstVideo::loadVideo(const std::string& filename){
+	if (mFilename == filename){
 		return *this;
 	}
 
@@ -240,16 +240,16 @@ GstVideo& GstVideo::loadVideo(const std::string& filename, const ColorType color
 		return *this;
 	}
 
-	doLoadVideo(_filename, colorType);
+	doLoadVideo(_filename);
 	markAsDirty(mNetHandler.mPathDirty);
 	return *this;
 }
 
-GstVideo &GstVideo::setResourceId(const ds::Resource::Id &resourceId, const ColorType colorType){
+GstVideo &GstVideo::setResourceId(const ds::Resource::Id &resourceId){
 	try	{
 		ds::Resource res;
 		if (mEngine.getResources().get(resourceId, res)){
-			setResource(res, colorType);
+			setResource(res);
 		}
 	} catch (const std::exception& ex)	{
 		DS_LOG_WARNING_M("GstVideo::loadVideo() ex=" << ex.what(), GSTREAMER_LOG);
@@ -258,20 +258,19 @@ GstVideo &GstVideo::setResourceId(const ds::Resource::Id &resourceId, const Colo
 	return *this;
 }
 
-GstVideo& GstVideo::setResource(const ds::Resource& resource, const ColorType colorType){
+GstVideo& GstVideo::setResource(const ds::Resource& resource){
 	Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
-	loadVideo(resource.getAbsoluteFilePath(), colorType);
+	loadVideo(resource.getAbsoluteFilePath());
 	return *this;
 }
 
 
-void GstVideo::doLoadVideo(const std::string &filename, const ColorType colorType){
+void GstVideo::doLoadVideo(const std::string &filename){
 	if(filename.empty()){
 		DS_LOG_WARNING_M("doLoadVideo aborting loading a video because of a blank filename.", GSTREAMER_LOG);
 		return;
 	}
 
-	mColorType = colorType;
 
 	VideoMetaCache::Type		type(VideoMetaCache::ERROR_TYPE);
 
@@ -280,8 +279,9 @@ void GstVideo::doLoadVideo(const std::string &filename, const ColorType colorTyp
 		int						videoHeight = static_cast<int>(getHeight());
 		double					videoDuration(0.0f);
 		bool					generateVideoBuffer = true;
+		std::string				colorSpace = "";
 
-		CACHE.getValues(filename, type, videoWidth, videoHeight, videoDuration);
+		CACHE.getValues(filename, type, videoWidth, videoHeight, videoDuration, colorSpace);
 
 		if(type == VideoMetaCache::AUDIO_TYPE)
 		{
@@ -289,8 +289,14 @@ void GstVideo::doLoadVideo(const std::string &filename, const ColorType colorTyp
 			mOutOfBoundsMuted = false;
 		}
 
+		ColorType theColor = ColorType::kColorTypeTransparent;
+		if(colorSpace == "4:2:0"){
+			theColor = ColorType::kColorTypeShaderTransform;
+		}
+
+		mColorType = theColor;
 		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen", GSTREAMER_LOG);
-		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, colorType, videoWidth, videoHeight);
+		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, theColor, videoWidth, videoHeight);
 
 		mVideoSize.x = mGstreamerWrapper->getWidth();
 		mVideoSize.y = mGstreamerWrapper->getHeight();

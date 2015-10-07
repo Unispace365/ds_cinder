@@ -14,15 +14,19 @@ class SpriteEngine;
 
 class VideoMetaCache
 {
+
+private:
+	class Entry;
+
 public:
 	static const enum Type { ERROR_TYPE, AUDIO_TYPE, VIDEO_TYPE };
 	VideoMetaCache(const std::string& name);
 
 	// responds with true if it had to go get the values
-	bool					getValues(const std::string& videoPath, Type&, int& outWidth, int& outHeight, double& outDuration);
+	bool					getValues(const std::string& videoPath, Type&, int& outWidth, int& outHeight, double& outDuration, std::string& outColorSpace);
 
 protected:
-	void					setValues(const Type, const std::string& videoPath, const int width, const int height, const double duration);
+	void					setValues(Entry&);
 
 private:
 	void					load();
@@ -31,24 +35,27 @@ private:
 	VideoMetaCache(const VideoMetaCache&);
 	VideoMetaCache&			operator=(const VideoMetaCache&);
 
-	std::string				executeCommand(const char* cmd);
-	bool					getVideoInfo(const std::string& path, float& outDuration, int& outWidth, int& outHeight, int& valid);
-	std::string				parseVariable(std::string varName, std::string breakChar, std::string& stringToParse);
 
 
 	class Entry {
 	public:
 		Entry();
-		Entry(const std::string& key, const Type, const int width, const int height, const double duration);
+		Entry(const std::string& path, const Type, const int width, const int height, const double duration, const std::string& colorspace, const std::string& codec, const std::string& audioCodec);
 
-		std::string			mKey;
+		std::string			mPath;
 		Type				mType;
 		int					mWidth;
 		int					mHeight;
 		double				mDuration;
+		std::string			mColorSpace;
+		std::string			mVideoCodec;
+		std::string			mAudioCodec;
 	};
 	const std::string		mName;
-	std::vector<Entry>		mEntry;
+	std::vector<Entry>		mEntries;
+
+
+	bool					getVideoInfo(Entry&);
 };
 
 } // namespace ui

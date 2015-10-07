@@ -41,7 +41,6 @@ private:
 	std::vector<ds::ui::Video*>	mVideos;
 	std::vector<std::string>	mVideoPaths;
 
-	int							mColorType;
 	ds::ui::Text*				mFpsDisplay;
 };
 

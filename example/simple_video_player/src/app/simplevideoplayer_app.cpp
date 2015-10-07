@@ -26,7 +26,6 @@ SimpleVideoPlayer::SimpleVideoPlayer()
 	, mQueryHandler(mEngine, mAllData)
 	, mStressTestButton(nullptr)
 	, mStressTesting(false)
-	, mColorType(0)
 	, mFpsDisplay(nullptr)
 {
 
@@ -123,25 +122,7 @@ void SimpleVideoPlayer::keyDown(ci::app::KeyEvent event){
 	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
-	} else if(event.getChar() == KeyEvent::KEY_c){
-		mColorType++;
-		if(mColorType > 2){
-			mColorType = 0;
-		}
-
-		std::cout << "Color type is ";
-		if(mColorType == 0){
-			std::cout << "Transparent";
-		} else if(mColorType == 1){
-			std::cout << "Solid";
-		} else if(mColorType == 2){
-			std::cout << "YUV Shader";
-		}
-
-		std::cout << "." << std::endl;
-
-		startVideos(mVideoPaths);
-	} 
+	}
 }
 
 void SimpleVideoPlayer::fileDrop(ci::app::FileDropEvent event){
@@ -177,16 +158,12 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 
 	int curVideo = 0;
 
-	ds::ui::GstVideo::ColorType colorType = ds::ui::GstVideo::kColorTypeTransparent;
-	if(mColorType == 1) colorType = ds::ui::GstVideo::kColorTypeSolid;
-	if(mColorType == 2) colorType = ds::ui::GstVideo::kColorTypeShaderTransform;
-
 	for(int i = 0; i < numVideos; i++){
 		ds::ui::Video* video = new ds::ui::Video(mEngine);
 		video->setLooping(true);
 
-
-		video->loadVideo(mVideoPaths[curVideo], colorType);
+		video->setVerboseLogging(true);
+		video->loadVideo(mVideoPaths[curVideo]);
 		curVideo++;
 		if(curVideo > mVideoPaths.size() - 1){
 			curVideo = 0;
@@ -204,7 +181,7 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 			}
 		});
 
-		video->setOpacity(ci::randFloat());
+		//video->setOpacity(ci::randFloat());
 
 		fitVideoInArea(ci::Rectf(xp, yp, xp + vidWidth, yp + vidHeight), video);
 		xp += vidWidth;

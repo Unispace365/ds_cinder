@@ -455,12 +455,6 @@ public:
 	/** Spite out a ton of messages when running gstreamer pipelines. */
 	void					setVerboseLogging(const bool verboseOn);
 
-
-	bool					getSharedDrawable();
-	int						getSharedTextureId();
-
-	void					setSharedParams(const bool drawable, const int textureId);
-
 private:
 	/*
 	Helper method in order to apply either changes to the playback speed or direction in GStreamer
@@ -617,6 +611,7 @@ private:
 	PlayDirection			m_PlayDirection; /* The current playback direction */
 	ContentType				m_ContentType; /* Describes whether the currently loaded media file contains only video / audio streams or both */
 	unsigned char*			m_cVideoBuffer; /* Stores the video pixels */
+	int						m_cVideoBufferSize; /* Number of bytes in m_cVideoBuffer */
 	GstElement*				m_GstVideoSink; /* Video sink that contains the raw video buffer. Gathered from the pipeline */
 	GstAppSinkCallbacks		m_GstVideoSinkCallbacks; /* Stores references to the callback methods for video preroll, new video buffer and video eos */
 	GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
@@ -624,9 +619,6 @@ private:
 	bool					m_CustomPipeline;
 
 	bool					m_VerboseLogging;
-
-	int						m_SharedTextureId;
-	bool					m_SharedDrawable;
 
 
 }; //!class GStreamerWrapper

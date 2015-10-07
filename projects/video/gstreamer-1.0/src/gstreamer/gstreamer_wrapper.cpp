@@ -23,8 +23,7 @@ GStreamerWrapper::GStreamerWrapper()
 	, m_CustomPipeline(false)
 	, m_VideoLock(m_VideoMutex, std::defer_lock)
 	, m_VerboseLogging(false)
-	, m_SharedDrawable(false)
-	, m_SharedTextureId(0)
+	, m_cVideoBufferSize(0)
 {
 	gst_init( NULL, NULL );
 	m_CurrentPlayState = NOT_INITIALIZED;
@@ -72,6 +71,7 @@ void GStreamerWrapper::resetProperties(){
 	m_CurrentGstState = STATE_NULL;
 	m_LoopMode = LOOP;
 	m_PendingSeek = false;
+	m_cVideoBufferSize = 0;
 }
 
 void GStreamerWrapper::parseFilename(const std::string& theFile){
@@ -131,37 +131,36 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		// Set some fix caps for the video sink
 		GstCaps* caps;
 
-		int numVideoBuffers = 0;
 		if(colorSpace == kColorSpaceTransparent){
-			numVideoBuffers = 4 * videoWidth * videoHeight;
+			m_cVideoBufferSize = 4 * m_iWidth * m_iHeight;
 			caps = gst_caps_new_simple("video/x-raw",
 									   "format", G_TYPE_STRING, "BGRA",
-									   "width", G_TYPE_INT, videoWidth,
-									   "height", G_TYPE_INT, videoHeight,
+									   "width", G_TYPE_INT, m_iWidth,
+									   "height", G_TYPE_INT, m_iHeight,
 									   NULL);
 
 		} else if(colorSpace == kColorSpaceSolid){
-			numVideoBuffers = 3 * videoWidth * videoHeight;
+			m_cVideoBufferSize = 3 * m_iWidth * m_iHeight;
 
 			caps = gst_caps_new_simple("video/x-raw",
 									   "format", G_TYPE_STRING, "BGR",
-									   "width", G_TYPE_INT, videoWidth,
-									   "height", G_TYPE_INT, videoHeight,
+									   "width", G_TYPE_INT, m_iWidth,
+									   "height", G_TYPE_INT, m_iHeight,
 									   NULL);
 
 		} else if(colorSpace == kColorSpaceI420){
 			// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
-			numVideoBuffers = (int)(1.5 * m_iWidth * m_iHeight);
+			m_cVideoBufferSize = (int)(1.5 * m_iWidth * m_iHeight);
 
 
 			caps = gst_caps_new_simple("video/x-raw",
 									   "format", G_TYPE_STRING, "I420",
-									   "width", G_TYPE_INT, videoWidth,
-									   "height", G_TYPE_INT, videoHeight,
+									   "width", G_TYPE_INT, m_iWidth,
+									   "height", G_TYPE_INT, m_iHeight,
 									   NULL);
 		}
 
-		m_cVideoBuffer = new unsigned char[numVideoBuffers];
+		m_cVideoBuffer = new unsigned char[m_cVideoBufferSize];
 
 		gst_app_sink_set_caps( GST_APP_SINK( m_GstVideoSink ), caps );
 		gst_caps_unref( caps );
@@ -179,11 +178,14 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		gst_app_sink_set_callbacks( GST_APP_SINK( m_GstVideoSink ), &m_GstVideoSinkCallbacks, this, NULL );
 
 	} else {
-		//GstElement* videoSinkbi = gst_element_factory_make( "directdrawsink", NULL );
-		//if(!bGenerateAudioBuffer)   //Shoud be bGenerateVideoBuffer - Redundant CEE
-			DS_LOG_WARNING("Video size not detected or video buffer not set to be created. Ignoring video output.");
-		GstElement* videoSink = gst_element_factory_make( "faksesink", NULL );
-		g_object_set( m_GstPipeline, "video-sink", videoSink, NULL );
+
+		if(m_iHeight > 0 && m_iWidth > 0){
+			if(m_VerboseLogging){
+				DS_LOG_INFO("Video size not detected or video buffer not set to be created. Ignoring video output.");
+			}
+			GstElement* videoSink = gst_element_factory_make("faksesink", NULL);
+			g_object_set(m_GstPipeline, "video-sink", videoSink, NULL);
+		}
 
 	}
 
@@ -266,6 +268,7 @@ void GStreamerWrapper::close(){
 		m_GstBus = NULL;
 	}
 
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	delete [] m_cVideoBuffer;
 	m_cVideoBuffer = NULL;
 
@@ -829,16 +832,6 @@ void GStreamerWrapper::setVerboseLogging(const bool verboseOn){
 	m_VerboseLogging = verboseOn;
 }
 
-
-bool GStreamerWrapper::getSharedDrawable(){
-	return m_SharedDrawable;
-}
-
-
-int GStreamerWrapper::getSharedTextureId(){
-	return m_SharedTextureId;
-}
-
 GstFlowReturn GStreamerWrapper::onNewPrerollFromVideoSource(GstAppSink* appsink, void* listener){
 	GstSample* gstVideoSinkBuffer = gst_app_sink_pull_preroll( GST_APP_SINK( appsink ) );
 	( ( GStreamerWrapper *)listener )->newVideoSinkPrerollCallback( gstVideoSinkBuffer );
@@ -855,22 +848,10 @@ GstFlowReturn GStreamerWrapper::onNewPrerollFromAudioSource( GstAppSink* appsink
 	return GST_FLOW_OK;
 }
 
-GstFlowReturn GStreamerWrapper::onNewBufferFromVideoSource( GstAppSink* appsink, void* listener ){
-	//Poco::Timestamp::TimeVal pre = Poco::Timestamp().epochMicroseconds();
-	
-	GstSample* gstVideoSinkBuffer = gst_app_sink_pull_sample( GST_APP_SINK( appsink ) );
-
-	//Poco::Timestamp::TimeVal mid = Poco::Timestamp().epochMicroseconds();
-	
+GstFlowReturn GStreamerWrapper::onNewBufferFromVideoSource( GstAppSink* appsink, void* listener ){	
+	GstSample* gstVideoSinkBuffer = gst_app_sink_pull_sample( GST_APP_SINK( appsink ) );	
 	( ( GStreamerWrapper * )listener )->newVideoSinkBufferCallback( gstVideoSinkBuffer );
-
-	//Poco::Timestamp::TimeVal copied = Poco::Timestamp().epochMicroseconds();
-	
 	gst_sample_unref( gstVideoSinkBuffer );
-
-// 	Poco::Timestamp::TimeVal post = Poco::Timestamp().epochMicroseconds();
-// 	std::cout <<  "mid: " << (float)(mid - pre) / 1000000.0f << " copied: " << (float)(copied - mid) / 1000000.0f << " post: " << (float)(post - copied) / 1000000.0f << std::endl;
-
 	return GST_FLOW_OK;
 }
 
@@ -883,7 +864,9 @@ GstFlowReturn GStreamerWrapper::onNewBufferFromAudioSource( GstAppSink* appsink,
 	return GST_FLOW_OK;
 }
 
-void GStreamerWrapper::newVideoSinkPrerollCallback( GstSample* videoSinkSample ){
+void GStreamerWrapper::newVideoSinkPrerollCallback(GstSample* videoSinkSample){
+	if(!m_cVideoBuffer) return;
+
 	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
 
@@ -894,18 +877,24 @@ void GStreamerWrapper::newVideoSinkPrerollCallback( GstSample* videoSinkSample )
 
 	unsigned int videoBufferSize = map.size; 
 
-	// Allocate memory for the video pixels according to the vide appsink buffer size
-	if ( m_cVideoBuffer == NULL ){
-		if(!m_PendingSeek) m_bIsNewVideoFrame = true;
-	}
+	// sanity check on buffer size, in case something weird happened.
+	// In practice, this can fuck up the look of the video, but it plays and doesn't crash
+	if(m_cVideoBufferSize != videoBufferSize){
+		delete[] m_cVideoBuffer;
+		m_cVideoBufferSize = videoBufferSize;
+		m_cVideoBuffer = new unsigned char[m_cVideoBufferSize];
+	} 
+
+	memcpy((unsigned char *)m_cVideoBuffer, map.data, videoBufferSize);
+	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 	
-	// Copy the video appsink buffer data to our unsigned char array
-	memcpy( (unsigned char *)m_cVideoBuffer, map.data, videoBufferSize );
 
 	gst_buffer_unmap(buff, &map);
 }
 
 void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
+	if(!m_cVideoBuffer) return;
+
 	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 
@@ -914,8 +903,17 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 	GstMapFlags flags = GST_MAP_READ;
 	gst_buffer_map(buff, &map, flags);
 
-	// Copy the video appsink buffer data to our unsigned char array
-	memcpy( (unsigned char *)m_cVideoBuffer, map.data, map.size );
+
+	unsigned int videoBufferSize = map.size;
+
+	if(m_cVideoBufferSize != videoBufferSize){
+		delete[] m_cVideoBuffer;
+		m_cVideoBufferSize = videoBufferSize;
+		m_cVideoBuffer = new unsigned char[m_cVideoBufferSize];
+	}
+
+	memcpy((unsigned char *)m_cVideoBuffer, map.data, videoBufferSize);
+	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 
 	gst_buffer_unmap(buff, &map);
 }
@@ -1030,11 +1028,5 @@ void GStreamerWrapper::newAudioSinkBufferCallback( GstSample* audioSinkBuffer )
 void GStreamerWrapper::setVideoCompleteCallback( const std::function<void(GStreamerWrapper* video)> &func ){
 	mVideoCompleteCallback = func;
 }
-
-void GStreamerWrapper::setSharedParams(const bool drawable, const int textureId){
-	m_SharedTextureId = textureId;
-	m_SharedDrawable = drawable;
-}
-
 
 };

@@ -1,12 +1,8 @@
 #include "video_meta_cache.h"
 
-#define USE_MEDIAINFO		(1)
-//#define USE_FFPROBE			(1)
 
-#ifdef USE_MEDIAINFO
 // Keep this at the front, can get messed if it comes later
 #include "MediaInfoDLL.h"
-#endif // USE_MEDIAINFO
 
 #include <sstream>
 #include <Poco/Path.h>
@@ -62,11 +58,16 @@ VideoMetaCache::VideoMetaCache(const std::string& name)
 	load();
 }
 
-bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int& outWidth, int& outHeight, double& outDuration) {
-	for (auto it=mEntry.begin(), end=mEntry.end(); it!=end; ++it) {
+bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int& outWidth, int& outHeight, double& outDuration, std::string& outColorSpace) {
+	for(auto it = mEntries.begin(), end = mEntries.end(); it != end; ++it) {
 		const Entry&	e(*it);
-		if (e.mKey == videoPath){
+		if (e.mPath == videoPath){
 
+// With updates to this system , I don't believe this fallback system is needed.
+// Previously, a video could be assumed to be audio if it simply couldn't be found or read.
+// Now, actually find audio streams, and never assume stuff like that.
+// Also, if a file is type==ERROR_TYPE, it isn't recorded anywhere, so the below condition can't exist
+#if 0
 			// Sort of a long story, but here's the deal:
 			//		1. Try to load a video that doesn't exist yet, type gets saved as audio, width=0, height=0
 			//		2. Try to load that same video again, but now it exists. The cache will pull up audio, width & height = 0
@@ -75,11 +76,10 @@ bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int&
 			//		5. This means audio files are queried every time. If this becomes an issue performance-wise, we can try to short-cut this.
 			if(e.mWidth < 1 || e.mHeight < 1){
 
-				int width(0), height(0), valid(0);
-				Type	t = VIDEO_TYPE;
-				float duration(0.0f);
+				Entry newEntry = Entry();
+				newEntry.mPath = videoPath;
 
-				if(getVideoInfo(videoPath, duration, width, height, valid)){
+				if(getVideoInfo(newEntry) && newEntry.mType != ERROR_TYPE){
 					if(width > 0 && height > 0){
 						setValues(t, videoPath, width, height, duration);
 						outType = t;
@@ -92,27 +92,36 @@ bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int&
 
 			}
 
+#endif 
+
 			outType = e.mType;
 			outWidth = e.mWidth;
 			outHeight = e.mHeight;
 			outDuration = e.mDuration;
+			outColorSpace = e.mColorSpace;
+
 			return true;
 		}
 	}
 
+
+	// The above search for a pre-cached video info failed, so find the video info
 	try {
-		int width(0), height(0), valid(0);
-		Type	t = VIDEO_TYPE;
-		float duration(0.0f);
 
-		getVideoInfo(videoPath, duration, width, height, valid);
-		if(width < 1 || height < 1) t = AUDIO_TYPE;
+		Entry newEntry = Entry();
+		newEntry.mPath = videoPath;
 
-		setValues(t, videoPath, width, height, duration);
+		if(!getVideoInfo(newEntry) || newEntry.mType == ERROR_TYPE){
+			return false;
+		}
 
-		outWidth = width;
-		outHeight = height;
-		outDuration = duration;
+		setValues(newEntry);
+
+		outType = newEntry.mType;
+		outWidth = newEntry.mWidth;
+		outHeight = newEntry.mHeight;
+		outDuration = newEntry.mDuration;
+		outColorSpace = newEntry.mColorSpace;
 		return true;
 	} catch (std::exception const& ex) {
 		DS_LOG_WARNING("VideoMetaCache::getWith() error=" << ex.what());
@@ -120,42 +129,58 @@ bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int&
 	return true;
 }
 
-void VideoMetaCache::setValues(const Type t, const std::string& path, const int width, const int height, const double duration) {
-	if (t == ERROR_TYPE) {
-		DS_LOG_WARNING("Attempted to cache an invalid media (path=" << path << ")");
+void VideoMetaCache::setValues(Entry& entry) {
+	if(entry.mType == ERROR_TYPE) {
+		DS_LOG_WARNING("Attempted to cache an invalid media (path=" << entry.mPath << ")");
 		return;
 	}
-	if (duration < 0.0f) {
-		DS_LOG_WARNING("Attempted to cache media with no duration (path=" << path << ")");
+	if(entry.mDuration < 0.0f) {
+		DS_LOG_WARNING("Attempted to cache media with no duration (path=" << entry.mPath << ")");
 		return;
 	}
-	if (t == VIDEO_TYPE && (width < 1 || height < 1)) {
-		DS_LOG_WARNING("Attempted to cache video with no size (path=" << path << ", width=" << width << ", height=" << height << ")");
+	if(entry.mType == VIDEO_TYPE && (entry.mWidth < 1 || entry.mHeight < 1)) {
+		DS_LOG_WARNING("Attempted to cache video with no size (path=" << entry.mPath << ", width=" << entry.mWidth << ", height=" << entry.mHeight << ")");
 		return;
 	}
 	try {
 		const std::string				db = get_db_file(mName);
 		std::stringstream				buf;
-		buf << "SELECT id FROM video_meta WHERE path='" << path << "'";
+		buf << "SELECT id FROM video_meta WHERE path='" << entry.mPath << "'";
 		ds::query::Result						ans;
 		if (ds::query::Client::query(db, buf.str(), ans) && !ans.rowsAreEmpty()) {
 			buf.str("");
-			buf << "UPDATE video_meta SET type='" << db_type_from_type(t) << "', width=" << width << ", height=" << height << ", duration=" << duration << " WHERE path='" << path << "'";
+			buf << "UPDATE video_meta SET type='" << db_type_from_type(entry.mType) 
+				<< "', width=" << entry.mWidth 
+				<< ", height=" << entry.mHeight 
+				<< ", duration=" << entry.mDuration
+				<< ", colorspace='" << entry.mDuration
+				<< "', videocodec='" << entry.mDuration
+				<< "', audiocodec='" << entry.mDuration
+				<< "' WHERE path='" << entry.mPath << "'";
 			ds::query::Client::queryWrite(db, buf.str(), ans);
 			load();
 			return;
 		}
 		buf.str("");
-		buf << "INSERT INTO video_meta (type, path, width, height, duration) values ('" << db_type_from_type(t) << "', '" << path << "', " << width << ", " << height << ", " << duration << ")";
+		buf << "INSERT INTO video_meta (type, path, width, height, duration, colorspace, videocodec, audiocodec) values ('" << 
+			db_type_from_type(entry.mType) << "', '" 
+			<< entry.mPath << "', " 
+			<< entry.mWidth << ", " 
+			<< entry.mHeight << ", " 
+			<< entry.mDuration << ", '" 
+			<< entry.mColorSpace << "', '" 
+			<< entry.mVideoCodec << "', '" 
+			<< entry.mAudioCodec << "')";
 		ds::query::Client::queryWrite(db, buf.str(), ans);
+		mEntries.push_back(entry);
 	} catch (std::exception const&) {
 	}
 
-	load();
+	//load();
 }
 
 void VideoMetaCache::load() {
-	mEntry.clear();
+	mEntries.clear();
 
 	// Load in the high scores
 	Poco::File						f(get_db_directory());
@@ -166,36 +191,20 @@ void VideoMetaCache::load() {
 	if (!f.exists()) {
 		f.createFile();
 		ds::query::Result			r;
-		ds::query::Client::queryWrite(db, "CREATE TABLE video_meta(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT NOT NULL DEFAULT '', path TEXT NOT NULL DEFAULT '', width INT NOT NULL DEFAULT '0', height INT NOT NULL DEFAULT '0', duration DOUBLE NOT NULL DEFAULT '0');", r);
+		ds::query::Client::queryWrite(db, "CREATE TABLE video_meta(id INTEGER PRIMARY KEY AUTOINCREMENT, type TEXT NOT NULL DEFAULT '', path TEXT NOT NULL DEFAULT '', width INT NOT NULL DEFAULT '0', height INT NOT NULL DEFAULT '0', duration DOUBLE NOT NULL DEFAULT '0', colorspace TEXT NOT NULL DEFAULT '', videocodec TEXT NOT NULL DEFAULT '', audiocodec TEXT NOT NULL DEFAULT '');", r);
 	}
 
 	ds::query::Result				ans;
-	ds::query::Client::query(db, "SELECT type,path,width,height,duration FROM video_meta", ans);
+	ds::query::Client::query(db, "SELECT type, path, width, height, duration, colorspace, videocodec, audiocodec FROM video_meta", ans);
 	ds::query::Result::RowIterator	it(ans);
 	while (it.hasValue()) {
 		const std::string&			game(it.getString(1));
-		if (!game.empty()) mEntry.push_back(Entry(game, type_from_db_type(it.getString(0)), it.getInt(2), it.getInt(3), it.getFloat(4)));
+		if (!game.empty()) mEntries.push_back(Entry(game, type_from_db_type(it.getString(0)), it.getInt(2), it.getInt(3), it.getFloat(4), it.getString(5), it.getString(6), it.getString(7)));
 		++it;
 	}
 }
 
-
-std::string VideoMetaCache::executeCommand(const char* cmd){
-	FILE* pipe = _popen(cmd, "r");
-	if (!pipe) return "ERROR";
-	char buffer[128];
-	std::string result = "";
-	while(!feof(pipe)) {
-		if(fgets(buffer, 128, pipe) != NULL)
-			result += buffer;
-	}
-	_pclose(pipe);
-	return result;
-}
-
-
-bool VideoMetaCache::getVideoInfo(const std::string& path, float& outDuration, int& outWidth, int& outHeight, int& valid) {
-#ifdef USE_MEDIAINFO
+bool VideoMetaCache::getVideoInfo(Entry& entry) {
 	MediaInfoDLL::MediaInfo		media_info;
 	if (!media_info.IsReady()) {
 		// Indicates the DLL couldn't be loaded
@@ -203,81 +212,50 @@ bool VideoMetaCache::getVideoInfo(const std::string& path, float& outDuration, i
 		throw std::runtime_error("VideoMetaCache::getVideoInfo() MediaInfo not loaded, does dll/MediaInfo.dll exist in the app folder?");
 		return false;
 	}
-	media_info.Open(ds::wstr_from_utf8(path));
-	if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Width", MediaInfoDLL::Info_Text), outWidth)) return false;
-	if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Height", MediaInfoDLL::Info_Text), outHeight)) return false;
-	if (!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Duration", MediaInfoDLL::Info_Text), outDuration)) return false;
-	outDuration /= 1000.0f;
-	if (outDuration <= 0.0f || outDuration > 360000.0f) {
-		DS_LOG_WARNING("VideoMetaCache::getVideoInfo() illegal duration (" << outDuration << ") for file (" << path << ")");
+	media_info.Open(ds::wstr_from_utf8(entry.mPath));
+	
+	size_t numAudio = media_info.Count_Get(MediaInfoDLL::Stream_Audio);
+	size_t numVideo = media_info.Count_Get(MediaInfoDLL::Stream_Video);
+
+	if(numAudio < 1 && numVideo < 1){
+		DS_LOG_WARNING("Couldn't find any audio or video streams in " << entry.mPath);
+		entry.mType = ERROR_TYPE;
 		return false;
 	}
+
+	// If there's an audio channel, get it's codec
+	if(numAudio > 0){
+		entry.mAudioCodec = ds::utf8_from_wstr(media_info.Get(MediaInfoDLL::Stream_Audio, 0, L"Codec", MediaInfoDLL::Info_Text));
+	}
+
+
+	// No video streams, but has at least one audio stream is a AUDIO_TYPE
+	if(numAudio > 0 && numVideo < 1){
+		entry.mType = AUDIO_TYPE;
+		entry.mWidth = 0;
+		entry.mHeight = 0;
+		if(!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Audio, 0, L"Duration", MediaInfoDLL::Info_Text), entry.mDuration)) return false;
+
+	// Any number of audio streams and at least one video streams is VIDEO_TYPE
+	} else if(numVideo > 0){
+		entry.mType = VIDEO_TYPE;
+		if(!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Width", MediaInfoDLL::Info_Text), entry.mWidth)) return false;
+		if(!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Height", MediaInfoDLL::Info_Text), entry.mHeight)) return false;
+
+		// We don't check errors on these, cause they're not required by gstreamer to play a video, they're just nice-to-have
+		entry.mVideoCodec = ds::utf8_from_wstr(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Codec", MediaInfoDLL::Info_Text));
+		entry.mColorSpace = ds::utf8_from_wstr(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Colorimetry", MediaInfoDLL::Info_Text));
+		ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Duration", MediaInfoDLL::Info_Text), entry.mDuration);
+	}
+
+	entry.mDuration /= 1000.0f;
+
+	// Disabling duration check, if MediaInfo can't find it, that's ok, GStreamer can fill it in
+// 	if(entry.mDuration <= 0.0f || entry.mDuration > 360000.0f) {  // 360000.0f == 100 hours. That should be enough, right?
+// 		DS_LOG_WARNING("VideoMetaCache::getVideoInfo() illegal duration (" << entry.mDuration << ") for file (" << entry.mPath << ")");
+// 		return false;
+// 	}
 	return true;
-#elif defined USE_FFPROBE
-	// ffprobe.exe needs to be in the bin folder
-	// "-show_streams" will print info about every stream
-	// "sexagesimal" prints time in HH:MM:SS.MICROSECONDS
-	// "-print_format compact" forces the format into a smaller form to be parsed
-	// path is the path to the file
-	// "2>&1" ffprobe prints everything in stderror, "2>" redirects stderror to stdout, or "&1"
-	//	valid = ERROR_TYPE;
-	std::stringstream ss;
-	std::string pPath = ds::Environment::getAppFolder("ffprobe/", "");
-	ss << "cd \"" << pPath << "\"";
-	pPath = ss.str();
-	const char* cdPath = pPath.c_str();
-
-	ss.str("");
-	ss << "ffprobe.exe -show_streams -pretty -sexagesimal -pretty -print_format compact -i \"" + path  + "\" 2>&1"; 
-	std::string s = ss.str();
-	const char* c = s.c_str();
-	std::string out = executeCommand(c);
-	if (out == "ERROR"){
-		return false;
-	}
-
-	std::string width = parseVariable("width=", "|", out);
-	outWidth = atoi(width.c_str());
-
-	std::string height = parseVariable("height=", "|", out);
-	outHeight = atoi(height.c_str());
-
-	std::string duration = parseVariable("duration=", "|", out);
-	if(duration.size() < 5){
-		std::cout << "invalid duration: " << duration << " for " << path << std::endl;
-	} else {
-		int hours = atoi(duration.substr(0,1).c_str());
-		int minutes = atoi(duration.substr(2,2).c_str());
-		float seconds = static_cast<float>(atof(duration.substr(5).c_str()));
-		outDuration = static_cast<float>(hours * 60 * 60) + static_cast<float>(minutes * 60) + seconds;
-	}
-
-	// disabling duration checking for gstreamer caching	
-	if (outDuration < 0 || outDuration > 360000){
-		DS_LOG_WARNING("Duration is negative or too long (must be less than 100 hours in length) " << outDuration);	
-		return false;
-	}
-	//} 
-	//if (outWidth < 1 || outHeight < 1){
-	//	DS_LOG_WARNING("Width or height are invalid, width=" << outWidth << " height=" << outHeight << " (output was " << out << ")");
-	//	return false;
-	//}
-
-	return true;
-#endif
-}
-
-std::string VideoMetaCache::parseVariable(std::string varName, std::string breakChar, std::string& stringToParse){
-	int pos = stringToParse.find(varName);
-	if(pos > 0){
-		std::string output = stringToParse.substr(pos+varName.length());
-		pos = output.find(breakChar);
-		if(pos > 0){
-			output = output.substr(0, pos);
-			return output;
-		}
-	}
-	return "";
 }
 
 /**
@@ -290,12 +268,16 @@ VideoMetaCache::Entry::Entry()
 	, mDuration(0.0f) {
 }
 
-VideoMetaCache::Entry::Entry(const std::string& key, const Type t, const int width, const int height, const double duration)
-	: mKey(key)
+VideoMetaCache::Entry::Entry(const std::string& key, const Type t, const int width, const int height, const double duration, const std::string& colorSpace, const std::string& videoCodec, const std::string& audioCodec)
+	: mPath(key)
 	, mType(t)
 	, mWidth(width)
 	, mHeight(height)
-	, mDuration(duration) {
+	, mDuration(duration) 
+	, mAudioCodec(audioCodec)
+	, mVideoCodec(videoCodec)
+	, mColorSpace(colorSpace)
+{
 }
 
 } // namespace ui

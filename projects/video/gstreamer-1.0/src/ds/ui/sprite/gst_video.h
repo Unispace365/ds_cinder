@@ -39,12 +39,6 @@ public:
 		int					 mCode;
 	};
 
-	// A simple enum for specifying how the video gets rendered.
-	// Transparent: retains an alpha channel through the whole pipeline, gstreamer handles the colorspace conversion to RGBA (or BGRA)
-	// Solid: has no alpha channel, and gstreamer handles the colorspace conversion to RGB (or BGR)
-	// ShaderTransform: has no alpha channel, and colorspace conversion is handled in a shader when drawing to the screen, uses I420 YUV colorspace conversion only
-	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform} ColorType;
-
 public:
 	// Convenience for allocating a Video sprite pointer and optionally adding it
 	// to another Sprite as child.
@@ -60,11 +54,11 @@ public:
 	void				setSize( float width, float height );
 	
 	// Loads a video from a file path.
-	GstVideo&			loadVideo(const std::string &filename, const ColorType colorType = kColorTypeTransparent );
+	GstVideo&			loadVideo(const std::string &filename);
 	// Loads a vodeo from a ds::Resource::Id
-	GstVideo&			setResourceId(const ds::Resource::Id& resource_id, const ColorType colorType = kColorTypeTransparent);
+	GstVideo&			setResourceId(const ds::Resource::Id& resource_id);
 	// Loads a vodeo from a ds::Resource
-	GstVideo&			setResource(const ds::Resource& resource, const ColorType colorType = kColorTypeTransparent);
+	GstVideo&			setResource(const ds::Resource& resource);
 
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility
@@ -148,7 +142,15 @@ protected:
 	virtual void		readAttributeFrom(const char, DataBuffer&) override;
 
 private:
-	void				doLoadVideo(const std::string &filename, const ColorType colorType = kColorTypeTransparent);
+
+	// A simple enum for specifying how the video gets rendered.
+	// Transparent: retains an alpha channel through the whole pipeline, gstreamer handles the colorspace conversion to RGBA (or BGRA)
+	// Solid: has no alpha channel, and gstreamer handles the colorspace conversion to RGB (or BGR)
+	// ShaderTransform: has no alpha channel, and colorspace conversion is handled in a shader when drawing to the screen, uses I420 YUV colorspace conversion only
+	// This value is assumed from the output of the videometa cache
+	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform } ColorType;
+
+	void				doLoadVideo(const std::string &filename);
 	void				applyMovieVolume();
 	void				applyMovieLooping();
 	void				checkOutOfBounds();
