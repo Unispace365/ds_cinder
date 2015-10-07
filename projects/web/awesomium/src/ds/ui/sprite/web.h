@@ -22,6 +22,7 @@ class WebLoadListener;
 class WebViewListener;
 class WebProcessListener;
 class WebDialogListener;
+class WebMenuListener;
 }
 
 namespace ui {
@@ -57,6 +58,9 @@ public:
 	void					sendMouseDownEvent(const ci::app::MouseEvent &event);
 	void					sendMouseDragEvent(const ci::app::MouseEvent &event);
 	void					sendMouseUpEvent(const ci::app::MouseEvent &event);
+
+	void					sendMouseClick(const ci::Vec3f& globalClickPoint);
+
 	// Clients can listen to touch events. Kind of a hack to
 	// try and sync client/server arrangements.
 	void					setTouchListener(const std::function<void(const ds::web::TouchEvent&)>&);
@@ -115,6 +119,8 @@ public:
 	void					registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
 														const std::function<void(const ds::web::ScriptTree&)>&);
 
+	void					executeJavascript(const std::string& theScript);
+
 protected:
 	virtual void			onSizeChanged();
 	virtual void			writeAttributesTo(ds::DataBuffer&);
@@ -136,6 +142,7 @@ private:
 	std::unique_ptr<ds::web::WebLoadListener>		mWebLoadListener;
 	std::unique_ptr<ds::web::WebProcessListener>	mWebProcessListener;
 	std::unique_ptr<ds::web::WebDialogListener>		mWebDialogListener;
+	std::unique_ptr<ds::web::WebMenuListener>		mWebMenuListener;
 	std::unique_ptr<ds::web::JsMethodHandler>		mJsMethodHandler;
 
 	ci::gl::Texture			mWebTexture;
