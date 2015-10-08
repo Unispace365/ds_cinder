@@ -557,6 +557,8 @@ private:
 	// Makes sure videos widths are divisible by 4, for video blanking
 	void					enforceModFourWidth(const int videoWidth, const int videoHeight);
 
+	void					setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime);
+
 protected:
 
 	int						m_iAudioBufferSize; /* Size of the audio buffer */

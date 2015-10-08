@@ -5,7 +5,6 @@
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/data/resource.h>
-#include "gst_video_net.h"
 
 #include <Poco/Timestamp.h>
 
@@ -140,6 +139,7 @@ protected:
 	virtual void		drawLocalClient() override;
 	virtual void		writeAttributesTo(DataBuffer&) override;
 	virtual void		readAttributeFrom(const char, DataBuffer&) override;
+	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
 
 private:
 
@@ -156,15 +156,6 @@ private:
 	void				checkOutOfBounds();
 	void				setStatus(const int);
 	void				checkStatus();
-
-private:
-	GstVideoNet			mNetHandler;
-	
-protected:
-	gstwrapper::GStreamerWrapper*
-						mGstreamerWrapper;
-private:
-
 	ColorType			mColorType;
 
 	ci::gl::Texture		mFrameTexture;
@@ -202,6 +193,12 @@ private:
 
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;
+
+
+	// Initialization
+public:
+	static void					installAsServer(ds::BlobRegistry&);
+	static void					installAsClient(ds::BlobRegistry&);
 };
 
 } //!namespace ui

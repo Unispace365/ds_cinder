@@ -4,7 +4,8 @@
 #include <iostream>
 #include <algorithm>
 
-//#include "gstreamer-1.0/gst/net/gstnetclientclock.h"
+#include "gst/net/gstnetclientclock.h"
+#include "gst/net/gstnettimeprovider.h"
 
 namespace gstwrapper
 {
@@ -97,6 +98,7 @@ void GStreamerWrapper::enforceModFourWidth(const int vidWidth, const int vidHeig
 	m_iWidth = videoWidth;
 	m_iHeight = videoHeight;
 }
+
 
 bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight){
 	resetProperties();
@@ -245,6 +247,40 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	m_bFileIsOpen = true;
 
 	return true;
+}
+
+void GStreamerWrapper::setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime){
+	if(isServer){
+		// apply pipeline clock to itself, to make sure we're on charge
+		auto clock = gst_pipeline_get_clock(GST_PIPELINE(m_GstPipeline));
+		gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
+		// instantiate network clock once for everyone
+		static auto clock_provider = gst_net_time_provider_new(clock, addr.c_str(), port);
+		if(!clock_provider)		{
+			DS_LOG_WARNING("Could not instantiate the GST server network clock.");
+		}
+		// get the time for clients to start based on...
+		inOutTime = gst_clock_get_time(clock);
+		// reset my clock so it won't advance detached from net
+		gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
+		// set the net clock to start ticking from our base time
+		gst_element_set_base_time(m_GstPipeline, inOutTime);
+
+	} else {
+		// reset my clock so it won't advance detached from net
+		gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
+		// get the net clock
+		auto clock = gst_net_client_clock_new("clock0", addr.c_str(), port, inOutTime);
+		if(!clock)
+		{
+			throw std::runtime_error("Could not instantiate the GST client network clock.");
+		}
+		// set base time received from server
+		gst_element_set_base_time(m_GstPipeline, inOutTime);
+		// apply the net clock
+		gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
+	}
+
 }
 
 void GStreamerWrapper::close(){
