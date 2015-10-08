@@ -5,6 +5,7 @@
 #include <functional>
 #include "Awesomium/WebURL.h"
 #include "Awesomium/WebViewListener.h"
+#include <Awesomium/WebMenuItem.h>
 
 namespace ds {
 namespace ui {
@@ -161,6 +162,34 @@ public:
 
 private:
 	ds::ui::Web *mWeb;
+};
+
+/*
+*\class ds::web::WebDialogListener
+* \brief Handle Menu callbacks.
+*/
+class WebMenuListener : public Awesomium::WebViewListener::Menu {
+public:
+	///
+	/// This event occurs when the page requests to display a dropdown
+	/// (popup) menu. This is usually the result of a user clicking on
+	/// a "select" HTML input element. It is your responsibility to
+	/// display this menu in your application. This event is not modal.
+	///
+	/// @see WebView::DidSelectPopupMenuItem
+	/// @see WebView::DidCancelPopupMenu
+	///
+	virtual void OnShowPopupMenu(Awesomium::WebView* caller,
+								 const Awesomium::WebPopupMenuInfo& menu_info);
+
+	///
+	/// This event occurs when the page requests to display a context menu.
+	/// This is usually the result of a user right-clicking somewhere on the
+	/// page. It is your responsibility to display this menu in your
+	/// application and perform the selected actions. This event is not modal.
+	///
+	virtual void OnShowContextMenu(Awesomium::WebView* caller,
+								   const Awesomium::WebContextMenuInfo& menu_info);
 };
 
 } // namespace web

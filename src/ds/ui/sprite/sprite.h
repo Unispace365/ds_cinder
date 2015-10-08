@@ -365,6 +365,8 @@ namespace ui {
 			Equivalent to calling release() on every child. */
 		void					clearChildren();
 
+		std::vector<Sprite*>	getChildren() { return mChildren; }
+
 		/** Check to see if this Sprite contains child.
 			\param child The child to check if it is contained on this Sprite.
 			\return True if the child is a child of this Sprite. False if the child is a damn stranger. */

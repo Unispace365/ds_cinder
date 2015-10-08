@@ -40,6 +40,8 @@ private:
 
 	std::vector<ds::ui::Video*>	mVideos;
 	std::vector<std::string>	mVideoPaths;
+
+	ds::ui::Text*				mFpsDisplay;
 };
 
 } // !namespace example

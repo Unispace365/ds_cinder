@@ -1,10 +1,10 @@
 #pragma once
 
-#include <gstreamer-1.0/gst/gst.h>
-#include <gstreamer-1.0/gst/gstbin.h>
-#include <gstreamer-1.0/gst/app/gstappsink.h>
-#include <gstreamer-1.0/gst/video/video.h>
-#include <gstreamer-1.0/gst/audio/audio.h>
+#include <gst/gst.h>
+#include <gst/gstbin.h>
+#include <gst/app/gstappsink.h>
+#include <gst/video/video.h>
+#include <gst/audio/audio.h>
 
 #include <mutex>
 #include <atomic>
@@ -89,6 +89,8 @@ public:
 	// Destructor which closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
 	virtual ~GStreamerWrapper();
 
+	typedef enum { kColorSpaceTransparent = 0, kColorSpaceSolid, kColorSpaceI420 } ColorSpace;
+
 	/*
 	Opens a file according to the string parameter. Sets the wrapper's PlayState to OPENED
 
@@ -106,17 +108,17 @@ public:
 	audio codec of the operating system and play the sound synchronized to the video (or just play the sound if there is no video
 	data)
 
-	@ transparent: If true, will set the bits per pixel to 32 and generate alpha values, even if the source video doesn't have them (all opaque in that case).
+	@ colorSpace: See the color space enum above. Transparent will output BGRA, solid will be BGR, and I420 will output raw I420 YUV and you'll have to colorspace convert yourself.
 			 
 	@ videoWidth: Specify the size of the video. Required before creating a pipeline
 	@ videoHeight: Specify the size of the video. Required before creating a pipeline
 	*/
-	bool					open( std::string strFilename, bool bGenerateVideoBuffer, bool bGenerateAudioBuffer, bool isTransparent, int videoWidth, int videoHeight);
+	bool					open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight);
 
 	/*
 	Closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
 	*/
-	virtual void					close();
+	virtual void			close();
 
 	/*
 	Updates the internal GStreamer messages that are passed during the streaming process. This method is also needed to detect
@@ -447,6 +449,9 @@ public:
 	*/
 	void					retrieveVideoInfo();
 
+	/** Spite out a ton of messages when running gstreamer pipelines. */
+	void					setVerboseLogging(const bool verboseOn);
+
 private:
 	/*
 	Helper method in order to apply either changes to the playback speed or direction in GStreamer
@@ -543,6 +548,14 @@ private:
 	static void				onEosFromVideoSource(GstAppSink* appsink, void* listener);
 	static void				onEosFromAudioSource(GstAppSink* appsink, void* listener);
 
+	// Clears out member properties
+	void					resetProperties();
+
+	// Adds appropriate file:/// if needed
+	void					parseFilename(const std::string& filename);
+
+	// Makes sure videos widths are divisible by 4, for video blanking
+	void					enforceModFourWidth(const int videoWidth, const int videoHeight);
 
 protected:
 
@@ -595,11 +608,15 @@ private:
 	PlayDirection			m_PlayDirection; /* The current playback direction */
 	ContentType				m_ContentType; /* Describes whether the currently loaded media file contains only video / audio streams or both */
 	unsigned char*			m_cVideoBuffer; /* Stores the video pixels */
+	int						m_cVideoBufferSize; /* Number of bytes in m_cVideoBuffer */
 	GstElement*				m_GstVideoSink; /* Video sink that contains the raw video buffer. Gathered from the pipeline */
 	GstAppSinkCallbacks		m_GstVideoSinkCallbacks; /* Stores references to the callback methods for video preroll, new video buffer and video eos */
 	GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 	bool					m_StartPlaying;/* Play the video as soon as it's loaded */
 	bool					m_CustomPipeline;
+
+	bool					m_VerboseLogging;
+
 
 }; //!class GStreamerWrapper
 }; //!namespace gstwrapper

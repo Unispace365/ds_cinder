@@ -22,8 +22,9 @@ GStreamerWrapper::GStreamerWrapper()
 	, m_StopOnLoopComplete(false)
 	, m_CustomPipeline(false)
 	, m_VideoLock(m_VideoMutex, std::defer_lock)
+	, m_VerboseLogging(false)
+	, m_cVideoBufferSize(0)
 {
-		
 	gst_init( NULL, NULL );
 	m_CurrentPlayState = NOT_INITIALIZED;
 }
@@ -36,22 +37,21 @@ GStreamerWrapper::~GStreamerWrapper()
 		try {
 			m_VideoLock.unlock();
 		} catch (std::exception& ex) {
-			std::cerr	<< "A fatal deadlock occurred and I can't survive from this one :(" << std::endl
+			std::cout	<< "A fatal deadlock occurred and I can't survive from this one :(" << std::endl
 						<< "Probably your screen is stuck and this is the last log line you are reading." << std::endl
 						<< "Exception: " << ex.what() << std::endl;
 		}
 	}
 }
 
-bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer, bool bGenerateAudioBuffer, bool isTransparent, int videoWidth, int videoHeight)
-{
+void GStreamerWrapper::resetProperties(){
 	// init property variables
 	m_iNumVideoStreams = 0;
 	m_iNumAudioStreams = 0;
 	m_iCurrentVideoStream = 0;
 	m_iCurrentAudioStream = 0;
-	m_iWidth = videoWidth;		
-	m_iHeight = videoHeight;
+	m_iWidth = 0;
+	m_iHeight = 0;
 	m_iCurrentFrameNumber = 0;	// set to invalid, as it is not decoded yet
 	m_dCurrentTimeInMs = 0;	// set to invalid, as it is not decoded yet
 	m_bIsAudioSigned = false;
@@ -70,41 +70,51 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 	m_CurrentPlayState = NOT_INITIALIZED;
 	m_CurrentGstState = STATE_NULL;
 	m_LoopMode = LOOP;
-	m_strFilename = strFilename;
 	m_PendingSeek = false;
+	m_cVideoBufferSize = 0;
+}
+
+void GStreamerWrapper::parseFilename(const std::string& theFile){
+	std::string strFilename = theFile;
+	std::replace(strFilename.begin(), strFilename.end(), '\\', '/');
+	// Check and re-arrange filename string
+	if(strFilename.find("file:/", 0) == std::string::npos &&
+	   strFilename.find("file:///", 0) == std::string::npos &&
+	   strFilename.find("http://", 0) == std::string::npos)
+	{
+		strFilename = "file:///" + strFilename;
+	}
+	m_strFilename = strFilename;
+}
+
+void GStreamerWrapper::enforceModFourWidth(const int vidWidth, const int vidHeight){
+	int videoWidth = vidWidth;
+	int videoHeight = vidHeight;
+
+	if(videoWidth % 4 != 0){
+		videoWidth += 4 - videoWidth % 4;
+	}
+	m_iWidth = videoWidth;
+	m_iHeight = videoHeight;
+}
+
+bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight){
+	resetProperties();
 
 	if( m_bFileIsOpen )	{
 		stop();
 		close();
 	}
 
-	if(videoWidth % 4 != 0){
-		videoWidth += 4 - videoWidth % 4;
-	}
-
-	m_iWidth = videoWidth;
-
-	if(isTransparent){
-		m_cVideoBuffer = new unsigned char[8 * 4 * videoWidth * videoHeight];
-	} else {
-		m_cVideoBuffer = new unsigned char[8 * 3 * videoWidth * videoHeight];
-	}
+	parseFilename(strFilename);
+	enforceModFourWidth(videoWidth, videoHeight);
 
 	// PIPELINE
 	// Init main pipeline --> playbin
 	m_GstPipeline = gst_element_factory_make( "playbin", "pipeline" );
 
-	std::replace(strFilename.begin(), strFilename.end(), '\\', '/');
-	// Check and re-arrange filename string
-	if ( strFilename.find( "file:/", 0 ) == std::string::npos &&
-		 strFilename.find( "file:///", 0 ) == std::string::npos &&
-		 strFilename.find( "http://", 0 ) == std::string::npos )
-	{
-		strFilename = "file:///" + strFilename;
-	}
-
 	// Open Uri
-	g_object_set( m_GstPipeline, "uri", strFilename.c_str(), NULL );
+	g_object_set(m_GstPipeline, "uri", m_strFilename.c_str(), NULL);
 
 
 	// VIDEO SINK
@@ -113,29 +123,44 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		// Create the video appsink and configure it
 		m_GstVideoSink = gst_element_factory_make("appsink", "videosink");
 
-		//gst_base_sink_set_sync( GST_BASE_SINK( m_GstVideoSink ), true );
 		gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 0 );
 		gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
 		gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
-	//	gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), 20000000); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
 		gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), -1); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
 
 		// Set some fix caps for the video sink
 		GstCaps* caps;
-		if(isTransparent){
-			caps = gst_caps_new_simple( "video/x-raw",
-				"format", G_TYPE_STRING, "BGRA",
-				"width", G_TYPE_INT, videoWidth,
-				"height", G_TYPE_INT, videoHeight,
-			NULL );
-		} else  {
-			caps= gst_caps_new_simple( "video/x-raw",
-				"format", G_TYPE_STRING, "BGR",
-				"width", G_TYPE_INT, videoWidth,
-				"height", G_TYPE_INT, videoHeight,
-				NULL );
+
+		if(colorSpace == kColorSpaceTransparent){
+			m_cVideoBufferSize = 4 * m_iWidth * m_iHeight;
+			caps = gst_caps_new_simple("video/x-raw",
+									   "format", G_TYPE_STRING, "BGRA",
+									   "width", G_TYPE_INT, m_iWidth,
+									   "height", G_TYPE_INT, m_iHeight,
+									   NULL);
+
+		} else if(colorSpace == kColorSpaceSolid){
+			m_cVideoBufferSize = 3 * m_iWidth * m_iHeight;
+
+			caps = gst_caps_new_simple("video/x-raw",
+									   "format", G_TYPE_STRING, "BGR",
+									   "width", G_TYPE_INT, m_iWidth,
+									   "height", G_TYPE_INT, m_iHeight,
+									   NULL);
+
+		} else if(colorSpace == kColorSpaceI420){
+			// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
+			m_cVideoBufferSize = (int)(1.5 * m_iWidth * m_iHeight);
+
+
+			caps = gst_caps_new_simple("video/x-raw",
+									   "format", G_TYPE_STRING, "I420",
+									   "width", G_TYPE_INT, m_iWidth,
+									   "height", G_TYPE_INT, m_iHeight,
+									   NULL);
 		}
 
+		m_cVideoBuffer = new unsigned char[m_cVideoBufferSize];
 
 		gst_app_sink_set_caps( GST_APP_SINK( m_GstVideoSink ), caps );
 		gst_caps_unref( caps );
@@ -153,11 +178,14 @@ bool GStreamerWrapper::open( std::string strFilename, bool bGenerateVideoBuffer,
 		gst_app_sink_set_callbacks( GST_APP_SINK( m_GstVideoSink ), &m_GstVideoSinkCallbacks, this, NULL );
 
 	} else {
-		//GstElement* videoSinkbi = gst_element_factory_make( "directdrawsink", NULL );
-		//if(!bGenerateAudioBuffer)   //Shoud be bGenerateVideoBuffer - Redundant CEE
-			DS_LOG_WARNING("Video size not detected or video buffer not set to be created. Ignoring video output.");
-		GstElement* videoSink = gst_element_factory_make( "faksesink", NULL );
-		g_object_set( m_GstPipeline, "video-sink", videoSink, NULL );
+
+		if(m_iHeight > 0 && m_iWidth > 0){
+			if(m_VerboseLogging){
+				DS_LOG_INFO("Video size not detected or video buffer not set to be created. Ignoring video output.");
+			}
+			GstElement* videoSink = gst_element_factory_make("faksesink", NULL);
+			g_object_set(m_GstPipeline, "video-sink", videoSink, NULL);
+		}
 
 	}
 
@@ -240,6 +268,7 @@ void GStreamerWrapper::close(){
 		m_GstBus = NULL;
 	}
 
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	delete [] m_cVideoBuffer;
 	m_cVideoBuffer = NULL;
 
@@ -255,7 +284,7 @@ void GStreamerWrapper::play(){
 	if ( m_GstPipeline ){
 		GstStateChangeReturn gscr = gst_element_set_state( m_GstPipeline, GST_STATE_PLAYING );
 		if(gscr == GST_STATE_CHANGE_FAILURE){
-			DS_LOG_WARNING("State change failure");
+			DS_LOG_WARNING("Gst State change failure");
 		}
 		m_CurrentPlayState = PLAYING;
 	}
@@ -609,6 +638,10 @@ void GStreamerWrapper::retrieveVideoInfo(){
 	} else if ( m_iNumAudioStreams > 0 ){
 		m_ContentType = AUDIO;
 	}
+
+	if(m_VerboseLogging){
+		DS_LOG_INFO("Got video info, duration=" << m_iDurationInNs << " Number of video streams: " << m_iNumVideoStreams << " audio: " << m_iNumAudioStreams);
+	}
 }
 
 void GStreamerWrapper::handleGStMessage(){
@@ -618,16 +651,39 @@ void GStreamerWrapper::handleGStMessage(){
 			m_GstMessage = gst_bus_pop( m_GstBus );
 
 			if ( m_GstMessage )	{
-				// std::cout << "Message Type: " << GST_MESSAGE_TYPE_NAME( m_GstMessage ) << std::endl;
 
 				switch ( GST_MESSAGE_TYPE( m_GstMessage ) )
 				{
+
+				case  GST_MESSAGE_QOS:
+				{
+					guint64 processed;
+					guint64 dropped;
+					GstFormat format = GST_FORMAT_TIME;
+					gst_message_parse_qos_stats(m_GstMessage, &format, &processed, &dropped);
+					if(m_VerboseLogging){
+						DS_LOG_INFO("Gst QoS message, seconds processed: " << processed << " frames dropped:" << dropped);
+					}
+				}
+				break;
+
+				case GST_MESSAGE_WARNING:
+				{
+					GError* err;
+					gchar* debug;
+					gst_message_parse_warning(m_GstMessage, &err, &debug);
+					DS_LOG_WARNING("Gst warning: " << err->message << " " << debug);
+				}
+				break;
 				case GST_MESSAGE_INFO:
 					{
 						GError* err;
 						gchar* debug;
 						gst_message_parse_info(m_GstMessage, &err, &debug);
-						std::cout << "Gst info: " << err->message << " " << debug << std::endl;
+
+						if(m_VerboseLogging){
+							DS_LOG_INFO("Gst info: " << err->message << " " << debug);
+						}
 					}
 					break;
 
@@ -637,8 +693,7 @@ void GStreamerWrapper::handleGStMessage(){
 						gchar* debug;
 						gst_message_parse_error(m_GstMessage, &err, &debug);
 
-						std::cout << "Embedded video playback halted: module " << gst_element_get_name(GST_MESSAGE_SRC(m_GstMessage)) <<
-							" reported " << err->message << std::endl;
+						DS_LOG_ERROR("Gst error: Embedded video playback halted: module " << gst_element_get_name(GST_MESSAGE_SRC(m_GstMessage)) << " reported " << err->message);
 
 						close();
 
@@ -680,7 +735,10 @@ void GStreamerWrapper::handleGStMessage(){
 				}
 				break;
 
-				case GST_MESSAGE_NEW_CLOCK :{
+				case GST_MESSAGE_NEW_CLOCK:{
+					if(m_VerboseLogging){
+						DS_LOG_INFO("Gst New clock");
+					}
 					// For example on net sync: http://noraisin.net/diary/?p=954
 					// also: #include "gst/net/gstnettimeprovider.h"
 
@@ -735,7 +793,7 @@ void GStreamerWrapper::handleGStMessage(){
 
 
 						case BIDIRECTIONAL_LOOP:
-							std::cout << "bi-directional looping not implemented!" << std::endl;
+							DS_LOG_WARNING("Gst bi-directional looping not implemented!");
 							//m_PlayDirection = (PlayDirection)-m_PlayDirection;
 							//stop();
 							//play();
@@ -747,6 +805,9 @@ void GStreamerWrapper::handleGStMessage(){
 					break;
 
 				default:
+					if(m_VerboseLogging){
+						DS_LOG_INFO("Gst Message, Type: " << GST_MESSAGE_TYPE_NAME(m_GstMessage));
+					}
 					break;
 				}
 			}
@@ -766,7 +827,12 @@ void GStreamerWrapper::onEosFromAudioSource(GstAppSink* appsink, void* listener)
 	// Not handling EOS callbacks creates a crash, but we handle EOS on the bus messages
 }
 
-GstFlowReturn GStreamerWrapper::onNewPrerollFromVideoSource( GstAppSink* appsink, void* listener ){
+
+void GStreamerWrapper::setVerboseLogging(const bool verboseOn){
+	m_VerboseLogging = verboseOn;
+}
+
+GstFlowReturn GStreamerWrapper::onNewPrerollFromVideoSource(GstAppSink* appsink, void* listener){
 	GstSample* gstVideoSinkBuffer = gst_app_sink_pull_preroll( GST_APP_SINK( appsink ) );
 	( ( GStreamerWrapper *)listener )->newVideoSinkPrerollCallback( gstVideoSinkBuffer );
 	gst_sample_unref( gstVideoSinkBuffer );
@@ -782,22 +848,10 @@ GstFlowReturn GStreamerWrapper::onNewPrerollFromAudioSource( GstAppSink* appsink
 	return GST_FLOW_OK;
 }
 
-GstFlowReturn GStreamerWrapper::onNewBufferFromVideoSource( GstAppSink* appsink, void* listener ){
-	//Poco::Timestamp::TimeVal pre = Poco::Timestamp().epochMicroseconds();
-	
-	GstSample* gstVideoSinkBuffer = gst_app_sink_pull_sample( GST_APP_SINK( appsink ) );
-
-	//Poco::Timestamp::TimeVal mid = Poco::Timestamp().epochMicroseconds();
-	
+GstFlowReturn GStreamerWrapper::onNewBufferFromVideoSource( GstAppSink* appsink, void* listener ){	
+	GstSample* gstVideoSinkBuffer = gst_app_sink_pull_sample( GST_APP_SINK( appsink ) );	
 	( ( GStreamerWrapper * )listener )->newVideoSinkBufferCallback( gstVideoSinkBuffer );
-
-	//Poco::Timestamp::TimeVal copied = Poco::Timestamp().epochMicroseconds();
-	
 	gst_sample_unref( gstVideoSinkBuffer );
-
-// 	Poco::Timestamp::TimeVal post = Poco::Timestamp().epochMicroseconds();
-// 	std::cout <<  "mid: " << (float)(mid - pre) / 1000000.0f << " copied: " << (float)(copied - mid) / 1000000.0f << " post: " << (float)(post - copied) / 1000000.0f << std::endl;
-
 	return GST_FLOW_OK;
 }
 
@@ -810,7 +864,9 @@ GstFlowReturn GStreamerWrapper::onNewBufferFromAudioSource( GstAppSink* appsink,
 	return GST_FLOW_OK;
 }
 
-void GStreamerWrapper::newVideoSinkPrerollCallback( GstSample* videoSinkSample ){
+void GStreamerWrapper::newVideoSinkPrerollCallback(GstSample* videoSinkSample){
+	if(!m_cVideoBuffer) return;
+
 	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
 
@@ -819,19 +875,26 @@ void GStreamerWrapper::newVideoSinkPrerollCallback( GstSample* videoSinkSample )
 	GstMapFlags flags = GST_MAP_READ;
 	gst_buffer_map(buff, &map, flags);
 
-	unsigned int videoBufferSize = map.size; //(unsigned int)(gst_buffer_get_size(buff));
-	// Allocate memory for the video pixels according to the vide appsink buffer size
-	if ( m_cVideoBuffer == NULL ){
-		if(!m_PendingSeek) m_bIsNewVideoFrame = true;
-	}
+	unsigned int videoBufferSize = map.size; 
+
+	// sanity check on buffer size, in case something weird happened.
+	// In practice, this can fuck up the look of the video, but it plays and doesn't crash
+	if(m_cVideoBufferSize != videoBufferSize){
+		delete[] m_cVideoBuffer;
+		m_cVideoBufferSize = videoBufferSize;
+		m_cVideoBuffer = new unsigned char[m_cVideoBufferSize];
+	} 
+
+	memcpy((unsigned char *)m_cVideoBuffer, map.data, videoBufferSize);
+	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 	
-	// Copy the video appsink buffer data to our unsigned char array
-	memcpy( (unsigned char *)m_cVideoBuffer, map.data, videoBufferSize );
 
 	gst_buffer_unmap(buff, &map);
 }
 
 void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
+	if(!m_cVideoBuffer) return;
+
 	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 
@@ -840,8 +903,17 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 	GstMapFlags flags = GST_MAP_READ;
 	gst_buffer_map(buff, &map, flags);
 
-	// Copy the video appsink buffer data to our unsigned char array
-	memcpy( (unsigned char *)m_cVideoBuffer, map.data, map.size );
+
+	unsigned int videoBufferSize = map.size;
+
+	if(m_cVideoBufferSize != videoBufferSize){
+		delete[] m_cVideoBuffer;
+		m_cVideoBufferSize = videoBufferSize;
+		m_cVideoBuffer = new unsigned char[m_cVideoBufferSize];
+	}
+
+	memcpy((unsigned char *)m_cVideoBuffer, map.data, videoBufferSize);
+	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 
 	gst_buffer_unmap(buff, &map);
 }
@@ -956,7 +1028,5 @@ void GStreamerWrapper::newAudioSinkBufferCallback( GstSample* audioSinkBuffer )
 void GStreamerWrapper::setVideoCompleteCallback( const std::function<void(GStreamerWrapper* video)> &func ){
 	mVideoCompleteCallback = func;
 }
-
-
 
 };

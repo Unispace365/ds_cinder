@@ -28,6 +28,7 @@ Service::~Service() {
 void Service::start() {
 	Awesomium::WebConfig cnf;
 	cnf.log_level = Awesomium::kLogLevel_Verbose;
+	cnf.remote_debugging_port = 6980;
 	Awesomium::WebStringArray addOptionsArray;
 
 	// see this gist for all the available options: https://gist.github.com/khrona/2999122

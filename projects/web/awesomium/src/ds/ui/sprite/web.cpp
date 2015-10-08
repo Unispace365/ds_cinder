@@ -191,6 +191,11 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 				mWebViewPtr->set_process_listener(mWebProcessListener.get());
 			}
 
+			mWebMenuListener = std::move(std::unique_ptr<ds::web::WebMenuListener>(new ds::web::WebMenuListener));
+			if(mWebMenuListener){
+				mWebViewPtr->set_menu_listener(mWebMenuListener.get());
+			}
+
 			mWebViewPtr->SetTransparent(true);
 		}
 	}
@@ -221,6 +226,7 @@ Web::~Web() {
 		mWebViewPtr->set_js_method_handler(nullptr);
 		mWebViewPtr->set_load_listener(nullptr);
 		mWebViewPtr->set_view_listener(nullptr);
+		mWebViewPtr->set_menu_listener(nullptr);
 		mWebViewPtr->Stop();
 		mWebViewPtr->Destroy();
 	}
@@ -440,6 +446,19 @@ void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
 	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kRemoved);
 }
 
+void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
+	ci::Vec2f pos = globalToLocal(globalClickPoint).xy();
+
+	ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+	sendMouseDownEvent(event);
+
+	ci::app::MouseEvent eventD(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+	sendMouseDragEvent(eventD);
+
+	ci::app::MouseEvent eventU(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
+	sendMouseUpEvent(eventU);
+}
+
 void Web::setTouchListener(const std::function<void(const ds::web::TouchEvent&)>& fn) {
 	mTouchListener = fn;
 }
@@ -584,6 +603,8 @@ ci::Vec2f Web::getDocumentScroll() {
 	return get_document_scroll(*mWebViewPtr);
 }
 
+#include "private/script_translator.h"
+
 ds::web::ScriptTree Web::runJavaScript(	const std::string& object_utf8, const std::string& function_utf8,
 										const ds::web::ScriptTree& args) {
 	if (!mWebViewPtr) return ds::web::ScriptTree();
@@ -597,6 +618,13 @@ ds::web::ScriptTree Web::runJavaScript(	const std::string& object_utf8, const st
 		return ds::web::tree_from_jsvalue(ans);
 	}
 	return ds::web::ScriptTree();
+}
+
+void Web::executeJavascript(const std::string& theScript){
+
+	Awesomium::WebString		object_ws(Awesomium::WebString::CreateFromUTF8(theScript.c_str(), theScript.size()));
+	Awesomium::JSValue			object = mWebViewPtr->ExecuteJavascriptWithResult(object_ws, Awesomium::WebString());
+	std::cout << "Object return: " << ds::web::str_from_webstr(object.ToString()) << std::endl;
 }
 
 void Web::registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
