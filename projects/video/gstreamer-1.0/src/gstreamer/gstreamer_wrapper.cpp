@@ -5,7 +5,6 @@
 #include <algorithm>
 
 #include "gst/net/gstnetclientclock.h"
-#include "gst/net/gstnettimeprovider.h"
 
 namespace gstwrapper
 {
@@ -23,8 +22,9 @@ GStreamerWrapper::GStreamerWrapper()
 	, m_StopOnLoopComplete(false)
 	, m_CustomPipeline(false)
 	, m_VideoLock(m_VideoMutex, std::defer_lock)
-	, m_VerboseLogging(false)
+	, m_VerboseLogging(true)
 	, m_cVideoBufferSize(0)
+	, mClockProvider( NULL )
 {
 	gst_init( NULL, NULL );
 	m_CurrentPlayState = NOT_INITIALIZED;
@@ -251,34 +251,48 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 void GStreamerWrapper::setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime){
 	if(isServer){
+		if(mClockProvider){
+			gst_object_unref(mClockProvider);
+			mClockProvider = nullptr; 
+		}
+
 		// apply pipeline clock to itself, to make sure we're on charge
-		auto clock = gst_pipeline_get_clock(GST_PIPELINE(m_GstPipeline));
+		auto clock = gst_system_clock_obtain();// gst_pipeline_get_clock(GST_PIPELINE(m_GstPipeline));
 		gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
-		// instantiate network clock once for everyone
-		static auto clock_provider = gst_net_time_provider_new(clock, addr.c_str(), port);
-		if(!clock_provider)		{
+
+		//std::int16_t pretime = gst_clock_get_time(clock);
+		mClockProvider = gst_net_time_provider_new(clock, addr.c_str(), port);
+		if(!mClockProvider)		{
 			DS_LOG_WARNING("Could not instantiate the GST server network clock.");
 		}
 		// get the time for clients to start based on...
-		inOutTime = gst_clock_get_time(clock);
+		std::int16_t newTime = gst_clock_get_time(clock);
+		inOutTime = newTime;
+		std::cout << "----------- port:" << port << " clock time:" << inOutTime << " " << newTime << std::endl;
+		
 		// reset my clock so it won't advance detached from net
 		gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
 		// set the net clock to start ticking from our base time
 		gst_element_set_base_time(m_GstPipeline, inOutTime);
 
+		gst_object_unref(clock);
+
 	} else {
 		// reset my clock so it won't advance detached from net
 		gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
 		// get the net clock
-		auto clock = gst_net_client_clock_new("clock0", addr.c_str(), port, inOutTime);
+		auto clock = gst_net_client_clock_new("net_clock", addr.c_str(), port, inOutTime);
 		if(!clock)
 		{
-			throw std::runtime_error("Could not instantiate the GST client network clock.");
+			DS_LOG_WARNING("Could not instantiate the GST client network clock.");
 		}
+		std::cout << "----------- port:" << port << " clock time:" << inOutTime << std::endl;
 		// set base time received from server
 		gst_element_set_base_time(m_GstPipeline, inOutTime);
 		// apply the net clock
 		gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
+
+		gst_object_unref(clock);
 	}
 
 }
@@ -310,6 +324,10 @@ void GStreamerWrapper::close(){
 
 	delete [] m_cAudioBuffer;
 	m_cAudioBuffer = NULL;
+
+	if(mClockProvider){
+		gst_object_unref(mClockProvider);
+	}
 }
 
 void GStreamerWrapper::update(){
@@ -838,6 +856,10 @@ void GStreamerWrapper::handleGStMessage(){
 						default:
 							break;
 					}
+					break;
+
+				case GST_MESSAGE_TAG :
+
 					break;
 
 				default:

@@ -137,8 +137,8 @@ public:
 
 protected:
 	virtual void		drawLocalClient() override;
-	virtual void		writeAttributesTo(DataBuffer&) override;
-	virtual void		readAttributeFrom(const char, DataBuffer&) override;
+	virtual void		writeAttributesTo(DataBuffer&);
+	virtual void		readAttributeFrom(const char, DataBuffer&);
 	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
 
 private:
@@ -193,6 +193,11 @@ private:
 
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;
+
+	int					mNetTime;
+	int					mNetPort; // todo: increment per video sprite
+
+	void				setNetClock();
 
 
 	// Initialization

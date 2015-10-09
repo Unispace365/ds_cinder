@@ -62,8 +62,8 @@ public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
 
-			//e.installSprite([](ds::BlobRegistry& r){ds::ui::GstVideo::installAsServer(r); },
-		//					[](ds::BlobRegistry& r){ds::ui::GstVideo::installAsClient(r); });
+			e.installSprite([](ds::BlobRegistry& r){ds::ui::GstVideo::installAsServer(r); },
+							[](ds::BlobRegistry& r){ds::ui::GstVideo::installAsClient(r); });
 		});
 
 	}
@@ -130,6 +130,8 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mAutoExtendIdle(false)
 	, mGenerateAudioBuffer(false)
 	, mColorType(kColorTypeTransparent)
+	, mNetPort(1624)
+	, mNetTime(0)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -352,14 +354,7 @@ void GstVideo::doLoadVideo(const std::string &filename){
 		});
 
 		setStatus(Status::STATUS_PLAYING);
-
-		if(mEngine.getMode() != ds::ui::SpriteEngine::STANDALONE_MODE){
-			if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
-
-			} else {
-
-			}
-		}
+		setNetClock();
 
 	} catch(std::exception const& ex)	{
 		DS_LOG_ERROR_M("GstVideo::doLoadVideo() ex=" << ex.what(), GSTREAMER_LOG);
@@ -551,6 +546,22 @@ void GstVideo::checkStatus(){
 		mShouldPlay = false;
 	}
 }
+void GstVideo::setNetClock(){
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::STANDALONE_MODE){
+		// NOTHIN
+	} else if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE){
+		DS_LOG_WARNING_M("Gstreamer net sync not implemented in Server only mode. Use ClientServer insteand.", GSTREAMER_LOG);
+	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		static int newPort = 1623;
+		newPort++;
+		mNetPort = newPort;
+		mGstreamerWrapper->setNetClock(true, "127.0.0.1", mNetPort, mNetTime);
+		markAsDirty(mSyncDirty);
+	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
+		mGstreamerWrapper->setNetClock(false, "127.0.0.1", mNetPort, mNetTime);
+	}
+}
 
 void GstVideo::checkOutOfBounds() {
 	if (!inBounds()){
@@ -612,8 +623,10 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 	}
 
 	if(mDirty.has(mSyncDirty)){
-
-	}
+		buf.add(mSyncAtt);
+		buf.add(mNetPort);
+		buf.add(mNetTime);
+	}
 }
 
 void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
@@ -651,6 +664,10 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 				play();
 			}
 		}
+	} else if(attrid == mSyncAtt){
+		mNetPort = buf.read<int>();
+		mNetTime = buf.read<int>();
+		setNetClock();
 	} else {
 		Sprite::readAttributeFrom(attrid, buf);
 	}

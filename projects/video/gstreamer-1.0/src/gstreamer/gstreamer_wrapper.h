@@ -5,11 +5,13 @@
 #include <gst/app/gstappsink.h>
 #include <gst/video/video.h>
 #include <gst/audio/audio.h>
+#include <gst/net/gstnettimeprovider.h>
 
 #include <mutex>
 #include <atomic>
 #include <string>
 #include <functional>
+
 
 namespace gstwrapper
 {
@@ -452,6 +454,8 @@ public:
 	/** Spite out a ton of messages when running gstreamer pipelines. */
 	void					setVerboseLogging(const bool verboseOn);
 
+	void					setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime);
+
 private:
 	/*
 	Helper method in order to apply either changes to the playback speed or direction in GStreamer
@@ -557,7 +561,6 @@ private:
 	// Makes sure videos widths are divisible by 4, for video blanking
 	void					enforceModFourWidth(const int videoWidth, const int videoHeight);
 
-	void					setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime);
 
 protected:
 
@@ -618,6 +621,8 @@ private:
 	bool					m_CustomPipeline;
 
 	bool					m_VerboseLogging;
+
+	GstNetTimeProvider*		mClockProvider;
 
 
 }; //!class GStreamerWrapper
