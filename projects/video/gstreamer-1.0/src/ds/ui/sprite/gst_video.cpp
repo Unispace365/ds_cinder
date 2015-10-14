@@ -626,7 +626,8 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(mSyncAtt);
 		buf.add(mNetPort);
 		buf.add(mNetTime);
-	}
+	}
+
 }
 
 void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
