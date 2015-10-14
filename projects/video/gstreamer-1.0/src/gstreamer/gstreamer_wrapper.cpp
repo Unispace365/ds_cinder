@@ -4,8 +4,8 @@
 #include <iostream>
 #include <algorithm>
 
-#include "gst/net/gstnetclientclock.h"
-#include "gst/net/gstnettimeprovider.h"
+// #include "gst/net/gstnetclientclock.h"
+// #include "gst/net/gstnettimeprovider.h"
 
 namespace gstwrapper
 {
@@ -248,7 +248,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 	return true;
 }
-
+#if 0
 void GStreamerWrapper::setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime){
 	if(isServer){
 		// apply pipeline clock to itself, to make sure we're on charge
@@ -282,6 +282,7 @@ void GStreamerWrapper::setNetClock(const bool isServer, const std::string& addr,
 	}
 
 }
+#endif
 
 void GStreamerWrapper::close(){
 

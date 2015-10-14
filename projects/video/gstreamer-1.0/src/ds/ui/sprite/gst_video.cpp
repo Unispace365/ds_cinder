@@ -353,14 +353,6 @@ void GstVideo::doLoadVideo(const std::string &filename){
 
 		setStatus(Status::STATUS_PLAYING);
 
-		if(mEngine.getMode() != ds::ui::SpriteEngine::STANDALONE_MODE){
-			if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
-
-			} else {
-
-			}
-		}
-
 	} catch(std::exception const& ex)	{
 		DS_LOG_ERROR_M("GstVideo::doLoadVideo() ex=" << ex.what(), GSTREAMER_LOG);
 		return;
