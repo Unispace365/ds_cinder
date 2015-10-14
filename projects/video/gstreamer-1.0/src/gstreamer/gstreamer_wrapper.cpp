@@ -905,12 +905,15 @@ void GStreamerWrapper::newVideoSinkPrerollCallback(GstSample* videoSinkSample){
 	if(!m_cVideoBuffer) return;
 
 	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
+
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
-
-
 	GstMapInfo map;
 	GstMapFlags flags = GST_MAP_READ;
-	gst_buffer_map(buff, &map, flags);
+	if(!gst_buffer_map(buff, &map, flags)){
+		// the buffer is invalid, so unmap it and get outta here
+		gst_buffer_unmap(buff, &map);
+		return;
+	}
 
 	unsigned int videoBufferSize = map.size; 
 
@@ -933,12 +936,15 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 	if(!m_cVideoBuffer) return;
 
 	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
-	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
 	GstMapInfo map;
 	GstMapFlags flags = GST_MAP_READ;
-	gst_buffer_map(buff, &map, flags);
+	if(!gst_buffer_map(buff, &map, flags)){
+		// the buffer is invalid, so unmap it and get outta here
+		gst_buffer_unmap(buff, &map);
+		return;
+	}
 
 
 	unsigned int videoBufferSize = map.size;
