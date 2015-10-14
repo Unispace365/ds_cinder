@@ -2,6 +2,8 @@
 #ifndef DS_UI_BLEND_H
 #define DS_UI_BLEND_H
 
+#include <string>
+
 namespace ds {
 namespace ui {
 
@@ -16,6 +18,8 @@ enum BlendMode
   DARKEN,
   TRANSPARENT_BLACK
 };
+
+BlendMode getBlendModeByString(const std::string& blendString);
 
 bool premultiplyAlpha(const BlendMode &blendMode);
 void applyBlendingMode(const BlendMode &blendMode);
