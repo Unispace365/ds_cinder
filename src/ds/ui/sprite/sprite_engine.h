@@ -137,9 +137,9 @@ public:
 	// The touch events will use the same pathways that normal touches would.
 	// This is generally only recommended for debugging stuff (like automators) 
 	// or if you have an unusual input situation (like a kinect or something) and want to use touch
-	virtual void					injectTouchesBegin(const ci::app::TouchEvent&){};
-	virtual void					injectTouchesMoved(const ci::app::TouchEvent&){};
-	virtual void					injectTouchesEnded(const ci::app::TouchEvent&){};
+	virtual void					injectTouchesBegin(const ci::app::TouchEvent&, const bool inWorldSpace = false) = 0;
+	virtual void					injectTouchesMoved(const ci::app::TouchEvent&, const bool inWorldSpace = false) = 0;
+	virtual void					injectTouchesEnded(const ci::app::TouchEvent&, const bool inWorldSpace = false) = 0;
 
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void					translateTouchPoint( ci::Vec2f& inOutPoint ) = 0;
