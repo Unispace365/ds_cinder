@@ -204,9 +204,9 @@ void TouchManager::mouseTouchMoved(const MouseEvent &event, int id ){
 	touchInfo.mPassedTouch = false;
 	touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
 
-	if(mCapture) mCapture->touchMoved(touchInfo);
-
 	mRotationTranslator.move(touchInfo, mTouchPreviousPoint[touchInfo.mFingerId]);
+
+	if(mCapture) mCapture->touchMoved(touchInfo);
 
 	if (mFingerDispatcher[touchInfo.mFingerId]) {
 		mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
