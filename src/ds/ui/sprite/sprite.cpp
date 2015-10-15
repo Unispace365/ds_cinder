@@ -378,6 +378,10 @@ void Sprite::setPosition( float x, float y, float z ) {
 	doSetPosition(ci::Vec3f(x, y, z));
 }
 
+void Sprite::setPosition(const ci::Vec2f& pos){
+	doSetPosition(ci::Vec3f(pos.x, pos.y, mPosition.z));
+}
+
 void Sprite::setPosition(const ci::Vec3f &pos) {
 	doSetPosition(pos);
 }

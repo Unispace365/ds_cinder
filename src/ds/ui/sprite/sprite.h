@@ -191,7 +191,14 @@ namespace ui {
 			For ortho Sprites, positive y position is downwards.
 			Z position forwards or backwards depends on your camera setup.
 			\param pos The 3d vector of the new position, in pixels. */
-		void					setPosition(const ci::Vec3f &pos);
+		void					setPosition(const ci::Vec3f& pos);
+
+		/** Set the position of the Sprite in local space (the parent's relative co-ordinates).
+			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
+			For ortho Sprites, positive y position is downwards.
+			Z position will use the current z-position of the sprite.
+			\param pos The x and y position. */
+		void					setPosition(const ci::Vec2f& pos);
 
 		/** Set the position of the Sprite in local space (the parent's relative co-ordinates).
 			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
