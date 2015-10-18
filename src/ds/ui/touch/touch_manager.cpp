@@ -67,8 +67,6 @@ void TouchManager::touchesBegin(const TouchEvent &event) {
 		mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 
-		if (mCapture) mCapture->touchBegin(touchInfo);
-
 		// Catch a case where two "touch added" calls get processed for the same fingerID
 		// WITHOUT a released in the middle. This would case the previous sprite to be left with an erroneous finger
 		// So we fake remove it before adding the new one
@@ -85,6 +83,7 @@ void TouchManager::touchesBegin(const TouchEvent &event) {
 		touchInfo.mPhase = TouchInfo::Added;
 		touchInfo.mPassedTouch = false;
 
+		if(mCapture) mCapture->touchBegin(touchInfo);
 
 		Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
 		touchInfo.mPickedSprite = currentSprite;
