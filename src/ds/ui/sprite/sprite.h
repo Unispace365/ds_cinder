@@ -365,6 +365,8 @@ namespace ui {
 			Equivalent to calling release() on every child. */
 		void					clearChildren();
 
+		std::vector<Sprite*>	getChildren() { return mChildren; }
+
 		/** Check to see if this Sprite contains child.
 			\param child The child to check if it is contained on this Sprite.
 			\return True if the child is a child of this Sprite. False if the child is a damn stranger. */
@@ -614,6 +616,7 @@ namespace ui {
 		void				buildTransform() const;
 		void				buildGlobalTransform() const;
 		virtual void		drawLocalClient();
+		virtual void		drawLocalClientPost() {}
 		virtual void		drawLocalServer();
 		bool				hasDoubleTap() const;
 		bool				hasTap() const;
@@ -722,6 +725,8 @@ namespace ui {
 		// A cache for when I need to sort my children. This could be
 		// a lot more efficient, only running the sort when Z changes.
 		std::vector<Sprite*>	mSortedTmp;
+
+		bool					mHasDrawLocalClientPost;
 
 		// Class-unique key for this type.  Subclasses can replace.
 		char				mBlobType;

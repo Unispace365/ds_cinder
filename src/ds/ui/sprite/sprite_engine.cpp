@@ -168,6 +168,14 @@ double SpriteEngine::getElapsedTimeSeconds() const {
 	return ci::app::getElapsedSeconds();
 }
 
+int SpriteEngine::getIdleTimeout() const {
+	return mData.mIdleTimeout;
+}
+
+void SpriteEngine::setIdleTimeout(int idleTimeout) {
+	mData.mIdleTimeout = idleTimeout;
+}
+
 void SpriteEngine::clearFingers( const std::vector<int> &fingers ) {
 }
 

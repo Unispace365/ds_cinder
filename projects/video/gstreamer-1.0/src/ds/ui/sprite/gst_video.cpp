@@ -19,10 +19,36 @@ using namespace gstwrapper;
 
 namespace {
 	static ds::gstreamer::EnvCheck  ENV_CHECK;
-	ds::ui::VideoMetaCache          CACHE("gstreamer");
+	ds::ui::VideoMetaCache          CACHE("gstreamer-2");
 	const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
 	template<typename T> void       noop(T) { /* no op */ };
 	void                            noop()  { /* no op */ };
+
+
+	static std::string yuv_vert = 
+		"varying   vec2 gsvTexCoord;"
+		"void main(){ "
+		"gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
+		"gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;"
+		"gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
+		"gl_FrontColor = gl_Color;"
+		"gsvTexCoord = gl_TexCoord[0];"
+		"}";
+
+	static std::string yuv_frag =
+		"precision mediump float;"
+		"uniform sampler2D gsuTexture0;"
+		"uniform sampler2D gsuTexture1;"
+		"uniform sampler2D gsuTexture2;"
+		"varying vec2 gsvTexCoord;"
+		"void main(){"
+		"float y = texture2D(gsuTexture0, gsvTexCoord).r;"
+		"float u = texture2D(gsuTexture1, gsvTexCoord).r;"
+		"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
+		"u = u - 0.5;"
+		"v = v - 0.5;"
+		"gl_FragColor = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);"
+		"}";
 }
 namespace ds {
 namespace ui {
@@ -56,11 +82,19 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mNetHandler(*this)
 	, mAutoExtendIdle(false)
 	, mGenerateAudioBuffer(false)
+	, mColorType(kColorTypeTransparent)
 {
 	mBlobType = GstVideoNet::mBlobType;
 
-	setUseShaderTextuer(true);
+	try {
+		mShader = ci::gl::GlslProg(yuv_vert.c_str(), yuv_frag.c_str());
+	} catch(const std::exception &e) {
+		DS_LOG_WARNING("Could not load & compile shader for the video:" << e.what());
+	}
+
+
 	setTransparent(false);
+	setUseShaderTextuer(true);
 }
 
 GstVideo::~GstVideo() {
@@ -88,6 +122,17 @@ void GstVideo::generateAudioBuffer(bool enableAudioBuffer)
 	 mGenerateAudioBuffer = enableAudioBuffer; 
 }
 
+void GstVideo::setVerboseLogging(const bool doVerbose){
+	mGstreamerWrapper->setVerboseLogging(doVerbose);
+}
+
+float GstVideo::getVideoPlayingFramerate(){
+	if(mBufferUpdateTimes.size() < 2) return 0.0f;
+	float deltaTime = (float)(mBufferUpdateTimes.back() - mBufferUpdateTimes.front()) / 1000000.0f;
+	//deltaTime /= (float)mBufferUpdateTimes.size();
+	return (float)(mBufferUpdateTimes.size() - 1) / deltaTime;
+}
+
 void GstVideo::updateClient(const UpdateParams& up){
 	Sprite::updateClient(up);
 
@@ -105,15 +150,33 @@ void GstVideo::drawLocalClient(){
 			DS_LOG_WARNING_M("Different sizes detected for video and texture. Do not change the size of a video sprite, use setScale to enlarge. Widths: " << getWidth() << " " << mGstreamerWrapper->getWidth(), GSTREAMER_LOG);
 			unloadVideo();
 		} else {
-			ci::Surface video_surface(
-				mGstreamerWrapper->getVideo(),
-				mVideoSize.x,
-				mVideoSize.y,
-				mVideoSize.x * 4, // BGRA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
-				ci::SurfaceChannelOrder::BGRA);
 
-			if(video_surface.getData()){
-				mFrameTexture.update(video_surface);
+			int videoDepth = mVideoSize.x * 4; // BGRA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
+			ci::SurfaceChannelOrder co = ci::SurfaceChannelOrder::BGRA;
+			if(mColorType == kColorTypeSolid){
+				videoDepth = mVideoSize.x * 3;
+				co = ci::SurfaceChannelOrder::BGR;
+			} else if(mColorType == kColorTypeShaderTransform){
+				videoDepth = mVideoSize.x;
+				co = ci::SurfaceChannelOrder::CHAN_RED;
+			}
+
+			unsigned char * dat = mGstreamerWrapper->getVideo();
+			if(dat){
+				if(mColorType == kColorTypeShaderTransform){
+					ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
+					ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
+					ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
+
+					mFrameTexture.update(yChannel, ci::Area(0, 0, mVideoSize.x, mVideoSize.y));
+					mUFrameTexture.update(uChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
+					mVFrameTexture.update(vChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
+
+				} else {
+					ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
+					mFrameTexture.update(video_surface);
+				}
+
 				mDrawable = true;
 			}
 
@@ -123,6 +186,11 @@ void GstVideo::drawLocalClient(){
 				if(mPlaySingleFrameFunction) mPlaySingleFrameFunction();
 				mPlaySingleFrameFunction = nullptr;
 			}
+
+			mBufferUpdateTimes.push_back(Poco::Timestamp().epochMicroseconds());
+			if(mBufferUpdateTimes.size() > 10){
+				mBufferUpdateTimes.erase(mBufferUpdateTimes.begin());
+			}
 		}
 	}
 
@@ -130,8 +198,29 @@ void GstVideo::drawLocalClient(){
 		if(getPerspective()){
 			mFrameTexture.setFlipped(true);
 		} 
-			
+
+		if(mColorType == kColorTypeShaderTransform){
+			if(mShader) {
+				mShader.bind();
+				mShader.uniform("gsuTexture0", 0);
+				mShader.uniform("gsuTexture1", 1);
+				mShader.uniform("gsuTexture2", 2);
+			}
+
+			if(mUFrameTexture) mUFrameTexture.bind(1);
+			if(mVFrameTexture) mVFrameTexture.bind(2);
+		}
+
 		ci::gl::draw(mFrameTexture);
+
+		if(mColorType == kColorTypeShaderTransform){
+			if(mUFrameTexture) mUFrameTexture.unbind(1);
+			if(mVFrameTexture) mVFrameTexture.unbind(2);
+			if(mShader){
+				mShader.unbind();
+			}
+		}
+
 	}
 }
 
@@ -151,7 +240,7 @@ GstVideo& GstVideo::loadVideo(const std::string& filename){
 		return *this;
 	}
 
-	doLoadVideo(filename);
+	doLoadVideo(_filename);
 	markAsDirty(mNetHandler.mPathDirty);
 	return *this;
 }
@@ -173,6 +262,76 @@ GstVideo& GstVideo::setResource(const ds::Resource& resource){
 	Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
 	loadVideo(resource.getAbsoluteFilePath());
 	return *this;
+}
+
+
+void GstVideo::doLoadVideo(const std::string &filename){
+	if(filename.empty()){
+		DS_LOG_WARNING_M("doLoadVideo aborting loading a video because of a blank filename.", GSTREAMER_LOG);
+		return;
+	}
+
+
+	VideoMetaCache::Type		type(VideoMetaCache::ERROR_TYPE);
+
+	try	{
+		int						videoWidth = static_cast<int>(getWidth());
+		int						videoHeight = static_cast<int>(getHeight());
+		double					videoDuration(0.0f);
+		bool					generateVideoBuffer = true;
+		std::string				colorSpace = "";
+
+		CACHE.getValues(filename, type, videoWidth, videoHeight, videoDuration, colorSpace);
+
+		if(type == VideoMetaCache::AUDIO_TYPE)
+		{
+			generateVideoBuffer = false;
+			mOutOfBoundsMuted = false;
+		}
+
+		ColorType theColor = ColorType::kColorTypeTransparent;
+		if(colorSpace == "4:2:0"){
+			theColor = ColorType::kColorTypeShaderTransform;
+		}
+
+		mColorType = theColor;
+		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen", GSTREAMER_LOG);
+		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, theColor, videoWidth, videoHeight);
+
+		mVideoSize.x = mGstreamerWrapper->getWidth();
+		mVideoSize.y = mGstreamerWrapper->getHeight();
+		Sprite::setSizeAll(static_cast<float>(mVideoSize.x), static_cast<float>(mVideoSize.y), mDepth);
+
+		applyMovieLooping();
+		applyMovieVolume();
+
+		mGstreamerWrapper->setVideoCompleteCallback([this](GStreamerWrapper*){
+			if(mVideoCompleteFn) mVideoCompleteFn();
+		});
+
+		setStatus(Status::STATUS_PLAYING);
+
+	} catch(std::exception const& ex)	{
+		DS_LOG_ERROR_M("GstVideo::doLoadVideo() ex=" << ex.what(), GSTREAMER_LOG);
+		return;
+	}
+
+	if(mGstreamerWrapper->getWidth() < 1.0f || mGstreamerWrapper->getHeight() < 1.0f){
+		if(type != VideoMetaCache::AUDIO_TYPE)	{
+			DS_LOG_WARNING_M("GstVideo::doLoadVideo() Video is too small to be used or didn't load correctly! "
+							 << filename << " " << getWidth() << " " << getHeight(), GSTREAMER_LOG);
+		}
+		return;
+	} else {
+		ci::gl::Texture::Format fmt;
+		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+
+		if(mColorType == kColorTypeShaderTransform){
+			mUFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+			mVFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		}
+		mFilename = filename;
+	}
 }
 
 void GstVideo::setLooping(const bool on){
@@ -265,59 +424,6 @@ void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn){
 	mStatusFn = fn;
 }
 
-void GstVideo::doLoadVideo(const std::string &filename){
-	if (filename.empty()) return;
-	
-	VideoMetaCache::Type		type(VideoMetaCache::ERROR_TYPE);
-
-	try	{
-		int						videoWidth = static_cast<int>(getWidth());
-		int						videoHeight = static_cast<int>(getHeight());
-		double					videoDuration(0.0f);
-		bool					generateVideoBuffer = true;
-
-		CACHE.getValues(filename, type, videoWidth, videoHeight, videoDuration);
-		
-		if (type == VideoMetaCache::AUDIO_TYPE)
-		{
-			generateVideoBuffer = false;
-			mOutOfBoundsMuted = false;
-		}
-
-		DS_LOG_INFO_M("GstVideo::doLoadVideo(): " << filename, GSTREAMER_LOG);
-		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, true, videoWidth, videoHeight);
-
-		mVideoSize.x = mGstreamerWrapper->getWidth();
-		mVideoSize.y = mGstreamerWrapper->getHeight();
-		Sprite::setSizeAll(static_cast<float>(mVideoSize.x), static_cast<float>(mVideoSize.y), mDepth);
-
-		applyMovieLooping();
-		applyMovieVolume();
-
-		mGstreamerWrapper->setVideoCompleteCallback([this](GStreamerWrapper*){ 
-			if(mVideoCompleteFn) mVideoCompleteFn();
-		});
-
-		setStatus(Status::STATUS_PLAYING);
-
-	} catch (std::exception const& ex)	{
-		DS_LOG_ERROR_M("GstVideo::doLoadVideo() ex=" << ex.what(), GSTREAMER_LOG);
-		return;
-	}
-
-	if (mGstreamerWrapper->getWidth() < 1.0f || mGstreamerWrapper->getHeight() < 1.0f){
-		if (type != VideoMetaCache::AUDIO_TYPE)	{
-			DS_LOG_WARNING_M("GstVideo::doLoadVideo() Video is too small to be used or didn't load correctly! "
-				<< filename	<< " " << getWidth() << " "	<< getHeight(), GSTREAMER_LOG);
-		}
-		return;
-	} else {
-		ci::gl::Texture::Format fmt;
-		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
-
-		mFilename = filename;
-	}
-}
 
 void GstVideo::setStatus(const int code){
 	if (code == mStatus.mCode) return;

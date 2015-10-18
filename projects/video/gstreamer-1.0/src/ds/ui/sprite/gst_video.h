@@ -7,6 +7,8 @@
 #include <ds/data/resource.h>
 #include "gst_video_net.h"
 
+#include <Poco/Timestamp.h>
+
 namespace gstwrapper {
 	class GStreamerWrapper;
 }
@@ -25,8 +27,7 @@ class GstVideo : public Sprite
 {
 public:
 	// Valid statuses for this player instance.
-	struct Status
-	{
+	struct Status {
 		Status(int code);
 		bool operator ==(int status) const;
 		bool operator !=(int status) const;
@@ -123,10 +124,17 @@ public:
 	bool				getAutoExtendIdle() const;
 
 	virtual void		updateClient(const UpdateParams&) override;
+	void				drawSharedTexture();
 	virtual void		updateServer(const UpdateParams&) override;
 
 	//Allow for custom audio output
 	void				generateAudioBuffer(bool enableAudioBuffer);
+
+	// In case you want a ton of info from gstreamer about what's going on
+	void				setVerboseLogging(const bool doVerbose);
+
+	// Calculates a rough fps for how many actual buffers we're displaying per second
+	float				getVideoPlayingFramerate();
 
 protected:
 	virtual void		drawLocalClient() override;
@@ -134,6 +142,14 @@ protected:
 	virtual void		readAttributeFrom(const char, DataBuffer&) override;
 
 private:
+
+	// A simple enum for specifying how the video gets rendered.
+	// Transparent: retains an alpha channel through the whole pipeline, gstreamer handles the colorspace conversion to RGBA (or BGRA)
+	// Solid: has no alpha channel, and gstreamer handles the colorspace conversion to RGB (or BGR)
+	// ShaderTransform: has no alpha channel, and colorspace conversion is handled in a shader when drawing to the screen, uses I420 YUV colorspace conversion only
+	// This value is assumed from the output of the videometa cache
+	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform } ColorType;
+
 	void				doLoadVideo(const std::string &filename);
 	void				applyMovieVolume();
 	void				applyMovieLooping();
@@ -148,7 +164,13 @@ protected:
 	gstwrapper::GStreamerWrapper*
 						mGstreamerWrapper;
 private:
+
+	ColorType			mColorType;
+
 	ci::gl::Texture		mFrameTexture;
+	ci::gl::Texture		mUFrameTexture;
+	ci::gl::Texture		mVFrameTexture;
+
 	ci::Vec2i			mVideoSize;
 	std::string			mFilename;
 	Status				mStatus;
@@ -174,6 +196,12 @@ private:
 	bool				mStatusChanged;
 	//Allow for custom audio output
 	bool				mGenerateAudioBuffer;
+
+	// YUV/I420 -> RGB conversion
+	ci::gl::GlslProg	mShader;
+
+	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
+	float									mCurrentGstFrameRate;
 };
 
 } //!namespace ui

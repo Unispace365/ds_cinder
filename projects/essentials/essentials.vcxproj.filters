@@ -43,6 +43,12 @@
     <Filter Include="src\ds\ui\menu\component">
       <UniqueIdentifier>{866ea136-fca0-4139-a7b9-1d4812ab171c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\network">
+      <UniqueIdentifier>{11f3c3d1-dc4f-457f-8771-d30d01e73643}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\network\helper">
+      <UniqueIdentifier>{f3fdef8a-eaa7-4dbe-80c4-ee9f6cc1ced2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -104,6 +110,9 @@
     </ClCompile>
     <ClCompile Include="src\ds\touch\touch_debug.cpp">
       <Filter>src\ds\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\network\helper\delayed_node_watcher.cpp">
+      <Filter>src\ds\network\helper</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -169,6 +178,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\touch\touch_debug.h">
       <Filter>src\ds\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\helper\delayed_node_watcher.h">
+      <Filter>src\ds\network\helper</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

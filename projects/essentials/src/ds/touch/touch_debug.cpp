@@ -17,6 +17,7 @@ TouchDebug::TouchDebug(ds::Engine& enginey)
 	, mReplicating(false)
 	, mTwoTouching(false)
 	, mDropTouched(false)
+	, mFiveTouchRadius(40.0f)
 {
 }
 
@@ -91,7 +92,7 @@ void TouchDebug::replicate(const ci::app::MouseEvent& e, ds::ui::TouchInfo::Phas
 	startAngle += 1.0f;
 	float angley = startAngle;
 	float deltaAngley = 360.0f / mNumberOfReplicants;
-	float radiusy = ci::randFloat(10.0f, 50.0f);
+	float radiusy = mFiveTouchRadius;
 
 	for(int k = 0; k < mNumberOfReplicants; ++k) {
 		ci::Vec2f thisPos = ci::Vec2f((float)e.getPos().x + radiusy * cos(ci::toRadians(angley)), (float)e.getPos().y + radiusy * sin(ci::toRadians(angley)));

@@ -38,6 +38,8 @@ public:
 	ci::Rectf				mScreenRect;
 	ci::Vec2f				mWorldSize;
 	float					mFrameRate;
+	int						mIdleTimeout;
+
 	// The source rect in world bounds and the destination
 	// local rect. Together these should obsolete mScreenRect.
 	// The dest local rect.

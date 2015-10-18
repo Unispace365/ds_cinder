@@ -11,7 +11,7 @@ namespace ui {
 * \class ds::ui::SpriteButton
 */
 SpriteButton::SpriteButton(SpriteEngine& eng, const float widdy, const float hiddy)
-	: inherited(eng)
+	: inherited(eng, widdy, hiddy)
 	, mDown(ds::ui::Sprite::makeSprite(eng, this))
 	, mUp(ds::ui::Sprite::makeSprite(eng, this))
 	, mButtonBehaviour(*this)

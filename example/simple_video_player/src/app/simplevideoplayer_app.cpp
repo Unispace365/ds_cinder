@@ -12,6 +12,8 @@
 
 #include <ds/ui/sprite/image.h>
 
+#include <cinder/Rand.h>
+
 namespace example {
 
 SimpleVideoPlayer::SimpleVideoPlayer()
@@ -24,6 +26,7 @@ SimpleVideoPlayer::SimpleVideoPlayer()
 	, mQueryHandler(mEngine, mAllData)
 	, mStressTestButton(nullptr)
 	, mStressTesting(false)
+	, mFpsDisplay(nullptr)
 {
 
 
@@ -87,6 +90,13 @@ void SimpleVideoPlayer::setupServer(){
 	rootSprite.addChildPtr(mStressTestButton);
 
 
+
+	mFpsDisplay = new ds::ui::Text(mEngine);
+	mFpsDisplay->setFont("noto-thin", 24.0f);
+	mFpsDisplay->setColor(ci::Color::white());
+	mFpsDisplay->setText("GstFps");
+	mFpsDisplay->setPosition(mEngine.getWorldWidth()/2.0f, 30.0f);
+	rootSprite.addChildPtr(mFpsDisplay);
 }
 
 void SimpleVideoPlayer::update() {
@@ -99,6 +109,12 @@ void SimpleVideoPlayer::update() {
 			startVideos(mVideoPaths);
 		}
 	}
+
+	if(!mVideos.empty() && mFpsDisplay){
+		std::stringstream ss;
+		ss << "fps: " << mVideos.front()->getVideoPlayingFramerate();
+		mFpsDisplay->setText(ss.str());
+	}
 }
 
 void SimpleVideoPlayer::keyDown(ci::app::KeyEvent event){
@@ -106,7 +122,7 @@ void SimpleVideoPlayer::keyDown(ci::app::KeyEvent event){
 	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
-	} 
+	}
 }
 
 void SimpleVideoPlayer::fileDrop(ci::app::FileDropEvent event){
@@ -145,6 +161,8 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 	for(int i = 0; i < numVideos; i++){
 		ds::ui::Video* video = new ds::ui::Video(mEngine);
 		video->setLooping(true);
+
+		video->setVerboseLogging(true);
 		video->loadVideo(mVideoPaths[curVideo]);
 		curVideo++;
 		if(curVideo > mVideoPaths.size() - 1){
@@ -163,6 +181,8 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 			}
 		});
 
+		//video->setOpacity(ci::randFloat());
+
 		fitVideoInArea(ci::Rectf(xp, yp, xp + vidWidth, yp + vidHeight), video);
 		xp += vidWidth;
 		if(xp > mEngine.getWorldWidth() - vidWidth){
@@ -173,6 +193,10 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 		mVideos.push_back(video);
 
 		mEngine.getRootSprite().addChildPtr(video);
+	}
+
+	if(mFpsDisplay){
+		mFpsDisplay->sendToFront();
 	}
 }
 
