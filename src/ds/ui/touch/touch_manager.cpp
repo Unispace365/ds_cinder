@@ -188,7 +188,6 @@ void TouchManager::touchesEnded(const TouchEvent &event) {
 }
 
 void TouchManager::mouseTouchBegin(const MouseEvent &event, int id ){
-
 	TouchInfo touchInfo;
 	touchInfo.mCurrentGlobalPoint = Vec3f(translateMousePoint(event.getPos()), 0.0f);
 	touchInfo.mFingerId = id;
@@ -225,6 +224,7 @@ void TouchManager::mouseTouchMoved(const MouseEvent &event, int id ){
 
 	mRotationTranslator.move(touchInfo, mTouchPreviousPoint[touchInfo.mFingerId]);
 
+
 	if (mFingerDispatcher[touchInfo.mFingerId]) {
 		mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
 	}
@@ -256,17 +256,6 @@ void TouchManager::mouseTouchEnded(const MouseEvent &event, int id ){
 	if (mCapture) mCapture->touchEnd(touchInfo);
 }
 
-void TouchManager::drawTouches() const {
-	if (mTouchPreviousPoint.empty())
-		return;
-
-	applyBlendingMode(NORMAL);
-
-	for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {
-		ci::Vec2f		pos(it->second.xy());
-		ci::gl::drawStrokedCircle(pos, 20.0f);
-	}
-}
 
 void TouchManager::clearFingers( const std::vector<int> &fingers ){
 	for ( auto i = fingers.begin(), e = fingers.end(); i != e; ++i )

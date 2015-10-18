@@ -89,9 +89,6 @@ public:
 	// Destructor which closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
 	virtual ~GStreamerWrapper();
 
-
-	void debugAppsinkShaderColorspaceOpen();
-
 	typedef enum { kColorSpaceTransparent = 0, kColorSpaceSolid, kColorSpaceI420 } ColorSpace;
 
 	/*
@@ -559,6 +556,8 @@ private:
 
 	// Makes sure videos widths are divisible by 4, for video blanking
 	void					enforceModFourWidth(const int videoWidth, const int videoHeight);
+
+	void					setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime);
 
 protected:
 

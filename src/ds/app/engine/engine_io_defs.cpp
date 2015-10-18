@@ -26,6 +26,7 @@ const char			ATT_CLIENT = 1;
 const char			ATT_GLOBAL_ID = 2;
 const char			ATT_SESSION_ID = 3;
 const char			ATT_FRAME = 4;
+const char			ATT_ROOTS = 5;
 
 /**
  * \class ds::EngineIoInfo

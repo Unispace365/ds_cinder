@@ -66,6 +66,7 @@ const int           CLIP_F				= (1<<4);
 const int           SHADER_CHILDREN_F	= (1<<5);
 const int           NO_REPLICATION_F	= (1<<6);
 const int           ROTATE_TOUCHES_F	= (1<<7);
+const int			DRAW_DEBUG_F		= (1<<8);
 
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
@@ -328,8 +329,18 @@ void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams
 	glLoadIdentity();
 	ci::gl::multModelView(totalTransformation);
 
-	if((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
-		ci::gl::color(mServerColor);
+	bool debugDraw = getDrawDebug();
+	if((mSpriteFlags&TRANSPARENT_F) == 0 && (isEnabled() || debugDraw)) {
+		if(debugDraw){
+			ci::gl::enableAlphaBlending();
+			applyBlendingMode(mBlendMode);
+
+			mDrawOpacity = mOpacity*drawParams.mParentOpacity;
+			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
+		} else {
+			ci::gl::disableAlphaBlending();
+			ci::gl::color(mServerColor);
+		}
 		if(mUseDepthBuffer) {
 			ci::gl::enableDepthRead();
 			ci::gl::enableDepthWrite();
@@ -365,6 +376,10 @@ void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams
 
 void Sprite::setPosition( float x, float y, float z ) {
 	doSetPosition(ci::Vec3f(x, y, z));
+}
+
+void Sprite::setPosition(const ci::Vec2f& pos){
+	doSetPosition(ci::Vec3f(pos.x, pos.y, mPosition.z));
 }
 
 void Sprite::setPosition(const ci::Vec3f &pos) {
@@ -1267,11 +1282,6 @@ void Sprite::setDragDestination(Sprite *dragDestination){
 	mDragDestination = dragDestination;
 }
 
-void Sprite::setDragDestiantion(Sprite *dragDestination){
-	Poco::Debugger::enter("Obsolete Function! (misspelled API call)  Replace with setDragDestination()");
-	setDragDestination(dragDestination);
-}
-
 Sprite *Sprite::getDragDestination() const{
 	return mDragDestination;
 }
@@ -1321,10 +1331,14 @@ void Sprite::writeClientTo(ds::DataBuffer &buf) const {
 }
 
 void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
-	if (mDirty.has(PARENT_DIRTY)) {
-		buf.add(PARENT_ATT);
-		if (mParent) buf.add(mParent->getId());
-		else buf.add(ds::EMPTY_SPRITE_ID);
+	if(mDirty.has(PARENT_DIRTY)) {
+		if(mParent){
+			buf.add(PARENT_ATT);
+			buf.add(mParent->getId());
+		} 
+
+		// Why would you send an empty sprite id?
+		//buf.add(ds::EMPTY_SPRITE_ID);
 	}
 	if (mDirty.has(SIZE_DIRTY)) {
 		buf.add(SIZE_ATT);
@@ -1462,7 +1476,7 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 		} else if (id == SORTORDER_ATT) {
 			int32_t						size = buf.read<int32_t>();
 			// I'll assume anything beyond a certain size is a broken packet.
-			if (size > 0 && size < 10000) {
+			if (size > 0 && size < 100000) {
 				try {
 					std::vector<sprite_id_t>	order;
 					for (int32_t k=0; k<size; ++k) {
@@ -1471,11 +1485,12 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 					setSpriteOrder(order);
 				} catch (std::exception const&) {
 				}
-			}
+			} 
 		} else {
 			readAttributeFrom(id, buf);
 		}
 	}
+
 	if (transformChanged) {
 		mUpdateTransform = true;
 		mBoundsNeedChecking = true;
@@ -1951,8 +1966,17 @@ void Sprite::doPropagateVisibilityChange(bool before, bool after){
 	}
 }
 
-/**
- * \class ds::ui::Sprite::LockScale
+void Sprite::setDrawDebug(const bool doDebug){
+	if(doDebug) mSpriteFlags |= DRAW_DEBUG_F;
+	else mSpriteFlags &= ~DRAW_DEBUG_F;
+}
+
+bool Sprite::getDrawDebug(){
+	return getFlag(DRAW_DEBUG_F, mSpriteFlags);
+}
+
+/*
+ * --------------------LockScale
  */
 Sprite::LockScale::LockScale(Sprite& s, const ci::Vec3f& temporaryScale)
 		: mSprite(s)

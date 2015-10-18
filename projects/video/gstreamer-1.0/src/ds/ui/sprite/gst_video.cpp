@@ -1,10 +1,14 @@
 #include "gst_video.h"
 
-#include <ds/ui/sprite/sprite_engine.h>
-#include <ds/data/resource_list.h>
+#include <ds/app/app.h>
+#include <ds/app/blob_registry.h>
+#include <ds/app/blob_reader.h>
 #include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
+#include <ds/data/data_buffer.h>
+#include <ds/data/resource_list.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/sprite/sprite_engine.h>
 
 #include "gstreamer/gstreamer_wrapper.h"
 #include "gstreamer/gstreamer_env_check.h"
@@ -17,44 +21,88 @@
 using namespace ci;
 using namespace gstwrapper;
 
-namespace {
-	static ds::gstreamer::EnvCheck  ENV_CHECK;
-	ds::ui::VideoMetaCache          CACHE("gstreamer-2");
-	const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
-	template<typename T> void       noop(T) { /* no op */ };
-	void                            noop()  { /* no op */ };
-
-
-	static std::string yuv_vert = 
-		"varying   vec2 gsvTexCoord;"
-		"void main(){ "
-		"gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
-		"gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;"
-		"gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
-		"gl_FrontColor = gl_Color;"
-		"gsvTexCoord = gl_TexCoord[0];"
-		"}";
-
-	static std::string yuv_frag =
-		"precision mediump float;"
-		"uniform sampler2D gsuTexture0;"
-		"uniform sampler2D gsuTexture1;"
-		"uniform sampler2D gsuTexture2;"
-		"varying vec2 gsvTexCoord;"
-		"void main(){"
-		"float y = texture2D(gsuTexture0, gsvTexCoord).r;"
-		"float u = texture2D(gsuTexture1, gsvTexCoord).r;"
-		"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
-		"u = u - 0.5;"
-		"v = v - 0.5;"
-		"gl_FragColor = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);"
-		"}";
-}
 namespace ds {
 namespace ui {
 
+namespace {
+static ds::gstreamer::EnvCheck  ENV_CHECK;
+ds::ui::VideoMetaCache          CACHE("gstreamer-2");
+const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
+template<typename T> void       noop(T) { /* no op */ };
+void                            noop()  { /* no op */ };
+
+
+static std::string yuv_vert =
+"varying   vec2 gsvTexCoord;"
+"void main(){ "
+"gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
+"gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;"
+"gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
+"gl_FrontColor = gl_Color;"
+"gsvTexCoord = gl_TexCoord[0];"
+"}";
+
+static std::string yuv_frag =
+"precision mediump float;"
+"uniform sampler2D gsuTexture0;"
+"uniform sampler2D gsuTexture1;"
+"uniform sampler2D gsuTexture2;"
+"varying vec2 gsvTexCoord;"
+"void main(){"
+"float y = texture2D(gsuTexture0, gsvTexCoord).r;"
+"float u = texture2D(gsuTexture1, gsvTexCoord).r;"
+"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
+"u = u - 0.5;"
+"v = v - 0.5;"
+"gl_FragColor = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);"
+"}";
+
+class Init {
+public:
+	Init() {
+		ds::App::AddStartup([](ds::Engine& e) {
+
+			//e.installSprite([](ds::BlobRegistry& r){ds::ui::GstVideo::installAsServer(r); },
+		//					[](ds::BlobRegistry& r){ds::ui::GstVideo::installAsClient(r); });
+		});
+
+	}
+	void			doNothing() { }
+};
+
+Init		INIT;
+
+char		BLOB_TYPE = 0;
+
+const char mMuteAtt = 'A';
+const char mStatusAtt = 'B';
+const char mVolumeAtt = 'C';
+const char mLoopingAtt = 'D';
+const char mAutoStartAtt = 'E';
+const char mPathAtt = 'F';
+const char mPosAtt = 'G';
+const char mSyncAtt = 'H';
+
+const DirtyState& mMuteDirty = newUniqueDirtyState();
+const DirtyState& mStatusDirty = newUniqueDirtyState();
+const DirtyState& mVolumeDirty = newUniqueDirtyState();
+const DirtyState& mLoopingDirty = newUniqueDirtyState();
+const DirtyState& mAutoStartDirty = newUniqueDirtyState();
+const DirtyState& mPathDirty = newUniqueDirtyState();
+const DirtyState& mPosDirty = newUniqueDirtyState();
+const DirtyState& mSyncDirty = newUniqueDirtyState();
+}
+
 GstVideo& GstVideo::makeVideo(SpriteEngine& e, Sprite* parent) {
 	return makeAlloc<ds::ui::GstVideo>([&e]()->ds::ui::GstVideo*{ return new ds::ui::GstVideo(e); }, parent);
+}
+
+void GstVideo::installAsServer(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r); });
+}
+
+void GstVideo::installAsClient(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<GstVideo>(r); });
 }
 
 /**
@@ -79,12 +127,11 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mPlaySingleFrameFunction(nullptr)
 	, mDrawable(false)
 	, mVideoSize(0, 0)
-	, mNetHandler(*this)
 	, mAutoExtendIdle(false)
 	, mGenerateAudioBuffer(false)
 	, mColorType(kColorTypeTransparent)
 {
-	mBlobType = GstVideoNet::mBlobType;
+	mBlobType = BLOB_TYPE;
 
 	try {
 		mShader = ci::gl::GlslProg(yuv_vert.c_str(), yuv_frag.c_str());
@@ -97,7 +144,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	setUseShaderTextuer(true);
 }
 
-GstVideo::~GstVideo() {
+GstVideo::~GstVideo(){
 	if(mGstreamerWrapper){
 		delete mGstreamerWrapper;
 		mGstreamerWrapper = nullptr;
@@ -117,8 +164,7 @@ void GstVideo::updateServer(const UpdateParams &up){
 	}
 }
 
-void GstVideo::generateAudioBuffer(bool enableAudioBuffer)
-{
+void GstVideo::generateAudioBuffer(bool enableAudioBuffer){
 	 mGenerateAudioBuffer = enableAudioBuffer; 
 }
 
@@ -229,10 +275,6 @@ void GstVideo::setSize( float width, float height ){
 }
 
 GstVideo& GstVideo::loadVideo(const std::string& filename){
-	if (mFilename == filename){
-		return *this;
-	}
-
 	const std::string _filename(ds::Environment::expand(filename));
 
 	if (_filename.empty()){
@@ -241,7 +283,7 @@ GstVideo& GstVideo::loadVideo(const std::string& filename){
 	}
 
 	doLoadVideo(_filename);
-	markAsDirty(mNetHandler.mPathDirty);
+	markAsDirty(mPathDirty);
 	return *this;
 }
 
@@ -337,7 +379,7 @@ void GstVideo::doLoadVideo(const std::string &filename){
 void GstVideo::setLooping(const bool on){
 	mLooping = on;
 	applyMovieLooping();
-	markAsDirty(mNetHandler.mLoopingDirty);
+	markAsDirty(mLoopingDirty);
 }
 
 bool GstVideo::getIsLooping() const {
@@ -347,7 +389,7 @@ bool GstVideo::getIsLooping() const {
 void GstVideo::setMute( const bool doMute ){
 	mMuted = doMute;
 	applyMovieVolume();
-	markAsDirty(mNetHandler.mMuteDirty);
+	markAsDirty(mMuteDirty);
 }
 
 bool GstVideo::getIsMuted() const {
@@ -360,7 +402,7 @@ void GstVideo::setVolume(const float volume) {
 	mVolume = volume;
 	applyMovieVolume();
 
-	markAsDirty(mNetHandler.mVolumeDirty);
+	markAsDirty(mVolumeDirty);
 }
 
 float GstVideo::getVolume() const {
@@ -375,23 +417,23 @@ void GstVideo::play(){
 		mShouldPlay = true;
 	}
 
-	markAsDirty(mNetHandler.mStatusDirty);
+	markAsDirty(mStatusDirty);
 }
 
 void GstVideo::stop(){
 	mShouldPlay = false;
 	mGstreamerWrapper->stop();
-	markAsDirty(mNetHandler.mStatusDirty);
+	markAsDirty(mStatusDirty);
 }
 
 void GstVideo::pause(){
 	mShouldPlay = false;
 	mGstreamerWrapper->pause();
-	markAsDirty(mNetHandler.mStatusDirty);
+	markAsDirty(mStatusDirty);
 }
 
 bool GstVideo::getIsPlaying() const {
-	if (mGstreamerWrapper->getState() == PLAYING)	{
+	if (mGstreamerWrapper->getState() == PLAYING){
 		return true;
 	} else {
 		return false;
@@ -408,7 +450,7 @@ double GstVideo::getCurrentTime() const {
 		
 void GstVideo::seekTime(const double t){
 	mGstreamerWrapper->setTimePositionInMs(t * 1000.0);
-	markAsDirty(mNetHandler.mPosDirty);
+	markAsDirty(mPosDirty);
 }
 
 double GstVideo::getCurrentPosition() const {
@@ -417,7 +459,7 @@ double GstVideo::getCurrentPosition() const {
 
 void GstVideo::seekPosition(const double t){
 	mGstreamerWrapper->setPosition(t);
-	markAsDirty(mNetHandler.mPosDirty);
+	markAsDirty(mPosDirty);
 }
 
 void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn){
@@ -431,7 +473,7 @@ void GstVideo::setStatus(const int code){
 	mStatus.mCode = code;
 	mStatusChanged = true;
 
-	markAsDirty(mNetHandler.mStatusDirty);
+	markAsDirty(mStatusDirty);
 }
 
 void GstVideo::applyMovieVolume(){
@@ -525,12 +567,85 @@ const std::string& GstVideo::getLoadedFilename() const {
 
 void GstVideo::writeAttributesTo(DataBuffer& buf){
 	Sprite::writeAttributesTo(buf);
-	mNetHandler.writeAttributesTo(mDirty, buf);
+
+	if(mDirty.has(mPathDirty)){
+		buf.add(mPathAtt);
+		buf.add(getLoadedFilename());
+	}
+
+	if(mDirty.has(mAutoStartDirty)){
+		buf.add(mAutoStartAtt);
+		buf.add(getAutoStart());
+	}
+
+	if(mDirty.has(mLoopingDirty)){
+		buf.add(mLoopingAtt);
+		buf.add(getIsLooping());
+	}
+
+	if(mDirty.has(mStatusDirty)){
+		buf.add(mStatusAtt);
+		buf.add(getCurrentStatus().mCode);
+	}
+
+	if(mDirty.has(mVolumeDirty)){
+		buf.add(mVolumeAtt);
+		buf.add(getVolume());
+	}
+
+	if(mDirty.has(mMuteDirty)){
+		buf.add(mMuteAtt);
+		buf.add(getIsMuted());
+	}
+
+	if(mDirty.has(mPosDirty)){
+		buf.add(mPosAtt);
+		buf.add(getCurrentPosition());
+	}
+
+	if(mDirty.has(mSyncDirty)){
+
+	}
 }
 
-void GstVideo::readAttributeFrom(const char id, DataBuffer& buf){
-	if (!mNetHandler.readAttributeFrom(id, buf))
-		Sprite::readAttributeFrom(id, buf);
+void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
+	if(attrid == mPathAtt) {
+		auto video_path = buf.read<std::string>();
+		if(getLoadedFilename() != video_path)
+			loadVideo(video_path);
+	} else if(attrid == mAutoStartAtt) {
+		auto auto_start = buf.read<bool>();
+		if(getAutoStart() != auto_start)
+			setAutoStart(auto_start);
+	} else if(attrid == mLoopingAtt) {
+		auto is_looping = buf.read<bool>();
+		if(getIsLooping() != is_looping)
+			setLooping(is_looping);
+	} else if(attrid == mMuteAtt) {
+		auto is_muted = buf.read<bool>();
+		if(getIsMuted() != is_muted)
+			setMute(is_muted);
+	} else if(attrid == mVolumeAtt) {
+		auto volume_level = buf.read<float>();
+		if(getVolume() != volume_level)
+			setVolume(volume_level);
+	} else if(attrid == mPosAtt) {
+		auto server_video_pos = buf.read<double>();
+		seekPosition(server_video_pos);
+	} else if(attrid == mStatusAtt) {
+		auto status_code = buf.read<int>();
+		if(getCurrentStatus() != status_code){
+			if(status_code == GstVideo::Status::STATUS_PAUSED){
+				pause();
+			} else if(status_code == GstVideo::Status::STATUS_STOPPED){
+				stop();
+			} else if(status_code == GstVideo::Status::STATUS_PLAYING){
+				play();
+			}
+		}
+	} else {
+		Sprite::readAttributeFrom(attrid, buf);
+	}
 }
 
 double GstVideo::getCurrentTimeMs() const {
@@ -549,8 +664,7 @@ void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn){
 	}
 }
 
-void GstVideo::enablePlayingAFrame(bool on /*= true*/)
-{
+void GstVideo::enablePlayingAFrame(bool on /*= true*/){
 	if (mPlaySingleFrame == on) return;
 	mPlaySingleFrame = on;
 }
@@ -567,8 +681,7 @@ void GstVideo::setAutoExtendIdle(const bool doAutoextend){
 	mAutoExtendIdle = doAutoextend;
 }
 
-GstVideo::Status::Status(int code)
-{
+GstVideo::Status::Status(int code){
 	mCode = code;
 }
 

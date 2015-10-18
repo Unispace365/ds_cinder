@@ -52,6 +52,7 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 		, mBorder(20.0f, 20.0f) {
 	mBlobType = BLOB_TYPE;
 
+	setDrawDebug(true);
 	hide();
 	setTransparent(false);
 	setColor(0, 0, 0);
@@ -68,18 +69,34 @@ void EngineStatsView::updateServer(const ds::UpdateParams &p) {
 	}
 }
 
+void EngineStatsView::updateClient(const ds::UpdateParams& p){
+	inherited::updateClient(p);
+
+	if(!visible()) {
+		mTextureFont = ci::gl::TextureFontRef();
+	}
+}
+
 void EngineStatsView::drawLocalClient() {
 	inherited::drawLocalClient();
+	drawStats();
+}
 
-	if (!mTextureFont) {
+void EngineStatsView::drawLocalServer(){
+	inherited::drawLocalServer();
+	drawStats();
+}
+
+void EngineStatsView::drawStats(){
+	if(!mTextureFont) {
 		makeTextureFont();
-		if (!mTextureFont) return;
+		if(!mTextureFont) return;
 	}
 
-	if (!mFont) return;
+	if(!mFont) return;
 
 	ci::gl::GlslProg&	shader = mSpriteShader.getShader();
-	if (shader) shader.unbind();
+	if(shader) shader.unbind();
 
 	ci::gl::color(1, 1, 1, 1);
 
@@ -88,18 +105,22 @@ void EngineStatsView::drawLocalClient() {
 	y = drawLine(make_line("Sprites", (int)mEngine.mSprites.size()), y) + gap;
 	y = drawLine(make_line("Touch mode (t)", ds::ui::TouchMode::toString(mEngine.mTouchMode)), y) + gap;
 	y = drawLine(make_line("FPS", mEngine.getAverageFps()), y) + gap;
+
 }
 
 float EngineStatsView::drawLine(const std::string &v, const float y) {
 	const float			ascent = mFont.getAscent();
-	mTextureFont->drawString(v, ci::Vec2f(mLT.x + mBorder.x, y + ascent));
+	mTextureFont->drawString(v, ci::Vec2f(mBorder.x, y + ascent));
 	return y + ascent + mFont.getDescent();
 }
 
 void EngineStatsView::onAppEvent(const ds::Event &_e) {
 	if (Toggle::WHAT() == _e.mWhat) {
-		if (visible()) hide();
-		else show();
+		if(visible()){
+			hide();
+		} else {
+			show();
+		}
 	}
 }
 

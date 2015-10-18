@@ -27,13 +27,16 @@ public:
 	EngineStatsView(ds::ui::SpriteEngine&);
 
 	virtual void				updateServer(const ds::UpdateParams&);
+	virtual void				updateClient(const ds::UpdateParams&);
 	virtual void				drawLocalClient();
+	virtual void				drawLocalServer();
 
 private:
 	float						drawLine(const std::string&, const float y);
 	void						onAppEvent(const ds::Event&);
 	void						makeTextureFont();
-
+	// Abstract drawing for server AND client
+	void						drawStats();
 	typedef ds::ui::Sprite		inherited;
 	ds::Engine&					mEngine;
 	ds::EventClient				mEventClient;

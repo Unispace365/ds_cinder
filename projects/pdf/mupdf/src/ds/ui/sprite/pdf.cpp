@@ -178,19 +178,19 @@ void Pdf::drawLocalClient() {
 
 	const float				targetw = getWidth()*mScale.x,
 							targeth = getHeight()*mScale.y;
-    ci::gl::pushModelView();
+	ci::gl::pushModelView();
 
 	// To draw properly, we first have to turn off whatever scaling has
 	// been applied, then apply a new scale to compensate for any mismatch
 	// between my current texture size and my display size.
 	const ci::Vec3f			turnOffScale(1.0f/mScale.x, 1.0f/mScale.y, 1.0f);
 	const ci::Vec3f			newScale(targetw/tw, targeth/th, 1.0f);
-    ci::gl::multModelView(ci::Matrix44f::createScale(turnOffScale));
-    ci::gl::multModelView(ci::Matrix44f::createScale(newScale));
+	ci::gl::multModelView(ci::Matrix44f::createScale(turnOffScale));
+	ci::gl::multModelView(ci::Matrix44f::createScale(newScale));
 
 	mHolder.drawLocalClient();
 
-    ci::gl::popModelView();
+	ci::gl::popModelView();
 }
 
 void Pdf::writeAttributesTo(ds::DataBuffer &buf) {

@@ -123,9 +123,9 @@ public:
 	virtual ci::Color8u					getUniqueColor();
 
 	ci::tuio::Client&					getTuioClient();
-	void								touchesBegin(const ci::app::TouchEvent&);
-	void								touchesMoved(const ci::app::TouchEvent&);
-	void								touchesEnded(const ci::app::TouchEvent&);
+	void								touchesBegin(const ci::app::TouchEvent&, const bool inWorldSpace = false);
+	void								touchesMoved(const ci::app::TouchEvent&, const bool inWorldSpace = false);
+	void								touchesEnded(const ci::app::TouchEvent&, const bool inWorldSpace = false);
 	void								mouseTouchBegin(const ci::app::MouseEvent&, int id);
 	void								mouseTouchMoved(const ci::app::MouseEvent&, int id);
 	void								mouseTouchEnded(const ci::app::MouseEvent&, int id);
@@ -137,9 +137,10 @@ public:
 	// or if you have an unusual input situation (like a kinect or something) and want to use touch
 	// These are separate functions from the touchesBegin, etc from above so the general
 	// use functions are not virtual and to indicate that these touchpoints are not coming from hardware
-	virtual void						injectTouchesBegin(const ci::app::TouchEvent&);
-	virtual void						injectTouchesMoved(const ci::app::TouchEvent&);
-	virtual void						injectTouchesEnded(const ci::app::TouchEvent&);
+	// \param inWorldSpace If true, the app will not translate due to src/dst rect settings
+	virtual void						injectTouchesBegin(const ci::app::TouchEvent&, const bool inWorldSpace = false);
+	virtual void						injectTouchesMoved(const ci::app::TouchEvent&, const bool inWorldSpace = false);
+	virtual void						injectTouchesEnded(const ci::app::TouchEvent&, const bool inWorldSpace = false);
 
 	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	// Sprites can still turn this off after creation
@@ -198,6 +199,30 @@ public:
 	void								setAverageFps(const float fps){ mAverageFps = fps; }
 	const float							getAverageFps() const { return mAverageFps; }
 
+
+	// This really should move somewhere else (TODO: SL)
+	struct FxaaOptions
+	{
+		bool								mApplyFxAA{ false };
+		float								mFxAASpanMax;
+		float								mFxAAReduceMul;
+		float								mFxAAReduceMin;
+	} mFxaaOptions;
+	// -------------------------------------------------------------
+	// These functions are inlined, since they are called frequently
+	// -------------------------------------------------------------
+	/// Returns the list of current roots
+	inline const std::vector<std::unique_ptr<EngineRoot>>&		getRoots() const { return mRoots; }
+	inline const ds::DrawParams&								getDrawParams() const { return mDrawParams; }
+	inline ds::AutoDrawService* const							getAutoDrawService() { return mAutoDraw; }
+	inline const FxaaOptions&									getFxaaOptions() const { return mFxaaOptions; }
+
+	/// This is for Clients to reconstruct roots when they re-connect with the server
+	void														clearRoots();
+
+	/// For Clients to create roots when reconnecting to the server
+	void														createClientRoots(std::vector<RootList::Root> newRoots);
+
 protected:
 	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);
 
@@ -206,10 +231,21 @@ protected:
 	void								updateServer();
 	void								drawClient();
 	void								drawServer();
-	// Called from the destructor of all subclasses, so I can cleanup
-	// sprites before services go away.
-	void								clearAllSprites();
+
+	/** Called from the destructor of all subclasses, so I can cleanup sprites before services go away.
+		\param clearDebug If true, will clear all the children from the debug roots too. 
+							If false, leaves them alone (for instance, in client situations) */
+	void								clearAllSprites(const bool clearDebug = true);
 	void								registerForTuioObjects(ci::tuio::Client&);
+
+	/** When mouse events are ready to be handled by the touch manager. 
+		These are enforced virtual functions to be sure the engine handles mouse events.
+		Servers will send directly to the touch manager, and clients can send back to the server */
+	virtual void						handleMouseTouchBegin(const ci::app::MouseEvent&, int id) = 0;
+	virtual void						handleMouseTouchMoved(const ci::app::MouseEvent&, int id) = 0;
+	virtual void						handleMouseTouchEnded(const ci::app::MouseEvent&, int id) = 0;
+
+	ui::TouchManager					mTouchManager;
 
 	static const int					NumberOfNetworkThreads;
 
@@ -222,33 +258,15 @@ protected:
 	ds::ui::ip::FunctionList			mIpFunctions;
 	ds::ui::TouchMode::Enum				mTouchMode;
 
-	// This really should move somewhere else (TODO: SL)
-	struct FxaaOptions
-	{
-		bool								mApplyFxAA{ false };
-		float								mFxAASpanMax;
-		float								mFxAAReduceMul;
-		float								mFxAAReduceMin;
-	} mFxaaOptions;
-
-public:
-	//! **** IMPORTANT NOTE ****
-	//! Leave these methods to be here so they get in-lined properly.
-	//! In-lining these methods are crucial since they get fired every frame!
-	inline const std::vector<std::unique_ptr<EngineRoot>>&
-										getRoots() const { return mRoots; }
-	inline const ds::DrawParams&		getDrawParams() const { return mDrawParams; }
-	inline ds::AutoDrawService* const	getAutoDrawService() { return mAutoDraw; }
-	inline const FxaaOptions&			getFxaaOptions() const { return mFxaaOptions; }
-
 private:
 	//! a pointer to the currently active renderer
 	std::unique_ptr<EngineRenderer>		mRenderer;
 	//! decides a renderer based on engine configurations. MUST be called inside "setup".
 	void								setupRenderer();
 
-private:
 	void								setTouchMode(const ds::ui::TouchMode::Enum&);
+	void								createStatsView(sprite_id_t root_id);
+
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
 										mRoots;
@@ -265,7 +283,6 @@ private:
 	float								mLastTouchTime;
 
 	ci::tuio::Client					mTuio;
-	ui::TouchManager					mTouchManager;
 	// Clients that will get update() called automatically at the start
 	// of each update cycle
 	AutoUpdateList						mAutoUpdateServer;

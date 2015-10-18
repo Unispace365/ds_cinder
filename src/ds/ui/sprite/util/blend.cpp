@@ -1,8 +1,10 @@
 #include "blend.h"
 #include <cinder/gl/gl.h>
+#include <algorithm>
 
 namespace ds {
 namespace ui {
+
 
 void applyBlendingMode(const BlendMode &blendMode){
 	if(blendMode == NORMAL) {
@@ -32,7 +34,33 @@ void applyBlendingMode(const BlendMode &blendMode){
 	}
 }
 
-bool premultiplyAlpha( const BlendMode &blendMode ){
+
+ds::ui::BlendMode getBlendModeByString(const std::string& blendString){
+	if(blendString.empty()) return NORMAL;
+	std::string lowerString = blendString;
+	std::transform(lowerString.begin(), lowerString.end(), lowerString.begin(), ::tolower);
+	if(lowerString == "add"){
+		return ADD;
+	} else if(lowerString == "subtract"){
+		return SUBTRACT;
+	} else if(lowerString == "multiply"){
+		return MULTIPLY;
+	} else if(lowerString == "normal"){
+		return NORMAL;
+	} else if(lowerString == "lighten"){
+		return LIGHTEN;
+	} else if(lowerString == "darken"){
+		return DARKEN;
+	} else if(lowerString == "transparent_black"){
+		return TRANSPARENT_BLACK;
+	} else if(lowerString == "screen"){
+		return SCREEN;
+	}
+
+	return NORMAL;
+}
+
+bool premultiplyAlpha(const BlendMode &blendMode){
 	if(blendMode == NORMAL) {
 		return false;
 	} else if(blendMode == MULTIPLY) {
