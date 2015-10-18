@@ -284,7 +284,7 @@ void GstVideo::doLoadVideo(const std::string &filename){
 			mOutOfBoundsMuted = false;
 		}
 
-		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen", GSTREAMER_LOG);
+		DS_LOG_INFO_M("GstVideo::doLoadVideo(): " << filename, GSTREAMER_LOG);
 		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, true, videoWidth, videoHeight);
 
 		mVideoSize.x = mGstreamerWrapper->getWidth();

@@ -4,6 +4,7 @@
 #include "ds/app/engine/engine_roots.h"
 #include "ds/math/math_defs.h"
 #include "ds/ui/sprite/util/blend.h"
+#include "ds/debug/logger.h"
 #include <cinder/System.h>
 #include "rotation_translator.h"
 
@@ -65,10 +66,25 @@ void TouchManager::touchesBegin(const TouchEvent &event) {
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 		mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
+
+		if (mCapture) mCapture->touchBegin(touchInfo);
+
+		// Catch a case where two "touch added" calls get processed for the same fingerID
+		// WITHOUT a released in the middle. This would case the previous sprite to be left with an erroneous finger
+		// So we fake remove it before adding the new one
+		if(mFingerDispatcher[touchInfo.mFingerId]) {
+			DS_LOG_WARNING("Double touch added on the same finger Id: " << touchInfo.mFingerId << ", removing previous sprite tracking.");
+			touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
+			touchInfo.mPhase = TouchInfo::Removed; // fake removed
+			touchInfo.mPassedTouch = true; // passed touch flag indicates that this info shouldn't be used to trigger buttons, etc. implementation up to each sprite
+			mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo(touchInfo);
+			mFingerDispatcher[touchInfo.mFingerId] = nullptr;
+
+		}
+
 		touchInfo.mPhase = TouchInfo::Added;
 		touchInfo.mPassedTouch = false;
 
-		if (mCapture) mCapture->touchBegin(touchInfo);
 
 		Sprite *currentSprite = getHit(touchInfo.mCurrentGlobalPoint);
 		touchInfo.mPickedSprite = currentSprite;
@@ -110,11 +126,12 @@ void TouchManager::touchesMoved(const TouchEvent &event) {
 		touchInfo.mPhase = TouchInfo::Moved;
 		touchInfo.mPassedTouch = false;
 		touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
-		mRotationTranslator.move(touchInfo, mTouchPreviousPoint[touchInfo.mFingerId]);
 
 		if(mCapture){
 			mCapture->touchMoved(touchInfo);
 		}
+
+		mRotationTranslator.move(touchInfo, mTouchPreviousPoint[touchInfo.mFingerId]);
 
 		if (mFingerDispatcher[touchInfo.mFingerId]) {
 			mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
