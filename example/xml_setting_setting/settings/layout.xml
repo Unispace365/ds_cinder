@@ -7,4 +7,8 @@
 	
 	<color name="sprite:color" r="5" g="255" b="10" a="5" />
 	
+	<size name="example:size" x="50" y="40" />
+	
+	<int name="example:int" value="50" />
+	
 </settings>

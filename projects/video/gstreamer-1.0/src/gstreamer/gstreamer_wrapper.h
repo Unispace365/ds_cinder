@@ -586,8 +586,7 @@ protected:
 private:
 
 	std::mutex				m_VideoMutex;
-	std::unique_lock < std::mutex >
-							m_VideoLock;
+	std::unique_lock<std::mutex>						m_VideoLock;
 	bool					m_bFileIsOpen; /* Flag that tracks if a file has been opened or not */
 	std::atomic<bool>		m_bIsNewVideoFrame; /* Flag that tracks if there is actually a new frame or not */
 	std::string				m_strFilename; /* Stores filepath of the opened media file */

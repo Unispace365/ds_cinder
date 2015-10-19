@@ -23,7 +23,10 @@ SqlDatabase::SqlDatabase(const std::string& sDB, int flags, int *errorCode)
 	} else {
 		// Actually a fatal error but ...
 		DS_LOG_ERROR("  SqlDatabase: Unable to access the database " << sDB << " (SQLite error " << result << ")." << endl);
-		Poco::Thread::sleep(1000*10);
+		
+		// Why were we living with 10 seconds of sleep for so long?
+		// Leaving this here for future people to ponder their existence
+		//Poco::Thread::sleep(1000*10);
 	}
 }
 
