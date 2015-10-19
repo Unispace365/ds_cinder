@@ -92,4 +92,9 @@
       <UniqueIdentifier>{6ee7ca9f-f1f5-4bd4-a2c4-ec43623a5071}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\src\model\generated\stories.yml">
+      <Filter>src\model\generated</Filter>
+    </None>
+  </ItemGroup>
 </Project>
