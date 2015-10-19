@@ -2,6 +2,8 @@
 
 #include "ds/app/app.h"
 
+#include <ds/debug/logger.h>
+
 using namespace ci;
 using namespace ci::app;
 
@@ -44,7 +46,11 @@ void EngineStandalone::setupTuio(ds::App& a) {
 		ci::tuio::Client&		tuioClient = getTuioClient();
 		tuioClient.registerTouches(&a);
 		registerForTuioObjects(tuioClient);
-		tuioClient.connect(mTuioPort);
+		try{
+			tuioClient.connect(mTuioPort);
+		} catch (std::exception ex) {	
+			DS_LOG_WARNING("Tuio client could not be started.");
+		}
 	}
 }
 

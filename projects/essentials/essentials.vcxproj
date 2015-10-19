@@ -56,6 +56,7 @@
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />
     <ClInclude Include="src\ds\ui\util\sprite_cache.h" />
+    <ClInclude Include="src\ds\ui\util\ui_utils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{80CC472C-E968-46A3-B770-93615FF1A70B}</ProjectGuid>

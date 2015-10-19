@@ -5,6 +5,8 @@
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 
+#include <ds/ui/media/media_viewer.h>
+
 #include <cinder/Rand.h>
 
 #include "app/app_defs.h"
@@ -167,6 +169,17 @@ void FullStarterApp::mouseDrag(ci::app::MouseEvent e) {
 
 void FullStarterApp::mouseUp(ci::app::MouseEvent e) {
 	mTouchDebug.mouseUp(e);
+}
+
+void FullStarterApp::fileDrop(ci::app::FileDropEvent event){
+	std::vector<std::string> paths;
+	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
+		//paths.push_back((*it).string());
+
+		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
+		mv->initializeIfNeeded();
+		mEngine.getRootSprite().addChildPtr(mv);
+	}
 }
 
 } // namespace fullstarter

@@ -182,5 +182,8 @@
     <ClInclude Include="src\ds\network\helper\delayed_node_watcher.h">
       <Filter>src\ds\network\helper</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\ui\util\ui_utils.h">
+      <Filter>src\ds\ui\util</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

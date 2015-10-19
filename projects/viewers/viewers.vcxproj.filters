@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{2b08b134-7635-4eab-8a25-0c1580e926be}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds">
+      <UniqueIdentifier>{5b27e3c9-ef81-4e73-a15a-16cae42779f3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui">
+      <UniqueIdentifier>{5d60b7ae-2b5f-409d-8171-e0a5aa73bf77}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\panel">
+      <UniqueIdentifier>{327e38e3-c641-4107-af69-fa9989e4c297}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\media">
+      <UniqueIdentifier>{1c3b1b4b-c792-484a-b62e-9de959d69a62}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\media\player">
+      <UniqueIdentifier>{58d5e4bb-3778-42da-842c-b286c5f9d248}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\media\interface">
+      <UniqueIdentifier>{1133dea6-2da1-4dd9-b250-a62c1fb8417c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ds\ui\panel\base_panel.cpp">
+      <Filter>src\ds\ui\panel</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\media_slideshow.cpp">
+      <Filter>src\ds\ui\media</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\media_viewer.cpp">
+      <Filter>src\ds\ui\media</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\media_interface.cpp">
+      <Filter>src\ds\ui\media</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\player\video_player.cpp">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\player\web_player.cpp">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\player\pdf_player.cpp">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\interface\video_volume_control.cpp">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\interface\web_interface.cpp">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\interface\pdf_interface.cpp">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\interface\video_interface.cpp">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\interface\video_scrub_bar.cpp">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ds\ui\panel\base_panel.h">
+      <Filter>src\ds\ui\panel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\media_interface.h">
+      <Filter>src\ds\ui\media</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\media_slideshow.h">
+      <Filter>src\ds\ui\media</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\media_viewer.h">
+      <Filter>src\ds\ui\media</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\player\video_player.h">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\player\web_player.h">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\player\pdf_player.h">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\interface\video_volume_control.h">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\interface\web_interface.h">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\interface\pdf_interface.h">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\interface\video_interface.h">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\interface\video_scrub_bar.h">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

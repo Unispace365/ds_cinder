@@ -21,6 +21,8 @@ public:
 	virtual void		keyDown(ci::app::KeyEvent event);
 	void				setupServer();
 	void				update();
+
+	virtual void		fileDrop(ci::app::FileDropEvent event);
 private:
 	typedef ds::App		inherited;
 
