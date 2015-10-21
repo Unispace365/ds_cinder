@@ -123,7 +123,6 @@ public:
 	bool				getAutoExtendIdle() const;
 
 	virtual void		updateClient(const UpdateParams&) override;
-	void				drawSharedTexture();
 	virtual void		updateServer(const UpdateParams&) override;
 
 	//Allow for custom audio output

@@ -366,11 +366,14 @@ void GstVideo::doLoadVideo(const std::string &filename){
 		return;
 	} else {
 		ci::gl::Texture::Format fmt;
-		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 
 		if(mColorType == kColorTypeShaderTransform){
+			fmt.setInternalFormat(GL_LUMINANCE);
+			mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 			mUFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
 			mVFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		} else {
+			mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 		}
 		mFilename = filename;
 	}
