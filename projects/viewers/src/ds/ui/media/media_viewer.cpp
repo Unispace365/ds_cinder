@@ -18,6 +18,19 @@
 namespace ds {
 namespace ui {
 
+MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const bool embedInterface)
+	: BasePanel(eng)
+	, mInitialized(false)
+	, mVideoPlayer(nullptr)
+	, mPDFPlayer(nullptr)
+	, mWebPlayer(nullptr)
+	, mThumbnailImage(nullptr)
+	, mPrimaryImage(nullptr)
+	, mInterface(nullptr)
+	, mEmbedInterface(embedInterface)
+{
+}
+
 MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath, const bool embedInterface)
 	: BasePanel(eng)
 	, mInitialized(false)
@@ -26,7 +39,7 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath
 	, mPDFPlayer(nullptr)
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
-	, mImageUhPlayerIGuess(nullptr)
+	, mPrimaryImage(nullptr)
 	, mInterface(nullptr)
 	, mEmbedInterface(embedInterface)
 {
@@ -40,19 +53,42 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& resource
 	, mPDFPlayer(nullptr)
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
-	, mImageUhPlayerIGuess(nullptr)
+	, mPrimaryImage(nullptr)
 	, mInterface(nullptr)
 	, mEmbedInterface(embedInterface)
 {
 }
 
-void MediaViewer::initializeIfNeeded()
-{
-	if(!mInitialized)
-	{
+void MediaViewer::initializeIfNeeded(){
+	if(!mInitialized){
 		initialize();
 	}
 }
+
+void MediaViewer::loadMedia(const std::string& mediaPath, const bool initializeImmediately) {
+	if(mInitialized){
+		uninitialize();
+	}
+
+	mResource = ds::Resource(mediaPath, ds::Resource::parseTypeFromFilename(mediaPath));
+
+	if(initializeImmediately){
+		initializeIfNeeded();
+	}
+}
+
+void MediaViewer::loadMedia(const ds::Resource& reccy, const bool initializeImmediately) {
+	if(mInitialized){
+		uninitialize();
+	}
+
+	mResource = reccy;
+
+	if(initializeImmediately){
+		initializeIfNeeded();
+	}
+}
+
 
 void MediaViewer::initialize(){
 
@@ -86,19 +122,19 @@ void MediaViewer::initialize(){
 	mContentAspectRatio = 1.0f;
 
 	if(mediaType == ds::Resource::IMAGE_TYPE){
-		mImageUhPlayerIGuess = new ds::ui::Image(mEngine);
-		addChildPtr(mImageUhPlayerIGuess);
-		mImageUhPlayerIGuess->setImageFile(mResource.getAbsoluteFilePath());
-		mImageUhPlayerIGuess->setOpacity(0.0f);
-		mImageUhPlayerIGuess->setStatusCallback([this](ds::ui::Image::Status status){
-			if(status.mCode == status.STATUS_LOADED && mImageUhPlayerIGuess){
-				mImageUhPlayerIGuess->tweenOpacity(1.0f, mAnimDuration);
+		mPrimaryImage = new ds::ui::Image(mEngine);
+		addChildPtr(mPrimaryImage);
+		mPrimaryImage->setImageFile(mResource.getAbsoluteFilePath());
+		mPrimaryImage->setOpacity(0.0f);
+		mPrimaryImage->setStatusCallback([this](ds::ui::Image::Status status){
+			if(status.mCode == status.STATUS_LOADED && mPrimaryImage){
+				mPrimaryImage->tweenOpacity(1.0f, mAnimDuration);
 			}
 		});
 
-		mContentAspectRatio = mImageUhPlayerIGuess->getWidth() / mImageUhPlayerIGuess->getHeight();
-		contentWidth = mImageUhPlayerIGuess->getWidth();
-		contentHeight = mImageUhPlayerIGuess->getHeight();
+		mContentAspectRatio = mPrimaryImage->getWidth() / mPrimaryImage->getHeight();
+		contentWidth = mPrimaryImage->getWidth();
+		contentHeight = mPrimaryImage->getHeight();
 	} else if(mediaType == ds::Resource::VIDEO_TYPE){
 		mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mVideoPlayer);
@@ -172,6 +208,31 @@ void MediaViewer::initialize(){
 	setViewerSize(mDefaultSize.x, mDefaultSize.y);
 }
 
+void MediaViewer::uninitialize() {
+	if(mThumbnailImage){
+		mThumbnailImage->release();
+	}
+	if(mVideoPlayer){
+		mVideoPlayer->release();
+	}
+	if(mPDFPlayer){
+		mPDFPlayer->release();
+	}
+	if(mPrimaryImage){
+		mPrimaryImage->release();
+	}
+	if(mWebPlayer){
+		mWebPlayer->release();
+	}
+
+	mThumbnailImage = nullptr;
+	mVideoPlayer = nullptr;
+	mPDFPlayer = nullptr;
+	mPrimaryImage = nullptr;
+	mWebPlayer = nullptr;
+}
+
+
 void MediaViewer::onLayout(){
 	initializeIfNeeded();
 
@@ -187,8 +248,8 @@ void MediaViewer::onLayout(){
 		fitInside(mThumbnailImage, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), true);
 	}
 
-	if(mImageUhPlayerIGuess){
-		fitInside(mImageUhPlayerIGuess, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), true);
+	if(mPrimaryImage){
+		fitInside(mPrimaryImage, ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), true);
 	}
 
 	if(mWebPlayer){

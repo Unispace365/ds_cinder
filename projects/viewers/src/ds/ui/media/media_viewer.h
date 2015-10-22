@@ -20,8 +20,13 @@ class MediaInterface;
 */
 class MediaViewer : public BasePanel  {
 public:
+	MediaViewer(ds::ui::SpriteEngine& eng, const bool embedInterface = false);
 	MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath, const bool embedInterface = false);
 	MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& reccy, const bool embedInterface = false);
+
+	// unloads any current media
+	void				loadMedia(const std::string& mediaPath, const bool initializeImmediately = true);
+	void				loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
 
 	void				initializeIfNeeded();
 
@@ -40,6 +45,7 @@ public:
 protected:
 	virtual void		userInputReceived();
 
+	void				uninitialize();
 	void				initialize();
 
 	bool				mEmbedInterface;
@@ -50,7 +56,7 @@ protected:
 	PDFPlayer*			mPDFPlayer;
 	WebPlayer*			mWebPlayer;
 	ds::ui::Image*		mThumbnailImage;
-	ds::ui::Image*		mImageUhPlayerIGuess;
+	ds::ui::Image*		mPrimaryImage;
 
 
 	ci::Vec3f			mOrigin;
