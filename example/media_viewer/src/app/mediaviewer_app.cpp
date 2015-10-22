@@ -101,7 +101,7 @@ void MediaViewer::setupServer(){
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Exit", "%APP%/data/images/menu/exit_app_normal.png", "%APP%/data/images/menu/exit_app_glow.png", [this](ci::Vec3f){ std::exit(0); }));
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Close All", "%APP%/data/images/menu/close_normal.png", "%APP%/data/images/menu/close_glow.png", [this](ci::Vec3f){ mEngine.getNotifier().notify(RequestCloseAllEvent()); }));
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Search", "%APP%/data/images/menu/search_normal.png", "%APP%/data/images/menu/search_glow.png", [this](ci::Vec3f pos){ /*mEngine.getNotifier().notify(RequestPresenterModeEvent(pos));*/ }));
-	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Edit", "%APP%/data/images/menu/pinboard_normal.png", "%APP%/data/images/menu/pinboard_glow.png", [this](ci::Vec3f){ mEngine.getNotifier().notify(RequestLayoutEvent()); }));
+	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Layout", "%APP%/data/images/menu/pinboard_normal.png", "%APP%/data/images/menu/pinboard_glow.png", [this](ci::Vec3f){ mEngine.getNotifier().notify(RequestLayoutEvent()); }));
 
 
 	mTouchMenu->setMenuItemModels(menuItemModels);

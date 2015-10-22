@@ -63,6 +63,7 @@ public:
 	void							animateSizeTo(const ci::Vec2f newContentSize);
 	void							animateWidthTo(const float newWidth);
 
+	const ci::Vec2f&				getMinSize(){ return mMinSize; }
 	const ci::Vec2f&				getDefaultSize(){ return mDefaultSize; }
 
 	void							setAnimateDuration(const float animDuration){ mAnimDuration = animDuration; }

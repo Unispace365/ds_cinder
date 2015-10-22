@@ -80,6 +80,7 @@ void WebPlayer::layout(){
 	}
 
 	if(mWebInterface && mEmbedInterface){
+		mWebInterface->setSize(getWidth() * 2.0f / 3.0f, mWebInterface->getHeight());
 		mWebInterface->setPosition(getWidth() / 2.0f - mWebInterface->getWidth() / 2.0f, getHeight() - mWebInterface->getHeight() - 50.0f);
 	}
 }

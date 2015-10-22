@@ -65,6 +65,7 @@ void PDFPlayer::layout(){
 	}
 
 	if(mPdfInterface && mEmbedInterface){
+		mPdfInterface->setSize(getWidth() * 2.0f / 3.0f, mPdfInterface->getHeight());
 		mPdfInterface->setPosition(getWidth() / 2.0f - mPdfInterface->getWidth() / 2.0f, getHeight() - mPdfInterface->getHeight() - 50.0f);
 	}
 }

@@ -22,6 +22,9 @@ TitledMediaViewer::TitledMediaViewer(Globals& g)
 	, mBody(nullptr)
 	, mShowingTitle(false)
 {
+
+	mAnimDuration = mGlobals.getAnimDur();
+
 	mTrayHolder = new ds::ui::Sprite(mEngine);
 	mTrayHolder->hide();
 	mTrayHolder->setOpacity(0.0f);
@@ -64,7 +67,7 @@ void TitledMediaViewer::onLayout() {
 	const float h = getHeight();
 
 	const float padding = mGlobals.getSettingsLayout().getFloat("titled_viewer:padding", 0, 20.0f);
-	if(mBody && mBackground && mTitle){
+	if(mBody && mBackground && mTitle && mShowingTitle){
 		// do the stuff
 
 		float yp = padding + h;
@@ -98,6 +101,8 @@ void TitledMediaViewer::animateOff(){
 void TitledMediaViewer::showTitle() {
 	if(mShowingTitle) return;
 	mShowingTitle = true;
+
+	onLayout();
 
 	if(mTrayHolder){
 		mTrayHolder->show();

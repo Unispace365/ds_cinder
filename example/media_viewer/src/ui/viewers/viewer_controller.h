@@ -27,13 +27,14 @@ class ViewerController final : public ds::ui::Sprite  {
 		// immediately releases the viewer with no animation
 		void								removeViewer(TitledMediaViewer* viewer);
 
+		// tries to evenly space everything
 		void								layoutViewers();
 
 	private:
 		void								onAppEvent(const ds::Event&);
 		virtual void						updateServer(const ds::UpdateParams& p);
 		void								animateViewerOff(TitledMediaViewer* viewer, const float delayey);
-
+		void								createGridLayout(const ci::Rectf area, const int numItems, std::vector<ci::Vec2f>& positions);
 
 		typedef ds::ui::Sprite				inherited;
 		Globals&							mGlobals;
