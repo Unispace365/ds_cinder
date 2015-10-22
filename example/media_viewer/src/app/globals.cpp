@@ -16,6 +16,7 @@ namespace mv {
 Globals::Globals(ds::ui::SpriteEngine& e , const AllData& d )
 		: mEngine(e)
 		, mAllData(d)
+		, mAnimDuration(0.2f)
 {
 }
 
@@ -31,6 +32,14 @@ const ds::cfg::Settings& Globals::getSettingsLayout() const {
 const ds::cfg::Text& Globals::getText(const std::string& name) const {
 	return mEngine.getEngineCfg().getText(name);
 
+}
+
+void Globals::initialize() {
+	mAnimDuration = getSettingsLayout().getFloat("animation:duration", 0, mAnimDuration);
+}
+
+const float Globals::getAnimDur() {
+	return mAnimDuration;
 }
 
 

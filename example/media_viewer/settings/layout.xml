@@ -1,6 +1,8 @@
 <settings>
 
 	<!-- Standard animation duration, in seconds. -->
-	<float name="animation:duration" value="0.2" />
+	<float name="animation:duration" value="0.35" />
+	
+	<float name="titled_viewer:padding" value="20" />
 	
 </settings>

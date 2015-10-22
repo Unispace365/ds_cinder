@@ -21,16 +21,18 @@ ViewerController::ViewerController(Globals& g)
 }
 
 void ViewerController::onAppEvent(const ds::Event& in_e){
-// 	if(in_e.mWhat == IdleEndedEvent::WHAT()){
-// 		const IdleEndedEvent& e((const IdleEndedEvent&)in_e);
-// 		animateOn();
-// 	} else if(in_e.mWhat == IdleStartedEvent::WHAT()){
-// 		animateOff();
-// 	}
-
 	if(in_e.mWhat == RequestMediaOpenEvent::WHAT()){
 		const RequestMediaOpenEvent& e((const RequestMediaOpenEvent&)in_e);
 		addViewer(e.mMedia, e.mLocation, e.mStartWidth);
+	} else if(in_e.mWhat == RequestCloseAllEvent::WHAT()){
+		const float deltaAnim = 0.05f;
+		float delayey = 0.0f;
+		for(auto it = mViewers.begin(); it < mViewers.end(); ++it){
+			animateViewerOff((*it), delayey);
+			delayey += deltaAnim;
+		}
+	} else if(in_e.mWhat == RequestLayoutEvent::WHAT()){
+		layoutViewers();
 	}
 }
 
@@ -48,6 +50,35 @@ void ViewerController::addViewer(ds::model::MediaRef newMedia, const ci::Vec3f l
 	tmv->setPosition(location);
 	tmv->setViewerWidth(startWidth);
 	tmv->animateOn();
+}
+
+void ViewerController::animateViewerOff(TitledMediaViewer* viewer, const float delayey) {
+	if(!viewer) return;
+
+	viewer->tweenStarted();
+	viewer->tweenPosition(ci::Vec3f(viewer->getPosition().x + viewer->getWidth()/4.0f, viewer->getPosition().y + 100.0f + viewer->getHeight()/4.0f, viewer->getPosition().z), mGlobals.getAnimDur(), delayey, ci::EaseInQuad());
+	viewer->tweenOpacity(0.0f, mGlobals.getAnimDur(), delayey, ci::EaseInQuad());
+	viewer->tweenScale(viewer->getScale() / 2.0f, mGlobals.getAnimDur(), delayey, ci::EaseInQuad(), [this, viewer](){
+		removeViewer(viewer);
+	});
+}
+
+void ViewerController::removeViewer(TitledMediaViewer* viewer) {
+	for(auto it = mViewers.begin(); it < mViewers.end(); ++it){
+		if((*it) == viewer){
+			mViewers.erase(it);
+			break;
+		}
+	}
+
+	if(viewer){
+		viewer->exit();
+		viewer->release();
+	}
+}
+
+void ViewerController::layoutViewers() {
+
 }
 
 

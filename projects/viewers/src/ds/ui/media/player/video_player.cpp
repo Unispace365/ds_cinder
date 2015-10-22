@@ -68,6 +68,7 @@ void VideoPlayer::layout(){
 	}
 
 	if(mVideoInterface && mEmbedInterface){
+		mVideoInterface->setSize(getWidth() / 2.0f, 50.0f);
 		mVideoInterface->setPosition(getWidth() / 2.0f - mVideoInterface->getWidth() / 2.0f, getHeight() - mVideoInterface->getHeight() - 50.0f);
 	}
 }

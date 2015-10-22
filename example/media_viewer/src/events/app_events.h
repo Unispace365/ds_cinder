@@ -27,6 +27,16 @@ public:
 	const float mStartWidth;
 };
 
+class RequestCloseAllEvent : public ds::RegisteredEvent < RequestCloseAllEvent > {
+public:
+	RequestCloseAllEvent(){}
+};
+
+class RequestLayoutEvent : public ds::RegisteredEvent < RequestLayoutEvent > {
+public:
+	RequestLayoutEvent(){}
+};
+
 } // !namespace mv
 
 #endif // !_MEDIAVIEWER_APP_APPEVENTS_H_

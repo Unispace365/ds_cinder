@@ -26,15 +26,22 @@ public:
 	void								animateOn();
 	void								animateOff();
 
+	void								showTitle();
+	void								hideTitle();
+	void								toggleTitle();
+
 private:
 
 	virtual void						onLayout();
 
 	Globals&							mGlobals;
 
+	ds::ui::Sprite*						mTrayHolder;
 	ds::ui::Sprite*						mBackground;
 	ds::ui::MultilineText*				mTitle;
 	ds::ui::MultilineText*				mBody;
+
+	bool								mShowingTitle;
 
 
 };

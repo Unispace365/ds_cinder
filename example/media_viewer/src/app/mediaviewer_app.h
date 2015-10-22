@@ -7,6 +7,7 @@
 #include "app/globals.h"
 #include "query/query_handler.h"
 #include "ds/touch/touch_debug.h"
+#include "ds/ui/menu/touch_menu.h"
 
 namespace mv {
 class AllData;
@@ -18,6 +19,11 @@ public:
 	virtual void		mouseDown(ci::app::MouseEvent e);
 	virtual void		mouseDrag(ci::app::MouseEvent e);
 	virtual void		mouseUp(ci::app::MouseEvent e);
+
+	virtual void		onTouchesBegan(ci::app::TouchEvent te);
+	virtual void		onTouchesMoved(ci::app::TouchEvent te);
+	virtual void		onTouchesEnded(ci::app::TouchEvent te);
+
 	virtual void		keyDown(ci::app::KeyEvent event);
 	void				setupServer();
 	void				update();
@@ -39,8 +45,10 @@ private:
 
 	ds::TouchDebug		mTouchDebug;
 
+	ds::ui::TouchMenu*	mTouchMenu;
 
 	void				moveCamera(const ci::Vec3f& deltaMove);
+	void				touchEventToTouchInfo(ci::app::TouchEvent& te, ds::ui::TouchInfo::Phase phasey);
 };
 
 } // !namespace mv

@@ -30,12 +30,17 @@ public:
 
 	const AllData&					mAllData;
 
+	void							initialize();
+
+	const float						getAnimDur();
+
 	//Shortcuts
 	const ds::cfg::Text&			getText(const std::string& name) const;
 	const ds::cfg::Settings&		getSettingsLayout() const;
 	const ds::cfg::Settings&		getSettings(const std::string& name) const;
 
-
+private:
+	float							mAnimDuration;
 };
 
 } // !namespace mv

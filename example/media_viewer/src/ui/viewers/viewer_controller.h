@@ -24,9 +24,15 @@ class ViewerController final : public ds::ui::Sprite  {
 
 		void								addViewer(ds::model::MediaRef newMedia, const ci::Vec3f location, const float startWidth);
 
+		// immediately releases the viewer with no animation
+		void								removeViewer(TitledMediaViewer* viewer);
+
+		void								layoutViewers();
+
 	private:
 		void								onAppEvent(const ds::Event&);
 		virtual void						updateServer(const ds::UpdateParams& p);
+		void								animateViewerOff(TitledMediaViewer* viewer, const float delayey);
 
 
 		typedef ds::ui::Sprite				inherited;
