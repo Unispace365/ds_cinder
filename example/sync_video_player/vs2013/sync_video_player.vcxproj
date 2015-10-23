@@ -63,7 +63,7 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(DS_CINDER_GSTREAMER_1-0)\include\gstreamer-1.0;$(DS_CINDER_GSTREAMER_1-0)\lib\glib-2.0\include;$(DS_CINDER_GSTREAMER_1-0)\include\glib-2.0;$(DS_CINDER_GSTREAMER_1-0)\include;$(DS_CINDER_GSTREAMER_1-0)\lib\gstreamer-1.0\include;;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MinimalRebuild>true</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
@@ -100,7 +100,10 @@
       </Message>
     </PreLinkEvent>
     <PostBuildEvent>
-      <Command />
+      <Command>xcopy  /Y /f ".\debug\sync_video_player.exe" "..\client\"
+xcopy  /Y /f ".\debug\sync_video_player.pdb" "..\client\"
+xcopy  /Y /f ".\debug\sync_video_player.exe" "..\server\"
+xcopy  /Y /f ".\debug\sync_video_player.pdb" "..\server\"</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message />

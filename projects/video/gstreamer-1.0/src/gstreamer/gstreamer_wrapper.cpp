@@ -10,21 +10,23 @@ namespace gstwrapper
 {
 
 
-GStreamerWrapper::GStreamerWrapper()
-	: m_bFileIsOpen( false )
-	, m_cVideoBuffer( NULL )
-	, m_cAudioBuffer( NULL )
-	, m_GstPipeline( NULL )
-	, m_GstVideoSink( NULL )
-	, m_GstAudioSink( NULL )
-	, m_GstBus( NULL )
-	, m_StartPlaying(true)
-	, m_StopOnLoopComplete(false)
-	, m_CustomPipeline(false)
-	, m_VideoLock(m_VideoMutex, std::defer_lock)
-	, m_VerboseLogging(true)
-	, m_cVideoBufferSize(0)
-	, mClockProvider( NULL )
+	GStreamerWrapper::GStreamerWrapper()
+		: m_bFileIsOpen(false)
+		, m_cVideoBuffer(NULL)
+		, m_cAudioBuffer(NULL)
+		, m_GstPipeline(NULL)
+		, m_GstVideoSink(NULL)
+		, m_GstAudioSink(NULL)
+		, m_GstBus(NULL)
+		, m_StartPlaying(true)
+		, m_StopOnLoopComplete(false)
+		, m_CustomPipeline(false)
+		, m_VideoLock(m_VideoMutex, std::defer_lock)
+		, m_VerboseLogging(true)
+		, m_cVideoBufferSize(0)
+		, mClockProvider(NULL)
+		, m_NetClock(NULL)
+		, m_BaseTime(0)
 {
 	gst_init( NULL, NULL );
 	m_CurrentPlayState = NOT_INITIALIZED;
@@ -99,6 +101,12 @@ void GStreamerWrapper::enforceModFourWidth(const int vidWidth, const int vidHeig
 	m_iHeight = videoHeight;
 }
 
+
+guint64 GStreamerWrapper::getNetClockTime()
+{
+	std::uint64_t newTime = gst_clock_get_time(m_NetClock);
+	return newTime;
+}
 
 bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight){
 	resetProperties();
@@ -249,15 +257,17 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	return true;
 }
 
-void GStreamerWrapper::setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime){
-	if(isServer){
+void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string& addr, const int port, std::uint64_t& netClock, std::uint64_t& clockBaseTime){
+	mServer = true;
+
 		if(mClockProvider){
 			gst_object_unref(mClockProvider);
 			mClockProvider = nullptr; 
 		}
 
 		// apply pipeline clock to itself, to make sure we're on charge
-		auto clock = gst_system_clock_obtain();// gst_pipeline_get_clock(GST_PIPELINE(m_GstPipeline));
+		auto clock = gst_system_clock_obtain();
+		m_NetClock = clock;
 		gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
 
 		//std::int16_t pretime = gst_clock_get_time(clock);
@@ -266,35 +276,51 @@ void GStreamerWrapper::setNetClock(const bool isServer, const std::string& addr,
 			DS_LOG_WARNING("Could not instantiate the GST server network clock.");
 		}
 		// get the time for clients to start based on...
-		std::int16_t newTime = gst_clock_get_time(clock);
-		inOutTime = newTime;
-		std::cout << "----------- port:" << port << " clock time:" << inOutTime << " " << newTime << std::endl;
-		
+
+		std::uint64_t newTime = gst_clock_get_time(clock);
+		clockBaseTime = newTime;
+		std::cout << "----------- port:" << port << " clock time:" << clockBaseTime << " " << newTime << std::endl;
+
+		//When setting up the server clock, we initialize the base clock to it.
+		m_BaseTime = clockBaseTime;
+		netClock = clockBaseTime;
+		m_CurrentTime = clockBaseTime;
 		// reset my clock so it won't advance detached from net
 		gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
 		// set the net clock to start ticking from our base time
-		gst_element_set_base_time(m_GstPipeline, inOutTime);
+		gst_element_set_base_time(m_GstPipeline, netClock);
 
-		gst_object_unref(clock);
+		//gst_object_unref(clock);
+}
 
-	} else {
-		// reset my clock so it won't advance detached from net
-		gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
-		// get the net clock
-		auto clock = gst_net_client_clock_new("net_clock", addr.c_str(), port, inOutTime);
-		if(!clock)
+void GStreamerWrapper::setClientNetClock(const bool isServer, const std::string& addr, const int port, std::uint64_t& netClock,  std::uint64_t& baseTime){
+	mServer = false;
+
+		//Create new client clock if it doesn't exist
+		if (!m_NetClock)
 		{
-			DS_LOG_WARNING("Could not instantiate the GST client network clock.");
+			// reset my clock so it won't advance detached from net
+			gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
+
+			//Create client clock synchronized with net clock.  We want it synchronized exactly, so we provide an initial time of '0'.
+			m_NetClock = gst_net_client_clock_new("net_clock", addr.c_str(), port, 0);
+
+			// apply the net clock
+			gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), m_NetClock);
+
+			if (!m_NetClock)
+			{
+				DS_LOG_WARNING("Could not instantiate the GST client network clock.");
+			}
 		}
-		std::cout << "----------- port:" << port << " clock time:" << inOutTime << std::endl;
-		// set base time received from server
-		gst_element_set_base_time(m_GstPipeline, inOutTime);
-		// apply the net clock
-		gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
 
-		gst_object_unref(clock);
-	}
-
+		// Update base time if server has updated it's base time.
+		if (baseTime != m_BaseTime) 
+		{
+			m_BaseTime = baseTime;
+			gst_element_set_base_time(m_GstPipeline, baseTime);
+			std::cout << "----------- port:" << port << " clock time:" << gst_clock_get_time(m_NetClock) << " BASE TIME: " << baseTime << std::endl;
+		}
 }
 
 void GStreamerWrapper::close(){
@@ -337,6 +363,7 @@ void GStreamerWrapper::update(){
 void GStreamerWrapper::play(){
 	if ( m_GstPipeline ){
 		GstStateChangeReturn gscr = gst_element_set_state( m_GstPipeline, GST_STATE_PLAYING );
+
 		if(gscr == GST_STATE_CHANGE_FAILURE){
 			DS_LOG_WARNING("Gst State change failure");
 		}
@@ -354,6 +381,10 @@ void GStreamerWrapper::stop(){
 }
 
 void GStreamerWrapper::pause(){
+	//TODO: Pausing currently pauses the video frame, but the clock keeps running.  When playback resumes, it will advance to
+	//where the clock has advanced to while paused.
+	// Need to keep track of playing time (current time - base time), and advance the base time by this much on resume.
+
 	if ( m_GstPipeline ){
 		GstStateChangeReturn gscr = gst_element_set_state(m_GstPipeline, GST_STATE_PAUSED);
 
@@ -592,6 +623,10 @@ Endianness GStreamerWrapper::getAudioEndianness(){
 	return m_AudioEndianness;
 }
 
+gint64					GStreamerWrapper::getBaseTime(){
+	return m_BaseTime;
+}
+
 bool GStreamerWrapper::seekFrame( gint64 iTargetTimeInNs ){
 	if(m_CurrentGstState != STATE_PLAYING){
 		m_PendingSeekTime = iTargetTimeInNs;
@@ -768,6 +803,7 @@ void GStreamerWrapper::handleGStMessage(){
 
 						if (newState == GST_STATE_PLAYING) {
 							m_CurrentGstState = STATE_PLAYING;
+							std::uint64_t time;
 						} else if(newState == GST_STATE_NULL){
 							m_CurrentGstState = STATE_NULL;
 						} else if(newState == GST_STATE_PAUSED){
@@ -808,14 +844,13 @@ void GStreamerWrapper::handleGStMessage(){
 							m_StopOnLoopComplete = false;
 						} else {
 							gst_element_seek(GST_ELEMENT(m_GstPipeline),
-											 m_fSpeed,
-											 GST_FORMAT_TIME,
-											 (GstSeekFlags)(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT),
-											 GST_SEEK_TYPE_SET,
-											 0,
-											 GST_SEEK_TYPE_SET,
-											 m_iDurationInNs);
-
+								m_fSpeed,
+								GST_FORMAT_TIME,
+								(GstSeekFlags)(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT),
+								GST_SEEK_TYPE_SET,
+								0,
+								GST_SEEK_TYPE_SET,
+								m_iDurationInNs);
 						}
 					}
 												break;
@@ -831,15 +866,34 @@ void GStreamerWrapper::handleGStMessage(){
 						case LOOP:
 							{
 
-							gst_element_seek( GST_ELEMENT( m_GstPipeline ),
+							if(gst_element_seek( GST_ELEMENT( m_GstPipeline ),
 								m_fSpeed,
 								GST_FORMAT_TIME,
 								(GstSeekFlags)(GST_SEEK_FLAG_FLUSH),// | GST_SEEK_FLAG_SEGMENT),
 								GST_SEEK_TYPE_SET,
 								0,
 								GST_SEEK_TYPE_SET,
-								m_iDurationInNs );
-							play();
+								m_iDurationInNs)){
+								if (mServer){
+									//Update the base time with the value of the pipeline/net clock.
+
+									GstClock* clock_ = gst_pipeline_get_clock(GST_PIPELINE(m_GstPipeline));
+									m_BaseTime = gst_clock_get_time(clock_);
+
+									gst_element_set_base_time(m_GstPipeline, m_BaseTime);
+
+									std::cout << "-----------  BASE TIME: " << m_BaseTime << std::endl;
+								}
+								else {
+									// We could have the client do a similar thing as the server, but instead we
+									// update the base time, and synchronize this base time with the client.
+								}
+								play();
+
+							}
+							else{
+								DS_LOG_WARNING("Could not instantiate the GST client network clock.");
+							}
 
 							}
 

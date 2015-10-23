@@ -16,6 +16,8 @@
 
 #include <cinder/gl/Fbo.h>
 
+#include <gst/net/gstnettimeprovider.h>
+
 #include <mutex>
 
 using namespace ci;
@@ -131,7 +133,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mGenerateAudioBuffer(false)
 	, mColorType(kColorTypeTransparent)
 	, mNetPort(1624)
-	, mNetTime(0)
+	, mBaseTime(0)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -157,6 +159,11 @@ void GstVideo::updateServer(const UpdateParams &up){
 	Sprite::updateServer(up);
 
 	mGstreamerWrapper->update();
+	//check wrapper for new time sync.  If new, mark as dirty
+	if (mGstreamerWrapper->getBaseTime() != mBaseTime) {
+		mBaseTime = mGstreamerWrapper->getBaseTime();
+		markAsDirty(mSyncDirty);
+	}
 
 	checkStatus();
 	checkOutOfBounds();
@@ -187,6 +194,8 @@ void GstVideo::updateClient(const UpdateParams& up){
 	mGstreamerWrapper->update();
 
 	checkStatus();
+	checkOutOfBounds();
+
 }
 
 void GstVideo::drawLocalClient(){
@@ -354,7 +363,8 @@ void GstVideo::doLoadVideo(const std::string &filename){
 		});
 
 		setStatus(Status::STATUS_PLAYING);
-		setNetClock();
+		if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE)
+			setNetClock();
 
 	} catch(std::exception const& ex)	{
 		DS_LOG_ERROR_M("GstVideo::doLoadVideo() ex=" << ex.what(), GSTREAMER_LOG);
@@ -547,8 +557,9 @@ void GstVideo::checkStatus(){
 	}
 }
 void GstVideo::setNetClock(){
-
-	if(mEngine.getMode() == ds::ui::SpriteEngine::STANDALONE_MODE){
+	//std::string ipaddr = "10.3.55.77";
+	std::string ipaddr = "192.168.1.65";
+	if (mEngine.getMode() == ds::ui::SpriteEngine::STANDALONE_MODE){
 		// NOTHIN
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE){
 		DS_LOG_WARNING_M("Gstreamer net sync not implemented in Server only mode. Use ClientServer insteand.", GSTREAMER_LOG);
@@ -556,10 +567,10 @@ void GstVideo::setNetClock(){
 		static int newPort = 1623;
 		newPort++;
 		mNetPort = newPort;
-		mGstreamerWrapper->setNetClock(true, "127.0.0.1", mNetPort, mNetTime);
+		mGstreamerWrapper->setServerNetClock(true, ipaddr, mNetPort, mNetClock, mBaseTime);
 		markAsDirty(mSyncDirty);
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
-		mGstreamerWrapper->setNetClock(false, "127.0.0.1", mNetPort, mNetTime);
+		mGstreamerWrapper->setClientNetClock(false, ipaddr, mNetPort, mNetClock, mBaseTime);
 	}
 }
 
@@ -625,7 +636,9 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 	if(mDirty.has(mSyncDirty)){
 		buf.add(mSyncAtt);
 		buf.add(mNetPort);
-		buf.add(mNetTime);
+		buf.add(mBaseTime);
+		buf.add(mNetClock);
+
 	}
 
 }
@@ -667,7 +680,8 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 		}
 	} else if(attrid == mSyncAtt){
 		mNetPort = buf.read<int>();
-		mNetTime = buf.read<int>();
+		mBaseTime = buf.read<uint64_t>();
+		mNetClock = buf.read<uint64_t>();
 		setNetClock();
 	} else {
 		Sprite::readAttributeFrom(attrid, buf);

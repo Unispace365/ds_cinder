@@ -410,6 +410,8 @@ public:
 	*/
 	Endianness				getAudioEndianness();
 
+	/* Provides the initial setting for the baseclock of the server*/
+	gint64					getBaseTime();
 
 	/*
 	Lamda is called when GStreamer gets an EOS message (not called when looping)
@@ -454,7 +456,9 @@ public:
 	/** Spite out a ton of messages when running gstreamer pipelines. */
 	void					setVerboseLogging(const bool verboseOn);
 
-	void					setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime);
+	void					setServerNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& inOutTime);
+	void					setClientNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& baseTime);
+	guint64					getNetClockTime();
 
 private:
 	/*
@@ -561,7 +565,6 @@ private:
 	// Makes sure videos widths are divisible by 4, for video blanking
 	void					enforceModFourWidth(const int videoWidth, const int videoHeight);
 
-
 protected:
 
 	int						m_iAudioBufferSize; /* Size of the audio buffer */
@@ -623,6 +626,11 @@ private:
 	bool					m_VerboseLogging;
 
 	GstNetTimeProvider*		mClockProvider;
+
+	bool					mServer;
+	guint64					m_BaseTime;
+	guint64					m_CurrentTime;
+	GstClock*				m_NetClock;
 
 
 }; //!class GStreamerWrapper

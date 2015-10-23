@@ -7,6 +7,7 @@
 #include <ds/data/resource.h>
 
 #include <Poco/Timestamp.h>
+#include <gst/gstclock.h>
 
 namespace gstwrapper {
 	class GStreamerWrapper;
@@ -194,8 +195,9 @@ private:
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;
 
-	int					mNetTime;
+	std::uint64_t		mBaseTime;
 	int					mNetPort; // todo: increment per video sprite
+	std::uint64_t		mNetClock;
 
 	void				setNetClock();
 
