@@ -7,7 +7,7 @@
 #include <ds/data/resource.h>
 
 #include <Poco/Timestamp.h>
-#include <gst/gstclock.h>
+//#include <gst/gstclock.h>
 
 namespace gstwrapper {
 	class GStreamerWrapper;
