@@ -451,7 +451,7 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 	: inherited(app, settings, ed, roots)
-	, mLoadImageService(mLoadImageThread, mIpFunctions)
+	, mLoadImageService(*this, mIpFunctions)
 	, mRenderTextService(mRenderTextThread) {
 }
 

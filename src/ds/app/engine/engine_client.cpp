@@ -32,7 +32,7 @@ char EngineClient::getClientStatusBlob() {
 EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
-		, mLoadImageService(mLoadImageThread, mIpFunctions)
+		, mLoadImageService(*this, mIpFunctions)
 		, mRenderTextService(mRenderTextThread)
 //		, mConnection(NumberOfNetworkThreads)
 		, mSender(mSendConnection)
@@ -86,7 +86,6 @@ ds::sprite_id_t EngineClient::nextSpriteId() {
 void EngineClient::setup(ds::App& app) {
 	inherited::setup(app);
 
-	mLoadImageThread.start(true);
 	mRenderTextThread.start(true);
 }
 

@@ -58,7 +58,6 @@ private:
 
 	typedef Engine inherited;
 	WorkManager						mWorkManager;
-	GlThread						mLoadImageThread;
 	ui::LoadImageService			mLoadImageService;
 	GlThread						mRenderTextThread;
 	ui::RenderTextService			mRenderTextService;
