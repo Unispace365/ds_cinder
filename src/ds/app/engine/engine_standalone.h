@@ -43,7 +43,6 @@ private:
 	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
 
 	WorkManager						mWorkManager;
-	GlThread						mLoadImageThread;
 	ui::LoadImageService			mLoadImageService;
 	GlThread						mRenderTextThread;
 	ui::RenderTextService			mRenderTextService;

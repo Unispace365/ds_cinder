@@ -23,17 +23,10 @@
 using namespace ci;
 
 namespace {
-
-//std::map<std::string, std::map<float, std::shared_ptr<ci::Font>>> mFontCache;
-//
-//std::map<std::string, std::map<float, ci::gl::TextureFontRef>>
-//                                  mTextureFonts;
-
 std::map<std::string, std::map<float, FontPtr>> mFontCache;
 }
 
 static const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("text sprite");
-//static ci::gl::TextureFontRef get_font(const std::string& filename, const float size);
 
 FontPtr get_font(const std::string& filename, const float size);
 
@@ -86,10 +79,6 @@ Text::Text(SpriteEngine& engine)
 	, mResizeLimitHeight(0)
 	, mHasSplitLine(false)
 	, mDebugShowFrame(engine.getDebugSettings().getBool("text:show_frame", 0, false))
-#ifdef TEXT_RENDER_ASYNC
-	, mShared(new RenderTextShared())
-	, mRenderClient(engine.getRenderTextService(), [this](RenderTextFinished& f) { this->onRenderFinished(f); })
-#endif
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
@@ -217,57 +206,6 @@ void Text::drawLocalClient()
 		mSpriteShader.getShader().bind();
 	}
 
-	// NOTE: This won't work here. The font will draw nothing. Don't know OpenGL well
-	// enough to say, maybe there's some translation that's interfering with it? We should
-	// figure it out, because this is the ONLY place this should happen, and it should be
-	// removed from updateServer() and updateClient().
-//  if (mNeedRedrawing) {
-//    drawIntoFbo();
-//  }
-
-  //if (!mTextureFont) return;
-
-#ifdef TEXT_RENDER_ASYNC
-	if (mTestTexture) {
-
-#if 0
-//if (mTextString == L"FCC Approval") {
-//if (mTextString == L"01.") {
-if (mTextString == L"D. Encore") {
-	int		fd = 32;
-	static int	C400 = 0;
-	std::cout << "w=" << mTestTexture.getWidth() << " h=" << mTestTexture.getHeight() << " C400=" << (++C400) << std::endl;
-}
-#endif
-#if 0
-if (mTextString == L"2010") {
-	int		fd = 32;
-	static int	C2010 = 0;
-//	std::cout << "w=" << mTestTexture.getWidth() << " h=" << mTestTexture.getHeight() << " C2010=" << (++C2010) << std::endl;
-	if (C2010 < 2) {
-		ci::Surface8u	s(mTestTexture);
-		ci::writeImage("C:\\Users\\erich\\Documents\\downstream\\wtf2010.png", s);
-	}
-}
-if (mTextString == L"2012") {
-	int		fd = 32;
-	static int	C2012 = 0;
-	std::cout << "w=" << mTestTexture.getWidth() << " h=" << mTestTexture.getHeight() << " C2012=" << (++C2012) << std::endl;
-	if (C2012 < 2) {
-		ci::Surface8u	s(mTestTexture);
-		ci::writeImage("C:\\Users\\erich\\Documents\\downstream\\wtf2012.png", s);
-	}
-}
-#endif
-		mTestTexture.bind();
-		if (getPerspective())
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTestTexture.getWidth()), static_cast<float>(mTestTexture.getHeight())));
-		else
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTestTexture.getHeight()), static_cast<float>(mTestTexture.getWidth()), 0.0f));
-		mTestTexture.unbind();
-	}
-#endif
-
 	if (mTexture) {
 		mTexture.bind();
 		if (getPerspective())
@@ -276,12 +214,6 @@ if (mTextString == L"2012") {
 			ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture.getHeight()), static_cast<float>(mTexture.getWidth()), 0.0f));
 		mTexture.unbind();
 	}
-
-//std::cout << "Size: " << lines.size() << std::endl;
-//for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
-//  const TextLayout::Line&   line(*it);
-//  mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
-//}
 }
 
 void Text::setSizeAll( float width, float height, float depth )
@@ -343,13 +275,6 @@ bool Text::hasText() const
 {
 	return !mTextString.empty();
 }
-
-#if 0
-void Text::setAlignment( int alignment )
-{
-// This will be handled in a layout
-}
-#endif
 
 Text& Text::setBorder(const ci::Rectf& r)
 {
@@ -515,7 +440,6 @@ void Text::calculateFrame(const int flags)
 {
 	if(!mFont) return;
 
-	//const float	descent = mFont->descender();
 	const float		lineHeight = static_cast<float>(mFont->height());
 	const float		height = mFont->pointSize();
 	float			w = 0, h = 0;
@@ -538,6 +462,7 @@ void Text::calculateFrame(const int flags)
 
 	w = mBorder.x1 + w + mBorder.x2;
 	h = mBorder.y1 + h + mBorder.y2;
+
 	// Only change the dimensions specified by the flags
 	if((flags&RESIZE_W) == 0) w = mWidth;
 	if((flags&RESIZE_H) == 0) h = mHeight;
@@ -553,27 +478,15 @@ void Text::drawIntoFbo() {
 
 	if (mNeedRedrawing) {
 		ds::gl::SaveCamera		save_camera;
-#ifdef TEXT_RENDER_ASYNC
-	int		code = 0;
-	if (mTextString == L"2010") code = 2010;
-	else if (mTextString == L"2012") code = 2012;
-	else if (mTextString == L"FCC Approval") {
-		code = 900;
-	} else if (mTextString == L"D. Encore") {
-		std::cout << "HERE" << std::endl;
-		code = 400;
-	}
-std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
-	mRenderClient.start(mEngine.getFonts().getFileNameFromName(mFontFileName), mFontSize, mShared, code);
-#endif
+
 		mNeedRedrawing = false;
+
 		// XXX I noticed some fonts were getting the bottom right row of pixels
 		// chopped off, so I did this, although realistically, it probably means
 		// the actual w/h of the sprite should be increased, not just the texture.
 		const int w = (int)ceilf(getWidth()) + 1;
 		const int h = (int)ceilf(getHeight()) + 1;
-		//const int w = (int)ceilf(getWidth());
-		//const int h = (int)ceilf(getHeight());
+
 		if (w < 1 || h < 1) {
 			return;
 		}
@@ -594,7 +507,6 @@ std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
 			fbo->attach(mTexture, true);
 			fbo->begin();
 
-//			glLoadIdentity();
 			ci::Area fboBounds(0, 0, fbo->getWidth(), fbo->getHeight());
 			ci::gl::setViewport(fboBounds);
 			ci::CameraOrtho camera;
@@ -606,11 +518,11 @@ std::cout << "START=" << ds::utf8_from_wstr(mTextString) << std::endl;
 
 			mFont->setForegroundColor( 1.0f, 1.0f, 1.0f, 1.0f );
 			mFont->setBackgroundColor( 1.0f, 1.0f, 1.0f, 0.0f );
-			//std::cout << "Size: " << lines.size() << std::endl;
+
 			const float						height = mFont->pointSize();
 			for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
 				const TextLayout::Line&		line(*it);
-				//mTextureFont->drawString(line.mText, ci::Vec2f(line.mPos.x+mBorder.x1, line.mPos.y+mBorder.y1), mDrawOptions);
+
 				OGLFT::BBox box = mFont->measureRaw(line.mText);
 
 				// Make sure textures are disabled, or else I can end up not
@@ -640,49 +552,9 @@ float Text::getLeading() const {
 	return 1.0f;
 }
 
-void Text::onRenderFinished(RenderTextFinished& finished)
-{
-#ifdef TEXT_RENDER_ASYNC
-std::cout << "onFinished code=" << finished.mCode << " text='" << ds::utf8_from_wstr(mTextString) << "'" << std::endl;
-if (mTextString == L"2010") {
-	std::cout << "Got 2010" << std::endl;
-}
-if (mTextString == L"2012") {
-	std::cout << "Got 2012" << std::endl;
-}
-	mTestTexture = finished.mTexture;
-#endif
-}
 
 } // namespace ui
 } // namespace ds
-
-//static ci::gl::TextureFontRef get_font(const std::string& filename, const float size)
-//{
-//	auto found = mTextureFonts.find(filename);
-//	if(found != mTextureFonts.end())
-//	{
-//		auto found2 = found->second.find(size);
-//		if(found2 != found->second.end())
-//			return found2->second;
-//	}
-//
-//	ci::DataSourcePathRef src = ci::DataSourcePath::create(filename);
-//	ci::Font				f(src, size);
-//	if(!f) {
-//		DS_LOG_ERROR_M("Text::get_font() failed to load font (" << filename << ")", SPRITE_LOG);
-//		DS_ASSERT(false);
-//		return nullptr;
-//	}
-//	ci::gl::TextureFontRef	tf = ci::gl::TextureFont::create(f);
-//	if(!tf) {
-//		DS_LOG_ERROR_M("Text::get_font() failed to create font texture (" << filename << ")", SPRITE_LOG);
-//		DS_ASSERT(false);
-//		return nullptr;
-//	}
-//	mTextureFonts[filename][size] = tf;
-//	return tf;
-//}
 
 /**
  * miscellaneous
