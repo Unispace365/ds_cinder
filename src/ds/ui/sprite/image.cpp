@@ -118,8 +118,9 @@ bool Image::isLoaded() const
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn)
 {
-	DS_ASSERT_MSG(mEngine.getMode() == mEngine.STANDALONE_MODE,
-		"Currently only works in Standalone mode, fill in the UDP callbacks if you want to use this otherwise");
+	if(mEngine.getMode() != mEngine.STANDALONE_MODE){
+		DS_LOG_WARNING("Currently only works in Standalone mode, fill in the UDP callbacks if you want to use this otherwise");
+	}
 	mStatusFn = fn;
 }
 

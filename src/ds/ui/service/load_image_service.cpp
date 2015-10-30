@@ -235,9 +235,23 @@ void LoadImageService::onLoadComplete(ImageLoadThread& loadThread){
 			fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
 		}
 		h.mTexture = ci::gl::Texture(out.mSurface, fmt);
+
+		// If we ran out of memory, try again! why not!
 		if(glGetError() == GL_OUT_OF_MEMORY) {
 			DS_LOG_ERROR_M("LoadImageService::onLoadComplete() called on filename: " << out.mKey.mFilename << " received an out of memory error. Image may be too big.", LOAD_IMAGE_LOG_M);
+			if(h.mTexture) h.mTexture.reset();
+
+			if(out.mNumberTries >= mMaxLoadTries){
+				DS_LOG_WARNING("Gave up loading image for " << loadThread.mOutput.mKey.mFilename << " after " << loadThread.mOutput.mNumberTries << " attempts.");
+				loadThread.mOutput.clear();
+				out.clear();
+			} else {
+				mOperationsQueue.push_back(out);
+			}
+			advanceQueue();
+			return;
 		}
+
 		DS_REPORT_GL_ERRORS();
 	}
 	out.clear();
