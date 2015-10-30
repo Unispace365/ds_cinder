@@ -139,6 +139,7 @@ public:
 	*/
 	void					stop();
 
+	void					print_status_of_all();
 	/*
 	Pauses the media file. If the file is played again the file resumes from exactly the position where it was paused.
 	Sets the wrapper's PlayState to PAUSED
@@ -288,6 +289,11 @@ public:
 	*/
 	float					getFps();
 
+	uint64_t				getPipelineTime();
+	uint64_t				getNetworkTime();
+
+
+	void					setPipelineBaseTime(uint64_t base_time);
 	/*
 	Returns if the buffer you get with getVideo holds really a new image of the video, use this to increase performance in your applications, so you don't unnecessary copy mem to textures
 	*/
@@ -413,6 +419,18 @@ public:
 	/* Provides the initial setting for the baseclock of the server*/
 	gint64					getBaseTime();
 
+	//void setBaseTime(uint64_t base_time);
+
+	void setSeekTime(uint64_t seek_time);
+	/* Provides the seek time when resuming from pause*/
+	gint64					getSeekTime();
+
+
+	/* Returns the time for resume playing from pause*/
+	gint64					getStartTime();
+
+	/* set the time for resume playing from pause*/
+	void setStartTime(uint64_t start_time);
 	/*
 	Lamda is called when GStreamer gets an EOS message (not called when looping)
 	*/
@@ -459,6 +477,9 @@ public:
 	void					setServerNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& inOutTime);
 	void					setClientNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& baseTime);
 	guint64					getNetClockTime();
+	bool					isPlayFromPause();
+	void					clearPlayFromPause();
+
 
 private:
 	/*
@@ -629,8 +650,13 @@ private:
 
 	bool					mServer;
 	guint64					m_BaseTime;
+	guint64					m_SeekTime;
+
 	guint64					m_CurrentTime;
+	guint64					m_RunningTime;
 	GstClock*				m_NetClock;
+	uint64_t				m_StartTime;
+	bool					m_playFromPause;
 
 
 }; //!class GStreamerWrapper

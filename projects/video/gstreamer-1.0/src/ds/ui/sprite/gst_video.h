@@ -196,6 +196,9 @@ private:
 	float									mCurrentGstFrameRate;
 
 	std::uint64_t		mBaseTime;
+	std::uint64_t		mStartTime;
+	std::uint64_t		mSeekTime;
+
 	int					mNetPort; // todo: increment per video sprite
 	std::uint64_t		mNetClock;
 

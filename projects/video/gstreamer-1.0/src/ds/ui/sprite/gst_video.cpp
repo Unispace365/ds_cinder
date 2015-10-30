@@ -84,6 +84,7 @@ const char mAutoStartAtt = 'E';
 const char mPathAtt = 'F';
 const char mPosAtt = 'G';
 const char mSyncAtt = 'H';
+const char mPlayAtt = 'I';
 
 const DirtyState& mMuteDirty = newUniqueDirtyState();
 const DirtyState& mStatusDirty = newUniqueDirtyState();
@@ -93,6 +94,7 @@ const DirtyState& mAutoStartDirty = newUniqueDirtyState();
 const DirtyState& mPathDirty = newUniqueDirtyState();
 const DirtyState& mPosDirty = newUniqueDirtyState();
 const DirtyState& mSyncDirty = newUniqueDirtyState();
+const DirtyState& mPlayDirty = newUniqueDirtyState();
 }
 
 GstVideo& GstVideo::makeVideo(SpriteEngine& e, Sprite* parent) {
@@ -134,6 +136,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mColorType(kColorTypeTransparent)
 	, mNetPort(1624)
 	, mBaseTime(0)
+	, mSeekTime(0)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -159,12 +162,24 @@ void GstVideo::updateServer(const UpdateParams &up){
 	Sprite::updateServer(up);
 
 	mGstreamerWrapper->update();
+
+	//m_StartTime is used for pause/resume operations
+	if (mGstreamerWrapper->isPlayFromPause() ) {
+		mGstreamerWrapper->clearPlayFromPause();
+		mBaseTime = mGstreamerWrapper->getBaseTime();
+		mSeekTime = mGstreamerWrapper->getSeekTime();
+
+		markAsDirty(mPlayDirty);
+	}
+
 	//check wrapper for new time sync.  If new, mark as dirty
 	if (mGstreamerWrapper->getBaseTime() != mBaseTime) {
 		mBaseTime = mGstreamerWrapper->getBaseTime();
 		markAsDirty(mSyncDirty);
 	}
 
+	
+	
 	checkStatus();
 	checkOutOfBounds();
 
@@ -425,6 +440,12 @@ float GstVideo::getVolume() const {
 void GstVideo::play(){
 	mGstreamerWrapper->play();
 
+	//if (mGstreamerWrapper->isPlayFromPause()) {
+	//	mGstreamerWrapper->clearPlayFromPause();
+	//	mBaseTime = mGstreamerWrapper->getBaseTime();
+	//	mSeekTime = mGstreamerWrapper->getSeekTime();
+	//	markAsDirty(mPlayDirty);
+	//}
 	//If movie not yet loaded, remember to play it later once it has
 	if (!mGstreamerWrapper->hasVideo()){
 		mShouldPlay = true;
@@ -557,8 +578,8 @@ void GstVideo::checkStatus(){
 	}
 }
 void GstVideo::setNetClock(){
-	//std::string ipaddr = "10.3.55.77";
-	std::string ipaddr = "192.168.1.65";
+	std::string ipaddr = "10.3.55.53";
+	//std::string ipaddr = "192.168.1.65";
 	if (mEngine.getMode() == ds::ui::SpriteEngine::STANDALONE_MODE){
 		// NOTHIN
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE){
@@ -633,13 +654,20 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(getCurrentPosition());
 	}
 
-	if(mDirty.has(mSyncDirty)){
+	if (mDirty.has(mSyncDirty)){
 		buf.add(mSyncAtt);
 		buf.add(mNetPort);
 		buf.add(mBaseTime);
 		buf.add(mNetClock);
-
+		//buf.add(mStartTime);
 	}
+
+	if(mDirty.has(mPlayDirty)){
+		buf.add(mPlayAtt);
+		buf.add(mBaseTime);
+		buf.add(mSeekTime);
+	}
+
 
 }
 
@@ -674,7 +702,8 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 				pause();
 			} else if(status_code == GstVideo::Status::STATUS_STOPPED){
 				stop();
-			} else if(status_code == GstVideo::Status::STATUS_PLAYING){
+			}
+			else if (status_code == GstVideo::Status::STATUS_PLAYING){
 				play();
 			}
 		}
@@ -682,12 +711,22 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 		mNetPort = buf.read<int>();
 		mBaseTime = buf.read<uint64_t>();
 		mNetClock = buf.read<uint64_t>();
+		//mStartTime = buf.read<uint64_t>();
+
 		setNetClock();
+	}
+	else if (attrid == mPlayAtt){
+		mBaseTime = buf.read<uint64_t>();
+		mSeekTime = buf.read<uint64_t>();
+		mGstreamerWrapper->setPipelineBaseTime(mBaseTime);
+		mGstreamerWrapper->setSeekTime(mSeekTime);
+
+		 mGstreamerWrapper->play();
 	} else {
 		Sprite::readAttributeFrom(attrid, buf);
 	}
 }
-
+ 
 double GstVideo::getCurrentTimeMs() const {
 	return mGstreamerWrapper->getCurrentTimeInMs();
 }
