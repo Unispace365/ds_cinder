@@ -66,6 +66,9 @@ public:
 	const ci::Vec2f&				getMinSize(){ return mMinSize; }
 	const ci::Vec2f&				getDefaultSize(){ return mDefaultSize; }
 
+	/** Sets the default size. Careful here, the aspect ratio of this should match the content aspect ratio. */
+	void							setDefaultSize(const ci::Vec2f& defaultSize){ mDefaultSize = defaultSize; }
+
 	void							setAnimateDuration(const float animDuration){ mAnimDuration = animDuration; }
 
 	/** Called when the panel lays itself out, so you can add sprites to this panel without extending the panel class.

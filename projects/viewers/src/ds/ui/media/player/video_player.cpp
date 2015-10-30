@@ -46,9 +46,12 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 		mVideoInterface = new VideoInterface(mEngine, ci::Vec2f(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
 	}
 
-	if(mEmbedInterface){
-		addChildPtr(mVideoInterface);
-		mVideoInterface->sendToFront();
+	addChildPtr(mVideoInterface);
+	mVideoInterface->sendToFront();
+
+	// Leave the interface instance as a child, but hide it, in case something else want's to use it
+	if(!mEmbedInterface){
+		mVideoInterface->hide();
 	}
 
 	if(mVideoInterface && mVideo){
@@ -101,7 +104,7 @@ void VideoPlayer::stop(){
 }
 
 MediaInterface* VideoPlayer::getExternalInterface(){
-	return (mEmbedInterface ? nullptr : mVideoInterface);
+	return mVideoInterface;
 }
 
 } // namespace ui

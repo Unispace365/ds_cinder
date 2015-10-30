@@ -28,6 +28,9 @@ public:
 	void				loadMedia(const std::string& mediaPath, const bool initializeImmediately = true);
 	void				loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
 
+	// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
+	void				setDefaultBounds(const float defaultWidth, const float defaultHeight);
+
 	void				initializeIfNeeded();
 
 	virtual void		onLayout();
@@ -62,6 +65,9 @@ protected:
 	ci::Vec3f			mOrigin;
 
 	MediaInterface*		mInterface;
+
+	float				mDefaultBoundWidth;
+	float				mDefaultBoundHeight;
 
 };
 

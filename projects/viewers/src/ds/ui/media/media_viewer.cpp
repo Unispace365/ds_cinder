@@ -14,6 +14,8 @@
 #include "ds/ui/media/player/pdf_player.h"
 #include "ds/ui/media/player/web_player.h"
 
+#include "ds/ui/media/media_interface.h"
+
 
 namespace ds {
 namespace ui {
@@ -28,6 +30,8 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mPrimaryImage(nullptr)
 	, mInterface(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mDefaultBoundWidth(mEngine.getWorldWidth())
+	, mDefaultBoundHeight(mEngine.getWorldHeight())
 {
 }
 
@@ -42,6 +46,8 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath
 	, mPrimaryImage(nullptr)
 	, mInterface(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mDefaultBoundWidth(mEngine.getWorldWidth())
+	, mDefaultBoundHeight(mEngine.getWorldHeight())
 {
 }
 
@@ -56,6 +62,8 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& resource
 	, mPrimaryImage(nullptr)
 	, mInterface(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mDefaultBoundWidth(mEngine.getWorldWidth())
+	, mDefaultBoundHeight(mEngine.getWorldHeight())
 {
 }
 
@@ -89,6 +97,11 @@ void MediaViewer::loadMedia(const ds::Resource& reccy, const bool initializeImme
 	}
 }
 
+
+void MediaViewer::setDefaultBounds(const float defaultWidth, const float defaultHeight){
+	mDefaultBoundWidth = defaultWidth;
+	mDefaultBoundHeight = defaultHeight;
+}
 
 void MediaViewer::initialize(){
 
@@ -184,9 +197,9 @@ void MediaViewer::initialize(){
 		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath() << " " << ds::utf8_from_wstr(mResource.getTypeName()));
 	}
 
-	// calculate a default size that maximizes size relative to engine size
-	const float engineWidth = mEngine.getWorldWidth();
-	const float engineHeight = mEngine.getWorldHeight();
+	// calculate a default size that maximizes size
+	const float engineWidth = mDefaultBoundWidth;
+	const float engineHeight = mDefaultBoundHeight;
 	const float engineAspect = engineWidth / engineHeight;
 
 	// calculate a width to make the player fit maximally

@@ -41,9 +41,11 @@ void PDFPlayer::setMedia(const std::string mediaPath){
 		mPdfInterface = new PDFInterface(mEngine, ci::Vec2f(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
 	}
 
+	addChildPtr(mPdfInterface);
+	mPdfInterface->sendToFront();
+
 	if(mEmbedInterface){
-		addChildPtr(mPdfInterface);
-		mPdfInterface->sendToFront();
+		mPdfInterface->hide();
 	}
 
 	if(mPdfInterface && mPDF){
@@ -77,7 +79,7 @@ void PDFPlayer::showInterface(){
 }
 
 MediaInterface* PDFPlayer::getExternalInterface(){
-	return (mEmbedInterface ? nullptr : mPdfInterface);
+	return mPdfInterface;
 }
 } // namespace ui
 } // namespace ds

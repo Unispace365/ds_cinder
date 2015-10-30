@@ -45,6 +45,8 @@ void MediaSlideshow::setMediaSlideshow(const std::vector<ds::Resource>& resource
 
 	for(auto it = resources.begin(); it < resources.end(); ++it){
 		MediaViewer* mv = new MediaViewer(mEngine, (*it));
+		mv->setDefaultBounds(getWidth(), getHeight());
+		mv->setDefaultSize(ci::Vec2f(getWidth(), getHeight()));
 		mHolder->addChildPtr(mv);
 		mv->setSwipeCallback([this](ds::ui::Sprite* spr, const ci::Vec3f& amount){
 			// don't advance if we're zoomed in
@@ -64,6 +66,8 @@ void MediaSlideshow::setMediaSlideshow(const std::vector<ds::Resource>& resource
 	}
 
 	loadCurrentAndAdjacent();
+	layout();
+	recenterSlides();
 }
 
 void MediaSlideshow::onSizeChanged(){
@@ -82,7 +86,7 @@ void MediaSlideshow::layout(){
 		float viewerHeight = size.y;
 
 		(*it)->setViewerSize(viewerWidth, viewerHeight);
-		(*it)->setPosition(xp + ((mssWidth - viewerWidth) * 0.5f), ((mssHeight - viewerHeight) * 0.5f));
+		(*it)->setPosition(xp, 0.0f);
 		(*it)->setOrigin((*it)->getPosition());
 		(*it)->setBoundingArea(ci::Rectf(xp, 0.0f, xp + mssWidth, 0.0f + mssHeight));
 		xp += mssWidth;
@@ -95,9 +99,10 @@ void MediaSlideshow::layout(){
 void MediaSlideshow::recenterSlides(){
 	float xp = 0.0f;
 	const float w = getWidth();
+	const float h = getHeight();
 	for(auto it = mViewers.begin(); it < mViewers.end(); ++it){
 		(*it)->animateToDefaultSize();
-		(*it)->tweenPosition((*it)->getOrigin(), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
+		(*it)->tweenPosition(ci::Vec3f((*it)->getOrigin().x + (w - (*it)->getDefaultSize().x) * 0.5f, (h - (*it)->getDefaultSize().y) * 0.5f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
 		xp += w;
 	}
 }
@@ -147,14 +152,14 @@ void MediaSlideshow::gotoItemIndex(const int newIndex){
 }
 
 void MediaSlideshow::setCurrentInterface(){
+	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > mViewers.size() - 1) return;
+
 	// if there was an interface, get rid of it
 	if(mCurrentInterface){
 		mCurrentInterface->turnOff();
-		removeChild(*mCurrentInterface);
+		mViewers[mCurItemIndex]->addChildPtr(mCurrentInterface);
 		mCurrentInterface = nullptr;
 	}
-
-	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > mViewers.size() - 1) return;
 
 	// see if there's an interface to display
 	mCurrentInterface = mViewers[mCurItemIndex]->getInterface();

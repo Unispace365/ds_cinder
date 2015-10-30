@@ -57,9 +57,11 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		mWebInterface = new WebInterface(mEngine, ci::Vec2f(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
 	}
 
+	addChildPtr(mWebInterface);
+	mWebInterface->sendToFront();
+
 	if(mEmbedInterface){
-		addChildPtr(mWebInterface);
-		mWebInterface->sendToFront();
+		mWebInterface->hide();
 	}
 
 	if(mWebInterface && mWeb){
@@ -86,7 +88,7 @@ void WebPlayer::layout(){
 }
 
 MediaInterface* WebPlayer::getExternalInterface() {
-	return (mEmbedInterface ? nullptr : mWebInterface);
+	return mWebInterface;
 }
 
 void WebPlayer::userInputReceived() {
