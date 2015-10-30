@@ -22,6 +22,7 @@ MediaSlideshow::MediaSlideshow(ds::ui::SpriteEngine& eng)
 	, mCurItemIndex(0)
 	, mAnimateDuration(0.35f)
 	, mCurrentInterface(nullptr)
+	, mItemChangedCallback(nullptr)
 {
 
 	mHolder = new ds::ui::Sprite(mEngine);
@@ -104,6 +105,10 @@ void MediaSlideshow::recenterSlides(){
 		(*it)->animateToDefaultSize();
 		(*it)->tweenPosition(ci::Vec3f((*it)->getOrigin().x + (w - (*it)->getDefaultSize().x) * 0.5f, (h - (*it)->getDefaultSize().y) * 0.5f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
 		xp += w;
+	}
+
+	if(mItemChangedCallback){
+		mItemChangedCallback(mCurItemIndex, mViewers.size());
 	}
 }
 
@@ -218,5 +223,10 @@ void MediaSlideshow::loadCurrentAndAdjacent(){
 		mViewers[prev]->initializeIfNeeded();
 	}
 }
+
+void MediaSlideshow::setItemChangedCallback(std::function<void(const int currentItemIndex, const int totalItems)> func){
+	mItemChangedCallback = func;
+}
+
 } // namespace ui
 } // namespace ds

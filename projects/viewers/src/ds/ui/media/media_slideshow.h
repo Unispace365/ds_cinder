@@ -32,6 +32,8 @@ public:
 
 	void								setAnimateDuration(const float animateDuration){ mAnimateDuration = animateDuration; }
 
+	void								setItemChangedCallback(std::function<void(const int currentItemIndex, const int totalItems)>);
+
 protected:
 	std::vector<MediaViewer*>			mViewers;
 	ds::ui::Sprite*						mHolder;
@@ -39,6 +41,7 @@ protected:
 	float								mAnimateDuration;
 
 	MediaInterface*						mCurrentInterface;
+	std::function<void(const int currentItemIndex, const int totalItems)> mItemChangedCallback;
 
 	void								recenterSlides();
 
