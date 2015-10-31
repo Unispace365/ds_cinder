@@ -110,12 +110,14 @@ void ImageToken::init() {
 LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng, ds::ui::ip::FunctionList& list)
 		: mFunctions(list) 
 		, mLoadThreads(eng, [](){return new ds::ui::LoadImageService::ImageLoadThread(); })
-		, mMaxSimultaneousLoads(32)
-		, mMaxLoadTries(16)
+		, mMaxSimultaneousLoads(8)
+		, mMaxLoadTries(32)
 		, mLoadsInProgress(0)
 {
 
-	mLoadThreads.setReplyHandler([this](ds::ui::LoadImageService::ImageLoadThread& q){ onLoadComplete(q); });
+	mLoadThreads.setReplyHandler([this](ds::ui::LoadImageService::ImageLoadThread& q){ 
+		onLoadComplete(q); 
+	});
 }
 
 LoadImageService::~LoadImageService(){

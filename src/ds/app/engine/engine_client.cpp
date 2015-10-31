@@ -93,6 +93,7 @@ void EngineClient::setupTuio(ds::App&) {
 }
 
 void EngineClient::update() {
+	mWorkManager.update();
 	updateClient();
 	mRenderTextService.update();
 
