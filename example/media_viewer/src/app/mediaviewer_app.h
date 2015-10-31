@@ -9,6 +9,8 @@
 #include "ds/touch/touch_debug.h"
 #include "ds/ui/menu/touch_menu.h"
 
+#include <ds/ui/sprite/gst_video.h>
+
 namespace mv {
 class AllData;
 
@@ -46,6 +48,8 @@ private:
 	ds::TouchDebug		mTouchDebug;
 
 	ds::ui::TouchMenu*	mTouchMenu;
+
+	ds::ui::GstVideo*	mStreamer;
 
 	void				moveCamera(const ci::Vec3f& deltaMove);
 	void				touchEventToTouchInfo(ci::app::TouchEvent& te, ds::ui::TouchInfo::Phase phasey);

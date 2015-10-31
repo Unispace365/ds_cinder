@@ -39,6 +39,7 @@ MediaViewer::MediaViewer()
 	, mIdling( false )
 	, mTouchDebug(mEngine)
 	, mTouchMenu(nullptr)
+	, mStreamer(nullptr)
 {
 
 
@@ -78,6 +79,7 @@ void MediaViewer::setupServer(){
 		rooty.clearChildren();
 	}
 
+	mStreamer = nullptr;
 	mGlobals.initialize();
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
@@ -105,6 +107,7 @@ void MediaViewer::setupServer(){
 
 
 	mTouchMenu->setMenuItemModels(menuItemModels);
+
 }
 
 void MediaViewer::update() {
@@ -175,6 +178,20 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 				}
 			}, true);
 		}
+	} else if(event.getCode() == KeyEvent::KEY_p){
+		if(mStreamer){
+			mStreamer->stop();
+			mStreamer->release();
+			mStreamer = nullptr;
+		}
+		mStreamer = new ds::ui::GstVideo(mEngine);
+		mStreamer->startStream(mGlobals.getSettingsLayout().getText("streaming:pipeline", 0, ""),
+							  mGlobals.getSettingsLayout().getInt("streaming:width", 0, 640), 
+							  mGlobals.getSettingsLayout().getInt("streaming:height", 0, 480));
+		mEngine.getRootSprite().addChildPtr(mStreamer);
+		mStreamer->enable(true);
+		mStreamer->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
+		
 	}
 }
 

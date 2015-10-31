@@ -64,6 +64,8 @@ public:
 	// with existing behavior.
 	void				unloadVideo(const bool clearFrame = false);
 
+	void				startStream(const std::string& streamingPipeline, const float width, const float height);
+
 	// Looping (play again after video complete)
 	void				setLooping(const bool on);
 	bool				getIsLooping() const;

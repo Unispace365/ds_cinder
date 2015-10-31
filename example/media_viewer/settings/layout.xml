@@ -5,4 +5,13 @@
 	
 	<float name="titled_viewer:padding" value="20" />
 	
+	
+	<!-- pipeline launching, run this on the source
+	gst-launch-1.0.exe gdiscreencapsrc width=1280 height=720 cursor=true ! video/x-raw, framerate=60/1 ! videoconvert ! x264enc key-int-max=10 byte-stream=true bitrate=30000 tune=zerolatency speed-preset=ultrafast threads=0 ! video/x-h264, format=I420, profile=constrained-baseline ! rtph264pay ! application/x-rtp ! udpsink host=224.1.1.2 port=5002 auto-multicast=true
+	-->
+	
+	<text  name="streaming:pipeline" value="udpsrc uri=udp://224.1.1.2:5002 buffer-size=200000000 ! application/x-rtp ! rtph264depay ! avdec_h264 ! video/x-raw, format=I420 ! appsink max-buffers=1 sync=false async=true qos=true name=appsink0" />
+	<int   name="streaming:width" value="1280" />
+	<int   name="streaming:height" value="720" />
+	
 </settings>

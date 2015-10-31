@@ -337,7 +337,7 @@ void GstVideo::doLoadVideo(const std::string &filename){
 		}
 
 		mColorType = theColor;
-		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen", GSTREAMER_LOG);
+		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen: " << filename, GSTREAMER_LOG);
 		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, theColor, videoWidth, videoHeight);
 
 		mVideoSize.x = mGstreamerWrapper->getWidth();
@@ -378,6 +378,49 @@ void GstVideo::doLoadVideo(const std::string &filename){
 		mFilename = filename;
 	}
 }
+
+void GstVideo::startStream(const std::string& streamingPipeline, const float videoWidth, const float videoHeight){
+	if(streamingPipeline.empty()){
+		DS_LOG_WARNING_M("GstVideo::startStream aborting starting streaming because of a blank pipeline.", GSTREAMER_LOG);
+		return;
+	}
+
+	if(videoWidth < 16.0f || videoHeight < 16.0f){
+		DS_LOG_WARNING_M("GstVideo::startStream aborting streaming cause of too small a size. Must be > 16 pixels on a side.", GSTREAMER_LOG);
+		return;
+	}
+
+		
+	mOutOfBoundsMuted = true;
+	mColorType = ColorType::kColorTypeShaderTransform;
+	DS_LOG_INFO_M("GstVideo::startStream() " << streamingPipeline, GSTREAMER_LOG);
+	if(!mGstreamerWrapper->openStream(streamingPipeline, (int)floorf(videoWidth), (int)floorf(videoHeight))){
+		DS_LOG_WARNING_M("GstVideo::startStream() aborting cause of a problem.", GSTREAMER_LOG);
+		return;
+	}
+
+	mVideoSize.x = mGstreamerWrapper->getWidth();
+	mVideoSize.y = mGstreamerWrapper->getHeight();
+	Sprite::setSizeAll(static_cast<float>(mVideoSize.x), static_cast<float>(mVideoSize.y), mDepth);
+
+	applyMovieVolume();
+
+	setStatus(Status::STATUS_PLAYING);
+
+	ci::gl::Texture::Format fmt;
+	if(mColorType == kColorTypeShaderTransform){
+		fmt.setInternalFormat(GL_LUMINANCE);
+		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+		mUFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		mVFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+	} else {
+		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+	}
+	mFilename = streamingPipeline;
+	
+}
+
+
 
 void GstVideo::setLooping(const bool on){
 	mLooping = on;
@@ -508,7 +551,7 @@ void GstVideo::unloadVideo(const bool clearFrame){
 	}
 }
 
-void GstVideo::setVideoCompleteCallback( const std::function<void()> &func ){
+void GstVideo::setVideoCompleteCallback(const std::function<void()> &func){
 	mVideoCompleteFn = func;
 }
 

@@ -115,6 +115,13 @@ public:
 	*/
 	bool					open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight);
 
+
+	/** you have to supply your own pipeline for streaming.
+		Streaming is also assumed to be YUV / I420 color space.
+		You must also have an appsink element named appsink0 for video output to work.
+		If you want to control volume, include a volume element named volume0 */
+	bool					openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight);
+
 	/*
 	Closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
 	*/
@@ -426,7 +433,7 @@ public:
 	void					stopOnLoopComplete(){ m_StopOnLoopComplete = true; };
 
 
-	//Custom pipeline function call
+	//Custom pipeline function call (just for audio)
 	virtual void			setCustomFunction(){};
 
 	void					enableCustomPipeline(bool enable) { m_CustomPipeline = enable; }
@@ -582,6 +589,7 @@ protected:
 	GstElement*				m_GstPipeline; /* The main GStreamer pipeline */
 	bool					m_PendingSeek;
 	GstElement*				m_GstAudioSink; /* Audio sink that contains the raw audio buffer. Gathered from the pipeline */
+	GstElement*				m_GstVolumeElement; /* Allows streaming to change the volume output */
 
 private:
 
@@ -614,7 +622,9 @@ private:
 	GstAppSinkCallbacks		m_GstVideoSinkCallbacks; /* Stores references to the callback methods for video preroll, new video buffer and video eos */
 	GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 	bool					m_StartPlaying;/* Play the video as soon as it's loaded */
-	bool					m_CustomPipeline;
+	bool					m_CustomPipeline; /* Has a custom pipeline for audio */
+	bool					m_Streaming; /* The video is playing live over the network (disallows seeking and a few other things */
+	std::string				m_StreamPipeline;
 
 	bool					m_VerboseLogging;
 
