@@ -28,14 +28,20 @@ public:
 	ds::ui::SpriteEngine&			mEngine;
 	ds::EventNotifier				mNotifier;
 
-	const AllStories&				mAllStories;
+	const AllData&					mAllData;
+
+	const float						getAnimDur();
+
+	void							initialize();
 
 	//Shortcuts
 	const ds::cfg::Text&			getText(const std::string& name) const;
 	const ds::cfg::Settings&		getSettingsLayout() const;
 	const ds::cfg::Settings&		getSettings(const std::string& name) const;
 
+private:
 
+	float							mAnimationDuration;
 };
 
 } // !namespace fullstarter

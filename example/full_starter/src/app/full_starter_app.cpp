@@ -20,17 +20,19 @@ namespace fullstarter {
 
 FullStarterApp::FullStarterApp()
 	: inherited(ds::RootList()
-								.ortho() // sample ortho view
+
+	// Note: this is where you'll customize the root list
+								.ortho() 
 								.pickColor()
 
-								.persp() // sample perp view
+								.persp() 
 								.perspFov(60.0f)
 								.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
 								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
 								.perspFar(20.0f)
 
-								.ortho() ) // ortho view on top
+								.ortho() ) 
 	, mGlobals(mEngine , mAllData )
 	, mQueryHandler(mEngine, mAllData)
 	, mIdling( false )
@@ -50,6 +52,10 @@ void FullStarterApp::setupServer(){
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
 	mEngine.loadTextCfg("text.xml");
+
+	mGlobals.initialize();
+	mQueryHandler.runInitialQueries();
+
 	const int numRoots = mEngine.getRootCount();
 	int numPlacemats = 0;
 	for(int i = 0; i < numRoots - 1; i++){
@@ -102,30 +108,6 @@ void FullStarterApp::keyDown(ci::app::KeyEvent event){
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 
-	// Perspective camera movement
-	} else if(event.getCode() == KeyEvent::KEY_d){
-		moveCamera(ci::Vec3f(1.0f, 0.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_a){
-		moveCamera(ci::Vec3f(-1.0f, 0.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_w){
-		moveCamera(ci::Vec3f(0.0f, -1.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_s){
-		moveCamera(ci::Vec3f(0.0f, 1.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_RIGHTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, 1.0f));
-	} else if(event.getCode() == KeyEvent::KEY_LEFTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, -1.0f));
-	} else if(event.getCode() == KeyEvent::KEY_EQUALS){
-		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
-		p.mFarPlane += 1.0f;
-		std::cout << "Clip Far camera: " << p.mFarPlane << std::endl;
-		mEngine.setPerspectiveCamera(1, p);
-	} else if(event.getCode() == KeyEvent::KEY_MINUS){
-		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
-		p.mFarPlane -= 1.0f;
-		std::cout << "Clip Far camera: " << p.mFarPlane << std::endl;
-		mEngine.setPerspectiveCamera(1, p);
-
 	// Shows all enabled sprites with a label for class type
 	} else if(event.getCode() == KeyEvent::KEY_f){
 
@@ -150,13 +132,6 @@ void FullStarterApp::keyDown(ci::app::KeyEvent event){
 			}, true);
 		}
 	}
-}
-
-void FullStarterApp::moveCamera(const ci::Vec3f& deltaMove){
-	ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
-	p.mPosition += deltaMove;
-	std::cout << "Moving camera: " << p.mPosition.x << " " << p.mPosition.y << " " << p.mPosition.z << std::endl;
-	mEngine.setPerspectiveCamera(1, p);
 }
 
 void FullStarterApp::mouseDown(ci::app::MouseEvent e) {

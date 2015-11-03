@@ -93,7 +93,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\src\model\generated\stories.yml">
+    <None Include="..\src\model\generated\model.yml">
       <Filter>src\model\generated</Filter>
     </None>
   </ItemGroup>
