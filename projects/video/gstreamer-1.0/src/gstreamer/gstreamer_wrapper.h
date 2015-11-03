@@ -221,6 +221,7 @@ public:
 	*/
 	void					setTimePositionInNs( gint64 iTargetTimeInNs );
 
+	void					scrubToPosition( double t, float speed);
 	/*
 	Seeks the media file to the position provided by a percentage statement between 0 and 100 percent.
 	0 percent means the beginning of the file, 50 percent the middle and 100 percent the end of the file.
@@ -291,6 +292,7 @@ public:
 
 	uint64_t				getPipelineTime();
 	uint64_t				getNetworkTime();
+	uint64_t				getRunningTime();
 
 
 	void					setPipelineBaseTime(uint64_t base_time);
@@ -479,6 +481,7 @@ public:
 	guint64					getNetClockTime();
 	bool					isPlayFromPause();
 	void					clearPlayFromPause();
+	void					fastSeek(float speed);
 
 
 private:

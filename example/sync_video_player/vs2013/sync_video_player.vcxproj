@@ -154,11 +154,13 @@ xcopy  /Y /f ".\debug\sync_video_player.pdb" "..\server\"</Command>
     <ClCompile Include="..\src\app\app_defs.cpp" />
     <ClCompile Include="..\src\app\globals.cpp" />
     <ClCompile Include="..\src\app\sync_video_player_app.cpp" />
+    <ClCompile Include="..\src\app\video_interface\video_scrub_bar.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h" />
     <ClInclude Include="..\src\app\globals.h" />
     <ClInclude Include="..\src\app\sync_video_player_app.h" />
+    <ClInclude Include="..\src\app\video_interface\video_scrub_bar.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />

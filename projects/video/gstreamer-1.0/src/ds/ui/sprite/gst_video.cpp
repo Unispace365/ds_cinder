@@ -496,6 +496,12 @@ void GstVideo::seekPosition(const double t){
 	markAsDirty(mPosDirty);
 }
 
+void GstVideo::scrubToPosition( double t, float speed){
+	mGstreamerWrapper->scrubToPosition(  t,  speed);
+	markAsDirty(mPosDirty);
+
+}
+
 void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn){
 	mStatusFn = fn;
 }
@@ -578,8 +584,8 @@ void GstVideo::checkStatus(){
 	}
 }
 void GstVideo::setNetClock(){
-	std::string ipaddr = "10.3.55.53";
-	//std::string ipaddr = "192.168.1.65";
+	//std::string ipaddr = "10.3.55.56";
+	std::string ipaddr = "192.168.1.65";
 	if (mEngine.getMode() == ds::ui::SpriteEngine::STANDALONE_MODE){
 		// NOTHIN
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE){
@@ -593,6 +599,9 @@ void GstVideo::setNetClock(){
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
 		mGstreamerWrapper->setClientNetClock(false, ipaddr, mNetPort, mNetClock, mBaseTime);
 	}
+}
+void GstVideo::seekFast(float speed){
+	mGstreamerWrapper->fastSeek(speed);
 }
 
 void GstVideo::checkOutOfBounds() {

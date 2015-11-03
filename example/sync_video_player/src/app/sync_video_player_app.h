@@ -8,6 +8,7 @@
 
 #include <ds/ui/sprite/gst_video.h>
 #include <ds/ui/sprite/text.h>
+#include "app/video_interface/video_scrub_bar.h"
 
 namespace ds {
 
@@ -19,6 +20,7 @@ public:
 	void				setupServer();
 	void				update();
 	virtual void		fileDrop(ci::app::FileDropEvent event);
+	void				setupScrubBar();
 private:
 	typedef ds::App		inherited;
 
@@ -30,6 +32,11 @@ private:
 	ds::ui::Text*		mFpsDisplay;
 
 	bool				mVerbose;
+	float				mSeekSpeed;
+
+	//ds::ui::GstVideo*	mSelectedVideo;
+	ds::ui::Video*	mSelectedVideo;
+	VideoScrubBar*		mVsb;
 };
 
 } // !namespace ds

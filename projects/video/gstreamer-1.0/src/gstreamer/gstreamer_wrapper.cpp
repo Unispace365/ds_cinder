@@ -408,11 +408,10 @@ void GStreamerWrapper::play(){
 				m_playFromPause = true;
 
 				std::cout << "----------- Playing" << std::endl;
-				//m_BaseTime = getPipelineTime();
-				//gst_element_set_base_time(m_GstPipeline, m_BaseTime);
+#if 1
 				uint64_t baseTime = getPipelineTime();
 				setPipelineBaseTime(baseTime);
-
+#endif
 				uint64_t tmp = m_SeekTime / (uint64_t)(1000000000);
 				std::cout << " Server resuming playback from: " << tmp << "  seconds" << std::endl;
 				seekFrame(m_SeekTime);
@@ -475,6 +474,10 @@ void GStreamerWrapper::print_status_of_all()
 		}
 	}
 }
+uint64_t GStreamerWrapper::getRunningTime(){
+	uint64_t now = getPipelineTime();
+	return now - gst_element_get_base_time(m_GstPipeline);
+}
 
 void GStreamerWrapper::pause(){
 	//TODO: Pausing currently pauses the video frame, but the clock keeps running.  When playback resumes, it will advance to
@@ -487,9 +490,10 @@ void GStreamerWrapper::pause(){
 			//GstClock* clock_ = gst_pipeline_get_clock(GST_PIPELINE(m_GstPipeline));
 			//uint64_t now = gst_clock_get_time(m_NetClock);//gst_clock_get_time(clock_);
 
-			uint64_t now = getPipelineTime();
-			m_SeekTime += now - gst_element_get_base_time(m_GstPipeline);
-			
+			//uint64_t now = getPipelineTime();
+			//m_SeekTime += now - gst_element_get_base_time(m_GstPipeline);
+			m_SeekTime += getRunningTime();
+
 			uint64_t tmp = m_SeekTime / (uint64_t)(1000000000);
 			std::cout << " pausing at: " << tmp << "  seconds" << std::endl;
 
@@ -578,6 +582,64 @@ void GStreamerWrapper::setTimePositionInMs( double dTargetTimeInMs ){
 void GStreamerWrapper::setTimePositionInNs( gint64 iTargetTimeInNs ){
 	m_iCurrentTimeInNs = iTargetTimeInNs;
 	seekFrame( m_iCurrentTimeInNs );
+}
+
+void GStreamerWrapper::scrubToPosition( double fPos, float speed){
+	if (fPos < 0.0)
+		fPos = 0.0;
+	else if (fPos > 1.0)
+		fPos = 1.0;
+	gint64 prevTime = m_iCurrentTimeInNs;
+
+	m_dCurrentTimeInMs = fPos * m_dCurrentTimeInMs;
+	m_iCurrentFrameNumber = (gint64)(fPos * m_iNumberOfFrames);
+	m_iCurrentTimeInNs = (gint64)(fPos * m_iDurationInNs);
+
+
+	GstFormat gstFormat = GST_FORMAT_TIME;
+
+	// The flags determine how the seek behaves, in this case we simply want to jump to certain part in stream
+	// while keeping the pre-set speed and play direction
+	GstSeekFlags gstSeekFlags = (GstSeekFlags)(GST_SEEK_FLAG_FLUSH);
+
+
+	gboolean bIsSeekSuccessful = false;
+
+#if 1
+	if (mServer) {
+		uint64_t baseTime = getPipelineTime();
+		setPipelineBaseTime(baseTime);
+	}
+#endif
+	if (m_PlayDirection == FORWARD){
+		bIsSeekSuccessful = gst_element_seek(GST_ELEMENT(m_GstPipeline),
+			speed,
+			gstFormat,
+			gstSeekFlags,
+			GST_SEEK_TYPE_SET,
+			prevTime,
+			GST_SEEK_TYPE_SET,
+			m_iCurrentTimeInNs);
+	}
+#if 0
+	else if (m_PlayDirection == BACKWARD)	{
+		bIsSeekSuccessful = gst_element_seek(GST_ELEMENT(m_GstPipeline),
+			-m_fSpeed,
+			gstFormat,
+			gstSeekFlags,
+			GST_SEEK_TYPE_SET,
+			0,
+			GST_SEEK_TYPE_SET,
+			iTargetTimeInNs);
+	}
+#endif
+	if (!(bIsSeekSuccessful == 0)){
+		m_PendingSeek = false;
+	}
+
+	//return bIsSeekSuccessful != 0;
+//}
+
 }
 
 void GStreamerWrapper::setPosition(double fPos){
@@ -773,20 +835,31 @@ void					GStreamerWrapper::setStartTime(uint64_t start_time){
 }
 
 bool GStreamerWrapper::seekFrame( gint64 iTargetTimeInNs ){
+#if 0
 	if(m_CurrentGstState != STATE_PLAYING){
 		m_PendingSeekTime = iTargetTimeInNs;
 		m_PendingSeek = true;
 		return false;
 	}
-
+#endif
 	GstFormat gstFormat = GST_FORMAT_TIME;
 
 	// The flags determine how the seek behaves, in this case we simply want to jump to certain part in stream
 	// while keeping the pre-set speed and play direction
-	GstSeekFlags gstSeekFlags = ( GstSeekFlags ) ( GST_SEEK_FLAG_FLUSH );
+	GstSeekFlags gstSeekFlags = (GstSeekFlags)(GST_SEEK_FLAG_FLUSH);
+
 
 	gboolean bIsSeekSuccessful = false;
 
+#if 1
+	if (mServer) {
+		uint64_t baseTime = getPipelineTime();
+		setPipelineBaseTime(baseTime);
+#if 1
+		m_SeekTime = iTargetTimeInNs;
+#endif
+	}
+#endif
 	if ( m_PlayDirection == FORWARD ){
 		bIsSeekSuccessful = gst_element_seek( GST_ELEMENT( m_GstPipeline ),
 			m_fSpeed,
@@ -1075,6 +1148,23 @@ void GStreamerWrapper::handleGStMessage(){
 			gst_message_unref( m_GstMessage );
 		}
 	}
+}
+
+void GStreamerWrapper::fastSeek(float speed) {
+	m_fSpeed = speed;
+	m_SeekTime += getRunningTime();
+	setPipelineBaseTime(getPipelineTime());
+	uint64_t twoSecs = 2000000000;
+
+	gst_element_seek(m_GstPipeline,
+		speed,
+		GST_FORMAT_TIME,
+		GST_SEEK_FLAG_SKIP,
+		GST_SEEK_TYPE_SET, m_SeekTime,
+		//GST_SEEK_TYPE_NONE, GST_CLOCK_TIME_NONE);
+		GST_SEEK_TYPE_SET, m_SeekTime+ twoSecs);
+
+
 }
 
 void GStreamerWrapper::onEosFromVideoSource(GstAppSink* appsink, void* listener){

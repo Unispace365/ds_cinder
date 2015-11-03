@@ -93,6 +93,8 @@ public:
 	double				getCurrentPosition() const;
 	void				seekPosition(const double);
 
+	/* fast forward/backward from current position to indicated position*/
+	void				scrubToPosition(const double t, float speed);
 	// If true, will play the video as soon as it's loaded.
 	void				setAutoStart(const bool doAutoStart);
 	bool				getAutoStart() const;
@@ -118,6 +120,7 @@ public:
 	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr);
 	void				enablePlayingAFrame(bool on = true);
 	bool				isPlayingAFrame() const;
+	void				seekFast(float speed);
 
 	// Extends the idle timer for this sprite when the video is playing. Default = false
 	void				setAutoExtendIdle(const bool doAutoextend);

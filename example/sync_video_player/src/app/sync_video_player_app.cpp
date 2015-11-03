@@ -8,6 +8,7 @@
 #include "app/app_defs.h"
 #include "app/globals.h"
 
+
 namespace ds {
 
 sync_video_player::sync_video_player()
@@ -17,6 +18,8 @@ sync_video_player::sync_video_player()
 	, mVideoHolder(nullptr)
 	, mFpsDisplay(nullptr)
 	, mVerbose(false)
+	, mSeekSpeed(1.0)
+	, mVsb(nullptr)
 {
 
 
@@ -55,23 +58,23 @@ void sync_video_player::setupServer(){
 }
 
 void sync_video_player::fileDrop(ci::app::FileDropEvent event){
-	if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
+	if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
 		return;
 	}
 	std::vector<std::string> paths;
-	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
+	for (auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
 		paths.push_back((*it).string());
 	}
 
-	if(paths.empty()){
+	if (paths.empty()){
 		return;
 	}
 
-// 	if(mVideo){
-// 		mVideo->stop();
-// 		mVideo->release();
-// 		mVideo = nullptr;
-// 	}
+	// 	if(mVideo){
+	// 		mVideo->stop();
+	// 		mVideo->release();
+	// 		mVideo = nullptr;
+	// 	}
 
 	mVideo = new ds::ui::GstVideo(mEngine);
 	mVideo->setLooping(true);
@@ -81,17 +84,108 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 	mVideo->enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE | ds::ui::MULTITOUCH_CAN_POSITION);
 	mVideo->setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
 		ds::ui::GstVideo* video = dynamic_cast<ds::ui::GstVideo*>(bs);
-		if(video){
-			if(video->getIsPlaying()){
-				video->pause();
-			} else {
-				video->play();
+		if (video){
+			if (mSelectedVideo == video){
+				if (video->getIsPlaying()){
+					video->pause();
+					mVsb->mPauseOn->show();
+					mVsb->mPauseOff->hide();
+
+					//video->pause();
+				}
+				else {
+					video->play();
+					mVsb->mPauseOn->hide();
+					mVsb->mPauseOff->show();
+					//video->play();
+				}
 			}
+			else {
+				mSelectedVideo = video;
+
+				video->sendToFront();
+				mVsb->sendToFront();
+				if (mVsb) {
+					mVsb->linkVideo(mSelectedVideo);
+
+					if (!mSelectedVideo->getIsMuted()){
+
+						mVsb->mVolumeOff->hide();
+						mVsb->mVolumeOn->show();
+					}
+					else {
+						mVsb->mVolumeOff->show();
+						mVsb->mVolumeOn->hide();
+					}
+
+					if (video->getCurrentStatus() == ds::ui::GstVideo::Status::STATUS_PAUSED){
+						mVsb->mPauseOn->show();
+						mVsb->mPauseOff->hide();
+					}
+					else{
+						mVsb->mPauseOn->hide();
+						mVsb->mPauseOff->show();
+					}
+				}
+			}
+
 		}
 	});
 	mVideoHolder->addChildPtr(mVideo);
-}
+	mSelectedVideo = mVideo;
 
+	if (!mVsb)
+	{
+		setupScrubBar();
+	}
+	if (mVsb) {
+		mVsb->linkVideo(mVideo);
+		mVsb->sendToFront();
+
+	}
+}
+void sync_video_player::setupScrubBar(){
+
+	//Setup Scrubbar
+
+	mVsb = new VideoScrubBar(mGlobals, 800.0f);
+	mVideoHolder->addChildPtr(mVsb);
+	mVsb->setCenter(0.5f, 0.5f);
+	//mVsb->setPosition(mVideo->getWidth() / 2.0f, mVideo->getHeight() - 50.f);
+	mVsb->setPosition(mEngine.getWorldWidth()/2.0f, mEngine.getWorldHeight() - 100.0f);
+	mVsb->show();
+	mVsb->setOpacity(1.0f);
+	mVsb->mHome->hide();
+
+	mVsb->mPauseOff->setClickFn([this]
+	{
+		mSelectedVideo->pause();
+		mVsb->mPauseOn->show();
+		mVsb->mPauseOff->hide();
+	});
+
+	mVsb->mPauseOn->setClickFn([this]
+	{
+		mSelectedVideo->play();
+		mVsb->mPauseOn->hide();
+		mVsb->mPauseOff->show();
+	});
+
+	mVsb->mVolumeOn->setClickFn([this]
+	{
+		mSelectedVideo->setMute(true);
+		mVsb->mVolumeOff->show();
+		mVsb->mVolumeOn->hide();
+	});
+
+	mVsb->mVolumeOff->setClickFn([this]
+	{
+		mSelectedVideo->setMute(false);
+		mVsb->mVolumeOff->hide();
+		mVsb->mVolumeOn->show();
+	});
+
+}
 
 void sync_video_player::update() {
 	inherited::update();
@@ -113,6 +207,19 @@ void sync_video_player::keyDown(ci::app::KeyEvent event){
 		mVerbose = !mVerbose;
 		if(mVideo){
 			mVideo->setVerboseLogging(mVerbose);
+		}
+	}
+	else if (event.getChar() == KeyEvent::KEY_f){
+		mSeekSpeed *= 2;
+		if (mVideo){
+			mVideo->seekFast(mSeekSpeed);
+		}
+	}
+	else if (event.getChar() == KeyEvent::KEY_s){
+		mSeekSpeed /= 2;
+		if (mVideo){
+			mVideo->seekFast(mSeekSpeed);
+
 		}
 	}
 }
