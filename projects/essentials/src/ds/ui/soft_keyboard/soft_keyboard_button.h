@@ -5,6 +5,7 @@
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/sprite/text.h>
 
+#include "ds/ui/soft_keyboard/soft_keyboard_defs.h"
 #include "ds/ui/soft_keyboard/soft_keyboard_settings.h"
 
 namespace ds {
@@ -16,29 +17,33 @@ namespace ui {
 class SoftKeyboardButton : public ds::ui::ImageButton {
 public:
 
-	typedef enum { kLetter, kNumber, kDelete, kSpace, kEnter, kShift } KeyType;
+	SoftKeyboardButton(ds::ui::SpriteEngine&, const std::wstring& characterLower, const std::wstring& characterUpper, const SoftKeyboardDefs::KeyType keyType, SoftKeyboardSettings& softKeySettings);
 
-	SoftKeyboardButton(ds::ui::SpriteEngine&, const std::string& characterLower, const std::string& characterUpper, const KeyType keyType, SoftKeyboardSettings& softKeySettings);
+	/// Sets upper case if true, lower case if false
+	void								setShifted(const bool upper);
 
-	void						setToggle(const bool upper);
-	std::string&				getCharacter();
-	const KeyType&				getKeyType();
+	/// Returns the lower case character; if shifted to upper, returns the upper case character
+	const std::wstring&					getCharacter();
 
-	void						setSoftKeyboardSettings(SoftKeyboardSettings& softKeySettings);
+	/// See the key type above
+	const SoftKeyboardDefs::KeyType&	getKeyType();
+
+	/// Settings can be changed on-the-fly, induces a layout
+	void								setSoftKeyboardSettings(SoftKeyboardSettings& softKeySettings);
 
 protected:
-	void						stateChanged(const bool pressed);
-	void						layout();
+	void								stateChanged(const bool pressed);
+	void								layout();
 
-	std::string					mCharacterLower;
-	std::string					mCharacterUpper;
-	bool						mUpper;
-	bool						mPressed;
-	const KeyType				mKeyType;
-	ds::ui::Text*				mText;
-	std::string					mTextConfigUp;
-	std::string					mTextConfigDown;
-	ci::Vec2f					mTextOffset;
+	std::wstring						mCharacterLower;
+	std::wstring						mCharacterUpper;
+	bool								mUpper;
+	bool								mPressed;
+	const SoftKeyboardDefs::KeyType		mKeyType;
+	ds::ui::Text*						mText;
+	std::string							mTextConfigUp;
+	std::string							mTextConfigDown;
+	ci::Vec2f							mTextOffset;
 
 };
 } // namespace ui

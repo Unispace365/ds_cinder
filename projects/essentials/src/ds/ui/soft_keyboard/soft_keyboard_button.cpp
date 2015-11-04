@@ -8,7 +8,7 @@
 
 namespace ds {
 namespace ui {
-SoftKeyboardButton::SoftKeyboardButton(ds::ui::SpriteEngine& engine, const std::string& characterlow, const std::string& characterUp, const KeyType keyType, SoftKeyboardSettings& settings)
+SoftKeyboardButton::SoftKeyboardButton(ds::ui::SpriteEngine& engine, const std::wstring& characterlow, const std::wstring& characterUp, const SoftKeyboardDefs::KeyType keyType, SoftKeyboardSettings& settings)
 	: ds::ui::ImageButton(engine, "", "", 0.0f)
 	, mCharacterLower(characterlow)
 	, mCharacterUpper(characterUp)
@@ -20,7 +20,6 @@ SoftKeyboardButton::SoftKeyboardButton(ds::ui::SpriteEngine& engine, const std::
 	mText = new ds::ui::Text(mEngine);
 	addChildPtr(mText);
 
-	setToggle(false);
 	setCenter(0.5f, 0.5f);
 
 	setStateChangeFn([this](const bool pressed){
@@ -30,12 +29,12 @@ SoftKeyboardButton::SoftKeyboardButton(ds::ui::SpriteEngine& engine, const std::
 	setSoftKeyboardSettings(settings);
 }
 
-std::string& SoftKeyboardButton::getCharacter() {
+const std::wstring& SoftKeyboardButton::getCharacter() {
 	if(mUpper) return mCharacterUpper;
 	else return mCharacterLower;
 }
 
-const SoftKeyboardButton::KeyType& SoftKeyboardButton::getKeyType() {
+const SoftKeyboardDefs::KeyType& SoftKeyboardButton::getKeyType() {
 	return mKeyType;
 }
 
@@ -46,34 +45,36 @@ void SoftKeyboardButton::setSoftKeyboardSettings(SoftKeyboardSettings& softKeySe
 		mTextOffset = softKeySettings.mKeyTextOffset;
 	}
 
-	if(mKeyType == SoftKeyboardButton::kNumber){
+	if(mKeyType == SoftKeyboardDefs::kNumber){
 		getNormalImage().setImageFile(softKeySettings.mKeyNumberUpImage);
 		getHighImage().setImageFile(softKeySettings.mKeyNumberDnImage);
-	} else if(mKeyType == SoftKeyboardButton::kLetter){
+	} else if(mKeyType == SoftKeyboardDefs::kLetter){
 		getNormalImage().setImageFile(softKeySettings.mKeyLetterUpImage);
 		getHighImage().setImageFile(softKeySettings.mKeyLetterDnImage);
-	} else if(mKeyType == SoftKeyboardButton::kSpace){
+	} else if(mKeyType == SoftKeyboardDefs::kSpace){
 		getNormalImage().setImageFile(softKeySettings.mKeySpaceUpImage);
 		getHighImage().setImageFile(softKeySettings.mKeySpaceDnImage);
-	} else if(mKeyType == SoftKeyboardButton::kDelete){
+	} else if(mKeyType == SoftKeyboardDefs::kDelete){
 		getNormalImage().setImageFile(softKeySettings.mKeyDeleteUpImage);
 		getHighImage().setImageFile(softKeySettings.mKeyDeleteDnImage);
-	} else if(mKeyType == SoftKeyboardButton::kShift){
+	} else if(mKeyType == SoftKeyboardDefs::kShift){
 		getNormalImage().setImageFile(softKeySettings.mKeyShiftUpImage);
 		getHighImage().setImageFile(softKeySettings.mKeyShiftDnImage);
-	} else if(mKeyType == SoftKeyboardButton::kEnter){
+	} else if(mKeyType == SoftKeyboardDefs::kEnter){
 		getNormalImage().setImageFile(softKeySettings.mKeyEnterUpImage);
 		getHighImage().setImageFile(softKeySettings.mKeyEnterDnImage);
 	} else {
 		DS_LOG_WARNING("Warning: key type not supported in SoftKeyboardButton");
 	}
 
+	getHighImage().setColor(softKeySettings.mKeyDownColor);
+
 	setTouchPad(softKeySettings.mKeyTouchPadding);
 
 	layout();
 }
 
-void SoftKeyboardButton::setToggle(const bool upper) {
+void SoftKeyboardButton::setShifted(const bool upper) {
 	mUpper = upper;
 
 	layout();

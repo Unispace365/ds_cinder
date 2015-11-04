@@ -30,6 +30,8 @@ public:
 		, mKeyEnterUpImage("%APP%/data/images/keyboard/EnterAndShift.png")
 		, mKeyShiftDnImage("%APP%/data/images/keyboard/EnterAndShift.png")
 		, mKeyShiftUpImage("%APP%/data/images/keyboard/EnterAndShift.png")
+		, mKeyUpTextConfig("keyboard:key:up")
+		, mKeyDnTextConfig("keyboard:key:down")
 	{}
 
 	void				normalizeSettings(){

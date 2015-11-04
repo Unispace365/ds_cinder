@@ -19,9 +19,11 @@ public:
 	SoftKeyboard(ds::ui::SpriteEngine&, SoftKeyboardSettings& settings);
 
 	/// Get the current entered text string
-	const std::string&					getCurrentText();
+	const std::wstring&					getCurrentText();
+
 	/// Set the the current text string. Does not call any callbacks.
-	void								setCurrentText(const std::string& curTxtStr);
+	void								setCurrentText(const std::wstring& curTxtStr);
+
 	/// Clears the current text string. Does not call any callbacks.
 	void								resetCurrentText();
 
@@ -29,7 +31,7 @@ public:
 	void								toggleShift();
 
 	/// Set a callback for every time a key is pressed by the user. KeyType is set in SoftKeyboardButton (letter, number, back, space, delete, etc)
-	void								setKeyPressFunction(const std::function<void(const std::string& character, const SoftKeyboardButton::KeyType keyType)>&);
+	void								setKeyPressFunction(const std::function<void(const std::wstring& character, const SoftKeyboardDefs::KeyType keyType)>&);
 
 	/// Provided for class that create keyboard buttons externally (such as SoftKeyboardBuilder). 
 	void								handleKeyPress(SoftKeyboardButton* sp);
@@ -41,12 +43,12 @@ public:
 	SoftKeyboardSettings&				getSoftKeyboardSettings(){ return mSoftKeyboardSettings; }
 
 protected:
-	std::string							mCurrentText;
+	std::wstring						mCurrentText;
 	bool								mUpperCase;
 
-	std::function<void(const std::string& character, const SoftKeyboardButton::KeyType keyType)> mKeyPressFunction;
+	std::function<void(const std::wstring& character, const SoftKeyboardDefs::KeyType keyType)> mKeyPressFunction;
 	std::vector<SoftKeyboardButton*>	mButtons;
-	SoftKeyboardSettings&				mSoftKeyboardSettings;
+	SoftKeyboardSettings				mSoftKeyboardSettings;
 
 };
 

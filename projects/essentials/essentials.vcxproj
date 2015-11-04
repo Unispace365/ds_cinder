@@ -31,9 +31,11 @@
     <ClCompile Include="src\ds\ui\menu\touch_menu.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp" />
+    <ClCompile Include="src\ds\ui\soft_keyboard\entry_field.cpp" />
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard.cpp" />
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp" />
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_button.cpp" />
+    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp" />
     <ClCompile Include="src\ds\ui\sprite\png_sequence_sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -57,9 +59,11 @@
     <ClInclude Include="src\ds\ui\menu\touch_menu.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
+    <ClInclude Include="src\ds\ui\soft_keyboard\entry_field.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_button.h" />
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_settings.h" />
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />
     <ClInclude Include="src\ds\ui\util\sprite_cache.h" />

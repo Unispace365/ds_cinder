@@ -15,58 +15,44 @@ SoftKeyboard::SoftKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& s
 	: ds::ui::Sprite(engine)
 	, mSoftKeyboardSettings(settings)
 	, mUpperCase(false)
+	, mCurrentText(L"")
 {
 	mSoftKeyboardSettings.normalizeSettings();
 }
 
 void SoftKeyboard::handleKeyPress(SoftKeyboardButton* key){
 
-	std::string currentCharacter = key->getCharacter();
-	const SoftKeyboardButton::KeyType keyType = key->getKeyType();
-	if(keyType == SoftKeyboardButton::kDelete){
-		if(mCurrentText.length() > 0){
-			mCurrentText = mCurrentText.substr(0, mCurrentText.length() - 1);
-		}
-		if(mKeyPressFunction) mKeyPressFunction(currentCharacter, keyType);
-	} else if(keyType == SoftKeyboardButton::kShift){
+	std::wstring currentCharacter = key->getCharacter();
+	const SoftKeyboardDefs::KeyType keyType = key->getKeyType();
+	if(keyType == SoftKeyboardDefs::kShift){
 		toggleShift();
-		if(mKeyPressFunction) mKeyPressFunction("", keyType);
-	} else if(keyType == SoftKeyboardButton::kEnter){
-		if(mKeyPressFunction) mKeyPressFunction("", keyType);
-	} else if(keyType == SoftKeyboardButton::kSpace){
-		std::stringstream ss;
-		ss << mCurrentText << " ";
-		mCurrentText = ss.str();
-		if(mKeyPressFunction) mKeyPressFunction(" ", keyType);
-	} else {
-		std::stringstream ss;
-		ss << mCurrentText << currentCharacter;
-		mCurrentText = ss.str();
-		if(mKeyPressFunction) mKeyPressFunction(currentCharacter, keyType);
-	}
+	} 
+
+	handleKeyPressGeneric(keyType, currentCharacter, mCurrentText);
+	if(mKeyPressFunction) mKeyPressFunction(currentCharacter, keyType);
 }
 
-void SoftKeyboard::setKeyPressFunction(const std::function<void(const std::string& character, const SoftKeyboardButton::KeyType keyType)>& func) {
+void SoftKeyboard::setKeyPressFunction(const std::function<void(const std::wstring& character, const SoftKeyboardDefs::KeyType keyType)>& func) {
 	mKeyPressFunction = func;
 }
 
 void SoftKeyboard::toggleShift() {
 	mUpperCase = !mUpperCase;
 	for(auto it = mButtons.begin(); it < mButtons.end(); ++it){
-		(*it)->setToggle(mUpperCase);
+		(*it)->setShifted(mUpperCase);
 	}
 }
 
-const std::string& SoftKeyboard::getCurrentText(){
+const std::wstring& SoftKeyboard::getCurrentText(){
 	return mCurrentText;
 }
 
-void SoftKeyboard::setCurrentText(const std::string& crTxStr){
+void SoftKeyboard::setCurrentText(const std::wstring& crTxStr){
 	mCurrentText = crTxStr;
 }
 
 void SoftKeyboard::resetCurrentText() {
-	mCurrentText = "";
+	mCurrentText = L"";
 }
 
 
