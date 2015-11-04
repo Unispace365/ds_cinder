@@ -1,7 +1,6 @@
 #ifndef _FULLSTARTER_APP_GLOBALS_
 #define _FULLSTARTER_APP_GLOBALS_
 
-#include <ds/app/event_notifier.h>
 #include <ds/cfg/cfg_text.h>
 #include <ds/cfg/settings.h>
 #include <ds/cfg/cfg_nine_patch.h>
@@ -26,7 +25,6 @@ public:
 	Globals(ds::ui::SpriteEngine&, const AllData& d);
 
 	ds::ui::SpriteEngine&			mEngine;
-	ds::EventNotifier				mNotifier;
 
 	const AllData&					mAllData;
 
