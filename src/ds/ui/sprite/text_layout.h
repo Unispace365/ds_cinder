@@ -19,6 +19,7 @@ class Text;
 
 ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str);
 ci::Vec2f getSizeFromString(const FontPtr &font, const std::wstring &str);
+ci::Rectf getBoxFromString(const FontPtr &font, const std::wstring &str);
 int getFontSize(const FontPtr &font);
 float getFontAscender(const FontPtr &font);
 float getFontDescender(const FontPtr &font);
@@ -36,8 +37,9 @@ public:
 	class Line {
 	public:
 		Line();
-		ci::Vec2f			mPos;
-		std::wstring		mText;
+		ci::Vec2f				mPos;
+		ci::Rectf				mFontBox;
+		std::wstring			mText;		// potentially modified by the layout class from the original input (tabs -> four spaces, returns, etc)
 	};
 	// A bundle of all data necessary to create a layout
 	class Input {
@@ -58,7 +60,7 @@ public:
 
 	void					clear();
 
-	void					addLine(const ci::Vec2f&, const std::wstring&);
+	void					addLine(const TextLayout::Line& newLine);
 
 	const std::vector<Line> getLines() const	{ return mLines; }
 
@@ -103,6 +105,7 @@ public:
 	Alignment::Enum			mAlignment;
 private:
 	void					run(TextLayout::Input&, TextLayout&);
+	void					addLine(const FontPtr& font, const std::wstring& lineText, const float y, std::vector<TextLayout::Line>& outputVector, float& inOutMaxWidth);
 };
 
 } // namespace ui

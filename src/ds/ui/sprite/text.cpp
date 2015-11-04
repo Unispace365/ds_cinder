@@ -341,6 +341,15 @@ void Text::debugPrint()
 	mLayout.debugPrint();
 }
 
+
+ci::Vec2f Text::getPositionForCharacterIndex(const int characterIndex){
+	if(characterIndex < 0 || characterIndex > mTextString.size()) return ci::Vec2f::zero();
+
+
+
+	return ci::Vec2f::zero();
+}
+
 void Text::writeAttributesTo(ds::DataBuffer& buf)
 {
 	inherited::writeAttributesTo(buf);
@@ -447,14 +456,12 @@ void Text::calculateFrame(const int flags)
 
 	for(auto it = lines.begin(), end = lines.end(); it != end; ++it) {
 		const TextLayout::Line&		line(*it);
-		const ci::Vec2f				size = getSizeFromString(mFont, line.mText);//mFont->measureRaw(line.mText.c_str());
-		const float					lineW = line.mPos.x + size.x;
+		const float					lineW = line.mPos.x + line.mFontBox.getWidth();
 		float						lineH = line.mPos.y + height;
 		if(it + 1 != lines.end()) {
 			lineH += lineHeight;
 		} else {
-			OGLFT::BBox box = mFont->measureRaw(line.mText.c_str());
-			lineH += -box.y_min_;
+			lineH += - line.mFontBox.getY1();
 		}
 		if(lineW > w) w = lineW;
 		if(lineH > h) h = lineH;
@@ -523,14 +530,12 @@ void Text::drawIntoFbo() {
 			for (auto it=lines.begin(), end=lines.end(); it!=end; ++it) {
 				const TextLayout::Line&		line(*it);
 
-				OGLFT::BBox box = mFont->measureRaw(line.mText);
-
 				// Make sure textures are disabled, or else I can end up not
 				// drawing and it can be very difficult to know why.
 				ci::gl::BoolState	tex_2d_state(GL_TEXTURE_2D);
 				glDisable(GL_TEXTURE_2D);
 
-				float xPos = line.mPos.x + mBorder.x1 - box.x_min_;
+				float xPos = line.mPos.x + mBorder.x1 - line.mFontBox.getX1();
 				float yPos = line.mPos.y + mBorder.y1 + height;
 
 				// If x or y are negative, nothing will draw.
@@ -538,6 +543,11 @@ void Text::drawIntoFbo() {
 				// Better to draw a pixel or two off then to not draw at all.
 				if(xPos < 0.0f) xPos = 0.0f;
 				if(yPos < 0.0f) yPos = 0.0f;
+
+				if(line.mText.size() > 5){
+					std::cout << "heyo" << std::endl;
+				}
+
 				mFont->draw(xPos, yPos, line.mText);
 			}
 

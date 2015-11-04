@@ -91,6 +91,10 @@ public:
 
 	const ds::ui::TextLayout&	getTextLayout() const { return mLayout; }
 
+	/// Returns the 2-d position of the character in the current text string
+	/// Will return 0,0 if the string is blank or the index is out-of-bounds
+	ci::Vec2f					getPositionForCharacterIndex(const int characterIndex);
+
 protected:
 	virtual void				writeAttributesTo(ds::DataBuffer&);
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
