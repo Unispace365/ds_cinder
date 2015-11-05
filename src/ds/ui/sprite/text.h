@@ -93,7 +93,13 @@ public:
 
 	/// Returns the 2-d position of the character in the current text string
 	/// Will return 0,0 if the string is blank or the index is out-of-bounds
+	/// Only valid for MultilineText
 	ci::Vec2f					getPositionForCharacterIndex(const int characterIndex);
+
+	/// Returns the index of the character of the current text string for the position supplied
+	/// Gracefully handles out-of-bounds points (will always return a valid index, assuming the current text string isn't empty)
+	/// Only valid for MultilineText
+	int							getCharacterIndexForPosition(const ci::Vec2f& localPosition);
 
 protected:
 	virtual void				writeAttributesTo(ds::DataBuffer&);
@@ -129,6 +135,7 @@ private:
 	float						mResizeLimitWidth,
 								mResizeLimitHeight;
 	bool						mHasSplitLine;
+	bool						mGenerateIndex;
 
 	// When true, display the whole sprite area.
 	const bool					mDebugShowFrame;

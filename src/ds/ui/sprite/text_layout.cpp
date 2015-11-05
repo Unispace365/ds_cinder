@@ -87,6 +87,7 @@ TextLayout::Input::Input(const Text& sprite,
 						 , mSize(size)
 						 , mText(text)
 						 , mLineWasSplit(false)
+						 , mGenerateIndex(false)
 {
 }
 
@@ -173,7 +174,9 @@ TextLayoutVertical::TextLayoutVertical()
 
 TextLayoutVertical::TextLayoutVertical(Text& t)
 		: mLeading(1)
-		, mAlignment(Alignment::kLeft) {
+		, mAlignment(Alignment::kLeft)
+		, mGenerateIndices(false)
+{
 	installOn(t);
 }
 
@@ -197,22 +200,72 @@ ci::Rectf getBoxFromString(const FontPtr &font, const std::wstring &str){
 	return ci::Rectf(box.x_min_, box.y_min_, box.x_max_, box.y_max_);
 }
 
-void TextLayoutVertical::addLine(const FontPtr& font, const std::wstring& lineText, const float y, std::vector<TextLayout::Line>& outputVector, float& inOutMaxWidth){
+void TextLayoutVertical::addStringSegment(const FontPtr& font, const std::wstring& inputText){
+	if(!mGenerateIndices) return;
+
+	unsigned textSize = inputText.size();
+
+	if(textSize == 0) return;
+
+	// measure the 
+	OGLFT::BBox box = font->measureRaw(inputText);
+	float endX = mCurXPosition + box.x_max_ - box.x_min_;
+
+	if(inputText == L" "){
+		endX = mCurXPosition + mSpaceWidth;
+	}
+	
+	// add the first position, which is the same as the advancement from the last character
+	mCurLineIndexPositions[mCurInputIndex] = mCurXPosition;
+
+	// Measure each character as part of the string, starting from the beginning of the current string
+	for(int i = 1; i < textSize; i++){
+		std::wstring substringy = inputText.substr(0, i);
+		float thisW = 0.0f;
+		if(!substringy.empty()){
+			thisW = getSizeFromString(font, substringy).x;
+		}
+
+		mCurLineIndexPositions[mCurInputIndex + i] = mCurXPosition + thisW;
+	}
+	mCurXPosition = endX;
+	mCurInputIndex = mCurInputIndex + textSize;
+}
+
+void TextLayoutVertical::addBlankSegment(){
+	if(!mGenerateIndices) return;
+	mCurLineIndexPositions[mCurInputIndex] = mCurXPosition;
+	mCurInputIndex++;
+}
+
+void TextLayoutVertical::addLine(const FontPtr& font, const std::wstring& lineText){
 	ci::Rectf fontBox = getBoxFromString(font, lineText);
 
-	if(fontBox.getWidth() > inOutMaxWidth){
-		inOutMaxWidth = fontBox.getWidth();
+	if(fontBox.getWidth() > mMaxWidth){
+		mMaxWidth = fontBox.getWidth();
 	}
-	outputVector.push_back(TextLayout::Line());
+	
+	// Catch the case where the line only has empty space (tabs, spaces, returns)
+	if(fontBox.getHeight() == 0.0f){
+		fontBox.set(fontBox.getX1(), fontBox.getY1(), fontBox.getX2(), mLineHeight);
+	}
 
-	TextLayout::Line& thisLine = outputVector.back();
-	thisLine.mPos.y = y;
+	mOutputLines.push_back(TextLayout::Line());
+
+	TextLayout::Line& thisLine = mOutputLines.back();
+	thisLine.mPos.y = mY;
 	thisLine.mText = lineText;
 	thisLine.mFontBox = fontBox;	
+	thisLine.mIndexPositions = mCurLineIndexPositions;
+
+	mY += mLineHeight;
+	mCurXPosition = 0.0f;
+	mCurLineIndexPositions.clear();
 }
 
 void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 {
+	mOutputLines.clear();
 	if(in.mText.empty())
 		return;
 	// Per line, find the word breaks, then create a line.
@@ -230,19 +283,24 @@ void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 
 	tokens = ds::partition(in.mText, partitioners);
 
+	// Keep track of the current line of text, in case the next token makes it too long to fit on a line
+	std::wstring	lineText;
+
 	LimitCheck			check(in);
-	float				y = ceilf((1.0f - getFontAscender(in.mFont)) * in.mFont->pointSize());
-	//address this
-	const float			lineH = in.mFont->pointSize()*mLeading + in.mFont->pointSize();
-	std::wstring		lineText;
+	mY = ceilf((1.0f - getFontAscender(in.mFont)) * in.mFont->pointSize());
+	mLineHeight = in.mFont->pointSize()*mLeading + in.mFont->pointSize();
+	mCurInputIndex = 0;
+	mCurXPosition = 0.0f;
+	mCurLineIndexPositions.clear();
+	mMaxWidth = 0.0f;
+	mGenerateIndices = in.mGenerateIndex;
+
+	OGLFT::BBox box = in.mFont->measureRaw(L" ");
+	mSpaceWidth = box.advance_.dx_ * 1.25f; // ???? The actual advance amount doesn't seem to match the actual output, so multiply it?
 
 	// Before we do anything, make sure we have room for the first line,
 	// otherwise that will slip past.
-	if(check.outOfBounds(y)) return;
-
-	float maxWidth = 0.0f;
-
-	std::vector<TextLayout::Line> linesToWrite;
+	if(check.outOfBounds(mY)) return;
 
 	for(size_t i = 0; i < tokens.size(); ++i) {
 		// Test the new string to see if it's too long
@@ -254,28 +312,38 @@ void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 		const std::wstring &token = tokens[i];
 
 		if(token == L" ") {
-			lineText.append(L" ");
+			addStringSegment(in.mFont, token);
+			lineText.append(token);
 			continue;
+
 		} else if(token == L"\n") {
-			// Flush the current line
-			if(!lineText.empty()) {
-				addLine(in.mFont, lineText, y, linesToWrite, maxWidth);
-			}
+			addBlankSegment();
+			addLine(in.mFont, lineText);
 
 			lineText.clear();
 
-			y += lineH;
-			if(check.outOfBounds(y)) break;
+			if(check.outOfBounds(mY)) break;
+
 			continue;
+
 		} else if(token == L"\t") {
-			lineText.append(L" ");
-			lineText.append(L" ");
-			lineText.append(L" ");
-			lineText.append(L" ");
+			const std::wstring spacey = L" ";
+			mCurLineIndexPositions[mCurInputIndex] = mCurXPosition;
+			mCurXPosition += mSpaceWidth * 4.0f;
+			mCurInputIndex++;
+
+			lineText.append(spacey);
+			lineText.append(spacey);
+			lineText.append(spacey);
+			lineText.append(spacey);
 			continue;
+
 		} else if(token == L"\r") {
+			addBlankSegment();
 			continue;
+
 		} else if (token == L"-") {
+			addStringSegment(in.mFont, token);
 			lineText.append(token);
 			continue;
 		}
@@ -283,12 +351,11 @@ void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 		newLine.append(token);
 		ci::Vec2f size = getSizeFromString(in.mFont, newLine);
 		if(size.x > in.mSize.x) {
-			// Flush the current line
+			// Flush the current line, cause we're wrapping
 			if(!lineText.empty()) {
 
-				addLine(in.mFont, lineText, y, linesToWrite, maxWidth);
-				y += lineH;
-				if(check.outOfBounds(y)) break;
+				addLine(in.mFont, lineText);
+				if(check.outOfBounds(mY)) break;
 			}
 
 			lineText = token;
@@ -306,34 +373,37 @@ void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 						if(!sub.empty()) {
 							in.mLineWasSplit = true;
 
-							addLine(in.mFont, sub, y, linesToWrite, maxWidth);
-							y += lineH;
+							addStringSegment(in.mFont, sub);
+							addLine(in.mFont, sub);
 						} 
 						break;
 					}
 				}
 
-				if(check.outOfBounds(y)) break;
+				if(check.outOfBounds(mY)) break;
 
 				size = getSizeFromString(in.mFont, lineText);
 			}
 
-			if(check.outOfBounds(y)) break;
+			addStringSegment(in.mFont, lineText);
+			if(check.outOfBounds(mY)) break;
 		} else {
+			addStringSegment(in.mFont, token);
 			lineText.swap(newLine);
 		}
 	}
 
 	// add in any remaining text on the last line
-	if(!lineText.empty() && !check.outOfBounds(y)) {
-		addLine(in.mFont, lineText, y, linesToWrite, maxWidth);
+	if(!check.outOfBounds(mY)) {
+		addBlankSegment();
+		addLine(in.mFont, lineText);
 	}
 
-	if(maxWidth > in.mSize.x){
-		maxWidth = in.mSize.x;
+	if(mMaxWidth > in.mSize.x){
+		mMaxWidth = in.mSize.x;
 	}
 
-	for(auto it = linesToWrite.begin(), it2 = linesToWrite.end(); it != it2; ++it){
+	for(auto it = mOutputLines.begin(), it2 = mOutputLines.end(); it != it2; ++it){
 		TextLayout::Line& thisLine = (*it);
 		float y = thisLine.mPos.y;
 		std::wstring &str = thisLine.mText;
@@ -341,10 +411,10 @@ void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 		if(mAlignment == Alignment::kLeft) {
 			thisLine.mPos.x = 0.0f;
 		} else if(mAlignment == Alignment::kRight) {
-			thisLine.mPos.x = maxWidth - thisLine.mFontBox.getWidth();
+			thisLine.mPos.x = mMaxWidth - thisLine.mFontBox.getWidth();
 		} else {
 			float size = getSizeFromString(in.mFont, str).x;
-			thisLine.mPos.x = (maxWidth - thisLine.mFontBox.getWidth() ) / 2.0f;
+			thisLine.mPos.x = (mMaxWidth - thisLine.mFontBox.getWidth()) / 2.0f;
 		}
 
 		out.addLine(thisLine);

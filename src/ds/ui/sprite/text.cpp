@@ -79,6 +79,7 @@ Text::Text(SpriteEngine& engine)
 	, mResizeLimitHeight(0)
 	, mHasSplitLine(false)
 	, mDebugShowFrame(engine.getDebugSettings().getBool("text:show_frame", 0, false))
+	, mGenerateIndex(false)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
@@ -343,11 +344,79 @@ void Text::debugPrint()
 
 
 ci::Vec2f Text::getPositionForCharacterIndex(const int characterIndex){
-	if(characterIndex < 0 || characterIndex > mTextString.size()) return ci::Vec2f::zero();
+	if(mTextString.empty() || characterIndex < 0 || characterIndex > mTextString.size()) return ci::Vec2f::zero();
+	if(!mGenerateIndex){
+		mGenerateIndex = true;
+		mNeedsLayout = true;
+	}
+	makeLayout();
+	if(mLayout.getLines().empty()) return ci::Vec2f::zero();
+	
+	const std::vector<TextLayout::Line>& lines = mLayout.getLines();
 
+	// look through all the lines for the character matching this index
+	for(auto it = lines.begin(); it < lines.end(); ++it){
+		const TextLayout::Line& line = (*it);
+		auto fit = line.mIndexPositions.find(characterIndex);
+		if(fit == line.mIndexPositions.end()) continue;
+		return ci::Vec2f(line.mPos.x + fit->second, line.mPos.y);
+	}
 
+	// Assume we're past the end of the text sprite
+	const TextLayout::Line& line = lines.back();
+	if(line.mIndexPositions.empty()) return ci::Vec2f::zero();
+	auto fit = line.mIndexPositions.rbegin();
+	return ci::Vec2f(line.mPos.x + fit->second, line.mPos.y);
+}
 
-	return ci::Vec2f::zero();
+int parseLine(const TextLayout::Line& line, const ci::Vec2f& possy){
+	if(line.mIndexPositions.empty()){
+		// This is technically an error condition.
+		// But we're not gonna log anything, cause there's not a lot of consequences for it
+		return 0;
+	}
+
+	int firstCharacter = line.mIndexPositions.begin()->first;
+	// we're before the first character on the line, so return the index on the first character
+	if(possy.x <= line.mPos.x){
+		return firstCharacter;
+	}
+
+	// track the previous character cause we only know when we got there when we're past it
+	int previousIndex = firstCharacter;
+	for(auto lit = line.mIndexPositions.begin(); lit != line.mIndexPositions.end(); ++lit){
+		if(lit->second > possy.x){
+			return previousIndex;
+		}
+
+		previousIndex = lit->first;
+	}
+
+	// we got past the end of the line, so return the last character
+	return previousIndex;
+}
+
+int Text::getCharacterIndexForPosition(const ci::Vec2f& possy){
+	if(mTextString.empty()) return 0;
+	if(!mGenerateIndex){
+		mGenerateIndex = true;
+		mNeedsLayout = true;
+	}
+	makeLayout();
+	if(mLayout.getLines().empty()) return 0;
+
+	const std::vector<TextLayout::Line>& lines = mLayout.getLines();
+
+	// look through all the lines for the line that contains this point
+	for(auto it = lines.begin(); it < lines.end(); ++it){
+		const TextLayout::Line& line = (*it);
+		if(possy.y < line.mPos.y + line.mFontBox.getHeight()){
+			return parseLine(line, possy);
+		}
+	}
+
+	// since we didn't find anything in the lines, we assume we're looking at the last line
+	return parseLine(lines.back(), possy);
 }
 
 void Text::writeAttributesTo(ds::DataBuffer& buf)
@@ -434,6 +503,7 @@ void Text::makeLayout()
 				if (mResizeLimitHeight > 0) size.y = mResizeLimitHeight;
 			}
 			TextLayout::Input	in(*this, mFont, size, mTextString);
+			in.mGenerateIndex = mGenerateIndex;
 			mLayoutFunc(in, mLayout);
 			mHasSplitLine = in.mLineWasSplit;
 		}
@@ -543,10 +613,6 @@ void Text::drawIntoFbo() {
 				// Better to draw a pixel or two off then to not draw at all.
 				if(xPos < 0.0f) xPos = 0.0f;
 				if(yPos < 0.0f) yPos = 0.0f;
-
-				if(line.mText.size() > 5){
-					std::cout << "heyo" << std::endl;
-				}
 
 				mFont->draw(xPos, yPos, line.mText);
 			}

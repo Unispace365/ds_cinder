@@ -40,6 +40,7 @@ public:
 		ci::Vec2f				mPos;
 		ci::Rectf				mFontBox;
 		std::wstring			mText;		// potentially modified by the layout class from the original input (tabs -> four spaces, returns, etc)
+		std::map<int, float>	mIndexPositions; // maps input string indices to x-pixel-position in the line. x-position is relative to the mPos.x value of this line
 	};
 	// A bundle of all data necessary to create a layout
 	class Input {
@@ -51,6 +52,7 @@ public:
 		const ci::Vec2f&	mSize;
 		const std::wstring&	mText;
 		bool				mLineWasSplit;
+		bool				mGenerateIndex; // generate positions of each character, potentially expensive operation
 	private:
 		Input();
 	};
@@ -104,8 +106,26 @@ public:
 	float					mLeading;
 	Alignment::Enum			mAlignment;
 private:
-	void					run(TextLayout::Input&, TextLayout&);
-	void					addLine(const FontPtr& font, const std::wstring& lineText, const float y, std::vector<TextLayout::Line>& outputVector, float& inOutMaxWidth);
+
+	// some 'temp' variables to use during the layout
+	std::map<int, float>			mCurLineIndexPositions;
+	float							mCurXPosition;
+	int								mCurInputIndex;
+	float							mMaxWidth;
+	std::vector<TextLayout::Line>	mOutputLines;
+	float							mY;
+	float							mLineHeight;
+	float							mSpaceWidth;
+	bool							mGenerateIndices;
+
+	void							run(TextLayout::Input&, TextLayout&);
+
+	// Adds a line to the output layout
+	void							addLine(const FontPtr& font, const std::wstring& lineText);
+
+	// Maps the x-position of each character in the input string
+	void							addStringSegment(const FontPtr& font, const std::wstring& inputText);
+	void							addBlankSegment();
 };
 
 } // namespace ui

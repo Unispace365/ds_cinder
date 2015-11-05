@@ -22,6 +22,9 @@
     <ClCompile Include="..\src\ui\story\story_view.cpp">
       <Filter>src\ui\story</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ui\text_test\text_test_view.cpp">
+      <Filter>src\ui\text_test</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h">
@@ -53,6 +56,9 @@
     </ClInclude>
     <ClInclude Include="..\src\ui\story\story_view.h">
       <Filter>src\ui\story</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\text_test\text_test_view.h">
+      <Filter>src\ui\text_test</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -90,6 +96,9 @@
     </Filter>
     <Filter Include="src\ui\story">
       <UniqueIdentifier>{6ee7ca9f-f1f5-4bd4-a2c4-ec43623a5071}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui\text_test">
+      <UniqueIdentifier>{db57657e-2fb8-4978-ab28-d613cb49d412}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

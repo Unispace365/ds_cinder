@@ -157,6 +157,7 @@
     <ClCompile Include="..\src\query\query_handler.cpp" />
     <ClCompile Include="..\src\query\story_query.cpp" />
     <ClCompile Include="..\src\ui\story\story_view.cpp" />
+    <ClCompile Include="..\src\ui\text_test\text_test_view.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h" />
@@ -169,6 +170,7 @@
     <ClInclude Include="..\src\query\query_handler.h" />
     <ClInclude Include="..\src\query\story_query.h" />
     <ClInclude Include="..\src\ui\story\story_view.h" />
+    <ClInclude Include="..\src\ui\text_test\text_test_view.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />

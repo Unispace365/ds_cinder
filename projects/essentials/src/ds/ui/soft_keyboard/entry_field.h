@@ -19,16 +19,18 @@ public:
 	EntryFieldSettings()
 		: mTextConfig("entry_field:text")
 		, mCursorSize(2.0f, 36.0f)
-		, mCursorPadding(2.0f)
+		, mFieldSize(500.0f, 100.0f)
+		, mCursorOffset(2.0f, -5.0f)
 		, mCursorColor(1.0f, 1.0f, 1.0f)
 		, mBlinkRate(0.5f)
 		, mAnimationRate(0.3f)
 	{}
 
 	std::string mTextConfig;
+	ci::Vec2f	mFieldSize;
 	ci::Vec2f	mCursorSize;
 	ci::Color	mCursorColor;
-	float		mCursorPadding; // the space between the current piece of text and the cursor
+	ci::Vec2f	mCursorOffset; 
 	float		mBlinkRate;
 	float		mAnimationRate;
 };
@@ -60,9 +62,6 @@ public:
 	/// Handles key input like a keyboard would
 	void								keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType);
 
-	/// If this sprite's text can be selected through touch input
-	void								setSelectable(const bool isSelectable);
-
 protected:
 
 	/// Override to know when this field gains focus.
@@ -74,11 +73,16 @@ protected:
 	/// Any time the text has changed, do not override
 	void								textUpdated();
 
+	/// The cursor position has been changed, do not override. Also called on text updated
+	void								cursorUpdated();
+
 	/// Override this to know when any text has changed
 	virtual void						onTextUpdated(){}
 
 	/// A series of tweens that fades the cursor on, waits, then fades it off
 	void								blinkCursor();
+
+	void								handleTouchInput(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 
 	bool								mInFocus;
 	int									mCursorIndex;

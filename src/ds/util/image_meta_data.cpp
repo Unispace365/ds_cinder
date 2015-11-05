@@ -94,7 +94,7 @@ void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
 			outSize = ci::Vec2f::zero();
 		}
 	} catch (std::exception const& ex) {
-		std::cout << "ImageMetaData error loading file (" << filename << ") = " << ex.what() << std::endl;
+		DS_LOG_WARNING_M( "ImageMetaData error loading file (" << filename << ") = " << ex.what(), GENERAL_LOG);
 	}
 }
 

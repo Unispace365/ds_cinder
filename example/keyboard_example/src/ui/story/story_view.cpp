@@ -63,7 +63,7 @@ void StoryView::setData() {
 
 void StoryView::layout(){
 	if(mMessage){
-		mMessage->setPosition(100.0f, 200.0f);
+		mMessage->setPosition(100.0f, 1000.0f);
 	}
 }
 

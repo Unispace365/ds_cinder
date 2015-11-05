@@ -15,6 +15,7 @@
 #include "events/app_events.h"
 
 #include "ui/story/story_view.h"
+#include "ui/text_test/text_test_view.h"
 
 #include <ds/ui/soft_keyboard/entry_field.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
@@ -48,6 +49,7 @@ KeyboardExample::KeyboardExample()
 
 	/*fonts in use */
 	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSansCJKsc-Thin.otf"), "noto-thin");
 
 	enableCommonKeystrokes(true);
 }
@@ -110,6 +112,8 @@ void KeyboardExample::setupServer(){
 		//ef->setCurrentText(sk->getCurrentText());
 		ef->keyPressed(character, keyType);
 	});
+
+	rootSprite.addChildPtr(new TextTest(mGlobals));
 }
 
 void KeyboardExample::update() {
