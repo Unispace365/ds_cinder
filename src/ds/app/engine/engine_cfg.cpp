@@ -78,12 +78,12 @@ const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 		return mEmptyTextCfg;
 	}
 	if (mTextCfg.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty mTextCfg (key=" + name + ")"));
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty mTextCfg (key=\"" + name + "\")"));
 		return mEmptyTextCfg;
 	}
 	auto it = mTextCfg.find(name);
 	if (it == mTextCfg.end()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() cfg does not exist"));
+		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() key \"" + name + "\" does not exist"));
 		return mEmptyTextCfg;
 	}
 	return it->second;
