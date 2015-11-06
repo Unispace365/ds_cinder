@@ -21,10 +21,10 @@ namespace ui {
 namespace SoftKeyboardBuilder {
 
 	/// Doesn't include shift, enter, ', \. Good for basic search keyboards
-	SoftKeyboard*			buildLowercaseKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings);
+	SoftKeyboard*			buildLowercaseKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr);
 
 	/// Includes all the regular keys
-	SoftKeyboard*			buildStandardKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings);
+	SoftKeyboard*			buildStandardKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr);
 
 	void					makeAButton(ds::ui::SpriteEngine& engine, SoftKeyboard* parentSprite, float& xPos, float& yPos,
 												const std::wstring& characterLow, const std::wstring& characterHigh,

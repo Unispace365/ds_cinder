@@ -11,7 +11,7 @@ namespace ds {
 namespace ui {
 namespace SoftKeyboardBuilder {
 
-SoftKeyboard* buildLowercaseKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings) {
+SoftKeyboard* buildLowercaseKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent) {
 	SoftKeyboard* newKeyboard = new SoftKeyboard(engine, settings);
 
 	float xp = settings.mKeyInitialPosition.x;
@@ -78,10 +78,14 @@ SoftKeyboard* buildLowercaseKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardS
 
 	newKeyboard->setSize(xp, yp);
 
+	if(parent){
+		parent->addChildPtr(newKeyboard);
+	}
+
 	return newKeyboard;
 }
 
-SoftKeyboard* buildStandardKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings) {
+SoftKeyboard* buildStandardKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent) {
 	SoftKeyboard* newKeyboard = new SoftKeyboard(engine, settings);
 
 	float xp = settings.mKeyInitialPosition.x;
@@ -150,6 +154,10 @@ SoftKeyboard* buildStandardKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSe
 	makeAButton(engine, newKeyboard, xp, yp, L"", L"", SoftKeyboardDefs::kDelete);
 
 	newKeyboard->setSize(xp, yp);
+
+	if(parent){
+		parent->addChildPtr(newKeyboard);
+	}
 
 	return newKeyboard;
 }

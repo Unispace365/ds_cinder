@@ -46,23 +46,23 @@ void SoftKeyboardButton::setSoftKeyboardSettings(SoftKeyboardSettings& softKeySe
 	}
 
 	if(mKeyType == SoftKeyboardDefs::kNumber){
-		getNormalImage().setImageFile(softKeySettings.mKeyNumberUpImage);
-		getHighImage().setImageFile(softKeySettings.mKeyNumberDnImage);
+		getNormalImage().setImageFile(softKeySettings.mKeyNumberUpImage, ds::ui::Image::IMG_CACHE_F);
+		getHighImage().setImageFile(softKeySettings.mKeyNumberDnImage, ds::ui::Image::IMG_CACHE_F);
 	} else if(mKeyType == SoftKeyboardDefs::kLetter){
-		getNormalImage().setImageFile(softKeySettings.mKeyLetterUpImage);
-		getHighImage().setImageFile(softKeySettings.mKeyLetterDnImage);
+		getNormalImage().setImageFile(softKeySettings.mKeyLetterUpImage, ds::ui::Image::IMG_CACHE_F);
+		getHighImage().setImageFile(softKeySettings.mKeyLetterDnImage, ds::ui::Image::IMG_CACHE_F);
 	} else if(mKeyType == SoftKeyboardDefs::kSpace){
-		getNormalImage().setImageFile(softKeySettings.mKeySpaceUpImage);
-		getHighImage().setImageFile(softKeySettings.mKeySpaceDnImage);
+		getNormalImage().setImageFile(softKeySettings.mKeySpaceUpImage, ds::ui::Image::IMG_CACHE_F);
+		getHighImage().setImageFile(softKeySettings.mKeySpaceDnImage, ds::ui::Image::IMG_CACHE_F);
 	} else if(mKeyType == SoftKeyboardDefs::kDelete){
-		getNormalImage().setImageFile(softKeySettings.mKeyDeleteUpImage);
-		getHighImage().setImageFile(softKeySettings.mKeyDeleteDnImage);
+		getNormalImage().setImageFile(softKeySettings.mKeyDeleteUpImage, ds::ui::Image::IMG_CACHE_F);
+		getHighImage().setImageFile(softKeySettings.mKeyDeleteDnImage, ds::ui::Image::IMG_CACHE_F);
 	} else if(mKeyType == SoftKeyboardDefs::kShift){
-		getNormalImage().setImageFile(softKeySettings.mKeyShiftUpImage);
-		getHighImage().setImageFile(softKeySettings.mKeyShiftDnImage);
+		getNormalImage().setImageFile(softKeySettings.mKeyShiftUpImage, ds::ui::Image::IMG_CACHE_F);
+		getHighImage().setImageFile(softKeySettings.mKeyShiftDnImage, ds::ui::Image::IMG_CACHE_F);
 	} else if(mKeyType == SoftKeyboardDefs::kEnter){
-		getNormalImage().setImageFile(softKeySettings.mKeyEnterUpImage);
-		getHighImage().setImageFile(softKeySettings.mKeyEnterDnImage);
+		getNormalImage().setImageFile(softKeySettings.mKeyEnterUpImage, ds::ui::Image::IMG_CACHE_F);
+		getHighImage().setImageFile(softKeySettings.mKeyEnterDnImage, ds::ui::Image::IMG_CACHE_F);
 	} else {
 		DS_LOG_WARNING("Warning: key type not supported in SoftKeyboardButton");
 	}
