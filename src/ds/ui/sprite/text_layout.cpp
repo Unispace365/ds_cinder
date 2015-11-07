@@ -141,12 +141,15 @@ bool TextLayout::readFrom(ds::DataBuffer& buf)
 	// XXX Not really sure what the max count should be
 	// GN it's 10000 now. CAUSE. BECAUSE. OK
 	if(count < 0 || count > 10000) return false;
+
+	std::vector<TextLayout::Line> newLines;
+
 	for(int k = 0; k < count; ++k) {
 		if(!buf.canRead<int>()) return false;
 		if(buf.read<int>() != k) return false;
 
-		mLines.push_back(Line());
-		Line& l = mLines.back();
+		newLines.push_back(Line());
+		Line& l = newLines.back();
 
 		if(!buf.canRead<float>()) return false;
 		l.mPos.x = buf.read<float>();
@@ -155,6 +158,8 @@ bool TextLayout::readFrom(ds::DataBuffer& buf)
 		l.mText = buf.read<std::wstring>();
 		l.mFontBox = ci::Rectf(buf.read<float>(), buf.read<float>(), buf.read<float>(), buf.read<float>());
 	}
+
+	mLines.swap(newLines);
 	return true;
 }
 
