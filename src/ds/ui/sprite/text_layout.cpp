@@ -234,7 +234,7 @@ void TextLayoutVertical::addStringSegment(const FontPtr& font, const std::wstrin
 	mCurLineIndexPositions[mCurInputIndex] = mCurXPosition;
 
 	// Measure each character as part of the string, starting from the beginning of the current string
-	for(int i = 1; i < textSize; i++){
+	for(unsigned int i = 1; i < textSize; i++){
 		std::wstring substringy = inputText.substr(0, i);
 		float thisW = 0.0f;
 		if(!substringy.empty()){
