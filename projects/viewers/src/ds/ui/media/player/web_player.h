@@ -25,9 +25,10 @@ public:
 	void								layout();
 
 	void								showInterface();
-	MediaInterface*						getExternalInterface();
 
 	void								sendClick(const ci::Vec3f& globalClickPos);
+
+	ds::ui::Web*						getWeb();
 
 protected:
 

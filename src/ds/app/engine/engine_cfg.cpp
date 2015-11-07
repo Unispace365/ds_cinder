@@ -74,16 +74,16 @@ bool EngineCfg::hasText(const std::string& name) const {
 
 const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 	if (name.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty name"));
+		DS_LOG_WARNING("EngineCfg::getText() on empty name");
 		return mEmptyTextCfg;
 	}
 	if (mTextCfg.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty mTextCfg (key=" + name + ")"));
+		DS_LOG_WARNING("EngineCfg::getText() on empty mTextCfg (key=" << name << ")");
 		return mEmptyTextCfg;
 	}
 	auto it = mTextCfg.find(name);
 	if (it == mTextCfg.end()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() cfg does not exist"));
+		DS_LOG_WARNING("EngineCfg::getText() cfg does not exist" << name);
 		return mEmptyTextCfg;
 	}
 	return it->second;

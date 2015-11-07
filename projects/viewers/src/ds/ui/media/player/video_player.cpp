@@ -10,6 +10,7 @@
 #include <ds/ui/button/image_button.h>
 
 #include "ds/ui/media/interface/video_interface.h"
+#include "ds/ui/media/media_interface_builder.h"
 
 namespace ds {
 namespace ui {
@@ -42,21 +43,17 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	});
 	addChildPtr(mVideo);
 
-	if(!mVideoInterface){
-		mVideoInterface = new VideoInterface(mEngine, ci::Vec2f(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+	if(mVideoInterface){
+		mVideoInterface->release();
+		mVideoInterface = nullptr;
 	}
 
-	addChildPtr(mVideoInterface);
-	mVideoInterface->sendToFront();
-
-	// Leave the interface instance as a child, but hide it, in case something else want's to use it
-	if(!mEmbedInterface){
-		mVideoInterface->hide();
-	}
-
-	if(mVideoInterface && mVideo){
-		mVideoInterface->linkVideo(mVideo);
-	}
+	if(mEmbedInterface){
+		mVideoInterface = dynamic_cast<VideoInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
+		if(mVideoInterface){
+			mVideoInterface->sendToFront();
+		}
+	}  
 
 	setSize(mVideo->getWidth(), mVideo->getHeight());
 }
@@ -103,8 +100,8 @@ void VideoPlayer::stop(){
 	}
 }
 
-MediaInterface* VideoPlayer::getExternalInterface(){
-	return mVideoInterface;
+ds::ui::GstVideo* VideoPlayer::getVideo(){
+	return mVideo;
 }
 
 } // namespace ui

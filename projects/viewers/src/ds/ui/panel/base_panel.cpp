@@ -37,9 +37,9 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 
 	mBoundingArea = ci::Rectf(0.0f, 0.0f, mEngine.getWorldWidth(), mEngine.getWorldHeight());
 
-	// 	setOpacity(0.5f);
-	// 	setTransparent(false);
-	// 	setColor(ci::Color(0.0f, 0.0f, 0.5f));
+// 	 	setOpacity(0.5f);
+// 	 	setTransparent(false);
+// 	 	setColor(ci::Color(0.0f, 0.0f, 0.5f));
 }
 
 
@@ -278,6 +278,7 @@ void BasePanel::tweenEnded(){
 	enable(true);
 	mAnimating = false;
 	checkBounds();
+	layout(); // sometimes tweens are happening and not laying out properly, so just to be sure
 }
 
 void BasePanel::animateToDefaultSize(){

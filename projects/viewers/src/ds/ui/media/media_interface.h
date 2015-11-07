@@ -20,8 +20,6 @@ public:
 
 	void								animateOn();
 	void								animateOff();
-	void								turnOn();
-	void								turnOff();
 
 	virtual void						updateServer(const ds::UpdateParams& updateParams);
 	void								layout();

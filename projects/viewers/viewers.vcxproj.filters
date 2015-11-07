@@ -60,6 +60,9 @@
     <ClCompile Include="src\ds\ui\media\interface\video_scrub_bar.cpp">
       <Filter>src\ds\ui\media\interface</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\media\media_interface_builder.cpp">
+      <Filter>src\ds\ui\media</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\panel\base_panel.h">
@@ -97,6 +100,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\interface\video_scrub_bar.h">
       <Filter>src\ds\ui\media\interface</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\media_interface_builder.h">
+      <Filter>src\ds\ui\media</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

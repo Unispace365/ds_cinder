@@ -62,8 +62,8 @@ public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
 
-			//e.installSprite([](ds::BlobRegistry& r){ds::ui::GstVideo::installAsServer(r); },
-		//					[](ds::BlobRegistry& r){ds::ui::GstVideo::installAsClient(r); });
+			e.installSprite([](ds::BlobRegistry& r){ds::ui::GstVideo::installAsServer(r); },
+							[](ds::BlobRegistry& r){ds::ui::GstVideo::installAsClient(r); });
 		});
 
 	}
@@ -74,14 +74,14 @@ Init		INIT;
 
 char		BLOB_TYPE = 0;
 
-const char mMuteAtt = 'A';
-const char mStatusAtt = 'B';
-const char mVolumeAtt = 'C';
-const char mLoopingAtt = 'D';
-const char mAutoStartAtt = 'E';
-const char mPathAtt = 'F';
-const char mPosAtt = 'G';
-const char mSyncAtt = 'H';
+const char mMuteAtt = 81;
+const char mStatusAtt = 82;
+const char mVolumeAtt = 83;
+const char mLoopingAtt = 84;
+const char mAutoStartAtt = 85;
+const char mPathAtt = 86;
+const char mPosAtt = 87;
+const char mSyncAtt = 88;
 
 const DirtyState& mMuteDirty = newUniqueDirtyState();
 const DirtyState& mStatusDirty = newUniqueDirtyState();
@@ -648,10 +648,10 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(mPosAtt);
 		buf.add(getCurrentPosition());
 	}
-
-	if(mDirty.has(mSyncDirty)){
-
-	}
+// 
+// 	if(mDirty.has(mSyncDirty)){
+// 
+// 	}
 }
 
 void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){

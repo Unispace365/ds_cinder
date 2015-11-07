@@ -28,7 +28,6 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
-	, mInterface(nullptr)
 	, mEmbedInterface(embedInterface)
 	, mDefaultBoundWidth(mEngine.getWorldWidth())
 	, mDefaultBoundHeight(mEngine.getWorldHeight())
@@ -44,7 +43,6 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
-	, mInterface(nullptr)
 	, mEmbedInterface(embedInterface)
 	, mDefaultBoundWidth(mEngine.getWorldWidth())
 	, mDefaultBoundHeight(mEngine.getWorldHeight())
@@ -60,17 +58,10 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& resource
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
-	, mInterface(nullptr)
 	, mEmbedInterface(embedInterface)
 	, mDefaultBoundWidth(mEngine.getWorldWidth())
 	, mDefaultBoundHeight(mEngine.getWorldHeight())
 {
-}
-
-void MediaViewer::initializeIfNeeded(){
-	if(!mInitialized){
-		initialize();
-	}
 }
 
 void MediaViewer::loadMedia(const std::string& mediaPath, const bool initializeImmediately) {
@@ -81,7 +72,7 @@ void MediaViewer::loadMedia(const std::string& mediaPath, const bool initializeI
 	mResource = ds::Resource(mediaPath, ds::Resource::parseTypeFromFilename(mediaPath));
 
 	if(initializeImmediately){
-		initializeIfNeeded();
+		initialize();
 	}
 }
 
@@ -93,7 +84,7 @@ void MediaViewer::loadMedia(const ds::Resource& reccy, const bool initializeImme
 	mResource = reccy;
 
 	if(initializeImmediately){
-		initializeIfNeeded();
+		initialize();
 	}
 }
 
@@ -104,6 +95,7 @@ void MediaViewer::setDefaultBounds(const float defaultWidth, const float default
 }
 
 void MediaViewer::initialize(){
+	if(mInitialized) return;
 
 	// do this first to avoid recursion problems
 	mInitialized = true;
@@ -157,10 +149,6 @@ void MediaViewer::initialize(){
 		contentWidth = mVideoPlayer->getWidth();
 		contentHeight = mVideoPlayer->getHeight();
 
-		if(!mEmbedInterface){
-			mInterface = mVideoPlayer->getExternalInterface();
-		}
-
 	} else if(mediaType == ds::Resource::PDF_TYPE){
 		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mPDFPlayer);
@@ -170,10 +158,6 @@ void MediaViewer::initialize(){
 		contentWidth = mPDFPlayer->getWidth();
 		contentHeight = mPDFPlayer->getHeight();
 
-		if(!mEmbedInterface){
-			mInterface = mPDFPlayer->getExternalInterface();
-		}
-
 	} else if(mediaType == ds::Resource::WEB_TYPE){
 		mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mWebPlayer);
@@ -182,10 +166,6 @@ void MediaViewer::initialize(){
 		mContentAspectRatio = mWebPlayer->getWidth() / mWebPlayer->getHeight();
 		contentWidth = mWebPlayer->getWidth();
 		contentHeight = mWebPlayer->getHeight();
-
-		if(!mEmbedInterface){
-			mInterface = mWebPlayer->getExternalInterface();
-		}
 
 		setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
 			if(mWebPlayer){
@@ -222,6 +202,7 @@ void MediaViewer::initialize(){
 }
 
 void MediaViewer::uninitialize() {
+	if(!mInitialized) return;
 	if(mThumbnailImage){
 		mThumbnailImage->release();
 	}
@@ -243,11 +224,13 @@ void MediaViewer::uninitialize() {
 	mPDFPlayer = nullptr;
 	mPrimaryImage = nullptr;
 	mWebPlayer = nullptr;
+
+	mInitialized = false;
 }
 
 
 void MediaViewer::onLayout(){
-	initializeIfNeeded();
+	initialize();
 
 	if(mVideoPlayer){
 		mVideoPlayer->setSize(getWidth(), getHeight());
@@ -271,7 +254,7 @@ void MediaViewer::onLayout(){
 }
 
 void MediaViewer::enter(){
-	initializeIfNeeded();
+	initialize();
 
 	if(mVideoPlayer){
 		mVideoPlayer->play();
@@ -286,6 +269,11 @@ void MediaViewer::exit(){
 
 void MediaViewer::userInputReceived(){
 	BasePanel::userInputReceived();
+
+	showInterface();
+}
+
+void MediaViewer::showInterface(){
 	if(mVideoPlayer){
 		mVideoPlayer->showInterface();
 	}
@@ -301,6 +289,27 @@ void MediaViewer::stopContent(){
 	if(mVideoPlayer){
 		mVideoPlayer->stop();
 	}
+}
+
+
+ds::ui::Sprite* MediaViewer::getPlayer(){
+	if(mVideoPlayer){
+		return mVideoPlayer;
+	}
+
+	if(mPDFPlayer){
+		return mPDFPlayer;
+	}
+
+	if(mWebPlayer){
+		return mWebPlayer;
+	}
+
+	if(mPrimaryImage){
+		return mPrimaryImage;
+	}
+
+	return nullptr;
 }
 
 } // namespace ui

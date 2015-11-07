@@ -28,8 +28,9 @@ public:
 	void								pause();
 	void								stop();
 
-	MediaInterface*						getExternalInterface();
 	void								showInterface();
+
+	ds::ui::GstVideo*					getVideo();
 
 protected:
 

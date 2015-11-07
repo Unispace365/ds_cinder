@@ -9,6 +9,7 @@
 #include <ds/ui/sprite/web.h>
 
 #include "ds/ui/media/interface/web_interface.h"
+#include "ds/ui/media/media_interface_builder.h"
 
 namespace ds {
 namespace ui {
@@ -53,19 +54,16 @@ void WebPlayer::setMedia(const std::string mediaPath){
 	mWeb->setUrl(mediaPath);
 	mWeb->enable(false);
 
-	if(!mWebInterface){
-		mWebInterface = new WebInterface(mEngine, ci::Vec2f(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+	if(mWebInterface){
+		mWebInterface->release();
+		mWebInterface = nullptr;
 	}
-
-	addChildPtr(mWebInterface);
-	mWebInterface->sendToFront();
-
 	if(mEmbedInterface){
-		mWebInterface->hide();
-	}
+		mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
 
-	if(mWebInterface && mWeb){
-		mWebInterface->linkWeb(mWeb);
+		if(mWebInterface){
+			mWebInterface->sendToFront();
+		}
 	}
 
 	setSize(mWeb->getWidth(), mWeb->getHeight());
@@ -87,10 +85,6 @@ void WebPlayer::layout(){
 	}
 }
 
-MediaInterface* WebPlayer::getExternalInterface() {
-	return mWebInterface;
-}
-
 void WebPlayer::userInputReceived() {
 	ds::ui::Sprite::userInputReceived();
 	showInterface();
@@ -106,6 +100,10 @@ void WebPlayer::sendClick(const ci::Vec3f& globalClickPos){
 	if(mWeb){
 		mWeb->sendMouseClick(globalClickPos);
 	}
+}
+
+ds::ui::Web* WebPlayer::getWeb(){
+	return mWeb;
 }
 
 } // namespace ui

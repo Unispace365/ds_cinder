@@ -10,6 +10,7 @@
 #include <ds/ui/sprite/pdf.h>
 
 #include "ds/ui/media/interface/pdf_interface.h"
+#include "ds/ui/media/media_interface_builder.h"
 
 namespace ds {
 namespace ui {
@@ -37,20 +38,20 @@ void PDFPlayer::setMedia(const std::string mediaPath){
 	mPDF->setResourceFilename(mediaPath);
 	addChildPtr(mPDF);
 
-	if(!mPdfInterface){
-		mPdfInterface = new PDFInterface(mEngine, ci::Vec2f(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+	if(mPdfInterface){
+		mPdfInterface->release();
+		mPdfInterface = nullptr;
 	}
-
-	addChildPtr(mPdfInterface);
-	mPdfInterface->sendToFront();
 
 	if(mEmbedInterface){
-		mPdfInterface->hide();
-	}
+		mPdfInterface = dynamic_cast<PDFInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
 
-	if(mPdfInterface && mPDF){
-		mPdfInterface->linkPDF(mPDF);
-	}
+		if(mPdfInterface){
+			mPdfInterface->sendToFront();
+			mPdfInterface->hide();
+		}
+
+	} else 
 
 	setSize(mPDF->getWidth(), mPDF->getHeight());
 }
@@ -66,10 +67,14 @@ void PDFPlayer::layout(){
 		mPDF->setScale(scale);
 	}
 
-	if(mPdfInterface && mEmbedInterface){
+	if(mPdfInterface){
 		mPdfInterface->setSize(getWidth() * 2.0f / 3.0f, mPdfInterface->getHeight());
 		mPdfInterface->setPosition(getWidth() / 2.0f - mPdfInterface->getWidth() / 2.0f, getHeight() - mPdfInterface->getHeight() - 50.0f);
 	}
+}
+
+ds::ui::Pdf* PDFPlayer::getPDF(){
+	return mPDF;
 }
 
 void PDFPlayer::showInterface(){
@@ -78,8 +83,5 @@ void PDFPlayer::showInterface(){
 	}
 }
 
-MediaInterface* PDFPlayer::getExternalInterface(){
-	return mPdfInterface;
-}
 } // namespace ui
 } // namespace ds

@@ -929,9 +929,9 @@ void Engine::setToUserCamera() {
 	}
 
 	// When using a user camera, offset the event inputs.
-	mMouseBeginEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchBegin(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
-	mMouseMovedEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchMoved(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
-	mMouseEndEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchEnded(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
+	mMouseBeginEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchBegin(offset_mouse_event(e.first, mData.mScreenRect), e.second); });
+	mMouseMovedEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchMoved(offset_mouse_event(e.first, mData.mScreenRect), e.second); });
+	mMouseEndEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchEnded(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
 }
 
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {

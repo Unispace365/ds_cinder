@@ -4,6 +4,7 @@
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/text.h"
 #include "ds/util/string_util.h"
+#include "ds/debug/logger.h"
 #include <time.h>
 
 using namespace ci;
@@ -109,6 +110,11 @@ void TextLayout::addLine(const TextLayout::Line& newLine){
 
 void TextLayout::writeTo(ds::DataBuffer& buf) const
 {
+	int linesSize = mLines.size();
+	if(linesSize > 10000){
+		linesSize = 10000;
+		DS_LOG_WARNING("TextLayout: arbitrarily clipping to 10000 lines of text. If you need more, then search for this message and increase the number.");
+	}
 	buf.add(mLines.size());
 	int k = 0;
 	for(auto it = mLines.begin(), end = mLines.end(); it != end; ++it) {
@@ -117,7 +123,14 @@ void TextLayout::writeTo(ds::DataBuffer& buf) const
 		buf.add(line.mPos.x);
 		buf.add(line.mPos.y);
 		buf.add(line.mText);
+		buf.add(line.mFontBox.getX1());
+		buf.add(line.mFontBox.getY1());
+		buf.add(line.mFontBox.getX2());
+		buf.add(line.mFontBox.getY2());
 		++k;
+		if(k > 10000 - 1){
+			break;
+		}
 	}
 }
 
@@ -126,7 +139,8 @@ bool TextLayout::readFrom(ds::DataBuffer& buf)
 	if(!buf.canRead<int>()) return false;
 	const int count = buf.read<int>();
 	// XXX Not really sure what the max count should be
-	if(count < 0 || count > 255) return false;
+	// GN it's 10000 now. CAUSE. BECAUSE. OK
+	if(count < 0 || count > 10000) return false;
 	for(int k = 0; k < count; ++k) {
 		if(!buf.canRead<int>()) return false;
 		if(buf.read<int>() != k) return false;
@@ -139,6 +153,7 @@ bool TextLayout::readFrom(ds::DataBuffer& buf)
 		if(!buf.canRead<float>()) return false;
 		l.mPos.y = buf.read<float>();
 		l.mText = buf.read<std::wstring>();
+		l.mFontBox = ci::Rectf(buf.read<float>(), buf.read<float>(), buf.read<float>(), buf.read<float>());
 	}
 	return true;
 }

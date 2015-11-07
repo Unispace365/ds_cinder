@@ -30,8 +30,12 @@ public:
 
 	// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
 	void				setDefaultBounds(const float defaultWidth, const float defaultHeight);
+	
+	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.
+	void				initialize();
 
-	void				initializeIfNeeded();
+	/// unloads any media and interface already loaded. initialize could be called again after this and load the same content
+	void				uninitialize();
 
 	virtual void		onLayout();
 	void				enter();
@@ -43,13 +47,14 @@ public:
 	void				setOrigin(const ci::Vec3f& origin){ mOrigin = origin; }
 	const ci::Vec3f&	getOrigin(){ return mOrigin; }
 
-	MediaInterface*		getInterface(){ return mInterface; }
+	// Returns any current player. Will need to be dynamic casted to be used
+	// Definitely can return nullptr, so check before using
+	ds::ui::Sprite*		getPlayer();
 
+	void				showInterface();
 protected:
-	virtual void		userInputReceived();
 
-	void				uninitialize();
-	void				initialize();
+	virtual void		userInputReceived();
 
 	bool				mEmbedInterface;
 	bool				mInitialized;
@@ -63,8 +68,6 @@ protected:
 
 
 	ci::Vec3f			mOrigin;
-
-	MediaInterface*		mInterface;
 
 	float				mDefaultBoundWidth;
 	float				mDefaultBoundHeight;

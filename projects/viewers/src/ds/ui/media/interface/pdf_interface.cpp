@@ -52,8 +52,8 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	mDownButton->setScale(sizey.y / mDownButton->getHeight());
 
 	mPageCounter = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, this);
-	mPageCounter->setResizeToText(true);
 	if(mPageCounter){
+		mPageCounter->setResizeToText(true);
 		mPageCounter->enable(false);
 	}
 

@@ -23,7 +23,8 @@ public:
 	void								layout();
 
 	void								showInterface();
-	MediaInterface*						getExternalInterface();
+
+	ds::ui::Pdf*						getPDF();
 
 protected:
 

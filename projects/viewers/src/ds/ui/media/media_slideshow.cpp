@@ -11,6 +11,7 @@
 
 #include "ds/ui/media/media_viewer.h"
 #include "ds/ui/media/media_interface.h"
+#include "ds/ui/media/media_interface_builder.h"
 
 
 namespace ds {
@@ -151,7 +152,6 @@ void MediaSlideshow::gotoItemIndex(const int newIndex){
 	mViewers[mCurItemIndex]->enter();
 
 	setCurrentInterface();
-
 	loadCurrentAndAdjacent();
 	recenterSlides();
 }
@@ -161,17 +161,14 @@ void MediaSlideshow::setCurrentInterface(){
 
 	// if there was an interface, get rid of it
 	if(mCurrentInterface){
-		mCurrentInterface->turnOff();
-		mViewers[mCurItemIndex]->addChildPtr(mCurrentInterface);
+		mCurrentInterface->release();
 		mCurrentInterface = nullptr;
 	}
 
 	// see if there's an interface to display
-	mCurrentInterface = mViewers[mCurItemIndex]->getInterface();
+	mCurrentInterface = MediaInterfaceBuilder::buildMediaInterface(mEngine, mViewers[mCurItemIndex]->getPlayer(), this);
 	if(mCurrentInterface){
 		mCurrentInterface->setPosition(getWidth() / 2.0f - mCurrentInterface->getWidth() / 2.0f, getHeight() - mCurrentInterface->getHeight() - 50.0f);
-		addChildPtr(mCurrentInterface);
-		mCurrentInterface->turnOff();
 		mCurrentInterface->animateOn();
 	}
 
@@ -207,25 +204,36 @@ void MediaSlideshow::gotoPrev(const bool wrap){
 
 void MediaSlideshow::loadCurrentAndAdjacent(){
 	// Simple sanity checks
-	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > mViewers.size() - 1) return;
+	unsigned sizey = mViewers.size();
+	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > sizey - 1) return;
 
-	// load the current
-	if(mCurItemIndex > -1){
-
-		mViewers[mCurItemIndex]->initializeIfNeeded();
-
-		int length = mViewers.size();
-
-		int next = (mCurItemIndex + 1) % length;
-		mViewers[next]->initializeIfNeeded();
-
-		int prev = (mCurItemIndex + length - 1) % length;
-		mViewers[prev]->initializeIfNeeded();
+	for(int i = 0; i < sizey; i++){
+		if(i == mCurItemIndex							// This one is the current item
+		   || i == mCurItemIndex - 1					// This one is the prev item
+		   || i == mCurItemIndex + 1					// This one is the next item
+		   || (mCurItemIndex == sizey - 1 && i == 0)	// the current one is the last one, so wrap and load the first one
+		   || (mCurItemIndex == 0 && i == sizey - 1)	// The current one is the first one, so wrap backwards and load the last one
+		   )
+		{
+			mViewers[i]->initialize();
+		} else {
+			mViewers[i]->uninitialize();
+		}
 	}
+	
 }
 
 void MediaSlideshow::setItemChangedCallback(std::function<void(const int currentItemIndex, const int totalItems)> func){
 	mItemChangedCallback = func;
+}
+
+void MediaSlideshow::userInputReceived(){
+	ds::ui::Sprite::userInputReceived();
+
+	if(mCurrentInterface){
+		mCurrentInterface->animateOn();
+	}
+
 }
 
 } // namespace ui

@@ -76,17 +76,6 @@ void MediaInterface::animateOff(){
 	tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::EaseNone(), [this]{ hide(); });
 }
 
-void MediaInterface::turnOn(){
-	resetIdleTimer();
-	setOpacity(1.0f);
-	show();
-}
-
-void MediaInterface::turnOff(){
-	hide();
-	setOpacity(0.0f);
-}
-
 void MediaInterface::onSizeChanged(){
 	layout();
 }
