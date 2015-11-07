@@ -36,8 +36,10 @@ Init				INIT;
 char				BLOB_TYPE			= 0;
 const DirtyState&	PDF_FN_DIRTY		= INTERNAL_A_DIRTY;
 const DirtyState&	PDF_PAGEMODE_DIRTY	= INTERNAL_B_DIRTY;
+const DirtyState&	PDF_CURPAGE_DIRTY	= INTERNAL_C_DIRTY;
 const char			PDF_FN_ATT			= 80;
 const char			PDF_PAGEMODE_ATT	= 81;
+const char			PDF_CURPAGE_ATT		= 82;
 }
 
 /**
@@ -133,6 +135,7 @@ void Pdf::updateServer(const UpdateParams& p) {
 
 void Pdf::setPageNum(const int pageNum) {
 	mHolder.setPageNum(pageNum);
+	markAsDirty(PDF_CURPAGE_DIRTY);
 }
 
 int Pdf::getPageNum() const {
@@ -145,10 +148,12 @@ int Pdf::getPageCount() const {
 
 void Pdf::goToNextPage() {
 	mHolder.goToNextPage();
+	markAsDirty(PDF_CURPAGE_DIRTY);
 }
 
 void Pdf::goToPreviousPage() {
 	mHolder.goToPreviousPage();
+	markAsDirty(PDF_CURPAGE_DIRTY);
 }
 
 #ifdef _DEBUG
@@ -204,6 +209,11 @@ void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(PDF_PAGEMODE_ATT);
 		buf.add<int32_t>(static_cast<int32_t>(mPageSizeMode));
 	}
+
+	if(mDirty.has(PDF_CURPAGE_DIRTY)){
+		buf.add(PDF_CURPAGE_ATT);
+		buf.add(mHolder.getPageNum());
+	}
 }
 
 void Pdf::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
@@ -213,6 +223,9 @@ void Pdf::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 		const int32_t		mode = buf.read<int32_t>();
 		if (mode == 0) setPageSizeMode(kConstantSize);
 		else if (mode == 1) setPageSizeMode(kAutoResize);
+	} else if(attributeId == PDF_CURPAGE_ATT) {
+		const int			curPage = buf.read<int>();
+		setPageNum(curPage);
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
 	}
