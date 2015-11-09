@@ -307,7 +307,7 @@ void TouchManager::setCapture(Capture *c) {
 
 void TouchManager::overrideTouchTranslation( ci::Vec2f& inOutPoint){
 	inOutPoint.set((inOutPoint.x / ci::app::getWindowWidth()) * mTouchDimensions.x + mTouchOffset.x, 
-		(inOutPoint.y / ci::app::getWindowWidth()) * mTouchDimensions.y + mTouchOffset.y);
+		(inOutPoint.y / ci::app::getWindowHeight()) * mTouchDimensions.y + mTouchOffset.y);
 }
 
 
