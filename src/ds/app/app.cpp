@@ -74,9 +74,6 @@ void					add_dll_path() {
 
 }
 
-using namespace ci;
-using namespace ci::app;
-
 namespace ds {
 
 void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
@@ -191,7 +188,7 @@ void App::draw() {
 	mEngine.draw();
 }
 
-void App::mouseDown( MouseEvent event ) {
+void App::mouseDown(ci::app::MouseEvent event ) {
 	if (mCtrlDown) {
 		if (!mSecondMouseDown) {
 			mEngine.mouseTouchBegin(event, 2);
@@ -205,36 +202,36 @@ void App::mouseDown( MouseEvent event ) {
 	}
 }
 
-void App::mouseMove(MouseEvent e) {
+void App::mouseMove(ci::app::MouseEvent e) {
 }
 
-void App::mouseDrag(MouseEvent e) {
+void App::mouseDrag(ci::app::MouseEvent e) {
 	mEngine.mouseTouchMoved(e, 1);
 }
 
-void App::mouseUp(MouseEvent e) {
+void App::mouseUp(ci::app::MouseEvent e) {
 	mEngine.mouseTouchEnded(e, 1);
 }
 
-void App::touchesBegan(TouchEvent e) {
+void App::touchesBegan(ci::app::TouchEvent e) {
 	mEngine.touchesBegin(e);
 }
 
-void App::touchesMoved(TouchEvent e) {
+void App::touchesMoved(ci::app::TouchEvent e) {
 	mEngine.touchesMoved(e);
 }
 
-void App::touchesEnded(TouchEvent e) {
+void App::touchesEnded(ci::app::TouchEvent e) {
 	mEngine.touchesEnded(e);
 }
 
-void App::tuioObjectBegan(const TuioObject&) {
+void App::tuioObjectBegan(const ds::TuioObject&) {
 }
 
-void App::tuioObjectMoved(const TuioObject&) {
+void App::tuioObjectMoved(const ds::TuioObject&) {
 }
 
-void App::tuioObjectEnded(const TuioObject&) {
+void App::tuioObjectEnded(const ds::TuioObject&) {
 }
 
 const std::string& App::envAppPath() {
@@ -245,35 +242,35 @@ const std::string& App::envAppDataPath() {
 	return APP_DATA_PATH;
 }
 
-void App::keyDown(KeyEvent e) {
+void App::keyDown(ci::app::KeyEvent e) {
 	const int		code = e.getCode();
-	if ( ( mEscKeyEnabled && code == KeyEvent::KEY_ESCAPE ) || ( mQKeyEnabled && code == KeyEvent::KEY_q ) ) {
+	if((mEscKeyEnabled && code == ci::app::KeyEvent::KEY_ESCAPE) || (mQKeyEnabled && code == ci::app::KeyEvent::KEY_q)) {
 		quit();
 	}
-	if (code == KeyEvent::KEY_LCTRL || code == KeyEvent::KEY_RCTRL) {
+	if(code == ci::app::KeyEvent::KEY_LCTRL || code == ci::app::KeyEvent::KEY_RCTRL) {
 		mCtrlDown = true;
-	} else if (KeyEvent::KEY_s == code) {
+	} else if(ci::app::KeyEvent::KEY_s == code) {
 		mEngine.getNotifier().notify(EngineStatsView::Toggle());
-	} else if (KeyEvent::KEY_t == code) {
+	} else if(ci::app::KeyEvent::KEY_t == code) {
 		mEngine.nextTouchMode();
-	} else if(KeyEvent::KEY_F8 == code){
+	} else if(ci::app::KeyEvent::KEY_F8 == code){
 		saveTransparentScreenshot();
 	}
 
 	if (mArrowKeyCameraControl) {
-		if (code == KeyEvent::KEY_LEFT) {
+		if(code == ci::app::KeyEvent::KEY_LEFT) {
 			mEngineData.mScreenRect.x1 -= mArrowKeyCameraStep;
 			mEngineData.mScreenRect.x2 -= mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
-		} else if (code == KeyEvent::KEY_RIGHT) {
+		} else if(code == ci::app::KeyEvent::KEY_RIGHT) {
 			mEngineData.mScreenRect.x1 += mArrowKeyCameraStep;
 			mEngineData.mScreenRect.x2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
-		} else if (code == KeyEvent::KEY_UP) {
+		} else if(code == ci::app::KeyEvent::KEY_UP) {
 			mEngineData.mScreenRect.y1 -= mArrowKeyCameraStep;
 			mEngineData.mScreenRect.y2 -= mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
-		} else if (code == KeyEvent::KEY_DOWN) {
+		} else if(code == ci::app::KeyEvent::KEY_DOWN) {
 			mEngineData.mScreenRect.y1 += mArrowKeyCameraStep;
 			mEngineData.mScreenRect.y2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
@@ -281,7 +278,7 @@ void App::keyDown(KeyEvent e) {
 	}
 
 #ifdef _DEBUG
-	if (code == KeyEvent::KEY_d){
+	if(code == ci::app::KeyEvent::KEY_d){
 		std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
 		std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
 		std::fstream	filestr;
@@ -298,8 +295,8 @@ void App::keyDown(KeyEvent e) {
 #endif
 }
 
-void App::keyUp( KeyEvent event ){
-  if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_RCTRL )
+void App::keyUp(ci::app::KeyEvent event){
+	if(event.getCode() == ci::app::KeyEvent::KEY_LCTRL || event.getCode() == ci::app::KeyEvent::KEY_RCTRL)
 	mCtrlDown = false;
 }
 

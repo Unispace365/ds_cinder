@@ -1,5 +1,8 @@
 #include "tap_action.h"
+
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/touch/touch_event.h>
+
 #include <cinder/Rand.h>
 #include <cinder/app/TouchEvent.h>
 
@@ -43,7 +46,7 @@ bool TapAction::update(float dt){
 		for(int i = 0; i < mNumberOfFingers; ++i){
 			touches.push_back(ci::app::TouchEvent::Touch(mTouchPos[i], mTouchPos[i], mInUseList[i], dt, nullptr));
 		}
-		mEngine.injectTouchesEnded(ci::app::TouchEvent(mEngine.getWindow(), touches));
+		mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches));
 		return true;
 	}
 
@@ -62,7 +65,7 @@ void TapAction::setup(float limit, int numberOfFingers)
 		mTouchPos.push_back(touchPos);
 		touches.push_back(ci::app::TouchEvent::Touch(touchPos, touchPos, *it, 0.0, nullptr));
 	}
-	mEngine.injectTouchesBegin(ci::app::TouchEvent(mEngine.getWindow(), touches));
+	mEngine.injectTouchesBegin(ds::ui::TouchEvent(mEngine.getWindow(), touches));
 }
 
 } // namespace debug

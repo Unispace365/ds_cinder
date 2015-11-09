@@ -123,9 +123,9 @@ public:
 	virtual ci::Color8u					getUniqueColor();
 
 	ci::tuio::Client&					getTuioClient();
-	void								touchesBegin(const ci::app::TouchEvent&, const bool inWorldSpace = false);
-	void								touchesMoved(const ci::app::TouchEvent&, const bool inWorldSpace = false);
-	void								touchesEnded(const ci::app::TouchEvent&, const bool inWorldSpace = false);
+	void								touchesBegin(const ds::ui::TouchEvent&);
+	void								touchesMoved(const ds::ui::TouchEvent&);
+	void								touchesEnded(const ds::ui::TouchEvent&);
 	void								mouseTouchBegin(const ci::app::MouseEvent&, int id);
 	void								mouseTouchMoved(const ci::app::MouseEvent&, int id);
 	void								mouseTouchEnded(const ci::app::MouseEvent&, int id);
@@ -138,9 +138,9 @@ public:
 	// These are separate functions from the touchesBegin, etc from above so the general
 	// use functions are not virtual and to indicate that these touchpoints are not coming from hardware
 	// \param inWorldSpace If true, the app will not translate due to src/dst rect settings
-	virtual void						injectTouchesBegin(const ci::app::TouchEvent&, const bool inWorldSpace = false);
-	virtual void						injectTouchesMoved(const ci::app::TouchEvent&, const bool inWorldSpace = false);
-	virtual void						injectTouchesEnded(const ci::app::TouchEvent&, const bool inWorldSpace = false);
+	virtual void						injectTouchesBegin(const ds::ui::TouchEvent&);
+	virtual void						injectTouchesMoved(const ds::ui::TouchEvent&);
+	virtual void						injectTouchesEnded(const ds::ui::TouchEvent&);
 
 	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	// Sprites can still turn this off after creation
@@ -293,11 +293,11 @@ private:
 	ds::cfg::Settings					mDebugSettings;
 	ds::ui::TouchTranslator				mTouchTranslator;
 	std::mutex							mTouchMutex;
-	ds::EngineTouchQueue<ci::app::TouchEvent>
+	ds::EngineTouchQueue<ds::ui::TouchEvent>
 										mTouchBeginEvents;
-	ds::EngineTouchQueue<ci::app::TouchEvent>
+	ds::EngineTouchQueue<ds::ui::TouchEvent>
 										mTouchMovedEvents;
-	ds::EngineTouchQueue<ci::app::TouchEvent>
+	ds::EngineTouchQueue<ds::ui::TouchEvent>
 										mTouchEndEvents;
 	typedef std::pair<ci::app::MouseEvent, int> MousePair;
 	ds::EngineTouchQueue<MousePair>		mMouseBeginEvents;

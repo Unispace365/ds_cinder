@@ -180,13 +180,13 @@ void AbstractEngineServer::receiveClientInput(ds::DataBuffer& data) {
 
 	std::vector<ci::app::TouchEvent::Touch> touches;
 	touches.push_back(ci::app::TouchEvent::Touch(ci::Vec2f(xp, yp), ci::Vec2f(xp, yp), id, 0.0, nullptr));
-	ci::app::TouchEvent te = ci::app::TouchEvent(getWindow(), touches);
+	ds::ui::TouchEvent te = ds::ui::TouchEvent(getWindow(), touches, true);
 	if(state == 0){
-		injectTouchesBegin(te, true);
+		injectTouchesBegin(te);
 	} else if(state == 1){
-		injectTouchesMoved(te, true);
+		injectTouchesMoved(te);
 	} else if(state == 2){
-		injectTouchesEnded(te, true);
+		injectTouchesEnded(te);
 	}
 
 	// Verify we're at the end

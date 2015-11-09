@@ -13,6 +13,7 @@
 #include "ds/ui/ip/ip_defs.h"
 #include "ds/ui/ip/functions/ip_circle_mask.h"
 #include "ds/ui/touch/draw_touch_view.h"
+#include "ds/ui/touch/touch_event.h"
 
 //! This entire header is included for one single
 //! function Poco::Path::expand. This slowly needs
@@ -27,9 +28,6 @@
 #include "renderers/engine_renderer_discontinuous.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
-
-using namespace ci;
-using namespace ci::app;
 
 namespace {
 const int			NUMBER_OF_NETWORK_THREADS = 2;
@@ -52,9 +50,9 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
 	, mSettings(settings)
-	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);})
-	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);})
-	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);})
+	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);})
+	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e); })
+	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e); })
 	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);})
 	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);})
 	, mMouseEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);})
@@ -88,8 +86,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::Vec2f(1920.0f, 1080.0f)));
 	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
 	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
-	mTouchTranslator.setTouchOverlay(	settings.getRect("touch:src_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)),
-										settings.getRect("touch:dst_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
 
 	const bool			drawTouches = settings.getBool("touch_overlay:debug", 0, false);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
@@ -103,7 +99,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
 	mFxaaOptions.mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
-	mData.mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
+	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::Vec2f(640.0f, 400.0f));
 	// Backwards compatibility with pre src-dst rect days
 	const float				DEFAULT_WINDOW_SCALE = 1.0f;
 	if (settings.getRectSize("local_rect") > 0) {
@@ -420,7 +416,7 @@ const RootList::Root& Engine::getRootBuilder(const size_t index){
 }
 
 void Engine::updateClient() {
-	float curr = static_cast<float>(getElapsedSeconds());
+	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	float dt = curr - mLastTime;
 	mLastTime = curr;
 
@@ -449,14 +445,14 @@ void Engine::updateClient() {
 }
 
 void Engine::updateServer() {
-	if (mCachedWindowW != getWindowWidth() || mCachedWindowH != getWindowHeight()) {
-		mCachedWindowW = getWindowWidth();
-		mCachedWindowH = getWindowHeight();
+	if(mCachedWindowW != ci::app::getWindowWidth() || mCachedWindowH != ci::app::getWindowHeight()) {
+		mCachedWindowW = ci::app::getWindowWidth();
+		mCachedWindowH = ci::app::getWindowHeight();
 		mTouchTranslator.setScale(	mData.mSrcRect.getWidth() / static_cast<float>(mCachedWindowW),
 									mData.mSrcRect.getHeight() / static_cast<float>(mCachedWindowH));
 	}
 
-	const float		curr = static_cast<float>(getElapsedSeconds());
+	const float		curr = static_cast<float>(ci::app::getElapsedSeconds());
 	const float		dt = curr - mLastTime;
 	mLastTime = curr;
 
@@ -587,11 +583,11 @@ void Engine::clearAllSprites(const bool clearDebug) {
 	}
 }
 
-void Engine::registerForTuioObjects(tuio::Client& client) {
+void Engine::registerForTuioObjects(ci::tuio::Client& client) {
 	if (mSettings.getBool("tuio:receive_objects", 0, false)) {
-		client.registerObjectAdded([this](tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
-		client.registerObjectUpdated([this](tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
-		client.registerObjectRemoved([this](tuio::Object o) { this->mTuioObjectsEnd.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
+		client.registerObjectAdded([this](ci::tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
+		client.registerObjectUpdated([this](ci::tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
+		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnd.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
 	}
 }
 
@@ -608,7 +604,7 @@ void Engine::setup(ds::App& app) {
 	mCinderWindow = app.getWindow();
 
 	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
-	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / getWindowWidth(), mData.mSrcRect.getHeight() / getWindowHeight());
+	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
 
 
 	const std::string	arch(mSettings.getText("platform:architecture", 0, ""));
@@ -619,7 +615,7 @@ void Engine::setup(ds::App& app) {
 		(*it)->postAppSetup();
 		(*it)->setCinderCamera();
 
-		// Assume only one debug syncronized root? oh boy I hope so!
+		// Assume only one debug synchronized root? oh boy I hope so!
 		if(!isClient && drawTouches && (*it)->getBuilder().mDebugDraw && (*it)->getBuilder().mSyncronize){
 
 			ds::ui::DrawTouchView* v = new ds::ui::DrawTouchView(*this, mSettings, mTouchManager);
@@ -636,7 +632,7 @@ void Engine::setup(ds::App& app) {
 	}
 	//////////////////////////////////////////////////////////////////////////
 
-	float curr = static_cast<float>(getElapsedSeconds());
+	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = 0;
   
@@ -742,71 +738,41 @@ ci::Color8u Engine::getUniqueColor() {
 	return mUniqueColor;
 }
 
-namespace {
-
-void		alter_touch_events(	const ds::ui::TouchTranslator &trans, const TouchEvent &src,
-								std::vector<ci::app::TouchEvent::Touch> &out, const bool inWorldSpace = false) {
-	for (auto it=src.getTouches().begin(), end=src.getTouches().end(); it!=end; ++it) {
-		ci::Vec2f possy = it->getPos();
-		ci::Vec2f prevPossy = it->getPrevPos();
-		if(!inWorldSpace){
-			possy = trans.toWorldf(possy.x, possy.y);
-			prevPossy = trans.toWorldf(prevPossy.x, prevPossy.y);
-		}
-		out.push_back(ci::app::TouchEvent::Touch(	possy,
-													prevPossy,
-													it->getId(),
-													it->getTime(),
-													(void*)it->getNative()));
-	}
+void Engine::touchesBegin(const ds::ui::TouchEvent &e) {
+	mTouchBeginEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
+void Engine::touchesMoved(const ds::ui::TouchEvent &e) {
+	mTouchMovedEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
-void Engine::touchesBegin(const TouchEvent &e, const bool inWorldSpace) {
-	// Translate the positions
-	std::vector<ci::app::TouchEvent::Touch>	touches;
-	alter_touch_events(mTouchTranslator, e, touches, inWorldSpace);
-	mTouchBeginEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
+void Engine::touchesEnded(const ds::ui::TouchEvent &e) {
+	mTouchEndEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
-void Engine::touchesMoved(const TouchEvent &e, const bool inWorldSpace) {
-	// Translate the positions
-	std::vector<ci::app::TouchEvent::Touch>	touches;
-	alter_touch_events(mTouchTranslator, e, touches, inWorldSpace);
-	mTouchMovedEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
-}
-
-void Engine::touchesEnded(const TouchEvent &e, const bool inWorldSpace) {
-	// Translate the positions
-	std::vector<ci::app::TouchEvent::Touch>	touches;
-	alter_touch_events(mTouchTranslator, e, touches, inWorldSpace);
-	mTouchEndEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
-}
-
-tuio::Client &Engine::getTuioClient() {
+ci::tuio::Client &Engine::getTuioClient() {
 	return mTuio;
 }
 
-void Engine::mouseTouchBegin(const MouseEvent &e, int id) {
+void Engine::mouseTouchBegin(const ci::app::MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseBeginEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
-void Engine::mouseTouchMoved(const MouseEvent &e, int id) {
+void Engine::mouseTouchMoved(const ci::app::MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseMovedEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
-void Engine::mouseTouchEnded(const MouseEvent &e, int id) {
+void Engine::mouseTouchEnded(const ci::app::MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseEndEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
-MouseEvent Engine::alteredMouseEvent(const MouseEvent& e) const {
+ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) const {
 	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
 	// Currently I believe that's fine -- and since our target is touch platforms without those things
 	// hopefully it always will be.
@@ -819,16 +785,16 @@ MouseEvent Engine::alteredMouseEvent(const MouseEvent& e) const {
 												0, e.getWheelIncrement(), e.getNativeModifiers());
 }
 
-void Engine::injectTouchesBegin(const ci::app::TouchEvent& e, const bool inWorldSpace){
-	touchesBegin(e, inWorldSpace);
+void Engine::injectTouchesBegin(const ds::ui::TouchEvent& e){
+	touchesBegin(e);
 }
 
-void Engine::injectTouchesMoved(const ci::app::TouchEvent& e, const bool inWorldSpace){
-	touchesMoved(e, inWorldSpace);
+void Engine::injectTouchesMoved(const ds::ui::TouchEvent& e){
+	touchesMoved(e);
 }
 
-void Engine::injectTouchesEnded(const ci::app::TouchEvent& e, const bool inWorldSpace){
-	touchesEnded(e, inWorldSpace);
+void Engine::injectTouchesEnded(const ds::ui::TouchEvent& e){
+	touchesEnded(e);
 }
 
 
@@ -906,7 +872,7 @@ void Engine::startIdling() {
 }
 
 void Engine::resetIdleTimeout() {
-	float curr = static_cast<float>(getElapsedSeconds());
+	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = curr;
 	mIdling = false;

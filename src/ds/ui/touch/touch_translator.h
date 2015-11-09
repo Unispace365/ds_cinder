@@ -4,6 +4,7 @@
 
 #include <cinder/Rect.h>
 #include <cinder/Vector.h>
+#include <ds/ui/touch/touch_event.h>
 
 namespace ds {
 namespace ui {
@@ -16,21 +17,19 @@ class TouchTranslator {
 public:
 	TouchTranslator();
 
-	ci::Vec2i		toWorldi(const int x, const int y) const;
-	ci::Vec2f		toWorldf(const float x, const float y) const;
+	ci::Vec2i			toWorldi(const int x, const int y) const;
+	ci::Vec2f			toWorldf(const float x, const float y) const;
 
-	void			setTranslation(const float x, const float y);
-	void			setScale(const float x, const float y);
+	ds::ui::TouchEvent	toWorldSpace(const ds::ui::TouchEvent& inputEvent);
 
-	ci::Vec2f		getTranslate() const		{ return ci::Vec2f(mTx, mTy); }
-	ci::Vec2f		getScale() const			{ return ci::Vec2f(mSx, mSy); }
+	void				setTranslation(const float x, const float y);
+	void				setScale(const float x, const float y);
 
-	void			setTouchOverlay(const ci::Rectf &src, const ci::Rectf &dst);
+	ci::Vec2f			getTranslate() const		{ return ci::Vec2f(mTx, mTy); }
+	ci::Vec2f			getScale() const			{ return ci::Vec2f(mSx, mSy); }
 
 private:
 	bool			mHasTouch;
-	ci::Rectf		mTouchSrc,
-					mTouchDst;
 	float			mTx, mTy,
 					mSx, mSy;
 };

@@ -2,6 +2,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <cinder/Rand.h>
 #include <cinder/app/TouchEvent.h>
+#include <ds/ui/touch/touch_event.h>
 
 namespace ds {
 namespace debug {
@@ -43,7 +44,7 @@ bool DragAction::update(float dt){
 		for(int i = 0; i < mNumberOfFingers; ++i){
 			touches.push_back(ci::app::TouchEvent::Touch(mTouchPos[i], mPreviousTouch[i], mInUseList[i], dt, nullptr));
 		}
-		mEngine.injectTouchesEnded(ci::app::TouchEvent(mEngine.getWindow(), touches));
+		mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
 		return true;
 
 	} else {
@@ -57,7 +58,7 @@ bool DragAction::update(float dt){
 				mTouchPos[i] += mDirection * mMagnitude * mUpdateTime;
 				touches.push_back(ci::app::TouchEvent::Touch(mTouchPos[i], mTouchPos[i], mInUseList[i], dt, nullptr));
 			}
-			mEngine.injectTouchesMoved(ci::app::TouchEvent(mEngine.getWindow(), touches));
+			mEngine.injectTouchesMoved(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
 		}
 
 	}
@@ -86,7 +87,7 @@ void DragAction::setup(float limit, int numberOfFingers){
 		touches.push_back(ci::app::TouchEvent::Touch(nTouchPos, nTouchPos, *it, 0.0, nullptr));
 	}
 
-	mEngine.injectTouchesBegin(ci::app::TouchEvent(mEngine.getWindow(), touches));
+	mEngine.injectTouchesBegin(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
 
 	mMagnitude = ci::randFloat (10.0f, 1500.0f);
 	mDirection = ci::Vec2f(ci::randFloat(-1.0f, 1.0f), ci::randFloat(-1.0f, 1.0f)).normalized();

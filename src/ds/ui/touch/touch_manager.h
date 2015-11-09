@@ -17,6 +17,7 @@ class Engine;
 namespace ui {
 class RotationTranslator;
 class Sprite;
+class TouchEvent;
 
 class TouchManager {
 public:
@@ -38,9 +39,9 @@ public:
 	void                        mouseTouchMoved(const ci::app::MouseEvent&, int id );
 	void                        mouseTouchEnded(const ci::app::MouseEvent&, int id );
 
-	void                        touchesBegin(const ci::app::TouchEvent&);
-	void                        touchesMoved(const ci::app::TouchEvent&);
-	void                        touchesEnded(const ci::app::TouchEvent&);
+	void                        touchesBegin(const ds::ui::TouchEvent&);
+	void                        touchesMoved(const ds::ui::TouchEvent&);
+	void                        touchesEnded(const ds::ui::TouchEvent&);
 
 	void                        clearFingers( const std::vector<int> &fingers );
 

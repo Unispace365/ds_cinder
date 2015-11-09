@@ -184,6 +184,7 @@
     <ClInclude Include="..\src\ds\ui\touch\rotation_translator.h" />
     <ClInclude Include="..\src\ds\ui\touch\select_picking.h" />
     <ClInclude Include="..\src\ds\ui\touch\tap_info.h" />
+    <ClInclude Include="..\src\ds\ui\touch\touch_event.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_mode.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_process.h" />
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h" />

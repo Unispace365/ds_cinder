@@ -32,6 +32,7 @@ class LoadImageService;
 class RenderTextService;
 class Sprite;
 class Tweenline;
+class TouchEvent;
 
 /**
  * \class ds::ui::SpriteEngine
@@ -106,16 +107,16 @@ public:
 	// Camera control. Will throw if the root at the index is the wrong type.
 	// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call
 	// no earlier than App::setup().
-	virtual PerspCameraParams			getPerspectiveCamera(const size_t index) const = 0;
+	virtual PerspCameraParams		getPerspectiveCamera(const size_t index) const = 0;
 	// For clients that frequently read the camera params, they can cache a direct reference.
-	virtual const ci::CameraPersp&		getPerspectiveCameraRef(const size_t index) const = 0;
-	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
-	virtual void						setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&) = 0;
+	virtual const ci::CameraPersp&	getPerspectiveCameraRef(const size_t index) const = 0;
+	virtual void					setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
+	virtual void					setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&) = 0;
 
 	// Will throw if the root at the index is the wrong type
-	virtual float						getOrthoFarPlane(const size_t index) const = 0;
-	virtual float						getOrthoNearPlane(const size_t index) const = 0;
-	virtual void						setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane) = 0;
+	virtual float					getOrthoFarPlane(const size_t index) const = 0;
+	virtual float					getOrthoNearPlane(const size_t index) const = 0;
+	virtual void					setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane) = 0;
 
 	void							addToDragDestinationList(Sprite *sprite);
 	void							removeFromDragDestinationList(Sprite *sprite);
@@ -137,9 +138,9 @@ public:
 	// The touch events will use the same pathways that normal touches would.
 	// This is generally only recommended for debugging stuff (like automators) 
 	// or if you have an unusual input situation (like a kinect or something) and want to use touch
-	virtual void					injectTouchesBegin(const ci::app::TouchEvent&, const bool inWorldSpace = false) = 0;
-	virtual void					injectTouchesMoved(const ci::app::TouchEvent&, const bool inWorldSpace = false) = 0;
-	virtual void					injectTouchesEnded(const ci::app::TouchEvent&, const bool inWorldSpace = false) = 0;
+	virtual void					injectTouchesBegin(const ds::ui::TouchEvent&) = 0;
+	virtual void					injectTouchesMoved(const ds::ui::TouchEvent&) = 0;
+	virtual void					injectTouchesEnded(const ds::ui::TouchEvent&) = 0;
 
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void					translateTouchPoint( ci::Vec2f& inOutPoint ) = 0;
