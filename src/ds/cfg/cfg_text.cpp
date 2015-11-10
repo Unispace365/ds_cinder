@@ -70,11 +70,5 @@ void Text::configure(ds::ui::Text& s) const {
 	}
 }
 
-float Text::retrunFontSize() const
-{
-	if (mSize > 0)
-		return mSize;
-}
-
 } // namespace cfg
 } // namespace ds
