@@ -58,6 +58,13 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	init();
 }
 
+Circle::~Circle(){
+	if(mVertices){
+		delete [] mVertices;
+		mVertices = nullptr;
+	}
+}
+
 void Circle::updateServer(const UpdateParams& up) {
 	inherited::updateServer(up);
 }

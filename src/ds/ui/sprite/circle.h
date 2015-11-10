@@ -20,6 +20,7 @@ namespace ui {
 	public:
 		Circle(SpriteEngine&);
 		Circle(SpriteEngine&, const bool filled, const float radius);
+		~Circle();
 
 		/// Whether to draw just a stroke or just the fill
 		void						setFilled(const bool filled);
