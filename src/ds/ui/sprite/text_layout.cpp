@@ -395,7 +395,10 @@ void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 
 							addStringSegment(in.mFont, sub);
 							addLine(in.mFont, sub);
-						} 
+						} else {
+							// The text field is too narrow for any of these characters, abandon ship!
+							return;
+						}
 						break;
 					}
 				}
