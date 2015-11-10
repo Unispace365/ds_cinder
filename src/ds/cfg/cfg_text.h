@@ -35,6 +35,7 @@ public:
 	ds::ui::MultilineText&	createOrThrowMultiline(ds::ui::SpriteEngine&, ds::ui::Sprite* parent = nullptr, const char* error = nullptr) const;
 
 	void					configure(ds::ui::Text&) const;
+	float					retrunFontSize() const;
 
 	std::string				mFont;
 	float					mSize;
