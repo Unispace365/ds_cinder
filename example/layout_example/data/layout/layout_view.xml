@@ -1,0 +1,19 @@
+<interface>
+
+		<layout name="root_layout" 
+			size="400, 500" 
+			color="#999999" 
+			layout_spacing="10" 
+			layout_type="vert" 
+			layout_size_mode="flex" 
+			position="400, 400" 
+			enable="true" 
+			multitouch="all" >
+			
+			<sprite color="#000033" size="400, 100" layout_h_align="center" l_pad="10" r_pad="10" t_pad="10" layout_size_mode="flex"/>
+			<sprite color="#333333" size="400, 100" layout_h_align="center" l_pad="10" r_pad="10" layout_size_mode="stretch"/>
+			<sprite name="farts" size="400, 10" color="ffffff"/>
+		</layout>
+	
+</interface>
+
