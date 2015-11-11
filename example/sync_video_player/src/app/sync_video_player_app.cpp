@@ -70,11 +70,6 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 		return;
 	}
 
-	// 	if(mVideo){
-	// 		mVideo->stop();
-	// 		mVideo->release();
-	// 		mVideo = nullptr;
-	// 	}
 
 	mVideo = new ds::ui::GstVideo(mEngine);
 	mVideo->setLooping(true);
@@ -90,14 +85,11 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 					video->pause();
 					mVsb->mPauseOn->show();
 					mVsb->mPauseOff->hide();
-
-					//video->pause();
 				}
 				else {
 					video->play();
 					mVsb->mPauseOn->hide();
 					mVsb->mPauseOff->show();
-					//video->play();
 				}
 			}
 			else {
@@ -109,7 +101,6 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 					mVsb->linkVideo(mSelectedVideo);
 
 					if (!mSelectedVideo->getIsMuted()){
-
 						mVsb->mVolumeOff->hide();
 						mVsb->mVolumeOn->show();
 					}
@@ -131,6 +122,7 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 
 		}
 	});
+
 	mVideoHolder->addChildPtr(mVideo);
 	mSelectedVideo = mVideo;
 
@@ -184,7 +176,7 @@ void sync_video_player::setupScrubBar(){
 		mVsb->mVolumeOff->hide();
 		mVsb->mVolumeOn->show();
 	});
-
+	
 }
 
 void sync_video_player::update() {
@@ -193,7 +185,6 @@ void sync_video_player::update() {
 	if(mVideo){
 		std::stringstream ss;
 		ss << "fps: " << mVideo->getVideoPlayingFramerate();
-//		mFpsDisplay->setText(ss.str());
 	}
 
 }

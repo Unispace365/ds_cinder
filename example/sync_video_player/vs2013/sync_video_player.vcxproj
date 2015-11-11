@@ -144,7 +144,9 @@ xcopy  /Y /f ".\debug\sync_video_player.pdb" "..\server\"</Command>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
     </Link>
     <PostBuildEvent>
-      <Command />
+      <Command>xcopy /Y /f  "..\sync_video_player.exe" "..\client"
+xcopy  /Y /f "..\sync_video_player.exe" "..\server\"
+</Command>
     </PostBuildEvent>
     <PostBuildEvent>
       <Message />

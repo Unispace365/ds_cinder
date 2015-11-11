@@ -233,6 +233,7 @@ public:
 	void					setPosition(double fPos);
 
 
+	void					setFastPosition(double fPos);
 	/*
 	Returns true if the loaded media file contains at least one video stream, false otherwise
 	*/
@@ -432,7 +433,12 @@ public:
 	gint64					getStartTime();
 
 	/* set the time for resume playing from pause*/
-	void setStartTime(uint64_t start_time);
+	void					setStartTime(uint64_t start_time);
+
+	/*Set up seek to go fast*/
+	bool					seekFast(gint64 iTargetTimeInNs);
+
+	bool					resetSeekMode(GstSeekFlags flags = GST_SEEK_FLAG_FLUSH);
 	/*
 	Lamda is called when GStreamer gets an EOS message (not called when looping)
 	*/
@@ -482,7 +488,7 @@ public:
 	bool					isPlayFromPause();
 	void					clearPlayFromPause();
 	void					fastSeek(float speed);
-
+	bool					isFastSeeking();
 
 private:
 	/*
@@ -660,6 +666,7 @@ private:
 	GstClock*				m_NetClock;
 	uint64_t				m_StartTime;
 	bool					m_playFromPause;
+	bool					m_isFastSeeking;
 
 
 }; //!class GStreamerWrapper

@@ -93,6 +93,8 @@ public:
 	double				getCurrentPosition() const;
 	void				seekPosition(const double);
 
+	void				resetSeekMode();
+	void				seekFastPosition(const double t);
 	/* fast forward/backward from current position to indicated position*/
 	void				scrubToPosition(const double t, float speed);
 	// If true, will play the video as soon as it's loaded.
