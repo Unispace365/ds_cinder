@@ -616,6 +616,13 @@ namespace ui {
 		*/
 		bool					getDrawDebug();
 
+		/// For use by any layout classes you may want to implement. Default = 0.0f for all of these
+		float					mLayoutTPad;
+		float					mLayoutBPad;
+		float					mLayoutLPad;
+		float					mLayoutRPad;
+		int						mLayoutUserType;
+
 	protected:
 		friend class        TouchManager;
 		friend class        TouchProcess;
@@ -690,45 +697,44 @@ namespace ui {
 
 		// DEPRECATED
 		// Obsolete -- use setUseShaderTexture
-		void				setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
+		void					setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
 		// Obsolete -- use getUseShaderTexture
-		bool				getUseShaderTextuer() const { return getUseShaderTexture(); }
+		bool					getUseShaderTextuer() const { return getUseShaderTexture(); }
 		
 
-		void				sendSpriteToFront(Sprite &sprite);
-		void				sendSpriteToBack(Sprite &sprite);
+		void					sendSpriteToFront(Sprite &sprite);
+		void					sendSpriteToBack(Sprite &sprite);
 
-		void				setPerspective(const bool);
+		void					setPerspective(const bool);
 
-		mutable bool		mBoundsNeedChecking;
-		mutable bool		mInBounds;
+		mutable bool			mBoundsNeedChecking;
+		mutable bool			mInBounds;
 
 
-		SpriteEngine&		mEngine;
+		SpriteEngine&			mEngine;
 		// The ID must always be assigned through setSpriteId(), which has some
 		// behaviour associated with the ID changing.
-		ds::sprite_id_t		mId;
-		ci::Color8u			mUniqueColor;
+		ds::sprite_id_t			mId;
+		ci::Color8u				mUniqueColor;
 
-		float				mWidth,
-			mHeight,
-			mDepth;
+		float					mWidth,
+								mHeight,
+								mDepth;
 
 		mutable ci::Matrix44f	mTransformation;
 		mutable ci::Matrix44f	mInverseTransform;
 		mutable bool			mUpdateTransform;
 
-		int                 mSpriteFlags;
-		ci::Vec3f           mPosition,
-			mCenter,
-			mScale,
-			mRotation;
-		float				mZLevel;
-		float				mOpacity;
-		ci::Color			mColor;
-		ci::Rectf			mClippingBounds;
-		bool				mClippingBoundsDirty;
-		SpriteShader		mSpriteShader;
+		int						mSpriteFlags;
+		ci::Vec3f				mPosition,
+								mCenter,
+								mScale,
+								mRotation;
+		float					mOpacity;
+		ci::Color				mColor;
+		ci::Rectf				mClippingBounds;
+		bool					mClippingBoundsDirty;
+		SpriteShader			mSpriteShader;
 
 		mutable ci::Matrix44f	mGlobalTransform;
 		mutable ci::Matrix44f	mInverseGlobalTransform;
@@ -744,8 +750,8 @@ namespace ui {
 		bool					mHasDrawLocalClientPost;
 
 		// Class-unique key for this type.  Subclasses can replace.
-		char				mBlobType;
-		DirtyState			mDirty;
+		char					mBlobType;
+		DirtyState				mDirty;
 
 		std::function<void(Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
 		std::function<void(Sprite *, const ci::Vec3f &)> mSwipeCallback;

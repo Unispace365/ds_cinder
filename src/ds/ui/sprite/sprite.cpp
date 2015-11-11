@@ -126,7 +126,6 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mHeight = 0;
 	mCenter = ci::Vec3f(0.0f, 0.0f, 0.0f);
 	mRotation = ci::Vec3f(0.0f, 0.0f, 0.0f);
-	mZLevel = 0.0f;
 	mScale = ci::Vec3f(1.0f, 1.0f, 1.0f);
 	mUpdateTransform = true;
 	mParent = nullptr;
@@ -147,6 +146,12 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mDrawOpacity = 1.0f;
 	mDelayedCallCueRef = nullptr;
 	mHasDrawLocalClientPost = false;
+
+	mLayoutBPad = 0.0f;
+	mLayoutTPad = 0.0f;
+	mLayoutRPad = 0.0f;
+	mLayoutLPad = 0.0f;
+	mLayoutUserType = 0;
 
 	if(mEngine.getRotateTouchesDefault()){
 		setRotateTouches(true);

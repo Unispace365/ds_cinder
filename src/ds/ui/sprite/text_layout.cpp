@@ -49,19 +49,21 @@ namespace {
   
 class LimitCheck {
 public:
-	LimitCheck(const TextLayout::Input& in)
+	LimitCheck(const TextLayout::Input& in, const float lineHeight)
 		: mLimitToHeight(!(in.mSprite.autoResizeHeight()))
 		, mDescent(getFontDescender(in.mFont))
 		, mMaxY(in.mSize.y)
+		, mLineHeight(lineHeight)
 	{
 	}
 
 	inline bool outOfBounds(const float y) const
 	{
-		return (y + mDescent > mMaxY);
+		return (y + mDescent + mLineHeight > mMaxY);
 	}
 
 private:
+	const float	  mLineHeight; 
 	const bool    mLimitToHeight;
 	const float   mDescent;
 	const float   mMaxY;
@@ -306,7 +308,6 @@ void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 	// Keep track of the current line of text, in case the next token makes it too long to fit on a line
 	std::wstring	lineText;
 
-	LimitCheck			check(in);
 	mY = ceilf((1.0f - getFontAscender(in.mFont)) * in.mFont->pointSize());
 	mLineHeight = in.mFont->pointSize()*mLeading + in.mFont->pointSize();
 	mCurInputIndex = 0;
@@ -314,6 +315,8 @@ void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 	mCurLineIndexPositions.clear();
 	mMaxWidth = 0.0f;
 	mGenerateIndices = in.mGenerateIndex;
+
+	LimitCheck			check(in, mLineHeight);
 
 	OGLFT::BBox box = in.mFont->measureRaw(L" ");
 	mSpaceWidth = box.advance_.dx_ * 1.25f; // ???? The actual advance amount doesn't seem to match the actual output, so multiply it?
@@ -323,6 +326,7 @@ void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 	if(check.outOfBounds(mY)) return;
 
 	for(size_t i = 0; i < tokens.size(); ++i) {
+		if(check.outOfBounds(mY)) break;
 		// Test the new string to see if it's too long
 		std::wstring	newLine(lineText);
 
