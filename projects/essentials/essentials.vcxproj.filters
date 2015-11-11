@@ -52,6 +52,9 @@
     <Filter Include="src\ds\ui\soft_keyboard">
       <UniqueIdentifier>{6baae140-9c0e-4cb9-9e49-4e0aea6f86f7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\layout">
+      <UniqueIdentifier>{04a111de-5a8a-43eb-ae01-220cf039c4a9}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -131,6 +134,9 @@
     </ClCompile>
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp">
       <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\layout\layout_sprite.cpp">
+      <Filter>src\ds\ui\layout</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -220,6 +226,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.h">
       <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\layout\layout_sprite.h">
+      <Filter>src\ds\ui\layout</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

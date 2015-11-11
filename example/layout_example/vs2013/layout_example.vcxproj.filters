@@ -19,9 +19,6 @@
     <ClCompile Include="..\src\app\layout_example_app.cpp">
       <Filter>src\app</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ui\layout\layout_sprite.cpp">
-      <Filter>src\ui\layout</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h">
@@ -51,9 +48,6 @@
     <ClInclude Include="..\src\app\layout_example_app.h">
       <Filter>src\app</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ui\layout\layout_sprite.h">
-      <Filter>src\ui\layout</Filter>
-    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc">
@@ -73,9 +67,6 @@
     <Filter Include="src\query">
       <UniqueIdentifier>{7406c89a-2752-4cbf-b0fc-2db2c8ec7223}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ui">
-      <UniqueIdentifier>{9b9f5de1-cbd5-4cb7-a580-46be59c2cf82}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\app">
       <UniqueIdentifier>{dd1b41ab-1751-4126-9ac0-507d8fee6176}</UniqueIdentifier>
     </Filter>
@@ -84,9 +75,6 @@
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{3eca459a-2fc2-4471-8dd4-6c188d47d4f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ui\layout">
-      <UniqueIdentifier>{6d6426ad-c599-401e-bbd8-2872c01e6ef7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

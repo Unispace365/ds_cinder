@@ -621,6 +621,8 @@ namespace ui {
 		float					mLayoutBPad;
 		float					mLayoutLPad;
 		float					mLayoutRPad;
+		int						mLayoutHAlign;
+		int						mLayoutVAlign; 
 		int						mLayoutUserType;
 
 	protected:

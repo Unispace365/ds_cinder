@@ -6,11 +6,12 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
-namespace example {
+namespace ds {
+namespace ui {
 
 /**
-* \class example::StoryView
-*			A sample view
+* \class ds::ui::LayoutSprite
+*		A sprite that can run recursive flow layouts. Children can be normal sprites or other layouts.
 */
 class LayoutSprite : public ds::ui::Sprite  {
 public:
@@ -18,6 +19,8 @@ public:
 
 	typedef enum { kLayoutNone, kLayoutVFlow, kLayoutHFlow } LayoutType;
 	enum { kFixedSize = 0, kFlexSize, kStretchSize } SizeType;
+	enum { kLeft = 0, kCenter, kRight } HAlignment;
+	enum { kTop = 0, kMiddle, kBottom } VAlignment;
 
 	void					runLayout();
 
@@ -30,7 +33,12 @@ public:
 	float					getSpacing(){ return mSpacing; }
 	void					setSpacing(const float spacing){ mSpacing = spacing; }
 
-private:
+protected:
+	// virtual in case you want to override with your own layout jimmies.
+	virtual void			runVLayout();
+	// virtual in case you want to override with your own layout jimmies.
+	virtual void			runHLayout();
+
 	std::function<void()>	mLayoutUpdatedFunction;
 
 	float					mSpacing;
@@ -38,6 +46,7 @@ private:
 
 };
 
-} // namespace example
+} // namespace ui
+} // namespace ds
 
 #endif

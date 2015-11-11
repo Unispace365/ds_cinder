@@ -16,7 +16,8 @@
 
 #include "events/app_events.h"
 
-#include "ui/layout/layout_sprite.h"
+#include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/interface_xml/interface_xml_importer.h>
 
 namespace example {
 
@@ -87,11 +88,14 @@ void layout_example::setupServer(){
 	
 	// add sprites
 
-	LayoutSprite* rootLayout = new LayoutSprite(mEngine);
+	ds::ui::LayoutSprite* rootLayout = new ds::ui::LayoutSprite(mEngine);
 	rootLayout->enable(true);
 	rootLayout->enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE | ds::ui::MULTITOUCH_CAN_POSITION);
 	rootLayout->setTouchScaleMode(true);
 	rootLayout->setProcessTouchCallback([this, rootLayout](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
+		if(rootLayout->getWidth() < 300.0f){
+			rootLayout->setSize(300.0f, rootLayout->getHeight());
+		}
 		rootLayout->runLayout();
 	});
 	rootLayout->setColor(ci::Color(0.0f, 0.0f, 0.5f));
@@ -99,39 +103,63 @@ void layout_example::setupServer(){
 	rootLayout->setSize(400.0f, 600.0f);
 	rootLayout->setPosition(100.0f, 100.0f);
 	rootLayout->setSpacing(10.0f);
-	rootLayout->mLayoutUserType = LayoutSprite::kFlexSize;
+	rootLayout->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 
 	ds::ui::Sprite* topFixed = new ds::ui::Sprite(mEngine, 50.0f, 100.0f);
 	topFixed->setColor(ci::Color(0.5f, 0.0f, 0.0f));
 	topFixed->setTransparent(false);
+	topFixed->mLayoutUserType = ds::ui::LayoutSprite::kFixedSize;
+	topFixed->mLayoutHAlign = ds::ui::LayoutSprite::kCenter;
 	rootLayout->addChildPtr(topFixed);
 
 
-	ds::ui::Sprite* medFixed = new ds::ui::Sprite(mEngine, 50.0f, 100.0f);
+
+	// Nested horizontal layout
+	ds::ui::LayoutSprite* medFixed = new ds::ui::LayoutSprite(mEngine);
+	medFixed->setSize(50.0f, 100.0f);
 	medFixed->setColor(ci::Color(0.0f, 0.5f, 0.0f));
 	medFixed->setTransparent(false);
+	medFixed->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+	medFixed->setLayoutType(ds::ui::LayoutSprite::kLayoutHFlow);
+	medFixed->mLayoutLPad = 50.0f;
 	rootLayout->addChildPtr(medFixed);
 
+	ds::ui::MultilineText* horizText = mGlobals.getText("sample:config").createMultiline(mEngine, medFixed);
+	horizText->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+	horizText->mLayoutLPad = 10.0f;
+	horizText->mLayoutRPad = 10.0f;
+	horizText->mLayoutBPad = 10.0f;
+	horizText->mLayoutTPad = 10.0f;
+	horizText->setText("I'm in the middle of your layout. Hey.");
+	horizText->setResizeLimit(200.0f);
 
-	LayoutSprite* botStretch = new LayoutSprite(mEngine);
+	ds::ui::Sprite* spaceFiller = new ds::ui::Sprite(mEngine, 100.0f, medFixed->getHeight());
+	spaceFiller->mLayoutUserType = ds::ui::LayoutSprite::kStretchSize;
+	spaceFiller->setColor(ci::Color(0.2f, 0.2f, 0.2f));
+	spaceFiller->setTransparent(false);
+	medFixed->addChildPtr(spaceFiller);
+
+
+	// bottom part of the vertical layout
+	ds::ui::LayoutSprite* botStretch = new ds::ui::LayoutSprite(mEngine);
 	botStretch->setColor(ci::Color(0.3f, 0.2f, 0.4f));
 	botStretch->setTransparent(false);
 	botStretch->setSize(50.0f, 100.0f);
-	botStretch->mLayoutUserType = LayoutSprite::kFlexSize;
+	botStretch->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	botStretch->mLayoutLPad = 10.0f;
 	botStretch->mLayoutRPad = 10.0f;
 	rootLayout->addChildPtr(botStretch);
 
 	ds::ui::Image* imagey = new ds::ui::Image(mEngine);
 	imagey->setImageFile("%APP%/data/images/Colbert.png");
-	imagey->mLayoutUserType = LayoutSprite::kFlexSize;
+	imagey->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	imagey->mLayoutLPad = 10.0f;
 	imagey->mLayoutRPad = 10.0f;
 	rootLayout->addChildPtr(imagey);
 
 
 	ds::ui::MultilineText* mt = mGlobals.getText("sample:config").createMultiline(mEngine, rootLayout);
-	mt->mLayoutUserType = LayoutSprite::kFlexSize;
+	mt->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	mt->mLayoutLPad = 10.0f;
 	mt->mLayoutRPad = 10.0f;
 	mt->mLayoutBPad = 10.0f;
@@ -141,6 +169,56 @@ void layout_example::setupServer(){
 	rootLayout->runLayout();
 	rootSprite.addChildPtr(rootLayout);
 
+
+
+	// Separate horizontal layout ----------------------------------------------------
+	ds::ui::LayoutSprite* horizontalLayout = new ds::ui::LayoutSprite(mEngine);
+	horizontalLayout->enable(true);
+	horizontalLayout->enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE | ds::ui::MULTITOUCH_CAN_POSITION);
+	horizontalLayout->setTouchScaleMode(true);
+	horizontalLayout->setProcessTouchCallback([this, horizontalLayout](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
+		if(horizontalLayout->getHeight() < 300.0f){
+			horizontalLayout->setSize(horizontalLayout->getWidth(), 300.0f);
+		}
+		horizontalLayout->runLayout();
+	});
+	horizontalLayout->setColor(ci::Color(0.5f, 0.0f, 0.5f));
+	horizontalLayout->setTransparent(false);
+	horizontalLayout->setSize(400.0f, 600.0f);
+	horizontalLayout->setPosition(800.0f, 100.0f);
+	horizontalLayout->setSpacing(10.0f);
+	horizontalLayout->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+	horizontalLayout->setLayoutType(ds::ui::LayoutSprite::kLayoutHFlow);
+
+	ds::ui::MultilineText* sampley = mGlobals.getText("sample:config").createMultiline(mEngine, horizontalLayout);
+	sampley->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+	sampley->mLayoutLPad = 10.0f;
+	sampley->mLayoutRPad = 10.0f;
+	sampley->mLayoutBPad = 10.0f;
+	sampley->mLayoutTPad = 10.0f;
+	sampley->setText("Designing success through guessing and checking.");
+	sampley->setResizeLimit(200.0f);
+
+	ds::ui::Image* sampleImage = new ds::ui::Image(mEngine);
+	sampleImage->setImageFile("%APP%/data/images/Colbert.png");
+	sampleImage->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+	sampleImage->mLayoutLPad = 10.0f;
+	sampleImage->mLayoutRPad = 10.0f;
+	sampleImage->mLayoutTPad = 10.0f;
+	sampleImage->mLayoutBPad = 10.0f;
+	horizontalLayout->addChildPtr(sampleImage);
+
+	horizontalLayout->runLayout();
+	rootSprite.addChildPtr(horizontalLayout);
+
+
+	std::map<std::string, ds::ui::Sprite*>	spriteMap;
+	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layout/layout_view.xml"), spriteMap);
+
+	auto generatedLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["root_layout"]);
+	if(generatedLayout){
+		generatedLayout->runLayout();
+	}
 
 }
 
