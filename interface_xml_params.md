@@ -1,18 +1,18 @@
 Basic XML interface
 ======================
 
-<interface>
-	<sprite 
-		name="sprite_name" 
-		size="400, 200" 
-		position="100, 200, 300" 
-		color="ff0000" 
-		enable="true" 
-		multitouch="all" >
-		<text name="child_text" font="sample:config" resize_limit="300" />
-		<image name="child_image" filename="RELATIVE PATH TO IMG" />
-	</sprite>
-</interface>
+    <interface>
+        <sprite 
+            name="sprite_name" 
+            size="400, 200" 
+            position="100, 200, 300" 
+            color="ff0000" 
+            enable="true" 
+            multitouch="all" >
+            <text name="child_text" font="sample:config" resize_limit="300" />
+            <image name="child_image" filename="RELATIVE PATH TO IMG" />
+        </sprite>
+    </interface>
 
 Creating a Sprite and loading XML
 -----------------------
