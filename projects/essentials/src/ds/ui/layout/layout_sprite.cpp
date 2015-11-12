@@ -46,6 +46,20 @@ void LayoutSprite::runVLayout(){
 		} else {
 
 			if(chillin->mLayoutUserType == kFixedSize){
+				if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
+					ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+					ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+					if(mt){
+						mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
+					} else if(img){
+						fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
+						std::cout << "Fixed size image: " << img->getScaleWidth() << " " << img->getScaleHeight() << std::endl;
+					} else {
+						chillin->setSize(mLayoutSize);
+					}
+
+				}
+
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 				if(ls){
 					ls->runLayout();
@@ -119,7 +133,7 @@ void LayoutSprite::runVLayout(){
 			xPos = layoutWidth - chillin->getScaleWidth() - chillin->mLayoutRPad;
 		}
 
-		chillin->setPosition(xPos, yp);
+		chillin->setPosition(xPos + chillin->mLayoutFudge.x, yp + chillin->mLayoutFudge.y);
 
 		yp += chillin->getScaleHeight() + chillin->mLayoutBPad + mSpacing;
 	}
@@ -148,6 +162,19 @@ void LayoutSprite::runHLayout(){
 		} else {
 
 			if(chillin->mLayoutUserType == kFixedSize){
+				if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
+					ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+					ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+					if(mt){
+						mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
+					} else if(img){
+						fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
+					} else {
+						chillin->setSize(mLayoutSize);
+					}
+
+				}
+
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 				if(ls){
 					ls->runLayout();
@@ -222,7 +249,7 @@ void LayoutSprite::runHLayout(){
 			yPos = layoutHeight - chillin->getScaleHeight() - chillin->mLayoutBPad;
 		}
 
-		chillin->setPosition(xp, yPos);
+		chillin->setPosition(xp + chillin->mLayoutFudge.x, yPos + chillin->mLayoutFudge.y);
 
 		xp += chillin->getScaleWidth() + chillin->mLayoutRPad + mSpacing;
 	}
@@ -240,6 +267,35 @@ void LayoutSprite::onLayoutUpdate(){
 
 void LayoutSprite::setLayoutUpdatedFunction(const std::function<void()> layoutUpdatedFunction){
 	mLayoutUpdatedFunction = layoutUpdatedFunction;
+}
+
+void LayoutSprite::fitInside(ds::ui::Sprite* sp, const ci::Rectf area, const bool letterbox){
+	if(!sp) return;
+	// a = w / h;
+	// h = w /a;
+	// w = ah;
+	const float spriteAspect = sp->getWidth() / sp->getHeight();
+	const float areaAspect = area.getWidth() / area.getHeight();
+	float destScale = sp->getScale().x;
+
+	if(letterbox){
+		// When letterboxing, if the sprite is narrower then the dest area, fill the height
+		if(spriteAspect < areaAspect){
+			destScale = area.getHeight() / sp->getHeight();
+		} else {
+			destScale = area.getWidth() / sp->getWidth();
+		}
+	} else {
+		// When NOT letterboxing, if the sprite is wider then the dest area, fill the height
+		if(spriteAspect > areaAspect){
+			destScale = area.getHeight() / sp->getHeight();
+		} else {
+			destScale = area.getWidth() / sp->getWidth();
+		}
+	}
+
+	sp->setScale(destScale, destScale, 1.0f);
+	sp->setPosition(area.getX1() + area.getWidth() / 2.0f - sp->getScaleWidth() / 2.0f, area.getY1() + area.getHeight() / 2.0f - sp->getScaleHeight() / 2.0f);
 }
 
 } // namespace ui

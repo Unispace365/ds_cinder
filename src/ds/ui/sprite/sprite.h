@@ -616,11 +616,13 @@ namespace ui {
 		*/
 		bool					getDrawDebug();
 
-		/// For use by any layout classes you may want to implement. Default = 0.0f for all of these
+		/// For use by any layout classes you may want to implement. Default = 0.0f or 0 for all of these
 		float					mLayoutTPad;
 		float					mLayoutBPad;
 		float					mLayoutLPad;
 		float					mLayoutRPad;
+		ci::Vec2f				mLayoutSize;
+		ci::Vec2f				mLayoutFudge;
 		int						mLayoutHAlign;
 		int						mLayoutVAlign; 
 		int						mLayoutUserType;

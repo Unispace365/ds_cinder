@@ -151,6 +151,8 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mLayoutTPad = 0.0f;
 	mLayoutRPad = 0.0f;
 	mLayoutLPad = 0.0f;
+	mLayoutFudge = ci::Vec2f::zero();
+	mLayoutSize = ci::Vec2f::zero();
 	mLayoutHAlign = 0;
 	mLayoutVAlign = 0;
 	mLayoutUserType = 0;

@@ -45,6 +45,7 @@ Sprite Types
 * **image_button** = ds::ui::ImageButton
 * **gradient** = ds::ui::GradientSprite
 * **layout** = ds::ui::LayoutSprite
+* **circle** = ds::ui::Circle
 * **[custom]** = Calls a custom callback function with a string for the type. Requires you instantiate the sprite type yourself.
 
 Sprite Parameters
@@ -80,6 +81,8 @@ Layout Parameters (only valid if using a layout sprite as a parent)
 * **b_pad**: Padding on the bottom part of this sprite in the layout
 * **l_pad**: Padding on the left part of this sprite in the layout
 * **r_pad**: Padding on the right part of this sprite in the layout
+* **layout_fudge**: An offset in pixels for the sprite during the layout. Doesn't get added to the overall layout positioning, but allows you to fudge the position a bit if something isn't rendering just right
+* **layout_size**: Desired size for the "fixed" layout size mode. This is separate from the sprite size, since some sprites (like Image) will be able to calculate size only after the thing is loaded, and this will try to scale the image (or other thing) up to fit in this size, letterboxed.
 * **layout_size_mode**: The method to calculate the size of this sprite during layout
     1. fixed: (Default) The size of this sprite is not modified during the layout
     2. flex: Sprite will be made wide enough (for V layouts) or tall enough (for H layouts) during layout. Images will be sized proportionally to fit the size. MultilineText fields in Vertical Layouts will be resized to the width of the layout (minus padding), and the height calculated (plus padding). MultilineText fields in Horizontal layouts will be resized to their existing resize width limit and constrained to the height of the layout (including padding).
@@ -117,3 +120,8 @@ Gradient Sprite Parameters
 ---------------------------
 * **colorTop**: A color value to set the TL and TR colors of the gradient to. colorTop="ffffff" 
 * **colorBot**: A color value to set the BL and BR colors of the gradient to. colorBot="ffffff" 
+
+Circle Sprite Parameters
+---------------------------
+* **filled**: Boolean, whether to draw just the outline or fill in the circle
+* **radius**: Float, the radius of the circle to draw

@@ -10,6 +10,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/sprite/circle.h>
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/cfg/cfg_text.h>
@@ -188,6 +189,10 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		} else {
 			DS_LOG_WARNING("layout_h_align set to an invalid value of " << alignMode);
 		}
+	} else if(property == "layout_fudge"){
+		sprite.mLayoutFudge = parseVector(attr.getValue()).xy();
+	} else if(property == "layout_size"){
+		sprite.mLayoutSize = parseVector(attr.getValue()).xy();
 	}
 
 	// LayoutSprite specific (the other layout stuff could apply to any sprite)
@@ -286,6 +291,23 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 			gradient->setColorsV(gradient->getColorTL(), parseColor(attr.getValue()));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+
+	// Circle sprite properties
+	else if(property == "filled"){
+		auto circle = dynamic_cast<Circle*>(&sprite);
+		if(circle){
+			circle->setFilled(parseBoolean(attr.getValue()));
+		} else {
+			DS_LOG_WARNING("Trying to set filled on a non-cicle sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "radius"){
+		auto circle = dynamic_cast<Circle*>(&sprite);
+		if(circle){
+			circle->setRadius(attr.getValue<float>());
+		} else {
+			DS_LOG_WARNING("Trying to set radius on a non-cicle sprite of type: " << typeid(sprite).name());
 		}
 	}
 
@@ -492,6 +514,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	else if(type == "layout"){
 		auto layoutSprite = new ds::ui::LayoutSprite(engine);
 		spriddy = layoutSprite;
+	}
+	else if(type == "circle"){
+		spriddy = new ds::ui::Circle(engine);
 	}
 	else if (mCustomImporter) {
 		spriddy = mCustomImporter(type, *node);

@@ -22,6 +22,9 @@ public:
 	enum { kLeft = 0, kCenter, kRight } HAlignment;
 	enum { kTop = 0, kMiddle, kBottom } VAlignment;
 
+	// Fits the sprite supplied into the target area
+	static void				fitInside(ds::ui::Sprite* sp, const ci::Rectf area, const bool letterbox);
+
 	void					runLayout();
 
 	const LayoutType&		getLayoutType(){ return mLayoutType; }
