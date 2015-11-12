@@ -10,7 +10,7 @@ Basic XML interface
 		enable="true" 
 		multitouch="all" >
 		<text name="child_text" font="sample:config" resize_limit="300" />
-		<image name="child_image" src="RELATIVE PATH TO IMG" />
+		<image name="child_image" filename="RELATIVE PATH TO IMG" />
 	</sprite>
 </interface>
 

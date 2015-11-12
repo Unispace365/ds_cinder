@@ -209,6 +209,7 @@ void layout_example::setupServer(){
 	horizontalLayout->addChildPtr(sampleImage);
 
 	horizontalLayout->runLayout();
+	horizontalLayout->runAnimationScript("slide:-100.0, 0.0; fade:-1.0; ease:outBack; duration:1.0; delay:2.0");
 	rootSprite.addChildPtr(horizontalLayout);
 
 
@@ -218,6 +219,7 @@ void layout_example::setupServer(){
 	auto generatedLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["root_layout"]);
 	if(generatedLayout){
 		generatedLayout->runLayout();
+		generatedLayout->tweenAnimateOn(true);
 	}
 
 }

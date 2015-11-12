@@ -8,11 +8,53 @@
 			layout_size_mode="flex" 
 			position="400, 400" 
 			enable="true" 
-			multitouch="all" >
+			multitouch="all" 
+			center="0.5, 0.5"
+			animate_on="grow:0, 0; fade:-1.0; slide:0, 0; ease:none; duration:0.35; delay:0.25"
+			>
 			
-			<sprite color="#000033" size="400, 100" layout_h_align="center" l_pad="10" r_pad="10" t_pad="10" layout_size_mode="flex"/>
+			<layout 
+				color="ffffff" 
+				size="400, 100" 
+				layout_h_align="center" 
+				l_pad="40" 
+				r_pad="40" 
+				t_pad="10"
+				layout_size_mode="stretch" 
+				opacity="0.0"
+				animate_on="opacity:1.0; slide:-200; duration:0.5; delay:0.6"/>
+			<layout 
+				color="ffffff" 
+				size="400, 100" 
+				layout_h_align="center" 
+				l_pad="40" 
+				r_pad="40" 
+				t_pad="0"
+				layout_size_mode="stretch" 
+				opacity="0.0"
+				animate_on="opacity:1.0; slide:-100; duration:0.5; delay:0.7"/>
+			<layout 
+				color="ffffff" 
+				size="400, 100" 
+				layout_h_align="center" 
+				l_pad="40" 
+				r_pad="40" 
+				t_pad="0"
+				layout_size_mode="stretch" 
+				opacity="0.0"
+				animate_on="opacity:1.0; slide:100; duration:0.5; delay:0.8"/>
+			<layout 
+				color="ffffff" 
+				size="400, 100" 
+				layout_h_align="center" 
+				l_pad="40" 
+				r_pad="40" 
+				t_pad="0"
+				layout_size_mode="stretch" 
+				opacity="0.0"
+				animate_on="opacity:1.0; slide:200; duration:0.5; delay:0.9"/>
+			<sprite name="farts" size="400, 10" color="ffffff" animate_on="fade:"/>
 			<sprite color="#333333" size="400, 100" layout_h_align="center" l_pad="10" r_pad="10" layout_size_mode="stretch"/>
-			<sprite name="farts" size="400, 10" color="ffffff"/>
 		</layout>
 	
 </interface>

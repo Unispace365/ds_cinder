@@ -5,6 +5,7 @@
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/image.h>
+#include <ds/util/string_util.h>
 
 
 namespace ds {
@@ -19,13 +20,26 @@ LayoutSprite::LayoutSprite(ds::ui::SpriteEngine& engine)
 }
 
 void LayoutSprite::runLayout(){
-	if(mLayoutType == kLayoutVFlow){
+	if(mLayoutType == kLayoutNone){
+		runNoneLayout();
+	} else if(mLayoutType == kLayoutVFlow){
 		runVLayout();
 	} else if(mLayoutType == kLayoutHFlow){
 		runHLayout();
 	}
 
 	onLayoutUpdate();
+}
+
+void LayoutSprite::runNoneLayout(){
+	std::vector<ds::ui::Sprite*>& chillins = getChildren();
+	for(auto it = chillins.begin(); it < chillins.end(); ++it){
+		ds::ui::Sprite* chillin = (*it);
+		auto layoutSprite = dynamic_cast<LayoutSprite*>(chillin);
+		if(layoutSprite){
+			layoutSprite->runLayout();
+		}
+	}
 }
 
 void LayoutSprite::runVLayout(){

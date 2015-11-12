@@ -93,6 +93,28 @@ public:
 															const std::function<void(void)>& updateFn = nullptr);
 	void									animStop();
 
+	/// Runs any script set as the animate on script. Optionally runs through any children sprites and runs those as well.
+	void									tweenAnimateOn(const bool recursive = false);
+
+	/// Sets the script to use in the above tweenAnimateOn() function
+	void									setAnimateOnScript(const std::string& animateOnScript);
+
+	/** Parse the string as a script to run a few animations.
+		Syntax: <type>:<valueX, valueY, valueZ>;
+		Special params: 
+			easing: see getEasingByString() implementation for details. Same easing applies to all tween types (opacity and position would use the same easing for instance, unfortunately)
+			duration: in seconds
+			delay: in seconds
+			slide: tweens the position to the current position, and offsets the start by the supplied values
+			grow: tweens the scale to the current scale, and starts at the supplied value
+			fade: tweens the opacity to the current opacity and starts at the supplied value
+		Example: "scale:1, 1, 1; position:100, 200, 300; opacity:1.0; color:0.5, 0.6, 1.0; rotation:0.0, 0.0, 90.0; size:20, 20; easing:inOutBack; duration:1.0; slide:-100; delay:0.5"
+		*/
+	void									runAnimationScript(const std::string& animScript);
+
+	/// Gets the cinder easing function by string value, to support the script running
+	static ci::EaseFn						getEasingByString(const std::string& inString);
+
 public:
 	ci::Anim<ci::Color>						mAnimColor;
 	ci::Anim<float>							mAnimOpacity;
@@ -104,6 +126,7 @@ public:
 private:
 	Sprite&									mOwner;
 	SpriteEngine&							mEngine;
+	std::string								mAnimateOnScript;
 };
 
 } // namespace ui

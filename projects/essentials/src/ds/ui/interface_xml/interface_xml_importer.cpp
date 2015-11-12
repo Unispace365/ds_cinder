@@ -148,6 +148,8 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		sprite.enable(parseBoolean(attr.getValue()));
 	} else if(property == "multitouch"){
 		sprite.enableMultiTouch(parseMultitouchMode(attr.getValue()));
+	} else if(property == "animate_on"){
+		sprite.setAnimateOnScript(attr.getValue());
 	} else if(property == "t_pad") {
 		sprite.mLayoutTPad = attr.getValue<float>();
 	} else if(property == "b_pad") {
@@ -220,6 +222,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 			DS_LOG_WARNING("Couldn't set layout_type, as this sprite is not a LayoutSprite.");
 		}
 	}
+
 
 	// Text, MultilineText specific attributes
 	else if(property == "font") {
