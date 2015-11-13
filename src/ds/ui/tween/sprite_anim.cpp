@@ -112,16 +112,16 @@ void SpriteAnimatable::animStop() {
 	mAnimSize.stop();
 }
 
-void SpriteAnimatable::tweenAnimateOn(const bool recursive, const float deltaDelay){
-	float delayey = deltaDelay;
-	runAnimationScript(mAnimateOnScript, delayey);
+void SpriteAnimatable::tweenAnimateOn(const bool recursive, const float delay, const float deltaDelay){
+	float thisDelay = delay;
+	runAnimationScript(mAnimateOnScript, thisDelay);
 	if(recursive){
 		auto chillins = mOwner.getChildren();
 		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
 			Sprite*		s(*it);
 			if(s) {
-				delayey += deltaDelay;
-				s->tweenAnimateOn(true, delayey);
+				thisDelay += deltaDelay;
+				s->tweenAnimateOn(true, thisDelay, deltaDelay);
 			}
 		}
 	}
