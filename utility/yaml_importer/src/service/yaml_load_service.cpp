@@ -242,11 +242,14 @@ void YamlLoadService::parseRelations(YAML::Node relationsNode, ModelModel& mm){
 		DS_LOG_WARNING("Incorrect yaml node type for relations from: " << mm.getTableName());
 		return;
 	}
-	// look through the map of relations
-	for(auto relIt = relationsNode.begin(); relIt != relationsNode.end(); ++relIt){
+	std::vector<NodeWithKey> sortedNodes;
+	fillSortedVectorForNodeMap(relationsNode, sortedNodes);
+
+	// look through the map of relations, now sorted
+	for(auto relIt = sortedNodes.begin(); relIt != sortedNodes.end(); ++relIt){
 		ModelRelation mr;
-		mr.setForeignKeyTable((*relIt).first.as<std::string>());
-		YAML::Node relationMap = (*relIt).second;
+		mr.setForeignKeyTable((*relIt).key);
+		YAML::Node relationMap = (*relIt).node;
 		if(relationMap.Type() != YAML::NodeType::Map){
 			DS_LOG_WARNING("Problem reading relation property maps for relation: " << mr.getForeignKeyTable() << " from: " << mm.getTableName());
 			continue;
