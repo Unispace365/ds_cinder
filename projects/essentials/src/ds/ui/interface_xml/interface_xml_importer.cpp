@@ -245,6 +245,18 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
+	} else if(property == "text_align"){
+		auto text = dynamic_cast<MultilineText*>(&sprite);
+		if(text){
+			std::string alignString = attr.getValue();
+			if(alignString == "right"){
+				text->setAlignment(ds::ui::Alignment::kRight);
+			} else if(alignString == "center"){
+				text->setAlignment(ds::ui::Alignment::kCenter);
+			} else {
+				text->setAlignment(ds::ui::Alignment::kCenter);
+			}
+		}
 	}
 
 	// Image properties

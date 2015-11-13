@@ -74,6 +74,7 @@ Sprite Parameters
     * pos_scale = MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_SCALE
     * pos_rotate = MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_ROTATE
     * rotate = MULTITOUCH_CAN_ROTATE
+* **animate_on**: Supply a script to run when tweenAnimateOn() is called on this sprite. See the animation section for details.
 
 Layout Parameters (only valid if using a layout sprite as a parent)
 ------------------------------------------------------
@@ -126,3 +127,85 @@ Circle Sprite Parameters
 ---------------------------
 * **filled**: Boolean, whether to draw just the outline or fill in the circle
 * **radius**: Float, the radius of the circle to draw
+
+Animation
+==============================
+You can supply an animation script for the sprite to run when tweenAnimateOn() is called. This allows you to create animations for the interface right from the XML, and tweak them while the app is running. There are some limitations to this method, but should work for most circumstances. You'll supply a simple script that calls the basic tween functions from SpriteAnimatable.
+
+Syntax
+------------------------------------------
+Animation scripts follow this syntax for each tween (valueY and valueZ are optional):
+    <type>:<valueX, valueY, valueZ>;
+
+So for example, this would tween the sprite to ci::Vec3f(100.0f, 200.0f, 300.0f):
+    "position:100, 200, 300;"
+
+Tween types can be chained together:
+    "position:100, 200, 300; opacity:1.0; scale:1.0, 1.0, 1.0"
+	
+    "position:0.0, 100; opacity:0.5; scale:1.0, 1.0; ease:inOutBack; duration:0.5; delay:1.1"
+	
+**Basic tween types:**
+* **scale**
+* **position**
+* **opacity** (only the x-value is used for the opacity, y and z are ignored)
+* **color** (x,y,z map to r,g,b, respectively, and use 0.0-1.0 values (not 0-255))
+* **size** (does not work for some sprite types, like Image)
+* **rotation**
+
+**Advanced tween types:**
+These tweens move to the current value offset by the supplied value. It's very important that you only call the animation once, or the offset could be applied multiple times, leading to an undesirable effect.
+* **fade:** Tweens to the current value, and starts at an offset supplied. For instance, fade:-1.0 would tween the opacity of a sprite from 0.0 to 1.0 (assuming it started at 1.0). fade:-0.5 would tween the sprite's opacity from 0.5 to 1.0.
+* **slide:** Tweens to the current position, and starts offset by the amount supplied. "slide:-100, 0, 0" would offset the sprite 100 pixels to the left, then tween to the current position.
+* **grow:** Tweens to the current scale, offset by the amount supplied.
+
+**Easing:**
+Supply a string for the easing type desired. Default is inOutCubic. 
+
+    easing:inOutBack;
+
+Valid types:
+* **none** = ci::easeNone;
+* **inQuad** = ci::easeInQuad;
+* **outQuad** = ci::easeOutQuad;
+* **inOutQuad** = ci::easeInOutQuad;
+* **inCubic** = ci::easeInCubic;
+* **outCubic** = ci::easeOutCubic;
+* **inOutCubic** = ci::easeInOutCubic;
+* **inQuart** = ci::easeInQuart;
+* **outQuart** = ci::easeOutQuart;
+* **inOutQuart** = ci::easeInOutQuart;
+* **inQuint** = ci::easeInQuint;
+* **outQuint** = ci::easeOutQuint;
+* **inOutQuint** = ci::easeInOutQuint;
+* **inSine** = ci::easeInSine;
+* **outSine** = ci::easeOutSine;
+* **inOutSine** = ci::easeInOutSine;
+* **inExpo** = ci::easeInExpo;
+* **outExpo** = ci::easeOutExpo;
+* **inOutExpo** = ci::easeInOutExpo;
+* **inCirc** = ci::easeInCirc;
+* **outCirc** = ci::easeOutCirc;
+* **inOutCirc** = ci::easeInOutCirc;
+* **inBounce** = ci::EaseInBounce();
+* **outBounce** = ci::EaseOutBounce();
+* **inOutBounce** = ci::EaseInOutBounce();
+* **inBack** = ci::EaseInBack();
+* **outBack** = ci::EaseOutBack();
+* **inOutBack** = ci::EaseInOutBack();
+* **inAtan** = ci::EaseInAtan();
+* **outAtan** = ci::EaseOutAtan();
+* **inOutAtan** = ci::EaseInOutAtan();
+
+**Duration:**
+Supply a value for the duration of this tween in seconds. Default is 0.35 seconds.
+
+    duration:1.0;
+	
+**Delay:**
+Supply a delay in seconds for the start of the tween. Default is 0.0 seconds.
+
+    delay:0.4;
+	
+**Cascading delays:**
+When calling tweenAnimateOn(), you can optionally supply a delay and a delta delay. The delta delay is added to the delay for each child sprite. This enables a more staggered animation. 
