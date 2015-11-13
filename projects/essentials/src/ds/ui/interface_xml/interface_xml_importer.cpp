@@ -148,6 +148,8 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		sprite.enable(parseBoolean(attr.getValue()));
 	} else if(property == "multitouch"){
 		sprite.enableMultiTouch(parseMultitouchMode(attr.getValue()));
+	} else if(property == "transparent"){
+		sprite.setTransparent(parseBoolean(attr.getValue()));
 	} else if(property == "animate_on"){
 		sprite.setAnimateOnScript(attr.getValue());
 	} else if(property == "t_pad") {

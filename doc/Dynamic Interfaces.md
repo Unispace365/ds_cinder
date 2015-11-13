@@ -74,6 +74,7 @@ Sprite Parameters
     * pos_scale = MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_SCALE
     * pos_rotate = MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_ROTATE
     * rotate = MULTITOUCH_CAN_ROTATE
+* **transparent**: A boolean of wheather the sprite should draw or not.
 * **animate_on**: Supply a script to run when tweenAnimateOn() is called on this sprite. See the animation section for details.
 
 Layout Parameters (only valid if using a layout sprite as a parent)
