@@ -206,6 +206,8 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 				layoutSprite->setLayoutType(LayoutSprite::kLayoutVFlow);
 			} else if(layoutType == "horiz"){
 				layoutSprite->setLayoutType(LayoutSprite::kLayoutHFlow);
+			} else if(layoutType == "size"){
+				layoutSprite->setLayoutType(LayoutSprite::kLayoutSize);
 			} else {
 				layoutSprite->setLayoutType(LayoutSprite::kLayoutNone);
 			}

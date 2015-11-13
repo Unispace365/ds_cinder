@@ -98,7 +98,8 @@ Layout Parameters (only valid if using a layout sprite as a parent)
 * **layout_type**: For a LayoutSprite only (has no effect on children). 
     1. vert: (Default) lays out all children in a vertical (top to bottom) flow.
     2. horiz: Lays out children horizontally (left to right)
-    3. <any other value>: None, does no layout of children.
+    3. size: Only adjusts the size of children, but does not modify their position. Useful to constrain some elements to a size, but keep them at a particular position
+    4. <any other value>: None, does no layout of children.
 * **layout_spacing**: For LayoutSprite only, a float that sets the spacing between all elements. layout_spacing="10.0"
 
 Text Parameters (valid for Text and MultilineText Sprites)

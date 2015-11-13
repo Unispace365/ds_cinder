@@ -20,7 +20,8 @@ public:
 	// None = No action taken on elements, but will run recursive layouts
 	// VFlow = Size elements based on their size settings, then position them, top-to-bottom
 	// HFlow = Same as VFlow, but horizontally from left-to-right
-	typedef enum { kLayoutNone, kLayoutVFlow, kLayoutHFlow } LayoutType;
+	// Size = only adjust the size of the children, but do not position
+	typedef enum { kLayoutNone, kLayoutVFlow, kLayoutHFlow, kLayoutSize } LayoutType;
 
 	enum { kFixedSize = 0, kFlexSize, kStretchSize } SizeType;
 	enum { kLeft = 0, kCenter, kRight } HAlignment;
@@ -52,6 +53,9 @@ protected:
 	virtual void			runHLayout();
 	// virtual in case you want to override with your own layout jimmies.
 	virtual void			runNoneLayout();
+	// virtual in case you want to override with your own layout jimmies.
+	virtual void			runSizeLayout();
+
 	std::function<void()>	mLayoutUpdatedFunction;
 
 	float					mSpacing;

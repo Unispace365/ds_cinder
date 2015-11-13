@@ -26,6 +26,8 @@ void LayoutSprite::runLayout(){
 		runVLayout();
 	} else if(mLayoutType == kLayoutHFlow){
 		runHLayout();
+	} else if(mLayoutType == kLayoutSize){
+		runSizeLayout();
 	}
 
 	onLayoutUpdate();
@@ -40,6 +42,64 @@ void LayoutSprite::runNoneLayout(){
 			layoutSprite->runLayout();
 		}
 	}
+}
+
+void LayoutSprite::runSizeLayout(){
+
+	std::vector<ds::ui::Sprite*>& chillins = getChildren();
+	const float layoutWidth = getWidth();
+	const float layoutHeight = getHeight();
+
+	// Size layout just adjusts the size of child elements to fit, if specified.
+	// If children should ignore the size, don't add a layout size and set them to fixed.
+	// Otherwise, stretch and flex both "gracefully" match sprites to the size of this layout
+	for(auto it = chillins.begin(); it < chillins.end(); ++it){
+		ds::ui::Sprite* chillin = (*it);
+
+		if(chillin->mLayoutUserType == kFixedSize){
+			if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
+				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+				if(mt){
+					mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
+				} else if(img){
+					// restore position after calculating the box size
+					ci::Vec3f prePos = img->getPosition();
+					fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
+					img->setPosition(prePos);
+				} else {
+					chillin->setSize(mLayoutSize);
+				}
+			}
+		} else if(chillin->mLayoutUserType == kStretchSize || chillin->mLayoutUserType == kFlexSize){
+			const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
+			const float fixedH = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
+
+			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+			ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+			if(mt){
+				mt->setResizeLimit(fixedW, fixedH);
+			} else if(img){
+				// restore position after calculating the box size
+				ci::Vec3f prePos = img->getPosition();
+				fitInside(img, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), true);
+				img->setPosition(prePos);
+			} else if(ls){
+				ls->setSize(fixedW, fixedH);
+				ls->runLayout();
+			} else {
+				chillin->setSize(fixedW, fixedH);
+			}
+		}
+
+
+		LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+		if(ls){
+			ls->runLayout();
+		}
+	}
+
 }
 
 void LayoutSprite::runVLayout(){
@@ -67,7 +127,6 @@ void LayoutSprite::runVLayout(){
 						mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 					} else if(img){
 						fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
-						std::cout << "Fixed size image: " << img->getScaleWidth() << " " << img->getScaleHeight() << std::endl;
 					} else {
 						chillin->setSize(mLayoutSize);
 					}
