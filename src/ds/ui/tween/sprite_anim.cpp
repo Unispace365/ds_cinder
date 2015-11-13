@@ -112,13 +112,18 @@ void SpriteAnimatable::animStop() {
 	mAnimSize.stop();
 }
 
-void SpriteAnimatable::tweenAnimateOn(const bool recursive){
-	runAnimationScript(mAnimateOnScript);
+void SpriteAnimatable::tweenAnimateOn(const bool recursive, const float deltaDelay){
+	float delayey = deltaDelay;
+	runAnimationScript(mAnimateOnScript, delayey);
 	if(recursive){
-		mOwner.forEachChild([this](ds::ui::Sprite& spr){
-			// forEachChild handles the recursion, so don't double recurse
-			spr.tweenAnimateOn(false);
-		}, true);
+		auto chillins = mOwner.getChildren();
+		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
+			Sprite*		s(*it);
+			if(s) {
+				delayey += deltaDelay;
+				s->tweenAnimateOn(true, delayey);
+			}
+		}
 	}
 }
 
@@ -126,7 +131,7 @@ void SpriteAnimatable::setAnimateOnScript(const std::string& animateOnScript){
 	mAnimateOnScript = animateOnScript;
 }
 
-void SpriteAnimatable::runAnimationScript(const std::string& animScript){
+void SpriteAnimatable::runAnimationScript(const std::string& animScript, const float addedDelay){
 	if(animScript.empty()) return;
 
 	// find all the commands in the string
@@ -137,7 +142,7 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript){
 	// set default parameters, if they're not supplied by the string
 	ci::EaseFn easing = ci::EaseInOutCubic();
 	float dur = 0.35f;
-	float delayey = 0.0f;
+	float delayey = addedDelay;
 
 	// This maps tracks all the types (scale, position, etc) and their destinations (as 3d vectors)
 	std::map<std::string, ci::Vec3f> animationCommands;
@@ -157,7 +162,9 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript){
 			ds::string_to_value<float>(commandProperties[1], dur);
 			continue;
 		} else if(keyey == "delay"){
-			ds::string_to_value<float>(commandProperties[1], delayey);
+			float rootDelay = 0.0f;
+			ds::string_to_value<float>(commandProperties[1], rootDelay);
+			delayey += rootDelay;
 			continue;
 		}
 

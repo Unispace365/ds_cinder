@@ -94,7 +94,8 @@ public:
 	void									animStop();
 
 	/// Runs any script set as the animate on script. Optionally runs through any children sprites and runs those as well.
-	void									tweenAnimateOn(const bool recursive = false);
+	/// You can also add delta delay so each element runs a bit later than the one before. The first one runs with it's default delay
+	void									tweenAnimateOn(const bool recursive = false, const float deltaDelay = 0.0f);
 
 	/// Sets the script to use in the above tweenAnimateOn() function
 	void									setAnimateOnScript(const std::string& animateOnScript);
@@ -110,7 +111,7 @@ public:
 			fade: tweens the opacity to the current opacity and starts at the supplied value
 		Example: "scale:1, 1, 1; position:100, 200, 300; opacity:1.0; color:0.5, 0.6, 1.0; rotation:0.0, 0.0, 90.0; size:20, 20; easing:inOutBack; duration:1.0; slide:-100; delay:0.5"
 		*/
-	void									runAnimationScript(const std::string& animScript);
+	void									runAnimationScript(const std::string& animScript, const float addedDelay = 0.0f);
 
 	/// Gets the cinder easing function by string value, to support the script running
 	static ci::EaseFn						getEasingByString(const std::string& inString);
