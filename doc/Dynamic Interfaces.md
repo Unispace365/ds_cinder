@@ -135,12 +135,15 @@ You can supply an animation script for the sprite to run when tweenAnimateOn() i
 Syntax
 ------------------------------------------
 Animation scripts follow this syntax for each tween (valueY and valueZ are optional):
+
     <type>:<valueX, valueY, valueZ>;
 
 So for example, this would tween the sprite to ci::Vec3f(100.0f, 200.0f, 300.0f):
+
     "position:100, 200, 300;"
 
 Tween types can be chained together:
+
     "position:100, 200, 300; opacity:1.0; scale:1.0, 1.0, 1.0"
 	
     "position:0.0, 100; opacity:0.5; scale:1.0, 1.0; ease:inOutBack; duration:0.5; delay:1.1"
