@@ -9,6 +9,7 @@
 #include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/button/image_button.h>
+#include <ds/ui/button/sprite_button.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/app/environment.h>
@@ -28,6 +29,11 @@
 #include <fstream>
 #include <boost/regex.hpp>
 #include <boost/filesystem.hpp>
+
+namespace {
+static std::unordered_map<std::string, ds::ui::XmlImporter::XmlPreloadData>	 PRELOADED_CACHE;
+static bool AUTO_CACHE = false;
+}
 
 
 namespace ds {
@@ -114,7 +120,10 @@ static std::string filePathRelativeTo( const std::string &base, const std::strin
 static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer = "") {
 	std::string property = attr.getName();
 
-	// TODO: make these a map? or something for faster lookup?
+	// This is a pretty long "case switch" (well, effectively a case switch).
+	// It seems like it'd be slow, but in practice, it's relatively fast.
+	// The slower parts of this are the actual functions that are called (particularly multilinetext setResizeLimit())
+	// So be sure that this is actually performing slowly before considering a refactor.
 
 	if(property == "name" || property == "class") {
 		// Do nothing, these are handled elsewhere
@@ -381,19 +390,40 @@ bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outDat
 			outData.mStylesheets.push_back(s);
 	}
 
+	// If automatically caching, add this to the cache
+	if(AUTO_CACHE){
+		PRELOADED_CACHE[filename] = outData;
+	}
+
 	return true;
 }
 
-bool XmlImporter::loadXMLto( ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter ) {
+void XmlImporter::setAutoCache(const bool doCaching){
+	AUTO_CACHE = doCaching;
+}
+
+bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter) {
 
 	XmlImporter xmlImporter( parent, filename, map, customImporter );
 
-	// Here you could look up your preloaded stuff from a static cache based on filename
-
 	XmlPreloadData preloadData;
-	preloadData.mFilename = filename;
-	if(!preloadXml(filename, preloadData)){
-		return false;
+
+	// if auto caching, look up the xml in the static cache
+	bool cachedAlready = false;
+	if(AUTO_CACHE){
+		auto xmlIt = PRELOADED_CACHE.find(filename);
+		if(xmlIt != PRELOADED_CACHE.end()){
+			cachedAlready = true;
+			preloadData = xmlIt->second;
+		}
+	}
+
+	// we don't have this in our cache, so look it up
+	if(!cachedAlready){
+		preloadData.mFilename = filename;
+		if(!preloadXml(filename, preloadData)){
+			return false;
+		}
 	}
 
 	// copy each stylesheet, cause the xml importer will delete it's copies when it destructs
@@ -525,6 +555,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		if(content.size() > 0) touchPad = (float)atof(content.c_str());
 		auto imgButton = new ds::ui::ImageButton(engine, "", "", touchPad);
 		spriddy = imgButton;
+	}
+	else if(type == "sprite_button"){
+		spriddy = new ds::ui::SpriteButton(engine);
 	}
 	else if(type == "gradient"){
 		auto gradient = new ds::ui::GradientSprite(engine);

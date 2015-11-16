@@ -49,11 +49,12 @@ public:
 	virtual void				touchesEnded(ci::app::TouchEvent event) final;
 
 	// These are safe to override
-	virtual void				onTouchesBegan(ds::ui::TouchEvent event ){};
-	virtual void				onTouchesMoved(ds::ui::TouchEvent event ){};
+	virtual void				onTouchesBegan(ds::ui::TouchEvent event){};
+	virtual void				onTouchesMoved(ds::ui::TouchEvent event){};
 	virtual void				onTouchesEnded(ds::ui::TouchEvent event){};
 
 	/// These are here to throw a compiler error on projects with the legacy events. These are no longer called, so use the above ds::ui::TouchEvent callbacks
+	/// DEPRECATED
 	virtual void				onTouchesBegan(ci::app::TouchEvent event) final {};
 	virtual void				onTouchesMoved(ci::app::TouchEvent event) final {};
 	virtual void				onTouchesEnded(ci::app::TouchEvent event) final {};
