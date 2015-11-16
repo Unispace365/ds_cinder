@@ -22,7 +22,6 @@ public:
 	void								linkVideo(ds::ui::Video* vid);
 
 	virtual void						updateServer(const ds::UpdateParams& p);
-	//virtual void						updateClient(const ds::UpdateParams& p);
 
 	ds::ui::ImageButton*				mHome;
 	ds::ui::ImageButton*				mPauseOn;
@@ -44,6 +43,9 @@ private:
 	double								mLastSeekTime;
 	bool								mUpdatedPosition;
 	ds::ui::TouchInfo::Phase			mTouchPhase;
+	bool								mAdded;
+	bool								mMoved;
+	bool								mRemoved;
 
 
 };

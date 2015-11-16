@@ -672,6 +672,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\circle.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\network\network_info.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1138,6 +1141,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\circle.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\network_info.cpp">
+      <Filter>src\ds\network</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

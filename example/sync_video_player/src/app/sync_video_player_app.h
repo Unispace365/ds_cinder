@@ -16,27 +16,29 @@ class sync_video_player : public ds::App {
 public:
 	sync_video_player();
 
-	virtual void		keyDown(ci::app::KeyEvent event);
-	void				setupServer();
-	void				update();
-	virtual void		fileDrop(ci::app::FileDropEvent event);
-	void				setupScrubBar();
+	virtual void				keyDown(ci::app::KeyEvent event);
+	void						setupServer();
+	void						update();
+	virtual void				fileDrop(ci::app::FileDropEvent event);
+	void						setupScrubBar();
+	void						updateScrubBar(ds::ui::Video* video);
+
 private:
-	typedef ds::App		inherited;
+	typedef ds::App				inherited;
 
 	// Data acquisition
-	Globals				mGlobals;
+	Globals						mGlobals;
 
-	ds::ui::Sprite*		mVideoHolder;
-	ds::ui::GstVideo*	mVideo;
-	ds::ui::Text*		mFpsDisplay;
+	ds::ui::Sprite*				mVideoHolder;
+	ds::ui::GstVideo*			mVideo;
+	ds::ui::Text*				mFpsDisplay;
 
-	bool				mVerbose;
-	float				mSeekSpeed;
+	bool						mVerbose;
+	float						mSeekSpeed;
 
-	//ds::ui::GstVideo*	mSelectedVideo;
-	ds::ui::Video*	mSelectedVideo;
-	VideoScrubBar*		mVsb;
+	ds::ui::Video*				mSelectedVideo;
+	VideoScrubBar*				mVsb;
+	std::vector<ds::ui::Video*>	mLoadedVideos;
 };
 
 } // !namespace ds

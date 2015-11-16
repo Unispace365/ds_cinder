@@ -93,10 +93,6 @@ public:
 	double				getCurrentPosition() const;
 	void				seekPosition(const double);
 
-	void				resetSeekMode();
-	void				seekFastPosition(const double t);
-	/* fast forward/backward from current position to indicated position*/
-	void				scrubToPosition(const double t, float speed);
 	// If true, will play the video as soon as it's loaded.
 	void				setAutoStart(const bool doAutoStart);
 	bool				getAutoStart() const;
@@ -122,7 +118,6 @@ public:
 	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr);
 	void				enablePlayingAFrame(bool on = true);
 	bool				isPlayingAFrame() const;
-	void				seekFast(float speed);
 
 	// Extends the idle timer for this sprite when the video is playing. Default = false
 	void				setAutoExtendIdle(const bool doAutoextend);
@@ -162,6 +157,8 @@ private:
 	void				checkOutOfBounds();
 	void				setStatus(const int);
 	void				checkStatus();
+	void				setNetClock();
+
 	ColorType			mColorType;
 
 	ci::gl::Texture		mFrameTexture;
@@ -200,14 +197,12 @@ private:
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;
 
-	std::uint64_t		mBaseTime;
-	std::uint64_t		mStartTime;
-	std::uint64_t		mSeekTime;
+	std::uint64_t		mBaseTime;		//Base clock for gst pipeline
+	std::uint64_t		mSeekTime;		//Position to seek to
 
-	int					mNetPort; // todo: increment per video sprite
-	std::uint64_t		mNetClock;
-
-	void				setNetClock();
+	int					mNetPort;		// todo: increment per video sprite
+	std::uint64_t		mNetClock;		// network clock time
+	std::string			mIpAddress;		// Ip address of system clock for gstreamer pipeline to sync with
 
 
 	// Initialization

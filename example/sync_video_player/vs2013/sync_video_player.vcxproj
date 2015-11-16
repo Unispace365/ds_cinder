@@ -142,6 +142,7 @@ xcopy  /Y /f ".\debug\sync_video_player.pdb" "..\server\"</Command>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
+      <DelayLoadDLLs>libgstreamer-1.0-0.dll;libglib-2.0-0.dll;libgobject-2.0-0.dll;libgstapp-1.0-0.dll;libgstbase-1.0-0.dll;libgstgl-1.0-0.dll;libgstvideo-1.0-0.dll;libgstnet-1.0-0.dll</DelayLoadDLLs>
     </Link>
     <PostBuildEvent>
       <Command>xcopy /Y /f  "..\sync_video_player.exe" "..\client"

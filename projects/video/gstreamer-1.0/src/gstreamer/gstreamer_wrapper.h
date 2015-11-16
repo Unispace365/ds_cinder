@@ -221,7 +221,7 @@ public:
 	*/
 	void					setTimePositionInNs( gint64 iTargetTimeInNs );
 
-	void					scrubToPosition( double t, float speed);
+	//void					scrubToPosition( double t, float speed);
 	/*
 	Seeks the media file to the position provided by a percentage statement between 0 and 100 percent.
 	0 percent means the beginning of the file, 50 percent the middle and 100 percent the end of the file.
@@ -291,9 +291,12 @@ public:
 	*/
 	float					getFps();
 
+	/*Get the current time from the pipeline clock*/
 	uint64_t				getPipelineTime();
+
+
+	/*Get the current time from the network clock*/
 	uint64_t				getNetworkTime();
-	uint64_t				getRunningTime();
 
 
 	void					setPipelineBaseTime(uint64_t base_time);
@@ -435,10 +438,10 @@ public:
 	/* set the time for resume playing from pause*/
 	void					setStartTime(uint64_t start_time);
 
-	/*Set up seek to go fast*/
-	bool					seekFast(gint64 iTargetTimeInNs);
+	///*Set up seek to go fast*/
+	//bool					seekFast(gint64 iTargetTimeInNs);
 
-	bool					resetSeekMode(GstSeekFlags flags = GST_SEEK_FLAG_FLUSH);
+	//bool					resetSeekMode(GstSeekFlags flags = GST_SEEK_FLAG_FLUSH);
 	/*
 	Lamda is called when GStreamer gets an EOS message (not called when looping)
 	*/
@@ -482,13 +485,28 @@ public:
 	/** Spite out a ton of messages when running gstreamer pipelines. */
 	void					setVerboseLogging(const bool verboseOn);
 
+	/* Setup network clock from server */
 	void					setServerNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& inOutTime);
+	
+	/* Setup network clock from client */
 	void					setClientNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& baseTime);
+	
+	/*Retrieve the current network clock time*/
 	guint64					getNetClockTime();
+
+	/*Check if resuming from play.  May be able to use GST_STATE_CHANGE_PAUSED_TO_PLAYING of the GstStateChanged*/
 	bool					isPlayFromPause();
+
+	/*Clear the Pause to Play flag*/
 	void					clearPlayFromPause();
-	void					fastSeek(float speed);
-	bool					isFastSeeking();
+	//void					fastSeek(float speed);
+	//bool					isFastSeeking();
+
+	/*Flag to indicate the video just looped*/
+	bool					isNewLoop();
+
+	/*clear flag to indicate if loop has started*/
+	void					clearNewLoop();
 
 private:
 	/*
@@ -666,8 +684,8 @@ private:
 	GstClock*				m_NetClock;
 	uint64_t				m_StartTime;
 	bool					m_playFromPause;
-	bool					m_isFastSeeking;
-
+	//bool					m_isFastSeeking;
+	bool					m_newLoop;
 
 }; //!class GStreamerWrapper
 }; //!namespace gstwrapper

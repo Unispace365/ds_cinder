@@ -7,6 +7,7 @@
 
 #include "app/app_defs.h"
 #include "app/globals.h"
+#include "ds/ui/sprite/gst_video.h"
 
 
 namespace ds {
@@ -94,35 +95,12 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 			}
 			else {
 				mSelectedVideo = video;
-
 				video->sendToFront();
-				mVsb->sendToFront();
-				if (mVsb) {
-					mVsb->linkVideo(mSelectedVideo);
-
-					if (!mSelectedVideo->getIsMuted()){
-						mVsb->mVolumeOff->hide();
-						mVsb->mVolumeOn->show();
-					}
-					else {
-						mVsb->mVolumeOff->show();
-						mVsb->mVolumeOn->hide();
-					}
-
-					if (video->getCurrentStatus() == ds::ui::GstVideo::Status::STATUS_PAUSED){
-						mVsb->mPauseOn->show();
-						mVsb->mPauseOff->hide();
-					}
-					else{
-						mVsb->mPauseOn->hide();
-						mVsb->mPauseOff->show();
-					}
-				}
+				updateScrubBar(mSelectedVideo);
 			}
-
 		}
 	});
-
+	mLoadedVideos.push_back(mVideo);
 	mVideoHolder->addChildPtr(mVideo);
 	mSelectedVideo = mVideo;
 
@@ -138,12 +116,11 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 }
 void sync_video_player::setupScrubBar(){
 
-	//Setup Scrubbar
+	//Setup Scrub bar
 
 	mVsb = new VideoScrubBar(mGlobals, 800.0f);
 	mVideoHolder->addChildPtr(mVsb);
 	mVsb->setCenter(0.5f, 0.5f);
-	//mVsb->setPosition(mVideo->getWidth() / 2.0f, mVideo->getHeight() - 50.f);
 	mVsb->setPosition(mEngine.getWorldWidth()/2.0f, mEngine.getWorldHeight() - 100.0f);
 	mVsb->show();
 	mVsb->setOpacity(1.0f);
@@ -151,30 +128,41 @@ void sync_video_player::setupScrubBar(){
 
 	mVsb->mPauseOff->setClickFn([this]
 	{
-		mSelectedVideo->pause();
-		mVsb->mPauseOn->show();
-		mVsb->mPauseOff->hide();
+		if (mSelectedVideo) {
+			mSelectedVideo->pause();
+			mVsb->mPauseOn->show();
+			mVsb->mPauseOff->hide();
+		}
 	});
 
 	mVsb->mPauseOn->setClickFn([this]
 	{
-		mSelectedVideo->play();
-		mVsb->mPauseOn->hide();
-		mVsb->mPauseOff->show();
+		if (mSelectedVideo) {
+
+			mSelectedVideo->play();
+			mVsb->mPauseOn->hide();
+			mVsb->mPauseOff->show();
+		}
 	});
 
 	mVsb->mVolumeOn->setClickFn([this]
 	{
-		mSelectedVideo->setMute(true);
-		mVsb->mVolumeOff->show();
-		mVsb->mVolumeOn->hide();
+		if (mSelectedVideo) {
+
+			mSelectedVideo->setMute(true);
+			mVsb->mVolumeOff->show();
+			mVsb->mVolumeOn->hide();
+		}
 	});
 
 	mVsb->mVolumeOff->setClickFn([this]
 	{
-		mSelectedVideo->setMute(false);
-		mVsb->mVolumeOff->hide();
-		mVsb->mVolumeOn->show();
+		if (mSelectedVideo) {
+
+			mSelectedVideo->setMute(false);
+			mVsb->mVolumeOff->hide();
+			mVsb->mVolumeOn->show();
+		}
 	});
 	
 }
@@ -189,6 +177,30 @@ void sync_video_player::update() {
 
 }
 
+void sync_video_player::updateScrubBar(ds::ui::Video* video){
+	if (!mVsb || !video) return;
+	mVsb->linkVideo(video);
+
+	if (!video->getIsMuted()){
+		mVsb->mVolumeOff->hide();
+		mVsb->mVolumeOn->show();
+	} else {
+		mVsb->mVolumeOff->show();
+		mVsb->mVolumeOn->hide();
+	}
+
+	if (video->getCurrentStatus() == ds::ui::GstVideo::Status::STATUS_PAUSED){
+		mVsb->mPauseOn->show();
+		mVsb->mPauseOff->hide();
+	} else{
+		mVsb->mPauseOn->hide();
+		mVsb->mPauseOff->show();
+	}
+
+	mVsb->sendToFront();
+
+}
+
 void sync_video_player::keyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 	inherited::keyDown(event);
@@ -199,18 +211,23 @@ void sync_video_player::keyDown(ci::app::KeyEvent event){
 		if(mVideo){
 			mVideo->setVerboseLogging(mVerbose);
 		}
-	}
-	else if (event.getChar() == KeyEvent::KEY_f){
-		mSeekSpeed *= 2;
-		if (mVideo){
-			mVideo->seekFast(mSeekSpeed);
+	} else if (event.getChar() == KeyEvent::KEY_d){ // d = delete selected video (only on master).
+		if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE ){
+			return;
 		}
-	}
-	else if (event.getChar() == KeyEvent::KEY_s){
-		mSeekSpeed /= 2;
-		if (mVideo){
-			mVideo->seekFast(mSeekSpeed);
 
+		if (mSelectedVideo ){
+			mLoadedVideos.erase(std::remove(mLoadedVideos.begin(), mLoadedVideos.end(), mSelectedVideo), mLoadedVideos.end());
+			mSelectedVideo->release();
+			mVsb->linkVideo(nullptr);
+			if (!mLoadedVideos.empty()) {
+				mSelectedVideo = mLoadedVideos[0];
+				updateScrubBar(mSelectedVideo);
+				mVsb->sendToFront();
+			}
+			else{
+				mSelectedVideo = nullptr;
+			}
 		}
 	}
 }

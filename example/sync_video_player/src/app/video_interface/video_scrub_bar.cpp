@@ -28,8 +28,11 @@ namespace ds {
 		, mVolumeOff(nullptr)
 		, mCurrentProgress(0.0f)
 		, mIsPaused(false)
-		, mUpdatedPosition(true)
+		//, mUpdatedPosition(false)
 		, mLastSeekTime(0.0)
+		, mAdded(false)
+		, mMoved(false)
+		, mRemoved(false)
 	{
 
 		const float touchHeight = 60;
@@ -38,7 +41,7 @@ namespace ds {
 			const float homeX = 150;
 			const float pauseX = 80;
 			const float volumeX = 0;
-
+			 
 		setSize(widdyWamWamWozzle, touchHeight);
 		enable(true);
 		enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
@@ -46,21 +49,29 @@ namespace ds {
 			//Performance is better if we pause the pipeline before scrubbing.  Will resume playing when done.
 			if (!getParent() || !mLinkedVideo) return;
 			mTouchPhase = ti.mPhase;
-							mUpdatedPosition = true;
+							//mUpdatedPosition = true;
 
 			ci::Vec3f loccy = globalToLocal(ti.mCurrentGlobalPoint);
 			double newPercent = (double)(loccy.x / getWidth());
 			if (newPercent < 0.0) newPercent = 0.0;
 			if (newPercent > 1.0) newPercent = 1.0;
-			if (ti.mPhase == ds::ui::TouchInfo::Added)
-				std::cout << "touch added event happened now";
+			if (ti.mPhase == ds::ui::TouchInfo::Added) {
+				//std::cout << "touch added event happened now";
+				mAdded = true;
+			}
+			else if (ti.mPhase == ds::ui::TouchInfo::Moved) {
+				mMoved = true;
+			}
+			else {
+				mRemoved = true;
+			}
 
 			if (ti.mPhase == ds::ui::TouchInfo::Added || ti.mPhase == ds::ui::TouchInfo::Moved) {
 
 				mLastSeekTime = newPercent;
 			}
 
-			mUpdatedPosition = true;
+			//mUpdatedPosition = true;
 
 		});
 		mBacker = new ds::ui::Sprite(mEngine, widdyWamWamWozzle, barHeight);
@@ -123,43 +134,44 @@ void VideoScrubBar::linkVideo(ds::ui::Video* vid){
 
 void VideoScrubBar::updateServer(const ds::UpdateParams& p){
 	inherited::updateServer(p);
-	if (mUpdatedPosition) {
-		
-		if (mTouchPhase == ds::ui::TouchInfo::Added) {
+	if (!mLinkedVideo) return;
+
+	//if (mUpdatedPosition) {
+	if (mAdded || mMoved || mRemoved) {
+			std::cout << "---------------------------------------Update Server Called " << std::endl;
+		//if (mTouchPhase == ds::ui::TouchInfo::Added) {
+		if (mAdded) {
+
 			if (mLinkedVideo->getCurrentStatus() == ds::ui::GstVideo::Status::STATUS_PAUSED)
 			{
 				std::cout << "forcing pause for scrubbing" << std::endl;
 				mIsPaused = true;
 			}
-			mLinkedVideo->pause();
+			std::cout << "Pausing temporarily for scrubbing" << std::endl;
 
-		}
-		if (mTouchPhase == ds::ui::TouchInfo::Added || mTouchPhase == ds::ui::TouchInfo::Moved) {
-			//Want to seek with flags set that allow for a more responsive scrubbing effect.
-			//	mLinkedVideo->seekFastPosition(newPercent);// seekPosition(newPercenBt);
-			//mLinkedVideo->seekPosition(mLastSeekTime);
+			mLinkedVideo->pause();
+			mAdded = false;
 			mLinkedVideo->seekPosition(mLastSeekTime);
 
 		}
-		else { //if  ds::ui::TouchInfo::Removed
-			//We need to do transition out of  GST_SEEK_FLAG_TRICKMODE_KEY_UNITS by doing a 'static' seek 
-			//with the flat GST_SEEK_FLAG_TRICKMODE & GST_SEEK_FLAG_FLUSH.
-			//This provides better performance than going straight to seeking with just GST_SEEK_FLAG_FLUSH.
 
-			//		mLinkedVideo->resetSeekMode();
-			//		std::cout << "touch removed" << std::endl;
-			//		mLinkedVideo->seekPosition(mLastSeekTime);
+		//if (mTouchPhase == ds::ui::TouchInfo::Added || mTouchPhase == ds::ui::TouchInfo::Moved)
+		if ( mMoved){
+			mLinkedVideo->seekPosition(mLastSeekTime);
+			mMoved = false;
+		}
+		if (mRemoved){ //if  ds::ui::TouchInfo::Removed
 			if (!mIsPaused){
 				std::cout << "resuming playback" << std::endl;
 				mLinkedVideo->play();
 			}
 			mIsPaused = false;
-
+			mRemoved = false;
 		}
-		mUpdatedPosition = false;
+		//mUpdatedPosition = false;
 	}
 	
-	if(mLinkedVideo && mProgress && mBall){
+	if( mProgress && mBall){
 		// update scrub bar
 		float progress = (float)mLinkedVideo->getCurrentPosition();
 		if(progress < 0.0f) progress = 0.0f;

@@ -20,6 +20,10 @@
 
 #include <mutex>
 
+#include  <ds/network/network_info.h>
+
+//#include "network_info.h"
+
 using namespace ci;
 using namespace gstwrapper;
 
@@ -87,8 +91,9 @@ const char mPlayAtt = 'H';
 const char mFastPosAtt = 'I';
 const char mPosAtt = 'J';
 const char mUpdateAtt = 'K';
-
-
+const char mUpdateBaseTimeAtt = 'L';
+const char mUpdateSeekTimeAtt = 'M';
+const char mSeekAtt = 'N';
 
 const DirtyState& mPosDirty = newUniqueDirtyState();
 
@@ -105,6 +110,9 @@ const DirtyState& mSyncDirty = newUniqueDirtyState();
 
 const DirtyState& mFastPosDirty = newUniqueDirtyState();
 const DirtyState& mPlayDirty = newUniqueDirtyState();
+const DirtyState& mBaseTimeDirty = newUniqueDirtyState();
+const DirtyState& mSeekTimeDirty = newUniqueDirtyState();
+const DirtyState& mSeekDirty = newUniqueDirtyState();
 
 }
 
@@ -174,6 +182,11 @@ void GstVideo::updateServer(const UpdateParams &up){
 
 	mGstreamerWrapper->update();
 
+	if (mGstreamerWrapper->isNewLoop()){
+		mGstreamerWrapper->clearNewLoop();
+		markAsDirty(mBaseTimeDirty);
+		markAsDirty(mSeekDirty);
+	} else
 	//m_StartTime is used for pause/resume operations
 	if (mGstreamerWrapper->isPlayFromPause() )
 	{
@@ -181,19 +194,22 @@ void GstVideo::updateServer(const UpdateParams &up){
 		mBaseTime = mGstreamerWrapper->getBaseTime();
 		mSeekTime = mGstreamerWrapper->getSeekTime();
 
-		markAsDirty(mPlayDirty);
+		markAsDirty(mBaseTimeDirty);
+		markAsDirty(mSeekTimeDirty);
 	}
+
 
 
 	//check wrapper for new time sync.  If new, mark as dirty
 	//Don't try to sync base-time while fast seeking
-	if (mGstreamerWrapper->getBaseTime() != mBaseTime && !mGstreamerWrapper->isFastSeeking()) {
+	else if (mGstreamerWrapper->getBaseTime() != mBaseTime ) {
 
 		mBaseTime = mGstreamerWrapper->getBaseTime();
 		std::cout << "++++++++++++++ Syncing base time with server: " << mBaseTime << std::endl;
 
-		markAsDirty(mSyncDirty);
+		markAsDirty(mBaseTimeDirty);
 	}
+
 
 	
 	
@@ -394,7 +410,8 @@ void GstVideo::doLoadVideo(const std::string &filename){
 			if(mVideoCompleteFn) mVideoCompleteFn();
 		});
 
-		setStatus(Status::STATUS_PLAYING);
+		//setStatus(Status::STATUS_PLAYING);
+		setStatus(Status::STATUS_STOPPED);
 		if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE)
 			setNetClock();
 
@@ -457,30 +474,24 @@ float GstVideo::getVolume() const {
 void GstVideo::play(){
 	mGstreamerWrapper->play();
 
-	//if (mGstreamerWrapper->isPlayFromPause()) {
-	//	mGstreamerWrapper->clearPlayFromPause();
-	//	mBaseTime = mGstreamerWrapper->getBaseTime();
-	//	mSeekTime = mGstreamerWrapper->getSeekTime();
-	//	markAsDirty(mPlayDirty);
-	//}
 	//If movie not yet loaded, remember to play it later once it has
 	if (!mGstreamerWrapper->hasVideo()){
 		mShouldPlay = true;
 	}
-
-	markAsDirty(mStatusDirty);
+	markAsDirty(mBaseTimeDirty);
+	markAsDirty(mSeekTimeDirty);
 }
 
 void GstVideo::stop(){
 	mShouldPlay = false;
 	mGstreamerWrapper->stop();
-	markAsDirty(mStatusDirty);
 }
 
 void GstVideo::pause(){
 	mShouldPlay = false;
 	mGstreamerWrapper->pause();
-	markAsDirty(mStatusDirty);
+	 
+	markAsDirty(mSeekTimeDirty);
 }
 
 bool GstVideo::getIsPlaying() const {
@@ -509,25 +520,9 @@ double GstVideo::getCurrentPosition() const {
 }
 
 void GstVideo::seekPosition(const double t){
+	std::cout << "current mode: " << mStatus.mCode << std::endl;
 	mGstreamerWrapper->setPosition(t);
 	markAsDirty(mPosDirty);
-}
-
-void GstVideo::resetSeekMode(){
-	mGstreamerWrapper->resetSeekMode((GstSeekFlags)(GstSeekFlags::GST_SEEK_FLAG_TRICKMODE | GstSeekFlags::GST_SEEK_FLAG_FLUSH));
-	//markAsDirty(mPosDirty);
-}
-
-void GstVideo::seekFastPosition(const double t){
-	mGstreamerWrapper->setFastPosition(t);
-	markAsDirty(mFastPosDirty);
-}
-
-
-void GstVideo::scrubToPosition( double t, float speed){
-	mGstreamerWrapper->scrubToPosition(  t,  speed);
-	markAsDirty(mPosDirty);
-
 }
 
 void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn){
@@ -612,8 +607,12 @@ void GstVideo::checkStatus(){
 	}
 }
 void GstVideo::setNetClock(){
-	//std::string ipaddr = "10.3.55.77";
-	std::string ipaddr = "192.168.1.65";
+	if (mIpAddress.empty()) {
+		ds::network::networkInfo* Networki;
+		Networki = new ds::network::networkInfo();
+
+		mIpAddress = Networki->getAddress();
+	}
 	if (mEngine.getMode() == ds::ui::SpriteEngine::STANDALONE_MODE){
 		// NOTHIN
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE){
@@ -622,15 +621,14 @@ void GstVideo::setNetClock(){
 		static int newPort = 1623;
 		newPort++;
 		mNetPort = newPort;
-		mGstreamerWrapper->setServerNetClock(true, ipaddr, mNetPort, mNetClock, mBaseTime);
+		mGstreamerWrapper->setServerNetClock(true, mIpAddress, mNetPort, mNetClock, mBaseTime);
 		markAsDirty(mSyncDirty);
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
-		mGstreamerWrapper->setClientNetClock(false, ipaddr, mNetPort, mNetClock, mBaseTime);
+		//Wait for server to initiate contact
+		mGstreamerWrapper->setClientNetClock(false, mIpAddress, mNetPort, mNetClock, mBaseTime);
 	}
 }
-void GstVideo::seekFast(float speed){
-	mGstreamerWrapper->fastSeek(speed);
-}
+
 
 void GstVideo::checkOutOfBounds() {
 	if (!inBounds()){
@@ -655,7 +653,6 @@ const std::string& GstVideo::getLoadedFilename() const {
 
 void GstVideo::writeAttributesTo(DataBuffer& buf){
 	Sprite::writeAttributesTo(buf);
-	mSeekTime = mGstreamerWrapper->getSeekTime();
 
 	if (mDirty.has(mPathDirty)){
 		buf.add(mPathAtt);
@@ -688,42 +685,46 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(mMuteAtt);
 		buf.add(getIsMuted());
 	}
-
 	if (mDirty.has(mSyncDirty)){
 
 		buf.add(mSyncAtt);
 		buf.add(mNetPort);
 		buf.add(mBaseTime);
 		buf.add(mNetClock);
+		buf.add(mIpAddress);
+	}
+	if (mDirty.has(mBaseTimeDirty)){
+		mBaseTime = mGstreamerWrapper->getBaseTime();
+		buf.add(mUpdateBaseTimeAtt);
+		buf.add(mBaseTime);
+	}
+	if (mDirty.has(mSeekTimeDirty)){
+		mSeekTime = mGstreamerWrapper->getSeekTime();
+		buf.add(mUpdateSeekTimeAtt);
+		buf.add(mSeekTime);
+	}
+	if (mDirty.has(mSeekDirty)){
+		mSeekTime = mGstreamerWrapper->getSeekTime();
+		buf.add(mSeekAtt);
+		buf.add(mSeekTime);
 	}
 
+	//Some things we don't want to  do on initialization.
 	bool isReset = mDirty.getMaskValue() & 0x80000000;
 	if (isReset) {
-		if (mDirty.has(mUpdateDirty)){
-			buf.add(mUpdateAtt);
-			buf.add(mBaseTime);
-			buf.add(mSeekTime);
-		}
 
 		if (mDirty.has(mStatusDirty)){
 			buf.add(mStatusAtt);
 			buf.add(getCurrentStatus().mCode);
 		}
 	}
+	 
 	else {
 		if (mDirty.has(mStatusDirty)){
-			mSeekTime = mGstreamerWrapper->getSeekTime();
 			buf.add(mStatusAtt);
 			buf.add(getCurrentStatus().mCode);
 		}
 
-		if (mDirty.has(mPlayDirty)){
-			mBaseTime = mGstreamerWrapper->getBaseTime();
-			mSeekTime = mGstreamerWrapper->getSeekTime();
-			buf.add(mPlayAtt);
-			buf.add(mBaseTime);
-			buf.add(mSeekTime);
-		}
 		if (mDirty.has(mPosDirty)){
 			buf.add(mPosAtt);
 			buf.add(getCurrentPosition());
@@ -738,9 +739,7 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 			loadVideo(video_path);
 	} else if(attrid == mAutoStartAtt) {
 		auto auto_start = buf.read<bool>();
-#if 0
-		setAutoStart(false);
-#endif
+
 		if(getAutoStart() != auto_start)
 			setAutoStart(auto_start);
 	} else if(attrid == mLoopingAtt) {
@@ -764,6 +763,7 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 		seekPosition(server_video_pos);
 	}
 	else if (attrid == mStatusAtt) {
+		checkStatus();
 		auto status_code = buf.read<int>();
 		if(getCurrentStatus() != status_code)
 		{
@@ -786,6 +786,7 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 		mBaseTime = buf.read<uint64_t>();
 
 		mNetClock = buf.read<uint64_t>();
+		mIpAddress = buf.read<std::string>();
 		setNetClock();
 	}
 	else if (attrid == mPlayAtt){
@@ -800,6 +801,19 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 			mGstreamerWrapper->setSeekTime(mSeekTime);
 			mGstreamerWrapper->play();
 	}
+	else if (attrid == mUpdateSeekTimeAtt){
+		mSeekTime = buf.read<uint64_t>();
+		mGstreamerWrapper->setSeekTime(mSeekTime);
+	}
+	else if (attrid == mUpdateBaseTimeAtt){
+		mBaseTime = buf.read<uint64_t>();
+		mGstreamerWrapper->setPipelineBaseTime(mBaseTime);
+	}
+	else if (attrid == mSeekAtt){
+		mSeekTime = buf.read<uint64_t>();
+		mGstreamerWrapper->seekFrame(mSeekTime);
+	}
+
 	else if (attrid == mUpdateAtt){
 
 		std::cout << "	Update Attribute" << std::endl;
