@@ -220,7 +220,8 @@ void Text::drawLocalClient()
 void Text::setSizeAll( float width, float height, float depth )
 {
 	if (mResizeToTextF) {
-		DS_LOG_WARNING_M("Text::setSizeAll() while auto resize is on, statement does nothing", SPRITE_LOG);
+		// This warning is kinda unneccessary, really.
+		//DS_LOG_WARNING_M("Text::setSizeAll() while auto resize is on, statement does nothing", SPRITE_LOG);
 		return;
 	}
 

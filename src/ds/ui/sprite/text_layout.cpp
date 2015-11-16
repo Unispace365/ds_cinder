@@ -59,7 +59,7 @@ public:
 
 	inline bool outOfBounds(const float y) const
 	{
-		return (y + mDescent + mLineHeight > mMaxY);
+		return (y + mLineHeight > mMaxY);
 	}
 
 private:

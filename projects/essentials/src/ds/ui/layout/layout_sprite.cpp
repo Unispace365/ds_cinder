@@ -256,7 +256,6 @@ void LayoutSprite::runHLayout(){
 			} else if(chillin->mLayoutUserType == kFlexSize){
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
-				// TODO: more efficiently dynamic cast? (instead of all at once)
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
