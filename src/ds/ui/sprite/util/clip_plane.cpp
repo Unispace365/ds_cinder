@@ -64,6 +64,12 @@ void disableClipping()
 {
   glPopAttrib();
   //glDisable(GL_SCISSOR_TEST);
+  // Note: There's a bug here which affects only certain platforms, which is that
+  // the clip planes are enabled but never disabled. The result is that clipping can
+  // be left "on" for views that don't want it, and they'll never draw.
+  // The solution is not as simple as disabling the clip planes here, since clipping
+  // can be nested. Realistically, we need a stack object that keeps track of the
+  // clipping state, only disabling the planes when it's empty.
 }
 
 }
