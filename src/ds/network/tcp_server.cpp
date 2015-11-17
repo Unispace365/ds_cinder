@@ -73,33 +73,34 @@ namespace {
 		}
 
 		void		receiveFrom(Poco::Net::StreamSocket& socket) {
-			const int			n = socket.receiveBytes(mBuffer, sizeof(mBuffer));
-			if (n <= 0) return;
-
-			const std::string	incoming(mBuffer, n);
-			if (mTerminator.empty()) {
-				mReceiveQueue->push(incoming);
-			} else {
-				mWaiting += incoming;
-				std::vector<std::string> all;
-				boost::split(all, mWaiting, boost::is_any_of(mTerminator));
-				mWaiting.clear();
-				// The last element will be an empty string if this update() str ended
-				// with the terminator; if it's not, then it's a partial, so track that.
-				if (!all.empty() && !all.back().empty()) {
-					mWaiting = all.back();
-					all.pop_back();
-				}
-				for (auto it=all.begin(), end=all.end(); it!=end; ++it) {
-					if (it->empty()) continue;
-					mReceiveQueue->push(*it);
+			int					n = 0;
+			while ((n = socket.receiveBytes(mBuffer, sizeof(mBuffer))) > 0) {
+				const std::string	incoming(mBuffer, n);
+				if (mTerminator.empty()) {
+					mReceiveQueue->push(incoming);
+				} else {
+					mWaiting += incoming;
+					std::vector<std::string> all;
+					boost::split(all, mWaiting, boost::is_any_of(mTerminator));
+					mWaiting.clear();
+					// The last element will be an empty string if this update() str ended
+					// with the terminator; if it's not, then it's a partial, so track that.
+					if (!all.empty() && !all.back().empty()) {
+						mWaiting = all.back();
+						all.pop_back();
+					}
+					for (auto it=all.begin(), end=all.end(); it!=end; ++it) {
+						if (it->empty()) continue;
+						mReceiveQueue->push(*it);
+					}
 				}
 			}
 		}
 
-		char										mBuffer[256];
-		std::shared_ptr<TcpServer::SendBucket>		mBucket;
-		ds::AsyncQueue<std::string>*				mSendQueue;
+		static const int								BUFFER_SIZE = 4096;
+		char											mBuffer[BUFFER_SIZE];
+		std::shared_ptr<TcpServer::SendBucket>			mBucket;
+		ds::AsyncQueue<std::string>*					mSendQueue;
 		std::shared_ptr<ds::AsyncQueue<std::string>>	mReceiveQueue;
 		std::shared_ptr<bool>							mSt;
 		const std::string								mTerminator;
