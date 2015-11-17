@@ -108,6 +108,10 @@ Text Parameters (valid for Text and MultilineText Sprites)
 ------------------------------------------------------------
 * **font**: The text config. Set in settings/text.xml. The text config sets the font name, size, leading and color. font="sample:config"
 * **resize_limit**: Only has effect on MultitlineText. If you set only the width value, the layout will continue for all the text in the sprite, and the height will be calculated from that. resize_limit="400" or resize_limit="400, 500"
+* **text_align**: Set the alignment of a multiline text sprite. Values:
+    1. "left": The default, normal text
+    2. "center": Center-aligns the layout.
+    3. "right": Align rows of text to the right side of the resize_limit
 
 Image Parameters
 -------------------------
