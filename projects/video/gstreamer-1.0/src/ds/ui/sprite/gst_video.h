@@ -151,7 +151,11 @@ private:
 	// This value is assumed from the output of the videometa cache
 	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform } ColorType;
 
-	void				doLoadVideo(const std::string &filename);
+	// filename is the absolute path to the file.
+	// portable_filename is the CMS-relative path, so apps installed under different
+	// user accounts and to different CMS locations can interoperate.
+	void				doLoadVideo(const std::string &filename,
+									const std::string &portable_filename);
 	void				applyMovieVolume();
 	void				applyMovieLooping();
 	void				checkOutOfBounds();
@@ -164,7 +168,8 @@ private:
 	ci::gl::Texture		mVFrameTexture;
 
 	ci::Vec2i			mVideoSize;
-	std::string			mFilename;
+	std::string			mFilename,
+						mPortableFilename;
 	Status				mStatus;
 	std::function<void()>
 						mPlaySingleFrameFunction;
