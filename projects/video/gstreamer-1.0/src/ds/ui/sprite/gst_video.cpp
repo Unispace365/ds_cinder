@@ -39,7 +39,7 @@ static std::string yuv_vert =
 "gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;"
 "gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
 "gl_FrontColor = gl_Color;"
-"gsvTexCoord = gl_TexCoord[0];"
+"gsvTexCoord = gl_TexCoord[0].xy;"
 "}";
 
 static std::string yuv_frag =
@@ -278,11 +278,11 @@ GstVideo& GstVideo::loadVideo(const std::string& filename){
 	const std::string _filename(ds::Environment::expand(filename));
 
 	if (_filename.empty()){
-		DS_LOG_WARNING_M("GstVideo::loadVideo recieved a blank filename. Cancelling load.", GSTREAMER_LOG);
+		DS_LOG_WARNING_M("GstVideo::loadVideo received a blank filename. Cancelling load.", GSTREAMER_LOG);
 		return *this;
 	}
 
-	doLoadVideo(_filename);
+	doLoadVideo(_filename, filename);
 	markAsDirty(mPathDirty);
 	return *this;
 }
@@ -307,7 +307,7 @@ GstVideo& GstVideo::setResource(const ds::Resource& resource){
 }
 
 
-void GstVideo::doLoadVideo(const std::string &filename){
+void GstVideo::doLoadVideo(const std::string &filename, const std::string &portable_filename){
 	if(filename.empty()){
 		DS_LOG_WARNING_M("doLoadVideo aborting loading a video because of a blank filename.", GSTREAMER_LOG);
 		return;
@@ -376,6 +376,7 @@ void GstVideo::doLoadVideo(const std::string &filename){
 			mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 		}
 		mFilename = filename;
+		mPortableFilename = portable_filename;
 	}
 }
 
@@ -616,7 +617,7 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 
 	if(mDirty.has(mPathDirty)){
 		buf.add(mPathAtt);
-		buf.add(getLoadedFilename());
+		buf.add(mPortableFilename);
 	}
 
 	if(mDirty.has(mAutoStartDirty)){
