@@ -877,6 +877,9 @@ void GStreamerWrapper::handleGStMessage(){
 				break;
 
 				case GST_MESSAGE_ASYNC_DONE :{
+					// In certain cases the volume is set before the pipeline is
+					// constructed, so doesn't get applied.
+					g_object_set( m_GstPipeline, "volume", m_fVolume, NULL );
 					retrieveVideoInfo();
 				}
 				break;
