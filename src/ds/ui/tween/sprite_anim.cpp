@@ -14,8 +14,9 @@ namespace ui {
  */
 SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 		: mOwner(s)
-		, mEngine(e) {
-}
+		, mEngine(e) 
+		, mAnimateOnTargetsSet(false)
+{}
 
 SpriteAnimatable::~SpriteAnimatable() {
 }
@@ -131,6 +132,13 @@ void SpriteAnimatable::setAnimateOnScript(const std::string& animateOnScript){
 	mAnimateOnScript = animateOnScript;
 }
 
+void SpriteAnimatable::setAnimateOnTargets(){
+	mAnimateOnTargetsSet = true;
+	mAnimateOnScaleTarget = mOwner.getScale();
+	mAnimateOnPositionTarget = mOwner.getPosition();
+	mAnimateOnOpacityTarget = mOwner.getOpacity();
+}
+
 void SpriteAnimatable::runAnimationScript(const std::string& animScript, const float addedDelay){
 	if(animScript.empty()) return;
 
@@ -150,7 +158,7 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 
 		// Split commands between the type and the destination
 		std::vector<std::string> commandProperties = ds::split((*it), ":", true);
-		if(commandProperties.empty() || commandProperties.size() < 2) continue;
+		if(commandProperties.empty() || commandProperties.size() < 1) continue;
 
 		// Parse out the special commands
 		std::string keyey = commandProperties.front();
@@ -170,14 +178,17 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 
 		// parse the destination vectors to floats
 		ci::Vec3f destination = ci::Vec3f::zero();
-		std::vector<std::string> destinationTokens = ds::split(commandProperties[1], ", ", true);
 
-		ds::string_to_value<float>(destinationTokens[0], destination.x);
-		if(destinationTokens.size() > 1){
-			ds::string_to_value<float>(destinationTokens[1], destination.y);
-		}
-		if(destinationTokens.size() > 2){
-			ds::string_to_value<float>(destinationTokens[2], destination.z);
+		if(commandProperties.size() > 1){
+			std::vector<std::string> destinationTokens = ds::split(commandProperties[1], ", ", true);
+
+			ds::string_to_value<float>(destinationTokens[0], destination.x);
+			if(destinationTokens.size() > 1){
+				ds::string_to_value<float>(destinationTokens[1], destination.y);
+			}
+			if(destinationTokens.size() > 2){
+				ds::string_to_value<float>(destinationTokens[2], destination.z);
+			}
 		}
 
 		animationCommands[keyey] = destination;
@@ -201,19 +212,27 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 			tweenColor(ci::Color(dest.x, dest.y, dest.z), dur, delayey, easing);
 
 		} else if(animType == "slide"){
-			const ci::Vec3f curPos = mOwner.getPosition();
-			mOwner.setPosition(curPos + dest);
-			tweenPosition(curPos, dur, delayey, easing);
+			if(!mAnimateOnTargetsSet) setAnimateOnTargets();
+			mOwner.setPosition(mAnimateOnPositionTarget + dest);
+			tweenPosition(mAnimateOnPositionTarget, dur, delayey, easing);
 
 		} else if(animType == "fade"){
-			const float startOpaccy = mOwner.getOpacity();
-			mOwner.setOpacity(startOpaccy + dest.x);
-			tweenOpacity(startOpaccy, dur, delayey, easing);
+			if(!mAnimateOnTargetsSet) setAnimateOnTargets();
+			if(dest.x == 0.0f){
+				mOwner.setOpacity(0.0f);
+			} else {
+				mOwner.setOpacity(mAnimateOnOpacityTarget + dest.x);
+			}
+			tweenOpacity(mAnimateOnOpacityTarget, dur, delayey, easing);
 
 		} else if(animType == "grow"){
-			const ci::Vec3f curScale = mOwner.getScale();
-			mOwner.setScale(curScale + dest);
-			tweenScale(curScale, dur, delayey, easing);
+			if(!mAnimateOnTargetsSet) setAnimateOnTargets();
+			if(dest.x == 0.0f && dest.y == 0.0f){
+				mOwner.setScale(0.0f);
+			} else {
+				mOwner.setScale(mAnimateOnScaleTarget + dest);
+			}
+			tweenScale(mAnimateOnScaleTarget, dur, delayey, easing);
 		}
 	}
 }
