@@ -25,6 +25,7 @@
 #include "ds/debug/debug_defines.h"
 
 namespace ds {
+namespace gl { class ClipPlaneState; }
 class BlobReader;
 class BlobRegistry;
 class CameraPick;
@@ -630,6 +631,7 @@ namespace ui {
 	protected:
 		friend class        TouchManager;
 		friend class        TouchProcess;
+		friend class		ds::gl::ClipPlaneState;
 
 		void				swipe(const ci::Vec3f &swipeVector);
 		bool				tapInfo(const TapInfo&);
