@@ -4,6 +4,7 @@
 #include <boost/algorithm/string.hpp>
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
+#include "tcp_client.h"
 
 namespace ds {
 namespace net {
@@ -65,11 +66,7 @@ namespace {
 				if (!d.empty()) buf << d << mTerminator;
 			}
 
-			// Send the data
-			std::string						d = buf.str();
-			if (!d.empty()) {
-				socket.sendBytes(d.data(), d.size());
-			}
+			TcpClient::sendBytes(socket, buf.str());
 		}
 
 		void		receiveFrom(Poco::Net::StreamSocket& socket) {

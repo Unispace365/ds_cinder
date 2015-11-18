@@ -30,6 +30,9 @@ public:
 	};
 
 public:
+	// Utility function shared between client and server
+	static void						sendBytes(Poco::Net::StreamSocket&, const std::string &data);
+
 	// If there's a terminator character, then I will split input by the terminator,
 	// and hold onto anything that's missing it.
 	TcpClient(	ds::ui::SpriteEngine&, const Poco::Net::SocketAddress&,
