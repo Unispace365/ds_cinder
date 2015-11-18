@@ -220,6 +220,7 @@ void layout_example::setupServer(){
 	if(generatedLayout){
 		generatedLayout->runLayout();
 		generatedLayout->tweenAnimateOn(true);
+		generatedLayout->tweenAnimateOn(true, 0.5f, 0.1f);
 	}
 
 }

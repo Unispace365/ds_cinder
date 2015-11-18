@@ -108,6 +108,10 @@ Text Parameters (valid for Text and MultilineText Sprites)
 ------------------------------------------------------------
 * **font**: The text config. Set in settings/text.xml. The text config sets the font name, size, leading and color. font="sample:config"
 * **resize_limit**: Only has effect on MultitlineText. If you set only the width value, the layout will continue for all the text in the sprite, and the height will be calculated from that. resize_limit="400" or resize_limit="400, 500"
+* **text_align**: Set the alignment of a multiline text sprite. Values:
+    1. "left": The default, normal text
+    2. "center": Center-aligns the layout.
+    3. "right": Align rows of text to the right side of the resize_limit
 
 Image Parameters
 -------------------------
@@ -158,7 +162,7 @@ Tween types can be chained together:
 * **rotation**
 
 **Advanced tween types:**
-These tweens move to the current value offset by the supplied value. It's very important that you only call the animation once, or the offset could be applied multiple times, leading to an undesirable effect.
+These tweens move to the current value offset by the supplied value. The first time these are called, the destination positions are cached, so these can be called multiple times. If the destination should be moved, set the sprite to the destination and call setAnimateOnTargets().
 * **fade:** Tweens to the current value, and starts at an offset supplied. For instance, fade:-1.0 would tween the opacity of a sprite from 0.0 to 1.0 (assuming it started at 1.0). fade:-0.5 would tween the sprite's opacity from 0.5 to 1.0.
 * **slide:** Tweens to the current position, and starts offset by the amount supplied. "slide:-100, 0, 0" would offset the sprite 100 pixels to the left, then tween to the current position.
 * **grow:** Tweens to the current scale, offset by the amount supplied.
