@@ -12,6 +12,7 @@
 #include <ds/util/string_util.h>
 #include <ds/ui/media/media_viewer.h>
 
+#include <cinder/Clipboard.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -130,6 +131,29 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
+
+	} else if(event.getCode() == KeyEvent::KEY_v && event.isControlDown()){
+		auto fileNameOrig = ci::Clipboard::getString();
+		Poco::File filey = Poco::File(fileNameOrig);
+		std::string extensionay = Poco::Path(filey.path()).getExtension();
+		std::transform(extensionay.begin(), extensionay.end(), extensionay.begin(), ::tolower);
+		if(extensionay.find("png") != std::string::npos
+		   || extensionay.find("jpg") != std::string::npos
+		   || extensionay.find("jpeg") != std::string::npos
+		   || extensionay.find("gif") != std::string::npos
+		   ){
+
+			Poco::Path pathy = filey.path();
+			std::string fileName = pathy.getFileName();
+			fileName = fileName.substr(0, fileName.length() - 4);
+
+			ds::model::MediaRef newMedia = ds::model::MediaRef();
+			newMedia.setPrimaryResource(ds::Resource(fileNameOrig, ds::Resource::IMAGE_TYPE));
+			newMedia.setTitle(ds::wstr_from_utf8(fileName));
+			newMedia.setBody(ds::wstr_from_utf8(fileNameOrig));
+			mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
+		}
+
 
 	// Perspective camera movement
 	} else if(event.getCode() == KeyEvent::KEY_d){

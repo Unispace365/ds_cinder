@@ -295,8 +295,31 @@ void LoadImageService::ImageLoadThread::run(){
 			mError = true;
 		}
 	} catch(std::exception const& ex) {
-		DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
-		mError = true;
+
+		try{
+			// If there's a function, then require this image have an alpha channel, because
+			// who knows what the function will need. Otherwise let cinder do its thing.
+			boost::tribool						alpha = boost::logic::indeterminate;
+			if(!mOutput.mIpFunction.empty())	alpha = boost::tribool(true);
+
+			// Try to load from a url path instead of locally
+			mOutput.mSurface = ci::Surface8u(ci::loadImage(ci::loadUrl(mOutput.mKey.mFilename)), ci::SurfaceConstraintsDefault(), alpha);
+			if(mOutput.mSurface) {
+				mOutput.mIpFunction.on(mOutput.mKey.mIpParams, mOutput.mSurface);
+				mError = false;
+			} else {
+				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed fallback loading. Original exception ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+				mError = true;
+			}
+		} catch(std::exception const& extwo){
+			DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed extwo=" << extwo.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+			mError = true;
+		}
+
+		if(mError){
+			DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+			mError = true;
+		}
 	}
 }
 

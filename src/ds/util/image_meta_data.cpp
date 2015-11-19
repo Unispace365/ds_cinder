@@ -94,7 +94,25 @@ void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
 			outSize = ci::Vec2f::zero();
 		}
 	} catch (std::exception const& ex) {
-		DS_LOG_WARNING_M( "ImageMetaData error loading file (" << filename << ") = " << ex.what(), GENERAL_LOG);
+		bool errored = true;
+
+		// try to load it from the web
+		try{
+			auto s = ci::Surface8u(ci::loadImage(ci::loadUrl(filename)));
+			if(s) {
+				outSize = ci::Vec2f(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+				errored = false;
+			} else {
+				DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
+				outSize = ci::Vec2f::zero();
+			}
+		} catch(std::exception const& extwo){
+			DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ") = " << extwo.what(), GENERAL_LOG);
+		}
+
+		if(errored){
+			DS_LOG_WARNING_M("ImageMetaData error loading file (" << filename << ") = " << ex.what(), GENERAL_LOG);
+		}
 	}
 }
 
@@ -140,11 +158,26 @@ public:
 	ci::Vec2f			getSize(const std::string& fn) {
 		// If I've got a cached item and the modified dates match, use that.
 		// Note: for the actual path, use the expanded fn.
-		const std::string	expanded_fn(ds::Environment::expand(fn));
+
+		std::string	expanded_fn;
+		bool webMode = false;
+		if(fn.find("http") == 0){
+			webMode = true;
+			expanded_fn = fn;
+		} else {
+			expanded_fn = ds::Environment::expand(fn);
+		}
+
 		try {
 			auto f = mCache.find(fn);
-			if (f != mCache.end() && f->second.mLastModified == Poco::File(expanded_fn).getLastModified()) {
-				return f->second.mSize;
+			
+			if(f != mCache.end()){
+				// we hope that the remote image hasn't changed since we grabbed it's size.
+				if(webMode){
+					return f->second.mSize;
+				} else if(f->second.mLastModified == Poco::File(expanded_fn).getLastModified()) {
+					return f->second.mSize;
+				}
 			}
 		} catch (std::exception const&) {
 		}
@@ -153,7 +186,8 @@ public:
 			// Generate the cache:
 			ImageAtts		atts = generate(expanded_fn);
 			if (atts.mSize.x > 0.0f && atts.mSize.y > 0.0f) {
-				atts.mLastModified = Poco::File(expanded_fn).getLastModified();
+				// calling anything on an invalid file throws an exception, and web stuff is invalid
+				if(!webMode) atts.mLastModified = Poco::File(expanded_fn).getLastModified();
 				mCache[fn] = atts;
 				return atts.mSize;
 			}
