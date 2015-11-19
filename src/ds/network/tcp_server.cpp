@@ -33,6 +33,7 @@ namespace {
 		
 		void run() {
 			Poco::Net::StreamSocket&		ss = socket();
+			ss.setNoDelay(true);
 			ss.setBlocking(false);
 			// Keep running until the connection is closed externally
 			bool							keepRunning = true;
