@@ -185,6 +185,7 @@ void GstVideo::updateClient(const UpdateParams& up){
 	mGstreamerWrapper->update();
 
 	checkStatus();
+	checkOutOfBounds();
 }
 
 void GstVideo::drawLocalClient(){
@@ -524,7 +525,7 @@ void GstVideo::setStatus(const int code){
 }
 
 void GstVideo::applyMovieVolume(){
-	if (mMuted || mOutOfBoundsMuted)	{
+	if (mMuted || mOutOfBoundsMuted) {
 		mGstreamerWrapper->setVolume(0.0f);
 	} else {
 		mGstreamerWrapper->setVolume(mVolume);

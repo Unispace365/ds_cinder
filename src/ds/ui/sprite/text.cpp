@@ -370,6 +370,8 @@ ci::Vec2f Text::getPositionForCharacterIndex(const int characterIndex){
 	return ci::Vec2f(line.mPos.x + fit->second, line.mPos.y);
 }
 
+namespace {
+
 int parseLine(const TextLayout::Line& line, const ci::Vec2f& possy){
 	if(line.mIndexPositions.empty()){
 		// This is technically an error condition.
@@ -395,6 +397,8 @@ int parseLine(const TextLayout::Line& line, const ci::Vec2f& possy){
 
 	// we got past the end of the line, so return the last character
 	return previousIndex;
+}
+
 }
 
 int Text::getCharacterIndexForPosition(const ci::Vec2f& possy){
