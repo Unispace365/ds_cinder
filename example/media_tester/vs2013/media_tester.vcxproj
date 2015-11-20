@@ -90,7 +90,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-      <UACUIAccess>true</UACUIAccess>
+      <UACUIAccess>false</UACUIAccess>
     </Link>
     <CustomBuildStep>
       <Command>

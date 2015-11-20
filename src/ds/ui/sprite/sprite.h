@@ -7,6 +7,8 @@
 #include "cinder/Tween.h"
 #include "cinder/Timeline.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/gl/Fbo.h"
+
 // STL includes
 #include <list>
 #include <exception>
@@ -552,6 +554,20 @@ namespace ui {
 		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
 		// this is only suitable for shaders without uniforms.
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
+		//setup a series of shaders to run (multi-pass)
+		void					setBaseShaders(const std::vector<std::pair<std::string, std::string>>, bool applyToChildren = false);
+		void					addNewBaseShader(const std::pair<std::string,  std::string>, bool addToFront = false, bool applyToChildren = false);
+		void				    addNewBaseShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
+		void					setBaseShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
+		ci::gl::Texture*		getShaderOutputTexture();
+		ds::gl::Uniform			getBaseShaderUniforms(std::string shaderName);
+
+		//Retrieve a shader based on the name - used with multipass shader setup.
+		ds::ui::SpriteShader*	getShaderFromListName(std::string name) const;
+		int						getShaderNumber(std::string name) const;
+
+		bool					isShaderName(std::string name) const;
+
 		SpriteShader&			getBaseShader();
 		std::string				getBaseShaderName() const;
 		ds::gl::Uniform&		getUniform();
@@ -715,6 +731,14 @@ namespace ui {
 		bool				mClippingBoundsDirty;
 		SpriteShader		mSpriteShader;
 
+		std::vector<SpriteShader*> mSpriteShaders;
+		//indicates which shader in the shader list is being drawn.
+		int							mShaderPass;
+		ci::gl::Fbo*				mFrameBuffer[2];
+		ci::gl::Texture				mShaderTexture;
+		//Keeps track of which FBO is being rendered to for multi-pass rendering
+		int							mFboIndex;
+
 		mutable ci::Matrix44f	mGlobalTransform;
 		mutable ci::Matrix44f	mInverseGlobalTransform;
 
@@ -758,6 +782,9 @@ namespace ui {
 
 		// Transport uniform data to the shader
 		ds::gl::Uniform		mUniform;
+
+		std::map < std::string, ds::gl::Uniform>	mUniforms;
+		bool				mIsLastPass;
 
 	private:
 		// Utility to reorder the sprites
@@ -809,7 +836,6 @@ namespace ui {
 		// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
 		// Cleared automatically on destruction
 		ci::CueRef			mDelayedCallCueRef;
-
 	public:
 		// This is a bit of a hack so I can temporarily set a scale value
 		// without causing the whole editing mechanism to kick in.

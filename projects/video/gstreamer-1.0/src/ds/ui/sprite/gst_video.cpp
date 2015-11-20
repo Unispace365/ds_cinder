@@ -25,7 +25,7 @@ namespace {
 	void                            noop()  { /* no op */ };
 
 
-	static std::string yuv_vert = 
+	const static std::string yuv_vert = 
 		"varying   vec2 gsvTexCoord;"
 		"void main(){ "
 		"gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
@@ -35,7 +35,7 @@ namespace {
 		"gsvTexCoord = gl_TexCoord[0];"
 		"}";
 
-	static std::string yuv_frag =
+	const static std::string yuv_frag =
 		"precision mediump float;"
 		"uniform sampler2D gsuTexture0;"
 		"uniform sampler2D gsuTexture1;"
@@ -47,7 +47,7 @@ namespace {
 		"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
 		"u = u - 0.5;"
 		"v = v - 0.5;"
-		"gl_FragColor = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);"
+		"gl_FragData[0] = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);"
 		"}";
 }
 namespace ds {
@@ -87,7 +87,10 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	mBlobType = GstVideoNet::mBlobType;
 
 	try {
-		mShader = ci::gl::GlslProg(yuv_vert.c_str(), yuv_frag.c_str());
+//		mShader = ci::gl::GlslProg(yuv_vert.c_str(), yuv_frag.c_str());
+		//std::string name("yuv_colorspace_conversion");
+		//addNewBaseShader(yuv_vert, yuv_frag, name);
+
 	} catch(const std::exception &e) {
 		DS_LOG_WARNING("Could not load & compile shader for the video:" << e.what());
 	}
@@ -161,9 +164,34 @@ void GstVideo::drawLocalClient(){
 				co = ci::SurfaceChannelOrder::CHAN_RED;
 			}
 
-			unsigned char * dat = mGstreamerWrapper->getVideo();
-			if(dat){
-				if(mColorType == kColorTypeShaderTransform){
+			unsigned char * dat = nullptr;
+			Surface8u* video_surface = nullptr;
+			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
+
+			//	ci::gl::Texture* inputDat = getShaderOutputTexture();
+			//	if (inputDat){
+
+			//		video_surface = new ci::Surface8u(*inputDat);
+			//		dat = video_surface->getData();
+			//	}
+			//	else {
+			//		dat = mGstreamerWrapper->getVideo();
+			//	}
+			//}
+			//else {
+				dat = mGstreamerWrapper->getVideo();
+			}
+			else {
+				int tmp = 3;
+			}
+
+			dat = mGstreamerWrapper->getVideo();
+
+			if (dat){
+				//if (mColorType == kColorTypeShaderTransform &&
+				//	(mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0)){
+					if (mColorType == kColorTypeShaderTransform ){
+
 					ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
 					ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
 					ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
@@ -171,8 +199,8 @@ void GstVideo::drawLocalClient(){
 					mFrameTexture.update(yChannel, ci::Area(0, 0, mVideoSize.x, mVideoSize.y));
 					mUFrameTexture.update(uChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
 					mVFrameTexture.update(vChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
-
-				} else {
+				}
+				else {
 					ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
 					mFrameTexture.update(video_surface);
 				}
@@ -180,45 +208,50 @@ void GstVideo::drawLocalClient(){
 				mDrawable = true;
 			}
 
-			if(mPlaySingleFrame){
+			if (mPlaySingleFrame){
 				stop();
 				mPlaySingleFrame = false;
-				if(mPlaySingleFrameFunction) mPlaySingleFrameFunction();
+				if (mPlaySingleFrameFunction) mPlaySingleFrameFunction();
 				mPlaySingleFrameFunction = nullptr;
 			}
 
 			mBufferUpdateTimes.push_back(Poco::Timestamp().epochMicroseconds());
-			if(mBufferUpdateTimes.size() > 10){
+			if (mBufferUpdateTimes.size() > 10){
 				mBufferUpdateTimes.erase(mBufferUpdateTimes.begin());
 			}
 		}
 	}
 
-	if(mFrameTexture && mDrawable){
-		if(getPerspective()){
+	if (mFrameTexture && mDrawable){
+		if (getPerspective()){
 			mFrameTexture.setFlipped(true);
-		} 
+		}
+		if (mColorType == kColorTypeShaderTransform){
+			ci::gl::disableDepthRead();
+			ci::gl::disableDepthWrite();
+			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
 
-		if(mColorType == kColorTypeShaderTransform){
-			if(mShader) {
-				mShader.bind();
-				mShader.uniform("gsuTexture0", 0);
-				mShader.uniform("gsuTexture1", 1);
-				mShader.uniform("gsuTexture2", 2);
+				if (mFrameTexture) mFrameTexture.bind(2);
+				if (mUFrameTexture) mUFrameTexture.bind(3);
+				if (mVFrameTexture) mVFrameTexture.bind(4);
+
 			}
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 
-			if(mUFrameTexture) mUFrameTexture.bind(1);
-			if(mVFrameTexture) mVFrameTexture.bind(2);
+		} else {
+			if (mFrameTexture) mFrameTexture.bind(4);
+					ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 		}
 
-		ci::gl::draw(mFrameTexture);
 
-		if(mColorType == kColorTypeShaderTransform){
-			if(mUFrameTexture) mUFrameTexture.unbind(1);
-			if(mVFrameTexture) mVFrameTexture.unbind(2);
-			if(mShader){
-				mShader.unbind();
+		if (mColorType == kColorTypeShaderTransform){
+			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
+				if (mFrameTexture) mFrameTexture.unbind(2);
+				if (mUFrameTexture) mUFrameTexture.unbind(3);
+				if (mVFrameTexture) mVFrameTexture.unbind(4);
 			}
+		} else {
+			if (mFrameTexture) mFrameTexture.unbind();
 		}
 
 	}
@@ -292,6 +325,14 @@ void GstVideo::doLoadVideo(const std::string &filename){
 		ColorType theColor = ColorType::kColorTypeTransparent;
 		if(colorSpace == "4:2:0"){
 			theColor = ColorType::kColorTypeShaderTransform;
+			std::string name("yuv_colorspace_conversion");
+			addNewBaseShader(yuv_vert, yuv_frag, name, true);
+			ds::gl::Uniform uniform;
+
+			uniform.setInt("gsuTexture0", 2);
+			uniform.setInt("gsuTexture1", 3);
+			uniform.setInt("gsuTexture2", 4);
+			setBaseShadersUniforms("yuv_colorspace_conversion", uniform);
 		}
 
 		mColorType = theColor;
@@ -327,8 +368,16 @@ void GstVideo::doLoadVideo(const std::string &filename){
 		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 
 		if(mColorType == kColorTypeShaderTransform){
+			//std::string name("yuv_colorspace_conversion");
+			//addNewBaseShader(yuv_vert, yuv_frag, name);
+
 			mUFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
 			mVFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		}
+		else {
+			//if (mSpriteShader.getShader()) {
+			//	mFrameTexture.bind(0);
+			//}
 		}
 		mFilename = filename;
 	}

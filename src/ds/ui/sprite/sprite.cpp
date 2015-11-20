@@ -159,12 +159,19 @@ void Sprite::init(const ds::sprite_id_t id) {
 							  0.4f);
 	mClippingBounds.set(0.0f, 0.0f, 0.0f, 0.0f);
 	mClippingBoundsDirty = false;
+	mFrameBuffer[0] = nullptr;
+	mFrameBuffer[1] = nullptr;
+
 	dimensionalStateChanged();
 }
 
 Sprite::~Sprite() {
 	animStop();
 	cancelDelayedCall();
+
+	delete mFrameBuffer[0];
+	delete mFrameBuffer[1];
+
 
 	// We only want to request a delete for the sprite at the head of a tree,
 	const sprite_id_t	id = mId;
@@ -211,14 +218,36 @@ void Sprite::updateServer(const UpdateParams &p) {
 	}
 }
 
+ci::gl::Texture* Sprite::getShaderOutputTexture()
+{
+	if (mSpriteShaders.size()>1 && mFrameBuffer[mFboIndex])
+		return &mFrameBuffer[mFboIndex]->getTexture();
+	else
+		return nullptr;
+}
+
 void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams) {
-	if((mSpriteFlags&VISIBLE_F) == 0) {
+	if ((mSpriteFlags&VISIBLE_F) == 0) {
 		return;
 	}
+	int shaderPasses=0;
+	mShaderPass = 0;
 
-	if(!mSpriteShader.isValid()) {
-		mSpriteShader.loadShaders();
+	mFboIndex = 0;
+	if (mSpriteShaders.size() > 1) {
+		shaderPasses = mSpriteShaders.size(); // move to static location
+		mIsLastPass = false;
+
 	}
+	else {
+		if (!mSpriteShader.isValid()) {
+			mSpriteShader.loadShaders();
+		}
+		shaderPasses = 1;
+		mIsLastPass = true;
+
+	}
+	
 
 	buildTransform();
 	ci::Matrix44f totalTransformation = trans*mTransformation;
@@ -226,34 +255,116 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 	glLoadIdentity();
 	ci::gl::multModelView(totalTransformation);
 
-	if((mSpriteFlags&TRANSPARENT_F) == 0) {
-		ci::gl::enableAlphaBlending();
-		applyBlendingMode(mBlendMode);
-		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
-		if(shaderBase) {
-			shaderBase.bind();
-			shaderBase.uniform("tex0", 0);
-			shaderBase.uniform("useTexture", mUseShaderTexture);
-			shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
-			mUniform.applyTo(shaderBase);
+	ci::Area viewport = ci::gl::getViewport();
+
+	while (mShaderPass <= shaderPasses - 1){  
+		if (!mSpriteShaders.empty() && shaderPasses >1) {
+			//Change viewport for rendering texture to FBO
+			ci::gl::setViewport(mFrameBuffer[mFboIndex]->getBounds());
+
+			//Output available on Texture_1
+			if (shaderPasses - 1 == mShaderPass){//last pass
+				mFrameBuffer[mFboIndex]->unbindFramebuffer();  // render to screen now
+
+				glDrawBuffer(GL_COLOR_ATTACHMENT0);
+				mFrameBuffer[!mFboIndex]->bindTexture(1,0);
+				ci::gl::popModelView();
+				ci::gl::popMatrices();
+				ci::gl::setViewport(viewport);
+
+				mFboIndex = !mFboIndex;
+				mIsLastPass = true;
+
+				//the 'flipped' flag is ignored by shaders, so we need to manually force the flip
+				if ((mSpriteShaders.size()-1)%2){ 
+					ci::gl::scale(1.0f, -1.0f, 1.0f);           // invert Y axis so increasing Y goes down.
+					ci::gl::translate(0.0f, (float)-getHeight(), 0.0f);       // shift origin up to upper-left corner.
+				}
+			}
+			else if (mShaderPass > 0){ //middle passes
+				mFrameBuffer[mFboIndex]->bindFramebuffer();
+				ci::gl::clear(ci::ColorA(0,0,0, 0));
+
+				glDrawBuffer(GL_COLOR_ATTACHMENT0);
+				mFrameBuffer[!mFboIndex]->bindTexture(1,0);
+				mFboIndex = !mFboIndex;
+
+			}
+			else { //first pass
+				ci::gl::pushModelView();
+				ci::gl::pushMatrices();
+				ci::gl::setMatricesWindow(mFrameBuffer[mFboIndex]->getSize());
+				mFrameBuffer[mFboIndex]->bindFramebuffer();
+				ci::gl::clear(ci::ColorA(0,0,0, 0));
+
+				glDrawBuffer(GL_COLOR_ATTACHMENT0);
+				mFboIndex = !mFboIndex;
+			}
+
 		}
 
-		mDrawOpacity = mOpacity*drawParams.mParentOpacity;
-		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
-		if(mUseDepthBuffer) {
-			ci::gl::enableDepthRead();
-			ci::gl::enableDepthWrite();
-		} else {
-			ci::gl::disableDepthRead();
-			ci::gl::disableDepthWrite();
+		if (!mSpriteShaders.empty()) {
+			mSpriteShader = *mSpriteShaders[mShaderPass];
+			mSpriteShader.loadShaders();
+			mUniform = getBaseShaderUniforms(mSpriteShader.getName());
 		}
 
-		drawLocalClient();
 
-		if(shaderBase) {
-			shaderBase.unbind();
+		if ((mSpriteFlags&TRANSPARENT_F) == 0) {
+			ci::gl::enableAlphaBlending();
+			applyBlendingMode(mBlendMode);
+			ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
+			if (shaderBase) {
+				shaderBase.bind();
+				shaderBase.uniform("tex0", 0);
+				shaderBase.uniform("useTexture", mUseShaderTexture);
+				shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+				mUniform.applyTo(shaderBase);
+			}
+
+			//Only set opacity for last pass
+			if (mIsLastPass) {
+				mDrawOpacity = mOpacity*drawParams.mParentOpacity;
+			}
+			else {
+				mDrawOpacity = 1.0f;
+			}
+
+			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
+			if (mUseDepthBuffer) {
+				ci::gl::enableDepthRead();
+				ci::gl::enableDepthWrite();
+			}
+			else {
+				ci::gl::disableDepthRead();
+				ci::gl::disableDepthWrite();
+			}
+
+			drawLocalClient();
+
+			if (shaderBase) {
+				shaderBase.unbind();
+				if (mSpriteShaders.size()>1){
+					mFrameBuffer[mFboIndex]->unbindTexture();
+
+			//		mFrameBuffer[!mFboIndex]->unbindFramebuffer();
+
+					ci::gl::scale(1.0f, 1.0f, 1.0f);           // invert Y axis so increasing Y goes down.
+					ci::gl::translate(0.0f, 0.0f, 0.0f);       // shift origin up to upper-left corner.
+
+				}
+
+			}
 		}
+
+		mShaderPass++;
 	}
+	//ci::gl::popModelView();
+	//if (mSpriteShaders.size() > 1){
+
+	//	mFrameBuffer[mFboIndex]->reset();
+	//	mFrameBuffer[!mFboIndex]->reset();
+	//}
 
 	if((mSpriteFlags&CLIP_F) != 0) {
 		const ci::Rectf&      clippingBounds = getClippingBounds();
@@ -275,6 +386,12 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 			(*it)->drawClient(totalTransformation, dParams);
 		}
 	}
+	//if (!mIsLastPass) {
+	//	mShaderPass++;
+	//	drawClient(totalTransformation, dParams);
+	//} 
+
+	/* does multi pass work with post*/
 
 	if((mSpriteFlags&CLIP_F) != 0) {
 		disableClipping();
@@ -1554,6 +1671,136 @@ void Sprite::setBaseShader(const std::string &location, const std::string &shade
 	}
 }
 
+
+//Setup for multi-pass shaders
+void Sprite::setBaseShaders(const std::vector<std::pair<std::string, std::string>> shaderPair, bool applyToChildren /*= false*/)
+{
+	for (auto it = shaderPair.begin(); it != shaderPair.end(); ++it) {
+		std::string location = (*it).first;
+		std::string shadername = (*it).second;
+		ds::ui::SpriteShader* spriteShader = new ds::ui::SpriteShader(location, shadername);
+		mSpriteShaders.push_back(spriteShader);
+	}
+
+	setFlag(SHADER_CHILDREN_F, applyToChildren, FLAGS_DIRTY, mSpriteFlags);
+	if (applyToChildren) {
+		for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+			(*it)->setBaseShaders(shaderPair, applyToChildren);
+		}
+	}
+	mShaderPass = 0;  //initialize only if we are using multi-pass shaders.
+
+	if (mSpriteShaders.size()>1){
+		ci::gl::Fbo::Format format;
+		format.setColorInternalFormat(GL_RGBA);
+		
+		format.enableColorBuffer(true, 1);
+		format.enableDepthBuffer(false);
+		if (!mFrameBuffer[0] && getWidth() >1.0f)
+			mFrameBuffer[0] = new ci::gl::Fbo(getWidth(), getHeight(), format);
+		//mFrameBuffer[0] = new ci::gl::Fbo(1920,1080, format);
+		if (!mFrameBuffer[1] && getWidth() >1.0f)
+			mFrameBuffer[1] = new ci::gl::Fbo(getWidth(), getHeight(), format);
+		//mFrameBuffer[1] = new ci::gl::Fbo(1920,1080, format);
+	}
+
+}
+void Sprite::addNewBaseShader(const std::pair<std::string, std::string> shaderPair, bool addToFront /*= false*/, bool applyToChildren /*= false*/)
+{
+	std::string location = shaderPair.first;
+	std::string shadername = shaderPair.second;
+
+	ds::ui::SpriteShader* spriteShader = new ds::ui::SpriteShader(location, shadername);
+	if (!addToFront){
+		mSpriteShaders.push_back(spriteShader);
+	}
+	else { /*not implemented */ }
+
+		setFlag(SHADER_CHILDREN_F, applyToChildren, FLAGS_DIRTY, mSpriteFlags);
+	if (applyToChildren) {
+		for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+			(*it)->addNewBaseShader(shaderPair, applyToChildren);
+		}
+	}
+}
+//For GLSL progs in memory
+void Sprite::addNewBaseShader(const std::string& vert, const std::string& frag , std::string shaderName, bool addToFront /*= false*/, bool applyToChildren /*= false*/)
+{
+	
+	ds::ui::SpriteShader* spriteShader = new ds::ui::SpriteShader(vert, frag, shaderName);
+	if (!addToFront){
+		mSpriteShaders.push_back(spriteShader);
+	}
+	else { 
+		mSpriteShaders.insert(mSpriteShaders.begin(), spriteShader);
+	}
+
+	setFlag(SHADER_CHILDREN_F, applyToChildren, FLAGS_DIRTY, mSpriteFlags);
+	if (applyToChildren) {
+		for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+			(*it)->addNewBaseShader(vert, frag, shaderName, addToFront, applyToChildren);
+		}
+	}
+}
+void Sprite::setBaseShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms)
+{
+	//std::string  = getShaderNumber(shaderName);
+	//if (shaderNum>=0){
+		mUniforms[shaderName] = uniforms;
+	//}
+}
+
+
+
+ds::gl::Uniform Sprite::getBaseShaderUniforms(std::string shaderName) {
+		std::map<std::string, ds::gl::Uniform>::iterator it;
+		it = mUniforms.find(shaderName);
+	if (it != mUniforms.end()){
+		return it->second;
+	}
+	return ds::gl::Uniform();
+}
+
+bool Sprite::isShaderName(std::string name) const{
+	if (mSpriteShaders[mShaderPass]->getName().compare(name) == 0){
+		return true;
+	}
+	return false;
+}
+
+int Sprite::getShaderNumber(std::string name) const {
+	int num = -1;
+	int val = 0;
+	if (!mSpriteShaders.empty()){
+		for (auto it = mSpriteShaders.begin(); it != mSpriteShaders.end(); ++it) {
+			bool match = (*it)->getName().compare(name) == 0;
+			if (match) {
+				num = val;
+				break;
+			}
+			val++;
+		}
+	}
+	return num;
+}
+
+
+
+ds::ui::SpriteShader* Sprite::getShaderFromListName(std::string name) const {
+	ds::ui::SpriteShader* spriteShader = nullptr;
+
+	if (!mSpriteShaders.empty()){
+		for (auto it = mSpriteShaders.begin(); it != mSpriteShaders.end(); ++it) {
+			bool match = (*it)->getName().compare(name) ==0;
+			if (match) {
+				spriteShader = *it;
+				break;
+			}
+		}
+	}
+	return spriteShader;
+}
+
 std::string Sprite::getBaseShaderName() const {
 	return mSpriteShader.getName();
 }
@@ -1647,12 +1894,35 @@ void Sprite::computeClippingBounds(){
 
 void Sprite::dimensionalStateChanged(){
 	markClippingDirty();
-	if(mLastWidth != mWidth || mLastHeight != mHeight) {
+	if (mLastWidth != mWidth || mLastHeight != mHeight) {
 		mLastWidth = mWidth;
 		mLastHeight = mHeight;
 		onSizeChanged();
 	}
+
+	if (mSpriteShaders.size()>1){
+		ci::gl::Fbo::Format format;
+		format.setColorInternalFormat(GL_RGBA);
+		format.enableColorBuffer(true, 1);
+		format.enableDepthBuffer(false);
+		if (getWidth() > 1.0f) {
+			if (mFrameBuffer[0]) 
+				delete mFrameBuffer[0];
+			if (mFrameBuffer[1]) 
+				delete mFrameBuffer[1];
+
+
+			mFrameBuffer[0] = new ci::gl::Fbo(getWidth(), getHeight(), format);
+		//	mFrameBuffer[0] = new ci::gl::Fbo(1920, 1080, format);
+
+			mFrameBuffer[1] = new ci::gl::Fbo(getWidth(), getHeight(), format);
+			//mFrameBuffer[1] = new ci::gl::Fbo(1920, 1080, format);
+
+		}
+	}
 }
+
+
 
 void Sprite::markClippingDirty(){
 	mClippingBoundsDirty = true;
@@ -1950,6 +2220,8 @@ void Sprite::doPropagateVisibilityChange(bool before, bool after){
 		// visibility change of a parent has no effect on hidden children.
 	}
 }
+
+
 
 /**
  * \class ds::ui::Sprite::LockScale

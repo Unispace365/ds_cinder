@@ -10,10 +10,13 @@ namespace ui {
 class SpriteShader
 {
   public:
-    SpriteShader(const std::string &defaultLocation, const std::string &defaultName);
-    virtual ~SpriteShader();
+	SpriteShader(const std::string &defaultLocation, const std::string &defaultName);
+	SpriteShader(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName);
+
+	virtual ~SpriteShader();
     void setShaders(const std::string &location, const std::string &name);
-    void loadShaders();
+	void setShaders(const std::string &vert_memory, const std::string &frag_memory, std::string &shaderName);
+	void loadShaders();
     bool isValid() const;
 
 	/**
@@ -30,13 +33,19 @@ class SpriteShader
     std::string getName() const;
   private:
     void loadShadersFromFile();
+	void loadFromMemory();
+
     void loadDefaultFromFile();
-    void loadDefaultFromMemory();
+	void loadDefaultFromMemory();
 
     std::string         mDefaultLocation;
     std::string         mDefaultName;
     std::string         mLocation;
     std::string         mName;
+	std::string			mMemoryVert;
+	std::string			mMemoryFrag;
+	//std::string			mMemoryShaderName;
+
     ci::gl::GlslProg    mShader;
 };
 

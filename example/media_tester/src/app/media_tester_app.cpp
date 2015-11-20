@@ -136,7 +136,57 @@ void media_tester::loadMedia(const std::string& newMedia){
 	} else {
 		DS_LOG_INFO("Guessing that the new media is a video or playable by gstreamer: " << newMedia);
 		ds::ui::Video* vid = new ds::ui::Video(mEngine);
+#if 1
+		//Test multi-pass shader
+		std::vector<std::pair<std::string, std::string>> shaders;
+
+		//std::pair<std::string, std::string> shader;
+		//shader.first = ds::Environment::getAppFolder("data/shaders");
+		//shader.second = "blur";
+		//shaders.push_back(shader);
+		//shader.first = ds::Environment::getAppFolder("data/shaders");
+		//shader.second = "test1";
+		//shaders.push_back(shader);
+		//shaders.push_back(std::pair<std::string, std::string>(ds::Environment::getAppFolder("data/shaders"), "blur"));
+
+		shaders.push_back(std::pair<std::string, std::string>(ds::Environment::getAppFolder("data/shaders"), "test1"));
+	//	shaders.push_back(std::pair<std::string, std::string>(ds::Environment::getAppFolder("data/shaders"), "blur"));
+	//	shaders.push_back(std::pair<std::string, std::string>(ds::Environment::getAppFolder("data/shaders"), "toonify"));
+
+		vid->setBaseShaders(shaders);
+
+
+		//Move to draw
+		//Feature to keep static settings?
+
+		ds::gl::Uniform uniform;
+		uniform.setInt("Texture0", 1);  // Use texture unit 1 since Vidoe CSC is hardcoded to TU 0
+
+		vid->setBaseShadersUniforms("toonify", uniform);
+
+		uniform.clear();
+
+		uniform.setFloat("attenuation", 1.0f);
+		uniform.setFloat("sample_offset", 0.2f);
+		uniform.setFloat("opacity", 0.9f);
+		uniform.setInt("tex0", 1);  // Use texture unit 1 since Vidoe CSC is hardcoded to TU 0
+
+		vid->setBaseShadersUniforms("blur", uniform);
+
+		uniform.clear();
+
+		uniform.setInt("tex1", 1);
+		vid->setBaseShadersUniforms("test1", uniform);
+#else
+		//test video shader
+		//vid->setBaseShader(ds::Environment::getAppFolder("data/shaders"), "blur");
+		//vid->getUniform().setFloat("attenuation", 1.0f);
+		//vid->getUniform().setFloat("sample_offset", 0.2f);
+		//vid->getUniform().setFloat("opacity", 0.9f);
+
+#endif
 		vid->setVerboseLogging(true);
+		vid->setLooping(true);
 		vid->loadVideo(newMedia);
 		vid->play();
 		mEngine.getRootSprite().addChildPtr(vid);

@@ -45,9 +45,20 @@ namespace ui {
 SpriteShader::SpriteShader(const std::string &defaultLocation, const std::string &defaultName)
   : mDefaultLocation(defaultLocation)
   , mDefaultName(defaultName)
+  //, mMemoryVert(nullptr)
+  //, mMemoryFrag(nullptr)
 {
   mLocation = mDefaultLocation;
   mName = mDefaultName;
+}
+
+
+SpriteShader::SpriteShader(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName) 
+:  mMemoryVert(vert_memory)
+, mMemoryFrag(frag_memory)
+, mName(shaderName)
+{
+
 }
 
 SpriteShader::~SpriteShader()
@@ -55,7 +66,19 @@ SpriteShader::~SpriteShader()
 
 }
 
-void SpriteShader::setShaders( const std::string &location, const std::string &name )
+
+void SpriteShader::setShaders(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName){
+	if (mShader)
+		mShader.reset();
+
+	mMemoryVert = vert_memory;
+	mMemoryFrag = frag_memory;
+	mName = shaderName;
+
+}
+
+
+void SpriteShader::setShaders(const std::string &location, const std::string &name)
 {
   if (name.empty()) {
     DS_LOG_WARNING_M("SpriteShader::setShaders() on empty name, did you intend that?", SHADER_LOG);
@@ -76,6 +99,8 @@ void SpriteShader::setShaders( const std::string &location, const std::string &n
 void SpriteShader::loadShaders()
 {
   loadShadersFromFile();
+  if (!mShader)
+	  loadFromMemory();
   if (!mShader)
     loadDefaultFromFile();
   if (!mShader)
@@ -134,7 +159,25 @@ void SpriteShader::loadDefaultFromFile()
   }
 }
 
-void SpriteShader::loadDefaultFromMemory() 
+void SpriteShader::loadFromMemory(){
+	try {
+		auto found = GlslProgs.find(mName);
+		if (found == GlslProgs.end()) {
+			mShader = ci::gl::GlslProg(mMemoryVert.c_str(), mMemoryFrag.c_str());
+			GlslProgs[mName] = mShader;
+		}
+		else {
+			mShader = found->second;
+		}
+	}
+	catch (std::exception &e) {
+		//std::cout << e.what() << std::endl;
+		DS_LOG_WARNING_M(std::string("SpriteShader::loadShadersFromFile() on custom file\n") + e.what(), SHADER_LOG);
+	}
+
+}
+
+void SpriteShader::loadDefaultFromMemory()
 {
   try {
     auto found = GlslProgs.find("default_cpp_shader");
