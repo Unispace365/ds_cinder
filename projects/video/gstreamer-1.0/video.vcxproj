@@ -12,14 +12,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\sprite\gst_video.cpp" />
-    <ClCompile Include="src\ds\ui\sprite\gst_video_net.cpp" />
     <ClCompile Include="src\gstreamer\gstreamer_env_check.cpp" />
     <ClCompile Include="src\gstreamer\video_meta_cache.cpp" />
     <ClCompile Include="src\gstreamer\gstreamer_wrapper.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\sprite\gst_video.h" />
-    <ClInclude Include="src\ds\ui\sprite\gst_video_net.h" />
     <ClInclude Include="src\ds\ui\sprite\video.h" />
     <ClInclude Include="src\gstreamer\gstreamer_env_check.h" />
     <ClInclude Include="src\gstreamer\video_meta_cache.h" />
@@ -70,7 +68,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>src;MediaInfo;$(DS_CINDER_GSTREAMER_1-0)\include\gstreamer-1.0;$(DS_CINDER_GSTREAMER_1-0)\lib\glib-2.0\include;$(DS_CINDER_GSTREAMER_1-0)\include\glib-2.0;$(DS_CINDER_GSTREAMER_1-0)\include;$(DS_CINDER_GSTREAMER_1-0)\lib\gstreamer-1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>

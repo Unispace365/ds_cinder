@@ -1,0 +1,26 @@
+<settings>
+
+<!-- Font names are installed in the root app class on startup	-->
+	
+	<!-- Sample Text -->
+		<text  name="viewer:title:name" value="noto-bold" />
+		<float name="viewer:title:size" value="16" />
+		<float name="viewer:title:leading" value="0.75" />
+		<color name="viewer:title:color" r="255" g="255" b="255" />
+
+		<text  name="viewer:body:name" value="noto-thin" />
+		<float name="viewer:body:size" value="16" />
+		<float name="viewer:body:leading" value="0.75" />
+		<color name="viewer:body:color" r="255" g="255" b="255" />
+
+		<text  name="viewer:widget:name" value="noto-thin" />
+		<float name="viewer:widget:size" value="16" />
+		<float name="viewer:widget:leading" value="0.75" />
+		<color name="viewer:widget:color" r="255" g="255" b="255" />
+
+		<text  name="touch:menu:name" value="noto-thin" />
+		<float name="touch:menu:size" value="16" />
+		<float name="touch:menu:leading" value="0.75" />
+		<color name="touch:menu:color" r="255" g="255" b="255" />
+	
+</settings>

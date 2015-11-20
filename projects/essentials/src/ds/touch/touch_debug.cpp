@@ -1,6 +1,7 @@
 #include "touch_debug.h"
 
 #include <ds/app/engine/engine.h>
+#include <ds/ui/touch/touch_event.h>
 
 #include <cinder/CinderMath.h>
 #include <cinder/Rand.h>
@@ -100,7 +101,7 @@ void TouchDebug::replicate(const ci::app::MouseEvent& e, ds::ui::TouchInfo::Phas
 		angley += deltaAngley;
 	}
 
-	ci::app::TouchEvent te = ci::app::TouchEvent(mEngine.getWindow(), touches);
+	ds::ui::TouchEvent te = ds::ui::TouchEvent(mEngine.getWindow(), touches);
 	if(p == ds::ui::TouchInfo::Added){
 		mEngine.injectTouchesBegin(te);
 	} else if(p == ds::ui::TouchInfo::Moved){

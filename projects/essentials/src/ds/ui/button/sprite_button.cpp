@@ -42,6 +42,10 @@ void SpriteButton::showDown() {
 		mUp.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic());
 		mDown.tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseOutCubic());
 	}
+
+	if(mStateChangeFunction){
+		mStateChangeFunction(true);
+	}
 }
 
 void SpriteButton::showUp() {
@@ -51,6 +55,10 @@ void SpriteButton::showUp() {
 	} else {
 		mUp.tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseOutCubic());
 		mDown.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic());
+	}
+
+	if(mStateChangeFunction){
+		mStateChangeFunction(false);
 	}
 }
 
@@ -67,6 +75,11 @@ ds::ui::Sprite& SpriteButton::getHighSprite(){
 ds::ui::Sprite& SpriteButton::getNormalSprite(){
 	return mUp;
 }
+
+void SpriteButton::setStateChangeFn(const std::function<void(const bool pressed)>& func) {
+	mStateChangeFunction = func;
+}
+
 
 } // namespace ui
 } // namespace ds

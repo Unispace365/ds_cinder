@@ -9,6 +9,9 @@
 #include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/button/image_button.h>
+#include <ds/ui/button/sprite_button.h>
+#include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/sprite/circle.h>
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/cfg/cfg_text.h>
@@ -27,6 +30,11 @@
 #include <boost/regex.hpp>
 #include <boost/filesystem.hpp>
 
+namespace {
+static std::unordered_map<std::string, ds::ui::XmlImporter::XmlPreloadData>	 PRELOADED_CACHE;
+static bool AUTO_CACHE = false;
+}
+
 
 namespace ds {
 namespace ui {
@@ -36,7 +44,7 @@ static const std::string INVALID_VALUE = "UNACCEPTABLE!!!!";
 //HACK!
 static std::string sCurrentFile;
 
-// Color format: #AARRGGBB OR #RRGGBB
+// Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb
 static ci::ColorA parseColor( const std::string &color ) {
 	std::string s = color;
 
@@ -57,6 +65,7 @@ static ci::ColorA parseColor( const std::string &color ) {
 	return ci::ColorA(r, g, b, a);
 }
 
+// Example: size="400, 400" the space after the comma is required to read the second and third token
 ci::Vec3f parseVector( const std::string &s ) {
 	auto tokens = ds::split( s, ", ", true );
 	ci::Vec3f v;
@@ -83,6 +92,21 @@ static ds::ui::BlendMode parseBlendMode( const std::string &s ) {
 	return NORMAL;
 }
 
+// TODO: add the rest of the permutations, if you want em
+static const ds::BitMask parseMultitouchMode(const std::string& s){
+	using namespace ds::ui;
+	if(boost::iequals(s, "info"))				return MULTITOUCH_INFO_ONLY;
+	else if(boost::iequals(s, "pos"))			return MULTITOUCH_CAN_POSITION;
+	else if(boost::iequals(s, "all"))			return MULTITOUCH_NO_CONSTRAINTS;
+	else if(boost::iequals(s, "scale"))			return MULTITOUCH_CAN_SCALE;
+	else if(boost::iequals(s, "pos_x"))			return MULTITOUCH_CAN_POSITION_X;
+	else if(boost::iequals(s, "pos_y"))			return MULTITOUCH_CAN_POSITION_Y;
+	else if(boost::iequals(s, "pos_scale"))		return MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_SCALE;
+	else if(boost::iequals(s, "pos_rotate"))	return MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_ROTATE;
+	else if(boost::iequals(s, "rotate"))		return MULTITOUCH_CAN_ROTATE;
+	return MULTITOUCH_INFO_ONLY;
+}
+
 static std::string filePathRelativeTo( const std::string &base, const std::string &relative ) {
 	using namespace boost::filesystem;
 	boost::system::error_code e;
@@ -93,85 +117,168 @@ static std::string filePathRelativeTo( const std::string &base, const std::strin
 	return ret;
 }
 
-static void setSpriteProperty( ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer="" ) {
+static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer = "") {
 	std::string property = attr.getName();
-	
-	// TODO: make these a map? or something for faster lookup?
 
-	if ( property == "name" || property == "class") {
+	// This is a pretty long "case switch" (well, effectively a case switch).
+	// It seems like it'd be slow, but in practice, it's relatively fast.
+	// The slower parts of this are the actual functions that are called (particularly multilinetext setResizeLimit())
+	// So be sure that this is actually performing slowly before considering a refactor.
+
+	if(property == "name" || property == "class") {
 		// Do nothing, these are handled elsewhere
-	}
-	else if ( property == "width" ) {
-		sprite.setSize( attr.getValue<float>(), sprite.getHeight() );
-	}
-	else if ( property == "height" ) {
-		sprite.setSize( sprite.getWidth(), attr.getValue<float>() );
-	}
-	else if ( property == "depth" ) {
-		sprite.setSizeAll( sprite.getWidth(), sprite.getHeight(), attr.getValue<float>() );
-	}
-	else if ( property == "size" ) {
-		ci::Vec3f v = parseVector( attr.getValue() );
-		sprite.setSize( v.x, v.y );
-	}
-	else if ( property == "color" ) {
-		sprite.setTransparent( false );
-		sprite.setColorA( parseColor(attr.getValue()) );
-	}
-	else if ( property == "opacity" ) {
-		sprite.setOpacity( attr.getValue<float>() );
-	}
-	else if ( property == "position" ) {
-		sprite.setPosition( parseVector( attr.getValue() ) );
-	}
-	else if ( property == "rotation" ) {
-		sprite.setRotation( parseVector( attr.getValue() ) );
-	} 
-	else if(property == "scale") {
+	} else if(property == "width") {
+		sprite.setSize(attr.getValue<float>(), sprite.getHeight());
+	} else if(property == "height") {
+		sprite.setSize(sprite.getWidth(), attr.getValue<float>());
+	} else if(property == "depth") {
+		sprite.setSizeAll(sprite.getWidth(), sprite.getHeight(), attr.getValue<float>());
+	} else if(property == "size") {
+		ci::Vec3f v = parseVector(attr.getValue());
+		sprite.setSize(v.x, v.y);
+	} else if(property == "color") {
+		sprite.setTransparent(false);
+		sprite.setColorA(parseColor(attr.getValue()));
+	} else if(property == "opacity") {
+		sprite.setOpacity(attr.getValue<float>());
+	} else if(property == "position") {
+		sprite.setPosition(parseVector(attr.getValue()));
+	} else if(property == "rotation") {
+		sprite.setRotation(parseVector(attr.getValue()));
+	} else if(property == "scale") {
 		sprite.setScale(parseVector(attr.getValue()));
+	} else if(property == "center") {
+		sprite.setCenter(parseVector(attr.getValue()));
+	} else if(property == "clipping") {
+		sprite.setClipping(parseBoolean(attr.getValue()));
+	} else if(property == "blend_mode") {
+		sprite.setBlendMode(parseBlendMode(attr.getValue()));
+	} else if(property == "enable"){
+		sprite.enable(parseBoolean(attr.getValue()));
+	} else if(property == "multitouch"){
+		sprite.enableMultiTouch(parseMultitouchMode(attr.getValue()));
+	} else if(property == "transparent"){
+		sprite.setTransparent(parseBoolean(attr.getValue()));
+	} else if(property == "animate_on"){
+		sprite.setAnimateOnScript(attr.getValue());
+	} else if(property == "t_pad") {
+		sprite.mLayoutTPad = attr.getValue<float>();
+	} else if(property == "b_pad") {
+		sprite.mLayoutBPad = attr.getValue<float>();
+	} else if(property == "l_pad") {
+		sprite.mLayoutLPad = attr.getValue<float>();
+	} else if(property == "r_pad") {
+		sprite.mLayoutRPad = attr.getValue<float>();
+	} else if(property == "layout_size_mode"){
+		auto sizeMode = attr.getValue();
+		if(sizeMode == "fixed"){
+			sprite.mLayoutUserType = LayoutSprite::kFixedSize;
+		} else if(sizeMode == "flex"){
+			sprite.mLayoutUserType = LayoutSprite::kFlexSize;
+		} else if(sizeMode == "stretch"){
+			sprite.mLayoutUserType = LayoutSprite::kStretchSize;
+		} else if(sizeMode == "fill"){
+			sprite.mLayoutUserType = LayoutSprite::kFillSize;
+		} else {
+			DS_LOG_WARNING("layout_size_mode set to an invalid value of " << sizeMode);
+		}
+	} else if(property == "layout_v_align"){
+		auto alignMode = attr.getValue();
+		if(alignMode == "top"){
+			sprite.mLayoutVAlign = LayoutSprite::kTop;
+		} else if(alignMode == "middle"){
+			sprite.mLayoutVAlign = LayoutSprite::kMiddle;
+		} else if(alignMode == "bottom"){
+			sprite.mLayoutVAlign = LayoutSprite::kBottom;
+		} else {
+			DS_LOG_WARNING("layout_v_align set to an invalid value of " << alignMode);
+		}
+	} else if(property == "layout_h_align"){
+		auto alignMode = attr.getValue();
+		if(alignMode == "left"){
+			sprite.mLayoutHAlign = LayoutSprite::kLeft;
+		} else if(alignMode == "center"){
+			sprite.mLayoutHAlign = LayoutSprite::kCenter;
+		} else if(alignMode == "right"){
+			sprite.mLayoutHAlign = LayoutSprite::kRight;
+		} else {
+			DS_LOG_WARNING("layout_h_align set to an invalid value of " << alignMode);
+		}
+	} else if(property == "layout_fudge"){
+		sprite.mLayoutFudge = parseVector(attr.getValue()).xy();
+	} else if(property == "layout_size"){
+		sprite.mLayoutSize = parseVector(attr.getValue()).xy();
 	}
-	else if ( property == "center" ) {
-		sprite.setCenter( parseVector( attr.getValue() ) );
+
+	// LayoutSprite specific (the other layout stuff could apply to any sprite)
+	else if(property == "layout_type"){
+		auto layoutSprite = dynamic_cast<LayoutSprite*>(&sprite);
+		if(layoutSprite){
+			auto layoutType = attr.getValue();
+			if(layoutType == "vert"){
+				layoutSprite->setLayoutType(LayoutSprite::kLayoutVFlow);
+			} else if(layoutType == "horiz"){
+				layoutSprite->setLayoutType(LayoutSprite::kLayoutHFlow);
+			} else if(layoutType == "size"){
+				layoutSprite->setLayoutType(LayoutSprite::kLayoutSize);
+			} else {
+				layoutSprite->setLayoutType(LayoutSprite::kLayoutNone);
+			}
+		} else {
+			DS_LOG_WARNING("Couldn't set layout_type, as this sprite is not a LayoutSprite.");
+		}
 	}
-	else if ( property == "clipping" ) {
-		sprite.setClipping( parseBoolean( attr.getValue() ) );
+
+	else if(property == "layout_spacing"){
+		auto layoutSprite = dynamic_cast<LayoutSprite*>(&sprite);
+		if(layoutSprite){
+			layoutSprite->setSpacing(attr.getValue<float>());
+		} else {
+			DS_LOG_WARNING("Couldn't set layout_type, as this sprite is not a LayoutSprite.");
+		}
 	}
-	else if ( property == "blend_mode" ) {
-		sprite.setBlendMode( parseBlendMode( attr.getValue() ) );
-	}
+
 
 	// Text, MultilineText specific attributes
-	else if ( property == "font" ) {
+	else if(property == "font") {
 		// Try to set the font
-		auto text = dynamic_cast<Text *>( &sprite );
-		if (text) {
+		auto text = dynamic_cast<Text *>(&sprite);
+		if(text) {
 			auto cfg = text->getEngine().getEngineCfg().getText(attr.getValue());
 			cfg.configure(*text);
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-		else {
-			DS_LOG_WARNING( "Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name() );
-		}
-	}
-	else if (property == "resize_limit" ) {
+	} else if(property == "resize_limit") {
 		// Try to set the resize limit
-		auto text = dynamic_cast<Text *>( &sprite );
-		if (text) {
-			auto v = parseVector( attr.getValue() );
-			text->setResizeLimit( v.x, v.y );
+		auto text = dynamic_cast<Text *>(&sprite);
+		if(text) {
+			auto v = parseVector(attr.getValue());
+			text->setResizeLimit(v.x, v.y);
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-		else {
-			DS_LOG_WARNING( "Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name() );
+	} else if(property == "text_align"){
+		auto text = dynamic_cast<MultilineText*>(&sprite);
+		if(text){
+			std::string alignString = attr.getValue();
+			if(alignString == "right"){
+				text->setAlignment(ds::ui::Alignment::kRight);
+			} else if(alignString == "center"){
+				text->setAlignment(ds::ui::Alignment::kCenter);
+			} else {
+				text->setAlignment(ds::ui::Alignment::kCenter);
+			}
 		}
 	}
 
 	// Image properties
-	else if (property == "filename" || property == "src") {
-		auto image = dynamic_cast<Image *>( &sprite );
-		if (image) {
-			image->setImageFile( filePathRelativeTo( referer, attr.getValue() ) );
-		}
-		else {
-			DS_LOG_WARNING( "Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name() );
+	else if(property == "filename" || property == "src") {
+		auto image = dynamic_cast<Image *>(&sprite);
+		if(image) {
+			image->setImageFile(filePathRelativeTo(referer, attr.getValue()));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
 
@@ -184,16 +291,14 @@ static void setSpriteProperty( ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, 
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-	}
-	else if(property == "up_image") {
+	} else if(property == "up_image") {
 		auto image = dynamic_cast<ImageButton *>(&sprite);
 		if(image) {
 			image->setNormalImage(filePathRelativeTo(referer, attr.getValue()));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-	} 
-	else if(property == "btn_touch_padding") {
+	} else if(property == "btn_touch_padding") {
 		auto image = dynamic_cast<ImageButton *>(&sprite);
 		if(image) {
 			image->setTouchPad(attr.getValue<float>());
@@ -216,6 +321,37 @@ static void setSpriteProperty( ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, 
 			gradient->setColorsV(gradient->getColorTL(), parseColor(attr.getValue()));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "colorLeft"){
+		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
+		if(gradient){
+			gradient->setColorsH(parseColor(attr.getValue()), gradient->getColorTR());
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "colorRight"){
+		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
+		if(gradient){
+			gradient->setColorsH(gradient->getColorTL(), parseColor(attr.getValue()));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+
+	// Circle sprite properties
+	else if(property == "filled"){
+		auto circle = dynamic_cast<Circle*>(&sprite);
+		if(circle){
+			circle->setFilled(parseBoolean(attr.getValue()));
+		} else {
+			DS_LOG_WARNING("Trying to set filled on a non-cicle sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "radius"){
+		auto circle = dynamic_cast<Circle*>(&sprite);
+		if(circle){
+			circle->setRadius(attr.getValue<float>());
+		} else {
+			DS_LOG_WARNING("Trying to set radius on a non-cicle sprite of type: " << typeid(sprite).name());
 		}
 	}
 
@@ -270,19 +406,40 @@ bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outDat
 			outData.mStylesheets.push_back(s);
 	}
 
+	// If automatically caching, add this to the cache
+	if(AUTO_CACHE){
+		PRELOADED_CACHE[filename] = outData;
+	}
+
 	return true;
 }
 
-bool XmlImporter::loadXMLto( ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter ) {
+void XmlImporter::setAutoCache(const bool doCaching){
+	AUTO_CACHE = doCaching;
+}
+
+bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter) {
 
 	XmlImporter xmlImporter( parent, filename, map, customImporter );
 
-	// Here you could look up your preloaded stuff from a static cache based on filename
-
 	XmlPreloadData preloadData;
-	preloadData.mFilename = filename;
-	if(!preloadXml(filename, preloadData)){
-		return false;
+
+	// if auto caching, look up the xml in the static cache
+	bool cachedAlready = false;
+	if(AUTO_CACHE){
+		auto xmlIt = PRELOADED_CACHE.find(filename);
+		if(xmlIt != PRELOADED_CACHE.end()){
+			cachedAlready = true;
+			preloadData = xmlIt->second;
+		}
+	}
+
+	// we don't have this in our cache, so look it up
+	if(!cachedAlready){
+		preloadData.mFilename = filename;
+		if(!preloadXml(filename, preloadData)){
+			return false;
+		}
 	}
 
 	// copy each stylesheet, cause the xml importer will delete it's copies when it destructs
@@ -415,9 +572,19 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		auto imgButton = new ds::ui::ImageButton(engine, "", "", touchPad);
 		spriddy = imgButton;
 	}
+	else if(type == "sprite_button"){
+		spriddy = new ds::ui::SpriteButton(engine);
+	}
 	else if(type == "gradient"){
 		auto gradient = new ds::ui::GradientSprite(engine);
 		spriddy = gradient;
+	}
+	else if(type == "layout"){
+		auto layoutSprite = new ds::ui::LayoutSprite(engine);
+		spriddy = layoutSprite;
+	}
+	else if(type == "circle"){
+		spriddy = new ds::ui::Circle(engine);
 	}
 	else if (mCustomImporter) {
 		spriddy = mCustomImporter(type, *node);

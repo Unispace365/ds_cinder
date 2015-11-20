@@ -42,6 +42,10 @@ void WebViewListener::OnShowCreatedWebView(	Awesomium::WebView* caller,
 //	std::cout << "OnShowCreatedWebView is_popup=" << is_popup << " target=" << str_from_webstr(target_url.spec()) << std::endl;
 }
 
+void WebViewListener::OnAddConsoleMessage(Awesomium::WebView* caller, const Awesomium::WebString& message, int line_number, const Awesomium::WebString& source){
+	std::cout << "Console message: " << str_from_webstr(message) << " Line: " << line_number << " From: " << str_from_webstr(source) <<  std::endl;
+}
+
 /**
  * \class ds::web::WebLoadListener
  */

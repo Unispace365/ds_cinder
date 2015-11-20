@@ -33,6 +33,9 @@ public:
 	// Pre-loads the xml & related css files in preparation for creating sprites later. Removes a lot of the dynamic disk reads associated with importing stuff
 	static bool preloadXml(const std::string& xmlFile, XmlPreloadData& outData);
 
+	/// If true, will automatically cache xml interfaces after the first time they're loaded
+	static void setAutoCache(const bool doCaching);
+
 protected:
 	XmlImporter( ds::ui::Sprite *targetSprite, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr)
 		: mTargetSprite(targetSprite)

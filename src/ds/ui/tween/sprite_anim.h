@@ -93,6 +93,32 @@ public:
 															const std::function<void(void)>& updateFn = nullptr);
 	void									animStop();
 
+	/// Runs any script set as the animate on script. Optionally runs through any children sprites and runs those as well.
+	/// You can also add delta delay so each element runs a bit later than the one before. The first one runs with it's default delay
+	void									tweenAnimateOn(const bool recursive = false, const float delay = 0.0f, const float deltaDelay = 0.0f);
+
+	/// Sets the script to use in the above tweenAnimateOn() function
+	void									setAnimateOnScript(const std::string& animateOnScript);
+
+	/// Sets the targets for animate on. This only applies to fade, grow and slide. The intent here is to make tweenAnimateOn() reliable through multiple calls at any time.
+	void									setAnimateOnTargets();
+
+	/** Parse the string as a script to run a few animations.
+		Syntax: <type>:<valueX, valueY, valueZ>;
+		Special params: 
+			easing: see getEasingByString() implementation for details. Same easing applies to all tween types (opacity and position would use the same easing for instance, unfortunately)
+			duration: in seconds
+			delay: in seconds
+			slide: tweens the position to the cached destination position, and offsets the start by the supplied values. Cache is created the first time slide, grow or fade is called. Call setAnimateOnTargets() to reset the cached targets.
+			grow: tweens the scale to the cached scale, and starts at the supplied value
+			fade: tweens the opacity to the cached opacity and starts at the supplied value
+		Example: "scale:1, 1, 1; position:100, 200, 300; opacity:1.0; color:0.5, 0.6, 1.0; rotation:0.0, 0.0, 90.0; size:20, 20; easing:inOutBack; duration:1.0; slide:-100; delay:0.5"
+		*/
+	void									runAnimationScript(const std::string& animScript, const float addedDelay = 0.0f);
+
+	/// Gets the cinder easing function by string value, to support the script running
+	static ci::EaseFn						getEasingByString(const std::string& inString);
+
 public:
 	ci::Anim<ci::Color>						mAnimColor;
 	ci::Anim<float>							mAnimOpacity;
@@ -104,6 +130,13 @@ public:
 private:
 	Sprite&									mOwner;
 	SpriteEngine&							mEngine;
+
+	std::string								mAnimateOnScript;
+	bool									mAnimateOnTargetsSet;
+	ci::Vec3f								mAnimateOnScaleTarget;
+	ci::Vec3f								mAnimateOnPositionTarget;
+	float									mAnimateOnOpacityTarget;
+
 };
 
 } // namespace ui

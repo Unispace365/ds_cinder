@@ -110,6 +110,7 @@ public:
 	Resource(const Resource::Id& dbId, const int type);
 	// This should only be used for debugging, as a way to bridge
 	// the hardcoded file paths before things move to being pulled from the CMS.
+	Resource(const std::string& fullPath); // type is auto-detected from extension
 	Resource(const std::string& fullPath, const int type);
 
 	// In case you have this queried/constructed already

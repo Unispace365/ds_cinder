@@ -107,53 +107,70 @@ void ImageToken::init() {
 
 /* DS::LOAD-IMAGE-SERVICE
  ******************************************************************/
-LoadImageService::LoadImageService(GlThread& t, ds::ui::ip::FunctionList& list)
-		: GlThreadClient<LoadImageService>(t)
-		, mFunctions(list) {
-	mInput.reserve(64);
-	mOutput.reserve(64);
-	mTmp.reserve(64);
+LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng, ds::ui::ip::FunctionList& list)
+		: mFunctions(list) 
+		, mLoadThreads(eng, [](){return new ds::ui::LoadImageService::ImageLoadThread(); })
+		, mMaxSimultaneousLoads(8)
+		, mMaxLoadTries(32)
+		, mLoadsInProgress(0)
+{
+
+	mLoadThreads.setReplyHandler([this](ds::ui::LoadImageService::ImageLoadThread& q){ 
+		onLoadComplete(q); 
+	});
 }
 
-LoadImageService::~LoadImageService()
-{
-	waitForNoInput();
+LoadImageService::~LoadImageService(){
 	clear();
 }
 
 bool LoadImageService::acquire(const ImageKey& key, const int flags) {
-	holder&		h = mImageResource[key];
+	ImageHolder&		h = mImageResource[key];
+
 	// We have to test multiple conditions here -- if our refs fall below 1 AND we have no
 	// current image, then we need to load one in.  But if the refs are > 0, then there's
 	// either an image or one's being loaded.  And if there's an image but the refs are < 1,
 	// then it's being cached.
-	if ((!h.mTexture) && h.mRefs < 1) {
-//    DS_LOG_INFO_M("ImageService: acquire resource '" << filename << "' flags=" << flags << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
+	if((!h.mTexture) && h.mRefs < 1) {
 		// There's no image, so push on an operation to start one
-		{
-			Poco::Mutex::ScopedLock		l(mMutex);
-			mInput.push_back(op(key, flags, mFunctions.find(key.mIpKey)));
-		}
-		performOnWorkerThread(&LoadImageService::_load);
+		auto oppy = ImageOperation(key, flags, mFunctions.find(key.mIpKey));
+		mOperationsQueue.push_back(oppy);
+		advanceQueue();
 	}
+
 	h.mRefs++;
-	if ((flags&Image::IMG_CACHE_F) != 0) h.mFlags |= Image::IMG_CACHE_F;
-	if ((flags&Image::IMG_ENABLE_MIPMAP_F) != 0) h.mFlags |= Image::IMG_ENABLE_MIPMAP_F;
+	if((flags&Image::IMG_CACHE_F) != 0) h.mFlags |= Image::IMG_CACHE_F;
+	if((flags&Image::IMG_ENABLE_MIPMAP_F) != 0) h.mFlags |= Image::IMG_ENABLE_MIPMAP_F;
 
 	return true;
+}
+
+void LoadImageService::advanceQueue(){
+	if(mLoadsInProgress >= mMaxSimultaneousLoads){
+		return;
+	}
+
+	if(mOperationsQueue.empty()) return;
+
+	auto oppy = mOperationsQueue.front();
+	oppy.mNumberTries++;
+	mOperationsQueue.erase(mOperationsQueue.begin());
+
+	mLoadsInProgress++;
+	mLoadThreads.start([this, oppy](ImageLoadThread& ilt){ ilt.mOutput = oppy; });
 }
 
 void LoadImageService::release(const ImageKey& key) {
 	// Note:  As far as I can tell, find() always throws an error if the map is empty.
 	// Further, I can't even seem to catch the error, so really not sure what's going on there.
 	if (mImageResource.empty()) {
-		DS_LOG_WARNING_M("LoadImageService::release() called on empty map", LOAD_IMAGE_LOG_M);
+	//	DS_LOG_WARNING_M("LoadImageService::release() called on empty map", LOAD_IMAGE_LOG_M);
 		return;
 	}
 
 	auto			it = mImageResource.find(key);
 	if (it != mImageResource.end()) {
-		holder&		h = it->second;
+		ImageHolder&		h = it->second;
 		h.mRefs--;
 		// If I'm caching this image, never release it
 		if ((h.mFlags&Image::IMG_CACHE_F) == 0 && h.mRefs <= 0) {
@@ -165,11 +182,9 @@ void LoadImageService::release(const ImageKey& key) {
 }
 
 ci::gl::Texture LoadImageService::getImage(const ImageKey& key, float& fade) {
-	// Anytime someone asks for an image, flush out the buffer.
-	update();
 
 	if (mImageResource.empty()) return ci::gl::Texture();
-	holder& h = mImageResource[key];
+	ImageHolder& h = mImageResource[key];
 	fade = 1;
 	return h.mTexture;
 }
@@ -178,7 +193,7 @@ const ci::gl::Texture LoadImageService::peekImage(const ImageKey& key) const {
 	if (mImageResource.empty()) return ci::gl::Texture();
 	auto it = mImageResource.find(key);
 	if (it != mImageResource.end()) {
-		const holder&		h = it->second;
+		const ImageHolder&		h = it->second;
 		return h.mTexture;
 	}
 	return ci::gl::Texture();
@@ -188,35 +203,63 @@ bool LoadImageService::peekToken(const ImageKey& key, int* flags) const {
 	if (mImageResource.empty()) return false;
 	auto it = mImageResource.find(key);
 	if (it != mImageResource.end()) {
-		const holder&		h = it->second;
+		const ImageHolder&		h = it->second;
 		if (flags) *flags = h.mFlags;
 		return true;
 	}
 	return false;
 }
 
-void LoadImageService::update() {
-	Poco::Mutex::ScopedLock			l(mMutex);
-	for (int k=0; k<mOutput.size(); k++) {
-		op&							out = mOutput[k];
-		holder&						h = mImageResource[out.mKey];
-		if(h.mTexture) {
-			DS_LOG_WARNING_M("Duplicate images for id=" << out.mKey.mFilename << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
+void LoadImageService::onLoadComplete(ImageLoadThread& loadThread){
+
+	mLoadsInProgress--;
+
+	// if something went wrong (out of memory? no file? try again)
+	if(loadThread.mError){
+		if(loadThread.mOutput.mNumberTries >= mMaxLoadTries){
+			DS_LOG_WARNING("Gave up loading image for " << loadThread.mOutput.mKey.mFilename << " after " << loadThread.mOutput.mNumberTries << " attempts.");
+			loadThread.mOutput.clear();
 		} else {
-			ci::gl::Texture::Format	fmt;
-			if ((h.mFlags&ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
-				fmt.enableMipmapping(true);
-				fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-			}
-			h.mTexture = ci::gl::Texture(out.mSurface, fmt);
-			if (glGetError() == GL_OUT_OF_MEMORY) {
-				DS_LOG_ERROR_M("LoadImageService::update() called on filename: " << out.mKey.mFilename << " received an out of memory error. Image may be too big.", LOAD_IMAGE_LOG_M);
-			}
-			DS_REPORT_GL_ERRORS();
+			mOperationsQueue.push_back(loadThread.mOutput);
 		}
-		out.clear();
+		advanceQueue();
+		return;
 	}
-	mOutput.clear();
+
+	ImageOperation&			out = loadThread.mOutput;
+	ImageHolder&			h = mImageResource[out.mKey];
+	if(h.mTexture) {
+		DS_LOG_WARNING_M("Duplicate images for id=" << out.mKey.mFilename << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
+	} else {
+		ci::gl::Texture::Format	fmt;
+		if((h.mFlags&ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
+			fmt.enableMipmapping(true);
+			fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
+		}
+		h.mTexture = ci::gl::Texture(out.mSurface, fmt);
+
+		// If we ran out of memory, try again! why not!
+		if(glGetError() == GL_OUT_OF_MEMORY) {
+			DS_LOG_ERROR_M("LoadImageService::onLoadComplete() called on filename: " << out.mKey.mFilename << " received an out of memory error. Image may be too big.", LOAD_IMAGE_LOG_M);
+			if(h.mTexture) h.mTexture.reset();
+
+			if(out.mNumberTries >= mMaxLoadTries){
+				DS_LOG_WARNING("Gave up loading image for " << loadThread.mOutput.mKey.mFilename << " after " << loadThread.mOutput.mNumberTries << " attempts.");
+				loadThread.mOutput.clear();
+				out.clear();
+			} else {
+				mOperationsQueue.push_back(out);
+			}
+			advanceQueue();
+			return;
+		}
+
+		DS_REPORT_GL_ERRORS();
+	}
+	out.clear();
+	loadThread.mOutput.clear();
+
+	advanceQueue();
 }
 
 void LoadImageService::clear()
@@ -224,51 +267,66 @@ void LoadImageService::clear()
 	mImageResource.clear();
 }
 
-void LoadImageService::_load()
-{
-	// Pop off the items I need
-	mTmp.clear();
-	{
-		Poco::Mutex::ScopedLock			l(mMutex);
-		mInput.swap(mTmp);
-	}
-	// Load them all
-	DS_REPORT_GL_ERRORS();
-	for (int k=0; k<mTmp.size(); k++) {
-		op&						           top = mTmp[k];
-		try {
-//			DS_LOG_INFO_M("LoadImageService::_load() on file (" << top.mFilename << ")", LOAD_IMAGE_LOG_M);
+
+LoadImageService::ImageLoadThread::ImageLoadThread(){
+
+}
+void LoadImageService::ImageLoadThread::run(){
+
+	mError = true;
+	try {
+
+		// If there's a function, then require this image have an alpha channel, because
+		// who knows what the function will need. Otherwise let cinder do its thing.
+		boost::tribool						alpha = boost::logic::indeterminate;
+		if(!mOutput.mIpFunction.empty())	alpha = boost::tribool(true);
+
+		const std::string					fn = ds::Environment::expand(mOutput.mKey.mFilename);
+		const Poco::File file(fn);
+
+		if(file.exists()) {
+			mOutput.mSurface = ci::Surface8u(ci::loadImage(fn), ci::SurfaceConstraintsDefault(), alpha);
+			if(mOutput.mSurface) {
+				mOutput.mIpFunction.on(mOutput.mKey.mIpParams, mOutput.mSurface);
+				mError = false;
+			}
+		} else {
+			DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed. File does not exist: " << mOutput.mKey.mFilename, LOAD_IMAGE_LOG_M);
+			mError = true;
+		}
+	} catch(std::exception const& ex) {
+
+		try{
 			// If there's a function, then require this image have an alpha channel, because
 			// who knows what the function will need. Otherwise let cinder do its thing.
-			boost::tribool					alpha = boost::logic::indeterminate;
-			if (!top.mIpFunction.empty()) alpha = boost::tribool(true);
-			const std::string				fn = ds::Environment::expand(top.mKey.mFilename);
-			const Poco::File file(fn);
-			if (file.exists()) {
-				top.mSurface = ci::Surface8u(ci::loadImage(fn), ci::SurfaceConstraintsDefault(), alpha);
-				DS_REPORT_GL_ERRORS();
-				if (top.mSurface) {
-					top.mIpFunction.on(top.mKey.mIpParams, top.mSurface);
-					// This is to immediately place operations on the output...
-					Poco::Mutex::ScopedLock		l(mMutex);
-					mOutput.push_back(op(top));
-				}
+			boost::tribool						alpha = boost::logic::indeterminate;
+			if(!mOutput.mIpFunction.empty())	alpha = boost::tribool(true);
+
+			// Try to load from a url path instead of locally
+			mOutput.mSurface = ci::Surface8u(ci::loadImage(ci::loadUrl(mOutput.mKey.mFilename)), ci::SurfaceConstraintsDefault(), alpha);
+			if(mOutput.mSurface) {
+				mOutput.mIpFunction.on(mOutput.mKey.mIpParams, mOutput.mSurface);
+				mError = false;
 			} else {
-				DS_LOG_WARNING_M("LoadImageService::_load() failed. File does not exist: " << top.mKey.mFilename, LOAD_IMAGE_LOG_M);
+				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed fallback loading. Original exception ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+				mError = true;
 			}
-		} catch (std::exception const& ex) {
-			DS_LOG_WARNING_M("LoadImageService::_load() failed ex=" << ex.what() << " (file=" << top.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+		} catch(std::exception const& extwo){
+			DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed extwo=" << extwo.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+			mError = true;
 		}
-		top.clear();
-		DS_REPORT_GL_ERRORS();
+
+		if(mError){
+			DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+			mError = true;
+		}
 	}
-	mTmp.clear();
 }
 
 /**
  * \class ds::ui::LoadImageService::holder
  */
-LoadImageService::holder::holder()
+LoadImageService::ImageHolder::ImageHolder()
 		: mRefs(0)
 		, mError(false)
 		, mFlags(0) {
@@ -277,25 +335,30 @@ LoadImageService::holder::holder()
 /**
  * \class ds::ui::LoadImageService::op
  */
-LoadImageService::op::op()
-		: mFlags(0) {
+LoadImageService::ImageOperation::ImageOperation()
+		: mFlags(0)
+		, mNumberTries(0)
+{
 }
 
-LoadImageService::op::op(const op& o) {
+LoadImageService::ImageOperation::ImageOperation(const ImageOperation& o) {
 	*this = o;
 }
 
-LoadImageService::op::op(const ImageKey& key, const int flags, const ds::ui::ip::FunctionRef& fn)
+LoadImageService::ImageOperation::ImageOperation(const ImageKey& key, const int flags, const ds::ui::ip::FunctionRef& fn)
 		: mKey(key)
 		, mFlags(flags)
-		, mIpFunction(fn) {
+		, mIpFunction(fn)
+		, mNumberTries(0)
+{
 }
 
-void LoadImageService::op::clear() {
+void LoadImageService::ImageOperation::clear() {
 	mKey.clear();
 	mSurface.reset();
 	mFlags = 0;
 	mIpFunction.clear();
+	mNumberTries = 0;
 }
 
 } // namespace ui

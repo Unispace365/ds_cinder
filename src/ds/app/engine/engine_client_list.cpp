@@ -62,11 +62,13 @@ void EngineClientList::compare(const int32_t server_frame) {
 		if (server_frame < cf) {
 			// Something is very wrong
 		} else if ((server_frame - cf) > mDisconnectionLag) {
-			DS_LOG_ERROR("Client " << it->mGuid << " connection appears lost (behind by " << (server_frame - cf) << " frames)");
 			needs_connection_error = true;
 		}
 		if (mErrorChannel && !it->mConnectionError.empty() && it->mGlobalsHasConnectionError != needs_connection_error) {
-			if (needs_connection_error) mErrorChannel->notify(AddErrorEvent(it->mConnectionError));
+			if(needs_connection_error){
+				DS_LOG_ERROR("Client " << it->mGuid << " connection appears lost (behind by " << (server_frame - cf) << " frames)");
+				mErrorChannel->notify(AddErrorEvent(it->mConnectionError));
+			}
 			else mErrorChannel->notify(RemoveErrorEvent(it->mConnectionError.getId()));
 			it->mGlobalsHasConnectionError = needs_connection_error;
 		}

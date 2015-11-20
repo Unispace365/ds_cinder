@@ -1,19 +1,18 @@
 #include "touch_manager.h"
-#include "touch_info.h"
+
+#include <cinder/System.h>
+
 #include "ds/app/engine/engine.h"
 #include "ds/app/engine/engine_roots.h"
-#include "ds/math/math_defs.h"
-#include "ds/ui/sprite/util/blend.h"
 #include "ds/debug/logger.h"
-#include <cinder/System.h>
-#include "rotation_translator.h"
+#include "ds/math/math_defs.h"
+#include "ds/ui/touch/touch_info.h"
+#include "ds/ui/touch/touch_event.h"
+#include "ds/ui/touch/rotation_translator.h"
 
 namespace {
   const int MOUSE_RESERVED_IDS = 2;
 }
-
-using namespace ci;
-using namespace ci::app;
 
 namespace ds {
 namespace ui {
@@ -36,8 +35,8 @@ void TouchManager::setTouchMode(const TouchMode::Enum &m) {
 	mTouchMode = m;
 }
 
-void TouchManager::touchesBegin(const TouchEvent &event) {
-	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
+void TouchManager::touchesBegin(const ds::ui::TouchEvent &event) {
+	for (auto touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
 		// This system uses a mouse click for the first touch, which allows for use of the mouse and touches simultaneously
 		// It's possible we'll run into a scenario where we need to reverse this, which we can just add a bool flag to the settings to use all touches and ignore all mouses.
@@ -47,7 +46,7 @@ void TouchManager::touchesBegin(const TouchEvent &event) {
 		}
 
 		ci::Vec2f touchPos = touchIt->getPos();
-		if(mOverrideTranslation){
+		if(mOverrideTranslation && !event.getInWorldSpace()){
 			overrideTouchTranslation(touchPos);
 		}
 
@@ -61,7 +60,7 @@ void TouchManager::touchesBegin(const TouchEvent &event) {
 		mDiscardTouchMap[fingerId] = false;
 
 		TouchInfo touchInfo;
-		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
+		touchInfo.mCurrentGlobalPoint = ci::Vec3f(touchPos, 0.0f);
 		touchInfo.mFingerId = fingerId;
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 		mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
@@ -96,8 +95,8 @@ void TouchManager::touchesBegin(const TouchEvent &event) {
 	}
 }
 
-void TouchManager::touchesMoved(const TouchEvent &event) {
-	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
+void TouchManager::touchesMoved(const ds::ui::TouchEvent &event) {
+	for (auto touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
 		if (TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId) {
 			continue;
@@ -110,7 +109,7 @@ void TouchManager::touchesMoved(const TouchEvent &event) {
 		}
 
 		ci::Vec2f touchPos = touchIt->getPos();
-		if(mOverrideTranslation){
+		if(mOverrideTranslation && !event.getInWorldSpace()){
 			overrideTouchTranslation(touchPos);
 		}
 
@@ -118,7 +117,7 @@ void TouchManager::touchesMoved(const TouchEvent &event) {
 		//	return;
 
 		TouchInfo touchInfo;
-		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
+		touchInfo.mCurrentGlobalPoint = ci::Vec3f(touchPos, 0.0f);
 		touchInfo.mFingerId = fingerId;
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -140,8 +139,8 @@ void TouchManager::touchesMoved(const TouchEvent &event) {
 	}
 }
 
-void TouchManager::touchesEnded(const TouchEvent &event) {
-	for (std::vector<TouchEvent::Touch>::const_iterator touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
+void TouchManager::touchesEnded(const ds::ui::TouchEvent &event) {
+	for (auto touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 
 		if (TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId){
 			mIgnoreFirstTouchId = -1;
@@ -156,7 +155,7 @@ void TouchManager::touchesEnded(const TouchEvent &event) {
 		}
 
 		ci::Vec2f touchPos = touchIt->getPos();
-		if(mOverrideTranslation){
+		if(mOverrideTranslation && !event.getInWorldSpace()){
 			overrideTouchTranslation(touchPos);
 		}
 
@@ -165,7 +164,7 @@ void TouchManager::touchesEnded(const TouchEvent &event) {
 
 
 		TouchInfo touchInfo;
-		touchInfo.mCurrentGlobalPoint = Vec3f(touchPos, 0.0f);
+		touchInfo.mCurrentGlobalPoint = ci::Vec3f(touchPos, 0.0f);
 		touchInfo.mFingerId = fingerId;
 		touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 		touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -187,10 +186,9 @@ void TouchManager::touchesEnded(const TouchEvent &event) {
 	}
 }
 
-void TouchManager::mouseTouchBegin(const MouseEvent &event, int id ){
-
+void TouchManager::mouseTouchBegin(const ci::app::MouseEvent &event, int id ){
 	TouchInfo touchInfo;
-	touchInfo.mCurrentGlobalPoint = Vec3f(translateMousePoint(event.getPos()), 0.0f);
+	touchInfo.mCurrentGlobalPoint = ci::Vec3f(translateMousePoint(event.getPos()), 0.0f);
 	touchInfo.mFingerId = id;
 	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 	mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
@@ -210,10 +208,10 @@ void TouchManager::mouseTouchBegin(const MouseEvent &event, int id ){
 	}
 }
 
-void TouchManager::mouseTouchMoved(const MouseEvent &event, int id ){
+void TouchManager::mouseTouchMoved(const ci::app::MouseEvent &event, int id){
 
 	TouchInfo touchInfo;
-	touchInfo.mCurrentGlobalPoint = Vec3f(translateMousePoint(event.getPos()), 0.0f);
+	touchInfo.mCurrentGlobalPoint = ci::Vec3f(translateMousePoint(event.getPos()), 0.0f);
 	touchInfo.mFingerId = id;
 	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 	touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -225,6 +223,7 @@ void TouchManager::mouseTouchMoved(const MouseEvent &event, int id ){
 
 	mRotationTranslator.move(touchInfo, mTouchPreviousPoint[touchInfo.mFingerId]);
 
+
 	if (mFingerDispatcher[touchInfo.mFingerId]) {
 		mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo( touchInfo );
 	}
@@ -232,10 +231,10 @@ void TouchManager::mouseTouchMoved(const MouseEvent &event, int id ){
 	mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 }
 
-void TouchManager::mouseTouchEnded(const MouseEvent &event, int id ){
+void TouchManager::mouseTouchEnded(const ci::app::MouseEvent &event, int id){
 
 	TouchInfo touchInfo;
-	touchInfo.mCurrentGlobalPoint = Vec3f(translateMousePoint(event.getPos()), 0.0f);
+	touchInfo.mCurrentGlobalPoint = ci::Vec3f(translateMousePoint(event.getPos()), 0.0f);
 	touchInfo.mFingerId = id;
 	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
 	touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
@@ -256,17 +255,6 @@ void TouchManager::mouseTouchEnded(const MouseEvent &event, int id ){
 	if (mCapture) mCapture->touchEnd(touchInfo);
 }
 
-void TouchManager::drawTouches() const {
-	if (mTouchPreviousPoint.empty())
-		return;
-
-	applyBlendingMode(NORMAL);
-
-	for ( auto it = mTouchPreviousPoint.begin(), it2 = mTouchPreviousPoint.end(); it != it2; ++it ) {
-		ci::Vec2f		pos(it->second.xy());
-		ci::gl::drawStrokedCircle(pos, 20.0f);
-	}
-}
 
 void TouchManager::clearFingers( const std::vector<int> &fingers ){
 	for ( auto i = fingers.begin(), e = fingers.end(); i != e; ++i )
@@ -318,8 +306,8 @@ void TouchManager::setCapture(Capture *c) {
 }
 
 void TouchManager::overrideTouchTranslation( ci::Vec2f& inOutPoint){
-	inOutPoint.set((inOutPoint.x / getWindowWidth()) * mTouchDimensions.x + mTouchOffset.x, 
-		(inOutPoint.y / getWindowHeight()) * mTouchDimensions.y + mTouchOffset.y);
+	inOutPoint.set((inOutPoint.x / ci::app::getWindowWidth()) * mTouchDimensions.x + mTouchOffset.x, 
+		(inOutPoint.y / ci::app::getWindowHeight()) * mTouchDimensions.y + mTouchOffset.y);
 }
 
 

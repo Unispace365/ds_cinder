@@ -12,6 +12,8 @@
 #include "ds/math/math_defs.h"
 #include "ds/ui/ip/ip_defs.h"
 #include "ds/ui/ip/functions/ip_circle_mask.h"
+#include "ds/ui/touch/draw_touch_view.h"
+#include "ds/ui/touch/touch_event.h"
 
 //! This entire header is included for one single
 //! function Poco::Path::expand. This slowly needs
@@ -27,113 +29,10 @@
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
-using namespace ci;
-using namespace ci::app;
-
 namespace {
 const int			NUMBER_OF_NETWORK_THREADS = 2;
 
 void				root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>&);
-
-// View for drawing touches
-class DrawTouchView : public ds::ui::Sprite
-					, public ds::ui::TouchManager::Capture {
-public:
-	DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &settings, ds::ui::TouchManager& tm)
-			: ds::ui::Sprite(e)
-			, mTouchManager(tm)
-			, mTouchTrailsUse(false)
-			, mTouchTrailsLength(5)
-			, mTouchTrailsIncrement(5.0f) {
-		mTouchTrailsUse = settings.getBool("touch_overlay:trails:use", 0, mTouchTrailsUse);
-		mTouchTrailsLength = settings.getInt("touch_overlay:trails:length", 0, mTouchTrailsLength);
-		mTouchTrailsIncrement = settings.getFloat("touch_overlay:trails:increment", 0, mTouchTrailsIncrement);
-
-		setTransparent(false);
-		setColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
-
-		if (mTouchTrailsUse) {
-			tm.setCapture(this);
-		}
-	}
-
-	virtual void		touchBegin(const ds::ui::TouchInfo &ti) {
-		if (mTouchTrailsUse) {
-			mTouchPointHistory[ti.mFingerId] = std::vector<ci::Vec3f>();
-			mTouchPointHistory[ti.mFingerId].push_back(ti.mCurrentGlobalPoint);
-		}
-	}
-
-	virtual void		touchMoved(const ds::ui::TouchInfo &ti) {
-		if (mTouchTrailsUse) {
-			mTouchPointHistory[ti.mFingerId].push_back(ti.mCurrentGlobalPoint);
-			if ((int)mTouchPointHistory[ti.mFingerId].size() > mTouchTrailsLength - 1) {
-				mTouchPointHistory[ti.mFingerId].erase(mTouchPointHistory[ti.mFingerId].begin());
-			}
-		}
-	}
-
-	virtual void		touchEnd(const ds::ui::TouchInfo &ti) {
-		if (mTouchTrailsUse) {
-			mTouchPointHistory.erase(ti.mFingerId);
-		}
-	}
-
-	virtual void		drawLocalClient() {
-		// No reason to draw my parent
-//		ds::ui::Sprite::drawLocalClient();
-
-		if (mTouchTrailsUse) {
-			drawTrails();
-		} else {
-			mTouchManager.drawTouches();
-		}
-	}
-
-private:
-	void					drawTrails() {
-		ds::ui::applyBlendingMode(ds::ui::NORMAL);
-
-		const float			incrementy = mTouchTrailsIncrement;
-		for ( auto it = mTouchPointHistory.begin(), it2 = mTouchPointHistory.end(); it != it2; ++it ) {
-			float sizey = incrementy;
-			int secondSize = it->second.size();
-			ci::Vec2f prevPos = ci::Vec2f::zero();
-			for (int i = 0; i < secondSize; i++){
-				ci::Vec2f		pos(it->second[i].xy());
-				ci::gl::drawSolidCircle(pos, sizey);
-
-				if(i < secondSize - 1 && i > 0){ 
-					// Find the angle between this point and the previous point
-					// PI / 2 is a 90 degree rotation, or perpendicular
-					float angle = atan2f(pos.y - prevPos.y, pos.x - prevPos.x) + ds::math::PI / 2.0f;
-					float smallSize = (sizey - incrementy);
-					float bigSize = sizey;
-					ci::Vec2f p1 = ci::Vec2f(pos.x + bigSize * cos(angle), pos.y + bigSize * sin(angle));
-					ci::Vec2f p2 = ci::Vec2f(pos.x - bigSize * cos(angle), pos.y - bigSize * sin(angle));
-					ci::Vec2f p3 = ci::Vec2f(prevPos.x + smallSize * cos(angle), prevPos.y + smallSize * sin(angle));
-					ci::Vec2f p4 = ci::Vec2f(prevPos.x - smallSize * cos(angle), prevPos.y - smallSize * sin(angle));
-					glBegin(GL_QUADS);
-					ci::gl::vertex(p1);
-					ci::gl::vertex(p3);
-					ci::gl::vertex(p4);
-					ci::gl::vertex(p2);
-					glEnd();
-				}
-
-				sizey += incrementy;
-
-				prevPos = pos;
-			}
-		}
-	}
-
-	ds::ui::TouchManager&				mTouchManager;
-	std::map<int, std::vector<Vec3f>>	mTouchPointHistory;
-	bool								mTouchTrailsUse;
-	int									mTouchTrailsLength;
-	float								mTouchTrailsIncrement;
-};
 
 }
 
@@ -151,12 +50,12 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
 	, mSettings(settings)
-	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);})
-	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);})
-	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [&app, this](const TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);})
-	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {this->mTouchManager.mouseTouchBegin(e.first, e.second);})
-	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {this->mTouchManager.mouseTouchMoved(e.first, e.second);})
-	, mMouseEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const MousePair& e)  {this->mTouchManager.mouseTouchEnded(e.first, e.second);})
+	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);})
+	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e); })
+	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e); })
+	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);})
+	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);})
+	, mMouseEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);})
 	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);})
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);})
 	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
@@ -177,26 +76,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	if (mAutoDraw) addService("AUTODRAW", *mAutoDraw);
 
-	// Construct the root sprites
-	RootList				roots(_roots.runInitFn());
-	if (roots.empty()) roots.ortho();
-	sprite_id_t							root_id = EMPTY_SPRITE_ID-1;
-	for (auto it=roots.mRoots.begin(), end=roots.mRoots.end(); it!=end; ++it) {
-		const RootList::Root&			r(*it);
-		Picking*						picking = nullptr;
-		if (r.mPick == r.kSelect) picking = &mSelectPicking;
-		std::unique_ptr<EngineRoot>		root;
-		if (r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, root_id));
-		else if (r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, root_id, r.mPersp, picking));
-		if (!root) throw std::runtime_error("Engine can't create root");
-		mRoots.push_back(std::move(root));
-		--root_id;
-	}
-	if (mRoots.empty()) {
-		throw std::runtime_error("Engine can't create single root");
-	}
-	root_setup(mRoots);
-
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
 
@@ -207,8 +86,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::Vec2f(1920.0f, 1080.0f)));
 	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
 	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
-	mTouchTranslator.setTouchOverlay(	settings.getRect("touch:src_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)),
-										settings.getRect("touch:dst_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
 
 	const bool			drawTouches = settings.getBool("touch_overlay:debug", 0, false);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
@@ -222,7 +99,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
 	mFxaaOptions.mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
-	mData.mWorldSize = settings.getSize("world_dimensions", 0, Vec2f(640.0f, 400.0f));
+	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::Vec2f(640.0f, 400.0f));
 	// Backwards compatibility with pre src-dst rect days
 	const float				DEFAULT_WINDOW_SCALE = 1.0f;
 	if (settings.getRectSize("local_rect") > 0) {
@@ -318,42 +195,60 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		// everything goes black. That really needs to be weeded out in favour of the new system.
 		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
 	}
+
+
+	// Don't construct roots on startup for clients, and instead create them when we connect to a server
+	const std::string	arch(settings.getText("platform:architecture", 0, ""));
+	bool isClient = false;
+	if(arch == "client") isClient = true;
+
+	sprite_id_t							root_id = EMPTY_SPRITE_ID - 1;
+	// Construct the root sprites
+	if(!isClient){
+		RootList				roots(_roots.runInitFn());
+		if(roots.empty()) roots.ortho();
+		for(auto it = roots.mRoots.begin(), end = roots.mRoots.end(); it != end; ++it) {
+			RootList::Root&			r(*it);
+			r.mRootId = root_id;
+			Picking*						picking = nullptr;
+			if(r.mPick == r.kSelect) picking = &mSelectPicking;
+			std::unique_ptr<EngineRoot>		root;
+			if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, r.mRootId));
+			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp, picking));
+			if(!root) throw std::runtime_error("Engine can't create root");
+			mRoots.push_back(std::move(root));
+			--root_id;
+		}
+		if(mRoots.empty()) {
+			throw std::runtime_error("Engine can't create single root");
+		}
+		root_setup(mRoots);
+	}
+
 	// If we're drawing the touches, create a separate top-level root to do that
-	if (drawTouches) {
+	// For clients, the debug touch root is created by the server and synced
+
+	if (drawTouches && !isClient) {
 		RootList::Root					root_cfg;
 		root_cfg.mType = root_cfg.kOrtho;
 		root_cfg.mDebugDraw = true;
+		root_cfg.mDrawScaled = true;
+		root_cfg.mRootId = root_id;
 		std::unique_ptr<EngineRoot>		root;
 		root.reset(new OrthRoot(*this, root_cfg, root_id));
 		if (root) {
 			ds::ui::Sprite*				parent = root->getSprite();
 			if (parent) {
-				DrawTouchView*			v = new DrawTouchView(*this, settings, mTouchManager);
-				if (v) {
-					parent->addChild(*v);
-					mRoots.push_back(std::move(root));
-				}
+				parent->setDrawDebug(true);
+				mRoots.push_back(std::move(root));
+				
 			}
 		}
 	}
 	// Add a view for displaying the stats.
-	{
-		RootList::Root					root_cfg;
-		root_cfg.mType = root_cfg.kOrtho;
-		root_cfg.mDebugDraw = true;
-		std::unique_ptr<EngineRoot>		root;
-		root.reset(new OrthRoot(*this, root_cfg, root_id));
-		if (root) {
-			ds::ui::Sprite*				parent = root->getSprite();
-			if (parent) {
-				EngineStatsView*		v = new EngineStatsView(*this);
-				if (v) {
-					parent->addChild(*v);
-					mRoots.push_back(std::move(root));
-				}
-			}
-		}
-	}
+	//if(!isClient) 
+		createStatsView(root_id);
+
 	// Initialize the roots
 	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
@@ -375,6 +270,64 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		resourceLocation = Poco::Path::expand(resourceLocation);
 		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
 	}
+}
+
+void Engine::clearRoots(){
+	mRoots.clear();
+}
+
+void Engine::createClientRoots(std::vector<RootList::Root> roots){
+	sprite_id_t	root_id = 0;
+
+	for(auto it = roots.begin(), end = roots.end(); it != end; ++it) {
+		const RootList::Root&			r(*it);
+		std::unique_ptr<EngineRoot>		root;
+		sprite_id_t thisRootId = (*it).mRootId;
+		if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, thisRootId));
+		else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, thisRootId, r.mPersp));
+		if(!root) throw std::runtime_error("Engine can't create root");
+		mRoots.push_back(std::move(root));
+		if(thisRootId < root_id){
+			root_id = thisRootId;
+		}
+	}
+
+	--root_id;
+	createStatsView(root_id);
+	root_setup(mRoots);
+
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, 1.0f, mData.mSrcRect, mData.mDstRect);
+	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
+		EngineRoot&				r(*(it->get()));
+		r.setup(er_settings);
+	}
+
+	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
+		(*it)->postAppSetup();
+		(*it)->setCinderCamera();
+	}
+}
+
+void Engine::createStatsView(sprite_id_t root_id){
+	RootList::Root					root_cfg;
+	root_cfg.mType = root_cfg.kOrtho;
+	root_cfg.mDebugDraw = true;
+	root_cfg.mDrawScaled = false;
+	root_cfg.mSyncronize = false;
+	std::unique_ptr<EngineRoot>		root;
+	root.reset(new OrthRoot(*this, root_cfg, root_id));
+	if(root) {
+		ds::ui::Sprite*				parent = root->getSprite();
+		if(parent) {
+			parent->setDrawDebug(true);
+			EngineStatsView*		v = new EngineStatsView(*this);
+			if(v) {
+				parent->addChild(*v);
+				mRoots.push_back(std::move(root));
+			}
+		}
+	}
+
 }
 
 Engine::~Engine() {
@@ -463,13 +416,23 @@ const RootList::Root& Engine::getRootBuilder(const size_t index){
 }
 
 void Engine::updateClient() {
-	float curr = static_cast<float>(getElapsedSeconds());
+	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	float dt = curr - mLastTime;
 	mLastTime = curr;
 
 	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
 		mIdling = true;
 	}
+	{
+		std::lock_guard<std::mutex> lock(mTouchMutex);
+		mMouseBeginEvents.lockedUpdate();
+		mMouseMovedEvents.lockedUpdate();
+		mMouseEndEvents.lockedUpdate();
+	}
+
+	mMouseBeginEvents.update(curr);
+	mMouseMovedEvents.update(curr);
+	mMouseEndEvents.update(curr);
 
 	mUpdateParams.setDeltaTime(dt);
 	mUpdateParams.setElapsedTime(curr);
@@ -482,14 +445,14 @@ void Engine::updateClient() {
 }
 
 void Engine::updateServer() {
-	if (mCachedWindowW != getWindowWidth() || mCachedWindowH != getWindowHeight()) {
-		mCachedWindowW = getWindowWidth();
-		mCachedWindowH = getWindowHeight();
+	if(mCachedWindowW != ci::app::getWindowWidth() || mCachedWindowH != ci::app::getWindowHeight()) {
+		mCachedWindowW = ci::app::getWindowWidth();
+		mCachedWindowH = ci::app::getWindowHeight();
 		mTouchTranslator.setScale(	mData.mSrcRect.getWidth() / static_cast<float>(mCachedWindowW),
 									mData.mSrcRect.getHeight() / static_cast<float>(mCachedWindowH));
 	}
 
-	const float		curr = static_cast<float>(getElapsedSeconds());
+	const float		curr = static_cast<float>(ci::app::getElapsedSeconds());
 	const float		dt = curr - mLastTime;
 	mLastTime = curr;
 
@@ -613,17 +576,18 @@ void Engine::setOrthoViewPlanes(const size_t index, const float nearPlane, const
 	DS_LOG_ERROR(" Engine::setOrthoViewPlanes() on invalid root (" << index << ")");
 	throw std::runtime_error("setOrthoViewPlanes() on non-perspective root.");
 }
-void Engine::clearAllSprites() {
+void Engine::clearAllSprites(const bool clearDebug) {
 	for (auto it=mRoots.begin(), end=mRoots.end(); it != end; ++it) {
+		if((*it)->getBuilder().mDebugDraw && !clearDebug) continue;
 		(*it)->clearChildren();
 	}
 }
 
-void Engine::registerForTuioObjects(tuio::Client& client) {
+void Engine::registerForTuioObjects(ci::tuio::Client& client) {
 	if (mSettings.getBool("tuio:receive_objects", 0, false)) {
-		client.registerObjectAdded([this](tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
-		client.registerObjectUpdated([this](tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
-		client.registerObjectRemoved([this](tuio::Object o) { this->mTuioObjectsEnd.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
+		client.registerObjectAdded([this](ci::tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
+		client.registerObjectUpdated([this](ci::tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
+		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnd.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
 	}
 }
 
@@ -640,11 +604,23 @@ void Engine::setup(ds::App& app) {
 	mCinderWindow = app.getWindow();
 
 	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
-	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / getWindowWidth(), mData.mSrcRect.getHeight() / getWindowHeight());
+	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
 
+
+	const std::string	arch(mSettings.getText("platform:architecture", 0, ""));
+	bool isClient = false;
+	if(arch == "client") isClient = true;
+	const bool			drawTouches = mSettings.getBool("touch_overlay:debug", 0, false);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		(*it)->postAppSetup();
 		(*it)->setCinderCamera();
+
+		// Assume only one debug synchronized root? oh boy I hope so!
+		if(!isClient && drawTouches && (*it)->getBuilder().mDebugDraw && (*it)->getBuilder().mSyncronize){
+
+			ds::ui::DrawTouchView* v = new ds::ui::DrawTouchView(*this, mSettings, mTouchManager);
+			(*it)->getSprite()->addChildPtr(v);
+		}
 	}
 
 	const int		w = static_cast<int>(getWidth()),
@@ -656,7 +632,7 @@ void Engine::setup(ds::App& app) {
 	}
 	//////////////////////////////////////////////////////////////////////////
 
-	float curr = static_cast<float>(getElapsedSeconds());
+	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = 0;
   
@@ -762,65 +738,41 @@ ci::Color8u Engine::getUniqueColor() {
 	return mUniqueColor;
 }
 
-namespace {
-
-void		alter_touch_events(	const ds::ui::TouchTranslator &trans, const TouchEvent &src,
-								std::vector<ci::app::TouchEvent::Touch> &out) {
-	for (auto it=src.getTouches().begin(), end=src.getTouches().end(); it!=end; ++it) {
-		out.push_back(ci::app::TouchEvent::Touch(	trans.toWorldf(it->getPos().x, it->getPos().y),
-													trans.toWorldf(it->getPrevPos().x, it->getPrevPos().y),
-													it->getId(),
-													it->getTime(),
-													(void*)it->getNative()));
-	}
+void Engine::touchesBegin(const ds::ui::TouchEvent &e) {
+	mTouchBeginEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
+void Engine::touchesMoved(const ds::ui::TouchEvent &e) {
+	mTouchMovedEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
-void Engine::touchesBegin(const TouchEvent &e) {
-	// Translate the positions
-	std::vector<ci::app::TouchEvent::Touch>	touches;
-	alter_touch_events(mTouchTranslator, e, touches);
-	mTouchBeginEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
+void Engine::touchesEnded(const ds::ui::TouchEvent &e) {
+	mTouchEndEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
-void Engine::touchesMoved(const TouchEvent &e) {
-	// Translate the positions
-	std::vector<ci::app::TouchEvent::Touch>	touches;
-	alter_touch_events(mTouchTranslator, e, touches);
-	mTouchMovedEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
-}
-
-void Engine::touchesEnded(const TouchEvent &e) {
-	// Translate the positions
-	std::vector<ci::app::TouchEvent::Touch>	touches;
-	alter_touch_events(mTouchTranslator, e, touches);
-	mTouchEndEvents.incoming(ci::app::TouchEvent(e.getWindow(), touches));
-}
-
-tuio::Client &Engine::getTuioClient() {
+ci::tuio::Client &Engine::getTuioClient() {
 	return mTuio;
 }
 
-void Engine::mouseTouchBegin(const MouseEvent &e, int id) {
+void Engine::mouseTouchBegin(const ci::app::MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseBeginEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
-void Engine::mouseTouchMoved(const MouseEvent &e, int id) {
+void Engine::mouseTouchMoved(const ci::app::MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseMovedEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
-void Engine::mouseTouchEnded(const MouseEvent &e, int id) {
+void Engine::mouseTouchEnded(const ci::app::MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
 		mMouseEndEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
-MouseEvent Engine::alteredMouseEvent(const MouseEvent& e) const {
+ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) const {
 	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
 	// Currently I believe that's fine -- and since our target is touch platforms without those things
 	// hopefully it always will be.
@@ -833,15 +785,15 @@ MouseEvent Engine::alteredMouseEvent(const MouseEvent& e) const {
 												0, e.getWheelIncrement(), e.getNativeModifiers());
 }
 
-void Engine::injectTouchesBegin(const ci::app::TouchEvent& e){
+void Engine::injectTouchesBegin(const ds::ui::TouchEvent& e){
 	touchesBegin(e);
 }
 
-void Engine::injectTouchesMoved(const ci::app::TouchEvent& e){
+void Engine::injectTouchesMoved(const ds::ui::TouchEvent& e){
 	touchesMoved(e);
 }
 
-void Engine::injectTouchesEnded(const ci::app::TouchEvent& e){
+void Engine::injectTouchesEnded(const ds::ui::TouchEvent& e){
 	touchesEnded(e);
 }
 
@@ -920,7 +872,7 @@ void Engine::startIdling() {
 }
 
 void Engine::resetIdleTimeout() {
-	float curr = static_cast<float>(getElapsedSeconds());
+	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = curr;
 	mIdling = false;
@@ -943,9 +895,9 @@ void Engine::setToUserCamera() {
 	}
 
 	// When using a user camera, offset the event inputs.
-	mMouseBeginEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchBegin(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
-	mMouseMovedEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchMoved(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
-	mMouseEndEvents.setUpdateFn([this](const MousePair& e)  {this->mTouchManager.mouseTouchEnded(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
+	mMouseBeginEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchBegin(offset_mouse_event(e.first, mData.mScreenRect), e.second); });
+	mMouseMovedEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchMoved(offset_mouse_event(e.first, mData.mScreenRect), e.second); });
+	mMouseEndEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchEnded(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
 }
 
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {

@@ -290,6 +290,17 @@ Resource::Resource(const Resource::Id& dbId, const int type)
 	, mThumbnailId(0)
 {
 }
+Resource::Resource(const std::string& fullPath)
+	: mDbId(0)
+	, mType(parseTypeFromFilename(fullPath))
+	, mDuration(0)
+	, mWidth(0)
+	, mHeight(0)
+	, mThumbnailId(0)
+	, mDebugFileName(fullPath)
+{
+}
+
 
 Resource::Resource(const std::string& fullPath, const int type)
 	: mDbId(0)

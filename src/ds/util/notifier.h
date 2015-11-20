@@ -4,7 +4,7 @@
 
 /* A much more useful version of the notifier.
  */
-
+#include <iostream>
 #include <map>
 #include <functional>
 
@@ -20,25 +20,25 @@ template <typename T>
 class Notifier
 {
   public:
-    Notifier();
+	Notifier();
 
-    void clear();
-    // ? This is identical to clear, probably shouldn't have it
-    void removeAllListeners();
+	void clear();
+	// ? This is identical to clear, probably shouldn't have it
+	void removeAllListeners();
 
-    /* Notification mechanism where no response is expected
-     */
-    void addListener(void *id, const std::function<void(const T *)> &func);
-    void removeListener(void *id);
+	/* Notification mechanism where no response is expected
+	 */
+	void addListener(void *id, const std::function<void(const T *)> &func);
+	void removeListener(void *id);
 
-    void notify( const T *v = nullptr );
+	void notify( const T *v = nullptr );
 
-    /* Request mechanism for requesting data.
-     */
-    void addRequestListener(void *id, const std::function<void(T&)> &func);
-    void removeRequestListener(void *id);
+	/* Request mechanism for requesting data.
+	 */
+	void addRequestListener(void *id, const std::function<void(T&)> &func);
+	void removeRequestListener(void *id);
 
-    void request(T&);
+	void request(T&);
 
 	/* Set an event that gets fired when a new listener is added.
 	 * DANGEROUS: The caller needs to guarantee the T* it's returning is valid
@@ -47,8 +47,8 @@ class Notifier
 	void setOnAddListenerFn(const std::function<T*(void)> &fn);
 
   private:
-    std::map<void *, std::function<void(const T *)>> mFunctions;
-    std::map<void *, std::function<void(T&)>> mRequestFn;
+	std::map<void *, std::function<void(const T *)>> mFunctions;
+	std::map<void *, std::function<void(T&)>> mRequestFn;
 	std::function<T*(void)>	mOnAddListenerFn;
 };
 
@@ -73,17 +73,17 @@ void Notifier<T>::removeAllListeners()
 template <typename T>
 void Notifier<T>::addListener( void *id, const std::function<void(const T *)> &func ) {
 	if (!func) return;
-    try
-    {
-        mFunctions[id] = func;
+	try
+	{
+		mFunctions[id] = func;
 		if (mOnAddListenerFn) {
 			T*	t = mOnAddListenerFn();
 			if (t) func(t);
 		}
-    }
-    catch (std::exception const&)
-    {
-    }
+	}
+	catch (std::exception const&)
+	{
+	}
 }
 
 
@@ -96,31 +96,31 @@ void Notifier<T>::removeListener( void *id )
   auto found = mFunctions.find(id);
   if ( found != mFunctions.end() )
   {
-      mFunctions.erase(found);
+	  mFunctions.erase(found);
   }
 }
 
 template <typename T>
 void Notifier<T>::notify( const T *v /*= nullptr */ )
 {
-    for ( auto it = mFunctions.begin(), it2 = mFunctions.end(); it != it2; ++it )
-    {
-        if ( it->second )
-            (it->second)(v);
-    }
+	for ( auto it = mFunctions.begin(), it2 = mFunctions.end(); it != it2; ++it )
+	{
+		if ( it->second )
+			(it->second)(v);
+	}
 }
 
 
 template <typename T>
 void Notifier<T>::addRequestListener( void *id, const std::function<void(T&)> &func )
 {
-    try
-    {
-        mRequestFn[id] = func;
-    }
-    catch (std::exception &)
-    {
-    }
+	try
+	{
+		mRequestFn[id] = func;
+	}
+	catch (std::exception &)
+	{
+	}
 }
 
 
@@ -133,18 +133,18 @@ void Notifier<T>::removeRequestListener( void *id )
   auto found = mRequestFn.find(id);
   if ( found != mRequestFn.end() )
   {
-      mRequestFn.erase(found);
+	  mRequestFn.erase(found);
   }
 }
 
 template <typename T>
 void Notifier<T>::request( T& v )
 {
-    for ( auto it = mRequestFn.begin(), it2 = mRequestFn.end(); it != it2; ++it )
-    {
-        if ( it->second )
-            (it->second)(v);
-    }
+	for ( auto it = mRequestFn.begin(), it2 = mRequestFn.end(); it != it2; ++it )
+	{
+		if ( it->second )
+			(it->second)(v);
+	}
 }
 
 template <typename T>

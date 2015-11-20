@@ -4,7 +4,8 @@
 #include <iostream>
 #include <algorithm>
 
-//#include "gstreamer-1.0/gst/net/gstnetclientclock.h"
+// #include "gst/net/gstnetclientclock.h"
+// #include "gst/net/gstnettimeprovider.h"
 
 namespace gstwrapper
 {
@@ -24,6 +25,7 @@ GStreamerWrapper::GStreamerWrapper()
 	, m_VideoLock(m_VideoMutex, std::defer_lock)
 	, m_VerboseLogging(false)
 	, m_cVideoBufferSize(0)
+	, m_Streaming(false)
 {
 	gst_init( NULL, NULL );
 	m_CurrentPlayState = NOT_INITIALIZED;
@@ -72,6 +74,7 @@ void GStreamerWrapper::resetProperties(){
 	m_LoopMode = LOOP;
 	m_PendingSeek = false;
 	m_cVideoBufferSize = 0;
+	m_Streaming = false;
 }
 
 void GStreamerWrapper::parseFilename(const std::string& theFile){
@@ -97,6 +100,7 @@ void GStreamerWrapper::enforceModFourWidth(const int vidWidth, const int vidHeig
 	m_iWidth = videoWidth;
 	m_iHeight = videoHeight;
 }
+
 
 bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight){
 	resetProperties();
@@ -248,6 +252,129 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	return true;
 }
 
+bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight){
+	resetProperties();
+
+	if( m_bFileIsOpen )	{
+		stop();
+		close();
+	}
+
+	if(streamingPipeline.empty()){
+		DS_LOG_WARNING("Streaming pipeline is empty, aborting stream open.");
+		return false;
+	}
+	m_iWidth = videoWidth;
+	m_iHeight = videoHeight;
+	m_StreamPipeline = streamingPipeline;
+	m_Streaming = true;
+	m_ContentType = VIDEO_AND_AUDIO;
+
+	GError* error = nullptr;
+	// PIPELINE
+	// Init main pipeline --> playbin
+	m_GstPipeline = gst_parse_launch(streamingPipeline.c_str(), &error);
+
+	if(!m_GstPipeline){
+		DS_LOG_WARNING("Streaming pipeline failed to be created. " << error->message);
+		return false;
+	}
+
+	// VIDEO SINK
+	m_GstVideoSink = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "appsink0");
+	m_GstVolumeElement = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "volume0");
+
+	// Set some fix caps for the video sink
+	// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
+	m_cVideoBufferSize = (int)(1.5 * m_iWidth * m_iHeight);
+	m_cVideoBuffer = new unsigned char[m_cVideoBufferSize];
+
+// 	GstCaps* caps = gst_caps_new_simple("video/x-raw",
+// 										"format", G_TYPE_STRING, "I420",
+// 										"width", G_TYPE_INT, m_iWidth,
+// 										"height", G_TYPE_INT, m_iHeight,
+// 										NULL);
+// 
+// 	gst_app_sink_set_caps(GST_APP_SINK(m_GstVideoSink), caps);
+// 	gst_caps_unref(caps);
+
+	// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
+	g_object_set(m_GstVideoSink, "emit-signals", false, (void*)NULL);
+
+	// Set Video Sink callback methods
+	m_GstVideoSinkCallbacks.eos = &GStreamerWrapper::onEosFromVideoSource;
+	m_GstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromVideoSource;
+	m_GstVideoSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromVideoSource;
+	gst_app_sink_set_callbacks(GST_APP_SINK(m_GstVideoSink), &m_GstVideoSinkCallbacks, this, NULL);
+
+
+
+	// BUS
+	// Set GstBus
+	m_GstBus = gst_pipeline_get_bus(GST_PIPELINE(m_GstPipeline));
+
+	if(m_GstPipeline){
+		// We need to stream the file a little bit in order to be able to retrieve information from it
+		gst_element_set_state(m_GstPipeline, GST_STATE_READY);
+		gst_element_set_state(m_GstPipeline, GST_STATE_PAUSED);
+
+		// For some reason this is needed in order to gather video information such as size, framerate etc ...
+		//GstState state;
+		//gst_element_get_state( m_GstPipeline, &state, NULL, 20 * GST_SECOND );
+		m_CurrentPlayState = OPENED;
+
+		if(m_StartPlaying){
+			gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+			m_CurrentPlayState = PLAYING;
+		}
+	}
+
+
+	// TODO: Check if everything was initialized correctly
+	// May need conditional checks when creating the buffers.
+
+	// A file has been opened
+	m_bFileIsOpen = true;
+
+	return true;
+}
+
+#if 0
+void GStreamerWrapper::setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime){
+	if(isServer){
+		// apply pipeline clock to itself, to make sure we're on charge
+		auto clock = gst_pipeline_get_clock(GST_PIPELINE(m_GstPipeline));
+		gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
+		// instantiate network clock once for everyone
+		static auto clock_provider = gst_net_time_provider_new(clock, addr.c_str(), port);
+		if(!clock_provider)		{
+			DS_LOG_WARNING("Could not instantiate the GST server network clock.");
+		}
+		// get the time for clients to start based on...
+		inOutTime = gst_clock_get_time(clock);
+		// reset my clock so it won't advance detached from net
+		gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
+		// set the net clock to start ticking from our base time
+		gst_element_set_base_time(m_GstPipeline, inOutTime);
+
+	} else {
+		// reset my clock so it won't advance detached from net
+		gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
+		// get the net clock
+		auto clock = gst_net_client_clock_new("clock0", addr.c_str(), port, inOutTime);
+		if(!clock)
+		{
+			throw std::runtime_error("Could not instantiate the GST client network clock.");
+		}
+		// set base time received from server
+		gst_element_set_base_time(m_GstPipeline, inOutTime);
+		// apply the net clock
+		gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
+	}
+
+}
+#endif
+
 void GStreamerWrapper::close(){
 
 	m_bFileIsOpen = false;
@@ -318,6 +445,8 @@ void GStreamerWrapper::pause(){
 
 
 void GStreamerWrapper::setCurrentVideoStream( int iCurrentVideoStream ){
+	if(m_Streaming) return;
+
 	if ( m_iCurrentVideoStream != iCurrentVideoStream )	{
 		if ( iCurrentVideoStream >= 0 && iCurrentVideoStream < m_iNumVideoStreams )		{
 			m_iCurrentVideoStream = iCurrentVideoStream;
@@ -327,7 +456,9 @@ void GStreamerWrapper::setCurrentVideoStream( int iCurrentVideoStream ){
 	}
 }
 
-void GStreamerWrapper::setCurrentAudioStream( int iCurrentAudioStream ){
+void GStreamerWrapper::setCurrentAudioStream(int iCurrentAudioStream){
+	if(m_Streaming) return;
+
 	if ( m_iCurrentAudioStream != iCurrentAudioStream )	{
 		if ( iCurrentAudioStream >= 0 && iCurrentAudioStream < m_iNumAudioStreams )		{
 			m_iCurrentAudioStream = iCurrentAudioStream;
@@ -337,7 +468,9 @@ void GStreamerWrapper::setCurrentAudioStream( int iCurrentAudioStream ){
 	}
 }
 
-void GStreamerWrapper::setSpeed( float fSpeed ){
+void GStreamerWrapper::setSpeed(float fSpeed){
+	if(m_Streaming) return;
+
 	if( fSpeed != m_fSpeed )
 	{
 		m_fSpeed = fSpeed;
@@ -348,19 +481,22 @@ void GStreamerWrapper::setSpeed( float fSpeed ){
 	}
 }
 
-void GStreamerWrapper::setDirection( PlayDirection direction ){
+void GStreamerWrapper::setDirection(PlayDirection direction){
+	if(m_Streaming) return;
+
 	if ( m_PlayDirection != direction )	{
 		m_PlayDirection = direction;
 		changeSpeedAndDirection( m_fSpeed, m_PlayDirection );
 	}
 }
 
-void GStreamerWrapper::setLoopMode( LoopMode loopMode ){
+void GStreamerWrapper::setLoopMode(LoopMode loopMode){
+	if(m_Streaming) return;
+
 	m_LoopMode = loopMode;
 }
 
-void GStreamerWrapper::setFramePosition( gint64 iTargetFrameNumber ){
-
+void GStreamerWrapper::setFramePosition(gint64 iTargetFrameNumber){
 	m_iCurrentFrameNumber = iTargetFrameNumber;
 
 	setPosition( (float)m_iCurrentFrameNumber / (float)m_iNumberOfFrames );
@@ -539,7 +675,9 @@ Endianness GStreamerWrapper::getAudioEndianness(){
 	return m_AudioEndianness;
 }
 
-bool GStreamerWrapper::seekFrame( gint64 iTargetTimeInNs ){
+bool GStreamerWrapper::seekFrame(gint64 iTargetTimeInNs){
+	if(m_Streaming) return false;
+
 	if(m_CurrentGstState != STATE_PLAYING){
 		m_PendingSeekTime = iTargetTimeInNs;
 		m_PendingSeek = true;
@@ -616,6 +754,9 @@ bool GStreamerWrapper::changeSpeedAndDirection( float fSpeed, PlayDirection dire
 }
 
 void GStreamerWrapper::retrieveVideoInfo(){
+	if(m_Streaming){
+		return; // streaming sets it's open values
+	}
 	////////////////////////////////////////////////////////////////////////// Media Duration
 	// Nanoseconds
 	GstFormat gstFormat = GST_FORMAT_TIME;
@@ -698,6 +839,10 @@ void GStreamerWrapper::handleGStMessage(){
 
 						close();
 
+						if(m_Streaming){
+							openStream(m_StreamPipeline, m_iWidth, m_iHeight);
+						}
+
 						g_error_free(err);
 						g_free(debug);
 					}
@@ -732,6 +877,9 @@ void GStreamerWrapper::handleGStMessage(){
 				break;
 
 				case GST_MESSAGE_ASYNC_DONE :{
+					// In certain cases the volume is set before the pipeline is
+					// constructed, so doesn't get applied.
+					g_object_set( m_GstPipeline, "volume", m_fVolume, NULL );
 					retrieveVideoInfo();
 				}
 				break;
@@ -869,12 +1017,15 @@ void GStreamerWrapper::newVideoSinkPrerollCallback(GstSample* videoSinkSample){
 	if(!m_cVideoBuffer) return;
 
 	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
+
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
-
-
 	GstMapInfo map;
 	GstMapFlags flags = GST_MAP_READ;
-	gst_buffer_map(buff, &map, flags);
+	if(!gst_buffer_map(buff, &map, flags)){
+		// the buffer is invalid, so unmap it and get outta here
+		gst_buffer_unmap(buff, &map);
+		return;
+	}
 
 	unsigned int videoBufferSize = map.size; 
 
@@ -897,12 +1048,15 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 	if(!m_cVideoBuffer) return;
 
 	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
-	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
 	GstMapInfo map;
 	GstMapFlags flags = GST_MAP_READ;
-	gst_buffer_map(buff, &map, flags);
+	if(!gst_buffer_map(buff, &map, flags)){
+		// the buffer is invalid, so unmap it and get outta here
+		gst_buffer_unmap(buff, &map);
+		return;
+	}
 
 
 	unsigned int videoBufferSize = map.size;

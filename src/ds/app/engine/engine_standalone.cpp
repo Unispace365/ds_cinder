@@ -2,6 +2,8 @@
 
 #include "ds/app/app.h"
 
+#include <ds/debug/logger.h>
+
 using namespace ci;
 using namespace ci::app;
 
@@ -13,7 +15,7 @@ namespace ds {
 EngineStandalone::EngineStandalone(	ds::App& app, const ds::cfg::Settings& settings,
 									ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
-		, mLoadImageService(mLoadImageThread, mIpFunctions)
+		, mLoadImageService(*this, mIpFunctions)
 		, mRenderTextService(mRenderTextThread) {
 }
 
@@ -26,14 +28,13 @@ EngineStandalone::~EngineStandalone() {
 }
 
 void EngineStandalone::installSprite(	const std::function<void(ds::BlobRegistry&)>& asServer,
-                                       const std::function<void(ds::BlobRegistry&)>& asClient) {
+									   const std::function<void(ds::BlobRegistry&)>& asClient) {
 	// I don't have network communication so I don't need to handle blob.
 }
 
 void EngineStandalone::setup(ds::App& app) {
 	inherited::setup(app);
 
-	mLoadImageThread.start(true);
 	mRenderTextThread.start(true);
 
 	app.setupServer();
@@ -44,7 +45,11 @@ void EngineStandalone::setupTuio(ds::App& a) {
 		ci::tuio::Client&		tuioClient = getTuioClient();
 		tuioClient.registerTouches(&a);
 		registerForTuioObjects(tuioClient);
-		tuioClient.connect(mTuioPort);
+		try{
+			tuioClient.connect(mTuioPort);
+		} catch (std::exception ex) {	
+			DS_LOG_WARNING("Tuio client could not be started.");
+		}
 	}
 }
 
@@ -61,6 +66,18 @@ void EngineStandalone::draw() {
 void EngineStandalone::stopServices() {
 	inherited::stopServices();
 	mWorkManager.stopManager();
+}
+
+void EngineStandalone::handleMouseTouchBegin(const ci::app::MouseEvent& e, int id){
+	mTouchManager.mouseTouchBegin(e, id);
+}
+
+void EngineStandalone::handleMouseTouchMoved(const ci::app::MouseEvent& e, int id){
+	mTouchManager.mouseTouchMoved(e, id);
+}
+
+void EngineStandalone::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id){
+	mTouchManager.mouseTouchEnded(e, id);
 }
 
 } // namespace ds
