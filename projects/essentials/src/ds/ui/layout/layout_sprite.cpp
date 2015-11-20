@@ -185,8 +185,7 @@ void LayoutSprite::runVLayout(){
 			if(mt){
 				mt->setResizeLimit(stretchW, stretchH);
 			} else if(img){
-				// TODO: fit inside?
-				img->setScale(stretchH / img->getHeight());
+				fitInside(img, ci::Rectf(0.0f, 0.0f, stretchW, stretchH), true);
 			} else if(ls){
 				ls->setSize(stretchW, stretchH);
 				ls->runLayout();
@@ -300,8 +299,7 @@ void LayoutSprite::runHLayout(){
 			if(mt){
 				mt->setResizeLimit(stretchW, stretchH);
 			} else if(img){
-				// TODO: fit inside?
-				img->setScale(stretchW / img->getWidth());
+				fitInside(img, ci::Rectf(0.0f, 0.0f, stretchW, stretchH), true);
 			} else if(ls){
 				ls->setSize(stretchW, stretchH);
 				ls->runLayout();
