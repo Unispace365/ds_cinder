@@ -33,6 +33,19 @@
 				layout_size_mode="stretch" 
 				opacity="0.0"
 				animate_on="opacity:1.0; slide:-100; duration:0.5; delay:0.7"/>
+				
+			<gradient
+				layout_size_mode="fill"
+				colorLeft="ff00ff"
+				colorRight="00ff00"
+				blend_mode="multiply"
+				l_pad="-20"
+				r_pad="-20"
+				t_pad="-20"
+				b_pad="-20"
+				opacity="0.5"
+				/>
+				
 			<layout 
 				color="ffffff" 
 				size="400, 100" 

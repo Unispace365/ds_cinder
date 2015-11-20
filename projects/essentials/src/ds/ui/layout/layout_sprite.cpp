@@ -71,9 +71,9 @@ void LayoutSprite::runSizeLayout(){
 					chillin->setSize(mLayoutSize);
 				}
 			}
-		} else if(chillin->mLayoutUserType == kStretchSize || chillin->mLayoutUserType == kFlexSize){
+		} else if(chillin->mLayoutUserType == kStretchSize || chillin->mLayoutUserType == kFlexSize || chillin->mLayoutUserType == kFillSize){
 			const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
-			const float fixedH = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
+			const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 			ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
@@ -104,9 +104,11 @@ void LayoutSprite::runSizeLayout(){
 
 void LayoutSprite::runVLayout(){
 
+	bool hasFills = false;
 	int numStretches = 0;
 	float totalSize = 0.0f;
 	const float layoutWidth = getWidth();
+	const float layoutHeight = getHeight();
 
 	std::vector<ds::ui::Sprite*>& chillins = getChildren();
 
@@ -115,7 +117,9 @@ void LayoutSprite::runVLayout(){
 	for(auto it = chillins.begin(); it < chillins.end(); ++it){
 		ds::ui::Sprite* chillin = (*it);
 
-		if(chillin->mLayoutUserType == kStretchSize){
+		if(chillin->mLayoutUserType == kFillSize){
+			hasFills = true;
+		} else if(chillin->mLayoutUserType == kStretchSize){
 			numStretches++;
 		} else {
 
@@ -194,8 +198,6 @@ void LayoutSprite::runVLayout(){
 			}
 		}
 
-		yp += chillin->mLayoutTPad;
-
 		float xPos = 0.0f;
 		if(chillin->mLayoutHAlign == kLeft){
 			xPos = chillin->mLayoutLPad;
@@ -204,6 +206,14 @@ void LayoutSprite::runVLayout(){
 		} else if(chillin->mLayoutHAlign == kRight){
 			xPos = layoutWidth - chillin->getScaleWidth() - chillin->mLayoutRPad;
 		}
+		
+		// Fill size only uses padding and fudge, but doesn't contribute to the flow
+		if(chillin->mLayoutUserType == kFillSize){
+			chillin->setPosition(xPos + chillin->mLayoutFudge.x, chillin->mLayoutFudge.y + chillin->mLayoutTPad);
+			continue;
+		}
+
+		yp += chillin->mLayoutTPad;
 
 		chillin->setPosition(xPos + chillin->mLayoutFudge.x, yp + chillin->mLayoutFudge.y);
 
@@ -213,13 +223,39 @@ void LayoutSprite::runVLayout(){
 	if(mLayoutUserType == kFlexSize){
 		setSize(layoutWidth, yp);
 	}
+
+	if(hasFills){
+		for(auto it = chillins.begin(); it < chillins.end(); ++it){
+			ds::ui::Sprite* chillin = (*it);
+			if(chillin->mLayoutUserType == kFillSize){
+				const float fixedW = getWidth() - chillin->mLayoutLPad - chillin->mLayoutRPad;
+				const float fixedH = getHeight() - chillin->mLayoutTPad - chillin->mLayoutBPad;
+
+				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+				if(mt){
+					mt->setResizeLimit(fixedW, fixedH);
+				} else if(img){
+					fitInside(img, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), true);
+				} else if(ls){
+					ls->setSize(fixedW, fixedH);
+					ls->runLayout();
+				} else {
+					chillin->setSize(fixedW, fixedH);
+				}
+			}
+		}
+	}
 }
 
 
 void LayoutSprite::runHLayout(){
 
+	bool hasFills = false;
 	int numStretches = 0;
 	float totalSize = 0.0f;
+	const float layoutWidth = getWidth();
 	const float layoutHeight = getHeight();
 
 	std::vector<ds::ui::Sprite*>& chillins = getChildren();
@@ -229,7 +265,9 @@ void LayoutSprite::runHLayout(){
 	for(auto it = chillins.begin(); it < chillins.end(); ++it){
 		ds::ui::Sprite* chillin = (*it);
 
-		if(chillin->mLayoutUserType == kStretchSize){
+		if(chillin->mLayoutUserType == kFillSize){
+			hasFills = true;
+		} else if(chillin->mLayoutUserType == kStretchSize){
 			numStretches++;
 		} else {
 
@@ -308,8 +346,6 @@ void LayoutSprite::runHLayout(){
 			}
 		}
 
-		xp += chillin->mLayoutLPad;
-
 		float yPos = 0.0f;
 		if(chillin->mLayoutVAlign == kTop){
 			yPos = chillin->mLayoutTPad;
@@ -319,6 +355,14 @@ void LayoutSprite::runHLayout(){
 			yPos = layoutHeight - chillin->getScaleHeight() - chillin->mLayoutBPad;
 		}
 
+		// Fill size only uses padding and fudge, but doesn't contribute to the flow
+		if(chillin->mLayoutUserType == kFillSize){
+			chillin->setPosition(chillin->mLayoutLPad + chillin->mLayoutFudge.x, chillin->mLayoutFudge.y + yPos);
+			continue;
+		}
+
+		xp += chillin->mLayoutLPad;
+
 		chillin->setPosition(xp + chillin->mLayoutFudge.x, yPos + chillin->mLayoutFudge.y);
 
 		xp += chillin->getScaleWidth() + chillin->mLayoutRPad + mSpacing;
@@ -326,6 +370,30 @@ void LayoutSprite::runHLayout(){
 
 	if(mLayoutUserType == kFlexSize){
 		setSize(xp, layoutHeight);
+	}
+
+	if(hasFills){
+		for(auto it = chillins.begin(); it < chillins.end(); ++it){
+			ds::ui::Sprite* chillin = (*it);
+			if(chillin->mLayoutUserType == kFillSize){
+				const float fixedW = getWidth() - chillin->mLayoutLPad - chillin->mLayoutRPad;
+				const float fixedH = getHeight() - chillin->mLayoutTPad - chillin->mLayoutBPad;
+
+				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+				if(mt){
+					mt->setResizeLimit(fixedW, fixedH);
+				} else if(img){
+					fitInside(img, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), true);
+				} else if(ls){
+					ls->setSize(fixedW, fixedH);
+					ls->runLayout();
+				} else {
+					chillin->setSize(fixedW, fixedH);
+				}
+			}
+		}
 	}
 }
 

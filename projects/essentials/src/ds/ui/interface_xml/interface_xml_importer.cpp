@@ -177,6 +177,8 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 			sprite.mLayoutUserType = LayoutSprite::kFlexSize;
 		} else if(sizeMode == "stretch"){
 			sprite.mLayoutUserType = LayoutSprite::kStretchSize;
+		} else if(sizeMode == "fill"){
+			sprite.mLayoutUserType = LayoutSprite::kFillSize;
 		} else {
 			DS_LOG_WARNING("layout_size_mode set to an invalid value of " << sizeMode);
 		}
@@ -317,6 +319,20 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
 		if(gradient){
 			gradient->setColorsV(gradient->getColorTL(), parseColor(attr.getValue()));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "colorLeft"){
+		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
+		if(gradient){
+			gradient->setColorsH(parseColor(attr.getValue()), gradient->getColorTR());
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "colorRight"){
+		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
+		if(gradient){
+			gradient->setColorsH(gradient->getColorTL(), parseColor(attr.getValue()));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}

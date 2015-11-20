@@ -23,8 +23,15 @@ public:
 	// Size = only adjust the size of the children, but do not position
 	typedef enum { kLayoutNone, kLayoutVFlow, kLayoutHFlow, kLayoutSize } LayoutType;
 
-	enum { kFixedSize = 0, kFlexSize, kStretchSize } SizeType;
+	// FixedSize = Sprite sized to mLayoutSize (on Sprite.h), or left alone if it's not set
+	// FlexSize = Sprite is adjusted to fit the layout. For example, in a V layout, the text is resized to the width, and the height is calculated
+	// StretchSize = Sprite will fill to the rest of the available space. Multiple Stretch sprites will evenly split the remainder
+	// FillSize = Sprite isn't used in V/H layout calculations, but is sized to the whole layout (minus padding). Great for backgrounds of flex size layouts.
+	enum { kFixedSize = 0, kFlexSize, kStretchSize, kFillSize } SizeType;
+
+	// In VFlow layouts, adjusts the x-position during layout
 	enum { kLeft = 0, kCenter, kRight } HAlignment;
+	// In HFlow layouts, adjusts the y-position during layout
 	enum { kTop = 0, kMiddle, kBottom } VAlignment;
 
 	// Fits the sprite supplied into the target area
