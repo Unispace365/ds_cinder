@@ -522,7 +522,7 @@ void Text::makeLayout()
 
 void Text::calculateFrame(const int flags)
 {
-	if(!mFont) return;
+	if(!mFont || !mFont->isValid()) return;
 
 	const float		lineHeight = static_cast<float>(mFont->height());
 	const float		height = mFont->pointSize();
@@ -553,7 +553,7 @@ void Text::calculateFrame(const int flags)
 
 void Text::drawIntoFbo() {
 	mTexture.reset();
-	if (!mFont) return;
+	if(!mFont || !mFont->isValid()) return;
 
 	auto& lines = mLayout.getLines();
 	if (lines.empty()) return;
@@ -652,8 +652,10 @@ static FontPtr get_font(const std::string& filename, const float size)
 
 	FontPtr font = FontPtr(new OGLFT::Translucent(filename.c_str(), size));
 
-	if(!font->isValid())
-		throw std::runtime_error("Font: " + filename + " was unable to load.");
+	if(!font->isValid()){
+		DS_LOG_WARNING("Font: " + filename + " was unable to load.");
+		return font;
+	}
 
 	font->setCompileMode(OGLFT::Face::COMPILE);
 

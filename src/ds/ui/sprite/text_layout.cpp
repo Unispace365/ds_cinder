@@ -16,11 +16,13 @@ namespace ui {
 
 int getFontSize( const FontPtr &font )
 {
-  return abs(font->ascender())+abs(font->descender());
+	if(!font->isValid()) return 0;
+	return abs(font->ascender())+abs(font->descender());
 }
 
 float getFontAscender( const FontPtr &font )
 {
+	if(!font->isValid()) return 0.0f;
 	int size = getFontSize(font);
 	if(size > 0){
 		return (float)font->ascender() / (float)size;
