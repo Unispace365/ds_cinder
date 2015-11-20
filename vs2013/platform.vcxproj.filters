@@ -666,6 +666,21 @@
     <ClInclude Include="..\src\ds\query\recycle_array.h">
       <Filter>src\ds\query</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\draw_touch_view.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\circle.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\touch_event.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\gl\gl_state.h">
+      <Filter>src\ds\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\gl\gl_scoped.h">
+      <Filter>src\ds\gl</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1126,6 +1141,18 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_interface.cpp">
       <Filter>src\ds\app\engine\renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\draw_touch_view.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\circle.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\gl\gl_scoped.cpp">
+      <Filter>src\ds\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\gl\gl_state.cpp">
+      <Filter>src\ds\gl</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

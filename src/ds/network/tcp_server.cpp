@@ -4,6 +4,7 @@
 #include <boost/algorithm/string.hpp>
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
+#include "tcp_client.h"
 
 namespace ds {
 namespace net {
@@ -32,6 +33,7 @@ namespace {
 		
 		void run() {
 			Poco::Net::StreamSocket&		ss = socket();
+			ss.setNoDelay(true);
 			ss.setBlocking(false);
 			// Keep running until the connection is closed externally
 			bool							keepRunning = true;
@@ -65,41 +67,38 @@ namespace {
 				if (!d.empty()) buf << d << mTerminator;
 			}
 
-			// Send the data
-			std::string						d = buf.str();
-			if (!d.empty()) {
-				socket.sendBytes(d.data(), d.size());
-			}
+			TcpClient::sendBytes(socket, buf.str());
 		}
 
 		void		receiveFrom(Poco::Net::StreamSocket& socket) {
-			const int			n = socket.receiveBytes(mBuffer, sizeof(mBuffer));
-			if (n <= 0) return;
-
-			const std::string	incoming(mBuffer, n);
-			if (mTerminator.empty()) {
-				mReceiveQueue->push(incoming);
-			} else {
-				mWaiting += incoming;
-				std::vector<std::string> all;
-				boost::split(all, mWaiting, boost::is_any_of(mTerminator));
-				mWaiting.clear();
-				// The last element will be an empty string if this update() str ended
-				// with the terminator; if it's not, then it's a partial, so track that.
-				if (!all.empty() && !all.back().empty()) {
-					mWaiting = all.back();
-					all.pop_back();
-				}
-				for (auto it=all.begin(), end=all.end(); it!=end; ++it) {
-					if (it->empty()) continue;
-					mReceiveQueue->push(*it);
+			int					n = 0;
+			while ((n = socket.receiveBytes(mBuffer, sizeof(mBuffer))) > 0) {
+				const std::string	incoming(mBuffer, n);
+				if (mTerminator.empty()) {
+					mReceiveQueue->push(incoming);
+				} else {
+					mWaiting += incoming;
+					std::vector<std::string> all;
+					boost::split(all, mWaiting, boost::is_any_of(mTerminator));
+					mWaiting.clear();
+					// The last element will be an empty string if this update() str ended
+					// with the terminator; if it's not, then it's a partial, so track that.
+					if (!all.empty() && !all.back().empty()) {
+						mWaiting = all.back();
+						all.pop_back();
+					}
+					for (auto it=all.begin(), end=all.end(); it!=end; ++it) {
+						if (it->empty()) continue;
+						mReceiveQueue->push(*it);
+					}
 				}
 			}
 		}
 
-		char										mBuffer[256];
-		std::shared_ptr<TcpServer::SendBucket>		mBucket;
-		ds::AsyncQueue<std::string>*				mSendQueue;
+		static const int								BUFFER_SIZE = 4096;
+		char											mBuffer[BUFFER_SIZE];
+		std::shared_ptr<TcpServer::SendBucket>			mBucket;
+		ds::AsyncQueue<std::string>*					mSendQueue;
 		std::shared_ptr<ds::AsyncQueue<std::string>>	mReceiveQueue;
 		std::shared_ptr<bool>							mSt;
 		const std::string								mTerminator;

@@ -5,7 +5,6 @@
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/data/resource.h>
-#include "gst_video_net.h"
 
 #include <Poco/Timestamp.h>
 
@@ -64,6 +63,8 @@ public:
 	// would think this should default to true but I'm maintaining compatibility
 	// with existing behavior.
 	void				unloadVideo(const bool clearFrame = false);
+
+	void				startStream(const std::string& streamingPipeline, const float width, const float height);
 
 	// Looping (play again after video complete)
 	void				setLooping(const bool on);
@@ -124,7 +125,6 @@ public:
 	bool				getAutoExtendIdle() const;
 
 	virtual void		updateClient(const UpdateParams&) override;
-	void				drawSharedTexture();
 	virtual void		updateServer(const UpdateParams&) override;
 
 	//Allow for custom audio output
@@ -140,6 +140,7 @@ protected:
 	virtual void		drawLocalClient() override;
 	virtual void		writeAttributesTo(DataBuffer&) override;
 	virtual void		readAttributeFrom(const char, DataBuffer&) override;
+	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
 
 private:
 
@@ -150,21 +151,16 @@ private:
 	// This value is assumed from the output of the videometa cache
 	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform } ColorType;
 
-	void				doLoadVideo(const std::string &filename);
+	// filename is the absolute path to the file.
+	// portable_filename is the CMS-relative path, so apps installed under different
+	// user accounts and to different CMS locations can interoperate.
+	void				doLoadVideo(const std::string &filename,
+									const std::string &portable_filename);
 	void				applyMovieVolume();
 	void				applyMovieLooping();
 	void				checkOutOfBounds();
 	void				setStatus(const int);
 	void				checkStatus();
-
-private:
-	GstVideoNet			mNetHandler;
-	
-protected:
-	gstwrapper::GStreamerWrapper*
-						mGstreamerWrapper;
-private:
-
 	ColorType			mColorType;
 
 	ci::gl::Texture		mFrameTexture;
@@ -172,7 +168,8 @@ private:
 	ci::gl::Texture		mVFrameTexture;
 
 	ci::Vec2i			mVideoSize;
-	std::string			mFilename;
+	std::string			mFilename,
+						mPortableFilename;
 	Status				mStatus;
 	std::function<void()>
 						mPlaySingleFrameFunction;
@@ -202,6 +199,12 @@ private:
 
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;
+
+
+	// Initialization
+public:
+	static void					installAsServer(ds::BlobRegistry&);
+	static void					installAsClient(ds::BlobRegistry&);
 };
 
 } //!namespace ui

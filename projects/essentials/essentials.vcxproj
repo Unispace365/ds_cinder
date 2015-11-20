@@ -26,11 +26,17 @@
     <ClCompile Include="src\ds\ui\button\sprite_button.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\stylesheet_parser.cpp" />
+    <ClCompile Include="src\ds\ui\layout\layout_sprite.cpp" />
     <ClCompile Include="src\ds\ui\menu\component\cluster_view.cpp" />
     <ClCompile Include="src\ds\ui\menu\component\menu_item.cpp" />
     <ClCompile Include="src\ds\ui\menu\touch_menu.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp" />
+    <ClCompile Include="src\ds\ui\soft_keyboard\entry_field.cpp" />
+    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard.cpp" />
+    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp" />
+    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_button.cpp" />
+    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp" />
     <ClCompile Include="src\ds\ui\sprite\png_sequence_sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -49,13 +55,21 @@
     <ClInclude Include="src\ds\ui\button\sprite_button.h" />
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h" />
+    <ClInclude Include="src\ds\ui\layout\layout_sprite.h" />
     <ClInclude Include="src\ds\ui\menu\component\cluster_view.h" />
     <ClInclude Include="src\ds\ui\menu\component\menu_item.h" />
     <ClInclude Include="src\ds\ui\menu\touch_menu.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
+    <ClInclude Include="src\ds\ui\soft_keyboard\entry_field.h" />
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard.h" />
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.h" />
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_button.h" />
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.h" />
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_settings.h" />
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />
     <ClInclude Include="src\ds\ui\util\sprite_cache.h" />
+    <ClInclude Include="src\ds\ui\util\ui_utils.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{80CC472C-E968-46A3-B770-93615FF1A70B}</ProjectGuid>
@@ -102,7 +116,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);src;lib</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>

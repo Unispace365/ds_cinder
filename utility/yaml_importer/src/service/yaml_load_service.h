@@ -26,6 +26,23 @@ public:
 	std::vector<ModelModel>		mOutput;
 
 private:
+	struct NodeWithKey{
+		NodeWithKey(YAML::Node n, const std::string& k)
+			: node(n)
+			, key(k)
+		{
+		}
+
+		YAML::Node node;
+		std::string key;
+
+		NodeWithKey operator=(const NodeWithKey& other){
+			node.reset(other.node);
+			key = other.key;
+			return *this;
+		}
+	};
+
 	void						printYamlRecursive(YAML::Node doc, const int level);
 	void						parseTable(const std::string& tableName, YAML::Node doc);
 	void						parseColumn(YAML::Node mappedNode, ModelModel& modelModel);
@@ -33,6 +50,8 @@ private:
 	void						parseActAs(YAML::Node relationsNode, ModelModel& mm);
 
 	bool						parseBool(const std::string& value);
+
+	void						fillSortedVectorForNodeMap(YAML::Node mappedNode, std::vector<NodeWithKey>& sortedNodes);
 };
 
 } // namespace ds

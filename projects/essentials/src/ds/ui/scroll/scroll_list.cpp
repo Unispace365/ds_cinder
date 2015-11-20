@@ -296,5 +296,10 @@ void ScrollList::setLayoutParams(const float startPositionX, const float startPo
 	mFillFromTop = fill_from_top;
 }
 
+void ScrollList::setAnimateOnParams(const float startDelay, const float deltaDelay){
+	mAnimateOnStartDelay = startDelay;
+	mAnimateOnDeltaDelay = deltaDelay;
+}
+
 }
 }

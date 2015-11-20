@@ -22,6 +22,9 @@ public:
 
 	void						setClickFn(const std::function<void(void)>&);
 
+	/// The visual state has been updated (down or up) pressed = down.
+	void						setStateChangeFn(const std::function<void(const bool pressed)>&);
+
 	ds::ui::Sprite&				getNormalSprite();
 	ds::ui::Sprite&				getHighSprite(); // http://i.imgur.com/1qIw7AV.jpg
 
@@ -34,6 +37,7 @@ private:
 	void						onClicked();
 	typedef ds::ui::Sprite		inherited;
 	std::function<void(void)>	mClickFn;
+	std::function<void(const bool)>	mStateChangeFunction;
 
 	// VIEW
 	ds::ui::Sprite&				mDown;

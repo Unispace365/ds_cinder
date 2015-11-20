@@ -18,7 +18,7 @@ ImageButton& ImageButton::makeButton(SpriteEngine& eng, const std::string& downI
 }
 
 ImageButton::ImageButton(SpriteEngine& eng, const std::string& downImage, const std::string& upImage, const float touchPad)
-	: inherited(eng)
+	: ds::ui::Sprite(eng)
 	, mDown(*(new ds::ui::Image(mEngine, downImage, ds::ui::Image::IMG_CACHE_F)))
 	, mUp(*(new ds::ui::Image(mEngine, upImage, ds::ui::Image::IMG_CACHE_F)))
 	, mButtonBehaviour(*this)
@@ -70,6 +70,10 @@ void ImageButton::showDown() {
 		mUp.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic());
 		mDown.tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseOutCubic());
 	}
+
+	if(mStateChangeFunction){
+		mStateChangeFunction(true);
+	}
 }
 
 void ImageButton::showUp() {
@@ -79,6 +83,10 @@ void ImageButton::showUp() {
 	} else {
 		mUp.tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseOutCubic());
 		mDown.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic());
+	}
+
+	if(mStateChangeFunction){
+		mStateChangeFunction(false);
 	}
 }
 
@@ -105,6 +113,10 @@ ds::ui::Image& ImageButton::getNormalImage(){
 void ImageButton::setNormalImage(const std::string& imageFile){
 	mUp.setImageFile(imageFile);
 	layout();
+}
+
+void ImageButton::setStateChangeFn(const std::function<void(const bool pressed)>& func) {
+	mStateChangeFunction = func;
 }
 
 } // namespace ui

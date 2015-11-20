@@ -4,6 +4,21 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 
 **Note:** If you've been using DS Cinder before today (5/15/2015), you've been on the 0.8.4 branch in Visual Studio 2010, which is available under tags. This new master branch is based on Cinder 0.8.6, and requires Visual Studio 2013. You can continue using 0.8.4, but there will be no more development or updates of that version.
 
+-----------------------------
+DS Cinder Version 101.0.0
+-----------------------------
+The latest and greatest. Rough changes since the first tagged release (100.0.0):
+
+- GStreamer video performance improvements. Now uses a shader for colorspace conversion when possible.
+- Add some helper classes for scrolling lists and scroll areas.
+- Fixes for perspective mode (touch picking, sprite drawing, etc)
+- PDF framework updated
+- Some actual documentation! http://update.downstreamdev.com/ds/doc/ds_cinder/
+- Added some helpful examples for testing media (media_tester and simple_video_player)
+- Added a utility to generate data model classes from a YML file
+- Better handling for web errors and callbacks
+- Various fixes and improvements
+
 ----------
 
 Installation

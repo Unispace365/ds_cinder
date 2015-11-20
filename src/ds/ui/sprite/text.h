@@ -5,12 +5,9 @@
 #include <cinder/gl/TextureFont.h>
 #include <cinder/Text.h>
 #include <cinder/Font.h>
-#include "ds/ui/service/render_text_service.h"
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/text_layout.h"
 #include "cinder/gl/Fbo.h"
-
-//#define TEXT_RENDER_ASYNC		(1)
 
 namespace ds {
 namespace ui {
@@ -94,6 +91,16 @@ public:
 
 	const ds::ui::TextLayout&	getTextLayout() const { return mLayout; }
 
+	/// Returns the 2-d position of the character in the current text string
+	/// Will return 0,0 if the string is blank or the index is out-of-bounds
+	/// Only valid for MultilineText
+	ci::Vec2f					getPositionForCharacterIndex(const int characterIndex);
+
+	/// Returns the index of the character of the current text string for the position supplied
+	/// Gracefully handles out-of-bounds points (will always return a valid index, assuming the current text string isn't empty)
+	/// Only valid for MultilineText
+	int							getCharacterIndexForPosition(const ci::Vec2f& localPosition);
+
 protected:
 	virtual void				writeAttributesTo(ds::DataBuffer&);
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
@@ -112,8 +119,6 @@ private:
 	// Only used when ResizeToText is on
 	void						calculateFrame(const int flags);
 
-	void						onRenderFinished(RenderTextFinished&);
-
 	//ci::gl::TextureFontRef	mTextureFont;
 	//ci::gl::TextureFont::DrawOptions
 	//							mDrawOptions;
@@ -130,18 +135,12 @@ private:
 	float						mResizeLimitWidth,
 								mResizeLimitHeight;
 	bool						mHasSplitLine;
+	bool						mGenerateIndex;
 
 	// When true, display the whole sprite area.
 	const bool					mDebugShowFrame;
 
 	ci::gl::Texture				mTexture;
-
-#ifdef TEXT_RENDER_ASYNC
-	std::shared_ptr<RenderTextShared>
-		mShared;
-	RenderTextClient			mRenderClient;
-	ci::gl::Texture				mTestTexture;
-#endif
 
 	// Initialization
 public:

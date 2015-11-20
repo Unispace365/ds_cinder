@@ -101,10 +101,12 @@ public:
 private:
 	void							setGlCamera();
 
+	/// Sets the matrices and camera for this camera in the src/dst rect setup. Abstracted for client and server to use
+	void							setCameraForDraw(ci::Matrix44f& m);
+
 	typedef EngineRoot				inherited;
 	OrthRoot(const OrthRoot&);
 	OrthRoot&						operator=(const OrthRoot&);
-
 	Engine&							mEngine;
 	ci::CameraOrtho					mCamera;
 	bool							mCameraDirty;

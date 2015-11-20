@@ -69,8 +69,8 @@ std::vector<std::wstring> split( const std::wstring &str, const std::wstring &de
 struct Token
 {
   Token(int pos = 0, int size = 0)
-    : pos(pos)
-    , size(size) {}
+	: pos(pos)
+	, size(size) {}
   int pos;
   int size;
 };

@@ -70,7 +70,7 @@ public:
 	public:
 		Root();
 
-		enum Type					{ kOrtho, kPerspective };
+		enum Type					{ kOrtho = 0, kPerspective };
 		Type						mType;
 		enum Pick					{ kDefault, kSelect, kColor };
 		Pick						mPick;
@@ -78,7 +78,18 @@ public:
 		Master						mMaster;
 		PerspCameraParams			mPersp;
 		
+		/// If this root is for debug views, such as the touch circles and stats view
 		bool						mDebugDraw;
+
+		/// We're not syncronizing the stats view, so flag the root so it doesn't get included in sync routines
+		bool						mSyncronize;
+
+		/// If true (the default), uses src/dst rect scaling
+		/// If false, will always display at a static scale (like the engine stats view)
+		bool						mDrawScaled;
+
+		/// Added for support for clients to synchronize roots with the server
+		sprite_id_t					mRootId;
 	};
 
 private:

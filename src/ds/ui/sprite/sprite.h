@@ -27,6 +27,7 @@
 #include "ds/debug/debug_defines.h"
 
 namespace ds {
+namespace gl { class ClipPlaneState; }
 class BlobReader;
 class BlobRegistry;
 class CameraPick;
@@ -193,7 +194,14 @@ namespace ui {
 			For ortho Sprites, positive y position is downwards.
 			Z position forwards or backwards depends on your camera setup.
 			\param pos The 3d vector of the new position, in pixels. */
-		void					setPosition(const ci::Vec3f &pos);
+		void					setPosition(const ci::Vec3f& pos);
+
+		/** Set the position of the Sprite in local space (the parent's relative co-ordinates).
+			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
+			For ortho Sprites, positive y position is downwards.
+			Z position will use the current z-position of the sprite.
+			\param pos The x and y position. */
+		void					setPosition(const ci::Vec2f& pos);
 
 		/** Set the position of the Sprite in local space (the parent's relative co-ordinates).
 			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
@@ -536,7 +544,6 @@ namespace ui {
 		bool					getCheckBounds() const;
 		virtual bool			isLoaded() const;
 		void					setDragDestination(Sprite *dragDestination);
-		void					setDragDestiantion(Sprite *dragDestination);
 		Sprite*					getDragDestination() const;
 
 		bool					isDirty() const;
@@ -613,13 +620,34 @@ namespace ui {
 		 */
 		void					passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
 
-		// A hack needed by the engine, which constructs root types
-		// before the blobs are assigned
+		/** A hack needed by the engine, which constructs root types before the blobs are assigned. */
 		void					postAppSetup();
+
+		/** Mark this sprite to be a debug sprite layer.
+			The primary use case is server-only or client-only setups, so the stats view can draw when not enabled and not be colored weird.
+			Client apps don't generally need to set this flag, as it happens automagically.			
+		*/
+		void					setDrawDebug(const bool doDebug);
+
+		/** If this sprite has been flagged to draw as a debug layer. Will draw in the server draw loop even if disabled.
+		*/
+		bool					getDrawDebug();
+
+		/// For use by any layout classes you may want to implement. Default = 0.0f or 0 for all of these
+		float					mLayoutTPad;
+		float					mLayoutBPad;
+		float					mLayoutLPad;
+		float					mLayoutRPad;
+		ci::Vec2f				mLayoutSize;
+		ci::Vec2f				mLayoutFudge;
+		int						mLayoutHAlign;
+		int						mLayoutVAlign; 
+		int						mLayoutUserType;
 
 	protected:
 		friend class        TouchManager;
 		friend class        TouchProcess;
+		friend class		ds::gl::ClipPlaneState;
 
 		void				swipe(const ci::Vec3f &swipeVector);
 		bool				tapInfo(const TapInfo&);
@@ -691,45 +719,44 @@ namespace ui {
 
 		// DEPRECATED
 		// Obsolete -- use setUseShaderTexture
-		void				setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
+		void					setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
 		// Obsolete -- use getUseShaderTexture
-		bool				getUseShaderTextuer() const { return getUseShaderTexture(); }
+		bool					getUseShaderTextuer() const { return getUseShaderTexture(); }
 		
 
-		void				sendSpriteToFront(Sprite &sprite);
-		void				sendSpriteToBack(Sprite &sprite);
+		void					sendSpriteToFront(Sprite &sprite);
+		void					sendSpriteToBack(Sprite &sprite);
 
-		void				setPerspective(const bool);
+		void					setPerspective(const bool);
 
-		mutable bool		mBoundsNeedChecking;
-		mutable bool		mInBounds;
+		mutable bool			mBoundsNeedChecking;
+		mutable bool			mInBounds;
 
 
-		SpriteEngine&		mEngine;
+		SpriteEngine&			mEngine;
 		// The ID must always be assigned through setSpriteId(), which has some
 		// behaviour associated with the ID changing.
-		ds::sprite_id_t		mId;
-		ci::Color8u			mUniqueColor;
+		ds::sprite_id_t			mId;
+		ci::Color8u				mUniqueColor;
 
-		float				mWidth,
-			mHeight,
-			mDepth;
+		float					mWidth,
+								mHeight,
+								mDepth;
 
 		mutable ci::Matrix44f	mTransformation;
 		mutable ci::Matrix44f	mInverseTransform;
 		mutable bool			mUpdateTransform;
 
-		int                 mSpriteFlags;
-		ci::Vec3f           mPosition,
-			mCenter,
-			mScale,
-			mRotation;
-		float				mZLevel;
-		float				mOpacity;
-		ci::Color			mColor;
-		ci::Rectf			mClippingBounds;
-		bool				mClippingBoundsDirty;
-		SpriteShader		mSpriteShader;
+		int						mSpriteFlags;
+		ci::Vec3f				mPosition,
+								mCenter,
+								mScale,
+								mRotation;
+		float					mOpacity;
+		ci::Color				mColor;
+		ci::Rectf				mClippingBounds;
+		bool					mClippingBoundsDirty;
+		SpriteShader			mSpriteShader;
 
 		std::vector<SpriteShader*> mSpriteShaders;
 		//indicates which shader in the shader list is being drawn.
@@ -753,8 +780,8 @@ namespace ui {
 		bool					mHasDrawLocalClientPost;
 
 		// Class-unique key for this type.  Subclasses can replace.
-		char				mBlobType;
-		DirtyState			mDirty;
+		char					mBlobType;
+		DirtyState				mDirty;
 
 		std::function<void(Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
 		std::function<void(Sprite *, const ci::Vec3f &)> mSwipeCallback;
@@ -884,23 +911,37 @@ namespace ui {
 		return *s;
 	}
 
+
+	/** Handle basic communication from the server. This creates sprites that don't exist, or updates ones that already exist.
+		Note: Cannot use Logs here, as including the logger doesn't compile.
+		Also Note: Due to the way VS handles templatization, this cannot be moved to the cpp file. 
+		Also also Note: It would be great if this weren't in the Sprite header! */
 	template <typename T>
-	static void Sprite::handleBlobFromServer(ds::BlobReader& r)
-	{
+	static void Sprite::handleBlobFromServer(ds::BlobReader& r)	{
 		ds::DataBuffer&       buf(r.mDataBuffer);
-		if(buf.read<char>() != SPRITE_ID_ATTRIBUTE) return;
+		char attributey = buf.read<char>();
+		if(attributey != SPRITE_ID_ATTRIBUTE){
+			std::cout << "ERROR: Handle blob from server, this attribute is not the sprite attribute! This likely means you haven't installed your sprite type correctly." << attributey << std::endl;
+			return;
+		}
 		ds::sprite_id_t       id = buf.read<ds::sprite_id_t>();
 		Sprite*               s = r.mSpriteEngine.findSprite(id);
 		if(s) {
 			s->readFrom(r);
-		} else if((s = new T(r.mSpriteEngine)) != nullptr) {
+		} else {
+			s = new T(r.mSpriteEngine);
+			if(!s){
+				std::cout << "ERROR: Failed to create sprite with id " << id << " Ensure your sprite has a constructor that only takes a SpriteEngine as a parameter." << std::endl;
+				return;
+			}
 			s->setSpriteId(id);
 			s->readFrom(r);
 			// If it didn't get assigned to a parent, something is wrong,
 			// and it would disappear forever from memory management if I didn't
 			// clean up here.
 			if(!s->mParent) {
-				assert(false);
+				std::cout << "ERROR: No parent created for sprite id: " << id << " Be sure you add your sprite to a parent directly after construction." << std::endl;
+				//assert(false);
 				delete s;
 			}
 		}
