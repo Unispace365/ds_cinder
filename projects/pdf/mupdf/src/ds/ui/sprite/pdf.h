@@ -101,6 +101,9 @@ private:
 	};
 	ResHolder					mHolder;
 
+	// For clients to detect scale changes and re-render
+	ci::Vec3f					mPrevScale;
+
 	// Initialization
 public:
 	static void					installAsServer(ds::BlobRegistry&);
