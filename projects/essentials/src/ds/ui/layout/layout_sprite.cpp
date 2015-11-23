@@ -350,7 +350,7 @@ void LayoutSprite::runHLayout(){
 		if(chillin->mLayoutVAlign == kTop){
 			yPos = chillin->mLayoutTPad;
 		} else if(chillin->mLayoutVAlign == kMiddle){
-			yPos = layoutHeight / 2.0f - chillin->getScaleWidth() / 2.0f;
+			yPos = layoutHeight / 2.0f - chillin->getScaleHeight() / 2.0f;
 		} else if(chillin->mLayoutVAlign == kBottom){
 			yPos = layoutHeight - chillin->getScaleHeight() - chillin->mLayoutBPad;
 		}
