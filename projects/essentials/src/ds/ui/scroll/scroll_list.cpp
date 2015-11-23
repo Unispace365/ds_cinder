@@ -301,5 +301,18 @@ void ScrollList::setAnimateOnParams(const float startDelay, const float deltaDel
 	mAnimateOnDeltaDelay = deltaDelay;
 }
 
+void ScrollList::forEachLoadedSprite(std::function<void(ds::ui::Sprite*)> func){
+	if(!func) return;
+	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+		if((*it).mAssociatedSprite){
+			func((*it).mAssociatedSprite);
+		}
+	}
+
+	for(auto it = mReserveItems.begin(); it < mReserveItems.end(); ++it){
+		func((*it));
+	}
+}
+
 }
 }

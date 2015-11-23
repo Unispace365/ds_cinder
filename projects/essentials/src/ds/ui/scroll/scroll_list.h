@@ -60,6 +60,9 @@ class ScrollArea;
 		// Setting your own scroll position callback will break the scroll list
 		ds::ui::ScrollArea*			getScrollArea(){ return mScrollArea; }
 
+		// calls a function for each sprite that's currently onscreen and in reserve
+		void						forEachLoadedSprite(std::function<void(ds::ui::Sprite*)> function);
+
 	protected:
 
 		// We only create enough sprites that are onscreen at one time.
