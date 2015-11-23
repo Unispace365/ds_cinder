@@ -19,7 +19,12 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 {
 	mScrollArea = new ds::ui::ScrollArea(mEngine, getWidth(), getHeight(), mVerticalScrolling);
 	if(mScrollArea){
-		mScrollArea->setScrollUpdatedCallback([this](ds::ui::Sprite*){ assignItems(); });
+		mScrollArea->setScrollUpdatedCallback([this](ds::ui::Sprite*){ 
+			assignItems(); 
+			if(mScrollUpdatedCallback){
+				mScrollUpdatedCallback();
+			}
+		});
 		mScrollArea->setFadeColors(ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f), ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 		mScrollArea->setFadeHeight(50.0f);
 		mScrollArea->setUseFades(true);
@@ -287,6 +292,10 @@ void ScrollList::setAnimateOnCallback(const std::function<void(ds::ui::Sprite*, 
 
 void ScrollList::setStateChangeCallback(const std::function<void(ds::ui::Sprite*, const bool highlighted)>&func){
 	mStateChangeCallback = func;
+}
+
+void ScrollList::setScrollUpdatedCallback(const std::function<void(void)> &func){
+	mScrollUpdatedCallback = func;
 }
 
 void ScrollList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top){

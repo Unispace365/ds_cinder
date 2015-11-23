@@ -38,6 +38,13 @@ class ScrollArea : public ds::ui::Sprite {
 		const ci::Vec2f		getScrollerPosition();
 		void				resetScrollerPosition();
 
+		// For external UI use. The 0.0 - 1.0 percent of the scroll. 0.0 == the start (top in vertical scrolls). 1.0 == the bottom (fully scrolled through the list)
+		float				getScrollPercent();
+		void				setScrollPercent(const float percenty);
+
+		// How much of the scroller is currently visible. If the scroller is smaller than the scroll area, then this will be 1.0
+		float				getVisiblePercent();
+
 	private:
 		virtual void		updateServer(const ds::UpdateParams& p);
 		void				scrollerUpdated(const ci::Vec2f scrollPos);
@@ -59,6 +66,10 @@ class ScrollArea : public ds::ui::Sprite {
 		bool				mBottomFadeActive;
 
 		bool				mVertical;
+
+		// the current 0.0 - 1.0 percent of the scroll position
+		// Only used for external ui, not internally
+		float				mScrollPercent;
 
 		std::function<void(ScrollArea*)>	mScrollUpdatedFunction;
 

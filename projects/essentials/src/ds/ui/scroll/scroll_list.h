@@ -39,6 +39,9 @@ class ScrollArea;
 		// OPTIONAL: If you want to show highlighted states you can react here
 		void						setStateChangeCallback(const std::function<void(ds::ui::Sprite*, const bool highlighted)>&func);
 
+		// OPTIONAL: Called whenever the scroll changes position (could be quite a lot). Useful if you want to add scroll bars or update other ui
+		void						setScrollUpdatedCallback(const std::function<void(void)> &func);
+
 		/// Animates the current items onscreen only
 		void						animateItemsOn();
 
@@ -119,8 +122,9 @@ class ScrollArea;
 		std::function<void(ds::ui::Sprite*, const ci::Vec3f& cent)>	mItemTappedCallback;
 		std::function<ds::ui::Sprite* ()>							mCreateItemCallback;
 		std::function<void(ds::ui::Sprite*, const int dbId)>		mSetDataCallback;
-		std::function<void(ds::ui::Sprite*, const float delay)>	mAnimateOnCallback;
-		std::function<void(ds::ui::Sprite*, const bool highli)>	mStateChangeCallback;
+		std::function<void(ds::ui::Sprite*, const float delay)>		mAnimateOnCallback;
+		std::function<void(ds::ui::Sprite*, const bool highli)>		mStateChangeCallback;
+		std::function<void()>										mScrollUpdatedCallback;
 	};
 }
 }
