@@ -51,7 +51,7 @@ void PDFPlayer::setMedia(const std::string mediaPath){
 			mPdfInterface->hide();
 		}
 
-	} else 
+	}  
 
 	setSize(mPDF->getWidth(), mPDF->getHeight());
 }
