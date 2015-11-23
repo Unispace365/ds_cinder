@@ -295,6 +295,10 @@ void BasePanel::animateWidthTo(const float newWidth){
 	animateSizeTo(ci::Vec2f(newWidth, newWidth / mContentAspectRatio));
 }
 
+void BasePanel::aniamteHeightTo(const float newHeight){
+	animateSizeTo(ci::Vec2f(newHeight * mContentAspectRatio, newHeight));
+}
+
 void BasePanel::setLayoutCallback(std::function<void()> layoutCallback){
 	mLayoutCallback = layoutCallback;
 }
