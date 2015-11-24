@@ -12,11 +12,10 @@ void main()
 
  
 vec4 previousPass = texture2D( tex1, vertTexcoord.xy);
-previousPass = previousPass + 0.5 ; // vec4(0.0,0.75,0.75,1.0);
+previousPass = previousPass + 0.5 ; 
+previousPass.a *= opacity;
 
-//	discard;
 gl_FragData[0] = previousPass;
- // gl_FragData[0] = vec4(1.0, 1.0, 0.5, 1.0);
 
 
 

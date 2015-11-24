@@ -265,6 +265,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 	ci::gl::pushModelView();
 	glLoadIdentity();
 	ci::gl::multModelView(totalTransformation);
+	bool flipImage = false;
 
 	ci::Area viewport = ci::gl::getViewport();
 
@@ -273,13 +274,13 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 			//Change viewport for rendering texture to FBO
 			ci::gl::setViewport(mFrameBuffer[mFboIndex]->getBounds());
 
-			//Output available on Texture_1
-			if (shaderPasses - 1 == mShaderPass){//last pass
-
-				mFrameBuffer[mFboIndex]->unbindFramebuffer();  // render to screen now  - may be overriden later
+			//Output available on Texture Unit 1
+			if (shaderPasses - 1 == mShaderPass){						//last pass
+				// render to screen now  - may be overriden later
+				mFrameBuffer[mFboIndex]->unbindFramebuffer(); 
 
 				glDrawBuffer(GL_COLOR_ATTACHMENT0);
-				mFrameBuffer[!mFboIndex]->bindTexture(1,0);
+				mFrameBuffer[!mFboIndex]->bindTexture(1);
 				ci::gl::popModelView();
 				ci::gl::popMatrices();
 				ci::gl::setViewport(viewport);
@@ -288,9 +289,11 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 				mIsLastPass = true;
 
 				//the 'flipped' flag is ignored by shaders, so we need to manually force the flip
+
 				if ((mSpriteShaders.size()-1)%2){ 
-					ci::gl::scale(1.0f, -1.0f, 1.0f);           // invert Y axis so increasing Y goes down.
-					ci::gl::translate(0.0f, (float)-getHeight(), 0.0f);       // shift origin up to upper-left corner.
+					flipImage = true;
+						//ci::gl::scale(1.0f, -1.0f, 1.0f);							// invert Y axis so increasing Y goes down.
+						//ci::gl::translate(0.0f, (float)-getHeight(), 0.0f);			// shift origin up to upper-left corner.
 				}
 			}
 			else if (mShaderPass > 0){ //middle passes
@@ -298,7 +301,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 				ci::gl::clear(ci::ColorA(0,0,0, 0));
 
 				glDrawBuffer(GL_COLOR_ATTACHMENT0);
-				mFrameBuffer[!mFboIndex]->bindTexture(1,0);
+				mFrameBuffer[!mFboIndex]->bindTexture(1);
 				mFboIndex = !mFboIndex;
 			}
 			else { //first pass
@@ -311,18 +314,23 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 				glDrawBuffer(GL_COLOR_ATTACHMENT0);
 				mFboIndex = !mFboIndex;
 			}
-
 		}
+		 if (mIsRenderFinalToTexture && mOutputFbo && mIsLastPass) {
+			flipImage = !flipImage;
+			}
+		
 
 		if (mIsLastPass && mIsRenderFinalToTexture && mOutputFbo){
 			ci::gl::pushModelView();
 			ci::gl::pushMatrices();
 			ci::gl::setMatricesWindow(mOutputFbo->getSize());
-
 			mOutputFbo->bindFramebuffer();
-			//ci::gl::popModelView();
-			//ci::gl::popMatrices();
-			//ci::gl::setViewport(viewport);
+		}
+
+		if (flipImage && mIsLastPass)
+		{
+			ci::gl::scale(1.0f, -1.0f, 1.0f);							// invert Y axis so increasing Y goes down.
+			ci::gl::translate(0.0f, (float)-getHeight(), 0.0f);			// shift origin up to upper-left corner.
 		}
 
 		if (!mSpriteShaders.empty()) {
@@ -368,9 +376,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 				shaderBase.unbind();
 				if (mSpriteShaders.size()>1){
 					mFrameBuffer[mFboIndex]->unbindTexture();
-
-			//		mFrameBuffer[!mFboIndex]->unbindFramebuffer();
-
+					
 					ci::gl::scale(1.0f, 1.0f, 1.0f);           // invert Y axis so increasing Y goes down.
 					ci::gl::translate(0.0f, 0.0f, 0.0f);       // shift origin up to upper-left corner.
 
