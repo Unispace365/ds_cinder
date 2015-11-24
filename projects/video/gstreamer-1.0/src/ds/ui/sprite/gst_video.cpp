@@ -285,7 +285,7 @@ void GstVideo::drawLocalClient(){
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 
 		} else {
-			if (mFrameTexture) mFrameTexture.bind(4);
+			if (mFrameTexture) mFrameTexture.bind(0);
 					ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 		}
 

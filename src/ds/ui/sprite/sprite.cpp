@@ -171,6 +171,8 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mClippingBoundsDirty = false;
 	mFrameBuffer[0] = nullptr;
 	mFrameBuffer[1] = nullptr;
+	mOutputFbo = nullptr;
+	mIsRenderFinalToTexture = false;
 
 	dimensionalStateChanged();
 }
@@ -181,7 +183,7 @@ Sprite::~Sprite() {
 
 	delete mFrameBuffer[0];
 	delete mFrameBuffer[1];
-
+	delete mOutputFbo;
 
 	// We only want to request a delete for the sprite at the head of a tree,
 	const sprite_id_t	id = mId;
@@ -257,7 +259,6 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 		mIsLastPass = true;
 
 	}
-	
 
 	buildTransform();
 	ci::Matrix44f totalTransformation = trans*mTransformation;
@@ -274,7 +275,8 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 
 			//Output available on Texture_1
 			if (shaderPasses - 1 == mShaderPass){//last pass
-				mFrameBuffer[mFboIndex]->unbindFramebuffer();  // render to screen now
+
+				mFrameBuffer[mFboIndex]->unbindFramebuffer();  // render to screen now  - may be overriden later
 
 				glDrawBuffer(GL_COLOR_ATTACHMENT0);
 				mFrameBuffer[!mFboIndex]->bindTexture(1,0);
@@ -298,7 +300,6 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 				glDrawBuffer(GL_COLOR_ATTACHMENT0);
 				mFrameBuffer[!mFboIndex]->bindTexture(1,0);
 				mFboIndex = !mFboIndex;
-
 			}
 			else { //first pass
 				ci::gl::pushModelView();
@@ -311,6 +312,17 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 				mFboIndex = !mFboIndex;
 			}
 
+		}
+
+		if (mIsLastPass && mIsRenderFinalToTexture && mOutputFbo){
+			ci::gl::pushModelView();
+			ci::gl::pushMatrices();
+			ci::gl::setMatricesWindow(mOutputFbo->getSize());
+
+			mOutputFbo->bindFramebuffer();
+			//ci::gl::popModelView();
+			//ci::gl::popMatrices();
+			//ci::gl::setViewport(viewport);
 		}
 
 		if (!mSpriteShaders.empty()) {
@@ -368,6 +380,16 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 		}
 
 		mShaderPass++;
+	}
+	if (mIsRenderFinalToTexture && mOutputFbo){
+		ci::gl::popModelView();
+		ci::gl::popMatrices();
+		ci::gl::setViewport(viewport);
+
+		//ci::Surface surface(mOutputFbo->getTexture());
+	
+		//uint8_t * tmp = surface.getData();
+		mOutputFbo->unbindFramebuffer();
 	}
 	//ci::gl::popModelView();
 	//if (mSpriteShaders.size() > 1){
@@ -606,6 +628,7 @@ void Sprite::doSetRotation(const ci::Vec3f& rot) {
 	mBoundsNeedChecking = true;
 	markAsDirty(ROTATION_DIRTY);
 	dimensionalStateChanged();
+	onRotationChanged();
 }
 
 ci::Vec3f Sprite::getRotation() const
@@ -1785,6 +1808,27 @@ ds::gl::Uniform Sprite::getBaseShaderUniforms(std::string shaderName) {
 	return ds::gl::Uniform();
 }
 
+void Sprite::setFinalRenderToTexture(bool render_to_texture)
+{
+	if (render_to_texture == mIsRenderFinalToTexture) return;
+	mIsRenderFinalToTexture = render_to_texture;
+
+	setupFinalRenderBuffer();
+
+}
+
+bool Sprite::isFinalRenderToTexture()
+{
+	return mIsRenderFinalToTexture;
+}
+
+ci::gl::Texture* Sprite::getFinalOutTexture()
+{
+	if (mOutputFbo)
+		return &(mOutputFbo->getTexture());
+	else return nullptr;
+}
+
 bool Sprite::isShaderName(std::string name) const{
 	if (mSpriteShaders[mShaderPass]->getName().compare(name) == 0){
 		return true;
@@ -1924,6 +1968,8 @@ void Sprite::dimensionalStateChanged(){
 		onSizeChanged();
 	}
 
+	setupFinalRenderBuffer();
+
 	if (mSpriteShaders.size()>1){
 		ci::gl::Fbo::Format format;
 		format.setColorInternalFormat(GL_RGBA);
@@ -1935,17 +1981,25 @@ void Sprite::dimensionalStateChanged(){
 			if (mFrameBuffer[1]) 
 				delete mFrameBuffer[1];
 
-
 			mFrameBuffer[0] = new ci::gl::Fbo(getWidth(), getHeight(), format);
-		//	mFrameBuffer[0] = new ci::gl::Fbo(1920, 1080, format);
-
 			mFrameBuffer[1] = new ci::gl::Fbo(getWidth(), getHeight(), format);
-			//mFrameBuffer[1] = new ci::gl::Fbo(1920, 1080, format);
-
 		}
 	}
 }
 
+void Sprite::setupFinalRenderBuffer(){
+	if (mOutputFbo)
+		delete mOutputFbo;
+
+	if (mIsRenderFinalToTexture &&
+		getWidth() > 1.0f &&
+		getHeight() > 1.0f){
+		ci::gl::Fbo::Format  format;
+		mOutputFbo = new ci::gl::Fbo(getWidth(), getHeight(), format);
+	}
+	else mOutputFbo = nullptr;
+
+}
 
 
 void Sprite::markClippingDirty(){

@@ -569,6 +569,14 @@ namespace ui {
 		ci::gl::Texture*		getShaderOutputTexture();
 		ds::gl::Uniform			getBaseShaderUniforms(std::string shaderName);
 
+		//	Determines if the final render will be to the display or a texture.
+		void					setFinalRenderToTexture(bool render_to_texture);
+		bool					isFinalRenderToTexture();
+		//Retrieve the rendered output texture
+		ci::gl::Texture*		getFinalOutTexture();
+		void					setupFinalRenderBuffer();
+
+
 		//Retrieve a shader based on the name - used with multipass shader setup.
 		ds::ui::SpriteShader*	getShaderFromListName(std::string name) const;
 		int						getShaderNumber(std::string name) const;
@@ -682,6 +690,7 @@ namespace ui {
 		virtual void		onPositionChanged(){}
 		virtual void		onScaleChanged(){}
 		virtual void		onSizeChanged(){}
+		virtual void		onRotationChanged(){}
 		virtual void		onChildAdded(Sprite& child){}
 		virtual void		onChildRemoved(Sprite& child){}
 		// Note: there's a reason this is not called onVisibilityChanged().
@@ -763,6 +772,10 @@ namespace ui {
 		int							mShaderPass;
 		ci::gl::Fbo*				mFrameBuffer[2];
 		ci::gl::Texture				mShaderTexture;
+		//ci::gl::Texture*			mFinalOutputTexture;
+		ci::gl::Fbo*				mOutputFbo;
+		bool						mIsRenderFinalToTexture;
+
 		//Keeps track of which FBO is being rendered to for multi-pass rendering
 		int							mFboIndex;
 

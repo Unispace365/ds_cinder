@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />
+    <ResourceCompile Include="Resources.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="app">
+      <UniqueIdentifier>{c072475b-0e39-497d-90be-c1dca8bcea11}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui">
+      <UniqueIdentifier>{2319e421-f888-4648-9eae-bebf16d35223}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\video_360_sprite">
+      <UniqueIdentifier>{8411fef7-0712-4dea-bb4c-fc6f130a24d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ui\util">
+      <UniqueIdentifier>{ead7f3fa-990b-4e3b-a53a-f52381fd146c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\app\video_360_app.cpp">
+      <Filter>app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\video_360_sprite\drone_video_sprite.cpp">
+      <Filter>ui\video_360_sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\util\configurable.cpp">
+      <Filter>ui\util</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\app\video_360_app.h">
+      <Filter>app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\video_360_sprite\drone_video_sprite.h">
+      <Filter>ui\video_360_sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\util\configurable.h">
+      <Filter>ui\util</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
