@@ -21,8 +21,8 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 	, mPdfInterface(nullptr)
 	, mEmbedInterface(embedInterface)
 {
-	setTransparent(false);
-	setColor(ci::Color(0.3f, 0.5f, 0.0f));
+//	setTransparent(false);
+//	setColor(ci::Color(0.3f, 0.5f, 0.0f));
 }
 
 void PDFPlayer::setMedia(const std::string mediaPath){
