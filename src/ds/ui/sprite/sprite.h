@@ -561,10 +561,23 @@ namespace ui {
 		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
 		// this is only suitable for shaders without uniforms.
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
-		//setup a series of shaders to run (multi-pass)
-		void					setBaseShaders(const std::vector<std::pair<std::string, std::string>>, bool applyToChildren = false);
-		void					addNewBaseShader(const std::pair<std::string,  std::string>, bool addToFront = false, bool applyToChildren = false);
-		void				    addNewBaseShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
+	
+		//associate shader in a file to sprite (multi-pass)
+		void					setShaderList(const std::vector<std::pair<std::string, std::string>>, bool applyToChildren = false);
+		void					addNewShader(const std::pair<std::string, std::string>, bool addToFront = false, bool applyToChildren = false);
+		void					addNewShader(const std::string, const std::string, bool addToFront = false, bool applyToChildren = false);
+		//Associate shader in memory to sprite.
+		void					addNewMemoryShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
+		bool					removeShader(std::string shaderName);
+		void					removeShaders();
+
+
+		//Add a new shader located in memory
+		//vert - the reference to the in-memory vertex shader
+		//frag - reference to the in-memory fragment shader
+		//shaderName - lookup name for shader
+		//addToFront - When true, this puts the shader first in line to be run
+		void				    addNewShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
 		void					setBaseShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
 		ci::gl::Texture*		getShaderOutputTexture();
 		ds::gl::Uniform			getBaseShaderUniforms(std::string shaderName);
@@ -575,6 +588,7 @@ namespace ui {
 		//Retrieve the rendered output texture
 		ci::gl::Texture*		getFinalOutTexture();
 		void					setupFinalRenderBuffer();
+		void					setupIntermediateFrameBuffers();
 
 
 		//Retrieve a shader based on the name - used with multipass shader setup.
@@ -770,6 +784,7 @@ namespace ui {
 		std::vector<SpriteShader*> mSpriteShaders;
 		//indicates which shader in the shader list is being drawn.
 		int							mShaderPass;
+		int							mShaderPasses;
 		ci::gl::Fbo*				mFrameBuffer[2];
 		ci::gl::Texture				mShaderTexture;
 		//ci::gl::Texture*			mFinalOutputTexture;

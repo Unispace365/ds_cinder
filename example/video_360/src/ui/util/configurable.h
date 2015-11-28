@@ -8,7 +8,7 @@
 
 //#include "common/fwd.h"
 
-namespace dlpr {
+namespace ds {
 namespace util {
 
 class Configurable

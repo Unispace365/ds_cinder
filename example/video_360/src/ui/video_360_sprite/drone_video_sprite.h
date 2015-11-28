@@ -12,16 +12,16 @@
 #include "ui/util/configurable.h"
 #include "ds/ui/sprite/video.h"
 
-namespace ds { class Engine; 
 
-}
 
-namespace dlpr {
-namespace view {
+namespace ds {
+	class Engine;
+	namespace ui {
+
 
 class DroneVideoSprite final
 	: public ds::ui::Sprite
-	, private util::Configurable
+	, private ds::util::Configurable
 {
 public:
 	DroneVideoSprite(ds::ui::SpriteEngine&);

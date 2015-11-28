@@ -22,7 +22,8 @@ private:
 
 	void				loadMedia(const std::string& newMedia);
 	void				fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy);
-	dlpr::view::DroneVideoSprite* mDroneVideo;
+	ds::ui::DroneVideoSprite* mDroneVideo;
+	ds::ui::Video*		mBaseVideo;
 	ds::ui::Sprite*		mMedia;
 	ds::ui::Text*		mLabelText;
 	ds::ui::Sprite*		mHeader;

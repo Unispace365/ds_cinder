@@ -26,7 +26,7 @@ static struct ConfigPool
 } CONFIG_POOL;
 }
 
-namespace dlpr {
+namespace ds {
 namespace util {
 
 Configurable::Configurable(ds::ui::SpriteEngine& engine, const std::string& name)
