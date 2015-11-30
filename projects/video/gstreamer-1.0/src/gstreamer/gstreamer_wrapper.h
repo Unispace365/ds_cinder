@@ -10,6 +10,7 @@
 #include <atomic>
 #include <string>
 #include <functional>
+#include <vector>
 
 namespace gstwrapper
 {
@@ -369,6 +370,16 @@ public:
 	void					setVolume( float fVolume );
 
 	/*
+	Sets the Pipeline pan
+
+	params:
+	@fPan: The new paning value which will be immediately applied to the Pipeline. Any value between -1.0f and 1.0f are possible.
+	-1.0 is full left, +1.0 is full right, 0 is equal left and right.  Values between -1.0 and 1.0 will proporitionaly scale the sound to the 
+	left and right speakers.
+	*/
+	void					setPan(float fPan);
+
+	/*
 	Returns an unsigned char pointer containing a buffer to the currently decoded audio data
 	Returns NULL if there is either no audio stream in the media file, no file has been loaded or something went wrong
 	while streaming
@@ -589,7 +600,10 @@ protected:
 	GstElement*				m_GstPipeline; /* The main GStreamer pipeline */
 	bool					m_PendingSeek;
 	GstElement*				m_GstAudioSink; /* Audio sink that contains the raw audio buffer. Gathered from the pipeline */
+	GstElement*				m_GstPanorama; /* Audio Panning element */
+	GstElement*				m_GstConverter; /* Audio adapter - used for converting stereo to mono if enabled*/
 	GstElement*				m_GstVolumeElement; /* Allows streaming to change the volume output */
+	std::vector<gpointer>	m_GstObjects;  /*Collector for releasing upon close()*/
 
 private:
 
@@ -607,6 +621,7 @@ private:
 	int						m_iHeight; /* Video height */
 	int						m_iBitrate; /* Video bitrate */
 	float					m_fVolume; /* Volume of the pipeline */
+	float					m_fPan; /* Pan the audio channels for the pipeline */
 	float					m_fFps; /* Frames per second of the video */
 	double					m_dCurrentTimeInMs; /* Current time position in milliseconds */
 	double					m_dDurationInMs; /* Media duration in milliseconds */

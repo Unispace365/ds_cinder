@@ -10,10 +10,6 @@
 #include <ds/debug/logger.h>
 #include <ds/app/app.h>
 
-#include <cinder/DataSource.h>
-#include <cinder/Tween.h>
-#include "cinder/ImageIo.h"
-
 
 static std::string shader_name("drone");
 
@@ -309,24 +305,18 @@ void DroneVideoSprite::onSizeChanged()
 void DroneVideoSprite::installVideo(const std::string& path)
 {
 	auto video_sprite = addChildPtr(new ds::ui::Video(mEngine));
-	video_sprite->setAutoStart(true);
-	video_sprite->setLooping(true);
-	video_sprite->loadVideo(path);
-	//video_sprite->setSize(getWidth(), getHeight());
+	installVideo(video_sprite, path);
 }
 
 void DroneVideoSprite::installVideo( ds::ui::Video* const video, const std::string& path)
 {
 	ds::ui::Video* const video_sprite = addChildPtr(video);
+	//Need this to enable panning 
+	video_sprite->generateAudioBuffer(true);
+
 	video_sprite->setAutoStart(true);
 	video_sprite->setLooping(true);
 	video_sprite->loadVideo(path);
-	video_sprite->setSize(getWidth(), getHeight());
-
-//	video_sprite->setSize(getScaleWidth(), getScaleHeight());
-	//video_sprite->setScale(5,5);
-	setSize(video_sprite->getWidth(), video_sprite->getHeight());
-	//setSize(10, 10);
 }
 
 ds::ui::Video* DroneVideoSprite::getVideo() const
@@ -334,4 +324,4 @@ ds::ui::Video* DroneVideoSprite::getVideo() const
 	return mVideoSprite;
 }
 
-}} //!dlpr::view
+}} //!ds::ui

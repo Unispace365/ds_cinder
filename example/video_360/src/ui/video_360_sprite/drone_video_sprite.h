@@ -85,6 +85,7 @@ public:
 	static void			installAsServer(ds::BlobRegistry&);
 	static void			installAsClient(ds::BlobRegistry&);
 	static void			installSprite(ds::Engine&);
+
 };
 
 }} //!dlpr::view

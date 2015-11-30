@@ -81,10 +81,12 @@ const char mAutoStartAtt = 85;
 const char mPathAtt = 86;
 const char mPosAtt = 87;
 const char mSyncAtt = 88;
+const char mPanAtt = 89;
 
 const DirtyState& mMuteDirty = newUniqueDirtyState();
 const DirtyState& mStatusDirty = newUniqueDirtyState();
 const DirtyState& mVolumeDirty = newUniqueDirtyState();
+const DirtyState& mPanDirty = newUniqueDirtyState();
 const DirtyState& mLoopingDirty = newUniqueDirtyState();
 const DirtyState& mAutoStartDirty = newUniqueDirtyState();
 const DirtyState& mPathDirty = newUniqueDirtyState();
@@ -166,7 +168,7 @@ void GstVideo::updateServer(const UpdateParams &up){
 	}
 }
 
-void GstVideo::generateAudioBuffer(bool enableAudioBuffer){
+void GstVideo::generateAudioBuffer(bool enableAudioBuffer ){
 	 mGenerateAudioBuffer = enableAudioBuffer; 
 }
 
@@ -515,6 +517,22 @@ float GstVideo::getVolume() const {
 	return mVolume;
 }
 
+void GstVideo::setPan(const PanType pan)
+{
+	if (mPan == pan) return;
+
+	mPan = pan;
+	applyMoviePan(mPan);
+	markAsDirty(mPanDirty);
+}
+
+
+
+GstVideo::PanType GstVideo::getPan() const
+{
+	return mPan;
+}
+
 void GstVideo::play(){
 	mGstreamerWrapper->play();
 
@@ -589,6 +607,24 @@ void GstVideo::applyMovieVolume(){
 		mGstreamerWrapper->setVolume(mVolume);
 	}
 }
+
+void GstVideo::applyMoviePan(const PanType pan){
+	switch (pan){
+	case (kPanLeft) :
+		mGstreamerWrapper->setPan(-1.0f);
+		break;
+	case(kPanRight) :
+		mGstreamerWrapper->setPan(1.0f);
+		break;
+	case (kPanCenter) :
+		mGstreamerWrapper->setPan(0.0f);
+		break;
+	default:
+		break;
+	}
+
+}
+
 
 void GstVideo::applyMovieLooping(){
 	if (mLooping)
@@ -698,7 +734,10 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(mVolumeAtt);
 		buf.add(getVolume());
 	}
-
+	if (mDirty.has(mPanDirty)){
+		buf.add(mPanAtt);
+		buf.add(getPan());
+	}
 	if(mDirty.has(mMuteDirty)){
 		buf.add(mMuteAtt);
 		buf.add(getIsMuted());

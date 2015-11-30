@@ -64,20 +64,29 @@ void media_tester::keyDown(ci::app::KeyEvent event){
 
 	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown() && ci::Clipboard::hasString()){
 		loadMedia(ci::Clipboard::getString());
-		
-	} else if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
+	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
+		if (mDroneVideo){
+			mDroneVideo->getVideo()->setPan(ds::ui::GstVideo::kPanLeft);
+		}
+	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_c){
+		if (mDroneVideo){
+			mDroneVideo->getVideo()->setPan(ds::ui::GstVideo::kPanCenter);
+		}
+	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_r){
+		if (mDroneVideo){
+			mDroneVideo->getVideo()->setPan(ds::ui::GstVideo::kPanRight);
+		}
+	} else if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	} else if(event.getChar() == KeyEvent::KEY_1){
 		if (!mBaseVideo->removeShader("test1")) {
 			mBaseVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
 		}
-	}
-	else if (event.getChar() == KeyEvent::KEY_2){
+	} else if (event.getChar() == KeyEvent::KEY_2){
 		if (!mBaseVideo->removeShader("test2")) {
 			mBaseVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
 		}
-	}
-	else if (event.getChar() == KeyEvent::KEY_3){
+	} else if (event.getChar() == KeyEvent::KEY_3){
 		if (!mBaseVideo->removeShader("toonify")) {
 			mBaseVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
 		}
@@ -111,21 +120,7 @@ void media_tester::loadMedia(const std::string& newMedia){
 
 	mBaseVideo = new ds::ui::Video(mEngine);
 
-#if ADD_SHADER_METHOD
-	mBaseVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
-	mBaseVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
-	mBaseVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
-#else
-	//Another way of specifying shaders
-	std::vector<std::pair<std::string, std::string>> shaders;
-	shaders.push_back(std::pair<std::string, std::string>(ds::Environment::getAppFolder("data/shaders"), "test1"));
-	shaders.push_back(std::pair<std::string, std::string>(ds::Environment::getAppFolder("data/shaders"), "test2"));
-	shaders.push_back(std::pair<std::string, std::string>(ds::Environment::getAppFolder("data/shaders"), "toonify"));
-
-	vid->setBaseShaders(shaders);
-
-#endif
-	//Set shader uniforms
+	//Set shader uniforms - Shaders are enabled/disabled by user keyboard input
 	ds::gl::Uniform uniform;
 	uniform.setInt("Texture0", 1);  // Use texture unit 1 since Vidoe CSC is hardcoded to TU 0
 	mBaseVideo->setBaseShadersUniforms("toonify", uniform);
@@ -140,14 +135,13 @@ void media_tester::loadMedia(const std::string& newMedia){
 	uniform.setFloat("opacity", 1.0f);
 	mBaseVideo->setBaseShadersUniforms("test1", uniform);
 
+	//Configure drone video
 	mDroneVideo->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	mDroneVideo->installVideo(mBaseVideo, newMedia);
 	mDroneVideo->setCenter(0.5f, 0.5f);
 	mDroneVideo->setPosition(0.5f * mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());
 	mDroneVideo->setUseDepthBuffer(false);
 	mMedia = mDroneVideo;
-
-	//fitSpriteInArea(ci::Rectf(0.0f, headerHeight, mEngine.getWorldWidth(), mEngine.getWorldHeight()), mMedia);
 }
 
 

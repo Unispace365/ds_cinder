@@ -67,6 +67,7 @@ void GStreamerWrapper::resetProperties(){
 	m_dDurationInMs = 0;
 	m_iNumberOfFrames = 0;
 	m_fVolume = 1.0f;
+	m_fPan = 0.0f;
 	m_fSpeed = 1.0f;
 	m_PlayDirection = FORWARD;
 	m_CurrentPlayState = NOT_INITIALIZED;
@@ -195,31 +196,54 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 	// AUDIO SINK
 	// Extract and config Audio Sink
-	if ( bGenerateAudioBuffer ){
-		if (m_CustomPipeline){
-			setCustomFunction();
-		}
-		else {
-			// Create and configure audio appsink
-			m_GstAudioSink = gst_element_factory_make("appsink", "audiosink");
-			gst_base_sink_set_sync(GST_BASE_SINK(m_GstAudioSink), true);
-			// Set the configured audio appsink to the main pipeline
-			g_object_set(m_GstPipeline, "audio-sink", m_GstAudioSink, (void*)NULL);
-			// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL);
-			//Set up converter  to convert to mono if enabled
+	if (bGenerateAudioBuffer){
+			if (m_CustomPipeline){
+				setCustomFunction();
+			}
+			else {
+				//Add components for sub-pipeline
 
-		// Set Audio Sink callback methods
-		m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
-		m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
-		m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
-		gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
-		}
+				m_GstConverter = gst_element_factory_make("audioconvert", "convert");
+				m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
+				m_GstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
+				// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
+				g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL);
 
-	} else {
-		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
-		g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", false, (void*)NULL);
-		g_object_set ( m_GstPipeline, "audio-sink", audioSink, NULL );
+				GstElement* bin = gst_bin_new("converter_sink_bin");
+
+				//Add and Link sub-pipeline components: 'Audio Converter' ---> 'Panorama' ---> 'Audio Sink'
+				gst_bin_add_many(GST_BIN(bin), m_GstConverter, m_GstPanorama, m_GstAudioSink, NULL);
+				gboolean link_ok = gst_element_link_many(m_GstConverter, m_GstPanorama, m_GstAudioSink, NULL);
+
+				//Set pan value
+				g_object_set(m_GstPanorama, "panorama", m_fPan, NULL);
+
+				//Setup pads to connect main 'playbin' pipeline:   'playbin' ---> 'Audio Converter' ---> 'panorama' ---> 'Audio sink'
+				GstPad *pad = gst_element_get_static_pad(m_GstConverter, "sink");
+				GstPad *ghost_pad = gst_ghost_pad_new("sink", pad);
+				gst_pad_set_active(ghost_pad, TRUE);
+				gst_element_add_pad(bin, ghost_pad);
+
+				//Set 'bin' pipeline as audio sink
+				g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
+
+				gst_object_unref(pad);
+				m_GstObjects.push_back(m_GstPanorama);
+				m_GstObjects.push_back(m_GstAudioSink);
+				m_GstObjects.push_back(m_GstPanorama);
+
+
+				// Set Audio Sink callback methods
+				m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
+				m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
+				m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
+				gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
+			}
+
+		} else {
+			GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
+			g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", false, (void*)NULL);
+			g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
 	}
 
 	// BUS
@@ -385,10 +409,15 @@ void GStreamerWrapper::close(){
 
 	if ( m_GstPipeline ){
 		//gst_element_set_state( m_GstPipeline, GST_STATE_NULL );
-		gst_object_unref( m_GstPipeline );
+		for (auto it = m_GstObjects.begin(); it != m_GstObjects.end(); ++it) {
+			gst_object_unref(*it);
+		}
+		gst_object_unref(m_GstPipeline);
+
 		m_GstPipeline = NULL;
 		m_GstVideoSink = NULL;
 		m_GstAudioSink = NULL;
+
 	}
 
 	if ( m_GstBus ){
@@ -636,6 +665,19 @@ void GStreamerWrapper::setVolume( float fVolume ){
 			m_fVolume = 1.0f;
 
 		g_object_set( m_GstPipeline, "volume", m_fVolume, NULL );
+	}
+}
+
+void GStreamerWrapper::setPan(float fPan){
+	if (m_fPan != fPan)
+	{
+		m_fPan = fPan;
+		if (m_fPan < -1.0f)
+			m_fPan = -1.0f;
+		else if (m_fVolume > 1.0f)
+			m_fPan = 1.0f;
+
+		g_object_set(m_GstPanorama, "panorama", m_fPan, NULL);
 	}
 }
 

@@ -39,6 +39,9 @@ public:
 	};
 
 public:
+	//Enum for specifying which side to pan the volume to.
+	typedef enum { kPanLeft = 0, kPanRight, kPanCenter } PanType;
+
 	// Convenience for allocating a Video sprite pointer and optionally adding it
 	// to another Sprite as child.
 	static GstVideo&	makeVideo(SpriteEngine&, Sprite* parent = nullptr);
@@ -77,6 +80,10 @@ public:
 	// Volume control. value between 0.0f and 1.0f
 	void				setVolume(const float volume);
 	float				getVolume() const;
+
+	//Control which speaker to play out of (left/right/both)
+	void				setPan(const PanType pan);
+	PanType				getPan() const;
 
 	// Playback control API 
 	virtual void		play();
@@ -150,6 +157,7 @@ private:
 	// ShaderTransform: has no alpha channel, and colorspace conversion is handled in a shader when drawing to the screen, uses I420 YUV colorspace conversion only
 	// This value is assumed from the output of the videometa cache
 	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform } ColorType;
+	
 
 	// filename is the absolute path to the file.
 	// portable_filename is the CMS-relative path, so apps installed under different
@@ -157,6 +165,7 @@ private:
 	void				doLoadVideo(const std::string &filename,
 									const std::string &portable_filename);
 	void				applyMovieVolume();
+	void				applyMoviePan(const PanType pan);
 	void				applyMovieLooping();
 	void				checkOutOfBounds();
 	void				setStatus(const int);
@@ -178,6 +187,7 @@ private:
 	std::function<void(const Status&)>
 						mStatusFn;
 	float				mVolume;
+	PanType				mPan;
 	bool				mLooping;
 	bool				mMuted;
 	bool				mOutOfBoundsMuted;
