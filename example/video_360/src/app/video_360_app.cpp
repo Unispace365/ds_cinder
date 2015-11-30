@@ -122,17 +122,17 @@ void media_tester::loadMedia(const std::string& newMedia){
 	//Set shader uniforms - Shaders are enabled/disabled by user keyboard input
 	ds::gl::Uniform uniform;
 	uniform.setInt("Texture0", 1);  // Use texture unit 1 since Vidoe CSC is hardcoded to TU 0
-	mBaseVideo->setBaseShadersUniforms("toonify", uniform);
+	mBaseVideo->setShadersUniforms("toonify", uniform);
 
 	uniform.clear();
 	uniform.setFloat("opacity", 0.9f);
 	uniform.setInt("tex0", 1);  // Use texture unit 1 since Vidoe CSC is hardcoded to TU 0
-	mBaseVideo->setBaseShadersUniforms("test2", uniform);
+	mBaseVideo->setShadersUniforms("test2", uniform);
 
 	uniform.clear();
 	uniform.setInt("tex1", 1);
 	uniform.setFloat("opacity", 1.0f);
-	mBaseVideo->setBaseShadersUniforms("test1", uniform);
+	mBaseVideo->setShadersUniforms("test1", uniform);
 
 	//Configure drone video
 	mDroneVideo->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());

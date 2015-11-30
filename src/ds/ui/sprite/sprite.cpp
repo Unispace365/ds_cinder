@@ -334,7 +334,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 		if (!mSpriteShaders.empty()) {
 			mSpriteShader = *mSpriteShaders[mShaderPass];
 			mSpriteShader.loadShaders();
-			mUniform = getBaseShaderUniforms(mSpriteShader.getName());
+			mUniform = getShaderUniforms(mSpriteShader.getName());
 		}
 		else if (!mSpriteShader.isValid()) {
 			mSpriteShader.loadShaders();
@@ -1798,13 +1798,12 @@ bool Sprite::removeShader(std::string shaderName)
 	return false;
 }
 
-void Sprite::setBaseShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms){
-		mUniforms[shaderName] = uniforms;
+void Sprite::setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms){
+	mUniforms[shaderName] = uniforms;
 }
 
 
-
-ds::gl::Uniform Sprite::getBaseShaderUniforms(std::string shaderName) {
+ds::gl::Uniform Sprite::getShaderUniforms(std::string shaderName) {
 		std::map<std::string, ds::gl::Uniform>::iterator it;
 		it = mUniforms.find(shaderName);
 	if (it != mUniforms.end()){

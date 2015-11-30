@@ -376,7 +376,7 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			uniform.setInt("gsuTexture0", 2);
 			uniform.setInt("gsuTexture1", 3);
 			uniform.setInt("gsuTexture2", 4);
-			setBaseShadersUniforms("yuv_colorspace_conversion", uniform);
+			setShadersUniforms("yuv_colorspace_conversion", uniform);
 		}
 
 		mColorType = theColor;

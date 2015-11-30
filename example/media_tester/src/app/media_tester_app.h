@@ -24,7 +24,7 @@ private:
 	ds::ui::Sprite*		mMedia;
 	ds::ui::Text*		mLabelText;
 	ds::ui::Sprite*		mHeader;
-
+	bool				mIsVideo;
 };
 
 } // !namespace test

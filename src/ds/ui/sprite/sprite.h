@@ -578,9 +578,9 @@ namespace ui {
 		//shaderName - lookup name for shader
 		//addToFront - When true, this puts the shader first in line to be run
 		void				    addNewShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
-		void					setBaseShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
+		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
 		ci::gl::Texture*		getShaderOutputTexture();
-		ds::gl::Uniform			getBaseShaderUniforms(std::string shaderName);
+		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
 
 		//	Determines if the final render will be to the display or a texture.
 		void					setFinalRenderToTexture(bool render_to_texture);
