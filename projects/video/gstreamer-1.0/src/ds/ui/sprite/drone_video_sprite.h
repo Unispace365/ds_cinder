@@ -1,28 +1,26 @@
 #ifndef DELOITTE_PRESENTATION_SRC_DRONE_VIDEO_SPRITE_H_
 #define DELOITTE_PRESENTATION_SRC_DRONE_VIDEO_SPRITE_H_
 
-//#include "common/fwd.h"
-
 #include <ds/ui/sprite/sprite.h>
 
 #include <cinder/gl/Texture.h>
 #include <cinder/gl/GlslProg.h>
 #include <cinder/Camera.h>
 #include <cinder/Sphere.h>
-#include "ui/util/configurable.h"
-#include "ds/ui/sprite/video.h"
+#include <ds/ui/sprite/util/configurable.h>
 
+#include "ds/ui/sprite/video.h"
 
 
 namespace ds {
 	class Engine;
 	namespace ui {
 
-
 class DroneVideoSprite final
 	: public ds::ui::Sprite
 	, private ds::util::Configurable
 {
+
 public:
 	DroneVideoSprite(ds::ui::SpriteEngine&);
 

@@ -12,7 +12,6 @@
 
 #include <ds/ui/sprite/video.h>
 
-#define ADD_SHADER_METHOD 1
 namespace test {
 
 media_tester::media_tester()
@@ -137,6 +136,7 @@ void media_tester::loadMedia(const std::string& newMedia){
 
 	//Configure drone video
 	mDroneVideo->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
+	//mDroneVideo->setSize(1000.0f, 500.0f);
 	mDroneVideo->installVideo(mBaseVideo, newMedia);
 	mDroneVideo->setCenter(0.5f, 0.5f);
 	mDroneVideo->setPosition(0.5f * mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());

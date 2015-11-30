@@ -154,13 +154,9 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\app\video_360_app.cpp" />
-    <ClCompile Include="..\src\ui\util\configurable.cpp" />
-    <ClCompile Include="..\src\ui\video_360_sprite\drone_video_sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\video_360_app.h" />
-    <ClInclude Include="..\src\ui\util\configurable.h" />
-    <ClInclude Include="..\src\ui\video_360_sprite\drone_video_sprite.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />

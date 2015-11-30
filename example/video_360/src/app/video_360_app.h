@@ -4,7 +4,7 @@
 #include <cinder/app/AppBasic.h>
 #include <ds/ui/sprite/text.h>
 #include <ds/app/app.h>
-#include "ui/video_360_sprite/drone_video_sprite.h"
+#include <ds/ui/sprite/drone_video_sprite.h>
 
 namespace test {
 class AllData;

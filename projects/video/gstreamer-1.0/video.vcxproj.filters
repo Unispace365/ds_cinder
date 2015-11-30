@@ -16,6 +16,9 @@
     <Filter Include="src\gstreamer">
       <UniqueIdentifier>{e0a6d4c5-f92d-49a5-91b7-6dff93b80d74}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\sprite\util">
+      <UniqueIdentifier>{57b6507c-22b0-4014-8411-12b04c6075e4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\gstreamer\video_meta_cache.cpp">
@@ -29,6 +32,12 @@
     </ClCompile>
     <ClCompile Include="src\gstreamer\gstreamer_wrapper.cpp">
       <Filter>src\gstreamer</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\util\configurable.cpp">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\sprite\drone_video_sprite.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -46,6 +55,12 @@
     </ClInclude>
     <ClInclude Include="src\gstreamer\gstreamer_wrapper.h">
       <Filter>src\gstreamer</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\util\configurable.h">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\sprite\drone_video_sprite.h">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

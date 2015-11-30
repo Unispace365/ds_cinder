@@ -5,7 +5,6 @@
 #include <ds/app/blob_reader.h>
 #include <ds/data/data_buffer.h>
 #include <ds/app/engine/engine.h>
-#include <ds/ui/sprite/video.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/app/app.h>
@@ -311,7 +310,7 @@ void DroneVideoSprite::installVideo(const std::string& path)
 void DroneVideoSprite::installVideo( ds::ui::Video* const video, const std::string& path)
 {
 	ds::ui::Video* const video_sprite = addChildPtr(video);
-	//Need this to enable panning 
+	//Need to enable this to enable panning 
 	video_sprite->generateAudioBuffer(true);
 
 	video_sprite->setAutoStart(true);
