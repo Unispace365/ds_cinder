@@ -113,7 +113,7 @@ void LayoutSprite::runVLayout(){
 	std::vector<ds::ui::Sprite*>& chillins = getChildren();
 
 	bool doAlignment = false;
-	if(mLayoutUserType == kFixedSize){
+	if(mLayoutUserType == kFixedSize || mLayoutUserType == kStretchSize){
 		doAlignment = true;
 	}
 
@@ -287,7 +287,7 @@ void LayoutSprite::runHLayout(){
 	std::vector<ds::ui::Sprite*>& chillins = getChildren();
 
 	bool doAlignment = false;
-	if(mLayoutUserType == kFixedSize){
+	if(mLayoutUserType == kFixedSize || mLayoutUserType == kStretchSize){
 		doAlignment = true;
 	}
 
