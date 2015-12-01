@@ -1991,13 +1991,9 @@ void Sprite::setupIntermediateFrameBuffers(){
 				delete mFrameBuffer[0];
 			if (mFrameBuffer[1])
 				delete mFrameBuffer[1];
-#if 1
 			mFrameBuffer[0] = new ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), format);
 			mFrameBuffer[1] = new ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), format);
-#else
-			mFrameBuffer[0] = new ci::gl::Fbo(static_cast<int>(1920), static_cast<int>(1080), format);
-			mFrameBuffer[1] = new ci::gl::Fbo(static_cast<int>(1920), static_cast<int>(1080), format);
-#endif
+
 		}
 	}
 }

@@ -271,18 +271,6 @@ void GstVideo::drawLocalClient(){
 			unsigned char * dat = nullptr;
 			Surface8u* video_surface = nullptr;
 			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
-
-			//	ci::gl::Texture* inputDat = getShaderOutputTexture();
-			//	if (inputDat){
-
-			//		video_surface = new ci::Surface8u(*inputDat);
-			//		dat = video_surface->getData();
-			//	}
-			//	else {
-			//		dat = mGstreamerWrapper->getVideo();
-			//	}
-			//}
-			//else {
 				dat = mGstreamerWrapper->getVideo();
 			}
 			else {
@@ -292,8 +280,6 @@ void GstVideo::drawLocalClient(){
 			dat = mGstreamerWrapper->getVideo();
 
 			if (dat){
-				//if (mColorType == kColorTypeShaderTransform &&
-				//	(mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0)){
 					if (mColorType == kColorTypeShaderTransform ){
 
 					ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
@@ -468,7 +454,6 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		return;
 	} else {
 		ci::gl::Texture::Format fmt;
-#if 1
 
 		if(mColorType == kColorTypeShaderTransform){
 			fmt.setInternalFormat(GL_LUMINANCE);
@@ -478,18 +463,7 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		} else {
 			mFrameTexture  = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 		}
-#else
-		if (mColorType == kColorTypeShaderTransform){
-			fmt.setInternalFormat(GL_LUMINANCE);
-			mFrameTexture = ci::gl::Texture(static_cast<int>(getScaleWidth()), static_cast<int>(getScaleHeight()), fmt);
-			mUFrameTexture = ci::gl::Texture(static_cast<int>(getScaleWidth() / 2.0f), static_cast<int>(getScaleHeight() / 2.0f), fmt);
-			mVFrameTexture = ci::gl::Texture(static_cast<int>(getScaleWidth() / 2.0f), static_cast<int>(getScaleHeight() / 2.0f), fmt);
-		}
-		else {
-			mFrameTexture = ci::gl::Texture(static_cast<int>(getScaleWidth()), static_cast<int>(getScaleHeight()), fmt);
-		}
 
-#endif
 		mFilename = filename;
 		mPortableFilename = portable_filename;
 	}
@@ -514,14 +488,10 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		DS_LOG_WARNING_M("GstVideo::startStream() aborting cause of a problem.", GSTREAMER_LOG);
 		return;
 	}
-#if 0
-	mVideoSize.x = mGstreamerWrapper->getWidth();
-	mVideoSize.y = mGstreamerWrapper->getHeight();
-#else
+
 	mVideoSize.x = mGstreamerWrapper->getWidth();
 	mVideoSize.y = mGstreamerWrapper->getHeight();
 
-#endif
 	Sprite::setSizeAll(static_cast<float>(mVideoSize.x), static_cast<float>(mVideoSize.y), mDepth);
 
 	applyMovieVolume();
