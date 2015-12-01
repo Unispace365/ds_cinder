@@ -5,12 +5,14 @@
 #include <gst/app/gstappsink.h>
 #include <gst/video/video.h>
 #include <gst/audio/audio.h>
+#include <gst/net/gstnettimeprovider.h>
 
 #include <mutex>
 #include <atomic>
 #include <string>
 #include <functional>
 #include <vector>
+
 
 namespace gstwrapper
 {
@@ -145,6 +147,7 @@ public:
 	*/
 	void					stop();
 
+	void					print_status_of_all();
 	/*
 	Pauses the media file. If the file is played again the file resumes from exactly the position where it was paused.
 	Sets the wrapper's PlayState to PAUSED
@@ -226,6 +229,7 @@ public:
 	*/
 	void					setTimePositionInNs( gint64 iTargetTimeInNs );
 
+	//void					scrubToPosition( double t, float speed);
 	/*
 	Seeks the media file to the position provided by a percentage statement between 0 and 100 percent.
 	0 percent means the beginning of the file, 50 percent the middle and 100 percent the end of the file.
@@ -237,6 +241,7 @@ public:
 	void					setPosition(double fPos);
 
 
+	void					setFastPosition(double fPos);
 	/*
 	Returns true if the loaded media file contains at least one video stream, false otherwise
 	*/
@@ -294,6 +299,15 @@ public:
 	*/
 	float					getFps();
 
+	/*Get the current time from the pipeline clock*/
+	uint64_t				getPipelineTime();
+
+
+	/*Get the current time from the network clock*/
+	uint64_t				getNetworkTime();
+
+
+	void					setPipelineBaseTime(uint64_t base_time);
 	/*
 	Returns if the buffer you get with getVideo holds really a new image of the video, use this to increase performance in your applications, so you don't unnecessary copy mem to textures
 	*/
@@ -426,7 +440,26 @@ public:
 	*/
 	Endianness				getAudioEndianness();
 
+	/* Provides the initial setting for the baseclock of the server*/
+	gint64					getBaseTime();
 
+	//void setBaseTime(uint64_t base_time);
+
+	void setSeekTime(uint64_t seek_time);
+	/* Provides the seek time when resuming from pause*/
+	gint64					getSeekTime();
+
+
+	/* Returns the time for resume playing from pause*/
+	gint64					getStartTime();
+
+	/* set the time for resume playing from pause*/
+	void					setStartTime(uint64_t start_time);
+
+	///*Set up seek to go fast*/
+	//bool					seekFast(gint64 iTargetTimeInNs);
+
+	//bool					resetSeekMode(GstSeekFlags flags = GST_SEEK_FLAG_FLUSH);
 	/*
 	Lamda is called when GStreamer gets an EOS message (not called when looping)
 	*/
@@ -469,6 +502,29 @@ public:
 
 	/** Spite out a ton of messages when running gstreamer pipelines. */
 	void					setVerboseLogging(const bool verboseOn);
+
+	/* Setup network clock from server */
+	void					setServerNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& inOutTime);
+	
+	/* Setup network clock from client */
+	void					setClientNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& baseTime);
+	
+	/*Retrieve the current network clock time*/
+	guint64					getNetClockTime();
+
+	/*Check if resuming from play.  May be able to use GST_STATE_CHANGE_PAUSED_TO_PLAYING of the GstStateChanged*/
+	bool					isPlayFromPause();
+
+	/*Clear the Pause to Play flag*/
+	void					clearPlayFromPause();
+	//void					fastSeek(float speed);
+	//bool					isFastSeeking();
+
+	/*Flag to indicate the video just looped*/
+	bool					isNewLoop();
+
+	/*clear flag to indicate if loop has started*/
+	void					clearNewLoop();
 
 private:
 	/*
@@ -575,8 +631,6 @@ private:
 	// Makes sure videos widths are divisible by 4, for video blanking
 	void					enforceModFourWidth(const int videoWidth, const int videoHeight);
 
-	void					setNetClock(const bool isServer, const std::string& addr, const int port, int& inOutTime);
-
 protected:
 
 	int						m_iAudioBufferSize; /* Size of the audio buffer */
@@ -643,6 +697,19 @@ private:
 
 	bool					m_VerboseLogging;
 
+	GstNetTimeProvider*		mClockProvider;
+
+	bool					mServer;
+	guint64					m_BaseTime;
+	guint64					m_SeekTime;
+
+	guint64					m_CurrentTime;
+	guint64					m_RunningTime;
+	GstClock*				m_NetClock;
+	uint64_t				m_StartTime;
+	bool					m_playFromPause;
+	//bool					m_isFastSeeking;
+	bool					m_newLoop;
 
 }; //!class GStreamerWrapper
 }; //!namespace gstwrapper

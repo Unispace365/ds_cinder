@@ -4,27 +4,34 @@
 #include <iostream>
 #include <algorithm>
 
-// #include "gst/net/gstnetclientclock.h"
-// #include "gst/net/gstnettimeprovider.h"
+#include "gst/net/gstnetclientclock.h"
 
 namespace gstwrapper
 {
 
 
-GStreamerWrapper::GStreamerWrapper()
-	: m_bFileIsOpen( false )
-	, m_cVideoBuffer( NULL )
-	, m_cAudioBuffer( NULL )
-	, m_GstPipeline( NULL )
-	, m_GstVideoSink( NULL )
-	, m_GstAudioSink( NULL )
-	, m_GstBus( NULL )
-	, m_StartPlaying(true)
-	, m_StopOnLoopComplete(false)
-	, m_CustomPipeline(false)
-	, m_VideoLock(m_VideoMutex, std::defer_lock)
-	, m_VerboseLogging(false)
-	, m_cVideoBufferSize(0)
+	GStreamerWrapper::GStreamerWrapper()
+		: m_bFileIsOpen(false)
+		, m_cVideoBuffer(NULL)
+		, m_cAudioBuffer(NULL)
+		, m_GstPipeline(NULL)
+		, m_GstVideoSink(NULL)
+		, m_GstAudioSink(NULL)
+		, m_GstBus(NULL)
+		, m_StartPlaying(true)
+		, m_StopOnLoopComplete(false)
+		, m_CustomPipeline(false)
+		, m_VideoLock(m_VideoMutex, std::defer_lock)
+		//, m_VerboseLogging(true)
+		, m_VerboseLogging(false)
+		, m_cVideoBufferSize(0)
+		, mClockProvider(NULL)
+		, m_NetClock(NULL)
+		, m_BaseTime(0)
+		, m_RunningTime(0)
+		, m_playFromPause(false)
+		, m_SeekTime(0)
+		, m_newLoop(false)
 	, m_Streaming(false)
 {
 	gst_init( NULL, NULL );
@@ -76,6 +83,10 @@ void GStreamerWrapper::resetProperties(){
 	m_PendingSeek = false;
 	m_cVideoBufferSize = 0;
 	m_Streaming = false;
+	m_iDurationInNs = -1;
+	m_iCurrentTimeInNs = -1;
+
+
 }
 
 void GStreamerWrapper::parseFilename(const std::string& theFile){
@@ -102,6 +113,29 @@ void GStreamerWrapper::enforceModFourWidth(const int vidWidth, const int vidHeig
 	m_iHeight = videoHeight;
 }
 
+
+guint64 GStreamerWrapper::getNetClockTime()
+{
+	std::uint64_t newTime = gst_clock_get_time(m_NetClock);
+	return newTime;
+}
+
+
+bool GStreamerWrapper::isPlayFromPause()
+{
+	return m_playFromPause;
+}
+
+void GStreamerWrapper::clearPlayFromPause() {
+	m_playFromPause = false;
+}
+
+bool					GStreamerWrapper::isNewLoop(){
+	return m_newLoop;
+}
+void					GStreamerWrapper::clearNewLoop(){
+	 m_newLoop = false;
+}
 
 bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight){
 	resetProperties();
@@ -380,24 +414,58 @@ void GStreamerWrapper::setNetClock(const bool isServer, const std::string& addr,
 		gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
 		// set the net clock to start ticking from our base time
 		gst_element_set_base_time(m_GstPipeline, inOutTime);
-
-	} else {
-		// reset my clock so it won't advance detached from net
-		gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
-		// get the net clock
-		auto clock = gst_net_client_clock_new("clock0", addr.c_str(), port, inOutTime);
-		if(!clock)
-		{
-			throw std::runtime_error("Could not instantiate the GST client network clock.");
-		}
-		// set base time received from server
-		gst_element_set_base_time(m_GstPipeline, inOutTime);
-		// apply the net clock
-		gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
+#endif
+void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string& addr, const int port, std::uint64_t& netClock, std::uint64_t& clockBaseTime){
+	mServer = true;
+	DS_LOG_INFO("Setting IP Address to: " << addr.c_str());
+	if (mClockProvider){
+		gst_object_unref(mClockProvider);
+		mClockProvider = nullptr;
 	}
 
+	// apply pipeline clock to itself, to make sure we're on charge
+	auto clock = gst_system_clock_obtain();
+	m_NetClock = clock;
+	gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
+	mClockProvider = gst_net_time_provider_new(clock, addr.c_str(), port);
+	if (!mClockProvider)		{
+		DS_LOG_WARNING("Could not instantiate the GST server network clock.");
+	}
+	// get the time for clients to start based on...
+
+	std::uint64_t newTime = getNetworkTime();
+	clockBaseTime = newTime;
+	std::cout << "----------- port:" << port << " clock time:" << clockBaseTime << " " << newTime << std::endl;
+
+	//When setting up the server clock, we initialize the base clock to it.
+	m_BaseTime = clockBaseTime;
+	netClock = clockBaseTime;
+	m_CurrentTime = clockBaseTime;
+	// reset my clock so it won't advance detached from net
+	gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
+
+	// set the net clock to start ticking from our base time
+	setPipelineBaseTime(netClock);
 }
-#endif
+
+void GStreamerWrapper::setClientNetClock(const bool isServer, const std::string& addr, const int port, std::uint64_t& netClock, std::uint64_t& baseTime){
+	mServer = false;
+	DS_LOG_INFO("Setting IP Address to: " << addr.c_str());
+
+	// reset my clock so it won't advance detached from net
+	gst_element_set_start_time(m_GstPipeline, GST_CLOCK_TIME_NONE);
+
+	//Create client clock synchronized with net clock.  We want it synchronized exactly, so we provide an initial time of '0'.
+	m_NetClock = gst_net_client_clock_new("net_clock", addr.c_str(), port, 0);
+
+	// apply the net clock
+	gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), m_NetClock);
+	setPipelineBaseTime(baseTime);
+	if (!m_NetClock)
+	{
+		DS_LOG_WARNING("Could not instantiate the GST client network clock.");
+	}
+}
 
 void GStreamerWrapper::close(){
 
@@ -431,19 +499,65 @@ void GStreamerWrapper::close(){
 
 	delete [] m_cAudioBuffer;
 	m_cAudioBuffer = NULL;
+
+	if(mClockProvider){
+		gst_object_unref(mClockProvider);
+	}
 }
+
 
 void GStreamerWrapper::update(){
 	handleGStMessage();
 }
 
+uint64_t GStreamerWrapper::getPipelineTime(){
+	GstClock* clock = gst_pipeline_get_clock(GST_PIPELINE(m_GstPipeline));
+	uint64_t now = gst_clock_get_time(clock);
+
+	return now;
+}
+
+uint64_t GStreamerWrapper::getNetworkTime(){
+	uint64_t now = gst_clock_get_time(m_NetClock);
+	return now;
+}
+
+
+void GStreamerWrapper::setPipelineBaseTime(uint64_t base_time){
+	gst_element_set_base_time(m_GstPipeline, base_time);
+	m_BaseTime = base_time;
+	std::cout << "------ Changing base time: " << m_BaseTime << std::endl;
+}
+
+
 void GStreamerWrapper::play(){
-	if ( m_GstPipeline ){
-		GstStateChangeReturn gscr = gst_element_set_state( m_GstPipeline, GST_STATE_PLAYING );
-		if(gscr == GST_STATE_CHANGE_FAILURE){
+	if (m_GstPipeline){
+		GstStateChangeReturn gscr = gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+
+		if (gscr == GST_STATE_CHANGE_FAILURE){
 			DS_LOG_WARNING("Gst State change failure");
 		}
+
+		if (mServer) 
+		{
+			std::cout << "++++++++++++++ Server Received command to Play" << std::endl;
+
+			if (getState() == PAUSED){
+
+				m_playFromPause = true;
+
+				uint64_t baseTime = getPipelineTime();
+				setPipelineBaseTime(baseTime);
+				uint64_t latency = 200000000;
+				setSeekTime(m_SeekTime + latency);
+
+			}
+
+		}
+
+		setTimePositionInNs(m_SeekTime);
 		m_CurrentPlayState = PLAYING;
+
 	}
 }
 
@@ -456,9 +570,39 @@ void GStreamerWrapper::stop(){
 	}
 }
 
+void GStreamerWrapper::print_status_of_all()
+{
+	auto it = gst_bin_iterate_elements(GST_BIN(m_GstPipeline));
+	GValue value = G_VALUE_INIT;
+
+	for (GstIteratorResult r = gst_iterator_next(it, &value); r != GST_ITERATOR_DONE; r = gst_iterator_next(it, &value))
+	{
+		if (r == GST_ITERATOR_OK)
+		{
+			GstElement *e = static_cast<GstElement*>(g_value_peek_pointer(&value));
+			GstState  current, pending;
+			auto ret = gst_element_get_state(e, &current, &pending, 100000);
+			std::cout << G_VALUE_TYPE_NAME(&value) << "(" << gst_element_get_name(e) << "), status = " << gst_element_state_get_name(current) << ", pending = " << gst_element_state_get_name(pending) << std::endl;
+		}
+	}
+}
+
+
+
 void GStreamerWrapper::pause(){
+
 	if ( m_GstPipeline ){
 		GstStateChangeReturn gscr = gst_element_set_state(m_GstPipeline, GST_STATE_PAUSED);
+
+		if (mServer) {
+			m_SeekTime = getCurrentTimeInNs();
+		}
+
+		setTimePositionInNs(m_SeekTime);
+		//seekFrame(m_SeekTime);
+
+		std::cout << "----------- Paused" << std::endl;
+
 
 		if(gscr == GST_STATE_CHANGE_FAILURE){
 			DS_LOG_WARNING("GStreamerWrapper: State change failure trying to pause");
@@ -538,8 +682,10 @@ void GStreamerWrapper::setTimePositionInMs( double dTargetTimeInMs ){
 
 void GStreamerWrapper::setTimePositionInNs( gint64 iTargetTimeInNs ){
 	m_iCurrentTimeInNs = iTargetTimeInNs;
+	std::cout << "Setting time position in NS: " << iTargetTimeInNs << std::endl;
 	seekFrame( m_iCurrentTimeInNs );
 }
+
 
 void GStreamerWrapper::setPosition(double fPos){
 	if( fPos < 0.0 )
@@ -547,12 +693,29 @@ void GStreamerWrapper::setPosition(double fPos){
 	else if( fPos > 1.0 )
 		fPos = 1.0;
 
-	m_dCurrentTimeInMs = fPos * m_dCurrentTimeInMs;
-	m_iCurrentFrameNumber = (gint64)(fPos * m_iNumberOfFrames);
-	m_iCurrentTimeInNs = (gint64)(fPos * m_iDurationInNs);
 
-	seekFrame( m_iCurrentTimeInNs );
+		m_dCurrentTimeInMs = fPos * m_dCurrentTimeInMs;
+		m_iCurrentFrameNumber = (gint64)(fPos * m_iNumberOfFrames);
+		m_iCurrentTimeInNs = (gint64)(fPos * m_iDurationInNs);
+
+		std::cout << "setting frame position: " << m_iCurrentTimeInNs << std::endl;
+		seekFrame(m_iCurrentTimeInNs);
+
 }
+
+//void GStreamerWrapper::setFastPosition(double fPos){
+//	if (fPos < 0.0)
+//		fPos = 0.0;
+//	else if (fPos > 1.0)
+//		fPos = 1.0;
+//
+//	m_dCurrentTimeInMs = fPos * m_dCurrentTimeInMs;
+//	m_iCurrentFrameNumber = (gint64)(fPos * m_iNumberOfFrames);
+//	m_iCurrentTimeInNs = (gint64)(fPos * m_iDurationInNs);
+//
+//	seekFast(m_iCurrentTimeInNs);
+//}
+
 
 bool GStreamerWrapper::hasVideo(){
 	return m_ContentType == VIDEO_AND_AUDIO || m_ContentType == VIDEO;
@@ -717,10 +880,85 @@ Endianness GStreamerWrapper::getAudioEndianness(){
 	return m_AudioEndianness;
 }
 
-bool GStreamerWrapper::seekFrame(gint64 iTargetTimeInNs){
-	if(m_Streaming) return false;
+gint64					GStreamerWrapper::getBaseTime(){
+	return m_BaseTime;
+}
 
-	if(m_CurrentGstState != STATE_PLAYING){
+
+void					GStreamerWrapper::setSeekTime(uint64_t seek_time){
+	m_SeekTime = seek_time;
+}
+
+
+gint64					GStreamerWrapper::getSeekTime(){
+	return m_SeekTime;
+}
+
+
+
+gint64					GStreamerWrapper::getStartTime(){
+	return m_StartTime;
+}
+
+void					GStreamerWrapper::setStartTime(uint64_t start_time){
+	m_StartTime = start_time;
+}
+//bool GStreamerWrapper::isFastSeeking(){
+//	return m_isFastSeeking;
+//}
+
+//bool GStreamerWrapper::seekFast(gint64 iTargetTimeInNs){
+//	m_isFastSeeking = true;
+//	GstSeekFlags gstSeekFlags = (GstSeekFlags)(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_TRICKMODE_KEY_UNITS |  GST_SEEK_FLAG_TRICKMODE_NO_AUDIO);
+//
+//	gboolean bIsSeekSuccessful = false;
+//	GstFormat gstFormat = GST_FORMAT_TIME;
+//
+//	//std::cout << "++++++++++++++ Fast Seeking" << std::endl;
+//
+//	if (mServer) {
+//		uint64_t baseTime = getPipelineTime();
+//		setPipelineBaseTime(baseTime);
+//		m_SeekTime = iTargetTimeInNs;
+//	}
+//
+//		bIsSeekSuccessful = gst_element_seek(GST_ELEMENT(m_GstPipeline),
+//			m_fSpeed,
+//			gstFormat,
+//			gstSeekFlags,
+//			GST_SEEK_TYPE_SET,
+//			iTargetTimeInNs,
+//			GST_SEEK_TYPE_NONE,
+//			GST_CLOCK_TIME_NONE);
+//
+//		return bIsSeekSuccessful!=0;
+//}
+
+//bool GStreamerWrapper::resetSeekMode(GstSeekFlags flags){
+//	GstEvent *seek_event;
+//	GstElement *video_sink;;
+//
+//	m_isFastSeeking = false; 
+//
+//	g_object_get(m_GstPipeline, "video-sink", &video_sink, NULL);
+//	std::cout << "++++++++++++++ Reset Seeking" << std::endl;
+//	
+//
+//	// This intermediate event is needed to transition from seeking with SeekFast().   SeekFast uses a flag that greatly improves scrubbing performance 
+//	//(GST_SEEK_FLAG_TRICKMODE_KEY_UNITS).    For some reason, it takes several seconds for the pipeline to flush if a normal seek event/command is called with
+//	//only the GST_SEEK_FLAG_FLUSH flag.   However, calling a seek event that does no advancement and uses the GST_SEEK_FLAG_TRICKMODE causes the pipelie to flush/change immediately.
+//	// With this, the fPS count is reduced for a second or so.   Without this, the video updates about every 3-4 seconds, until the pipeline flush.
+//	seek_event = gst_event_new_seek(m_fSpeed, GST_FORMAT_TIME, flags,
+//		GST_SEEK_TYPE_NONE, 0, GST_SEEK_TYPE_NONE, 0);
+//
+//	bool bIsSeekSuccessful = gst_element_send_event(video_sink, seek_event);
+//	return bIsSeekSuccessful != 0;
+//}
+
+bool GStreamerWrapper::seekFrame( gint64 iTargetTimeInNs ){
+
+	if (m_iDurationInNs < 0) {
+		std::cout << "Not ready to seek.  Setting pending seek" << std::endl;
 		m_PendingSeekTime = iTargetTimeInNs;
 		m_PendingSeek = true;
 		return false;
@@ -730,11 +968,20 @@ bool GStreamerWrapper::seekFrame(gint64 iTargetTimeInNs){
 
 	// The flags determine how the seek behaves, in this case we simply want to jump to certain part in stream
 	// while keeping the pre-set speed and play direction
-	GstSeekFlags gstSeekFlags = ( GstSeekFlags ) ( GST_SEEK_FLAG_FLUSH );
+	GstSeekFlags gstSeekFlags = (GstSeekFlags)(GST_SEEK_FLAG_FLUSH  );
+
+	//std::cout << "++++++++++++++ Normal Seeking" << std::endl;
 
 	gboolean bIsSeekSuccessful = false;
 
-	if ( m_PlayDirection == FORWARD ){
+	if (mServer) {
+		uint64_t baseTime = getPipelineTime();
+		setPipelineBaseTime(baseTime);
+		m_SeekTime = iTargetTimeInNs;
+	}
+	std::cout << "base time: " << m_BaseTime << "   Seeking to : " << iTargetTimeInNs << std::endl;
+
+	if (m_PlayDirection == FORWARD){
 		bIsSeekSuccessful = gst_element_seek( GST_ELEMENT( m_GstPipeline ),
 			m_fSpeed,
 			gstFormat,
@@ -758,6 +1005,8 @@ bool GStreamerWrapper::seekFrame(gint64 iTargetTimeInNs){
 		m_PendingSeek = false;
 	}
 
+
+	
 	return bIsSeekSuccessful != 0;
 }
 
@@ -910,9 +1159,6 @@ void GStreamerWrapper::handleGStMessage(){
 							m_CurrentGstState = STATE_READY;
 						}
 
-						if( (m_CurrentGstState == GST_STATE_PLAYING || m_CurrentGstState == GST_STATE_PAUSED) && m_PendingSeek){
-							seekFrame(m_PendingSeekTime);
-						}
 
 					  }
 
@@ -923,6 +1169,11 @@ void GStreamerWrapper::handleGStMessage(){
 					// constructed, so doesn't get applied.
 					g_object_set( m_GstPipeline, "volume", m_fVolume, NULL );
 					retrieveVideoInfo();
+					if ((m_CurrentGstState == STATE_PLAYING || m_CurrentGstState == STATE_PAUSED) && m_PendingSeek){
+						std::cout << "servicing pending seek" << std::endl;
+						seekFrame(m_PendingSeekTime);
+					}
+
 				}
 				break;
 
@@ -933,8 +1184,6 @@ void GStreamerWrapper::handleGStMessage(){
 					// For example on net sync: http://noraisin.net/diary/?p=954
 					// also: #include "gst/net/gstnettimeprovider.h"
 
-					//GstClock* clock = gst_net_client_clock_new("new", "127.0.0.1", 6767, 0);
-					//gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
 				}
 				break;
 
@@ -945,14 +1194,13 @@ void GStreamerWrapper::handleGStMessage(){
 							m_StopOnLoopComplete = false;
 						} else {
 							gst_element_seek(GST_ELEMENT(m_GstPipeline),
-											 m_fSpeed,
-											 GST_FORMAT_TIME,
-											 (GstSeekFlags)(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT),
-											 GST_SEEK_TYPE_SET,
-											 0,
-											 GST_SEEK_TYPE_SET,
-											 m_iDurationInNs);
-
+								m_fSpeed,
+								GST_FORMAT_TIME,
+								(GstSeekFlags)(GST_SEEK_FLAG_FLUSH | GST_SEEK_FLAG_SEGMENT),
+								GST_SEEK_TYPE_SET,
+								0,
+								GST_SEEK_TYPE_SET,
+								m_iDurationInNs);
 						}
 					}
 												break;
@@ -960,26 +1208,38 @@ void GStreamerWrapper::handleGStMessage(){
 
 					switch ( m_LoopMode )
 					{
+
 						case NO_LOOP:
 							pause();
 							if(mVideoCompleteCallback) mVideoCompleteCallback(this);
 							break;
 
 						case LOOP:
-							{
+							std::cout << "Starting to loop" << std::endl;
+							if (mServer){
+								setSeekTime(0);
+//								m_playFromPause = true;
 
-							gst_element_seek( GST_ELEMENT( m_GstPipeline ),
-								m_fSpeed,
-								GST_FORMAT_TIME,
-								(GstSeekFlags)(GST_SEEK_FLAG_FLUSH),// | GST_SEEK_FLAG_SEGMENT),
-								GST_SEEK_TYPE_SET,
-								0,
-								GST_SEEK_TYPE_SET,
-								m_iDurationInNs );
-							play();
+								//Update the base time with the value of the pipeline/net clock.
+								setPipelineBaseTime(getNetworkTime());
+								std::cout << "-----------  BASE TIME: " << m_BaseTime << std::endl;
 
+								if (gst_element_seek(GST_ELEMENT(m_GstPipeline),
+									m_fSpeed,
+									GST_FORMAT_TIME,
+									(GstSeekFlags)(GST_SEEK_FLAG_FLUSH),// | GST_SEEK_FLAG_SEGMENT),
+									GST_SEEK_TYPE_SET,
+									0,
+									GST_SEEK_TYPE_SET,
+									m_iDurationInNs)){
+									play();
+									m_newLoop = true;
+								}
+								else
+								{
+									DS_LOG_WARNING("Looping: Could not Seek to requested location.");
+								}
 							}
-
 							break;
 
 
@@ -995,6 +1255,10 @@ void GStreamerWrapper::handleGStMessage(){
 					}
 					break;
 
+				case GST_MESSAGE_TAG :
+
+					break;
+
 				default:
 					if(m_VerboseLogging){
 						DS_LOG_INFO("Gst Message, Type: " << GST_MESSAGE_TYPE_NAME(m_GstMessage));
@@ -1007,6 +1271,8 @@ void GStreamerWrapper::handleGStMessage(){
 		}
 	}
 }
+
+
 
 void GStreamerWrapper::onEosFromVideoSource(GstAppSink* appsink, void* listener){
 	// ignore
@@ -1059,15 +1325,12 @@ void GStreamerWrapper::newVideoSinkPrerollCallback(GstSample* videoSinkSample){
 	if(!m_cVideoBuffer) return;
 
 	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
-
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
+
+
 	GstMapInfo map;
 	GstMapFlags flags = GST_MAP_READ;
-	if(!gst_buffer_map(buff, &map, flags)){
-		// the buffer is invalid, so unmap it and get outta here
-		gst_buffer_unmap(buff, &map);
-		return;
-	}
+	gst_buffer_map(buff, &map, flags);
 
 	unsigned int videoBufferSize = map.size; 
 
@@ -1090,15 +1353,12 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 	if(!m_cVideoBuffer) return;
 
 	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
+	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
 	GstMapInfo map;
 	GstMapFlags flags = GST_MAP_READ;
-	if(!gst_buffer_map(buff, &map, flags)){
-		// the buffer is invalid, so unmap it and get outta here
-		gst_buffer_unmap(buff, &map);
-		return;
-	}
+	gst_buffer_map(buff, &map, flags);
 
 
 	unsigned int videoBufferSize = map.size;

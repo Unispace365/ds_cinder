@@ -1,0 +1,109 @@
+<settings>
+	<!-- Project path for locating app resources  -->
+	<text name="project_path" value="sync/video" />
+
+	<!---------------------->
+	<!-- SERVER SETTINGS --->
+	<!---------------------->
+	<!-- if false, won't connect udp sender / listener for server or client -->
+	<text name="server:connect" value="true" />
+
+	<!-- the multicast ip address and port of the server -->
+	<text name="server:ip" value="239.255.11.11" />
+	<int name="server:send_port" value="1000" />
+	<int name="server:listen_port" value="1001" />
+
+	<!-- if this is a server (world engine), a client (render engine) or both (world + render). 
+	default ="", which is an EngineClientServer, aka "both"-->
+	<text name="platform:architecture" value="clientserver" />
+	
+	<!-- Show console will create a console window, or not if this is false. 
+		If this setting is missing, debug mode will create a console, release will not. -->
+	<text name="console:show" value="true" />
+
+	<!---------------------->
+	<!-- WINDOW SETTINGS --->
+	<!---------------------->
+	<!-- how big the world size is, in pixels -->
+	<size name="world_dimensions" x="1920" y="1400" />
+	<rect name="src_rect" l="0" r="1920" t="0" b="1400" />
+	<rect name="dst_rect" l="40" r="1960" t="40" b="1440" />
+	<!-- title of the window -->
+	<text name="screen:title" value="sync_video_player" />	
+	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
+	<text name="screen:mode" value="window" />
+	<!-- makes the window an always-on-top sort of window. default=false -->
+	<text name="screen:always_on_top" value="false" />
+
+	<!---------------------->
+	<!-- RENDER SETTINGS --->
+	<!---------------------->
+	<!-- attempt to run the app at this rate -->
+	<float name="frame_rate" value="60" />
+
+	<!-- false=no cursor visible, true=visible cursor. default=false -->
+	<text name="hide_mouse" value="false" />
+
+	<!-- turns Fx Anti-aliasing on or off. default=false -->
+	<text name="FxAA" value="false" />
+	<float name="FxAA:SpanMax" value="2.0"/>
+	<float name="FxAA:ReduceMul" value="8.0" />
+	<float name="FxAA:ReduceMin" value="128.0" />
+
+	<!-- for perspective cameras, how near and far away to clip crap. default: x=1, y=1000 -->
+	<size name="camera:z_clip" x="1.0" y="1000.0" />
+	<!-- the field of view of the perspective camera? -->
+	<float name="camera:fov" value="30" />
+
+	<!-- how much to step the camera when using the arrow keys.
+		set to a value above 0.025 to enable arrow key usage.
+		default=-1.0 -->
+	<float name="camera:arrow_keys" value="-1.0" />
+
+	<!---------------------->
+	<!-- TOUCH SETTINGS ---->
+	<!---------------------->
+	<!-- Override the built-in touch scale and offset parsing.
+		 It's uncommon you'll need to do this. 
+		 Default is to use the built-in Cinder touch translation (default=false)-->
+	<text name="touch_overlay:override_translation" value="false" />
+	<size name="touch_overlay:dimensions" x="1920" y="1080" />
+	<size name="touch_overlay:offset" x="0" y="0" />
+	<!--<rect name="touch_overlay:filter_rect" l="10" t="10" r="1910" b="1070" /> -->
+
+	<!-- sets the color of debug touch points. default=255,255,255 -->
+	<color name="touch_color" r="255" g="255" b="255" />
+	<!-- draw circles around touch points -->
+	<text name="touch_overlay:debug" value="true" />
+	
+	<!-- Set the current touch mode. Options:
+		"Tuio" -- Receive events over TUIO.
+		"TuioAndMouse" -- Receive both TUIO and mouse events. The default.
+		"System" -- Receive native (Windows) system touch events.
+		"SystemAndMouse" -- Receive both native touch events and mouse events. Will
+		cause the first touch event to be discarded, because it is also a mouse event.
+	-->
+	<text name="touch_mode" value="TuioAndMouse" />
+	
+	<!-- port to listen to tuio stream. default=3333 -->
+	<int name="tuio_port" value="3333" />
+
+	<!-- will allow tuio to receive object data. default=false -->
+	<text name="tuio:receive_objects" value="false" />
+
+	<!-- How far a touch moves before it's not a tap, in pixels -->
+	<float name="tap_threshold" value="40" />
+
+	<!-- Seconds before idle happens. 300 = 5 minutes -->
+	<float name="idle_time" value="300" />
+
+
+	<!----------------------->
+	<!-- RESOURCE SETTINGS -->
+	<!----------------------->
+	<!-- resource location and database for cms content
+	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\cms\example\" />
+	<text name="resource_db" value="db\production.sqlite3" /> -->
+
+
+</settings>

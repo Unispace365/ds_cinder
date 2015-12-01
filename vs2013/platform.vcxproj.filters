@@ -672,6 +672,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\circle.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\network\network_info.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_event.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
@@ -1147,6 +1150,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\circle.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\network_info.cpp">
+      <Filter>src\ds\network</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\gl\gl_scoped.cpp">
       <Filter>src\ds\gl</Filter>

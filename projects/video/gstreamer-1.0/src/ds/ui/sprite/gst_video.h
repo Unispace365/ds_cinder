@@ -7,6 +7,7 @@
 #include <ds/data/resource.h>
 
 #include <Poco/Timestamp.h>
+//#include <gst/gstclock.h>
 
 namespace gstwrapper {
 	class GStreamerWrapper;
@@ -170,6 +171,8 @@ private:
 	void				checkOutOfBounds();
 	void				setStatus(const int);
 	void				checkStatus();
+	void				setNetClock();
+
 	ColorType			mColorType;
 
 	ci::gl::Texture		mFrameTexture;
@@ -209,6 +212,13 @@ private:
 
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;
+
+	std::uint64_t		mBaseTime;		//Base clock for gst pipeline
+	std::uint64_t		mSeekTime;		//Position to seek to
+
+	int					mNetPort;		// todo: increment per video sprite
+	std::uint64_t		mNetClock;		// network clock time
+	std::string			mIpAddress;		// Ip address of system clock for gstreamer pipeline to sync with
 
 
 	// Initialization
