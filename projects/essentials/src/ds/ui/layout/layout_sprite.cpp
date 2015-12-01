@@ -171,6 +171,10 @@ void LayoutSprite::runVLayout(){
 		}
 	}
 
+	if(!chillins.empty()){
+		totalSize -= mSpacing;
+	}
+
 	float leftOver = 0.0f;
 	float perStretch = 0.0f;
 	if(numStretches > 0){
@@ -182,19 +186,13 @@ void LayoutSprite::runVLayout(){
 	// and set the size of any stretch children
 	float yp = 0.0f;
 
-//	if(doAlignment){
-		if(!chillins.empty()){
-			totalSize -= mSpacing;
-		}
-
-		if(mOverallAlign == kTop || mOverallAlign == kLeft){
-			yp = 0.0f;
-		} else if(mOverallAlign == kMiddle || mOverallAlign == kCenter){
-			yp = layoutHeight / 2.0f - totalSize / 2.0f;
-		} else if(mOverallAlign == kBottom || mOverallAlign == kRight){
-			yp = layoutHeight - totalSize;
-		}
-	//}
+	if(mOverallAlign == kTop || mOverallAlign == kLeft){
+		yp = 0.0f;
+	} else if(mOverallAlign == kMiddle || mOverallAlign == kCenter){
+		yp = layoutHeight / 2.0f - totalSize / 2.0f;
+	} else if(mOverallAlign == kBottom || mOverallAlign == kRight){
+		yp = layoutHeight - totalSize;
+	}
 
 	for(auto it = chillins.begin(); it < chillins.end(); ++it){
 		ds::ui::Sprite* chillin = (*it);
@@ -339,6 +337,10 @@ void LayoutSprite::runHLayout(){
 		}
 	}
 
+	if(!chillins.empty()){
+		totalSize -= mSpacing;
+	}
+
 	float leftOver = 0.0f;
 	float perStretch = 0.0f;
 	if(numStretches > 0){
@@ -346,12 +348,8 @@ void LayoutSprite::runHLayout(){
 		perStretch = leftOver / numStretches;
 	}
 
-
 	float xp = 0.0f;
 
-	if(!chillins.empty()){
-		totalSize -= mSpacing;
-	}
 	if(mOverallAlign == kTop || mOverallAlign == kLeft){
 		xp = 0.0f;
 	} else if(mOverallAlign == kMiddle || mOverallAlign == kCenter){
