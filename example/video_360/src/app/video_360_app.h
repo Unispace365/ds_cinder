@@ -9,9 +9,9 @@
 namespace test {
 class AllData;
 //class dlpr::view::DroneVideoSprite;
-class media_tester : public ds::App {
+class video_360 : public ds::App {
 public:
-	media_tester();
+	video_360();
 
 	virtual void		fileDrop(ci::app::FileDropEvent event);
 	virtual void		keyDown(ci::app::KeyEvent event);

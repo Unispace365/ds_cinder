@@ -14,7 +14,7 @@
 
 namespace test {
 
-media_tester::media_tester()
+video_360::video_360()
 : inherited()
 , mMedia(nullptr)
 	, mHeader(nullptr)
@@ -25,7 +25,7 @@ media_tester::media_tester()
 	enableCommonKeystrokes(true);
 }
 
-void media_tester::setupServer(){
+void video_360::setupServer(){
 	/* Settings */
 	mEngine.loadSettings("layout", "layout.xml");
 	mEngine.loadTextCfg("text.xml");
@@ -52,12 +52,12 @@ void media_tester::setupServer(){
 	rootSprite.addChildPtr(mDroneVideo);
 }
 
-void media_tester::update() {
+void video_360::update() {
 	inherited::update();
 
 }
 
-void media_tester::keyDown(ci::app::KeyEvent event){
+void video_360::keyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 	inherited::keyDown(event);
 
@@ -92,14 +92,14 @@ void media_tester::keyDown(ci::app::KeyEvent event){
 	}
 }
 
-void media_tester::fileDrop(ci::app::FileDropEvent event){
+void video_360::fileDrop(ci::app::FileDropEvent event){
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
 		loadMedia((*it).string());
 		return; // only do the first one
 	}
 }
 
-void media_tester::loadMedia(const std::string& newMedia){
+void video_360::loadMedia(const std::string& newMedia){
 
 	if (!mHeader || !mLabelText) return;
 
@@ -146,7 +146,7 @@ void media_tester::loadMedia(const std::string& newMedia){
 
 
 
-void media_tester::fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy){
+void video_360::fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy){
 	if (!spriddy) return;
 
 	const float engAsp = area.getWidth() / area.getHeight();
@@ -162,4 +162,4 @@ void media_tester::fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy){
 } // namespace test
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(test::media_tester, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP_BASIC(test::video_360, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
