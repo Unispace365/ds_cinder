@@ -51,7 +51,7 @@ public:
 	void					setSpacing(const float spacing){ mSpacing = spacing; }
 
 	/// For V or H flow layouts, sets the overall alignment for the children. 
-	/// Only works for sizeType = kFixedSize or kStretchSize and layoutType = kLayoutVFlow or kLayoutHFlow, AND there are no stretch children. Otherwise ignored.
+	/// Generally only has an effect for sizeType = kFixedSize, kStretchSize or fill; layoutType = kLayoutVFlow or kLayoutHFlow; and there are no stretch children
 	void					setOverallAlignment(const int align){ mOverallAlign = align; }
 
 protected:
@@ -69,7 +69,7 @@ protected:
 
 	float					mSpacing;
 	LayoutType				mLayoutType;
-	int						mOverallAlign; // for fixed or stretch size layouts, can align children
+	int						mOverallAlign; // can align children if this is not a flex size and there are no stretch children
 
 };
 

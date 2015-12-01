@@ -112,10 +112,10 @@ void LayoutSprite::runVLayout(){
 
 	std::vector<ds::ui::Sprite*>& chillins = getChildren();
 
-	bool doAlignment = false;
-	if(mLayoutUserType == kFixedSize || mLayoutUserType == kStretchSize){
-		doAlignment = true;
-	}
+// 	bool doAlignment = false;
+// 	if(mLayoutUserType != kFlexSize){
+// 		doAlignment = true;
+// 	}
 
 	// Look through all children to determine total size and how many items are set to stretch to fill the space
 	// Also run recursive layouts on any non-stretch layouts and size any flexible items
@@ -126,7 +126,7 @@ void LayoutSprite::runVLayout(){
 			hasFills = true;
 		} else if(chillin->mLayoutUserType == kStretchSize){
 			numStretches++;
-			doAlignment = false;
+			//doAlignment = false;
 		} else {
 
 			if(chillin->mLayoutUserType == kFixedSize){
@@ -174,7 +174,7 @@ void LayoutSprite::runVLayout(){
 	float leftOver = 0.0f;
 	float perStretch = 0.0f;
 	if(numStretches > 0){
-		leftOver = getHeight() - totalSize;
+		leftOver = layoutHeight -totalSize;
 		perStretch = leftOver / numStretches;
 	}
 
@@ -182,7 +182,7 @@ void LayoutSprite::runVLayout(){
 	// and set the size of any stretch children
 	float yp = 0.0f;
 
-	if(doAlignment){
+//	if(doAlignment){
 		if(!chillins.empty()){
 			totalSize -= mSpacing;
 		}
@@ -194,7 +194,7 @@ void LayoutSprite::runVLayout(){
 		} else if(mOverallAlign == kBottom || mOverallAlign == kRight){
 			yp = layoutHeight - totalSize;
 		}
-	}
+	//}
 
 	for(auto it = chillins.begin(); it < chillins.end(); ++it){
 		ds::ui::Sprite* chillin = (*it);
@@ -286,11 +286,6 @@ void LayoutSprite::runHLayout(){
 
 	std::vector<ds::ui::Sprite*>& chillins = getChildren();
 
-	bool doAlignment = false;
-	if(mLayoutUserType == kFixedSize || mLayoutUserType == kStretchSize){
-		doAlignment = true;
-	}
-
 	// Look through all children to determine total size and how many items are set to stretch to fill the space
 	// Also run recursive layouts on any non-stretch layouts and size any flexible items
 	for(auto it = chillins.begin(); it < chillins.end(); ++it){
@@ -300,7 +295,6 @@ void LayoutSprite::runHLayout(){
 			hasFills = true;
 		} else if(chillin->mLayoutUserType == kStretchSize){
 			numStretches++;
-			doAlignment = false;
 		} else {
 
 			if(chillin->mLayoutUserType == kFixedSize){
@@ -348,24 +342,22 @@ void LayoutSprite::runHLayout(){
 	float leftOver = 0.0f;
 	float perStretch = 0.0f;
 	if(numStretches > 0){
-		leftOver = getWidth() - totalSize;
+		leftOver = layoutWidth - totalSize;
 		perStretch = leftOver / numStretches;
 	}
 
 
 	float xp = 0.0f;
 
-	if(doAlignment){
-		if(!chillins.empty()){
-			totalSize -= mSpacing;
-		}
-		if(mOverallAlign == kTop || mOverallAlign == kLeft){
-			xp = 0.0f;
-		} else if(mOverallAlign == kMiddle || mOverallAlign == kCenter){
-			xp = layoutWidth / 2.0f - totalSize / 2.0f;
-		} else if(mOverallAlign == kBottom || mOverallAlign == kRight){
-			xp = layoutWidth - totalSize;
-		}
+	if(!chillins.empty()){
+		totalSize -= mSpacing;
+	}
+	if(mOverallAlign == kTop || mOverallAlign == kLeft){
+		xp = 0.0f;
+	} else if(mOverallAlign == kMiddle || mOverallAlign == kCenter){
+		xp = layoutWidth / 2.0f - totalSize / 2.0f;
+	} else if(mOverallAlign == kBottom || mOverallAlign == kRight){
+		xp = layoutWidth - totalSize;
 	}
 
 	// Now that we know the size and leftover size, go through the children again, set position for all children 
