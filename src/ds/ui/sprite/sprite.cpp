@@ -2007,12 +2007,7 @@ void Sprite::setupFinalRenderBuffer(){
 		getWidth() > 1.0f &&
 		getHeight() > 1.0f){
 		ci::gl::Fbo::Format  format;
-#if 0
-		mOutputFbo = new ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), format);
-#else
-		//mOutputFbo = new ci::gl::Fbo(static_cast<int>(getScaleWidth()), static_cast<int>(getScaleHeight()), format);
-		mOutputFbo = new ci::gl::Fbo(static_cast<int>(1920), static_cast<int>(1080), format);
-#endif
+		mOutputFbo = new ci::gl::Fbo(static_cast<int>(mEngine.getWorldWidth()), static_cast<int>(mEngine.getWorldHeight()), format);
 	}
 	else mOutputFbo = nullptr;
 }
