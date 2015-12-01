@@ -65,6 +65,8 @@ protected:
 	// virtual in case you want to override with your own layout jimmies.
 	virtual void			runSizeLayout();
 
+	void					runVOrHLayout(bool vertical);
+
 	std::function<void()>	mLayoutUpdatedFunction;
 
 	float					mSpacing;
