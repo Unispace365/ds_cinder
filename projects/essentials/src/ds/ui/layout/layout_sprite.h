@@ -50,7 +50,9 @@ public:
 	/// Sets the spacing between each element in the layout (use padding on each element to do add specific spacing)
 	void					setSpacing(const float spacing){ mSpacing = spacing; }
 
-
+	/// For V or H flow layouts, sets the overall alignment for the children. 
+	/// Only works for sizeType = kFixedSize and layoutType = kLayoutVFlow or kLayoutHFlow, AND there are no stretch children. Otherwise ignored.
+	void					setOverallAlignment(const int align){ mOverallAlign = align; }
 
 protected:
 	// See enum declaration for descriptions
@@ -67,6 +69,7 @@ protected:
 
 	float					mSpacing;
 	LayoutType				mLayoutType;
+	int						mOverallAlign; // for fixed size layouts, can align children
 
 };
 

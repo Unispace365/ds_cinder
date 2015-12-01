@@ -25,9 +25,9 @@
 	<!-- WINDOW SETTINGS --->
 	<!---------------------->
 	<!-- how big the world size is, in pixels -->
-	<size name="world_dimensions" x="1280" y="720" />
-	<rect name="src_rect" l="0" r="1280" t="0" b="720" />
-	<rect name="dst_rect" l="40" r="1320" t="40" b="760" />
+	<size name="world_dimensions" x="2500" y="1400" />
+	<rect name="src_rect" l="0" r="2500" t="0" b="1400" />
+	<rect name="dst_rect" l="40" r="2540" t="40" b="1440" />
 	<!-- title of the window -->
 	<text name="screen:title" value="layout_example" />	
 	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
