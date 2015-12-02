@@ -75,9 +75,9 @@ private:
 	}
 
 	void clear() {
-		if (mPage) fz_drop_page(mCtx, mPage);
-		if (mDoc) fz_drop_document(mCtx, mDoc);
-		if(mCtx) fz_drop_context(mCtx);
+		try{ if(mPage) fz_drop_page(mCtx, mPage); } catch(...){}
+		try{ if(mDoc) fz_drop_document(mCtx, mDoc); } catch(...){}
+		try{ if(mCtx) fz_drop_context(mCtx); } catch(...){}
 		mPage = nullptr;
 		mDoc = nullptr;
 		mCtx = nullptr;
@@ -142,6 +142,9 @@ public:
 	}
 
 	virtual bool	run(fz_context& ctx, fz_document& doc, fz_page& page) {
+		if(mScaledWidth > 12000.0f || mScaledHeight > 12000.0f){
+			return false;
+		}
 		if (mMode == 0) return runMode0(ctx, doc, page);
 		if (mMode == 1) return runMode1(ctx, doc, page);
 		return false;
@@ -312,7 +315,9 @@ ci::Surface8u PdfRes::renderPage(const std::string& path) {
 PdfRes::PdfRes(ds::GlThread& t)
 		: ds::GlThreadClient<PdfRes>(t)
 		, mPageCount(0)
-		, mPixelsChanged(false) {
+		, mPixelsChanged(false) 
+		, mPrintedError(false)
+{
 	mDrawState.mPageNum = 0;
 }
 
@@ -328,6 +333,7 @@ PdfRes::~PdfRes() {
 }
 
 bool PdfRes::loadPDF(const std::string& fileName, const ds::ui::Pdf::PageSizeMode& pageSizeMode) {
+	mPrintedError = false;
 	// I'd really like to do this initial examine stuff in the
 	// worker thread, but I suspect the client is expecting this
 	// info to be valid as soon as this is called.
@@ -479,6 +485,7 @@ bool PdfRes::needsUpdate() {
 
 void PdfRes::_redrawPage() {
 	// Pop out the pieces we need
+	bool							printedError;
 	state							drawState;
 	std::string						fn;
 	{
@@ -508,6 +515,7 @@ void PdfRes::_redrawPage() {
 		// Prevent the main thread from loading the pixels while
 		// I'll be modifying them.
 		mPixelsChanged = false;
+		printedError = mPrintedError;
 	}
 
 	// Setup parameters
@@ -521,14 +529,22 @@ void PdfRes::_redrawPage() {
 		Draw							draw(mPixels, scaledWidth, scaledHeight, drawState.mWidth, drawState.mHeight);
 		Load							load;
 		if (!load.run(draw, fn, drawState.mPageNum)) {
-			DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
+			if(!printedError){
+				DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
+				std::lock_guard<decltype(mMutex)>			l(mMutex);
+				mPrintedError = true;
+			}
 			return;
 		}
 	} else if (drawState.mPageSizeMode == ds::ui::Pdf::kAutoResize) {
 		Draw							draw(mPixels, drawState.mScale);
 		Load							load;
-		if (!load.run(draw, fn, drawState.mPageNum)) {
-			DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
+		if(!load.run(draw, fn, drawState.mPageNum)) {
+			if(!printedError){
+				DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
+				std::lock_guard<decltype(mMutex)>			l(mMutex);
+				mPrintedError = true;
+			}
 			return;
 		}
 		drawState.mPageSize = draw.getPageSize();
