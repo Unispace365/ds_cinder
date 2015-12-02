@@ -135,7 +135,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 						} else if(img){
 							fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
 						} else {
-							chillin->setSize(mLayoutSize);
+							chillin->setSize(chillin->mLayoutSize);
 						}
 					}
 
