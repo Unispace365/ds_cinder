@@ -62,6 +62,7 @@ public:
 	/** Automatically handles enable/disable and adds padding, so the contentSize should be the x/y of the destination of your content */
 	void							animateSizeTo(const ci::Vec2f newContentSize);
 	void							animateWidthTo(const float newWidth);
+	void							aniamteHeightTo(const float newHeight);
 
 	const ci::Vec2f&				getMinSize(){ return mMinSize; }
 	const ci::Vec2f&				getDefaultSize(){ return mDefaultSize; }
@@ -77,6 +78,8 @@ public:
 
 	/** Force a refresh of size and position. Do not override, use onLayout() for overrides */
 	virtual  void					layout() final;
+
+	const float						getContentAspectRatio(){ return mContentAspectRatio; }
 
 protected:
 	virtual void					updateServer(const ds::UpdateParams &updateParams);

@@ -19,7 +19,12 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 {
 	mScrollArea = new ds::ui::ScrollArea(mEngine, getWidth(), getHeight(), mVerticalScrolling);
 	if(mScrollArea){
-		mScrollArea->setScrollUpdatedCallback([this](ds::ui::Sprite*){ assignItems(); });
+		mScrollArea->setScrollUpdatedCallback([this](ds::ui::Sprite*){ 
+			assignItems(); 
+			if(mScrollUpdatedCallback){
+				mScrollUpdatedCallback();
+			}
+		});
 		mScrollArea->setFadeColors(ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f), ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 		mScrollArea->setFadeHeight(50.0f);
 		mScrollArea->setUseFades(true);
@@ -289,6 +294,10 @@ void ScrollList::setStateChangeCallback(const std::function<void(ds::ui::Sprite*
 	mStateChangeCallback = func;
 }
 
+void ScrollList::setScrollUpdatedCallback(const std::function<void(void)> &func){
+	mScrollUpdatedCallback = func;
+}
+
 void ScrollList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top){
 	mStartPositionX = startPositionX;
 	mStartPositionY = startPositionY;
@@ -299,6 +308,19 @@ void ScrollList::setLayoutParams(const float startPositionX, const float startPo
 void ScrollList::setAnimateOnParams(const float startDelay, const float deltaDelay){
 	mAnimateOnStartDelay = startDelay;
 	mAnimateOnDeltaDelay = deltaDelay;
+}
+
+void ScrollList::forEachLoadedSprite(std::function<void(ds::ui::Sprite*)> func){
+	if(!func) return;
+	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+		if((*it).mAssociatedSprite){
+			func((*it).mAssociatedSprite);
+		}
+	}
+
+	for(auto it = mReserveItems.begin(); it < mReserveItems.end(); ++it){
+		func((*it));
+	}
 }
 
 }

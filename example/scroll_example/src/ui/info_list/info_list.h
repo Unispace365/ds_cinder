@@ -3,6 +3,7 @@
 #define DS_UI_EXAMPLE_SCROLL_EXAMPLE_UI_INFO_LIST_INFO_LIST
 
 #include <ds/ui/scroll/scroll_list.h>
+#include <ds/ui/scroll/scroll_bar.h>
 #include <map>
 #include "model/generated/story_model.h"
 
@@ -25,6 +26,8 @@ namespace example
 		std::map<int, ds::model::StoryRef>							mInfoMap;
 		std::function<void(const ds::model::StoryRef infothing, const ci::Vec3f possy)>	mInfoCallback;
 
+		virtual void				layout();
+		ds::ui::ScrollBar*			mScrollBar;
 	};
 
 }

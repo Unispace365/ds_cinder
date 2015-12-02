@@ -19,6 +19,7 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 	, mFadeTransColor(0, 0, 0, 0)
 	, mScrollUpdatedFunction(nullptr)
 	, mVertical(vertical)
+	, mScrollPercent(0.0f)
 {
 
 	setSize(startWidth, startHeight);
@@ -31,10 +32,8 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 
 	mScroller = new Sprite(mEngine);
 	if(mScroller){
-#if 0
-		mScroller->setTransparent(false);
-		mScroller->setColor(ci::Color(0.1f, 0.56f, 0.3f));
-#endif
+// 		mScroller->setTransparent(false);
+// 		mScroller->setColor(ci::Color(0.1f, 0.56f, 0.3f));
 		mScroller->setSize(startWidth, startHeight);
 		mScroller->enable(true);
 		mScroller->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
@@ -283,8 +282,16 @@ void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
 		scrollWindow = getWidth();
 		scrollerPossy = scrollPos.x;
 	}
-
+	
 	const float theTop = scrollWindow - scrollerSize;
+
+	if(theTop == 0.0f){
+		mScrollPercent = 0.0f;
+	} else {
+		mScrollPercent = scrollerPossy / theTop;
+	}
+	if(mScrollPercent > 1.0f) mScrollPercent = 1.0f;
+	if(mScrollPercent < 0.0f) mScrollPercent = 0.0f;
 
 	if(scrollerPossy < 0.0f){
 		if(!mTopFadeActive){
@@ -338,6 +345,56 @@ void ScrollArea::resetScrollerPosition() {
 
 void ScrollArea::scrollerTweenUpdated(){
 	if(mScrollUpdatedFunction) mScrollUpdatedFunction(this);
+}
+
+float ScrollArea::getScrollPercent(){
+	return mScrollPercent;
+}
+
+void ScrollArea::setScrollPercent(const float percenty){
+	if(!mScroller) return;
+
+	if(mScrollPercent == percenty) return;
+
+	float scrollerSize = mScroller->getHeight();
+	float scrollWindow = getHeight();
+
+	if(!mVertical){
+		scrollerSize = mScroller->getWidth();
+		scrollWindow = getWidth();
+	}
+
+	const float theTop = scrollWindow - scrollerSize;
+
+	float scrollerPossy = percenty * theTop;
+
+
+	if(mVertical){
+		if(getPerspective()){
+			scrollerPossy = theTop - scrollerPossy;
+		}
+		mScroller->setPosition(0.0f, scrollerPossy);
+	} else {
+		mScroller->setPosition(scrollerPossy, 0.0f);
+	}
+	
+	scrollerUpdated(mScroller->getPosition().xy());
+}
+
+float ScrollArea::getVisiblePercent(){
+	if(!mScroller) return 0.0f;
+
+	if(mVertical){
+		if(mScroller->getHeight() < 1.0f) return 1.0f;
+		if(mScroller->getHeight() <= getHeight()) return 1.0f;
+		
+		return getHeight() / mScroller->getHeight();
+	} else {
+		if(mScroller->getWidth() < 1.0f) return 1.0f;
+		if(mScroller->getWidth() <= getWidth()) return 1.0f;
+
+		return getWidth() / mScroller->getWidth();
+	}
 }
 
 } // namespace ui

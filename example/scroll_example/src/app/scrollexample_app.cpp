@@ -76,8 +76,8 @@ void ScrollExample::setupServer(){
 	}
 
 	// Change the root sprite id to be ortho (0) or persp (1) to test the different kinds
-	//ds::ui::Sprite &rootSprite = mEngine.getRootSprite(0);
-	ds::ui::Sprite &rootSprite = mEngine.getRootSprite(1);
+	ds::ui::Sprite &rootSprite = mEngine.getRootSprite(0);
+	//ds::ui::Sprite &rootSprite = mEngine.getRootSprite(1);
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
 

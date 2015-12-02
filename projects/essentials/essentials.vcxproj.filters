@@ -138,6 +138,9 @@
     <ClCompile Include="src\ds\ui\layout\layout_sprite.cpp">
       <Filter>src\ds\ui\layout</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -229,6 +232,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\layout\layout_sprite.h">
       <Filter>src\ds\ui\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\scroll\scroll_bar.h">
+      <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

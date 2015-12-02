@@ -50,23 +50,24 @@ public:
 	/// Sets the spacing between each element in the layout (use padding on each element to do add specific spacing)
 	void					setSpacing(const float spacing){ mSpacing = spacing; }
 
-
+	/// For V or H flow layouts, sets the overall alignment for the children. 
+	/// Generally only has an effect for sizeType = kFixedSize, kStretchSize or fill; layoutType = kLayoutVFlow or kLayoutHFlow; and there are no stretch children
+	void					setOverallAlignment(const int align){ mOverallAlign = align; }
 
 protected:
 	// See enum declaration for descriptions
 	// virtual in case you want to override with your own layout jimmies.
-	virtual void			runVLayout();
-	// virtual in case you want to override with your own layout jimmies.
-	virtual void			runHLayout();
-	// virtual in case you want to override with your own layout jimmies.
 	virtual void			runNoneLayout();
 	// virtual in case you want to override with your own layout jimmies.
 	virtual void			runSizeLayout();
+	// virtual in case you want to override with your own layout jimmies.
+	virtual void			runFlowLayout(const bool vertical);
 
 	std::function<void()>	mLayoutUpdatedFunction;
 
 	float					mSpacing;
 	LayoutType				mLayoutType;
+	int						mOverallAlign; // can align children if this is not a flex size and there are no stretch children
 
 };
 

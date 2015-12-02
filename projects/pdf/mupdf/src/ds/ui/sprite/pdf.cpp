@@ -69,7 +69,9 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 		, mPageSizeMode(kConstantSize)
 		, mPageSizeChangeFn(nullptr)
 		, mPageSizeCache(0, 0)
-		, mHolder(e) {
+		, mHolder(e) 
+		, mPrevScale(0.0f, 0.0f, 0.0f)
+{
 	// Should be unnecessary, but make sure we reference the static.
 	INIT.doNothing();
 
@@ -117,6 +119,10 @@ void Pdf::setPageSizeChangedFn(const std::function<void(void)>& fn) {
 
 void Pdf::updateClient(const UpdateParams& p) {
 	inherited::updateClient(p);
+	if(mPrevScale != mScale){
+		mHolder.setScale(mScale);
+		mPrevScale = mScale;
+	}
 	mHolder.update();
 }
 
