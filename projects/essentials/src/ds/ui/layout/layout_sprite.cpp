@@ -23,9 +23,9 @@ void LayoutSprite::runLayout(){
 	if(mLayoutType == kLayoutNone){
 		runNoneLayout();
 	} else if(mLayoutType == kLayoutVFlow){
-		runVLayout();
+		runFlowLayout(true);
 	} else if(mLayoutType == kLayoutHFlow){
-		runHLayout();
+		runFlowLayout(false);
 	} else if(mLayoutType == kLayoutSize){
 		runSizeLayout();
 	}
@@ -102,15 +102,7 @@ void LayoutSprite::runSizeLayout(){
 
 }
 
-void LayoutSprite::runVLayout(){
-	runVOrHLayout(true);
-}
-
-void LayoutSprite::runHLayout(){
-	runVOrHLayout(false);
-}
-
-void LayoutSprite::runVOrHLayout(bool vertical){
+void LayoutSprite::runFlowLayout(const bool vertical){
 	bool hasFills = false;
 	int numStretches = 0;
 	float totalSize = 0.0f;
@@ -120,7 +112,7 @@ void LayoutSprite::runVOrHLayout(bool vertical){
 	
 	std::vector<ds::ui::Sprite*>& chillins = getChildren();
 
- 	// Look through all children to determine total size and how many items are set to stretch to fill the space
+	// Look through all children to determine total size and how many items are set to stretch to fill the space
 	// Also run recursive layouts on any non-stretch layouts and size any flexible items
 	for(auto it = chillins.begin(); it < chillins.end(); ++it){
 		ds::ui::Sprite* chillin = (*it);
@@ -129,6 +121,7 @@ void LayoutSprite::runVOrHLayout(bool vertical){
 			hasFills = true;
 		} else if(chillin->mLayoutUserType == kStretchSize){
 			numStretches++;
+			totalSize += mSpacing;
 		} else {
 			if(chillin->mLayoutUserType == kFixedSize){
 				if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
@@ -202,6 +195,7 @@ void LayoutSprite::runVOrHLayout(bool vertical){
 		perStretch = leftOver / numStretches;
 	}
 
+
 	// Now that we know the size and leftover size, go through the children again, set position for all children 
 	// and set the size of any stretch children
 	float offset = 0.0f;
@@ -268,11 +262,11 @@ void LayoutSprite::runVOrHLayout(bool vertical){
 		}
 	}
 
-	if(!chillins.empty()){
-		offset -= mSpacing;
-	}
-
 	if(mLayoutUserType == kFlexSize){
+		if(!chillins.empty()){
+			offset -= mSpacing;
+		}
+
 		if(vertical){
 			setSize(layoutWidth, offset);
 		} else {

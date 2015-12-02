@@ -57,15 +57,11 @@ public:
 protected:
 	// See enum declaration for descriptions
 	// virtual in case you want to override with your own layout jimmies.
-	virtual void			runVLayout();
-	// virtual in case you want to override with your own layout jimmies.
-	virtual void			runHLayout();
-	// virtual in case you want to override with your own layout jimmies.
 	virtual void			runNoneLayout();
 	// virtual in case you want to override with your own layout jimmies.
 	virtual void			runSizeLayout();
-
-	void					runVOrHLayout(bool vertical);
+	// virtual in case you want to override with your own layout jimmies.
+	virtual void			runFlowLayout(const bool vertical);
 
 	std::function<void()>	mLayoutUpdatedFunction;
 
