@@ -31,6 +31,7 @@
     <ClCompile Include="src\ds\ui\menu\component\menu_item.cpp" />
     <ClCompile Include="src\ds\ui\menu\touch_menu.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp" />
+    <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp" />
     <ClCompile Include="src\ds\ui\soft_keyboard\entry_field.cpp" />
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard.cpp" />
@@ -60,6 +61,7 @@
     <ClInclude Include="src\ds\ui\menu\component\menu_item.h" />
     <ClInclude Include="src\ds\ui\menu\touch_menu.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h" />
+    <ClInclude Include="src\ds\ui\scroll\scroll_bar.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\entry_field.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard.h" />

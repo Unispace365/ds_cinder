@@ -127,6 +127,10 @@ std::string ModelMaker::replaceString(std::string& fullString, std::string toRep
 }
 
 std::string ModelMaker::replaceAllString(std::string& fullString, std::string toReplace, std::string replaceWith){
+	if(toReplace == replaceWith){
+		DS_LOG_WARNING("you can't replace the name of a thing with the thing. Change your column name from " << replaceWith << " to something else");
+		return "ERROR replacing string. Check the yaml importer.";
+	}
 	std::string returnString = fullString;
 	while(returnString.find(toReplace) != std::string::npos)	{
 		returnString = replaceString(returnString, toReplace, replaceWith);

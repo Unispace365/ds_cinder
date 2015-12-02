@@ -9,6 +9,7 @@ namespace example{
 InfoList::InfoList(Globals& g)
 	: ScrollList(g.mEngine)
 	, mGlobals(g)
+	, mScrollBar(nullptr)
 {
 
 
@@ -57,6 +58,12 @@ InfoList::InfoList(Globals& g)
 	mStartPositionY = padding;
 	mIncrementAmount = itemSize + padding;
 	mFillFromTop = true;
+
+
+
+	mScrollBar = new ds::ui::ScrollBar(mEngine, true);
+	mScrollBar->linkScrollList(this);
+	addChildPtr(mScrollBar);
 }
 
 // Another part of the app has given us new data
@@ -83,4 +90,13 @@ void InfoList::setInfoItemCallback(const std::function<void(const ds::model::Sto
 	mInfoCallback = func;
 }
 
+
+void InfoList::layout(){
+	ScrollList::layout();
+
+	if(mScrollBar){
+		mScrollBar->setSize(mScrollBar->getWidth(), getHeight());
+		mScrollBar->setPosition(-mScrollBar->getWidth(), 0.0f);
+	}
+}
 }

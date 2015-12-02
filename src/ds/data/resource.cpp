@@ -509,9 +509,22 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 	} else if(extensionay.find("ttf") != std::string::npos
 				|| extensionay.find("otf") != std::string::npos){
 		return ds::Resource::FONT_TYPE;
+	} else if(extensionay.find("mov") != std::string::npos
+			  || extensionay.find("mp4") != std::string::npos
+			  || extensionay.find("avi") != std::string::npos
+			  || extensionay.find("wmv") != std::string::npos
+			  || extensionay.find("flv") != std::string::npos
+			  || extensionay.find("m4v") != std::string::npos
+			  || extensionay.find("mpg") != std::string::npos
+			  || extensionay.find("mkv") != std::string::npos
+			  || extensionay.find("3gp") != std::string::npos
+			  || extensionay.find("webm") != std::string::npos
+			  ){
+		return ds::Resource::VIDEO_TYPE;
+	} else {
+		return ds::Resource::ERROR_TYPE;
 	}
 
-	return ds::Resource::VIDEO_TYPE;
 }
 
 } // namespace ds

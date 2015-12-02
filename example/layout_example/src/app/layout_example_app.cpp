@@ -223,6 +223,14 @@ void layout_example::setupServer(){
 		generatedLayout->tweenAnimateOn(true, 0.5f, 0.1f);
 	}
 
+	std::map<std::string, ds::ui::Sprite*>	spriteMapTwo;
+	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layout/layout_alignments.xml"), spriteMapTwo);
+
+	auto generatedLayoutTwo = dynamic_cast<ds::ui::LayoutSprite*>(spriteMapTwo["root_layout"]);
+	if(generatedLayoutTwo){
+		generatedLayoutTwo->runLayout();
+		generatedLayoutTwo->tweenAnimateOn(true, 0.5f, 0.1f);
+	}
 }
 
 void layout_example::update() {
