@@ -78,7 +78,7 @@ private:
 	ci::CameraPersp     mCamera;
 	ci::Sphere          mSphere;
 	ci::Vec2f			mSphericalAngles; // x is theta and y is phi
-
+	ds::ui::Sprite&     mTouchSprite;
 public:
 	static void			installAsServer(ds::BlobRegistry&);
 	static void			installAsClient(ds::BlobRegistry&);

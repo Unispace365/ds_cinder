@@ -32,6 +32,7 @@ void video_360::setupServer(){
 
 	mEngine.getRootSprite().clearChildren();
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.3f, 0.3f, 0.3f));
 	rootSprite.setPosition(0.0f, 0.0f, 0.0f);
@@ -135,12 +136,12 @@ void video_360::loadMedia(const std::string& newMedia){
 	mBaseVideo->setShadersUniforms("test1", uniform);
 
 	//Configure drone video
-	mDroneVideo->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
-	//mDroneVideo->setSize(1000.0f, 500.0f);
-	mDroneVideo->installVideo(mBaseVideo, newMedia);
+	mDroneVideo->setSize(1000.0f, 500.0f);
 	mDroneVideo->setCenter(0.5f, 0.5f);
 	mDroneVideo->setPosition(0.5f * mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());
 	mDroneVideo->setUseDepthBuffer(false);
+	mDroneVideo->installVideo(mBaseVideo, newMedia);
+
 	mMedia = mDroneVideo;
 }
 

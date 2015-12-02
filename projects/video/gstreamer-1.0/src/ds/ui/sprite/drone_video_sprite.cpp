@@ -123,6 +123,7 @@ DroneVideoSprite::DroneVideoSprite(ds::ui::SpriteEngine& engine)
 	, mVideoTexture(nullptr)
 	, mSphere(ci::Sphere(ci::Vec3f::zero(), 100.0f)) // doesn't really matter how big this is. FIXME
 	, util::Configurable(mEngine, "drone")
+	, mTouchSprite(*(new ds::ui::Sprite(mEngine)))
 {
 	mBlobType = _BLOB;
 	setUseShaderTextuer(true);
@@ -131,9 +132,10 @@ DroneVideoSprite::DroneVideoSprite(ds::ui::SpriteEngine& engine)
 
 	resetCamera();
 
-	enable(true);
-	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	setProcessTouchCallback([this](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
+	mTouchSprite.setTransparent(true);
+	mTouchSprite.enable(true);
+	mTouchSprite.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	mTouchSprite.setProcessTouchCallback([this](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
 		handleDrag(ti.mDeltaPoint.xy());
 	});
 }
@@ -207,6 +209,16 @@ void DroneVideoSprite::drawLocalClient()
 {
 	if (mVideoTexture && mVideoSprite && mSpriteShader.getName().compare(shader_name) == 0)
 	{
+		ci::Area viewport = ci::gl::getViewport();
+		ci::Vec2f ul = getPosition().xy() - getCenter().xy()*getSize().xy();
+		ci::Vec2f br = ul + ci::Vec2f(getWidth(), getHeight());
+
+		if (!getPerspective()) {
+			ci::gl::setViewport(ci::Area(ul, br));
+		} else {
+			ci::gl::setViewport(ci::Area(ci::Vec2f(ul.x,br.y), ci::Vec2f(br.x, ul.y)));
+		}
+
 		mVideoTexture = mVideoSprite->getFinalOutTexture();
 		mVideoTexture->enableAndBind();
 		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
@@ -218,6 +230,8 @@ void DroneVideoSprite::drawLocalClient()
 		shaderBase.uniform("radius", mSphere.getRadius());
 
 		ci::gl::draw(mSphere, 120);
+
+		ci::gl::setViewport(viewport);
 
 		mVideoTexture->unbind();
 		shaderBase.unbind();
@@ -316,6 +330,20 @@ void DroneVideoSprite::installVideo( ds::ui::Video* const video, const std::stri
 	video_sprite->setAutoStart(true);
 	video_sprite->setLooping(true);
 	video_sprite->loadVideo(path);
+
+	//setup touch sprite
+	if (getParent()){
+		getParent()->addChild(mTouchSprite);
+	}
+	else {
+		DS_LOG_WARNING("Drone video sprite isn't parented.");
+		return;
+
+	}
+	mTouchSprite.setCenter(getCenter());
+	mTouchSprite.setSize(getSize().xy());
+	mTouchSprite.setPosition(getPosition());
+
 }
 
 ds::ui::Video* DroneVideoSprite::getVideo() const

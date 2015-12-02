@@ -29,7 +29,7 @@
 	<rect name="src_rect" l="0" r="1920" t="0" b="1080" />
 	<rect name="dst_rect" l="0" r="1920" t="20" b="1100" />
 	<!-- title of the window -->
-	<text name="screen:title" value="MediaTester" />	
+	<text name="screen:title" value="Video 360" />	
 	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
 	<text name="screen:mode" value="window" />
 	<!-- makes the window an always-on-top sort of window. default=false -->

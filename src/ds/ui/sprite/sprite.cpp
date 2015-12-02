@@ -250,12 +250,6 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 	mShaderPass = 0;
 	mFboIndex = 0;
 	mIsLastPass = mShaderPasses > 0 ? false : true;
-	//if (mShaderPasses > 0) {
-	//	mIsLastPass = false;
-	//}
-	//else {
-	//	mIsLastPass = true;
-	//}
 
 	buildTransform();
 	ci::Matrix44f totalTransformation = trans*mTransformation;
