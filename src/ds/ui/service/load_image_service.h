@@ -148,7 +148,6 @@ private:
 			ImageLoadThread();
 
 			virtual void						run();
-
 			ImageOperation						mOutput;
 			bool								mError;
 	};
