@@ -280,7 +280,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 			} else if(alignString == "center"){
 				text->setAlignment(ds::ui::Alignment::kCenter);
 			} else {
-				text->setAlignment(ds::ui::Alignment::kCenter);
+				text->setAlignment(ds::ui::Alignment::kLeft);
 			}
 		}
 	}
