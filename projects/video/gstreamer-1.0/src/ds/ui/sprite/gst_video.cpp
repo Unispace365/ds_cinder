@@ -326,11 +326,11 @@ void GstVideo::drawLocalClient(){
 				if (mVFrameTexture) mVFrameTexture.bind(4);
 
 			}
-				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 
 		} else {
 			if (mFrameTexture) mFrameTexture.bind(0);
-					ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 		}
 
 
@@ -696,7 +696,7 @@ void GstVideo::stopAfterNextLoop(){
 	mGstreamerWrapper->stopOnLoopComplete();
 }
 
-void GstVideo::checkStatus(){
+void GstVideo::checkStatus(){ 
 	if (mStatusChanged){
 		mStatusFn(mStatus);
 		mStatusChanged = false;
@@ -823,7 +823,7 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 	}
 
 	//Some things we don't want to  do on initialization.
-	bool isReset = mDirty.getMaskValue() & 0x80000000;
+	auto isReset = mDirty.getMaskValue() & 0x80000000;
 	if (isReset) {
 
 		if (mDirty.has(mStatusDirty)){

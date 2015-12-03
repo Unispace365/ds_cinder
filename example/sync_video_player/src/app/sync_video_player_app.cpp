@@ -32,13 +32,15 @@ sync_video_player::sync_video_player()
 
 void sync_video_player::setupServer(){
 
-	mVideo = nullptr;
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
 	mEngine.loadTextCfg("text.xml");
 
 	mEngine.getRootSprite(0).clearChildren();
+
+	mVsb = nullptr;
+	mVideo = nullptr;
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
@@ -75,6 +77,7 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 	mVideo = new ds::ui::GstVideo(mEngine);
 	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
+	mVideo->setCheckBounds(true);
 	//mVideo->setVerboseLogging(mVerbose);
 	mVideo->loadVideo(paths.front());
 	mVideo->enable(true);

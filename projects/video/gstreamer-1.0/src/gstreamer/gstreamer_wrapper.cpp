@@ -295,8 +295,12 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		m_CurrentPlayState = OPENED;
 
 		if(m_StartPlaying){
-			gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
-			m_CurrentPlayState = PLAYING;
+			GstStateChangeReturn retrun = gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+			if(retrun != GST_STATE_CHANGE_FAILURE){
+				m_CurrentPlayState = PLAYING;
+			} else {
+				DS_LOG_WARNING("Gstreamer Wrapper Failed to play when loading video! ");
+			}
 		}
 	}
 
@@ -1087,6 +1091,7 @@ void GStreamerWrapper::handleGStMessage(){
 					// constructed, so doesn't get applied.
 					g_object_set( m_GstPipeline, "volume", m_fVolume, NULL );
 					retrieveVideoInfo();
+				
 					if ((m_CurrentGstState == STATE_PLAYING || m_CurrentGstState == STATE_PAUSED) && m_PendingSeek){
 						std::cout << "servicing pending seek" << std::endl;
 						seekFrame(m_PendingSeekTime);
