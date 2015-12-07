@@ -240,7 +240,9 @@ void LoadImageService::onLoadComplete(ImageLoadThread& loadThread){
 
 		// If we ran out of memory, try again! why not!
 		if(glGetError() == GL_OUT_OF_MEMORY) {
-			DS_LOG_ERROR_M("LoadImageService::onLoadComplete() called on filename: " << out.mKey.mFilename << " received an out of memory error. Image may be too big.", LOAD_IMAGE_LOG_M);
+			if(out.mNumberTries < 2){
+				DS_LOG_ERROR_M("LoadImageService::onLoadComplete() called on filename: " << out.mKey.mFilename << " received an out of memory error. Image may be too big.", LOAD_IMAGE_LOG_M);
+			}
 			if(h.mTexture) h.mTexture.reset();
 
 			if(out.mNumberTries >= mMaxLoadTries){
@@ -291,7 +293,9 @@ void LoadImageService::ImageLoadThread::run(){
 				mError = false;
 			}
 		} else {
-			DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed. File does not exist: " << mOutput.mKey.mFilename, LOAD_IMAGE_LOG_M);
+			if(mOutput.mNumberTries < 2){
+				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed. File does not exist: " << mOutput.mKey.mFilename, LOAD_IMAGE_LOG_M);
+			}
 			mError = true;
 		}
 	} catch(std::exception const& ex) {
@@ -308,20 +312,27 @@ void LoadImageService::ImageLoadThread::run(){
 				mOutput.mIpFunction.on(mOutput.mKey.mIpParams, mOutput.mSurface);
 				mError = false;
 			} else {
-				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed fallback loading. Original exception ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+				if(mOutput.mNumberTries < 2){
+					DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed fallback loading. Original exception ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+				}
 				mError = true;
 			}
 		} catch(std::exception const& extwo){
-			DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed extwo=" << extwo.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+			if(mOutput.mNumberTries < 2){
+				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed extwo=" << extwo.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+			}
 			mError = true;
 		}
 
 		if(mError){
-			DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+			if(mOutput.mNumberTries < 2){
+				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+			}
 			mError = true;
 		}
 	}
 }
+
 
 /**
  * \class ds::ui::LoadImageService::holder

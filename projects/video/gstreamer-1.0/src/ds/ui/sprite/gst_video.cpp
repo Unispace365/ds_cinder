@@ -61,7 +61,15 @@ static std::string yuv_vert =
 		"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
 		"u = u - 0.5;"
 		"v = v - 0.5;"
-		"gl_FragData[0] = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);"
+		//"gl_FragData[0] = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);" //  ITU.BT-601 Y’CbCr color space
+		//"gl_FragData[0] = vec4( y + (1.13983 * v), y - (0.39465 * u) - (0.58060 * v), y + (2.03211 * u), gl_Color.a);" // 601 color space
+		//"gl_FragData[0] = vec4( y + (1.28033 * v), y - (0.21482 * u) - (0.38059 * v), y + (2.12798 * u), gl_Color.a);" // 709 (wikipedia) color space
+		"gl_FragData[0] = vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, gl_Color.a);" //  ITU.BT-601 Y’CbCr color space transposed to super space
+		//"gl_FragData[0] = vec4( (y + (1.28033 * v)) * 1.1643835 - 0.062745, (y - (0.21482 * u) - (0.38059 * v)) * 1.1643835 - 0.062745, (y + (2.12798 * u)) * 1.1643835 - 0.062745, gl_Color.a);" // 709 (wikipedia) color space transposed to Super space (0-255, from YUV's 16-235)
+		//"gl_FragData[0] = vec4( y + (1.5701 * v), y - (0.1870 * u) - (0.4664 * v), y + (1.8556 * u), gl_Color.a);" //  ITU.BT-709 HDTV studio production in Y’CbCr  color space http://www.poynton.com/PDFs/coloureq.pdf
+		//"gl_FragData[0] = vec4( y + (1.5756 * v), y - (0.2253 * u) + (0.50 * v), y + (1.8270 * u), gl_Color.a);" //  SMPTE-240M Y’PbPr color space (totally not right)
+		//"gl_FragData[0] = vec4( y + (1.370705 * v), y - (0.698001 * u) - (0.337633 * v), y + (1.732446 * u), gl_Color.a);" // android color space
+		//"gl_FragData[0] = vec4( clamp(y + (1.28033 * v), 0, 1), clamp(y - (0.21482 * u) - (0.38059 * v), 0, 1), clamp(y + (2.12798 * u), 0, 1), gl_Color.a);" // 709 clamped color space
 		"}";
 class Init {
 public:
@@ -348,11 +356,11 @@ void GstVideo::drawLocalClient(){
 				if (mVFrameTexture) mVFrameTexture.bind(4);
 
 			}
-				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 
 		} else {
 			if (mFrameTexture) mFrameTexture.bind(0);
-					ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 		}
 
 
@@ -719,7 +727,7 @@ void GstVideo::stopAfterNextLoop(){
 	mGstreamerWrapper->stopOnLoopComplete();
 }
 
-void GstVideo::checkStatus(){
+void GstVideo::checkStatus(){ 
 	if (mStatusChanged){
 		mStatusFn(mStatus);
 		mStatusChanged = false;
@@ -852,7 +860,7 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 #if 1
 
 	//Some things we don't want to  do on initialization.
-	bool isReset = mDirty.getMaskValue() & 0x80000000;
+	auto isReset = mDirty.getMaskValue() & 0x80000000;
 	if (isReset) {
 
 		if (mDirty.has(mStatusDirty)){

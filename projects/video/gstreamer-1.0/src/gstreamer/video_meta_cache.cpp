@@ -153,9 +153,9 @@ void VideoMetaCache::setValues(Entry& entry) {
 				<< "', width=" << entry.mWidth 
 				<< ", height=" << entry.mHeight 
 				<< ", duration=" << entry.mDuration
-				<< ", colorspace='" << entry.mDuration
-				<< "', videocodec='" << entry.mDuration
-				<< "', audiocodec='" << entry.mDuration
+				<< ", colorspace='" << entry.mColorSpace
+				<< "', videocodec='" << entry.mVideoCodec
+				<< "', audiocodec='" << entry.mAudioCodec
 				<< "' WHERE path='" << entry.mPath << "'";
 			ds::query::Client::queryWrite(db, buf.str(), ans);
 			load();

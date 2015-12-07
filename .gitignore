@@ -30,3 +30,4 @@ projects/essentials/lib/essentials.lib
 projects/rocket/build
 example/simple_video_player/MediaInfo.dll
 projects/viewers/lib/
+/example/sync_video_player/debug.txt

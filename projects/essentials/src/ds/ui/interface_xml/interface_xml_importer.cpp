@@ -11,6 +11,7 @@
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/scroll/scroll_list.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine_cfg.h>
@@ -350,6 +351,26 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		}
 	}
 
+	else if(property == "scroll_list_layout"){
+		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
+		if(scrollList){
+			auto vec = parseVector(attr.getValue());
+			scrollList->setLayoutParams(vec.x, vec.y, vec.z, true);
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+
+	else if(property == "scroll_list_animate"){
+		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
+		if(scrollList){
+			auto vec = parseVector(attr.getValue());
+			scrollList->setAnimateOnParams(vec.x, vec.y);
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+
 	// Circle sprite properties
 	else if(property == "filled"){
 		auto circle = dynamic_cast<Circle*>(&sprite);
@@ -598,6 +619,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	else if(type == "circle"){
 		spriddy = new ds::ui::Circle(engine);
 	}
+	else if(type == "scroll_list"){
+		spriddy = new ds::ui::ScrollList(engine);
+	}
 	else if (mCustomImporter) {
 		spriddy = mCustomImporter(type, *node);
 	}
@@ -611,7 +635,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		readSprite(spriddy, sprite);
 	}
 
-	parent->addChild(*spriddy);
+	parent->addChildPtr(spriddy);
 
 	// Get sprite name and classes
 	std::string sprite_name = node->getAttributeValue<std::string>("name", "");
