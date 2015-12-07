@@ -10,6 +10,8 @@
 #include <ds/query/query_client.h>
 #include <ds/util/string_util.h>
 
+#include <service/model_maker.h>
+
 
 namespace ds {
 
@@ -158,6 +160,12 @@ void YamlLoadService::parseTable(const std::string& tableName, YAML::Node mainCo
 // 				mm.setTableName(tableName);
 // 			}
 
+		} else if(key == "customInclude"){
+			if(mappedNode.Type() == YAML::NodeType::Scalar){
+ 				std::string customInclude = mappedNode.as<std::string>();
+ 				mm.setCustomInclude(customInclude);
+ 			}
+
 		} else if(key == "columns"){
 			if(mappedNode.Type() == YAML::NodeType::Map){
 				parseColumn(mappedNode, mm);
@@ -215,6 +223,13 @@ void YamlLoadService::parseColumn(YAML::Node mappedNode, ModelModel& modelModel)
 
 				if(columnProperty == "type"){
 					modelColumn.setType(ModelColumn::getTypeForString(propertyValueString));
+
+				} else if(columnProperty == "class"){
+					modelColumn.setCustomDataType(propertyValueString);
+					std::string customEmptyType = propertyValueString;
+					std::transform(customEmptyType.begin(), customEmptyType.end(), customEmptyType.begin(), ::toupper);
+					customEmptyType = ModelMaker::replaceAllString(customEmptyType, "::", "");
+					modelColumn.setCustomEmptyDataName(customEmptyType);
 
 				} else if(columnProperty == "unsigned"){
 					modelColumn.setIsUnsigned(parseBool(propertyValueString));
@@ -323,7 +338,6 @@ void YamlLoadService::parseActAs(YAML::Node actAsNode, ModelModel& mm){
 		}
 	}
 }
-
 
 // go through everything and print it out
 void YamlLoadService::printYamlRecursive(YAML::Node doc, const int level){
