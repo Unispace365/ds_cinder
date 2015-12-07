@@ -36,6 +36,7 @@ const DirtyState	CHILD_DIRTY			= newUniqueDirtyState();
 const DirtyState	FLAGS_DIRTY 	   	= newUniqueDirtyState();
 const DirtyState	SIZE_DIRTY 	    	= newUniqueDirtyState();
 const DirtyState	POSITION_DIRTY		= newUniqueDirtyState();
+const DirtyState	CHECKBOUNDS_DIRTY	= newUniqueDirtyState();
 const DirtyState	CENTER_DIRTY		= newUniqueDirtyState();
 const DirtyState	SCALE_DIRTY			= newUniqueDirtyState();
 const DirtyState	COLOR_DIRTY			= newUniqueDirtyState();
@@ -57,6 +58,7 @@ const char			BLEND_ATT			= 10;
 const char			CLIP_BOUNDS_ATT		= 11;
 const char			SORTORDER_ATT		= 12;
 const char			ROTATION_ATT		= 13;
+const char			CHECKBOUNDS_ATT		= 14;
 
 // flags
 const int           VISIBLE_F			= (1<<0);
@@ -1390,6 +1392,7 @@ void Sprite::setCheckBounds(bool checkBounds) {
 	mCheckBounds = checkBounds;
 	mInBounds = !mCheckBounds;
 	mBoundsNeedChecking = checkBounds;
+	markAsDirty(CHECKBOUNDS_DIRTY);
 }
 
 bool Sprite::getCheckBounds() const {
@@ -1497,6 +1500,10 @@ void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(mPosition.y);
 		buf.add(mPosition.z);
 	}
+	if (mDirty.has(CHECKBOUNDS_DIRTY)) {
+		buf.add(CHECKBOUNDS_ATT);
+		buf.add(mCheckBounds);
+	}
 	if (mDirty.has(CENTER_DIRTY)) {
 		buf.add(CENTER_ATT);
 		buf.add(mCenter.x);
@@ -1585,6 +1592,9 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 			mPosition.y = buf.read<float>();
 			mPosition.z = buf.read<float>();
 			transformChanged = true;
+		} else if (id == CHECKBOUNDS_ATT) {
+			bool checkBounds = buf.read<bool>();
+			setCheckBounds(checkBounds);
 		} else if (id == CENTER_ATT) {
 			mCenter.x = buf.read<float>();
 			mCenter.y = buf.read<float>();

@@ -40,8 +40,6 @@ public:
 	};
 
 public:
-	//Enum for specifying which side to pan the volume to.
-	typedef enum { kPanLeft = 0, kPanRight, kPanCenter } PanType;
 
 	// Convenience for allocating a Video sprite pointer and optionally adding it
 	// to another Sprite as child.
@@ -83,8 +81,8 @@ public:
 	float				getVolume() const;
 
 	//Control which speaker to play out of (left/right/both)
-	void				setPan(const PanType pan);
-	PanType				getPan() const;
+	void				setPan(const float pan);
+	float				getPan() const;
 
 	// Playback control API 
 	virtual void		play();
@@ -166,7 +164,7 @@ private:
 	void				doLoadVideo(const std::string &filename,
 									const std::string &portable_filename);
 	void				applyMovieVolume();
-	void				applyMoviePan(const PanType pan);
+	void				applyMoviePan(const float pan);
 	void				applyMovieLooping();
 	void				checkOutOfBounds();
 	void				setStatus(const int);
@@ -190,7 +188,7 @@ private:
 	std::function<void(const Status&)>
 						mStatusFn;
 	float				mVolume;
-	PanType				mPan;
+	float				mPan;
 	bool				mLooping;
 	bool				mMuted;
 	bool				mOutOfBoundsMuted;

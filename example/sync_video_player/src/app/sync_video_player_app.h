@@ -32,7 +32,7 @@ private:
 	ds::ui::Sprite*				mVideoHolder;
 	ds::ui::GstVideo*			mVideo;
 	ds::ui::Text*				mFpsDisplay;
-
+	float						mPan;
 	bool						mVerbose;
 	float						mSeekSpeed;
 
