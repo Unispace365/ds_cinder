@@ -33,7 +33,7 @@ sync_video_player::sync_video_player()
 void sync_video_player::setupServer(){
 
 	mVideo = nullptr;
-
+	mVsb = nullptr;
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
 	mEngine.loadTextCfg("text.xml");
@@ -221,7 +221,9 @@ void sync_video_player::keyDown(ci::app::KeyEvent event){
 		}
 	}
 	else if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
+		if (mEngine.getMode() != ds::ui::SpriteEngine::CLIENT_MODE){
+			setupServer();
+		}
 	} else if(event.getChar() == KeyEvent::KEY_v){
 		mVerbose = !mVerbose;
 		if(mVideo){
@@ -233,6 +235,7 @@ void sync_video_player::keyDown(ci::app::KeyEvent event){
 		}
 
 		if (mSelectedVideo ){
+			//TODO: Need to schedule this to be removed,and actually remove during update.
 			mLoadedVideos.erase(std::remove(mLoadedVideos.begin(), mLoadedVideos.end(), mSelectedVideo), mLoadedVideos.end());
 			mSelectedVideo->release();
 			mVsb->linkVideo(nullptr);

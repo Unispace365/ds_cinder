@@ -411,9 +411,14 @@ void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string&
 	m_NetClock = clock;
 	gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), clock);
 	mClockProvider = gst_net_time_provider_new(clock, addr.c_str(), port);
+//	gst_clock_set_timeout(clock,1000000000);
+	gst_clock_set_timeout(m_NetClock, 10);
+
 	if (!mClockProvider)		{
 		DS_LOG_WARNING("Could not instantiate the GST server network clock.");
 	}
+//	DS_LOG_INFO("Net clock.  Time: " << getPipelineTime());
+
 	// get the time for clients to start based on...
 
 	std::uint64_t newTime = getNetworkTime();
@@ -440,9 +445,15 @@ void GStreamerWrapper::setClientNetClock(const bool isServer, const std::string&
 
 	//Create client clock synchronized with net clock.  We want it synchronized exactly, so we provide an initial time of '0'.
 	m_NetClock = gst_net_client_clock_new("net_clock", addr.c_str(), port, 0);
+	gst_clock_set_timeout(m_NetClock, 10);
+
+	//gboolean waiting = gst_clock_wait_for_sync(m_NetClock, 10000000000);
+	//if (!waiting) DS_LOG_INFO("Clock sync timed out");
 
 	// apply the net clock
 	gst_pipeline_use_clock(GST_PIPELINE(m_GstPipeline), m_NetClock);
+//	DS_LOG_INFO("Connecting to net clock.  Time: " << getPipelineTime());
+	
 	setPipelineBaseTime(baseTime);
 	if (!m_NetClock)
 	{
@@ -966,6 +977,7 @@ void GStreamerWrapper::retrieveVideoInfo(){
 	if(m_Streaming){
 		return; // streaming sets it's open values
 	}
+	//std::cout << "=====Retrieving video " << std::endl;
 	////////////////////////////////////////////////////////////////////////// Media Duration
 	// Nanoseconds
 	GstFormat gstFormat = GST_FORMAT_TIME;
@@ -973,6 +985,7 @@ void GStreamerWrapper::retrieveVideoInfo(){
 
 	// Milliseconds
 	m_dDurationInMs = (double)(GST_TIME_AS_MSECONDS( m_iDurationInNs ));
+	//std::cout << "=====Retrieving video " << "  Duration: " << m_iDurationInNs<< std::endl;
 
 	////////////////////////////////////////////////////////////////////////// Stream Info
 	// Number of Video Streams
@@ -1261,7 +1274,7 @@ void GStreamerWrapper::newVideoSinkPrerollCallback(GstSample* videoSinkSample){
 	} 
 
 	memcpy((unsigned char *)m_cVideoBuffer, map.data, videoBufferSize);
-	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
+	if (!m_PendingSeek) m_bIsNewVideoFrame = true;
 	
 
 	gst_buffer_unmap(buff, &map);
