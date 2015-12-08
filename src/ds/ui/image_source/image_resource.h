@@ -29,12 +29,25 @@ public:
 	*/
 	ImageResource(const ds::Resource::Id& resourceId, const int flags = 0);
 
+	/**
+	* \param ip_key is a key to an IpFunction, which must be one of the
+	* system ones in ip_defs.h, or installed by the app.
+	* \param ip_params is parameters to the IpFunction. Format is dependent
+	* on the function.
+	* \param resource is the resource for the resource.
+	* \param flags provides scope info (i.e. ds::IMG_CACHE).
+	*/
+	ImageResource(const ds::Resource& resource, const std::string& ip_key,
+				const std::string& ip_params, const int flags = 0);
+
 	virtual ImageGenerator*		newGenerator(SpriteEngine&) const;
 	virtual bool				generatorMatches(const ImageGenerator&) const;
 
 private:
 	const ds::Resource			mResource;
 	const ds::Resource::Id		mResourceId;
+	const std::string			mIpKey,
+								mIpParams;
 	const int					mFlags;
 
 	// Engine initialization
