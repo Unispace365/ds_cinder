@@ -83,7 +83,7 @@ void LayoutSprite::runSizeLayout(){
 			} else if(img){
 				// restore position after calculating the box size
 				ci::Vec3f prePos = img->getPosition();
-				fitInside(img, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), true);
+				fitInside(img, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), chillin->mLayoutUserType != kStretchSize);
 				img->setPosition(prePos);
 			} else if(ls){
 				ls->setSize(fixedW, fixedH);
@@ -318,6 +318,11 @@ void LayoutSprite::setLayoutUpdatedFunction(const std::function<void()> layoutUp
 
 void LayoutSprite::fitInside(ds::ui::Sprite* sp, const ci::Rectf area, const bool letterbox){
 	if(!sp) return;
+
+	// make sure the sprite actually has something to fit inside
+	if(sp->getWidth() == 0.0f || sp->getHeight() == 0.0f){
+		return;
+	}
 	// a = w / h;
 	// h = w /a;
 	// w = ah;
