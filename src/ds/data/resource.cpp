@@ -258,7 +258,7 @@ void Resource::Id::setupCustomPaths( const std::function<const std::string&(cons
 Resource Resource::fromImage(const std::string& full_path) {
 	Resource		r;
 	r.mType = IMAGE_TYPE;
-	r.mDebugFileName = full_path;
+	r.mLocalFilePath = full_path;
 	ImageMetaData	meta(full_path);
 	r.mWidth = meta.mSize.x;
 	r.mHeight = meta.mSize.y;
@@ -297,7 +297,7 @@ Resource::Resource(const std::string& fullPath)
 	, mWidth(0)
 	, mHeight(0)
 	, mThumbnailId(0)
-	, mDebugFileName(fullPath)
+	, mLocalFilePath(fullPath)
 {
 }
 
@@ -309,13 +309,13 @@ Resource::Resource(const std::string& fullPath, const int type)
 	, mWidth(0)
 	, mHeight(0)
 	, mThumbnailId(0)
-	, mDebugFileName(fullPath)
+	, mLocalFilePath(fullPath)
 {
 }
 
 Resource::Resource(const Resource::Id dbid, const int type, const double duration, 
 				   const float width, const float height, const std::string filename, 
-				   const std::string path, const int thumbnailId, const std::string debugFileName)
+				   const std::string path, const int thumbnailId, const std::string fullFilePath)
 	: mDbId(dbid)
 	, mType(type)
 	, mDuration(duration)
@@ -324,12 +324,12 @@ Resource::Resource(const Resource::Id dbid, const int type, const double duratio
 	, mFileName(filename)
 	, mPath(path)
 	, mThumbnailId(thumbnailId)
-	, mDebugFileName(debugFileName)
+	, mLocalFilePath(fullFilePath)
 {}
 	
 
 bool Resource::operator==(const Resource& o) const {
-	if (mDebugFileName != o.mDebugFileName) return false;
+	if(mLocalFilePath != o.mLocalFilePath) return false;
 	return mDbId == o.mDbId && mType == o.mType && mDuration == o.mDuration && mWidth == o.mWidth && mHeight == o.mHeight && mFileName == o.mFileName && mPath == o.mPath;
 }
 
@@ -348,7 +348,7 @@ const std::wstring& Resource::getTypeName() const {
 }
 
 std::string Resource::getAbsoluteFilePath() const {
-	if (!mDebugFileName.empty()) return mDebugFileName;
+	if(!mLocalFilePath.empty()) return mLocalFilePath;
 
 	if (mFileName.empty()) return EMPTY_SZ;
 	if (mType == WEB_TYPE) return mFileName;
@@ -359,7 +359,7 @@ std::string Resource::getAbsoluteFilePath() const {
 }
 
 std::string Resource::getPortableFilePath() const {
-	if (!mDebugFileName.empty()) return mDebugFileName;
+	if(!mLocalFilePath.empty()) return mLocalFilePath;
 
 	if (mFileName.empty()) return EMPTY_SZ;
 	if (mType == WEB_TYPE) return mFileName;
@@ -378,12 +378,12 @@ void Resource::clear() {
 	mFileName.clear();
 	mPath.clear();
 	mThumbnailId = 0;
-	mDebugFileName.clear();
+	mLocalFilePath.clear();
 }
 
 bool Resource::empty() const {
-	if (!mDebugFileName.empty()) return false;
-	if (!mFileName.empty()) return false;
+	if(!mLocalFilePath.empty()) return false;
+	if(!mFileName.empty()) return false;
 	return mDbId.empty();
 }
 
@@ -396,33 +396,13 @@ void Resource::swap(Resource& r) {
 	mFileName.swap(r.mFileName);
 	mPath.swap(r.mPath);
 	std::swap(mThumbnailId, r.mThumbnailId);
-	mDebugFileName.swap(r.mDebugFileName);
-}
-
-void Resource::setDbId(const Resource::Id& id) {
-	mDbId = id;
-}
-
-void Resource::setType(const int type) {
-	mType = type;
-}
-
-bool Resource::existsInDb() const {
-return false;
-#if 0
-	static const std::string		SELECT("SELECT resourcesid FROM Resources WHERE resourcesid = ");
-	std::stringstream				buf;
-	QueryResult						r;
-	buf << SELECT << mDbId.mValue;
-	if (!QueryClient::query(mDbId.getDatabasePath(), buf.str(), r) || r.rowsAreEmpty()) return false;
-	return true;
-#endif
+	mLocalFilePath.swap(r.mLocalFilePath);
 }
 
 bool Resource::isLocal() const
 {
 	// parameters mFileName and mPath correspond to their fields in the resources table
-	return !mDebugFileName.empty() && mFileName.empty() && mPath.empty();
+	return !mLocalFilePath.empty() && mFileName.empty() && mPath.empty();
 }
 
 bool Resource::query(const Resource::Id& id) {
@@ -519,12 +499,28 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 			  || extensionay.find("mkv") != std::string::npos
 			  || extensionay.find("3gp") != std::string::npos
 			  || extensionay.find("webm") != std::string::npos
+			  || extensionay.find("asf") != std::string::npos
+			  || extensionay.find("dat") != std::string::npos
+			  || extensionay.find("divx") != std::string::npos
+			  || extensionay.find("dv") != std::string::npos
+			  || extensionay.find("f4v") != std::string::npos
+			  || extensionay.find("m2ts") != std::string::npos
+			  || extensionay.find("mod") != std::string::npos
+			  || extensionay.find("mpe") != std::string::npos
+			  || extensionay.find("ogv") != std::string::npos
+			  || extensionay.find("mpeg") != std::string::npos
+			  || extensionay.find("mts") != std::string::npos
+			  || extensionay.find("nsv") != std::string::npos
+			  || extensionay.find("ogm") != std::string::npos
+			  || extensionay.find("qt") != std::string::npos
+			  || extensionay.find("tod") != std::string::npos
+			  || extensionay.find("ts") != std::string::npos
+			  || extensionay.find("vob") != std::string::npos
 			  ){
 		return ds::Resource::VIDEO_TYPE;
 	} else {
 		return ds::Resource::ERROR_TYPE;
 	}
-
 }
 
 } // namespace ds
