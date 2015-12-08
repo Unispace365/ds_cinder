@@ -136,10 +136,8 @@ void VideoScrubBar::updateServer(const ds::UpdateParams& p){
 	inherited::updateServer(p);
 	if (!mLinkedVideo) return;
 
-	//if (mUpdatedPosition) {
 	if (mAdded || mMoved || mRemoved) {
 			std::cout << "---------------------------------------Update Server Called " << std::endl;
-		//if (mTouchPhase == ds::ui::TouchInfo::Added) {
 		if (mAdded) {
 
 			if (mLinkedVideo->getCurrentStatus() == ds::ui::GstVideo::Status::STATUS_PAUSED)
@@ -155,7 +153,6 @@ void VideoScrubBar::updateServer(const ds::UpdateParams& p){
 
 		}
 
-		//if (mTouchPhase == ds::ui::TouchInfo::Added || mTouchPhase == ds::ui::TouchInfo::Moved)
 		if ( mMoved){
 			mLinkedVideo->seekPosition(mLastSeekTime);
 			mMoved = false;
@@ -168,7 +165,6 @@ void VideoScrubBar::updateServer(const ds::UpdateParams& p){
 			mIsPaused = false;
 			mRemoved = false;
 		}
-		//mUpdatedPosition = false;
 	}
 	
 	if( mProgress && mBall){

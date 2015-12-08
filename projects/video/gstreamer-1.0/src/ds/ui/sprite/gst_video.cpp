@@ -37,6 +37,7 @@ const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer
 template<typename T> void       noop(T) { /* no op */ };
 void                            noop()  { /* no op */ };
 
+static int drawcount = 0;
 
 static std::string yuv_vert =
 "varying   vec2 gsvTexCoord;"
@@ -98,7 +99,6 @@ const char mSyncAtt = 88;
 const char mPanAtt = 89;
 
 
-const char mPlayAtt = 90;
 const char mFastPosAtt = 91;
 const char mUpdateAtt = 92;
 const char mUpdateBaseTimeAtt = 93;
@@ -120,7 +120,6 @@ const DirtyState& mAutoStartDirty = newUniqueDirtyState();
 const DirtyState& mSyncDirty = newUniqueDirtyState();
 
 const DirtyState& mFastPosDirty = newUniqueDirtyState();
-const DirtyState& mPlayDirty = newUniqueDirtyState();
 const DirtyState& mBaseTimeDirty = newUniqueDirtyState();
 const DirtyState& mSeekTimeDirty = newUniqueDirtyState();
 const DirtyState& mSeekDirty = newUniqueDirtyState();
@@ -248,6 +247,7 @@ float GstVideo::getVideoPlayingFramerate(){
 
 void GstVideo::updateClient(const UpdateParams& up){
 	Sprite::updateClient(up);
+	//setNetClock();
 
 	mGstreamerWrapper->update();
 
@@ -257,15 +257,24 @@ void GstVideo::updateClient(const UpdateParams& up){
 }
 
 void GstVideo::drawLocalClient(){
-	if(!mGstreamerWrapper) return;
-
+	if (!mGstreamerWrapper){
+		std::cout << "Gstreamer wrapper not available" << std::endl;
+		return;
+	}
 	if(mGstreamerWrapper->hasVideo() && mGstreamerWrapper->isNewVideoFrame()){
-
+#if 1
+		if (mGstreamerWrapper->getBaseTime() > mGstreamerWrapper->getNetClockTime()) {
+			if (mGstreamerWrapper->getState() == PLAYING){
+				std::cout << " resetting net clock & playing" << std::endl;
+				play();
+			}
+		}
+#endif
+		//std::cout << "current time: " << mGstreamerWrapper->getCurrentTimeInNs() << " wrapper base time: " << mGstreamerWrapper->getBaseTime() << " clock time: " << mGstreamerWrapper->getNetClockTime() << std::endl;
 		if(mGstreamerWrapper->getWidth() != mVideoSize.x){
 			DS_LOG_WARNING_M("Different sizes detected for video and texture. Do not change the size of a video sprite, use setScale to enlarge. Widths: " << getWidth() << " " << mGstreamerWrapper->getWidth(), GSTREAMER_LOG);
 			unloadVideo();
 		} else {
-
 			int videoDepth = mVideoSize.x * 4; // BGRA: therefore there is 4x8 bits per pixel, therefore 4 bytes per pixel.
 			ci::SurfaceChannelOrder co = ci::SurfaceChannelOrder::BGRA;
 			if(mColorType == kColorTypeSolid){
@@ -319,7 +328,18 @@ void GstVideo::drawLocalClient(){
 			}
 		}
 	}
+#if 1
 
+	else if (mGstreamerWrapper->getBaseTime() > mGstreamerWrapper->getNetClockTime()) {
+		std::cout << "***************************************" << std::endl;
+		std::cout << "FAIL: current time : " << mGstreamerWrapper->getCurrentTimeInNs() << " wrapper base time : " << mGstreamerWrapper->getBaseTime() << " clock time : " << mGstreamerWrapper->getNetClockTime() << std::endl;
+		std::cout << "***************************************" << std::endl;
+		if (mGstreamerWrapper->getState() == PLAYING){
+			//setNetClock();
+			play();
+		}
+	}
+#endif
 	if (mFrameTexture && mDrawable){
 		if (getPerspective()){
 			mFrameTexture.setFlipped(true);
@@ -352,7 +372,8 @@ void GstVideo::drawLocalClient(){
 			if (mFrameTexture) mFrameTexture.unbind();
 		}
 
-	}
+	} 
+
 }
 
 void GstVideo::setSize( float width, float height ){
@@ -444,10 +465,10 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			if(mVideoCompleteFn) mVideoCompleteFn();
 		});
 
-		//setStatus(Status::STATUS_PLAYING);
-		setStatus(Status::STATUS_STOPPED);
+		//setStatus(Status::STATUS_STOPPED);
 		if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE)
 			setNetClock();
+		setStatus(Status::STATUS_PLAYING);
 
 	} catch(std::exception const& ex)	{
 		DS_LOG_ERROR_M("GstVideo::doLoadVideo() ex=" << ex.what(), GSTREAMER_LOG);
@@ -554,7 +575,7 @@ float GstVideo::getVolume() const {
 	return mVolume;
 }
 
-void GstVideo::setPan(const PanType pan)
+void GstVideo::setPan(const float pan)
 {
 	if (mPan == pan) return;
 
@@ -565,7 +586,7 @@ void GstVideo::setPan(const PanType pan)
 
 
 
-GstVideo::PanType GstVideo::getPan() const
+float GstVideo::getPan() const
 {
 	return mPan;
 }
@@ -646,21 +667,8 @@ void GstVideo::applyMovieVolume(){
 	}
 }
 
-void GstVideo::applyMoviePan(const PanType pan){
-	switch (pan){
-	case (kPanLeft) :
-		mGstreamerWrapper->setPan(-1.0f);
-		break;
-	case(kPanRight) :
-		mGstreamerWrapper->setPan(1.0f);
-		break;
-	case (kPanCenter) :
-		mGstreamerWrapper->setPan(0.0f);
-		break;
-	default:
-		break;
-	}
-
+void GstVideo::applyMoviePan(const float pan){
+	mGstreamerWrapper->setPan(pan);
 }
 
 
@@ -800,7 +808,7 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 	}
 	if (mDirty.has(mPanDirty)){
 		buf.add(mPanAtt);
-		buf.add(getPan());
+		buf.add(getPan());  
 	}
 	if (mDirty.has(mMuteDirty)){
 		buf.add(mMuteAtt);
@@ -813,6 +821,11 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(mBaseTime);
 		buf.add(mNetClock);
 		buf.add(mIpAddress);
+		//buf.add(mGstreamerWrapper->getCurrentTimeInNs());
+		//std::cout << "current video time: " << mGstreamerWrapper->getCurrentTimeInNs() << std::endl;
+		//markAsDirty(mSeekTimeDirty);
+		//markAsDirty(mBaseTimeDirty);
+//		markAsDirty(mSeekDirty);
 	}
 	if (mDirty.has(mBaseTimeDirty)){
 		mBaseTime = mGstreamerWrapper->getBaseTime();
@@ -829,6 +842,7 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(mSeekAtt);
 		buf.add(mSeekTime);
 	}
+#if 1
 
 	//Some things we don't want to  do on initialization.
 	auto isReset = mDirty.getMaskValue() & 0x80000000;
@@ -851,6 +865,23 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 			buf.add(getCurrentPosition());
 		}
 	}
+#else
+	if (mDirty.has(mStatusDirty)){
+		buf.add(mStatusAtt);
+		buf.add(getCurrentStatus().mCode);
+	}
+
+	//Some things we don't want to  do on initialization.
+	bool isReset = mDirty.getMaskValue() & 0x80000000;
+	if (!isReset) {
+		if (mDirty.has(mPosDirty)){
+			buf.add(mPosAtt);
+			buf.add(getCurrentPosition());
+		}
+
+	}
+
+#endif
 }
 
 void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
@@ -878,9 +909,8 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 		if(getVolume() != volume_level)
 			setVolume(volume_level);
 	} else if (attrid == mPanAtt) {
-		auto panType = buf.read<ds::ui::GstVideo::PanType>();
-		if (getPan() != panType)
-			setPan(panType);
+		auto pan = buf.read<float>();
+			setPan(-pan);  // Assign pan to opposite speaker
 	} else if (attrid == mPosAtt) {
 		auto server_video_pos = buf.read<double>();
 		std::cout << "++++++++++++++ Client recieved command to reset seek" << std::endl;
@@ -916,18 +946,6 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 		mIpAddress = buf.read<std::string>();
 		setNetClock();
 	}
-	else if (attrid == mPlayAtt){
-		std::cout << "	Play Attribute" << std::endl;
-
-			std::cout << "++++++++++++++ Client synching base and seek time with server." << std::endl;
-
-			mBaseTime = buf.read<uint64_t>();
-			mSeekTime = buf.read<uint64_t>();
-			std::cout << "				Base Time: " << mBaseTime << "   Seek Time: " << mSeekTime << std::endl;
-			mGstreamerWrapper->setPipelineBaseTime(mBaseTime);
-			mGstreamerWrapper->setSeekTime(mSeekTime);
-			mGstreamerWrapper->play();
-	}
 	else if (attrid == mUpdateSeekTimeAtt){
 		mSeekTime = buf.read<uint64_t>();
 		mGstreamerWrapper->setSeekTime(mSeekTime);
@@ -939,8 +957,8 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	else if (attrid == mSeekAtt){
 		mSeekTime = buf.read<uint64_t>();
 		mGstreamerWrapper->seekFrame(mSeekTime);
-	}
-
+	} 
+	 
 	else if (attrid == mUpdateAtt){
 
 		std::cout << "	Update Attribute" << std::endl;

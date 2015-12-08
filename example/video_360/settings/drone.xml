@@ -1,6 +1,6 @@
 <settings>
-	<float name="x_factor" value="20" />
-	<float name="y_factor" value="20" />
-	<text name="x_invert" value="false" />
+	<float name="x_factor" value="10" />
+	<float name="y_factor" value="10" />
+	<text name="x_invert" value="true" />
 	<text name="y_invert" value="true" />
 	</settings>

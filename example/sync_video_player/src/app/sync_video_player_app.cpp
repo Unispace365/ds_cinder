@@ -26,12 +26,10 @@ sync_video_player::sync_video_player()
 
 	/*fonts in use */
 	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
-
 	enableCommonKeystrokes(true);
 }
 
 void sync_video_player::setupServer(){
-
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
@@ -58,6 +56,7 @@ void sync_video_player::setupServer(){
 	mFpsDisplay->setText("GstFps");
 	mFpsDisplay->setPosition(mEngine.getWorldWidth() / 4.0f, 30.0f);
 	rootSprite.addChildPtr(mFpsDisplay);
+
 }
 
 void sync_video_player::fileDrop(ci::app::FileDropEvent event){
@@ -175,6 +174,8 @@ void sync_video_player::update() {
 	inherited::update();
 
 	if(mVideo){
+		mPan = mGlobals.getSettingsLayout().getFloat("pan:value", 0, 0.0f);
+		mVideo->setPan(mPan);
 		std::stringstream ss;
 		ss << "fps: " << mVideo->getVideoPlayingFramerate();
 	}
@@ -210,21 +211,23 @@ void sync_video_player::keyDown(ci::app::KeyEvent event){
 	inherited::keyDown(event);
 	if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
 		if (mVideo){
-			mVideo->setPan(ds::ui::GstVideo::kPanLeft);
+			mVideo->setPan(-1.0f);
 		}
 	}
 	else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_c){
 		if (mVideo){
-			mVideo->setPan(ds::ui::GstVideo::kPanCenter);
+			mVideo->setPan(0.0f);
 		}
 	}
 	else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_r){
 		if (mVideo){
-			mVideo->setPan(ds::ui::GstVideo::kPanRight);
+			mVideo->setPan(1.0f);
 		}
 	}
 	else if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
+		if (mEngine.getMode() != ds::ui::SpriteEngine::CLIENT_MODE){
+			setupServer();
+		}
 	} else if(event.getChar() == KeyEvent::KEY_v){
 		mVerbose = !mVerbose;
 		if(mVideo){
@@ -236,6 +239,7 @@ void sync_video_player::keyDown(ci::app::KeyEvent event){
 		}
 
 		if (mSelectedVideo ){
+			//TODO: Need to schedule this to be removed,and actually remove during update.
 			mLoadedVideos.erase(std::remove(mLoadedVideos.begin(), mLoadedVideos.end(), mSelectedVideo), mLoadedVideos.end());
 			mSelectedVideo->release();
 			mVsb->linkVideo(nullptr);
