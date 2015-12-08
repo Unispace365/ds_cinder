@@ -13,9 +13,12 @@ namespace ui {
  * \class ds::ui::SpriteAnimatable
  */
 SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
-		: mOwner(s)
-		, mEngine(e) 
-		, mAnimateOnTargetsSet(false)
+	: mOwner(s)
+	, mEngine(e)
+	, mAnimateOnTargetsSet(false)
+	, mAnimateOnScaleTarget(1.0f, 1.0f, 1.0f)
+	, mAnimateOnPositionTarget(0.0f, 0.0f, 0.0f)
+	, mAnimateOnOpacityTarget(1.0f)
 {}
 
 SpriteAnimatable::~SpriteAnimatable() {
@@ -137,6 +140,10 @@ void SpriteAnimatable::setAnimateOnTargets(){
 	mAnimateOnScaleTarget = mOwner.getScale();
 	mAnimateOnPositionTarget = mOwner.getPosition();
 	mAnimateOnOpacityTarget = mOwner.getOpacity();
+}
+
+void SpriteAnimatable::clearAnimateOnTargets(){
+	mAnimateOnTargetsSet = false;
 }
 
 void SpriteAnimatable::runAnimationScript(const std::string& animScript, const float addedDelay){

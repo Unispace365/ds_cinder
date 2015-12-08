@@ -103,6 +103,10 @@ public:
 	/// Sets the targets for animate on. This only applies to fade, grow and slide. The intent here is to make tweenAnimateOn() reliable through multiple calls at any time.
 	void									setAnimateOnTargets();
 
+	/// Reset the animateOn target, which allows you to call a new animateOn to different targets.
+	/// setToTarget will automatically set this sprite to it's current targets, making for an easy reset.
+	void									clearAnimateOnTargets();
+
 	/** Parse the string as a script to run a few animations.
 		Syntax: <type>:<valueX, valueY, valueZ>;
 		Special params: 
