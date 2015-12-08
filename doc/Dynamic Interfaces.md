@@ -46,6 +46,7 @@ Sprite Types
 * **gradient** = ds::ui::GradientSprite
 * **layout** = ds::ui::LayoutSprite
 * **circle** = ds::ui::Circle
+* **scroll_list** = ds::ui::ScrollList
 * **[custom]** = Calls a custom callback function with a string for the type. Requires you instantiate the sprite type yourself.
 
 Sprite Parameters
@@ -103,6 +104,7 @@ Layout Parameters (only valid if using a layout sprite as a parent)
     3. size: Only adjusts the size of children, but does not modify their position. Useful to constrain some elements to a size, but keep them at a particular position
     4. <any other value>: None, does no layout of children.
 * **layout_spacing**: For LayoutSprite only, a float that sets the spacing between all elements. layout_spacing="10.0"
+* **overall_alignment**: For LayoutSprite, allows you to align the contents to Top, Left, Center, Right, Middle or Bottom inside the layout
 
 Text Parameters (valid for Text and MultilineText Sprites)
 ------------------------------------------------------------
@@ -132,6 +134,13 @@ Circle Sprite Parameters
 ---------------------------
 * **filled**: Boolean, whether to draw just the outline or fill in the circle
 * **radius**: Float, the radius of the circle to draw
+
+Scroll List Parameters
+-------------------------------
+* **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc)
+* **scroll_list_layout**: Sets the parameters for layout from the format "x, y, z", which translates to setLayoutParams(xStart, yStart, incrementAmount, true);
+* **scroll_list_animate**: Sets the animation parameters, from the format "x, y", where x==startDelay and y==deltaDelay on ScrollList::setAnimateOnParams(startDelay, deltaDelay);
+* **scroll_fade_colors**: Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
 
 Animation
 ==============================

@@ -11,6 +11,7 @@
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/app/environment.h>
@@ -368,6 +369,22 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 			scrollList->setAnimateOnParams(vec.x, vec.y);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
+
+	else if(property == "scroll_fade_colors"){
+		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
+		if(scrollList){
+			auto colors = ds::split(attr.getValue(), ", ", true);
+			if(colors.size() > 1){
+				auto colorOne = parseColor(colors[0]);
+				auto colorTwo = parseColor(colors[1]);
+				scrollList->getScrollArea()->setFadeColors(colorOne, colorTwo);
+			} else {
+				DS_LOG_WARNING("Not enough colors specified for scroll_fade_colors ");
+			}
+		} else {
+			DS_LOG_WARNING("Couldn's set scroll_fade_colors for this sprite ");
 		}
 	}
 
