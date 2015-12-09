@@ -8,7 +8,7 @@
 #include "app/app_defs.h"
 #include "app/globals.h"
 #include "ds/ui/sprite/gst_video.h"
-
+#include <ds/ui/sprite/panoramic_video.h>
 
 namespace ds {
 
@@ -71,6 +71,17 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 	if (paths.empty()){
 		return;
 	}
+
+	auto mPanoramicVideo = new ds::ui::PanoramicVideo(mEngine);
+	mEngine.getRootSprite().addChildPtr(mPanoramicVideo);
+	//mPanoramicVideo->setSize(1366.0, 768.0f);
+	mPanoramicVideo->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
+	mPanoramicVideo->setCenter(0.5f, 0.5f);
+	mPanoramicVideo->setPosition(0.5f * mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());
+	mPanoramicVideo->loadVideo(paths.front());
+	mPanoramicVideo->setFOV(60.0f);
+
+	return;
 
 
 	mVideo = new ds::ui::GstVideo(mEngine);
