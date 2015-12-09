@@ -1,4 +1,4 @@
-#include "drone_video_sprite.h"
+#include "panoramic_video.h"
 
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/app/blob_registry.h>
@@ -85,18 +85,20 @@ namespace {
 	static struct Initializer {
 		Initializer() {
 			ds::App::AddStartup([](ds::Engine& engine) {
-				ds::ui::DroneVideoSprite::installSprite(engine);
+				ds::ui::PanoramicVideo::installSprite(engine);
 			});
 		}
 	} INIT;
-static char _BLOB;
+	static char _BLOB;
 } //!anonymous namespace
 
 namespace ds {
-	namespace ui {
+namespace ui {
 
+	const char mSphereCoordsAtt = 81;
+	const DirtyState&	SPHERE_DIRTY = INTERNAL_A_DIRTY;
 
-void DroneVideoSprite::installAsServer(ds::BlobRegistry& registry)
+void PanoramicVideo::installAsServer(ds::BlobRegistry& registry)
 {
 	_BLOB = registry.add([](ds::BlobReader& r)
 	{
@@ -104,26 +106,28 @@ void DroneVideoSprite::installAsServer(ds::BlobRegistry& registry)
 	});
 }
 
-void DroneVideoSprite::installAsClient(ds::BlobRegistry& registry)
+void PanoramicVideo::installAsClient(ds::BlobRegistry& registry)
 {
 	_BLOB = registry.add([](ds::BlobReader& r)
 	{
-		Sprite::handleBlobFromServer<DroneVideoSprite>(r);
+		Sprite::handleBlobFromServer<PanoramicVideo>(r);
 	});
 }
 
-void DroneVideoSprite::installSprite(ds::Engine& engine)
+void PanoramicVideo::installSprite(ds::Engine& engine)
 {
 	engine.installSprite(installAsServer, installAsClient);
 }
 
-DroneVideoSprite::DroneVideoSprite(ds::ui::SpriteEngine& engine)
+PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	: ds::ui::Sprite(engine)
 	, mVideoSprite(nullptr)
 	, mVideoTexture(nullptr)
 	, mSphere(ci::Sphere(ci::Vec3f::zero(), 100.0f)) // doesn't really matter how big this is. FIXME
-	, util::Configurable(mEngine, "drone")
-	, mTouchSprite(*(new ds::ui::Sprite(mEngine)))
+	, mInvertX(false)
+	, mInvertY(true)
+	, mXSensitivity(5.0f)
+	, mYSensitivity(5.0f)
 {
 	mBlobType = _BLOB;
 	setUseShaderTextuer(true);
@@ -131,39 +135,44 @@ DroneVideoSprite::DroneVideoSprite(ds::ui::SpriteEngine& engine)
 	addNewMemoryShader(drone_vert, drone_frag, shader_name);
 
 	resetCamera();
-
-	mTouchSprite.setTransparent(true);
-	mTouchSprite.enable(true);
-	mTouchSprite.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	mTouchSprite.setProcessTouchCallback([this](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
+	
+	enable(true);
+	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	setProcessTouchCallback([this](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
 		handleDrag(ti.mDeltaPoint.xy());
 	});
 }
 
-void DroneVideoSprite::handleDrag(const ci::Vec2f& swipe)
+void PanoramicVideo::handleDrag(const ci::Vec2f& swipe)
 {
-	auto invert_x = getSettings().getBool("x_invert") ? -1.0f : 1.0f;
-	auto invert_y = getSettings().getBool("y_invert") ? -1.0f : 1.0f;
-	auto new_theta = getTheta() - invert_y * (swipe.y / getSettings().getFloat("y_factor"));
+	auto invert_x = mInvertX ? 1.0f : -1.0f;
+	auto invert_y = mInvertY ? 1.0f : -1.0f;
+	auto new_theta = getTheta() - invert_y * (swipe.y / mYSensitivity);
 	if (new_theta < 0.1f) new_theta = 0.1f;
 	else if (new_theta > 180.0f) new_theta = 180.0f - 0.1f;
-	setRotation(new_theta, getPhi() - invert_x * (swipe.x / getSettings().getFloat("x_factor")), getRotation().z);
+	setSphericalCoord(new_theta, getPhi() - invert_x * (swipe.x / mXSensitivity));
 }
 
-void DroneVideoSprite::onRotationChanged()
-{
-	setSphericalCoord(getRotation().x, getRotation().y);
+void PanoramicVideo::setDragParams(const float xSensitivity, const float ySensitivity){
+	if(xSensitivity != 0.0f){
+		mXSensitivity = xSensitivity;
+	}
+
+	if(ySensitivity != 0.0f){
+		mYSensitivity = ySensitivity;
+	}
 }
 
-void DroneVideoSprite::onChildAdded(ds::ui::Sprite& child)
-{
-	if (mVideoSprite)
-	{
+void PanoramicVideo::setDragInvert(const bool xInvert, const bool yInvert){
+	mInvertX = xInvert;
+	mInvertY = yInvert;
+}
+
+void PanoramicVideo::onChildAdded(ds::ui::Sprite& child){
+	if (mVideoSprite){
 		DS_LOG_WARNING("Multiple video sprites were attempted to be registered. Gonna ignore it.");
 		return;
-	}
-	else if (auto video = dynamic_cast<ds::ui::Video*>(&child))
-	{
+	} else if(auto video = dynamic_cast<ds::ui::Video*>(&child)){
 		mVideoSprite = video;
 		mVideoSprite->setTransparent(false);
 		setTransparent(false);
@@ -174,41 +183,40 @@ void DroneVideoSprite::onChildAdded(ds::ui::Sprite& child)
 	}
 }
 
-void DroneVideoSprite::onChildRemoved(ds::ui::Sprite& child)
-{
-	if (mVideoSprite)
-	{
-		if (auto video = dynamic_cast<ds::ui::Video*>(&child))
-		{
-			if (video == mVideoSprite)
-			{
-				mVideoSprite = nullptr;
-			}
-		}
+void PanoramicVideo::onChildRemoved(ds::ui::Sprite& child){
+	if (mVideoSprite == &child){
+		mVideoSprite = nullptr;
 	}
 }
 
-void DroneVideoSprite::updateServer(const ds::UpdateParams& up)
-{
-	ds::ui::Sprite::updateServer(up);
+void PanoramicVideo::writeAttributesTo(ds::DataBuffer& buf) {
+	ds::ui::Sprite::writeAttributesTo(buf);
 
-	if (mVideoSprite && !mVideoTexture) {
+	if(mDirty.has(SPHERE_DIRTY)) {
+		buf.add(mSphereCoordsAtt);
+		buf.add(mSphericalAngles.x);
+		buf.add(mSphericalAngles.y);
+	}
+}
+
+void PanoramicVideo::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
+	if(attributeId == mSphereCoordsAtt) {
+		float theta = buf.read<float>();
+		float phi = buf.read<float>();
+		setSphericalCoord(theta, phi);
+
+	} else {
+		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
+	}
+}
+
+void PanoramicVideo::drawLocalClient(){
+
+	if (mVideoSprite && mSpriteShader.getName().compare(shader_name) == 0){
+
 		mVideoTexture = mVideoSprite->getFinalOutTexture();
-	}
-}
+		if(!mVideoTexture) return;
 
-void DroneVideoSprite::updateClient(const ds::UpdateParams& up)
-{
-	ds::ui::Sprite::updateClient(up);
-	if (mVideoSprite && !mVideoTexture) {
-		mVideoTexture = mVideoSprite->getFinalOutTexture();
-	}
-}
-
-void DroneVideoSprite::drawLocalClient()
-{
-	if (mVideoTexture && mVideoSprite && mSpriteShader.getName().compare(shader_name) == 0)
-	{
 		ci::Area viewport = ci::gl::getViewport();
 		ci::Vec2f ul = getPosition().xy() - getCenter().xy()*getSize().xy();
 		ci::Vec2f br = ul + ci::Vec2f(getWidth(), getHeight());
@@ -219,7 +227,6 @@ void DroneVideoSprite::drawLocalClient()
 			ci::gl::setViewport(ci::Area(ci::Vec2f(ul.x,br.y), ci::Vec2f(br.x, ul.y)));
 		}
 
-		mVideoTexture = mVideoSprite->getFinalOutTexture();
 		mVideoTexture->enableAndBind();
 		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
 		shaderBase.bind();
@@ -238,43 +245,12 @@ void DroneVideoSprite::drawLocalClient()
 	}
 }
 
-void DroneVideoSprite::resetCamera()
-{
-	mCamera.setPerspective(60.0f, getWidth() / getHeight(), 0.1f, 1000.0f);
+void PanoramicVideo::resetCamera(){
+	mCamera.setPerspective(30.0f, getWidth() / getHeight(), 0.1f, 5000.0f);
 	mCamera.setWorldUp(ci::Vec3f::zAxis());
 	mCamera.setEyePoint(mSphere.getCenter());
 	mCamera.setCenterOfInterest(mSphere.getRadius());
 	lookFront();
-}
-
-void DroneVideoSprite::lookFront()
-{
-	setSphericalCoord(90.0f, 0);
-}
-
-void DroneVideoSprite::lookBack()
-{
-	setSphericalCoord(-90.0f, 0);
-}
-
-void DroneVideoSprite::lookUp()
-{
-	setSphericalCoord(0, 0);
-}
-
-void DroneVideoSprite::lookDown()
-{
-	setSphericalCoord(180.0f, 0);
-}
-
-void DroneVideoSprite::lookRight()
-{
-	setSphericalCoord(90.0f, -90.0f);
-}
-
-void DroneVideoSprite::lookLeft()
-{
-	setSphericalCoord(90.0f, 90.0f);
 }
 
 namespace {
@@ -284,8 +260,7 @@ void cleanAngle(float& degree) {
 	if (degree < 0.0001f) degree = 0;
 }}
 
-void DroneVideoSprite::setSphericalCoord(float theta, float phi)
-{
+void PanoramicVideo::setSphericalCoord(float theta, float phi){
 	// Clean for (over/under)flows and negative angles
 	cleanAngle(phi);
 	cleanAngle(theta);
@@ -293,6 +268,8 @@ void DroneVideoSprite::setSphericalCoord(float theta, float phi)
 	// Cache for later use
 	mSphericalAngles.x = theta;
 	mSphericalAngles.y = phi;
+
+	markAsDirty(SPHERE_DIRTY);
 
 	// Convert to radian
 	theta = ci::toRadians(getTheta());
@@ -307,47 +284,30 @@ void DroneVideoSprite::setSphericalCoord(float theta, float phi)
 	mCamera.lookAt(target);
 }
 
-void DroneVideoSprite::onSizeChanged()
-{
-	if (mVideoSprite) {
-		mVideoSprite->setSize(getWidth(), getHeight());
-	}
+void PanoramicVideo::onSizeChanged(){
 	resetCamera();
 }
 
-void DroneVideoSprite::installVideo(const std::string& path)
-{
-	auto video_sprite = addChildPtr(new ds::ui::Video(mEngine));
-	installVideo(video_sprite, path);
-}
+void PanoramicVideo::loadVideo(const std::string& path){
+	if(mVideoSprite){
+		mVideoSprite->release();
+		mVideoSprite = nullptr;
+	}
 
-void DroneVideoSprite::installVideo( ds::ui::Video* const video, const std::string& path)
-{
-	ds::ui::Video* const video_sprite = addChildPtr(video);
+	mVideoTexture = nullptr;
+
+	auto video_sprite = addChildPtr(new ds::ui::Video(mEngine));
+
 	//Need to enable this to enable panning 
 	video_sprite->generateAudioBuffer(true);
-
 	video_sprite->setAutoStart(true);
 	video_sprite->setLooping(true);
 	video_sprite->loadVideo(path);
 
-	//setup touch sprite
-	if (getParent()){
-		getParent()->addChild(mTouchSprite);
-	}
-	else {
-		DS_LOG_WARNING("Drone video sprite isn't parented.");
-		return;
-
-	}
-	mTouchSprite.setCenter(getCenter());
-	mTouchSprite.setSize(getSize().xy());
-	mTouchSprite.setPosition(getPosition());
-
+	resetCamera();
 }
 
-ds::ui::Video* DroneVideoSprite::getVideo() const
-{
+ds::ui::Video* PanoramicVideo::getVideo() const {
 	return mVideoSprite;
 }
 

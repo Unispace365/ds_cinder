@@ -80,7 +80,9 @@ public:
 	void				setVolume(const float volume);
 	float				getVolume() const;
 
-	//Control which speaker to play out of (left/right/both)
+	///Control which speaker to play out of (left/right/both) 
+	///-1.0f == full left, 0.0f == center, 1.0f == right
+	/// Note: you need to set generateAudioBuffer(true) AND not use a custom pipeline for this to work
 	void				setPan(const float pan);
 	float				getPan() const;
 

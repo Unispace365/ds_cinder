@@ -17,6 +17,7 @@ namespace gstwrapper
 		, m_GstPipeline(NULL)
 		, m_GstVideoSink(NULL)
 		, m_GstAudioSink(NULL)
+		, m_GstPanorama(NULL)
 		, m_GstBus(NULL)
 		, m_StartPlaying(true)
 		, m_StopOnLoopComplete(false)
@@ -483,6 +484,7 @@ void GStreamerWrapper::close(){
 		m_GstPipeline = NULL;
 		m_GstVideoSink = NULL;
 		m_GstAudioSink = NULL;
+		m_GstPanorama = NULL;
 
 	}
 
@@ -803,26 +805,26 @@ ContentType GStreamerWrapper::getContentType(){
 	return m_ContentType;
 }
 
-void GStreamerWrapper::setVolume( float fVolume ){
-	if ( m_fVolume != fVolume )
+void GStreamerWrapper::setVolume(float fVolume){
+	if(m_fVolume != fVolume)
 	{
 		m_fVolume = fVolume;
-		if ( m_fVolume < 0.0f )
+		if(m_fVolume < 0.0f)
 			m_fVolume = 0.0f;
-		else if ( m_fVolume > 1.0f )
+		else if(m_fVolume > 1.0f)
 			m_fVolume = 1.0f;
 
-		g_object_set( m_GstPipeline, "volume", m_fVolume, NULL );
+		g_object_set(m_GstPipeline, "volume", m_fVolume, NULL);
 	}
 }
 
 void GStreamerWrapper::setPan(float fPan){
-	if (m_fPan != fPan)
+	if(m_fPan != fPan && m_GstPanorama)
 	{
 		m_fPan = fPan;
-		if (m_fPan < -1.0f)
+		if(m_fPan < -1.0f)
 			m_fPan = -1.0f;
-		else if (m_fVolume > 1.0f)
+		else if(m_fPan > 1.0f)
 			m_fPan = 1.0f;
 
 		g_object_set(m_GstPanorama, "panorama", m_fPan, NULL);

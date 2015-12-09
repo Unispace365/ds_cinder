@@ -1,6 +1,0 @@
-<settings>
-	<float name="x_factor" value="10" />
-	<float name="y_factor" value="10" />
-	<text name="x_invert" value="true" />
-	<text name="y_invert" value="true" />
-	</settings>

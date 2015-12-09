@@ -33,6 +33,7 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	}
 
 	mVideo = new ds::ui::GstVideo(mEngine);
+	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
 
 	mVideo->setMute(true);
@@ -83,6 +84,7 @@ void VideoPlayer::play(){
 	if(mVideo){
 		if(mVideo->isPlayingAFrame()){
 			mVideo->enablePlayingAFrame(false);
+			mVideo->setMute(false);
 		}
 		mVideo->play();
 	}

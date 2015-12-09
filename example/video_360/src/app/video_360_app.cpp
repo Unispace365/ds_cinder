@@ -16,9 +16,9 @@ namespace test {
 
 video_360::video_360()
 : inherited()
-, mMedia(nullptr)
 	, mHeader(nullptr)
 	, mLabelText(nullptr)
+	, mPanoramicVideo(nullptr)
 {
 	/*fonts in use */
 	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
@@ -31,6 +31,11 @@ void video_360::setupServer(){
 	mEngine.loadTextCfg("text.xml");
 
 	mEngine.getRootSprite().clearChildren();
+
+	mHeader = nullptr;
+	mLabelText = nullptr;
+	mPanoramicVideo = nullptr;
+
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
 	rootSprite.setTransparent(false);
@@ -48,9 +53,6 @@ void video_360::setupServer(){
 	mLabelText = mEngine.getEngineCfg().getText("header:label").create(mEngine, mHeader);
 	mLabelText->setPosition(20.0f,20.0f);
 	mLabelText->setText("Drop a file or paste a file path");
-
-	mDroneVideo = new ds::ui::DroneVideoSprite(mEngine);
-	rootSprite.addChildPtr(mDroneVideo);
 }
 
 void video_360::update() {
@@ -65,30 +67,30 @@ void video_360::keyDown(ci::app::KeyEvent event){
 	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown() && ci::Clipboard::hasString()){
 		loadMedia(ci::Clipboard::getString());
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
-		if (mDroneVideo){
-			mDroneVideo->getVideo()->setPan(ds::ui::GstVideo::kPanLeft);
+		if (mPanoramicVideo){
+			mPanoramicVideo->getVideo()->setPan(-1.0f);
 		}
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_c){
-		if (mDroneVideo){
-			mDroneVideo->getVideo()->setPan(ds::ui::GstVideo::kPanCenter);
+		if (mPanoramicVideo){
+			mPanoramicVideo->getVideo()->setPan(0.0f);
 		}
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_r){
-		if (mDroneVideo){
-			mDroneVideo->getVideo()->setPan(ds::ui::GstVideo::kPanRight);
+		if (mPanoramicVideo){
+			mPanoramicVideo->getVideo()->setPan(1.0f);
 		}
 	} else if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	} else if(event.getChar() == KeyEvent::KEY_1){
-		if (!mBaseVideo->removeShader("test1")) {
-			mBaseVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
+		if (!mPanoramicVideo->getVideo()->removeShader("test1")) {
+			mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
 		}
 	} else if (event.getChar() == KeyEvent::KEY_2){
-		if (!mBaseVideo->removeShader("test2")) {
-			mBaseVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
+		if(!mPanoramicVideo->getVideo()->removeShader("test2")) {
+			mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
 		}
 	} else if (event.getChar() == KeyEvent::KEY_3){
-		if (!mBaseVideo->removeShader("toonify")) {
-			mBaseVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
+		if(!mPanoramicVideo->getVideo()->removeShader("toonify")) {
+			mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
 		}
 	}
 }
@@ -102,47 +104,42 @@ void video_360::fileDrop(ci::app::FileDropEvent event){
 
 void video_360::loadMedia(const std::string& newMedia){
 
-	if (!mHeader || !mLabelText) return;
-
-	if (mMedia){
-		mMedia->release();
-	}
-	mMedia = nullptr;
-
+	if(!mHeader || !mLabelText) return;
 	mLabelText->setText(newMedia);
 
-	const float headerHeight = mHeader->getHeight();
+	if(mPanoramicVideo){
+		mPanoramicVideo->release();
+		mPanoramicVideo = nullptr;
+	}
 
-	Poco::File filey = Poco::File(newMedia);
-	std::string extensionay = Poco::Path(filey.path()).getExtension();
-	std::cout << "File extension: " << extensionay << std::endl;
-	std::transform(extensionay.begin(), extensionay.end(), extensionay.begin(), ::tolower);
+	if(!mPanoramicVideo){
+		mPanoramicVideo = new ds::ui::PanoramicVideo(mEngine);
+		mEngine.getRootSprite().addChildPtr(mPanoramicVideo);
+	}
 
-	mBaseVideo = new ds::ui::Video(mEngine);
 
+	//Configure drone video
+	mPanoramicVideo->setSize(1366.0, 768.0f);
+	mPanoramicVideo->setCenter(0.5f, 0.5f);
+	mPanoramicVideo->setPosition(mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());
+	mPanoramicVideo->loadVideo(newMedia);
+
+	auto realVideo = mPanoramicVideo->getVideo();
 	//Set shader uniforms - Shaders are enabled/disabled by user keyboard input
 	ds::gl::Uniform uniform;
 	uniform.setInt("Texture0", 1);  // Use texture unit 1 since Vidoe CSC is hardcoded to TU 0
-	mBaseVideo->setShadersUniforms("toonify", uniform);
+	realVideo->setShadersUniforms("toonify", uniform);
 
 	uniform.clear();
 	uniform.setFloat("opacity", 0.9f);
 	uniform.setInt("tex0", 1);  // Use texture unit 1 since Vidoe CSC is hardcoded to TU 0
-	mBaseVideo->setShadersUniforms("test2", uniform);
+	realVideo->setShadersUniforms("test2", uniform);
 
 	uniform.clear();
 	uniform.setInt("tex1", 1);
 	uniform.setFloat("opacity", 1.0f);
-	mBaseVideo->setShadersUniforms("test1", uniform);
+	realVideo->setShadersUniforms("test1", uniform);
 
-	//Configure drone video
-	mDroneVideo->setSize(1000.0f, 500.0f);
-	mDroneVideo->setCenter(0.5f, 0.5f);
-	mDroneVideo->setPosition(0.5f * mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());
-	mDroneVideo->setUseDepthBuffer(false);
-	mDroneVideo->installVideo(mBaseVideo, newMedia);
-
-	mMedia = mDroneVideo;
 }
 
 
