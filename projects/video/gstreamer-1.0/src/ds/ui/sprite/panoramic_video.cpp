@@ -217,13 +217,15 @@ void PanoramicVideo::drawLocalClient(){
 
 		mVideoTexture = mVideoSprite->getFinalOutTexture();
 		if(!mVideoTexture) return;
-
+		//save off original viewport - restore after we are done
 		ci::Area viewport = ci::gl::getViewport();
-		ci::Vec2f ul = getPosition().xy() - getCenter().xy()*getSize().xy();
-		ci::Vec2f br = ul + ci::Vec2f(getWidth(), getHeight());
+
+		ci::Vec3f ul = localToGlobal( ci::Vec3f (getPosition().xy() - getCenter().xy()*getSize().xy(),0.0f));
+		ul = ul - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
+		ci::Vec3f br = ul + ci::Vec3f(getWidth(), getHeight(), 0.0f);
 
 		if (!getPerspective()) {
-			ci::gl::setViewport(ci::Area(ul, br));
+			ci::gl::setViewport(ci::Area(ul.xy(), br.xy()));
 		} else {
 			ci::gl::setViewport(ci::Area(ci::Vec2f(ul.x,br.y), ci::Vec2f(br.x, ul.y)));
 		}
