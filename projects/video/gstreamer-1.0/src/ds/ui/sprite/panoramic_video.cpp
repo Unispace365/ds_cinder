@@ -128,6 +128,7 @@ PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	, mInvertY(true)
 	, mXSensitivity(5.0f)
 	, mYSensitivity(5.0f)
+	, mFov(60.0f)
 {
 	mBlobType = _BLOB;
 	setUseShaderTextuer(true);
@@ -246,7 +247,7 @@ void PanoramicVideo::drawLocalClient(){
 }
 
 void PanoramicVideo::resetCamera(){
-	mCamera.setPerspective(30.0f, getWidth() / getHeight(), 0.1f, 5000.0f);
+	mCamera.setPerspective(mFov, getWidth() / getHeight(), 0.1f, 5000.0f);
 	mCamera.setWorldUp(ci::Vec3f::zAxis());
 	mCamera.setEyePoint(mSphere.getCenter());
 	mCamera.setCenterOfInterest(mSphere.getRadius());
@@ -309,6 +310,11 @@ void PanoramicVideo::loadVideo(const std::string& path){
 
 ds::ui::Video* PanoramicVideo::getVideo() const {
 	return mVideoSprite;
+}
+
+void PanoramicVideo::setFOV(const float fov){
+	mFov = fov;
+	resetCamera();
 }
 
 }} //!ds::ui

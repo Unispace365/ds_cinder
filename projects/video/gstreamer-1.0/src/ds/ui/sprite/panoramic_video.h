@@ -47,6 +47,8 @@ public:
 
 	void				handleDrag(const ci::Vec2f& deltaPos);
 
+	void				setFOV(const float fov);
+
 protected:
 	// These are our only chances in client mode to catch the video.
 	virtual void		onChildAdded(ds::ui::Sprite& child) override;
@@ -69,6 +71,7 @@ private:
 	bool				mInvertY;
 	float				mXSensitivity;
 	float				mYSensitivity;
+	float				mFov;
 
 public:
 	static void			installAsServer(ds::BlobRegistry&);
