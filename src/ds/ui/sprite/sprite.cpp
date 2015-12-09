@@ -385,10 +385,6 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 		ci::gl::popModelView();
 		ci::gl::popMatrices();
 		ci::gl::setViewport(viewport);
-
-		//ci::Surface surface(mOutputFbo->getTexture());
-	
-		//uint8_t * tmp = surface.getData();
 		mOutputFbo->unbindFramebuffer();
 	}
 
@@ -2011,7 +2007,7 @@ void Sprite::setupFinalRenderBuffer(){
 		getWidth() > 1.0f &&
 		getHeight() > 1.0f){
 		ci::gl::Fbo::Format  format;
-		mOutputFbo = new ci::gl::Fbo(static_cast<int>(mEngine.getWorldWidth()), static_cast<int>(mEngine.getWorldHeight()), format);
+		mOutputFbo = new ci::gl::Fbo(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
 	}
 	else mOutputFbo = nullptr;
 }

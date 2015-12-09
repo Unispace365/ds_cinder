@@ -121,7 +121,7 @@ void video_360::loadMedia(const std::string& newMedia){
 	//Configure drone video
 	mPanoramicVideo->setSize(1366.0, 768.0f);
 	mPanoramicVideo->setCenter(0.5f, 0.5f);
-	mPanoramicVideo->setPosition(mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());
+	mPanoramicVideo->setPosition(0.25f* mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());
 	mPanoramicVideo->loadVideo(newMedia);
 
 	auto realVideo = mPanoramicVideo->getVideo();
@@ -142,20 +142,6 @@ void video_360::loadMedia(const std::string& newMedia){
 
 }
 
-
-
-void video_360::fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy){
-	if (!spriddy) return;
-
-	const float engAsp = area.getWidth() / area.getHeight();
-	const float vidAsp = spriddy->getWidth() / spriddy->getHeight();
-	float vidScale = area.getHeight() / spriddy->getHeight();
-	if(vidAsp > engAsp){
-		vidScale = area.getWidth() / spriddy->getWidth();
-	}
-	spriddy->setScale(vidScale);
-	spriddy->setPosition(area.getX1() + area.getWidth() / 2.0f - spriddy->getScaleWidth() / 2.0f, area.getY1() + area.getHeight() / 2.0f - spriddy->getScaleHeight() / 2.0f);
-}
 
 } // namespace test
 

@@ -25,10 +25,17 @@
 	<!-- WINDOW SETTINGS --->
 	<!---------------------->
 	<!-- how big the world size is, in pixels -->
-	<size name="world_dimensions" x="1920" y="1080" />
+	<size name="_world_dimensions" x="1920" y="1080" />
+	<rect name="_src_rect" l="0" r="1920" t="0" b="1080" />
+	<rect name="_dst_rect" l="0" r="1920" t="20" b="1100" />
+
+	<size name="world_dimensions" x="3840" y="1080" />
 	<rect name="src_rect" l="0" r="1920" t="0" b="1080" />
 	<rect name="dst_rect" l="0" r="1920" t="20" b="1100" />
-	<!-- title of the window -->
+
+<!-- 	<rect name="src_rect" l="1920" r="3840" t="0" b="1080" />
+	<rect name="dst_rect" l="1920" r="3840" t="20" b="1100" />
+ -->	<!-- title of the window -->
 	<text name="screen:title" value="Video 360" />	
 	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
 	<text name="screen:mode" value="window" />
