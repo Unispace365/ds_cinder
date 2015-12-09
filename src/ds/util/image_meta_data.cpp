@@ -65,6 +65,11 @@ bool						get_format_png(const std::string& filename, ci::Vec2f& outSize) {
 		height = _byteswap_ulong(height);
 	}
 
+	// check to make sure we correctly read the size. There's some bad png's out there
+	if(width < 1 || width > 20000 || height < 1 || height > 20000){
+		return false;
+	}
+
 	outSize.x = static_cast<float>(width);
 	outSize.y = static_cast<float>(height);
 	return true;
