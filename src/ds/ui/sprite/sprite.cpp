@@ -45,6 +45,7 @@ const DirtyState	BLEND_MODE			= newUniqueDirtyState();
 const DirtyState	CLIPPING_BOUNDS		= newUniqueDirtyState();
 const DirtyState	SORTORDER_DIRTY		= newUniqueDirtyState();
 const DirtyState	ROTATION_DIRTY		= newUniqueDirtyState();
+const DirtyState	CORNER_DIRTY		= newUniqueDirtyState();
 
 const char			PARENT_ATT			= 2;
 const char			SIZE_ATT			= 3;
@@ -59,6 +60,7 @@ const char			CLIP_BOUNDS_ATT		= 11;
 const char			SORTORDER_ATT		= 12;
 const char			ROTATION_ATT		= 13;
 const char			CHECKBOUNDS_ATT		= 14;
+const char			CORNERRADIUS_ATT	= 15;
 
 // flags
 const int           VISIBLE_F			= (1<<0);
@@ -1539,6 +1541,10 @@ void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(mClippingBounds.getX2());
 		buf.add(mClippingBounds.getY2());
 	}
+	if (mDirty.has(CORNER_DIRTY)){
+		buf.add(CORNERRADIUS_ATT);
+		buf.add(mCornerRadius);
+	}
 	if (mDirty.has(SORTORDER_DIRTY)) {
 		// A flat list of ints, the first value is the number of ints
 		buf.add(SORTORDER_ATT);
@@ -1609,13 +1615,16 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 			mOpacity = buf.read<float>();
 		} else if (id == BLEND_ATT) {
 			mBlendMode = buf.read<BlendMode>();
-		} else if (id == CLIP_BOUNDS_ATT) {
+		} else if(id == CLIP_BOUNDS_ATT) {
 			float x1 = buf.read<float>();
 			float y1 = buf.read<float>();
 			float x2 = buf.read<float>();
 			float y2 = buf.read<float>();
 			mClippingBounds.set(x1, y1, x2, y2);
 			markClippingDirty();
+		} else if(id == CORNERRADIUS_ATT){ 
+			float cornerRad = buf.read<float>();
+			mCornerRadius = cornerRad;
 		} else if (id == SORTORDER_ATT) {
 			int32_t						size = buf.read<int32_t>();
 			// I'll assume anything beyond a certain size is a broken packet.
@@ -2202,6 +2211,7 @@ bool Sprite::getUseDepthBuffer() const{
 
 void Sprite::setCornerRadius( const float newRadius ){
 	mCornerRadius = newRadius;
+	markAsDirty(CORNER_DIRTY);
 }
 
 float Sprite::getCornerRadius() const{
