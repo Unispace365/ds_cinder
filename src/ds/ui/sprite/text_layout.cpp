@@ -290,7 +290,7 @@ void TextLayoutVertical::addLine(const FontPtr& font, const std::wstring& lineTe
 void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 {
 	mOutputLines.clear();
-	if(in.mText.empty())
+	if(in.mText.empty() || !in.mFont->isValid())
 		return;
 	// Per line, find the word breaks, then create a line.
 	std::vector<std::wstring>			tokens;
