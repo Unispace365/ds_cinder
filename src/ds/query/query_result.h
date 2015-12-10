@@ -8,6 +8,7 @@
 #include <vector>
 #include <memory>
 #include <Poco/Timestamp.h>
+#include <Poco/DateTime.h>
 
 namespace ds {
 
@@ -51,6 +52,7 @@ public:
 		float							getFloat(const int columnIndex) const;
 		const std::string&				getString(const int columnIndex) const;
 		const std::wstring&				getWString(const int columnIndex) const;
+		const Poco::DateTime			getDateTime(const int columnIndex) const;
 
 	private:
 		friend class ds::query::Result;

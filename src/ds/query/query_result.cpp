@@ -5,6 +5,7 @@
 #include <stdarg.h>
 #include <math.h>
 #include <ds/util/string_util.h>
+#include <Poco/DateTimeParser.h>
 
 using namespace std;
 
@@ -361,6 +362,21 @@ const std::wstring& Result::RowIterator::getWString(const int columnIndex) const
 	const Row&		row = (mOverride ? *mOverride : **mRowIt);
 	if (columnIndex >= 0 && columnIndex < row.mWString.size()) return row.mWString[columnIndex];
 	return RESULT_EMPTY_WSTR;
+}
+
+const Poco::DateTime Result::RowIterator::getDateTime(const int columnIndex) const {
+	const Row&		row = (mOverride ? *mOverride : **mRowIt);
+	if (columnIndex >= 0 && columnIndex < row.mString.size()) {
+		try{
+			std::string stringToParse = row.mString[columnIndex];
+			int tzd = 0;
+			Poco::DateTime output;
+			Poco::DateTimeParser::parse("%Y-%o-%d %h:%M:%S %a", stringToParse, output, tzd);
+			return output;
+		} catch(...){
+		}
+	}
+	return Poco::DateTime();
 }
 
 #ifdef _DEBUG
