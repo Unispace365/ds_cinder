@@ -241,15 +241,19 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	}
 	else if(property == "overall_alignment"){
 		auto layoutSprite = dynamic_cast<LayoutSprite*>(&sprite);
-		auto alignMode = attr.getValue();
-		if(alignMode == "left" || alignMode == "top"){
-			layoutSprite->setOverallAlignment(LayoutSprite::kLeft);
-		} else if(alignMode == "center" || alignMode == "middle"){
-			layoutSprite->setOverallAlignment(LayoutSprite::kCenter);
-		} else if(alignMode == "right" || alignMode == "bottom"){
-			layoutSprite->setOverallAlignment(LayoutSprite::kRight);
+		if(layoutSprite){
+			auto alignMode = attr.getValue();
+			if(alignMode == "left" || alignMode == "top"){
+				layoutSprite->setOverallAlignment(LayoutSprite::kLeft);
+			} else if(alignMode == "center" || alignMode == "middle"){
+				layoutSprite->setOverallAlignment(LayoutSprite::kCenter);
+			} else if(alignMode == "right" || alignMode == "bottom"){
+				layoutSprite->setOverallAlignment(LayoutSprite::kRight);
+			} else {
+				DS_LOG_WARNING("overall_alignment set to an invalid value of " << alignMode);
+			}
 		} else {
-			DS_LOG_WARNING("overall_alignment set to an invalid value of " << alignMode);
+			DS_LOG_WARNING("Couldn't set overall_alignment, as this sprite is not a LayoutSprite.");
 		}
 	}
 

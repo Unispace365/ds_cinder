@@ -155,6 +155,8 @@ void ModelMaker::run() {
 
 	std::vector<ModelModel> models = mYamlLoadService.mOutput;
 
+	std::map<std::string, bool> emptyDataClasses;
+
 	if(models.empty()){
 		DS_LOG_WARNING("No valid models loaded in model maker.");
 		mOutputStream << "No valid models loaded in model maker. Check the yml files you supplied." << std::endl;
@@ -197,6 +199,11 @@ void ModelMaker::run() {
 		std::string thisImpSetter;
 
 		std::map<std::string, std::string> dataMemberInitializers;
+
+		// add custom includes specified in the YAML
+		if(!mm.getCustomInclude().empty()){
+			sCustomIncludes << "#include " << mm.getCustomInclude() << std::endl;
+		}
 
 		// make all 'resource' flagged columns into proper resources
 		for(auto mit = mm.getResourceColumns().begin(); mit < mm.getResourceColumns().end(); ++mit){
@@ -247,7 +254,11 @@ void ModelMaker::run() {
 			}
 			
 			ModelColumn mc;
-			mc.setColumnName(foreignClass.str());
+			if(mr.getLocalKeyColumn().empty()){
+				mc.setColumnName(foreignClass.str());
+			} else {
+				mc.setColumnName(mr.getLocalKeyColumn());
+			}
 			mc.setType(ModelColumn::Custom);
 			mc.setCustomDataType(foreignDataType.str());
 			mc.setCustomEmptyDataName(foreignEmptyTypeFull.str());
@@ -300,7 +311,10 @@ void ModelMaker::run() {
 			} else if(mc.getType() == ModelColumn::Custom){
 				dataType = mc.getCustomDataType();
 				thisEmptyData = mc.getCustomEmptyDataName();
-				sCustomEmptyData << "const " << mc.getCustomDataType() << " EMPTY_" << mc.getCustomEmptyDataName() << ";" << std::endl;
+				if(emptyDataClasses.find(thisEmptyData) == emptyDataClasses.end()){
+					emptyDataClasses[thisEmptyData] = true;
+					sCustomEmptyData << "const " << mc.getCustomDataType() << " EMPTY_" << mc.getCustomEmptyDataName() << ";" << std::endl;
+				}
 			}
 
 

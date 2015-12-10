@@ -48,7 +48,7 @@ private:
 	void						parseColumn(YAML::Node mappedNode, ModelModel& modelModel);
 	void						parseRelations(YAML::Node relationsNode, ModelModel& mm);
 	void						parseActAs(YAML::Node relationsNode, ModelModel& mm);
-
+	
 	bool						parseBool(const std::string& value);
 
 	void						fillSortedVectorForNodeMap(YAML::Node mappedNode, std::vector<NodeWithKey>& sortedNodes);

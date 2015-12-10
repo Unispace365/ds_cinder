@@ -144,6 +144,8 @@ ModelColumn::Type ModelColumn::getTypeForString(const std::string& typeString){
 		return ModelColumn::String;
 	} else if(typeString.find("text") != std::string::npos){
 		return ModelColumn::String;
+	} else if(typeString.find("custom") != std::string::npos){
+		return ModelColumn::Custom;
 	}
 
 	return Invalid;
@@ -232,6 +234,7 @@ public:
 	}
 
 	std::string					mTableName;
+	std::string					mCustomInclude;
 	std::vector<ModelColumn>	mColumns;
 	std::vector<ModelRelation>	mRelations;
 	std::vector<std::string>	mResourceColumns;
@@ -249,6 +252,11 @@ ModelModel::ModelModel(const std::string& tableName, const std::vector<ModelColu
 const std::string& ModelModel::getTableName()const{
 	if(!mData) return EMPTY_STRING;
 	return mData->mTableName;
+}
+
+const std::string& ModelModel::getCustomInclude()const{
+	if(!mData) return EMPTY_STRING;
+	return mData->mCustomInclude;
 }
 
 const std::vector<ModelColumn>& ModelModel::getColumns(){
@@ -274,6 +282,12 @@ const std::string& ModelModel::getSortColumn()const{
 ModelModel& ModelModel::setTableName(const std::string& name){
 	if(!mData) mData.reset(new Data());
 	if(mData) mData->mTableName = name;
+	return *this;
+}
+
+ModelModel& ModelModel::setCustomInclude(const std::string& customInclude){
+	if(!mData) mData.reset(new Data());
+	if(mData) mData->mCustomInclude = customInclude;
 	return *this;
 }
 
