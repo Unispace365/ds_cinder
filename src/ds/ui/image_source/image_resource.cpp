@@ -70,6 +70,8 @@ public:
 	virtual void							writeTo(DataBuffer& buf) const {
 		buf.add(RES_RES_ATT);
 		buf.add(mResource.getPortableFilePath());
+		buf.add(mResource.getWidth());
+		buf.add(mResource.getHeight());
 
 		buf.add(RES_IPKEY_ATT);
 		buf.add(mIpKey);
@@ -85,6 +87,8 @@ public:
 		if (!buf.canRead<char>()) return false;
 		if (buf.read<char>() != RES_RES_ATT) return false;
 		mResource = ds::Resource(buf.read<std::string>(), ds::Resource::IMAGE_TYPE);
+		mResource.setWidth(buf.read<float>());
+		mResource.setHeight(buf.read<float>());
 
 		if(!buf.canRead<char>()) return false;
 		if(buf.read<char>() != RES_IPKEY_ATT) return false;

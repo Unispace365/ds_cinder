@@ -57,27 +57,18 @@ Image::Image(SpriteEngine& engine, const int flags)
 Image::Image(SpriteEngine& engine, const std::string& filename, const int flags)
 	: Image(engine, flags)
 {
-	// WARNING: This constructor internally calls a virtual method (onImageLoaded)
-	// internally. This can be problematic. BE AWARE! I don't know why this was
-	// done this way...
 	setImageFile(filename, flags);
 }
 
 Image::Image(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int flags)
 	: Image(engine, flags)
 {
-	// WARNING: This constructor internally calls a virtual method (onImageLoaded)
-	// internally. This can be problematic. BE AWARE! I don't know why this was
-	// done this way...
 	setImageResource(resourceId, flags);
 }
 
 Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags)
 	: Image(engine)
 {
-	// WARNING: This constructor internally calls a virtual method (onImageLoaded)
-	// internally. This can be problematic. BE AWARE! I don't know why this was
-	// done this way...
 	setImageResource(resource, flags);
 }
 
@@ -131,17 +122,6 @@ void Image::onImageChanged()
 	markAsDirty(IMG_SRC_DIRTY);
 	doOnImageUnloaded();
 
-	/*
-	I am not sure what was the intention here or why this was done this
-	way. This is onImageChanged() virtual not set metadata callback! but
-	anyway, at this point I suspect someone needed it at some point and
-	taking it out will cause side effects, hence I caught a corner case
-	where clearImage() is called but no other images is set after it. In
-	that scenario all internal states will reset because client code is
-	dependent on size of the image and if you clearImage(), it should
-	return 0. (SL.)
-	*/
-
 	// Make my size match
 	ImageMetaData		d;
 	if (mImageSource.getMetaData(d) && !d.empty()) {
@@ -168,6 +148,7 @@ void Image::writeAttributesTo(ds::DataBuffer& buf) {
 void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if (attributeId == IMG_SRC_ATT) {
 		mImageSource.readFrom(buf);
+		setStatus(Status::STATUS_EMPTY);
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
 	}
