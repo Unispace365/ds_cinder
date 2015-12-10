@@ -25,6 +25,9 @@ public:
 	/** Waits until there is a gap in messages to callback. No message-specific info here, generally just query everything from this message */
 	void								setDelayedNodeCallback(const std::function<void()>&);
 
+	/** Waits until there is a gap in messages to callback. No message-specific info here, generally just query everything from this message */
+	void								setDelayedMessageNodeCallback(const std::function<void(const NodeWatcher::Message&)>&);
+
 	/** How long to wait since the last message to send out a callback. Delay is extended if a node message comes in before the delay is up. */
 	void								setDelayTime(const float newDelay){	mDelayWaitTime = newDelay; };
 protected:
@@ -37,7 +40,11 @@ private:
 	bool								mNeedQuery;
 	Poco::Timestamp::TimeVal			mLastQueryTime;
 
-	std::function<void()>				mDelayedNodeCallback;
+	std::vector<NodeWatcher::Message>	mDelayedMessages;
+
+	std::function<void(const NodeWatcher::Message&)>	mRegularNodeCallback;
+	std::function<void()>								mDelayedNodeCallback;
+	std::function<void(const NodeWatcher::Message&)>	mDelayedMessageNodeCallback;
 
 	float								mDelayWaitTime;
 };
