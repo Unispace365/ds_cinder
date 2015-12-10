@@ -299,9 +299,9 @@ void EngineClient::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id){
 
 void EngineClient::sendMouseTouch(const int phase, const ci::Vec2i pos){
 	
-	ci::Vec2f worldPoint = ci::Vec2f::zero();
-	worldPoint.x = pos.x / (mData.mSrcRect.getWidth() / mData.mDstRect.getWidth());
-	worldPoint.y = pos.y / (mData.mSrcRect.getHeight() / mData.mDstRect.getHeight());
+	ci::Vec2f worldPoint = pos;
+//	worldPoint.x = pos.x / (mData.mSrcRect.getWidth() / mData.mDstRect.getWidth());
+//	worldPoint.y = pos.y / (mData.mSrcRect.getHeight() / mData.mDstRect.getHeight());
 	
 	EngineSender::AutoSend  send(mSender);
 	ds::DataBuffer&   buf = send.mData;
