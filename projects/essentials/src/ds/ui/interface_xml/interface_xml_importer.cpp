@@ -48,11 +48,9 @@ static const std::string INVALID_VALUE = "UNACCEPTABLE!!!!";
 //HACK!
 static std::string sCurrentFile;
 
-// Grabs a color from the engine's suplied color list
+// Grabs a color from the engine's supplied color list
 static ci::ColorA retrieveColorFromEngine(const std::string &color, const ds::ui::SpriteEngine& engine){
-	std::string s = color;
 	return engine.getColors().getColorFromName(color);
-
 }
 
 // Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb

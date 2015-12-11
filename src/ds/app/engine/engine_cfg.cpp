@@ -10,7 +10,7 @@
 static void read_nine_patch_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::NinePatch>& out);
 
 static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& out);
-static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out);
+static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out, ds::Engine* engine = nullptr);
 static void interpret_text_settings(const ds::cfg::Settings &s, std::unordered_map<std::string, ds::cfg::Text>& out);
 
 
@@ -140,10 +140,10 @@ void EngineCfg::appendSettings(const std::string& name, const std::string& filen
 	settings.readFrom(filename, true);
 }
 
-void EngineCfg::loadText(const std::string& filename) {
+void EngineCfg::loadText(const std::string& filename, Engine* engine) {
 	read_text_defaults(mTextCfg);
-	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextCfg);
-	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextCfg);
+	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextCfg, engine);
+	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextCfg, engine);
 }
 
 void EngineCfg::loadNinePatchCfg(const std::string& filename) {
@@ -247,8 +247,8 @@ static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& o
 	interpret_text_settings(s, out);
 }
 
-static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out) {
-	ds::cfg::Settings s;
+static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out, ds::Engine* engine) {
+	ds::cfg::Settings s(engine);
 	s.readFrom(path, false);
 	interpret_text_settings(s, out);
 }

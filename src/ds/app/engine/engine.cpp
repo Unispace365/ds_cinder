@@ -392,7 +392,7 @@ void Engine::appendSettings(const std::string& name, const std::string& filename
 }
 
 void Engine::loadTextCfg(const std::string& filename) {
-	mData.mEngineCfg.loadText(filename);
+	mData.mEngineCfg.loadText(filename, this);
 }
 
 void Engine::loadNinePatchCfg(const std::string& filename) {

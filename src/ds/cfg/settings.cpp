@@ -3,6 +3,7 @@
 #include <cinder/Xml.h>
 #include <Poco/File.h>
 #include <Poco/String.h>
+#include "ds/app/engine/engine.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/util/string_util.h"
@@ -112,8 +113,9 @@ const V& get(const std::string& name, const A& container, const int index, const
 /**
  * ds::cfg::Settings
  */
-Settings::Settings()
-	: mChanged(false)
+Settings::Settings(ds::Engine* engine)
+	: mEngine(engine)
+	, mChanged(false)
 {
 }
 
@@ -183,6 +185,7 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	const std::string   VALUE_SZ("value");
 	const std::string   L_SZ("l");
 	const std::string   T_SZ("t");
+	const std::string   CODE_SZ("code");
 	const std::string   R_SZ("r");
 	const std::string   B_SZ("b");
 	const std::string   G_SZ("g");
@@ -222,10 +225,18 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	for (auto it = xml.begin(COLOR_PATH); it != end; ++it) {
 		const float             DEFV = 255.0f;
 		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-		const cinder::ColorA		c(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
-			it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
-			it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
-			it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
+		cinder::ColorA			c;
+		if(it->hasAttribute(CODE_SZ)) {
+			if(mEngine) {
+				std::string code = it->getAttributeValue<std::string>(CODE_SZ);
+				c = mEngine->getColors().getColorFromName(code);
+			}
+		} else {
+			c.set(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
+				it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
+				it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
+				it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
+		}
 		add_item(name, mColor, cinder::Color(c.r, c.g, c.b));
 		add_item(name, mColorA, c);
 	}

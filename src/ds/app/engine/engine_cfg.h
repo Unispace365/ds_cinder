@@ -55,7 +55,7 @@ public:
 	/** Convenience to load a text cfg file into a collection of cfg objects.
 		It will be loaded from all appropriate locations.
 		\param filename is the leaf path of the settings file (i.e. "text.xml"). */	
-	void							loadText(const std::string& filename);
+	void							loadText(const std::string& filename, Engine* engine = nullptr);
 	
 	/** Convenience to load a nine patch cfg file into a collection of cfg objects.
 		It will be loaded from all appropriate locations.

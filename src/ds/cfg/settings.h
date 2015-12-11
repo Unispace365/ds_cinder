@@ -13,6 +13,8 @@ class XmlTree;
 }
 
 namespace ds {
+class Engine;
+
 namespace cfg {
 
 /**
@@ -21,7 +23,7 @@ namespace cfg {
  */
 class Settings {
 public:
-	Settings();
+	Settings(ds::Engine* engine = nullptr);
 	
 	// Load the supplied file/string.  Currently only XML format is supported.
 	// If append is true, merge all results into my existing data.  If it's
@@ -86,6 +88,7 @@ public:
 	void								forEachPointKey(const std::function<void(const std::string&)>&) const;
 
 private:
+	ds::Engine*							mEngine;
 	bool								mChanged;
 
 	std::map<std::string, std::vector<float>>			mFloat;
