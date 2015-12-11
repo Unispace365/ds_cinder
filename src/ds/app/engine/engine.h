@@ -25,6 +25,7 @@
 
 #include "ds/app/engine/renderers/engine_renderer_interface.h"
 #include "ds/app/engine/engine_touch_queue.h"
+#include "ds/data/color_list.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
 #include "ds/data/tuio_object.h"
@@ -149,6 +150,9 @@ public:
 	virtual ds::ResourceList&			getResources();
 	virtual const ds::FontList&			getFonts() const;
 	ds::FontList&						editFonts();
+
+	virtual const ds::ColorList&		getColors() const;
+	ds::ColorList&						editColors();
 
 	void								markCameraDirty();
 	virtual PerspCameraParams			getPerspectiveCamera(const size_t index) const;
@@ -275,6 +279,7 @@ private:
 	ds::ui::Tweenline					mTweenline;
 	// A cache of all the resources in the system
 	ResourceList						mResources;
+	ColorList							mColors;
 	FontList							mFonts;
 	UpdateParams						mUpdateParams;
 	DrawParams							mDrawParams;

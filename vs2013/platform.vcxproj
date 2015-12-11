@@ -83,6 +83,7 @@
     <ClInclude Include="..\src\ds\cfg\cfg_nine_patch.h" />
     <ClInclude Include="..\src\ds\cfg\cfg_text.h" />
     <ClInclude Include="..\src\ds\cfg\settings.h" />
+    <ClInclude Include="..\src\ds\data\color_list.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
     <ClInclude Include="..\src\ds\data\font_list.h" />
     <ClInclude Include="..\src\ds\data\key_value_store.h" />
@@ -263,6 +264,7 @@
     <ClCompile Include="..\src\ds\cfg\cfg_nine_patch.cpp" />
     <ClCompile Include="..\src\ds\cfg\cfg_text.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings.cpp" />
+    <ClCompile Include="..\src\ds\data\color_list.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
     <ClCompile Include="..\src\ds\data\font_list.cpp" />
     <ClCompile Include="..\src\ds\data\key_value_store.cpp" />

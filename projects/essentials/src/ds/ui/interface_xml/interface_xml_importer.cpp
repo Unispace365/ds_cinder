@@ -2,6 +2,8 @@
 
 #include "stylesheet_parser.h"
 
+#include <ds/app/engine/engine.h>
+
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/gradient_sprite.h>
 #include <ds/ui/sprite/image.h>
@@ -46,8 +48,16 @@ static const std::string INVALID_VALUE = "UNACCEPTABLE!!!!";
 //HACK!
 static std::string sCurrentFile;
 
+// Grabs a color from the engine's suplied color list
+static ci::ColorA retrieveColorFromEngine(const std::string &color, const ds::ui::SpriteEngine& engine){
+	std::string s = color;
+	return engine.getColors().getColorFromName(color);
+
+}
+
 // Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb
-static ci::ColorA parseColor( const std::string &color ) {
+static ci::ColorA parseHexColor( const std::string &color ) {
+
 	std::string s = color;
 
 	if (boost::starts_with( s, "#" ))
@@ -65,6 +75,18 @@ static ci::ColorA parseColor( const std::string &color ) {
 	float b = ((value) & 0xFF) / 255.0f;
 
 	return ci::ColorA(r, g, b, a);
+}
+
+static ci::ColorA parseColor(const std::string &color, const ds::ui::SpriteEngine& engine){
+	std::string s = color;
+
+	//If we have colors in our engine, and this isn't a hex value
+	if( !engine.getColors().empty() && !boost::starts_with(s, "#")){
+		return retrieveColorFromEngine(color, engine);
+	}
+
+	return parseHexColor(color);
+
 }
 
 // Example: size="400, 400" the space after the comma is required to read the second and third token
@@ -122,6 +144,9 @@ static std::string filePathRelativeTo( const std::string &base, const std::strin
 static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer = "") {
 	std::string property = attr.getName();
 
+	//Cache the engine for all our color calls
+	const ds::ui::SpriteEngine& engine = sprite.getEngine();
+
 	// This is a pretty long "case switch" (well, effectively a case switch).
 	// It seems like it'd be slow, but in practice, it's relatively fast.
 	// The slower parts of this are the actual functions that are called (particularly multilinetext setResizeLimit())
@@ -140,7 +165,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		sprite.setSize(v.x, v.y);
 	} else if(property == "color") {
 		sprite.setTransparent(false);
-		sprite.setColorA(parseColor(attr.getValue()));
+		sprite.setColorA(parseColor(attr.getValue(), engine));
 	} else if(property == "opacity") {
 		sprite.setOpacity(attr.getValue<float>());
 	} else if(property == "position") {
@@ -329,28 +354,28 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "colorTop"){
 		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
 		if(gradient){
-			gradient->setColorsV(parseColor(attr.getValue()), gradient->getColorBL());
+			gradient->setColorsV(parseColor(attr.getValue(), engine), gradient->getColorBL());
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "colorBot"){
 		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
 		if(gradient){
-			gradient->setColorsV(gradient->getColorTL(), parseColor(attr.getValue()));
+			gradient->setColorsV(gradient->getColorTL(), parseColor(attr.getValue(), engine));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "colorLeft"){
 		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
 		if(gradient){
-			gradient->setColorsH(parseColor(attr.getValue()), gradient->getColorTR());
+			gradient->setColorsH(parseColor(attr.getValue(), engine), gradient->getColorTR());
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "colorRight"){
 		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
 		if(gradient){
-			gradient->setColorsH(gradient->getColorTL(), parseColor(attr.getValue()));
+			gradient->setColorsH(gradient->getColorTL(), parseColor(attr.getValue(), engine));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
@@ -381,8 +406,8 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		if(scrollList){
 			auto colors = ds::split(attr.getValue(), ", ", true);
 			if(colors.size() > 1){
-				auto colorOne = parseColor(colors[0]);
-				auto colorTwo = parseColor(colors[1]);
+				auto colorOne = parseColor(colors[0],engine);
+				auto colorTwo = parseColor(colors[1],engine);
 				scrollList->getScrollArea()->setFadeColors(colorOne, colorTwo);
 			} else {
 				DS_LOG_WARNING("Not enough colors specified for scroll_fade_colors ");
@@ -507,7 +532,7 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename,
 	return xmlImporter.load(preloadData.mXmlTree);
 }
 
-bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData, NamedSpriteMap &map, SpriteImporter customImporter){
+bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData, NamedSpriteMap &map, SpriteImporter customImporter ){
 	XmlImporter xmlImporter(parent, preloadData.mFilename, map, customImporter);
 
 	// copy each stylesheet, cause the xml importer will delete it's copies when it destructs
@@ -559,7 +584,7 @@ struct SelectorMatchChecker : public boost::static_visitor<bool> {
 	const std::string &mIdToCheck;
 };
 
-static void applyStylesheet( const Stylesheet &stylesheet, ds::ui::Sprite &sprite, const std::string &name, const std::string &classes ) {
+static void applyStylesheet( const Stylesheet &stylesheet, ds::ui::Sprite &sprite, const std::string &name, const std::string &classes) {
 	BOOST_FOREACH( auto &rule, stylesheet.mRules ) {
 		auto classes_vec = ds::split(classes, " ", true );
 		bool matches_rule = false;
@@ -600,7 +625,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		std::string relative_file = node->getValue();
 		boost::trim(relative_file);
 		if (relative_file != "") {
-			setSpriteProperty(*image, ci::XmlTree::Attr(nullptr, "filename", relative_file));
+			setSpriteProperty(*image, ci::XmlTree::Attr(nullptr, "filename", relative_file), nullptr);
 		}
 		spriddy = image;
 	}

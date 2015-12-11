@@ -13,6 +13,7 @@
 
 namespace ds {
 class AutoUpdateList;
+class ColorList;
 class EngineCfg;
 class EngineData;
 class EngineService;
@@ -51,6 +52,7 @@ public:
 	// General engine services
 	virtual ds::WorkManager&		getWorkManager() = 0;
 	virtual ds::ResourceList&		getResources() = 0;
+	virtual const ds::ColorList&	getColors() const = 0;
 	virtual const ds::FontList&		getFonts() const = 0;
 	virtual ds::AutoUpdateList&		getAutoUpdateList(const int = AutoUpdateType::SERVER) = 0;
 	virtual LoadImageService&		getLoadImageService() = 0;

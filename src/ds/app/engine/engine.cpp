@@ -810,6 +810,14 @@ ds::FontList& Engine::editFonts() {
 	return mFonts;
 }
 
+const ds::ColorList& Engine::getColors() const {
+	return mColors;
+}
+
+ds::ColorList& Engine::editColors() {
+	return mColors;
+}
+
 void Engine::stopServices() {
 	if (mData.mServices.empty()) return;
 

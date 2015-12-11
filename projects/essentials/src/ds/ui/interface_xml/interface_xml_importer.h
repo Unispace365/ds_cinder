@@ -10,6 +10,8 @@ namespace ds{
 namespace ui{
 
 class Sprite;
+class SpriteEngine;
+
 struct Stylesheet;
 
 class XmlImporter {
