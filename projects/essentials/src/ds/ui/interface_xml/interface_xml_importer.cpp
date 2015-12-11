@@ -256,7 +256,15 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 			DS_LOG_WARNING("Couldn't set overall_alignment, as this sprite is not a LayoutSprite.");
 		}
 	}
-
+	else if(property == "shrink_to_children"){
+		auto layoutSprite = dynamic_cast<LayoutSprite*>(&sprite);
+		if(layoutSprite){
+			layoutSprite->setShrinkToChildren(parseBoolean(attr.getValue()));
+		} else {
+			DS_LOG_WARNING("Couldn't set shrink_to_children, as this sprite is not a LayoutSprite.");
+		}
+	}
+	
 	// Text, MultilineText specific attributes
 	else if(property == "font") {
 		// Try to set the font
