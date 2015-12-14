@@ -56,7 +56,6 @@ namespace ds {
 			if (newPercent < 0.0) newPercent = 0.0;
 			if (newPercent > 1.0) newPercent = 1.0;
 			if (ti.mPhase == ds::ui::TouchInfo::Added) {
-				//std::cout << "touch added event happened now";
 				mAdded = true;
 			}
 			else if (ti.mPhase == ds::ui::TouchInfo::Moved) {
@@ -137,15 +136,12 @@ void VideoScrubBar::updateServer(const ds::UpdateParams& p){
 	if (!mLinkedVideo) return;
 
 	if (mAdded || mMoved || mRemoved) {
-			std::cout << "---------------------------------------Update Server Called " << std::endl;
 		if (mAdded) {
 
 			if (mLinkedVideo->getCurrentStatus() == ds::ui::GstVideo::Status::STATUS_PAUSED)
 			{
-				std::cout << "forcing pause for scrubbing" << std::endl;
 				mIsPaused = true;
 			}
-			std::cout << "Pausing temporarily for scrubbing" << std::endl;
 
 			mLinkedVideo->pause();
 			mAdded = false;
@@ -159,7 +155,6 @@ void VideoScrubBar::updateServer(const ds::UpdateParams& p){
 		}
 		if (mRemoved){ //if  ds::ui::TouchInfo::Removed
 			if (!mIsPaused){
-				std::cout << "resuming playback" << std::endl;
 				mLinkedVideo->play();
 			}
 			mIsPaused = false;

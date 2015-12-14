@@ -212,10 +212,7 @@ void GstVideo::updateServer(const UpdateParams &up){
 	//check wrapper for new time sync.  If new, mark as dirty
 	//Don't try to sync base-time while fast seeking
 	else if (mGstreamerWrapper->getBaseTime() != mBaseTime ) {
-
 		mBaseTime = mGstreamerWrapper->getBaseTime();
-		std::cout << "++++++++++++++ Syncing base time with server: " << mBaseTime << std::endl;
-
 		markAsDirty(mBaseTimeDirty);
 	}
 
@@ -258,19 +255,17 @@ void GstVideo::updateClient(const UpdateParams& up){
 
 void GstVideo::drawLocalClient(){
 	if (!mGstreamerWrapper){
-		std::cout << "Gstreamer wrapper not available" << std::endl;
+		DS_LOG_WARNING("Gstreamer wrapper not available");;
 		return;
 	}
 	if(mGstreamerWrapper->hasVideo() && mGstreamerWrapper->isNewVideoFrame()){
 #if 1
 		if (mGstreamerWrapper->getBaseTime() > mGstreamerWrapper->getNetClockTime()) {
 			if (mGstreamerWrapper->getState() == PLAYING){
-				std::cout << " resetting net clock & playing" << std::endl;
 				play();
 			}
 		}
 #endif
-		//std::cout << "current time: " << mGstreamerWrapper->getCurrentTimeInNs() << " wrapper base time: " << mGstreamerWrapper->getBaseTime() << " clock time: " << mGstreamerWrapper->getNetClockTime() << std::endl;
 		if(mGstreamerWrapper->getWidth() != mVideoSize.x){
 			DS_LOG_WARNING_M("Different sizes detected for video and texture. Do not change the size of a video sprite, use setScale to enlarge. Widths: " << getWidth() << " " << mGstreamerWrapper->getWidth(), GSTREAMER_LOG);
 			unloadVideo();
@@ -328,18 +323,12 @@ void GstVideo::drawLocalClient(){
 			}
 		}
 	}
-#if 1
 
-	else if (mGstreamerWrapper->getBaseTime() > mGstreamerWrapper->getNetClockTime()) {
-		std::cout << "***************************************" << std::endl;
-		std::cout << "FAIL: current time : " << mGstreamerWrapper->getCurrentTimeInNs() << " wrapper base time : " << mGstreamerWrapper->getBaseTime() << " clock time : " << mGstreamerWrapper->getNetClockTime() << std::endl;
-		std::cout << "***************************************" << std::endl;
-		if (mGstreamerWrapper->getState() == PLAYING){
-			//setNetClock();
+	else if (mGstreamerWrapper->getBaseTime() > mGstreamerWrapper->getNetClockTime() &&
+		mGstreamerWrapper->getState() == PLAYING){
 			play();
-		}
 	}
-#endif
+
 	if (mFrameTexture && mDrawable){
 		if (getPerspective()){
 			mFrameTexture.setFlipped(true);
@@ -640,7 +629,6 @@ double GstVideo::getCurrentPosition() const {
 }
 
 void GstVideo::seekPosition(const double t){
-	std::cout << "current mode: " << mStatus.mCode << std::endl;
 	mGstreamerWrapper->setPosition(t);
 	markAsDirty(mPosDirty);
 }
@@ -821,11 +809,6 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(mBaseTime);
 		buf.add(mNetClock);
 		buf.add(mIpAddress);
-		//buf.add(mGstreamerWrapper->getCurrentTimeInNs());
-		//std::cout << "current video time: " << mGstreamerWrapper->getCurrentTimeInNs() << std::endl;
-		//markAsDirty(mSeekTimeDirty);
-		//markAsDirty(mBaseTimeDirty);
-//		markAsDirty(mSeekDirty);
 	}
 	if (mDirty.has(mBaseTimeDirty)){
 		mBaseTime = mGstreamerWrapper->getBaseTime();
@@ -913,10 +896,6 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 			setPan(-pan);  // Assign pan to opposite speaker
 	} else if (attrid == mPosAtt) {
 		auto server_video_pos = buf.read<double>();
-		std::cout << "++++++++++++++ Client recieved command to reset seek" << std::endl;
-
-		std::cout << "++++++++++++++ Client recieved command to normal seek" << std::endl;
-
 		seekPosition(server_video_pos);
 	}
 	else if (attrid == mStatusAtt) {
@@ -924,21 +903,16 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 		auto status_code = buf.read<int>();
 		if(getCurrentStatus() != status_code)
 		{
-			std::cout << "Updating client status";
 			if(status_code == GstVideo::Status::STATUS_PAUSED){
-				std::cout << " pause" << std::endl;
 				pause();
 			} else if(status_code == GstVideo::Status::STATUS_STOPPED){
-				std::cout << " stopped" << std::endl;
 				stop();
 			}
 			else if (status_code == GstVideo::Status::STATUS_PLAYING){
-				std::cout << " play" << std::endl;
 				play();
 			}
 		}
 	} else if(attrid == mSyncAtt){
-		std::cout << "Sync Attribute called" << std::endl;
 		mNetPort = buf.read<int>();
 		mBaseTime = buf.read<uint64_t>();
 
@@ -960,13 +934,8 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	} 
 	 
 	else if (attrid == mUpdateAtt){
-
-		std::cout << "	Update Attribute" << std::endl;
-		std::cout << "++++++++++++++ Client synching base and seek time with server." << std::endl;
-
 		mBaseTime = buf.read<uint64_t>();
 		mSeekTime = buf.read<uint64_t>();
-		std::cout << "				Base Time: " << mBaseTime << "   Seek Time: " << mSeekTime << std::endl;
 		mGstreamerWrapper->setSeekTime(mSeekTime);
 		mGstreamerWrapper->setPipelineBaseTime(mBaseTime);
 		mGstreamerWrapper->setTimePositionInNs(mSeekTime);

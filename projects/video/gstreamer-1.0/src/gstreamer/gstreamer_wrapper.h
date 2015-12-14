@@ -147,7 +147,6 @@ public:
 	*/
 	void					stop();
 
-	void					print_status_of_all();
 	/*
 	Pauses the media file. If the file is played again the file resumes from exactly the position where it was paused.
 	Sets the wrapper's PlayState to PAUSED
