@@ -251,6 +251,13 @@ void GstVideo::updateClient(const UpdateParams& up){
 	checkStatus();
 	checkOutOfBounds();
 
+	//If client tried to sync with server clock before it was ready, it can miss its opportunity
+	//and stay un-synced until the next 'event' (scrub/pause, loop).  
+	//This code detects that condition, and re-initiates contact.
+	if (mGstreamerWrapper->getBaseTime() > mGstreamerWrapper->getNetClockTime() &&
+		mGstreamerWrapper->getState() == PLAYING){
+		play();
+	}
 }
 
 void GstVideo::drawLocalClient(){
@@ -259,13 +266,7 @@ void GstVideo::drawLocalClient(){
 		return;
 	}
 	if(mGstreamerWrapper->hasVideo() && mGstreamerWrapper->isNewVideoFrame()){
-#if 1
-		if (mGstreamerWrapper->getBaseTime() > mGstreamerWrapper->getNetClockTime()) {
-			if (mGstreamerWrapper->getState() == PLAYING){
-				play();
-			}
-		}
-#endif
+
 		if(mGstreamerWrapper->getWidth() != mVideoSize.x){
 			DS_LOG_WARNING_M("Different sizes detected for video and texture. Do not change the size of a video sprite, use setScale to enlarge. Widths: " << getWidth() << " " << mGstreamerWrapper->getWidth(), GSTREAMER_LOG);
 			unloadVideo();
@@ -322,11 +323,6 @@ void GstVideo::drawLocalClient(){
 				mBufferUpdateTimes.erase(mBufferUpdateTimes.begin());
 			}
 		}
-	}
-
-	else if (mGstreamerWrapper->getBaseTime() > mGstreamerWrapper->getNetClockTime() &&
-		mGstreamerWrapper->getState() == PLAYING){
-			play();
 	}
 
 	if (mFrameTexture && mDrawable){
