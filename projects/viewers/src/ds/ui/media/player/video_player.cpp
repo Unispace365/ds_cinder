@@ -20,6 +20,7 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mVideo(nullptr)
 	, mVideoInterface(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mShowInterfaceAtStart(true)
 {
 }
 
@@ -54,7 +55,16 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 		if(mVideoInterface){
 			mVideoInterface->sendToFront();
 		}
-	}  
+	}
+
+	if(mVideoInterface){
+		if(mShowInterfaceAtStart){
+			mVideoInterface->show();
+		} else {
+			mVideoInterface->setOpacity(0.0f);
+			mVideoInterface->hide();
+		}
+	}
 
 	setSize(mVideo->getWidth(), mVideo->getHeight());
 }
@@ -78,6 +88,10 @@ void VideoPlayer::showInterface(){
 	if(mVideoInterface){
 		mVideoInterface->animateOn();
 	}
+}
+
+void VideoPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
+	mShowInterfaceAtStart = showInterfaceAtStart;
 }
 
 void VideoPlayer::play(){
