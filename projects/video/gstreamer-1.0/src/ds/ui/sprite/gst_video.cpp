@@ -163,7 +163,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mAutoExtendIdle(false)
 	, mGenerateAudioBuffer(false)
 	, mColorType(kColorTypeTransparent)
-	, mNetPort(1624)
+	, mNetPort(-1)
 	, mBaseTime(0)
 	, mSeekTime(0)
 {
@@ -727,10 +727,19 @@ void GstVideo::setNetClock(){
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE){
 		DS_LOG_WARNING_M("Gstreamer net sync not implemented in Server only mode. Use ClientServer insteand.", GSTREAMER_LOG);
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
-		static int newPort = 1623;
-	//	newPort++;
-		mNetPort = newPort;
+		//Read port from settings file if available.  Otherwise, pick default.
+		static int newPort = mEngine.getSettings("layout").getInt("gstVideo:netclock:port", 0, 0);
+		if (newPort == 0){
+			newPort = DEFAULT_PORT;
+		}
+		//Assign new port if this is a new instance.  Otherwise, keep the same
+		if (mNetPort < 0){
+			newPort++;
+		}
+		mNetPort = newPort-1;
+
 		mGstreamerWrapper->setServerNetClock(true, mIpAddress, mNetPort, mNetClock, mBaseTime);
+
 		markAsDirty(mSyncDirty);
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
 		//Wait for server to initiate contact

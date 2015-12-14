@@ -71,7 +71,7 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 	if (paths.empty()){
 		return;
 	}
-
+#if 0
 	auto mPanoramicVideo = new ds::ui::PanoramicVideo(mEngine);
 	mEngine.getRootSprite().addChildPtr(mPanoramicVideo);
 	//mPanoramicVideo->setSize(1366.0, 768.0f);
@@ -82,6 +82,7 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 	mPanoramicVideo->setFOV(60.0f);
 
 	return;
+#endif
 
 
 	mVideo = new ds::ui::GstVideo(mEngine);

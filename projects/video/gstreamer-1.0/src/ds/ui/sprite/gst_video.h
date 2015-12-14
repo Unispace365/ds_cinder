@@ -25,6 +25,9 @@ namespace ui {
  */
 class GstVideo : public Sprite
 {
+	/* Default starting port number for client/server video sync.  Used if not setting value provided.*/
+const  int 					DEFAULT_PORT = 5637;
+
 public:
 	// Valid statuses for this player instance.
 	struct Status {
