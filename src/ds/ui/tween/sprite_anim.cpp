@@ -19,6 +19,7 @@ SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	, mAnimateOnScaleTarget(1.0f, 1.0f, 1.0f)
 	, mAnimateOnPositionTarget(0.0f, 0.0f, 0.0f)
 	, mAnimateOnOpacityTarget(1.0f)
+	, mAnimateOnScript("")
 {}
 
 SpriteAnimatable::~SpriteAnimatable() {

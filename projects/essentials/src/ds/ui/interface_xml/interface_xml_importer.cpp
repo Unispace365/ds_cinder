@@ -15,6 +15,7 @@
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
+#include <ds/ui/scroll/scroll_bar.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine_cfg.h>
@@ -673,6 +674,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	}
 	else if(type == "scroll_list"){
 		spriddy = new ds::ui::ScrollList(engine);
+	} 
+	else if(type == "scroll_bar"){
+		spriddy = new ds::ui::ScrollBar(engine);
 	}
 	else if (mCustomImporter) {
 		spriddy = mCustomImporter(type, *node);
