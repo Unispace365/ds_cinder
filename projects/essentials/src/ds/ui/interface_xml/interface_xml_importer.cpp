@@ -320,6 +320,24 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 				text->setAlignment(ds::ui::Alignment::kLeft);
 			}
 		}
+	} else if (property == "text") {
+		// Try to set content
+		auto text = dynamic_cast<Text *>(&sprite);
+		if (text) {
+			text->setText(attr.getValue());
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if (property == "font_size") {
+		// Try to set the font size
+		auto text = dynamic_cast<Text *>(&sprite);
+		if (text) {
+			text->setFontSize(attr.getValue<float>());
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
 	}
 
 	// Image properties
