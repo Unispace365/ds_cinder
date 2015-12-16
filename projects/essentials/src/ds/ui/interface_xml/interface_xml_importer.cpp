@@ -410,12 +410,21 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 
 	else if(property == "scroll_fade_colors"){
 		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
+		ds::ui::ScrollArea* scrollArea = nullptr;
 		if(scrollList){
+			scrollArea = scrollList->getScrollArea();
+		}
+
+		if(!scrollArea){
+			scrollArea = dynamic_cast<ds::ui::ScrollArea*>(&sprite);
+		}
+
+		if(scrollArea){
 			auto colors = ds::split(attr.getValue(), ", ", true);
 			if(colors.size() > 1){
 				auto colorOne = parseColor(colors[0],engine);
 				auto colorTwo = parseColor(colors[1],engine);
-				scrollList->getScrollArea()->setFadeColors(colorOne, colorTwo);
+				scrollArea->setFadeColors(colorOne, colorTwo);
 			} else {
 				DS_LOG_WARNING("Not enough colors specified for scroll_fade_colors ");
 			}
@@ -675,6 +684,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	else if(type == "scroll_list"){
 		spriddy = new ds::ui::ScrollList(engine);
 	} 
+	else if(type == "scroll_area"){
+		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
+	}
 	else if(type == "scroll_bar"){
 		spriddy = new ds::ui::ScrollBar(engine);
 	}
@@ -691,7 +703,12 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		readSprite(spriddy, sprite);
 	}
 
-	parent->addChildPtr(spriddy);
+	ds::ui::ScrollArea* parentScroll = dynamic_cast<ds::ui::ScrollArea*>(parent);
+	if(parentScroll){
+		parentScroll->addSpriteToScroll(spriddy);
+	} else {
+		parent->addChildPtr(spriddy);
+	}
 
 	// Get sprite name and classes
 	std::string sprite_name = node->getAttributeValue<std::string>("name", "");

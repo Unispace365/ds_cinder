@@ -6,6 +6,7 @@
 #include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/scroll/scroll_area.h>
 
 
 namespace ds {
@@ -61,6 +62,7 @@ void LayoutSprite::runSizeLayout(){
 			if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+				ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 				if(mt){
 					mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 				} else if(img){
@@ -68,6 +70,8 @@ void LayoutSprite::runSizeLayout(){
 					ci::Vec3f prePos = img->getPosition();
 					fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
 					img->setPosition(prePos);
+				} else if(sa){
+					sa->setScrollSize(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 				} else {
 					chillin->setSize(mLayoutSize);
 				}
@@ -79,6 +83,7 @@ void LayoutSprite::runSizeLayout(){
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 			ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+			ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 			if(mt){
 				mt->setResizeLimit(fixedW, fixedH);
 			} else if(img){
@@ -89,6 +94,8 @@ void LayoutSprite::runSizeLayout(){
 			} else if(ls){
 				ls->setSize(fixedW, fixedH);
 				ls->runLayout();
+			} else if(sa){
+				sa->setScrollSize(fixedW, fixedH);
 			} else {
 				chillin->setSize(fixedW, fixedH);
 			}
@@ -135,10 +142,13 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 					if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 						ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 						ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+						ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 						if(mt){
 							mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 						} else if(img){
 							fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
+						} else if(sa){
+							sa->setScrollSize(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 						} else {
 							chillin->setSize(chillin->mLayoutSize);
 						}
@@ -150,6 +160,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 
 					ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 					ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+					ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 					if(mt){
 						if(vertical){
 							mt->setResizeLimit(fixedW);
@@ -161,6 +172,12 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 							img->setScale(fixedW / img->getWidth());
 						} else {
 							img->setScale(fixedH / img->getHeight());
+						}
+					} else if(sa){
+						if(vertical){
+							sa->setScrollSize(fixedW, sa->getHeight());
+						} else {
+							sa->setScrollSize(sa->getHeight(), fixedH);
 						}
 					} else {
 						if(vertical){
@@ -242,6 +259,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 			ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+			ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 			if(mt){
 				mt->setResizeLimit(stretchW, stretchH);
 			} else if(img){
@@ -249,6 +267,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 			} else if(ls){
 				ls->setSize(stretchW, stretchH);
 				ls->runLayout();
+			} else if(sa){
+				sa->setScrollSize(stretchW, stretchH);
 			} else {
 				chillin->setSize(stretchW, stretchH);
 			}
@@ -302,6 +322,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+				ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 				if(mt){
 					mt->setResizeLimit(fixedW, fixedH);
 				} else if(img){
@@ -309,6 +330,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				} else if(ls){
 					ls->setSize(fixedW, fixedH);
 					ls->runLayout();
+				} else if(sa){
+					sa->setScrollSize(fixedW, fixedH);
 				} else {
 					chillin->setSize(fixedW, fixedH);
 				}
