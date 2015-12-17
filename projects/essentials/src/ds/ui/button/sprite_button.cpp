@@ -63,9 +63,8 @@ void SpriteButton::showUp() {
 }
 
 void SpriteButton::onClicked() {
-	if(mClickFn) mClickFn();
-
 	showUp();
+	if(mClickFn) mClickFn();
 }
 
 ds::ui::Sprite& SpriteButton::getHighSprite(){
