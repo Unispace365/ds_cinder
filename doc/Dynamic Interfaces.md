@@ -110,7 +110,9 @@ Layout Parameters (only valid if using a layout sprite as a parent)
 
 Text Parameters (valid for Text and MultilineText Sprites)
 ------------------------------------------------------------
+* **text**: Set the content show on the screen. text="Hello World"
 * **font**: The text config. Set in settings/text.xml. The text config sets the font name, size, leading and color. font="sample:config"
+* **font_size** Replace the original font size of Text/MultilineText sprites. font_size="20"  
 * **resize_limit**: Only has effect on MultitlineText. If you set only the width value, the layout will continue for all the text in the sprite, and the height will be calculated from that. resize_limit="400" or resize_limit="400, 500"
 * **text_align**: Set the alignment of a multiline text sprite. Values:
     1. "left": The default, normal text
