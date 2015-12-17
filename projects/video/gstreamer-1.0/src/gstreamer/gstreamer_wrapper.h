@@ -629,6 +629,7 @@ private:
 
 	// Makes sure videos widths are divisible by 4, for video blanking
 	void					enforceModFourWidth(const int videoWidth, const int videoHeight);
+	void					enforceModEightWidth(const int videoWidth, const int videoHeight);
 
 protected:
 

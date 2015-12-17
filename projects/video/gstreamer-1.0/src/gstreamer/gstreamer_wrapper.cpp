@@ -115,6 +115,22 @@ void GStreamerWrapper::enforceModFourWidth(const int vidWidth, const int vidHeig
 }
 
 
+void GStreamerWrapper::enforceModEightWidth(const int vidWidth, const int vidHeight){
+	int videoWidth = vidWidth;
+	int videoHeight = vidHeight;
+
+	if(videoWidth % 8 != 0){
+		videoWidth += 8 - videoWidth % 8;
+	}
+
+	if(videoHeight % 4 != 0){
+		videoHeight += 4 - videoHeight % 4;
+	}
+
+	m_iWidth = videoWidth;
+	m_iHeight = videoHeight;
+}
+
 guint64 GStreamerWrapper::getNetClockTime()
 {
 	std::uint64_t newTime = gst_clock_get_time(m_NetClock);
@@ -147,7 +163,12 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	}
 
 	parseFilename(strFilename);
-	enforceModFourWidth(videoWidth, videoHeight);
+
+	if(colorSpace == kColorSpaceI420){
+		enforceModEightWidth(videoWidth, videoHeight);
+	} else {
+		enforceModFourWidth(videoWidth, videoHeight);
+	}
 
 	// PIPELINE
 	// Init main pipeline --> playbin
