@@ -39,6 +39,7 @@ public:
 
 private:
 	friend class Environment;
+	friend class EngineCfg;
 	static const std::string&		envProjectPath();
 	// Answer the configuration.xml if it exists.
 	static const ds::cfg::Settings&	getConfiguration();

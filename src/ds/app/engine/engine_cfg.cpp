@@ -6,6 +6,7 @@
 #include <Poco/String.h>
 #include "ds/app/environment.h"
 #include "ds/debug/debug_defines.h"
+#include "ds/app/engine/engine_settings.h"
 
 static void read_nine_patch_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::NinePatch>& out);
 
@@ -144,6 +145,12 @@ void EngineCfg::loadText(const std::string& filename, Engine* engine) {
 	read_text_defaults(mTextCfg);
 	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextCfg, engine);
 	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextCfg, engine);
+	if (!ds::EngineSettings::getConfigurationFolder().empty()) {
+		const std::string		app = ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + filename);
+		const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
+		read_text_cfg(app, mTextCfg, engine);
+		read_text_cfg(local, mTextCfg, engine);
+	}
 }
 
 void EngineCfg::loadNinePatchCfg(const std::string& filename) {
