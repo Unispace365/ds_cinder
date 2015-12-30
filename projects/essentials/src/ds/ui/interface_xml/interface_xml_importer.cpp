@@ -16,6 +16,7 @@
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
 #include <ds/ui/scroll/scroll_bar.h>
+#include <ds/ui/sprite/border.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine_cfg.h>
@@ -451,20 +452,30 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		}
 	}
 
+	// Border sprite properties
+	else if(property == "border_width"){
+		auto border = dynamic_cast<Border*>(&sprite);
+		if(border){
+			border->setBorderWidth(attr.getValue<float>());
+		} else {
+			DS_LOG_WARNING("Trying to set border_width on a non-border sprite of type: " << typeid(sprite).name());
+		}
+	}
+	
 	// Circle sprite properties
 	else if(property == "filled"){
 		auto circle = dynamic_cast<Circle*>(&sprite);
 		if(circle){
 			circle->setFilled(parseBoolean(attr.getValue()));
 		} else {
-			DS_LOG_WARNING("Trying to set filled on a non-cicle sprite of type: " << typeid(sprite).name());
+			DS_LOG_WARNING("Trying to set filled on a non-circle sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "radius"){
 		auto circle = dynamic_cast<Circle*>(&sprite);
 		if(circle){
 			circle->setRadius(attr.getValue<float>());
 		} else {
-			DS_LOG_WARNING("Trying to set radius on a non-cicle sprite of type: " << typeid(sprite).name());
+			DS_LOG_WARNING("Trying to set radius on a non-circle sprite of type: " << typeid(sprite).name());
 		}
 	}
 
@@ -695,6 +706,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	else if(type == "layout"){
 		auto layoutSprite = new ds::ui::LayoutSprite(engine);
 		spriddy = layoutSprite;
+	}
+	else if(type == "border"){
+		spriddy = new ds::ui::Border(engine);
 	}
 	else if(type == "circle"){
 		spriddy = new ds::ui::Circle(engine);

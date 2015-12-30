@@ -1,6 +1,6 @@
 #pragma once
-#ifndef DS_MESH_H
-#define DS_MESH_H
+#ifndef DS_UI_CIRCLE_H
+#define DS_UI_CIRCLE_H
 
 #include <string>
 #include <cinder/gl/Vbo.h>
@@ -59,4 +59,4 @@ namespace ui {
 } // namespace ui
 } // namespace ds
 
-#endif //DS_MESH_H
+#endif //DS_UI_CIRCLE_H

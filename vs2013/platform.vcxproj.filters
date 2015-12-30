@@ -687,6 +687,9 @@
     <ClInclude Include="..\src\ds\data\color_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\border.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1165,6 +1168,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\color_list.cpp">
       <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\border.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
