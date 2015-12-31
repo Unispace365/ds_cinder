@@ -85,8 +85,8 @@ void WebPlayer::layout(){
 	}
 }
 
-void WebPlayer::userInputReceived() {
-	ds::ui::Sprite::userInputReceived();
+void WebPlayer::userInputReceived(Sprite* child) {
+	ds::ui::Sprite::userInputReceived(child);
 	showInterface();
 }
 

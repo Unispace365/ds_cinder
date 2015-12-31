@@ -267,8 +267,8 @@ void MediaViewer::exit(){
 	}
 }
 
-void MediaViewer::userInputReceived(){
-	BasePanel::userInputReceived();
+void MediaViewer::userInputReceived(Sprite* child){
+	BasePanel::userInputReceived(child);
 
 	showInterface();
 }
