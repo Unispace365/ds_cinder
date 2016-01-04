@@ -143,8 +143,17 @@ void SpriteAnimatable::setAnimateOnTargets(){
 	mAnimateOnOpacityTarget = mOwner.getOpacity();
 }
 
-void SpriteAnimatable::clearAnimateOnTargets(){
+void SpriteAnimatable::clearAnimateOnTargets(const bool recursive){
 	mAnimateOnTargetsSet = false;
+	if(recursive){
+		auto chillins = mOwner.getChildren();
+		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
+			Sprite*		s(*it);
+			if(s) {
+				s->clearAnimateOnTargets(recursive);
+			}
+		}
+	}
 }
 
 void SpriteAnimatable::runAnimationScript(const std::string& animScript, const float addedDelay){

@@ -3,4 +3,24 @@
 	<!-- Standard animation duration, in seconds. -->
 	<float name="animation:duration" value="0.2" />
 	
+	<text  name="triangles:touch:translate_points" value="true" />
+	<text  name="triangles:touch:use" value="true" />
+	<float name="triangles:scale" value="30.0" />
+	<int   name="triangles:rows" value="30" />
+	<int   name="triangles:cols" value="90" />
+	<float name="triangles:x_overflow" value="0.0" />
+	<float name="triangles:y_overflow" value="0.0" />
+	<float name="triangles:x_offset" value="0.0" />
+	<float name="triangles:y_offset" value="-20.0" />
+	<float name="triangles:alpha_min" value="0.5" />
+	<float name="triangles:rand_vel_min" value="0.00001" />
+	<float name="triangles:rand_vel_max" value="0.0005" />
+	<float name="triangles:rand_max_min" value="0.5" />
+	<float name="triangles:rand_max_max" value="0.75" />
+	<float name="triangles:rand_chance" value="0.995" />
+	<float name="triangles:touch_max_min" value="0.05" />
+	<float name="triangles:touch_max_max" value="0.1" />
+	<float name="triangles:touch_dist" value="25000" />
+	<float name="triangles:touch_vel_denom" value="60" />
+	<float name="triangles:depreciation" value="0.00001" />
 </settings>

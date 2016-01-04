@@ -86,7 +86,7 @@ void triangle_man::setupServer(){
 	
 	// add sprites
 	rootSprite.addChildPtr(new TapestryView(mGlobals));
-	rootSprite.addChildPtr(new StoryView(mGlobals));
+	//rootSprite.addChildPtr(new StoryView(mGlobals));
 }
 
 void triangle_man::update() {
