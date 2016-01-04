@@ -29,6 +29,8 @@ public:
 	// FillSize = Sprite isn't used in V/H layout calculations, but is sized to the whole layout (minus padding). Great for backgrounds of flex size layouts.
 	enum { kFixedSize = 0, kFlexSize, kStretchSize, kFillSize } SizeType;
 
+	typedef enum { kShrinkNone = 0, kShrinkWidth, kShrinkHeight, kShrinkBoth } ShrinkType;
+
 	// In VFlow layouts, adjusts the x-position during layout
 	enum { kLeft = 0, kCenter, kRight } HAlignment;
 	// In HFlow layouts, adjusts the y-position during layout
@@ -54,8 +56,8 @@ public:
 	/// Generally only has an effect for sizeType = kFixedSize, kStretchSize or fill; layoutType = kLayoutVFlow or kLayoutHFlow; and there are no stretch children
 	void					setOverallAlignment(const int align){ mOverallAlign = align; }
 
-	bool					getShrinkToChildren() { return mShrinkToChildren; }
-	void					setShrinkToChildren(bool shrink) { mShrinkToChildren = shrink; }
+	const ShrinkType&		getShrinkToChildren() { return mShrinkToChildren; }
+	void					setShrinkToChildren(const ShrinkType& shrink) { mShrinkToChildren = shrink; }
 
 protected:
 	// See enum declaration for descriptions
@@ -71,7 +73,7 @@ protected:
 	float					mSpacing;
 	LayoutType				mLayoutType;
 	int						mOverallAlign; // can align children if this is not a flex size and there are no stretch children
-	bool					mShrinkToChildren;
+	ShrinkType				mShrinkToChildren;
 
 };
 

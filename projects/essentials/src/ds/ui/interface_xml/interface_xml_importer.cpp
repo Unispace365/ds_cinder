@@ -284,7 +284,16 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "shrink_to_children"){
 		auto layoutSprite = dynamic_cast<LayoutSprite*>(&sprite);
 		if(layoutSprite){
-			layoutSprite->setShrinkToChildren(parseBoolean(attr.getValue()));
+			auto shrinkMode = attr.getValue();
+			if(shrinkMode == "" || shrinkMode == "false" || shrinkMode == "none"){
+				layoutSprite->setShrinkToChildren(LayoutSprite::kShrinkNone);
+			} else if(shrinkMode == "width"){
+				layoutSprite->setShrinkToChildren(LayoutSprite::kShrinkWidth);
+			} else if(shrinkMode == "height"){
+				layoutSprite->setShrinkToChildren(LayoutSprite::kShrinkHeight);
+			} else if(shrinkMode == "true" || shrinkMode == "both"){
+				layoutSprite->setShrinkToChildren(LayoutSprite::kShrinkBoth);
+			}
 		} else {
 			DS_LOG_WARNING("Couldn't set shrink_to_children, as this sprite is not a LayoutSprite.");
 		}
