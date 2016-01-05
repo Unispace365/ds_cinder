@@ -690,6 +690,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\border.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\image_with_thumbnail.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1170,6 +1173,9 @@
       <Filter>src\ds\data</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\border.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\image_with_thumbnail.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>

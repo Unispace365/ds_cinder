@@ -116,6 +116,11 @@ void Image::setStatusCallback(const std::function<void(const Status&)>& fn)
 	mStatusFn = fn;
 }
 
+bool Image::isLoadedPrimary() const
+{
+	return isLoaded();
+}
+
 void Image::onImageChanged()
 {
 	setStatus(Status::STATUS_EMPTY);
@@ -163,7 +168,7 @@ void Image::setStatus(const int code) {
 
 void Image::checkStatus()
 {
-	if (mImageSource.getImage() && !isLoaded())
+	if (mImageSource.getImage() && !isLoadedPrimary())
 	{
 		if (mEngine.getMode() == mEngine.CLIENT_MODE)
 		{

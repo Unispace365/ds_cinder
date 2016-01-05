@@ -33,7 +33,7 @@ public:
 	 * \param resource is the resource.
 	 * \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
 	 */
-	void					setImageResource(const ds::Resource& resource, const int flags = 0);
+	virtual void			setImageResource(const ds::Resource& resource, const int flags = 0);
 
 	/** Loads an image based on the resource id.
 	* \param resourceId is the resource.
