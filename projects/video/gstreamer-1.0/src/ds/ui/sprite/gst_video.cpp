@@ -283,17 +283,11 @@ void GstVideo::drawLocalClient(){
 
 			unsigned char * dat = nullptr;
 			Surface8u* video_surface = nullptr;
-			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
-				dat = mGstreamerWrapper->getVideo();
-			}
-			else {
-				int tmp = 3;
-			}
 
 			dat = mGstreamerWrapper->getVideo();
 
 			if (dat){
-					if (mColorType == kColorTypeShaderTransform ){
+				if (mColorType == kColorTypeShaderTransform ){
 
 					ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
 					ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
@@ -302,8 +296,7 @@ void GstVideo::drawLocalClient(){
 					mFrameTexture.update(yChannel, ci::Area(0, 0, mVideoSize.x, mVideoSize.y));
 					mUFrameTexture.update(uChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
 					mVFrameTexture.update(vChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
-				}
-				else {
+				} else {
 					ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
 					mFrameTexture.update(video_surface);
 				}
@@ -497,6 +490,15 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		
 	mOutOfBoundsMuted = true;
 	mColorType = ColorType::kColorTypeShaderTransform;
+	std::string name("yuv_colorspace_conversion");
+	addNewMemoryShader(yuv_vert, yuv_frag, name, true);
+	ds::gl::Uniform uniform;
+
+	uniform.setInt("gsuTexture0", 2);
+	uniform.setInt("gsuTexture1", 3);
+	uniform.setInt("gsuTexture2", 4);
+	setShadersUniforms("yuv_colorspace_conversion", uniform);
+
 	DS_LOG_INFO_M("GstVideo::startStream() " << streamingPipeline, GSTREAMER_LOG);
 	if(!mGstreamerWrapper->openStream(streamingPipeline, (int)floorf(videoWidth), (int)floorf(videoHeight))){
 		DS_LOG_WARNING_M("GstVideo::startStream() aborting cause of a problem.", GSTREAMER_LOG);
