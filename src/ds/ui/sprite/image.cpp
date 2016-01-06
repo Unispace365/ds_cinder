@@ -67,7 +67,7 @@ Image::Image(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int
 }
 
 Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags)
-	: Image(engine)
+	: Image(engine, flags)
 {
 	setImageResource(resource, flags);
 }

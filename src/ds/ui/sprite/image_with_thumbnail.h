@@ -35,9 +35,6 @@ public:
 	// this is our interception point for duplicating the resource with a thumbnail (if any)
 	virtual void				setImageResource(const ds::Resource& resource, const int flags = 0);
 
-	/// @note sets scale based on size passed. More like a convenience.
-	virtual void				setSizeAll( float width, float height, float depth ) override;
-	
 	/// @brief returns true if the last requested image is loaded as a texture
 	virtual bool				isLoaded() const;
 	bool						isLoadedThumbnail(bool thumbnail) const;
@@ -48,6 +45,8 @@ protected:
 	/// @cond image status callbacks
 	virtual void				onImageLoaded();
 	/// @endcond
+
+	virtual void				onSizeChanged();
 
 private:
 	typedef Image				inherited;

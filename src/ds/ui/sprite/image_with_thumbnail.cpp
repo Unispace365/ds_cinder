@@ -26,10 +26,12 @@ ImageWithThumbnail::ImageWithThumbnail(SpriteEngine& engine, const ds::Resource:
 {}
 
 ImageWithThumbnail::ImageWithThumbnail(SpriteEngine& engine, const ds::Resource& resource, const int flags, float fadeDuration)
-	: inherited(engine, resource, flags)
+	: inherited(engine, flags)
 	, mThumbnail(nullptr)
 	, mFadeDuration(fadeDuration)
-{}
+{
+	setImageResource(resource, flags);
+}
 
 void ImageWithThumbnail::setImageResource(const ds::Resource& resource, const int flags){
 	inherited::setImageResource(resource, flags);
@@ -49,13 +51,6 @@ void ImageWithThumbnail::setImageResource(const ds::Resource& resource, const in
 			mThumbnail->setImageFile(resource.getThumbnailFilePath());
 		}
 		mThumbnail->setSize(getWidth(), getHeight());
-	}
-}
-
-void ImageWithThumbnail::setSizeAll( float width, float height, float depth ){
-	inherited::setSizeAll(width, height, depth);
-	if(mThumbnail){
-		mThumbnail->setSizeAll(width, height, depth);
 	}
 }
 
@@ -85,6 +80,12 @@ void ImageWithThumbnail::onImageLoaded(){
 			mThumbnail->release();
 			mThumbnail = nullptr;
 		});
+	}
+}
+
+void ImageWithThumbnail::onSizeChanged(){
+	if(mThumbnail){
+		mThumbnail->setSize(getWidth(), getHeight());
 	}
 }
 
