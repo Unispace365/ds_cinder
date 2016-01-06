@@ -37,6 +37,8 @@ public:
 	/// unloads any media and interface already loaded. initialize could be called again after this and load the same content
 	void				uninitialize();
 
+	void				setCacheImages(bool cacheImages) { mCacheImages = cacheImages; }
+
 	virtual void		onLayout();
 	void				enter();
 	void				exit();
@@ -65,6 +67,8 @@ protected:
 	WebPlayer*			mWebPlayer;
 	ds::ui::Image*		mThumbnailImage;
 	ds::ui::Image*		mPrimaryImage;
+
+	bool				mCacheImages;
 
 
 	ci::Vec3f			mOrigin;
