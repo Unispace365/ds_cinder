@@ -84,7 +84,7 @@ const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 	}
 	auto it = mTextCfg.find(name);
 	if (it == mTextCfg.end()) {
-		DS_LOG_WARNING("EngineCfg::getText() cfg does not exist" << name);
+		DS_LOG_WARNING("EngineCfg::getText() cfg does not exist: " << name);
 		return mEmptyTextCfg;
 	}
 	return it->second;
@@ -150,6 +150,15 @@ void EngineCfg::loadText(const std::string& filename, Engine* engine) {
 		const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
 		read_text_cfg(app, mTextCfg, engine);
 		read_text_cfg(local, mTextCfg, engine);
+	}
+
+	if(!mTextCfg.empty()){
+		for(auto it = mTextCfg.begin(); it != mTextCfg.end(); ++it){
+			mEmptyTextCfg = it->second;
+			break;
+		}
+		// Set color to full red to alert that this wasn't actually loaded
+		mEmptyTextCfg.mColor.set(1.0f, 0.0f, 0.0f, 1.0f);
 	}
 }
 
