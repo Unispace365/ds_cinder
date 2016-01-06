@@ -655,6 +655,15 @@ namespace ui {
 		*/
 		bool					getDrawDebug();
 
+		/** For debugging uses. Not recommended for sprite lookup, as there is no guarantee of uniqueness. 
+		Recommended method is to keep a pointer to the sprite or look up via a map or vector.*/
+		void					setSpriteName(const std::wstring& name);
+
+		/**For debugging uses. Will return the sprite's name if no name has been set via setSpriteName.
+		Not recommended for sprite lookup, as there is no guarantee of uniqueness.
+		Recommended method is to keep a pointer to the sprite or look up via a map or vector.*/
+		const std::wstring		getSpriteName() const;
+
 		/// For use by any layout classes you may want to implement. Default = 0.0f or 0 for all of these
 		float					mLayoutTPad;
 		float					mLayoutBPad;
@@ -891,6 +900,9 @@ namespace ui {
 		// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
 		// Cleared automatically on destruction
 		ci::CueRef			mDelayedCallCueRef;
+
+		// For debugging, and in a super-duper pinch, in production. 
+		std::wstring		mSpriteName;
 	public:
 		// This is a bit of a hack so I can temporarily set a scale value
 		// without causing the whole editing mechanism to kick in.

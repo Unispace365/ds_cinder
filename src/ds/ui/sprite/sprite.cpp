@@ -2329,6 +2329,22 @@ bool Sprite::getDrawDebug(){
 	return getFlag(DRAW_DEBUG_F, mSpriteFlags);
 }
 
+
+void Sprite::setSpriteName(const std::wstring& name){
+	mSpriteName = name;
+}
+
+const std::wstring Sprite::getSpriteName() const {
+	if(mSpriteName.empty()){
+		std::wstringstream wss;
+		wss << getId();
+		auto spriteName = wss.str();
+		return spriteName;
+	} else {
+		return mSpriteName;
+	}
+}
+
 /*
  * --------------------LockScale
  */

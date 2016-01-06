@@ -99,6 +99,7 @@ public:
 
 	/// Sets the script to use in the above tweenAnimateOn() function
 	void									setAnimateOnScript(const std::string& animateOnScript);
+	const std::string&						getAnimateOnScript(){ return mAnimateOnScript; }
 
 	/// Sets the targets for animate on. This only applies to fade, grow and slide. The intent here is to make tweenAnimateOn() reliable through multiple calls at any time.
 	void									setAnimateOnTargets();

@@ -757,6 +757,8 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 	// Put sprite in named sprites map
 	if (sprite_name != "") {
+		spriddy->setSpriteName(ds::wstr_from_utf8(sprite_name));
+
 		if (mNamedSpriteMap.find(sprite_name) != mNamedSpriteMap.end()) {
 			DS_LOG_WARNING("Interface xml file contains duplicate sprites named:" << sprite_name << ", only the first one will be identified.");
 		}

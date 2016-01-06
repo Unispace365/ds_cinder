@@ -86,6 +86,8 @@ public:
 	// Hack in a function to get the full font height, including the leading
 	virtual float				getFontFullHeight() const;
 
+	const std::string			getFontFileName() const;
+
 	// Print my line info
 	void						debugPrint();
 
