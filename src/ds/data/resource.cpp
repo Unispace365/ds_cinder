@@ -18,7 +18,9 @@ const std::string		IMAGE_TYPE_SZ("i");
 const std::string		IMAGE_SEQUENCE_TYPE_SZ("s");
 const std::string		PDF_TYPE_SZ("p");
 const std::string		VIDEO_TYPE_SZ("v");
+const std::string		VIDEO_STREAM_TYPE_SZ("vs");
 const std::string		WEB_TYPE_SZ("w");
+
 // This gets reduced to being a video type; here to support B&R CMSs, which
 // can't have audio files that are typed as video.
 const std::string		AUDIO_TYPE_SZ("a");
@@ -30,6 +32,7 @@ const std::wstring		IMAGE_NAME_SZ(L"image");
 const std::wstring		IMAGE_SEQUENCE_NAME_SZ(L"image sequence");
 const std::wstring		PDF_NAME_SZ(L"pdf");
 const std::wstring		VIDEO_NAME_SZ(L"video");
+const std::wstring		VIDEO_STREAM_NAME_SZ(L"video stream");
 const std::wstring		WEB_NAME_SZ(L"web");
 const std::wstring		ERROR_NAME_SZ(L"error");
 }
@@ -301,7 +304,6 @@ Resource::Resource(const std::string& fullPath)
 {
 }
 
-
 Resource::Resource(const std::string& fullPath, const int type)
 	: mDbId(0)
 	, mType(type)
@@ -311,6 +313,16 @@ Resource::Resource(const std::string& fullPath, const int type)
 	, mThumbnailId(0)
 	, mLocalFilePath(fullPath)
 {
+}
+
+Resource::Resource(const std::string& localFullPath, const float width, const float height)
+	: mDbId(0)
+	, mType(parseTypeFromFilename(localFullPath))
+	, mDuration(0)
+	, mWidth(width)
+	, mHeight(height)
+	, mThumbnailId(0)
+	, mLocalFilePath(localFullPath){
 }
 
 Resource::Resource(const Resource::Id dbid, const int type, const double duration, 
@@ -343,6 +355,7 @@ const std::wstring& Resource::getTypeName() const {
 	else if (mType == IMAGE_SEQUENCE_TYPE) return IMAGE_SEQUENCE_NAME_SZ;
 	else if (mType == PDF_TYPE) return PDF_NAME_SZ;
 	else if (mType == VIDEO_TYPE) return VIDEO_NAME_SZ;
+	else if(mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_NAME_SZ;
 	else if (mType == WEB_TYPE) return WEB_NAME_SZ;
 	return ERROR_NAME_SZ;
 }
@@ -450,6 +463,7 @@ void Resource::setTypeFromString(const std::string& typeChar) {
 	else if (IMAGE_SEQUENCE_TYPE_SZ == typeChar) mType = IMAGE_SEQUENCE_TYPE;
 	else if (PDF_TYPE_SZ == typeChar) mType = PDF_TYPE;
 	else if (VIDEO_TYPE_SZ == typeChar) mType = VIDEO_TYPE;
+	else if (VIDEO_STREAM_TYPE_SZ == typeChar) mType = VIDEO_STREAM_TYPE;
 	else if (WEB_TYPE_SZ == typeChar) mType = WEB_TYPE;
 	else if (AUDIO_TYPE_SZ == typeChar) mType = VIDEO_TYPE;
 	else mType = ERROR_TYPE;
@@ -465,6 +479,11 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 
 	if(newMedia.find("http") == 0){
 		return ds::Resource::WEB_TYPE;
+	}
+
+	if(newMedia.find("udp") == 0
+		|| newMedia.find("rtsp") == 0){
+		return ds::Resource::VIDEO_STREAM_TYPE;
 	}
 
 	Poco::File filey = Poco::File(newMedia);

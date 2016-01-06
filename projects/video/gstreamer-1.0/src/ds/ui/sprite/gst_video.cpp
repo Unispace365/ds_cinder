@@ -385,8 +385,15 @@ GstVideo &GstVideo::setResourceId(const ds::Resource::Id &resourceId){
 }
 
 GstVideo& GstVideo::setResource(const ds::Resource& resource){
-	Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
-	loadVideo(resource.getAbsoluteFilePath());
+
+
+	if(resource.getType() == ds::Resource::VIDEO_TYPE){
+		Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
+		loadVideo(resource.getAbsoluteFilePath());
+	} else if(resource.getType() == ds::Resource::VIDEO_STREAM_TYPE) {
+		std::string path = resource.getAbsoluteFilePath();
+		startStream(path, resource.getWidth(), resource.getHeight());
+	}
 	return *this;
 }
 
