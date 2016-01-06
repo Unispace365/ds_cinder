@@ -59,10 +59,10 @@ public:
 	void						setSize( float width, float height );
 
 	/// @note sets scale based on size passed. More like a convenience.
-	void						setSizeAll( float width, float height, float depth ) override;
+	virtual void				setSizeAll( float width, float height, float depth ) override;
 
 	/// @brief returns true if the last requested image is loaded as a texture
-	bool						isLoaded() const;
+	virtual bool				isLoaded() const;
 
 public:
 	/// @warning this is deprecated and it inhibits all sort of code
@@ -80,6 +80,9 @@ public:
 	void						setStatusCallback(const std::function<void(const Status&)>&);
 
 protected:
+
+	/// @brief override this if you override isLoaded() and there are additional resources to load after isLoaded() returns true
+	virtual bool				isLoadedPrimary() const;
 
 	/// @cond image status callbacks
 

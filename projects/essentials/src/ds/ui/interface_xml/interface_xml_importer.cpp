@@ -7,6 +7,7 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/gradient_sprite.h>
 #include <ds/ui/sprite/image.h>
+#include <ds/ui/sprite/image_with_thumbnail.h>
 #include <ds/ui/sprite/text.h>
 #include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/sprite_engine.h>
@@ -681,6 +682,10 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		if (relative_file != "") {
 			setSpriteProperty(*image, ci::XmlTree::Attr(nullptr, "filename", relative_file), nullptr);
 		}
+		spriddy = image;
+	}
+	else if (type == "image_with_thumbnail") {
+		auto image = new ds::ui::ImageWithThumbnail(engine);
 		spriddy = image;
 	}
 	else if (type == "text") {

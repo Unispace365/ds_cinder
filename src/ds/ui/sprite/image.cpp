@@ -67,7 +67,7 @@ Image::Image(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int
 }
 
 Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags)
-	: Image(engine)
+	: Image(engine, flags)
 {
 	setImageResource(resource, flags);
 }
@@ -114,6 +114,11 @@ void Image::setStatusCallback(const std::function<void(const Status&)>& fn)
 		// TODO: fill in some callbacks? This actually kinda works. This will only not work in server-only mode. Everything else is fine
 	}
 	mStatusFn = fn;
+}
+
+bool Image::isLoadedPrimary() const
+{
+	return isLoaded();
 }
 
 void Image::onImageChanged()
@@ -163,7 +168,7 @@ void Image::setStatus(const int code) {
 
 void Image::checkStatus()
 {
-	if (mImageSource.getImage() && !isLoaded())
+	if (mImageSource.getImage() && !isLoadedPrimary())
 	{
 		if (mEngine.getMode() == mEngine.CLIENT_MODE)
 		{
