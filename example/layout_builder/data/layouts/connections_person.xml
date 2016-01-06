@@ -1,0 +1,51 @@
+<interface>
+
+		<layout name="layout" 
+			size="215, 300" 
+			color="17a0da" 
+			layout_type="vert" 
+			layout_size_mode="fixed" 
+			animate_on="grow; fade; slide:0, 0; ease:outQuint; duration:2"
+			>
+			
+			<layout 
+				size="215, 150" 
+				layout_size_mode="fixed" 
+				layout_type="size"
+				animate_on="fade; slide:-200; duration:0.5">
+				
+				<image
+					name="profile_photo"
+					src="../images/temp/person.png"
+					layout_size_mode="stretch"
+				/>
+				
+			</layout>
+			
+			<layout 
+				size="215, 150" 
+				layout_type="vert"
+				layout_size_mode="fixed" 
+				layout_spacing="20"
+				animate_on="fade; slide:-200; duration:0.5">
+				
+				<multiline_text
+					name="person_name"
+					font="connections:person_name"
+					layout_size_mode="stretch"
+				>Gordon Seansworth</multiline_text>
+				
+				<multiline_text
+					name="person_subhead"
+					font="connections:person_subhead"
+					layout_size_mode="stretch"
+				>Leeds, UK</multiline_text>
+				
+			</layout>
+			
+			
+			
+		</layout>
+	
+</interface>
+

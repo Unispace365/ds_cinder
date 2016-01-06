@@ -1,0 +1,52 @@
+#ifndef _LAYOUT_BUILDER_APP_APPEVENTS_H_
+#define _LAYOUT_BUILDER_APP_APPEVENTS_H_
+
+#include <ds/app/event.h>
+#include <ds/ui/sprite/sprite.h>
+
+namespace layout_builder {
+
+class IdleStartedEvent : public ds::RegisteredEvent < IdleStartedEvent > {
+public:
+	IdleStartedEvent(){};
+};
+
+class IdleEndedEvent : public ds::RegisteredEvent < IdleEndedEvent > {
+public:
+	IdleEndedEvent(){};
+
+};
+
+class LoadLayoutRequest : public ds::RegisteredEvent<LoadLayoutRequest>{
+public:
+	LoadLayoutRequest(const std::string& layoutLocation) : mLocation(layoutLocation) {}
+	const std::string mLocation;
+};
+
+class RefreshLayoutRequest : public ds::RegisteredEvent<RefreshLayoutRequest>{
+public:
+	RefreshLayoutRequest(){};
+};
+
+class AnimateLayoutRequest : public ds::RegisteredEvent<AnimateLayoutRequest>{
+public:
+	AnimateLayoutRequest(){};
+};
+
+class InspectTreeRequest : public ds::RegisteredEvent<InspectTreeRequest>{
+public:
+	// ownership of the tree doesn't change
+	InspectTreeRequest(ds::ui::Sprite* sp) :mTree(sp){}
+	ds::ui::Sprite*		mTree;
+};
+
+class InspectSpriteRequest : public ds::RegisteredEvent<InspectSpriteRequest>{
+public:
+	// ownership of the tree doesn't change
+	InspectSpriteRequest(ds::ui::Sprite* sp) :mSprid(sp){}
+	ds::ui::Sprite*		mSprid;
+};
+
+} // !namespace layout_builder
+
+#endif // !_LAYOUT_BUILDER_APP_APPEVENTS_H_

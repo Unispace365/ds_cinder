@@ -1,0 +1,9 @@
+<settings>
+
+	<text name="noto-bold" value="%APP%/data/fonts/NotoSans-Bold.ttf" />
+	
+	<text name="frutiger-light" value="E:\client\Deloitte\deloitte_university_wall\data\fonts\Frutiger 45 Light.otf" />
+	<text name="frutiger-roman" value="E:\client\Deloitte\deloitte_university_wall\data\fonts\Frutiger 55 Roman.otf" />
+	<text name="frutiger-bold" value="E:\client\Deloitte\deloitte_university_wall\data\fonts\Frutiger 65 Bold.otf" />
+	
+</settings>

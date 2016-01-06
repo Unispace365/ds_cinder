@@ -1,0 +1,46 @@
+<settings>
+
+<!-- Font names are installed in the root app class on startup	-->
+	
+	<!-- Sample Text -->
+		<text  name="button:text:name" value="noto-bold" />
+		<float name="button:text:size" value="12" />
+		<float name="button:text:leading" value="0.75" />
+		<color name="button:text:color" r="10" g="10" b="10" />
+
+	<text  name="tree:item:name" value="frutiger-bold" />
+	<float name="tree:item:size" value="12" />
+	<float name="tree:item:leading" value="0.75" />
+	<color name="tree:item:color" r="255" g="255" b="255" />
+
+	<text  name="tree:item_two:name" value="frutiger-light" />
+	<float name="tree:item_two:size" value="12" />
+	<float name="tree:item_two:leading" value="0.75" />
+	<color name="tree:item_two:color" r="255" g="255" b="255" />
+		
+	<text  name="connections:title:name" value="frutiger-light" />
+	<float name="connections:title:size" value="24" />
+	<float name="connections:title:leading" value="0.75" />
+	<color name="connections:title:color" r="255" g="255" b="255" />
+	
+	<text  name="connections:categories:name" value="frutiger-bold" />
+	<float name="connections:categories:size" value="12" />
+	<float name="connections:categories:leading" value="0.75" />
+	<color name="connections:categories:color" r="255" g="255" b="255" />
+	
+	<text  name="connections:category:name" value="frutiger-roman" />
+	<float name="connections:category:size" value="16" />
+	<float name="connections:category:leading" value="0.5" />
+	<color name="connections:category:color" r="255" g="255" b="255" />
+	
+	<text  name="connections:person_name:name" value="frutiger-bold" />
+	<float name="connections:person_name:size" value="30" />
+	<float name="connections:person_name:leading" value="0.5" />
+	<color name="connections:person_name:color" r="255" g="255" b="255" />
+	
+	<text  name="connections:person_subhead:name" value="frutiger-light" />
+	<float name="connections:person_subhead:size" value="21" />
+	<float name="connections:person_subhead:leading" value="0.5" />
+	<color name="connections:person_subhead:color" r="255" g="255" b="255" />
+	
+</settings>
