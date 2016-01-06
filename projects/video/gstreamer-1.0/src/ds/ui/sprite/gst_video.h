@@ -183,6 +183,7 @@ private:
 	ci::gl::Texture		mVFrameTexture;
 
 	ci::Vec2i			mVideoSize;
+	double				mCachedDuration;
 	std::string			mFilename,
 						mPortableFilename;
 	Status				mStatus;

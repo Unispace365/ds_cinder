@@ -166,6 +166,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mNetPort(-1)
 	, mBaseTime(0)
 	, mSeekTime(0)
+	, mCachedDuration(0)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -410,11 +411,10 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 	try	{
 		int						videoWidth = static_cast<int>(getWidth());
 		int						videoHeight = static_cast<int>(getHeight());
-		double					videoDuration(0.0f);
 		bool					generateVideoBuffer = true;
 		std::string				colorSpace = "";
 
-		CACHE.getValues(filename, type, videoWidth, videoHeight, videoDuration, colorSpace);
+		CACHE.getValues(filename, type, videoWidth, videoHeight, mCachedDuration, colorSpace);
 
 		if(type == VideoMetaCache::AUDIO_TYPE)
 		{
@@ -617,7 +617,15 @@ bool GstVideo::getIsPlaying() const {
 }
 
 double GstVideo::getDuration() const {
-	return mGstreamerWrapper->getDurationInMs() / 1000.0;
+	double gstDur = mGstreamerWrapper->getDurationInMs();
+
+	// if gstreamer hasn't found the duration or the video hasn't been loaded yet, use the cached value
+	if(gstDur < 1){
+		gstDur = mCachedDuration;
+	} else {
+		gstDur /= 1000.0;
+	}
+	return gstDur;
 }
 
 double GstVideo::getCurrentTime() const {
