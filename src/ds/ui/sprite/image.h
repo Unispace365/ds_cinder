@@ -44,7 +44,7 @@ public:
 	/// @cond Constructor overloads
 	
 	/// @brief constructs an image sprite
-	Image(SpriteEngine&, const int flags = 0);
+	Image(SpriteEngine&);
 	Image(SpriteEngine&, const std::string& filename, const int flags = 0);
 	Image(SpriteEngine&, const ds::Resource::Id&, const int flags = 0);
 	Image(SpriteEngine&, const ds::Resource& resource, const int flags = 0);
@@ -78,6 +78,7 @@ public:
 	/// @warning this is deprecated. Use onImageLoaded() or onImageUnloaded() instead.
 	/// @deprecated
 	void						setStatusCallback(const std::function<void(const Status&)>&);
+	void						checkStatus();
 
 protected:
 
@@ -108,7 +109,6 @@ private:
 	typedef Sprite				inherited;
 
 	void						setStatus(const int);
-	void						checkStatus();
 	void						doOnImageLoaded();
 	void						doOnImageUnloaded();
 

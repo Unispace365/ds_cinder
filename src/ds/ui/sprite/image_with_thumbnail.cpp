@@ -42,15 +42,19 @@ void ImageWithThumbnail::setImageResource(const ds::Resource& resource, const in
 		mThumbnail = nullptr;
 	}
 
-	if(resource.getThumbnailId() > 0 || !resource.getThumbnailFilePath().empty()){
-		mThumbnail = new ds::ui::Image(mEngine);
-		addChildPtr(mThumbnail);
-		if(resource.getThumbnailId() > 0){
-			mThumbnail->setImageResource(resource.getThumbnailId());
-		} else {
-			mThumbnail->setImageFile(resource.getThumbnailFilePath());
+	checkStatus();
+
+	if(!isLoadedPrimary()){
+		if(resource.getThumbnailId() > 0 || !resource.getThumbnailFilePath().empty()){
+			mThumbnail = new ds::ui::Image(mEngine);
+			addChildPtr(mThumbnail);
+			if(resource.getThumbnailId() > 0){
+				mThumbnail->setImageResource(resource.getThumbnailId());
+			} else {
+				mThumbnail->setImageFile(resource.getThumbnailFilePath());
+			}
+			mThumbnail->setSize(getWidth(), getHeight());
 		}
-		mThumbnail->setSize(getWidth(), getHeight());
 	}
 }
 

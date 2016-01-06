@@ -38,7 +38,7 @@ Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) 
 	return makeImage(e, r.getPortableFilePath(), parent);
 }
 
-Image::Image(SpriteEngine& engine, const int flags)
+Image::Image(SpriteEngine& engine)
 	: inherited(engine)
 	, ImageOwner(engine)
 	, mStatusFn(nullptr)
@@ -55,19 +55,19 @@ Image::Image(SpriteEngine& engine, const int flags)
 }
 
 Image::Image(SpriteEngine& engine, const std::string& filename, const int flags)
-	: Image(engine, flags)
+	: Image(engine)
 {
 	setImageFile(filename, flags);
 }
 
 Image::Image(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int flags)
-	: Image(engine, flags)
+	: Image(engine)
 {
 	setImageResource(resourceId, flags);
 }
 
 Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags)
-	: Image(engine, flags)
+	: Image(engine)
 {
 	setImageResource(resource, flags);
 }
