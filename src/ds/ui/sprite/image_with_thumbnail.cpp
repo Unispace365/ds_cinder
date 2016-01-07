@@ -76,6 +76,13 @@ bool ImageWithThumbnail::isLoadedPrimary() const{
 	return isLoadedThumbnail(false);
 }
 
+void ImageWithThumbnail::setCircleCrop(bool circleCrop){
+	inherited::setCircleCrop(circleCrop);
+	if(mThumbnail){
+		mThumbnail->setCircleCrop(circleCrop);
+	}
+}
+
 void ImageWithThumbnail::onImageLoaded(){
 	inherited::onImageLoaded();
 	if(mThumbnail){

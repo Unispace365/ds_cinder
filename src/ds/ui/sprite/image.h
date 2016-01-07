@@ -59,10 +59,12 @@ public:
 	void						setSize( float width, float height );
 
 	/// @note sets scale based on size passed. More like a convenience.
-	virtual void				setSizeAll( float width, float height, float depth ) override;
+	void						setSizeAll( float width, float height, float depth ) override;
 
 	/// @brief returns true if the last requested image is loaded as a texture
 	virtual bool				isLoaded() const;
+
+	virtual void				setCircleCrop(bool circleCrop);
 
 public:
 	/// @warning this is deprecated and it inhibits all sort of code

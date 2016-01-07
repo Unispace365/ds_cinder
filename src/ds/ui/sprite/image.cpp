@@ -6,6 +6,7 @@
 
 #include "ds/debug/logger.h"
 #include "ds/app/blob_reader.h"
+#include <ds/app/environment.h>
 #include "ds/data/data_buffer.h"
 #include "ds/app/blob_registry.h"
 #include "ds/util/image_meta_data.h"
@@ -49,7 +50,7 @@ Image::Image(SpriteEngine& engine)
 	mBlobType = BLOB_TYPE;
 
 	setTransparent(false);
-	setUseShaderTextuer(true);
+	setUseShaderTexture(true);
 
 	markAsDirty(IMG_SRC_DIRTY);
 }
@@ -105,6 +106,17 @@ void Image::setSizeAll( float width, float height, float depth )
 bool Image::isLoaded() const
 {
 	return mStatus.mCode == Status::STATUS_LOADED;
+}
+
+void Image::setCircleCrop(bool circleCrop)
+{
+	if(circleCrop){
+		// switch to crop shader
+		mSpriteShader.setShaders(Environment::getAppFolder("data/shaders"), "circle_crop");
+	} else {
+		// go back to base shader
+		mSpriteShader.setShaders(Environment::getAppFolder("data/shaders"), "base");
+	}
 }
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn)

@@ -39,6 +39,8 @@ public:
 	virtual bool				isLoaded() const;
 	bool						isLoadedThumbnail(bool thumbnail) const;
 
+	virtual void				setCircleCrop(bool circleCrop);
+
 protected:
 	virtual bool				isLoadedPrimary() const;
 	
