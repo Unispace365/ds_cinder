@@ -60,6 +60,28 @@ ds::ui::BlendMode getBlendModeByString(const std::string& blendString){
 	return NORMAL;
 }
 
+const std::string getStringForBlendMode(const BlendMode& blendMode){
+	if(blendMode == NORMAL) {
+		return "normal";
+	} else if(blendMode == MULTIPLY) {
+		return "multiply";
+	} else if(blendMode == SCREEN) {
+		return "screen";
+	} else if(blendMode == ADD) {
+		return "add";
+	} else if(blendMode == SUBTRACT) {
+		return "subtract";
+	} else if(blendMode == LIGHTEN) {
+		return "lighten";
+	} else if(blendMode == DARKEN) {
+		return "darken";
+	} else if(blendMode == TRANSPARENT_BLACK){
+		return "transparent_black";
+	}
+
+	return "normal";
+}
+
 bool premultiplyAlpha(const BlendMode &blendMode){
 	if(blendMode == NORMAL) {
 		return false;

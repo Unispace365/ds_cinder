@@ -94,9 +94,9 @@ static ci::ColorA parseColor(const std::string &color, const ds::ui::SpriteEngin
 ci::Vec3f parseVector( const std::string &s ) {
 	auto tokens = ds::split( s, ", ", true );
 	ci::Vec3f v;
-	v.x = tokens.size() > 0 ? std::stof(tokens[0]) : 0.0f;
-	v.y = tokens.size() > 1 ? std::stof(tokens[1]) : 0.0f;
-	v.z = tokens.size() > 2 ? std::stof(tokens[2]) : 0.0f;
+	v.x = tokens.size() > 0 ? ds::string_to_float(tokens[0]) : 0.0f;
+	v.y = tokens.size() > 1 ? ds::string_to_float(tokens[1]) : 0.0f;
+	v.z = tokens.size() > 2 ? ds::string_to_float(tokens[2]) : 0.0f;
 
 	return v;
 }
@@ -118,7 +118,7 @@ static ds::ui::BlendMode parseBlendMode( const std::string &s ) {
 }
 
 // TODO: add the rest of the permutations, if you want em
-static const ds::BitMask parseMultitouchMode(const std::string& s){
+const ds::BitMask XmlImporter::parseMultitouchMode(const std::string& s){
 	using namespace ds::ui;
 	if(boost::iequals(s, "info"))				return MULTITOUCH_INFO_ONLY;
 	else if(boost::iequals(s, "pos"))			return MULTITOUCH_CAN_POSITION;
@@ -132,6 +132,34 @@ static const ds::BitMask parseMultitouchMode(const std::string& s){
 	return MULTITOUCH_INFO_ONLY;
 }
 
+const std::string XmlImporter::getMultitouchStringForBitMask(const ds::BitMask& s){
+	using namespace ds::ui;
+	if(s & MULTITOUCH_INFO_ONLY){
+		return "info";
+	} else if(s & MULTITOUCH_NO_CONSTRAINTS){
+		return "all";
+	} else if(s & MULTITOUCH_CAN_POSITION){
+		if(s & MULTITOUCH_CAN_ROTATE){
+			return "pos_rotate";
+		}
+		if(s & MULTITOUCH_CAN_SCALE){
+			return "pos_scale";
+		}
+
+		return "pos";
+	} else if(s & MULTITOUCH_CAN_ROTATE){
+		return "rotate";
+	} else if(s & MULTITOUCH_CAN_POSITION_X){
+		return "pos_x";
+	} else if(s & MULTITOUCH_CAN_POSITION_Y){
+		return "pos_y";
+	} else if(s & MULTITOUCH_CAN_SCALE){
+		return "scale";
+	}
+
+	return "info";
+}
+
 static std::string filePathRelativeTo( const std::string &base, const std::string &relative ) {
 	using namespace boost::filesystem;
 	boost::system::error_code e;
@@ -142,9 +170,19 @@ static std::string filePathRelativeTo( const std::string &base, const std::strin
 	return ret;
 }
 
-static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer = "") {
-	std::string property = attr.getName();
+// a little convenience
+static float getFloatFromString(const std::string& value){
+	float floatValue = 0.0f;
+	ds::string_to_value(value, floatValue);
+	return floatValue;
+}
 
+void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer) {
+	std::string property = attr.getName();
+	setSpriteProperty(sprite, property, attr.getValue(), referer);
+}
+
+void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& property, const std::string& value, const std::string &referer) {
 	//Cache the engine for all our color calls
 	const ds::ui::SpriteEngine& engine = sprite.getEngine();
 
@@ -156,49 +194,49 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	if(property == "name" || property == "class") {
 		// Do nothing, these are handled elsewhere
 	} else if(property == "width") {
-		sprite.setSize(attr.getValue<float>(), sprite.getHeight());
+		sprite.setSize(ds::string_to_float(value), sprite.getHeight());
 	} else if(property == "height") {
-		sprite.setSize(sprite.getWidth(), attr.getValue<float>());
+		sprite.setSize(sprite.getWidth(), ds::string_to_float(value));
 	} else if(property == "depth") {
-		sprite.setSizeAll(sprite.getWidth(), sprite.getHeight(), attr.getValue<float>());
+		sprite.setSizeAll(sprite.getWidth(), sprite.getHeight(), ds::string_to_float(value));
 	} else if(property == "size") {
-		ci::Vec3f v = parseVector(attr.getValue());
+		ci::Vec3f v = parseVector(value);
 		sprite.setSize(v.x, v.y);
 	} else if(property == "color") {
 		sprite.setTransparent(false);
-		sprite.setColorA(parseColor(attr.getValue(), engine));
+		sprite.setColorA(parseColor(value, engine));
 	} else if(property == "opacity") {
-		sprite.setOpacity(attr.getValue<float>());
+		sprite.setOpacity(ds::string_to_float(value));
 	} else if(property == "position") {
-		sprite.setPosition(parseVector(attr.getValue()));
+		sprite.setPosition(parseVector(value));
 	} else if(property == "rotation") {
-		sprite.setRotation(parseVector(attr.getValue()));
+		sprite.setRotation(parseVector(value));
 	} else if(property == "scale") {
-		sprite.setScale(parseVector(attr.getValue()));
+		sprite.setScale(parseVector(value));
 	} else if(property == "center") {
-		sprite.setCenter(parseVector(attr.getValue()));
+		sprite.setCenter(parseVector(value));
 	} else if(property == "clipping") {
-		sprite.setClipping(parseBoolean(attr.getValue()));
+		sprite.setClipping(parseBoolean(value));
 	} else if(property == "blend_mode") {
-		sprite.setBlendMode(parseBlendMode(attr.getValue()));
+		sprite.setBlendMode(parseBlendMode(value));
 	} else if(property == "enable"){
-		sprite.enable(parseBoolean(attr.getValue()));
+		sprite.enable(parseBoolean(value));
 	} else if(property == "multitouch"){
-		sprite.enableMultiTouch(parseMultitouchMode(attr.getValue()));
+		sprite.enableMultiTouch(parseMultitouchMode(value));
 	} else if(property == "transparent"){
-		sprite.setTransparent(parseBoolean(attr.getValue()));
+		sprite.setTransparent(parseBoolean(value));
 	} else if(property == "animate_on"){
-		sprite.setAnimateOnScript(attr.getValue());
+		sprite.setAnimateOnScript(value);
 	} else if(property == "t_pad") {
-		sprite.mLayoutTPad = attr.getValue<float>();
+		sprite.mLayoutTPad = ds::string_to_float(value);
 	} else if(property == "b_pad") {
-		sprite.mLayoutBPad = attr.getValue<float>();
+		sprite.mLayoutBPad = ds::string_to_float(value);
 	} else if(property == "l_pad") {
-		sprite.mLayoutLPad = attr.getValue<float>();
+		sprite.mLayoutLPad = ds::string_to_float(value);
 	} else if(property == "r_pad") {
-		sprite.mLayoutRPad = attr.getValue<float>();
+		sprite.mLayoutRPad = ds::string_to_float(value);
 	} else if(property == "layout_size_mode"){
-		auto sizeMode = attr.getValue();
+		auto sizeMode = value;
 		if(sizeMode == "fixed"){
 			sprite.mLayoutUserType = LayoutSprite::kFixedSize;
 		} else if(sizeMode == "flex"){
@@ -211,7 +249,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 			DS_LOG_WARNING("layout_size_mode set to an invalid value of " << sizeMode);
 		}
 	} else if(property == "layout_v_align"){
-		auto alignMode = attr.getValue();
+		auto alignMode = value;
 		if(alignMode == "top"){
 			sprite.mLayoutVAlign = LayoutSprite::kTop;
 		} else if(alignMode == "middle"){
@@ -222,7 +260,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 			DS_LOG_WARNING("layout_v_align set to an invalid value of " << alignMode);
 		}
 	} else if(property == "layout_h_align"){
-		auto alignMode = attr.getValue();
+		auto alignMode = value;
 		if(alignMode == "left"){
 			sprite.mLayoutHAlign = LayoutSprite::kLeft;
 		} else if(alignMode == "center"){
@@ -233,16 +271,16 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 			DS_LOG_WARNING("layout_h_align set to an invalid value of " << alignMode);
 		}
 	} else if(property == "layout_fudge"){
-		sprite.mLayoutFudge = parseVector(attr.getValue()).xy();
+		sprite.mLayoutFudge = parseVector(value).xy();
 	} else if(property == "layout_size"){
-		sprite.mLayoutSize = parseVector(attr.getValue()).xy();
+		sprite.mLayoutSize = parseVector(value).xy();
 	}
 
 	// LayoutSprite specific (the other layout stuff could apply to any sprite)
 	else if(property == "layout_type"){
 		auto layoutSprite = dynamic_cast<LayoutSprite*>(&sprite);
 		if(layoutSprite){
-			auto layoutType = attr.getValue();
+			auto layoutType = value;
 			if(layoutType == "vert"){
 				layoutSprite->setLayoutType(LayoutSprite::kLayoutVFlow);
 			} else if(layoutType == "horiz"){
@@ -260,7 +298,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "layout_spacing"){
 		auto layoutSprite = dynamic_cast<LayoutSprite*>(&sprite);
 		if(layoutSprite){
-			layoutSprite->setSpacing(attr.getValue<float>());
+			layoutSprite->setSpacing(ds::string_to_float(value));
 		} else {
 			DS_LOG_WARNING("Couldn't set layout_type, as this sprite is not a LayoutSprite.");
 		}
@@ -268,7 +306,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "overall_alignment"){
 		auto layoutSprite = dynamic_cast<LayoutSprite*>(&sprite);
 		if(layoutSprite){
-			auto alignMode = attr.getValue();
+			auto alignMode = value;
 			if(alignMode == "left" || alignMode == "top"){
 				layoutSprite->setOverallAlignment(LayoutSprite::kLeft);
 			} else if(alignMode == "center" || alignMode == "middle"){
@@ -285,7 +323,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "shrink_to_children"){
 		auto layoutSprite = dynamic_cast<LayoutSprite*>(&sprite);
 		if(layoutSprite){
-			auto shrinkMode = attr.getValue();
+			auto shrinkMode = value;
 			if(shrinkMode == "" || shrinkMode == "false" || shrinkMode == "none"){
 				layoutSprite->setShrinkToChildren(LayoutSprite::kShrinkNone);
 			} else if(shrinkMode == "width"){
@@ -305,7 +343,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		// Try to set the font
 		auto text = dynamic_cast<Text *>(&sprite);
 		if(text) {
-			auto cfg = text->getEngine().getEngineCfg().getText(attr.getValue());
+			auto cfg = text->getEngine().getEngineCfg().getText(value);
 			cfg.configure(*text);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
@@ -314,7 +352,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		// Try to set the resize limit
 		auto text = dynamic_cast<Text *>(&sprite);
 		if(text) {
-			auto v = parseVector(attr.getValue());
+			auto v = parseVector(value);
 			text->setResizeLimit(v.x, v.y);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
@@ -322,7 +360,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	} else if(property == "text_align"){
 		auto text = dynamic_cast<MultilineText*>(&sprite);
 		if(text){
-			std::string alignString = attr.getValue();
+			std::string alignString = value;
 			if(alignString == "right"){
 				text->setAlignment(ds::ui::Alignment::kRight);
 			} else if(alignString == "center"){
@@ -335,7 +373,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		// Try to set content
 		auto text = dynamic_cast<Text *>(&sprite);
 		if (text) {
-			text->setText(attr.getValue());
+			text->setText(value);
 		}
 		else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
@@ -344,7 +382,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		// Try to set the font size
 		auto text = dynamic_cast<Text *>(&sprite);
 		if (text) {
-			text->setFontSize(attr.getValue<float>());
+			text->setFontSize(ds::string_to_float(value));
 		}
 		else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
@@ -355,7 +393,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "filename" || property == "src") {
 		auto image = dynamic_cast<Image *>(&sprite);
 		if(image) {
-			image->setImageFile(filePathRelativeTo(referer, attr.getValue()));
+			image->setImageFile(filePathRelativeTo(referer, value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
@@ -366,21 +404,21 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "down_image") {
 		auto image = dynamic_cast<ImageButton *>(&sprite);
 		if(image) {
-			image->setHighImage(filePathRelativeTo(referer, attr.getValue()));
+			image->setHighImage(filePathRelativeTo(referer, value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "up_image") {
 		auto image = dynamic_cast<ImageButton *>(&sprite);
 		if(image) {
-			image->setNormalImage(filePathRelativeTo(referer, attr.getValue()));
+			image->setNormalImage(filePathRelativeTo(referer, value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "btn_touch_padding") {
 		auto image = dynamic_cast<ImageButton *>(&sprite);
 		if(image) {
-			image->setTouchPad(attr.getValue<float>());
+			image->setTouchPad(ds::string_to_float(value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
@@ -390,28 +428,28 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "colorTop"){
 		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
 		if(gradient){
-			gradient->setColorsV(parseColor(attr.getValue(), engine), gradient->getColorBL());
+			gradient->setColorsV(parseColor(value, engine), gradient->getColorBL());
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "colorBot"){
 		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
 		if(gradient){
-			gradient->setColorsV(gradient->getColorTL(), parseColor(attr.getValue(), engine));
+			gradient->setColorsV(gradient->getColorTL(), parseColor(value, engine));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "colorLeft"){
 		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
 		if(gradient){
-			gradient->setColorsH(parseColor(attr.getValue(), engine), gradient->getColorTR());
+			gradient->setColorsH(parseColor(value, engine), gradient->getColorTR());
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "colorRight"){
 		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
 		if(gradient){
-			gradient->setColorsH(gradient->getColorTL(), parseColor(attr.getValue(), engine));
+			gradient->setColorsH(gradient->getColorTL(), parseColor(value, engine));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
@@ -420,7 +458,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "scroll_list_layout"){
 		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
 		if(scrollList){
-			auto vec = parseVector(attr.getValue());
+			auto vec = parseVector(value);
 			scrollList->setLayoutParams(vec.x, vec.y, vec.z, true);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
@@ -430,7 +468,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "scroll_list_animate"){
 		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
 		if(scrollList){
-			auto vec = parseVector(attr.getValue());
+			auto vec = parseVector(value);
 			scrollList->setAnimateOnParams(vec.x, vec.y);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
@@ -449,7 +487,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 		}
 
 		if(scrollArea){
-			auto colors = ds::split(attr.getValue(), ", ", true);
+			auto colors = ds::split(value, ", ", true);
 			if(colors.size() > 1){
 				auto colorOne = parseColor(colors[0],engine);
 				auto colorTwo = parseColor(colors[1],engine);
@@ -466,7 +504,7 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "border_width"){
 		auto border = dynamic_cast<Border*>(&sprite);
 		if(border){
-			border->setBorderWidth(attr.getValue<float>());
+			border->setBorderWidth(ds::string_to_float(value));
 		} else {
 			DS_LOG_WARNING("Trying to set border_width on a non-border sprite of type: " << typeid(sprite).name());
 		}
@@ -476,14 +514,14 @@ static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, c
 	else if(property == "filled"){
 		auto circle = dynamic_cast<Circle*>(&sprite);
 		if(circle){
-			circle->setFilled(parseBoolean(attr.getValue()));
+			circle->setFilled(parseBoolean(value));
 		} else {
 			DS_LOG_WARNING("Trying to set filled on a non-circle sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "radius"){
 		auto circle = dynamic_cast<Circle*>(&sprite);
 		if(circle){
-			circle->setRadius(attr.getValue<float>());
+			circle->setRadius(ds::string_to_float(value));
 		} else {
 			DS_LOG_WARNING("Trying to set radius on a non-circle sprite of type: " << typeid(sprite).name());
 		}
@@ -661,7 +699,7 @@ static void applyStylesheet( const Stylesheet &stylesheet, ds::ui::Sprite &sprit
 		if (matches_rule) {
 			BOOST_FOREACH( auto &prop, rule.properties ) {
 				cinder::XmlTree::Attr attr(nullptr, prop.property_name, prop.property_value );
-				setSpriteProperty( sprite, attr, stylesheet.mReferer );
+				XmlImporter::setSpriteProperty( sprite, attr, stylesheet.mReferer );
 			}
 		}
 	}

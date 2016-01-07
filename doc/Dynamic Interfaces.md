@@ -105,7 +105,11 @@ Layout Parameters (only valid if using a layout sprite as a parent)
     3. size: Only adjusts the size of children, but does not modify their position. Useful to constrain some elements to a size, but keep them at a particular position
     4. <any other value>: None, does no layout of children.
 * **layout_spacing**: For LayoutSprite only, a float that sets the spacing between all elements. layout_spacing="10.0"
-* **shrink_to_children**: For LayoutSprite only, Boolean, sizes the layout to it's children (and squashes stretch children)
+* **shrink_to_children**: For LayoutSprite's only, determines how the sprite adjusts to it's children. 
+    1. none, false, or no value: None, will not touch the size of this layout sprite after laying out the children
+    2. width: Adjusts the width of this sprite to it's children (for vertical, the widest child, for horiz, the total height of the children)
+    3. height: Adjusts the height of this sprite to it's children (for vertical, the total height of the children, for horiz, the tallest child)
+    4. both or true: Both width and height
 * **overall_alignment**: For LayoutSprite, allows you to align the contents to Top, Left, Center, Right, Middle or Bottom inside the layout
 
 Text Parameters (valid for Text and MultilineText Sprites)

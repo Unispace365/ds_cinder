@@ -55,7 +55,13 @@ public:
 	/// For V or H flow layouts, sets the overall alignment for the children. 
 	/// Generally only has an effect for sizeType = kFixedSize, kStretchSize or fill; layoutType = kLayoutVFlow or kLayoutHFlow; and there are no stretch children
 	void					setOverallAlignment(const int align){ mOverallAlign = align; }
+	int						getOverallAlignment(){ return mOverallAlign; }
 
+	/**determines how the sprite adjusts to it's children. 
+		1. none: will not touch the size of this layout sprite after laying out the children
+		2. width: Adjusts the width of this sprite to it's children (for vertical, the widest child, for horiz, the total height of the children)
+		3. height: Adjusts the height of this sprite to it's children (for vertical, the total height of the children, for horiz, the tallest child)
+		4. both: Both width and height*/
 	const ShrinkType&		getShrinkToChildren() { return mShrinkToChildren; }
 	void					setShrinkToChildren(const ShrinkType& shrink) { mShrinkToChildren = shrink; }
 

@@ -5,6 +5,7 @@
 #include <functional>
 #include <cinder/Xml.h>
 #include <map>
+#include <ds/util/bit_mask.h>
 
 namespace ds{
 namespace ui{
@@ -37,6 +38,12 @@ public:
 
 	/// If true, will automatically cache xml interfaces after the first time they're loaded
 	static void setAutoCache(const bool doCaching);
+
+	static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer = "");
+	static void setSpriteProperty(ds::ui::Sprite &sprite, const std::string& property, const std::string& value, const std::string &referer = "");
+
+	static const ds::BitMask parseMultitouchMode(const std::string& s);
+	static const std::string getMultitouchStringForBitMask(const ds::BitMask& mask);
 
 protected:
 	XmlImporter( ds::ui::Sprite *targetSprite, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr)

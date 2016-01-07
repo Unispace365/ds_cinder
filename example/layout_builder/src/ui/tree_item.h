@@ -19,13 +19,20 @@ public:
 	TreeItem(Globals& g, ds::ui::Sprite* linkedItem); 
 	TreeItem(Globals& g, const std::wstring& labelOne, const std::wstring& labelTwo);
 
-private:
-	void						initialize(const std::wstring& labelOne, const std::wstring& labelTwo);
+	std::string							getPropertyName(){ if(mNameText) return mNameText->getTextAsString(); return ""; }
+	ds::ui::Text*						getValueField(){ return mLabelTextTwo; }
+	void								setValueText(const std::wstring& labelTwoText);
+	void								setValueTappedCallback(std::function<void(TreeItem*)> tappedCallback);
 
-	Globals&					mGlobals;
-	ds::ui::Text*				mNameText;
-	ds::ui::Text*				mLabelTextTwo;
-	ds::ui::Sprite*				mLinkedSprite;
+private:
+	void								initialize(const std::wstring& labelOne, const std::wstring& labelTwo);
+
+	Globals&							mGlobals;
+	ds::ui::Text*						mNameText;
+	ds::ui::Text*						mLabelTextTwo;
+	ds::ui::Sprite*						mLinkedSprite;
+
+	std::function<void(TreeItem*)>		mValueTappedCallback;
 
 };
 

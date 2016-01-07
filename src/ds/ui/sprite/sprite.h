@@ -514,6 +514,9 @@ namespace ui {
 			After calling this, the Sprite will still grab touch events, but not do any specific multitouch handling (like position, rotate, etc). Will send out tap and touchinfo callbacks. */
 		void					disableMultiTouch();
 
+		/** The BitMask of*/
+		const BitMask&			getMultiTouchConstraints(){ return mMultiTouchConstraints; }
+
 		/** Has enableMultiTouch() been called?  */
 		bool					multiTouchEnabled() const;
 

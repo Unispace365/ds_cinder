@@ -164,6 +164,20 @@ std::string		ds::utf8_from_wstr(const std::wstring& src) {
 
 #endif
 
+
+const float ds::string_to_float(const std::string& str){
+	float floatValue = 0.0f;
+	string_to_value<float>(str, floatValue);
+	return floatValue;
+}
+
+
+const float ds::wstring_to_float(const std::wstring& str){
+	float floatValue = 0.0f;
+	wstring_to_value<float>(str, floatValue);
+	return floatValue;
+}
+
 //variation on a function found on stackoverflow
 std::vector<std::string> ds::split( const std::string &str, const std::string &delimiters, bool dropEmpty )
 {

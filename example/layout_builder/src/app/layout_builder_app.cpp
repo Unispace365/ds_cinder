@@ -8,7 +8,7 @@
 #include <ds/ui/sprite/text.h>
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/media/media_viewer.h>
-
+#include <ds/ui/soft_keyboard/soft_keyboard_defs.h>
 #include <ds/ui/interface_xml/interface_xml_importer.h>
 
 #include <cinder/Rand.h>
@@ -34,6 +34,8 @@ layout_builder::layout_builder()
 	, mIdling( false )
 	, mTouchDebug(mEngine)
 	, mController(nullptr)
+	, mInputField(nullptr)
+	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 {
 
 	enableCommonKeystrokes(true);
@@ -138,6 +140,14 @@ void layout_builder::update() {
 
 void layout_builder::keyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
+
+	if(mInputField){
+		std::wstring inOutKey;
+		std::wstring curText = mInputField->getText();
+		ds::ui::SoftKeyboardDefs::handleKeyPressGeneric(event, inOutKey, curText);
+		mEngine.getNotifier().notify(InputFieldTextInput(mInputField, curText));
+		return;
+	}
 	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
@@ -175,6 +185,7 @@ void layout_builder::loadLayout(const std::string& location){
 }
 
 void layout_builder::mouseDown(ci::app::MouseEvent e) {
+	mEngine.getNotifier().notify(InputFieldCleared());
 	mTouchDebug.mouseDown(e);
 }
 
@@ -191,6 +202,13 @@ void layout_builder::fileDrop(ci::app::FileDropEvent event){
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
 		loadLayout((*it).string());
 		break;
+	}
+}
+
+void layout_builder::onAppEvent(const ds::Event& in_e){
+	if(in_e.mWhat == InputFieldSetRequest::WHAT()){
+		const InputFieldSetRequest& e((const InputFieldSetRequest&)in_e);
+		mInputField = e.mInputField;
 	}
 }
 

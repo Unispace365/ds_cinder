@@ -32,12 +32,20 @@ private:
 	void								inspectSprite(ds::ui::Sprite*);
 	void								layout();
 
+	void								addSpriteProperty(const std::wstring& propertyName, const ds::BitMask& propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const bool propertyValue);
+	void								addSpriteProperty(const std::wstring& propertyName, const ci::Vec2f propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const ci::Vec3f propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const ci::Color propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const float propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const int propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const std::wstring& propertyValue);
+	void								addSpritePropertyLayoutSizeMode(const std::wstring& propertyName, const int propertyValue);
+	void								addSpritePropertyLayoutVAlign(const std::wstring& propertyName, const int propertyValue);
+	void								addSpritePropertyLayoutHAlign(const std::wstring& propertyName, const int propertyValue);
+	void								addSpritePropertyLayoutType(const std::wstring& propertyName, const ds::ui::LayoutSprite::LayoutType& propertyValue);
+	void								addSpritePropertyLayoutShrink(const std::wstring& propertyName, const ds::ui::LayoutSprite::ShrinkType& propertyValue);
+	void								addSpritePropertyBlend(const std::wstring& propertyName, const ds::ui::BlendMode& blendMode);
 	void								doAddSpriteProperty(const std::wstring& propertyName, const std::wstring& propertyValue);
 
 	Globals&							mGlobals;
@@ -46,6 +54,11 @@ private:
 
 	ds::ui::Sprite*						mLinkedSprite;
 	ds::ui::LayoutSprite*				mLayout;
+	std::vector<TreeItem*>				mTreeItems;
+	TreeItem*							mCurrentInputTreeItem;
+
+	void								setInputField(TreeItem*);
+	void								clearProperties();
 };
 
 } // namespace layout_builder

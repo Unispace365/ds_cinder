@@ -52,7 +52,7 @@ void TreeItem::initialize(const std::wstring& labelOne, const std::wstring& labe
 		theWiddy += mNameText->getWidth() + paddin/2.0f;
 		theHiddy = mNameText->getFontSize() + paddin;
 	}
-	if(!labelTwo.empty()){
+//	if(!mLinkedSprite){
 		mLabelTextTwo = mGlobals.getText("tree:item_two").create(mEngine, this);
 		mLabelTextTwo->setText(labelTwo);
 		mLabelTextTwo->setPosition(theWiddy, paddin/2.0f);
@@ -60,7 +60,7 @@ void TreeItem::initialize(const std::wstring& labelOne, const std::wstring& labe
 		if(mLabelTextTwo->getFontSize() + paddin > theHiddy){
 			theHiddy = mLabelTextTwo->getFontSize() + paddin;
 		}
-	}
+	//}
 	setSize(theWiddy, theHiddy);
 	enable(true);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
@@ -68,10 +68,20 @@ void TreeItem::initialize(const std::wstring& labelOne, const std::wstring& labe
 		if(mLinkedSprite){
 			std::cout << ds::utf8_from_wstr(mLinkedSprite->getSpriteName()) << std::endl;
 			mEngine.getNotifier().notify(InspectSpriteRequest(mLinkedSprite));
-		} else {
-			std::cout << "DO SOMETHING ALREADY!" << std::endl;
+		} else if(mValueTappedCallback){
+			mValueTappedCallback(this);
 		}
 	});
+}
+
+void TreeItem::setValueTappedCallback(std::function<void(TreeItem*)> tappedCallback){
+	mValueTappedCallback = tappedCallback;
+}
+
+void TreeItem::setValueText(const std::wstring& labelTwoText){
+	if(mLabelTextTwo){
+		mLabelTextTwo->setText(labelTwoText);
+	}
 }
 
 

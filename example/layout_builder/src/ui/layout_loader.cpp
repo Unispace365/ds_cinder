@@ -29,6 +29,8 @@ LayoutLoader::LayoutLoader(Globals& g)
 void LayoutLoader::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == RefreshLayoutRequest::WHAT()){
 		loadLayout(mLayoutLocation);
+	} else if(in_e.mWhat == LayoutLayoutRequest::WHAT()){
+		layout();
 	} else if(in_e.mWhat == LoadLayoutRequest::WHAT()){
 		const LoadLayoutRequest& e((const LoadLayoutRequest&)in_e);
 		loadLayout(e.mLocation);
