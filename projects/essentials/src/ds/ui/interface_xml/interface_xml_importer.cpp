@@ -496,7 +496,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 				DS_LOG_WARNING("Not enough colors specified for scroll_fade_colors ");
 			}
 		} else {
-			DS_LOG_WARNING("Couldn's set scroll_fade_colors for this sprite ");
+			DS_LOG_WARNING("Couldn't set scroll_fade_colors for this sprite ");
 		}
 	}
 

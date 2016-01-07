@@ -97,13 +97,13 @@ void Border::writeAttributesTo(ds::DataBuffer& buf) {
 
 	if(mDirty.has(BORDER_WIDTH_DIRTY)) {
 		buf.add(BORDER_WIDTH_ATT);
-		buf.add(mWidth);
+		buf.add(mBorderWidth);
 	}
 }
 
 void Border::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if(attributeId == BORDER_WIDTH_ATT) {
-		mWidth = buf.read<float>();
+		mBorderWidth = buf.read<float>();
 		rebuildVertices();
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
