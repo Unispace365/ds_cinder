@@ -31,7 +31,7 @@ You can also preload the xml by keeping a ds::ui::XmlImporter::XmlPreloadData ge
 Parameter Types
 ------------------------------
 * **Vector**: Always 3d, but the second 2 parameters are optional. Vectors are comma delimited, with a space after the comma. Example: position="x, y, z", so position="100, 200, 300". Also valid: position="100" (which map to ci::Vec3f(100.0f, 0.0f, 0.0f)) or position="100, 200" (which is ci::Vec3f(100.0f, 200.0f, 0.0f))
-* **Color**: Format: #AARRGGBB, #RRGGBB, AARRGGBB, or RRGGBB. For instance: color="#FF0033bb" or color="333333".
+* **Color**: Format: #AARRGGBB or #RRGGBB, or a named color specified by a call to mEngine.getColors().install().
 * **Boolean**: These values will map to true: true, TRUE, yes, YES, on, ON. Everything else is false.
 * **Blend**: Valid values: normal, multiply, screen, add, subtract, lighten, darken. Default = normal.
 * **Float**: Specify the number with the decimal. The trailing "f" is unneccasary. For instance, opacity="0.5" not opacity="0.5f"
