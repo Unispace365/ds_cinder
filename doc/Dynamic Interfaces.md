@@ -41,15 +41,17 @@ Sprite Types
 * **sprite** = ds::ui::Sprite
 * **image** = ds::ui::Image
 * **image_with_thumbnail** = ds::ui::ImageWithThumbnail
+* **image_button** = ds::ui::ImageButton
+* **sprite_button** = ds::ui::SpriteButton
 * **text** = ds::ui::Text
 * **multiline_text** = ds::ui::MultilineText
-* **image_button** = ds::ui::ImageButton
 * **gradient** = ds::ui::GradientSprite
 * **layout** = ds::ui::LayoutSprite
 * **circle** = ds::ui::Circle
 * **border** = ds::ui::Border
 * **scroll_list** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
+* **scroll_bar** = ds::ui::ScrollBar
 * **[custom]** = Calls a custom callback function with a string for the type. Requires you instantiate the sprite type yourself.
 
 Sprite Parameters
