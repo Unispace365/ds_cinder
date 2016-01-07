@@ -40,12 +40,14 @@ Sprite Types
 --------------------------
 * **sprite** = ds::ui::Sprite
 * **image** = ds::ui::Image
+* **image_with_thumbnail** = ds::ui::ImageWithThumbnail
 * **text** = ds::ui::Text
 * **multiline_text** = ds::ui::MultilineText
 * **image_button** = ds::ui::ImageButton
 * **gradient** = ds::ui::GradientSprite
 * **layout** = ds::ui::LayoutSprite
 * **circle** = ds::ui::Circle
+* **border** = ds::ui::Border
 * **scroll_list** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
 * **[custom]** = Calls a custom callback function with a string for the type. Requires you instantiate the sprite type yourself.
@@ -57,8 +59,8 @@ Sprite Parameters
 * **height**: Specify a float for the height of the sprite. height="100"
 * **depth**: Specify a float for the depth of the sprite. depth="100"
 * **size**: Specify a 2d vector for the width and height (depth not supported). size="400, 100"
-* **color**: Sets the color of the sprite and makes it non-transparent (so it renders). Format: #AARRGGBB, #RRGGBB, AARRGGBB, or RRGGBB. For instance: color="#FF0033bb" or color="333333".
-* **opacity**: The opacity as a float from 0.0 to 1.0. opacity="0.5"
+* **color**: Sets the color of the sprite and makes it non-transparent (so it renders). Format: #AARRGGBB or #RRGGBB, AARRGGBB, or a named color specified by a call to mEngine.getColors().install(). For instance: color="#FF0033bb" or color="black".
+* **opacity**: The opacity as a float from 0.0 to 1.0. Overrides any alpha specified in color. opacity="0.5"
 * **position**: Position in pixels. position="100, 200, 300" or position="0, 50"
 * **rotation**: 3d vector of the degrees (not radians) of rotation in x, y, z. rotation="100, 200, 300" or rotation="0, 0, 90"
 * **scale**: 3d vector of the scale in x, y, z. Scale is from 0.0 (nothing) to 1.0 (100%), not bounded. scale="1, 1, 1" or scale="0.5, 0.5, 1"
@@ -90,7 +92,8 @@ Layout Parameters (only valid if using a layout sprite as a parent)
 * **layout_size_mode**: The method to calculate the size of this sprite during layout
     1. fixed: (Default) The size of this sprite is not modified during the layout
     2. flex: Sprite will be made wide enough (for V layouts) or tall enough (for H layouts) during layout. Images will be sized proportionally to fit the size. MultilineText fields in Vertical Layouts will be resized to the width of the layout (minus padding), and the height calculated (plus padding). MultilineText fields in Horizontal layouts will be resized to their existing resize width limit and constrained to the height of the layout (including padding).
-    3. stretch: Sprite will be expanded to fit the remaining space available in the layout. Adding Stretch layouts to Flex layouts may produces unexpected results. Multiple stretch layouts will evenly split the remaining space.
+    3. stretch: Sprite and all stretch siblings will be sized to share the remaining space available in the layout, separated by spacing, and respecting padding. Stretch sprites will be given no space at all if the layout shrinks to its children along its layout axis.
+    4. fill: Sprite will be moved to the parent layout origin and set to the size of the layout, respecting padding.
 * **layout_v_align**: For sprites added as a child of a horizontal layout, the sprite will be aligned appropriately. 
     1. top: (Default) Aligns the sprite to the top of the layout.
     2. middle: Vertically centers the sprite in the layout (only works on Fixed size sprites)
@@ -105,10 +108,10 @@ Layout Parameters (only valid if using a layout sprite as a parent)
     3. size: Only adjusts the size of children, but does not modify their position. Useful to constrain some elements to a size, but keep them at a particular position
     4. <any other value>: None, does no layout of children.
 * **layout_spacing**: For LayoutSprite only, a float that sets the spacing between all elements. layout_spacing="10.0"
-* **shrink_to_children**: For LayoutSprite's only, determines how the sprite adjusts to it's children. 
-    1. none, false, or no value: None, will not touch the size of this layout sprite after laying out the children
-    2. width: Adjusts the width of this sprite to it's children (for vertical, the widest child, for horiz, the total height of the children)
-    3. height: Adjusts the height of this sprite to it's children (for vertical, the total height of the children, for horiz, the tallest child)
+* **shrink_to_children**: For LayoutSprite's only, determines how the sprite adjusts to its children. 
+    1. none, false, or no value: None, will not alter the size of this layout sprite after laying out the children
+    2. width: Adjusts the width of this sprite to its children (for vertical, the widest child, for horiz, the total width of the children, plus spacing)
+    3. height: Adjusts the height of this sprite to its children (for vertical, the total height of the children, for horiz, the tallest child)
     4. both or true: Both width and height
 * **overall_alignment**: For LayoutSprite, allows you to align the contents to Top, Left, Center, Right, Middle or Bottom inside the layout
 
@@ -142,6 +145,10 @@ Circle Sprite Parameters
 ---------------------------
 * **filled**: Boolean, whether to draw just the outline or fill in the circle
 * **radius**: Float, the radius of the circle to draw
+
+Border Parameters
+---------------------------
+* **border_width**: Float, the width of the border, which has its outer edge at the extent of the sprite
 
 Scroll List Parameters
 -------------------------------
