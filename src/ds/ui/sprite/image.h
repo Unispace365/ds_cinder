@@ -51,6 +51,13 @@ public:
 	virtual bool				isLoaded() const;
 
 	virtual void				setCircleCrop(bool circleCrop);
+	virtual void				setCircleCropRect(const ci::Rectf& rect);
+
+public:
+	/// @warning this is deprecated and it inhibits all sort of code
+	///          smells and breaks object orientation of this class.
+	///          prefer using onImageLoaded() or onImageUnloaded().
+	/// @deprecated
 	struct Status {
 		static const int		STATUS_EMPTY = 0;
 		static const int		STATUS_LOADED = 1;

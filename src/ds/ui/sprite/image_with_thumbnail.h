@@ -40,6 +40,7 @@ public:
 	bool						isLoadedThumbnail(bool thumbnail) const;
 
 	virtual void				setCircleCrop(bool circleCrop);
+	virtual void				setCircleCropRect(const ci::Rectf& rect);
 
 protected:
 	virtual bool				isLoadedPrimary() const;

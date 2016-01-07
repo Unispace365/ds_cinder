@@ -805,6 +805,7 @@ namespace ui {
 
 		//Keeps track of which FBO is being rendered to for multi-pass rendering
 		int							mFboIndex;
+		ci::Vec4f				mExtraShaderData;
 
 		mutable ci::Matrix44f	mGlobalTransform;
 		mutable ci::Matrix44f	mInverseGlobalTransform;

@@ -93,8 +93,77 @@ void Image::drawLocalClient()
 
 	if (auto tex = mImageSource.getImage())
 	{
-		if (getPerspective()) ci::gl::draw(*tex, mDrawRect.mPerspRect);
-		else ci::gl::draw(*tex, mDrawRect.mOrthoRect);
+		const ci::Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
+		
+		// we're gonna do this ourselves so we can pass additional attributes to the shader
+		ci::gl::SaveTextureBindState saveBindState( tex->getTarget() );
+		ci::gl::BoolState saveEnabledState( tex->getTarget() );
+		ci::gl::ClientBoolState vertexArrayState( GL_VERTEX_ARRAY );
+		ci::gl::ClientBoolState texCoordArrayState( GL_TEXTURE_COORD_ARRAY );	
+		tex->enableAndBind();
+
+		glEnableClientState( GL_VERTEX_ARRAY );
+		GLfloat verts[8];
+		glVertexPointer( 2, GL_FLOAT, 0, verts );
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		GLfloat texCoords[8];
+		glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
+
+		verts[0*2+0] = useRect.getX2(); verts[0*2+1] = useRect.getY1();	
+		verts[1*2+0] = useRect.getX1(); verts[1*2+1] = useRect.getY1();	
+		verts[2*2+0] = useRect.getX2(); verts[2*2+1] = useRect.getY2();	
+		verts[3*2+0] = useRect.getX1(); verts[3*2+1] = useRect.getY2();	
+
+		const Rectf srcCoords = tex->getAreaTexCoords( tex->getCleanBounds() );
+		texCoords[0*2+0] = srcCoords.getX2(); texCoords[0*2+1] = srcCoords.getY1();	
+		texCoords[1*2+0] = srcCoords.getX1(); texCoords[1*2+1] = srcCoords.getY1();	
+		texCoords[2*2+0] = srcCoords.getX2(); texCoords[2*2+1] = srcCoords.getY2();	
+		texCoords[3*2+0] = srcCoords.getX1(); texCoords[3*2+1] = srcCoords.getY2();	
+
+		bool usingExtent = false;
+		GLint extentLocation;
+		GLfloat extent[8];
+		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
+		if(shaderBase) {
+			extentLocation = shaderBase.getAttribLocation("extent");
+			if((extentLocation != GL_INVALID_OPERATION) && (extentLocation != -1)) {
+				usingExtent = true;
+				glEnableVertexAttribArray(extentLocation);
+				glVertexAttribPointer( extentLocation, 2, GL_FLOAT, GL_FALSE, 0, extent );
+				for(int i = 0; i < 4; i++) {
+					extent[i*2+0] = mWidth;
+					extent[i*2+1] = mHeight;
+				}
+			}
+		}
+
+		bool usingExtra = false;
+		GLint extraLocation;
+		GLfloat extra[16];
+		if(shaderBase) {
+			extraLocation = shaderBase.getAttribLocation("extra");
+			if((extraLocation != GL_INVALID_OPERATION) && (extraLocation != -1)) {
+				usingExtra = true;
+				glEnableVertexAttribArray(extraLocation);
+				glVertexAttribPointer( extraLocation, 4, GL_FLOAT, GL_FALSE, 0, extra );
+				for(int i = 0; i < 4; i++) {
+					extra[i*4+0] = mExtraShaderData.x;
+					extra[i*4+1] = mExtraShaderData.y;
+					extra[i*4+2] = mExtraShaderData.z;
+					extra[i*4+3] = mExtraShaderData.w;
+				}
+			}
+		}
+
+		glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
+
+		if(usingExtent) {
+			glDisableVertexAttribArray(extentLocation);
+		}
+
+		if(usingExtra) {
+			glDisableVertexAttribArray(extraLocation);
+		}
 	}
 }
 
@@ -117,6 +186,14 @@ void Image::setCircleCrop(bool circleCrop)
 		// go back to base shader
 		mSpriteShader.setShaders(Environment::getAppFolder("data/shaders"), "base");
 	}
+}
+
+void Image::setCircleCropRect(const ci::Rectf& rect)
+{
+	mExtraShaderData.x = rect.x1;
+	mExtraShaderData.y = rect.y1;
+	mExtraShaderData.z = rect.x2;
+	mExtraShaderData.w = rect.y2;
 }
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn)

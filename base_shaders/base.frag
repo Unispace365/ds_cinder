@@ -1,3 +1,8 @@
+#version 120
+
+varying vec2 position_interpolated;
+varying vec2 texture_interpolated;
+
 uniform sampler2D tex0;
 uniform bool useTexture;
 uniform bool preMultiply;

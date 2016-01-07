@@ -83,6 +83,25 @@ void ImageWithThumbnail::setCircleCrop(bool circleCrop){
 	}
 }
 
+void ImageWithThumbnail::setCircleCropRect(const ci::Rectf& rect){
+	inherited::setCircleCropRect(rect);
+	if(mThumbnail){
+		// scale the rect before assigning to the thumbnail
+		float thumbScale = mThumbnail->getScale().x;
+		float inverseThumbScale = 1.0f;
+		if(thumbScale > 0.01f){
+			inverseThumbScale = 1.0f / thumbScale;
+		}
+		ci::Rectf scaleRect(
+			rect.x1 * inverseThumbScale,
+			rect.y1 * inverseThumbScale,
+			rect.x2 * inverseThumbScale,
+			rect.y2 * inverseThumbScale
+		);
+		mThumbnail->setCircleCropRect(scaleRect);
+	}
+}
+
 void ImageWithThumbnail::onImageLoaded(){
 	inherited::onImageLoaded();
 	if(mThumbnail){
