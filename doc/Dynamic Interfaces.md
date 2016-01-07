@@ -129,6 +129,7 @@ Text Parameters (valid for Text and MultilineText Sprites)
 Image Parameters
 -------------------------
 * **filename** OR **src**: File path RELATIVE to XML. For instance: src="../data/images/refresh_btn.png"
+* **circle_crop**: Boolean. If true, will crop image content outside of an ellipse centered within the bounding box.
 
 Image Button Parameters
 -------------------------
