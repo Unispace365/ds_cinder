@@ -51,6 +51,26 @@ static const std::string INVALID_VALUE = "UNACCEPTABLE!!!!";
 //HACK!
 static std::string sCurrentFile;
 
+
+
+std::string XmlImporter::RGBToHex(ci::Color theColor){
+	return RGBToHex((int)(theColor.r * 255.0f), (int)(theColor.g * 255.0f), (int)(theColor.b * 255.0f));
+}
+
+std::string XmlImporter::RGBToHex(int rNum, int gNum, int bNum){
+	std::string result;
+	char r[255];
+	sprintf_s(r, "%.2X", rNum);
+	result.append(r);
+	char g[255];
+	sprintf_s(g, "%.2X", gNum);
+	result.append(g);
+	char b[255];
+	sprintf_s(b, "%.2X", bNum);
+	result.append(b);
+	return result;
+}
+
 // Grabs a color from the engine's supplied color list
 static ci::ColorA retrieveColorFromEngine(const std::string &color, const ds::ui::SpriteEngine& engine){
 	return engine.getColors().getColorFromName(color);
@@ -90,6 +110,11 @@ static ci::ColorA parseColor(const std::string &color, const ds::ui::SpriteEngin
 
 }
 
+static std::string unparseColor(const ci::Color& color){
+	// TODO: look up engine colors
+	return XmlImporter::RGBToHex(color);
+}
+
 // Example: size="400, 400" the space after the comma is required to read the second and third token
 ci::Vec3f parseVector( const std::string &s ) {
 	auto tokens = ds::split( s, ", ", true );
@@ -101,8 +126,25 @@ ci::Vec3f parseVector( const std::string &s ) {
 	return v;
 }
 
+static std::string unparseVector(const ci::Vec3f& v){
+	std::stringstream ss;
+	ss << v.x << ", " << v.y << ", " << v.z;
+	return ss.str();
+}
+
+static std::string unparseVector(const ci::Vec2f& v){
+	std::stringstream ss;
+	ss << v.x << ", " << v.y;
+	return ss.str();
+}
+
 static bool parseBoolean( const std::string &s ) {
 	return (s == "true" || s == "TRUE" || s == "yes" || s == "YES" || s == "on" || s == "ON" ) ? true : false;
+}
+
+static std::string unparseBoolean(const bool b){
+	if(b) return "true";
+	return "false";
 }
 
 static ds::ui::BlendMode parseBlendMode( const std::string &s ) {
@@ -160,7 +202,140 @@ const std::string XmlImporter::getMultitouchStringForBitMask(const ds::BitMask& 
 	return "info";
 }
 
-static std::string filePathRelativeTo( const std::string &base, const std::string &relative ) {
+std::string XmlImporter::getLayoutSizeModeString(const int sizeMode){
+	std::string sizeString = "fixed";
+	if(sizeMode == ds::ui::LayoutSprite::kFlexSize)	sizeString = "flex";
+	else if(sizeMode == ds::ui::LayoutSprite::kStretchSize) sizeString = "stretch";
+	else if(sizeMode == ds::ui::LayoutSprite::kFillSize) sizeString == "fill";
+	return sizeString;
+}
+
+std::string XmlImporter::getLayoutVAlignString(const int vAlign){
+	std::string sizeString = "top";
+	if(vAlign == ds::ui::LayoutSprite::kMiddle)	sizeString = "middle";
+	else if(vAlign == ds::ui::LayoutSprite::kBottom)	sizeString = "bottom";
+	return sizeString;
+}
+
+std::string XmlImporter::getLayoutHAlignString(const int vAlign){
+	std::string sizeString = "left";
+	if(vAlign == ds::ui::LayoutSprite::kCenter)	sizeString = "center";
+	else if(vAlign == ds::ui::LayoutSprite::kRight)	sizeString = "right";
+	return sizeString;
+}
+
+std::string XmlImporter::getLayoutTypeString(const ds::ui::LayoutSprite::LayoutType& propertyValue){
+	std::string sizeString = "none";
+	if(propertyValue == ds::ui::LayoutSprite::kLayoutVFlow)	sizeString = "vert";
+	else if(propertyValue == ds::ui::LayoutSprite::kLayoutHFlow) sizeString = "horiz";
+	else if(propertyValue == ds::ui::LayoutSprite::kLayoutSize)	sizeString = "size";
+	return sizeString;
+}
+
+std::string XmlImporter::getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue){
+	std::string sizeString = "none";
+	if(propertyValue == ds::ui::LayoutSprite::kShrinkWidth)	sizeString = "width";
+	else if(propertyValue == ds::ui::LayoutSprite::kShrinkHeight) sizeString = "height";
+	else if(propertyValue == ds::ui::LayoutSprite::kShrinkBoth)	sizeString = "both";
+	return sizeString;
+}
+
+namespace {
+static const ci::Vec3f				DEFAULT_SIZE = ci::Vec3f(0.0f, 0.0f, 1.0f);
+static const ci::Vec3f				DEFAULT_CENTER = ci::Vec3f(0.0f, 0.0f, 0.0f);
+static const ci::Vec3f				DEFAULT_POS = ci::Vec3f(0.0f, 0.0f, 0.0f);
+static const ci::Vec3f				DEFAULT_ROT = ci::Vec3f(0.0f, 0.0f, 0.0f);
+static const ci::Vec3f				DEFAULT_SCALE = ci::Vec3f(1.0f, 1.0f, 1.0f);
+static const ci::Color				DEFAULT_COLOR = ci::Color(1.0f, 1.0f, 1.0f);
+static const float					DEFAULT_OPACITY = 1.0f;
+static const bool					DEFAULT_VISIBLE = true;
+static const bool					DEFAULT_TRANSPARENT = true;
+static const bool					DEFAULT_ENABLED = false;
+static const bool					DEFAULT_CLIPPING = false;
+static const bool					DEFAULT_CHECKBOUNDS = false;
+static const ds::ui::BlendMode		DEFAULT_BLENDMODE = ds::ui::NORMAL;
+static const float					DEFAULT_LAYOUT_PAD = 0.0f;
+static const float					DEFAULT_LAYOUT_SPACING = 0.0f;
+static const ci::Vec2f				DEFAULT_LAYOUT_SIZEFUDGE = ci::Vec2f::zero();
+static const int					DEFAULT_LAYOUT_ALIGN_USERTYPE = 0;
+static const ds::ui::LayoutSprite::LayoutType DEFAULT_LAYOUT_TYPE = ds::ui::LayoutSprite::kLayoutNone;
+static const ds::ui::LayoutSprite::ShrinkType DEFAULT_SHRINK_TYPE = ds::ui::LayoutSprite::kShrinkNone;
+}
+
+void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
+	if(!sp.getSpriteName(false).empty()) xml.setAttribute("name", ds::utf8_from_wstr(sp.getSpriteName()));
+	if(sp.getSize() != DEFAULT_SIZE) xml.setAttribute("size", unparseVector(sp.getSize()));
+	if(sp.getColor() != DEFAULT_COLOR) xml.setAttribute("color", unparseColor(sp.getColor()));
+	if(sp.getOpacity() != DEFAULT_OPACITY) xml.setAttribute("opacity", sp.getOpacity());
+	if(sp.getPosition() != DEFAULT_POS) xml.setAttribute("position", unparseVector(sp.getPosition()));
+	if(sp.getRotation() != DEFAULT_ROT) xml.setAttribute("rotation", unparseVector(sp.getRotation()));
+	if(sp.getScale() != DEFAULT_SCALE) xml.setAttribute("scale", unparseVector(sp.getScale()));
+	if(sp.getCenter() != DEFAULT_CENTER) xml.setAttribute("center", unparseVector(sp.getCenter()));
+	if(sp.getClipping() != DEFAULT_CLIPPING) xml.setAttribute("clipping", unparseBoolean(sp.getClipping()));
+	if(sp.getBlendMode() != DEFAULT_BLENDMODE) xml.setAttribute("blend_mode", ds::ui::getStringForBlendMode(sp.getBlendMode()));
+	if(sp.isEnabled() != DEFAULT_ENABLED) xml.setAttribute("enable", unparseBoolean(sp.isEnabled()));
+	if(!sp.getMultiTouchConstraints().isEmpty()) xml.setAttribute("multitouch", getMultitouchStringForBitMask(sp.getMultiTouchConstraints()));
+	if(sp.getTransparent() != DEFAULT_TRANSPARENT) xml.setAttribute("transparent", unparseBoolean(sp.getTransparent()));
+	if(!sp.getAnimateOnScript().empty()) xml.setAttribute("animate_on", sp.getAnimateOnScript());
+	if(sp.mLayoutTPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("t_pad", sp.mLayoutTPad);
+	if(sp.mLayoutBPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("b_pad", sp.mLayoutBPad);
+	if(sp.mLayoutLPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("l_pad", sp.mLayoutLPad);
+	if(sp.mLayoutRPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("r_pad", sp.mLayoutRPad);
+	if(sp.mLayoutFudge != DEFAULT_LAYOUT_SIZEFUDGE) xml.setAttribute("layout_fudge", unparseVector(sp.mLayoutFudge));
+	if(sp.mLayoutSize != DEFAULT_LAYOUT_SIZEFUDGE) xml.setAttribute("layout_size", unparseVector(sp.mLayoutSize));
+	if(sp.mLayoutUserType != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_size_mode", getLayoutSizeModeString(sp.mLayoutUserType));
+	if(sp.mLayoutVAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_v_align", getLayoutVAlignString(sp.mLayoutVAlign));
+	if(sp.mLayoutHAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_h_align", getLayoutHAlignString(sp.mLayoutHAlign));
+
+	ds::ui::LayoutSprite* ls = dynamic_cast<ds::ui::LayoutSprite*>(&sp);
+	if(ls){
+		if(ls->getLayoutType() != DEFAULT_LAYOUT_TYPE) xml.setAttribute("layout_type", getLayoutTypeString(ls->getLayoutType()));
+		if(ls->getSpacing() != DEFAULT_LAYOUT_SPACING) xml.setAttribute("layout_spacing", ls->getSpacing());
+		if(ls->getShrinkToChildren() != DEFAULT_SHRINK_TYPE) xml.setAttribute("shrink_to_children", getShrinkToChildrenString(ls->getShrinkToChildren()));
+		if(ls->getOverallAlignment() != DEFAULT_SHRINK_TYPE) xml.setAttribute("overall_alignment", getLayoutVAlignString(ls->getOverallAlignment()));
+	}
+
+	ds::ui::Text* txt = dynamic_cast<ds::ui::Text*>(&sp);
+	if(txt){
+		if(!txt->getText().empty()) xml.setAttribute("text", txt->getTextAsString());
+		if(txt->getConfigName().empty()){
+			xml.setAttribute("font_name", txt->getFontFileName());
+			xml.setAttribute("font_size", txt->getFontSize());
+		} else {
+			xml.setAttribute("font", txt->getConfigName());
+		}
+	}
+	ds::ui::MultilineText* mtxt = dynamic_cast<ds::ui::MultilineText*>(&sp);
+	if(mtxt){
+		if(mtxt->getConfigName().empty()){
+			xml.setAttribute("font_leading", txt->getLeading());
+		}
+
+		xml.setAttribute("resize_limit", unparseVector(ci::Vec2f(mtxt->getResizeLimitWidth(), mtxt->getResizeLimitHeight())));
+		if(mtxt->getAlignment() != ds::ui::Alignment::kLeft) xml.setAttribute("text_align", getLayoutHAlignString(mtxt->getAlignment()));
+	}
+
+	ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(&sp);
+	if(img){
+		// TODO: make relative paths to xml
+		if(!img->getImageFilename().empty()) xml.setAttribute("filename", img->getImageFilename());
+	}
+}
+
+ci::XmlTree XmlImporter::createXmlFromSprite(ds::ui::Sprite& sprite){
+	ci::XmlTree newXml = ci::XmlTree(getSpriteTypeForSprite(&sprite), "");
+	getSpriteProperties(sprite, newXml);
+
+	auto sprids = sprite.getChildren();
+	for(auto it = sprids.begin(); it < sprids.end(); ++it){
+		auto xmlly = createXmlFromSprite(*(*it));
+		newXml.push_back(xmlly);
+	}
+
+	return newXml;
+}
+
+static std::string filePathRelativeTo(const std::string &base, const std::string &relative) {
 	using namespace boost::filesystem;
 	boost::system::error_code e;
 	std::string ret = canonical( path(relative), path(base).parent_path(), e ).string();
@@ -348,6 +523,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
+	} else if(property == "font_name"){
+		auto text = dynamic_cast<Text *>(&sprite);
+		if(text) {
+			text->setFont(value, text->getFontSize());
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
 	} else if(property == "resize_limit") {
 		// Try to set the resize limit
 		auto text = dynamic_cast<Text *>(&sprite);
@@ -383,9 +565,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		auto text = dynamic_cast<Text *>(&sprite);
 		if (text) {
 			text->setFontSize(ds::string_to_float(value));
-		}
-		else {
+		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "font_leading"){
+		auto text = dynamic_cast<MultilineText*>(&sprite);
+		if(text){
+			text->setLeading(ds::string_to_float(value));
 		}
 	}
 
@@ -704,6 +890,26 @@ static void applyStylesheet( const Stylesheet &stylesheet, ds::ui::Sprite &sprit
 		}
 	}
 }
+
+
+std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
+	if(dynamic_cast<ds::ui::LayoutSprite*>(sp)) return "layout";
+	if(dynamic_cast<ds::ui::SpriteButton*>(sp)) return "sprite_button";
+	if(dynamic_cast<ds::ui::ImageButton*>(sp)) return "image_button";
+	if(dynamic_cast<ds::ui::ImageWithThumbnail*>(sp)) return "image_with_thumbnail";
+	if(dynamic_cast<ds::ui::Image*>(sp)) return "image";
+	if(dynamic_cast<ds::ui::MultilineText*>(sp)) return "multiline_text";
+	if(dynamic_cast<ds::ui::Text*>(sp)) return "text";
+	if(dynamic_cast<ds::ui::ScrollBar*>(sp)) return "scroll_bar";
+	if(dynamic_cast<ds::ui::ScrollList*>(sp)) return "scroll_list";
+	if(dynamic_cast<ds::ui::ScrollArea*>(sp)) return "scroll_area";
+	if(dynamic_cast<ds::ui::Circle*>(sp)) return "circle";
+	if(dynamic_cast<ds::ui::Border*>(sp)) return "border";
+	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
+	return "sprite";
+}
+
+// NOTE! If you add a sprite below, please add it above! Thanks, byeeee!
 bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree>& node) {
 	std::string type = node->getTag();
 

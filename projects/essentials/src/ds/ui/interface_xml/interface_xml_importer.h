@@ -4,8 +4,10 @@
 
 #include <functional>
 #include <cinder/Xml.h>
+#include <cinder/Color.h>
 #include <map>
 #include <ds/util/bit_mask.h>
+#include <ds/ui/layout/layout_sprite.h>
 
 namespace ds{
 namespace ui{
@@ -42,9 +44,22 @@ public:
 	static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer = "");
 	static void setSpriteProperty(ds::ui::Sprite &sprite, const std::string& property, const std::string& value, const std::string &referer = "");
 
+	static std::string RGBToHex(ci::Color color);
+	static std::string RGBToHex(int rNum, int gNum, int bNum);
 	static const ds::BitMask parseMultitouchMode(const std::string& s);
 	static const std::string getMultitouchStringForBitMask(const ds::BitMask& mask);
 
+	static std::string getSpriteTypeForSprite(ds::ui::Sprite* sp);
+	static void getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml);
+
+	// the opposite of loading an xml to a sprite
+	static ci::XmlTree createXmlFromSprite(ds::ui::Sprite& sprite);
+
+	static std::string getLayoutSizeModeString(const int sizeMode);
+	static std::string getLayoutVAlignString(const int vAlign);
+	static std::string getLayoutHAlignString(const int vAlign);
+	static std::string getLayoutTypeString(const ds::ui::LayoutSprite::LayoutType& propertyValue);
+	static std::string getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue);
 protected:
 	XmlImporter( ds::ui::Sprite *targetSprite, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr)
 		: mTargetSprite(targetSprite)
