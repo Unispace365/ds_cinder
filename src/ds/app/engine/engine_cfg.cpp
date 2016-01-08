@@ -277,13 +277,13 @@ static void interpret_text_settings(const ds::cfg::Settings &s, std::unordered_m
 			std::string		v = s.getText(key, 0, ds::EMPTY_SZ);
 			if (!v.empty()) {
 				if (out.empty()) {
-					out[left] = ds::cfg::Text(v, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+					out[left] = ds::cfg::Text(v, left, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 				} else {
 					auto	found = out.find(left);
 					if (found != out.end()) {
 						found->second.mFont = v;
 					} else {
-						out[left] = ds::cfg::Text(v, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+						out[left] = ds::cfg::Text(v, left, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 					}
 				}
 			}

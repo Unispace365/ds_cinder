@@ -88,6 +88,10 @@ public:
 
 	const std::string			getFontFileName() const;
 
+	// if this text sprite gets configured from text config, keep track of it
+	void						setConfigName(const std::string& cfgName){ mCfgName = cfgName; }
+	const std::string			getConfigName(){ return mCfgName; }
+
 	// Print my line info
 	void						debugPrint();
 
@@ -121,10 +125,7 @@ private:
 	// Only used when ResizeToText is on
 	void						calculateFrame(const int flags);
 
-	//ci::gl::TextureFontRef	mTextureFont;
-	//ci::gl::TextureFont::DrawOptions
-	//							mDrawOptions;
-
+	std::string					mCfgName;
 	std::string					mFontFileName;
 	float						mFontSize;
 	std::wstring				mTextString;

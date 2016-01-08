@@ -41,6 +41,10 @@ public:
 		return mFlags;
 	}
 
+	virtual std::string			getImageFilename() const {
+		return mResource.getPortableFilePath();
+	}
+
 	bool						getMetaData(ImageMetaData& d) const {
 		if(mResource.getWidth() > 0 && mResource.getHeight() > 0){
 			d.mSize.x = mResource.getWidth();

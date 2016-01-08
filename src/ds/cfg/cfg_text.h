@@ -25,7 +25,7 @@ class Settings;
 class Text {
 public:
 	Text();
-	Text(	const std::string& font, const float size, const float leading,
+	Text(const std::string& font, const std::string& configName, const float size, const float leading,
 			const ci::ColorA&, const ds::ui::Alignment::Enum& = ds::ui::Alignment::kLeft);
 
 	// Create a new text sprite from this cfg. The throw reference throws the error if anything goes wrong.
@@ -37,6 +37,7 @@ public:
 	void					configure(ds::ui::Text&) const;
 
 	std::string				mFont;
+	std::string				mCfgName;
 	float					mSize;
 	float					mLeading;
 	ci::ColorA				mColor;

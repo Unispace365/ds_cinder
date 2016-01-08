@@ -665,7 +665,7 @@ namespace ui {
 		/**For debugging uses. Will return the sprite's name if no name has been set via setSpriteName.
 		Not recommended for sprite lookup, as there is no guarantee of uniqueness.
 		Recommended method is to keep a pointer to the sprite or look up via a map or vector.*/
-		const std::wstring		getSpriteName() const;
+		const std::wstring		getSpriteName(const bool useDefault = true) const;
 
 		/// For use by any layout classes you may want to implement. Default = 0.0f or 0 for all of these
 		float					mLayoutTPad;

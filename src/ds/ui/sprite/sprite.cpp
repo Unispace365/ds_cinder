@@ -2334,8 +2334,8 @@ void Sprite::setSpriteName(const std::wstring& name){
 	mSpriteName = name;
 }
 
-const std::wstring Sprite::getSpriteName() const {
-	if(mSpriteName.empty()){
+const std::wstring Sprite::getSpriteName(const bool useDefault) const {
+	if(mSpriteName.empty() && useDefault){
 		std::wstringstream wss;
 		wss << getId();
 		auto spriteName = wss.str();

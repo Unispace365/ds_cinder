@@ -44,6 +44,9 @@ public:
 	/** Returns the loaded image, if the Texture is not null, it is valid */
 	const ci::gl::Texture*	getImageTexture();
 
+	/** Note: this will only return a filename if the image was actually loaded from a file */
+	std::string				getImageFilename();
+
 protected:
 	virtual void			onImageChanged();
 	ImageOwner(ds::ui::SpriteEngine&);

@@ -88,6 +88,10 @@ public:
 		return true;
 	}
 
+	virtual std::string						getImageFilename() const {
+		return mFilename;
+	}
+
 private:
 	void											generate() {
 		mStatus = STATUS_ERROR;
