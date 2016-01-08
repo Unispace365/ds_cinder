@@ -157,6 +157,7 @@
     <ClCompile Include="..\src\query\query_handler.cpp" />
     <ClCompile Include="..\src\query\story_query.cpp" />
     <ClCompile Include="..\src\ui\layout_loader.cpp" />
+    <ClCompile Include="..\src\ui\overall_controller.cpp" />
     <ClCompile Include="..\src\ui\sprite_inspector.cpp" />
     <ClCompile Include="..\src\ui\tree_inspector.cpp" />
     <ClCompile Include="..\src\ui\tree_item.cpp" />
@@ -172,6 +173,7 @@
     <ClInclude Include="..\src\query\query_handler.h" />
     <ClInclude Include="..\src\query\story_query.h" />
     <ClInclude Include="..\src\ui\layout_loader.h" />
+    <ClInclude Include="..\src\ui\overall_controller.h" />
     <ClInclude Include="..\src\ui\sprite_inspector.h" />
     <ClInclude Include="..\src\ui\tree_inspector.h" />
     <ClInclude Include="..\src\ui\tree_item.h" />

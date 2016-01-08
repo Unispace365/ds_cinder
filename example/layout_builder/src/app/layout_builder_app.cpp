@@ -21,6 +21,7 @@
 #include "ui/layout_loader.h"
 #include "ui/tree_inspector.h"
 #include "ui/sprite_inspector.h"
+#include "ui/overall_controller.h"
 
 
 namespace layout_builder {
@@ -89,38 +90,9 @@ void layout_builder::setupServer(){
 	rootSprite.addChildPtr(new LayoutLoader(mGlobals));
 	rootSprite.addChildPtr(new TreeInspector(mGlobals));
 	rootSprite.addChildPtr(new SpriteInspector(mGlobals));
+	rootSprite.addChildPtr(new OverallController(mGlobals));
 
-
-	std::map<std::string, ds::ui::Sprite*>	spriteMap;
-	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layouts/controller.xml"), spriteMap);
-	mController = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["layout"]);
-	if(mController){
-		mController->runLayout();
-		mController->tweenAnimateOn(true, 0.3f, 0.1f);
-	}	
-
-	auto refreshButton = dynamic_cast<ds::ui::SpriteButton*>(spriteMap["refresh_button"]);
-	if(refreshButton){
-		refreshButton->setClickFn([this]{
-			mEngine.getNotifier().notify(RefreshLayoutRequest());
-		});
-	}
-
-	auto restartButton = dynamic_cast<ds::ui::SpriteButton*>(spriteMap["restart_button"]);
-	if(restartButton){
-		restartButton->setClickFn([this, restartButton]{
-			restartButton->callAfterDelay([this]{
-				setupServer();
-			}, 0.01f);
-		});
-	}
-
-	auto animateOn = dynamic_cast<ds::ui::SpriteButton*>(spriteMap["animate_layout"]);
-	if(animateOn){
-		animateOn->setClickFn([this]{
-			mEngine.getNotifier().notify(AnimateLayoutRequest());
-		});
-	}
+	
 }
 
 void layout_builder::update() {
@@ -209,6 +181,11 @@ void layout_builder::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == InputFieldSetRequest::WHAT()){
 		const InputFieldSetRequest& e((const InputFieldSetRequest&)in_e);
 		mInputField = e.mInputField;
+	} else if(in_e.mWhat == AppRestartRequest::WHAT()){
+		// wait a frame to restart so everything can be handled okee dokee
+		mEngine.getRootSprite().callAfterDelay([this]{
+			setupServer();
+		}, 0.01f);
 	}
 }
 

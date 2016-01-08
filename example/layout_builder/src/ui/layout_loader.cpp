@@ -2,6 +2,8 @@
 
 #include <Poco/LocalDateTime.h>
 
+#include <cinder/DataTarget.h>
+
 #include <ds/app/environment.h>
 #include <ds/app/event_notifier.h>
 #include <ds/ui/sprite/sprite_engine.h>
@@ -36,6 +38,8 @@ void LayoutLoader::onAppEvent(const ds::Event& in_e){
 		loadLayout(e.mLocation);
 	} else if(in_e.mWhat == AnimateLayoutRequest::WHAT()){
 		animateOn();
+	} else if(in_e.mWhat == SaveLayoutRequest::WHAT()){
+		saveLayout();
 	}
 	
 }
@@ -69,7 +73,6 @@ void LayoutLoader::layout(){
 	}
 }
 
-
 void LayoutLoader::animateOn(){
 	if(mLayout){
 		mLayout->tweenAnimateOn(true, 0.0f, 0.1f);
@@ -80,6 +83,34 @@ void LayoutLoader::animateOff(){
 	tweenOpacity(0.0f, mGlobals.getSettingsLayout().getFloat("story_view:anim_time", 0, 0.35f), 0.0f, ci::EaseNone(), [this]{hide(); });
 }
 
+void LayoutLoader::saveLayout(){
+	if(!mLayout){
+		return;
+	}
+	ci::XmlTree xmlRoot = ci::XmlTree::createDoc();
+	ci::XmlTree interfaceXml = ci::XmlTree("interface", "");
+
+	auto sprids = mLayout->getChildren();
+	for(auto it = sprids.begin(); it < sprids.end(); ++it){
+		auto newXml = ds::ui::XmlImporter::createXmlFromSprite(*(*it));
+		interfaceXml.push_back(newXml);
+	//	buildXmlRecursive((*it), interfaceXml);
+	}
+
+	xmlRoot.push_back(interfaceXml);
+	xmlRoot.write(ci::DataTargetPath::createRef(ds::Environment::expand("%APP%/data/layouts/test_save.xml")), false);
+}
+
+void LayoutLoader::buildXmlRecursive(ds::ui::Sprite* sp, ci::XmlTree& tree){
+	ci::XmlTree newXml = ci::XmlTree("sprite", "");
+	newXml.setAttribute("name", ds::utf8_from_wstr(sp->getSpriteName()));
+
+	auto sprids = sp->getChildren();
+	for(auto it = sprids.begin(); it < sprids.end(); ++it){
+		buildXmlRecursive((*it), newXml);
+	}
+	tree.push_back(newXml);
+}
 
 
 } // namespace layout_builder

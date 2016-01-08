@@ -24,9 +24,19 @@ public:
 	const std::string mLocation;
 };
 
+class AppRestartRequest : public ds::RegisteredEvent<AppRestartRequest>{
+public:
+	AppRestartRequest(){};
+};
+
 class RefreshLayoutRequest : public ds::RegisteredEvent<RefreshLayoutRequest>{
 public:
 	RefreshLayoutRequest(){};
+};
+
+class SaveLayoutRequest : public ds::RegisteredEvent<SaveLayoutRequest>{
+public:
+	SaveLayoutRequest(){};
 };
 
 class LayoutLayoutRequest : public ds::RegisteredEvent<LayoutLayoutRequest>{

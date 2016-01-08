@@ -31,6 +31,9 @@
     <ClCompile Include="..\src\ui\sprite_inspector.cpp">
       <Filter>src\ui</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ui\overall_controller.cpp">
+      <Filter>src\ui</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h">
@@ -70,6 +73,9 @@
       <Filter>src\ui</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ui\sprite_inspector.h">
+      <Filter>src\ui</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\overall_controller.h">
       <Filter>src\ui</Filter>
     </ClInclude>
   </ItemGroup>

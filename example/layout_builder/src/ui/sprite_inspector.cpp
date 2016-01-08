@@ -84,7 +84,7 @@ void SpriteInspector::inspectSprite(ds::ui::Sprite* sp) {
 	addChildPtr(mLayout);
 
 	addSpriteProperty(L"name", sp->getSpriteName());
-	addSpriteProperty(L"class", ds::wstr_from_utf8(typeid(*sp).name()));
+	addSpriteProperty(L"type", ds::wstr_from_utf8(ds::ui::XmlImporter::getSpriteTypeForSprite(sp)));
 	addSpriteProperty(L"size", sp->getSize());
 	addSpriteProperty(L"color", sp->getColor());
 	addSpriteProperty(L"opacity", sp->getOpacity());
@@ -120,7 +120,7 @@ void SpriteInspector::inspectSprite(ds::ui::Sprite* sp) {
 	if(texty){
 		doAddSpriteProperty(L"-------------------------", L"-------------------------");
 		addSpriteProperty(L"text", texty->getText());
-		addSpriteProperty(L"font", ds::wstr_from_utf8(texty->getFontFileName()));
+		addSpriteProperty(L"font", ds::wstr_from_utf8(texty->getConfigName()));
 		addSpriteProperty(L"font_size", texty->getFontSize());
 	}
 
@@ -132,20 +132,6 @@ void SpriteInspector::inspectSprite(ds::ui::Sprite* sp) {
 
 	layout();
 	animateOn();
-}
-
-std::string RGBToHex(int rNum, int gNum, int bNum){
-	std::string result;
-	char r[255];
-	sprintf_s(r, "%.2X", rNum);
-	result.append(r);
-	char g[255];
-	sprintf_s(g, "%.2X", gNum);
-	result.append(g);
-	char b[255];
-	sprintf_s(b, "%.2X", bNum);
-	result.append(b);
-	return result;
 }
 
 
@@ -170,7 +156,7 @@ void SpriteInspector::addSpritePropertyBlend(const std::wstring& propertyName, c
 }
 
 void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::Color propertyValue){
-	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(RGBToHex((int)(propertyValue.r * 255.0f), (int)(propertyValue.g * 255.0f), (int)(propertyValue.b * 255.0f))));
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::RGBToHex(propertyValue)));
 }
 
 void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::Vec2f propertyValue){
@@ -194,45 +180,19 @@ void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const 
 }
 
 void SpriteInspector::addSpritePropertyLayoutSizeMode(const std::wstring& propertyName, const int propertyValue){
-	std::wstring sizeString = L"fixed";
-	if(propertyValue == ds::ui::LayoutSprite::kFlexSize){
-		sizeString = L"flex";
-	} else if(propertyValue == ds::ui::LayoutSprite::kStretchSize){
-		sizeString = L"stretch";
-	}
-	doAddSpriteProperty(propertyName, sizeString);
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::getLayoutSizeModeString(propertyValue)));
 }
 
 void SpriteInspector::addSpritePropertyLayoutVAlign(const std::wstring& propertyName, const int propertyValue){
-	std::wstring sizeString = L"top";
-	if(propertyValue == ds::ui::LayoutSprite::kMiddle){
-		sizeString = L"middle";
-	} else if(propertyValue == ds::ui::LayoutSprite::kBottom){
-		sizeString = L"bottom";
-	}
-	doAddSpriteProperty(propertyName, sizeString);
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::getLayoutVAlignString(propertyValue)));
 }
 
 void SpriteInspector::addSpritePropertyLayoutHAlign(const std::wstring& propertyName, const int propertyValue){
-	std::wstring sizeString = L"left";
-	if(propertyValue == ds::ui::LayoutSprite::kCenter){
-		sizeString = L"center";
-	} else if(propertyValue == ds::ui::LayoutSprite::kRight){
-		sizeString = L"right";
-	}
-	doAddSpriteProperty(propertyName, sizeString);
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::getLayoutHAlignString(propertyValue)));
 }
 
 void SpriteInspector::addSpritePropertyLayoutType(const std::wstring& propertyName, const ds::ui::LayoutSprite::LayoutType& propertyValue){
-	std::wstring sizeString = L"none";
-	if(propertyValue == ds::ui::LayoutSprite::kLayoutVFlow){
-		sizeString = L"vert";
-	} else if(propertyValue == ds::ui::LayoutSprite::kLayoutHFlow){
-		sizeString = L"horiz";
-	} else if(propertyValue == ds::ui::LayoutSprite::kLayoutSize){
-		sizeString = L"size";
-	}
-	doAddSpriteProperty(propertyName, sizeString);
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::getLayoutTypeString(propertyValue)));
 }
 
 void SpriteInspector::addSpritePropertyLayoutShrink(const std::wstring& propertyName, const ds::ui::LayoutSprite::ShrinkType& propertyValue){

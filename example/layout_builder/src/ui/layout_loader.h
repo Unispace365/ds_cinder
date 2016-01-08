@@ -2,12 +2,11 @@
 #ifndef LAYOUT_BUILDER_UI_LAYOUT_LOADER
 #define LAYOUT_BUILDER_UI_LAYOUT_LOADER
 
+#include <cinder/Xml.h>
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/app/event_client.h>
 #include <ds/ui/sprite/text.h>
-
-
 #include <ds/ui/layout/layout_sprite.h>
 
 namespace layout_builder {
@@ -15,7 +14,7 @@ namespace layout_builder {
 class Globals;
 
 /**
-* \class nwm::LayoutLoader
+* \class layout_builder::LayoutLoader
 *			Load a layout
 */
 class LayoutLoader : public ds::ui::Sprite  {
@@ -30,7 +29,8 @@ private:
 
 	void								loadLayout(const std::string& layoutLocation);
 	void								layout();
-
+	void								saveLayout();
+	void								buildXmlRecursive(ds::ui::Sprite* sp, ci::XmlTree& tree);
 	Globals&							mGlobals;
 
 	ds::EventClient						mEventClient;
