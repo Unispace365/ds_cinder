@@ -584,6 +584,14 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
+	else if(property == "circle_crop") {
+		auto image = dynamic_cast<Image *>(&sprite);
+		if(image) {
+			image->setCircleCrop(parseBoolean(value));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	}
 
 
 	// Image Button properties
@@ -682,7 +690,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 				DS_LOG_WARNING("Not enough colors specified for scroll_fade_colors ");
 			}
 		} else {
-			DS_LOG_WARNING("Couldn's set scroll_fade_colors for this sprite ");
+			DS_LOG_WARNING("Couldn't set scroll_fade_colors for this sprite ");
 		}
 	}
 
