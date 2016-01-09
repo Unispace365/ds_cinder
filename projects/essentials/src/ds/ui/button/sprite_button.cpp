@@ -18,6 +18,8 @@ SpriteButton::SpriteButton(SpriteEngine& eng, const float widdy, const float hid
 	, mAnimDuration(0.1f)
 {
 
+	mUp.mExportWithXml = false;
+	mDown.mExportWithXml = false;
 
 	mDown.setOpacity(0.0f);
 

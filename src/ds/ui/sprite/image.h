@@ -51,6 +51,8 @@ public:
 	virtual bool				isLoaded() const;
 
 	virtual void				setCircleCrop(bool circleCrop);
+	virtual bool				getCircleCrop(){ return mCircleCropped; }
+
 	struct Status {
 		static const int		STATUS_EMPTY = 0;
 		static const int		STATUS_LOADED = 1;
@@ -92,6 +94,9 @@ private:
 								mStatusFn;
 	struct { ci::Rectf mPerspRect; ci::Rectf mOrthoRect; }
 								mDrawRect;
+
+	bool						mCircleCropped;
+
 public:
 
 	/// @cond Sprite BLOB registry

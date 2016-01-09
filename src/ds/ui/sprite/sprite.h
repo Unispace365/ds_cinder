@@ -677,6 +677,8 @@ namespace ui {
 		int						mLayoutHAlign;
 		int						mLayoutVAlign; 
 		int						mLayoutUserType;
+		
+		bool					mExportWithXml;
 
 	protected:
 		friend class        TouchManager;

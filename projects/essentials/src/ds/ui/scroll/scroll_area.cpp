@@ -32,6 +32,7 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 
 	mScroller = new Sprite(mEngine);
 	if(mScroller){
+		mScroller->mExportWithXml = false;
 // 		mScroller->setTransparent(false);
 // 		mScroller->setColor(ci::Color(0.1f, 0.56f, 0.3f));
 		mScroller->setSize(startWidth, startHeight);
@@ -197,6 +198,7 @@ void ScrollArea::setUseFades(const bool doFading){
 		if(!mTopFade){
 			mTopFade = new ds::ui::GradientSprite(mEngine);
 			if(mTopFade){
+				mTopFade->mExportWithXml = false;
 				mTopFade->setSize(fadeWiddy, fadeHiddy);
 				mTopFade->setTransparent(false);
 				mTopFade->enable(false);
@@ -208,6 +210,7 @@ void ScrollArea::setUseFades(const bool doFading){
 		if(!mBottomFade){
 			mBottomFade = new ds::ui::GradientSprite(mEngine);
 			if(mBottomFade){
+				mBottomFade->mExportWithXml = false;
 				mBottomFade->setSize(fadeWiddy, fadeHiddy);
 				mBottomFade->setTransparent(false);
 				mBottomFade->enable(false);

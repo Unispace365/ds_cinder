@@ -262,6 +262,9 @@ static const ds::ui::LayoutSprite::LayoutType DEFAULT_LAYOUT_TYPE = ds::ui::Layo
 static const ds::ui::LayoutSprite::ShrinkType DEFAULT_SHRINK_TYPE = ds::ui::LayoutSprite::kShrinkNone;
 }
 
+
+// There's a lotta dynamic casts here and such, but this is pretty much a dev-only task.
+// Don't expect this to ever really be called in production.
 void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 	if(!sp.getSpriteName(false).empty()) xml.setAttribute("name", ds::utf8_from_wstr(sp.getSpriteName()));
 	if(sp.getSize() != DEFAULT_SIZE) xml.setAttribute("size", unparseVector(sp.getSize()));
@@ -319,7 +322,31 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 	if(img){
 		// TODO: make relative paths to xml
 		if(!img->getImageFilename().empty()) xml.setAttribute("filename", img->getImageFilename());
+		if(img->getCircleCrop()) xml.setAttribute("circle_crop", "true");
 	}
+
+	// TODO: parse Image button stuff
+
+	ds::ui::Gradient* grad = dynamic_cast<ds::ui::Gradient*>(&sp);
+	if(grad){
+		std::stringstream ss;
+		ss << unparseColor(grad->getColorTL()) << ", " << unparseColor(grad->getColorTR()) << ", " << unparseColor(grad->getColorBR()) << ", " << unparseColor(grad->getColorBL());
+		xml.setAttribute("gradientColors", ss.str());
+	}
+
+	ds::ui::Circle* circ = dynamic_cast<ds::ui::Circle*>(&sp);
+	if(circ){
+		xml.setAttribute("filled", unparseBoolean(circ->getFilled()));
+		xml.setAttribute("radius", circ->getRadius());
+	}
+
+	ds::ui::Border* bord = dynamic_cast<ds::ui::Border*>(&sp);
+	if(bord){
+		xml.setAttribute("border_width", bord->getBorderWidth());
+	}
+
+	// scroll list
+	// scroll area
 }
 
 ci::XmlTree XmlImporter::createXmlFromSprite(ds::ui::Sprite& sprite){
@@ -328,6 +355,7 @@ ci::XmlTree XmlImporter::createXmlFromSprite(ds::ui::Sprite& sprite){
 
 	auto sprids = sprite.getChildren();
 	for(auto it = sprids.begin(); it < sprids.end(); ++it){
+		if(!(*it)->mExportWithXml) continue;
 		auto xmlly = createXmlFromSprite(*(*it));
 		newXml.push_back(xmlly);
 	}
@@ -644,6 +672,22 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
 		if(gradient){
 			gradient->setColorsH(gradient->getColorTL(), parseColor(value, engine));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "gradientColors"){
+		auto gradient = dynamic_cast<GradientSprite*>(&sprite);
+		if(gradient){
+			auto colors = ds::split(value, ", ", true);
+			if(colors.size() > 3){
+				auto colorOne = parseColor(colors[0], engine);
+				auto colorTwo = parseColor(colors[1], engine);
+				auto colorThr = parseColor(colors[2], engine);
+				auto colorFor = parseColor(colors[3], engine);
+				gradient->setColorsAll(colorOne, colorTwo, colorThr, colorFor);
+			} else {
+				DS_LOG_WARNING("Not enough colors supplied for gradientColors");
+			}
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}

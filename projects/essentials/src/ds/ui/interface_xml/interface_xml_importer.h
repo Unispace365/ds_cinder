@@ -60,6 +60,7 @@ public:
 	static std::string getLayoutHAlignString(const int vAlign);
 	static std::string getLayoutTypeString(const ds::ui::LayoutSprite::LayoutType& propertyValue);
 	static std::string getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue);
+
 protected:
 	XmlImporter( ds::ui::Sprite *targetSprite, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr)
 		: mTargetSprite(targetSprite)

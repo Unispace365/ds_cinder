@@ -43,6 +43,7 @@ Image::Image(SpriteEngine& engine)
 	: inherited(engine)
 	, ImageOwner(engine)
 	, mStatusFn(nullptr)
+	, mCircleCropped(false)
 {
 	mStatus.mCode = Status::STATUS_EMPTY;
 	mDrawRect.mOrthoRect = ci::Rectf::zero();
@@ -110,6 +111,7 @@ bool Image::isLoaded() const
 
 void Image::setCircleCrop(bool circleCrop)
 {
+	mCircleCropped = circleCrop;
 	if(circleCrop){
 		// switch to crop shader
 		mSpriteShader.setShaders(Environment::getAppFolder("data/shaders"), "circle_crop");

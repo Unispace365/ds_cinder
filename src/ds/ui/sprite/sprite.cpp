@@ -162,6 +162,8 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mLayoutVAlign = 0;
 	mLayoutUserType = 0;
 
+	mExportWithXml = true;
+
 	if(mEngine.getRotateTouchesDefault()){
 		setRotateTouches(true);
 	}
@@ -186,6 +188,8 @@ void Sprite::init(const ds::sprite_id_t id) {
 Sprite::~Sprite() {
 	animStop();
 	cancelDelayedCall();
+
+	mEngine.removeFromDragDestinationList(this);
 
 	delete mFrameBuffer[0];
 	delete mFrameBuffer[1];
