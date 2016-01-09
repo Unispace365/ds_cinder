@@ -19,6 +19,7 @@
 #include <ds/ui/scroll/scroll_bar.h>
 #include <ds/ui/sprite/border.h>
 #include <ds/ui/sprite/circle.h>
+#include <ds/ui/sprite/circle_border.h>
 #include <ds/app/environment.h>
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/cfg/cfg_text.h>
@@ -744,7 +745,12 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		if(border){
 			border->setBorderWidth(ds::string_to_float(value));
 		} else {
-			DS_LOG_WARNING("Trying to set border_width on a non-border sprite of type: " << typeid(sprite).name());
+			auto circle_border = dynamic_cast<CircleBorder*>(&sprite);
+			if(circle_border){
+				circle_border->setBorderWidth(ds::string_to_float(value));
+			} else {
+				DS_LOG_WARNING("Trying to set border_width on a non-border sprite of type: " << typeid(sprite).name());
+			}
 		}
 	}
 	
@@ -1022,6 +1028,9 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	}
 	else if(type == "circle"){
 		spriddy = new ds::ui::Circle(engine);
+	}
+	else if(type == "circle_border"){
+		spriddy = new ds::ui::CircleBorder(engine);
 	}
 	else if(type == "scroll_list"){
 		spriddy = new ds::ui::ScrollList(engine);

@@ -51,6 +51,7 @@ public:
 	virtual bool				isLoaded() const;
 
 	virtual void				setCircleCrop(bool circleCrop);
+	virtual void				setCircleCropRect(const ci::Rectf& rect);
 	virtual bool				getCircleCrop(){ return mCircleCropped; }
 
 	struct Status {

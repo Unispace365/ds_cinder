@@ -106,12 +106,6 @@
     <Filter Include="src\ds\ui\sprite\touch">
       <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\image_source\sources">
-      <UniqueIdentifier>{72cca0d7-5e40-45a9-8895-48aecb841df9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\ui\image_source\sources\arcs">
-      <UniqueIdentifier>{7736807c-5cf8-4ed4-8f3a-e80c2f15d992}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -306,6 +300,9 @@
     <ClInclude Include="..\src\ds\ui\image_source\image_generator.h">
       <Filter>src\ds\ui\image_source</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_file.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\ds\arc\arc_render_circle.h">
       <Filter>src\ds\arc</Filter>
     </ClInclude>
@@ -317,6 +314,12 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\arc\arc_layer.h">
       <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_arc.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_drop_shadow.h">
+      <Filter>src\ds\ui\image_source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\arc\arc_io.h">
       <Filter>src\ds\arc</Filter>
@@ -441,6 +444,9 @@
     <ClInclude Include="..\src\ds\ui\sprite\text_defs.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_resource.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
     <ClInclude Include="..\src\ds\time\timer.h">
       <Filter>src\ds\time</Filter>
     </ClInclude>
@@ -464,6 +470,9 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\service\glsl_image_service.h">
       <Filter>src\ds\ui\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_glsl.h">
+      <Filter>src\ds\ui\image_source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\data\key_value_store.h">
       <Filter>src\ds\data</Filter>
@@ -684,20 +693,8 @@
     <ClInclude Include="..\src\ds\ui\sprite\image_with_thumbnail.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_resource.h">
-      <Filter>src\ds\ui\image_source\sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_glsl.h">
-      <Filter>src\ds\ui\image_source\sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_file.h">
-      <Filter>src\ds\ui\image_source\sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_arc.h">
-      <Filter>src\ds\ui\image_source\sources</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\image_source\image_drop_shadow.h">
-      <Filter>src\ds\ui\image_source\sources\arcs</Filter>
+    <ClInclude Include="..\src\ds\ui\sprite\circle_border.h">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -848,6 +845,9 @@
     <ClCompile Include="..\src\ds\ui\image_source\image_generator.cpp">
       <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp">
       <Filter>src\ds\arc</Filter>
     </ClCompile>
@@ -859,6 +859,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_layer.cpp">
       <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_arc.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_drop_shadow.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_io.cpp">
       <Filter>src\ds\arc</Filter>
@@ -968,6 +974,9 @@
     <ClCompile Include="..\src\ds\ui\sprite\text_defs.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_resource.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
     <ClCompile Include="..\src\ds\time\timer.cpp">
       <Filter>src\ds\time</Filter>
     </ClCompile>
@@ -988,6 +997,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\service\glsl_image_service.cpp">
       <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_glsl.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\data\key_value_store.cpp">
       <Filter>src\ds\data</Filter>
@@ -1169,20 +1181,8 @@
     <ClCompile Include="..\src\ds\ui\sprite\image_with_thumbnail.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_resource.cpp">
-      <Filter>src\ds\ui\image_source\sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_glsl.cpp">
-      <Filter>src\ds\ui\image_source\sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp">
-      <Filter>src\ds\ui\image_source\sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_arc.cpp">
-      <Filter>src\ds\ui\image_source\sources</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\image_source\image_drop_shadow.cpp">
-      <Filter>src\ds\ui\image_source\sources\arcs</Filter>
+    <ClCompile Include="..\src\ds\ui\sprite\circle_border.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

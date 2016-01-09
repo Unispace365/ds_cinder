@@ -164,6 +164,7 @@
     <ClInclude Include="..\src\ds\ui\service\render_text_service.h" />
     <ClInclude Include="..\src\ds\ui\sprite\border.h" />
     <ClInclude Include="..\src\ds\ui\sprite\circle.h" />
+    <ClInclude Include="..\src\ds\ui\sprite\circle_border.h" />
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h" />
     <ClInclude Include="..\src\ds\ui\sprite\fbo\auto_fbo.h" />
     <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h" />
@@ -333,6 +334,7 @@
     <ClCompile Include="..\src\ds\ui\service\render_text_service.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\border.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\circle.cpp" />
+    <ClCompile Include="..\src\ds\ui\sprite\circle_border.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\fbo\auto_fbo.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp" />
