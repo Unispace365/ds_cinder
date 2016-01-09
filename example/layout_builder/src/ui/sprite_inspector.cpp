@@ -14,7 +14,7 @@
 #include "events/app_events.h"
 #include <typeinfo>
 #include <ds/ui/interface_xml/interface_xml_importer.h>
-#include "ui/tree_item.h"
+#include "ui/sprite_property_item.h"
 
 namespace layout_builder {
 
@@ -63,7 +63,7 @@ void SpriteInspector::clearProperties(){
 		mLayout = nullptr;
 	}
 
-	mTreeItems.clear();
+	mSpriteProperties.clear();
 }
 
 void SpriteInspector::inspectSprite(ds::ui::Sprite* sp) {
@@ -208,13 +208,13 @@ void SpriteInspector::addSpritePropertyLayoutShrink(const std::wstring& property
 }
 
 void SpriteInspector::doAddSpriteProperty(const std::wstring& propertyName, const std::wstring& propertyValue){
-	TreeItem* treeItem = new TreeItem(mGlobals, propertyName, propertyValue);
+	SpritePropertyItem* treeItem = new SpritePropertyItem(mGlobals, propertyName, propertyValue);
 	mLayout->addChildPtr(treeItem);
-	treeItem->setValueTappedCallback([this](TreeItem* treeItem){
+	treeItem->setValueTappedCallback([this](SpritePropertyItem* treeItem){
 		setInputField(treeItem);
 	});
 
-	mTreeItems.push_back(treeItem);
+	mSpriteProperties.push_back(treeItem);
 }
 
 void SpriteInspector::layout(){
@@ -223,7 +223,6 @@ void SpriteInspector::layout(){
 		setSize(mLayout->getWidth(), mLayout->getHeight() + 20.0f);
 	}
 }
-
 
 void SpriteInspector::animateOn(){
 	if(mLayout){
@@ -235,8 +234,8 @@ void SpriteInspector::animateOff(){
 	tweenOpacity(0.0f, mGlobals.getSettingsLayout().getFloat("story_view:anim_time", 0, 0.35f), 0.0f, ci::EaseNone(), [this]{hide(); });
 }
 
-void SpriteInspector::setInputField(TreeItem* field){
-	for(auto it = mTreeItems.begin(); it < mTreeItems.end(); ++it){
+void SpriteInspector::setInputField(SpritePropertyItem* field){
+	for(auto it = mSpriteProperties.begin(); it < mSpriteProperties.end(); ++it){
 		(*it)->getValueField()->setColor(ci::Color::white());
 	}
 

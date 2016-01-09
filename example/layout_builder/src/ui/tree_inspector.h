@@ -38,6 +38,7 @@ private:
 
 	ds::ui::LayoutSprite*				mLayout;
 
+	ds::ui::Sprite*						mTreeRoot;
 	std::vector<TreeItem*>				mTreeItems;
 	void								treeParseRecursive(ds::ui::Sprite* sp, const int indent);
 	void								addTreeItem(ds::ui::Sprite* sprid, const int indent);

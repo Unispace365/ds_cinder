@@ -159,6 +159,7 @@
     <ClCompile Include="..\src\ui\layout_loader.cpp" />
     <ClCompile Include="..\src\ui\overall_controller.cpp" />
     <ClCompile Include="..\src\ui\sprite_inspector.cpp" />
+    <ClCompile Include="..\src\ui\sprite_property_item.cpp" />
     <ClCompile Include="..\src\ui\tree_inspector.cpp" />
     <ClCompile Include="..\src\ui\tree_item.cpp" />
   </ItemGroup>
@@ -175,6 +176,7 @@
     <ClInclude Include="..\src\ui\layout_loader.h" />
     <ClInclude Include="..\src\ui\overall_controller.h" />
     <ClInclude Include="..\src\ui\sprite_inspector.h" />
+    <ClInclude Include="..\src\ui\sprite_property_item.h" />
     <ClInclude Include="..\src\ui\tree_inspector.h" />
     <ClInclude Include="..\src\ui\tree_item.h" />
   </ItemGroup>

@@ -11,17 +11,17 @@ namespace layout_builder {
 class Globals;
 
 /**
-* \class layout_builder::TreeItem
-*			A single item in a tree Hierarchy
+* \class layout_builder::SpritePropertyItem
+*			A single item in the sprite property view
 */
-class TreeItem : public ds::ui::Sprite  {
+class SpritePropertyItem : public ds::ui::Sprite  {
 public:
-	TreeItem(Globals& g, ds::ui::Sprite* linkedItem); 
+	SpritePropertyItem(Globals& g, const std::wstring& labelOne, const std::wstring& labelTwo);
 
-	ds::ui::Sprite*						getLinkedSprite(){ return mLinkedSprite; }
 	std::string							getPropertyName(){ if(mNameText) return mNameText->getTextAsString(); return ""; }
 	ds::ui::Text*						getValueField(){ return mLabelTextTwo; }
 	void								setValueText(const std::wstring& labelTwoText);
+	void								setValueTappedCallback(std::function<void(SpritePropertyItem*)> tappedCallback);
 
 private:
 	void								initialize(const std::wstring& labelOne, const std::wstring& labelTwo);
@@ -29,8 +29,8 @@ private:
 	Globals&							mGlobals;
 	ds::ui::Text*						mNameText;
 	ds::ui::Text*						mLabelTextTwo;
-	ds::ui::Sprite*						mLinkedSprite;
 
+	std::function<void(SpritePropertyItem*)>		mValueTappedCallback;
 
 };
 

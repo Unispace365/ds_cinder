@@ -13,7 +13,7 @@
 namespace layout_builder {
 
 class Globals;
-class TreeItem;
+class SpritePropertyItem;
 
 /**
 * \class layout_builder::SpriteInspector
@@ -54,10 +54,10 @@ private:
 
 	ds::ui::Sprite*						mLinkedSprite;
 	ds::ui::LayoutSprite*				mLayout;
-	std::vector<TreeItem*>				mTreeItems;
-	TreeItem*							mCurrentInputTreeItem;
+	std::vector<SpritePropertyItem*>	mSpriteProperties;
+	SpritePropertyItem*					mCurrentInputTreeItem;
 
-	void								setInputField(TreeItem*);
+	void								setInputField(SpritePropertyItem*);
 	void								clearProperties();
 };
 

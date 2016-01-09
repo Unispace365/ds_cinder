@@ -6,6 +6,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/touch/drag_destination_info.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -21,6 +22,7 @@ TreeInspector::TreeInspector(Globals& g)
 	, mGlobals(g)
 	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 	, mLayout(nullptr)
+	, mTreeRoot(nullptr)
 {
 	setPosition(800.0f, 200.0f);
 	enable(true);
@@ -34,6 +36,15 @@ void TreeInspector::onAppEvent(const ds::Event& in_e){
 		inspectTree(e.mTree);
 	} else if(in_e.mWhat == RefreshLayoutRequest::WHAT() || in_e.mWhat == LoadLayoutRequest::WHAT()){
 		//clearTree();
+	} else if(in_e.mWhat == InspectSpriteRequest::WHAT()){
+		const InspectSpriteRequest& e((const InspectSpriteRequest&)in_e);
+
+		for(auto it = mTreeItems.begin(); it < mTreeItems.end(); ++it){
+			(*it)->getValueField()->setColor(ci::Color::white());
+			if((*it)->getLinkedSprite() == e.mSprid){
+				(*it)->getValueField()->setColor(ci::Color(0.8f, 0.4f, 0.4f));
+			}
+		}
 	}
 
 }
@@ -49,6 +60,8 @@ void TreeInspector::clearTree(){
 
 void TreeInspector::inspectTree(ds::ui::Sprite* sp) {
 	clearTree();
+
+	mTreeRoot = sp;
 
 	// todo: make this an xml
 	mLayout = new ds::ui::LayoutSprite(mEngine);
@@ -81,7 +94,39 @@ void TreeInspector::addTreeItem(ds::ui::Sprite* sprid, const int indent){
 	mLayout->addChildPtr(treeItem);
 	mTreeItems.push_back(treeItem);
 
-	
+	mEngine.addToDragDestinationList(treeItem);
+
+	treeItem->setDragDestinationCallback([this, treeItem](ds::ui::Sprite* sp, const ds::ui::DragDestinationInfo& di){
+		std::cout << "Drag callback: " << di.mPhase << std::endl;
+		if(di.mPhase == ds::ui::DragDestinationInfo::Released){
+			TreeItem* ti = dynamic_cast<TreeItem*>(di.mSprite);
+			TreeItem* dest = dynamic_cast<TreeItem*>(sp);
+
+			if(treeItem == dest) return;
+			std::cout << "Dest: " << ds::utf8_from_wstr(dest->getLinkedSprite()->getSpriteName(true)) << " ti: " << ds::utf8_from_wstr(ti->getLinkedSprite()->getSpriteName(true)) << " " << treeItem << " " << ti << " " << sp << " " << dest << std::endl;
+			if(ti && dest){
+				if(ti == dest) return;
+				if(dest->getLinkedSprite() == ti->getLinkedSprite())return;
+				if(dest->getLinkedSprite()->getParent() == ti->getLinkedSprite()->getParent()){
+					ti->getLinkedSprite()->sendToBack();
+				} else {
+					dest->getLinkedSprite()->addChildPtr(ti->getLinkedSprite());
+				}
+				callAfterDelay([this]{
+					inspectTree(mTreeRoot);
+				}, 0.01f);
+			}
+		}
+	});
+
+	treeItem->setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti){
+		if(ti.mPhase == ds::ui::TouchInfo::Removed && ti.mNumberFingers == 0){
+			callAfterDelay([this]{
+				layout();
+			}, 0.05f);
+		}
+	});
+
 }
 
 void TreeInspector::layout(){
