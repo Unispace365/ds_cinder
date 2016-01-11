@@ -121,7 +121,7 @@ void SpriteAnimatable::tweenAnimateOn(const bool recursive, const float delay, c
 	float thisDelay = delay;
 	runAnimationScript(mAnimateOnScript, thisDelay);
 	if(recursive){
-		auto chillins = mOwner.getChildren();
+		std::vector<ds::ui::Sprite*>& chillins = mOwner.getChildren();
 		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
 			Sprite*		s(*it);
 			if(s) {
