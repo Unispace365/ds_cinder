@@ -2187,6 +2187,22 @@ void Sprite::sendSpriteToBack(Sprite &sprite) {
 	markAsDirty(SORTORDER_DIRTY);
 }
 
+Sprite* Sprite::getFirstDescendantWithName(const std::wstring& name) {
+	Sprite* output = nullptr;
+	for(auto it = mChildren.begin(); it != mChildren.end(); it++) {
+		if((*it)->getSpriteName() == name) {
+			output = (*it);
+			break;
+		} else {
+			output = (*it)->getFirstDescendantWithName(name);
+			if(output != nullptr) {
+				break;
+			}
+		}
+	}
+	return output;
+}
+
 void Sprite::sendToFront() {
 	if (mParent) {
 		mParent->sendSpriteToFront(*this);

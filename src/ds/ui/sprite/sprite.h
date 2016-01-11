@@ -376,7 +376,7 @@ namespace ui {
 		void					clearChildren();
 
 		std::vector<Sprite*>	getChildren() { return mChildren; }
-
+		
 		/** Check to see if this Sprite contains child.
 			\param child The child to check if it is contained on this Sprite.
 			\return True if the child is a child of this Sprite. False if the child is a damn stranger. */
@@ -386,6 +386,10 @@ namespace ui {
 			\param funkyTown The lambda function to be called for each Sprite.
 			\param recurse Call this function for all children of all children of all my children. */
 		void					forEachChild(const std::function<void(Sprite&)>& funkyTown, const bool recurse = false);
+
+		/** Traverse children recursively and find a sprite the with the given name.
+			\param name The name given from layout or from setSpriteName(). */
+		Sprite*					getFirstDescendantWithName(const std::wstring& name);
 
 		/** Sends sprite to front of parents child list. */
 		void					sendToFront();
