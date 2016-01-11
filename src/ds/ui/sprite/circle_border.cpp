@@ -49,25 +49,13 @@ CircleBorder::CircleBorder(SpriteEngine& engine, const float width)
 	setTransparent(false);
 	markAsDirty(BORDER_WIDTH_DIRTY);
 	mSpriteShader.setShaders(Environment::getAppFolder("data/shaders"), "circle_border");
-	updateExtraShaderData();
-}
-
-void CircleBorder::setSizeAll(const ci::Vec3f& size3d) {
-	inherited::setSizeAll(size3d);
-}
-
-void CircleBorder::setSizeAll(float width, float height, float depth) {
-	inherited::setSizeAll(width, height, depth);
+	updateShaderExtraData();
 }
 
 void CircleBorder::setBorderWidth(const float borderWidth) {
 	mBorderWidth = borderWidth;
-	updateExtraShaderData();
+	updateShaderExtraData();
 	markAsDirty(BORDER_WIDTH_DIRTY);
-}
-
-void CircleBorder::updateServer(const UpdateParams& up) {
-	inherited::updateServer(up);
 }
 
 void CircleBorder::writeAttributesTo(ds::DataBuffer& buf) {
@@ -82,14 +70,14 @@ void CircleBorder::writeAttributesTo(ds::DataBuffer& buf) {
 void CircleBorder::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if(attributeId == BORDER_WIDTH_ATT) {
 		mBorderWidth = buf.read<float>();
-		updateExtraShaderData();
+		updateShaderExtraData();
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
 	}
 }
 
-void CircleBorder::updateExtraShaderData() {
-	mExtraShaderData.x = mBorderWidth;
+void CircleBorder::updateShaderExtraData() {
+	mShaderExtraData.x = mBorderWidth;
 }
 
 } // namespace ui

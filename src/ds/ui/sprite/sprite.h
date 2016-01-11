@@ -588,6 +588,7 @@ namespace ui {
 		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
 		ci::gl::Texture*		getShaderOutputTexture();
 		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
+		void					setShaderExtraData(const ci::Vec4f& data);
 
 		//	Determines if the final render will be to the display or a texture.
 		void					setFinalRenderToTexture(bool render_to_texture);
@@ -811,7 +812,7 @@ namespace ui {
 
 		//Keeps track of which FBO is being rendered to for multi-pass rendering
 		int							mFboIndex;
-		ci::Vec4f				mExtraShaderData;
+		ci::Vec4f				mShaderExtraData;
 
 		mutable ci::Matrix44f	mGlobalTransform;
 		mutable ci::Matrix44f	mInverseGlobalTransform;

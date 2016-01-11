@@ -940,10 +940,10 @@ void Sprite::drawLocalClient(){
 				glEnableVertexAttribArray(extraLocation);
 				glVertexAttribPointer( extraLocation, 4, GL_FLOAT, GL_FALSE, 0, extra );
 				for(int i = 0; i < 4; i++) {
-					extra[i*4+0] = mExtraShaderData.x;
-					extra[i*4+1] = mExtraShaderData.y;
-					extra[i*4+2] = mExtraShaderData.z;
-					extra[i*4+3] = mExtraShaderData.w;
+					extra[i*4+0] = mShaderExtraData.x;
+					extra[i*4+1] = mShaderExtraData.y;
+					extra[i*4+2] = mShaderExtraData.z;
+					extra[i*4+3] = mShaderExtraData.w;
 				}
 			}
 		}
@@ -1895,6 +1895,10 @@ ds::gl::Uniform Sprite::getShaderUniforms(std::string shaderName) {
 		return it->second;
 	}
 	return ds::gl::Uniform();
+}
+
+void Sprite::setShaderExtraData(const ci::Vec4f& data){
+	mShaderExtraData.set(data);
 }
 
 void Sprite::setFinalRenderToTexture(bool render_to_texture)
