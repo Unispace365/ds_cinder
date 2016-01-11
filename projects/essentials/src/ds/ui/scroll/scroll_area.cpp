@@ -270,8 +270,6 @@ void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTra
 }
 
 void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
-	if(!mTopFade || !mBottomFade) return;
-
 	float scrollerSize = mScroller->getHeight();
 	float scrollWindow = getHeight();
 	float scrollerPossy = scrollPos.y;
@@ -292,26 +290,30 @@ void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
 	if(mScrollPercent > 1.0f) mScrollPercent = 1.0f;
 	if(mScrollPercent < 0.0f) mScrollPercent = 0.0f;
 
-	if(scrollerPossy < 0.0f){
-		if(!mTopFadeActive){
-			mTopFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
-			mTopFadeActive = true;
-		}
-	} else {
-		if(mTopFadeActive){
-			mTopFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
-			mTopFadeActive = false;
+	if(mTopFade){
+		if(scrollerPossy < 0.0f){
+			if(!mTopFadeActive){
+				mTopFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
+				mTopFadeActive = true;
+			}
+		} else {
+			if(mTopFadeActive){
+				mTopFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
+				mTopFadeActive = false;
+			}
 		}
 	}
 
-	if(scrollerPossy > theTop){
-		if(!mBottomFadeActive){
-			mBottomFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
-			mBottomFadeActive = true;
+	if(mBottomFade){
+		if(scrollerPossy > theTop){
+			if(!mBottomFadeActive){
+				mBottomFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
+				mBottomFadeActive = true;
+			}
+		} else if(mBottomFadeActive){
+			mBottomFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
+			mBottomFadeActive = false;
 		}
-	} else if(mBottomFadeActive){
-		mBottomFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
-		mBottomFadeActive = false;
 	}
 
 	if(mScrollUpdatedFunction) mScrollUpdatedFunction(this);
