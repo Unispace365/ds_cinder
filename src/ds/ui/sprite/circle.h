@@ -44,6 +44,8 @@ namespace ui {
 		virtual void				writeAttributesTo(ds::DataBuffer&);
 		virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
+		virtual void				onSizeChanged();
+
 	private:
 		typedef Sprite				inherited;
 
@@ -53,6 +55,7 @@ namespace ui {
 		int							mNumberOfSegments;
 		bool						mFilled;
 		float						mRadius;
+		bool						mIgnoreSizeUpdates;
 
 	};
 

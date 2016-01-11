@@ -40,6 +40,7 @@ Circle::Circle(SpriteEngine& engine)
 	, mFilled(true)
 	, mRadius(0.0f)
 	, mVertices(nullptr)
+	, mIgnoreSizeUpdates(false)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
@@ -50,6 +51,7 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	, mFilled(filled)
 	, mRadius(radius)
 	, mVertices(nullptr)
+	, mIgnoreSizeUpdates(false)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
@@ -113,6 +115,16 @@ void Circle::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	}
 }
 
+void Circle::onSizeChanged() {
+	if(!mIgnoreSizeUpdates) {
+		float minDiameter = mWidth;
+		if(minDiameter > mHeight) {
+			minDiameter = mHeight;
+		}
+		setRadius(minDiameter * 0.5f);
+	}
+}
+
 void Circle::init() {
 	if(mVertices){
 		delete [] mVertices;
@@ -122,7 +134,9 @@ void Circle::init() {
 
 	if(mRadius <= 0.0f) return;
 
+	mIgnoreSizeUpdates = true;
 	setSize(mRadius * 2.0f, mRadius * 2.0f);
+	mIgnoreSizeUpdates = false;
 
 	// GN: From ci::gl::drawSolidCircle()
 	// automatically determine the number of segments from the circumference
