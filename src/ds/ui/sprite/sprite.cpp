@@ -710,6 +710,9 @@ void Sprite::removeChild(Sprite &child){
 }
 
 void Sprite::setParent(Sprite *parent) {
+	if(containsChild(parent)){
+		removeChild(*parent);
+	}
 	removeParent();
 	mParent = parent;
 	if(mParent)
