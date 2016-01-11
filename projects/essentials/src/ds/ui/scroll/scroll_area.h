@@ -34,6 +34,7 @@ class ScrollArea : public ds::ui::Sprite {
 		void				setFadeHeight(const float fadeHeight);
 
 		void				setScrollUpdatedCallback(const std::function<void(ScrollArea* thisThing)> &func);
+		void				setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func);
 
 		const ci::Vec2f		getScrollerPosition();
 		void				resetScrollerPosition();
@@ -72,6 +73,7 @@ class ScrollArea : public ds::ui::Sprite {
 		float				mScrollPercent;
 
 		std::function<void(ScrollArea*)>	mScrollUpdatedFunction;
+		std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>	mSnapToPositionFunction;
 
 };
 
