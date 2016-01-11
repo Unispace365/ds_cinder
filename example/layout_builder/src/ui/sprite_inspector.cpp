@@ -43,7 +43,6 @@ void SpriteInspector::onAppEvent(const ds::Event& in_e){
 		if(mCurrentInputTreeItem && mLinkedSprite){
 			const InputFieldTextInput& e((const InputFieldTextInput&)in_e);
 			std::string valueText = ds::utf8_from_wstr(e.mFullText);
-			std::cout << "setting value: " << mCurrentInputTreeItem->getPropertyName() << " " << ds::utf8_from_wstr(e.mFullText) << " " << valueText << std::endl;
 			mCurrentInputTreeItem->setValueText(e.mFullText);
 			ds::ui::XmlImporter::setSpriteProperty(*mLinkedSprite, mCurrentInputTreeItem->getPropertyName(), valueText, "");
 			mEngine.getNotifier().notify(LayoutLayoutRequest());

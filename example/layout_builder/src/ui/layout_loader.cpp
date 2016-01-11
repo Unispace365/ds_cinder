@@ -70,6 +70,7 @@ void LayoutLoader::loadLayout(const std::string& layoutLocation) {
 void LayoutLoader::layout(){
 	if(mLayout){
 		mLayout->runLayout();
+		mLayout->clearAnimateOnTargets(true);
 	}
 }
 

@@ -4,6 +4,7 @@
 
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/app/event_notifier.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
 #include <ds/ui/touch/drag_destination_info.h>
@@ -97,23 +98,40 @@ void TreeInspector::addTreeItem(ds::ui::Sprite* sprid, const int indent){
 	mEngine.addToDragDestinationList(treeItem);
 
 	treeItem->setDragDestinationCallback([this, treeItem](ds::ui::Sprite* sp, const ds::ui::DragDestinationInfo& di){
-		std::cout << "Drag callback: " << di.mPhase << std::endl;
+		if(di.mPhase == ds::ui::DragDestinationInfo::Entered){
+			sp->setColor(ci::Color(0.6f, 0.2f, 0.2f));
+		} else if(di.mPhase == ds::ui::DragDestinationInfo::Exited){
+			sp->setColor(ci::Color(0.1f, 0.1f, 0.1f));
+		}
 		if(di.mPhase == ds::ui::DragDestinationInfo::Released){
 			TreeItem* ti = dynamic_cast<TreeItem*>(di.mSprite);
 			TreeItem* dest = dynamic_cast<TreeItem*>(sp);
 
+			if(ti){
+				ti->setColor(ci::Color(0.1f, 0.1f, 0.1f));
+			}
+			if(dest){
+				dest->setColor(ci::Color(0.1f, 0.1f, 0.1f));
+			}
+
 			if(treeItem == dest) return;
-			std::cout << "Dest: " << ds::utf8_from_wstr(dest->getLinkedSprite()->getSpriteName(true)) << " ti: " << ds::utf8_from_wstr(ti->getLinkedSprite()->getSpriteName(true)) << " " << treeItem << " " << ti << " " << sp << " " << dest << std::endl;
+
 			if(ti && dest){
 				if(ti == dest) return;
-				if(dest->getLinkedSprite() == ti->getLinkedSprite())return;
-				if(dest->getLinkedSprite()->getParent() == ti->getLinkedSprite()->getParent()){
-					ti->getLinkedSprite()->sendToBack();
+				if(dest->getLinkedSprite() == ti->getLinkedSprite()){
+					return;
+				}
+
+				// If the drag destination is already the parent of this sprite, then just move it to the end
+				if(dest->getLinkedSprite() == ti->getLinkedSprite()->getParent()){
+					ti->getLinkedSprite()->sendToFront();
 				} else {
 					dest->getLinkedSprite()->addChildPtr(ti->getLinkedSprite());
-				}
+				}				
+
 				callAfterDelay([this]{
 					inspectTree(mTreeRoot);
+					mEngine.getNotifier().notify(LayoutLayoutRequest());
 				}, 0.01f);
 			}
 		}

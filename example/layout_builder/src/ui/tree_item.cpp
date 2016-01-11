@@ -49,6 +49,8 @@ void TreeItem::initialize(const std::wstring& labelOne, const std::wstring& labe
 		theHiddy = mLabelTextTwo->getFontSize() + paddin;
 	}
 
+	setTransparent(false);
+	setColor(ci::Color(0.1f, 0.1f, 0.1f));
 	setSize(theWiddy, theHiddy);
 	enable(true);
 	enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
