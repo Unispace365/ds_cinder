@@ -341,9 +341,14 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 		xml.setAttribute("radius", circ->getRadius());
 	}
 
-	ds::ui::Border* bord = dynamic_cast<ds::ui::Border*>(&sp);
-	if(bord){
-		xml.setAttribute("border_width", bord->getBorderWidth());
+	ds::ui::Border* border = dynamic_cast<ds::ui::Border*>(&sp);
+	if(border){
+		if(border->getBorderWidth() != 0.0f) xml.setAttribute("border_width", border->getBorderWidth());
+	}
+
+	ds::ui::CircleBorder* circleBorder = dynamic_cast<ds::ui::CircleBorder*>(&sp);
+	if(circleBorder){
+		if(circleBorder->getBorderWidth() != 0.0f) xml.setAttribute("border_width", circleBorder->getBorderWidth());
 	}
 
 	// scroll list
@@ -963,6 +968,7 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::ScrollArea*>(sp)) return "scroll_area";
 	if(dynamic_cast<ds::ui::Circle*>(sp)) return "circle";
 	if(dynamic_cast<ds::ui::Border*>(sp)) return "border";
+	if(dynamic_cast<ds::ui::CircleBorder*>(sp)) return "circle_border";
 	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
 	return "sprite";
 }
