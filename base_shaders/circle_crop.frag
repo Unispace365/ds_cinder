@@ -11,14 +11,7 @@ uniform bool preMultiply;
 
 void main()
 {
-	vec4 color = vec4(
-		position_interpolated.x / extent_interpolated.x,
-		position_interpolated.y / extent_interpolated.y,
-		0,
-		1
-	);
-	
-	color = vec4(1.0, 1.0, 1.0, 1.0);
+	vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
 
     if (useTexture) {
         color = texture2D( tex0, gl_TexCoord[0].st );

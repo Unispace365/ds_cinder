@@ -12,14 +12,9 @@ namespace ui {
 		CircleBorder(SpriteEngine&);
 		CircleBorder(SpriteEngine&, const float width);
 
-		virtual void				setSizeAll(const ci::Vec3f& size3d);
-		virtual void				setSizeAll(float width, float height, float depth);
-
 		void						setBorderWidth(const float borderWidth);
 		const float					getBorderWidth(){ return mBorderWidth; }
 
-		virtual void				updateServer(const UpdateParams&);
-		
 		// Initialization
 		static void					installAsServer(ds::BlobRegistry&);
 		static void					installAsClient(ds::BlobRegistry&);
@@ -28,7 +23,7 @@ namespace ui {
 		virtual void				writeAttributesTo(ds::DataBuffer&);
 		virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
-		void						updateExtraShaderData();
+		void						updateShaderExtraData();
 
 	private:
 		typedef Sprite				inherited;
