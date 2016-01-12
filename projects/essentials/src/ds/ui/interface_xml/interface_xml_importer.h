@@ -14,6 +14,7 @@ namespace ui{
 
 class Sprite;
 class SpriteEngine;
+class Gradient;
 
 struct Stylesheet;
 
@@ -50,6 +51,10 @@ public:
 	static const std::string getMultitouchStringForBitMask(const ds::BitMask& mask);
 
 	static std::string getSpriteTypeForSprite(ds::ui::Sprite* sp);
+
+	/// Creates a new sprite based on the type string ("sprite", "text", "layout", etc), 
+	/// The value is an optional value, and can provide a default value for some sprite types. For instance, text will get the value as text, image will try to load an image at the value file path
+	static ds::ui::Sprite* createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value = "");
 	static void getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml);
 
 	// the opposite of loading an xml to a sprite
@@ -60,6 +65,8 @@ public:
 	static std::string getLayoutHAlignString(const int vAlign);
 	static std::string getLayoutTypeString(const ds::ui::LayoutSprite::LayoutType& propertyValue);
 	static std::string getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue);
+
+	static std::string getGradientColorsAsString(ds::ui::Gradient* grad);
 
 protected:
 	XmlImporter( ds::ui::Sprite *targetSprite, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr)

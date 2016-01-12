@@ -84,6 +84,18 @@ public:
 
 };
 
+class CreateSpriteRequest : public ds::RegisteredEvent<CreateSpriteRequest>{
+public:
+	CreateSpriteRequest(const std::string& typeName) : mTypeName(typeName){}
+	const std::string	mTypeName;
+};
+
+class DeleteSpriteRequest : public ds::RegisteredEvent<DeleteSpriteRequest>{
+public:
+	DeleteSpriteRequest(ds::ui::Sprite* spriteToDelete) : mSpriteToDelete(spriteToDelete){}
+	ds::ui::Sprite*		mSpriteToDelete;
+};
+
 } // !namespace layout_builder
 
 #endif // !_LAYOUT_BUILDER_APP_APPEVENTS_H_

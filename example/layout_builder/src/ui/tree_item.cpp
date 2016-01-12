@@ -7,6 +7,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/button/image_button.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -23,26 +24,32 @@ TreeItem::TreeItem(Globals& g, ds::ui::Sprite* linkedItem)
 	, mNameText(nullptr)
 	, mLabelTextTwo(nullptr)
 {
-	initialize(mLinkedSprite->getSpriteName(), ds::wstr_from_utf8(typeid(*mLinkedSprite).name()));
 	
-}
+	ds::ui::ImageButton* deleteButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/ui/close_button.png", "%APP%/data/images/ui/close_button.png", 10.0f);
+	deleteButton->setScale(0.25f, 0.25f);
+	deleteButton->getHighImage().setColor(ci::Color(0.7f, 0.2f, 0.2f));
+	addChildPtr(deleteButton);
+	deleteButton->setClickFn([this]{
+		callAfterDelay([this]{
+			mEngine.getNotifier().notify(DeleteSpriteRequest(mLinkedSprite));
+		}, 0.01f);
+	});
 
-void TreeItem::initialize(const std::wstring& labelOne, const std::wstring& labelTwo){
+
 	float paddin = 10.0f;
 	mLayoutLPad = paddin / 2.0f;
 	mLayoutRPad = paddin/2.0f;
 	float theWiddy = 0.0f;
 	float theHiddy = 0.0f;
-	if(!labelOne.empty()){
-		mNameText = mGlobals.getText("tree:item").create(mEngine, this);
-		mNameText->setText(labelOne);
-		mNameText->setPosition(0.0f, paddin/2.0f);
-		theWiddy += mNameText->getWidth() + paddin/2.0f;
-		theHiddy = mNameText->getFontSize() + paddin;
-	}
+	mNameText = mGlobals.getText("tree:item").create(mEngine, this);
+	mNameText->setText(mLinkedSprite->getSpriteName());
+	mNameText->setPosition(deleteButton->getScaleWidth(), paddin / 2.0f);
+	theWiddy += mNameText->getWidth() + paddin / 2.0f + deleteButton->getScaleWidth();
+	theHiddy = mNameText->getFontSize() + paddin;
+	
 
 	mLabelTextTwo = mGlobals.getText("tree:item_two").create(mEngine, this);
-	mLabelTextTwo->setText(labelTwo);
+	mLabelTextTwo->setText(ds::ui::XmlImporter::getSpriteTypeForSprite(mLinkedSprite));
 	mLabelTextTwo->setPosition(theWiddy, paddin / 2.0f);
 	theWiddy += mLabelTextTwo->getWidth() + paddin / 2.0f;
 	if(mLabelTextTwo->getFontSize() + paddin > theHiddy){

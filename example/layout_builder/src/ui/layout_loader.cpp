@@ -40,6 +40,19 @@ void LayoutLoader::onAppEvent(const ds::Event& in_e){
 		animateOn();
 	} else if(in_e.mWhat == SaveLayoutRequest::WHAT()){
 		saveLayout();
+	} else if(in_e.mWhat == CreateSpriteRequest::WHAT()){
+		const CreateSpriteRequest& e((const CreateSpriteRequest&)in_e);
+		if(!e.mTypeName.empty()){
+			addASprite(e.mTypeName);
+		}
+	} else if(in_e.mWhat == DeleteSpriteRequest::WHAT()){
+		const DeleteSpriteRequest& e((const DeleteSpriteRequest&)in_e);
+		ds::ui::Sprite* killah = e.mSpriteToDelete;
+		if(killah){
+			killah->release();
+			layout();
+			mEngine.getNotifier().notify(InspectTreeRequest(mLayout));
+		}
 	}
 	
 }
@@ -111,6 +124,16 @@ void LayoutLoader::buildXmlRecursive(ds::ui::Sprite* sp, ci::XmlTree& tree){
 		buildXmlRecursive((*it), newXml);
 	}
 	tree.push_back(newXml);
+}
+
+void LayoutLoader::addASprite(const std::string& typeName){
+	if(!mLayout) return;
+	ds::ui::Sprite* spridy = ds::ui::XmlImporter::createSpriteByType(mEngine, typeName);
+	if(spridy){
+		mLayout->addChildPtr(spridy);
+		layout();
+		mEngine.getNotifier().notify(InspectTreeRequest(mLayout));
+	}
 }
 
 

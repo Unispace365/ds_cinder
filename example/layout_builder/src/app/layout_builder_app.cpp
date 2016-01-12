@@ -22,6 +22,7 @@
 #include "ui/tree_inspector.h"
 #include "ui/sprite_inspector.h"
 #include "ui/overall_controller.h"
+#include "ui/sprite_creator.h"
 
 
 namespace layout_builder {
@@ -90,6 +91,7 @@ void layout_builder::setupServer(){
 	rootSprite.addChildPtr(new LayoutLoader(mGlobals));
 	rootSprite.addChildPtr(new TreeInspector(mGlobals));
 	rootSprite.addChildPtr(new SpriteInspector(mGlobals));
+	rootSprite.addChildPtr(new SpriteCreator(mGlobals));
 	rootSprite.addChildPtr(new OverallController(mGlobals));
 
 	

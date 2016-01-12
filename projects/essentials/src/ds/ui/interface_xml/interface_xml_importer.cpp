@@ -207,7 +207,7 @@ std::string XmlImporter::getLayoutSizeModeString(const int sizeMode){
 	std::string sizeString = "fixed";
 	if(sizeMode == ds::ui::LayoutSprite::kFlexSize)	sizeString = "flex";
 	else if(sizeMode == ds::ui::LayoutSprite::kStretchSize) sizeString = "stretch";
-	else if(sizeMode == ds::ui::LayoutSprite::kFillSize) sizeString == "fill";
+	else if(sizeMode == ds::ui::LayoutSprite::kFillSize) sizeString = "fill";
 	return sizeString;
 }
 
@@ -239,6 +239,13 @@ std::string XmlImporter::getShrinkToChildrenString(const ds::ui::LayoutSprite::S
 	else if(propertyValue == ds::ui::LayoutSprite::kShrinkHeight) sizeString = "height";
 	else if(propertyValue == ds::ui::LayoutSprite::kShrinkBoth)	sizeString = "both";
 	return sizeString;
+}
+
+std::string XmlImporter::getGradientColorsAsString(ds::ui::Gradient* grad){
+	if(!grad) return "";
+	std::stringstream ss;
+	ss << unparseColor(grad->getColorTL()) << ", " << unparseColor(grad->getColorTR()) << ", " << unparseColor(grad->getColorBR()) << ", " << unparseColor(grad->getColorBL());
+	return ss.str();
 }
 
 namespace {
@@ -330,9 +337,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 
 	ds::ui::Gradient* grad = dynamic_cast<ds::ui::Gradient*>(&sp);
 	if(grad){
-		std::stringstream ss;
-		ss << unparseColor(grad->getColorTL()) << ", " << unparseColor(grad->getColorTR()) << ", " << unparseColor(grad->getColorBR()) << ", " << unparseColor(grad->getColorBL());
-		xml.setAttribute("gradientColors", ss.str());
+		xml.setAttribute("gradientColors", getGradientColorsAsString(grad));
 	}
 
 	ds::ui::Circle* circ = dynamic_cast<ds::ui::Circle*>(&sp);
@@ -974,18 +979,15 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 }
 
 // NOTE! If you add a sprite below, please add it above! Thanks, byeeee!
-bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree>& node) {
-	std::string type = node->getTag();
-
+ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value){
 	ds::ui::Sprite* spriddy = nullptr;
 
-	auto &engine = parent->getEngine();
 	if (type == "sprite") {
 		spriddy = new ds::ui::Sprite(engine);
 	}
 	else if (type == "image") {
 		auto image = new ds::ui::Image(engine);
-		std::string relative_file = node->getValue();
+		std::string relative_file = value;
 		boost::trim(relative_file);
 		if (relative_file != "") {
 			setSpriteProperty(*image, ci::XmlTree::Attr(nullptr, "filename", relative_file), nullptr);
@@ -998,20 +1000,20 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	}
 	else if (type == "text") {
 		auto text = new ds::ui::Text(engine);
-		auto content = node->getValue();
+		auto content = value;
 		boost::trim(content);
 		text->setText(content);
 		spriddy = text;
 	}
 	else if (type == "multiline_text") {
 		auto text = new ds::ui::MultilineText(engine);
-		auto content = node->getValue();
+		auto content = value;
 		boost::trim(content);
 		text->setText(content);
 		spriddy = text;
 	}
 	else if(type == "image_button") {
-		auto content = node->getValue();
+		auto content = value;
 		boost::trim(content);
 		float touchPad = 0.0f;
 		if(content.size() > 0) touchPad = (float)atof(content.c_str());
@@ -1047,7 +1049,18 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	else if(type == "scroll_bar"){
 		spriddy = new ds::ui::ScrollBar(engine);
 	}
-	else if (mCustomImporter) {
+
+	return spriddy;
+}
+
+bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree>& node) {
+	std::string type = node->getTag();
+	std::string value = node->getValue();
+	auto &engine = parent->getEngine();
+
+	ds::ui::Sprite* spriddy = createSpriteByType(engine, type, value);
+	
+	if (!spriddy && mCustomImporter) {
 		spriddy = mCustomImporter(type, *node);
 	}
 

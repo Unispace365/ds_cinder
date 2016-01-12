@@ -24,7 +24,6 @@ public:
 	void								setValueText(const std::wstring& labelTwoText);
 
 private:
-	void								initialize(const std::wstring& labelOne, const std::wstring& labelTwo);
 
 	Globals&							mGlobals;
 	ds::ui::Text*						mNameText;

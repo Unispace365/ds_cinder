@@ -27,6 +27,7 @@ private:
 	void								animateOn();
 	void								animateOff();
 
+	void								addASprite(const std::string& typeName);
 	void								loadLayout(const std::string& layoutLocation);
 	void								layout();
 	void								saveLayout();
