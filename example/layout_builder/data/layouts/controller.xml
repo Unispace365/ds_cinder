@@ -4,8 +4,7 @@
 		layout_spacing="2" 
 		layout_type="vert" 
 		layout_size_mode="flex" 	
-		position="20, 20"
-		color="111111"
+		shrink_to_children="both"
 		>
 		
 		

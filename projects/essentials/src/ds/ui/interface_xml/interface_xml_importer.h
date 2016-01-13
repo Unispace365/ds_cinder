@@ -68,6 +68,7 @@ public:
 
 	static std::string getGradientColorsAsString(ds::ui::Gradient* grad);
 
+
 protected:
 	XmlImporter( ds::ui::Sprite *targetSprite, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr)
 		: mTargetSprite(targetSprite)

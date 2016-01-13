@@ -1,0 +1,22 @@
+<interface>
+
+		<sprite_button name="the_button" 
+		width="240"
+		height="25"
+		animate_on="slide:-100; fade:-1.0; delay:0.4; duration:0.5; ease:outBack"
+		>
+			<sprite
+				color="eeeeee"
+				opacity="0.9"
+				blend_mode="normal"
+				size="240, 25" />
+			<text name="label_field"
+				font="button:text"
+				position="15, 4"
+			/>
+		</sprite_button>
+		
+	
+
+</interface>
+

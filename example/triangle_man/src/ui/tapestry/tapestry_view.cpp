@@ -64,7 +64,7 @@ TapestryView::TapestryView(Globals& g)
 	setTransparent(false);
 
 	mImage = new ds::ui::Image(mEngine);
-	mImage->setOpacity(0.1f);
+	mImage->setOpacity(0.0f);
 	//mImage->set
 	addChildPtr(mImage);
 	mImage->enable(true);
@@ -72,7 +72,7 @@ TapestryView::TapestryView(Globals& g)
 
 	mSurfaceQuery.setReplyHandler([this](SurfaceLoader& l){ onSurfaceQuery(l); });
 
-	setImage("%APP%/data/images/merica.png");
+	setImage("%APP%/data/images/temp/background.png");
 }
 
 void TapestryView::onAppEvent(const ds::Event& in_e){
@@ -100,7 +100,7 @@ void TapestryView::initialize(){
 	mColors.clear();
 	mThingies.clear();
 
-	if(mImageSurface.getWidth() < 1 || mImageSurface.getHeight() < 1){
+	if(!mImageSurface || mImageSurface.getWidth() < 1 || mImageSurface.getHeight() < 1){
 		mInitialized = false;
 		return;
 	}

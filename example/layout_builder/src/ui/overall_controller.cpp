@@ -22,6 +22,12 @@ OverallController::OverallController(Globals& g)
 	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 	, mController(nullptr)
 {
+
+	enable(true);
+	enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
+	setColor(ci::Color(0.5f, 0.5f, 0.5f));
+	setTransparent(false);
+
 	std::map<std::string, ds::ui::Sprite*>	spriteMap;
 	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/controller.xml"), spriteMap);
 	mController = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["layout"]);
@@ -58,6 +64,8 @@ OverallController::OverallController(Globals& g)
 			mEngine.getNotifier().notify(SaveLayoutRequest());
 		});
 	}
+
+	layout();
 }
 
 void OverallController::onAppEvent(const ds::Event& in_e){
@@ -77,6 +85,7 @@ void OverallController::onAppEvent(const ds::Event& in_e){
 void OverallController::layout(){
 	if(mController){
 		mController->runLayout();
+		setSize(mController->getWidth(), mController->getHeight() + 20.0f);
 	}
 }
 

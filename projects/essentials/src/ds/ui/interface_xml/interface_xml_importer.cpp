@@ -328,12 +328,16 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 
 	ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(&sp);
 	if(img){
-		// TODO: make relative paths to xml
-		if(!img->getImageFilename().empty()) xml.setAttribute("filename", img->getImageFilename());
+		if(!img->getImageFilename().empty()) xml.setAttribute("filename", ds::Environment::contract(img->getImageFilename()));
 		if(img->getCircleCrop()) xml.setAttribute("circle_crop", "true");
 	}
 
-	// TODO: parse Image button stuff
+	ds::ui::ImageButton* imgB = dynamic_cast<ds::ui::ImageButton*>(&sp);
+	if(imgB){
+		if(!imgB->getNormalImage().getImageFilename().empty()) xml.setAttribute("up_image", ds::Environment::contract(imgB->getNormalImage().getImageFilename()));
+		if(!imgB->getHighImage().getImageFilename().empty()) xml.setAttribute("down_image", ds::Environment::contract(imgB->getHighImage().getImageFilename()));
+		xml.setAttribute("btn_touch_padding", imgB->getPad());
+	}
 
 	ds::ui::Gradient* grad = dynamic_cast<ds::ui::Gradient*>(&sp);
 	if(grad){
@@ -375,6 +379,10 @@ ci::XmlTree XmlImporter::createXmlFromSprite(ds::ui::Sprite& sprite){
 }
 
 static std::string filePathRelativeTo(const std::string &base, const std::string &relative) {
+	if(relative.find("%APP%") != std::string::npos){
+		return ds::Environment::expand(relative);
+	}
+
 	using namespace boost::filesystem;
 	boost::system::error_code e;
 	std::string ret = canonical( path(relative), path(base).parent_path(), e ).string();
@@ -405,8 +413,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	// The slower parts of this are the actual functions that are called (particularly multilinetext setResizeLimit())
 	// So be sure that this is actually performing slowly before considering a refactor.
 
-	if(property == "name" || property == "class") {
-		// Do nothing, these are handled elsewhere
+	if(property == "name"){
+		sprite.setSpriteName(ds::wstr_from_utf8(value));
+	} else if(property == "class") {
+		// Do nothing, this is handled by css parsers, if any
 	} else if(property == "width") {
 		sprite.setSize(ds::string_to_float(value), sprite.getHeight());
 	} else if(property == "height") {

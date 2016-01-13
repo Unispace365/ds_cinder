@@ -12,6 +12,8 @@
 #include <ds/ui/sprite/circle.h>
 #include <ds/ui/sprite/border.h>
 #include <ds/ui/sprite/circle_border.h>
+#include <ds/ui/sprite/image.h>
+#include <ds/ui/button/image_button.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -145,6 +147,19 @@ void SpriteInspector::inspectSprite(ds::ui::Sprite* sp) {
 	ds::ui::Border* border = dynamic_cast<ds::ui::Border*>(mLinkedSprite);
 	if(border){
 		addSpriteProperty(L"border_width", border->getBorderWidth());
+	}
+
+	ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(mLinkedSprite);
+	if(img){
+		addSpriteProperty(L"filename", ds::wstr_from_utf8(ds::Environment::contract(img->getImageFilename())));
+		addSpriteProperty(L"circle_crop", img->getCircleCrop());
+	}
+
+	ds::ui::ImageButton* imgB = dynamic_cast<ds::ui::ImageButton*>(mLinkedSprite);
+	if(imgB){
+		addSpriteProperty(L"up_image", ds::wstr_from_utf8(ds::Environment::contract(imgB->getNormalImage().getImageFilename())));
+		addSpriteProperty(L"down_image", ds::wstr_from_utf8(ds::Environment::contract(imgB->getHighImage().getImageFilename())));
+		addSpriteProperty(L"btn_touch_padding", imgB->getPad());
 	}
 
 	layout();
