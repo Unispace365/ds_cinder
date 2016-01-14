@@ -93,6 +93,7 @@ void SpriteInspector::inspectSprite(ds::ui::Sprite* sp) {
 	addSpriteProperty(L"size", sp->getSize());
 	addSpriteProperty(L"color", sp->getColor());
 	addSpriteProperty(L"opacity", sp->getOpacity());
+	addSpriteProperty(L"center", sp->getCenter());
 	addSpriteProperty(L"position", sp->getPosition());
 	addSpriteProperty(L"rotation", sp->getRotation());
 	addSpriteProperty(L"scale", sp->getScale());

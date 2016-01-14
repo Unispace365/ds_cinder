@@ -47,6 +47,12 @@ public:
 
 	static std::string RGBToHex(ci::Color color);
 	static std::string RGBToHex(int rNum, int gNum, int bNum);
+
+	// Straight-up string to ci::ColorA conversion
+	static ci::ColorA parseHexColor(const std::string &color);
+	// Checks engine named colors, then does a string convert if it's not found
+	static ci::ColorA parseColor(const std::string &color, const ds::ui::SpriteEngine& engine);
+
 	static const ds::BitMask parseMultitouchMode(const std::string& s);
 	static const std::string getMultitouchStringForBitMask(const ds::BitMask& mask);
 

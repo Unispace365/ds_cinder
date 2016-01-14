@@ -78,7 +78,7 @@ static ci::ColorA retrieveColorFromEngine(const std::string &color, const ds::ui
 }
 
 // Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb
-static ci::ColorA parseHexColor( const std::string &color ) {
+ci::ColorA XmlImporter::parseHexColor( const std::string &color ) {
 
 	std::string s = color;
 
@@ -99,7 +99,7 @@ static ci::ColorA parseHexColor( const std::string &color ) {
 	return ci::ColorA(r, g, b, a);
 }
 
-static ci::ColorA parseColor(const std::string &color, const ds::ui::SpriteEngine& engine){
+ci::ColorA XmlImporter::parseColor(const std::string &color, const ds::ui::SpriteEngine& engine){
 	std::string s = color;
 
 	//If we have colors in our engine, and this isn't a hex value
@@ -107,7 +107,7 @@ static ci::ColorA parseColor(const std::string &color, const ds::ui::SpriteEngin
 		return retrieveColorFromEngine(color, engine);
 	}
 
-	return parseHexColor(color);
+	return XmlImporter::parseHexColor(color);
 
 }
 
