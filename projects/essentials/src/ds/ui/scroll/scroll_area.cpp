@@ -100,45 +100,48 @@ void ScrollArea::checkBounds(){
 			scrollerSize = mScroller->getWidth();
 		}
 
+		bool canKeepAllScrollerInWindow = false;
 		if(scrollerSize <= scrollWindow){
 			mScrollable = false;
+			canKeepAllScrollerInWindow = true;
+
+			// only allowable position is zero
+			tweenDestination.set(0.0f, 0.0f, 0.0f);
 		} else {
-			bool isPerspective = getPerspective();
 			float scrollerPos(0.0f);
-			float theTop = scrollWindow - scrollerSize;
 			if(mVertical){
 				scrollerPos = mScroller->getPosition().y;
 			} else {
 				scrollerPos = mScroller->getPosition().x;
 			}
 
-			// Perspective y-position works in opposite
-			if(isPerspective && mVertical){
-				if(scrollerPos > 0){
-					// Can't scroll down any more
-					tweenDestination = ci::Vec3f::zero();
-				} else if(scrollerPos < theTop){
-					// Can't scroll up any more
-					tweenDestination = ci::Vec3f(0.0f, theTop, 0.0f);
+			// find the limits
+			float minPos(0.0f);
+			float maxPos(0.0f);
+
+			if(canKeepAllScrollerInWindow){
+				maxPos = scrollWindow - scrollerSize;
+			} else {
+				minPos = scrollWindow - scrollerSize;
+			}
+
+			if(scrollerPos < minPos){
+				// Can't scroll down any more
+				if(mVertical){
+					tweenDestination.set(0.0f, minPos, 0.0f);
 				} else {
-					// In bounds
-					doTween = false;
+					tweenDestination.set(minPos, 0.0f, 0.0f);
+				}
+			} else if(scrollerPos > maxPos){
+				// Can't scroll up any more
+				if(mVertical){
+					tweenDestination.set(0.0f, maxPos, 0.0f);
+				} else {
+					tweenDestination.set(maxPos, 0.0f, 0.0f);
 				}
 			} else {
-				if(scrollerPos > 0){
-					// Can't scroll down any more
-					tweenDestination = ci::Vec3f::zero();
-				} else if(scrollerPos < theTop){
-					// Can't scroll up any more
-					if(mVertical){
-						tweenDestination = ci::Vec3f(0.0f, theTop, 0.0f);
-					} else {
-						tweenDestination = ci::Vec3f(theTop, 0.0f, 0.0f);
-					}
-				} else {
-					// In bounds
-					doTween = false;
-				}
+				// In bounds
+				doTween = false;
 			}
 		}
 	}

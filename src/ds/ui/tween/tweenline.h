@@ -17,11 +17,11 @@ class Tweenline {
     Tweenline(cinder::Timeline&);
 
     template <typename T>
-	void                  apply(Sprite&, const SpriteAnim<T>&, const T& end,
-								float duration, ci::EaseFn easeFunction = ci::easeNone,
-								const std::function<void(void)>& finishFn = nullptr,
-								const float delay = 0,
-								const std::function<void(void)>& updateFn = nullptr);
+	typename ci::Tween<T>::Options	apply(Sprite&, const SpriteAnim<T>&, const T& end,
+									float duration, ci::EaseFn easeFunction = ci::easeNone,
+									const std::function<void(void)>& finishFn = nullptr,
+									const float delay = 0,
+									const std::function<void(void)>& updateFn = nullptr);
 
     // Clients can go nuts with full access to the cinder timeline
     cinder::Timeline&     getTimeline();
@@ -32,11 +32,11 @@ class Tweenline {
 };
 
 template <typename T>
-void Tweenline::apply(Sprite& s, const SpriteAnim<T>& a, const T& end,
-                       float duration, ci::EaseFn easeFunction,
-                       const std::function<void(void)>& finishFn,
-					   const float delay,
-					   const std::function<void(void)>& updateFn)
+typename ci::Tween<T>::Options	Tweenline::apply(Sprite& s, const SpriteAnim<T>& a, const T& end,
+								float duration, ci::EaseFn easeFunction,
+								const std::function<void(void)>& finishFn,
+								const float delay,
+								const std::function<void(void)>& updateFn)
 {
   auto&   anim = a.getAnim(s); 
 
@@ -47,6 +47,7 @@ void Tweenline::apply(Sprite& s, const SpriteAnim<T>& a, const T& end,
   ans.updateFn([s_ptr, value_ptr, assignF, updateFn](){ assignF(*value_ptr, *s_ptr); if(updateFn) updateFn(); });
   if (finishFn) ans.finishFn(finishFn);
   ans.delay(delay);
+  return ans;
 }
 
 } // namespace ui
