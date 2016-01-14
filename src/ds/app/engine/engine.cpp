@@ -270,6 +270,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		resourceLocation = Poco::Path::expand(resourceLocation);
 		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
 	}
+
+	setIdleTimeout(settings.getInt("idle_time", 0, 300));
 }
 
 void Engine::clearRoots(){
