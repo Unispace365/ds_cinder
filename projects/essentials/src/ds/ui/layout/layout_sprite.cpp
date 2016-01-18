@@ -246,8 +246,6 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		ds::ui::Sprite* chillin = (*it);
 
 		if(chillin->mLayoutUserType == kFillSize) {
-			// fill size only uses padding and fudge, but doesn't contribute to the flow
-			chillin->setPosition(chillin->mLayoutLPad + chillin->mLayoutFudge.x, chillin->mLayoutTPad + chillin->mLayoutFudge.y);
 			continue;
 		}
 		
@@ -298,7 +296,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		}
 		
 		// finally set the position of the child
-		chillin->setPosition(xPos + chillin->mLayoutFudge.x, yPos + chillin->mLayoutFudge.y);	
+		ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
+		chillin->setPosition(xPos + chillin->mLayoutFudge.x + childCenter.x, yPos + chillin->mLayoutFudge.y + childCenter.y);	
 		
 		// move along through the layout
 		if(vertical){
@@ -314,8 +313,6 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		for(auto it = chillins.begin(); it < chillins.end(); ++it){
 			ds::ui::Sprite* chillin = (*it);
 			if(chillin->mLayoutUserType == kFillSize){
-				chillin->setPosition(chillin->mLayoutLPad + chillin->mLayoutFudge.x, chillin->mLayoutTPad + chillin->mLayoutFudge.y);
-		
 				const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
@@ -335,6 +332,9 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				} else {
 					chillin->setSize(fixedW, fixedH);
 				}
+
+				ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
+				chillin->setPosition(chillin->mLayoutLPad + chillin->mLayoutFudge.x + childCenter.x, chillin->mLayoutTPad + chillin->mLayoutFudge.y + childCenter.y);
 			}
 		}
 	}
