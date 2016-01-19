@@ -297,7 +297,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		
 		// finally set the position of the child
 		ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
-		chillin->setPosition(xPos + chillin->mLayoutFudge.x + childCenter.x, yPos + chillin->mLayoutFudge.y + childCenter.y);	
+		ci::Vec2f totalOffset = chillin->mLayoutFudge + childCenter;
+		chillin->setPosition(xPos + totalOffset.x, yPos + totalOffset.y);	
 		
 		// move along through the layout
 		if(vertical){
@@ -333,8 +334,14 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 					chillin->setSize(fixedW, fixedH);
 				}
 
+				// It's possible, after all this, that the child still might not have the full size of (fixedW, fixedH).
+				// For example, images will be resized within their aspect, so they'll possibly be off.
+				// Compensate for this by centering the child within the area defined by the padding, and respecting the center and fudge factors.
+
+				ci::Vec2f centerOffset((fixedW - chillin->getScaleWidth()) * 0.5f, (fixedH - chillin->getScaleHeight()) * 0.5f);
 				ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
-				chillin->setPosition(chillin->mLayoutLPad + chillin->mLayoutFudge.x + childCenter.x, chillin->mLayoutTPad + chillin->mLayoutFudge.y + childCenter.y);
+				ci::Vec2f totalOffset = chillin->mLayoutFudge + childCenter + centerOffset;
+				chillin->setPosition(chillin->mLayoutLPad + totalOffset.x, chillin->mLayoutTPad + totalOffset.y);
 			}
 		}
 	}
