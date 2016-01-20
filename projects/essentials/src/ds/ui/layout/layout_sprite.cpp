@@ -232,12 +232,13 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 	if(numStretches > 0){
 		leftOver = maxSize - totalSize;
 		perStretch = leftOver / numStretches;
-	}
-
-	if(mOverallAlign == kMiddle || mOverallAlign == kCenter){
-		offset = maxSize / 2.0f - totalSize / 2.0f;
-	} else if(mOverallAlign == kBottom || mOverallAlign == kRight){
-		offset = maxSize - totalSize;
+	} else {
+		// we only calculate offsets if there are no stretches, because otherwise all the space will be used anyway
+		if(mOverallAlign == kMiddle || mOverallAlign == kCenter){
+			offset = maxSize / 2.0f - totalSize / 2.0f;
+		} else if(mOverallAlign == kBottom || mOverallAlign == kRight){
+			offset = maxSize - totalSize;
+		}
 	}
 
 	// now that we know the offset and per stretch size, go through the children again, set position for all fixed, flex, and stretch children 
