@@ -17,6 +17,8 @@ LayoutSprite::LayoutSprite(ds::ui::SpriteEngine& engine)
 	, mLayoutType(kLayoutVFlow)
 	, mSpacing(0.0f)
 	, mShrinkToChildren(kShrinkNone)
+	, mOverallAlign(0)
+	, mLayoutUpdatedFunction(nullptr)
 {
 
 }
