@@ -234,12 +234,13 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 	if(numStretches > 0){
 		leftOver = maxSize - totalSize;
 		perStretch = leftOver / numStretches;
-	}
-
-	if(mOverallAlign == kMiddle || mOverallAlign == kCenter){
-		offset = maxSize / 2.0f - totalSize / 2.0f;
-	} else if(mOverallAlign == kBottom || mOverallAlign == kRight){
-		offset = maxSize - totalSize;
+	} else {
+		// we only calculate offsets if there are no stretches, because otherwise all the space will be used anyway
+		if(mOverallAlign == kMiddle || mOverallAlign == kCenter){
+			offset = maxSize / 2.0f - totalSize / 2.0f;
+		} else if(mOverallAlign == kBottom || mOverallAlign == kRight){
+			offset = maxSize - totalSize;
+		}
 	}
 
 	// now that we know the offset and per stretch size, go through the children again, set position for all fixed, flex, and stretch children 
@@ -248,8 +249,6 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		ds::ui::Sprite* chillin = (*it);
 
 		if(chillin->mLayoutUserType == kFillSize) {
-			// fill size only uses padding and fudge, but doesn't contribute to the flow
-			chillin->setPosition(chillin->mLayoutLPad + chillin->mLayoutFudge.x, chillin->mLayoutTPad + chillin->mLayoutFudge.y);
 			continue;
 		}
 		
@@ -300,7 +299,9 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		}
 		
 		// finally set the position of the child
-		chillin->setPosition(xPos + chillin->mLayoutFudge.x, yPos + chillin->mLayoutFudge.y);	
+		ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
+		ci::Vec2f totalOffset = chillin->mLayoutFudge + childCenter;
+		chillin->setPosition(xPos + totalOffset.x, yPos + totalOffset.y);	
 		
 		// move along through the layout
 		if(vertical){
@@ -316,8 +317,6 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		for(auto it = chillins.begin(); it < chillins.end(); ++it){
 			ds::ui::Sprite* chillin = (*it);
 			if(chillin->mLayoutUserType == kFillSize){
-				chillin->setPosition(chillin->mLayoutLPad + chillin->mLayoutFudge.x, chillin->mLayoutTPad + chillin->mLayoutFudge.y);
-		
 				const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
@@ -337,6 +336,15 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				} else {
 					chillin->setSize(fixedW, fixedH);
 				}
+
+				// It's possible, after all this, that the child still might not have the full size of (fixedW, fixedH).
+				// For example, images will be resized within their aspect, so they'll possibly be off.
+				// Compensate for this by centering the child within the area defined by the padding, and respecting the center and fudge factors.
+
+				ci::Vec2f centerOffset((fixedW - chillin->getScaleWidth()) * 0.5f, (fixedH - chillin->getScaleHeight()) * 0.5f);
+				ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
+				ci::Vec2f totalOffset = chillin->mLayoutFudge + childCenter + centerOffset;
+				chillin->setPosition(chillin->mLayoutLPad + totalOffset.x, chillin->mLayoutTPad + totalOffset.y);
 			}
 		}
 	}

@@ -104,7 +104,7 @@ void layout_example::setupServer(){
 	rootLayout->setPosition(100.0f, 100.0f);
 	rootLayout->setSpacing(10.0f);
 	rootLayout->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
-	rootLayout->setShrinkToChildren(true);
+	rootLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkBoth);
 
 	ds::ui::Sprite* topFixed = new ds::ui::Sprite(mEngine, 50.0f, 100.0f);
 	topFixed->setColor(ci::Color(0.5f, 0.0f, 0.0f));
@@ -190,7 +190,7 @@ void layout_example::setupServer(){
 	horizontalLayout->setSpacing(10.0f);
 	horizontalLayout->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	horizontalLayout->setLayoutType(ds::ui::LayoutSprite::kLayoutHFlow);
-	horizontalLayout->setShrinkToChildren(true);
+	horizontalLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkBoth);
 
 	ds::ui::MultilineText* sampley = mGlobals.getText("sample:config").createMultiline(mEngine, horizontalLayout);
 	sampley->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
