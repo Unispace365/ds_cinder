@@ -54,12 +54,35 @@ static std::string sCurrentFile;
 
 
 
+std::string XmlImporter::ARGBToHex(ci::ColorA theColor){
+	return ARGBToHex((int)(theColor.a * 255.0f), (int)(theColor.r * 255.0f), (int)(theColor.g * 255.0f), (int)(theColor.b * 255.0f));
+}
+
+std::string XmlImporter::ARGBToHex(int aNum, int rNum, int gNum, int bNum){
+	std::string result;
+	result.append("#");
+	char a[255];
+	sprintf_s(a, "%.2X", aNum);
+	result.append(a);
+	char r[255];
+	sprintf_s(r, "%.2X", rNum);
+	result.append(r);
+	char g[255];
+	sprintf_s(g, "%.2X", gNum);
+	result.append(g);
+	char b[255];
+	sprintf_s(b, "%.2X", bNum);
+	result.append(b);
+	return result;
+}
+
 std::string XmlImporter::RGBToHex(ci::Color theColor){
 	return RGBToHex((int)(theColor.r * 255.0f), (int)(theColor.g * 255.0f), (int)(theColor.b * 255.0f));
 }
 
 std::string XmlImporter::RGBToHex(int rNum, int gNum, int bNum){
 	std::string result;
+	result.append("#");
 	char r[255];
 	sprintf_s(r, "%.2X", rNum);
 	result.append(r);
@@ -111,9 +134,9 @@ ci::ColorA XmlImporter::parseColor(const std::string &color, const ds::ui::Sprit
 
 }
 
-static std::string unparseColor(const ci::Color& color){
+static std::string unparseColor(const ci::ColorA& color){
 	// TODO: look up engine colors
-	return XmlImporter::RGBToHex(color);
+	return XmlImporter::ARGBToHex(color);
 }
 
 // Example: size="400, 400" the space after the comma is required to read the second and third token
@@ -179,7 +202,7 @@ const std::string XmlImporter::getMultitouchStringForBitMask(const ds::BitMask& 
 	using namespace ds::ui;
 	if(s & MULTITOUCH_INFO_ONLY){
 		return "info";
-	} else if(s & MULTITOUCH_NO_CONSTRAINTS){
+	} else if(s & MULTITOUCH_CAN_POSITION && s & MULTITOUCH_CAN_ROTATE && s & MULTITOUCH_CAN_SCALE){
 		return "all";
 	} else if(s & MULTITOUCH_CAN_POSITION){
 		if(s & MULTITOUCH_CAN_ROTATE){
@@ -189,14 +212,16 @@ const std::string XmlImporter::getMultitouchStringForBitMask(const ds::BitMask& 
 			return "pos_scale";
 		}
 
-		return "pos";
+		if(s & MULTITOUCH_CAN_POSITION_X && s & MULTITOUCH_CAN_POSITION_Y){
+			return "pos";
+		} else if(s & MULTITOUCH_CAN_POSITION_X){
+			return "pos_x";
+		} else if(s & MULTITOUCH_CAN_POSITION_Y){
+			return "pos_y";
+		}
 	} else if(s & MULTITOUCH_CAN_ROTATE){
 		return "rotate";
-	} else if(s & MULTITOUCH_CAN_POSITION_X){
-		return "pos_x";
-	} else if(s & MULTITOUCH_CAN_POSITION_Y){
-		return "pos_y";
-	} else if(s & MULTITOUCH_CAN_SCALE){
+	}  else if(s & MULTITOUCH_CAN_SCALE){
 		return "scale";
 	}
 

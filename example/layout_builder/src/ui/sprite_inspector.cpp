@@ -192,6 +192,10 @@ void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const 
 	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::RGBToHex(propertyValue)));
 }
 
+void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::ColorA propertyValue){
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::ARGBToHex(propertyValue)));
+}
+
 void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::Vec2f propertyValue){
 	std::wstringstream wss;
 	wss << propertyValue.x << L", " << propertyValue.y;
