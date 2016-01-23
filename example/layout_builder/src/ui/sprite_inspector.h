@@ -37,6 +37,7 @@ private:
 	void								addSpriteProperty(const std::wstring& propertyName, const ci::Vec2f propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const ci::Vec3f propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const ci::Color propertyValue);
+	void								addSpriteProperty(const std::wstring& propertyName, const ci::ColorA propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const float propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const int propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const std::wstring& propertyValue);

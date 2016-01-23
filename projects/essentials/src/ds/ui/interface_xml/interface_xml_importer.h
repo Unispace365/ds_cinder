@@ -45,6 +45,8 @@ public:
 	static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer = "");
 	static void setSpriteProperty(ds::ui::Sprite &sprite, const std::string& property, const std::string& value, const std::string &referer = "");
 
+	static std::string ARGBToHex(ci::ColorA color);
+	static std::string ARGBToHex(int aNum, int rNum, int gNum, int bNum);
 	static std::string RGBToHex(ci::Color color);
 	static std::string RGBToHex(int rNum, int gNum, int bNum);
 

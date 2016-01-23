@@ -43,4 +43,60 @@
 	<float name="connections:person_subhead:leading" value="0.5" />
 	<color name="connections:person_subhead:color" r="255" g="255" b="255" />
 	
+	<text  name="menu:title:name" value="guardian-light" />
+	<float name="menu:title:size" value="48" />
+	<float name="menu:title:leading" value="0.75" />
+	<color name="menu:title:color" r="0" g="46" b="82" />
+	
+	<text  name="menu:item:name" value="guardian-light" />
+	<float name="menu:item:size" value="21" />
+	<float name="menu:item:leading" value="0.75" />
+	<color name="menu:item:color" r="0" g="46" b="82" />
+
+	
+	<text  name="cover_page:title:name" value="guardian-bold" />
+	<float name="cover_page:title:size" value="21" />
+	<float name="cover_page:title:leading" value="0.75" />
+	<color name="cover_page:title:color" r="255" g="255" b="255" />
+	
+	<text  name="cover_page:body:name" value="guardian-light" />
+	<float name="cover_page:body:size" value="16" />
+	<float name="cover_page:body:leading" value="0.75" />
+	<color name="cover_page:body:color" r="255" g="255" b="255" />
+
+	<text  name="quote:quote:name" value="guardian-bold" />
+	<float name="quote:quote:size" value="42" />
+	<float name="quote:quote:leading" value="0.75" />
+	<color name="quote:quote:color" r="255" g="255" b="255" />
+	
+	<text  name="quote:attribution:name" value="guardian-light" />
+	<float name="quote:attribution:size" value="24" />
+	<float name="quote:attribution:leading" value="0.75" />
+	<color name="quote:attribution:color" r="255" g="255" b="255" />
+	
+	<text  name="after:stat:name" value="guardian-light" />
+	<float name="after:stat:size" value="116" />
+	<float name="after:stat:leading" value="0.75" />
+	<color name="after:stat:color" r="255" g="163" b="28" />
+	
+	<text  name="after:sub:name" value="guardian-light" />
+	<float name="after:sub:size" value="48" />
+	<float name="after:sub:leading" value="0.75" />
+	<color name="after:sub:color" r="255" g="163" b="28" />
+	
+	<text  name="after:body:name" value="guardian-light" />
+	<float name="after:body:size" value="30" />
+	<float name="after:body:leading" value="0.65" />
+	<color name="after:body:color" r="0" g="46" b="82" />
+	
+	<text  name="quiz:stat:name" value="guardian-light" />
+	<float name="quiz:stat:size" value="116" />
+	<float name="quiz:stat:leading" value="0.75" />
+	<color name="quiz:stat:color" r="255" g="255" b="255" />
+	
+	<text  name="quiz:sub:name" value="guardian-light" />
+	<float name="quiz:sub:size" value="30" />
+	<float name="quiz:sub:leading" value="0.75" />
+	<color name="quiz:sub:color" r="255" g="255" b="255" />
+	
 </settings>
