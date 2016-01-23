@@ -34,7 +34,7 @@ public:
 
 	void								setItemChangedCallback(std::function<void(const int currentItemIndex, const int totalItems)>);
 
-	virtual void						userInputReceived(Sprite* child = nullptr);
+	virtual void						userInputReceived();
 
 protected:
 	std::vector<MediaViewer*>			mViewers;

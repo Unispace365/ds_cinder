@@ -56,7 +56,7 @@ public:
 	void				showInterface();
 protected:
 
-	virtual void		userInputReceived(Sprite* child = nullptr);
+	virtual void		userInputReceived();
 
 	bool				mEmbedInterface;
 	bool				mInitialized;
