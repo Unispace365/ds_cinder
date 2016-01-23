@@ -377,7 +377,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 			if (shaderBase) {
 				shaderBase.unbind();
 				if (mSpriteShaders.size() > 0){
-					mFrameBuffer[mFboIndex]->unbindTexture();
+					if (mFrameBuffer[mFboIndex]) mFrameBuffer[mFboIndex]->unbindTexture();
 
 					ci::gl::scale(1.0f, 1.0f, 1.0f);           // invert Y axis so increasing Y goes down.
 					ci::gl::translate(0.0f, 0.0f, 0.0f);       // shift origin up to upper-left corner.
