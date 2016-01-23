@@ -33,7 +33,8 @@ namespace gstwrapper
 		, m_playFromPause(false)
 		, m_SeekTime(0)
 		, m_newLoop(false)
-	, m_Streaming(false)
+		, m_Streaming(false)
+		, mServer(true)
 {
 	gst_init( NULL, NULL );
 	m_CurrentPlayState = NOT_INITIALIZED;

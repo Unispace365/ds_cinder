@@ -227,8 +227,8 @@ void MediaSlideshow::setItemChangedCallback(std::function<void(const int current
 	mItemChangedCallback = func;
 }
 
-void MediaSlideshow::userInputReceived(Sprite* child){
-	ds::ui::Sprite::userInputReceived(child);
+void MediaSlideshow::userInputReceived(){
+	ds::ui::Sprite::userInputReceived();
 
 	if(mCurrentInterface){
 		mCurrentInterface->animateOn();

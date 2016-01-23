@@ -611,8 +611,8 @@ namespace ui {
 
 		void					setClipping(bool flag);
 		bool					getClipping() const;
-
-		virtual void			userInputReceived(Sprite* child = nullptr);
+		
+		virtual void			userInputReceived();
 		void					setSecondBeforeIdle(const double);
 		double					secondsToIdle() const;
 		bool					isIdling() const;

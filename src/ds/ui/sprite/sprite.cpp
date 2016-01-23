@@ -2162,9 +2162,9 @@ bool Sprite::isRotateTouches() const {
 	return ((mSpriteFlags&ROTATE_TOUCHES_F) != 0);
 }
 
-void Sprite::userInputReceived(Sprite* child) {
+void Sprite::userInputReceived() {
 	if (mParent) {
-		mParent->userInputReceived(this);
+		mParent->userInputReceived();
 	}
 	resetIdleTimer();
 }

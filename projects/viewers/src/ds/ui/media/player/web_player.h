@@ -21,7 +21,7 @@ public:
 
 	void								setMedia(const std::string mediaPath);
 
-	virtual void						userInputReceived(Sprite* child = nullptr);
+	virtual void						userInputReceived();
 	void								layout();
 
 	void								showInterface();
