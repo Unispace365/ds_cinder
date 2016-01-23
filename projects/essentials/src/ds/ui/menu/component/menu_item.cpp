@@ -20,9 +20,11 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 	, mClipper(nullptr)
 	, mIcon(nullptr)
 	, mIconGlow(nullptr)
+	, mIconsMatch(false)
 	, mActive(false)
 	, mLines(nullptr)
 	, mTitle(nullptr)
+	, mSubtitle(nullptr)
 {
 
 	if(mMenuItemModel.mIconHighlightedImage.empty()){
@@ -35,6 +37,10 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 
 	if(!mMenuItemModel.mIconHighlightedImage.empty()){
 		mIconGlow = new ds::ui::Image(mEngine, mMenuItemModel.mIconHighlightedImage);
+	}
+
+	if(mIcon && mIconGlow){
+		mIconsMatch = (mMenuItemModel.mIconNormalImage == mMenuItemModel.mIconHighlightedImage);
 	}
 
 	float iconHeight = mMenuConfig.mItemIconHeight;
@@ -56,24 +62,37 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 		mTitle = mEngine.getEngineCfg().getText(mMenuConfig.mItemTitleTextConfig).create(mEngine, this);
 	}
 
+	if(!mMenuConfig.mItemSubtitleTextConfig.empty()){
+		mSubtitle = mEngine.getEngineCfg().getText(mMenuConfig.mItemSubtitleTextConfig).create(mEngine, this);
+	}
+
 	float titlePositiony = thisSize.y * titleYPercent;
+	float subtitlePositiony = titlePositiony;
 	if(mTitle){
 		mTitle->setText(mMenuItemModel.mTitle);
 		ci::Vec2f titleSize = ci::Vec2f(mTitle->getWidth(), mTitle->getHeight());
-		mTitle->setPosition(thisSize.x / 2.0f - titleSize.x / 2.0f, titlePositiony);
+		mTitle->setPosition(thisSize.x * 0.5f - titleSize.x * 0.5f, titlePositiony);
 		mTitle->setOpacity(0.5f);
 		mClippy->addChildPtr(mTitle);
+		subtitlePositiony += (titleSize.y * 1.1f);
+	}
+
+	if(mSubtitle){
+		mSubtitle->setText(mMenuItemModel.mSubtitle);
+		ci::Vec2f titleSize = ci::Vec2f(mSubtitle->getWidth(), mSubtitle->getHeight());
+		mSubtitle->setPosition(thisSize.x * 0.5f - titleSize.x * 0.5f, subtitlePositiony);
+		mSubtitle->setOpacity(0.5f);
+		mClippy->addChildPtr(mSubtitle);
 	}
 
 	mClippy->setPosition(0.0f, -getHeight());
 
 	if(mIcon){
+		float newScale = iconHeight / mIcon->getHeight();
 		mClippy->addChild(*mIcon);
 		mIcon->setCenter(0.5f, 0.5f);
-
-		float newScale = iconHeight / mIcon->getHeight();
 		mIcon->setScale(newScale, newScale);
-		mIcon->setPosition(getWidth() / 2.0f, titlePositiony - (iconHeight*0.5f*newScale) - padding);
+		mIcon->setPosition(getWidth() * 0.5f, titlePositiony - (iconHeight * 0.5f * newScale) - padding);
 	}
 	if(mIcon && mIconGlow) {
 		mClippy->addChild(*mIconGlow);
@@ -128,7 +147,10 @@ void MenuItem::highlight(){
 		if(mTitle){
 			mTitle->tweenOpacity(1.0f, mMenuConfig.mAnimationDuration);
 		}
-		if(mIcon && mIconGlow) {
+		if(mSubtitle){
+			mSubtitle->tweenOpacity(1.0f, mMenuConfig.mAnimationDuration);
+		}
+		if(mIcon && mIconGlow && !mIconsMatch) {
 			mIcon->tweenOpacity(0.0f, mMenuConfig.mAnimationDuration);
 			mIconGlow->tweenOpacity(1.0f, mMenuConfig.mAnimationDuration);
 		}
@@ -142,7 +164,10 @@ void MenuItem::unhighlight(){
 		if(mTitle){
 			mTitle->tweenOpacity(0.5f, mMenuConfig.mAnimationDuration);
 		}
-		if(mIcon && mIconGlow) {
+		if(mSubtitle){
+			mSubtitle->tweenOpacity(0.5f, mMenuConfig.mAnimationDuration);
+		}
+		if(mIcon && mIconGlow && !mIconsMatch) {
 			mIcon->tweenOpacity(1.0f, mMenuConfig.mAnimationDuration);
 			mIconGlow->tweenOpacity(0.0f, mMenuConfig.mAnimationDuration);
 		}
