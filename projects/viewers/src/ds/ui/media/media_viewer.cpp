@@ -137,10 +137,19 @@ void MediaViewer::initialize(){
 		mContentAspectRatio = mPrimaryImage->getWidth() / mPrimaryImage->getHeight();
 		contentWidth = mPrimaryImage->getWidth();
 		contentHeight = mPrimaryImage->getHeight();
-	} else if(mediaType == ds::Resource::VIDEO_TYPE || mediaType == ds::Resource::VIDEO_STREAM_TYPE){
+	} else if(mediaType == ds::Resource::VIDEO_TYPE){
 		mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mVideoPlayer);
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
+
+		mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
+		contentWidth = mVideoPlayer->getWidth();
+		contentHeight = mVideoPlayer->getHeight();
+	} else if( mediaType == ds::Resource::VIDEO_STREAM_TYPE ){
+		mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
+		addChildPtr(mVideoPlayer);
+
+		mVideoPlayer->setResource(mResource);
 
 		mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
 		contentWidth = mVideoPlayer->getWidth();
