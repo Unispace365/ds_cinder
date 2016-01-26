@@ -49,6 +49,7 @@ private:
 
 	ds::ui::TouchMenu*	mTouchMenu;
 
+	ds::ui::Sprite*		mStreamerParent;
 	ds::ui::GstVideo*	mStreamer;
 
 	void				moveCamera(const ci::Vec3f& deltaMove);

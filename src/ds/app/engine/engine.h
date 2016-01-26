@@ -188,6 +188,10 @@ public:
 	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint );
 	virtual bool						shouldDiscardTouch( ci::Vec2f& p ){ return mTouchManager.shouldDiscardTouch(p); }
 
+	void								setTouchSmoothing(const bool doSmoothing);
+	const bool							getTouchSmoothing();
+	void								setTouchSmoothFrames(const int smoothFrames);
+
 	// Root support
 	const ci::Rectf&					getScreenRect() const;
 	// Utility to change touch mode

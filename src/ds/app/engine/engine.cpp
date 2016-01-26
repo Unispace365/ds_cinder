@@ -637,7 +637,7 @@ void Engine::setup(ds::App& app) {
 	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = 0;
-  
+
 	mUpdateParams.setDeltaTime(0.0f);
 	mUpdateParams.setElapsedTime(curr);
 
@@ -683,6 +683,8 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings)
 
 	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
+	setTouchSmoothing(mSettings.getBool("touch_smoothing", 0, true));
+	setTouchSmoothFrames(mSettings.getInt("touch_smooth_frames", 0, 5));
 
 	settings.setFrameRate(mData.mFrameRate);
 
@@ -858,6 +860,18 @@ void Engine::translateTouchPoint(ci::Vec2f& inOutPoint) {
 
 void Engine::nextTouchMode() {
 	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
+}
+
+void Engine::setTouchSmoothing(const bool doSmoothing){
+	mTouchManager.setTouchSmoothing(doSmoothing);
+}
+
+void Engine::setTouchSmoothFrames(const int smoothFrames){
+	mTouchManager.setTouchSmoothFrames(smoothFrames);
+}
+
+const bool Engine::getTouchSmoothing(){
+	return mTouchManager.getTouchSmoothing();
 }
 
 void Engine::writeSprites(std::ostream &s) const {

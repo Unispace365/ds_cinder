@@ -103,7 +103,7 @@
     <Filter Include="src\ds\app\engine\renderers">
       <UniqueIdentifier>{0d3f99b8-44cb-4266-b9aa-e57cc95746ad}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\sprite\touch">
+    <Filter Include="src\ds\ui\touch">
       <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
@@ -178,10 +178,10 @@
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_manager.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\util\bit_mask.h">
       <Filter>src\ds\util</Filter>
@@ -190,10 +190,10 @@
       <Filter>src\ds\math</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_process.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\multi_touch_constraints.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h">
       <Filter>src\ds\ui\sprite</Filter>
@@ -217,7 +217,7 @@
       <Filter>src\ds\data</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h">
       <Filter>src\ds\ui\sprite</Filter>
@@ -259,7 +259,7 @@
       <Filter>src\ds\util</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\tap_info.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\multiline_text.h">
       <Filter>src\ds\ui\sprite</Filter>
@@ -523,10 +523,10 @@
       <Filter>src\ds\ui\mesh_source</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\select_picking.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\picking.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\mesh_source\mesh_cache_service.h">
       <Filter>src\ds\ui\mesh_source</Filter>
@@ -544,13 +544,13 @@
       <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_mode.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\engine\engine_stats_view.h">
       <Filter>src\ds\app\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_translator.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\engine\engine_io_defs.h">
       <Filter>src\ds\app\engine</Filter>
@@ -562,16 +562,16 @@
       <Filter>src\ds\app</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\momentum.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\button_behaviour.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\engine\unique_id.h">
       <Filter>src\ds\app\engine</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\rotation_translator.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\IpEndpointName.h">
       <Filter>src\osc</Filter>
@@ -667,7 +667,7 @@
       <Filter>src\ds\query</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\draw_touch_view.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\circle.h">
       <Filter>src\ds\ui\sprite</Filter>
@@ -676,7 +676,7 @@
       <Filter>src\ds\network</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_event.h">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\gl\gl_state.h">
       <Filter>src\ds\gl</Filter>
@@ -747,16 +747,16 @@
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\util\bit_mask.cpp">
       <Filter>src\ds\util</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_process.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\thread\gl_thread.cpp">
       <Filter>src\ds\thread</Filter>
@@ -1050,13 +1050,13 @@
       <Filter>src\ds\ui\mesh_source</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\select_picking.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\app\app_defs.cpp">
       <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\picking.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\mesh_source\mesh_cache_service.cpp">
       <Filter>src\ds\ui\mesh_source</Filter>
@@ -1077,13 +1077,13 @@
       <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_mode.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp">
       <Filter>src\ds\app\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_translator.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\engine_io_defs.cpp">
       <Filter>src\ds\app\engine</Filter>
@@ -1095,16 +1095,16 @@
       <Filter>src\ds\app</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\momentum.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\button_behaviour.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\unique_id.cpp">
       <Filter>src\ds\app\engine</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\rotation_translator.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\IpEndpointName.cpp">
       <Filter>src\osc</Filter>
@@ -1158,7 +1158,7 @@
       <Filter>src\ds\app\engine\renderers</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\draw_touch_view.cpp">
-      <Filter>src\ds\ui\sprite\touch</Filter>
+      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\circle.cpp">
       <Filter>src\ds\ui\sprite</Filter>

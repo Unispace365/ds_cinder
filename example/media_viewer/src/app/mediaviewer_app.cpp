@@ -41,6 +41,7 @@ MediaViewer::MediaViewer()
 	, mTouchDebug(mEngine)
 	, mTouchMenu(nullptr)
 	, mStreamer(nullptr)
+	, mStreamerParent(nullptr)
 {
 
 
@@ -89,6 +90,9 @@ void MediaViewer::setupServer(){
 	
 	// add sprites
 	rootSprite.addChildPtr(new ViewerController(mGlobals));
+
+	mStreamerParent = new ds::ui::Sprite(mEngine);
+	rootSprite.addChildPtr(mStreamerParent);
 
 	mTouchMenu = new ds::ui::TouchMenu(mEngine);
 	rootSprite.addChildPtr(mTouchMenu);
@@ -212,10 +216,11 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 		mStreamer->startStream(mGlobals.getSettingsLayout().getText("streaming:pipeline", 0, ""),
 							  mGlobals.getSettingsLayout().getInt("streaming:width", 0, 640), 
 							  mGlobals.getSettingsLayout().getInt("streaming:height", 0, 480));
-		mEngine.getRootSprite().addChildPtr(mStreamer);
+		mStreamerParent->addChildPtr(mStreamer);
 		mStreamer->enable(true);
 		mStreamer->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
 		
+		mStreamerParent->addChildPtr(new ds::ui::Image(mEngine, "%APP%/data/images/sample.png"));
 	}
 }
 
