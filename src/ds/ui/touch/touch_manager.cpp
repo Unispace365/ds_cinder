@@ -72,8 +72,10 @@ void TouchManager::mouseTouchBegin(const ci::app::MouseEvent &event, int id){
 void TouchManager::inputBegin(const int fingerId, const ci::Vec2f& touchPos){
 	mDiscardTouchMap[fingerId] = false;
 
+	ci::Vec3f globalPoint = ci::Vec3f(touchPos, 0.0f);
+
 	TouchInfo touchInfo;
-	touchInfo.mCurrentGlobalPoint = ci::Vec3f(touchPos, 0.0f);
+	touchInfo.mCurrentGlobalPoint = globalPoint;
 	touchInfo.mFingerId = fingerId;
 	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
 	mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
@@ -141,17 +143,11 @@ void TouchManager::mouseTouchMoved(const ci::app::MouseEvent &event, int id){
 }
 
 void TouchManager::inputMoved(const int fingerId, const ci::Vec2f& touchPos){
-	TouchInfo touchInfo;
-	touchInfo.mCurrentGlobalPoint = ci::Vec3f(touchPos, 0.0f);
-	touchInfo.mFingerId = fingerId;
-	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
-	touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
-	touchInfo.mPhase = TouchInfo::Moved;
-	touchInfo.mPassedTouch = false;
-	touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
+
+	ci::Vec3f globalPoint = ci::Vec3f(touchPos, 0.0f);
 
 	if(mSmoothEnabled){
-		mTouchSmoothPoints[fingerId].push_back(touchInfo.mCurrentGlobalPoint);
+		mTouchSmoothPoints[fingerId].push_back(globalPoint);
 		if(mTouchSmoothPoints[fingerId].size() > mFramesToSmooth){
 			mTouchSmoothPoints[fingerId].erase(mTouchSmoothPoints[fingerId].begin());
 		}
@@ -167,8 +163,17 @@ void TouchManager::inputMoved(const int fingerId, const ci::Vec2f& touchPos){
 		}
 		xcomp /= deltas.size();
 		ycomp /= deltas.size();
-		touchInfo.mCurrentGlobalPoint = mTouchPreviousPoint[fingerId] + ci::Vec3f(xcomp, ycomp, 0.0f);
+		globalPoint = mTouchPreviousPoint[fingerId] + ci::Vec3f(xcomp, ycomp, 0.0f);
 	}
+
+	TouchInfo touchInfo;
+	touchInfo.mCurrentGlobalPoint = globalPoint;
+	touchInfo.mFingerId = fingerId;
+	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
+	touchInfo.mDeltaPoint = globalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
+	touchInfo.mPhase = TouchInfo::Moved;
+	touchInfo.mPassedTouch = false;
+	touchInfo.mPickedSprite = mFingerDispatcher[touchInfo.mFingerId];
 
 	if(mCapture){
 		mCapture->touchMoved(touchInfo);
@@ -181,7 +186,7 @@ void TouchManager::inputMoved(const int fingerId, const ci::Vec2f& touchPos){
 		mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo(touchInfo);
 	}
 
-	mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
+	mTouchPreviousPoint[touchInfo.mFingerId] = globalPoint;
 }
 
 
@@ -215,33 +220,21 @@ void TouchManager::mouseTouchEnded(const ci::app::MouseEvent &event, int id){
 }
 
 void TouchManager::inputEnded(const int fingerId, const ci::Vec2f& touchPos){
+	ci::Vec3f globalPoint = ci::Vec3f(touchPos, 0.0f);
+
+	if(mSmoothEnabled){
+		//ignore the smoothing for the end frame and just use the previous point
+		globalPoint = mTouchPreviousPoint[fingerId];
+	}
+
 	TouchInfo touchInfo;
-	touchInfo.mCurrentGlobalPoint = ci::Vec3f(touchPos, 0.0f);
+	touchInfo.mCurrentGlobalPoint = globalPoint;
 	touchInfo.mFingerId = fingerId;
 	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId];
-	touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
+	touchInfo.mDeltaPoint = globalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
 	touchInfo.mPhase = TouchInfo::Removed;
 	touchInfo.mPassedTouch = false;
 	touchInfo.mPickedSprite = nullptr;
-
-	if(mSmoothEnabled){
-		if(mTouchSmoothPoints[fingerId].size() > mFramesToSmooth){
-			mTouchSmoothPoints[fingerId].erase(mTouchSmoothPoints[fingerId].begin());
-		}
-		std::vector<ci::Vec3f> deltas;
-		for(int i = 1; i < mTouchSmoothPoints[fingerId].size(); i++){
-			deltas.push_back(mTouchSmoothPoints[fingerId][i] - mTouchSmoothPoints[fingerId][i - 1]);
-		}
-		float xcomp(0.0f);
-		float ycomp(0.0f);
-		for(int i = 0; i < deltas.size(); i++){
-			xcomp += deltas[i].x;
-			ycomp += deltas[i].y;
-		}
-		xcomp /= deltas.size();
-		ycomp /= deltas.size();
-		touchInfo.mCurrentGlobalPoint = mTouchPreviousPoint[fingerId] + ci::Vec3f(xcomp, ycomp, 0.0f);
-	}
 
 	mRotationTranslator.up(touchInfo);
 
