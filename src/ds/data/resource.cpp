@@ -458,15 +458,20 @@ bool Resource::query(const Resource::Id& id, Resource* outThumb) {
 }
 
 void Resource::setTypeFromString(const std::string& typeChar) {
-	if (FONT_TYPE_SZ == typeChar) mType = FONT_TYPE;
-	else if (IMAGE_TYPE_SZ == typeChar) mType = IMAGE_TYPE;
-	else if (IMAGE_SEQUENCE_TYPE_SZ == typeChar) mType = IMAGE_SEQUENCE_TYPE;
-	else if (PDF_TYPE_SZ == typeChar) mType = PDF_TYPE;
-	else if (VIDEO_TYPE_SZ == typeChar) mType = VIDEO_TYPE;
-	else if (VIDEO_STREAM_TYPE_SZ == typeChar) mType = VIDEO_STREAM_TYPE;
-	else if (WEB_TYPE_SZ == typeChar) mType = WEB_TYPE;
-	else if (AUDIO_TYPE_SZ == typeChar) mType = VIDEO_TYPE;
-	else mType = ERROR_TYPE;
+	mType = makeTypeFromString(typeChar);
+}
+
+
+const int Resource::makeTypeFromString(const std::string& typeChar){
+	if(FONT_TYPE_SZ == typeChar) return FONT_TYPE;
+	else if(IMAGE_TYPE_SZ == typeChar) return IMAGE_TYPE;
+	else if(IMAGE_SEQUENCE_TYPE_SZ == typeChar) return IMAGE_SEQUENCE_TYPE;
+	else if(PDF_TYPE_SZ == typeChar) return PDF_TYPE;
+	else if(VIDEO_TYPE_SZ == typeChar) return VIDEO_TYPE;
+	else if(VIDEO_STREAM_TYPE_SZ == typeChar) return VIDEO_STREAM_TYPE;
+	else if(WEB_TYPE_SZ == typeChar) return WEB_TYPE;
+	else if(AUDIO_TYPE_SZ == typeChar) return VIDEO_TYPE;
+	else return ERROR_TYPE;
 }
 
 const int Resource::parseTypeFromFilename(const std::string& newMedia){

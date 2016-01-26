@@ -167,6 +167,8 @@ public:
 
 	/// Expects a single-character type (v, i, p, w, f, s)
 	void					setTypeFromString(const std::string& typeChar);
+	/// Return the int value for the string type
+	static const int		makeTypeFromString(const std::string& typeChar);
 
 	/// Returns the type parsed from the filename, primarily using the file extension.
 	/// Creates an error type if it's a file type (not web type) and the file doesn't exist

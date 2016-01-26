@@ -159,6 +159,15 @@ ImageResource::ImageResource(const ds::Resource& res, const std::string& ip_key,
 							 , mFlags(flags) {
 }
 
+
+ImageResource::ImageResource(const ds::Resource::Id& id, const std::string& ip_key,
+							 const std::string& ip_params, const int flags)
+							 : mResourceId(id)
+							 , mIpKey(ip_key)
+							 , mIpParams(ip_params)
+							 , mFlags(flags) {
+}
+
 ImageGenerator* ImageResource::newGenerator(SpriteEngine& e) const {
 	ds::Resource			r(mResource);
 	if (r.empty() && !mResourceId.empty()) {
