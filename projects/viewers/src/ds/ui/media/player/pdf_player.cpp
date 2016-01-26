@@ -48,7 +48,6 @@ void PDFPlayer::setMedia(const std::string mediaPath){
 
 		if(mPdfInterface){
 			mPdfInterface->sendToFront();
-			mPdfInterface->hide();
 		}
 
 	}  
