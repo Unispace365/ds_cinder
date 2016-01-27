@@ -78,8 +78,8 @@ void TouchManager::inputBegin(const int fingerId, const ci::Vec2f& touchPos){
 	touchInfo.mCurrentGlobalPoint = globalPoint;
 	touchInfo.mFingerId = fingerId;
 	touchInfo.mStartPoint = mTouchStartPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
-	mTouchPreviousPoint[touchInfo.mFingerId] = touchInfo.mCurrentGlobalPoint;
-	touchInfo.mDeltaPoint = touchInfo.mCurrentGlobalPoint - mTouchPreviousPoint[touchInfo.mFingerId];
+	mTouchPreviousPoint[fingerId] = globalPoint;
+	touchInfo.mDeltaPoint = ci::Vec3f::zero();
 
 	// Catch a case where two "touch added" calls get processed for the same fingerID
 	// WITHOUT a released in the middle. This would case the previous sprite to be left with an erroneous finger
@@ -257,13 +257,16 @@ void TouchManager::clearFingers( const std::vector<int> &fingers ){
 		if ( dispatcher != mFingerDispatcher.end() )
 			mFingerDispatcher.erase(dispatcher);
 
-		auto startPoint = mTouchStartPoint.find(*i);
-		if ( startPoint != mTouchStartPoint.end() )
-			mTouchStartPoint.erase(startPoint);
-
-		auto prevPoint = mTouchPreviousPoint.find(*i);
-		if ( prevPoint != mTouchPreviousPoint.end() )
-			mTouchPreviousPoint.erase(prevPoint);
+		// Testing disabling this part of the clearing.
+		// If you disable a sprite during a touch phase, keeping these points around allows 
+		// the touch capture drawing to still work correctly, but the sprite won't recieve anything
+// 		auto startPoint = mTouchStartPoint.find(*i);
+// 		if ( startPoint != mTouchStartPoint.end() )
+// 			mTouchStartPoint.erase(startPoint);
+// 
+// 		auto prevPoint = mTouchPreviousPoint.find(*i);
+// 		if ( prevPoint != mTouchPreviousPoint.end() )
+// 			mTouchPreviousPoint.erase(prevPoint);
 	}
 }
 
