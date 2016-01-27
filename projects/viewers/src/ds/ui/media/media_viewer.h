@@ -10,6 +10,7 @@ namespace ds {
 namespace ui {
 class VideoPlayer;
 class PDFPlayer;
+class StreamPlayer;
 class WebPlayer;
 class MediaInterface;
 
@@ -62,8 +63,9 @@ protected:
 	bool				mInitialized;
 	ds::Resource		mResource;
 
-	VideoPlayer*		mVideoPlayer;
 	PDFPlayer*			mPDFPlayer;
+	StreamPlayer*		mStreamPlayer;
+	VideoPlayer*		mVideoPlayer;
 	WebPlayer*			mWebPlayer;
 	ds::ui::Image*		mThumbnailImage;
 	ds::ui::Image*		mPrimaryImage;
