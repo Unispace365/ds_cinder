@@ -8,6 +8,7 @@
 #include "ds/ui/media/player/pdf_player.h"
 #include "ds/ui/media/player/web_player.h"
 #include "ds/ui/media/player/video_player.h"
+#include "ds/ui/media/player/stream_player.h"
 
 #include "ds/ui/media/interface/pdf_interface.h"
 #include "ds/ui/media/interface/video_interface.h"
@@ -37,6 +38,14 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 		ds::ui::VideoInterface* vi = new VideoInterface(engine, ci::Vec2f(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
 		parentSprite->addChildPtr(vi);
 		vi->linkVideo(vidPlayer->getVideo());
+		outputMi = vi;
+	}
+
+	ds::ui::StreamPlayer* streamPlayer = dynamic_cast<ds::ui::StreamPlayer*>(mediaPlayer);
+	if(streamPlayer){
+		ds::ui::VideoInterface* vi = new VideoInterface(engine, ci::Vec2f(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+		parentSprite->addChildPtr(vi);
+		vi->linkVideo(streamPlayer->getVideo());
 		outputMi = vi;
 	}
 

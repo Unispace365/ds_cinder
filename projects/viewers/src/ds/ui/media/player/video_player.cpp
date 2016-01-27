@@ -24,59 +24,6 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 {
 }
 
-void VideoPlayer::setResource(const ds::Resource& resource){
-	
-	if(resource.getType() == ds::Resource::VIDEO_TYPE){
-		setMedia(resource.getAbsoluteFilePath());
-		return;
-	}
-
-	if(mVideo){
-		mVideo->release();
-		mVideo = nullptr;
-		if(mVideoInterface){
-			mVideoInterface->linkVideo(nullptr);
-		}
-	}
-
-	mVideo = new ds::ui::GstVideo(mEngine);
-	mVideo->generateAudioBuffer(true);
-	mVideo->setLooping(true);
-
-	mVideo->setResource(resource);
-
-	addChildPtr(mVideo);
-
-	if(mVideoInterface){
-		mVideoInterface->release();
-		mVideoInterface = nullptr;
-	}
-
-	if(mEmbedInterface){
-		mVideoInterface = dynamic_cast<VideoInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
-		if(mVideoInterface){
-			mVideoInterface->sendToFront();
-		}
-	}
-
-	if(mVideoInterface){
-		if(mShowInterfaceAtStart){
-			mVideoInterface->show();
-		} else {
-			mVideoInterface->setOpacity(0.0f);
-			mVideoInterface->hide();
-		}
-
-		if(resource.getType() == ds::Resource::VIDEO_STREAM_TYPE){
-			mVideoInterface->hide();
-		}
-
-	}
-
-	setSize(mVideo->getWidth(), mVideo->getHeight());
-
-}
-
 void VideoPlayer::setMedia(const std::string mediaPath){
 	if(mVideo){
 		mVideo->release();

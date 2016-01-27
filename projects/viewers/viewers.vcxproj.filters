@@ -63,6 +63,9 @@
     <ClCompile Include="src\ds\ui\media\media_interface_builder.cpp">
       <Filter>src\ds\ui\media</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\media\player\stream_player.cpp">
+      <Filter>src\ds\ui\media\player</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\panel\base_panel.h">
@@ -103,6 +106,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\media_interface_builder.h">
       <Filter>src\ds\ui\media</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\player\stream_player.h">
+      <Filter>src\ds\ui\media\player</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

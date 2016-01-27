@@ -12,6 +12,7 @@
 
 #include "ds/ui/media/player/video_player.h"
 #include "ds/ui/media/player/pdf_player.h"
+#include "ds/ui/media/player/stream_player.h"
 #include "ds/ui/media/player/web_player.h"
 
 #include "ds/ui/media/media_interface.h"
@@ -24,6 +25,7 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	: BasePanel(eng)
 	, mInitialized(false)
 	, mVideoPlayer(nullptr)
+	, mStreamPlayer(nullptr)
 	, mPDFPlayer(nullptr)
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
@@ -41,6 +43,7 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath
 	, mResource(mediaPath, ds::Resource::parseTypeFromFilename(mediaPath))
 	, mVideoPlayer(nullptr)
 	, mPDFPlayer(nullptr)
+	, mStreamPlayer(nullptr)
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
@@ -57,6 +60,7 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& resource
 	, mResource(resource)
 	, mVideoPlayer(nullptr)
 	, mPDFPlayer(nullptr)
+	, mStreamPlayer(nullptr)
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
@@ -146,15 +150,16 @@ void MediaViewer::initialize(){
 		contentWidth = mVideoPlayer->getWidth();
 		contentHeight = mVideoPlayer->getHeight();
 	} else if( mediaType == ds::Resource::VIDEO_STREAM_TYPE ){
-		mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
-		addChildPtr(mVideoPlayer);
+		
+		mStreamPlayer = new StreamPlayer(mEngine, mEmbedInterface);
+		addChildPtr(mStreamPlayer);
 
-		mVideoPlayer->setResource(mResource);
+		mStreamPlayer->setResource(mResource);
 
-		mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
-		contentWidth = mVideoPlayer->getWidth();
-		contentHeight = mVideoPlayer->getHeight();
-
+		mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
+		contentWidth = mStreamPlayer->getWidth();
+		contentHeight = mStreamPlayer->getHeight();
+		
 	} else if(mediaType == ds::Resource::PDF_TYPE){
 		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mPDFPlayer);
@@ -236,6 +241,9 @@ void MediaViewer::uninitialize() {
 	if(mVideoPlayer){
 		mVideoPlayer->release();
 	}
+	if(mStreamPlayer){
+		mStreamPlayer->release();
+	}
 	if(mPDFPlayer){
 		mPDFPlayer->release();
 	}
@@ -261,6 +269,10 @@ void MediaViewer::onLayout(){
 
 	if(mVideoPlayer){
 		mVideoPlayer->setSize(getWidth(), getHeight());
+	}
+
+	if(mStreamPlayer){
+		mStreamPlayer->setSize(getWidth(), getHeight());
 	}
 
 	if(mPDFPlayer){
@@ -316,6 +328,10 @@ void MediaViewer::stopContent(){
 	if(mVideoPlayer){
 		mVideoPlayer->stop();
 	}
+
+	if(mStreamPlayer){
+		mStreamPlayer->stop();
+	}
 }
 
 
@@ -326,6 +342,11 @@ ds::ui::Sprite* MediaViewer::getPlayer(){
 
 	if(mPDFPlayer){
 		return mPDFPlayer;
+	}
+
+
+	if(mStreamPlayer){
+		return mStreamPlayer;
 	}
 
 	if(mWebPlayer){

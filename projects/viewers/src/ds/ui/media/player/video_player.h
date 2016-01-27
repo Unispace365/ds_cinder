@@ -23,7 +23,6 @@ class VideoPlayer : public ds::ui::Sprite  {
 public:
 	VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
 
-	void								setResource(const ds::Resource& resource);
 	void								setMedia(const std::string mediaPath);
 
 	void								layout();
