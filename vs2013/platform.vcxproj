@@ -103,6 +103,7 @@
     <ClInclude Include="..\src\ds\gl\uniform.h" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\math\math_func.h" />
+    <ClInclude Include="..\src\ds\math\Quaternion.h" />
     <ClInclude Include="..\src\ds\math\random.h" />
     <ClInclude Include="..\src\ds\network\http_client.h" />
     <ClInclude Include="..\src\ds\network\network_info.h" />
