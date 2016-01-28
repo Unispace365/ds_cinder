@@ -794,6 +794,7 @@ namespace ui {
 								mCenter,
 								mScale,
 								mRotation;
+		bool					mRotationOrderZYX;
 		float					mOpacity;
 		ci::Color				mColor;
 		ci::Rectf				mClippingBounds;

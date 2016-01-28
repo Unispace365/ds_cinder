@@ -83,6 +83,7 @@ public:
 		return cinder::math<T>::acos( cos_angle ) * 2;
 	}
 
+	// these are only valid for ZYX rotation order
 	T getPitch() const
 	{
 		return cinder::math<T>::atan2( (T)2 * ( v.y * v.z + w * v.x ), w * w - v.x * v.x - v.y * v.y + v.z * v.z );
@@ -90,9 +91,6 @@ public:
 
 	T getYaw() const
 	{
-		// NOTE: here's the wrong-ness that this whole class exists to correct
-		// we need arcsin, not sin
-		//return cinder::math<T>::sin( (T)-2 * ( v.x * v.z - w * v.y ) );
 		return cinder::math<T>::asin( (T)-2 * ( v.x * v.z - w * v.y ) );
 	}
 
@@ -329,10 +327,18 @@ public:
 		T Sz = cinder::math<T>::sin( zRotation );
 
 		// multiply it out
-		w = Cx*Cy*Cz - Sx*Sy*Sz;
-		v.x = Sx*Cy*Cz + Cx*Sy*Sz;
-		v.y = Cx*Sy*Cz - Sx*Cy*Sz;
-		v.z = Cx*Cy*Sz + Sx*Sy*Cx;
+		w =		Cx*Cy*Cz - Sx*Sy*Sz;
+		v.x =	Sx*Cy*Cz + Cx*Sy*Sz;
+		v.y =	Cx*Sy*Cz - Sx*Cy*Sz;
+		v.z =	Cx*Cy*Sz + Sx*Sy*Cz;
+
+		/*
+		// if we ever get to XYZ order, here you go
+		w =		Sx*Sy*Sz + Cx*Cy*Cz;
+		v.x =	Cx*Cy*Sz - Sx*Sy*Cz;
+		v.y =	Sx*Cy*Sz + Cx*Sy*Cz;
+		v.z =	Sx*Cy*Cz - Cx*Sy*Sz;
+		*/
 	}
 
 	void getAxisAngle( Vec3<T> *axis, T *radians ) const

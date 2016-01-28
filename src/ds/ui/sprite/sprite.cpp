@@ -133,6 +133,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mHeight = 0;
 	mCenter = ci::Vec3f(0.0f, 0.0f, 0.0f);
 	mRotation = ci::Vec3f(0.0f, 0.0f, 0.0f);
+	mRotationOrderZYX = false;
 	mScale = ci::Vec3f(1.0f, 1.0f, 1.0f);
 	mUpdateTransform = true;
 	mParent = nullptr;
@@ -785,9 +786,15 @@ void Sprite::buildTransform() const{
 
 	mTransformation.setToIdentity();
 	mTransformation.translate(ci::Vec3f(mPosition.x, mPosition.y, mPosition.z));
-	mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
-	mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
-	mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+	if(mRotationOrderZYX){
+		mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+	} else {
+		mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+	}
 	mTransformation.scale(ci::Vec3f(mScale.x, mScale.y, mScale.z));
 	mTransformation.translate(ci::Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
 	//mTransformation.setToIdentity();
