@@ -837,7 +837,17 @@ bool Engine::hideMouse() const {
 
 ds::ui::Sprite* Engine::getHit(const ci::Vec3f& point) {
 	for (auto it=mRoots.rbegin(), end=mRoots.rend(); it!=end; ++it) {
-		ds::ui::Sprite*		s = (*it)->getHit(point);
+		
+		ci::Vec3f pointToUse = point;
+		if((*it)->getSprite()->getPerspective()){
+			// scale the point from world size to screen size (which is the size of the perspective root)
+			pointToUse.set(
+				(point.x / mData.mWorldSize.x) * mData.mScreenRect.getWidth(),
+				(point.y / mData.mWorldSize.y) * mData.mScreenRect.getHeight(),
+				0.0f
+			);
+		}
+		ds::ui::Sprite* s = (*it)->getHit(pointToUse);
 		if (s) return s;
 	}
 	return nullptr;

@@ -1207,9 +1207,7 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick){
 		ci::Vec2f ptA_s;
 		ci::Vec2f ptB_s;
 		ci::Vec2f ptC_s;
-		ci::Vec2f ptD_s;
-
-
+		
 		ptA.x -= mCenter.x*w;
 		ptA.y += (1 - mCenter.y)*h;
 		ptA_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptA)));
