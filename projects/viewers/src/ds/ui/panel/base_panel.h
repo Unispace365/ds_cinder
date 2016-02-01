@@ -81,6 +81,8 @@ public:
 
 	const float						getContentAspectRatio(){ return mContentAspectRatio; }
 
+	void							checkBounds(const bool immediate = false);
+
 protected:
 	virtual void					updateServer(const ds::UpdateParams &updateParams);
 
@@ -91,8 +93,7 @@ protected:
 
 	void							handleTouchInfo(const ds::ui::TouchInfo& ti);
 	void							setSizeLimits();
-	void							checkBounds(const bool immediate = false);
-
+	
 	float							mContentAspectRatio;
 	float							mTopPad;
 	float							mLeftPad;
