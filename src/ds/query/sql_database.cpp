@@ -116,6 +116,7 @@ SqlDatabase::SqlDatabase(const std::string& sDB, int flags, int *errorCode)
 		
 	} else {
 		// Actually a fatal error but ...
+		// GN, much much later: I dunno how this is a fatal error. Maybe your app can run just fine without this particular database. Just sayin'
 		DS_LOG_ERROR("  SqlDatabase: Unable to access the database " << sDB << " (SQLite error " << result << ")." << endl);
 		
 		// Why were we living with 10 seconds of sleep for so long?

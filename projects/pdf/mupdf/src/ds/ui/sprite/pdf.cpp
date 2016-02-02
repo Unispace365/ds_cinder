@@ -107,7 +107,7 @@ Pdf &Pdf::setResourceId(const ds::Resource::Id &resourceId) {
 		}
 	}
 	catch (std::exception const& ex) {
-		DS_DBG_CODE(std::cout << "ERROR Pdf::setResourceFilename() ex=" << ex.what() << std::endl);
+		DS_LOG_WARNING("ERROR Pdf::setResourceFilename() ex=" << ex.what());
 		return *this;
 	}
 	return *this;

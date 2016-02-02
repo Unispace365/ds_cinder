@@ -1207,9 +1207,7 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick){
 		ci::Vec2f ptA_s;
 		ci::Vec2f ptB_s;
 		ci::Vec2f ptC_s;
-		ci::Vec2f ptD_s;
-
-
+		
 		ptA.x -= mCenter.x*w;
 		ptA.y += (1 - mCenter.y)*h;
 		ptA_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptA)));
@@ -2085,12 +2083,33 @@ void Sprite::setupIntermediateFrameBuffers(){
 		format.enableDepthBuffer(false);
 
 		if (getWidth() > 1.0f) {
-			if (mFrameBuffer[0])
-				delete mFrameBuffer[0];
-			if (mFrameBuffer[1])
-				delete mFrameBuffer[1];
-			mFrameBuffer[0] = new ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), format);
-			mFrameBuffer[1] = new ci::gl::Fbo(static_cast<int>(getWidth()), static_cast<int>(getHeight()), format);
+			const int newWidth = static_cast<int>(getWidth());
+			const int newHeigh = static_cast<int>(getHeight());
+
+			bool createBuffer = true;
+			if(mFrameBuffer[0]){
+				if(mFrameBuffer[0]->getWidth() == newWidth && mFrameBuffer[0]->getHeight() == newHeigh){
+					createBuffer = false;
+				} else {
+					delete mFrameBuffer[0];
+				}
+			}
+
+			if(createBuffer){
+				mFrameBuffer[0] = new ci::gl::Fbo(newWidth, newHeigh, format);
+			}
+
+			createBuffer = true;
+			if(mFrameBuffer[1]){
+				if(mFrameBuffer[1]->getWidth() == newWidth && mFrameBuffer[1]->getHeight() == newHeigh){
+					createBuffer = false;
+				} else {
+					delete mFrameBuffer[1];
+				}
+			}
+			if(createBuffer){
+				mFrameBuffer[1] = new ci::gl::Fbo(newWidth, newHeigh, format);
+			}
 
 		}
 	}
