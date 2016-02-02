@@ -168,8 +168,6 @@ PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, c
 	mCamera.setFov(p.mFov);
 	mCamera.setNearClip(p.mNearPlane);
 	mCamera.setFarClip(p.mFarPlane);
-
-	mSprite->setUseDepthBuffer(true);
 }
 
 void PerspRoot::setup(const Settings& s) {
