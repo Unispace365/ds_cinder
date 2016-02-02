@@ -66,9 +66,7 @@ private:
 			}
 			return ans;
 		} catch(std::exception& ex) {
-			#ifdef _DEBUG
-				std::cout << "ofxPdfViewDs.cpp::Load::setTo() exception=" << ex.what() << std::endl;
-			#endif
+			DS_LOG_WARNING("pdf_res.cpp::Load::setTo() exception=" << ex.what());
 		}
 		DS_LOG_WARNING("ds::ui::sprite::Pdf unable to load document \"" << file << "\".");
 		return false;

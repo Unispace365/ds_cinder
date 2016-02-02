@@ -220,7 +220,7 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 		mStreamer->enable(true);
 		mStreamer->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);
 		
-		mStreamerParent->addChildPtr(new ds::ui::Image(mEngine, "%APP%/data/images/sample.png"));
+	//	mStreamerParent->addChildPtr(new ds::ui::Image(mEngine, "%APP%/data/images/sample.png"));
 	}
 }
 
