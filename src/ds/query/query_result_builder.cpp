@@ -100,8 +100,11 @@ void ResultBuilder::build(const bool columnNames)
 		}
 		for (int k=0; k<count; ++k) {
 			const int	ct = getColumnType(k);
-			if (ct == QUERY_NO_TYPE) mError = true;
-			else mResult.mCol.push_back(ct);
+			if(ct == QUERY_NO_TYPE){
+				mError = true;
+			} else {
+				mResult.mCol.push_back(ct);
+			}
 			if (columnNames) {
 				mResult.mColNames.push_back(getColumnName(k));
 			}
