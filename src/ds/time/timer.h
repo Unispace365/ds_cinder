@@ -15,16 +15,20 @@ namespace time {
  */
 class Timer {
 public:
+
 	Timer();
+	Timer(bool start);
 
 	void						restart();
 	// Restart with the supplied offset. If this value is positive,
 	// you will get negative elapsed values.
+	void						stop();
 	void						restart(const double offset);
 	double						elapsed();
-
+	
 private:
 	Poco::Timestamp::TimeVal	mStart;
+	bool						mIsStarted;
 };
 
 } // namespace time
