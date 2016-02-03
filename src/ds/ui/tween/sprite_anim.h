@@ -71,6 +71,7 @@ public:
 															const ci::EaseFn& = ci::easeNone,
 															const std::function<void(void)>& finishFn = nullptr,
 															const std::function<void(void)>& updateFn = nullptr);
+
 	void									tweenOpacity(	const float opacity, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
 															const std::function<void(void)>& finishFn = nullptr,
@@ -91,7 +92,22 @@ public:
 															const ci::EaseFn& = ci::easeNone,
 															const std::function<void(void)>& finishFn = nullptr,
 															const std::function<void(void)>& updateFn = nullptr);
+
+	void									completeTweenColor(const bool callFinishFunction = false);
+	void									completeTweenOpacity(const bool callFinishFunction = false);
+	void									completeTweenPosition(const bool callFinishFunction = false);
+	void									completeTweenRotation(const bool callFinishFunction = false);
+	void									completeTweenScale(const bool callFinishFunction = false);
+	void									completeTweenSize(const bool callFinishFunction = false);
+
+	/// if any animation is running
+	const bool								animationRunning();
+
+	/// Stops all of the above tweens immediately without calling the finish function. Will leave the sprite in the middle of a tween if a tween was running
 	void									animStop();
+
+	/// Stops any running tweens and set the tween to the end, optionally calling the finish function, optionally recursing into all children
+	void									completeAllTweens(const bool callFinishFunctions = false, const bool recursive = false);
 
 	/// Runs any script set as the animate on script. Optionally runs through any children sprites and runs those as well.
 	/// You can also add delta delay so each element runs a bit later than the one before. The first one runs with it's default delay
@@ -141,6 +157,31 @@ private:
 	ci::Vec3f								mAnimateOnScaleTarget;
 	ci::Vec3f								mAnimateOnPositionTarget;
 	float									mAnimateOnOpacityTarget;
+
+	//---- For completing tweens, yaaay ----------------------------//
+	bool									mInternalColorRunning;
+	ci::Color								mInternalColorTweenTarget;
+	std::function<void(void)>				mInternalColorTweenFinishFunction;
+
+	bool									mInternalSizeRunning;
+	ci::Vec3f								mInternalSizeTweenTarget;
+	std::function<void(void)>				mInternalSizeTweenFinishFunction;
+
+	bool									mInternalScaleRunning;
+	ci::Vec3f								mInternalScaleTweenTarget;
+	std::function<void(void)>				mInternalScaleTweenFinishFunction;
+
+	bool									mInternalPositionRunning;
+	ci::Vec3f								mInternalPositionTweenTarget;
+	std::function<void(void)>				mInternalPositionTweenFinishFunction;
+
+	bool									mInternalRotationRunning;
+	ci::Vec3f								mInternalRotationTweenTarget;
+	std::function<void(void)>				mInternalRotationTweenFinishFunction;
+
+	bool									mInternalOpacityRunning;
+	float									mInternalOpacityTweenTarget;
+	std::function<void(void)>				mInternalOpacityTweenFinishFunction;
 
 };
 

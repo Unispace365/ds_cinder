@@ -13,22 +13,22 @@ namespace ui {
  * A wrapper around the Cinder timeline that provides some sprite-based management.
  */
 class Tweenline {
-  public:
-    Tweenline(cinder::Timeline&);
+public:
+	Tweenline(cinder::Timeline&);
 
-    template <typename T>
+	template <typename T>
 	typename ci::Tween<T>::Options	apply(Sprite&, const SpriteAnim<T>&, const T& end,
-									float duration, ci::EaseFn easeFunction = ci::easeNone,
-									const std::function<void(void)>& finishFn = nullptr,
-									const float delay = 0,
-									const std::function<void(void)>& updateFn = nullptr);
+										  float duration, ci::EaseFn easeFunction = ci::easeNone,
+										  const std::function<void(void)>& finishFn = nullptr,
+										  const float delay = 0,
+										  const std::function<void(void)>& updateFn = nullptr);
 
-    // Clients can go nuts with full access to the cinder timeline
-    cinder::Timeline&     getTimeline();
+	// Clients can go nuts with full access to the cinder timeline
+	cinder::Timeline&     getTimeline();
 
-  private:
-    Tweenline();
-    cinder::Timeline&     mTimeline;
+private:
+	Tweenline();
+	cinder::Timeline&     mTimeline;
 };
 
 template <typename T>

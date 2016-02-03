@@ -55,8 +55,9 @@ void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti){
 	}
 	sendToFront();
 	userInputReceived();
-	setOpacity(1.0f);
-	setScale(1.0f);
+
+	completeTweenScale();
+	completeTweenOpacity();
 
 	if(ti.mPhase == ds::ui::TouchInfo::Added && ti.mFingerIndex == 0){
 

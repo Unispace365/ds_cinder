@@ -20,9 +20,39 @@ SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	, mAnimateOnPositionTarget(0.0f, 0.0f, 0.0f)
 	, mAnimateOnOpacityTarget(1.0f)
 	, mAnimateOnScript("")
+	, mInternalColorRunning(false)
+	, mInternalColorTweenTarget(ci::Color::white())
+	, mInternalColorTweenFinishFunction(nullptr)
+	, mInternalSizeRunning(false)
+	, mInternalSizeTweenTarget(ci::Vec3f::zero())
+	, mInternalSizeTweenFinishFunction(nullptr)
+	, mInternalScaleRunning(false)
+	, mInternalScaleTweenTarget(ci::Vec3f::zero())
+	, mInternalScaleTweenFinishFunction(nullptr)
+	, mInternalPositionRunning(false)
+	, mInternalPositionTweenTarget(ci::Vec3f::zero())
+	, mInternalPositionTweenFinishFunction(nullptr)
+	, mInternalRotationRunning(false)
+	, mInternalRotationTweenTarget(ci::Vec3f::zero())
+	, mInternalRotationTweenFinishFunction(nullptr)
+	, mInternalOpacityRunning(false)
+	, mInternalOpacityTweenTarget(0.0f)
+	, mInternalOpacityTweenFinishFunction(nullptr)
 {}
 
 SpriteAnimatable::~SpriteAnimatable() {
+	mInternalColorRunning = false;
+	mInternalColorTweenFinishFunction = nullptr;
+	mInternalSizeRunning = false;
+	mInternalSizeTweenFinishFunction = nullptr;
+	mInternalScaleRunning = false;
+	mInternalScaleTweenFinishFunction = nullptr;
+	mInternalPositionRunning = false;
+	mInternalPositionTweenFinishFunction = nullptr;
+	mInternalRotationRunning = false;
+	mInternalRotationTweenFinishFunction = nullptr;
+	mInternalOpacityRunning = false;
+	mInternalOpacityTweenFinishFunction = nullptr;
 }
 
 const SpriteAnim<ci::Color>& SpriteAnimatable::ANIM_COLOR() {
@@ -76,37 +106,125 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_ROTATION() {
 void SpriteAnimatable::tweenColor(const ci::Color& c, const float duration, const float delay,
 								  const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimColor.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_COLOR(), c, duration, ease, finishFn, delay, updateFn);
+	mInternalColorTweenTarget = c;
+	mInternalColorTweenFinishFunction = finishFn;
+	mInternalColorRunning = true;
+	mEngine.getTweenline().apply(mOwner, ANIM_COLOR(), c, duration, ease, [this]{ mInternalColorRunning = false; if(mInternalColorTweenFinishFunction) mInternalColorTweenFinishFunction(); }, delay, updateFn);
 }
 
 void SpriteAnimatable::tweenOpacity(const float opacity, const float duration, const float delay,
 									const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimOpacity.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_OPACITY(), opacity, duration, ease, finishFn, delay, updateFn);
+	mInternalOpacityTweenTarget = opacity;
+	mInternalOpacityTweenFinishFunction = finishFn;
+	mInternalOpacityRunning = true;
+	mEngine.getTweenline().apply(mOwner, ANIM_OPACITY(), opacity, duration, ease, [this]{ mInternalOpacityRunning = false; if(mInternalOpacityTweenFinishFunction) mInternalOpacityTweenFinishFunction(); }, delay, updateFn);
 }
 
 void SpriteAnimatable::tweenPosition(const ci::Vec3f& pos, const float duration, const float delay,
 									 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimPosition.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_POSITION(), pos, duration, ease, finishFn, delay, updateFn);
+	mInternalPositionTweenTarget = pos;
+	mInternalPositionTweenFinishFunction = finishFn;
+	mInternalPositionRunning = true;
+	mEngine.getTweenline().apply(mOwner, ANIM_POSITION(), pos, duration, ease, [this]{ mInternalPositionRunning = false; if(mInternalPositionTweenFinishFunction) mInternalPositionTweenFinishFunction(); }, delay, updateFn);
 }
 
 void SpriteAnimatable::tweenRotation(const ci::Vec3f& rot, const float duration, const float delay,
 									 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
-	mAnimRotation.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_ROTATION(), rot, duration, ease, finishFn, delay, updateFn);
+	mAnimRotation.stop(); 
+	mInternalRotationTweenTarget = rot;
+	mInternalRotationTweenFinishFunction = finishFn;
+	mInternalRotationRunning = true;
+	mEngine.getTweenline().apply(mOwner, ANIM_ROTATION(), rot, duration, ease, [this]{ mInternalRotationRunning = false; if(mInternalRotationTweenFinishFunction) mInternalRotationTweenFinishFunction(); }, delay, updateFn);
 }
 
 void SpriteAnimatable::tweenScale(const ci::Vec3f& scale, const float duration, const float delay,
 								  const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimScale.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_SCALE(), scale, duration, ease, finishFn, delay, updateFn);
+	mInternalScaleTweenTarget = scale;
+	mInternalScaleTweenFinishFunction = finishFn;
+	mInternalScaleRunning = true;
+	mEngine.getTweenline().apply(mOwner, ANIM_SCALE(), scale, duration, ease, [this]{ mInternalScaleRunning = false; if(mInternalScaleTweenFinishFunction) mInternalScaleTweenFinishFunction(); }, delay, updateFn);
 }
 
 void SpriteAnimatable::tweenSize(const ci::Vec3f& size, const float duration, const float delay,
 								 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	mAnimSize.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_SIZE(), size, duration, ease, finishFn, delay, updateFn);
+	mInternalSizeTweenTarget = size;
+	mInternalSizeTweenFinishFunction = finishFn;
+	mInternalSizeRunning = true;
+	mEngine.getTweenline().apply(mOwner, ANIM_SIZE(), size, duration, ease, [this]{ mInternalSizeRunning = false; if(mInternalSizeTweenFinishFunction) mInternalSizeTweenFinishFunction(); }, delay, updateFn);
+}
+
+void SpriteAnimatable::completeTweenColor(const bool callFinishFunction){
+	mAnimColor.stop();
+	if(mInternalColorRunning){
+		mInternalColorRunning = false;
+		mOwner.setColor(mInternalColorTweenTarget);
+		if(callFinishFunction && mInternalColorTweenFinishFunction){
+			mInternalColorTweenFinishFunction();
+		}
+	}
+}
+
+void SpriteAnimatable::completeTweenOpacity(const bool callFinishFunction){
+	mAnimOpacity.stop();
+	if(mInternalOpacityRunning){
+		mInternalOpacityRunning = false;
+		mOwner.setOpacity(mInternalOpacityTweenTarget);
+		if(callFinishFunction && mInternalOpacityTweenFinishFunction){
+			mInternalOpacityTweenFinishFunction();
+		}
+	}
+}
+
+void SpriteAnimatable::completeTweenPosition(const bool callFinishFunction){
+	mAnimPosition.stop();
+	if(mInternalPositionRunning){
+		mInternalPositionRunning = false;
+		mOwner.setPosition(mInternalPositionTweenTarget);
+		if(callFinishFunction && mInternalPositionTweenFinishFunction){
+			mInternalPositionTweenFinishFunction();
+		}
+	}
+}
+
+void SpriteAnimatable::completeTweenRotation(const bool callFinishFunction){
+	mAnimRotation.stop();
+	if(mInternalRotationRunning){
+		mInternalRotationRunning = false;
+		mOwner.setRotation(mInternalRotationTweenTarget);
+		if(callFinishFunction && mInternalRotationTweenFinishFunction){
+			mInternalRotationTweenFinishFunction();
+		}
+	}
+}
+
+void SpriteAnimatable::completeTweenScale(const bool callFinishFunction){
+	mAnimScale.stop();
+	if(mInternalScaleRunning){
+		mInternalScaleRunning = false;
+		mOwner.setScale(mInternalScaleTweenTarget);
+		if(callFinishFunction && mInternalScaleTweenFinishFunction){
+			mInternalScaleTweenFinishFunction();
+		}
+	}
+}
+
+void SpriteAnimatable::completeTweenSize(const bool callFinishFunction){
+	mAnimSize.stop();
+	if(mInternalSizeRunning){
+		mInternalSizeRunning = false;
+		mOwner.setSizeAll(mInternalSizeTweenTarget);
+		if(callFinishFunction && mInternalSizeTweenFinishFunction){
+			mInternalSizeTweenFinishFunction();
+		}
+	}
+}
+
+const bool SpriteAnimatable::animationRunning(){
+	return mInternalColorRunning || mInternalSizeRunning || mInternalScaleRunning || mInternalRotationRunning || mInternalPositionRunning || mInternalOpacityRunning;
 }
 
 void SpriteAnimatable::animStop() {
@@ -115,6 +233,33 @@ void SpriteAnimatable::animStop() {
 	mAnimPosition.stop();
 	mAnimScale.stop();
 	mAnimSize.stop();
+	mAnimRotation.stop();
+
+	mInternalColorRunning = false;
+	mInternalSizeRunning = false;
+	mInternalScaleRunning = false;
+	mInternalPositionRunning = false;
+	mInternalRotationRunning = false;
+	mInternalOpacityRunning = false;
+}
+
+void SpriteAnimatable::completeAllTweens(const bool callFinishFunctions, const bool recursive){
+	completeTweenColor(callFinishFunctions);
+	completeTweenOpacity(callFinishFunctions);
+	completeTweenPosition(callFinishFunctions);
+	completeTweenRotation(callFinishFunctions);
+	completeTweenScale(callFinishFunctions);
+	completeTweenSize(callFinishFunctions);
+
+	if(recursive){
+		std::vector<ds::ui::Sprite*>& chillins = mOwner.getChildren();
+		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
+			Sprite*		s(*it);
+			if(s) {
+				s->completeAllTweens(callFinishFunctions, true);
+			}
+		}
+	}
 }
 
 void SpriteAnimatable::tweenAnimateOn(const bool recursive, const float delay, const float deltaDelay){
