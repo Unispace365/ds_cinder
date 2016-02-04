@@ -320,9 +320,6 @@ void GstVideo::drawLocalClient(){
 	}
 
 	if (mFrameTexture && mDrawable){
-		if (getPerspective()){
-			mFrameTexture.setFlipped(true);
-		}
 		if (mColorType == kColorTypeShaderTransform){
 			ci::gl::disableDepthRead();
 			ci::gl::disableDepthWrite();
@@ -333,9 +330,16 @@ void GstVideo::drawLocalClient(){
 				if (mVFrameTexture) mVFrameTexture.bind(4);
 
 			}
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			if(getPerspective()){
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, mHeight, mWidth, 0.0f));
+			} else {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			}
 
 		} else {
+			if (getPerspective()){
+			 	mFrameTexture.setFlipped(true);
+			}
 			if (mFrameTexture) mFrameTexture.bind(0);
 			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 		}
