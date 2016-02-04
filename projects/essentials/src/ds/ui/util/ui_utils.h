@@ -112,6 +112,78 @@ static void insetRectInRectWithAlign(ci::Rectf& rect1, const ci::Rectf& rect2, A
 	}
 }
 
+static void ColorToHSV(const ci::Color& rgb, float* h, float* s, float* v) {
+	float minRGB = fminf(rgb.r, fminf(rgb.g, rgb.b));
+	float maxRGB = fmaxf(rgb.r, fmaxf(rgb.g, rgb.b));
+	*v = maxRGB;
+	float deltaRGB = maxRGB - minRGB;
+	if(maxRGB == 0.0f) {
+		*s = 0.0f;
+		*h = -1.0f;
+	} else {
+		*s = deltaRGB / maxRGB;
+		if(rgb.r == maxRGB) {
+			*h = (rgb.g - rgb.b) / deltaRGB;
+		} else if(rgb.g == maxRGB) {
+			*h = 2.0f + (rgb.b - rgb.r) / deltaRGB;
+		} else {
+			*h = 4.0f + (rgb.r - rgb.g) / deltaRGB;
+		}
+		*h *= 60.0f;				
+		if(*h < 0.0f) {
+			*h += 360.0f;
+		}
+	}
+}
+
+static void HSVToColor(float h, float s, float v, ci::Color* rgb )
+{
+	float r, g, b;
+	if(s == 0.0f) {
+		r = g = b = v;
+	} else {
+		int sector = (int)floor(h / 60.0f);
+		float remainder = (h - ((float)sector * 60.0f)) / 60.0f;
+		float p = v * (1.0f - s);
+		float q = v * (1.0f - s * remainder);
+		float t = v * (1.0f - s * (1.0f - remainder));
+		switch(sector) {
+			case 0:
+				r = v;
+				g = t;
+				b = p;
+				break;
+			case 1:
+				r = q;
+				g = v;
+				b = p;
+				break;
+			case 2:
+				r = p;
+				g = v;
+				b = t;
+				break;
+			case 3:
+				r = p;
+				g = q;
+				b = v;
+				break;
+			case 4:
+				r = t;
+				g = p;
+				b = v;
+				break;
+			default:
+				r = v;
+				g = p;
+				b = q;
+				break;
+		}
+	}
+	rgb->set(r, g, b);
+}
+
+
 } // namespace ui
 } // namespace ds
 
