@@ -113,8 +113,6 @@ protected:
 
 	std::function<void()>			mLayoutCallback;
 
-private:
-
 	virtual void					onSizeChanged();
 };
 
