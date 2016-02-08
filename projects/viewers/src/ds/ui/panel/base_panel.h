@@ -113,6 +113,13 @@ protected:
 
 	std::function<void()>			mLayoutCallback;
 
+private:
+
+	// This method is intentially private. 
+	// The reason is that your layout code should go into layout(), and may be called
+	// at any time, not just when the view changes size. So your layout code should be lightweight
+	// Having this be protected or public could lead to duplicate layout codepaths, making debugging tricky
+	// If you need something to update with the size changes, override onLayout() and put your code there.
 	virtual void					onSizeChanged();
 };
 
