@@ -105,10 +105,11 @@ public:
 	/// individual components running checks
 	const bool								getPositionTweenIsRunning();
 	const bool								getRotationTweenIsRunning();
-	const bool								getSizeTweenIsRunning();
 	const bool								getScaleTweenIsRunning();
+	const bool								getSizeTweenIsRunning();
 	const bool								getOpacityTweenIsRunning();
 	const bool								getColorTweenIsRunning();
+	const bool								getNormalizeTweenIsRunning();
 
 	/// Stops all of the above tweens immediately without calling the finish function. Will leave the sprite in the middle of a tween if a tween was running
 	void									animStop();
@@ -118,15 +119,17 @@ public:
 	void									animSizeStop();
 	void									animOpacityStop();
 	void									animColorStop();
+	void									animNormalizedStop();
 
 	/// Stops any running tweens and set the tween to the end, optionally calling the finish function, optionally recursing into all children
 	void									completeAllTweens(const bool callFinishFunctions = false, const bool recursive = false);
-	void									completeTweenColor(const bool callFinishFunction = false);
-	void									completeTweenOpacity(const bool callFinishFunction = false);
 	void									completeTweenPosition(const bool callFinishFunction = false);
 	void									completeTweenRotation(const bool callFinishFunction = false);
 	void									completeTweenScale(const bool callFinishFunction = false);
 	void									completeTweenSize(const bool callFinishFunction = false);
+	void									completeTweenOpacity(const bool callFinishFunction = false);
+	void									completeTweenColor(const bool callFinishFunction = false);
+	void									completeTweenNormalized(const bool callFinishFunction = false);
 
 	/// Runs any script set as the animate on script. Optionally runs through any children sprites and runs those as well.
 	/// You can also add delta delay so each element runs a bit later than the one before. The first one runs with it's default delay
@@ -166,10 +169,9 @@ public:
 	ci::Anim<ci::Vec3f>						mAnimScale;
 	ci::Anim<ci::Vec3f>						mAnimSize;
 	ci::Anim<ci::Vec3f>						mAnimRotation;
-
 	ci::Anim<float>							mAnimNormalized;
 
-	float									getNormalized(){ return mNormalized; }
+	float									getNormalizedTweenValue(){ return mNormalizedTweenValue; }
 
 private:
 	Sprite&									mOwner;
@@ -181,7 +183,8 @@ private:
 	ci::Vec3f								mAnimateOnPositionTarget;
 	float									mAnimateOnOpacityTarget;
 
-	float									mNormalized;
+	float									mNormalizedTweenValue;
+
 	//---- For completing tweens, yaaay ----------------------------//
 	ci::TweenRef<ci::Vec3f>					mInternalPositionCinderTweenRef;
 	ci::TweenRef<ci::Vec3f>					mInternalScaleCinderTweenRef;
@@ -189,6 +192,7 @@ private:
 	ci::TweenRef<ci::Vec3f>					mInternalRotationCinderTweenRef;
 	ci::TweenRef<ci::Color>					mInternalColorCinderTweenRef;
 	ci::TweenRef<float>						mInternalOpacityCinderTweenRef;
+	ci::TweenRef<float>						mInternalNormalizedCinderTweenRef;
 
 };
 

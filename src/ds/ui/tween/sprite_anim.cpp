@@ -20,13 +20,14 @@ SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	, mAnimateOnPositionTarget(0.0f, 0.0f, 0.0f)
 	, mAnimateOnOpacityTarget(1.0f)
 	, mAnimateOnScript("")
-	, mNormalized(0.0f)
+	, mNormalizedTweenValue(0.0f)
 	, mInternalColorCinderTweenRef(nullptr)
 	, mInternalScaleCinderTweenRef(nullptr)
 	, mInternalRotationCinderTweenRef(nullptr)
 	, mInternalPositionCinderTweenRef(nullptr)
 	, mInternalSizeCinderTweenRef(nullptr)
 	, mInternalOpacityCinderTweenRef(nullptr)
+	, mInternalNormalizedCinderTweenRef(nullptr)
 {}
 
 SpriteAnimatable::~SpriteAnimatable() {
@@ -36,6 +37,7 @@ SpriteAnimatable::~SpriteAnimatable() {
 	mInternalPositionCinderTweenRef = nullptr;
 	mInternalSizeCinderTweenRef = nullptr;
 	mInternalOpacityCinderTweenRef = nullptr;
+	mInternalNormalizedCinderTweenRef = nullptr;
 }
 
 const SpriteAnim<ci::Color>& SpriteAnimatable::ANIM_COLOR() {
@@ -88,9 +90,9 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_ROTATION() {
 
 const SpriteAnim<float>& SpriteAnimatable::ANIM_NORMALIZED() {
 	static ds::ui::SpriteAnim<float>  ANIM(
-		[](ds::ui::Sprite& s)->ci::Anim<float>& { s.mNormalized = 0.0f; return s.mAnimNormalized; },
-		[](ds::ui::Sprite& s)->float { return s.mNormalized; },
-		[](const float& v, ds::ui::Sprite& s) { s.mNormalized = v; });
+		[](ds::ui::Sprite& s)->ci::Anim<float>& { s.mNormalizedTweenValue = 0.0f; return s.mAnimNormalized; },
+		[](ds::ui::Sprite& s)->float { return s.mNormalizedTweenValue; },
+		[](const float& v, ds::ui::Sprite& s) { s.mNormalizedTweenValue = v; });
 	return ANIM;
 }
 
@@ -138,9 +140,12 @@ void SpriteAnimatable::tweenSize(const ci::Vec3f& size, const float duration, co
 
 void SpriteAnimatable::tweenNormalized(const float duration, const float delay,
 									const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
-	mAnimNormalized.stop();
-	mEngine.getTweenline().apply(mOwner, ANIM_NORMALIZED(), 1.0f, duration, ease, finishFn, delay, updateFn);
+	animNormalizedStop();
+	auto options = mEngine.getTweenline().apply(mOwner, ANIM_NORMALIZED(), 1.0f, duration, ease, finishFn, delay, updateFn);
+	mInternalNormalizedCinderTweenRef = options.operator ci::TweenRef<float>();
 }
+
+
 void SpriteAnimatable::completeTweenColor(const bool callFinishFunction){
 	if(mInternalColorCinderTweenRef){
 		if(getColorTweenIsRunning()){
@@ -219,8 +224,26 @@ void SpriteAnimatable::completeTweenSize(const bool callFinishFunction){
 	}
 }
 
+void SpriteAnimatable::completeTweenNormalized(const bool callFinishFunction){
+	if(mInternalNormalizedCinderTweenRef){
+		if(getSizeTweenIsRunning()){
+			mAnimSize.stop();
+			mNormalizedTweenValue = (mInternalNormalizedCinderTweenRef->getEndValue());
+			if(callFinishFunction){
+				auto finishFunc = mInternalNormalizedCinderTweenRef->getFinishFn();
+				if(finishFunc) finishFunc();
+			}
+		}
+	}
+}
 const bool SpriteAnimatable::animationRunning(){
-	return getOpacityTweenIsRunning() || getPositionTweenIsRunning() || getScaleTweenIsRunning() || getSizeTweenIsRunning() || getRotationTweenIsRunning() || getColorTweenIsRunning();
+	return getOpacityTweenIsRunning() 
+		|| getPositionTweenIsRunning() 
+		|| getScaleTweenIsRunning() 
+		|| getSizeTweenIsRunning() 
+		|| getRotationTweenIsRunning() 
+		|| getColorTweenIsRunning() 
+		|| getNormalizeTweenIsRunning();
 }
 
 const bool SpriteAnimatable::getPositionTweenIsRunning(){
@@ -241,6 +264,10 @@ const bool SpriteAnimatable::getOpacityTweenIsRunning(){
 const bool SpriteAnimatable::getColorTweenIsRunning(){
 	return (mInternalColorCinderTweenRef && !mAnimColor.isComplete());
 }
+const bool SpriteAnimatable::getNormalizeTweenIsRunning(){
+	return (mInternalNormalizedCinderTweenRef && !mAnimNormalized.isComplete());
+}
+
 void SpriteAnimatable::animStop() {
 	animPositionStop();
 	animRotationStop();
@@ -248,6 +275,7 @@ void SpriteAnimatable::animStop() {
 	animSizeStop();
 	animOpacityStop();
 	animColorStop();
+	animNormalizedStop();
 }
 
 void SpriteAnimatable::animPositionStop(){
@@ -280,6 +308,11 @@ void SpriteAnimatable::animColorStop(){
 	mInternalColorCinderTweenRef = nullptr;
 }
 
+void SpriteAnimatable::animNormalizedStop(){
+	mAnimNormalized.stop();
+	mInternalNormalizedCinderTweenRef = nullptr;
+}
+
 void SpriteAnimatable::completeAllTweens(const bool callFinishFunctions, const bool recursive){
 	completeTweenColor(callFinishFunctions);
 	completeTweenOpacity(callFinishFunctions);
@@ -287,6 +320,7 @@ void SpriteAnimatable::completeAllTweens(const bool callFinishFunctions, const b
 	completeTweenRotation(callFinishFunctions);
 	completeTweenScale(callFinishFunctions);
 	completeTweenSize(callFinishFunctions);
+	completeTweenNormalized(callFinishFunctions);
 
 	if(recursive){
 		std::vector<ds::ui::Sprite*>& chillins = mOwner.getChildren();
