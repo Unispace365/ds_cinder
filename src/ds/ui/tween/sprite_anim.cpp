@@ -20,39 +20,21 @@ SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	, mAnimateOnPositionTarget(0.0f, 0.0f, 0.0f)
 	, mAnimateOnOpacityTarget(1.0f)
 	, mAnimateOnScript("")
-	, mInternalColorRunning(false)
-	, mInternalColorTweenTarget(ci::Color::white())
-	, mInternalColorTweenFinishFunction(nullptr)
-	, mInternalSizeRunning(false)
-	, mInternalSizeTweenTarget(ci::Vec3f::zero())
-	, mInternalSizeTweenFinishFunction(nullptr)
-	, mInternalScaleRunning(false)
-	, mInternalScaleTweenTarget(ci::Vec3f::zero())
-	, mInternalScaleTweenFinishFunction(nullptr)
-	, mInternalPositionRunning(false)
-	, mInternalPositionTweenTarget(ci::Vec3f::zero())
-	, mInternalPositionTweenFinishFunction(nullptr)
-	, mInternalRotationRunning(false)
-	, mInternalRotationTweenTarget(ci::Vec3f::zero())
-	, mInternalRotationTweenFinishFunction(nullptr)
-	, mInternalOpacityRunning(false)
-	, mInternalOpacityTweenTarget(0.0f)
-	, mInternalOpacityTweenFinishFunction(nullptr)
+	, mInternalColorCinderTweenRef(nullptr)
+	, mInternalScaleCinderTweenRef(nullptr)
+	, mInternalRotationCinderTweenRef(nullptr)
+	, mInternalPositionCinderTweenRef(nullptr)
+	, mInternalSizeCinderTweenRef(nullptr)
+	, mInternalOpacityCinderTweenRef(nullptr)
 {}
 
 SpriteAnimatable::~SpriteAnimatable() {
-	mInternalColorRunning = false;
-	mInternalColorTweenFinishFunction = nullptr;
-	mInternalSizeRunning = false;
-	mInternalSizeTweenFinishFunction = nullptr;
-	mInternalScaleRunning = false;
-	mInternalScaleTweenFinishFunction = nullptr;
-	mInternalPositionRunning = false;
-	mInternalPositionTweenFinishFunction = nullptr;
-	mInternalRotationRunning = false;
-	mInternalRotationTweenFinishFunction = nullptr;
-	mInternalOpacityRunning = false;
-	mInternalOpacityTweenFinishFunction = nullptr;
+	mInternalColorCinderTweenRef = nullptr;
+	mInternalScaleCinderTweenRef = nullptr;
+	mInternalRotationCinderTweenRef = nullptr;
+	mInternalPositionCinderTweenRef = nullptr;
+	mInternalSizeCinderTweenRef = nullptr;
+	mInternalOpacityCinderTweenRef = nullptr;
 }
 
 const SpriteAnim<ci::Color>& SpriteAnimatable::ANIM_COLOR() {
@@ -105,142 +87,183 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_ROTATION() {
 
 void SpriteAnimatable::tweenColor(const ci::Color& c, const float duration, const float delay,
 								  const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
-	mAnimColor.stop();
-	mInternalColorTweenTarget = c;
-	mInternalColorTweenFinishFunction = finishFn;
-	mInternalColorRunning = true;
-	mEngine.getTweenline().apply(mOwner, ANIM_COLOR(), c, duration, ease, [this]{ mInternalColorRunning = false; if(mInternalColorTweenFinishFunction) mInternalColorTweenFinishFunction(); }, delay, updateFn);
+	animColorStop();
+	auto options = mEngine.getTweenline().apply(mOwner, ANIM_COLOR(), c, duration, ease, finishFn, delay, updateFn);
+	mInternalColorCinderTweenRef = options.operator ci::TweenRef<ci::Color>();
 }
 
 void SpriteAnimatable::tweenOpacity(const float opacity, const float duration, const float delay,
 									const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
-	mAnimOpacity.stop();
-	mInternalOpacityTweenTarget = opacity;
-	mInternalOpacityTweenFinishFunction = finishFn;
-	mInternalOpacityRunning = true;
-	mEngine.getTweenline().apply(mOwner, ANIM_OPACITY(), opacity, duration, ease, [this]{ mInternalOpacityRunning = false; if(mInternalOpacityTweenFinishFunction) mInternalOpacityTweenFinishFunction(); }, delay, updateFn);
+	animOpacityStop();
+	auto options = mEngine.getTweenline().apply(mOwner, ANIM_OPACITY(), opacity, duration, ease, finishFn, delay, updateFn);
+	mInternalOpacityCinderTweenRef = options.operator ci::TweenRef<float>();
 }
 
 void SpriteAnimatable::tweenPosition(const ci::Vec3f& pos, const float duration, const float delay,
 									 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
-	mAnimPosition.stop();
-	mInternalPositionTweenTarget = pos;
-	mInternalPositionTweenFinishFunction = finishFn;
-	mInternalPositionRunning = true;
-	mEngine.getTweenline().apply(mOwner, ANIM_POSITION(), pos, duration, ease, [this]{ mInternalPositionRunning = false; if(mInternalPositionTweenFinishFunction) mInternalPositionTweenFinishFunction(); }, delay, updateFn);
+	animPositionStop();
+	auto options = mEngine.getTweenline().apply(mOwner, ANIM_POSITION(), pos, duration, ease, finishFn, delay, updateFn);
+	mInternalPositionCinderTweenRef = options.operator ci::TweenRef<ci::Vec3f>();
 }
 
 void SpriteAnimatable::tweenRotation(const ci::Vec3f& rot, const float duration, const float delay,
 									 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
-	mAnimRotation.stop(); 
-	mInternalRotationTweenTarget = rot;
-	mInternalRotationTweenFinishFunction = finishFn;
-	mInternalRotationRunning = true;
-	mEngine.getTweenline().apply(mOwner, ANIM_ROTATION(), rot, duration, ease, [this]{ mInternalRotationRunning = false; if(mInternalRotationTweenFinishFunction) mInternalRotationTweenFinishFunction(); }, delay, updateFn);
+	animRotationStop();
+	auto options = mEngine.getTweenline().apply(mOwner, ANIM_ROTATION(), rot, duration, ease, finishFn, delay, updateFn);
+	mInternalRotationCinderTweenRef = options.operator ci::TweenRef<ci::Vec3f>();
 }
 
 void SpriteAnimatable::tweenScale(const ci::Vec3f& scale, const float duration, const float delay,
 								  const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
-	mAnimScale.stop();
-	mInternalScaleTweenTarget = scale;
-	mInternalScaleTweenFinishFunction = finishFn;
-	mInternalScaleRunning = true;
-	mEngine.getTweenline().apply(mOwner, ANIM_SCALE(), scale, duration, ease, [this]{ mInternalScaleRunning = false; if(mInternalScaleTweenFinishFunction) mInternalScaleTweenFinishFunction(); }, delay, updateFn);
+	animScaleStop();
+	auto options = mEngine.getTweenline().apply(mOwner, ANIM_SCALE(), scale, duration, ease, finishFn, delay, updateFn);
+	mInternalScaleCinderTweenRef = options.operator ci::TweenRef<ci::Vec3f>();
 }
 
 void SpriteAnimatable::tweenSize(const ci::Vec3f& size, const float duration, const float delay,
 								 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
-	mAnimSize.stop();
-	mInternalSizeTweenTarget = size;
-	mInternalSizeTweenFinishFunction = finishFn;
-	mInternalSizeRunning = true;
-	mEngine.getTweenline().apply(mOwner, ANIM_SIZE(), size, duration, ease, [this]{ mInternalSizeRunning = false; if(mInternalSizeTweenFinishFunction) mInternalSizeTweenFinishFunction(); }, delay, updateFn);
+	animSizeStop();
+	auto options = mEngine.getTweenline().apply(mOwner, ANIM_SIZE(), size, duration, ease, finishFn, delay, updateFn);
+	mInternalSizeCinderTweenRef = options.operator ci::TweenRef<ci::Vec3f>();
 }
 
 void SpriteAnimatable::completeTweenColor(const bool callFinishFunction){
-	mAnimColor.stop();
-	if(mInternalColorRunning){
-		mInternalColorRunning = false;
-		mOwner.setColor(mInternalColorTweenTarget);
-		if(callFinishFunction && mInternalColorTweenFinishFunction){
-			mInternalColorTweenFinishFunction();
+	if(mInternalColorCinderTweenRef){
+		if(getColorTweenIsRunning()){
+			mAnimColor.stop();
+			mOwner.setColor(mInternalColorCinderTweenRef->getEndValue());
+			if(callFinishFunction){
+				auto finishFunc = mInternalColorCinderTweenRef->getFinishFn();
+				if(finishFunc) finishFunc();
+			}
 		}
 	}
 }
 
 void SpriteAnimatable::completeTweenOpacity(const bool callFinishFunction){
-	mAnimOpacity.stop();
-	if(mInternalOpacityRunning){
-		mInternalOpacityRunning = false;
-		mOwner.setOpacity(mInternalOpacityTweenTarget);
-		if(callFinishFunction && mInternalOpacityTweenFinishFunction){
-			mInternalOpacityTweenFinishFunction();
+	if(mInternalOpacityCinderTweenRef){
+		if(getOpacityTweenIsRunning()){
+			mAnimOpacity.stop();
+			mOwner.setOpacity(mInternalOpacityCinderTweenRef->getEndValue());
+			if(callFinishFunction){
+				auto finishFunc = mInternalOpacityCinderTweenRef->getFinishFn();
+				if(finishFunc) finishFunc();
+			}
 		}
 	}
 }
 
 void SpriteAnimatable::completeTweenPosition(const bool callFinishFunction){
-	mAnimPosition.stop();
-	if(mInternalPositionRunning){
-		mInternalPositionRunning = false;
-		mOwner.setPosition(mInternalPositionTweenTarget);
-		if(callFinishFunction && mInternalPositionTweenFinishFunction){
-			mInternalPositionTweenFinishFunction();
+	if(mInternalPositionCinderTweenRef){
+		if(getPositionTweenIsRunning()){
+			mAnimPosition.stop();
+			mOwner.setPosition(mInternalPositionCinderTweenRef->getEndValue());
+			if(callFinishFunction){
+				auto finishFunc = mInternalPositionCinderTweenRef->getFinishFn();
+				if(finishFunc) finishFunc();
+			}
 		}
 	}
 }
 
 void SpriteAnimatable::completeTweenRotation(const bool callFinishFunction){
-	mAnimRotation.stop();
-	if(mInternalRotationRunning){
-		mInternalRotationRunning = false;
-		mOwner.setRotation(mInternalRotationTweenTarget);
-		if(callFinishFunction && mInternalRotationTweenFinishFunction){
-			mInternalRotationTweenFinishFunction();
+	if(mInternalRotationCinderTweenRef){
+		if(getRotationTweenIsRunning()){
+			mAnimRotation.stop();
+			mOwner.setRotation(mInternalRotationCinderTweenRef->getEndValue());
+			if(callFinishFunction){
+				auto finishFunc = mInternalRotationCinderTweenRef->getFinishFn();
+				if(finishFunc) finishFunc();
+			}
 		}
 	}
 }
 
 void SpriteAnimatable::completeTweenScale(const bool callFinishFunction){
-	mAnimScale.stop();
-	if(mInternalScaleRunning){
-		mInternalScaleRunning = false;
-		mOwner.setScale(mInternalScaleTweenTarget);
-		if(callFinishFunction && mInternalScaleTweenFinishFunction){
-			mInternalScaleTweenFinishFunction();
+	if(mInternalScaleCinderTweenRef){
+		if(getScaleTweenIsRunning()){
+			mAnimScale.stop();
+			mOwner.setScale(mInternalScaleCinderTweenRef->getEndValue());
+			if(callFinishFunction){
+				auto finishFunc = mInternalScaleCinderTweenRef->getFinishFn();
+				if(finishFunc) finishFunc();
+			}
 		}
 	}
 }
 
 void SpriteAnimatable::completeTweenSize(const bool callFinishFunction){
-	mAnimSize.stop();
-	if(mInternalSizeRunning){
-		mInternalSizeRunning = false;
-		mOwner.setSizeAll(mInternalSizeTweenTarget);
-		if(callFinishFunction && mInternalSizeTweenFinishFunction){
-			mInternalSizeTweenFinishFunction();
+	if(mInternalSizeCinderTweenRef){
+		if(getSizeTweenIsRunning()){
+			mAnimSize.stop();
+			mOwner.setSizeAll(mInternalSizeCinderTweenRef->getEndValue());
+			if(callFinishFunction){
+				auto finishFunc = mInternalSizeCinderTweenRef->getFinishFn();
+				if(finishFunc) finishFunc();
+			}
 		}
 	}
 }
 
 const bool SpriteAnimatable::animationRunning(){
-	return mInternalColorRunning || mInternalSizeRunning || mInternalScaleRunning || mInternalRotationRunning || mInternalPositionRunning || mInternalOpacityRunning;
+	return getOpacityTweenIsRunning() || getPositionTweenIsRunning() || getScaleTweenIsRunning() || getSizeTweenIsRunning() || getRotationTweenIsRunning() || getColorTweenIsRunning();
 }
 
+const bool SpriteAnimatable::getPositionTweenIsRunning(){
+	return (mInternalPositionCinderTweenRef && !mAnimPosition.isComplete());
+}
+const bool SpriteAnimatable::getRotationTweenIsRunning(){
+	return (mInternalRotationCinderTweenRef && !mAnimRotation.isComplete());
+}
+const bool SpriteAnimatable::getSizeTweenIsRunning(){
+	return (mInternalSizeCinderTweenRef && !mAnimSize.isComplete());
+}
+const bool SpriteAnimatable::getScaleTweenIsRunning(){
+	return (mInternalScaleCinderTweenRef && !mAnimScale.isComplete());
+}
+const bool SpriteAnimatable::getOpacityTweenIsRunning(){
+	return (mInternalOpacityCinderTweenRef && !mAnimOpacity.isComplete());
+}
+const bool SpriteAnimatable::getColorTweenIsRunning(){
+	return (mInternalColorCinderTweenRef && !mAnimColor.isComplete());
+}
 void SpriteAnimatable::animStop() {
-	mAnimColor.stop();
-	mAnimOpacity.stop();
-	mAnimPosition.stop();
-	mAnimScale.stop();
-	mAnimSize.stop();
-	mAnimRotation.stop();
+	animPositionStop();
+	animRotationStop();
+	animScaleStop();
+	animSizeStop();
+	animOpacityStop();
+	animColorStop();
+}
 
-	mInternalColorRunning = false;
-	mInternalSizeRunning = false;
-	mInternalScaleRunning = false;
-	mInternalPositionRunning = false;
-	mInternalRotationRunning = false;
-	mInternalOpacityRunning = false;
+void SpriteAnimatable::animPositionStop(){
+	mAnimPosition.stop();
+	mInternalPositionCinderTweenRef = nullptr;
+}
+
+void SpriteAnimatable::animRotationStop(){
+	mAnimRotation.stop();
+	mInternalRotationCinderTweenRef = nullptr;
+}
+
+void SpriteAnimatable::animScaleStop(){
+	mAnimScale.stop();
+	mInternalScaleCinderTweenRef = nullptr;
+}
+
+void SpriteAnimatable::animSizeStop(){
+	mAnimSize.stop();
+	mInternalSizeCinderTweenRef = nullptr;
+}
+
+void SpriteAnimatable::animOpacityStop(){
+	mAnimOpacity.stop();
+	mInternalOpacityCinderTweenRef = nullptr;
+}
+
+void SpriteAnimatable::animColorStop(){
+	mAnimColor.stop();
+	mInternalColorCinderTweenRef = nullptr;
 }
 
 void SpriteAnimatable::completeAllTweens(const bool callFinishFunctions, const bool recursive){

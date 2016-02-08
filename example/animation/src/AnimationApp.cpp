@@ -17,6 +17,7 @@ public:
 
 	void						setupServer();
 	virtual void				keyDown(ci::app::KeyEvent event);
+	void						update();
 
 private:
 	typedef ds::App	 inherited;
@@ -36,7 +37,21 @@ void AnimationApp::keyDown(ci::app::KeyEvent event){
 	ds::App::keyDown(event);
 	if(event.getCode() == ci::app::KeyEvent::KEY_p){
 		mEngine.setTouchSmoothing(!mEngine.getTouchSmoothing());
+	} else if(event.getCode() == ci::app::KeyEvent::KEY_c){
+		mSprite1.completeTweenPosition(true);
+	} else if(event.getCode() == ci::app::KeyEvent::KEY_v){
+		mSprite1.animStop();
 	}
+}
+
+void AnimationApp::update(){
+	inherited::update();
+
+	std::cout << "Position tween is ";
+	if(!mSprite1.getPositionTweenIsRunning()){
+		std::cout << "not ";
+	}
+	std::cout << "running." << std::endl;
 }
 
 void AnimationApp::setupServer()
@@ -67,13 +82,18 @@ void AnimationApp::setupServer()
 	rootSprite.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 	rootSprite.setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 		if(ti.mPhase != ds::ui::TouchInfo::Added) return;
-		
+
 		// These are the easiest tweens to use, the built-in sprite tweens. They clear out the previous tween of the same type (tweening position twice in a row only does the second tween)
 		// Tween to a randomized scale
 		const float				nextScale = ci::Rand::randFloat(10.25f, 1000.5f);
 		const ci::Vec3f			scaleEnd(ci::Vec3f(nextScale, nextScale, 1.0f));
 		mSprite1.tweenSize(scaleEnd, 0.5f, 1.0f, ci::EaseInOutCubic());
-		mSprite1.tweenPosition(ti.mCurrentGlobalPoint, 0.5f, 0.0f, ci::EaseInOutCubic());
+		ci::Vec3f possy = ti.mCurrentGlobalPoint;
+		mSprite1.tweenPosition(ti.mCurrentGlobalPoint, 0.5f, 0.0f, ci::EaseInOutCubic(), [this, possy]{
+			mSprite1.tweenPosition(mSprite1.getPosition() + ci::Vec3f(100.0f, 100.0f, 0.0f), 0.5f, 0.0f, ci::easeInOutCubic);
+			mSprite1.tweenOpacity(ci::randFloat()); 
+			std::cout << "Sprite 1 position complete!" << std::endl;
+		});
 
 		// An easy way to tween a sprite with a string script (that you can set via an xml setting or something)
 		mSprite3.runAnimationScript("fade; slide:100; duration:0.5; delay:0.2; ease:outBack");
