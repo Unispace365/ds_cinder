@@ -20,6 +20,7 @@ SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	, mAnimateOnPositionTarget(0.0f, 0.0f, 0.0f)
 	, mAnimateOnOpacityTarget(1.0f)
 	, mAnimateOnScript("")
+	, mNormalized(0.0f)
 	, mInternalColorCinderTweenRef(nullptr)
 	, mInternalScaleCinderTweenRef(nullptr)
 	, mInternalRotationCinderTweenRef(nullptr)
@@ -85,6 +86,14 @@ const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_ROTATION() {
 	return ANIM;
 }
 
+const SpriteAnim<float>& SpriteAnimatable::ANIM_NORMALIZED() {
+	static ds::ui::SpriteAnim<float>  ANIM(
+		[](ds::ui::Sprite& s)->ci::Anim<float>& { s.mNormalized = 0.0f; return s.mAnimNormalized; },
+		[](ds::ui::Sprite& s)->float { return s.mNormalized; },
+		[](const float& v, ds::ui::Sprite& s) { s.mNormalized = v; });
+	return ANIM;
+}
+
 void SpriteAnimatable::tweenColor(const ci::Color& c, const float duration, const float delay,
 								  const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	animColorStop();
@@ -127,6 +136,11 @@ void SpriteAnimatable::tweenSize(const ci::Vec3f& size, const float duration, co
 	mInternalSizeCinderTweenRef = options.operator ci::TweenRef<ci::Vec3f>();
 }
 
+void SpriteAnimatable::tweenNormalized(const float duration, const float delay,
+									const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
+	mAnimNormalized.stop();
+	mEngine.getTweenline().apply(mOwner, ANIM_NORMALIZED(), 1.0f, duration, ease, finishFn, delay, updateFn);
+}
 void SpriteAnimatable::completeTweenColor(const bool callFinishFunction){
 	if(mInternalColorCinderTweenRef){
 		if(getColorTweenIsRunning()){

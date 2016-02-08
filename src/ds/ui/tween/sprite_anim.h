@@ -66,6 +66,7 @@ public:
 	static const SpriteAnim<ci::Vec3f>&		ANIM_SCALE();
 	static const SpriteAnim<ci::Vec3f>&		ANIM_SIZE();
 	static const SpriteAnim<ci::Vec3f>&		ANIM_ROTATION();
+	static const SpriteAnim<float>&			ANIM_NORMALIZED();
 
 	void									tweenColor(		const ci::Color&, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
@@ -89,6 +90,10 @@ public:
 															const std::function<void(void)>& finishFn = nullptr,
 															const std::function<void(void)>& updateFn = nullptr);
 	void									tweenSize(		const ci::Vec3f& size, const float duration = 1.0f, const float delay = 0.0f,
+															const ci::EaseFn& = ci::easeNone,
+															const std::function<void(void)>& finishFn = nullptr,
+															const std::function<void(void)>& updateFn = nullptr);
+	void									tweenNormalized(const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
 															const std::function<void(void)>& finishFn = nullptr,
 															const std::function<void(void)>& updateFn = nullptr);
@@ -162,6 +167,10 @@ public:
 	ci::Anim<ci::Vec3f>						mAnimSize;
 	ci::Anim<ci::Vec3f>						mAnimRotation;
 
+	ci::Anim<float>							mAnimNormalized;
+
+	float									getNormalized(){ return mNormalized; }
+
 private:
 	Sprite&									mOwner;
 	SpriteEngine&							mEngine;
@@ -172,6 +181,7 @@ private:
 	ci::Vec3f								mAnimateOnPositionTarget;
 	float									mAnimateOnOpacityTarget;
 
+	float									mNormalized;
 	//---- For completing tweens, yaaay ----------------------------//
 	ci::TweenRef<ci::Vec3f>					mInternalPositionCinderTweenRef;
 	ci::TweenRef<ci::Vec3f>					mInternalScaleCinderTweenRef;

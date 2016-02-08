@@ -169,9 +169,13 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 						}
 					} else if(img){
 						if(vertical){
-							img->setScale(fixedW / img->getWidth());
+							if(img->getWidth() > 0.0f){
+								img->setScale(fixedW / img->getWidth());
+							}
 						} else {
-							img->setScale(fixedH / img->getHeight());
+							if(img->getHeight() > 0.0f){
+								img->setScale(fixedH / img->getHeight());
+							}
 						}
 					} else if(sa){
 						if(vertical){
