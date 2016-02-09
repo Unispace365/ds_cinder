@@ -4,6 +4,8 @@
 #include <Poco/String.h>
 #include "ds/app/environment.h"
 #include "ds/util/string_util.h"
+#include "ds/debug/logger.h"
+#include "ds/util/file_meta_data.h"
 
 static bool			get_key_value(const std::wstring& arg, std::string& key, std::string& value);
 static void			get_cmd_line(std::vector<std::wstring>&);
@@ -21,6 +23,9 @@ namespace ds {
  * \class ds::EngineSettings
  */
 EngineSettings::EngineSettings() {
+
+	mStartupInfo.str("");
+
 	// Default file names.
 	const std::string			DEFAULT_FILENAME("engine.xml");
 	std::string					appFilename = DEFAULT_FILENAME,
@@ -59,7 +64,12 @@ EngineSettings::EngineSettings() {
 	if(appSettingsPath.empty()) throw std::runtime_error("Missing application settings folder");
 	Poco::Path                appP(appSettingsPath);
 	appP.append(appFilename);
-	readFrom(appP.toString(), false);
+
+	std::string appFullPath = appP.toString();
+	if(FileMetaData::safeFileExistsCheck(appFullPath)){
+		mStartupInfo << "EngineSettings: Reading app settings from " << appFullPath << std::endl;
+		readFrom(appFullPath, false);
+	}
 
 	// LOCAL SETTINGS
 	// The project path is taken from the supplied arguments, if it existed, or else it's
@@ -76,7 +86,11 @@ EngineSettings::EngineSettings() {
 		// Set the global project path
 		PROJECT_PATH = projectPath;
 
-		readFrom(ds::Environment::getLocalSettingsPath(localFilename), true);
+		std::string localSettingsPath = ds::Environment::getLocalSettingsPath(localFilename);
+		if(FileMetaData::safeFileExistsCheck(localSettingsPath)){
+			mStartupInfo << "EngineSettings: Reading app settings from " << localSettingsPath << std::endl;
+			readFrom(localSettingsPath, true);
+		}
 
 		// Load the configuration settings, which can be used to modify settings even more.
 		// Currently used to provide alternate layout sizes.
@@ -87,8 +101,16 @@ EngineSettings::EngineSettings() {
 		if(!CONFIGURATION_FOLDER.empty()) {
 			const std::string		app = ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + appFilename);
 			const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + appFilename);
-			readFrom(app, true);
-			readFrom(local, true);
+
+			if(FileMetaData::safeFileExistsCheck(app)){
+				mStartupInfo << "EngineSettings: Reading app settings from " << app << std::endl;
+				readFrom(app, true);
+			}
+
+			if(FileMetaData::safeFileExistsCheck(local)){
+				mStartupInfo << "EngineSettings: Reading app settings from " << local << std::endl;
+				readFrom(local, true);
+			}
 		}
 	}
 }
@@ -103,6 +125,10 @@ const ds::cfg::Settings& EngineSettings::getConfiguration() {
 
 const std::string& EngineSettings::getConfigurationFolder() {
 	return CONFIGURATION_FOLDER;
+}
+
+void EngineSettings::printStartupInfo(){
+	DS_LOG_INFO(std::endl << mStartupInfo.str());
 }
 
 } // namespace ds

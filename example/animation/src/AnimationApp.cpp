@@ -47,6 +47,8 @@ void AnimationApp::keyDown(ci::app::KeyEvent event){
 void AnimationApp::update(){
 	inherited::update();
 
+	return;
+
 	std::cout << "Position tween is ";
 	if(!mSprite1.getPositionTweenIsRunning()){
 		std::cout << "not ";

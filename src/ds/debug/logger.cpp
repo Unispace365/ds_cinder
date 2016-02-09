@@ -91,7 +91,7 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 {
 	for (int k=0; k<LEVEL_SIZE; ++k) HAS_LEVEL[k] = false;
 
-	string				level = settings.getText("logger:level", 0, EMPTY_SZ),
+	string				level = settings.getText("logger:level", 0, "info"),
 							module = settings.getText("logger:module", 0, EMPTY_SZ),
 							async = settings.getText("logger:async", 0, EMPTY_SZ),
 							file = settings.getText("logger:file", 0, EMPTY_SZ);

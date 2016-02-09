@@ -3,6 +3,7 @@
 #define DS_APP_ENGINE_ENGINESETTINGS_H_
 
 #include "ds/cfg/settings.h"
+#include <sstream>
 
 namespace ds {
 class Environment;
@@ -37,6 +38,8 @@ class EngineSettings : public ds::cfg::Settings {
 public:
 	EngineSettings();
 
+	void							printStartupInfo();
+
 private:
 	friend class Environment;
 	friend class EngineCfg;
@@ -44,6 +47,9 @@ private:
 	// Answer the configuration.xml if it exists.
 	static const ds::cfg::Settings&	getConfiguration();
 	static const std::string&		getConfigurationFolder();
+
+
+	std::stringstream				mStartupInfo;
 };
 
 } // namespace ds
