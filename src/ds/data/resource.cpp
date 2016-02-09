@@ -246,6 +246,11 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 			APP_RESOURCE_PATH.append(1, Poco::Path::separator());
 		}
 	}
+
+	DS_LOG_INFO("CMS_RESOURCE_PATH: " << CMS_RESOURCE_PATH);
+	DS_LOG_INFO("CMS_PORTABLE_RESOURCE_PATH: " << CMS_PORTABLE_RESOURCE_PATH);
+	DS_LOG_INFO("APP_RESOURCE_PATH: " << APP_RESOURCE_PATH);
+	
 }
 
 void Resource::Id::setupCustomPaths( const std::function<const std::string&(const Resource::Id&)>& resourcePath,
