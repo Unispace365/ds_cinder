@@ -20,6 +20,7 @@ namespace gstwrapper
 // Enumeration to describe the current state of the wrapper
 enum PlayState
 {
+	GSTREAM_INIT_FAIL,
 	NOT_INITIALIZED,
 	OPENED,
 	PLAYING,

@@ -36,8 +36,12 @@ namespace gstwrapper
 		, m_Streaming(false)
 		, mServer(true)
 {
-	gst_init( NULL, NULL );
-	m_CurrentPlayState = NOT_INITIALIZED;
+	GError* pError;
+	int success = gst_init_check( NULL, NULL, &pError);
+	if(success == FALSE){
+		DS_LOG_ERROR("GStreamerWrapper: failed to initialized GStreamer: " << pError->message);
+	}
+	m_CurrentPlayState = (success ? NOT_INITIALIZED : GSTREAM_INIT_FAIL);
 }
 
 GStreamerWrapper::~GStreamerWrapper()
