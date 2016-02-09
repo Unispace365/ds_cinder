@@ -128,8 +128,10 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 			path.makeAbsolute();
 			path.makeParent();
 			Poco::File			f(path);
+			f.createDirectories();
 			if (!f.exists()) cout << "WARNING:  Log directory does not exist.  No log will be created." << endl << "\t" << path.toString() << endl;
-		} catch (std::exception&) {
+		} catch (std::exception& e) {
+			std::cout << "Exception setting up logger directory: " << e.what() << std::endl;
 		}
 	}
 
