@@ -34,3 +34,21 @@ void ds::ui::SoftKeyboardDefs::handleKeyPressGeneric(const KeyType& inputKeyType
 	}
 }
 
+void ds::ui::SoftKeyboardDefs::handleKeyPressGeneric(const ci::app::KeyEvent& cinderKeyEvent, std::wstring& inOutCurrentKey, std::wstring& inOutFullString){
+	using namespace ci::app;
+	int keyCode = cinderKeyEvent.getCode();
+	if(keyCode == KeyEvent::KEY_SPACE){
+		handleKeyPressGeneric(kSpace, inOutCurrentKey, inOutFullString);
+	} else if(keyCode == KeyEvent::KEY_DELETE || keyCode == KeyEvent::KEY_BACKSPACE){
+		handleKeyPressGeneric(kDelete, inOutCurrentKey, inOutFullString);
+
+		// a bunch of keys effectively have no effect, so ignore then, otherwise they'll insert a null character into the string
+		// check out the KeyEvent header for the values
+	} else if(keyCode < KeyEvent::KEY_SPACE || keyCode > KeyEvent::KEY_KP_EQUALS){
+		// nothin!
+	} else {
+		inOutCurrentKey = cinderKeyEvent.getChar();
+		handleKeyPressGeneric(kLetter, inOutCurrentKey, inOutFullString);
+	}
+}
+

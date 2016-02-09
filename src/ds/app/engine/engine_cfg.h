@@ -77,7 +77,7 @@ private:
 	// a shutdown crash with this as statics.
 	const ds::cfg::Settings			mEmptySettings;
 	ds::cfg::Settings				mEditEmptySettings;
-	const ds::cfg::Text				mEmptyTextCfg;
+	ds::cfg::Text					mEmptyTextCfg;
 	const ds::cfg::NinePatch		mEmptyNinePatchCfg;
 };
 

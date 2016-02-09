@@ -90,6 +90,7 @@ public:
 	int						getClientId() const;
 
 	int						getColumnSize() const;
+	const int				getColumnType(const int idx) const;
 	const std::string&		getColumnName(const int idx) const;
 
 	bool					rowsAreEmpty() const;

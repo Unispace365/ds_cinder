@@ -10,6 +10,7 @@ namespace ds {
 namespace ui {
 class VideoPlayer;
 class PDFPlayer;
+class StreamPlayer;
 class WebPlayer;
 class MediaInterface;
 
@@ -37,6 +38,8 @@ public:
 	/// unloads any media and interface already loaded. initialize could be called again after this and load the same content
 	void				uninitialize();
 
+	void				setCacheImages(bool cacheImages) { mCacheImages = cacheImages; }
+
 	virtual void		onLayout();
 	void				enter();
 	void				exit();
@@ -60,11 +63,14 @@ protected:
 	bool				mInitialized;
 	ds::Resource		mResource;
 
-	VideoPlayer*		mVideoPlayer;
 	PDFPlayer*			mPDFPlayer;
+	StreamPlayer*		mStreamPlayer;
+	VideoPlayer*		mVideoPlayer;
 	WebPlayer*			mWebPlayer;
 	ds::ui::Image*		mThumbnailImage;
 	ds::ui::Image*		mPrimaryImage;
+
+	bool				mCacheImages;
 
 
 	ci::Vec3f			mOrigin;

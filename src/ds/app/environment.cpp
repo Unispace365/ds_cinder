@@ -43,6 +43,18 @@ std::string Environment::expand(const std::string& _path) {
 	return Poco::Path(p).toString();
 }
 
+
+std::string Environment::contract(const std::string& fullPath){
+	std::string		p(fullPath);
+	boost::replace_all(p, ds::App::envAppDataPath(), "%APP%");
+	boost::replace_all(p, EngineSettings::envProjectPath(), "%PP%");
+	boost::replace_all(p, getDownstreamDocumentsFolder(), "%LOCAL%");
+	boost::replace_all(p, EngineSettings::getConfigurationFolder(), "%CFG_FOLDER%");
+	boost::replace_all(p, DOCUMENTS, "%DOCUMENTS%");
+	// This can result in double path separators, so flatten
+	return Poco::Path(p).toString();
+}
+
 std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName, const bool verify) {
 	Poco::Path				p(ds::App::envAppDataPath());
 	if (!folderName.empty()) p.append(folderName);

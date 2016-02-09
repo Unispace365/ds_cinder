@@ -100,6 +100,7 @@ public:
 	static const int		PDF_TYPE            = 4;
 	static const int		VIDEO_TYPE          = 5;
 	static const int		WEB_TYPE            = 6;
+	static const int		VIDEO_STREAM_TYPE	= 7;
 
 public:
 	// Mainly for debugging
@@ -113,6 +114,8 @@ public:
 	Resource(const std::string& localFullPath);
 	/// Sets the absolute filepath, no other parameters are filled out
 	Resource(const std::string& localFullPath, const int type);
+	/// Sets the absolute filepath, type is auto-detected. This is intended for streams
+	Resource(const std::string& localFullPath, const float width, const float height);
 
 	// In case you have this queried/constructed already
 	Resource(const Resource::Id dbid, const int type, const double duration, 
@@ -164,6 +167,8 @@ public:
 
 	/// Expects a single-character type (v, i, p, w, f, s)
 	void					setTypeFromString(const std::string& typeChar);
+	/// Return the int value for the string type
+	static const int		makeTypeFromString(const std::string& typeChar);
 
 	/// Returns the type parsed from the filename, primarily using the file extension.
 	/// Creates an error type if it's a file type (not web type) and the file doesn't exist

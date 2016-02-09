@@ -12,6 +12,7 @@
 
 #include "ds/ui/media/player/video_player.h"
 #include "ds/ui/media/player/pdf_player.h"
+#include "ds/ui/media/player/stream_player.h"
 #include "ds/ui/media/player/web_player.h"
 
 #include "ds/ui/media/media_interface.h"
@@ -24,10 +25,12 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	: BasePanel(eng)
 	, mInitialized(false)
 	, mVideoPlayer(nullptr)
+	, mStreamPlayer(nullptr)
 	, mPDFPlayer(nullptr)
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
+	, mCacheImages(false)
 	, mEmbedInterface(embedInterface)
 	, mDefaultBoundWidth(mEngine.getWorldWidth())
 	, mDefaultBoundHeight(mEngine.getWorldHeight())
@@ -40,9 +43,11 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath
 	, mResource(mediaPath, ds::Resource::parseTypeFromFilename(mediaPath))
 	, mVideoPlayer(nullptr)
 	, mPDFPlayer(nullptr)
+	, mStreamPlayer(nullptr)
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
+	, mCacheImages(false)
 	, mEmbedInterface(embedInterface)
 	, mDefaultBoundWidth(mEngine.getWorldWidth())
 	, mDefaultBoundHeight(mEngine.getWorldHeight())
@@ -55,9 +60,11 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& resource
 	, mResource(resource)
 	, mVideoPlayer(nullptr)
 	, mPDFPlayer(nullptr)
+	, mStreamPlayer(nullptr)
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
+	, mCacheImages(false)
 	, mEmbedInterface(embedInterface)
 	, mDefaultBoundWidth(mEngine.getWorldWidth())
 	, mDefaultBoundHeight(mEngine.getWorldHeight())
@@ -100,22 +107,6 @@ void MediaViewer::initialize(){
 	// do this first to avoid recursion problems
 	mInitialized = true;
 
-	if(mResource.getThumbnailId() > 0 || !mResource.getThumbnailFilePath().empty()){
-		mThumbnailImage = new ds::ui::Image(mEngine);
-		addChildPtr(mThumbnailImage);
-		if(mResource.getThumbnailId() > 0){
-			mThumbnailImage->setImageResource(mResource.getThumbnailId());
-		} else {
-			mThumbnailImage->setImageFile(mResource.getThumbnailFilePath());
-		}
-		mThumbnailImage->setOpacity(0.0f);
-		mThumbnailImage->setStatusCallback([this](ds::ui::Image::Status status){
-			if(status.mCode == status.STATUS_LOADED && mThumbnailImage){
-				mThumbnailImage->tweenOpacity(1.0f, mAnimDuration);
-			}
-		});
-	}
-
 	const int mediaType = mResource.getType();
 	if(mediaType == ds::Resource::ERROR_TYPE || mediaType == ds::Resource::FONT_TYPE){
 		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath());
@@ -126,16 +117,26 @@ void MediaViewer::initialize(){
 	float contentHeight = 1.0f;
 	mContentAspectRatio = 1.0f;
 
+	bool showThumbnail = true;
+
 	if(mediaType == ds::Resource::IMAGE_TYPE){
-		mPrimaryImage = new ds::ui::Image(mEngine);
+		int flags = 0;
+		if(mCacheImages){
+			flags |= Image::IMG_CACHE_F;
+		}
+		mPrimaryImage = new ds::ui::Image(mEngine, mResource, flags);
 		addChildPtr(mPrimaryImage);
-		mPrimaryImage->setImageFile(mResource.getAbsoluteFilePath());
-		mPrimaryImage->setOpacity(0.0f);
-		mPrimaryImage->setStatusCallback([this](ds::ui::Image::Status status){
-			if(status.mCode == status.STATUS_LOADED && mPrimaryImage){
-				mPrimaryImage->tweenOpacity(1.0f, mAnimDuration);
-			}
-		});
+		mPrimaryImage->checkStatus();
+		if(mPrimaryImage->isLoaded()){
+			showThumbnail = false;
+		} else {
+			mPrimaryImage->setOpacity(0.0f);
+			mPrimaryImage->setStatusCallback([this](ds::ui::Image::Status status){
+				if(status.mCode == status.STATUS_LOADED && mPrimaryImage){
+					mPrimaryImage->tweenOpacity(1.0f, mAnimDuration);
+				}
+			});
+		}
 
 		mContentAspectRatio = mPrimaryImage->getWidth() / mPrimaryImage->getHeight();
 		contentWidth = mPrimaryImage->getWidth();
@@ -148,7 +149,17 @@ void MediaViewer::initialize(){
 		mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
 		contentWidth = mVideoPlayer->getWidth();
 		contentHeight = mVideoPlayer->getHeight();
+	} else if( mediaType == ds::Resource::VIDEO_STREAM_TYPE ){
+		
+		mStreamPlayer = new StreamPlayer(mEngine, mEmbedInterface);
+		addChildPtr(mStreamPlayer);
 
+		mStreamPlayer->setResource(mResource);
+
+		mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
+		contentWidth = mStreamPlayer->getWidth();
+		contentHeight = mStreamPlayer->getHeight();
+		
 	} else if(mediaType == ds::Resource::PDF_TYPE){
 		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mPDFPlayer);
@@ -175,6 +186,27 @@ void MediaViewer::initialize(){
 
 	} else {
 		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath() << " " << ds::utf8_from_wstr(mResource.getTypeName()));
+	}
+
+	if(showThumbnail && (mResource.getThumbnailId() > 0 || !mResource.getThumbnailFilePath().empty())){
+		int flags = 0;
+		if(mCacheImages){
+			flags |= Image::IMG_CACHE_F;
+		}
+		mThumbnailImage = new ds::ui::Image(mEngine);
+		addChildPtr(mThumbnailImage);
+		mThumbnailImage->sendToBack();
+		if(mResource.getThumbnailId() > 0){
+			mThumbnailImage->setImageResource(mResource.getThumbnailId(), flags);
+		} else {
+			mThumbnailImage->setImageFile(mResource.getThumbnailFilePath(), flags);
+		}
+		mThumbnailImage->setOpacity(0.0f);
+		mThumbnailImage->setStatusCallback([this](ds::ui::Image::Status status){
+			if(status.mCode == status.STATUS_LOADED && mThumbnailImage){
+				mThumbnailImage->tweenOpacity(1.0f, mAnimDuration);
+			}
+		});
 	}
 
 	// calculate a default size that maximizes size
@@ -209,6 +241,9 @@ void MediaViewer::uninitialize() {
 	if(mVideoPlayer){
 		mVideoPlayer->release();
 	}
+	if(mStreamPlayer){
+		mStreamPlayer->release();
+	}
 	if(mPDFPlayer){
 		mPDFPlayer->release();
 	}
@@ -234,6 +269,10 @@ void MediaViewer::onLayout(){
 
 	if(mVideoPlayer){
 		mVideoPlayer->setSize(getWidth(), getHeight());
+	}
+
+	if(mStreamPlayer){
+		mStreamPlayer->setSize(getWidth(), getHeight());
 	}
 
 	if(mPDFPlayer){
@@ -289,6 +328,10 @@ void MediaViewer::stopContent(){
 	if(mVideoPlayer){
 		mVideoPlayer->stop();
 	}
+
+	if(mStreamPlayer){
+		mStreamPlayer->stop();
+	}
 }
 
 
@@ -299,6 +342,11 @@ ds::ui::Sprite* MediaViewer::getPlayer(){
 
 	if(mPDFPlayer){
 		return mPDFPlayer;
+	}
+
+
+	if(mStreamPlayer){
+		return mStreamPlayer;
 	}
 
 	if(mWebPlayer){

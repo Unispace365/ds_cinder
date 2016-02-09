@@ -27,6 +27,7 @@ ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const fl
 	// Set some defaults
 	// You can change these by getting the nub and background sprites and changing them
 	mBackground = new ds::ui::Sprite(mEngine);
+	mBackground->mExportWithXml = false;
 	mBackground->setTransparent(false);
 	mBackground->setColor(ci::Color(0.1f, 0.1f, 0.1f));
 	mBackground->setCornerRadius(uiWidth/2.0f);
@@ -34,6 +35,7 @@ ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const fl
 	addChildPtr(mBackground);
 
 	mNub = new ds::ui::Sprite(mEngine);
+	mNub->mExportWithXml = false;
 	mNub->setTransparent(false);
 	mNub->setColor(ci::Color(0.9f, 0.9f, 0.9f));
 	mNub->setOpacity(0.3f);

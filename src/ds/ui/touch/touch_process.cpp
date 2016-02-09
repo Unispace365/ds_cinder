@@ -348,31 +348,30 @@ void TouchProcess::updateDragDestination( const TouchInfo &touchInfo ) {
 	}
 
 	Sprite *dragDestinationSprite = mSpriteEngine.getDragDestinationSprite(touchInfo.mCurrentGlobalPoint, &mSprite);
-
-	if (!dragDestinationSprite)
-		return;
-
 	DragDestinationInfo dragInfo = {touchInfo.mCurrentGlobalPoint, DragDestinationInfo::Null, &mSprite};
+	ds::ui::Sprite* curDragDestination = mSprite.getDragDestination();
 
-	if (!mSprite.getDragDestination() && dragDestinationSprite) {
+	if(!curDragDestination && dragDestinationSprite) {
 		dragInfo.mPhase = DragDestinationInfo::Entered;
 		mSprite.setDragDestination(dragDestinationSprite);
-	} else if (false) {
+	} else if(curDragDestination && curDragDestination == dragDestinationSprite) {
 		dragInfo.mPhase = DragDestinationInfo::Updated;
-	} else if (false) {
+	} else if (curDragDestination && curDragDestination != dragDestinationSprite) {
 		dragInfo.mPhase = DragDestinationInfo::Exited;
 	}
 
-	if (mSprite.getDragDestination() && mFingers.size() < 2 && touchInfo.mPhase == TouchInfo::Removed) {
+	if(curDragDestination && mFingers.size() < 2 && touchInfo.mPhase == TouchInfo::Removed) {
 		dragInfo.mPhase = DragDestinationInfo::Released;
 	}
 
-	mSprite.dragDestination(mSprite.getDragDestination(), dragInfo);
-	if (mSprite.getDragDestination()){
-		mSprite.getDragDestination()->dragDestination(mSprite.getDragDestination(), dragInfo);
+	if(dragInfo.mPhase != DragDestinationInfo::Null){
+		mSprite.dragDestination(mSprite.getDragDestination(), dragInfo);
+		if(mSprite.getDragDestination()){
+			mSprite.getDragDestination()->dragDestination(mSprite.getDragDestination(), dragInfo);
+		}
 	}
 
-	if (dragInfo.mPhase == DragDestinationInfo::Released || dragInfo.mPhase == DragDestinationInfo::Exited) {
+	if (dragInfo.mPhase == DragDestinationInfo::Released || dragInfo.mPhase == DragDestinationInfo::Exited || dragInfo.mPhase == DragDestinationInfo::Null) {
 		mSprite.setDragDestination(nullptr);
 	}
 }

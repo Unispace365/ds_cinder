@@ -1,5 +1,6 @@
 #include "math_func.h"
 #include "math_defs.h"
+#include "random.h"
 
 using namespace ci;
 
@@ -116,6 +117,21 @@ double degree(const double x2, const double y2)
 	else if (x2 > 0 && y2 < 0) return degree + 360;
 
 	return degree;
+}
+
+ci::Vec3f randomUnitVector(){
+	// make some random orthogonal distances, then normalize
+	float x = 2.0f * (float)ds::math::random() - 1.0f;
+	float y = 2.0f * (float)ds::math::random() - 1.0f;
+	float z = 2.0f * (float)ds::math::random() - 1.0f;
+
+	ci::Vec3f output(x, y, z);
+	if(output.lengthSquared() > 0.0f){
+		output.normalize();
+	} else {
+		output = ci::Vec3f::zAxis();
+	}
+	return output;
 }
 
 } // namespace math

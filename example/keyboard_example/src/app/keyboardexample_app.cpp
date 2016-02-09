@@ -181,7 +181,7 @@ void KeyboardExample::fileDrop(ci::app::FileDropEvent event){
 		//paths.push_back((*it).string());
 
 		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
-		mv->initializeIfNeeded();
+		mv->initialize();
 		mEngine.getRootSprite().addChildPtr(mv);
 	}
 }

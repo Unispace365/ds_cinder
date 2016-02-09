@@ -6,6 +6,7 @@
 #include <Poco/String.h>
 #include "ds/app/environment.h"
 #include "ds/debug/debug_defines.h"
+#include "ds/app/engine/engine_settings.h"
 
 static void read_nine_patch_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::NinePatch>& out);
 
@@ -83,7 +84,7 @@ const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 	}
 	auto it = mTextCfg.find(name);
 	if (it == mTextCfg.end()) {
-		DS_LOG_WARNING("EngineCfg::getText() cfg does not exist" << name);
+		DS_LOG_WARNING("EngineCfg::getText() cfg does not exist: " << name);
 		return mEmptyTextCfg;
 	}
 	return it->second;
@@ -144,6 +145,21 @@ void EngineCfg::loadText(const std::string& filename, Engine* engine) {
 	read_text_defaults(mTextCfg);
 	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextCfg, engine);
 	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextCfg, engine);
+	if (!ds::EngineSettings::getConfigurationFolder().empty()) {
+		const std::string		app = ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + filename);
+		const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
+		read_text_cfg(app, mTextCfg, engine);
+		read_text_cfg(local, mTextCfg, engine);
+	}
+
+	if(!mTextCfg.empty()){
+		for(auto it = mTextCfg.begin(); it != mTextCfg.end(); ++it){
+			mEmptyTextCfg = it->second;
+			break;
+		}
+		// Set color to full red to alert that this wasn't actually loaded
+		mEmptyTextCfg.mColor.set(1.0f, 0.0f, 0.0f, 1.0f);
+	}
 }
 
 void EngineCfg::loadNinePatchCfg(const std::string& filename) {
@@ -261,13 +277,13 @@ static void interpret_text_settings(const ds::cfg::Settings &s, std::unordered_m
 			std::string		v = s.getText(key, 0, ds::EMPTY_SZ);
 			if (!v.empty()) {
 				if (out.empty()) {
-					out[left] = ds::cfg::Text(v, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+					out[left] = ds::cfg::Text(v, left, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 				} else {
 					auto	found = out.find(left);
 					if (found != out.end()) {
 						found->second.mFont = v;
 					} else {
-						out[left] = ds::cfg::Text(v, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+						out[left] = ds::cfg::Text(v, left, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 					}
 				}
 			}

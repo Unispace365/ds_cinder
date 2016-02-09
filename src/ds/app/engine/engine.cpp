@@ -270,6 +270,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		resourceLocation = Poco::Path::expand(resourceLocation);
 		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
 	}
+
+	setIdleTimeout(settings.getInt("idle_time", 0, 300));
 }
 
 void Engine::clearRoots(){
@@ -635,7 +637,7 @@ void Engine::setup(ds::App& app) {
 	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = 0;
-  
+
 	mUpdateParams.setDeltaTime(0.0f);
 	mUpdateParams.setElapsedTime(curr);
 
@@ -681,6 +683,8 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings)
 
 	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
+	setTouchSmoothing(mSettings.getBool("touch_smoothing", 0, true));
+	setTouchSmoothFrames(mSettings.getInt("touch_smooth_frames", 0, 5));
 
 	settings.setFrameRate(mData.mFrameRate);
 
@@ -833,7 +837,17 @@ bool Engine::hideMouse() const {
 
 ds::ui::Sprite* Engine::getHit(const ci::Vec3f& point) {
 	for (auto it=mRoots.rbegin(), end=mRoots.rend(); it!=end; ++it) {
-		ds::ui::Sprite*		s = (*it)->getHit(point);
+		
+		ci::Vec3f pointToUse = point;
+		if((*it)->getSprite()->getPerspective()){
+			// scale the point from world size to screen size (which is the size of the perspective root)
+			pointToUse.set(
+				(point.x / mData.mWorldSize.x) * mData.mScreenRect.getWidth(),
+				(point.y / mData.mWorldSize.y) * mData.mScreenRect.getHeight(),
+				0.0f
+			);
+		}
+		ds::ui::Sprite* s = (*it)->getHit(pointToUse);
 		if (s) return s;
 	}
 	return nullptr;
@@ -856,6 +870,18 @@ void Engine::translateTouchPoint(ci::Vec2f& inOutPoint) {
 
 void Engine::nextTouchMode() {
 	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
+}
+
+void Engine::setTouchSmoothing(const bool doSmoothing){
+	mTouchManager.setTouchSmoothing(doSmoothing);
+}
+
+void Engine::setTouchSmoothFrames(const int smoothFrames){
+	mTouchManager.setTouchSmoothFrames(smoothFrames);
+}
+
+const bool Engine::getTouchSmoothing(){
+	return mTouchManager.getTouchSmoothing();
 }
 
 void Engine::writeSprites(std::ostream &s) const {

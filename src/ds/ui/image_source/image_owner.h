@@ -33,7 +33,7 @@ public:
 	 * \param resource is the resource.
 	 * \param flags provides scope info (i.e. ds::ui::Image::IMG_CACHE_F).
 	 */
-	void					setImageResource(const ds::Resource& resource, const int flags = 0);
+	virtual void			setImageResource(const ds::Resource& resource, const int flags = 0);
 
 	/** Loads an image based on the resource id.
 	* \param resourceId is the resource.
@@ -43,6 +43,9 @@ public:
 
 	/** Returns the loaded image, if the Texture is not null, it is valid */
 	const ci::gl::Texture*	getImageTexture();
+
+	/** Note: this will only return a filename if the image was actually loaded from a file */
+	std::string				getImageFilename();
 
 protected:
 	virtual void			onImageChanged();

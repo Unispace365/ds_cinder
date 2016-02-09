@@ -77,13 +77,32 @@
 	<!-- draw circles around touch points -->
 	<text name="touch_overlay:debug" value="true" />
 	
-	<!-- will use native (windows 7) touch events when true. default=false -->
-	<!-- NOTE: if this is on and the touch system is also transmitting TUIO, it's
-				possible to receive double touch events. Use one or the other -->
-	<text name="enable_system_multitouch" value="true" />
+	<!-- average out touch points over time for smoother input, but slightly less accurate. default=true -->
+	<text name="touch_smoothing" value="true" />
+	<!-- how many frames to use when smoothing. Higher numbers are smoother. Lower than 3 is effectively off. default=5 -->
+	<int  name="touch_smooth_frames" value="8" />
+	
+	<!-- Touch trails are special debug drawing that leaves a trail behind the touches.
+			use: true turns this on (overrides the stroked cirlce debug drawing (touch_overlay:debug must be true for this to be on)
+			length: how many touch points to keep in the tail
+			increment: how much bigger to make each touch point. Effective max size = (length-1) * increment.
+			Defaults: use=false, length=5, increment=5. Effective size of 20 pixel radius circle. -->
+	<text  name="touch_overlay:trails:use" value="false" />
+	<int   name="touch_overlay:trails:length" value="5" />
+	<float name="touch_overlay:trails:increment" value="5.0" />
+	
+	
+	<!-- Set the current touch mode. Options:
+		"Tuio" -- Receive events over TUIO.
+		"TuioAndMouse" -- Receive both TUIO and mouse events. The default.
+		"System" -- Receive native (Windows) system touch events.
+		"SystemAndMouse" -- Receive both native touch events and mouse events. Will
+		cause the first touch event to be discarded, because it is also a mouse event.
+	-->
+	<text name="touch_mode" value="TuioAndMouse" />
 	
 	<!-- port to listen to tuio stream. default=3333 -->
-	<int name="tuio_port" value="3000" />
+	<int name="tuio_port" value="3333" />
 	
 	<!-- will allow tuio to receive object data. default=false -->
 	<text name="tuio:receive_objects" value="false" />

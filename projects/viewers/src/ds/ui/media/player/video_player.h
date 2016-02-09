@@ -6,6 +6,9 @@
 #include <ds/ui/sprite/sprite.h>
 
 namespace ds {
+
+class Resource;
+
 namespace ui {
 
 class GstVideo;
@@ -29,6 +32,7 @@ public:
 	void								stop();
 
 	void								showInterface();
+	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
 
 	ds::ui::GstVideo*					getVideo();
 
@@ -38,6 +42,7 @@ protected:
 	VideoInterface*						mVideoInterface;
 	ds::ui::GstVideo*					mVideo;
 	bool								mEmbedInterface;
+	bool								mShowInterfaceAtStart;
 
 };
 

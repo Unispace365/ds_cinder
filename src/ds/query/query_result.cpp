@@ -112,6 +112,11 @@ int Result::getColumnSize() const {
 	return mCol.size();
 }
 
+const int Result::getColumnType(const int idx)const{
+	if(idx < 0 || idx >= mColNames.size()) return QUERY_NO_TYPE;
+	return mCol[idx];
+}
+
 const std::string& Result::getColumnName(const int idx) const {
 	static const std::string		BLANK("");
 	if (idx < 0 || idx >= mColNames.size()) return BLANK;

@@ -6,6 +6,7 @@
 #include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/util/string_util.h>
+#include <ds/ui/scroll/scroll_area.h>
 
 
 namespace ds {
@@ -15,7 +16,9 @@ LayoutSprite::LayoutSprite(ds::ui::SpriteEngine& engine)
 	: ds::ui::Sprite(engine)
 	, mLayoutType(kLayoutVFlow)
 	, mSpacing(0.0f)
-	, mShrinkToChildren(false)
+	, mShrinkToChildren(kShrinkNone)
+	, mOverallAlign(0)
+	, mLayoutUpdatedFunction(nullptr)
 {
 
 }
@@ -61,6 +64,7 @@ void LayoutSprite::runSizeLayout(){
 			if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+				ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 				if(mt){
 					mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 				} else if(img){
@@ -68,6 +72,8 @@ void LayoutSprite::runSizeLayout(){
 					ci::Vec3f prePos = img->getPosition();
 					fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
 					img->setPosition(prePos);
+				} else if(sa){
+					sa->setScrollSize(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 				} else {
 					chillin->setSize(mLayoutSize);
 				}
@@ -79,6 +85,7 @@ void LayoutSprite::runSizeLayout(){
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 			ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+			ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 			if(mt){
 				mt->setResizeLimit(fixedW, fixedH);
 			} else if(img){
@@ -89,6 +96,8 @@ void LayoutSprite::runSizeLayout(){
 			} else if(ls){
 				ls->setSize(fixedW, fixedH);
 				ls->runLayout();
+			} else if(sa){
+				sa->setScrollSize(fixedW, fixedH);
 			} else {
 				chillin->setSize(fixedW, fixedH);
 			}
@@ -130,15 +139,20 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				// stretch sizes will be set later
 				numStretches++;
 			} else {
+				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
+				ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
+				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+				
 				if(chillin->mLayoutUserType == kFixedSize){
 					// see if we need to force a particular size, since images and text might resize themselves
 					if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
-						ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
-						ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 						if(mt){
 							mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 						} else if(img){
 							fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
+						} else if(sa){
+							sa->setScrollSize(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 						} else {
 							chillin->setSize(chillin->mLayoutSize);
 						}
@@ -147,9 +161,6 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 					// expand the flex children along the opposite axis from the flow
 					float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 					float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
-
-					ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
-					ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 					if(mt){
 						if(vertical){
 							mt->setResizeLimit(fixedW);
@@ -158,9 +169,19 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 						}
 					} else if(img){
 						if(vertical){
-							img->setScale(fixedW / img->getWidth());
+							if(img->getWidth() > 0.0f){
+								img->setScale(fixedW / img->getWidth());
+							}
 						} else {
-							img->setScale(fixedH / img->getHeight());
+							if(img->getHeight() > 0.0f){
+								img->setScale(fixedH / img->getHeight());
+							}
+						}
+					} else if(sa){
+						if(vertical){
+							sa->setScrollSize(fixedW, sa->getHeight());
+						} else {
+							sa->setScrollSize(sa->getHeight(), fixedH);
 						}
 					} else {
 						if(vertical){
@@ -172,7 +193,6 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				}
 
 				// run layouts in case they change their size
-				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 				if(ls){
 					ls->runLayout();
 				}
@@ -194,28 +214,32 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 	}
 
 	// figure out how much space is left, and where to start laying out children
-	float perStretch = 0.0f;
-	float offset = 0.0f;	
-	if(mShrinkToChildren){
-		// if we are shrinking to our children, all of the above will remain 0.0f;
+	if((mShrinkToChildren == kShrinkWidth) || (mShrinkToChildren == kShrinkBoth)){
 		if(vertical){
-			setSize(maxWidth, totalSize);
 			layoutWidth = maxWidth;
-			maxSize = layoutHeight = totalSize;
 		} else {
-			setSize(totalSize, maxHeight);
-			maxSize = layoutWidth = totalSize;
+			layoutWidth = maxSize = totalSize;
+		}
+	}
+	if((mShrinkToChildren == kShrinkHeight) || (mShrinkToChildren == kShrinkBoth)){
+		if(vertical){
+			layoutHeight = maxSize = totalSize;
+		} else {
 			layoutHeight = maxHeight;
 		}
-	} else {
-		// we're not shrinking to children, so figure out what's left over and how to use it properly
-		float leftOver = 0.0f;
-	
-		if(numStretches > 0){
-			leftOver = maxSize - totalSize;
-			perStretch = leftOver / numStretches;
-		}
+	}
+	setSize(layoutWidth, layoutHeight);
 
+	// figure out what's left over and how to use it properly
+	float leftOver = 0.0f;
+	float perStretch = 0.0f;
+	float offset = 0.0f;	
+	
+	if(numStretches > 0){
+		leftOver = maxSize - totalSize;
+		perStretch = leftOver / numStretches;
+	} else {
+		// we only calculate offsets if there are no stretches, because otherwise all the space will be used anyway
 		if(mOverallAlign == kMiddle || mOverallAlign == kCenter){
 			offset = maxSize / 2.0f - totalSize / 2.0f;
 		} else if(mOverallAlign == kBottom || mOverallAlign == kRight){
@@ -229,8 +253,6 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		ds::ui::Sprite* chillin = (*it);
 
 		if(chillin->mLayoutUserType == kFillSize) {
-			// fill size only uses padding and fudge, but doesn't contribute to the flow
-			chillin->setPosition(chillin->mLayoutLPad + chillin->mLayoutFudge.x, chillin->mLayoutTPad + chillin->mLayoutFudge.y);
 			continue;
 		}
 		
@@ -242,6 +264,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 			ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+			ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 			if(mt){
 				mt->setResizeLimit(stretchW, stretchH);
 			} else if(img){
@@ -249,6 +272,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 			} else if(ls){
 				ls->setSize(stretchW, stretchH);
 				ls->runLayout();
+			} else if(sa){
+				sa->setScrollSize(stretchW, stretchH);
 			} else {
 				chillin->setSize(stretchW, stretchH);
 			}
@@ -278,7 +303,9 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		}
 		
 		// finally set the position of the child
-		chillin->setPosition(xPos + chillin->mLayoutFudge.x, yPos + chillin->mLayoutFudge.y);	
+		ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
+		ci::Vec2f totalOffset = chillin->mLayoutFudge + childCenter;
+		chillin->setPosition(xPos + totalOffset.x, yPos + totalOffset.y);	
 		
 		// move along through the layout
 		if(vertical){
@@ -294,14 +321,13 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		for(auto it = chillins.begin(); it < chillins.end(); ++it){
 			ds::ui::Sprite* chillin = (*it);
 			if(chillin->mLayoutUserType == kFillSize){
-				chillin->setPosition(chillin->mLayoutLPad + chillin->mLayoutFudge.x, chillin->mLayoutTPad + chillin->mLayoutFudge.y);
-		
 				const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
 				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
+				ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 				if(mt){
 					mt->setResizeLimit(fixedW, fixedH);
 				} else if(img){
@@ -309,9 +335,20 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				} else if(ls){
 					ls->setSize(fixedW, fixedH);
 					ls->runLayout();
+				} else if(sa){
+					sa->setScrollSize(fixedW, fixedH);
 				} else {
 					chillin->setSize(fixedW, fixedH);
 				}
+
+				// It's possible, after all this, that the child still might not have the full size of (fixedW, fixedH).
+				// For example, images will be resized within their aspect, so they'll possibly be off.
+				// Compensate for this by centering the child within the area defined by the padding, and respecting the center and fudge factors.
+
+				ci::Vec2f centerOffset((fixedW - chillin->getScaleWidth()) * 0.5f, (fixedH - chillin->getScaleHeight()) * 0.5f);
+				ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
+				ci::Vec2f totalOffset = chillin->mLayoutFudge + childCenter + centerOffset;
+				chillin->setPosition(chillin->mLayoutLPad + totalOffset.x, chillin->mLayoutTPad + totalOffset.y);
 			}
 		}
 	}

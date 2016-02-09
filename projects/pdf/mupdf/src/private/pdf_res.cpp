@@ -66,9 +66,7 @@ private:
 			}
 			return ans;
 		} catch(std::exception& ex) {
-			#ifdef _DEBUG
-				std::cout << "ofxPdfViewDs.cpp::Load::setTo() exception=" << ex.what() << std::endl;
-			#endif
+			DS_LOG_WARNING("pdf_res.cpp::Load::setTo() exception=" << ex.what());
 		}
 		DS_LOG_WARNING("ds::ui::sprite::Pdf unable to load document \"" << file << "\".");
 		return false;
@@ -221,26 +219,22 @@ private:
 				mScaledWidth = static_cast<int>(mScale * mWidth);
 				mScaledHeight = static_cast<int>(mScale * mHeight);
 
-//				const float		zoom = 1.0f;
 				const float		zoom = static_cast<float>(mScaledWidth) / mWidth;
 				const float		rotation = 1.0f;
 				fz_matrix		transform = fz_identity;
 				fz_scale(&transform, zoom, zoom);
-	//			transform = fz_concat(transform, fz_rotate(rotation));
 
 				// Take the page bounds and transform them by the same matrix that
 				// we will use to render the page.
 				fz_rect			rect;
 				fz_bound_page(&ctx, &page, &rect);
 				fz_transform_rect(&rect, &transform);
-	//			fz_bbox bbox = fz_round_rect(rect);
 
 				// Create a blank pixmap to hold the result of rendering. The
 				// pixmap bounds used here are the same as the transformed page
 				// bounds, so it will contain the entire page. The page coordinate
 				// space has the origin at the top left corner and the x axis
 				// extends to the right and the y axis extends down.
-	//			fz_pixmap *pix = fz_new_pixmap_with_bbox(&ctx, fz_device_rgb, bbox);
 				int w = mScaledWidth, h = mScaledHeight;
 				if (mPixels.setSize(w, h)) {
 					mPixels.clearPixels();
@@ -360,26 +354,6 @@ float PdfRes::getTextureHeight() const {
 	if (!mTexture) return 0.0f;
 	return mTexture.getHeight();
 }
-
-#if 0
-void Pdf::setAnchorPercent(float xPct, float yPct) {
-	Poco::Mutex::ScopedLock		l(mMutex);
-	mTex[0].setAnchorPercent(xPct, yPct);
-	mTex[1].setAnchorPercent(xPct, yPct);
-}
-
-void Pdf::setAnchorPoint(float x, float y) {
-	Poco::Mutex::ScopedLock		l(mMutex);
-	mTex[0].setAnchorPoint(x, y);
-	mTex[1].setAnchorPoint(x, y);
-}
-
-void Pdf::resetAnchor() {
-	Poco::Mutex::ScopedLock		l(mMutex);
-	mTex[0].resetAnchor();
-	mTex[1].resetAnchor();
-}
-#endif
 
 void PdfRes::draw(float x, float y) {
 	if (mPageCount > 0 && mTexture) {
@@ -523,6 +497,22 @@ void PdfRes::_redrawPage() {
 	if (scaledWidth < 1) scaledWidth = 1;
 	int scaledHeight = scaledWidth * drawState.mHeight / drawState.mWidth;
 	if (scaledHeight < 1) scaledHeight = 1;
+
+	// Prevent trying to draw a PDF that's too large (can cause a memory overload and crashy thingy)
+	if(scaledWidth > 8000 || scaledHeight > 8000){
+		float newW = (float)scaledWidth;
+		float newH = (float)scaledHeight;
+		float asp = newW / newH;
+		newW = 8000;
+		newH = 8000;
+		if(asp < 1.0f){
+			newW = newH * asp;
+		} else {
+			newH = newW / asp;
+		}
+		scaledWidth = (int)floorf(newW);
+		scaledHeight = (int)floorf(newH);
+	}
 
 	// Render to the texture
 	if (drawState.mPageSizeMode == ds::ui::Pdf::kConstantSize) {

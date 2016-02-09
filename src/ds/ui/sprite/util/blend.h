@@ -20,6 +20,7 @@ enum BlendMode
 };
 
 BlendMode getBlendModeByString(const std::string& blendString);
+const std::string getStringForBlendMode(const BlendMode& blendMode);
 
 bool premultiplyAlpha(const BlendMode &blendMode);
 void applyBlendingMode(const BlendMode &blendMode);

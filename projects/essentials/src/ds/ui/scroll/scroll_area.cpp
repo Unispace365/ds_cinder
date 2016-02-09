@@ -18,6 +18,7 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 	, mFadeFullColor(0, 0, 0, 255)
 	, mFadeTransColor(0, 0, 0, 0)
 	, mScrollUpdatedFunction(nullptr)
+	, mSnapToPositionFunction(nullptr)
 	, mVertical(vertical)
 	, mScrollPercent(0.0f)
 {
@@ -32,6 +33,7 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 
 	mScroller = new Sprite(mEngine);
 	if(mScroller){
+		mScroller->mExportWithXml = false;
 // 		mScroller->setTransparent(false);
 // 		mScroller->setColor(ci::Color(0.1f, 0.56f, 0.3f));
 		mScroller->setSize(startWidth, startHeight);
@@ -58,7 +60,6 @@ void ScrollArea::setScrollSize(const float newWidth, const float newHeight){
 		} else {
 			mBottomFade->setSize(mFadeHeight, newHeight);
 			mBottomFade->setPosition(newWidth - mFadeHeight, 0.0f);
-
 		}
 	}
 	setSize(newWidth, newHeight);
@@ -82,78 +83,77 @@ Sprite* ScrollArea::getSpriteToPassTo(){
 }
 
 void ScrollArea::checkBounds(){
-	float scrollWindow(0.0f);
-	float scrollerSize(0.0f);
+	bool doTween = true;
+	ci::Vec3f tweenDestination = mScroller->getPosition();
 
-	if(mVertical){
-		scrollWindow = getHeight();
-		scrollerSize = mScroller->getHeight();
+	if(mSnapToPositionFunction){
+		mSnapToPositionFunction(this, mScroller, doTween, tweenDestination);
 	} else {
-		scrollWindow = getWidth();
-		scrollerSize = mScroller->getWidth();
+		float scrollWindow(0.0f);
+		float scrollerSize(0.0f);
+
+		if(mVertical){
+			scrollWindow = getHeight();
+			scrollerSize = mScroller->getHeight();
+		} else {
+			scrollWindow = getWidth();
+			scrollerSize = mScroller->getWidth();
+		}
+
+		bool canKeepAllScrollerInWindow = false;
+		if(scrollerSize <= scrollWindow){
+			mScrollable = false;
+			canKeepAllScrollerInWindow = true;
+
+			// only allowable position is zero
+			tweenDestination.set(0.0f, 0.0f, 0.0f);
+		} else {
+			float scrollerPos(0.0f);
+			if(mVertical){
+				scrollerPos = mScroller->getPosition().y;
+			} else {
+				scrollerPos = mScroller->getPosition().x;
+			}
+
+			// find the limits
+			float minPos(0.0f);
+			float maxPos(0.0f);
+
+			if(canKeepAllScrollerInWindow){
+				maxPos = scrollWindow - scrollerSize;
+			} else {
+				minPos = scrollWindow - scrollerSize;
+			}
+
+			if(scrollerPos < minPos){
+				// Can't scroll down any more
+				if(mVertical){
+					tweenDestination.set(0.0f, minPos, 0.0f);
+				} else {
+					tweenDestination.set(minPos, 0.0f, 0.0f);
+				}
+			} else if(scrollerPos > maxPos){
+				// Can't scroll up any more
+				if(mVertical){
+					tweenDestination.set(0.0f, maxPos, 0.0f);
+				} else {
+					tweenDestination.set(maxPos, 0.0f, 0.0f);
+				}
+			} else {
+				// In bounds
+				doTween = false;
+			}
+		}
 	}
 
-	if(scrollerSize <= scrollWindow){
-		mScrollable = false;
+	if(doTween){
 		mSpriteMomentum.deactivate();
-		mScroller->tweenPosition(ci::Vec3f::zero(), mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
-		scrollerUpdated(ci::Vec2f(0.0f, 0.0f));
+		mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
+		scrollerUpdated(tweenDestination.xy());
 	} else {
-		bool isPerspective = getPerspective();
-		float scrollerPos(0.0f);
-		float theTop = scrollWindow - scrollerSize;
-		if(mVertical){
-			scrollerPos = mScroller->getPosition().y;
-		} else {
-			scrollerPos = mScroller->getPosition().x;
-		}
-
-		bool doTween = true;
-		ci::Vec3f tweenDestination = ci::Vec3f::zero();
-
-		// Perspective y-position works in opposite
-		if(isPerspective && mVertical){
-			if(scrollerPos > 0){
-				doTween = true;
-				tweenDestination = ci::Vec3f::zero();
-
-			} else if(scrollerPos < theTop){
-				doTween = true;
-				tweenDestination = ci::Vec3f(0.0f, theTop, 0.0f);
-			} else {
-				doTween = false;
-			}
-
-		} else {
-
-			// Can't scroll down any more
-			if(scrollerPos > 0){
-				doTween = true;
-				tweenDestination = ci::Vec3f::zero();
-
-			// Can't scroll up any more
-			} else if(scrollerPos < theTop){
-				doTween = true;
-				if(mVertical){
-					tweenDestination = ci::Vec3f(0.0f, theTop, 0.0f);
-				} else {
-					tweenDestination = ci::Vec3f(theTop, 0.0f, 0.0f);
-				}
-
-			// In bounds
-			} else {
-				doTween = false;
-			}
-		}
-
-
-		if(doTween){
-			mSpriteMomentum.deactivate();
-			mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
-			scrollerUpdated(tweenDestination.xy());
-		} else {
-			scrollerUpdated(mScroller->getPosition().xy());
-		}
+		mScroller->animStop();
+		mScroller->setPosition(tweenDestination);
+		scrollerUpdated(tweenDestination.xy());
 	}
 }
 
@@ -197,6 +197,7 @@ void ScrollArea::setUseFades(const bool doFading){
 		if(!mTopFade){
 			mTopFade = new ds::ui::GradientSprite(mEngine);
 			if(mTopFade){
+				mTopFade->mExportWithXml = false;
 				mTopFade->setSize(fadeWiddy, fadeHiddy);
 				mTopFade->setTransparent(false);
 				mTopFade->enable(false);
@@ -208,6 +209,7 @@ void ScrollArea::setUseFades(const bool doFading){
 		if(!mBottomFade){
 			mBottomFade = new ds::ui::GradientSprite(mEngine);
 			if(mBottomFade){
+				mBottomFade->mExportWithXml = false;
 				mBottomFade->setSize(fadeWiddy, fadeHiddy);
 				mBottomFade->setTransparent(false);
 				mBottomFade->enable(false);
@@ -271,8 +273,6 @@ void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTra
 }
 
 void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
-	if(!mTopFade || !mBottomFade) return;
-
 	float scrollerSize = mScroller->getHeight();
 	float scrollWindow = getHeight();
 	float scrollerPossy = scrollPos.y;
@@ -293,26 +293,30 @@ void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
 	if(mScrollPercent > 1.0f) mScrollPercent = 1.0f;
 	if(mScrollPercent < 0.0f) mScrollPercent = 0.0f;
 
-	if(scrollerPossy < 0.0f){
-		if(!mTopFadeActive){
-			mTopFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
-			mTopFadeActive = true;
-		}
-	} else {
-		if(mTopFadeActive){
-			mTopFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
-			mTopFadeActive = false;
+	if(mTopFade){
+		if(scrollerPossy < 0.0f){
+			if(!mTopFadeActive){
+				mTopFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
+				mTopFadeActive = true;
+			}
+		} else {
+			if(mTopFadeActive){
+				mTopFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
+				mTopFadeActive = false;
+			}
 		}
 	}
 
-	if(scrollerPossy > theTop){
-		if(!mBottomFadeActive){
-			mBottomFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
-			mBottomFadeActive = true;
+	if(mBottomFade){
+		if(scrollerPossy > theTop){
+			if(!mBottomFadeActive){
+				mBottomFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
+				mBottomFadeActive = true;
+			}
+		} else if(mBottomFadeActive){
+			mBottomFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
+			mBottomFadeActive = false;
 		}
-	} else if(mBottomFadeActive){
-		mBottomFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
-		mBottomFadeActive = false;
 	}
 
 	if(mScrollUpdatedFunction) mScrollUpdatedFunction(this);
@@ -320,6 +324,10 @@ void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
 
 void ScrollArea::setScrollUpdatedCallback(const std::function<void(ds::ui::ScrollArea* thisThing)> &func){
 	mScrollUpdatedFunction = func;
+}
+
+void ScrollArea::setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func){
+	mSnapToPositionFunction = func;
 }
 
 const ci::Vec2f ScrollArea::getScrollerPosition(){

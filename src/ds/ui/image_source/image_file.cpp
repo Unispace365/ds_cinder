@@ -32,6 +32,10 @@ public:
 		return mFilename;
 	}
 
+	virtual std::string			getImageFilename() const {
+		return mFilename;
+	}
+
 	const int					getFlags() const {
 		return mFlags;
 	}

@@ -18,6 +18,8 @@ SpriteButton::SpriteButton(SpriteEngine& eng, const float widdy, const float hid
 	, mAnimDuration(0.1f)
 {
 
+	mUp.mExportWithXml = false;
+	mDown.mExportWithXml = false;
 
 	mDown.setOpacity(0.0f);
 
@@ -63,9 +65,8 @@ void SpriteButton::showUp() {
 }
 
 void SpriteButton::onClicked() {
-	if(mClickFn) mClickFn();
-
 	showUp();
+	if(mClickFn) mClickFn();
 }
 
 ds::ui::Sprite& SpriteButton::getHighSprite(){

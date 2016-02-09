@@ -166,6 +166,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mNetPort(-1)
 	, mBaseTime(0)
 	, mSeekTime(0)
+	, mCachedDuration(0)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -283,17 +284,11 @@ void GstVideo::drawLocalClient(){
 
 			unsigned char * dat = nullptr;
 			Surface8u* video_surface = nullptr;
-			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
-				dat = mGstreamerWrapper->getVideo();
-			}
-			else {
-				int tmp = 3;
-			}
 
 			dat = mGstreamerWrapper->getVideo();
 
 			if (dat){
-					if (mColorType == kColorTypeShaderTransform ){
+				if (mColorType == kColorTypeShaderTransform ){
 
 					ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
 					ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
@@ -302,8 +297,7 @@ void GstVideo::drawLocalClient(){
 					mFrameTexture.update(yChannel, ci::Area(0, 0, mVideoSize.x, mVideoSize.y));
 					mUFrameTexture.update(uChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
 					mVFrameTexture.update(vChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
-				}
-				else {
+				} else {
 					ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
 					mFrameTexture.update(video_surface);
 				}
@@ -326,9 +320,6 @@ void GstVideo::drawLocalClient(){
 	}
 
 	if (mFrameTexture && mDrawable){
-		if (getPerspective()){
-			mFrameTexture.setFlipped(true);
-		}
 		if (mColorType == kColorTypeShaderTransform){
 			ci::gl::disableDepthRead();
 			ci::gl::disableDepthWrite();
@@ -339,9 +330,16 @@ void GstVideo::drawLocalClient(){
 				if (mVFrameTexture) mVFrameTexture.bind(4);
 
 			}
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			if(getPerspective()){
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, mHeight, mWidth, 0.0f));
+			} else {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			}
 
 		} else {
+			if (getPerspective()){
+			 	mFrameTexture.setFlipped(true);
+			}
 			if (mFrameTexture) mFrameTexture.bind(0);
 			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 		}
@@ -392,8 +390,15 @@ GstVideo &GstVideo::setResourceId(const ds::Resource::Id &resourceId){
 }
 
 GstVideo& GstVideo::setResource(const ds::Resource& resource){
-	Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
-	loadVideo(resource.getAbsoluteFilePath());
+
+
+	if(resource.getType() == ds::Resource::VIDEO_TYPE){
+		Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
+		loadVideo(resource.getAbsoluteFilePath());
+	} else if(resource.getType() == ds::Resource::VIDEO_STREAM_TYPE) {
+		std::string path = resource.getAbsoluteFilePath();
+		startStream(path, resource.getWidth(), resource.getHeight());
+	}
 	return *this;
 }
 
@@ -410,11 +415,10 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 	try	{
 		int						videoWidth = static_cast<int>(getWidth());
 		int						videoHeight = static_cast<int>(getHeight());
-		double					videoDuration(0.0f);
 		bool					generateVideoBuffer = true;
 		std::string				colorSpace = "";
 
-		CACHE.getValues(filename, type, videoWidth, videoHeight, videoDuration, colorSpace);
+		CACHE.getValues(filename, type, videoWidth, videoHeight, mCachedDuration, colorSpace);
 
 		if(type == VideoMetaCache::AUDIO_TYPE)
 		{
@@ -497,6 +501,15 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		
 	mOutOfBoundsMuted = true;
 	mColorType = ColorType::kColorTypeShaderTransform;
+	std::string name("yuv_colorspace_conversion");
+	addNewMemoryShader(yuv_vert, yuv_frag, name, true);
+	ds::gl::Uniform uniform;
+
+	uniform.setInt("gsuTexture0", 2);
+	uniform.setInt("gsuTexture1", 3);
+	uniform.setInt("gsuTexture2", 4);
+	setShadersUniforms("yuv_colorspace_conversion", uniform);
+
 	DS_LOG_INFO_M("GstVideo::startStream() " << streamingPipeline, GSTREAMER_LOG);
 	if(!mGstreamerWrapper->openStream(streamingPipeline, (int)floorf(videoWidth), (int)floorf(videoHeight))){
 		DS_LOG_WARNING_M("GstVideo::startStream() aborting cause of a problem.", GSTREAMER_LOG);
@@ -608,7 +621,15 @@ bool GstVideo::getIsPlaying() const {
 }
 
 double GstVideo::getDuration() const {
-	return mGstreamerWrapper->getDurationInMs() / 1000.0;
+	double gstDur = mGstreamerWrapper->getDurationInMs();
+
+	// if gstreamer hasn't found the duration or the video hasn't been loaded yet, use the cached value
+	if(gstDur < 1){
+		gstDur = mCachedDuration;
+	} else {
+		gstDur /= 1000.0;
+	}
+	return gstDur;
 }
 
 double GstVideo::getCurrentTime() const {

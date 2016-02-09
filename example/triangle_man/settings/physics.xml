@@ -1,0 +1,49 @@
+<settings>
+	<!-- Example physcs.xml file.
+		The physics project will automatically try to load this file on initialization.
+	-->
+
+	<!-- If true, then a default physics world with an ID of 0 is created on the
+		root sprite object. If you set this to false, that means the app is
+		responsible for creating its own physics world(s) on the desired sprite(s). -->
+	<text  name="create_root_world" value="true" />
+	
+	<!-- translate input/output from box2d into local sprite coordinate space. default=false -->
+	<text  name="use_local_translation" value="true" />
+
+	<!-- Default values when creating bodies. Can be overriden per SpriteBody. -->
+	<float name="friction" value="0.9" />
+	<float name="dampening:linear" value="5" />
+	<float name="dampening:angular" value="5" />
+	<text  name="rotation:fixed" value="false" />
+	
+	<!-- Step controls how box 2d handles integrations for each frame of physics.
+			higher numbers of iterations are slower, but more accurate. -->
+	<int   name="step:velocity_iterations" value="6" />
+	<int   name="step:position_iterations" value="2" />
+	<!-- Box 2d recommends fixing the update to a set amount, regardless of framerate, 
+	but the legacy behaviour is variable (delta time). 
+	If you specify fixed, you should also specify the amount, which should be 1 / <frame_rate> -->
+	<text  name="step:fixed" value="true" />
+	<float name="step:fixed_amount" value="0.008" />
+	<float name="step:fixed_amount" value="0.01666666666" />
+	
+	<!-- settings for all mouse joints
+			max_force: maximum amount of strongness
+			dampening: Damping is used to reduce the world velocity of bodies. Values go from 0.0 to infinity, with 0 being off, and infinity being full dampening
+			frequency: how many times to apply a second. higher numbers means much stronger pull---->
+	<float name="mouse:max_force" value="5000" />
+	<float name="mouse:dampening" value="0.0" />
+	<float name="mouse:frequency_hz" value="30" />
+
+	<!-- Optional bounds around the world. You can specify in either unit or fixed.
+		Unit of course is more flexible, but might not work if your world bounds don't
+		match your physics bound. Fixed overrides unit. -->
+	<!-- 
+	<rect  name="bounds:unit" l="0" t="0" r="1" b="1" />
+	<rect  name="bounds:fixed" l="-5" t="-5" r="5" b="5" />
+	<float name="bounds:restitution" value="0.1" />
+	-->
+	<text name="draw_debug" value="false" />
+	
+</settings>

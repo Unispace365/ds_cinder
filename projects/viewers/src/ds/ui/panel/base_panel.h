@@ -81,6 +81,8 @@ public:
 
 	const float						getContentAspectRatio(){ return mContentAspectRatio; }
 
+	void							checkBounds(const bool immediate = false);
+
 protected:
 	virtual void					updateServer(const ds::UpdateParams &updateParams);
 
@@ -91,8 +93,7 @@ protected:
 
 	void							handleTouchInfo(const ds::ui::TouchInfo& ti);
 	void							setSizeLimits();
-	void							checkBounds(const bool immediate = false);
-
+	
 	float							mContentAspectRatio;
 	float							mTopPad;
 	float							mLeftPad;
@@ -114,6 +115,11 @@ protected:
 
 private:
 
+	// This method is intentially private. 
+	// The reason is that your layout code should go into layout(), and may be called
+	// at any time, not just when the view changes size. So your layout code should be lightweight
+	// Having this be protected or public could lead to duplicate layout codepaths, making debugging tricky
+	// If you need something to update with the size changes, override onLayout() and put your code there.
 	virtual void					onSizeChanged();
 };
 

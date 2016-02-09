@@ -55,8 +55,9 @@ void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti){
 	}
 	sendToFront();
 	userInputReceived();
-	setOpacity(1.0f);
-	setScale(1.0f);
+
+	completeTweenScale();
+	completeTweenOpacity();
 
 	if(ti.mPhase == ds::ui::TouchInfo::Added && ti.mFingerIndex == 0){
 
@@ -133,11 +134,11 @@ void BasePanel::setSizeLimits(){
 	ci::Vec2f	panelDefaultSize = mDefaultSize;
 	const float			cw = getWidth() != 0 ? getWidth() : 1.0f, ch = getHeight() != 0 ? getHeight() : 1.0f, aspect = cw / ch;
 	ci::Vec2f			minSize = ci::Vec2f(cw, ch),
-		defaultSize = ci::Vec2f(cw, ch),
-		maxSize = ci::Vec2f(cw * 10, ch * 10);
-	const ci::Vec2f		absMinSize = ci::Vec2f(300, 200),
-		idealDefault = ci::Vec2f(panelDefaultSize.x, panelDefaultSize.y),
-		absMaxSize = ci::Vec2f(20000, 20000);
+						defaultSize = ci::Vec2f(cw, ch),
+						maxSize = ci::Vec2f(cw * 10.0f, ch * 10.0f);
+	const ci::Vec2f		absMinSize = ci::Vec2f(300.0f, 200.0f),
+						idealDefault = ci::Vec2f(panelDefaultSize.x, panelDefaultSize.y),
+						absMaxSize = ci::Vec2f(20000.0f, 20000.0f);
 	const float			absMinArea = absMinSize.x * absMinSize.y;
 	const float			absMaxArea = absMaxSize.x * absMaxSize.y;
 	const float			idealDefaultArea = idealDefault.x * idealDefault.y;

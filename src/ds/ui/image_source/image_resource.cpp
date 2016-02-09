@@ -41,6 +41,10 @@ public:
 		return mFlags;
 	}
 
+	virtual std::string			getImageFilename() const {
+		return mResource.getPortableFilePath();
+	}
+
 	bool						getMetaData(ImageMetaData& d) const {
 		if(mResource.getWidth() > 0 && mResource.getHeight() > 0){
 			d.mSize.x = mResource.getWidth();
@@ -150,6 +154,15 @@ ImageResource::ImageResource(const ds::Resource::Id& id, const int flags)
 ImageResource::ImageResource(const ds::Resource& res, const std::string& ip_key,
 							 const std::string& ip_params, const int flags)
 							 : mResource(res)
+							 , mIpKey(ip_key)
+							 , mIpParams(ip_params)
+							 , mFlags(flags) {
+}
+
+
+ImageResource::ImageResource(const ds::Resource::Id& id, const std::string& ip_key,
+							 const std::string& ip_params, const int flags)
+							 : mResourceId(id)
 							 , mIpKey(ip_key)
 							 , mIpParams(ip_params)
 							 , mFlags(flags) {

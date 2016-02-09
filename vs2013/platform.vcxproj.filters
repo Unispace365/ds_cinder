@@ -34,9 +34,6 @@
     <Filter Include="src\ds\ui\sprite">
       <UniqueIdentifier>{2ac10f37-fb39-4f7f-a22a-e86ab62d9163}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\touch">
-      <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\math">
       <UniqueIdentifier>{9fb4c09e-660e-4216-93c1-e3dd8ff0f9e0}</UniqueIdentifier>
     </Filter>
@@ -105,6 +102,9 @@
     </Filter>
     <Filter Include="src\ds\app\engine\renderers">
       <UniqueIdentifier>{0d3f99b8-44cb-4266-b9aa-e57cc95746ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\touch">
+      <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -687,6 +687,18 @@
     <ClInclude Include="..\src\ds\data\color_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\border.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\image_with_thumbnail.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\circle_border.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\Quaternion.h">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1165,6 +1177,15 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\color_list.cpp">
       <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\border.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\image_with_thumbnail.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\circle_border.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -1,0 +1,102 @@
+<settings>
+
+<!-- Font names are installed in the root app class on startup	-->
+	
+	<!-- Sample Text -->
+		<text  name="button:text:name" value="noto-bold" />
+		<float name="button:text:size" value="12" />
+		<float name="button:text:leading" value="0.75" />
+		<color name="button:text:color" r="10" g="10" b="10" />
+
+	<text  name="tree:item:name" value="frutiger-bold" />
+	<float name="tree:item:size" value="12" />
+	<float name="tree:item:leading" value="0.75" />
+	<color name="tree:item:color" r="255" g="255" b="255" />
+
+	<text  name="tree:item_two:name" value="frutiger-light" />
+	<float name="tree:item_two:size" value="12" />
+	<float name="tree:item_two:leading" value="0.75" />
+	<color name="tree:item_two:color" r="255" g="255" b="255" />
+		
+	<text  name="connections:title:name" value="frutiger-light" />
+	<float name="connections:title:size" value="24" />
+	<float name="connections:title:leading" value="0.75" />
+	<color name="connections:title:color" r="255" g="255" b="255" />
+	
+	<text  name="connections:categories:name" value="frutiger-bold" />
+	<float name="connections:categories:size" value="12" />
+	<float name="connections:categories:leading" value="0.75" />
+	<color name="connections:categories:color" r="255" g="255" b="255" />
+	
+	<text  name="connections:category:name" value="frutiger-roman" />
+	<float name="connections:category:size" value="16" />
+	<float name="connections:category:leading" value="0.5" />
+	<color name="connections:category:color" r="255" g="255" b="255" />
+	
+	<text  name="connections:person_name:name" value="frutiger-bold" />
+	<float name="connections:person_name:size" value="30" />
+	<float name="connections:person_name:leading" value="0.5" />
+	<color name="connections:person_name:color" r="255" g="255" b="255" />
+	
+	<text  name="connections:person_subhead:name" value="frutiger-light" />
+	<float name="connections:person_subhead:size" value="21" />
+	<float name="connections:person_subhead:leading" value="0.5" />
+	<color name="connections:person_subhead:color" r="255" g="255" b="255" />
+	
+	<text  name="menu:title:name" value="guardian-light" />
+	<float name="menu:title:size" value="48" />
+	<float name="menu:title:leading" value="0.75" />
+	<color name="menu:title:color" r="0" g="46" b="82" />
+	
+	<text  name="menu:item:name" value="guardian-light" />
+	<float name="menu:item:size" value="21" />
+	<float name="menu:item:leading" value="0.75" />
+	<color name="menu:item:color" r="0" g="46" b="82" />
+
+	
+	<text  name="cover_page:title:name" value="guardian-bold" />
+	<float name="cover_page:title:size" value="21" />
+	<float name="cover_page:title:leading" value="0.75" />
+	<color name="cover_page:title:color" r="255" g="255" b="255" />
+	
+	<text  name="cover_page:body:name" value="guardian-light" />
+	<float name="cover_page:body:size" value="16" />
+	<float name="cover_page:body:leading" value="0.75" />
+	<color name="cover_page:body:color" r="255" g="255" b="255" />
+
+	<text  name="quote:quote:name" value="guardian-bold" />
+	<float name="quote:quote:size" value="42" />
+	<float name="quote:quote:leading" value="0.75" />
+	<color name="quote:quote:color" r="255" g="255" b="255" />
+	
+	<text  name="quote:attribution:name" value="guardian-light" />
+	<float name="quote:attribution:size" value="24" />
+	<float name="quote:attribution:leading" value="0.75" />
+	<color name="quote:attribution:color" r="255" g="255" b="255" />
+	
+	<text  name="after:stat:name" value="guardian-light" />
+	<float name="after:stat:size" value="116" />
+	<float name="after:stat:leading" value="0.75" />
+	<color name="after:stat:color" r="255" g="163" b="28" />
+	
+	<text  name="after:sub:name" value="guardian-light" />
+	<float name="after:sub:size" value="48" />
+	<float name="after:sub:leading" value="0.75" />
+	<color name="after:sub:color" r="255" g="163" b="28" />
+	
+	<text  name="after:body:name" value="guardian-light" />
+	<float name="after:body:size" value="30" />
+	<float name="after:body:leading" value="0.65" />
+	<color name="after:body:color" r="0" g="46" b="82" />
+	
+	<text  name="quiz:stat:name" value="guardian-light" />
+	<float name="quiz:stat:size" value="116" />
+	<float name="quiz:stat:leading" value="0.75" />
+	<color name="quiz:stat:color" r="255" g="255" b="255" />
+	
+	<text  name="quiz:sub:name" value="guardian-light" />
+	<float name="quiz:sub:size" value="30" />
+	<float name="quiz:sub:leading" value="0.75" />
+	<color name="quiz:sub:color" r="255" g="255" b="255" />
+	
+</settings>

@@ -376,7 +376,7 @@ namespace ui {
 		void					clearChildren();
 
 		std::vector<Sprite*>	getChildren() { return mChildren; }
-
+		
 		/** Check to see if this Sprite contains child.
 			\param child The child to check if it is contained on this Sprite.
 			\return True if the child is a child of this Sprite. False if the child is a damn stranger. */
@@ -386,6 +386,10 @@ namespace ui {
 			\param funkyTown The lambda function to be called for each Sprite.
 			\param recurse Call this function for all children of all children of all my children. */
 		void					forEachChild(const std::function<void(Sprite&)>& funkyTown, const bool recurse = false);
+
+		/** Traverse children recursively and find a sprite the with the given name.
+			\param name The name given from layout or from setSpriteName(). */
+		Sprite*					getFirstDescendantWithName(const std::wstring& name);
 
 		/** Sends sprite to front of parents child list. */
 		void					sendToFront();
@@ -514,6 +518,9 @@ namespace ui {
 			After calling this, the Sprite will still grab touch events, but not do any specific multitouch handling (like position, rotate, etc). Will send out tap and touchinfo callbacks. */
 		void					disableMultiTouch();
 
+		/** The BitMask of*/
+		const BitMask&			getMultiTouchConstraints(){ return mMultiTouchConstraints; }
+
 		/** Has enableMultiTouch() been called?  */
 		bool					multiTouchEnabled() const;
 
@@ -581,6 +588,7 @@ namespace ui {
 		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
 		ci::gl::Texture*		getShaderOutputTexture();
 		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
+		void					setShaderExtraData(const ci::Vec4f& data);
 
 		//	Determines if the final render will be to the display or a texture.
 		void					setFinalRenderToTexture(bool render_to_texture);
@@ -603,7 +611,7 @@ namespace ui {
 
 		void					setClipping(bool flag);
 		bool					getClipping() const;
-
+		
 		virtual void			userInputReceived();
 		void					setSecondBeforeIdle(const double);
 		double					secondsToIdle() const;
@@ -655,6 +663,15 @@ namespace ui {
 		*/
 		bool					getDrawDebug();
 
+		/** For debugging uses. Not recommended for sprite lookup, as there is no guarantee of uniqueness. 
+		Recommended method is to keep a pointer to the sprite or look up via a map or vector.*/
+		void					setSpriteName(const std::wstring& name);
+
+		/**For debugging uses. Will return the sprite's name if no name has been set via setSpriteName.
+		Not recommended for sprite lookup, as there is no guarantee of uniqueness.
+		Recommended method is to keep a pointer to the sprite or look up via a map or vector.*/
+		const std::wstring		getSpriteName(const bool useDefault = true) const;
+
 		/// For use by any layout classes you may want to implement. Default = 0.0f or 0 for all of these
 		float					mLayoutTPad;
 		float					mLayoutBPad;
@@ -665,6 +682,8 @@ namespace ui {
 		int						mLayoutHAlign;
 		int						mLayoutVAlign; 
 		int						mLayoutUserType;
+		
+		bool					mExportWithXml;
 
 	protected:
 		friend class        TouchManager;
@@ -775,6 +794,7 @@ namespace ui {
 								mCenter,
 								mScale,
 								mRotation;
+		bool					mRotationOrderZYX;
 		float					mOpacity;
 		ci::Color				mColor;
 		ci::Rectf				mClippingBounds;
@@ -793,6 +813,7 @@ namespace ui {
 
 		//Keeps track of which FBO is being rendered to for multi-pass rendering
 		int							mFboIndex;
+		ci::Vec4f				mShaderExtraData;
 
 		mutable ci::Matrix44f	mGlobalTransform;
 		mutable ci::Matrix44f	mInverseGlobalTransform;
@@ -891,6 +912,9 @@ namespace ui {
 		// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
 		// Cleared automatically on destruction
 		ci::CueRef			mDelayedCallCueRef;
+
+		// For debugging, and in a super-duper pinch, in production. 
+		std::wstring		mSpriteName;
 	public:
 		// This is a bit of a hack so I can temporarily set a scale value
 		// without causing the whole editing mechanism to kick in.

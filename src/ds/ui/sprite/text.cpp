@@ -336,6 +336,11 @@ float Text::getFontFullHeight() const
 	return ds::ui::getFontHeight(mFont, 0.0f);
 }
 
+
+const std::string Text::getFontFileName()const{
+	return mFontFileName;
+}
+
 void Text::debugPrint()
 {
 	makeLayout();
