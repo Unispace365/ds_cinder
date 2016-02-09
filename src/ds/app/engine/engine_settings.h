@@ -39,6 +39,7 @@ public:
 	EngineSettings();
 
 	void							printStartupInfo();
+	bool							getUsingDefault(){ return !mLoadedAnySettings; };
 
 private:
 	friend class Environment;
@@ -49,6 +50,7 @@ private:
 	static const std::string&		getConfigurationFolder();
 
 
+	bool							mLoadedAnySettings;
 	std::stringstream				mStartupInfo;
 };
 

@@ -98,6 +98,7 @@ App::App(const RootList& roots)
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
 	mEngineSettings.printStartupInfo();
+	mEngineData.mUsingDefaults = mEngineSettings.getUsingDefault();
 
 	add_dll_path();
 

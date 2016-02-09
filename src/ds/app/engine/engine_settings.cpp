@@ -22,8 +22,11 @@ namespace ds {
 /**
  * \class ds::EngineSettings
  */
-EngineSettings::EngineSettings() {
+EngineSettings::EngineSettings() 
+	: mLoadedAnySettings(false)
+{
 
+	mLoadedAnySettings = false;
 	mStartupInfo.str("");
 
 	// Default file names.
@@ -67,6 +70,7 @@ EngineSettings::EngineSettings() {
 
 	std::string appFullPath = appP.toString();
 	if(FileMetaData::safeFileExistsCheck(appFullPath)){
+		mLoadedAnySettings = true;
 		mStartupInfo << "EngineSettings: Reading app settings from " << appFullPath << std::endl;
 		readFrom(appFullPath, false);
 	}
@@ -88,6 +92,7 @@ EngineSettings::EngineSettings() {
 
 		std::string localSettingsPath = ds::Environment::getLocalSettingsPath(localFilename);
 		if(FileMetaData::safeFileExistsCheck(localSettingsPath)){
+			mLoadedAnySettings = true;
 			mStartupInfo << "EngineSettings: Reading app settings from " << localSettingsPath << std::endl;
 			readFrom(localSettingsPath, true);
 		}
@@ -103,16 +108,19 @@ EngineSettings::EngineSettings() {
 			const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + appFilename);
 
 			if(FileMetaData::safeFileExistsCheck(app)){
+				mLoadedAnySettings = true;
 				mStartupInfo << "EngineSettings: Reading app settings from " << app << std::endl;
 				readFrom(app, true);
 			}
 
 			if(FileMetaData::safeFileExistsCheck(local)){
+				mLoadedAnySettings = true;
 				mStartupInfo << "EngineSettings: Reading app settings from " << local << std::endl;
 				readFrom(local, true);
 			}
 		}
 	}
+
 }
 
 const std::string& EngineSettings::envProjectPath() {
@@ -128,7 +136,11 @@ const std::string& EngineSettings::getConfigurationFolder() {
 }
 
 void EngineSettings::printStartupInfo(){
-	DS_LOG_INFO(std::endl << mStartupInfo.str());
+	if(mLoadedAnySettings){
+		DS_LOG_INFO(std::endl << mStartupInfo.str());
+	} else {
+		DS_LOG_WARNING("No settings files loaded. Using default values.");
+	}
 }
 
 } // namespace ds
