@@ -83,9 +83,13 @@ public:
 	/** Send all touch info (straight from the engine in most cases) directly here to be parsed */
 	void									handleTouchInfo(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 
+	/** Starts a menu at the specified location. That menu will timeout or close when an option is tapped. */
+	void									startTappableMenu(const ci::Vec3f& globalLocation, const float timeoutSeconds = 10.0f);
+
 private:
 	void									handleClusterUpdate(const ds::ui::TouchInfo::Phase tp, const ds::ui::FiveFingerCluster::Cluster& clustersLastStand);
 	void									clearClusters();
+	ds::ui::ClusterView*					getClusterView();
 
 	ds::ui::FiveFingerCluster				mFiveFingerCluster;
 	std::vector<ds::ui::ClusterView*>		mClusterViews;
