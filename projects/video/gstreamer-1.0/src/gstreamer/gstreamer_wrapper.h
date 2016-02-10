@@ -172,6 +172,9 @@ public:
 	*/
 	void					setCurrentAudioStream( int iCurrentAudioStream );
 
+	void					setAutoRestartStream(bool autoRestart) { m_AutoRestartStream = autoRestart; }
+
+
 	/*
 	Sets the playback speed of the opened media file.
 
@@ -694,6 +697,7 @@ private:
 	bool					m_StartPlaying;/* Play the video as soon as it's loaded */
 	bool					m_CustomPipeline; /* Has a custom pipeline for audio */
 	bool					m_Streaming; /* The video is playing live over the network (disallows seeking and a few other things */
+	bool					m_AutoRestartStream;
 	std::string				m_StreamPipeline;
 
 	bool					m_VerboseLogging;

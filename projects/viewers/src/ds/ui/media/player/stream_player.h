@@ -33,6 +33,7 @@ namespace ds {
 
 			void								showInterface();
 			void								setShowInterfaceAtStart(bool showInterfaceAtStart);
+			void								setAutoRestartStream(bool autoRestart);
 
 			ds::ui::GstVideo*					getVideo();
 

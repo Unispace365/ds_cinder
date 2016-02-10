@@ -64,6 +64,8 @@ public:
 	// Loads a vodeo from a ds::Resource
 	GstVideo&			setResource(const ds::Resource& resource);
 
+	void				setAutoRestartStream(bool autoRestart);
+
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility
 	// with existing behavior.

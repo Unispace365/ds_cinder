@@ -390,8 +390,6 @@ GstVideo &GstVideo::setResourceId(const ds::Resource::Id &resourceId){
 }
 
 GstVideo& GstVideo::setResource(const ds::Resource& resource){
-
-
 	if(resource.getType() == ds::Resource::VIDEO_TYPE){
 		Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
 		loadVideo(resource.getAbsoluteFilePath());
@@ -401,6 +399,13 @@ GstVideo& GstVideo::setResource(const ds::Resource& resource){
 	}
 	return *this;
 }
+
+void GstVideo::setAutoRestartStream(bool autoRestart){
+	if(mGstreamerWrapper){
+		mGstreamerWrapper->setAutoRestartStream(autoRestart);
+	}
+}
+
 
 
 void GstVideo::doLoadVideo(const std::string &filename, const std::string &portable_filename){
