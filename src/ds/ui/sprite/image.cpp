@@ -19,8 +19,12 @@ namespace ui {
 
 namespace {
 char				BLOB_TYPE			= 0;
+
 const DirtyState&	IMG_SRC_DIRTY		= INTERNAL_A_DIRTY;
+const DirtyState&	IMG_CROP_DIRTY		= INTERNAL_B_DIRTY;
+
 const char			IMG_SRC_ATT			= 80;
+const char			IMG_CROP_ATT		= 81;
 }
 
 void Image::installAsServer(ds::BlobRegistry& registry) {
@@ -54,6 +58,7 @@ Image::Image(SpriteEngine& engine)
 	setUseShaderTexture(true);
 
 	markAsDirty(IMG_SRC_DIRTY);
+	markAsDirty(IMG_CROP_DIRTY);
 }
 
 Image::Image(SpriteEngine& engine, const std::string& filename, const int flags)
@@ -192,6 +197,7 @@ void Image::setCircleCrop(bool circleCrop)
 
 void Image::setCircleCropRect(const ci::Rectf& rect)
 {
+	markAsDirty(IMG_CROP_DIRTY);
 	mShaderExtraData.x = rect.x1;
 	mShaderExtraData.y = rect.y1;
 	mShaderExtraData.z = rect.x2;
@@ -239,12 +245,25 @@ void Image::writeAttributesTo(ds::DataBuffer& buf) {
 		buf.add(IMG_SRC_ATT);
 		mImageSource.writeTo(buf);
 	}
+
+	if (mDirty.has(IMG_CROP_DIRTY)) {
+		buf.add(IMG_CROP_ATT);
+		buf.add(mShaderExtraData.x);
+		buf.add(mShaderExtraData.y);
+		buf.add(mShaderExtraData.z);
+		buf.add(mShaderExtraData.w);
+	}
 }
 
 void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if (attributeId == IMG_SRC_ATT) {
 		mImageSource.readFrom(buf);
 		setStatus(Status::STATUS_EMPTY);
+	} else if (attributeId == IMG_CROP_ATT) {
+		mShaderExtraData.x = buf.read<float>();
+		mShaderExtraData.y = buf.read<float>();
+		mShaderExtraData.z = buf.read<float>();
+		mShaderExtraData.w = buf.read<float>();
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
 	}
