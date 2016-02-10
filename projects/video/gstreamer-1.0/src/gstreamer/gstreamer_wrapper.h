@@ -468,6 +468,8 @@ public:
 	*/
 	void					setVideoCompleteCallback(const std::function<void(GStreamerWrapper* video)> &func);
 
+	void					setErrorMessageCallback(const std::function<void(const std::string& errMessage)>& func);
+
 	/*
 	Set the pipeline to play as soon as the video is loaded.
 	*/
@@ -655,6 +657,7 @@ protected:
 	LoopMode				m_LoopMode; /* The current loop mode */
 	std::function < void(GStreamerWrapper*) >
 							mVideoCompleteCallback;
+	std::function<void(const std::string&)> m_ErrorMessageCallback;
 	GstElement*				m_GstPipeline; /* The main GStreamer pipeline */
 	bool					m_PendingSeek;
 	GstElement*				m_GstAudioSink; /* Audio sink that contains the raw audio buffer. Gathered from the pipeline */

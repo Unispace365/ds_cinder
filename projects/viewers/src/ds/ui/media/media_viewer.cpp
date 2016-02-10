@@ -17,6 +17,7 @@
 
 #include "ds/ui/media/media_interface.h"
 
+#include "ds/ui/sprite/gst_video.h"
 
 namespace ds {
 namespace ui {
@@ -134,6 +135,9 @@ void MediaViewer::initialize(){
 			mPrimaryImage->setStatusCallback([this](ds::ui::Image::Status status){
 				if(status.mCode == status.STATUS_LOADED && mPrimaryImage){
 					mPrimaryImage->tweenOpacity(1.0f, mAnimDuration);
+					if(mStatusCallback){
+						mStatusCallback(true);
+					}
 				}
 			});
 		}
@@ -141,20 +145,48 @@ void MediaViewer::initialize(){
 		mContentAspectRatio = mPrimaryImage->getWidth() / mPrimaryImage->getHeight();
 		contentWidth = mPrimaryImage->getWidth();
 		contentHeight = mPrimaryImage->getHeight();
+
 	} else if(mediaType == ds::Resource::VIDEO_TYPE){
 		mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mVideoPlayer);
+
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
+
+		if(mVideoPlayer->getVideo()){
+			mVideoPlayer->getVideo()->setErrorCallback([this](const std::string& msg){
+				if(mErrorCallback) mErrorCallback(msg);
+			});
+
+			mVideoPlayer->getVideo()->setStatusCallback([this](const ds::ui::GstVideo::Status& status){
+				bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
+				if(mStatusCallback){
+					mStatusCallback(isGood);
+				}
+			});
+		}
 
 		mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
 		contentWidth = mVideoPlayer->getWidth();
 		contentHeight = mVideoPlayer->getHeight();
+
 	} else if( mediaType == ds::Resource::VIDEO_STREAM_TYPE ){
 		
 		mStreamPlayer = new StreamPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mStreamPlayer);
 
 		mStreamPlayer->setResource(mResource);
+		if(mStreamPlayer->getVideo()){
+			mStreamPlayer->getVideo()->setErrorCallback([this](const std::string& msg){
+				if(mErrorCallback) mErrorCallback(msg);
+			});
+
+			mStreamPlayer->getVideo()->setStatusCallback([this](const ds::ui::GstVideo::Status& status){
+				bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
+				if(mStatusCallback){
+					mStatusCallback(isGood);
+				}
+			});
+		}
 
 		mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
 		contentWidth = mStreamPlayer->getWidth();
@@ -358,6 +390,14 @@ ds::ui::Sprite* MediaViewer::getPlayer(){
 	}
 
 	return nullptr;
+}
+
+void MediaViewer::setErrorCallback(std::function<void(const std::string& msg)> func){
+	mErrorCallback = func; 
+}
+
+void MediaViewer::setStatusCallback(std::function<void(const bool isGood)> func){
+	mStatusCallback = func;
 }
 
 } // namespace ui

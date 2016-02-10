@@ -48,7 +48,7 @@ public:
 	// to another Sprite as child.
 	static GstVideo&	makeVideo(SpriteEngine&, Sprite* parent = nullptr);
 
-	// Generic constuctor. To be used with Sprite::addChilePtr(...)
+	// Generic constuctor. To be used with Sprite::addChildPtr(...)
 	GstVideo(SpriteEngine&);
 
 	// Destructor, simply a no-op. Made virtual for polymorphisms.
@@ -64,6 +64,7 @@ public:
 	// Loads a vodeo from a ds::Resource
 	GstVideo&			setResource(const ds::Resource& resource);
 
+	/// If video streaming fails, will automatically try to reconnect (default=true)
 	void				setAutoRestartStream(bool autoRestart);
 
 	// If clear frame is true then the current frame texture is removed. I
@@ -91,62 +92,65 @@ public:
 	void				setPan(const float pan);
 	float				getPan() const;
 
-	// Playback control API 
+	/// Playback control API 
 	virtual void		play();
 	virtual void		stop();
 	virtual void		pause();
 	bool				getIsPlaying() const;
 
-	// Time operations (in seconds)
+	/// Time operations (in seconds)
 	double				getDuration() const;
 	double				getCurrentTime() const;
 	double				getCurrentTimeMs() const;
 	void				seekTime(const double);
 
-	// Position operations (in unit values, 0 - 1)
+	/// Position operations (in unit values, 0 - 1)
 	double				getCurrentPosition() const;
 	void				seekPosition(const double);
 
-	// If true, will play the video as soon as it's loaded.
+	/// If true, will play the video as soon as it's loaded.
 	void				setAutoStart(const bool doAutoStart);
 	bool				getAutoStart() const;
 
-	// Gets the current status of the player, in case you need if out of callback.
+	/// Gets the current status of the player, in case you need if out of callback.
 	const Status&		getCurrentStatus() const;
 	
-	// Gets the currently loaded filename (if any)
+	/// Gets the currently loaded filename (if any)
 	const std::string&	getLoadedFilename() const;
 
-	// Callback when video changes its status (play / pause / stop).
+	/// Callback when video changes its status (play / pause / stop).
 	void				setStatusCallback(const std::function<void(const Status&)>&);
 
-	// Sets the video complete callback. It's called when video is finished.
+	/// Callback for generic gstreamer errors. The message comes from gstreamer itself, so it may not be appropriate to display to the user.
+	void				setErrorCallback(const std::function<void(const std::string& errorMessage)>&);
+
+	/// Sets the video complete callback. It's called when video is finished.
 	void				setVideoCompleteCallback(const std::function<void()> &func);
 
-	// If a video is looping, will stop the video when the current loop completes.
+	/// If a video is looping, will stop the video when the current loop completes.
 	void				stopAfterNextLoop();
 
-	// Play a single frame, then stop. Useful to show a thumbnail-like frame, or to keep a video in the background, but visible
-	// Optional: Supply the time in ms to display
-	// Optional: Supply a function called once that frame has been displayed (to unload the video, or animate or whatever)
+	/// Play a single frame, then stop. Useful to show a thumbnail-like frame, or to keep a video in the background, but visible
+	/// Optional: Supply the time in ms to display
+	/// Optional: Supply a function called once that frame has been displayed (to unload the video, or animate or whatever)
 	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr);
 	void				enablePlayingAFrame(bool on = true);
 	bool				isPlayingAFrame() const;
 
-	// Extends the idle timer for this sprite when the video is playing. Default = false
+	/// Extends the idle timer for this sprite when the video is playing. Default = false
 	void				setAutoExtendIdle(const bool doAutoextend);
 	bool				getAutoExtendIdle() const;
 
 	virtual void		updateClient(const UpdateParams&) override;
 	virtual void		updateServer(const UpdateParams&) override;
 
-	//Allow for custom audio output
+	///Allow for custom audio output
 	void				generateAudioBuffer(bool enableAudioBuffer);
 
-	// In case you want a ton of info from gstreamer about what's going on
+	/// In case you want a ton of info from gstreamer about what's going on
 	void				setVerboseLogging(const bool doVerbose);
 
-	// Calculates a rough fps for how many actual buffers we're displaying per second
+	/// Calculates a rough fps for how many actual buffers we're displaying per second
 	float				getVideoPlayingFramerate();
 
 protected:
@@ -195,6 +199,8 @@ private:
 						mVideoCompleteFn;
 	std::function<void(const Status&)>
 						mStatusFn;
+	std::function<void(const std::string&)>
+						mErrorFn;
 	float				mVolume;
 	float				mPan;
 	bool				mLooping;

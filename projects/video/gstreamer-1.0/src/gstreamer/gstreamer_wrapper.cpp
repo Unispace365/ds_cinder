@@ -10,37 +10,43 @@ namespace gstwrapper
 {
 
 
-	GStreamerWrapper::GStreamerWrapper()
-		: m_bFileIsOpen(false)
-		, m_cVideoBuffer(NULL)
-		, m_cAudioBuffer(NULL)
-		, m_GstPipeline(NULL)
-		, m_GstVideoSink(NULL)
-		, m_GstAudioSink(NULL)
-		, m_GstPanorama(NULL)
-		, m_GstBus(NULL)
-		, m_StartPlaying(true)
-		, m_StopOnLoopComplete(false)
-		, m_CustomPipeline(false)
-		, m_VideoLock(m_VideoMutex, std::defer_lock)
-		//, m_VerboseLogging(true)
-		, m_VerboseLogging(false)
-		, m_cVideoBufferSize(0)
-		, mClockProvider(NULL)
-		, m_NetClock(NULL)
-		, m_BaseTime(0)
-		, m_RunningTime(0)
-		, m_playFromPause(false)
-		, m_SeekTime(0)
-		, m_newLoop(false)
-		, m_Streaming(false)
-		, m_AutoRestartStream(true)
-		, mServer(true)
+GStreamerWrapper::GStreamerWrapper()
+	: m_bFileIsOpen(false)
+	, m_cVideoBuffer(NULL)
+	, m_cAudioBuffer(NULL)
+	, m_GstPipeline(NULL)
+	, m_GstVideoSink(NULL)
+	, m_GstAudioSink(NULL)
+	, m_GstPanorama(NULL)
+	, m_GstBus(NULL)
+	, m_StartPlaying(true)
+	, m_StopOnLoopComplete(false)
+	, m_CustomPipeline(false)
+	, m_VideoLock(m_VideoMutex, std::defer_lock)
+	//, m_VerboseLogging(true)
+	, m_VerboseLogging(false)
+	, m_cVideoBufferSize(0)
+	, mClockProvider(NULL)
+	, m_NetClock(NULL)
+	, m_BaseTime(0)
+	, m_RunningTime(0)
+	, m_playFromPause(false)
+	, m_SeekTime(0)
+	, m_newLoop(false)
+	, m_Streaming(false)
+	, m_AutoRestartStream(true)
+	, mServer(true)
 {
 	GError* pError;
 	int success = gst_init_check( NULL, NULL, &pError);
 	if(success == FALSE){
-		DS_LOG_ERROR("GStreamerWrapper: failed to initialize GStreamer: " << pError->message);
+		std::stringstream errorStream;
+		errorStream << "GStreamerWrapper: failed to initialize GStreamer: " << pError->message;
+		std::string errorStr = errorStream.str();
+		DS_LOG_ERROR(errorStr);
+		if(m_ErrorMessageCallback){
+			m_ErrorMessageCallback(errorStr);
+		}
 	}
 	m_CurrentPlayState = (success ? NOT_INITIALIZED : GSTREAM_INIT_FAIL);
 }
@@ -328,7 +334,9 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			if(retrun != GST_STATE_CHANGE_FAILURE){
 				m_CurrentPlayState = PLAYING;
 			} else {
-				DS_LOG_WARNING("Gstreamer Wrapper Failed to play when loading video! ");
+				std::string errorMessage = "Gstreamer Wrapper Failed to play when loading video! ";
+				if(m_ErrorMessageCallback) m_ErrorMessageCallback(errorMessage);
+				DS_LOG_WARNING(errorMessage);
 			}
 		}
 	}
@@ -577,7 +585,6 @@ void GStreamerWrapper::play(){
 
 		setTimePositionInNs(m_SeekTime);
 		m_CurrentPlayState = PLAYING;
-
 	}
 }
 
@@ -590,9 +597,6 @@ void GStreamerWrapper::stop(){
 	}
 }
 
-
-
-
 void GStreamerWrapper::pause(){
 
 	if ( m_GstPipeline ){
@@ -604,8 +608,6 @@ void GStreamerWrapper::pause(){
 
 		setTimePositionInNs(m_SeekTime);
 
-
-
 		if(gscr == GST_STATE_CHANGE_FAILURE){
 			DS_LOG_WARNING("GStreamerWrapper: State change failure trying to pause");
 		} else {
@@ -616,8 +618,6 @@ void GStreamerWrapper::pause(){
 		DS_LOG_WARNING("GStreamerWrapper: Pipeline doesn't exist when trying to pause video.");
 	}
 }
-
-
 
 void GStreamerWrapper::setCurrentVideoStream( int iCurrentVideoStream ){
 	if(m_Streaming) return;
@@ -867,27 +867,27 @@ Endianness GStreamerWrapper::getAudioEndianness(){
 	return m_AudioEndianness;
 }
 
-gint64					GStreamerWrapper::getBaseTime(){
+gint64 GStreamerWrapper::getBaseTime(){
 	return m_BaseTime;
 }
 
 
-void					GStreamerWrapper::setSeekTime(uint64_t seek_time){
+void GStreamerWrapper::setSeekTime(uint64_t seek_time){
 	m_SeekTime = seek_time;
 }
 
 
-gint64					GStreamerWrapper::getSeekTime(){
+gint64 GStreamerWrapper::getSeekTime(){
 	return m_SeekTime;
 }
 
 
 
-gint64					GStreamerWrapper::getStartTime(){
+gint64 GStreamerWrapper::getStartTime(){
 	return m_StartTime;
 }
 
-void					GStreamerWrapper::setStartTime(uint64_t start_time){
+void GStreamerWrapper::setStartTime(uint64_t start_time){
 	m_StartTime = start_time;
 }
 
@@ -903,7 +903,7 @@ bool GStreamerWrapper::seekFrame( gint64 iTargetTimeInNs ){
 
 	// The flags determine how the seek behaves, in this case we simply want to jump to certain part in stream
 	// while keeping the pre-set speed and play direction
-	GstSeekFlags gstSeekFlags = (GstSeekFlags)(GST_SEEK_FLAG_FLUSH  );
+	GstSeekFlags gstSeekFlags = (GstSeekFlags)(GST_SEEK_FLAG_FLUSH);
 
 
 	gboolean bIsSeekSuccessful = false;
@@ -937,8 +937,6 @@ bool GStreamerWrapper::seekFrame( gint64 iTargetTimeInNs ){
 	if(!(bIsSeekSuccessful == 0)){
 		m_PendingSeek = false;
 	}
-
-
 	
 	return bIsSeekSuccessful != 0;
 }
@@ -1059,7 +1057,14 @@ void GStreamerWrapper::handleGStMessage(){
 						gchar* debug;
 						gst_message_parse_error(m_GstMessage, &err, &debug);
 
-						DS_LOG_ERROR("Gst error: Embedded video playback halted: module " << gst_element_get_name(GST_MESSAGE_SRC(m_GstMessage)) << " reported " << err->message);
+						std::stringstream errorMessage;
+						errorMessage << "Gst error: Embedded video playback halted: module " << gst_element_get_name(GST_MESSAGE_SRC(m_GstMessage)) << " reported " << err->message;
+
+						std::string errorMessageStr = errorMessage.str();
+						DS_LOG_ERROR(errorMessageStr);
+						if(m_ErrorMessageCallback){
+							m_ErrorMessageCallback(errorMessageStr);
+						}
 
 						close();
 
@@ -1212,7 +1217,6 @@ void GStreamerWrapper::onEosFromAudioSource(GstAppSink* appsink, void* listener)
 	// ignore
 	// Not handling EOS callbacks creates a crash, but we handle EOS on the bus messages
 }
-
 
 void GStreamerWrapper::setVerboseLogging(const bool verboseOn){
 	m_VerboseLogging = verboseOn;
@@ -1413,6 +1417,10 @@ void GStreamerWrapper::newAudioSinkBufferCallback( GstSample* audioSinkBuffer )
 
 void GStreamerWrapper::setVideoCompleteCallback( const std::function<void(GStreamerWrapper* video)> &func ){
 	mVideoCompleteCallback = func;
+}
+
+void GStreamerWrapper::setErrorMessageCallback(const std::function<void(const std::string& errMessage)>& func){
+	m_ErrorMessageCallback = func;
 }
 
 };
