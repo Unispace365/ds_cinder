@@ -106,11 +106,29 @@ void ClusterView::startTappableMode(const ci::Vec3f& globalLocation, const float
 			}
 		});
 	}
+
+	if(mBackground){
+		mBackground->enable(true);
+		mBackground->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+		mBackground->setTapCallback([this](ds::ui::Sprite*, const ci::Vec3f& pos){
+			cancelTappableMode();
+		});
+	}
 }
 
 void ClusterView::cancelTappableMode(){
 	mTappableMode = false;
+
+	for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
+		MenuItem* mi = (*it);
+		mi->enable(false);
+	}
+	if(mBackground){
+		mBackground->enable(false);
+	}
+
 	deactivate();
+
 }
 
 void ClusterView::activateMenu(){

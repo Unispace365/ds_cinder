@@ -86,6 +86,10 @@ public:
 	/** Starts a menu at the specified location. That menu will timeout or close when an option is tapped. */
 	void									startTappableMenu(const ci::Vec3f& globalLocation, const float timeoutSeconds = 10.0f);
 
+	/** Deactive all open menus. This may be jarring to users, so use with care. 
+		Also, if someone has a hand still on the wall, the menu underneath their hand may reappear*/
+	void									closeAllMenus();
+
 private:
 	void									handleClusterUpdate(const ds::ui::TouchInfo::Phase tp, const ds::ui::FiveFingerCluster::Cluster& clustersLastStand);
 	void									clearClusters();

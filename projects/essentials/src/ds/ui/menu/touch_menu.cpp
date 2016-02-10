@@ -73,5 +73,13 @@ void TouchMenu::startTappableMenu(const ci::Vec3f& globalLocation, const float t
 	cv->startTappableMode(globalLocation, timeoutSeconds);
 }
 
+void TouchMenu::closeAllMenus(){
+	for(auto it = mClusterViews.begin(); it < mClusterViews.end(); ++it){
+		(*it)->deactivate();
+	}
+
+	mClusterLookup.clear();
+}
+
 } // namespace ui
 } // namespace ds
