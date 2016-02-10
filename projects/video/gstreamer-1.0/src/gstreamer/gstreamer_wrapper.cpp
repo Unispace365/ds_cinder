@@ -34,10 +34,15 @@ namespace gstwrapper
 		, m_SeekTime(0)
 		, m_newLoop(false)
 		, m_Streaming(false)
+		, m_AutoRestartStream(true)
 		, mServer(true)
 {
-	gst_init( NULL, NULL );
-	m_CurrentPlayState = NOT_INITIALIZED;
+	GError* pError;
+	int success = gst_init_check( NULL, NULL, &pError);
+	if(success == FALSE){
+		DS_LOG_ERROR("GStreamerWrapper: failed to initialize GStreamer: " << pError->message);
+	}
+	m_CurrentPlayState = (success ? NOT_INITIALIZED : GSTREAM_INIT_FAIL);
 }
 
 GStreamerWrapper::~GStreamerWrapper()
@@ -85,6 +90,7 @@ void GStreamerWrapper::resetProperties(){
 	m_PendingSeek = false;
 	m_cVideoBufferSize = 0;
 	m_Streaming = false;
+	m_AutoRestartStream = true;
 	m_iDurationInNs = -1;
 	m_iCurrentTimeInNs = -1;
 
@@ -1057,7 +1063,7 @@ void GStreamerWrapper::handleGStMessage(){
 
 						close();
 
-						if(m_Streaming){
+						if(m_Streaming && m_AutoRestartStream){
 							openStream(m_StreamPipeline, m_iWidth, m_iHeight);
 						}
 

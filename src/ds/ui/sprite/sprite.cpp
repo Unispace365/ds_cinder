@@ -229,8 +229,6 @@ void Sprite::updateClient(const UpdateParams &p) {
 	}
 }
 
-
-
 void Sprite::updateServer(const UpdateParams &p) {
 	mTouchProcess.update(p);
 

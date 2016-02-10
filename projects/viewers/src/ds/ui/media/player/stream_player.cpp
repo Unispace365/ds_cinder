@@ -99,6 +99,12 @@ void StreamPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
 	mShowInterfaceAtStart = showInterfaceAtStart;
 }
 
+void StreamPlayer::setAutoRestartStream(bool autoRestart){
+	if(mVideo){
+		mVideo->setAutoRestartStream(autoRestart);
+	}
+}
+
 void StreamPlayer::play(){
 	if (mVideo){
 		if (mVideo->isPlayingAFrame()){
