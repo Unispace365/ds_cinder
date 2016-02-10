@@ -83,9 +83,9 @@ We are currently making use of ZeroMQ, which requires a DLL to be located in the
 To compile with GSTREAMER
 -------------------------
 
-Install **Gstreamer 1.4.5** runtime and development files available [from the gstreamer site][1] and make sure you have Gstreamer's environment variable defined (*refer to installation section of this document*). Use the x86, not x64 versions.
-  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.4.5/gstreamer-1.0-x86-1.4.5.msi)
-  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.4.5/gstreamer-1.0-devel-x86-1.4.5.msi)
+Install **Gstreamer 1.6.3** runtime and development files available [from the gstreamer site][1] and make sure you have Gstreamer's environment variable defined (*refer to installation section of this document*). Use the x86, not x64 versions.
+  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.6.3/gstreamer-1.0-x86-1.6.3.msi)
+  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.6.3/gstreamer-1.0-devel-x86-1.6.3.msi)
 
 ----------
 

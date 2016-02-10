@@ -20,7 +20,9 @@
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
+#include "ds/ui/sprite/border.h"
 #include "ds/ui/sprite/circle.h"
+#include "ds/ui/sprite/circle_border.h"
 
 // For installing the image generators
 #include "ds/ui/image_source/image_arc.h"
@@ -97,6 +99,9 @@ App::App(const RootList& roots)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
+	mEngineSettings.printStartupInfo();
+	mEngineData.mUsingDefaults = mEngineSettings.getUsingDefault();
+
 	add_dll_path();
 
 	// Initialize each sprite type with a unique blob handler for network communication.
@@ -112,8 +117,12 @@ App::App(const RootList& roots)
 							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){EngineStatsView::installAsServer(r);},
 							[](ds::BlobRegistry& r){EngineStatsView::installAsClient(r);});
+	mEngine.installSprite(  [](ds::BlobRegistry& r){ds::ui::Border::installAsServer(r); },
+							[](ds::BlobRegistry& r){ds::ui::Border::installAsClient(r); });
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Circle::installAsServer(r); },
 							[](ds::BlobRegistry& r){ds::ui::Circle::installAsClient(r); });
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsServer(r); },
+				  			[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsClient(r); });
 
 	// Initialize the engine image generator typess.
 	ds::ui::ImageArc::install(mEngine.getImageRegistry());

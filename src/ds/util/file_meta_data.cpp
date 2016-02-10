@@ -1,6 +1,7 @@
 #include "file_meta_data.h"
 
 #include <Poco/Path.h>
+#include <Poco/File.h>
 
 namespace ds {
 
@@ -62,6 +63,20 @@ const std::string& FileMetaData::findValue(const std::string& key) const {
 		if (it->first == key) return it->second;
 	}
 	return EMPTY_SZ;
+}
+
+
+bool FileMetaData::safeFileExistsCheck(const std::string filePath){
+	Poco::File xmlFile(filePath);
+	bool fileExists = false;
+	try{
+		if(xmlFile.exists()){
+			fileExists = true;
+		}
+	} catch(std::exception&){}
+
+	return fileExists;
+
 }
 
 } // namespace ds
