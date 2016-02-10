@@ -18,9 +18,8 @@ namespace ui {
 		Border(SpriteEngine&, const float width);
 		~Border();
 
-		virtual void				setSizeAll(const ci::Vec3f& size3d);
-		virtual void				setSizeAll(float width, float height, float depth);
-
+		virtual void				onSizeChanged();
+		
 		void						setBorderWidth(const float borderWidth);
 		const float					getBorderWidth(){ return mBorderWidth; }
 
