@@ -99,6 +99,9 @@ App::App(const RootList& roots)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
+	mEngineSettings.printStartupInfo();
+	mEngineData.mUsingDefaults = mEngineSettings.getUsingDefault();
+
 	add_dll_path();
 
 	// Initialize each sprite type with a unique blob handler for network communication.
