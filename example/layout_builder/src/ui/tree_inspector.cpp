@@ -162,7 +162,7 @@ void TreeInspector::animateOn(){
 }
 
 void TreeInspector::animateOff(){
-	tweenOpacity(0.0f, mGlobals.getSettingsLayout().getFloat("story_view:anim_time", 0, 0.35f), 0.0f, ci::EaseNone(), [this]{hide(); });
+	tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
 }
 
 

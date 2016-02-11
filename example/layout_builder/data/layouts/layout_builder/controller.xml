@@ -20,7 +20,7 @@
 				blend_mode="normal"
 				size="200, 35" />
 			<image 
-				src="../images/ui/close_button.png"
+				src="%APP%/data/images/ui/close_button.png"
 				scale="0.5, 0.5"
 				color="222222"
 				position="2, 2"/>
@@ -41,7 +41,7 @@
 				blend_mode="normal"
 				size="200, 35" />
 			<image 
-				src="../images/media_interface/refresh.png"
+				src="%APP%/data/images/media_interface/refresh.png"
 				scale="0.5, 0.5"
 				color="222222"
 				position="2, 2"/>
@@ -62,7 +62,7 @@
 				blend_mode="normal"
 				size="200, 35" />
 			<image 
-				src="../images/media_interface/touch.png"
+				src="%APP%/data/images/media_interface/touch.png"
 				scale="0.5, 0.5"
 				color="222222"
 				position="2, 2"/>
@@ -83,7 +83,7 @@
 				blend_mode="normal"
 				size="200, 35" />
 			<image 
-				src="../images/media_interface/save.png"
+				src="%APP%/data/images/media_interface/save.png"
 				scale="0.5, 0.5"
 				color="222222"
 				position="2, 2"/>

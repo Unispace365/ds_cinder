@@ -158,9 +158,16 @@ void SpriteInspector::inspectSprite(ds::ui::Sprite* sp) {
 
 	ds::ui::ImageButton* imgB = dynamic_cast<ds::ui::ImageButton*>(mLinkedSprite);
 	if(imgB){
-		addSpriteProperty(L"up_image", ds::wstr_from_utf8(ds::Environment::contract(imgB->getNormalImage().getImageFilename())));
-		addSpriteProperty(L"down_image", ds::wstr_from_utf8(ds::Environment::contract(imgB->getHighImage().getImageFilename())));
+		std::string normImgFile = ds::Environment::contract(imgB->getNormalImage().getImageFilename());
+		std::string highImgFile = ds::Environment::contract(imgB->getHighImage().getImageFilename());
+		if(normImgFile == highImgFile){
+			addSpriteProperty(L"filename", ds::wstr_from_utf8(normImgFile));
+		} else {
+			addSpriteProperty(L"up_image", ds::wstr_from_utf8(normImgFile));
+			addSpriteProperty(L"down_image", ds::wstr_from_utf8(highImgFile));
+		}
 		addSpriteProperty(L"btn_touch_padding", imgB->getPad());
+		addSpriteProperty(L"down_image_color", imgB->getHighImageColor());
 	}
 
 	layout();

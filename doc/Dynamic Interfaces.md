@@ -137,9 +137,11 @@ Image Parameters
 
 Image Button Parameters
 -------------------------
+* **filename**: Will apply the same image to down and up state. Will override down_image and up_image, and vice-versa.
 * **down_image**: The image to display when touch is happening on this button. See filename for explanation. down_image="../data/images/refresh_btn.png"
 * **up_image**: The image to display when touch is happening on this button. See filename for explanation. up_image="../data/images/refresh_btn.png"
 * **btn_touch_padding**: How much space to add to the sprite on every side of the image. btn_touch_padding="40"
+* **down_image_color**: Applies a color to the down image, to make creating responsive buttons easy from a single image.
 
 Gradient Sprite Parameters
 ---------------------------

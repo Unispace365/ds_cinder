@@ -60,7 +60,7 @@ SpriteCreator::SpriteCreator(Globals& g)
 void SpriteCreator::createCreateButton(std::string typeName){
 	if(!mLayout) return;
 	std::map<std::string, ds::ui::Sprite*>	spriteMap;
-	ds::ui::XmlImporter::loadXMLto(mLayout, ds::Environment::expand("%APP%/data/layouts/creator_button.xml"), spriteMap);
+	ds::ui::XmlImporter::loadXMLto(mLayout, ds::Environment::expand("%APP%/data/layouts/layout_builder/creator_button.xml"), spriteMap);
 	ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(spriteMap["label_field"]);
 	if(texty){
 		texty->setText(typeName);

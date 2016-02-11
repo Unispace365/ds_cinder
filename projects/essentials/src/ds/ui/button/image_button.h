@@ -33,8 +33,15 @@ public:
 
 	ds::ui::Image&				getNormalImage();
 	void						setNormalImage(const std::string& imageFile);
+	std::string					getNormalImagePath(){ return mNormalFilePath; }
+
 	ds::ui::Image&				getHighImage(); // http://i.imgur.com/1qIw7AV.jpg
 	void						setHighImage(const std::string& imageFile);
+	std::string					getHighImagePath(){ return mHighFilePath; }
+
+	/// Set the color of the image when pressed. Let's you use the same image for both and still have feedback
+	void						setHighImageColor(const ci::Color& downColor);
+	ci::Color					getHighImageColor(){ return mDown.getColor(); }
 
 	void						layout();
 
@@ -52,6 +59,8 @@ private:
 	// VIEW
 	ds::ui::Image&				mDown;
 	ds::ui::Image&				mUp;
+	std::string					mHighFilePath;
+	std::string					mNormalFilePath;
 
 	// TOUCH
 	ds::ButtonBehaviour			mButtonBehaviour;
