@@ -19,10 +19,15 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 	: ds::ui::Sprite(eng)
 	, mPDF(nullptr)
 	, mPdfInterface(nullptr)
+	, mPDFThumb(nullptr)
+	, mPDFThumbHolder(nullptr)
 	, mEmbedInterface(embedInterface)
 {
 //	setTransparent(false);
 //	setColor(ci::Color(0.3f, 0.5f, 0.0f));
+
+	mPDFThumbHolder = new ds::ui::Sprite(mEngine);
+	addChildPtr(mPDFThumbHolder);
 }
 
 void PDFPlayer::setMedia(const std::string mediaPath){
@@ -34,9 +39,35 @@ void PDFPlayer::setMedia(const std::string mediaPath){
 		}
 	}
 
+
 	mPDF = new ds::ui::Pdf(mEngine);
 	mPDF->setResourceFilename(mediaPath);
+
+	// When the page finishes loading, hide the low-res thumbnail version and advance it's page
+	mPDF->setPageLoadedCallback([this]{
+		if(mPDFThumb){
+			mPDFThumb->setOpacity(0.0f);
+			mPDFThumb->setPageNum(mPDF->getPageNum() + 1);
+		}
+		if(mGoodStatusCallback) mGoodStatusCallback();
+	});
+
+	mPDF->setLoadErrorCallback([this](const std::string& msg){
+		if(mErrorMsgCallback) mErrorMsgCallback(msg);
+	});
 	addChildPtr(mPDF);
+
+	if(mPDFThumb){
+		mPDFThumb->release();
+		mPDFThumb = nullptr;
+	}
+	if(mPDFThumbHolder){
+		mPDFThumb = new ds::ui::Pdf(mEngine);
+		mPDFThumb->setResourceFilename(mediaPath);
+		mPDFThumb->setScale(0.1f);
+		mPDFThumbHolder->addChildPtr(mPDFThumb);
+		mPDFThumbHolder->sendToFront();
+	}
 
 	if(mPdfInterface){
 		mPdfInterface->release();
@@ -49,8 +80,25 @@ void PDFPlayer::setMedia(const std::string mediaPath){
 		if(mPdfInterface){
 			mPdfInterface->sendToFront();
 		}
-
 	}  
+
+	// This overrides the PDF interface page change callback
+	if(mPDF){
+
+		// Something requested the main PDF's page to change
+		// Update the interface UI and show the thumbnail low-res size.
+		// The thumbnail gets hidden when the main PDF finishes rendering (async)
+		mPDF->setPageChangeCallback([this]{
+			if(mPdfInterface){
+				mPdfInterface->updateWidgets();
+			}
+
+			if(mPDFThumb){
+				mPDFThumb->setPageNum(mPDF->getPageNum());
+				mPDFThumb->setOpacity(1.0f);
+			}
+		});
+	}
 
 	setSize(mPDF->getWidth(), mPDF->getHeight());
 }
@@ -60,15 +108,23 @@ void PDFPlayer::onSizeChanged(){
 }
 
 void PDFPlayer::layout(){
+	const float w = getWidth();
+	const float h = getHeight();
+
+	if(mPDFThumbHolder){
+		float theScale = h / mPDFThumb->getHeight();
+		mPDFThumbHolder->setScale(theScale * 10.0f);
+	}
+
 	if(mPDF){
 		// make the PDF content fill the vertical space perfectly
-		float scale = this->getHeight() / mPDF->getHeight();
-		mPDF->setScale(scale);
+		float theScale = h / mPDF->getHeight();
+		mPDF->setScale(theScale);
 	}
 
 	if(mPdfInterface){
-		mPdfInterface->setSize(getWidth() * 2.0f / 3.0f, mPdfInterface->getHeight());
-		mPdfInterface->setPosition(getWidth() / 2.0f - mPdfInterface->getWidth() / 2.0f, getHeight() - mPdfInterface->getHeight() - 50.0f);
+		mPdfInterface->setSize(w * 2.0f / 3.0f, mPdfInterface->getHeight());
+		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getWidth() / 2.0f, h - mPdfInterface->getHeight() - 50.0f);
 	}
 }
 
@@ -79,6 +135,18 @@ ds::ui::Pdf* PDFPlayer::getPDF(){
 void PDFPlayer::showInterface(){
 	if(mPdfInterface){
 		mPdfInterface->animateOn();
+	}
+}
+
+void PDFPlayer::nextPage(){
+	if(mPDF){
+		mPDF->goToNextPage();
+	}
+}
+
+void PDFPlayer::prevPage(){
+	if(mPDF){
+		mPDF->goToPreviousPage();
 	}
 }
 

@@ -11,6 +11,7 @@
 #include "ds/debug/logger.h"
 #include "ds/query/query_client.h"
 #include "ds/util/image_meta_data.h"
+#include "ds/util/file_meta_data.h"
 
 namespace {
 const std::string		FONT_TYPE_SZ("f");
@@ -496,10 +497,11 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 		return ds::Resource::VIDEO_STREAM_TYPE;
 	}
 
-	Poco::File filey = Poco::File(newMedia);
-	if(!filey.exists() || filey.isDirectory()){
+	if(!ds::FileMetaData::safeFileExistsCheck(newMedia, false)){
 		return ds::Resource::ERROR_TYPE;
 	}
+
+	Poco::File filey = Poco::File(newMedia);
 
 	std::string extensionay = Poco::Path(filey.path()).getExtension();
 	std::transform(extensionay.begin(), extensionay.end(), extensionay.begin(), ::tolower);

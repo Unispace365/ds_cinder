@@ -25,7 +25,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	addChildPtr(mUpButton);
 	mUpButton->setClickFn([this](){
 		if(mLinkedPDF){
-			if(mLinkedPDF->getPageNum() > 1){
+			if(mLinkedPDF->getPageCount() > 1){
 				mLinkedPDF->goToPreviousPage();
 				updateWidgets();
 			}
@@ -40,7 +40,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	addChildPtr(mDownButton);
 	mDownButton->setClickFn([this](){
 		if(mLinkedPDF){
-			if(mLinkedPDF->getPageNum() < mLinkedPDF->getPageCount()){
+			if(mLinkedPDF->getPageCount() > 1){
 				mLinkedPDF->goToNextPage();
 				updateWidgets();
 			}
@@ -62,6 +62,11 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 
 void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF){
 	mLinkedPDF = linkedPDF;
+	if(mLinkedPDF){
+		mLinkedPDF->setPageChangeCallback([this]{
+			updateWidgets();
+		});
+	}
 	updateWidgets();
 }
 

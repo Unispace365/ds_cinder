@@ -90,7 +90,12 @@ Pdf& Pdf::setPageSizeMode(const PageSizeMode& m) {
 Pdf& Pdf::setResourceFilename(const std::string& filename) {
 	mResourceFilename = filename;
 	mPageSizeCache = ci::Vec2i(0, 0);
-	mHolder.setResourceFilename(filename, mPageSizeMode);
+	if(!mHolder.setResourceFilename(filename, mPageSizeMode) && mErrorCallback){
+		std::stringstream errorStream;
+		errorStream << "PDF could not be loaded at " << filename;
+		std::string errorStr = errorStream.str();
+		mErrorCallback(errorStr);
+	}
 	mHolder.setScale(mScale);
 	setSize(mHolder.getWidth(), mHolder.getHeight());
 	markAsDirty(PDF_FN_DIRTY);
@@ -128,7 +133,9 @@ void Pdf::updateClient(const UpdateParams& p) {
 
 void Pdf::updateServer(const UpdateParams& p) {
 	inherited::updateServer(p);
-	mHolder.update();
+	if(mHolder.update() && mPageLoadedCallback){
+		mPageLoadedCallback();
+	}
 	if (mPageSizeMode == kAutoResize) {
 		const ci::Vec2i			page_size(mHolder.getPageSize());
 		if (mPageSizeCache != page_size) {
@@ -142,6 +149,7 @@ void Pdf::updateServer(const UpdateParams& p) {
 void Pdf::setPageNum(const int pageNum) {
 	mHolder.setPageNum(pageNum);
 	markAsDirty(PDF_CURPAGE_DIRTY);
+	if(mPageChangeCallback) mPageChangeCallback();
 }
 
 int Pdf::getPageNum() const {
@@ -155,11 +163,13 @@ int Pdf::getPageCount() const {
 void Pdf::goToNextPage() {
 	mHolder.goToNextPage();
 	markAsDirty(PDF_CURPAGE_DIRTY);
+	if(mPageChangeCallback) mPageChangeCallback();
 }
 
 void Pdf::goToPreviousPage() {
 	mHolder.goToPreviousPage();
 	markAsDirty(PDF_CURPAGE_DIRTY);
+	if(mPageChangeCallback) mPageChangeCallback();
 }
 
 #ifdef _DEBUG
@@ -257,18 +267,23 @@ void Pdf::ResHolder::clear() {
 	}
 }
 
-void Pdf::ResHolder::setResourceFilename(const std::string& filename, const PageSizeMode& m) {
+bool Pdf::ResHolder::setResourceFilename(const std::string& filename, const PageSizeMode& m) {
 	clear();
+	bool success = false;
 	mRes = new ds::pdf::PdfRes(mService.mThread);
 	if (mRes) {
-		mRes->loadPDF(ds::Environment::expand(filename), m);
+		success = mRes->loadPDF(ds::Environment::expand(filename), m);
 	}
+
+	return success;
 }
 
-void Pdf::ResHolder::update() {
+bool Pdf::ResHolder::update() {
 	if (mRes) {
-		mRes->update();
+		return mRes->update();
 	}
+
+	return false;
 }
 
 void Pdf::ResHolder::drawLocalClient()

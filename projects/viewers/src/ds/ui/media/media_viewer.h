@@ -64,8 +64,19 @@ public:
 	/// Lets you know when stuff is all good.
 	/// Image: Image has been loaded
 	/// Video: Video started playing
-	/// TODO: PDF and Web finished loading
+	/// PDF: Page has finished rasterizing
+	/// Web: Page document has loaded
 	void				setStatusCallback(std::function<void(const bool isGood)>);
+
+
+	/// Will do standard functions based on media type:
+	/// Web: Click the web content
+	/// PDF: Advance to the next page
+	/// Video: Toggle play / pause
+	void				handleStandardClick(const ci::Vec3f& globalPos);
+
+	/// Sets a tap function to enable the above handling
+	void				enableStandardClick();
 
 protected:
 

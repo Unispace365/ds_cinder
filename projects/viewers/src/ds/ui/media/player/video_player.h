@@ -30,6 +30,7 @@ public:
 	void								play();
 	void								pause();
 	void								stop();
+	void								togglePlayPause();
 
 	void								showInterface();
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);

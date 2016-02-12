@@ -17,6 +17,7 @@
 
 #include "ds/ui/media/media_interface.h"
 
+#include "ds/ui/sprite/web.h"
 #include "ds/ui/sprite/gst_video.h"
 
 namespace ds {
@@ -197,6 +198,16 @@ void MediaViewer::initialize(){
 		addChildPtr(mPDFPlayer);
 		mPDFPlayer->setMedia(mResource.getAbsoluteFilePath());
 
+		mPDFPlayer->setErrorCallback([this](const std::string& msg){
+			if(mErrorCallback) mErrorCallback(msg);
+		});
+
+		mPDFPlayer->setGoodStatusCallback([this]{
+			if(mStatusCallback){
+				mStatusCallback(true);
+			}
+		});
+
 		mContentAspectRatio = mPDFPlayer->getWidth() / mPDFPlayer->getHeight();
 		contentWidth = mPDFPlayer->getWidth();
 		contentHeight = mPDFPlayer->getHeight();
@@ -206,19 +217,24 @@ void MediaViewer::initialize(){
 		addChildPtr(mWebPlayer);
 		mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
 
+		if(mWebPlayer->getWeb()){
+			mWebPlayer->getWeb()->setDocumentReadyFn([this]{
+				if(mStatusCallback) mStatusCallback(true);
+			});
+			mWebPlayer->getWeb()->setErrorCallback([this](const std::string& errorMsg){
+				if(mErrorCallback) mErrorCallback(errorMsg);
+			});
+		}
+
 		mContentAspectRatio = mWebPlayer->getWidth() / mWebPlayer->getHeight();
 		contentWidth = mWebPlayer->getWidth();
 		contentHeight = mWebPlayer->getHeight();
 
-		setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
-			if(mWebPlayer){
-				mWebPlayer->sendClick(pos);
-			}
-		});
 
 	} else {
 		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath() << " " << ds::utf8_from_wstr(mResource.getTypeName()));
 	}
+
 
 	if(showThumbnail && (mResource.getThumbnailId() > 0 || !mResource.getThumbnailFilePath().empty())){
 		int flags = 0;
@@ -398,6 +414,25 @@ void MediaViewer::setErrorCallback(std::function<void(const std::string& msg)> f
 
 void MediaViewer::setStatusCallback(std::function<void(const bool isGood)> func){
 	mStatusCallback = func;
+}
+
+void MediaViewer::handleStandardClick(const ci::Vec3f& globalPos){
+	if(mWebPlayer){
+		mWebPlayer->sendClick(globalPos);
+	}
+	if(mPDFPlayer){
+		mPDFPlayer->nextPage();
+	}
+	if(mVideoPlayer){
+		mVideoPlayer->togglePlayPause();
+	}
+}
+
+
+void MediaViewer::enableStandardClick(){
+	setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+		handleStandardClick(pos);
+	});
 }
 
 } // namespace ui
