@@ -9,9 +9,9 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::Tweenline
- * A wrapper around the Cinder timeline that provides some sprite-based management.
- */
+* \class ds::ui::Tweenline
+* A wrapper around the Cinder timeline that provides some sprite-based management.
+*/
 class Tweenline {
 public:
 	Tweenline(cinder::Timeline&);
@@ -33,24 +33,24 @@ private:
 
 template <typename T>
 typename ci::Tween<T>::Options	Tweenline::apply(Sprite& s, const SpriteAnim<T>& a, const T& end,
-								float duration, ci::EaseFn easeFunction,
-								const std::function<void(void)>& finishFn,
-								const float delay,
-								const std::function<void(void)>& updateFn)
+												 float duration, ci::EaseFn easeFunction,
+												 const std::function<void(void)>& finishFn,
+												 const float delay,
+												 const std::function<void(void)>& updateFn)
 {
-  auto&   anim = a.getAnim(s); 
+	auto&   anim = a.getAnim(s);
 
-  auto    ans = mTimeline.apply(&anim, a.getStartValue(s), end, duration, easeFunction);
-  ds::ui::Sprite*           s_ptr = &s;
-  const T*                  value_ptr = anim.ptr();
-  auto                      assignF = a.getAssignValue();
-  ans.updateFn([s_ptr, value_ptr, assignF, updateFn](){ assignF(*value_ptr, *s_ptr); if(updateFn) updateFn(); });
-  if (finishFn) ans.finishFn(finishFn);
-  ans.delay(delay);
-  return ans;
+	auto    ans = mTimeline.apply(&anim, a.getStartValue(s), end, duration, easeFunction);
+	ds::ui::Sprite*           s_ptr = &s;
+	const T*                  value_ptr = anim.ptr();
+	auto                      assignF = a.getAssignValue();
+	ans.updateFn([s_ptr, value_ptr, assignF, updateFn](){ assignF(*value_ptr, *s_ptr); if(updateFn) updateFn(); });
+	if(finishFn) ans.finishFn(finishFn);
+	ans.delay(delay);
+	return ans;
 }
 
 } // namespace ui
-} // namespace ds
+}// namespace ds
 
 #endif // DS_UI_TWEEN_TWEENLINE_H_
