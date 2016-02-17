@@ -1089,7 +1089,9 @@ bool Sprite::contains(const ci::Vec3f& point, const float pad) const {
 	// Someone who knows the math can probably address the root issue.
 	if(mWidth < 0.001f || mHeight < 0.001f) return false;
 	// Same deal as above.
-	if(mScale.x <= 0.0f || mScale.y <= 0.0f) return false;
+	//if (mScale.x <= 0.0f || mScale.y <= 0.0f) return false;
+	//May have negative scaling
+	if (mScale.x == 0.0f || mScale.y == 0.0f) return false;
 
 	buildGlobalTransform();
 
@@ -1123,8 +1125,10 @@ Sprite* Sprite::getHit(const ci::Vec3f &point) {
 		return nullptr;
 	}
 	// EH: Fix a bug where scales of 0,0,0 result in the sprite ALWAYS getting picked
-	if(mScale.x <= 0.0f || mScale.y <= 0.0f || mScale.z <= 0.0f) {
-		return nullptr;
+//	if (mScale.x <= 0.0f || mScale.y <= 0.0f || mScale.z <= 0.0f) {
+	//Scale could be negative for quickly flipping an image/texture.
+		if (mScale.x == 0.0f || mScale.y == 0.0f || mScale.z <= 0.0f) {
+			return nullptr;
 	}
 	if(getClipping()) {
 		if(!contains(point))
