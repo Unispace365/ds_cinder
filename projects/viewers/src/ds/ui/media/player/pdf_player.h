@@ -34,14 +34,22 @@ public:
 
 protected:
 
-	virtual void						onSizeChanged();
-	ds::ui::Pdf*						mPDF;
-	ds::ui::Sprite*						mPDFThumbHolder;
-	ds::ui::Pdf*						mPDFThumb;
-	PDFInterface*						mPdfInterface;
-	bool								mEmbedInterface;
-	std::function<void(void)>			mGoodStatusCallback;
-	std::function<void(const std::string&)>			mErrorMsgCallback;
+	virtual void								onSizeChanged();
+	void										loadNextAndPrevPages();
+	ds::ui::Pdf*								mPDF;
+	ds::ui::Sprite*								mPDFThumbHolder;
+
+	bool										mFirstPageLoaded;
+	int											mCurrentPage; // for displaying the next/back thing
+	ds::ui::Pdf*								mPDFNext;
+	ds::ui::Pdf*								mPDFPrev;
+	bool										mNextReady;
+	bool										mPrevReady;
+
+	PDFInterface*								mPdfInterface;
+	bool										mEmbedInterface;
+	std::function<void(void)>					mGoodStatusCallback;
+	std::function<void(const std::string&)>		mErrorMsgCallback;
 
 };
 
