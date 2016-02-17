@@ -8,6 +8,7 @@
 #include "ds/app/environment.h"
 #include "ds/data/data_buffer.h"
 #include "ds/debug/logger.h"
+#include "ds/debug/debug_defines.h"
 #include "ds/math/math_defs.h"
 #include "ds/math/math_func.h"
 #include "ds/math/random.h"
@@ -229,8 +230,6 @@ void Sprite::updateClient(const UpdateParams &p) {
 	}
 }
 
-
-
 void Sprite::updateServer(const UpdateParams &p) {
 	mTouchProcess.update(p);
 
@@ -258,6 +257,8 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 	if ((mSpriteFlags&VISIBLE_F) == 0) {
 		return;
 	}
+	DS_REPORT_GL_ERRORS();
+
 	mShaderPass = 0;
 	mFboIndex = 0;
 	mIsLastPass = mShaderPasses > 0 ? false : true;
@@ -272,6 +273,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 	ci::Area viewport = ci::gl::getViewport();
 
 	while (mShaderPass <= mShaderPasses){
+		DS_REPORT_GL_ERRORS();
 		if (mShaderPasses > 0) {
 			//Change viewport for rendering texture to FBO
 			ci::gl::setViewport(mFrameBuffer[mFboIndex]->getBounds());
@@ -346,16 +348,21 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 		}
 
 		if ((mSpriteFlags&TRANSPARENT_F) == 0) {
+			DS_REPORT_GL_ERRORS();
 			ci::gl::enableAlphaBlending();
 			applyBlendingMode(mBlendMode);
 			ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
 			if (shaderBase) {
+				DS_REPORT_GL_ERRORS();
 				shaderBase.bind();
+				DS_REPORT_GL_ERRORS();
 				shaderBase.uniform("tex0", 0);
 				shaderBase.uniform("useTexture", mUseShaderTexture);
 				shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
 				mUniform.applyTo(shaderBase);
 			}
+
+			DS_REPORT_GL_ERRORS();
 
 			//Only set opacity for last pass
 			if (mIsLastPass) {
@@ -364,6 +371,8 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 			else {
 				mDrawOpacity = 1.0f;
 			}
+
+			DS_REPORT_GL_ERRORS();
 
 			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
 			if (mUseDepthBuffer) {
@@ -375,7 +384,9 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 				ci::gl::disableDepthWrite();
 			}
 
+			DS_REPORT_GL_ERRORS();
 			drawLocalClient();
+			DS_REPORT_GL_ERRORS();
 
 			if (shaderBase) {
 				shaderBase.unbind();
@@ -403,6 +414,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 	}
 
 	ci::gl::popModelView();
+	DS_REPORT_GL_ERRORS();
 
 	DrawParams dParams = drawParams;
 	dParams.mParentOpacity *= mOpacity;
@@ -456,6 +468,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 		}
 		ci::gl::popModelView();
 	}
+	DS_REPORT_GL_ERRORS();
 }
 
 void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams) {

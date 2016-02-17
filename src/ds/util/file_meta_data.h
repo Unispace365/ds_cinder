@@ -29,6 +29,9 @@ public:
 	template <typename T>
 	T					findValueType(const std::string& key, const T error) const;
 
+	// Poco throws an 
+	static bool			safeFileExistsCheck(const std::string filePath, const bool allowDirectory = true);
+
 private:
 	std::vector<std::pair<std::string, std::string>>
 						mAttrib;

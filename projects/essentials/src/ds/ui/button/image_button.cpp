@@ -24,6 +24,8 @@ ImageButton::ImageButton(SpriteEngine& eng, const std::string& downImage, const 
 	, mButtonBehaviour(*this)
 	, mPad(touchPad)
 	, mAnimDuration(0.1f) 
+	, mHighFilePath(downImage)
+	, mNormalFilePath(upImage)
 {
 // 	setTransparent(false);
 // 	setColor(ci::Color(0.5f, 0.8f, 0.2f));
@@ -104,6 +106,7 @@ ds::ui::Image& ImageButton::getHighImage(){
 }
 
 void ImageButton::setHighImage(const std::string& imageFile){
+	mHighFilePath = imageFile;
 	mDown.setImageFile(imageFile);
 	layout();
 }
@@ -114,12 +117,20 @@ ds::ui::Image& ImageButton::getNormalImage(){
 }
 
 void ImageButton::setNormalImage(const std::string& imageFile){
+	if(mNormalFilePath == mHighFilePath){
+		setHighImage(imageFile);
+	}
+	mNormalFilePath = imageFile;
 	mUp.setImageFile(imageFile);
 	layout();
 }
 
 void ImageButton::setStateChangeFn(const std::function<void(const bool pressed)>& func) {
 	mStateChangeFunction = func;
+}
+
+void ImageButton::setHighImageColor(const ci::Color& downColor){
+	mDown.setColor(downColor);
 }
 
 } // namespace ui

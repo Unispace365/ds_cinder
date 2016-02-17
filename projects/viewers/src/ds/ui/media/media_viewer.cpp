@@ -17,6 +17,8 @@
 
 #include "ds/ui/media/media_interface.h"
 
+#include "ds/ui/sprite/web.h"
+#include "ds/ui/sprite/gst_video.h"
 
 namespace ds {
 namespace ui {
@@ -134,6 +136,9 @@ void MediaViewer::initialize(){
 			mPrimaryImage->setStatusCallback([this](ds::ui::Image::Status status){
 				if(status.mCode == status.STATUS_LOADED && mPrimaryImage){
 					mPrimaryImage->tweenOpacity(1.0f, mAnimDuration);
+					if(mStatusCallback){
+						mStatusCallback(true);
+					}
 				}
 			});
 		}
@@ -141,20 +146,48 @@ void MediaViewer::initialize(){
 		mContentAspectRatio = mPrimaryImage->getWidth() / mPrimaryImage->getHeight();
 		contentWidth = mPrimaryImage->getWidth();
 		contentHeight = mPrimaryImage->getHeight();
+
 	} else if(mediaType == ds::Resource::VIDEO_TYPE){
 		mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mVideoPlayer);
+
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
+
+		if(mVideoPlayer->getVideo()){
+			mVideoPlayer->getVideo()->setErrorCallback([this](const std::string& msg){
+				if(mErrorCallback) mErrorCallback(msg);
+			});
+
+			mVideoPlayer->getVideo()->setStatusCallback([this](const ds::ui::GstVideo::Status& status){
+				bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
+				if(mStatusCallback){
+					mStatusCallback(isGood);
+				}
+			});
+		}
 
 		mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
 		contentWidth = mVideoPlayer->getWidth();
 		contentHeight = mVideoPlayer->getHeight();
+
 	} else if( mediaType == ds::Resource::VIDEO_STREAM_TYPE ){
 		
 		mStreamPlayer = new StreamPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mStreamPlayer);
 
 		mStreamPlayer->setResource(mResource);
+		if(mStreamPlayer->getVideo()){
+			mStreamPlayer->getVideo()->setErrorCallback([this](const std::string& msg){
+				if(mErrorCallback) mErrorCallback(msg);
+			});
+
+			mStreamPlayer->getVideo()->setStatusCallback([this](const ds::ui::GstVideo::Status& status){
+				bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
+				if(mStatusCallback){
+					mStatusCallback(isGood);
+				}
+			});
+		}
 
 		mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
 		contentWidth = mStreamPlayer->getWidth();
@@ -165,6 +198,16 @@ void MediaViewer::initialize(){
 		addChildPtr(mPDFPlayer);
 		mPDFPlayer->setMedia(mResource.getAbsoluteFilePath());
 
+		mPDFPlayer->setErrorCallback([this](const std::string& msg){
+			if(mErrorCallback) mErrorCallback(msg);
+		});
+
+		mPDFPlayer->setGoodStatusCallback([this]{
+			if(mStatusCallback){
+				mStatusCallback(true);
+			}
+		});
+
 		mContentAspectRatio = mPDFPlayer->getWidth() / mPDFPlayer->getHeight();
 		contentWidth = mPDFPlayer->getWidth();
 		contentHeight = mPDFPlayer->getHeight();
@@ -174,19 +217,24 @@ void MediaViewer::initialize(){
 		addChildPtr(mWebPlayer);
 		mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
 
+		if(mWebPlayer->getWeb()){
+			mWebPlayer->getWeb()->setDocumentReadyFn([this]{
+				if(mStatusCallback) mStatusCallback(true);
+			});
+			mWebPlayer->getWeb()->setErrorCallback([this](const std::string& errorMsg){
+				if(mErrorCallback) mErrorCallback(errorMsg);
+			});
+		}
+
 		mContentAspectRatio = mWebPlayer->getWidth() / mWebPlayer->getHeight();
 		contentWidth = mWebPlayer->getWidth();
 		contentHeight = mWebPlayer->getHeight();
 
-		setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
-			if(mWebPlayer){
-				mWebPlayer->sendClick(pos);
-			}
-		});
 
 	} else {
 		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath() << " " << ds::utf8_from_wstr(mResource.getTypeName()));
 	}
+
 
 	if(showThumbnail && (mResource.getThumbnailId() > 0 || !mResource.getThumbnailFilePath().empty())){
 		int flags = 0;
@@ -358,6 +406,33 @@ ds::ui::Sprite* MediaViewer::getPlayer(){
 	}
 
 	return nullptr;
+}
+
+void MediaViewer::setErrorCallback(std::function<void(const std::string& msg)> func){
+	mErrorCallback = func; 
+}
+
+void MediaViewer::setStatusCallback(std::function<void(const bool isGood)> func){
+	mStatusCallback = func;
+}
+
+void MediaViewer::handleStandardClick(const ci::Vec3f& globalPos){
+	if(mWebPlayer){
+		mWebPlayer->sendClick(globalPos);
+	}
+	if(mPDFPlayer){
+		mPDFPlayer->nextPage();
+	}
+	if(mVideoPlayer){
+		mVideoPlayer->togglePlayPause();
+	}
+}
+
+
+void MediaViewer::enableStandardClick(){
+	setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+		handleStandardClick(pos);
+	});
 }
 
 } // namespace ui

@@ -29,7 +29,7 @@ OverallController::OverallController(Globals& g)
 	setTransparent(false);
 
 	std::map<std::string, ds::ui::Sprite*>	spriteMap;
-	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/controller.xml"), spriteMap);
+	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/layout_builder/controller.xml"), spriteMap);
 	mController = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["layout"]);
 	if(mController){
 		mController->runLayout();

@@ -973,7 +973,7 @@ namespace ui {
 		ds::DataBuffer&       buf(r.mDataBuffer);
 		char attributey = buf.read<char>();
 		if(attributey != SPRITE_ID_ATTRIBUTE){
-			std::cout << "ERROR: Handle blob from server, this attribute is not the sprite attribute! This likely means you haven't installed your sprite type correctly." << attributey << std::endl;
+			std::cout << "ERROR: Handle blob from server, attribute " << (int)attributey << " is not the sprite attribute! This likely means you haven't installed your sprite type correctly." << attributey << std::endl;
 			return;
 		}
 		ds::sprite_id_t       id = buf.read<ds::sprite_id_t>();

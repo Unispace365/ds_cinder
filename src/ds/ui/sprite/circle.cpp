@@ -20,9 +20,11 @@ namespace {
 
 	const DirtyState&	RADIUS_DIRTY = INTERNAL_A_DIRTY;
 	const DirtyState&	FILLED_DIRTY = INTERNAL_B_DIRTY;
+	const DirtyState&	LINE_WIDTH_DIRTY = INTERNAL_C_DIRTY;
 
 	const char			RADIUS_ATT = 80;
 	const char			FILLED_ATT = 81;
+	const char			LINE_WIDTH_ATT = 82;
 
 	const ds::BitMask   SPRITE_LOG = ds::Logger::newModule("circle sprite");
 }
@@ -41,6 +43,7 @@ Circle::Circle(SpriteEngine& engine)
 	, mRadius(0.0f)
 	, mVertices(nullptr)
 	, mIgnoreSizeUpdates(false)
+	, mLineWidth(1.0f)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
@@ -52,12 +55,12 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	, mRadius(radius)
 	, mVertices(nullptr)
 	, mIgnoreSizeUpdates(false)
+	, mLineWidth(1.0f)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
 	setRadius(mRadius);
 	setFilled(mFilled);
-	init();
 }
 
 Circle::~Circle(){
@@ -74,6 +77,7 @@ void Circle::updateServer(const UpdateParams& up) {
 void Circle::drawLocalClient() {
 	if(!mVertices) return;
 
+	ci::gl::lineWidth(mLineWidth);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, mVertices);
 	if(mFilled){
@@ -99,6 +103,10 @@ void Circle::writeAttributesTo(ds::DataBuffer& buf) {
 		buf.add(FILLED_ATT);
 		buf.add(mFilled);
 	}
+	if(mDirty.has(LINE_WIDTH_DIRTY)){
+		buf.add(LINE_WIDTH_ATT);
+		buf.add(mLineWidth);
+	}
 }
 
 void Circle::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
@@ -109,6 +117,9 @@ void Circle::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	} else if(attributeId == FILLED_ATT) {
 		mFilled = buf.read<bool>();
 		init();
+
+	} else if(attributeId == LINE_WIDTH_ATT) {
+		mLineWidth = buf.read<float>();
 
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
@@ -173,6 +184,11 @@ void Circle::setRadius(const float radius){
 	mRadius = radius;
 	init();
 	markAsDirty(RADIUS_DIRTY);
+}
+
+void Circle::setLineWidth(const float lineWidth){
+	mLineWidth = lineWidth;
+	markAsDirty(LINE_WIDTH_DIRTY);
 }
 
 } // namespace ui

@@ -33,9 +33,10 @@ public:
 	float					getTextureWidth() const;
 	float					getTextureHeight() const;
 
-	void update();
+	/// Returns true if the pixels were updated on this pass
+	bool					update();
 
-	void draw(float x, float y);
+	void					draw(float x, float y);
 
 	float					getWidth() const;
 	float					getHeight() const;

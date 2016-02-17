@@ -18,7 +18,13 @@ public:
 	ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::TouchMenuConfig menuConfig, std::vector<ds::ui::TouchMenu::MenuItemModel>	itemModels);
 
 	bool											getActive();
+
 	void											updateCluster(const ds::ui::TouchInfo::Phase btp, const ds::ui::FiveFingerCluster::Cluster& cluster);
+
+	void											startTappableMode(const ci::Vec3f& globalLocation, const float timeoutTime);
+
+	/// animates this cluster off and prepares it for reuse. Called internally when there are no more fingers associated with this cluster
+	void											deactivate();
 
 private:
 
@@ -28,7 +34,6 @@ private:
 	// A cluster deactivates when all associated fingers are removed from the wall.
 	void											activate();
 	void											invalidate();
-	void											deactivate();
 
 	void											buildMenuItems();
 	void											activateMenu();
@@ -39,6 +44,7 @@ private:
 	void											setHighlight(ci::Vec2f clusterCenter);
 
 	void											handleInvalidateComplete();
+	void											cancelTappableMode();
 
 	std::vector<int>								mLineIds;
 	std::vector<int>								mContainerLineIds;
@@ -48,6 +54,7 @@ private:
 
 	bool											mActive;
 	bool											mInvalid;
+	bool											mTappableMode;
 
 	ds::ui::TouchMenu::TouchMenuConfig				mMenuConfig;
 	std::vector<ds::ui::TouchMenu::MenuItemModel>	mItemModels;

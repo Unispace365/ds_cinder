@@ -15,6 +15,8 @@
 #include "ds/ui/touch/draw_touch_view.h"
 #include "ds/ui/touch/touch_event.h"
 
+#include <cinder/Display.h>
+
 //! This entire header is included for one single
 //! function Poco::Path::expand. This slowly needs
 //! to get removed. Poco is not part of the Cinder.
@@ -196,6 +198,16 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
 	}
 
+	if(mData.mScreenRect.getWidth() < 1 || mData.mScreenRect.getHeight() < 1){
+		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
+		ci::DisplayRef mainDisplay = ci::Display::getMainDisplay();
+		ci::Rectf mainDisplayRect = ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
+		mData.mSrcRect = mainDisplayRect;
+		mData.mDstRect = mainDisplayRect;
+		mData.mScreenRect = mainDisplayRect;
+		mData.mWorldSize = ci::Vec2f(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
+	}
+
 
 	// Don't construct roots on startup for clients, and instead create them when we connect to a server
 	const std::string	arch(settings.getText("platform:architecture", 0, ""));
@@ -272,6 +284,104 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	}
 
 	setIdleTimeout(settings.getInt("idle_time", 0, 300));
+}
+
+
+
+void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
+	// TODO: remove this null_renderer bullshit
+	if(mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
+	{
+		// a 50x25 window for null renderer.
+		settings.setWindowSize(50, 25);
+		settings.setFullScreen(false);
+		settings.setBorderless(false);
+		settings.setAlwaysOnTop(false);
+
+	} else {
+		settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
+		std::string screenMode = "window";
+		if(mData.mUsingDefaults){
+			screenMode = "borderless";
+		}
+		screenMode = mSettings.getText("screen:mode", 0, screenMode);
+		if(screenMode == "full"){
+			settings.setFullScreen(true);
+		} else if(screenMode == "borderless"){
+			settings.setBorderless(true);
+		}
+
+		settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
+	}
+
+	settings.setResizable(false);
+
+	if(ds::ui::TouchMode::hasSystem(mTouchMode)) {
+		settings.enableMultiTouch();
+	}
+
+	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
+	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
+	setTouchSmoothing(mSettings.getBool("touch_smoothing", 0, true));
+	setTouchSmoothFrames(mSettings.getInt("touch_smooth_frames", 0, 5));
+
+	settings.setFrameRate(mData.mFrameRate);
+
+	const std::string     nope = "ds:IllegalTitle";
+	const std::string     title = mSettings.getText("screen:title", 0, nope);
+	if(title != nope) settings.setTitle(title);
+}
+
+void Engine::setup(ds::App& app) {
+
+	mCinderWindow = app.getWindow();
+
+	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
+	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
+
+
+	const std::string	arch(mSettings.getText("platform:architecture", 0, ""));
+	bool isClient = false;
+	if(arch == "client") isClient = true;
+	const bool			drawTouches = mSettings.getBool("touch_overlay:debug", 0, false);
+	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
+		(*it)->postAppSetup();
+		(*it)->setCinderCamera();
+
+		// Assume only one debug synchronized root? oh boy I hope so!
+		if(!isClient && drawTouches && (*it)->getBuilder().mDebugDraw && (*it)->getBuilder().mSyncronize){
+
+			ds::ui::DrawTouchView* v = new ds::ui::DrawTouchView(*this, mSettings, mTouchManager);
+			(*it)->getSprite()->addChildPtr(v);
+		}
+	}
+
+	const int		w = static_cast<int>(getWidth()),
+		h = static_cast<int>(getHeight());
+	if(w < 1 || h < 1) {
+		// GN: recent updates should make this impossible to get to.
+		//		but leaving this here in case some weird case sets the size to an invalid value
+		DS_LOG_FATAL("Engine::setup() on 0 size width or height");
+		std::cout << "ERROR Engine::setup() on 0 size width or height" << std::endl;
+		throw std::runtime_error("Engine::setup() on 0 size width or height");
+	}
+	//////////////////////////////////////////////////////////////////////////
+
+	float curr = static_cast<float>(ci::app::getElapsedSeconds());
+	mLastTime = curr;
+	mLastTouchTime = 0;
+
+	mUpdateParams.setDeltaTime(0.0f);
+	mUpdateParams.setElapsedTime(curr);
+
+	// Start any library services
+	if(!mData.mServices.empty()) {
+		for(auto it = mData.mServices.begin(), end = mData.mServices.end(); it != end; ++it) {
+			if(it->second) it->second->start();
+		}
+	}
+
+	setupRenderer();
 }
 
 void Engine::clearRoots(){
@@ -599,98 +709,6 @@ void Engine::drawClient() {
 
 void Engine::drawServer() {
 	mRenderer->drawServer();
-}
-
-void Engine::setup(ds::App& app) {
-
-	mCinderWindow = app.getWindow();
-
-	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
-	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
-
-
-	const std::string	arch(mSettings.getText("platform:architecture", 0, ""));
-	bool isClient = false;
-	if(arch == "client") isClient = true;
-	const bool			drawTouches = mSettings.getBool("touch_overlay:debug", 0, false);
-	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-		(*it)->postAppSetup();
-		(*it)->setCinderCamera();
-
-		// Assume only one debug synchronized root? oh boy I hope so!
-		if(!isClient && drawTouches && (*it)->getBuilder().mDebugDraw && (*it)->getBuilder().mSyncronize){
-
-			ds::ui::DrawTouchView* v = new ds::ui::DrawTouchView(*this, mSettings, mTouchManager);
-			(*it)->getSprite()->addChildPtr(v);
-		}
-	}
-
-	const int		w = static_cast<int>(getWidth()),
-					h = static_cast<int>(getHeight());
-	if (w < 1 || h < 1) {
-		DS_LOG_FATAL("Engine::setup() on 0 size width or height");
-		std::cout << "ERROR Engine::setup() on 0 size width or height" << std::endl;
-		throw std::runtime_error("Engine::setup() on 0 size width or height");
-	}
-	//////////////////////////////////////////////////////////////////////////
-
-	float curr = static_cast<float>(ci::app::getElapsedSeconds());
-	mLastTime = curr;
-	mLastTouchTime = 0;
-
-	mUpdateParams.setDeltaTime(0.0f);
-	mUpdateParams.setElapsedTime(curr);
-
-	// Start any library services
-	if (!mData.mServices.empty()) {
-		for (auto it=mData.mServices.begin(), end=mData.mServices.end(); it!=end; ++it) {
-			if (it->second) it->second->start();
-		}
-	}
-
-	setupRenderer();
-}
-
-void Engine::prepareSettings(ci::app::AppBasic::Settings& settings)
-{
-	if (mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
-	{
-		// a 50x25 window for null renderer.
-		settings.setWindowSize(50, 25);
-		settings.setFullScreen(false);
-		settings.setBorderless(false);
-		settings.setAlwaysOnTop(false);
-	}
-	else
-	{
-		settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
-		if (boost::algorithm::icontains(mSettings.getText("screen:mode", 0, ""), "full"))
-		{
-			settings.setFullScreen(true);
-		}
-		else if (boost::algorithm::icontains(mSettings.getText("screen:mode", 0, ""), "borderless"))
-		{
-			settings.setBorderless(true);
-		}
-		settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
-	}
-
-	settings.setResizable(false);
-
-	if (ds::ui::TouchMode::hasSystem(mTouchMode)) {
-		settings.enableMultiTouch();
-	}
-
-	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
-	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
-	setTouchSmoothing(mSettings.getBool("touch_smoothing", 0, true));
-	setTouchSmoothFrames(mSettings.getInt("touch_smooth_frames", 0, 5));
-
-	settings.setFrameRate(mData.mFrameRate);
-
-	const std::string     nope = "ds:IllegalTitle";
-	const std::string     title = mSettings.getText("screen:title", 0, nope);
-	if (title != nope) settings.setTitle(title);
 }
 
 ds::sprite_id_t Engine::nextSpriteId() {

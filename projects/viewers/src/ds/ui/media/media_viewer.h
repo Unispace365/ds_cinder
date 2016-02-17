@@ -55,6 +55,29 @@ public:
 	ds::ui::Sprite*		getPlayer();
 
 	void				showInterface();
+
+	/// Called when any component failed to load it's media. or failed during running.
+	/// Note that the message may be technical and not appropriate to show
+	/// Errors also will be logged, o you may want to show a generic "Sorry, something went wrong"
+	void				setErrorCallback(std::function<void(const std::string& msg)>);
+
+	/// Lets you know when stuff is all good.
+	/// Image: Image has been loaded
+	/// Video: Video started playing
+	/// PDF: Page has finished rasterizing
+	/// Web: Page document has loaded
+	void				setStatusCallback(std::function<void(const bool isGood)>);
+
+
+	/// Will do standard functions based on media type:
+	/// Web: Click the web content
+	/// PDF: Advance to the next page
+	/// Video: Toggle play / pause
+	void				handleStandardClick(const ci::Vec3f& globalPos);
+
+	/// Sets a tap function to enable the above handling
+	void				enableStandardClick();
+
 protected:
 
 	virtual void		userInputReceived();
@@ -78,6 +101,8 @@ protected:
 	float				mDefaultBoundWidth;
 	float				mDefaultBoundHeight;
 
+	std::function<void(const std::string& msg)>	mErrorCallback;
+	std::function<void(const bool isGood)> mStatusCallback;
 };
 
 } // namespace ui

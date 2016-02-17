@@ -59,13 +59,8 @@ Border::~Border(){
 	}
 }
 
-void Border::setSizeAll(const ci::Vec3f& size3d) {
-	inherited::setSizeAll(size3d);
-	rebuildVertices();
-}
-
-void Border::setSizeAll(float width, float height, float depth) {
-	inherited::setSizeAll(width, height, depth);
+void Border::onSizeChanged() {
+	inherited::onSizeChanged();
 	rebuildVertices();
 }
 

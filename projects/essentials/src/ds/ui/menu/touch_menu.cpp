@@ -17,21 +17,7 @@ TouchMenu::TouchMenu(ds::ui::SpriteEngine& enginey)
 
 void TouchMenu::handleClusterUpdate(const ds::ui::TouchInfo::Phase tp, const ds::ui::FiveFingerCluster::Cluster& lemonCluster){
 	if(!mClusterLookup[lemonCluster.mClusterId]){
-		bool found(false);
-		for(int i = 0; i < mClusterViews.size(); i++){
-			if(!mClusterViews[i]->getActive()){
-				mClusterLookup[lemonCluster.mClusterId] = mClusterViews[i];
-				found = true;
-				break;
-			}
-		}
-
-		if(!found){
-			ClusterView* cv = new ClusterView(mEngine, mTouchMenuConfig, mMenuModels);
-			addChild(*cv);
-			mClusterViews.push_back(cv);
-			mClusterLookup[lemonCluster.mClusterId] = cv;
-		}
+		mClusterLookup[lemonCluster.mClusterId] = getClusterView();
 	}
 
 	if(mClusterLookup[lemonCluster.mClusterId]) mClusterLookup[lemonCluster.mClusterId]->updateCluster(tp, lemonCluster);
@@ -40,6 +26,21 @@ void TouchMenu::handleClusterUpdate(const ds::ui::TouchInfo::Phase tp, const ds:
 		mClusterLookup.erase(lemonCluster.mClusterId);
 	}
 }
+
+ds::ui::ClusterView* TouchMenu::getClusterView(){
+	for(int i = 0; i < mClusterViews.size(); i++){
+		if(!mClusterViews[i]->getActive()){
+			return mClusterViews[i];
+		}
+	}
+
+	ClusterView* cv = new ClusterView(mEngine, mTouchMenuConfig, mMenuModels);
+	addChild(*cv);
+	mClusterViews.push_back(cv);
+	return cv;
+	
+}
+
 
 void TouchMenu::handleTouchInfo(ds::ui::Sprite * bs, const ds::ui::TouchInfo& ti){
 	mFiveFingerCluster.parseTouch(ti);
@@ -63,6 +64,19 @@ void TouchMenu::clearClusters(){
 	}
 
 	mClusterViews.clear();
+
+	mClusterLookup.clear();
+}
+
+void TouchMenu::startTappableMenu(const ci::Vec3f& globalLocation, const float timeoutSeconds /*= 10.0f*/){
+	ClusterView* cv = getClusterView();
+	cv->startTappableMode(globalLocation, timeoutSeconds);
+}
+
+void TouchMenu::closeAllMenus(){
+	for(auto it = mClusterViews.begin(); it < mClusterViews.end(); ++it){
+		(*it)->deactivate();
+	}
 
 	mClusterLookup.clear();
 }

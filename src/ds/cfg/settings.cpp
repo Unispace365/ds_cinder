@@ -7,6 +7,7 @@
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/util/string_util.h"
+#include "ds/util/file_meta_data.h"
 
 static bool check_bool(const std::string& text, const bool defaultValue);
 
@@ -160,7 +161,7 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll, 
 			if(ext == ".xml") {
 				directReadXmlFrom(filename, clearAll);
 			} else {
-				throw std::exception("unsupported format");
+				DS_LOG_WARNING("Unsupported format for xml settings: " << filename);
 			}
 		}
 	} catch(std::exception const& ex) {
@@ -282,9 +283,9 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	}
 }
 
-void Settings::directReadXmlFrom(const std::string& filename, const bool clearAll)
-{
-	if(!Poco::File(filename).exists()) return;
+void Settings::directReadXmlFrom(const std::string& filename, const bool clearAll){
+	if(!FileMetaData::safeFileExistsCheck(filename)) return;
+
 	cinder::XmlTree     xml(cinder::loadFile(filename));
 	directReadXmlFromTree(xml, clearAll);
 }

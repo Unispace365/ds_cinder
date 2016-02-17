@@ -147,8 +147,8 @@ public:
 		if(size.x> 0 && size.y > 0){
 			try{
 				ImageAtts atts(size);
-				const auto file = Poco::File(filePath);
-				if (file.exists()) {
+				if(ds::FileMetaData::safeFileExistsCheck(filePath, false)) {
+					const auto file = Poco::File(filePath);
 					atts.mLastModified = file.getLastModified();
 					mCache[filePath] = atts;
 				} else {

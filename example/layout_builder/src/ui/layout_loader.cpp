@@ -68,6 +68,7 @@ void LayoutLoader::loadLayout(const std::string& layoutLocation) {
 
 	mLayout = new ds::ui::LayoutSprite(mEngine);
 	mLayout->setSpriteName(ds::wstr_from_utf8(layoutLocation));
+	mLayout->setLayoutType(ds::ui::LayoutSprite::kLayoutNone);
 	addChildPtr(mLayout);
 
 	std::map<std::string, ds::ui::Sprite*>	spriteMap;

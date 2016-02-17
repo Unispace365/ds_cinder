@@ -157,26 +157,22 @@ private:
 			// This is pretty ugly because MuPDF uses custom C++-like error handing that
 			// has stringent rules, like you're not allowed to return.
 			fz_try((&ctx)) {
-//				const float		zoom = 1.0f;
 				const float		zoom = static_cast<float>(mScaledWidth) / mWidth;
 				const float		rotation = 1.0f;
 				fz_matrix		transform = fz_identity;
 				fz_scale(&transform, zoom, zoom);
-	//			transform = fz_concat(transform, fz_rotate(rotation));
 
 				// Take the page bounds and transform them by the same matrix that
 				// we will use to render the page.
 				fz_rect			rect;
 				fz_bound_page(&ctx, &page, &rect);
 				fz_transform_rect(&rect, &transform);
-	//			fz_bbox bbox = fz_round_rect(rect);
 
 				// Create a blank pixmap to hold the result of rendering. The
 				// pixmap bounds used here are the same as the transformed page
 				// bounds, so it will contain the entire page. The page coordinate
 				// space has the origin at the top left corner and the x axis
 				// extends to the right and the y axis extends down.
-	//			fz_pixmap *pix = fz_new_pixmap_with_bbox(&ctx, fz_device_rgb, bbox);
 				int w = mScaledWidth, h = mScaledHeight;
 				if (mPixels.setSize(w, h)) {
 					mPixels.clearPixels();
@@ -192,12 +188,8 @@ private:
 					}
 				}
 			}
-			fz_always((&ctx))
-			{
-			}
-			fz_catch((&ctx))
-			{
-			}
+			fz_always((&ctx)){}
+			fz_catch((&ctx)){}
 			if (device) fz_drop_device(&ctx, device);
 			if (pixmap) fz_drop_pixmap(&ctx, pixmap);
 		} catch (std::exception const&) { }
@@ -250,12 +242,8 @@ private:
 					}
 				}
 			}
-			fz_always((&ctx))
-			{
-			}
-			fz_catch((&ctx))
-			{
-			}
+			fz_always((&ctx)){}
+			fz_catch((&ctx)){}
 			if (device) fz_drop_device(&ctx, device);
 			if (pixmap) fz_drop_pixmap(&ctx, pixmap);
 		} catch (std::exception const&) { }
@@ -362,11 +350,19 @@ void PdfRes::draw(float x, float y) {
 }
 
 void PdfRes::goToNextPage() {
-	setPageNum(mState.mPageNum+1);
+	if(mState.mPageNum >= mPageCount){
+		setPageNum(1); 
+	} else {
+		setPageNum(mState.mPageNum + 1);
+	}
 }
 
 void PdfRes::goToPreviousPage() {
-	setPageNum(mState.mPageNum-1);
+	if(mState.mPageNum <= 1){
+		setPageNum(mPageCount);
+	} else {
+		setPageNum(mState.mPageNum - 1);
+	}
 }
 
 float PdfRes::getWidth() const {
@@ -415,22 +411,26 @@ void PdfRes::setPageSizeMode(const ds::ui::Pdf::PageSizeMode& m) {
 	mState.mPageSizeMode = m;	
 }
 
-void PdfRes::update() {
+bool PdfRes::update() {
 	// Update the page, if necessary.  Batch process -- once my value has been
 	// set, I only need the next pending redraw to perform, everything else
 	// is unnecessary.
-	if (needsUpdate()) performOnWorkerThread(&PdfRes::_redrawPage, true);
+	if(needsUpdate()){
+		performOnWorkerThread(&PdfRes::_redrawPage, true);
+	}
 
+	bool pixelsWereUpdated = false;
 	{
 		std::lock_guard<decltype(mMutex)>		l(mMutex);
 		if (mPixelsChanged) {
+			pixelsWereUpdated = true;
 			mPixelsChanged = false;
 			if (mPixels.empty()) {
 				mTexture = ci::gl::Texture();
 			} else {
 				if (!mTexture || mTexture.getWidth() != mPixels.getWidth() || mTexture.getHeight() != mPixels.getHeight()) {
 					mTexture = ci::gl::Texture(mPixels.getWidth(), mPixels.getHeight());
-					if (!mTexture) return;
+					if (!mTexture) return false;
 				}
 
 				GLsizei width = mTexture.getWidth(),
@@ -449,6 +449,8 @@ void PdfRes::update() {
 		}
 		mState.mPageSize = mDrawState.mPageSize;
 	}
+
+	return pixelsWereUpdated;
 }
 
 bool PdfRes::needsUpdate() {

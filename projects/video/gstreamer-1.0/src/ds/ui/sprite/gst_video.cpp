@@ -151,6 +151,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mStatusChanged(true)
 	, mStatusFn(noop<const Status&>)
 	, mVideoCompleteFn(noop)
+	, mErrorFn(nullptr)
 	, mShouldPlay(false)
 	, mAutoStart(false)
 	, mShouldSync(false)
@@ -390,8 +391,6 @@ GstVideo &GstVideo::setResourceId(const ds::Resource::Id &resourceId){
 }
 
 GstVideo& GstVideo::setResource(const ds::Resource& resource){
-
-
 	if(resource.getType() == ds::Resource::VIDEO_TYPE){
 		Sprite::setSizeAll(resource.getWidth(), resource.getHeight(), mDepth);
 		loadVideo(resource.getAbsoluteFilePath());
@@ -401,6 +400,13 @@ GstVideo& GstVideo::setResource(const ds::Resource& resource){
 	}
 	return *this;
 }
+
+void GstVideo::setAutoRestartStream(bool autoRestart){
+	if(mGstreamerWrapper){
+		mGstreamerWrapper->setAutoRestartStream(autoRestart);
+	}
+}
+
 
 
 void GstVideo::doLoadVideo(const std::string &filename, const std::string &portable_filename){
@@ -452,6 +458,10 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 
 		mGstreamerWrapper->setVideoCompleteCallback([this](GStreamerWrapper*){
 			if(mVideoCompleteFn) mVideoCompleteFn();
+		});
+
+		mGstreamerWrapper->setErrorMessageCallback([this](const std::string& msg){
+			if(mErrorFn) mErrorFn(msg);
 		});
 
 		//setStatus(Status::STATUS_STOPPED);
@@ -524,6 +534,10 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	applyMovieVolume();
 
 	setStatus(Status::STATUS_PLAYING);
+
+	mGstreamerWrapper->setErrorMessageCallback([this](const std::string& msg){
+		if(mErrorFn) mErrorFn(msg);
+	});
 
 	ci::gl::Texture::Format fmt;
 	if(mColorType == kColorTypeShaderTransform){
@@ -650,11 +664,6 @@ void GstVideo::seekPosition(const double t){
 	markAsDirty(mPosDirty);
 }
 
-void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn){
-	mStatusFn = fn;
-}
-
-
 void GstVideo::setStatus(const int code){
 	if (code == mStatus.mCode) return;
 
@@ -678,12 +687,9 @@ void GstVideo::applyMoviePan(const float pan){
 
 
 void GstVideo::applyMovieLooping(){
-	if (mLooping)
-	{
+	if(mLooping){
 		mGstreamerWrapper->setLoopMode(LOOP);
-	}
-	else
-	{
+	} else {
 		mGstreamerWrapper->setLoopMode(NO_LOOP);
 	}
 }
@@ -696,6 +702,14 @@ void GstVideo::unloadVideo(const bool clearFrame){
 	if (clearFrame)	{
 		mFrameTexture.reset();
 	}
+}
+
+void GstVideo::setStatusCallback(const std::function<void(const Status&)>& fn){
+	mStatusFn = fn;
+}
+
+void GstVideo::setErrorCallback(const std::function<void(const std::string& errorMessage)>& func){
+	mErrorFn = func;
 }
 
 void GstVideo::setVideoCompleteCallback(const std::function<void()> &func){

@@ -573,20 +573,24 @@ void Web::setDocumentReadyFn(const std::function<void(void)>& fn) {
 	mDocumentReadyFn = fn;
 }
 
-void Web::setErrorMessage(const std::string &message)
-{
+void Web::setErrorMessage(const std::string &message){
 	mHasError = true;
 	mErrorMessage = message;
 
 	if(mErrorText){
+		mErrorText->setOpacity(1.0f);
 		mErrorText->setText(mErrorMessage);
 		mErrorText->setPosition((getWidth() - mErrorText->getWidth()) * 0.5f, (getHeight() - mErrorText->getHeight()) * 0.5f);
 		mErrorText->show();
+		mErrorText->tweenOpacity(0.0f, 1.0f, 10.0f);
+	}
+
+	if(mErrorCallback){
+		mErrorCallback(mErrorMessage);
 	}
 }
 
-void Web::clearError()
-{
+void Web::clearError(){
 	mHasError = false;
 	if(mErrorText){
 		mErrorText->hide();

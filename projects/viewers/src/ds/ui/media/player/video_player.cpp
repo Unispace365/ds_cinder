@@ -120,5 +120,15 @@ ds::ui::GstVideo* VideoPlayer::getVideo(){
 	return mVideo;
 }
 
+void VideoPlayer::togglePlayPause(){
+	if(mVideo){
+		if(mVideo->getIsPlaying()){
+			mVideo->pause();
+		} else {
+			mVideo->play();
+		}
+	}
+}
+
 } // namespace ui
 } // namespace ds

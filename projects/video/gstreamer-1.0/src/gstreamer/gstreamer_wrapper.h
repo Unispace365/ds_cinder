@@ -20,6 +20,7 @@ namespace gstwrapper
 // Enumeration to describe the current state of the wrapper
 enum PlayState
 {
+	GSTREAM_INIT_FAIL,
 	NOT_INITIALIZED,
 	OPENED,
 	PLAYING,
@@ -170,6 +171,9 @@ public:
 	streams nothing will happen
 	*/
 	void					setCurrentAudioStream( int iCurrentAudioStream );
+
+	void					setAutoRestartStream(bool autoRestart) { m_AutoRestartStream = autoRestart; }
+
 
 	/*
 	Sets the playback speed of the opened media file.
@@ -464,6 +468,8 @@ public:
 	*/
 	void					setVideoCompleteCallback(const std::function<void(GStreamerWrapper* video)> &func);
 
+	void					setErrorMessageCallback(const std::function<void(const std::string& errMessage)>& func);
+
 	/*
 	Set the pipeline to play as soon as the video is loaded.
 	*/
@@ -651,6 +657,7 @@ protected:
 	LoopMode				m_LoopMode; /* The current loop mode */
 	std::function < void(GStreamerWrapper*) >
 							mVideoCompleteCallback;
+	std::function<void(const std::string&)> m_ErrorMessageCallback;
 	GstElement*				m_GstPipeline; /* The main GStreamer pipeline */
 	bool					m_PendingSeek;
 	GstElement*				m_GstAudioSink; /* Audio sink that contains the raw audio buffer. Gathered from the pipeline */
@@ -693,6 +700,7 @@ private:
 	bool					m_StartPlaying;/* Play the video as soon as it's loaded */
 	bool					m_CustomPipeline; /* Has a custom pipeline for audio */
 	bool					m_Streaming; /* The video is playing live over the network (disallows seeking and a few other things */
+	bool					m_AutoRestartStream;
 	std::string				m_StreamPipeline;
 
 	bool					m_VerboseLogging;

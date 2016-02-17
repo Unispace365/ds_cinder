@@ -7,46 +7,47 @@
 
 namespace ds {
 
-	class Resource;
+class Resource;
 
-	namespace ui {
+namespace ui {
 
-		class GstVideo;
-		class VideoInterface;
-		class MediaInterface;
+class GstVideo;
+class VideoInterface;
+class MediaInterface;
 
-		/**
-		* \class ds::ui::VideoPlayer
-		*			Creates a video and puts an interface on top of it.
-		*/
-		class StreamPlayer : public ds::ui::Sprite  {
-		public:
-			StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
+/**
+* \class ds::ui::VideoPlayer
+*			Creates a video and puts an interface on top of it.
+*/
+class StreamPlayer : public ds::ui::Sprite  {
+public:
+	StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
 
-			void								setResource(const ds::Resource& resource);
+	void								setResource(const ds::Resource& resource);
 
-			void								layout();
+	void								layout();
 
-			void								play();
-			void								pause();
-			void								stop();
+	void								play();
+	void								pause();
+	void								stop();
 
-			void								showInterface();
-			void								setShowInterfaceAtStart(bool showInterfaceAtStart);
+	void								showInterface();
+	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
+	void								setAutoRestartStream(bool autoRestart);
 
-			ds::ui::GstVideo*					getVideo();
+	ds::ui::GstVideo*					getVideo();
 
-		protected:
+protected:
 
-			virtual void						onSizeChanged();
-			VideoInterface*						mVideoInterface;
-			ds::ui::GstVideo*					mVideo;
-			bool								mEmbedInterface;
-			bool								mShowInterfaceAtStart;
+	virtual void						onSizeChanged();
+	VideoInterface*						mVideoInterface;
+	ds::ui::GstVideo*					mVideo;
+	bool								mEmbedInterface;
+	bool								mShowInterfaceAtStart;
 
-		};
+};
 
-	} // namespace ui
+} // namespace ui
 } // namespace ds
 
 #endif

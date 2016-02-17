@@ -26,12 +26,30 @@ public:
 
 	ds::ui::Pdf*						getPDF();
 
+	void								nextPage();
+	void								prevPage();
+
+	void								setGoodStatusCallback(std::function<void()> func){ mGoodStatusCallback = func; }
+	void								setErrorCallback(std::function<void(const std::string&)> func){ mErrorMsgCallback = func; }
+
 protected:
 
-	virtual void						onSizeChanged();
-	ds::ui::Pdf*						mPDF;
-	PDFInterface*						mPdfInterface;
-	bool								mEmbedInterface;
+	virtual void								onSizeChanged();
+	void										loadNextAndPrevPages();
+	ds::ui::Pdf*								mPDF;
+	ds::ui::Sprite*								mPDFThumbHolder;
+
+	bool										mFirstPageLoaded;
+	int											mCurrentPage; // for displaying the next/back thing
+	ds::ui::Pdf*								mPDFNext;
+	ds::ui::Pdf*								mPDFPrev;
+	bool										mNextReady;
+	bool										mPrevReady;
+
+	PDFInterface*								mPdfInterface;
+	bool										mEmbedInterface;
+	std::function<void(void)>					mGoodStatusCallback;
+	std::function<void(const std::string&)>		mErrorMsgCallback;
 
 };
 

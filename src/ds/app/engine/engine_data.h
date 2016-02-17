@@ -39,6 +39,7 @@ public:
 	ci::Vec2f				mWorldSize;
 	float					mFrameRate;
 	int						mIdleTimeout;
+	bool					mUsingDefaults; // if no settings file loaded, use all default settings
 
 	// The source rect in world bounds and the destination
 	// local rect. Together these should obsolete mScreenRect.

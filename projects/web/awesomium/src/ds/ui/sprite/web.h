@@ -92,6 +92,7 @@ public:
 	// In the future I'd like to have a richer mechanism in place.
 	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
 	void					setDocumentReadyFn(const std::function<void(void)>&);
+	void					setErrorCallback(std::function<void(const std::string&)> func){ mErrorCallback = func; }
 
 	// allows the view to be updated while the page is still being loaded. default=false
 	void					setDrawWhileLoading(const bool doDrawing){ mDrawWhileLoading = doDrawing; }
@@ -169,6 +170,8 @@ private:
 							mTouchListener;
 	std::function<void(void)>
 							mDocumentReadyFn;
+	std::function<void(const std::string& msg)>
+							mErrorCallback;
 
 	// Replicated state
 	std::string				mUrl;

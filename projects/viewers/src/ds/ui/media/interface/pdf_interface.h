@@ -20,11 +20,11 @@ public:
 	PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
 
 	void						linkPDF(ds::ui::Pdf* linkedPDF);
+	void						updateWidgets();
 
 protected:
 
 	virtual void				onLayout();
-	void						updateWidgets();
 
 	ds::ui::Pdf*				mLinkedPDF;
 

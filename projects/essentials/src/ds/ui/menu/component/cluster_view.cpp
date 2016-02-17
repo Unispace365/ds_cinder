@@ -12,12 +12,13 @@
 namespace ds{
 namespace ui{
 
-ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::TouchMenuConfig menuConfig, std::vector<ds::ui::TouchMenu::MenuItemModel>	itemModels)
+ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::TouchMenuConfig menuConfig, std::vector<ds::ui::TouchMenu::MenuItemModel> itemModels)
 	: ds::ui::Sprite(enginey)
 	, mActive(false)
 	, mBackground(nullptr)
 	, mMenuConfig(menuConfig)
 	, mItemModels(itemModels)
+	, mTappableMode(false)
 {
 
 	enable(false);
@@ -34,7 +35,6 @@ ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::Touch
 			mBackground->setOpacity(0.0f);
 		}
 	}
-
 
 	buildMenuItems();
 }
@@ -75,6 +75,59 @@ void ClusterView::buildMenuItems(){
 		mi->setPosition(newPos.x, newPos.y);
 		i++;
 	}
+
+}
+
+void ClusterView::startTappableMode(const ci::Vec3f& globalLocation, const float timeoutTime){
+	mTappableMode = true;
+	setPosition(globalLocation);
+	callAfterDelay([this]{cancelTappableMode(); }, timeoutTime);
+	activate();
+
+	for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
+		MenuItem* mi = (*it);
+		mi->enable(true);
+		mi->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+
+		mi->setProcessTouchCallback([this, mi](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
+			if(ti.mNumberFingers == 1 && ti.mPhase == ds::ui::TouchInfo::Added){
+				mi->highlight();
+			}
+
+			if(ti.mPhase == ds::ui::TouchInfo::Moved && ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance()){
+				mi->unhighlight();
+			}
+		});
+
+		mi->setTapCallback([this, mi](ds::ui::Sprite*, const ci::Vec3f& pos){
+			if(mi && mi->getModel().mActivatedCallback){
+				mi->getModel().mActivatedCallback(pos);
+				cancelTappableMode();
+			}
+		});
+	}
+
+	if(mBackground){
+		mBackground->enable(true);
+		mBackground->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+		mBackground->setTapCallback([this](ds::ui::Sprite*, const ci::Vec3f& pos){
+			cancelTappableMode();
+		});
+	}
+}
+
+void ClusterView::cancelTappableMode(){
+	mTappableMode = false;
+
+	for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
+		MenuItem* mi = (*it);
+		mi->enable(false);
+	}
+	if(mBackground){
+		mBackground->enable(false);
+	}
+
+	deactivate();
 
 }
 
@@ -216,6 +269,7 @@ void ClusterView::invalidate(){
 void ClusterView::handleInvalidateComplete(){
 	hide();
 }
+
 
 } // namespace ui
 } // namespace ds
