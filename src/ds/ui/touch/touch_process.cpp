@@ -33,6 +33,7 @@ void TouchProcess::clearTouches(){
 	mSpriteEngine.clearFingers(fingers);
 
 	mFingers.clear();
+	mFingerIndex.clear();
 }
 
 bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
