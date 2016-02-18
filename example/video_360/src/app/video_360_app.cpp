@@ -19,6 +19,7 @@ video_360::video_360()
 	, mHeader(nullptr)
 	, mLabelText(nullptr)
 	, mPanoramicVideo(nullptr)
+	, mOverlay(nullptr)
 {
 	/*fonts in use */
 	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
@@ -41,7 +42,17 @@ void video_360::setupServer(){
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.3f, 0.3f, 0.3f));
 	rootSprite.setPosition(0.0f, 0.0f, 0.0f);
-	rootSprite.enable(false);
+	rootSprite.enable(true);
+	rootSprite.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	rootSprite.setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
+		if(mPanoramicVideo){
+			mPanoramicVideo->move(ti.mDeltaPoint);
+			if(mOverlay){
+				mOverlay->setPosition(mPanoramicVideo->getPosition());
+			}
+		}
+	});
+
 	const float headerHeight = mEngine.getSettings("layout").getFloat("header:height", 0, 100.0f);
 	mHeader = new ds::ui::Sprite(mEngine);
 	mHeader->setSize(mEngine.getWorldWidth(), headerHeight);
@@ -120,9 +131,18 @@ void video_360::loadMedia(const std::string& newMedia){
 
 	//Configure drone video
 	mPanoramicVideo->setSize(1366.0, 768.0f);
-	mPanoramicVideo->setCenter(0.5f, 0.5f);
-	mPanoramicVideo->setPosition(0.25f* mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());
+	//mPanoramicVideo->setCenter(0.0f, 0.5f);
+//	mPanoramicVideo->setPosition(0.25f* mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());
 	mPanoramicVideo->loadVideo(newMedia);
+
+	mOverlay = new ds::ui::Sprite(mEngine, mPanoramicVideo->getWidth(), mPanoramicVideo->getHeight());
+	mOverlay->enable(false);
+	mOverlay->setTransparent(false);
+	mOverlay->setColor(ci::Color(0.5f, 0.2f, 0.2f));
+	mOverlay->setOpacity(0.5f);
+	mEngine.getRootSprite().addChildPtr(mOverlay);
+
+	return;
 
 	auto realVideo = mPanoramicVideo->getVideo();
 	//Set shader uniforms - Shaders are enabled/disabled by user keyboard input

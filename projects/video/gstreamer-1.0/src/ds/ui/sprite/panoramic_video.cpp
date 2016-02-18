@@ -219,14 +219,34 @@ void PanoramicVideo::drawLocalClient(){
 		if(!mVideoTexture) return;
 		//save off original viewport - restore after we are done
 		ci::Area viewport = ci::gl::getViewport();
+		DS_REPORT_GL_ERRORS();
 
-		ci::Vec3f ul = localToGlobal( ci::Vec3f (getPosition().xy() - getCenter().xy()*getSize().xy(),0.0f));
-		ul = ul - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
-		ci::Vec3f br = ul + ci::Vec3f(getWidth(), getHeight(), 0.0f);
 
-		if (!getPerspective()) {
+		if(!getPerspective()) {
+			ci::Rectf bb = getBoundingBox();
+			ci::Vec3f ul = getParent()->localToGlobal(ci::Vec3f(bb.getUpperLeft(), 0.0f));
+			ci::Vec3f br = getParent()->localToGlobal(ci::Vec3f(bb.getLowerRight(), 0.0f));
+
+			float yScale = mEngine.getSrcRect().getHeight() / mEngine.getDstRect().getHeight();
+			float xScale = mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth();
+
+			// even though we're not in perspective, the cinder perspective camera starts from the bottom of the window
+			// and counts upwards for y. So reverse that to draw where we expect
+			ul = ul - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
+			ul.y /= yScale;
+			ul.x /= xScale;
+			ul.y = ci::app::getWindowBounds().getHeight() - ul.y;
+
+			br = br - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
+			br.y /= yScale;
+			br.x /= xScale;
+			br.y = ci::app::getWindowBounds().getHeight() - br.y;
+
 			ci::gl::setViewport(ci::Area(ul.xy(), br.xy()));
 		} else {
+			ci::Vec3f ul = getParent()->localToGlobal(ci::Vec3f(getPosition().xy() - getCenter().xy()*getSize().xy(), 0.0f));
+			ul = ul - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
+			ci::Vec3f br = ul + ci::Vec3f(getWidth(), getHeight(), 0.0f);
 			ci::gl::setViewport(ci::Area(ci::Vec2f(ul.x,br.y), ci::Vec2f(br.x, ul.y)));
 		}
 
@@ -234,17 +254,17 @@ void PanoramicVideo::drawLocalClient(){
 		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
 		shaderBase.bind();
 
-		shaderBase.uniform("tex0", static_cast<int>(mVideoTexture->getTarget()));
+		shaderBase.uniform("tex0", 0);// static_cast<int>(mVideoTexture->get()));
 		shaderBase.uniform("mv", mCamera.getModelViewMatrix());
 		shaderBase.uniform("p", mCamera.getProjectionMatrix());
 		shaderBase.uniform("radius", mSphere.getRadius());
 
-		ci::gl::draw(mSphere, 120);
-
-		ci::gl::setViewport(viewport);
+		ci::gl::draw(mSphere, 12);
 
 		mVideoTexture->unbind();
 		shaderBase.unbind();
+
+		ci::gl::setViewport(viewport);
 	}
 }
 

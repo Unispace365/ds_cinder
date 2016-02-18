@@ -23,6 +23,7 @@ private:
 	void					loadMedia(const std::string& newMedia);
 	void					fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy);
 	ds::ui::PanoramicVideo* mPanoramicVideo;
+	ds::ui::Sprite*			mOverlay;
 	ds::ui::Text*			mLabelText;
 	ds::ui::Sprite*			mHeader;
 };
