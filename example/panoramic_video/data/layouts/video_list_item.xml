@@ -1,0 +1,35 @@
+<interface>
+
+		<layout name="layout"
+				layout_type="horiz"
+				layout_size_mode="fixed"
+			>
+			
+			
+		
+			<sprite name="background_highlight"
+				layout_size_mode="fill"
+				color="53c2e8" 
+				opacity="0.2"
+				animate_on="grow:0.0, -1.0; ease:outQuint; duration:0.4"
+				/>
+				
+			<image name="thumbnail" 
+				layout_size_mode="flex"
+				l_pad="10"
+				t_pad="10"
+				b_pad="10"
+				color="53c2e8"
+				animate_on="grow; ease:outQuint; duration:0.4"
+			/>
+			<text name="title"
+				font="folder_browser:list_item"
+				l_pad="20"
+				layout_v_align="middle"
+				animate_on="slide:100.0; fade; ease:outQuint; duration:0.4"
+				/>
+			
+		</layout>
+	
+</interface>
+
