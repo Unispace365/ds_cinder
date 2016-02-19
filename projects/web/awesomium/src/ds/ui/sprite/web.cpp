@@ -215,6 +215,8 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		DS_LOG_WARNING("Web errors not rendered because font \"default:error\" is not defined");
 	}
 	if(mErrorText){
+		mErrorLayout.installOn(*mErrorText);
+
 		mErrorText->setColor(ci::Color::black());
 		mErrorText->setResizeToText(true);
 		addChildPtr(mErrorText);
@@ -579,6 +581,7 @@ void Web::setErrorMessage(const std::string &message){
 
 	if(mErrorText){
 		mErrorText->setOpacity(1.0f);
+		mErrorText->setResizeLimit(this->getWidth() * 0.8f, 0.0f);
 		mErrorText->setText(mErrorMessage);
 		mErrorText->setPosition((getWidth() - mErrorText->getWidth()) * 0.5f, (getHeight() - mErrorText->getHeight()) * 0.5f);
 		mErrorText->show();

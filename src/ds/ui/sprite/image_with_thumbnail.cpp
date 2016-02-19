@@ -114,6 +114,7 @@ void ImageWithThumbnail::onImageLoaded(){
 }
 
 void ImageWithThumbnail::onSizeChanged(){
+	inherited::onSizeChanged();
 	if(mThumbnail){
 		mThumbnail->setSize(getWidth(), getHeight());
 	}

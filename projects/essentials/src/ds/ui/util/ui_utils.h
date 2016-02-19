@@ -49,10 +49,14 @@ typedef enum {
 } AlignType;
 
 static void insetRectInRectWithAlign(ci::Rectf& rect1, const ci::Rectf& rect2, AlignType align = ds::ui::kAlignMiddleCenter, bool preserveAspect = true, bool fillRect2 = false) {
-	if(preserveAspect) {
+	float w = rect1.getWidth();
+	float h = rect1.getHeight();
+	if(
+		preserveAspect &&
+		(w > 0.01f) &&
+		(h > 0.01f)
+	) {
 		// figure out the aspect
-		float w = rect1.getWidth();
-		float h = rect1.getHeight();
 		float newW = 0.0f;
 		float newH = 0.0f;
 

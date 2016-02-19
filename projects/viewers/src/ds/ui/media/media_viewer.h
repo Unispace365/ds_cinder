@@ -31,6 +31,7 @@ public:
 
 	// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
 	void				setDefaultBounds(const float defaultWidth, const float defaultHeight);
+	void				setWebViewSize(float webViewWidth, float webViewHeight);
 	
 	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.
 	void				initialize();
@@ -100,6 +101,8 @@ protected:
 
 	float				mDefaultBoundWidth;
 	float				mDefaultBoundHeight;
+	float				mWebViewWidth;
+	float				mWebViewHeight;
 
 	std::function<void(const std::string& msg)>	mErrorCallback;
 	std::function<void(const bool isGood)> mStatusCallback;
