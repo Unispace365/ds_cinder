@@ -22,10 +22,6 @@ public:
 	virtual void		mouseDrag(ci::app::MouseEvent e);
 	virtual void		mouseUp(ci::app::MouseEvent e);
 
-	virtual void		onTouchesBegan(ds::ui::TouchEvent te);
-	virtual void		onTouchesMoved(ds::ui::TouchEvent te);
-	virtual void		onTouchesEnded(ds::ui::TouchEvent te);
-
 	virtual void		keyDown(ci::app::KeyEvent event);
 	void				setupServer();
 	void				update();

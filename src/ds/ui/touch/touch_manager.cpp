@@ -112,6 +112,10 @@ void TouchManager::inputBegin(const int fingerId, const ci::Vec2f& touchPos){
 		mFingerDispatcher[touchInfo.mFingerId] = currentSprite;
 		currentSprite->processTouchInfo(touchInfo);
 	}
+
+	if(mEngine.getTouchInfoPipeCallback()){
+		mEngine.getTouchInfoPipeCallback()(touchInfo);
+	}
 }
 
 
@@ -187,6 +191,10 @@ void TouchManager::inputMoved(const int fingerId, const ci::Vec2f& touchPos){
 	}
 
 	mTouchPreviousPoint[touchInfo.mFingerId] = globalPoint;
+
+	if(mEngine.getTouchInfoPipeCallback()){
+		mEngine.getTouchInfoPipeCallback()(touchInfo);
+	}
 }
 
 
@@ -248,6 +256,10 @@ void TouchManager::inputEnded(const int fingerId, const ci::Vec2f& touchPos){
 	mFingerDispatcher.erase(touchInfo.mFingerId);
 
 	if(mCapture) mCapture->touchEnd(touchInfo);
+
+	if(mEngine.getTouchInfoPipeCallback()){
+		mEngine.getTouchInfoPipeCallback()(touchInfo);
+	}
 }
 
 void TouchManager::clearFingers( const std::vector<int> &fingers ){

@@ -41,6 +41,9 @@ ds::ui::ClusterView* TouchMenu::getClusterView(){
 	
 }
 
+void TouchMenu::handleTouchInfo(const ds::ui::TouchInfo& ti){
+	mFiveFingerCluster.parseTouch(ti);
+}
 
 void TouchMenu::handleTouchInfo(ds::ui::Sprite * bs, const ds::ui::TouchInfo& ti){
 	mFiveFingerCluster.parseTouch(ti);

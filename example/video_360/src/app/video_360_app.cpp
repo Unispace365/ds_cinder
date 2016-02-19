@@ -130,10 +130,13 @@ void video_360::loadMedia(const std::string& newMedia){
 
 
 	//Configure drone video
-	mPanoramicVideo->setSize(1366.0, 768.0f);
+	mPanoramicVideo->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
+	mPanoramicVideo->setFOV(90.0f);
 	//mPanoramicVideo->setCenter(0.0f, 0.5f);
 //	mPanoramicVideo->setPosition(0.25f* mEngine.getWorldWidth(), 0.5f * mEngine.getWorldHeight());
 	mPanoramicVideo->loadVideo(newMedia);
+
+	return;
 
 	mOverlay = new ds::ui::Sprite(mEngine, mPanoramicVideo->getWidth(), mPanoramicVideo->getHeight());
 	mOverlay->enable(false);
@@ -142,7 +145,6 @@ void video_360::loadMedia(const std::string& newMedia){
 	mOverlay->setOpacity(0.5f);
 	mEngine.getRootSprite().addChildPtr(mOverlay);
 
-	return;
 
 	auto realVideo = mPanoramicVideo->getVideo();
 	//Set shader uniforms - Shaders are enabled/disabled by user keyboard input

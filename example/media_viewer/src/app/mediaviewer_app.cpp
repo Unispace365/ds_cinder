@@ -113,6 +113,7 @@ void MediaViewer::setupServer(){
 
 	mTouchMenu->setMenuItemModels(menuItemModels);
 
+	mEngine.setTouchInfoPipeCallback([this](const ds::ui::TouchInfo& ti){ mTouchMenu->handleTouchInfo(ti); });
 }
 
 void MediaViewer::update() {
@@ -241,40 +242,6 @@ void MediaViewer::mouseDrag(ci::app::MouseEvent e) {
 
 void MediaViewer::mouseUp(ci::app::MouseEvent e) {
 	mTouchDebug.mouseUp(e);
-}
-
-void MediaViewer::onTouchesBegan(ds::ui::TouchEvent e) {
-	touchEventToTouchInfo(e, ds::ui::TouchInfo::Added);
-}
-
-void MediaViewer::onTouchesMoved(ds::ui::TouchEvent e){
-	touchEventToTouchInfo(e, ds::ui::TouchInfo::Moved);
-}
-
-void MediaViewer::onTouchesEnded(ds::ui::TouchEvent e){
-	touchEventToTouchInfo(e, ds::ui::TouchInfo::Removed);
-}
-
-void MediaViewer::touchEventToTouchInfo(ds::ui::TouchEvent& te, ds::ui::TouchInfo::Phase phasey){
-	if(!mTouchMenu) return;
-
-	static const int MOUSE_RESERVED_IDS = 2; // from touch_manager.cpp. Gross, I know. Whatever.
-	for(std::vector<ci::app::TouchEvent::Touch>::const_iterator touchIt = te.getTouches().begin(); touchIt != te.getTouches().end(); ++touchIt) {
-		ci::Vec2f touchyPointy = touchIt->getPos();
-
-		if(mGlobals.getSettingsLayout().getBool("cluster:touch:translate_points", 0, false)){
-			mEngine.translateTouchPoint(touchyPointy);
-		}
-
-		if(mEngine.shouldDiscardTouch(touchyPointy))
-			continue;
-
-		ds::ui::TouchInfo touchInfo;
-		touchInfo.mCurrentGlobalPoint = ci::Vec3f(touchyPointy, 0.0f);
-		touchInfo.mFingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
-		touchInfo.mPhase = phasey;
-		mTouchMenu->handleTouchInfo(mTouchMenu, touchInfo);
-	}
 }
 
 void MediaViewer::fileDrop(ci::app::FileDropEvent event){

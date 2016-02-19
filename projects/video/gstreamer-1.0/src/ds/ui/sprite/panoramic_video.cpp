@@ -259,7 +259,7 @@ void PanoramicVideo::drawLocalClient(){
 		shaderBase.uniform("p", mCamera.getProjectionMatrix());
 		shaderBase.uniform("radius", mSphere.getRadius());
 
-		ci::gl::draw(mSphere, 12);
+		ci::gl::draw(mSphere, 120);
 
 		mVideoTexture->unbind();
 		shaderBase.unbind();

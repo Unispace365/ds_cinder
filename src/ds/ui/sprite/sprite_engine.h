@@ -34,6 +34,7 @@ class RenderTextService;
 class Sprite;
 class Tweenline;
 class TouchEvent;
+struct TouchInfo;
 
 /**
  * \class ds::ui::SpriteEngine
@@ -147,6 +148,13 @@ public:
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void					translateTouchPoint( ci::Vec2f& inOutPoint ) = 0;
 
+	/// Calls every time any touch anywhere happens, and the touch info is post-translation and filtering
+	/// This calls *after* any sprites get the touch. 
+	void							setTouchInfoPipeCallback(std::function<void(const ds::ui::TouchInfo&)> func){ mTouchInfoPipe = func; }
+	
+	/// Get the function for touch info callbacks, for TouchManager to callback on.
+	std::function<void(const ds::ui::TouchInfo&)>	getTouchInfoPipeCallback(){ return mTouchInfoPipe; }
+
 	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	// Sprites can still turn this off after creation
 	virtual bool					getRotateTouchesDefault() = 0;
@@ -174,6 +182,8 @@ protected:
 
 private:
 	ds::EngineService&				private_getService(const std::string&);
+
+	std::function<void(const ds::ui::TouchInfo& ti)>	mTouchInfoPipe;
 };
 
 template <typename T>

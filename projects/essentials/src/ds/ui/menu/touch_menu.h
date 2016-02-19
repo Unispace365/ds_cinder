@@ -81,6 +81,8 @@ public:
 	void									setMenuConfig(TouchMenuConfig touchMenuConfig);
 
 	/** Send all touch info (straight from the engine in most cases) directly here to be parsed */
+	void									handleTouchInfo(const ds::ui::TouchInfo& ti);
+	/** Send all touch info (straight from the engine in most cases) directly here to be parsed, the sprite parameter is ignored */
 	void									handleTouchInfo(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 
 	/** Starts a menu at the specified location. That menu will timeout or close when an option is tapped. */
