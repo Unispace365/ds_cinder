@@ -179,6 +179,7 @@ private:
 	bool					mHasError;
 	std::string				mErrorMessage;
 	ds::ui::Text*			mErrorText;
+	ds::ui::TextLayoutVertical	mErrorLayout;
 
 	// Initialization
 public:
