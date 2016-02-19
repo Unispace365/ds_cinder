@@ -36,6 +36,8 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mEmbedInterface(embedInterface)
 	, mDefaultBoundWidth(mEngine.getWorldWidth())
 	, mDefaultBoundHeight(mEngine.getWorldHeight())
+	, mWebViewWidth(0.0f)
+	, mWebViewHeight(0.0f)
 {
 }
 
@@ -53,6 +55,8 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath
 	, mEmbedInterface(embedInterface)
 	, mDefaultBoundWidth(mEngine.getWorldWidth())
 	, mDefaultBoundHeight(mEngine.getWorldHeight())
+	, mWebViewWidth(0.0f)
+	, mWebViewHeight(0.0f)
 {
 }
 
@@ -70,6 +74,8 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& resource
 	, mEmbedInterface(embedInterface)
 	, mDefaultBoundWidth(mEngine.getWorldWidth())
 	, mDefaultBoundHeight(mEngine.getWorldHeight())
+	, mWebViewWidth(0.0f)
+	, mWebViewHeight(0.0f)
 {
 }
 
@@ -102,6 +108,11 @@ void MediaViewer::setDefaultBounds(const float defaultWidth, const float default
 	mDefaultBoundWidth = defaultWidth;
 	mDefaultBoundHeight = defaultHeight;
 }
+
+void MediaViewer::setWebViewSize(float webViewWidth, float webViewHeight){
+	mWebViewWidth = webViewWidth;
+	mWebViewHeight = webViewHeight;
+}	
 
 void MediaViewer::initialize(){
 	if(mInitialized) return;
@@ -215,6 +226,7 @@ void MediaViewer::initialize(){
 	} else if(mediaType == ds::Resource::WEB_TYPE){
 		mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mWebPlayer);
+		mWebPlayer->setWebViewSize(mWebViewWidth, mWebViewHeight);
 		mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
 
 		if(mWebPlayer->getWeb()){

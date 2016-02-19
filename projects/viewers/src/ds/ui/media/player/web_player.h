@@ -19,6 +19,7 @@ class WebPlayer : public ds::ui::Sprite  {
 public:
 	WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface);
 
+	void								setWebViewSize(float webViewWidth, float webViewHeight);
 	void								setMedia(const std::string mediaPath);
 
 	virtual void						userInputReceived();
@@ -36,6 +37,8 @@ protected:
 	ds::ui::Web*						mWeb;
 	WebInterface*						mWebInterface;
 	bool								mEmbedInterface;
+	float								mWebViewWidth;
+	float								mWebViewHeight;
 
 };
 

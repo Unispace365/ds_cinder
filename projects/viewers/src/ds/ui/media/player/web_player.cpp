@@ -19,10 +19,17 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mWeb(nullptr)
 	, mWebInterface(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mWebViewWidth(0.0f)
+	, mWebViewHeight(0.0f)
 {
 	enable(false);
 	setTransparent(false);
 	setColor(ci::Color::black());
+}
+
+void WebPlayer::setWebViewSize(float webViewWidth, float webViewHeight){
+	mWebViewWidth = webViewWidth;
+	mWebViewHeight = webViewHeight;
 }
 
 void WebPlayer::setMedia(const std::string mediaPath){
@@ -48,7 +55,15 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		}
 	});
 
-	mWeb->setSize(mEngine.getWorldWidth() * fractionalWidthForContent, mEngine.getWorldHeight());
+	float targetW = mWebViewWidth;
+	float targetH = mWebViewHeight;
+
+	if((targetW == 0.0f) || (targetH == 0.0f)){
+		targetW = mEngine.getWorldWidth() * fractionalWidthForContent;
+		targetH = mEngine.getWorldHeight();
+	}
+
+	mWeb->setSize(targetW, targetH);
 
 	addChildPtr(mWeb);
 	mWeb->setUrl(mediaPath);
