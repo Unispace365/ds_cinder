@@ -13,6 +13,8 @@
 #include "ds/util/file_meta_data.h"
 #include "ds/debug/debug_defines.h"
 
+#include "ds/util/exif_reader.h"
+
 namespace ds {
 
 namespace {
@@ -84,7 +86,7 @@ void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
 		// but is otherwise the right thing to do.
 		const Poco::File file(filename);
 
-		if(!file.exists()){
+		if(!ds::FileMetaData::safeFileExistsCheck(filename)){
 			DS_LOG_WARNING_M("ImageFileAtts: image file does not exist, filename: " << filename, GENERAL_LOG);
 			return;
 		}
@@ -214,7 +216,7 @@ private:
 		} catch (std::exception const&) {
 		}
 
-		// 3. Probe known file formats
+		// 2. Probe known file formats
 		try {
 			ImageAtts			atts;
 			const int			format = get_format(fn);
@@ -223,6 +225,13 @@ private:
 			}
 		} catch (std::exception const& e) {
 			DS_LOG_WARNING_M("ImageFileAtts() error=" << e.what(), GENERAL_LOG);
+		}
+
+		// 3. let's see if there's exif data
+		int outW = 0;
+		int outH = 0;
+		if(ds::ExifHelper::getImageSize(fn, outW, outH)){
+			return ImageAtts(ci::Vec2f(static_cast<float>(outW), static_cast<float>(outH)));
 		}
 
 		// 4. Load the whole damn image in and get that.

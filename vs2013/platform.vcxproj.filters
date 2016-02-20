@@ -699,6 +699,12 @@
     <ClInclude Include="..\src\ds\math\Quaternion.h">
       <Filter>src\ds\math</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\exif.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\exif_reader.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1186,6 +1192,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\circle_border.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\exif.cpp">
+      <Filter>src\ds\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
