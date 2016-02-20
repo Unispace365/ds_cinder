@@ -10,6 +10,7 @@ namespace ui {
 class ImageButton;
 class Text;
 class Web;
+class SoftKeyboard;
 
 /**
 * \class ds:ui:::WebInterface
@@ -19,15 +20,23 @@ class WebInterface : public MediaInterface  {
 public:
 	WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
 
+	virtual void				animateOff();
+
 	void						linkWeb(ds::ui::Web* linkedWeb);
 	void						updateWidgets();
 
 protected:
 
 	virtual void				onLayout();
+	void						showKeyboard(bool show);
 
 	ds::ui::Web*				mLinkedWeb;
 
+	ds::ui::Sprite*				mKeyboardArea;
+	ds::ui::SoftKeyboard*		mKeyboard;
+	bool						mKeyboardShowing;
+
+	ds::ui::ImageButton*		mKeyboardButton;
 	ds::ui::ImageButton*		mBackButton;
 	ds::ui::ImageButton*		mForwardButton;
 	ds::ui::ImageButton*		mRefreshButton;

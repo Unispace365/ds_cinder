@@ -11,29 +11,85 @@
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/sprite/text.h>
 
+#include <ds/ui/soft_keyboard/soft_keyboard.h>
+#include <ds/ui/soft_keyboard/soft_keyboard_defs.h>
+#include <ds/ui/soft_keyboard/soft_keyboard_button.h>
+#include <ds/ui/soft_keyboard/soft_keyboard_builder.h>
+
 namespace ds {
 namespace ui {
 
 WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
 	: MediaInterface(eng, sizey, backgroundColor)
 	, mLinkedWeb(nullptr)
+	, mKeyboardArea(nullptr)
+	, mKeyboard(nullptr)
+	, mKeyboardShowing(false)
+	, mKeyboardButton(nullptr)
 	, mBackButton(nullptr)
 	, mForwardButton(nullptr)
 	, mRefreshButton(nullptr)
 	, mTouchToggle(nullptr)
 {
-	mForwardButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/next.png", "%APP%/data/images/media_interface/next.png", (sizey.y - buttonHeight) / 2.0f);
-	addChildPtr(mForwardButton);
-	mForwardButton->setClickFn([this](){
+	mKeyboardArea = new ds::ui::Sprite(mEngine, 600.0f, 300.0f);
+	mKeyboardArea->setTransparent(false);
+	mKeyboardArea->setColor(ci::Color(0.0f, 0.0f, 0.0f));
+	mKeyboardArea->hide();
+	this->addChildPtr(mKeyboardArea);
+
+	ds::ui::SoftKeyboardSettings sks;
+	mKeyboard = ds::ui::SoftKeyboardBuilder::buildStandardKeyboard(mEngine, sks);
+	mKeyboardArea->addChildPtr(mKeyboard);
+	
+	mKeyboard->setScale(0.65f);
+	const float areaW = mKeyboardArea->getWidth();
+	const float areaH = mKeyboardArea->getHeight();
+	const float keyW = mKeyboard->getScaleWidth();
+	const float keyH = mKeyboard->getScaleHeight();
+	mKeyboard->setPosition(
+		(areaW - keyW) * 0.5f,
+		(areaH - keyH) * 0.5f
+	);
+
+	mKeyboard->setKeyPressFunction([this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
 		if(mLinkedWeb){
-			mLinkedWeb->goForward();
-			updateWidgets();
+			// spoof a keyevent to send to the web
+			bool send = true;
+			int code = 0;
+			
+			if(keyType == ds::ui::SoftKeyboardDefs::kShift){
+				send = false;
+			} else if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
+				code = ci::app::KeyEvent::KEY_BACKSPACE;
+			} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
+				code = ci::app::KeyEvent::KEY_RETURN;
+			}
+
+			if(send){
+				ci::app::KeyEvent event(
+					mEngine.getWindow(),
+					code,
+					0,
+					(char)character.c_str()[0],
+					0,
+					0
+				);
+				mLinkedWeb->sendKeyDownEvent(event);
+			}
 		}
 	});
 
-	mForwardButton->getNormalImage().setColor(buttonColor);
-	mForwardButton->getHighImage().setColor(buttonColor / 2.0f);
-	mForwardButton->setScale(sizey.y / mForwardButton->getHeight());
+	mKeyboardButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/keyboard.png", "%APP%/data/images/media_interface/keyboard.png", (sizey.y - buttonHeight) / 2.0f);
+	addChildPtr(mKeyboardButton);
+	mKeyboardButton->setClickFn([this](){
+		mKeyboardShowing = !mKeyboardShowing;
+		updateWidgets();
+	});
+
+	mKeyboardButton->getNormalImage().setColor(buttonColor);
+	mKeyboardButton->getHighImage().setColor(buttonColor / 2.0f);
+	mKeyboardButton->setScale(sizey.y / mKeyboardButton->getHeight());
+
 
 	mBackButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png", "%APP%/data/images/media_interface/prev.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mBackButton);
@@ -47,6 +103,20 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	mBackButton->getNormalImage().setColor(buttonColor);
 	mBackButton->getHighImage().setColor(buttonColor / 2.0f);
 	mBackButton->setScale(sizey.y / mBackButton->getHeight());
+
+
+	mForwardButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/next.png", "%APP%/data/images/media_interface/next.png", (sizey.y - buttonHeight) / 2.0f);
+	addChildPtr(mForwardButton);
+	mForwardButton->setClickFn([this](){
+		if(mLinkedWeb){
+			mLinkedWeb->goForward();
+			updateWidgets();
+		}
+	});
+
+	mForwardButton->getNormalImage().setColor(buttonColor);
+	mForwardButton->getHighImage().setColor(buttonColor / 2.0f);
+	mForwardButton->setScale(sizey.y / mForwardButton->getHeight());
 
 
 	mRefreshButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/refresh.png", "%APP%/data/images/media_interface/refresh.png", (sizey.y - buttonHeight) / 2.0f);
@@ -80,8 +150,15 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	mTouchToggle->getHighImage().setColor(buttonColor / 2.0f);
 	mTouchToggle->setScale(sizey.y / mTouchToggle->getHeight());
 
-
 	updateWidgets();
+}
+
+void WebInterface::animateOff(){
+	tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::EaseNone(), [this]{
+		hide();
+		mKeyboardShowing = false;
+		updateWidgets();
+	});
 }
 
 void WebInterface::linkWeb(ds::ui::Web* linkedWeb){
@@ -89,15 +166,15 @@ void WebInterface::linkWeb(ds::ui::Web* linkedWeb){
 	updateWidgets();
 }
 
-
 // Layout is called when the size is changed, so don't change the size in the layout
 void WebInterface::onLayout(){
-	if(mBackButton && mForwardButton && mRefreshButton && mTouchToggle){
-		const float w = getWidth();
-		const float h = getHeight();
+	const float w = getWidth();
+	const float h = getHeight();
+	if(mKeyboardButton && mBackButton && mForwardButton && mRefreshButton && mTouchToggle){
 		const float padding = h / 4.0f;
 
 		float componentsWidth = (
+			mKeyboardButton->getScaleWidth() + padding +
 			mBackButton->getScaleWidth() + padding +
 			mForwardButton->getScaleWidth() + padding +
 			mRefreshButton->getScaleWidth() + padding +
@@ -106,6 +183,9 @@ void WebInterface::onLayout(){
 
 		float margin = ((w - componentsWidth) * 0.5f);
 		float xp = margin;
+
+		mKeyboardButton->setPosition(xp, (h * 0.5f) - mKeyboardButton->getScaleHeight() / 2.0f);
+		xp += mKeyboardButton->getScaleWidth() + padding;
 
 		mBackButton->setPosition(xp, (h * 0.5f) - mBackButton->getScaleHeight() / 2.0f);
 		xp += mBackButton->getScaleWidth() + padding;
@@ -118,8 +198,17 @@ void WebInterface::onLayout(){
 
 		mTouchToggle->setPosition(xp, (h * 0.5f) - mTouchToggle->getScaleHeight() / 2.0f);
 		xp += mTouchToggle->getScaleWidth() + padding;
+	}
 
+	if(mKeyboardArea){
+		// center the keyboard area above this sprite
+		const float keyboardW = mKeyboardArea->getWidth();
+		const float keyboardH = mKeyboardArea->getHeight();
 
+		mKeyboardArea->setPosition(
+			(w - keyboardW) * 0.5f,
+			-keyboardH
+		);
 	}
 }
 
@@ -149,6 +238,15 @@ void WebInterface::updateWidgets(){
 			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
 		}
 	}
+
+	if(mKeyboardArea){
+		if(mKeyboardShowing){
+			mKeyboardArea->show();
+		} else {
+			mKeyboardArea->hide();
+		}
+	}
+
 	layout();
 }
 

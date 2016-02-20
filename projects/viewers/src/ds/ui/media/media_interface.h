@@ -18,8 +18,8 @@ public:
 	MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey = ci::Vec2f(400.0f, 50.0f), const ci::Color backgroundColor = ci::Color::black());
 
 
-	void								animateOn();
-	void								animateOff();
+	virtual void						animateOn();
+	virtual void						animateOff();
 
 	virtual void						updateServer(const ds::UpdateParams& updateParams);
 	void								layout();
