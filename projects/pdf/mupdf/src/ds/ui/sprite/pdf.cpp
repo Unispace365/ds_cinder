@@ -75,6 +75,32 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 	// Should be unnecessary, but make sure we reference the static.
 	INIT.doNothing();
 
+	enable(false);
+	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+
+	// set some callbacks in case we are ever enabled
+	this->setTapCallback([this](ds::ui::Sprite* sprite, const ci::Vec3f& pos){
+		int count = getPageCount();
+		int zeroIndexNextWrapped = (getPageNum() % count);
+		setPageNum(zeroIndexNextWrapped + 1);
+	});
+
+	this->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::Vec3f& delta){
+		int diff = 0;
+
+		if(delta.x < -20.0f){
+			diff = 1;
+		} else if(delta.x > 20.0f){
+			diff = -1;
+		}
+
+		if(diff != 0){
+			int count = getPageCount();
+			int zeroIndexNextWrapped = ((getPageNum() - 1 + diff + count) % count);
+			setPageNum(zeroIndexNextWrapped + 1);
+		}
+	});
+
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
 	setUseShaderTexture(true);

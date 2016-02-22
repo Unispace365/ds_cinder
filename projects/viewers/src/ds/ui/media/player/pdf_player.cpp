@@ -48,7 +48,7 @@ void PDFPlayer::setMedia(const std::string mediaPath){
 	mPDF = new ds::ui::Pdf(mEngine);
 	mPDF->setResourceFilename(mediaPath);
 
-	// When the page finishes loading, hide the low-res thumbnail version and advance it's page
+	// When the page finishes loading, hide the low-res thumbnail version and advance its page
 	mPDF->setPageLoadedCallback([this, mediaPath]{
 		if(!mFirstPageLoaded){
 			if(mPDFNext){

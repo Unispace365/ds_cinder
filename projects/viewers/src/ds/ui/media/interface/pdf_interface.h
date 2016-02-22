@@ -31,6 +31,7 @@ protected:
 	ds::ui::ImageButton*		mUpButton;
 	ds::ui::ImageButton*		mDownButton;
 	ds::ui::Text*				mPageCounter;
+	ds::ui::ImageButton*		mTouchToggle;
 
 };
 
