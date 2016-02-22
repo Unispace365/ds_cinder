@@ -20,6 +20,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	, mUpButton(nullptr)
 	, mDownButton(nullptr)
 	, mPageCounter(nullptr)
+	, mTouchToggle(nullptr)
 {
 	mUpButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png", "%APP%/data/images/media_interface/prev.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mUpButton);
@@ -57,6 +58,23 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 		mPageCounter->enable(false);
 	}
 
+	mTouchToggle = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/touch_unlocked.png", "%APP%/data/images/media_interface/touch_unlocked.png", (sizey.y - buttonHeight) / 2.0f);
+	addChildPtr(mTouchToggle);
+	mTouchToggle->setClickFn([this](){
+		if(mLinkedPDF){
+			if(mLinkedPDF->isEnabled()){
+				mLinkedPDF->enable(false);
+			} else {
+				mLinkedPDF->enable(true);
+			}
+			updateWidgets();
+		}
+	});
+
+	mTouchToggle->getNormalImage().setColor(buttonColor);
+	mTouchToggle->getHighImage().setColor(buttonColor / 2.0f);
+	mTouchToggle->setScale(sizey.y / mTouchToggle->getHeight());
+
 	updateWidgets();
 }
 
@@ -81,8 +99,9 @@ void PDFInterface::onLayout(){
 		float componentsWidth = (
 			mUpButton->getScaleWidth() + padding +
 			mPageCounter->getScaleWidth() + padding +
-			mDownButton->getScaleWidth()
-			);
+			mDownButton->getScaleWidth() + padding +
+			mTouchToggle->getScaleWidth()
+		);
 
 		float margin = ((w - componentsWidth) * 0.5f);
 		float xp = margin;
@@ -95,6 +114,9 @@ void PDFInterface::onLayout(){
 
 		mDownButton->setPosition(xp, (h * 0.5f) - (mDownButton->getScaleHeight() * 0.5f));
 		xp += mDownButton->getScaleWidth() + padding;
+
+		mTouchToggle->setPosition(xp, (h * 0.5f) - (mTouchToggle->getScaleHeight() * 0.5f));
+		xp += mTouchToggle->getScaleWidth() + padding;
 	}
 }
 
@@ -105,6 +127,16 @@ void PDFInterface::updateWidgets(){
 			wss << mLinkedPDF->getPageNum() << " / " << mLinkedPDF->getPageCount();
 		}
 		mPageCounter->setText(wss.str());
+	}
+
+	if(mLinkedPDF){
+		if(mLinkedPDF->isEnabled()){
+			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
+			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
+		} else {
+			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
+			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
+		}
 	}
 	layout();
 }
