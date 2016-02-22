@@ -53,6 +53,12 @@ public:
 	/** Re-enables many functions after a tween completes */
 	void							tweenEnded();
 
+	/** Sets the flag that this viewer is on it's way out. Usage up to client app*/
+	void							setAboutToBeRemoved(const bool isRemoving = true){	mRemoving = true;	};
+
+	/** Gets the flag that this panel will be removed or retired after the current animation. This is primarily for client app logic. */
+	bool							getIsAboutToBeRemoved(){ return mRemoving; }
+
 	/** Change the region used in checkBounds(), relative to this sprite's parent. */
 	void							setBoundingArea(const ci::Rectf& newBoundingRegion){ mBoundingArea = newBoundingRegion; }
 
@@ -109,6 +115,7 @@ protected:
 
 	float							mAnimDuration;
 	bool							mAnimating;
+	bool							mRemoving; // the panel is on it's last animation
 	ci::Rectf						mBoundingArea;
 
 	std::function<void()>			mLayoutCallback;

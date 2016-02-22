@@ -21,6 +21,7 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 	, mBottomPad(0.0f)
 	, mTouching(false)
 	, mAnimating(false)
+	, mRemoving(false)
 	, mDefaultSize(engine.getWorldWidth(), engine.getWorldHeight())
 	, mLayoutCallback(nullptr)
 {

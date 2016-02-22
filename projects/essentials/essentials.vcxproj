@@ -18,6 +18,7 @@
     <ClCompile Include="src\ds\debug\automator\actions\tap_action.cpp" />
     <ClCompile Include="src\ds\debug\automator\automator.cpp" />
     <ClCompile Include="src\ds\network\helper\delayed_node_watcher.cpp" />
+    <ClCompile Include="src\ds\network\https_client.cpp" />
     <ClCompile Include="src\ds\touch\delayed_momentum.cpp" />
     <ClCompile Include="src\ds\touch\five_finger_cluster.cpp" />
     <ClCompile Include="src\ds\touch\touch_debug.cpp" />
@@ -47,7 +48,17 @@
     <ClInclude Include="src\ds\debug\automator\actions\multifinger_tap_action.h" />
     <ClInclude Include="src\ds\debug\automator\actions\tap_action.h" />
     <ClInclude Include="src\ds\debug\automator\automator.h" />
+    <ClInclude Include="src\ds\network\curl\curl.h" />
+    <ClInclude Include="src\ds\network\curl\curlbuild.h" />
+    <ClInclude Include="src\ds\network\curl\curlrules.h" />
+    <ClInclude Include="src\ds\network\curl\curlver.h" />
+    <ClInclude Include="src\ds\network\curl\easy.h" />
+    <ClInclude Include="src\ds\network\curl\mprintf.h" />
+    <ClInclude Include="src\ds\network\curl\multi.h" />
+    <ClInclude Include="src\ds\network\curl\stdcheaders.h" />
+    <ClInclude Include="src\ds\network\curl\typecheck-gcc.h" />
     <ClInclude Include="src\ds\network\helper\delayed_node_watcher.h" />
+    <ClInclude Include="src\ds\network\https_client.h" />
     <ClInclude Include="src\ds\touch\delayed_momentum.h" />
     <ClInclude Include="src\ds\touch\five_finger_cluster.h" />
     <ClInclude Include="src\ds\touch\touch_debug.h" />
@@ -143,6 +154,22 @@
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Message>Copying libcurl DLLs to output directory</Message>
+      <Command>echo Copying libcurl DLLs to output directory
+if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+xcopy /y /d "$(DS_PLATFORM_086)\projects\essentials\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_086)\projects\essentials\lib\libcurl.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\libcurl.dll</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -175,6 +202,22 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <PostBuildEvent>
+      <Command>
+      </Command>
+    </PostBuildEvent>
+    <PostBuildEvent>
+      <Message>
+      </Message>
+    </PostBuildEvent>
+    <CustomBuildStep>
+      <Message>Copying libcurl DLLs to output directory</Message>
+      <Command>echo Copying libcurl DLLs to output directory
+if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+xcopy /y /d "$(DS_PLATFORM_086)\projects\essentials\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_086)\projects\essentials\lib\libcurl.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\libcurl.dll</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

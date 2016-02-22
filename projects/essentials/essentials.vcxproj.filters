@@ -141,6 +141,7 @@
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\network\https_client.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -236,5 +237,15 @@
     <ClInclude Include="src\ds\ui\scroll\scroll_bar.h">
       <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\network\curl\easy.h" />
+    <ClInclude Include="src\ds\network\curl\mprintf.h" />
+    <ClInclude Include="src\ds\network\curl\multi.h" />
+    <ClInclude Include="src\ds\network\curl\stdcheaders.h" />
+    <ClInclude Include="src\ds\network\curl\typecheck-gcc.h" />
+    <ClInclude Include="src\ds\network\curl\curl.h" />
+    <ClInclude Include="src\ds\network\curl\curlbuild.h" />
+    <ClInclude Include="src\ds\network\curl\curlrules.h" />
+    <ClInclude Include="src\ds\network\curl\curlver.h" />
+    <ClInclude Include="src\ds\network\https_client.h" />
   </ItemGroup>
 </Project>
