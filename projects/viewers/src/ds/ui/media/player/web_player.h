@@ -20,7 +20,7 @@ public:
 	struct Params {
 		Params(){
 			viewSize.zero();
-			keyboardPanelSize.set(800.0f, 500.0f);
+			keyboardPanelSize.set(900.0f, 450.0f);
 			keyboardScale = 1.0f;
 		}
 

@@ -35,6 +35,8 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	mKeyboardArea = new ds::ui::Sprite(mEngine, mParams.panelSize.x, mParams.panelSize.y);
 	mKeyboardArea->setTransparent(false);
 	mKeyboardArea->setColor(ci::Color(0.0f, 0.0f, 0.0f));
+	mKeyboardArea->setCornerRadius(mParams.panelSize.y * 0.075f);
+	mKeyboardArea->setOpacity(0.0f);
 	mKeyboardArea->hide();
 	this->addChildPtr(mKeyboardArea);
 
@@ -255,9 +257,16 @@ void WebInterface::updateWidgets(){
 				layout();
 			}
 
-			mKeyboardArea->show();
+			if(!mKeyboardArea->visible()){
+				mKeyboardArea->show();
+				mKeyboardArea->tweenOpacity(1.0f, mAnimateDuration, 0.0f, ci::easeNone);
+			}
 		} else {
-			mKeyboardArea->hide();
+			if(mKeyboardArea->visible()){
+				mKeyboardArea->tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::easeNone, [this](){
+					mKeyboardArea->hide();
+				});
+			}
 		}
 	}
 
