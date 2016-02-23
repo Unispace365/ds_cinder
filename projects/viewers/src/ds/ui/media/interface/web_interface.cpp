@@ -63,6 +63,16 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 				code = ci::app::KeyEvent::KEY_BACKSPACE;
 			} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
 				code = ci::app::KeyEvent::KEY_RETURN;
+				send = false;
+				ci::app::KeyEvent event(
+					mEngine.getWindow(),
+					code,
+					code,
+					'\r',
+					0,
+					code
+					);
+				mLinkedWeb->sendKeyDownEvent(event);
 			}
 
 			if(send){
