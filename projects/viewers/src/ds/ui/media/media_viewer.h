@@ -5,13 +5,13 @@
 
 #include "ds/ui/panel/base_panel.h"
 #include <ds/ui/sprite/image.h>
+#include <ds/ui/media/player/web_player.h>
 
 namespace ds {
 namespace ui {
 class VideoPlayer;
 class PDFPlayer;
 class StreamPlayer;
-class WebPlayer;
 class MediaInterface;
 
 /**
@@ -31,7 +31,7 @@ public:
 
 	// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
 	void				setDefaultBounds(const float defaultWidth, const float defaultHeight);
-	void				setWebViewSize(float webViewWidth, float webViewHeight);
+	void				setWebPlayerParams(const WebPlayer::Params& params);
 	
 	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.
 	void				initialize();
@@ -82,6 +82,8 @@ public:
 protected:
 
 	virtual void		userInputReceived();
+
+	WebPlayer::Params	mWebPlayerParams;
 
 	bool				mEmbedInterface;
 	bool				mInitialized;

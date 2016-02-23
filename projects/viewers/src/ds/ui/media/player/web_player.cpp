@@ -14,22 +14,16 @@
 namespace ds {
 namespace ui {
 
-WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
+WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface, const Params& params)
 	: ds::ui::Sprite(eng)
 	, mWeb(nullptr)
 	, mWebInterface(nullptr)
 	, mEmbedInterface(embedInterface)
-	, mWebViewWidth(0.0f)
-	, mWebViewHeight(0.0f)
 {
+	mParams = params;
 	enable(false);
 	setTransparent(false);
 	setColor(ci::Color::black());
-}
-
-void WebPlayer::setWebViewSize(float webViewWidth, float webViewHeight){
-	mWebViewWidth = webViewWidth;
-	mWebViewHeight = webViewHeight;
 }
 
 void WebPlayer::setMedia(const std::string mediaPath){
@@ -55,8 +49,8 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		}
 	});
 
-	float targetW = mWebViewWidth;
-	float targetH = mWebViewHeight;
+	float targetW = mParams.viewSize.x;
+	float targetH = mParams.viewSize.y;
 
 	if((targetW == 0.0f) || (targetH == 0.0f)){
 		targetW = mEngine.getWorldWidth() * fractionalWidthForContent;
@@ -74,7 +68,7 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		mWebInterface = nullptr;
 	}
 	if(mEmbedInterface){
-		mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
+		mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this, mParams));
 
 		if(mWebInterface){
 			mWebInterface->sendToFront();

@@ -19,7 +19,7 @@
 namespace ds {
 namespace ui {
 
-WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
+WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor, const Params& params)
 	: MediaInterface(eng, sizey, backgroundColor)
 	, mLinkedWeb(nullptr)
 	, mKeyboardArea(nullptr)
@@ -30,64 +30,13 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	, mForwardButton(nullptr)
 	, mRefreshButton(nullptr)
 	, mTouchToggle(nullptr)
+	, mParams(params)
 {
-	mKeyboardArea = new ds::ui::Sprite(mEngine, 600.0f, 300.0f);
+	mKeyboardArea = new ds::ui::Sprite(mEngine, mParams.panelSize.x, mParams.panelSize.y);
 	mKeyboardArea->setTransparent(false);
 	mKeyboardArea->setColor(ci::Color(0.0f, 0.0f, 0.0f));
 	mKeyboardArea->hide();
 	this->addChildPtr(mKeyboardArea);
-
-	ds::ui::SoftKeyboardSettings sks;
-	mKeyboard = ds::ui::SoftKeyboardBuilder::buildStandardKeyboard(mEngine, sks);
-	mKeyboardArea->addChildPtr(mKeyboard);
-	
-	mKeyboard->setScale(0.65f);
-	const float areaW = mKeyboardArea->getWidth();
-	const float areaH = mKeyboardArea->getHeight();
-	const float keyW = mKeyboard->getScaleWidth();
-	const float keyH = mKeyboard->getScaleHeight();
-	mKeyboard->setPosition(
-		(areaW - keyW) * 0.5f,
-		(areaH - keyH) * 0.5f
-	);
-
-	mKeyboard->setKeyPressFunction([this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
-		if(mLinkedWeb){
-			// spoof a keyevent to send to the web
-			bool send = true;
-			int code = 0;
-			
-			if(keyType == ds::ui::SoftKeyboardDefs::kShift){
-				send = false;
-			} else if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
-				code = ci::app::KeyEvent::KEY_BACKSPACE;
-			} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
-				code = ci::app::KeyEvent::KEY_RETURN;
-				send = false;
-				ci::app::KeyEvent event(
-					mEngine.getWindow(),
-					code,
-					code,
-					'\r',
-					0,
-					code
-					);
-				mLinkedWeb->sendKeyDownEvent(event);
-			}
-
-			if(send){
-				ci::app::KeyEvent event(
-					mEngine.getWindow(),
-					code,
-					0,
-					(char)character.c_str()[0],
-					0,
-					0
-				);
-				mLinkedWeb->sendKeyDownEvent(event);
-			}
-		}
-	});
 
 	mKeyboardButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/keyboard.png", "%APP%/data/images/media_interface/keyboard.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mKeyboardButton);
@@ -251,6 +200,61 @@ void WebInterface::updateWidgets(){
 
 	if(mKeyboardArea){
 		if(mKeyboardShowing){
+			if(!mKeyboard){
+				ds::ui::SoftKeyboardSettings sks;
+				sks.mKeyScale = mParams.scale;
+				mKeyboard = ds::ui::SoftKeyboardBuilder::buildStandardKeyboard(mEngine, sks);
+				mKeyboardArea->addChildPtr(mKeyboard);
+	
+				const float areaW = mKeyboardArea->getWidth();
+				const float areaH = mKeyboardArea->getHeight();
+				const float keyW = mKeyboard->getScaleWidth();
+				const float keyH = mKeyboard->getScaleHeight();
+				mKeyboard->setPosition(
+					(areaW - keyW) * 0.5f,
+					(areaH - keyH) * 0.5f
+				);
+
+				mKeyboard->setKeyPressFunction([this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
+					if(mLinkedWeb){
+						// spoof a keyevent to send to the web
+						bool send = true;
+						int code = 0;
+			
+						if(keyType == ds::ui::SoftKeyboardDefs::kShift){
+							send = false;
+						} else if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
+							code = ci::app::KeyEvent::KEY_BACKSPACE;
+						} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
+							code = ci::app::KeyEvent::KEY_RETURN;
+							send = false;
+							ci::app::KeyEvent event(
+								mEngine.getWindow(),
+								code,
+								code,
+								'\r',
+								0,
+								code
+								);
+							mLinkedWeb->sendKeyDownEvent(event);
+						}
+
+						if(send){
+							ci::app::KeyEvent event(
+								mEngine.getWindow(),
+								code,
+								0,
+								(char)character.c_str()[0],
+								0,
+								0
+							);
+							mLinkedWeb->sendKeyDownEvent(event);
+						}
+					}
+				});
+				layout();
+			}
+
 			mKeyboardArea->show();
 		} else {
 			mKeyboardArea->hide();

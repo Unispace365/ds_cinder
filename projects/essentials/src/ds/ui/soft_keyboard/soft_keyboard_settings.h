@@ -32,6 +32,7 @@ public:
 		, mKeyShiftUpImage("%APP%/data/images/keyboard/EnterAndShift.png")
 		, mKeyUpTextConfig("keyboard:key:up")
 		, mKeyDnTextConfig("keyboard:key:down")
+		, mKeyScale(1.0f)
 	{}
 
 	void				normalizeSettings(){
@@ -82,7 +83,7 @@ public:
 	std::string			mKeyShiftUpImage;
 	std::string			mKeyShiftDnImage;
 
-
+	float				mKeyScale;
 };
 
 } // namespace ui

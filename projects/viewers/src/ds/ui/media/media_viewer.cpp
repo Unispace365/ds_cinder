@@ -109,10 +109,9 @@ void MediaViewer::setDefaultBounds(const float defaultWidth, const float default
 	mDefaultBoundHeight = defaultHeight;
 }
 
-void MediaViewer::setWebViewSize(float webViewWidth, float webViewHeight){
-	mWebViewWidth = webViewWidth;
-	mWebViewHeight = webViewHeight;
-}	
+void MediaViewer::setWebPlayerParams(const WebPlayer::Params& params){
+	mWebPlayerParams = params;
+}
 
 void MediaViewer::initialize(){
 	if(mInitialized) return;
@@ -224,9 +223,8 @@ void MediaViewer::initialize(){
 		contentHeight = mPDFPlayer->getHeight();
 
 	} else if(mediaType == ds::Resource::WEB_TYPE){
-		mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
+		mWebPlayer = new WebPlayer(mEngine, mEmbedInterface, mWebPlayerParams);
 		addChildPtr(mWebPlayer);
-		mWebPlayer->setWebViewSize(mWebViewWidth, mWebViewHeight);
 		mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
 
 		if(mWebPlayer->getWeb()){

@@ -19,7 +19,7 @@ namespace ui {
 namespace MediaInterfaceBuilder {
 
 
-MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite* mediaPlayer, ds::ui::Sprite* parentSprite){
+MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite* mediaPlayer, ds::ui::Sprite* parentSprite, const ds::ui::WebPlayer::Params& webParams){
 	MediaInterface* outputMi = nullptr;
 
 	if(!parentSprite || !mediaPlayer){
@@ -51,7 +51,10 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 
 	ds::ui::WebPlayer* webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mediaPlayer);
 	if(webPlayer){
-		ds::ui::WebInterface* wi = new WebInterface(engine, ci::Vec2f(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+		ds::ui::WebInterface::Params params;
+		params.panelSize = webParams.keyboardPanelSize;
+		params.scale = webParams.keyboardScale;
+		ds::ui::WebInterface* wi = new WebInterface(engine, ci::Vec2f(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black(), params);
 		parentSprite->addChildPtr(wi);
 		wi->linkWeb(webPlayer->getWeb());
 		outputMi = wi;
