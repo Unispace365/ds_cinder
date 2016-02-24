@@ -24,6 +24,7 @@ public:
 	VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface = true);
 
 	void								setMedia(const std::string mediaPath);
+	void								clear();
 
 	void								layout();
 

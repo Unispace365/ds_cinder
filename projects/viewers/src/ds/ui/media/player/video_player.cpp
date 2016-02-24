@@ -25,13 +25,7 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 }
 
 void VideoPlayer::setMedia(const std::string mediaPath){
-	if(mVideo){
-		mVideo->release();
-		mVideo = nullptr;
-		if(mVideoInterface){
-			mVideoInterface->linkVideo(nullptr);
-		}
-	}
+	clear();
 
 	mVideo = new ds::ui::GstVideo(mEngine);
 	mVideo->generateAudioBuffer(true);
@@ -67,6 +61,16 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	}
 
 	setSize(mVideo->getWidth(), mVideo->getHeight());
+}
+
+void VideoPlayer::clear(){
+	if(mVideo){
+		mVideo->release();
+		mVideo = nullptr;
+		if(mVideoInterface){
+			mVideoInterface->linkVideo(nullptr);
+		}
+	}
 }
 
 void VideoPlayer::onSizeChanged(){
