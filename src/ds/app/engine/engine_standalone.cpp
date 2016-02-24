@@ -3,6 +3,7 @@
 #include "ds/app/app.h"
 
 #include <ds/debug/logger.h>
+#include <ds/debug/computer_info.h>
 
 using namespace ci;
 using namespace ci::app;
@@ -56,6 +57,7 @@ void EngineStandalone::setupTuio(ds::App& a) {
 void EngineStandalone::update() {
 	mWorkManager.update();
 	mRenderTextService.update();
+	mComputerInfo->update();
 	updateServer();
 }
 

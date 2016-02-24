@@ -38,6 +38,17 @@ void StreamPlayer::setResource(const ds::Resource& resource){
 	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
 
+	mVideo->setErrorCallback([this](const std::string& msg){
+		if(mErrorMsgCallback) mErrorMsgCallback(msg);
+	});
+
+	mVideo->setStatusCallback([this](const ds::ui::GstVideo::Status& status){
+		bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
+		if(mGoodStatusCallback){
+			mGoodStatusCallback();
+		}
+	});
+
 	mVideo->setResource(resource);
 
 	addChildPtr(mVideo);

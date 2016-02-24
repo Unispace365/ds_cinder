@@ -23,6 +23,7 @@ class ImageRegistry;
 class PerspCameraParams;
 class ResourceList;
 class WorkManager;
+class ComputerInfo;
 
 namespace cfg {
 class Settings;
@@ -169,6 +170,8 @@ public:
 	static const int				STANDALONE_MODE = 3;
 	virtual int						getMode() const = 0;
 
+	ds::ComputerInfo&				getComputerInfo();
+
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
 	// which is how things work by default (the data and engine are owned by the App).
@@ -177,6 +180,7 @@ protected:
 
 	ds::EngineData&					mData;
 	std::list<Sprite *>				mDragDestinationSprites;
+	ds::ComputerInfo*				mComputerInfo;
 
 	std::list<std::unique_ptr<FboGeneral>> mFbos;
 

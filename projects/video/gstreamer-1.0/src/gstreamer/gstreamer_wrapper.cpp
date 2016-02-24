@@ -197,7 +197,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		// Create the video appsink and configure it
 		m_GstVideoSink = gst_element_factory_make("appsink", "videosink");
 
-	//	gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 2 );
+		//gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 2 );
 		//gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
 		gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
 		gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), -1); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
@@ -240,7 +240,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		gst_caps_unref( caps );
 
 		// Set the configured video appsink to the main pipeline
-		g_object_set( m_GstPipeline, "video-sink", m_GstVideoSink, (void*)NULL );
+		g_object_set(m_GstPipeline, "video-sink", m_GstVideoSink, (void*)NULL);
 
 		// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
 		g_object_set( m_GstVideoSink, "emit-signals", false, "sync", true, "async", true, (void*)NULL );
@@ -1008,12 +1008,56 @@ void GStreamerWrapper::retrieveVideoInfo(){
 	}
 }
 
+static void print_one_tag(const GstTagList * list, const gchar * tag, gpointer user_data){
+	int i, num;
+
+	num = gst_tag_list_get_tag_size(list, tag);
+
+	for(i = 0; i < num; ++i) {
+		const GValue *val;
+
+		/* Note: when looking for specific tags, use the gst_tag_list_get_xyz() API,
+		* we only use the GValue approach here because it is more generic */
+		val = gst_tag_list_get_value_index(list, tag, i);
+
+		if(G_VALUE_HOLDS_STRING(val)) {
+			std::cout << tag << " " << g_value_get_string(val) << std::endl;
+		} 
+		else if(G_VALUE_HOLDS_UINT(val)) {
+			std::cout << tag << " " << g_value_get_uint(val) << std::endl;
+		} else if(G_VALUE_HOLDS_DOUBLE(val)) {
+			std::cout << tag << " " << g_value_get_double(val) << std::endl;
+		} else if(G_VALUE_HOLDS_BOOLEAN(val)) {
+			std::cout << tag << " " << g_value_get_boolean(val) << std::endl;
+		} 
+#if 0
+		else if(GST_VALUE_HOLDS_BUFFER(val)) {
+			GstBuffer *buf = gst_value_get_buffer(val);
+			guint buffer_size = gst_buffer_get_size(buf);
+
+			std::cout << tag << " " << "buffer of size " << buffer_size << std::endl;
+		} else if(GST_VALUE_HOLDS_DATE_TIME(val)) {
+			//GstDateTime *dt = g_value_get_boxed(val);
+			//gchar *dt_str = gst_date_time_to_iso8601_string(dt);
+
+			std::cout << tag << " is a date time thingy " << std::endl;
+			//g_free(dt_str);
+		} else {
+			std::cout << tag << " tag of type " << G_VALUE_TYPE_NAME(val) << std::endl;
+		}
+#endif
+	}
+}
+
 void GStreamerWrapper::handleGStMessage(){
 	if ( m_GstBus )	{
+
+
 
 		while ( gst_bus_have_pending( m_GstBus ) ){
 			m_GstMessage = gst_bus_pop( m_GstBus );
 
+			GstTagList *tags = NULL;
 			if ( m_GstMessage )	{
 
 				switch ( GST_MESSAGE_TYPE( m_GstMessage ) )
@@ -1111,6 +1155,52 @@ void GStreamerWrapper::handleGStMessage(){
 						seekFrame(m_PendingSeekTime);
 					}
 
+#if 0
+					GstElement* decodebin = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "avdec_h264-0");
+					if(decodebin){
+						g_object_set(decodebin, "max-threads", 1, NULL);
+						std::cout << GST_ELEMENT_NAME(decodebin) << std::endl;
+					}
+
+					gpointer object;
+					GValue item = G_VALUE_INIT;
+					GstElement* elem;
+					GstIterator* it = gst_bin_iterate_recurse(GST_BIN(m_GstPipeline));
+					bool done = false;
+					while(!done) {
+						switch(gst_iterator_next(it, &item)) {
+						case GST_ITERATOR_OK:
+							//... use / change item here...
+							object = g_value_get_object(&item);
+							elem = GST_ELEMENT(object);
+							if(elem){
+								std::cout << GST_ELEMENT_NAME(elem) << std::endl;
+								g_object_set(elem, "max-threads", 2, NULL);
+							//	g_object_set(elem, "debug-mv", TRUE, NULL);
+							}
+							//g_object_unref(object);
+							g_value_reset(&item);
+							break;
+						case GST_ITERATOR_RESYNC:
+							//...rollback changes to items...
+								gst_iterator_resync(it);
+							//	done = true;
+							break;
+						case GST_ITERATOR_ERROR:
+							//...wrong parameters were given...
+								done = true;
+							break;
+						case GST_ITERATOR_DONE:
+							done = true;
+							break;
+						default :
+							done = true;
+						}
+					}
+
+					g_value_unset(&item);
+					gst_iterator_free(it);
+#endif
 				}
 				break;
 
@@ -1190,6 +1280,15 @@ void GStreamerWrapper::handleGStMessage(){
 					break;
 
 				case GST_MESSAGE_TAG :
+
+#if 0
+					gst_message_parse_tag(m_GstMessage, &tags);
+
+					std::cout << "Got tags from element " << GST_OBJECT_NAME(m_GstMessage->src) << std::endl;
+					gst_tag_list_foreach(tags, print_one_tag, NULL);
+					std::cout << std::endl;
+					gst_tag_list_unref(tags);
+#endif
 
 					break;
 

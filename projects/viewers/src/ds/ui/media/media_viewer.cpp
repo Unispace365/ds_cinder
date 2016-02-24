@@ -162,20 +162,16 @@ void MediaViewer::initialize(){
 		mVideoPlayer = new VideoPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mVideoPlayer);
 
+		mVideoPlayer->setErrorCallback([this](const std::string& msg){
+			if(mErrorCallback) mErrorCallback(msg);
+		});
+
+		mVideoPlayer->setGoodStatusCallback([this]{ 
+			if(mStatusCallback) mStatusCallback(true); 
+		});
+
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
 
-		if(mVideoPlayer->getVideo()){
-			mVideoPlayer->getVideo()->setErrorCallback([this](const std::string& msg){
-				if(mErrorCallback) mErrorCallback(msg);
-			});
-
-			mVideoPlayer->getVideo()->setStatusCallback([this](const ds::ui::GstVideo::Status& status){
-				bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
-				if(mStatusCallback){
-					mStatusCallback(isGood);
-				}
-			});
-		}
 
 		mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
 		contentWidth = mVideoPlayer->getWidth();
@@ -186,19 +182,16 @@ void MediaViewer::initialize(){
 		mStreamPlayer = new StreamPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mStreamPlayer);
 
-		mStreamPlayer->setResource(mResource);
-		if(mStreamPlayer->getVideo()){
-			mStreamPlayer->getVideo()->setErrorCallback([this](const std::string& msg){
-				if(mErrorCallback) mErrorCallback(msg);
-			});
 
-			mStreamPlayer->getVideo()->setStatusCallback([this](const ds::ui::GstVideo::Status& status){
-				bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
-				if(mStatusCallback){
-					mStatusCallback(isGood);
-				}
-			});
-		}
+		mStreamPlayer->setErrorCallback([this](const std::string& msg){
+			if(mErrorCallback) mErrorCallback(msg);
+		});
+
+		mStreamPlayer->setGoodStatusCallback([this]{
+			if(mStatusCallback) mStatusCallback(true);
+		});
+
+		mStreamPlayer->setResource(mResource);
 
 		mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
 		contentWidth = mStreamPlayer->getWidth();

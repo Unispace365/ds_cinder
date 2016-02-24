@@ -6,6 +6,7 @@
 #include <ds/app/error.h>
 #include "ds/debug/logger.h"
 #include "ds/util/string_util.h"
+#include "ds/debug/computer_info.h"
 
 namespace ds {
 
@@ -89,6 +90,7 @@ void AbstractEngineServer::setupTuio(ds::App& a) {
 }
 
 void AbstractEngineServer::update() {
+	mComputerInfo->update();
 	mWorkManager.update();
 	updateServer();
 

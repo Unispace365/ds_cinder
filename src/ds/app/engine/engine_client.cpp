@@ -8,6 +8,8 @@
 #include "ds/util/string_util.h"
 #include "snappy.h"
 
+#include "ds/debug/computer_info.h"
+
 namespace ds {
 
 namespace {
@@ -96,7 +98,7 @@ void EngineClient::update() {
 	mWorkManager.update();
 	updateClient();
 	mRenderTextService.update();
-
+	mComputerInfo->update();
 
 	if (!mConnectionRenewed && mReceiver.hasLostConnection()) {
 		mConnectionRenewed = true;

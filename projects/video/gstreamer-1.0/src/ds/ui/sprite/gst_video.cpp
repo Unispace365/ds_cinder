@@ -9,6 +9,7 @@
 #include <ds/data/resource_list.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/debug/computer_info.h>
 
 #include "gstreamer/gstreamer_wrapper.h"
 #include "gstreamer/gstreamer_env_check.h"
@@ -412,6 +413,13 @@ void GstVideo::setAutoRestartStream(bool autoRestart){
 void GstVideo::doLoadVideo(const std::string &filename, const std::string &portable_filename){
 	if(filename.empty()){
 		DS_LOG_WARNING_M("doLoadVideo aborting loading a video because of a blank filename.", GSTREAMER_LOG);
+		if(mErrorFn) mErrorFn("Did not load a video because there was no filename.");
+		return;
+	}
+
+	if(mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess() > 800.0f){
+		DS_LOG_WARNING_M("doLoadVideo aborting loading a video because we're almost out of memory", GSTREAMER_LOG);
+		if(mErrorFn) mErrorFn("Did not load a video because the system ran out of memory.");
 		return;
 	}
 

@@ -5,6 +5,7 @@
 #include "ds/app/engine/engine_service.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
+#include "ds/debug/computer_info.h"
 
 namespace ds {
 namespace ui {
@@ -12,6 +13,7 @@ namespace ui {
 SpriteEngine::SpriteEngine(ds::EngineData& ed)
 	: mData(ed)
 {
+	mComputerInfo = new ds::ComputerInfo();
 }
 
 SpriteEngine::~SpriteEngine()
@@ -177,6 +179,11 @@ void SpriteEngine::setIdleTimeout(int idleTimeout) {
 }
 
 void SpriteEngine::clearFingers( const std::vector<int> &fingers ) {
+}
+
+
+ds::ComputerInfo& SpriteEngine::getComputerInfo(){
+	return *mComputerInfo;
 }
 
 bool SpriteEngine::hasService(const std::string& key) const
