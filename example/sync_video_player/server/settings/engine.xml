@@ -17,6 +17,8 @@
 	default ="", which is an EngineClientServer, aka "both"-->
 	<text name="platform:architecture" value="clientserver" />
 	
+	<text name="platform:guid" value="the_clientserver" />
+	
 	<!-- Show console will create a console window, or not if this is false. 
 		If this setting is missing, debug mode will create a console, release will not. -->
 	<text name="console:show" value="true" />

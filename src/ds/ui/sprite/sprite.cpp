@@ -2112,19 +2112,19 @@ void Sprite::setupIntermediateFrameBuffers(){
 				}
 			}
 
-			if(createBuffer){
+			if(createBuffer && newWidth > 0 && newHeigh > 0){
 				mFrameBuffer[0] = new ci::gl::Fbo(newWidth, newHeigh, format);
 			}
 
 			createBuffer = true;
-			if(mFrameBuffer[1]){
+			if(mFrameBuffer[1] ){
 				if(mFrameBuffer[1]->getWidth() == newWidth && mFrameBuffer[1]->getHeight() == newHeigh){
 					createBuffer = false;
 				} else {
 					delete mFrameBuffer[1];
 				}
 			}
-			if(createBuffer){
+			if(createBuffer && newWidth > 0 && newHeigh > 0){
 				mFrameBuffer[1] = new ci::gl::Fbo(newWidth, newHeigh, format);
 			}
 

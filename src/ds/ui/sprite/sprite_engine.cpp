@@ -186,6 +186,11 @@ ds::ComputerInfo& SpriteEngine::getComputerInfo(){
 	return *mComputerInfo;
 }
 
+
+const std::string SpriteEngine::getAppInstanceName(){
+	return mData.mAppInstanceName;
+}
+
 bool SpriteEngine::hasService(const std::string& key) const
 {
 	return mData.mServices.find(key) != mData.mServices.cend();

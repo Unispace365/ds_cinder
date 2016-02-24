@@ -89,6 +89,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
 	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
 
+	mData.mAppInstanceName = settings.getText("platform:guid", 0, "Downstream");
+
 	const bool			drawTouches = settings.getBool("touch_overlay:debug", 0, false);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
 	mData.mMinTouchDistance = settings.getFloat("touch:minimum_distance", 0, 10.0f);
@@ -258,8 +260,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		}
 	}
 	// Add a view for displaying the stats.
-	//if(!isClient) 
-		createStatsView(root_id);
+	createStatsView(root_id);
 
 	// Initialize the roots
 	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
@@ -284,8 +285,9 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	}
 
 	setIdleTimeout(settings.getInt("idle_time", 0, 300));
-}
 
+	std::cout << "Engine constructor complete, app instance name: " << mData.mAppInstanceName << std::endl;
+}
 
 
 void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){

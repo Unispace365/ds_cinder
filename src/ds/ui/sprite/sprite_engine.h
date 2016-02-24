@@ -65,6 +65,9 @@ public:
 									getDebugSettings() = 0;
 	virtual ci::app::WindowRef		getWindow() = 0;
 
+	/** Defined by platform:guid. Useful if you need to something specific on a particular client */
+	const std::string				getAppInstanceName();
+
 	/** Access a service. Throw if the service doesn't exist.
 		Handle casting for you (since the root ds::EngineService class is unuseable). */
 	template <typename T>
