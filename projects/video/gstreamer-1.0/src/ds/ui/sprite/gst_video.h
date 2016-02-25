@@ -169,6 +169,10 @@ protected:
 	virtual void		drawLocalClient() override;
 	virtual void		writeAttributesTo(DataBuffer&) override;
 	virtual void		readAttributeFrom(const char, DataBuffer&) override;
+
+	virtual void		writeClientAttributesTo(ds::DataBuffer&) const;
+	virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&);
+
 	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
 
 private:
@@ -236,6 +240,17 @@ private:
 
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;
+
+	/// A client is maybe playing a video but I'm not 
+	/// because this is server mode or the video was not loaded cause of the instance list
+	/// Note that this is unrelated to the network syncronization stuff
+	bool				mServerOnlyMode; 
+	/// In server-only mode, keep track of the play state
+	Status				mServerPlayStatus;
+	/// In server-only mode, track the duration in seconds
+	double				mServerDuration;
+	/// In server-only mode, track the current time position in percent
+	double				mServerPosition;
 
 	std::uint64_t		mBaseTime;		//Base clock for gst pipeline
 	std::uint64_t		mSeekTime;		//Position to seek to

@@ -22,7 +22,7 @@ public:
 	virtual void				fileDrop(ci::app::FileDropEvent event);
 	void						setupScrubBar();
 	void						updateScrubBar(ds::ui::Video* video);
-
+	void						loadVideo(const std::string& videoPath);
 private:
 	typedef ds::App				inherited;
 

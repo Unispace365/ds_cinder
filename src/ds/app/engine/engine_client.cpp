@@ -36,7 +36,6 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 		: inherited(app, settings, ed, roots)
 		, mLoadImageService(*this, mIpFunctions)
 		, mRenderTextService(mRenderTextThread)
-//		, mConnection(NumberOfNetworkThreads)
 		, mSender(mSendConnection)
 		, mReceiver(mReceiveConnection)
 		, mBlobReader(mReceiver.getData(), *this)
@@ -70,8 +69,6 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 
 EngineClient::~EngineClient() {
 	// It's important to clean up the sprites before the services go away
-	// CHANGED
-	//clearAllSprites();
 	clearRoots();
 }
 
@@ -113,9 +110,9 @@ void EngineClient::update() {
 		setState(mClientStartedState);
 		return;
 	}
+
 	// Every update, receive data
 	mReceiver.setHeaderAndCommandOnly(mState->getHeaderAndCommandOnly());
-//	mReceiver.setHeaderAndCommandOnly(false);
 	if (!mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader)) {
 		// If I didn't receive any data, then don't send any data. This is
 		// pretty important -- 0MQ will buffer sent commands if there's
@@ -158,7 +155,6 @@ void EngineClient::receiveHeader(ds::DataBuffer& data) {
 	}
 	// Terminator
 	if (data.canRead<char>()) {
-//		const char			term = data.read<char>();
 		data.read<char>();
 	}
 }
@@ -168,10 +164,9 @@ void EngineClient::receiveCommand(ds::DataBuffer& data) {
 	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
 		if (cmd == CMD_SERVER_SEND_WORLD) {
 			DS_LOG_INFO_M("Receive world, sessionid=" << mSessionId, ds::IO_LOG);
-			std::cout << "Command server send world, clearing sprites" << std::endl;
-			// CHANGED
+			//std::cout << "Command server send world, clearing sprites" << std::endl;
+
 			clearAllSprites(false);
-			//clearRoots();
 
 			if (mSessionId < 1) {
 				setState(mClientStartedState);

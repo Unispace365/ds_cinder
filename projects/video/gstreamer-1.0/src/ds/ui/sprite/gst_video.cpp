@@ -10,6 +10,7 @@
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/computer_info.h>
+#include <ds/app/engine/engine_io_defs.h>
 
 #include "gstreamer/gstreamer_wrapper.h"
 #include "gstreamer/gstreamer_env_check.h"
@@ -109,7 +110,7 @@ const char mUpdateBaseTimeAtt = 93;
 const char mUpdateSeekTimeAtt = 94;
 const char mSeekAtt = 95;
 const char mInstancesAtt = 96;
-const char mDoSyncAtt = 95;
+const char mDoSyncAtt = 97;
 
 const DirtyState& mPosDirty = newUniqueDirtyState();
 
@@ -178,6 +179,10 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mSeekTime(0)
 	, mCachedDuration(0)
 	, mDoSyncronization(true)
+	, mServerOnlyMode(false)
+	, mServerPosition(0)
+	, mServerDuration(0)
+	, mServerPlayStatus(Status::STATUS_STOPPED)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -249,7 +254,7 @@ float GstVideo::getVideoPlayingFramerate(){
 
 void GstVideo::setAutoSynchronize(const bool doSync){
 	mDoSyncronization = doSync;
-	markAsDirty(mSyncDirty);
+	markAsDirty(mDoSyncDirty);
 }
 
 void GstVideo::setPlayableInstances(const std::vector<std::string>& instanceNames){
@@ -279,7 +284,7 @@ void GstVideo::updateClient(const UpdateParams& up){
 
 void GstVideo::drawLocalClient(){
 	if (!mGstreamerWrapper){
-		DS_LOG_WARNING("Gstreamer wrapper not available");;
+		DS_LOG_WARNING("Gstreamer wrapper not available");
 		return;
 	}
 	if(mGstreamerWrapper->hasVideo() && mGstreamerWrapper->isNewVideoFrame()){
@@ -427,12 +432,6 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		return;
 	}
 
-	if(mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess() > 800.0f){
-		DS_LOG_WARNING_M("doLoadVideo aborting loading a video because we're almost out of memory", GSTREAMER_LOG);
-		if(mErrorFn) mErrorFn("Did not load a video because the system ran out of memory.");
-		return;
-	}
-
 	// This allows apps to only load videos on certain client instances
 	// The default is to load everything everywhere
 	// If nothing has been specified, then load everywhere
@@ -458,12 +457,24 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 
 		CACHE.getValues(filename, type, videoWidth, videoHeight, mCachedDuration, colorSpace);
 
+		mFilename = filename;
+		mPortableFilename = portable_filename;
+
 		if(!doLoad){
 			mVideoSize.x = videoWidth;
 			mVideoSize.y = videoHeight;
 			setSizeAll(static_cast<float>(videoWidth), static_cast<float>(videoHeight), mDepth);
 			setStatus(Status::STATUS_PLAYING);
 			std::cout << "Skipped loading the video " << filename << " on " << mEngine.getAppInstanceName() << std::endl;
+			mServerOnlyMode = true;
+			return;
+		}
+
+		mServerOnlyMode = false;
+
+		if(mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess() > 800.0f){
+			DS_LOG_WARNING_M("doLoadVideo aborting loading a video because we're almost out of memory", GSTREAMER_LOG);
+			if(mErrorFn) mErrorFn("Did not load a video because the system ran out of memory.");
 			return;
 		}
 
@@ -534,8 +545,6 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			mFrameTexture  = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 		}
 
-		mFilename = filename;
-		mPortableFilename = portable_filename;
 	}
 }
 
@@ -639,7 +648,13 @@ float GstVideo::getPan() const {
 }
 
 void GstVideo::play(){
-	mGstreamerWrapper->play();
+	mServerPlayStatus = Status::STATUS_PLAYING;
+	if(mServerOnlyMode){
+		markAsDirty(mStatusDirty);
+		return;
+	} else {
+		mGstreamerWrapper->play();
+	}
 
 	//If movie not yet loaded, remember to play it later once it has
 	if (!mGstreamerWrapper->hasVideo()){
@@ -651,18 +666,32 @@ void GstVideo::play(){
 }
 
 void GstVideo::stop(){
+	mServerPlayStatus = Status::STATUS_STOPPED;
 	mShouldPlay = false;
-	mGstreamerWrapper->stop();
+	if(mServerOnlyMode){
+		markAsDirty(mStatusDirty);
+	} else {
+		mGstreamerWrapper->stop();
+	}
 }
 
 void GstVideo::pause(){
+	mServerPlayStatus = Status::STATUS_PAUSED;
 	mShouldPlay = false;
-	mGstreamerWrapper->pause();
+	if(mServerOnlyMode){
+		markAsDirty(mStatusDirty);
+	} else {
+		mGstreamerWrapper->pause();
+	}
 	 
 	markAsDirty(mSeekTimeDirty);
 }
 
 bool GstVideo::getIsPlaying() const {
+	if(mServerOnlyMode){
+		return mServerPlayStatus == Status::STATUS_PLAYING;
+	}
+
 	if (mGstreamerWrapper->getState() == PLAYING){
 		return true;
 	} else {
@@ -671,6 +700,10 @@ bool GstVideo::getIsPlaying() const {
 }
 
 double GstVideo::getDuration() const {
+	if(mServerOnlyMode){
+		return mServerDuration;
+	}
+
 	double gstDur = mGstreamerWrapper->getDurationInMs();
 
 	// if gstreamer hasn't found the duration or the video hasn't been loaded yet, use the cached value
@@ -683,24 +716,40 @@ double GstVideo::getDuration() const {
 }
 
 double GstVideo::getCurrentTime() const {
+	if(mServerOnlyMode){
+		return mServerPosition * mServerDuration;
+	}
 	return mGstreamerWrapper->getPosition() * getDuration();
 }
 		
 void GstVideo::seekTime(const double t){
-	mGstreamerWrapper->setTimePositionInMs(t * 1000.0);
+	if(mServerOnlyMode){
+		mServerPosition = t / mServerDuration;
+	} else {
+		mGstreamerWrapper->setTimePositionInMs(t * 1000.0);
+	}
 	markAsDirty(mPosDirty);
 }
 
 double GstVideo::getCurrentPosition() const {
+	if(mServerOnlyMode){
+		return mServerPosition;
+	}
 	return mGstreamerWrapper->getPosition();
 }
 
 void GstVideo::seekPosition(const double t){
-	mGstreamerWrapper->setPosition(t);
+	if(mServerOnlyMode){
+		mServerPosition = t;
+	} else {
+		mGstreamerWrapper->setPosition(t);
+	}
 	markAsDirty(mPosDirty);
 }
 
 void GstVideo::setStatus(const int code){
+	mServerPlayStatus = code;
+
 	if (code == mStatus.mCode) return;
 
 	mStatus.mCode = code;
@@ -797,7 +846,8 @@ void GstVideo::setNetClock(){
 	if (mEngine.getMode() == ds::ui::SpriteEngine::STANDALONE_MODE){
 		// NOTHIN
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE){
-		DS_LOG_WARNING_M("Gstreamer net sync not implemented in Server only mode. Use ClientServer insteand.", GSTREAMER_LOG);
+		mServerOnlyMode = true;
+		//DS_LOG_WARNING_M("Gstreamer net sync not implemented in Server only mode. Use ClientServer insteand.", GSTREAMER_LOG);
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
 		//Read port from settings file if available.  Otherwise, pick default.
 		static int newPort = mEngine.getSettings("layout").getInt("gstVideo:netclock:port", 0, 0);
@@ -834,6 +884,9 @@ void GstVideo::checkOutOfBounds() {
 }
 
 const GstVideo::Status& GstVideo::getCurrentStatus() const {
+	if(mServerOnlyMode){
+		return mServerPlayStatus;
+	}
 	return mStatus;
 }
 
@@ -929,26 +982,20 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(mSeekTime);
 	}
 
-	//Some things we don't want to  do on initialization.
-	auto isReset = mDirty.getMaskValue() & 0x80000000;
-	if (isReset) {
-
-		if (mDirty.has(mStatusDirty)){
-			buf.add(mStatusAtt);
+	if(mDirty.has(mStatusDirty)){
+		buf.add(mStatusAtt);
+		if(mServerOnlyMode){
+			buf.add(mServerPlayStatus);
+		} else {
 			buf.add(getCurrentStatus().mCode);
 		}
 	}
-	 
-	else {
-		if (mDirty.has(mStatusDirty)){
-			buf.add(mStatusAtt);
-			buf.add(getCurrentStatus().mCode);
-		}
 
-		if (mDirty.has(mPosDirty)){
-			buf.add(mPosAtt);
-			buf.add(getCurrentPosition());
-		}
+	//Some things we don't want to  do on initialization.
+	auto isReset = mDirty.getMaskValue() & 0x80000000;
+	if(!isReset && mDirty.has(mPosDirty)){
+		buf.add(mPosAtt);
+		buf.add(getCurrentPosition());
 	}
 }
 
@@ -986,14 +1033,12 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	else if (attrid == mStatusAtt) {
 		checkStatus();
 		auto status_code = buf.read<int>();
-		if(getCurrentStatus() != status_code)
-		{
+		if(getCurrentStatus() != status_code){
 			if(status_code == GstVideo::Status::STATUS_PAUSED){
 				pause();
 			} else if(status_code == GstVideo::Status::STATUS_STOPPED){
 				stop();
-			}
-			else if (status_code == GstVideo::Status::STATUS_PLAYING){
+			} else if (status_code == GstVideo::Status::STATUS_PLAYING){
 				play();
 			}
 		}
@@ -1040,6 +1085,29 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	}
 }
  
+void GstVideo::writeClientAttributesTo(ds::DataBuffer& buf)const{
+	// This means that we're a client that didn't actually load any video, so no need to write any data back to the server
+	// I know it's confusing that clients can be in server-only mode, but here we are
+	if(mServerOnlyMode){
+		return;
+	}
+
+	ds::ScopedClientAtts scope(buf, getId());
+	buf.add(mStatusAtt);
+	buf.add(static_cast<float>(getCurrentPosition())); // position is really all we need, right?
+}
+
+void GstVideo::readClientAttributeFrom(const char attributeId, ds::DataBuffer& buf){
+	// If we're getting stuff back from clients, then we probably know what it is
+	// But make sure, cause anything else would be an error
+	if(attributeId == mStatusAtt){
+		const float clientPos = buf.read<float>();
+		mServerPosition = clientPos;
+	} else {
+		DS_LOG_WARNING("Got an unexpected attribute back when reading client attributes. Probably a network packet error. Attribute=" << attributeId);
+	}
+}
+
 double GstVideo::getCurrentTimeMs() const {
 	return mGstreamerWrapper->getCurrentTimeInMs();
 }
