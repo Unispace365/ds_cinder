@@ -67,6 +67,11 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& resource
 	setDefaultProperties();
 }
 
+
+void MediaViewer::setSettings(const MediaViewerSettings& newSettings){
+	mMediaViewerSettings = newSettings;
+}
+
 void MediaViewer::setDefaultProperties(){
 	setDefaultBounds(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	setWebViewSize(0.0f, 0.0f);

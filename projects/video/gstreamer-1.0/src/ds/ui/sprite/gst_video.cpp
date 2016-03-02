@@ -183,6 +183,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mServerPosition(0)
 	, mServerDuration(0)
 	, mServerPlayStatus(Status::STATUS_STOPPED)
+	, mPan(0.0f)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -465,7 +466,6 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			mVideoSize.y = videoHeight;
 			setSizeAll(static_cast<float>(videoWidth), static_cast<float>(videoHeight), mDepth);
 			setStatus(Status::STATUS_PLAYING);
-			std::cout << "Skipped loading the video " << filename << " on " << mEngine.getAppInstanceName() << std::endl;
 			mServerOnlyMode = true;
 			return;
 		}
@@ -506,6 +506,7 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 
 		applyMovieLooping();
 		applyMovieVolume();
+		applyMoviePan(mPan);
 
 		mGstreamerWrapper->setVideoCompleteCallback([this](GStreamerWrapper*){
 			if(mVideoCompleteFn) mVideoCompleteFn();
@@ -899,7 +900,6 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 
 	// Add the "do sync" property before setting the path, so the client knows if it needs to sync or not
 	if(mDirty.has(mDoSyncDirty)){
-		std::cout << "Adding do sync to packet" << std::endl;
 		buf.add(mDoSyncAtt);
 		buf.add(mDoSyncronization);
 	}
@@ -907,7 +907,6 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 	// Add the instances before setting the path in case the client shouldn't play it
 	if(mDirty.has(mInstancesDirty)){
 		int numOfInstances = (int)mPlayableInstances.size();
-		std::cout << "Adding instances to packet: " << numOfInstances << std::endl;
 		buf.add(mInstancesAtt);
 		buf.add(numOfInstances);
 		for(auto it = mPlayableInstances.begin(); it < mPlayableInstances.end(); ++it){
@@ -1051,7 +1050,6 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 		setNetClock();
 	} 
 	else if(attrid == mDoSyncAtt){
-		std::cout << "Reading do sync from packet" << std::endl;
 		mDoSyncronization = buf.read<bool>();
 	}
 	else if (attrid == mUpdateSeekTimeAtt){
@@ -1075,7 +1073,6 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	} 
 	else if(attrid == mInstancesAtt){
 		int numOfInstances = buf.read<int>();
-		std::cout << "Reading instances from packet: " << numOfInstances << std::endl;
 		for(int i = 0; i < numOfInstances; i++){
 			mPlayableInstances.push_back(buf.read<std::string>());
 		}
