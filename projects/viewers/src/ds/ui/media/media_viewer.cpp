@@ -32,13 +32,9 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
-	, mCacheImages(false)
 	, mEmbedInterface(embedInterface)
-	, mDefaultBoundWidth(mEngine.getWorldWidth())
-	, mDefaultBoundHeight(mEngine.getWorldHeight())
-	, mWebViewWidth(0.0f)
-	, mWebViewHeight(0.0f)
 {
+	setDefaultProperties();
 }
 
 MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath, const bool embedInterface)
@@ -51,13 +47,9 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
-	, mCacheImages(false)
 	, mEmbedInterface(embedInterface)
-	, mDefaultBoundWidth(mEngine.getWorldWidth())
-	, mDefaultBoundHeight(mEngine.getWorldHeight())
-	, mWebViewWidth(0.0f)
-	, mWebViewHeight(0.0f)
 {
+	setDefaultProperties();
 }
 
 MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& resource, const bool embedInterface)
@@ -70,13 +62,15 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& resource
 	, mWebPlayer(nullptr)
 	, mThumbnailImage(nullptr)
 	, mPrimaryImage(nullptr)
-	, mCacheImages(false)
 	, mEmbedInterface(embedInterface)
-	, mDefaultBoundWidth(mEngine.getWorldWidth())
-	, mDefaultBoundHeight(mEngine.getWorldHeight())
-	, mWebViewWidth(0.0f)
-	, mWebViewHeight(0.0f)
 {
+	setDefaultProperties();
+}
+
+void MediaViewer::setDefaultProperties(){
+	setDefaultBounds(mEngine.getWorldWidth(), mEngine.getWorldHeight());
+	setWebViewSize(0.0f, 0.0f);
+	setCacheImages(false);
 }
 
 void MediaViewer::loadMedia(const std::string& mediaPath, const bool initializeImmediately) {
@@ -105,13 +99,13 @@ void MediaViewer::loadMedia(const ds::Resource& reccy, const bool initializeImme
 
 
 void MediaViewer::setDefaultBounds(const float defaultWidth, const float defaultHeight){
-	mDefaultBoundWidth = defaultWidth;
-	mDefaultBoundHeight = defaultHeight;
+	mMediaViewerSettings.mDefaultBounds.x = defaultWidth;
+	mMediaViewerSettings.mDefaultBounds.y = defaultHeight;
 }
 
 void MediaViewer::setWebViewSize(float webViewWidth, float webViewHeight){
-	mWebViewWidth = webViewWidth;
-	mWebViewHeight = webViewHeight;
+	mMediaViewerSettings.mDefaultWebSize.x = webViewWidth;
+	mMediaViewerSettings.mDefaultWebSize.y = webViewHeight;
 }	
 
 void MediaViewer::initialize(){
@@ -134,7 +128,7 @@ void MediaViewer::initialize(){
 
 	if(mediaType == ds::Resource::IMAGE_TYPE){
 		int flags = 0;
-		if(mCacheImages){
+		if(mMediaViewerSettings.mCacheImages){
 			flags |= Image::IMG_CACHE_F;
 		}
 		mPrimaryImage = new ds::ui::Image(mEngine, mResource, flags);
@@ -169,6 +163,10 @@ void MediaViewer::initialize(){
 		mVideoPlayer->setGoodStatusCallback([this]{ 
 			if(mStatusCallback) mStatusCallback(true); 
 		});
+
+		mVideoPlayer->setPan(mMediaViewerSettings.mVideoPanning);
+		mVideoPlayer->setAutoSynchronize(mMediaViewerSettings.mVideoAutoSync);
+		mVideoPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
 
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
 
@@ -219,7 +217,7 @@ void MediaViewer::initialize(){
 	} else if(mediaType == ds::Resource::WEB_TYPE){
 		mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mWebPlayer);
-		mWebPlayer->setWebViewSize(mWebViewWidth, mWebViewHeight);
+		mWebPlayer->setWebViewSize(mMediaViewerSettings.mDefaultWebSize.x, mMediaViewerSettings.mDefaultWebSize.y);
 		mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
 
 		if(mWebPlayer->getWeb()){
@@ -243,7 +241,7 @@ void MediaViewer::initialize(){
 
 	if(showThumbnail && (mResource.getThumbnailId() > 0 || !mResource.getThumbnailFilePath().empty())){
 		int flags = 0;
-		if(mCacheImages){
+		if(mMediaViewerSettings.mCacheImages){
 			flags |= Image::IMG_CACHE_F;
 		}
 		mThumbnailImage = new ds::ui::Image(mEngine);
@@ -263,8 +261,8 @@ void MediaViewer::initialize(){
 	}
 
 	// calculate a default size that maximizes size
-	const float engineWidth = mDefaultBoundWidth;
-	const float engineHeight = mDefaultBoundHeight;
+	const float engineWidth = mMediaViewerSettings.mDefaultBounds.x;
+	const float engineHeight = mMediaViewerSettings.mDefaultBounds.x;
 	const float engineAspect = engineWidth / engineHeight;
 
 	// calculate a width to make the player fit maximally
@@ -387,7 +385,6 @@ void MediaViewer::stopContent(){
 	}
 }
 
-
 ds::ui::Sprite* MediaViewer::getPlayer(){
 	if(mVideoPlayer){
 		return mVideoPlayer;
@@ -432,7 +429,6 @@ void MediaViewer::handleStandardClick(const ci::Vec3f& globalPos){
 		mVideoPlayer->togglePlayPause();
 	}
 }
-
 
 void MediaViewer::enableStandardClick(){
 	setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){

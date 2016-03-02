@@ -5,6 +5,7 @@
 
 #include "ds/ui/panel/base_panel.h"
 #include <ds/ui/sprite/image.h>
+#include "media_viewer_settings.h"
 
 namespace ds {
 namespace ui {
@@ -25,6 +26,9 @@ public:
 	MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath, const bool embedInterface = false);
 	MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& reccy, const bool embedInterface = false);
 
+	void					setSettings(const MediaViewerSettings& newSettings);
+	MediaViewerSettings&	getSettings(){ return mMediaViewerSettings; }
+
 	// unloads any current media
 	void				loadMedia(const std::string& mediaPath, const bool initializeImmediately = true);
 	void				loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
@@ -39,7 +43,7 @@ public:
 	/// unloads any media and interface already loaded. initialize could be called again after this and load the same content
 	void				uninitialize();
 
-	void				setCacheImages(bool cacheImages) { mCacheImages = cacheImages; }
+	void				setCacheImages(bool cacheImages) { mMediaViewerSettings.mCacheImages = cacheImages; }
 
 	virtual void		onLayout();
 	void				enter();
@@ -83,6 +87,8 @@ protected:
 
 	virtual void		userInputReceived();
 
+	MediaViewerSettings	mMediaViewerSettings;
+
 	bool				mEmbedInterface;
 	bool				mInitialized;
 	ds::Resource		mResource;
@@ -94,18 +100,13 @@ protected:
 	ds::ui::Image*		mThumbnailImage;
 	ds::ui::Image*		mPrimaryImage;
 
-	bool				mCacheImages;
-
-
 	ci::Vec3f			mOrigin;
-
-	float				mDefaultBoundWidth;
-	float				mDefaultBoundHeight;
-	float				mWebViewWidth;
-	float				mWebViewHeight;
 
 	std::function<void(const std::string& msg)>	mErrorCallback;
 	std::function<void(const bool isGood)> mStatusCallback;
+
+private:
+	void				setDefaultProperties();
 };
 
 } // namespace ui
