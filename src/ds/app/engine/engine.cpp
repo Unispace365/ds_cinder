@@ -307,6 +307,8 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
 		screenMode = mSettings.getText("screen:mode", 0, screenMode);
 		if(screenMode == "full"){
 			settings.setFullScreen(true);
+		} else if(screenMode == "fullscreen"){
+			settings.setFullScreen(true);
 		} else if(screenMode == "borderless"){
 			settings.setBorderless(true);
 		}
