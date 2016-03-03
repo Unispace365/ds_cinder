@@ -482,12 +482,17 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			generateVideoBuffer = false;
 			mOutOfBoundsMuted = false;
 		}
+		// if the video was set previously, clear out the shader so we don't multiple-set the shader
+		removeShaders();
+		setBaseShader(Environment::getAppFolder("data/shaders"), "base");
+
+		mDrawable = false;
 
 		ColorType theColor = ColorType::kColorTypeTransparent;
 		if(colorSpace == "4:2:0"){
 			theColor = ColorType::kColorTypeShaderTransform;
-			std::string name("yuv_colorspace_conversion");
-			addNewMemoryShader(yuv_vert, yuv_frag, name, true);
+			std::string shaderName("yuv_colorspace_conversion");
+			addNewMemoryShader(yuv_vert, yuv_frag, shaderName, true);
 			ds::gl::Uniform uniform;
 
 			uniform.setInt("gsuTexture0", 2);
@@ -560,6 +565,10 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		return;
 	}
 
+	removeShaders();
+	setBaseShader(Environment::getAppFolder("data/shaders"), "base");
+
+	mDrawable = false;
 		
 	mOutOfBoundsMuted = true;
 	mColorType = ColorType::kColorTypeShaderTransform;
