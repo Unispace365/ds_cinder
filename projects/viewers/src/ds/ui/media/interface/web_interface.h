@@ -18,34 +18,29 @@ class SoftKeyboard;
 */
 class WebInterface : public MediaInterface  {
 public:
-	struct Params {
-		Params(){
-			panelSize.set(800.0f, 500.0f);
-			scale = 1.0f;
-		}
-
-		ci::Vec2f panelSize;
-		float scale;
-	};
-
-	WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor, const Params& params = Params());
+	WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
 
 	virtual void				animateOff();
 
 	void						linkWeb(ds::ui::Web* linkedWeb);
 	void						updateWidgets();
 
+	void						setKeyboardKeyScale(const float newKeyScale);
+	void						setKeyboardPanelSize(const ci::Vec2f panelSize);
+
 protected:
 
 	virtual void				onLayout();
 	void						showKeyboard(bool show);
 
-	Params						mParams;
 	ds::ui::Web*				mLinkedWeb;
 
 	ds::ui::Sprite*				mKeyboardArea;
 	ds::ui::SoftKeyboard*		mKeyboard;
 	bool						mKeyboardShowing;
+
+	ci::Vec2f					mKeyboardPanelSize;
+	float						mKeyboardKeyScale;
 
 	ds::ui::ImageButton*		mKeyboardButton;
 	ds::ui::ImageButton*		mBackButton;

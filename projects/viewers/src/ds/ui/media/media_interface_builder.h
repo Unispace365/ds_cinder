@@ -5,7 +5,6 @@
 #include <string>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
-#include <ds/ui/media/player/web_player.h>
 
 namespace ds {
 namespace ui {
@@ -19,7 +18,7 @@ namespace MediaInterfaceBuilder {
 
 /// Builds and links the appropriate kind of interface. 
 /// mediaPlayer MUST be a PdfPlayer, VideoPlayer, or WebPlayer
-MediaInterface*	buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite* mediaPlayer, ds::ui::Sprite* parentSprite, const ds::ui::WebPlayer::Params& webParams = ds::ui::WebPlayer::Params());
+MediaInterface*	buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite* mediaPlayer, ds::ui::Sprite* parentSprite);
 
 };
 

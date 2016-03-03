@@ -17,19 +17,7 @@ class MediaInterface;
 */
 class WebPlayer : public ds::ui::Sprite  {
 public:
-	struct Params {
-		Params(){
-			viewSize.zero();
-			keyboardPanelSize.set(900.0f, 450.0f);
-			keyboardScale = 1.0f;
-		}
-
-		ci::Vec2f viewSize;
-		ci::Vec2f keyboardPanelSize;
-		float keyboardScale;
-	};
-
-	WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface, const Params& params = Params());
+	WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface);
 
 	void								setMedia(const std::string mediaPath);
 
@@ -42,13 +30,20 @@ public:
 
 	ds::ui::Web*						getWeb();
 
+	/// UI params - replace with MediaViewerSettings?
+	void								setWebViewSize(const ci::Vec2f webSize);
+	void								setKeyboardParams(const ci::Vec2f keyboardPanelSize, const float keyboardKeyScale);
+
 protected:
 
 	virtual void						onSizeChanged();
-	Params								mParams;
 	ds::ui::Web*						mWeb;
 	WebInterface*						mWebInterface;
 	bool								mEmbedInterface;
+
+	ci::Vec2f							mWebSize;
+	ci::Vec2f							mKeyboardPanelSize;
+	float								mKeyboardKeyScale;
 
 };
 

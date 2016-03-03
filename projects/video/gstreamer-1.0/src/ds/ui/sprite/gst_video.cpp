@@ -9,6 +9,8 @@
 #include <ds/data/resource_list.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/debug/computer_info.h>
+#include <ds/app/engine/engine_io_defs.h>
 
 #include "gstreamer/gstreamer_wrapper.h"
 #include "gstreamer/gstreamer_env_check.h"
@@ -61,10 +63,12 @@ static std::string yuv_vert =
 		"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
 		"u = u - 0.5;"
 		"v = v - 0.5;"
+		"gl_FragData[0] = vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, gl_Color.a);" //  ITU.BT-601 Y’CbCr color space transposed to super space for better contrast
+
+		// Below are other test color spaces, some ok, some poopy
 		//"gl_FragData[0] = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);" //  ITU.BT-601 Y’CbCr color space
 		//"gl_FragData[0] = vec4( y + (1.13983 * v), y - (0.39465 * u) - (0.58060 * v), y + (2.03211 * u), gl_Color.a);" // 601 color space
 		//"gl_FragData[0] = vec4( y + (1.28033 * v), y - (0.21482 * u) - (0.38059 * v), y + (2.12798 * u), gl_Color.a);" // 709 (wikipedia) color space
-		"gl_FragData[0] = vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, gl_Color.a);" //  ITU.BT-601 Y’CbCr color space transposed to super space
 		//"gl_FragData[0] = vec4( (y + (1.28033 * v)) * 1.1643835 - 0.062745, (y - (0.21482 * u) - (0.38059 * v)) * 1.1643835 - 0.062745, (y + (2.12798 * u)) * 1.1643835 - 0.062745, gl_Color.a);" // 709 (wikipedia) color space transposed to Super space (0-255, from YUV's 16-235)
 		//"gl_FragData[0] = vec4( y + (1.5701 * v), y - (0.1870 * u) - (0.4664 * v), y + (1.8556 * u), gl_Color.a);" //  ITU.BT-709 HDTV studio production in Y’CbCr  color space http://www.poynton.com/PDFs/coloureq.pdf
 		//"gl_FragData[0] = vec4( y + (1.5756 * v), y - (0.2253 * u) + (0.50 * v), y + (1.8270 * u), gl_Color.a);" //  SMPTE-240M Y’PbPr color space (totally not right)
@@ -98,12 +102,15 @@ const char mPosAtt = 87;
 const char mSyncAtt = 88;
 const char mPanAtt = 89;
 
+// Fuck you, 90
 
 const char mFastPosAtt = 91;
 const char mUpdateAtt = 92;
 const char mUpdateBaseTimeAtt = 93;
 const char mUpdateSeekTimeAtt = 94;
 const char mSeekAtt = 95;
+const char mInstancesAtt = 96;
+const char mDoSyncAtt = 97;
 
 const DirtyState& mPosDirty = newUniqueDirtyState();
 
@@ -123,6 +130,9 @@ const DirtyState& mFastPosDirty = newUniqueDirtyState();
 const DirtyState& mBaseTimeDirty = newUniqueDirtyState();
 const DirtyState& mSeekTimeDirty = newUniqueDirtyState();
 const DirtyState& mSeekDirty = newUniqueDirtyState();
+
+const DirtyState& mInstancesDirty = newUniqueDirtyState();
+const DirtyState& mDoSyncDirty = newUniqueDirtyState();
 
 }
 
@@ -168,6 +178,12 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mBaseTime(0)
 	, mSeekTime(0)
 	, mCachedDuration(0)
+	, mDoSyncronization(true)
+	, mServerOnlyMode(false)
+	, mServerPosition(0)
+	, mServerDuration(0)
+	, mServerPlayStatus(Status::STATUS_STOPPED)
+	, mPan(0.0f)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -199,8 +215,7 @@ void GstVideo::updateServer(const UpdateParams &up){
 		markAsDirty(mSeekDirty);
 	} else
 	//m_StartTime is used for pause/resume operations
-	if (mGstreamerWrapper->isPlayFromPause() )
-	{
+	if (mGstreamerWrapper->isPlayFromPause() )	{
 		mGstreamerWrapper->clearPlayFromPause();
 		mBaseTime = mGstreamerWrapper->getBaseTime();
 		mSeekTime = mGstreamerWrapper->getSeekTime();
@@ -208,18 +223,13 @@ void GstVideo::updateServer(const UpdateParams &up){
 		markAsDirty(mBaseTimeDirty);
 		markAsDirty(mSeekTimeDirty);
 	}
-
-
-
+	
 	//check wrapper for new time sync.  If new, mark as dirty
 	//Don't try to sync base-time while fast seeking
 	else if (mGstreamerWrapper->getBaseTime() != mBaseTime ) {
 		mBaseTime = mGstreamerWrapper->getBaseTime();
 		markAsDirty(mBaseTimeDirty);
-	}
-
-
-	
+	}	
 	
 	checkStatus();
 	checkOutOfBounds();
@@ -240,18 +250,29 @@ void GstVideo::setVerboseLogging(const bool doVerbose){
 float GstVideo::getVideoPlayingFramerate(){
 	if(mBufferUpdateTimes.size() < 2) return 0.0f;
 	float deltaTime = (float)(mBufferUpdateTimes.back() - mBufferUpdateTimes.front()) / 1000000.0f;
-	//deltaTime /= (float)mBufferUpdateTimes.size();
 	return (float)(mBufferUpdateTimes.size() - 1) / deltaTime;
+}
+
+void GstVideo::setAutoSynchronize(const bool doSync){
+	mDoSyncronization = doSync;
+	markAsDirty(mDoSyncDirty);
+}
+
+void GstVideo::setPlayableInstances(const std::vector<std::string>& instanceNames){
+	mPlayableInstances = instanceNames;
+	markAsDirty(mInstancesDirty);
 }
 
 void GstVideo::updateClient(const UpdateParams& up){
 	Sprite::updateClient(up);
-	//setNetClock();
 
 	mGstreamerWrapper->update();
 
 	checkStatus();
 	checkOutOfBounds();
+
+	// The code below this is only for synchronization
+	if(!mDoSyncronization) return;
 
 	//If client tried to sync with server clock before it was ready, it can miss its opportunity
 	//and stay un-synced until the next 'event' (scrub/pause, loop).  
@@ -264,7 +285,7 @@ void GstVideo::updateClient(const UpdateParams& up){
 
 void GstVideo::drawLocalClient(){
 	if (!mGstreamerWrapper){
-		DS_LOG_WARNING("Gstreamer wrapper not available");;
+		DS_LOG_WARNING("Gstreamer wrapper not available");
 		return;
 	}
 	if(mGstreamerWrapper->hasVideo() && mGstreamerWrapper->isNewVideoFrame()){
@@ -355,9 +376,7 @@ void GstVideo::drawLocalClient(){
 		} else {
 			if (mFrameTexture) mFrameTexture.unbind();
 		}
-
 	} 
-
 }
 
 void GstVideo::setSize( float width, float height ){
@@ -407,14 +426,27 @@ void GstVideo::setAutoRestartStream(bool autoRestart){
 	}
 }
 
-
-
 void GstVideo::doLoadVideo(const std::string &filename, const std::string &portable_filename){
 	if(filename.empty()){
 		DS_LOG_WARNING_M("doLoadVideo aborting loading a video because of a blank filename.", GSTREAMER_LOG);
+		if(mErrorFn) mErrorFn("Did not load a video because there was no filename.");
 		return;
 	}
 
+	// This allows apps to only load videos on certain client instances
+	// The default is to load everything everywhere
+	// If nothing has been specified, then load everywhere
+	bool doLoad = true;
+	if(!mPlayableInstances.empty()){
+		std::string thisInstance = mEngine.getAppInstanceName();
+		doLoad = false;
+		for(auto it = mPlayableInstances.begin(); it < mPlayableInstances.end(); ++it){
+			if((*it) == thisInstance){
+				doLoad = true;
+				break;
+			}
+		}
+	}
 
 	VideoMetaCache::Type		type(VideoMetaCache::ERROR_TYPE);
 
@@ -426,17 +458,41 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 
 		CACHE.getValues(filename, type, videoWidth, videoHeight, mCachedDuration, colorSpace);
 
-		if(type == VideoMetaCache::AUDIO_TYPE)
-		{
+		mFilename = filename;
+		mPortableFilename = portable_filename;
+
+		if(!doLoad){
+			mVideoSize.x = videoWidth;
+			mVideoSize.y = videoHeight;
+			setSizeAll(static_cast<float>(videoWidth), static_cast<float>(videoHeight), mDepth);
+			setStatus(Status::STATUS_PLAYING);
+			mServerOnlyMode = true;
+			return;
+		}
+
+		mServerOnlyMode = false;
+
+		if(mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess() > 800.0f){
+			DS_LOG_WARNING_M("doLoadVideo aborting loading a video because we're almost out of memory", GSTREAMER_LOG);
+			if(mErrorFn) mErrorFn("Did not load a video because the system ran out of memory.");
+			return;
+		}
+
+		if(type == VideoMetaCache::AUDIO_TYPE){
 			generateVideoBuffer = false;
 			mOutOfBoundsMuted = false;
 		}
+		// if the video was set previously, clear out the shader so we don't multiple-set the shader
+		removeShaders();
+		setBaseShader(Environment::getAppFolder("data/shaders"), "base");
+
+		mDrawable = false;
 
 		ColorType theColor = ColorType::kColorTypeTransparent;
 		if(colorSpace == "4:2:0"){
 			theColor = ColorType::kColorTypeShaderTransform;
-			std::string name("yuv_colorspace_conversion");
-			addNewMemoryShader(yuv_vert, yuv_frag, name, true);
+			std::string shaderName("yuv_colorspace_conversion");
+			addNewMemoryShader(yuv_vert, yuv_frag, shaderName, true);
 			ds::gl::Uniform uniform;
 
 			uniform.setInt("gsuTexture0", 2);
@@ -455,18 +511,21 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 
 		applyMovieLooping();
 		applyMovieVolume();
+		applyMoviePan(mPan);
 
 		mGstreamerWrapper->setVideoCompleteCallback([this](GStreamerWrapper*){
 			if(mVideoCompleteFn) mVideoCompleteFn();
 		});
 
+		// TODO: add error callbacks to the server?
 		mGstreamerWrapper->setErrorMessageCallback([this](const std::string& msg){
 			if(mErrorFn) mErrorFn(msg);
 		});
 
-		//setStatus(Status::STATUS_STOPPED);
-		if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE)
+		if(mDoSyncronization && mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
 			setNetClock();
+		}
+
 		setStatus(Status::STATUS_PLAYING);
 
 	} catch(std::exception const& ex)	{
@@ -492,8 +551,6 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			mFrameTexture  = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 		}
 
-		mFilename = filename;
-		mPortableFilename = portable_filename;
 	}
 }
 
@@ -508,6 +565,10 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		return;
 	}
 
+	removeShaders();
+	setBaseShader(Environment::getAppFolder("data/shaders"), "base");
+
+	mDrawable = false;
 		
 	mOutOfBoundsMuted = true;
 	mColorType = ColorType::kColorTypeShaderTransform;
@@ -549,10 +610,7 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 	}
 	mFilename = streamingPipeline;
-	
 }
-
-
 
 void GstVideo::setLooping(const bool on){
 	mLooping = on;
@@ -587,8 +645,7 @@ float GstVideo::getVolume() const {
 	return mVolume;
 }
 
-void GstVideo::setPan(const float pan)
-{
+void GstVideo::setPan(const float pan) {
 	if (mPan == pan) return;
 
 	mPan = pan;
@@ -596,37 +653,55 @@ void GstVideo::setPan(const float pan)
 	markAsDirty(mPanDirty);
 }
 
-
-
-float GstVideo::getPan() const
-{
+float GstVideo::getPan() const {
 	return mPan;
 }
 
 void GstVideo::play(){
-	mGstreamerWrapper->play();
+	mServerPlayStatus = Status::STATUS_PLAYING;
+	if(mServerOnlyMode){
+		markAsDirty(mStatusDirty);
+		return;
+	} else {
+		mGstreamerWrapper->play();
+	}
 
 	//If movie not yet loaded, remember to play it later once it has
 	if (!mGstreamerWrapper->hasVideo()){
 		mShouldPlay = true;
 	}
+
 	markAsDirty(mBaseTimeDirty);
 	markAsDirty(mSeekTimeDirty);
 }
 
 void GstVideo::stop(){
+	mServerPlayStatus = Status::STATUS_STOPPED;
 	mShouldPlay = false;
-	mGstreamerWrapper->stop();
+	if(mServerOnlyMode){
+		markAsDirty(mStatusDirty);
+	} else {
+		mGstreamerWrapper->stop();
+	}
 }
 
 void GstVideo::pause(){
+	mServerPlayStatus = Status::STATUS_PAUSED;
 	mShouldPlay = false;
-	mGstreamerWrapper->pause();
+	if(mServerOnlyMode){
+		markAsDirty(mStatusDirty);
+	} else {
+		mGstreamerWrapper->pause();
+	}
 	 
 	markAsDirty(mSeekTimeDirty);
 }
 
 bool GstVideo::getIsPlaying() const {
+	if(mServerOnlyMode){
+		return mServerPlayStatus == Status::STATUS_PLAYING;
+	}
+
 	if (mGstreamerWrapper->getState() == PLAYING){
 		return true;
 	} else {
@@ -635,6 +710,10 @@ bool GstVideo::getIsPlaying() const {
 }
 
 double GstVideo::getDuration() const {
+	if(mServerOnlyMode){
+		return mServerDuration;
+	}
+
 	double gstDur = mGstreamerWrapper->getDurationInMs();
 
 	// if gstreamer hasn't found the duration or the video hasn't been loaded yet, use the cached value
@@ -647,24 +726,40 @@ double GstVideo::getDuration() const {
 }
 
 double GstVideo::getCurrentTime() const {
+	if(mServerOnlyMode){
+		return mServerPosition * mServerDuration;
+	}
 	return mGstreamerWrapper->getPosition() * getDuration();
 }
 		
 void GstVideo::seekTime(const double t){
-	mGstreamerWrapper->setTimePositionInMs(t * 1000.0);
+	if(mServerOnlyMode){
+		mServerPosition = t / mServerDuration;
+	} else {
+		mGstreamerWrapper->setTimePositionInMs(t * 1000.0);
+	}
 	markAsDirty(mPosDirty);
 }
 
 double GstVideo::getCurrentPosition() const {
+	if(mServerOnlyMode){
+		return mServerPosition;
+	}
 	return mGstreamerWrapper->getPosition();
 }
 
 void GstVideo::seekPosition(const double t){
-	mGstreamerWrapper->setPosition(t);
+	if(mServerOnlyMode){
+		mServerPosition = t;
+	} else {
+		mGstreamerWrapper->setPosition(t);
+	}
 	markAsDirty(mPosDirty);
 }
 
 void GstVideo::setStatus(const int code){
+	mServerPlayStatus = code;
+
 	if (code == mStatus.mCode) return;
 
 	mStatus.mCode = code;
@@ -684,7 +779,6 @@ void GstVideo::applyMovieVolume(){
 void GstVideo::applyMoviePan(const float pan){
 	mGstreamerWrapper->setPan(pan);
 }
-
 
 void GstVideo::applyMovieLooping(){
 	if(mLooping){
@@ -751,6 +845,8 @@ void GstVideo::checkStatus(){
 	}
 }
 void GstVideo::setNetClock(){
+	if(!mDoSyncronization) return;
+
 	if (mIpAddress.empty()) {
 		ds::network::networkInfo* Networki;
 		Networki = new ds::network::networkInfo();
@@ -760,7 +856,8 @@ void GstVideo::setNetClock(){
 	if (mEngine.getMode() == ds::ui::SpriteEngine::STANDALONE_MODE){
 		// NOTHIN
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE){
-		DS_LOG_WARNING_M("Gstreamer net sync not implemented in Server only mode. Use ClientServer insteand.", GSTREAMER_LOG);
+		mServerOnlyMode = true;
+		//DS_LOG_WARNING_M("Gstreamer net sync not implemented in Server only mode. Use ClientServer insteand.", GSTREAMER_LOG);
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
 		//Read port from settings file if available.  Otherwise, pick default.
 		static int newPort = mEngine.getSettings("layout").getInt("gstVideo:netclock:port", 0, 0);
@@ -797,6 +894,9 @@ void GstVideo::checkOutOfBounds() {
 }
 
 const GstVideo::Status& GstVideo::getCurrentStatus() const {
+	if(mServerOnlyMode){
+		return mServerPlayStatus;
+	}
 	return mStatus;
 }
 
@@ -806,6 +906,22 @@ const std::string& GstVideo::getLoadedFilename() const {
 
 void GstVideo::writeAttributesTo(DataBuffer& buf){
 	Sprite::writeAttributesTo(buf);
+
+	// Add the "do sync" property before setting the path, so the client knows if it needs to sync or not
+	if(mDirty.has(mDoSyncDirty)){
+		buf.add(mDoSyncAtt);
+		buf.add(mDoSyncronization);
+	}
+
+	// Add the instances before setting the path in case the client shouldn't play it
+	if(mDirty.has(mInstancesDirty)){
+		int numOfInstances = (int)mPlayableInstances.size();
+		buf.add(mInstancesAtt);
+		buf.add(numOfInstances);
+		for(auto it = mPlayableInstances.begin(); it < mPlayableInstances.end(); ++it){
+			buf.add((*it));
+		}
+	}
 
 	if (mDirty.has(mPathDirty)){
 		buf.add(mPathAtt);
@@ -817,6 +933,7 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(mAutoStartAtt);
 		buf.add(getAutoStart());
 	}
+
 	if (mDirty.has(mVolumeDirty)){
 		buf.add(mVolumeAtt);
 		buf.add(getVolume());
@@ -826,85 +943,68 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(mMuteAtt);
 		buf.add(getIsMuted());
 	}
+
 	if (mDirty.has(mLoopingDirty)){
 		buf.add(mLoopingAtt);
 		buf.add(getIsLooping());
 	}
+
 	if (mDirty.has(mVolumeDirty)){
 		buf.add(mVolumeAtt);
 		buf.add(getVolume());
 	}
+
 	if (mDirty.has(mPanDirty)){
 		buf.add(mPanAtt);
 		buf.add(getPan());  
 	}
+
 	if (mDirty.has(mMuteDirty)){
 		buf.add(mMuteAtt);
 		buf.add(getIsMuted());
 	}
-	if (mDirty.has(mSyncDirty)){
 
+	if (mDirty.has(mSyncDirty)){
 		buf.add(mSyncAtt);
 		buf.add(mNetPort);
 		buf.add(mBaseTime);
 		buf.add(mNetClock);
 		buf.add(mIpAddress);
 	}
+
 	if (mDirty.has(mBaseTimeDirty)){
 		mBaseTime = mGstreamerWrapper->getBaseTime();
 		buf.add(mUpdateBaseTimeAtt);
 		buf.add(mBaseTime);
 	}
+
 	if (mDirty.has(mSeekTimeDirty)){
 		mSeekTime = mGstreamerWrapper->getSeekTime();
 		buf.add(mUpdateSeekTimeAtt);
 		buf.add(mSeekTime);
 	}
+
 	if (mDirty.has(mSeekDirty)){
 		mSeekTime = mGstreamerWrapper->getSeekTime();
 		buf.add(mSeekAtt);
 		buf.add(mSeekTime);
 	}
-#if 1
+
+	if(mDirty.has(mStatusDirty)){
+		buf.add(mStatusAtt);
+		if(mServerOnlyMode){
+			buf.add(mServerPlayStatus);
+		} else {
+			buf.add(getCurrentStatus().mCode);
+		}
+	}
 
 	//Some things we don't want to  do on initialization.
 	auto isReset = mDirty.getMaskValue() & 0x80000000;
-	if (isReset) {
-
-		if (mDirty.has(mStatusDirty)){
-			buf.add(mStatusAtt);
-			buf.add(getCurrentStatus().mCode);
-		}
+	if(!isReset && mDirty.has(mPosDirty)){
+		buf.add(mPosAtt);
+		buf.add(getCurrentPosition());
 	}
-	 
-	else {
-		if (mDirty.has(mStatusDirty)){
-			buf.add(mStatusAtt);
-			buf.add(getCurrentStatus().mCode);
-		}
-
-		if (mDirty.has(mPosDirty)){
-			buf.add(mPosAtt);
-			buf.add(getCurrentPosition());
-		}
-	}
-#else
-	if (mDirty.has(mStatusDirty)){
-		buf.add(mStatusAtt);
-		buf.add(getCurrentStatus().mCode);
-	}
-
-	//Some things we don't want to  do on initialization.
-	bool isReset = mDirty.getMaskValue() & 0x80000000;
-	if (!isReset) {
-		if (mDirty.has(mPosDirty)){
-			buf.add(mPosAtt);
-			buf.add(getCurrentPosition());
-		}
-
-	}
-
-#endif
 }
 
 void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
@@ -933,7 +1033,7 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 			setVolume(volume_level);
 	} else if (attrid == mPanAtt) {
 		auto pan = buf.read<float>();
-			setPan(-pan);  // Assign pan to opposite speaker
+			setPan(-pan);  // Assign pan to opposite speaker // GN: hmmm, maybe TODO
 	} else if (attrid == mPosAtt) {
 		auto server_video_pos = buf.read<double>();
 		seekPosition(server_video_pos);
@@ -941,14 +1041,12 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	else if (attrid == mStatusAtt) {
 		checkStatus();
 		auto status_code = buf.read<int>();
-		if(getCurrentStatus() != status_code)
-		{
+		if(getCurrentStatus() != status_code){
 			if(status_code == GstVideo::Status::STATUS_PAUSED){
 				pause();
 			} else if(status_code == GstVideo::Status::STATUS_STOPPED){
 				stop();
-			}
-			else if (status_code == GstVideo::Status::STATUS_PLAYING){
+			} else if (status_code == GstVideo::Status::STATUS_PLAYING){
 				play();
 			}
 		}
@@ -959,6 +1057,9 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 		mNetClock = buf.read<uint64_t>();
 		mIpAddress = buf.read<std::string>();
 		setNetClock();
+	} 
+	else if(attrid == mDoSyncAtt){
+		mDoSyncronization = buf.read<bool>();
 	}
 	else if (attrid == mUpdateSeekTimeAtt){
 		mSeekTime = buf.read<uint64_t>();
@@ -971,19 +1072,48 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	else if (attrid == mSeekAtt){
 		mSeekTime = buf.read<uint64_t>();
 		mGstreamerWrapper->seekFrame(mSeekTime);
-	} 
-	 
+	} 	 
 	else if (attrid == mUpdateAtt){
 		mBaseTime = buf.read<uint64_t>();
 		mSeekTime = buf.read<uint64_t>();
 		mGstreamerWrapper->setSeekTime(mSeekTime);
 		mGstreamerWrapper->setPipelineBaseTime(mBaseTime);
 		mGstreamerWrapper->setTimePositionInNs(mSeekTime);
-	}else{
+	} 
+	else if(attrid == mInstancesAtt){
+		int numOfInstances = buf.read<int>();
+		for(int i = 0; i < numOfInstances; i++){
+			mPlayableInstances.push_back(buf.read<std::string>());
+		}
+	}
+	else{
 		Sprite::readAttributeFrom(attrid, buf);
 	}
 }
  
+void GstVideo::writeClientAttributesTo(ds::DataBuffer& buf)const{
+	// This means that we're a client that didn't actually load any video, so no need to write any data back to the server
+	// I know it's confusing that clients can be in server-only mode, but here we are
+	if(mServerOnlyMode){
+		return;
+	}
+
+	ds::ScopedClientAtts scope(buf, getId());
+	buf.add(mStatusAtt);
+	buf.add(static_cast<float>(getCurrentPosition())); // position is really all we need, right?
+}
+
+void GstVideo::readClientAttributeFrom(const char attributeId, ds::DataBuffer& buf){
+	// If we're getting stuff back from clients, then we probably know what it is
+	// But make sure, cause anything else would be an error
+	if(attributeId == mStatusAtt){
+		const float clientPos = buf.read<float>();
+		mServerPosition = clientPos;
+	} else {
+		DS_LOG_WARNING("Got an unexpected attribute back when reading client attributes. Probably a network packet error. Attribute=" << attributeId);
+	}
+}
+
 double GstVideo::getCurrentTimeMs() const {
 	return mGstreamerWrapper->getCurrentTimeInMs();
 }

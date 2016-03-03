@@ -63,7 +63,6 @@ private:
 	ui::RenderTextService			mRenderTextService;
 
 	EngineIoInfo					mIoInfo;
-//	ds::ZmqConnection				mConnection;
 	ds::UdpConnection				mSendConnection;
 	ds::UdpConnection				mReceiveConnection;
 	EngineSender					mSender;

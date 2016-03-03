@@ -19,7 +19,7 @@
 namespace ds {
 namespace ui {
 
-WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor, const Params& params)
+WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
 	: MediaInterface(eng, sizey, backgroundColor)
 	, mLinkedWeb(nullptr)
 	, mKeyboardArea(nullptr)
@@ -30,12 +30,13 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	, mForwardButton(nullptr)
 	, mRefreshButton(nullptr)
 	, mTouchToggle(nullptr)
-	, mParams(params)
+	, mKeyboardPanelSize(800.0f, 500.0f)
+	, mKeyboardKeyScale(1.0f)
 {
-	mKeyboardArea = new ds::ui::Sprite(mEngine, mParams.panelSize.x, mParams.panelSize.y);
+	mKeyboardArea = new ds::ui::Sprite(mEngine, mKeyboardPanelSize.x, mKeyboardPanelSize.y);
 	mKeyboardArea->setTransparent(false);
 	mKeyboardArea->setColor(ci::Color(0.0f, 0.0f, 0.0f));
-	mKeyboardArea->setCornerRadius(mParams.panelSize.y * 0.075f);
+	mKeyboardArea->setCornerRadius(mKeyboardPanelSize.y * 0.075f);
 	mKeyboardArea->setOpacity(0.0f);
 	mKeyboardArea->hide();
 	this->addChildPtr(mKeyboardArea);
@@ -112,6 +113,18 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	mTouchToggle->setScale(sizey.y / mTouchToggle->getHeight());
 
 	updateWidgets();
+}
+
+void WebInterface::setKeyboardPanelSize(const ci::Vec2f panelSize){
+	mKeyboardPanelSize = panelSize;
+	if(mKeyboardArea){
+		mKeyboardArea->setSize(mKeyboardPanelSize.x, mKeyboardPanelSize.y);
+		mKeyboardArea->setCornerRadius(mKeyboardPanelSize.y * 0.075f);
+	}
+}
+
+void WebInterface::setKeyboardKeyScale(const float newKeyScale){
+	mKeyboardKeyScale = newKeyScale;
 }
 
 void WebInterface::animateOff(){
@@ -204,7 +217,7 @@ void WebInterface::updateWidgets(){
 		if(mKeyboardShowing){
 			if(!mKeyboard){
 				ds::ui::SoftKeyboardSettings sks;
-				sks.mKeyScale = mParams.scale;
+				sks.mKeyScale = mKeyboardKeyScale;
 				mKeyboard = ds::ui::SoftKeyboardBuilder::buildStandardKeyboard(mEngine, sks);
 				mKeyboardArea->addChildPtr(mKeyboard);
 	

@@ -153,10 +153,26 @@ public:
 	/// Calculates a rough fps for how many actual buffers we're displaying per second
 	float				getVideoPlayingFramerate();
 
+	/// If true, will automatically synchronize clients based on ClientServer / Client setup
+	/// If false, will send state between client / server, but not attempt any synchronization of the video
+	/// For best results, set before loading movies
+	/// Default = true
+	void				setAutoSynchronize(const bool doSync);
+
+	/// Will only load and play video on the instances named in the vector. 
+	/// This must be called before you load a movie
+	/// Set instance names in engine.xml with platform:guid
+	/// This may interact badly with syncronization if you don't load the video on the ClientServer, so use with caution
+	void				setPlayableInstances(const std::vector<std::string>& instanceNames);
+
 protected:
 	virtual void		drawLocalClient() override;
 	virtual void		writeAttributesTo(DataBuffer&) override;
 	virtual void		readAttributeFrom(const char, DataBuffer&) override;
+
+	virtual void		writeClientAttributesTo(ds::DataBuffer&) const;
+	virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&);
+
 	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
 
 private:
@@ -225,13 +241,26 @@ private:
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;
 
+	/// A client is maybe playing a video but I'm not 
+	/// because this is server mode or the video was not loaded cause of the instance list
+	/// Note that this is unrelated to the network syncronization stuff
+	bool				mServerOnlyMode; 
+	/// In server-only mode, keep track of the play state
+	Status				mServerPlayStatus;
+	/// In server-only mode, track the duration in seconds
+	double				mServerDuration;
+	/// In server-only mode, track the current time position in percent
+	double				mServerPosition;
+
 	std::uint64_t		mBaseTime;		//Base clock for gst pipeline
 	std::uint64_t		mSeekTime;		//Position to seek to
 
-	int					mNetPort;		// todo: increment per video sprite
+	int					mNetPort;		// The port the syncronization works on
 	std::uint64_t		mNetClock;		// network clock time
 	std::string			mIpAddress;		// Ip address of system clock for gstreamer pipeline to sync with
 
+	bool						mDoSyncronization; 
+	std::vector<std::string>	mPlayableInstances;
 
 	// Initialization
 public:

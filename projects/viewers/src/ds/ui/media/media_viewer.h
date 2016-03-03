@@ -5,6 +5,7 @@
 
 #include "ds/ui/panel/base_panel.h"
 #include <ds/ui/sprite/image.h>
+#include "media_viewer_settings.h"
 #include <ds/ui/media/player/web_player.h>
 
 namespace ds {
@@ -25,13 +26,16 @@ public:
 	MediaViewer(ds::ui::SpriteEngine& eng, const std::string& mediaPath, const bool embedInterface = false);
 	MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& reccy, const bool embedInterface = false);
 
+	void					setSettings(const MediaViewerSettings& newSettings);
+	MediaViewerSettings&	getSettings(){ return mMediaViewerSettings; }
+
 	// unloads any current media
 	void				loadMedia(const std::string& mediaPath, const bool initializeImmediately = true);
 	void				loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
 
 	// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
 	void				setDefaultBounds(const float defaultWidth, const float defaultHeight);
-	void				setWebPlayerParams(const WebPlayer::Params& params);
+	void				setWebViewSize(const ci::Vec2f webSize);
 	
 	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.
 	void				initialize();
@@ -39,7 +43,7 @@ public:
 	/// unloads any media and interface already loaded. initialize could be called again after this and load the same content
 	void				uninitialize();
 
-	void				setCacheImages(bool cacheImages) { mCacheImages = cacheImages; }
+	void				setCacheImages(bool cacheImages) { mMediaViewerSettings.mCacheImages = cacheImages; }
 
 	virtual void		onLayout();
 	void				enter();
@@ -83,7 +87,7 @@ protected:
 
 	virtual void		userInputReceived();
 
-	WebPlayer::Params	mWebPlayerParams;
+	MediaViewerSettings	mMediaViewerSettings;
 
 	bool				mEmbedInterface;
 	bool				mInitialized;
@@ -96,18 +100,13 @@ protected:
 	ds::ui::Image*		mThumbnailImage;
 	ds::ui::Image*		mPrimaryImage;
 
-	bool				mCacheImages;
-
-
 	ci::Vec3f			mOrigin;
-
-	float				mDefaultBoundWidth;
-	float				mDefaultBoundHeight;
-	float				mWebViewWidth;
-	float				mWebViewHeight;
 
 	std::function<void(const std::string& msg)>	mErrorCallback;
 	std::function<void(const bool isGood)> mStatusCallback;
+
+private:
+	void				setDefaultProperties();
 };
 
 } // namespace ui

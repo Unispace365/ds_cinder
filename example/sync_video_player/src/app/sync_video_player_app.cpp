@@ -57,18 +57,20 @@ void sync_video_player::setupServer(){
 	mFpsDisplay->setPosition(mEngine.getWorldWidth() / 4.0f, 30.0f);
 	rootSprite.addChildPtr(mFpsDisplay);
 
+	loadVideo("%APP%/data/video/test_video.mp4");
+
 }
 
 void sync_video_player::fileDrop(ci::app::FileDropEvent event){
-	if (mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
+	if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
 		return;
 	}
 	std::vector<std::string> paths;
-	for (auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
+	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
 		paths.push_back((*it).string());
 	}
 
-	if (paths.empty()){
+	if(paths.empty()){
 		return;
 	}
 #if 0
@@ -84,14 +86,26 @@ void sync_video_player::fileDrop(ci::app::FileDropEvent event){
 	return;
 #endif
 
+	loadVideo(paths.front());
+}
+
+void sync_video_player::loadVideo(const std::string& videoPath){
 
 	mVideo = new ds::ui::GstVideo(mEngine);
 	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
 	mVideo->setCheckBounds(true);
 	//mVideo->setVerboseLogging(mVerbose);
-	mVideo->loadVideo(paths.front());
 	mVideo->enable(true);
+
+	std::vector<std::string> allowedInstances;
+	allowedInstances.push_back("debug_client");
+	//mVideo->setPlayableInstances(allowedInstances);
+
+	//mVideo->setAutoSynchronize(false);
+
+	mVideo->loadVideo(videoPath);
+
 	mVideo->enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE | ds::ui::MULTITOUCH_CAN_POSITION);
 	mVideo->setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
 		ds::ui::GstVideo* video = dynamic_cast<ds::ui::GstVideo*>(bs);

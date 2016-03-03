@@ -21,6 +21,8 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mVideoInterface(nullptr)
 	, mEmbedInterface(embedInterface)
 	, mShowInterfaceAtStart(true)
+	, mAutoSyncronize(true)
+	, mPanning(0.0f)
 {
 }
 
@@ -30,6 +32,21 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	mVideo = new ds::ui::GstVideo(mEngine);
 	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
+
+	setPan(mPanning);
+	setAutoSynchronize(mAutoSyncronize);
+	setPlayableInstances(mPlayableInstances);
+
+	mVideo->setErrorCallback([this](const std::string& msg){
+		if(mErrorMsgCallback) mErrorMsgCallback(msg);
+	});
+
+	mVideo->setStatusCallback([this](const ds::ui::GstVideo::Status& status){
+		bool isGood = status == ds::ui::GstVideo::Status::STATUS_PLAYING;
+		if(mGoodStatusCallback){
+			mGoodStatusCallback();
+		}
+	});
 
 	mVideo->setMute(true);
 	mVideo->setAutoStart(false);
@@ -133,6 +150,31 @@ void VideoPlayer::togglePlayPause(){
 		}
 	}
 }
+
+void VideoPlayer::setPan(const float newPan){
+	if(mVideo){
+		mVideo->setPan(newPan);
+	}
+
+	mPanning = newPan;
+}
+
+void VideoPlayer::setAutoSynchronize(const bool doSync){
+	if(mVideo){
+		mVideo->setAutoSynchronize(doSync);
+	}
+
+	mAutoSyncronize = doSync;
+}
+
+void VideoPlayer::setPlayableInstances(const std::vector<std::string> instanceNames){
+	if(mVideo){
+		mVideo->setPlayableInstances(instanceNames);
+	}
+
+	mPlayableInstances = instanceNames;
+}
+
 
 } // namespace ui
 } // namespace ds

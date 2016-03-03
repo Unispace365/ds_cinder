@@ -36,6 +36,7 @@
     <ClInclude Include="src\ds\ui\media\media_interface_builder.h" />
     <ClInclude Include="src\ds\ui\media\media_slideshow.h" />
     <ClInclude Include="src\ds\ui\media\media_viewer.h" />
+    <ClInclude Include="src\ds\ui\media\media_viewer_settings.h" />
     <ClInclude Include="src\ds\ui\media\player\pdf_player.h" />
     <ClInclude Include="src\ds\ui\media\player\stream_player.h" />
     <ClInclude Include="src\ds\ui\media\player\video_player.h" />

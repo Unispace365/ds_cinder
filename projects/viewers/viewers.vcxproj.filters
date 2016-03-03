@@ -110,5 +110,8 @@
     <ClInclude Include="src\ds\ui\media\player\stream_player.h">
       <Filter>src\ds\ui\media\player</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\ui\media\media_viewer_settings.h">
+      <Filter>src\ds\ui\media</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

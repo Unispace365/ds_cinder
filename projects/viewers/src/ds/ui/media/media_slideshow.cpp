@@ -13,6 +13,8 @@
 #include "ds/ui/media/media_interface.h"
 #include "ds/ui/media/media_interface_builder.h"
 
+#include "ds/ui/media/interface/web_interface.h"
+
 
 namespace ds {
 namespace ui {
@@ -47,6 +49,7 @@ void MediaSlideshow::setMediaSlideshow(const std::vector<ds::Resource>& resource
 
 	for(auto it = resources.begin(); it < resources.end(); ++it){
 		MediaViewer* mv = new MediaViewer(mEngine, (*it));
+		mv->setSettings(mMediaViewerSettings); 
 		mv->setDefaultBounds(getWidth(), getHeight());
 		mv->setDefaultSize(ci::Vec2f(getWidth(), getHeight()));
 		mHolder->addChildPtr(mv);
@@ -170,6 +173,12 @@ void MediaSlideshow::setCurrentInterface(){
 	if(mCurrentInterface){
 		mCurrentInterface->setPosition(getWidth() / 2.0f - mCurrentInterface->getWidth() / 2.0f, getHeight() - mCurrentInterface->getHeight() - 50.0f);
 		mCurrentInterface->animateOn();
+
+		auto webInterface = dynamic_cast<ds::ui::WebInterface*>(mCurrentInterface);
+		if(webInterface){
+			webInterface->setKeyboardKeyScale(mMediaViewerSettings.mWebKeyboardKeyScale);
+			webInterface->setKeyboardPanelSize(mMediaViewerSettings.mWebKeyboardPanelSize);
+		}
 	}
 
 }
@@ -234,6 +243,10 @@ void MediaSlideshow::userInputReceived(){
 		mCurrentInterface->animateOn();
 	}
 
+}
+
+void MediaSlideshow::setMediaViewerSettings(const MediaViewerSettings& settings){
+	mMediaViewerSettings = settings;
 }
 
 } // namespace ui

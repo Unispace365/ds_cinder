@@ -23,6 +23,7 @@ class ImageRegistry;
 class PerspCameraParams;
 class ResourceList;
 class WorkManager;
+class ComputerInfo;
 
 namespace cfg {
 class Settings;
@@ -63,6 +64,9 @@ public:
 	virtual const ds::cfg::Settings&
 									getDebugSettings() = 0;
 	virtual ci::app::WindowRef		getWindow() = 0;
+
+	/** Defined by platform:guid. Useful if you need to something specific on a particular client */
+	const std::string				getAppInstanceName();
 
 	/** Access a service. Throw if the service doesn't exist.
 		Handle casting for you (since the root ds::EngineService class is unuseable). */
@@ -169,6 +173,8 @@ public:
 	static const int				STANDALONE_MODE = 3;
 	virtual int						getMode() const = 0;
 
+	ds::ComputerInfo&				getComputerInfo();
+
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
 	// which is how things work by default (the data and engine are owned by the App).
@@ -177,6 +183,7 @@ protected:
 
 	ds::EngineData&					mData;
 	std::list<Sprite *>				mDragDestinationSprites;
+	ds::ComputerInfo*				mComputerInfo;
 
 	std::list<std::unique_ptr<FboGeneral>> mFbos;
 

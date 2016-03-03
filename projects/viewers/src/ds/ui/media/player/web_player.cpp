@@ -14,16 +14,33 @@
 namespace ds {
 namespace ui {
 
-WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface, const Params& params)
+WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	: ds::ui::Sprite(eng)
 	, mWeb(nullptr)
 	, mWebInterface(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mKeyboardPanelSize(800.0f, 500.0f)
+	, mKeyboardKeyScale(1.0f)
 {
-	mParams = params;
 	enable(false);
 	setTransparent(false);
 	setColor(ci::Color::black());
+}
+
+void WebPlayer::setWebViewSize(const ci::Vec2f webSize){
+	mWebSize = webSize;
+	if(mWeb){
+		mWeb->setSize(mWebSize.x, mWebSize.y);
+	}
+}
+
+void WebPlayer::setKeyboardParams(const ci::Vec2f keyboardPanelSize, const float keyboardKeyScale){
+	mKeyboardPanelSize = keyboardPanelSize;
+	mKeyboardKeyScale = keyboardKeyScale;
+	if(mWebInterface){
+		mWebInterface->setKeyboardKeyScale(keyboardKeyScale);
+		mWebInterface->setKeyboardPanelSize(keyboardPanelSize);
+	}
 }
 
 void WebPlayer::setMedia(const std::string mediaPath){
@@ -49,15 +66,15 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		}
 	});
 
-	float targetW = mParams.viewSize.x;
-	float targetH = mParams.viewSize.y;
+	float targetW = mWebSize.x;
+	float targetH = mWebSize.y;
 
 	if((targetW == 0.0f) || (targetH == 0.0f)){
 		targetW = mEngine.getWorldWidth() * fractionalWidthForContent;
 		targetH = mEngine.getWorldHeight();
 	}
 
-	mWeb->setSize(targetW, targetH);
+	setWebViewSize(ci::Vec2f(targetW, targetH));
 
 	addChildPtr(mWeb);
 	mWeb->setUrl(mediaPath);
@@ -68,9 +85,10 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		mWebInterface = nullptr;
 	}
 	if(mEmbedInterface){
-		mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this, mParams));
+		mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
 
 		if(mWebInterface){
+			setKeyboardParams(mKeyboardPanelSize, mKeyboardKeyScale);
 			mWebInterface->sendToFront();
 		}
 	}
