@@ -78,6 +78,8 @@ SoftKeyboard* buildLowercaseKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardS
 
 	newKeyboard->setSize(xp, yp);
 
+	newKeyboard->setScale(settings.mKeyScale);
+
 	if(parent){
 		parent->addChildPtr(newKeyboard);
 	}

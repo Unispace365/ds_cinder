@@ -25,7 +25,7 @@ public:
 	/** Waits until there is a gap in messages to callback. No message-specific info here, generally just query everything from this message */
 	void								setDelayedNodeCallback(const std::function<void()>&);
 
-	/** Waits until there is a gap in messages to callback. No message-specific info here, generally just query everything from this message */
+	/** Waits until there is a gap in messages to callback. This one has message info in case you want it to query specific tables */
 	void								setDelayedMessageNodeCallback(const std::function<void(const NodeWatcher::Message&)>&);
 
 	/** How long to wait since the last message to send out a callback. Delay is extended if a node message comes in before the delay is up. */
