@@ -25,6 +25,13 @@
     <ClCompile Include="src\ds\ui\media\player\video_player.cpp" />
     <ClCompile Include="src\ds\ui\media\player\web_player.cpp" />
     <ClCompile Include="src\ds\ui\panel\base_panel.cpp" />
+    <ClCompile Include="src\ds\ui\panel\panel_layouts.cpp" />
+    <ClCompile Include="src\ds\util\pixel_packer\pak\algoGil.cpp" />
+    <ClCompile Include="src\ds\util\pixel_packer\pak\algoMaxRects.cpp" />
+    <ClCompile Include="src\ds\util\pixel_packer\pak\algoShelfSimple.cpp" />
+    <ClCompile Include="src\ds\util\pixel_packer\pak\pixelPak.cpp" />
+    <ClCompile Include="src\ds\util\pixel_packer\util\myBox.cpp" />
+    <ClCompile Include="src\ds\util\pixel_packer\util\myVector2.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\media\interface\pdf_interface.h" />
@@ -42,6 +49,14 @@
     <ClInclude Include="src\ds\ui\media\player\video_player.h" />
     <ClInclude Include="src\ds\ui\media\player\web_player.h" />
     <ClInclude Include="src\ds\ui\panel\base_panel.h" />
+    <ClInclude Include="src\ds\ui\panel\panel_layouts.h" />
+    <ClInclude Include="src\ds\util\pixel_packer\pak\algoGil.h" />
+    <ClInclude Include="src\ds\util\pixel_packer\pak\algoMaxRects.h" />
+    <ClInclude Include="src\ds\util\pixel_packer\pak\algoShelfSimple.h" />
+    <ClInclude Include="src\ds\util\pixel_packer\pak\pixelAlgo.h" />
+    <ClInclude Include="src\ds\util\pixel_packer\pak\pixelPak.h" />
+    <ClInclude Include="src\ds\util\pixel_packer\util\myBox.h" />
+    <ClInclude Include="src\ds\util\pixel_packer\util\myVector2.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{1BF6FE7B-4381-41A4-92FC-5C1CDC4294D6}</ProjectGuid>
