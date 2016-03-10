@@ -106,6 +106,10 @@ protected:
 	float							mRightPad;
 	float							mBottomPad;
 
+	// Abs min is used when calculating size limits
+	ci::Vec2f						mAbsMinSize;
+	// Abs max is used when calculating size limits
+	ci::Vec2f						mAbsMaxSize;
 	ci::Vec2f						mMinSize;
 	ci::Vec2f						mDefaultSize;
 	ci::Vec2f						mMaxSize;

@@ -19,6 +19,8 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 	, mTopPad(0.0f)
 	, mRightPad(0.0f)
 	, mBottomPad(0.0f)
+	, mAbsMinSize(300.0f, 300.0f)
+	, mAbsMaxSize(20000.0f, 20000.0f)
 	, mTouching(false)
 	, mAnimating(false)
 	, mRemoving(false)
@@ -42,8 +44,6 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 // 	 	setTransparent(false);
 // 	 	setColor(ci::Color(0.0f, 0.0f, 0.5f));
 }
-
-
 
 void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti){
 
@@ -137,9 +137,9 @@ void BasePanel::setSizeLimits(){
 	ci::Vec2f			minSize = ci::Vec2f(cw, ch),
 						defaultSize = ci::Vec2f(cw, ch),
 						maxSize = ci::Vec2f(cw * 10.0f, ch * 10.0f);
-	const ci::Vec2f		absMinSize = ci::Vec2f(300.0f, 200.0f),
+	const ci::Vec2f		absMinSize = mAbsMinSize,
 						idealDefault = ci::Vec2f(panelDefaultSize.x, panelDefaultSize.y),
-						absMaxSize = ci::Vec2f(20000.0f, 20000.0f);
+						absMaxSize = mAbsMaxSize;
 	const float			absMinArea = absMinSize.x * absMinSize.y;
 	const float			absMaxArea = absMaxSize.x * absMaxSize.y;
 	const float			idealDefaultArea = idealDefault.x * idealDefault.y;

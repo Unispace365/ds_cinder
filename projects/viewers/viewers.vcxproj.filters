@@ -22,6 +22,18 @@
     <Filter Include="src\ds\ui\media\interface">
       <UniqueIdentifier>{1133dea6-2da1-4dd9-b250-a62c1fb8417c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\util">
+      <UniqueIdentifier>{91985965-bb17-4d7c-bcad-d9e9c41202f5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\util\pixel_packer">
+      <UniqueIdentifier>{928bc787-8be0-41f0-a394-f38424d74f10}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\util\pixel_packer\pak">
+      <UniqueIdentifier>{928237d2-afed-468c-89a0-8eb5b8a48f6c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\util\pixel_packer\util">
+      <UniqueIdentifier>{aba1485d-0ad5-4ba9-b0b3-c9edaf5b9302}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\panel\base_panel.cpp">
@@ -65,6 +77,27 @@
     </ClCompile>
     <ClCompile Include="src\ds\ui\media\player\stream_player.cpp">
       <Filter>src\ds\ui\media\player</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\util\pixel_packer\pak\algoShelfSimple.cpp">
+      <Filter>src\ds\util\pixel_packer\pak</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\util\pixel_packer\pak\pixelPak.cpp">
+      <Filter>src\ds\util\pixel_packer\pak</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\util\pixel_packer\pak\algoGil.cpp">
+      <Filter>src\ds\util\pixel_packer\pak</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\util\pixel_packer\pak\algoMaxRects.cpp">
+      <Filter>src\ds\util\pixel_packer\pak</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\util\pixel_packer\util\myVector2.cpp">
+      <Filter>src\ds\util\pixel_packer\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\util\pixel_packer\util\myBox.cpp">
+      <Filter>src\ds\util\pixel_packer\util</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\panel\panel_layouts.cpp">
+      <Filter>src\ds\ui\panel</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -112,6 +145,30 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\media_viewer_settings.h">
       <Filter>src\ds\ui\media</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\util\pixel_packer\pak\algoMaxRects.h">
+      <Filter>src\ds\util\pixel_packer\pak</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\util\pixel_packer\pak\algoShelfSimple.h">
+      <Filter>src\ds\util\pixel_packer\pak</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\util\pixel_packer\pak\pixelAlgo.h">
+      <Filter>src\ds\util\pixel_packer\pak</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\util\pixel_packer\pak\pixelPak.h">
+      <Filter>src\ds\util\pixel_packer\pak</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\util\pixel_packer\pak\algoGil.h">
+      <Filter>src\ds\util\pixel_packer\pak</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\util\pixel_packer\util\myBox.h">
+      <Filter>src\ds\util\pixel_packer\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\util\pixel_packer\util\myVector2.h">
+      <Filter>src\ds\util\pixel_packer\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\panel\panel_layouts.h">
+      <Filter>src\ds\ui\panel</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
