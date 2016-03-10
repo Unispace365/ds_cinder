@@ -24,7 +24,7 @@ public:
 	/// @param totalArea is the area to fit the panels into
 	/// @param padding is the space between the panels in pixels
 	/// @param animationDuration is how long to take to move the panels to their destination. duration <= 0.0 will place the viewers immediately
-	static bool					binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Vec2f totalArea, const float padding = 5.0f, const float animationDuration = 0.35f);
+	static bool					binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rectf totalArea, const float padding = 5.0f, const float animationDuration = 0.35f);
 
 
 

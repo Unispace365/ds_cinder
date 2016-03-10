@@ -38,12 +38,13 @@ float adjustSizes(std::vector<PanelPackage>& packages, const float fractionalAmo
 	return piecemealArea;
 }
 
-bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Vec2f totalArea, const float padding, const float animDur){
+bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rectf totalAreaRect, const float padding, const float animDur){
 	if(panels.empty()) return false;
 
 	std::vector<PanelPackage> thePackages;
 	int ind = 0;
 
+	ci::Vec2f totalArea = ci::Vec2f(totalAreaRect.getWidth(), totalAreaRect.getHeight());
 
 	float totalAreaAmount = totalArea.x * totalArea.y;
 	float piecemealArea = 0.0f;
@@ -146,7 +147,7 @@ bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Vec
 	for(auto it = outputPackages.begin(); it < outputPackages.end(); ++it){
 		ci::Rectf recty = (*it).mOutputRect;
 		auto tmv = panels[(*it).mPanelIndex];
-		ci::Vec3f destination = ci::Vec3f(recty.getUpperLeft().x + offsetX, recty.getUpperLeft().y + offsetY, 0.0f);
+		ci::Vec3f destination = ci::Vec3f(recty.getUpperLeft().x + offsetX + totalAreaRect.x1, recty.getUpperLeft().y + offsetY + totalAreaRect.y1, 0.0f);
 		float destWidth = recty.getWidth() - padding;
 		if(animDur > 0.0f){
 			tmv->tweenStarted();
