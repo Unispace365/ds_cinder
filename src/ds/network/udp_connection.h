@@ -14,33 +14,33 @@ extern const unsigned int		NET_MAX_UDP_PACKET_SIZE;
 
 class UdpConnection : public NetConnection
 {
-  public:
-    UdpConnection(int numThreads = 1);
-    ~UdpConnection();
+public:
+	UdpConnection(int numThreads = 1);
+	~UdpConnection();
 
-    bool initialize(bool server, const std::string &ip, const std::string &port);
-    void close();
+	bool initialize(bool server, const std::string &ip, const std::string &port);
+	void close();
 	// Convenience to close and reinitialize
 	void renew();
 
-    bool sendMessage(const std::string &data);
-    bool sendMessage(const char *data, int size);
+	bool sendMessage(const std::string &data);
+	bool sendMessage(const char *data, int size);
 
-    int recvMessage(std::string &msg);
-    // Answer true if I have more data to receive, false otherwise.
-    bool canRecv() const;
+	int recvMessage(std::string &msg);
+	// Answer true if I have more data to receive, false otherwise.
+	bool canRecv() const;
 
-    bool isServer() const;
+	bool isServer() const;
 
-    bool initialized() const;
+	bool initialized() const;
 
-  private:
-		Poco::Net::MulticastSocket	mSocket;
-    bool                        mInitialized;
-    int                         mReceiveBufferMaxSize;
+private:
+	Poco::Net::MulticastSocket	mSocket;
+	bool                        mInitialized;
+	int                         mReceiveBufferMaxSize;
 	RecycleArray<char>          mReceiveBuffer;
 	// Initialization valuea
-    bool                        mServer;
+	bool                        mServer;
 	std::string					mIp;
 	std::string					mPort;
 };
