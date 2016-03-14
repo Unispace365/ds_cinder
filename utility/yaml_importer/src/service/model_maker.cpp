@@ -155,7 +155,6 @@ void ModelMaker::run() {
 
 	std::vector<ModelModel> models = mYamlLoadService.mOutput;
 
-	std::map<std::string, bool> emptyDataClasses;
 
 	if(models.empty()){
 		DS_LOG_WARNING("No valid models loaded in model maker.");
@@ -198,6 +197,7 @@ void ModelMaker::run() {
 		std::string thisImpGetter;
 		std::string thisImpSetter;
 
+		std::map<std::string, bool> emptyDataClasses;
 		std::map<std::string, std::string> dataMemberInitializers;
 
 		// add custom includes specified in the YAML
