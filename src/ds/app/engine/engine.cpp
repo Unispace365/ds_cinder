@@ -292,6 +292,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
 	// TODO: remove this null_renderer bullshit
+	std::string screenMode = "window";
 	if(mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
 	{
 		// a 50x25 window for null renderer.
@@ -302,7 +303,6 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
 
 	} else {
 		settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
-		std::string screenMode = "window";
 		if(mData.mUsingDefaults){
 			screenMode = "borderless";
 		}
@@ -317,6 +317,7 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
 
 		settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 	}
+	DS_LOG_INFO("Engine::prepareSettings: screenMode is " << screenMode << " and always on top " << settings.isAlwaysOnTop());
 
 	settings.setResizable(false);
 
