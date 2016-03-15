@@ -23,6 +23,7 @@ TouchManager::TouchManager(Engine &engine, const TouchMode::Enum &mode)
 		, mTouchOffset(0.0f, 0.0f)
 		, mOverrideTranslation(false)
 		, mTouchFilterRect(0.0f, 0.0f, 0.0f, 0.0f)
+		, mTouchFilterFunc(nullptr)
 		, mTouchMode(mode)
 		, mIgnoreFirstTouchId(-1)
 		, mCapture(nullptr)
@@ -66,6 +67,10 @@ void TouchManager::touchesBegin(const ds::ui::TouchEvent &event) {
 
 void TouchManager::mouseTouchBegin(const ci::app::MouseEvent &event, int id){
 	ci::Vec2f globalPos = translateMousePoint(event.getPos());
+
+	if(shouldDiscardTouch(globalPos)){
+		return;
+	}
 	inputBegin(id, globalPos);
 }
 
@@ -304,10 +309,17 @@ ci::Vec2f TouchManager::translateMousePoint( const ci::Vec2i inputPoint ){
 }
 
 bool TouchManager::shouldDiscardTouch(const ci::Vec2f& p) {
-	if (mTouchFilterRect.getWidth() != 0.0f ) {
-		return !mTouchFilterRect.contains(p);
+	bool output = false;
+
+	if(mTouchFilterRect.getWidth() != 0.0f ) {
+		output |= !mTouchFilterRect.contains(p);
 	}
-	return false;
+
+	if(mTouchFilterFunc){
+		output |= mTouchFilterFunc(p);
+	}
+
+	return output;
 }
 
 void TouchManager::setCapture(Capture *c) {
