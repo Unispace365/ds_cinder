@@ -497,7 +497,7 @@ void Engine::addIp(const std::string& key, const ds::ui::ip::FunctionRef& fn) {
 }
 
 void Engine::loadSettings(const std::string& name, const std::string& filename) {
-	mData.mEngineCfg.loadSettings(name, filename);
+	mData.mEngineCfg.loadSettings(name, filename, this);
 }
 
 void Engine::saveSettings(const std::string& name, const std::string& filename) {

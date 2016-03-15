@@ -126,7 +126,16 @@ bool EngineCfg::hasSettings(const std::string& name) const {
 	return mSettings.find(name) != mSettings.cend();
 }
 
-void EngineCfg::loadSettings(const std::string& name, const std::string& filename) {
+void EngineCfg::loadSettings(const std::string& name, const std::string& filename, Engine* engine) {
+	// see if the settings exist already
+	try {
+		mSettings.at(name);
+	} catch(std::out_of_range e) {
+		// if don't exist, create one that points to the engine
+		ds::cfg::Settings createdSettings(engine);
+		mSettings[name] = createdSettings;
+	}
+	
 	ds::cfg::Settings&	settings = mSettings[name];
 	ds::Environment::loadSettings(filename, settings);
 }
