@@ -120,7 +120,8 @@ void MediaViewer::initialize(){
 
 	const int mediaType = mResource.getType();
 	if(mediaType == ds::Resource::ERROR_TYPE || mediaType == ds::Resource::FONT_TYPE){
-		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath());
+		// this is not a useful warning message in the very common case of setting the size of a MediaViewer before loading the media
+		//DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath());
 		return;
 	}
 
