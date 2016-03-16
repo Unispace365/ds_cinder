@@ -32,6 +32,8 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	, mTouchToggle(nullptr)
 	, mKeyboardPanelSize(800.0f, 500.0f)
 	, mKeyboardKeyScale(1.0f)
+	, mAbleToTouchToggle(true)
+	, mKeyboardAllowed(true)
 {
 	mKeyboardArea = new ds::ui::Sprite(mEngine, mKeyboardPanelSize.x, mKeyboardPanelSize.y);
 	mKeyboardArea->setTransparent(false);
@@ -112,6 +114,10 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	mTouchToggle->getHighImage().setColor(buttonColor / 2.0f);
 	mTouchToggle->setScale(sizey.y / mTouchToggle->getHeight());
 
+	if(!mAbleToTouchToggle){
+		mTouchToggle->hide();
+	}
+
 	updateWidgets();
 }
 
@@ -120,6 +126,31 @@ void WebInterface::setKeyboardPanelSize(const ci::Vec2f panelSize){
 	if(mKeyboardArea){
 		mKeyboardArea->setSize(mKeyboardPanelSize.x, mKeyboardPanelSize.y);
 		mKeyboardArea->setCornerRadius(mKeyboardPanelSize.y * 0.075f);
+	}
+}
+
+void WebInterface::setKeyboardAllow(const bool keyboardAllowed){
+	mKeyboardAllowed = keyboardAllowed;
+	if(mKeyboardButton){
+		if(mKeyboardAllowed){
+			mKeyboardButton->show();
+		} else {
+			mKeyboardButton->hide();
+		}
+		layout();
+	}
+}
+
+void WebInterface::setAllowTouchToggle(const bool allowTouchToggling){
+	mAbleToTouchToggle = allowTouchToggling;
+	if(mTouchToggle){
+		if(mAbleToTouchToggle){
+			mTouchToggle->show();
+		} else {
+			mTouchToggle->hide();
+		}
+
+		layout();
 	}
 }
 
@@ -140,6 +171,7 @@ void WebInterface::linkWeb(ds::ui::Web* linkedWeb){
 	updateWidgets();
 }
 
+// TODO: make this into a layoutsprite
 // Layout is called when the size is changed, so don't change the size in the layout
 void WebInterface::onLayout(){
 	const float w = getWidth();
@@ -155,11 +187,21 @@ void WebInterface::onLayout(){
 			mTouchToggle->getScaleWidth()
 			);
 
+		if(!mKeyboardAllowed){
+			componentsWidth -= (mKeyboardButton->getScaleWidth() + padding);
+		}
+
+		if(!mAbleToTouchToggle){
+			componentsWidth -= (mTouchToggle->getScaleWidth() + padding);
+		}
+
 		float margin = ((w - componentsWidth) * 0.5f);
 		float xp = margin;
 
-		mKeyboardButton->setPosition(xp, (h * 0.5f) - mKeyboardButton->getScaleHeight() / 2.0f);
-		xp += mKeyboardButton->getScaleWidth() + padding;
+		if(mKeyboardAllowed){
+			mKeyboardButton->setPosition(xp, (h * 0.5f) - mKeyboardButton->getScaleHeight() / 2.0f);
+			xp += mKeyboardButton->getScaleWidth() + padding;
+		}
 
 		mBackButton->setPosition(xp, (h * 0.5f) - mBackButton->getScaleHeight() / 2.0f);
 		xp += mBackButton->getScaleWidth() + padding;
@@ -170,8 +212,10 @@ void WebInterface::onLayout(){
 		mRefreshButton->setPosition(xp, (h * 0.5f) - mRefreshButton->getScaleHeight() / 2.0f);
 		xp += mRefreshButton->getScaleWidth() + padding;
 
-		mTouchToggle->setPosition(xp, (h * 0.5f) - mTouchToggle->getScaleHeight() / 2.0f);
-		xp += mTouchToggle->getScaleWidth() + padding;
+		if(mAbleToTouchToggle){
+			mTouchToggle->setPosition(xp, (h * 0.5f) - mTouchToggle->getScaleHeight() / 2.0f);
+			xp += mTouchToggle->getScaleWidth() + padding;
+		}
 	}
 
 	if(mKeyboardArea){

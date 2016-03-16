@@ -27,6 +27,9 @@ public:
 
 	void						setKeyboardKeyScale(const float newKeyScale);
 	void						setKeyboardPanelSize(const ci::Vec2f panelSize);
+	void						setKeyboardAllow(const bool keyboardAllowed);
+
+	void						setAllowTouchToggle(const bool allowTouchToggling);
 
 protected:
 
@@ -38,9 +41,12 @@ protected:
 	ds::ui::Sprite*				mKeyboardArea;
 	ds::ui::SoftKeyboard*		mKeyboard;
 	bool						mKeyboardShowing;
+	bool						mKeyboardAllowed;
 
 	ci::Vec2f					mKeyboardPanelSize;
 	float						mKeyboardKeyScale;
+
+	bool						mAbleToTouchToggle;
 
 	ds::ui::ImageButton*		mKeyboardButton;
 	ds::ui::ImageButton*		mBackButton;

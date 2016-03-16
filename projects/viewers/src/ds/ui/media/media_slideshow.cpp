@@ -176,8 +176,10 @@ void MediaSlideshow::setCurrentInterface(){
 
 		auto webInterface = dynamic_cast<ds::ui::WebInterface*>(mCurrentInterface);
 		if(webInterface){
+			webInterface->setKeyboardAllow(mMediaViewerSettings.mWebAllowKeyboard);
 			webInterface->setKeyboardKeyScale(mMediaViewerSettings.mWebKeyboardKeyScale);
 			webInterface->setKeyboardPanelSize(mMediaViewerSettings.mWebKeyboardPanelSize);
+			webInterface->setAllowTouchToggle(mMediaViewerSettings.mWebAllowTouchToggle);
 		}
 	}
 
