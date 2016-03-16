@@ -52,6 +52,7 @@ public:
 	void								setOverrideDimensions(const ci::Vec2f& dimensions){ mTouchDimensions = dimensions; }
 	void								setOverrideOffset(const ci::Vec2f& offset){ mTouchOffset = offset; }
 	void								setTouchFilterRect(const ci::Rectf &filterRect){ mTouchFilterRect = filterRect; }
+	void								setTouchFilterFunc(const std::function<bool(const ci::Vec2f& p)> &func){ mTouchFilterFunc = func; }
 
 	bool								getOverrideEnabled(){ return mOverrideTranslation; }
 
@@ -96,6 +97,7 @@ private:
 	ci::Vec2f							mTouchOffset;
 	bool								mOverrideTranslation;
 	ci::Rectf							mTouchFilterRect;
+	std::function<bool(const ci::Vec2f& p)>	mTouchFilterFunc;
 
 	TouchMode::Enum						mTouchMode;
 	// If system multitouch is on, Cinder will get both mouse and touch events for the first touch.

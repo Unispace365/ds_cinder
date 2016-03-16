@@ -120,7 +120,8 @@ void MediaViewer::initialize(){
 
 	const int mediaType = mResource.getType();
 	if(mediaType == ds::Resource::ERROR_TYPE || mediaType == ds::Resource::FONT_TYPE){
-		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath());
+		// this is not a useful warning message in the very common case of setting the size of a MediaViewer before loading the media
+		//DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath());
 		return;
 	}
 
@@ -266,19 +267,22 @@ void MediaViewer::initialize(){
 	}
 
 	// calculate a default size that maximizes size
-	const float engineWidth = mMediaViewerSettings.mDefaultBounds.x;
-	const float engineHeight = mMediaViewerSettings.mDefaultBounds.x;
-	const float engineAspect = engineWidth / engineHeight;
-
+	float settingsAspect = 1.0f;
+	const float settingsWidth = mMediaViewerSettings.mDefaultBounds.x;
+	const float settingsHeight = mMediaViewerSettings.mDefaultBounds.y;
+	if(settingsHeight > 0.0f){
+		settingsAspect = settingsWidth / settingsHeight;
+	}
+	
 	// calculate a width to make the player fit maximally
 	float scaleFactor = 1.0f;
-	float idealWidth = engineWidth;
-	float idealHeight = engineHeight;
-	if(mContentAspectRatio < engineAspect){
-		scaleFactor = engineHeight / contentHeight;
+	float idealWidth = settingsWidth;
+	float idealHeight = settingsHeight;
+	if(mContentAspectRatio < settingsAspect){
+		scaleFactor = settingsHeight / contentHeight;
 		idealWidth = contentWidth * scaleFactor;
-	} else if(mContentAspectRatio > engineAspect){
-		scaleFactor = engineWidth / contentWidth;
+	} else if(mContentAspectRatio > settingsAspect){
+		scaleFactor = settingsWidth / contentWidth;
 		idealHeight = contentHeight * scaleFactor;
 	}
 
