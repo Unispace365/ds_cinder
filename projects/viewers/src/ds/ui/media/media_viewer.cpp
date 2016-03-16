@@ -266,19 +266,22 @@ void MediaViewer::initialize(){
 	}
 
 	// calculate a default size that maximizes size
-	const float engineWidth = mMediaViewerSettings.mDefaultBounds.x;
-	const float engineHeight = mMediaViewerSettings.mDefaultBounds.x;
-	const float engineAspect = engineWidth / engineHeight;
-
+	float settingsAspect = 1.0f;
+	const float settingsWidth = mMediaViewerSettings.mDefaultBounds.x;
+	const float settingsHeight = mMediaViewerSettings.mDefaultBounds.y;
+	if(settingsHeight > 0.0f){
+		settingsAspect = settingsWidth / settingsHeight;
+	}
+	
 	// calculate a width to make the player fit maximally
 	float scaleFactor = 1.0f;
-	float idealWidth = engineWidth;
-	float idealHeight = engineHeight;
-	if(mContentAspectRatio < engineAspect){
-		scaleFactor = engineHeight / contentHeight;
+	float idealWidth = settingsWidth;
+	float idealHeight = settingsHeight;
+	if(mContentAspectRatio < settingsAspect){
+		scaleFactor = settingsHeight / contentHeight;
 		idealWidth = contentWidth * scaleFactor;
-	} else if(mContentAspectRatio > engineAspect){
-		scaleFactor = engineWidth / contentWidth;
+	} else if(mContentAspectRatio > settingsAspect){
+		scaleFactor = settingsWidth / contentWidth;
 		idealHeight = contentHeight * scaleFactor;
 	}
 

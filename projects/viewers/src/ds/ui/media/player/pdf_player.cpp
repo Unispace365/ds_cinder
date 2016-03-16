@@ -211,6 +211,9 @@ void PDFPlayer::layout(){
 		// make the PDF content fill the vertical space perfectly
 		float theScale = h / mPDF->getHeight();
 		mPDF->setScale(theScale);
+
+		// then center it
+		mPDF->setPosition((w - mPDF->getScaleWidth()) * 0.5f, (h - mPDF->getScaleHeight()) * 0.5f);
 	}
 
 	if(mPdfInterface){
