@@ -733,6 +733,7 @@ void Sprite::setParent(Sprite *parent) {
 	mParent = parent;
 	if(mParent)
 		mParent->addChild(*this);
+	onParentSet();
 	markAsDirty(PARENT_DIRTY);
 }
 

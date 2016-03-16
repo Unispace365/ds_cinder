@@ -122,7 +122,7 @@ namespace ui {
 			\return Returns a 3-dimensional vector equivalent to ci::Vec3f(width, height, depth).		*/
 		const ci::Vec3f			getSize() const;
 
-		/** Sets the width and height of the Sprite. 
+		/** Sets the width and height of the Sprite.
 			This does not affect the scale of the Sprite. Many subclasses set the size of the Sprite themselves, such as Image and Text.
 			\param size2d The size to set in the form of ci::Vec2f(width, height).		*/
 		void					setSize(const ci::Vec2f& size2d);
@@ -153,8 +153,8 @@ namespace ui {
 		/** Sets the size based on the boundaries of this Sprite's immediate children, not recursive		*/
 		void					sizeToChildBounds();
 
-		/** Answer the preferred size for this object. 
-			This is intended to be part of a layout pass, so the default preferred size is 0 not width/height. 
+		/** Answer the preferred size for this object.
+			This is intended to be part of a layout pass, so the default preferred size is 0 not width/height.
 			Subclasses need to override this to be meaningful.
 			\return The 3d vector of the size this sprite should be. Override this function and return a meaningful value.		 */
 		virtual ci::Vec3f		getPreferredSize() const;
@@ -228,7 +228,7 @@ namespace ui {
 			\param deltaY Vertical amount to move the Sprite in pixels. Inverted for perspective Sprites.
 			\param deltaZ Depth amount to move the Sprite in pixels	*/
 		void					move(float deltaX, float deltaY, float deltaZ = 0.0f);
-		
+
 		/** Change the scale of the Sprite.
 			\param scale 3d vector of the new scale of the Sprite		*/
 		void					setScale(const ci::Vec3f &scale);
@@ -331,7 +331,7 @@ namespace ui {
 		/** Adds a sprite as a child of this Sprite.
 			The child will be placed at it's position in this Sprite's coordinate space,
 			and take on this Sprite's rotation, scale, position, and opacity.
-			Transform changes to this Sprite will also affect the new child. 
+			Transform changes to this Sprite will also affect the new child.
 			New children are added at the bottom of the Sprite and will display on top of other children and this Sprite.
 			If you have a pointer to a Sprite, you can use addChildPtr().
 			\param newChild The Sprite to be added as a child*/
@@ -366,17 +366,17 @@ namespace ui {
 
 
 		/** The recommended "removal" API: removes this Sprite from parent; removes and deletes all it's children, deletes this Sprite.
-			In most cases, you will want to use this function to get rid of sprites. 
+			In most cases, you will want to use this function to get rid of sprites.
 			This removes this sprite and it's children from the display list and clears all of that memory.
 			Remember to clear any pointers related to this Sprite or any references in any vectors you have saved yourself. */
 		void					release();
 
-		/** Removes and deletes all children. 
+		/** Removes and deletes all children.
 			Equivalent to calling release() on every child. */
 		void					clearChildren();
 
 		std::vector<Sprite*>	getChildren() { return mChildren; }
-		
+
 		/** Check to see if this Sprite contains child.
 			\param child The child to check if it is contained on this Sprite.
 			\return True if the child is a child of this Sprite. False if the child is a damn stranger. */
@@ -398,7 +398,7 @@ namespace ui {
 
 		/** Set the display color of this Sprite. Implementation can vary by Sprite type. */
 		virtual void			setColor(const ci::Color&);
-		/** Set the display color of this Sprite. Implementation can vary by Sprite type. 
+		/** Set the display color of this Sprite. Implementation can vary by Sprite type.
 			\param r Red component of the color from 0.0 to 1.0
 			\param g Green component of the color from 0.0 to 1.0
 			\param b Blue component of the color from 0.0 to 1.0 */
@@ -407,7 +407,7 @@ namespace ui {
 		/** Get the display color of this Sprite. Implementation can vary by Sprite type. */
 		ci::Color				getColor() const;
 
-		/** A convenience to set the color and the opacity. 
+		/** A convenience to set the color and the opacity.
 			The alpha component of the color will set the opacity.
 			Setting the opacity after this call will overwrite this value. */
 		void					setColorA(const ci::ColorA&);
@@ -416,7 +416,7 @@ namespace ui {
 			The alpha component of the color is the opacity.*/
 		ci::ColorA				getColorA() const;
 
-		/** Set the opacity of this Sprite (transparency). 
+		/** Set the opacity of this Sprite (transparency).
 			0.0 is invisible, 1.0 is fully opaque.
 			\param opacity The new opacity value of this Sprite. */
 		void					setOpacity(float opacity);
@@ -433,7 +433,7 @@ namespace ui {
 		float					getDrawOpacity() const;
 
 		/** Whether or not to render this Sprite in the draw cycle; does not affect children.
-			For basic Sprites, to draw a rectangle, this needs to be set to false. 
+			For basic Sprites, to draw a rectangle, this needs to be set to false.
 			\param transparent True means this sprite will not draw (but it's children could). False will render this Sprite. */
 		void					setTransparent(bool transparent);
 		/** Whether or not to render this Sprite in the draw cycle; does not affect children.
@@ -452,7 +452,7 @@ namespace ui {
 			\return True == this Sprite is visible (show()), or false == hide()*/
 		bool					visible() const;
 
-		/** Subclasses can handle the event, a convenience for handling events without setting up event clients. 
+		/** Subclasses can handle the event, a convenience for handling events without setting up event clients.
 			\param event The Event to be handled. */
 		virtual void			eventReceived(const ds::Event& event){};
 
@@ -467,8 +467,8 @@ namespace ui {
 		/** Convert coordinate space from global (world) space to the local coordinate space of this Sprite. May not work for perspective Sprites.
 			For example, if you have a global touch point, you can find it's local location like this:
 			\code	if(getParent()){
-						ci::Vec3f localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
-					}
+			ci::Vec3f localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
+			}
 			\endcode
 			\param globalPoint The 3d vector in global coordinate space to be converted.
 			\return A local 3d vector in the coordinate space of this Sprite. */
@@ -477,22 +477,22 @@ namespace ui {
 		/** Convert coordinate space from local coordinate space of this Sprite to global (world) coordinate space. May not work for perspective Sprites.
 			For example, you could figure out where to launch a media viewer from a button on a panel like this:
 			\code //In the button click handler
-					ci::Vec3f globalPosition = localToGlobal(mTheLaunchButton.getPosition());
-					mEngine.getNotifier().notify(CustomMediaViewerLaunchEvent(globalPosition));
+			ci::Vec3f globalPosition = localToGlobal(mTheLaunchButton.getPosition());
+			mEngine.getNotifier().notify(CustomMediaViewerLaunchEvent(globalPosition));
 			\endcode
 			\param localPoint The 3d vector in local coordinate space to be converted.
 			\return A local 3d vector in the coordinate space of this Sprite. */
 		ci::Vec3f				localToGlobal(const ci::Vec3f &localPoint);
 
 		/** Check if a global point is inside the Sprite's bounding box, does not take perspective into account.
-			\param point The global point to check if it's inside this Sprite's bounding box. 
+			\param point The global point to check if it's inside this Sprite's bounding box.
 			\param pad Extra pixel size outside this Sprite's bounding box. Useful for ad-hoc touch padding.
 			\return True if the point is inside the bounding box, false for outside. */
 		virtual bool			contains(const ci::Vec3f& point, const float pad = 0.0f) const;
 
 		/** Recursively checks the Sprite hierarchy list for an enabled, visible sprite with a scale > 0.0 and any size for touch picking.
-			This is for Ortho Sprites. Perspective Sprites use getPerspectiveHit() 
-			\param point The global point to check. 
+			This is for Ortho Sprites. Perspective Sprites use getPerspectiveHit()
+			\param point The global point to check.
 			\return The Sprite that is the best candidate for touch picking. Can return nullptr if there was no valid pick.*/
 		Sprite*					getHit(const ci::Vec3f &point);
 
@@ -510,11 +510,11 @@ namespace ui {
 		bool					isEnabled() const;
 
 		/**	Defines the type of touch handling for this Sprite. Requires enable(true); to have been called at some point.
-			Constraints defined in multi_touch_constraints.h. For example: ds::ui::MULTITOUCH_INFO_ONLY. 
+			Constraints defined in multi_touch_constraints.h. For example: ds::ui::MULTITOUCH_INFO_ONLY.
 			\param constraints A bitmask of how touch is handled. For example: ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_ROTATE */
 		void					enableMultiTouch(const BitMask & constraints);
 
-		/** Disables specific MultiTouch handling, but leaves the enable() setting alone. 
+		/** Disables specific MultiTouch handling, but leaves the enable() setting alone.
 			After calling this, the Sprite will still grab touch events, but not do any specific multitouch handling (like position, rotate, etc). Will send out tap and touchinfo callbacks. */
 		void					disableMultiTouch();
 
@@ -568,7 +568,7 @@ namespace ui {
 		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
 		// this is only suitable for shaders without uniforms.
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
-	
+
 		//associate shader in a file to sprite (multi-pass)
 		void					setShaderList(const std::vector<std::pair<std::string, std::string>>, bool applyToChildren = false);
 		void					addNewShader(const std::pair<std::string, std::string>, bool addToFront = false, bool applyToChildren = false);
@@ -611,7 +611,7 @@ namespace ui {
 
 		void					setClipping(bool flag);
 		bool					getClipping() const;
-		
+
 		virtual void			userInputReceived();
 		void					setSecondBeforeIdle(const double);
 		double					secondsToIdle() const;
@@ -655,15 +655,15 @@ namespace ui {
 
 		/** Mark this sprite to be a debug sprite layer.
 			The primary use case is server-only or client-only setups, so the stats view can draw when not enabled and not be colored weird.
-			Client apps don't generally need to set this flag, as it happens automagically.			
-		*/
+			Client apps don't generally need to set this flag, as it happens automagically.
+			*/
 		void					setDrawDebug(const bool doDebug);
 
 		/** If this sprite has been flagged to draw as a debug layer. Will draw in the server draw loop even if disabled.
 		*/
 		bool					getDrawDebug();
 
-		/** For debugging uses. Not recommended for sprite lookup, as there is no guarantee of uniqueness. 
+		/** For debugging uses. Not recommended for sprite lookup, as there is no guarantee of uniqueness.
 		Recommended method is to keep a pointer to the sprite or look up via a map or vector.*/
 		void					setSpriteName(const std::wstring& name);
 
@@ -680,9 +680,9 @@ namespace ui {
 		ci::Vec2f				mLayoutSize;
 		ci::Vec2f				mLayoutFudge;
 		int						mLayoutHAlign;
-		int						mLayoutVAlign; 
+		int						mLayoutVAlign;
 		int						mLayoutUserType;
-		
+
 		bool					mExportWithXml;
 
 	protected:
@@ -726,6 +726,7 @@ namespace ui {
 		virtual void		onRotationChanged(){}
 		virtual void		onChildAdded(Sprite& child){}
 		virtual void		onChildRemoved(Sprite& child){}
+		virtual void		onParentSet(){}
 		// Note: there's a reason this is not called onVisibilityChanged().
 		// TLDR;the visible flag arg here is NOT equal to Sprite::visible()
 		// The reason is that,  the final visibility of a sprite is decided
