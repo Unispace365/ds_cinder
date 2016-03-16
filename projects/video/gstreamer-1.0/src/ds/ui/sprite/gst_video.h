@@ -197,6 +197,7 @@ private:
 	void				setStatus(const int);
 	void				checkStatus();
 	void				setNetClock();
+	bool				thisInstancePlayable();
 
 	ColorType			mColorType;
 
@@ -225,6 +226,7 @@ private:
 	bool				mAutoStart;
 	bool				mShouldPlay;
 	bool				mShouldSync;
+	bool				mStreaming;
 	// There is actual video data ready to be drawn
 	bool				mDrawable;
 	// When the video is playing, extend the idle timer, or not

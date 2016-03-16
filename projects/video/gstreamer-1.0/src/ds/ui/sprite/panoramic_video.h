@@ -49,6 +49,10 @@ public:
 
 	void				setFOV(const float fov);
 
+	// Applied to video when video is loaded
+	void				setPan(const float audioPan);
+	void				setPlayableInstances(const std::vector<std::string> instances);
+
 protected:
 	// These are our only chances in client mode to catch the video.
 	virtual void		onChildAdded(ds::ui::Sprite& child) override;
@@ -72,6 +76,9 @@ private:
 	float				mXSensitivity;
 	float				mYSensitivity;
 	float				mFov;
+
+	float				mPanning;
+	std::vector<std::string> mPlayableInstances;
 
 public:
 	static void			installAsServer(ds::BlobRegistry&);

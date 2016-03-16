@@ -129,6 +129,7 @@ PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	, mXSensitivity(5.0f)
 	, mYSensitivity(5.0f)
 	, mFov(60.0f)
+	, mPanning(0.0f)
 {
 	mBlobType = _BLOB;
 	setUseShaderTextuer(true);
@@ -323,6 +324,8 @@ void PanoramicVideo::loadVideo(const std::string& path){
 
 	//Need to enable this to enable panning 
 	video_sprite->generateAudioBuffer(true);
+	video_sprite->setPan(mPanning);
+	video_sprite->setPlayableInstances(mPlayableInstances);
 	video_sprite->setAutoStart(true);
 	video_sprite->setLooping(true);
 	video_sprite->loadVideo(path);
@@ -337,6 +340,21 @@ ds::ui::Video* PanoramicVideo::getVideo() const {
 void PanoramicVideo::setFOV(const float fov){
 	mFov = fov;
 	resetCamera();
+}
+
+void PanoramicVideo::setPan(const float audioPan){
+	mPanning = audioPan;
+	if(mVideoSprite){
+		mVideoSprite->setPan(mPanning);
+	}
+}
+
+void PanoramicVideo::setPlayableInstances(const std::vector<std::string> instances){
+	mPlayableInstances = instances;
+	if(mVideoSprite){
+		mVideoSprite->setPlayableInstances(instances);
+	}
+
 }
 
 }} //!ds::ui

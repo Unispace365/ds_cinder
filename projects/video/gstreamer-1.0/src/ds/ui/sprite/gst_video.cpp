@@ -184,6 +184,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mServerDuration(0)
 	, mServerPlayStatus(Status::STATUS_STOPPED)
 	, mPan(0.0f)
+	, mStreaming(false)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -426,16 +427,7 @@ void GstVideo::setAutoRestartStream(bool autoRestart){
 	}
 }
 
-void GstVideo::doLoadVideo(const std::string &filename, const std::string &portable_filename){
-	if(filename.empty()){
-		DS_LOG_WARNING_M("doLoadVideo aborting loading a video because of a blank filename.", GSTREAMER_LOG);
-		if(mErrorFn) mErrorFn("Did not load a video because there was no filename.");
-		return;
-	}
-
-	// This allows apps to only load videos on certain client instances
-	// The default is to load everything everywhere
-	// If nothing has been specified, then load everywhere
+bool GstVideo::thisInstancePlayable(){
 	bool doLoad = true;
 	if(!mPlayableInstances.empty()){
 		std::string thisInstance = mEngine.getAppInstanceName();
@@ -447,6 +439,22 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			}
 		}
 	}
+	return doLoad;
+}
+
+void GstVideo::doLoadVideo(const std::string &filename, const std::string &portable_filename){
+	if(filename.empty()){
+		DS_LOG_WARNING_M("doLoadVideo aborting loading a video because of a blank filename.", GSTREAMER_LOG);
+		if(mErrorFn) mErrorFn("Did not load a video because there was no filename.");
+		return;
+	}
+
+	mStreaming = false;
+
+	// This allows apps to only load videos on certain client instances
+	// The default is to load everything everywhere
+	// If nothing has been specified, then load everywhere
+	bool doLoad = thisInstancePlayable();
 
 	VideoMetaCache::Type		type(VideoMetaCache::ERROR_TYPE);
 
@@ -569,6 +577,20 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	setBaseShader(Environment::getAppFolder("data/shaders"), "base");
 
 	mDrawable = false;
+	mStreaming = true;
+	mFilename = streamingPipeline;
+	mPortableFilename = streamingPipeline;
+	mVideoSize.x = (int)floorf(videoWidth);
+	mVideoSize.y = (int)floorf(videoHeight);
+	markAsDirty(mPathDirty);
+
+	bool doLoad = thisInstancePlayable();
+	if(!doLoad){
+		setSizeAll(videoWidth, videoHeight, mDepth);
+		setStatus(Status::STATUS_PLAYING);
+		mServerOnlyMode = true;
+		return;
+	}
 		
 	mOutOfBoundsMuted = true;
 	mColorType = ColorType::kColorTypeShaderTransform;
@@ -609,7 +631,6 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	} else {
 		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 	}
-	mFilename = streamingPipeline;
 }
 
 void GstVideo::setLooping(const bool on){
@@ -845,7 +866,7 @@ void GstVideo::checkStatus(){
 	}
 }
 void GstVideo::setNetClock(){
-	if(!mDoSyncronization) return;
+	if(!mDoSyncronization || mStreaming) return;
 
 	if (mIpAddress.empty()) {
 		ds::network::networkInfo* Networki;
@@ -926,7 +947,12 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 	if (mDirty.has(mPathDirty)){
 		buf.add(mPathAtt);
 		buf.add(mGenerateAudioBuffer);
+		buf.add(mStreaming);
 		buf.add(mPortableFilename);
+		if(mStreaming){
+			buf.add(mVideoSize.x);
+			buf.add(mVideoSize.y);
+		}
 	}
 
 	if (mDirty.has(mAutoStartDirty)){
@@ -1009,11 +1035,18 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 
 void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	if(attrid == mPathAtt) {
-		auto audioBufferEnable = buf.read<bool>();
-		mGenerateAudioBuffer = audioBufferEnable;
+		mGenerateAudioBuffer = buf.read<bool>();
+		mStreaming = buf.read<bool>();
 		auto video_path = buf.read<std::string>();
-		if (getLoadedFilename() != video_path)
-			loadVideo(video_path);
+		if(mStreaming){
+			int vidWidth = buf.read<int>();
+			int vidHeight = buf.read<int>();
+			startStream(video_path, (float)vidWidth, (float)vidHeight);
+		} else {
+			if(getLoadedFilename() != video_path){
+				loadVideo(video_path);
+			}
+		}
 	} else if(attrid == mAutoStartAtt) {
 		auto auto_start = buf.read<bool>();
 
@@ -1046,7 +1079,7 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 				pause();
 			} else if(status_code == GstVideo::Status::STATUS_STOPPED){
 				stop();
-			} else if (status_code == GstVideo::Status::STATUS_PLAYING){
+			} else if(status_code == GstVideo::Status::STATUS_PLAYING){
 				play();
 			}
 		}
@@ -1094,7 +1127,7 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 void GstVideo::writeClientAttributesTo(ds::DataBuffer& buf)const{
 	// This means that we're a client that didn't actually load any video, so no need to write any data back to the server
 	// I know it's confusing that clients can be in server-only mode, but here we are
-	if(mServerOnlyMode){
+	if(mServerOnlyMode || mStreaming){
 		return;
 	}
 
