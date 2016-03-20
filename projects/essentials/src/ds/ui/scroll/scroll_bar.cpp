@@ -6,23 +6,18 @@
 namespace ds{
 namespace ui{
 
-ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const float uiWidth, const float touchPadding)
+ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const float uiWidth, const float touchPadding, const bool autoHide)
 	: Sprite(engine)
 	, mVertical(vertical)
 	, mNub(nullptr)
 	, mBackground(nullptr)
 	, mScrollPercent(0.0f)
-	, mPercentVisible(0.0f)
+	, mPercentVisible(1.0f)
 	, mMinNubSize(uiWidth)
 	, mTouchPadding(touchPadding)
+	, mAutoHide(autoHide)
+	, mAutoHidden(false)
 {
-	enable(true);
-	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
-		handleScrollTouch(bs, ti);
-	});
-
-	setSize(mTouchPadding * 2.0f + uiWidth, mTouchPadding * 2.0f +uiWidth);
 
 	// Set some defaults
 	// You can change these by getting the nub and background sprites and changing them
@@ -42,6 +37,22 @@ ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const fl
 	mNub->setSize(uiWidth, uiWidth);
 	mNub->setCornerRadius(uiWidth/2.0f);
 	addChildPtr(mNub);
+
+	enable(true);
+	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
+		handleScrollTouch(bs, ti);
+	});
+
+	setSize(mTouchPadding * 2.0f + uiWidth, mTouchPadding * 2.0f + uiWidth);
+
+	if(mAutoHide){
+		std::cout << "Scroll bar instantiate and auto-hiding" << std::endl;
+		doAutoHide(true);
+		hide(); // immediately hide, but also call the function to track the state correctly
+		setOpacity(0.0f);
+		animOpacityStop();
+	}
 }
 
 
@@ -125,6 +136,14 @@ void ScrollBar::updateNubPosition(){
 		}
 	}
 
+	if(mAutoHide){
+		if(mPercentVisible >= 0.9999f){
+			doAutoHide(true);
+		} else if(mPercentVisible > 0.000000000000f) {
+			doAutoHide(false);
+		}
+	}
+
 	if(mVisualUpdateCallback){
 		mVisualUpdateCallback();
 	}
@@ -159,7 +178,7 @@ void ScrollBar::linkScrollArea(ds::ui::ScrollArea* area){
 
 	});
 	setScrollMoveCallback([this, area](const float scrollPercent){
-			area->setScrollPercent(scrollPercent);
+		area->setScrollPercent(scrollPercent);
 	});
 }
 
@@ -175,6 +194,29 @@ void ScrollBar::linkScrollList(ds::ui::ScrollList* list){
 			list->getScrollArea()->setScrollPercent(scrollPercent);
 		}
 	});
+}
+
+void ScrollBar::enableAutoHiding(const bool autoHide){
+	mAutoHide = autoHide;
+	if(!mAutoHide){
+		doAutoHide(false);
+	}
+}
+
+void ScrollBar::doAutoHide(const bool shouldBeHidden){
+	if(shouldBeHidden){
+		if(!mAutoHidden){
+			mAutoHidden = true;
+			tweenOpacity(0.0f, 0.35f, 0.0f, ci::easeNone, [this]{hide(); });
+		}
+	} else {
+		if(mAutoHidden){
+			mAutoHidden = false;
+			show();
+			tweenOpacity(1.0f, 0.35f);
+		}
+	}
+
 }
 
 } // namespace ui

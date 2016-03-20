@@ -19,7 +19,7 @@ public:
 
 	// Make a scroll bar with a grey background and lighter grey flexible nub.
 	// Feel free to get the nub and background and change the parameters if you need a different look
-	ScrollBar(ds::ui::SpriteEngine& engine, const bool verticalScrolling = true, const float uiWidth = 10.0f, const float touchPadding = 20.0f);
+	ScrollBar(ds::ui::SpriteEngine& engine, const bool verticalScrolling = true, const float uiWidth = 10.0f, const float touchPadding = 20.0f, const bool autoHide = true);
 
 	// Someone has touched the scroll bar, and some action should be taken
 	// Note that the UI hasn't been updated before this callback is called. 
@@ -52,12 +52,18 @@ public:
 	void								linkScrollArea(ds::ui::ScrollArea* area);
 	void								linkScrollList(ds::ui::ScrollList* list);
 
+	// Automagically hides the scroll bar if the linked area or list doesn't have any ability to scroll (the content is shorter than the scroll area)
+	// Default is true
+	void								enableAutoHiding(const bool doAutoHide);
+
 protected:
 	void								handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 	virtual void						onSizeChanged();
 	virtual void						layout();
 
 	void								updateNubPosition();
+
+	void								doAutoHide(const bool shouldBeHidden);
 
 	bool								mVertical;
 	std::function<void(const float)>	mScrollMoveCallback;
@@ -70,6 +76,9 @@ protected:
 	float								mTouchPadding;
 	float								mScrollPercent;
 	float								mPercentVisible;
+
+	bool								mAutoHide;
+	bool								mAutoHidden;
 };
 
 } // namespace ui
