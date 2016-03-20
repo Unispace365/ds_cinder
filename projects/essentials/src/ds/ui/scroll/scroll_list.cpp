@@ -17,6 +17,7 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	, mAnimateOnStartDelay(0.0f)
 	, mVerticalScrolling(vertical)
 	, mFillFromTop(true)
+	, mGridLayout(false)
 {
 	mScrollArea = new ds::ui::ScrollArea(mEngine, getWidth(), getHeight(), mVerticalScrolling);
 	if(mScrollArea){
@@ -137,8 +138,49 @@ void ScrollList::pushItemsTop(){
 
 }
 
+void ScrollList::setGridLayout(const bool doGrid, const ci::Vec2f& gridIncrement){
+	mGridLayout = doGrid;
+	mGridIncrement = gridIncrement;
+
+	layout();
+}
+
+void ScrollList::layoutItemsGrid(){
+	float xp = mStartPositionX;
+	float yp = mStartPositionY;
+	// TODO: handle perspective
+	//const bool isPerspective = Sprite::getPerspective();
+	float wrapWidth = getWidth();
+	bool justwrapped = false;
+	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+		(*it).mX = xp;
+		(*it).mY = yp;
+
+		xp += mGridIncrement.x;
+		if(xp > getWidth() - mGridIncrement.x){
+			xp = mStartPositionX;
+			yp += mGridIncrement.y;
+			justwrapped = true;
+		} else {
+			justwrapped = false;
+		}
+	}
+
+	if(!justwrapped){
+		yp += mGridIncrement.y;
+	}
+	if(mScrollableHolder){
+		mScrollableHolder->setSize(getWidth(), yp);
+	}
+}
+
 // Override if you need to do something special with the layout, otherwise just set start positions and increment amounts
 void ScrollList::layoutItems(){
+	if(mGridLayout){
+		layoutItemsGrid();
+		return;
+	}
+
 	float xp = mStartPositionX;
 	float yp = mStartPositionY;
 	const bool isPerspective = Sprite::getPerspective();

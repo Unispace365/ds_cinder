@@ -66,6 +66,10 @@ class ScrollArea;
 		// calls a function for each sprite that's currently onscreen and in reserve
 		void						forEachLoadedSprite(std::function<void(ds::ui::Sprite*)> function);
 
+		// When layouts happen, will do a grid instead of a horiz or vert list. Use the grid increment to set the advance amount in each direction
+		// NOTE: not tested yet for perspective OR horizontal scrolling
+		void						setGridLayout(const bool doGrid, const ci::Vec2f& gridIncrement);
+
 	protected:
 
 		// We only create enough sprites that are onscreen at one time.
@@ -96,6 +100,7 @@ class ScrollArea;
 		virtual void						onSizeChanged();
 		virtual void						layout();
 		virtual void						layoutItems();
+		virtual void						layoutItemsGrid();
 
 		virtual void						clearItems();
 		virtual void						assignItems();
@@ -114,6 +119,8 @@ class ScrollArea;
 		float								mStartPositionX;
 		float								mIncrementAmount;
 		bool								mFillFromTop;
+		bool								mGridLayout;
+		ci::Vec2f							mGridIncrement;
 
 		// for animate on
 		float								mAnimateOnDeltaDelay;
