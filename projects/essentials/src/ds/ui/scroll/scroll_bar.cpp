@@ -47,7 +47,6 @@ ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const fl
 	setSize(mTouchPadding * 2.0f + uiWidth, mTouchPadding * 2.0f + uiWidth);
 
 	if(mAutoHide){
-		std::cout << "Scroll bar instantiate and auto-hiding" << std::endl;
 		doAutoHide(true);
 		hide(); // immediately hide, but also call the function to track the state correctly
 		setOpacity(0.0f);
