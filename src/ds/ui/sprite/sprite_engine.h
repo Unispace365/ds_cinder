@@ -65,6 +65,9 @@ public:
 									getDebugSettings() = 0;
 	virtual ci::app::WindowRef		getWindow() = 0;
 
+	bool							getMute();
+	void							setMute(bool);
+
 	/** Defined by platform:guid. Useful if you need to something specific on a particular client */
 	const std::string				getAppInstanceName();
 

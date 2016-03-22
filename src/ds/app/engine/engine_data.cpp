@@ -20,6 +20,7 @@ EngineData::EngineData(const ds::cfg::Settings& engine_settings)
 	, mIdleTimeout(300)
 	, mUsingDefaults(true)
 	, mAppInstanceName("Downstream")
+	, mMute(false)
 {
 }
 

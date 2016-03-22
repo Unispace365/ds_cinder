@@ -55,6 +55,10 @@ public:
 	std::vector < std::pair<ci::Area, ci::Rectf> >
 							mWorldSlices;
 
+	// Volume control for the whole app 
+
+	bool					mMute;
+
 private:
 	EngineData(const EngineData&);
 	EngineData&				operator=(const EngineData&);

@@ -187,6 +187,17 @@ ds::ComputerInfo& SpriteEngine::getComputerInfo(){
 }
 
 
+bool SpriteEngine::getMute()
+{
+	return mData.mMute;
+}
+
+
+void SpriteEngine::setMute(bool mute)
+{
+	mData.mMute = mute;
+}
+
 const std::string SpriteEngine::getAppInstanceName(){
 	return mData.mAppInstanceName;
 }

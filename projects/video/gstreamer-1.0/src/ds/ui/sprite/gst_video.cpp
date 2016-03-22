@@ -156,6 +156,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mGstreamerWrapper(new gstwrapper::GStreamerWrapper())
 	, mLooping(false)
 	, mMuted(false)
+	, mEngineMuted(false)
 	, mOutOfBoundsMuted(true)
 	, mVolume(1.0f)
 	, mStatusChanged(true)
@@ -192,7 +193,8 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	} catch(const std::exception &e) {
 		DS_LOG_WARNING("Could not load & compile shader for the video:" << e.what());
 	}
-
+	
+	mEngineMuted = mEngine.getMute();
 
 	setTransparent(false);
 	setUseShaderTextuer(true);
@@ -790,7 +792,7 @@ void GstVideo::setStatus(const int code){
 }
 
 void GstVideo::applyMovieVolume(){
-	if (mMuted || mOutOfBoundsMuted) {
+	if (mMuted || mOutOfBoundsMuted || mEngineMuted) {
 		mGstreamerWrapper->setVolume(0.0f);
 	} else {
 		mGstreamerWrapper->setVolume(mVolume);

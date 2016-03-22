@@ -223,6 +223,7 @@ private:
 	bool				mLooping;
 	bool				mMuted;
 	bool				mOutOfBoundsMuted;
+	bool				mEngineMuted;
 	bool				mAutoStart;
 	bool				mShouldPlay;
 	bool				mShouldSync;

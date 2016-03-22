@@ -285,6 +285,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	}
 
 	setIdleTimeout(settings.getInt("idle_time", 0, 300));
+	setMute(settings.getBool("platform:mute", 0, false));
 
 	std::cout << "Engine constructor complete, app instance name: " << mData.mAppInstanceName << std::endl;
 }
