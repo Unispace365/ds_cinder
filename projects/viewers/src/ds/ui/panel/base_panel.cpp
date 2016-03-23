@@ -130,6 +130,9 @@ void BasePanel::setViewerWidth(const float contentWidth){
 	setViewerSize(contentWidth, contentWidth / mContentAspectRatio);
 }
 
+void BasePanel::setAbsoluteSizeLimits(const ci::Vec2f& absMin, const ci::Vec2f& absMax) {
+	mAbsMinSize = absMin; mAbsMaxSize = absMax;
+}
 
 void BasePanel::setSizeLimits(){
 	ci::Vec2f	panelDefaultSize = mDefaultSize;
@@ -297,7 +300,7 @@ void BasePanel::animateWidthTo(const float newWidth){
 	animateSizeTo(ci::Vec2f(newWidth, newWidth / mContentAspectRatio));
 }
 
-void BasePanel::aniamteHeightTo(const float newHeight){
+void BasePanel::animateHeightTo(const float newHeight){
 	animateSizeTo(ci::Vec2f(newHeight * mContentAspectRatio, newHeight));
 }
 

@@ -68,10 +68,14 @@ public:
 	/** Automatically handles enable/disable and adds padding, so the contentSize should be the x/y of the destination of your content */
 	void							animateSizeTo(const ci::Vec2f newContentSize);
 	void							animateWidthTo(const float newWidth);
-	void							aniamteHeightTo(const float newHeight);
+	void							animateHeightTo(const float newHeight);
 
 	const ci::Vec2f&				getMinSize(){ return mMinSize; }
 	const ci::Vec2f&				getDefaultSize(){ return mDefaultSize; }
+
+	/** Used in the setSizeLimits() function, so this must be set before calculating the size limits. 
+		NOTE: the actual size limits are NOT calculated when calling this function, that must be done by the override class after this.*/
+	void							setAbsoluteSizeLimits(const ci::Vec2f& absMin, const ci::Vec2f& absMax);
 
 	/** Sets the default size. Careful here, the aspect ratio of this should match the content aspect ratio. */
 	void							setDefaultSize(const ci::Vec2f& defaultSize){ mDefaultSize = defaultSize; }
