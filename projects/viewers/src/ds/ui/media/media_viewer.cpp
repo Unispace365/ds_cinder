@@ -115,15 +115,18 @@ void MediaViewer::setWebViewSize(const ci::Vec2f webSize){
 void MediaViewer::initialize(){
 	if(mInitialized) return;
 
-	// do this first to avoid recursion problems
-	mInitialized = true;
-
 	const int mediaType = mResource.getType();
 	if(mediaType == ds::Resource::ERROR_TYPE || mediaType == ds::Resource::FONT_TYPE){
 		// this is not a useful warning message in the very common case of setting the size of a MediaViewer before loading the media
-		//DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath());
+		// GN: This is a VERY useful message if your media isn't showing up, so we'll just check for emptiness instead of no warning
+		if(!mResource.empty()){
+			DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath());
+		}
 		return;
 	}
+
+	// do this first to avoid recursion problems
+	mInitialized = true;
 
 	float contentWidth = 1.0f;
 	float contentHeight = 1.0f;
