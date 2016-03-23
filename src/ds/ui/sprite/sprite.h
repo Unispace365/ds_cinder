@@ -267,12 +267,12 @@ namespace ui {
 			\return center 3d vector of the center percentage. */
 		const ci::Vec3f&		getCenter() const;
 
-		/** The center of the Sprite, in the parent's co-ordinate space. See getCenter() and setCenter().
+		/** The "midde" of the Sprite, NOT related to setCenter and getCenter (anchor), in the parent's co-ordinate space.
 			Effectively mPosition + getLocalCenterPosition();
 			\return 3d Vector of the pixel position of the center of this Sprite. */
 		ci::Vec3f				getCenterPosition() const;
 
-		/** The center of the Sprite, in this Sprite's co-ordinate space. See getCenter() and setCenter().
+		/** The "middle" of the Sprite, NOT related to setCenter and getCenter (anchor), in this Sprite's co-ordinate space..
 			Effectively ci::Vec3f(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
 			\return 3d Vector of the pixel position of the center of this Sprite, in local space. */
 		ci::Vec3f				getLocalCenterPosition() const;
