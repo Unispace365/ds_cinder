@@ -158,6 +158,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mMuted(false)
 	, mEngineMuted(false)
 	, mOutOfBoundsMuted(true)
+	, mAllowOutOfBoundsMuted(true)
 	, mVolume(1.0f)
 	, mStatusChanged(true)
 	, mStatusFn(noop<const Status&>)
@@ -792,7 +793,8 @@ void GstVideo::setStatus(const int code){
 }
 
 void GstVideo::applyMovieVolume(){
-	if (mMuted || mOutOfBoundsMuted || mEngineMuted) {
+	if (mMuted || (mAllowOutOfBoundsMuted && mOutOfBoundsMuted) || mEngineMuted) {
+		DS_LOG_INFO("Muting applied: " << mMuted << " " << mOutOfBoundsMuted << " " << mEngineMuted);
 		mGstreamerWrapper->setVolume(0.0f);
 	} else {
 		mGstreamerWrapper->setVolume(mVolume);
@@ -967,11 +969,6 @@ void GstVideo::writeAttributesTo(DataBuffer& buf){
 		buf.add(getVolume());
 	}
 
-	if (mDirty.has(mMuteDirty)){
-		buf.add(mMuteAtt);
-		buf.add(getIsMuted());
-	}
-
 	if (mDirty.has(mLoopingDirty)){
 		buf.add(mLoopingAtt);
 		buf.add(getIsLooping());
@@ -1060,15 +1057,14 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 			setLooping(is_looping);
 	} else if(attrid == mMuteAtt) {
 		auto is_muted = buf.read<bool>();
-		if(getIsMuted() != is_muted)
-			setMute(is_muted);
+		setMute(is_muted);
 	} else if(attrid == mVolumeAtt) {
 		auto volume_level = buf.read<float>();
 		if(getVolume() != volume_level)
 			setVolume(volume_level);
 	} else if (attrid == mPanAtt) {
 		auto pan = buf.read<float>();
-			setPan(-pan);  // Assign pan to opposite speaker // GN: hmmm, maybe TODO
+		setPan(pan); 
 	} else if (attrid == mPosAtt) {
 		auto server_video_pos = buf.read<double>();
 		seekPosition(server_video_pos);
@@ -1180,6 +1176,11 @@ bool GstVideo::getAutoExtendIdle()const {
 
 void GstVideo::setAutoExtendIdle(const bool doAutoextend){
 	mAutoExtendIdle = doAutoextend;
+}
+
+void GstVideo::setAllowOutOfBoundsMuted(const bool allowMuted) {
+	mAllowOutOfBoundsMuted = allowMuted;
+	applyMovieVolume();
 }
 
 GstVideo::Status::Status(int code){

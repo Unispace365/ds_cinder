@@ -50,6 +50,14 @@ public:
 	/// See the function of the same name on GstVideo
 	void								setPlayableInstances(const std::vector<std::string> instanceNames);
 
+	/// Automatically plays the first frame of the video so you can see what the video is.
+	/// Must be set before playing the video
+	/// Default = true
+	void								setAutoPlayFirstFrame(const bool playFirstFrame);
+
+	/// If the video goes out-of-bounds, whether to auto-mute or not
+	void								allowOutOfBoundsMuted(const bool allowMuting);
+
 protected:
 
 	virtual void								onSizeChanged();
@@ -63,6 +71,8 @@ protected:
 	/// Settings - these are kept locally here so the settings can be applied at any time
 	float										mPanning;
 	bool										mAutoSyncronize;
+	bool										mAutoPlayFirstFrame;
+	bool										mAllowOutOfBoundsMuted;
 	std::vector<std::string>					mPlayableInstances;
 };
 

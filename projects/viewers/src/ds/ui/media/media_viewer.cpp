@@ -175,6 +175,7 @@ void MediaViewer::initialize(){
 		mVideoPlayer->setPan(mMediaViewerSettings.mVideoPanning);
 		mVideoPlayer->setAutoSynchronize(mMediaViewerSettings.mVideoAutoSync);
 		mVideoPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
+		mVideoPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
 
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
 
@@ -329,7 +330,9 @@ void MediaViewer::uninitialize() {
 
 
 void MediaViewer::onLayout(){
-	initialize();
+	// GN Hmm - this behaviour doesn't seem right.
+	// Laying out a sprite shouldn't maybe load a huge video or image or whatever
+	//initialize();
 
 	if(mVideoPlayer){
 		mVideoPlayer->setSize(getWidth(), getHeight());

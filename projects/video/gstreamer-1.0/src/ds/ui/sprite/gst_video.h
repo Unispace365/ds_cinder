@@ -165,6 +165,10 @@ public:
 	/// This may interact badly with syncronization if you don't load the video on the ClientServer, so use with caution
 	void				setPlayableInstances(const std::vector<std::string>& instanceNames);
 
+	/// If this video goes out of the current instance's bounds, will automatically mute. default == true
+	/// If you're having trouble with networked videos dropping audio, try turning this off
+	void				setAllowOutOfBoundsMuted(const bool allowMuted);
+
 protected:
 	virtual void		drawLocalClient() override;
 	virtual void		writeAttributesTo(DataBuffer&) override;
@@ -223,6 +227,7 @@ private:
 	bool				mLooping;
 	bool				mMuted;
 	bool				mOutOfBoundsMuted;
+	bool				mAllowOutOfBoundsMuted;
 	bool				mEngineMuted;
 	bool				mAutoStart;
 	bool				mShouldPlay;

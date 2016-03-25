@@ -22,6 +22,8 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mEmbedInterface(embedInterface)
 	, mShowInterfaceAtStart(true)
 	, mAutoSyncronize(true)
+	, mAutoPlayFirstFrame(true)
+	, mAllowOutOfBoundsMuted(true)
 	, mPanning(0.0f)
 {
 }
@@ -36,6 +38,7 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	setPan(mPanning);
 	setAutoSynchronize(mAutoSyncronize);
 	setPlayableInstances(mPlayableInstances);
+	allowOutOfBoundsMuted(mAllowOutOfBoundsMuted);
 
 	mVideo->setErrorCallback([this](const std::string& msg){
 		if(mErrorMsgCallback) mErrorMsgCallback(msg);
@@ -48,12 +51,16 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 		}
 	});
 
-	mVideo->setMute(true);
-	mVideo->setAutoStart(false);
+	if(mAutoPlayFirstFrame){
+		mVideo->setMute(true);
+		mVideo->setAutoStart(false);
+	}
 	mVideo->loadVideo(mediaPath);
-	mVideo->playAFrame(-1.0, [this](){
-		mVideo->setMute(false);
-	});
+	if(mAutoPlayFirstFrame){
+		mVideo->playAFrame(-1.0, [this](){
+			mVideo->setMute(false);
+		});
+	}
 	addChildPtr(mVideo);
 
 	if(mVideoInterface){
@@ -167,12 +174,23 @@ void VideoPlayer::setAutoSynchronize(const bool doSync){
 	mAutoSyncronize = doSync;
 }
 
+void VideoPlayer::setAutoPlayFirstFrame(const bool playFirstFrame){
+	mAutoPlayFirstFrame = playFirstFrame;
+}
+
 void VideoPlayer::setPlayableInstances(const std::vector<std::string> instanceNames){
 	if(mVideo){
 		mVideo->setPlayableInstances(instanceNames);
 	}
 
 	mPlayableInstances = instanceNames;
+}
+
+void VideoPlayer::allowOutOfBoundsMuted(const bool allowMuting) {
+	mAllowOutOfBoundsMuted = allowMuting;
+	if(mVideo){
+		mVideo->setAllowOutOfBoundsMuted(mAllowOutOfBoundsMuted);
+	}
 }
 
 

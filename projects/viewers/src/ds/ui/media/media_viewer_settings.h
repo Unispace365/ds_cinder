@@ -25,6 +25,8 @@ struct MediaViewerSettings {
 		, mCacheImages(false)
 		, mVideoPanning(0.0f)
 		, mVideoAutoSync(true)
+		, mVideoAutoPlayFirstFrame(true)
+		, mVideoAllowOutOfBoundsMuting(true)
 	{}
 
 	//--------------------Overall Settings -----------------------------------------//
@@ -62,6 +64,13 @@ struct MediaViewerSettings {
 	/// Whether to auto-synchronize video across clients (no effect in standalone mode)
 	/// Default = true
 	bool						mVideoAutoSync;
+
+	/// Set this to false in a some-instances-only environment, otherwise clients might never get audio
+	/// Automatically displays the first frame of the video
+	bool						mVideoAutoPlayFirstFrame;
+
+	/// If the video goes out of the current bounds of the window, mute the video automatically (or don't have that functionality)
+	bool						mVideoAllowOutOfBoundsMuting;
 
 
 
