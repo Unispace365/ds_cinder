@@ -55,6 +55,9 @@
     <Filter Include="src\ds\ui\layout">
       <UniqueIdentifier>{04a111de-5a8a-43eb-ae01-220cf039c4a9}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\network\curl">
+      <UniqueIdentifier>{aaf412cb-2aed-400d-b090-67fe8bf7e762}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -141,7 +144,9 @@
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\network\https_client.cpp" />
+    <ClCompile Include="src\ds\network\https_client.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -237,15 +242,35 @@
     <ClInclude Include="src\ds\ui\scroll\scroll_bar.h">
       <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
-    <ClInclude Include="src\ds\network\curl\easy.h" />
-    <ClInclude Include="src\ds\network\curl\mprintf.h" />
-    <ClInclude Include="src\ds\network\curl\multi.h" />
-    <ClInclude Include="src\ds\network\curl\stdcheaders.h" />
-    <ClInclude Include="src\ds\network\curl\typecheck-gcc.h" />
-    <ClInclude Include="src\ds\network\curl\curl.h" />
-    <ClInclude Include="src\ds\network\curl\curlbuild.h" />
-    <ClInclude Include="src\ds\network\curl\curlrules.h" />
-    <ClInclude Include="src\ds\network\curl\curlver.h" />
-    <ClInclude Include="src\ds\network\https_client.h" />
+    <ClInclude Include="src\ds\network\curl\curl.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\curlbuild.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\curlrules.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\curlver.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\easy.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\https_client.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\mprintf.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\multi.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\stdcheaders.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\typecheck-gcc.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

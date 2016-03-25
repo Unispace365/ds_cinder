@@ -21,11 +21,14 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 {
 	mScrollArea = new ds::ui::ScrollArea(mEngine, getWidth(), getHeight(), mVerticalScrolling);
 	if(mScrollArea){
-		mScrollArea->setScrollUpdatedCallback([this](ds::ui::Sprite*){ 
-			assignItems(); 
+		mScrollArea->setScrollUpdatedCallback([this](ds::ui::Sprite*){
+			assignItems();
 			if(mScrollUpdatedCallback){
 				mScrollUpdatedCallback();
 			}
+		});
+		mScrollArea->setScrollerTouchedCallback([this]{
+			mLastUpdateTime = Poco::Timestamp().epochMicroseconds();
 		});
 		mScrollArea->setFadeColors(ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f), ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 		mScrollArea->setFadeHeight(50.0f);
@@ -40,6 +43,8 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 		mScrollArea->addSpriteToScroll(mScrollableHolder);
 		mScrollableHolder->enable(false);
 	}
+
+	mLastUpdateTime = Poco::Timestamp().epochMicroseconds();
 
 	enable(false);
 }
@@ -133,9 +138,7 @@ void ScrollList::pushItemsTop(){
 				}
 			}
 		}
-
 	}
-
 }
 
 void ScrollList::setGridLayout(const bool doGrid, const ci::Vec2f& gridIncrement){
@@ -274,6 +277,12 @@ void ScrollList::assignItems(){
 			if(sprite){
 				sprite->setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti){ handleItemTouchInfo(sp, ti); });
 				sprite->setTapCallback([this, sprite](ds::ui::Sprite* bs, const ci::Vec3f cent){
+					Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
+					float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
+					if(timeDif < 0.2f){
+						DS_LOG_INFO("Too soon since the last touch to tap this list!");
+						return;
+					}
 					if(mItemTappedCallback) mItemTappedCallback(sprite, cent);
 				});
 				mScrollableHolder->addChildPtr(sprite);

@@ -4,6 +4,8 @@
 
 #include <ds/ui/sprite/sprite.h>
 
+#include <Poco/Timestamp.h>
+
 namespace ds{
 namespace ui{
 class ScrollArea;
@@ -132,6 +134,9 @@ class ScrollArea;
 		std::function<void(ds::ui::Sprite*, const float delay)>		mAnimateOnCallback;
 		std::function<void(ds::ui::Sprite*, const bool highli)>		mStateChangeCallback;
 		std::function<void()>										mScrollUpdatedCallback;
+
+		// Track update time so touches can't happen while the list is being dragged cause of lazy fingers
+		Poco::Timestamp::TimeVal			mLastUpdateTime;
 	};
 }
 }

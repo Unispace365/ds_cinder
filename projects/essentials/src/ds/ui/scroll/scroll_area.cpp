@@ -184,6 +184,11 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 			scrollerUpdated(mScroller->getPosition().xy());
 		}
 	}
+
+	// notify anyone (like lists) that I was touched so they can prevent action, if they want
+	if(mScrollerTouchedFunction){
+		mScrollerTouchedFunction();
+	}
 }
 
 void ScrollArea::setUseFades(const bool doFading){
@@ -328,6 +333,10 @@ void ScrollArea::setScrollUpdatedCallback(const std::function<void(ds::ui::Scrol
 
 void ScrollArea::setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func){
 	mSnapToPositionFunction = func;
+}
+
+void ScrollArea::setScrollerTouchedCallback(const std::function<void()>& func) {
+	mScrollerTouchedFunction = func;
 }
 
 const ci::Vec2f ScrollArea::getScrollerPosition(){

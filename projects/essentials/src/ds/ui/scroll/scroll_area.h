@@ -35,6 +35,7 @@ class ScrollArea : public ds::ui::Sprite {
 
 		void				setScrollUpdatedCallback(const std::function<void(ScrollArea* thisThing)> &func);
 		void				setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func);
+		void				setScrollerTouchedCallback(const std::function<void()>& func); // just lets you know some interaction happened with the scroller
 
 		const ci::Vec2f		getScrollerPosition();
 		void				resetScrollerPosition();
@@ -74,6 +75,7 @@ class ScrollArea : public ds::ui::Sprite {
 
 		std::function<void(ScrollArea*)>	mScrollUpdatedFunction;
 		std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>	mSnapToPositionFunction;
+		std::function<void()>				mScrollerTouchedFunction;
 
 };
 
