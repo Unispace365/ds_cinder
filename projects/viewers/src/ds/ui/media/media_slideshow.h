@@ -40,12 +40,17 @@ public:
 	/// Applies the same media viewer settings to every media viewer in the slideshow. Set before setting the slideshow content
 	void								setMediaViewerSettings(const MediaViewerSettings& settings);
 
+	/// When loading a slide, will also load the next and previous slides for speed.
+	/// If this is false, will only load the current slide
+	void								allowLoadAhead(const bool loadAhead);
+
 protected:
 	std::vector<MediaViewer*>			mViewers;
 	ds::ui::Sprite*						mHolder;
 	int									mCurItemIndex;
 	float								mAnimateDuration;
 	MediaViewerSettings					mMediaViewerSettings;
+	bool								mAllowLoadAhead;
 
 	MediaInterface*						mCurrentInterface;
 	std::function<void(const int currentItemIndex, const int totalItems)> mItemChangedCallback;

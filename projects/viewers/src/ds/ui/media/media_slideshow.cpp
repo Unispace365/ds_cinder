@@ -26,6 +26,7 @@ MediaSlideshow::MediaSlideshow(ds::ui::SpriteEngine& eng)
 	, mAnimateDuration(0.35f)
 	, mCurrentInterface(nullptr)
 	, mItemChangedCallback(nullptr)
+	, mAllowLoadAhead(true)
 {
 
 	mHolder = new ds::ui::Sprite(mEngine);
@@ -218,6 +219,11 @@ void MediaSlideshow::loadCurrentAndAdjacent(){
 	unsigned sizey = mViewers.size();
 	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > sizey - 1) return;
 
+	if(!mAllowLoadAhead){
+		mViewers[mCurItemIndex]->initialize();
+		return;
+	}
+
 	for(int i = 0; i < sizey; i++){
 		if(i == mCurItemIndex							// This one is the current item
 		   || i == mCurItemIndex - 1					// This one is the prev item
@@ -249,6 +255,10 @@ void MediaSlideshow::userInputReceived(){
 
 void MediaSlideshow::setMediaViewerSettings(const MediaViewerSettings& settings){
 	mMediaViewerSettings = settings;
+}
+
+void MediaSlideshow::allowLoadAhead(const bool loadAhead) {
+	mAllowLoadAhead = loadAhead;
 }
 
 } // namespace ui
