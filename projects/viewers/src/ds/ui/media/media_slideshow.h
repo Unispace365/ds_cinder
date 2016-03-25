@@ -44,6 +44,11 @@ public:
 	/// If this is false, will only load the current slide
 	void								allowLoadAhead(const bool loadAhead);
 
+	/// Get the list of viewers. Be gentle with these
+	/// The slideshow has ownership of these, so releasing these may have unintended consequences.
+	/// These are also not guaranteed to be initialized
+	std::vector<MediaViewer*>&			getViewers(){ return mViewers; }
+
 protected:
 	std::vector<MediaViewer*>			mViewers;
 	ds::ui::Sprite*						mHolder;
