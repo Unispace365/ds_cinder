@@ -58,6 +58,9 @@ public:
 	/// If the video goes out-of-bounds, whether to auto-mute or not
 	void								allowOutOfBoundsMuted(const bool allowMuting);
 
+	/// Sets looping on the video
+	void								setVideoLoop(const bool doLooping);
+
 protected:
 
 	virtual void								onSizeChanged();
@@ -74,6 +77,7 @@ protected:
 	bool										mAutoPlayFirstFrame;
 	bool										mAllowOutOfBoundsMuted;
 	std::vector<std::string>					mPlayableInstances;
+	bool										mLooping;
 };
 
 } // namespace ui

@@ -176,7 +176,8 @@ void MediaViewer::initialize(){
 		mVideoPlayer->setAutoSynchronize(mMediaViewerSettings.mVideoAutoSync);
 		mVideoPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
 		mVideoPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
-
+		mVideoPlayer->setVideoLoop(mMediaViewerSettings.mVideoLoop);
+			
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
 
 

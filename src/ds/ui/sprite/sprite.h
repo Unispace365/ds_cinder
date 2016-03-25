@@ -612,7 +612,10 @@ namespace ui {
 		void					setClipping(bool flag);
 		bool					getClipping() const;
 
+		/// Call this to extend the idle timeout all the way up the chain to the root
 		virtual void			userInputReceived();
+
+		/// Set the number of seconds since the last userInputReceived() before this sprite reports as idle
 		void					setSecondBeforeIdle(const double);
 		double					secondsToIdle() const;
 		bool					isIdling() const;

@@ -794,7 +794,6 @@ void GstVideo::setStatus(const int code){
 
 void GstVideo::applyMovieVolume(){
 	if (mMuted || (mAllowOutOfBoundsMuted && mOutOfBoundsMuted) || mEngineMuted) {
-		DS_LOG_INFO("Muting applied: " << mMuted << " " << mOutOfBoundsMuted << " " << mEngineMuted);
 		mGstreamerWrapper->setVolume(0.0f);
 	} else {
 		mGstreamerWrapper->setVolume(mVolume);

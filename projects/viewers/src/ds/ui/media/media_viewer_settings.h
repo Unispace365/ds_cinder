@@ -27,6 +27,7 @@ struct MediaViewerSettings {
 		, mVideoAutoSync(true)
 		, mVideoAutoPlayFirstFrame(true)
 		, mVideoAllowOutOfBoundsMuting(true)
+		, mVideoLoop(true)
 	{}
 
 	//--------------------Overall Settings -----------------------------------------//
@@ -71,6 +72,9 @@ struct MediaViewerSettings {
 
 	/// If the video goes out of the current bounds of the window, mute the video automatically (or don't have that functionality)
 	bool						mVideoAllowOutOfBoundsMuting;
+
+	/// Whether the video should loop or not by default
+	bool						mVideoLoop;
 
 
 

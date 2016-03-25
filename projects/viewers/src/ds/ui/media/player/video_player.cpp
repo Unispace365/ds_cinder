@@ -39,6 +39,7 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	setAutoSynchronize(mAutoSyncronize);
 	setPlayableInstances(mPlayableInstances);
 	allowOutOfBoundsMuted(mAllowOutOfBoundsMuted);
+	setVideoLoop(mLooping);
 
 	mVideo->setErrorCallback([this](const std::string& msg){
 		if(mErrorMsgCallback) mErrorMsgCallback(msg);
@@ -193,6 +194,12 @@ void VideoPlayer::allowOutOfBoundsMuted(const bool allowMuting) {
 	}
 }
 
+void VideoPlayer::setVideoLoop(const bool doLoop){
+	mLooping = doLoop;
+	if(mVideo){
+		mVideo->setLooping(mLooping);
+	}
+}
 
 } // namespace ui
 } // namespace ds
