@@ -52,6 +52,7 @@ public:
 	// Applied to video when video is loaded
 	void				setPan(const float audioPan);
 	void				setPlayableInstances(const std::vector<std::string> instances);
+	void				setAutoSyncronize(const bool doSync); // synchronize across client/server
 
 protected:
 	// These are our only chances in client mode to catch the video.
@@ -79,6 +80,7 @@ private:
 
 	float				mPanning;
 	std::vector<std::string> mPlayableInstances;
+	bool				mAutoSync;
 
 public:
 	static void			installAsServer(ds::BlobRegistry&);

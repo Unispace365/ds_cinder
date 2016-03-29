@@ -129,6 +129,7 @@ PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	, mXSensitivity(5.0f)
 	, mYSensitivity(5.0f)
 	, mFov(60.0f)
+	, mAutoSync(true)
 	, mPanning(0.0f)
 {
 	mBlobType = _BLOB;
@@ -328,6 +329,7 @@ void PanoramicVideo::loadVideo(const std::string& path){
 	video_sprite->setPlayableInstances(mPlayableInstances);
 	video_sprite->setAutoStart(true);
 	video_sprite->setLooping(true);
+	video_sprite->setAutoSynchronize(mAutoSync);
 	video_sprite->loadVideo(path);
 
 	resetCamera();
@@ -355,6 +357,13 @@ void PanoramicVideo::setPlayableInstances(const std::vector<std::string> instanc
 		mVideoSprite->setPlayableInstances(instances);
 	}
 
+}
+
+void PanoramicVideo::setAutoSyncronize(const bool doSync){
+	mAutoSync = doSync;
+	if(mVideoSprite){
+		mVideoSprite->setAutoSynchronize(mAutoSync);
+	}
 }
 
 }} //!ds::ui
