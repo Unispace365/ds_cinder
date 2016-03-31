@@ -210,6 +210,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mWorldSize = ci::Vec2f(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
 	}
 
+	DS_LOG_INFO("Screen rect is (" << mData.mScreenRect.x1 << ", " << mData.mScreenRect.y1 << ") - (" << mData.mScreenRect.x2 << ", " << mData.mScreenRect.y2 << ")");
 
 	// Don't construct roots on startup for clients, and instead create them when we connect to a server
 	const std::string	arch(settings.getText("platform:architecture", 0, ""));
