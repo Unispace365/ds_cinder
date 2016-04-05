@@ -484,6 +484,7 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		mServerOnlyMode = false;
 
 		if(mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess() > 800.0f){
+			setSizeAll(static_cast<float>(videoWidth), static_cast<float>(videoHeight), mDepth);
 			DS_LOG_WARNING_M("doLoadVideo aborting loading a video because we're almost out of memory", GSTREAMER_LOG);
 			if(mErrorFn) mErrorFn("Did not load a video because the system ran out of memory.");
 			return;
