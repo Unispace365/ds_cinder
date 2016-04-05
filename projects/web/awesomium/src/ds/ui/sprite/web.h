@@ -122,6 +122,9 @@ public:
 
 	void					executeJavascript(const std::string& theScript);
 
+	/// Lets you disable clicking, but still scroll via "mouse wheel"
+	void					setAllowClicks(const bool doAllowClicks);
+
 protected:
 	virtual void			onSizeChanged();
 	virtual void			writeAttributesTo(ds::DataBuffer&);
@@ -157,6 +160,7 @@ private:
 	bool					mDrawWhileLoading;
 
 	ci::Vec3f				mPreviousTouchPos;
+	bool					mAllowClicks;
 	bool					mClickDown;
 	bool					mDragScrolling;
 	int						mDragScrollMinFingers;

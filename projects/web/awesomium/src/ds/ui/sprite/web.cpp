@@ -138,7 +138,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mLoadingOpacity(1.0f)
 	, mActive(false)
 	, mTransitionTime(0.35f)
-	, mDrawWhileLoading(false)
+	, mDrawWhileLoading(true)
 	, mDragScrolling(false)
 	, mDragScrollMinFingers(2)
 	, mClickDown(false)
@@ -146,6 +146,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mDocumentReadyFn(nullptr)
 	, mHasError(false)
 	, mErrorText(nullptr)
+	, mAllowClicks(true)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -155,8 +156,12 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	setTransparent(false);
 	setColor(1.0f, 1.0f, 1.0f);
 	setUseShaderTextuer(true);
-	hide();
-	setOpacity(0.0f);
+
+	// GN: Someone decided this should be invisible by default.
+	//		I'm deciding that that's ree-dic-u-lous
+	//hide();
+	//setOpacity(0.0f);
+
 	setProcessTouchCallback([this](ds::ui::Sprite *, const ds::ui::TouchInfo &info) {
 		handleTouch(info);
 	});
@@ -426,7 +431,7 @@ void Web::sendKeyUpEvent( const ci::app::KeyEvent &event ){
 }
 
 void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
-	if (!mWebViewPtr) return;
+	if (!mWebViewPtr || !mAllowClicks) return;
 
 	ci::app::MouseEvent eventMove(mEngine.getWindow(), 0, e.getX(), e.getY(), 0, 0, 0);
 	ds::web::handleMouseMove( mWebViewPtr, eventMove );
@@ -435,14 +440,14 @@ void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
 }
 
 void Web::sendMouseDragEvent(const ci::app::MouseEvent& e) {
-	if (!mWebViewPtr) return;
+	if(!mWebViewPtr || !mAllowClicks) return;
 
 	ds::web::handleMouseDrag(mWebViewPtr, e);
 	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kMoved);
 }
 
 void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
-	if (!mWebViewPtr) return;
+	if(!mWebViewPtr || !mAllowClicks) return;
 
 	ds::web::handleMouseUp( mWebViewPtr, e);
 	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kRemoved);
@@ -756,6 +761,10 @@ void Web::setLoadingIconOpacity(const float iconOpacity){
 
 void Web::setLoadingIconOffset(const ci::Vec2f& offset){
 	mLoadingOffset = offset;
+}
+
+void Web::setAllowClicks(const bool doAllowClicks){
+	mAllowClicks = doAllowClicks;
 }
 
 } // namespace ui
