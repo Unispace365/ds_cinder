@@ -1,7 +1,7 @@
 #ifndef _FULLSTARTER_APP_MODEL_ALLDATA_H_
 #define _FULLSTARTER_APP_MODEL_ALLDATA_H_
 
-#include "all_stories.h"
+#include "model/generated/story_model.h"
 
 namespace fullstarter {
 
@@ -13,7 +13,7 @@ public:
 	
 	AllData(){};
 
-	AllStories		mAllStories;
+	std::vector<ds::model::StoryRef>	mStories;
 
 };
 

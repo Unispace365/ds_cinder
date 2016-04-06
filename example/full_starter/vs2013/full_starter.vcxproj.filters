@@ -45,9 +45,6 @@
     <ClInclude Include="..\src\query\story_query.h">
       <Filter>src\query</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\model\all_stories.h">
-      <Filter>src\model</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\app\full_starter_app.h">
       <Filter>src\app</Filter>
     </ClInclude>

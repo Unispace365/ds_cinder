@@ -31,7 +31,7 @@ void QueryHandler::onAppEvent(const ds::Event& _e) {
 }
 
 void QueryHandler::onStoryQuery(StoryQuery& q) {
-	mAllData.mAllStories = q.mOutput;
+	mAllData.mStories = q.mOutput.mStories;
 }
 
 

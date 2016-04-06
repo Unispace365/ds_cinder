@@ -164,7 +164,6 @@
     <ClInclude Include="..\src\app\full_starter_app.h" />
     <ClInclude Include="..\src\events\app_events.h" />
     <ClInclude Include="..\src\model\all_data.h" />
-    <ClInclude Include="..\src\model\all_stories.h" />
     <ClInclude Include="..\src\model\generated\story_model.h" />
     <ClInclude Include="..\src\query\query_handler.h" />
     <ClInclude Include="..\src\query\story_query.h" />

@@ -23,7 +23,7 @@ void StoryQuery::run() {
 	}
 }
 
-void StoryQuery::query(AllStories& output) {
+void StoryQuery::query(AllData& output) {
 	//output.mIndustries.push_back(IndustryModelRef())
 
 
