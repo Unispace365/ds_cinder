@@ -43,7 +43,7 @@ void TouchManager::touchesBegin(const ds::ui::TouchEvent &event) {
 
 		// This system uses a mouse click for the first touch, which allows for use of the mouse and touches simultaneously
 		// It's possible we'll run into a scenario where we need to reverse this, which we can just add a bool flag to the settings to use all touches and ignore all mouses.
-		if (TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && TouchMode::hasMouse(mTouchMode)) {
+		if(TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && TouchMode::hasMouse(mTouchMode) && mIgnoreFirstTouchId < 0) {
 			mIgnoreFirstTouchId = touchIt->getId();
 			return;
 		}
