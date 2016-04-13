@@ -1,29 +1,32 @@
 <interface>
-
 		<layout name="layout" 
 			size="400, 500" 
-			layout_spacing="0" 
-			layout_type="vert" 
+			layout_spacing="10" 
+			layout_type="horiz" 
 			layout_size_mode="fixed" 
-			position="400, 400" 
+			position="50, 0" 
 			color="550000"
 			enable="true" 
 			multitouch="all" 
 			animate_on="grow:0, 0; fade; slide:0, 0; ease:outQuint; duration:0.5"
 			>
-				<xml name="buttOne" src="%APP%/data/layouts/recursive_button.xml" >
-					<property name="button" filename="%APP%/data/images/media_interface/prev.png" color="FF00ff"/>
+				<xml name="recursive_button" src="%APP%/data/layouts/recursive_button.xml" >
+					<property name="button" filename="%APP%/data/images/media_interface/touch_scale.png" />
+					<property name="recursive_button_text.text" text="Pause" />
+				</xml>
+				
+				<xml name="buttThree" src="%APP%/data/layouts/recursive_button.xml" >
+					<property name="button" filename="%APP%/data/images/media_interface/prev.png"  />
+					<property name="recursive_button_text.text" text="Prev" />
 				</xml>
 				<xml name="buttTwo" src="%APP%/data/layouts/recursive_button.xml" >
 					<property name="button" filename="%APP%/data/images/media_interface/next.png" />
-				</xml>
-				<xml name="buttThree" src="%APP%/data/layouts/recursive_button.xml" >
-					<property name="button" filename="%APP%/data/images/media_interface/next.png" rotation="0, 0, 90" />
+					<property name="recursive_button_text.text" text="Next" />
 				</xml>
 				<xml name="buttFour" src="%APP%/data/layouts/recursive_button.xml" >
-					<property name="button" filename="%APP%/data/images/media_interface/next.png" rotation="0, 0, -90"/>
+					<property name="button" filename="%APP%/data/images/media_interface/refresh.png" />
+					<property name="recursive_button_text.text" text="Refresh" />
 				</xml>
 		</layout>
-	
 </interface>
 

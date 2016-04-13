@@ -1112,7 +1112,14 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 	if(type == "xml"){
 		std::string xmlPath = filePathRelativeTo(mXmlFile, node->getAttributeValue<std::string>("src", ""));
-		if(xmlPath.empty()) return false;
+		if(xmlPath.empty()){
+			DS_LOG_WARNING("XmlImporter: Recursive XML: Specify a src parameter to load xml in " << mXmlFile);
+			return false;
+		}
+		if(xmlPath == mXmlFile){
+			DS_LOG_WARNING("XmlImporter: Recursive XML: You cannot load the same xml from the same xml in " << mXmlFile);
+			return false;
+		}
 
 		// Apply dot naming scheme
 		std::string spriteName = node->getAttributeValue<std::string>("name", "");
@@ -1144,6 +1151,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 				if(spriddy){
 					BOOST_FOREACH(auto &attr, newNode->getAttributes()) {
+						if(attr.getName() == "name") continue; // don't overwrite the name
 						setSpriteProperty(*spriddy, attr, xmlPath);
 					}
 				} else {
@@ -1182,6 +1190,16 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		std::string sprite_name = node->getAttributeValue<std::string>("name", "");
 		std::string sprite_classes = node->getAttributeValue<std::string>("class", "");
 
+		// Apply stylesheet(s)
+		BOOST_FOREACH(auto stylesheet, mStylesheets) {
+			applyStylesheet(*stylesheet, *spriddy, sprite_name, sprite_classes);
+		}
+
+		// Set properties from xml attributes, overwriting those from the stylesheet(s)
+		BOOST_FOREACH(auto &attr, node->getAttributes()) {
+			setSpriteProperty(*spriddy, attr, mXmlFile);
+		}
+
 		// Put sprite in named sprites map
 		if(sprite_name != "") {
 
@@ -1198,16 +1216,6 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			} else {
 				mNamedSpriteMap.insert(std::make_pair(sprite_name, spriddy));
 			}
-		}
-
-		// Apply stylesheet(s)
-		BOOST_FOREACH(auto stylesheet, mStylesheets) {
-			applyStylesheet(*stylesheet, *spriddy, sprite_name, sprite_classes);
-		}
-
-		// Set properties from xml attributes, overwriting those from the stylesheet(s)
-		BOOST_FOREACH(auto &attr, node->getAttributes()) {
-			setSpriteProperty(*spriddy, attr, mXmlFile);
 		}
 	}
 
