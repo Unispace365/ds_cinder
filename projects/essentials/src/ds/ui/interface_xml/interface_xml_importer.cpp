@@ -1172,8 +1172,20 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		}
 
 		ds::ui::ScrollArea* parentScroll = dynamic_cast<ds::ui::ScrollArea*>(parent);
+		ds::ui::SpriteButton* spriteButton = dynamic_cast<ds::ui::SpriteButton*>(parent);
 		if(parentScroll){
 			parentScroll->addSpriteToScroll(spriddy);
+		} else if(spriteButton){
+			std::string attachState = node->getAttributeValue<std::string>("attach_state", "");
+			if(attachState.empty()){
+				parent->addChildPtr(spriddy);
+			} else if(attachState == "normal"){
+				spriteButton->getNormalSprite().addChildPtr(spriddy);
+			} else if(attachState == "high"){
+				spriteButton->getHighSprite().addChildPtr(spriddy);
+			}
+
+			spriteButton->showUp();
 		} else {
 			parent->addChildPtr(spriddy);
 		}
