@@ -147,6 +147,8 @@
     <ClCompile Include="src\ds\network\https_client.cpp">
       <Filter>src\ds\network</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\query\content\xml_content_loader.cpp" />
+    <ClCompile Include="src\ds\query\content\generic_content_model.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -272,5 +274,7 @@
     <ClInclude Include="src\ds\network\curl\typecheck-gcc.h">
       <Filter>src\ds\network\curl</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\query\content\xml_content_loader.h" />
+    <ClInclude Include="src\ds\query\content\generic_content_model.h" />
   </ItemGroup>
 </Project>
