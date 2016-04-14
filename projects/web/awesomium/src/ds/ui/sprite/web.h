@@ -125,6 +125,9 @@ public:
 	/// Lets you disable clicking, but still scroll via "mouse wheel"
 	void					setAllowClicks(const bool doAllowClicks);
 
+	/// If true, any transparent web pages will be blank, false will have a white background for pages
+	void					setWebTransparent(const bool isTransparent);
+
 protected:
 	virtual void			onSizeChanged();
 	virtual void			writeAttributesTo(ds::DataBuffer&);
