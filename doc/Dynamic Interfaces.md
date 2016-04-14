@@ -52,6 +52,7 @@ Sprite Types
 * **scroll_list** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
 * **scroll_bar** = ds::ui::ScrollBar
+* **xml** = Load another xml interface. See details below.
 * **[custom]** = Calls a custom callback function with a string for the type. Requires you instantiate the sprite type yourself.
 
 Sprite Parameters
@@ -143,6 +144,22 @@ Image Button Parameters
 * **btn_touch_padding**: How much space to add to the sprite on every side of the image. btn_touch_padding="40"
 * **down_image_color**: Applies a color to the down image, to make creating responsive buttons easy from a single image.
 
+
+Sprite Button Parameters
+----------------------------
+**attach_state**: Add this to a sprite that's a child of a sprite button. Valid values: "normal" for the unpressed state and "high" for the pressed state. For example:
+
+    <interface>
+        <sprite_button
+            name="sample_button" 
+            size="400, 200" >
+            <text  name="child_text" font="sample:config" text="The Button" />
+            <image name="child_image" filename="%APP%/data/images/icons/up_icon.png" attach_state="normal" />
+            <image name="child_image" filename="%APP%/data/images/icons/down_icon.png" attach_state="high" />
+        </sprite>
+    </interface>
+	
+
 Gradient Sprite Parameters
 ---------------------------
 * **colorTop**: A color value to set the TL and TR colors of the gradient to. colorTop="ffffff" 
@@ -166,6 +183,56 @@ Scroll List Parameters
 * **scroll_list_layout**: Sets the parameters for layout from the format "x, y, z", which translates to setLayoutParams(xStart, yStart, incrementAmount, true);
 * **scroll_list_animate**: Sets the animation parameters, from the format "x, y", where x==startDelay and y==deltaDelay on ScrollList::setAnimateOnParams(startDelay, deltaDelay);
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
+
+XML
+-------------------------------
+You can load another xml interface from within an xml interface. This is super handy for menus and such that have a bunch of identical buttons or to make a consistent close button for your whole app. 
+Limitations:
+* You cannot load the same interface recursively, it'd be infinite
+* You can't add children to the loaded interface from the parent interface, since the child interface might have many children
+
+Properties:
+* You can set the properties of any loaded child from the parent with a "property" tag.
+* Children are given a dot naming scheme, and calling properties uses names relative to the child's interface.
+
+Example:
+menu_view.xml:
+
+    <layout name="layout" >
+        <xml name="home" src="%APP%/data/layouts/menu_button.xml" >
+            <!-- note that the "name" here refers to the name of a sprite inside menu_button.xml. any other property can be modified here -->
+            <property name="normal_icon" src="%APP%/data/images/icons/home_up.png" />
+            <property name="high_icon" src="%APP%/data/images/icons/home_down.png" />
+        </xml>
+       <xml name="map" src="%APP%/data/layouts/menu_button.xml" >
+            <!-- you can't have any normal children here, only set properties of the children of the parent xml interface -->
+            <property name="normal_icon" src="%APP%/data/images/icons/map_up.png" />
+            <property name="high_icon" src="%APP%/data/images/icons/map_down.png" />
+            <property name="down_gradient" opacity="0.5" animate_on="fade" />
+        </xml>
+    </layout>
+	
+menu_button.xml:
+
+    <sprite_button name="the_button" size="80, 80">	
+        <gradient name="down_gradient" attach_state="high" size="80, 80" gradientColors="red_orange, red_orange, red_orange, orange"/>
+        <image attach_state="normal" name="normal_icon"/>
+        <image attach_state="high" name="high_icon" />
+    </sprite_button>
+	
+In c++:
+
+    std::map<std::string, ds::ui::Sprite*>	spriteMap;
+    ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/menu_view.xml"), spriteMap);
+    // Note that the home button is given the name of the xml "home" plus it's local name. This allows you to have multiple instances of the same loaded xml and address all of them
+    mHomeButton = dynamic_cast<ds::ui::SpriteButton*>(spriteMap["home.the_button"]);
+    if(mHomeButton){
+        mHomeButton->setClickFn([this]{ /* do something to load the home screen */ });
+    }
+    mMapButton = dynamic_cast<ds::ui::SpriteButton*>(spriteMap["map.the_button"]);
+    if(mMapButton){
+        mMapButton->setClickFn([this]{ /* do something to load the map screen */ });
+    }
 
 Animation
 ==============================
