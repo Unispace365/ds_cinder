@@ -200,12 +200,14 @@ menu_view.xml:
 
     <layout name="layout" >
         <xml name="home" src="%APP%/data/layouts/menu_button.xml" >
-            <!-- note that the "name" here refers to the name of a sprite inside menu_button.xml. any other property can be modified here -->
+            <!-- note that the "name" here refers to the name of a sprite inside menu_button.xml.
+                Any other property of the child can be modified here as well -->
             <property name="normal_icon" src="%APP%/data/images/icons/home_up.png" />
             <property name="high_icon" src="%APP%/data/images/icons/home_down.png" />
         </xml>
        <xml name="map" src="%APP%/data/layouts/menu_button.xml" >
-            <!-- you can't have any normal children here, only set properties of the children of the parent xml interface -->
+            <!-- you can't have any normal children here, 
+                 only set properties of the children of the parent xml interface -->
             <property name="normal_icon" src="%APP%/data/images/icons/map_up.png" />
             <property name="high_icon" src="%APP%/data/images/icons/map_down.png" />
             <property name="down_gradient" opacity="0.5" animate_on="fade" />
@@ -215,7 +217,8 @@ menu_view.xml:
 menu_button.xml:
 
     <sprite_button name="the_button" size="80, 80">	
-        <gradient name="down_gradient" attach_state="high" size="80, 80" gradientColors="red_orange, red_orange, red_orange, orange"/>
+        <gradient name="down_gradient" attach_state="high" size="80, 80" 
+                  gradientColors="red_orange, red_orange, red_orange, orange"/>
         <image attach_state="normal" name="normal_icon"/>
         <image attach_state="high" name="high_icon" />
     </sprite_button>
@@ -224,7 +227,8 @@ In c++:
 
     std::map<std::string, ds::ui::Sprite*>	spriteMap;
     ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/menu_view.xml"), spriteMap);
-    // Note that the home button is given the name of the xml "home" plus it's local name. This allows you to have multiple instances of the same loaded xml and address all of them
+    // Note that the home button is given the name of the xml "home" plus it's local name. 
+    // This allows you to have multiple instances of the same loaded xml and address all of them
     mHomeButton = dynamic_cast<ds::ui::SpriteButton*>(spriteMap["home.the_button"]);
     if(mHomeButton){
         mHomeButton->setClickFn([this]{ /* do something to load the home screen */ });
