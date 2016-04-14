@@ -88,9 +88,6 @@ void EngineClient::setup(ds::App& app) {
 	mRenderTextThread.start(true);
 }
 
-void EngineClient::setupTuio(ds::App&) {
-}
-
 void EngineClient::update() {
 	mWorkManager.update();
 	updateClient();

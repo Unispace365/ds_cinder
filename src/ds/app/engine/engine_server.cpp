@@ -76,19 +76,6 @@ void AbstractEngineServer::setup(ds::App& app) {
 	app.setupServer();
 }
 
-void AbstractEngineServer::setupTuio(ds::App& a) {
-	if (ds::ui::TouchMode::hasTuio(mTouchMode)) {
-		ci::tuio::Client &tuioClient = getTuioClient();
-		tuioClient.registerTouches(&a);
-		registerForTuioObjects(tuioClient);
-		try{
-			tuioClient.connect(mTuioPort);
-		} catch(std::exception ex) {
-			DS_LOG_WARNING("Tuio client could not be started.");
-		}
-	}
-}
-
 void AbstractEngineServer::update() {
 	mComputerInfo->update();
 	mWorkManager.update();
