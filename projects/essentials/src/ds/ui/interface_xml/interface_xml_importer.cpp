@@ -443,6 +443,8 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	// The slower parts of this are the actual functions that are called (particularly multilinetext setResizeLimit())
 	// So be sure that this is actually performing slowly before considering a refactor.
 
+
+
 	if(property == "name"){
 		sprite.setSpriteName(ds::wstr_from_utf8(value));
 	} else if(property == "class") {
@@ -831,6 +833,9 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set radius on a non-circle sprite of type: " << typeid(sprite).name());
 		}
+	} else if(property == "attach_state"){
+		// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore it.
+		return;
 	}
 
 	else {
