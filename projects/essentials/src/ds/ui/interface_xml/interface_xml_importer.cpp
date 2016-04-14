@@ -443,6 +443,8 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	// The slower parts of this are the actual functions that are called (particularly multilinetext setResizeLimit())
 	// So be sure that this is actually performing slowly before considering a refactor.
 
+
+
 	if(property == "name"){
 		sprite.setSpriteName(ds::wstr_from_utf8(value));
 	} else if(property == "class") {
@@ -831,6 +833,9 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set radius on a non-circle sprite of type: " << typeid(sprite).name());
 		}
+	} else if(property == "attach_state"){
+		// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore it.
+		return;
 	}
 
 	else {
@@ -896,9 +901,9 @@ void XmlImporter::setAutoCache(const bool doCaching){
 	AUTO_CACHE = doCaching;
 }
 
-bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter) {
+bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName) {
 
-	XmlImporter xmlImporter( parent, filename, map, customImporter );
+	XmlImporter xmlImporter(parent, filename, map, customImporter, prefixName);
 
 	XmlPreloadData preloadData;
 
@@ -931,8 +936,8 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename,
 	return xmlImporter.load(preloadData.mXmlTree);
 }
 
-bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData, NamedSpriteMap &map, SpriteImporter customImporter ){
-	XmlImporter xmlImporter(parent, preloadData.mFilename, map, customImporter);
+bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName ){
+	XmlImporter xmlImporter(parent, preloadData.mFilename, map, customImporter, prefixName);
 
 	// copy each stylesheet, cause the xml importer will delete it's copies when it destructs
 	for(auto it = preloadData.mStylesheets.begin(); it < preloadData.mStylesheets.end(); ++it){
@@ -961,7 +966,7 @@ bool XmlImporter::load( ci::XmlTree &xml ) {
 	}
 
 	BOOST_FOREACH( auto &xmlNode, sprites ) {
-		readSprite(mTargetSprite, xmlNode );
+		readSprite(mTargetSprite, xmlNode);
 	}
 
 	return true;
@@ -1105,58 +1110,132 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 	return spriddy;
 }
 
-bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree>& node) {
+bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree>& node){
 	std::string type = node->getTag();
 	std::string value = node->getValue();
 	auto &engine = parent->getEngine();
 
-	ds::ui::Sprite* spriddy = createSpriteByType(engine, type, value);
-	
-	if (!spriddy && mCustomImporter) {
-		spriddy = mCustomImporter(type, *node);
-	}
+	if(type == "xml"){
+		std::string xmlPath = filePathRelativeTo(mXmlFile, node->getAttributeValue<std::string>("src", ""));
+		if(xmlPath.empty()){
+			DS_LOG_WARNING("XmlImporter: Recursive XML: Specify a src parameter to load xml in " << mXmlFile);
+			return false;
+		}
+		if(xmlPath == mXmlFile){
+			DS_LOG_WARNING("XmlImporter: Recursive XML: You cannot load the same xml from the same xml in " << mXmlFile);
+			return false;
+		}
 
-	if (!spriddy) {
-		DS_LOG_WARNING("Error creating sprite! Type=" << type);
-		return false;
-	}
+		// Apply dot naming scheme
+		std::string spriteName = node->getAttributeValue<std::string>("name", "");
+		if(!mNamePrefix.empty()){
+			std::stringstream ss; 
+			ss << mNamePrefix << "." << spriteName;
+			spriteName = ss.str();
+		}
 
-	BOOST_FOREACH(auto &sprite, node->getChildren()) {
-		readSprite(spriddy, sprite);
-	}
+		if(!XmlImporter::loadXMLto(parent, xmlPath, mNamedSpriteMap, mCustomImporter, spriteName)){
+			return false;
+		}
 
-	ds::ui::ScrollArea* parentScroll = dynamic_cast<ds::ui::ScrollArea*>(parent);
-	if(parentScroll){
-		parentScroll->addSpriteToScroll(spriddy);
+		// Use child nodes of the "xml" node to set children properties
+		BOOST_FOREACH(auto &newNode, node->getChildren()) {
+			if(newNode->getTag() == "property"){
+				std::string childSpriteName = newNode->getAttributeValue<std::string>("name", "");
+				std::stringstream ss;
+				ss << spriteName << "." << childSpriteName;
+				childSpriteName = ss.str();
+				
+				ds::ui::Sprite* spriddy = nullptr;
+				
+				for(auto it = mNamedSpriteMap.begin(); it != mNamedSpriteMap.end(); ++it){
+					if(it->first == childSpriteName){
+						spriddy = it->second;
+					}
+				}
+
+				if(spriddy){
+					BOOST_FOREACH(auto &attr, newNode->getAttributes()) {
+						if(attr.getName() == "name") continue; // don't overwrite the name
+						setSpriteProperty(*spriddy, attr, xmlPath);
+					}
+				} else {
+					DS_LOG_WARNING("XmlImporter: Recursive XML: Couldn't find a child with the name " << childSpriteName << " to apply properties to");
+				}
+			} else {
+				DS_LOG_WARNING("XmlImporter: Recursive XML: Regular children are not supported in recursive xml. Tagname=" << newNode->getTag());
+			}
+		}
+
+
 	} else {
-		parent->addChildPtr(spriddy);
-	}
+		ds::ui::Sprite* spriddy = createSpriteByType(engine, type, value);
 
-	// Get sprite name and classes
-	std::string sprite_name = node->getAttributeValue<std::string>("name", "");
-	std::string sprite_classes = node->getAttributeValue<std::string>("class", "");
-
-	// Put sprite in named sprites map
-	if (sprite_name != "") {
-		spriddy->setSpriteName(ds::wstr_from_utf8(sprite_name));
-
-		if (mNamedSpriteMap.find(sprite_name) != mNamedSpriteMap.end()) {
-			DS_LOG_WARNING("Interface xml file contains duplicate sprites named:" << sprite_name << ", only the first one will be identified.");
+		if(!spriddy && mCustomImporter) {
+			spriddy = mCustomImporter(type, *node);
 		}
-		else {
-			mNamedSpriteMap.insert(std::make_pair(sprite_name, spriddy));
+
+		if(!spriddy) {
+			DS_LOG_WARNING("Error creating sprite! Type=" << type);
+			return false;
+		}
+
+		BOOST_FOREACH(auto &sprite, node->getChildren()) {
+			readSprite(spriddy, sprite);
+		}
+
+		ds::ui::ScrollArea* parentScroll = dynamic_cast<ds::ui::ScrollArea*>(parent);
+		ds::ui::SpriteButton* spriteButton = dynamic_cast<ds::ui::SpriteButton*>(parent);
+		if(parentScroll){
+			parentScroll->addSpriteToScroll(spriddy);
+		} else if(spriteButton){
+			std::string attachState = node->getAttributeValue<std::string>("attach_state", "");
+			if(attachState.empty()){
+				parent->addChildPtr(spriddy);
+			} else if(attachState == "normal"){
+				spriteButton->getNormalSprite().addChildPtr(spriddy);
+			} else if(attachState == "high"){
+				spriteButton->getHighSprite().addChildPtr(spriddy);
+			}
+
+			spriteButton->showUp();
+		} else {
+			parent->addChildPtr(spriddy);
+		}
+
+		// Get sprite name and classes
+		std::string sprite_name = node->getAttributeValue<std::string>("name", "");
+		std::string sprite_classes = node->getAttributeValue<std::string>("class", "");
+
+		// Apply stylesheet(s)
+		BOOST_FOREACH(auto stylesheet, mStylesheets) {
+			applyStylesheet(*stylesheet, *spriddy, sprite_name, sprite_classes);
+		}
+
+		// Set properties from xml attributes, overwriting those from the stylesheet(s)
+		BOOST_FOREACH(auto &attr, node->getAttributes()) {
+			setSpriteProperty(*spriddy, attr, mXmlFile);
+		}
+
+		// Put sprite in named sprites map
+		if(sprite_name != "") {
+
+			if(!mNamePrefix.empty()){
+				std::stringstream ss;
+				ss << mNamePrefix << "." << sprite_name;
+				sprite_name = ss.str();
+			}
+
+			spriddy->setSpriteName(ds::wstr_from_utf8(sprite_name));
+
+			if(mNamedSpriteMap.find(sprite_name) != mNamedSpriteMap.end()) {
+				DS_LOG_WARNING("Interface xml file contains duplicate sprites named:" << sprite_name << ", only the first one will be identified.");
+			} else {
+				mNamedSpriteMap.insert(std::make_pair(sprite_name, spriddy));
+			}
 		}
 	}
 
-	// Apply stylesheet(s)
-	BOOST_FOREACH(auto stylesheet, mStylesheets) {
-		applyStylesheet(*stylesheet, *spriddy, sprite_name, sprite_classes);
-	}
-
-	// Set properties from xml attributes, overwriting those from the stylesheet(s)
-	BOOST_FOREACH(auto &attr, node->getAttributes()) {
-		setSpriteProperty(*spriddy, attr, mXmlFile);
-	}
 
 	return true;
 }

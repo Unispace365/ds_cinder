@@ -19,6 +19,8 @@
     <ClCompile Include="src\ds\debug\automator\automator.cpp" />
     <ClCompile Include="src\ds\network\helper\delayed_node_watcher.cpp" />
     <ClCompile Include="src\ds\network\https_client.cpp" />
+    <ClCompile Include="src\ds\query\content\generic_content_model.cpp" />
+    <ClCompile Include="src\ds\query\content\xml_content_loader.cpp" />
     <ClCompile Include="src\ds\touch\delayed_momentum.cpp" />
     <ClCompile Include="src\ds\touch\five_finger_cluster.cpp" />
     <ClCompile Include="src\ds\touch\touch_debug.cpp" />
@@ -59,6 +61,8 @@
     <ClInclude Include="src\ds\network\curl\typecheck-gcc.h" />
     <ClInclude Include="src\ds\network\helper\delayed_node_watcher.h" />
     <ClInclude Include="src\ds\network\https_client.h" />
+    <ClInclude Include="src\ds\query\content\generic_content_model.h" />
+    <ClInclude Include="src\ds\query\content\xml_content_loader.h" />
     <ClInclude Include="src\ds\touch\delayed_momentum.h" />
     <ClInclude Include="src\ds\touch\five_finger_cluster.h" />
     <ClInclude Include="src\ds\touch\touch_debug.h" />

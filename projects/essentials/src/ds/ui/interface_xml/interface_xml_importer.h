@@ -33,8 +33,11 @@ public:
 	// reads the xml at the specified path and creates any sprites found on the parent
 	// Returns true if the xml was loaded and sprites were successfully created
 	// False indicates either xml load failure or failure to create sprites
-	static bool loadXMLto(ds::ui::Sprite * parent, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr);
-	static bool loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& xmldata, NamedSpriteMap &map, SpriteImporter customImporter = nullptr);
+	// Name prefix gets applied to the front of all sprite names. 
+	// For instance, setting a namePrefix of "button" will make the sprite named "title" in this xml be named "button.title".
+	// The name prefix is to support recursive loading of xml's, so you can link one xml to another xml.
+	static bool loadXMLto(ds::ui::Sprite * parent, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr, const std::string& namePrefix = "");
+	static bool loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& xmldata, NamedSpriteMap &map, SpriteImporter customImporter = nullptr, const std::string& namePrefix = "");
 
 	// Pre-loads the xml & related css files in preparation for creating sprites later. Removes a lot of the dynamic disk reads associated with importing stuff
 	static bool preloadXml(const std::string& xmlFile, XmlPreloadData& outData);
@@ -78,21 +81,23 @@ public:
 
 
 protected:
-	XmlImporter( ds::ui::Sprite *targetSprite, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr)
+	XmlImporter( ds::ui::Sprite *targetSprite, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr, const std::string& namePrefix = "")
 		: mTargetSprite(targetSprite)
 		, mXmlFile( xmlFile )
 		, mNamedSpriteMap( map )
 		, mCustomImporter( customImporter )
+		, mNamePrefix(namePrefix)
 	{}
 	~XmlImporter();
 
 	bool load(ci::XmlTree &);
 
-	bool readSprite(ds::ui::Sprite *, std::unique_ptr<ci::XmlTree>& );
+	bool readSprite(ds::ui::Sprite *, std::unique_ptr<ci::XmlTree>&);
 
 	NamedSpriteMap &			mNamedSpriteMap;
 	std::string 				mXmlFile;
-	ds::ui::Sprite *			mTargetSprite;
+	std::string 				mNamePrefix;
+	ds::ui::Sprite*				mTargetSprite;
 	SpriteImporter				mCustomImporter;
 	std::vector< Stylesheet * >	mStylesheets;
 };

@@ -33,7 +33,6 @@ public:
 													const std::function<void(ds::BlobRegistry&)>& asClient);
 
 	virtual void					setup(ds::App&);
-	virtual void					setupTuio(ds::App&);
 	virtual void					update();
 	virtual void					draw();
 

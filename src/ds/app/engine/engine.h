@@ -106,7 +106,7 @@ public:
 	void								prepareSettings( ci::app::AppBasic::Settings& );
 	//called in app setup; loads settings files and what not.
 	virtual void						setup(ds::App&);
-	virtual void						setupTuio(ds::App&) = 0;
+	void								setupTouch(ds::App&);
 
 	bool								isIdling() const;
 	void								startIdling();
