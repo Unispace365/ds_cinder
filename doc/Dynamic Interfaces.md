@@ -196,7 +196,8 @@ Properties:
 * Children are given a dot naming scheme, and calling properties uses names relative to the child's interface.
 
 Example:
-menu_view.xml:
+
+**menu_view.xml:**
 
     <layout name="layout" >
         <xml name="home" src="%APP%/data/layouts/menu_button.xml" >
@@ -214,7 +215,7 @@ menu_view.xml:
         </xml>
     </layout>
 	
-menu_button.xml:
+**menu_button.xml:**
 
     <sprite_button name="the_button" size="80, 80">	
         <gradient name="down_gradient" attach_state="high" size="80, 80" 
@@ -223,7 +224,7 @@ menu_button.xml:
         <image attach_state="high" name="high_icon" />
     </sprite_button>
 	
-In c++:
+**In c++:**
 
     std::map<std::string, ds::ui::Sprite*>	spriteMap;
     ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/menu_view.xml"), spriteMap);
