@@ -331,7 +331,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				if(mt){
 					mt->setResizeLimit(fixedW, fixedH);
 				} else if(img){
-					fitInside(img, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), true);
+					fitInside(img, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), false);
 				} else if(ls){
 					ls->setSize(fixedW, fixedH);
 					ls->runLayout();
