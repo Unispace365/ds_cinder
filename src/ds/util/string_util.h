@@ -68,6 +68,8 @@ const float string_to_float(const std::string& str);
 const float wstring_to_float(const std::wstring& str);
 const int string_to_int(const std::string& str);
 const int wstring_to_int(const std::wstring& str);
+const double string_to_double(const std::string& str);
+const double wstring_to_double(const std::wstring& str);
 
 std::vector<std::string> split( const std::string &str, const std::string &delimiters, bool dropEmpty = false );
 std::vector<std::wstring> split( const std::wstring &str, const std::wstring &delimiters, bool dropEmpty = false );

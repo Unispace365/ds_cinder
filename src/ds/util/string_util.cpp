@@ -171,7 +171,6 @@ const float ds::string_to_float(const std::string& str){
 	return floatValue;
 }
 
-
 const float ds::wstring_to_float(const std::wstring& str){
 	float floatValue = 0.0f;
 	wstring_to_value<float>(str, floatValue);
@@ -188,6 +187,18 @@ const int ds::wstring_to_int(const std::wstring& str){
 	int intValue = 0;
 	wstring_to_value<int>(str, intValue);
 	return intValue;
+}
+
+const double ds::string_to_double(const std::string& str){
+	double doubleValue = 0.0;
+	string_to_value<double>(str, doubleValue);
+	return doubleValue;
+}
+
+const double ds::wstring_to_double(const std::wstring& str){
+	double doubleValue = 0.0;
+	wstring_to_value<double>(str, doubleValue);
+	return doubleValue;
 }
 
 //variation on a function found on stackoverflow
