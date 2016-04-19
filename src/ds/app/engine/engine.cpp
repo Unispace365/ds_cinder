@@ -91,6 +91,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	mData.mAppInstanceName = settings.getText("platform:guid", 0, "Downstream");
 
+
 	// don't lose idle just because we got a marker moved event
 	mTuioObjectsMoved.setAutoIdleReset(false);
 
@@ -288,7 +289,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
 	}
 
-	setIdleTimeout(settings.getInt("idle_time", 0, 300));
+	setIdleTimeout((int)settings.getFloat("idle_time", 0, 300));
 	setMute(settings.getBool("platform:mute", 0, false));
 }
 
