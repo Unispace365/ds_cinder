@@ -229,7 +229,8 @@ void LoadImageService::onLoadComplete(ImageLoadThread& loadThread){
 	ImageOperation&			out = loadThread.mOutput;
 	ImageHolder&			h = mImageResource[out.mKey];
 	if(h.mTexture) {
-		DS_LOG_WARNING_M("Duplicate images for id=" << out.mKey.mFilename << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
+		// This isn't an error any more, and is just fine. Really the problem is that we spent a bunch of time loading the same image twice
+		//DS_LOG_WARNING_M("Duplicate images for id=" << out.mKey.mFilename << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
 	} else {
 		ci::gl::Texture::Format	fmt;
 		if((h.mFlags&ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
