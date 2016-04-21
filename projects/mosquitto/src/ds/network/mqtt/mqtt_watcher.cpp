@@ -42,6 +42,7 @@ MqttWatcher::MqttWatcher(
 	: ds::AutoUpdate(e)
 	, mLoop(e, host, topic_inbound, topic_outband, refresh_rate, port)
 	, mRetryWaitTime(5.0f)
+	, mStarted(false)
 {
 	MqttSingleton::initilize_once();
 	mLastMessageTime = Poco::Timestamp().epochMicroseconds();
@@ -58,7 +59,7 @@ void MqttWatcher::addInboundListener(const std::function<void(const MessageQueue
 }
 
 void MqttWatcher::update(const ds::UpdateParams &){
-	if(!mLoop.mConnected && mRetryWaitTime > 0.0f){
+	if(mStarted && !mLoop.mConnected && mRetryWaitTime > 0.0f){
 		Poco::Timestamp::TimeVal nowwy = Poco::Timestamp().epochMicroseconds();
 		auto delty = (float)(nowwy - mLastMessageTime) / 1000000.0f;
 		if(delty > mRetryWaitTime){
@@ -71,16 +72,15 @@ void MqttWatcher::update(const ds::UpdateParams &){
 
 	if(!mLoop.mLoopInbound.empty()){
 		std::lock_guard<std::mutex>	_lock(mLoop.mInboundMutex);
-		if(!mLoop.mLoopInbound.empty()) //double check
-		{
+		//double check
+		if(!mLoop.mLoopInbound.empty()){
 			mLoop.mLoopInbound.swap(mMsgInbound);
 		}
 	}
 
 	if(!mMsgOutbound.empty()){
 		std::lock_guard<std::mutex>	_lock(mLoop.mOutboundMutex);
-		while(!mMsgOutbound.empty())
-		{
+		while(!mMsgOutbound.empty()){
 			mLoop.mLoopOutbound.push(mMsgOutbound.front());
 			mMsgOutbound.pop();
 		}
@@ -98,6 +98,7 @@ void MqttWatcher::sendOutboundMessage(const std::string& str){
 }
 
 void MqttWatcher::startListening(){
+	mStarted = true;
 	if(!mLoop.mConnected){
 		DS_LOG_INFO_M("Attempting to connect to the MQTT server...", MQTT_LOG);
 		std::async(std::launch::async, [this]{ mLoop.run(); });
@@ -105,8 +106,21 @@ void MqttWatcher::startListening(){
 	}
 }
 
+void MqttWatcher::stopListening(){
+	mStarted = false;
+	// setting abort is atomic, but someone may want to do something right after this
+	std::lock_guard<std::mutex>	_lock(mLoop.mOutboundMutex);
+	mLoop.mAbort = true;
+}
+
 void MqttWatcher::setTopicInbound(const std::string& inBound){
+	std::lock_guard<std::mutex>	_lock(mLoop.mInboundMutex);
 	mLoop.setInBound(inBound);
+}
+
+void MqttWatcher::setTopicOutbound(const std::string& outBound){
+	std::lock_guard<std::mutex>	_lock(mLoop.mOutboundMutex);
+	mLoop.setOutBound(outBound);
 }
 
 void MqttWatcher::setHostString(const std::string& host){
@@ -199,8 +213,11 @@ void MqttWatcher::MqttConnectionLoop::run(){
 }
 
 void MqttWatcher::MqttConnectionLoop::setInBound(const std::string& inBound){
-	mTopicOutbound.clear();
 	mTopicInbound = inBound;
+}
+
+void MqttWatcher::MqttConnectionLoop::setOutBound(const std::string& outBound){
+	mTopicOutbound = outBound;
 }
 
 void MqttWatcher::MqttConnectionLoop::setHost(const std::string& host){
