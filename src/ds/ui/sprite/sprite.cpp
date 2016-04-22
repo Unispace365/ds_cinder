@@ -572,6 +572,12 @@ const ci::Vec3f& Sprite::getPosition() const {
 	return mPosition;
 }
 
+const ci::Vec3f Sprite::getGlobalPosition() const{
+	if(!getParent()) return ci::Vec3f::zero();
+	return getParent()->localToGlobal(mPosition);
+}
+
+
 ci::Vec3f Sprite::getCenterPosition() const {
 	return mPosition + getLocalCenterPosition();
 }
