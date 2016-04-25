@@ -47,6 +47,10 @@ class ScrollArea : public ds::ui::Sprite {
 		// How much of the scroller is currently visible. If the scroller is smaller than the scroll area, then this will be 1.0
 		float				getVisiblePercent();
 
+		// Move the scroll forwards or backwards by a "page", defined by the visible area minus the size of the fades (if present)
+		// May not work correctly in perspective
+		void				scrollPage(const bool forwards, const bool animate = true);
+
 	private:
 		virtual void		updateServer(const ds::UpdateParams& p);
 		void				scrollerUpdated(const ci::Vec2f scrollPos);
