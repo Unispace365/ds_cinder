@@ -281,10 +281,12 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 			//Output available on Texture Unit 1
 			if (mShaderPasses == mShaderPass){						//last pass
 				// render to screen   - may be overridden later to render to texture
-				mFrameBuffer[mFboIndex]->unbindFramebuffer();
 
-				glDrawBuffer(GL_COLOR_ATTACHMENT0);
+				mFrameBuffer[!mFboIndex]->unbindFramebuffer();
+
+				//Bind previous render to texture unit 1
 				mFrameBuffer[!mFboIndex]->bindTexture(1);
+
 				ci::gl::popModelView();
 				ci::gl::popMatrices();
 				ci::gl::setViewport(viewport);
