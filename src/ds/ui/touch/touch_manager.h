@@ -100,9 +100,6 @@ private:
 	std::function<bool(const ci::Vec2f& p)>	mTouchFilterFunc;
 
 	TouchMode::Enum						mTouchMode;
-	// If system multitouch is on, Cinder will get both mouse and touch events for the first touch.
-	// So we track the first touch id to ignore that finger (cause the mouse will count for that)
-	int									mIgnoreFirstTouchId;
 	// Hack to support the touch trails
 	Capture*							mCapture;
 

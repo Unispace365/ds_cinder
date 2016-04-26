@@ -18,7 +18,7 @@ public:
 	SpriteButton(SpriteEngine& eng, const float widdy = 0.0f, const float hiddy = 0.0f);
 
 	// the amount of time the images take fading between themselves
-	void						setAnimationDuration(const float dur);
+	void						setAnimationDuration(const float dur){ mAnimDuration = dur; }
 
 	void						setClickFn(const std::function<void(void)>&);
 
@@ -47,7 +47,7 @@ private:
 	ds::ButtonBehaviour			mButtonBehaviour;
 
 	// SETTINGS
-	const float					mAnimDuration;
+	float						mAnimDuration;
 
 
 };

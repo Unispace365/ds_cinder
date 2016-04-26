@@ -219,6 +219,11 @@ namespace ui {
 			\return The 3d vector of the new position, in pixels. */
 		const ci::Vec3f&		getPosition() const;
 
+		/** Get the position of the Sprite in global space. 
+			Returns ci::Vec3f::zero() if this sprite has no parent.
+			\return The 3d vector of the world-space position, in pixels. */
+		const ci::Vec3f			getGlobalPosition() const;
+
 		/** Change the position of the Sprite relative to it's current position.
 			\param delta 3d vector of the amount to move the Sprite in pixels		*/
 		void					move(const ci::Vec3f &delta);

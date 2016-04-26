@@ -52,15 +52,15 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
 	, mSettings(settings)
-	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);})
-	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e); })
-	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e); })
-	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);})
-	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);})
-	, mMouseEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);})
-	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);})
-	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);})
-	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);})
+	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
+	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
+	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
+	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);}, "mousebegin")
+	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);}, "mousemoved")
+	, mMouseEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
+	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);}, "tuiobegin")
+	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
+	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
 	, mHideMouse(false)
 	, mUniqueColor(0, 0, 0)
 	, mAutoDraw(new AutoDrawService())
@@ -90,6 +90,10 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
 
 	mData.mAppInstanceName = settings.getText("platform:guid", 0, "Downstream");
+
+
+	// don't lose idle just because we got a marker moved event
+	mTuioObjectsMoved.setAutoIdleReset(false);
 
 	const bool			drawTouches = settings.getBool("touch_overlay:debug", 0, false);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
@@ -285,10 +289,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
 	}
 
-	setIdleTimeout(settings.getInt("idle_time", 0, 300));
+	setIdleTimeout((int)settings.getFloat("idle_time", 0, 300));
 	setMute(settings.getBool("platform:mute", 0, false));
-
-	std::cout << "Engine constructor complete, app instance name: " << mData.mAppInstanceName << std::endl;
 }
 
 
@@ -323,9 +325,9 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
 
 	settings.setResizable(false);
 
-	if(ds::ui::TouchMode::hasSystem(mTouchMode)) {
-		settings.enableMultiTouch();
-	}
+	//if(ds::ui::TouchMode::hasSystem(mTouchMode)) {
+	//	settings.enableMultiTouch();
+	//}
 
 	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
@@ -389,6 +391,28 @@ void Engine::setup(ds::App& app) {
 	}
 
 	setupRenderer();
+}
+
+void Engine::setupTouch(ds::App& a) {
+	
+	if(ds::ui::TouchMode::hasTuio(mTouchMode)) {
+		ci::tuio::Client&		tuioClient = getTuioClient();
+		tuioClient.registerTouches(&a);
+		registerForTuioObjects(tuioClient);
+		try{
+			tuioClient.connect(mTuioPort);
+		} catch(std::exception ex) {
+			DS_LOG_WARNING("Tuio client could not be started.");
+		}
+	}
+
+	if(ds::ui::TouchMode::hasSystem(mTouchMode)){
+		BOOL(WINAPI *RegisterTouchWindow)(HWND, ULONG);
+		*(size_t *)&RegisterTouchWindow = (size_t)::GetProcAddress(::GetModuleHandle(TEXT("user32.dll")), "RegisterTouchWindow");
+		if(RegisterTouchWindow) {
+			(*RegisterTouchWindow)((HWND)ci::app::getWindow()->getNative(), 0x00000002);
+		}
+	}
 }
 
 void Engine::clearRoots(){
@@ -924,13 +948,11 @@ bool Engine::isIdling() const {
 }
 
 void Engine::startIdling() {
-	if (mIdling)
-		return;
-
 	mIdling = true;
 }
 
 void Engine::resetIdleTimeout() {
+	//DS_LOG_INFO("ResetIdleTimeout");
 	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
 	mLastTouchTime = curr;

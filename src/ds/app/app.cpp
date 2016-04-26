@@ -182,7 +182,7 @@ void App::setup() {
 	inherited::setup();
 
 	mEngine.setup(*this);
-	mEngine.setupTuio(*this);
+	mEngine.setupTouch(*this);
 }
 
 void App::update() {

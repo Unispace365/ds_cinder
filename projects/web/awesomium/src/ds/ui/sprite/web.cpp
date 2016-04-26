@@ -767,5 +767,11 @@ void Web::setAllowClicks(const bool doAllowClicks){
 	mAllowClicks = doAllowClicks;
 }
 
+void Web::setWebTransparent(const bool isTransparent){
+	if(mWebViewPtr){
+		mWebViewPtr->SetTransparent(isTransparent);
+	}
+}
+
 } // namespace ui
 } // namespace ds

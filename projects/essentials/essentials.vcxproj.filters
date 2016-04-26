@@ -58,6 +58,12 @@
     <Filter Include="src\ds\network\curl">
       <UniqueIdentifier>{aaf412cb-2aed-400d-b090-67fe8bf7e762}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\query">
+      <UniqueIdentifier>{8d39ee5c-0b15-42a8-ae73-996996c88c49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\query\content">
+      <UniqueIdentifier>{192d763d-e381-4e1f-b44f-ee514bfcd3fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -146,6 +152,12 @@
     </ClCompile>
     <ClCompile Include="src\ds\network\https_client.cpp">
       <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\query\content\generic_content_model.cpp">
+      <Filter>src\ds\query\content</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\query\content\xml_content_loader.cpp">
+      <Filter>src\ds\query\content</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -271,6 +283,12 @@
     </ClInclude>
     <ClInclude Include="src\ds\network\curl\typecheck-gcc.h">
       <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\query\content\xml_content_loader.h">
+      <Filter>src\ds\query\content</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\query\content\generic_content_model.h">
+      <Filter>src\ds\query\content</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

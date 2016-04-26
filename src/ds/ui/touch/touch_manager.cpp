@@ -25,7 +25,6 @@ TouchManager::TouchManager(Engine &engine, const TouchMode::Enum &mode)
 		, mTouchFilterRect(0.0f, 0.0f, 0.0f, 0.0f)
 		, mTouchFilterFunc(nullptr)
 		, mTouchMode(mode)
-		, mIgnoreFirstTouchId(-1)
 		, mCapture(nullptr)
 		, mRotationTranslatorPtr(new RotationTranslator())
 		, mRotationTranslator(*(mRotationTranslatorPtr.get()))
@@ -40,13 +39,6 @@ void TouchManager::setTouchMode(const TouchMode::Enum &m) {
 
 void TouchManager::touchesBegin(const ds::ui::TouchEvent &event) {
 	for (auto touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
-
-		// This system uses a mouse click for the first touch, which allows for use of the mouse and touches simultaneously
-		// It's possible we'll run into a scenario where we need to reverse this, which we can just add a bool flag to the settings to use all touches and ignore all mouses.
-		if(TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && TouchMode::hasMouse(mTouchMode) && mIgnoreFirstTouchId < 0) {
-			mIgnoreFirstTouchId = touchIt->getId();
-			return;
-		}
 
 		ci::Vec2f touchPos = touchIt->getPos();
 		if(mOverrideTranslation && !event.getInWorldSpace()){
@@ -127,10 +119,6 @@ void TouchManager::inputBegin(const int fingerId, const ci::Vec2f& touchPos){
 
 void TouchManager::touchesMoved(const ds::ui::TouchEvent &event) {
 	for (auto touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
-		if (TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId) {
-			continue;
-		}
-
 		int fingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
 
 		if(mDiscardTouchMap[fingerId]){
@@ -206,12 +194,6 @@ void TouchManager::inputMoved(const int fingerId, const ci::Vec2f& touchPos){
 
 void TouchManager::touchesEnded(const ds::ui::TouchEvent &event) {
 	for (auto touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
-
-		if (TouchMode::hasSystem(mTouchMode) && ci::System::hasMultiTouch() && touchIt->getId() == mIgnoreFirstTouchId){
-			mIgnoreFirstTouchId = -1;
-			continue;
-		}
-
 		int fingerId = touchIt->getId() + MOUSE_RESERVED_IDS;
 
 		if(mDiscardTouchMap[fingerId]){
@@ -317,6 +299,15 @@ bool TouchManager::shouldDiscardTouch(const ci::Vec2f& p) {
 
 	if(mTouchFilterFunc){
 		output |= mTouchFilterFunc(p);
+	}
+
+	if(!output && mEngine.getMinTouchDistance() > 0.0f){
+		for(auto it = mTouchPreviousPoint.begin(); it != mTouchPreviousPoint.end(); ++it){
+			if(	it->second.xy().distance(p) < mEngine.getMinTouchDistance()){
+				output = true;
+				break;
+			}
+		}
 	}
 
 	return output;

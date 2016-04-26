@@ -41,18 +41,6 @@ void EngineStandalone::setup(ds::App& app) {
 	app.setupServer();
 }
 
-void EngineStandalone::setupTuio(ds::App& a) {
-	if (ds::ui::TouchMode::hasTuio(mTouchMode)) {
-		ci::tuio::Client&		tuioClient = getTuioClient();
-		tuioClient.registerTouches(&a);
-		registerForTuioObjects(tuioClient);
-		try{
-			tuioClient.connect(mTuioPort);
-		} catch (std::exception ex) {	
-			DS_LOG_WARNING("Tuio client could not be started.");
-		}
-	}
-}
 
 void EngineStandalone::update() {
 	mWorkManager.update();

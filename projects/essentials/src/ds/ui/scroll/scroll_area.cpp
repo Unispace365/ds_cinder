@@ -414,6 +414,73 @@ float ScrollArea::getVisiblePercent(){
 	}
 }
 
+void ScrollArea::scrollPage(const bool forwards, const bool animate) {
+	if(!mScroller) return;
+
+	const float visibPerc = getVisiblePercent();
+	if(visibPerc == 1.0f) return;
+
+
+	float scrollerSize = mScroller->getHeight();
+	float scrollWindow = getHeight();
+
+	if(!mVertical){
+		scrollerSize = mScroller->getWidth();
+		scrollWindow = getWidth();
+	}
+
+	const float theTop = scrollWindow - scrollerSize;
+
+	float visiblePixes = visibPerc * mScroller->getHeight();
+	if(!mVertical)visiblePixes = visibPerc * mScroller->getWidth();
+
+	const float scrolledPerc = getScrollPercent();
+	float scrolledPixes = scrolledPerc * theTop;
+	if(!mVertical) scrolledPixes = scrolledPerc * theTop;
+
+	float destPixels = scrolledPixes;
+	float fadePixels = 0.0f;
+	if(mTopFade && mBottomFade){
+		if(mVertical){
+			fadePixels = mTopFade->getHeight();
+		} else {
+			fadePixels = mTopFade->getWidth();
+		}
+	}
+
+	if(forwards){
+		destPixels -= (visiblePixes -fadePixels);
+	} else {
+		destPixels += (visiblePixes - fadePixels);
+	}
+
+	if(destPixels < theTop) destPixels = theTop;
+	if(destPixels > 0.0f) destPixels = 0.0f;
+
+
+	ci::Vec3f tweenDestination = mScroller->getPosition();
+	if(mVertical){
+		if(getPerspective()){
+			destPixels = theTop - destPixels;
+		}
+		tweenDestination.y = destPixels;
+	} else {
+		tweenDestination.x = destPixels;
+	}
+
+	mSpriteMomentum.deactivate();
+	if(animate){
+		mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseInOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
+		scrollerUpdated(tweenDestination.xy());
+	} else {
+		mScroller->animStop();
+		mScroller->setPosition(tweenDestination);
+		scrollerUpdated(tweenDestination.xy());
+	}
+
+
+}
+
 } // namespace ui
 
 } // namespace ds

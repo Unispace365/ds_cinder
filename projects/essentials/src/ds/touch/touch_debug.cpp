@@ -101,7 +101,7 @@ void TouchDebug::replicate(const ci::app::MouseEvent& e, ds::ui::TouchInfo::Phas
 		angley += deltaAngley;
 	}
 
-	ds::ui::TouchEvent te = ds::ui::TouchEvent(mEngine.getWindow(), touches);
+	ds::ui::TouchEvent te = ds::ui::TouchEvent(mEngine.getWindow(), touches, true);
 	if(p == ds::ui::TouchInfo::Added){
 		mEngine.injectTouchesBegin(te);
 	} else if(p == ds::ui::TouchInfo::Moved){
