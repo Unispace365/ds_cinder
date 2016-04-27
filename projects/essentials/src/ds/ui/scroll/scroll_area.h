@@ -15,6 +15,8 @@ class ScrollArea : public ds::ui::Sprite {
 
 		ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, const float startHeight, const bool verticalScrolling = true);
 
+		void				setVertical(bool vertical);
+
 		// Sets the clippin' (visible) area of the scroll Area. 
 		void				setScrollSize(const float newWidth, const float newHeight);
 

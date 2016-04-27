@@ -45,6 +45,12 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 	}
 }
 
+void ScrollArea::setVertical(bool vertical){
+	mVertical = vertical;
+	// do a layout-type thing to move the fade sprites if needed, and to call checkBounds
+	setScrollSize(getWidth(), getHeight());
+}
+
 void ScrollArea::setScrollSize(const float newWidth, const float newHeight){
 	if(mTopFade){
 		if(mVertical){
