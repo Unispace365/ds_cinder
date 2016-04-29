@@ -433,12 +433,12 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 		DS_LOG_WARNING("Streaming pipeline is empty, aborting stream open.");
 		return false;
 	}
-	m_iWidth = videoWidth;
-	m_iHeight = videoHeight;
+	enforceModFourWidth(videoWidth, videoHeight);
 	m_StreamPipeline = streamingPipeline;
 	m_Streaming = true;
 	m_ContentType = VIDEO_AND_AUDIO;
 
+	/*
 	GError* error = nullptr;
 	// PIPELINE
 	// Init main pipeline --> playbin
@@ -447,11 +447,43 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 	if(!m_GstPipeline){
 		DS_LOG_WARNING("Streaming pipeline failed to be created. " << error->message);
 		return false;
-	}
+		}
+		*/
+
+	m_GstPipeline = gst_element_factory_make("playbin", "pipeline");
+
+	// Open Uri
+	g_object_set(m_GstPipeline, "uri", "rtsp://192.168.1.37:5015/Stream1", NULL);
 
 	// VIDEO SINK
-	m_GstVideoSink = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "appsink0");
-	m_GstVolumeElement = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "volume0");
+	// Extract and Config Video Sink
+	// Create the video appsink and configure it
+	m_GstVideoSink = gst_element_factory_make("appsink", "videosink");
+
+	//gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 2 );
+	//gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
+	gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
+	gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), -1); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
+
+	// Set some fix caps for the video sink
+
+	GstCaps* caps = gst_caps_new_simple("video/x-raw",
+									"format", G_TYPE_STRING, "I420",
+									"width", G_TYPE_INT, m_iWidth,
+									"height", G_TYPE_INT, m_iHeight,
+									NULL);
+
+	
+
+	gst_app_sink_set_caps(GST_APP_SINK(m_GstVideoSink), caps);
+	gst_caps_unref(caps);
+
+	// Set the configured video appsink to the main pipeline
+	g_object_set(m_GstPipeline, "video-sink", m_GstVideoSink, (void*)NULL);
+
+	// VIDEO SINK
+	//m_GstVideoSink = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "appsink0");
+	//m_GstVolumeElement = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "volume0");
 
 	// Set some fix caps for the video sink
 	// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
@@ -476,6 +508,9 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 	m_GstVideoSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromVideoSource;
 	gst_app_sink_set_callbacks(GST_APP_SINK(m_GstVideoSink), &m_GstVideoSinkCallbacks, this, NULL);
 
+	GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
+	g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", false, (void*)NULL);
+	g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
 
 
 	// BUS
