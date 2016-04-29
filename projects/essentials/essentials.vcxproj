@@ -33,6 +33,7 @@
     <ClCompile Include="src\ds\ui\menu\component\cluster_view.cpp" />
     <ClCompile Include="src\ds\ui\menu\component\menu_item.cpp" />
     <ClCompile Include="src\ds\ui\menu\touch_menu.cpp" />
+    <ClCompile Include="src\ds\ui\scroll\centered_scroll_area.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp" />
@@ -75,6 +76,7 @@
     <ClInclude Include="src\ds\ui\menu\component\cluster_view.h" />
     <ClInclude Include="src\ds\ui\menu\component\menu_item.h" />
     <ClInclude Include="src\ds\ui\menu\touch_menu.h" />
+    <ClInclude Include="src\ds\ui\scroll\centered_scroll_area.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_bar.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />

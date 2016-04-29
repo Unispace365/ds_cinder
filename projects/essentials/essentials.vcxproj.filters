@@ -159,6 +159,9 @@
     <ClCompile Include="src\ds\query\content\xml_content_loader.cpp">
       <Filter>src\ds\query\content</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\scroll\centered_scroll_area.cpp">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -289,6 +292,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\query\content\generic_content_model.h">
       <Filter>src\ds\query\content</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\scroll\centered_scroll_area.h">
+      <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -53,12 +53,13 @@ class ScrollArea : public ds::ui::Sprite {
 		// May not work correctly in perspective
 		void				scrollPage(const bool forwards, const bool animate = true);
 
-	private:
+	protected:
 		virtual void		updateServer(const ds::UpdateParams& p);
 		void				scrollerUpdated(const ci::Vec2f scrollPos);
 		void				scrollerTweenUpdated();
 		void				checkBounds();
 		void				handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
+		virtual bool		callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDestination);
 
 		Sprite*				mScroller;
 		bool				mScrollable;

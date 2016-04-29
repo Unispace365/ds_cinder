@@ -92,9 +92,9 @@ void ScrollArea::checkBounds(){
 	bool doTween = true;
 	ci::Vec3f tweenDestination = mScroller->getPosition();
 
-	if(mSnapToPositionFunction){
-		mSnapToPositionFunction(this, mScroller, doTween, tweenDestination);
-	} else {
+	bool snapped = callSnapToPositionCallback(doTween, tweenDestination);
+
+	if(!snapped){
 		float scrollWindow(0.0f);
 		float scrollerSize(0.0f);
 
@@ -195,6 +195,17 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 	if(mScrollerTouchedFunction){
 		mScrollerTouchedFunction();
 	}
+}
+
+bool ScrollArea::callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDestination){
+	bool output = false;
+
+	if(mSnapToPositionFunction){
+		mSnapToPositionFunction(this, mScroller, doTween, tweenDestination);
+		output = true;
+	}
+
+	return output;
 }
 
 void ScrollArea::setUseFades(const bool doFading){

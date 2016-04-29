@@ -15,6 +15,7 @@
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/scroll/scroll_area.h>
+#include <ds/ui/scroll/centered_scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
 #include <ds/ui/scroll/scroll_bar.h>
 #include <ds/ui/sprite/border.h>
@@ -1028,6 +1029,7 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::ScrollBar*>(sp)) return "scroll_bar";
 	if(dynamic_cast<ds::ui::ScrollList*>(sp)) return "scroll_list";
 	if(dynamic_cast<ds::ui::ScrollArea*>(sp)) return "scroll_area";
+	if(dynamic_cast<ds::ui::CenteredScrollArea*>(sp)) return "centered_scroll_area";
 	if(dynamic_cast<ds::ui::Circle*>(sp)) return "circle";
 	if(dynamic_cast<ds::ui::Border*>(sp)) return "border";
 	if(dynamic_cast<ds::ui::CircleBorder*>(sp)) return "circle_border";
@@ -1102,6 +1104,9 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 	} 
 	else if(type == "scroll_area"){
 		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
+	}
+	else if(type == "centered_scroll_area"){
+		spriddy = new ds::ui::CenteredScrollArea(engine, 0.0f, 0.0f);
 	}
 	else if(type == "scroll_bar"){
 		spriddy = new ds::ui::ScrollBar(engine);
