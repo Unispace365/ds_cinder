@@ -51,6 +51,7 @@ Sprite Types
 * **border** = ds::ui::Border
 * **scroll_list** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
+* **centered_scroll_area** = ds::ui::CenteredScrollArea
 * **scroll_bar** = ds::ui::ScrollBar
 * **xml** = Load another xml interface. See details below.
 * **[custom]** = Calls a custom callback function with a string for the type. Requires you instantiate the sprite type yourself.
