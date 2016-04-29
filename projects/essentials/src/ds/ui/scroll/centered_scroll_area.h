@@ -28,6 +28,9 @@ class CenteredScrollArea : public ScrollArea {
 		// This gets the item currently in the center, or just left of center for an even-valued center by parameter.
 		int				getCenterIndex();
 
+		float			getMinimumSwipeDistance() { return mMinimumSwipeDistance; }
+		void			setMinimumSwipeDistance(float distance) { mMinimumSwipeDistance = distance; }
+
 		// centerOnIndex moves the scroller to center on that item no matter what.
 		// It does not respect the center by parameter.
 		// It can be useful for temporarily moving an item to the center in a tween, and then following up with a postFunc.
@@ -48,6 +51,8 @@ class CenteredScrollArea : public ScrollArea {
 		
 		int				mCenterBy;
 		int				mCenterIndex;
+
+		float			mMinimumSwipeDistance;
 };
 
 } // namespace ui

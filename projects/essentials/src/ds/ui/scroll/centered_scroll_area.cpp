@@ -9,7 +9,44 @@ CenteredScrollArea::CenteredScrollArea(ds::ui::SpriteEngine& engine, const float
 	: ScrollArea(engine, startWidth, startHeight, vertical)
 	, mCenterBy(1)
 	, mCenterIndex(0)
+	, mMinimumSwipeDistance(50.0f)
 {
+	// add the swipe behavior
+	if(mScroller){
+		mScroller->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::Vec3f& delta){
+			bool shouldCenter = false;
+			int index = 0;
+
+			int itemCount = getItemCount();
+			if(itemCount > 1) {
+				if(mVertical){
+					if(delta.y > mMinimumSwipeDistance){
+						shouldCenter = true;
+						index = mCenterIndex - mCenterBy;
+					} else if(delta.y < -mMinimumSwipeDistance){
+						shouldCenter = true;
+						index = mCenterIndex + mCenterBy;
+					}
+				} else {
+					if(delta.x > mMinimumSwipeDistance){
+						shouldCenter = true;
+						index = mCenterIndex - mCenterBy;
+					} else if(delta.x < -mMinimumSwipeDistance){
+						shouldCenter = true;
+						index = mCenterIndex + mCenterBy;
+					}
+				}
+			}
+
+			if(shouldCenter){
+				if(mWillSnapAfterDelay){
+					mWillSnapAfterDelay = false;
+					cancelDelayedCall();
+				}
+				balanceOnIndex(index, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), [this](){ scrollerTweenUpdated(); });
+			}
+		});
+	}
 }
 
 void CenteredScrollArea::setCenterBy(int centerBy){
@@ -57,6 +94,10 @@ void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, c
 			position.x = p;
 		}
 
+		// kill any existing tween and/or momentum
+		mSpriteMomentum.deactivate();
+		mScroller->animStop();
+
 		if(duration > 0.0f){
 			callPostFuncNow = false;
 			mScroller->tweenPosition(position, duration, delay, ease, postFunc);
@@ -100,6 +141,10 @@ void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, 
 		} else {
 			position.x = p;
 		}
+
+		// kill any existing tween and/or momentum
+		mSpriteMomentum.deactivate();
+		mScroller->animStop();
 
 		if(duration > 0.0f){
 			callPostFuncNow = false;

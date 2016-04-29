@@ -10,6 +10,7 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 	, mScroller(nullptr)
 	, mScrollable(false)
 	, mReturnAnimateTime(0.3f)
+	, mWillSnapAfterDelay(false)
 	, mTopFade(nullptr)
 	, mBottomFade(nullptr)
 	, mTopFadeActive(false)
@@ -153,10 +154,16 @@ void ScrollArea::checkBounds(){
 	}
 
 	if(doTween){
-		mSpriteMomentum.deactivate();
-		mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
-		scrollerUpdated(tweenDestination.xy());
+		// respond after a delay, in case this call is cancelled in a swipe callback
+		mWillSnapAfterDelay = true;
+		callAfterDelay([this, doTween, tweenDestination](){
+			mWillSnapAfterDelay = false;
+			mSpriteMomentum.deactivate();
+			mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
+			scrollerUpdated(tweenDestination.xy());
+		}, 0.0f);
 	} else {
+		// nothing special to do here
 		mScroller->animStop();
 		mScroller->setPosition(tweenDestination);
 		scrollerUpdated(tweenDestination.xy());

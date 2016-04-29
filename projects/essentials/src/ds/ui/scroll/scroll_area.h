@@ -65,6 +65,7 @@ class ScrollArea : public ds::ui::Sprite {
 		bool				mScrollable;
 		Momentum			mSpriteMomentum;
 		float				mReturnAnimateTime;
+		bool				mWillSnapAfterDelay;
 
 		GradientSprite*		mTopFade;
 		GradientSprite*		mBottomFade;
