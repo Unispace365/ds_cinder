@@ -14,16 +14,7 @@ namespace gstreamer {
 class EnvCheck
 {
 public:
-    EnvCheck();
-
-    void setEnvVarName(const std::string&);
-    void setDefaultLoc(const std::string&);
-    void verifyPathVar();
-
-private:
-    std::string mGstreamerEnvVarName;
-    std::string mGstreamerDefaultLoc;
-    std::string mGstreamerPluginPath;
+    static bool addGStreamerBinPath();
 };
 
 }} //!ds

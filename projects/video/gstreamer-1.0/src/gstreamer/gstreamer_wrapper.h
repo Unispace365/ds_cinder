@@ -703,6 +703,7 @@ private:
 	bool					m_AutoRestartStream;
 	std::string				m_StreamPipeline;
 
+	bool					m_ValidInstall;
 	bool					m_VerboseLogging;
 
 	GstNetTimeProvider*		mClockProvider;

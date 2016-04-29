@@ -13,7 +13,6 @@
 #include <ds/app/engine/engine_io_defs.h>
 
 #include "gstreamer/gstreamer_wrapper.h"
-#include "gstreamer/gstreamer_env_check.h"
 #include "gstreamer/video_meta_cache.h"
 
 #include <cinder/gl/Fbo.h>
@@ -33,7 +32,6 @@ namespace ds {
 namespace ui {
 
 namespace {
-static ds::gstreamer::EnvCheck  ENV_CHECK;
 ds::ui::VideoMetaCache          CACHE("gstreamer-2");
 const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
 template<typename T> void       noop(T) { /* no op */ };
@@ -199,6 +197,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 
 	setTransparent(false);
 	setUseShaderTextuer(true);
+
 }
 
 GstVideo::~GstVideo(){
