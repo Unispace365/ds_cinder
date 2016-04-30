@@ -10,6 +10,7 @@ CenteredScrollArea::CenteredScrollArea(ds::ui::SpriteEngine& engine, const float
 	, mCenterBy(1)
 	, mCenterIndex(0)
 	, mMinimumSwipeDistance(50.0f)
+	, mBeforeSnapCenterIndex(0)
 {
 	// add the swipe behavior
 	if(mScroller){
@@ -22,18 +23,18 @@ CenteredScrollArea::CenteredScrollArea(ds::ui::SpriteEngine& engine, const float
 				if(mVertical){
 					if(delta.y > mMinimumSwipeDistance){
 						shouldCenter = true;
-						index = mCenterIndex - mCenterBy;
+						index = (mWillSnapAfterDelay ? mBeforeSnapCenterIndex : mCenterIndex) - mCenterBy;
 					} else if(delta.y < -mMinimumSwipeDistance){
 						shouldCenter = true;
-						index = mCenterIndex + mCenterBy;
+						index = (mWillSnapAfterDelay ? mBeforeSnapCenterIndex : mCenterIndex) + mCenterBy;
 					}
 				} else {
 					if(delta.x > mMinimumSwipeDistance){
 						shouldCenter = true;
-						index = mCenterIndex - mCenterBy;
+						index = (mWillSnapAfterDelay ? mBeforeSnapCenterIndex : mCenterIndex) - mCenterBy;
 					} else if(delta.x < -mMinimumSwipeDistance){
 						shouldCenter = true;
-						index = mCenterIndex + mCenterBy;
+						index = (mWillSnapAfterDelay ? mBeforeSnapCenterIndex : mCenterIndex) + mCenterBy;
 					}
 				}
 			}
@@ -106,6 +107,7 @@ void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, c
 		}
 	}
 
+	mBeforeSnapCenterIndex = index;
 	mCenterIndex = index;
 
 	if(callPostFuncNow && postFunc){
@@ -154,6 +156,7 @@ void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, 
 		}
 	}
 
+	mBeforeSnapCenterIndex = index;
 	mCenterIndex = index;
 
 	if(callPostFuncNow && postFunc){
@@ -218,6 +221,7 @@ bool CenteredScrollArea::callSnapToPositionCallback(bool& doTween, ci::Vec3f& tw
 
 				float p = relaxedCenterOfItem(index);
 
+				mBeforeSnapCenterIndex = mCenterIndex;
 				mCenterIndex = index;
 			
 				// we're ready to tween

@@ -51,6 +51,7 @@ class CenteredScrollArea : public ScrollArea {
 		
 		int				mCenterBy;
 		int				mCenterIndex;
+		int				mBeforeSnapCenterIndex;
 
 		float			mMinimumSwipeDistance;
 };
