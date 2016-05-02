@@ -29,13 +29,21 @@ namespace ds {
 namespace gstreamer {
 
 bool EnvCheck::addGStreamerBinPath(){
-	std::string gstreamer_path{ getEnv("GSTREAMER_1_0_ROOT_X86") + "\\bin" };
-	normalizePath(gstreamer_path);
+	std::string gstreamer_path = getEnv("GSTREAMER_1_0_ROOT_X86");
+	std::string gstreamer_bin_path = gstreamer_path + "\\bin";
+	normalizePath(gstreamer_bin_path);
 	std::string path_variable{ getEnv("PATH") };
 
 
-	if(path_variable.find(gstreamer_path) == std::string::npos) {
-		ds::Environment::addToFrontEnvironmentVariable("PATH", gstreamer_path);
+	if(path_variable.find(gstreamer_bin_path) == std::string::npos) {
+		ds::Environment::addToFrontEnvironmentVariable("PATH", gstreamer_bin_path);
+	}
+		
+	if(getEnv("GST_PLUGIN_PATH").empty()){
+		std::string gstreamer_plugin_path = gstreamer_path + "\\lib\\gstreamer-1.0";
+		normalizePath(gstreamer_plugin_path);
+
+		ds::Environment::addToEnvironmentVariable("GST_PLUGIN_PATH", gstreamer_plugin_path);
 	}
 
 	if(ds::FileMetaData::safeFileExistsCheck(gstreamer_path, true)){

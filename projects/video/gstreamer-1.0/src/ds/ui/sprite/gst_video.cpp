@@ -198,8 +198,6 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	setTransparent(false);
 	setUseShaderTextuer(true);
 
-	setVerboseLogging(true);
-
 }
 
 GstVideo::~GstVideo(){
