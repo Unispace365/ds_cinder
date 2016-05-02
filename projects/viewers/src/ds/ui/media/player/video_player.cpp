@@ -86,6 +86,7 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	}
 	if(mVideo->getWidth() < 1.0f || mVideo->getHeight() < 1.0f){
 		// make this a setting? This is mostly for when the "video" is just an audio track
+		// Probably should detect this properly from GstVideo and expose it to the outside world. Users may want to know that this only has audio
 		setSize(600.0f, 100.0f);
 	} else {
 		setSize(mVideo->getWidth(), mVideo->getHeight());

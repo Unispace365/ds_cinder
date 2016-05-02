@@ -11,9 +11,15 @@
 	-->
 	
 	
-	<text name="streaming:pipeline" value="rtspsrc location=rtsp://192.168.1.37:5015/Stream1 latency=20 ! application/x-rtp ! rtph264depay ! h264parse ! avdec_h264 ! queue leaky=2 max-size-buffers=2 min-threshold-buffers=0 max-size-bytes=0 max-size-time=0 min-threshold-bytes=0 min-threshold-time=0 ! videoconvert ! video/x-raw, format=(string)I420, width=1920, height=1080 ! appsink name=appsink0 sync=true async=true qos=true" />
+	<text name="streaming:pipeline" value="rtsp://192.168.1.37:5015/Stream1" />
 	<int   name="streaming:width" value="1920" />
 	<int   name="streaming:height" value="1080" />
+	
+	<text name="streaming:pipeline" value="rtspsrc location=rtsp://192.168.1.37:5015/Stream1 latency=20 ! application/x-rtp ! rtph264depay ! h264parse ! avdec_h264 ! queue leaky=2 max-size-buffers=2 min-threshold-buffers=0 max-size-bytes=0 max-size-time=0 min-threshold-bytes=0 min-threshold-time=0 ! videoconvert ! video/x-raw, format=(string)I420, width=1920, height=1080 ! appsink name=appsink0 sync=false async=true qos=true" />
+	<int   name="streaming:width" value="1920" />
+	<int   name="streaming:height" value="1080" />
+	
+	
 	
 	<text  name="streaming:pipeline" value="udpsrc uri=udp://224.1.1.2:5002 buffer-size=200000000 ! application/x-rtp ! rtph264depay ! avdec_h264 ! video/x-raw, format=I420 ! appsink max-buffers=1 sync=false async=true qos=true name=appsink0" />
 	<int   name="streaming:width" value="1280" />
