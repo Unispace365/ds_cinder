@@ -522,6 +522,8 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 		return ds::Resource::FONT_TYPE;
 	} else if(extensionay.find("mov") != std::string::npos
 			  || extensionay.find("mp4") != std::string::npos
+			  || extensionay.find("mp3") != std::string::npos
+			  || extensionay.find("wav") != std::string::npos
 			  || extensionay.find("avi") != std::string::npos
 			  || extensionay.find("wmv") != std::string::npos
 			  || extensionay.find("flv") != std::string::npos

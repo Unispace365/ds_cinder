@@ -84,8 +84,12 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 			mVideoInterface->hide();
 		}
 	}
-
-	setSize(mVideo->getWidth(), mVideo->getHeight());
+	if(mVideo->getWidth() < 1.0f || mVideo->getHeight() < 1.0f){
+		// make this a setting? This is mostly for when the "video" is just an audio track
+		setSize(600.0f, 100.0f);
+	} else {
+		setSize(mVideo->getWidth(), mVideo->getHeight());
+	}
 }
 
 void VideoPlayer::clear(){
@@ -104,7 +108,9 @@ void VideoPlayer::onSizeChanged(){
 
 void VideoPlayer::layout(){
 	if(mVideo){
-		mVideo->setScale(getWidth() / mVideo->getWidth());
+		if(mVideo->getWidth() > 0.0f){
+			mVideo->setScale(getWidth() / mVideo->getWidth());
+		}
 	}
 
 	if(mVideoInterface && mEmbedInterface){

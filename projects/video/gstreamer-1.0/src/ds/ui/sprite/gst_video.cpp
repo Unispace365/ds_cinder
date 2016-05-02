@@ -32,7 +32,7 @@ namespace ds {
 namespace ui {
 
 namespace {
-ds::ui::VideoMetaCache          CACHE("gstreamer-2");
+ds::ui::VideoMetaCache          CACHE("gstreamer-3");
 const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
 template<typename T> void       noop(T) { /* no op */ };
 void                            noop()  { /* no op */ };
@@ -197,6 +197,8 @@ GstVideo::GstVideo(SpriteEngine& engine)
 
 	setTransparent(false);
 	setUseShaderTextuer(true);
+
+	setVerboseLogging(true);
 
 }
 
@@ -489,7 +491,7 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			return;
 		}
 
-		if(type == VideoMetaCache::AUDIO_TYPE){
+		if(type == VideoMetaCache::AUDIO_ONLY_TYPE){
 			generateVideoBuffer = false;
 			mOutOfBoundsMuted = false;
 		}
@@ -512,9 +514,11 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			setShadersUniforms("yuv_colorspace_conversion", uniform);
 		}
 
+		bool hasAudioTrack = (type == VideoMetaCache::AUDIO_ONLY_TYPE || type == VideoMetaCache::VIDEO_AND_AUDIO_TYPE);
+
 		mColorType = theColor;
 		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen: " << filename, GSTREAMER_LOG);
-		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, theColor, videoWidth, videoHeight);
+		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, theColor, videoWidth, videoHeight, hasAudioTrack);
 
 		mVideoSize.x = mGstreamerWrapper->getWidth();
 		mVideoSize.y = mGstreamerWrapper->getHeight();
@@ -545,7 +549,7 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 	}
 
 	if(mGstreamerWrapper->getWidth() < 1.0f || mGstreamerWrapper->getHeight() < 1.0f){
-		if(type != VideoMetaCache::AUDIO_TYPE)	{
+		if(type != VideoMetaCache::AUDIO_ONLY_TYPE)	{
 			DS_LOG_WARNING_M("GstVideo::doLoadVideo() Video is too small to be used or didn't load correctly! "
 							 << filename << " " << getWidth() << " " << getHeight(), GSTREAMER_LOG);
 		}

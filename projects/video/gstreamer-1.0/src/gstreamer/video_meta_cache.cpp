@@ -20,8 +20,9 @@ namespace ui {
 
 namespace {
 const std::string&	ERROR_TYPE_SZ() { static const std::string	ANS(""); return ANS; }
-const std::string&	AUDIO_TYPE_SZ() { static const std::string	ANS("a"); return ANS; }
-const std::string&	VIDEO_TYPE_SZ() { static const std::string	ANS("v"); return ANS; }
+const std::string&	AUDIO_ONLY_TYPE_SZ() { static const std::string	ANS("a"); return ANS; }
+const std::string&	VIDEO_ONLY_TYPE_SZ() { static const std::string	ANS("v"); return ANS; }
+const std::string&	VIDEO_AND_AUDIO_TYPE_SZ() { static const std::string	ANS("va"); return ANS; }
 
 std::string get_db_directory() {
 	Poco::Path		p("%USERPROFILE%");
@@ -36,14 +37,16 @@ std::string get_db_file(const std::string& name) {
 }
 
 VideoMetaCache::Type type_from_db_type(const std::string& t) {
-	if (t == AUDIO_TYPE_SZ()) return VideoMetaCache::AUDIO_TYPE;
-	if (t == VIDEO_TYPE_SZ()) return VideoMetaCache::VIDEO_TYPE;
+	if(t == VIDEO_AND_AUDIO_TYPE_SZ()) return VideoMetaCache::VIDEO_AND_AUDIO_TYPE;
+	if(t == AUDIO_ONLY_TYPE_SZ()) return VideoMetaCache::AUDIO_ONLY_TYPE;
+	if(t == VIDEO_ONLY_TYPE_SZ()) return VideoMetaCache::VIDEO_ONLY_TYPE;
 	return VideoMetaCache::ERROR_TYPE;
 }
 
 const std::string& db_type_from_type(const VideoMetaCache::Type t) {
-	if (t == VideoMetaCache::AUDIO_TYPE) return AUDIO_TYPE_SZ();
-	if (t == VideoMetaCache::VIDEO_TYPE) return VIDEO_TYPE_SZ();
+	if(t == VideoMetaCache::VIDEO_AND_AUDIO_TYPE) return VIDEO_AND_AUDIO_TYPE_SZ();
+	if(t == VideoMetaCache::AUDIO_ONLY_TYPE) return AUDIO_ONLY_TYPE_SZ();
+	if(t == VideoMetaCache::VIDEO_ONLY_TYPE) return VIDEO_ONLY_TYPE_SZ();
 	return ERROR_TYPE_SZ();
 }
 
@@ -62,38 +65,6 @@ bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int&
 	for(auto it = mEntries.begin(), end = mEntries.end(); it != end; ++it) {
 		const Entry&	e(*it);
 		if (e.mPath == videoPath){
-
-// With updates to this system , I don't believe this fallback system is needed.
-// Previously, a video could be assumed to be audio if it simply couldn't be found or read.
-// Now, actually find audio streams, and never assume stuff like that.
-// Also, if a file is type==ERROR_TYPE, it isn't recorded anywhere, so the below condition can't exist
-#if 0
-			// Sort of a long story, but here's the deal:
-			//		1. Try to load a video that doesn't exist yet, type gets saved as audio, width=0, height=0
-			//		2. Try to load that same video again, but now it exists. The cache will pull up audio, width & height = 0
-			//		3. The video will then never play until the cache is cleared manually.
-			//		4. So to fix that, we just re-query media info every time width or height are < 1. 
-			//		5. This means audio files are queried every time. If this becomes an issue performance-wise, we can try to short-cut this.
-			if(e.mWidth < 1 || e.mHeight < 1){
-
-				Entry newEntry = Entry();
-				newEntry.mPath = videoPath;
-
-				if(getVideoInfo(newEntry) && newEntry.mType != ERROR_TYPE){
-					if(width > 0 && height > 0){
-						setValues(t, videoPath, width, height, duration);
-						outType = t;
-						outWidth = width;
-						outHeight = height;
-						outDuration = duration;
-						return true;
-					}
-				}
-
-			}
-
-#endif 
-
 			outType = e.mType;
 			outWidth = e.mWidth;
 			outHeight = e.mHeight;
@@ -103,7 +74,6 @@ bool VideoMetaCache::getValues(const std::string& videoPath, Type& outType, int&
 			return true;
 		}
 	}
-
 
 	// The above search for a pre-cached video info failed, so find the video info
 	try {
@@ -138,7 +108,7 @@ void VideoMetaCache::setValues(Entry& entry) {
 		DS_LOG_WARNING("Attempted to cache media with no duration (path=" << entry.mPath << ")");
 		return;
 	}
-	if(entry.mType == VIDEO_TYPE && (entry.mWidth < 1 || entry.mHeight < 1)) {
+	if( (entry.mType == VIDEO_ONLY_TYPE || entry.mType == VIDEO_AND_AUDIO_TYPE) && (entry.mWidth < 1 || entry.mHeight < 1)) {
 		DS_LOG_WARNING("Attempted to cache video with no size (path=" << entry.mPath << ", width=" << entry.mWidth << ", height=" << entry.mHeight << ")");
 		return;
 	}
@@ -231,14 +201,18 @@ bool VideoMetaCache::getVideoInfo(Entry& entry) {
 
 	// No video streams, but has at least one audio stream is a AUDIO_TYPE
 	if(numAudio > 0 && numVideo < 1){
-		entry.mType = AUDIO_TYPE;
+		entry.mType = AUDIO_ONLY_TYPE;
 		entry.mWidth = 0;
 		entry.mHeight = 0;
 		if(!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Audio, 0, L"Duration", MediaInfoDLL::Info_Text), entry.mDuration)) return false;
 
 	// Any number of audio streams and at least one video streams is VIDEO_TYPE
 	} else if(numVideo > 0){
-		entry.mType = VIDEO_TYPE;
+		if(numAudio > 0){
+			entry.mType = VIDEO_AND_AUDIO_TYPE;
+		} else {
+			entry.mType = VIDEO_ONLY_TYPE;
+		}
 		if(!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Width", MediaInfoDLL::Info_Text), entry.mWidth)) return false;
 		if(!ds::wstring_to_value(media_info.Get(MediaInfoDLL::Stream_Video, 0, L"Height", MediaInfoDLL::Info_Text), entry.mHeight)) return false;
 

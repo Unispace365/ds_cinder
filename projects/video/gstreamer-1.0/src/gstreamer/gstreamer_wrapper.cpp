@@ -229,7 +229,7 @@ void					GStreamerWrapper::clearNewLoop(){
 	 m_newLoop = false;
 }
 
-bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight){
+bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight, const bool hasAudioTrack){
 	if(!m_ValidInstall){
 		return false;
 	}
@@ -332,53 +332,54 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	// AUDIO SINK
 	// Extract and config Audio Sink
 	if (bGenerateAudioBuffer){
-			if (m_CustomPipeline){
-				setCustomFunction();
-			}
-			else {
-				//Add components for sub-pipeline
+		if (m_CustomPipeline){
+			setCustomFunction();
+		}
+		else if(hasAudioTrack){
+			//Add components for sub-pipeline
 
-				m_GstConverter = gst_element_factory_make("audioconvert", "convert");
-				m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
-				m_GstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
-				// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-				g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL);
+			m_GstConverter = gst_element_factory_make("audioconvert", "convert");
+			m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
+			m_GstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
+			// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
+			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL);
 
-				GstElement* bin = gst_bin_new("converter_sink_bin");
+			GstElement* bin = gst_bin_new("converter_sink_bin");
 
-				//Add and Link sub-pipeline components: 'Audio Converter' ---> 'Panorama' ---> 'Audio Sink'
-				gst_bin_add_many(GST_BIN(bin), m_GstConverter, m_GstPanorama, m_GstAudioSink, NULL);
-				gboolean link_ok = gst_element_link_many(m_GstConverter, m_GstPanorama, m_GstAudioSink, NULL);
+			//Add and Link sub-pipeline components: 'Audio Converter' ---> 'Panorama' ---> 'Audio Sink'
+			gst_bin_add_many(GST_BIN(bin), m_GstConverter, m_GstPanorama, m_GstAudioSink, NULL);
+			gboolean link_ok = gst_element_link_many(m_GstConverter, m_GstPanorama, m_GstAudioSink, NULL);
 
-				//Set pan value
-				g_object_set(m_GstPanorama, "panorama", m_fPan, NULL);
+			//Set pan value
+			g_object_set(m_GstPanorama, "panorama", m_fPan, NULL);
 
-				//Setup pads to connect main 'playbin' pipeline:   'playbin' ---> 'Audio Converter' ---> 'panorama' ---> 'Audio sink'
-				GstPad *pad = gst_element_get_static_pad(m_GstConverter, "sink");
-				GstPad *ghost_pad = gst_ghost_pad_new("sink", pad);
-				gst_pad_set_active(ghost_pad, TRUE);
-				gst_element_add_pad(bin, ghost_pad);
+			//Setup pads to connect main 'playbin' pipeline:   'playbin' ---> 'Audio Converter' ---> 'panorama' ---> 'Audio sink'
+			GstPad *pad = gst_element_get_static_pad(m_GstConverter, "sink");
+			GstPad *ghost_pad = gst_ghost_pad_new("sink", pad);
+			gst_pad_set_active(ghost_pad, TRUE);
+			gst_element_add_pad(bin, ghost_pad);
 
-				//Set 'bin' pipeline as audio sink
-				g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
+			//Set 'bin' pipeline as audio sink
+			g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
 
-				gst_object_unref(pad);
-				m_GstObjects.push_back(m_GstPanorama);
-				m_GstObjects.push_back(m_GstAudioSink);
-				m_GstObjects.push_back(m_GstPanorama);
+			gst_object_unref(pad);
+			m_GstObjects.push_back(m_GstPanorama);
+			m_GstObjects.push_back(m_GstAudioSink);
+			m_GstObjects.push_back(m_GstPanorama);
 
 
-				// Set Audio Sink callback methods
-				m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
-				m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
-				m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
-				gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
-			}
+			// Set Audio Sink callback methods
+			m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
+			m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
+			m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
+			gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
+		}
 
-		} else {
-			GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
-			g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", false, (void*)NULL);
-			g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
+	// Only create an audio sink if there's an audio track
+	} else if(hasAudioTrack){
+		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
+		g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", false, (void*)NULL);
+		g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
 	}
 
 	// BUS
@@ -386,13 +387,11 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	m_GstBus = gst_pipeline_get_bus( GST_PIPELINE( m_GstPipeline ) );
 
 	if ( m_GstPipeline ){
-		// We need to stream the file a little bit in order to be able to retrieve information from it
 		gst_element_set_state( m_GstPipeline, GST_STATE_READY );
 		gst_element_set_state( m_GstPipeline, GST_STATE_PAUSED );
 
-		// For some reason this is needed in order to gather video information such as size, framerate etc ...
-		//GstState state;
-		//gst_element_get_state( m_GstPipeline, &state, NULL, 20 * GST_SECOND );
+		setTimePositionInMs(0);
+
 		m_CurrentPlayState = OPENED;
 
 		if(m_StartPlaying){
