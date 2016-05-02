@@ -72,6 +72,12 @@ public:
 	// with existing behavior.
 	void				unloadVideo(const bool clearFrame = false);
 
+	// Streams assume video is coming in as I420 colorspace (the h.264 standard.)
+	// You can either specify the whole pipeline, something like: 
+	//		rtspsrc location=rtsp://192.168.1.37:5015/Stream1 ! application/x-rtp ! rtph264depay ! h264parse ! avdec_h264 ! queue ! videoconvert ! video/x-raw, format=(string)I420, width=1920, height=1080 ! appsink name=appsink0 sync=true async=true qos=true
+	// Or you can just specify the URI, and a playbin element will be auto-configured. Volume is supported for audio, but not panning. Example uri:
+	//		rtsp://192.168.1.37:5015/Stream1
+	// Arbitrary pipelines can be set here, though this pathway assumes that the pipeline is live, and seeking is disabled
 	void				startStream(const std::string& streamingPipeline, const float width, const float height);
 
 	// Looping (play again after video complete)

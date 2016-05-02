@@ -365,7 +365,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
 
 			gst_object_unref(pad);
-			m_GstObjects.push_back(m_GstPanorama);
+			m_GstObjects.push_back(m_GstConverter);
 			m_GstObjects.push_back(m_GstAudioSink);
 			m_GstObjects.push_back(m_GstPanorama);
 
