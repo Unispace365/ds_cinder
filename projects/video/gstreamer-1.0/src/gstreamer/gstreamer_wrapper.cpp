@@ -3,12 +3,15 @@
 #include "ds/debug/logger.h"
 #include <iostream>
 #include <algorithm>
+#include "gstreamer/gstreamer_env_check.h"
 
 #include "gst/net/gstnetclientclock.h"
+#include "gst/gstplugin.h"
 
 namespace gstwrapper
 {
 
+static ds::gstreamer::EnvCheck  ENV_CHECK;
 
 GStreamerWrapper::GStreamerWrapper()
 	: m_bFileIsOpen(false)
@@ -36,9 +39,22 @@ GStreamerWrapper::GStreamerWrapper()
 	, m_Streaming(false)
 	, m_AutoRestartStream(true)
 	, mServer(true)
+	, m_ValidInstall(true)
 {
+	std::stringstream ss;
+	ss << GST_VERSION_MAJOR << "." << GST_VERSION_MINOR << "." << GST_VERSION_MICRO;
+	std::string gstVersion = ss.str();
+
+	// Add the primary dll's to the PATH variable
+	if(!ENV_CHECK.addGStreamerBinPath()){
+		DS_LOG_WARNING("Couldn't find a binary directory for GStreamer! Install GStreamer version " << gstVersion);
+		m_ValidInstall = false;
+		return;
+	}
+
+	// Initialization must happen after we know about the bin path, or we'll get endless warnings about missing dll's
 	GError* pError;
-	int success = gst_init_check( NULL, NULL, &pError);
+	int success = gst_init_check(NULL, NULL, &pError);
 	if(success == FALSE){
 		std::stringstream errorStream;
 		errorStream << "GStreamerWrapper: failed to initialize GStreamer: " << pError->message;
@@ -48,6 +64,54 @@ GStreamerWrapper::GStreamerWrapper()
 			m_ErrorMessageCallback(errorStr);
 		}
 	}
+
+	// Set the plugin path using GStreamer's registry
+	static bool pathsInitialized = false;
+	if(!pathsInitialized){
+		DS_LOG_INFO("Initialized GStreamer version " << gstVersion);
+
+		GstRegistry* registery;
+		registery = gst_registry_get();
+
+		/* This is another method of setting the plugin path (instead of specifying GST_PLUGIN_PATH), but is a bit slower.
+		auto rootPathy = std::getenv("GSTREAMER_1_0_ROOT_X86");
+		if(rootPathy){
+			std::string fullPathy = std::string(rootPathy) + "\\lib\\gstreamer-1.0";
+			gboolean changed = gst_registry_scan_path(registery, fullPathy.c_str());
+			if(changed){
+				//std::cout << "found some stuff in the gstreamer root plugin path" << std::endl;
+			} else {
+				DS_LOG_WARNING("No plugins added from the default directory, check your gstreamer install for version " << gstVersion);
+			}
+		}
+		*/
+		
+		/*
+		// This is sort of like running gst-inspect-1.0.exe
+		registery = gst_registry_get();
+		GList *list, *g;
+		list = gst_registry_get_plugin_list(registery);
+		for(g = list; g; g = g->next) {
+			GstPlugin *plugin = GST_PLUGIN(g->data);
+			std::cout << "Plugin name: " << gst_plugin_get_name(plugin) << " version: " << gst_plugin_get_version(plugin) << std::endl;
+			gst_object_unref(plugin);
+		}
+		 g_list_free(list);
+		 */
+
+		//gst_registry_load
+		auto playbinPlugin = gst_registry_find_plugin(registery, "videoconvert");
+		if(playbinPlugin){
+			std::string pluginVersion = gst_plugin_get_version(playbinPlugin);
+			if(pluginVersion != gstVersion){
+				DS_LOG_WARNING("Plugin version and compiled GStreamer version don't match. You have version " << pluginVersion << ". If you experience problems, install gstreamer " << gstVersion);
+			}
+			gst_object_unref(playbinPlugin);
+		}
+
+		pathsInitialized = true;
+	}
+
 	m_CurrentPlayState = (success ? NOT_INITIALIZED : GSTREAM_INIT_FAIL);
 }
 
@@ -167,7 +231,11 @@ void					GStreamerWrapper::clearNewLoop(){
 	 m_newLoop = false;
 }
 
-bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight){
+bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight, const bool hasAudioTrack){
+	if(!m_ValidInstall){
+		return false;
+	}
+
 	resetProperties();
 
 	if( m_bFileIsOpen )	{
@@ -266,53 +334,54 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	// AUDIO SINK
 	// Extract and config Audio Sink
 	if (bGenerateAudioBuffer){
-			if (m_CustomPipeline){
-				setCustomFunction();
-			}
-			else {
-				//Add components for sub-pipeline
+		if (m_CustomPipeline){
+			setCustomFunction();
+		}
+		else if(hasAudioTrack){
+			//Add components for sub-pipeline
 
-				m_GstConverter = gst_element_factory_make("audioconvert", "convert");
-				m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
-				m_GstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
-				// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-				g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL);
+			m_GstConverter = gst_element_factory_make("audioconvert", "convert");
+			m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
+			m_GstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
+			// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
+			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL);
 
-				GstElement* bin = gst_bin_new("converter_sink_bin");
+			GstElement* bin = gst_bin_new("converter_sink_bin");
 
-				//Add and Link sub-pipeline components: 'Audio Converter' ---> 'Panorama' ---> 'Audio Sink'
-				gst_bin_add_many(GST_BIN(bin), m_GstConverter, m_GstPanorama, m_GstAudioSink, NULL);
-				gboolean link_ok = gst_element_link_many(m_GstConverter, m_GstPanorama, m_GstAudioSink, NULL);
+			//Add and Link sub-pipeline components: 'Audio Converter' ---> 'Panorama' ---> 'Audio Sink'
+			gst_bin_add_many(GST_BIN(bin), m_GstConverter, m_GstPanorama, m_GstAudioSink, NULL);
+			gboolean link_ok = gst_element_link_many(m_GstConverter, m_GstPanorama, m_GstAudioSink, NULL);
 
-				//Set pan value
-				g_object_set(m_GstPanorama, "panorama", m_fPan, NULL);
+			//Set pan value
+			g_object_set(m_GstPanorama, "panorama", m_fPan, NULL);
 
-				//Setup pads to connect main 'playbin' pipeline:   'playbin' ---> 'Audio Converter' ---> 'panorama' ---> 'Audio sink'
-				GstPad *pad = gst_element_get_static_pad(m_GstConverter, "sink");
-				GstPad *ghost_pad = gst_ghost_pad_new("sink", pad);
-				gst_pad_set_active(ghost_pad, TRUE);
-				gst_element_add_pad(bin, ghost_pad);
+			//Setup pads to connect main 'playbin' pipeline:   'playbin' ---> 'Audio Converter' ---> 'panorama' ---> 'Audio sink'
+			GstPad *pad = gst_element_get_static_pad(m_GstConverter, "sink");
+			GstPad *ghost_pad = gst_ghost_pad_new("sink", pad);
+			gst_pad_set_active(ghost_pad, TRUE);
+			gst_element_add_pad(bin, ghost_pad);
 
-				//Set 'bin' pipeline as audio sink
-				g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
+			//Set 'bin' pipeline as audio sink
+			g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
 
-				gst_object_unref(pad);
-				m_GstObjects.push_back(m_GstPanorama);
-				m_GstObjects.push_back(m_GstAudioSink);
-				m_GstObjects.push_back(m_GstPanorama);
+			gst_object_unref(pad);
+			m_GstObjects.push_back(m_GstConverter);
+			m_GstObjects.push_back(m_GstAudioSink);
+			m_GstObjects.push_back(m_GstPanorama);
 
 
-				// Set Audio Sink callback methods
-				m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
-				m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
-				m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
-				gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
-			}
+			// Set Audio Sink callback methods
+			m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
+			m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
+			m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
+			gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
+		}
 
-		} else {
-			GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
-			g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", false, (void*)NULL);
-			g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
+	// Only create an audio sink if there's an audio track
+	} else if(hasAudioTrack){
+		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
+		g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", false, (void*)NULL);
+		g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
 	}
 
 	// BUS
@@ -320,13 +389,11 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	m_GstBus = gst_pipeline_get_bus( GST_PIPELINE( m_GstPipeline ) );
 
 	if ( m_GstPipeline ){
-		// We need to stream the file a little bit in order to be able to retrieve information from it
 		gst_element_set_state( m_GstPipeline, GST_STATE_READY );
 		gst_element_set_state( m_GstPipeline, GST_STATE_PAUSED );
 
-		// For some reason this is needed in order to gather video information such as size, framerate etc ...
-		//GstState state;
-		//gst_element_get_state( m_GstPipeline, &state, NULL, 20 * GST_SECOND );
+		setTimePositionInMs(0);
+
 		m_CurrentPlayState = OPENED;
 
 		if(m_StartPlaying){
@@ -352,6 +419,10 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 }
 
 bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight){
+	if(!m_ValidInstall){
+		return false;
+	}
+
 	resetProperties();
 
 	if( m_bFileIsOpen )	{
@@ -363,39 +434,78 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 		DS_LOG_WARNING("Streaming pipeline is empty, aborting stream open.");
 		return false;
 	}
-	m_iWidth = videoWidth;
-	m_iHeight = videoHeight;
+	enforceModFourWidth(videoWidth, videoHeight);
 	m_StreamPipeline = streamingPipeline;
 	m_Streaming = true;
 	m_ContentType = VIDEO_AND_AUDIO;
 
-	GError* error = nullptr;
-	// PIPELINE
-	// Init main pipeline --> playbin
-	m_GstPipeline = gst_parse_launch(streamingPipeline.c_str(), &error);
+	// If you've constructed a streaming pipeline yourself, there will be '!' characters separating the elements
+	// If not, there won't be any !'s. So auto-detect when the URI has been set, and auto-create the pipeline with a playbin element
+	if(m_StreamPipeline.find("!") == std::string::npos){
 
-	if(!m_GstPipeline){
-		DS_LOG_WARNING("Streaming pipeline failed to be created. " << error->message);
-		return false;
+		m_GstPipeline = gst_element_factory_make("playbin", "pipeline");
+
+		// Open Uri
+		g_object_set(m_GstPipeline, "uri", m_StreamPipeline.c_str(), NULL);
+
+		// VIDEO SINK
+		// Extract and Config Video Sink
+		// Create the video appsink and configure it
+		m_GstVideoSink = gst_element_factory_make("appsink", "videosink");
+
+		//gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 2 );
+		//gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
+		gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
+		gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), -1); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
+
+		// Set some fix caps for the video sink
+
+		GstCaps* caps = gst_caps_new_simple("video/x-raw",
+											"format", G_TYPE_STRING, "I420",
+											"width", G_TYPE_INT, m_iWidth,
+											"height", G_TYPE_INT, m_iHeight,
+											NULL);
+
+
+
+		gst_app_sink_set_caps(GST_APP_SINK(m_GstVideoSink), caps);
+		gst_caps_unref(caps);
+
+		// Set the configured video appsink to the main pipeline
+		g_object_set(m_GstPipeline, "video-sink", m_GstVideoSink, (void*)NULL);
+
+		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
+		g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", false, (void*)NULL);
+		g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
+
+	} else {
+
+		// VIDEO SINK
+
+		GError* error = nullptr;
+		// PIPELINE
+		// Init main pipeline --> playbin
+		m_GstPipeline = gst_parse_launch(streamingPipeline.c_str(), &error);
+
+		m_GstVideoSink = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "appsink0");
+		m_GstVolumeElement = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "volume0");
+
+		if(error){
+			DS_LOG_WARNING("Streaming pipeline error: " << error->message);
+		}
 	}
 
-	// VIDEO SINK
-	m_GstVideoSink = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "appsink0");
-	m_GstVolumeElement = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "volume0");
+
+	if(!m_GstPipeline){
+		DS_LOG_WARNING("Streaming pipeline failed to be created. ");
+		return false;
+	}
 
 	// Set some fix caps for the video sink
 	// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
 	m_cVideoBufferSize = (int)(1.5 * m_iWidth * m_iHeight);
 	m_cVideoBuffer = new unsigned char[m_cVideoBufferSize];
 
-// 	GstCaps* caps = gst_caps_new_simple("video/x-raw",
-// 										"format", G_TYPE_STRING, "I420",
-// 										"width", G_TYPE_INT, m_iWidth,
-// 										"height", G_TYPE_INT, m_iHeight,
-// 										NULL);
-// 
-// 	gst_app_sink_set_caps(GST_APP_SINK(m_GstVideoSink), caps);
-// 	gst_caps_unref(caps);
 
 	// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
 	g_object_set(m_GstVideoSink, "emit-signals", false, (void*)NULL);

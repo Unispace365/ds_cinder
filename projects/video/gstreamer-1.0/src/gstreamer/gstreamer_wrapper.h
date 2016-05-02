@@ -117,7 +117,7 @@ public:
 	@ videoWidth: Specify the size of the video. Required before creating a pipeline
 	@ videoHeight: Specify the size of the video. Required before creating a pipeline
 	*/
-	bool					open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight);
+	bool					open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight, const bool hasAudio = true);
 
 
 	/** you have to supply your own pipeline for streaming.
@@ -703,6 +703,7 @@ private:
 	bool					m_AutoRestartStream;
 	std::string				m_StreamPipeline;
 
+	bool					m_ValidInstall;
 	bool					m_VerboseLogging;
 
 	GstNetTimeProvider*		mClockProvider;
