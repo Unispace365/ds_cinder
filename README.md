@@ -28,9 +28,7 @@ This version of DS Cinder requires **Visual Studio 2013** installed.
 -  You'll need some environment variables set:
    - CINDER_086 points to the unzipped 0.8.6 cinder distribution folder ([Version 0.8.6 for VC 2013](http://libcinder.org/releases/cinder_0.8.6_vc2013.zip)). 
   
-   - DS_PLATFORM_086 points to the root of this  repository. 
-
-   - DS_CINDER_GSTREAMER_1-0 points to the root directory of Gstreamer (if your project uses Gstreamer video) e.g. c:/gstreamer/1.0/x86/
+   - DS_PLATFORM_086 points to the root of this repository. 
 
 
 Use the project generator to create a new project. This will make a copy of the "full_starter" example project, which contains all the projects you'll need to get started (PDF, Video, etc) and a bare-bones app structure. 
@@ -64,28 +62,13 @@ We are using **Visual Studio property sheets** to manage basic settings like lib
  7. In `Linker -> Input` set `Ignore Specific` to `$(platform_lib_ignore_d)` (in debug) or `$(platform_lib_ignore)` (in release)
 
 
-----------
-
-DLLs
-----
-
-We are currently making use of ZeroMQ, which requires a DLL to be located in the same folder as the executable.  To automatically copy over the correct files, add a build step.
-
- 1. Open the properties on your project.
- 2. Go to Configuration `Properties -> Build Events -> Post Build Event`
- 3. Set Command line to: `copy /Y "$(DS_PLATFORM)\lib\zmq\lib\*" "$(OutDir)"`
- 4. Set Description to something like `Copying ZMQ`
-
-
-----------
-
 
 To compile with GSTREAMER
 -------------------------
 
-Install **Gstreamer 1.6.3** runtime and development files available [from the gstreamer site][1] and make sure you have Gstreamer's environment variable defined (*refer to installation section of this document*). Use the x86, not x64 versions.
-  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.6.3/gstreamer-1.0-x86-1.6.3.msi)
-  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.6.3/gstreamer-1.0-devel-x86-1.6.3.msi)
+Install **Gstreamer 1.8.1** runtime and development files available [from the gstreamer site][1]. Use the x86, not x64 versions.
+  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.6.3/gstreamer-1.0-x86-1.8.1.msi)
+  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.6.3/gstreamer-1.0-devel-x86-1.8.1.msi)
 
 ----------
 
