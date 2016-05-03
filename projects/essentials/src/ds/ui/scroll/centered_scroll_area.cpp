@@ -44,7 +44,7 @@ CenteredScrollArea::CenteredScrollArea(ds::ui::SpriteEngine& engine, const float
 					mWillSnapAfterDelay = false;
 					cancelDelayedCall();
 				}
-				balanceOnIndex(index, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), [this](){ scrollerTweenUpdated(); });
+				balanceOnIndex(index, mReturnAnimateTime);
 			}
 		});
 	}
@@ -84,7 +84,14 @@ int CenteredScrollArea::getCenterIndex(){
 }
 
 void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, const ci::EaseFn& ease, const std::function<void()>& postFunc){
-	bool callPostFuncNow = true;
+	auto combinedPostFunc = [this, postFunc](){
+		tweenComplete();
+		if(postFunc){
+			postFunc();
+		}
+	};
+	
+	bool callCombinedPostFuncNow = true;
 	if(mScroller){
 		float p = trueCenterOfItem(index);
 		
@@ -100,8 +107,8 @@ void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, c
 		mScroller->animStop();
 
 		if(duration > 0.0f){
-			callPostFuncNow = false;
-			mScroller->tweenPosition(position, duration, delay, ease, postFunc);
+			callCombinedPostFuncNow = false;
+			mScroller->tweenPosition(position, duration, delay, ease, combinedPostFunc);
 		} else {
 			mScroller->setPosition(position);
 		}
@@ -110,13 +117,20 @@ void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, c
 	mBeforeSnapCenterIndex = index;
 	mCenterIndex = index;
 
-	if(callPostFuncNow && postFunc){
-		postFunc();
+	if(callCombinedPostFuncNow){
+		combinedPostFunc();
 	}
 }
 
 void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, const ci::EaseFn& ease, const std::function<void()>& postFunc){
-	bool callPostFuncNow = true;
+	auto combinedPostFunc = [this, postFunc](){
+		tweenComplete();
+		if(postFunc){
+			postFunc();
+		}
+	};
+	
+	bool callCombinedPostFuncNow = true;
 	if(mScroller){
 		float p = 0.0f;
 		
@@ -149,8 +163,8 @@ void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, 
 		mScroller->animStop();
 
 		if(duration > 0.0f){
-			callPostFuncNow = false;
-			mScroller->tweenPosition(position, duration, delay, ease, postFunc);
+			callCombinedPostFuncNow = false;
+			mScroller->tweenPosition(position, duration, delay, ease, combinedPostFunc);
 		} else {
 			mScroller->setPosition(position);
 		}
@@ -159,8 +173,8 @@ void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, 
 	mBeforeSnapCenterIndex = index;
 	mCenterIndex = index;
 
-	if(callPostFuncNow && postFunc){
-		postFunc();
+	if(callCombinedPostFuncNow){
+		combinedPostFunc();
 	}
 }
 
