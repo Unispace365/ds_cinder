@@ -78,6 +78,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>$(platform_lib_ignore_d)</IgnoreSpecificDefaultLibraries>
+	  <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command>copy "%DS_PLATFORM_086%\projects\web\awesomium\lib\paulhoux-Cinder-Awesomium\build\bin\*.*" "$(TargetDir)"</Command>
@@ -116,6 +117,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>$(platform_lib_ignore)</IgnoreSpecificDefaultLibraries>
+	  <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
