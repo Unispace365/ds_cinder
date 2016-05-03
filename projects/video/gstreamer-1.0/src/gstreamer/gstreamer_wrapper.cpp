@@ -344,7 +344,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
 			m_GstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
 			// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, (void*)NULL);
+			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, "qos", true, (void*)NULL);
 
 			GstElement* bin = gst_bin_new("converter_sink_bin");
 
@@ -380,7 +380,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	// Only create an audio sink if there's an audio track
 	} else if(hasAudioTrack){
 		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
-		g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", false, (void*)NULL);
+		g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", true, (void*)NULL);
 		g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
 	}
 
@@ -418,6 +418,13 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	return true;
 }
 
+// This is only for streaming setups that use playbin
+static void sourceSetupHandler(void* playbin, GstElement* source, gpointer user_data){
+	// this sets the latency of the rtsp source (or other detected source). 
+	// It may be required to have this value be configurable in the future, but for now, we're hard-coding
+	g_object_set(source, "latency", 100);
+}
+
 bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight){
 	if(!m_ValidInstall){
 		return false;
@@ -445,6 +452,8 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 
 		m_GstPipeline = gst_element_factory_make("playbin", "pipeline");
 
+		g_signal_connect(m_GstPipeline, "source-setup", G_CALLBACK(sourceSetupHandler), NULL);
+
 		// Open Uri
 		g_object_set(m_GstPipeline, "uri", m_StreamPipeline.c_str(), NULL);
 
@@ -453,8 +462,6 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 		// Create the video appsink and configure it
 		m_GstVideoSink = gst_element_factory_make("appsink", "videosink");
 
-		//gst_app_sink_set_max_buffers( GST_APP_SINK( m_GstVideoSink ), 2 );
-		//gst_app_sink_set_drop( GST_APP_SINK( m_GstVideoSink ), true );
 		gst_base_sink_set_qos_enabled(GST_BASE_SINK(m_GstVideoSink), true);
 		gst_base_sink_set_max_lateness(GST_BASE_SINK(m_GstVideoSink), -1); // 1000000000 = 1 second, 40000000 = 40 ms, 20000000 = 20 ms
 
@@ -475,7 +482,7 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 		g_object_set(m_GstPipeline, "video-sink", m_GstVideoSink, (void*)NULL);
 
 		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
-		g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", false, (void*)NULL);
+		g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", true, (void*)NULL);
 		g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
 
 	} else {
@@ -1160,6 +1167,7 @@ static void print_one_tag(const GstTagList * list, const gchar * tag, gpointer u
 }
 
 void GStreamerWrapper::handleGStMessage(){
+	m_VerboseLogging = true;
 	if ( m_GstBus )	{
 
 
