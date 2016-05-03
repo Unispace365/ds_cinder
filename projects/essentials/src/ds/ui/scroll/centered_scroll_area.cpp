@@ -108,9 +108,10 @@ void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, c
 
 		if(duration > 0.0f){
 			callCombinedPostFuncNow = false;
-			mScroller->tweenPosition(position, duration, delay, ease, combinedPostFunc);
+			mScroller->tweenPosition(position, duration, delay, ease, combinedPostFunc, [this](){ scrollerTweenUpdated(); });
 		} else {
 			mScroller->setPosition(position);
+			scrollerUpdated(position.xy());
 		}
 	}
 
@@ -164,9 +165,10 @@ void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, 
 
 		if(duration > 0.0f){
 			callCombinedPostFuncNow = false;
-			mScroller->tweenPosition(position, duration, delay, ease, combinedPostFunc);
+			mScroller->tweenPosition(position, duration, delay, ease, combinedPostFunc, [this](){ scrollerTweenUpdated(); });
 		} else {
 			mScroller->setPosition(position);
+			scrollerUpdated(position.xy());
 		}
 	}
 
