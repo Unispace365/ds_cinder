@@ -2373,14 +2373,11 @@ void Sprite::setTouchScaleMode(bool doSizeScale){
 }
 
 void Sprite::readClientFrom(ds::DataBuffer& buf){
-	while (buf.canRead<char>())
-	{
+	while (buf.canRead<char>()) {
 		char cmd = buf.read<char>();
 		if (cmd != TERMINATOR_CHAR) {
 			readClientAttributeFrom(cmd, buf);
-		}
-		else
-		{
+		} else {
 			return;
 		}
 	}

@@ -110,8 +110,8 @@ void ImageToken::init() {
 LoadImageService::LoadImageService(ds::ui::SpriteEngine& eng, ds::ui::ip::FunctionList& list)
 		: mFunctions(list) 
 		, mLoadThreads(eng, [](){return new ds::ui::LoadImageService::ImageLoadThread(); })
-		, mMaxSimultaneousLoads(8)
-		, mMaxLoadTries(32)
+		, mMaxSimultaneousLoads(4)
+		, mMaxLoadTries(128)
 		, mLoadsInProgress(0)
 {
 
