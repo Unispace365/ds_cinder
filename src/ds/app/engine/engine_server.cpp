@@ -140,7 +140,21 @@ void AbstractEngineServer::receiveClientStatus(ds::DataBuffer& data) {
 	const sprite_id_t		id(data.read<sprite_id_t>());
 	ds::ui::Sprite*			s(findSprite(id));
 	if(!s) {
+
 		DS_LOG_WARNING_M("receiveClientStatus missing sprite id=" << id, ds::IO_LOG);
+
+		auto it = std::find(mRunningState.mDeletedSprites.begin(), mRunningState.mDeletedSprites.end(), id);
+		if(it != mRunningState.mDeletedSprites.end()){
+			DS_LOG_INFO_M("Actually, it's cool, that sprite was just deleted. id=" << id, ds::IO_LOG);
+		}
+
+
+		// This can happen if the sprite has been deleted by the server but not yet by the client
+		while(data.canRead<char>()) {
+			const char		cmd(data.read<char>());
+			if(cmd == ds::TERMINATOR_CHAR) return;
+		}
+
 	} else {
 		s->readClientFrom(data);
 	}

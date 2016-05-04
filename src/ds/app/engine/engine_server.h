@@ -85,11 +85,11 @@ private:
 		virtual void				update(AbstractEngineServer&);
 		virtual void				spriteDeleted(const ds::sprite_id_t&);
 
+		std::vector<sprite_id_t>	mDeletedSprites;
 	private:
 		void						addDeletedSprites(ds::DataBuffer&) const;
 
 		int32_t						mFrame;
-		std::vector<sprite_id_t>	mDeletedSprites;
 	};
 
 	/* This state is used to send a client started reply.
