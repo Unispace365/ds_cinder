@@ -1167,11 +1167,7 @@ static void print_one_tag(const GstTagList * list, const gchar * tag, gpointer u
 }
 
 void GStreamerWrapper::handleGStMessage(){
-	m_VerboseLogging = true;
 	if ( m_GstBus )	{
-
-
-
 		while ( gst_bus_have_pending( m_GstBus ) ){
 			m_GstMessage = gst_bus_pop( m_GstBus );
 

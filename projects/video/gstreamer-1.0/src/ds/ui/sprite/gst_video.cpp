@@ -1130,9 +1130,18 @@ void GstVideo::writeClientAttributesTo(ds::DataBuffer& buf)const{
 		return;
 	}
 
+	if(!getIsPlaying()){
+		return;
+	}
+
 	ds::ScopedClientAtts scope(buf, getId());
 	buf.add(mStatusAtt);
-	buf.add(static_cast<float>(getCurrentPosition())); // position is really all we need, right?
+	float curPos = static_cast<float>(getCurrentPosition());
+	// floating point errors can put this slightly above or below zero
+	if(curPos < 0.0f) curPos = 0.0f;
+	if(curPos > 1.0f) curPos = 1.0f;
+	buf.add(curPos); // position is really all we need, right?
+	buf.add(ds::TERMINATOR_CHAR);
 }
 
 void GstVideo::readClientAttributeFrom(const char attributeId, ds::DataBuffer& buf){
