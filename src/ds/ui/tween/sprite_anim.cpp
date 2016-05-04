@@ -359,6 +359,12 @@ void SpriteAnimatable::setAnimateOnTargets(){
 	mAnimateOnOpacityTarget = mOwner.getOpacity();
 }
 
+void SpriteAnimatable::setAnimateOnTargetsIfNeeded(){
+	if(!mAnimateOnTargetsSet){
+		setAnimateOnTargets();
+	}
+}
+
 void SpriteAnimatable::clearAnimateOnTargets(const bool recursive){
 	mAnimateOnTargetsSet = false;
 	if(recursive){
@@ -445,12 +451,12 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 			tweenColor(ci::Color(dest.x, dest.y, dest.z), dur, delayey, easing);
 
 		} else if(animType == "slide"){
-			if(!mAnimateOnTargetsSet) setAnimateOnTargets();
+			setAnimateOnTargetsIfNeeded();
 			mOwner.setPosition(mAnimateOnPositionTarget + dest);
 			tweenPosition(mAnimateOnPositionTarget, dur, delayey, easing);
 
 		} else if(animType == "fade"){
-			if(!mAnimateOnTargetsSet) setAnimateOnTargets();
+			setAnimateOnTargetsIfNeeded();
 			if(dest.x == 0.0f){
 				mOwner.setOpacity(0.0f);
 			} else {
@@ -459,7 +465,7 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 			tweenOpacity(mAnimateOnOpacityTarget, dur, delayey, easing);
 
 		} else if(animType == "grow"){
-			if(!mAnimateOnTargetsSet) setAnimateOnTargets();
+			setAnimateOnTargetsIfNeeded();
 			if(dest.x == 0.0f && dest.y == 0.0f){
 				mOwner.setScale(0.0f);
 			} else {

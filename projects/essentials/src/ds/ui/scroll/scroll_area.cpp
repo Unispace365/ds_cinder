@@ -19,6 +19,7 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 	, mFadeFullColor(0, 0, 0, 255)
 	, mFadeTransColor(0, 0, 0, 0)
 	, mScrollUpdatedFunction(nullptr)
+	, mTweenCompleteFunction(nullptr)
 	, mSnapToPositionFunction(nullptr)
 	, mVertical(vertical)
 	, mScrollPercent(0.0f)
@@ -159,7 +160,7 @@ void ScrollArea::checkBounds(){
 		callAfterDelay([this, doTween, tweenDestination](){
 			mWillSnapAfterDelay = false;
 			mSpriteMomentum.deactivate();
-			mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
+			mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), [this](){ tweenComplete(); }, [this](){ scrollerTweenUpdated(); });
 			scrollerUpdated(tweenDestination.xy());
 		}, 0.0f);
 	} else {
@@ -167,6 +168,7 @@ void ScrollArea::checkBounds(){
 		mScroller->animStop();
 		mScroller->setPosition(tweenDestination);
 		scrollerUpdated(tweenDestination.xy());
+		tweenComplete();
 	}
 }
 
@@ -355,6 +357,10 @@ void ScrollArea::setScrollUpdatedCallback(const std::function<void(ds::ui::Scrol
 	mScrollUpdatedFunction = func;
 }
 
+void ScrollArea::setTweenCompleteCallback(const std::function<void(ds::ui::ScrollArea* thisThing)> &func){
+	mTweenCompleteFunction = func;
+}
+
 void ScrollArea::setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func){
 	mSnapToPositionFunction = func;
 }
@@ -385,7 +391,15 @@ void ScrollArea::resetScrollerPosition() {
 }
 
 void ScrollArea::scrollerTweenUpdated(){
-	if(mScrollUpdatedFunction) mScrollUpdatedFunction(this);
+	if(mScrollUpdatedFunction){
+		mScrollUpdatedFunction(this);
+	}
+}
+
+void ScrollArea::tweenComplete(){
+	if(mTweenCompleteFunction){
+		mTweenCompleteFunction(this);
+	}
 }
 
 float ScrollArea::getScrollPercent(){

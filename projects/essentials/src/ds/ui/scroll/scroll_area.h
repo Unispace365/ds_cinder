@@ -36,6 +36,7 @@ class ScrollArea : public ds::ui::Sprite {
 		void				setFadeHeight(const float fadeHeight);
 
 		void				setScrollUpdatedCallback(const std::function<void(ScrollArea* thisThing)> &func);
+		void				setTweenCompleteCallback(const std::function<void(ScrollArea*)>& func);
 		void				setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func);
 		void				setScrollerTouchedCallback(const std::function<void()>& func); // just lets you know some interaction happened with the scroller
 
@@ -57,6 +58,7 @@ class ScrollArea : public ds::ui::Sprite {
 		virtual void		updateServer(const ds::UpdateParams& p);
 		void				scrollerUpdated(const ci::Vec2f scrollPos);
 		void				scrollerTweenUpdated();
+		void				tweenComplete();
 		void				checkBounds();
 		void				handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 		virtual bool		callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDestination);
@@ -82,6 +84,7 @@ class ScrollArea : public ds::ui::Sprite {
 		float				mScrollPercent;
 
 		std::function<void(ScrollArea*)>	mScrollUpdatedFunction;
+		std::function<void(ScrollArea*)>	mTweenCompleteFunction;
 		std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>	mSnapToPositionFunction;
 		std::function<void()>				mScrollerTouchedFunction;
 
