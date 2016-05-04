@@ -6,6 +6,7 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/ui/sprite/image.h"
 #include "ds/util/string_util.h"
+#include <cinder/Rand.h>
 #include "snappy.h"
 
 #include "ds/debug/computer_info.h"
@@ -371,7 +372,9 @@ void EngineClient::ClientStartedState::update(EngineClient& engine) {
 		buf.add(engine.mIoInfo.mGlobalId);
 		buf.add(ds::TERMINATOR_CHAR);
 
-		mSendFrame = 60;
+		// Randomize the amount of time to wait for a retry. 
+		// If there are multiple clients that started at the same time, we could be flooding the server with new world requests
+		mSendFrame = ci::randInt(30, 240);
 //DS_LOG_INFO_M("Send CMD_CLIENT_STARTED", ds::IO_LOG);
 	}
 	--mSendFrame;
@@ -397,7 +400,9 @@ void EngineClient::BlankState::update(EngineClient& engine) {
 		buf.add(CMD_CLIENT_REQUEST_WORLD);
 		buf.add(ds::TERMINATOR_CHAR);
 
-		mSendFrame = 60;
+		// Randomize the amount of time to wait for a retry. 
+		// If there are multiple clients that started at the same time, we could be flooding the server with new world requests
+		mSendFrame = ci::randInt(30, 240);
 	}
 	--mSendFrame;
 }

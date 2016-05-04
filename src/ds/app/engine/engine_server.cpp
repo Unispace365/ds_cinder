@@ -135,20 +135,22 @@ void AbstractEngineServer::receiveClientStatus(ds::DataBuffer& data) {
 			if (cmd == ds::TERMINATOR_CHAR) return;
 		}	
 	}
+
 	// Find the sprite, and let it read
 	const sprite_id_t		id(data.read<sprite_id_t>());
 	ds::ui::Sprite*			s(findSprite(id));
-	if (!s) {
+	if(!s) {
 		DS_LOG_WARNING_M("receiveClientStatus missing sprite id=" << id, ds::IO_LOG);
 	} else {
 		s->readClientFrom(data);
 	}
 
+	
 	// Verify we're at the end
-	if (data.canRead<char>()) {
+	if(data.canRead<char>()) {
 		const char			cmd(data.read<char>());
-		if (cmd != ds::TERMINATOR_CHAR) {
-			DS_LOG_WARNING_M("receiveClientStatus missing terminator", ds::IO_LOG);
+		if(cmd != ds::TERMINATOR_CHAR) {
+			DS_LOG_WARNING_M("receiveClientStatus missing terminator. Got " << cmd << " instead", ds::IO_LOG);
 		}
 	}
 }
@@ -425,10 +427,6 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 			rooty.writeTo(send.mData);
 			
 		}
-
-// 		ui::Sprite                 &root = engine.getRootSprite();
-// 		root.markTreeAsDirty();
-// 		root.writeTo(send.mData);
 	}
 
 	engine.setState(engine.mRunningState);
