@@ -28,6 +28,9 @@ class CenteredScrollArea : public ScrollArea {
 		// This gets the item currently in the center, or just left of center for an even-valued center by parameter.
 		int				getCenterIndex();
 
+		float			getCenteringOffset() { return mCenteringOffset; }
+		void			setCenteringOffset(float offset);
+
 		float			getMinimumSwipeDistance() { return mMinimumSwipeDistance; }
 		void			setMinimumSwipeDistance(float distance) { mMinimumSwipeDistance = distance; }
 
@@ -52,6 +55,8 @@ class CenteredScrollArea : public ScrollArea {
 		int				mCenterBy;
 		int				mCenterIndex;
 		int				mBeforeSnapCenterIndex;
+
+		float			mCenteringOffset;
 
 		float			mMinimumSwipeDistance;
 };
