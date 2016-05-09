@@ -84,6 +84,7 @@ Sprite Parameters
     * rotate = MULTITOUCH_CAN_ROTATE
 * **transparent**: A boolean of wheather the sprite should draw or not.
 * **animate_on**: Supply a script to run when tweenAnimateOn() is called on this sprite. See the animation section for details.
+* **corner_radius**: A float the changes the corner radius. Only applies to some sprite types like Sprite and Border. Many types ignore this setting. Default=0.0.
 
 Layout Parameters (only valid if using a layout sprite as a parent)
 ------------------------------------------------------

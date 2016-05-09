@@ -75,6 +75,12 @@ void Border::updateServer(const UpdateParams& up) {
 }
 
 void Border::drawLocalClient() {
+	if(mCornerRadius > 0.0f){
+		ci::gl::lineWidth(mBorderWidth);
+		ci::gl::drawStrokedRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
+		return; 
+	} 
+
 	if(!mVertices) return;
 
 	glEnableClientState(GL_VERTEX_ARRAY);

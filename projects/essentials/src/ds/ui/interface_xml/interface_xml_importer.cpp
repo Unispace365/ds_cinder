@@ -323,6 +323,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 	if(sp.mLayoutUserType != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_size_mode", getLayoutSizeModeString(sp.mLayoutUserType));
 	if(sp.mLayoutVAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_v_align", getLayoutVAlignString(sp.mLayoutVAlign));
 	if(sp.mLayoutHAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_h_align", getLayoutHAlignString(sp.mLayoutHAlign));
+	if(sp.getCornerRadius() > 0.0f) xml.setAttribute("corner_radius", sp.getCornerRadius());
 
 	ds::ui::LayoutSprite* ls = dynamic_cast<ds::ui::LayoutSprite*>(&sp);
 	if(ls){
@@ -484,6 +485,8 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		sprite.setTransparent(parseBoolean(value));
 	} else if(property == "animate_on"){
 		sprite.setAnimateOnScript(value);
+	} else if(property == "corner_radius"){
+		sprite.setCornerRadius(ds::string_to_float(value));
 	} else if(property == "t_pad") {
 		sprite.mLayoutTPad = ds::string_to_float(value);
 	} else if(property == "b_pad") {
