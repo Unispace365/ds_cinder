@@ -9,6 +9,7 @@ CenteredScrollArea::CenteredScrollArea(ds::ui::SpriteEngine& engine, const float
 	: ScrollArea(engine, startWidth, startHeight, vertical)
 	, mCenterBy(1)
 	, mCenterIndex(0)
+	, mCenteringOffset(0.0f)
 	, mMinimumSwipeDistance(50.0f)
 	, mBeforeSnapCenterIndex(0)
 {
@@ -83,6 +84,10 @@ int CenteredScrollArea::getCenterIndex(){
 	return mCenterIndex;
 }
 
+void CenteredScrollArea::setCenteringOffset(float offset){
+	mCenteringOffset = offset;
+}
+
 void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, const ci::EaseFn& ease, const std::function<void()>& postFunc){
 	auto combinedPostFunc = [this, postFunc](){
 		tweenComplete();
@@ -97,9 +102,9 @@ void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, c
 		
 		ci::Vec3f position;
 		if(mVertical){
-			position.y = p;
+			position.y = p + mCenteringOffset;
 		} else {
-			position.x = p;
+			position.x = p + mCenteringOffset;
 		}
 
 		// kill any existing tween and/or momentum
@@ -154,9 +159,9 @@ void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, 
 
 		ci::Vec3f position;
 		if(mVertical){
-			position.y = p;
+			position.y = p + mCenteringOffset;
 		} else {
-			position.x = p;
+			position.x = p + mCenteringOffset;
 		}
 
 		// kill any existing tween and/or momentum
@@ -243,9 +248,9 @@ bool CenteredScrollArea::callSnapToPositionCallback(bool& doTween, ci::Vec3f& tw
 				// we're ready to tween
 				doTween = true;
 				if(mVertical){
-					tweenDestination.y = p;
+					tweenDestination.y = p + mCenteringOffset;
 				} else {
-					tweenDestination.x = p;
+					tweenDestination.x = p + mCenteringOffset;
 				}
 
 				output = true;

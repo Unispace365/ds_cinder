@@ -23,6 +23,7 @@ TouchMode::Enum TouchMode::fromString(const std::string &_str) {
 	std::string			str(_str);
 	boost::algorithm::to_lower(str);
 	if (str == "tuio") mode = TouchMode::kTuio;
+	else if (str == "tuioandmouse") mode = TouchMode::kTuioAndMouse;
 	else if (str == "system") mode = TouchMode::kSystem;
 	else if (str == "systemandmouse") mode = TouchMode::kSystemAndMouse;
 	else if(str == "all") mode = TouchMode::kAll;
