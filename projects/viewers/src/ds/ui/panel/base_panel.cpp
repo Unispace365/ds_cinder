@@ -130,6 +130,10 @@ void BasePanel::setViewerWidth(const float contentWidth){
 	setViewerSize(contentWidth, contentWidth / mContentAspectRatio);
 }
 
+void BasePanel::setViewerHeight(const float contentHeight){
+	setViewerSize(contentHeight * mContentAspectRatio, contentHeight);
+}
+
 void BasePanel::setAbsoluteSizeLimits(const ci::Vec2f& absMin, const ci::Vec2f& absMax) {
 	mAbsMinSize = absMin; mAbsMaxSize = absMax;
 }

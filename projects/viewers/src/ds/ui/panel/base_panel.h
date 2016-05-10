@@ -47,6 +47,7 @@ public:
 
 	/** Calls the above function, but using the content aspect ratio so it's proportional, and the padding is added to the outside */
 	void							setViewerWidth(const float contentWidth);
+	void							setViewerHeight(const float contentHeight);
 
 	/** If you animate this thing, call this before the tween starts (And be sure to call tweenEnded when it completes!) */
 	void							tweenStarted();
