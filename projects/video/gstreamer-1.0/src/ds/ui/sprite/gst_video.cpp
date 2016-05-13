@@ -50,7 +50,7 @@ static std::string yuv_vert =
 "}";
 
 	const static std::string yuv_frag =
-		"precision mediump float;"
+		//"precision mediump float;"
 		"uniform sampler2D gsuTexture0;"
 		"uniform sampler2D gsuTexture1;"
 		"uniform sampler2D gsuTexture2;"
