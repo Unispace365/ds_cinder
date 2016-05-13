@@ -41,7 +41,7 @@ std::vector<ds::model::GenericContentRef> XmlContentLoader::loadXmlContent(const
 		return output;
 	}
 
-	int contentId = 0;
+	int contentId = 1;
 
 	ci::XmlTree xml;
 
