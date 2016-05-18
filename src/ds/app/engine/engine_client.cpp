@@ -343,7 +343,7 @@ void EngineClient::RunningState::update(EngineClient &e) {
 	const int				count(e.getRootCount());
 	for (int k=0; k<count; ++k) {
 		if(!e.getRootBuilder(k).mSyncronize) continue;
-		const ui::Sprite&	s(e.getRootSprite(k));
+		ui::Sprite&	s(e.getRootSprite(k));
 		s.writeClientTo(buf);
 	}
 
