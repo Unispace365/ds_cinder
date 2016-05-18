@@ -562,7 +562,7 @@ namespace ui {
 		void					writeTo(ds::DataBuffer&);
 		void					readFrom(ds::BlobReader&);
 		// Only used when running in client mode
-		void					writeClientTo(ds::DataBuffer&) const;
+		void					writeClientTo(ds::DataBuffer&);
 		// IMPORTANT: readClientFrom must not be virtual. If any of the clients try to communicate
 		// back with server, the communication must happen through "readClientAttributeFrom".
 		void					readClientFrom(ds::DataBuffer&);
@@ -760,7 +760,7 @@ namespace ui {
 		virtual void		writeAttributesTo(ds::DataBuffer&);
 		// Used during client mode, to let clients get info back to the server. Use the
 		// engine_io.defs::ScopedClientAtts at the top of the function to do all the boilerplate.
-		virtual void		writeClientAttributesTo(ds::DataBuffer&) const {};
+		virtual void		writeClientAttributesTo(ds::DataBuffer&){};
 		virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&){}
 		// Read a single attribute
 		virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&){}

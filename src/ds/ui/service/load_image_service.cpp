@@ -236,7 +236,7 @@ void LoadImageService::onLoadComplete(ImageLoadThread& loadThread){
 		if((h.mFlags&ds::ui::Image::IMG_ENABLE_MIPMAP_F) != 0) {
 			fmt.enableMipmapping(true);
 			fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
-		}
+		} 
 		h.mTexture = ci::gl::Texture(out.mSurface, fmt);
 
 		// If we ran out of memory, try again! why not!

@@ -1570,7 +1570,7 @@ void Sprite::writeTo(ds::DataBuffer& buf) {
 	}
 }
 
-void Sprite::writeClientTo(ds::DataBuffer &buf) const {
+void Sprite::writeClientTo(ds::DataBuffer &buf) {
 	writeClientAttributesTo(buf);
 	for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
 		(*it)->writeClientTo(buf);

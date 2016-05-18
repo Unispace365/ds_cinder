@@ -109,6 +109,7 @@ const char mUpdateSeekTimeAtt = 94;
 const char mSeekAtt = 95;
 const char mInstancesAtt = 96;
 const char mDoSyncAtt = 97;
+const char mClientCompleteAtt = 98;
 
 const DirtyState& mPosDirty = newUniqueDirtyState();
 
@@ -185,6 +186,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mServerPlayStatus(Status::STATUS_STOPPED)
 	, mPan(0.0f)
 	, mStreaming(false)
+	, mClientVideoCompleted(false)
 {
 	mBlobType = BLOB_TYPE;
 
@@ -533,6 +535,9 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 
 		mGstreamerWrapper->setVideoCompleteCallback([this](GStreamerWrapper*){
 			if(mVideoCompleteFn) mVideoCompleteFn();
+			if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
+				mClientVideoCompleted = true;
+			}
 		});
 
 		// TODO: add error callbacks to the server?
@@ -1131,25 +1136,34 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	}
 }
  
-void GstVideo::writeClientAttributesTo(ds::DataBuffer& buf)const{
+void GstVideo::writeClientAttributesTo(ds::DataBuffer& buf){
 	// This means that we're a client that didn't actually load any video, so no need to write any data back to the server
 	// I know it's confusing that clients can be in server-only mode, but here we are
 	if(mServerOnlyMode || mStreaming){
 		return;
 	}
 
+	if(mClientVideoCompleted){
+		ds::ScopedClientAtts scope(buf, getId());
+		buf.add(mClientCompleteAtt);
+		buf.add(ds::TERMINATOR_CHAR);
+		mClientVideoCompleted = false;
+	}
+
 	if(!getIsPlaying()){
 		return;
 	}
 
-	ds::ScopedClientAtts scope(buf, getId());
-	buf.add(mStatusAtt);
-	float curPos = static_cast<float>(getCurrentPosition());
-	// floating point errors can put this slightly above or below zero
-	if(curPos < 0.0f) curPos = 0.0f;
-	if(curPos > 1.0f) curPos = 1.0f;
-	buf.add(curPos); // position is really all we need, right?
-	buf.add(ds::TERMINATOR_CHAR);
+	{
+		ds::ScopedClientAtts scope(buf, getId());
+		buf.add(mStatusAtt);
+		float curPos = static_cast<float>(getCurrentPosition());
+		// floating point errors can put this slightly above or below zero
+		if(curPos < 0.0f) curPos = 0.0f;
+		if(curPos > 1.0f) curPos = 1.0f;
+		buf.add(curPos); // position is really all we need, right?
+		buf.add(ds::TERMINATOR_CHAR);
+	}
 }
 
 void GstVideo::readClientAttributeFrom(const char attributeId, ds::DataBuffer& buf){
@@ -1158,6 +1172,8 @@ void GstVideo::readClientAttributeFrom(const char attributeId, ds::DataBuffer& b
 	if(attributeId == mStatusAtt){
 		const float clientPos = buf.read<float>();
 		mServerPosition = clientPos;
+	} else if(attributeId == mClientCompleteAtt && mVideoCompleteFn && mServerOnlyMode){
+		mVideoCompleteFn();
 	} else {
 		DS_LOG_WARNING("Got an unexpected attribute back when reading client attributes. Probably a network packet error. Attribute=" << attributeId);
 	}
