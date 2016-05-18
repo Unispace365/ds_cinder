@@ -7,6 +7,7 @@
 #include "ds/debug/logger.h"
 #include "ds/util/string_util.h"
 #include "ds/debug/computer_info.h"
+#include "ds/app/engine/engine_events.h"
 
 namespace ds {
 
@@ -235,7 +236,7 @@ void AbstractEngineServer::onClientRunningCommand(ds::DataBuffer &data) {
 
 void AbstractEngineServer::setState(State& s) {
 	if (&s == mState) return;
-  
+
 	s.begin(*this);
 	mState = &s;
 }
@@ -276,8 +277,9 @@ EngineServer::RunningState::RunningState()
 	mDeletedSprites.reserve(128);
 }
 
-void EngineServer::RunningState::begin(AbstractEngineServer&) {
+void EngineServer::RunningState::begin(AbstractEngineServer& engine) {
 	DS_LOG_INFO_M("RunningState", ds::IO_LOG);
+	engine.getNotifier().notify(ds::app::EngineStateEvent(ds::app::EngineStateEvent::ENGINE_STATE_CLIENT_RUNNING));
 	mFrame = 0;
 	mDeletedSprites.clear();
 }
@@ -357,8 +359,9 @@ void EngineServer::ClientStartedReplyState::clear() {
 	mClients.clear();
 }
 
-void EngineServer::ClientStartedReplyState::begin(AbstractEngineServer&) {
+void EngineServer::ClientStartedReplyState::begin(AbstractEngineServer& engine) {
 	DS_LOG_INFO_M("ClientStartedReplyState", ds::IO_LOG);
+	engine.getNotifier().notify(ds::app::EngineStateEvent(ds::app::EngineStateEvent::ENGINE_STATE_CLIENT_STARTED));
 }
 
 void EngineServer::ClientStartedReplyState::update(AbstractEngineServer& engine) {
@@ -419,8 +422,9 @@ void EngineServer::ClientStartedReplyState::update(AbstractEngineServer& engine)
 EngineServer::SendWorldState::SendWorldState() {
 }
 
-void EngineServer::SendWorldState::begin(AbstractEngineServer&) {
+void EngineServer::SendWorldState::begin(AbstractEngineServer& engine) {
 	DS_LOG_INFO_M("SendWorldState", ds::IO_LOG);
+	engine.getNotifier().notify(ds::app::EngineStateEvent(ds::app::EngineStateEvent::ENGINE_STATE_SEND_WORLD));
 }
 
 void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
