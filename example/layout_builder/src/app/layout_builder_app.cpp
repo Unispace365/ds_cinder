@@ -171,6 +171,11 @@ void layout_builder::mouseUp(ci::app::MouseEvent e) {
 	mTouchDebug.mouseUp(e);
 }
 
+void layout_builder::mouseMove( ci::app::MouseEvent e ) {
+	ci::Vec3f p(e.getX(), e.getY(), 0.0f);
+	mEngine.getNotifier().notify(MouseMoveEvent(p));
+}
+
 void layout_builder::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){

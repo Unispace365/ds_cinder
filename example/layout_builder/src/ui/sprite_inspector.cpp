@@ -57,6 +57,12 @@ void SpriteInspector::onAppEvent(const ds::Event& in_e){
 	} else if(in_e.mWhat == InputFieldCleared::WHAT()){
 		setInputField(nullptr);
 	}
+	else if (in_e.mWhat == MouseMoveEvent::WHAT()) {
+		const MouseMoveEvent& e( (const MouseMoveEvent&)in_e );
+		if (this->contains(e.mMousePoint)) {
+			mEngine.getNotifier().notify(ShowSpriteHighlightEvent(mLinkedSprite));
+		}
+	}
 
 }
 

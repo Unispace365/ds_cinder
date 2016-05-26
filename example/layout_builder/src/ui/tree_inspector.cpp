@@ -24,6 +24,7 @@ TreeInspector::TreeInspector(Globals& g)
 	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 	, mLayout(nullptr)
 	, mTreeRoot(nullptr)
+	, mHighlighter(nullptr)
 {
 	setPosition(800.0f, 200.0f);
 	enable(true);
@@ -47,7 +48,76 @@ void TreeInspector::onAppEvent(const ds::Event& in_e){
 			}
 		}
 	}
+	else if (in_e.mWhat == MouseMoveEvent::WHAT() ) {
+		const MouseMoveEvent& e( (const MouseMoveEvent&)in_e );
+		handleMouseHover(e.mMousePoint);
+	}
+	else if (in_e.mWhat == ShowSpriteHighlightEvent::WHAT()) {
+		const ShowSpriteHighlightEvent& e( (const ShowSpriteHighlightEvent&)in_e );
+		highlightSprite( e.mSpriteToHighlight );
+	}
+}
 
+void TreeInspector::highlightSprite( const ds::ui::Sprite* sprite ) {
+	auto showHighlight = [&]( const ds::ui::Sprite* s ) {
+		if (!mHighlighter) {
+			mHighlighter = new ds::ui::Sprite( mEngine );
+			mHighlighter->setTransparent( false );
+			mHighlighter->setColorA( ci::ColorA::hexA( 0xAA6fa8dc ) );
+			addChildPtr( mHighlighter );
+
+			auto crosshairColor = ci::Color::hex( (0xf6b26b) );
+
+			auto hCrosshair = new ds::ui::Sprite( mEngine, 40.0f, 3.0f );
+			hCrosshair->setTransparent( false );
+			hCrosshair->setColor( crosshairColor );
+			mHighlighter->addChildPtr( hCrosshair );
+			auto vCrosshair = new ds::ui::Sprite( mEngine, 3.0f, 40.0f );
+			vCrosshair->setTransparent( false );
+			vCrosshair->setColor( crosshairColor );
+			mHighlighter->addChildPtr( vCrosshair );
+		}
+
+		mHighlighter->show();
+		mHighlighter->setSize( s->getWidth(), s->getHeight() );
+		auto pos = s->getGlobalPosition();
+		mHighlighter->setPosition( globalToLocal( pos ) );
+	};
+
+	if (sprite) {
+		showHighlight(sprite);
+	}
+	else if (mHighlighter) {
+		mHighlighter->hide();
+	}
+
+}
+
+void TreeInspector::handleMouseHover(const ci::Vec3f& mousePoint) {
+	if (!this->contains( mousePoint ))
+		return;
+
+	static TreeItem* highlightedTreeItem = nullptr;
+	TreeItem* newHighlightedTreeItem = nullptr;
+
+	//DS_LOG_INFO( "Mouse moved inside TreeInspector" << mousePoint.x << ", " << mousePoint.y );
+	for (TreeItem* treeItem : mTreeItems) {
+		if (treeItem->contains(mousePoint)) {
+			newHighlightedTreeItem = treeItem;
+			break;
+		}
+	}
+
+	if (newHighlightedTreeItem) {
+		if (newHighlightedTreeItem != highlightedTreeItem) {
+			highlightedTreeItem = newHighlightedTreeItem;
+			highlightSprite(highlightedTreeItem->getLinkedSprite());
+		}
+	}
+	else {
+		highlightedTreeItem = nullptr;
+		highlightSprite(nullptr);
+	}
 }
 
 void TreeInspector::clearTree(){

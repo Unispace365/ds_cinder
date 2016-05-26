@@ -21,6 +21,7 @@ public:
 	virtual void			mouseDown(ci::app::MouseEvent e);
 	virtual void			mouseDrag(ci::app::MouseEvent e);
 	virtual void			mouseUp(ci::app::MouseEvent e);
+	virtual void			mouseMove(ci::app::MouseEvent e);
 	virtual void			keyDown(ci::app::KeyEvent event);
 	void					setupServer();
 	void					update();

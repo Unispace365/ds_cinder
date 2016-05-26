@@ -96,6 +96,19 @@ public:
 	ds::ui::Sprite*		mSpriteToDelete;
 };
 
+class MouseMoveEvent : public ds::RegisteredEvent<MouseMoveEvent>{
+public:
+	MouseMoveEvent( const ci::Vec3f mousePoint ) : mMousePoint(mousePoint) {}
+	ci::Vec3f			mMousePoint;
+};
+
+class ShowSpriteHighlightEvent : public ds::RegisteredEvent<ShowSpriteHighlightEvent>{
+public:
+	ShowSpriteHighlightEvent( ds::ui::Sprite* spriteToHighlight ) : mSpriteToHighlight( spriteToHighlight ){}
+	ds::ui::Sprite*		mSpriteToHighlight;
+};
+
+
 } // !namespace layout_builder
 
 #endif // !_LAYOUT_BUILDER_APP_APPEVENTS_H_
