@@ -50,7 +50,7 @@ static std::string yuv_vert =
 "}";
 
 	const static std::string yuv_frag =
-		"precision mediump float;"
+		//"precision mediump float;"
 		"uniform sampler2D gsuTexture0;"
 		"uniform sampler2D gsuTexture1;"
 		"uniform sampler2D gsuTexture2;"
@@ -194,6 +194,11 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	}
 	
 	mEngineMuted = mEngine.getMute();
+
+	// Prevent a race condition that could set the net clock before we get all the attributes. 
+	if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
+		mDoSyncronization = false;
+	}
 
 	setTransparent(false);
 	setUseShaderTextuer(true);
@@ -1092,6 +1097,9 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	} 
 	else if(attrid == mDoSyncAtt){
 		mDoSyncronization = buf.read<bool>();
+		if(mDoSyncronization){
+			setNetClock();
+		}
 	}
 	else if (attrid == mUpdateSeekTimeAtt){
 		mSeekTime = buf.read<uint64_t>();
