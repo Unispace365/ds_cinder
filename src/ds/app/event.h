@@ -58,6 +58,11 @@ const T* const Event::as() const
 // End of Template impl
 
 
+// Only works in Visual Studio. GCC will likely mangle type names differently, sorry.
+static const std::string demangleTypeName(const std::string& n){
+	return n.substr(n.find_last_of(':') + 1);
+}
+
 /**
 * \class ds::event::RegisteredEvent
 * \brief All events should derive from this class, to be properly
@@ -71,15 +76,17 @@ public:
 	// Unique channel name for this message
 	static const std::string&		CHANNEL() { return sENTRY.getChannel(); }
 
+	static const std::string		NAME() { return demangleTypeName(typeid(Derived).name()); }
+
 protected:
-	RegisteredEvent()				: Event(sENTRY.getWhat()) { }
+	RegisteredEvent() : Event(sENTRY.getWhat()) {}
 
 private:
 	static event::Registry::Entry	sENTRY;
 };
 
 template<class Derived>
-event::Registry::Entry RegisteredEvent<Derived>::sENTRY(typeid(Derived).name());
+event::Registry::Entry RegisteredEvent<Derived>::sENTRY(NAME());
 
 } // namespace ds
 

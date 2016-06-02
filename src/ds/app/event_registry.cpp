@@ -6,18 +6,28 @@
 #include <unordered_map>
 #include <Poco/Mutex.h>
 #include <ds/debug/debug_defines.h>
-
+#include <ds/debug/logger.h>
+#include "ds/app/event.h"
 
 namespace {
-	const std::string& getEmptySz() {
-		static const std::string EMPTY_SZ("");
-		return EMPTY_SZ;
-	}
+
+const std::string& getEmptySz() {
+	static const std::string EMPTY_SZ("");
+	return EMPTY_SZ;
+}
+
+static ds::Event BLANKEVENT = ds::Event();
+const std::function<ds::Event*()> getEmptyCreator() {
+	static std::function<ds::Event*()> func = []()->ds::Event*{ return &BLANKEVENT; };
+	return func;
+}
 }
 
 namespace ds {
 
 namespace event {
+
+
 
 /**
  * \class ds::event::Registry
@@ -53,6 +63,19 @@ const std::string& Registry::getName(const int what){
 	}
 
 	return getEmptySz();
+}
+
+void Registry::addEventCreator(const std::string& eventName, std::function<const ds::Event*()> creator){
+	mCreators[eventName] = creator;
+}
+std::function<const ds::Event*()>  Registry::getEventCreator(const std::string& eventName){
+	auto f = mCreators.find(eventName);
+	if(f != mCreators.end()){
+		return f->second;
+	}
+
+	DS_LOG_WARNING("No auto-creator found for event name " << eventName);
+	return getEmptyCreator();
 }
 
 /**
@@ -105,6 +128,7 @@ static void register_event_deprecated(const int what, const std::string& name) {
 }
 
 static int register_event(const std::string& name) {
+
 	Poco::Mutex::ScopedLock		l(get_register_lock());
 	auto&						e = get_events();
 	int							what = e.size() + 1;
@@ -131,7 +155,6 @@ const std::string& EventRegistry::getName(const int what) {
 	auto f = e.find(what);
 	if (f != e.end()) return f->second;
 	return event::Registry::get().getName(what);
-	//return getEmptySz();
 }
 
 EventRegistry::EventRegistry(const std::string& name)

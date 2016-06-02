@@ -534,6 +534,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		sprite.mLayoutFudge = parseVector(value).xy();
 	} else if(property == "layout_size"){
 		sprite.mLayoutSize = parseVector(value).xy();
+	} else if(property == "on_tap_string_event"){
+		sprite.setTapCallback([value](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+			bs->getEngine().getNotifier().notify(value);
+		});
 	}
 
 	// LayoutSprite specific (the other layout stuff could apply to any sprite)
