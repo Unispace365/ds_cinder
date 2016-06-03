@@ -65,10 +65,10 @@ const std::string& Registry::getName(const int what){
 	return getEmptySz();
 }
 
-void Registry::addEventCreator(const std::string& eventName, std::function<const ds::Event*()> creator){
+void Registry::addEventCreator(const std::string& eventName, std::function<ds::Event*()> creator){
 	mCreators[eventName] = creator;
 }
-std::function<const ds::Event*()>  Registry::getEventCreator(const std::string& eventName){
+std::function<ds::Event*()>  Registry::getEventCreator(const std::string& eventName){
 	auto f = mCreators.find(eventName);
 	if(f != mCreators.end()){
 		return f->second;

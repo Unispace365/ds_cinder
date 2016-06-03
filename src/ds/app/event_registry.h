@@ -31,8 +31,8 @@ public:
 
 	const std::string&			getName(const int what);
 
-	void								addEventCreator(const std::string& eventName, std::function<const ds::Event*()> creator);
-	std::function<const ds::Event*()>	getEventCreator(const std::string& eventName);
+	void						addEventCreator(const std::string& eventName, std::function<ds::Event*()> creator);
+	std::function<ds::Event*()>	getEventCreator(const std::string& eventName);
 
 public:
 	class Entry {
@@ -51,7 +51,7 @@ public:
 
 private:
 	std::map<int, std::string>	mMsgs;
-	std::map<std::string, std::function<const ds::Event*()>> mCreators;
+	std::map<std::string, std::function<ds::Event*()>> mCreators;
 };
 
 } // namespace event

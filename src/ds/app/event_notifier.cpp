@@ -33,6 +33,10 @@ void EventNotifier::notify(const ds::Event& e) {
 	mEventNotifier.notify(&e);
 }
 
+void EventNotifier::notify(const ds::Event* e) {
+	mEventNotifier.notify(e);
+}
+
 void EventNotifier::notify(const std::string& eventName) {
 	mEventNotifier.notify(event::Registry::get().getEventCreator(eventName)());
 }

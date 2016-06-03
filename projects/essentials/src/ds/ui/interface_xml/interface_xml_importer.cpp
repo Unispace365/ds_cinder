@@ -3,6 +3,8 @@
 #include "stylesheet_parser.h"
 
 #include <ds/app/engine/engine.h>
+#include <ds/app/event_registry.h>
+#include <ds/app/event.h>
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/gradient_sprite.h>
@@ -534,9 +536,33 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		sprite.mLayoutFudge = parseVector(value).xy();
 	} else if(property == "layout_size"){
 		sprite.mLayoutSize = parseVector(value).xy();
-	} else if(property == "on_tap_string_event"){
+	} else if(property == "on_tap_event"){
 		sprite.setTapCallback([value](ds::ui::Sprite* bs, const ci::Vec3f& pos){
-			bs->getEngine().getNotifier().notify(value);
+			auto tokens = ds::split(value, "; ", true);
+			if(!tokens.empty()){
+				std::string eventName = tokens.front();
+				ds::Event* eventy = ds::event::Registry::get().getEventCreator(eventName)();
+				if(eventy->mWhat < 1){
+					DS_DBG_CODE(DS_LOG_WARNING("Event not defined: " << eventName));
+				}
+
+				for(int i = 1; i < tokens.size(); i++){
+					auto params = ds::split(tokens[i], ":", true);
+					if(params.size() > 1){
+						std::string paramType = params.front();
+						if(paramType == "data"){
+							eventy->mUserStringData = params[1];
+						} else if(paramType == "id"){
+							eventy->mUserId = ds::string_to_int(params[1]);
+						} else if(paramType == "user_size"){
+							eventy->mUserSize = parseVector(params[1]);
+						}
+					}
+				}
+				eventy->mSpriteOriginator = bs;
+				eventy->mEventOrigin = pos;
+				bs->getEngine().getNotifier().notify(eventy);
+			}
 		});
 	}
 
