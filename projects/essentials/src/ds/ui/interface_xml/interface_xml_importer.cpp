@@ -20,6 +20,8 @@
 #include <ds/ui/scroll/centered_scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
 #include <ds/ui/scroll/scroll_bar.h>
+#include <ds/ui/soft_keyboard/soft_keyboard.h>
+#include <ds/ui/soft_keyboard/soft_keyboard_builder.h>
 #include <ds/ui/sprite/border.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/ui/sprite/circle_border.h>
@@ -1067,6 +1069,7 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::Border*>(sp)) return "border";
 	if(dynamic_cast<ds::ui::CircleBorder*>(sp)) return "circle_border";
 	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
+	if(dynamic_cast<ds::ui::SoftKeyboard*>(sp)) return "soft_keyboard";
 	return "sprite";
 }
 
@@ -1074,75 +1077,92 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value){
 	ds::ui::Sprite* spriddy = nullptr;
 
-	if (type == "sprite") {
+	if(type == "sprite") {
 		spriddy = new ds::ui::Sprite(engine);
-	}
-	else if (type == "image") {
+	} else if(type == "image") {
 		auto image = new ds::ui::Image(engine);
 		std::string relative_file = value;
 		boost::trim(relative_file);
-		if (relative_file != "") {
+		if(relative_file != "") {
 			setSpriteProperty(*image, ci::XmlTree::Attr(nullptr, "filename", relative_file), nullptr);
 		}
 		spriddy = image;
-	}
-	else if (type == "image_with_thumbnail") {
+	} else if(type == "image_with_thumbnail") {
 		auto image = new ds::ui::ImageWithThumbnail(engine);
 		spriddy = image;
-	}
-	else if (type == "text") {
+	} else if(type == "text") {
 		auto text = new ds::ui::Text(engine);
 		auto content = value;
 		boost::trim(content);
 		text->setText(content);
 		spriddy = text;
-	}
-	else if (type == "multiline_text") {
+	} else if(type == "multiline_text") {
 		auto text = new ds::ui::MultilineText(engine);
 		auto content = value;
 		boost::trim(content);
 		text->setText(content);
 		spriddy = text;
-	}
-	else if(type == "image_button") {
+	} else if(type == "image_button") {
 		auto content = value;
 		boost::trim(content);
 		float touchPad = 0.0f;
 		if(content.size() > 0) touchPad = (float)atof(content.c_str());
 		auto imgButton = new ds::ui::ImageButton(engine, "", "", touchPad);
 		spriddy = imgButton;
-	}
-	else if(type == "sprite_button"){
+	} else if(type == "sprite_button"){
 		spriddy = new ds::ui::SpriteButton(engine);
-	}
-	else if(type == "gradient"){
+	} else if(type == "gradient"){
 		auto gradient = new ds::ui::GradientSprite(engine);
 		spriddy = gradient;
-	}
-	else if(type == "layout"){
+	} else if(type == "layout"){
 		auto layoutSprite = new ds::ui::LayoutSprite(engine);
 		spriddy = layoutSprite;
-	}
-	else if(type == "border"){
+	} else if(type == "border"){
 		spriddy = new ds::ui::Border(engine);
-	}
-	else if(type == "circle"){
+	} else if(type == "circle"){
 		spriddy = new ds::ui::Circle(engine);
-	}
-	else if(type == "circle_border"){
+	} else if(type == "circle_border"){
 		spriddy = new ds::ui::CircleBorder(engine);
-	}
-	else if(type == "scroll_list"){
+	} else if(type == "scroll_list"){
 		spriddy = new ds::ui::ScrollList(engine);
-	} 
-	else if(type == "scroll_area"){
+	} else if(type == "scroll_area"){
 		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
-	}
-	else if(type == "centered_scroll_area"){
+	} else if(type == "centered_scroll_area"){
 		spriddy = new ds::ui::CenteredScrollArea(engine, 0.0f, 0.0f);
-	}
-	else if(type == "scroll_bar"){
+	} else if(type == "scroll_bar"){
 		spriddy = new ds::ui::ScrollBar(engine);
+	} else if(type == "soft_keyboard"){
+		SoftKeyboardSettings sks;
+		// parse content for settings?
+		auto tokens = ds::split(value, "; ", true);
+		std::string keyboardType = "standard";
+		for (auto it : tokens){
+			auto params = ds::split(it, ":", true);
+			if(params.size() < 2)continue;
+			std::string paramType = params.front();
+			if(paramType == "type"){
+				keyboardType = params[1];
+			} else if(paramType == "key_up_color"){
+				sks.mKeyUpColor = parseColor(params[1], engine);
+			} else if(paramType == "key_down_color"){
+				sks.mKeyDownColor = parseColor(params[1], engine);
+			} else if(paramType == "key_text_offset"){
+				sks.mKeyTextOffset = parseVector(params[1]).xy();
+			} else if(paramType == "key_touch_padding"){
+				sks.mKeyTouchPadding = ds::string_to_float(params[1]);
+			} else if(paramType == "key_initial_position"){
+				sks.mKeyInitialPosition = parseVector(params[1]).xy();
+			} else if(paramType == "key_scale"){
+				sks.mKeyScale = ds::string_to_float(params[1]);
+			}
+		}
+		if(keyboardType == "lowercase"){
+			spriddy = SoftKeyboardBuilder::buildLowercaseKeyboard(engine, sks);
+		} else if(keyboardType == "pinpad"){
+			spriddy = SoftKeyboardBuilder::buildPinPadKeyboard(engine, sks);
+		} else {
+			spriddy = SoftKeyboardBuilder::buildStandardKeyboard(engine, sks);
+		}
 	}
 
 	return spriddy;

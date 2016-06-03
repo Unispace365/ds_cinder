@@ -17,6 +17,7 @@ public:
 		: mKeyTouchPadding(4.0f)
 		, mKeyInitialPosition(0.0f, 0.0f)
 		, mKeyTextOffset(-5.0f, -5.0f)
+		, mKeyUpColor(1.0f, 1.0f, 1.0f)
 		, mKeyDownColor(0.5f, 0.5f, 0.5f)
 		, mKeyLetterDnImage("%APP%/data/images/keyboard/Normal.png")
 		, mKeyLetterUpImage("%APP%/data/images/keyboard/Normal.png")
@@ -68,6 +69,7 @@ public:
 	std::string			mKeyDnTextConfig;
 	ci::Vec2f			mKeyTextOffset;
 	ci::Color			mKeyDownColor;
+	ci::Color			mKeyUpColor;
 	float				mKeyTouchPadding;
 
 	std::string			mKeyLetterUpImage;
