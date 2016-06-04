@@ -1133,7 +1133,6 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::ScrollBar(engine);
 	} else if(type == "soft_keyboard"){
 		SoftKeyboardSettings sks;
-		// parse content for settings?
 		auto tokens = ds::split(value, "; ", true);
 		std::string keyboardType = "standard";
 		for (auto it : tokens){
@@ -1228,6 +1227,10 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 	} else {
 		ds::ui::Sprite* spriddy = createSpriteByType(engine, type, value);
+
+		if(!spriddy){
+			spriddy = engine.createSpriteImporter(type, *node);
+		}
 
 		if(!spriddy && mCustomImporter) {
 			spriddy = mCustomImporter(type, *node);
