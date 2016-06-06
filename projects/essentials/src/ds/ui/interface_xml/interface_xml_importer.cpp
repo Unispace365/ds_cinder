@@ -31,6 +31,7 @@
 #include <ds/cfg/settings.h>
 #include <ds/util/string_util.h>
 #include <ds/debug/logger.h>
+#include <ds/util/color_util.h>
 
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
@@ -58,223 +59,10 @@ static const std::string INVALID_VALUE = "UNACCEPTABLE!!!!";
 static std::string sCurrentFile;
 
 
-
-std::string XmlImporter::ARGBToHex(ci::ColorA theColor){
-	return ARGBToHex((int)(theColor.a * 255.0f), (int)(theColor.r * 255.0f), (int)(theColor.g * 255.0f), (int)(theColor.b * 255.0f));
-}
-
-std::string XmlImporter::ARGBToHex(int aNum, int rNum, int gNum, int bNum){
-	std::string result;
-	result.append("#");
-	char a[255];
-	sprintf_s(a, "%.2X", aNum);
-	result.append(a);
-	char r[255];
-	sprintf_s(r, "%.2X", rNum);
-	result.append(r);
-	char g[255];
-	sprintf_s(g, "%.2X", gNum);
-	result.append(g);
-	char b[255];
-	sprintf_s(b, "%.2X", bNum);
-	result.append(b);
-	return result;
-}
-
-std::string XmlImporter::RGBToHex(ci::Color theColor){
-	return RGBToHex((int)(theColor.r * 255.0f), (int)(theColor.g * 255.0f), (int)(theColor.b * 255.0f));
-}
-
-std::string XmlImporter::RGBToHex(int rNum, int gNum, int bNum){
-	std::string result;
-	result.append("#");
-	char r[255];
-	sprintf_s(r, "%.2X", rNum);
-	result.append(r);
-	char g[255];
-	sprintf_s(g, "%.2X", gNum);
-	result.append(g);
-	char b[255];
-	sprintf_s(b, "%.2X", bNum);
-	result.append(b);
-	return result;
-}
-
-// Grabs a color from the engine's supplied color list
-static ci::ColorA retrieveColorFromEngine(const std::string &color, const ds::ui::SpriteEngine& engine){
-	return engine.getColors().getColorFromName(color);
-}
-
-// Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb
-ci::ColorA XmlImporter::parseHexColor( const std::string &color ) {
-
-	std::string s = color;
-
-	if (boost::starts_with( s, "#" ))
-		boost::erase_head( s, 1 );
-
-	std::stringstream converter(s);
-	unsigned int value;
-	converter >> std::hex >> value;
-
-	float a = (s.length() > 6)
-		?  ((value >> 24) & 0xFF) / 255.0f
-		: 1.0f;
-	float r = ((value >> 16) & 0xFF) / 255.0f;
-	float g = ((value >> 8) & 0xFF) / 255.0f;
-	float b = ((value) & 0xFF) / 255.0f;
-
-	return ci::ColorA(r, g, b, a);
-}
-
-ci::ColorA XmlImporter::parseColor(const std::string &color, const ds::ui::SpriteEngine& engine){
-	std::string s = color;
-
-	//If we have colors in our engine, and this isn't a hex value
-	if( !engine.getColors().empty() && !boost::starts_with(s, "#")){
-		return retrieveColorFromEngine(color, engine);
-	}
-
-	return XmlImporter::parseHexColor(color);
-
-}
-
-static std::string unparseColor(const ci::ColorA& color){
-	// TODO: look up engine colors
-	return XmlImporter::ARGBToHex(color);
-}
-
-// Example: size="400, 400" the space after the comma is required to read the second and third token
-ci::Vec3f parseVector( const std::string &s ) {
-	auto tokens = ds::split( s, ", ", true );
-	ci::Vec3f v;
-	v.x = tokens.size() > 0 ? ds::string_to_float(tokens[0]) : 0.0f;
-	v.y = tokens.size() > 1 ? ds::string_to_float(tokens[1]) : 0.0f;
-	v.z = tokens.size() > 2 ? ds::string_to_float(tokens[2]) : 0.0f;
-
-	return v;
-}
-
-static std::string unparseVector(const ci::Vec3f& v){
-	std::stringstream ss;
-	ss << v.x << ", " << v.y << ", " << v.z;
-	return ss.str();
-}
-
-static std::string unparseVector(const ci::Vec2f& v){
-	std::stringstream ss;
-	ss << v.x << ", " << v.y;
-	return ss.str();
-}
-
-static bool parseBoolean( const std::string &s ) {
-	return (s == "true" || s == "TRUE" || s == "yes" || s == "YES" || s == "on" || s == "ON" ) ? true : false;
-}
-
-static std::string unparseBoolean(const bool b){
-	if(b) return "true";
-	return "false";
-}
-
-static ds::ui::BlendMode parseBlendMode( const std::string &s ) {
-	using namespace ds::ui;
-	if (boost::iequals( s, "normal" ))			return NORMAL;
-	else if (boost::iequals( s, "multiply" ))	return MULTIPLY;
-	else if (boost::iequals( s, "screen" ))		return SCREEN;
-	else if (boost::iequals( s, "add" ))		return ADD;
-	else if (boost::iequals( s, "subtract" ))	return SUBTRACT;
-	else if (boost::iequals( s, "lighten" ))	return LIGHTEN;
-	else if (boost::iequals( s, "darken" ))		return DARKEN;
-	return NORMAL;
-}
-
-// TODO: add the rest of the permutations, if you want em
-const ds::BitMask XmlImporter::parseMultitouchMode(const std::string& s){
-	using namespace ds::ui;
-	if(boost::iequals(s, "info"))				return MULTITOUCH_INFO_ONLY;
-	else if(boost::iequals(s, "pos"))			return MULTITOUCH_CAN_POSITION;
-	else if(boost::iequals(s, "all"))			return MULTITOUCH_NO_CONSTRAINTS;
-	else if(boost::iequals(s, "scale"))			return MULTITOUCH_CAN_SCALE;
-	else if(boost::iequals(s, "pos_x"))			return MULTITOUCH_CAN_POSITION_X;
-	else if(boost::iequals(s, "pos_y"))			return MULTITOUCH_CAN_POSITION_Y;
-	else if(boost::iequals(s, "pos_scale"))		return MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_SCALE;
-	else if(boost::iequals(s, "pos_rotate"))	return MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_ROTATE;
-	else if(boost::iequals(s, "rotate"))		return MULTITOUCH_CAN_ROTATE;
-	return MULTITOUCH_INFO_ONLY;
-}
-
-const std::string XmlImporter::getMultitouchStringForBitMask(const ds::BitMask& s){
-	using namespace ds::ui;
-	if(s & MULTITOUCH_INFO_ONLY){
-		return "info";
-	} else if(s & MULTITOUCH_CAN_POSITION && s & MULTITOUCH_CAN_ROTATE && s & MULTITOUCH_CAN_SCALE){
-		return "all";
-	} else if(s & MULTITOUCH_CAN_POSITION){
-		if(s & MULTITOUCH_CAN_ROTATE){
-			return "pos_rotate";
-		}
-		if(s & MULTITOUCH_CAN_SCALE){
-			return "pos_scale";
-		}
-
-		if(s & MULTITOUCH_CAN_POSITION_X && s & MULTITOUCH_CAN_POSITION_Y){
-			return "pos";
-		} else if(s & MULTITOUCH_CAN_POSITION_X){
-			return "pos_x";
-		} else if(s & MULTITOUCH_CAN_POSITION_Y){
-			return "pos_y";
-		}
-	} else if(s & MULTITOUCH_CAN_ROTATE){
-		return "rotate";
-	}  else if(s & MULTITOUCH_CAN_SCALE){
-		return "scale";
-	}
-
-	return "info";
-}
-
-std::string XmlImporter::getLayoutSizeModeString(const int sizeMode){
-	std::string sizeString = "fixed";
-	if(sizeMode == ds::ui::LayoutSprite::kFlexSize)	sizeString = "flex";
-	else if(sizeMode == ds::ui::LayoutSprite::kStretchSize) sizeString = "stretch";
-	else if(sizeMode == ds::ui::LayoutSprite::kFillSize) sizeString = "fill";
-	return sizeString;
-}
-
-std::string XmlImporter::getLayoutVAlignString(const int vAlign){
-	std::string sizeString = "top";
-	if(vAlign == ds::ui::LayoutSprite::kMiddle)	sizeString = "middle";
-	else if(vAlign == ds::ui::LayoutSprite::kBottom)	sizeString = "bottom";
-	return sizeString;
-}
-
-std::string XmlImporter::getLayoutHAlignString(const int vAlign){
-	std::string sizeString = "left";
-	if(vAlign == ds::ui::LayoutSprite::kCenter)	sizeString = "center";
-	else if(vAlign == ds::ui::LayoutSprite::kRight)	sizeString = "right";
-	return sizeString;
-}
-
-std::string XmlImporter::getLayoutTypeString(const ds::ui::LayoutSprite::LayoutType& propertyValue){
-	std::string sizeString = "none";
-	if(propertyValue == ds::ui::LayoutSprite::kLayoutVFlow)	sizeString = "vert";
-	else if(propertyValue == ds::ui::LayoutSprite::kLayoutHFlow) sizeString = "horiz";
-	else if(propertyValue == ds::ui::LayoutSprite::kLayoutSize)	sizeString = "size";
-	return sizeString;
-}
-
-std::string XmlImporter::getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue){
-	std::string sizeString = "none";
-	if(propertyValue == ds::ui::LayoutSprite::kShrinkWidth)	sizeString = "width";
-	else if(propertyValue == ds::ui::LayoutSprite::kShrinkHeight) sizeString = "height";
-	else if(propertyValue == ds::ui::LayoutSprite::kShrinkBoth)	sizeString = "both";
-	return sizeString;
-}
-
 std::string XmlImporter::getGradientColorsAsString(ds::ui::Gradient* grad){
 	if(!grad) return "";
 	std::stringstream ss;
-	ss << unparseColor(grad->getColorTL()) << ", " << unparseColor(grad->getColorTR()) << ", " << unparseColor(grad->getColorBR()) << ", " << unparseColor(grad->getColorBL());
+	ss << ds::unparseColor(grad->getColorTL()) << ", " << ds::unparseColor(grad->getColorTR()) << ", " << ds::unparseColor(grad->getColorBR()) << ", " << ds::unparseColor(grad->getColorBL());
 	return ss.str();
 }
 
@@ -324,17 +112,17 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 	if(sp.mLayoutRPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("r_pad", sp.mLayoutRPad);
 	if(sp.mLayoutFudge != DEFAULT_LAYOUT_SIZEFUDGE) xml.setAttribute("layout_fudge", unparseVector(sp.mLayoutFudge));
 	if(sp.mLayoutSize != DEFAULT_LAYOUT_SIZEFUDGE) xml.setAttribute("layout_size", unparseVector(sp.mLayoutSize));
-	if(sp.mLayoutUserType != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_size_mode", getLayoutSizeModeString(sp.mLayoutUserType));
-	if(sp.mLayoutVAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_v_align", getLayoutVAlignString(sp.mLayoutVAlign));
-	if(sp.mLayoutHAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_h_align", getLayoutHAlignString(sp.mLayoutHAlign));
+	if(sp.mLayoutUserType != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_size_mode", LayoutSprite::getLayoutSizeModeString(sp.mLayoutUserType));
+	if(sp.mLayoutVAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_v_align", LayoutSprite::getLayoutVAlignString(sp.mLayoutVAlign));
+	if(sp.mLayoutHAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_h_align", LayoutSprite::getLayoutHAlignString(sp.mLayoutHAlign));
 	if(sp.getCornerRadius() > 0.0f) xml.setAttribute("corner_radius", sp.getCornerRadius());
 
 	ds::ui::LayoutSprite* ls = dynamic_cast<ds::ui::LayoutSprite*>(&sp);
 	if(ls){
-		if(ls->getLayoutType() != DEFAULT_LAYOUT_TYPE) xml.setAttribute("layout_type", getLayoutTypeString(ls->getLayoutType()));
+		if(ls->getLayoutType() != DEFAULT_LAYOUT_TYPE) xml.setAttribute("layout_type", LayoutSprite::getLayoutTypeString(ls->getLayoutType()));
 		if(ls->getSpacing() != DEFAULT_LAYOUT_SPACING) xml.setAttribute("layout_spacing", ls->getSpacing());
-		if(ls->getShrinkToChildren() != DEFAULT_SHRINK_TYPE) xml.setAttribute("shrink_to_children", getShrinkToChildrenString(ls->getShrinkToChildren()));
-		if(ls->getOverallAlignment() != DEFAULT_SHRINK_TYPE) xml.setAttribute("overall_alignment", getLayoutVAlignString(ls->getOverallAlignment()));
+		if(ls->getShrinkToChildren() != DEFAULT_SHRINK_TYPE) xml.setAttribute("shrink_to_children", LayoutSprite::getShrinkToChildrenString(ls->getShrinkToChildren()));
+		if(ls->getOverallAlignment() != DEFAULT_SHRINK_TYPE) xml.setAttribute("overall_alignment", LayoutSprite::getLayoutVAlignString(ls->getOverallAlignment()));
 	}
 
 	ds::ui::Text* txt = dynamic_cast<ds::ui::Text*>(&sp);
@@ -354,7 +142,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 		}
 
 		xml.setAttribute("resize_limit", unparseVector(ci::Vec2f(mtxt->getResizeLimitWidth(), mtxt->getResizeLimitHeight())));
-		if(mtxt->getAlignment() != ds::ui::Alignment::kLeft) xml.setAttribute("text_align", getLayoutHAlignString(mtxt->getAlignment()));
+		if(mtxt->getAlignment() != ds::ui::Alignment::kLeft) xml.setAttribute("text_align", LayoutSprite::getLayoutHAlignString(mtxt->getAlignment()));
 	}
 
 	ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(&sp);
@@ -480,7 +268,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "clipping") {
 		sprite.setClipping(parseBoolean(value));
 	} else if(property == "blend_mode") {
-		sprite.setBlendMode(parseBlendMode(value));
+		sprite.setBlendMode(ds::ui::getBlendModeByString(value));
 	} else if(property == "enable"){
 		sprite.enable(parseBoolean(value));
 	} else if(property == "multitouch"){
@@ -875,7 +663,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	}
 
 	else {
-		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
+		DS_DBG_CODE(DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer));
 	}
 }
 

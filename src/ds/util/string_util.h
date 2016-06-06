@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cinder/Vector.h>
 
 namespace ds {
 
@@ -106,6 +107,23 @@ void saveStringToFile( const std::wstring &filename, const std::wstring &src );
 // Tokenize the input, passing each token to the supplied function
 void tokenize(const std::string& input, const char delim, const std::function<void(const std::string&)>&);
 void tokenize(const std::string& input, const std::function<void(const std::string&)>&);
+
+
+/// Parses a string into a 3d vector. Example: size="400, 400, 0" the space after the comma is required to read the second and third token.
+/// Defaults parameters to 0 if they don't exist.
+ci::Vec3f parseVector(const std::string &s);
+
+/// The inverse of parseVector. For an input of ci::Vec3f(123.0f, 0.0f, 987.6f) returns "123.0, 0.0, 987.6"
+std::string unparseVector(const ci::Vec3f& v);
+
+/// The inverse of parseVector. For an input of ci::Vec2f(123.0f, 0.0f) returns "123.0, 0.0"
+std::string unparseVector(const ci::Vec2f& v);
+
+/// Parse true/false from a string. 
+bool parseBoolean(const std::string &s);
+
+/// The inverse of parseBoolean
+std::string unparseBoolean(const bool b);
 
 } // namespace ds
 

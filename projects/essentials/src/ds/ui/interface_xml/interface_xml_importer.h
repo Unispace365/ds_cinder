@@ -48,19 +48,6 @@ public:
 	static void setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer = "");
 	static void setSpriteProperty(ds::ui::Sprite &sprite, const std::string& property, const std::string& value, const std::string &referer = "");
 
-	static std::string ARGBToHex(ci::ColorA color);
-	static std::string ARGBToHex(int aNum, int rNum, int gNum, int bNum);
-	static std::string RGBToHex(ci::Color color);
-	static std::string RGBToHex(int rNum, int gNum, int bNum);
-
-	// Straight-up string to ci::ColorA conversion
-	static ci::ColorA parseHexColor(const std::string &color);
-	// Checks engine named colors, then does a string convert if it's not found
-	static ci::ColorA parseColor(const std::string &color, const ds::ui::SpriteEngine& engine);
-
-	static const ds::BitMask parseMultitouchMode(const std::string& s);
-	static const std::string getMultitouchStringForBitMask(const ds::BitMask& mask);
-
 	static std::string getSpriteTypeForSprite(ds::ui::Sprite* sp);
 
 	/// Creates a new sprite based on the type string ("sprite", "text", "layout", etc), 
@@ -70,12 +57,6 @@ public:
 
 	// the opposite of loading an xml to a sprite
 	static ci::XmlTree createXmlFromSprite(ds::ui::Sprite& sprite);
-
-	static std::string getLayoutSizeModeString(const int sizeMode);
-	static std::string getLayoutVAlignString(const int vAlign);
-	static std::string getLayoutHAlignString(const int vAlign);
-	static std::string getLayoutTypeString(const ds::ui::LayoutSprite::LayoutType& propertyValue);
-	static std::string getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue);
 
 	static std::string getGradientColorsAsString(ds::ui::Gradient* grad);
 

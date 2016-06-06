@@ -398,5 +398,45 @@ void LayoutSprite::fitInside(ds::ui::Sprite* sp, const ci::Rectf area, const boo
 	sp->setPosition(area.getX1() + area.getWidth() / 2.0f - sp->getScaleWidth() / 2.0f, area.getY1() + area.getHeight() / 2.0f - sp->getScaleHeight() / 2.0f);
 }
 
+
+
+std::string LayoutSprite::getLayoutSizeModeString(const int sizeMode){
+	std::string sizeString = "fixed";
+	if(sizeMode == ds::ui::LayoutSprite::kFlexSize)	sizeString = "flex";
+	else if(sizeMode == ds::ui::LayoutSprite::kStretchSize) sizeString = "stretch";
+	else if(sizeMode == ds::ui::LayoutSprite::kFillSize) sizeString = "fill";
+	return sizeString;
+}
+
+std::string LayoutSprite::getLayoutVAlignString(const int vAlign){
+	std::string sizeString = "top";
+	if(vAlign == ds::ui::LayoutSprite::kMiddle)	sizeString = "middle";
+	else if(vAlign == ds::ui::LayoutSprite::kBottom)	sizeString = "bottom";
+	return sizeString;
+}
+
+std::string LayoutSprite::getLayoutHAlignString(const int vAlign){
+	std::string sizeString = "left";
+	if(vAlign == ds::ui::LayoutSprite::kCenter)	sizeString = "center";
+	else if(vAlign == ds::ui::LayoutSprite::kRight)	sizeString = "right";
+	return sizeString;
+}
+
+std::string LayoutSprite::getLayoutTypeString(const ds::ui::LayoutSprite::LayoutType& propertyValue){
+	std::string sizeString = "none";
+	if(propertyValue == ds::ui::LayoutSprite::kLayoutVFlow)	sizeString = "vert";
+	else if(propertyValue == ds::ui::LayoutSprite::kLayoutHFlow) sizeString = "horiz";
+	else if(propertyValue == ds::ui::LayoutSprite::kLayoutSize)	sizeString = "size";
+	return sizeString;
+}
+
+std::string LayoutSprite::getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue){
+	std::string sizeString = "none";
+	if(propertyValue == ds::ui::LayoutSprite::kShrinkWidth)	sizeString = "width";
+	else if(propertyValue == ds::ui::LayoutSprite::kShrinkHeight) sizeString = "height";
+	else if(propertyValue == ds::ui::LayoutSprite::kShrinkBoth)	sizeString = "both";
+	return sizeString;
+}
+
 } // namespace ui
 } // namespace ds

@@ -3,6 +3,7 @@
 #include <ds/app/engine/engine.h>
 #include <ds/ui/sprite/gst_video.h>
 #include <ds/debug/logger.h>
+#include <ds/util/string_util.h>
 
 #include <gst/gst.h>
 #include "gst/gstplugin.h"
@@ -30,6 +31,22 @@ GstVideoService::GstVideoService(ds::Engine& e)
 					if(!valuey.empty()){
 						video->loadVideo(valuey);
 					}
+				} else if(namey == "stream"){
+					auto streamTokens = ds::split(valuey, "; ", true);
+					if(streamTokens.size() < 3){
+						DS_LOG_WARNING("Not enough parameters to load a video stream from xml parameters.");
+					} else {
+						std::string pipeline = streamTokens[0];
+						const float widdy = ds::string_to_float(streamTokens[1]);
+						const float hiddy = ds::string_to_float(streamTokens[2]);
+						if(pipeline.empty() || widdy < 1 || hiddy < 1){
+							DS_LOG_WARNING("Incorrect parameters for xml-loaded video stream. pipeline=" << pipeline << ", w=" << widdy << ", h=" << hiddy);
+						} else {
+							video->startStream(pipeline, widdy, hiddy);
+						}
+					}
+				} else if(namey == "loop"){
+
 				}
 				//todo: add more stuff, yah?
 			}
