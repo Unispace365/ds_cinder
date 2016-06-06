@@ -20,9 +20,12 @@ class Init {
 public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
-			ds::pdf::Service*		w = new ds::pdf::Service();
-			if (!w) throw std::runtime_error("Can't create ds::pdf::Service");
-			e.addService("pdf", *w);
+			ds::pdf::Service*		w = new ds::pdf::Service(e);
+			if(w){
+				e.addService("pdf", *w);
+			} else {
+				DS_LOG_WARNING("Can't create ds::pdf::Service");
+			}
 
 			e.installSprite([](ds::BlobRegistry& r){ds::ui::Pdf::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Pdf::installAsClient(r);});

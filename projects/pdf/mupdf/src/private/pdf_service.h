@@ -6,6 +6,9 @@
 #include <ds/thread/gl_thread.h>
 
 namespace ds {
+
+class Engine;
+
 namespace pdf {
 
 /**
@@ -15,10 +18,12 @@ namespace pdf {
  */
 class Service : public ds::EngineService {
 public:
-	Service();
+	Service(ds::Engine& engine);
 	~Service();
 
 	virtual void		start();
+
+	ds::Engine&			mEngine;
 
 	GlThread			mThread;
 };
