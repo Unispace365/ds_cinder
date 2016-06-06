@@ -40,9 +40,13 @@ private:
 
 	ds::ui::Sprite*						mTreeRoot;
 	std::vector<TreeItem*>				mTreeItems;
+	ds::ui::Sprite*						mHighlighter;
+
 	void								treeParseRecursive(ds::ui::Sprite* sp, const int indent);
 	void								addTreeItem(ds::ui::Sprite* sprid, const int indent);
 	void								clearTree();
+	void								handleMouseHover(const ci::Vec3f& mousePoint);
+	void								highlightSprite( const ds::ui::Sprite* sprite );
 };
 
 } // namespace layout_builder

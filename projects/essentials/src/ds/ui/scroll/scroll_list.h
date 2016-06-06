@@ -72,6 +72,8 @@ class ScrollArea;
 		// NOTE: not tested yet for perspective OR horizontal scrolling
 		void						setGridLayout(const bool doGrid, const ci::Vec2f& gridIncrement);
 
+		void						setSpecialLayout(const bool doGrid, const int targetRow, const int targetColumn, const float gapping);
+
 	protected:
 
 		// We only create enough sprites that are onscreen at one time.
@@ -103,6 +105,7 @@ class ScrollArea;
 		virtual void						layout();
 		virtual void						layoutItems();
 		virtual void						layoutItemsGrid();
+		virtual void						layoutItemsSpecial();
 
 		virtual void						clearItems();
 		virtual void						assignItems();
@@ -122,6 +125,7 @@ class ScrollArea;
 		float								mIncrementAmount;
 		bool								mFillFromTop;
 		bool								mGridLayout;
+		bool								mSpecialLayout;
 		ci::Vec2f							mGridIncrement;
 
 		// for animate on
@@ -137,6 +141,10 @@ class ScrollArea;
 
 		// Track update time so touches can't happen while the list is being dragged cause of lazy fingers
 		Poco::Timestamp::TimeVal			mLastUpdateTime;
+
+		int									mTargetRow;
+		int									mTargetColumn;
+		float								mGapping;
 	};
 }
 }
