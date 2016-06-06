@@ -72,6 +72,9 @@ class ScrollArea;
 		// NOTE: not tested yet for perspective OR horizontal scrolling
 		void						setGridLayout(const bool doGrid, const ci::Vec2f& gridIncrement);
 
+		//when layouts happen, will do a grid instead of a horiz or vert list. when using vertical scrolling it will be adjusted by target column number and gapping will be the gap between each column
+		//when using horizontal scrollin it will be adjusted by target row number and gapping will be the gap between each row; 
+		// fillCoulumnFirst will change the direction of filling order, default is true , set to false will fill the row fisrt 
 		void						setSpecialLayout(const bool doGrid, const int targetRow, const int targetColumn, const float gapping);
 
 	protected:
@@ -145,6 +148,7 @@ class ScrollArea;
 		int									mTargetRow;
 		int									mTargetColumn;
 		float								mGapping;
+		bool								mFillColumnFirst;
 	};
 }
 }
