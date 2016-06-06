@@ -315,15 +315,19 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 				}
 
 				for(int i = 1; i < tokens.size(); i++){
-					auto params = ds::split(tokens[i], ":", true);
-					if(params.size() > 1){
-						std::string paramType = params.front();
+					auto colony = tokens[i].find(":");
+					if(colony != std::string::npos){
+						std::string paramType = tokens[i].substr(0, colony);
+						std::string paramValue = tokens[i].substr(colony + 1);
+
+						if(paramType.empty() || paramValue.empty()) continue;
+
 						if(paramType == "data"){
-							eventy->mUserStringData = params[1];
+							eventy->mUserStringData = paramValue;
 						} else if(paramType == "id"){
-							eventy->mUserId = ds::string_to_int(params[1]);
+							eventy->mUserId = ds::string_to_int(paramValue);
 						} else if(paramType == "user_size"){
-							eventy->mUserSize = parseVector(params[1]);
+							eventy->mUserSize = parseVector(paramValue);
 						}
 					}
 				}
