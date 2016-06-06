@@ -903,6 +903,9 @@ bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outDat
 
 void XmlImporter::setAutoCache(const bool doCaching){
 	AUTO_CACHE = doCaching;
+	if(!AUTO_CACHE){
+		PRELOADED_CACHE.clear();
+	}
 }
 
 bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName) {
