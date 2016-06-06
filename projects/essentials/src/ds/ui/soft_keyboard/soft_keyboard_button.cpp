@@ -67,6 +67,7 @@ void SoftKeyboardButton::setSoftKeyboardSettings(SoftKeyboardSettings& softKeySe
 		DS_LOG_WARNING("Warning: key type not supported in SoftKeyboardButton");
 	}
 
+	getNormalImage().setColor(softKeySettings.mKeyUpColor);
 	getHighImage().setColor(softKeySettings.mKeyDownColor);
 
 	setTouchPad(softKeySettings.mKeyTouchPadding);

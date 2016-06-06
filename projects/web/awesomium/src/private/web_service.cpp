@@ -4,6 +4,8 @@
 #include <Awesomium/WebCore.h>
 #include <Awesomium/WebConfig.h>
 
+#include <ds/ui/sprite/web.h>
+
 namespace ds {
 namespace web {
 
@@ -11,9 +13,31 @@ namespace web {
  * \class ds::web::Service
  */
 Service::Service(ds::Engine& e)
-		: ds::AutoUpdate(e, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
-		, mWebCorePtr(nullptr)
-		, mWebSessionPtr(nullptr) {
+	: ds::AutoUpdate(e, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
+	, mWebCorePtr(nullptr)
+	, mWebSessionPtr(nullptr) {
+	mEngine.registerSpriteImporter("web", [this](const std::string& typeName, ci::XmlTree& tree)->ds::ui::Sprite*{
+		// just to verify
+		if(typeName == "web"){
+			ds::ui::Web* webby = new ds::ui::Web(mEngine);
+
+			for (auto it : tree.getAttributes()){
+				std::string namey = it.getName();
+				std::string valuey = it.getValue();
+
+				if(namey == "url"){
+					if(!valuey.empty()){
+						webby->loadUrl(valuey);
+					}
+				} 
+				//todo: add more stuff, yah?
+			}
+
+			return webby;
+		}
+
+		return nullptr;
+	});
 }
 
 Service::~Service() {

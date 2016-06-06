@@ -217,5 +217,25 @@ ds::EngineService& SpriteEngine::private_getService(const std::string& str) {
 	return *s;
 }
 
+void SpriteEngine::registerSpriteImporter(const std::string& spriteType, std::function<ds::ui::Sprite*(const std::string &typeName, ci::XmlTree &)> func) {
+	auto finder = mImporterMap.find(spriteType);
+	if(finder != mImporterMap.end()){
+		DS_LOG_WARNING("Duplicate sprite importer being added for sprite type: " << spriteType);
+	}
+
+	mImporterMap[spriteType] = func;
+}
+
+ds::ui::Sprite* SpriteEngine::createSpriteImporter(const std::string& spriteType, ci::XmlTree& xmlTree) {
+	auto finder = mImporterMap.find(spriteType);
+	if(finder == mImporterMap.end()){
+		//DS_LOG_WARNING("No importer found for sprite type " << spriteType);
+		return nullptr;
+	}
+
+	return finder->second(spriteType, xmlTree);
+
+}
+
 } // namespace ui
 } // namespace ds

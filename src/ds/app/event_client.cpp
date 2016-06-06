@@ -23,6 +23,10 @@ void EventClient::notify(const ds::Event& e) {
 	mNotifier.mEventNotifier.notify(&e);
 }
 
+void EventClient::notify(const std::string& eventName) {
+	mNotifier.notify(eventName);
+}
+
 void EventClient::request(ds::Event& e) {
 	mNotifier.mEventNotifier.request(e);
 }

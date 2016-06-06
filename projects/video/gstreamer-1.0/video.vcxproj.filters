@@ -16,6 +16,9 @@
     <Filter Include="src\gstreamer">
       <UniqueIdentifier>{e0a6d4c5-f92d-49a5-91b7-6dff93b80d74}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\private">
+      <UniqueIdentifier>{7fd3879f-fd21-45a7-aade-bc9bb0fc494d}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\gstreamer\video_meta_cache.cpp">
@@ -32,6 +35,9 @@
     </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\panoramic_video.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="src\private\gst_video_service.cpp">
+      <Filter>src\private</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -52,6 +58,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\sprite\panoramic_video.h">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="src\private\gst_video_service.h">
+      <Filter>src\private</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -14,6 +14,7 @@
 
 #include "gstreamer/gstreamer_wrapper.h"
 #include "gstreamer/video_meta_cache.h"
+#include "private/gst_video_service.h"
 
 #include <cinder/gl/Fbo.h>
 
@@ -49,34 +50,40 @@ static std::string yuv_vert =
 "gsvTexCoord = gl_TexCoord[0].xy;"
 "}";
 
-	const static std::string yuv_frag =
-		//"precision mediump float;"
-		"uniform sampler2D gsuTexture0;"
-		"uniform sampler2D gsuTexture1;"
-		"uniform sampler2D gsuTexture2;"
-		"varying vec2 gsvTexCoord;"
-		"void main(){"
-		"float y = texture2D(gsuTexture0, gsvTexCoord).r;"
-		"float u = texture2D(gsuTexture1, gsvTexCoord).r;"
-		"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
-		"u = u - 0.5;"
-		"v = v - 0.5;"
-		"gl_FragData[0] = vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, gl_Color.a);" //  ITU.BT-601 Y’CbCr color space transposed to super space for better contrast
+const static std::string yuv_frag =
+//"precision mediump float;"
+"uniform sampler2D gsuTexture0;"
+"uniform sampler2D gsuTexture1;"
+"uniform sampler2D gsuTexture2;"
+"varying vec2 gsvTexCoord;"
+"void main(){"
+"float y = texture2D(gsuTexture0, gsvTexCoord).r;"
+"float u = texture2D(gsuTexture1, gsvTexCoord).r;"
+"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
+"u = u - 0.5;"
+"v = v - 0.5;"
+"gl_FragData[0] = vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, gl_Color.a);" //  ITU.BT-601 Y’CbCr color space transposed to super space for better contrast
 
-		// Below are other test color spaces, some ok, some poopy
-		//"gl_FragData[0] = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);" //  ITU.BT-601 Y’CbCr color space
-		//"gl_FragData[0] = vec4( y + (1.13983 * v), y - (0.39465 * u) - (0.58060 * v), y + (2.03211 * u), gl_Color.a);" // 601 color space
-		//"gl_FragData[0] = vec4( y + (1.28033 * v), y - (0.21482 * u) - (0.38059 * v), y + (2.12798 * u), gl_Color.a);" // 709 (wikipedia) color space
-		//"gl_FragData[0] = vec4( (y + (1.28033 * v)) * 1.1643835 - 0.062745, (y - (0.21482 * u) - (0.38059 * v)) * 1.1643835 - 0.062745, (y + (2.12798 * u)) * 1.1643835 - 0.062745, gl_Color.a);" // 709 (wikipedia) color space transposed to Super space (0-255, from YUV's 16-235)
-		//"gl_FragData[0] = vec4( y + (1.5701 * v), y - (0.1870 * u) - (0.4664 * v), y + (1.8556 * u), gl_Color.a);" //  ITU.BT-709 HDTV studio production in Y’CbCr  color space http://www.poynton.com/PDFs/coloureq.pdf
-		//"gl_FragData[0] = vec4( y + (1.5756 * v), y - (0.2253 * u) + (0.50 * v), y + (1.8270 * u), gl_Color.a);" //  SMPTE-240M Y’PbPr color space (totally not right)
-		//"gl_FragData[0] = vec4( y + (1.370705 * v), y - (0.698001 * u) - (0.337633 * v), y + (1.732446 * u), gl_Color.a);" // android color space
-		//"gl_FragData[0] = vec4( clamp(y + (1.28033 * v), 0, 1), clamp(y - (0.21482 * u) - (0.38059 * v), 0, 1), clamp(y + (2.12798 * u), 0, 1), gl_Color.a);" // 709 clamped color space
-		"}";
+// Below are other test color spaces, some ok, some poopy
+//"gl_FragData[0] = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);" //  ITU.BT-601 Y’CbCr color space
+//"gl_FragData[0] = vec4( y + (1.13983 * v), y - (0.39465 * u) - (0.58060 * v), y + (2.03211 * u), gl_Color.a);" // 601 color space
+//"gl_FragData[0] = vec4( y + (1.28033 * v), y - (0.21482 * u) - (0.38059 * v), y + (2.12798 * u), gl_Color.a);" // 709 (wikipedia) color space
+//"gl_FragData[0] = vec4( (y + (1.28033 * v)) * 1.1643835 - 0.062745, (y - (0.21482 * u) - (0.38059 * v)) * 1.1643835 - 0.062745, (y + (2.12798 * u)) * 1.1643835 - 0.062745, gl_Color.a);" // 709 (wikipedia) color space transposed to Super space (0-255, from YUV's 16-235)
+//"gl_FragData[0] = vec4( y + (1.5701 * v), y - (0.1870 * u) - (0.4664 * v), y + (1.8556 * u), gl_Color.a);" //  ITU.BT-709 HDTV studio production in Y’CbCr  color space http://www.poynton.com/PDFs/coloureq.pdf
+//"gl_FragData[0] = vec4( y + (1.5756 * v), y - (0.2253 * u) + (0.50 * v), y + (1.8270 * u), gl_Color.a);" //  SMPTE-240M Y’PbPr color space (totally not right)
+//"gl_FragData[0] = vec4( y + (1.370705 * v), y - (0.698001 * u) - (0.337633 * v), y + (1.732446 * u), gl_Color.a);" // android color space
+//"gl_FragData[0] = vec4( clamp(y + (1.28033 * v), 0, 1), clamp(y - (0.21482 * u) - (0.38059 * v), 0, 1), clamp(y + (2.12798 * u), 0, 1), gl_Color.a);" // 709 clamped color space
+"}";
+
 class Init {
 public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
+
+			ds::gstreamer::GstVideoService*		w = new ds::gstreamer::GstVideoService(e);
+			if(w){
+				e.addService("gst_video", *w);
+			}
 
 			e.installSprite([](ds::BlobRegistry& r){ds::ui::GstVideo::installAsServer(r); },
 							[](ds::BlobRegistry& r){ds::ui::GstVideo::installAsClient(r); });
@@ -189,11 +196,6 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mClientVideoCompleted(false)
 {
 	mBlobType = BLOB_TYPE;
-
-	try {
-	} catch(const std::exception &e) {
-		DS_LOG_WARNING("Could not load & compile shader for the video:" << e.what());
-	}
 	
 	mEngineMuted = mEngine.getMute();
 
@@ -456,6 +458,18 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		DS_LOG_WARNING_M("doLoadVideo aborting loading a video because of a blank filename.", GSTREAMER_LOG);
 		if(mErrorFn) mErrorFn("Did not load a video because there was no filename.");
 		return;
+	}
+
+
+
+	auto videoService = mEngine.getService<ds::gstreamer::GstVideoService>("gst_video");
+	if(!videoService.getValidInstall()){
+		if(mErrorFn){
+			mErrorFn(videoService.getErrorMessage());
+		}
+
+
+		//return;
 	}
 
 	mStreaming = false;

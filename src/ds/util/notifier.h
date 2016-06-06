@@ -152,6 +152,6 @@ void Notifier<T>::setOnAddListenerFn(const std::function<T*(void)> &fn) {
 	mOnAddListenerFn = fn;
 }
 
-} // ds2
+} // ds
 
 #endif
