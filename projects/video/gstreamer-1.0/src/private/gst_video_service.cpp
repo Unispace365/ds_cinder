@@ -4,6 +4,7 @@
 #include <ds/ui/sprite/gst_video.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
+#include <ds/util/file_meta_data.h>
 
 #include <gst/gst.h>
 #include "gst/gstplugin.h"
@@ -18,44 +19,49 @@ GstVideoService::GstVideoService(ds::Engine& e)
 	: mEngine(e)
 	, mValidInstall(false)
 {
-	mEngine.registerSpriteImporter("video", [this](const std::string& typeName, ci::XmlTree& tree)->ds::ui::Sprite*{
+	mEngine.registerSpriteImporter("video", [this](const std::string& typeName)->ds::ui::Sprite*{
 		// just to verify
 		if(typeName == "video"){
-			ds::ui::GstVideo* video = new ds::ui::GstVideo(mEngine);
-
-			for(auto it : tree.getAttributes()){
-				std::string namey = it.getName();
-				std::string valuey = it.getValue();
-
-				if(namey == "src"){
-					if(!valuey.empty()){
-						video->loadVideo(valuey);
-					}
-				} else if(namey == "stream"){
-					auto streamTokens = ds::split(valuey, "; ", true);
-					if(streamTokens.size() < 3){
-						DS_LOG_WARNING("Not enough parameters to load a video stream from xml parameters.");
-					} else {
-						std::string pipeline = streamTokens[0];
-						const float widdy = ds::string_to_float(streamTokens[1]);
-						const float hiddy = ds::string_to_float(streamTokens[2]);
-						if(pipeline.empty() || widdy < 1 || hiddy < 1){
-							DS_LOG_WARNING("Incorrect parameters for xml-loaded video stream. pipeline=" << pipeline << ", w=" << widdy << ", h=" << hiddy);
-						} else {
-							video->startStream(pipeline, widdy, hiddy);
-						}
-					}
-				} else if(namey == "loop"){
-
-				}
-				//todo: add more stuff, yah?
-			}
-
-			return video;
+			return new ds::ui::GstVideo(mEngine);
 		}
 
 		return nullptr;
 	});
+
+	mEngine.registerSpritePropertySetter("video_src", [this](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer){
+		std::string absPath = ds::filePathRelativeTo(fileReferrer, theValue);
+		ds::ui::GstVideo* gstVideo = dynamic_cast<ds::ui::GstVideo*>(&theSprite);
+		if(!gstVideo){
+			DS_LOG_WARNING("Tried to set the property video_src on a non-GstVideo sprite");
+			return;
+		}
+
+		gstVideo->loadVideo(absPath);
+		
+	});
+
+	mEngine.registerSpritePropertySetter("stream_src", [this](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer){
+		auto streamTokens = ds::split(theValue, "; ", true);
+		ds::ui::GstVideo* gstVideo = dynamic_cast<ds::ui::GstVideo*>(&theSprite);
+		if(!gstVideo){
+			DS_LOG_WARNING("Tried to set the property stream_src on a non-GstVideo sprite");
+			return;
+		}
+		if(streamTokens.size() < 3){
+			DS_LOG_WARNING("Not enough parameters to load a video stream from xml parameters.");
+		} else {
+			std::string pipeline = streamTokens[0];
+			const float widdy = ds::string_to_float(streamTokens[1]);
+			const float hiddy = ds::string_to_float(streamTokens[2]);
+			if(pipeline.empty() || widdy < 1 || hiddy < 1){
+				DS_LOG_WARNING("Incorrect parameters for xml-loaded video stream. pipeline=" << pipeline << ", w=" << widdy << ", h=" << hiddy);
+			} else {
+				gstVideo->startStream(pipeline, widdy, hiddy);
+			}
+		}
+	});
+
+	// loop, and other stuff
 }
 
 GstVideoService::~GstVideoService() {

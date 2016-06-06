@@ -5,7 +5,11 @@
 #include <ds/app/engine/engine.h>
 #include <ds/app/event_registry.h>
 #include <ds/app/event.h>
-
+#include <ds/app/environment.h>
+#include <ds/app/engine/engine_cfg.h>
+#include <ds/cfg/cfg_text.h>
+#include <ds/cfg/settings.h>
+#include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/gradient_sprite.h>
 #include <ds/ui/sprite/image.h>
@@ -25,30 +29,25 @@
 #include <ds/ui/sprite/border.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/ui/sprite/circle_border.h>
-#include <ds/app/environment.h>
-#include <ds/app/engine/engine_cfg.h>
-#include <ds/cfg/cfg_text.h>
-#include <ds/cfg/settings.h>
 #include <ds/util/string_util.h>
-#include <ds/debug/logger.h>
 #include <ds/util/color_util.h>
+#include <ds/util/file_meta_data.h>
 
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+#include <boost/regex.hpp>
 
 #include <Poco/Path.h>
 
 #include <typeinfo>
 #include <iostream>
 #include <fstream>
-#include <boost/regex.hpp>
-#include <boost/filesystem.hpp>
 
 namespace {
 static std::unordered_map<std::string, ds::ui::XmlImporter::XmlPreloadData>	 PRELOADED_CACHE;
 static bool AUTO_CACHE = false;
 }
-
 
 namespace ds {
 namespace ui {
@@ -202,27 +201,6 @@ ci::XmlTree XmlImporter::createXmlFromSprite(ds::ui::Sprite& sprite){
 	return newXml;
 }
 
-static std::string filePathRelativeTo(const std::string &base, const std::string &relative) {
-	if(relative.find("%APP%") != std::string::npos){
-		return ds::Environment::expand(relative);
-	}
-
-	using namespace boost::filesystem;
-	boost::system::error_code e;
-	std::string ret = canonical( path(relative), path(base).parent_path(), e ).string();
-	if (e.value() != boost::system::errc::success) {
-		DS_LOG_WARNING( "Trying to use bad relative file path: " << relative << ": " << e.message() );
-	}
-	return ret;
-}
-
-// a little convenience
-static float getFloatFromString(const std::string& value){
-	float floatValue = 0.0f;
-	ds::string_to_value(value, floatValue);
-	return floatValue;
-}
-
 void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer) {
 	std::string property = attr.getName();
 	setSpriteProperty(sprite, property, attr.getValue(), referer);
@@ -230,7 +208,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &a
 
 void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& property, const std::string& value, const std::string &referer) {
 	//Cache the engine for all our color calls
-	const ds::ui::SpriteEngine& engine = sprite.getEngine();
+	ds::ui::SpriteEngine& engine = sprite.getEngine();
 
 	// This is a pretty long "case switch" (well, effectively a case switch).
 	// It seems like it'd be slow, but in practice, it's relatively fast.
@@ -660,10 +638,12 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "attach_state"){
 		// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore it.
 		return;
+	} else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
+		return;
 	}
 
 	else {
-		DS_DBG_CODE(DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer));
+		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
 	}
 }
 
@@ -1020,7 +1000,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		ds::ui::Sprite* spriddy = createSpriteByType(engine, type, value);
 
 		if(!spriddy){
-			spriddy = engine.createSpriteImporter(type, *node);
+			spriddy = engine.createSpriteImporter(type);
 		}
 
 		if(!spriddy && mCustomImporter) {

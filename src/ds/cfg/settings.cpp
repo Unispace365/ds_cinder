@@ -284,7 +284,7 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 }
 
 void Settings::directReadXmlFrom(const std::string& filename, const bool clearAll){
-	if(!FileMetaData::safeFileExistsCheck(filename)) return;
+	if(!safeFileExistsCheck(filename)) return;
 
 	cinder::XmlTree     xml(cinder::loadFile(filename));
 	directReadXmlFromTree(xml, clearAll);

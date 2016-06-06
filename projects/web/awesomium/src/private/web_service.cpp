@@ -16,27 +16,23 @@ Service::Service(ds::Engine& e)
 	: ds::AutoUpdate(e, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
 	, mWebCorePtr(nullptr)
 	, mWebSessionPtr(nullptr) {
-	mEngine.registerSpriteImporter("web", [this](const std::string& typeName, ci::XmlTree& tree)->ds::ui::Sprite*{
+	mEngine.registerSpriteImporter("web", [this](const std::string& typeName)->ds::ui::Sprite*{
 		// just to verify
 		if(typeName == "web"){
-			ds::ui::Web* webby = new ds::ui::Web(mEngine);
-
-			for (auto it : tree.getAttributes()){
-				std::string namey = it.getName();
-				std::string valuey = it.getValue();
-
-				if(namey == "url"){
-					if(!valuey.empty()){
-						webby->loadUrl(valuey);
-					}
-				} 
-				//todo: add more stuff, yah?
-			}
-
-			return webby;
+			return new ds::ui::Web(mEngine);
 		}
 
 		return nullptr;
+	});
+
+	mEngine.registerSpritePropertySetter("web_url", [this](ds::ui::Sprite& bs, const std::string& theValue, const std::string& fileReferrer){
+		ds::ui::Web* webby = dynamic_cast<ds::ui::Web*>(&bs);
+		if(!webby){
+			DS_LOG_WARNING("Tried to set the web_url of a non-ds::ui::Web sprite. Ignoring!");
+			return;
+		}
+
+		webby->setUrl(theValue);
 	});
 }
 

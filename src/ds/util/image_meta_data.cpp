@@ -86,7 +86,7 @@ void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
 		// but is otherwise the right thing to do.
 		const Poco::File file(filename);
 
-		if(!ds::FileMetaData::safeFileExistsCheck(filename)){
+		if(!ds::safeFileExistsCheck(filename)){
 			DS_LOG_WARNING_M("ImageFileAtts: image file does not exist, filename: " << filename, GENERAL_LOG);
 			return;
 		}
@@ -149,7 +149,7 @@ public:
 		if(size.x> 0 && size.y > 0){
 			try{
 				ImageAtts atts(size);
-				if(ds::FileMetaData::safeFileExistsCheck(filePath, false)) {
+				if(ds::safeFileExistsCheck(filePath, false)) {
 					const auto file = Poco::File(filePath);
 					atts.mLastModified = file.getLastModified();
 					mCache[filePath] = atts;

@@ -180,9 +180,15 @@ public:
 	ds::ComputerInfo&				getComputerInfo();
 
 	/** Register a function to a sprite type. This allows an xml sprite importer to create sprites it knows nothing about, like Jon Snow. */
-	void							registerSpriteImporter(const std::string& spriteType, std::function<ds::ui::Sprite*(const std::string &typeName, ci::XmlTree &)> func);
+	void							registerSpriteImporter(const std::string& spriteType, std::function<ds::ui::Sprite*(const std::string &typeName)> func);
 	/** Create a sprite of a type specified by the spriteType name in registerSpriteImporter(). Can return nullptr if there's no sprite registered for that name. */
-	ds::ui::Sprite*					createSpriteImporter(const std::string& spriteType, ci::XmlTree& xmlTree);
+	ds::ui::Sprite*					createSpriteImporter(const std::string& spriteType);
+
+	/** Register a callback to set the property of a sprite during import by an outside caller (like an xml importer) */
+	void							registerSpritePropertySetter(const std::string& propertyName, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)> func);
+
+	/** Set the property of a sprite by name and value string. File referrer (optional) is the relative file path to look up files. See ds/util/file_meta_data.h for relative path finding */
+	bool							setRegisteredSpriteProperty(const std::string& propertyName, ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer = "");
 
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
@@ -196,7 +202,8 @@ protected:
 
 	std::list<std::unique_ptr<FboGeneral>> mFbos;
 
-	std::unordered_map<std::string, std::function<ds::ui::Sprite*(const std::string& typeName, ci::XmlTree&)>> mImporterMap;
+	std::unordered_map<std::string, std::function<ds::ui::Sprite*(const std::string& typeName)>> mImporterMap;
+	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>> mPropertyMap;
 
 private:
 	ds::EngineService&				private_getService(const std::string&);
