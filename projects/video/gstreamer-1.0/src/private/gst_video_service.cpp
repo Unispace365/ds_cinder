@@ -17,7 +17,6 @@ GstVideoService::GstVideoService(ds::Engine& e)
 	: mEngine(e)
 	, mValidInstall(false)
 {
-	std::cout << "gst video service constructor " << std::endl;
 	mEngine.registerSpriteImporter("video", [this](const std::string& typeName, ci::XmlTree& tree)->ds::ui::Sprite*{
 		// just to verify
 		if(typeName == "video"){
@@ -54,8 +53,6 @@ const std::string& GstVideoService::getErrorMessage(){
 }
 
 void GstVideoService::start() {
-	std::cout << "gst video service start " << std::endl;
-
 	std::stringstream ss;
 	ss << GST_VERSION_MAJOR << "." << GST_VERSION_MINOR << "." << GST_VERSION_MICRO;
 	std::string gstVersion = ss.str();

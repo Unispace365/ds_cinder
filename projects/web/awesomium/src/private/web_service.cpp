@@ -16,7 +16,6 @@ Service::Service(ds::Engine& e)
 	: ds::AutoUpdate(e, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
 	, mWebCorePtr(nullptr)
 	, mWebSessionPtr(nullptr) {
-	std::cout << "awesomium service start " << std::endl;
 	mEngine.registerSpriteImporter("web", [this](const std::string& typeName, ci::XmlTree& tree)->ds::ui::Sprite*{
 		// just to verify
 		if(typeName == "web"){
