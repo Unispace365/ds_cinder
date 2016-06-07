@@ -306,35 +306,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		sprite.mLayoutSize = parseVector(value).xy();
 	} else if(property == "on_tap_event"){
 		sprite.setTapCallback([value](ds::ui::Sprite* bs, const ci::Vec3f& pos){
-			auto tokens = ds::split(value, "; ", true);
-			if(!tokens.empty()){
-				std::string eventName = tokens.front();
-				ds::Event* eventy = ds::event::Registry::get().getEventCreator(eventName)();
-				if(eventy->mWhat < 1){
-					DS_DBG_CODE(DS_LOG_WARNING("Event not defined: " << eventName));
-				}
-
-				for(int i = 1; i < tokens.size(); i++){
-					auto colony = tokens[i].find(":");
-					if(colony != std::string::npos){
-						std::string paramType = tokens[i].substr(0, colony);
-						std::string paramValue = tokens[i].substr(colony + 1);
-
-						if(paramType.empty() || paramValue.empty()) continue;
-
-						if(paramType == "data"){
-							eventy->mUserStringData = paramValue;
-						} else if(paramType == "id"){
-							eventy->mUserId = ds::string_to_int(paramValue);
-						} else if(paramType == "user_size"){
-							eventy->mUserSize = parseVector(paramValue);
-						}
-					}
-				}
-				eventy->mSpriteOriginator = bs;
-				eventy->mEventOrigin = pos;
-				bs->getEngine().getNotifier().notify(eventy);
-			}
+			XmlImporter::dispatchStringEvents(value, bs, pos);
 		});
 	}
 
@@ -463,6 +435,19 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	}
 
 	// Image properties
+	else if(property == "on_click_event"){
+		auto imgBtn = dynamic_cast<ImageButton*>(&sprite);
+		auto sprBtn = dynamic_cast<SpriteButton*>(&sprite);
+		if(imgBtn){
+			imgBtn->setClickFn([imgBtn, value]{
+				dispatchStringEvents(value, imgBtn, imgBtn->getGlobalPosition());
+			});
+		} else if(sprBtn){
+			sprBtn->setClickFn([sprBtn, value]{
+				dispatchStringEvents(value, sprBtn, sprBtn->getGlobalPosition());
+			});
+		}
+	}
 	else if(property == "filename" || property == "src") {
 		auto imgBtn = dynamic_cast<ImageButton*>(&sprite);
 		auto image = dynamic_cast<Image *>(&sprite);
@@ -648,6 +633,52 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 
 	else {
 		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
+	}
+}
+void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	auto leadingBracket = value.find("{");
+	if(leadingBracket == 0){
+		auto events = ds::split(value, "},{", true);
+		for(auto it : events){
+			ds::replace(it, "{", "");
+			ds::replace(it, "}", "");
+			dispatchSingleEvent(it, bs, pos);
+		}
+	} else {
+		dispatchSingleEvent(value, bs, pos);
+	}
+	
+}
+
+void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* bs, const ci::Vec3f& globalPos){
+	auto tokens = ds::split(value, "; ", true);
+	if(!tokens.empty()){
+		std::string eventName = tokens.front();
+		ds::Event* eventy = ds::event::Registry::get().getEventCreator(eventName)();
+		if(eventy->mWhat < 1){
+			DS_DBG_CODE(DS_LOG_WARNING("Event not defined: " << eventName));
+		}
+
+		for(int i = 1; i < tokens.size(); i++){
+			auto colony = tokens[i].find(":");
+			if(colony != std::string::npos){
+				std::string paramType = tokens[i].substr(0, colony);
+				std::string paramValue = tokens[i].substr(colony + 1);
+
+				if(paramType.empty() || paramValue.empty()) continue;
+
+				if(paramType == "data"){
+					eventy->mUserStringData = paramValue;
+				} else if(paramType == "id"){
+					eventy->mUserId = ds::string_to_int(paramValue);
+				} else if(paramType == "user_size"){
+					eventy->mUserSize = parseVector(paramValue);
+				}
+			}
+		}
+		eventy->mSpriteOriginator = bs;
+		eventy->mEventOrigin = globalPos;
+		bs->getEngine().getNotifier().notify(eventy);
 	}
 }
 

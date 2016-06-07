@@ -60,6 +60,9 @@ public:
 
 	static std::string getGradientColorsAsString(ds::ui::Gradient* grad);
 
+	static void dispatchStringEvents(const std::string& str, ds::ui::Sprite* bs, const ci::Vec3f& globalPos);
+	static void dispatchSingleEvent(const std::string& str, ds::ui::Sprite* bs, const ci::Vec3f& globalPos);
+
 
 protected:
 	XmlImporter( ds::ui::Sprite *targetSprite, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr, const std::string& namePrefix = "")
