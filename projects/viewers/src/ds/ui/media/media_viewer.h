@@ -10,9 +10,7 @@
 
 namespace ds {
 namespace ui {
-class VideoPlayer;
-class PDFPlayer;
-class StreamPlayer;
+class MediaPlayer;
 class MediaInterface;
 
 /**
@@ -30,83 +28,72 @@ public:
 	MediaViewerSettings&	getSettings(){ return mMediaViewerSettings; }
 
 	// unloads any current media
-	void				loadMedia(const std::string& mediaPath, const bool initializeImmediately = true);
-	void				loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
+	void					loadMedia(const std::string& mediaPath, const bool initializeImmediately = true);
+	void					loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
 
 	// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
-	void				setDefaultBounds(const float defaultWidth, const float defaultHeight);
-	void				setWebViewSize(const ci::Vec2f webSize);
+	void					setDefaultBounds(const float defaultWidth, const float defaultHeight);
+	void					setWebViewSize(const ci::Vec2f webSize);
 	
 	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.
-	void				initialize();
+	void					initialize();
 
 	/// unloads any media and interface already loaded. initialize could be called again after this and load the same content
-	void				uninitialize();
+	void					uninitialize();
 
-	void				setCacheImages(bool cacheImages) { mMediaViewerSettings.mCacheImages = cacheImages; }
+	void					setCacheImages(bool cacheImages);
 
-	virtual void		onLayout();
-	void				enter();
-	void				exit();
+	virtual void			onLayout();
+	void					enter();
+	void					exit();
 
 	// stops loading web pages, stops videos
-	void				stopContent();
+	void					stopContent();
 
-	void				setOrigin(const ci::Vec3f& origin){ mOrigin = origin; }
-	const ci::Vec3f&	getOrigin(){ return mOrigin; }
+	/// Origin is a convenience position, primarily used in media slideshow. 
+	/// It's a position where the panel starts from, uncoupled from the viewer's current position
+	void					setOrigin(const ci::Vec3f& origin){ mOrigin = origin; }
+	const ci::Vec3f&		getOrigin(){ return mOrigin; }
 
-	// Returns any current player. Will need to be dynamic casted to be used
-	// Definitely can return nullptr, so check before using
-	ds::ui::Sprite*		getPlayer();
+	/// Returns any current player. Will need to be dynamic casted to be used
+	/// Definitely can return nullptr, so check before using
+	ds::ui::Sprite*			getPlayer();
 
-	void				showInterface();
+	void					showInterface();
 
 	/// Called when any component failed to load it's media. or failed during running.
 	/// Note that the message may be technical and not appropriate to show
 	/// Errors also will be logged, o you may want to show a generic "Sorry, something went wrong"
-	void				setErrorCallback(std::function<void(const std::string& msg)>);
+	void					setErrorCallback(std::function<void(const std::string& msg)>);
 
 	/// Lets you know when stuff is all good.
 	/// Image: Image has been loaded
 	/// Video: Video started playing
 	/// PDF: Page has finished rasterizing
 	/// Web: Page document has loaded
-	void				setStatusCallback(std::function<void(const bool isGood)>);
+	void					setStatusCallback(std::function<void(const bool isGood)>);
 
 
 	/// Will do standard functions based on media type:
 	/// Web: Click the web content
 	/// PDF: Advance to the next page
 	/// Video: Toggle play / pause
-	void				handleStandardClick(const ci::Vec3f& globalPos);
+	void					handleStandardClick(const ci::Vec3f& globalPos);
 
 	/// Sets a tap function to enable the above handling
-	void				enableStandardClick();
+	void					enableStandardClick();
 
 protected:
 
-	virtual void		userInputReceived();
+	virtual void			userInputReceived();
 
-	MediaViewerSettings	mMediaViewerSettings;
+	MediaViewerSettings		mMediaViewerSettings;
+	MediaPlayer*			mMediaPlayer;
 
-	bool				mEmbedInterface;
-	bool				mInitialized;
-	ds::Resource		mResource;
-
-	PDFPlayer*			mPDFPlayer;
-	StreamPlayer*		mStreamPlayer;
-	VideoPlayer*		mVideoPlayer;
-	WebPlayer*			mWebPlayer;
-	ds::ui::Image*		mThumbnailImage;
-	ds::ui::Image*		mPrimaryImage;
-
-	ci::Vec3f			mOrigin;
-
-	std::function<void(const std::string& msg)>	mErrorCallback;
-	std::function<void(const bool isGood)> mStatusCallback;
+	ci::Vec3f				mOrigin;
 
 private:
-	void				setDefaultProperties();
+	void					setDefaultProperties();
 };
 
 } // namespace ui

@@ -99,6 +99,9 @@
     <ClCompile Include="src\ds\ui\panel\panel_layouts.cpp">
       <Filter>src\ds\ui\panel</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\media\media_player.cpp">
+      <Filter>src\ds\ui\media</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\panel\base_panel.h">
@@ -169,6 +172,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\panel\panel_layouts.h">
       <Filter>src\ds\ui\panel</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\media_player.h">
+      <Filter>src\ds\ui\media</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
