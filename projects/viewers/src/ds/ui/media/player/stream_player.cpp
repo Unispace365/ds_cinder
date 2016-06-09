@@ -22,7 +22,8 @@ StreamPlayer::StreamPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mEmbedInterface(embedInterface)
 	, mShowInterfaceAtStart(true)
 {
-	}
+	mLayoutFixedAspect = true;
+}
 
 void StreamPlayer::setResource(const ds::Resource& resource){
 

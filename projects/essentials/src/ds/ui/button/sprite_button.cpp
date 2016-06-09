@@ -18,6 +18,7 @@ SpriteButton::SpriteButton(SpriteEngine& eng, const float widdy, const float hid
 	, mAnimDuration(0.1f)
 {
 
+	mLayoutFixedAspect = true;
 	mUp.mExportWithXml = false;
 	mDown.mExportWithXml = false;
 

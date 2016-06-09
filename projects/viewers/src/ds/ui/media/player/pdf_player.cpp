@@ -31,6 +31,7 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 //	setTransparent(false);
 //	setColor(ci::Color(0.3f, 0.5f, 0.0f));
 
+	mLayoutFixedAspect = true;
 	mPDFThumbHolder = new ds::ui::Sprite(mEngine);
 	addChildPtr(mPDFThumbHolder);
 }

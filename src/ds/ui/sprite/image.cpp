@@ -59,6 +59,8 @@ Image::Image(SpriteEngine& engine)
 
 	markAsDirty(IMG_SRC_DIRTY);
 	markAsDirty(IMG_CROP_DIRTY);
+	
+	mLayoutFixedAspect = true;
 }
 
 Image::Image(SpriteEngine& engine, const std::string& filename, const int flags)

@@ -39,6 +39,7 @@ CircleBorder::CircleBorder(SpriteEngine& engine)
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
 	mSpriteShader.setShaders(Environment::getAppFolder("data/shaders"), "circle_border");
+	mLayoutFixedAspect = true;
 }
 
 CircleBorder::CircleBorder(SpriteEngine& engine, const float width)
@@ -49,6 +50,7 @@ CircleBorder::CircleBorder(SpriteEngine& engine, const float width)
 	setTransparent(false);
 	markAsDirty(BORDER_WIDTH_DIRTY);
 	mSpriteShader.setShaders(Environment::getAppFolder("data/shaders"), "circle_border");
+	mLayoutFixedAspect = true;
 	updateShaderExtraData();
 }
 

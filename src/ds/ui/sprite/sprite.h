@@ -690,6 +690,7 @@ namespace ui {
 		int						mLayoutHAlign;
 		int						mLayoutVAlign;
 		int						mLayoutUserType;
+		bool					mLayoutFixedAspect;
 
 		bool					mExportWithXml;
 

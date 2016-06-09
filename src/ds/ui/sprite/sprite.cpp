@@ -155,6 +155,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mDrawOpacity = 1.0f;
 	mDelayedCallCueRef = nullptr;
 	mHasDrawLocalClientPost = false;
+	mLayoutFixedAspect = false;
 
 	mLayoutBPad = 0.0f;
 	mLayoutTPad = 0.0f;

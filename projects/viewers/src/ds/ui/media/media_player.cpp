@@ -114,6 +114,7 @@ void MediaPlayer::setSettings(const MediaViewerSettings& newSettings){
 void MediaPlayer::setDefaultProperties(){
 	mAnimDuration = 0.35f;
 	mContentAspectRatio = 1.0;
+	mLayoutFixedAspect = true;
 	setDefaultBounds(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	setWebViewSize(ci::Vec2f::zero());
 	setCacheImages(false);

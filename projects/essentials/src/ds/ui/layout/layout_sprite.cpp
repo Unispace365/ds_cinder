@@ -4,9 +4,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/sprite/multiline_text.h>
-#include <ds/ui/sprite/image.h>
 #include <ds/util/string_util.h>
-#include <ds/ui/scroll/scroll_area.h>
 
 
 namespace ds {
@@ -63,17 +61,13 @@ void LayoutSprite::runSizeLayout(){
 		if(chillin->mLayoutUserType == kFixedSize){
 			if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
-				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
-				ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 				if(mt){
 					mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
-				} else if(img){
+				} else if(chillin->mLayoutFixedAspect){
 					// restore position after calculating the box size
-					ci::Vec3f prePos = img->getPosition();
-					fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
-					img->setPosition(prePos);
-				} else if(sa){
-					sa->setScrollSize(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
+					ci::Vec3f prePos = chillin->getPosition();
+					fitInside(chillin, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
+					chillin->setPosition(prePos);
 				} else {
 					chillin->setSize(mLayoutSize);
 				}
@@ -83,21 +77,17 @@ void LayoutSprite::runSizeLayout(){
 			const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
-			ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
-			ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 			if(mt){
 				mt->setResizeLimit(fixedW, fixedH);
-			} else if(img){
+			} else if(chillin->mLayoutFixedAspect){
 				// restore position after calculating the box size
-				ci::Vec3f prePos = img->getPosition();
-				fitInside(img, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), chillin->mLayoutUserType != kStretchSize);
-				img->setPosition(prePos);
+				ci::Vec3f prePos = chillin->getPosition();
+				fitInside(chillin, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), chillin->mLayoutUserType != kStretchSize);
+				chillin->setPosition(prePos);
 			} else if(ls){
 				ls->setSize(fixedW, fixedH);
 				ls->runLayout();
-			} else if(sa){
-				sa->setScrollSize(fixedW, fixedH);
 			} else {
 				chillin->setSize(fixedW, fixedH);
 			}
@@ -140,8 +130,6 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				numStretches++;
 			} else {
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
-				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
-				ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 				
 				if(chillin->mLayoutUserType == kFixedSize){
@@ -149,10 +137,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 					if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 						if(mt){
 							mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
-						} else if(img){
-							fitInside(img, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
-						} else if(sa){
-							sa->setScrollSize(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
+						} else if(chillin->mLayoutFixedAspect){
+							fitInside(chillin, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
 						} else {
 							chillin->setSize(chillin->mLayoutSize);
 						}
@@ -167,21 +153,15 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 						} else {
 							mt->setResizeLimit(mt->getResizeLimitWidth(), fixedH);
 						}
-					} else if(img){
+					} else if(chillin->mLayoutFixedAspect){
 						if(vertical){
-							if(img->getWidth() > 0.0f){
-								img->setScale(fixedW / img->getWidth());
+							if(chillin->getWidth() > 0.0f){
+								chillin->setScale(fixedW / chillin->getWidth());
 							}
 						} else {
-							if(img->getHeight() > 0.0f){
-								img->setScale(fixedH / img->getHeight());
+							if(chillin->getHeight() > 0.0f){
+								chillin->setScale(fixedH / chillin->getHeight());
 							}
-						}
-					} else if(sa){
-						if(vertical){
-							sa->setScrollSize(fixedW, sa->getHeight());
-						} else {
-							sa->setScrollSize(sa->getHeight(), fixedH);
 						}
 					} else {
 						if(vertical){
@@ -262,18 +242,14 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 			const float stretchH = (vertical ? perStretch : layoutHeight) - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
-			ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
-			ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 			if(mt){
 				mt->setResizeLimit(stretchW, stretchH);
-			} else if(img){
-				fitInside(img, ci::Rectf(0.0f, 0.0f, stretchW, stretchH), true);
+			} else if(chillin->mLayoutFixedAspect){
+				fitInside(chillin, ci::Rectf(0.0f, 0.0f, stretchW, stretchH), true);
 			} else if(ls){
 				ls->setSize(stretchW, stretchH);
 				ls->runLayout();
-			} else if(sa){
-				sa->setScrollSize(stretchW, stretchH);
 			} else {
 				chillin->setSize(stretchW, stretchH);
 			}
@@ -325,18 +301,14 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
-				ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
-				ds::ui::ScrollArea* sa = dynamic_cast<ds::ui::ScrollArea*>(chillin);
 				if(mt){
 					mt->setResizeLimit(fixedW, fixedH);
-				} else if(img){
-					fitInside(img, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), false);
+				} else if(chillin->mLayoutFixedAspect){
+					fitInside(chillin, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), false);
 				} else if(ls){
 					ls->setSize(fixedW, fixedH);
 					ls->runLayout();
-				} else if(sa){
-					sa->setScrollSize(fixedW, fixedH);
 				} else {
 					chillin->setSize(fixedW, fixedH);
 				}

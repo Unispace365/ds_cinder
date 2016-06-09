@@ -77,6 +77,7 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 {
 	// Should be unnecessary, but make sure we reference the static.
 	INIT.doNothing();
+	mLayoutFixedAspect = true;
 
 	enable(false);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);

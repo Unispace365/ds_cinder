@@ -54,6 +54,13 @@ void ScrollArea::setVertical(bool vertical){
 }
 
 void ScrollArea::setScrollSize(const float newWidth, const float newHeight){
+	setSize(newWidth, newHeight);
+}
+
+void ScrollArea::onSizeChanged(){
+	const float newWidth = getWidth();
+	const float newHeight = getHeight();
+
 	if(mTopFade){
 		if(mVertical){
 			mTopFade->setSize(newWidth, mFadeHeight);
@@ -70,7 +77,7 @@ void ScrollArea::setScrollSize(const float newWidth, const float newHeight){
 			mBottomFade->setPosition(newWidth - mFadeHeight, 0.0f);
 		}
 	}
-	setSize(newWidth, newHeight);
+
 	if(mScroller){
 		mScroller->setSize(0.0f, 0.0f);
 		mScroller->sizeToChildBounds();

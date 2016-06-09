@@ -195,6 +195,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mStreaming(false)
 	, mClientVideoCompleted(false)
 {
+	mLayoutFixedAspect = true;
 	mBlobType = BLOB_TYPE;
 	
 	mEngineMuted = mEngine.getMute();

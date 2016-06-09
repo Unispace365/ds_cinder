@@ -49,6 +49,7 @@ void MediaViewer::setSettings(const MediaViewerSettings& newSettings){
 }
 
 void MediaViewer::setDefaultProperties(){
+	mLayoutFixedAspect = true;
 	if(mMediaPlayer){
 		mMediaPlayer->setInitializedCallback([this]{ initialize(); });
 	}
