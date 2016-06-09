@@ -217,7 +217,6 @@ void Pdf::onScaleChanged() {
 }
 
 void Pdf::drawLocalClient() {
-	inherited::drawLocalClient();
 
 	// When drawing, we have to go through some histrionics because we
 	// want this sprite to look the same as other sprites to the outside
@@ -225,10 +224,17 @@ void Pdf::drawLocalClient() {
 	// scaled size, not the sprite size.
 	const float				tw = mHolder.getTextureWidth(),
 							th = mHolder.getTextureHeight();
-	if (tw < 1.0f || th < 1.0f) return;
+	if(tw < 1.0f || th < 1.0f){
+		ci::gl::color(0.0f, 0.0f, 0.0f, mDrawOpacity);
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), false);
+		return;
+	}
 
 	const float				targetw = getWidth()*mScale.x,
 							targeth = getHeight()*mScale.y;
+
+	inherited::drawLocalClient();
+
 	ci::gl::pushModelView();
 
 	// To draw properly, we first have to turn off whatever scaling has
