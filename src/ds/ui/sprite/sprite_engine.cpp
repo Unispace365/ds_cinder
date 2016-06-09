@@ -217,7 +217,7 @@ ds::EngineService& SpriteEngine::private_getService(const std::string& str) {
 	return *s;
 }
 
-void SpriteEngine::registerSpriteImporter(const std::string& spriteType, std::function<ds::ui::Sprite*(const std::string &typeName)> func) {
+void SpriteEngine::registerSpriteImporter(const std::string& spriteType, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)> func) {
 	auto finder = mImporterMap.find(spriteType);
 	if(finder != mImporterMap.end()){
 		DS_LOG_WARNING("Duplicate sprite importer being added for sprite type: " << spriteType);
@@ -234,7 +234,7 @@ ds::ui::Sprite* SpriteEngine::createSpriteImporter(const std::string& spriteType
 		return nullptr;
 	}
 
-	return finder->second(spriteType);
+	return finder->second(*this);
 }
 
 void SpriteEngine::registerSpritePropertySetter(const std::string& propertyName, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)> func){

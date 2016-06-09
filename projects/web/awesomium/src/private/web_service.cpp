@@ -16,13 +16,8 @@ Service::Service(ds::Engine& e)
 	: ds::AutoUpdate(e, AutoUpdateType::SERVER | AutoUpdateType::CLIENT)
 	, mWebCorePtr(nullptr)
 	, mWebSessionPtr(nullptr) {
-	mEngine.registerSpriteImporter("web", [this](const std::string& typeName)->ds::ui::Sprite*{
-		// just to verify
-		if(typeName == "web"){
-			return new ds::ui::Web(mEngine);
-		}
-
-		return nullptr;
+	mEngine.registerSpriteImporter("web", [this](ds::ui::SpriteEngine& engine)->ds::ui::Sprite*{
+		return new ds::ui::Web(mEngine);
 	});
 
 	mEngine.registerSpritePropertySetter("web_url", [this](ds::ui::Sprite& bs, const std::string& theValue, const std::string& fileReferrer){

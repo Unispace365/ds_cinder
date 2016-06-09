@@ -45,9 +45,6 @@
     <ClCompile Include="src\ds\ui\media\media_viewer.cpp">
       <Filter>src\ds\ui\media</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\media\media_interface.cpp">
-      <Filter>src\ds\ui\media</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\ui\media\player\video_player.cpp">
       <Filter>src\ds\ui\media\player</Filter>
     </ClCompile>
@@ -71,9 +68,6 @@
     </ClCompile>
     <ClCompile Include="src\ds\ui\media\interface\video_scrub_bar.cpp">
       <Filter>src\ds\ui\media\interface</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\ui\media\media_interface_builder.cpp">
-      <Filter>src\ds\ui\media</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\ui\media\player\stream_player.cpp">
       <Filter>src\ds\ui\media\player</Filter>
@@ -102,13 +96,19 @@
     <ClCompile Include="src\ds\ui\media\media_player.cpp">
       <Filter>src\ds\ui\media</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\media\media_initializer_service.cpp">
+      <Filter>src\ds\ui\media</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\media_interface.cpp">
+      <Filter>src\ds\ui\media</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\media\media_interface_builder.cpp">
+      <Filter>src\ds\ui\media</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\panel\base_panel.h">
       <Filter>src\ds\ui\panel</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\media\media_interface.h">
-      <Filter>src\ds\ui\media</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\media_slideshow.h">
       <Filter>src\ds\ui\media</Filter>
@@ -139,9 +139,6 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\interface\video_scrub_bar.h">
       <Filter>src\ds\ui\media\interface</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\media\media_interface_builder.h">
-      <Filter>src\ds\ui\media</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\player\stream_player.h">
       <Filter>src\ds\ui\media\player</Filter>
@@ -174,6 +171,15 @@
       <Filter>src\ds\ui\panel</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\media_player.h">
+      <Filter>src\ds\ui\media</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\media_initializer_service.h">
+      <Filter>src\ds\ui\media</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\media_interface_builder.h">
+      <Filter>src\ds\ui\media</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\media_interface.h">
       <Filter>src\ds\ui\media</Filter>
     </ClInclude>
   </ItemGroup>

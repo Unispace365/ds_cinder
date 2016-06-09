@@ -7,6 +7,7 @@
 #include <ds/ui/sprite/image.h>
 #include "media_viewer_settings.h"
 #include <ds/ui/media/player/web_player.h>
+#include <ds/ui/media/media_initializer_service.h>
 
 namespace ds {
 namespace ui {
@@ -15,8 +16,7 @@ class MediaInterface;
 
 /**
 * \class ds::MediaViewer
-*			A container that can show the usual suspects with interfaces: Web, PDF, Image, Video
-*			The goal here is to have an independent class that can be moved to the framework.
+*			This is MediaPlayer in a BasePanel: plays the typical media types (Web / PDF / Video / Stream / Image) in a moveable/sizeable/bounds-checked panel.
 */
 class MediaViewer : public BasePanel  {
 public:

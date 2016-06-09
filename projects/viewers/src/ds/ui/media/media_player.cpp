@@ -1,6 +1,7 @@
 #include "media_player.h"
 
-
+#include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/image.h>
@@ -14,11 +15,49 @@
 #include "ds/ui/media/player/pdf_player.h"
 #include "ds/ui/media/player/stream_player.h"
 #include "ds/ui/media/player/web_player.h"
+#include <ds/util/file_meta_data.h>
 
 #include "ds/ui/media/media_interface.h"
 
 #include "ds/ui/sprite/web.h"
 #include "ds/ui/sprite/gst_video.h"
+
+namespace {
+class Init {
+public:
+	Init() {
+		ds::App::AddStartup([](ds::Engine& e) {
+			e.registerSpriteImporter("media_player", [](ds::ui::SpriteEngine& enginey)->ds::ui::Sprite*{
+				return new ds::ui::MediaPlayer(enginey, true);
+			});
+
+			e.registerSpritePropertySetter("media_player_src", [](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer){
+
+				ds::Resource theResource;
+				int mediaType = ds::Resource::parseTypeFromFilename(theValue);
+				if(mediaType == ds::Resource::WEB_TYPE){
+					theResource = ds::Resource(theValue, mediaType);
+				} else {
+					std::string absPath = ds::filePathRelativeTo(fileReferrer, theValue);
+					theResource = ds::Resource(absPath);
+				}
+
+				ds::ui::MediaPlayer* mediaPlayer = dynamic_cast<ds::ui::MediaPlayer*>(&theSprite);
+				if(!mediaPlayer){
+					DS_LOG_WARNING("Tried to set the property media_player_src on a non-mediaPlayer sprite");
+					return;
+				}
+
+				mediaPlayer->loadMedia(theResource, true);
+			});
+		});
+	}
+
+};
+
+Init INIT;
+}
+
 
 namespace ds {
 namespace ui {

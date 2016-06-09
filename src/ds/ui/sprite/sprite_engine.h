@@ -180,7 +180,7 @@ public:
 	ds::ComputerInfo&				getComputerInfo();
 
 	/** Register a function to a sprite type. This allows an xml sprite importer to create sprites it knows nothing about, like Jon Snow. */
-	void							registerSpriteImporter(const std::string& spriteType, std::function<ds::ui::Sprite*(const std::string &typeName)> func);
+	void							registerSpriteImporter(const std::string& spriteType, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)> func);
 	/** Create a sprite of a type specified by the spriteType name in registerSpriteImporter(). Can return nullptr if there's no sprite registered for that name. */
 	ds::ui::Sprite*					createSpriteImporter(const std::string& spriteType);
 
@@ -202,7 +202,7 @@ protected:
 
 	std::list<std::unique_ptr<FboGeneral>> mFbos;
 
-	std::unordered_map<std::string, std::function<ds::ui::Sprite*(const std::string& typeName)>> mImporterMap;
+	std::unordered_map<std::string, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)>> mImporterMap;
 	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>> mPropertyMap;
 
 private:

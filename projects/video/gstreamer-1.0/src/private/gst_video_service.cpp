@@ -19,13 +19,8 @@ GstVideoService::GstVideoService(ds::Engine& e)
 	: mEngine(e)
 	, mValidInstall(false)
 {
-	mEngine.registerSpriteImporter("video", [this](const std::string& typeName)->ds::ui::Sprite*{
-		// just to verify
-		if(typeName == "video"){
-			return new ds::ui::GstVideo(mEngine);
-		}
-
-		return nullptr;
+	mEngine.registerSpriteImporter("video", [this](ds::ui::SpriteEngine& engine)->ds::ui::Sprite*{
+		return new ds::ui::GstVideo(mEngine);
 	});
 
 	mEngine.registerSpritePropertySetter("video_src", [this](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer){

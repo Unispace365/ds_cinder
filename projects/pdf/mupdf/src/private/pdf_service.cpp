@@ -10,13 +10,8 @@ namespace pdf {
 Service::Service(ds::Engine& engine)
 	: mEngine(engine)
 {
-	mEngine.registerSpriteImporter("pdf", [this](const std::string& typeName)->ds::ui::Sprite*{
-		// just to verify
-		if(typeName == "pdf"){
-			return new ds::ui::Pdf(mEngine);
-		}
-
-		return nullptr;
+	mEngine.registerSpriteImporter("pdf", [this](ds::ui::SpriteEngine& engine)->ds::ui::Sprite*{
+		return new ds::ui::Pdf(mEngine);
 	});
 
 	mEngine.registerSpritePropertySetter("pdf_src", [this](ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileReferrer){

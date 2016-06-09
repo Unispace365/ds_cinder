@@ -16,6 +16,7 @@
     <ClCompile Include="src\ds\ui\media\interface\video_scrub_bar.cpp" />
     <ClCompile Include="src\ds\ui\media\interface\video_volume_control.cpp" />
     <ClCompile Include="src\ds\ui\media\interface\web_interface.cpp" />
+    <ClCompile Include="src\ds\ui\media\media_initializer_service.cpp" />
     <ClCompile Include="src\ds\ui\media\media_interface.cpp" />
     <ClCompile Include="src\ds\ui\media\media_interface_builder.cpp" />
     <ClCompile Include="src\ds\ui\media\media_player.cpp" />
@@ -40,6 +41,7 @@
     <ClInclude Include="src\ds\ui\media\interface\video_scrub_bar.h" />
     <ClInclude Include="src\ds\ui\media\interface\video_volume_control.h" />
     <ClInclude Include="src\ds\ui\media\interface\web_interface.h" />
+    <ClInclude Include="src\ds\ui\media\media_initializer_service.h" />
     <ClInclude Include="src\ds\ui\media\media_interface.h" />
     <ClInclude Include="src\ds\ui\media\media_interface_builder.h" />
     <ClInclude Include="src\ds\ui\media\media_player.h" />
