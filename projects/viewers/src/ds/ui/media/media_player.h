@@ -6,7 +6,6 @@
 #include <ds/ui/sprite/image.h>
 #include "media_viewer_settings.h"
 #include <ds/ui/media/player/web_player.h>
-#include <ds/ui/media/media_initializer_service.h>
 
 namespace ds {
 namespace ui {

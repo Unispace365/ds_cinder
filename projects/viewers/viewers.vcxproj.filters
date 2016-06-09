@@ -96,9 +96,6 @@
     <ClCompile Include="src\ds\ui\media\media_player.cpp">
       <Filter>src\ds\ui\media</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\media\media_initializer_service.cpp">
-      <Filter>src\ds\ui\media</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\ui\media\media_interface.cpp">
       <Filter>src\ds\ui\media</Filter>
     </ClCompile>
@@ -171,9 +168,6 @@
       <Filter>src\ds\ui\panel</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\media_player.h">
-      <Filter>src\ds\ui\media</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\media\media_initializer_service.h">
       <Filter>src\ds\ui\media</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\media_interface_builder.h">
