@@ -54,7 +54,12 @@ void ScrollArea::setVertical(bool vertical){
 }
 
 void ScrollArea::setScrollSize(const float newWidth, const float newHeight){
-	setSize(newWidth, newHeight);
+	// onSizeChanged only triggers if the size is the same, so manually force the check bounds/fade stuff in case other things have changed
+	if(getWidth() == newWidth && getHeight() == newHeight){
+		onSizeChanged();
+	} else {
+		setSize(newWidth, newHeight);
+	}
 }
 
 void ScrollArea::onSizeChanged(){
