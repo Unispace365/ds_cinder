@@ -84,6 +84,9 @@ protected:
 	ds::ui::Sprite*				mTargetSprite;
 	SpriteImporter				mCustomImporter;
 	std::vector< Stylesheet * >	mStylesheets;
+
+	// special map to link sprites together, like scroll bars to scroll areas, entry fields to keyboards, etc
+	std::map<ds::ui::Sprite*, std::string> mSpriteLinks;
 };
 
 } // namespace ui

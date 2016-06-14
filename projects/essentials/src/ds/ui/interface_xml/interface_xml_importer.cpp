@@ -24,6 +24,7 @@
 #include <ds/ui/scroll/centered_scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
 #include <ds/ui/scroll/scroll_bar.h>
+#include <ds/ui/soft_keyboard/entry_field.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
 #include <ds/ui/soft_keyboard/soft_keyboard_builder.h>
 #include <ds/ui/sprite/border.h>
@@ -624,10 +625,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set radius on a non-circle sprite of type: " << typeid(sprite).name());
 		}
-	} else if(property == "attach_state"){
+	} else if(property == "attach_state" || property == "sprite_link"){
 		// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore it.
 		return;
-	} else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
+	} 
+	
+	// fallback to engine-registered properites last
+	else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
 		return;
 	}
 
@@ -811,6 +815,23 @@ bool XmlImporter::load( ci::XmlTree &xml ) {
 		readSprite(mTargetSprite, xmlNode);
 	}
 
+	for(auto it : mSpriteLinks){
+		auto findy = mNamedSpriteMap.find(it.second);
+		if(findy != mNamedSpriteMap.end()){
+			if(it.first && findy->second){
+				EntryField* ef = dynamic_cast<EntryField*>(it.first);
+				SoftKeyboard* sfk = dynamic_cast<SoftKeyboard*>(findy->second);
+				if(ef && sfk){
+					sfk->setKeyPressFunction([ef](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
+						if(ef){
+							ef->keyPressed(character, keyType);
+						}
+					});
+				}
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -876,6 +897,7 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::CircleBorder*>(sp)) return "circle_border";
 	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
 	if(dynamic_cast<ds::ui::SoftKeyboard*>(sp)) return "soft_keyboard";
+	if(dynamic_cast<ds::ui::EntryField*>(sp)) return "entry_field";
 	return "sprite";
 }
 
@@ -968,6 +990,38 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		} else {
 			spriddy = SoftKeyboardBuilder::buildStandardKeyboard(engine, sks);
 		}
+	} else if(type == "entry_field"){
+		EntryFieldSettings efs;
+		auto tokens = ds::split(value, "; ", true);
+		for(auto it : tokens){
+			auto colony = it.find(":");
+			if(colony != std::string::npos){
+				std::string paramType = it.substr(0, colony);
+				std::string paramValue = it.substr(colony + 1);
+
+				if(paramType.empty() || paramValue.empty())continue;
+				if(paramType == "text_config"){
+					efs.mTextConfig = paramValue;
+				} else if(paramType == "cursor_size"){
+					efs.mCursorSize = parseVector(paramValue).xy();
+				} else if(paramType == "field_size"){
+					efs.mFieldSize = parseVector(paramValue).xy();
+				} else if(paramType == "cursor_offset"){
+					efs.mCursorOffset = parseVector(paramValue).xy();
+				} else if(paramType == "cursor_color"){
+					efs.mCursorColor = parseColor(paramValue, engine);
+				} else if(paramType == "blink_rate"){
+					efs.mBlinkRate = ds::string_to_float(paramValue);
+				} else if(paramType == "animate_rate"){
+					efs.mAnimationRate = ds::string_to_float(paramValue);
+				}
+			}
+		}
+
+		auto ef =  new EntryField(engine, efs);
+		ef->focus();
+		spriddy = ef;
+	
 	}
 
 	return spriddy;
@@ -1049,6 +1103,12 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 		BOOST_FOREACH(auto &sprite, node->getChildren()) {
 			readSprite(spriddy, sprite);
+		}
+
+		std::string linkValue = node->getAttributeValue<std::string>("sprite_link", "");
+
+		if(!linkValue.empty()){
+			mSpriteLinks[spriddy] = linkValue;
 		}
 
 		ds::ui::ScrollArea* parentScroll = dynamic_cast<ds::ui::ScrollArea*>(parent);
