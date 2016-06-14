@@ -82,6 +82,7 @@ public:
 	void							setDefaultSize(const ci::Vec2f& defaultSize){ mDefaultSize = defaultSize; }
 
 	void							setAnimateDuration(const float animDuration){ mAnimDuration = animDuration; }
+	const float						getAnimateDuration(){ return mAnimDuration; }
 
 	/** Called when the panel lays itself out, so you can add sprites to this panel without extending the panel class.
 	This is called after the base layout function.*/
