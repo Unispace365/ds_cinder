@@ -81,8 +81,8 @@ void MqttWatcher::update(const ds::UpdateParams &){
 	if(!mMsgOutbound.empty()){
 		std::lock_guard<std::mutex>	_lock(mLoop.mOutboundMutex);
 		while(!mMsgOutbound.empty()){
-			mLoop.mLoopOutbound.push(mMsgOutbound.front());
-			mMsgOutbound.pop();
+			mLoop.mLoopOutbound.push_back(mMsgOutbound.back());
+			mMsgOutbound.pop_back();
 		}
 	}
 
@@ -94,7 +94,10 @@ void MqttWatcher::update(const ds::UpdateParams &){
 }
 
 void MqttWatcher::sendOutboundMessage(const std::string& str){
-	mMsgOutbound.push(str);
+	//Dont need to set topic for outbound messages. Handled through setting outbound topic
+	MqttMessage outMsg;
+	outMsg.message = std::string(str);
+	mMsgOutbound.push_back(outMsg);
 }
 
 void MqttWatcher::startListening(){
@@ -156,13 +159,18 @@ class MosquittoReceiver final : public mosqpp::mosquittopp
 {
 public:
 	void on_connect(int rc) override { mConnectAction(rc); }
-	void on_message(const struct mosquitto_message *message) override { mMessageAction(std::string((char*)message->payload, message->payloadlen)); }
+	void on_message(const struct mosquitto_message *message) override { 
+		MqttWatcher::MqttMessage msg;
+		msg.topic = std::string((char*)message->topic);
+		msg.message = std::string((char*)message->payload, message->payloadlen);
+		mMessageAction(msg);
+	}
 	void setConnectAction(const std::function<void(int)>& fn) { mConnectAction = fn; }
-	void setMessageAction(const std::function<void(const std::string&)>& fn) { mMessageAction = fn; }
+	void setMessageAction(const std::function<void(const MqttWatcher::MqttMessage&)>& fn) { mMessageAction = fn; }
 
 private:
 	std::function<void(int)>				mConnectAction{ [](int){} };
-	std::function<void(const std::string&)>	mMessageAction{ [](const std::string&){} };
+	std::function<void(const MqttWatcher::MqttMessage&)>	mMessageAction{ [](const MqttWatcher::MqttMessage&){} };
 };
 }
 
@@ -175,11 +183,12 @@ void MqttWatcher::MqttConnectionLoop::run(){
 		mFirstTimeMessage = true;
 	});
 
-	mqtt_isnt.setMessageAction([this](const std::string& m){
+	mqtt_isnt.setMessageAction([this](const MqttMessage& msg){
 		//std::cout << "MQTT watcher received: " << m << std::endl, MQTT_LOG;
 		if(!mAbort)	{
 			std::lock_guard<std::mutex>	_lock(mInboundMutex);
-			mLoopInbound.push(m);
+			//PUSHES BOTH THE TOPIC AND THE PAYLOAD PER MESSAGE
+			mLoopInbound.push_back(msg);
 		}
 	});
 
@@ -199,8 +208,8 @@ void MqttWatcher::MqttConnectionLoop::run(){
 		if(!mLoopOutbound.empty())	{
 			std::lock_guard<std::mutex>	_lock(mOutboundMutex);
 			while(!mLoopOutbound.empty()){
-				mqtt_isnt.publish(nullptr, mTopicOutbound.c_str(), mLoopOutbound.front().size(), mLoopOutbound.front().data(), 1);
-				mLoopOutbound.pop();
+				mqtt_isnt.publish(nullptr, mTopicOutbound.c_str(), mLoopOutbound.back().message.size(), mLoopOutbound.back().message.data(), 1);
+				mLoopOutbound.pop_back();
 			}
 		}
 
