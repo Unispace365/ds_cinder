@@ -98,20 +98,28 @@ Events
 
 Using the **on_tap_event** and **on_click_event** sprite parameters, you can trigger events for other parts of the app directly from a layout xml. You'll need to do a couple things to get this to work. 
 
-* **Register events by name:** Create a ds::RegisteredEvent like normal by extending the RegisteredEvent class. You'll need to provide a creation function to the event registry so the event can be created dynamically when called. To do this, add a line like the below on app instantiation (in your root app class) for each event. 
-    ds::event::Registry::get().addEventCreator(RequestCloseAllEvent::NAME(), [this]()->ds::Event*{return new RequestCloseAllEvent(); });
+* **Register events by name:** Create a ds::RegisteredEvent like normal by extending the RegisteredEvent class. You'll need to provide a creation function to the event registry so the event can be created dynamically when called. To do this, add a line like the below on app instantiation (in your root app class) for each event.
+
+        ds::event::Registry::get().addEventCreator(RequestCloseAllEvent::NAME(), [this]()->ds::Event*{return new RequestCloseAllEvent(); });
+
 * **Built-in event parameters:** The event will automatically have the sprite that triggered the event applied to the ds::Event::mSpriteOriginator property, and mEventOrigin paramter will be the global position of the tap or click of the interaction. 
 * **Custom event parameters:** You can apply a few parameters to each event dispatched from a layout xml: Data, Id, and UserSize. Pass these properties to the event like so:
-    RequestCustomEvent; data:myCustomStringData; id:1234; user_size:400, 300, 1; 
+
+        RequestCustomEvent; data:myCustomStringData; id:1234; user_size:400, 300, 1;
+
 * **Multiple events:** Send multiple events from the same button press by wrapping each event in brackets and separating them by commas. Do not use spaces between events. Example:
-    on_tap_event="{RequestCloseAllEvent},{RequestMediaOpenEvent; data:%APP%/data/temp/test.pdf; user_size:900},{RequestLayoutEvent}"
+
+        on_tap_event="{RequestCloseAllEvent},{RequestMediaOpenEvent; data:%APP%/data/temp/test.pdf; user_size:900},{RequestLayoutEvent}"
+
 * **Handling events:** The app will need to handle the events like normal using an event client and handling the app event. The parameters described above are automatically applied to the Event by the xml importer and you can access them through the event:
-    void ViewerController::onAppEvent(const ds::Event& in_e){
-        if(in_e.mWhat == RequestMediaOpenEvent::WHAT()){
-            std::string fileName = in_e.mUserStringData;
-            //Do something with the filename and open media
+
+        void ViewerController::onAppEvent(const ds::Event& in_e){
+            if(in_e.mWhat == RequestMediaOpenEvent::WHAT()){
+                std::string fileName = in_e.mUserStringData;
+                //Do something with the filename and open media
+            }
         }
-    }
+
 
 Layout Parameters (only valid if using a layout sprite as a parent)
 ------------------------------------------------------
@@ -217,11 +225,14 @@ Scroll List Parameters
 EntryField and SoftKeyboard Parameters
 --------------------------------------
 EntryFields and SoftKeyboards need some parameters set for instantiation, so they are set as in the body of the node rather than as attributes. Example:
+
     <entry_field 
         name="search_field"
-        sprite_link="primary_keyboard">text_config:keyboard:key:up; cursor_offset:4, -10; cursor_size:1, 40; field_size:500, 40; cursor_color:orange</entry_field>
+        sprite_link="primary_keyboard"
+        >text_config:keyboard:key:up; cursor_offset:4, -10; cursor_size:1, 40; field_size:500, 40; cursor_color:orange</entry_field>
 
-    <soft_keyboard name="primary_keyboard">type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; key_text_offset:-2, -2; key_touch_padding:4</soft_keyboard>
+    <soft_keyboard name="primary_keyboard"
+    >type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; key_text_offset:-2, -2; key_touch_padding:4</soft_keyboard>
 
 **ENTRY FIELD PARAMETERS**
 * **sprite_link**: Allows you to link the text entry field with a soft keyboard. Set the value of sprite_link to the name of the soft_keyboard. The keyboard needs to be in the same sprite map as entry field to be linked. Once linked, the keyboard will type it's text into the entry field.
@@ -262,7 +273,9 @@ If you have the video project included, you can create video sprites.
 Media Players Parameters
 -------------------------------
 If you have the viewers project included, you can create media players. Media players are a simple way to view Images, PDFs, Videos, and Web sites. Media Players created this way automatically have an embedded interface (to flip through pages or control videos). Media types are deduced by file extension. MediaPlayer sprites need to be enabled or accept some user input for the interface to re-appear. 
-* **media_player_src**: Relative or absolute path to the media. For example: media_player_src="%APP%/data/test/test.mp4" or media_player_src="c:/test.pdf"
+* **media_player_src**: Relative or absolute path to the media. For example: 
+
+        media_player_src="%APP%/data/test/test.mp4" or media_player_src="c:/test.pdf"
 
 XML
 -------------------------------
