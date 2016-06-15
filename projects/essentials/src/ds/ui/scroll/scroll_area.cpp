@@ -103,6 +103,7 @@ Sprite* ScrollArea::getSpriteToPassTo(){
 }
 
 void ScrollArea::checkBounds(){
+	if(!mScroller) return;
 	bool doTween = true;
 	ci::Vec3f tweenDestination = mScroller->getPosition();
 
