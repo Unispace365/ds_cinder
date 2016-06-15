@@ -925,8 +925,10 @@ void GstVideo::setNetClock(){
 
 		markAsDirty(mSyncDirty);
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
-		//Wait for server to initiate contact
-		mGstreamerWrapper->setClientNetClock(false, mIpAddress, mNetPort, mNetClock, mBaseTime);
+		if(mNetPort > -1){
+			//Wait for server to initiate contact
+			mGstreamerWrapper->setClientNetClock(false, mIpAddress, mNetPort, mNetClock, mBaseTime);
+		}
 	}
 }
 
