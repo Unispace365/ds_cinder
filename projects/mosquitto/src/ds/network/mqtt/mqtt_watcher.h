@@ -10,22 +10,27 @@
 namespace ds {
 namespace net {
 
+
+
 /**
 * \class ds::MqttWatcher
 * \brief Listen and send messages on MQTT ( http://mqtt.org )
 */
-class MqttWatcher : public ds::AutoUpdate
-{
+class MqttWatcher : public ds::AutoUpdate {
 public:
-	typedef std::queue<std::string> MessageQueue;
+	struct MqttMessage {
+		std::string topic;
+		std::string message;
+	};
+	typedef std::vector<MqttMessage> MessageQueue;
 
 	// Standard MQTT location
 	MqttWatcher(ds::ui::SpriteEngine&,
-				const std::string& host, //example: "test.mosquitto.org"
-				const std::string& topic_inbound, // "ds_test_mqtt_inbound"
-				const std::string& topic_outbound, // "ds_test_mqtt_outbound"
-				float refresh_rate = 0.1f,
-				int port = 1883);
+		const std::string& host, //example: "test.mosquitto.org"
+		const std::string& topic_inbound, // "ds_test_mqtt_inbound"
+		const std::string& topic_outbound, // "ds_test_mqtt_outbound"
+		float refresh_rate = 0.1f,
+		int port = 1883);
 
 	virtual ~MqttWatcher();
 
@@ -59,11 +64,11 @@ private:
 		MessageQueue				mLoopOutbound;
 
 		MqttConnectionLoop(ds::ui::SpriteEngine&,
-			 const std::string& host,
-			 const std::string& topic_inbound,
-			 const std::string& topic_outband,
-			 float refresh_rate,
-			 int port);
+			const std::string& host,
+			const std::string& topic_inbound,
+			const std::string& topic_outband,
+			float refresh_rate,
+			int port);
 
 		virtual void				run();
 		void						setInBound(const std::string&);
@@ -82,8 +87,7 @@ private:
 
 	MessageQueue					mMsgInbound;
 	MessageQueue					mMsgOutbound;
-	std::vector < std::function<void(const MessageQueue&)> >
-		mListeners;
+	std::vector < std::function<void(const MessageQueue&)> > mListeners;
 	MqttConnectionLoop				mLoop;
 
 	Poco::Timestamp::TimeVal		mLastMessageTime;
