@@ -70,6 +70,8 @@ protected:
 	/// Override to know when this field loses focus
 	virtual void						onUnFocus(){}
 
+	virtual void						onSizeChanged() override;
+
 	/// Any time the text has changed, do not override
 	void								textUpdated();
 

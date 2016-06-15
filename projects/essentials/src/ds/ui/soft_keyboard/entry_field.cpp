@@ -57,6 +57,12 @@ void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings){
 	textUpdated();
 }
 
+void EntryField::onSizeChanged(){
+	if(mTextSprite){
+		mTextSprite->setResizeLimit(getWidth(), getHeight());
+	}
+}
+
 const std::wstring EntryField::getCurrentText(){
 	if(mTextSprite){
 		return mTextSprite->getText();
