@@ -134,6 +134,7 @@ Layout Parameters (only valid if using a layout sprite as a parent)
     1. left: (Default) Aligns the sprite to the left of the layout.
     2. center: Horizontally centers the sprite in the layout (only works on Fixed size sprites)
     3. right: Aligns the sprite to the right of the layout (only works on Fixed size sprites)
+* **layout_fixed_aspect**: Tells the sprite's parent layout if this sprite should be resized proportionally or not. Some sprites are fixed aspect ratio by default: Image, PDF, Video, ImageButton, Circle. This parameter is used for layout_size_mode of Flex, Stretch and Fill. If layout_fixed_aspect is true, the sprite will be fit inside the destination area, with letterboxing (unless it's a stretch size mode in a SizeType layout, then it won't letterbox). For layout_fixed_aspect to work, the sprite needs to have w & h != 0.0. 
 * **layout_type**: For a LayoutSprite only (has no effect on children). 
     1. vert: (Default) lays out all children in a vertical (top to bottom) flow.
     2. horiz: Lays out children horizontally (left to right)

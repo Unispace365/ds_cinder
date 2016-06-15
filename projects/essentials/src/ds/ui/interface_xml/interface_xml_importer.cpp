@@ -309,6 +309,8 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		sprite.setTapCallback([value](ds::ui::Sprite* bs, const ci::Vec3f& pos){
 			XmlImporter::dispatchStringEvents(value, bs, pos);
 		});
+	} else if(property == "layout_fixed_aspect"){
+		sprite.mLayoutFixedAspect = parseBoolean(value);
 	}
 
 	// LayoutSprite specific (the other layout stuff could apply to any sprite)
