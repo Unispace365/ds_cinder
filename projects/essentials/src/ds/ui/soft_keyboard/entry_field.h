@@ -62,6 +62,12 @@ public:
 	/// Handles key input like a keyboard would
 	void								keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType);
 
+	/// Set a lambda function when the above keypressed function is called
+	void								setKeyPressedCallback(std::function<void(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType)> keyPressedFunc);
+
+	/// Set a lambda function that's called just after onTextUpdated()
+	void								setTextUpdatedCallback(std::function<void(const std::wstring& fullStr)> func);
+
 protected:
 
 	/// Override to know when this field gains focus.
@@ -93,6 +99,8 @@ protected:
 	ds::ui::Sprite*						mCursor;
 	std::vector<ds::ui::Sprite*>		mSelectionIndicators;
 	EntryFieldSettings					mEntryFieldSettings;
+	std::function<void(const std::wstring&, const ds::ui::SoftKeyboardDefs::KeyType)> mKeyPressedFunction;
+	std::function<void(const std::wstring&)> mTextUpdateFunction;
 
 };
 
