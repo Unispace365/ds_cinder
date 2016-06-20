@@ -43,7 +43,7 @@ void WebViewListener::OnShowCreatedWebView(	Awesomium::WebView* caller,
 }
 
 void WebViewListener::OnAddConsoleMessage(Awesomium::WebView* caller, const Awesomium::WebString& message, int line_number, const Awesomium::WebString& source){
-	std::cout << "Console message: " << str_from_webstr(message) << " Line: " << line_number << " From: " << str_from_webstr(source) <<  std::endl;
+//	std::cout << "Console message: " << str_from_webstr(message) << " Line: " << line_number << " From: " << str_from_webstr(source) <<  std::endl;
 }
 
 /**

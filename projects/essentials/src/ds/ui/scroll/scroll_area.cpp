@@ -54,6 +54,18 @@ void ScrollArea::setVertical(bool vertical){
 }
 
 void ScrollArea::setScrollSize(const float newWidth, const float newHeight){
+	// onSizeChanged only triggers if the size is the same, so manually force the check bounds/fade stuff in case other things have changed
+	if(getWidth() == newWidth && getHeight() == newHeight){
+		onSizeChanged();
+	} else {
+		setSize(newWidth, newHeight);
+	}
+}
+
+void ScrollArea::onSizeChanged(){
+	const float newWidth = getWidth();
+	const float newHeight = getHeight();
+
 	if(mTopFade){
 		if(mVertical){
 			mTopFade->setSize(newWidth, mFadeHeight);
@@ -70,7 +82,7 @@ void ScrollArea::setScrollSize(const float newWidth, const float newHeight){
 			mBottomFade->setPosition(newWidth - mFadeHeight, 0.0f);
 		}
 	}
-	setSize(newWidth, newHeight);
+
 	if(mScroller){
 		mScroller->setSize(0.0f, 0.0f);
 		mScroller->sizeToChildBounds();
@@ -91,6 +103,7 @@ Sprite* ScrollArea::getSpriteToPassTo(){
 }
 
 void ScrollArea::checkBounds(){
+	if(!mScroller) return;
 	bool doTween = true;
 	ci::Vec3f tweenDestination = mScroller->getPosition();
 

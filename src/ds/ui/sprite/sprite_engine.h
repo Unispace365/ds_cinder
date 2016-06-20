@@ -6,6 +6,7 @@
 #include <cinder/Camera.h>
 #include <cinder/Rect.h>
 #include <cinder/Vector.h>
+#include <cinder/Xml.h>
 #include <cinder/app/Window.h>
 #include "ds/app/app_defs.h"
 #include "fbo/fbo.h"
@@ -79,7 +80,7 @@ public:
 	bool							hasService(const std::string&) const;
 
 	/** Access to the current engine configuration info. */
-	void SpriteEngine::loadSettings(const std::string& name, const std::string& filename);
+	void							loadSettings(const std::string& name, const std::string& filename);
 	
 	ds::EngineCfg&					getEngineCfg();
 	const ds::EngineCfg&			getEngineCfg() const;
@@ -178,6 +179,17 @@ public:
 
 	ds::ComputerInfo&				getComputerInfo();
 
+	/** Register a function to a sprite type. This allows an xml sprite importer to create sprites it knows nothing about, like Jon Snow. */
+	void							registerSpriteImporter(const std::string& spriteType, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)> func);
+	/** Create a sprite of a type specified by the spriteType name in registerSpriteImporter(). Can return nullptr if there's no sprite registered for that name. */
+	ds::ui::Sprite*					createSpriteImporter(const std::string& spriteType);
+
+	/** Register a callback to set the property of a sprite during import by an outside caller (like an xml importer) */
+	void							registerSpritePropertySetter(const std::string& propertyName, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)> func);
+
+	/** Set the property of a sprite by name and value string. File referrer (optional) is the relative file path to look up files. See ds/util/file_meta_data.h for relative path finding */
+	bool							setRegisteredSpriteProperty(const std::string& propertyName, ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer = "");
+
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
 	// which is how things work by default (the data and engine are owned by the App).
@@ -189,6 +201,9 @@ protected:
 	ds::ComputerInfo*				mComputerInfo;
 
 	std::list<std::unique_ptr<FboGeneral>> mFbos;
+
+	std::unordered_map<std::string, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)>> mImporterMap;
+	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>> mPropertyMap;
 
 private:
 	ds::EngineService&				private_getService(const std::string&);

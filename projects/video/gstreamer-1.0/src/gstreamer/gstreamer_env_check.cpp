@@ -46,7 +46,7 @@ bool EnvCheck::addGStreamerBinPath(){
 		ds::Environment::addToEnvironmentVariable("GST_PLUGIN_PATH", gstreamer_plugin_path);
 	}
 
-	if(ds::FileMetaData::safeFileExistsCheck(gstreamer_path, true)){
+	if(ds::safeFileExistsCheck(gstreamer_path, true)){
 		return true;
 	} 
 	

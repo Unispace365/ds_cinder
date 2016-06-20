@@ -86,7 +86,8 @@ void TouchDebug::mouseUp(const ci::app::MouseEvent& e) {
 	}
 }
 
-void TouchDebug::replicate(const ci::app::MouseEvent& e, ds::ui::TouchInfo::Phase p) {
+void TouchDebug::replicate(const ci::app::MouseEvent& eventy, ds::ui::TouchInfo::Phase p) {
+	ci::app::MouseEvent alteredMouse = mEngine.alteredMouseEvent(eventy);
 	std::vector<ci::app::TouchEvent::Touch> touches;
 
 	static float startAngle = 0.0f;
@@ -96,7 +97,7 @@ void TouchDebug::replicate(const ci::app::MouseEvent& e, ds::ui::TouchInfo::Phas
 	float radiusy = mFiveTouchRadius;
 
 	for(int k = 0; k < mNumberOfReplicants; ++k) {
-		ci::Vec2f thisPos = ci::Vec2f((float)e.getPos().x + radiusy * cos(ci::toRadians(angley)), (float)e.getPos().y + radiusy * sin(ci::toRadians(angley)));
+		ci::Vec2f thisPos = ci::Vec2f((float)alteredMouse.getPos().x + radiusy * cos(ci::toRadians(angley)), (float)alteredMouse.getPos().y + radiusy * sin(ci::toRadians(angley)));
 		touches.push_back(ci::app::TouchEvent::Touch(thisPos, thisPos, mTouchId + k, 0.0, nullptr));
 		angley += deltaAngley;
 	}

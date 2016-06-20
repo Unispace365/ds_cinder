@@ -4,8 +4,12 @@
 
 #include <map>
 #include <string>
+#include <functional>
+
 
 namespace ds {
+
+class Event;
 
 namespace event {
 
@@ -27,6 +31,9 @@ public:
 
 	const std::string&			getName(const int what);
 
+	void						addEventCreator(const std::string& eventName, std::function<ds::Event*()> creator);
+	std::function<ds::Event*()>	getEventCreator(const std::string& eventName);
+
 public:
 	class Entry {
 	public:
@@ -34,6 +41,7 @@ public:
 
 		int						getWhat() const { return mWhat; }
 		const std::string&		getChannel() const { return mChannel; }
+		const std::string&		getName() const { return mName; }
 
 	private:
 		const int				mWhat;
@@ -43,6 +51,7 @@ public:
 
 private:
 	std::map<int, std::string>	mMsgs;
+	std::map<std::string, std::function<ds::Event*()>> mCreators;
 };
 
 } // namespace event
@@ -58,7 +67,7 @@ private:
  */
 class EventRegistry {
 public:
-	static const std::string& getName(const int what);
+	static const std::string&	getName(const int what);
 
 	EventRegistry(const std::string& name);
 	// What is now obsolete, the value is generated automatically.

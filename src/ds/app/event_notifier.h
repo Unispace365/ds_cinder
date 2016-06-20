@@ -25,6 +25,14 @@ public:
 	// an EventClient (i.e. don't need to receive events)
 	void						notify(const ds::Event&);
 
+	// Send an event to the system, for clients that don't need
+	// an EventClient (i.e. don't need to receive events)
+	void						notify(const ds::Event*);
+
+	// Send an event to the system, looks up the event's name in the event registry.
+	// If the name does not match, will fail without warning in release, with a warning in debug
+	void						notify(const std::string& eventName);
+
 	/**
 	* Request information from the system.
 	* \param requestEvent The event to be sent as a request to the event system

@@ -11,19 +11,25 @@ ImageWithThumbnail::ImageWithThumbnail(SpriteEngine& engine, const int flags, fl
 	: inherited(engine, flags)
 	, mThumbnail(nullptr)
 	, mFadeDuration(fadeDuration)
-{}
+{
+	mLayoutFixedAspect = true;
+}
 
 ImageWithThumbnail::ImageWithThumbnail(SpriteEngine& engine, const std::string& filename, const int flags, float fadeDuration)
 	: inherited(engine, filename, flags)
 	, mThumbnail(nullptr)
 	, mFadeDuration(fadeDuration)
-{}
+{
+	mLayoutFixedAspect = true;
+}
 
 ImageWithThumbnail::ImageWithThumbnail(SpriteEngine& engine, const ds::Resource::Id& resourceId, const int flags, float fadeDuration)
 	: inherited(engine, resourceId, flags)
 	, mThumbnail(nullptr)
 	, mFadeDuration(fadeDuration)
-{}
+{
+	mLayoutFixedAspect = true;
+}
 
 ImageWithThumbnail::ImageWithThumbnail(SpriteEngine& engine, const ds::Resource& resource, const int flags, float fadeDuration)
 	: inherited(engine, flags)
@@ -31,6 +37,7 @@ ImageWithThumbnail::ImageWithThumbnail(SpriteEngine& engine, const ds::Resource&
 	, mFadeDuration(fadeDuration)
 {
 	setImageResource(resource, flags);
+	mLayoutFixedAspect = true;
 }
 
 void ImageWithThumbnail::setImageResource(const ds::Resource& resource, const int flags){

@@ -47,6 +47,7 @@ Circle::Circle(SpriteEngine& engine)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
+	mLayoutFixedAspect = true;
 }
 
 Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
@@ -61,6 +62,7 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	setTransparent(false);
 	setRadius(mRadius);
 	setFilled(mFilled);
+	mLayoutFixedAspect = true;
 }
 
 Circle::~Circle(){

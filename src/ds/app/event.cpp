@@ -12,11 +12,21 @@ namespace ds {
  */
 Event::Event()
 	: mWhat(0)
+	, mEventOrigin(0.0f, 0.0f, 0.0f)
+	, mUserStringData("")
+	, mUserId(0)
+	, mUserSize(0.0f, 0.0f, 0.0f)
+	, mSpriteOriginator(nullptr)
 {
 }
 
 Event::Event(const int what)
 	: mWhat(what)
+	, mEventOrigin(0.0f, 0.0f, 0.0f)
+	, mUserStringData("")
+	, mUserId(0)
+	, mUserSize(0.0f, 0.0f, 0.0f)
+	, mSpriteOriginator(nullptr)
 {
 }
 

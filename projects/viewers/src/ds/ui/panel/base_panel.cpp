@@ -28,6 +28,8 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 	, mLayoutCallback(nullptr)
 {
 
+	mLayoutFixedAspect = true;
+
 	mMomentum.setMomentumParent(this);
 	mMomentum.setMass(8.0f);
 	mMomentum.setFriction(0.5f);

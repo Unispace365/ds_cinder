@@ -53,6 +53,12 @@ Sprite Types
 * **scroll_area** = ds::ui::ScrollArea
 * **centered_scroll_area** = ds::ui::CenteredScrollArea
 * **scroll_bar** = ds::ui::ScrollBar
+* **entry_field** = ds::ui::EntryField
+* **soft_keyboard** = ds::ui::SoftKeyboard
+* **web** = ds::ui::Web (if the Awesomium web project is included)
+* **pdf** = ds::ui::Pdf (if the pdf project is included)
+* **video** = ds::ui::GstVideo (if the gstreamer-1.0 project is included)
+* **media_player** = ds::ui::MediaPlayer (if the viewers project is included)
 * **xml** = Load another xml interface. See details below.
 * **[custom]** = Calls a custom callback function with a string for the type. Requires you instantiate the sprite type yourself.
 
@@ -85,6 +91,35 @@ Sprite Parameters
 * **transparent**: A boolean of wheather the sprite should draw or not.
 * **animate_on**: Supply a script to run when tweenAnimateOn() is called on this sprite. See the animation section for details.
 * **corner_radius**: A float the changes the corner radius. Only applies to some sprite types like Sprite and Border. Many types ignore this setting. Default=0.0.
+* **on_tap_event** and **on_click_event**: Dispatches one or more events from tap or button click. on_tap_event uses the built-in tap callback for any sprite, on_click_event only applies to ImageButton and SpriteButton. See the events section for more details.
+
+Events
+--------------------------------------------------------
+
+Using the **on_tap_event** and **on_click_event** sprite parameters, you can trigger events for other parts of the app directly from a layout xml. You'll need to do a couple things to get this to work. 
+
+* **Register events by name:** Create a ds::RegisteredEvent like normal by extending the RegisteredEvent class. You'll need to provide a creation function to the event registry so the event can be created dynamically when called. To do this, add a line like the below on app instantiation (in your root app class) for each event.
+
+        ds::event::Registry::get().addEventCreator(RequestCloseAllEvent::NAME(), [this]()->ds::Event*{return new RequestCloseAllEvent(); });
+
+* **Built-in event parameters:** The event will automatically have the sprite that triggered the event applied to the ds::Event::mSpriteOriginator property, and mEventOrigin paramter will be the global position of the tap or click of the interaction. 
+* **Custom event parameters:** You can apply a few parameters to each event dispatched from a layout xml: Data, Id, and UserSize. Pass these properties to the event like so:
+
+        RequestCustomEvent; data:myCustomStringData; id:1234; user_size:400, 300, 1;
+
+* **Multiple events:** Send multiple events from the same button press by wrapping each event in brackets and separating them by commas. Do not use spaces between events. Example:
+
+        on_tap_event="{RequestCloseAllEvent},{RequestMediaOpenEvent; data:%APP%/data/temp/test.pdf; user_size:900},{RequestLayoutEvent}"
+
+* **Handling events:** The app will need to handle the events like normal using an event client and handling the app event. The parameters described above are automatically applied to the Event by the xml importer and you can access them through the event:
+
+        void ViewerController::onAppEvent(const ds::Event& in_e){
+            if(in_e.mWhat == RequestMediaOpenEvent::WHAT()){
+                std::string fileName = in_e.mUserStringData;
+                //Do something with the filename and open media
+            }
+        }
+
 
 Layout Parameters (only valid if using a layout sprite as a parent)
 ------------------------------------------------------
@@ -107,6 +142,7 @@ Layout Parameters (only valid if using a layout sprite as a parent)
     1. left: (Default) Aligns the sprite to the left of the layout.
     2. center: Horizontally centers the sprite in the layout (only works on Fixed size sprites)
     3. right: Aligns the sprite to the right of the layout (only works on Fixed size sprites)
+* **layout_fixed_aspect**: Tells the sprite's parent layout if this sprite should be resized proportionally or not. Some sprites are fixed aspect ratio by default: Image, PDF, Video, ImageButton, Circle. This parameter is used for layout_size_mode of Flex, Stretch and Fill. If layout_fixed_aspect is true, the sprite will be fit inside the destination area, with letterboxing (unless it's a stretch size mode in a SizeType layout, then it won't letterbox). For layout_fixed_aspect to work, the sprite needs to have w & h != 0.0. 
 * **layout_type**: For a LayoutSprite only (has no effect on children). 
     1. vert: (Default) lays out all children in a vertical (top to bottom) flow.
     2. horiz: Lays out children horizontally (left to right)
@@ -184,7 +220,63 @@ Scroll List Parameters
 * **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc)
 * **scroll_list_layout**: Sets the parameters for layout from the format "x, y, z", which translates to setLayoutParams(xStart, yStart, incrementAmount, true);
 * **scroll_list_animate**: Sets the animation parameters, from the format "x, y", where x==startDelay and y==deltaDelay on ScrollList::setAnimateOnParams(startDelay, deltaDelay);
+* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool);
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
+
+EntryField and SoftKeyboard Parameters
+--------------------------------------
+EntryFields and SoftKeyboards need some parameters set for instantiation, so they are set as in the body of the node rather than as attributes. Example:
+
+    <entry_field 
+        name="search_field"
+        sprite_link="primary_keyboard"
+        >text_config:keyboard:key:up; cursor_offset:4, -10; cursor_size:1, 40; field_size:500, 40; cursor_color:orange</entry_field>
+
+    <soft_keyboard name="primary_keyboard"
+    >type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; key_text_offset:-2, -2; key_touch_padding:4</soft_keyboard>
+
+**ENTRY FIELD PARAMETERS**
+* **sprite_link**: Allows you to link the text entry field with a soft keyboard. Set the value of sprite_link to the name of the soft_keyboard. The keyboard needs to be in the same sprite map as entry field to be linked. Once linked, the keyboard will type it's text into the entry field.
+* **text_config**: The text config for the text of the entry field. Default: entry_field:text
+* **cursor_size**: How big the blinking cursor is in pixels. Default: 2, 36
+* **field_size**: The size of the entry field, which also sets the resize limit of the text in the field. You can also set the size of this sprite to change the field size. Default: 500, 100
+* **cursor_offset**: X/Y Pixels to offset the cursor from the end of the text sprite. For fudging the position of the cursor. Default: 2, -5
+* **cursor_color**: The color of the blinking cursor. Engine colors are allowed. Default: white
+* **blink_rate**: How many seconds to wait between blinks. Total blink time is animate_rate + animate_rate + blink_rate. Default: 0.5
+* **animate_rate**: How many seconds to fade the cursor on and off. Default: 0.3.
+
+**SOFT KEYBOARD PARAMETERS**
+* **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase and pinpad. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Pinpad is like an ATM pin pad. Default: standard
+* **key_up_color**: The color of the keys when not pressed. Engine colors allowed. Default: white
+* **key_down_color**: The color of the keys when pressed. Engine colors allowed. Default: medium grey
+* **key_text_offset**: Vector, amount to fudge the offset of the text inside each key. Default: -5.0, -5.0
+* **key_touch_padding**: Float amount between each key in pixels. Default: 4.0 
+* **key_initial_position**: Vector x/y of the start position of the first key when creating the keys. Default: 0, 0
+* **key_scale**: The amount the keyboard is scaled as a single float. Default: 1.0
+* See soft_keyboard_settings.h for the default text configs and key images. 
+
+Web Parameters
+-------------------------------
+If you have the web project included, you can create web sprites. 
+* **web_url**: The full url of a site to load.
+
+PDF Parameters
+-------------------------------
+If you have the pdf project included, you can create pdf sprites. 
+* **pdf_src**: Relative or absolute path to the pdf. For example: pdf_src="%APP%/data/test/test.pdf" or pdf_src="c:/test.pdf"
+
+Video Parameters
+-------------------------------
+If you have the video project included, you can create video sprites. 
+* **video_src**: Relative or absolute path to the video. For example: video_src="%APP%/data/test/test.mp4" or video_src="c:/test.mp4"
+* **stream_src**: A pipeline for a live stream source or the URI of a stream. Example: stream_src="rtsp://192.168.1.37:5015/Stream1"
+
+Media Players Parameters
+-------------------------------
+If you have the viewers project included, you can create media players. Media players are a simple way to view Images, PDFs, Videos, and Web sites. Media Players created this way automatically have an embedded interface (to flip through pages or control videos). Media types are deduced by file extension. MediaPlayer sprites need to be enabled or accept some user input for the interface to re-appear. 
+* **media_player_src**: Relative or absolute path to the media. For example: 
+
+        media_player_src="%APP%/data/test/test.mp4" or media_player_src="c:/test.pdf"
 
 XML
 -------------------------------

@@ -705,6 +705,9 @@
     <ClInclude Include="..\src\ds\util\exif_reader.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_events.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">

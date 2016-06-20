@@ -30,6 +30,7 @@ ImageButton::ImageButton(SpriteEngine& eng, const std::string& downImage, const 
 // 	setTransparent(false);
 // 	setColor(ci::Color(0.5f, 0.8f, 0.2f));
 
+	mLayoutFixedAspect = true;
 	mDown.mExportWithXml = false;
 	mUp.mExportWithXml = false;
 

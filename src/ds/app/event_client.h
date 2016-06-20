@@ -23,6 +23,7 @@ public:
 	~EventClient();
 
 	void			notify(const ds::Event&);
+	void			notify(const std::string& eventName);
 	void			request(ds::Event&);
 
 private:

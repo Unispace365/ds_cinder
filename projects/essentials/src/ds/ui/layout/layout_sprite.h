@@ -65,6 +65,13 @@ public:
 	const ShrinkType&		getShrinkToChildren() { return mShrinkToChildren; }
 	void					setShrinkToChildren(const ShrinkType& shrink) { mShrinkToChildren = shrink; }
 
+	/// Helper functions for constructing xml sheets for layouts
+	static std::string		getLayoutSizeModeString(const int sizeMode);
+	static std::string		getLayoutVAlignString(const int vAlign);
+	static std::string		getLayoutHAlignString(const int vAlign);
+	static std::string		getLayoutTypeString(const ds::ui::LayoutSprite::LayoutType& propertyValue);
+	static std::string		getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue);
+
 protected:
 	// See enum declaration for descriptions
 	// virtual in case you want to override with your own layout jimmies.

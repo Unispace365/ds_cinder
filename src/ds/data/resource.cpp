@@ -497,7 +497,7 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 		return ds::Resource::VIDEO_STREAM_TYPE;
 	}
 
-	if(!ds::FileMetaData::safeFileExistsCheck(newMedia, false)){
+	if(!ds::safeFileExistsCheck(newMedia, false)){
 		return ds::Resource::ERROR_TYPE;
 	}
 

@@ -56,6 +56,7 @@ class ScrollArea : public ds::ui::Sprite {
 
 	protected:
 		virtual void		updateServer(const ds::UpdateParams& p);
+		virtual void		onSizeChanged();
 		void				scrollerUpdated(const ci::Vec2f scrollPos);
 		void				scrollerTweenUpdated();
 		void				tweenComplete();

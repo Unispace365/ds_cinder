@@ -48,6 +48,7 @@
     <ClInclude Include="..\src\ds\app\engine\engine_clientserver.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_client_list.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_data.h" />
+    <ClInclude Include="..\src\ds\app\engine\engine_events.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_io.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_io_defs.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_roots.h" />
