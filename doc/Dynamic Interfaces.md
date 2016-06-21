@@ -181,6 +181,7 @@ Image Button Parameters
 * **up_image**: The image to display when touch is happening on this button. See filename for explanation. up_image="../data/images/refresh_btn.png"
 * **btn_touch_padding**: How much space to add to the sprite on every side of the image. btn_touch_padding="40"
 * **down_image_color**: Applies a color to the down image, to make creating responsive buttons easy from a single image.
+* **up_image_color**: Applies a color to the up (normal) image, to make creating responsive buttons easy from a single image.
 
 
 Sprite Button Parameters

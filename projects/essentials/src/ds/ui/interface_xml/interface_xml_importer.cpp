@@ -159,6 +159,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 			if(!imgB->getNormalImagePath().empty()) xml.setAttribute("up_image", ds::Environment::contract(imgB->getNormalImagePath()));
 			if(!imgB->getHighImagePath().empty()) xml.setAttribute("down_image", ds::Environment::contract(imgB->getHighImagePath()));
 		}
+		xml.setAttribute("up_image_color", unparseColor(imgB->getNormalImageColor()));
 		xml.setAttribute("down_image_color", unparseColor(imgB->getHighImageColor()));
 		xml.setAttribute("btn_touch_padding", imgB->getPad());
 	}
@@ -494,8 +495,15 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			image->setHighImageColor(parseColor(value, engine));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}		
+	} else if(property == "up_image_color"){
+		auto image = dynamic_cast<ImageButton *>(&sprite);
+		if(image) {
+			image->setNormalImageColor(parseColor(value, engine));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-		
+
 	} else if(property == "btn_touch_padding") {
 		auto image = dynamic_cast<ImageButton *>(&sprite);
 		if(image) {

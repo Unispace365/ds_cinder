@@ -130,6 +130,10 @@ void ImageButton::setStateChangeFn(const std::function<void(const bool pressed)>
 	mStateChangeFunction = func;
 }
 
+void ImageButton::setNormalImageColor(const ci::Color& upColor){
+	mUp.setColor(upColor);
+}
+
 void ImageButton::setHighImageColor(const ci::Color& downColor){
 	mDown.setColor(downColor);
 }
