@@ -559,7 +559,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
-
+	// Scroll sprite properties
 	else if(property == "scroll_list_layout"){
 		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
 		if(scrollList){
@@ -568,9 +568,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-	}
-
-	else if(property == "scroll_list_animate"){
+	}else if(property == "scroll_list_animate"){
 		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
 		if(scrollList){
 			auto vec = parseVector(value);
@@ -578,9 +576,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-	}
-
-	else if(property == "scroll_fade_colors"){
+	}else if(property == "scroll_fade_colors"){
 		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
 		ds::ui::ScrollArea* scrollArea = nullptr;
 		if(scrollList){
@@ -602,6 +598,15 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			}
 		} else {
 			DS_LOG_WARNING("Couldn't set scroll_fade_colors for this sprite ");
+		}
+	}else if (property == "scroll_area_vert"){
+		auto scrollArea = dynamic_cast<ds::ui::ScrollArea*>(&sprite);
+		if (scrollArea){
+			auto vec = parseBoolean(value);
+			scrollArea->setVertical(vec);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
 
