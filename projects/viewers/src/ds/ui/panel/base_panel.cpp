@@ -56,8 +56,8 @@ void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti){
 	} else {
 		mTouching = false;
 	}
-	sendToFront();
-	userInputReceived();
+
+	activatePanel();
 
 	completeTweenScale();
 	completeTweenOpacity();
@@ -278,6 +278,12 @@ void BasePanel::checkBounds(const bool immediate) {
 	} else {
 		tweenPosition(ci::Vec3f(destinationX, destinationY, 0.0f), mAnimDuration, 0.0f, ci::EaseOutQuint());
 	}
+}
+
+void BasePanel::activatePanel() {
+	sendToFront();
+	userInputReceived();
+	onPanelActivated();
 }
 
 void BasePanel::tweenStarted(){

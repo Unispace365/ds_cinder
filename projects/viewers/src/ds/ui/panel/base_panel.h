@@ -55,7 +55,7 @@ public:
 	void							tweenEnded();
 
 	/** Sets the flag that this viewer is on it's way out. Usage up to client app*/
-	void							setAboutToBeRemoved(const bool isRemoving = true){	mRemoving = true;	};
+	void							setAboutToBeRemoved(const bool isRemoving = true){ mRemoving = true; };
 
 	/** Gets the flag that this panel will be removed or retired after the current animation. This is primarily for client app logic. */
 	bool							getIsAboutToBeRemoved(){ return mRemoving; }
@@ -74,7 +74,7 @@ public:
 	const ci::Vec2f&				getMinSize(){ return mMinSize; }
 	const ci::Vec2f&				getDefaultSize(){ return mDefaultSize; }
 
-	/** Used in the setSizeLimits() function, so this must be set before calculating the size limits. 
+	/** Used in the setSizeLimits() function, so this must be set before calculating the size limits.
 		NOTE: the actual size limits are NOT calculated when calling this function, that must be done by the override class after this.*/
 	void							setAbsoluteSizeLimits(const ci::Vec2f& absMin, const ci::Vec2f& absMax);
 
@@ -95,6 +95,9 @@ public:
 
 	void							checkBounds(const bool immediate = false);
 
+	/** Sends this panel to the front and calls onPanelActivated() */
+	void							activatePanel();
+
 protected:
 	virtual void					updateServer(const ds::UpdateParams &updateParams);
 
@@ -102,6 +105,9 @@ protected:
 	/** Override this to layout your ui when the panel changes size .
 	Don't change the size of this sprite in this function (you'll get an infinite loop) */
 	virtual void					onLayout(){};
+
+	/** When this panel has been sent to the front via activatePanel() */
+	virtual void					onPanelActivated(){}
 
 	void							handleTouchInfo(const ds::ui::TouchInfo& ti);
 	void							setSizeLimits();
