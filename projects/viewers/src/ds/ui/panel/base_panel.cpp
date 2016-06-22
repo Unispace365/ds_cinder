@@ -280,9 +280,13 @@ void BasePanel::checkBounds(const bool immediate) {
 	}
 }
 
+void BasePanel::userInputReceived() {
+	ds::ui::Sprite::userInputReceived();
+	activatePanel();
+}
+
 void BasePanel::activatePanel() {
 	sendToFront();
-	userInputReceived();
 	onPanelActivated();
 }
 

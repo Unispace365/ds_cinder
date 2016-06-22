@@ -109,6 +109,8 @@ protected:
 	/** When this panel has been sent to the front via activatePanel() */
 	virtual void					onPanelActivated(){}
 
+	virtual void					userInputReceived() override;
+
 	void							handleTouchInfo(const ds::ui::TouchInfo& ti);
 	void							setSizeLimits();
 	
