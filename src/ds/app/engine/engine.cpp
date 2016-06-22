@@ -126,7 +126,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	    //! Size of dst_rect must match src_rect. This is a must! otherwise how stuff should be rendered?
 		DS_ASSERT_MSG(settings.getRectSize("src_rect") == settings.getRectSize("dst_rect"), "src_rect num must match dst_rect num.");
 
-		const ci::Rectf		empty_rect(0.0f, 0.0f, -1.0f, -1.0f);
+		const ci::Rectf		empty_rect(0.0f, 0.0f, 0.0f, 0.0f);
 
 		//! If we are asked to render discontinuous parts of the world, special care is required.
 		// here's the procedure:
@@ -204,7 +204,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
 	}
 
-	if(mData.mScreenRect.getWidth() < 1 || mData.mScreenRect.getHeight() < 1){
+	if(mData.mScreenRect.getWidth() < 1 || mData.mScreenRect.getHeight() < 1 || mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
 		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
 		ci::DisplayRef mainDisplay = ci::Display::getMainDisplay();
 		ci::Rectf mainDisplayRect = ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
@@ -370,9 +370,9 @@ void Engine::setup(ds::App& app) {
 	if(w < 1 || h < 1) {
 		// GN: recent updates should make this impossible to get to.
 		//		but leaving this here in case some weird case sets the size to an invalid value
-		DS_LOG_FATAL("Engine::setup() on 0 size width or height");
-		std::cout << "ERROR Engine::setup() on 0 size width or height" << std::endl;
-		throw std::runtime_error("Engine::setup() on 0 size width or height");
+		DS_LOG_WARNING("Engine::setup() on 0 size width or height");
+		//std::cout << "ERROR Engine::setup() on 0 size width or height" << std::endl;
+		//throw std::runtime_error("Engine::setup() on 0 size width or height");
 	}
 	//////////////////////////////////////////////////////////////////////////
 
