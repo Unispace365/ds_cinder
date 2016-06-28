@@ -26,7 +26,7 @@ Installation
 This version of DS Cinder requires **Visual Studio 2013** installed.
 
 -  You'll need some environment variables set:
-   - CINDER_086 points to the unzipped 0.8.6 cinder distribution folder ([Version 0.8.6 for VC 2013](http://libcinder.org/releases/cinder_0.8.6_vc2013.zip)). 
+   - CINDER_086 points to the unzipped 0.8.6 cinder distribution folder ([Version 0.8.6 for VC 2013](https://libcinder.org/static/releases/cinder_0.8.6_vc2013.zip)). 
   
    - DS_PLATFORM_086 points to the root of this repository. 
 
