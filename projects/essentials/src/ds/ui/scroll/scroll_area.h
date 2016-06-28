@@ -54,6 +54,9 @@ class ScrollArea : public ds::ui::Sprite {
 		// May not work correctly in perspective
 		void				scrollPage(const bool forwards, const bool animate = true);
 
+		// If this scroll area is rotated globally, rotate the touch delta by that amount. Default = false
+		void				handleTouchesRotated(const bool doRotated){ mHandleRotatedTouches = doRotated; }
+
 	protected:
 		virtual void		updateServer(const ds::UpdateParams& p);
 		virtual void		onSizeChanged();
@@ -77,6 +80,7 @@ class ScrollArea : public ds::ui::Sprite {
 		ci::ColorA			mFadeFullColor;
 		bool				mTopFadeActive;
 		bool				mBottomFadeActive;
+		bool				mHandleRotatedTouches;
 
 		bool				mVertical;
 

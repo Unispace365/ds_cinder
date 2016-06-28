@@ -23,6 +23,7 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 	, mSnapToPositionFunction(nullptr)
 	, mVertical(vertical)
 	, mScrollPercent(0.0f)
+	, mHandleRotatedTouches(false)
 {
 
 	setSize(startWidth, startHeight);
@@ -191,6 +192,46 @@ void ScrollArea::updateServer(const ds::UpdateParams& p){
 		checkBounds();
 	}
 }
+void decompose(ci::Matrix44f matrix, ci::Vec3f& scaling, ci::Quatf& rotation,
+			   ci::Vec3f& position){
+	// extract translation
+	position.x = matrix.at(0, 3);
+	position.y = matrix.at(1, 3);
+	position.z = matrix.at(2, 3);
+
+	// extract the rows of the matrix
+
+	ci::Vec3f columns[3] = {
+		matrix.getColumn(0).xyz(),
+		matrix.getColumn(1).xyz(),
+		matrix.getColumn(2).xyz()
+	};
+
+	// extract the scaling factors
+	scaling.x = columns[0].length();
+	scaling.y = columns[1].length();
+	scaling.z = columns[2].length();
+
+	// and remove all scaling from the matrix
+	if(scaling.x){
+		columns[0] /= scaling.x;
+	}
+	if(scaling.y){
+		columns[1] /= scaling.y;
+	}
+	if(scaling.z){
+		columns[2] /= scaling.z;
+	}
+
+	// build a 3x3 rotation matrix
+	ci::Matrix33f m(columns[0].x, columns[1].x, columns[2].x,
+					columns[0].y, columns[1].y, columns[2].y,
+					columns[0].z, columns[1].z, columns[2].z, true);
+
+	// and generate the rotation quaternion from it
+	rotation = ci::Quatf(m);
+}
+
 
 void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 	if(ti.mPhase == ds::ui::TouchInfo::Added){
@@ -199,15 +240,25 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 		mSpriteMomentum.activate();
 		checkBounds();
 	} else if(ti.mPhase == ds::ui::TouchInfo::Moved && ti.mNumberFingers > 0){
+		auto deltaPoint = ti.mDeltaPoint;
+		if(mHandleRotatedTouches){
+			auto globalTrans = getGlobalTransform();
+			ci::Vec3f scaley;
+			ci::Quatf rotty;
+			ci::Vec3f poss;
+			decompose(globalTrans, scaley, rotty, poss);
+			deltaPoint.rotateZ(-ci::toDegrees(rotty.getRoll()));
+		}
+
 		if(mScroller){
 			if(mVertical){
-				float yDelta = ti.mDeltaPoint.y / ti.mNumberFingers;
+				float yDelta = deltaPoint.y / ti.mNumberFingers;
 				if(getPerspective()){
 					yDelta = -yDelta;
 				}
 				mScroller->move(0.0f, yDelta);
 			} else {
-				mScroller->move(ti.mDeltaPoint.x / ti.mNumberFingers, 0.0f);
+				mScroller->move(deltaPoint.x / ti.mNumberFingers, 0.0f);
 			}
 			scrollerUpdated(mScroller->getPosition().xy());
 		}
