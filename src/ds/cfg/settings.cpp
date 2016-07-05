@@ -194,6 +194,9 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	const std::string   X_SZ("x");
 	const std::string   Y_SZ("y");
 	const std::string   Z_SZ("z");
+	const std::string   W_SZ("w");
+	const std::string   H_SZ("h");
+
 
 	// FLOAT
 	const std::string   FLOAT_PATH("settings/float");
@@ -207,11 +210,19 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	const std::string   RECT_PATH("settings/rect");
 	for (auto it = xml.begin(RECT_PATH); it != end; ++it) {
 		const std::string   name = it->getAttributeValue<std::string>(NAME_SZ);
-		const cinder::Rectf value(it->getAttributeValue<float>(L_SZ),
-			it->getAttributeValue<float>(T_SZ),
-			it->getAttributeValue<float>(R_SZ),
-			it->getAttributeValue<float>(B_SZ));
+		float t, l, b, r;
+		l = it->getAttributeValue<float>(L_SZ);
+		t = it->getAttributeValue<float>(T_SZ);
+		if(it->hasAttribute(R_SZ)){
+			r = it->getAttributeValue<float>(R_SZ);
+			b =	it->getAttributeValue<float>(B_SZ);
+		} else if(it->hasAttribute(W_SZ)){
+			r = l + it->getAttributeValue<float>(W_SZ);
+			b = t + it->getAttributeValue<float>(H_SZ);
+		}
+		const cinder::Rectf value(l, t, r, b);
 		add_item(name, mRect, value);
+		
 	}
 
 	// INT
