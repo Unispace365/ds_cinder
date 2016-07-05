@@ -66,7 +66,7 @@ We are using **Visual Studio property sheets** to manage basic settings like lib
 To compile with GSTREAMER
 -------------------------
 
-Install **Gstreamer 1.8.1** runtime and development files. Use the x86, not x64 versions.
+Install **Gstreamer 1.8.1** runtime and development files. Use the x86, not x64 versions. Select "complete" when installing. These installers should create an environment variable for GSTREAMER_1_0_ROOT_X86 which points to the root gstreamer directory, typically at c:/gstreamer/1.0/x86/
   - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.8.1/gstreamer-1.0-x86-1.8.1.msi)
   - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.8.1/gstreamer-1.0-devel-x86-1.8.1.msi)
 
