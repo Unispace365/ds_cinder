@@ -26,7 +26,7 @@ Installation
 This version of DS Cinder requires **Visual Studio 2013** installed.
 
 -  You'll need some environment variables set:
-   - CINDER_086 points to the unzipped 0.8.6 cinder distribution folder ([Version 0.8.6 for VC 2013](http://libcinder.org/releases/cinder_0.8.6_vc2013.zip)). 
+   - CINDER_086 points to the unzipped 0.8.6 cinder distribution folder ([Version 0.8.6 for VC 2013](https://libcinder.org/static/releases/cinder_0.8.6_vc2013.zip)). 
   
    - DS_PLATFORM_086 points to the root of this repository. 
 
@@ -66,13 +66,8 @@ We are using **Visual Studio property sheets** to manage basic settings like lib
 To compile with GSTREAMER
 -------------------------
 
-Install **Gstreamer 1.8.1** runtime and development files available [from the gstreamer site][1]. Use the x86, not x64 versions.
-  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.6.3/gstreamer-1.0-x86-1.8.1.msi)
-  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.6.3/gstreamer-1.0-devel-x86-1.8.1.msi)
+Install **Gstreamer 1.8.1** runtime and development files. Use the x86, not x64 versions. Select "complete" when installing. These installers should create an environment variable for GSTREAMER_1_0_ROOT_X86 which points to the root gstreamer directory, typically at c:/gstreamer/1.0/x86/
+  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.8.1/gstreamer-1.0-x86-1.8.1.msi)
+  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.8.1/gstreamer-1.0-devel-x86-1.8.1.msi)
 
-----------
-
-
-  [1]: http://gstreamer.freedesktop.org/data/pkg/windows/
-  [2]: http://lmgtfy.com/?q=directx%20sdk%20download
   

@@ -91,9 +91,9 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 {
 	for (int k=0; k<LEVEL_SIZE; ++k) HAS_LEVEL[k] = false;
 
-	string				level = settings.getText("logger:level", 0, "info"),
-							module = settings.getText("logger:module", 0, EMPTY_SZ),
-							async = settings.getText("logger:async", 0, EMPTY_SZ),
+	string				level = settings.getText("logger:level", 0, "all"),
+							module = settings.getText("logger:module", 0, "all"),
+							async = settings.getText("logger:async", 0, "true"),
 							file = settings.getText("logger:file", 0, EMPTY_SZ);
 	ds::tokenize(level, ',', [](const std::string& s) { setup_level(s); });
 	if (!module.empty()) {
@@ -107,7 +107,7 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 
 	// If I wasn't supplied a filename, try and find a logs folder
 	if (file.empty()) {
-	file = ds::Environment::getAppFolder("logs");
+		file = ds::Environment::getAppFolder("logs");
 	}
 	if (!file.empty()) {
 		Poco::Path path(file);

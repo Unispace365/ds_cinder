@@ -30,6 +30,7 @@ ImageButton::ImageButton(SpriteEngine& eng, const std::string& downImage, const 
 // 	setTransparent(false);
 // 	setColor(ci::Color(0.5f, 0.8f, 0.2f));
 
+	mLayoutFixedAspect = true;
 	mDown.mExportWithXml = false;
 	mUp.mExportWithXml = false;
 
@@ -127,6 +128,10 @@ void ImageButton::setNormalImage(const std::string& imageFile){
 
 void ImageButton::setStateChangeFn(const std::function<void(const bool pressed)>& func) {
 	mStateChangeFunction = func;
+}
+
+void ImageButton::setNormalImageColor(const ci::Color& upColor){
+	mUp.setColor(upColor);
 }
 
 void ImageButton::setHighImageColor(const ci::Color& downColor){

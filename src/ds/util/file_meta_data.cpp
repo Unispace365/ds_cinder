@@ -2,6 +2,9 @@
 
 #include <Poco/Path.h>
 #include <Poco/File.h>
+#include <boost/filesystem.hpp>
+#include <ds/app/environment.h>
+#include <ds/debug/logger.h>
 
 namespace ds {
 
@@ -66,7 +69,7 @@ const std::string& FileMetaData::findValue(const std::string& key) const {
 }
 
 
-bool FileMetaData::safeFileExistsCheck(const std::string filePath, const bool allowDirectory){
+bool safeFileExistsCheck(const std::string filePath, const bool allowDirectory){
 	Poco::File xmlFile(filePath);
 	bool fileExists = false;
 	try{
@@ -81,6 +84,20 @@ bool FileMetaData::safeFileExistsCheck(const std::string filePath, const bool al
 
 	return fileExists;
 
+}
+
+std::string filePathRelativeTo(const std::string &base, const std::string &relative){
+	if(relative.find("%APP%") != std::string::npos){
+		return ds::Environment::expand(relative);
+	}
+
+	using namespace boost::filesystem;
+	boost::system::error_code e;
+	std::string ret = canonical(path(relative), path(base).parent_path(), e).string();
+	if(e.value() != boost::system::errc::success) {
+		DS_LOG_WARNING("Trying to use bad relative file path: " << relative << ": " << e.message());
+	}
+	return ret;
 }
 
 } // namespace ds

@@ -3,8 +3,12 @@
 #define DS_APP_EVENT_H_
 
 #include "event_registry.h"
+#include <cinder/Vector.h>
 
 namespace ds {
+namespace ui {
+class Sprite;
+}
 
 /**
  * \class ds::Event
@@ -41,6 +45,17 @@ public:
 	const T* const			as() const;
 
 	int						mWhat;
+
+	/** An event-specific parameter, for client usage. Generally global space. May be empty	*/
+	ci::Vec3f				mEventOrigin;
+	/** An event-specific parameter, for client usage. Defaults to nullptr	*/
+	ds::ui::Sprite*			mSpriteOriginator;
+	/** An event-specific ID. Could be used to lookup info from a db, etc. Default=0*/
+	int						mUserId;
+	/** An event-specific size. For instance if you want launch a panel at a certain width */
+	ci::Vec3f				mUserSize;
+	/** An event-specific string. Defaults to empty */
+	std::string				mUserStringData;
 };
 
 // Template impl
@@ -58,6 +73,11 @@ const T* const Event::as() const
 // End of Template impl
 
 
+// Only works in Visual Studio. GCC will likely mangle type names differently, sorry.
+static const std::string demangleTypeName(const std::string& n){
+	return n.substr(n.find_last_of(':') + 1);
+}
+
 /**
 * \class ds::event::RegisteredEvent
 * \brief All events should derive from this class, to be properly
@@ -71,15 +91,17 @@ public:
 	// Unique channel name for this message
 	static const std::string&		CHANNEL() { return sENTRY.getChannel(); }
 
+	static const std::string		NAME() { return demangleTypeName(typeid(Derived).name()); }
+
 protected:
-	RegisteredEvent()				: Event(sENTRY.getWhat()) { }
+	RegisteredEvent() : Event(sENTRY.getWhat()) {}
 
 private:
 	static event::Registry::Entry	sENTRY;
 };
 
 template<class Derived>
-event::Registry::Entry RegisteredEvent<Derived>::sENTRY(typeid(Derived).name());
+event::Registry::Entry RegisteredEvent<Derived>::sENTRY(NAME());
 
 } // namespace ds
 

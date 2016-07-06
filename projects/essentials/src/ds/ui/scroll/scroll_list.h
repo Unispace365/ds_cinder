@@ -72,6 +72,11 @@ class ScrollArea;
 		// NOTE: not tested yet for perspective OR horizontal scrolling
 		void						setGridLayout(const bool doGrid, const ci::Vec2f& gridIncrement);
 
+		//when layouts happen, will do a grid instead of a horiz or vert list. when using vertical scrolling it will be adjusted by target column number and gapping will be the gap between each column
+		//when using horizontal scrollin it will be adjusted by target row number and gapping will be the gap between each row; 
+		// fillCoulumnFirst will change the direction of filling order, default is true , set to false will fill the row fisrt 
+		void						setSpecialLayout(const bool doGrid, const int targetRow, const int targetColumn, const float gapping);
+
 	protected:
 
 		// We only create enough sprites that are onscreen at one time.
@@ -103,6 +108,7 @@ class ScrollArea;
 		virtual void						layout();
 		virtual void						layoutItems();
 		virtual void						layoutItemsGrid();
+		virtual void						layoutItemsSpecial();
 
 		virtual void						clearItems();
 		virtual void						assignItems();
@@ -122,6 +128,7 @@ class ScrollArea;
 		float								mIncrementAmount;
 		bool								mFillFromTop;
 		bool								mGridLayout;
+		bool								mSpecialLayout;
 		ci::Vec2f							mGridIncrement;
 
 		// for animate on
@@ -137,6 +144,11 @@ class ScrollArea;
 
 		// Track update time so touches can't happen while the list is being dragged cause of lazy fingers
 		Poco::Timestamp::TimeVal			mLastUpdateTime;
+
+		int									mTargetRow;
+		int									mTargetColumn;
+		float								mGapping;
+		bool								mFillColumnFirst;
 	};
 }
 }

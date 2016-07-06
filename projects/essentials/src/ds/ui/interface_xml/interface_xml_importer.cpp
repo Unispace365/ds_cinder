@@ -3,7 +3,13 @@
 #include "stylesheet_parser.h"
 
 #include <ds/app/engine/engine.h>
-
+#include <ds/app/event_registry.h>
+#include <ds/app/event.h>
+#include <ds/app/environment.h>
+#include <ds/app/engine/engine_cfg.h>
+#include <ds/cfg/cfg_text.h>
+#include <ds/cfg/settings.h>
+#include <ds/debug/logger.h>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/gradient_sprite.h>
 #include <ds/ui/sprite/image.h>
@@ -18,32 +24,31 @@
 #include <ds/ui/scroll/centered_scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
 #include <ds/ui/scroll/scroll_bar.h>
+#include <ds/ui/soft_keyboard/entry_field.h>
+#include <ds/ui/soft_keyboard/soft_keyboard.h>
+#include <ds/ui/soft_keyboard/soft_keyboard_builder.h>
 #include <ds/ui/sprite/border.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/ui/sprite/circle_border.h>
-#include <ds/app/environment.h>
-#include <ds/app/engine/engine_cfg.h>
-#include <ds/cfg/cfg_text.h>
-#include <ds/cfg/settings.h>
 #include <ds/util/string_util.h>
-#include <ds/debug/logger.h>
+#include <ds/util/color_util.h>
+#include <ds/util/file_meta_data.h>
 
-#include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
+#include <boost/filesystem.hpp>
+#include <boost/foreach.hpp>
+#include <boost/regex.hpp>
 
 #include <Poco/Path.h>
 
 #include <typeinfo>
 #include <iostream>
 #include <fstream>
-#include <boost/regex.hpp>
-#include <boost/filesystem.hpp>
 
 namespace {
 static std::unordered_map<std::string, ds::ui::XmlImporter::XmlPreloadData>	 PRELOADED_CACHE;
 static bool AUTO_CACHE = false;
 }
-
 
 namespace ds {
 namespace ui {
@@ -54,223 +59,10 @@ static const std::string INVALID_VALUE = "UNACCEPTABLE!!!!";
 static std::string sCurrentFile;
 
 
-
-std::string XmlImporter::ARGBToHex(ci::ColorA theColor){
-	return ARGBToHex((int)(theColor.a * 255.0f), (int)(theColor.r * 255.0f), (int)(theColor.g * 255.0f), (int)(theColor.b * 255.0f));
-}
-
-std::string XmlImporter::ARGBToHex(int aNum, int rNum, int gNum, int bNum){
-	std::string result;
-	result.append("#");
-	char a[255];
-	sprintf_s(a, "%.2X", aNum);
-	result.append(a);
-	char r[255];
-	sprintf_s(r, "%.2X", rNum);
-	result.append(r);
-	char g[255];
-	sprintf_s(g, "%.2X", gNum);
-	result.append(g);
-	char b[255];
-	sprintf_s(b, "%.2X", bNum);
-	result.append(b);
-	return result;
-}
-
-std::string XmlImporter::RGBToHex(ci::Color theColor){
-	return RGBToHex((int)(theColor.r * 255.0f), (int)(theColor.g * 255.0f), (int)(theColor.b * 255.0f));
-}
-
-std::string XmlImporter::RGBToHex(int rNum, int gNum, int bNum){
-	std::string result;
-	result.append("#");
-	char r[255];
-	sprintf_s(r, "%.2X", rNum);
-	result.append(r);
-	char g[255];
-	sprintf_s(g, "%.2X", gNum);
-	result.append(g);
-	char b[255];
-	sprintf_s(b, "%.2X", bNum);
-	result.append(b);
-	return result;
-}
-
-// Grabs a color from the engine's supplied color list
-static ci::ColorA retrieveColorFromEngine(const std::string &color, const ds::ui::SpriteEngine& engine){
-	return engine.getColors().getColorFromName(color);
-}
-
-// Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb
-ci::ColorA XmlImporter::parseHexColor( const std::string &color ) {
-
-	std::string s = color;
-
-	if (boost::starts_with( s, "#" ))
-		boost::erase_head( s, 1 );
-
-	std::stringstream converter(s);
-	unsigned int value;
-	converter >> std::hex >> value;
-
-	float a = (s.length() > 6)
-		?  ((value >> 24) & 0xFF) / 255.0f
-		: 1.0f;
-	float r = ((value >> 16) & 0xFF) / 255.0f;
-	float g = ((value >> 8) & 0xFF) / 255.0f;
-	float b = ((value) & 0xFF) / 255.0f;
-
-	return ci::ColorA(r, g, b, a);
-}
-
-ci::ColorA XmlImporter::parseColor(const std::string &color, const ds::ui::SpriteEngine& engine){
-	std::string s = color;
-
-	//If we have colors in our engine, and this isn't a hex value
-	if( !engine.getColors().empty() && !boost::starts_with(s, "#")){
-		return retrieveColorFromEngine(color, engine);
-	}
-
-	return XmlImporter::parseHexColor(color);
-
-}
-
-static std::string unparseColor(const ci::ColorA& color){
-	// TODO: look up engine colors
-	return XmlImporter::ARGBToHex(color);
-}
-
-// Example: size="400, 400" the space after the comma is required to read the second and third token
-ci::Vec3f parseVector( const std::string &s ) {
-	auto tokens = ds::split( s, ", ", true );
-	ci::Vec3f v;
-	v.x = tokens.size() > 0 ? ds::string_to_float(tokens[0]) : 0.0f;
-	v.y = tokens.size() > 1 ? ds::string_to_float(tokens[1]) : 0.0f;
-	v.z = tokens.size() > 2 ? ds::string_to_float(tokens[2]) : 0.0f;
-
-	return v;
-}
-
-static std::string unparseVector(const ci::Vec3f& v){
-	std::stringstream ss;
-	ss << v.x << ", " << v.y << ", " << v.z;
-	return ss.str();
-}
-
-static std::string unparseVector(const ci::Vec2f& v){
-	std::stringstream ss;
-	ss << v.x << ", " << v.y;
-	return ss.str();
-}
-
-static bool parseBoolean( const std::string &s ) {
-	return (s == "true" || s == "TRUE" || s == "yes" || s == "YES" || s == "on" || s == "ON" ) ? true : false;
-}
-
-static std::string unparseBoolean(const bool b){
-	if(b) return "true";
-	return "false";
-}
-
-static ds::ui::BlendMode parseBlendMode( const std::string &s ) {
-	using namespace ds::ui;
-	if (boost::iequals( s, "normal" ))			return NORMAL;
-	else if (boost::iequals( s, "multiply" ))	return MULTIPLY;
-	else if (boost::iequals( s, "screen" ))		return SCREEN;
-	else if (boost::iequals( s, "add" ))		return ADD;
-	else if (boost::iequals( s, "subtract" ))	return SUBTRACT;
-	else if (boost::iequals( s, "lighten" ))	return LIGHTEN;
-	else if (boost::iequals( s, "darken" ))		return DARKEN;
-	return NORMAL;
-}
-
-// TODO: add the rest of the permutations, if you want em
-const ds::BitMask XmlImporter::parseMultitouchMode(const std::string& s){
-	using namespace ds::ui;
-	if(boost::iequals(s, "info"))				return MULTITOUCH_INFO_ONLY;
-	else if(boost::iequals(s, "pos"))			return MULTITOUCH_CAN_POSITION;
-	else if(boost::iequals(s, "all"))			return MULTITOUCH_NO_CONSTRAINTS;
-	else if(boost::iequals(s, "scale"))			return MULTITOUCH_CAN_SCALE;
-	else if(boost::iequals(s, "pos_x"))			return MULTITOUCH_CAN_POSITION_X;
-	else if(boost::iequals(s, "pos_y"))			return MULTITOUCH_CAN_POSITION_Y;
-	else if(boost::iequals(s, "pos_scale"))		return MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_SCALE;
-	else if(boost::iequals(s, "pos_rotate"))	return MULTITOUCH_CAN_POSITION | MULTITOUCH_CAN_ROTATE;
-	else if(boost::iequals(s, "rotate"))		return MULTITOUCH_CAN_ROTATE;
-	return MULTITOUCH_INFO_ONLY;
-}
-
-const std::string XmlImporter::getMultitouchStringForBitMask(const ds::BitMask& s){
-	using namespace ds::ui;
-	if(s & MULTITOUCH_INFO_ONLY){
-		return "info";
-	} else if(s & MULTITOUCH_CAN_POSITION && s & MULTITOUCH_CAN_ROTATE && s & MULTITOUCH_CAN_SCALE){
-		return "all";
-	} else if(s & MULTITOUCH_CAN_POSITION){
-		if(s & MULTITOUCH_CAN_ROTATE){
-			return "pos_rotate";
-		}
-		if(s & MULTITOUCH_CAN_SCALE){
-			return "pos_scale";
-		}
-
-		if(s & MULTITOUCH_CAN_POSITION_X && s & MULTITOUCH_CAN_POSITION_Y){
-			return "pos";
-		} else if(s & MULTITOUCH_CAN_POSITION_X){
-			return "pos_x";
-		} else if(s & MULTITOUCH_CAN_POSITION_Y){
-			return "pos_y";
-		}
-	} else if(s & MULTITOUCH_CAN_ROTATE){
-		return "rotate";
-	}  else if(s & MULTITOUCH_CAN_SCALE){
-		return "scale";
-	}
-
-	return "info";
-}
-
-std::string XmlImporter::getLayoutSizeModeString(const int sizeMode){
-	std::string sizeString = "fixed";
-	if(sizeMode == ds::ui::LayoutSprite::kFlexSize)	sizeString = "flex";
-	else if(sizeMode == ds::ui::LayoutSprite::kStretchSize) sizeString = "stretch";
-	else if(sizeMode == ds::ui::LayoutSprite::kFillSize) sizeString = "fill";
-	return sizeString;
-}
-
-std::string XmlImporter::getLayoutVAlignString(const int vAlign){
-	std::string sizeString = "top";
-	if(vAlign == ds::ui::LayoutSprite::kMiddle)	sizeString = "middle";
-	else if(vAlign == ds::ui::LayoutSprite::kBottom)	sizeString = "bottom";
-	return sizeString;
-}
-
-std::string XmlImporter::getLayoutHAlignString(const int vAlign){
-	std::string sizeString = "left";
-	if(vAlign == ds::ui::LayoutSprite::kCenter)	sizeString = "center";
-	else if(vAlign == ds::ui::LayoutSprite::kRight)	sizeString = "right";
-	return sizeString;
-}
-
-std::string XmlImporter::getLayoutTypeString(const ds::ui::LayoutSprite::LayoutType& propertyValue){
-	std::string sizeString = "none";
-	if(propertyValue == ds::ui::LayoutSprite::kLayoutVFlow)	sizeString = "vert";
-	else if(propertyValue == ds::ui::LayoutSprite::kLayoutHFlow) sizeString = "horiz";
-	else if(propertyValue == ds::ui::LayoutSprite::kLayoutSize)	sizeString = "size";
-	return sizeString;
-}
-
-std::string XmlImporter::getShrinkToChildrenString(const ds::ui::LayoutSprite::ShrinkType& propertyValue){
-	std::string sizeString = "none";
-	if(propertyValue == ds::ui::LayoutSprite::kShrinkWidth)	sizeString = "width";
-	else if(propertyValue == ds::ui::LayoutSprite::kShrinkHeight) sizeString = "height";
-	else if(propertyValue == ds::ui::LayoutSprite::kShrinkBoth)	sizeString = "both";
-	return sizeString;
-}
-
 std::string XmlImporter::getGradientColorsAsString(ds::ui::Gradient* grad){
 	if(!grad) return "";
 	std::stringstream ss;
-	ss << unparseColor(grad->getColorTL()) << ", " << unparseColor(grad->getColorTR()) << ", " << unparseColor(grad->getColorBR()) << ", " << unparseColor(grad->getColorBL());
+	ss << ds::unparseColor(grad->getColorTL()) << ", " << ds::unparseColor(grad->getColorTR()) << ", " << ds::unparseColor(grad->getColorBR()) << ", " << ds::unparseColor(grad->getColorBL());
 	return ss.str();
 }
 
@@ -320,17 +112,17 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 	if(sp.mLayoutRPad != DEFAULT_LAYOUT_PAD) xml.setAttribute("r_pad", sp.mLayoutRPad);
 	if(sp.mLayoutFudge != DEFAULT_LAYOUT_SIZEFUDGE) xml.setAttribute("layout_fudge", unparseVector(sp.mLayoutFudge));
 	if(sp.mLayoutSize != DEFAULT_LAYOUT_SIZEFUDGE) xml.setAttribute("layout_size", unparseVector(sp.mLayoutSize));
-	if(sp.mLayoutUserType != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_size_mode", getLayoutSizeModeString(sp.mLayoutUserType));
-	if(sp.mLayoutVAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_v_align", getLayoutVAlignString(sp.mLayoutVAlign));
-	if(sp.mLayoutHAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_h_align", getLayoutHAlignString(sp.mLayoutHAlign));
+	if(sp.mLayoutUserType != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_size_mode", LayoutSprite::getLayoutSizeModeString(sp.mLayoutUserType));
+	if(sp.mLayoutVAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_v_align", LayoutSprite::getLayoutVAlignString(sp.mLayoutVAlign));
+	if(sp.mLayoutHAlign != DEFAULT_LAYOUT_ALIGN_USERTYPE) xml.setAttribute("layout_h_align", LayoutSprite::getLayoutHAlignString(sp.mLayoutHAlign));
 	if(sp.getCornerRadius() > 0.0f) xml.setAttribute("corner_radius", sp.getCornerRadius());
 
 	ds::ui::LayoutSprite* ls = dynamic_cast<ds::ui::LayoutSprite*>(&sp);
 	if(ls){
-		if(ls->getLayoutType() != DEFAULT_LAYOUT_TYPE) xml.setAttribute("layout_type", getLayoutTypeString(ls->getLayoutType()));
+		if(ls->getLayoutType() != DEFAULT_LAYOUT_TYPE) xml.setAttribute("layout_type", LayoutSprite::getLayoutTypeString(ls->getLayoutType()));
 		if(ls->getSpacing() != DEFAULT_LAYOUT_SPACING) xml.setAttribute("layout_spacing", ls->getSpacing());
-		if(ls->getShrinkToChildren() != DEFAULT_SHRINK_TYPE) xml.setAttribute("shrink_to_children", getShrinkToChildrenString(ls->getShrinkToChildren()));
-		if(ls->getOverallAlignment() != DEFAULT_SHRINK_TYPE) xml.setAttribute("overall_alignment", getLayoutVAlignString(ls->getOverallAlignment()));
+		if(ls->getShrinkToChildren() != DEFAULT_SHRINK_TYPE) xml.setAttribute("shrink_to_children", LayoutSprite::getShrinkToChildrenString(ls->getShrinkToChildren()));
+		if(ls->getOverallAlignment() != DEFAULT_SHRINK_TYPE) xml.setAttribute("overall_alignment", LayoutSprite::getLayoutVAlignString(ls->getOverallAlignment()));
 	}
 
 	ds::ui::Text* txt = dynamic_cast<ds::ui::Text*>(&sp);
@@ -350,7 +142,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 		}
 
 		xml.setAttribute("resize_limit", unparseVector(ci::Vec2f(mtxt->getResizeLimitWidth(), mtxt->getResizeLimitHeight())));
-		if(mtxt->getAlignment() != ds::ui::Alignment::kLeft) xml.setAttribute("text_align", getLayoutHAlignString(mtxt->getAlignment()));
+		if(mtxt->getAlignment() != ds::ui::Alignment::kLeft) xml.setAttribute("text_align", LayoutSprite::getLayoutHAlignString(mtxt->getAlignment()));
 	}
 
 	ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(&sp);
@@ -367,6 +159,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 			if(!imgB->getNormalImagePath().empty()) xml.setAttribute("up_image", ds::Environment::contract(imgB->getNormalImagePath()));
 			if(!imgB->getHighImagePath().empty()) xml.setAttribute("down_image", ds::Environment::contract(imgB->getHighImagePath()));
 		}
+		xml.setAttribute("up_image_color", unparseColor(imgB->getNormalImageColor()));
 		xml.setAttribute("down_image_color", unparseColor(imgB->getHighImageColor()));
 		xml.setAttribute("btn_touch_padding", imgB->getPad());
 	}
@@ -410,27 +203,6 @@ ci::XmlTree XmlImporter::createXmlFromSprite(ds::ui::Sprite& sprite){
 	return newXml;
 }
 
-static std::string filePathRelativeTo(const std::string &base, const std::string &relative) {
-	if(relative.find("%APP%") != std::string::npos){
-		return ds::Environment::expand(relative);
-	}
-
-	using namespace boost::filesystem;
-	boost::system::error_code e;
-	std::string ret = canonical( path(relative), path(base).parent_path(), e ).string();
-	if (e.value() != boost::system::errc::success) {
-		DS_LOG_WARNING( "Trying to use bad relative file path: " << relative << ": " << e.message() );
-	}
-	return ret;
-}
-
-// a little convenience
-static float getFloatFromString(const std::string& value){
-	float floatValue = 0.0f;
-	ds::string_to_value(value, floatValue);
-	return floatValue;
-}
-
 void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &attr, const std::string &referer) {
 	std::string property = attr.getName();
 	setSpriteProperty(sprite, property, attr.getValue(), referer);
@@ -438,7 +210,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, ci::XmlTree::Attr &a
 
 void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& property, const std::string& value, const std::string &referer) {
 	//Cache the engine for all our color calls
-	const ds::ui::SpriteEngine& engine = sprite.getEngine();
+	ds::ui::SpriteEngine& engine = sprite.getEngine();
 
 	// This is a pretty long "case switch" (well, effectively a case switch).
 	// It seems like it'd be slow, but in practice, it's relatively fast.
@@ -476,7 +248,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "clipping") {
 		sprite.setClipping(parseBoolean(value));
 	} else if(property == "blend_mode") {
-		sprite.setBlendMode(parseBlendMode(value));
+		sprite.setBlendMode(ds::ui::getBlendModeByString(value));
 	} else if(property == "enable"){
 		sprite.enable(parseBoolean(value));
 	} else if(property == "multitouch"){
@@ -534,6 +306,12 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		sprite.mLayoutFudge = parseVector(value).xy();
 	} else if(property == "layout_size"){
 		sprite.mLayoutSize = parseVector(value).xy();
+	} else if(property == "on_tap_event"){
+		sprite.setTapCallback([value](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+			XmlImporter::dispatchStringEvents(value, bs, pos);
+		});
+	} else if(property == "layout_fixed_aspect"){
+		sprite.mLayoutFixedAspect = parseBoolean(value);
 	}
 	else if(property == "shader") {
 		using namespace boost::filesystem;
@@ -666,6 +444,19 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	}
 
 	// Image properties
+	else if(property == "on_click_event"){
+		auto imgBtn = dynamic_cast<ImageButton*>(&sprite);
+		auto sprBtn = dynamic_cast<SpriteButton*>(&sprite);
+		if(imgBtn){
+			imgBtn->setClickFn([imgBtn, value]{
+				dispatchStringEvents(value, imgBtn, imgBtn->getGlobalPosition());
+			});
+		} else if(sprBtn){
+			sprBtn->setClickFn([sprBtn, value]{
+				dispatchStringEvents(value, sprBtn, sprBtn->getGlobalPosition());
+			});
+		}
+	}
 	else if(property == "filename" || property == "src") {
 		auto imgBtn = dynamic_cast<ImageButton*>(&sprite);
 		auto image = dynamic_cast<Image *>(&sprite);
@@ -709,8 +500,15 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			image->setHighImageColor(parseColor(value, engine));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}		
+	} else if(property == "up_image_color"){
+		auto image = dynamic_cast<ImageButton *>(&sprite);
+		if(image) {
+			image->setNormalImageColor(parseColor(value, engine));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-		
+
 	} else if(property == "btn_touch_padding") {
 		auto image = dynamic_cast<ImageButton *>(&sprite);
 		if(image) {
@@ -766,7 +564,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
-
+	// Scroll sprite properties
 	else if(property == "scroll_list_layout"){
 		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
 		if(scrollList){
@@ -775,9 +573,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-	}
-
-	else if(property == "scroll_list_animate"){
+	}else if(property == "scroll_list_animate"){
 		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
 		if(scrollList){
 			auto vec = parseVector(value);
@@ -785,9 +581,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
-	}
-
-	else if(property == "scroll_fade_colors"){
+	}else if(property == "scroll_fade_colors"){
 		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
 		ds::ui::ScrollArea* scrollArea = nullptr;
 		if(scrollList){
@@ -809,6 +603,15 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			}
 		} else {
 			DS_LOG_WARNING("Couldn't set scroll_fade_colors for this sprite ");
+		}
+	}else if (property == "scroll_area_vert"){
+		auto scrollArea = dynamic_cast<ds::ui::ScrollArea*>(&sprite);
+		if (scrollArea){
+			auto vec = parseBoolean(value);
+			scrollArea->setVertical(vec);
+		}
+		else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
 
@@ -842,13 +645,64 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set radius on a non-circle sprite of type: " << typeid(sprite).name());
 		}
-	} else if(property == "attach_state"){
+	} else if(property == "attach_state" || property == "sprite_link"){
 		// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore it.
+		return;
+	} 
+	
+	// fallback to engine-registered properites last
+	else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
 		return;
 	}
 
 	else {
 		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
+	}
+}
+void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	auto leadingBracket = value.find("{");
+	if(leadingBracket == 0){
+		auto events = ds::split(value, "},{", true);
+		for(auto it : events){
+			ds::replace(it, "{", "");
+			ds::replace(it, "}", "");
+			dispatchSingleEvent(it, bs, pos);
+		}
+	} else {
+		dispatchSingleEvent(value, bs, pos);
+	}
+	
+}
+
+void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* bs, const ci::Vec3f& globalPos){
+	auto tokens = ds::split(value, "; ", true);
+	if(!tokens.empty()){
+		std::string eventName = tokens.front();
+		ds::Event* eventy = ds::event::Registry::get().getEventCreator(eventName)();
+		if(eventy->mWhat < 1){
+			DS_DBG_CODE(DS_LOG_WARNING("Event not defined: " << eventName));
+		}
+
+		for(int i = 1; i < tokens.size(); i++){
+			auto colony = tokens[i].find(":");
+			if(colony != std::string::npos){
+				std::string paramType = tokens[i].substr(0, colony);
+				std::string paramValue = tokens[i].substr(colony + 1);
+
+				if(paramType.empty() || paramValue.empty()) continue;
+
+				if(paramType == "data"){
+					eventy->mUserStringData = paramValue;
+				} else if(paramType == "id"){
+					eventy->mUserId = ds::string_to_int(paramValue);
+				} else if(paramType == "user_size"){
+					eventy->mUserSize = parseVector(paramValue);
+				}
+			}
+		}
+		eventy->mSpriteOriginator = bs;
+		eventy->mEventOrigin = globalPos;
+		bs->getEngine().getNotifier().notify(eventy);
 	}
 }
 
@@ -908,6 +762,9 @@ bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outDat
 
 void XmlImporter::setAutoCache(const bool doCaching){
 	AUTO_CACHE = doCaching;
+	if(!AUTO_CACHE){
+		PRELOADED_CACHE.clear();
+	}
 }
 
 bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName) {
@@ -978,6 +835,23 @@ bool XmlImporter::load( ci::XmlTree &xml ) {
 		readSprite(mTargetSprite, xmlNode);
 	}
 
+	for(auto it : mSpriteLinks){
+		auto findy = mNamedSpriteMap.find(it.second);
+		if(findy != mNamedSpriteMap.end()){
+			if(it.first && findy->second){
+				EntryField* ef = dynamic_cast<EntryField*>(it.first);
+				SoftKeyboard* sfk = dynamic_cast<SoftKeyboard*>(findy->second);
+				if(ef && sfk){
+					sfk->setKeyPressFunction([ef](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
+						if(ef){
+							ef->keyPressed(character, keyType);
+						}
+					});
+				}
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -1042,6 +916,8 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::Border*>(sp)) return "border";
 	if(dynamic_cast<ds::ui::CircleBorder*>(sp)) return "circle_border";
 	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
+	if(dynamic_cast<ds::ui::SoftKeyboard*>(sp)) return "soft_keyboard";
+	if(dynamic_cast<ds::ui::EntryField*>(sp)) return "entry_field";
 	return "sprite";
 }
 
@@ -1049,75 +925,123 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, const std::string& type, const std::string& value){
 	ds::ui::Sprite* spriddy = nullptr;
 
-	if (type == "sprite") {
+	if(type == "sprite") {
 		spriddy = new ds::ui::Sprite(engine);
-	}
-	else if (type == "image") {
+	} else if(type == "image") {
 		auto image = new ds::ui::Image(engine);
 		std::string relative_file = value;
 		boost::trim(relative_file);
-		if (relative_file != "") {
+		if(relative_file != "") {
 			setSpriteProperty(*image, ci::XmlTree::Attr(nullptr, "filename", relative_file), nullptr);
 		}
 		spriddy = image;
-	}
-	else if (type == "image_with_thumbnail") {
+	} else if(type == "image_with_thumbnail") {
 		auto image = new ds::ui::ImageWithThumbnail(engine);
 		spriddy = image;
-	}
-	else if (type == "text") {
+	} else if(type == "text") {
 		auto text = new ds::ui::Text(engine);
 		auto content = value;
 		boost::trim(content);
 		text->setText(content);
 		spriddy = text;
-	}
-	else if (type == "multiline_text") {
+	} else if(type == "multiline_text") {
 		auto text = new ds::ui::MultilineText(engine);
 		auto content = value;
 		boost::trim(content);
 		text->setText(content);
 		spriddy = text;
-	}
-	else if(type == "image_button") {
+	} else if(type == "image_button") {
 		auto content = value;
 		boost::trim(content);
 		float touchPad = 0.0f;
 		if(content.size() > 0) touchPad = (float)atof(content.c_str());
 		auto imgButton = new ds::ui::ImageButton(engine, "", "", touchPad);
 		spriddy = imgButton;
-	}
-	else if(type == "sprite_button"){
+	} else if(type == "sprite_button"){
 		spriddy = new ds::ui::SpriteButton(engine);
-	}
-	else if(type == "gradient"){
+	} else if(type == "gradient"){
 		auto gradient = new ds::ui::GradientSprite(engine);
 		spriddy = gradient;
-	}
-	else if(type == "layout"){
+	} else if(type == "layout"){
 		auto layoutSprite = new ds::ui::LayoutSprite(engine);
 		spriddy = layoutSprite;
-	}
-	else if(type == "border"){
+	} else if(type == "border"){
 		spriddy = new ds::ui::Border(engine);
-	}
-	else if(type == "circle"){
+	} else if(type == "circle"){
 		spriddy = new ds::ui::Circle(engine);
-	}
-	else if(type == "circle_border"){
+	} else if(type == "circle_border"){
 		spriddy = new ds::ui::CircleBorder(engine);
-	}
-	else if(type == "scroll_list"){
+	} else if(type == "scroll_list"){
 		spriddy = new ds::ui::ScrollList(engine);
-	} 
-	else if(type == "scroll_area"){
+	} else if(type == "scroll_area"){
 		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
-	}
-	else if(type == "centered_scroll_area"){
+	} else if(type == "centered_scroll_area"){
 		spriddy = new ds::ui::CenteredScrollArea(engine, 0.0f, 0.0f);
-	}
-	else if(type == "scroll_bar"){
+	} else if(type == "scroll_bar"){
 		spriddy = new ds::ui::ScrollBar(engine);
+	} else if(type == "soft_keyboard"){
+		SoftKeyboardSettings sks;
+		auto tokens = ds::split(value, "; ", true);
+		std::string keyboardType = "standard";
+		for (auto it : tokens){
+			auto params = ds::split(it, ":", true);
+			if(params.size() < 2)continue;
+			std::string paramType = params.front();
+			if(paramType == "type"){
+				keyboardType = params[1];
+			} else if(paramType == "key_up_color"){
+				sks.mKeyUpColor = parseColor(params[1], engine);
+			} else if(paramType == "key_down_color"){
+				sks.mKeyDownColor = parseColor(params[1], engine);
+			} else if(paramType == "key_text_offset"){
+				sks.mKeyTextOffset = parseVector(params[1]).xy();
+			} else if(paramType == "key_touch_padding"){
+				sks.mKeyTouchPadding = ds::string_to_float(params[1]);
+			} else if(paramType == "key_initial_position"){
+				sks.mKeyInitialPosition = parseVector(params[1]).xy();
+			} else if(paramType == "key_scale"){
+				sks.mKeyScale = ds::string_to_float(params[1]);
+			}
+		}
+		if(keyboardType == "lowercase"){
+			spriddy = SoftKeyboardBuilder::buildLowercaseKeyboard(engine, sks);
+		} else if(keyboardType == "pinpad"){
+			spriddy = SoftKeyboardBuilder::buildPinPadKeyboard(engine, sks);
+		} else {
+			spriddy = SoftKeyboardBuilder::buildStandardKeyboard(engine, sks);
+		}
+	} else if(type == "entry_field"){
+		EntryFieldSettings efs;
+		auto tokens = ds::split(value, "; ", true);
+		for(auto it : tokens){
+			auto colony = it.find(":");
+			if(colony != std::string::npos){
+				std::string paramType = it.substr(0, colony);
+				std::string paramValue = it.substr(colony + 1);
+
+				if(paramType.empty() || paramValue.empty())continue;
+				if(paramType == "text_config"){
+					efs.mTextConfig = paramValue;
+				} else if(paramType == "cursor_size"){
+					efs.mCursorSize = parseVector(paramValue).xy();
+				} else if(paramType == "field_size"){
+					efs.mFieldSize = parseVector(paramValue).xy();
+				} else if(paramType == "cursor_offset"){
+					efs.mCursorOffset = parseVector(paramValue).xy();
+				} else if(paramType == "cursor_color"){
+					efs.mCursorColor = parseColor(paramValue, engine);
+				} else if(paramType == "blink_rate"){
+					efs.mBlinkRate = ds::string_to_float(paramValue);
+				} else if(paramType == "animate_rate"){
+					efs.mAnimationRate = ds::string_to_float(paramValue);
+				}
+			}
+		}
+
+		auto ef =  new EntryField(engine, efs);
+		ef->focus();
+		spriddy = ef;
+	
 	}
 
 	return spriddy;
@@ -1184,6 +1108,10 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 	} else {
 		ds::ui::Sprite* spriddy = createSpriteByType(engine, type, value);
 
+		if(!spriddy){
+			spriddy = engine.createSpriteImporter(type);
+		}
+
 		if(!spriddy && mCustomImporter) {
 			spriddy = mCustomImporter(type, *node);
 		}
@@ -1195,6 +1123,12 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 		BOOST_FOREACH(auto &sprite, node->getChildren()) {
 			readSprite(spriddy, sprite);
+		}
+
+		std::string linkValue = node->getAttributeValue<std::string>("sprite_link", "");
+
+		if(!linkValue.empty()){
+			mSpriteLinks[spriddy] = linkValue;
 		}
 
 		ds::ui::ScrollArea* parentScroll = dynamic_cast<ds::ui::ScrollArea*>(parent);

@@ -155,6 +155,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mDrawOpacity = 1.0f;
 	mDelayedCallCueRef = nullptr;
 	mHasDrawLocalClientPost = false;
+	mLayoutFixedAspect = false;
 
 	mLayoutBPad = 0.0f;
 	mLayoutTPad = 0.0f;
@@ -1570,7 +1571,7 @@ void Sprite::writeTo(ds::DataBuffer& buf) {
 	}
 }
 
-void Sprite::writeClientTo(ds::DataBuffer &buf) const {
+void Sprite::writeClientTo(ds::DataBuffer &buf) {
 	writeClientAttributesTo(buf);
 	for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
 		(*it)->writeClientTo(buf);

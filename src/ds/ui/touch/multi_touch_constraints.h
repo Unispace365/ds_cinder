@@ -16,6 +16,13 @@ extern const BitMask &MULTITOUCH_CAN_POSITION_Y;
 extern const BitMask &MULTITOUCH_CAN_POSITION;
 extern const BitMask &MULTITOUCH_NO_CONSTRAINTS;
 
+
+/// Get the bitmask for short string names
+const ds::BitMask parseMultitouchMode(const std::string& s);
+
+/// Get a short string name for the bitmask supplied
+const std::string getMultitouchStringForBitMask(const ds::BitMask& s);
+
 } // namespace ui
 } // namespace ds
 

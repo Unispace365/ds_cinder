@@ -18,6 +18,8 @@ SoftKeyboard::SoftKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& s
 	, mCurrentText(L"")
 {
 	mSoftKeyboardSettings.normalizeSettings();
+
+	mLayoutFixedAspect = true;
 }
 
 void SoftKeyboard::handleKeyPress(SoftKeyboardButton* key){

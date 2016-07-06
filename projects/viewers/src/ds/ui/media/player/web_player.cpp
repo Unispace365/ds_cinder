@@ -24,6 +24,7 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mKeyboardAllow(true)
 	, mAllowTouchToggle(true)
 {
+	mLayoutFixedAspect = true;
 	enable(false);
 	setTransparent(false);
 	setColor(ci::Color::black());

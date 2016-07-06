@@ -69,7 +69,7 @@ EngineSettings::EngineSettings()
 	appP.append(appFilename);
 
 	std::string appFullPath = appP.toString();
-	if(FileMetaData::safeFileExistsCheck(appFullPath)){
+	if(safeFileExistsCheck(appFullPath)){
 		mLoadedAnySettings = true;
 		mStartupInfo << "EngineSettings: Reading app settings from " << appFullPath << std::endl;
 		readFrom(appFullPath, false);
@@ -91,7 +91,7 @@ EngineSettings::EngineSettings()
 		PROJECT_PATH = projectPath;
 
 		std::string localSettingsPath = ds::Environment::getLocalSettingsPath(localFilename);
-		if(FileMetaData::safeFileExistsCheck(localSettingsPath)){
+		if(safeFileExistsCheck(localSettingsPath)){
 			mLoadedAnySettings = true;
 			mStartupInfo << "EngineSettings: Reading app settings from " << localSettingsPath << std::endl;
 			readFrom(localSettingsPath, true);
@@ -107,13 +107,13 @@ EngineSettings::EngineSettings()
 			const std::string		app = ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + appFilename);
 			const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + appFilename);
 
-			if(FileMetaData::safeFileExistsCheck(app)){
+			if(safeFileExistsCheck(app)){
 				mLoadedAnySettings = true;
 				mStartupInfo << "EngineSettings: Reading app settings from " << app << std::endl;
 				readFrom(app, true);
 			}
 
-			if(FileMetaData::safeFileExistsCheck(local)){
+			if(safeFileExistsCheck(local)){
 				mLoadedAnySettings = true;
 				mStartupInfo << "EngineSettings: Reading app settings from " << local << std::endl;
 				readFrom(local, true);

@@ -131,6 +131,7 @@ public:
 	void				setErrorCallback(const std::function<void(const std::string& errorMessage)>&);
 
 	/// Sets the video complete callback. It's called when video is finished.
+	/// If you're in client-server mode and the server is in server-only mode (didn't actually load the video), and you have multiple clients that did load the video, you may get this message more than once
 	void				setVideoCompleteCallback(const std::function<void()> &func);
 
 	/// If a video is looping, will stop the video when the current loop completes.
@@ -180,7 +181,7 @@ protected:
 	virtual void		writeAttributesTo(DataBuffer&) override;
 	virtual void		readAttributeFrom(const char, DataBuffer&) override;
 
-	virtual void		writeClientAttributesTo(ds::DataBuffer&) const;
+	virtual void		writeClientAttributesTo(ds::DataBuffer&);
 	virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&);
 
 	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
@@ -265,6 +266,13 @@ private:
 	double				mServerDuration;
 	/// In server-only mode, track the current time position in percent
 	double				mServerPosition;
+
+	/// A flag for when a client's video completed. This is for a very specific situation:
+	/// There's a server and a client, and the server didn't load the video but the client did (server-only mode on the server)
+	/// The client's video got to the end, now the server neeeds to know about it.
+	/// The client sets this flag to true, then the next writeClientAttributesTo() sends this flag to the server and resets it to false
+	/// The server gets a message that the client has completed and immediately dispatches a video complete message.
+	bool				mClientVideoCompleted;
 
 	std::uint64_t		mBaseTime;		//Base clock for gst pipeline
 	std::uint64_t		mSeekTime;		//Position to seek to

@@ -107,7 +107,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
 	mFxaaOptions.mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
-	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::Vec2f(640.0f, 400.0f));
+	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::Vec2f(0.0f, 0.0f));
 	// Backwards compatibility with pre src-dst rect days
 	const float				DEFAULT_WINDOW_SCALE = 1.0f;
 	if (settings.getRectSize("local_rect") > 0) {
@@ -126,7 +126,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	    //! Size of dst_rect must match src_rect. This is a must! otherwise how stuff should be rendered?
 		DS_ASSERT_MSG(settings.getRectSize("src_rect") == settings.getRectSize("dst_rect"), "src_rect num must match dst_rect num.");
 
-		const ci::Rectf		empty_rect(0.0f, 0.0f, -1.0f, -1.0f);
+		const ci::Rectf		empty_rect(0.0f, 0.0f, 0.0f, 0.0f);
 
 		//! If we are asked to render discontinuous parts of the world, special care is required.
 		// here's the procedure:
@@ -204,14 +204,16 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
 	}
 
-	if(mData.mScreenRect.getWidth() < 1 || mData.mScreenRect.getHeight() < 1){
+	if(mData.mScreenRect.getWidth() < 1 || mData.mScreenRect.getHeight() < 1 || mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
 		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
 		ci::DisplayRef mainDisplay = ci::Display::getMainDisplay();
 		ci::Rectf mainDisplayRect = ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
 		mData.mSrcRect = mainDisplayRect;
 		mData.mDstRect = mainDisplayRect;
 		mData.mScreenRect = mainDisplayRect;
-		mData.mWorldSize = ci::Vec2f(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
+		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
+			mData.mWorldSize = ci::Vec2f(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
+		}
 	}
 
 	DS_LOG_INFO("Screen rect is (" << mData.mScreenRect.x1 << ", " << mData.mScreenRect.y1 << ") - (" << mData.mScreenRect.x2 << ", " << mData.mScreenRect.y2 << ")");
@@ -370,9 +372,9 @@ void Engine::setup(ds::App& app) {
 	if(w < 1 || h < 1) {
 		// GN: recent updates should make this impossible to get to.
 		//		but leaving this here in case some weird case sets the size to an invalid value
-		DS_LOG_FATAL("Engine::setup() on 0 size width or height");
-		std::cout << "ERROR Engine::setup() on 0 size width or height" << std::endl;
-		throw std::runtime_error("Engine::setup() on 0 size width or height");
+		DS_LOG_WARNING("Engine::setup() on 0 size width or height");
+		//std::cout << "ERROR Engine::setup() on 0 size width or height" << std::endl;
+		//throw std::runtime_error("Engine::setup() on 0 size width or height");
 	}
 	//////////////////////////////////////////////////////////////////////////
 

@@ -14,6 +14,7 @@
 
 #include "gstreamer/gstreamer_wrapper.h"
 #include "gstreamer/video_meta_cache.h"
+#include "private/gst_video_service.h"
 
 #include <cinder/gl/Fbo.h>
 
@@ -49,34 +50,40 @@ static std::string yuv_vert =
 "gsvTexCoord = gl_TexCoord[0].xy;"
 "}";
 
-	const static std::string yuv_frag =
-		//"precision mediump float;"
-		"uniform sampler2D gsuTexture0;"
-		"uniform sampler2D gsuTexture1;"
-		"uniform sampler2D gsuTexture2;"
-		"varying vec2 gsvTexCoord;"
-		"void main(){"
-		"float y = texture2D(gsuTexture0, gsvTexCoord).r;"
-		"float u = texture2D(gsuTexture1, gsvTexCoord).r;"
-		"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
-		"u = u - 0.5;"
-		"v = v - 0.5;"
-		"gl_FragData[0] = vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, gl_Color.a);" //  ITU.BT-601 Y’CbCr color space transposed to super space for better contrast
+const static std::string yuv_frag =
+//"precision mediump float;"
+"uniform sampler2D gsuTexture0;"
+"uniform sampler2D gsuTexture1;"
+"uniform sampler2D gsuTexture2;"
+"varying vec2 gsvTexCoord;"
+"void main(){"
+"float y = texture2D(gsuTexture0, gsvTexCoord).r;"
+"float u = texture2D(gsuTexture1, gsvTexCoord).r;"
+"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
+"u = u - 0.5;"
+"v = v - 0.5;"
+"gl_FragData[0] = vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, gl_Color.a);" //  ITU.BT-601 Y’CbCr color space transposed to super space for better contrast
 
-		// Below are other test color spaces, some ok, some poopy
-		//"gl_FragData[0] = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);" //  ITU.BT-601 Y’CbCr color space
-		//"gl_FragData[0] = vec4( y + (1.13983 * v), y - (0.39465 * u) - (0.58060 * v), y + (2.03211 * u), gl_Color.a);" // 601 color space
-		//"gl_FragData[0] = vec4( y + (1.28033 * v), y - (0.21482 * u) - (0.38059 * v), y + (2.12798 * u), gl_Color.a);" // 709 (wikipedia) color space
-		//"gl_FragData[0] = vec4( (y + (1.28033 * v)) * 1.1643835 - 0.062745, (y - (0.21482 * u) - (0.38059 * v)) * 1.1643835 - 0.062745, (y + (2.12798 * u)) * 1.1643835 - 0.062745, gl_Color.a);" // 709 (wikipedia) color space transposed to Super space (0-255, from YUV's 16-235)
-		//"gl_FragData[0] = vec4( y + (1.5701 * v), y - (0.1870 * u) - (0.4664 * v), y + (1.8556 * u), gl_Color.a);" //  ITU.BT-709 HDTV studio production in Y’CbCr  color space http://www.poynton.com/PDFs/coloureq.pdf
-		//"gl_FragData[0] = vec4( y + (1.5756 * v), y - (0.2253 * u) + (0.50 * v), y + (1.8270 * u), gl_Color.a);" //  SMPTE-240M Y’PbPr color space (totally not right)
-		//"gl_FragData[0] = vec4( y + (1.370705 * v), y - (0.698001 * u) - (0.337633 * v), y + (1.732446 * u), gl_Color.a);" // android color space
-		//"gl_FragData[0] = vec4( clamp(y + (1.28033 * v), 0, 1), clamp(y - (0.21482 * u) - (0.38059 * v), 0, 1), clamp(y + (2.12798 * u), 0, 1), gl_Color.a);" // 709 clamped color space
-		"}";
+// Below are other test color spaces, some ok, some poopy
+//"gl_FragData[0] = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);" //  ITU.BT-601 Y’CbCr color space
+//"gl_FragData[0] = vec4( y + (1.13983 * v), y - (0.39465 * u) - (0.58060 * v), y + (2.03211 * u), gl_Color.a);" // 601 color space
+//"gl_FragData[0] = vec4( y + (1.28033 * v), y - (0.21482 * u) - (0.38059 * v), y + (2.12798 * u), gl_Color.a);" // 709 (wikipedia) color space
+//"gl_FragData[0] = vec4( (y + (1.28033 * v)) * 1.1643835 - 0.062745, (y - (0.21482 * u) - (0.38059 * v)) * 1.1643835 - 0.062745, (y + (2.12798 * u)) * 1.1643835 - 0.062745, gl_Color.a);" // 709 (wikipedia) color space transposed to Super space (0-255, from YUV's 16-235)
+//"gl_FragData[0] = vec4( y + (1.5701 * v), y - (0.1870 * u) - (0.4664 * v), y + (1.8556 * u), gl_Color.a);" //  ITU.BT-709 HDTV studio production in Y’CbCr  color space http://www.poynton.com/PDFs/coloureq.pdf
+//"gl_FragData[0] = vec4( y + (1.5756 * v), y - (0.2253 * u) + (0.50 * v), y + (1.8270 * u), gl_Color.a);" //  SMPTE-240M Y’PbPr color space (totally not right)
+//"gl_FragData[0] = vec4( y + (1.370705 * v), y - (0.698001 * u) - (0.337633 * v), y + (1.732446 * u), gl_Color.a);" // android color space
+//"gl_FragData[0] = vec4( clamp(y + (1.28033 * v), 0, 1), clamp(y - (0.21482 * u) - (0.38059 * v), 0, 1), clamp(y + (2.12798 * u), 0, 1), gl_Color.a);" // 709 clamped color space
+"}";
+
 class Init {
 public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
+
+			ds::gstreamer::GstVideoService*		w = new ds::gstreamer::GstVideoService(e);
+			if(w){
+				e.addService("gst_video", *w);
+			}
 
 			e.installSprite([](ds::BlobRegistry& r){ds::ui::GstVideo::installAsServer(r); },
 							[](ds::BlobRegistry& r){ds::ui::GstVideo::installAsClient(r); });
@@ -109,6 +116,7 @@ const char mUpdateSeekTimeAtt = 94;
 const char mSeekAtt = 95;
 const char mInstancesAtt = 96;
 const char mDoSyncAtt = 97;
+const char mClientCompleteAtt = 98;
 
 const DirtyState& mPosDirty = newUniqueDirtyState();
 
@@ -185,13 +193,10 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mServerPlayStatus(Status::STATUS_STOPPED)
 	, mPan(0.0f)
 	, mStreaming(false)
+	, mClientVideoCompleted(false)
 {
+	mLayoutFixedAspect = true;
 	mBlobType = BLOB_TYPE;
-
-	try {
-	} catch(const std::exception &e) {
-		DS_LOG_WARNING("Could not load & compile shader for the video:" << e.what());
-	}
 	
 	mEngineMuted = mEngine.getMute();
 
@@ -456,6 +461,18 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		return;
 	}
 
+
+
+	auto videoService = mEngine.getService<ds::gstreamer::GstVideoService>("gst_video");
+	if(!videoService.getValidInstall()){
+		if(mErrorFn){
+			mErrorFn(videoService.getErrorMessage());
+		}
+
+
+		//return;
+	}
+
 	mStreaming = false;
 
 	// This allows apps to only load videos on certain client instances
@@ -533,6 +550,9 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 
 		mGstreamerWrapper->setVideoCompleteCallback([this](GStreamerWrapper*){
 			if(mVideoCompleteFn) mVideoCompleteFn();
+			if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
+				mClientVideoCompleted = true;
+			}
 		});
 
 		// TODO: add error callbacks to the server?
@@ -905,8 +925,10 @@ void GstVideo::setNetClock(){
 
 		markAsDirty(mSyncDirty);
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
-		//Wait for server to initiate contact
-		mGstreamerWrapper->setClientNetClock(false, mIpAddress, mNetPort, mNetClock, mBaseTime);
+		if(mNetPort > -1){
+			//Wait for server to initiate contact
+			mGstreamerWrapper->setClientNetClock(false, mIpAddress, mNetPort, mNetClock, mBaseTime);
+		}
 	}
 }
 
@@ -1131,25 +1153,34 @@ void GstVideo::readAttributeFrom(const char attrid, DataBuffer& buf){
 	}
 }
  
-void GstVideo::writeClientAttributesTo(ds::DataBuffer& buf)const{
+void GstVideo::writeClientAttributesTo(ds::DataBuffer& buf){
 	// This means that we're a client that didn't actually load any video, so no need to write any data back to the server
 	// I know it's confusing that clients can be in server-only mode, but here we are
 	if(mServerOnlyMode || mStreaming){
 		return;
 	}
 
+	if(mClientVideoCompleted){
+		ds::ScopedClientAtts scope(buf, getId());
+		buf.add(mClientCompleteAtt);
+		buf.add(ds::TERMINATOR_CHAR);
+		mClientVideoCompleted = false;
+	}
+
 	if(!getIsPlaying()){
 		return;
 	}
 
-	ds::ScopedClientAtts scope(buf, getId());
-	buf.add(mStatusAtt);
-	float curPos = static_cast<float>(getCurrentPosition());
-	// floating point errors can put this slightly above or below zero
-	if(curPos < 0.0f) curPos = 0.0f;
-	if(curPos > 1.0f) curPos = 1.0f;
-	buf.add(curPos); // position is really all we need, right?
-	buf.add(ds::TERMINATOR_CHAR);
+	{
+		ds::ScopedClientAtts scope(buf, getId());
+		buf.add(mStatusAtt);
+		float curPos = static_cast<float>(getCurrentPosition());
+		// floating point errors can put this slightly above or below zero
+		if(curPos < 0.0f) curPos = 0.0f;
+		if(curPos > 1.0f) curPos = 1.0f;
+		buf.add(curPos); // position is really all we need, right?
+		buf.add(ds::TERMINATOR_CHAR);
+	}
 }
 
 void GstVideo::readClientAttributeFrom(const char attributeId, ds::DataBuffer& buf){
@@ -1158,6 +1189,8 @@ void GstVideo::readClientAttributeFrom(const char attributeId, ds::DataBuffer& b
 	if(attributeId == mStatusAtt){
 		const float clientPos = buf.read<float>();
 		mServerPosition = clientPos;
+	} else if(attributeId == mClientCompleteAtt && mVideoCompleteFn && mServerOnlyMode){
+		mVideoCompleteFn();
 	} else {
 		DS_LOG_WARNING("Got an unexpected attribute back when reading client attributes. Probably a network packet error. Attribute=" << attributeId);
 	}

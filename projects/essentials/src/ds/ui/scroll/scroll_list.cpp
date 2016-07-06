@@ -18,6 +18,10 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	, mVerticalScrolling(vertical)
 	, mFillFromTop(true)
 	, mGridLayout(false)
+	, mSpecialLayout(false)
+	, mTargetRow(0)
+	, mTargetColumn(0)
+	, mGapping(0)
 {
 	mScrollArea = new ds::ui::ScrollArea(mEngine, getWidth(), getHeight(), mVerticalScrolling);
 	if(mScrollArea){
@@ -177,10 +181,81 @@ void ScrollList::layoutItemsGrid(){
 	}
 }
 
+void ScrollList::setSpecialLayout(const bool doSpcial, const int targetRow, const int targetColumn, const float gapping)
+{
+	mSpecialLayout = doSpcial;
+	mTargetRow = targetRow;
+	mTargetColumn = targetColumn;
+	mGapping = gapping;
+	layout();
+}
+
+void ScrollList::layoutItemsSpecial()
+{
+	float xp = mStartPositionX;
+	float yp = mStartPositionY;
+	const bool isPerspective = Sprite::getPerspective();
+	float totalHeight = yp;
+	if (mVerticalScrolling){
+		if (mTargetColumn == 0)	return;
+		totalHeight = std::ceil((float)mItemPlaceHolders.size() / mTargetColumn) * mIncrementAmount + mStartPositionY * 2.0f;
+		if (isPerspective) yp = totalHeight - mIncrementAmount - mStartPositionY;
+	}
+	else
+	{
+		if (mTargetRow == 0)	return;
+	}
+	int index = 1;
+	for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+		(*it).mX = xp;
+		(*it).mY = yp;
+
+		if (mVerticalScrolling){
+			int count = index % mTargetColumn;
+			if (count == 0){
+				if (isPerspective){
+					yp -= mIncrementAmount;
+				}
+				else {
+					yp += mIncrementAmount;
+				}
+				xp = mStartPositionX;
+			}
+			else{
+				xp += mGapping;
+			}
+
+		}
+		else {
+			int count = index % mTargetRow;
+			if (count == 0){
+				xp += mIncrementAmount;
+				yp = mStartPositionY;
+			}
+			else {
+				yp += mGapping;
+			}
+		}
+		index++;
+	}
+	if (mVerticalScrolling){
+		mScrollableHolder->setSize(getWidth(), totalHeight);
+	}
+	else{
+		xp += mStartPositionX;
+		mScrollableHolder->setSize(xp, getHeight());
+	}
+}
+
 // Override if you need to do something special with the layout, otherwise just set start positions and increment amounts
 void ScrollList::layoutItems(){
 	if(mGridLayout){
 		layoutItemsGrid();
+		return;
+	}
+	if (mSpecialLayout)
+	{
+		layoutItemsSpecial();
 		return;
 	}
 

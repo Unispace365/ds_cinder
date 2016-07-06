@@ -26,6 +26,7 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mAllowOutOfBoundsMuted(true)
 	, mPanning(0.0f)
 {
+	mLayoutFixedAspect = true;
 }
 
 void VideoPlayer::setMedia(const std::string mediaPath){

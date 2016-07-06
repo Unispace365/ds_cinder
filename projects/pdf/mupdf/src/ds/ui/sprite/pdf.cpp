@@ -20,9 +20,12 @@ class Init {
 public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
-			ds::pdf::Service*		w = new ds::pdf::Service();
-			if (!w) throw std::runtime_error("Can't create ds::pdf::Service");
-			e.addService("pdf", *w);
+			ds::pdf::Service*		w = new ds::pdf::Service(e);
+			if(w){
+				e.addService("pdf", *w);
+			} else {
+				DS_LOG_WARNING("Can't create ds::pdf::Service");
+			}
 
 			e.installSprite([](ds::BlobRegistry& r){ds::ui::Pdf::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Pdf::installAsClient(r);});
@@ -74,6 +77,7 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 {
 	// Should be unnecessary, but make sure we reference the static.
 	INIT.doNothing();
+	mLayoutFixedAspect = true;
 
 	enable(false);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
@@ -213,7 +217,6 @@ void Pdf::onScaleChanged() {
 }
 
 void Pdf::drawLocalClient() {
-	inherited::drawLocalClient();
 
 	// When drawing, we have to go through some histrionics because we
 	// want this sprite to look the same as other sprites to the outside
@@ -221,10 +224,17 @@ void Pdf::drawLocalClient() {
 	// scaled size, not the sprite size.
 	const float				tw = mHolder.getTextureWidth(),
 							th = mHolder.getTextureHeight();
-	if (tw < 1.0f || th < 1.0f) return;
+	if(tw < 1.0f || th < 1.0f){
+		ci::gl::color(0.0f, 0.0f, 0.0f, mDrawOpacity);
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), false);
+		return;
+	}
 
 	const float				targetw = getWidth()*mScale.x,
 							targeth = getHeight()*mScale.y;
+
+	inherited::drawLocalClient();
+
 	ci::gl::pushModelView();
 
 	// To draw properly, we first have to turn off whatever scaling has

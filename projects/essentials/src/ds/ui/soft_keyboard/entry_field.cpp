@@ -57,6 +57,12 @@ void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings){
 	textUpdated();
 }
 
+void EntryField::onSizeChanged(){
+	if(mTextSprite){
+		mTextSprite->setResizeLimit(getWidth(), getHeight());
+	}
+}
+
 const std::wstring EntryField::getCurrentText(){
 	if(mTextSprite){
 		return mTextSprite->getText();
@@ -105,12 +111,24 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 		textUpdated();
 	}
 
-
+	if(mKeyPressedFunction){
+		mKeyPressedFunction(keyCharacter, keyType);
+	}
 }
 
+void EntryField::setKeyPressedCallback(std::function<void(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType)> keyPressedFunc) {
+	mKeyPressedFunction = keyPressedFunc;
+}
+
+void EntryField::setTextUpdatedCallback(std::function<void(const std::wstring& fullStr)> func) {
+	mTextUpdateFunction = func;
+}
 
 void EntryField::resetCurrentText() {
 	setCurrentText(L"");
+	if(mKeyPressedFunction){
+		mKeyPressedFunction(L"", ds::ui::SoftKeyboardDefs::kDelete);
+	}
 }
 
 void EntryField::focus(){
@@ -144,6 +162,10 @@ void EntryField::unfocus(){
 void EntryField::textUpdated(){
 	cursorUpdated();
 	onTextUpdated();
+
+	if(mTextUpdateFunction && mTextSprite){
+		mTextUpdateFunction(mTextSprite->getText());
+	}
 }
 
 void EntryField::cursorUpdated(){

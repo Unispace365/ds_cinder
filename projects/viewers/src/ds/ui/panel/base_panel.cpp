@@ -28,6 +28,8 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 	, mLayoutCallback(nullptr)
 {
 
+	mLayoutFixedAspect = true;
+
 	mMomentum.setMomentumParent(this);
 	mMomentum.setMass(8.0f);
 	mMomentum.setFriction(0.5f);
@@ -54,8 +56,8 @@ void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti){
 	} else {
 		mTouching = false;
 	}
-	sendToFront();
-	userInputReceived();
+
+	activatePanel();
 
 	completeTweenScale();
 	completeTweenOpacity();
@@ -276,6 +278,16 @@ void BasePanel::checkBounds(const bool immediate) {
 	} else {
 		tweenPosition(ci::Vec3f(destinationX, destinationY, 0.0f), mAnimDuration, 0.0f, ci::EaseOutQuint());
 	}
+}
+
+void BasePanel::userInputReceived() {
+	ds::ui::Sprite::userInputReceived();
+	activatePanel();
+}
+
+void BasePanel::activatePanel() {
+	sendToFront();
+	onPanelActivated();
 }
 
 void BasePanel::tweenStarted(){

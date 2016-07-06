@@ -10,6 +10,13 @@
 
 namespace ds {
 
+/// Gets the absolute file path given a base file path a relative path to that base.
+std::string		filePathRelativeTo(const std::string &base, const std::string &relative); 
+
+/// Poco throws an exception when calling file.exists() and the file doesn't exist, so this handles that for you with no exceptions thrown.
+bool			safeFileExistsCheck(const std::string filePath, const bool allowDirectory = true);
+
+
 /**
  * \class ds::FileMetaData
  * Collection of file meta data.
@@ -28,9 +35,6 @@ public:
 	const std::string&	findValue(const std::string& key) const;
 	template <typename T>
 	T					findValueType(const std::string& key, const T error) const;
-
-	// Poco throws an 
-	static bool			safeFileExistsCheck(const std::string filePath, const bool allowDirectory = true);
 
 private:
 	std::vector<std::pair<std::string, std::string>>

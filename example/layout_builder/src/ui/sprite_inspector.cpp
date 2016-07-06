@@ -14,6 +14,7 @@
 #include <ds/ui/sprite/circle_border.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/button/image_button.h>
+#include <ds/util/color_util.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -194,7 +195,7 @@ void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const 
 }
 
 void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ds::BitMask& propertyValue){
-	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::getMultitouchStringForBitMask(propertyValue)));
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::getMultitouchStringForBitMask(propertyValue)));
 }
 
 void SpriteInspector::addSpritePropertyBlend(const std::wstring& propertyName, const ds::ui::BlendMode& blendMode){
@@ -202,11 +203,11 @@ void SpriteInspector::addSpritePropertyBlend(const std::wstring& propertyName, c
 }
 
 void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::Color propertyValue){
-	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::RGBToHex(propertyValue)));
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::RGBToHex(propertyValue)));
 }
 
 void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::ColorA propertyValue){
-	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::ARGBToHex(propertyValue)));
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ARGBToHex(propertyValue)));
 }
 
 void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::Vec2f propertyValue){
@@ -230,19 +231,19 @@ void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const 
 }
 
 void SpriteInspector::addSpritePropertyLayoutSizeMode(const std::wstring& propertyName, const int propertyValue){
-	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::getLayoutSizeModeString(propertyValue)));
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::LayoutSprite::getLayoutSizeModeString(propertyValue)));
 }
 
 void SpriteInspector::addSpritePropertyLayoutVAlign(const std::wstring& propertyName, const int propertyValue){
-	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::getLayoutVAlignString(propertyValue)));
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::LayoutSprite::getLayoutVAlignString(propertyValue)));
 }
 
 void SpriteInspector::addSpritePropertyLayoutHAlign(const std::wstring& propertyName, const int propertyValue){
-	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::getLayoutHAlignString(propertyValue)));
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::LayoutSprite::getLayoutHAlignString(propertyValue)));
 }
 
 void SpriteInspector::addSpritePropertyLayoutType(const std::wstring& propertyName, const ds::ui::LayoutSprite::LayoutType& propertyValue){
-	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::XmlImporter::getLayoutTypeString(propertyValue)));
+	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ui::LayoutSprite::getLayoutTypeString(propertyValue)));
 }
 
 void SpriteInspector::addSpritePropertyLayoutShrink(const std::wstring& propertyName, const ds::ui::LayoutSprite::ShrinkType& propertyValue){

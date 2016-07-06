@@ -152,6 +152,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	INIT.doNothing();
 
 	mBlobType = BLOB_TYPE;
+	mLayoutFixedAspect = true;
 
 	setTransparent(false);
 	setColor(1.0f, 1.0f, 1.0f);
