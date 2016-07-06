@@ -535,6 +535,11 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "layout_size"){
 		sprite.mLayoutSize = parseVector(value).xy();
 	}
+	else if(property == "shader") {
+		using namespace boost::filesystem;
+		boost::filesystem::path fullShaderPath(filePathRelativeTo(referer, value));
+		sprite.setBaseShader(fullShaderPath.parent_path().string(), fullShaderPath.filename().string());
+	}
 
 	// LayoutSprite specific (the other layout stuff could apply to any sprite)
 	else if(property == "layout_type"){
