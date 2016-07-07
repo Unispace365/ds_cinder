@@ -70,10 +70,13 @@ void ImageButton::setClickFn(const std::function<void(void)>& fn) {
 
 void ImageButton::showDown() {
 	if(mAnimDuration <= 0.0f){
+		mUp.hide();
 		mUp.setOpacity(0.0f);
+		mDown.show();
 		mDown.setOpacity(1.0f);
 	} else {
-		mUp.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic());
+		mUp.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic(), [this](){mUp.hide(); });
+		mDown.show();
 		mDown.tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseOutCubic());
 	}
 
@@ -84,11 +87,14 @@ void ImageButton::showDown() {
 
 void ImageButton::showUp() {
 	if(mAnimDuration <= 0.0f){
+		mUp.show();
 		mUp.setOpacity(1.0f);
+		mDown.hide();
 		mDown.setOpacity(0.0f);
 	} else {
+		mUp.show();
 		mUp.tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseOutCubic());
-		mDown.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic());
+		mDown.tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic(), [this](){mDown.hide(); });
 	}
 
 	if(mStateChangeFunction){
@@ -134,8 +140,16 @@ void ImageButton::setNormalImageColor(const ci::Color& upColor){
 	mUp.setColor(upColor);
 }
 
+void ImageButton::setNormalImageColor(const ci::ColorA& upColor){
+	mUp.setColorA(upColor);
+}
+
 void ImageButton::setHighImageColor(const ci::Color& downColor){
 	mDown.setColor(downColor);
+}
+
+void ImageButton::setHighImageColor(const ci::ColorA& downColor){
+	mDown.setColorA(downColor);
 }
 
 } // namespace ui
