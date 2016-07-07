@@ -248,6 +248,8 @@ EntryFields and SoftKeyboards need some parameters set for instantiation, so the
 
 **SOFT KEYBOARD PARAMETERS**
 * **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase and pinpad. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Pinpad is like an ATM pin pad. Default: standard
+* **key_up_text_config**: The text config of the text in the keys when not pressed. Default: keyboard:key:up
+* **key_dn_text_config**: The text config of the text in the keys when pressed. Default: keyboard:key:down
 * **key_up_color**: The color of the keys when not pressed. Engine colors allowed. Default: white
 * **key_down_color**: The color of the keys when pressed. Engine colors allowed. Default: medium grey
 * **key_text_offset**: Vector, amount to fudge the offset of the text inside each key. Default: -5.0, -5.0

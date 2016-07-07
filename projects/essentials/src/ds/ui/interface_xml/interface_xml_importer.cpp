@@ -978,24 +978,32 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		SoftKeyboardSettings sks;
 		auto tokens = ds::split(value, "; ", true);
 		std::string keyboardType = "standard";
-		for (auto it : tokens){
-			auto params = ds::split(it, ":", true);
-			if(params.size() < 2)continue;
-			std::string paramType = params.front();
-			if(paramType == "type"){
-				keyboardType = params[1];
-			} else if(paramType == "key_up_color"){
-				sks.mKeyUpColor = parseColor(params[1], engine);
-			} else if(paramType == "key_down_color"){
-				sks.mKeyDownColor = parseColor(params[1], engine);
-			} else if(paramType == "key_text_offset"){
-				sks.mKeyTextOffset = parseVector(params[1]).xy();
-			} else if(paramType == "key_touch_padding"){
-				sks.mKeyTouchPadding = ds::string_to_float(params[1]);
-			} else if(paramType == "key_initial_position"){
-				sks.mKeyInitialPosition = parseVector(params[1]).xy();
-			} else if(paramType == "key_scale"){
-				sks.mKeyScale = ds::string_to_float(params[1]);
+		for(auto it : tokens){
+			auto colony = it.find(":");
+			if(colony != std::string::npos){
+				std::string paramType = it.substr(0, colony);
+				std::string paramValue = it.substr(colony + 1);
+				if(paramType.empty() || paramValue.empty())continue;
+
+				if(paramType == "type"){
+					keyboardType = paramValue;
+				} else if(paramType == "key_up_text_config"){
+					sks.mKeyUpTextConfig = paramValue;
+				} else if(paramType == "key_dn_text_config"){
+					sks.mKeyDnTextConfig = paramValue;
+				} else if(paramType == "key_up_color"){
+					sks.mKeyUpColor = parseColor(paramValue, engine);
+				} else if(paramType == "key_down_color"){
+					sks.mKeyDownColor = parseColor(paramValue, engine);
+				} else if(paramType == "key_text_offset"){
+					sks.mKeyTextOffset = parseVector(paramValue).xy();
+				} else if(paramType == "key_touch_padding"){
+					sks.mKeyTouchPadding = ds::string_to_float(paramValue);
+				} else if(paramType == "key_initial_position"){
+					sks.mKeyInitialPosition = parseVector(paramValue).xy();
+				} else if(paramType == "key_scale"){
+					sks.mKeyScale = ds::string_to_float(paramValue);
+				}
 			}
 		}
 		if(keyboardType == "lowercase"){
