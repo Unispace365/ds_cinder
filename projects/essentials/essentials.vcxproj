@@ -26,6 +26,7 @@
     <ClCompile Include="src\ds\touch\touch_debug.cpp" />
     <ClCompile Include="src\ds\touch\view_dragger.cpp" />
     <ClCompile Include="src\ds\ui\button\image_button.cpp" />
+    <ClCompile Include="src\ds\ui\button\layout_button.cpp" />
     <ClCompile Include="src\ds\ui\button\sprite_button.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\stylesheet_parser.cpp" />
@@ -69,6 +70,7 @@
     <ClInclude Include="src\ds\touch\touch_debug.h" />
     <ClInclude Include="src\ds\touch\view_dragger.h" />
     <ClInclude Include="src\ds\ui\button\image_button.h" />
+    <ClInclude Include="src\ds\ui\button\layout_button.h" />
     <ClInclude Include="src\ds\ui\button\sprite_button.h" />
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h" />

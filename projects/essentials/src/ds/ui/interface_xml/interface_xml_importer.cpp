@@ -19,6 +19,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/button/sprite_button.h>
+#include <ds/ui/button/layout_button.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/centered_scroll_area.h>
@@ -313,6 +314,11 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "layout_fixed_aspect"){
 		sprite.mLayoutFixedAspect = parseBoolean(value);
 	}
+	else if(property == "shader") {
+		using namespace boost::filesystem;
+		boost::filesystem::path fullShaderPath(filePathRelativeTo(referer, value));
+		sprite.setBaseShader(fullShaderPath.parent_path().string(), fullShaderPath.filename().string());
+	}
 
 	// LayoutSprite specific (the other layout stuff could apply to any sprite)
 	else if(property == "layout_type"){
@@ -442,6 +448,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	else if(property == "on_click_event"){
 		auto imgBtn = dynamic_cast<ImageButton*>(&sprite);
 		auto sprBtn = dynamic_cast<SpriteButton*>(&sprite);
+		auto layBtn = dynamic_cast<LayoutButton*>(&sprite);
 		if(imgBtn){
 			imgBtn->setClickFn([imgBtn, value]{
 				dispatchStringEvents(value, imgBtn, imgBtn->getGlobalPosition());
@@ -449,6 +456,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else if(sprBtn){
 			sprBtn->setClickFn([sprBtn, value]{
 				dispatchStringEvents(value, sprBtn, sprBtn->getGlobalPosition());
+			});
+		} else if(layBtn){
+			layBtn->setClickFn([layBtn, value]{
+				dispatchStringEvents(value, layBtn, layBtn->getGlobalPosition());
 			});
 		}
 	}
@@ -898,6 +909,7 @@ static void applyStylesheet( const Stylesheet &stylesheet, ds::ui::Sprite &sprit
 std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::LayoutSprite*>(sp)) return "layout";
 	if(dynamic_cast<ds::ui::SpriteButton*>(sp)) return "sprite_button";
+	if(dynamic_cast<ds::ui::LayoutButton*>(sp)) return "layout_button";
 	if(dynamic_cast<ds::ui::ImageButton*>(sp)) return "image_button";
 	if(dynamic_cast<ds::ui::ImageWithThumbnail*>(sp)) return "image_with_thumbnail";
 	if(dynamic_cast<ds::ui::Image*>(sp)) return "image";
@@ -954,6 +966,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = imgButton;
 	} else if(type == "sprite_button"){
 		spriddy = new ds::ui::SpriteButton(engine);
+	} else if(type == "layout_button"){
+		spriddy = new ds::ui::LayoutButton(engine);
 	} else if(type == "gradient"){
 		auto gradient = new ds::ui::GradientSprite(engine);
 		spriddy = gradient;
@@ -978,24 +992,32 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		SoftKeyboardSettings sks;
 		auto tokens = ds::split(value, "; ", true);
 		std::string keyboardType = "standard";
-		for (auto it : tokens){
-			auto params = ds::split(it, ":", true);
-			if(params.size() < 2)continue;
-			std::string paramType = params.front();
-			if(paramType == "type"){
-				keyboardType = params[1];
-			} else if(paramType == "key_up_color"){
-				sks.mKeyUpColor = parseColor(params[1], engine);
-			} else if(paramType == "key_down_color"){
-				sks.mKeyDownColor = parseColor(params[1], engine);
-			} else if(paramType == "key_text_offset"){
-				sks.mKeyTextOffset = parseVector(params[1]).xy();
-			} else if(paramType == "key_touch_padding"){
-				sks.mKeyTouchPadding = ds::string_to_float(params[1]);
-			} else if(paramType == "key_initial_position"){
-				sks.mKeyInitialPosition = parseVector(params[1]).xy();
-			} else if(paramType == "key_scale"){
-				sks.mKeyScale = ds::string_to_float(params[1]);
+		for(auto it : tokens){
+			auto colony = it.find(":");
+			if(colony != std::string::npos){
+				std::string paramType = it.substr(0, colony);
+				std::string paramValue = it.substr(colony + 1);
+				if(paramType.empty() || paramValue.empty())continue;
+
+				if(paramType == "type"){
+					keyboardType = paramValue;
+				} else if(paramType == "key_up_text_config"){
+					sks.mKeyUpTextConfig = paramValue;
+				} else if(paramType == "key_dn_text_config"){
+					sks.mKeyDnTextConfig = paramValue;
+				} else if(paramType == "key_up_color"){
+					sks.mKeyUpColor = parseColor(paramValue, engine);
+				} else if(paramType == "key_down_color"){
+					sks.mKeyDownColor = parseColor(paramValue, engine);
+				} else if(paramType == "key_text_offset"){
+					sks.mKeyTextOffset = parseVector(paramValue).xy();
+				} else if(paramType == "key_touch_padding"){
+					sks.mKeyTouchPadding = ds::string_to_float(paramValue);
+				} else if(paramType == "key_initial_position"){
+					sks.mKeyInitialPosition = parseVector(paramValue).xy();
+				} else if(paramType == "key_scale"){
+					sks.mKeyScale = ds::string_to_float(paramValue);
+				}
 			}
 		}
 		if(keyboardType == "lowercase"){
@@ -1132,19 +1154,31 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 		ds::ui::ScrollArea* parentScroll = dynamic_cast<ds::ui::ScrollArea*>(parent);
 		ds::ui::SpriteButton* spriteButton = dynamic_cast<ds::ui::SpriteButton*>(parent);
+		ds::ui::LayoutButton* layoutButton = dynamic_cast<ds::ui::LayoutButton*>(parent);
 		if(parentScroll){
 			parentScroll->addSpriteToScroll(spriddy);
-		} else if(spriteButton){
+		} else if(spriteButton || layoutButton){
 			std::string attachState = node->getAttributeValue<std::string>("attach_state", "");
 			if(attachState.empty()){
 				parent->addChildPtr(spriddy);
 			} else if(attachState == "normal"){
-				spriteButton->getNormalSprite().addChildPtr(spriddy);
+				if(spriteButton){
+					spriteButton->getNormalSprite().addChildPtr(spriddy);
+				} else if(layoutButton){
+					layoutButton->getNormalSprite().addChildPtr(spriddy);
+				}
 			} else if(attachState == "high"){
-				spriteButton->getHighSprite().addChildPtr(spriddy);
+				if(spriteButton){
+					spriteButton->getHighSprite().addChildPtr(spriddy);
+				} else if(layoutButton){
+					layoutButton->getHighSprite().addChildPtr(spriddy);
+				}
 			}
-
-			spriteButton->showUp();
+			if(spriteButton){
+				spriteButton->showUp();
+			} else if(layoutButton){
+				layoutButton->showUp();
+			}
 		} else {
 			parent->addChildPtr(spriddy);
 		}

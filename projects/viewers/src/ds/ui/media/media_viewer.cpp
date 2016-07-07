@@ -100,8 +100,17 @@ void MediaViewer::initialize(){
 
 	// calculate a default size that maximizes size
 	float settingsAspect = 1.0f;
-	const float settingsWidth = mMediaViewerSettings.mDefaultBounds.x;
-	const float settingsHeight = mMediaViewerSettings.mDefaultBounds.y;
+	float settingsWidth = mMediaViewerSettings.mDefaultBounds.x;
+	float settingsHeight = mMediaViewerSettings.mDefaultBounds.y;
+
+	if(settingsWidth < 1.0f){
+		settingsWidth = contentWidth;
+	}
+
+	if(settingsHeight < 1.0f){
+		settingsHeight = contentHeight;
+	}
+
 	if(settingsHeight > 0.0f){
 		settingsAspect = settingsWidth / settingsHeight;
 	}

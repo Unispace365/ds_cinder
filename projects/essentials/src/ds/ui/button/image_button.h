@@ -40,10 +40,12 @@ public:
 	std::string					getHighImagePath(){ return mHighFilePath; }
 
 	void						setNormalImageColor(const ci::Color& upColor);
+	void						setNormalImageColor(const ci::ColorA& upColor);
 	ci::Color					getNormalImageColor(){ return mUp.getColor(); }
 
 	/// Set the color of the image when pressed. Let's you use the same image for both and still have feedback
 	void						setHighImageColor(const ci::Color& downColor);
+	void						setHighImageColor(const ci::ColorA& downColor);
 	ci::Color					getHighImageColor(){ return mDown.getColor(); }
 
 	void						layout();

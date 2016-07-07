@@ -107,7 +107,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
 	mFxaaOptions.mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
-	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::Vec2f(640.0f, 400.0f));
+	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::Vec2f(0.0f, 0.0f));
 	// Backwards compatibility with pre src-dst rect days
 	const float				DEFAULT_WINDOW_SCALE = 1.0f;
 	if (settings.getRectSize("local_rect") > 0) {
@@ -211,7 +211,9 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mSrcRect = mainDisplayRect;
 		mData.mDstRect = mainDisplayRect;
 		mData.mScreenRect = mainDisplayRect;
-		mData.mWorldSize = ci::Vec2f(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
+		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
+			mData.mWorldSize = ci::Vec2f(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
+		}
 	}
 
 	DS_LOG_INFO("Screen rect is (" << mData.mScreenRect.x1 << ", " << mData.mScreenRect.y1 << ") - (" << mData.mScreenRect.x2 << ", " << mData.mScreenRect.y2 << ")");

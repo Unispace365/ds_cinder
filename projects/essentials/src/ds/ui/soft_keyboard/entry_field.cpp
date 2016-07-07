@@ -59,7 +59,7 @@ void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings){
 
 void EntryField::onSizeChanged(){
 	if(mTextSprite){
-		mTextSprite->setResizeLimit(getWidth(), getHeight());
+		//mTextSprite->setResizeLimit(getWidth(), getHeight());
 	}
 }
 

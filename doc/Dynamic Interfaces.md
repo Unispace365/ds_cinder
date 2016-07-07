@@ -43,6 +43,7 @@ Sprite Types
 * **image_with_thumbnail** = ds::ui::ImageWithThumbnail
 * **image_button** = ds::ui::ImageButton
 * **sprite_button** = ds::ui::SpriteButton
+* **layout_button** = ds::ui::LayoutButton
 * **text** = ds::ui::Text
 * **multiline_text** = ds::ui::MultilineText
 * **gradient** = ds::ui::GradientSprite
@@ -184,9 +185,9 @@ Image Button Parameters
 * **up_image_color**: Applies a color to the up (normal) image, to make creating responsive buttons easy from a single image.
 
 
-Sprite Button Parameters
+Sprite Button and Layout Button Parameters
 ----------------------------
-**attach_state**: Add this to a sprite that's a child of a sprite button. Valid values: "normal" for the unpressed state and "high" for the pressed state. For example:
+**attach_state**: Add this to a sprite that's a child of a sprite button or a layout button. Valid values: "normal" for the unpressed state and "high" for the pressed state. For example:
 
     <interface>
         <sprite_button
@@ -248,6 +249,8 @@ EntryFields and SoftKeyboards need some parameters set for instantiation, so the
 
 **SOFT KEYBOARD PARAMETERS**
 * **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase and pinpad. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Pinpad is like an ATM pin pad. Default: standard
+* **key_up_text_config**: The text config of the text in the keys when not pressed. Default: keyboard:key:up
+* **key_dn_text_config**: The text config of the text in the keys when pressed. Default: keyboard:key:down
 * **key_up_color**: The color of the keys when not pressed. Engine colors allowed. Default: white
 * **key_down_color**: The color of the keys when pressed. Engine colors allowed. Default: medium grey
 * **key_text_offset**: Vector, amount to fudge the offset of the text inside each key. Default: -5.0, -5.0
