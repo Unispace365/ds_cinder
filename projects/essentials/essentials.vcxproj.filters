@@ -162,6 +162,7 @@
     <ClCompile Include="src\ds\ui\scroll\centered_scroll_area.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\button\layout_button.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -296,5 +297,6 @@
     <ClInclude Include="src\ds\ui\scroll\centered_scroll_area.h">
       <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
+    <ClInclude Include="src\ds\ui\button\layout_button.h" />
   </ItemGroup>
 </Project>

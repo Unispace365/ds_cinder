@@ -43,6 +43,7 @@ Sprite Types
 * **image_with_thumbnail** = ds::ui::ImageWithThumbnail
 * **image_button** = ds::ui::ImageButton
 * **sprite_button** = ds::ui::SpriteButton
+* **layout_button** = ds::ui::LayoutButton
 * **text** = ds::ui::Text
 * **multiline_text** = ds::ui::MultilineText
 * **gradient** = ds::ui::GradientSprite
@@ -184,9 +185,9 @@ Image Button Parameters
 * **up_image_color**: Applies a color to the up (normal) image, to make creating responsive buttons easy from a single image.
 
 
-Sprite Button Parameters
+Sprite Button and Layout Button Parameters
 ----------------------------
-**attach_state**: Add this to a sprite that's a child of a sprite button. Valid values: "normal" for the unpressed state and "high" for the pressed state. For example:
+**attach_state**: Add this to a sprite that's a child of a sprite button or a layout button. Valid values: "normal" for the unpressed state and "high" for the pressed state. For example:
 
     <interface>
         <sprite_button

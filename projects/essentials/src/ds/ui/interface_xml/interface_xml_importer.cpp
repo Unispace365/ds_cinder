@@ -19,6 +19,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/button/sprite_button.h>
+#include <ds/ui/button/layout_button.h>
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/centered_scroll_area.h>
@@ -447,6 +448,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	else if(property == "on_click_event"){
 		auto imgBtn = dynamic_cast<ImageButton*>(&sprite);
 		auto sprBtn = dynamic_cast<SpriteButton*>(&sprite);
+		auto layBtn = dynamic_cast<LayoutButton*>(&sprite);
 		if(imgBtn){
 			imgBtn->setClickFn([imgBtn, value]{
 				dispatchStringEvents(value, imgBtn, imgBtn->getGlobalPosition());
@@ -454,6 +456,10 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else if(sprBtn){
 			sprBtn->setClickFn([sprBtn, value]{
 				dispatchStringEvents(value, sprBtn, sprBtn->getGlobalPosition());
+			});
+		} else if(layBtn){
+			layBtn->setClickFn([layBtn, value]{
+				dispatchStringEvents(value, layBtn, layBtn->getGlobalPosition());
 			});
 		}
 	}
@@ -903,6 +909,7 @@ static void applyStylesheet( const Stylesheet &stylesheet, ds::ui::Sprite &sprit
 std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::LayoutSprite*>(sp)) return "layout";
 	if(dynamic_cast<ds::ui::SpriteButton*>(sp)) return "sprite_button";
+	if(dynamic_cast<ds::ui::LayoutButton*>(sp)) return "layout_button";
 	if(dynamic_cast<ds::ui::ImageButton*>(sp)) return "image_button";
 	if(dynamic_cast<ds::ui::ImageWithThumbnail*>(sp)) return "image_with_thumbnail";
 	if(dynamic_cast<ds::ui::Image*>(sp)) return "image";
@@ -959,6 +966,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = imgButton;
 	} else if(type == "sprite_button"){
 		spriddy = new ds::ui::SpriteButton(engine);
+	} else if(type == "layout_button"){
+		spriddy = new ds::ui::LayoutButton(engine);
 	} else if(type == "gradient"){
 		auto gradient = new ds::ui::GradientSprite(engine);
 		spriddy = gradient;
@@ -1141,19 +1150,31 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 		ds::ui::ScrollArea* parentScroll = dynamic_cast<ds::ui::ScrollArea*>(parent);
 		ds::ui::SpriteButton* spriteButton = dynamic_cast<ds::ui::SpriteButton*>(parent);
+		ds::ui::LayoutButton* layoutButton = dynamic_cast<ds::ui::LayoutButton*>(parent);
 		if(parentScroll){
 			parentScroll->addSpriteToScroll(spriddy);
-		} else if(spriteButton){
+		} else if(spriteButton || layoutButton){
 			std::string attachState = node->getAttributeValue<std::string>("attach_state", "");
 			if(attachState.empty()){
 				parent->addChildPtr(spriddy);
 			} else if(attachState == "normal"){
-				spriteButton->getNormalSprite().addChildPtr(spriddy);
+				if(spriteButton){
+					spriteButton->getNormalSprite().addChildPtr(spriddy);
+				} else if(layoutButton){
+					layoutButton->getNormalSprite().addChildPtr(spriddy);
+				}
 			} else if(attachState == "high"){
-				spriteButton->getHighSprite().addChildPtr(spriddy);
+				if(spriteButton){
+					spriteButton->getHighSprite().addChildPtr(spriddy);
+				} else if(layoutButton){
+					layoutButton->getHighSprite().addChildPtr(spriddy);
+				}
 			}
-
-			spriteButton->showUp();
+			if(spriteButton){
+				spriteButton->showUp();
+			} else if(layoutButton){
+				layoutButton->showUp();
+			}
 		} else {
 			parent->addChildPtr(spriddy);
 		}
