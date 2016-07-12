@@ -232,14 +232,12 @@
     <ClInclude Include="include\wrapper\cef_xml_object.h" />
     <ClInclude Include="include\wrapper\cef_zip_archive.h" />
     <ClInclude Include="src\ds\ui\sprite\web.h" />
-    <ClInclude Include="src\ds\ui\sprite\web_listener.h" />
     <ClInclude Include="src\private\simple_app.h" />
     <ClInclude Include="src\private\simple_handler.h" />
     <ClInclude Include="src\private\web_service.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\sprite\web.cpp" />
-    <ClCompile Include="src\ds\ui\sprite\web_listener.cpp" />
     <ClCompile Include="src\private\simple_app.cc" />
     <ClCompile Include="src\private\simple_handler.cc" />
     <ClCompile Include="src\private\web_service.cpp" />
@@ -267,6 +265,7 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="PropertySheets\Web_CEF.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -283,7 +282,7 @@
     <IntDir Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">obj\$(Configuration)\</IntDir>
     <LinkIncremental Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">false</LinkIncremental>
     <TargetName Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">web_cef_d</TargetName>
-    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectName)_awesomium</TargetName>
+    <TargetName Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">web_cef</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

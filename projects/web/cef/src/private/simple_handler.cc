@@ -84,8 +84,12 @@ bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 	return false;
 }
 
+#include <iostream>
+
 void SimpleHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
+
+	std::cout << "on before close" << std::endl;
 
 	// Remove from the list of existing browsers.
 	BrowserList::iterator bit = browser_list_.begin();

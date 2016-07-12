@@ -15,7 +15,7 @@
     </ClCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies);libcef.lib;libcef_dll_wrapper.lib;web_cef_d.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_086)\projects\web\cef\lib\;$(DS_PLATFORM_086)\projects\web\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_086)\projects\web\cef\lib\debug;$(DS_PLATFORM_086)\projects\web\lib</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

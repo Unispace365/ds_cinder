@@ -56,8 +56,18 @@ namespace {
 SimpleApp::SimpleApp() {
 }
 
+#include <iostream>
+void SimpleApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line){
+	std::cout << "before command line" << std::endl;
+	std::string argy = "--disable-extensions";
+	// This would prevent a crash in debug:
+	//command_line->AppendSwitch(CefString(argy));
+	command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
+}
+
 void SimpleApp::OnContextInitialized() {
 	CEF_REQUIRE_UI_THREAD();
+	std::cout << "on context initialized" << std::endl;
 
 	CefRefPtr<CefCommandLine> command_line =
 		CefCommandLine::GetGlobalCommandLine();
@@ -68,6 +78,7 @@ void SimpleApp::OnContextInitialized() {
 	// platform framework. The Views framework is currently only supported on
 	// Windows and Linux.
 	const bool use_views = command_line->HasSwitch("use-views");
+	const bool disable_extensions = command_line->HasSwitch("disable-extensions");
 #else
 	const bool use_views = false;
 #endif
@@ -83,8 +94,11 @@ void SimpleApp::OnContextInitialized() {
 	// Check if a "--url=" value was provided via the command-line. If so, use
 	// that instead of the default URL.
 	url = command_line->GetSwitchValue("url");
-	if(url.empty())
+	if(url.empty()){
+		url = "http://bmc.downstreamsandbox.com/bmc/engagement";
 		url = "http://www.google.com";
+		url = "file://D:/test_pdfs/ER C41_EAM_ALL.pdf";
+	}
 
 	if(use_views) {
 		// Create the BrowserView.
@@ -103,8 +117,10 @@ void SimpleApp::OnContextInitialized() {
 		window_info.SetAsPopup(NULL, "cefsimple");
 #endif
 
+		std::cout << "before create browser" << std::endl;
 		// Create the first browser window.
 		CefBrowserHost::CreateBrowser(window_info, handler, url, browser_settings,
 									  NULL);
+		std::cout << "after create browser" << std::endl;
 	}
 }

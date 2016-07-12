@@ -7,6 +7,7 @@
 #include "include/cef_app.h"
 
 #include "simple_app.h"
+#include "simple_handler.h"
 
 namespace ds {
 namespace web {
@@ -31,12 +32,14 @@ Service::Service(ds::Engine& e)
 		webby->setUrl(theValue);
 	});
 
+	std::cout << "web service startup" << std::endl;
 	void* sandbox_info = NULL;
 	CefMainArgs main_args(GetModuleHandle(NULL));
 	int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
 	if(exit_code >= 0){
 		std::cout << "CEF setup exit code: " << exit_code << std::endl;
-	} 
+	}
+	std::cout << "execute process" << std::endl;
 	
 	CefSettings settings;
 	settings.no_sandbox = true;
@@ -45,12 +48,24 @@ Service::Service(ds::Engine& e)
 
 	CefRefPtr<SimpleApp> app(new SimpleApp);
 	CefInitialize(main_args, settings, app.get(), sandbox_info);
+	std::cout << "cef initialize" << std::endl;
 
-	//CefRunMessageLoop();
-	
+
 }
 
+#include <chrono>
+#include <thread>
+
 Service::~Service() {
+	std::cout << "Service destructor" << std::endl;
+
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->CloseAllBrowsers(true);
+	}
+
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+
 	CefShutdown();
 }
 
