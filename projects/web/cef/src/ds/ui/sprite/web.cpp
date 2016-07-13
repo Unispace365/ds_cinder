@@ -16,6 +16,13 @@
 #include <ds/util/string_util.h>
 #include "private/web_service.h"
 
+
+
+#include "include/cef_app.h"
+
+#include "simple_app.h"
+#include "simple_handler.h"
+
 namespace {
 // Statically initialize the world class. Done here because the Body is
 // guaranteed to be referenced by the final application.
@@ -25,7 +32,7 @@ public:
 		ds::App::AddStartup([](ds::Engine& e) {
 			ds::web::Service*		w = new ds::web::Service(e);
 			if (!w) throw std::runtime_error("Can't create ds::web::Service");
-			e.addService("web", *w);
+			e.addService("cef_web", *w);
 
 			e.installSprite([](ds::BlobRegistry& r){ds::ui::Web::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Web::installAsClient(r);});
@@ -61,20 +68,13 @@ void Web::installAsClient(ds::BlobRegistry& registry) {
  */
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	: Sprite(engine, width, height)
-	, mService(engine.getService<ds::web::Service>("web"))
-	, mLoadingAngle(0.0f)
-	, mLoadingOffset(ci::Vec2f::zero())
-	, mLoadingOpacity(1.0f)
-	, mActive(false)
-	, mTransitionTime(0.35f)
-	, mDrawWhileLoading(true)
+	, mService(engine.getService<ds::web::Service>("cef_web"))
 	, mDragScrolling(false)
 	, mDragScrollMinFingers(2)
 	, mClickDown(false)
 	, mPageScrollCount(0)
 	, mDocumentReadyFn(nullptr)
 	, mHasError(false)
-	, mErrorText(nullptr)
 	, mAllowClicks(true)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
@@ -96,81 +96,13 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		handleTouch(info);
 	});
 
-	/*
-	Awesomium::WebConfig cnf;
-	cnf.log_level = Awesomium::kLogLevel_Verbose;
 
-	// create a webview
-	Awesomium::WebCore*	webcore = mService.getWebCore();
-	if (webcore) {
-		mWebViewPtr = webcore->CreateWebView(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mService.getWebSession());
-		if (mWebViewPtr) {
-			mWebViewListener = std::move(std::unique_ptr<ds::web::WebViewListener>(new ds::web::WebViewListener(this)));
-			if (mWebViewListener) mWebViewPtr->set_view_listener(mWebViewListener.get());
+	mService.createBrowser("https://google.com");
 
-			mWebLoadListener = std::move(std::unique_ptr<ds::web::WebLoadListener>(new ds::web::WebLoadListener(this)));
-			if (mWebLoadListener) {
-				mWebViewPtr->set_load_listener(mWebLoadListener.get());
-				mWebLoadListener->setOnDocumentReady([this](const std::string& url) { onDocumentReady(); });
-			}
-			
-			mJsMethodHandler = std::move(std::unique_ptr<ds::web::JsMethodHandler>(new ds::web::JsMethodHandler(this)));
-			if (mJsMethodHandler) mWebViewPtr->set_js_method_handler(mJsMethodHandler.get());
-
-			mWebDialogListener = std::move(std::unique_ptr<ds::web::WebDialogListener>(new ds::web::WebDialogListener(this)));
-			if(mWebDialogListener){
-				mWebViewPtr->set_dialog_listener(mWebDialogListener.get());
-			}
-
-			mWebProcessListener = std::move(std::unique_ptr<ds::web::WebProcessListener>(new ds::web::WebProcessListener(this)));
-			if(mWebProcessListener){
-				mWebViewPtr->set_process_listener(mWebProcessListener.get());
-			}
-
-			mWebMenuListener = std::move(std::unique_ptr<ds::web::WebMenuListener>(new ds::web::WebMenuListener));
-			if(mWebMenuListener){
-				mWebViewPtr->set_menu_listener(mWebMenuListener.get());
-			}
-
-			mWebViewPtr->SetTransparent(true);
-		}
-	}
-	*/
-
-	// load and create a "loading" icon
-	try {
-		mLoadingTexture = ci::gl::Texture(ci::loadImage(ds::Environment::expand("%APP%/data/images/loading.png")));
-	} catch( const std::exception &e ) {
-		DS_LOG_ERROR("Exception loading loading image for websprite: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__
-				<< " missing file=" << ds::Environment::expand("%APP%/data/images/loading.png"));
-	}
-
-	try {
-		mErrorText = mEngine.getEngineCfg().getText("default:error").create(mEngine, this);
-	}
-	catch( const std::exception & ) {
-		DS_LOG_WARNING("Web errors not rendered because font \"default:error\" is not defined");
-	}
-	if(mErrorText){
-		mErrorLayout.installOn(*mErrorText);
-
-		mErrorText->setColor(ci::Color::black());
-		mErrorText->setResizeToText(true);
-		addChildPtr(mErrorText);
-	}
+	
 }
 
 Web::~Web() {
-		/*
-	if (mWebViewPtr) {
-		mWebViewPtr->set_js_method_handler(nullptr);
-		mWebViewPtr->set_load_listener(nullptr);
-		mWebViewPtr->set_view_listener(nullptr);
-		mWebViewPtr->set_menu_listener(nullptr);
-		mWebViewPtr->Stop();
-		mWebViewPtr->Destroy();
-	}
-	*/
 }
 
 void Web::updateClient(const ds::UpdateParams &p) {
@@ -196,24 +128,6 @@ void Web::drawLocalClient() {
 		} else {
 			ci::gl::draw(mWebTexture);
 		}
-	}
-
-	// show spinner while loading
-	if (mLoadingTexture){// && mWebViewPtr && mWebViewPtr->IsLoading()) {
-		ci::gl::pushModelView();
-
-		ci::gl::translate(0.5f * ci::Vec2f(getWidth(), getHeight()));
-		ci::gl::translate(mLoadingOffset);
-		ci::gl::scale(0.5f, 0.5f );
-		ci::gl::rotate(mLoadingAngle);
-		ci::gl::translate(-0.5f * ci::Vec2f(mLoadingTexture.getSize()));
-
-		ci::gl::color(1.0f, 1.0f, 1.0f, mLoadingOpacity);
-		//ci::gl::enableAlphaBlending();
-		ci::gl::draw(mLoadingTexture);
-		//ci::gl::disableAlphaBlending();
-
-		ci::gl::popModelView();
 	}
 }
 
@@ -420,44 +334,6 @@ void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
 	*/
 }
 
-void Web::activate() {
-	if (mActive) {
-		return;
-	}
-
-	animStop();
-	show();
-	enable(true);
-	mActive = true;
-// 	if (mWebViewPtr) {
-// 		mWebViewPtr->ResumeRendering();
-// 	}
-	mEngine.getTweenline().apply(*this, ANIM_OPACITY(), 1.0f, mTransitionTime, ci::EaseOutQuad());
-}
-
-void Web::deactivate() {
-	if (!mActive) {
-		return;
-	}
-
-	animStop();
-	mEngine.getTweenline().apply(*this, ANIM_OPACITY(), 0.0f, mTransitionTime, ci::EaseOutQuad(), [this]()
-	{
-		hide();
-		enable(false);
-		mActive = false;
-	//	if (mWebViewPtr) mWebViewPtr->PauseRendering();
-	//	this->loadUrl(ds::Environment::getAppFolder("data", "index.html"));
-	});
-}
-
-bool Web::isActive() const {
-	return mActive;
-}
-
-void Web::setTransitionTime( const float transitionTime ) {
-	mTransitionTime = transitionTime;
-}
 
 void Web::setZoom(const double v) {
 //	if (!mWebViewPtr) return;
@@ -531,15 +407,6 @@ void Web::setErrorMessage(const std::string &message){
 	mHasError = true;
 	mErrorMessage = message;
 
-	if(mErrorText){
-		mErrorText->setOpacity(1.0f);
-		mErrorText->setResizeLimit(this->getWidth() * 0.8f, 0.0f);
-		mErrorText->setText(mErrorMessage);
-		mErrorText->setPosition((getWidth() - mErrorText->getWidth()) * 0.5f, (getHeight() - mErrorText->getHeight()) * 0.5f);
-		mErrorText->show();
-		mErrorText->tweenOpacity(0.0f, 1.0f, 10.0f);
-	}
-
 	if(mErrorCallback){
 		mErrorCallback(mErrorMessage);
 	}
@@ -547,9 +414,6 @@ void Web::setErrorMessage(const std::string &message){
 
 void Web::clearError(){
 	mHasError = false;
-	if(mErrorText){
-		mErrorText->hide();
-	}
 }
 
 ci::Vec2f Web::getDocumentSize() {
@@ -632,34 +496,6 @@ bool Web::webViewDirty(){
 void Web::update(const ds::UpdateParams &p) {
 
 	// create or update our OpenGL Texture from the webview
-	/*
-	if (mWebViewPtr
-		&& (mDrawWhileLoading || !mWebViewPtr->IsLoading())
-		&& webViewDirty()) {
-		try {
-			// set texture filter to NEAREST if you don't intend to transform (scale, rotate) it
-			ci::gl::Texture::Format fmt;
-		//	fmt.setMagFilter( GL_NEAREST );
-			fmt.setMagFilter( GL_LINEAR );
-
-
-			Awesomium::BitmapSurface* surface = (Awesomium::BitmapSurface*)mWebViewPtr->surface();
-			if(surface && surface->buffer()){
-				// create the gl::Texture by copying the data directly
-				mWebTexture = ci::gl::Texture(surface->buffer(), GL_BGRA, surface->width(), surface->height(), fmt);
-				// set isDirty to false, because we are manually copying the data
-				surface->set_is_dirty(false);
-			}
-
-		} catch( const std::exception &e ) {
-			DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
-		}
-	}
-	*/
-
-	mLoadingAngle += p.getDeltaTime() * 60.0f * 5.0f;
-	if (mLoadingAngle >= 360.0f)
-		mLoadingAngle = mLoadingAngle - 360.0f;
 }
 
 void Web::onUrlSet(const std::string &url) {
@@ -674,14 +510,6 @@ void Web::onDocumentReady() {
 	mJsMethodHandler->setDomIsReady(*mWebViewPtr);
 	if (mDocumentReadyFn) mDocumentReadyFn();
 	*/
-}
-
-void Web::setLoadingIconOpacity(const float iconOpacity){
-	mLoadingOpacity = iconOpacity;
-}
-
-void Web::setLoadingIconOffset(const ci::Vec2f& offset){
-	mLoadingOffset = offset;
 }
 
 void Web::setAllowClicks(const bool doAllowClicks){

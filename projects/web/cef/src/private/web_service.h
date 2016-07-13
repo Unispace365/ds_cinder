@@ -5,6 +5,8 @@
 #include <ds/app/engine/engine_service.h>
 #include <ds/app/auto_update.h>
 
+#include "simple_app.h"
+
 namespace ds {
 class Engine;
 
@@ -23,10 +25,13 @@ public:
 
 	virtual void			start();
 
+	void					createBrowser(const std::string& startUrl);
+
 protected:
 	virtual void			update(const ds::UpdateParams&);
 
 private:
+	CefRefPtr<SimpleApp>	mCefSimpleApp;
 };
 
 } // namespace web

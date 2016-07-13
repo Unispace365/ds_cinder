@@ -44,7 +44,6 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
     <Import Project="$(DS_PLATFORM_086)\projects\physics\box2d\PropertySheets\Physics_Box2d_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\web\awesomium\PropertySheets\Web_Awesomium_d.props" />
     <Import Project="$(DS_PLATFORM_086)\projects\essentials\PropertySheets\Essentials_d.props" />
     <Import Project="$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0_d.props" />
     <Import Project="$(DS_PLATFORM_086)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf_d.props" />

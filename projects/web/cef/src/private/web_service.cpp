@@ -32,23 +32,6 @@ Service::Service(ds::Engine& e)
 		webby->setUrl(theValue);
 	});
 
-	std::cout << "web service startup" << std::endl;
-	void* sandbox_info = NULL;
-	CefMainArgs main_args(GetModuleHandle(NULL));
-	int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
-	if(exit_code >= 0){
-		std::cout << "CEF setup exit code: " << exit_code << std::endl;
-	}
-	std::cout << "execute process" << std::endl;
-	
-	CefSettings settings;
-	settings.no_sandbox = true;
-	settings.multi_threaded_message_loop = true;
-	//settings.windowless_rendering_enabled
-
-	CefRefPtr<SimpleApp> app(new SimpleApp);
-	CefInitialize(main_args, settings, app.get(), sandbox_info);
-	std::cout << "cef initialize" << std::endl;
 
 
 }
@@ -57,6 +40,7 @@ Service::Service(ds::Engine& e)
 #include <thread>
 
 Service::~Service() {
+
 	std::cout << "Service destructor" << std::endl;
 
 	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
@@ -64,12 +48,36 @@ Service::~Service() {
 		handler->CloseAllBrowsers(true);
 	}
 
-	std::this_thread::sleep_for(std::chrono::seconds(1));
+	std::this_thread::sleep_for(std::chrono::seconds(2));
 
 	CefShutdown();
 }
 
 void Service::start() {
+	std::cout << "web service startup" << std::endl;
+	void* sandbox_info = NULL;
+	CefMainArgs main_args(GetModuleHandle(NULL));
+	int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
+	if(exit_code >= 0){
+		std::cout << "CEF setup exit code: " << exit_code << std::endl;
+	}
+	std::cout << "execute process" << std::endl;
+
+	CefSettings settings;
+	settings.no_sandbox = true;
+	settings.multi_threaded_message_loop = true;
+	//settings.windowless_rendering_enabled
+
+	mCefSimpleApp = CefRefPtr<SimpleApp>(new SimpleApp);
+	CefInitialize(main_args, settings, mCefSimpleApp.get(), sandbox_info);
+	std::cout << "cef initialize" << std::endl;
+}
+
+void Service::createBrowser(const std::string& startUrl){
+	if(mCefSimpleApp){
+		std::cout << "Create brwoser " << std::this_thread::get_id() << std::endl;
+		mCefSimpleApp->createBrowser(startUrl);
+	}
 }
 
 void Service::update(const ds::UpdateParams&) {

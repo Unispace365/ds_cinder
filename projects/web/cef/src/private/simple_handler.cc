@@ -13,6 +13,8 @@
 #include "include/views/cef_window.h"
 #include "include/wrapper/cef_closure_task.h"
 #include "include/wrapper/cef_helpers.h"
+#include <iostream>
+#include <thread>
 
 namespace {
 
@@ -20,9 +22,8 @@ namespace {
 
 }  // namespace
 
-SimpleHandler::SimpleHandler(bool use_views)
-: use_views_(use_views),
-is_closing_(false) {
+SimpleHandler::SimpleHandler()
+: is_closing_(false) {
 	DCHECK(!g_instance);
 	g_instance = this;
 }
@@ -40,19 +41,9 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 								  const CefString& title) {
 	CEF_REQUIRE_UI_THREAD();
 
-	if(use_views_) {
-		// Set the title of the window using the Views framework.
-		CefRefPtr<CefBrowserView> browser_view =
-			CefBrowserView::GetForBrowser(browser);
-		if(browser_view) {
-			CefRefPtr<CefWindow> window = browser_view->GetWindow();
-			if(window)
-				window->SetTitle(title);
-		}
-	} else {
-		// Set the title of the window using platform APIs.
-		PlatformTitleChange(browser, title);
-	}
+	// Set the title of the window using platform APIs.
+	PlatformTitleChange(browser, title);
+	
 }
 
 void SimpleHandler::PlatformTitleChange(CefRefPtr<CefBrowser> browser,
@@ -66,6 +57,8 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 
 	// Add to the list of existing browsers.
 	browser_list_.push_back(browser);
+	std::cout << "On after created " << browser->GetIdentifier() << " " << std::this_thread::get_id() << std::endl;
+	//browser->
 }
 
 bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {
@@ -84,12 +77,9 @@ bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 	return false;
 }
 
-#include <iostream>
 
 void SimpleHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
-
-	std::cout << "on before close" << std::endl;
 
 	// Remove from the list of existing browsers.
 	BrowserList::iterator bit = browser_list_.begin();

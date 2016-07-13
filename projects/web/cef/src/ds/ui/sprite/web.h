@@ -55,14 +55,7 @@ public:
 	// Intended to be set as a result of the server sending out events from setTouchListener results.
 	//void					handleListenerTouchEvent(const ds::ui::TouchEvent&);
 
-	bool					isActive() const;
 	bool					isLoading();
-	void					setTransitionTime(const float transitionTime);
-	void					activate();
-	void					deactivate();
-
-	void					setLoadingIconOffset(const ci::Vec2f& offset);
-	void					setLoadingIconOpacity(const float iconOpacity);
 
 	// Get the zoom level, where 1 = 100%, 0.25 = 25% etc.
 	void					setZoom(const double);
@@ -81,9 +74,6 @@ public:
 	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
 	void					setDocumentReadyFn(const std::function<void(void)>&);
 	void					setErrorCallback(std::function<void(const std::string&)> func){ mErrorCallback = func; }
-
-	// allows the view to be updated while the page is still being loaded. default=false
-	void					setDrawWhileLoading(const bool doDrawing){ mDrawWhileLoading = doDrawing; }
 
 	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
 	void					setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
@@ -132,14 +122,6 @@ private:
 	ds::web::Service&		mService;
 
 	ci::gl::Texture			mWebTexture;
-	ci::gl::Texture			mLoadingTexture;
-	ci::Vec2f				mLoadingOffset;
-	float					mLoadingOpacity;
-
-	float					mLoadingAngle;
-	bool					mActive;
-	float					mTransitionTime;
-	bool					mDrawWhileLoading;
 
 	ci::Vec3f				mPreviousTouchPos;
 	bool					mAllowClicks;
@@ -164,8 +146,6 @@ private:
 
 	bool					mHasError;
 	std::string				mErrorMessage;
-	ds::ui::Text*			mErrorText;
-	ds::ui::TextLayoutVertical	mErrorLayout;
 
 	// Initialization
 public:

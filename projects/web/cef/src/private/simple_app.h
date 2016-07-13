@@ -6,6 +6,7 @@
 #define CEF_TESTS_CEFSIMPLE_SIMPLE_APP_H_
 
 #include "include/cef_app.h"
+#include "simple_handler.h"
 
 // Implement application-level callbacks for the browser process.
 class SimpleApp : public CefApp,
@@ -24,9 +25,13 @@ public:
 	// CefBrowserProcessHandler methods:
 	virtual void OnContextInitialized() OVERRIDE;
 
+	void		createBrowser(const std::string& url);
+
 private:
 	// Include the default reference counting implementation.
 	IMPLEMENT_REFCOUNTING(SimpleApp);
+
+	CefRefPtr<SimpleHandler>	mHandler;
 };
 
 #endif  // CEF_TESTS_CEFSIMPLE_SIMPLE_APP_H_

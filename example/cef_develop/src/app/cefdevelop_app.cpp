@@ -16,6 +16,8 @@
 
 #include "ui/story/story_view.h"
 
+#include <ds/ui/sprite/web.h>
+
 namespace cef {
 
 CefDevelop::CefDevelop()
@@ -85,6 +87,15 @@ void CefDevelop::setupServer(){
 	
 	// add sprites
 	rootSprite.addChildPtr(new StoryView(mGlobals));
+
+	auto webby = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
+	webby->loadUrl("https://google.com");
+	rootSprite.addChildPtr(webby);
+
+	auto webby2 = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
+	webby2->loadUrl("https://google.com");
+	rootSprite.addChildPtr(webby2);
+
 }
 
 void CefDevelop::update() {
