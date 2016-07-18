@@ -88,13 +88,19 @@ void CefDevelop::setupServer(){
 	// add sprites
 	rootSprite.addChildPtr(new StoryView(mGlobals));
 
-	auto webby = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
-	webby->loadUrl("https://google.com");
-	rootSprite.addChildPtr(webby);
+	rootSprite.enable(true);
+	rootSprite.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
-	auto webby2 = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
-	webby2->loadUrl("https://google.com");
-	rootSprite.addChildPtr(webby2);
+	rootSprite.setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+		auto webby = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
+		webby->loadUrl("https://google.com");
+		bs->addChildPtr(webby);
+	});
+
+
+	//auto webby2 = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
+	//webby2->loadUrl("https://google.com");
+	//rootSprite.addChildPtr(webby2);
 
 }
 

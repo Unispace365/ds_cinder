@@ -42,7 +42,7 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 	CEF_REQUIRE_UI_THREAD();
 
 	// Set the title of the window using platform APIs.
-	PlatformTitleChange(browser, title);
+	//PlatformTitleChange(browser, title);
 	
 }
 
@@ -58,7 +58,11 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	// Add to the list of existing browsers.
 	browser_list_.push_back(browser);
 	std::cout << "On after created " << browser->GetIdentifier() << " " << std::this_thread::get_id() << std::endl;
-	//browser->
+
+	if(!mCreatedCallbacks.empty()){
+		mCreatedCallbacks.front()(browser->GetIdentifier());
+		mCreatedCallbacks.erase(mCreatedCallbacks.begin());
+	}
 }
 
 bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {
@@ -116,7 +120,49 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 	frame->LoadString(ss.str(), failedUrl);
 }
 
+
+bool SimpleHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
+	rect.x = rect.y = 0;
+	rect.width = 1920;
+	rect.height = 1080;
+	return true;
+}
+
+bool SimpleHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
+	//TODO
+	rect.x = rect.y = 0;
+	rect.width = 1920; 
+	rect.height = 1080; 
+	return true;
+}
+
+
+bool SimpleHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int viewY, int& screenX, int& screenY){
+	screenX = viewX;
+	screenY = viewY;
+	return true;
+}
+
+void SimpleHandler::OnPaint(CefRefPtr<CefBrowser> browser,
+							PaintElementType type, 
+							const RectList& dirtyRects, 
+							const void* buffer, int width, int height){
+	std::cout << "On Paint: " << width << " " << height << std::endl;
+	//CEF_REQUIRE_UI_THREAD();
+
+	int browserId = browser->GetIdentifier();
+	auto paintCallback = mPaintCallbacks.find(browserId);
+	if(paintCallback != mPaintCallbacks.end() && paintCallback->second){
+		paintCallback->second(buffer);
+	}
+}
+
 void SimpleHandler::CloseAllBrowsers(bool force_close) {
+
+	static bool closedAllAlready = false;
+	if(closedAllAlready) return;
+	closedAllAlready = true;
+	std::cout << "Close all browsers " << force_close << std::endl;
 	if(!CefCurrentlyOn(TID_UI)) {
 		// Execute on the UI thread.
 		CefPostTask(TID_UI,
@@ -124,10 +170,20 @@ void SimpleHandler::CloseAllBrowsers(bool force_close) {
 		return;
 	}
 
+	mPaintCallbacks.clear();
+
 	if(browser_list_.empty())
 		return;
 
 	BrowserList::const_iterator it = browser_list_.begin();
-	for(; it != browser_list_.end(); ++it)
+	for(;browser_list_.size() > 0 && it != browser_list_.end(); ++it)
 		(*it)->GetHost()->CloseBrowser(force_close);
+}
+
+void SimpleHandler::addCreatedCallback(std::function<void(int)> callback){
+	mCreatedCallbacks.push_back(callback);
+}
+
+void SimpleHandler::addPaintCallback(int browserId, std::function<void(const void *)> callback){
+	mPaintCallbacks[browserId] = callback;
 }

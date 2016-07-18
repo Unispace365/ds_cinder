@@ -25,7 +25,8 @@ public:
 
 	virtual void			start();
 
-	void					createBrowser(const std::string& startUrl);
+	void					createBrowser(const std::string& startUrl, std::function<void(int)> browserCreatedCallback);
+	void					addPaintCallback(int browserId, std::function<void(const void *)> paintCallback);
 
 protected:
 	virtual void			update(const ds::UpdateParams&);

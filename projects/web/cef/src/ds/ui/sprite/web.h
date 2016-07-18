@@ -147,6 +147,10 @@ private:
 	bool					mHasError;
 	std::string				mErrorMessage;
 
+	int						mBrowserId;
+
+	unsigned char *			mBuffer;
+
 	// Initialization
 public:
 	static void				installAsServer(ds::BlobRegistry&);

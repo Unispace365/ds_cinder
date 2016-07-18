@@ -37,12 +37,6 @@
     <Filter Include="src\ds\ui\util">
       <UniqueIdentifier>{509ed608-4269-4952-abb2-195b290af1be}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\menu">
-      <UniqueIdentifier>{61ad51bb-dfaf-4cae-97ed-0f41b0ca7bd0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ds\ui\menu\component">
-      <UniqueIdentifier>{866ea136-fca0-4139-a7b9-1d4812ab171c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\network">
       <UniqueIdentifier>{11f3c3d1-dc4f-457f-8771-d30d01e73643}</UniqueIdentifier>
     </Filter>
@@ -63,6 +57,12 @@
     </Filter>
     <Filter Include="src\ds\query\content">
       <UniqueIdentifier>{192d763d-e381-4e1f-b44f-ee514bfcd3fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\menu">
+      <UniqueIdentifier>{61ad51bb-dfaf-4cae-97ed-0f41b0ca7bd0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\menu\component">
+      <UniqueIdentifier>{866ea136-fca0-4139-a7b9-1d4812ab171c}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

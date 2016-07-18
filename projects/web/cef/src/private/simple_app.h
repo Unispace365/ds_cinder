@@ -7,6 +7,7 @@
 
 #include "include/cef_app.h"
 #include "simple_handler.h"
+#include <functional>
 
 // Implement application-level callbacks for the browser process.
 class SimpleApp : public CefApp,
@@ -25,7 +26,9 @@ public:
 	// CefBrowserProcessHandler methods:
 	virtual void OnContextInitialized() OVERRIDE;
 
-	void		createBrowser(const std::string& url);
+	void		createBrowser(const std::string& url, std::function<void(int)> createdCallback);
+
+	void		addPaintCallback(int browserId, std::function<void(const void *)> paintCallback);
 
 private:
 	// Include the default reference counting implementation.

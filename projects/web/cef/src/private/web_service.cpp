@@ -65,22 +65,34 @@ void Service::start() {
 
 	CefSettings settings;
 	settings.no_sandbox = true;
+	settings.single_process = true;
 	settings.multi_threaded_message_loop = true;
-	//settings.windowless_rendering_enabled
+	settings.windowless_rendering_enabled = true;
 
 	mCefSimpleApp = CefRefPtr<SimpleApp>(new SimpleApp);
 	CefInitialize(main_args, settings, mCefSimpleApp.get(), sandbox_info);
 	std::cout << "cef initialize" << std::endl;
 }
 
-void Service::createBrowser(const std::string& startUrl){
+void Service::createBrowser(const std::string& startUrl, std::function<void(int)> createdCallback){
 	if(mCefSimpleApp){
-		std::cout << "Create brwoser " << std::this_thread::get_id() << std::endl;
-		mCefSimpleApp->createBrowser(startUrl);
+		std::cout << "Service: Create browser " << std::this_thread::get_id() << std::endl;
+		try{
+			mCefSimpleApp->createBrowser(startUrl, createdCallback);
+		} catch(std::exception& e){
+			std::cout << "Exception creating browser: " << e.what() << std::endl;
+		}
+	}
+}
+
+void Service::addPaintCallback(int browserId, std::function<void(const void *)> paintCallback){
+	if(mCefSimpleApp){
+		mCefSimpleApp->addPaintCallback(browserId, paintCallback);
 	}
 }
 
 void Service::update(const ds::UpdateParams&) {
+	//CefDoMessageLoopWork();
 }
 
 } // namespace web

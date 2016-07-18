@@ -7,12 +7,15 @@
 
 #include "include/cef_client.h"
 
+#include <functional>
 #include <list>
 
 class SimpleHandler : public CefClient,
 	public CefDisplayHandler,
 	public CefLifeSpanHandler,
-	public CefLoadHandler {
+	public CefLoadHandler,
+	public CefRenderHandler
+{
 public:
 	explicit SimpleHandler();
 	~SimpleHandler();
@@ -28,6 +31,9 @@ public:
 		return this;
 	}
 	virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE{
+		return this;
+	}
+	virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE{
 		return this;
 	}
 
@@ -47,10 +53,32 @@ public:
 							 const CefString& errorText,
 							 const CefString& failedUrl) OVERRIDE;
 
+	// CefRenderHandler methods:
+	virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
+								   CefRect& rect);
+	virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect);
+	virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
+								int viewX,
+								int viewY,
+								int& screenX,
+								int& screenY);
+
+	virtual void OnPaint(CefRefPtr<CefBrowser> browser,
+						 PaintElementType type,
+						 const RectList& dirtyRects,
+						 const void* buffer,
+						 int width, int height);
+
 	// Request that all existing browser windows close.
 	void CloseAllBrowsers(bool force_close);
 
 	bool IsClosing() const { return is_closing_; }
+
+	// Adds a callback to a list of callbacks for after browsers are created
+	void addCreatedCallback(std::function<void(int)> callback);
+
+	// Gets called when the browser sends new paint info. 
+	void addPaintCallback(int browserId, std::function<void(const void *)> callback);
 
 private:
 	// Platform-specific implementation.
@@ -62,6 +90,9 @@ private:
 	BrowserList browser_list_;
 
 	bool is_closing_;
+
+	std::vector<std::function<void(int)>>					mCreatedCallbacks;
+	std::map<int, std::function<void(const void * buffer)>> mPaintCallbacks;
 
 	// Include the default reference counting implementation.
 	IMPLEMENT_REFCOUNTING(SimpleHandler);

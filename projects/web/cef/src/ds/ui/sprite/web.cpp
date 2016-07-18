@@ -76,6 +76,8 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mDocumentReadyFn(nullptr)
 	, mHasError(false)
 	, mAllowClicks(true)
+	, mBrowserId(-1)
+	, mBuffer(nullptr)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -85,24 +87,36 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 
 	setTransparent(false);
 	setColor(1.0f, 1.0f, 1.0f);
-	setUseShaderTextuer(true);
+	setUseShaderTexture(true);
 
-	// GN: Someone decided this should be invisible by default.
-	//		I'm deciding that that's ree-dic-u-lous
-	//hide();
-	//setOpacity(0.0f);
+	// TODO: be able to change this
+	setSize(1920.0f, 1080.0f);
+
+	mBuffer = new unsigned char[1920 * 1080 * 4];
+
+	enable(true);
+	enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
 
 	setProcessTouchCallback([this](ds::ui::Sprite *, const ds::ui::TouchInfo &info) {
 		handleTouch(info);
 	});
 
-
-	mService.createBrowser("https://google.com");
+	const std::string urly = "downstream.com";
+	//const std::string urly = "file://D:/test_pdfs/BPS C06_CIM_Services.pdf";
+	//const std::string urly = "https://google.com";
+	mService.createBrowser(urly, [this](int browserId){ 
+		mBrowserId = browserId; 
+		mService.addPaintCallback(mBrowserId, [this](const void * buffer){
+			memcpy(mBuffer, buffer, 1920 * 1080 * 4);
+			//mBuffer = (unsigned char *)(buffer);
+		});
+	});
 
 	
 }
 
 Web::~Web() {
+	mService.addPaintCallback(mBrowserId, nullptr);
 }
 
 void Web::updateClient(const ds::UpdateParams &p) {
@@ -421,7 +435,7 @@ ci::Vec2f Web::getDocumentSize() {
 	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
 	return get_document_size(*mWebViewPtr);
 	*/
-	return ci::Vec2f(1024.0f, 768.0f);
+	return ci::Vec2f(1920.0f, 1080.0f);
 }
 
 ci::Vec2f Web::getDocumentScroll() {
@@ -495,7 +509,14 @@ bool Web::webViewDirty(){
 
 void Web::update(const ds::UpdateParams &p) {
 
-	// create or update our OpenGL Texture from the webview
+	if(mBuffer){
+		ci::gl::Texture::Format fmt;
+		fmt.setMagFilter(GL_LINEAR);
+
+		//	ci::Surface web_surface(charBuffer, 1920, 1080, 1920 * 4, ci::SurfaceChannelOrder::BGRA);
+		mWebTexture = ci::gl::Texture(mBuffer, GL_BGRA, 1920, 1080, fmt);
+		// create or update our OpenGL Texture from the webview
+	}
 }
 
 void Web::onUrlSet(const std::string &url) {
