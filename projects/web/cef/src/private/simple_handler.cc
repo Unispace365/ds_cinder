@@ -296,11 +296,11 @@ int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
 void SimpleHandler::sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character){
 	CefKeyEvent keyEvent;
 	keyEvent.type = KEYEVENT_RAWKEYDOWN;
-	keyEvent.windows_key_code = windows_key_code;
-	keyEvent.native_key_code = native_key_code;
+	keyEvent.windows_key_code = 65;	
+	keyEvent.native_key_code = 1966081;// (int)(OemKeyScan(character));
 	keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
 	if(modifiers & 0x0008){
-		keyEvent.modifiers |= EVENTFLAG_SHIFT_DOWN;
+	//	keyEvent.modifiers |= EVENTFLAG_SHIFT_DOWN;
 	}
 
 	/*
@@ -323,13 +323,25 @@ void SimpleHandler::sendKeyEvent(const int browserId, const int state, int windo
 
 	for(auto it : browser_list_){
 		if(it->GetIdentifier() == browserId){
-			if(state == 2){
-				keyEvent.type = KEYEVENT_CHAR;
+
+
+			if(state == 0){
+				CefKeyEvent keyEvent;
+				keyEvent.type = KEYEVENT_RAWKEYDOWN;
+				keyEvent.windows_key_code = 65;
+				keyEvent.native_key_code = 1966081;// (int)(OemKeyScan(character));
+				keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
 				it->GetHost()->SendKeyEvent(keyEvent);
-				keyEvent.type = KEYEVENT_KEYUP;
-				it->GetHost()->SendKeyEvent(keyEvent);
+
 			} else {
 
+				int scanCode = MapVirtualKey(character, 0);
+
+				CefKeyEvent keyEvent;
+				keyEvent.type = KEYEVENT_CHAR;
+				keyEvent.windows_key_code = character;
+				keyEvent.native_key_code = scanCode;// (int)(OemKeyScan(character));
+				keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
 				it->GetHost()->SendKeyEvent(keyEvent);
 			}
 		}

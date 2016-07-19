@@ -49,6 +49,9 @@ public:
 
 	void					sendMouseClick(const ci::Vec3f& globalClickPoint);
 
+	// DEPRECATED: This is for API-compatibility with the old Awesomium. Always draws while loading now.
+	void					setDrawWhileLoading(const bool){};
+
 	// Clients can listen to touch events. Kind of a hack to
 	// try and sync client/server arrangements.
 //	void					setTouchListener(const std::function<void(const ds::ui::TouchEvent&)>&);

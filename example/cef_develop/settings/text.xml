@@ -8,5 +8,13 @@
 		<float name="sample:config:leading" value="0.75" />
 		<color name="sample:config:color" r="255" g="255" b="255" />
 
+	    <text  name="keyboard:key:up:name" value="noto_bold" />
+	<float name="keyboard:key:up:size" value="20" />
+	<float name="keyboard:key:up:leading" value="0.75" />
+	<color name="keyboard:key:up:color" r="255" g="255" b="255" />
 	
+    <text  name="keyboard:key:down:name" value="noto_bold" />
+	<float name="keyboard:key:down:size" value="20" />
+	<float name="keyboard:key:down:leading" value="0.75" />
+	<color name="keyboard:key:down:color" r="255" g="255" b="255" />
 </settings>

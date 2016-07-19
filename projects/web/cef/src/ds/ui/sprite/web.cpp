@@ -104,7 +104,8 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	//const std::string urly = "downstream.com";
 	//const std::string urly = "file://D:/content/sample_videos_2/vp9_4k.webm";
 	//const std::string urly = "file://D:/test_pdfs/BPS C06_CIM_Services.pdf";
-	const std::string urly = "https://google.com";
+	//const std::string urly = "https://google.com"; 
+	const std::string urly = "https://drive.google.com/drive/my-drive";
 	mService.createBrowser(urly, [this](int browserId){ 
 		mBrowserId = browserId; 
 		mService.addPaintCallback(mBrowserId, [this](const void * buffer){

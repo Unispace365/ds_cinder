@@ -51,6 +51,12 @@ CefDevelop::CefDevelop()
 
 void CefDevelop::setupServer(){
 
+	/*fonts in use */
+	mEngine.loadSettings("FONTS", "fonts.xml");
+	mEngine.editFonts().clear();
+	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
+		mEngine.editFonts().install(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+	});
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
@@ -93,10 +99,17 @@ void CefDevelop::setupServer(){
 	rootSprite.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
 	rootSprite.setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+		ds::ui::WebPlayer* wp = new ds::ui::WebPlayer(mEngine, true);
+		wp->setWebViewSize(ci::Vec2f(1920.0f, 1080.0f));
+		wp->setMedia("https://google.com"); 
+		bs->addChildPtr(wp);
+		mWebby = wp->getWeb();
+		/*
 		auto webby = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
 		webby->loadUrl("https://google.com");
 		bs->addChildPtr(webby);
 		mWebby = webby;
+		*/
 	});
 
 
