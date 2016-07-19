@@ -25,9 +25,10 @@ void SimpleApp::OnBeforeCommandLineProcessing(const CefString& process_type, Cef
 	std::string argy = "--disable-extensions";
 	// This would prevent a crash in debug:
 	command_line->AppendSwitch(CefString(argy));
-	//command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
+	command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
 	command_line->AppendSwitch("disable-gpu");
 	command_line->AppendSwitch("disable-gpu-compositing");
+	command_line->AppendSwitch("-touch-optimized-ui=enabled");
 	//command_line->AppendSwitch("enable-begin-frame-scheduling");
 }
 

@@ -33,7 +33,6 @@ Service::Service(ds::Engine& e)
 	});
 
 
-
 }
 
 #include <chrono>
@@ -88,6 +87,20 @@ void Service::createBrowser(const std::string& startUrl, std::function<void(int)
 void Service::addPaintCallback(int browserId, std::function<void(const void *)> paintCallback){
 	if(mCefSimpleApp){
 		mCefSimpleApp->addPaintCallback(browserId, paintCallback);
+	}
+}
+
+void Service::sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->sendMouseClick(browserId, x, y, bttn, state, clickCount);
+	}
+}
+
+void Service::sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->sendKeyEvent(browserId, state, windows_key_code, native_key_code, modifiers, character);
 	}
 }
 

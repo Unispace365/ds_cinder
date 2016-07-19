@@ -80,6 +80,10 @@ public:
 	// Gets called when the browser sends new paint info. 
 	void addPaintCallback(int browserId, std::function<void(const void *)> callback);
 
+	void sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);
+
+
+	void sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
 private:
 	// Platform-specific implementation.
 	void PlatformTitleChange(CefRefPtr<CefBrowser> browser,

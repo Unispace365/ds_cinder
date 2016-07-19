@@ -95,15 +95,16 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	mBuffer = new unsigned char[1920 * 1080 * 4];
 
 	enable(true);
-	enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
+	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
 	setProcessTouchCallback([this](ds::ui::Sprite *, const ds::ui::TouchInfo &info) {
 		handleTouch(info);
 	});
 
-	const std::string urly = "downstream.com";
+	//const std::string urly = "downstream.com";
+	//const std::string urly = "file://D:/content/sample_videos_2/vp9_4k.webm";
 	//const std::string urly = "file://D:/test_pdfs/BPS C06_CIM_Services.pdf";
-	//const std::string urly = "https://google.com";
+	const std::string urly = "https://google.com";
 	mService.createBrowser(urly, [this](int browserId){ 
 		mBrowserId = browserId; 
 		mService.addPaintCallback(mBrowserId, [this](const void * buffer){
@@ -151,13 +152,24 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 
 	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
 
+	// this may not actually work in a rotated scenario, so...
+	pos.x *= getScale().x;
+	pos.y *= getScale().y;
+
 	if (ds::ui::TouchInfo::Added == touchInfo.mPhase) {
+		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 0, 1);
+
+		/*
 		ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
 		sendMouseDownEvent(event);
 		if(mDragScrolling){
 			mClickDown = true;
 		}
-	} else if (ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
+		*/
+	} else if(ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
+		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 1, 1);
+
+
 		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
 			/*
 			if(mWebViewPtr){
@@ -172,13 +184,14 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 			}
 			*/
 		} else {
-			ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
-			sendMouseDragEvent(event);
+		//	ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+		//	sendMouseDragEvent(event);
 		}
-	} else if (ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
-		mClickDown = false;
-		ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
-		sendMouseUpEvent(event);
+	} else if(ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
+		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 2, 1);
+		//mClickDown = false;
+		//ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
+		//sendMouseUpEvent(event);
 	}
 
 	mPreviousTouchPos = touchInfo.mCurrentGlobalPoint;
@@ -543,6 +556,11 @@ void Web::setWebTransparent(const bool isTransparent){
 		mWebViewPtr->SetTransparent(isTransparent);
 	}
 	*/
+}
+
+
+void Web::handleNativeKeyEvent(const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character){
+	mService.sendKeyEvent(mBrowserId, state, windows_key_code, native_key_code, modifiers, character);
 }
 
 } // namespace ui

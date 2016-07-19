@@ -39,6 +39,7 @@ CefDevelop::CefDevelop()
 	, mQueryHandler(mEngine, mAllData)
 	, mIdling( false )
 	, mTouchDebug(mEngine)
+	, mWebby(nullptr)
 {
 
 
@@ -95,6 +96,7 @@ void CefDevelop::setupServer(){
 		auto webby = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
 		webby->loadUrl("https://google.com");
 		bs->addChildPtr(webby);
+		mWebby = webby;
 	});
 
 
@@ -103,6 +105,7 @@ void CefDevelop::setupServer(){
 	//rootSprite.addChildPtr(webby2);
 
 }
+
 
 void CefDevelop::update() {
 	inherited::update();
@@ -119,7 +122,25 @@ void CefDevelop::update() {
 
 }
 
+class BullshitKeyEvent : ci::app::KeyEvent {
+public:
+	BullshitKeyEvent(ci::app::KeyEvent& ev) : ci::app::KeyEvent(ev){}
+	int		getModifiers(){ return mModifiers; }
+};
+
+void CefDevelop::keyUp(ci::app::KeyEvent event){
+	if(mWebby){
+		BullshitKeyEvent bske(event);
+		mWebby->handleNativeKeyEvent(2, event.getNativeKeyCode(), event.getNativeKeyCode(), bske.getModifiers(), event.getChar());
+	}
+}
+
 void CefDevelop::keyDown(ci::app::KeyEvent event){
+	if(mWebby){
+		BullshitKeyEvent bske(event);
+		mWebby->handleNativeKeyEvent(0, event.getNativeKeyCode(), event.getNativeKeyCode(), bske.getModifiers(), event.getChar());
+		return;
+	}
 	using ci::app::KeyEvent;
 	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app

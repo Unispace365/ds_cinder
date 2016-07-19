@@ -106,6 +106,8 @@ public:
 	/// If true, any transparent web pages will be blank, false will have a white background for pages
 	void					setWebTransparent(const bool isTransparent);
 
+	void					handleNativeKeyEvent(const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
+
 protected:
 	virtual void			onSizeChanged();
 	virtual void			writeAttributesTo(ds::DataBuffer&);
