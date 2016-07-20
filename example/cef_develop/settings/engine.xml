@@ -58,7 +58,7 @@
 	<!-- how much to step the camera when using the arrow keys.
 		set to a value above 0.025 to enable arrow key usage.
 		default=-1.0 -->
-	<float name="camera:arrow_keys" value="-1.0" />
+	<float name="camera:arrow_keys" value="10.0" />
 
 	<!---------------------->
 	<!-- TOUCH SETTINGS ---->
@@ -66,9 +66,9 @@
 	<!-- Override the built-in touch scale and offset parsing.
 		 It's uncommon you'll need to do this. 
 		 Default is to use the built-in Cinder touch translation (default=false)-->
-	<text name="touch_overlay:override_translation" value="false" />
-	<size name="touch_overlay:dimensions" x="1920" y="1080" />
-	<size name="touch_overlay:offset" x="0" y="0" />
+	<text  name="touch_overlay:override_translation" value="false" />
+	<size  name="touch_overlay:dimensions" x="1920" y="1080" />
+	<size  name="touch_overlay:offset" x="0" y="0" />
 	<!--
 	<rect name="touch_overlay:filter_rect" l="10" t="10" r="1910" b="1070" />
 	-->
@@ -76,12 +76,12 @@
 	<!-- sets the color of debug touch points. default=255,255,255 -->
 	<color name="touch_color" r="255" g="255" b="255" />
 	<!-- draw circles around touch points -->
-	<text name="touch_overlay:debug" value="true" />
+	<text  name="touch_overlay:debug" value="true" />
 	
 	<!-- average out touch points over time for smoother input, but slightly less accurate. default=true -->
-	<text name="touch_smoothing" value="true" />
+	<text  name="touch_smoothing" value="true" />
 	<!-- how many frames to use when smoothing. Higher numbers are smoother. Lower than 3 is effectively off. default=5 -->
-	<int  name="touch_smooth_frames" value="8" />
+	<int   name="touch_smooth_frames" value="8" />
 	
 	<!-- Touch trails are special debug drawing that leaves a trail behind the touches.
 			use: true turns this on (overrides the stroked cirlce debug drawing (touch_overlay:debug must be true for this to be on)
@@ -99,13 +99,13 @@
 		"SystemAndMouse" -- Receive both native touch events and mouse events. Will
 		cause the first touch event to be discarded, because it is also a mouse event.
 	-->
-	<text name="touch_mode" value="TuioAndMouse" />
+	<text  name="touch_mode" value="TuioAndMouse" />
 	
 	<!-- port to listen to tuio stream. default=3333 -->
-	<int name="tuio_port" value="3333" />
+	<int   name="tuio_port" value="3333" />
 
 	<!-- will allow tuio to receive object data. default=false -->
-	<text name="tuio:receive_objects" value="false" />
+	<text  name="tuio:receive_objects" value="false" />
 
 	<!-- How far a touch moves before it's not a tap, in pixels -->
 	<float name="tap_threshold" value="40" />

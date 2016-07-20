@@ -90,9 +90,10 @@ void Service::createBrowser(const std::string& startUrl, std::function<void(int)
 	}
 }
 
-void Service::addPaintCallback(int browserId, std::function<void(const void *)> paintCallback){
-	if(mCefSimpleApp){
-		mCefSimpleApp->addPaintCallback(browserId, paintCallback);
+void Service::addPaintCallback(int browserId, std::function<void(const void *, const int, const int)> paintCallback){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->addPaintCallback(browserId, paintCallback);
 	}
 }
 
@@ -116,6 +117,13 @@ void Service::loadUrl(const int browserId, const std::string& newUrl){
 		handler->loadUrl(browserId, newUrl);
 	}
 
+}
+
+void Service::requestBrowserResize(const int browserId, const ci::Vec2i newSize){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->requestBrowserResize(browserId, newSize);
+	}
 }
 
 void Service::update(const ds::UpdateParams&) {

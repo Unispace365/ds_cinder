@@ -98,20 +98,44 @@ void CefDevelop::setupServer(){
 	rootSprite.enable(true);
 	rootSprite.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
+	/*
+	auto webby = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
+	webby->loadUrl("https://google.com");
+	rootSprite.addChildPtr(webby);
+	webby->setCenter(0.5f, 0.5f, 0.5f);
+	webby->setPosition(webby->getWidth()/2.0f, webby->getHeight() / 2.0f);
+	ci::randSeed(26987);
+	webby->setRotation(ci::Vec3f(ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f)));
+	webby->enable(true);
+	webby->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
+	webby->setTouchScaleMode(true);
+	mWebby = webby;
+	*/
+
 	rootSprite.setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+		/*
 		ds::ui::WebPlayer* wp = new ds::ui::WebPlayer(mEngine, true);
-		wp->setWebViewSize(ci::Vec2f(1920.0f, 1080.0f));
+		wp->setWebViewSize(ci::Vec2f(1366, 1366.0f));
 		wp->setMedia("https://google.com"); 
 		bs->addChildPtr(wp);
 		mWebby = wp->getWeb();
-		mWebby->enable(true);
+		wp->enable(true);
+		wp->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
+		wp->setTouchScaleMode(true);
+		//mWebby->enable(true);
 
-		/*
+		*/
 		auto webby = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
 		webby->loadUrl("https://google.com");
 		bs->addChildPtr(webby);
+		webby->setCenter(0.5f, 0.5f, 0.5f);
+		//webby->setRotation(ci::Vec3f(ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f)));
+		webby->enable(true);
+		webby->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
+		webby->setTouchScaleMode(true);
 		mWebby = webby;
-		*/
+
+		bs->enable(false);
 	});
 
 

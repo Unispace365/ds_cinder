@@ -79,6 +79,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mBrowserId(-1)
 	, mBuffer(nullptr)
 	, mHasBuffer(false)
+	, mBrowserSize(0, 0)
 	, mUrl("")
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
@@ -88,13 +89,8 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	mLayoutFixedAspect = true;
 
 	setTransparent(false);
-	setColor(1.0f, 1.0f, 1.0f);
 	setUseShaderTexture(true);
-
-	// TODO: be able to change this
-	setSize(1920.0f, 1080.0f);
-
-	mBuffer = new unsigned char[1920 * 1080 * 4];
+	setSize(width, height);
 
 	enable(true);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
@@ -105,7 +101,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 
 	//const std::string urly = "downstream.com";
 	//const std::string urly = "file://D:/content/sample_videos_2/vp9_4k.webm";
-	const std::string urly = "file://D:/test_pdfs/BPS C06_CIM_Services.pdf";
+	//const std::string urly = "file://D:/test_pdfs/BPS C06_CIM_Services.pdf";
 	//const std::string urly = "google.com";
 	//const std::string urly = "http://i.imgur.com/r6sS64A.gifv";
 	//const std::string urly = "https://google.com"; 
@@ -113,11 +109,23 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	//const std::string urly = "https://agoing.agsafoin.com/"; // generates an error cause the site can't be reached
 	mService.createBrowser("", [this](int browserId){ 
 		mBrowserId = browserId; 
+
+		// Now that we know about the browser, set it to the correct size
+		if(!mBuffer){
+			onSizeChanged();
+		} else {
+			mService.requestBrowserResize(mBrowserId, mBrowserSize);
+		}
+
+
 		loadUrl(mUrl);
-		mService.addPaintCallback(mBrowserId, [this](const void * buffer){
-			mHasBuffer = true;
-			memcpy(mBuffer, buffer, 1920 * 1080 * 4);
-			//mBuffer = (unsigned char *)(buffer);
+
+		mService.addPaintCallback(mBrowserId, [this](const void * buffer, const int bufferWidth, const int bufferHeight){
+			// verify the buffer exists and is the correct size
+			if(mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y){
+				mHasBuffer = true;
+				memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
+			}
 		});
 	});
 
@@ -126,6 +134,11 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 
 Web::~Web() {
 	mService.addPaintCallback(mBrowserId, nullptr);
+
+	if(mBuffer){
+		delete mBuffer;
+		mBuffer = nullptr;
+	}
 }
 
 void Web::updateClient(const ds::UpdateParams &p) {
@@ -146,18 +159,39 @@ void Web::update(const ds::UpdateParams &p) {
 
 	if(mBuffer && mHasBuffer){
 		ci::gl::Texture::Format fmt;
+		fmt.setMinFilter(GL_LINEAR);
 		fmt.setMagFilter(GL_LINEAR);
+		mWebTexture = ci::gl::Texture(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
+		mHasBuffer = false;
+	}
+}
 
-		//	ci::Surface web_surface(charBuffer, 1920, 1080, 1920 * 4, ci::SurfaceChannelOrder::BGRA);
-		mWebTexture = ci::gl::Texture(mBuffer, GL_BGRA, 1920, 1080, fmt);
-		// create or update our OpenGL Texture from the webview
+void Web::onSizeChanged() {
+	const int theWid = static_cast<int>(getWidth());
+	const int theHid = static_cast<int>(getHeight());
+	const ci::Vec2i newBrowserSize(theWid, theHid);
+	if(newBrowserSize == mBrowserSize && mBuffer){
+		return;
+	}
+
+	mBrowserSize = newBrowserSize;
+
+	if(mBuffer){
+		delete mBuffer;
+		mBuffer = nullptr;
+	}
+	const int bufferSize = theWid * theHid * 4;
+	mBuffer = new unsigned char[bufferSize];
+
+	mHasBuffer = false;
+
+	if(mBrowserId > -1){
+		mService.requestBrowserResize(mBrowserId, mBrowserSize);
 	}
 }
 
 void Web::drawLocalClient() {
 	if (mWebTexture) {
-		//ci::gl::color(ci::Color::white());
-
 		if(getPerspective()){
 			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture.getHeight()), static_cast<float>(mWebTexture.getWidth()), 0.0f));
 		} else {
@@ -401,11 +435,8 @@ void Web::clearError(){
 }
 
 ci::Vec2f Web::getDocumentSize() {
-	/*
-	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
-	return get_document_size(*mWebViewPtr);
-	*/
-	return ci::Vec2f(1920.0f, 1080.0f);
+	// TODO
+	return ci::Vec2f(getWidth(), getHeight());
 }
 
 ci::Vec2f Web::getDocumentScroll() {
@@ -422,18 +453,6 @@ void Web::executeJavascript(const std::string& theScript){
 	Awesomium::WebString		object_ws(Awesomium::WebString::CreateFromUTF8(theScript.c_str(), theScript.size()));
 	Awesomium::JSValue			object = mWebViewPtr->ExecuteJavascriptWithResult(object_ws, Awesomium::WebString());
 	std::cout << "Object return: " << ds::web::str_from_webstr(object.ToString()) << std::endl;
-	*/
-}
-
-
-void Web::onSizeChanged() {
-	/*
-	if (mWebViewPtr) {
-		const int			w = static_cast<int>(getWidth()),
-							h = static_cast<int>(getHeight());
-		if (w < 1 || h < 1) return;
-		mWebViewPtr->Resize(w, h);
-	}
 	*/
 }
 

@@ -28,8 +28,6 @@ public:
 
 	void		createBrowser(const std::string& url, std::function<void(int)> createdCallback);
 
-	void		addPaintCallback(int browserId, std::function<void(const void *)> paintCallback);
-
 private:
 	// Include the default reference counting implementation.
 	IMPLEMENT_REFCOUNTING(SimpleApp);

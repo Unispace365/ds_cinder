@@ -26,7 +26,7 @@ public:
 	virtual void			start();
 
 	void					createBrowser(const std::string& startUrl, std::function<void(int)> browserCreatedCallback);
-	void					addPaintCallback(int browserId, std::function<void(const void *)> paintCallback);
+	void					addPaintCallback(int browserId, std::function<void(const void *, const int bufferWidth, const int bufferHeight)> paintCallback);
 
 	// browser id was returned from the createBrowser callback, x / y in pixels from top/left in browser space, bttn: left=0, middle = 1; right = 2, state: 0 = down, 1 = move, 2 = release. 
 	void					sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);
@@ -34,6 +34,8 @@ public:
 	void					sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
 
 	void					loadUrl(const int browserId, const std::string& newUrl);
+
+	void					requestBrowserResize(const int browserId, const ci::Vec2i newSize);
 
 protected:
 	virtual void			update(const ds::UpdateParams&);

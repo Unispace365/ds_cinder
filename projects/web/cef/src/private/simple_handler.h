@@ -9,6 +9,7 @@
 
 #include <functional>
 #include <list>
+#include <cinder/Vector.h>
 
 class SimpleHandler : public CefClient,
 	public CefDisplayHandler,
@@ -78,7 +79,7 @@ public:
 	void addCreatedCallback(std::function<void(int)> callback);
 
 	// Gets called when the browser sends new paint info. 
-	void addPaintCallback(int browserId, std::function<void(const void *)> callback);
+	void addPaintCallback(int browserId, std::function<void(const void *, const int bufferWidth, const int bufferHeight)> callback);
 
 	void sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);
 
@@ -86,17 +87,21 @@ public:
 
 	void loadUrl(const int browserId, const std::string& newUrl);
 
+	void requestBrowserResize(const int browserId, const ci::Vec2i newSize);
+
 private:
 
 	// switch to a map for faster lookup
 	// List of existing browser windows. Only accessed on the CEF UI thread.
-	typedef std::vector<CefRefPtr<CefBrowser> > BrowserList;
-	BrowserList browser_list_;
+	std::map<int, CefRefPtr<CefBrowser>>					mBrowserList;
+
+	// Track the sizes that we want the browsers to be, since resizing is asynchronous
+	std::map<int, ci::Vec2i>								mBrowserSizes;
 
 	bool is_closing_;
 
 	std::vector<std::function<void(int)>>					mCreatedCallbacks;
-	std::map<int, std::function<void(const void * buffer)>> mPaintCallbacks;
+	std::map<int, std::function<void(const void *, const int, const int)>> mPaintCallbacks;
 
 	// Include the default reference counting implementation.
 	IMPLEMENT_REFCOUNTING(SimpleHandler);

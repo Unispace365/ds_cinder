@@ -16,6 +16,8 @@
 #include <iostream>
 #include <thread>
 
+#include <ds/debug/logger.h>
+
 namespace {
 
 	SimpleHandler* g_instance = NULL;
@@ -49,8 +51,23 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
-	// Add to the list of existing browsers.
-	browser_list_.push_back(browser);
+	int browserIdentifier = browser->GetIdentifier();
+
+	auto findy = mBrowserList.find(browserIdentifier);
+	if(findy != mBrowserList.end()){
+		DS_LOG_WARNING("Multiple browsers tracked with the same identifier! This could lead to issues. Identifier: " << browserIdentifier);
+
+		findy->second->GetHost()->CloseBrowser(true);
+		mBrowserList.erase(findy);
+	}
+
+	auto findySize = mBrowserSizes.find(browserIdentifier);
+	if(findySize != mBrowserSizes.end()){
+		mBrowserSizes.erase(findySize);
+	}
+
+	mBrowserList[browserIdentifier] = browser;
+
 	std::cout << "On after created " << browser->GetIdentifier() << " " << std::this_thread::get_id() << std::endl;
 
 	if(!mCreatedCallbacks.empty()){
@@ -62,10 +79,12 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
+	std::cout << "Simple Handler DoClose" << std::endl;
+
 	// Closing the main window requires special handling. See the DoClose()
 	// documentation in the CEF header for a detailed destription of this
 	// process.
-	if(browser_list_.size() == 1) {
+	if(mBrowserList.size() == 1) {
 		// Set a flag to indicate that the window close should be allowed.
 		is_closing_ = true;
 	}
@@ -79,16 +98,21 @@ bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 void SimpleHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
+	// clear any tracked sizes
+	auto findySize = mBrowserSizes.find(browser->GetIdentifier());
+	if(findySize != mBrowserSizes.end()){
+		mBrowserSizes.erase(findySize);
+	}
+
 	// Remove from the list of existing browsers.
-	BrowserList::iterator bit = browser_list_.begin();
-	for(; bit != browser_list_.end(); ++bit) {
-		if((*bit)->IsSame(browser)) {
-			browser_list_.erase(bit);
+	for(auto bit = mBrowserList.begin(); bit != mBrowserList.end(); ++bit) {
+		if(bit->second->IsSame(browser)) {
+			mBrowserList.erase(bit);
 			break;
 		}
 	}
 
-	if(browser_list_.empty()) {
+	if(mBrowserList.empty()) {
 		// All browser windows have closed. Quit the application message loop.
 		//CefQuitMessageLoop();
 	}
@@ -116,6 +140,8 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 
 
 bool SimpleHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
+	return false;
+
 	rect.x = rect.y = 0;
 	rect.width = 1920;
 	rect.height = 1080;
@@ -123,10 +149,17 @@ bool SimpleHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& re
 }
 
 bool SimpleHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
-	//TODO
 	rect.x = rect.y = 0;
-	rect.width = 1920; 
-	rect.height = 1080; 
+	auto findy = mBrowserSizes.find(browser->GetIdentifier());
+	if(findy == mBrowserSizes.end()){
+		// initial size before the main app knows about this browser.
+		rect.width = 640;
+		rect.height = 480;
+	} else {
+		// The main app knows about this browser and set the size
+		rect.width = findy->second.x;
+		rect.height = findy->second.y;
+	}
 	return true;
 }
 
@@ -146,21 +179,26 @@ void SimpleHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 	int browserId = browser->GetIdentifier();
 	auto paintCallback = mPaintCallbacks.find(browserId);
 	if(paintCallback != mPaintCallbacks.end() && paintCallback->second){
-		paintCallback->second(buffer);
+		paintCallback->second(buffer, width, height);
 	}
 }
 
 void SimpleHandler::CloseAllBrowsers(bool force_close) {
 
-	if(browser_list_.empty())
+	if(mBrowserList.empty())
 		return;
 
+	// This gets called from distinctly NOT the UI thread, but not quite sure if that's required.
+	// The documentation seems to indicate that it can be called from any thread, as long as it's the browser process (which it is)
+	//CEF_REQUIRE_UI_THREAD();
+	/*
 	if(!CefCurrentlyOn(TID_UI)) {
 		// Execute on the UI thread.
 		CefPostTask(TID_UI,
 					base::Bind(&SimpleHandler::CloseAllBrowsers, this, force_close));
 		return;
 	}
+	*/
 
 
 	static bool closedAllAlready = false;
@@ -171,11 +209,11 @@ void SimpleHandler::CloseAllBrowsers(bool force_close) {
 	mPaintCallbacks.clear();
 
 
-	std::cout << "close all browsers, num browsers: " << browser_list_.size() << std::endl;
+	std::cout << "close all browsers, num browsers: " << mBrowserList.size() << std::endl;
 
-	for(unsigned int i = 0; i < browser_list_.size(); i++){
-		if(browser_list_.empty()) return;
-		browser_list_[i]->GetHost()->CloseBrowser(force_close);
+	for(auto it = mBrowserList.begin(); it != mBrowserList.end(); ++it){
+		if(mBrowserList.size() < 1) return;
+		it->second->GetHost()->CloseBrowser(force_close);
 	}
 }
 
@@ -183,32 +221,37 @@ void SimpleHandler::addCreatedCallback(std::function<void(int)> callback){
 	mCreatedCallbacks.push_back(callback);
 }
 
-void SimpleHandler::addPaintCallback(int browserId, std::function<void(const void *)> callback){
+void SimpleHandler::addPaintCallback(int browserId, std::function<void(const void *, const int, const int)> callback){
 	mPaintCallbacks[browserId] = callback;
 }
 
 void SimpleHandler::sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount){
-	if(browser_list_.empty()) return;
+	if(mBrowserList.empty()) return;
 
-	for (auto it : browser_list_){
-		if(it->GetIdentifier() == browserId){
-			CefMouseEvent mouseEvent;
-			mouseEvent.x = x;
-			mouseEvent.y = y;
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		CefMouseEvent mouseEvent;
+		mouseEvent.x = x;
+		mouseEvent.y = y;
 
-			CefBrowserHost::MouseButtonType btnType = (bttn == 0 ? MBT_LEFT : (bttn == 2 ? MBT_RIGHT : MBT_MIDDLE));
-			if(state == 0){
-				it->GetHost()->SendMouseClickEvent(mouseEvent, btnType, false, clickCount);
-			} else if(state == 1){
-				it->GetHost()->SendMouseMoveEvent(mouseEvent, false);
-			} else {
-				it->GetHost()->SendMouseClickEvent(mouseEvent, btnType, false, clickCount);
-				it->GetHost()->SendMouseClickEvent(mouseEvent, btnType, true, 0);
-			}
+		auto browserHost = findy->second->GetHost();
+
+		CefBrowserHost::MouseButtonType btnType = (bttn == 0 ? MBT_LEFT : (bttn == 2 ? MBT_RIGHT : MBT_MIDDLE));
+		if(state == 0){
+			browserHost->SendMouseClickEvent(mouseEvent, btnType, false, clickCount);
+		} else if(state == 1){
+			browserHost->SendMouseMoveEvent(mouseEvent, false);
+		} else {
+			browserHost->SendMouseClickEvent(mouseEvent, btnType, false, clickCount);
+			browserHost->SendMouseClickEvent(mouseEvent, btnType, true, 0);
 		}
+	} else {
+		DS_LOG_WARNING("Browser not found in list to sendMouseClick to! BrowserId=" << browserId);
 	}
+	
 }
 
+// TODO: Move these parsers to a different file
 bool IsKeyDown(WPARAM wparam) {
 	return (GetKeyState(wparam) & 0x8000) != 0;
 }
@@ -321,39 +364,51 @@ void SimpleHandler::sendKeyEvent(const int browserId, const int state, int windo
 	event.modifiers = GetCefKeyboardModifiers(wParam, lParam);
 	*/
 
-	for(auto it : browser_list_){
-		if(it->GetIdentifier() == browserId){
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
 
-			if(state == 0){
-				CefKeyEvent keyEvent;
-				keyEvent.type = KEYEVENT_RAWKEYDOWN;
-				keyEvent.windows_key_code = 65;
-				keyEvent.native_key_code = 1966081;// (int)(OemKeyScan(character));
-				keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
-				it->GetHost()->SendKeyEvent(keyEvent);
+		auto browserHost = findy->second->GetHost();
 
-			} else {
+		if(state == 0){
+			CefKeyEvent keyEvent;
+			keyEvent.type = KEYEVENT_RAWKEYDOWN;
+			keyEvent.windows_key_code = 65;
+			keyEvent.native_key_code = 1966081;// (int)(OemKeyScan(character));
+			keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
+			browserHost->SendKeyEvent(keyEvent);
 
-				int scanCode = MapVirtualKey(character, 0);
+		} else {
 
-				CefKeyEvent keyEvent;
-				keyEvent.type = KEYEVENT_CHAR;
-				keyEvent.windows_key_code = character;
-				keyEvent.native_key_code = scanCode;// (int)(OemKeyScan(character));
-				keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
-				it->GetHost()->SendKeyEvent(keyEvent);
-			}
-			break;
+			int scanCode = MapVirtualKey(character, 0);
+
+			CefKeyEvent keyEvent;
+			keyEvent.type = KEYEVENT_CHAR;
+			keyEvent.windows_key_code = character;
+			keyEvent.native_key_code = scanCode;// (int)(OemKeyScan(character));
+			keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
+			browserHost->SendKeyEvent(keyEvent);
 		}
+	} else {
+		DS_LOG_WARNING("Couldn't find the correct browser to send key event to! BrowserId = " << browserId);
 	}
 }
 
 void SimpleHandler::loadUrl(const int browserId, const std::string& newUrl){
 
-	for(auto it : browser_list_){
-		if(it->GetIdentifier() == browserId){
-			it->GetMainFrame()->LoadURL(CefString(newUrl));
-			break;
-		}
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		findy->second->GetMainFrame()->LoadURL(CefString(newUrl));
 	}
+}
+
+void SimpleHandler::requestBrowserResize(const int browserId, const ci::Vec2i newSize){
+
+	mBrowserSizes[browserId] = newSize;
+
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		// This tells the browser to get the view size, in which case it will look up the browser size in the mBrowserSizes map and resize accordingly, then repaint
+		findy->second->GetHost()->WasResized();
+	}
+
 }

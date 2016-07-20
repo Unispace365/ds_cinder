@@ -72,9 +72,3 @@ void SimpleApp::createBrowser(const std::string& url, std::function<void(int)> c
 	// Create the first browser window.
 	CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, NULL);
 }
-
-void SimpleApp::addPaintCallback(int browserId, std::function<void(const void *)> paintCallback){
-	if(mHandler){
-		mHandler->addPaintCallback(browserId, paintCallback);
-	}
-}

@@ -129,6 +129,7 @@ private:
 	ds::web::Service&		mService;
 
 	bool					mHasBuffer;
+	ci::Vec2i				mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
 	ci::gl::Texture			mWebTexture;
 
 	ci::Vec3f				mPreviousTouchPos;
