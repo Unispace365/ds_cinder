@@ -25,7 +25,7 @@ namespace {
 }  // namespace
 
 SimpleHandler::SimpleHandler()
-: is_closing_(false) {
+{
 	DCHECK(!g_instance);
 	g_instance = this;
 }
@@ -43,9 +43,10 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 								  const CefString& title) {
 	CEF_REQUIRE_UI_THREAD();
 
-	// Set the title of the window using platform APIs.
-	//PlatformTitleChange(browser, title);
-	
+	auto findyT = mTitleChangeCallbacks.find(browser->GetIdentifier());
+	if(findyT != mTitleChangeCallbacks.end()){
+		findyT->second(title.ToWString());
+	}
 }
 
 void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -79,18 +80,7 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
-	std::cout << "Simple Handler DoClose" << std::endl;
-
-	// Closing the main window requires special handling. See the DoClose()
-	// documentation in the CEF header for a detailed destription of this
-	// process.
-	if(mBrowserList.size() == 1) {
-		// Set a flag to indicate that the window close should be allowed.
-		is_closing_ = true;
-	}
-
-	// Allow the close. For windowed browsers this will result in the OS close
-	// event being sent.
+	// Allow the close.
 	return false;
 }
 
@@ -118,6 +108,24 @@ void SimpleHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 	}
 }
 
+
+bool SimpleHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser, 
+								  CefRefPtr<CefFrame> frame, 
+								  const CefString& target_url, 
+								  const CefString& target_frame_name, 
+								  WindowOpenDisposition target_disposition, 
+								  bool user_gesture, 
+								  const CefPopupFeatures& popupFeatures, 
+								  CefWindowInfo& windowInfo, 
+								  CefRefPtr<CefClient>& client, 
+								  CefBrowserSettings& settings, 
+								  bool* no_javascript_access){
+	std::cout << "On Before popup" << std::endl;
+
+	browser->GetMainFrame()->LoadURL(target_url);
+	return true; // true prevents the popup
+}
+
 void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 								CefRefPtr<CefFrame> frame,
 								ErrorCode errorCode,
@@ -140,8 +148,10 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 
 
 void SimpleHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading, bool canGoBack, bool canGoForward){
-
-	std::cout << "OnLoadingStateChange: " << isLoading << " "  << std::this_thread::get_id() << std::endl;
+	auto findyL = mLoadChangeCallbacks.find(browser->GetIdentifier());
+	if(findyL != mLoadChangeCallbacks.end()){
+		findyL->second(isLoading, canGoBack, canGoForward);
+	}
 }
 
 bool SimpleHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
@@ -189,45 +199,26 @@ void SimpleHandler::CloseBrowser(const int browserId){
 		mBrowserSizes.erase(findyS);
 	}
 
+	auto findyP = mPaintCallbacks.find(browserId);
+	if(findyP != mPaintCallbacks.end()){
+		mPaintCallbacks.erase(findyP);
+	}
+
+	auto findyL = mLoadChangeCallbacks.find(browserId);
+	if(findyL != mLoadChangeCallbacks.end()){
+		mLoadChangeCallbacks.erase(findyL);
+	}
+
+	auto findyT = mTitleChangeCallbacks.find(browserId);
+	if(findyT != mTitleChangeCallbacks.end()){
+		mTitleChangeCallbacks.erase(findyT);
+	}
+
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 		auto browserHost = findy->second->GetHost();
 		mBrowserList.erase(findy);
 		browserHost->CloseBrowser(true);
-	}
-}
-
-void SimpleHandler::CloseAllBrowsers(bool force_close) {
-
-	if(mBrowserList.empty())
-		return;
-
-	// This gets called from distinctly NOT the UI thread, but not quite sure if that's required.
-	// The documentation seems to indicate that it can be called from any thread, as long as it's the browser process (which it is)
-	//CEF_REQUIRE_UI_THREAD();
-	/*
-	if(!CefCurrentlyOn(TID_UI)) {
-		// Execute on the UI thread.
-		CefPostTask(TID_UI,
-					base::Bind(&SimpleHandler::CloseAllBrowsers, this, force_close));
-		return;
-	}
-	*/
-
-
-	static bool closedAllAlready = false;
-	std::cout << "close all browsers start " << closedAllAlready << std::endl;
-	if(closedAllAlready) return;
-	closedAllAlready = true;
-
-	mPaintCallbacks.clear();
-
-
-	std::cout << "close all browsers, num browsers: " << mBrowserList.size() << std::endl;
-
-	for(auto it = mBrowserList.begin(); mBrowserList.size() > 0 && it != mBrowserList.end(); it++){
-		if(mBrowserList.size() < 1) return;
-		it->second->GetHost()->CloseBrowser(force_close);
 	}
 }
 
@@ -237,6 +228,14 @@ void SimpleHandler::addCreatedCallback(std::function<void(int)> callback){
 
 void SimpleHandler::addPaintCallback(int browserId, std::function<void(const void *, const int, const int)> callback){
 	mPaintCallbacks[browserId] = callback;
+}
+
+void SimpleHandler::addLoadChangeCallback(int browserId, std::function<void(const bool isLoading, const bool canBack, const bool canForward)> callback){
+	mLoadChangeCallbacks[browserId] = callback;
+}
+
+void SimpleHandler::addTitleChangeCallback(int browserId, std::function<void(const std::wstring& titleChange)> callback){
+	mTitleChangeCallbacks[browserId] = callback;
 }
 
 void SimpleHandler::sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount){

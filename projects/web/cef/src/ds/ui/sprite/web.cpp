@@ -81,6 +81,9 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mHasBuffer(false)
 	, mBrowserSize(0, 0)
 	, mUrl("")
+	, mIsLoading(false)
+	, mCanBack(false)
+	, mCanForward(false)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -101,24 +104,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 
 	mService.createBrowser("", [this](int browserId){ 
 		mBrowserId = browserId; 
-
-		// Now that we know about the browser, set it to the correct size
-		if(!mBuffer){
-			onSizeChanged();
-		} else {
-			mService.requestBrowserResize(mBrowserId, mBrowserSize);
-		}
-
-
-		loadUrl(mUrl);
-
-		mService.addPaintCallback(mBrowserId, [this](const void * buffer, const int bufferWidth, const int bufferHeight){
-			// verify the buffer exists and is the correct size
-			if(mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y){
-				mHasBuffer = true;
-				memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
-			}
-		});
+		initializeBrowser();
 	});
 
 	
@@ -135,6 +121,50 @@ Web::~Web() {
 		mBuffer = nullptr;
 	}
 }
+
+void Web::initializeBrowser(){
+
+	// Now that we know about the browser, set it to the correct size
+	if(!mBuffer){
+		onSizeChanged();
+	} else {
+		mService.requestBrowserResize(mBrowserId, mBrowserSize);
+	}
+
+
+	loadUrl(mUrl);
+
+	mService.addTitleChangeCallback(mBrowserId, [this](const std::wstring& newTitle){
+		mTitle = newTitle;
+
+		std::cout << "New Browser title: " << ds::utf8_from_wstr(newTitle) << std::endl;
+
+		if(mTitleChangedCallback){
+			mTitleChangedCallback(newTitle);
+		}
+	});
+
+	mService.addLoadChangeCallback(mBrowserId, [this](const bool isLoading, const bool canBack, const bool canForwards){
+		mIsLoading = isLoading;
+		mCanBack = canBack;
+		mCanForward = canForwards;
+
+		std::cout << "Load done: " << isLoading << " " << canBack << " " << canForwards << std::endl;
+		if(!mIsLoading && mDocumentReadyFn){
+			mDocumentReadyFn();
+			//	mJsMethodHandler->setDomIsReady(*mWebViewPtr);
+		}
+	});
+
+	mService.addPaintCallback(mBrowserId, [this](const void * buffer, const int bufferWidth, const int bufferHeight){
+		// verify the buffer exists and is the correct size
+		if(mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y){
+			mHasBuffer = true;
+			memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
+		}
+	});
+}
+
 
 void Web::updateClient(const ds::UpdateParams &p) {
 	Sprite::updateClient(p);
@@ -248,20 +278,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 
 
 std::string Web::getUrl() {
-	/*
-	try {
-	if (!mWebViewPtr) return "";
-	Awesomium::WebURL		wurl = mWebViewPtr->url();
-	Awesomium::WebString	webstr = wurl.spec();
-	auto					len = webstr.ToUTF8(nullptr, 0);
-	if (len < 1) return "";
-	std::string				str(len+2, 0);
-	webstr.ToUTF8(const_cast<char*>(str.c_str()), len);
-	return str;
-	} catch (std::exception const&) {
-	}
-	*/
-	return "";
+	return mUrl;
 }
 
 void Web::loadUrl(const std::wstring &url) {
@@ -270,6 +287,7 @@ void Web::loadUrl(const std::wstring &url) {
 
 void Web::loadUrl(const std::string &url) {
 	mUrl = url;
+	markAsDirty(URL_DIRTY);
 	if(mBrowserId > -1 && !mUrl.empty()){
 		mService.loadUrl(mBrowserId, mUrl);
 	}
@@ -393,27 +411,31 @@ void Web::stop() {
 }
 
 bool Web::canGoBack() {
-	/*
-	if (!mWebViewPtr) return false;
-	return mWebViewPtr->CanGoBack();
-	*/
-	return true;
+	return mCanBack;
 }
 
 bool Web::canGoForward() {
-	/*
-	if (!mWebViewPtr) return false;
-	return mWebViewPtr->CanGoForward();
-	*/
-	return true;
+	return mCanForward;
+}
+
+bool Web::isLoading() {
+	return mIsLoading;
+}
+
+void Web::setTitleChangedFn(const std::function<void(const std::wstring& newTitle)>& func){
+	mTitleChangedCallback = func;
 }
 
 void Web::setAddressChangedFn(const std::function<void(const std::string& new_address)>& fn) {
-//	if (mWebViewListener) mWebViewListener->setAddressChangedFn(fn);
+	mAddressChangedCallback = fn;
 }
 
 void Web::setDocumentReadyFn(const std::function<void(void)>& fn) {
 	mDocumentReadyFn = fn;
+}
+
+void Web::setErrorCallback(std::function<void(const std::string&)> func){
+	mErrorCallback = func;
 }
 
 void Web::setErrorMessage(const std::string &message){
@@ -430,12 +452,12 @@ void Web::clearError(){
 }
 
 ci::Vec2f Web::getDocumentSize() {
-	// TODO
+	// TODO?
 	return ci::Vec2f(getWidth(), getHeight());
 }
 
 ci::Vec2f Web::getDocumentScroll() {
-	/*
+	/* TODO
 	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
 	return get_document_scroll(*mWebViewPtr);
 	*/
@@ -443,8 +465,7 @@ ci::Vec2f Web::getDocumentScroll() {
 }
 
 void Web::executeJavascript(const std::string& theScript){
-	/*
-
+	/* TODO
 	Awesomium::WebString		object_ws(Awesomium::WebString::CreateFromUTF8(theScript.c_str(), theScript.size()));
 	Awesomium::JSValue			object = mWebViewPtr->ExecuteJavascriptWithResult(object_ws, Awesomium::WebString());
 	std::cout << "Object return: " << ds::web::str_from_webstr(object.ToString()) << std::endl;
@@ -468,49 +489,12 @@ void Web::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 	}
 }
 
-bool Web::isLoading() {
-	/*
-	if(mWebViewPtr && mWebViewPtr->IsLoading()){
-		return true;
-	}
-	*/
-	return false;
-}
-
-bool Web::webViewDirty(){
-	/*
-	if(!mWebViewPtr){
-		return false;
-	}
-
-	Awesomium::BitmapSurface* surface = (Awesomium::BitmapSurface*) mWebViewPtr->surface();
-	if(!surface) return false; 
-
-	return surface->is_dirty();
-	*/
-	return false;
-}
-
-void Web::onUrlSet(const std::string &url) {
-	mUrl = url;
-	markAsDirty(URL_DIRTY);
-}
-
-void Web::onDocumentReady() {
-	/*
-	if (!mWebViewPtr || !mJsMethodHandler) return;
-
-	mJsMethodHandler->setDomIsReady(*mWebViewPtr);
-	if (mDocumentReadyFn) mDocumentReadyFn();
-	*/
-}
-
 void Web::setAllowClicks(const bool doAllowClicks){
 	mAllowClicks = doAllowClicks;
 }
 
 void Web::setWebTransparent(const bool isTransparent){
-	/*
+	/* TODO (defaults to true)
 	if(mWebViewPtr){
 		mWebViewPtr->SetTransparent(isTransparent);
 	}

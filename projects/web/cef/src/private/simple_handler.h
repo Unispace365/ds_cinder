@@ -46,6 +46,37 @@ public:
 	virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
 	virtual bool DoClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
 	virtual void OnBeforeClose(CefRefPtr<CefBrowser> browser) OVERRIDE;
+	// Called on the IO thread before a new popup browser is created. The
+	// |browser| and |frame| values represent the source of the popup request. The
+	// |target_url| and |target_frame_name| values indicate where the popup
+	// browser should navigate and may be empty if not specified with the request.
+	// The |target_disposition| value indicates where the user intended to open
+	// the popup (e.g. current tab, new tab, etc). The |user_gesture| value will
+	// be true if the popup was opened via explicit user gesture (e.g. clicking a
+	// link) or false if the popup opened automatically (e.g. via the
+	// DomContentLoaded event). The |popupFeatures| structure contains additional
+	// information about the requested popup window. To allow creation of the
+	// popup browser optionally modify |windowInfo|, |client|, |settings| and
+	// |no_javascript_access| and return false. To cancel creation of the popup
+	// browser return true. The |client| and |settings| values will default to the
+	// source browser's values. If the |no_javascript_access| value is set to
+	// false the new browser will not be scriptable and may not be hosted in the
+	// same renderer process as the source browser. Any modifications to
+	// |windowInfo| will be ignored if the parent browser is wrapped in a
+	// CefBrowserView.
+	///
+	/*--cef(optional_param=target_url,optional_param=target_frame_name)--*/
+	virtual bool OnBeforePopup(CefRefPtr<CefBrowser> browser,
+							   CefRefPtr<CefFrame> frame,
+							   const CefString& target_url,
+							   const CefString& target_frame_name,
+							   WindowOpenDisposition target_disposition,
+							   bool user_gesture,
+							   const CefPopupFeatures& popupFeatures,
+							   CefWindowInfo& windowInfo,
+							   CefRefPtr<CefClient>& client,
+							   CefBrowserSettings& settings,
+							   bool* no_javascript_access);
 
 	// CefLoadHandler methods:
 	virtual void OnLoadError(CefRefPtr<CefBrowser> browser,
@@ -75,18 +106,18 @@ public:
 						 const void* buffer,
 						 int width, int height) OVERRIDE;
 
+	// Requests the browser to be closed and also clears and related callbacks
 	void CloseBrowser(const int browserId);
-
-	// Request that all existing browser windows close.
-	void CloseAllBrowsers(bool force_close);
-
-	bool IsClosing() const { return is_closing_; }
 
 	// Adds a callback to a list of callbacks for after browsers are created
 	void addCreatedCallback(std::function<void(int)> callback);
 
 	// Gets called when the browser sends new paint info, aka new buffers
 	void addPaintCallback(int browserId, std::function<void(const void *, const int bufferWidth, const int bufferHeight)> callback);
+	// The loading state has changed
+	void addLoadChangeCallback(int browserId, std::function<void(const bool isLoading, const bool canBack, const bool canForward)> callback);
+	// The title of the page has changed
+	void addTitleChangeCallback(int browserId, std::function<void(const std::wstring& titleChange)> callback);
 
 	// Sends some mouse input to the browser
 	void sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);
@@ -109,10 +140,10 @@ private:
 	// Track the sizes that we want the browsers to be, since resizing is asynchronous
 	std::map<int, ci::Vec2i>								mBrowserSizes;
 
-	bool is_closing_;
-
 	std::vector<std::function<void(int)>>					mCreatedCallbacks;
 	std::map<int, std::function<void(const void *, const int, const int)>> mPaintCallbacks;
+	std::map<int, std::function<void(const bool, const bool, const bool)>> mLoadChangeCallbacks;
+	std::map<int, std::function<void(const std::wstring&)>>	mTitleChangeCallbacks;
 
 	// Include the default reference counting implementation.
 	IMPLEMENT_REFCOUNTING(SimpleHandler);

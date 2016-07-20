@@ -74,11 +74,12 @@ public:
 	bool					canGoBack();
 	bool					canGoForward();
 
-	// For now, a simple communication about when the address changes.
-	// In the future I'd like to have a richer mechanism in place.
+	const std::wstring&		getPageTitle(){ return mTitle; }
+
+	void					setTitleChangedFn(const std::function<void(const std::wstring& newTitle)>&);
 	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
 	void					setDocumentReadyFn(const std::function<void(void)>&);
-	void					setErrorCallback(std::function<void(const std::string&)> func){ mErrorCallback = func; }
+	void					setErrorCallback(std::function<void(const std::string&)> func);
 
 	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
 	void					setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
@@ -117,17 +118,18 @@ protected:
 	virtual void			onSizeChanged();
 	virtual void			writeAttributesTo(ds::DataBuffer&);
 	virtual void			readAttributeFrom(const char attributeId, ds::DataBuffer&);
-	bool					webViewDirty();
 
 private:
 	void					update(const ds::UpdateParams&);
-	void					onUrlSet(const std::string&);
-	void					onDocumentReady();
 	void					handleTouch(const ds::ui::TouchInfo&);
+
+	void					initializeBrowser();
 //	void					sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase&);
 
 	ds::web::Service&		mService;
 
+	int						mBrowserId;
+	unsigned char *			mBuffer;
 	bool					mHasBuffer;
 	ci::Vec2i				mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
 	ci::gl::Texture			mWebTexture;
@@ -143,10 +145,10 @@ private:
 	// Prevent the scroll from being cached more than once in an update.
 	int32_t					mPageScrollCount;
 
-	std::function<void(void)>
-							mDocumentReadyFn;
-	std::function<void(const std::string& msg)>
-							mErrorCallback;
+	std::function<void(void)> mDocumentReadyFn;
+	std::function<void(const std::string& msg)> mErrorCallback;
+	std::function<void(const std::string& msg)> mAddressChangedCallback;
+	std::function<void(const std::wstring& msg)> mTitleChangedCallback;
 
 
 	// Replicated state
@@ -155,9 +157,12 @@ private:
 	bool					mHasError;
 	std::string				mErrorMessage;
 
-	int						mBrowserId;
+	// CEF state, cached here so we don't need to (or can't) query the other threads/processes
+	std::wstring			mTitle;
+	bool					mIsLoading;
+	bool					mCanBack;
+	bool					mCanForward;
 
-	unsigned char *			mBuffer;
 
 	// Initialization
 public:

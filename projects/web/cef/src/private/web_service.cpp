@@ -115,6 +115,20 @@ void Service::addPaintCallback(int browserId, std::function<void(const void *, c
 	}
 }
 
+void Service::addLoadChangeCallback(const int browserId, std::function<void(const bool isLoading, const bool canBack, const bool canForward)> callback){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->addLoadChangeCallback(browserId, callback);
+	}
+}
+
+void Service::addTitleChangeCallback(const int browserId, std::function<void(const std::wstring&)> callback){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->addTitleChangeCallback(browserId, callback);
+	}
+}
+
 void Service::sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount){
 	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
 	if(handler){
