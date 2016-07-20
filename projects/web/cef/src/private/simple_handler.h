@@ -54,6 +54,11 @@ public:
 							 const CefString& errorText,
 							 const CefString& failedUrl) OVERRIDE;
 
+	virtual void OnLoadingStateChange(CefRefPtr<CefBrowser> browser,
+									  bool isLoading,
+									  bool canGoBack,
+									  bool canGoForward) OVERRIDE;
+
 	// CefRenderHandler methods:
 	virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
 								   CefRect& rect);
@@ -68,7 +73,9 @@ public:
 						 PaintElementType type,
 						 const RectList& dirtyRects,
 						 const void* buffer,
-						 int width, int height);
+						 int width, int height) OVERRIDE;
+
+	void CloseBrowser(const int browserId);
 
 	// Request that all existing browser windows close.
 	void CloseAllBrowsers(bool force_close);
@@ -78,15 +85,19 @@ public:
 	// Adds a callback to a list of callbacks for after browsers are created
 	void addCreatedCallback(std::function<void(int)> callback);
 
-	// Gets called when the browser sends new paint info. 
+	// Gets called when the browser sends new paint info, aka new buffers
 	void addPaintCallback(int browserId, std::function<void(const void *, const int bufferWidth, const int bufferHeight)> callback);
 
+	// Sends some mouse input to the browser
 	void sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);
 
+	// Sends a key event to the browser
 	void sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
 
+	// Loads a new URL in the specified browser's main frame
 	void loadUrl(const int browserId, const std::string& newUrl);
 
+	// Resize the browser. Happens asynchronously, meaning a paint callback will come back later with the actual info
 	void requestBrowserResize(const int browserId, const ci::Vec2i newSize);
 
 private:

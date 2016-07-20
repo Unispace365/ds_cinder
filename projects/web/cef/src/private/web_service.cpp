@@ -42,17 +42,24 @@ Service::~Service() {
 
 	std::cout << "Service destructor" << std::endl;
 
-	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
-	if(handler){
-		handler->CloseAllBrowsers(true);
+	//CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	//if(handler){
+	//	handler->CloseAllBrowsers(false);
+//	}
+
+	//std::this_thread::sleep_for(std::chrono::seconds(2));
+
+	try{
+		CefShutdown();
+	} catch(...){
+		std::cout << "Service destructor exception" << std::endl;
 	}
-
-	std::this_thread::sleep_for(std::chrono::seconds(2));
-
-	CefShutdown();
 }
 
 void Service::start() {
+
+	CefEnableHighDPISupport();
+
 	std::cout << "web service startup" << std::endl;
 	void* sandbox_info = NULL;
 	CefMainArgs main_args(GetModuleHandle(NULL));
@@ -66,8 +73,8 @@ void Service::start() {
 	CefSettings settings;
 	settings.no_sandbox = true;
 	settings.single_process = false;
-	settings.multi_threaded_message_loop = true;
-	settings.windowless_rendering_enabled = true;
+	settings.multi_threaded_message_loop = false;
+	settings.windowless_rendering_enabled = false;
 
 	//const char* path = "D:/code/cef_binary_3.2704.1431.ge7ddb8a_windows32/cefsimple/Release/cefsimple.exe";
 	//const char* path = ds::Environment::expand("%APP%/cefsimple.exe").c_str();
@@ -79,6 +86,10 @@ void Service::start() {
 	std::cout << "cef initialize" << std::endl;
 }
 
+void Service::update(const ds::UpdateParams&) {
+	CefDoMessageLoopWork();
+}
+
 void Service::createBrowser(const std::string& startUrl, std::function<void(int)> createdCallback){
 	if(mCefSimpleApp){
 		std::cout << "Service: Create browser " << std::this_thread::get_id() << std::endl;
@@ -87,6 +98,13 @@ void Service::createBrowser(const std::string& startUrl, std::function<void(int)
 		} catch(std::exception& e){
 			std::cout << "Exception creating browser: " << e.what() << std::endl;
 		}
+	}
+}
+
+void Service::closeBrowser(const int browserId){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->CloseBrowser(browserId);
 	}
 }
 
@@ -124,10 +142,6 @@ void Service::requestBrowserResize(const int browserId, const ci::Vec2i newSize)
 	if(handler){
 		handler->requestBrowserResize(browserId, newSize);
 	}
-}
-
-void Service::update(const ds::UpdateParams&) {
-	//CefDoMessageLoopWork();
 }
 
 } // namespace web

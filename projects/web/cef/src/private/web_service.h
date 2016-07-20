@@ -14,8 +14,9 @@ namespace web {
 
 /**
  * \class ds::web::Service
- * \brief The engine service object that provides access to the
- * web service.
+ * \brief The engine service object that provides access to the Chromium Embedded Framework objects.
+ *			This class initializes CEF and provides some high-level functions.
+ *			Then it acts as a pass-through to the underlying functionality, which is mostly in the handler.
  */
 class Service : public ds::EngineService,
 				public ds::AutoUpdate {
@@ -26,6 +27,7 @@ public:
 	virtual void			start();
 
 	void					createBrowser(const std::string& startUrl, std::function<void(int)> browserCreatedCallback);
+	void					closeBrowser(const int browserId);
 	void					addPaintCallback(int browserId, std::function<void(const void *, const int bufferWidth, const int bufferHeight)> paintCallback);
 
 	// browser id was returned from the createBrowser callback, x / y in pixels from top/left in browser space, bttn: left=0, middle = 1; right = 2, state: 0 = down, 1 = move, 2 = release. 

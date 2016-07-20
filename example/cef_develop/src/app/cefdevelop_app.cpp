@@ -125,10 +125,21 @@ void CefDevelop::setupServer(){
 		//mWebby->enable(true);
 
 		*/
+
+
+
+		//const std::string urly = "downstream.com";
+	//	const std::string urly = "file://D:/content/sample_videos_2/vp9_4k.webm";
+	//	const std::string urly = "file://D:/test_pdfs/BPS C06_CIM_Services.pdf";
+		//const std::string urly = "google.com";
+	//	const std::string urly = "http://i.imgur.com/r6sS64A.gifv";
+		const std::string urly = "https://google.com"; 
+		//const std::string urly = "https://drive.google.com/drive/my-drive";
+		//const std::string urly = "https://agoing.agsafoin.com/"; // generates an error cause the site can't be reached
 		auto webby = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
-		webby->loadUrl("https://google.com");
+		webby->loadUrl(urly);
 		bs->addChildPtr(webby);
-		webby->setCenter(0.5f, 0.5f, 0.5f);
+		//webby->setCenter(0.5f, 0.5f, 0.5f);
 		//webby->setRotation(ci::Vec3f(ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f)));
 		webby->enable(true);
 		webby->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);

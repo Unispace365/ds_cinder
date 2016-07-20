@@ -23,10 +23,14 @@ SimpleApp::SimpleApp() {
 void SimpleApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line){
 	std::cout << "before command line" << std::endl;
 	// This would prevent a crash in debug:
-	command_line->AppendSwitch(CefString("disable-extensions"));
+	//command_line->AppendSwitch(CefString("disable-extensions"));
 	command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
 	command_line->AppendSwitch("disable-gpu");
 	command_line->AppendSwitch("disable-gpu-compositing");
+//	command_line->AppendSwitch("disable-surfaces");
+//	command_line->AppendSwitch("enable-begin-frame-scheduling");
+	//command_line->AppendSwitch("off-screen-rendering-enabled");
+	command_line->AppendSwitchWithValue("off-screen-frame-rate", "60");
 	command_line->AppendSwitchWithValue(CefString("touch-optimized-ui"),CefString("enabled"));
 
 	//command_line->AppendArgument("browser-subprocess-path=D:/code/cef_binary_3.2704.1431.ge7ddb8a_windows32/cefsimple/Release/cefsimple.exe");
@@ -52,6 +56,7 @@ void SimpleApp::OnContextInitialized() {
 }
 
 void SimpleApp::createBrowser(const std::string& url, std::function<void(int)> createdCallback){
+	CEF_REQUIRE_UI_THREAD();
 	// Specify CEF browser settings here.
 	CefBrowserSettings browser_settings;
 

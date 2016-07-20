@@ -139,13 +139,13 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 }
 
 
+void SimpleHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading, bool canGoBack, bool canGoForward){
+
+	std::cout << "OnLoadingStateChange: " << isLoading << " "  << std::this_thread::get_id() << std::endl;
+}
+
 bool SimpleHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
 	return false;
-
-	rect.x = rect.y = 0;
-	rect.width = 1920;
-	rect.height = 1080;
-	return true;
 }
 
 bool SimpleHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
@@ -163,7 +163,6 @@ bool SimpleHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
 	return true;
 }
 
-
 bool SimpleHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int viewY, int& screenX, int& screenY){
 	screenX = viewX;
 	screenY = viewY;
@@ -180,6 +179,21 @@ void SimpleHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 	auto paintCallback = mPaintCallbacks.find(browserId);
 	if(paintCallback != mPaintCallbacks.end() && paintCallback->second){
 		paintCallback->second(buffer, width, height);
+	}
+}
+
+void SimpleHandler::CloseBrowser(const int browserId){
+
+	auto findyS = mBrowserSizes.find(browserId);
+	if(findyS != mBrowserSizes.end()){
+		mBrowserSizes.erase(findyS);
+	}
+
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		auto browserHost = findy->second->GetHost();
+		mBrowserList.erase(findy);
+		browserHost->CloseBrowser(true);
 	}
 }
 
@@ -211,7 +225,7 @@ void SimpleHandler::CloseAllBrowsers(bool force_close) {
 
 	std::cout << "close all browsers, num browsers: " << mBrowserList.size() << std::endl;
 
-	for(auto it = mBrowserList.begin(); it != mBrowserList.end(); ++it){
+	for(auto it = mBrowserList.begin(); mBrowserList.size() > 0 && it != mBrowserList.end(); it++){
 		if(mBrowserList.size() < 1) return;
 		it->second->GetHost()->CloseBrowser(force_close);
 	}
