@@ -56,6 +56,7 @@ void Service::start() {
 	std::cout << "web service startup" << std::endl;
 	void* sandbox_info = NULL;
 	CefMainArgs main_args(GetModuleHandle(NULL));
+	
 	int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
 	if(exit_code >= 0){
 		std::cout << "CEF setup exit code: " << exit_code << std::endl;
@@ -64,9 +65,14 @@ void Service::start() {
 
 	CefSettings settings;
 	settings.no_sandbox = true;
-	settings.single_process = true;
+	settings.single_process = false;
 	settings.multi_threaded_message_loop = true;
 	settings.windowless_rendering_enabled = true;
+
+	//const char* path = "D:/code/cef_binary_3.2704.1431.ge7ddb8a_windows32/cefsimple/Release/cefsimple.exe";
+	//const char* path = ds::Environment::expand("%APP%/cefsimple.exe").c_str();
+	const char* path = "cefsimple.exe";
+	CefString(&settings.browser_subprocess_path).FromASCII(path);
 
 	mCefSimpleApp = CefRefPtr<SimpleApp>(new SimpleApp);
 	CefInitialize(main_args, settings, mCefSimpleApp.get(), sandbox_info);
@@ -102,6 +108,14 @@ void Service::sendKeyEvent(const int browserId, const int state, int windows_key
 	if(handler){
 		handler->sendKeyEvent(browserId, state, windows_key_code, native_key_code, modifiers, character);
 	}
+}
+
+void Service::loadUrl(const int browserId, const std::string& newUrl){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->loadUrl(browserId, newUrl);
+	}
+
 }
 
 void Service::update(const ds::UpdateParams&) {

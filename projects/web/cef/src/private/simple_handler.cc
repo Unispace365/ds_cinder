@@ -46,12 +46,6 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 	
 }
 
-void SimpleHandler::PlatformTitleChange(CefRefPtr<CefBrowser> browser,
-										const CefString& title) {
-	CefWindowHandle hwnd = browser->GetHost()->GetWindowHandle();
-	SetWindowText(hwnd, std::wstring(title).c_str());
-}
-
 void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
@@ -158,9 +152,9 @@ void SimpleHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 
 void SimpleHandler::CloseAllBrowsers(bool force_close) {
 
-	static bool closedAllAlready = false;
-	if(closedAllAlready) return;
-	closedAllAlready = true;
+	if(browser_list_.empty())
+		return;
+
 	if(!CefCurrentlyOn(TID_UI)) {
 		// Execute on the UI thread.
 		CefPostTask(TID_UI,
@@ -168,14 +162,21 @@ void SimpleHandler::CloseAllBrowsers(bool force_close) {
 		return;
 	}
 
+
+	static bool closedAllAlready = false;
+	std::cout << "close all browsers start " << closedAllAlready << std::endl;
+	if(closedAllAlready) return;
+	closedAllAlready = true;
+
 	mPaintCallbacks.clear();
 
-	if(browser_list_.empty())
-		return;
 
-	BrowserList::const_iterator it = browser_list_.begin();
-	for(;browser_list_.size() > 0 && it != browser_list_.end(); ++it)
-		(*it)->GetHost()->CloseBrowser(force_close);
+	std::cout << "close all browsers, num browsers: " << browser_list_.size() << std::endl;
+
+	for(unsigned int i = 0; i < browser_list_.size(); i++){
+		if(browser_list_.empty()) return;
+		browser_list_[i]->GetHost()->CloseBrowser(force_close);
+	}
 }
 
 void SimpleHandler::addCreatedCallback(std::function<void(int)> callback){
@@ -320,10 +321,8 @@ void SimpleHandler::sendKeyEvent(const int browserId, const int state, int windo
 	event.modifiers = GetCefKeyboardModifiers(wParam, lParam);
 	*/
 
-
 	for(auto it : browser_list_){
 		if(it->GetIdentifier() == browserId){
-
 
 			if(state == 0){
 				CefKeyEvent keyEvent;
@@ -344,6 +343,17 @@ void SimpleHandler::sendKeyEvent(const int browserId, const int state, int windo
 				keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
 				it->GetHost()->SendKeyEvent(keyEvent);
 			}
+			break;
+		}
+	}
+}
+
+void SimpleHandler::loadUrl(const int browserId, const std::string& newUrl){
+
+	for(auto it : browser_list_){
+		if(it->GetIdentifier() == browserId){
+			it->GetMainFrame()->LoadURL(CefString(newUrl));
+			break;
 		}
 	}
 }

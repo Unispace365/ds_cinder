@@ -82,15 +82,15 @@ public:
 
 	void sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);
 
-
 	void sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
-private:
-	// Platform-specific implementation.
-	void PlatformTitleChange(CefRefPtr<CefBrowser> browser,
-							 const CefString& title);
 
+	void loadUrl(const int browserId, const std::string& newUrl);
+
+private:
+
+	// switch to a map for faster lookup
 	// List of existing browser windows. Only accessed on the CEF UI thread.
-	typedef std::list<CefRefPtr<CefBrowser> > BrowserList;
+	typedef std::vector<CefRefPtr<CefBrowser> > BrowserList;
 	BrowserList browser_list_;
 
 	bool is_closing_;

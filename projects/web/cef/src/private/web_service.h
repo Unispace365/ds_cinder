@@ -33,6 +33,8 @@ public:
 
 	void					sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
 
+	void					loadUrl(const int browserId, const std::string& newUrl);
+
 protected:
 	virtual void			update(const ds::UpdateParams&);
 

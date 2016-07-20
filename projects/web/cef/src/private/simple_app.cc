@@ -22,13 +22,15 @@ SimpleApp::SimpleApp() {
 #include <iostream>
 void SimpleApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line){
 	std::cout << "before command line" << std::endl;
-	std::string argy = "--disable-extensions";
 	// This would prevent a crash in debug:
-	command_line->AppendSwitch(CefString(argy));
+	command_line->AppendSwitch(CefString("disable-extensions"));
 	command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
 	command_line->AppendSwitch("disable-gpu");
 	command_line->AppendSwitch("disable-gpu-compositing");
-	command_line->AppendSwitch("-touch-optimized-ui=enabled");
+	command_line->AppendSwitchWithValue(CefString("touch-optimized-ui"),CefString("enabled"));
+
+	//command_line->AppendArgument("browser-subprocess-path=D:/code/cef_binary_3.2704.1431.ge7ddb8a_windows32/cefsimple/Release/cefsimple.exe");
+	//std::string browserPath = "D:/code/cef_binary_3.2704.1431.ge7ddb8a_windows32/cefsimple/Release/cefsimple.exe";
 	//command_line->AppendSwitch("enable-begin-frame-scheduling");
 }
 
@@ -41,6 +43,8 @@ void SimpleApp::OnContextInitialized() {
 
 	const bool disable_extensions = command_line->HasSwitch("disable-extensions");
 
+
+
 	// SimpleHandler implements browser-level callbacks.
 	mHandler = CefRefPtr<SimpleHandler>(new SimpleHandler());
 
@@ -50,13 +54,12 @@ void SimpleApp::OnContextInitialized() {
 void SimpleApp::createBrowser(const std::string& url, std::function<void(int)> createdCallback){
 	// Specify CEF browser settings here.
 	CefBrowserSettings browser_settings;
-	//browser_settings.background_color = 0x55667788;
 
 	// Information used when creating the native window.
 	CefWindowInfo window_info;
 	HWND hWnd = WindowFromDC(wglGetCurrentDC());
-	//window_info.SetAsWindowless(hWnd, false);
-	window_info.SetAsWindowless(NULL, false);
+	window_info.SetAsWindowless(hWnd, false);
+	//window_info.SetAsWindowless(NULL, false);
 
 	// On Windows we need to specify certain flags that will be passed to
 	// CreateWindowEx().

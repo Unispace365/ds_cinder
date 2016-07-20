@@ -27,14 +27,16 @@ public:
 	virtual void			updateServer(const ds::UpdateParams&);
 	virtual void			drawLocalClient();
 
-	// After setting a URL, you need to call activate() to see anything. Not
-	// sure I like that API but that's what it is for now.
+	// Loads the new url in the main frame (what you'd expect to happen)
 	void					loadUrl(const std::wstring &url);
 	void					loadUrl(const std::string &url);
-	std::string				getUrl();
-	// New-style API, set the URL and activate (and optionally throw on errors).
+
+	// setURL is identical to loadUrl. No exceptions will be thrown from any set or load url function.
+	// load/set url are all kept around for compatibility with the old APIs
 	void					setUrl(const std::string&);
 	void					setUrlOrThrow(const std::string&);
+
+	std::string				getUrl();
 
 	// untested!
 	void					sendKeyDownEvent(const ci::app::KeyEvent &event);
@@ -58,7 +60,6 @@ public:
 	// Intended to be set as a result of the server sending out events from setTouchListener results.
 	//void					handleListenerTouchEvent(const ds::ui::TouchEvent&);
 
-	bool					isLoading();
 
 	// Get the zoom level, where 1 = 100%, 0.25 = 25% etc.
 	void					setZoom(const double);
@@ -68,6 +69,7 @@ public:
 	void					goBack();
 	void					goForward();
 	void					reload();
+	bool					isLoading();
 	void					stop();
 	bool					canGoBack();
 	bool					canGoForward();
@@ -126,6 +128,7 @@ private:
 
 	ds::web::Service&		mService;
 
+	bool					mHasBuffer;
 	ci::gl::Texture			mWebTexture;
 
 	ci::Vec3f				mPreviousTouchPos;
@@ -139,12 +142,11 @@ private:
 	// Prevent the scroll from being cached more than once in an update.
 	int32_t					mPageScrollCount;
 
-	//std::function<void(const ds::ui::TouchEvent&)>
-	//						mTouchListener;
 	std::function<void(void)>
 							mDocumentReadyFn;
 	std::function<void(const std::string& msg)>
 							mErrorCallback;
+
 
 	// Replicated state
 	std::string				mUrl;

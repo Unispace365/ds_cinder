@@ -78,6 +78,8 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mAllowClicks(true)
 	, mBrowserId(-1)
 	, mBuffer(nullptr)
+	, mHasBuffer(false)
+	, mUrl("")
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -103,12 +105,17 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 
 	//const std::string urly = "downstream.com";
 	//const std::string urly = "file://D:/content/sample_videos_2/vp9_4k.webm";
-	//const std::string urly = "file://D:/test_pdfs/BPS C06_CIM_Services.pdf";
+	const std::string urly = "file://D:/test_pdfs/BPS C06_CIM_Services.pdf";
+	//const std::string urly = "google.com";
+	//const std::string urly = "http://i.imgur.com/r6sS64A.gifv";
 	//const std::string urly = "https://google.com"; 
-	const std::string urly = "https://drive.google.com/drive/my-drive";
-	mService.createBrowser(urly, [this](int browserId){ 
+	//const std::string urly = "https://drive.google.com/drive/my-drive";
+	//const std::string urly = "https://agoing.agsafoin.com/"; // generates an error cause the site can't be reached
+	mService.createBrowser("", [this](int browserId){ 
 		mBrowserId = browserId; 
+		loadUrl(mUrl);
 		mService.addPaintCallback(mBrowserId, [this](const void * buffer){
+			mHasBuffer = true;
 			memcpy(mBuffer, buffer, 1920 * 1080 * 4);
 			//mBuffer = (unsigned char *)(buffer);
 		});
@@ -133,6 +140,18 @@ void Web::updateServer(const ds::UpdateParams &p) {
 	mPageScrollCount = 0;
 
 	update(p);
+}
+
+void Web::update(const ds::UpdateParams &p) {
+
+	if(mBuffer && mHasBuffer){
+		ci::gl::Texture::Format fmt;
+		fmt.setMagFilter(GL_LINEAR);
+
+		//	ci::Surface web_surface(charBuffer, 1920, 1080, 1920 * 4, ci::SurfaceChannelOrder::BGRA);
+		mWebTexture = ci::gl::Texture(mBuffer, GL_BGRA, 1920, 1080, fmt);
+		// create or update our OpenGL Texture from the webview
+	}
 }
 
 void Web::drawLocalClient() {
@@ -198,108 +217,41 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	mPreviousTouchPos = touchInfo.mCurrentGlobalPoint;
 }
 
-void Web::loadUrl(const std::wstring &url) {
-	try {
-		loadUrl(ds::utf8_from_wstr(url));
-	} catch( const std::exception &e ) {
-		DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
-	}
-}
-
-void Web::loadUrl(const std::string &url) {
-	try {
-		/*
-		if (mWebViewPtr) {
-			DS_LOG_INFO("Web::loadUrl() on " << url);
-			mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(url.c_str())));
-			mWebViewPtr->Focus();
-			onUrlSet(url);
-		}
-		*/
-	} catch( const std::exception &e ) {
-		DS_LOG_ERROR("Exception: " << e.what() << " | File: " << __FILE__ << " Line: " << __LINE__);
-	}
-}
 
 std::string Web::getUrl() {
 	/*
 	try {
-		if (!mWebViewPtr) return "";
-		Awesomium::WebURL		wurl = mWebViewPtr->url();
-		Awesomium::WebString	webstr = wurl.spec();
-		auto					len = webstr.ToUTF8(nullptr, 0);
-		if (len < 1) return "";
-		std::string				str(len+2, 0);
-		webstr.ToUTF8(const_cast<char*>(str.c_str()), len);
-		return str;
+	if (!mWebViewPtr) return "";
+	Awesomium::WebURL		wurl = mWebViewPtr->url();
+	Awesomium::WebString	webstr = wurl.spec();
+	auto					len = webstr.ToUTF8(nullptr, 0);
+	if (len < 1) return "";
+	std::string				str(len+2, 0);
+	webstr.ToUTF8(const_cast<char*>(str.c_str()), len);
+	return str;
 	} catch (std::exception const&) {
 	}
 	*/
 	return "";
 }
 
+void Web::loadUrl(const std::wstring &url) {
+	loadUrl(ds::utf8_from_wstr(url));
+}
+
+void Web::loadUrl(const std::string &url) {
+	mUrl = url;
+	if(mBrowserId > -1 && !mUrl.empty()){
+		mService.loadUrl(mBrowserId, mUrl);
+	}
+}
+
 void Web::setUrl(const std::string& url) {
-	try {
-		setUrlOrThrow(url);
-	} catch (std::exception const&) {
-	}
-}
-
-namespace {
-bool validateUrl(const std::string& url) {
-	try {
-		std::string ext = boost::filesystem::path(url).extension().string();
-		std::transform(ext.begin(), ext.end(), ext.begin(), ::tolower);
-		if(ext == ".pdf") return false;
-	}
-	catch(std::exception const&) {
-	}
-	return true;
-}
-
-std::string cleanupUrl(const std::string& url) {
-	std::string output(url);
-	try {
-		std::regex pattern("((http[s]?):\\/\\/)?(.*)");
-		std::smatch matches;
-		if(std::regex_match(url, matches, pattern))
-		{
-			int count = matches.size();
-			std::string protocol = matches.str(2);
-			std::string theRemainder = matches.str(3);
-			if(protocol == "")
-			{
-				output = "http://";
-				output.append(theRemainder);
-			}
-		}
-	}
-	catch(std::exception const&) {
-	}
-	return output;
-}
+	loadUrl(url);
 }
 
 void Web::setUrlOrThrow(const std::string& url) {
-	DS_LOG_INFO("Web::setUrlOrThrow() on " << url);
-	// Some simple validation, because clients have a tendency to put PDFs where
-	// web pages should go.
-	if (!validateUrl(url)) throw std::runtime_error("URL is not the correct format (" + url + ").");
-
-	std::string cleanUrl = cleanupUrl(url);
-
-	/*
-	try {
-		if (mWebViewPtr) {
-			mWebViewPtr->LoadURL(Awesomium::WebURL(Awesomium::WSLit(cleanUrl.c_str())));
-			mWebViewPtr->Focus();
-			activate();
-			onUrlSet(cleanUrl);
-		}
-	} catch (std::exception const&) {
-		throw std::runtime_error("Web service is not available.");
-	}
-	*/
+	loadUrl(url);
 }
 
 void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {
@@ -316,6 +268,10 @@ void Web::sendKeyUpEvent(const ci::app::KeyEvent &event){
 		ds::web::handleKeyUp(mWebViewPtr, event);
 	}
 	*/
+}
+
+void Web::handleNativeKeyEvent(const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character){
+	mService.sendKeyEvent(mBrowserId, state, windows_key_code, native_key_code, modifiers, character);
 }
 
 void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
@@ -521,18 +477,6 @@ bool Web::webViewDirty(){
 	return false;
 }
 
-void Web::update(const ds::UpdateParams &p) {
-
-	if(mBuffer){
-		ci::gl::Texture::Format fmt;
-		fmt.setMagFilter(GL_LINEAR);
-
-		//	ci::Surface web_surface(charBuffer, 1920, 1080, 1920 * 4, ci::SurfaceChannelOrder::BGRA);
-		mWebTexture = ci::gl::Texture(mBuffer, GL_BGRA, 1920, 1080, fmt);
-		// create or update our OpenGL Texture from the webview
-	}
-}
-
 void Web::onUrlSet(const std::string &url) {
 	mUrl = url;
 	markAsDirty(URL_DIRTY);
@@ -557,11 +501,6 @@ void Web::setWebTransparent(const bool isTransparent){
 		mWebViewPtr->SetTransparent(isTransparent);
 	}
 	*/
-}
-
-
-void Web::handleNativeKeyEvent(const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character){
-	mService.sendKeyEvent(mBrowserId, state, windows_key_code, native_key_code, modifiers, character);
 }
 
 } // namespace ui

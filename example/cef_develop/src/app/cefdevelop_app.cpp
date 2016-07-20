@@ -104,6 +104,8 @@ void CefDevelop::setupServer(){
 		wp->setMedia("https://google.com"); 
 		bs->addChildPtr(wp);
 		mWebby = wp->getWeb();
+		mWebby->enable(true);
+
 		/*
 		auto webby = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
 		webby->loadUrl("https://google.com");
