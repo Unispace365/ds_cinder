@@ -163,6 +163,9 @@
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\ui\button\layout_button.cpp" />
+    <ClCompile Include="src\ds\ui\scroll\infinity_scroll_list.cpp">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -298,5 +301,8 @@
       <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\button\layout_button.h" />
+    <ClInclude Include="src\ds\ui\scroll\infinity_scroll_list.h">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>
