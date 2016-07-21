@@ -714,6 +714,9 @@
     <ClInclude Include="src\private\simple_handler.h">
       <Filter>src\private</Filter>
     </ClInclude>
+    <ClInclude Include="src\private\web_callbacks.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\sprite\web.cpp">

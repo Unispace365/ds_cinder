@@ -15,7 +15,7 @@
 #include <ds/ui/tween/tweenline.h>
 #include <ds/util/string_util.h>
 #include "private/web_service.h"
-
+#include "private/web_callbacks.h"
 
 
 #include "include/cef_app.h"
@@ -111,9 +111,9 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 }
 
 Web::~Web() {
-	mService.addPaintCallback(mBrowserId, nullptr);
-
 	std::cout << "web sprite destructor" << std::endl;
+
+	// This clears the callbacks too
 	mService.closeBrowser(mBrowserId);
 
 	if(mBuffer){
@@ -134,7 +134,8 @@ void Web::initializeBrowser(){
 
 	loadUrl(mUrl);
 
-	mService.addTitleChangeCallback(mBrowserId, [this](const std::wstring& newTitle){
+	ds::web::WebCefCallbacks wcc;
+	wcc.mTitleChangeCallback = [this](const std::wstring& newTitle){
 		mTitle = newTitle;
 
 		std::cout << "New Browser title: " << ds::utf8_from_wstr(newTitle) << std::endl;
@@ -142,9 +143,10 @@ void Web::initializeBrowser(){
 		if(mTitleChangedCallback){
 			mTitleChangedCallback(newTitle);
 		}
-	});
+	};
 
-	mService.addLoadChangeCallback(mBrowserId, [this](const bool isLoading, const bool canBack, const bool canForwards){
+
+	wcc.mLoadChangeCallback = [this](const bool isLoading, const bool canBack, const bool canForwards){
 		mIsLoading = isLoading;
 		mCanBack = canBack;
 		mCanForward = canForwards;
@@ -154,15 +156,17 @@ void Web::initializeBrowser(){
 			mDocumentReadyFn();
 			//	mJsMethodHandler->setDomIsReady(*mWebViewPtr);
 		}
-	});
+	};
 
-	mService.addPaintCallback(mBrowserId, [this](const void * buffer, const int bufferWidth, const int bufferHeight){
+	wcc.mPaintCallback = [this](const void * buffer, const int bufferWidth, const int bufferHeight){
 		// verify the buffer exists and is the correct size
 		if(mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y){
 			mHasBuffer = true;
 			memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
 		}
-	});
+	};
+
+	mService.addWebCallbacks(mBrowserId, wcc);
 }
 
 

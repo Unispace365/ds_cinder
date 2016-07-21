@@ -108,24 +108,10 @@ void Service::closeBrowser(const int browserId){
 	}
 }
 
-void Service::addPaintCallback(int browserId, std::function<void(const void *, const int, const int)> paintCallback){
+void Service::addWebCallbacks(int browserId, WebCefCallbacks& callbacks){
 	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
 	if(handler){
-		handler->addPaintCallback(browserId, paintCallback);
-	}
-}
-
-void Service::addLoadChangeCallback(const int browserId, std::function<void(const bool isLoading, const bool canBack, const bool canForward)> callback){
-	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
-	if(handler){
-		handler->addLoadChangeCallback(browserId, callback);
-	}
-}
-
-void Service::addTitleChangeCallback(const int browserId, std::function<void(const std::wstring&)> callback){
-	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
-	if(handler){
-		handler->addTitleChangeCallback(browserId, callback);
+		handler->addWebCallbacks(browserId, callbacks);
 	}
 }
 

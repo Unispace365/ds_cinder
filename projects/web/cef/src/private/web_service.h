@@ -1,10 +1,11 @@
 #pragma once
-#ifndef PRIVATE_WEBSERVICE_H_
-#define PRIVATE_WEBSERVICE_H_
+#ifndef PRIVATE_CEF_WEBSERVICE_H_
+#define PRIVATE_CEF_WEBSERVICE_H_
 
 #include <ds/app/engine/engine_service.h>
 #include <ds/app/auto_update.h>
 
+#include "web_callbacks.h"
 #include "simple_app.h"
 
 namespace ds {
@@ -29,9 +30,7 @@ public:
 	void					createBrowser(const std::string& startUrl, std::function<void(int)> browserCreatedCallback);
 	void					closeBrowser(const int browserId);
 
-	void					addPaintCallback(const int browserId, std::function<void(const void *, const int bufferWidth, const int bufferHeight)> paintCallback);
-	void					addLoadChangeCallback(const int browserId, std::function<void(const bool isLoading, const bool canBack, const bool canForward)> callback);
-	void					addTitleChangeCallback(const int browserId, std::function<void(const std::wstring&)> callback);
+	void					addWebCallbacks(const int browserId, WebCefCallbacks& callback);
 
 	// browser id was returned from the createBrowser callback, x / y in pixels from top/left in browser space, bttn: left=0, middle = 1; right = 2, state: 0 = down, 1 = move, 2 = release. 
 	void					sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);

@@ -11,6 +11,8 @@
 #include <list>
 #include <cinder/Vector.h>
 
+#include "web_callbacks.h"
+
 class SimpleHandler : public CefClient,
 	public CefDisplayHandler,
 	public CefLifeSpanHandler,
@@ -91,14 +93,12 @@ public:
 									  bool canGoForward) OVERRIDE;
 
 	// CefRenderHandler methods:
-	virtual bool GetRootScreenRect(CefRefPtr<CefBrowser> browser,
-								   CefRect& rect);
-	virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect);
+	virtual bool GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect) OVERRIDE;
 	virtual bool GetScreenPoint(CefRefPtr<CefBrowser> browser,
 								int viewX,
 								int viewY,
 								int& screenX,
-								int& screenY);
+								int& screenY) OVERRIDE;
 
 	virtual void OnPaint(CefRefPtr<CefBrowser> browser,
 						 PaintElementType type,
@@ -106,18 +106,20 @@ public:
 						 const void* buffer,
 						 int width, int height) OVERRIDE;
 
+	virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
+							   CefRefPtr<CefDragData> drag_data,
+							   DragOperationsMask allowed_ops,
+							   int x, int y) OVERRIDE {
+		return true;
+	}
+
 	// Requests the browser to be closed and also clears and related callbacks
 	void CloseBrowser(const int browserId);
 
 	// Adds a callback to a list of callbacks for after browsers are created
 	void addCreatedCallback(std::function<void(int)> callback);
 
-	// Gets called when the browser sends new paint info, aka new buffers
-	void addPaintCallback(int browserId, std::function<void(const void *, const int bufferWidth, const int bufferHeight)> callback);
-	// The loading state has changed
-	void addLoadChangeCallback(int browserId, std::function<void(const bool isLoading, const bool canBack, const bool canForward)> callback);
-	// The title of the page has changed
-	void addTitleChangeCallback(int browserId, std::function<void(const std::wstring& titleChange)> callback);
+	void addWebCallbacks(const int browserId, ds::web::WebCefCallbacks& callback);
 
 	// Sends some mouse input to the browser
 	void sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);
@@ -141,9 +143,7 @@ private:
 	std::map<int, ci::Vec2i>								mBrowserSizes;
 
 	std::vector<std::function<void(int)>>					mCreatedCallbacks;
-	std::map<int, std::function<void(const void *, const int, const int)>> mPaintCallbacks;
-	std::map<int, std::function<void(const bool, const bool, const bool)>> mLoadChangeCallbacks;
-	std::map<int, std::function<void(const std::wstring&)>>	mTitleChangeCallbacks;
+	std::map<int, ds::web::WebCefCallbacks>					mWebCallbacks;
 
 	// Include the default reference counting implementation.
 	IMPLEMENT_REFCOUNTING(SimpleHandler);

@@ -234,6 +234,7 @@
     <ClInclude Include="src\ds\ui\sprite\web.h" />
     <ClInclude Include="src\private\simple_app.h" />
     <ClInclude Include="src\private\simple_handler.h" />
+    <ClInclude Include="src\private\web_callbacks.h" />
     <ClInclude Include="src\private\web_service.h" />
   </ItemGroup>
   <ItemGroup>

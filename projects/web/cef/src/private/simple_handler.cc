@@ -43,9 +43,12 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 								  const CefString& title) {
 	CEF_REQUIRE_UI_THREAD();
 
-	auto findyT = mTitleChangeCallbacks.find(browser->GetIdentifier());
-	if(findyT != mTitleChangeCallbacks.end()){
-		findyT->second(title.ToWString());
+	int browserId = browser->GetIdentifier();
+	auto findy = mWebCallbacks.find(browserId);
+	if(findy != mWebCallbacks.end()){
+		if(findy->second.mTitleChangeCallback){
+			findy->second.mTitleChangeCallback(title.ToWString());
+		}
 	}
 }
 
@@ -148,14 +151,13 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 
 
 void SimpleHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading, bool canGoBack, bool canGoForward){
-	auto findyL = mLoadChangeCallbacks.find(browser->GetIdentifier());
-	if(findyL != mLoadChangeCallbacks.end()){
-		findyL->second(isLoading, canGoBack, canGoForward);
+	int browserId = browser->GetIdentifier();
+	auto findy = mWebCallbacks.find(browserId);
+	if(findy != mWebCallbacks.end()){
+		if(findy->second.mLoadChangeCallback){
+			findy->second.mLoadChangeCallback(isLoading, canGoBack, canGoForward);
+		}
 	}
-}
-
-bool SimpleHandler::GetRootScreenRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
-	return false;
 }
 
 bool SimpleHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
@@ -185,10 +187,14 @@ void SimpleHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 							const void* buffer, int width, int height){
 	//CEF_REQUIRE_UI_THREAD();
 
+	std::cout << "OnPaint, type: " << type <<  " " << width << " " << height << std::endl;
+
 	int browserId = browser->GetIdentifier();
-	auto paintCallback = mPaintCallbacks.find(browserId);
-	if(paintCallback != mPaintCallbacks.end() && paintCallback->second){
-		paintCallback->second(buffer, width, height);
+	auto findy = mWebCallbacks.find(browserId);
+	if(findy != mWebCallbacks.end()){
+		if(findy->second.mPaintCallback){
+			findy->second.mPaintCallback(buffer, width, height);
+		}
 	}
 }
 
@@ -199,19 +205,9 @@ void SimpleHandler::CloseBrowser(const int browserId){
 		mBrowserSizes.erase(findyS);
 	}
 
-	auto findyP = mPaintCallbacks.find(browserId);
-	if(findyP != mPaintCallbacks.end()){
-		mPaintCallbacks.erase(findyP);
-	}
-
-	auto findyL = mLoadChangeCallbacks.find(browserId);
-	if(findyL != mLoadChangeCallbacks.end()){
-		mLoadChangeCallbacks.erase(findyL);
-	}
-
-	auto findyT = mTitleChangeCallbacks.find(browserId);
-	if(findyT != mTitleChangeCallbacks.end()){
-		mTitleChangeCallbacks.erase(findyT);
+	auto findyP = mWebCallbacks.find(browserId);
+	if(findyP != mWebCallbacks.end()){
+		mWebCallbacks.erase(findyP);
 	}
 
 	auto findy = mBrowserList.find(browserId);
@@ -226,16 +222,8 @@ void SimpleHandler::addCreatedCallback(std::function<void(int)> callback){
 	mCreatedCallbacks.push_back(callback);
 }
 
-void SimpleHandler::addPaintCallback(int browserId, std::function<void(const void *, const int, const int)> callback){
-	mPaintCallbacks[browserId] = callback;
-}
-
-void SimpleHandler::addLoadChangeCallback(int browserId, std::function<void(const bool isLoading, const bool canBack, const bool canForward)> callback){
-	mLoadChangeCallbacks[browserId] = callback;
-}
-
-void SimpleHandler::addTitleChangeCallback(int browserId, std::function<void(const std::wstring& titleChange)> callback){
-	mTitleChangeCallbacks[browserId] = callback;
+void SimpleHandler::addWebCallbacks(int browserId, ds::web::WebCefCallbacks& callbacks){
+	mWebCallbacks[browserId] = callbacks;
 }
 
 void SimpleHandler::sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount){
