@@ -29,6 +29,7 @@ public:
 	void								sendClick(const ci::Vec3f& globalClickPos);
 
 	ds::ui::Web*						getWeb();
+	WebInterface*						getWebInterface(); // may be nullptr if embedInterface is false
 
 	/// UI params - replace with MediaViewerSettings?
 	void								setWebViewSize(const ci::Vec2f webSize);

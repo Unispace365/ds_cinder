@@ -136,6 +136,15 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 								const CefString& failedUrl) {
 	CEF_REQUIRE_UI_THREAD();
 
+
+	int browserId = browser->GetIdentifier();
+	auto findy = mWebCallbacks.find(browserId);
+	if(findy != mWebCallbacks.end()){
+		if(findy->second.mErrorCallback){
+			findy->second.mErrorCallback(errorText.ToString());
+		}
+	}
+
 	// Don't display an error for downloaded files.
 	if(errorCode == ERR_ABORTED)
 		return;
@@ -403,7 +412,6 @@ void SimpleHandler::loadUrl(const int browserId, const std::string& newUrl){
 }
 
 void SimpleHandler::requestBrowserResize(const int browserId, const ci::Vec2i newSize){
-
 	mBrowserSizes[browserId] = newSize;
 
 	auto findy = mBrowserList.find(browserId);
@@ -413,3 +421,32 @@ void SimpleHandler::requestBrowserResize(const int browserId, const ci::Vec2i ne
 	}
 
 }
+
+void SimpleHandler::goForwards(const int browserId){
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		findy->second->GoForward();
+	}
+}
+
+void SimpleHandler::goBackwards(const int browserId){
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		findy->second->GoBack();
+	}
+}
+
+void SimpleHandler::reload(const int browserId){
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		findy->second->Reload();
+	}
+}
+
+void SimpleHandler::stopLoading(const int browserId){
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		findy->second->StopLoad();
+	}
+}
+

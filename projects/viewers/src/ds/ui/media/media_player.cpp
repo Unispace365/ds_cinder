@@ -18,6 +18,7 @@
 #include <ds/util/file_meta_data.h>
 
 #include "ds/ui/media/media_interface.h"
+#include "ds/ui/media/interface/web_interface.h"
 
 #include "ds/ui/sprite/web.h"
 #include "ds/ui/sprite/gst_video.h"
@@ -276,6 +277,9 @@ void MediaPlayer::initialize(){
 
 		if(mWebPlayer->getWeb()){
 			mWebPlayer->getWeb()->setDocumentReadyFn([this]{
+				if(mWebPlayer->getWebInterface()){
+					mWebPlayer->getWebInterface()->updateWidgets();
+				}
 				if(mStatusCallback) mStatusCallback(true);
 			});
 			mWebPlayer->getWeb()->setErrorCallback([this](const std::string& errorMsg){

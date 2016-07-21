@@ -166,6 +166,10 @@ void Web::initializeBrowser(){
 		}
 	};
 
+	wcc.mErrorCallback = [this](const std::string& theError){
+		setErrorMessage(theError);
+	};
+
 	mService.addWebCallbacks(mBrowserId, wcc);
 }
 
@@ -236,8 +240,8 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
 
 	// this may not actually work in a rotated scenario, so...
-	pos.x *= getScale().x;
-	pos.y *= getScale().y;
+//	pos.x *= getScale().x;
+	//pos.y *= getScale().y;
 
 	if (ds::ui::TouchInfo::Added == touchInfo.mPhase) {
 		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 0, 1);
@@ -382,36 +386,19 @@ double Web::getZoom() const {
 }
 
 void Web::goBack() {
-	/*
-	if (mWebViewPtr) {
-		mWebViewPtr->Focus();
-		mWebViewPtr->GoBack();
-	}
-	*/
+	mService.goBackwards(mBrowserId);
 }
 
 void Web::goForward() {
-	/*
-	if (mWebViewPtr) {
-		mWebViewPtr->GoForward();
-	}
-	*/
+	mService.goForwards(mBrowserId);
 }
 
 void Web::reload() {
-	/*
-	if (mWebViewPtr) {
-		mWebViewPtr->Reload(true);
-	}
-	*/
+	mService.reload(mBrowserId);
 }
 
 void Web::stop() {
-	/*
-	if (mWebViewPtr) {
-		mWebViewPtr->Stop();
-	}
-	*/
+	mService.stopLoading(mBrowserId);
 }
 
 bool Web::canGoBack() {

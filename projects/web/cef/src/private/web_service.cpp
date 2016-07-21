@@ -45,10 +45,11 @@ Service::~Service() {
 	//CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
 	//if(handler){
 	//	handler->CloseAllBrowsers(false);
-//	}
+	//	}
 
-	//std::this_thread::sleep_for(std::chrono::seconds(2));
-
+#ifdef _DEBUG
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+#endif
 	try{
 		CefShutdown();
 	} catch(...){
@@ -63,7 +64,7 @@ void Service::start() {
 	std::cout << "web service startup" << std::endl;
 	void* sandbox_info = NULL;
 	CefMainArgs main_args(GetModuleHandle(NULL));
-	
+
 	int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
 	if(exit_code >= 0){
 		std::cout << "CEF setup exit code: " << exit_code << std::endl;
@@ -141,6 +142,34 @@ void Service::requestBrowserResize(const int browserId, const ci::Vec2i newSize)
 	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
 	if(handler){
 		handler->requestBrowserResize(browserId, newSize);
+	}
+}
+
+void Service::goForwards(const int browserId){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->goForwards(browserId);
+	}
+}
+
+void Service::goBackwards(const int browserId){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->goBackwards(browserId);
+	}
+}
+
+void Service::reload(const int browserId){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->reload(browserId);
+	}
+}
+
+void Service::stopLoading(const int browserId){
+	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
+	if(handler){
+		handler->stopLoading(browserId);
 	}
 }
 

@@ -63,7 +63,7 @@ void SimpleApp::createBrowser(const std::string& url, std::function<void(int)> c
 	// Information used when creating the native window.
 	CefWindowInfo window_info;
 	HWND hWnd = WindowFromDC(wglGetCurrentDC());
-	window_info.SetAsWindowless(hWnd, false);
+	window_info.SetAsWindowless(hWnd, true);
 	//window_info.SetAsWindowless(NULL, false);
 
 	// On Windows we need to specify certain flags that will be passed to

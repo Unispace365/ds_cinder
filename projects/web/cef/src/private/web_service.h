@@ -41,6 +41,11 @@ public:
 
 	void					requestBrowserResize(const int browserId, const ci::Vec2i newSize);
 
+	void					goForwards(const int browserId);
+	void					goBackwards(const int browserId);
+	void 					reload(const int browserId);
+	void 					stopLoading(const int browserId);
+
 protected:
 	virtual void			update(const ds::UpdateParams&);
 

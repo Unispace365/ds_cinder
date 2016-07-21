@@ -23,6 +23,8 @@ public:
 	std::function<void(const bool, const bool, const bool)> mLoadChangeCallback;
 	// The title of the page has changed
 	std::function<void(const std::wstring&)>				mTitleChangeCallback;
+	// Something bad happened!
+	std::function<void(const std::string&)>					mErrorCallback;
 
 
 

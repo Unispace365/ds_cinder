@@ -133,6 +133,12 @@ public:
 	// Resize the browser. Happens asynchronously, meaning a paint callback will come back later with the actual info
 	void requestBrowserResize(const int browserId, const ci::Vec2i newSize);
 
+	// Regular browser controls
+	void goForwards(const int browserId);
+	void goBackwards(const int browserId);
+	void reload(const int browserId);
+	void stopLoading(const int browserId);
+
 private:
 
 	// switch to a map for faster lookup

@@ -146,5 +146,10 @@ ds::ui::Web* WebPlayer::getWeb(){
 	return mWeb;
 }
 
+
+ds::ui::WebInterface* WebPlayer::getWebInterface(){
+	return mWebInterface;
+}
+
 } // namespace ui
 } // namespace ds
