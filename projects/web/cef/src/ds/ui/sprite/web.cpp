@@ -169,6 +169,12 @@ void Web::initializeBrowser(){
 		setErrorMessage(theError);
 	};
 
+	wcc.mFullscreenCallback = [this](const bool isFullscreen){
+		if(mFullscreenCallback){
+			mFullscreenCallback(isFullscreen);
+		}
+	};
+
 	mService.addWebCallbacks(mBrowserId, wcc);
 }
 
@@ -231,54 +237,6 @@ void Web::drawLocalClient() {
 		}
 	}
 }
-
-void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
-	if (touchInfo.mFingerIndex != 0)
-		return;
-
-	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
-
-	if (ds::ui::TouchInfo::Added == touchInfo.mPhase) {
-		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 0, 1);
-
-		/*
-		ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
-		sendMouseDownEvent(event);
-		if(mDragScrolling){
-			mClickDown = true;
-		}
-		*/
-	} else if(ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
-		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 1, 1);
-
-
-		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
-			/*
-			if(mWebViewPtr){
-				if(mClickDown){
-					ci::app::MouseEvent uevent(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
-					sendMouseUpEvent(uevent);
-					mClickDown = false;
-				}
-				float yDelta = touchInfo.mCurrentGlobalPoint.y- mPreviousTouchPos.y;
-				ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, yDelta, 1);
-				ds::web::handleMouseWheel( mWebViewPtr, event, 1 );
-			}
-			*/
-		} else {
-		//	ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
-		//	sendMouseDragEvent(event);
-		}
-	} else if(ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
-		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 2, 1);
-		//mClickDown = false;
-		//ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
-		//sendMouseUpEvent(event);
-	}
-
-	mPreviousTouchPos = touchInfo.mCurrentGlobalPoint;
-}
-
 
 std::string Web::getUrl() {
 	return mUrl;
@@ -368,6 +326,52 @@ void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
 	*/
 }
 
+void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
+	if(touchInfo.mFingerIndex != 0)
+		return;
+
+	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
+
+	if(ds::ui::TouchInfo::Added == touchInfo.mPhase) {
+		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 0, 1);
+
+		/*
+		ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+		sendMouseDownEvent(event);
+		if(mDragScrolling){
+		mClickDown = true;
+		}
+		*/
+	} else if(ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
+		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 1, 1);
+
+
+		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
+			/*
+			if(mWebViewPtr){
+			if(mClickDown){
+			ci::app::MouseEvent uevent(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
+			sendMouseUpEvent(uevent);
+			mClickDown = false;
+			}
+			float yDelta = touchInfo.mCurrentGlobalPoint.y- mPreviousTouchPos.y;
+			ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, yDelta, 1);
+			ds::web::handleMouseWheel( mWebViewPtr, event, 1 );
+			}
+			*/
+		} else {
+			//	ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
+			//	sendMouseDragEvent(event);
+		}
+	} else if(ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
+		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 2, 1);
+		//mClickDown = false;
+		//ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
+		//sendMouseUpEvent(event);
+	}
+
+	mPreviousTouchPos = touchInfo.mCurrentGlobalPoint;
+}
 
 void Web::setZoom(const double v) {
 //	if (!mWebViewPtr) return;
@@ -422,6 +426,10 @@ void Web::setDocumentReadyFn(const std::function<void(void)>& fn) {
 
 void Web::setErrorCallback(std::function<void(const std::string&)> func){
 	mErrorCallback = func;
+}
+
+void Web::setFullscreenChangedCallback(std::function<void(const bool)> func){
+	mFullscreenCallback = func;
 }
 
 void Web::setErrorMessage(const std::string &message){

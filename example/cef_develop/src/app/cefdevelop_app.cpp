@@ -147,6 +147,14 @@ void CefDevelop::setupServer(){
 		webby->setTouchScaleMode(true);
 		mWebby = webby;
 
+		webby->setFullscreenChangedCallback([this, webby](const bool isFullscreen){
+			if(isFullscreen){
+				webby->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
+			} else {
+				webby->setSize(1920.0f, 1080.0f);
+			}
+		});
+
 		bs->enable(false);
 	});
 

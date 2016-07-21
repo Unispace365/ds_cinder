@@ -72,7 +72,7 @@ void WebCefService::start() {
 	settings.no_sandbox = true;
 	settings.single_process = false;
 	settings.multi_threaded_message_loop = false;
-	settings.windowless_rendering_enabled = false;
+	settings.windowless_rendering_enabled = true;
 
 	//const char* path = "D:/code/cef_binary_3.2704.1431.ge7ddb8a_windows32/cefsimple/Release/cefsimple.exe";
 	//const char* path = ds::Environment::expand("%APP%/cefsimple.exe").c_str();

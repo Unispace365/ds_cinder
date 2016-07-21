@@ -29,6 +29,8 @@ public:
 	// Something bad happened!
 	std::function<void(const std::string&)>					mErrorCallback;
 
+	std::function<void(const bool)>							mFullscreenCallback;
+
 
 
 };

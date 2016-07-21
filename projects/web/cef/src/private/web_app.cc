@@ -31,7 +31,7 @@ void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRef
 	command_line->AppendSwitch("disable-gpu-compositing");
 //	command_line->AppendSwitch("disable-surfaces");
 //	command_line->AppendSwitch("enable-begin-frame-scheduling");
-	//command_line->AppendSwitch("off-screen-rendering-enabled");
+	command_line->AppendSwitch("off-screen-rendering-enabled");
 	command_line->AppendSwitchWithValue("off-screen-frame-rate", "60");
 	command_line->AppendSwitchWithValue(CefString("touch-optimized-ui"),CefString("enabled"));
 

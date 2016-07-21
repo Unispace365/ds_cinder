@@ -58,7 +58,13 @@ void WebHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 
 void WebHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser, bool fullscreen){
 	CEF_REQUIRE_UI_THREAD();
-	std::cout << "Fullscreen mode change " << fullscreen << std::endl;
+	int browserId = browser->GetIdentifier();
+	auto findy = mWebCallbacks.find(browserId);
+	if(findy != mWebCallbacks.end()){
+		if(findy->second.mFullscreenCallback){
+			findy->second.mFullscreenCallback(fullscreen);
+		}
+	}
 }
 
 void WebHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
@@ -207,7 +213,7 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 							const void* buffer, int width, int height){
 	//CEF_REQUIRE_UI_THREAD();
 
-	std::cout << "OnPaint, type: " << type <<  " " << width << " " << height << std::endl;
+	//std::cout << "OnPaint, type: " << type <<  " " << width << " " << height << std::endl;
 
 	int browserId = browser->GetIdentifier();
 	auto findy = mWebCallbacks.find(browserId);

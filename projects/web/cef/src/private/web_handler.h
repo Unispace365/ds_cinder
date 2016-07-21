@@ -51,8 +51,9 @@ public:
 	}
 
 		// CefDisplayHandler methods:
-		virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
+	virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
 		const CefString& title) OVERRIDE;
+
 	virtual void OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
 										bool fullscreen) OVERRIDE;
 

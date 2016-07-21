@@ -23,9 +23,6 @@ public:
 	Web(ds::ui::SpriteEngine &engine, float width = 0.0f, float height = 0.0f);
 	~Web();
 
-	virtual void			updateClient(const ds::UpdateParams&);
-	virtual void			updateServer(const ds::UpdateParams&);
-	virtual void			drawLocalClient();
 
 	// Loads the new url in the main frame (what you'd expect to happen)
 	void					loadUrl(const std::wstring &url);
@@ -38,10 +35,14 @@ public:
 
 	std::string				getUrl();
 
-	// untested!
+	// -------- Input Controls -------------------------------- //
+	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
+	void					setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
+	void					setDragScrollingMinimumFingers(const int numFingers){ mDragScrollMinFingers = numFingers; }
+
 	void					sendKeyDownEvent(const ci::app::KeyEvent &event);
-	// untested!
 	void					sendKeyUpEvent(const ci::app::KeyEvent &event);
+	void					handleNativeKeyEvent(const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
 
 	// This web sprite handles touch-to-mouse events by default.
 	// Though you can use these to roll your own touch stuff
@@ -76,16 +77,26 @@ public:
 
 	const std::wstring&		getPageTitle(){ return mTitle; }
 
+	//--- Page Callbacks ----------------------------------- //
+	// The page's title has been updated (this may happen multiple times per page load)
 	void					setTitleChangedFn(const std::function<void(const std::wstring& newTitle)>&);
+
+	// The page has been navigated to a new address
 	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
+
+	// The page has finished loading. This also updates the canNext / canBack properties
 	void					setDocumentReadyFn(const std::function<void(void)>&);
+
+	// Something went wrong and the page couldn't load. 
+	// Passes back a string with some info (should probably pass back a more complete package of info at some point)
 	void					setErrorCallback(std::function<void(const std::string&)> func);
 
-	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
-	void					setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
-	void					setDragScrollingMinimumFingers(const int numFingers){ mDragScrollMinFingers = numFingers; }
+	// The page entered or exited fullscreen. The bool will be true if in fullscreen. 
+	// The content that's fullscreen'ed will take up the entire web instance. 
+	void					setFullscreenChangedCallback(std::function<void(const bool)> func);
 
-	// method to show an error message
+	// An error has occurred. No longer displays a text sprite for errors, simply calls back the error callback.
+	// You're responsible for displaying the error message yourself
 	void					setErrorMessage(const std::string &message);
 	void					clearError();
 
@@ -112,7 +123,10 @@ public:
 	/// If true, any transparent web pages will be blank, false will have a white background for pages
 	void					setWebTransparent(const bool isTransparent);
 
-	void					handleNativeKeyEvent(const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
+
+	virtual void			updateClient(const ds::UpdateParams&);
+	virtual void			updateServer(const ds::UpdateParams&);
+	virtual void			drawLocalClient();
 
 protected:
 	virtual void			onSizeChanged();
@@ -145,10 +159,11 @@ private:
 	// Prevent the scroll from being cached more than once in an update.
 	int32_t					mPageScrollCount;
 
-	std::function<void(void)> mDocumentReadyFn;
-	std::function<void(const std::string& msg)> mErrorCallback;
-	std::function<void(const std::string& msg)> mAddressChangedCallback;
-	std::function<void(const std::wstring& msg)> mTitleChangedCallback;
+	std::function<void(void)>					mDocumentReadyFn;
+	std::function<void(const std::string&)>		mErrorCallback;
+	std::function<void(const std::string&)>		mAddressChangedCallback;
+	std::function<void(const std::wstring&)>	mTitleChangedCallback;
+	std::function<void(const bool)>				mFullscreenCallback;
 
 
 	// Replicated state
