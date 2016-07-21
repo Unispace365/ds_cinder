@@ -11,7 +11,7 @@ namespace web {
 
 /**
 * \class ds::web::WebCefCallbacks
-* \brief A wrapper object 
+* \brief A wrapper object for all the callbacks from CEF to Web sprites
 */
 struct WebCefCallbacks  {
 public:
@@ -19,10 +19,13 @@ public:
 
 	// Gets called when the browser sends new paint info, aka new buffers
 	std::function<void(const void *, const int, const int)> mPaintCallback;
+
 	// The loading state has changed (started or finished loading.
 	std::function<void(const bool, const bool, const bool)> mLoadChangeCallback;
+
 	// The title of the page has changed
 	std::function<void(const std::wstring&)>				mTitleChangeCallback;
+
 	// Something bad happened!
 	std::function<void(const std::string&)>					mErrorCallback;
 

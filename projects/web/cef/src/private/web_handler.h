@@ -2,8 +2,10 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#ifndef CEF_TESTS_CEFSIMPLE_SIMPLE_HANDLER_H_
-#define CEF_TESTS_CEFSIMPLE_SIMPLE_HANDLER_H_
+#ifndef DS_WEB_PRIVATE_CEF_WEB_HANDLER
+#define DS_WEB_PRIVATE_CEF_WEB_HANDLER
+
+/// This class has been modified from the CEF example SimpleApp's SimpleHandler
 
 #include "include/cef_client.h"
 
@@ -13,7 +15,11 @@
 
 #include "web_callbacks.h"
 
-class SimpleHandler : public CefClient,
+namespace ds {
+namespace web{
+
+
+class WebHandler : public CefClient,
 	public CefDisplayHandler,
 	public CefLifeSpanHandler,
 	public CefLoadHandler,
@@ -21,34 +27,34 @@ class SimpleHandler : public CefClient,
 	public CefGeolocationHandler
 {
 public:
-	explicit SimpleHandler();
-	~SimpleHandler();
+	explicit WebHandler();
+	~WebHandler();
 
 	// Provide access to the single global instance of this object.
-	static SimpleHandler* GetInstance();
+	static WebHandler* GetInstance();
 
 	// CefClient methods:
 	virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE{
 		return this;
 	}
-	virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE{
+		virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE{
 		return this;
 	}
-	virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE{
+		virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE{
 		return this;
 	}
-	virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE{
+		virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE{
 		return this;
 	}
-	virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE{
+		virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE{
 		return this;
 	}
 
-	// CefDisplayHandler methods:
-	virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
-							   const CefString& title) OVERRIDE;
+		// CefDisplayHandler methods:
+		virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
+		const CefString& title) OVERRIDE;
 	virtual void OnFullscreenModeChange(CefRefPtr<CefBrowser> browser,
-                                      bool fullscreen) OVERRIDE;
+										bool fullscreen) OVERRIDE;
 
 	// CefLifeSpanHandler methods:
 	virtual void OnAfterCreated(CefRefPtr<CefBrowser> browser) OVERRIDE;
@@ -95,13 +101,13 @@ public:
 	virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
 							   CefRefPtr<CefDragData> drag_data,
 							   DragOperationsMask allowed_ops,
-							   int x, int y) OVERRIDE {
+							   int x, int y) OVERRIDE{
 		return true;
 	}
 
-	// CefGeolocationHandler methods:
-	// returning true allows access immediately
-	virtual bool OnRequestGeolocationPermission(
+		// CefGeolocationHandler methods:
+		// returning true allows access immediately
+		virtual bool OnRequestGeolocationPermission(
 		CefRefPtr<CefBrowser> browser,
 		const CefString& requesting_url,
 		int request_id,
@@ -149,7 +155,10 @@ private:
 	std::map<int, ds::web::WebCefCallbacks>					mWebCallbacks;
 
 	// Include the default reference counting implementation.
-	IMPLEMENT_REFCOUNTING(SimpleHandler);
+	IMPLEMENT_REFCOUNTING(WebHandler);
 };
 
-#endif  // CEF_TESTS_CEFSIMPLE_SIMPLE_HANDLER_H_
+}
+}
+
+#endif  // DS_WEB_PRIVATE_CEF_WEB_HANDLER

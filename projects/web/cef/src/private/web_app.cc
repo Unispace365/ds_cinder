@@ -2,11 +2,11 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "simple_app.h"
+#include "web_app.h"
 
 #include <string>
 
-#include "simple_handler.h"
+#include "web_handler.h"
 #include "include/cef_browser.h"
 #include "include/cef_command_line.h"
 #include "include/views/cef_browser_view.h"
@@ -15,12 +15,14 @@
 
 #include <ds/debug/debug_defines.h>
 
+namespace ds{
+namespace web{
 
-SimpleApp::SimpleApp() {
+WebApp::WebApp() {
 }
 
 #include <iostream>
-void SimpleApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line){
+void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line){
 	std::cout << "before command line" << std::endl;
 	// This would prevent a crash in debug:
 	//command_line->AppendSwitch(CefString("disable-extensions"));
@@ -38,7 +40,7 @@ void SimpleApp::OnBeforeCommandLineProcessing(const CefString& process_type, Cef
 	//command_line->AppendSwitch("enable-begin-frame-scheduling");
 }
 
-void SimpleApp::OnContextInitialized() {
+void WebApp::OnContextInitialized() {
 	CEF_REQUIRE_UI_THREAD();
 	std::cout << "on context initialized" << std::endl;
 
@@ -50,12 +52,12 @@ void SimpleApp::OnContextInitialized() {
 
 
 	// SimpleHandler implements browser-level callbacks.
-	mHandler = CefRefPtr<SimpleHandler>(new SimpleHandler());
+	mHandler = CefRefPtr<WebHandler>(new WebHandler());
 
 	
 }
 
-void SimpleApp::createBrowser(const std::string& url, std::function<void(int)> createdCallback){
+void WebApp::createBrowser(const std::string& url, std::function<void(int)> createdCallback){
 	CEF_REQUIRE_UI_THREAD();
 	// Specify CEF browser settings here.
 	CefBrowserSettings browser_settings;
@@ -76,4 +78,7 @@ void SimpleApp::createBrowser(const std::string& url, std::function<void(int)> c
 
 	// Create the first browser window.
 	CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, NULL);
+}
+
+}
 }

@@ -10,13 +10,13 @@
 
 namespace ds {
 namespace web {
-	class Service;
+	class WebCefService;
 }
 
 namespace ui {
 /**
  * \class ds::ui::Web
- * \brief Display a web page.
+ * \brief Display a web page using Chromium Embedded Framework: https://bitbucket.org/chromiumembedded/cef
  */
 class Web : public ds::ui::Sprite {
 public:
@@ -126,7 +126,7 @@ private:
 	void					initializeBrowser();
 //	void					sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase&);
 
-	ds::web::Service&		mService;
+	ds::web::WebCefService&		mService;
 
 	int						mBrowserId;
 	unsigned char *			mBuffer;

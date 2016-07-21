@@ -708,13 +708,13 @@
     <ClInclude Include="include\wrapper\cef_closure_task.h">
       <Filter>cef\wrapper</Filter>
     </ClInclude>
-    <ClInclude Include="src\private\simple_app.h">
-      <Filter>src\private</Filter>
-    </ClInclude>
-    <ClInclude Include="src\private\simple_handler.h">
-      <Filter>src\private</Filter>
-    </ClInclude>
     <ClInclude Include="src\private\web_callbacks.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
+    <ClInclude Include="src\private\web_handler.h">
+      <Filter>src\private</Filter>
+    </ClInclude>
+    <ClInclude Include="src\private\web_app.h">
       <Filter>src\private</Filter>
     </ClInclude>
   </ItemGroup>
@@ -725,10 +725,10 @@
     <ClCompile Include="src\private\web_service.cpp">
       <Filter>src\private</Filter>
     </ClCompile>
-    <ClCompile Include="src\private\simple_app.cc">
+    <ClCompile Include="src\private\web_handler.cc">
       <Filter>src\private</Filter>
     </ClCompile>
-    <ClCompile Include="src\private\simple_handler.cc">
+    <ClCompile Include="src\private\web_app.cc">
       <Filter>src\private</Filter>
     </ClCompile>
   </ItemGroup>

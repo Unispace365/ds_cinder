@@ -20,9 +20,6 @@
 
 #include "include/cef_app.h"
 
-#include "simple_app.h"
-#include "simple_handler.h"
-
 namespace {
 // Statically initialize the world class. Done here because the Body is
 // guaranteed to be referenced by the final application.
@@ -30,7 +27,7 @@ class Init {
 public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
-			ds::web::Service*		w = new ds::web::Service(e);
+			ds::web::WebCefService*		w = new ds::web::WebCefService(e);
 			if (!w) throw std::runtime_error("Can't create ds::web::Service");
 			e.addService("cef_web", *w);
 
@@ -68,7 +65,7 @@ void Web::installAsClient(ds::BlobRegistry& registry) {
  */
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	: Sprite(engine, width, height)
-	, mService(engine.getService<ds::web::Service>("cef_web"))
+	, mService(engine.getService<ds::web::WebCefService>("cef_web"))
 	, mDragScrolling(false)
 	, mDragScrollMinFingers(2)
 	, mClickDown(false)
@@ -102,7 +99,9 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		handleTouch(info);
 	});
 
-	mService.createBrowser("", [this](int browserId){ 
+	DS_LOG_INFO("Create browser request");
+	mService.createBrowser("", [this](int browserId){
+		DS_LOG_INFO("Create browser returned");
 		mBrowserId = browserId; 
 		initializeBrowser();
 	});
@@ -238,10 +237,6 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 		return;
 
 	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
-
-	// this may not actually work in a rotated scenario, so...
-//	pos.x *= getScale().x;
-	//pos.y *= getScale().y;
 
 	if (ds::ui::TouchInfo::Added == touchInfo.mPhase) {
 		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 0, 1);

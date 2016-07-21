@@ -2,7 +2,7 @@
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 
-#include "simple_handler.h"
+#include "web_handler.h"
 
 #include <sstream>
 #include <string>
@@ -20,26 +20,30 @@
 
 namespace {
 
-	SimpleHandler* g_instance = NULL;
+	ds::web::WebHandler* g_instance = NULL;
 
 }  // namespace
 
-SimpleHandler::SimpleHandler()
+namespace ds {
+namespace web {
+
+
+WebHandler::WebHandler()
 {
 	DCHECK(!g_instance);
 	g_instance = this;
 }
 
-SimpleHandler::~SimpleHandler() {
+WebHandler::~WebHandler() {
 	g_instance = NULL;
 }
 
 // static
-SimpleHandler* SimpleHandler::GetInstance() {
+WebHandler* WebHandler::GetInstance() {
 	return g_instance;
 }
 
-void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
+void WebHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 								  const CefString& title) {
 	CEF_REQUIRE_UI_THREAD();
 
@@ -52,12 +56,12 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 	}
 }
 
-void SimpleHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser, bool fullscreen){
+void WebHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser, bool fullscreen){
 	CEF_REQUIRE_UI_THREAD();
 	std::cout << "Fullscreen mode change " << fullscreen << std::endl;
 }
 
-void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
+void WebHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
 	int browserIdentifier = browser->GetIdentifier();
@@ -85,7 +89,7 @@ void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	}
 }
 
-bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {
+bool WebHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
 	// Allow the close.
@@ -93,7 +97,7 @@ bool SimpleHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 }
 
 
-void SimpleHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
+void WebHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
 	// clear any tracked sizes
@@ -117,7 +121,7 @@ void SimpleHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 }
 
 
-bool SimpleHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser, 
+bool WebHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser, 
 								  CefRefPtr<CefFrame> frame, 
 								  const CefString& target_url, 
 								  const CefString& target_frame_name, 
@@ -134,7 +138,7 @@ bool SimpleHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
 	return true; // true prevents the popup
 }
 
-void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
+void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 								CefRefPtr<CefFrame> frame,
 								ErrorCode errorCode,
 								const CefString& errorText,
@@ -166,7 +170,7 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 }
 
 
-void SimpleHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading, bool canGoBack, bool canGoForward){
+void WebHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading, bool canGoBack, bool canGoForward){
 	int browserId = browser->GetIdentifier();
 	auto findy = mWebCallbacks.find(browserId);
 	if(findy != mWebCallbacks.end()){
@@ -176,7 +180,7 @@ void SimpleHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isL
 	}
 }
 
-bool SimpleHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
+bool WebHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
 	rect.x = rect.y = 0;
 	auto findy = mBrowserSizes.find(browser->GetIdentifier());
 	if(findy == mBrowserSizes.end()){
@@ -191,13 +195,13 @@ bool SimpleHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
 	return true;
 }
 
-bool SimpleHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int viewY, int& screenX, int& screenY){
+bool WebHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int viewY, int& screenX, int& screenY){
 	screenX = viewX;
 	screenY = viewY;
 	return true;
 }
 
-void SimpleHandler::OnPaint(CefRefPtr<CefBrowser> browser,
+void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 							PaintElementType type, 
 							const RectList& dirtyRects, 
 							const void* buffer, int width, int height){
@@ -214,7 +218,7 @@ void SimpleHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 	}
 }
 
-void SimpleHandler::CloseBrowser(const int browserId){
+void WebHandler::CloseBrowser(const int browserId){
 
 	auto findyS = mBrowserSizes.find(browserId);
 	if(findyS != mBrowserSizes.end()){
@@ -234,15 +238,15 @@ void SimpleHandler::CloseBrowser(const int browserId){
 	}
 }
 
-void SimpleHandler::addCreatedCallback(std::function<void(int)> callback){
+void WebHandler::addCreatedCallback(std::function<void(int)> callback){
 	mCreatedCallbacks.push_back(callback);
 }
 
-void SimpleHandler::addWebCallbacks(int browserId, ds::web::WebCefCallbacks& callbacks){
+void WebHandler::addWebCallbacks(int browserId, ds::web::WebCefCallbacks& callbacks){
 	mWebCallbacks[browserId] = callbacks;
 }
 
-void SimpleHandler::sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount){
+void WebHandler::sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount){
 	if(mBrowserList.empty()) return;
 
 	auto findy = mBrowserList.find(browserId);
@@ -354,7 +358,7 @@ int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
 	return modifiers;
 }
 
-void SimpleHandler::sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character){
+void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character){
 	CefKeyEvent keyEvent;
 	keyEvent.type = KEYEVENT_RAWKEYDOWN;
 	keyEvent.windows_key_code = 65;	
@@ -410,7 +414,7 @@ void SimpleHandler::sendKeyEvent(const int browserId, const int state, int windo
 	}
 }
 
-void SimpleHandler::loadUrl(const int browserId, const std::string& newUrl){
+void WebHandler::loadUrl(const int browserId, const std::string& newUrl){
 
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
@@ -418,7 +422,7 @@ void SimpleHandler::loadUrl(const int browserId, const std::string& newUrl){
 	}
 }
 
-void SimpleHandler::requestBrowserResize(const int browserId, const ci::Vec2i newSize){
+void WebHandler::requestBrowserResize(const int browserId, const ci::Vec2i newSize){
 	mBrowserSizes[browserId] = newSize;
 
 	auto findy = mBrowserList.find(browserId);
@@ -429,21 +433,21 @@ void SimpleHandler::requestBrowserResize(const int browserId, const ci::Vec2i ne
 
 }
 
-void SimpleHandler::goForwards(const int browserId){
+void WebHandler::goForwards(const int browserId){
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 		findy->second->GoForward();
 	}
 }
 
-void SimpleHandler::goBackwards(const int browserId){
+void WebHandler::goBackwards(const int browserId){
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 		findy->second->GoBack();
 	}
 }
 
-void SimpleHandler::reload(const int browserId, const bool ignoreCache){
+void WebHandler::reload(const int browserId, const bool ignoreCache){
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 		if(ignoreCache){
@@ -454,10 +458,12 @@ void SimpleHandler::reload(const int browserId, const bool ignoreCache){
 	}
 }
 
-void SimpleHandler::stopLoading(const int browserId){
+void WebHandler::stopLoading(const int browserId){
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 		findy->second->StopLoad();
 	}
 }
 
+}
+}
