@@ -1,6 +1,7 @@
 #include "infinity_scroll_list.h"
 
 #include <ds/debug/logger.h>
+#include <ds/ui/sprite/sprite_engine.h>
 #include <algorithm>
 
 namespace ds{
@@ -117,6 +118,7 @@ namespace ds{
 			if (!mIsTurnOffRegularScroll)
 			{
 				mIsTurnOffRegularScroll = true;
+				mScroller->enable(false);
 			}
 		}
 
@@ -259,7 +261,6 @@ namespace ds{
 				return;
 
 			mIsOnTweenAnimation = true;
-			mScroller->enable(false);
 
 			for (auto it = mOnScreenItemList.begin(); it < mOnScreenItemList.end(); it++)
 			{
@@ -270,7 +271,6 @@ namespace ds{
 					currentPos.y += delta;
 					targetSprite->tweenPosition(currentPos, mTweenAnimationDuration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
 					{
-						mScroller->enable(true);
 						if (targetSprite->getPosition().y <= -mIncrementAmount + mStartPositionY || targetSprite->getPosition().y >= mScroller->getHeight())
 						{
 							(*it).mOnscrren = false;
@@ -286,7 +286,6 @@ namespace ds{
 					currentPos.x += delta;
 					targetSprite->tweenPosition(currentPos, mTweenAnimationDuration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
 					{						
-						mScroller->enable(true);
 						if (targetSprite->getPosition().x <= -mIncrementAmount + mStartPositionX || targetSprite->getPosition().x >= mScroller->getWidth())
 						{
 							(*it).mOnscrren = false;
@@ -400,8 +399,10 @@ namespace ds{
 
 			if (mCreateItemCallback) sprite = mCreateItemCallback();
 			if (sprite){
+				sprite->enable(true);
+				sprite->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 				sprite->setProcessTouchCallback([this](Sprite* sp, const TouchInfo& ti){
-					//handleItemTouchInfo(sp, ti); 
+					handleItemTouchInfo(sp, ti); 
 				});
 				sprite->setTapCallback([this, sprite](Sprite* bs, const ci::Vec3f cent){
 					Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
@@ -423,6 +424,19 @@ namespace ds{
 					mSetDataCallback(sprite, placeHolder.mDbId);
 				placeHolder.mAssociatedSprite = sprite;
 				//placeHolder.mOnscrren = false;
+			}
+		}
+
+		void infinityList::handleItemTouchInfo(ds::ui::Sprite* bs, const TouchInfo& ti)
+		{
+			if (bs){
+				if (mStateChangeCallback) mStateChangeCallback(bs, ti.mNumberFingers > 0);
+
+				if (mScroller  && ti.mPhase == ds::ui::TouchInfo::Moved && ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance()){
+					if (mStateChangeCallback) mStateChangeCallback(bs, false);
+					bs->passTouchToSprite(mScroller, ti);
+					return;
+				}
 			}
 		}
 

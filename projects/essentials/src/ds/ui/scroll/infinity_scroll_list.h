@@ -76,6 +76,7 @@ namespace ds{
 			void								addSpriteToEnd();
 			void								addSpriteToTop();
 			void								createSprite(ItemPlaceHolder&);
+			void								handleItemTouchInfo(ds::ui::Sprite* bs, const TouchInfo& ti);
 			std::vector<ItemPlaceHolder>		mItemPlaceHolders;
 
 			ds::Momentum						mSpriteMomentum;
