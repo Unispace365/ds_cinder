@@ -52,6 +52,11 @@ void SimpleHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 	}
 }
 
+void SimpleHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser, bool fullscreen){
+	CEF_REQUIRE_UI_THREAD();
+	std::cout << "Fullscreen mode change " << fullscreen << std::endl;
+}
+
 void SimpleHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
