@@ -393,8 +393,8 @@ void Web::goForward() {
 	mService.goForwards(mBrowserId);
 }
 
-void Web::reload() {
-	mService.reload(mBrowserId);
+void Web::reload(const bool ignoreCache) {
+	mService.reload(mBrowserId, ignoreCache);
 }
 
 void Web::stop() {

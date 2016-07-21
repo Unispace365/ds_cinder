@@ -141,7 +141,9 @@ void SimpleHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 	auto findy = mWebCallbacks.find(browserId);
 	if(findy != mWebCallbacks.end()){
 		if(findy->second.mErrorCallback){
-			findy->second.mErrorCallback(errorText.ToString());
+			std::stringstream ss;
+			ss << "Failed to load URL with error " << errorText.ToString() << " number= " << errorCode;
+			findy->second.mErrorCallback(ss.str());
 		}
 	}
 
@@ -436,10 +438,14 @@ void SimpleHandler::goBackwards(const int browserId){
 	}
 }
 
-void SimpleHandler::reload(const int browserId){
+void SimpleHandler::reload(const int browserId, const bool ignoreCache){
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
-		findy->second->Reload();
+		if(ignoreCache){
+			findy->second->ReloadIgnoreCache();
+		} else {
+			findy->second->Reload();
+		}
 	}
 }
 

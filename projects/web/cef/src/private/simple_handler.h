@@ -136,7 +136,7 @@ public:
 	// Regular browser controls
 	void goForwards(const int browserId);
 	void goBackwards(const int browserId);
-	void reload(const int browserId);
+	void reload(const int browserId, const bool ignoreCache);
 	void stopLoading(const int browserId);
 
 private:

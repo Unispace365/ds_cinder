@@ -159,10 +159,10 @@ void Service::goBackwards(const int browserId){
 	}
 }
 
-void Service::reload(const int browserId){
+void Service::reload(const int browserId, const bool ignoreCache){
 	CefRefPtr<SimpleHandler> handler(SimpleHandler::GetInstance());
 	if(handler){
-		handler->reload(browserId);
+		handler->reload(browserId, ignoreCache);
 	}
 }
 

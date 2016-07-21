@@ -68,7 +68,7 @@ public:
 	// Actions
 	void					goBack();
 	void					goForward();
-	void					reload();
+	void					reload(const bool ignoreCache = false);
 	bool					isLoading();
 	void					stop();
 	bool					canGoBack();
