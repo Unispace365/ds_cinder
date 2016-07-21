@@ -23,7 +23,7 @@ namespace ds{
 			, mTweenAnimationDuration(0.4f)
 			, mTweenAnimationDelay(0.0f)
 			, mTweenAnimationEaseFn(ci::EaseNone())
-			, mIsTurnOffRegularScroll(false)
+			, mIsTurnOnStepSwipe(false)
 
 		{
 			setSize(startWidth, startHeight);
@@ -113,12 +113,11 @@ namespace ds{
 			tweenItemPos(mIncrementAmount);
 		}
 
-		void infinityList::turnOffTouch()
+		void infinityList::turnOnStepSwipe()
 		{
-			if (!mIsTurnOffRegularScroll)
+			if (!mIsTurnOnStepSwipe)
 			{
-				mIsTurnOffRegularScroll = true;
-				mScroller->enable(false);
+				mIsTurnOnStepSwipe = true;
 			}
 		}
 
@@ -189,9 +188,6 @@ namespace ds{
 
 		void infinityList::handleScrollTouch(Sprite* bs, const TouchInfo& ti)
 		{
-			if (mIsTurnOffRegularScroll)
-				return;
-
 			if (ti.mPhase == TouchInfo::Added){
 				mSpriteMomentum.deactivate();
 			}
@@ -202,16 +198,37 @@ namespace ds{
 				auto deltaPoint = ti.mDeltaPoint;
 
 				if (mScroller){
-					if (mVertical){
-						float yDelta = deltaPoint.y / ti.mNumberFingers;
-						if (getPerspective()){
-							yDelta = -yDelta;
+					if (mIsTurnOnStepSwipe)
+					{
+						if (ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance())
+						{
+							if (mVertical)
+							{
+								
+							}
+							else
+							{
+								std::cout << ti.mDeltaPoint;
+								if (ti.mDeltaPoint.x > 0)
+									previousItem();
+								else
+									nextItem();
+							}
 						}
-						itemPosUpdated(yDelta);
 					}
-					else {
-						float xDelta = deltaPoint.x / ti.mNumberFingers;
-						itemPosUpdated(xDelta);
+					else
+					{
+						if (mVertical){
+							float yDelta = deltaPoint.y / ti.mNumberFingers;
+							if (getPerspective()){
+								yDelta = -yDelta;
+							}
+							itemPosUpdated(yDelta);
+						}
+						else {
+							float xDelta = deltaPoint.x / ti.mNumberFingers;
+							itemPosUpdated(xDelta);
+						}
 					}
 				}
 			}
@@ -285,7 +302,7 @@ namespace ds{
 				{
 					currentPos.x += delta;
 					targetSprite->tweenPosition(currentPos, mTweenAnimationDuration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
-					{						
+					{
 						if (targetSprite->getPosition().x <= -mIncrementAmount + mStartPositionX || targetSprite->getPosition().x >= mScroller->getWidth())
 						{
 							(*it).mOnscrren = false;
@@ -402,7 +419,7 @@ namespace ds{
 				sprite->enable(true);
 				sprite->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 				sprite->setProcessTouchCallback([this](Sprite* sp, const TouchInfo& ti){
-					handleItemTouchInfo(sp, ti); 
+					handleItemTouchInfo(sp, ti);
 				});
 				sprite->setTapCallback([this, sprite](Sprite* bs, const ci::Vec3f cent){
 					Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();

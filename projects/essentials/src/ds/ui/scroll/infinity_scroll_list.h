@@ -46,7 +46,7 @@ namespace ds{
 			void								setTweenAnimationParams(const float duration, const float delay = 0.0f, const ci::EaseFn fn= ci::EaseNone());
 			void								nextItem();
 			void								previousItem();
-			void								turnOffTouch();
+			void								turnOnStepSwipe();
 
 		protected:
 			// A helper so we only have to show the visible results at one time (instead of creating a zillion sprites)
@@ -96,7 +96,7 @@ namespace ds{
 			int									mTopIndex;
 			int									mBottomIndex;
 			bool								mIsOnTweenAnimation;
-			bool								mIsTurnOffRegularScroll;
+			bool								mIsTurnOnStepSwipe;
 
 			float								mTweenAnimationDuration;
 			float								mTweenAnimationDelay;
