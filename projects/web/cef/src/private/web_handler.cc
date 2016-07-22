@@ -87,8 +87,6 @@ void WebHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 
 	mBrowserList[browserIdentifier] = browser;
 
-	std::cout << "On after created " << browser->GetIdentifier() << " " << std::this_thread::get_id() << std::endl;
-
 	if(!mCreatedCallbacks.empty()){
 		mCreatedCallbacks.front()(browser->GetIdentifier());
 		mCreatedCallbacks.erase(mCreatedCallbacks.begin());
@@ -119,14 +117,11 @@ void WebHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 			break;
 		}
 	}
-
-	if(mBrowserList.empty()) {
-		// All browser windows have closed. Quit the application message loop.
-		//CefQuitMessageLoop();
-	}
 }
 
-
+// This callback happens when there's a request for a new window, tab, page, etc. 
+// Currently, we're rerouting this all to load the new page in the same browser
+// Could possibly change this behaviour to send a callback to the UI / client code and open a new instance
 bool WebHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser, 
 								  CefRefPtr<CefFrame> frame, 
 								  const CefString& target_url, 
@@ -138,8 +133,6 @@ bool WebHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
 								  CefRefPtr<CefClient>& client, 
 								  CefBrowserSettings& settings, 
 								  bool* no_javascript_access){
-	std::cout << "On Before popup" << std::endl;
-
 	browser->GetMainFrame()->LoadURL(target_url);
 	return true; // true prevents the popup
 }
@@ -211,8 +204,9 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 							PaintElementType type, 
 							const RectList& dirtyRects, 
 							const void* buffer, int width, int height){
-	//CEF_REQUIRE_UI_THREAD();
+	CEF_REQUIRE_UI_THREAD();
 
+	//TODO: Handle dirty rects
 	//std::cout << "OnPaint, type: " << type <<  " " << width << " " << height << std::endl;
 
 	int browserId = browser->GetIdentifier();

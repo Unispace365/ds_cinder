@@ -99,19 +99,13 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		handleTouch(info);
 	});
 
-	DS_LOG_INFO("Create browser request");
 	mService.createBrowser("", [this](int browserId){
-		DS_LOG_INFO("Create browser returned");
 		mBrowserId = browserId; 
 		initializeBrowser();
 	});
-
-	
 }
 
 Web::~Web() {
-	std::cout << "web sprite destructor" << std::endl;
-
 	// This clears the callbacks too
 	mService.closeBrowser(mBrowserId);
 
@@ -130,27 +124,21 @@ void Web::initializeBrowser(){
 		mService.requestBrowserResize(mBrowserId, mBrowserSize);
 	}
 
-
 	loadUrl(mUrl);
 
 	ds::web::WebCefCallbacks wcc;
 	wcc.mTitleChangeCallback = [this](const std::wstring& newTitle){
 		mTitle = newTitle;
-
-		std::cout << "New Browser title: " << ds::utf8_from_wstr(newTitle) << std::endl;
-
 		if(mTitleChangedCallback){
 			mTitleChangedCallback(newTitle);
 		}
 	};
-
 
 	wcc.mLoadChangeCallback = [this](const bool isLoading, const bool canBack, const bool canForwards){
 		mIsLoading = isLoading;
 		mCanBack = canBack;
 		mCanForward = canForwards;
 
-		std::cout << "Load done: " << isLoading << " " << canBack << " " << canForwards << std::endl;
 		if(!mIsLoading && mDocumentReadyFn){
 			mDocumentReadyFn();
 			//	mJsMethodHandler->setDomIsReady(*mWebViewPtr);
@@ -159,6 +147,8 @@ void Web::initializeBrowser(){
 
 	wcc.mPaintCallback = [this](const void * buffer, const int bufferWidth, const int bufferHeight){
 		// verify the buffer exists and is the correct size
+		// TODO: Add ability to redraw only the changed rectangles (which is what comes from CEF)
+		// Would be much more performant, especially for large browsers with small ui changes (like blinking cursors)
 		if(mBuffer && bufferWidth == mBrowserSize.x && bufferHeight == mBrowserSize.y){
 			mHasBuffer = true;
 			memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
