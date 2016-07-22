@@ -284,9 +284,9 @@ bool ScrollArea::callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDesti
 void ScrollArea::setUseFades(const bool doFading){
 	if(doFading){
 		float fadeWiddy = getWidth();
-		float fadeHiddy = getHeight() / 16.0f;
+		float fadeHiddy = mFadeHeight;
 		if(!mVertical){
-			fadeWiddy = getWidth() / 16.0f;
+			fadeWiddy = mFadeHeight;
 			fadeHiddy = getHeight();
 		}
 		if(!mTopFade){
@@ -327,6 +327,8 @@ void ScrollArea::setUseFades(const bool doFading){
 			mBottomFade = nullptr;
 		}
 	}
+
+	onSizeChanged();
 }
 
 void ScrollArea::setFadeHeight(const float fadeHeight){
@@ -344,6 +346,8 @@ void ScrollArea::setFadeHeight(const float fadeHeight){
 	if(mBottomFade){
 		mBottomFade->setSize(fadeWiddy, fadeHiddy);
 	}
+
+	onSizeChanged();
 }
 
 void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTrans){

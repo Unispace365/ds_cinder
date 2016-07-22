@@ -181,7 +181,7 @@ void ScrollList::layoutItemsGrid(){
 	}
 }
 
-void ScrollList::setSpecialLayout(const bool doSpcial, const int targetRow, const int targetColumn, const float gapping)
+void ScrollList::setMatrixLayout(const bool doSpcial, const int targetRow, const int targetColumn, const float gapping)
 {
 	mSpecialLayout = doSpcial;
 	mTargetRow = targetRow;
@@ -190,7 +190,7 @@ void ScrollList::setSpecialLayout(const bool doSpcial, const int targetRow, cons
 	layout();
 }
 
-void ScrollList::layoutItemsSpecial()
+void ScrollList::layoutItemsMatrix()
 {
 	float xp = mStartPositionX;
 	float yp = mStartPositionY;
@@ -255,7 +255,7 @@ void ScrollList::layoutItems(){
 	}
 	if (mSpecialLayout)
 	{
-		layoutItemsSpecial();
+		layoutItemsMatrix();
 		return;
 	}
 

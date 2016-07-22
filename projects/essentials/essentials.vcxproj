@@ -35,6 +35,7 @@
     <ClCompile Include="src\ds\ui\menu\component\menu_item.cpp" />
     <ClCompile Include="src\ds\ui\menu\touch_menu.cpp" />
     <ClCompile Include="src\ds\ui\scroll\centered_scroll_area.cpp" />
+    <ClCompile Include="src\ds\ui\scroll\infinity_scroll_list.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp" />
@@ -79,6 +80,7 @@
     <ClInclude Include="src\ds\ui\menu\component\menu_item.h" />
     <ClInclude Include="src\ds\ui\menu\touch_menu.h" />
     <ClInclude Include="src\ds\ui\scroll\centered_scroll_area.h" />
+    <ClInclude Include="src\ds\ui\scroll\infinity_scroll_list.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_bar.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
@@ -115,10 +117,12 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="PropertySheets\Essentials.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
+    <Import Project="PropertySheets\Essentials_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>

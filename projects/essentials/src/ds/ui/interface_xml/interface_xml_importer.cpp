@@ -1065,6 +1065,10 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 }
 
 bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree>& node){
+	if(!parent){
+		DS_LOG_WARNING("No parent sprite specified when reading a sprite from xml file=" << mXmlFile);
+		return false;
+	}
 	std::string type = node->getTag();
 	std::string value = node->getValue();
 	auto &engine = parent->getEngine();
