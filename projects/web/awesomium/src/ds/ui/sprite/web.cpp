@@ -551,9 +551,9 @@ void Web::goForward() {
 	}
 }
 
-void Web::reload() {
+void Web::reload(const bool hardReload) {
 	if (mWebViewPtr) {
-		mWebViewPtr->Reload(true);
+		mWebViewPtr->Reload(hardReload);
 	}
 }
 
@@ -579,6 +579,10 @@ void Web::setAddressChangedFn(const std::function<void(const std::string& new_ad
 
 void Web::setDocumentReadyFn(const std::function<void(void)>& fn) {
 	mDocumentReadyFn = fn;
+}
+
+void Web::setErrorCallback(std::function<void(const std::string&)> func){
+	mErrorCallback = func;
 }
 
 void Web::setErrorMessage(const std::string &message){
