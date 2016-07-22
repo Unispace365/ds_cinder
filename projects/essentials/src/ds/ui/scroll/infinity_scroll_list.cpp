@@ -58,9 +58,14 @@ namespace ds{
 
 			mTopIndex = dbIds.size() - 1;
 
-			for (auto it = 0; it < dbIds.size(); ++it){
-				mItemPlaceHolders.push_back(ItemPlaceHolder(it));
+			mItemPlaceHolders.push_back(ItemPlaceHolder(dbIds[mTopIndex]));
+			if (dbIds.size() > 1)
+			{
+				for (auto it = 0; it < dbIds.size() - 1; ++it){
+					mItemPlaceHolders.push_back(ItemPlaceHolder(dbIds[it]));
+				}
 			}
+
 
 			layout();
 		}
@@ -105,11 +110,37 @@ namespace ds{
 
 		void infinityList::nextItem()
 		{
-			tweenItemPos(-mIncrementAmount);
+			if (mOnScreenItemSize < 2)
+				return;
+
+			auto pos = mOnScreenItemList[1].mAssociatedSprite->getPosition();
+			float targetAmount = 0.0f;
+			if (mVertical)
+			{
+
+			}
+			else
+			{
+				targetAmount = mStartPositionX - mIncrementAmount - pos.x;
+			}
+			tweenItemPos(targetAmount);
 		}
 
 		void infinityList::previousItem()
 		{
+			if (mOnScreenItemSize < 1)
+				return;
+
+			auto pos = mOnScreenItemList[0].mAssociatedSprite->getPosition();
+			float targetAmount = 0.0f;
+			if (mVertical)
+			{
+
+			}
+			else
+			{
+				targetAmount = mStartPositionX - pos.x;
+			}
 			tweenItemPos(mIncrementAmount);
 		}
 
@@ -157,23 +188,22 @@ namespace ds{
 			mOnScreenItemList.clear();
 			for (auto i = 0; i < mOnScreenItemSize; ++i){
 
-				auto &placeHolder = mItemPlaceHolders[0];
+				auto &placeHolder = mItemPlaceHolders[i];
 				mBottomIndex++;
-				if (i == 0)
+				/*if (i == 0)
 					placeHolder = mItemPlaceHolders[mTopIndex];
 				else
 				{
 					if (mBottomIndex == mItemPlaceHolders.size())
 						mBottomIndex = 0;
 					placeHolder = mItemPlaceHolders[mBottomIndex];
-				}
+				}*/
 
 
 				createSprite(placeHolder);
 
 				placeHolder.mAssociatedSprite->setPosition(xp, yp);
-				if (i != 0 && i != mOnScreenItemSize - 1)
-					placeHolder.mAssociatedSprite->show();
+
 				if (mVertical){
 					yp += mIncrementAmount;
 				}
@@ -204,11 +234,10 @@ namespace ds{
 						{
 							if (mVertical)
 							{
-								
+
 							}
 							else
 							{
-								std::cout << ti.mDeltaPoint;
 								if (ti.mDeltaPoint.x > 0)
 									previousItem();
 								else
