@@ -314,7 +314,16 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
-    </Link>
+    </Link> 
+	<CustomBuildStep>
+      <Message>Copying CEF resources to output directory</Message>
+      <Command>echo Copying CEF resources files to Configuration folder
+		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_086)\projects\web\cef\lib\runtime" "$(SolutionDir)\$(Configuration)"
+		</Command>
+      <Inputs>$(DS_PLATFORM_086)\projects\web\cef\lib\runtime\libcef.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\libcef.dll</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -347,6 +356,15 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+	<CustomBuildStep>
+      <Message>Copying CEF resources to output directory</Message>
+      <Command>echo Copying CEF resources files to Configuration folder
+		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_086)\projects\web\cef\lib\runtime" "$(SolutionDir)\$(Configuration)"
+		</Command>
+      <Inputs>$(DS_PLATFORM_086)\projects\web\cef\lib\runtime\libcef.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\libcef.dll</Outputs>
+    </CustomBuildStep>
     <PostBuildEvent>
       <Command>
       </Command>
@@ -357,4 +375,8 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <PropertyGroup>
+	  <CustomBuildAfterTargets>ClCompile</CustomBuildAfterTargets>
+	  <CustomBuildBeforeTargets>Link</CustomBuildBeforeTargets>
+	</PropertyGroup>
 </Project>
