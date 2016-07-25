@@ -99,15 +99,21 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		handleTouch(info);
 	});
 
-	mService.createBrowser("", [this](int browserId){
+	mService.createBrowser("", this, [this](int browserId){
 		mBrowserId = browserId; 
 		initializeBrowser();
 	});
 }
 
 Web::~Web() {
-	// This clears the callbacks too
-	mService.closeBrowser(mBrowserId);
+
+	if(mBrowserId < 0){
+		mService.cancelCreation(this);
+
+	} else {
+		// This clears the callbacks too
+		mService.closeBrowser(mBrowserId);
+	}
 
 	if(mBuffer){
 		delete mBuffer;

@@ -155,7 +155,15 @@ void CefDevelop::setupServer(){
 			}
 		});
 
-		bs->enable(false);
+		//bs->enable(false);
+
+		static int starty = 0;
+		if(starty % 2 == 0){
+			webby->release();
+			mWebby = nullptr;
+		}
+
+		starty++;
 	});
 
 

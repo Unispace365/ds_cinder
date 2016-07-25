@@ -121,8 +121,10 @@ public:
 	void CloseBrowser(const int browserId);
 
 	// Adds a callback to a list of callbacks for after browsers are created
-	void addCreatedCallback(std::function<void(int)> callback);
+	void addCreatedCallback(void * instancePtr, std::function<void(int)> callback);
+	void cancelCreation(void * instancePtr);
 
+	// See WebCefCallbacks for info
 	void addWebCallbacks(const int browserId, ds::web::WebCefCallbacks& callback);
 
 	// Sends some mouse input to the browser
@@ -147,6 +149,10 @@ public:
 	void stopLoading(const int browserId);
 	void setZoomLevel(const int browserId, const double newZoom);
 	double getZoomLevel(const int browserId);
+
+	bool hasOrphans(){ return !mOrphanedBrowsers.empty(); }
+	void useOrphan(std::function<void(int)> callback, const std::string startUrl);
+
 private:
 
 	// switch to a map for faster lookup
@@ -156,8 +162,11 @@ private:
 	// Track the sizes that we want the browsers to be, since resizing is asynchronous
 	std::map<int, ci::Vec2i>								mBrowserSizes;
 
-	std::vector<std::function<void(int)>>					mCreatedCallbacks;
+	std::map<void *,std::function<void(int)>>				mCreatedCallbacks;
 	std::map<int, ds::web::WebCefCallbacks>					mWebCallbacks;
+
+	// Browsers that were created but their instances were removed before they were used
+	std::vector<CefRefPtr<CefBrowser>>						mOrphanedBrowsers;
 
 	// Include the default reference counting implementation.
 	IMPLEMENT_REFCOUNTING(WebHandler);

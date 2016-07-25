@@ -67,6 +67,26 @@ void WebHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser, bool full
 	}
 }
 
+void WebHandler::useOrphan(std::function<void(int)> callback, const std::string startUrl){
+	if(mOrphanedBrowsers.empty()){
+		return;
+	}
+
+	std::cout << "Using orphan" << std::endl;
+
+	auto browser = mOrphanedBrowsers.back();
+	mOrphanedBrowsers.pop_back();
+
+	int browserIdentifier = browser->GetIdentifier();
+	mBrowserList[browserIdentifier] = browser;
+
+	loadUrl(browserIdentifier, startUrl);
+
+	if(callback){
+		callback(browserIdentifier);
+	}	
+}
+
 void WebHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
@@ -80,15 +100,18 @@ void WebHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 		mBrowserList.erase(findy);
 	}
 
+	// Ensure that the size is correct (in case identifiers are reused)
 	auto findySize = mBrowserSizes.find(browserIdentifier);
 	if(findySize != mBrowserSizes.end()){
 		mBrowserSizes.erase(findySize);
 	}
 
-	mBrowserList[browserIdentifier] = browser;
 
-	if(!mCreatedCallbacks.empty()){
-		mCreatedCallbacks.front()(browser->GetIdentifier());
+	if(mCreatedCallbacks.empty()){
+		mOrphanedBrowsers.push_back(browser);
+	} else {
+		mBrowserList[browserIdentifier] = browser;
+		mCreatedCallbacks.begin()->second(browserIdentifier);
 		mCreatedCallbacks.erase(mCreatedCallbacks.begin());
 	}
 }
@@ -219,7 +242,6 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 void WebHandler::CloseBrowser(const int browserId){
-
 	auto findyS = mBrowserSizes.find(browserId);
 	if(findyS != mBrowserSizes.end()){
 		mBrowserSizes.erase(findyS);
@@ -238,8 +260,16 @@ void WebHandler::CloseBrowser(const int browserId){
 	}
 }
 
-void WebHandler::addCreatedCallback(std::function<void(int)> callback){
-	mCreatedCallbacks.push_back(callback);
+void WebHandler::addCreatedCallback(void * instancePtr, std::function<void(int)> callback){
+	mCreatedCallbacks[instancePtr] = callback;
+}
+
+void WebHandler::cancelCreation(void * instancePtr){
+	// When the browser is finally created (asynchronously), then it will find the creation requests empty and be closed
+	auto findy = mCreatedCallbacks.find(instancePtr);
+	if(findy != mCreatedCallbacks.end()){
+		mCreatedCallbacks.erase(findy);
+	}
 }
 
 void WebHandler::addWebCallbacks(int browserId, ds::web::WebCefCallbacks& callbacks){
@@ -371,6 +401,8 @@ void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_
 }
 
 void WebHandler::loadUrl(const int browserId, const std::string& newUrl){
+
+	if(newUrl.empty()) return;
 
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){

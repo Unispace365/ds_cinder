@@ -53,8 +53,15 @@ void WebApp::OnContextInitialized() {
 	mHandler = CefRefPtr<WebHandler>(new WebHandler());
 }
 
-void WebApp::createBrowser(const std::string& url, std::function<void(int)> createdCallback){
+void WebApp::createBrowser(const std::string& url, void * instancePtr, std::function<void(int)> createdCallback){
 	CEF_REQUIRE_UI_THREAD();
+
+	// Handler has an unused browser instance, so use that instead of creating a new one
+	if(mHandler && mHandler->hasOrphans()){
+		mHandler->useOrphan(createdCallback, url);
+		return;
+	}
+
 	// Specify CEF browser settings here.
 	CefBrowserSettings browser_settings;
 
@@ -64,7 +71,7 @@ void WebApp::createBrowser(const std::string& url, std::function<void(int)> crea
 	window_info.SetAsWindowless(hWnd, true);
 
 	if(mHandler){
-		mHandler->addCreatedCallback(createdCallback);
+		mHandler->addCreatedCallback(instancePtr, createdCallback);
 	}
 
 	// Create the first browser window.

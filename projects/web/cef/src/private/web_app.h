@@ -33,7 +33,7 @@ public:
 	// CefBrowserProcessHandler methods:
 	virtual void OnContextInitialized() OVERRIDE;
 
-	void		createBrowser(const std::string& url, std::function<void(int)> createdCallback);
+	void		createBrowser(const std::string& url, void * instancePtr, std::function<void(int)> createdCallback);
 
 private:
 	// Include the default reference counting implementation.
