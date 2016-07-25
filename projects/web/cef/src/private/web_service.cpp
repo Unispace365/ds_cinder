@@ -108,10 +108,17 @@ void WebCefService::sendMouseClick(const int browserId, const int x, const int y
 	}
 }
 
-void WebCefService::sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character){
+void WebCefService::sendMouseWheelEvent(const int browserId, const int x, const int y, const int xDelta, const int yDelta){
 	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
 	if(handler){
-		handler->sendKeyEvent(browserId, state, windows_key_code, native_key_code, modifiers, character);
+		handler->sendMouseWheelEvent(browserId, x, y, xDelta, yDelta);
+	}
+}
+
+void WebCefService::sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown){
+	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
+	if(handler){
+		handler->sendKeyEvent(browserId, state, windows_key_code, character, shiftDown, cntrlDown, cntrlDown);
 	}
 }
 
@@ -156,6 +163,22 @@ void WebCefService::stopLoading(const int browserId){
 	if(handler){
 		handler->stopLoading(browserId);
 	}
+}
+
+void WebCefService::setZoomLevel(const int browserId, const double newZoomLevel){
+	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
+	if(handler){
+		handler->setZoomLevel(browserId, newZoomLevel);
+	}
+}
+
+double WebCefService::getZoomLevel(const int browserId){
+	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
+	if(handler){
+		return handler->getZoomLevel(browserId);
+	}
+
+	return 0.0;
 }
 
 } // namespace web

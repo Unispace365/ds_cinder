@@ -34,24 +34,57 @@ public:
 
 	virtual void			start();
 
+	// Browser crated callback will be called after a browser is created (asynchronously) and returns an ID for the browser.
+	// Use that id to interact with the browser after that.
 	void					createBrowser(const std::string& startUrl, std::function<void(int)> browserCreatedCallback);
+
+	// Asynchronously close the browser. This also clears any callbacks and no other commands will function. Assume the browser is dead after this call
 	void					closeBrowser(const int browserId);
 
+	// Register the object to get callbacks for lots of events (Load complete, title change, etc). See WebCefCallbacks header for details
 	void					addWebCallbacks(const int browserId, WebCefCallbacks& callback);
 
-	// browser id was returned from the createBrowser callback, x / y in pixels from top/left in browser space, bttn: left=0, middle = 1; right = 2, state: 0 = down, 1 = move, 2 = release. 
+	// browser id was returned from the createBrowser callback, 
+	// x / y in pixels from top/left in browser space
+	// bttn: left=0, middle = 1; right = 2
+	// state: 0 = down, 1 = move, 2 = release. 
+	// ClickCount: 1 for 1 click, 2 for 2, etc.
 	void					sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);
 
-	void					sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
+	// browser id was returned from the createBrowser callback, 
+	// x / y in pixels from top/left in browser space
+	// xDelta: pixels scrolled in horizontal direction
+	// yDelta: pixels scrolled in vertical direction
+	void					sendMouseWheelEvent(const int browserId, const int x, const int y, const int xDelta, const int yDelta);
 
+	// browser id was returned from the createBrowser callback, 
+	// state: 0 = down, 1 = move, 2 = release
+	// windows_key_code: the VK_### Key code
+	// Character: If there's a character associated with this key press. If this is a special key (enter, shift, delete, whatevs) there won't be a char
+	// ShiftDown/CntrlDown/AltDown: If the modifier key is depressed (cheer up, modifier key!)
+	void					sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown);
+
+	// Asynchronously load the requested url. Notifications from WebCefCallbacks will happen when appropriate after this
 	void					loadUrl(const int browserId, const std::string& newUrl);
 
+	// Asynchronously resizes the browser. After the resize is complete, a new paint callback will come through at the correct size
 	void					requestBrowserResize(const int browserId, const ci::Vec2i newSize);
 
+	// Request the browser to go forwards in history (if it can)
 	void					goForwards(const int browserId);
+
+	// Request the browser to go backwards in history (if it can)
 	void					goBackwards(const int browserId);
+
+	// Request the browser to reload the current page. If ignoreCache is true, will ignore any saved data and re-load any resources from the net
 	void 					reload(const int browserId, const bool ignoreCache);
+
+	// Cancels current load
 	void 					stopLoading(const int browserId);
+
+	// This expects a CEF zoom-level, where 0.0 == 100%
+	void					setZoomLevel(const int browserId, const double newZoomLevel);
+	double					getZoomLevel(const int browserId);
 
 protected:
 	virtual void			update(const ds::UpdateParams&);

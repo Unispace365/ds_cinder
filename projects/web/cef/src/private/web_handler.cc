@@ -272,141 +272,97 @@ void WebHandler::sendMouseClick(const int browserId, const int x, const int y, c
 	
 }
 
-// TODO: Move these parsers to a different file
-bool IsKeyDown(WPARAM wparam) {
-	return (GetKeyState(wparam) & 0x8000) != 0;
-}
+void WebHandler::sendMouseWheelEvent(const int browserId, const int x, const int y, const int xDelta, const int yDelta){
+	if(mBrowserList.empty()) return;
 
-int GetCefKeyboardModifiers(WPARAM wparam, LPARAM lparam) {
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		auto browserHost = findy->second->GetHost();
+		CefMouseEvent mouseEvent;
+		mouseEvent.x = x;
+		mouseEvent.y = y;
 
-	int modifiers = 0;
-	if(IsKeyDown(VK_SHIFT))
-		modifiers |= EVENTFLAG_SHIFT_DOWN;
-	if(IsKeyDown(VK_CONTROL))
-		modifiers |= EVENTFLAG_CONTROL_DOWN;
-	if(IsKeyDown(VK_MENU))
-		modifiers |= EVENTFLAG_ALT_DOWN;
-
-	// Low bit set from GetKeyState indicates "toggled".
-	if(::GetKeyState(VK_NUMLOCK) & 1)
-		modifiers |= EVENTFLAG_NUM_LOCK_ON;
-	if(::GetKeyState(VK_CAPITAL) & 1)
-		modifiers |= EVENTFLAG_CAPS_LOCK_ON;
-
-	switch(wparam) {
-	case VK_RETURN:
-		if((lparam >> 16) & KF_EXTENDED)
-			modifiers |= EVENTFLAG_IS_KEY_PAD;
-		break;
-	case VK_INSERT:
-	case VK_DELETE:
-	case VK_HOME:
-	case VK_END:
-	case VK_PRIOR:
-	case VK_NEXT:
-	case VK_UP:
-	case VK_DOWN:
-	case VK_LEFT:
-	case VK_RIGHT:
-		if(!((lparam >> 16) & KF_EXTENDED))
-			modifiers |= EVENTFLAG_IS_KEY_PAD;
-		break;
-	case VK_NUMLOCK:
-	case VK_NUMPAD0:
-	case VK_NUMPAD1:
-	case VK_NUMPAD2:
-	case VK_NUMPAD3:
-	case VK_NUMPAD4:
-	case VK_NUMPAD5:
-	case VK_NUMPAD6:
-	case VK_NUMPAD7:
-	case VK_NUMPAD8:
-	case VK_NUMPAD9:
-	case VK_DIVIDE:
-	case VK_MULTIPLY:
-	case VK_SUBTRACT:
-	case VK_ADD:
-	case VK_DECIMAL:
-	case VK_CLEAR:
-		modifiers |= EVENTFLAG_IS_KEY_PAD;
-		break;
-	case VK_SHIFT:
-		if(IsKeyDown(VK_LSHIFT))
-			modifiers |= EVENTFLAG_IS_LEFT;
-		else if(IsKeyDown(VK_RSHIFT))
-			modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
-	case VK_CONTROL:
-		if(IsKeyDown(VK_LCONTROL))
-			modifiers |= EVENTFLAG_IS_LEFT;
-		else if(IsKeyDown(VK_RCONTROL))
-			modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
-	case VK_MENU:
-		if(IsKeyDown(VK_LMENU))
-			modifiers |= EVENTFLAG_IS_LEFT;
-		else if(IsKeyDown(VK_RMENU))
-			modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
-	case VK_LWIN:
-		modifiers |= EVENTFLAG_IS_LEFT;
-		break;
-	case VK_RWIN:
-		modifiers |= EVENTFLAG_IS_RIGHT;
-		break;
+		browserHost->SendMouseWheelEvent(mouseEvent, xDelta, yDelta);
 	}
-	return modifiers;
 }
 
-void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character){
+void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown){
+
 	CefKeyEvent keyEvent;
+
+	bool isChar = false;
 	keyEvent.type = KEYEVENT_RAWKEYDOWN;
-	keyEvent.windows_key_code = 65;	
-	keyEvent.native_key_code = 1966081;// (int)(OemKeyScan(character));
-	keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
-	if(modifiers & 0x0008){
-	//	keyEvent.modifiers |= EVENTFLAG_SHIFT_DOWN;
+	keyEvent.native_key_code = MapVirtualKey(windows_key_code, MAPVK_VK_TO_VSC);
+
+	switch(windows_key_code) {
+		// These keys are non-character keys and have different windows_key_codes from the character
+		// May need to add more codes to this list, or modify as time goes on
+		case VK_INSERT:
+		case VK_DELETE:
+		case VK_HOME:
+		case VK_END:
+		case VK_PRIOR:
+		case VK_NEXT:
+		case VK_UP:
+		case VK_DOWN:
+		case VK_LEFT:
+		case VK_RIGHT:
+		case VK_NUMLOCK:
+		case VK_CLEAR:
+		case VK_SHIFT:
+		case VK_LSHIFT:
+		case VK_RSHIFT:
+		case VK_CONTROL:
+		case VK_MENU:
+		case VK_LWIN:
+		case VK_RWIN:
+		case VK_BACK:
+		{
+			keyEvent.windows_key_code = windows_key_code;
+			break;
+		}
+
+		default:
+			isChar = true;
+			keyEvent.windows_key_code = character;
 	}
 
-	/*
-	CefKeyEvent event;
-	event.windows_key_code = wParam;
-	event.native_key_code = lParam;
-	event.is_system_key = message == WM_SYSCHAR ||
-		message == WM_SYSKEYDOWN ||
-		message == WM_SYSKEYUP;
+	keyEvent.modifiers = 0;
 
-	if(message == WM_KEYDOWN || message == WM_SYSKEYDOWN)
-		event.type = KEYEVENT_RAWKEYDOWN;
-	else if(message == WM_KEYUP || message == WM_SYSKEYUP)
-		event.type = KEYEVENT_KEYUP;
-	else
-		event.type = KEYEVENT_CHAR;
-	event.modifiers = GetCefKeyboardModifiers(wParam, lParam);
-	*/
+	if(shiftDown){
+		keyEvent.modifiers |= EVENTFLAG_SHIFT_DOWN;
+	}
+
+	if(cntrlDown){
+		keyEvent.modifiers |= EVENTFLAG_CONTROL_DOWN;
+	}
+
+	if(altDown){
+		keyEvent.modifiers |= EVENTFLAG_ALT_DOWN;
+	}
+
+	// Assume any keys targetted for the number pad (NUMPAD0-9 and Plus/minus/divide, etc) can be characters
+	keyEvent.modifiers |= EVENTFLAG_NUM_LOCK_ON;
+	keyEvent.modifiers |= EVENTFLAG_IS_KEY_PAD;
+
 
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 
 		auto browserHost = findy->second->GetHost();
 
+
 		if(state == 0){
-			CefKeyEvent keyEvent;
-			keyEvent.type = KEYEVENT_RAWKEYDOWN;
-			keyEvent.windows_key_code = 65;
-			keyEvent.native_key_code = 1966081;// (int)(OemKeyScan(character));
-			keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
+			if(isChar){
+				keyEvent.type = KEYEVENT_CHAR;
+			} else {
+				keyEvent.type = KEYEVENT_KEYDOWN;
+			}
 			browserHost->SendKeyEvent(keyEvent);
 
 		} else {
-
-			int scanCode = MapVirtualKey(character, 0);
-
-			CefKeyEvent keyEvent;
-			keyEvent.type = KEYEVENT_CHAR;
-			keyEvent.windows_key_code = character;
-			keyEvent.native_key_code = scanCode;// (int)(OemKeyScan(character));
-			keyEvent.modifiers = 0;// GetCefKeyboardModifiers(native_key_code, 0);
+			keyEvent.type = KEYEVENT_KEYUP;
+			
 			browserHost->SendKeyEvent(keyEvent);
 		}
 	} else {
@@ -462,6 +418,24 @@ void WebHandler::stopLoading(const int browserId){
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 		findy->second->StopLoad();
+	}
+}
+
+double WebHandler::getZoomLevel(const int browserId){
+	CEF_REQUIRE_UI_THREAD();
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		return findy->second->GetHost()->GetZoomLevel();
+	}
+	
+	return 0.0;
+}
+
+void WebHandler::setZoomLevel(const int browserId, const double newZoom){
+	CEF_REQUIRE_UI_THREAD();
+	auto findy = mBrowserList.find(browserId);
+	if(findy != mBrowserList.end()){
+		findy->second->GetHost()->SetZoomLevel(newZoom);
 	}
 }
 

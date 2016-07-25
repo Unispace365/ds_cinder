@@ -305,7 +305,7 @@ void WebInterface::updateWidgets(){
 								0,
 								(char)character.c_str()[0],
 								0,
-								0
+								code
 							);
 							mLinkedWeb->sendKeyDownEvent(event);
 						}

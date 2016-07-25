@@ -253,67 +253,36 @@ void Web::setUrlOrThrow(const std::string& url) {
 }
 
 void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {
-	/*
-	if(mWebViewPtr){
-		ds::web::handleKeyDown(mWebViewPtr, event);
-	}
-	*/
+	mService.sendKeyEvent(mBrowserId, 0, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
 }
 
 void Web::sendKeyUpEvent(const ci::app::KeyEvent &event){
-	/*
-	if(mWebViewPtr){
-		ds::web::handleKeyUp(mWebViewPtr, event);
-	}
-	*/
-}
-
-void Web::handleNativeKeyEvent(const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character){
-	mService.sendKeyEvent(mBrowserId, state, windows_key_code, native_key_code, modifiers, character);
+	mService.sendKeyEvent(mBrowserId, 2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
 }
 
 void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
-	/*
-	if (!mWebViewPtr || !mAllowClicks) return;
-
-	ci::app::MouseEvent eventMove(mEngine.getWindow(), 0, e.getX(), e.getY(), 0, 0, 0);
-	ds::web::handleMouseMove( mWebViewPtr, eventMove );
-	ds::web::handleMouseDown( mWebViewPtr, e);
-	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kAdded);
-	*/
+	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
+	mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 0, 1);
 }
 
 void Web::sendMouseDragEvent(const ci::app::MouseEvent& e) {
-	/*
-	if(!mWebViewPtr || !mAllowClicks) return;
-
-	ds::web::handleMouseDrag(mWebViewPtr, e);
-	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kMoved);
-	*/
+	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
+	mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 1, 1);
 }
 
 void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
-	/*
-	if(!mWebViewPtr || !mAllowClicks) return;
-
-	ds::web::handleMouseUp( mWebViewPtr, e);
-	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kRemoved);
-	*/
+	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
+	mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 2, 1);
 }
 
 void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
-	/*
 	ci::Vec2f pos = globalToLocal(globalClickPoint).xy();
+	int xPos = (int)roundf(pos.x);
+	int yPos = (int)roundf(pos.y);
 
-	ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
-	sendMouseDownEvent(event);
-
-	ci::app::MouseEvent eventD(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
-	sendMouseDragEvent(eventD);
-
-	ci::app::MouseEvent eventU(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
-	sendMouseUpEvent(eventU);
-	*/
+	mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 0, 1);
+	mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
+	mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 1);
 }
 
 void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
@@ -321,57 +290,45 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 		return;
 
 	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
+	int xPos = (int)roundf(pos.x);
+	int yPos = (int)roundf(pos.y);
 
 	if(ds::ui::TouchInfo::Added == touchInfo.mPhase) {
-		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 0, 1);
-
-		/*
-		ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
-		sendMouseDownEvent(event);
+		mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 0, 1);
 		if(mDragScrolling){
-		mClickDown = true;
+			mClickDown = true;
 		}
-		*/
+		
 	} else if(ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
-		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 1, 1);
 
 
 		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
-			/*
-			if(mWebViewPtr){
+			
 			if(mClickDown){
-			ci::app::MouseEvent uevent(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
-			sendMouseUpEvent(uevent);
-			mClickDown = false;
+				mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
+				mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 0);
+				mClickDown = false;
 			}
-			float yDelta = touchInfo.mCurrentGlobalPoint.y- mPreviousTouchPos.y;
-			ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, yDelta, 1);
-			ds::web::handleMouseWheel( mWebViewPtr, event, 1 );
-			}
-			*/
+
+			float yDelta = touchInfo.mCurrentGlobalPoint.y - mPreviousTouchPos.y;
+			mService.sendMouseWheelEvent(mBrowserId, xPos, yPos, 0, (int)roundf(yDelta));			
+			
 		} else {
-			//	ci::app::MouseEvent event(mEngine.getWindow(), 0, static_cast<int>(pos.x), static_cast<int>(pos.y), ci::app::MouseEvent::LEFT_DOWN, 0, 1);
-			//	sendMouseDragEvent(event);
+			mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
 		}
 	} else if(ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
-		mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 2, 1);
-		//mClickDown = false;
-		//ci::app::MouseEvent event(mEngine.getWindow(), ci::app::MouseEvent::LEFT_DOWN, static_cast<int>(pos.x), static_cast<int>(pos.y), 0, 0, 0);
-		//sendMouseUpEvent(event);
+		mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 1);
 	}
 
 	mPreviousTouchPos = touchInfo.mCurrentGlobalPoint;
 }
 
-void Web::setZoom(const double v) {
-//	if (!mWebViewPtr) return;
-//	mWebViewPtr->SetZoom(static_cast<int>(v * 100.0));
+void Web::setZoom(const double percent) {
+	mService.setZoomLevel(mBrowserId, (percent - 1.0) / .25);
 }
 
 double Web::getZoom() const {
-//	if (!mWebViewPtr) return 1.0;
-//	return static_cast<double>(mWebViewPtr->GetZoom()) / 100.0;
-	return 1.0;
+	return (mService.getZoomLevel(mBrowserId)*.25 + 1.0);
 }
 
 void Web::goBack() {

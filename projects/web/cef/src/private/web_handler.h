@@ -128,8 +128,11 @@ public:
 	// Sends some mouse input to the browser
 	void sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount);
 
+	// Sends some mouse wheel input to the browser
+	void sendMouseWheelEvent(const int browserId, const int x, const int y, const int xDelta, const int yDelta);
+
 	// Sends a key event to the browser
-	void sendKeyEvent(const int browserId, const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
+	void sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown);
 
 	// Loads a new URL in the specified browser's main frame
 	void loadUrl(const int browserId, const std::string& newUrl);
@@ -142,7 +145,8 @@ public:
 	void goBackwards(const int browserId);
 	void reload(const int browserId, const bool ignoreCache);
 	void stopLoading(const int browserId);
-
+	void setZoomLevel(const int browserId, const double newZoom);
+	double getZoomLevel(const int browserId);
 private:
 
 	// switch to a map for faster lookup

@@ -181,23 +181,23 @@ void CefDevelop::update() {
 
 }
 
-class BullshitKeyEvent : ci::app::KeyEvent {
-public:
-	BullshitKeyEvent(ci::app::KeyEvent& ev) : ci::app::KeyEvent(ev){}
-	int		getModifiers(){ return mModifiers; }
-};
-
 void CefDevelop::keyUp(ci::app::KeyEvent event){
 	if(mWebby){
-		BullshitKeyEvent bske(event);
-		mWebby->handleNativeKeyEvent(2, event.getNativeKeyCode(), event.getNativeKeyCode(), bske.getModifiers(), event.getChar());
+		mWebby->sendKeyUpEvent(event);
 	}
 }
 
 void CefDevelop::keyDown(ci::app::KeyEvent event){
+	if(event.getChar() == '+' && mWebby){
+		mWebby->setZoom(mWebby->getZoom() + 0.1);
+	} else if(event.getChar() == '-' && mWebby){
+		mWebby->setZoom(mWebby->getZoom() - 0.1);
+	} else if(event.getChar() == '0'){
+		std::cout << mWebby->getZoom() << std::endl;
+	}
+
 	if(mWebby){
-		BullshitKeyEvent bske(event);
-		mWebby->handleNativeKeyEvent(0, event.getNativeKeyCode(), event.getNativeKeyCode(), bske.getModifiers(), event.getChar());
+		mWebby->sendKeyDownEvent(event);
 		return;
 	}
 	using ci::app::KeyEvent;

@@ -25,86 +25,82 @@ public:
 
 
 	// Loads the new url in the main frame (what you'd expect to happen)
-	void					loadUrl(const std::wstring &url);
-	void					loadUrl(const std::string &url);
+	void										loadUrl(const std::wstring &url);
+	void										loadUrl(const std::string &url);
 
 	// setURL is identical to loadUrl. No exceptions will be thrown from any set or load url function.
 	// load/set url are all kept around for compatibility with the old APIs
-	void					setUrl(const std::string&);
-	void					setUrlOrThrow(const std::string&);
+	void										setUrl(const std::string&);
+	void										setUrlOrThrow(const std::string&);
 
-	std::string				getUrl();
+	std::string									getUrl();
 
 	// -------- Input Controls -------------------------------- //
 	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
-	void					setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
-	void					setDragScrollingMinimumFingers(const int numFingers){ mDragScrollMinFingers = numFingers; }
+	void										setDragScrolling(const bool doScrolling){ mDragScrolling = doScrolling; }
+	void										setDragScrollingMinimumFingers(const int numFingers){ mDragScrollMinFingers = numFingers; }
 
-	void					sendKeyDownEvent(const ci::app::KeyEvent &event);
-	void					sendKeyUpEvent(const ci::app::KeyEvent &event);
-	void					handleNativeKeyEvent(const int state, int windows_key_code, int native_key_code, unsigned int modifiers, char character);
+	void										sendKeyDownEvent(const ci::app::KeyEvent &event);
+	void										sendKeyUpEvent(const ci::app::KeyEvent &event);
 
 	// This web sprite handles touch-to-mouse events by default.
 	// Though you can use these to roll your own touch stuff
-	void					sendMouseDownEvent(const ci::app::MouseEvent &event);
-	void					sendMouseDragEvent(const ci::app::MouseEvent &event);
-	void					sendMouseUpEvent(const ci::app::MouseEvent &event);
+	void										sendMouseDownEvent(const ci::app::MouseEvent &event);
+	void										sendMouseDragEvent(const ci::app::MouseEvent &event);
+	void										sendMouseUpEvent(const ci::app::MouseEvent &event);
 
-	void					sendMouseClick(const ci::Vec3f& globalClickPoint);
+	void										sendMouseClick(const ci::Vec3f& globalClickPoint);
 
 	// DEPRECATED: This is for API-compatibility with the old Awesomium. Always draws while loading now.
-	void					setDrawWhileLoading(const bool){};
-
-	// Clients can listen to touch events. Kind of a hack to
-	// try and sync client/server arrangements.
-//	void					setTouchListener(const std::function<void(const ds::ui::TouchEvent&)>&);
-	// Intended to be set as a result of the server sending out events from setTouchListener results.
-	//void					handleListenerTouchEvent(const ds::ui::TouchEvent&);
+	void										setDrawWhileLoading(const bool){};
 
 
+	// Set the zoom level, where 1 = 100%, 0.25 = 25% etc.
+	// Note: this is not the same value as CEF zoom levels (where 0.0 == 100%). This is percentage, like Chrome
+	void										setZoom(const double percent);
 	// Get the zoom level, where 1 = 100%, 0.25 = 25% etc.
-	void					setZoom(const double);
-	double					getZoom() const;
+	// Note: this is not the same value as CEF zoom levels (where 0.0 == 100%). This is percentage, like Chrome
+	double										getZoom() const;
 
 	// Actions
-	void					goBack();
-	void					goForward();
-	void					reload(const bool ignoreCache = false);
-	bool					isLoading();
-	void					stop();
-	bool					canGoBack();
-	bool					canGoForward();
+	void										goBack();
+	void										goForward();
+	void										reload(const bool ignoreCache = false);
+	bool										isLoading();
+	void										stop();
+	bool										canGoBack();
+	bool										canGoForward();
 
-	const std::wstring&		getPageTitle(){ return mTitle; }
+	const std::wstring&							getPageTitle(){ return mTitle; }
 
 	//--- Page Callbacks ----------------------------------- //
 	// The page's title has been updated (this may happen multiple times per page load)
-	void					setTitleChangedFn(const std::function<void(const std::wstring& newTitle)>&);
+	void										setTitleChangedFn(const std::function<void(const std::wstring& newTitle)>&);
 
 	// The page has been navigated to a new address
-	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
+	void										setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
 
 	// The page has finished loading. This also updates the canNext / canBack properties
-	void					setDocumentReadyFn(const std::function<void(void)>&);
+	void										setDocumentReadyFn(const std::function<void(void)>&);
 
 	// Something went wrong and the page couldn't load. 
 	// Passes back a string with some info (should probably pass back a more complete package of info at some point)
-	void					setErrorCallback(std::function<void(const std::string&)> func);
+	void										setErrorCallback(std::function<void(const std::string&)> func);
 
 	// The page entered or exited fullscreen. The bool will be true if in fullscreen. 
 	// The content that's fullscreen'ed will take up the entire web instance. 
-	void					setFullscreenChangedCallback(std::function<void(const bool)> func);
+	void										setFullscreenChangedCallback(std::function<void(const bool)> func);
 
 	// An error has occurred. No longer displays a text sprite for errors, simply calls back the error callback.
 	// You're responsible for displaying the error message yourself
-	void					setErrorMessage(const std::string &message);
-	void					clearError();
+	void										setErrorMessage(const std::string &message);
+	void										clearError();
 
 	// Convenience to access various document properties. Note that
 	// the document probably needs to have passed onLoaded() for this
 	// to be reliable.
-	ci::Vec2f				getDocumentSize();
-	ci::Vec2f				getDocumentScroll();
+	ci::Vec2f									getDocumentSize();
+	ci::Vec2f									getDocumentScroll();
 
 	// Scripting.
 	// Send function to object with supplied args. For example, if you want to just invoke the global
@@ -115,49 +111,48 @@ public:
 	//void					registerJavaScriptMethod(	const std::string& class_name, const std::string& method_name,
 	//													const std::function<void(const ds::web::ScriptTree&)>&);
 
-	void					executeJavascript(const std::string& theScript);
+	void										executeJavascript(const std::string& theScript);
 
 	/// Lets you disable clicking, but still scroll via "mouse wheel"
-	void					setAllowClicks(const bool doAllowClicks);
+	void										setAllowClicks(const bool doAllowClicks);
 
 	/// If true, any transparent web pages will be blank, false will have a white background for pages
-	void					setWebTransparent(const bool isTransparent);
+	void										setWebTransparent(const bool isTransparent);
 
 
-	virtual void			updateClient(const ds::UpdateParams&);
-	virtual void			updateServer(const ds::UpdateParams&);
-	virtual void			drawLocalClient();
+	virtual void								updateClient(const ds::UpdateParams&);
+	virtual void								updateServer(const ds::UpdateParams&);
+	virtual void								drawLocalClient();
 
 protected:
-	virtual void			onSizeChanged();
-	virtual void			writeAttributesTo(ds::DataBuffer&);
-	virtual void			readAttributeFrom(const char attributeId, ds::DataBuffer&);
+	virtual void								onSizeChanged();
+	virtual void								writeAttributesTo(ds::DataBuffer&);
+	virtual void								readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
 private:
-	void					update(const ds::UpdateParams&);
-	void					handleTouch(const ds::ui::TouchInfo&);
+	void										update(const ds::UpdateParams&);
+	void										handleTouch(const ds::ui::TouchInfo&);
 
-	void					initializeBrowser();
-//	void					sendTouchEvent(const int x, const int y, const ds::web::TouchEvent::Phase&);
+	void										initializeBrowser();
 
-	ds::web::WebCefService&		mService;
+	ds::web::WebCefService&						mService;
 
-	int						mBrowserId;
-	unsigned char *			mBuffer;
-	bool					mHasBuffer;
-	ci::Vec2i				mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
-	ci::gl::Texture			mWebTexture;
+	int											mBrowserId;
+	unsigned char *								mBuffer;
+	bool										mHasBuffer;
+	ci::Vec2i									mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
+	ci::gl::Texture								mWebTexture;
 
-	ci::Vec3f				mPreviousTouchPos;
-	bool					mAllowClicks;
-	bool					mClickDown;
-	bool					mDragScrolling;
-	int						mDragScrollMinFingers;
+	ci::Vec3f									mPreviousTouchPos;
+	bool										mAllowClicks;
+	bool										mClickDown;
+	bool										mDragScrolling;
+	int											mDragScrollMinFingers;
 	// Cache the page size and scroll during touch events
-	ci::Vec2f				mPageSizeCache,
-							mPageScrollCache;
+	ci::Vec2f									mPageSizeCache,
+												mPageScrollCache;
 	// Prevent the scroll from being cached more than once in an update.
-	int32_t					mPageScrollCount;
+	int32_t										mPageScrollCount;
 
 	std::function<void(void)>					mDocumentReadyFn;
 	std::function<void(const std::string&)>		mErrorCallback;
