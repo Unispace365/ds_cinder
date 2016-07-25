@@ -133,10 +133,10 @@ void CefDevelop::setupServer(){
 	//	const std::string urly = "file://D:/test_pdfs/BPS C06_CIM_Services.pdf";
 		//const std::string urly = "google.com";
 	//	const std::string urly = "http://i.imgur.com/r6sS64A.gifv";
-		const std::string urly = "https://google.com";
+	//	const std::string urly = "https://google.com";
 	//	const std::string urly = "http://www.capitolconnect.com/boeing/reports/default.asp?user=boeingyes";
 		//const std::string urly = "https://drive.google.com/drive/my-drive";
-		//const std::string urly = "https://agoing.agsafoin.com/"; // generates an error cause the site can't be reached
+		const std::string urly = "https://agoing.agsafoin.com/"; // generates an error cause the site can't be reached
 		auto webby = new ds::ui::Web(mGlobals.mEngine, 1920.0f, 1080.0f);
 		webby->loadUrl(urly);
 		bs->addChildPtr(webby);
@@ -157,6 +157,7 @@ void CefDevelop::setupServer(){
 
 		//bs->enable(false);
 
+		// This tests the "orphans" code in the web handler. Basically, double-click to load a web sprite
 		static int starty = 0;
 		if(starty % 2 == 0){
 			webby->release();

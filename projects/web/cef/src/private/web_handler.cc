@@ -72,8 +72,6 @@ void WebHandler::useOrphan(std::function<void(int)> callback, const std::string 
 		return;
 	}
 
-	std::cout << "Using orphan" << std::endl;
-
 	auto browser = mOrphanedBrowsers.back();
 	mOrphanedBrowsers.pop_back();
 
@@ -160,6 +158,68 @@ bool WebHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
 	return true; // true prevents the popup
 }
 
+std::string getErrorStringForError(const int errorCode){
+	switch(errorCode){
+
+
+		case(ERR_NONE) : return "None";
+		case(ERR_FAILED) : return "Failed";
+		case(ERR_ABORTED) : return "Aborted";
+		case(ERR_INVALID_ARGUMENT): return "Invalid Argument";
+		case(ERR_INVALID_HANDLE): return "Invalid Handle";
+		case(ERR_FILE_NOT_FOUND): return "File Not Found";
+		case(ERR_TIMED_OUT): return "Timed Out";
+		case(ERR_FILE_TOO_BIG): return "File Too Big";
+		case(ERR_UNEXPECTED): return "Unexpected";
+		case(ERR_ACCESS_DENIED): return "Access Denied";
+		case(ERR_NOT_IMPLEMENTED): return "Not Implemented";
+		case(ERR_CONNECTION_CLOSED): return "Connection Closed";
+		case(ERR_CONNECTION_RESET): return "Connection Reset";
+		case(ERR_CONNECTION_REFUSED): return "Connection Refused";
+		case(ERR_CONNECTION_ABORTED): return "Connection Aborted";
+		case(ERR_CONNECTION_FAILED): return "Connection Failed";
+		case(ERR_NAME_NOT_RESOLVED): return "Name Not Resolved";
+		case(ERR_INTERNET_DISCONNECTED): return "Interned Disconnected";
+		case(ERR_SSL_PROTOCOL_ERROR): return "SSL Protocol Error";
+		case(ERR_ADDRESS_INVALID): return "Address Invalid";
+		case(ERR_ADDRESS_UNREACHABLE): return "Address Unreachable";
+		case(ERR_SSL_CLIENT_AUTH_CERT_NEEDED): return "SSL Client Auth Cert Needed";
+		case(ERR_TUNNEL_CONNECTION_FAILED): return "Tunnel Connection Failed";
+		case(ERR_NO_SSL_VERSIONS_ENABLED): return "No SSL Versions Enabled";
+		case(ERR_SSL_VERSION_OR_CIPHER_MISMATCH): return "SSL Version Or Cipher Mismatch";
+		case(ERR_SSL_RENEGOTIATION_REQUESTED): return "SSL Renegotiation Requested";
+		case(ERR_CERT_COMMON_NAME_INVALID): return "CERT Common Name Invalid";
+		case(ERR_CERT_DATE_INVALID): return "CERT Date Invalid";
+		case(ERR_CERT_AUTHORITY_INVALID): return "CERT Authority Invalid";
+		case(ERR_CERT_CONTAINS_ERRORS): return "CERT Contains Errors";
+		case(ERR_CERT_NO_REVOCATION_MECHANISM): return "CERT No Revocation Mechanism";
+		case(ERR_CERT_UNABLE_TO_CHECK_REVOCATION): return "CERT Unable to Check Revocation";
+		case(ERR_CERT_REVOKED): return "CERT Revoked";
+		case(ERR_CERT_INVALID): return "CERT Invalid";
+		case(ERR_CERT_WEAK_SIGNATURE_ALGORITHM): return "CERT Weak Signature Algorithm";
+		case(ERR_CERT_NON_UNIQUE_NAME): return "CERT Non-unique Name";
+		case(ERR_CERT_WEAK_KEY): return "CERT Weak Key";
+		case(ERR_CERT_NAME_CONSTRAINT_VIOLATION): return "CERT Name Constraint Violation";
+		case(ERR_CERT_VALIDITY_TOO_LONG): return "CERT Validity Too Long";
+		case(ERR_INVALID_URL): return "Invalid URL";
+		case(ERR_DISALLOWED_URL_SCHEME): return "Disallowed URL Scheme";
+		case(ERR_UNKNOWN_URL_SCHEME): return "Unknown URL Scheme";
+		case(ERR_TOO_MANY_REDIRECTS): return "Too Many Redirects";
+		case(ERR_UNSAFE_REDIRECT): return "Unsafe Redirect";
+		case(ERR_UNSAFE_PORT): return "Unsafe Port";
+		case(ERR_INVALID_RESPONSE): return "Invalid Response";
+		case(ERR_INVALID_CHUNKED_ENCODING): return "Invalid Chunked Encoding";
+		case(ERR_METHOD_NOT_SUPPORTED): return "Method Not Supported";
+		case(ERR_UNEXPECTED_PROXY_AUTH): return "Unexpected Proxy Auth";
+		case(ERR_EMPTY_RESPONSE): return "Empty Response";
+		case(ERR_RESPONSE_HEADERS_TOO_BIG): return "Response Headers Too Big";
+		case(ERR_CACHE_MISS): return "Cache Miss";
+		case(ERR_INSECURE_RESPONSE): return "Insecure Response";
+	}
+
+	return "Unknown Error";
+}
+
 void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 								CefRefPtr<CefFrame> frame,
 								ErrorCode errorCode,
@@ -173,7 +233,7 @@ void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 	if(findy != mWebCallbacks.end()){
 		if(findy->second.mErrorCallback){
 			std::stringstream ss;
-			ss << "Failed to load URL with error " << errorText.ToString() << " number= " << errorCode;
+			ss << "Failed to load URL with error " << getErrorStringForError(errorCode) << " number= " << errorCode;
 			findy->second.mErrorCallback(ss.str());
 		}
 	}
@@ -186,7 +246,7 @@ void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 	std::stringstream ss;
 	ss << "<html><body bgcolor=\"white\">"
 		"<h2>Failed to load URL " << std::string(failedUrl) <<
-		" with error " << std::string(errorText) << " (" << errorCode <<
+		" with error \"" << getErrorStringForError(errorCode) << "\" (" << errorCode <<
 		").</h2></body></html>";
 	frame->LoadString(ss.str(), failedUrl);
 }
