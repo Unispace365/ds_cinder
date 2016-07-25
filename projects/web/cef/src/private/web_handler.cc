@@ -227,6 +227,10 @@ void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 								const CefString& failedUrl) {
 	CEF_REQUIRE_UI_THREAD();
 
+	// Don't display an error for downloaded files.
+	// This is super common and not technically an error or whatever
+	if(errorCode == ERR_ABORTED)
+		return;
 
 	int browserId = browser->GetIdentifier();
 	auto findy = mWebCallbacks.find(browserId);
@@ -238,9 +242,6 @@ void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 		}
 	}
 
-	// Don't display an error for downloaded files.
-	if(errorCode == ERR_ABORTED)
-		return;
 
 	// Display a load error message.
 	std::stringstream ss;

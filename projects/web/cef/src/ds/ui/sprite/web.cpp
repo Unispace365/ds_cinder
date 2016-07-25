@@ -81,6 +81,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mIsLoading(false)
 	, mCanBack(false)
 	, mCanForward(false)
+	, mZoom(1.0)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -131,6 +132,9 @@ void Web::initializeBrowser(){
 	}
 
 	loadUrl(mUrl);
+	if(mZoom != 1.0){
+		setZoom(mZoom);
+	}
 
 	ds::web::WebCefCallbacks wcc;
 	wcc.mTitleChangeCallback = [this](const std::wstring& newTitle){
@@ -144,6 +148,11 @@ void Web::initializeBrowser(){
 		mIsLoading = isLoading;
 		mCanBack = canBack;
 		mCanForward = canForwards;
+
+		// zoom seems to need to be set for every page
+		if(mZoom != 1.0 && getZoom() != mZoom){
+			setZoom(mZoom);
+		}
 
 		if(!mIsLoading && mDocumentReadyFn){
 			mDocumentReadyFn();
@@ -330,10 +339,12 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 }
 
 void Web::setZoom(const double percent) {
+	mZoom = percent;
 	mService.setZoomLevel(mBrowserId, (percent - 1.0) / .25);
 }
 
 double Web::getZoom() const {
+	if(mBrowserId < 0) return mZoom;
 	return (mService.getZoomLevel(mBrowserId)*.25 + 1.0);
 }
 

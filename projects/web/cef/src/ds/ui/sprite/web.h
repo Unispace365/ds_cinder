@@ -143,6 +143,8 @@ private:
 	ci::Vec2i									mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
 	ci::gl::Texture								mWebTexture;
 
+	double										mZoom;
+
 	ci::Vec3f									mPreviousTouchPos;
 	bool										mAllowClicks;
 	bool										mClickDown;
