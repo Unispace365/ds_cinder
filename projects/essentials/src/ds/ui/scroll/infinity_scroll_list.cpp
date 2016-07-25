@@ -188,16 +188,11 @@ namespace ds{
 			mOnScreenItemList.clear();
 			for (auto i = 0; i < mOnScreenItemSize; ++i){
 
-				auto &placeHolder = mItemPlaceHolders[i];
 				mBottomIndex++;
-				/*if (i == 0)
-					placeHolder = mItemPlaceHolders[mTopIndex];
-				else
-				{
-					if (mBottomIndex == mItemPlaceHolders.size())
-						mBottomIndex = 0;
-					placeHolder = mItemPlaceHolders[mBottomIndex];
-				}*/
+
+				if (mBottomIndex == mItemPlaceHolders.size())
+					mBottomIndex = 0;
+				auto &placeHolder = mItemPlaceHolders[mBottomIndex];
 
 
 				createSprite(placeHolder);
