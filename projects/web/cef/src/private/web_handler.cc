@@ -354,7 +354,6 @@ void WebHandler::sendMouseClick(const int browserId, const int x, const int y, c
 		} else if(state == 1){
 			browserHost->SendMouseMoveEvent(mouseEvent, false);
 		} else {
-			browserHost->SendMouseClickEvent(mouseEvent, btnType, false, clickCount);
 			browserHost->SendMouseClickEvent(mouseEvent, btnType, true, 0);
 		}
 	} else {
