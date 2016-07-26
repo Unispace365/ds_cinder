@@ -108,7 +108,12 @@ void Web::createBrowser(){
 	clearBrowser();
 
 	mService.createBrowser("", this, [this](int browserId){
-		mBrowserId = browserId;
+		{
+			// This callback comes back from the CEF UI thread
+			std::lock_guard<std::mutex> lock(mMutex);
+			mBrowserId = browserId;
+		}
+
 		initializeBrowser();
 	}, mTransparentBackground);
 }
@@ -121,16 +126,22 @@ void Web::clearBrowser(){
 		mService.closeBrowser(mBrowserId);
 	}
 
-	mBrowserId = -1;
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		mBrowserId = -1;
+	}
 }
 
 Web::~Web() {
 
 	clearBrowser();
 
-	if(mBuffer){
-		delete mBuffer;
-		mBuffer = nullptr;
+	{
+		std::lock_guard<std::mutex> lock(mMutex);
+		if(mBuffer){
+			delete mBuffer;
+			mBuffer = nullptr;
+		}
 	}
 }
 
@@ -157,6 +168,9 @@ void Web::initializeBrowser(){
 
 	ds::web::WebCefCallbacks wcc;
 	wcc.mTitleChangeCallback = [this](const std::wstring& newTitle){
+		// This callback comes back from the CEF UI thread
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		mTitle = newTitle;
 		if(mTitleChangedCallback){
 			mTitleChangedCallback(newTitle);
@@ -164,6 +178,9 @@ void Web::initializeBrowser(){
 	};
 
 	wcc.mLoadChangeCallback = [this](const bool isLoading, const bool canBack, const bool canForwards, const std::string& newUrl){
+		// This callback comes back from the CEF UI thread
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		mIsLoading = isLoading;
 		mCanBack = canBack;
 		mCanForward = canForwards;
@@ -185,6 +202,10 @@ void Web::initializeBrowser(){
 	};
 
 	wcc.mPaintCallback = [this](const void * buffer, const int bufferWidth, const int bufferHeight){
+
+		// This callback comes back from the CEF UI thread
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		// verify the buffer exists and is the correct size
 		// TODO: Add ability to redraw only the changed rectangles (which is what comes from CEF)
 		// Would be much more performant, especially for large browsers with small ui changes (like blinking cursors)
@@ -195,10 +216,16 @@ void Web::initializeBrowser(){
 	};
 
 	wcc.mErrorCallback = [this](const std::string& theError){
+		// This callback comes back from the CEF UI thread
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		setErrorMessage(theError);
 	};
 
 	wcc.mFullscreenCallback = [this](const bool isFullscreen){
+		// This callback comes back from the CEF UI thread
+		std::lock_guard<std::mutex> lock(mMutex);
+
 		if(mFullscreenCallback){
 			mFullscreenCallback(isFullscreen);
 		}
@@ -224,6 +251,9 @@ void Web::updateServer(const ds::UpdateParams &p) {
 
 void Web::update(const ds::UpdateParams &p) {
 
+	// Anything that modifies mBuffer needs to be locked
+	std::lock_guard<std::mutex> lock(mMutex);
+
 	if(mBuffer && mHasBuffer){
 		ci::gl::Texture::Format fmt;
 		fmt.setMinFilter(GL_LINEAR);
@@ -234,23 +264,28 @@ void Web::update(const ds::UpdateParams &p) {
 }
 
 void Web::onSizeChanged() {
-	const int theWid = static_cast<int>(getWidth());
-	const int theHid = static_cast<int>(getHeight());
-	const ci::Vec2i newBrowserSize(theWid, theHid);
-	if(newBrowserSize == mBrowserSize && mBuffer){
-		return;
+	{
+		// Anything that modifies mBuffer needs to be locked
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		const int theWid = static_cast<int>(getWidth());
+		const int theHid = static_cast<int>(getHeight());
+		const ci::Vec2i newBrowserSize(theWid, theHid);
+		if(newBrowserSize == mBrowserSize && mBuffer){
+			return;
+		}
+
+		mBrowserSize = newBrowserSize;
+
+		if(mBuffer){
+			delete mBuffer;
+			mBuffer = nullptr;
+		}
+		const int bufferSize = theWid * theHid * 4;
+		mBuffer = new unsigned char[bufferSize];
+
+		mHasBuffer = false;
 	}
-
-	mBrowserSize = newBrowserSize;
-
-	if(mBuffer){
-		delete mBuffer;
-		mBuffer = nullptr;
-	}
-	const int bufferSize = theWid * theHid * 4;
-	mBuffer = new unsigned char[bufferSize];
-
-	mHasBuffer = false;
 
 	if(mBrowserId > -1){
 		mService.requestBrowserResize(mBrowserId, mBrowserSize);

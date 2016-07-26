@@ -62,7 +62,7 @@ void WebCefService::start() {
 	CefSettings settings;
 	settings.no_sandbox = true;
 	settings.single_process = false;
-	settings.multi_threaded_message_loop = false;
+	settings.multi_threaded_message_loop = true;
 	settings.windowless_rendering_enabled = true;
 
 	// This requires cefsimple.exe to be in the current working directory
@@ -74,7 +74,7 @@ void WebCefService::start() {
 }
 
 void WebCefService::update(const ds::UpdateParams&) {
-	CefDoMessageLoopWork();
+	//CefDoMessageLoopWork();
 }
 
 void WebCefService::createBrowser(const std::string& startUrl, void * instancePtr, std::function<void(int)> createdCallback, const bool isTransparent){
@@ -97,7 +97,7 @@ void WebCefService::cancelCreation(void * instancePtr){
 void WebCefService::closeBrowser(const int browserId){
 	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
 	if(handler){
-		handler->CloseBrowser(browserId);
+		handler->closeBrowser(browserId);
 	}
 }
 

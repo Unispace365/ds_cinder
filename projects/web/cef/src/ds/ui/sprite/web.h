@@ -7,6 +7,8 @@
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/text.h"
 
+#include <mutex>
+#include <thread>
 
 namespace ds {
 namespace web {
@@ -17,6 +19,14 @@ namespace ui {
 /**
  * \class ds::ui::Web
  * \brief Display a web page using Chromium Embedded Framework: https://bitbucket.org/chromiumembedded/cef
+ *		  The process and threading model here is complex.
+ *		  In short, on creation, this sprite will asynchronously request an underlying browser from CefWebService.
+ *        When the browser is created, this sprite will get a unique Browser Id that uses to make requests of the browser (back, load url, etc)
+ *		  The browser also sends callbacks for certain events (loading state, fullscreen, etc)
+ *		  The browser runs in it's own thread(s), so callbacks need to be locked before sending to the rest of ds_cinder-land
+ *		  Requests into the browser can (generally) happen on any thread, and CEF handles thread synchronization
+ *		  CEF also uses multiple processes for rendering, IO, etc. but that is opaque to this class
+ *		  When implementing new functionality, be sure to read the documentation of CEF carefully
  */
 class Web : public ds::ui::Sprite {
 public:
@@ -188,6 +198,9 @@ private:
 	bool										mIsLoading;
 	bool										mCanBack;
 	bool										mCanForward;
+
+	// Ensure threads are locked when getting callbacks, copying buffers, etc
+	std::mutex									mMutex;
 
 
 	// Initialization

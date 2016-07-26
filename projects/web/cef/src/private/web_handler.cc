@@ -44,8 +44,10 @@ WebHandler* WebHandler::GetInstance() {
 }
 
 void WebHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
-								  const CefString& title) {
-	CEF_REQUIRE_UI_THREAD();
+							   const CefString& title) {
+
+	// be sure this is locked with other requests to the browser lists
+	base::AutoLock lock_scope(mLock);
 
 	int browserId = browser->GetIdentifier();
 	auto findy = mWebCallbacks.find(browserId);
@@ -57,7 +59,9 @@ void WebHandler::OnTitleChange(CefRefPtr<CefBrowser> browser,
 }
 
 void WebHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser, bool fullscreen){
-	CEF_REQUIRE_UI_THREAD();
+	// be sure this is locked with other requests to the browser lists
+	base::AutoLock lock_scope(mLock);
+
 	int browserId = browser->GetIdentifier();
 	auto findy = mWebCallbacks.find(browserId);
 	if(findy != mWebCallbacks.end()){
@@ -68,15 +72,21 @@ void WebHandler::OnFullscreenModeChange(CefRefPtr<CefBrowser> browser, bool full
 }
 
 void WebHandler::useOrphan(std::function<void(int)> callback, const std::string startUrl){
+
 	if(mOrphanedBrowsers.empty()){
 		return;
 	}
+	int browserIdentifier = 0;
+	{
+		// be sure this is locked with other requests to the browser lists
+		// NOTE: don't lock loadURL as locks cannot be recursive
+		base::AutoLock lock_scope(mLock);
+		auto browser = mOrphanedBrowsers.back();
+		mOrphanedBrowsers.pop_back();
 
-	auto browser = mOrphanedBrowsers.back();
-	mOrphanedBrowsers.pop_back();
-
-	int browserIdentifier = browser->GetIdentifier();
-	mBrowserList[browserIdentifier] = browser;
+		browserIdentifier = browser->GetIdentifier();
+		mBrowserList[browserIdentifier] = browser;
+	}
 
 	loadUrl(browserIdentifier, startUrl);
 
@@ -88,29 +98,52 @@ void WebHandler::useOrphan(std::function<void(int)> callback, const std::string 
 void WebHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 
+
 	int browserIdentifier = browser->GetIdentifier();
 
-	auto findy = mBrowserList.find(browserIdentifier);
-	if(findy != mBrowserList.end()){
-		DS_LOG_WARNING("Multiple browsers tracked with the same identifier! This could lead to issues. Identifier: " << browserIdentifier);
+	{
+		// be sure this is locked with other requests to the browser lists
+		base::AutoLock lock_scope(mLock);
 
-		findy->second->GetHost()->CloseBrowser(true);
-		mBrowserList.erase(findy);
+		auto findy = mBrowserList.find(browserIdentifier);
+		if(findy != mBrowserList.end()){
+			DS_LOG_WARNING("Multiple browsers tracked with the same identifier! This could lead to issues. Identifier: " << browserIdentifier);
+
+			// This can be called on any thread
+			findy->second->GetHost()->CloseBrowser(true);
+			mBrowserList.erase(findy);
+		}
 	}
 
-	// Ensure that the size is correct (in case identifiers are reused)
-	auto findySize = mBrowserSizes.find(browserIdentifier);
-	if(findySize != mBrowserSizes.end()){
-		mBrowserSizes.erase(findySize);
+	{
+		// be sure this is locked with other requests to the browser lists
+		base::AutoLock lock_scope(mLock);
+		// Ensure that the size is correct (in case identifiers are reused)
+		auto findySize = mBrowserSizes.find(browserIdentifier);
+		if(findySize != mBrowserSizes.end()){
+			mBrowserSizes.erase(findySize);
+		}
 	}
-
 
 	if(mCreatedCallbacks.empty()){
+		// be sure this is locked with other requests to the browser lists
+		base::AutoLock lock_scope(mLock);
 		mOrphanedBrowsers.push_back(browser);
 	} else {
-		mBrowserList[browserIdentifier] = browser;
+		{
+			// be sure this is locked with other requests to the browser lists
+			// Also be sure that the created callback doesn't include the lock to prevent recursive locks
+			base::AutoLock lock_scope(mLock);
+			mBrowserList[browserIdentifier] = browser;
+		}
+
+		// Callbacks will be locked back on the main thread, and not here
 		mCreatedCallbacks.begin()->second(browserIdentifier);
-		mCreatedCallbacks.erase(mCreatedCallbacks.begin());
+
+		{
+			base::AutoLock lock_scope(mLock);
+			mCreatedCallbacks.erase(mCreatedCallbacks.begin());
+		}
 	}
 }
 
@@ -124,6 +157,9 @@ bool WebHandler::DoClose(CefRefPtr<CefBrowser> browser) {
 
 void WebHandler::OnBeforeClose(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
+
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
 
 	// clear any tracked sizes
 	auto findySize = mBrowserSizes.find(browser->GetIdentifier());
@@ -154,14 +190,13 @@ bool WebHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
 								  CefRefPtr<CefClient>& client, 
 								  CefBrowserSettings& settings, 
 								  bool* no_javascript_access){
+	// This can be called on any thread
 	browser->GetMainFrame()->LoadURL(target_url);
 	return true; // true prevents the popup
 }
 
 std::string getErrorStringForError(const int errorCode){
 	switch(errorCode){
-
-
 		case(ERR_NONE) : return "None";
 		case(ERR_FAILED) : return "Failed";
 		case(ERR_ABORTED) : return "Aborted";
@@ -225,7 +260,10 @@ void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 								ErrorCode errorCode,
 								const CefString& errorText,
 								const CefString& failedUrl) {
-	CEF_REQUIRE_UI_THREAD();
+
+	// This callback comes back on the UI thread, so will need to be synchronized to the main app thread
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
 
 	// Don't display an error for downloaded files.
 	// This is super common and not technically an error or whatever
@@ -249,11 +287,15 @@ void WebHandler::OnLoadError(CefRefPtr<CefBrowser> browser,
 		"<h2>Failed to load URL " << std::string(failedUrl) <<
 		" with error \"" << getErrorStringForError(errorCode) << "\" (" << errorCode <<
 		").</h2></body></html>";
+	// This can be called on any thread
 	frame->LoadString(ss.str(), failedUrl);
 }
 
 
 void WebHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoading, bool canGoBack, bool canGoForward){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+	
 	int browserId = browser->GetIdentifier();
 	auto findy = mWebCallbacks.find(browserId);
 	if(findy != mWebCallbacks.end()){
@@ -264,7 +306,11 @@ void WebHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoad
 }
 
 bool WebHandler::GetViewRect(CefRefPtr<CefBrowser> browser, CefRect& rect){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+
 	rect.x = rect.y = 0;
+	// This can be called on any thread
 	auto findy = mBrowserSizes.find(browser->GetIdentifier());
 	if(findy == mBrowserSizes.end()){
 		// initial size before the main app knows about this browser.
@@ -288,7 +334,9 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 							PaintElementType type, 
 							const RectList& dirtyRects, 
 							const void* buffer, int width, int height){
-	CEF_REQUIRE_UI_THREAD();
+	// This callback comes back on the UI thread (so will need to be synchronized to the main app thread)
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
 
 	//TODO: Handle dirty rects
 	//std::cout << "OnPaint, type: " << type <<  " " << width << " " << height << std::endl;
@@ -302,7 +350,10 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 	}
 }
 
-void WebHandler::CloseBrowser(const int browserId){
+void WebHandler::closeBrowser(const int browserId){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+
 	auto findyS = mBrowserSizes.find(browserId);
 	if(findyS != mBrowserSizes.end()){
 		mBrowserSizes.erase(findyS);
@@ -317,15 +368,22 @@ void WebHandler::CloseBrowser(const int browserId){
 	if(findy != mBrowserList.end()){
 		auto browserHost = findy->second->GetHost();
 		mBrowserList.erase(findy);
+		// This can be called on any thread
 		browserHost->CloseBrowser(true);
 	}
 }
 
 void WebHandler::addCreatedCallback(void * instancePtr, std::function<void(int)> callback){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+
 	mCreatedCallbacks[instancePtr] = callback;
 }
 
 void WebHandler::cancelCreation(void * instancePtr){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+
 	// When the browser is finally created (asynchronously), then it will find the creation requests empty and be closed
 	auto findy = mCreatedCallbacks.find(instancePtr);
 	if(findy != mCreatedCallbacks.end()){
@@ -334,10 +392,16 @@ void WebHandler::cancelCreation(void * instancePtr){
 }
 
 void WebHandler::addWebCallbacks(int browserId, ds::web::WebCefCallbacks& callbacks){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+
 	mWebCallbacks[browserId] = callbacks;
 }
 
 void WebHandler::sendMouseClick(const int browserId, const int x, const int y, const int bttn, const int state, const int clickCount){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+
 	if(mBrowserList.empty()) return;
 
 	auto findy = mBrowserList.find(browserId);
@@ -350,10 +414,13 @@ void WebHandler::sendMouseClick(const int browserId, const int x, const int y, c
 
 		CefBrowserHost::MouseButtonType btnType = (bttn == 0 ? MBT_LEFT : (bttn == 2 ? MBT_RIGHT : MBT_MIDDLE));
 		if(state == 0){
+			// This can be called on any thread
 			browserHost->SendMouseClickEvent(mouseEvent, btnType, false, clickCount);
 		} else if(state == 1){
+			// This can be called on any thread
 			browserHost->SendMouseMoveEvent(mouseEvent, false);
 		} else {
+			// This can be called on any thread
 			browserHost->SendMouseClickEvent(mouseEvent, btnType, true, 0);
 		}
 	} else if(browserId >= 0) {
@@ -362,6 +429,9 @@ void WebHandler::sendMouseClick(const int browserId, const int x, const int y, c
 }
 
 void WebHandler::sendMouseWheelEvent(const int browserId, const int x, const int y, const int xDelta, const int yDelta){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+
 	if(mBrowserList.empty()) return;
 
 	auto findy = mBrowserList.find(browserId);
@@ -371,6 +441,7 @@ void WebHandler::sendMouseWheelEvent(const int browserId, const int x, const int
 		mouseEvent.x = x;
 		mouseEvent.y = y;
 
+		// This can be called on any thread
 		browserHost->SendMouseWheelEvent(mouseEvent, xDelta, yDelta);
 	} else if(browserId >= 0) {
 		DS_LOG_WARNING("Browser not found in list to sendMouseWheel to! BrowserId=" << browserId);
@@ -378,6 +449,8 @@ void WebHandler::sendMouseWheelEvent(const int browserId, const int x, const int
 }
 
 void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_key_code, char character, const bool shiftDown, const bool cntrlDown, const bool altDown){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
 
 	CefKeyEvent keyEvent;
 
@@ -449,11 +522,13 @@ void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_
 			} else {
 				keyEvent.type = KEYEVENT_KEYDOWN;
 			}
+			// This can be called on any thread
 			browserHost->SendKeyEvent(keyEvent);
 
 		} else {
 			keyEvent.type = KEYEVENT_KEYUP;
-			
+
+			// This can be called on any thread
 			browserHost->SendKeyEvent(keyEvent);
 		}
 	} else if(browserId >= 0) {
@@ -462,59 +537,97 @@ void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_
 }
 
 void WebHandler::loadUrl(const int browserId, const std::string& newUrl){
-
 	if(newUrl.empty()) return;
 
-	auto findy = mBrowserList.find(browserId);
-	if(findy != mBrowserList.end()){
-		findy->second->GetMainFrame()->LoadURL(CefString(newUrl));
+	CefRefPtr<CefFrame> mainFrame = nullptr;
+
+	{
+		// be sure this is locked with other requests to the browser list
+		// Grab the main frame in the lock, but call LoadURL outside the lock to avoid recursive locks
+		base::AutoLock lock_scope(mLock);
+
+		auto findy = mBrowserList.find(browserId);
+		if(findy != mBrowserList.end()){
+			// This can be called on any thread
+			mainFrame = findy->second->GetMainFrame();
+		}
+	}
+
+	if(mainFrame){
+		// This can be called on any thread
+		mainFrame->LoadURL(CefString(newUrl));
 	}
 }
 
 void WebHandler::requestBrowserResize(const int browserId, const ci::Vec2i newSize){
-	mBrowserSizes[browserId] = newSize;
+	// be sure this is locked with other requests to the browser lists
+	{
+		base::AutoLock lock_scope(mLock);
+		mBrowserSizes[browserId] = newSize;
+	}
 
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 		// This tells the browser to get the view size, in which case it will look up the browser size in the mBrowserSizes map and resize accordingly, then repaint
+		// This can be called on any thread
 		findy->second->GetHost()->WasResized();
 	}
 
 }
 
 void WebHandler::goForwards(const int browserId){
+	// be sure this is locked with other requests to the browser lists
+	base::AutoLock lock_scope(mLock);
+
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
+		// This can be called on any thread
 		findy->second->GoForward();
 	}
 }
 
 void WebHandler::goBackwards(const int browserId){
+	// be sure this is locked with other requests to the browser lists
+	base::AutoLock lock_scope(mLock);
+
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
+		// This can be called on any thread
 		findy->second->GoBack();
 	}
 }
 
 void WebHandler::reload(const int browserId, const bool ignoreCache){
+	// be sure this is locked with other requests to the browser lists
+	base::AutoLock lock_scope(mLock);
+
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 		if(ignoreCache){
+			// This can be called on any thread
 			findy->second->ReloadIgnoreCache();
 		} else {
+			// This can be called on any thread
 			findy->second->Reload();
 		}
 	}
 }
 
 void WebHandler::stopLoading(const int browserId){
+	// be sure this is locked with other requests to the browser lists
+	base::AutoLock lock_scope(mLock);
+
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
+		// StopLoad() can be called on any thread
 		findy->second->StopLoad();
 	}
 }
 
 double WebHandler::getZoomLevel(const int browserId){
+	// Ensure this thread is locked with the rest of CEF, as GetZoomLevel requires the UI thread
+	base::AutoLock lock_scope(mLock);
+
 	CEF_REQUIRE_UI_THREAD();
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
@@ -525,9 +638,13 @@ double WebHandler::getZoomLevel(const int browserId){
 }
 
 void WebHandler::setZoomLevel(const int browserId, const double newZoom){
+	// be sure this is locked with other requests to the browser lists
+	base::AutoLock lock_scope(mLock);
+
 	CEF_REQUIRE_UI_THREAD();
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
+		// SetZoomLevel can be called on any thread
 		findy->second->GetHost()->SetZoomLevel(newZoom);
 	}
 }

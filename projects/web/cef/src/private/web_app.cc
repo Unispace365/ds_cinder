@@ -54,7 +54,6 @@ void WebApp::OnContextInitialized() {
 }
 
 void WebApp::createBrowser(const std::string& url, void * instancePtr, std::function<void(int)> createdCallback, const bool isTransparent){
-	CEF_REQUIRE_UI_THREAD();
 
 	// Handler has an unused browser instance, so use that instead of creating a new one
 	if(mHandler && mHandler->hasOrphans()){
