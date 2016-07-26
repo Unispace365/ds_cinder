@@ -191,7 +191,9 @@ bool WebHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
 								  CefBrowserSettings& settings, 
 								  bool* no_javascript_access){
 	// This can be called on any thread
-	browser->GetMainFrame()->LoadURL(target_url);
+	if(!target_url.empty()){
+		browser->GetMainFrame()->LoadURL(target_url);
+	}
 	return true; // true prevents the popup
 }
 

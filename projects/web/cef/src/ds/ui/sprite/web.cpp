@@ -338,21 +338,20 @@ void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
 	if(!mAllowClicks) return;
 
 	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
-	mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 0, 1);
+	mService.sendMouseClick(mBrowserId, e.getX(), e.getY(), 0, 0, 1);
 }
 
 void Web::sendMouseDragEvent(const ci::app::MouseEvent& e) {
 	if(!mAllowClicks) return;
 
 	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
-	mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 1, 1);
+	mService.sendMouseClick(mBrowserId, e.getX(), e.getY(), 0, 1, 1);
 }
 
 void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
 	if(!mAllowClicks) return;
 
-	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
-	mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 2, 1);
+	mService.sendMouseClick(mBrowserId, e.getX(), e.getY(), 0, 2, 1);
 }
 
 void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
