@@ -21,7 +21,7 @@ public:
 	std::function<void(const void *, const int, const int)> mPaintCallback;
 
 	// The loading state has changed (started or finished loading.
-	std::function<void(const bool, const bool, const bool)> mLoadChangeCallback;
+	std::function<void(const bool isLoading, const bool canGoBack, const bool canGoForward, const std::string& newUrl)> mLoadChangeCallback;
 
 	// The title of the page has changed
 	std::function<void(const std::wstring&)>				mTitleChangeCallback;

@@ -37,7 +37,7 @@ public:
 	// Browser crated callback will be called after a browser is created (asynchronously) and returns an ID for the browser.
 	// Use that id to interact with the browser after that.
 	// The instance ptr is used to clear the callback internally if the instance goes away before the browser has been created
-	void					createBrowser(const std::string& startUrl, void * instancePtr, std::function<void(int)> browserCreatedCallback);
+	void					createBrowser(const std::string& startUrl, void * instancePtr, std::function<void(int)> browserCreatedCallback, const bool isTransparent = true);
 	void					cancelCreation(void * instancePtr);
 
 	// Asynchronously close the browser. This also clears any callbacks and no other commands will function. Assume the browser is dead after this call

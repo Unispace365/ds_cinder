@@ -258,7 +258,7 @@ void WebHandler::OnLoadingStateChange(CefRefPtr<CefBrowser> browser, bool isLoad
 	auto findy = mWebCallbacks.find(browserId);
 	if(findy != mWebCallbacks.end()){
 		if(findy->second.mLoadChangeCallback){
-			findy->second.mLoadChangeCallback(isLoading, canGoBack, canGoForward);
+			findy->second.mLoadChangeCallback(isLoading, canGoBack, canGoForward, browser->GetMainFrame()->GetURL().ToString());
 		}
 	}
 }
@@ -356,10 +356,9 @@ void WebHandler::sendMouseClick(const int browserId, const int x, const int y, c
 		} else {
 			browserHost->SendMouseClickEvent(mouseEvent, btnType, true, 0);
 		}
-	} else {
+	} else if(browserId >= 0) {
 		DS_LOG_WARNING("Browser not found in list to sendMouseClick to! BrowserId=" << browserId);
-	}
-	
+	}	
 }
 
 void WebHandler::sendMouseWheelEvent(const int browserId, const int x, const int y, const int xDelta, const int yDelta){
@@ -373,6 +372,8 @@ void WebHandler::sendMouseWheelEvent(const int browserId, const int x, const int
 		mouseEvent.y = y;
 
 		browserHost->SendMouseWheelEvent(mouseEvent, xDelta, yDelta);
+	} else if(browserId >= 0) {
+		DS_LOG_WARNING("Browser not found in list to sendMouseWheel to! BrowserId=" << browserId);
 	}
 }
 
@@ -455,7 +456,7 @@ void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_
 			
 			browserHost->SendKeyEvent(keyEvent);
 		}
-	} else {
+	} else if(browserId >= 0) {
 		DS_LOG_WARNING("Couldn't find the correct browser to send key event to! BrowserId = " << browserId);
 	}
 }

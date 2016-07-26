@@ -53,7 +53,7 @@ void WebApp::OnContextInitialized() {
 	mHandler = CefRefPtr<WebHandler>(new WebHandler());
 }
 
-void WebApp::createBrowser(const std::string& url, void * instancePtr, std::function<void(int)> createdCallback){
+void WebApp::createBrowser(const std::string& url, void * instancePtr, std::function<void(int)> createdCallback, const bool isTransparent){
 	CEF_REQUIRE_UI_THREAD();
 
 	// Handler has an unused browser instance, so use that instead of creating a new one
@@ -68,7 +68,7 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 	// Information used when creating the native window.
 	CefWindowInfo window_info;
 	HWND hWnd = WindowFromDC(wglGetCurrentDC());
-	window_info.SetAsWindowless(hWnd, true);
+	window_info.SetAsWindowless(hWnd, isTransparent);
 
 	if(mHandler){
 		mHandler->addCreatedCallback(instancePtr, createdCallback);

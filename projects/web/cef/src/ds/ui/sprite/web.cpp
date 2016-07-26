@@ -82,6 +82,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mCanBack(false)
 	, mCanForward(false)
 	, mZoom(1.0)
+	, mTransparentBackground(false)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -100,26 +101,44 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		handleTouch(info);
 	});
 
-	mService.createBrowser("", this, [this](int browserId){
-		mBrowserId = browserId; 
-		initializeBrowser();
-	});
+	createBrowser();
 }
 
-Web::~Web() {
+void Web::createBrowser(){
+	clearBrowser();
 
+	mService.createBrowser("", this, [this](int browserId){
+		mBrowserId = browserId;
+		initializeBrowser();
+	}, mTransparentBackground);
+}
+
+void Web::clearBrowser(){
 	if(mBrowserId < 0){
 		mService.cancelCreation(this);
-
 	} else {
 		// This clears the callbacks too
 		mService.closeBrowser(mBrowserId);
 	}
 
+	mBrowserId = -1;
+}
+
+Web::~Web() {
+
+	clearBrowser();
+
 	if(mBuffer){
 		delete mBuffer;
 		mBuffer = nullptr;
 	}
+}
+
+void Web::setWebTransparent(const bool isTransparent){
+	if(isTransparent == mTransparentBackground) return;
+	mTransparentBackground = isTransparent;
+
+	createBrowser();
 }
 
 void Web::initializeBrowser(){
@@ -144,14 +163,19 @@ void Web::initializeBrowser(){
 		}
 	};
 
-	wcc.mLoadChangeCallback = [this](const bool isLoading, const bool canBack, const bool canForwards){
+	wcc.mLoadChangeCallback = [this](const bool isLoading, const bool canBack, const bool canForwards, const std::string& newUrl){
 		mIsLoading = isLoading;
 		mCanBack = canBack;
 		mCanForward = canForwards;
+		mUrl = newUrl;
 
 		// zoom seems to need to be set for every page
 		if(mZoom != 1.0 && getZoom() != mZoom){
 			setZoom(mZoom);
+		}
+
+		if(mLoadingUpdatedCallback){
+			mLoadingUpdatedCallback(isLoading);
 		}
 
 		if(!mIsLoading && mDocumentReadyFn){
@@ -328,7 +352,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
 			
 			if(mClickDown){
-				if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
+				if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 0);
 				if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 0);
 				mClickDown = false;
 			}
@@ -457,14 +481,6 @@ void Web::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 
 void Web::setAllowClicks(const bool doAllowClicks){
 	mAllowClicks = doAllowClicks;
-}
-
-void Web::setWebTransparent(const bool isTransparent){
-	/* TODO (defaults to true)
-	if(mWebViewPtr){
-		mWebViewPtr->SetTransparent(isTransparent);
-	}
-	*/
 }
 
 } // namespace ui

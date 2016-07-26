@@ -80,6 +80,12 @@ public:
 	// The page has been navigated to a new address
 	void										setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
 
+	// The state of loading in the web browser has been updated (started or finished loading)
+	// This is a great time to check the canGoBack(), canGoForwards(), and getURL() as they'll be updated immediately before this
+	// If loading just completed, the DocumentReadyFn will be called immediately after this 
+	void										setLoadingUpdatedCallback(std::function<void(const bool isLoading)> func);
+
+	// This API is for compatibility with older code that only got updated when the load was complete. Use loadingUpdatedCallback for more granular updates
 	// The page has finished loading. This also updates the canNext / canBack properties
 	void										setDocumentReadyFn(const std::function<void(void)>&);
 
@@ -118,6 +124,7 @@ public:
 
 	/// If true, any transparent web pages will be blank, false will have a white background for pages
 	void										setWebTransparent(const bool isTransparent);
+	bool										getWebTransparent(){ return mTransparentBackground; }
 
 
 	virtual void								updateClient(const ds::UpdateParams&);
@@ -136,6 +143,8 @@ private:
 	void										update(const ds::UpdateParams&);
 	void										handleTouch(const ds::ui::TouchInfo&);
 
+	void										clearBrowser();
+	void										createBrowser();
 	void										initializeBrowser();
 
 	ds::web::WebCefService&						mService;
@@ -145,6 +154,7 @@ private:
 	bool										mHasBuffer;
 	ci::Vec2i									mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
 	ci::gl::Texture								mWebTexture;
+	bool										mTransparentBackground;
 
 	double										mZoom;
 
@@ -164,25 +174,26 @@ private:
 	std::function<void(const std::string&)>		mAddressChangedCallback;
 	std::function<void(const std::wstring&)>	mTitleChangedCallback;
 	std::function<void(const bool)>				mFullscreenCallback;
+	std::function<void(const bool)>				mLoadingUpdatedCallback;
 
 
 	// Replicated state
-	std::string				mUrl;
+	std::string									mUrl;
 
-	bool					mHasError;
-	std::string				mErrorMessage;
+	bool										mHasError;
+	std::string									mErrorMessage;
 
 	// CEF state, cached here so we don't need to (or can't) query the other threads/processes
-	std::wstring			mTitle;
-	bool					mIsLoading;
-	bool					mCanBack;
-	bool					mCanForward;
+	std::wstring								mTitle;
+	bool										mIsLoading;
+	bool										mCanBack;
+	bool										mCanForward;
 
 
 	// Initialization
 public:
-	static void				installAsServer(ds::BlobRegistry&);
-	static void				installAsClient(ds::BlobRegistry&);
+	static void									installAsServer(ds::BlobRegistry&);
+	static void									installAsClient(ds::BlobRegistry&);
 };
 
 } // namespace ui

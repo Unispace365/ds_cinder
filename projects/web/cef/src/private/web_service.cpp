@@ -77,10 +77,10 @@ void WebCefService::update(const ds::UpdateParams&) {
 	CefDoMessageLoopWork();
 }
 
-void WebCefService::createBrowser(const std::string& startUrl, void * instancePtr, std::function<void(int)> createdCallback){
+void WebCefService::createBrowser(const std::string& startUrl, void * instancePtr, std::function<void(int)> createdCallback, const bool isTransparent){
 	if(mCefSimpleApp){
 		try{
-			mCefSimpleApp->createBrowser(startUrl, instancePtr, createdCallback);
+			mCefSimpleApp->createBrowser(startUrl, instancePtr, createdCallback, isTransparent);
 		} catch(std::exception& e){
 			DS_LOG_WARNING("WebCefService: Exception creating browser: " << e.what());
 		}
