@@ -24,7 +24,8 @@ class WebHandler : public CefClient,
 	public CefLifeSpanHandler,
 	public CefLoadHandler,
 	public CefRenderHandler,
-	public CefGeolocationHandler
+	public CefGeolocationHandler,
+	public CefJSDialogHandler
 {
 public:
 	explicit WebHandler();
@@ -37,16 +38,19 @@ public:
 	virtual CefRefPtr<CefDisplayHandler> GetDisplayHandler() OVERRIDE{
 		return this;
 	}
-		virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE{
+	virtual CefRefPtr<CefLifeSpanHandler> GetLifeSpanHandler() OVERRIDE{
 		return this;
 	}
-		virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE{
+	virtual CefRefPtr<CefLoadHandler> GetLoadHandler() OVERRIDE{
 		return this;
 	}
-		virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE{
+	virtual CefRefPtr<CefRenderHandler> GetRenderHandler() OVERRIDE{
 		return this;
 	}
-		virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE{
+	virtual CefRefPtr<CefGeolocationHandler> GetGeolocationHandler() OVERRIDE{
+		return this;
+	}
+	virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE{
 		return this;
 	}
 
@@ -106,15 +110,28 @@ public:
 		return true;
 	}
 
-		// CefGeolocationHandler methods:
-		// returning true allows access immediately
-		virtual bool OnRequestGeolocationPermission(
+	// CefGeolocationHandler methods:
+	// returning true allows access immediately
+	virtual bool OnRequestGeolocationPermission(
 		CefRefPtr<CefBrowser> browser,
 		const CefString& requesting_url,
 		int request_id,
 		CefRefPtr<CefGeolocationCallback> callback) {
 		callback->Continue(true);
 		return true;
+	}
+
+	// CefJSDialogHandler
+	// TODO: Callback to UI and optionally handle
+	virtual bool OnJSDialog(CefRefPtr<CefBrowser> browser,
+										   const CefString& origin_url,
+										   JSDialogType dialog_type,
+										   const CefString& message_text,
+										   const CefString& default_prompt_text,
+										   CefRefPtr<CefJSDialogCallback> callback,
+										   bool& suppress_message) {
+		suppress_message = true;
+		return false;
 	}
 
 	// Requests the browser to be closed and also clears and related callbacks
