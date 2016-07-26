@@ -276,21 +276,29 @@ void Web::sendKeyUpEvent(const ci::app::KeyEvent &event){
 }
 
 void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
+	if(!mAllowClicks) return;
+
 	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
 	mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 0, 1);
 }
 
 void Web::sendMouseDragEvent(const ci::app::MouseEvent& e) {
+	if(!mAllowClicks) return;
+
 	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
 	mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 1, 1);
 }
 
 void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
+	if(!mAllowClicks) return;
+
 	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
 	mService.sendMouseClick(mBrowserId, (int)roundf(pos.x), (int)(roundf(pos.y)), 0, 2, 1);
 }
 
 void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
+	if(!mAllowClicks) return;
+
 	ci::Vec2f pos = globalToLocal(globalClickPoint).xy();
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
@@ -309,7 +317,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	int yPos = (int)roundf(pos.y);
 
 	if(ds::ui::TouchInfo::Added == touchInfo.mPhase) {
-		mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 0, 1);
+		if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 0, 1);
 		if(mDragScrolling){
 			mClickDown = true;
 		}
@@ -320,8 +328,8 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
 			
 			if(mClickDown){
-				mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
-				mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 0);
+				if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
+				if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 0);
 				mClickDown = false;
 			}
 
@@ -329,10 +337,10 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 			mService.sendMouseWheelEvent(mBrowserId, xPos, yPos, 0, (int)roundf(yDelta));			
 			
 		} else {
-			mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
+			if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
 		}
 	} else if(ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
-		mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 1);
+		if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 1);
 	}
 
 	mPreviousTouchPos = touchInfo.mCurrentGlobalPoint;

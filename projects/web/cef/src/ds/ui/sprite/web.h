@@ -124,6 +124,9 @@ public:
 	virtual void								updateServer(const ds::UpdateParams&);
 	virtual void								drawLocalClient();
 
+	// DEPRECATED - there's no loading icon anymore
+	void										setLoadingIconOpacity(const float opacity){}
+
 protected:
 	virtual void								onSizeChanged();
 	virtual void								writeAttributesTo(ds::DataBuffer&);
