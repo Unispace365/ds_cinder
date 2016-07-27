@@ -137,7 +137,8 @@ Web::~Web() {
 	clearBrowser();
 
 	{
-		std::lock_guard<std::mutex> lock(mMutex);
+		// I don't think we'll need to lock this anymore, as the previous call to clear will prevent any callbacks
+	//	std::lock_guard<std::mutex> lock(mMutex);
 		if(mBuffer){
 			delete mBuffer;
 			mBuffer = nullptr;

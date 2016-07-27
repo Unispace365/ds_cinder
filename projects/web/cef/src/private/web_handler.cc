@@ -353,23 +353,31 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 }
 
 void WebHandler::closeBrowser(const int browserId){
-	// be sure this is locked with other requests to the browser list
-	base::AutoLock lock_scope(mLock);
 
-	auto findyS = mBrowserSizes.find(browserId);
-	if(findyS != mBrowserSizes.end()){
-		mBrowserSizes.erase(findyS);
+	CefRefPtr<CefBrowserHost> browserHost = nullptr;
+
+	{
+		// be sure this is locked with other requests to the browser list
+		base::AutoLock lock_scope(mLock);
+
+		auto findyS = mBrowserSizes.find(browserId);
+		if(findyS != mBrowserSizes.end()){
+			mBrowserSizes.erase(findyS);
+		}
+
+		auto findyP = mWebCallbacks.find(browserId);
+		if(findyP != mWebCallbacks.end()){
+			mWebCallbacks.erase(findyP);
+		}
+
+		auto findy = mBrowserList.find(browserId);
+		if(findy != mBrowserList.end()){
+			browserHost = findy->second->GetHost();
+			mBrowserList.erase(findy);
+		}
 	}
 
-	auto findyP = mWebCallbacks.find(browserId);
-	if(findyP != mWebCallbacks.end()){
-		mWebCallbacks.erase(findyP);
-	}
-
-	auto findy = mBrowserList.find(browserId);
-	if(findy != mBrowserList.end()){
-		auto browserHost = findy->second->GetHost();
-		mBrowserList.erase(findy);
+	if(browserHost){
 		// This can be called on any thread
 		browserHost->CloseBrowser(true);
 	}
