@@ -60,10 +60,30 @@ void WebCefService::start() {
 	}
 
 	CefSettings settings;
+	// There's no sandboxing for IO requests
 	settings.no_sandbox = true;
+
+	// Single process could be used for debugging, but it's much slower and not-production ready
 	settings.single_process = false;
+	
+	// CEF handles threading for the message loop (required for performance, otherwise slow apps can become deadlocked)
 	settings.multi_threaded_message_loop = true;
+
+	// We're using Offscreen Rendering.
 	settings.windowless_rendering_enabled = true;
+
+	// CEF's multi-process structure: it's required.
+	// There's basically another process that needs to be spawned for different things (rendering, plugins, IO, etc)
+	// So we create a small exe that's just there to run CEF. 
+	// It's based on cefsimple, from the CEF binary distribution, in case you need to recompile (just remove most of the stuff in cefsimple_win.cc) and it's subsystem to console
+	// Here's the entirety of the source for that app, which is setup as a console app:
+	/*
+	#include <include/cef_app.h>
+	int main(int argc, char* argv[]){
+		CefMainArgs main_args;
+		return CefExecuteProcess(main_args, NULL, NULL);
+	}
+	*/
 
 	// This requires cefsimple.exe to be in the current working directory
 	const char* path = "cefsimple.exe";

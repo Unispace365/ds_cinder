@@ -25,7 +25,10 @@ WebApp::WebApp() {
 void WebApp::OnBeforeCommandLineProcessing(const CefString& process_type, CefRefPtr<CefCommandLine> command_line){
 
 	// This could prevent a crash in debug when closing (but sometimes doesn't):
+	// Seems like with proper multi-processing, this doesn't happen anymore.
+	// But it's here for posterity, in case you ever wanna disable stuff randomly
 	//command_line->AppendSwitch(CefString("disable-extensions"));
+
 	command_line->AppendSwitchWithValue(CefString("enable-system-flash"), CefString("1"));
 	command_line->AppendSwitch("disable-gpu");
 	command_line->AppendSwitch("disable-gpu-compositing");
