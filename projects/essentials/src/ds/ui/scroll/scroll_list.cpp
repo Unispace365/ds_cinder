@@ -11,15 +11,29 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 	: ds::ui::Sprite(engine)
 	, mScrollArea(nullptr)
 	, mStartPositionX(10.0f)
+	, mStartPositionY(0.0f)
 	, mIncrementAmount(50.0f)
 	, mAnimateOnDeltaDelay(0.0f)
 	, mAnimateOnStartDelay(0.0f)
 	, mVerticalScrolling(vertical)
 	, mFillFromTop(true)
+	, mGridLayout(false)
+	, mSpecialLayout(false)
+	, mTargetRow(0)
+	, mTargetColumn(0)
+	, mGapping(0)
 {
 	mScrollArea = new ds::ui::ScrollArea(mEngine, getWidth(), getHeight(), mVerticalScrolling);
 	if(mScrollArea){
-		mScrollArea->setScrollUpdatedCallback([this](ds::ui::Sprite*){ assignItems(); });
+		mScrollArea->setScrollUpdatedCallback([this](ds::ui::Sprite*){
+			assignItems();
+			if(mScrollUpdatedCallback){
+				mScrollUpdatedCallback();
+			}
+		});
+		mScrollArea->setScrollerTouchedCallback([this]{
+			mLastUpdateTime = Poco::Timestamp().epochMicroseconds();
+		});
 		mScrollArea->setFadeColors(ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f), ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 		mScrollArea->setFadeHeight(50.0f);
 		mScrollArea->setUseFades(true);
@@ -33,6 +47,8 @@ ScrollList::ScrollList(ds::ui::SpriteEngine& engine, const bool vertical)
 		mScrollArea->addSpriteToScroll(mScrollableHolder);
 		mScrollableHolder->enable(false);
 	}
+
+	mLastUpdateTime = Poco::Timestamp().epochMicroseconds();
 
 	enable(false);
 }
@@ -126,13 +142,123 @@ void ScrollList::pushItemsTop(){
 				}
 			}
 		}
+	}
+}
 
+void ScrollList::setGridLayout(const bool doGrid, const ci::Vec2f& gridIncrement){
+	mGridLayout = doGrid;
+	mGridIncrement = gridIncrement;
+
+	layout();
+}
+
+void ScrollList::layoutItemsGrid(){
+	float xp = mStartPositionX;
+	float yp = mStartPositionY;
+	// TODO: handle perspective
+	//const bool isPerspective = Sprite::getPerspective();
+	float wrapWidth = getWidth();
+	bool justwrapped = false;
+	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+		(*it).mX = xp;
+		(*it).mY = yp;
+
+		xp += mGridIncrement.x;
+		if(xp > getWidth() - mGridIncrement.x){
+			xp = mStartPositionX;
+			yp += mGridIncrement.y;
+			justwrapped = true;
+		} else {
+			justwrapped = false;
+		}
 	}
 
+	if(!justwrapped){
+		yp += mGridIncrement.y;
+	}
+	if(mScrollableHolder){
+		mScrollableHolder->setSize(getWidth(), yp);
+	}
+}
+
+void ScrollList::setMatrixLayout(const bool doSpcial, const int targetRow, const int targetColumn, const float gapping)
+{
+	mSpecialLayout = doSpcial;
+	mTargetRow = targetRow;
+	mTargetColumn = targetColumn;
+	mGapping = gapping;
+	layout();
+}
+
+void ScrollList::layoutItemsMatrix()
+{
+	float xp = mStartPositionX;
+	float yp = mStartPositionY;
+	const bool isPerspective = Sprite::getPerspective();
+	float totalHeight = yp;
+	if (mVerticalScrolling){
+		if (mTargetColumn == 0)	return;
+		totalHeight = std::ceil((float)mItemPlaceHolders.size() / mTargetColumn) * mIncrementAmount + mStartPositionY * 2.0f;
+		if (isPerspective) yp = totalHeight - mIncrementAmount - mStartPositionY;
+	}
+	else
+	{
+		if (mTargetRow == 0)	return;
+	}
+	int index = 1;
+	for (auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+		(*it).mX = xp;
+		(*it).mY = yp;
+
+		if (mVerticalScrolling){
+			int count = index % mTargetColumn;
+			if (count == 0){
+				if (isPerspective){
+					yp -= mIncrementAmount;
+				}
+				else {
+					yp += mIncrementAmount;
+				}
+				xp = mStartPositionX;
+			}
+			else{
+				xp += mGapping;
+			}
+
+		}
+		else {
+			int count = index % mTargetRow;
+			if (count == 0){
+				xp += mIncrementAmount;
+				yp = mStartPositionY;
+			}
+			else {
+				yp += mGapping;
+			}
+		}
+		index++;
+	}
+	if (mVerticalScrolling){
+		mScrollableHolder->setSize(getWidth(), totalHeight);
+	}
+	else{
+		xp += mStartPositionX;
+		mScrollableHolder->setSize(xp, getHeight());
+	}
 }
 
 // Override if you need to do something special with the layout, otherwise just set start positions and increment amounts
 void ScrollList::layoutItems(){
+	if(mGridLayout){
+		layoutItemsGrid();
+		return;
+	}
+	if (mSpecialLayout)
+	{
+		layoutItemsMatrix();
+		return;
+	}
+
 	float xp = mStartPositionX;
 	float yp = mStartPositionY;
 	const bool isPerspective = Sprite::getPerspective();
@@ -226,6 +352,12 @@ void ScrollList::assignItems(){
 			if(sprite){
 				sprite->setProcessTouchCallback([this](ds::ui::Sprite* sp, const ds::ui::TouchInfo& ti){ handleItemTouchInfo(sp, ti); });
 				sprite->setTapCallback([this, sprite](ds::ui::Sprite* bs, const ci::Vec3f cent){
+					Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
+					float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
+					if(timeDif < 0.2f){
+						//DS_LOG_INFO("Too soon since the last touch to tap this list!");
+						return;
+					}
 					if(mItemTappedCallback) mItemTappedCallback(sprite, cent);
 				});
 				mScrollableHolder->addChildPtr(sprite);
@@ -289,11 +421,33 @@ void ScrollList::setStateChangeCallback(const std::function<void(ds::ui::Sprite*
 	mStateChangeCallback = func;
 }
 
+void ScrollList::setScrollUpdatedCallback(const std::function<void(void)> &func){
+	mScrollUpdatedCallback = func;
+}
+
 void ScrollList::setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top){
 	mStartPositionX = startPositionX;
 	mStartPositionY = startPositionY;
 	mIncrementAmount = incremenetAmount;
 	mFillFromTop = fill_from_top;
+}
+
+void ScrollList::setAnimateOnParams(const float startDelay, const float deltaDelay){
+	mAnimateOnStartDelay = startDelay;
+	mAnimateOnDeltaDelay = deltaDelay;
+}
+
+void ScrollList::forEachLoadedSprite(std::function<void(ds::ui::Sprite*)> func){
+	if(!func) return;
+	for(auto it = mItemPlaceHolders.begin(); it < mItemPlaceHolders.end(); ++it){
+		if((*it).mAssociatedSprite){
+			func((*it).mAssociatedSprite);
+		}
+	}
+
+	for(auto it = mReserveItems.begin(); it < mReserveItems.end(); ++it){
+		func((*it));
+	}
 }
 
 }

@@ -1,5 +1,7 @@
 #include "computer_info.h"
 
+#include <Poco/Timestamp.h>
+
 #ifdef CINDER_MSW
 #define _WIN32_DCOM
 #include <iostream>
@@ -124,7 +126,7 @@ void ComputerInfo::update()
 
 	GetSystemTimeAsFileTime(&ftime);
 	memcpy(&now, &ftime, sizeof(FILETIME));
-  
+
 	GetProcessTimes(mProcessSelf, &ftime, &ftime, &fsys, &fuser);
 	memcpy(&sys, &fsys, sizeof(FILETIME));
 	memcpy(&user, &fuser, sizeof(FILETIME));
@@ -137,8 +139,8 @@ void ComputerInfo::update()
 
 	mPercentCPU = percent * 100.0;
 
-	if ((mOn&MAIN_ON) != 0) updateMain();
-	if ((mOn&VIDEO_ON) != 0) updateVideo();
+	if((mOn&MAIN_ON) != 0) updateMain();
+	if((mOn&VIDEO_ON) != 0) updateVideo();
 }
 
 double ComputerInfo::getTotalVirtualMemory() const
@@ -224,44 +226,44 @@ void ComputerInfo::updateVideo()
 	// This code taken from the example here:
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/aa390423(v=vs.85).aspx
 
-    // Step 1: --------------------------------------------------
-    // Initialize COM. ------------------------------------------
+	// Step 1: --------------------------------------------------
+	// Initialize COM. ------------------------------------------
 	ComInit		ci;
 	if (ci.ok()) {
 #if 0
-    // Step 2: --------------------------------------------------
-    // Set general COM security levels --------------------------
-    // Note: If you are using Windows 2000, you need to specify -
-    // the default authentication credentials for a user by using
-    // a SOLE_AUTHENTICATION_LIST structure in the pAuthList ----
-    // parameter of CoInitializeSecurity ------------------------
+	// Step 2: --------------------------------------------------
+	// Set general COM security levels --------------------------
+	// Note: If you are using Windows 2000, you need to specify -
+	// the default authentication credentials for a user by using
+	// a SOLE_AUTHENTICATION_LIST structure in the pAuthList ----
+	// parameter of CoInitializeSecurity ------------------------
 
-    hres =  CoInitializeSecurity(
-        NULL, 
-        -1,                          // COM authentication
-        NULL,                        // Authentication services
-        NULL,                        // Reserved
-        RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
-        RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
-        NULL,                        // Authentication info
-        EOAC_NONE,                   // Additional capabilities 
-        NULL                         // Reserved
-        );
+	hres =  CoInitializeSecurity(
+		NULL, 
+		-1,                          // COM authentication
+		NULL,                        // Authentication services
+		NULL,                        // Reserved
+		RPC_C_AUTHN_LEVEL_DEFAULT,   // Default authentication 
+		RPC_C_IMP_LEVEL_IMPERSONATE, // Default Impersonation  
+		NULL,                        // Authentication info
+		EOAC_NONE,                   // Additional capabilities 
+		NULL                         // Reserved
+		);
 
-                      
-    if (FAILED(hres))
-    {
-        cout << "Failed to initialize security. Error code = 0x" 
-            << hex << hres << endl;
-        CoUninitialize();
+					  
+	if (FAILED(hres))
+	{
+		cout << "Failed to initialize security. Error code = 0x" 
+			<< hex << hres << endl;
+		CoUninitialize();
 //        return 1;                    // Program has failed.
 		return;
-    }
-    
+	}
+	
 #endif
 
-	    // Step 3: ---------------------------------------------------
-	    // Obtain the initial locator to WMI -------------------------
+		// Step 3: ---------------------------------------------------
+		// Obtain the initial locator to WMI -------------------------
 		WebmLocator			loc;
 		if (loc.mPLoc) {
 			// Step 4: -----------------------------------------------------
@@ -291,7 +293,7 @@ void ComputerInfo::updateVideo()
 												WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
 												NULL,
 												&pEnumerator);
-    
+	
 					if (FAILED(hres)) return;
 
 					// Step 7: -------------------------------------------------
@@ -310,7 +312,7 @@ void ComputerInfo::updateVideo()
 
 						pclsObj->Release();
 					}
-				    pEnumerator->Release();
+					pEnumerator->Release();
 				}
 			}
 		}

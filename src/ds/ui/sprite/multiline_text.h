@@ -30,7 +30,7 @@ public:
 	virtual float						getFontFullHeight() const;
 
 private:
-	typedef Text				inherited;
+	typedef Text						inherited;
 
 	ds::ui::TextLayoutVertical			mMultilineLayout;
 };

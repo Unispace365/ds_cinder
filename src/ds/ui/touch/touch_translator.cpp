@@ -23,22 +23,32 @@ ci::Vec2i TouchTranslator::toWorldi(const int x, const int y) const {
 ci::Vec2f TouchTranslator::toWorldf(const float _x, const float _y) const {
 	float				x(_x),
 						y(_y);
-	// If we've got a touch overlay override, run it through that, first.
-#if 0
-	if (mHasTouch) {
-		x -= mTouchDst.x1;
-		y -= mTouchDst.y1;
 
-//		x -= mTouchSrc.x1;
-//		y -= mTouchSrc.y1;
-//		x *= ((mTouchDst.x2-mTouchDst.x1) / (mTouchSrc.x2-mTouchSrc.x1));
-//		y *= ((mTouchDst.y2-mTouchDst.y1) / (mTouchSrc.y2-mTouchSrc.y1));
-//		x += 
-	}
-#endif
 	// Perform the translation to world space
 	return ci::Vec2f(	mTx + (x * mSx),
 						mTy + (y * mSy));
+}
+
+ds::ui::TouchEvent TouchTranslator::toWorldSpace(const ds::ui::TouchEvent& touchEvent){
+
+	if(touchEvent.getInWorldSpace()){
+		return touchEvent;
+	}
+
+	std::vector<ci::app::TouchEvent::Touch>	touches;
+	for(auto it = touchEvent.getTouches().begin(), end = touchEvent.getTouches().end(); it != end; ++it) {
+		ci::Vec2f possy = it->getPos();
+		ci::Vec2f prevPossy = it->getPrevPos();
+			possy = toWorldf(possy.x, possy.y);
+			prevPossy = toWorldf(prevPossy.x, prevPossy.y);
+		touches.push_back(ci::app::TouchEvent::Touch(possy,
+			prevPossy,
+			it->getId(),
+			it->getTime(),
+			(void*)it->getNative()));
+	}
+
+	return ds::ui::TouchEvent(touchEvent.getWindow(), touches, touchEvent.getInWorldSpace());
 }
 
 void TouchTranslator::setTranslation(const float x, const float y) {
@@ -49,15 +59,6 @@ void TouchTranslator::setTranslation(const float x, const float y) {
 void TouchTranslator::setScale(const float x, const float y) {
 	mSx = x;
 	mSy = y;
-}
-
-void TouchTranslator::setTouchOverlay(const ci::Rectf &src, const ci::Rectf &dst) {
-	mHasTouch = false;
-	mTouchSrc = src;
-	mTouchDst = dst;
-	if (src.x2 > src.x1 && src.y2 > src.y1 && dst.x2 > dst.x1 && dst.y2 > dst.y1) {
-		mHasTouch = true;
-	}
 }
 
 } // namespace ui

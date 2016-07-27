@@ -127,6 +127,10 @@ std::string ModelMaker::replaceString(std::string& fullString, std::string toRep
 }
 
 std::string ModelMaker::replaceAllString(std::string& fullString, std::string toReplace, std::string replaceWith){
+	if(toReplace == replaceWith){
+		DS_LOG_WARNING("you can't replace the name of a thing with the thing. Change your column name from " << replaceWith << " to something else");
+		return "ERROR replacing string. Check the yaml importer.";
+	}
 	std::string returnString = fullString;
 	while(returnString.find(toReplace) != std::string::npos)	{
 		returnString = replaceString(returnString, toReplace, replaceWith);
@@ -150,6 +154,7 @@ void ModelMaker::run() {
 	
 
 	std::vector<ModelModel> models = mYamlLoadService.mOutput;
+
 
 	if(models.empty()){
 		DS_LOG_WARNING("No valid models loaded in model maker.");
@@ -192,7 +197,13 @@ void ModelMaker::run() {
 		std::string thisImpGetter;
 		std::string thisImpSetter;
 
+		std::map<std::string, bool> emptyDataClasses;
 		std::map<std::string, std::string> dataMemberInitializers;
+
+		// add custom includes specified in the YAML
+		if(!mm.getCustomInclude().empty()){
+			sCustomIncludes << "#include " << mm.getCustomInclude() << std::endl;
+		}
 
 		// make all 'resource' flagged columns into proper resources
 		for(auto mit = mm.getResourceColumns().begin(); mit < mm.getResourceColumns().end(); ++mit){
@@ -243,7 +254,11 @@ void ModelMaker::run() {
 			}
 			
 			ModelColumn mc;
-			mc.setColumnName(foreignClass.str());
+			if(mr.getLocalKeyColumn().empty()){
+				mc.setColumnName(foreignClass.str());
+			} else {
+				mc.setColumnName(mr.getLocalKeyColumn());
+			}
 			mc.setType(ModelColumn::Custom);
 			mc.setCustomDataType(foreignDataType.str());
 			mc.setCustomEmptyDataName(foreignEmptyTypeFull.str());
@@ -296,7 +311,10 @@ void ModelMaker::run() {
 			} else if(mc.getType() == ModelColumn::Custom){
 				dataType = mc.getCustomDataType();
 				thisEmptyData = mc.getCustomEmptyDataName();
-				sCustomEmptyData << "const " << mc.getCustomDataType() << " EMPTY_" << mc.getCustomEmptyDataName() << ";" << std::endl;
+				if(emptyDataClasses.find(thisEmptyData) == emptyDataClasses.end()){
+					emptyDataClasses[thisEmptyData] = true;
+					sCustomEmptyData << "const " << mc.getCustomDataType() << " EMPTY_" << mc.getCustomEmptyDataName() << ";" << std::endl;
+				}
 			}
 
 

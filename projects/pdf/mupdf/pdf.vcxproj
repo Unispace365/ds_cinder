@@ -65,7 +65,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>src;%(AdditionalIncludeDirectories);$(DS_PLATFORM_086)\projects\pdf\mupdf\lib</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>

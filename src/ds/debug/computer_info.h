@@ -6,7 +6,7 @@
 
 #ifdef CINDER_MSW
 
-#include <WinSock2.h>
+//#include <WinSock2.h>
 #include <windows.h>
 #include <psapi.h>
 #include <tchar.h>
@@ -83,10 +83,10 @@ class ComputerInfo
 public:
   enum MemoryConversion
   {
-    MEGABYTE,
-    GIGABYTE,
-    KILOBYTE,
-    NONE
+	MEGABYTE,
+	GIGABYTE,
+	KILOBYTE,
+	NONE
   };
 
   ComputerInfo(const MemoryConversion &memoryConversion = MEGABYTE);

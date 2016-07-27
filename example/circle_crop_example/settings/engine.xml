@@ -76,6 +76,11 @@
 	<!-- draw circles around touch points -->
 	<text name="touch_overlay:debug" value="true" />
 	
+	<!-- average out touch points over time for smoother input, but slightly less accurate. default=true -->
+	<text name="touch_smoothing" value="true" />
+	<!-- how many frames to use when smoothing. Higher numbers are smoother. Lower than 3 is effectively off. default=5 -->
+	<int  name="touch_smooth_frames" value="8" />
+	
 	<!-- Set the current touch mode. Options:
 		"Tuio" -- Receive events over TUIO.
 		"TuioAndMouse" -- Receive both TUIO and mouse events. The default.

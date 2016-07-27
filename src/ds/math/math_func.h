@@ -117,6 +117,8 @@ inline double slope(const double x0, const double y0, const double x1, const dou
 // 0 = right, clockwise (90 = down)
 double degree(const double x2, const double y2);
 
+ci::Vec3f randomUnitVector();
+
 } // namespace math
 } // namespace ds
 

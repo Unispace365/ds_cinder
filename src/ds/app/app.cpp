@@ -20,6 +20,9 @@
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
+#include "ds/ui/sprite/border.h"
+#include "ds/ui/sprite/circle.h"
+#include "ds/ui/sprite/circle_border.h"
 
 // For installing the image generators
 #include "ds/ui/image_source/image_arc.h"
@@ -73,9 +76,6 @@ void					add_dll_path() {
 
 }
 
-using namespace ci;
-using namespace ci::app;
-
 namespace ds {
 
 void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
@@ -99,6 +99,9 @@ App::App(const RootList& roots)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
+	mEngineSettings.printStartupInfo();
+	mEngineData.mUsingDefaults = mEngineSettings.getUsingDefault();
+
 	add_dll_path();
 
 	// Initialize each sprite type with a unique blob handler for network communication.
@@ -114,6 +117,12 @@ App::App(const RootList& roots)
 							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){EngineStatsView::installAsServer(r);},
 							[](ds::BlobRegistry& r){EngineStatsView::installAsClient(r);});
+	mEngine.installSprite(  [](ds::BlobRegistry& r){ds::ui::Border::installAsServer(r); },
+							[](ds::BlobRegistry& r){ds::ui::Border::installAsClient(r); });
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Circle::installAsServer(r); },
+							[](ds::BlobRegistry& r){ds::ui::Circle::installAsClient(r); });
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsServer(r); },
+				  			[](ds::BlobRegistry& r){ds::ui::CircleBorder::installAsClient(r); });
 
 	// Initialize the engine image generator typess.
 	ds::ui::ImageArc::install(mEngine.getImageRegistry());
@@ -173,7 +182,7 @@ void App::setup() {
 	inherited::setup();
 
 	mEngine.setup(*this);
-	mEngine.setupTuio(*this);
+	mEngine.setupTouch(*this);
 }
 
 void App::update() {
@@ -188,7 +197,7 @@ void App::draw() {
 	mEngine.draw();
 }
 
-void App::mouseDown( MouseEvent event ) {
+void App::mouseDown(ci::app::MouseEvent event ) {
 	if (mCtrlDown) {
 		if (!mSecondMouseDown) {
 			mEngine.mouseTouchBegin(event, 2);
@@ -202,36 +211,36 @@ void App::mouseDown( MouseEvent event ) {
 	}
 }
 
-void App::mouseMove(MouseEvent e) {
+void App::mouseMove(ci::app::MouseEvent e) {
 }
 
-void App::mouseDrag(MouseEvent e) {
+void App::mouseDrag(ci::app::MouseEvent e) {
 	mEngine.mouseTouchMoved(e, 1);
 }
 
-void App::mouseUp(MouseEvent e) {
+void App::mouseUp(ci::app::MouseEvent e) {
 	mEngine.mouseTouchEnded(e, 1);
 }
 
-void App::touchesBegan(TouchEvent e) {
+void App::touchesBegan(ci::app::TouchEvent e) {
 	mEngine.touchesBegin(e);
 }
 
-void App::touchesMoved(TouchEvent e) {
+void App::touchesMoved(ci::app::TouchEvent e) {
 	mEngine.touchesMoved(e);
 }
 
-void App::touchesEnded(TouchEvent e) {
+void App::touchesEnded(ci::app::TouchEvent e) {
 	mEngine.touchesEnded(e);
 }
 
-void App::tuioObjectBegan(const TuioObject&) {
+void App::tuioObjectBegan(const ds::TuioObject&) {
 }
 
-void App::tuioObjectMoved(const TuioObject&) {
+void App::tuioObjectMoved(const ds::TuioObject&) {
 }
 
-void App::tuioObjectEnded(const TuioObject&) {
+void App::tuioObjectEnded(const ds::TuioObject&) {
 }
 
 const std::string& App::envAppPath() {
@@ -242,35 +251,35 @@ const std::string& App::envAppDataPath() {
 	return APP_DATA_PATH;
 }
 
-void App::keyDown(KeyEvent e) {
+void App::keyDown(ci::app::KeyEvent e) {
 	const int		code = e.getCode();
-	if ( ( mEscKeyEnabled && code == KeyEvent::KEY_ESCAPE ) || ( mQKeyEnabled && code == KeyEvent::KEY_q ) ) {
+	if((mEscKeyEnabled && code == ci::app::KeyEvent::KEY_ESCAPE) || (mQKeyEnabled && code == ci::app::KeyEvent::KEY_q)) {
 		quit();
 	}
-	if (code == KeyEvent::KEY_LCTRL || code == KeyEvent::KEY_RCTRL) {
+	if(code == ci::app::KeyEvent::KEY_LCTRL || code == ci::app::KeyEvent::KEY_RCTRL) {
 		mCtrlDown = true;
-	} else if (KeyEvent::KEY_s == code) {
+	} else if(ci::app::KeyEvent::KEY_s == code) {
 		mEngine.getNotifier().notify(EngineStatsView::Toggle());
-	} else if (KeyEvent::KEY_t == code) {
+	} else if(ci::app::KeyEvent::KEY_t == code) {
 		mEngine.nextTouchMode();
-	} else if(KeyEvent::KEY_F8 == code){
+	} else if(ci::app::KeyEvent::KEY_F8 == code){
 		saveTransparentScreenshot();
 	}
 
 	if (mArrowKeyCameraControl) {
-		if (code == KeyEvent::KEY_LEFT) {
+		if(code == ci::app::KeyEvent::KEY_LEFT) {
 			mEngineData.mScreenRect.x1 -= mArrowKeyCameraStep;
 			mEngineData.mScreenRect.x2 -= mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
-		} else if (code == KeyEvent::KEY_RIGHT) {
+		} else if(code == ci::app::KeyEvent::KEY_RIGHT) {
 			mEngineData.mScreenRect.x1 += mArrowKeyCameraStep;
 			mEngineData.mScreenRect.x2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
-		} else if (code == KeyEvent::KEY_UP) {
+		} else if(code == ci::app::KeyEvent::KEY_UP) {
 			mEngineData.mScreenRect.y1 -= mArrowKeyCameraStep;
 			mEngineData.mScreenRect.y2 -= mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
-		} else if (code == KeyEvent::KEY_DOWN) {
+		} else if(code == ci::app::KeyEvent::KEY_DOWN) {
 			mEngineData.mScreenRect.y1 += mArrowKeyCameraStep;
 			mEngineData.mScreenRect.y2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
@@ -278,7 +287,7 @@ void App::keyDown(KeyEvent e) {
 	}
 
 #ifdef _DEBUG
-	if (code == KeyEvent::KEY_d){
+	if(code == ci::app::KeyEvent::KEY_d){
 		std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
 		std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
 		std::fstream	filestr;
@@ -295,8 +304,8 @@ void App::keyDown(KeyEvent e) {
 #endif
 }
 
-void App::keyUp( KeyEvent event ){
-  if ( event.getCode() == KeyEvent::KEY_LCTRL || event.getCode() == KeyEvent::KEY_RCTRL )
+void App::keyUp(ci::app::KeyEvent event){
+	if(event.getCode() == ci::app::KeyEvent::KEY_LCTRL || event.getCode() == ci::app::KeyEvent::KEY_RCTRL)
 	mCtrlDown = false;
 }
 

@@ -49,6 +49,10 @@ public:
 		return nullptr;
 	}
 
+	virtual std::string						getImageFilename() const {
+		return "";
+	}
+
 	virtual void							writeTo(DataBuffer& buf) const {
 		assert(false);
 #if 0

@@ -3,6 +3,7 @@
 #include <cinder/Rand.h>
 
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/touch/touch_event.h>
 
 #include "ds/debug/automator/actions/base_action.h"
 #include "ds/debug/automator/actions/drag_action.h"
@@ -150,7 +151,7 @@ void Automator::clear(){
 	for(int i = 0; i < mFingerMax; ++i){
 		touches.push_back(ci::app::TouchEvent::Touch(ci::Vec2f::zero(), ci::Vec2f::zero(), i, 0.0, nullptr));
 	}
-	mEngine.injectTouchesEnded(ci::app::TouchEvent(mEngine.getWindow(), touches));
+	mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
 
 	mActioner.clear();
 	mFreeList.clear();

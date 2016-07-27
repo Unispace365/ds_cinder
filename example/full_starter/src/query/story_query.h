@@ -5,7 +5,7 @@
 #include <Poco/Runnable.h>
 #include <ds/query/query_result.h>
 
-#include "model/all_stories.h"
+#include "model/all_data.h"
 
 namespace fullstarter {
 
@@ -18,10 +18,10 @@ public:
 
 	virtual void			run();
 
-	AllStories				mOutput;
+	AllData					mOutput;
 
 private:
-	void					query(AllStories& output);
+	void					query(AllData& output);
 };
 
 } // !namespace fullstarter

@@ -33,14 +33,10 @@ public:
 	float					getTextureWidth() const;
 	float					getTextureHeight() const;
 
-	void update();
-#if 0
-	void setAnchorPercent(float xPct, float yPct);	//set the anchor as a percentage of the image width/height ( 0.0-1.0 range )
-	void setAnchorPoint(float x, float y);					//set the anchor point in pixels
-	void resetAnchor();															//resets the anchor to (0, 0)
-#endif
+	/// Returns true if the pixels were updated on this pass
+	bool					update();
 
-	void draw(float x, float y);
+	void					draw(float x, float y);
 
 	float					getWidth() const;
 	float					getHeight() const;
@@ -112,6 +108,8 @@ private:
 													// read by the worker thread, so it's safe to read it in the main without a lock.
 	state						mDrawState;		// Store the state used to generate the current active texture
 	std::string					mDrawFileName;	// Store so I can avoid redrawing duplicate pages
+
+	bool						mPrintedError; // to prevent a ton of warnings flooding the output
 };
 
 } // namespace pdf

@@ -26,6 +26,7 @@ const char			ATT_CLIENT = 1;
 const char			ATT_GLOBAL_ID = 2;
 const char			ATT_SESSION_ID = 3;
 const char			ATT_FRAME = 4;
+const char			ATT_ROOTS = 5;
 
 /**
  * \class ds::EngineIoInfo
@@ -34,12 +35,17 @@ EngineIoInfo::EngineIoInfo(ds::Engine& engine) {
 	if (engine.getSettings("engine").getTextSize("platform:guid") > 0)
 	{
 		/*!
-		 * \note I figured there's no advantage of having the server dispatching
+		 * \note (Sepehr Laal) I figured there's no advantage of having the server dispatching
 		 * world events over multiple IP addresses / ports. After all, this is -
 		 * called multi casting for a reason! All it takes to run multiple clients
 		 * on the same machine is to set "platform:guid" text entry inside engine.xml.
 		 * You should make sure that each client has a unique string as its ID.
 		 * With this ID, engine can track disconnected clients / etc.
+		  
+		 * GN: What Sepehr means is he was trying to run multiple clients on the same machine, and the cache below would
+		 *     create the same guid, so i think he tried to have multiple IP/addesses to address the multiple clients.
+		 *	   That's not really true any more, and you can in fact run multiple clients on the same machine without setting the guid.
+		 *	   However, there's some value to being able to specify an ID for each client, so this setting is left here.
 		 */
 		mGlobalId = engine.getSettings("engine").getText("platform:guid");
 	}

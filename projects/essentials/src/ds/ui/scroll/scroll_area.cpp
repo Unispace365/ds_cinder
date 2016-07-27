@@ -10,6 +10,7 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 	, mScroller(nullptr)
 	, mScrollable(false)
 	, mReturnAnimateTime(0.3f)
+	, mWillSnapAfterDelay(false)
 	, mTopFade(nullptr)
 	, mBottomFade(nullptr)
 	, mTopFadeActive(false)
@@ -18,7 +19,11 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 	, mFadeFullColor(0, 0, 0, 255)
 	, mFadeTransColor(0, 0, 0, 0)
 	, mScrollUpdatedFunction(nullptr)
+	, mTweenCompleteFunction(nullptr)
+	, mSnapToPositionFunction(nullptr)
 	, mVertical(vertical)
+	, mScrollPercent(0.0f)
+	, mHandleRotatedTouches(false)
 {
 
 	setSize(startWidth, startHeight);
@@ -31,10 +36,9 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 
 	mScroller = new Sprite(mEngine);
 	if(mScroller){
-#if 0
-		mScroller->setTransparent(false);
-		mScroller->setColor(ci::Color(0.1f, 0.56f, 0.3f));
-#endif
+		mScroller->mExportWithXml = false;
+// 		mScroller->setTransparent(false);
+// 		mScroller->setColor(ci::Color(0.1f, 0.56f, 0.3f));
 		mScroller->setSize(startWidth, startHeight);
 		mScroller->enable(true);
 		mScroller->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
@@ -44,7 +48,25 @@ ScrollArea::ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, con
 	}
 }
 
+void ScrollArea::setVertical(bool vertical){
+	mVertical = vertical;
+	// do a layout-type thing to move the fade sprites if needed, and to call checkBounds
+	setScrollSize(getWidth(), getHeight());
+}
+
 void ScrollArea::setScrollSize(const float newWidth, const float newHeight){
+	// onSizeChanged only triggers if the size is the same, so manually force the check bounds/fade stuff in case other things have changed
+	if(getWidth() == newWidth && getHeight() == newHeight){
+		onSizeChanged();
+	} else {
+		setSize(newWidth, newHeight);
+	}
+}
+
+void ScrollArea::onSizeChanged(){
+	const float newWidth = getWidth();
+	const float newHeight = getHeight();
+
 	if(mTopFade){
 		if(mVertical){
 			mTopFade->setSize(newWidth, mFadeHeight);
@@ -59,10 +81,9 @@ void ScrollArea::setScrollSize(const float newWidth, const float newHeight){
 		} else {
 			mBottomFade->setSize(mFadeHeight, newHeight);
 			mBottomFade->setPosition(newWidth - mFadeHeight, 0.0f);
-
 		}
 	}
-	setSize(newWidth, newHeight);
+
 	if(mScroller){
 		mScroller->setSize(0.0f, 0.0f);
 		mScroller->sizeToChildBounds();
@@ -83,78 +104,85 @@ Sprite* ScrollArea::getSpriteToPassTo(){
 }
 
 void ScrollArea::checkBounds(){
-	float scrollWindow(0.0f);
-	float scrollerSize(0.0f);
+	if(!mScroller) return;
+	bool doTween = true;
+	ci::Vec3f tweenDestination = mScroller->getPosition();
 
-	if(mVertical){
-		scrollWindow = getHeight();
-		scrollerSize = mScroller->getHeight();
-	} else {
-		scrollWindow = getWidth();
-		scrollerSize = mScroller->getWidth();
+	bool snapped = callSnapToPositionCallback(doTween, tweenDestination);
+
+	if(!snapped){
+		float scrollWindow(0.0f);
+		float scrollerSize(0.0f);
+
+		if(mVertical){
+			scrollWindow = getHeight();
+			scrollerSize = mScroller->getHeight();
+		} else {
+			scrollWindow = getWidth();
+			scrollerSize = mScroller->getWidth();
+		}
+
+		bool canKeepAllScrollerInWindow = false;
+		if(scrollerSize <= scrollWindow){
+			mScrollable = false;
+			canKeepAllScrollerInWindow = true;
+
+			// only allowable position is zero
+			tweenDestination.set(0.0f, 0.0f, 0.0f);
+		} else {
+			float scrollerPos(0.0f);
+			if(mVertical){
+				scrollerPos = mScroller->getPosition().y;
+			} else {
+				scrollerPos = mScroller->getPosition().x;
+			}
+
+			// find the limits
+			float minPos(0.0f);
+			float maxPos(0.0f);
+
+			if(canKeepAllScrollerInWindow){
+				maxPos = scrollWindow - scrollerSize;
+			} else {
+				minPos = scrollWindow - scrollerSize;
+			}
+
+			if(scrollerPos < minPos){
+				// Can't scroll down any more
+				if(mVertical){
+					tweenDestination.set(0.0f, minPos, 0.0f);
+				} else {
+					tweenDestination.set(minPos, 0.0f, 0.0f);
+				}
+			} else if(scrollerPos > maxPos){
+				// Can't scroll up any more
+				if(mVertical){
+					tweenDestination.set(0.0f, maxPos, 0.0f);
+				} else {
+					tweenDestination.set(maxPos, 0.0f, 0.0f);
+				}
+			} else {
+				// In bounds
+				doTween = false;
+			}
+		}
 	}
 
-	if(scrollerSize <= scrollWindow){
-		mScrollable = false;
-		mSpriteMomentum.deactivate();
-		mScroller->tweenPosition(ci::Vec3f::zero(), mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
-		scrollerUpdated(ci::Vec2f(0.0f, 0.0f));
-	} else {
-		bool isPerspective = getPerspective();
-		float scrollerPos(0.0f);
-		float theTop = scrollWindow - scrollerSize;
-		if(mVertical){
-			scrollerPos = mScroller->getPosition().y;
-		} else {
-			scrollerPos = mScroller->getPosition().x;
-		}
-
-		bool doTween = true;
-		ci::Vec3f tweenDestination = ci::Vec3f::zero();
-
-		// Perspective y-position works in opposite
-		if(isPerspective && mVertical){
-			if(scrollerPos > 0){
-				doTween = true;
-				tweenDestination = ci::Vec3f::zero();
-
-			} else if(scrollerPos < theTop){
-				doTween = true;
-				tweenDestination = ci::Vec3f(0.0f, theTop, 0.0f);
-			} else {
-				doTween = false;
-			}
-
-		} else {
-
-			// Can't scroll down any more
-			if(scrollerPos > 0){
-				doTween = true;
-				tweenDestination = ci::Vec3f::zero();
-
-			// Can't scroll up any more
-			} else if(scrollerPos < theTop){
-				doTween = true;
-				if(mVertical){
-					tweenDestination = ci::Vec3f(0.0f, theTop, 0.0f);
-				} else {
-					tweenDestination = ci::Vec3f(theTop, 0.0f, 0.0f);
-				}
-
-			// In bounds
-			} else {
-				doTween = false;
-			}
-		}
-
-
-		if(doTween){
+	if(doTween){
+		// respond after a delay, in case this call is cancelled in a swipe callback
+		mWillSnapAfterDelay = true;
+		callAfterDelay([this, doTween, tweenDestination](){
+			mWillSnapAfterDelay = false;
 			mSpriteMomentum.deactivate();
-			mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
+			mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseOutQuint(), [this](){ tweenComplete(); }, [this](){ scrollerTweenUpdated(); });
 			scrollerUpdated(tweenDestination.xy());
-		} else {
-			scrollerUpdated(mScroller->getPosition().xy());
-		}
+		}, 0.0f);
+	} else {
+		// nothing special to do here
+		mScroller->animStop();
+		mScroller->setPosition(tweenDestination);
+		scrollerUpdated(tweenDestination.xy());
+		tweenComplete();
 	}
 }
 
@@ -164,6 +192,46 @@ void ScrollArea::updateServer(const ds::UpdateParams& p){
 		checkBounds();
 	}
 }
+void decompose(ci::Matrix44f matrix, ci::Vec3f& scaling, ci::Quatf& rotation,
+			   ci::Vec3f& position){
+	// extract translation
+	position.x = matrix.at(0, 3);
+	position.y = matrix.at(1, 3);
+	position.z = matrix.at(2, 3);
+
+	// extract the rows of the matrix
+
+	ci::Vec3f columns[3] = {
+		matrix.getColumn(0).xyz(),
+		matrix.getColumn(1).xyz(),
+		matrix.getColumn(2).xyz()
+	};
+
+	// extract the scaling factors
+	scaling.x = columns[0].length();
+	scaling.y = columns[1].length();
+	scaling.z = columns[2].length();
+
+	// and remove all scaling from the matrix
+	if(scaling.x){
+		columns[0] /= scaling.x;
+	}
+	if(scaling.y){
+		columns[1] /= scaling.y;
+	}
+	if(scaling.z){
+		columns[2] /= scaling.z;
+	}
+
+	// build a 3x3 rotation matrix
+	ci::Matrix33f m(columns[0].x, columns[1].x, columns[2].x,
+					columns[0].y, columns[1].y, columns[2].y,
+					columns[0].z, columns[1].z, columns[2].z, true);
+
+	// and generate the rotation quaternion from it
+	rotation = ci::Quatf(m);
+}
+
 
 void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 	if(ti.mPhase == ds::ui::TouchInfo::Added){
@@ -172,32 +240,59 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 		mSpriteMomentum.activate();
 		checkBounds();
 	} else if(ti.mPhase == ds::ui::TouchInfo::Moved && ti.mNumberFingers > 0){
+		auto deltaPoint = ti.mDeltaPoint;
+		if(mHandleRotatedTouches){
+			auto globalTrans = getGlobalTransform();
+			ci::Vec3f scaley;
+			ci::Quatf rotty;
+			ci::Vec3f poss;
+			decompose(globalTrans, scaley, rotty, poss);
+			deltaPoint.rotateZ(-ci::toDegrees(rotty.getRoll()));
+		}
+
 		if(mScroller){
 			if(mVertical){
-				float yDelta = ti.mDeltaPoint.y / ti.mNumberFingers;
+				float yDelta = deltaPoint.y / ti.mNumberFingers;
 				if(getPerspective()){
 					yDelta = -yDelta;
 				}
 				mScroller->move(0.0f, yDelta);
 			} else {
-				mScroller->move(ti.mDeltaPoint.x / ti.mNumberFingers, 0.0f);
+				mScroller->move(deltaPoint.x / ti.mNumberFingers, 0.0f);
 			}
 			scrollerUpdated(mScroller->getPosition().xy());
 		}
 	}
+
+	// notify anyone (like lists) that I was touched so they can prevent action, if they want
+	if(mScrollerTouchedFunction){
+		mScrollerTouchedFunction();
+	}
+}
+
+bool ScrollArea::callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDestination){
+	bool output = false;
+
+	if(mSnapToPositionFunction){
+		mSnapToPositionFunction(this, mScroller, doTween, tweenDestination);
+		output = true;
+	}
+
+	return output;
 }
 
 void ScrollArea::setUseFades(const bool doFading){
 	if(doFading){
 		float fadeWiddy = getWidth();
-		float fadeHiddy = getHeight() / 16.0f;
+		float fadeHiddy = mFadeHeight;
 		if(!mVertical){
-			fadeWiddy = getWidth() / 16.0f;
+			fadeWiddy = mFadeHeight;
 			fadeHiddy = getHeight();
 		}
 		if(!mTopFade){
 			mTopFade = new ds::ui::GradientSprite(mEngine);
 			if(mTopFade){
+				mTopFade->mExportWithXml = false;
 				mTopFade->setSize(fadeWiddy, fadeHiddy);
 				mTopFade->setTransparent(false);
 				mTopFade->enable(false);
@@ -209,6 +304,7 @@ void ScrollArea::setUseFades(const bool doFading){
 		if(!mBottomFade){
 			mBottomFade = new ds::ui::GradientSprite(mEngine);
 			if(mBottomFade){
+				mBottomFade->mExportWithXml = false;
 				mBottomFade->setSize(fadeWiddy, fadeHiddy);
 				mBottomFade->setTransparent(false);
 				mBottomFade->enable(false);
@@ -231,6 +327,8 @@ void ScrollArea::setUseFades(const bool doFading){
 			mBottomFade = nullptr;
 		}
 	}
+
+	onSizeChanged();
 }
 
 void ScrollArea::setFadeHeight(const float fadeHeight){
@@ -248,6 +346,8 @@ void ScrollArea::setFadeHeight(const float fadeHeight){
 	if(mBottomFade){
 		mBottomFade->setSize(fadeWiddy, fadeHiddy);
 	}
+
+	onSizeChanged();
 }
 
 void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTrans){
@@ -272,8 +372,6 @@ void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTra
 }
 
 void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
-	if(!mTopFade || !mBottomFade) return;
-
 	float scrollerSize = mScroller->getHeight();
 	float scrollWindow = getHeight();
 	float scrollerPossy = scrollPos.y;
@@ -283,29 +381,41 @@ void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
 		scrollWindow = getWidth();
 		scrollerPossy = scrollPos.x;
 	}
-
+	
 	const float theTop = scrollWindow - scrollerSize;
 
-	if(scrollerPossy < 0.0f){
-		if(!mTopFadeActive){
-			mTopFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
-			mTopFadeActive = true;
-		}
+	if(theTop == 0.0f){
+		mScrollPercent = 0.0f;
 	} else {
-		if(mTopFadeActive){
-			mTopFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
-			mTopFadeActive = false;
+		mScrollPercent = scrollerPossy / theTop;
+	}
+	if(mScrollPercent > 1.0f) mScrollPercent = 1.0f;
+	if(mScrollPercent < 0.0f) mScrollPercent = 0.0f;
+
+	if(mTopFade){
+		if(scrollerPossy < 0.0f){
+			if(!mTopFadeActive){
+				mTopFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
+				mTopFadeActive = true;
+			}
+		} else {
+			if(mTopFadeActive){
+				mTopFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
+				mTopFadeActive = false;
+			}
 		}
 	}
 
-	if(scrollerPossy > theTop){
-		if(!mBottomFadeActive){
-			mBottomFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
-			mBottomFadeActive = true;
+	if(mBottomFade){
+		if(scrollerPossy > theTop){
+			if(!mBottomFadeActive){
+				mBottomFade->tweenOpacity(1.0f, mReturnAnimateTime, 0.0f);
+				mBottomFadeActive = true;
+			}
+		} else if(mBottomFadeActive){
+			mBottomFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
+			mBottomFadeActive = false;
 		}
-	} else if(mBottomFadeActive){
-		mBottomFade->tweenOpacity(0.0f, mReturnAnimateTime, 0.0f);
-		mBottomFadeActive = false;
 	}
 
 	if(mScrollUpdatedFunction) mScrollUpdatedFunction(this);
@@ -313,6 +423,18 @@ void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
 
 void ScrollArea::setScrollUpdatedCallback(const std::function<void(ds::ui::ScrollArea* thisThing)> &func){
 	mScrollUpdatedFunction = func;
+}
+
+void ScrollArea::setTweenCompleteCallback(const std::function<void(ds::ui::ScrollArea* thisThing)> &func){
+	mTweenCompleteFunction = func;
+}
+
+void ScrollArea::setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func){
+	mSnapToPositionFunction = func;
+}
+
+void ScrollArea::setScrollerTouchedCallback(const std::function<void()>& func) {
+	mScrollerTouchedFunction = func;
 }
 
 const ci::Vec2f ScrollArea::getScrollerPosition(){
@@ -337,7 +459,132 @@ void ScrollArea::resetScrollerPosition() {
 }
 
 void ScrollArea::scrollerTweenUpdated(){
-	if(mScrollUpdatedFunction) mScrollUpdatedFunction(this);
+	if(mScrollUpdatedFunction){
+		mScrollUpdatedFunction(this);
+	}
+}
+
+void ScrollArea::tweenComplete(){
+	if(mTweenCompleteFunction){
+		mTweenCompleteFunction(this);
+	}
+}
+
+float ScrollArea::getScrollPercent(){
+	return mScrollPercent;
+}
+
+void ScrollArea::setScrollPercent(const float percenty){
+	if(!mScroller) return;
+
+	if(mScrollPercent == percenty) return;
+
+	float scrollerSize = mScroller->getHeight();
+	float scrollWindow = getHeight();
+
+	if(!mVertical){
+		scrollerSize = mScroller->getWidth();
+		scrollWindow = getWidth();
+	}
+
+	const float theTop = scrollWindow - scrollerSize;
+
+	float scrollerPossy = percenty * theTop;
+
+
+	if(mVertical){
+		if(getPerspective()){
+			scrollerPossy = theTop - scrollerPossy;
+		}
+		mScroller->setPosition(0.0f, scrollerPossy);
+	} else {
+		mScroller->setPosition(scrollerPossy, 0.0f);
+	}
+	
+	scrollerUpdated(mScroller->getPosition().xy());
+}
+
+float ScrollArea::getVisiblePercent(){
+	if(!mScroller) return 0.0f;
+
+	if(mVertical){
+		if(mScroller->getHeight() < 1.0f) return 1.0f;
+		if(mScroller->getHeight() <= getHeight()) return 1.0f;
+		
+		return getHeight() / mScroller->getHeight();
+	} else {
+		if(mScroller->getWidth() < 1.0f) return 1.0f;
+		if(mScroller->getWidth() <= getWidth()) return 1.0f;
+
+		return getWidth() / mScroller->getWidth();
+	}
+}
+
+void ScrollArea::scrollPage(const bool forwards, const bool animate) {
+	if(!mScroller) return;
+
+	const float visibPerc = getVisiblePercent();
+	if(visibPerc == 1.0f) return;
+
+
+	float scrollerSize = mScroller->getHeight();
+	float scrollWindow = getHeight();
+
+	if(!mVertical){
+		scrollerSize = mScroller->getWidth();
+		scrollWindow = getWidth();
+	}
+
+	const float theTop = scrollWindow - scrollerSize;
+
+	float visiblePixes = visibPerc * mScroller->getHeight();
+	if(!mVertical)visiblePixes = visibPerc * mScroller->getWidth();
+
+	const float scrolledPerc = getScrollPercent();
+	float scrolledPixes = scrolledPerc * theTop;
+	if(!mVertical) scrolledPixes = scrolledPerc * theTop;
+
+	float destPixels = scrolledPixes;
+	float fadePixels = 0.0f;
+	if(mTopFade && mBottomFade){
+		if(mVertical){
+			fadePixels = mTopFade->getHeight();
+		} else {
+			fadePixels = mTopFade->getWidth();
+		}
+	}
+
+	if(forwards){
+		destPixels -= (visiblePixes -fadePixels);
+	} else {
+		destPixels += (visiblePixes - fadePixels);
+	}
+
+	if(destPixels < theTop) destPixels = theTop;
+	if(destPixels > 0.0f) destPixels = 0.0f;
+
+
+	ci::Vec3f tweenDestination = mScroller->getPosition();
+	if(mVertical){
+		if(getPerspective()){
+			destPixels = theTop - destPixels;
+		}
+		tweenDestination.y = destPixels;
+	} else {
+		tweenDestination.x = destPixels;
+	}
+
+	mSpriteMomentum.deactivate();
+	if(animate){
+		mScroller->tweenPosition(tweenDestination, mReturnAnimateTime, 0.0f, ci::EaseInOutQuint(), nullptr, [this](){ scrollerTweenUpdated(); });
+		scrollerUpdated(tweenDestination.xy());
+	} else {
+		mScroller->animStop();
+		mScroller->setPosition(tweenDestination);
+		scrollerUpdated(tweenDestination.xy());
+	}
+
+
 }
 
 } // namespace ui

@@ -39,6 +39,8 @@ public:
 	ci::Vec2f				mWorldSize;
 	float					mFrameRate;
 	int						mIdleTimeout;
+	bool					mUsingDefaults; // if no settings file loaded, use all default settings
+	std::string				mAppInstanceName;
 
 	// The source rect in world bounds and the destination
 	// local rect. Together these should obsolete mScreenRect.
@@ -52,6 +54,10 @@ public:
 	// mDstRect match the world size.
 	std::vector < std::pair<ci::Area, ci::Rectf> >
 							mWorldSlices;
+
+	// Volume control for the whole app 
+
+	bool					mMute;
 
 private:
 	EngineData(const EngineData&);

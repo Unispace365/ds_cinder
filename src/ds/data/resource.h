@@ -100,6 +100,7 @@ public:
 	static const int		PDF_TYPE            = 4;
 	static const int		VIDEO_TYPE          = 5;
 	static const int		WEB_TYPE            = 6;
+	static const int		VIDEO_STREAM_TYPE	= 7;
 
 public:
 	// Mainly for debugging
@@ -108,72 +109,103 @@ public:
 
 	Resource();
 	Resource(const Resource::Id& dbId, const int type);
-	// This should only be used for debugging, as a way to bridge
-	// the hardcoded file paths before things move to being pulled from the CMS.
-	Resource(const std::string& fullPath, const int type);
+
+	/// Sets the absolute filepath, type is auto-detected, no other parameters are filled out
+	Resource(const std::string& localFullPath);
+	/// Sets the absolute filepath, no other parameters are filled out
+	Resource(const std::string& localFullPath, const int type);
+	/// Sets the absolute filepath, type is auto-detected. This is intended for streams
+	Resource(const std::string& localFullPath, const float width, const float height);
 
 	// In case you have this queried/constructed already
 	Resource(const Resource::Id dbid, const int type, const double duration, 
 			 const float width, const float height, const std::string filename, 
-			 const std::string path, const int thumbnailId, const std::string debugFileName);
+			 const std::string path, const int thumbnailId, const std::string fullFilePath);
 
 	bool					operator==(const Resource&) const;
 	bool					operator!=(const Resource&) const;
 
-	const Resource::Id&		getDbId() const			    { return mDbId; }
-	int						getType() const			    { return mType; }
-	const std::wstring&		getTypeName() const;
-	double					getDuration() const     { return mDuration; }
-	float					getWidth() const        { return mWidth; }
-	float					getHeight() const       { return mHeight; }
-	int						getThumbnailId() const  { return mThumbnailId; }
-	// Answer the full path to my file
-	std::string				getAbsoluteFilePath() const;
-	// Answer an abstract file path that can be resolved to an absolute
-	// one via ds::Environment::expand().
-	std::string				getPortableFilePath() const;
+	const Resource::Id&		getDbId() const						{ return mDbId; }
+	void					setDbId(const Resource::Id& dbId)	{ mDbId = dbId; }
 
-	/** If you want to simply store a path to a thumbnail
-	*	This is NOT filled out by default in the query() methods, you need to supply this yourself
-	**/
+	const std::wstring&		getTypeName() const;
+	int						getType() const						{ return mType; }
+	void					setType(const int newType)			{ mType = newType; }
+
+	double					getDuration() const					{ return mDuration; }
+	void					setDuration(const float newDur)		{ mDuration = newDur; }
+
+	float					getWidth() const					{ return mWidth; }
+	void					setWidth(const float newWidth)		{ mWidth = newWidth; }
+
+	float					getHeight() const					{ return mHeight; }
+	void					setHeight(const float newHeight)	{ mHeight = newHeight; }
+
+	int						getThumbnailId() const				{ return mThumbnailId; }
+	void					setThumbnailId(const int thub)		{ mThumbnailId = thub; }
+
+	/// If you want to simply store a path to a thumbnail
+	///	This is NOT filled out by default in the query() methods, you need to supply this yourself	
 	std::string				getThumbnailFilePath() const { return mThumbnailFilePath; }
 	void					setThumbnailFilePath(const std::string& thumbPath) { mThumbnailFilePath = thumbPath; }
 
+	/// Answer the full path to my file
+	std::string				getAbsoluteFilePath() const;
+
+	/// Local file path is the path to a file, generally not tracked by a database. This will be used instead of resource ID, and FileName and Path won't be used.
+	void					setLocalFilePath(const std::string& localPath){ mLocalFilePath = localPath; }
+
+	/// Answer an abstract file path that can be resolved to an absolute one via ds::Environment::expand().
+	std::string				getPortableFilePath() const;
+
+	/// Clears the currently set info
 	void					clear();
+
+	/// If anything has been set
 	bool					empty() const;
 	void					swap(Resource&);
 
-	void					setDbId(const Resource::Id&);
-	void					setType(const int);
+	/// Expects a single-character type (v, i, p, w, f, s)
 	void					setTypeFromString(const std::string& typeChar);
+	/// Return the int value for the string type
+	static const int		makeTypeFromString(const std::string& typeChar);
 
+	/// Returns the type parsed from the filename, primarily using the file extension.
+	/// Creates an error type if it's a file type (not web type) and the file doesn't exist
+	/// Use the full file path or web URL, not a single character like above
 	static const int		parseTypeFromFilename(const std::string& fileName);
 
-	// Warning: Expensive operation (database lookup).  Use with care.
-	bool					existsInDb() const;
-	// Answers true if ds::Resource was constructed from a local
-	// file instead of an actual element in db. via fromImage method for example.
+	/// Answers true if ds::Resource was constructed from a local
+	/// file instead of an actual element in db. via fromImage method for example.
 	bool					isLocal() const;
-	// Query the DB for my contents. Obviously, this is also an expensive operation.
+
+	/// Query the database set as the resources database for my contents. Obviously, this is also an expensive operation.
 	bool					query(const Resource::Id&);
-	// The argument is the full thumbnail, if you want it.
+
+	/// The argument is the full thumbnail, if you want it.
 	bool					query(const Resource::Id&, Resource* outThumb);
 
 private:
 	friend class ResourceList;
 
 	Resource::Id			mDbId;
+
+	// See the public types above
 	int						mType;
 	double					mDuration;
 	float					mWidth,
 							mHeight;
+
+	// filename and path are applied when querying from a database
 	std::string				mFileName;
 	std::string				mPath;
-	// Sorta hacked in for Kurt's model
-	int						mThumbnailId;
-	// Only should be used for debugging
-	std::string				mDebugFileName;
 
+	// Overrides FileName and Path
+	std::string				mLocalFilePath;
+
+	// thumbnail id used when querying from a database
+	int						mThumbnailId;
+	// can be set manually as a convenience
 	std::string				mThumbnailFilePath;
 
 };

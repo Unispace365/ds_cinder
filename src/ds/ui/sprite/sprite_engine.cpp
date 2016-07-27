@@ -5,6 +5,7 @@
 #include "ds/app/engine/engine_service.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
+#include "ds/debug/computer_info.h"
 
 namespace ds {
 namespace ui {
@@ -12,6 +13,7 @@ namespace ui {
 SpriteEngine::SpriteEngine(ds::EngineData& ed)
 	: mData(ed)
 {
+	mComputerInfo = new ds::ComputerInfo();
 }
 
 SpriteEngine::~SpriteEngine()
@@ -179,6 +181,27 @@ void SpriteEngine::setIdleTimeout(int idleTimeout) {
 void SpriteEngine::clearFingers( const std::vector<int> &fingers ) {
 }
 
+
+ds::ComputerInfo& SpriteEngine::getComputerInfo(){
+	return *mComputerInfo;
+}
+
+
+bool SpriteEngine::getMute()
+{
+	return mData.mMute;
+}
+
+
+void SpriteEngine::setMute(bool mute)
+{
+	mData.mMute = mute;
+}
+
+const std::string SpriteEngine::getAppInstanceName(){
+	return mData.mAppInstanceName;
+}
+
 bool SpriteEngine::hasService(const std::string& key) const
 {
 	return mData.mServices.find(key) != mData.mServices.cend();
@@ -192,6 +215,46 @@ ds::EngineService& SpriteEngine::private_getService(const std::string& str) {
 		throw std::runtime_error(msg);
 	}
 	return *s;
+}
+
+void SpriteEngine::registerSpriteImporter(const std::string& spriteType, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)> func) {
+	auto finder = mImporterMap.find(spriteType);
+	if(finder != mImporterMap.end()){
+		DS_LOG_WARNING("Duplicate sprite importer being added for sprite type: " << spriteType);
+	}
+
+	mImporterMap[spriteType] = func;
+}
+
+ds::ui::Sprite* SpriteEngine::createSpriteImporter(const std::string& spriteType) {
+	auto finder = mImporterMap.find(spriteType);
+	if(finder == mImporterMap.end()){
+		// Not really an error, since the sprite could be created in another manner
+		//DS_LOG_WARNING("No importer found for sprite type " << spriteType);
+		return nullptr;
+	}
+
+	return finder->second(*this);
+}
+
+void SpriteEngine::registerSpritePropertySetter(const std::string& propertyName, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)> func){
+	auto finder = mPropertyMap.find(propertyName);
+	if(finder != mPropertyMap.end()){
+		DS_LOG_WARNING("Duplicate sprite property setters registered for property name: " << propertyName);
+	}
+
+	mPropertyMap[propertyName] = func;
+}
+
+
+bool SpriteEngine::setRegisteredSpriteProperty(const std::string& propertyName, ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer){
+	auto finder = mPropertyMap.find(propertyName);
+	if(finder == mPropertyMap.end()){
+		return false;
+	}
+
+	finder->second(theSprite, theValue, fileRefferer);
+	return true;
 }
 
 } // namespace ui

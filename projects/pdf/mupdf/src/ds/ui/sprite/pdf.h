@@ -50,6 +50,15 @@ public:
 	/** Decrement the current page by 1, does not wrap */
 	void						goToPreviousPage();
 
+	/** Called when a page has finished drawing. This may also be called if the PDF is re-scaled and redraws again. Expect this to be called many times */
+	void						setPageLoadedCallback(std::function<void()> func){ mPageLoadedCallback = func; }
+
+	/** Called when the page has been requested to change (so you can update UI or whatever) */
+	void						setPageChangeCallback(std::function<void()> func){ mPageChangeCallback = func; }
+
+	/** Calls back if the pdf could not be loaded for whatever reason */
+	void						setLoadErrorCallback(std::function<void(const std::string& errorMsg)> func){ mErrorCallback = func; };
+
 #ifdef _DEBUG
 	virtual void				writeState(std::ostream&, const size_t tab) const;
 #endif
@@ -79,8 +88,12 @@ private:
 		~ResHolder();
 
 		void					clear();
-		void					setResourceFilename(const std::string& filename, const PageSizeMode&);
-		void					update();
+
+		/// Returns true if the PDF was loaded successfully
+		bool					setResourceFilename(const std::string& filename, const PageSizeMode&);
+
+		/// Returns true if pixels were updated in this update
+		bool					update();
 		void					drawLocalClient();
 		void					setScale(const ci::Vec3f&);
 		void					setPageSizeMode(const PageSizeMode&);
@@ -100,6 +113,13 @@ private:
 		ds::pdf::PdfRes*		mRes;
 	};
 	ResHolder					mHolder;
+
+	// For clients to detect scale changes and re-render
+	ci::Vec3f					mPrevScale;
+
+	std::function<void()>		mPageLoadedCallback;
+	std::function<void()>		mPageChangeCallback;
+	std::function<void(const std::string&)> mErrorCallback;
 
 	// Initialization
 public:

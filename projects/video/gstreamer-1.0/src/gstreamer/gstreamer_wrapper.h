@@ -5,11 +5,14 @@
 #include <gst/app/gstappsink.h>
 #include <gst/video/video.h>
 #include <gst/audio/audio.h>
+#include <gst/net/gstnettimeprovider.h>
 
 #include <mutex>
 #include <atomic>
 #include <string>
 #include <functional>
+#include <vector>
+
 
 namespace gstwrapper
 {
@@ -17,6 +20,7 @@ namespace gstwrapper
 // Enumeration to describe the current state of the wrapper
 enum PlayState
 {
+	GSTREAM_INIT_FAIL,
 	NOT_INITIALIZED,
 	OPENED,
 	PLAYING,
@@ -89,9 +93,6 @@ public:
 	// Destructor which closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
 	virtual ~GStreamerWrapper();
 
-
-	void debugAppsinkShaderColorspaceOpen();
-
 	typedef enum { kColorSpaceTransparent = 0, kColorSpaceSolid, kColorSpaceI420 } ColorSpace;
 
 	/*
@@ -116,7 +117,14 @@ public:
 	@ videoWidth: Specify the size of the video. Required before creating a pipeline
 	@ videoHeight: Specify the size of the video. Required before creating a pipeline
 	*/
-	bool					open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight);
+	bool					open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight, const bool hasAudio = true);
+
+
+	/** you have to supply your own pipeline for streaming.
+		Streaming is also assumed to be YUV / I420 color space.
+		You must also have an appsink element named appsink0 for video output to work.
+		If you want to control volume, include a volume element named volume0 */
+	bool					openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight);
 
 	/*
 	Closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
@@ -163,6 +171,9 @@ public:
 	streams nothing will happen
 	*/
 	void					setCurrentAudioStream( int iCurrentAudioStream );
+
+	void					setAutoRestartStream(bool autoRestart) { m_AutoRestartStream = autoRestart; }
+
 
 	/*
 	Sets the playback speed of the opened media file.
@@ -221,6 +232,7 @@ public:
 	*/
 	void					setTimePositionInNs( gint64 iTargetTimeInNs );
 
+	//void					scrubToPosition( double t, float speed);
 	/*
 	Seeks the media file to the position provided by a percentage statement between 0 and 100 percent.
 	0 percent means the beginning of the file, 50 percent the middle and 100 percent the end of the file.
@@ -232,6 +244,7 @@ public:
 	void					setPosition(double fPos);
 
 
+	void					setFastPosition(double fPos);
 	/*
 	Returns true if the loaded media file contains at least one video stream, false otherwise
 	*/
@@ -289,6 +302,15 @@ public:
 	*/
 	float					getFps();
 
+	/*Get the current time from the pipeline clock*/
+	uint64_t				getPipelineTime();
+
+
+	/*Get the current time from the network clock*/
+	uint64_t				getNetworkTime();
+
+
+	void					setPipelineBaseTime(uint64_t base_time);
 	/*
 	Returns if the buffer you get with getVideo holds really a new image of the video, use this to increase performance in your applications, so you don't unnecessary copy mem to textures
 	*/
@@ -365,6 +387,16 @@ public:
 	void					setVolume( float fVolume );
 
 	/*
+	Sets the Pipeline pan
+
+	params:
+	@fPan: The new paning value which will be immediately applied to the Pipeline. Any value between -1.0f and 1.0f are possible.
+	-1.0 is full left, +1.0 is full right, 0 is equal left and right.  Values between -1.0 and 1.0 will proporitionaly scale the sound to the 
+	left and right speakers.
+	*/
+	void					setPan(float fPan);
+
+	/*
 	Returns an unsigned char pointer containing a buffer to the currently decoded audio data
 	Returns NULL if there is either no audio stream in the media file, no file has been loaded or something went wrong
 	while streaming
@@ -411,11 +443,32 @@ public:
 	*/
 	Endianness				getAudioEndianness();
 
+	/* Provides the initial setting for the baseclock of the server*/
+	gint64					getBaseTime();
 
+	//void setBaseTime(uint64_t base_time);
+
+	void setSeekTime(uint64_t seek_time);
+	/* Provides the seek time when resuming from pause*/
+	gint64					getSeekTime();
+
+
+	/* Returns the time for resume playing from pause*/
+	gint64					getStartTime();
+
+	/* set the time for resume playing from pause*/
+	void					setStartTime(uint64_t start_time);
+
+	///*Set up seek to go fast*/
+	//bool					seekFast(gint64 iTargetTimeInNs);
+
+	//bool					resetSeekMode(GstSeekFlags flags = GST_SEEK_FLAG_FLUSH);
 	/*
 	Lamda is called when GStreamer gets an EOS message (not called when looping)
 	*/
 	void					setVideoCompleteCallback(const std::function<void(GStreamerWrapper* video)> &func);
+
+	void					setErrorMessageCallback(const std::function<void(const std::string& errMessage)>& func);
 
 	/*
 	Set the pipeline to play as soon as the video is loaded.
@@ -429,7 +482,7 @@ public:
 	void					stopOnLoopComplete(){ m_StopOnLoopComplete = true; };
 
 
-	//Custom pipeline function call
+	//Custom pipeline function call (just for audio)
 	virtual void			setCustomFunction(){};
 
 	void					enableCustomPipeline(bool enable) { m_CustomPipeline = enable; }
@@ -454,6 +507,29 @@ public:
 
 	/** Spite out a ton of messages when running gstreamer pipelines. */
 	void					setVerboseLogging(const bool verboseOn);
+
+	/* Setup network clock from server */
+	void					setServerNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& inOutTime);
+	
+	/* Setup network clock from client */
+	void					setClientNetClock(const bool isServer, const std::string& addr, const int port, guint64& netClock, guint64& baseTime);
+	
+	/*Retrieve the current network clock time*/
+	guint64					getNetClockTime();
+
+	/*Check if resuming from play.  May be able to use GST_STATE_CHANGE_PAUSED_TO_PLAYING of the GstStateChanged*/
+	bool					isPlayFromPause();
+
+	/*Clear the Pause to Play flag*/
+	void					clearPlayFromPause();
+	//void					fastSeek(float speed);
+	//bool					isFastSeeking();
+
+	/*Flag to indicate the video just looped*/
+	bool					isNewLoop();
+
+	/*clear flag to indicate if loop has started*/
+	void					clearNewLoop();
 
 private:
 	/*
@@ -559,6 +635,7 @@ private:
 
 	// Makes sure videos widths are divisible by 4, for video blanking
 	void					enforceModFourWidth(const int videoWidth, const int videoHeight);
+	void					enforceModEightWidth(const int videoWidth, const int videoHeight);
 
 protected:
 
@@ -580,9 +657,14 @@ protected:
 	LoopMode				m_LoopMode; /* The current loop mode */
 	std::function < void(GStreamerWrapper*) >
 							mVideoCompleteCallback;
+	std::function<void(const std::string&)> m_ErrorMessageCallback;
 	GstElement*				m_GstPipeline; /* The main GStreamer pipeline */
 	bool					m_PendingSeek;
 	GstElement*				m_GstAudioSink; /* Audio sink that contains the raw audio buffer. Gathered from the pipeline */
+	GstElement*				m_GstPanorama; /* Audio Panning element */
+	GstElement*				m_GstConverter; /* Audio adapter - used for converting stereo to mono if enabled*/
+	GstElement*				m_GstVolumeElement; /* Allows streaming to change the volume output */
+	std::vector<gpointer>	m_GstObjects;  /*Collector for releasing upon close()*/
 
 private:
 
@@ -600,6 +682,7 @@ private:
 	int						m_iHeight; /* Video height */
 	int						m_iBitrate; /* Video bitrate */
 	float					m_fVolume; /* Volume of the pipeline */
+	float					m_fPan; /* Pan the audio channels for the pipeline */
 	float					m_fFps; /* Frames per second of the video */
 	double					m_dCurrentTimeInMs; /* Current time position in milliseconds */
 	double					m_dDurationInMs; /* Media duration in milliseconds */
@@ -615,10 +698,27 @@ private:
 	GstAppSinkCallbacks		m_GstVideoSinkCallbacks; /* Stores references to the callback methods for video preroll, new video buffer and video eos */
 	GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 	bool					m_StartPlaying;/* Play the video as soon as it's loaded */
-	bool					m_CustomPipeline;
+	bool					m_CustomPipeline; /* Has a custom pipeline for audio */
+	bool					m_Streaming; /* The video is playing live over the network (disallows seeking and a few other things */
+	bool					m_AutoRestartStream;
+	std::string				m_StreamPipeline;
 
+	bool					m_ValidInstall;
 	bool					m_VerboseLogging;
 
+	GstNetTimeProvider*		mClockProvider;
+
+	bool					mServer;
+	guint64					m_BaseTime;
+	guint64					m_SeekTime;
+
+	guint64					m_CurrentTime;
+	guint64					m_RunningTime;
+	GstClock*				m_NetClock;
+	uint64_t				m_StartTime;
+	bool					m_playFromPause;
+	//bool					m_isFastSeeking;
+	bool					m_newLoop;
 
 }; //!class GStreamerWrapper
 }; //!namespace gstwrapper

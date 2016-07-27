@@ -1,6 +1,7 @@
 #include "ds/network/tcp_client.h"
 
 #include <iostream>
+#include <thread>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/algorithm/string.hpp>
 #include <Poco/Net/NetException.h>
@@ -66,6 +67,55 @@ void TcpClient::update(const ds::UpdateParams&) {
 
 	for (auto it=mListener.begin(), end=mListener.end(); it != end; ++it) {
 		for (auto pit=popped.begin(), pend=popped.end(); pit != pend; ++pit) (*it)(*pit);
+	}
+}
+
+namespace {
+
+// Because the sockets are non-blocking, occasionally I will get write errors
+// if I'm sending too much data. This loop doesn't guarantee that I won't lose
+// data, but not sure what a realistic way to handle that would be. Need to balance
+// remaining reponsive with making sure all data gets through.
+size_t					send_loop(Poco::Net::StreamSocket& socket, std::string data) {
+	const size_t		RETRY_MAX = 1000;
+	for (size_t count=0; count < RETRY_MAX; ++count) {
+		try {
+			int			sent_size = socket.sendBytes(data.data(), data.size());
+			if (sent_size == static_cast<int>(data.size())) {
+				return data.size();
+			}
+		} catch (Poco::IOException const &) {
+//			std::cout << "send ioex=" << ex.what() << " t=" << ex.displayText() << std::endl;
+		} catch (std::exception const &) {
+//			std::cout << "send ex=" << ex.what() << std::endl;
+		}
+		
+		std::this_thread::sleep_for(std::chrono::milliseconds(2));
+	}
+	return 0;
+}
+
+}
+
+void TcpClient::sendBytes(Poco::Net::StreamSocket &socket, const std::string &d) {
+	try {
+		if (d.empty()) return;
+
+		// We can periodically get an IO error, which happens if we are sending
+		// data too quickly, so retry.
+		const size_t	buffer_size = static_cast<size_t>(socket.getSendBufferSize());
+		size_t			pos = 0;
+		while (pos < d.size()) {
+			size_t		len = d.size()-pos;
+			if (len > buffer_size) len = buffer_size;
+			size_t		sent = send_loop(socket, d.substr(pos, len));
+			if (sent != len) {
+//				std::cout << "SEND FAILED=" << sent << " wanted=" << len << std::endl;
+				return;
+			}
+			pos += sent;
+		}
+	} catch (std::exception const &) {
 	}
 }
 
@@ -160,12 +210,8 @@ void TcpClient::Loop::sendTo(Poco::Net::StreamSocket& socket) {
 			if (!d.empty()) buf << d << mTerminator;
 		}
 
-		// Send the data
-		std::string						d = buf.str();
-		if (!d.empty()) {
-			socket.sendBytes(d.data(), d.size());
-		}
-	} catch (std::exception const&) {
+		TcpClient::sendBytes(socket, buf.str());
+	} catch (std::exception const &) {
 	}
 }
 

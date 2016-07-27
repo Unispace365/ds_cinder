@@ -15,6 +15,8 @@ class ScrollArea : public ds::ui::Sprite {
 
 		ScrollArea(ds::ui::SpriteEngine& engine, const float startWidth, const float startHeight, const bool verticalScrolling = true);
 
+		void				setVertical(bool vertical);
+
 		// Sets the clippin' (visible) area of the scroll Area. 
 		void				setScrollSize(const float newWidth, const float newHeight);
 
@@ -34,21 +36,42 @@ class ScrollArea : public ds::ui::Sprite {
 		void				setFadeHeight(const float fadeHeight);
 
 		void				setScrollUpdatedCallback(const std::function<void(ScrollArea* thisThing)> &func);
+		void				setTweenCompleteCallback(const std::function<void(ScrollArea*)>& func);
+		void				setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func);
+		void				setScrollerTouchedCallback(const std::function<void()>& func); // just lets you know some interaction happened with the scroller
 
 		const ci::Vec2f		getScrollerPosition();
 		void				resetScrollerPosition();
 
-	private:
+		// For external UI use. The 0.0 - 1.0 percent of the scroll. 0.0 == the start (top in vertical scrolls). 1.0 == the bottom (fully scrolled through the list)
+		float				getScrollPercent();
+		void				setScrollPercent(const float percenty);
+
+		// How much of the scroller is currently visible. If the scroller is smaller than the scroll area, then this will be 1.0
+		float				getVisiblePercent();
+
+		// Move the scroll forwards or backwards by a "page", defined by the visible area minus the size of the fades (if present)
+		// May not work correctly in perspective
+		void				scrollPage(const bool forwards, const bool animate = true);
+
+		// If this scroll area is rotated globally, rotate the touch delta by that amount. Default = false
+		void				handleTouchesRotated(const bool doRotated){ mHandleRotatedTouches = doRotated; }
+
+	protected:
 		virtual void		updateServer(const ds::UpdateParams& p);
+		virtual void		onSizeChanged();
 		void				scrollerUpdated(const ci::Vec2f scrollPos);
 		void				scrollerTweenUpdated();
+		void				tweenComplete();
 		void				checkBounds();
 		void				handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
+		virtual bool		callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDestination);
 
 		Sprite*				mScroller;
 		bool				mScrollable;
 		Momentum			mSpriteMomentum;
 		float				mReturnAnimateTime;
+		bool				mWillSnapAfterDelay;
 
 		GradientSprite*		mTopFade;
 		GradientSprite*		mBottomFade;
@@ -57,10 +80,18 @@ class ScrollArea : public ds::ui::Sprite {
 		ci::ColorA			mFadeFullColor;
 		bool				mTopFadeActive;
 		bool				mBottomFadeActive;
+		bool				mHandleRotatedTouches;
 
 		bool				mVertical;
 
+		// the current 0.0 - 1.0 percent of the scroll position
+		// Only used for external ui, not internally
+		float				mScrollPercent;
+
 		std::function<void(ScrollArea*)>	mScrollUpdatedFunction;
+		std::function<void(ScrollArea*)>	mTweenCompleteFunction;
+		std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>	mSnapToPositionFunction;
+		std::function<void()>				mScrollerTouchedFunction;
 
 };
 

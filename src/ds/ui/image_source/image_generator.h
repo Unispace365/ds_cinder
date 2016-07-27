@@ -27,6 +27,7 @@ public:
 	virtual void					writeTo(DataBuffer&) const = 0;
 	virtual bool					readFrom(DataBuffer&) = 0;
 
+	virtual std::string				getImageFilename() const = 0;
 protected:
 	ImageGenerator(const char blobType);
 

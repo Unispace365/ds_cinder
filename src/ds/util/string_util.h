@@ -7,6 +7,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <cinder/Vector.h>
 
 namespace ds {
 
@@ -63,14 +64,22 @@ std::wstring value_to_wstring(T number)
 	return ss.str();
 }
 
+// extra convenience, so you can use inline
+const float string_to_float(const std::string& str);
+const float wstring_to_float(const std::wstring& str);
+const int string_to_int(const std::string& str);
+const int wstring_to_int(const std::wstring& str);
+const double string_to_double(const std::string& str);
+const double wstring_to_double(const std::wstring& str);
+
 std::vector<std::string> split( const std::string &str, const std::string &delimiters, bool dropEmpty = false );
 std::vector<std::wstring> split( const std::wstring &str, const std::wstring &delimiters, bool dropEmpty = false );
 
 struct Token
 {
   Token(int pos = 0, int size = 0)
-    : pos(pos)
-    , size(size) {}
+	: pos(pos)
+	, size(size) {}
   int pos;
   int size;
 };
@@ -98,6 +107,23 @@ void saveStringToFile( const std::wstring &filename, const std::wstring &src );
 // Tokenize the input, passing each token to the supplied function
 void tokenize(const std::string& input, const char delim, const std::function<void(const std::string&)>&);
 void tokenize(const std::string& input, const std::function<void(const std::string&)>&);
+
+
+/// Parses a string into a 3d vector. Example: size="400, 400, 0" the space after the comma is required to read the second and third token.
+/// Defaults parameters to 0 if they don't exist.
+ci::Vec3f parseVector(const std::string &s);
+
+/// The inverse of parseVector. For an input of ci::Vec3f(123.0f, 0.0f, 987.6f) returns "123.0, 0.0, 987.6"
+std::string unparseVector(const ci::Vec3f& v);
+
+/// The inverse of parseVector. For an input of ci::Vec2f(123.0f, 0.0f) returns "123.0, 0.0"
+std::string unparseVector(const ci::Vec2f& v);
+
+/// Parse true/false from a string. 
+bool parseBoolean(const std::string &s);
+
+/// The inverse of parseBoolean
+std::string unparseBoolean(const bool b);
 
 } // namespace ds
 

@@ -1,0 +1,36 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{3a331ac4-6562-4be2-a951-99aebdfd6956}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds">
+      <UniqueIdentifier>{037730f6-dd51-4dbd-8379-755acde1af33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\network">
+      <UniqueIdentifier>{18965e2b-073b-42f0-b2e5-129cf164c216}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\network\mqtt">
+      <UniqueIdentifier>{f522ba82-1398-4f38-8298-2fe750f133fa}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\network\mosquitto">
+      <UniqueIdentifier>{d06e6a49-b71e-4908-92a1-7c0cc3a4a353}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="src\ds\network\mqtt\mqtt_watcher.cpp">
+      <Filter>src\ds\network\mqtt</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="src\ds\network\mqtt\mqtt_watcher.h">
+      <Filter>src\ds\network\mqtt</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\mosquitto\mosquittopp.h">
+      <Filter>src\ds\network\mosquitto</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\mosquitto\mosquitto.h">
+      <Filter>src\ds\network\mosquitto</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

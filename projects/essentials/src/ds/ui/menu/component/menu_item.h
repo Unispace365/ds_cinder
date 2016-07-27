@@ -34,11 +34,13 @@ private:
 	bool								mActive;
 
 	ds::ui::Text*						mTitle;
+	ds::ui::Text*						mSubtitle;
 
 	ds::ui::Sprite*						mClipper;
 	ds::ui::Sprite*						mClippy;
 	ds::ui::Sprite*						mIcon;
 	ds::ui::Sprite*						mIconGlow;
+	bool								mIconsMatch;
 	ds::ui::Sprite*						mLines;
 
 	ds::ui::TouchMenu::MenuItemModel	mMenuItemModel;

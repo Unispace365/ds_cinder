@@ -86,19 +86,25 @@ void OrthRoot::updateServer(const ds::UpdateParams& p) {
 	mSprite->updateServer(p);
 }
 
-void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
-	if (mCameraDirty) {
+void OrthRoot::setCameraForDraw(ci::Matrix44f& m){
+	if(mCameraDirty) {
 		setCinderCamera();
 	}
 	setGlCamera();
 
-	ci::Matrix44f		m(ci::gl::getModelView());
 	// Account for src rect translation
-	if (mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1) {
+	if(mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1) {
 		const float			sx = mDstRect.getWidth() / mSrcRect.getWidth(),
-							sy = mDstRect.getHeight() / mSrcRect.getHeight();
+			sy = mDstRect.getHeight() / mSrcRect.getHeight();
 		m.translate(ci::Vec3f(-mSrcRect.x1*sx, -mSrcRect.y1*sy, 0.0f));
 		m.scale(ci::Vec3f(sx, sy, 1.0f));
+	}
+}
+
+void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
+	ci::Matrix44f		m(ci::gl::getModelView());
+	if(getBuilder().mDrawScaled){
+		setCameraForDraw(m);
 	}
 	mSprite->drawClient(m, p);
 
@@ -106,8 +112,11 @@ void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
 }
 
 void OrthRoot::drawServer(const DrawParams& p) {
-	setGlCamera();
-	mSprite->drawServer(ci::gl::getModelView(), p);
+	ci::Matrix44f		m(ci::gl::getModelView());
+	if(getBuilder().mDrawScaled){
+		setCameraForDraw(m);
+	}
+	mSprite->drawServer(m, p);
 }
 
 ui::Sprite* OrthRoot::getHit(const ci::Vec3f& point) {
@@ -123,7 +132,6 @@ void OrthRoot::setCinderCamera() {
 		ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
 	}
 	mCamera.setOrtho(screen_rect.getX1(), screen_rect.getX2(), screen_rect.getY2(), screen_rect.getY1(), mNearPlane, mFarPlane);
-	//gl::setMatrices(mCamera);
 }
 
 void OrthRoot::setViewport(const bool b) {
@@ -292,8 +300,6 @@ void PerspRoot::drawFunc(const std::function<void(void)>& fn) {
 	}
 	setGlCamera();
 
-	ci::gl::enableDepthRead();
-	ci::gl::enableDepthWrite();
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	fn();

@@ -6,6 +6,7 @@
 #include "ds/app/app_defs.h"
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_settings.h"
+#include "ds/ui/touch/touch_event.h"
 
 namespace ds {
 class Environment;
@@ -42,14 +43,21 @@ public:
 
 	// These are called from the boost thread
 	// These events are sent to the engine to be queued for the next update
-	virtual void				touchesBegan( ci::app::TouchEvent event );
-	virtual void				touchesMoved( ci::app::TouchEvent event );
-	virtual void				touchesEnded( ci::app::TouchEvent event );
+	// NOTE: do not call these from your client app. use the inject functions on SpriteEngine to put touch events into the system
+	virtual void				touchesBegan(ci::app::TouchEvent event) final;
+	virtual void				touchesMoved(ci::app::TouchEvent event) final;
+	virtual void				touchesEnded(ci::app::TouchEvent event) final;
 
 	// These are safe to override
-	virtual void				onTouchesBegan( ci::app::TouchEvent event ){};
-	virtual void				onTouchesMoved( ci::app::TouchEvent event ){};
-	virtual void				onTouchesEnded( ci::app::TouchEvent event ){};
+	virtual void				onTouchesBegan(ds::ui::TouchEvent event){};
+	virtual void				onTouchesMoved(ds::ui::TouchEvent event){};
+	virtual void				onTouchesEnded(ds::ui::TouchEvent event){};
+
+	/// These are here to throw a compiler error on projects with the legacy events. These are no longer called, so use the above ds::ui::TouchEvent callbacks
+	/// DEPRECATED
+	virtual void				onTouchesBegan(ci::app::TouchEvent event) final {};
+	virtual void				onTouchesMoved(ci::app::TouchEvent event) final {};
+	virtual void				onTouchesEnded(ci::app::TouchEvent event) final {};
 
 	// To receive TUIO Objects, the engine must have this setting:
 	//	<text name="tuio:receive_objects" value="true" />

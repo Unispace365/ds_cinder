@@ -10,6 +10,8 @@
 #include <ds/query/query_client.h>
 #include <ds/util/string_util.h>
 
+#include <service/model_maker.h>
+
 
 namespace ds {
 
@@ -158,6 +160,12 @@ void YamlLoadService::parseTable(const std::string& tableName, YAML::Node mainCo
 // 				mm.setTableName(tableName);
 // 			}
 
+		} else if(key == "customInclude"){
+			if(mappedNode.Type() == YAML::NodeType::Scalar){
+ 				std::string customInclude = mappedNode.as<std::string>();
+ 				mm.setCustomInclude(customInclude);
+ 			}
+
 		} else if(key == "columns"){
 			if(mappedNode.Type() == YAML::NodeType::Map){
 				parseColumn(mappedNode, mm);
@@ -187,15 +195,19 @@ void YamlLoadService::parseTable(const std::string& tableName, YAML::Node mainCo
 }
 
 void YamlLoadService::parseColumn(YAML::Node mappedNode, ModelModel& modelModel){
-	// look through the map of columns
-	for(auto columnIt = mappedNode.begin(); columnIt != mappedNode.end(); ++columnIt){
+	std::vector<NodeWithKey> sortedNodes;
+	fillSortedVectorForNodeMap(mappedNode, sortedNodes);
+	
+	// look through the map of columns, now sorted
+	for(auto columnIt = sortedNodes.begin(); columnIt != sortedNodes.end(); ++columnIt){
 
 		ModelColumn modelColumn;
 
-		std::string columnName = (*columnIt).first.as<std::string>();
+		std::string columnName = (*columnIt).key;
 		modelColumn.setColumnName(columnName);
 
-		YAML::Node columnProperties = (*columnIt).second;
+		YAML::Node columnProperties = (*columnIt).node;
+
 		if(columnProperties.Type() == YAML::NodeType::Map){
 
 			for(auto it = columnProperties.begin(); it != columnProperties.end(); ++it){
@@ -211,6 +223,13 @@ void YamlLoadService::parseColumn(YAML::Node mappedNode, ModelModel& modelModel)
 
 				if(columnProperty == "type"){
 					modelColumn.setType(ModelColumn::getTypeForString(propertyValueString));
+
+				} else if(columnProperty == "class"){
+					modelColumn.setCustomDataType(propertyValueString);
+					std::string customEmptyType = propertyValueString;
+					std::transform(customEmptyType.begin(), customEmptyType.end(), customEmptyType.begin(), ::toupper);
+					customEmptyType = ModelMaker::replaceAllString(customEmptyType, "::", "");
+					modelColumn.setCustomEmptyDataName(customEmptyType);
 
 				} else if(columnProperty == "unsigned"){
 					modelColumn.setIsUnsigned(parseBool(propertyValueString));
@@ -238,11 +257,14 @@ void YamlLoadService::parseRelations(YAML::Node relationsNode, ModelModel& mm){
 		DS_LOG_WARNING("Incorrect yaml node type for relations from: " << mm.getTableName());
 		return;
 	}
-	// look through the map of relations
-	for(auto relIt = relationsNode.begin(); relIt != relationsNode.end(); ++relIt){
+	std::vector<NodeWithKey> sortedNodes;
+	fillSortedVectorForNodeMap(relationsNode, sortedNodes);
+
+	// look through the map of relations, now sorted
+	for(auto relIt = sortedNodes.begin(); relIt != sortedNodes.end(); ++relIt){
 		ModelRelation mr;
-		mr.setForeignKeyTable((*relIt).first.as<std::string>());
-		YAML::Node relationMap = (*relIt).second;
+		mr.setForeignKeyTable((*relIt).key);
+		YAML::Node relationMap = (*relIt).node;
 		if(relationMap.Type() != YAML::NodeType::Map){
 			DS_LOG_WARNING("Problem reading relation property maps for relation: " << mr.getForeignKeyTable() << " from: " << mm.getTableName());
 			continue;
@@ -317,7 +339,6 @@ void YamlLoadService::parseActAs(YAML::Node actAsNode, ModelModel& mm){
 	}
 }
 
-
 // go through everything and print it out
 void YamlLoadService::printYamlRecursive(YAML::Node doc, const int level){
 	if(!doc) return;
@@ -381,6 +402,16 @@ bool YamlLoadService::parseBool(const std::string& value){
 	} else {
 		return false;
 	}
+}
+
+void YamlLoadService::fillSortedVectorForNodeMap(YAML::Node mappedNode, std::vector<NodeWithKey>& sortedNodes){
+	for(auto it = mappedNode.begin(); it != mappedNode.end(); ++it){
+		sortedNodes.push_back(NodeWithKey((*it).second, (*it).first.as<std::string>()));
+	}
+
+	std::sort(sortedNodes.begin(), sortedNodes.end(), [](const NodeWithKey& a, const NodeWithKey& b){
+		return a.key < b.key;
+	});
 }
 
 } // namespace ds

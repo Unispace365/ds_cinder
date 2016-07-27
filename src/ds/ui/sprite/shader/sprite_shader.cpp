@@ -2,6 +2,7 @@
 #include "cinder/DataSource.h"
 #include "ds/debug/logger.h"
 
+#include <Poco/File.h>
 
 namespace {
 
@@ -43,11 +44,22 @@ namespace ds {
 namespace ui {
 
 SpriteShader::SpriteShader(const std::string &defaultLocation, const std::string &defaultName)
-  : mDefaultLocation(defaultLocation)
-  , mDefaultName(defaultName)
+	: mDefaultLocation(defaultLocation)
+	, mDefaultName(defaultName)
+	//, mMemoryVert(nullptr)
+	//, mMemoryFrag(nullptr)
 {
-  mLocation = mDefaultLocation;
-  mName = mDefaultName;
+	mLocation = mDefaultLocation;
+	mName = mDefaultName;
+}
+
+
+SpriteShader::SpriteShader(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName)
+	: mMemoryVert(vert_memory)
+	, mMemoryFrag(frag_memory)
+	, mName(shaderName)
+{
+
 }
 
 SpriteShader::~SpriteShader()
@@ -55,109 +67,153 @@ SpriteShader::~SpriteShader()
 
 }
 
-void SpriteShader::setShaders( const std::string &location, const std::string &name )
+
+void SpriteShader::setShaders(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName){
+	if(mShader)
+		mShader.reset();
+
+	mMemoryVert = vert_memory;
+	mMemoryFrag = frag_memory;
+	mName = shaderName;
+
+}
+
+
+void SpriteShader::setShaders(const std::string &location, const std::string &name)
 {
-  if (name.empty()) {
-    DS_LOG_WARNING_M("SpriteShader::setShaders() on empty name, did you intend that?", SHADER_LOG);
-    return;
-  }
+	if(name.empty()) {
+		DS_LOG_WARNING_M("SpriteShader::setShaders() on empty name, did you intend that?", SHADER_LOG);
+		return;
+	}
 
-  if (mLocation == location && mName == name) {
-    return;
-  }
+	if(mLocation == location && mName == name) {
+		return;
+	}
 
-  if (mShader)
-    mShader.reset();
+	if(mShader)
+		mShader.reset();
 
-  mLocation = location;
-  mName = name;
+	mLocation = location;
+	mName = name;
 }
 
 void SpriteShader::loadShaders()
 {
-  loadShadersFromFile();
-  if (!mShader)
-    loadDefaultFromFile();
-  if (!mShader)
-    loadDefaultFromMemory();
+	loadShadersFromFile();
+	if(!mShader)
+		loadFromMemory();
+	if(!mShader)
+		loadDefaultFromFile();
+	if(!mShader)
+		loadDefaultFromMemory();
 }
 
 bool SpriteShader::isValid() const
 {
-  return mShader;
+	return mShader;
 }
 
 ci::gl::GlslProg & SpriteShader::getShader()
 {
-  return mShader;
+	return mShader;
 }
 
 void SpriteShader::loadShadersFromFile()
 {
-  if (mName.empty())
-    return;
+	if(mName.empty())
+		return;
 
-  try {
-    auto found = GlslProgs.find(mName);
-    if (found == GlslProgs.end()) {
-      mShader = ci::gl::GlslProg(ci::loadFile((mLocation+"/"+mName+".vert").c_str()), ci::loadFile((mLocation+"/"+mName+".frag").c_str()));
-      GlslProgs[mName] = mShader;
-    } else {
-      mShader = found->second;
-    }
-  } catch (std::exception &e) {
-    //std::cout << e.what() << std::endl;
-    if (mName.empty()) {
-      DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on non empty name, did you intend that?", SHADER_LOG);
-    } else {
-      DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on " + mName + "\n" + e.what(), SHADER_LOG);
-    }
-  }
+	try {
+		auto found = GlslProgs.find(mName);
+		if(found == GlslProgs.end()) {
+			std::string vertLocation = (mLocation + "/" + mName + ".vert");
+			std::string fragLocation = (mLocation + "/" + mName + ".frag");
+			Poco::File vertFile = Poco::File(vertLocation);
+			Poco::File fragFile = Poco::File(fragLocation);
+			bool exist = false;
+			try{
+				if(vertFile.exists() && fragFile.exists()){
+					exist = true;
+				}
+			} catch(std::exception&){
+				// swallow these, cause shaders could be loaded otherwise
+			}
+			if(exist){
+				mShader = ci::gl::GlslProg(ci::loadFile(vertLocation.c_str()), ci::loadFile(fragLocation.c_str()));
+				GlslProgs[mName] = mShader;
+			}
+		} else {
+			mShader = found->second;
+		}
+	} catch(std::exception &e) {
+		//std::cout << e.what() << std::endl;
+		if(mName.empty()) {
+			DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on non empty name, did you intend that?", SHADER_LOG);
+		} else {
+			DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on " + mName + "\n" + e.what(), SHADER_LOG);
+		}
+	}
 }
 
 void SpriteShader::loadDefaultFromFile()
 {
-  if (mDefaultName.empty())
-    return;
+	if(mDefaultName.empty())
+		return;
 
-  try {
-    auto found = GlslProgs.find(mDefaultName);
-    if (found == GlslProgs.end()) {
-      mShader = ci::gl::GlslProg(ci::loadFile((mDefaultLocation+"/"+mDefaultName+".vert").c_str()), ci::loadFile((mDefaultLocation+"/"+mDefaultName+".frag").c_str()));
-      GlslProgs[mDefaultName] = mShader;
-    } else {
-      mShader = found->second;
-    }
-  } catch (std::exception &e) {
-    //    std::cout << e.what() << std::endl;
-    DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on " + mDefaultName + "\n" + e.what(), SHADER_LOG);
-  }
+	try {
+		auto found = GlslProgs.find(mDefaultName);
+		if(found == GlslProgs.end()) {
+			mShader = ci::gl::GlslProg(ci::loadFile((mDefaultLocation + "/" + mDefaultName + ".vert").c_str()), ci::loadFile((mDefaultLocation + "/" + mDefaultName + ".frag").c_str()));
+			GlslProgs[mDefaultName] = mShader;
+		} else {
+			mShader = found->second;
+		}
+	} catch(std::exception &e) {
+		//    std::cout << e.what() << std::endl;
+		DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on " + mDefaultName + "\n" + e.what(), SHADER_LOG);
+	}
 }
 
-void SpriteShader::loadDefaultFromMemory() 
+void SpriteShader::loadFromMemory(){
+	try {
+		auto found = GlslProgs.find(mName);
+		if(found == GlslProgs.end()) {
+			mShader = ci::gl::GlslProg(mMemoryVert.c_str(), mMemoryFrag.c_str());
+			GlslProgs[mName] = mShader;
+		} else {
+			mShader = found->second;
+		}
+	} catch(std::exception &e) {
+		//std::cout << e.what() << std::endl;
+		DS_LOG_WARNING_M(std::string("SpriteShader::loadShadersFromFile() on custom file\n") + e.what(), SHADER_LOG);
+	}
+
+}
+
+void SpriteShader::loadDefaultFromMemory()
 {
-  try {
-    auto found = GlslProgs.find("default_cpp_shader");
-    if (found == GlslProgs.end()) {
-      mShader = ci::gl::GlslProg(DefaultVert.c_str(), DefaultFrag.c_str());
-      GlslProgs["default_cpp_shader"] = mShader;
-    } else {
-      mShader = found->second;
-    }
-  } catch (std::exception &e) {
-    //std::cout << e.what() << std::endl;
-    DS_LOG_WARNING_M(std::string("SpriteShader::loadShadersFromFile() on DefaultVert\n") + e.what(), SHADER_LOG);
-  }
+	try {
+		auto found = GlslProgs.find("default_cpp_shader");
+		if(found == GlslProgs.end()) {
+			mShader = ci::gl::GlslProg(DefaultVert.c_str(), DefaultFrag.c_str());
+			GlslProgs["default_cpp_shader"] = mShader;
+		} else {
+			mShader = found->second;
+		}
+	} catch(std::exception &e) {
+		//std::cout << e.what() << std::endl;
+		DS_LOG_WARNING_M(std::string("SpriteShader::loadShadersFromFile() on DefaultVert\n") + e.what(), SHADER_LOG);
+	}
 }
 
 std::string SpriteShader::getLocation() const
 {
-  return mLocation;
+	return mLocation;
 }
 
 std::string SpriteShader::getName() const
 {
-  return mName;
+	return mName;
 }
 
 

@@ -7,6 +7,8 @@
 #include "cinder/Tween.h"
 #include "cinder/Timeline.h"
 #include "cinder/gl/Texture.h"
+#include "cinder/gl/Fbo.h"
+
 // STL includes
 #include <list>
 #include <exception>
@@ -25,6 +27,7 @@
 #include "ds/debug/debug_defines.h"
 
 namespace ds {
+namespace gl { class ClipPlaneState; }
 class BlobReader;
 class BlobRegistry;
 class CameraPick;
@@ -119,7 +122,7 @@ namespace ui {
 			\return Returns a 3-dimensional vector equivalent to ci::Vec3f(width, height, depth).		*/
 		const ci::Vec3f			getSize() const;
 
-		/** Sets the width and height of the Sprite. 
+		/** Sets the width and height of the Sprite.
 			This does not affect the scale of the Sprite. Many subclasses set the size of the Sprite themselves, such as Image and Text.
 			\param size2d The size to set in the form of ci::Vec2f(width, height).		*/
 		void					setSize(const ci::Vec2f& size2d);
@@ -150,8 +153,8 @@ namespace ui {
 		/** Sets the size based on the boundaries of this Sprite's immediate children, not recursive		*/
 		void					sizeToChildBounds();
 
-		/** Answer the preferred size for this object. 
-			This is intended to be part of a layout pass, so the default preferred size is 0 not width/height. 
+		/** Answer the preferred size for this object.
+			This is intended to be part of a layout pass, so the default preferred size is 0 not width/height.
 			Subclasses need to override this to be meaningful.
 			\return The 3d vector of the size this sprite should be. Override this function and return a meaningful value.		 */
 		virtual ci::Vec3f		getPreferredSize() const;
@@ -191,7 +194,14 @@ namespace ui {
 			For ortho Sprites, positive y position is downwards.
 			Z position forwards or backwards depends on your camera setup.
 			\param pos The 3d vector of the new position, in pixels. */
-		void					setPosition(const ci::Vec3f &pos);
+		void					setPosition(const ci::Vec3f& pos);
+
+		/** Set the position of the Sprite in local space (the parent's relative co-ordinates).
+			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
+			For ortho Sprites, positive y position is downwards.
+			Z position will use the current z-position of the sprite.
+			\param pos The x and y position. */
+		void					setPosition(const ci::Vec2f& pos);
 
 		/** Set the position of the Sprite in local space (the parent's relative co-ordinates).
 			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
@@ -209,6 +219,11 @@ namespace ui {
 			\return The 3d vector of the new position, in pixels. */
 		const ci::Vec3f&		getPosition() const;
 
+		/** Get the position of the Sprite in global space. 
+			Returns ci::Vec3f::zero() if this sprite has no parent.
+			\return The 3d vector of the world-space position, in pixels. */
+		const ci::Vec3f			getGlobalPosition() const;
+
 		/** Change the position of the Sprite relative to it's current position.
 			\param delta 3d vector of the amount to move the Sprite in pixels		*/
 		void					move(const ci::Vec3f &delta);
@@ -218,7 +233,7 @@ namespace ui {
 			\param deltaY Vertical amount to move the Sprite in pixels. Inverted for perspective Sprites.
 			\param deltaZ Depth amount to move the Sprite in pixels	*/
 		void					move(float deltaX, float deltaY, float deltaZ = 0.0f);
-		
+
 		/** Change the scale of the Sprite.
 			\param scale 3d vector of the new scale of the Sprite		*/
 		void					setScale(const ci::Vec3f &scale);
@@ -257,12 +272,12 @@ namespace ui {
 			\return center 3d vector of the center percentage. */
 		const ci::Vec3f&		getCenter() const;
 
-		/** The center of the Sprite, in the parent's co-ordinate space. See getCenter() and setCenter().
+		/** The "midde" of the Sprite, NOT related to setCenter and getCenter (anchor), in the parent's co-ordinate space.
 			Effectively mPosition + getLocalCenterPosition();
 			\return 3d Vector of the pixel position of the center of this Sprite. */
 		ci::Vec3f				getCenterPosition() const;
 
-		/** The center of the Sprite, in this Sprite's co-ordinate space. See getCenter() and setCenter().
+		/** The "middle" of the Sprite, NOT related to setCenter and getCenter (anchor), in this Sprite's co-ordinate space..
 			Effectively ci::Vec3f(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
 			\return 3d Vector of the pixel position of the center of this Sprite, in local space. */
 		ci::Vec3f				getLocalCenterPosition() const;
@@ -321,7 +336,7 @@ namespace ui {
 		/** Adds a sprite as a child of this Sprite.
 			The child will be placed at it's position in this Sprite's coordinate space,
 			and take on this Sprite's rotation, scale, position, and opacity.
-			Transform changes to this Sprite will also affect the new child. 
+			Transform changes to this Sprite will also affect the new child.
 			New children are added at the bottom of the Sprite and will display on top of other children and this Sprite.
 			If you have a pointer to a Sprite, you can use addChildPtr().
 			\param newChild The Sprite to be added as a child*/
@@ -356,12 +371,12 @@ namespace ui {
 
 
 		/** The recommended "removal" API: removes this Sprite from parent; removes and deletes all it's children, deletes this Sprite.
-			In most cases, you will want to use this function to get rid of sprites. 
+			In most cases, you will want to use this function to get rid of sprites.
 			This removes this sprite and it's children from the display list and clears all of that memory.
 			Remember to clear any pointers related to this Sprite or any references in any vectors you have saved yourself. */
 		void					release();
 
-		/** Removes and deletes all children. 
+		/** Removes and deletes all children.
 			Equivalent to calling release() on every child. */
 		void					clearChildren();
 
@@ -377,6 +392,10 @@ namespace ui {
 			\param recurse Call this function for all children of all children of all my children. */
 		void					forEachChild(const std::function<void(Sprite&)>& funkyTown, const bool recurse = false);
 
+		/** Traverse children recursively and find a sprite the with the given name.
+			\param name The name given from layout or from setSpriteName(). */
+		Sprite*					getFirstDescendantWithName(const std::wstring& name);
+
 		/** Sends sprite to front of parents child list. */
 		void					sendToFront();
 		/** Sends sprite to back of parents child list.	*/
@@ -384,7 +403,7 @@ namespace ui {
 
 		/** Set the display color of this Sprite. Implementation can vary by Sprite type. */
 		virtual void			setColor(const ci::Color&);
-		/** Set the display color of this Sprite. Implementation can vary by Sprite type. 
+		/** Set the display color of this Sprite. Implementation can vary by Sprite type.
 			\param r Red component of the color from 0.0 to 1.0
 			\param g Green component of the color from 0.0 to 1.0
 			\param b Blue component of the color from 0.0 to 1.0 */
@@ -393,7 +412,7 @@ namespace ui {
 		/** Get the display color of this Sprite. Implementation can vary by Sprite type. */
 		ci::Color				getColor() const;
 
-		/** A convenience to set the color and the opacity. 
+		/** A convenience to set the color and the opacity.
 			The alpha component of the color will set the opacity.
 			Setting the opacity after this call will overwrite this value. */
 		void					setColorA(const ci::ColorA&);
@@ -402,7 +421,7 @@ namespace ui {
 			The alpha component of the color is the opacity.*/
 		ci::ColorA				getColorA() const;
 
-		/** Set the opacity of this Sprite (transparency). 
+		/** Set the opacity of this Sprite (transparency).
 			0.0 is invisible, 1.0 is fully opaque.
 			\param opacity The new opacity value of this Sprite. */
 		void					setOpacity(float opacity);
@@ -419,7 +438,7 @@ namespace ui {
 		float					getDrawOpacity() const;
 
 		/** Whether or not to render this Sprite in the draw cycle; does not affect children.
-			For basic Sprites, to draw a rectangle, this needs to be set to false. 
+			For basic Sprites, to draw a rectangle, this needs to be set to false.
 			\param transparent True means this sprite will not draw (but it's children could). False will render this Sprite. */
 		void					setTransparent(bool transparent);
 		/** Whether or not to render this Sprite in the draw cycle; does not affect children.
@@ -438,7 +457,7 @@ namespace ui {
 			\return True == this Sprite is visible (show()), or false == hide()*/
 		bool					visible() const;
 
-		/** Subclasses can handle the event, a convenience for handling events without setting up event clients. 
+		/** Subclasses can handle the event, a convenience for handling events without setting up event clients.
 			\param event The Event to be handled. */
 		virtual void			eventReceived(const ds::Event& event){};
 
@@ -453,8 +472,8 @@ namespace ui {
 		/** Convert coordinate space from global (world) space to the local coordinate space of this Sprite. May not work for perspective Sprites.
 			For example, if you have a global touch point, you can find it's local location like this:
 			\code	if(getParent()){
-						ci::Vec3f localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
-					}
+			ci::Vec3f localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
+			}
 			\endcode
 			\param globalPoint The 3d vector in global coordinate space to be converted.
 			\return A local 3d vector in the coordinate space of this Sprite. */
@@ -463,22 +482,22 @@ namespace ui {
 		/** Convert coordinate space from local coordinate space of this Sprite to global (world) coordinate space. May not work for perspective Sprites.
 			For example, you could figure out where to launch a media viewer from a button on a panel like this:
 			\code //In the button click handler
-					ci::Vec3f globalPosition = localToGlobal(mTheLaunchButton.getPosition());
-					mEngine.getNotifier().notify(CustomMediaViewerLaunchEvent(globalPosition));
+			ci::Vec3f globalPosition = localToGlobal(mTheLaunchButton.getPosition());
+			mEngine.getNotifier().notify(CustomMediaViewerLaunchEvent(globalPosition));
 			\endcode
 			\param localPoint The 3d vector in local coordinate space to be converted.
 			\return A local 3d vector in the coordinate space of this Sprite. */
 		ci::Vec3f				localToGlobal(const ci::Vec3f &localPoint);
 
 		/** Check if a global point is inside the Sprite's bounding box, does not take perspective into account.
-			\param point The global point to check if it's inside this Sprite's bounding box. 
+			\param point The global point to check if it's inside this Sprite's bounding box.
 			\param pad Extra pixel size outside this Sprite's bounding box. Useful for ad-hoc touch padding.
 			\return True if the point is inside the bounding box, false for outside. */
 		virtual bool			contains(const ci::Vec3f& point, const float pad = 0.0f) const;
 
 		/** Recursively checks the Sprite hierarchy list for an enabled, visible sprite with a scale > 0.0 and any size for touch picking.
-			This is for Ortho Sprites. Perspective Sprites use getPerspectiveHit() 
-			\param point The global point to check. 
+			This is for Ortho Sprites. Perspective Sprites use getPerspectiveHit()
+			\param point The global point to check.
 			\return The Sprite that is the best candidate for touch picking. Can return nullptr if there was no valid pick.*/
 		Sprite*					getHit(const ci::Vec3f &point);
 
@@ -496,13 +515,16 @@ namespace ui {
 		bool					isEnabled() const;
 
 		/**	Defines the type of touch handling for this Sprite. Requires enable(true); to have been called at some point.
-			Constraints defined in multi_touch_constraints.h. For example: ds::ui::MULTITOUCH_INFO_ONLY. 
+			Constraints defined in multi_touch_constraints.h. For example: ds::ui::MULTITOUCH_INFO_ONLY.
 			\param constraints A bitmask of how touch is handled. For example: ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_ROTATE */
 		void					enableMultiTouch(const BitMask & constraints);
 
-		/** Disables specific MultiTouch handling, but leaves the enable() setting alone. 
+		/** Disables specific MultiTouch handling, but leaves the enable() setting alone.
 			After calling this, the Sprite will still grab touch events, but not do any specific multitouch handling (like position, rotate, etc). Will send out tap and touchinfo callbacks. */
 		void					disableMultiTouch();
+
+		/** The BitMask of*/
+		const BitMask&			getMultiTouchConstraints(){ return mMultiTouchConstraints; }
 
 		/** Has enableMultiTouch() been called?  */
 		bool					multiTouchEnabled() const;
@@ -534,14 +556,13 @@ namespace ui {
 		bool					getCheckBounds() const;
 		virtual bool			isLoaded() const;
 		void					setDragDestination(Sprite *dragDestination);
-		void					setDragDestiantion(Sprite *dragDestination);
 		Sprite*					getDragDestination() const;
 
 		bool					isDirty() const;
 		void					writeTo(ds::DataBuffer&);
 		void					readFrom(ds::BlobReader&);
 		// Only used when running in client mode
-		void					writeClientTo(ds::DataBuffer&) const;
+		void					writeClientTo(ds::DataBuffer&);
 		// IMPORTANT: readClientFrom must not be virtual. If any of the clients try to communicate
 		// back with server, the communication must happen through "readClientAttributeFrom".
 		void					readClientFrom(ds::DataBuffer&);
@@ -552,6 +573,43 @@ namespace ui {
 		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
 		// this is only suitable for shaders without uniforms.
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
+
+		//associate shader in a file to sprite (multi-pass)
+		void					setShaderList(const std::vector<std::pair<std::string, std::string>>, bool applyToChildren = false);
+		void					addNewShader(const std::pair<std::string, std::string>, bool addToFront = false, bool applyToChildren = false);
+		void					addNewShader(const std::string, const std::string, bool addToFront = false, bool applyToChildren = false);
+		//Associate shader in memory to sprite.
+		void					addNewMemoryShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
+		bool					removeShader(std::string shaderName);
+		void					removeShaders();
+
+
+		//Add a new shader located in memory
+		//vert - the reference to the in-memory vertex shader
+		//frag - reference to the in-memory fragment shader
+		//shaderName - lookup name for shader
+		//addToFront - When true, this puts the shader first in line to be run
+		void				    addNewShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
+		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
+		ci::gl::Texture*		getShaderOutputTexture();
+		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
+		void					setShaderExtraData(const ci::Vec4f& data);
+
+		//	Determines if the final render will be to the display or a texture.
+		void					setFinalRenderToTexture(bool render_to_texture);
+		bool					isFinalRenderToTexture();
+		//Retrieve the rendered output texture
+		ci::gl::Texture*		getFinalOutTexture();
+		void					setupFinalRenderBuffer();
+		void					setupIntermediateFrameBuffers();
+
+
+		//Retrieve a shader based on the name - used with multipass shader setup.
+		ds::ui::SpriteShader*	getShaderFromListName(std::string name) const;
+		int						getShaderNumber(std::string name) const;
+
+		bool					isShaderName(std::string name) const;
+
 		SpriteShader&			getBaseShader();
 		std::string				getBaseShaderName() const;
 		ds::gl::Uniform&		getUniform();
@@ -559,7 +617,10 @@ namespace ui {
 		void					setClipping(bool flag);
 		bool					getClipping() const;
 
+		/// Call this to extend the idle timeout all the way up the chain to the root
 		virtual void			userInputReceived();
+
+		/// Set the number of seconds since the last userInputReceived() before this sprite reports as idle
 		void					setSecondBeforeIdle(const double);
 		double					secondsToIdle() const;
 		bool					isIdling() const;
@@ -597,13 +658,46 @@ namespace ui {
 		 */
 		void					passTouchToSprite(Sprite *destinationSprite, const TouchInfo &touchInfo);
 
-		// A hack needed by the engine, which constructs root types
-		// before the blobs are assigned
+		/** A hack needed by the engine, which constructs root types before the blobs are assigned. */
 		void					postAppSetup();
+
+		/** Mark this sprite to be a debug sprite layer.
+			The primary use case is server-only or client-only setups, so the stats view can draw when not enabled and not be colored weird.
+			Client apps don't generally need to set this flag, as it happens automagically.
+			*/
+		void					setDrawDebug(const bool doDebug);
+
+		/** If this sprite has been flagged to draw as a debug layer. Will draw in the server draw loop even if disabled.
+		*/
+		bool					getDrawDebug();
+
+		/** For debugging uses. Not recommended for sprite lookup, as there is no guarantee of uniqueness.
+		Recommended method is to keep a pointer to the sprite or look up via a map or vector.*/
+		void					setSpriteName(const std::wstring& name);
+
+		/**For debugging uses. Will return the sprite's name if no name has been set via setSpriteName.
+		Not recommended for sprite lookup, as there is no guarantee of uniqueness.
+		Recommended method is to keep a pointer to the sprite or look up via a map or vector.*/
+		const std::wstring		getSpriteName(const bool useDefault = true) const;
+
+		/// For use by any layout classes you may want to implement. Default = 0.0f or 0 for all of these
+		float					mLayoutTPad;
+		float					mLayoutBPad;
+		float					mLayoutLPad;
+		float					mLayoutRPad;
+		ci::Vec2f				mLayoutSize;
+		ci::Vec2f				mLayoutFudge;
+		int						mLayoutHAlign;
+		int						mLayoutVAlign;
+		int						mLayoutUserType;
+		bool					mLayoutFixedAspect;
+
+		bool					mExportWithXml;
 
 	protected:
 		friend class        TouchManager;
 		friend class        TouchProcess;
+		friend class		ds::gl::ClipPlaneState;
 
 		void				swipe(const ci::Vec3f &swipeVector);
 		bool				tapInfo(const TapInfo&);
@@ -638,8 +732,10 @@ namespace ui {
 		virtual void		onPositionChanged(){}
 		virtual void		onScaleChanged(){}
 		virtual void		onSizeChanged(){}
+		virtual void		onRotationChanged(){}
 		virtual void		onChildAdded(Sprite& child){}
 		virtual void		onChildRemoved(Sprite& child){}
+		virtual void		onParentSet(){}
 		// Note: there's a reason this is not called onVisibilityChanged().
 		// TLDR;the visible flag arg here is NOT equal to Sprite::visible()
 		// The reason is that,  the final visibility of a sprite is decided
@@ -665,7 +761,7 @@ namespace ui {
 		virtual void		writeAttributesTo(ds::DataBuffer&);
 		// Used during client mode, to let clients get info back to the server. Use the
 		// engine_io.defs::ScopedClientAtts at the top of the function to do all the boilerplate.
-		virtual void		writeClientAttributesTo(ds::DataBuffer&) const {};
+		virtual void		writeClientAttributesTo(ds::DataBuffer&){};
 		virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&){}
 		// Read a single attribute
 		virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&){}
@@ -675,45 +771,59 @@ namespace ui {
 
 		// DEPRECATED
 		// Obsolete -- use setUseShaderTexture
-		void				setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
+		void					setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
 		// Obsolete -- use getUseShaderTexture
-		bool				getUseShaderTextuer() const { return getUseShaderTexture(); }
+		bool					getUseShaderTextuer() const { return getUseShaderTexture(); }
 		
 
-		void				sendSpriteToFront(Sprite &sprite);
-		void				sendSpriteToBack(Sprite &sprite);
+		void					sendSpriteToFront(Sprite &sprite);
+		void					sendSpriteToBack(Sprite &sprite);
 
-		void				setPerspective(const bool);
+		void					setPerspective(const bool);
 
-		mutable bool		mBoundsNeedChecking;
-		mutable bool		mInBounds;
+		mutable bool			mBoundsNeedChecking;
+		mutable bool			mInBounds;
 
 
-		SpriteEngine&		mEngine;
+		SpriteEngine&			mEngine;
 		// The ID must always be assigned through setSpriteId(), which has some
 		// behaviour associated with the ID changing.
-		ds::sprite_id_t		mId;
-		ci::Color8u			mUniqueColor;
+		ds::sprite_id_t			mId;
+		ci::Color8u				mUniqueColor;
 
-		float				mWidth,
-			mHeight,
-			mDepth;
+		float					mWidth,
+								mHeight,
+								mDepth;
 
 		mutable ci::Matrix44f	mTransformation;
 		mutable ci::Matrix44f	mInverseTransform;
 		mutable bool			mUpdateTransform;
 
-		int                 mSpriteFlags;
-		ci::Vec3f           mPosition,
-			mCenter,
-			mScale,
-			mRotation;
-		float				mZLevel;
-		float				mOpacity;
-		ci::Color			mColor;
-		ci::Rectf			mClippingBounds;
-		bool				mClippingBoundsDirty;
-		SpriteShader		mSpriteShader;
+		int						mSpriteFlags;
+		ci::Vec3f				mPosition,
+								mCenter,
+								mScale,
+								mRotation;
+		bool					mRotationOrderZYX;
+		float					mOpacity;
+		ci::Color				mColor;
+		ci::Rectf				mClippingBounds;
+		bool					mClippingBoundsDirty;
+		SpriteShader			mSpriteShader;
+
+		std::vector<SpriteShader*> mSpriteShaders;
+		//indicates which shader in the shader list is being drawn.
+		int							mShaderPass;
+		int							mShaderPasses;
+		ci::gl::Fbo*				mFrameBuffer[2];
+		ci::gl::Texture				mShaderTexture;
+		//ci::gl::Texture*			mFinalOutputTexture;
+		ci::gl::Fbo*				mOutputFbo;
+		bool						mIsRenderFinalToTexture;
+
+		//Keeps track of which FBO is being rendered to for multi-pass rendering
+		int							mFboIndex;
+		ci::Vec4f				mShaderExtraData;
 
 		mutable ci::Matrix44f	mGlobalTransform;
 		mutable ci::Matrix44f	mInverseGlobalTransform;
@@ -729,8 +839,8 @@ namespace ui {
 		bool					mHasDrawLocalClientPost;
 
 		// Class-unique key for this type.  Subclasses can replace.
-		char				mBlobType;
-		DirtyState			mDirty;
+		char					mBlobType;
+		DirtyState				mDirty;
 
 		std::function<void(Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
 		std::function<void(Sprite *, const ci::Vec3f &)> mSwipeCallback;
@@ -758,6 +868,9 @@ namespace ui {
 
 		// Transport uniform data to the shader
 		ds::gl::Uniform		mUniform;
+
+		std::map < std::string, ds::gl::Uniform>	mUniforms;
+		bool				mIsLastPass;
 
 	private:
 		// Utility to reorder the sprites
@@ -810,6 +923,8 @@ namespace ui {
 		// Cleared automatically on destruction
 		ci::CueRef			mDelayedCallCueRef;
 
+		// For debugging, and in a super-duper pinch, in production. 
+		std::wstring		mSpriteName;
 	public:
 		// This is a bit of a hack so I can temporarily set a scale value
 		// without causing the whole editing mechanism to kick in.
@@ -858,23 +973,37 @@ namespace ui {
 		return *s;
 	}
 
+
+	/** Handle basic communication from the server. This creates sprites that don't exist, or updates ones that already exist.
+		Note: Cannot use Logs here, as including the logger doesn't compile.
+		Also Note: Due to the way VS handles templatization, this cannot be moved to the cpp file. 
+		Also also Note: It would be great if this weren't in the Sprite header! */
 	template <typename T>
-	static void Sprite::handleBlobFromServer(ds::BlobReader& r)
-	{
+	static void Sprite::handleBlobFromServer(ds::BlobReader& r)	{
 		ds::DataBuffer&       buf(r.mDataBuffer);
-		if(buf.read<char>() != SPRITE_ID_ATTRIBUTE) return;
+		char attributey = buf.read<char>();
+		if(attributey != SPRITE_ID_ATTRIBUTE){
+			std::cout << "ERROR: Handle blob from server, attribute " << (int)attributey << " is not the sprite attribute! This likely means you haven't installed your sprite type correctly." << attributey << std::endl;
+			return;
+		}
 		ds::sprite_id_t       id = buf.read<ds::sprite_id_t>();
 		Sprite*               s = r.mSpriteEngine.findSprite(id);
 		if(s) {
 			s->readFrom(r);
-		} else if((s = new T(r.mSpriteEngine)) != nullptr) {
+		} else {
+			s = new T(r.mSpriteEngine);
+			if(!s){
+				std::cout << "ERROR: Failed to create sprite with id " << id << " Ensure your sprite has a constructor that only takes a SpriteEngine as a parameter." << std::endl;
+				return;
+			}
 			s->setSpriteId(id);
 			s->readFrom(r);
 			// If it didn't get assigned to a parent, something is wrong,
 			// and it would disappear forever from memory management if I didn't
 			// clean up here.
 			if(!s->mParent) {
-				assert(false);
+				std::cout << "ERROR: No parent created for sprite id: " << id << " Be sure you add your sprite to a parent directly after construction." << std::endl;
+				//assert(false);
 				delete s;
 			}
 		}

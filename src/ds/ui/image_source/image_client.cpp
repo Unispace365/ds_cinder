@@ -72,5 +72,14 @@ bool ImageClient::readFrom(DataBuffer& buf) {
 	return true;
 }
 
+
+std::string ImageClient::getImageFilename(){
+	if(mGenerator){
+		return mGenerator->getImageFilename();
+	}
+
+	return "";
+}
+
 } // namespace ui
 } // namespace ds

@@ -10,7 +10,7 @@ namespace ui {
  * \class ds::ui::ImageOwner
  */
 ImageOwner::ImageOwner(ds::ui::SpriteEngine& e)
-		: mImageSource(e) {
+	: mImageSource(e) {
 }
 
 ImageOwner::~ImageOwner() {
@@ -42,6 +42,11 @@ void ImageOwner::setImageResource(const ds::Resource::Id& rid, const int flags) 
 
 const ci::gl::Texture* ImageOwner::getImageTexture(){
 	return mImageSource.getImage();
+}
+
+
+std::string ImageOwner::getImageFilename(){
+	return mImageSource.getImageFilename();
 }
 
 void ImageOwner::onImageChanged() {

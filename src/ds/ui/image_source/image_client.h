@@ -39,6 +39,8 @@ public:
 	void					writeTo(DataBuffer&) const;
 	bool					readFrom(DataBuffer&);
 
+	std::string				getImageFilename();
+
 private:
 	ds::ui::SpriteEngine&	mEngine;
 	ImageGenerator*			mGenerator;

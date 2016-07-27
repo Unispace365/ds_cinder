@@ -9,8 +9,9 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_086)\projects\essentials\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);essentials.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_086)\projects\essentials\lib</AdditionalLibraryDirectories>
+		<AdditionalDependencies>%(AdditionalDependencies);essentials.lib;libcurl.lib</AdditionalDependencies>
+		<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_086)\projects\essentials\lib</AdditionalLibraryDirectories>
+		<DelayLoadDLLs>libcurl.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

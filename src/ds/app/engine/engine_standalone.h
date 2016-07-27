@@ -28,7 +28,6 @@ public:
 													const std::function<void(ds::BlobRegistry&)>& asClient);
 
 	virtual void					setup(ds::App&);
-	virtual void					setupTuio(ds::App&);
 	virtual void					update();
 	virtual void					draw();
 
@@ -37,11 +36,15 @@ public:
 
 private:
 	typedef Engine inherited;
-	WorkManager					mWorkManager;
-	GlThread					mLoadImageThread;
-	ui::LoadImageService		mLoadImageService;
-	GlThread					mRenderTextThread;
-	ui::RenderTextService		mRenderTextService;
+
+	virtual void					handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
+	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
+	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
+
+	WorkManager						mWorkManager;
+	ui::LoadImageService			mLoadImageService;
+	GlThread						mRenderTextThread;
+	ui::RenderTextService			mRenderTextService;
 };
 
 } // namespace ds

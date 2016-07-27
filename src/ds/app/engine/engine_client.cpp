@@ -1,11 +1,15 @@
 #include "ds/app/engine/engine_client.h"
 
-#include <ds/app/engine/engine_io_defs.h>
+#include "ds/app/engine/engine_io_defs.h"
+#include "ds/app/engine/engine_data.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/ui/sprite/image.h"
 #include "ds/util/string_util.h"
+#include <cinder/Rand.h>
 #include "snappy.h"
+
+#include "ds/debug/computer_info.h"
 
 namespace ds {
 
@@ -13,8 +17,12 @@ namespace {
 char				HEADER_BLOB = 0;
 char				COMMAND_BLOB = 0;
 char				DELETE_SPRITE_BLOB = 0;
+
 // Used for clients to get info to the server
 char				CLIENT_STATUS_BLOB = 0;
+
+// Used for clients to send mouse and/or touch input back to server
+char				CLIENT_INPUT_BLOB = 0;
 }
 
 /**
@@ -27,9 +35,8 @@ char EngineClient::getClientStatusBlob() {
 EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
-		, mLoadImageService(mLoadImageThread, mIpFunctions)
+		, mLoadImageService(*this, mIpFunctions)
 		, mRenderTextService(mRenderTextThread)
-//		, mConnection(NumberOfNetworkThreads)
 		, mSender(mSendConnection)
 		, mReceiver(mReceiveConnection)
 		, mBlobReader(mReceiver.getData(), *this)
@@ -39,12 +46,14 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 		, mState(nullptr)
 		, mIoInfo(*this)
 {
+
 	// NOTE:  Must be EXACTLY the same items as in EngineServer, in same order,
 	// so that the BLOB ids match.
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});
 	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveCommand(r.mDataBuffer);});
 	DELETE_SPRITE_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveDeleteSprite(r.mDataBuffer);});
-	CLIENT_STATUS_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientStatus(r.mDataBuffer);});
+	CLIENT_STATUS_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientStatus(r.mDataBuffer); });
+	CLIENT_INPUT_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientInput(r.mDataBuffer); });
 	mReceiver.setHeaderAndCommandIds(HEADER_BLOB, COMMAND_BLOB);
 	
 	try {
@@ -61,7 +70,7 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 
 EngineClient::~EngineClient() {
 	// It's important to clean up the sprites before the services go away
-	clearAllSprites();
+	clearRoots();
 }
 
 void EngineClient::installSprite( const std::function<void(ds::BlobRegistry&)>& asServer,
@@ -77,29 +86,31 @@ ds::sprite_id_t EngineClient::nextSpriteId() {
 void EngineClient::setup(ds::App& app) {
 	inherited::setup(app);
 
-	mLoadImageThread.start(true);
 	mRenderTextThread.start(true);
 }
 
-void EngineClient::setupTuio(ds::App&) {
-}
-
 void EngineClient::update() {
+	mWorkManager.update();
 	updateClient();
 	mRenderTextService.update();
+	mComputerInfo->update();
 
 	if (!mConnectionRenewed && mReceiver.hasLostConnection()) {
 		mConnectionRenewed = true;
 		// This can happen because the network connection drops, so
 		// refresh it, and let the world now I'm ready again.
 		mReceiveConnection.renew();
-		clearAllSprites();
+
+		// GN: Trying out not clearing sprites on lost connections
+		// It might be nice to keeping showing stuff until connection resumes...
+		// clearAllSprites(false);
+
 		setState(mClientStartedState);
 		return;
 	}
+
 	// Every update, receive data
 	mReceiver.setHeaderAndCommandOnly(mState->getHeaderAndCommandOnly());
-//	mReceiver.setHeaderAndCommandOnly(false);
 	if (!mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader)) {
 		// If I didn't receive any data, then don't send any data. This is
 		// pretty important -- 0MQ will buffer sent commands if there's
@@ -142,7 +153,6 @@ void EngineClient::receiveHeader(ds::DataBuffer& data) {
 	}
 	// Terminator
 	if (data.canRead<char>()) {
-//		const char			term = data.read<char>();
 		data.read<char>();
 	}
 }
@@ -152,7 +162,10 @@ void EngineClient::receiveCommand(ds::DataBuffer& data) {
 	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
 		if (cmd == CMD_SERVER_SEND_WORLD) {
 			DS_LOG_INFO_M("Receive world, sessionid=" << mSessionId, ds::IO_LOG);
-			clearAllSprites();
+			//std::cout << "Command server send world, clearing sprites" << std::endl;
+
+			clearAllSprites(false);
+
 			if (mSessionId < 1) {
 				setState(mClientStartedState);
 			} else {
@@ -205,8 +218,16 @@ void EngineClient::receiveClientStatus(ds::DataBuffer& data) {
 	}
 }
 
+void EngineClient::receiveClientInput(ds::DataBuffer& data) {
+	// Whaaaat? Server should never be sending this.
+	while(data.canRead<char>()) {
+		const char		cmd(data.read<char>());
+		if(cmd == ds::TERMINATOR_CHAR) return;
+	}
+}
+
 void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
-	clearAllSprites();
+	clearRoots();
 	
 	char					cmd;
 	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
@@ -219,13 +240,36 @@ void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
 					guid = data.read<std::string>();
 				} else if (att == ATT_SESSION_ID) {
 					sessionid = data.read<int32_t>();
+
+				} else if(att == ATT_ROOTS){
+					std::vector<RootList::Root> roots;
+					int numRoots = data.read<int32_t>();
+					for(int i = 0; i < numRoots; i++){
+						RootList::Root root = RootList::Root();
+						int rootId = data.read<int32_t>();
+						int typey = data.read<int32_t>();
+						if(typey == RootList::Root::kOrtho){
+							root.mType = RootList::Root::kOrtho;
+						} else if(typey == RootList::Root::kPerspective){
+							root.mType = RootList::Root::kPerspective;
+						} else {
+							DS_LOG_ERROR("Got an invalid root type! " << typey);
+							continue;
+						}
+
+
+						root.mRootId = rootId;
+						roots.push_back(root);
+					}
+
+					createClientRoots(roots);
 				}
 			}
 			if (guid == mIoInfo.mGlobalId) {
 				mSessionId = sessionid;
 				setState(mBlankState);
 			}
-		}
+		} 
 	}
 }
 
@@ -234,6 +278,35 @@ void EngineClient::setState(State& s) {
   
 	s.begin(*this);
 	mState = &s;
+}
+
+void EngineClient::handleMouseTouchBegin(const ci::app::MouseEvent& e, int id){
+	sendMouseTouch(0, e.getPos());
+}
+
+void EngineClient::handleMouseTouchMoved(const ci::app::MouseEvent& e, int id){
+	sendMouseTouch(1, e.getPos());
+}
+
+void EngineClient::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id){
+	sendMouseTouch(2, e.getPos());
+}
+
+void EngineClient::sendMouseTouch(const int phase, const ci::Vec2i pos){
+	
+	ci::Vec2f worldPoint = pos;
+//	worldPoint.x = pos.x / (mData.mSrcRect.getWidth() / mData.mDstRect.getWidth());
+//	worldPoint.y = pos.y / (mData.mSrcRect.getHeight() / mData.mDstRect.getHeight());
+	
+	EngineSender::AutoSend  send(mSender);
+	ds::DataBuffer&   buf = send.mData;
+	buf.add(CLIENT_INPUT_BLOB);
+	buf.add(phase); 
+	buf.add(-1); //id
+	buf.add(worldPoint.x);
+	buf.add(worldPoint.y);
+	buf.add(ds::TERMINATOR_CHAR);
+
 }
 
 /**
@@ -269,11 +342,12 @@ void EngineClient::RunningState::update(EngineClient &e) {
 
 	const int				count(e.getRootCount());
 	for (int k=0; k<count; ++k) {
-		const ui::Sprite&	s(e.getRootSprite(k));
+		if(!e.getRootBuilder(k).mSyncronize) continue;
+		ui::Sprite&	s(e.getRootSprite(k));
 		s.writeClientTo(buf);
 	}
 
-//	DS_LOG_INFO_M("RunningState send reply frame=" << e.mServerFrame, ds::IO_LOG);
+	//DS_LOG_INFO_M("RunningState send reply frame=" << e.mServerFrame, ds::IO_LOG);
 }
 
 /**
@@ -298,7 +372,9 @@ void EngineClient::ClientStartedState::update(EngineClient& engine) {
 		buf.add(engine.mIoInfo.mGlobalId);
 		buf.add(ds::TERMINATOR_CHAR);
 
-		mSendFrame = 60;
+		// Randomize the amount of time to wait for a retry. 
+		// If there are multiple clients that started at the same time, we could be flooding the server with new world requests
+		mSendFrame = ci::randInt(30, 240);
 //DS_LOG_INFO_M("Send CMD_CLIENT_STARTED", ds::IO_LOG);
 	}
 	--mSendFrame;
@@ -324,7 +400,9 @@ void EngineClient::BlankState::update(EngineClient& engine) {
 		buf.add(CMD_CLIENT_REQUEST_WORLD);
 		buf.add(ds::TERMINATOR_CHAR);
 
-		mSendFrame = 60;
+		// Randomize the amount of time to wait for a retry. 
+		// If there are multiple clients that started at the same time, we could be flooding the server with new world requests
+		mSendFrame = ci::randInt(30, 240);
 	}
 	--mSendFrame;
 }

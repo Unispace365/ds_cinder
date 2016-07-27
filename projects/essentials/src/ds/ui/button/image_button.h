@@ -25,12 +25,28 @@ public:
 	// the amount of time the images take fading between themselves
 	void						setAnimationDuration(const float dur);
 
+	/// When the button has been clicked (touch released inside)
 	void						setClickFn(const std::function<void(void)>&);
+
+	/// The visual state has been updated (down or up) pressed = down.
+	void						setStateChangeFn(const std::function<void(const bool pressed)>&);
 
 	ds::ui::Image&				getNormalImage();
 	void						setNormalImage(const std::string& imageFile);
+	std::string					getNormalImagePath(){ return mNormalFilePath; }
+
 	ds::ui::Image&				getHighImage(); // http://i.imgur.com/1qIw7AV.jpg
 	void						setHighImage(const std::string& imageFile);
+	std::string					getHighImagePath(){ return mHighFilePath; }
+
+	void						setNormalImageColor(const ci::Color& upColor);
+	void						setNormalImageColor(const ci::ColorA& upColor);
+	ci::Color					getNormalImageColor(){ return mUp.getColor(); }
+
+	/// Set the color of the image when pressed. Let's you use the same image for both and still have feedback
+	void						setHighImageColor(const ci::Color& downColor);
+	void						setHighImageColor(const ci::ColorA& downColor);
+	ci::Color					getHighImageColor(){ return mDown.getColor(); }
 
 	void						layout();
 
@@ -39,14 +55,17 @@ public:
 
 	const ButtonBehaviour::State getButtonState(){ return mButtonBehaviour.getState(); }
 
+
 private:
-	void						onClicked();
-	typedef ds::ui::Sprite		inherited;
-	std::function<void(void)>	mClickFn;
+	void							onClicked();
+	std::function<void(void)>		mClickFn;
+	std::function<void(const bool)>	mStateChangeFunction;
 
 	// VIEW
 	ds::ui::Image&				mDown;
 	ds::ui::Image&				mUp;
+	std::string					mHighFilePath;
+	std::string					mNormalFilePath;
 
 	// TOUCH
 	ds::ButtonBehaviour			mButtonBehaviour;

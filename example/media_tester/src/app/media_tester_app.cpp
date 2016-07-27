@@ -22,8 +22,8 @@ media_tester::media_tester()
 	, mMedia(nullptr)
 	, mHeader(nullptr)
 	, mLabelText(nullptr)
+	, mIsVideo(false)
 {
-
 	/*fonts in use */
 	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
 
@@ -31,7 +31,6 @@ media_tester::media_tester()
 }
 
 void media_tester::setupServer(){
-
 
 	/* Settings */
 	mEngine.loadSettings("layout", "layout.xml");
@@ -54,8 +53,6 @@ void media_tester::setupServer(){
 	mLabelText = mEngine.getEngineCfg().getText("header:label").create(mEngine, mHeader);
 	mLabelText->setPosition(20.0f, 20.0f);
 	mLabelText->setText("Drop a file or paste a file path");
-	
-
 }
 
 void media_tester::update() {
@@ -70,10 +67,34 @@ void media_tester::keyDown(ci::app::KeyEvent event){
 	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown() && ci::Clipboard::hasString()){
 		loadMedia(ci::Clipboard::getString());
 		
-	} else if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
-	} else if(event.getChar() == KeyEvent::KEY_l){
+	} else if (event.getChar() == KeyEvent::KEY_1){
+		if (mIsVideo && !mMedia->removeShader("test1")) {
+			mMedia->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
+		}
+	} else if (event.getChar() == KeyEvent::KEY_2){
+		if (mIsVideo && !mMedia->removeShader("test2")) {
+			mMedia->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
+		}
+	} else if (event.getChar() == KeyEvent::KEY_3){
+		if (mIsVideo && !mMedia->removeShader("toonify")) {
+			mMedia->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
+		}
+	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
+		if (mIsVideo && mMedia){
+			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(ds::ui::GstVideo::kPanLeft);
+		}
+	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_c){
+		if (mIsVideo && mMedia){
+			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(ds::ui::GstVideo::kPanCenter);
+		}
+	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_r){
+		if (mIsVideo && mMedia){
+			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(ds::ui::GstVideo::kPanRight);
+		}
+	} else if (event.getChar() == KeyEvent::KEY_l){
 		loadMedia("c:/test.mp4");
+	} else if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
+		setupServer();
 	}
 }
 
@@ -134,20 +155,37 @@ void media_tester::loadMedia(const std::string& newMedia){
 		imgy->setImageFile(newMedia);
 		mMedia = imgy;
 	} else {
+		mIsVideo = true;
 		DS_LOG_INFO("Guessing that the new media is a video or playable by gstreamer: " << newMedia);
 		ds::ui::Video* vid = new ds::ui::Video(mEngine);
+
+		//Enable audio panning
+		vid->generateAudioBuffer(true);
+
+		//Set shader uniforms - Shaders are enabled/disabled by user keyboard input
+		ds::gl::Uniform uniform;
+		uniform.setInt("Texture0", 1);  // Use texture unit 1 since Vidoe CSC is hardcoded to TU 0
+		vid->setShadersUniforms("toonify", uniform);
+
+		uniform.clear();
+		uniform.setFloat("opacity", 0.9f);
+		uniform.setInt("tex0", 1);  // Use texture unit 1 since Video CSC is hardcoded to TU 0
+		vid->setShadersUniforms("test2", uniform);
+
+		uniform.clear();
+		uniform.setInt("tex1", 1);
+		uniform.setFloat("opacity", 1.0f);
+		vid->setShadersUniforms("test1", uniform);
+
 		vid->setVerboseLogging(true);
+		vid->setLooping(true);
 		vid->loadVideo(newMedia);
 		vid->play();
 		mEngine.getRootSprite().addChildPtr(vid);
 		mMedia = vid;
-
 	}
-
 	fitSpriteInArea(ci::Rectf(0.0f, headerHeight, mEngine.getWorldWidth(), mEngine.getWorldHeight()), mMedia);
 }
-
-
 
 void media_tester::fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy){
 	if(!mMedia) return;

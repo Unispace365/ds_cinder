@@ -138,7 +138,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mLoadingOpacity(1.0f)
 	, mActive(false)
 	, mTransitionTime(0.35f)
-	, mDrawWhileLoading(false)
+	, mDrawWhileLoading(true)
 	, mDragScrolling(false)
 	, mDragScrollMinFingers(2)
 	, mClickDown(false)
@@ -146,17 +146,23 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mDocumentReadyFn(nullptr)
 	, mHasError(false)
 	, mErrorText(nullptr)
+	, mAllowClicks(true)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
 
 	mBlobType = BLOB_TYPE;
+	mLayoutFixedAspect = true;
 
 	setTransparent(false);
 	setColor(1.0f, 1.0f, 1.0f);
 	setUseShaderTextuer(true);
-	hide();
-	setOpacity(0.0f);
+
+	// GN: Someone decided this should be invisible by default.
+	//		I'm deciding that that's ree-dic-u-lous
+	//hide();
+	//setOpacity(0.0f);
+
 	setProcessTouchCallback([this](ds::ui::Sprite *, const ds::ui::TouchInfo &info) {
 		handleTouch(info);
 	});
@@ -167,7 +173,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	// create a webview
 	Awesomium::WebCore*	webcore = mService.getWebCore();
 	if (webcore) {
-		mWebViewPtr = webcore->CreateWebView(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
+		mWebViewPtr = webcore->CreateWebView(static_cast<int>(getWidth()), static_cast<int>(getHeight()), mService.getWebSession());
 		if (mWebViewPtr) {
 			mWebViewListener = std::move(std::unique_ptr<ds::web::WebViewListener>(new ds::web::WebViewListener(this)));
 			if (mWebViewListener) mWebViewPtr->set_view_listener(mWebViewListener.get());
@@ -215,6 +221,8 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 		DS_LOG_WARNING("Web errors not rendered because font \"default:error\" is not defined");
 	}
 	if(mErrorText){
+		mErrorLayout.installOn(*mErrorText);
+
 		mErrorText->setColor(ci::Color::black());
 		mErrorText->setResizeToText(true);
 		addChildPtr(mErrorText);
@@ -424,7 +432,7 @@ void Web::sendKeyUpEvent( const ci::app::KeyEvent &event ){
 }
 
 void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
-	if (!mWebViewPtr) return;
+	if (!mWebViewPtr || !mAllowClicks) return;
 
 	ci::app::MouseEvent eventMove(mEngine.getWindow(), 0, e.getX(), e.getY(), 0, 0, 0);
 	ds::web::handleMouseMove( mWebViewPtr, eventMove );
@@ -433,14 +441,14 @@ void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
 }
 
 void Web::sendMouseDragEvent(const ci::app::MouseEvent& e) {
-	if (!mWebViewPtr) return;
+	if(!mWebViewPtr || !mAllowClicks) return;
 
 	ds::web::handleMouseDrag(mWebViewPtr, e);
 	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kMoved);
 }
 
 void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
-	if (!mWebViewPtr) return;
+	if(!mWebViewPtr || !mAllowClicks) return;
 
 	ds::web::handleMouseUp( mWebViewPtr, e);
 	sendTouchEvent(e.getX(), e.getY(), ds::web::TouchEvent::kRemoved);
@@ -573,20 +581,25 @@ void Web::setDocumentReadyFn(const std::function<void(void)>& fn) {
 	mDocumentReadyFn = fn;
 }
 
-void Web::setErrorMessage(const std::string &message)
-{
+void Web::setErrorMessage(const std::string &message){
 	mHasError = true;
 	mErrorMessage = message;
 
 	if(mErrorText){
+		mErrorText->setOpacity(1.0f);
+		mErrorText->setResizeLimit(this->getWidth() * 0.8f, 0.0f);
 		mErrorText->setText(mErrorMessage);
 		mErrorText->setPosition((getWidth() - mErrorText->getWidth()) * 0.5f, (getHeight() - mErrorText->getHeight()) * 0.5f);
 		mErrorText->show();
+		mErrorText->tweenOpacity(0.0f, 1.0f, 10.0f);
+	}
+
+	if(mErrorCallback){
+		mErrorCallback(mErrorMessage);
 	}
 }
 
-void Web::clearError()
-{
+void Web::clearError(){
 	mHasError = false;
 	if(mErrorText){
 		mErrorText->hide();
@@ -749,6 +762,16 @@ void Web::setLoadingIconOpacity(const float iconOpacity){
 
 void Web::setLoadingIconOffset(const ci::Vec2f& offset){
 	mLoadingOffset = offset;
+}
+
+void Web::setAllowClicks(const bool doAllowClicks){
+	mAllowClicks = doAllowClicks;
+}
+
+void Web::setWebTransparent(const bool isTransparent){
+	if(mWebViewPtr){
+		mWebViewPtr->SetTransparent(isTransparent);
+	}
 }
 
 } // namespace ui

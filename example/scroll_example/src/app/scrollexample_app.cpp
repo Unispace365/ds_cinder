@@ -93,7 +93,7 @@ void ScrollExample::setupServer(){
 	// add sprites
 
 	// ----------- A basic scroll area with a couple colors ------------------------------- //
-	ds::ui::ScrollArea* sa = new ds::ui::ScrollArea(mEngine, 400.0f, 200.0f);
+	ds::ui::ScrollArea* sa = new ds::ui::ScrollArea(mEngine, 400.0f, 700.0f);
 	sa->setFadeColors(ci::ColorA(0.0f, 0.0f, 0.0f, 1.0f), ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 	sa->setFadeHeight(50.0f);
 	sa->setUseFades(true);

@@ -4,6 +4,8 @@
 
 #include <ds/ui/sprite/sprite.h>
 
+#include <Poco/Timestamp.h>
+
 namespace ds{
 namespace ui{
 class ScrollArea;
@@ -39,7 +41,14 @@ class ScrollArea;
 		// OPTIONAL: If you want to show highlighted states you can react here
 		void						setStateChangeCallback(const std::function<void(ds::ui::Sprite*, const bool highlighted)>&func);
 
+		// OPTIONAL: Called whenever the scroll changes position (could be quite a lot). Useful if you want to add scroll bars or update other ui
+		void						setScrollUpdatedCallback(const std::function<void(void)> &func);
+
+		/// Animates the current items onscreen only
 		void						animateItemsOn();
+
+		/// When using animateItemsOn()
+		void						setAnimateOnParams(const float startDelay, const float deltaDelay);
 
 		// REQUIRED TO LOOK OK: 
 		// @param startPositionX Where to start the items horizontally
@@ -48,12 +57,25 @@ class ScrollArea;
 		// @param fill_from_top Whether to align to the bottom of the scroll area or the top. For instance, if there's not enough items to fill the whole space, will start filling and align to the bottom if this param is false.
 		void						setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount, const bool fill_from_top = true);
 
+
 		//When mOriginTop==true, shift items to top of scroll list
 		void						pushItemsTop();
 		// Use caution when modifying the scroll area
 		// Recommend only using this to reset the scroll position and change the fade graphics
 		// Setting your own scroll position callback will break the scroll list
 		ds::ui::ScrollArea*			getScrollArea(){ return mScrollArea; }
+
+		// calls a function for each sprite that's currently onscreen and in reserve
+		void						forEachLoadedSprite(std::function<void(ds::ui::Sprite*)> function);
+
+		// When layouts happen, will do a grid instead of a horiz or vert list. Use the grid increment to set the advance amount in each direction
+		// NOTE: not tested yet for perspective OR horizontal scrolling
+		void						setGridLayout(const bool doGrid, const ci::Vec2f& gridIncrement);
+
+		//when layouts happen, will do a grid instead of a horiz or vert list. when using vertical scrolling it will be adjusted by target column number and gapping will be the gap between each column
+		//when using horizontal scrollin it will be adjusted by target row number and gapping will be the gap between each row; 
+		// fillCoulumnFirst will change the direction of filling order, default is true , set to false will fill the row fisrt 
+		void						setMatrixLayout(const bool doGrid, const int targetRow, const int targetColumn, const float gapping);
 
 	protected:
 
@@ -85,6 +107,8 @@ class ScrollArea;
 		virtual void						onSizeChanged();
 		virtual void						layout();
 		virtual void						layoutItems();
+		virtual void						layoutItemsGrid();
+		virtual void						layoutItemsMatrix();
 
 		virtual void						clearItems();
 		virtual void						assignItems();
@@ -103,6 +127,9 @@ class ScrollArea;
 		float								mStartPositionX;
 		float								mIncrementAmount;
 		bool								mFillFromTop;
+		bool								mGridLayout;
+		bool								mSpecialLayout;
+		ci::Vec2f							mGridIncrement;
 
 		// for animate on
 		float								mAnimateOnDeltaDelay;
@@ -111,8 +138,17 @@ class ScrollArea;
 		std::function<void(ds::ui::Sprite*, const ci::Vec3f& cent)>	mItemTappedCallback;
 		std::function<ds::ui::Sprite* ()>							mCreateItemCallback;
 		std::function<void(ds::ui::Sprite*, const int dbId)>		mSetDataCallback;
-		std::function<void(ds::ui::Sprite*, const float delay)>	mAnimateOnCallback;
-		std::function<void(ds::ui::Sprite*, const bool highli)>	mStateChangeCallback;
+		std::function<void(ds::ui::Sprite*, const float delay)>		mAnimateOnCallback;
+		std::function<void(ds::ui::Sprite*, const bool highli)>		mStateChangeCallback;
+		std::function<void()>										mScrollUpdatedCallback;
+
+		// Track update time so touches can't happen while the list is being dragged cause of lazy fingers
+		Poco::Timestamp::TimeVal			mLastUpdateTime;
+
+		int									mTargetRow;
+		int									mTargetColumn;
+		float								mGapping;
+		bool								mFillColumnFirst;
 	};
 }
 }

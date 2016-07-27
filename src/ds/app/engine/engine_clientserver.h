@@ -26,7 +26,6 @@ public:
 
 private:
 	typedef AbstractEngineServer inherited;
-	GlThread						mLoadImageThread;
 	ui::LoadImageService			mLoadImageService;
 	GlThread						mRenderTextThread;
 	ui::RenderTextService			mRenderTextService;

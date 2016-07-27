@@ -1,0 +1,23 @@
+Media:
+    tableName: Media
+    columns:
+        id:
+            type: integer(4)
+            unsigned: true
+            primary: true
+            autoincrement: true
+        title:
+            type: string(255)
+        body:
+            type: string(255)
+        primaryResource:
+            type: integer(4)
+        parentId:
+            type: integer(4)
+    actAs:
+        Resourceable:
+            columns: [primaryResource]
+    relations:
+        Media:
+            class: Media
+            type: many

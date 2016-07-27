@@ -4,6 +4,7 @@
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/text.h"
 #include "ds/util/string_util.h"
+#include "ds/debug/logger.h"
 #include <time.h>
 
 using namespace ci;
@@ -15,11 +16,13 @@ namespace ui {
 
 int getFontSize( const FontPtr &font )
 {
-  return abs(font->ascender())+abs(font->descender());
+	if(!font->isValid()) return 0;
+	return abs(font->ascender())+abs(font->descender());
 }
 
 float getFontAscender( const FontPtr &font )
 {
+	if(!font->isValid()) return 0.0f;
 	int size = getFontSize(font);
 	if(size > 0){
 		return (float)font->ascender() / (float)size;
@@ -48,23 +51,21 @@ namespace {
   
 class LimitCheck {
 public:
-	LimitCheck(const TextLayout::Input& in)
+	LimitCheck(const TextLayout::Input& in, const float lineHeight)
 		: mLimitToHeight(!(in.mSprite.autoResizeHeight()))
 		, mDescent(getFontDescender(in.mFont))
 		, mMaxY(in.mSize.y)
+		, mLineHeight(lineHeight)
 	{
 	}
 
 	inline bool outOfBounds(const float y) const
 	{
-	// Not doing the limit check any more -- it just makes sense to never bother
-	// with this, instead always having a limit, but using an unreasonably high one
-	// for "unlimited"
-	//if (!limitToHeight) return false;
-		return (y + mDescent > mMaxY);
+		return (y + mLineHeight > mMaxY);
 	}
 
 private:
+	const float	  mLineHeight; 
 	const bool    mLimitToHeight;
 	const float   mDescent;
 	const float   mMaxY;
@@ -91,6 +92,7 @@ TextLayout::Input::Input(const Text& sprite,
 						 , mSize(size)
 						 , mText(text)
 						 , mLineWasSplit(false)
+						 , mGenerateIndex(false)
 {
 }
 
@@ -106,16 +108,17 @@ void TextLayout::clear()
 	mLines.clear();
 }
 
-void TextLayout::addLine(const ci::Vec2f& pos, const std::wstring& text)
-{
-	mLines.push_back(Line());
-	Line& l = mLines.back();
-	l.mPos = pos;
-	l.mText = text;
+void TextLayout::addLine(const TextLayout::Line& newLine){
+	mLines.push_back(newLine);
 }
 
 void TextLayout::writeTo(ds::DataBuffer& buf) const
 {
+	int linesSize = mLines.size();
+	if(linesSize > 10000){
+		linesSize = 10000;
+		DS_LOG_WARNING("TextLayout: arbitrarily clipping to 10000 lines of text. If you need more, then search for this message and increase the number.");
+	}
 	buf.add(mLines.size());
 	int k = 0;
 	for(auto it = mLines.begin(), end = mLines.end(); it != end; ++it) {
@@ -124,7 +127,14 @@ void TextLayout::writeTo(ds::DataBuffer& buf) const
 		buf.add(line.mPos.x);
 		buf.add(line.mPos.y);
 		buf.add(line.mText);
+		buf.add(line.mFontBox.getX1());
+		buf.add(line.mFontBox.getY1());
+		buf.add(line.mFontBox.getX2());
+		buf.add(line.mFontBox.getY2());
 		++k;
+		if(k > 10000 - 1){
+			break;
+		}
 	}
 }
 
@@ -133,20 +143,27 @@ bool TextLayout::readFrom(ds::DataBuffer& buf)
 	if(!buf.canRead<int>()) return false;
 	const int count = buf.read<int>();
 	// XXX Not really sure what the max count should be
-	if(count < 0 || count > 255) return false;
+	// GN it's 10000 now. CAUSE. BECAUSE. OK
+	if(count < 0 || count > 10000) return false;
+
+	std::vector<TextLayout::Line> newLines;
+
 	for(int k = 0; k < count; ++k) {
 		if(!buf.canRead<int>()) return false;
 		if(buf.read<int>() != k) return false;
 
-		mLines.push_back(Line());
-		Line& l = mLines.back();
+		newLines.push_back(Line());
+		Line& l = newLines.back();
 
 		if(!buf.canRead<float>()) return false;
 		l.mPos.x = buf.read<float>();
 		if(!buf.canRead<float>()) return false;
 		l.mPos.y = buf.read<float>();
 		l.mText = buf.read<std::wstring>();
+		l.mFontBox = ci::Rectf(buf.read<float>(), buf.read<float>(), buf.read<float>(), buf.read<float>());
 	}
+
+	mLines.swap(newLines);
 	return true;
 }
 
@@ -161,7 +178,13 @@ void TextLayout::debugPrint() const
 
 const TextLayout::MAKE_FUNC& TextLayout::SINGLE_LINE()
 {
-	static const MAKE_FUNC ANS = [](TextLayout::Input& i, TextLayout& l) { l.addLine(ci::Vec2f(0, ceilf((1.0f - getFontAscender(i.mFont)) * i.mFont->pointSize())), i.mText); };
+	static const MAKE_FUNC ANS = [](TextLayout::Input& i, TextLayout& l) { 
+		TextLayout::Line newLine;
+		newLine.mPos = ci::Vec2f(0, ceilf((1.0f - getFontAscender(i.mFont)) * i.mFont->pointSize()));
+		newLine.mFontBox = getBoxFromString(i.mFont, i.mText);
+		newLine.mText = i.mText;
+		l.addLine(newLine); 
+	};
 	return ANS;
 }
 
@@ -175,7 +198,9 @@ TextLayoutVertical::TextLayoutVertical()
 
 TextLayoutVertical::TextLayoutVertical(Text& t)
 		: mLeading(1)
-		, mAlignment(Alignment::kLeft) {
+		, mAlignment(Alignment::kLeft)
+		, mGenerateIndices(false)
+{
 	installOn(t);
 }
 
@@ -184,232 +209,244 @@ void TextLayoutVertical::installOn(Text& t) {
 	t.setLayoutFunction(f);
 }
 
-ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str) {
+ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str){
 	OGLFT::BBox box = font->measureRaw(str);
-	ci::Vec2f	size(box.x_max_ - box.x_min_, box.y_max_ - box.y_min_);
-
-	return size;
+	return ci::Vec2f(box.x_max_ - box.x_min_, box.y_max_ - box.y_min_);
 }
 
-ci::Vec2f getSizeFromString(const FontPtr &font, const std::wstring &str)
-{
+ci::Vec2f getSizeFromString(const FontPtr &font, const std::wstring &str){
 	OGLFT::BBox box = font->measureRaw(str);
-	ci::Vec2f	size(box.x_max_ - box.x_min_, box.y_max_ - box.y_min_);
-
-	return size;
+	return ci::Vec2f(box.x_max_ - box.x_min_, box.y_max_ - box.y_min_);
 }
 
-float getDifference(const FontPtr &font, const std::wstring &str, float lineH, float leading)
-{
-	//float lineHeight = getSizeFromString(font, str).y + font->height() * leading;
-	//if (lineHeight < lineH)
-	// return lineH - lineHeight;
-	return 0.0f;
+ci::Rectf getBoxFromString(const FontPtr &font, const std::wstring &str){
+	OGLFT::BBox box = font->measureRaw(str);
+	return ci::Rectf(box.x_min_, box.y_min_, box.x_max_, box.y_max_);
+}
+
+void TextLayoutVertical::addStringSegment(const FontPtr& font, const std::wstring& inputText){
+	if(!mGenerateIndices) return;
+
+	unsigned textSize = inputText.size();
+
+	if(textSize == 0) return;
+
+	// measure the 
+	OGLFT::BBox box = font->measureRaw(inputText);
+	float endX = mCurXPosition + box.x_max_ - box.x_min_;
+
+	if(inputText == L" "){
+		endX = mCurXPosition + mSpaceWidth;
+	}
+	
+	// add the first position, which is the same as the advancement from the last character
+	mCurLineIndexPositions[mCurInputIndex] = mCurXPosition;
+
+	// Measure each character as part of the string, starting from the beginning of the current string
+	for(unsigned int i = 1; i < textSize; i++){
+		std::wstring substringy = inputText.substr(0, i);
+		float thisW = 0.0f;
+		if(!substringy.empty()){
+			thisW = getSizeFromString(font, substringy).x;
+		}
+
+		mCurLineIndexPositions[mCurInputIndex + i] = mCurXPosition + thisW;
+	}
+	mCurXPosition = endX;
+	mCurInputIndex = mCurInputIndex + textSize;
+}
+
+void TextLayoutVertical::addBlankSegment(){
+	if(!mGenerateIndices) return;
+	mCurLineIndexPositions[mCurInputIndex] = mCurXPosition;
+	mCurInputIndex++;
+}
+
+void TextLayoutVertical::addLine(const FontPtr& font, const std::wstring& lineText){
+	ci::Rectf fontBox = getBoxFromString(font, lineText);
+
+	if(fontBox.getWidth() > mMaxWidth){
+		mMaxWidth = fontBox.getWidth();
+	}
+	
+	// Catch the case where the line only has empty space (tabs, spaces, returns)
+	if(fontBox.getHeight() == 0.0f){
+		fontBox.set(fontBox.getX1(), fontBox.getY1(), fontBox.getX2(), mLineHeight);
+	}
+
+	mOutputLines.push_back(TextLayout::Line());
+
+	TextLayout::Line& thisLine = mOutputLines.back();
+	thisLine.mPos.y = mY;
+	thisLine.mText = lineText;
+	thisLine.mFontBox = fontBox;	
+	thisLine.mIndexPositions = mCurLineIndexPositions;
+
+	mY += mLineHeight;
+	mCurXPosition = 0.0f;
+	mCurLineIndexPositions.clear();
 }
 
 void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 {
-	if(in.mText.empty())
+	mOutputLines.clear();
+	if(in.mText.empty() || !in.mFont->isValid())
 		return;
 	// Per line, find the word breaks, then create a line.
 	std::vector<std::wstring>			tokens;
-	//tokenize(in.mText, tokens);
+
 	static std::vector<std::wstring>	partitioners;
 	if(partitioners.empty()) {
 		partitioners.push_back(L" ");
 		partitioners.push_back(L"-");
 		partitioners.push_back(L"|");
-		//partitioners.push_back(L"_");
 		partitioners.push_back(L"\n");
 		partitioners.push_back(L"\r");
 		partitioners.push_back(L"\t");
-		//partitioners.push_back(L",");
 	}
 
 	tokens = ds::partition(in.mText, partitioners);
 
-	LimitCheck			check(in);
-	float				y = ceilf((1.0f - getFontAscender(in.mFont)) * in.mFont->pointSize());
-	//address this
-	const float			lineH = in.mFont->pointSize()*mLeading + in.mFont->pointSize();//in.mFont->ascender() + in.mFont->descender() + (in.mFont->getFont().getLeading()*mLeading);
-	std::wstring		lineText;
+	// Keep track of the current line of text, in case the next token makes it too long to fit on a line
+	std::wstring	lineText;
+
+	mY = ceilf((1.0f - getFontAscender(in.mFont)) * in.mFont->pointSize());
+	mLineHeight = in.mFont->pointSize()*mLeading + in.mFont->pointSize();
+	mCurInputIndex = 0;
+	mCurXPosition = 0.0f;
+	mCurLineIndexPositions.clear();
+	mMaxWidth = 0.0f;
+	mGenerateIndices = in.mGenerateIndex;
+
+	LimitCheck			check(in, mLineHeight);
+
+	OGLFT::BBox box = in.mFont->measureRaw(L" ");
+	mSpaceWidth = box.advance_.dx_ * 1.25f; // ???? The actual advance amount doesn't seem to match the actual output, so multiply it?
 
 	// Before we do anything, make sure we have room for the first line,
 	// otherwise that will slip past.
-	if(check.outOfBounds(y)) return;
-
-	float maxWidth = 0.0f;
-	// spaces don't have a size so we make something up
-	const ci::Vec2f		spaceSize = getSizeFromString(in.mFont, L"o");
-	//const ci::Vec2f	spaceSize = in.mFont->measureString("o", in.mOptions);
-	const ci::Vec2f		tabSize(spaceSize.x*3.0f, spaceSize.y);
-	//for (auto it=tokens.begin(), end=tokens.end(); it != end; ++it) {
-	typedef std::pair<float, std::wstring> outPair;
-	std::vector<outPair> linesToWrite;
+	if(check.outOfBounds(mY)) return;
 
 	for(size_t i = 0; i < tokens.size(); ++i) {
+		if(check.outOfBounds(mY)) break;
 		// Test the new string to see if it's too long
 		std::wstring	newLine(lineText);
+
 		// If the new line is too large, then flush the previous and
 		// continue with the current token
+
 		const std::wstring &token = tokens[i];
+
 		if(token == L" ") {
-			lineText.append(L" ");
+			addStringSegment(in.mFont, token);
+			lineText.append(token);
 			continue;
+
 		} else if(token == L"\n") {
-			// Flush the current line
-			if(!lineText.empty()) {
-				float inSize = getSizeFromString(in.mFont, lineText).x;
-				if(inSize > maxWidth)
-					maxWidth = inSize;
-				linesToWrite.push_back(outPair(y, lineText));
-				////out.addLine(ci::Vec2f(0, y + getDifference(in.mFont, lineText, lineH, mLeading)), lineText);
-				//if (mAlignment == Left) {
-				//  //out.addLine(ci::Vec2f(0, y), lineText);
-				//  linesToWrite.push_back(outPair(y, lineText));
-				//} else if (mAlignment == Right) {
-				//  float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
-				//  float x = in.mSize.x - size;
-				//  out.addLine(ci::Vec2f(x, y), lineText);
-				//} else {
-				//  float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
-				//  float x = (in.mSize.x - size) / 2.0f;
-				//  out.addLine(ci::Vec2f(x, y), lineText);
-				//}
-			}
+			addBlankSegment();
+			addLine(in.mFont, lineText);
+
 			lineText.clear();
-			//lineText.append(" ");
-			y += lineH;
-			if(check.outOfBounds(y)) return;
+
+			if(check.outOfBounds(mY)) break;
+
 			continue;
+
 		} else if(token == L"\t") {
-			lineText.append(L" ");
-			lineText.append(L" ");
-			lineText.append(L" ");
-			lineText.append(L" ");
+			const std::wstring spacey = L" ";
+			mCurLineIndexPositions[mCurInputIndex] = mCurXPosition;
+			mCurXPosition += mSpaceWidth * 4.0f;
+			mCurInputIndex++;
+
+			lineText.append(spacey);
+			lineText.append(spacey);
+			lineText.append(spacey);
+			lineText.append(spacey);
 			continue;
+
 		} else if(token == L"\r") {
+			addBlankSegment();
 			continue;
-		}else if (token == L"-") {
-			lineText.append(L"-");
+
+		} else if (token == L"-") {
+			addStringSegment(in.mFont, token);
+			lineText.append(token);
 			continue;
 		}
 
 		newLine.append(token);
-		ci::Vec2f size = getSizeFromString(in.mFont, newLine);//in.mFont->measureString(newLine, in.mOptions);
+		ci::Vec2f size = getSizeFromString(in.mFont, newLine);
 		if(size.x > in.mSize.x) {
-			// Flush the current line
+			// Flush the current line, cause we're wrapping
 			if(!lineText.empty()) {
-				float inSize = getSizeFromString(in.mFont, lineText).x;
-				if(inSize > maxWidth)
-					maxWidth = inSize;
-				linesToWrite.push_back(outPair(y, lineText));
-				//if (mAlignment == Left) {
-				//  out.addLine(ci::Vec2f(0, y), lineText);
-				//} else if (mAlignment == Right) {
-				//  float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
-				//  float x = in.mSize.x - size;
-				//  out.addLine(ci::Vec2f(x, y), lineText);
-				//} else {
-				//  float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
-				//  float x = (in.mSize.x - size) / 2.0f;
-				//  out.addLine(ci::Vec2f(x, y), lineText);
-				//}
-				y += lineH;
-				if(check.outOfBounds(y)) return;
+
+				addLine(in.mFont, lineText);
+				if(check.outOfBounds(mY)) break;
 			}
 
 			lineText = token;
 
-			size = getSizeFromString(in.mFont, lineText);//in.mFont->measureString(lineText, in.mOptions);
+			size = getSizeFromString(in.mFont, lineText);
+
+			// This detects if a single 'word' is wider than the available area
+			// If it is, break it down into displayable chunks
 			while(size.x > in.mSize.x) {
 				for(unsigned i = 1; i <= lineText.size(); ++i) {
-					float cSize = getSizeFromString(in.mFont, lineText.substr(0, i)).x;//in.mFont->measureString(lineText.substr(0, i), in.mOptions).x;
+					float cSize = getSizeFromString(in.mFont, lineText.substr(0, i)).x;
 					if(cSize > in.mSize.x && i > 0) {
-						// Eric, you said there was an infinite loop here with the code like this. The way you changed it wasn't the correct
-						// split and would cause lettings out of bounds. If you get the infinite loop again let me know how to reproduce it.
 						std::wstring sub = lineText.substr(0, i - 1);
 						lineText = lineText.substr(i - 1, lineText.size() - i + 1);
 						if(!sub.empty()) {
 							in.mLineWasSplit = true;
 
-							float inSize = getSizeFromString(in.mFont, sub).x;
-							if(inSize > maxWidth)
-								maxWidth = inSize;
-							linesToWrite.push_back(outPair(y, sub));
-							//if (mAlignment == Left) {
-							//  out.addLine(ci::Vec2f(0, y), sub);
-							//} else if (mAlignment == Right) {
-							//  float size = getSizeFromString(in.mFont, sub).x;//in.mFont->measureString(sub, in.mOptions).x;
-							//  float x = in.mSize.x - size;
-							//  out.addLine(ci::Vec2f(x, y), sub);
-							//} else {
-							//  float size = getSizeFromString(in.mFont, sub).x;//in.mFont->measureString(sub, in.mOptions).x;
-							//  float x = (in.mSize.x - size) / 2.0f;
-							//  out.addLine(ci::Vec2f(x, y), sub);
-							//}
-
-							y += lineH;
-							break;
+							addStringSegment(in.mFont, sub);
+							addLine(in.mFont, sub);
 						} else {
+							// The text field is too narrow for any of these characters, abandon ship!
 							return;
 						}
+						break;
 					}
 				}
 
-				if(check.outOfBounds(y)) return;
+				if(check.outOfBounds(mY)) break;
 
-				size = getSizeFromString(in.mFont, lineText);//in.mFont->measureString(lineText, in.mOptions);
+				size = getSizeFromString(in.mFont, lineText);
 			}
 
-			//lineText.append(" ");
-			//y += lineH;
-			// If the sprite is not auto resizing, then don't go past its bounds
-			if(check.outOfBounds(y)) return;
-			// Otherwise maintain the new line.
+			addStringSegment(in.mFont, lineText);
+			if(check.outOfBounds(mY)) break;
 		} else {
+			addStringSegment(in.mFont, token);
 			lineText.swap(newLine);
-			//lineText.append(" ");
 		}
 	}
 
-	if(!lineText.empty() && !check.outOfBounds(y)) {
-		float inSize = getSizeFromString(in.mFont, lineText).x;
-		if(inSize > maxWidth)
-			maxWidth = inSize;
-		linesToWrite.push_back(outPair(y, lineText));
-		//if (mAlignment == Left) {
-		//  out.addLine(ci::Vec2f(0, y), lineText);
-		//} else if (mAlignment == Right) {
-		//  float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
-		//  float x = in.mSize.x - size;
-		//  out.addLine(ci::Vec2f(x, y), lineText);
-		//} else {
-		//  float size = getSizeFromString(in.mFont, lineText).x;//in.mFont->measureString(lineText, in.mOptions).x;
-		//  float x = (in.mSize.x - size) / 2.0f;
-		//  out.addLine(ci::Vec2f(x, y), lineText);
-		//}
+	// add in any remaining text on the last line
+	if(!check.outOfBounds(mY)) {
+		addBlankSegment();
+		addLine(in.mFont, lineText);
 	}
 
-	if(maxWidth > in.mSize.x)
-		maxWidth = in.mSize.x;
+	if(mMaxWidth > in.mSize.x){
+		mMaxWidth = in.mSize.x;
+	}
 
-	for(auto it = linesToWrite.begin(), it2 = linesToWrite.end(); it != it2; ++it)
-	{
-		float y = it->first;
-		std::wstring &str = it->second;
+	for(auto it = mOutputLines.begin(), it2 = mOutputLines.end(); it != it2; ++it){
+		TextLayout::Line& thisLine = (*it);
+		float y = thisLine.mPos.y;
+		std::wstring &str = thisLine.mText;
 
 		if(mAlignment == Alignment::kLeft) {
-			out.addLine(ci::Vec2f(0, y), str);
+			thisLine.mPos.x = 0.0f;
 		} else if(mAlignment == Alignment::kRight) {
-			float size = getSizeFromString(in.mFont, str).x;//in.mFont->measureString(lineText, in.mOptions).x;
-			float x = maxWidth - size;
-			out.addLine(ci::Vec2f(x, y), str);
+			thisLine.mPos.x = mMaxWidth - thisLine.mFontBox.getWidth();
 		} else {
-			float size = getSizeFromString(in.mFont, str).x;//in.mFont->measureString(lineText, in.mOptions).x;
-			float x = (maxWidth - size) / 2.0f;
-			out.addLine(ci::Vec2f(x, y), str);
+			float size = getSizeFromString(in.mFont, str).x;
+			thisLine.mPos.x = (mMaxWidth - thisLine.mFontBox.getWidth()) / 2.0f;
 		}
+
+		out.addLine(thisLine);
 	}
 }
 

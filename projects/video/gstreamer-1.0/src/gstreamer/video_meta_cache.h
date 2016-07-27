@@ -19,7 +19,7 @@ private:
 	class Entry;
 
 public:
-	static const enum Type { ERROR_TYPE, AUDIO_TYPE, VIDEO_TYPE };
+	static const enum Type { ERROR_TYPE, AUDIO_ONLY_TYPE, VIDEO_ONLY_TYPE, VIDEO_AND_AUDIO_TYPE };
 	VideoMetaCache(const std::string& name);
 
 	// responds with true if it had to go get the values

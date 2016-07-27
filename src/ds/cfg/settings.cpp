@@ -3,9 +3,11 @@
 #include <cinder/Xml.h>
 #include <Poco/File.h>
 #include <Poco/String.h>
+#include "ds/app/engine/engine.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/util/string_util.h"
+#include "ds/util/file_meta_data.h"
 
 static bool check_bool(const std::string& text, const bool defaultValue);
 
@@ -112,8 +114,9 @@ const V& get(const std::string& name, const A& container, const int index, const
 /**
  * ds::cfg::Settings
  */
-Settings::Settings()
-	: mChanged(false)
+Settings::Settings(ds::Engine* engine)
+	: mEngine(engine)
+	, mChanged(false)
 {
 }
 
@@ -158,7 +161,7 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll, 
 			if(ext == ".xml") {
 				directReadXmlFrom(filename, clearAll);
 			} else {
-				throw std::exception("unsupported format");
+				DS_LOG_WARNING("Unsupported format for xml settings: " << filename);
 			}
 		}
 	} catch(std::exception const& ex) {
@@ -183,6 +186,7 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	const std::string   VALUE_SZ("value");
 	const std::string   L_SZ("l");
 	const std::string   T_SZ("t");
+	const std::string   CODE_SZ("code");
 	const std::string   R_SZ("r");
 	const std::string   B_SZ("b");
 	const std::string   G_SZ("g");
@@ -190,6 +194,9 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	const std::string   X_SZ("x");
 	const std::string   Y_SZ("y");
 	const std::string   Z_SZ("z");
+	const std::string   W_SZ("w");
+	const std::string   H_SZ("h");
+
 
 	// FLOAT
 	const std::string   FLOAT_PATH("settings/float");
@@ -203,11 +210,19 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	const std::string   RECT_PATH("settings/rect");
 	for (auto it = xml.begin(RECT_PATH); it != end; ++it) {
 		const std::string   name = it->getAttributeValue<std::string>(NAME_SZ);
-		const cinder::Rectf value(it->getAttributeValue<float>(L_SZ),
-			it->getAttributeValue<float>(T_SZ),
-			it->getAttributeValue<float>(R_SZ),
-			it->getAttributeValue<float>(B_SZ));
+		float t, l, b, r;
+		l = it->getAttributeValue<float>(L_SZ);
+		t = it->getAttributeValue<float>(T_SZ);
+		if(it->hasAttribute(R_SZ)){
+			r = it->getAttributeValue<float>(R_SZ);
+			b =	it->getAttributeValue<float>(B_SZ);
+		} else if(it->hasAttribute(W_SZ)){
+			r = l + it->getAttributeValue<float>(W_SZ);
+			b = t + it->getAttributeValue<float>(H_SZ);
+		}
+		const cinder::Rectf value(l, t, r, b);
 		add_item(name, mRect, value);
+		
 	}
 
 	// INT
@@ -222,10 +237,18 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	for (auto it = xml.begin(COLOR_PATH); it != end; ++it) {
 		const float             DEFV = 255.0f;
 		const std::string       name = it->getAttributeValue<std::string>(NAME_SZ);
-		const cinder::ColorA		c(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
-			it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
-			it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
-			it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
+		cinder::ColorA			c;
+		if(it->hasAttribute(CODE_SZ)) {
+			if(mEngine) {
+				std::string code = it->getAttributeValue<std::string>(CODE_SZ);
+				c = mEngine->getColors().getColorFromName(code);
+			}
+		} else {
+			c.set(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
+				it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
+				it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
+				it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
+		}
 		add_item(name, mColor, cinder::Color(c.r, c.g, c.b));
 		add_item(name, mColorA, c);
 	}
@@ -271,9 +294,9 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	}
 }
 
-void Settings::directReadXmlFrom(const std::string& filename, const bool clearAll)
-{
-	if(!Poco::File(filename).exists()) return;
+void Settings::directReadXmlFrom(const std::string& filename, const bool clearAll){
+	if(!safeFileExistsCheck(filename)) return;
+
 	cinder::XmlTree     xml(cinder::loadFile(filename));
 	directReadXmlFromTree(xml, clearAll);
 }

@@ -38,7 +38,7 @@ public:
 		It will be loaded from all appropriate locations.
 		\param name is the name that the system will use to refer to the settings.
 		\param filename is the leaf path of the settings file (i.e. "data.xml"). */
-	void							loadSettings(const std::string& name, const std::string& filename);
+	void							loadSettings(const std::string& name, const std::string& filename, Engine* engine = nullptr);
 
 	/** Convenience to save a setting file from the mEngineCfg settings.
 		It will be saved to the user setting location.
@@ -55,7 +55,7 @@ public:
 	/** Convenience to load a text cfg file into a collection of cfg objects.
 		It will be loaded from all appropriate locations.
 		\param filename is the leaf path of the settings file (i.e. "text.xml"). */	
-	void							loadText(const std::string& filename);
+	void							loadText(const std::string& filename, Engine* engine = nullptr);
 	
 	/** Convenience to load a nine patch cfg file into a collection of cfg objects.
 		It will be loaded from all appropriate locations.
@@ -77,7 +77,7 @@ private:
 	// a shutdown crash with this as statics.
 	const ds::cfg::Settings			mEmptySettings;
 	ds::cfg::Settings				mEditEmptySettings;
-	const ds::cfg::Text				mEmptyTextCfg;
+	ds::cfg::Text					mEmptyTextCfg;
 	const ds::cfg::NinePatch		mEmptyNinePatchCfg;
 };
 

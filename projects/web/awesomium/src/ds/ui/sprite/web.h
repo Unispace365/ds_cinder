@@ -92,6 +92,7 @@ public:
 	// In the future I'd like to have a richer mechanism in place.
 	void					setAddressChangedFn(const std::function<void(const std::string& new_address)>&);
 	void					setDocumentReadyFn(const std::function<void(void)>&);
+	void					setErrorCallback(std::function<void(const std::string&)> func){ mErrorCallback = func; }
 
 	// allows the view to be updated while the page is still being loaded. default=false
 	void					setDrawWhileLoading(const bool doDrawing){ mDrawWhileLoading = doDrawing; }
@@ -120,6 +121,12 @@ public:
 														const std::function<void(const ds::web::ScriptTree&)>&);
 
 	void					executeJavascript(const std::string& theScript);
+
+	/// Lets you disable clicking, but still scroll via "mouse wheel"
+	void					setAllowClicks(const bool doAllowClicks);
+
+	/// If true, any transparent web pages will be blank, false will have a white background for pages
+	void					setWebTransparent(const bool isTransparent);
 
 protected:
 	virtual void			onSizeChanged();
@@ -156,6 +163,7 @@ private:
 	bool					mDrawWhileLoading;
 
 	ci::Vec3f				mPreviousTouchPos;
+	bool					mAllowClicks;
 	bool					mClickDown;
 	bool					mDragScrolling;
 	int						mDragScrollMinFingers;
@@ -169,6 +177,8 @@ private:
 							mTouchListener;
 	std::function<void(void)>
 							mDocumentReadyFn;
+	std::function<void(const std::string& msg)>
+							mErrorCallback;
 
 	// Replicated state
 	std::string				mUrl;
@@ -176,6 +186,7 @@ private:
 	bool					mHasError;
 	std::string				mErrorMessage;
 	ds::ui::Text*			mErrorText;
+	ds::ui::TextLayoutVertical	mErrorLayout;
 
 	// Initialization
 public:

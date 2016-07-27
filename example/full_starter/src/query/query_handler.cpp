@@ -15,12 +15,15 @@ namespace fullstarter {
  */
 QueryHandler::QueryHandler(ds::ui::SpriteEngine& se, AllData &ad)
 		: mEventClient(se.getNotifier(), [this](const ds::Event* e){if (e) onAppEvent(*e); })
-		, mAllStories(ad.mAllStories)
+		, mAllData(ad)
 		, mStoryQuery(se, [](){return new StoryQuery(); })
 {
 
 	// Initialize data
 	mStoryQuery.setReplyHandler([this](StoryQuery& q){this->onStoryQuery(q); });
+}
+
+void QueryHandler::runInitialQueries(){
 	mStoryQuery.start(nullptr, true);
 }
 
@@ -28,7 +31,7 @@ void QueryHandler::onAppEvent(const ds::Event& _e) {
 }
 
 void QueryHandler::onStoryQuery(StoryQuery& q) {
-	mAllStories = q.mOutput;
+	mAllData.mStories = q.mOutput.mStories;
 }
 
 

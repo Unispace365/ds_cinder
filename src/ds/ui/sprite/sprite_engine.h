@@ -6,6 +6,7 @@
 #include <cinder/Camera.h>
 #include <cinder/Rect.h>
 #include <cinder/Vector.h>
+#include <cinder/Xml.h>
 #include <cinder/app/Window.h>
 #include "ds/app/app_defs.h"
 #include "fbo/fbo.h"
@@ -13,6 +14,7 @@
 
 namespace ds {
 class AutoUpdateList;
+class ColorList;
 class EngineCfg;
 class EngineData;
 class EngineService;
@@ -22,6 +24,7 @@ class ImageRegistry;
 class PerspCameraParams;
 class ResourceList;
 class WorkManager;
+class ComputerInfo;
 
 namespace cfg {
 class Settings;
@@ -32,6 +35,8 @@ class LoadImageService;
 class RenderTextService;
 class Sprite;
 class Tweenline;
+class TouchEvent;
+struct TouchInfo;
 
 /**
  * \class ds::ui::SpriteEngine
@@ -50,6 +55,7 @@ public:
 	// General engine services
 	virtual ds::WorkManager&		getWorkManager() = 0;
 	virtual ds::ResourceList&		getResources() = 0;
+	virtual const ds::ColorList&	getColors() const = 0;
 	virtual const ds::FontList&		getFonts() const = 0;
 	virtual ds::AutoUpdateList&		getAutoUpdateList(const int = AutoUpdateType::SERVER) = 0;
 	virtual LoadImageService&		getLoadImageService() = 0;
@@ -60,6 +66,12 @@ public:
 									getDebugSettings() = 0;
 	virtual ci::app::WindowRef		getWindow() = 0;
 
+	bool							getMute();
+	void							setMute(bool);
+
+	/** Defined by platform:guid. Useful if you need to something specific on a particular client */
+	const std::string				getAppInstanceName();
+
 	/** Access a service. Throw if the service doesn't exist.
 		Handle casting for you (since the root ds::EngineService class is unuseable). */
 	template <typename T>
@@ -68,7 +80,7 @@ public:
 	bool							hasService(const std::string&) const;
 
 	/** Access to the current engine configuration info. */
-	void SpriteEngine::loadSettings(const std::string& name, const std::string& filename);
+	void							loadSettings(const std::string& name, const std::string& filename);
 	
 	ds::EngineCfg&					getEngineCfg();
 	const ds::EngineCfg&			getEngineCfg() const;
@@ -106,16 +118,16 @@ public:
 	// Camera control. Will throw if the root at the index is the wrong type.
 	// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call
 	// no earlier than App::setup().
-	virtual PerspCameraParams			getPerspectiveCamera(const size_t index) const = 0;
+	virtual PerspCameraParams		getPerspectiveCamera(const size_t index) const = 0;
 	// For clients that frequently read the camera params, they can cache a direct reference.
-	virtual const ci::CameraPersp&		getPerspectiveCameraRef(const size_t index) const = 0;
-	virtual void						setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
-	virtual void						setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&) = 0;
+	virtual const ci::CameraPersp&	getPerspectiveCameraRef(const size_t index) const = 0;
+	virtual void					setPerspectiveCamera(const size_t index, const PerspCameraParams&) = 0;
+	virtual void					setPerspectiveCameraRef(const size_t index, const ci::CameraPersp&) = 0;
 
 	// Will throw if the root at the index is the wrong type
-	virtual float						getOrthoFarPlane(const size_t index) const = 0;
-	virtual float						getOrthoNearPlane(const size_t index) const = 0;
-	virtual void						setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane) = 0;
+	virtual float					getOrthoFarPlane(const size_t index) const = 0;
+	virtual float					getOrthoNearPlane(const size_t index) const = 0;
+	virtual void					setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane) = 0;
 
 	void							addToDragDestinationList(Sprite *sprite);
 	void							removeFromDragDestinationList(Sprite *sprite);
@@ -137,12 +149,19 @@ public:
 	// The touch events will use the same pathways that normal touches would.
 	// This is generally only recommended for debugging stuff (like automators) 
 	// or if you have an unusual input situation (like a kinect or something) and want to use touch
-	virtual void					injectTouchesBegin(const ci::app::TouchEvent&){};
-	virtual void					injectTouchesMoved(const ci::app::TouchEvent&){};
-	virtual void					injectTouchesEnded(const ci::app::TouchEvent&){};
+	virtual void					injectTouchesBegin(const ds::ui::TouchEvent&) = 0;
+	virtual void					injectTouchesMoved(const ds::ui::TouchEvent&) = 0;
+	virtual void					injectTouchesEnded(const ds::ui::TouchEvent&) = 0;
 
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void					translateTouchPoint( ci::Vec2f& inOutPoint ) = 0;
+
+	/// Calls every time any touch anywhere happens, and the touch info is post-translation and filtering
+	/// This calls *after* any sprites get the touch. 
+	void							setTouchInfoPipeCallback(std::function<void(const ds::ui::TouchInfo&)> func){ mTouchInfoPipe = func; }
+	
+	/// Get the function for touch info callbacks, for TouchManager to callback on.
+	std::function<void(const ds::ui::TouchInfo&)>	getTouchInfoPipeCallback(){ return mTouchInfoPipe; }
 
 	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	// Sprites can still turn this off after creation
@@ -158,6 +177,19 @@ public:
 	static const int				STANDALONE_MODE = 3;
 	virtual int						getMode() const = 0;
 
+	ds::ComputerInfo&				getComputerInfo();
+
+	/** Register a function to a sprite type. This allows an xml sprite importer to create sprites it knows nothing about, like Jon Snow. */
+	void							registerSpriteImporter(const std::string& spriteType, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)> func);
+	/** Create a sprite of a type specified by the spriteType name in registerSpriteImporter(). Can return nullptr if there's no sprite registered for that name. */
+	ds::ui::Sprite*					createSpriteImporter(const std::string& spriteType);
+
+	/** Register a callback to set the property of a sprite during import by an outside caller (like an xml importer) */
+	void							registerSpritePropertySetter(const std::string& propertyName, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)> func);
+
+	/** Set the property of a sprite by name and value string. File referrer (optional) is the relative file path to look up files. See ds/util/file_meta_data.h for relative path finding */
+	bool							setRegisteredSpriteProperty(const std::string& propertyName, ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer = "");
+
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
 	// which is how things work by default (the data and engine are owned by the App).
@@ -166,11 +198,17 @@ protected:
 
 	ds::EngineData&					mData;
 	std::list<Sprite *>				mDragDestinationSprites;
+	ds::ComputerInfo*				mComputerInfo;
 
 	std::list<std::unique_ptr<FboGeneral>> mFbos;
 
+	std::unordered_map<std::string, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)>> mImporterMap;
+	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>> mPropertyMap;
+
 private:
 	ds::EngineService&				private_getService(const std::string&);
+
+	std::function<void(const ds::ui::TouchInfo& ti)>	mTouchInfoPipe;
 };
 
 template <typename T>

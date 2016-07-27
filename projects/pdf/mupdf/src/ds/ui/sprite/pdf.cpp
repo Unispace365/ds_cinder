@@ -20,9 +20,12 @@ class Init {
 public:
 	Init() {
 		ds::App::AddStartup([](ds::Engine& e) {
-			ds::pdf::Service*		w = new ds::pdf::Service();
-			if (!w) throw std::runtime_error("Can't create ds::pdf::Service");
-			e.addService("pdf", *w);
+			ds::pdf::Service*		w = new ds::pdf::Service(e);
+			if(w){
+				e.addService("pdf", *w);
+			} else {
+				DS_LOG_WARNING("Can't create ds::pdf::Service");
+			}
 
 			e.installSprite([](ds::BlobRegistry& r){ds::ui::Pdf::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Pdf::installAsClient(r);});
@@ -36,8 +39,10 @@ Init				INIT;
 char				BLOB_TYPE			= 0;
 const DirtyState&	PDF_FN_DIRTY		= INTERNAL_A_DIRTY;
 const DirtyState&	PDF_PAGEMODE_DIRTY	= INTERNAL_B_DIRTY;
+const DirtyState&	PDF_CURPAGE_DIRTY	= INTERNAL_C_DIRTY;
 const char			PDF_FN_ATT			= 80;
 const char			PDF_PAGEMODE_ATT	= 81;
+const char			PDF_CURPAGE_ATT		= 82;
 }
 
 /**
@@ -67,9 +72,38 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 		, mPageSizeMode(kConstantSize)
 		, mPageSizeChangeFn(nullptr)
 		, mPageSizeCache(0, 0)
-		, mHolder(e) {
+		, mHolder(e) 
+		, mPrevScale(0.0f, 0.0f, 0.0f)
+{
 	// Should be unnecessary, but make sure we reference the static.
 	INIT.doNothing();
+	mLayoutFixedAspect = true;
+
+	enable(false);
+	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+
+	// set some callbacks in case we are ever enabled
+	this->setTapCallback([this](ds::ui::Sprite* sprite, const ci::Vec3f& pos){
+		int count = getPageCount();
+		int zeroIndexNextWrapped = (getPageNum() % count);
+		setPageNum(zeroIndexNextWrapped + 1);
+	});
+
+	this->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::Vec3f& delta){
+		int diff = 0;
+
+		if(delta.x < -20.0f){
+			diff = 1;
+		} else if(delta.x > 20.0f){
+			diff = -1;
+		}
+
+		if(diff != 0){
+			int count = getPageCount();
+			int zeroIndexNextWrapped = ((getPageNum() - 1 + diff + count) % count);
+			setPageNum(zeroIndexNextWrapped + 1);
+		}
+	});
 
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
@@ -86,7 +120,12 @@ Pdf& Pdf::setPageSizeMode(const PageSizeMode& m) {
 Pdf& Pdf::setResourceFilename(const std::string& filename) {
 	mResourceFilename = filename;
 	mPageSizeCache = ci::Vec2i(0, 0);
-	mHolder.setResourceFilename(filename, mPageSizeMode);
+	if(!mHolder.setResourceFilename(filename, mPageSizeMode) && mErrorCallback){
+		std::stringstream errorStream;
+		errorStream << "PDF could not be loaded at " << filename;
+		std::string errorStr = errorStream.str();
+		mErrorCallback(errorStr);
+	}
 	mHolder.setScale(mScale);
 	setSize(mHolder.getWidth(), mHolder.getHeight());
 	markAsDirty(PDF_FN_DIRTY);
@@ -103,7 +142,7 @@ Pdf &Pdf::setResourceId(const ds::Resource::Id &resourceId) {
 		}
 	}
 	catch (std::exception const& ex) {
-		DS_DBG_CODE(std::cout << "ERROR Pdf::setResourceFilename() ex=" << ex.what() << std::endl);
+		DS_LOG_WARNING("ERROR Pdf::setResourceFilename() ex=" << ex.what());
 		return *this;
 	}
 	return *this;
@@ -115,12 +154,18 @@ void Pdf::setPageSizeChangedFn(const std::function<void(void)>& fn) {
 
 void Pdf::updateClient(const UpdateParams& p) {
 	inherited::updateClient(p);
+	if(mPrevScale != mScale){
+		mHolder.setScale(mScale);
+		mPrevScale = mScale;
+	}
 	mHolder.update();
 }
 
 void Pdf::updateServer(const UpdateParams& p) {
 	inherited::updateServer(p);
-	mHolder.update();
+	if(mHolder.update() && mPageLoadedCallback){
+		mPageLoadedCallback();
+	}
 	if (mPageSizeMode == kAutoResize) {
 		const ci::Vec2i			page_size(mHolder.getPageSize());
 		if (mPageSizeCache != page_size) {
@@ -133,6 +178,8 @@ void Pdf::updateServer(const UpdateParams& p) {
 
 void Pdf::setPageNum(const int pageNum) {
 	mHolder.setPageNum(pageNum);
+	markAsDirty(PDF_CURPAGE_DIRTY);
+	if(mPageChangeCallback) mPageChangeCallback();
 }
 
 int Pdf::getPageNum() const {
@@ -145,10 +192,14 @@ int Pdf::getPageCount() const {
 
 void Pdf::goToNextPage() {
 	mHolder.goToNextPage();
+	markAsDirty(PDF_CURPAGE_DIRTY);
+	if(mPageChangeCallback) mPageChangeCallback();
 }
 
 void Pdf::goToPreviousPage() {
 	mHolder.goToPreviousPage();
+	markAsDirty(PDF_CURPAGE_DIRTY);
+	if(mPageChangeCallback) mPageChangeCallback();
 }
 
 #ifdef _DEBUG
@@ -166,7 +217,6 @@ void Pdf::onScaleChanged() {
 }
 
 void Pdf::drawLocalClient() {
-	inherited::drawLocalClient();
 
 	// When drawing, we have to go through some histrionics because we
 	// want this sprite to look the same as other sprites to the outside
@@ -174,23 +224,30 @@ void Pdf::drawLocalClient() {
 	// scaled size, not the sprite size.
 	const float				tw = mHolder.getTextureWidth(),
 							th = mHolder.getTextureHeight();
-	if (tw < 1.0f || th < 1.0f) return;
+	if(tw < 1.0f || th < 1.0f){
+		ci::gl::color(0.0f, 0.0f, 0.0f, mDrawOpacity);
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), false);
+		return;
+	}
 
 	const float				targetw = getWidth()*mScale.x,
 							targeth = getHeight()*mScale.y;
-    ci::gl::pushModelView();
+
+	inherited::drawLocalClient();
+
+	ci::gl::pushModelView();
 
 	// To draw properly, we first have to turn off whatever scaling has
 	// been applied, then apply a new scale to compensate for any mismatch
 	// between my current texture size and my display size.
 	const ci::Vec3f			turnOffScale(1.0f/mScale.x, 1.0f/mScale.y, 1.0f);
 	const ci::Vec3f			newScale(targetw/tw, targeth/th, 1.0f);
-    ci::gl::multModelView(ci::Matrix44f::createScale(turnOffScale));
-    ci::gl::multModelView(ci::Matrix44f::createScale(newScale));
+	ci::gl::multModelView(ci::Matrix44f::createScale(turnOffScale));
+	ci::gl::multModelView(ci::Matrix44f::createScale(newScale));
 
 	mHolder.drawLocalClient();
 
-    ci::gl::popModelView();
+	ci::gl::popModelView();
 }
 
 void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
@@ -204,6 +261,11 @@ void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(PDF_PAGEMODE_ATT);
 		buf.add<int32_t>(static_cast<int32_t>(mPageSizeMode));
 	}
+
+	if(mDirty.has(PDF_CURPAGE_DIRTY)){
+		buf.add(PDF_CURPAGE_ATT);
+		buf.add(mHolder.getPageNum());
+	}
 }
 
 void Pdf::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
@@ -213,6 +275,9 @@ void Pdf::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 		const int32_t		mode = buf.read<int32_t>();
 		if (mode == 0) setPageSizeMode(kConstantSize);
 		else if (mode == 1) setPageSizeMode(kAutoResize);
+	} else if(attributeId == PDF_CURPAGE_ATT) {
+		const int			curPage = buf.read<int>();
+		setPageNum(curPage);
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
 	}
@@ -238,18 +303,23 @@ void Pdf::ResHolder::clear() {
 	}
 }
 
-void Pdf::ResHolder::setResourceFilename(const std::string& filename, const PageSizeMode& m) {
+bool Pdf::ResHolder::setResourceFilename(const std::string& filename, const PageSizeMode& m) {
 	clear();
+	bool success = false;
 	mRes = new ds::pdf::PdfRes(mService.mThread);
 	if (mRes) {
-		mRes->loadPDF(ds::Environment::expand(filename), m);
+		success = mRes->loadPDF(ds::Environment::expand(filename), m);
 	}
+
+	return success;
 }
 
-void Pdf::ResHolder::update() {
+bool Pdf::ResHolder::update() {
 	if (mRes) {
-		mRes->update();
+		return mRes->update();
 	}
+
+	return false;
 }
 
 void Pdf::ResHolder::drawLocalClient()

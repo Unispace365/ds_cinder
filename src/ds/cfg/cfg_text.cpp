@@ -18,9 +18,10 @@ Text::Text()
 		, mAlignment(ds::ui::Alignment::kLeft) {
 }
 
-Text::Text(	const std::string& font, const float size, const float leading,
+Text::Text(const std::string& font, const std::string& configName, const float size, const float leading,
 			const ci::ColorA& c, const ds::ui::Alignment::Enum& alignment)
 		: mFont(font)
+		, mCfgName(configName)
 		, mSize(size)
 		, mLeading(leading)
 		, mColor(c)
@@ -61,6 +62,7 @@ ds::ui::MultilineText& Text::createOrThrowMultiline(ds::ui::SpriteEngine& se, ds
 }
 
 void Text::configure(ds::ui::Text& s) const {
+	s.setConfigName(mCfgName);
 	s.setFont(mFont, mSize);
 	s.setColorA(mColor);
 	ds::ui::MultilineText*		mt = dynamic_cast<ds::ui::MultilineText*>(&s);

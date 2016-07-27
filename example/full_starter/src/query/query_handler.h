@@ -9,7 +9,6 @@
 // with cinder. Need to look into that.
 #include <ds/network/node_watcher.h>
 #include "query/story_query.h"
-#include "model/all_stories.h"
 #include "model/all_data.h"
 
 namespace fullstarter {
@@ -22,6 +21,8 @@ class QueryHandler {
 public:
 	QueryHandler(ds::ui::SpriteEngine&, AllData&);
 
+	void								runInitialQueries();
+
 private:
 
 	void								onAppEvent(const ds::Event&);
@@ -29,7 +30,7 @@ private:
 
 	ds::EventClient						mEventClient;
 
-	AllStories&							mAllStories;
+	AllData&							mAllData;
 
 	ds::SerialRunnable<StoryQuery>		mStoryQuery;
 

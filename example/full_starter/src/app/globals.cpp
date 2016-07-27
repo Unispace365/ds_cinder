@@ -15,8 +15,17 @@ namespace fullstarter {
  */
 Globals::Globals(ds::ui::SpriteEngine& e , const AllData& d )
 		: mEngine(e)
-		, mAllStories(d.mAllStories)
+		, mAllData(d)
+		, mAnimationDuration(0.35f)
 {
+}
+
+const float Globals::getAnimDur(){
+	return mAnimationDuration;
+}
+
+void Globals::initialize(){
+	mAnimationDuration = getSettingsLayout().getFloat("animation:duration", 0, mAnimationDuration);
 }
 
 const ds::cfg::Settings& Globals::getSettings(const std::string& name) const {

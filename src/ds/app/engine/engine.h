@@ -25,6 +25,7 @@
 
 #include "ds/app/engine/renderers/engine_renderer_interface.h"
 #include "ds/app/engine/engine_touch_queue.h"
+#include "ds/data/color_list.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
 #include "ds/data/tuio_object.h"
@@ -105,7 +106,7 @@ public:
 	void								prepareSettings( ci::app::AppBasic::Settings& );
 	//called in app setup; loads settings files and what not.
 	virtual void						setup(ds::App&);
-	virtual void						setupTuio(ds::App&) = 0;
+	void								setupTouch(ds::App&);
 
 	bool								isIdling() const;
 	void								startIdling();
@@ -123,9 +124,9 @@ public:
 	virtual ci::Color8u					getUniqueColor();
 
 	ci::tuio::Client&					getTuioClient();
-	void								touchesBegin(const ci::app::TouchEvent&);
-	void								touchesMoved(const ci::app::TouchEvent&);
-	void								touchesEnded(const ci::app::TouchEvent&);
+	void								touchesBegin(const ds::ui::TouchEvent&);
+	void								touchesMoved(const ds::ui::TouchEvent&);
+	void								touchesEnded(const ds::ui::TouchEvent&);
 	void								mouseTouchBegin(const ci::app::MouseEvent&, int id);
 	void								mouseTouchMoved(const ci::app::MouseEvent&, int id);
 	void								mouseTouchEnded(const ci::app::MouseEvent&, int id);
@@ -137,9 +138,10 @@ public:
 	// or if you have an unusual input situation (like a kinect or something) and want to use touch
 	// These are separate functions from the touchesBegin, etc from above so the general
 	// use functions are not virtual and to indicate that these touchpoints are not coming from hardware
-	virtual void						injectTouchesBegin(const ci::app::TouchEvent&);
-	virtual void						injectTouchesMoved(const ci::app::TouchEvent&);
-	virtual void						injectTouchesEnded(const ci::app::TouchEvent&);
+	// \param inWorldSpace If true, the app will not translate due to src/dst rect settings
+	virtual void						injectTouchesBegin(const ds::ui::TouchEvent&);
+	virtual void						injectTouchesMoved(const ds::ui::TouchEvent&);
+	virtual void						injectTouchesEnded(const ds::ui::TouchEvent&);
 
 	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	// Sprites can still turn this off after creation
@@ -148,6 +150,9 @@ public:
 	virtual ds::ResourceList&			getResources();
 	virtual const ds::FontList&			getFonts() const;
 	ds::FontList&						editFonts();
+
+	virtual const ds::ColorList&		getColors() const;
+	ds::ColorList&						editColors();
 
 	void								markCameraDirty();
 	virtual PerspCameraParams			getPerspectiveCamera(const size_t index) const;
@@ -176,12 +181,17 @@ public:
 
 	ds::ui::Sprite*						getHit(const ci::Vec3f& point);
 
+	ui::TouchManager&					getTouchManager(){ return mTouchManager; }
 	virtual void						clearFingers( const std::vector<int> &fingers );
 	void								setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 	ds::ui::Sprite*						getSpriteForFinger( const int fingerId ){ return mTouchManager.getSpriteForFinger(fingerId); }
 	// translate a touch event point to the overlay bounds specified in the settings
 	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint );
 	virtual bool						shouldDiscardTouch( ci::Vec2f& p ){ return mTouchManager.shouldDiscardTouch(p); }
+
+	void								setTouchSmoothing(const bool doSmoothing);
+	const bool							getTouchSmoothing();
+	void								setTouchSmoothFrames(const int smoothFrames);
 
 	// Root support
 	const ci::Rectf&					getScreenRect() const;
@@ -198,6 +208,30 @@ public:
 	void								setAverageFps(const float fps){ mAverageFps = fps; }
 	const float							getAverageFps() const { return mAverageFps; }
 
+
+	// This really should move somewhere else (TODO: SL)
+	struct FxaaOptions
+	{
+		bool								mApplyFxAA{ false };
+		float								mFxAASpanMax;
+		float								mFxAAReduceMul;
+		float								mFxAAReduceMin;
+	} mFxaaOptions;
+	// -------------------------------------------------------------
+	// These functions are inlined, since they are called frequently
+	// -------------------------------------------------------------
+	/// Returns the list of current roots
+	inline const std::vector<std::unique_ptr<EngineRoot>>&		getRoots() const { return mRoots; }
+	inline const ds::DrawParams&								getDrawParams() const { return mDrawParams; }
+	inline ds::AutoDrawService* const							getAutoDrawService() { return mAutoDraw; }
+	inline const FxaaOptions&									getFxaaOptions() const { return mFxaaOptions; }
+
+	/// This is for Clients to reconstruct roots when they re-connect with the server
+	void														clearRoots();
+
+	/// For Clients to create roots when reconnecting to the server
+	void														createClientRoots(std::vector<RootList::Root> newRoots);
+
 protected:
 	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);
 
@@ -206,10 +240,21 @@ protected:
 	void								updateServer();
 	void								drawClient();
 	void								drawServer();
-	// Called from the destructor of all subclasses, so I can cleanup
-	// sprites before services go away.
-	void								clearAllSprites();
+
+	/** Called from the destructor of all subclasses, so I can cleanup sprites before services go away.
+		\param clearDebug If true, will clear all the children from the debug roots too. 
+							If false, leaves them alone (for instance, in client situations) */
+	void								clearAllSprites(const bool clearDebug = true);
 	void								registerForTuioObjects(ci::tuio::Client&);
+
+	/** When mouse events are ready to be handled by the touch manager. 
+		These are enforced virtual functions to be sure the engine handles mouse events.
+		Servers will send directly to the touch manager, and clients can send back to the server */
+	virtual void						handleMouseTouchBegin(const ci::app::MouseEvent&, int id) = 0;
+	virtual void						handleMouseTouchMoved(const ci::app::MouseEvent&, int id) = 0;
+	virtual void						handleMouseTouchEnded(const ci::app::MouseEvent&, int id) = 0;
+
+	ui::TouchManager					mTouchManager;
 
 	static const int					NumberOfNetworkThreads;
 
@@ -222,33 +267,15 @@ protected:
 	ds::ui::ip::FunctionList			mIpFunctions;
 	ds::ui::TouchMode::Enum				mTouchMode;
 
-	// This really should move somewhere else (TODO: SL)
-	struct FxaaOptions
-	{
-		bool								mApplyFxAA{ false };
-		float								mFxAASpanMax;
-		float								mFxAAReduceMul;
-		float								mFxAAReduceMin;
-	} mFxaaOptions;
-
-public:
-	//! **** IMPORTANT NOTE ****
-	//! Leave these methods to be here so they get in-lined properly.
-	//! In-lining these methods are crucial since they get fired every frame!
-	inline const std::vector<std::unique_ptr<EngineRoot>>&
-										getRoots() const { return mRoots; }
-	inline const ds::DrawParams&		getDrawParams() const { return mDrawParams; }
-	inline ds::AutoDrawService* const	getAutoDrawService() { return mAutoDraw; }
-	inline const FxaaOptions&			getFxaaOptions() const { return mFxaaOptions; }
-
 private:
 	//! a pointer to the currently active renderer
 	std::unique_ptr<EngineRenderer>		mRenderer;
 	//! decides a renderer based on engine configurations. MUST be called inside "setup".
 	void								setupRenderer();
 
-private:
 	void								setTouchMode(const ds::ui::TouchMode::Enum&);
+	void								createStatsView(sprite_id_t root_id);
+
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
 										mRoots;
@@ -257,6 +284,7 @@ private:
 	ds::ui::Tweenline					mTweenline;
 	// A cache of all the resources in the system
 	ResourceList						mResources;
+	ColorList							mColors;
 	FontList							mFonts;
 	UpdateParams						mUpdateParams;
 	DrawParams							mDrawParams;
@@ -265,7 +293,6 @@ private:
 	float								mLastTouchTime;
 
 	ci::tuio::Client					mTuio;
-	ui::TouchManager					mTouchManager;
 	// Clients that will get update() called automatically at the start
 	// of each update cycle
 	AutoUpdateList						mAutoUpdateServer;
@@ -276,11 +303,11 @@ private:
 	ds::cfg::Settings					mDebugSettings;
 	ds::ui::TouchTranslator				mTouchTranslator;
 	std::mutex							mTouchMutex;
-	ds::EngineTouchQueue<ci::app::TouchEvent>
+	ds::EngineTouchQueue<ds::ui::TouchEvent>
 										mTouchBeginEvents;
-	ds::EngineTouchQueue<ci::app::TouchEvent>
+	ds::EngineTouchQueue<ds::ui::TouchEvent>
 										mTouchMovedEvents;
-	ds::EngineTouchQueue<ci::app::TouchEvent>
+	ds::EngineTouchQueue<ds::ui::TouchEvent>
 										mTouchEndEvents;
 	typedef std::pair<ci::app::MouseEvent, int> MousePair;
 	ds::EngineTouchQueue<MousePair>		mMouseBeginEvents;

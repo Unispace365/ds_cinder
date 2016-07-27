@@ -34,9 +34,6 @@
     <Filter Include="src\ds\ui\sprite">
       <UniqueIdentifier>{2ac10f37-fb39-4f7f-a22a-e86ab62d9163}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\touch">
-      <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\math">
       <UniqueIdentifier>{9fb4c09e-660e-4216-93c1-e3dd8ff0f9e0}</UniqueIdentifier>
     </Filter>
@@ -105,6 +102,9 @@
     </Filter>
     <Filter Include="src\ds\app\engine\renderers">
       <UniqueIdentifier>{0d3f99b8-44cb-4266-b9aa-e57cc95746ad}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\touch">
+      <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -666,6 +666,48 @@
     <ClInclude Include="..\src\ds\query\recycle_array.h">
       <Filter>src\ds\query</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\draw_touch_view.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\circle.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\network_info.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\touch_event.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\gl\gl_state.h">
+      <Filter>src\ds\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\gl\gl_scoped.h">
+      <Filter>src\ds\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\color_list.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\border.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\image_with_thumbnail.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\circle_border.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\Quaternion.h">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\exif.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\exif_reader.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_events.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1126,6 +1168,36 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_interface.cpp">
       <Filter>src\ds\app\engine\renderers</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\draw_touch_view.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\circle.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\network_info.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\gl\gl_scoped.cpp">
+      <Filter>src\ds\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\gl\gl_state.cpp">
+      <Filter>src\ds\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\color_list.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\border.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\image_with_thumbnail.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\circle_border.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\exif.cpp">
+      <Filter>src\ds\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

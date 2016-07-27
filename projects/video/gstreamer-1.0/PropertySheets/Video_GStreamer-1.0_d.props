@@ -6,25 +6,21 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\src;</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>%(AdditionalDependencies);gstreamer-1.0.lib;glib-2.0.lib;
-gobject-2.0.lib;
-gstapp-1.0.lib;
-gstbase-1.0.lib;
-gstvideo-1.0.lib;
-gthread-2.0.lib;
-gstnet-1.0.lib;
-gstgl-1.0.lib;
-video_gstreamer-1.0_d.lib</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_CINDER_GSTREAMER_1-0)\lib;$(DS_PLATFORM_086)\projects\video\lib</AdditionalLibraryDirectories>
-      <DelayLoadDLLs>libgstreamer-1.0-0.dll;libglib-2.0-0.dll;libgobject-2.0-0.dll;libgstapp-1.0-0.dll;libgstbase-1.0-0.dll;libgstgl-1.0-0.dll;libgstvideo-1.0-0.dll</DelayLoadDLLs>
+      <AdditionalDependencies>%(AdditionalDependencies);
+		gstreamer-1.0.lib;
+		glib-2.0.lib;
+		gobject-2.0.lib;
+		gstapp-1.0.lib;
+		gstbase-1.0.lib;
+		gstvideo-1.0.lib;
+		gthread-2.0.lib;
+		gstnet-1.0.lib;
+		video_gstreamer-1.0_d.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(GSTREAMER_1_0_ROOT_X86)\lib;$(DS_PLATFORM_086)\projects\video\lib</AdditionalLibraryDirectories>
     </Link>
-	    <PostBuildEvent>
-      <Command>copy /Y "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll" "$(OutDir)"</Command>
-      <Message>Copying MediaInfo dll to output directory</Message>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup />
 </Project>

@@ -10,6 +10,8 @@
 #include "ds/thread/gl_thread.h"
 #include "ds/ui/ip/ip_function_list.h"
 
+#include "ds/thread/parallel_runnable.h"
+
 namespace ds {
 namespace ui {
 class LoadImageService;
@@ -98,9 +100,9 @@ private:
  * \class ds::ui::LoadImageService
  * \brief Manage and load images.
  */
-class LoadImageService : public ds::GlThreadClient<LoadImageService> {
+class LoadImageService  {
 public:
-	LoadImageService(GlThread&, ds::ui::ip::FunctionList&);
+	LoadImageService(ds::ui::SpriteEngine& eng, ds::ui::ip::FunctionList&);
 	~LoadImageService();
 
 	// Clients should call release() for every successful acquire
@@ -113,13 +115,12 @@ public:
 	// Answer true if the token exists (though the image might not be loaded), supplying the flags if you like
 	bool						peekToken(const ImageKey&, int* flags = nullptr) const;
 
-	void						update();
 	void						clear();
 
 private:
 	// store a single image slot
-	struct holder {
-		holder();
+	struct ImageHolder {
+		ImageHolder();
 
 		int						mRefs;
 		ci::gl::Texture			mTexture;
@@ -128,33 +129,45 @@ private:
 	};
 
 	// an op for loading images
-	struct op {
-		op();
-		op(const op&);
-		op(const ImageKey&, const int flags, const ds::ui::ip::FunctionRef&);
+	struct ImageOperation {
+		ImageOperation();
+		ImageOperation(const ImageOperation&);
+		ImageOperation(const ImageKey&, const int flags, const ds::ui::ip::FunctionRef&);
 
 		void					clear();
 
 		ImageKey				mKey;
-// This seems to cause problems with garbled images
-//		ci::gl::Texture			mTexture;
 		ci::Surface8u			mSurface;
 		int						mFlags;
 		ds::ui::ip::FunctionRef	mIpFunction;
+		int						mNumberTries;
 	};
 
-private:
-	void						_load();
+	class ImageLoadThread : public Poco::Runnable {
+		public:
+			ImageLoadThread();
 
-	ds::ui::ip::FunctionList&	mFunctions;
-	// Hmm, had problems getting the hashing implemented for ImageKey
-//	std::unordered_map<ImageKey, holder>
-	std::unordered_map<ImageKey, holder>
-								mImageResource;
+			virtual void						run();
+			ImageOperation						mOutput;
+			bool								mError;
+	};
 
-	Poco::Mutex					mMutex;
-	// Input and output stacks for thread processing
-	std::vector<op>				mInput, mOutput, mTmp;
+// ImageLoadService Private members ------------------------------------
+
+
+
+	ds::ui::ip::FunctionList&					mFunctions;
+	std::unordered_map<ImageKey, ImageHolder>	mImageResource;
+
+	void										onLoadComplete(ImageLoadThread& loadThread);
+	void										advanceQueue();
+	int											mLoadsInProgress;
+	const int									mMaxSimultaneousLoads;
+	const int									mMaxLoadTries;
+
+	std::vector<ImageOperation>					mOperationsQueue;
+
+	ds::ParallelRunnable<ImageLoadThread>		mLoadThreads;
 };
 
 } // namespace ui

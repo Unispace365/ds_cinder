@@ -19,6 +19,7 @@ class Text;
 
 ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str);
 ci::Vec2f getSizeFromString(const FontPtr &font, const std::wstring &str);
+ci::Rectf getBoxFromString(const FontPtr &font, const std::wstring &str);
 int getFontSize(const FontPtr &font);
 float getFontAscender(const FontPtr &font);
 float getFontDescender(const FontPtr &font);
@@ -36,8 +37,10 @@ public:
 	class Line {
 	public:
 		Line();
-		ci::Vec2f			mPos;
-		std::wstring		mText;
+		ci::Vec2f				mPos;
+		ci::Rectf				mFontBox;
+		std::wstring			mText;		// potentially modified by the layout class from the original input (tabs -> four spaces, returns, etc)
+		std::map<int, float>	mIndexPositions; // maps input string indices to x-pixel-position in the line. x-position is relative to the mPos.x value of this line
 	};
 	// A bundle of all data necessary to create a layout
 	class Input {
@@ -49,6 +52,7 @@ public:
 		const ci::Vec2f&	mSize;
 		const std::wstring&	mText;
 		bool				mLineWasSplit;
+		bool				mGenerateIndex; // generate positions of each character, potentially expensive operation
 	private:
 		Input();
 	};
@@ -58,7 +62,7 @@ public:
 
 	void					clear();
 
-	void					addLine(const ci::Vec2f&, const std::wstring&);
+	void					addLine(const TextLayout::Line& newLine);
 
 	const std::vector<Line> getLines() const	{ return mLines; }
 
@@ -102,7 +106,26 @@ public:
 	float					mLeading;
 	Alignment::Enum			mAlignment;
 private:
-	void					run(TextLayout::Input&, TextLayout&);
+
+	// some 'temp' variables to use during the layout
+	std::map<int, float>			mCurLineIndexPositions;
+	float							mCurXPosition;
+	int								mCurInputIndex;
+	float							mMaxWidth;
+	std::vector<TextLayout::Line>	mOutputLines;
+	float							mY;
+	float							mLineHeight;
+	float							mSpaceWidth;
+	bool							mGenerateIndices;
+
+	void							run(TextLayout::Input&, TextLayout&);
+
+	// Adds a line to the output layout
+	void							addLine(const FontPtr& font, const std::wstring& lineText);
+
+	// Maps the x-position of each character in the input string
+	void							addStringSegment(const FontPtr& font, const std::wstring& inputText);
+	void							addBlankSegment();
 };
 
 } // namespace ui

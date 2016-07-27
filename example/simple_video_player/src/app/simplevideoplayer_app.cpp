@@ -135,14 +135,14 @@ void SimpleVideoPlayer::fileDrop(ci::app::FileDropEvent event){
 
 void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 	
-	for(auto it = mVideos.begin(); it < mVideos.end(); ++it){
-		(*it)->stop();
-		(*it)->release();
-	}
+// 	for(auto it = mVideos.begin(); it < mVideos.end(); ++it){
+// 		(*it)->stop();
+// 		(*it)->release();
+// 	}
+// 	mVideos.clear();
 
 	mVideoPaths = vidPaths;
 
-	mVideos.clear();
 
 	float xp = 0.0f;
 	float yp = 0.0f;
@@ -159,7 +159,12 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 	int curVideo = 0;
 
 	for(int i = 0; i < numVideos; i++){
-		ds::ui::Video* video = new ds::ui::Video(mEngine);
+		ds::ui::Video* video = nullptr;
+		if(mVideos.empty()){
+			video = new ds::ui::Video(mEngine);
+		} else {
+			video = mVideos.front();
+		}
 		video->setLooping(true);
 
 		video->setVerboseLogging(true);

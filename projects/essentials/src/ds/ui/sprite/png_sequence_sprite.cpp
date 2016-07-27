@@ -15,7 +15,7 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine, const std::vector<std
 	, mFrameTime(0.0f)
 	, mNumFrames(0)
 {
-
+	mLayoutFixedAspect = true;
 	setImages(imageFiles);
 
 	mFrames[0]->show();
@@ -29,6 +29,7 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine)
 	, mPlaying(true)
 	, mFrameTime(0.0f)
 {
+	mLayoutFixedAspect = true;
 	mLastFrameTime = ci::app::getElapsedSeconds();
 }
 

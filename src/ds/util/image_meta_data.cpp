@@ -13,6 +13,8 @@
 #include "ds/util/file_meta_data.h"
 #include "ds/debug/debug_defines.h"
 
+#include "ds/util/exif_reader.h"
+
 namespace ds {
 
 namespace {
@@ -65,6 +67,11 @@ bool						get_format_png(const std::string& filename, ci::Vec2f& outSize) {
 		height = _byteswap_ulong(height);
 	}
 
+	// check to make sure we correctly read the size. There's some bad png's out there
+	if(width < 1 || width > 20000 || height < 1 || height > 20000){
+		return false;
+	}
+
 	outSize.x = static_cast<float>(width);
 	outSize.y = static_cast<float>(height);
 	return true;
@@ -79,7 +86,7 @@ void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
 		// but is otherwise the right thing to do.
 		const Poco::File file(filename);
 
-		if(!file.exists()){
+		if(!ds::safeFileExistsCheck(filename)){
 			DS_LOG_WARNING_M("ImageFileAtts: image file does not exist, filename: " << filename, GENERAL_LOG);
 			return;
 		}
@@ -94,7 +101,25 @@ void						super_slow_image_atts(const std::string& filename, ci::Vec2f& outSize)
 			outSize = ci::Vec2f::zero();
 		}
 	} catch (std::exception const& ex) {
-		std::cout << "ImageMetaData error loading file (" << filename << ") = " << ex.what() << std::endl;
+		bool errored = true;
+
+		// try to load it from the web
+		try{
+			auto s = ci::Surface8u(ci::loadImage(ci::loadUrl(filename)));
+			if(s) {
+				outSize = ci::Vec2f(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
+				errored = false;
+			} else {
+				DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
+				outSize = ci::Vec2f::zero();
+			}
+		} catch(std::exception const& extwo){
+			DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ") = " << extwo.what(), GENERAL_LOG);
+		}
+
+		if(errored){
+			DS_LOG_WARNING_M("ImageMetaData error loading file (" << filename << ") = " << ex.what(), GENERAL_LOG);
+		}
 	}
 }
 
@@ -124,8 +149,8 @@ public:
 		if(size.x> 0 && size.y > 0){
 			try{
 				ImageAtts atts(size);
-				const auto file = Poco::File(filePath);
-				if (file.exists()) {
+				if(ds::safeFileExistsCheck(filePath, false)) {
+					const auto file = Poco::File(filePath);
 					atts.mLastModified = file.getLastModified();
 					mCache[filePath] = atts;
 				} else {
@@ -140,11 +165,26 @@ public:
 	ci::Vec2f			getSize(const std::string& fn) {
 		// If I've got a cached item and the modified dates match, use that.
 		// Note: for the actual path, use the expanded fn.
-		const std::string	expanded_fn(ds::Environment::expand(fn));
+
+		std::string	expanded_fn;
+		bool webMode = false;
+		if(fn.find("http") == 0){
+			webMode = true;
+			expanded_fn = fn;
+		} else {
+			expanded_fn = ds::Environment::expand(fn);
+		}
+
 		try {
 			auto f = mCache.find(fn);
-			if (f != mCache.end() && f->second.mLastModified == Poco::File(expanded_fn).getLastModified()) {
-				return f->second.mSize;
+			
+			if(f != mCache.end()){
+				// we hope that the remote image hasn't changed since we grabbed it's size.
+				if(webMode){
+					return f->second.mSize;
+				} else if(f->second.mLastModified == Poco::File(expanded_fn).getLastModified()) {
+					return f->second.mSize;
+				}
 			}
 		} catch (std::exception const&) {
 		}
@@ -153,7 +193,8 @@ public:
 			// Generate the cache:
 			ImageAtts		atts = generate(expanded_fn);
 			if (atts.mSize.x > 0.0f && atts.mSize.y > 0.0f) {
-				atts.mLastModified = Poco::File(expanded_fn).getLastModified();
+				// calling anything on an invalid file throws an exception, and web stuff is invalid
+				if(!webMode) atts.mLastModified = Poco::File(expanded_fn).getLastModified();
 				mCache[fn] = atts;
 				return atts.mSize;
 			}
@@ -175,7 +216,7 @@ private:
 		} catch (std::exception const&) {
 		}
 
-		// 3. Probe known file formats
+		// 2. Probe known file formats
 		try {
 			ImageAtts			atts;
 			const int			format = get_format(fn);
@@ -184,6 +225,13 @@ private:
 			}
 		} catch (std::exception const& e) {
 			DS_LOG_WARNING_M("ImageFileAtts() error=" << e.what(), GENERAL_LOG);
+		}
+
+		// 3. let's see if there's exif data
+		int outW = 0;
+		int outH = 0;
+		if(ds::ExifHelper::getImageSize(fn, outW, outH)){
+			return ImageAtts(ci::Vec2f(static_cast<float>(outW), static_cast<float>(outH)));
 		}
 
 		// 4. Load the whole damn image in and get that.

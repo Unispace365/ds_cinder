@@ -32,7 +32,6 @@ public:
 													const std::function<void(ds::BlobRegistry&)>& asClient);
 
 	virtual void					setup(ds::App&);
-	virtual void					setupTuio(ds::App&);
 	virtual void					update();
 	virtual void					draw();
 
@@ -46,8 +45,13 @@ private:
 	void							receiveCommand(ds::DataBuffer&);
 	void							receiveDeleteSprite(ds::DataBuffer&);
 	void							receiveClientStatus(ds::DataBuffer&);
+	void							receiveClientInput(ds::DataBuffer&);
 	void							onClientStartedCommand(ds::DataBuffer&);
 	void							onClientRunningCommand(ds::DataBuffer&);
+
+	virtual void					handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
+	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
+	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
 
 	typedef Engine inherited;
 	WorkManager						mWorkManager;
@@ -60,7 +64,7 @@ private:
 	EngineReceiver					mReceiver;
 	ds::BlobReader					mBlobReader;
 
-    // STATES
+	// STATES
 	class State {
 	public:
 		State();
@@ -81,11 +85,11 @@ private:
 		virtual void				update(AbstractEngineServer&);
 		virtual void				spriteDeleted(const ds::sprite_id_t&);
 
+		std::vector<sprite_id_t>	mDeletedSprites;
 	private:
 		void						addDeletedSprites(ds::DataBuffer&) const;
 
 		int32_t						mFrame;
-		std::vector<sprite_id_t>	mDeletedSprites;
 	};
 
 	/* This state is used to send a client started reply.
@@ -133,7 +137,6 @@ public:
 
 private:
 	typedef AbstractEngineServer inherited;
-	GlNoThread						mLoadImageThread;
 	ui::LoadImageService			mLoadImageService;
 	GlNoThread						mRenderTextThread;
 	ui::RenderTextService			mRenderTextService;

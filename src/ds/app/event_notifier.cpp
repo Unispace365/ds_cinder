@@ -1,5 +1,7 @@
 #include <ds/app/event_notifier.h>
 
+
+
 namespace ds {
 
 /**
@@ -29,6 +31,14 @@ void EventNotifier::removeRequestListener(void *id) {
 
 void EventNotifier::notify(const ds::Event& e) {
 	mEventNotifier.notify(&e);
+}
+
+void EventNotifier::notify(const ds::Event* e) {
+	mEventNotifier.notify(e);
+}
+
+void EventNotifier::notify(const std::string& eventName) {
+	mEventNotifier.notify(event::Registry::get().getEventCreator(eventName)());
 }
 
 void EventNotifier::request(ds::Event& e) {

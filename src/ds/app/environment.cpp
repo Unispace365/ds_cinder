@@ -43,6 +43,18 @@ std::string Environment::expand(const std::string& _path) {
 	return Poco::Path(p).toString();
 }
 
+
+std::string Environment::contract(const std::string& fullPath){
+	std::string		p(fullPath);
+	boost::replace_all(p, ds::App::envAppDataPath(), "%APP%");
+	boost::replace_all(p, EngineSettings::envProjectPath(), "%PP%");
+	boost::replace_all(p, getDownstreamDocumentsFolder(), "%LOCAL%");
+	boost::replace_all(p, EngineSettings::getConfigurationFolder(), "%CFG_FOLDER%");
+	boost::replace_all(p, DOCUMENTS, "%DOCUMENTS%");
+	// This can result in double path separators, so flatten
+	return Poco::Path(p).toString();
+}
+
 std::string Environment::getAppFolder(const std::string& folderName, const std::string& fileName, const bool verify) {
 	Poco::Path				p(ds::App::envAppDataPath());
 	if (!folderName.empty()) p.append(folderName);
@@ -64,22 +76,23 @@ std::string Environment::getAppFile(const std::string& path) {
 	return p.toString();
 }
 
-std::string Environment::getLocalResourcesFolder( const std::string& folderName, const std::string& fileName /*= ""*/ )
+std::string Environment::getLocalResourcesFolder(const std::string& folderName, const std::string& fileName /*= ""*/)
 {
-  if (EngineSettings::envProjectPath().empty())
-    return "";
-  Poco::Path p(getDownstreamDocumentsFolder());
-  p.append(RESOURCES()).append(EngineSettings::envProjectPath());
-  std::string     ans;
-  // A couple things limit the search -- the directory can't get
-  // too short, and right now nothing is more then 3 steps from the appPath.
-  int             count = 0;
-  while ((ans=folder_from(p, folderName, fileName)).empty()) {
-    p.popDirectory();
-    if (count++ >= 3 || p.depth() < 2)
-      return "";
-  }
-  return ans;
+	if(EngineSettings::envProjectPath().empty()){
+		return "";
+	}
+	Poco::Path p(getDownstreamDocumentsFolder());
+	p.append(RESOURCES()).append(EngineSettings::envProjectPath());
+	std::string     ans;
+	// A couple things limit the search -- the directory can't get
+	// too short, and right now nothing is more then 3 steps from the appPath.
+	int             count = 0;
+	while((ans = folder_from(p, folderName, fileName)).empty()) {
+		p.popDirectory();
+		if(count++ >= 3 || p.depth() < 2)
+			return "";
+	}
+	return ans;
 }
 
 std::string Environment::getDownstreamDocumentsFolder()
@@ -93,10 +106,10 @@ std::string Environment::getDownstreamDocumentsFolder()
 
 std::string Environment::getLocalSettingsPath(const std::string& fileName)
 {
-  if (EngineSettings::envProjectPath().empty()) return "";
-  Poco::Path			p(getDownstreamDocumentsFolder());
-  p.append(SETTINGS()).append(EngineSettings::envProjectPath()).append(fileName);
-  return p.toString();
+	if(EngineSettings::envProjectPath().empty()) return "";
+	Poco::Path			p(getDownstreamDocumentsFolder());
+	p.append(SETTINGS()).append(EngineSettings::envProjectPath()).append(fileName);
+	return p.toString();
 }
 
 void Environment::loadSettings(const std::string& filename, ds::cfg::Settings& settings) {
@@ -172,8 +185,8 @@ static std::string    folder_from(const Poco::Path& parentP, const std::string& 
 	p.append(folder);
 
 	const Poco::File    f(p);
-	if (f.exists() && f.isDirectory()) {
-		if (fileName.empty()) return f.path();
+	if(f.exists() && f.isDirectory()) {
+		if(fileName.empty()) return f.path();
 		p.append(fileName);
 		return p.toString();
 	}

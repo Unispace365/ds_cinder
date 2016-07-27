@@ -6,11 +6,12 @@
 #include <Poco/String.h>
 #include "ds/app/environment.h"
 #include "ds/debug/debug_defines.h"
+#include "ds/app/engine/engine_settings.h"
 
 static void read_nine_patch_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::NinePatch>& out);
 
 static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& out);
-static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out);
+static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out, ds::Engine* engine = nullptr);
 static void interpret_text_settings(const ds::cfg::Settings &s, std::unordered_map<std::string, ds::cfg::Text>& out);
 
 
@@ -74,16 +75,16 @@ bool EngineCfg::hasText(const std::string& name) const {
 
 const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 	if (name.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty name"));
+		DS_LOG_WARNING("EngineCfg::getText() on empty name");
 		return mEmptyTextCfg;
 	}
 	if (mTextCfg.empty()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() on empty mTextCfg (key=" + name + ")"));
+		DS_LOG_WARNING("EngineCfg::getText() on empty mTextCfg (key=" << name << ")");
 		return mEmptyTextCfg;
 	}
 	auto it = mTextCfg.find(name);
 	if (it == mTextCfg.end()) {
-		DS_DBG_CODE(throw std::runtime_error("EngineCfg::getText() cfg does not exist"));
+		DS_LOG_WARNING("EngineCfg::getText() cfg does not exist: " << name);
 		return mEmptyTextCfg;
 	}
 	return it->second;
@@ -125,7 +126,16 @@ bool EngineCfg::hasSettings(const std::string& name) const {
 	return mSettings.find(name) != mSettings.cend();
 }
 
-void EngineCfg::loadSettings(const std::string& name, const std::string& filename) {
+void EngineCfg::loadSettings(const std::string& name, const std::string& filename, Engine* engine) {
+	// see if the settings exist already
+	try {
+		mSettings.at(name);
+	} catch(std::out_of_range e) {
+		// if don't exist, create one that points to the engine
+		ds::cfg::Settings createdSettings(engine);
+		mSettings[name] = createdSettings;
+	}
+	
 	ds::cfg::Settings&	settings = mSettings[name];
 	ds::Environment::loadSettings(filename, settings);
 }
@@ -140,10 +150,25 @@ void EngineCfg::appendSettings(const std::string& name, const std::string& filen
 	settings.readFrom(filename, true);
 }
 
-void EngineCfg::loadText(const std::string& filename) {
+void EngineCfg::loadText(const std::string& filename, Engine* engine) {
 	read_text_defaults(mTextCfg);
-	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextCfg);
-	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextCfg);
+	read_text_cfg(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), mTextCfg, engine);
+	read_text_cfg(ds::Environment::getLocalSettingsPath(filename), mTextCfg, engine);
+	if (!ds::EngineSettings::getConfigurationFolder().empty()) {
+		const std::string		app = ds::Environment::expand("%APP%/settings/%CFG_FOLDER%/" + filename);
+		const std::string		local = ds::Environment::expand("%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + filename);
+		read_text_cfg(app, mTextCfg, engine);
+		read_text_cfg(local, mTextCfg, engine);
+	}
+
+	if(!mTextCfg.empty()){
+		for(auto it = mTextCfg.begin(); it != mTextCfg.end(); ++it){
+			mEmptyTextCfg = it->second;
+			break;
+		}
+		// Set color to full red to alert that this wasn't actually loaded
+		mEmptyTextCfg.mColor.set(1.0f, 0.0f, 0.0f, 1.0f);
+	}
 }
 
 void EngineCfg::loadNinePatchCfg(const std::string& filename) {
@@ -247,8 +272,8 @@ static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& o
 	interpret_text_settings(s, out);
 }
 
-static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out) {
-	ds::cfg::Settings s;
+static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out, ds::Engine* engine) {
+	ds::cfg::Settings s(engine);
 	s.readFrom(path, false);
 	interpret_text_settings(s, out);
 }
@@ -261,13 +286,13 @@ static void interpret_text_settings(const ds::cfg::Settings &s, std::unordered_m
 			std::string		v = s.getText(key, 0, ds::EMPTY_SZ);
 			if (!v.empty()) {
 				if (out.empty()) {
-					out[left] = ds::cfg::Text(v, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+					out[left] = ds::cfg::Text(v, left, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 				} else {
 					auto	found = out.find(left);
 					if (found != out.end()) {
 						found->second.mFont = v;
 					} else {
-						out[left] = ds::cfg::Text(v, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+						out[left] = ds::cfg::Text(v, left, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 					}
 				}
 			}

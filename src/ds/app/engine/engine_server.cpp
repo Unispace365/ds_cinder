@@ -6,6 +6,8 @@
 #include <ds/app/error.h>
 #include "ds/debug/logger.h"
 #include "ds/util/string_util.h"
+#include "ds/debug/computer_info.h"
+#include "ds/app/engine/engine_events.h"
 
 namespace ds {
 
@@ -13,8 +15,12 @@ namespace {
 char				HEADER_BLOB = 0;
 char				COMMAND_BLOB = 0;
 char				DELETE_SPRITE_BLOB = 0;
+
 // Used for clients to get info to the server
 char				CLIENT_STATUS_BLOB = 0;
+
+// Used for clients to send mouse and/or touch input back to server
+char				CLIENT_INPUT_BLOB = 0;
 
 const char			TERMINATOR = 0;
 }
@@ -27,12 +33,12 @@ using namespace ci::app;
  */
 AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Settings& settings,
 											ds::EngineData& ed, const ds::RootList& roots)
-    : inherited(app, settings, ed, roots)
+	: inherited(app, settings, ed, roots)
 //    , mConnection(NumberOfNetworkThreads)
-    , mSender(mSendConnection)
-    , mReceiver(mReceiveConnection)
-    , mBlobReader(mReceiver.getData(), *this)
-    , mState(nullptr)
+	, mSender(mSendConnection)
+	, mReceiver(mReceiveConnection)
+	, mBlobReader(mReceiver.getData(), *this)
+	, mState(nullptr)
 {
 	mClients.setErrorChannel(&getChannel(ERROR_CHANNEL));
 	// NOTE:  Must be EXACTLY the same items as in EngineClient, in same order,
@@ -40,7 +46,8 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Setting
 	HEADER_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveHeader(r.mDataBuffer);});
 	COMMAND_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveCommand(r.mDataBuffer);});
 	DELETE_SPRITE_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveDeleteSprite(r.mDataBuffer);});
-	CLIENT_STATUS_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientStatus(r.mDataBuffer);});
+	CLIENT_STATUS_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientStatus(r.mDataBuffer); });
+	CLIENT_INPUT_BLOB = mBlobRegistry.add([this](BlobReader& r) {receiveClientInput(r.mDataBuffer); });
 
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
@@ -48,7 +55,7 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Setting
 			mReceiveConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
 		}
 	} catch (std::exception &e) {
-		DS_LOG_ERROR_M("EngineServer() initializing 0MQ: " << e.what(), ds::ENGINE_LOG);
+		DS_LOG_ERROR_M("EngineServer() initializing connection: " << e.what(), ds::ENGINE_LOG);
 	}
 
 	setState(mSendWorldState);
@@ -70,16 +77,8 @@ void AbstractEngineServer::setup(ds::App& app) {
 	app.setupServer();
 }
 
-void AbstractEngineServer::setupTuio(ds::App& a) {
-	if (ds::ui::TouchMode::hasTuio(mTouchMode)) {
-		ci::tuio::Client &tuioClient = getTuioClient();
-		tuioClient.registerTouches(&a);
-		registerForTuioObjects(tuioClient);
-		tuioClient.connect(mTuioPort);
-	}
-}
-
 void AbstractEngineServer::update() {
+	mComputerInfo->update();
 	mWorkManager.update();
 	updateServer();
 
@@ -137,20 +136,70 @@ void AbstractEngineServer::receiveClientStatus(ds::DataBuffer& data) {
 			if (cmd == ds::TERMINATOR_CHAR) return;
 		}	
 	}
+
 	// Find the sprite, and let it read
 	const sprite_id_t		id(data.read<sprite_id_t>());
 	ds::ui::Sprite*			s(findSprite(id));
-	if (!s) {
+	if(!s) {
+
 		DS_LOG_WARNING_M("receiveClientStatus missing sprite id=" << id, ds::IO_LOG);
+
+		auto it = std::find(mRunningState.mDeletedSprites.begin(), mRunningState.mDeletedSprites.end(), id);
+		if(it != mRunningState.mDeletedSprites.end()){
+			DS_LOG_INFO_M("Actually, it's cool, that sprite was just deleted. id=" << id, ds::IO_LOG);
+		}
+
+
+		// This can happen if the sprite has been deleted by the server but not yet by the client
+		while(data.canRead<char>()) {
+			const char		cmd(data.read<char>());
+			if(cmd == ds::TERMINATOR_CHAR) return;
+		}
+
 	} else {
 		s->readClientFrom(data);
 	}
 
+	
 	// Verify we're at the end
-	if (data.canRead<char>()) {
+	if(data.canRead<char>()) {
 		const char			cmd(data.read<char>());
-		if (cmd != ds::TERMINATOR_CHAR) {
-			DS_LOG_WARNING_M("receiveClientStatus missing terminator", ds::IO_LOG);
+		if(cmd != ds::TERMINATOR_CHAR) {
+			DS_LOG_WARNING_M("receiveClientStatus missing terminator. Got " << cmd << " instead", ds::IO_LOG);
+		}
+	}
+}
+
+void AbstractEngineServer::receiveClientInput(ds::DataBuffer& data) {
+	if(!data.canRead<sprite_id_t>()) {
+		// Error, run to the next terminator
+		while(data.canRead<char>()) {
+			const char		cmd(data.read<char>());
+			if(cmd == ds::TERMINATOR_CHAR) return;
+		}
+	}
+
+	const int				state(data.read<int>());
+	const int				id(data.read<int>());
+	const float				xp(data.read<float>());
+	const float				yp(data.read<float>());
+
+	std::vector<ci::app::TouchEvent::Touch> touches;
+	touches.push_back(ci::app::TouchEvent::Touch(ci::Vec2f(xp, yp), ci::Vec2f(xp, yp), id, 0.0, nullptr));
+	ds::ui::TouchEvent te = ds::ui::TouchEvent(getWindow(), touches, true);
+	if(state == 0){
+		injectTouchesBegin(te);
+	} else if(state == 1){
+		injectTouchesMoved(te);
+	} else if(state == 2){
+		injectTouchesEnded(te);
+	}
+
+	// Verify we're at the end
+	if(data.canRead<char>()) {
+		const char			cmd(data.read<char>());
+		if(cmd != ds::TERMINATOR_CHAR) {
+			DS_LOG_WARNING_M("receiveClientInput missing terminator", ds::IO_LOG);
 		}
 	}
 }
@@ -187,9 +236,21 @@ void AbstractEngineServer::onClientRunningCommand(ds::DataBuffer &data) {
 
 void AbstractEngineServer::setState(State& s) {
 	if (&s == mState) return;
-  
+
 	s.begin(*this);
 	mState = &s;
+}
+
+void AbstractEngineServer::handleMouseTouchBegin(const ci::app::MouseEvent& e, int id){
+	mTouchManager.mouseTouchBegin(e, id);
+}
+
+void AbstractEngineServer::handleMouseTouchMoved(const ci::app::MouseEvent& e, int id){
+	mTouchManager.mouseTouchMoved(e, id);
+}
+
+void AbstractEngineServer::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id){
+	mTouchManager.mouseTouchEnded(e, id);
 }
 
 /**
@@ -202,10 +263,10 @@ void AbstractEngineServer::State::begin(AbstractEngineServer&) {
 }
 
 void AbstractEngineServer::State::addHeader(ds::DataBuffer& data, const int frame) {
-    data.add(HEADER_BLOB);
+	data.add(HEADER_BLOB);
 
-    data.add(frame);
-    data.add(ds::TERMINATOR_CHAR);
+	data.add(frame);
+	data.add(ds::TERMINATOR_CHAR);
 }
 
 /**
@@ -216,8 +277,9 @@ EngineServer::RunningState::RunningState()
 	mDeletedSprites.reserve(128);
 }
 
-void EngineServer::RunningState::begin(AbstractEngineServer&) {
+void EngineServer::RunningState::begin(AbstractEngineServer& engine) {
 	DS_LOG_INFO_M("RunningState", ds::IO_LOG);
+	engine.getNotifier().notify(ds::app::EngineStateEvent(ds::app::EngineStateEvent::ENGINE_STATE_CLIENT_RUNNING));
 	mFrame = 0;
 	mDeletedSprites.clear();
 }
@@ -235,10 +297,16 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		// Always send the header
 		addHeader(send.mData, mFrame);
 //		DS_LOG_INFO_M("running frame=" << mFrame, ds::IO_LOG);
-		ui::Sprite                 &root = engine.getRootSprite();
-		if (root.isDirty()) {
-			root.writeTo(send.mData);
+
+		const int numRoots = engine.getRootCount();
+		for(int i = 0; i < numRoots - 1; i++){
+			if(!engine.getRootBuilder(i).mSyncronize) continue;
+			ds::ui::Sprite& rooty = engine.getRootSprite(i);
+			if(rooty.isDirty()){
+				rooty.writeTo(send.mData);
+			}
 		}
+
 		if (!mDeletedSprites.empty()) {
 			addDeletedSprites(send.mData);
 			mDeletedSprites.clear();
@@ -272,12 +340,12 @@ void EngineServer::RunningState::spriteDeleted(const ds::sprite_id_t &id) {
 void EngineServer::RunningState::addDeletedSprites(ds::DataBuffer &data) const {
 	if (mDeletedSprites.empty()) return;
 
-    data.add(DELETE_SPRITE_BLOB);
+	data.add(DELETE_SPRITE_BLOB);
 	data.add(mDeletedSprites.size());
 	for (auto it=mDeletedSprites.begin(), end=mDeletedSprites.end(); it!=end; ++it) {
 		data.add(*it);
 	}
-    data.add(ds::TERMINATOR_CHAR);
+	data.add(ds::TERMINATOR_CHAR);
 }
 
 /**
@@ -291,8 +359,9 @@ void EngineServer::ClientStartedReplyState::clear() {
 	mClients.clear();
 }
 
-void EngineServer::ClientStartedReplyState::begin(AbstractEngineServer&) {
+void EngineServer::ClientStartedReplyState::begin(AbstractEngineServer& engine) {
 	DS_LOG_INFO_M("ClientStartedReplyState", ds::IO_LOG);
+	engine.getNotifier().notify(ds::app::EngineStateEvent(ds::app::EngineStateEvent::ENGINE_STATE_CLIENT_STARTED));
 }
 
 void EngineServer::ClientStartedReplyState::update(AbstractEngineServer& engine) {
@@ -312,6 +381,30 @@ void EngineServer::ClientStartedReplyState::update(AbstractEngineServer& engine)
 				send.mData.add(s->mGuid);
 				send.mData.add(ATT_SESSION_ID);
 				send.mData.add(s->mSessionId);
+
+				send.mData.add(ATT_ROOTS);
+				int rootCount = engine.getRootCount();
+				int numActualRoots = 0;
+				std::vector<RootList::Root> roots;
+
+				for(int i = 0; i < rootCount; i++){
+					if(!engine.getRootBuilder(i).mSyncronize) continue;
+					numActualRoots++;
+					RootList::Root newRoot = RootList::Root();
+					newRoot.mRootId = engine.getRootBuilder(i).mRootId;
+					newRoot.mType = engine.getRootBuilder(i).mType;
+					roots.push_back(newRoot);
+				}
+				if(numActualRoots > 0){
+					send.mData.add(numActualRoots);
+					for(int i = 0; i < numActualRoots; i++){
+						send.mData.add(roots[i].mRootId);
+						send.mData.add(roots[i].mType);
+					}
+				} else {
+					send.mData.add(0); // no roots? well, whatever
+				}
+
 				send.mData.add(ds::TERMINATOR_CHAR);
 			}
 		}
@@ -329,8 +422,9 @@ void EngineServer::ClientStartedReplyState::update(AbstractEngineServer& engine)
 EngineServer::SendWorldState::SendWorldState() {
 }
 
-void EngineServer::SendWorldState::begin(AbstractEngineServer&) {
+void EngineServer::SendWorldState::begin(AbstractEngineServer& engine) {
 	DS_LOG_INFO_M("SendWorldState", ds::IO_LOG);
+	engine.getNotifier().notify(ds::app::EngineStateEvent(ds::app::EngineStateEvent::ENGINE_STATE_SEND_WORLD));
 }
 
 void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
@@ -343,9 +437,14 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 		send.mData.add(CMD_SERVER_SEND_WORLD);
 		send.mData.add(ds::TERMINATOR_CHAR);
 
-		ui::Sprite                 &root = engine.getRootSprite();
-		root.markTreeAsDirty();
-		root.writeTo(send.mData);
+		const int numRoots = engine.getRootCount();
+		for(int i = 0; i < numRoots - 1; i++){
+			if(!engine.getRootBuilder(i).mSyncronize) continue;
+			ds::ui::Sprite& rooty = engine.getRootSprite(i);
+			rooty.markTreeAsDirty();
+			rooty.writeTo(send.mData);
+			
+		}
 	}
 
 	engine.setState(engine.mRunningState);
@@ -356,9 +455,9 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
  */
 EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
-    : inherited(app, settings, ed, roots)
-    , mLoadImageService(mLoadImageThread, mIpFunctions)
-    , mRenderTextService(mRenderTextThread) {
+	: inherited(app, settings, ed, roots)
+	, mLoadImageService(*this, mIpFunctions)
+	, mRenderTextService(mRenderTextThread) {
 }
 
 EngineServer::~EngineServer() {

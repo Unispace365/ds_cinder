@@ -11,19 +11,21 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="src\ds\ui\sprite\panoramic_video.cpp" />
     <ClCompile Include="src\ds\ui\sprite\gst_video.cpp" />
-    <ClCompile Include="src\ds\ui\sprite\gst_video_net.cpp" />
     <ClCompile Include="src\gstreamer\gstreamer_env_check.cpp" />
     <ClCompile Include="src\gstreamer\video_meta_cache.cpp" />
     <ClCompile Include="src\gstreamer\gstreamer_wrapper.cpp" />
+    <ClCompile Include="src\private\gst_video_service.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="src\ds\ui\sprite\panoramic_video.h" />
     <ClInclude Include="src\ds\ui\sprite\gst_video.h" />
-    <ClInclude Include="src\ds\ui\sprite\gst_video_net.h" />
     <ClInclude Include="src\ds\ui\sprite\video.h" />
     <ClInclude Include="src\gstreamer\gstreamer_env_check.h" />
     <ClInclude Include="src\gstreamer\video_meta_cache.h" />
     <ClInclude Include="src\gstreamer\gstreamer_wrapper.h" />
+    <ClInclude Include="src\private\gst_video_service.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{EDC54D75-EC44-4587-8A0F-141FA45CE652}</ProjectGuid>
@@ -68,9 +70,9 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <Optimization>Disabled</Optimization>
-      <AdditionalIncludeDirectories>src;MediaInfo;$(DS_CINDER_GSTREAMER_1-0)\include\gstreamer-1.0;$(DS_CINDER_GSTREAMER_1-0)\lib\glib-2.0\include;$(DS_CINDER_GSTREAMER_1-0)\include\glib-2.0;$(DS_CINDER_GSTREAMER_1-0)\include;$(DS_CINDER_GSTREAMER_1-0)\lib\gstreamer-1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;MediaInfo;$(GSTREAMER_1_0_ROOT_X86)\include\gstreamer-1.0;$(GSTREAMER_1_0_ROOT_X86)\lib\glib-2.0\include;$(GSTREAMER_1_0_ROOT_X86)\include\glib-2.0;$(GSTREAMER_1_0_ROOT_X86)\include;$(GSTREAMER_1_0_ROOT_X86)\lib\gstreamer-1.0\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
-      <MinimalRebuild>true</MinimalRebuild>
+      <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <PrecompiledHeader>
@@ -98,16 +100,44 @@
     </Link>
     <CustomBuildStep>
       <Message>Copying video DLLs to output directory</Message>
-      <Command>echo Copying video DLLs to output directory
-if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-xcopy /y /d "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll</Inputs>
-      <Outputs>$(SolutionDir)\$(Configuration)\MediaInfo.dll</Outputs>
+      <Command>echo Copying GST DLLs to output directory
+		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libffi-6.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgio-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libglib-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgmodule-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgobject-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgstapp-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgstbase-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgstnet-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgstreamer-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libintl-8.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libwinpthread-1.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libz.dll" "$(SolutionDir)\$(Configuration)"
+
+		</Command>
+      <Inputs>
+	  $(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll; 
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libffi-6.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libgio-2.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libglib-2.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libgmodule-2.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libgobject-2.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libgstapp-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libgstbase-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libgstnet-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libgstreamer-1.0-0.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libintl-8.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libwinpthread-1.dll;
+	  $(GSTREAMER_1_0_ROOT_X86)\bin\libz.dll
+	  </Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\MediaInfo.dll;$(SolutionDir)\$(Configuration)\libffi-6.dll;$(SolutionDir)\$(Configuration)\libgio-2.0-0.dll;$(SolutionDir)\$(Configuration)\libglib-2.0-0.dll;$(SolutionDir)\$(Configuration)\libgmodule-2.0-0.dll;$(SolutionDir)\$(Configuration)\libgobject-2.0-0.dll;$(SolutionDir)\$(Configuration)\libgstapp-1.0-0.dll;$(SolutionDir)\$(Configuration)\libgstbase-1.0-0.dll;$(SolutionDir)\$(Configuration)\libgstnet-1.0-0.dll;$(SolutionDir)\$(Configuration)\libgstreamer-1.0-0.dll;$(SolutionDir)\$(Configuration)\libintl-8.dll;$(SolutionDir)\$(Configuration)\libwinpthread-1.dll;$(SolutionDir)\$(Configuration)\libz.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
-      <AdditionalIncludeDirectories>src;MediaInfo;%(AdditionalIncludeDirectories);$(DS_CINDER_GSTREAMER_1-0)\include;$(DS_CINDER_GSTREAMER_1-0)\include\glib-2.0;$(DS_CINDER_GSTREAMER_1-0)\lib\glib-2.0\include;$(DS_CINDER_GSTREAMER_1-0)\include\gstreamer-1.0;$(DS_CINDER_GSTREAMER_1-0)\lib\gstreamer-1.0\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>src;MediaInfo;%(AdditionalIncludeDirectories);$(GSTREAMER_1_0_ROOT_X86)\include;$(GSTREAMER_1_0_ROOT_X86)\include\glib-2.0;$(GSTREAMER_1_0_ROOT_X86)\lib\glib-2.0\include;$(GSTREAMER_1_0_ROOT_X86)\include\gstreamer-1.0;$(GSTREAMER_1_0_ROOT_X86)\lib\gstreamer-1.0\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <PrecompiledHeader>
@@ -146,11 +176,25 @@ xcopy /y /d "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$
     </PostBuildEvent>
     <CustomBuildStep>
       <Message>Copying video DLLs to output directory</Message>
-      <Command>echo Copying video DLLs to output directory
-if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-xcopy /y /d "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll</Inputs>
-      <Outputs>$(SolutionDir)\$(Configuration)\MediaInfo.dll</Outputs>
+      <Command>echo Copying GST DLLs to output directory
+		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libffi-6.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgio-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libglib-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgmodule-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgobject-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgstapp-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgstbase-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgstnet-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgstreamer-1.0-0.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libintl-8.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libwinpthread-1.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libz.dll" "$(SolutionDir)\$(Configuration)"
+
+		</Command>
+      <Inputs>$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libffi-6.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgio-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libglib-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgmodule-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgobject-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstapp-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstbase-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstnet-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstreamer-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libintl-8.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libwinpthread-1.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libz.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\MediaInfo.dll;$(SolutionDir)\$(Configuration)\libffi-6.dll;$(SolutionDir)\$(Configuration)\libgio-2.0-0.dll;$(SolutionDir)\$(Configuration)\libglib-2.0-0.dll;$(SolutionDir)\$(Configuration)\libgmodule-2.0-0.dll;$(SolutionDir)\$(Configuration)\libgobject-2.0-0.dll;$(SolutionDir)\$(Configuration)\libgstapp-1.0-0.dll;$(SolutionDir)\$(Configuration)\libgstbase-1.0-0.dll;$(SolutionDir)\$(Configuration)\libgstnet-1.0-0.dll;$(SolutionDir)\$(Configuration)\libgstreamer-1.0-0.dll;$(SolutionDir)\$(Configuration)\libintl-8.dll;$(SolutionDir)\$(Configuration)\libwinpthread-1.dll;$(SolutionDir)\$(Configuration)\libz.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

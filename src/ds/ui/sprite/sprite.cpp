@@ -8,6 +8,7 @@
 #include "ds/app/environment.h"
 #include "ds/data/data_buffer.h"
 #include "ds/debug/logger.h"
+#include "ds/debug/debug_defines.h"
 #include "ds/math/math_defs.h"
 #include "ds/math/math_func.h"
 #include "ds/math/random.h"
@@ -18,6 +19,7 @@
 #include "ds/params/draw_params.h"
 
 #include <Poco/Debugger.h>
+#include "cinder/ImageIo.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -35,6 +37,7 @@ const DirtyState	CHILD_DIRTY			= newUniqueDirtyState();
 const DirtyState	FLAGS_DIRTY 	   	= newUniqueDirtyState();
 const DirtyState	SIZE_DIRTY 	    	= newUniqueDirtyState();
 const DirtyState	POSITION_DIRTY		= newUniqueDirtyState();
+const DirtyState	CHECKBOUNDS_DIRTY	= newUniqueDirtyState();
 const DirtyState	CENTER_DIRTY		= newUniqueDirtyState();
 const DirtyState	SCALE_DIRTY			= newUniqueDirtyState();
 const DirtyState	COLOR_DIRTY			= newUniqueDirtyState();
@@ -43,6 +46,7 @@ const DirtyState	BLEND_MODE			= newUniqueDirtyState();
 const DirtyState	CLIPPING_BOUNDS		= newUniqueDirtyState();
 const DirtyState	SORTORDER_DIRTY		= newUniqueDirtyState();
 const DirtyState	ROTATION_DIRTY		= newUniqueDirtyState();
+const DirtyState	CORNER_DIRTY		= newUniqueDirtyState();
 
 const char			PARENT_ATT			= 2;
 const char			SIZE_ATT			= 3;
@@ -56,6 +60,8 @@ const char			BLEND_ATT			= 10;
 const char			CLIP_BOUNDS_ATT		= 11;
 const char			SORTORDER_ATT		= 12;
 const char			ROTATION_ATT		= 13;
+const char			CHECKBOUNDS_ATT		= 14;
+const char			CORNERRADIUS_ATT	= 15;
 
 // flags
 const int           VISIBLE_F			= (1<<0);
@@ -66,6 +72,7 @@ const int           CLIP_F				= (1<<4);
 const int           SHADER_CHILDREN_F	= (1<<5);
 const int           NO_REPLICATION_F	= (1<<6);
 const int           ROTATE_TOUCHES_F	= (1<<7);
+const int			DRAW_DEBUG_F		= (1<<8);
 
 const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
 }
@@ -90,6 +97,7 @@ Sprite::Sprite(SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.
 	: SpriteAnimatable(*this, engine)
 	, mEngine(engine)
 	, mId(ds::EMPTY_SPRITE_ID)
+	, mParent(nullptr)
 	, mWidth(width)
 	, mHeight(height)
 	, mTouchProcess(engine, *this)
@@ -108,6 +116,7 @@ Sprite::Sprite(SpriteEngine& engine, const ds::sprite_id_t id, const bool perspe
 	: SpriteAnimatable(*this, engine)
 	, mEngine(engine)
 	, mId(ds::EMPTY_SPRITE_ID)
+	, mParent(nullptr)
 	, mTouchProcess(engine, *this)
 	, mSpriteShader(Environment::getAppFolder("data/shaders"), "base")
 	, mIdleTimer(engine)
@@ -125,7 +134,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mHeight = 0;
 	mCenter = ci::Vec3f(0.0f, 0.0f, 0.0f);
 	mRotation = ci::Vec3f(0.0f, 0.0f, 0.0f);
-	mZLevel = 0.0f;
+	mRotationOrderZYX = false;
 	mScale = ci::Vec3f(1.0f, 1.0f, 1.0f);
 	mUpdateTransform = true;
 	mParent = nullptr;
@@ -146,6 +155,19 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mDrawOpacity = 1.0f;
 	mDelayedCallCueRef = nullptr;
 	mHasDrawLocalClientPost = false;
+	mLayoutFixedAspect = false;
+
+	mLayoutBPad = 0.0f;
+	mLayoutTPad = 0.0f;
+	mLayoutRPad = 0.0f;
+	mLayoutLPad = 0.0f;
+	mLayoutFudge = ci::Vec2f::zero();
+	mLayoutSize = ci::Vec2f::zero();
+	mLayoutHAlign = 0;
+	mLayoutVAlign = 0;
+	mLayoutUserType = 0;
+
+	mExportWithXml = true;
 
 	if(mEngine.getRotateTouchesDefault()){
 		setRotateTouches(true);
@@ -159,12 +181,24 @@ void Sprite::init(const ds::sprite_id_t id) {
 							  0.4f);
 	mClippingBounds.set(0.0f, 0.0f, 0.0f, 0.0f);
 	mClippingBoundsDirty = false;
+	mFrameBuffer[0] = nullptr;
+	mFrameBuffer[1] = nullptr;
+	mOutputFbo = nullptr;
+	mIsRenderFinalToTexture = false;
+	mShaderPasses = 0;
+
 	dimensionalStateChanged();
 }
 
 Sprite::~Sprite() {
 	animStop();
 	cancelDelayedCall();
+
+	mEngine.removeFromDragDestinationList(this);
+
+	delete mFrameBuffer[0];
+	delete mFrameBuffer[1];
+	delete mOutputFbo;
 
 	// We only want to request a delete for the sprite at the head of a tree,
 	const sprite_id_t	id = mId;
@@ -201,6 +235,7 @@ void Sprite::updateServer(const UpdateParams &p) {
 	mTouchProcess.update(p);
 
 	mIdleTimer.update();
+	mShaderPasses = mSpriteShaders.size() == 0 ? 0 : mSpriteShaders.size() - 1;
 
 	if(mCheckBounds) {
 		updateCheckBounds();
@@ -211,48 +246,169 @@ void Sprite::updateServer(const UpdateParams &p) {
 	}
 }
 
+ci::gl::Texture* Sprite::getShaderOutputTexture()
+{
+	if (mSpriteShaders.size()>0 && mFrameBuffer[mFboIndex])
+		return &mFrameBuffer[mFboIndex]->getTexture();
+	else
+		return nullptr;
+}
+
 void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams) {
-	if((mSpriteFlags&VISIBLE_F) == 0) {
+	if ((mSpriteFlags&VISIBLE_F) == 0) {
 		return;
 	}
+	DS_REPORT_GL_ERRORS();
 
-	if(!mSpriteShader.isValid()) {
-		mSpriteShader.loadShaders();
-	}
+	mShaderPass = 0;
+	mFboIndex = 0;
+	mIsLastPass = mShaderPasses > 0 ? false : true;
 
 	buildTransform();
 	ci::Matrix44f totalTransformation = trans*mTransformation;
 	ci::gl::pushModelView();
 	glLoadIdentity();
 	ci::gl::multModelView(totalTransformation);
+	bool flipImage = false;
 
-	if((mSpriteFlags&TRANSPARENT_F) == 0) {
-		ci::gl::enableAlphaBlending();
-		applyBlendingMode(mBlendMode);
-		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
-		if(shaderBase) {
-			shaderBase.bind();
-			shaderBase.uniform("tex0", 0);
-			shaderBase.uniform("useTexture", mUseShaderTexture);
-			shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
-			mUniform.applyTo(shaderBase);
+	ci::Area viewport = ci::gl::getViewport();
+
+	while (mShaderPass <= mShaderPasses){
+		DS_REPORT_GL_ERRORS();
+		if (mShaderPasses > 0) {
+			//Change viewport for rendering texture to FBO
+			ci::gl::setViewport(mFrameBuffer[mFboIndex]->getBounds());
+
+			//Output available on Texture Unit 1
+			if (mShaderPasses == mShaderPass){						//last pass
+				// render to screen   - may be overridden later to render to texture
+
+				mFrameBuffer[!mFboIndex]->unbindFramebuffer();
+
+				//Bind previous render to texture unit 1
+				mFrameBuffer[!mFboIndex]->bindTexture(1);
+
+				ci::gl::popModelView();
+				ci::gl::popMatrices();
+				ci::gl::setViewport(viewport);
+
+				mFboIndex = !mFboIndex;
+				mIsLastPass = true;
+
+				//the 'flipped' flag is ignored by shaders, so we need to manually force the flip
+
+				if (mShaderPasses % 2){
+					flipImage = true;
+				}
+			}
+			else if (mShaderPass > 0){ //middle passes
+				mFrameBuffer[mFboIndex]->bindFramebuffer();
+				ci::gl::clear(ci::ColorA(0, 0, 0, 0));
+
+				glDrawBuffer(GL_COLOR_ATTACHMENT0);
+				mFrameBuffer[!mFboIndex]->bindTexture(1);
+				mFboIndex = !mFboIndex;
+			}
+			else { //first pass
+				ci::gl::pushModelView();
+				ci::gl::pushMatrices();
+				ci::gl::setMatricesWindow(mFrameBuffer[mFboIndex]->getSize());
+				mFrameBuffer[mFboIndex]->bindFramebuffer();
+				ci::gl::clear(ci::ColorA(0, 0, 0, 0));
+
+				glDrawBuffer(GL_COLOR_ATTACHMENT0);
+				mFboIndex = !mFboIndex;
+			}
 		}
 
-		mDrawOpacity = mOpacity*drawParams.mParentOpacity;
-		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
-		if(mUseDepthBuffer) {
-			ci::gl::enableDepthRead();
-			ci::gl::enableDepthWrite();
-		} else {
-			ci::gl::disableDepthRead();
-			ci::gl::disableDepthWrite();
+		//Need an extra flip if rendering final out to texture
+		if (mIsRenderFinalToTexture && mOutputFbo && mIsLastPass) {
+			flipImage = !flipImage;
 		}
 
-		drawLocalClient();
-
-		if(shaderBase) {
-			shaderBase.unbind();
+		if (mIsLastPass && mIsRenderFinalToTexture && mOutputFbo){
+			ci::gl::pushModelView();
+			ci::gl::pushMatrices();
+			//Need to set the MVP matrices to match dimensions of sprite object
+			ci::gl::setMatricesWindow(ci::Vec2i(static_cast<int>(getWidth()), static_cast<int>(getHeight())));
+			mOutputFbo->bindFramebuffer();
 		}
+
+		//Need to manual flip image.  The flip() function of the ci::Texture element doesn't work with shaders.
+		if (flipImage && mIsLastPass)
+		{
+			ci::gl::scale(1.0f, -1.0f, 1.0f);							// invert Y axis so increasing Y goes down.
+			ci::gl::translate(0.0f, (float)-getHeight(), 0.0f);			// shift origin up to upper-left corner.
+		}
+
+		if (!mSpriteShaders.empty()) {
+			mSpriteShader = *mSpriteShaders[mShaderPass];
+			mSpriteShader.loadShaders();
+			mUniform = getShaderUniforms(mSpriteShader.getName());
+		}
+		else if (!mSpriteShader.isValid()) {
+			mSpriteShader.loadShaders();
+		}
+
+		if ((mSpriteFlags&TRANSPARENT_F) == 0) {
+			DS_REPORT_GL_ERRORS();
+			ci::gl::enableAlphaBlending();
+			applyBlendingMode(mBlendMode);
+			ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
+			if (shaderBase) {
+				DS_REPORT_GL_ERRORS();
+				shaderBase.bind();
+				DS_REPORT_GL_ERRORS();
+				shaderBase.uniform("tex0", 0);
+				shaderBase.uniform("useTexture", mUseShaderTexture);
+				shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+				mUniform.applyTo(shaderBase);
+			}
+
+			DS_REPORT_GL_ERRORS();
+
+			//Only set opacity for last pass
+			if (mIsLastPass) {
+				mDrawOpacity = mOpacity*drawParams.mParentOpacity;
+			}
+			else {
+				mDrawOpacity = 1.0f;
+			}
+
+			DS_REPORT_GL_ERRORS();
+
+			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
+			if (mUseDepthBuffer) {
+				ci::gl::enableDepthRead();
+				ci::gl::enableDepthWrite();
+			}
+			else {
+				ci::gl::disableDepthRead();
+				ci::gl::disableDepthWrite();
+			}
+
+			DS_REPORT_GL_ERRORS();
+			drawLocalClient();
+			DS_REPORT_GL_ERRORS();
+
+			if (shaderBase) {
+				shaderBase.unbind();
+				if (mSpriteShaders.size() > 0){
+					if (mFrameBuffer[mFboIndex]) mFrameBuffer[mFboIndex]->unbindTexture();
+
+					ci::gl::scale(1.0f, 1.0f, 1.0f);           // invert Y axis so increasing Y goes down.
+					ci::gl::translate(0.0f, 0.0f, 0.0f);       // shift origin up to upper-left corner.
+				}
+			}
+		}
+
+		mShaderPass++;
+	}
+	if (mIsRenderFinalToTexture && mOutputFbo){
+		ci::gl::popModelView();
+		ci::gl::popMatrices();
+		ci::gl::setViewport(viewport);
+		mOutputFbo->unbindFramebuffer();
 	}
 
 	if((mSpriteFlags&CLIP_F) != 0) {
@@ -261,6 +417,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 	}
 
 	ci::gl::popModelView();
+	DS_REPORT_GL_ERRORS();
 
 	DrawParams dParams = drawParams;
 	dParams.mParentOpacity *= mOpacity;
@@ -275,6 +432,8 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 			(*it)->drawClient(totalTransformation, dParams);
 		}
 	}
+
+	/* does multi pass work with post*/
 
 	if((mSpriteFlags&CLIP_F) != 0) {
 		disableClipping();
@@ -312,6 +471,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 		}
 		ci::gl::popModelView();
 	}
+	DS_REPORT_GL_ERRORS();
 }
 
 void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams) {
@@ -328,8 +488,18 @@ void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams
 	glLoadIdentity();
 	ci::gl::multModelView(totalTransformation);
 
-	if((mSpriteFlags&TRANSPARENT_F) == 0 && isEnabled()) {
-		ci::gl::color(mServerColor);
+	bool debugDraw = getDrawDebug();
+	if((mSpriteFlags&TRANSPARENT_F) == 0 && (isEnabled() || debugDraw)) {
+		if(debugDraw){
+			ci::gl::enableAlphaBlending();
+			applyBlendingMode(mBlendMode);
+
+			mDrawOpacity = mOpacity*drawParams.mParentOpacity;
+			ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
+		} else {
+			ci::gl::disableAlphaBlending();
+			ci::gl::color(mServerColor);
+		}
 		if(mUseDepthBuffer) {
 			ci::gl::enableDepthRead();
 			ci::gl::enableDepthWrite();
@@ -367,6 +537,10 @@ void Sprite::setPosition( float x, float y, float z ) {
 	doSetPosition(ci::Vec3f(x, y, z));
 }
 
+void Sprite::setPosition(const ci::Vec2f& pos){
+	doSetPosition(ci::Vec3f(pos.x, pos.y, mPosition.z));
+}
+
 void Sprite::setPosition(const ci::Vec3f &pos) {
 	doSetPosition(pos);
 }
@@ -400,6 +574,12 @@ void Sprite::doSetScale(const ci::Vec3f& scale) {
 const ci::Vec3f& Sprite::getPosition() const {
 	return mPosition;
 }
+
+const ci::Vec3f Sprite::getGlobalPosition() const{
+	if(!getParent()) return ci::Vec3f::zero();
+	return getParent()->localToGlobal(mPosition);
+}
+
 
 ci::Vec3f Sprite::getCenterPosition() const {
 	return mPosition + getLocalCenterPosition();
@@ -465,6 +645,7 @@ void Sprite::doSetRotation(const ci::Vec3f& rot) {
 	mBoundsNeedChecking = true;
 	markAsDirty(ROTATION_DIRTY);
 	dimensionalStateChanged();
+	onRotationChanged();
 }
 
 ci::Vec3f Sprite::getRotation() const
@@ -554,10 +735,14 @@ void Sprite::removeChild(Sprite &child){
 }
 
 void Sprite::setParent(Sprite *parent) {
+	if(containsChild(parent)){
+		removeChild(*parent);
+	}
 	removeParent();
 	mParent = parent;
 	if(mParent)
 		mParent->addChild(*this);
+	onParentSet();
 	markAsDirty(PARENT_DIRTY);
 }
 
@@ -624,9 +809,15 @@ void Sprite::buildTransform() const{
 
 	mTransformation.setToIdentity();
 	mTransformation.translate(ci::Vec3f(mPosition.x, mPosition.y, mPosition.z));
-	mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
-	mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
-	mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+	if(mRotationOrderZYX){
+		mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+	} else {
+		mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+	}
 	mTransformation.scale(ci::Vec3f(mScale.x, mScale.y, mScale.z));
 	mTransformation.translate(ci::Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
 	//mTransformation.setToIdentity();
@@ -727,16 +918,85 @@ void Sprite::drawLocalClient(){
 	if(mCornerRadius > 0.0f){
 		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
 	} else {
-		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+		// do this ourselves since Cinder is only willing to send vertices and texture coordinates
+		glEnableClientState( GL_VERTEX_ARRAY );
+		GLfloat verts[8];
+		glVertexPointer( 2, GL_FLOAT, 0, verts );
+		
+		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
+		GLfloat texCoords[8];
+		glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
+
+		verts[0*2+0] = mWidth;
+		verts[0*2+1] = 0.0f;
+		verts[1*2+0] = 0.0f;
+		verts[1*2+1] = 0.0f;
+		verts[2*2+0] = mWidth;
+		verts[2*2+1] = mHeight;
+		verts[3*2+0] = 0.0f;
+		verts[3*2+1] = mHeight;
+
+		texCoords[0*2+0] = 1.0f;
+		texCoords[0*2+1] = 0.0f;
+		texCoords[1*2+0] = 0.0f;
+		texCoords[1*2+1] = 0.0f;
+		texCoords[2*2+0] = 1.0f;
+		texCoords[2*2+1] = 1.0f;
+		texCoords[3*2+0] = 0.0f;
+		texCoords[3*2+1] = 1.0f;
+
+		bool usingExtent = false;
+		GLint extentLocation;
+		GLfloat extent[8];
+		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
+		if(shaderBase) {
+			extentLocation = shaderBase.getAttribLocation("extent");
+			if((extentLocation != GL_INVALID_OPERATION) && (extentLocation != -1)) {
+				usingExtent = true;
+				glEnableVertexAttribArray(extentLocation);
+				glVertexAttribPointer( extentLocation, 2, GL_FLOAT, GL_FALSE, 0, extent );
+				for(int i = 0; i < 4; i++) {
+					extent[i*2+0] = mWidth;
+					extent[i*2+1] = mHeight;
+				}
+			}
+		}
+
+		bool usingExtra = false;
+		GLint extraLocation;
+		GLfloat extra[16];
+		if(shaderBase) {
+			extraLocation = shaderBase.getAttribLocation("extra");
+			if((extraLocation != GL_INVALID_OPERATION) && (extraLocation != -1)) {
+				usingExtra = true;
+				glEnableVertexAttribArray(extraLocation);
+				glVertexAttribPointer( extraLocation, 4, GL_FLOAT, GL_FALSE, 0, extra );
+				for(int i = 0; i < 4; i++) {
+					extra[i*4+0] = mShaderExtraData.x;
+					extra[i*4+1] = mShaderExtraData.y;
+					extra[i*4+2] = mShaderExtraData.z;
+					extra[i*4+3] = mShaderExtraData.w;
+				}
+			}
+		}
+
+		glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
+
+		glDisableClientState( GL_VERTEX_ARRAY );
+		glDisableClientState( GL_TEXTURE_COORD_ARRAY );
+
+		if(usingExtent) {
+			glDisableVertexAttribArray(extentLocation);
+		}
+
+		if(usingExtra) {
+			glDisableVertexAttribArray(extraLocation);
+		}
 	}
 }
 
 void Sprite::drawLocalServer(){
-	if(mCornerRadius > 0.0f){
-		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
-	} else {
-		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
-	}
+	Sprite::drawLocalClient();
 }
 
 void Sprite::setTransparent(bool transparent){
@@ -839,7 +1099,9 @@ bool Sprite::contains(const ci::Vec3f& point, const float pad) const {
 	// Someone who knows the math can probably address the root issue.
 	if(mWidth < 0.001f || mHeight < 0.001f) return false;
 	// Same deal as above.
-	if(mScale.x <= 0.0f || mScale.y <= 0.0f) return false;
+	//if (mScale.x <= 0.0f || mScale.y <= 0.0f) return false;
+	//May have negative scaling
+	if (mScale.x == 0.0f || mScale.y == 0.0f) return false;
 
 	buildGlobalTransform();
 
@@ -873,8 +1135,10 @@ Sprite* Sprite::getHit(const ci::Vec3f &point) {
 		return nullptr;
 	}
 	// EH: Fix a bug where scales of 0,0,0 result in the sprite ALWAYS getting picked
-	if(mScale.x <= 0.0f || mScale.y <= 0.0f || mScale.z <= 0.0f) {
-		return nullptr;
+//	if (mScale.x <= 0.0f || mScale.y <= 0.0f || mScale.z <= 0.0f) {
+	//Scale could be negative for quickly flipping an image/texture.
+		if (mScale.x == 0.0f || mScale.y == 0.0f || mScale.z <= 0.0f) {
+			return nullptr;
 	}
 	if(getClipping()) {
 		if(!contains(point))
@@ -970,9 +1234,7 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick){
 		ci::Vec2f ptA_s;
 		ci::Vec2f ptB_s;
 		ci::Vec2f ptC_s;
-		ci::Vec2f ptD_s;
-
-
+		
 		ptA.x -= mCenter.x*w;
 		ptA.y += (1 - mCenter.y)*h;
 		ptA_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptA)));
@@ -1238,6 +1500,7 @@ void Sprite::setCheckBounds(bool checkBounds) {
 	mCheckBounds = checkBounds;
 	mInBounds = !mCheckBounds;
 	mBoundsNeedChecking = checkBounds;
+	markAsDirty(CHECKBOUNDS_DIRTY);
 }
 
 bool Sprite::getCheckBounds() const {
@@ -1265,11 +1528,6 @@ float Sprite::getDepth() const {
 
 void Sprite::setDragDestination(Sprite *dragDestination){
 	mDragDestination = dragDestination;
-}
-
-void Sprite::setDragDestiantion(Sprite *dragDestination){
-	Poco::Debugger::enter("Obsolete Function! (misspelled API call)  Replace with setDragDestination()");
-	setDragDestination(dragDestination);
 }
 
 Sprite *Sprite::getDragDestination() const{
@@ -1313,7 +1571,7 @@ void Sprite::writeTo(ds::DataBuffer& buf) {
 	}
 }
 
-void Sprite::writeClientTo(ds::DataBuffer &buf) const {
+void Sprite::writeClientTo(ds::DataBuffer &buf) {
 	writeClientAttributesTo(buf);
 	for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
 		(*it)->writeClientTo(buf);
@@ -1321,10 +1579,14 @@ void Sprite::writeClientTo(ds::DataBuffer &buf) const {
 }
 
 void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
-	if (mDirty.has(PARENT_DIRTY)) {
-		buf.add(PARENT_ATT);
-		if (mParent) buf.add(mParent->getId());
-		else buf.add(ds::EMPTY_SPRITE_ID);
+	if(mDirty.has(PARENT_DIRTY)) {
+		if(mParent){
+			buf.add(PARENT_ATT);
+			buf.add(mParent->getId());
+		} 
+
+		// Why would you send an empty sprite id?
+		//buf.add(ds::EMPTY_SPRITE_ID);
 	}
 	if (mDirty.has(SIZE_DIRTY)) {
 		buf.add(SIZE_ATT);
@@ -1345,6 +1607,10 @@ void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(mPosition.x);
 		buf.add(mPosition.y);
 		buf.add(mPosition.z);
+	}
+	if (mDirty.has(CHECKBOUNDS_DIRTY)) {
+		buf.add(CHECKBOUNDS_ATT);
+		buf.add(mCheckBounds);
 	}
 	if (mDirty.has(CENTER_DIRTY)) {
 		buf.add(CENTER_ATT);
@@ -1384,6 +1650,10 @@ void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(mClippingBounds.getY1());
 		buf.add(mClippingBounds.getX2());
 		buf.add(mClippingBounds.getY2());
+	}
+	if (mDirty.has(CORNER_DIRTY)){
+		buf.add(CORNERRADIUS_ATT);
+		buf.add(mCornerRadius);
 	}
 	if (mDirty.has(SORTORDER_DIRTY)) {
 		// A flat list of ints, the first value is the number of ints
@@ -1434,6 +1704,9 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 			mPosition.y = buf.read<float>();
 			mPosition.z = buf.read<float>();
 			transformChanged = true;
+		} else if (id == CHECKBOUNDS_ATT) {
+			bool checkBounds = buf.read<bool>();
+			setCheckBounds(checkBounds);
 		} else if (id == CENTER_ATT) {
 			mCenter.x = buf.read<float>();
 			mCenter.y = buf.read<float>();
@@ -1452,17 +1725,20 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 			mOpacity = buf.read<float>();
 		} else if (id == BLEND_ATT) {
 			mBlendMode = buf.read<BlendMode>();
-		} else if (id == CLIP_BOUNDS_ATT) {
+		} else if(id == CLIP_BOUNDS_ATT) {
 			float x1 = buf.read<float>();
 			float y1 = buf.read<float>();
 			float x2 = buf.read<float>();
 			float y2 = buf.read<float>();
 			mClippingBounds.set(x1, y1, x2, y2);
 			markClippingDirty();
+		} else if(id == CORNERRADIUS_ATT){ 
+			float cornerRad = buf.read<float>();
+			mCornerRadius = cornerRad;
 		} else if (id == SORTORDER_ATT) {
 			int32_t						size = buf.read<int32_t>();
 			// I'll assume anything beyond a certain size is a broken packet.
-			if (size > 0 && size < 10000) {
+			if (size > 0 && size < 100000) {
 				try {
 					std::vector<sprite_id_t>	order;
 					for (int32_t k=0; k<size; ++k) {
@@ -1471,11 +1747,12 @@ void Sprite::readAttributesFrom(ds::DataBuffer& buf) {
 					setSpriteOrder(order);
 				} catch (std::exception const&) {
 				}
-			}
+			} 
 		} else {
 			readAttributeFrom(id, buf);
 		}
 	}
+
 	if (transformChanged) {
 		mUpdateTransform = true;
 		mBoundsNeedChecking = true;
@@ -1552,6 +1829,174 @@ void Sprite::setBaseShader(const std::string &location, const std::string &shade
 			(*it)->setBaseShader(location, shadername, applyToChildren);
 		}
 	}
+}
+
+
+//Setup for multi-pass shaders
+void Sprite::setShaderList(const std::vector<std::pair<std::string, std::string>> shaderPair, bool applyToChildren /*= false*/)
+{
+	removeShaders();
+
+	for (auto it = shaderPair.begin(); it != shaderPair.end(); ++it) {
+		addNewShader(*it, false, applyToChildren);
+	}
+
+	setupIntermediateFrameBuffers();
+}
+
+void Sprite::removeShaders(){
+	for (auto it = mSpriteShaders.begin(); it != mSpriteShaders.end(); ++it) {
+		ds::ui::SpriteShader* ss = *it;
+		delete ss;
+	}
+	mSpriteShaders.clear();
+}
+
+void Sprite::addNewShader(const std::string location, const std::string shaderName, bool addToFront /*= false*/, bool applyToChildren /*= false*/)
+{
+	std::pair<std::string, std::string> newShader;
+	newShader.first = location;
+	newShader.second = shaderName;
+	addNewShader(newShader, addToFront, applyToChildren);
+}
+
+void Sprite::addNewShader(const std::pair<std::string, std::string> shaderPair, bool addToFront /*= false*/, bool applyToChildren /*= false*/)
+{
+	std::string location = shaderPair.first;
+	std::string shadername = shaderPair.second;
+
+	ds::ui::SpriteShader* spriteShader = new ds::ui::SpriteShader(location, shadername);
+	if (!addToFront){
+		mSpriteShaders.push_back(spriteShader);
+	}
+	else {
+		mSpriteShaders.insert(mSpriteShaders.begin(), spriteShader);
+	}
+
+	setFlag(SHADER_CHILDREN_F, applyToChildren, FLAGS_DIRTY, mSpriteFlags);
+	if (applyToChildren) {
+		for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+			(*it)->addNewShader(shaderPair, applyToChildren);
+		}
+	}
+}
+
+
+
+//For GLSL programs in memory
+void Sprite::addNewMemoryShader(const std::string& vert, const std::string& frag , std::string shaderName, bool addToFront /*= false*/, bool applyToChildren /*= false*/)
+{
+	
+	ds::ui::SpriteShader* spriteShader = new ds::ui::SpriteShader(vert, frag, shaderName);
+	if (!addToFront){
+		mSpriteShaders.push_back(spriteShader);
+	}
+	else { 
+		mSpriteShaders.insert(mSpriteShaders.begin(), spriteShader);
+	}
+
+	setFlag(SHADER_CHILDREN_F, applyToChildren, FLAGS_DIRTY, mSpriteFlags);
+	if (applyToChildren) {
+		for (auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+			(*it)->addNewMemoryShader(vert, frag, shaderName, addToFront, applyToChildren);
+		}
+	}
+}
+
+
+
+bool Sprite::removeShader(std::string shaderName)
+{
+	for (auto it = mSpriteShaders.begin(); it != mSpriteShaders.end(); ++it) {
+		ds::ui::SpriteShader* ss = *it;
+		if (!ss->getName().compare(shaderName.c_str())){
+			mSpriteShaders.erase(std::remove(mSpriteShaders.begin(), mSpriteShaders.end(), ss), mSpriteShaders.end());
+			return true;
+		}
+	}
+	return false;
+}
+
+void Sprite::setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms){
+	mUniforms[shaderName] = uniforms;
+}
+
+
+ds::gl::Uniform Sprite::getShaderUniforms(std::string shaderName) {
+		std::map<std::string, ds::gl::Uniform>::iterator it;
+		it = mUniforms.find(shaderName);
+	if (it != mUniforms.end()){
+		return it->second;
+	}
+	return ds::gl::Uniform();
+}
+
+void Sprite::setShaderExtraData(const ci::Vec4f& data){
+	mShaderExtraData.set(data);
+}
+
+void Sprite::setFinalRenderToTexture(bool render_to_texture)
+{
+	if (render_to_texture == mIsRenderFinalToTexture) return;
+	mIsRenderFinalToTexture = render_to_texture;
+
+	setupFinalRenderBuffer();
+
+}
+
+bool Sprite::isFinalRenderToTexture()
+{
+	return mIsRenderFinalToTexture;
+}
+
+ci::gl::Texture* Sprite::getFinalOutTexture()
+{
+	if (mOutputFbo){
+		//ci::Surface tmp(mOutputFbo->getTexture());
+		//ci::writeImage("c:/videos/myTex.jpg", tmp); // "jpg");
+		return &(mOutputFbo->getTexture());
+	}
+	else return nullptr;
+}
+
+bool Sprite::isShaderName(std::string name) const{
+	if (mSpriteShaders[mShaderPass]->getName().compare(name) == 0){
+		return true;
+	}
+	return false;
+}
+
+int Sprite::getShaderNumber(std::string name) const {
+	int num = -1;
+	int val = 0;
+	if (!mSpriteShaders.empty()){
+		for (auto it = mSpriteShaders.begin(); it != mSpriteShaders.end(); ++it) {
+			bool match = (*it)->getName().compare(name) == 0;
+			if (match) {
+				num = val;
+				break;
+			}
+			val++;
+		}
+	}
+	return num;
+}
+
+
+
+ds::ui::SpriteShader* Sprite::getShaderFromListName(std::string name) const {
+	ds::ui::SpriteShader* spriteShader = nullptr;
+
+	if (!mSpriteShaders.empty()){
+		for (auto it = mSpriteShaders.begin(); it != mSpriteShaders.end(); ++it) {
+			bool match = (*it)->getName().compare(name) ==0;
+			if (match) {
+				spriteShader = *it;
+				break;
+			}
+		}
+	}
+	return spriteShader;
 }
 
 std::string Sprite::getBaseShaderName() const {
@@ -1647,12 +2092,70 @@ void Sprite::computeClippingBounds(){
 
 void Sprite::dimensionalStateChanged(){
 	markClippingDirty();
-	if(mLastWidth != mWidth || mLastHeight != mHeight) {
+	if (mLastWidth != mWidth || mLastHeight != mHeight) {
 		mLastWidth = mWidth;
 		mLastHeight = mHeight;
 		onSizeChanged();
 	}
+
+	setupFinalRenderBuffer();
+	setupIntermediateFrameBuffers();
 }
+
+void Sprite::setupIntermediateFrameBuffers(){
+	if (mSpriteShaders.size() > 0){
+		ci::gl::Fbo::Format format;
+		format.setColorInternalFormat(GL_RGBA);
+		format.enableColorBuffer(true, 1);
+		format.enableDepthBuffer(false);
+
+		if (getWidth() > 1.0f) {
+			const int newWidth = static_cast<int>(getWidth());
+			const int newHeigh = static_cast<int>(getHeight());
+
+			bool createBuffer = true;
+			if(mFrameBuffer[0]){
+				if(mFrameBuffer[0]->getWidth() == newWidth && mFrameBuffer[0]->getHeight() == newHeigh){
+					createBuffer = false;
+				} else {
+					delete mFrameBuffer[0];
+				}
+			}
+
+			if(createBuffer && newWidth > 0 && newHeigh > 0){
+				mFrameBuffer[0] = new ci::gl::Fbo(newWidth, newHeigh, format);
+			}
+
+			createBuffer = true;
+			if(mFrameBuffer[1] ){
+				if(mFrameBuffer[1]->getWidth() == newWidth && mFrameBuffer[1]->getHeight() == newHeigh){
+					createBuffer = false;
+				} else {
+					delete mFrameBuffer[1];
+				}
+			}
+			if(createBuffer && newWidth > 0 && newHeigh > 0){
+				mFrameBuffer[1] = new ci::gl::Fbo(newWidth, newHeigh, format);
+			}
+
+		}
+	}
+}
+
+
+void Sprite::setupFinalRenderBuffer(){
+	if (mOutputFbo)
+		delete mOutputFbo;
+
+	if (mIsRenderFinalToTexture &&
+		getWidth() > 1.0f &&
+		getHeight() > 1.0f){
+		ci::gl::Fbo::Format  format;
+		mOutputFbo = new ci::gl::Fbo(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
+	}
+	else mOutputFbo = nullptr;
+}
+
 
 void Sprite::markClippingDirty(){
 	mClippingBoundsDirty = true;
@@ -1741,6 +2244,22 @@ void Sprite::sendSpriteToBack(Sprite &sprite) {
 	mChildren.insert(mChildren.begin(), &sprite);
 
 	markAsDirty(SORTORDER_DIRTY);
+}
+
+Sprite* Sprite::getFirstDescendantWithName(const std::wstring& name) {
+	Sprite* output = nullptr;
+	for(auto it = mChildren.begin(); it != mChildren.end(); it++) {
+		if((*it)->getSpriteName() == name) {
+			output = (*it);
+			break;
+		} else {
+			output = (*it)->getFirstDescendantWithName(name);
+			if(output != nullptr) {
+				break;
+			}
+		}
+	}
+	return output;
 }
 
 void Sprite::sendToFront() {
@@ -1843,6 +2362,7 @@ bool Sprite::getUseDepthBuffer() const{
 
 void Sprite::setCornerRadius( const float newRadius ){
 	mCornerRadius = newRadius;
+	markAsDirty(CORNER_DIRTY);
 }
 
 float Sprite::getCornerRadius() const{
@@ -1854,14 +2374,11 @@ void Sprite::setTouchScaleMode(bool doSizeScale){
 }
 
 void Sprite::readClientFrom(ds::DataBuffer& buf){
-	while (buf.canRead<char>())
-	{
+	while (buf.canRead<char>()) {
 		char cmd = buf.read<char>();
 		if (cmd != TERMINATOR_CHAR) {
 			readClientAttributeFrom(cmd, buf);
-		}
-		else
-		{
+		} else {
 			return;
 		}
 	}
@@ -1895,7 +2412,7 @@ void			write_matrix44f(const ci::Matrix44f &m, std::ostream &s) {
 
 void Sprite::writeState(std::ostream &s, const size_t tab) const {
 	for (size_t k=0; k<tab; ++k) s << "\t";
-	s << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=[" << mWidth << "x" << mHeight << "x" << mDepth << "] scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << " clip=" << mClippingBounds << std::endl;
+	s << "CLASS NAME=" << typeid(this).name() << "ID=" << mId << " flags=" << mSpriteFlags << " pos=" << mPosition << " size=[" << mWidth << "x" << mHeight << "x" << mDepth << "] scale=" << mScale << " cen=" << mCenter << " rot=" << mRotation << " clip=" << mClippingBounds << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
 	s << "STATE opacity=" << mOpacity << " use_shader=" << mUseShaderTexture << " use_depthbuffer=" << mUseDepthBuffer << " last_w=" << mLastWidth << " last_h=" << mLastHeight << std::endl;
 	for (size_t k=0; k<tab+2; ++k) s << "\t";
@@ -1951,8 +2468,33 @@ void Sprite::doPropagateVisibilityChange(bool before, bool after){
 	}
 }
 
-/**
- * \class ds::ui::Sprite::LockScale
+void Sprite::setDrawDebug(const bool doDebug){
+	if(doDebug) mSpriteFlags |= DRAW_DEBUG_F;
+	else mSpriteFlags &= ~DRAW_DEBUG_F;
+}
+
+bool Sprite::getDrawDebug(){
+	return getFlag(DRAW_DEBUG_F, mSpriteFlags);
+}
+
+
+void Sprite::setSpriteName(const std::wstring& name){
+	mSpriteName = name;
+}
+
+const std::wstring Sprite::getSpriteName(const bool useDefault) const {
+	if(mSpriteName.empty() && useDefault){
+		std::wstringstream wss;
+		wss << getId();
+		auto spriteName = wss.str();
+		return spriteName;
+	} else {
+		return mSpriteName;
+	}
+}
+
+/*
+ * --------------------LockScale
  */
 Sprite::LockScale::LockScale(Sprite& s, const ci::Vec3f& temporaryScale)
 		: mSprite(s)

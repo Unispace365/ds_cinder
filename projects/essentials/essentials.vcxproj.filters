@@ -49,6 +49,21 @@
     <Filter Include="src\ds\network\helper">
       <UniqueIdentifier>{f3fdef8a-eaa7-4dbe-80c4-ee9f6cc1ced2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\soft_keyboard">
+      <UniqueIdentifier>{6baae140-9c0e-4cb9-9e49-4e0aea6f86f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\layout">
+      <UniqueIdentifier>{04a111de-5a8a-43eb-ae01-220cf039c4a9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\network\curl">
+      <UniqueIdentifier>{aaf412cb-2aed-400d-b090-67fe8bf7e762}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\query">
+      <UniqueIdentifier>{8d39ee5c-0b15-42a8-ae73-996996c88c49}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\query\content">
+      <UniqueIdentifier>{192d763d-e381-4e1f-b44f-ee514bfcd3fa}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -113,6 +128,43 @@
     </ClCompile>
     <ClCompile Include="src\ds\network\helper\delayed_node_watcher.cpp">
       <Filter>src\ds\network\helper</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_button.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\soft_keyboard\entry_field.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\layout\layout_sprite.cpp">
+      <Filter>src\ds\ui\layout</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\network\https_client.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\query\content\generic_content_model.cpp">
+      <Filter>src\ds\query\content</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\query\content\xml_content_loader.cpp">
+      <Filter>src\ds\query\content</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\scroll\centered_scroll_area.cpp">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\button\layout_button.cpp" />
+    <ClCompile Include="src\ds\ui\scroll\infinity_scroll_list.cpp">
+      <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -181,6 +233,76 @@
     </ClInclude>
     <ClInclude Include="src\ds\network\helper\delayed_node_watcher.h">
       <Filter>src\ds\network\helper</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\util\ui_utils.h">
+      <Filter>src\ds\ui\util</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_button.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_settings.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\soft_keyboard\entry_field.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\layout\layout_sprite.h">
+      <Filter>src\ds\ui\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\scroll\scroll_bar.h">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\curl.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\curlbuild.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\curlrules.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\curlver.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\easy.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\https_client.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\mprintf.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\multi.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\stdcheaders.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\curl\typecheck-gcc.h">
+      <Filter>src\ds\network\curl</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\query\content\xml_content_loader.h">
+      <Filter>src\ds\query\content</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\query\content\generic_content_model.h">
+      <Filter>src\ds\query\content</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\scroll\centered_scroll_area.h">
+      <Filter>src\ds\ui\scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\button\layout_button.h" />
+    <ClInclude Include="src\ds\ui\scroll\infinity_scroll_list.h">
+      <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
