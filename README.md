@@ -2,7 +2,20 @@ DS Cinder
 =========
 DS Cinder is a framework for interactive applications built on top of the fantastic Cinder framework. DS Cinder provides conveniences for getting graphics onscreen; loading data from a sqlite database; displaying PDFs, videos and web pages; providing touch interaction; and loading settings. The DS version also provides the ability to syncronize multiple clients to display the same graphics, as well as conveniences for touch handling.
 
-**Note:** If you've been using DS Cinder before today (5/15/2015), you've been on the 0.8.4 branch in Visual Studio 2010, which is available under tags. This new master branch is based on Cinder 0.8.6, and requires Visual Studio 2013. You can continue using 0.8.4, but there will be no more development or updates of that version.
+-----------------------------
+DS Cinder Version 102.0.0
+-----------------------------
+
+- Parallel image loading
+- New Layout system and xml sprite loading (See Dynamic Interfaces.md in docs)
+- Expanded XML-importing system to allow events, recursive loading, interactivity, and more
+- New scritable animation system for easy cascading animations
+- Improvements to synchronized video playback
+- Removed many exception throws to minimize random crashes
+- 360 degree panoramic video playback
+- Ability to specify string-labelled colors
+- Latest GStreamer support 1.8.2
+- Various fixes and improvements
 
 -----------------------------
 DS Cinder Version 101.0.0
@@ -45,6 +58,7 @@ Troubleshooting installation
  - `boost::mutex` to `std::mutex`. In most cases for threading, the `boost` versions are supplanted with the `STL` version. Check stack overflow / google, there's plenty of upgrade examples
  - `Not defined`s: Many `STL` elements now need to have `include`s, most commonly `<memory>`, `<cctype>` and `<sstring>`.
  - `KeyEvent Not Defined`: Since the removal of using namespace `ci::*` from `ds_cinder` files, you'll need to make sure everything is namespaced properly.
+ - Be sure you have the correct environment variables. Clean the solution. Restart visual studio and/or your machine
 
 ----------
 
@@ -66,8 +80,8 @@ We are using **Visual Studio property sheets** to manage basic settings like lib
 To compile with GSTREAMER
 -------------------------
 
-Install **Gstreamer 1.8.1** runtime and development files. Use the x86, not x64 versions. Select "complete" when installing. These installers should create an environment variable for GSTREAMER_1_0_ROOT_X86 which points to the root gstreamer directory, typically at c:/gstreamer/1.0/x86/
-  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.8.1/gstreamer-1.0-x86-1.8.1.msi)
-  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.8.1/gstreamer-1.0-devel-x86-1.8.1.msi)
+Install **Gstreamer 1.8.2** runtime and development files. Use the x86, not x64 versions. Select "complete" when installing. These installers should create an environment variable for GSTREAMER_1_0_ROOT_X86 which points to the root gstreamer directory, typically at c:/gstreamer/1.0/x86/
+  - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.8.2/gstreamer-1.0-x86-1.8.2.msi)
+  - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.8.2/gstreamer-1.0-devel-x86-1.8.2.msi)
 
   
