@@ -162,9 +162,11 @@
     <ClCompile Include="src\ds\ui\scroll\centered_scroll_area.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\button\layout_button.cpp" />
     <ClCompile Include="src\ds\ui\scroll\infinity_scroll_list.cpp">
       <Filter>src\ds\ui\scroll</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\button\layout_button.cpp">
+      <Filter>src\ds\ui\button</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -300,9 +302,11 @@
     <ClInclude Include="src\ds\ui\scroll\centered_scroll_area.h">
       <Filter>src\ds\ui\scroll</Filter>
     </ClInclude>
-    <ClInclude Include="src\ds\ui\button\layout_button.h" />
     <ClInclude Include="src\ds\ui\scroll\infinity_scroll_list.h">
       <Filter>src\ds\ui\scroll</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\button\layout_button.h">
+      <Filter>src\ds\ui\button</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
