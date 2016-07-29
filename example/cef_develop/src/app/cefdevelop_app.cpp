@@ -133,9 +133,9 @@ void CefDevelop::setupServer(){
 	//	const std::string urly = "file://D:/test_pdfs/BPS C06_CIM_Services.pdf";
 		//const std::string urly = "google.com";
 	//	const std::string urly = "http://i.imgur.com/r6sS64A.gifv";
-		//	const std::string urly = "https://google.com";
+			const std::string urly = "https://google.com";
 	//	const std::string urly = "https://duapps.deloitte.com/BusinessMetricsDashboard/";
-		const std::string urly = "http://www.google.com/doodles/30th-anniversary-of-pac-man";
+	//	const std::string urly = "http://www.google.com/doodles/30th-anniversary-of-pac-man";
 	//	const std::string urly = "http://www.capitolconnect.com/boeing/reports/default.asp?user=boeingyes";
 		//const std::string urly = "https://drive.google.com/drive/my-drive";
 		//const std::string urly = "https://agoing.agsafoin.com/"; // generates an error cause the site can't be reached
