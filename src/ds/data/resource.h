@@ -158,6 +158,8 @@ public:
 	/// Answer an abstract file path that can be resolved to an absolute one via ds::Environment::expand().
 	std::string				getPortableFilePath() const;
 
+	std::string				getFileName() const { return mFileName; }
+
 	/// Clears the currently set info
 	void					clear();
 
