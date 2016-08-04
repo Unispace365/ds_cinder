@@ -162,8 +162,6 @@ void HttpsRequest::IndividualRequest::run(){
 				mError = true;
 				mErrorMessage = curl_easy_strerror(res);
 			} else {
-				// something?
-				std::cout << "Post finished, output: " << mOutput << std::endl;
 			}
 		}
 		curl_easy_cleanup(curl);
