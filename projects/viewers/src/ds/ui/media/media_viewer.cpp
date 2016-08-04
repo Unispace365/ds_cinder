@@ -73,6 +73,14 @@ void MediaViewer::loadMedia(const ds::Resource& reccy, const bool initializeImme
 }
 
 
+ds::Resource MediaViewer::getResource(){
+	if(mMediaPlayer){
+		return mMediaPlayer->getResource();
+	}
+
+	return ds::Resource("", ds::Resource::ERROR_TYPE);
+}
+
 void MediaViewer::setDefaultBounds(const float defaultWidth, const float defaultHeight){
 	mMediaViewerSettings.mDefaultBounds.x = defaultWidth;
 	mMediaViewerSettings.mDefaultBounds.y = defaultHeight;

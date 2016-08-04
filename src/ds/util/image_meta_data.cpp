@@ -154,7 +154,7 @@ public:
 					atts.mLastModified = file.getLastModified();
 					mCache[filePath] = atts;
 				} else {
-					DS_LOG_WARNING_M("ImageAttsCache::add : parameter passed to me does not represent a physical file on disk." << filePath, GENERAL_LOG);
+					DS_LOG_WARNING_M("ImageAttsCache::add : File does not exist when finding metadata: " << filePath, GENERAL_LOG);
 				}
 			} catch (std::exception const& ex){
 				DS_LOG_WARNING("ImageAttsCache exception: " << ex.what());

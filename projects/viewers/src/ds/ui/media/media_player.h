@@ -34,6 +34,9 @@ public:
 	void					loadMedia(const std::string& mediaPath, const bool initializeImmediately = true);
 	void					loadMedia(const ds::Resource& reccy, const bool initializeImmediately = true);
 
+	/// Returns the data model for the currently set media (may be blank or errored)
+	const ds::Resource&		getResource(){ return mResource; }
+
 	/// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
 	void					setDefaultBounds(const float defaultWidth, const float defaultHeight);
 	void					setWebViewSize(const ci::Vec2f webSize);
