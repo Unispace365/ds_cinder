@@ -30,7 +30,7 @@ public:
 	/// The postData is something like name=jeeves&project=ds_cinder
 	/// verifyPeers if false will use try to connect even if the certificate is self-signed (Much less secure)
 	/// verifyHosts if false will use try to connect even if the certificate doesn't match the domain (Much less secure)
-	void					makePostRequest(const std::string& url, const std::string& postData, const bool verifyPeers = true, const bool verifyHosts = true);
+	void					makePostRequest(const std::string& url, const std::string& postData, const bool verifyPeers = true, const bool verifyHosts = true, const std::string& customrequest = "");
 
 	/// If errored == true, then something went wrong and the reply will have the error message
 	/// Otherwise it will be whatever was returned from the server
@@ -53,6 +53,7 @@ private:
 		bool				mVerifyHost;
 		bool				mIsGet;
 		std::string			mPostData;
+		std::string			mCustomRequest;
 	};
 
 	void									onRequestComplete(IndividualRequest&);

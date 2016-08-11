@@ -26,18 +26,19 @@ void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify,
 }
 
 
-void HttpsRequest::makePostRequest(const std::string& url, const std::string& postData, const bool peerVerify /*= true*/, const bool hostVerify /*= true*/){
+void HttpsRequest::makePostRequest(const std::string& url, const std::string& postData, const bool peerVerify /*= true*/, const bool hostVerify /*= true*/, const std::string& customRequest){
 	if(url.empty()){
 		DS_LOG_WARNING("Couldn't make a post request in HttpsRequest because the url is empty");
 		return;
 	}
 
-	mRequests.start([this, url, postData, peerVerify, hostVerify](IndividualRequest& q){
+	mRequests.start([this, url, postData, peerVerify, hostVerify, customRequest](IndividualRequest& q){
 		q.mInput = url;
 		q.mPostData = postData;
 		q.mVerifyHost = hostVerify;
 		q.mVerifyPeers = peerVerify;
-		q.mIsGet = false; });
+		q.mIsGet = false; 
+		q.mCustomRequest = customRequest; });
 
 }
 
@@ -124,6 +125,11 @@ void HttpsRequest::IndividualRequest::run(){
 			data. */
 			CURLcode res;
 			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
+
+			/* Allows custom request types, like DELETE*/
+			if(!mCustomRequest.empty()){
+				curl_easy_setopt(curl, CURLOPT_CUSTOMREQUEST, mCustomRequest.c_str());
+			}
 
 			if(!mPostData.empty()){
 				/* Now specify the POST data */
