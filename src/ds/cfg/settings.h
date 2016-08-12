@@ -55,10 +55,10 @@ public:
 	const Resource::Id&					getResourceId(const std::string& name, const int index = 0) const;
 	const ci::Color&					getColor(const std::string& name, const int index = 0) const;
 	const ci::ColorA&					getColorA(const std::string& name, const int index = 0) const;
-	const ci::Vec2f&					getSize(const std::string& name, const int index = 0) const;
+	const ci::vec2&					getSize(const std::string& name, const int index = 0) const;
 	const std::string&					getText(const std::string& name, const int index = 0) const;
 	const std::wstring&					getTextW(const std::string& name, const int index = 0) const;
-	const ci::Vec3f&					getPoint(const std::string& name, const int index = 0) const;
+	const ci::vec3&					getPoint(const std::string& name, const int index = 0) const;
 	// Bools are a convenience on text fields that will be either "true" or "false"
 	bool								getBool(const std::string& name, const int index = 0) const;
 
@@ -69,10 +69,10 @@ public:
 	Resource::Id						getResourceId(const std::string& name, const int index, const Resource::Id& defaultValue) const;
 	ci::Color					    	getColor(const std::string& name, const int index, const ci::Color& defaultValue) const;
 	ci::ColorA						    getColorA(const std::string& name, const int index, const ci::ColorA& defaultValue) const;
-	ci::Vec2f					    	getSize(const std::string& name, const int index, const ci::Vec2f& defaultValue) const;
+	ci::vec2					    	getSize(const std::string& name, const int index, const ci::vec2& defaultValue) const;
 	std::string							getText(const std::string& name, const int index, const std::string& defaultValue) const;
 	std::wstring						getTextW(const std::string& name, const int index, const std::wstring& defaultValue) const;
-	const ci::Vec3f&					getPoint(const std::string& name, const int index, const ci::Vec3f& defaultValue) const;
+	const ci::vec3&					getPoint(const std::string& name, const int index, const ci::vec3& defaultValue) const;
 	// Bools are a convenience on text fields that will be either "true" or "false"
 	bool							  	getBool(const std::string& name, const int index, const bool defaultValue) const;
 
@@ -97,10 +97,10 @@ private:
 	std::map<std::string, std::vector<Resource::Id>>	mRes;
 	std::map<std::string, std::vector<ci::Color>>		mColor;
 	std::map<std::string, std::vector<ci::ColorA>>		mColorA;
-	std::map<std::string, std::vector<ci::Vec2f>>		mSize;
+	std::map<std::string, std::vector<ci::vec2>>		mSize;
 	std::map<std::string, std::vector<std::string>>		mText;
 	std::map<std::string, std::vector<std::wstring>>	mTextW;
-	std::map<std::string, std::vector<ci::Vec3f>>		mPoints;
+	std::map<std::string, std::vector<ci::vec3>>		mPoints;
 
 	void								directReadFrom(const std::string& filename, const bool clear, const bool rawXmlText = false);
 	void								directReadXmlFrom(const std::string& filename, const bool clear);
@@ -126,9 +126,9 @@ public:
 		Editor&							setInt(const std::string& name, const int);
 		Editor&							setResourceId(const std::string& name, const Resource::Id&);
 		Editor&							setRect(const std::string& name, const ci::Rectf&);
-		Editor&							setSize(const std::string& name, const ci::Vec2f&);
+		Editor&							setSize(const std::string& name, const ci::vec2&);
 		Editor&							setText(const std::string& name, const std::string&);
-		Editor&							setPoint(const std::string& name, const ci::Vec3f&);
+		Editor&							setPoint(const std::string& name, const ci::vec3&);
 
 		Editor&							addInt(const std::string& name, const int);
 		Editor&							addResourceId(const std::string& name, const Resource::Id&);

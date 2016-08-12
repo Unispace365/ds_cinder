@@ -21,7 +21,7 @@ struct TapInfo
 
   State       mState;
   int         mCount;
-  ci::Vec3f   mCurrentGlobalPoint;
+  ci::vec3   mCurrentGlobalPoint;
 };
 
 } // namespace ui

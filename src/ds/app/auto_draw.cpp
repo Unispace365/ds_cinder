@@ -32,7 +32,7 @@ AutoDrawService::AutoDrawService() {
 	mUpdate.reserve(16);
 }
 
-void AutoDrawService::drawClient(const ci::Matrix44f& t, const DrawParams& d) {
+void AutoDrawService::drawClient(const ci::mat4& t, const DrawParams& d) {
 	if (mUpdate.empty()) return;
 
 	for (auto it=mUpdate.begin(), end=mUpdate.end(); it != end; ++it) {

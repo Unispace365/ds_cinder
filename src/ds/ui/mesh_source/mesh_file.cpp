@@ -43,9 +43,9 @@ private:
 
 		// Convert ds::ui::util::MeshFile data into cinder::TriMesh data...
 		std::vector<uint32_t> indices;
-		std::vector<ci::Vec3f> normals;
-		std::vector<ci::Vec3f> vertices;
-		std::vector<ci::Vec2f> texCoords;
+		std::vector<ci::vec3> normals;
+		std::vector<ci::vec3> vertices;
+		std::vector<ci::vec2> texCoords;
 
 		// Indices
 		for (size_t i=0; i<loader.mNumIndices; i++ ) {

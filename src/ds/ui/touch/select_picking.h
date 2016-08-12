@@ -15,7 +15,7 @@ class SelectPicking : public Picking {
 public:
 	SelectPicking();
 
-	virtual ds::ui::Sprite*	pickAt(const ci::Vec2f&, ds::ui::Sprite& root);
+	virtual ds::ui::Sprite*	pickAt(const ci::vec2&, ds::ui::Sprite& root);
 
 private:
 	static const size_t		SELECT_BUFFER_SIZE = 99999;

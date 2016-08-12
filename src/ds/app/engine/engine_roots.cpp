@@ -86,7 +86,7 @@ void OrthRoot::updateServer(const ds::UpdateParams& p) {
 	mSprite->updateServer(p);
 }
 
-void OrthRoot::setCameraForDraw(ci::Matrix44f& m){
+void OrthRoot::setCameraForDraw(ci::mat4& m){
 	if(mCameraDirty) {
 		setCinderCamera();
 	}
@@ -96,13 +96,13 @@ void OrthRoot::setCameraForDraw(ci::Matrix44f& m){
 	if(mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1) {
 		const float			sx = mDstRect.getWidth() / mSrcRect.getWidth(),
 			sy = mDstRect.getHeight() / mSrcRect.getHeight();
-		m.translate(ci::Vec3f(-mSrcRect.x1*sx, -mSrcRect.y1*sy, 0.0f));
-		m.scale(ci::Vec3f(sx, sy, 1.0f));
+		m = ci::translate(m, ci::vec3(-mSrcRect.x1*sx, -mSrcRect.y1*sy, 0.0f));
+		m = ci::scale(m, ci::vec3(sx, sy, 1.0f));
 	}
 }
 
 void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
-	ci::Matrix44f		m(ci::gl::getModelView());
+	ci::mat4		m(ci::gl::getModelView());
 	if(getBuilder().mDrawScaled){
 		setCameraForDraw(m);
 	}
@@ -112,14 +112,14 @@ void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
 }
 
 void OrthRoot::drawServer(const DrawParams& p) {
-	ci::Matrix44f		m(ci::gl::getModelView());
+	ci::mat4		m(ci::gl::getModelView());
 	if(getBuilder().mDrawScaled){
 		setCameraForDraw(m);
 	}
 	mSprite->drawServer(m, p);
 }
 
-ui::Sprite* OrthRoot::getHit(const ci::Vec3f& point) {
+ui::Sprite* OrthRoot::getHit(const ci::vec3& point) {
 	return mSprite->getHit(point);
 }
 
@@ -211,7 +211,7 @@ void PerspRoot::drawServer(const DrawParams& p) {
 	drawFunc([this, &p](){mSprite->drawClient(ci::gl::getModelView(), p);});
 }
 
-ui::Sprite* PerspRoot::getHit(const ci::Vec3f& point) {
+ui::Sprite* PerspRoot::getHit(const ci::vec3& point) {
 	ui::Sprite*		s = nullptr;
 	drawFunc([this, &point, &s](){s = mPicking.pickAt(point.xy(), *(mSprite.get()));});
 	return s;
@@ -312,8 +312,8 @@ PerspRoot::OldPick::OldPick(ci::Camera& c)
 		: mCamera(c) {
 }
 
-ds::ui::Sprite* PerspRoot::OldPick::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root) {
-	ds::CameraPick			pick(mCamera, ci::Vec3f(pt.x, pt.y, 0.0f), root.getWidth(), root.getHeight());
+ds::ui::Sprite* PerspRoot::OldPick::pickAt(const ci::vec2& pt, ds::ui::Sprite& root) {
+	ds::CameraPick			pick(mCamera, ci::vec3(pt.x, pt.y, 0.0f), root.getWidth(), root.getHeight());
 	return root.getPerspectiveHit(pick);
 }
 

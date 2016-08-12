@@ -41,7 +41,7 @@ public:
 	float					mSize;
 	float					mLeading;
 	ci::ColorA				mColor;
-	ci::Vec2f				mCenter;
+	ci::vec2				mCenter;
 	ds::ui::Alignment::Enum	mAlignment;
 };
 

@@ -19,7 +19,6 @@
 
 #include <cinder/app/App.h>
 #include <cinder/app/TouchEvent.h>
-#include <cinder/app/AppBasic.h>
 
 #include "TuioClient.h"
 
@@ -103,7 +102,7 @@ public:
 	// Access to the configuration settings that created a root. Allows you to inspect pick style, debug drawing, perspective, etc
 	const RootList::Root&				getRootBuilder(const size_t index = 0);
 
-	void								prepareSettings( ci::app::AppBasic::Settings& );
+	void								prepareSettings( ci::app::App::Settings& );
 	//called in app setup; loads settings files and what not.
 	virtual void						setup(ds::App&);
 	void								setupTouch(ds::App&);
@@ -179,15 +178,15 @@ public:
 
 	bool								hideMouse() const;
 
-	ds::ui::Sprite*						getHit(const ci::Vec3f& point);
+	ds::ui::Sprite*						getHit(const ci::vec3& point);
 
 	ui::TouchManager&					getTouchManager(){ return mTouchManager; }
 	virtual void						clearFingers( const std::vector<int> &fingers );
 	void								setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 	ds::ui::Sprite*						getSpriteForFinger( const int fingerId ){ return mTouchManager.getSpriteForFinger(fingerId); }
 	// translate a touch event point to the overlay bounds specified in the settings
-	virtual void						translateTouchPoint( ci::Vec2f& inOutPoint );
-	virtual bool						shouldDiscardTouch( ci::Vec2f& p ){ return mTouchManager.shouldDiscardTouch(p); }
+	virtual void						translateTouchPoint( ci::vec2& inOutPoint );
+	virtual bool						shouldDiscardTouch( ci::vec2& p ){ return mTouchManager.shouldDiscardTouch(p); }
 
 	void								setTouchSmoothing(const bool doSmoothing);
 	const bool							getTouchSmoothing();

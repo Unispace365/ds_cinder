@@ -85,7 +85,7 @@ TextLayout::Line::Line()
  */
 TextLayout::Input::Input(const Text& sprite,
 						 const FontPtr& f,
-						 const ci::Vec2f& size,
+						 const ci::vec2& size,
 						 const std::wstring& text)
 						 : mSprite(sprite)
 						 , mFont(f)
@@ -180,7 +180,7 @@ const TextLayout::MAKE_FUNC& TextLayout::SINGLE_LINE()
 {
 	static const MAKE_FUNC ANS = [](TextLayout::Input& i, TextLayout& l) { 
 		TextLayout::Line newLine;
-		newLine.mPos = ci::Vec2f(0, ceilf((1.0f - getFontAscender(i.mFont)) * i.mFont->pointSize()));
+		newLine.mPos = ci::vec2(0, ceilf((1.0f - getFontAscender(i.mFont)) * i.mFont->pointSize()));
 		newLine.mFontBox = getBoxFromString(i.mFont, i.mText);
 		newLine.mText = i.mText;
 		l.addLine(newLine); 
@@ -209,14 +209,14 @@ void TextLayoutVertical::installOn(Text& t) {
 	t.setLayoutFunction(f);
 }
 
-ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str){
+ci::vec2 getSizeFromString(const FontPtr &font, const std::string &str){
 	OGLFT::BBox box = font->measureRaw(str);
-	return ci::Vec2f(box.x_max_ - box.x_min_, box.y_max_ - box.y_min_);
+	return ci::vec2(box.x_max_ - box.x_min_, box.y_max_ - box.y_min_);
 }
 
-ci::Vec2f getSizeFromString(const FontPtr &font, const std::wstring &str){
+ci::vec2 getSizeFromString(const FontPtr &font, const std::wstring &str){
 	OGLFT::BBox box = font->measureRaw(str);
-	return ci::Vec2f(box.x_max_ - box.x_min_, box.y_max_ - box.y_min_);
+	return ci::vec2(box.x_max_ - box.x_min_, box.y_max_ - box.y_min_);
 }
 
 ci::Rectf getBoxFromString(const FontPtr &font, const std::wstring &str){
@@ -375,7 +375,7 @@ void TextLayoutVertical::run(TextLayout::Input& in, TextLayout& out)
 		}
 
 		newLine.append(token);
-		ci::Vec2f size = getSizeFromString(in.mFont, newLine);
+		ci::vec2 size = getSizeFromString(in.mFont, newLine);
 		if(size.x > in.mSize.x) {
 			// Flush the current line, cause we're wrapping
 			if(!lineText.empty()) {

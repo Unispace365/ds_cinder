@@ -292,9 +292,9 @@ void EngineClient::handleMouseTouchEnded(const ci::app::MouseEvent& e, int id){
 	sendMouseTouch(2, e.getPos());
 }
 
-void EngineClient::sendMouseTouch(const int phase, const ci::Vec2i pos){
+void EngineClient::sendMouseTouch(const int phase, const ci::ivec2 pos){
 	
-	ci::Vec2f worldPoint = pos;
+	ci::vec2 worldPoint = pos;
 //	worldPoint.x = pos.x / (mData.mSrcRect.getWidth() / mData.mDstRect.getWidth());
 //	worldPoint.y = pos.y / (mData.mSrcRect.getHeight() / mData.mDstRect.getHeight());
 	

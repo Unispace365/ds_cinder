@@ -2,7 +2,7 @@
 #ifndef DS_APP_APP_H_
 #define DS_APP_APP_H_
 
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include "ds/app/app_defs.h"
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_settings.h"
@@ -17,7 +17,7 @@ class Engine;
  * \class ds::App
  * Handle the main app setup.
  */
-class App : public cinder::app::AppBasic {
+class App : public cinder::app::App {
 private:
 	const bool			mEnvironmentInitialized;
 
@@ -92,7 +92,7 @@ protected:
 	ds::Engine&					mEngine;
 
 private:
-	typedef ci::app::AppBasic   inherited;
+	typedef ci::app::App   inherited;
 
 	friend class Environment;
 	// Path to the executable (which realistically we never want)

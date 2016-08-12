@@ -132,10 +132,10 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mSpriteFlags = VISIBLE_F | TRANSPARENT_F;
 	mWidth = 0;
 	mHeight = 0;
-	mCenter = ci::Vec3f(0.0f, 0.0f, 0.0f);
-	mRotation = ci::Vec3f(0.0f, 0.0f, 0.0f);
+	mCenter = ci::vec3(0.0f, 0.0f, 0.0f);
+	mRotation = ci::vec3(0.0f, 0.0f, 0.0f);
 	mRotationOrderZYX = false;
-	mScale = ci::Vec3f(1.0f, 1.0f, 1.0f);
+	mScale = ci::vec3(1.0f, 1.0f, 1.0f);
 	mUpdateTransform = true;
 	mParent = nullptr;
 	mOpacity = 1.0f;
@@ -161,8 +161,8 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mLayoutTPad = 0.0f;
 	mLayoutRPad = 0.0f;
 	mLayoutLPad = 0.0f;
-	mLayoutFudge = ci::Vec2f::zero();
-	mLayoutSize = ci::Vec2f::zero();
+	mLayoutFudge = ci::vec2::zero();
+	mLayoutSize = ci::vec2::zero();
 	mLayoutHAlign = 0;
 	mLayoutVAlign = 0;
 	mLayoutUserType = 0;
@@ -254,7 +254,7 @@ ci::gl::Texture* Sprite::getShaderOutputTexture()
 		return nullptr;
 }
 
-void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams) {
+void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	if ((mSpriteFlags&VISIBLE_F) == 0) {
 		return;
 	}
@@ -265,7 +265,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 	mIsLastPass = mShaderPasses > 0 ? false : true;
 
 	buildTransform();
-	ci::Matrix44f totalTransformation = trans*mTransformation;
+	ci::mat4 totalTransformation = trans*mTransformation;
 	ci::gl::pushModelView();
 	glLoadIdentity();
 	ci::gl::multModelView(totalTransformation);
@@ -330,7 +330,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 			ci::gl::pushModelView();
 			ci::gl::pushMatrices();
 			//Need to set the MVP matrices to match dimensions of sprite object
-			ci::gl::setMatricesWindow(ci::Vec2i(static_cast<int>(getWidth()), static_cast<int>(getHeight())));
+			ci::gl::setMatricesWindow(ci::ivec2(static_cast<int>(getWidth()), static_cast<int>(getHeight())));
 			mOutputFbo->bindFramebuffer();
 		}
 
@@ -474,7 +474,7 @@ void Sprite::drawClient(const ci::Matrix44f &trans, const DrawParams &drawParams
 	DS_REPORT_GL_ERRORS();
 }
 
-void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams) {
+void Sprite::drawServer(const ci::mat4 &trans, const DrawParams &drawParams) {
 	if((mSpriteFlags&VISIBLE_F) == 0) {
 		return;
 	}
@@ -483,7 +483,7 @@ void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams
 	}
 
 	buildTransform();
-	ci::Matrix44f totalTransformation = trans*mTransformation;
+	ci::mat4 totalTransformation = trans*mTransformation;
 	ci::gl::pushModelView();
 	glLoadIdentity();
 	ci::gl::multModelView(totalTransformation);
@@ -534,22 +534,22 @@ void Sprite::drawServer(const ci::Matrix44f &trans, const DrawParams &drawParams
 }
 
 void Sprite::setPosition( float x, float y, float z ) {
-	doSetPosition(ci::Vec3f(x, y, z));
+	doSetPosition(ci::vec3(x, y, z));
 }
 
-void Sprite::setPosition(const ci::Vec2f& pos){
-	doSetPosition(ci::Vec3f(pos.x, pos.y, mPosition.z));
+void Sprite::setPosition(const ci::vec2& pos){
+	doSetPosition(ci::vec3(pos.x, pos.y, mPosition.z));
 }
 
-void Sprite::setPosition(const ci::Vec3f &pos) {
+void Sprite::setPosition(const ci::vec3 &pos) {
 	doSetPosition(pos);
 }
 
-bool Sprite::getInnerHit(const ci::Vec3f&) const {
+bool Sprite::getInnerHit(const ci::vec3&) const {
 	return true;
 }
 
-void Sprite::doSetPosition(const ci::Vec3f& pos) {
+void Sprite::doSetPosition(const ci::vec3& pos) {
 	if (mPosition == pos) return;
 
 	mPosition = pos;
@@ -560,7 +560,7 @@ void Sprite::doSetPosition(const ci::Vec3f& pos) {
 	onPositionChanged();
 }
 
-void Sprite::doSetScale(const ci::Vec3f& scale) {
+void Sprite::doSetScale(const ci::vec3& scale) {
 	if(mScale == scale) return;
 
 	mScale = scale;
@@ -571,29 +571,29 @@ void Sprite::doSetScale(const ci::Vec3f& scale) {
 	onScaleChanged();
 }
 
-const ci::Vec3f& Sprite::getPosition() const {
+const ci::vec3& Sprite::getPosition() const {
 	return mPosition;
 }
 
-const ci::Vec3f Sprite::getGlobalPosition() const{
-	if(!getParent()) return ci::Vec3f::zero();
+const ci::vec3 Sprite::getGlobalPosition() const{
+	if(!getParent()) return ci::vec3::zero();
 	return getParent()->localToGlobal(mPosition);
 }
 
 
-ci::Vec3f Sprite::getCenterPosition() const {
+ci::vec3 Sprite::getCenterPosition() const {
 	return mPosition + getLocalCenterPosition();
 }
  
-ci::Vec3f Sprite::getLocalCenterPosition() const {
-	return ci::Vec3f(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
+ci::vec3 Sprite::getLocalCenterPosition() const {
+	return ci::vec3(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
 }
 
 void Sprite::setScale(float x, float y, float z){
-	doSetScale(ci::Vec3f(x, y, z));
+	doSetScale(ci::vec3(x, y, z));
 }
 
-void Sprite::setScale(const ci::Vec3f& scale){
+void Sprite::setScale(const ci::vec3& scale){
 	doSetScale(scale);
 }
 
@@ -601,15 +601,15 @@ void Sprite::setScale(float scale){
 	setScale(scale, scale, scale);
 }
 
-const ci::Vec3f& Sprite::getScale() const {
+const ci::vec3& Sprite::getScale() const {
 	return mScale;
 }
 
 void Sprite::setCenter(float x, float y, float z){
-	setCenter(ci::Vec3f(x, y, z));
+	setCenter(ci::vec3(x, y, z));
 }
 
-void Sprite::setCenter(const ci::Vec3f& center){
+void Sprite::setCenter(const ci::vec3& center){
 	if(mCenter == center) return;
 
 	mCenter = center;
@@ -620,23 +620,23 @@ void Sprite::setCenter(const ci::Vec3f& center){
 	onCenterChanged();
 }
 
-const ci::Vec3f& Sprite::getCenter() const {
+const ci::vec3& Sprite::getCenter() const {
 	return mCenter;
 }
 
 void Sprite::setRotation(float rotZ) {
-	doSetRotation(ci::Vec3f(mRotation.x, mRotation.y, rotZ) );
+	doSetRotation(ci::vec3(mRotation.x, mRotation.y, rotZ) );
 }
 
 void Sprite::setRotation(const float xRot, const float yRot, const float zRot) {
-	doSetRotation(ci::Vec3f(xRot, yRot, zRot));
+	doSetRotation(ci::vec3(xRot, yRot, zRot));
 }
 
-void Sprite::setRotation(const ci::Vec3f& rot) {
+void Sprite::setRotation(const ci::vec3& rot) {
 	doSetRotation(rot);
 }
 
-void Sprite::doSetRotation(const ci::Vec3f& rot) {
+void Sprite::doSetRotation(const ci::vec3& rot) {
 	if(math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z))
 		return;
 
@@ -648,7 +648,7 @@ void Sprite::doSetRotation(const ci::Vec3f& rot) {
 	onRotationChanged();
 }
 
-ci::Vec3f Sprite::getRotation() const
+ci::vec3 Sprite::getRotation() const
 {
 	return mRotation;
 }
@@ -659,12 +659,12 @@ namespace {
 }
 
 ci::Rectf Sprite::getBoundingBox() const {
-	const ci::Matrix44f&	t = getTransform();
+	const ci::mat4&	t = getTransform();
 
-	ci::Vec3f				ul = t * ci::Vec3f(0.0f, 0.0f, 0.0f);
-	ci::Vec3f				ll = t * ci::Vec3f(0.0f, getHeight(), 0.0f);
-	ci::Vec3f				lr = t * ci::Vec3f(getWidth(), getHeight(), 0.0f);
-	ci::Vec3f				ur = t * ci::Vec3f(getWidth(), 0.0f, 0.0f);
+	ci::vec3				ul = t * ci::vec3(0.0f, 0.0f, 0.0f);
+	ci::vec3				ll = t * ci::vec3(0.0f, getHeight(), 0.0f);
+	ci::vec3				lr = t * ci::vec3(getWidth(), getHeight(), 0.0f);
+	ci::vec3				ur = t * ci::vec3(getWidth(), 0.0f, 0.0f);
 
 	const float				left = min(min(min(ul.x, ll.x), lr.x), ur.x);
 	const float				right = max(max(max(ul.x, ll.x), lr.x), ur.x);
@@ -694,7 +694,7 @@ bool Sprite::getDrawSorted() const {
   return getFlag(DRAW_SORTED_F, mSpriteFlags);
 }
 
-const ci::Matrix44f &Sprite::getTransform() const {
+const ci::mat4 &Sprite::getTransform() const {
 	buildTransform();
 	return mTransformation;
 }
@@ -805,21 +805,21 @@ void Sprite::buildTransform() const{
 
 	mUpdateTransform = false;
 
-	mTransformation = ci::Matrix44f::identity();
+	mTransformation = ci::mat4::identity();
 
 	mTransformation.setToIdentity();
-	mTransformation.translate(ci::Vec3f(mPosition.x, mPosition.y, mPosition.z));
+	mTransformation.translate(ci::vec3(mPosition.x, mPosition.y, mPosition.z));
 	if(mRotationOrderZYX){
-		mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
-		mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
-		mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::vec3(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::vec3(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::vec3(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
 	} else {
-		mTransformation.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
-		mTransformation.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
-		mTransformation.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::vec3(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::vec3(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
+		mTransformation.rotate(ci::vec3(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
 	}
-	mTransformation.scale(ci::Vec3f(mScale.x, mScale.y, mScale.z));
-	mTransformation.translate(ci::Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
+	mTransformation.scale(ci::vec3(mScale.x, mScale.y, mScale.z));
+	mTransformation.translate(ci::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
 	//mTransformation.setToIdentity();
 	//mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
 	//mTransformation.scale(Vec3f(mScale.x, mScale.y, mScale.z));
@@ -831,8 +831,8 @@ void Sprite::buildTransform() const{
 	mInverseTransform = mTransformation.inverted();
 }
 
-const ci::Vec3f Sprite::getSize()const{
-	return ci::Vec3f(mWidth, mHeight, mDepth);
+const ci::vec3 Sprite::getSize()const{
+	return ci::vec3(mWidth, mHeight, mDepth);
 }
 
 void Sprite::setSizeAll(float width, float height, float depth){
@@ -846,11 +846,11 @@ void Sprite::setSizeAll(float width, float height, float depth){
 	dimensionalStateChanged();
 }
 
-void Sprite::setSizeAll(const ci::Vec3f& size3d){
+void Sprite::setSizeAll(const ci::vec3& size3d){
 	setSizeAll(size3d.x, size3d.y, size3d.z);
 }
 
-void Sprite::setSize(const ci::Vec2f& size2d) {
+void Sprite::setSize(const ci::vec2& size2d) {
 	setSize(size2d.x, size2d.y);
 }
 
@@ -870,8 +870,8 @@ void Sprite::sizeToChildBounds(){
 	}	
 }
 
-ci::Vec3f Sprite::getPreferredSize() const {
-	return ci::Vec3f(0.0f, 0.0f, 0.0f);
+ci::vec3 Sprite::getPreferredSize() const {
+	return ci::vec3(0.0f, 0.0f, 0.0f);
 }
 
 void Sprite::setColor(const ci::Color &color){
@@ -1075,26 +1075,26 @@ Sprite *Sprite::getParent() const {
 	return mParent;
 }
 
-const ci::Matrix44f &Sprite::getGlobalTransform() const {
+const ci::mat4 &Sprite::getGlobalTransform() const {
 	buildGlobalTransform();
 
 	return mGlobalTransform;
 }
 
-ci::Vec3f Sprite::globalToLocal(const ci::Vec3f &globalPoint){
+ci::vec3 Sprite::globalToLocal(const ci::vec3 &globalPoint){
 	buildGlobalTransform();
 
-	ci::Vec4f point = mInverseGlobalTransform * ci::Vec4f(globalPoint.x, globalPoint.y, globalPoint.z, 1.0f);
-	return ci::Vec3f(point.x, point.y, point.z);
+	ci::vec4 point = mInverseGlobalTransform * ci::vec4(globalPoint.x, globalPoint.y, globalPoint.z, 1.0f);
+	return ci::vec3(point.x, point.y, point.z);
 }
 
-ci::Vec3f Sprite::localToGlobal(const ci::Vec3f &localPoint){
+ci::vec3 Sprite::localToGlobal(const ci::vec3 &localPoint){
 	buildGlobalTransform();
-	ci::Vec4f point = mGlobalTransform * ci::Vec4f(localPoint.x, localPoint.y, localPoint.z, 1.0f);
-	return ci::Vec3f(point.x, point.y, point.z);
+	ci::vec4 point = mGlobalTransform * ci::vec4(localPoint.x, localPoint.y, localPoint.z, 1.0f);
+	return ci::vec3(point.x, point.y, point.z);
 }
 
-bool Sprite::contains(const ci::Vec3f& point, const float pad) const {
+bool Sprite::contains(const ci::vec3& point, const float pad) const {
 	// If I don't check this, then sprites with no size are always picked.
 	// Someone who knows the math can probably address the root issue.
 	if(mWidth < 0.001f || mHeight < 0.001f) return false;
@@ -1105,15 +1105,15 @@ bool Sprite::contains(const ci::Vec3f& point, const float pad) const {
 
 	buildGlobalTransform();
 
-	ci::Vec4f pR = ci::Vec4f(point.x, point.y, point.z, 1.0f);
+	ci::vec4 pR = ci::vec4(point.x, point.y, point.z, 1.0f);
 
-	ci::Vec4f cA = mGlobalTransform * ci::Vec4f(-pad, -pad, 0.0f, 1.0f);
-	ci::Vec4f cB = mGlobalTransform * ci::Vec4f(mWidth + pad, -pad, 0.0f, 1.0f);
-	ci::Vec4f cC = mGlobalTransform * ci::Vec4f(mWidth + pad, mHeight + pad, 0.0f, 1.0f);
+	ci::vec4 cA = mGlobalTransform * ci::vec4(-pad, -pad, 0.0f, 1.0f);
+	ci::vec4 cB = mGlobalTransform * ci::vec4(mWidth + pad, -pad, 0.0f, 1.0f);
+	ci::vec4 cC = mGlobalTransform * ci::vec4(mWidth + pad, mHeight + pad, 0.0f, 1.0f);
 
-	ci::Vec4f v1 = cA - cB;
-	ci::Vec4f v2 = cC - cB;
-	ci::Vec4f v = pR - cB;
+	ci::vec4 v1 = cA - cB;
+	ci::vec4 v2 = cC - cB;
+	ci::vec4 v = pR - cB;
 
 	float dot1 = v.dot(v1);
 	float dot2 = v.dot(v2);
@@ -1128,7 +1128,7 @@ bool Sprite::contains(const ci::Vec3f& point, const float pad) const {
 		);
 }
 
-Sprite* Sprite::getHit(const ci::Vec3f &point) {
+Sprite* Sprite::getHit(const ci::vec3 &point) {
 	// EH:  Not sure what bigworld was doing, but I don't see why we'd want to
 	// select children of an invisible sprite.
 	if(!visible()) {
@@ -1224,32 +1224,32 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick){
 		if(w <= 0.0f || h <= 0.0f)
 			return nullptr;
 
-		ci::Vec3f ptR = pick.getScreenPt();
-		ci::Vec3f a = getPosition();
-		ci::Vec3f ptA = a;
-		ci::Vec3f ptB = a;
-		ci::Vec3f ptC = a;
-		ci::Vec3f ptD = a;
+		ci::vec3 ptR = pick.getScreenPt();
+		ci::vec3 a = getPosition();
+		ci::vec3 ptA = a;
+		ci::vec3 ptB = a;
+		ci::vec3 ptC = a;
+		ci::vec3 ptD = a;
 
-		ci::Vec2f ptA_s;
-		ci::Vec2f ptB_s;
-		ci::Vec2f ptC_s;
+		ci::vec2 ptA_s;
+		ci::vec2 ptB_s;
+		ci::vec2 ptC_s;
 		
 		ptA.x -= mCenter.x*w;
 		ptA.y += (1 - mCenter.y)*h;
-		ptA_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptA)));
+		ptA_s = pick.worldToScreen(getParent()->localToGlobal(ci::vec3(ptA)));
 
 		ptB.x += (1 - mCenter.x)*w;
 		ptB.y += (1 - mCenter.y)*h;
-		ptB_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptB)));
+		ptB_s = pick.worldToScreen(getParent()->localToGlobal(ci::vec3(ptB)));
 
 		ptC.x += (1 - mCenter.x)*w;
 		ptC.y -= mCenter.y*h;
-		ptC_s = pick.worldToScreen(getParent()->localToGlobal(ci::Vec3f(ptC)));
+		ptC_s = pick.worldToScreen(getParent()->localToGlobal(ci::vec3(ptC)));
 
-		ci::Vec2f v1 = ptA_s - ptB_s;
-		ci::Vec2f v2 = ptC_s - ptB_s;
-		ci::Vec2f v;
+		ci::vec2 v1 = ptA_s - ptB_s;
+		ci::vec2 v2 = ptC_s - ptB_s;
+		ci::vec2 v;
 
 		v.x = ptR.x - ptB_s.x;
 		v.y = ptR.y - ptB_s.y;
@@ -1274,7 +1274,7 @@ void Sprite::processTouchInfo(const TouchInfo &touchInfo) {
 	mTouchProcess.processTouchInfo(touchInfo);
 }
 
-void Sprite::move(const ci::Vec3f &delta) {
+void Sprite::move(const ci::vec3 &delta) {
 	mPosition += delta;
 	mUpdateTransform = true;
 	mBoundsNeedChecking = true;
@@ -1286,7 +1286,7 @@ void Sprite::move(const ci::Vec3f &delta) {
 }
 
 void Sprite::move( float deltaX, float deltaY, float deltaZ ) {
-	mPosition += ci::Vec3f(deltaX, deltaY, deltaZ);
+	mPosition += ci::vec3(deltaX, deltaY, deltaZ);
 	mUpdateTransform = true;
 	mBoundsNeedChecking = true;
 	// XXX This REALLY should be going through doSetPosition().
@@ -1300,11 +1300,11 @@ bool Sprite::multiTouchEnabled() const {
 	return mMultiTouchEnabled;
 }
 
-const ci::Matrix44f& Sprite::getInverseGlobalTransform() const {
+const ci::mat4& Sprite::getInverseGlobalTransform() const {
 	return mInverseGlobalTransform;
 }
 
-const ci::Matrix44f& Sprite::getInverseTransform() const {
+const ci::mat4& Sprite::getInverseTransform() const {
 	buildTransform();
 	return mInverseTransform;
 }
@@ -1321,7 +1321,7 @@ bool Sprite::hasMultiTouchConstraint( const BitMask &constraint ) const {
 	return mMultiTouchConstraints & constraint;
 }
 
-void Sprite::swipe(const ci::Vec3f &swipeVector){
+void Sprite::swipe(const ci::vec3 &swipeVector){
 	if(mSwipeCallback)
 		mSwipeCallback(this, swipeVector);
 }
@@ -1340,13 +1340,13 @@ bool Sprite::tapInfo(const TapInfo& ti){
 	return false;
 }
 
-void Sprite::tap(const ci::Vec3f &tapPos){
+void Sprite::tap(const ci::vec3 &tapPos){
 	if(mTapCallback){
 		mTapCallback(this, tapPos);
 	}
 }
 
-void Sprite::doubleTap(const ci::Vec3f &tapPos){
+void Sprite::doubleTap(const ci::vec3 &tapPos){
 	if(mDoubleTapCallback)
 		mDoubleTapCallback(this, tapPos);
 }
@@ -1371,11 +1371,11 @@ void Sprite::setTapInfoCallback(const std::function<bool(Sprite *, const TapInfo
 	mTapInfoCallback = func;
 }
 
-void Sprite::setTapCallback(const std::function<void(Sprite *, const ci::Vec3f &)> &func){
+void Sprite::setTapCallback(const std::function<void(Sprite *, const ci::vec3 &)> &func){
 	mTapCallback = func;
 }
 
-void Sprite::setDoubleTapCallback(const std::function<void(Sprite *, const ci::Vec3f &)> &func){
+void Sprite::setDoubleTapCallback(const std::function<void(Sprite *, const ci::vec3 &)> &func){
 	mDoubleTapCallback = func;
 }
 
@@ -1424,14 +1424,14 @@ bool Sprite::checkBounds() const {
 	float spriteMaxX = mWidth - 1.0f;
 	float spriteMaxY = mHeight - 1.0f;
 
-	ci::Vec3f positions[4];
+	ci::vec3 positions[4];
 
 	buildGlobalTransform();
 
-	positions[0] = (mGlobalTransform * ci::Vec4f(spriteMinX, spriteMinY, 0.0f, 1.0f)).xyz();
-	positions[1] = (mGlobalTransform * ci::Vec4f(spriteMaxX, spriteMinY, 0.0f, 1.0f)).xyz();
-	positions[2] = (mGlobalTransform * ci::Vec4f(spriteMinX, spriteMaxY, 0.0f, 1.0f)).xyz();
-	positions[3] = (mGlobalTransform * ci::Vec4f(spriteMaxX, spriteMaxY, 0.0f, 1.0f)).xyz();
+	positions[0] = (mGlobalTransform * ci::vec4(spriteMinX, spriteMinY, 0.0f, 1.0f)).xyz();
+	positions[1] = (mGlobalTransform * ci::vec4(spriteMaxX, spriteMinY, 0.0f, 1.0f)).xyz();
+	positions[2] = (mGlobalTransform * ci::vec4(spriteMinX, spriteMaxY, 0.0f, 1.0f)).xyz();
+	positions[3] = (mGlobalTransform * ci::vec4(spriteMaxX, spriteMaxY, 0.0f, 1.0f)).xyz();
 
 
 	spriteMinX = spriteMaxX = positions[0].x;
@@ -1468,12 +1468,12 @@ bool Sprite::checkBounds() const {
 		}
 	}
 
-	ci::Vec3f screenpos[4];
+	ci::vec3 screenpos[4];
 
-	screenpos[0] = ci::Vec3f(screenMinX, screenMinY, 0.0f);
-	screenpos[1] = ci::Vec3f(screenMaxX, screenMinY, 0.0f);
-	screenpos[2] = ci::Vec3f(screenMinX, screenMaxY, 0.0f);
-	screenpos[3] = ci::Vec3f(screenMaxX, screenMaxY, 0.0f);
+	screenpos[0] = ci::vec3(screenMinX, screenMinY, 0.0f);
+	screenpos[1] = ci::vec3(screenMaxX, screenMinY, 0.0f);
+	screenpos[2] = ci::vec3(screenMinX, screenMaxY, 0.0f);
+	screenpos[3] = ci::vec3(screenMaxX, screenMaxY, 0.0f);
 
 	for(int i = 0; i < 4; ++i) {
 		if(screenpos[i].x >= spriteMinX && screenpos[i].x <= spriteMaxX && screenpos[i].y >= spriteMinY && screenpos[i].y <= spriteMaxY) {
@@ -1931,7 +1931,7 @@ ds::gl::Uniform Sprite::getShaderUniforms(std::string shaderName) {
 	return ds::gl::Uniform();
 }
 
-void Sprite::setShaderExtraData(const ci::Vec4f& data){
+void Sprite::setShaderExtraData(const ci::vec4& data){
 	mShaderExtraData.set(data);
 }
 
@@ -2057,9 +2057,9 @@ void Sprite::computeClippingBounds(){
 					float ww = curSprite->getWidth();
 					float wh = curSprite->getHeight();
 
-					ci::Vec3f tl, br;
-					tl = globalToLocal(curSprite->localToGlobal(ci::Vec3f(0, 0, 0)));
-					br = globalToLocal(curSprite->localToGlobal(ci::Vec3f(ww, wh, 0)));
+					ci::vec3 tl, br;
+					tl = globalToLocal(curSprite->localToGlobal(ci::vec3(0, 0, 0)));
+					br = globalToLocal(curSprite->localToGlobal(ci::vec3(ww, wh, 0)));
 
 					float wl = tl.x;
 					float wt = tl.y;
@@ -2302,7 +2302,7 @@ float Sprite::getScaleDepth() const {
 	return mScale.z * mDepth;
 }
 
-void Sprite::setSwipeCallback( const std::function<void (Sprite *, const ci::Vec3f &)> &func ) {
+void Sprite::setSwipeCallback( const std::function<void (Sprite *, const ci::vec3 &)> &func ) {
 	mSwipeCallback = func;
 }
 
@@ -2315,7 +2315,7 @@ void Sprite::passTouchToSprite( Sprite *destinationSprite, const TouchInfo &touc
 
 	// tell our current sprite we're through.
 	TouchInfo newTouchInfo = touchInfo;
-	newTouchInfo.mCurrentGlobalPoint = localToGlobal(ci::Vec3f(-10000.0f,-10000.0f, 0.0f));	// make sure we touch up outside the sprite area, so buttons don't think they're hit
+	newTouchInfo.mCurrentGlobalPoint = localToGlobal(ci::vec3(-10000.0f,-10000.0f, 0.0f));	// make sure we touch up outside the sprite area, so buttons don't think they're hit
 	newTouchInfo.mPhase = TouchInfo::Removed;
 	newTouchInfo.mPassedTouch = true;
 
@@ -2400,7 +2400,7 @@ void Sprite::write(std::ostream &s, const size_t tab) const {
 
 namespace {
 
-void			write_matrix44f(const ci::Matrix44f &m, std::ostream &s) {
+void			write_matrix44f(const ci::mat4 &m, std::ostream &s) {
 	for (int k=0; k<4; ++k) {
 		auto row = m.getRow(k);
 		if (k > 0) s << ", ";
@@ -2496,7 +2496,7 @@ const std::wstring Sprite::getSpriteName(const bool useDefault) const {
 /*
  * --------------------LockScale
  */
-Sprite::LockScale::LockScale(Sprite& s, const ci::Vec3f& temporaryScale)
+Sprite::LockScale::LockScale(Sprite& s, const ci::vec3& temporaryScale)
 		: mSprite(s)
 		, mScale(s.mScale) {
 	mSprite.mScale = temporaryScale;

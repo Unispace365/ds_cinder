@@ -185,7 +185,7 @@ void AbstractEngineServer::receiveClientInput(ds::DataBuffer& data) {
 	const float				yp(data.read<float>());
 
 	std::vector<ci::app::TouchEvent::Touch> touches;
-	touches.push_back(ci::app::TouchEvent::Touch(ci::Vec2f(xp, yp), ci::Vec2f(xp, yp), id, 0.0, nullptr));
+	touches.push_back(ci::app::TouchEvent::Touch(ci::vec2(xp, yp), ci::vec2(xp, yp), id, 0.0, nullptr));
 	ds::ui::TouchEvent te = ds::ui::TouchEvent(getWindow(), touches, true);
 	if(state == 0){
 		injectTouchesBegin(te);

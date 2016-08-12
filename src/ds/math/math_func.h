@@ -37,7 +37,7 @@ T clamp(T v, T min, T max)
   return v;
 }
 
-bool intersect2D(const ci::Vec3f &start0, const ci::Vec3f &end0, const ci::Vec3f &start1, const ci::Vec3f &end1);
+bool intersect2D(const ci::vec3 &start0, const ci::vec3 &end0, const ci::vec3 &start1, const ci::vec3 &end1);
 
 template <typename T>
 T lerp(const T &a, const T &b, float t)
@@ -117,7 +117,7 @@ inline double slope(const double x0, const double y0, const double x1, const dou
 // 0 = right, clockwise (90 = down)
 double degree(const double x2, const double y2);
 
-ci::Vec3f randomUnitVector();
+ci::vec3 randomUnitVector();
 
 } // namespace math
 } // namespace ds

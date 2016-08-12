@@ -98,13 +98,13 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 				currentParent = currentParent->getParent();
 			}
 
-			Vec3f fingerStart0 = foundControl0->second.mStartPoint;
-			Vec3f fingerCurrent0 = foundControl0->second.mCurrentGlobalPoint;
-			Vec3f fingerPositionOffset = (parentTransform * Vec4f(fingerCurrent0.x, fingerCurrent0.y, 0.0f, 1.0f) - parentTransform * Vec4f(fingerStart0.x, fingerStart0.y, 0.0f, 1.0f)).xyz();
+			vec3 fingerStart0 = foundControl0->second.mStartPoint;
+			vec3 fingerCurrent0 = foundControl0->second.mCurrentGlobalPoint;
+			vec3 fingerPositionOffset = (parentTransform * Vec4f(fingerCurrent0.x, fingerCurrent0.y, 0.0f, 1.0f) - parentTransform * Vec4f(fingerStart0.x, fingerStart0.y, 0.0f, 1.0f)).xyz();
 
 			if (mFingers.size() > 1 && found_0 && found_1) {
-				Vec3f fingerStart1 = foundControl1->second.mStartPoint;
-				Vec3f fingerCurrent1 = foundControl1->second.mCurrentGlobalPoint;
+				vec3 fingerStart1 = foundControl1->second.mStartPoint;
+				vec3 fingerCurrent1 = foundControl1->second.mCurrentGlobalPoint;
 
 				mStartDistance = fingerStart0.distance(fingerStart1);
 				if (mStartDistance < mSpriteEngine.getMinTouchDistance()){
@@ -135,7 +135,7 @@ bool TouchProcess::processTouchInfo( const TouchInfo &touchInfo )
 			}
 
 			if (mSprite.mMultiTouchConstraints != ds::ui::MULTITOUCH_INFO_ONLY && touchInfo.mFingerId == foundControl0->second.mFingerId) {
-				Vec3f offset(0.0f, 0.0f, 0.0f);
+				vec3 offset(0.0f, 0.0f, 0.0f);
 
 				if (!mTappable && mSprite.hasMultiTouchConstraint(MULTITOUCH_CAN_POSITION_X)) {
 					offset.x = fingerPositionOffset.x;
@@ -229,12 +229,12 @@ void TouchProcess::initializeFirstTouch()
 	if (mSprite.getDepth() != 0.0f) mMultiTouchAnchor.z /= mSprite.getDepth();
 	mStartAnchor = mSprite.getCenter();
 
-	Vec3f positionOffset = mMultiTouchAnchor - mStartAnchor;
+	vec3 positionOffset = mMultiTouchAnchor - mStartAnchor;
 	positionOffset.x *= mSprite.getWidth();
 	positionOffset.y *= mSprite.getHeight();
 	positionOffset.x *= mSprite.getScale().x;
 	positionOffset.y *= mSprite.getScale().y;
-	positionOffset.rotate( Vec3f(0.0f, 0.0f, 1.0f), mSprite.getRotation().z * math::DEGREE2RADIAN);
+	positionOffset.rotate( vec3(0.0f, 0.0f, 1.0f), mSprite.getRotation().z * math::DEGREE2RADIAN);
 	if (mSprite.mMultiTouchConstraints != ds::ui::MULTITOUCH_INFO_ONLY) {
 		mSprite.setCenter(mMultiTouchAnchor);
 		mSprite.move(positionOffset);
@@ -300,19 +300,19 @@ void TouchProcess::resetTouchAnchor()
 		return;
 	}
 
-	Vec3f positionOffset = mStartAnchor - mSprite.getCenter();
+	vec3 positionOffset = mStartAnchor - mSprite.getCenter();
 	positionOffset.x *= mSprite.getWidth();
 	positionOffset.y *= mSprite.getHeight();
 	positionOffset.x *= mSprite.getScale().x;
 	positionOffset.y *= mSprite.getScale().y;
-	positionOffset.rotate( Vec3f(0.0f, 0.0f, 1.0f), mSprite.getRotation().z * math::DEGREE2RADIAN);
+	positionOffset.rotate( vec3(0.0f, 0.0f, 1.0f), mSprite.getRotation().z * math::DEGREE2RADIAN);
 	if (mSprite.mMultiTouchConstraints != ds::ui::MULTITOUCH_INFO_ONLY) {
 		mSprite.setCenter(mStartAnchor);
 		mSprite.move(positionOffset);
 	}
 }
 
-void TouchProcess::addToSwipeQueue( const Vec3f &currentPoint, int queueNum )
+void TouchProcess::addToSwipeQueue( const vec3 &currentPoint, int queueNum )
 {
 	SwipeQueueEvent swipeEvent;
 	swipeEvent.mCurrentGlobalPoint = currentPoint;
@@ -325,7 +325,7 @@ void TouchProcess::addToSwipeQueue( const Vec3f &currentPoint, int queueNum )
 
 bool TouchProcess::swipeHappened()
 {
-	mSwipeVector = Vec3f();
+	mSwipeVector = vec3();
 
 	if (mSwipeQueue.size() < mSpriteEngine.getSwipeQueueSize()){
 		return false;
@@ -336,7 +336,7 @@ bool TouchProcess::swipeHappened()
 	}
 
 	mSwipeVector /= static_cast<float>(mSwipeQueue.size() - 1);
-	float averageDistance = mSwipeVector.distance(Vec3f());
+	float averageDistance = mSwipeVector.distance(vec3());
 
 	return (averageDistance >= mSpriteEngine.getSwipeMinVelocity() * 0.016f && (mLastUpdateTime - mSwipeQueue.front().mTimeStamp) < mSpriteEngine.getSwipeMaxTime());
 }
@@ -448,7 +448,7 @@ void TouchProcess::processTapInfo( const TouchInfo &touchInfo )
 	}
 }
 
-void TouchProcess::sendTapInfo(const TapInfo::State s, const int count, const ci::Vec3f& pt)
+void TouchProcess::sendTapInfo(const TapInfo::State s, const int count, const ci::vec3& pt)
 {
 	mTapInfo.mState = s;
 	mTapInfo.mCount = count;

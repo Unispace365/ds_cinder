@@ -28,7 +28,7 @@ static void gluPickMatrix(double x, double y, double deltax, double deltay, int*
 						1.0);
 }
 
-ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root) {
+ds::ui::Sprite* SelectPicking::pickAt(const ci::vec2& pt, ds::ui::Sprite& root) {
 	mHits.clear();
 
 	glPushAttrib( GL_VIEWPORT_BIT );
@@ -36,7 +36,7 @@ ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root)
 //	glViewport( 0, 0, static_cast<int>(mWorldSize.x + picking_offset), static_cast<int>(mWorldSize.y));
 	GLint			viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
-	ci::Matrix44f	m = ci::gl::getProjection();
+	ci::mat4	m = ci::gl::getProjection();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPickMatrix(pt.x, mWorldSize.y-pt.y, 8, 8, viewport);

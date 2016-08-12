@@ -37,7 +37,7 @@ public:
 	 * kicks in; at 1 there is no border, you can go up anywhere from there.
 	 */
 	ImageDropShadow(const float radius, const float falloff,
-					const ci::Vec2f& offset, const ci::ColorA& color,
+					const ci::vec2& offset, const ci::ColorA& color,
 					const float border = 1.0);
 };
 

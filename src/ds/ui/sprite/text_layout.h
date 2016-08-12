@@ -17,8 +17,8 @@ class DataBuffer;
 namespace ui {
 class Text;
 
-ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str);
-ci::Vec2f getSizeFromString(const FontPtr &font, const std::wstring &str);
+ci::vec2 getSizeFromString(const FontPtr &font, const std::string &str);
+ci::vec2 getSizeFromString(const FontPtr &font, const std::wstring &str);
 ci::Rectf getBoxFromString(const FontPtr &font, const std::wstring &str);
 int getFontSize(const FontPtr &font);
 float getFontAscender(const FontPtr &font);
@@ -37,7 +37,7 @@ public:
 	class Line {
 	public:
 		Line();
-		ci::Vec2f				mPos;
+		ci::vec2				mPos;
 		ci::Rectf				mFontBox;
 		std::wstring			mText;		// potentially modified by the layout class from the original input (tabs -> four spaces, returns, etc)
 		std::map<int, float>	mIndexPositions; // maps input string indices to x-pixel-position in the line. x-position is relative to the mPos.x value of this line
@@ -46,10 +46,10 @@ public:
 	class Input {
 	public:
 		Input(const Text&, const FontPtr &,
-			const ci::Vec2f& size, const std::wstring& text);
+			const ci::vec2& size, const std::wstring& text);
 		const Text&			mSprite;
 		const FontPtr&		mFont;
-		const ci::Vec2f&	mSize;
+		const ci::vec2&	mSize;
 		const std::wstring&	mText;
 		bool				mLineWasSplit;
 		bool				mGenerateIndex; // generate positions of each character, potentially expensive operation

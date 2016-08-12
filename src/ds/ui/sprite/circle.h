@@ -14,7 +14,7 @@ namespace ui {
 
 /** Circle sprite is a convenience class to draw circles onscreen.
 	This is faster than calling cinder's ci::gl::drawSolidCircle or drawStrokedCircle because this will cache the vertex array.
-	Circles are drawn around the point ci::Vec2f(radius,radius)
+	Circles are drawn around the point ci::vec2f(radius,radius)
 */
 class Circle : public Sprite {
 public:

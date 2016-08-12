@@ -85,8 +85,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
 	setTouchMode(mTouchMode);
 	mTouchManager.setOverrideTranslation(settings.getBool("touch_overlay:override_translation", 0, false));
-	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::Vec2f(1920.0f, 1080.0f)));
-	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
+	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::vec2(1920.0f, 1080.0f)));
+	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::vec2(0.0f, 0.0f)));
 	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
 
 	mData.mAppInstanceName = settings.getText("platform:guid", 0, "Downstream");
@@ -107,7 +107,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
 	mFxaaOptions.mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
-	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::Vec2f(0.0f, 0.0f));
+	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
 	// Backwards compatibility with pre src-dst rect days
 	const float				DEFAULT_WINDOW_SCALE = 1.0f;
 	if (settings.getRectSize("local_rect") > 0) {
@@ -115,7 +115,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mSrcRect = settings.getRect("local_rect", 0, mData.mSrcRect);
 		mData.mDstRect = ci::Rectf(0.0f, 0.0f, mData.mSrcRect.getWidth(), mData.mSrcRect.getHeight());
 		if (settings.getPointSize("window_pos") > 0) {
-			const ci::Vec3f	size(settings.getPoint("window_pos"));
+			const ci::vec3	size(settings.getPoint("window_pos"));
 			mData.mDstRect.offset(size.xy());
 		}
 	}
@@ -146,7 +146,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mDstRect = mainDisplayRect;
 		mData.mScreenRect = mainDisplayRect;
 		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
-			mData.mWorldSize = ci::Vec2f(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
+			mData.mWorldSize = ci::vec2(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
 		}
 	}
 
@@ -231,7 +231,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 }
 
 
-void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
+void Engine::prepareSettings(ci::app::App::Settings& settings){
 	// TODO: remove this null_renderer bullshit
 	std::string screenMode = "window";
 	if(mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
@@ -770,7 +770,7 @@ ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) cons
 	// the newer version of cinder gave access so hopefully can just wait for that if we need it.
 
 	// Translate the mouse from the actual window to the desired rect in world coordinates.
-	const ci::Vec2i	pos(mTouchTranslator.toWorldi(e.getX(), e.getY()));
+	const ci::ivec2	pos(mTouchTranslator.toWorldi(e.getX(), e.getY()));
 	return ci::app::MouseEvent(e.getWindow(),	0, pos.x, pos.y,
 												0, e.getWheelIncrement(), e.getNativeModifiers());
 }
@@ -821,13 +821,13 @@ bool Engine::hideMouse() const {
 	return mHideMouse;
 }
 
-ds::ui::Sprite* Engine::getHit(const ci::Vec3f& point) {
+ds::ui::Sprite* Engine::getHit(const ci::vec3& point) {
 	for (auto it=mRoots.rbegin(), end=mRoots.rend(); it!=end; ++it) {
 		
-		ci::Vec3f pointToUse = point;
+		ci::vec3 pointToUse = point;
 		if((*it)->getSprite()->getPerspective()){
 			// scale the point from world size to screen size (which is the size of the perspective root)
-			pointToUse.set(
+			pointToUse = ci::vec3(
 				(point.x / mData.mWorldSize.x) * mData.mScreenRect.getWidth(),
 				(point.y / mData.mWorldSize.y) * mData.mScreenRect.getHeight(),
 				0.0f
@@ -847,7 +847,7 @@ const ci::Rectf& Engine::getScreenRect() const {
 	return mData.mScreenRect;
 }
 
-void Engine::translateTouchPoint(ci::Vec2f& inOutPoint) {
+void Engine::translateTouchPoint(ci::vec2& inOutPoint) {
 	inOutPoint = mTouchTranslator.toWorldf(inOutPoint.x, inOutPoint.y);
 	if(mTouchManager.getOverrideEnabled()){
 		mTouchManager.overrideTouchTranslation(inOutPoint);

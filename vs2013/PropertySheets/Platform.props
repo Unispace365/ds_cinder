@@ -6,16 +6,16 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>_WIN32_WINNT=0x0501;OGLFT_NO_QT;OGLFT_NO_SOLID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER_086)\include;$(CINDER_086)\boost;$(DS_PLATFORM_086)\lib\poco\include;$(DS_PLATFORM_086)\src;$(CINDER_086)\blocks\tuio\include;$(CINDER_086)\blocks\OSC\src;$(DS_PLATFORM_086)\lib\snappy;$(DS_PLATFORM_086)\lib\zmq;$(DS_PLATFORM_086)\lib\freetype-2.4.10\include;$(DS_PLATFORM_086)\lib\OGLFT;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER_090)\include;$(CINDER_090)\boost;$(DS_PLATFORM_086)\lib\poco\include;$(DS_PLATFORM_086)\src;$(CINDER_090)\blocks\tuio\include;$(CINDER_090)\blocks\OSC\src;$(DS_PLATFORM_086)\lib\snappy;$(DS_PLATFORM_086)\lib\zmq;$(DS_PLATFORM_086)\lib\freetype-2.4.10\include;$(DS_PLATFORM_086)\lib\OGLFT;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw\x86;$(DS_PLATFORM_086)\lib\poco\lib\vs2010;$(DS_PLATFORM_086)\lib;$(QUICKTIME)\Libraries;$(DS_PLATFORM_086)\lib\snappy;$(DS_PLATFORM_086)\lib\freetype-2.4.10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw\x86;$(DS_PLATFORM_086)\lib\poco\lib\vs2010;$(DS_PLATFORM_086)\lib;$(QUICKTIME)\Libraries;$(DS_PLATFORM_086)\lib\snappy;$(DS_PLATFORM_086)\lib\freetype-2.4.10\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>%(AdditionaDependencies);kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;cinder-v120.lib;glu32.lib;PocoFoundationmt.lib;PocoNetmt.lib;platform.lib;psapi.lib;snappy32.lib;freetype2410MT.lib</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>
       </IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup />

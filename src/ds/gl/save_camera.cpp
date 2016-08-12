@@ -11,7 +11,7 @@ namespace gl {
 SaveCamera::SaveCamera()
 		: mViewport(ci::gl::getViewport())
 		, mModelView(ci::gl::getModelView())
-		, mProjection(ci::gl::getProjection()) {
+		, mProjection(ci::gl::getProjectionMatrix()) {
 }
 
 SaveCamera::~SaveCamera() {

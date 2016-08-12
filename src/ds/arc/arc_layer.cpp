@@ -26,7 +26,7 @@ void Layer::renderCircle(const Input& ip, RenderCircleParams& p) const
 	const double	x = p.mX,
 					y = p.mY;
 	if (x < 0 || y < 0 || x >= p.mW || y >= p.mH) return;
-	ci::Vec2d		offset = mOffset.getValue(ip);
+	ci::dvec2		offset = mOffset.getValue(ip);
 	const double	cenx = p.mCenX + offset.x,
 					ceny = p.mCenY + offset.y;
 	const double	dist = ds::math::dist(cenx, ceny, x, y);
@@ -91,7 +91,7 @@ void Layer::setScale(const ScaleMode& mode, const double amount)
 	if (mode == SCALE_FIT) {
 		mScaleMode = SCALE_FIT;
 		// The fit mode acounts for my current offset.
-		mScaleFn = [this](const RenderCircleParams& p, const ci::Vec2d& offset)->double{
+		mScaleFn = [this](const RenderCircleParams& p, const ci::dvec2& offset)->double{
 			const double	cenx = p.mCenX - (abs(offset.x)),
 							ceny = p.mCenY - (abs(offset.y));
 			const double	max_dist = ds::math::dist(cenx, ceny, cenx, 0.0);
@@ -99,7 +99,7 @@ void Layer::setScale(const ScaleMode& mode, const double amount)
 		};
 	} else {
 		mScaleMode = SCALE_MULTIPLY;
-		mScaleFn = [this](const RenderCircleParams& p, const ci::Vec2d&)->double{return p.mMaxDist * this->mScale;};
+		mScaleFn = [this](const RenderCircleParams& p, const ci::dvec2&)->double{return p.mMaxDist * this->mScale;};
 	}
 }
 

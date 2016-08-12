@@ -38,7 +38,7 @@ public:
 	void						setToScalePixel(const float pixels, const float pressedAnimDuration,
 												const std::function<void(void)>& clickFn);
 
-	typedef std::function<bool(const ci::Vec3f&)>
+	typedef std::function<bool(const ci::vec3&)>
 								TouchInsideCheckFunction;
 	void						setTouchInsideCheckFunction( const TouchInsideCheckFunction &f ) { mTouchInsideCheckFunction = f; }
 
@@ -49,7 +49,7 @@ public:
 
 private:
 	void						handleTouch(const ds::ui::TouchInfo&);
-	bool						ownerContains(const ci::Vec3f& point) const;
+	bool						ownerContains(const ci::vec3& point) const;
 
 	ds::ui::Sprite&				mOwner;
 
@@ -65,7 +65,7 @@ private:
 	TouchInsideCheckFunction	mTouchInsideCheckFunction;
 
 	// Track the fingers on me
-	std::unordered_map<int, ci::Vec3f>
+	std::unordered_map<int, ci::vec3>
 								mFinger;
 	bool						mIsSetToScale;
 };

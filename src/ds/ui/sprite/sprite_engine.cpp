@@ -129,7 +129,7 @@ void SpriteEngine::removeFromDragDestinationList( Sprite *sprite )
 	mDragDestinationSprites.erase(found);
 }
 
-Sprite *SpriteEngine::getDragDestinationSprite( const ci::Vec3f &globalPoint, Sprite *draggingSprite )
+Sprite *SpriteEngine::getDragDestinationSprite( const ci::vec3 &globalPoint, Sprite *draggingSprite )
 {
   for (auto it = mDragDestinationSprites.begin(), it2 = mDragDestinationSprites.end(); it != it2; ++it) {
 	Sprite *sprite = *it;
