@@ -20,11 +20,11 @@ public:
 	void							setVolume(const float v);
 
 protected:
+	virtual void					updateServer(const ds::UpdateParams& updateParams);
 
 	ds::ui::GstVideo*				mLinkedVideo;
 
 	std::vector<ds::ui::Sprite*>	mBars;
-	float							mVolume;
 	float							mOffOpacity;
 
 

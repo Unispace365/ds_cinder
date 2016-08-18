@@ -14,7 +14,6 @@ namespace ui {
 VideoVolumeControl::VideoVolumeControl(ds::ui::SpriteEngine& eng, const float theSize, const float buttHeight, const ci::Color interfaceColor)
 	: ds::ui::Sprite(eng, theSize * 1.5f, theSize)
 	, mLinkedVideo(nullptr)
-	, mVolume(1.0f)
 	, mOffOpacity(0.2f)
 {
 	//setTransparent(false);
@@ -60,18 +59,25 @@ void VideoVolumeControl::linkVideo(ds::ui::GstVideo* vid){
 }
 
 void VideoVolumeControl::setVolume(const float v){
-	mVolume = v;
+	if(mLinkedVideo){
+		mLinkedVideo->setVolume(v);
+	}
+}
+
+void VideoVolumeControl::updateServer(const ds::UpdateParams& updateParams){
+	ds::ui::Sprite::updateServer(updateParams);
+
+	float vol = 0.0f;
+	if(mLinkedVideo){
+		vol = mLinkedVideo->getVolume();
+	}
 	for(int k = 0; k < mBars.size(); ++k) {
 		const float		bar_v = static_cast<float>(k + 1) / static_cast<float>(mBars.size());
-		if(mVolume >= bar_v) {
+		if(vol >= bar_v) {
 			mBars[k]->setOpacity(1.0f);
 		} else {
 			mBars[k]->setOpacity(mOffOpacity);
 		}
-	}
-
-	if(mLinkedVideo){
-		mLinkedVideo->setVolume(mVolume);
 	}
 }
 
