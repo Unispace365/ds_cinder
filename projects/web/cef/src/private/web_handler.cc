@@ -638,7 +638,7 @@ double WebHandler::getZoomLevel(const int browserId){
 	// Ensure this thread is locked with the rest of CEF, as GetZoomLevel requires the UI thread
 	base::AutoLock lock_scope(mLock);
 
-	CEF_REQUIRE_UI_THREAD();
+//	CEF_REQUIRE_UI_THREAD();
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 		return findy->second->GetHost()->GetZoomLevel();
@@ -651,7 +651,7 @@ void WebHandler::setZoomLevel(const int browserId, const double newZoom){
 	// be sure this is locked with other requests to the browser lists
 	base::AutoLock lock_scope(mLock);
 
-	CEF_REQUIRE_UI_THREAD();
+	//CEF_REQUIRE_UI_THREAD();
 	auto findy = mBrowserList.find(browserId);
 	if(findy != mBrowserList.end()){
 		// SetZoomLevel can be called on any thread

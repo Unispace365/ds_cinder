@@ -167,6 +167,7 @@ private:
 	bool										mTransparentBackground;
 
 	double										mZoom;
+	bool										mNeedsZoomCheck;
 
 	ci::Vec3f									mPreviousTouchPos;
 	bool										mAllowClicks;

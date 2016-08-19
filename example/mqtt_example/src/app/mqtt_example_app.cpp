@@ -40,12 +40,23 @@ mqtt_example::mqtt_example()
 	, mMqttWatcher(mEngine, "bmc.downstreamsandbox.com", "presentation/colorado/#", "presentation/colorado/#", 0.01f, 1883)
 {
 
-	mMqttWatcher.addInboundListener([this](const ds::net::MqttWatcher::MessageQueue& mq){
+	mMqttWatcher.addInboundListener([this](const ds::net::MqttWatcher::MessageQueue& mq) {
+
+		/* old
 		std::queue<std::string> inQ = mq;
 		while(!inQ.empty()){
 			std::cout << "Got MQTT message:  " << inQ.front() << std::endl;
 			inQ.pop();
 		}
+		*/
+
+		// new
+		for (auto msg : mq) {
+			const std::string& topic = msg.topic;
+			const std::string& message = msg.message;
+			std::cout << "Got MQTT message:  " << message.front() << std::endl;
+		}
+
 	});
 	
 	/*fonts in use */

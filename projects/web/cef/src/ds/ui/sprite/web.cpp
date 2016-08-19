@@ -83,6 +83,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mCanForward(false)
 	, mZoom(1.0)
 	, mTransparentBackground(false)
+	, mNeedsZoomCheck(false)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -188,8 +189,9 @@ void Web::initializeBrowser(){
 		mUrl = newUrl;
 
 		// zoom seems to need to be set for every page
-		if(mZoom != 1.0 && getZoom() != mZoom){
-			setZoom(mZoom);
+		// This callback is locked in CEF, so zoom checking needs to happen later
+		if(mZoom != 1.0){
+			mNeedsZoomCheck = true;
 		}
 
 		if(mLoadingUpdatedCallback){
@@ -251,6 +253,12 @@ void Web::updateServer(const ds::UpdateParams &p) {
 }
 
 void Web::update(const ds::UpdateParams &p) {
+
+	// Get zoom locks CEF, so 
+	if(mNeedsZoomCheck && getZoom() != mZoom){
+		mNeedsZoomCheck = false;
+		setZoom(mZoom);
+	}
 
 	// Anything that modifies mBuffer needs to be locked
 	std::lock_guard<std::mutex> lock(mMutex);
