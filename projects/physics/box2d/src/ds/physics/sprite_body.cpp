@@ -14,6 +14,10 @@
 #include "Box2D/Dynamics/b2World.h"
 #include "Box2D/Dynamics/Joints/b2Joint.h"
 #include "Box2D/Dynamics/Joints/b2DistanceJoint.h"
+#include "Box2D/Dynamics/Contacts/b2Contact.h"
+#include "Box2D/Collision/b2Collision.h"
+#include "Box2d/Dynamics/b2WorldCallbacks.h"
+
 
 namespace ds {
 namespace physics {
@@ -79,6 +83,7 @@ void SpriteBody::create(const BodyBuilder& b) {
 
 	def.userData = &mSprite;
 	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition(), &mSprite);
+//	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition() + (mSprite.getCenter() - ci::Vec3f(0.5f, 0.5f, 0.0f)) *mSprite.getSize(), &mSprite);
 	def.linearDamping = b.mLinearDampening;
 	def.angularDamping = b.mAngularDampening;
 	def.fixedRotation = b.mFixedRotation;
@@ -89,12 +94,19 @@ void SpriteBody::create(const BodyBuilder& b) {
 	b.createFixture(*this);
 }
 
-void SpriteBody::createDistanceJoint(SpriteBody& body, float length, float dampingRatio, float frequencyHz, const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
-	mWorld.createDistanceJoint(*this, body, length, dampingRatio, frequencyHz, bodyAOffset, bodyBOffset);
+b2DistanceJoint* SpriteBody::createDistanceJoint(SpriteBody& body, float length, float dampingRatio, float frequencyHz, const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
+	return mWorld.createDistanceJoint(*this, body, length, dampingRatio, frequencyHz, bodyAOffset, bodyBOffset);
 }
 
 void SpriteBody::createWeldJoint(SpriteBody& body,const float damping, const float frequency, const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
 	mWorld.createWeldJoint(*this, body, damping, frequency, bodyAOffset, bodyBOffset);
+}
+
+b2PrismaticJoint* SpriteBody::createPrismaticJoint(const SpriteBody& body, ci::Vec2f axis, bool enableLimit, float lowerTranslation, float upperTranslation,
+	bool enableMotor , float maxMotorForce , float motorSpeed,
+	const ci::Vec3f bodyAOffset , const ci::Vec3f bodyBOffset ) {
+	b2Vec2 bAxis(axis.x, axis.y);
+	return mWorld.createPrismaticJoint(*this, body, bAxis,  enableLimit, lowerTranslation, upperTranslation, enableMotor, maxMotorForce, motorSpeed, bodyAOffset, bodyBOffset);
 }
 
 void SpriteBody::destroy() {
@@ -175,9 +187,25 @@ void SpriteBody::setLinearVelocity(const float x, const float y) {
 	}
 }
 
+
+ci::Vec2f SpriteBody::getLinearVelocity() {
+	b2Vec2 vel = b2Vec2(0.0f, 0.0f);
+
+	if (mBody) {
+		vel =  mBody->GetLinearVelocity();
+	}
+	return ci::Vec2f(vel.x, vel.y);
+}
+
+
 void SpriteBody::applyForceToCenter(const float x, const float y) {
 	if (mBody) {
 		mBody->ApplyForceToCenter(b2Vec2(x, y), true);
+	}
+}
+void SpriteBody::applyImpulseToCenter(const float x, const float y, ci::Vec2f point) {
+	if (mBody) {
+		mBody->ApplyLinearImpulse (b2Vec2(x, y), b2Vec2(point.x, point.y), true);
 	}
 }
 
@@ -200,6 +228,24 @@ float SpriteBody::getRotation() const {
 
 void SpriteBody::setCollisionCallback(const std::function<void(const Collision&)>& fn) {
 	mWorld.setCollisionCallback(mSprite, fn);
+}
+
+void SpriteBody::setContactPreSolveFn(const std::function<void( b2Contact* , const b2Manifold* )>& fn) {
+
+	mWorld.mContactListener.setPreSolveFunction(fn);
+}
+
+void SpriteBody::setContactPostSolveFn(const std::function<void( b2Contact*, const b2ContactImpulse*)>& fn) {
+
+	mWorld.mContactListener.setPostSolveFunction(fn);
+}
+void SpriteBody::setBeginContactFn(const std::function<void(b2Contact*)>& fn){
+	mWorld.mContactListener.setBeginContactFunction(fn);
+}
+
+void SpriteBody::setEndContactFn(const std::function<void(b2Contact*)>& fn){
+	mWorld.mContactListener.setEndContactFunction(fn);
+
 }
 
 void SpriteBody::onCenterChanged() {
@@ -225,6 +271,12 @@ void SpriteBody::onCenterChanged() {
 		fix = fix->GetNext();
 	}
 }
+
+float	SpriteBody::getPhysWorldScale(){
+	return mWorld.getCi2BoxScale();
+
+}
+
 
 bool SpriteBody::isWorldLocked() const
 {

@@ -63,6 +63,12 @@ void ScrollArea::setScrollSize(const float newWidth, const float newHeight){
 	}
 }
 
+void  ScrollArea::enableScrolling(bool enable){
+    if (mScroller)
+        mScroller->enable(enable);
+
+}
+
 void ScrollArea::onSizeChanged(){
 	const float newWidth = getWidth();
 	const float newHeight = getHeight();

@@ -20,6 +20,9 @@ class ScrollArea : public ds::ui::Sprite {
 		// Sets the clippin' (visible) area of the scroll Area. 
 		void				setScrollSize(const float newWidth, const float newHeight);
 
+          //Temproarily enable/disable touches
+          void                enableScrolling(bool enable);
+
 		// Set the position of your sprite before you add it here.
 		// The scroll area will be sized after the new sprite is passed in.
 		void				addSpriteToScroll(ds::ui::Sprite* bs);

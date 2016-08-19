@@ -13,12 +13,17 @@ namespace physics {
  */
 ContactListener::ContactListener(World& w)
 	: mWorld(w)
+	, mPostSolveFn(nullptr)
+	, mPreSolveFn(nullptr)
 {
 }
 
 void ContactListener::PostSolve(b2Contact* contact, const b2ContactImpulse* impulse)
 {
-	if (!contact || !impulse) return;
+	if (mPostSolveFn)
+		mPostSolveFn(contact, impulse);
+
+	if (!contact || !impulse || !contact->IsEnabled()) return;
 
 	try {
 		b2WorldManifold manifold;
@@ -28,6 +33,39 @@ void ContactListener::PostSolve(b2Contact* contact, const b2ContactImpulse* impu
 		collide(contact->GetFixtureB(), contact->GetFixtureA(), *impulse, manifold.points[0], manifold.points[1], manifold.normal);
 	} catch (std::exception const&) {
 	}
+}
+
+void ContactListener::PreSolve(b2Contact* contact, const b2Manifold* oldManifold){
+	if (mPreSolveFn)
+		mPreSolveFn(contact, oldManifold);
+}
+
+void ContactListener::BeginContact(b2Contact* contact){
+	if (mBeginContactFn)
+		mBeginContactFn(contact);
+}
+
+void ContactListener::EndContact(b2Contact* contact){
+	if (mEndContactFn)
+		mEndContactFn(contact);
+}
+
+
+
+void ContactListener::setPreSolveFunction(const std::function<void(b2Contact* contact, const b2Manifold* oldManifold)>& fn) {
+	mPreSolveFn = fn;
+}
+
+void ContactListener::setPostSolveFunction(const std::function<void(b2Contact* contact, const b2ContactImpulse* impulse)>& fn) {
+	mPostSolveFn = fn;
+}
+
+void ContactListener::setBeginContactFunction(const std::function<void(b2Contact* contact)>& fn) {
+	mBeginContactFn = fn;
+}
+
+void ContactListener::setEndContactFunction(const std::function<void(b2Contact* contact)>& fn) {
+	mEndContactFn = fn;
 }
 
 void ContactListener::setCollisionCallback(const ds::ui::Sprite& s, const std::function<void(const Collision&)>& fn)
