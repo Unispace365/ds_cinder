@@ -82,6 +82,11 @@
 				<xml name="brush_blue" src="%APP%/data/layouts/swatch_button.xml" >
 					<property name="swatch" color="blue" />
 				</xml>
+				<xml name="brush_erase" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="light_grey" opacity="0.0" />
+					<property name="the_normal_border" color="light_grey" opacity="0.0" />
+					<property name="icon" src="%APP%/data/images/drawing/marker.png" layout_fudge="1, 0"/>
+				</xml>
 				
 				<sprite name="space_space" size="22" />
 				

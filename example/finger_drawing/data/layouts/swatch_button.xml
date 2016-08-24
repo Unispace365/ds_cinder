@@ -14,6 +14,15 @@
 			color="white"
 			/>
 			
+		<image name="icon"
+			layout_size_mode="fill"
+			color="light_grey"
+			t_pad="-5"
+			l_pad="-5"
+			b_pad="-5"
+			r_pad="-5"
+			/>
+			
 
 		<border name="the_normal_border" 
 			attach_state="normal"

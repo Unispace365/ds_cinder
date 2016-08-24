@@ -42,6 +42,9 @@ public:
 	/// Clears any drawings a person has made
 	void								clearCanvas();
 
+	/// If true, will erase instead of drawing
+	void								setEraseMode(const bool eraseMode);
+
 private:
 
 	virtual void						drawLocalClient();
@@ -56,6 +59,7 @@ private:
 	ds::ui::Image*						mBrushImage;
 	float								mBrushSize;
 	ci::ColorA							mBrushColor;
+	bool								mEraseMode;
 };
 
 } // namespace ui

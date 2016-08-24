@@ -55,6 +55,7 @@ DrawingView::DrawingView(Globals& g)
 	configureBrushColorButton("brush_black", spriteMap, true);
 	configureBrushColorButton("brush_grey", spriteMap, true);
 	configureBrushColorButton("brush_white", spriteMap, true);
+	configureBrushColorButton("brush_erase", spriteMap, true, true);
 
 	configureBrushSizeButton("small", spriteMap, 6);
 	auto medButt = configureBrushSizeButton("med", spriteMap, 12);
@@ -99,21 +100,26 @@ DrawingView::DrawingView(Globals& g)
 
 }
 
-ds::ui::LayoutButton* DrawingView::configureBrushColorButton(const std::string& buttonName, std::map<std::string, ds::ui::Sprite*> spriteMap, const bool isBrush){
+ds::ui::LayoutButton* DrawingView::configureBrushColorButton(const std::string& buttonName, std::map<std::string, ds::ui::Sprite*> spriteMap, const bool isBrush, const bool isErase){
 
 	std::string fullName = buttonName + ".the_button";
 	std::string colorName = buttonName + ".swatch";
 	auto swatchButton = dynamic_cast<ds::ui::LayoutButton*>(spriteMap[fullName]);
 	if(swatchButton){
 		auto theSwatch = dynamic_cast<ds::ui::Sprite*>(spriteMap[colorName]);
-		swatchButton->setClickFn([this, swatchButton, theSwatch, isBrush]{
+		swatchButton->setClickFn([this, swatchButton, theSwatch, isBrush, isErase]{
 			if(mDrawingCanvas && theSwatch && mBackground){
 				if(isBrush){
 					for(auto it : mBrushColorButtons){
 						it->showUp();
 						it->enable(true);
 					}
-					mDrawingCanvas->setBrushColor(theSwatch->getColor());
+					if(isErase){
+						mDrawingCanvas->setEraseMode(true);
+					} else {
+						mDrawingCanvas->setEraseMode(false);
+						mDrawingCanvas->setBrushColor(theSwatch->getColor());
+					}
 				} else {
 					for(auto it : mBackgroundColorButtons){
 						it->showUp();

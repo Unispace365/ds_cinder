@@ -36,6 +36,7 @@ const static std::string whiteboard_point_frag =
 "brushColor.g *= color.a * brushColor.a;"
 "brushColor.b *= color.a * brushColor.a;"
 "gl_FragColor = brushColor * color;"
+//NEON EFFECTS!//"gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(1.0/2.2));"
 "}";
 
 static std::string whiteboard_point_name = "whiteboard_point";
@@ -51,6 +52,7 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	, mBrushColor(1.0f, 0.0f, 0.0f, 0.5f)
 	, mPointShader(whiteboard_point_vert, whiteboard_point_frag, whiteboard_point_name)
 	, mBrushImage(nullptr)
+	, mEraseMode(false)
 {
 	mPointShader.loadShaders();
 	mFboGeneral = std::move(mEngine.getFbo());
@@ -154,6 +156,10 @@ void DrawingCanvas::clearCanvas(){
 	mFboGeneral->detach();
 }
 
+void DrawingCanvas::setEraseMode(const bool eraseMode){
+	mEraseMode = eraseMode;
+}
+
 void DrawingCanvas::drawLocalClient(){
 	if(!mDrawTexture) return;
 
@@ -222,7 +228,12 @@ void DrawingCanvas::renderLine(const ci::Vec3f& start, const ci::Vec3f& end){
 
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
-	glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
+	if(mEraseMode){
+		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
+	} else {
+		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	}
 
 	{
 		ci::gl::SaveTextureBindState saveBindState(brushTexture->getTarget());

@@ -35,7 +35,7 @@ private:
 	void								animateOff();
 
 	void								layout();
-	ds::ui::LayoutButton*				configureBrushColorButton(const std::string& buttonName, std::map<std::string, ds::ui::Sprite*> spriteMap, const bool isBrush);
+	ds::ui::LayoutButton*				configureBrushColorButton(const std::string& buttonName, std::map<std::string, ds::ui::Sprite*> spriteMap, const bool isBrush, const bool isErase = false);
 	ds::ui::LayoutButton*				configureBrushSizeButton(const std::string& buttonName, std::map<std::string, ds::ui::Sprite*> spriteMap, const float brushSize);
 
 	Globals&							mGlobals;
