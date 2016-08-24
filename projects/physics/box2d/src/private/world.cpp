@@ -16,6 +16,7 @@
 #include "Box2D/Dynamics/b2Fixture.h"
 #include "Box2D/Dynamics/Joints/b2DistanceJoint.h"
 #include "Box2D/Dynamics/Joints/b2WeldJoint.h"
+#include "Box2D/Dynamics/Joints/b2PrismaticJoint.h"
 
 namespace ds {
 namespace physics {
@@ -102,7 +103,7 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& spriddy)
 	}
 }
 
-void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length, float dampingRatio, float frequencyHz,
+b2DistanceJoint* World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length, float dampingRatio, float frequencyHz,
 	const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
 	
 	if (body1.mBody && body2.mBody) {
@@ -122,8 +123,46 @@ void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 		//DS_LOG_INFO_M("Joint anchors a=(" << joint->GetAnchorA().x << ", " << joint->GetAnchorA().y << ") b=(" << joint->GetAnchorB().x << ", " << joint->GetAnchorB().y << ")", PHYSICS_LOG);
 
 		mDistanceJoints.insert(mDistanceJoints.end(), joint);
+		return joint;
 	}
+	return nullptr;
 }
+
+b2PrismaticJoint* World::createPrismaticJoint(const SpriteBody& body1, const SpriteBody& body2, b2Vec2 axis, bool enableLimit, float lowerTranslation, float upperTranslation,
+	bool enableMotor, float maxMotorForce, float motorSpeed,
+	const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
+
+	if (body1.mBody && body2.mBody) {
+		b2PrismaticJointDef jointDef; 
+		jointDef.Initialize(body1.mBody, body2.mBody, b2Vec2(0.0f, 0.0f), axis);
+		jointDef.bodyA = body1.mBody;
+		jointDef.bodyB = body2.mBody;
+		jointDef.lowerTranslation = getCi2BoxScale()*lowerTranslation;
+		jointDef.upperTranslation = getCi2BoxScale()*upperTranslation;
+		jointDef.enableLimit = enableLimit;
+		jointDef.maxMotorForce = maxMotorForce;
+		jointDef.motorSpeed = motorSpeed;
+		jointDef.enableMotor = enableMotor;
+
+		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter() + bodyAOffset, nullptr);
+		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter() + bodyBOffset, nullptr);
+
+		//jointDef.dampingRatio = dampingRatio;
+		//jointDef.frequencyHz = frequencyHz;
+
+		jointDef.collideConnected = true;
+		//jointDef.length = getCi2BoxScale()*(length);
+	
+		b2PrismaticJoint* joint = (b2PrismaticJoint*)mWorld->CreateJoint(&jointDef);
+
+		//DS_LOG_INFO_M("Joint anchors a=(" << joint->GetAnchorA().x << ", " << joint->GetAnchorA().y << ") b=(" << joint->GetAnchorB().x << ", " << joint->GetAnchorB().y << ")", PHYSICS_LOG);
+
+		mPrismaticJoints.insert(mPrismaticJoints.end(), joint);
+		return joint;
+	}
+	return nullptr;
+}
+
 
 void World::resizeDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length) {
 	for(auto it  = mDistanceJoints.begin(); it != mDistanceJoints.end(); ++it) {
@@ -169,6 +208,13 @@ void World::releaseJoints(const SpriteBody& body) {
 		if(mWeldJoints[i]->GetBodyA() == body.mBody || mWeldJoints[i]->GetBodyB() == body.mBody){
 			mWorld->DestroyJoint(mWeldJoints[i]);
 			mWeldJoints.erase(mWeldJoints.begin() + i);
+			i--;
+		}
+	}
+	for (int i = 0; i < mPrismaticJoints.size(); i++){
+		if (mPrismaticJoints[i]->GetBodyA() == body.mBody || mPrismaticJoints[i]->GetBodyB() == body.mBody){
+			mWorld->DestroyJoint(mPrismaticJoints[i]);
+			mPrismaticJoints.erase(mPrismaticJoints.begin() + i);
 			i--;
 		}
 	}

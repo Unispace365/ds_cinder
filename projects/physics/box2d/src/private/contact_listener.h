@@ -28,6 +28,21 @@ public:
 
 	virtual void		PostSolve(b2Contact*, const b2ContactImpulse*);
 
+	//Define local presolve behavior
+	virtual void		PreSolve(b2Contact* contact, const b2Manifold* oldManifold);
+	/// Called when two fixtures begin to touch.
+	virtual void BeginContact(b2Contact* contact);
+
+	/// Called when two fixtures cease to touch.
+	virtual void EndContact(b2Contact* contact);
+
+
+
+	void				setPreSolveFunction(const std::function<void(b2Contact* contact, const b2Manifold* oldManifold)>& fn);
+	void				setPostSolveFunction(const std::function<void(b2Contact* contact, const b2ContactImpulse* impulse)>& fn);
+	void				setBeginContactFunction(const std::function<void(b2Contact* contact)>& fn);
+	void				setEndContactFunction(const std::function<void(b2Contact* contact)>& fn);
+
 	// Either add or remove, depending on if the function is valid.
 	void				setCollisionCallback(const ds::ui::Sprite&, const std::function<void(const Collision&)>& fn);
 
@@ -48,6 +63,12 @@ private:
 	// The list of sprites to report on in the current update.
 	std::unordered_set<ContactKey>
 						mReport;
+
+	//preSolve function call
+	std::function<void(b2Contact*, const b2Manifold*)>	mPreSolveFn;
+	std::function<void(b2Contact*, const b2ContactImpulse*)> mPostSolveFn;
+	std::function<void(b2Contact*)> mBeginContactFn;
+	std::function<void(b2Contact*)> mEndContactFn;
 };
 
 } // namespace physics

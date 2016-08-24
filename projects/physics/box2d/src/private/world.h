@@ -15,6 +15,7 @@ class b2Body;
 class b2DistanceJoint;
 class b2MouseJoint;
 class b2WeldJoint;
+class b2PrismaticJoint;
 class b2World;
 struct b2Vec2;
 
@@ -31,11 +32,15 @@ class World : public ds::EngineService
 public:
 	World(ds::ui::SpriteEngine&, ds::ui::Sprite&);
 
-	void							createDistanceJoint(const SpriteBody&, const SpriteBody&, float length, float dampingRatio, float frequencyHz,
+	b2DistanceJoint*				createDistanceJoint(const SpriteBody&, const SpriteBody&, float length, float dampingRatio, float frequencyHz,
 													const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
 	void							resizeDistanceJoint(const SpriteBody&, const SpriteBody&, float length);
 	void							createWeldJoint(const SpriteBody&, const SpriteBody&, const float dampingRation, const float frequencyHz,
 													const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
+	b2PrismaticJoint*				createPrismaticJoint(const SpriteBody& body1, const SpriteBody& body2, b2Vec2 axis, bool enableLimit = false, float lowerTranslation = 0.0f, float upperTranslation = 0.0f,
+													 bool enableMotor= false, float maxMotorForce=0.0f, float motorSpeed=0.0f,
+													 const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
+
 	void							releaseJoints(const SpriteBody&);
 
 	void							processTouchAdded(const SpriteBody&, const ds::ui::TouchInfo&);
@@ -99,6 +104,7 @@ private:
 
 	std::vector<b2DistanceJoint*>	mDistanceJoints;
 	std::vector<b2WeldJoint*>		mWeldJoints;
+	std::vector<b2PrismaticJoint*>		mPrismaticJoints;
 
 	std::unique_ptr<DebugDraw>		mDebugDraw;
 };

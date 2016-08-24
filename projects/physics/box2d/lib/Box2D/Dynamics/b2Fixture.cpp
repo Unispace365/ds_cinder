@@ -124,8 +124,8 @@ void b2Fixture::CreateProxies(b2BroadPhase* broadPhase, const b2Transform& xf)
 	b2Assert(m_proxyCount == 0);
 
 	// Create proxies in the broad-phase.
-	m_proxyCount = m_shape->GetChildCount();
 
+	m_proxyCount = m_shape->GetChildCount();
 	for (int32 i = 0; i < m_proxyCount; ++i)
 	{
 		b2FixtureProxy* proxy = m_proxies + i;
