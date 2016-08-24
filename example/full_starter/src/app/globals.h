@@ -34,7 +34,7 @@ public:
 
 	//Shortcuts
 	const ds::cfg::Text&			getText(const std::string& name) const;
-	const ds::cfg::Settings&		getSettingsLayout() const;
+	const ds::cfg::Settings&		getAppSettings() const;
 	const ds::cfg::Settings&		getSettings(const std::string& name) const;
 
 private:

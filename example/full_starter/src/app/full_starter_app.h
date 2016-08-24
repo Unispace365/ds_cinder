@@ -3,10 +3,11 @@
 
 #include <cinder/app/AppBasic.h>
 #include <ds/app/app.h>
+#include <ds/app/event_client.h>
+#include <ds/touch/touch_debug.h>
 
 #include "app/globals.h"
 #include "query/query_handler.h"
-#include "ds/touch/touch_debug.h"
 
 namespace fullstarter {
 class AllData;
@@ -23,8 +24,11 @@ public:
 	void				update();
 
 	virtual void		fileDrop(ci::app::FileDropEvent event);
+
 private:
-	typedef ds::App		inherited;
+
+	void				forceStartIdleMode();
+	void				onAppEvent(const ds::Event&);
 
 	// Data
 	AllData				mAllData;
@@ -36,11 +40,11 @@ private:
 	//Idle state of the app to detect state change
 	bool				mIdling;
 
-
+	// Handle mouse events and simulate touch events
 	ds::TouchDebug		mTouchDebug;
 
-
-	void				moveCamera(const ci::Vec3f& deltaMove);
+	// App events can be handled here
+	ds::EventClient		mEventClient;
 };
 
 } // !namespace fullstarter

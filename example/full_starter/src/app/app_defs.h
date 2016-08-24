@@ -8,9 +8,7 @@ namespace fullstarter {
 extern const ds::BitMask		APP_LOG;
 
 // SETTINGS
-extern const std::string&		SETTINGS_SETUP;
-extern const std::string&		SETTINGS_DEBUG_ONLY;
-extern const std::string&		SETTINGS_LAYOUT;
+extern const std::string&		SETTINGS_APP;
 
 
 // PHYSICS

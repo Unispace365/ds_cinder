@@ -1,0 +1,5 @@
+<settings>
+
+	<!-- Link together a font name and a font file -->
+	<text name="noto-bold" value="%APP%/data/fonts/NotoSans-Bold.ttf" />
+</settings>

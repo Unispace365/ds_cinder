@@ -6,6 +6,8 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/app/event_client.h>
 #include <ds/ui/sprite/text.h>
+#include <ds/ui/sprite/image.h>
+#include <ds/ui/layout/layout_sprite.h>
 
 #include "model/generated/story_model.h"
 
@@ -33,12 +35,12 @@ private:
 
 	void								layout();
 
-	typedef ds::ui::Sprite				inherited;
 	Globals&							mGlobals;
 
 	ds::EventClient						mEventClient;
-
+	ds::ui::LayoutSprite*				mPrimaryLayout;
 	ds::ui::Text*						mMessage;
+	ds::ui::Image*						mImage;
 
 };
 

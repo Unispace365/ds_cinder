@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _FULLSTARTER_APP_QUERY_QUERYHANDLER_H_
 #define _FULLSTARTER_APP_QUERY_QUERYHANDLER_H_
 
@@ -7,7 +8,7 @@
 #include <ds/ui/sprite/sprite_engine.h>
 // NOTE: Placing this include at the top gets a conflict
 // with cinder. Need to look into that.
-#include <ds/network/node_watcher.h>
+#include <ds/network/helper/delayed_node_watcher.h>
 #include "query/story_query.h"
 #include "model/all_data.h"
 
@@ -21,7 +22,7 @@ class QueryHandler {
 public:
 	QueryHandler(ds::ui::SpriteEngine&, AllData&);
 
-	void								runInitialQueries();
+	void								runInitialQueries(const bool synchronous);
 
 private:
 
@@ -34,8 +35,7 @@ private:
 
 	ds::SerialRunnable<StoryQuery>		mStoryQuery;
 
-	// CACHING
-	ds::ResourceList					mResources;
+	ds::DelayedNodeWatcher				mNodeWatcher;
 };
 
 } // !namespace fullstarter
