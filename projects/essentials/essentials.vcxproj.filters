@@ -64,6 +64,9 @@
     <Filter Include="src\ds\ui\menu\component">
       <UniqueIdentifier>{866ea136-fca0-4139-a7b9-1d4812ab171c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\drawing">
+      <UniqueIdentifier>{0daa2cd3-cc8f-42cf-bcab-7465c71d6798}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -167,6 +170,9 @@
     </ClCompile>
     <ClCompile Include="src\ds\ui\button\layout_button.cpp">
       <Filter>src\ds\ui\button</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\drawing\drawing_canvas.cpp">
+      <Filter>src\ds\ui\drawing</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -307,6 +313,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\button\layout_button.h">
       <Filter>src\ds\ui\button</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\drawing\drawing_canvas.h">
+      <Filter>src\ds\ui\drawing</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
