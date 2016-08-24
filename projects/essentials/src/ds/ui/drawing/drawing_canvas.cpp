@@ -58,6 +58,7 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 
 	setBrushImage(brushImagePath);
 
+	setBrushColor(ci::ColorA(1.0f, 0.3f, 0.3f, 0.7f));
 	setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	setTransparent(false);
 	setColor(ci::Color(1.0f, 1.0f, 1.0f));
@@ -74,8 +75,6 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 			renderLine(localPoint - ti.mDeltaPoint, localPoint);
 		}
 	});
-
-	setBrushColor(ci::ColorA(ci::randFloat(), ci::randFloat(), ci::randFloat(), ci::randFloat()));
 }
 
 void DrawingCanvas::setBrushColor(const ci::ColorA& brushColor){

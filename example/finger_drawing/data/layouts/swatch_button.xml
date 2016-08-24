@@ -1,0 +1,44 @@
+<interface>
+
+	<layout_button name="the_button" 
+		size="40, 40"
+		layout_size_mode="fixed"
+		layout_type="vert"
+		center="0.5, 0.5"
+		animate_on="grow; ease:outQuint; duration:0.4; delay:0.1"
+		>
+
+		<sprite name="swatch" 
+			layout_size_mode="stretch"
+			corner_radius="5"
+			color="white"
+			/>
+			
+
+		<border name="the_normal_border" 
+			attach_state="normal"
+			layout_size_mode="fill"
+			color="grey"
+			border_width="4"
+			opacity="0.8"
+			corner_radius="5"
+			/>		
+
+		<border name="the_border" 
+			attach_state="high"
+			layout_size_mode="fill"
+			color="white"
+			border_width="4"
+			opacity="0.8"
+			corner_radius="5"
+			/>		
+	
+				
+		
+	</layout_button>
+		
+	
+	
+		
+</interface>
+
