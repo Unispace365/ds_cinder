@@ -225,6 +225,13 @@ void Pdf::drawLocalClient() {
 	const float				tw = mHolder.getTextureWidth(),
 							th = mHolder.getTextureHeight();
 	if(tw < 1.0f || th < 1.0f){
+
+		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
+		if(shaderBase) {
+			shaderBase.uniform("useTexture", false);
+			mUniform.applyTo(shaderBase);
+		}
+
 		ci::gl::color(0.0f, 0.0f, 0.0f, mDrawOpacity);
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), false);
 		return;
