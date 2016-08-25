@@ -221,6 +221,7 @@ void finger_drawing::fileDrop(ci::app::FileDropEvent event){
 		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
 		mv->initialize();
 		mEngine.getRootSprite().addChildPtr(mv);
+		mv->sendToBack();
 	}
 }
 

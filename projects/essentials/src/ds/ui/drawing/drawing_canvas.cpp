@@ -70,11 +70,12 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 	setProcessTouchCallback([this](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
 		auto localPoint = globalToLocal(ti.mCurrentGlobalPoint);
+		auto prevPoint = globalToLocal(ti.mCurrentGlobalPoint - ti.mDeltaPoint);
 		if(ti.mPhase == ds::ui::TouchInfo::Added){
 			renderLine(localPoint, localPoint);
 		}
-		if(ti.mPhase == ds::ui::TouchInfo::Moved){ 
-			renderLine(localPoint - ti.mDeltaPoint, localPoint);
+		if(ti.mPhase == ds::ui::TouchInfo::Moved){
+			renderLine(prevPoint, localPoint);
 		}
 	});
 }
@@ -199,19 +200,20 @@ void DrawingCanvas::renderLine(const ci::Vec3f& start, const ci::Vec3f& end){
 		drawPoints.push_back(ci::Vec2f(start.x + (end.x - start.x) * ((float)i / (float)count), start.y + (end.y - start.y) * ((float)i / (float)count)));
 	}
 
-	auto w = getWidth();
-	auto h = getHeight();
+	int w = (int)floorf(getWidth());
+	int h = (int)floorf(getHeight());
 
 	if(!mDrawTexture || mDrawTexture.getWidth() != w || mDrawTexture.getHeight() != h) {
 		ci::gl::Texture::Format format;
 		format.setTarget(GL_TEXTURE_2D);
 		format.setMagFilter(GL_LINEAR);
 		format.setMinFilter(GL_LINEAR);
-		mDrawTexture = ci::gl::Texture((int)w, (int)h, format);
+		mDrawTexture = ci::gl::Texture(w, h, format);
 	}
 
 	ds::gl::SaveCamera		save_camera;
 
+	ci::gl::SaveFramebufferBinding bindingSaver;
 	mFboGeneral->attach(mDrawTexture);
 	mFboGeneral->begin();
 
@@ -223,7 +225,7 @@ void DrawingCanvas::renderLine(const ci::Vec3f& start, const ci::Vec3f& end){
 
 
 	mPointShader.getShader().bind();
-	mPointShader.getShader().uniform("tex0", 0);
+	mPointShader.getShader().uniform("tex0", 10);
 	mPointShader.getShader().uniform("vertexColor", mBrushColor);
 
 	glEnable(GL_BLEND);
@@ -240,7 +242,7 @@ void DrawingCanvas::renderLine(const ci::Vec3f& start, const ci::Vec3f& end){
 		ci::gl::BoolState saveEnabledState(brushTexture->getTarget());
 		ci::gl::ClientBoolState vertexArrayState(GL_VERTEX_ARRAY);
 		ci::gl::ClientBoolState texCoordArrayState(GL_TEXTURE_COORD_ARRAY);
-		brushTexture->bind(0);
+		brushTexture->bind(10);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		GLfloat verts[8];
@@ -273,12 +275,15 @@ void DrawingCanvas::renderLine(const ci::Vec3f& start, const ci::Vec3f& end){
 			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
 		}
 
-		brushTexture->unbind(0);
+		brushTexture->unbind(10);
 	}
+
+	mDrawTexture.unbind();
 
 	mPointShader.getShader().unbind();
 	mFboGeneral->end();
 	mFboGeneral->detach();
+	DS_REPORT_GL_ERRORS();
 }
 
 } // namespace ui
