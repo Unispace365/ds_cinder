@@ -76,6 +76,17 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	mTouchToggle->setScale(sizey.y / mTouchToggle->getHeight());
 
 	updateWidgets();
+	const float padding = sizey.y / 4.0f;
+
+	mMinWidth = (
+		mUpButton->getScaleWidth() + padding +
+		mPageCounter->getScaleWidth() + padding +
+		mDownButton->getScaleWidth() + padding +
+		mTouchToggle->getScaleWidth() + padding * 4.0f
+		);
+
+	mMaxWidth = mMinWidth;
+
 }
 
 void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF){

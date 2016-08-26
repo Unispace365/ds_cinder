@@ -118,6 +118,19 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 		mTouchToggle->hide();
 	}
 
+
+
+	const float padding = sizey.y / 4.0f;
+
+	mMinWidth = (
+		mKeyboardButton->getScaleWidth() + padding +
+		mBackButton->getScaleWidth() + padding +
+		mForwardButton->getScaleWidth() + padding +
+		mRefreshButton->getScaleWidth() + padding +
+		mTouchToggle->getScaleWidth() + padding * 2.0f
+		);
+	mMaxWidth = mMinWidth;
+
 	updateWidgets();
 }
 

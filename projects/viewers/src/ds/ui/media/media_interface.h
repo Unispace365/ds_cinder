@@ -30,6 +30,8 @@ protected:
 
 	float								mAnimateDuration;
 	ds::ui::Sprite*						mBackground;
+	float								mMinWidth;
+	float								mMaxWidth;
 	bool								mIdling;
 	virtual void						onLayout(){};
 	virtual void						onSizeChanged();

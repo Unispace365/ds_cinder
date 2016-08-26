@@ -21,6 +21,8 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey
 	, mBackground(nullptr)
 	, mIdling(nullptr)
 	, mAnimateDuration(0.35f)
+	, mMaxWidth(sizey.x)
+	, mMinWidth(sizey.y)
 {
 	// TODO: settings?
 	const float backOpacccy = 0.95f;
@@ -55,10 +57,16 @@ void MediaInterface::updateServer(const ds::UpdateParams& p){
 void MediaInterface::layout(){
 	const float w = getWidth();
 	const float h = getHeight();
-	if(mBackground){
-		mBackground->setSize(w, h);
-	}
 	onLayout();
+	if(mBackground){
+		float newW = w;
+		if(newW < mMinWidth) newW = mMinWidth;
+		if(newW > mMaxWidth) newW = mMaxWidth;
+
+		mBackground->setSize(newW, h);
+		mBackground->setCenter(0.5f, 0.0f);
+		mBackground->setPosition(w / 2.0f, 0.0f);
+	}
 }
 
 void MediaInterface::animateOn(){
