@@ -42,25 +42,24 @@ bool EnvCheck::addGStreamerBinPath(){
 
 	std::cout << "addGstreamerBinPath: " << ds::Environment::expand("%APP%") << std::endl;
 	std::string localDllPath = ds::Environment::expand("%APP%/dll/");
-	if(safeFileExistsCheck(localDllPath)){
+	std::string localPlugins = ds::Environment::expand("%APP%/dll/gst_plugins");
+	if(safeFileExistsCheck(localDllPath) && safeFileExistsCheck(localPlugins)){
 		if(path_variable.find(localDllPath) == std::string::npos){
-			std::cout << "adding local dlls to path" << std::endl;
-			addedLocalDlls = true;
+			std::cout << "Adding local dlls to path" << std::endl;
 			ds::Environment::addToFrontEnvironmentVariable("PATH", localDllPath);
 		}
-	}
 
-	std::string localPlugins = ds::Environment::expand("%APP%/dll/gst_plugins");
-	if(safeFileExistsCheck(localPlugins)){
 		std::cout << "Adding local gst plugins" << std::endl;
 		ds::Environment::addToEnvironmentVariable("GST_PLUGIN_PATH", localPlugins);
-	}
+		addedLocalDlls = true;
+	} 
 
 	std::string gstreamer_path = getEnv("GSTREAMER_1_0_ROOT_X86");
 	std::string gstreamer_bin_path = gstreamer_path + "\\bin";
 	normalizePath(gstreamer_bin_path);
 
-	if(path_variable.find(gstreamer_bin_path) == std::string::npos) {
+	// Only add the environment varible version if we don't have local dll's
+	if(!addedLocalDlls && path_variable.find(gstreamer_bin_path) == std::string::npos) {
 		ds::Environment::addToFrontEnvironmentVariable("PATH", gstreamer_bin_path);
 	}
 		
