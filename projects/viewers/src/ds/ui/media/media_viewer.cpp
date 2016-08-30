@@ -46,6 +46,9 @@ MediaViewer::MediaViewer(ds::ui::SpriteEngine& eng, const ds::Resource& resource
 
 void MediaViewer::setSettings(const MediaViewerSettings& newSettings){
 	mMediaViewerSettings = newSettings;
+	if(mMediaPlayer){
+		mMediaPlayer->setSettings(mMediaViewerSettings);
+	}
 }
 
 void MediaViewer::setDefaultProperties(){
