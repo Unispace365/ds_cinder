@@ -82,7 +82,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 		mUpButton->getScaleWidth() + padding +
 		mPageCounter->getScaleWidth() + padding +
 		mDownButton->getScaleWidth() + padding +
-		mTouchToggle->getScaleWidth() + padding * 4.0f
+		mTouchToggle->getScaleWidth() + padding * 16.0f // lots of outside padding to account for the page text 
 		);
 
 	mMaxWidth = mMinWidth;
