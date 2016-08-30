@@ -150,6 +150,35 @@ protected:
 	virtual void								readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
 private:
+
+	// For syncing touch input across client/servers
+	struct WebTouch {
+		WebTouch(const int x, const int y, const int btn = 0, const int state = 0, const int clickCnt = 0)
+		: mX(x), mY(y), mBttn(btn), mState(state), mClickCount(clickCnt), mIsWheel(false), mXDelta(0), mYDelta(0){}
+		int mX;
+		int mY;
+		int mBttn;
+		int mClickCount;
+		int mState;
+		bool mIsWheel;
+		int mXDelta;
+		int mYDelta;
+	};
+
+	// For syncing back/forward/stop/reload across server/clients
+	struct WebControl {
+		static const int GO_BACK = 0;
+		static const int GO_FORW = 1;
+		static const int RELOAD_SOFT = 2;
+		static const int RELOAD_HARD = 3;
+		static const int STOP_LOAD = 4;
+		WebControl(const int command) : mCommand(command){}
+		const int mCommand;
+	};
+
+	// Sends to the local web service as well as syncing to any clients
+	void										sendTouchToService(const int xp, const int yp, const int btn, const int state, const int clickCnt, 
+																   const bool isWheel = false, const int xDelta = 0, const int yDelta = 0);
 	void										update(const ds::UpdateParams&);
 	void										handleTouch(const ds::ui::TouchInfo&);
 
@@ -190,6 +219,8 @@ private:
 
 	// Replicated state
 	std::string									mUrl;
+	std::vector<WebTouch>						mTouches;
+	std::vector<WebControl>						mHistoryRequests;
 
 	bool										mHasError;
 	std::string									mErrorMessage;

@@ -41,9 +41,11 @@ Init						INIT;
 
 char						BLOB_TYPE			= 0;
 const ds::ui::DirtyState&	URL_DIRTY			= ds::ui::INTERNAL_A_DIRTY;
-const ds::ui::DirtyState&	PDF_PAGEMODE_DIRTY	= ds::ui::INTERNAL_B_DIRTY;
+const ds::ui::DirtyState&	TOUCHES_DIRTY		= ds::ui::INTERNAL_B_DIRTY;
+const ds::ui::DirtyState&	HISTORY_DIRTY		= ds::ui::INTERNAL_C_DIRTY;
 const char					URL_ATT				= 80;
-const char					PDF_PAGEMODE_ATT	= 81;
+const char					TOUCH_ATT			= 81;
+const char					HISTORY_ATT			= 82;
 }
 
 namespace ds {
@@ -252,6 +254,7 @@ void Web::updateServer(const ds::UpdateParams &p) {
 	update(p);
 }
 
+
 void Web::update(const ds::UpdateParams &p) {
 
 	// Get zoom locks CEF, so 
@@ -346,21 +349,19 @@ void Web::sendKeyUpEvent(const ci::app::KeyEvent &event){
 void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
 	if(!mAllowClicks) return;
 
-	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
-	mService.sendMouseClick(mBrowserId, e.getX(), e.getY(), 0, 0, 1);
+	sendTouchToService(e.getX(), e.getY(), 0, 0, 1);
 }
 
 void Web::sendMouseDragEvent(const ci::app::MouseEvent& e) {
 	if(!mAllowClicks) return;
 
-	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
-	mService.sendMouseClick(mBrowserId, e.getX(), e.getY(), 0, 1, 1);
+	sendTouchToService(e.getX(), e.getY(), 0, 1, 1);
 }
 
 void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
 	if(!mAllowClicks) return;
 
-	mService.sendMouseClick(mBrowserId, e.getX(), e.getY(), 0, 2, 1);
+	sendTouchToService(e.getX(), e.getY(), 0, 2, 1);
 }
 
 void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
@@ -370,9 +371,32 @@ void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
 
-	mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 0, 1);
-	mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
-	mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 1);
+	sendTouchToService(xPos, yPos, 0, 0, 1);
+	sendTouchToService(xPos, yPos, 0, 1, 1);
+	sendTouchToService(xPos, yPos, 0, 2, 1);
+}
+
+void Web::sendTouchToService(const int xp, const int yp, const int btn, const int state, const int clickCnt, 
+							 const bool isWheel, const int xDelta, const int yDelta) {
+	if(mBrowserId < 0) return;
+
+	if(isWheel){
+		mService.sendMouseWheelEvent(mBrowserId, xp, yp, xDelta, yDelta);
+	} else {
+		mService.sendMouseClick(mBrowserId, xp, yp, btn, state, clickCnt);
+	}
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		WebTouch wt = WebTouch(xp, yp, btn, state, clickCnt);
+		if(isWheel){
+			wt.mIsWheel = true;
+			wt.mXDelta = xDelta;
+			wt.mYDelta = yDelta;
+		}
+		mTouches.push_back(wt);
+
+		markAsDirty(TOUCHES_DIRTY);
+	}
 }
 
 void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
@@ -384,30 +408,37 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	int yPos = (int)roundf(pos.y);
 
 	if(ds::ui::TouchInfo::Added == touchInfo.mPhase) {
-		if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 0, 1);
+		if(mAllowClicks){
+			sendTouchToService(xPos, yPos, 0, 0, 1);
+		}
 		if(mDragScrolling){
 			mClickDown = true;
 		}
 		
 	} else if(ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
 
-
 		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
 			
 			if(mClickDown){
-				if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 0);
-				if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 0);
+				if(mAllowClicks){
+					sendTouchToService(xPos, yPos, 0, 1, 0);
+					sendTouchToService(xPos, yPos, 0, 2, 0);
+				}
 				mClickDown = false;
 			}
 
 			float yDelta = touchInfo.mCurrentGlobalPoint.y - mPreviousTouchPos.y;
-			mService.sendMouseWheelEvent(mBrowserId, xPos, yPos, 0, (int)roundf(yDelta));			
+			sendTouchToService(xPos, yPos, 0, 0, 0, true, 0, static_cast<int>(roundf(yDelta)));		
 			
 		} else {
-			if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
+			if(mAllowClicks){
+				sendTouchToService(xPos, yPos, 0, 1, 1);
+			}
 		}
 	} else if(ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
-		if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 1);
+		if(mAllowClicks){
+			sendTouchToService(xPos, yPos, 0, 2, 1);
+		}
 	}
 
 	mPreviousTouchPos = touchInfo.mCurrentGlobalPoint;
@@ -425,18 +456,42 @@ double Web::getZoom() const {
 
 void Web::goBack() {
 	mService.goBackwards(mBrowserId);
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		mHistoryRequests.push_back(WebControl(WebControl::GO_FORW));
+		markAsDirty(HISTORY_DIRTY);
+	}
 }
 
 void Web::goForward() {
 	mService.goForwards(mBrowserId);
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		mHistoryRequests.push_back(WebControl(WebControl::GO_BACK));
+		markAsDirty(HISTORY_DIRTY);
+	}
 }
 
 void Web::reload(const bool ignoreCache) {
 	mService.reload(mBrowserId, ignoreCache);
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		if(ignoreCache){
+			mHistoryRequests.push_back(WebControl(WebControl::RELOAD_HARD));
+		} else {
+			mHistoryRequests.push_back(WebControl(WebControl::RELOAD_SOFT));
+		}
+		markAsDirty(HISTORY_DIRTY);
+	}
 }
 
 void Web::stop() {
 	mService.stopLoading(mBrowserId);
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		mHistoryRequests.push_back(WebControl(WebControl::STOP_LOAD));
+		markAsDirty(HISTORY_DIRTY);
+	}
 }
 
 bool Web::canGoBack() {
@@ -512,11 +567,68 @@ void Web::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(URL_ATT);
 		buf.add(mUrl);
 	}
+
+	if(mDirty.has(TOUCHES_DIRTY) && !mTouches.empty()){
+		buf.add(TOUCH_ATT);
+		buf.add(static_cast<int>(mTouches.size()));
+		for (auto it : mTouches){
+			buf.add(it.mX);
+			buf.add(it.mY);
+			buf.add(it.mBttn);
+			buf.add(it.mState);
+			buf.add(it.mClickCount);
+			buf.add(it.mIsWheel);
+			buf.add(it.mXDelta);
+			buf.add(it.mYDelta);
+		}
+
+		mTouches.clear();
+	}
+
+	if(mDirty.has(HISTORY_DIRTY) && !mHistoryRequests.empty()){
+		buf.add(HISTORY_ATT);
+		buf.add(static_cast<int>(mHistoryRequests.size()));
+		for (auto it : mHistoryRequests){
+			buf.add(it.mCommand);
+		}
+
+		mHistoryRequests.clear();
+	}
 }
 
 void Web::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
-	if (attributeId == URL_ATT) {
+	if(attributeId == URL_ATT) {
 		setUrl(buf.read<std::string>());
+	} else if(attributeId == TOUCH_ATT){
+		auto sizey = buf.read<int>();
+		for(int i = 0; i < sizey; i++){
+			int xxx = buf.read<int>();
+			int yyy = buf.read<int>();
+			int btn = buf.read<int>();
+			int sta = buf.read<int>();
+			int clk = buf.read<int>();
+			bool iw = buf.read<bool>();
+			int xd = buf.read<int>();
+			int yd = buf.read<int>();
+			sendTouchToService(xxx, yyy, btn, sta, clk, iw, xd, yd);
+		}
+
+	} else if(attributeId == HISTORY_ATT){
+		auto sizey = buf.read<int>();
+		for(auto i = 0; i < sizey; i++){
+			int commandy = buf.read<int>();
+			if(commandy == WebControl::GO_BACK){
+				goBack();
+			} else if(commandy == WebControl::GO_FORW){
+				goForward();
+			} else if(commandy == WebControl::RELOAD_SOFT){
+				reload();
+			} else if(commandy == WebControl::RELOAD_HARD){
+				reload(true);
+			} else if(commandy == WebControl::STOP_LOAD){
+				stop();
+			} 
+		}
 	} else {
 		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
