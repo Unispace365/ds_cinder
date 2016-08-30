@@ -40,7 +40,7 @@ void FboGeneral::setup(bool useDepth /*= false*/, bool useStencil /*= false*/)
 	mAttached = nullptr;
 }
 
-void FboGeneral::attach(ci::gl::Texture &target, bool useDepth /*= false*/, bool useStencil /*= false*/)
+bool FboGeneral::attach(ci::gl::Texture &target, bool useDepth /*= false*/, bool useStencil /*= false*/)
 {
 	activate();
 
@@ -75,10 +75,15 @@ void FboGeneral::attach(ci::gl::Texture &target, bool useDepth /*= false*/, bool
 
 	GLenum fb = glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
 	DS_REPORT_GL_ERRORS();
+
+	bool success = true;
 	if(fb != GL_FRAMEBUFFER_COMPLETE) {
+		success = false;
 		std::cout << "Bad framebuffer: " << fb << " | file: " << __FILE__ << " line: " << __LINE__ << std::endl;
 	}
 	deactivate();
+
+	return success;
 }
 
 void FboGeneral::detach()

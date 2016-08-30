@@ -14,7 +14,7 @@ class FboGeneral
 
     void             setup(bool useDepth = false, bool useStencil = false);
 
-    void             attach(ci::gl::Texture &target, bool useDepth = false, bool useStencil = false);
+    bool             attach(ci::gl::Texture &target, bool useDepth = false, bool useStencil = false);
     void             detach();
 
     void             begin();

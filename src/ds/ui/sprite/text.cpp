@@ -591,7 +591,16 @@ void Text::drawIntoFbo() {
 		{
 			ci::gl::SaveFramebufferBinding bindingSaver;
 			std::unique_ptr<ds::ui::FboGeneral> fbo = std::move(mEngine.getFbo());
-			fbo->attach(mTexture, true);
+			if(!fbo){
+				DS_LOG_WARNING("Fbo doesn't exist when drawing into it in a text sprite!");
+				return;
+			}
+			if(!fbo->attach(mTexture, true)){
+				DS_LOG_WARNING("Error attaching a texture to the fbo!");
+				fbo->detach();
+				mEngine.giveBackFbo(std::move(fbo));
+				return;
+			}
 			fbo->begin();
 
 			ci::Area fboBounds(0, 0, fbo->getWidth(), fbo->getHeight());
