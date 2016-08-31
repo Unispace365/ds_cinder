@@ -165,6 +165,18 @@ private:
 		int mYDelta;
 	};
 
+	// For syncing keyboard input across server/clients
+	struct WebKeyboardInput {
+		WebKeyboardInput(const int state, const int nativeKeyCode, const char character, const bool shiftDown, const bool controlDown, const bool altDown)
+		: mState(state), mNativeKeyCode(nativeKeyCode), mCharacter(character), mShiftDown(shiftDown), mCntrlDown(controlDown), mAltDown(altDown){}
+		const int mState;
+		const int mNativeKeyCode;
+		const char mCharacter;
+		const bool mShiftDown;
+		const bool mCntrlDown;
+		const bool mAltDown;
+	};
+
 	// For syncing back/forward/stop/reload across server/clients
 	struct WebControl {
 		static const int GO_BACK = 0;
@@ -220,6 +232,7 @@ private:
 	// Replicated state
 	std::string									mUrl;
 	std::vector<WebTouch>						mTouches;
+	std::vector<WebKeyboardInput>				mKeyPresses;
 	std::vector<WebControl>						mHistoryRequests;
 
 	bool										mHasError;

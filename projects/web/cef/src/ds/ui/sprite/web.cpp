@@ -42,10 +42,12 @@ Init						INIT;
 char						BLOB_TYPE			= 0;
 const ds::ui::DirtyState&	URL_DIRTY			= ds::ui::INTERNAL_A_DIRTY;
 const ds::ui::DirtyState&	TOUCHES_DIRTY		= ds::ui::INTERNAL_B_DIRTY;
-const ds::ui::DirtyState&	HISTORY_DIRTY		= ds::ui::INTERNAL_C_DIRTY;
+const ds::ui::DirtyState&	KEYBOARD_DIRTY		= ds::ui::INTERNAL_C_DIRTY;
+const ds::ui::DirtyState&	HISTORY_DIRTY		= ds::ui::INTERNAL_D_DIRTY;
 const char					URL_ATT				= 80;
 const char					TOUCH_ATT			= 81;
-const char					HISTORY_ATT			= 82;
+const char					KEYBOARD_ATT		= 82;
+const char					HISTORY_ATT			= 83;
 }
 
 namespace ds {
@@ -340,10 +342,20 @@ void Web::setUrlOrThrow(const std::string& url) {
 
 void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {
 	mService.sendKeyEvent(mBrowserId, 0, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		mKeyPresses.push_back(WebKeyboardInput(0, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown()));
+		markAsDirty(KEYBOARD_DIRTY);
+	}
 }
 
 void Web::sendKeyUpEvent(const ci::app::KeyEvent &event){
 	mService.sendKeyEvent(mBrowserId, 2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		mKeyPresses.push_back(WebKeyboardInput(2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown()));
+		markAsDirty(KEYBOARD_DIRTY);
+	}
 }
 
 void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
@@ -585,6 +597,21 @@ void Web::writeAttributesTo(ds::DataBuffer &buf) {
 		mTouches.clear();
 	}
 
+	if(mDirty.has(KEYBOARD_DIRTY) && !mKeyPresses.empty()){
+		buf.add(KEYBOARD_ATT);
+		buf.add(static_cast<int>(mKeyPresses.size()));
+		for(auto it : mKeyPresses){
+			buf.add(it.mState);
+			buf.add(it.mNativeKeyCode);
+			buf.add(it.mCharacter);
+			buf.add(it.mShiftDown);
+			buf.add(it.mCntrlDown);
+			buf.add(it.mAltDown);
+		}
+
+		mKeyPresses.clear();
+	}
+
 	if(mDirty.has(HISTORY_DIRTY) && !mHistoryRequests.empty()){
 		buf.add(HISTORY_ATT);
 		buf.add(static_cast<int>(mHistoryRequests.size()));
@@ -611,6 +638,21 @@ void Web::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 			int xd = buf.read<int>();
 			int yd = buf.read<int>();
 			sendTouchToService(xxx, yyy, btn, sta, clk, iw, xd, yd);
+		}
+
+	} else if(attributeId == KEYBOARD_ATT){
+		auto sizey = buf.read<int>();
+		for(int i = 0; i < sizey; i++){
+			int state = buf.read<int>();
+			int nativ = buf.read<int>();
+			char chary = buf.read<char>();
+			bool isShif = buf.read<bool>();
+			bool isCntrl = buf.read<bool>();
+			bool isAlt = buf.read<bool>();
+
+			if(mBrowserId > -1){
+				mService.sendKeyEvent(mBrowserId, state, nativ, chary, isShif, isCntrl, isAlt);
+			}
 		}
 
 	} else if(attributeId == HISTORY_ATT){
