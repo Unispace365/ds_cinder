@@ -26,19 +26,20 @@ void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify,
 }
 
 
-void HttpsRequest::makePostRequest(const std::string& url, const std::string& postData, const bool peerVerify /*= true*/, const bool hostVerify /*= true*/, const std::string& customRequest){
+void HttpsRequest::makePostRequest(const std::string& url, const std::string& postData, const bool peerVerify /*= true*/, const bool hostVerify /*= true*/, const std::string& customRequest, std::vector<std::string> headers){
 	if(url.empty()){
 		DS_LOG_WARNING("Couldn't make a post request in HttpsRequest because the url is empty");
 		return;
 	}
 
-	mRequests.start([this, url, postData, peerVerify, hostVerify, customRequest](IndividualRequest& q){
+	mRequests.start([this, url, postData, peerVerify, hostVerify, customRequest, headers](IndividualRequest& q){
 		q.mInput = url;
 		q.mPostData = postData;
 		q.mVerifyHost = hostVerify;
 		q.mVerifyPeers = peerVerify;
 		q.mIsGet = false; 
-		q.mCustomRequest = customRequest; });
+		q.mCustomRequest = customRequest; 
+		q.mHeaders = headers; });
 
 }
 
@@ -116,8 +117,9 @@ void HttpsRequest::IndividualRequest::run(){
 			if(res != CURLE_OK){
 				mError = true;
 				mErrorMessage = curl_easy_strerror(res);
+				DS_LOG_WARNING(mErrorMessage);
 			} else {
-				// something?
+				// success
 			}
 		} else {
 			/* First set the URL that is about to receive our POST. This URL can
@@ -125,6 +127,14 @@ void HttpsRequest::IndividualRequest::run(){
 			data. */
 			CURLcode res;
 			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
+
+			if(!mHeaders.empty()){
+				struct curl_slist *headers = NULL;
+				for(auto it : mHeaders){
+					headers = curl_slist_append(headers, it.c_str());
+				}
+				auto optSet = curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+			}
 
 			/* Allows custom request types, like DELETE*/
 			if(!mCustomRequest.empty()){
@@ -167,8 +177,8 @@ void HttpsRequest::IndividualRequest::run(){
 			if(res != CURLE_OK){
 				mError = true;
 				mErrorMessage = curl_easy_strerror(res);
-			} else {
-			}
+				DS_LOG_WARNING(mErrorMessage);
+			} 
 		}
 		curl_easy_cleanup(curl);
 	}
