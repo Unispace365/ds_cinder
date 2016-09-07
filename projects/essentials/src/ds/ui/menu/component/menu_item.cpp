@@ -51,12 +51,19 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 
 	mClipper = new ds::ui::Sprite(mEngine, getWidth(), getHeight());
 	mClipper->enable(false);
-	mClipper->setClipping(true);
+
 	addChild(*mClipper);
 
 	mClippy = new ds::ui::Sprite(mEngine);
 	mClippy->enable(false);
 	mClipper->addChild(*mClippy);
+
+
+	if(mMenuConfig.mDoClipping){
+		mClipper->setClipping(true);
+	} else {
+		mClippy->setOpacity(0.0f);
+	}
 
 	if(!mMenuConfig.mItemTitleTextConfig.empty()){
 		mTitle = mEngine.getEngineCfg().getText(mMenuConfig.mItemTitleTextConfig).create(mEngine, this);
@@ -105,39 +112,58 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 	enable(false);
 }
 
-void MenuItem::animateOn(int direction){
+void MenuItem::animateOn(){
 	if(!mClippy || mActive) return;
-	if(direction == 0){
-		mClippy->setPosition(-getWidth(), 0.0f);
-	} else if(direction == 1) {
-		mClippy->setPosition(0.0f, -getHeight());
-	} else if(direction == 2){
-		mClippy->setPosition(getWidth(), 0.0f);
-	} else if(direction == 3){
-		mClippy->setPosition(0.0f, getHeight());
+
+	if(mMenuConfig.mAnimationStyle != TouchMenu::TouchMenuConfig::kAnimateRadial){
+		if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateRight){
+			mClippy->setPosition(-getWidth(), 0.0f);
+		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateUp) {
+			mClippy->setPosition(0.0f, -getHeight());
+		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateLeft){
+			mClippy->setPosition(getWidth(), 0.0f);
+		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateDown){
+			mClippy->setPosition(0.0f, getHeight());
+		}
+		mClippy->tweenPosition(ci::Vec3f::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic);
+	} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateRadial){
+		mClippy->setPosition(-getWidth() / 2.0f - getPosition().x, -getHeight() / 2.0f - getPosition().y, 0.0f);
+		mClippy->tweenPosition(ci::Vec3f::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeOutQuint);
 	}
 
-	mClippy->tweenPosition(ci::Vec3f::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic);
+	if(!mMenuConfig.mDoClipping){
+		mClippy->setOpacity(0.0f);
+		mClippy->tweenOpacity(1.0f, mMenuConfig.mAnimationDuration / 2.0f, 0.0f);
+	}
+
 
 	mActive = true;
 }
 
-void MenuItem::animateOff(int direction){
+void MenuItem::animateOff(){
 	if(!mClippy || !mActive) return;
 
 
-	ci::Vec3f destPos = ci::Vec3f::zero();
-	if(direction == 2){
-		destPos.set(-getWidth(), 0.0f, 0.0f);
-	} else if(direction == 3) {
-		destPos.set(0.0f, -getHeight(), 0.0f);
-	} else if(direction == 0){
-		destPos.set(getWidth(), 0.0f, 0.0f);
-	} else if(direction == 1){
-		destPos.set(0.0f, getHeight(), 0.0f);
-	}
+	if(mMenuConfig.mAnimationStyle != TouchMenu::TouchMenuConfig::kAnimateRadial){
+		ci::Vec3f destPos = ci::Vec3f::zero();
+		if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateRight){
+			destPos.set(-getWidth(), 0.0f, 0.0f);
+		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateUp) {
+			destPos.set(0.0f, -getHeight(), 0.0f);
+		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateLeft){
+			destPos.set(getWidth(), 0.0f, 0.0f);
+		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateDown){
+			destPos.set(0.0f, getHeight(), 0.0f);
+		}
 
-	mClippy->tweenPosition(destPos, mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic);
+		mClippy->tweenPosition(destPos, mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic);
+	} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateRadial){
+		mClippy->tweenPosition(ci::Vec3f(- getWidth() / 2.0f - getPosition().x, -getHeight() / 2.0f - getPosition().y, 0.0f), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInQuint);
+	} 
+
+	if(!mMenuConfig.mDoClipping){
+		mClippy->tweenOpacity(0.0f, mMenuConfig.mAnimationDuration / 2.0f, mMenuConfig.mAnimationDuration / 2.0f);
+	}
 
 	mActive = false;
 }

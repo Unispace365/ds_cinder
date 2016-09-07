@@ -16,10 +16,8 @@ class MenuItem : public ds::ui::Sprite {
 public:
 	MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuItemModel itemModel, const ds::ui::TouchMenu::TouchMenuConfig config);
 
-
-	// 0 = left, 1 = top, 2 = right, 3 = bottom
-	void								animateOn(int direction);
-	void								animateOff(int direction);
+	void								animateOn();
+	void								animateOff();
 
 	void								highlight();
 	void								unhighlight();

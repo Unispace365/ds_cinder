@@ -19,6 +19,7 @@ ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::Touch
 	, mMenuConfig(menuConfig)
 	, mItemModels(itemModels)
 	, mTappableMode(false)
+	, mGraphicHolder(nullptr)
 {
 
 	enable(false);
@@ -35,6 +36,14 @@ ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::Touch
 			mBackground->setOpacity(0.0f);
 		}
 	}
+
+	mGraphicHolder = new ds::ui::Sprite(mEngine);
+	addChildPtr(mGraphicHolder);
+
+	mGraphicHolder->setCenter(0.5f, 0.5f);
+// 	mGraphicHolder->setColor(ci::Color(0.4f, 0.2f, 0.87f));
+// 	mGraphicHolder->setTransparent(false);
+// 	mGraphicHolder->setSize(20.0f, 20.0f);
 
 	buildMenuItems();
 }
@@ -132,11 +141,14 @@ void ClusterView::cancelTappableMode(){
 }
 
 void ClusterView::activateMenu(){
-	int dir(3);
-
 	for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
-		(*it)->animateOn(dir);
+		(*it)->animateOn();
 	}
+
+	if(mMenuConfig.mActivatedCallback){
+		mMenuConfig.mActivatedCallback(this, mGraphicHolder);
+	}
+	
 }
 
 void ClusterView::setHighlight(ci::Vec2f clusterCenter){
@@ -159,10 +171,6 @@ void ClusterView::updateCluster(const ds::ui::TouchInfo::Phase btp, const ds::ui
 	if(!mActive
 	   && cluster.mTouches.size() > 4
 	   && validateCluster(cluster, false)){
-
-		// TODO: send an event or seomthing
-		//mGlobals.notify(FiveTouchInputEvent(cluster.mCurrentBoundingBox.getCenter()));
-
 		activate();
 		setPosition(cluster.mCurrentBoundingBox.getCenter().x, cluster.mCurrentBoundingBox.getCenter().y);
 	}
@@ -246,6 +254,10 @@ void ClusterView::deactivate(){
 	invalidate();
 	mActive = false;
 	mInvalid = false;
+
+	if(mMenuConfig.mDeactivatedCallback){
+		mMenuConfig.mDeactivatedCallback();
+	}
 }
 
 void ClusterView::invalidate(){
@@ -253,14 +265,16 @@ void ClusterView::invalidate(){
 
 		for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
 			(*it)->unhighlight();
-			(*it)->animateOff(1);
+			(*it)->animateOff();
 		}
 
 		if(mBackground){
 			mBackground->animStop();
-			mBackground->tweenScale(ci::Vec3f::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInCubic, [this]{handleInvalidateComplete(); });
+			mBackground->tweenScale(ci::Vec3f::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInCubic);
 			mBackground->tweenOpacity(0.0f, mMenuConfig.mAnimationDuration);
 		}
+
+		callAfterDelay([this]{ handleInvalidateComplete(); }, mMenuConfig.mAnimationDuration);
 	}
 
 	mInvalid = true;

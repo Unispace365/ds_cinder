@@ -51,6 +51,7 @@ private:
 
 	std::vector<MenuItem*>							mMenuItems;
 	ds::ui::Image*									mBackground;
+	ds::ui::Sprite*									mGraphicHolder;
 
 	bool											mActive;
 	bool											mInvalid;
