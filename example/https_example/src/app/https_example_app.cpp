@@ -147,12 +147,11 @@ void https_example::keyDown(ci::app::KeyEvent event){
 
 	} else if(event.getCode() == KeyEvent::KEY_p){
 		std::string datay = "{ \"data\": { \"type\": \"collection_links\", \"attributes\": { \"story_type\": \"Achievement\", \"story_id\": \"13\" }}}";
-		auto c_strn = datay.c_str();
-		std::cout << "Sendind: " << datay << " " << c_strn << std::endl;
 		std::vector<std::string> headers;
 		headers.push_back("Accept: application/json");
 		headers.push_back("Content-Type: application/json");
-		mHttpsRequest.makePostRequest("http://kstate.downstreamlabs.com/visitors/58336/collection_links.json", datay, true, true, "", headers);
+		mHttpsRequest.makePostRequest("https://example.com", datay, true, true, "", headers);
+
 	// Shows all enabled sprites with a label for class type
 	} else if(event.getCode() == KeyEvent::KEY_f){
 
