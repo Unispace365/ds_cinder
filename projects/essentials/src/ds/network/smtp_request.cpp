@@ -115,7 +115,6 @@ void SMTPRequest::IndividualRequest::run(){
 				DS_LOG_WARNING(mErrorMessage);
 			} else {
 				// something?
-				DS_LOG_WARNING("Congratulation!");
 			}
 		curl_easy_cleanup(curl);
 	}
