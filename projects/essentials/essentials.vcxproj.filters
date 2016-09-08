@@ -174,6 +174,9 @@
     <ClCompile Include="src\ds\ui\drawing\drawing_canvas.cpp">
       <Filter>src\ds\ui\drawing</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\network\smtp_request.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -316,6 +319,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\drawing\drawing_canvas.h">
       <Filter>src\ds\ui\drawing</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\network\smtp_request.h">
+      <Filter>src\ds\network</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
