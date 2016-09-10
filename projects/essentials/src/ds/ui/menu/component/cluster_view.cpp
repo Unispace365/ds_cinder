@@ -22,8 +22,6 @@ ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::Touch
 	, mGraphicHolder(nullptr)
 {
 
-	enable(false);
-	deactivate();
 
 	if(!mMenuConfig.mBackgroundImage.empty()){
 		mBackground = new ds::ui::Image(mEngine, mMenuConfig.mBackgroundImage);
@@ -45,6 +43,8 @@ ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::Touch
 // 	mGraphicHolder->setTransparent(false);
 // 	mGraphicHolder->setSize(20.0f, 20.0f);
 
+	enable(false);
+	deactivate();
 	buildMenuItems();
 }
 
@@ -256,7 +256,7 @@ void ClusterView::deactivate(){
 	mInvalid = false;
 
 	if(mMenuConfig.mDeactivatedCallback){
-		mMenuConfig.mDeactivatedCallback();
+		mMenuConfig.mDeactivatedCallback(this, mGraphicHolder);
 	}
 }
 

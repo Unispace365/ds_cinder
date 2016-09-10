@@ -291,6 +291,7 @@ void BasePanel::activatePanel() {
 }
 
 void BasePanel::tweenStarted(){
+	mMomentum.deactivate();
 	enable(false);
 	mAnimating = true;
 }

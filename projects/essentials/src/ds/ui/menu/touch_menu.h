@@ -82,7 +82,7 @@ public:
 		// Add sprites to cluster view to be on top. Add sprites to the graphic parent to be underneath the menu items
 		// Important: use the deactivated callback to remove references to any sprites you've added, or don't retain references at all
 		std::function<void(ds::ui::Sprite* clusterView, ds::ui::Sprite* graphicParent)>	mActivatedCallback;
-		std::function<void()>								mDeactivatedCallback;
+		std::function<void(ds::ui::Sprite* clusterView, ds::ui::Sprite* graphicParent)>	mDeactivatedCallback;
 
 	};
 
