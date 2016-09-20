@@ -15,6 +15,7 @@ namespace ui{
 ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::TouchMenuConfig menuConfig, std::vector<ds::ui::TouchMenu::MenuItemModel> itemModels)
 	: ds::ui::Sprite(enginey)
 	, mActive(false)
+	, mInvalid(false)
 	, mBackground(nullptr)
 	, mMenuConfig(menuConfig)
 	, mItemModels(itemModels)
@@ -89,6 +90,7 @@ void ClusterView::buildMenuItems(){
 
 void ClusterView::startTappableMode(const ci::Vec3f& globalLocation, const float timeoutTime){
 	mTappableMode = true;
+	mInvalid = false;
 	setPosition(globalLocation);
 	callAfterDelay([this]{cancelTappableMode(); }, timeoutTime);
 	activate();
@@ -155,7 +157,7 @@ void ClusterView::setHighlight(ci::Vec2f clusterCenter){
 
 	bool somethingHighlighted(false);
 	for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
-		if((*it)->contains(ci::Vec3f(clusterCenter.x, clusterCenter.y, 0.0f))){
+		if((*it)->contains(ci::Vec3f(clusterCenter.x, clusterCenter.y, 0.0f)) && !somethingHighlighted){
 			(*it)->highlight();
 
 			somethingHighlighted = true;
@@ -195,10 +197,12 @@ void ClusterView::updateCluster(const ds::ui::TouchInfo::Phase btp, const ds::ui
 	}
 
 	if(btp == ds::ui::TouchInfo::Removed && !mMenuItems.empty()){
-		for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
-			if((*it)->getHighlited()){
-				itemActivated((*it));
-				break;
+		if(!mInvalid){
+			for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
+				if((*it)->getHighlited()){
+					itemActivated((*it));
+					break;
+				}
 			}
 		}
 		deactivate();
@@ -252,8 +256,8 @@ void ClusterView::activate(){
 
 void ClusterView::deactivate(){
 	invalidate();
-	mActive = false;
-	mInvalid = false;
+
+	callAfterDelay([this]{ hide(); mInvalid = false; mActive = false; }, mMenuConfig.mAnimationDuration);
 
 	if(mMenuConfig.mDeactivatedCallback){
 		mMenuConfig.mDeactivatedCallback(this, mGraphicHolder);
