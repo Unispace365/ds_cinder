@@ -83,6 +83,7 @@ void HttpsRequest::IndividualRequest::run(){
 	CURL *curl = curl_easy_init();
 	if(curl) {
 
+		struct curl_slist *headers = NULL;
 		if(mIsGet){
 			CURLcode res;
 			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
@@ -129,7 +130,6 @@ void HttpsRequest::IndividualRequest::run(){
 			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
 
 			if(!mHeaders.empty()){
-				struct curl_slist *headers = NULL;
 				for(auto it : mHeaders){
 					headers = curl_slist_append(headers, it.c_str());
 				}
@@ -179,6 +179,10 @@ void HttpsRequest::IndividualRequest::run(){
 				mErrorMessage = curl_easy_strerror(res);
 				DS_LOG_WARNING(mErrorMessage);
 			} 
+		}
+
+		if(headers){
+			curl_slist_free_all(headers);
 		}
 		curl_easy_cleanup(curl);
 	}
