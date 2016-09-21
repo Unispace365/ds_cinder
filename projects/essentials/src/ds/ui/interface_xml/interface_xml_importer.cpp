@@ -1051,6 +1051,10 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 					efs.mBlinkRate = ds::string_to_float(paramValue);
 				} else if(paramType == "animate_rate"){
 					efs.mAnimationRate = ds::string_to_float(paramValue);
+				} else if(paramType == "password_mode"){
+					efs.mPasswordMode = parseBoolean(paramValue);
+				} else if(paramType == "text_offset"){
+					efs.mTextOffset = parseVector(paramValue).xy();
 				}
 			}
 		}
