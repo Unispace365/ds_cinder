@@ -246,6 +246,8 @@ EntryFields and SoftKeyboards need some parameters set for instantiation, so the
 * **cursor_color**: The color of the blinking cursor. Engine colors are allowed. Default: white
 * **blink_rate**: How many seconds to wait between blinks. Total blink time is animate_rate + animate_rate + blink_rate. Default: 0.5
 * **animate_rate**: How many seconds to fade the cursor on and off. Default: 0.3.
+* **text_offset**: How many pixels to offset the text sprite. Default: 0.0, 0.0
+* **password_mode**: If true, will show bullets instead of text. Default: false
 
 **SOFT KEYBOARD PARAMETERS**
 * **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase and pinpad. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Pinpad is like an ATM pin pad. Default: standard

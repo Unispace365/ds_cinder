@@ -76,6 +76,7 @@ protected:
 	float								mTouchPadding;
 	float								mScrollPercent;
 	float								mPercentVisible;
+	float								mTouchOffset;
 
 	bool								mAutoHide;
 	bool								mAutoHidden;

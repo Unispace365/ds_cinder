@@ -46,9 +46,9 @@ void HttpsRequest::makePostRequest(const std::string& url, const std::string& po
 void HttpsRequest::onRequestComplete(IndividualRequest& q){
 	if(mReplyFunction){
 		if(q.mError){
-			mReplyFunction(true, q.mErrorMessage);
+			mReplyFunction(true, q.mErrorMessage, q.mHttpStatus);
 		} else {
-			mReplyFunction(false, q.mOutput);
+			mReplyFunction(false, q.mOutput, q.mHttpStatus);
 		}
 	}
 }
@@ -74,6 +74,7 @@ void HttpsRequest::IndividualRequest::run(){
 	mError = false;
 	mErrorMessage = "";
 	mOutput = "";
+	mHttpStatus = 400;
 
 	if(mInput.empty()){
 		mError = true;
@@ -83,6 +84,7 @@ void HttpsRequest::IndividualRequest::run(){
 	CURL *curl = curl_easy_init();
 	if(curl) {
 
+		struct curl_slist *headers = NULL;
 		if(mIsGet){
 			CURLcode res;
 			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
@@ -121,6 +123,8 @@ void HttpsRequest::IndividualRequest::run(){
 			} else {
 				// success
 			}
+
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
 		} else {
 			/* First set the URL that is about to receive our POST. This URL can
 			just as well be a https:// URL if that is what should receive the
@@ -129,7 +133,6 @@ void HttpsRequest::IndividualRequest::run(){
 			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
 
 			if(!mHeaders.empty()){
-				struct curl_slist *headers = NULL;
 				for(auto it : mHeaders){
 					headers = curl_slist_append(headers, it.c_str());
 				}
@@ -179,6 +182,12 @@ void HttpsRequest::IndividualRequest::run(){
 				mErrorMessage = curl_easy_strerror(res);
 				DS_LOG_WARNING(mErrorMessage);
 			} 
+			
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
+		}
+
+		if(headers){
+			curl_slist_free_all(headers);
 		}
 		curl_easy_cleanup(curl);
 	}

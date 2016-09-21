@@ -105,9 +105,9 @@ void https_example::setupServer(){
 	// So you set the reply function, and it'll come back on the main thread when the request returns sometime later
 	// Errored means something bad happened, and the reply will contain the curl error
 	// If errored = false, the reply is whatever the server sent back
-	mHttpsRequest.setReplyFunction([this](const bool errored, const std::string& reply){
+	mHttpsRequest.setReplyFunction([this](const bool errored, const std::string& reply, const long httpCode){
 		// Handle errors
-		std::cout << "Https request reply: " << errored << " " << reply << std::endl;
+		std::cout << "Https request reply: " << errored << " " << reply << std::endl << std::endl << "http status: " << httpCode << std::endl;
 	});
 
 	// Make an example request. 

@@ -47,6 +47,7 @@ void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings){
 		if(!newSettings.mTextConfig.empty()){
 			mEngine.getEngineCfg().getText(newSettings.mTextConfig).configure(*mTextSprite);
 		}
+		mTextSprite->setPosition(mEntryFieldSettings.mTextOffset);
 	}
 
 	if(mCursor){
@@ -64,20 +65,31 @@ void EntryField::onSizeChanged(){
 }
 
 const std::wstring EntryField::getCurrentText(){
-	if(mTextSprite){
-		return mTextSprite->getText();
-	}
-	return L"";
+	return mCurrentText;
 }
 
 void EntryField::setCurrentText(const std::wstring& crTxStr){
-	if(mTextSprite){
-		mTextSprite->setText(crTxStr);
-	}
+	mCurrentText = crTxStr;
+
+	applyText(crTxStr);
 	
 	mCursorIndex = crTxStr.size();
 
 	textUpdated();
+}
+
+void EntryField::applyText(const std::wstring& theStr){
+	if(mTextSprite){
+		if(mEntryFieldSettings.mPasswordMode){
+			std::wstring bullets;
+			for(int i = 0; i < theStr.size(); i++){
+				bullets.append(L"*");
+			}
+			mTextSprite->setText(bullets);
+		} else {
+			mTextSprite->setText(theStr);
+		}
+	}
 }
 
 void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType){
@@ -95,10 +107,9 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 		handleKeyPressGeneric(keyType, currentCharacter, preString);
 		std::wstringstream wss;
 		wss << preString << posString;
-
-		if(mTextSprite){
-			mTextSprite->setText(wss.str());
-		}
+		
+		mCurrentText = wss.str();
+		applyText(wss.str());
 
 		if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
 			mCursorIndex--;
@@ -163,8 +174,8 @@ void EntryField::textUpdated(){
 	cursorUpdated();
 	onTextUpdated();
 
-	if(mTextUpdateFunction && mTextSprite){
-		mTextUpdateFunction(mTextSprite->getText());
+	if(mTextUpdateFunction){
+		mTextUpdateFunction(mCurrentText);
 	}
 }
 

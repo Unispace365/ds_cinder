@@ -159,6 +159,7 @@ public:
 	std::string				getPortableFilePath() const;
 
 	std::string				getFileName() const { return mFileName; }
+	void					setFileName(const std::string& fileName){ mFileName = fileName; }
 
 	/// Clears the currently set info
 	void					clear();
