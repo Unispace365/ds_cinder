@@ -34,7 +34,8 @@ public:
 
 	/// If errored == true, then something went wrong and the reply will have the error message
 	/// Otherwise it will be whatever was returned from the server
-	void					setReplyFunction(std::function<void(const bool errored, const std::string& reply)> func){ mReplyFunction = func; }
+	/// HTTP status is the normal return code (100 = continue, 200 = ok, 404 = not found, 500 = server error, etc)
+	void					setReplyFunction(std::function<void(const bool errored, const std::string& reply, const long httpCode)> func){ mReplyFunction = func; }
 
 private:
 	class IndividualRequest : public Poco::Runnable {
@@ -48,6 +49,7 @@ private:
 		bool				mError;
 		std::string			mErrorMessage;
 		std::string			mOutput;
+		long				mHttpStatus;
 		std::string			mInput;
 		bool				mVerifyPeers;
 		bool				mVerifyHost;
@@ -59,7 +61,7 @@ private:
 
 	void									onRequestComplete(IndividualRequest&);
 	ds::ParallelRunnable<IndividualRequest>	mRequests;
-	std::function<void(const bool errored, const std::string&)>	mReplyFunction;
+	std::function<void(const bool errored, const std::string&, const long)>	mReplyFunction;
 };
 } // namespace net
 } // namespace ds
