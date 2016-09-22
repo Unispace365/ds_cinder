@@ -211,8 +211,14 @@ namespace ds{
 			}
 		}
 
+		void infinityList::initItemStart(int itemNum){
+			mBottomIndex = itemNum % (mItemPlaceHolders.size() - 1) - 1;
+			assignItems();
+		}
+
 		void infinityList::handleScrollTouch(Sprite* bs, const TouchInfo& ti)
 		{
+			if(mSwipeCallback) mSwipeCallback(bs, ti.mCurrentGlobalPoint);
 			if (ti.mPhase == TouchInfo::Added){
 				mSpriteMomentum.deactivate();
 			}

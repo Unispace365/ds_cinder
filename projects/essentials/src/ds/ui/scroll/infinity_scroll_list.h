@@ -47,6 +47,9 @@ namespace ds{
 			void								nextItem();
 			void								previousItem();
 			void								turnOnStepSwipe();
+			
+			// Call this to initialize the list at a certain point
+			void								initItemStart(int itemNum);
 
 		protected:
 			// A helper so we only have to show the visible results at one time (instead of creating a zillion sprites)
