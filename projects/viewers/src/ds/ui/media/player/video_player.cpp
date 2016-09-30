@@ -56,7 +56,10 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	if(mAutoPlayFirstFrame){
 		mVideo->setMute(true);
 		mVideo->setAutoStart(false);
+	} else {
+		mVideo->setAutoStart(true);
 	}
+
 	mVideo->loadVideo(mediaPath);
 	if(mAutoPlayFirstFrame){
 		mVideo->playAFrame(-1.0, [this](){

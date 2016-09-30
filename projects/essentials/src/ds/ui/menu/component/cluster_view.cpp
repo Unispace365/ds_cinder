@@ -37,15 +37,10 @@ ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::Touch
 	}
 
 	mGraphicHolder = new ds::ui::Sprite(mEngine);
+	mGraphicHolder->setCenter(0.5f, 0.5f);
 	addChildPtr(mGraphicHolder);
 
-	mGraphicHolder->setCenter(0.5f, 0.5f);
-// 	mGraphicHolder->setColor(ci::Color(0.4f, 0.2f, 0.87f));
-// 	mGraphicHolder->setTransparent(false);
-// 	mGraphicHolder->setSize(20.0f, 20.0f);
-
 	enable(false);
-	deactivate();
 	buildMenuItems();
 }
 
