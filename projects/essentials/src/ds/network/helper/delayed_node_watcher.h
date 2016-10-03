@@ -10,44 +10,50 @@
 
 namespace ds {
 
-/**
-* \class swisscom::DelayedNodeWatcher
-* \brief Wraps NodeWatcher to implement a delay on messages, so if many messages come down the pipe in quick succession, the query only happens after the end of the burst
-*			This prevents querying a lot of times unneccessarily.
-*/
-class DelayedNodeWatcher : public ds::AutoUpdate {
-public:
-	DelayedNodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", const int port = 7777);
+    /**
+    * \class swisscom::DelayedNodeWatcher
+    * \brief Wraps NodeWatcher to implement a delay on messages, so if many messages come down the pipe in quick succession, the query only happens after the end of the burst
+    *			This prevents querying a lot of times unneccessarily.
+    */
+    class DelayedNodeWatcher : public ds::AutoUpdate {
+    public:
+        DelayedNodeWatcher(ds::ui::SpriteEngine&, const std::string& host = "localhost", const int port = 7777);
 
-	/** Calls back directly from NodeWatcher, without any delay */
-	void								addRegularNodeCallback(const std::function<void(const NodeWatcher::Message&)>&);
+        /** Calls back directly from NodeWatcher, without any delay */
+        void								addRegularNodeCallback(const std::function<void(const NodeWatcher::Message&)>&);
 
-	/** Waits until there is a gap in messages to callback. No message-specific info here, generally just query everything from this message */
-	void								setDelayedNodeCallback(const std::function<void()>&);
+        /** Waits until there is a gap in messages to callback. No message-specific info here, generally just query everything from this message */
+        void								setDelayedNodeCallback(const std::function<void()>&);
 
-	/** Waits until there is a gap in messages to callback. This one has message info in case you want it to query specific tables */
-	void								setDelayedMessageNodeCallback(const std::function<void(const NodeWatcher::Message&)>&);
+        /** Waits until there is a gap in messages to callback. This one has message info in case you want it to query specific tables */
+        void								setDelayedMessageNodeCallback(const std::function<void(const NodeWatcher::Message&)>&);
 
-	/** How long to wait since the last message to send out a callback. Delay is extended if a node message comes in before the delay is up. */
-	void								setDelayTime(const float newDelay){	mDelayWaitTime = newDelay; };
-protected:
-	virtual void						update(const ds::UpdateParams &);
+        /** When running in 'DelayedMessage' mode, setting this to true will remove duplicate messages **/
+        void                                    setUniquifyDelayedMessage(bool uniquify);
 
-private:
+        /** How long to wait since the last message to send out a callback. Delay is extended if a node message comes in before the delay is up. */
+        void								setDelayTime(const float newDelay){ mDelayWaitTime = newDelay; };
+    protected:
+        virtual void						update(const ds::UpdateParams &);
 
-	ds::NodeWatcher						mNodeWatcher;
+    private:
+        bool sort(NodeWatcher::Message& a, NodeWatcher::Message& b);
+        bool uniquify(NodeWatcher::Message& a, NodeWatcher::Message& b);
 
-	bool								mNeedQuery;
-	Poco::Timestamp::TimeVal			mLastQueryTime;
+        ds::NodeWatcher				mNodeWatcher;
 
-	std::vector<NodeWatcher::Message>	mDelayedMessages;
+        bool							mNeedQuery;
+        Poco::Timestamp::TimeVal			mLastQueryTime;
 
-	std::function<void(const NodeWatcher::Message&)>	mRegularNodeCallback;
-	std::function<void()>								mDelayedNodeCallback;
-	std::function<void(const NodeWatcher::Message&)>	mDelayedMessageNodeCallback;
+        std::vector<NodeWatcher::Message>	mDelayedMessages;
 
-	float								mDelayWaitTime;
-};
+        std::function<void(const NodeWatcher::Message&)>	mRegularNodeCallback;
+        std::function<void()>						mDelayedNodeCallback;
+        std::function<void(const NodeWatcher::Message&)>	mDelayedMessageNodeCallback;
+
+        float						mDelayWaitTime;
+        bool                               mUniquifyDelayedMessages;
+    };
 
 } // !namespace ds
 
