@@ -19,9 +19,9 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mWeb(nullptr)
 	, mWebInterface(nullptr)
 	, mEmbedInterface(embedInterface)
-	, mKeyboardPanelSize(800.0f, 500.0f)
 	, mKeyboardKeyScale(1.0f)
 	, mKeyboardAllow(true)
+	, mKeyboardAbove(true)
 	, mAllowTouchToggle(true)
 {
 	mLayoutFixedAspect = true;
@@ -37,14 +37,14 @@ void WebPlayer::setWebViewSize(const ci::Vec2f webSize){
 	}
 }
 
-void WebPlayer::setKeyboardParams(const ci::Vec2f keyboardPanelSize, const float keyboardKeyScale, const bool keyboardAllow){
-	mKeyboardPanelSize = keyboardPanelSize;
+void WebPlayer::setKeyboardParams(const float keyboardKeyScale, const bool keyboardAllow, const bool keyboardAbove){
 	mKeyboardKeyScale = keyboardKeyScale;
 	mKeyboardAllow = keyboardAllow;
+	mKeyboardAbove = keyboardAbove;
 	if(mWebInterface){
 		mWebInterface->setKeyboardKeyScale(keyboardKeyScale);
-		mWebInterface->setKeyboardPanelSize(keyboardPanelSize);
 		mWebInterface->setKeyboardAllow(keyboardAllow);
+		mWebInterface->setKeyboardAbove(mKeyboardAbove);
 	}
 }
 
@@ -100,7 +100,7 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
 
 		if(mWebInterface){
-			setKeyboardParams(mKeyboardPanelSize, mKeyboardKeyScale, mKeyboardAllow);
+			setKeyboardParams(mKeyboardKeyScale, mKeyboardAllow, mKeyboardAbove);
 			setAllowTouchToggle(mAllowTouchToggle);
 			mWebInterface->sendToFront();
 		}

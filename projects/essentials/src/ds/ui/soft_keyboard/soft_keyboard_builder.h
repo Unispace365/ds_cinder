@@ -26,9 +26,12 @@ namespace SoftKeyboardBuilder {
 	/// Includes all the regular keys
 	SoftKeyboard*			buildStandardKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr);
 
+	/// Includes keys required for email and web input
+	SoftKeyboard*			buildExtendedKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr);
+
 	SoftKeyboard*			buildPinPadKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr);
 
-	void					makeAButton(ds::ui::SpriteEngine& engine, SoftKeyboard* parentSprite, float& xPos, float& yPos,
+	SoftKeyboardButton*		makeAButton(ds::ui::SpriteEngine& engine, SoftKeyboard* parentSprite, float& xPos, float& yPos,
 												const std::wstring& characterLow, const std::wstring& characterHigh,
 												const SoftKeyboardDefs::KeyType keyType);
 

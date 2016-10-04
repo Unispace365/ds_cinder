@@ -5,7 +5,8 @@
 #include <string>
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
-
+#include <ds/app/environment.h>
+#include <ds/util/file_meta_data.h>
 #include "ds/ui/soft_keyboard/soft_keyboard_button.h"
 
 namespace ds {
@@ -31,35 +32,43 @@ public:
 		, mKeyEnterUpImage("%APP%/data/images/keyboard/EnterAndShift.png")
 		, mKeyShiftDnImage("%APP%/data/images/keyboard/EnterAndShift.png")
 		, mKeyShiftUpImage("%APP%/data/images/keyboard/EnterAndShift.png")
+		, mKeyTabUpImage("%APP%/data/images/keyboard/Tab.png")
+		, mKeyTabDnImage("%APP%/data/images/keyboard/Tab.png")
 		, mKeyUpTextConfig("keyboard:key:up")
 		, mKeyDnTextConfig("keyboard:key:down")
 		, mKeyScale(1.0f)
 	{}
 
 	void				normalizeSettings(){
-		if(mKeyLetterDnImage.empty()){
+		if(mKeyLetterDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyLetterDnImage))){
 			mKeyLetterDnImage = mKeyLetterUpImage;
 		}
-		if(mKeyNumberUpImage.empty()){
+		if(mKeyNumberUpImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyNumberUpImage))){
 			mKeyNumberUpImage = mKeyLetterUpImage;
 		}
-		if(mKeyNumberDnImage.empty()){
+		if(mKeyNumberDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyNumberDnImage))){
 			mKeyNumberDnImage = mKeyNumberUpImage;
 		}
-		if(mKeySpaceDnImage.empty()){
+		if(mKeySpaceDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeySpaceDnImage))){
 			mKeySpaceDnImage = mKeySpaceUpImage;
 		}
-		if(mKeyDeleteDnImage.empty()){
+		if(mKeyDeleteDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyDeleteDnImage))){
 			mKeyDeleteDnImage = mKeyDeleteUpImage;
 		}
-		if(mKeyEnterDnImage.empty()){
+		if(mKeyEnterDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyEnterDnImage))){
 			mKeyEnterDnImage = mKeyEnterUpImage;
 		}
-		if(mKeyShiftDnImage.empty()){
+		if(mKeyShiftDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyShiftDnImage))){
 			mKeyShiftDnImage = mKeyShiftUpImage;
 		}
-		if(mKeyDnTextConfig.empty()){
+		if(mKeyDnTextConfig.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyDnTextConfig))){
 			mKeyDnTextConfig = mKeyUpTextConfig;
+		}
+		if(mKeyTabUpImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyTabUpImage))){
+			mKeyTabUpImage = mKeyShiftUpImage;
+		}
+		if(mKeyTabDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyTabDnImage))){
+			mKeyTabDnImage = mKeyShiftUpImage;
 		}
 	}
 
@@ -84,6 +93,8 @@ public:
 	std::string			mKeyEnterDnImage;
 	std::string			mKeyShiftUpImage;
 	std::string			mKeyShiftDnImage;
+	std::string			mKeyTabUpImage;
+	std::string			mKeyTabDnImage;
 
 	float				mKeyScale;
 };

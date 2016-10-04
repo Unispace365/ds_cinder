@@ -33,6 +33,7 @@ protected:
 	float								mMinWidth;
 	float								mMaxWidth;
 	bool								mIdling;
+	float								mInterfaceIdleSettings;
 	virtual void						onLayout(){};
 	virtual void						onSizeChanged();
 };

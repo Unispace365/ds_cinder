@@ -23,10 +23,10 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey
 	, mAnimateDuration(0.35f)
 	, mMaxWidth(sizey.x)
 	, mMinWidth(sizey.y)
+	, mInterfaceIdleSettings(5.0f)
 {
 	// TODO: settings?
 	const float backOpacccy = 0.95f;
-	const float idleSeconds = 5.0f;
 
 	mBackground = new ds::ui::Sprite(mEngine);
 	mBackground->setTransparent(false);
@@ -34,7 +34,7 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey
 	mBackground->setOpacity(backOpacccy);
 	addChildPtr(mBackground);
 
-	setSecondBeforeIdle(idleSeconds);
+	setSecondBeforeIdle(mInterfaceIdleSettings);
 	resetIdleTimer();
 	layout();
 }

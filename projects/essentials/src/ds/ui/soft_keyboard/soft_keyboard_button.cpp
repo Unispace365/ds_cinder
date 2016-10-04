@@ -61,6 +61,9 @@ void SoftKeyboardButton::setSoftKeyboardSettings(SoftKeyboardSettings& softKeySe
 	} else if(mKeyType == SoftKeyboardDefs::kShift){
 		getNormalImage().setImageFile(softKeySettings.mKeyShiftUpImage, ds::ui::Image::IMG_CACHE_F);
 		getHighImage().setImageFile(softKeySettings.mKeyShiftDnImage, ds::ui::Image::IMG_CACHE_F);
+	} else if(mKeyType == SoftKeyboardDefs::kTab){
+		getNormalImage().setImageFile(softKeySettings.mKeyTabUpImage, ds::ui::Image::IMG_CACHE_F);
+		getHighImage().setImageFile(softKeySettings.mKeyTabDnImage, ds::ui::Image::IMG_CACHE_F);
 	} else if(mKeyType == SoftKeyboardDefs::kEnter){
 		getNormalImage().setImageFile(softKeySettings.mKeyEnterUpImage, ds::ui::Image::IMG_CACHE_F);
 		getHighImage().setImageFile(softKeySettings.mKeyEnterDnImage, ds::ui::Image::IMG_CACHE_F);

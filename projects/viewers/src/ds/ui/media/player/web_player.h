@@ -33,7 +33,7 @@ public:
 
 	/// UI params - replace with MediaViewerSettings?
 	void								setWebViewSize(const ci::Vec2f webSize);
-	void								setKeyboardParams(const ci::Vec2f keyboardPanelSize, const float keyboardKeyScale, const bool allowKeyboard);
+	void								setKeyboardParams(const float keyboardKeyScale, const bool allowKeyboard, const bool keyboardAbove);
 	void								setAllowTouchToggle(const bool allowTouchToggle);
 
 protected:
@@ -44,9 +44,9 @@ protected:
 	bool								mEmbedInterface;
 
 	ci::Vec2f							mWebSize;
-	ci::Vec2f							mKeyboardPanelSize;
 	float								mKeyboardKeyScale;
 	bool								mKeyboardAllow;
+	bool								mKeyboardAbove;
 	bool								mAllowTouchToggle;
 
 };

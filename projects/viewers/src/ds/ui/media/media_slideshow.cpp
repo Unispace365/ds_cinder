@@ -179,8 +179,8 @@ void MediaSlideshow::setCurrentInterface(){
 		if(webInterface){
 			webInterface->setKeyboardAllow(mMediaViewerSettings.mWebAllowKeyboard);
 			webInterface->setKeyboardKeyScale(mMediaViewerSettings.mWebKeyboardKeyScale);
-			webInterface->setKeyboardPanelSize(mMediaViewerSettings.mWebKeyboardPanelSize);
 			webInterface->setAllowTouchToggle(mMediaViewerSettings.mWebAllowTouchToggle);
+			webInterface->setKeyboardAbove(mMediaViewerSettings.mWebKeyboardAbove);
 		}
 	}
 

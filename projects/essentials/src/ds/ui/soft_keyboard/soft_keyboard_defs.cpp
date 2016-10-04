@@ -26,6 +26,12 @@ void ds::ui::SoftKeyboardDefs::handleKeyPressGeneric(const KeyType& inputKeyType
 		ss << inOutFullString << inOutCurrentKey;
 		inOutFullString = ss.str();
 
+	} else if(inputKeyType == kTab){
+		inOutCurrentKey = L"	";	
+		std::wstringstream ss;
+		ss << inOutFullString << inOutCurrentKey;
+		inOutFullString = ss.str();
+
 	} else {
 		std::wstringstream ss;
 		ss << inOutFullString << inOutCurrentKey;
@@ -41,6 +47,9 @@ void ds::ui::SoftKeyboardDefs::handleKeyPressGeneric(const ci::app::KeyEvent& ci
 		handleKeyPressGeneric(kSpace, inOutCurrentKey, inOutFullString);
 	} else if(keyCode == KeyEvent::KEY_DELETE || keyCode == KeyEvent::KEY_BACKSPACE){
 		handleKeyPressGeneric(kDelete, inOutCurrentKey, inOutFullString);
+
+	} else if(keyCode == KeyEvent::KEY_TAB){
+		handleKeyPressGeneric(kTab, inOutCurrentKey, inOutFullString);
 
 		// a bunch of keys effectively have no effect, so ignore then, otherwise they'll insert a null character into the string
 		// check out the KeyEvent header for the values

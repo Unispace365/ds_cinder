@@ -271,7 +271,7 @@ void MediaPlayer::initialize(){
 		mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mWebPlayer);
 		mWebPlayer->setWebViewSize(mMediaViewerSettings.mWebDefaultSize);
-		mWebPlayer->setKeyboardParams(mMediaViewerSettings.mWebKeyboardPanelSize, mMediaViewerSettings.mWebKeyboardKeyScale, mMediaViewerSettings.mWebAllowKeyboard);
+		mWebPlayer->setKeyboardParams(mMediaViewerSettings.mWebKeyboardKeyScale, mMediaViewerSettings.mWebAllowKeyboard, mMediaViewerSettings.mWebKeyboardAbove);
 		mWebPlayer->setAllowTouchToggle(mMediaViewerSettings.mWebAllowTouchToggle);
 		mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
 

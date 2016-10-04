@@ -26,8 +26,8 @@ public:
 	void						updateWidgets();
 
 	void						setKeyboardKeyScale(const float newKeyScale);
-	void						setKeyboardPanelSize(const ci::Vec2f panelSize);
 	void						setKeyboardAllow(const bool keyboardAllowed);
+	void						setKeyboardAbove(const bool kerboardAbove);
 
 	void						setAllowTouchToggle(const bool allowTouchToggling);
 
@@ -42,8 +42,8 @@ protected:
 	ds::ui::SoftKeyboard*		mKeyboard;
 	bool						mKeyboardShowing;
 	bool						mKeyboardAllowed;
+	bool						mKeyboardAbove;
 
-	ci::Vec2f					mKeyboardPanelSize;
 	float						mKeyboardKeyScale;
 
 	bool						mAbleToTouchToggle;
