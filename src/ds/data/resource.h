@@ -4,6 +4,7 @@
 
 #include <functional>
 #include <string>
+#include <vector>
 
 namespace ds {
 class DataBuffer;
@@ -144,6 +145,17 @@ public:
 	int						getThumbnailId() const				{ return mThumbnailId; }
 	void					setThumbnailId(const int thub)		{ mThumbnailId = thub; }
 
+	/// If this resource has a parent (like pages of a PDF), get the ID for the parent
+	int						getParentId() const					{ return mParentId; }
+	void					setParentId(const int parentId)		{ mParentId = parentId; }
+
+	/// The sort order of this resource in it's parent
+	int						getParentIndex() const				{ return mParentIndex; }
+	void					setParentIndex(const int parentIndx){ mParentIndex = parentIndx; }
+
+	std::vector<Resource>&	getChildrenResources()				{ return mChildrenResources; }
+	void					setChildrenResources(const std::vector<Resource>& newChildren){ mChildrenResources = newChildren; }
+
 	/// If you want to simply store a path to a thumbnail
 	///	This is NOT filled out by default in the query() methods, you need to supply this yourself	
 	std::string				getThumbnailFilePath() const { return mThumbnailFilePath; }
@@ -210,6 +222,12 @@ private:
 	int						mThumbnailId;
 	// can be set manually as a convenience
 	std::string				mThumbnailFilePath;
+
+	// Some resources are representations of another resource (like pages of a pdf), this lets you link the two
+	int						mParentId;
+	int						mParentIndex;
+	std::vector<Resource>	mChildrenResources;
+
 
 };
 

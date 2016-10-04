@@ -12,6 +12,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\ui\media\interface\pdf_interface.cpp" />
+    <ClCompile Include="src\ds\ui\media\interface\thumbnail_bar.cpp" />
     <ClCompile Include="src\ds\ui\media\interface\video_interface.cpp" />
     <ClCompile Include="src\ds\ui\media\interface\video_scrub_bar.cpp" />
     <ClCompile Include="src\ds\ui\media\interface\video_volume_control.cpp" />
@@ -36,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\media\interface\pdf_interface.h" />
+    <ClInclude Include="src\ds\ui\media\interface\thumbnail_bar.h" />
     <ClInclude Include="src\ds\ui\media\interface\video_interface.h" />
     <ClInclude Include="src\ds\ui\media\interface\video_scrub_bar.h" />
     <ClInclude Include="src\ds\ui\media\interface\video_volume_control.h" />

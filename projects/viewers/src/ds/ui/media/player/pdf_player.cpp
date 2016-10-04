@@ -37,14 +37,21 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 }
 
 void PDFPlayer::setMedia(const std::string mediaPath){
+	setResource(ds::Resource(mediaPath));
+}
+
+void PDFPlayer::setResource(const ds::Resource mediaResource){
+
+	mSourceResource = mediaResource;
+	std::string mediaPath = mSourceResource.getAbsoluteFilePath();
+
 	if(mPDF){
 		mPDF->release();
 		mPDF = nullptr;
 		if(mPdfInterface){
-			mPdfInterface->linkPDF(nullptr);
+			mPdfInterface->linkPDF(nullptr, ds::Resource());
 		}
 	}
-
 
 	mPDF = new ds::ui::Pdf(mEngine);
 	mPDF->setResourceFilename(mediaPath);

@@ -20,6 +20,9 @@ class MediaInterface;
 *			After loading a piece of media and initializing, the size of this sprite will match the size of the loaded media.
 *			After initializing, you can set the size of this sprite to resize the media. 
 *			Not recommended to scale this sprite, set it's size instead.
+*
+*			Note: for PDF thumbnail viewer to show up, the PDF needs to be loaded via a Resource
+*					that has a children vector of resources of the thumbnails set, and the children need to have the correct parentIndex (i.e. page number) set.
 */
 class MediaPlayer : public ds::ui::Sprite  {
 public:

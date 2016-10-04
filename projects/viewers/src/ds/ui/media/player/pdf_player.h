@@ -3,6 +3,7 @@
 #define DS_UI_MEDIA_VIEWER_PDF_PLAYER
 
 #include <ds/ui/sprite/sprite.h>
+#include <ds/data/resource.h>
 
 namespace ds {
 namespace ui {
@@ -13,12 +14,17 @@ class PDFInterface;
 /**
 * \class ds::ui::PDFPlayer
 *			Shows a scrollable PDF and puts an interface on top of it.
+*			Note: for PDF thumbnail viewer to show up, the PDF needs to be loaded via a Resource
+*					that has a children vector of resources of the thumbnails set, and the children need to have the correct parentIndex (i.e. page number) set.
 */
 class PDFPlayer : public ds::ui::Sprite  {
 public:
 	PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface = true);
 
 	void								setMedia(const std::string mediaPath);
+	void								setResource(const ds::Resource mediaResource);
+
+	ds::Resource&						getResource(){ return mSourceResource; }
 
 	void								layout();
 
@@ -38,6 +44,7 @@ protected:
 	void										loadNextAndPrevPages();
 	ds::ui::Pdf*								mPDF;
 	ds::ui::Sprite*								mPDFThumbHolder;
+	ds::Resource								mSourceResource;
 
 	bool										mFirstPageLoaded;
 	int											mCurrentPage; // for displaying the next/back thing

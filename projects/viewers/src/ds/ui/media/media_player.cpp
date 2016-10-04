@@ -251,7 +251,7 @@ void MediaPlayer::initialize(){
 	} else if(mediaType == ds::Resource::PDF_TYPE){
 		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mPDFPlayer);
-		mPDFPlayer->setMedia(mResource.getAbsoluteFilePath());
+		mPDFPlayer->setResource(mResource);
 
 		mPDFPlayer->setErrorCallback([this](const std::string& msg){
 			if(mErrorCallback) mErrorCallback(msg);
