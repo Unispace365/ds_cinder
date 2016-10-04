@@ -491,6 +491,7 @@ void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_
 		case VK_LWIN:
 		case VK_RWIN:
 		case VK_BACK:
+		case VK_TAB:
 		{
 			keyEvent.windows_key_code = windows_key_code;
 			break;
@@ -532,12 +533,16 @@ void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_
 			} else {
 				keyEvent.type = KEYEVENT_KEYDOWN;
 			}
+
+			//std::cout << "Key down: " << isChar << " " << character << " " << keyEvent.windows_key_code << " " << keyEvent.native_key_code << std::endl;
+
 			// This can be called on any thread
 			browserHost->SendKeyEvent(keyEvent);
 
 		} else {
 			keyEvent.type = KEYEVENT_KEYUP;
 
+			//std::cout << "Key up: " << isChar << " " << character << " " << keyEvent.windows_key_code << " " << keyEvent.native_key_code << std::endl;
 			// This can be called on any thread
 			browserHost->SendKeyEvent(keyEvent);
 		}

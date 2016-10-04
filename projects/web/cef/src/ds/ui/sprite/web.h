@@ -24,6 +24,7 @@ namespace ui {
  *        When the browser is created, this sprite will get a unique Browser Id that uses to make requests of the browser (back, load url, etc)
  *		  The browser also sends callbacks for certain events (loading state, fullscreen, etc)
  *		  The browser runs in it's own thread(s), so callbacks need to be locked before sending to the rest of ds_cinder-land
+ *		  Callbacks are syncronized with the main thread using the mutex. They also need to happen outside the update loop, so they are cached and called via a 1-frame delay
  *		  Requests into the browser can (generally) happen on any thread, and CEF handles thread synchronization
  *		  CEF also uses multiple processes for rendering, IO, etc. but that is opaque to this class
  *		  When implementing new functionality, be sure to read the documentation of CEF carefully
@@ -197,6 +198,7 @@ private:
 	void										clearBrowser();
 	void										createBrowser();
 	void										initializeBrowser();
+	bool										mNeedsInitialized;
 
 	ds::web::WebCefService&						mService;
 
@@ -221,6 +223,17 @@ private:
 	// Prevent the scroll from being cached more than once in an update.
 	int32_t										mPageScrollCount;
 
+	// Callbacks need to be called outside of the update loop (since there could be sprites added or removed as a result of the callbacks)
+	// So store the callback state and call it using a cinder tween delay
+	void										dispatchCallbacks();
+	bool										mHasCallbacks;
+	bool										mHasDocCallback;
+	bool										mHasErrorCallback;
+	bool										mHasAddressCallback;
+	bool										mHasTitleCallback;
+	bool										mHasFullCallback;
+	bool										mHasLoadingCallback;
+
 	std::function<void(void)>					mDocumentReadyFn;
 	std::function<void(const std::string&)>		mErrorCallback;
 	std::function<void(const std::string&)>		mAddressChangedCallback;
@@ -243,6 +256,7 @@ private:
 	bool										mIsLoading;
 	bool										mCanBack;
 	bool										mCanForward;
+	bool										mIsFullscreen;
 
 	// Ensure threads are locked when getting callbacks, copying buffers, etc
 	std::mutex									mMutex;

@@ -88,6 +88,15 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mZoom(1.0)
 	, mTransparentBackground(false)
 	, mNeedsZoomCheck(false)
+	, mHasDocCallback(false)
+	, mHasErrorCallback(false)
+	, mHasAddressCallback(false)
+	, mHasTitleCallback(false)
+	, mHasFullCallback(false)
+	, mHasLoadingCallback(false)
+	, mHasCallbacks(false)
+	, mIsFullscreen(false)
+	, mNeedsInitialized(false)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -119,7 +128,14 @@ void Web::createBrowser(){
 			mBrowserId = browserId;
 		}
 
-		initializeBrowser();
+		mNeedsInitialized = true; 
+
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
+		}
+
 	}, mTransparentBackground);
 }
 
@@ -160,6 +176,8 @@ void Web::setWebTransparent(const bool isTransparent){
 
 void Web::initializeBrowser(){
 
+	mNeedsInitialized = false;
+
 	// Now that we know about the browser, set it to the correct size
 	if(!mBuffer){
 		onSizeChanged();
@@ -178,8 +196,12 @@ void Web::initializeBrowser(){
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		mTitle = newTitle;
-		if(mTitleChangedCallback){
-			mTitleChangedCallback(newTitle);
+
+		mHasTitleCallback = true;
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
 		}
 	};
 
@@ -198,13 +220,14 @@ void Web::initializeBrowser(){
 			mNeedsZoomCheck = true;
 		}
 
-		if(mLoadingUpdatedCallback){
-			mLoadingUpdatedCallback(isLoading);
-		}
+		mHasAddressCallback = true;
+		mHasLoadingCallback = true;
+		mHasDocCallback = true;
 
-		if(!mIsLoading && mDocumentReadyFn){
-			mDocumentReadyFn();
-			//	mJsMethodHandler->setDomIsReady(*mWebViewPtr);
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
 		}
 	};
 
@@ -225,22 +248,73 @@ void Web::initializeBrowser(){
 	wcc.mErrorCallback = [this](const std::string& theError){
 		// This callback comes back from the CEF UI thread
 		std::lock_guard<std::mutex> lock(mMutex);
+		mHasError = true;
+		mErrorMessage = theError;
 
-		setErrorMessage(theError);
+		mHasErrorCallback = true;
+
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
+		}
 	};
 
 	wcc.mFullscreenCallback = [this](const bool isFullscreen){
 		// This callback comes back from the CEF UI thread
 		std::lock_guard<std::mutex> lock(mMutex);
+		mIsFullscreen = isFullscreen;
 
-		if(mFullscreenCallback){
-			mFullscreenCallback(isFullscreen);
+		mHasFullCallback = true;
+
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
 		}
 	};
 
 	mService.addWebCallbacks(mBrowserId, wcc);
 }
 
+
+void Web::dispatchCallbacks(){
+	if(mNeedsInitialized){
+		initializeBrowser();
+	}
+
+	if(mHasDocCallback){
+		if(mDocumentReadyFn) mDocumentReadyFn();
+		mHasDocCallback = false;
+	}
+
+	if(mHasErrorCallback){
+		if(mErrorCallback) mErrorCallback(mErrorMessage);
+		mHasErrorCallback = false;
+	}
+
+	if(mHasAddressCallback){
+		if(mAddressChangedCallback) mAddressChangedCallback(mUrl);
+		mHasAddressCallback = false;
+	}
+
+	if(mHasTitleCallback){
+		if(mTitleChangedCallback) mTitleChangedCallback(mTitle);
+		mHasTitleCallback = false;
+	}
+
+	if(mHasFullCallback){
+		if(mFullscreenCallback) mFullscreenCallback(mIsFullscreen);
+		mHasFullCallback = false;
+	}
+
+	if(mHasLoadingCallback){
+		if(mLoadingUpdatedCallback) mLoadingUpdatedCallback(mIsLoading);
+		mHasLoadingCallback = false;
+	}
+
+	mHasCallbacks = false;
+}
 
 void Web::updateClient(const ds::UpdateParams &p) {
 	Sprite::updateClient(p);
