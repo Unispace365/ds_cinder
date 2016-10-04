@@ -23,7 +23,9 @@ DelayedNodeWatcher::DelayedNodeWatcher(ds::ui::SpriteEngine& eng, const std::str
 		if(mRegularNodeCallback){
 			mRegularNodeCallback(msg);
 		} else {
-			mDelayedMessages.push_back(msg);
+			for(auto it : msg.mData){
+				mDelayedMessages.mData.push_back(it);
+			}
 		}
 
 		mLastQueryTime = Poco::Timestamp().epochMicroseconds();
@@ -50,12 +52,10 @@ void DelayedNodeWatcher::update(const ds::UpdateParams & p){
 		mLastQueryTime = nowwy;
 		
 		if(mDelayedMessageNodeCallback){
-			// send all the stored messages
-			for(auto it = mDelayedMessages.begin(); it != mDelayedMessages.end(); it++){
-				mDelayedMessageNodeCallback(*it);
-			}
+			mDelayedMessageNodeCallback(mDelayedMessages);
+			
 		}
-		mDelayedMessages.clear();
+		mDelayedMessages = NodeWatcher::Message();
 
 		if(mDelayedNodeCallback){
 			mDelayedNodeCallback();
