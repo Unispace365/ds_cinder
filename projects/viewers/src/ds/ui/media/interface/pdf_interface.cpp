@@ -26,6 +26,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	, mThumbsButton(nullptr)
 	, mShowingThumbs(false)
 	, mThumbnailBar(nullptr)
+	, mLinkedEnabled(false)
 {
 	mUpButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png", "%APP%/data/images/media_interface/prev.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mUpButton);
@@ -220,10 +221,12 @@ void PDFInterface::updateWidgets(){
 	}
 
 	if(mLinkedPDF){
-		if(mLinkedPDF->isEnabled()){
+		if(mLinkedPDF->isEnabled() && !mLinkedEnabled){
+			mLinkedEnabled = true;
 			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
 			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
-		} else {
+		} else if(!mLinkedPDF->isEnabled() && mLinkedEnabled){
+			mLinkedEnabled = false;
 			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
 			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
 		}

@@ -220,6 +220,7 @@ void MediaPlayer::initialize(){
 		mVideoPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
 		mVideoPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
 		mVideoPlayer->setVideoLoop(mMediaViewerSettings.mVideoLoop);
+		mVideoPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
 
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
 
@@ -242,6 +243,8 @@ void MediaPlayer::initialize(){
 			if(mStatusCallback) mStatusCallback(true);
 		});
 
+		mStreamPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+
 		mStreamPlayer->setResource(mResource);
 
 		mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
@@ -251,6 +254,8 @@ void MediaPlayer::initialize(){
 	} else if(mediaType == ds::Resource::PDF_TYPE){
 		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mPDFPlayer);
+
+		mPDFPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
 		mPDFPlayer->setResource(mResource);
 
 		mPDFPlayer->setErrorCallback([this](const std::string& msg){
@@ -273,6 +278,8 @@ void MediaPlayer::initialize(){
 		mWebPlayer->setWebViewSize(mMediaViewerSettings.mWebDefaultSize);
 		mWebPlayer->setKeyboardParams(mMediaViewerSettings.mWebKeyboardKeyScale, mMediaViewerSettings.mWebAllowKeyboard, mMediaViewerSettings.mWebKeyboardAbove);
 		mWebPlayer->setAllowTouchToggle(mMediaViewerSettings.mWebAllowTouchToggle);
+		mWebPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+
 		mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
 
 		if(mWebPlayer->getWeb()){
@@ -413,11 +420,29 @@ void MediaPlayer::showInterface(){
 	if(mVideoPlayer){
 		mVideoPlayer->showInterface();
 	}
+	if(mStreamPlayer){
+		mStreamPlayer->showInterface();
+	}
 	if(mPDFPlayer){
 		mPDFPlayer->showInterface();
 	}
 	if(mWebPlayer){
 		mWebPlayer->showInterface();
+	}
+}
+
+void MediaPlayer::hideInterface(){
+	if(mVideoPlayer){
+		mVideoPlayer->hideInterface();
+	}
+	if(mStreamPlayer){
+		mStreamPlayer->hideInterface();
+	}
+	if(mPDFPlayer){
+		mPDFPlayer->hideInterface();
+	}
+	if(mWebPlayer){
+		mWebPlayer->hideInterface();
 	}
 }
 

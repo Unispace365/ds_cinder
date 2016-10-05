@@ -88,6 +88,7 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 			mVideoInterface->hide();
 		}
 	}
+
 	if(mVideo->getWidth() < 1.0f || mVideo->getHeight() < 1.0f){
 		// make this a setting? This is mostly for when the "video" is just an audio track
 		// Probably should detect this properly from GstVideo and expose it to the outside world. Users may want to know that this only has audio
@@ -127,6 +128,12 @@ void VideoPlayer::layout(){
 void VideoPlayer::showInterface(){
 	if(mVideoInterface){
 		mVideoInterface->animateOn();
+	}
+}
+
+void VideoPlayer::hideInterface(){
+	if(mVideoInterface){
+		mVideoInterface->startIdling();
 	}
 }
 

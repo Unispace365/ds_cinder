@@ -32,6 +32,7 @@ protected:
 
 	ds::ui::Pdf*				mLinkedPDF;
 	ds::Resource				mSourceResource;
+	bool						mLinkedEnabled;
 
 	ds::ui::ImageButton*		mUpButton;
 	ds::ui::ImageButton*		mDownButton;

@@ -62,6 +62,7 @@ public:
 	ds::ui::Sprite*			getPlayer();
 
 	void					showInterface();
+	void					hideInterface();
 
 	/// Called when any component failed to load it's media. or failed during running.
 	/// Note that the message may be technical and not appropriate to show

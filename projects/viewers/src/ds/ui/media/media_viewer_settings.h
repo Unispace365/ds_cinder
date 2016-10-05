@@ -17,6 +17,7 @@ struct MediaViewerSettings {
 
 	MediaViewerSettings()
 		: mDefaultBounds(0.0f, 0.0f)
+		, mShowInterfaceAtStart(true)
 		, mWebDefaultSize(0.0f, 0.0f)
 		, mWebKeyboardKeyScale(1.0f)
 		, mWebKeyboardAbove(true)
@@ -33,6 +34,9 @@ struct MediaViewerSettings {
 	//--------------------Overall Settings -----------------------------------------//
 	/// The size to be calculated to fit inside when initially loading content
 	ci::Vec2f					mDefaultBounds;
+
+	/// Whether the interface should be visible immediately or not
+	bool						mShowInterfaceAtStart;
 
 	//--------------------Web Settings ---------------------------------------------//
 

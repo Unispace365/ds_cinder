@@ -29,6 +29,7 @@ public:
 	void								layout();
 
 	void								showInterface();
+	void								hideInterface();
 
 	ds::ui::Pdf*						getPDF();
 
@@ -37,6 +38,7 @@ public:
 
 	void								setGoodStatusCallback(std::function<void()> func){ mGoodStatusCallback = func; }
 	void								setErrorCallback(std::function<void(const std::string&)> func){ mErrorMsgCallback = func; }
+	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
 
 protected:
 
@@ -55,6 +57,7 @@ protected:
 
 	PDFInterface*								mPdfInterface;
 	bool										mEmbedInterface;
+	bool										mShowInterfaceAtStart;
 	std::function<void(void)>					mGoodStatusCallback;
 	std::function<void(const std::string&)>		mErrorMsgCallback;
 

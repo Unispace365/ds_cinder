@@ -185,6 +185,12 @@ void MediaViewer::showInterface(){
 	}
 }
 
+void MediaViewer::hideInterface(){
+	if(mMediaPlayer){
+		mMediaPlayer->hideInterface();
+	}
+}
+
 void MediaViewer::stopContent(){
 	if(mMediaPlayer){
 		mMediaPlayer->stopContent();
