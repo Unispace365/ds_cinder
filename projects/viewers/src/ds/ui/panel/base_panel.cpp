@@ -49,13 +49,13 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 
 void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti){
 
-	if(mAnimating) return;
-
 	if(ti.mNumberFingers > 0){
 		mTouching = true;
 	} else {
 		mTouching = false;
 	}
+
+	if(mAnimating) return;
 
 	activatePanel();
 
