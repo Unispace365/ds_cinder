@@ -44,8 +44,8 @@ namespace ds{
 			void								setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount);
 
 			void								setTweenAnimationParams(const float duration, const float delay = 0.0f, const ci::EaseFn fn= ci::EaseNone());
-			void								nextItem();
-			void								previousItem();
+			void								nextItem(const float duration = -1.0f);
+			void								previousItem(const float duration = -1.0f);
 			void								turnOnStepSwipe();
 			
 			// Call this to initialize the list at a certain point
@@ -72,7 +72,7 @@ namespace ds{
 			virtual void						assignItems();
 			void								handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 			void								itemPosUpdated(const float delta);
-			void								tweenItemPos(const float delta);
+			void								tweenItemPos(const float delta, float duration = -1.0f);
 			void								initFillScreen();
 			void								layout();
 			void								checkBounds();

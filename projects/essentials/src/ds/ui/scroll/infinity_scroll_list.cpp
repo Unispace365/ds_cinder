@@ -108,7 +108,7 @@ namespace ds{
 			mTweenAnimationEaseFn = fn;
 		}
 
-		void infinityList::nextItem()
+		void infinityList::nextItem(const float duration)
 		{
 			if (mOnScreenItemSize < 2)
 				return;
@@ -123,10 +123,11 @@ namespace ds{
 			{
 				targetAmount = mStartPositionX - mIncrementAmount - pos.x;
 			}
-			tweenItemPos(targetAmount);
+			if(duration < 0) tweenItemPos(targetAmount);
+			else tweenItemPos(targetAmount, duration);
 		}
 
-		void infinityList::previousItem()
+		void infinityList::previousItem(const float duration)
 		{
 			if (mOnScreenItemSize < 1)
 				return;
@@ -141,7 +142,8 @@ namespace ds{
 			{
 				targetAmount = mStartPositionX - pos.x;
 			}
-			tweenItemPos(mIncrementAmount);
+			if (duration < 0) tweenItemPos(targetAmount); //tweenItemPos(mIncrementAmount);
+			else tweenItemPos(targetAmount, duration); 
 		}
 
 		void infinityList::turnOnStepSwipe()
@@ -302,8 +304,9 @@ namespace ds{
 			checkBounds();
 		}
 
-		void infinityList::tweenItemPos(const float delta)
+		void infinityList::tweenItemPos(const float delta, float duration)
 		{
+			if (duration < 0) duration = mTweenAnimationDuration;
 			if (mOnScreenItemList.empty() || mIsOnTweenAnimation)
 				return;
 
@@ -316,7 +319,7 @@ namespace ds{
 				if (mVertical)
 				{
 					currentPos.y += delta;
-					targetSprite->tweenPosition(currentPos, mTweenAnimationDuration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
+					targetSprite->tweenPosition(currentPos, duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
 					{
 						if (targetSprite->getPosition().y <= -mIncrementAmount + mStartPositionY || targetSprite->getPosition().y >= mScroller->getHeight())
 						{
@@ -331,7 +334,7 @@ namespace ds{
 				else
 				{
 					currentPos.x += delta;
-					targetSprite->tweenPosition(currentPos, mTweenAnimationDuration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
+					targetSprite->tweenPosition(currentPos, duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
 					{
 						if (targetSprite->getPosition().x <= -mIncrementAmount + mStartPositionX || targetSprite->getPosition().x >= mScroller->getWidth())
 						{
@@ -343,7 +346,7 @@ namespace ds{
 						}
 					});
 				}
-				callAfterDelay([this](){checkBounds(); }, mTweenAnimationDelay + mTweenAnimationDuration + 0.1f);
+				callAfterDelay([this](){checkBounds(); }, mTweenAnimationDelay + duration + 0.1f);
 
 			}
 
