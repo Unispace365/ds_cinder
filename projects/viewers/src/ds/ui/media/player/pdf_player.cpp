@@ -23,6 +23,7 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 	, mPDFPrev(nullptr)
 	, mPDFThumbHolder(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mShowInterfaceAtStart(true)
 	, mCurrentPage(-1)
 	, mNextReady(false)
 	, mPrevReady(false)
@@ -138,6 +139,16 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 		}
 	}  
 
+
+	if(mPdfInterface){
+		if(mShowInterfaceAtStart){
+			mPdfInterface->show();
+		} else {
+			mPdfInterface->setOpacity(0.0f);
+			mPdfInterface->hide();
+		}
+	}
+
 	// This overrides the PDF interface page change callback
 	if(mPDF){
 
@@ -238,6 +249,15 @@ void PDFPlayer::showInterface(){
 	if(mPdfInterface){
 		mPdfInterface->animateOn();
 	}
+}
+
+void PDFPlayer::hideInterface(){
+	if(mPdfInterface){
+		mPdfInterface->startIdling();
+	}
+}
+void PDFPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
+	mShowInterfaceAtStart = showInterfaceAtStart;
 }
 
 void PDFPlayer::nextPage(){

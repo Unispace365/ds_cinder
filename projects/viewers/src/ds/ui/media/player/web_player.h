@@ -25,6 +25,7 @@ public:
 	void								layout();
 
 	void								showInterface();
+	void								hideInterface();
 
 	void								sendClick(const ci::Vec3f& globalClickPos);
 
@@ -35,6 +36,7 @@ public:
 	void								setWebViewSize(const ci::Vec2f webSize);
 	void								setKeyboardParams(const float keyboardKeyScale, const bool allowKeyboard, const bool keyboardAbove);
 	void								setAllowTouchToggle(const bool allowTouchToggle);
+	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
 
 protected:
 
@@ -42,6 +44,7 @@ protected:
 	ds::ui::Web*						mWeb;
 	WebInterface*						mWebInterface;
 	bool								mEmbedInterface;
+	bool								mShowInterfaceAtStart;
 
 	ci::Vec2f							mWebSize;
 	float								mKeyboardKeyScale;

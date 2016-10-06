@@ -107,6 +107,12 @@ void StreamPlayer::showInterface(){
 	}
 }
 
+void StreamPlayer::hideInterface(){
+	if(mVideoInterface){
+		mVideoInterface->startIdling();
+	}
+}
+
 void StreamPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
 	mShowInterfaceAtStart = showInterfaceAtStart;
 }

@@ -171,6 +171,7 @@ void WebInterface::setKeyboardKeyScale(const float newKeyScale){
 }
 
 void WebInterface::animateOff(){
+	mIdling = false;
 	tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::EaseNone(), [this]{
 		hide();
 		mKeyboardShowing = false;

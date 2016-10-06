@@ -34,6 +34,7 @@ public:
 	void								togglePlayPause();
 
 	void								showInterface();
+	void								hideInterface();
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
 
 	ds::ui::GstVideo*					getVideo();

@@ -32,6 +32,7 @@ public:
 	void								stop();
 
 	void								showInterface();
+	void								hideInterface();
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
 	void								setAutoRestartStream(bool autoRestart);
 

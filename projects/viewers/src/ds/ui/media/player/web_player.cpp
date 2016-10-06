@@ -19,6 +19,7 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mWeb(nullptr)
 	, mWebInterface(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mShowInterfaceAtStart(true)
 	, mKeyboardKeyScale(1.0f)
 	, mKeyboardAllow(true)
 	, mKeyboardAbove(true)
@@ -106,6 +107,16 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		}
 	}
 
+
+	if(mWebInterface){
+		if(mShowInterfaceAtStart){
+			mWebInterface->show();
+		} else {
+			mWebInterface->setOpacity(0.0f);
+			mWebInterface->hide();
+		}
+	}
+
 	setSize(mWeb->getWidth(), mWeb->getHeight());
 }
 
@@ -134,6 +145,16 @@ void WebPlayer::showInterface() {
 	if(mWebInterface){
 		mWebInterface->animateOn();
 	}
+}
+
+void WebPlayer::hideInterface(){
+	if(mWebInterface){
+		mWebInterface->startIdling();
+	}
+}
+
+void WebPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
+	mShowInterfaceAtStart = showInterfaceAtStart;
 }
 
 void WebPlayer::sendClick(const ci::Vec3f& globalClickPos){

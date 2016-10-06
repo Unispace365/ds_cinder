@@ -72,6 +72,9 @@ public:
 	/// Display the interface on the media player, if it was embedded
 	void					showInterface();
 
+	/// Undisplay the interface on the media player, if it was embedded
+	void					hideInterface();
+
 	/// Called when any component failed to load it's media. or failed during running.
 	/// Note that the message may be technical and not appropriate to show
 	/// Errors also will be logged, o you may want to show a generic "Sorry, something went wrong"
