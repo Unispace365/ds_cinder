@@ -75,11 +75,18 @@ void WebCefService::start() {
 	// CEF's multi-process structure: it's required.
 	// There's basically another process that needs to be spawned for different things (rendering, plugins, IO, etc)
 	// So we create a small exe that's just there to run CEF. 
-	// It's based on cefsimple, from the CEF binary distribution, in case you need to recompile (just remove most of the stuff in cefsimple_win.cc) and it's subsystem to console
-	// Here's the entirety of the source for that app, which is setup as a console app:
+	// It's based on cefsimple, from the CEF binary distribution, in case you need to recompile:
+	// Remove most of the stuff in cefsimple_win.cc and set it's subsystem in the linker settings to WINDOWS
+	// Here's the entirety of the source for that app:
 	/*
+	#include <windows.h>
 	#include <include/cef_app.h>
-	int main(int argc, char* argv[]){
+	int CALLBACK WinMain(
+	_In_ HINSTANCE hInstance,
+	_In_ HINSTANCE hPrevInstance,
+	_In_ LPSTR     lpCmdLine,
+	_In_ int       nCmdShow
+	){
 		CefMainArgs main_args;
 		return CefExecuteProcess(main_args, NULL, NULL);
 	}
