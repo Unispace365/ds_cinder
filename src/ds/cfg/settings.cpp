@@ -130,7 +130,7 @@ void Settings::readFrom(const std::string& filename, const bool append, const bo
 
 	// We're appending, so create a temporary object, then merge all the changes
 	// on top of me.
-	Settings		s;
+	Settings		s(mEngine);
 	s.directReadFrom(filename, false, rawXmlText);
 
 	merge(mFloat, s.mFloat);
