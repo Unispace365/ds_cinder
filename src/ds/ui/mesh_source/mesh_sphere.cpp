@@ -12,9 +12,9 @@ namespace {
 
 ci::TriMesh createTriMesh( 
 		std::vector<unsigned> &indices,
-		const std::vector<cinder::Vec3f> &positions, 
-		const std::vector<cinder::Vec3f> &normals,
-		const std::vector<cinder::Vec2f> &texCoords )
+		const std::vector<cinder::vec3> &positions, 
+		const std::vector<cinder::vec3> &normals,
+		const std::vector<cinder::vec2> &texCoords )
 {
 	cinder::TriMesh mesh;
 	if ( indices.size() > 0 ) {
@@ -39,9 +39,9 @@ ci::TriMesh createTriMesh(
 
 ci::TriMesh createSphere(float radius, int x_res, int y_res) {
 	std::vector<unsigned> indices;
-	std::vector<cinder::Vec3f> normals;
-	std::vector<cinder::Vec3f> positions;
-	std::vector<cinder::Vec2f> texCoords;
+	std::vector<cinder::vec3> normals;
+	std::vector<cinder::vec3> positions;
+	std::vector<cinder::vec2> texCoords;
 
 	float step_phi = (float)M_PI / (float)y_res;
 	float step_theta = ((float)M_PI * 2.0f) / (float)x_res;
@@ -58,9 +58,9 @@ ci::TriMesh createSphere(float radius, int x_res, int y_res) {
 			float x = radius * sinPhi * cinder::math<float>::cos( theta );
 			float z = -radius * sinPhi * cinder::math<float>::sin( theta );
 			float y = radius * cinder::math<float>::cos( phi );
-			cinder::Vec3f position( x, y, z );
-			cinder::Vec3f normal = position.normalized();
-			cinder::Vec2f texCoord = cinder::Vec2f( (float)t/(float)(x_res), (float)p/(float)y_res );
+			cinder::vec3 position( x, y, z );
+			cinder::vec3 normal = position.normalized();
+			cinder::vec2 texCoord = cinder::vec2( (float)t/(float)(x_res), (float)p/(float)y_res );
 
 			normals.push_back( normal );
 			positions.push_back( position );

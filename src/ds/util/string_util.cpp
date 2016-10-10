@@ -685,9 +685,9 @@ void ds::tokenize(const std::string& input, const char delim, const std::functio
 	}
 }
 
-ci::Vec3f ds::parseVector(const std::string &s){
+ci::vec3 ds::parseVector(const std::string &s){
 	auto tokens = ds::split(s, ", ", true);
-	ci::Vec3f v;
+	ci::vec3 v;
 	v.x = tokens.size() > 0 ? ds::string_to_float(tokens[0]) : 0.0f;
 	v.y = tokens.size() > 1 ? ds::string_to_float(tokens[1]) : 0.0f;
 	v.z = tokens.size() > 2 ? ds::string_to_float(tokens[2]) : 0.0f;
@@ -695,7 +695,7 @@ ci::Vec3f ds::parseVector(const std::string &s){
 	return v;
 }
 
-std::string ds::unparseVector(const ci::Vec3f& v){
+std::string ds::unparseVector(const ci::vec3& v){
 	std::stringstream ss;
 	ss << v.x << ", " << v.y << ", " << v.z;
 	return ss.str();
@@ -710,7 +710,7 @@ std::string ds::unparseBoolean(const bool b){
 	return "false";
 }
 
-std::string ds::unparseVector(const ci::Vec2f& v){
+std::string ds::unparseVector(const ci::vec2& v){
 	std::stringstream ss;
 	ss << v.x << ", " << v.y;
 	return ss.str();

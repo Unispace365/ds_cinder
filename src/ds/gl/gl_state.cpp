@@ -56,7 +56,7 @@ void ClipPlaneState::enableClipping(ds::ui::Sprite &s) {
 							y1 = cb.getY2();
 
 	glPushAttrib( GL_TRANSFORM_BIT | GL_ENABLE_BIT );
-	ci::Vec3f				clippingPoints[4];
+	ci::vec3				clippingPoints[4];
 	clippingPoints[0].set( x0, y0, 0 );
 	clippingPoints[1].set( x0, y1, 0 );
 	clippingPoints[2].set( x1, y1, 0 );
@@ -67,14 +67,14 @@ void ClipPlaneState::enableClipping(ds::ui::Sprite &s) {
 							k = (i+2) % 4;
 
 		// Going clockwise around clipping points...
-		ci::Vec3f			edgeA = clippingPoints[i] - clippingPoints[j],
+		ci::vec3			edgeA = clippingPoints[i] - clippingPoints[j],
 							edgeB = clippingPoints[j] - clippingPoints[k];
 
 		// The edge-normal is found by first finding a vector perpendicular
 		// to two consecutive edges.  Next, we cross that with the forward-
 		// facing (clockwise) edge vector to get an inward-facing edge-
 		// normal vector for that edge
-		ci::Vec3f			norm = -(edgeA.cross( edgeB )).cross(edgeA).normalized();
+		ci::vec3			norm = -(edgeA.cross( edgeB )).cross(edgeA).normalized();
 
 		// the four points we pass to glClipPlane are the solutions of the
 		// equation Ax + By + Cz + D = 0.  A, B, and C are the normal, and

@@ -49,22 +49,22 @@ public:
 	Sprite*								getSpriteForFinger(const int fingerId);
 
 	void								setOverrideTranslation(const bool doOverride){ mOverrideTranslation = doOverride; }
-	void								setOverrideDimensions(const ci::Vec2f& dimensions){ mTouchDimensions = dimensions; }
-	void								setOverrideOffset(const ci::Vec2f& offset){ mTouchOffset = offset; }
+	void								setOverrideDimensions(const ci::vec2& dimensions){ mTouchDimensions = dimensions; }
+	void								setOverrideOffset(const ci::vec2& offset){ mTouchOffset = offset; }
 	void								setTouchFilterRect(const ci::Rectf &filterRect){ mTouchFilterRect = filterRect; }
-	void								setTouchFilterFunc(const std::function<bool(const ci::Vec2f& p)> &func){ mTouchFilterFunc = func; }
+	void								setTouchFilterFunc(const std::function<bool(const ci::vec2& p)> &func){ mTouchFilterFunc = func; }
 
 	bool								getOverrideEnabled(){ return mOverrideTranslation; }
 
 	// If you've set the override for translation, actually do that translation
-	void								overrideTouchTranslation(ci::Vec2f& inOutPoint);
+	void								overrideTouchTranslation(ci::vec2& inOutPoint);
 
 	// If we have a rect defined to discard touches, discard that shit!
-	bool								shouldDiscardTouch(const ci::Vec2f& p);
+	bool								shouldDiscardTouch(const ci::vec2& p);
 
 	void								setCapture(Capture*);
 
-	std::map<int, ci::Vec3f>&			getPreviousTouchPoints(){ return mTouchPreviousPoint; }
+	std::map<int, ci::vec3>&			getPreviousTouchPoints(){ return mTouchPreviousPoint; }
 
 	void								setTouchSmoothing(const bool doSmoothing);
 	const bool							getTouchSmoothing(){ return mSmoothEnabled; }
@@ -73,31 +73,31 @@ public:
 
 private:
 	// Utility to get the hit sprite in either the orthogonal or perspective root sprites
-	Sprite* 							getHit(const ci::Vec3f &point);
+	Sprite* 							getHit(const ci::vec3 &point);
 
 	// If the window is stretched, the mouse points will be off. Fix that shit!
-	ci::Vec2f							translateMousePoint(const ci::Vec2i);
+	ci::vec2							translateMousePoint(const ci::ivec2);
 
-	void								inputBegin(const int fingerId, const ci::Vec2f& globalPos);
-	void								inputMoved(const int fingerId, const ci::Vec2f& globalPos);
-	void								inputEnded(const int fingerId, const ci::Vec2f& globalPos);
+	void								inputBegin(const int fingerId, const ci::vec2& globalPos);
+	void								inputMoved(const int fingerId, const ci::vec2& globalPos);
+	void								inputEnded(const int fingerId, const ci::vec2& globalPos);
 
-	std::map<int, std::vector<ci::Vec3f>>	mTouchSmoothPoints;
+	std::map<int, std::vector<ci::vec3>>	mTouchSmoothPoints;
 	bool								mSmoothEnabled;
 	int									mFramesToSmooth;
 
 	Engine&								mEngine;
 
 	std::map<int, ui::Sprite*>			mFingerDispatcher;
-	std::map<int, ci::Vec3f>			mTouchStartPoint;
-	std::map<int, ci::Vec3f>			mTouchPreviousPoint;
+	std::map<int, ci::vec3>			mTouchStartPoint;
+	std::map<int, ci::vec3>			mTouchPreviousPoint;
 	std::map<int, bool>					mDiscardTouchMap;
 
-	ci::Vec2f							mTouchDimensions;
-	ci::Vec2f							mTouchOffset;
+	ci::vec2							mTouchDimensions;
+	ci::vec2							mTouchOffset;
 	bool								mOverrideTranslation;
 	ci::Rectf							mTouchFilterRect;
-	std::function<bool(const ci::Vec2f& p)>	mTouchFilterFunc;
+	std::function<bool(const ci::vec2& p)>	mTouchFilterFunc;
 
 	TouchMode::Enum						mTouchMode;
 	// Hack to support the touch trails

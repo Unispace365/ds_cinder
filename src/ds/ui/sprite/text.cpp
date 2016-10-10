@@ -349,14 +349,14 @@ void Text::debugPrint()
 }
 
 
-ci::Vec2f Text::getPositionForCharacterIndex(const int characterIndex){
-	if(mTextString.empty() || characterIndex < 0 || characterIndex > mTextString.size()) return ci::Vec2f::zero();
+ci::vec2 Text::getPositionForCharacterIndex(const int characterIndex){
+	if(mTextString.empty() || characterIndex < 0 || characterIndex > mTextString.size()) return ci::vec2::zero();
 	if(!mGenerateIndex){
 		mGenerateIndex = true;
 		mNeedsLayout = true;
 	}
 	makeLayout();
-	if(mLayout.getLines().empty()) return ci::Vec2f::zero();
+	if(mLayout.getLines().empty()) return ci::vec2::zero();
 	
 	const std::vector<TextLayout::Line>& lines = mLayout.getLines();
 
@@ -365,19 +365,19 @@ ci::Vec2f Text::getPositionForCharacterIndex(const int characterIndex){
 		const TextLayout::Line& line = (*it);
 		auto fit = line.mIndexPositions.find(characterIndex);
 		if(fit == line.mIndexPositions.end()) continue;
-		return ci::Vec2f(line.mPos.x + fit->second, line.mPos.y);
+		return ci::vec2(line.mPos.x + fit->second, line.mPos.y);
 	}
 
 	// Assume we're past the end of the text sprite
 	const TextLayout::Line& line = lines.back();
-	if(line.mIndexPositions.empty()) return ci::Vec2f::zero();
+	if(line.mIndexPositions.empty()) return ci::vec2::zero();
 	auto fit = line.mIndexPositions.rbegin();
-	return ci::Vec2f(line.mPos.x + fit->second, line.mPos.y);
+	return ci::vec2(line.mPos.x + fit->second, line.mPos.y);
 }
 
 namespace {
 
-int parseLine(const TextLayout::Line& line, const ci::Vec2f& possy){
+int parseLine(const TextLayout::Line& line, const ci::vec2& possy){
 	if(line.mIndexPositions.empty()){
 		// This is technically an error condition.
 		// But we're not gonna log anything, cause there's not a lot of consequences for it
@@ -406,7 +406,7 @@ int parseLine(const TextLayout::Line& line, const ci::Vec2f& possy){
 
 }
 
-int Text::getCharacterIndexForPosition(const ci::Vec2f& possy){
+int Text::getCharacterIndexForPosition(const ci::vec2& possy){
 	if(mTextString.empty()) return 0;
 	if(!mGenerateIndex){
 		mGenerateIndex = true;
@@ -502,7 +502,7 @@ void Text::makeLayout()
 		mNeedsLayout = false;
 		mLayout.clear();
 		if (mLayoutFunc && mFont) {
-			ci::Vec2f	size(mWidth-mBorder.x1-mBorder.x2, mHeight-mBorder.y1-mBorder.y2);
+			ci::vec2	size(mWidth-mBorder.x1-mBorder.x2, mHeight-mBorder.y1-mBorder.y2);
 			// If we're auto resizing, then the area to perform the layout should be unlimited.
 			if ((mResizeToTextF&RESIZE_W) != 0) {
 				size.x = 100000;

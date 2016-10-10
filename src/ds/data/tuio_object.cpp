@@ -11,7 +11,7 @@ TuioObject::TuioObject()
 {
 }
 
-TuioObject::TuioObject(const int objectId, const cinder::Vec2f& position, const float angle, const cinder::Vec2f& velocity, const float rotationVelocity)
+TuioObject::TuioObject(const int objectId, const cinder::vec2& position, const float angle, const cinder::vec2& velocity, const float rotationVelocity)
 		: mObjectId(objectId)
 		, mPosition(position)
 		, mAngle(angle)
@@ -24,7 +24,7 @@ int TuioObject::getObjectId() const {
 	return mObjectId;
 }
 
-const cinder::Vec2f& TuioObject::getPosition() const {
+const cinder::vec2& TuioObject::getPosition() const {
 	return mPosition;
 }
 
@@ -32,7 +32,7 @@ const float TuioObject::getAngle() const {
 	return mAngle;
 }
 
-const cinder::Vec2f& TuioObject::getVelocity() const {
+const cinder::vec2& TuioObject::getVelocity() const {
 	return mVelocity;
 }
 

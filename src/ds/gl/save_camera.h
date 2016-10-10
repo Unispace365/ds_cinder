@@ -3,10 +3,7 @@
 #define DS_GL_SAVECAMERA_H_
 
 #include <cinder/Area.h>
-#include <cinder/MatrixAffine2.h>
-#include <cinder/Matrix22.h>
-#include <cinder/Matrix33.h>
-#include <cinder/Matrix44.h>
+#include <cinder/gl/gl.h>
 
 namespace ds {
 namespace gl {
@@ -22,7 +19,7 @@ public:
 
 private:
 	const ci::Area		mViewport;
-	const ci::Matrix44f	mModelView,
+	const ci::mat4		mModelView,
 						mProjection;
 };
 

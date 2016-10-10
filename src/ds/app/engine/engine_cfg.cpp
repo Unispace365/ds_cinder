@@ -259,7 +259,7 @@ static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& o
 
 	try {
 		ci::DataSourceRef ds = ci::app::App::loadResource(RES_TEXT);
-		ci::Buffer&	buf = ds->getBuffer();
+		ci::BufferRef	buf = ds->getBuffer();
 		if(buf.getDataSize() > 0 && buf.getDataSize() < 100000) {
 			std::string	str(static_cast<const char*>(buf.getData()), buf.getDataSize());
 			s.readFrom(str, true, true);

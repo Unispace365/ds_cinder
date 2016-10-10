@@ -19,7 +19,7 @@ struct DragDestinationInfo
     Null
   };
 
-  ci::Vec3f mCurrentPoint;
+  ci::vec3 mCurrentPoint;
   Phase     mPhase;
   Sprite   *mSprite;
 };

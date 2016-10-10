@@ -5,7 +5,7 @@
 #include <cinder/Camera.h>
 #include <cinder/Rect.h>
 #include <cinder/Vector.h>
-#include <cinder/Matrix22.h>
+#include <cinder/Matrix.h>
 #include <cinder/Matrix33.h>
 #include <cinder/Matrix44.h>
 
@@ -18,15 +18,15 @@ namespace ds {
 class CameraPick
 {
 	public:
-		CameraPick(	ci::Camera&, const ci::Vec3f& screenPt,
+		CameraPick(	ci::Camera&, const ci::vec3& screenPt,
 								const float screenWidth, const float screenHeight);
 
-		const ci::Vec3f&		getScreenPt() const;
-		ci::Vec2f				worldToScreen(const ci::Vec3f &worldCoord) const;
+		const ci::vec3&		getScreenPt() const;
+		ci::vec2				worldToScreen(const ci::vec3 &worldCoord) const;
 
   private:
 		ci::Camera&				mCamera;
-		const ci::Vec3f			mScreenPt;
+		const ci::vec3			mScreenPt;
 		const float				mScreenW,
 								mScreenH;
 };
@@ -46,13 +46,13 @@ class ScreenToWorld
 		void					setScreenSize(const float width, const float height);
 		void					update();
 
-		ci::Vec3f				translate(const ci::Vec3f&);
+		ci::vec3				translate(const ci::vec3&);
 
   private:
-		ci::Vec3f				unproject(const ci::Vec3f&);
+		ci::vec3				unproject(const ci::vec3&);
 
-		ci::Matrix44f			mModelView;
-		ci::Matrix44f			mProjection;
+		ci::mat4			mModelView;
+		ci::mat4			mProjection;
 		ci::Area				mViewport;
 		ci::Rectf				mWindowSize;
 };

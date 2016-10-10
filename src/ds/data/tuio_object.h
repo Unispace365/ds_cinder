@@ -14,19 +14,19 @@ namespace ds {
 class TuioObject {
 public:
 	TuioObject();
-	TuioObject(const int objectId, const cinder::Vec2f& position, const float angle = 0.0f, const cinder::Vec2f& velocity = cinder::Vec2f(), const float rotationVelocity = 0.0f);
+	TuioObject(const int objectId, const cinder::vec2& position, const float angle = 0.0f, const cinder::vec2& velocity = cinder::vec2(), const float rotationVelocity = 0.0f);
 
 	int						getObjectId() const;
-	const cinder::Vec2f&	getPosition() const;
+	const cinder::vec2&	getPosition() const;
 	const float				getAngle() const;
-	const cinder::Vec2f&	getVelocity() const;
+	const cinder::vec2&	getVelocity() const;
 	const float				getRotationVelocity() const;
 
 private:
 	int						mObjectId;
-	cinder::Vec2f			mPosition;
+	cinder::vec2			mPosition;
 	float					mAngle;
-	cinder::Vec2f			mVelocity;
+	cinder::vec2			mVelocity;
 	float					mRotationVelocity;
 };
 

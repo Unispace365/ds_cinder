@@ -156,7 +156,7 @@ void Circle::init() {
 	mNumberOfSegments = (int)math<double>::floor(mRadius * M_PI * 2);
 	
 	if(mNumberOfSegments < 2) mNumberOfSegments = 2;
-	ci::Vec2f center = ci::Vec2f(mRadius, mRadius);
+	ci::vec2 center = ci::vec2(mRadius, mRadius);
 	if(mFilled){
 		mVertices = new float[(mNumberOfSegments + 2) * 2];
 		mVertices[0] = center.x;

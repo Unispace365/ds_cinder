@@ -58,7 +58,7 @@ private:
 	public:
 		Cell();
 
-		ci::Vec2f						size() const;
+		ci::vec2						size() const;
 
 		void							draw(const ci::gl::Texture&);
 		void							print(const int tabs) const;

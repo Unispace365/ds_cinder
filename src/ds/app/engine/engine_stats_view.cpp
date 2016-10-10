@@ -110,7 +110,7 @@ void EngineStatsView::drawStats(){
 
 float EngineStatsView::drawLine(const std::string &v, const float y) {
 	const float			ascent = mFont.getAscent();
-	mTextureFont->drawString(v, ci::Vec2f(mBorder.x, y + ascent));
+	mTextureFont->drawString(v, ci::vec2(mBorder.x, y + ascent));
 	return y + ascent + mFont.getDescent();
 }
 

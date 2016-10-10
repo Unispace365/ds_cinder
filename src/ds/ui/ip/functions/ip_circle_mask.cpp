@@ -15,7 +15,7 @@ void CircleMask::on(const std::string& parameters, ci::Surface8u& s) const {
 	int32_t					w = s.getWidth(), h = s.getHeight();
 	if (w < 1 || h < 1) return;
 
-	const ci::Vec2f			cen(static_cast<float>(w)/2.0f, static_cast<float>(h)/2.0f);
+	const ci::vec2			cen(static_cast<float>(w)/2.0f, static_cast<float>(h)/2.0f);
 	const float				max = (cen.x <= cen.y ? cen.x : cen.y);
 
 	ci::Surface8u::Iter		iter = s.getIter();
@@ -23,7 +23,7 @@ void CircleMask::on(const std::string& parameters, ci::Surface8u& s) const {
 	while (iter.line()) {
 		int32_t				x = 0;
 		while (iter.pixel()) {
-			const float		d = cen.distance(ci::Vec2f(static_cast<float>(x), static_cast<float>(y)));
+			const float		d = cen.distance(ci::vec2(static_cast<float>(x), static_cast<float>(y)));
 			float			alpha_f = 1.0f;
 			if (d > max) {
 				alpha_f = 0.0f;

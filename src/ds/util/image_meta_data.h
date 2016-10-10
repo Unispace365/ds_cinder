@@ -18,9 +18,9 @@ public:
 	ImageMetaData(const std::string& filename);
 
 	bool						empty() const;
-	void						add(const std::string& filePath, const ci::Vec2f size );
+	void						add(const std::string& filePath, const ci::vec2 size );
 
-	ci::Vec2f					mSize;
+	ci::vec2					mSize;
 };
 
 } // namespace ds

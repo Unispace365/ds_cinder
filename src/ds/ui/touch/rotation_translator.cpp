@@ -19,10 +19,10 @@ void RotationTranslator::down(TouchInfo &ti) {
 	mMatrix[ti.mFingerId] = buildRotationMatrix(ti.mPickedSprite);
 }
 
-void RotationTranslator::move(TouchInfo &ti, const ci::Vec3f &previous_global_pt) {
+void RotationTranslator::move(TouchInfo &ti, const ci::vec3 &previous_global_pt) {
 	if (!(ti.mPickedSprite && ti.mPickedSprite->isRotateTouches())) return;
 
-	ci::Matrix44f			m(ci::Matrix44f::identity());
+	ci::mat4			m(ci::mat4::identity());
 
 	auto f = mMatrix.find(ti.mFingerId);
 	if (f != mMatrix.end()) {
@@ -32,7 +32,7 @@ void RotationTranslator::move(TouchInfo &ti, const ci::Vec3f &previous_global_pt
 		mMatrix[ti.mFingerId] = m;
 	}
 
-	ci::Vec3f				pt(ti.mCurrentGlobalPoint - ti.mStartPoint);
+	ci::vec3				pt(ti.mCurrentGlobalPoint - ti.mStartPoint);
 	pt = ti.mStartPoint + m.transformPoint(pt);
 	ti.mCurrentGlobalPoint = pt;
 	ti.mDeltaPoint = ti.mCurrentGlobalPoint - previous_global_pt;
@@ -48,8 +48,8 @@ void RotationTranslator::up(TouchInfo &ti) {
 	}
 }
 
-ci::Matrix44f RotationTranslator::buildRotationMatrix(ds::ui::Sprite *s) const {
-	ci::Matrix44f					m(ci::Matrix44f::identity());
+ci::mat4 RotationTranslator::buildRotationMatrix(ds::ui::Sprite *s) const {
+	ci::mat4					m(ci::mat4::identity());
 	if (!s) return m;
 
 	// Build the matrix in order from root parent down to child
@@ -59,10 +59,10 @@ ci::Matrix44f RotationTranslator::buildRotationMatrix(ds::ui::Sprite *s) const {
 		s = s->getParent();
 	}
 	for (auto it=vec.rbegin(), end=vec.rend(); it!=end; ++it) {
-		const ci::Vec3f				rotation((*it)->getRotation());
-		m.rotate(ci::Vec3f(1.0f, 0.0f, 0.0f), rotation.x * math::DEGREE2RADIAN);
-		m.rotate(ci::Vec3f(0.0f, 1.0f, 0.0f), rotation.y * math::DEGREE2RADIAN);
-		m.rotate(ci::Vec3f(0.0f, 0.0f, 1.0f), rotation.z * math::DEGREE2RADIAN);
+		const ci::vec3				rotation((*it)->getRotation());
+		m.rotate(ci::vec3(1.0f, 0.0f, 0.0f), rotation.x * math::DEGREE2RADIAN);
+		m.rotate(ci::vec3(0.0f, 1.0f, 0.0f), rotation.y * math::DEGREE2RADIAN);
+		m.rotate(ci::vec3(0.0f, 0.0f, 1.0f), rotation.z * math::DEGREE2RADIAN);
 	}
 	return m;
 }

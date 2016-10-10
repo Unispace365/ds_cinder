@@ -47,13 +47,13 @@ public:
 	int						mWhat;
 
 	/** An event-specific parameter, for client usage. Generally global space. May be empty	*/
-	ci::Vec3f				mEventOrigin;
+	ci::vec3				mEventOrigin;
 	/** An event-specific parameter, for client usage. Defaults to nullptr	*/
 	ds::ui::Sprite*			mSpriteOriginator;
 	/** An event-specific ID. Could be used to lookup info from a db, etc. Default=0*/
 	int						mUserId;
 	/** An event-specific size. For instance if you want launch a panel at a certain width */
-	ci::Vec3f				mUserSize;
+	ci::vec3				mUserSize;
 	/** An event-specific string. Defaults to empty */
 	std::string				mUserStringData;
 };

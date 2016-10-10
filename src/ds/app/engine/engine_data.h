@@ -36,7 +36,7 @@ public:
 	float					mSwipeMaxTime;
 	float					mDoubleTapTime;
 	ci::Rectf				mScreenRect;
-	ci::Vec2f				mWorldSize;
+	ci::vec2				mWorldSize;
 	float					mFrameRate;
 	int						mIdleTimeout;
 	bool					mUsingDefaults; // if no settings file loaded, use all default settings

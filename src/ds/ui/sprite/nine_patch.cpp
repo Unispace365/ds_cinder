@@ -170,9 +170,9 @@ NinePatch::Cell::Cell()
 {
 }
 
-ci::Vec2f NinePatch::Cell::size() const
+ci::vec2 NinePatch::Cell::size() const
 {
-	ci::Vec2f		ans(0.0f, 0.0f);
+	ci::vec2		ans(0.0f, 0.0f);
 	if (mIsValid) {
 		ans.x = static_cast<float>(mSrc.getWidth());
 		ans.y = static_cast<float>(mSrc.getHeight());
@@ -286,22 +286,22 @@ void NinePatch::Patch::buildDestinations(const float width, const float height) 
 
 	// LEFT TOP CELL
 	if (mCell[CELL_LT].mIsValid) {
-		const ci::Vec2f	size = mCell[CELL_LT].size();
+		const ci::vec2	size = mCell[CELL_LT].size();
 		mCell[CELL_LT].mDst = ci::Rectf(0.0f, 0.0f, size.x, size.y);
 	}
 	// RIGHT TOP CELL
 	if (mCell[CELL_RT].mIsValid) {
-		const ci::Vec2f	size = mCell[CELL_RT].size();
+		const ci::vec2	size = mCell[CELL_RT].size();
 		mCell[CELL_RT].mDst = ci::Rectf(width - size.x, 0.0f, width, size.y);
 	}
 	// LEFT BOTTOM CELL
 	if (mCell[CELL_LB].mIsValid) {
-		const ci::Vec2f	size = mCell[CELL_LB].size();
+		const ci::vec2	size = mCell[CELL_LB].size();
 		mCell[CELL_LB].mDst = ci::Rectf(0.0f, height-size.y, size.x, height);
 	}
 	// RIGHT BOTTOM CELL
 	if (mCell[CELL_RB].mIsValid) {
-		const ci::Vec2f	size = mCell[CELL_RB].size();
+		const ci::vec2	size = mCell[CELL_RB].size();
 		mCell[CELL_RB].mDst = ci::Rectf(width - size.x, height-size.y, width, height);
 	}
 

@@ -45,8 +45,8 @@ private:
 	ci::gl::TextureFontRef		mTextureFont;
 	// SETTINGS
 	const float					mFontSize;
-	const ci::Vec2f				mLT;
-	const ci::Vec2f				mBorder;
+	const ci::vec2				mLT;
+	const ci::vec2				mBorder;
 
 	// EVENTS
 public:

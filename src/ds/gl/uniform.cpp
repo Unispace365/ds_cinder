@@ -30,7 +30,7 @@ void UniformVisitor::operator()(int data)
 	mShader.uniform(mName, data);
 }
 
-void UniformVisitor::operator()(const ci::Vec2i &data)
+void UniformVisitor::operator()(const ci::ivec2 &data)
 {
 	mShader.uniform(mName, data);
 }
@@ -40,7 +40,7 @@ void UniformVisitor::operator()(const int *data)
 	mShader.uniform(mName, data, mData.mCount);
 }
 
-void UniformVisitor::operator()(const ci::Vec2i *data)
+void UniformVisitor::operator()(const ci::ivec2 *data)
 {
 	mShader.uniform(mName, data, mData.mCount);
 }
@@ -50,17 +50,17 @@ void UniformVisitor::operator()(float data)
 	mShader.uniform(mName, data);
 }
 
-void UniformVisitor::operator()(const ci::Vec2f &data)
+void UniformVisitor::operator()(const ci::vec2 &data)
 {
 	mShader.uniform(mName, data);
 }
 
-void UniformVisitor::operator()(const ci::Vec3f &data)
+void UniformVisitor::operator()(const ci::vec3 &data)
 {
 	mShader.uniform(mName, data);
 }
 
-void UniformVisitor::operator()(const ci::Vec4f &data)
+void UniformVisitor::operator()(const ci::vec4 &data)
 {
 	mShader.uniform(mName, data);
 }
@@ -75,17 +75,17 @@ void UniformVisitor::operator()(const ci::ColorA &data)
 	mShader.uniform(mName, data);
 }
 
-void UniformVisitor::operator()(const ci::Matrix22f &data)
+void UniformVisitor::operator()(const ci::mat2 &data)
 {
 	mShader.uniform(mName, data, mData.mTranspose);
 }
 
-void UniformVisitor::operator()(const ci::Matrix33f &data)
+void UniformVisitor::operator()(const ci::mat3 &data)
 {
 	mShader.uniform(mName, data, mData.mTranspose);
 }
 
-void UniformVisitor::operator()(const ci::Matrix44f &data)
+void UniformVisitor::operator()(const ci::mat4 &data)
 {
 	mShader.uniform(mName, data, mData.mTranspose);
 }
@@ -95,32 +95,32 @@ void UniformVisitor::operator()(const std::vector<float> &data)
 	mShader.uniform(mName, &(data.front()), data.size());
 }
 
-void UniformVisitor::operator()(const ci::Vec2f *data)
+void UniformVisitor::operator()(const ci::vec2 *data)
 {
 	mShader.uniform(mName, data, mData.mCount);
 }
 
-void UniformVisitor::operator()(const ci::Vec3f *data)
+void UniformVisitor::operator()(const ci::vec3 *data)
 {
 	mShader.uniform(mName, data, mData.mCount);
 }
 
-void UniformVisitor::operator()(const ci::Vec4f *data)
+void UniformVisitor::operator()(const ci::vec4 *data)
 {
 	mShader.uniform(mName, data, mData.mCount);
 }
 
-void UniformVisitor::operator()(const ci::Matrix22f *data)
+void UniformVisitor::operator()(const ci::mat2 *data)
 {
 	mShader.uniform(mName, data, mData.mCount, mData.mTranspose);
 }
 
-void UniformVisitor::operator()(const ci::Matrix33f *data)
+void UniformVisitor::operator()(const ci::mat3 *data)
 {
 	mShader.uniform(mName, data, mData.mCount, mData.mTranspose);
 }
 
-void UniformVisitor::operator()(const ci::Matrix44f *data)
+void UniformVisitor::operator()(const ci::mat4 *data)
 {
 	mShader.uniform(mName, data, mData.mCount, mData.mTranspose);
 }
@@ -168,17 +168,17 @@ void Uniform::setInt(const std::string& key, const int value) {
 	set(key, value);
 }
 
-void Uniform::setMatrix44f(const std::string& key, const ci::Matrix44f& value) {
+void Uniform::setMatrix44f(const std::string& key, const ci::mat4& value) {
 	if (key.empty()) return;
 	set(key, value);
 }
 
-void Uniform::setVec2i(const std::string& key, const ci::Vec2i& value) {
+void Uniform::setVec2i(const std::string& key, const ci::ivec2& value) {
 	if (key.empty()) return;
 	set(key, value);
 }
 
-void Uniform::setVec4f(const std::string& key, const ci::Vec4f& value) {
+void Uniform::setVec4f(const std::string& key, const ci::vec4& value) {
 	if (key.empty()) return;
 	set(key, value);
 }
@@ -212,7 +212,7 @@ void Uniform::set(const std::string &name, int data)
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData());
 }
 
-void Uniform::set(const std::string &name, const ci::Vec2i &data)
+void Uniform::set(const std::string &name, const ci::ivec2 &data)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData());
 }
@@ -222,7 +222,7 @@ void Uniform::set(const std::string &name, const int *data, int count)
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(count));
 }
 
-void Uniform::set(const std::string &name, const ci::Vec2i *data, int count)
+void Uniform::set(const std::string &name, const ci::ivec2 *data, int count)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(count));
 }
@@ -232,17 +232,17 @@ void Uniform::set(const std::string &name, float data)
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData());
 }
 
-void Uniform::set(const std::string &name, const ci::Vec2f &data)
+void Uniform::set(const std::string &name, const ci::vec2 &data)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData());
 }
 
-void Uniform::set(const std::string &name, const ci::Vec3f &data)
+void Uniform::set(const std::string &name, const ci::vec3 &data)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData());
 }
 
-void Uniform::set(const std::string &name, const ci::Vec4f &data)
+void Uniform::set(const std::string &name, const ci::vec4 &data)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData());
 }
@@ -257,17 +257,17 @@ void Uniform::set(const std::string &name, const ci::ColorA &data)
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData());
 }
 
-void Uniform::set(const std::string &name, const ci::Matrix22f &data, bool transpose /*= false*/)
+void Uniform::set(const std::string &name, const ci::mat2 &data, bool transpose /*= false*/)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(0, transpose));
 }
 
-void Uniform::set(const std::string &name, const ci::Matrix33f &data, bool transpose /*= false*/)
+void Uniform::set(const std::string &name, const ci::mat3 &data, bool transpose /*= false*/)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(0, transpose));
 }
 
-void Uniform::set(const std::string &name, const ci::Matrix44f &data, bool transpose /*= false*/)
+void Uniform::set(const std::string &name, const ci::mat4 &data, bool transpose /*= false*/)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(0, transpose));
 }
@@ -293,32 +293,32 @@ void Uniform::set(const std::string &name, const std::vector<float> &data)
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(data.size()));
 }
 
-void Uniform::set(const std::string &name, const ci::Vec2f *data, int count)
+void Uniform::set(const std::string &name, const ci::vec2 *data, int count)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(count));
 }
 
-void Uniform::set(const std::string &name, const ci::Vec3f *data, int count)
+void Uniform::set(const std::string &name, const ci::vec3 *data, int count)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(count));
 }
 
-void Uniform::set(const std::string &name, const ci::Vec4f *data, int count)
+void Uniform::set(const std::string &name, const ci::vec4 *data, int count)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(count));
 }
 
-void Uniform::set(const std::string &name, const ci::Matrix22f *data, int count, bool transpose /*= false*/)
+void Uniform::set(const std::string &name, const ci::mat2 *data, int count, bool transpose /*= false*/)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(count, transpose));
 }
 
-void Uniform::set(const std::string &name, const ci::Matrix33f *data, int count, bool transpose /*= false*/)
+void Uniform::set(const std::string &name, const ci::mat3 *data, int count, bool transpose /*= false*/)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(count, transpose));
 }
 
-void Uniform::set(const std::string &name, const ci::Matrix44f *data, int count, bool transpose /*= false*/)
+void Uniform::set(const std::string &name, const ci::mat4 *data, int count, bool transpose /*= false*/)
 {
 	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(count, transpose));
 }
