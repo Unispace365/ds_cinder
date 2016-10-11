@@ -24,7 +24,6 @@ namespace ds{
 			, mTweenAnimationDelay(0.0f)
 			, mTweenAnimationEaseFn(ci::EaseNone())
 			, mIsTurnOnStepSwipe(false)
-
 		{
 			setSize(startWidth, startHeight);
 			mSpriteMomentum.setMass(8.0f);
@@ -108,6 +107,21 @@ namespace ds{
 			mTweenAnimationEaseFn = fn;
 		}
 
+		std::vector<int> infinityList::getOnScreenItemsPos(){
+			std::vector<int> positions;
+			for (int i = 0; i < mOnScreenItemSize; i++){
+				if (mOnScreenItemList[i].mOnscrren){
+					for (int j = 0; j < mItemPlaceHolders.size(); j++){
+						if (mItemPlaceHolders[j].mDbId == mOnScreenItemList[i].mDbId){
+							positions.push_back(j);
+						}
+					}
+				}
+			}
+
+			return positions;
+		}
+
 		void infinityList::nextItem(const float duration)
 		{
 			if (mOnScreenItemSize < 2)
@@ -144,6 +158,27 @@ namespace ds{
 			}
 			if (duration < 0) tweenItemPos(targetAmount); //tweenItemPos(mIncrementAmount);
 			else tweenItemPos(targetAmount, duration); 
+		}
+
+		void infinityList::jumpItem(int itemId, float duration){
+			if (mOnScreenItemList.empty() && mOnScreenItemSize > 2)
+				return;
+
+			if (itemId < mItemPlaceHolders.size()) itemId = itemId % mItemPlaceHolders.size();
+			mBottomIndex = itemId;
+			auto &placeHolder = mItemPlaceHolders[mBottomIndex];
+			createSprite(placeHolder);
+			if (mVertical)
+				placeHolder.mAssociatedSprite->setPosition(mStartPositionX, mOnScreenItemList[mOnScreenItemSize - 2].mAssociatedSprite->getPosition().y + mIncrementAmount);
+			else
+				placeHolder.mAssociatedSprite->setPosition(mOnScreenItemList[mOnScreenItemSize - 2].mAssociatedSprite->getPosition().x + mIncrementAmount, mStartPositionY);
+
+			mOnScreenItemList[mOnScreenItemSize - 1].mAssociatedSprite->release();
+			mOnScreenItemList.pop_back();
+			mOnScreenItemList.push_back(placeHolder);
+
+			nextItem(duration);
+			
 		}
 
 		void infinityList::turnOnStepSwipe()
@@ -214,7 +249,8 @@ namespace ds{
 		}
 
 		void infinityList::initItemStart(int itemNum){
-			mBottomIndex = itemNum % (mItemPlaceHolders.size() - 1) - 1;
+			mBottomIndex = itemNum % (mItemPlaceHolders.size()) - 2;
+			if (mBottomIndex < 0) mBottomIndex = mItemPlaceHolders.size() + mBottomIndex;
 			assignItems();
 		}
 
@@ -346,7 +382,10 @@ namespace ds{
 						}
 					});
 				}
-				callAfterDelay([this](){checkBounds(); }, mTweenAnimationDelay + duration + 0.1f);
+				callAfterDelay([this](){
+					checkBounds();
+					if (mScrollUpdatedCallback) mScrollUpdatedCallback();
+				}, mTweenAnimationDelay + duration + 0.1f);
 
 			}
 
@@ -390,7 +429,7 @@ namespace ds{
 			{
 				mOnScreenItemList[0].mAssociatedSprite->release();
 				mOnScreenItemList.erase(mOnScreenItemList.begin());
-				addSpriteToEnd();
+				addSpriteToEnd();		
 			}
 			if (mOnScreenItemList[0].mOnscrren)
 			{
