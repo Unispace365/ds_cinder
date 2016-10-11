@@ -176,6 +176,8 @@ void Web::setWebTransparent(const bool isTransparent){
 
 void Web::initializeBrowser(){
 
+	DS_LOG_INFO("Initialize browser: " << mUrl <<" " << mBrowserId);
+
 	mNeedsInitialized = false;
 
 	// Now that we know about the browser, set it to the correct size
@@ -212,7 +214,7 @@ void Web::initializeBrowser(){
 		mIsLoading = isLoading;
 		mCanBack = canBack;
 		mCanForward = canForwards;
-		mUrl = newUrl;
+		mCurrentUrl = newUrl;
 
 		// zoom seems to need to be set for every page
 		// This callback is locked in CEF, so zoom checking needs to happen later
@@ -394,11 +396,17 @@ std::string Web::getUrl() {
 	return mUrl;
 }
 
+std::string Web::getCurrentUrl(){
+	std::lock_guard<std::mutex> lock(mMutex);
+	return mCurrentUrl;
+}
+
 void Web::loadUrl(const std::wstring &url) {
 	loadUrl(ds::utf8_from_wstr(url));
 }
 
 void Web::loadUrl(const std::string &url) {
+	mCurrentUrl = url;
 	mUrl = url;
 	markAsDirty(URL_DIRTY);
 	if(mBrowserId > -1 && !mUrl.empty()){
