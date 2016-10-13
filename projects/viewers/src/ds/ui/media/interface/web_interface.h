@@ -47,6 +47,7 @@ protected:
 	float						mKeyboardKeyScale;
 
 	bool						mAbleToTouchToggle;
+	bool						mWebLocked;
 
 	ds::ui::ImageButton*		mKeyboardButton;
 	ds::ui::ImageButton*		mBackButton;
