@@ -51,6 +51,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
+	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
@@ -328,6 +329,8 @@ void Engine::setup(ds::App& app) {
 	}
 
 	setupRenderer();
+
+	mPangoFontService.loadFonts();
 }
 
 void Engine::setupTouch(ds::App& a) {

@@ -8,22 +8,20 @@
 #include <pango/pango-font.h>
 #include <regex>
 
+#include "ds/ui/sprite/sprite_engine.h"
+#include "ds/ui/service/pango_font_service.h"
 #include <ds/debug/logger.h>
 
 #if CAIRO_HAS_WIN32_SURFACE
 #include <cairo-win32.h>
 #endif
 
-using namespace kp::pango;
+namespace ds {
+namespace ui {
 
-//#pragma mark - Lifecycle
-
-CinderPangoRef CinderPango::create() {
-	return CinderPangoRef(new CinderPango())->shared_from_this();
-}
-
-CinderPango::CinderPango()
-	: mText("")
+TextPango::TextPango(ds::ui::SpriteEngine& eng)
+	: ds::ui::Sprite(eng)
+	, mText("")
 	, mProcessedText("")
 	, mNeedsMarkupDetection(false)
 	, mNeedsFontUpdate(false)
@@ -33,7 +31,7 @@ CinderPango::CinderPango()
 	, mProbablyHasMarkup(false)
 	, mDefaultTextColor(ci::ColorA::black())
 	, mBackgroundColor(ci::ColorA::black())
-	, mDefaultTextFont("HelveticaNeueLT Std UltLt Ext Light")
+	, mDefaultTextFont("Sans")
 	, mDefaultTextSize(120.0)
 	, mDefaultTextItalicsEnabled(false)
 	, mDefaultTextSmallCapsEnabled(false)
@@ -44,7 +42,7 @@ CinderPango::CinderPango()
 	, mDefaultTextWeight(TextWeight::NORMAL)
 	, mTextAntialias(TextAntialias::SUBPIXEL)
 	, mPixelWidth(-1)
-	, mPixelHeight(-1) 
+	, mPixelHeight(-1)
 	, fontDescription(nullptr)
 	, pangoContext(nullptr)
 	, pangoLayout(nullptr)
@@ -56,31 +54,19 @@ CinderPango::CinderPango()
 	, cairoImageSurface(nullptr)
 #endif
 {
-	std::cout << "Pango version: " << PANGO_VERSION_MAJOR << "." << PANGO_VERSION_MINOR << "." << PANGO_VERSION_MICRO << " " << PANGO_VERSION_STRING << std::endl;
+//	std::cout << "Pango version: " << PANGO_VERSION_MAJOR << "." << PANGO_VERSION_MINOR << "." << PANGO_VERSION_MICRO << " " << PANGO_VERSION_STRING << std::endl;
 
-	Poco::Timestamp::TimeVal nowwy = Poco::Timestamp().epochMicroseconds();
-	// Create Font Map for reuse
-	fontMap = nullptr;
-	fontMap = pango_cairo_font_map_get_default();
-	//fontMap = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_TOY);
-	if(fontMap == nullptr) {
-		DS_LOG_WARNING("Cannot create the pango font map.");
+	if(!mEngine.getPangoFontService().getPangoFontMap()) {
+		DS_LOG_WARNING("Cannot create the pango font map, nothing will render for this pango text sprite.");
 		return;
 	}
 
-
-	std::cout << "Pango font map time: " << (Poco::Timestamp().epochMicroseconds() - nowwy) / 1000000.0f << std::endl;
-	nowwy = Poco::Timestamp().epochMicroseconds();
-
 	// Create Pango Context for reuse
-	pangoContext = pango_font_map_create_context(fontMap);
+	pangoContext = pango_font_map_create_context(mEngine.getPangoFontService().getPangoFontMap());
 	if(nullptr == pangoContext) {
 		DS_LOG_WARNING("Cannot create the pango font context.");
 		return;
 	}
-
-	std::cout << "Pango Context time: " << (Poco::Timestamp().epochMicroseconds() - nowwy) / 1000000.0f << std::endl;
-	nowwy = Poco::Timestamp().epochMicroseconds();
 
 	// Create Pango Layout for reuse
 	pangoLayout = pango_layout_new(pangoContext);
@@ -89,33 +75,20 @@ CinderPango::CinderPango()
 		return;
 	}
 
-	std::cout << "Pango layout time: " << (Poco::Timestamp().epochMicroseconds() - nowwy) / 1000000.0f << std::endl;
-	nowwy = Poco::Timestamp().epochMicroseconds();
-
 	// Initialize Cairo surface and context, will be instantiated on demand
-
-
 	cairoFontOptions = cairo_font_options_create();
 	if(cairoFontOptions == nullptr) {
 		DS_LOG_WARNING("Cannot create Cairo font options.");
 		return;
 	}
 
-
-	std::cout << "Pango font options time: " << (Poco::Timestamp().epochMicroseconds() - nowwy) / 1000000.0f << std::endl;
-	nowwy = Poco::Timestamp().epochMicroseconds();
-
 	// Generate the default font config
 	mNeedsFontOptionUpdate = true;
 	mNeedsFontUpdate = true;
 	render();
-
-	std::cout << "Pango Render time: " << (Poco::Timestamp().epochMicroseconds() - nowwy) / 1000000.0f << std::endl;
-
-	//logFontList(false, fontMap);
 }
 
-CinderPango::~CinderPango() {
+TextPango::~TextPango() {
 	// This causes crash on windows
 	if(cairoContext != nullptr) {
 		cairo_destroy(cairoContext);
@@ -141,17 +114,17 @@ CinderPango::~CinderPango() {
 #endif
 
 	// g_object_unref(pangoContext); // this one crashes Windows?
-	g_object_unref(fontMap);
+	//g_object_unref(fontMap);
 	g_object_unref(pangoLayout);
 }
 
 //#pragma mark - Getters / Setters
 
-const std::string CinderPango::getText() {
+const std::string TextPango::getText() {
 	return mText;
 }
 
-void CinderPango::setText(std::string text) {
+void TextPango::setText(std::string text) {
 	if(text != mText) {
 		mText = text;
 		mNeedsMarkupDetection = true;
@@ -160,24 +133,23 @@ void CinderPango::setText(std::string text) {
 	}
 }
 
-const ci::gl::TextureRef CinderPango::getTexture() {
-	// TODO nullptr check?
+const ci::gl::TextureRef TextPango::getTexture() {
 	return mTexture;
 }
 
-void CinderPango::setDefaultTextStyle(std::string font, float size, ci::ColorA color, TextWeight weight, TextAlignment alignment) {
-	this->setDefaultTextFont(font);
-	this->setDefaultTextSize(size);
-	this->setDefaultTextColor(color);
-	this->setDefaultTextWeight(weight);
-	this->setTextAlignment(alignment);
+void TextPango::setDefaultTextStyle(std::string font, float size, ci::ColorA color, TextWeight weight, TextAlignment alignment) {
+	setDefaultTextFont(font);
+	setDefaultTextSize(size);
+	setDefaultTextColor(color);
+	setDefaultTextWeight(weight);
+	setTextAlignment(alignment);
 }
 
-TextWeight CinderPango::getDefaultTextWeight() {
+TextWeight TextPango::getDefaultTextWeight() {
 	return mDefaultTextWeight;
 }
 
-void CinderPango::setDefaultTextWeight(TextWeight weight) {
+void TextPango::setDefaultTextWeight(TextWeight weight) {
 	if(mDefaultTextWeight != weight) {
 		mDefaultTextWeight = weight;
 		mNeedsFontUpdate = true;
@@ -186,11 +158,11 @@ void CinderPango::setDefaultTextWeight(TextWeight weight) {
 	}
 }
 
-TextAlignment CinderPango::getTextAlignment() {
+TextAlignment TextPango::getTextAlignment() {
 	return mTextAlignment;
 }
 
-void CinderPango::setTextAlignment(TextAlignment alignment) {
+void TextPango::setTextAlignment(TextAlignment alignment) {
 	if(mTextAlignment != alignment) {
 		mTextAlignment = alignment;
 		mNeedsMeasuring = true;
@@ -198,11 +170,11 @@ void CinderPango::setTextAlignment(TextAlignment alignment) {
 	}
 }
 
-float CinderPango::getSpacing() {
+float TextPango::getSpacing() {
 	return mSpacing;
 }
 
-void CinderPango::setSpacing(float spacing) {
+void TextPango::setSpacing(float spacing) {
 	if(mSpacing != spacing) {
 		mSpacing = spacing;
 		mNeedsMeasuring = true;
@@ -210,11 +182,11 @@ void CinderPango::setSpacing(float spacing) {
 	}
 }
 
-TextAntialias CinderPango::getTextAntialias() {
+TextAntialias TextPango::getTextAntialias() {
 	return mTextAntialias;
 }
 
-void CinderPango::setTextAntialias(TextAntialias mode) {
+void TextPango::setTextAntialias(TextAntialias mode) {
 	if(mTextAntialias != mode) {
 		mTextAntialias = mode;
 		mNeedsFontOptionUpdate = true;
@@ -223,15 +195,15 @@ void CinderPango::setTextAntialias(TextAntialias mode) {
 	}
 }
 
-ci::Vec2i CinderPango::getMinSize() {
+ci::Vec2i TextPango::getMinSize() {
 	return mMinSize;
 }
 
-void CinderPango::setMinSize(int minWidth, int minHeight) {
+void TextPango::setMinSize(int minWidth, int minHeight) {
 	setMinSize(ci::Vec2i(minWidth, minHeight));
 }
 
-void CinderPango::setMinSize(ci::Vec2i minSize) {
+void TextPango::setMinSize(ci::Vec2i minSize) {
 	if(mMinSize != minSize) {
 		mMinSize = minSize;
 		mNeedsMeasuring = true;
@@ -239,15 +211,15 @@ void CinderPango::setMinSize(ci::Vec2i minSize) {
 	}
 }
 
-ci::Vec2i CinderPango::getMaxSize() {
+ci::Vec2i TextPango::getMaxSize() {
 	return mMaxSize;
 }
 
-void CinderPango::setMaxSize(int maxWidth, int maxHeight) {
+void TextPango::setMaxSize(int maxWidth, int maxHeight) {
 	setMaxSize(ci::Vec2i(maxWidth, maxHeight));
 }
 
-void CinderPango::setMaxSize(ci::Vec2i maxSize) {
+void TextPango::setMaxSize(ci::Vec2i maxSize) {
 	if(mMaxSize != maxSize) {
 		mMaxSize = maxSize;
 		mNeedsMeasuring = true;
@@ -255,33 +227,33 @@ void CinderPango::setMaxSize(ci::Vec2i maxSize) {
 	}
 }
 
-ci::ColorA CinderPango::getDefaultTextColor() {
+ci::ColorA TextPango::getDefaultTextColor() {
 	return mDefaultTextColor;
 }
 
-void CinderPango::setDefaultTextColor(ci::ColorA color) {
+void TextPango::setDefaultTextColor(ci::ColorA color) {
 	if(mDefaultTextColor != color) {
 		mDefaultTextColor = color;
 		mNeedsTextRender = true;
 	}
 }
 
-ci::ColorA CinderPango::getBackgroundColor() {
+ci::ColorA TextPango::getBackgroundColor() {
 	return mBackgroundColor;
 }
 
-void CinderPango::setBackgroundColor(ci::ColorA color) {
+void TextPango::setBackgroundColor(ci::ColorA color) {
 	if(mBackgroundColor != color) {
 		mBackgroundColor = color;
 		mNeedsTextRender = true;
 	}
 }
 
-bool CinderPango::getDefaultTextSmallCapsEnabled() {
+bool TextPango::getDefaultTextSmallCapsEnabled() {
 	return mDefaultTextSmallCapsEnabled;
 }
 
-void CinderPango::setDefaultTextSmallCapsEnabled(bool value) {
+void TextPango::setDefaultTextSmallCapsEnabled(bool value) {
 	if(mDefaultTextSmallCapsEnabled != value) {
 		mDefaultTextSmallCapsEnabled = value;
 		mNeedsFontUpdate = true;
@@ -289,11 +261,11 @@ void CinderPango::setDefaultTextSmallCapsEnabled(bool value) {
 	}
 }
 
-bool CinderPango::getDefaultTextItalicsEnabled() {
+bool TextPango::getDefaultTextItalicsEnabled() {
 	return mDefaultTextItalicsEnabled;
 }
 
-void CinderPango::setDefaultTextItalicsEnabled(bool value) {
+void TextPango::setDefaultTextItalicsEnabled(bool value) {
 	if(mDefaultTextItalicsEnabled != value) {
 		mDefaultTextItalicsEnabled = value;
 		mNeedsFontUpdate = true;
@@ -301,11 +273,11 @@ void CinderPango::setDefaultTextItalicsEnabled(bool value) {
 	}
 }
 
-float CinderPango::getDefaultTextSize() {
+float TextPango::getDefaultTextSize() {
 	return mDefaultTextSize;
 }
 
-void CinderPango::setDefaultTextSize(float size) {
+void TextPango::setDefaultTextSize(float size) {
 	if(mDefaultTextSize != size) {
 		mDefaultTextSize = size;
 		mNeedsFontUpdate = true;
@@ -313,11 +285,11 @@ void CinderPango::setDefaultTextSize(float size) {
 	}
 }
 
-std::string CinderPango::getDefaultTextFont() {
+std::string TextPango::getDefaultTextFont() {
 	return mDefaultTextFont;
 }
 
-void CinderPango::setDefaultTextFont(std::string font) {
+void TextPango::setDefaultTextFont(std::string font) {
 	if(mDefaultTextFont != font) {
 		mDefaultTextFont = font;
 		mNeedsFontUpdate = true;
@@ -327,17 +299,16 @@ void CinderPango::setDefaultTextFont(std::string font) {
 
 //#pragma mark - Pango Bridge
 
-bool CinderPango::render(bool force) {
+bool TextPango::render(bool force) {
 	if(force || mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
 
-		// Set options
-
 		if(force || mNeedsMarkupDetection) {
+
 			// Pango doesn't support HTML-esque line-break tags, so
 			// find break marks and replace with newlines, e.g. <br>, <BR>, <br />, <BR />
 			std::regex e("<br\\s?/?>", std::regex_constants::icase);
 			mProcessedText = std::regex_replace(mText, e, "\n");
-			//mProcessedText = mText;
+
 			// Let's also decide and flag if there's markup in this string
 			// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
 			// there's no markup to bother with.
@@ -348,7 +319,6 @@ bool CinderPango::render(bool force) {
 		}
 
 		// First run, and then if the fonts change
-
 		if(force || mNeedsFontOptionUpdate) {
 			cairo_font_options_set_antialias(cairoFontOptions, static_cast<cairo_antialias_t>(mTextAntialias));
 
@@ -356,8 +326,6 @@ bool CinderPango::render(bool force) {
 			cairo_font_options_set_hint_style(cairoFontOptions, CAIRO_HINT_STYLE_FULL);
 			cairo_font_options_set_hint_metrics(cairoFontOptions, CAIRO_HINT_METRICS_ON);
 			//cairo_font_options_set_subpixel_order(cairoFontOptions, CAIRO_SUBPIXEL_ORDER_BGR);
-
-
 
 			pango_cairo_context_set_font_options(pangoContext, cairoFontOptions);
 
@@ -374,14 +342,7 @@ bool CinderPango::render(bool force) {
 			pango_font_description_set_style(fontDescription, mDefaultTextItalicsEnabled ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
 			pango_font_description_set_variant(fontDescription, mDefaultTextSmallCapsEnabled ? PANGO_VARIANT_SMALL_CAPS : PANGO_VARIANT_NORMAL);
 			pango_layout_set_font_description(pangoLayout, fontDescription);
-			PangoFont* pangoFont = pango_font_map_load_font(fontMap, pangoContext, fontDescription);
-
-			auto postFontDescribe = pango_font_describe(pangoFont);
-			if(postFontDescribe){
-				//std::cout << "Font description " << pango_font_description_to_string(postFontDescribe) << std::endl;
-			}
-
-			//std::cout << "Font description " << pango_font_description_to_string(fontDescription) << std::endl;
+			pango_font_map_load_font(mEngine.getPangoFontService().getPangoFontMap(), pangoContext, fontDescription);
 
 			mNeedsFontUpdate = false;
 		}
@@ -409,23 +370,12 @@ bool CinderPango::render(bool force) {
 			// pango_layout_set_wrap(pangoLayout, PANGO_WRAP_CHAR);
 			pango_layout_set_spacing(pangoLayout, (int)mSpacing * PANGO_SCALE);
 
-			// TODO set specific attributes...
-			// Update font attributes
-			// PangoAttrList *attributeList = pango_attr_list_new();
-			// PangoAttribute *attribute;
-			// attribute = pango_attr_letter_spacing_new(10 * PANGO_SCALE);
-			// attribute->start_index = 0;
-			// attribute->end_index = -1;
-			// pango_attr_list_insert(attributeList, attribute);
-			// pango_layout_set_attributes(pangoLayout, attributeList);
-			// pango_attr_list_unref(attributeList);
-
 			// Set text, use the fastest method depending on what we found in the text
 			if(mProbablyHasMarkup) {
 				pango_layout_set_markup(pangoLayout, mProcessedText.c_str(), -1);
-		//		pango_layout_set_markup_with_accel()
+				//		pango_layout_set_markup_with_accel()
 			} else {
-				pango_layout_set_text(pangoLayout, "Hello World!", -1);// mProcessedText.c_str(), -1);
+				pango_layout_set_text(pangoLayout, mProcessedText.c_str(), -1);
 			}
 
 			// Measure text
@@ -437,6 +387,7 @@ bool CinderPango::render(bool force) {
 			pango_layout_get_pixel_extents(pangoLayout, &inkRect, &extentRect);
 			pango_layout_get_pixel_size(pangoLayout, &newPixelWidth, &newPixelHeight);
 
+			// TODO: output a warning, and / or do a better job detecting and fixing issues or something
 			if(newPixelWidth == 0 || newPixelHeight == 0){
 				std::cout << "Uh oh, no size for pango layout." << std::endl;
 			}
@@ -444,6 +395,7 @@ bool CinderPango::render(bool force) {
 			//std::cout << "Ink rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height << std::endl;
 			//std::cout << "Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height << std::endl;
 
+			// Some italics stuff extends beyond the normal widths
 			mPixelWidth = extentRect.width + extentRect.x + 10; // newPixelWidth + 10;
 			mPixelHeight = extentRect.height + extentRect.y; // newPixelHeight + 10;
 
@@ -460,6 +412,7 @@ bool CinderPango::render(bool force) {
 
 			mNeedsMeasuring = false;
 		}
+
 
 		// Create Cairo surface buffer to draw glyphs into
 		// Force this is we need to render but don't have a surface yet
@@ -506,15 +459,10 @@ bool CinderPango::render(bool force) {
 				return true;
 			}
 
-
-			// Flip vertically
-			//cairo_scale(cairoContext, 1.0f, -1.0f);
-			//cairo_translate(cairoContext, -11.0f, 10.0f);
-			//cairo_move_to(cairoContext, 0, 0); // needed?
-
 			mNeedsTextRender = true;
 			freshCairoSurface = true;
 		}
+
 
 		if(force || mNeedsTextRender) {
 			// Render text
@@ -526,34 +474,18 @@ bool CinderPango::render(bool force) {
 				cairo_paint(cairoContext);
 				cairo_restore(cairoContext);
 			}
-			/*
-			
-			else {
-				// Fill the context with the background color
-				cairo_save(cairoContext);
-				cairo_set_source_rgba(cairoContext, mBackgroundColor.r, mBackgroundColor.g, mBackgroundColor.b, mBackgroundColor.a);
-				cairo_paint(cairoContext);
-				cairo_restore(cairoContext);
-				}
-				*/
 
 			// Draw the text into the buffer
 			cairo_set_source_rgba(cairoContext, mDefaultTextColor.r, mDefaultTextColor.g, mDefaultTextColor.b, mDefaultTextColor.a);
 			pango_cairo_update_layout(cairoContext, pangoLayout);
 			pango_cairo_show_layout(cairoContext, pangoLayout);
 
-			cairo_surface_write_to_png(cairoSurface, "test_font.png");
+			//	cairo_surface_write_to_png(cairoSurface, "test_font.png");
 
 			// Copy it out to a texture
 #ifdef CAIRO_HAS_WIN32_SURFACE
-		//	cairo_surface_flush(cairoSurface);
 			cairoImageSurface = cairo_win32_surface_get_image(cairoSurface);
-			//unsigned char *pixels = cairo_image_surface_get_data(cairoImageSurface);
 			unsigned char *pixels = cairo_image_surface_get_data(cairoImageSurface);
-
-		//	auto formatty = cairo_image_surface_get_format(cairoImageSurface);
-		//	auto biWidth = cairo_image_surface_get_width(cairoImageSurface);
-		//	auto biHeight = cairo_image_surface_get_height(cairoImageSurface);
 #else
 			unsigned char *pixels = cairo_image_surface_get_data(cairoSurface);
 #endif
@@ -561,11 +493,12 @@ bool CinderPango::render(bool force) {
 
 			// TODO!
 			//if(mTexture == nullptr || (mTexture->getWidth() != mPixelWidth) || (mTexture->getHeight() != mPixelHeight)) {
-				// Create a new texture if needed
-				mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight);
-				mTexture->setMinFilter(GL_LINEAR);
-		//	} else {
-				// Update the existing texture
+			// Create a new texture if needed
+			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight);
+			mTexture->setMinFilter(GL_LINEAR);
+
+			//	} else {
+			// Update the existing texture?
 			//	mTexture->update(pixels, GL_BGRA, GL_UNSIGNED_BYTE, 0, mPixelWidth, mPixelHeight);
 			//}
 
@@ -580,7 +513,7 @@ bool CinderPango::render(bool force) {
 
 //#pragma mark - Static Methods
 
-void CinderPango::setTextRenderer(kp::pango::TextRenderer renderer) {
+void TextPango::setTextRenderer(ds::ui::TextRenderer renderer) {
 	std::string rendererName = "";
 
 	switch(renderer) {
@@ -612,7 +545,7 @@ void CinderPango::setTextRenderer(kp::pango::TextRenderer renderer) {
 	}
 }
 
-TextRenderer CinderPango::getTextRenderer() {
+TextRenderer TextPango::getTextRenderer() {
 	const char *rendererName = std::getenv("PANGOCAIRO_BACKEND");
 
 	if(rendererName == nullptr) {
@@ -634,118 +567,5 @@ TextRenderer CinderPango::getTextRenderer() {
 	return TextRenderer::PLATFORM_NATIVE;
 }
 
-void CinderPango::loadFont(const ci::fs::path &path) {
-
-	FcConfig* config = FcInitLoadConfigAndFonts();
-	const FcChar8 *fcDirPath = (const FcChar8 *)"C:/Users/GordonN/Documents/ds_cinder/example/pango/data/fonts/";
-	auto dirReturn = FcConfigAppFontAddDir(config, fcDirPath);
-	if(dirReturn){
-		std::cout << "WHOOOOO" << std::endl;
-	} else {
-		std::cout << "BOOOOOO" << std::endl;
-	}
-	const FcChar8 *fcPath = (const FcChar8 *)"C:/Users/GordonN/Documents/ds_cinder/example/pango/data/fonts/CharterITCPro-Regular.otf"; // path.c_str();
-	FcBool fontAddStatus = FcConfigAppFontAddFile(config, fcPath);
-	
-	//make pattern from font name
-	FcPattern* pat = FcNameParse((const FcChar8*)"CharterITCPro-Regular");
-	FcConfigSubstitute(config, pat, FcMatchPattern);
-	FcDefaultSubstitute(pat);
-	char* fontFile; //this is what we'd return if this was a function
-	// find the font
-	FcResult result;
-	FcPattern* font = FcFontMatch(config, pat, &result);
-	if(font)
-	{
-		FcChar8* file = NULL;
-		if(FcPatternGetString(font, FC_FILE, 0, &file) == FcResultMatch)
-		{
-			//we found the font, now print it.
-			//This might be a fallback font
-			fontFile = (char*)file;
-			std::cout << "FcMatched: " << fontFile << std::endl;
-		}
-	}
-	FcPatternDestroy(pat);
-
-	if(!fontAddStatus) {
-		DS_LOG_WARNING("Pango failed to load font from file \"" << path << "\"");
-	} else {
-		DS_LOG_INFO("Pango thinks it loaded font " << path << " with status " << fontAddStatus);
-	}
-}
-
-std::vector<std::string> CinderPango::getFontList(bool verbose, PangoFontMap* fontmap) {
-	std::vector<std::string> fontList;
-
-	// http: // www.lemoda.net/pango/list-fonts/
-	// https://code.google.com/p/serif/source/browse/fontview/trunk/src/font-model.c
-	int i;
-	PangoFontFamily **families;
-	int n_families;
-	//PangoFontMap *fontmap;
-
-	if(!fontmap){
-		fontmap = pango_cairo_font_map_get_default();
-	}
-	pango_font_map_list_families(fontmap, &families, &n_families);
-	// printf("There are %d families\n", n_families);
-	for(i = 0; i < n_families; i++) {
-		PangoFontFamily *family = families[i];
-
-		const char *family_name;
-		family_name = pango_font_family_get_name(family);
-		fontList.push_back(family_name);
-
-		if(verbose) {
-			DS_LOG_INFO("Family " << i << ": " << family_name);
-
-			// Also interrogate individual fonts in the family
-			// Useful if something isn't rendering correctly
-			PangoFontFace **pFontFaces = 0;
-			int numFontFaces = 0;
-			pango_font_family_list_faces(family, &pFontFaces, &numFontFaces);
-
-			// Get a description of each weight
-			for(int i = 0; i < numFontFaces; i++) {
-				PangoFontFace *face = pFontFaces[i];
-
-				const char *face_name = pango_font_face_get_face_name(face);
-				PangoFontDescription *description = pango_font_face_describe(face);
-				const char *description_string = pango_font_description_to_string(description);
-				PangoWeight weight = pango_font_description_get_weight(description);
-				uint32_t hash = pango_font_description_hash(description);
-
-				DS_LOG_INFO("\tFace " << i << ": " << face_name);
-				DS_LOG_INFO("\t\tDescription: " << description_string);
-				DS_LOG_INFO("\t\tWeight: " << weight);
-				DS_LOG_INFO("\t\tHash: " << hash);
-				// TODO more stuff?
-
-				int* sizes; int nsizes;
-				pango_font_face_list_sizes(face, &sizes, &nsizes);
-				if(sizes) {
-					for(int k = 0; k < nsizes; ++k){ DS_LOG_INFO("\t\tSize: " <<sizes[k]); }
-					g_free(sizes);
-				}
-
-				pango_font_description_free(description);
-			}
-
-			//g_free(pFontFaces);
-		}
-	}
-	//g_free(families);
-
-	return fontList;
-}
-
-void CinderPango::logFontList(bool verbose, PangoFontMap* fontMap) {
-	auto fontList = getFontList(verbose, fontMap);
-
-	int index = 0;
-	for(auto &fontName : fontList) {
-		DS_LOG_INFO("Font " << index << ": " << fontName);
-		index++;
-	}
-}
+} // namespace ui
+} // namespace ds

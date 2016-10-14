@@ -5,9 +5,8 @@
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/app/event_client.h>
-#include <ds/ui/sprite/text.h>
+#include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/image.h>
-#include <ds/ui/layout/layout_sprite.h>
 
 #include "model/generated/story_model.h"
 
@@ -41,10 +40,9 @@ private:
 	Globals&							mGlobals;
 
 	ds::EventClient						mEventClient;
-	ds::ui::LayoutSprite*				mPrimaryLayout;
-	ds::ui::Text*						mMessage;
+	ds::ui::MultilineText*				mMessage;
 	ds::ui::Image*						mImage;
-	kp::pango::CinderPangoRef mPango;
+	ds::ui::TextPango*				mPango;
 
 };
 

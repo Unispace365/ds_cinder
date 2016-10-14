@@ -16,16 +16,11 @@ namespace pango {
 QueryHandler::QueryHandler(ds::ui::SpriteEngine& se, AllData &ad)
 		: mEventClient(se.getNotifier(), [this](const ds::Event* e){if (e) onAppEvent(*e); })
 		, mAllData(ad)
-		, mNodeWatcher(se)
 		, mStoryQuery(se, [](){return new StoryQuery(); })
 {
 
 	// Initialize data
 	mStoryQuery.setReplyHandler([this](StoryQuery& q){this->onStoryQuery(q); });
-
-	mNodeWatcher.setDelayedMessageNodeCallback([this](const ds::NodeWatcher::Message& m){
-		runInitialQueries(false);
-	});
 }
 
 void QueryHandler::runInitialQueries(const bool synchronous){

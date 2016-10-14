@@ -4,9 +4,7 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
-#include <ds/ui/interface_xml/interface_xml_importer.h>
 
-#include <ds/ui/media/media_viewer.h>
 
 #include <cinder/Rand.h>
 
@@ -27,24 +25,10 @@ PangoApp::PangoApp()
 	.ortho()
 	.pickColor()
 
-	// If you need a perspective view, add it here.
-	// Then you can refer to the perspective root later and modify its properties (see setupServer())
-	/*
-	.persp()
-	.perspFov(60.0f)
-	.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-	.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
-	.perspNear(0.0002f)
-	.perspFar(20.0f)
-
-	.ortho()
-	*/
-
 	)
 	, mGlobals(mEngine, mAllData)
 	, mQueryHandler(mEngine, mAllData)
 	, mIdling(false)
-	, mTouchDebug(mEngine)
 	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 {
 
@@ -84,8 +68,8 @@ void PangoApp::setupServer(){
 	mGlobals.initialize();
 	mQueryHandler.runInitialQueries(true);
 
-	const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
-	ds::ui::XmlImporter::setAutoCache(cacheXML);
+	//const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
+	//ds::ui::XmlImporter::setAutoCache(cacheXML);
 
 	const int numRoots = mEngine.getRootCount();
 	int numPlacemats = 0;
@@ -208,23 +192,23 @@ void PangoApp::keyDown(ci::app::KeyEvent event){
 }
 
 void PangoApp::mouseDown(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDown(e);
+//	mTouchDebug.mouseDown(e);
 }
 
 void PangoApp::mouseDrag(ci::app::MouseEvent e) {
-	mTouchDebug.mouseDrag(e);
+//	mTouchDebug.mouseDrag(e);
 }
 
 void PangoApp::mouseUp(ci::app::MouseEvent e) {
-	mTouchDebug.mouseUp(e);
+//	mTouchDebug.mouseUp(e);
 }
 
 void PangoApp::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
-		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
-		mv->initialize();
-		mEngine.getRootSprite().addChildPtr(mv);
+		//ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
+		//mv->initialize();
+		//mEngine.getRootSprite().addChildPtr(mv);
 	}
 }
 

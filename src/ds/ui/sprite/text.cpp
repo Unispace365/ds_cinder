@@ -563,7 +563,7 @@ void Text::drawIntoFbo() {
 	auto& lines = mLayout.getLines();
 	if (lines.empty()) return;
 
-	if (mNeedRedrawing) {
+	if(mNeedRedrawing) {
 		ds::gl::SaveCamera		save_camera;
 
 		mNeedRedrawing = false;

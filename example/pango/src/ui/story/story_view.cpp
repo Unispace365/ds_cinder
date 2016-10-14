@@ -11,7 +11,6 @@
 #include "app/app_defs.h"
 #include "app/globals.h"
 #include "events/app_events.h"
-#include "ds/ui/interface_xml/interface_xml_importer.h"
 
 namespace pango {
 
@@ -20,19 +19,12 @@ StoryView::StoryView(Globals& g)
 	, mGlobals(g)
 	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 	, mMessage(nullptr)
-	, mPrimaryLayout(nullptr)
 	, mImage(nullptr)
 	, mPango(nullptr)
 {
 	//hide();
 	//setOpacity(0.0f);
 	/*
-
-	std::map<std::string, ds::ui::Sprite*>	spriteMap;
-	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/story_view.xml"), spriteMap);
-	mPrimaryLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["root_layout"]);
-	mMessage = dynamic_cast<ds::ui::Text*>(spriteMap["message"]);
-	mImage = dynamic_cast<ds::ui::Image*>(spriteMap["primary_image"]);
 
 	// calls layout
 	setData();
@@ -50,10 +42,10 @@ StoryView::StoryView(Globals& g)
 
 	setBlendMode(ds::ui::NORMAL);
 
-	kp::pango::CinderPango::setTextRenderer(kp::pango::TextRenderer::FREETYPE);
+	ds::ui::TextPango::setTextRenderer(ds::ui::TextRenderer::FREETYPE);
 
 	//kp::pango::CinderPango::loadFont(ds::Environment::expand("%APP%/data/fonts/CharterITCPro-Black.otf"));
-	mPango = kp::pango::CinderPango::create();
+	mPango = new ds::ui::TextPango(mEngine);
 	mPango->setDefaultTextSize(48.0f);
 	mPango->setMinSize(0, 0);
 	mPango->setMaxSize((int)mEngine.getWorldWidth() - 200, (int)mEngine.getWorldHeight());
@@ -61,12 +53,13 @@ StoryView::StoryView(Globals& g)
 //	kp::pango::CinderPango::loadFont(ds::Environment::expand("%APP%/data/fonts/CharterITCPro-Regular.otf"));
 //	kp::pango::CinderPango::loadFont(ds::Environment::expand("%APP%/data/fonts/NotoSans-Bold.ttf"));
 
-	ds::ui::Text* texty = new ds::ui::Text(mEngine);
-	//addChildPtr(texty);
-	texty->setFont("noto-regular", 24.0f);
-	texty->setText(L"Hello World!");
-	texty->setColor(ci::Color::black());
-	texty->setPosition(-10.0f, 320.0f);
+	mMessage = new ds::ui::MultilineText(mEngine);
+	addChildPtr(mMessage);
+	mMessage->setFont("noto-regular", 48.0f);
+//	mMessage->setText(L"Hello World!");
+	mMessage->setColor(ci::Color::black());
+	mMessage->setPosition(-10.0f, 320.0f);
+	mMessage->setResizeLimit(mEngine.getWorldWidth() - 200.0f);
 	//texty->setScale(2.0f);
 	//kp::pango::CinderPango::logFontList(true);
 }
@@ -107,9 +100,6 @@ void StoryView::setData() {
 }
 
 void StoryView::layout(){
-	if(mPrimaryLayout){
-		mPrimaryLayout->runLayout();
-	}
 }
 
 void StoryView::animateOn(){
@@ -129,12 +119,13 @@ void StoryView::updateServer(const ds::UpdateParams& p){
 
 	// any changes for this frame happen here
 
-	if(mPango){
+	if(mPango && mMessage){
 	//	mPango->setTextAlignment(kp::pango::TextAlignment::JUSTIFY);
-		mPango->setText(
+
+		std::string theText =
 			"<markup>"
 			"Hello, world "
-
+			"Here's a <b>bunch more text</b> to simulate a lot of the more text that the other option had for a lot more of the text and stuff and this sentence has a lot of and's and other and's and other things of that nature and such."
 			"<b>Bold Text</b> "
 
 			" <span foreground='blue'>blue text </span> "
@@ -142,22 +133,25 @@ void StoryView::updateServer(const ds::UpdateParams& p){
 			//	"<span foreground=\"green\" font=\"24.0\">Green téxt</span> "
 			//	"<span foreground=\"red\" font=\"Times 48.0\">Red text</span> "
 			//	"<span foreground=\"blue\" font=\"Gravur Condensed Pro 72.0\">AVAVAVA Blue text</span> "
-			"<i>Italic Text </i> "
-			"<b><i>bold and italic</i></b>"
-			"hovedgruppen fra <i>forskjellige</i> <span font_family='Noto Sans'>destinasjoner. Tilknytningsbillett er gyldig inntil 24 timer fr avreise hovedgruppe. </span> \n\nUnicef said 3m"
-			" people had been affected and more than <i>1,400</i> had been killed. <b>The government</b> said some 27,000 people remained "
+			//"<i>Italic Text </i> "
+			//"<b><i>bold and italic</i></b>"
+			//"hovedgruppen fra <i>forskjellige</i> <span font_family='Noto Sans'>destinasjoner. Tilknytningsbillett er gyldig inntil 24 timer fr avreise hovedgruppe. </span> \n\nUnicef said 3m"
+			//" people had been affected and more than <i>1,400</i> had been killed. <b>The government</b> said some 27,000 people remained "
 			"trapped "
-			"and awaiting <s>help.</s> <sub>Here's some very small text.</sub>"
-			" This is great<sup>2</sup>"
-			" <span size='xx-large'>HOORAY</span>"
-			" The <span font_family='Charter ITC Pro' weight='400' foreground='#3f2f10'>Presidential Election</span> is a <span weight='bold'>Farce</span>"
-			"</markup>"
-			+ std::to_string(ci::Rand::randFloat())
-			);
+			//"and awaiting <s>help.</s> <sub>Here's some very small text.</sub>"
+			//" This is great<sup>2</sup>"
+			//" <span size='xx-large'>HOORAY</span>"
+			//" The <span font_family='Charter ITC Pro' weight='400' foreground='#3f2f10'>Presidential Election</span> is a <span weight='bold'>Farce</span>"
+			+std::to_string(ci::Rand::randFloat())
+			+ "</markup>";
+
+		mPango->setText(theText);
 			/*	*/
 			
 		// Only renders if it needs to
 		mPango->render();
+
+	//	mMessage->setText(theText);
 	}
 }
 
@@ -165,7 +159,9 @@ void StoryView::drawLocalClient(){
 	if(mPango != nullptr) {
 		float aaAmount = 0.5f;
 		auto tex = mPango->getTexture();
-		ci::gl::draw(tex);
+		if(tex){
+			ci::gl::draw(tex);
+		}
 	}
 }
 

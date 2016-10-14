@@ -457,7 +457,7 @@ EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 	: inherited(app, settings, ed, roots)
 	, mLoadImageService(*this, mIpFunctions)
-	, mRenderTextService(mRenderTextThread) {
+{
 }
 
 EngineServer::~EngineServer() {

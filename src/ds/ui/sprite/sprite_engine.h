@@ -32,7 +32,7 @@ class Settings;
 
 namespace ui {
 class LoadImageService;
-class RenderTextService;
+class PangoFontService;
 class Sprite;
 class Tweenline;
 class TouchEvent;
@@ -59,7 +59,7 @@ public:
 	virtual const ds::FontList&		getFonts() const = 0;
 	virtual ds::AutoUpdateList&		getAutoUpdateList(const int = AutoUpdateType::SERVER) = 0;
 	virtual LoadImageService&		getLoadImageService() = 0;
-	virtual RenderTextService&		getRenderTextService() = 0;
+	virtual PangoFontService&		getPangoFontService() = 0;
 	virtual ds::ImageRegistry&		getImageRegistry() = 0;
 	virtual Tweenline&				getTweenline() = 0;
 	virtual const ds::cfg::Settings&

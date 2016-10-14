@@ -164,7 +164,7 @@
     <ClInclude Include="..\src\ds\ui\mesh_source\mesh_sphere.h" />
     <ClInclude Include="..\src\ds\ui\service\glsl_image_service.h" />
     <ClInclude Include="..\src\ds\ui\service\load_image_service.h" />
-    <ClInclude Include="..\src\ds\ui\service\render_text_service.h" />
+    <ClInclude Include="..\src\ds\ui\service\pango_font_service.h" />
     <ClInclude Include="..\src\ds\ui\sprite\border.h" />
     <ClInclude Include="..\src\ds\ui\sprite\circle.h" />
     <ClInclude Include="..\src\ds\ui\sprite\circle_border.h" />
@@ -337,7 +337,7 @@
     <ClCompile Include="..\src\ds\ui\mesh_source\mesh_sphere.cpp" />
     <ClCompile Include="..\src\ds\ui\service\glsl_image_service.cpp" />
     <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp" />
-    <ClCompile Include="..\src\ds\ui\service\render_text_service.cpp" />
+    <ClCompile Include="..\src\ds\ui\service\pango_font_service.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\border.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\circle.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\circle_border.cpp" />
@@ -446,6 +446,15 @@
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
+    <CustomBuildStep>
+      <Message>Copying Pango resources to output directory</Message>
+      <Command>echo Copying Pango resources files to Configuration folder
+		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_086)\lib\gtk\runtime" "$(SolutionDir)\$(Configuration)"
+		</Command>
+      <Inputs>$(DS_PLATFORM_086)\lib\gtk\runtime\libpango-1.0-0.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\libpango-1.0-0.dll</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -478,6 +487,15 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
     </Link>
+    <CustomBuildStep>
+      <Message>Copying Pango resources to output directory</Message>
+      <Command>echo Copying Pango resources files to Configuration folder
+		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_086)\lib\gtk\runtime" "$(SolutionDir)\$(Configuration)"
+		</Command>
+      <Inputs>$(DS_PLATFORM_086)\lib\gtk\runtime\libpango-1.0-0.dll</Inputs>
+      <Outputs>$(SolutionDir)\$(Configuration)\libpango-1.0-0.dll</Outputs>
+    </CustomBuildStep>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

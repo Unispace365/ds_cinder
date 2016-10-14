@@ -31,6 +31,7 @@
 #include "ds/data/tuio_object.h"
 #include "ds/cfg/settings.h"
 #include "ds/ui/ip/ip_function_list.h"
+#include "ds/ui/service/pango_font_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/select_picking.h"
 #include "ds/ui/touch/touch_manager.h"
@@ -67,6 +68,7 @@ public:
 	void								addChannel(const std::string &name, const std::string &description);
 	virtual ds::AutoUpdateList&			getAutoUpdateList(const int = AutoUpdateType::SERVER);
 	virtual ds::ImageRegistry&			getImageRegistry() { return mImageRegistry; }
+	virtual ds::ui::PangoFontService&	getPangoFontService(){ return mPangoFontService; }
 	virtual ds::ui::Tweenline&			getTweenline() { return mTweenline; }
 	virtual const ds::cfg::Settings&	getDebugSettings() { return mDebugSettings; }
 	// I take ownership of any services added to me.
@@ -268,6 +270,7 @@ protected:
 	ds::ui::TouchMode::Enum				mTouchMode;
 
 private:
+	// TODO: remove this 
 	//! a pointer to the currently active renderer
 	std::unique_ptr<EngineRenderer>		mRenderer;
 	//! decides a renderer based on engine configurations. MUST be called inside "setup".
@@ -281,6 +284,7 @@ private:
 										mRoots;
 	const ds::cfg::Settings&			mSettings;
 	ImageRegistry						mImageRegistry;
+	ds::ui::PangoFontService			mPangoFontService;
 	ds::ui::Tweenline					mTweenline;
 	// A cache of all the resources in the system
 	ResourceList						mResources;

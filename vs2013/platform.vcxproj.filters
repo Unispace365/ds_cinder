@@ -336,9 +336,6 @@
     <ClInclude Include="..\src\ds\arc\arc_input.h">
       <Filter>src\ds\arc</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\service\render_text_service.h">
-      <Filter>src\ds\ui\service</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\app\app.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
@@ -711,6 +708,9 @@
     <ClInclude Include="..\src\ds\network\single_udp_receiver.h">
       <Filter>src\ds\network</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\service\pango_font_service.h">
+      <Filter>src\ds\ui\service</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -895,9 +895,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_input.cpp">
       <Filter>src\ds\arc</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\service\render_text_service.cpp">
-      <Filter>src\ds\ui\service</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\app\app.cpp">
       <Filter>src\ds\app</Filter>
@@ -1204,6 +1201,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\network\single_udp_receiver.cpp">
       <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\service\pango_font_service.cpp">
+      <Filter>src\ds\ui\service</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

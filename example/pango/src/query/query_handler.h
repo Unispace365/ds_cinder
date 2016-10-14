@@ -8,7 +8,6 @@
 #include <ds/ui/sprite/sprite_engine.h>
 // NOTE: Placing this include at the top gets a conflict
 // with cinder. Need to look into that.
-#include <ds/network/helper/delayed_node_watcher.h>
 #include "query/story_query.h"
 #include "model/all_data.h"
 
@@ -35,7 +34,6 @@ private:
 
 	ds::SerialRunnable<StoryQuery>		mStoryQuery;
 
-	ds::DelayedNodeWatcher				mNodeWatcher;
 };
 
 } // !namespace pango

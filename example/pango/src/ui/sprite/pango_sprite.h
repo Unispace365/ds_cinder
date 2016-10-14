@@ -1,11 +1,8 @@
-// CinderPango.h
-// PangoBasic
-//
-// Created by Eric Mika on 1/6/16.
-//
-
 #pragma once
+#ifndef DS_UI_SPRITE_PANGO_SPRITE
+#define DS_UI_SPRITE_PANGO_SPRITE
 
+#include "ds/ui/sprite/sprite.h"
 #include "cinder/Cinder.h"
 #include "cinder/gl/gl.h"
 #include <cinder/gl/Texture.h>
@@ -16,12 +13,8 @@
 
 #include <vector>
 
-namespace kp {
-namespace pango {
-
-// TODO wrap these up?
-const bool grayscale = false;
-const bool native = false;
+namespace ds {
+namespace ui {
 
 enum class TextAlignment : int {
 	LEFT,
@@ -57,19 +50,14 @@ enum class TextAntialias : int {
 	SUBPIXEL,
 };
 
-typedef std::shared_ptr<class CinderPango> CinderPangoRef;
-
-class CinderPango : public std::enable_shared_from_this<CinderPango> {
+class TextPango : public ds::ui::Sprite {
 public:
-	static CinderPangoRef create();
-	virtual ~CinderPango();
+	TextPango(ds::ui::SpriteEngine& engine);
+	~TextPango();
 
 	// Globals
-	static std::vector<std::string> getFontList(bool verbose, PangoFontMap* fontMap = nullptr);
-	static void logFontList(bool verbose = false, PangoFontMap* fontMap = nullptr);
-	static void loadFont(const ci::fs::path &path);
-	static kp::pango::TextRenderer getTextRenderer();
-	static void setTextRenderer(kp::pango::TextRenderer renderer);
+	static ds::ui::TextRenderer getTextRenderer();
+	static void setTextRenderer(ds::ui::TextRenderer renderer);
 
 	// Rendering
 
@@ -136,8 +124,6 @@ public:
 	// Set force to true to render even if the system thinks state wasn't invalidated.
 	bool render(bool force = false);
 
-protected:
-	CinderPango();
 
 private:
 	ci::gl::TextureRef mTexture;
@@ -172,7 +158,6 @@ private:
 	int mPixelHeight;
 
 	// Pango references
-	PangoFontMap *fontMap;
 	PangoContext *pangoContext;
 	PangoLayout *pangoLayout;
 	PangoFontDescription *fontDescription;
@@ -186,3 +171,6 @@ private:
 };
 }
 } // namespace kp::pango
+
+
+#endif
