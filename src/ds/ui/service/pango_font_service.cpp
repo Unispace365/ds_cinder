@@ -23,8 +23,10 @@ void setTextRenderer() {
 
 	if(status == 0) {
 		DS_LOG_INFO("Set Pango Cairo backend renderer to: " << rendererName);
+		std::cout << "Pango cair backend env var set" << std::endl;
 	} else {
 		DS_LOG_WARNING("Error setting Pango Cairo backend environment variable.");
+		std::cout << "ERROR! Pango cair backend env var set" << std::endl;
 	}
 	
 }
@@ -60,7 +62,8 @@ namespace ui {
 PangoFontService::PangoFontService(ds::ui::SpriteEngine& eng)
 	: mFontMap(nullptr)
 {
-	DS_LOG_INFO_M("Initializing Pango version " <<PANGO_VERSION_STRING, PANGO_FONT_LOG_M);
+	DS_LOG_INFO_M("Initializing Pango version " << PANGO_VERSION_STRING, PANGO_FONT_LOG_M);
+	std::cout << "Initializing Pango version " << PANGO_VERSION_STRING << std::endl;
 
 	setTextRenderer();
 }

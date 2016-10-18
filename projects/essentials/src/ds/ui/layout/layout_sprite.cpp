@@ -3,6 +3,7 @@
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/sprite/text_pango.h>
 #include <ds/ui/sprite/multiline_text.h>
 #include <ds/util/string_util.h>
 
@@ -61,8 +62,11 @@ void LayoutSprite::runSizeLayout(){
 		if(chillin->mLayoutUserType == kFixedSize){
 			if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+				ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
 				if(mt){
 					mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
+				} else if(tp){
+					tp->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 				} else if(chillin->mLayoutFixedAspect){
 					// restore position after calculating the box size
 					ci::Vec3f prePos = chillin->getPosition();
@@ -77,9 +81,12 @@ void LayoutSprite::runSizeLayout(){
 			const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+			ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 			if(mt){
 				mt->setResizeLimit(fixedW, fixedH);
+			} else if(tp){
+				tp->setResizeLimit(fixedW, fixedH);
 			} else if(chillin->mLayoutFixedAspect){
 				// restore position after calculating the box size
 				ci::Vec3f prePos = chillin->getPosition();
@@ -130,6 +137,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				numStretches++;
 			} else {
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+				ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 				
 				if(chillin->mLayoutUserType == kFixedSize){
@@ -137,6 +145,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 					if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 						if(mt){
 							mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
+						} else if(tp){
+							tp->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 						} else if(chillin->mLayoutFixedAspect){
 							fitInside(chillin, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
 						} else {
@@ -152,6 +162,12 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 							mt->setResizeLimit(fixedW);
 						} else {
 							mt->setResizeLimit(mt->getResizeLimitWidth(), fixedH);
+						}
+					} else if(tp){
+						if(vertical){
+							tp->setResizeLimit(fixedW);
+						} else {
+							tp->setResizeLimit(tp->getResizeLimitWidth(), fixedH);
 						}
 					} else if(chillin->mLayoutFixedAspect){
 						if(vertical){
@@ -242,9 +258,12 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 			const float stretchH = (vertical ? perStretch : layoutHeight) - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+			ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 			if(mt){
 				mt->setResizeLimit(stretchW, stretchH);
+			} else if(tp){
+				tp->setResizeLimit(stretchW, stretchH);
 			} else if(chillin->mLayoutFixedAspect){
 				fitInside(chillin, ci::Rectf(0.0f, 0.0f, stretchW, stretchH), true);
 			} else if(ls){
@@ -301,9 +320,12 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+				ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 				if(mt){
 					mt->setResizeLimit(fixedW, fixedH);
+				} else if(tp){
+					tp->setResizeLimit(fixedW, fixedH);
 				} else if(chillin->mLayoutFixedAspect){
 					fitInside(chillin, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), false);
 				} else if(ls){

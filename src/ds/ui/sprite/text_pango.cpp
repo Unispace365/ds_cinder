@@ -76,13 +76,11 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	}
 
 	// Generate the default font config
-	//mNeedsFontOptionUpdate = true;
+	mNeedsFontOptionUpdate = true;
 	//mNeedsFontUpdate = true;
-	//render();
 
 	setTransparent(false);
 	setUseShaderTexture(true);
-	//setBlendMode(ds::ui::ADD); 
 }
 
 TextPango::~TextPango() {
@@ -333,10 +331,10 @@ bool TextPango::render(bool force) {
 		if(force || mNeedsFontOptionUpdate) {
 			// TODO, expose these?
 			
-			cairo_font_options_set_antialias(mCairoFontOptions, CAIRO_ANTIALIAS_BEST);
+			cairo_font_options_set_antialias(mCairoFontOptions, CAIRO_ANTIALIAS_DEFAULT);
 			cairo_font_options_set_hint_style(mCairoFontOptions, CAIRO_HINT_STYLE_FULL);
 			cairo_font_options_set_hint_metrics(mCairoFontOptions, CAIRO_HINT_METRICS_ON);
-		//	cairo_font_options_set_subpixel_order(cairoFontOptions, CAIRO_SUBPIXEL_ORDER_BGR);
+			cairo_font_options_set_subpixel_order(mCairoFontOptions, CAIRO_SUBPIXEL_ORDER_RGB);
 
 			pango_cairo_context_set_font_options(mPangoContext, mCairoFontOptions);
 
@@ -411,13 +409,6 @@ bool TextPango::render(bool force) {
 
 			setSize((float)mPixelWidth, (float)mPixelHeight);
 
-			/*
-			if(mPixelWidth < mMinSize.x) mPixelWidth = mMinSize.x;
-			if(mPixelWidth > mMaxSize.x) mPixelWidth = mMaxSize.x;
-			if(mPixelHeight < mMinSize.y) mPixelHeight = mMinSize.y;
-			if(mPixelHeight > mMaxSize.y) mPixelHeight = mMaxSize.y;
-			*/
-
 			// Check for change, need to re-render if there's a change
 			if((mPixelWidth != lastPixelWidth) || (mPixelHeight != lastPixelHeight)) {
 				// Dimensions changed, re-draw text
@@ -489,8 +480,6 @@ bool TextPango::render(bool force) {
 			}
 
 			// Draw the text into the buffer
-			//cairo_set_source_rgba
-			//cairo_set_source_rgb(cairoContext, 1.0, 1.0, 1.0);
 			cairo_set_source_rgb(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b);
 			pango_cairo_update_layout(mCairoContext, mPangoLayout);
 			pango_cairo_show_layout(mCairoContext, mPangoLayout);
