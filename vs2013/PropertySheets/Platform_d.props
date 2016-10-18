@@ -35,6 +35,8 @@
 	  gobject-2.0.lib;
 	  %(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT; LIBC.lib</IgnoreSpecificDefaultLibraries>
+	  
+		<!-- --><DelayLoadDLLs>libpango-1.0-0.dll;libpangocairo-1.0-0.dll;libpangoft2-1.0-0.dll;libpangowin32-1.0-0.dll;libfontconfig-1.dll;libcairo-2.dll;libcairo-gobject-2.dll</DelayLoadDLLs> 
     </Link>
     <ResourceCompile>
       <AdditionalIncludeDirectories>$(CINDER_086)\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>

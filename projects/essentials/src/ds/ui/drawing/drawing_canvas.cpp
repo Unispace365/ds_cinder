@@ -80,6 +80,10 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	});
 }
 
+DrawingCanvas::~DrawingCanvas(){
+	mEngine.giveBackFbo(std::move(mFboGeneral));
+}
+
 void DrawingCanvas::setBrushColor(const ci::ColorA& brushColor){
 	mBrushColor = brushColor;
 }

@@ -21,6 +21,7 @@ class Globals;
 class DrawingCanvas : public ds::ui::Sprite  {
 public:
 	DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brushImagePath);
+	~DrawingCanvas();
 
 
 	/// The color and opacity are mixed together, though these setters may overwrite others' settings

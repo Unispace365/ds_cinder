@@ -7,10 +7,54 @@
 #include <cairo-win32.h>
 #endif
 
+#include <ds/gl/save_camera.h>
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/service/pango_font_service.h"
 #include "ds/util/string_util.h"
 #include "ds/debug/logger.h"
+
+namespace {
+
+const std::string fragShader =
+"uniform sampler2D tex0;\n"
+"void main()\n"
+"{\n"
+"    vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n"
+"    color = texture2D( tex0, gl_TexCoord[0].st );\n"
+//"    color *= gl_Color;\n"
+"    color.rgb /= color.a;\n"
+//"    color.g /= color.a;\n"
+//"    color.b /= color.a;\n"
+//"    color.a *= color.a;\n"
+"    gl_FragColor = color;\n"
+"}\n";
+
+const std::string opacityFrag =
+"uniform sampler2D tex0;\n"
+"uniform float opaccy;\n"
+"void main()\n"
+"{\n"
+"    vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n"
+"    color = texture2D( tex0, gl_TexCoord[0].st );\n"
+"    color *= gl_Color;\n"
+"    color *= opaccy;\n"
+"    gl_FragColor = color;\n"
+"}\n";
+
+const std::string vertShader =
+"void main()\n"
+"{\n"
+"  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
+"  gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;\n"
+"  gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
+"  gl_FrontColor = gl_Color;\n"
+"}\n";
+
+std::string shaderName = "pango_text_unpremultiply";
+std::string shaderNameOpaccy = "pango_text_opacity";
+}
+
+//#define USE_PANGO_FBO
 
 namespace ds {
 namespace ui {
@@ -37,6 +81,8 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	, mDefaultTextWeight(TextWeight::kNormal)
 	, mPixelWidth(-1)
 	, mPixelHeight(-1)
+	, mFboShader(vertShader, fragShader, shaderName)
+	, mOppaccyShader(vertShader, opacityFrag, shaderNameOpaccy)
 	, mFontDescription(nullptr)
 	, mPangoContext(nullptr)
 	, mPangoLayout(nullptr)
@@ -48,6 +94,16 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	, mCairoWinImageSurface(nullptr)
 #endif
 {
+
+	//std::string shaderName("opacity_override");
+	//addNewMemoryShader(vertShader, opacityFrag, shaderName, false);
+
+#ifdef USE_PANGO_FBO
+	mFboGeneral = std::move(mEngine.getFbo());
+	mFboShader.loadShaders();
+#else 
+	mOppaccyShader.loadShaders();
+#endif
 
 	if(!mEngine.getPangoFontService().getPangoFontMap()) {
 		DS_LOG_WARNING("Cannot create the pango font map, nothing will render for this pango text sprite.");
@@ -78,6 +134,7 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	// Generate the default font config
 	mNeedsFontOptionUpdate = true;
 	//mNeedsFontUpdate = true;
+
 
 	setTransparent(false);
 	setUseShaderTexture(true);
@@ -115,6 +172,10 @@ TextPango::~TextPango() {
 	g_object_unref(mPangoContext); // this one crashes Windows?
 	//g_object_unref(fontMap);
 	g_object_unref(mPangoLayout);
+
+#ifdef USE_PANGO_FBO
+	mEngine.giveBackFbo(std::move(mFboGeneral));
+#endif
 }
 
 //#pragma mark - Getters / Setters
@@ -145,7 +206,7 @@ void TextPango::setTextStyle(std::string font, float size, ci::ColorA color, Tex
 	setFontSize(size);
 	setColor(color);
 	setDefaultTextWeight(weight);
-	setTextAlignment(alignment);
+	setAlignment(alignment);
 }
 
 TextWeight TextPango::getDefaultTextWeight() {
@@ -161,11 +222,11 @@ void TextPango::setDefaultTextWeight(TextWeight weight) {
 	}
 }
 
-Alignment::Enum TextPango::getTextAlignment() {
+Alignment::Enum TextPango::getAlignment() {
 	return mTextAlignment;
 }
 
-void TextPango::setTextAlignment(Alignment::Enum alignment) {
+void TextPango::setAlignment(Alignment::Enum alignment) {
 	if(mTextAlignment != alignment) {
 		mTextAlignment = alignment;
 		mNeedsMeasuring = true;
@@ -282,19 +343,33 @@ float TextPango::getHeight() const {
 
 void TextPango::drawLocalClient(){
 	if(mTexture){
+		
 		/*
-		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
-		if(shaderBase) {
-			shaderBase.uniform("tex0", 0);
-			shaderBase.uniform("useTexture", true);
-			shaderBase.uniform("preMultiply", true);
-			mUniform.applyTo(shaderBase);
-		}
+
 		*/
 
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		
+#ifdef USE_PANGO_FBO
+		ci::gl::enableAlphaBlending(false);
+#else
+		ci::gl::enableAlphaBlending(true);		
+		ci::gl::GlslProg& shaderBase = mOppaccyShader.getShader();
+		if(shaderBase) {
+			shaderBase.bind();
+			shaderBase.uniform("tex0", 0);
+			shaderBase.uniform("opaccy", mOpacity);
+			mUniform.applyTo(shaderBase);
+		}
+#endif
+		//glEnable(GL_BLEND);
+		//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 		ci::gl::draw(mTexture);
+
+#ifndef USE_PANGO_FBO
+		if(shaderBase){
+			shaderBase.unbind();
+		}
+#endif
 	}
 }
 
@@ -332,9 +407,9 @@ bool TextPango::render(bool force) {
 			// TODO, expose these?
 			
 			cairo_font_options_set_antialias(mCairoFontOptions, CAIRO_ANTIALIAS_DEFAULT);
-			cairo_font_options_set_hint_style(mCairoFontOptions, CAIRO_HINT_STYLE_FULL);
+			cairo_font_options_set_hint_style(mCairoFontOptions, CAIRO_HINT_STYLE_DEFAULT);
 			cairo_font_options_set_hint_metrics(mCairoFontOptions, CAIRO_HINT_METRICS_ON);
-			cairo_font_options_set_subpixel_order(mCairoFontOptions, CAIRO_SUBPIXEL_ORDER_RGB);
+			//cairo_font_options_set_subpixel_order(mCairoFontOptions, CAIRO_SUBPIXEL_ORDER_RGB);
 
 			pango_cairo_context_set_font_options(mPangoContext, mCairoFontOptions);
 
@@ -480,7 +555,7 @@ bool TextPango::render(bool force) {
 			}
 
 			// Draw the text into the buffer
-			cairo_set_source_rgb(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b);
+			cairo_set_source_rgb(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b);// , getDrawOpacity());
 			pango_cairo_update_layout(mCairoContext, mPangoLayout);
 			pango_cairo_show_layout(mCairoContext, mPangoLayout);
 
@@ -494,11 +569,76 @@ bool TextPango::render(bool force) {
 			unsigned char *pixels = cairo_image_surface_get_data(mCairoSurface);
 #endif
 
+			// Here we're copying the pixels into an intermediate texture, then drawing into an fbo
+			// This is done entirely so the final output is not premultiplied alpha so it draws well with blend modes, opacity, etc.
+			ci::gl::Texture::Format format;
+		//	format.setInternalFormat(GL_RGBA);
+			format.setMagFilter(GL_LINEAR);
+			format.setMinFilter(GL_LINEAR);
 
-			// TODO, update the texture if needed instead of creating the texture every time
-			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight);
-			mTexture->setMinFilter(GL_LINEAR);
+#ifndef USE_PANGO_FBO
+			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
+			mNeedsTextRender = false;
+			return true;
+#endif
 
+			ci::gl::TextureRef intermediateTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
+			DS_REPORT_GL_ERRORS();
+
+			if(!mTexture || mTexture->getWidth() != mPixelWidth || mTexture->getHeight() != mPixelHeight){
+				mTexture = ci::gl::Texture::create(mPixelWidth, mPixelHeight, format);
+			}
+				
+			DS_REPORT_GL_ERRORS();
+			ds::gl::SaveCamera		save_camera;
+
+			ci::gl::SaveFramebufferBinding bindingSaver;
+			mFboGeneral->attach(*mTexture);
+			mFboGeneral->begin();
+
+			ci::Area fboBounds(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
+			ci::gl::setViewport(fboBounds);
+			ci::CameraOrtho camera;
+			camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY1()), static_cast<float>(fboBounds.getY2()), -1.0f, 1.0f);
+			ci::gl::setMatrices(camera);
+
+
+
+			DS_REPORT_GL_ERRORS();
+			{
+				if(!mFboShader.isValid()) {
+					mFboShader.loadShaders();
+				}
+				ci::gl::GlslProg& shaderBase = mFboShader.getShader();
+				if(shaderBase) {
+					DS_REPORT_GL_ERRORS();
+					shaderBase.bind();
+					DS_REPORT_GL_ERRORS();
+					shaderBase.uniform("tex0", 0);
+					mUniform.applyTo(shaderBase);
+				}
+				ci::gl::clear(ci::ColorA(mTextColor.r, mTextColor.g, mTextColor.b, 0.0f));
+				ci::gl::enableAlphaBlending(true);
+				//ci::gl::color(ci::ColorA::white());
+			//	ci::gl::SaveTextureBindState saveBindState(intermediateTexture->getTarget());
+			//	ci::gl::BoolState saveEnabledState(intermediateTexture->getTarget());
+			//	ci::gl::ClientBoolState vertexArrayState(GL_VERTEX_ARRAY);
+			//	ci::gl::ClientBoolState texCoordArrayState(GL_TEXTURE_COORD_ARRAY);
+				//glEnable(GL_BLEND);
+				//glBlendEquation(GL_FUNC_ADD);
+				//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+				ci::gl::draw(intermediateTexture);
+
+				if(shaderBase) {
+					shaderBase.unbind();
+				}
+			}
+
+			DS_REPORT_GL_ERRORS();
+			mTexture->unbind();
+			mFboGeneral->end();
+			mFboGeneral->detach();
+			DS_REPORT_GL_ERRORS();
 
 			mNeedsTextRender = false;
 		}

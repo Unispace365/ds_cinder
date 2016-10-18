@@ -5,6 +5,9 @@
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/text_defs.h"
 #include <cinder/gl/Texture.h>
+#include "ds/ui/sprite/fbo/fbo.h"
+#include "ds/ui/sprite/shader/sprite_shader.h"
+
 
 #include "cairo/cairo.h"
 #include "fontconfig/fontconfig.h"
@@ -90,8 +93,8 @@ public:
 	TextWeight					getDefaultTextWeight();
 	void						setDefaultTextWeight(TextWeight weight);
 
-	Alignment::Enum				getTextAlignment();
-	void						setTextAlignment(Alignment::Enum alignment);
+	Alignment::Enum				getAlignment();
+	void						setAlignment(Alignment::Enum alignment);
 
 	bool						getDefaultTextSmallCapsEnabled();
 	void						setDefaultTextSmallCapsEnabled(bool value);
@@ -153,7 +156,11 @@ public:
 
 
 private:
-	ci::gl::TextureRef		mTexture;
+	ci::gl::TextureRef						mTexture;
+	std::unique_ptr<ds::ui::FboGeneral>		mFboGeneral;
+	SpriteShader							mFboShader;
+	SpriteShader							mOppaccyShader;
+
 	std::wstring			mText;
 	std::wstring			mProcessedText; // stores text after newline filtering
 	bool					mProbablyHasMarkup;

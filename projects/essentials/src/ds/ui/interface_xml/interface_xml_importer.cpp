@@ -444,13 +444,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			if(pangoText){
 				std::string alignString = value;
 				if(alignString == "right"){
-					text->setAlignment(ds::ui::Alignment::kRight);
+					pangoText->setAlignment(ds::ui::Alignment::kRight);
 				} else if(alignString == "center"){
-					text->setAlignment(ds::ui::Alignment::kCenter);
+					pangoText->setAlignment(ds::ui::Alignment::kCenter);
 				} else if(alignString == "justify"){
-					text->setAlignment(ds::ui::Alignment::kJustify);
+					pangoText->setAlignment(ds::ui::Alignment::kJustify);
 				} else {
-					text->setAlignment(ds::ui::Alignment::kLeft);
+					pangoText->setAlignment(ds::ui::Alignment::kLeft);
 				}
 			}
 		}
