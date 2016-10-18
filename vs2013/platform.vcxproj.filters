@@ -711,6 +711,9 @@
     <ClInclude Include="..\src\ds\ui\service\pango_font_service.h">
       <Filter>src\ds\ui\service</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\text_pango.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1204,6 +1207,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\service\pango_font_service.cpp">
       <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\text_pango.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

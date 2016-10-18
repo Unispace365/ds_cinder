@@ -1,4 +1,5 @@
 #pragma once
+#ifdef FUCKING_DISABLED
 #ifndef DS_UI_SPRITE_PANGO_SPRITE
 #define DS_UI_SPRITE_PANGO_SPRITE
 
@@ -173,4 +174,5 @@ private:
 } // namespace kp::pango
 
 
+#endif
 #endif

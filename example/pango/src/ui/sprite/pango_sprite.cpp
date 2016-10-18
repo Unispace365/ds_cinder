@@ -4,6 +4,8 @@
 // Created by Eric Mika on 1/6/16.
 //
 
+#ifdef FUCKING_DISABLED
+
 #include "pango_sprite.h"
 #include <pango/pango-font.h>
 #include <regex>
@@ -297,8 +299,6 @@ void TextPango::setDefaultTextFont(std::string font) {
 	}
 }
 
-//#pragma mark - Pango Bridge
-
 bool TextPango::render(bool force) {
 	if(force || mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
 
@@ -569,3 +569,5 @@ TextRenderer TextPango::getTextRenderer() {
 
 } // namespace ui
 } // namespace ds
+
+#endif

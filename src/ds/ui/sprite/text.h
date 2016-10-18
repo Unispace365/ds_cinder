@@ -62,9 +62,11 @@ public:
 	// This got messed up -- it's only implemented in the multiline subclass.
 	//void						setAlignment( int alignment );
 	Text&						setBorder(const ci::Rectf&);
+
 	virtual void				updateClient(const UpdateParams &updateParams);
 	virtual void				updateServer(const UpdateParams&);
 	void						drawLocalClient();
+
 	Text&						setText(const std::string &text);
 	Text&						setText(const std::wstring &text);
 	std::string					getTextAsString() const;

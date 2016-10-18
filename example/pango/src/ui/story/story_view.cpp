@@ -11,6 +11,8 @@
 #include "app/app_defs.h"
 #include "app/globals.h"
 #include "events/app_events.h"
+#include "ds/ui/interface_xml/interface_xml_importer.h"
+#include "ds/ui/layout/layout_sprite.h"
 
 namespace pango {
 
@@ -20,38 +22,39 @@ StoryView::StoryView(Globals& g)
 	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 	, mMessage(nullptr)
 	, mImage(nullptr)
-	, mPango(nullptr)
+	, mPangoText(nullptr)
 {
+
+
+	std::map<std::string, ds::ui::Sprite*>	spriteMap;
+	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/story_view.xml"), spriteMap);
+	auto mPrimaryLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["layout"]);
+
+	if(mPrimaryLayout){
+		mPrimaryLayout->runLayout();
+	}
+
+	animateOn();
+
+	setPosition(100.0f, 100.0f);
 	//hide();
 	//setOpacity(0.0f);
 	/*
 
 	// calls layout
 	setData();
-	*/
-	animateOn();
 
-	setPosition(100.0f, 100.0f);
+	mPangoText = new ds::ui::TextPango(mEngine);
+	mPangoText->setFont("HelveticaNeueLT Std UltLt Ext");
+	mPangoText->setDefaultTextWeight(ds::ui::TextWeight::kThin);
+	mPangoText->setFontSize(48.0f);
+	mPangoText->setTextColor(ci::Color::white());
+	mPangoText->setResizeLimit(mEngine.getWorldWidth() - 200.0f, mEngine.getWorldHeight());
 
-	setTransparent(false);
-	//setColor(ci::Color(0.5f, 0.5f, 0.5f));
-	//setOpacity(0.5f);
+	mPangoText->setText("Hello whirlled");
 
-//	setScale(0.5f, 0.5f);
-	setUseShaderTexture(true);
-
-	setBlendMode(ds::ui::NORMAL);
-
-	ds::ui::TextPango::setTextRenderer(ds::ui::TextRenderer::FREETYPE);
-
-	//kp::pango::CinderPango::loadFont(ds::Environment::expand("%APP%/data/fonts/CharterITCPro-Black.otf"));
-	mPango = new ds::ui::TextPango(mEngine);
-	mPango->setDefaultTextSize(48.0f);
-	mPango->setMinSize(0, 0);
-	mPango->setMaxSize((int)mEngine.getWorldWidth() - 200, (int)mEngine.getWorldHeight());
-
-//	kp::pango::CinderPango::loadFont(ds::Environment::expand("%APP%/data/fonts/CharterITCPro-Regular.otf"));
-//	kp::pango::CinderPango::loadFont(ds::Environment::expand("%APP%/data/fonts/NotoSans-Bold.ttf"));
+	//mPangoText->tweenColor(ci::Color(1.0f, 1.0f, 0.0f), 10.0f, 0.0f, ci::easeNone);
+	addChildPtr(mPangoText);
 
 	mMessage = new ds::ui::MultilineText(mEngine);
 	addChildPtr(mMessage);
@@ -62,6 +65,7 @@ StoryView::StoryView(Globals& g)
 	mMessage->setResizeLimit(mEngine.getWorldWidth() - 200.0f);
 	//texty->setScale(2.0f);
 	//kp::pango::CinderPango::logFontList(true);
+	*/
 }
 
 void StoryView::onAppEvent(const ds::Event& in_e){
@@ -119,16 +123,17 @@ void StoryView::updateServer(const ds::UpdateParams& p){
 
 	// any changes for this frame happen here
 
-	if(mPango && mMessage){
+	if(mPangoText && mMessage){
 	//	mPango->setTextAlignment(kp::pango::TextAlignment::JUSTIFY);
 
 		std::string theText =
 			"<markup>"
+			//"<span font='HelveticaNeueLT Std UtlLt Ext'>"
 			"Hello, world "
-			"Here's a <b>bunch more text</b> to simulate a lot of the more text that the other option had for a lot more of the text and stuff and this sentence has a lot of and's and other and's and other things of that nature and such."
-			"<b>Bold Text</b> "
+			"Here's a <span font='HelveticaNeueLT Std Cn Bold'>bunch more text</span> to simulate a lot of the more text that the other option had for a <span font='HelveticaNeueLT Std Lt Light'>lot more</span> of the text and stuff and this sentence has a lot of and's and other and's and other things of that nature and such. "
+			"<span font='HelveticaNeueLT Std Med Cn Medium'>Bold Text</span> "
 
-			" <span foreground='blue'>blue text </span> "
+			"<span foreground='blue'>blue text</span> "
 			//"<black>Bold Text</black> "
 			//	"<span foreground=\"green\" font=\"24.0\">Green téxt</span> "
 			//	"<span foreground=\"red\" font=\"Times 48.0\">Red text</span> "
@@ -143,19 +148,22 @@ void StoryView::updateServer(const ds::UpdateParams& p){
 			//" <span size='xx-large'>HOORAY</span>"
 			//" The <span font_family='Charter ITC Pro' weight='400' foreground='#3f2f10'>Presidential Election</span> is a <span weight='bold'>Farce</span>"
 			+std::to_string(ci::Rand::randFloat())
-			+ "</markup>";
+			//+ "</span>"
+			+"</markup>";
 
-		mPango->setText(theText);
+		//mPangoText->setText(theText);
 			/*	*/
 			
 		// Only renders if it needs to
-		mPango->render();
+		//mPango->render();
 
 	//	mMessage->setText(theText);
 	}
 }
 
 void StoryView::drawLocalClient(){
+	ds::ui::Sprite::drawLocalClient();
+	/*
 	if(mPango != nullptr) {
 		float aaAmount = 0.5f;
 		auto tex = mPango->getTexture();
@@ -163,6 +171,7 @@ void StoryView::drawLocalClient(){
 			ci::gl::draw(tex);
 		}
 	}
+	*/
 }
 
 

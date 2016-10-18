@@ -31,6 +31,7 @@
 #include <ds/ui/sprite/border.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/ui/sprite/circle_border.h>
+#include <ds/ui/sprite/text_pango.h>
 #include <ds/util/string_util.h>
 #include <ds/util/color_util.h>
 #include <ds/util/file_meta_data.h>
@@ -390,14 +391,27 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			auto cfg = text->getEngine().getEngineCfg().getText(value);
 			cfg.configure(*text);
 		} else {
-			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			auto pangoText = dynamic_cast<TextPango*>(&sprite);
+			if(pangoText){
+				auto cfg = pangoText->getEngine().getEngineCfg().getText(value);
+				pangoText->setFont(cfg.mFont, cfg.mSize);
+				pangoText->setLeading(cfg.mLeading);
+				pangoText->setTextColor(cfg.mColor);
+			} else {
+				DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			}
 		}
 	} else if(property == "font_name"){
 		auto text = dynamic_cast<Text *>(&sprite);
 		if(text) {
 			text->setFont(value, text->getFontSize());
 		} else {
-			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			auto pangoText = dynamic_cast<TextPango*>(&sprite);
+			if(pangoText){
+				pangoText->setFont(value);
+			} else {
+				DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			}
 		}
 	} else if(property == "resize_limit") {
 		// Try to set the resize limit
@@ -406,7 +420,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			auto v = parseVector(value);
 			text->setResizeLimit(v.x, v.y);
 		} else {
-			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			auto pangoText = dynamic_cast<TextPango*>(&sprite);
+			if(pangoText){
+				auto v = parseVector(value);
+				pangoText->setResizeLimit(v.x, v.y);
+			} else {
+				DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			}
 		}
 	} else if(property == "text_align"){
 		auto text = dynamic_cast<MultilineText*>(&sprite);
@@ -419,15 +439,36 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			} else {
 				text->setAlignment(ds::ui::Alignment::kLeft);
 			}
+		} else {
+			auto pangoText = dynamic_cast<TextPango*>(&sprite);
+			if(pangoText){
+				std::string alignString = value;
+				if(alignString == "right"){
+					text->setAlignment(ds::ui::Alignment::kRight);
+				} else if(alignString == "center"){
+					text->setAlignment(ds::ui::Alignment::kCenter);
+				} else if(alignString == "justify"){
+					text->setAlignment(ds::ui::Alignment::kJustify);
+				} else {
+					text->setAlignment(ds::ui::Alignment::kLeft);
+				}
+			}
 		}
+
+
 	} else if (property == "text") {
 		// Try to set content
 		auto text = dynamic_cast<Text *>(&sprite);
 		if (text) {
 			text->setText(value);
-		}
-		else {
-			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		} else {
+			auto pangoText = dynamic_cast<TextPango*>(&sprite);
+			if(pangoText){
+				pangoText->setText(value);
+			} else {
+				DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			}
+
 		}
 	} else if (property == "font_size") {
 		// Try to set the font size
@@ -435,12 +476,36 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		if (text) {
 			text->setFontSize(ds::string_to_float(value));
 		} else {
-			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			auto pangoText = dynamic_cast<TextPango*>(&sprite);
+			if(pangoText){
+				pangoText->setFontSize(ds::string_to_float(value));
+			} else {
+				DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			}
 		}
 	} else if(property == "font_leading"){
 		auto text = dynamic_cast<MultilineText*>(&sprite);
 		if(text){
 			text->setLeading(ds::string_to_float(value));
+		} else {
+			auto pangoText = dynamic_cast<TextPango*>(&sprite);
+			if(pangoText){
+				pangoText->setLeading(ds::string_to_float(value));
+			} else {
+				DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			}
+		}
+	} else if(property == "font_color"){
+		auto text = dynamic_cast<MultilineText*>(&sprite);
+		if(text){
+			text->setColor(parseColor(value, text->getEngine()));
+		} else {
+			auto pangoText = dynamic_cast<TextPango*>(&sprite);
+			if(pangoText){
+				pangoText->setTextColor(parseColor(value, pangoText->getEngine()));
+			} else {
+				DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			}
 		}
 	}
 
@@ -925,6 +990,7 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
 	if(dynamic_cast<ds::ui::SoftKeyboard*>(sp)) return "soft_keyboard";
 	if(dynamic_cast<ds::ui::EntryField*>(sp)) return "entry_field";
+	if(dynamic_cast<ds::ui::TextPango*>(sp)) return "text_pango";
 	return "sprite";
 }
 
@@ -957,6 +1023,13 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		boost::trim(content);
 		text->setText(content);
 		spriddy = text;
+
+	} else if(type == "text_pango"){
+		auto textPango = new ds::ui::TextPango(engine);
+		auto content = value;
+		boost::trim(content);
+		textPango->setText(content);
+		spriddy = textPango;
 	} else if(type == "image_button") {
 		auto content = value;
 		boost::trim(content);

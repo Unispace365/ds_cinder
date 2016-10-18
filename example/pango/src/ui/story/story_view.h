@@ -10,7 +10,7 @@
 
 #include "model/generated/story_model.h"
 
-#include "ui/sprite/pango_sprite.h"
+#include "ds/ui/sprite/text_pango.h"
 
 namespace pango {
 
@@ -42,7 +42,7 @@ private:
 	ds::EventClient						mEventClient;
 	ds::ui::MultilineText*				mMessage;
 	ds::ui::Image*						mImage;
-	ds::ui::TextPango*				mPango;
+	ds::ui::TextPango*					mPangoText;
 
 };
 

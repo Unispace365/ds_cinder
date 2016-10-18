@@ -6,6 +6,8 @@
 #include <boost/foreach.hpp>
 #include <boost/algorithm/string.hpp>
 
+#include <ds/debug/logger.h>
+
 namespace ds {
 
 namespace {
@@ -40,7 +42,10 @@ ci::Color parse_color(const std::string& input, const ci::Color& dv) {
 }
 
 ci::ColorA parse_colora(const std::string& input) {
-	if (input.size() < 3) throw std::runtime_error("parse_colora() invalid input (" + input + ")");
+	if(input.size() < 3){
+		DS_LOG_WARNING("parse_colora() invalid input (" + input + ")");
+		return ci::ColorA::black();
+	}
 	// Hex
 	if (input[0] == '#' || input[0] == 'x') {
 		const int	r = parse_component(input, 1, 0);
@@ -55,7 +60,8 @@ ci::ColorA parse_colora(const std::string& input) {
 		const int	b = parse_component(input, 4, 0);
 		return ci::ColorA(r/255.0f, g/255.0f, b/255.0f, 1.0f);
 	}
-	throw std::runtime_error("parse_color() invalid input (" + input + ")");
+	DS_LOG_WARNING("parse_color() invalid input (" + input + ")");
+	return ci::ColorA::black();
 }
 
 ci::ColorA parse_colora(const std::string& input, const ci::ColorA& dv) {

@@ -3,11 +3,55 @@
 #include "ds/app/environment.h"
 #include "ds/debug/logger.h"
 
+#include <algorithm>
+
 #include "fontconfig/fontconfig.h"
 #include "pango/pangocairo.h"
 
 namespace {
 const ds::BitMask	PANGO_FONT_LOG_M = ds::Logger::newModule("pango_font");
+
+
+void setTextRenderer() {
+	return;
+	// If we're having problems rendering, we can try win32.
+	//std::string rendererName = "win32";
+
+	std::string rendererName = "fontconfig";
+	
+	int status = _putenv_s("PANGOCAIRO_BACKEND", rendererName.c_str());
+
+	if(status == 0) {
+		DS_LOG_INFO("Set Pango Cairo backend renderer to: " << rendererName);
+	} else {
+		DS_LOG_WARNING("Error setting Pango Cairo backend environment variable.");
+	}
+	
+}
+
+/*
+TextRenderer getTextRenderer() {
+	const char *rendererName = std::getenv("PANGOCAIRO_BACKEND");
+
+	if(rendererName == nullptr) {
+		DS_LOG_WARNING("Could not read Pango Cairo backend environment variable. Assuming native renderer.");
+		return TextRenderer::PLATFORM_NATIVE;
+	}
+
+	std::string rendererNameString(rendererName);
+
+	if((rendererNameString == "win32") || (rendererNameString == "coretext")) {
+		return TextRenderer::PLATFORM_NATIVE;
+	}
+
+	if((rendererNameString == "fontconfig") || (rendererNameString == "fc")) {
+		return TextRenderer::FREETYPE;
+	}
+
+	DS_LOG_WARNING("Unknown Pango Cairo backend environment variable: " << rendererNameString << ". Assuming native renderer.");
+	return TextRenderer::PLATFORM_NATIVE;
+}
+*/
 }
 
 namespace ds {
@@ -16,6 +60,9 @@ namespace ui {
 PangoFontService::PangoFontService(ds::ui::SpriteEngine& eng)
 	: mFontMap(nullptr)
 {
+	DS_LOG_INFO_M("Initializing Pango version " <<PANGO_VERSION_STRING, PANGO_FONT_LOG_M);
+
+	setTextRenderer();
 }
 
 void PangoFontService::loadFonts(){
@@ -72,7 +119,7 @@ void PangoFontService::loadFonts(){
 			dpff.mFaceName = face_name;
 			dpff.mHash = hash;
 
-			mLoadedFonts[face_name] = dpff;
+			mLoadedFonts[description_string] = dpff;
 			dsFamily.mFaces.push_back(dpff);
 
 			pango_font_description_free(description);
@@ -97,13 +144,21 @@ void PangoFontService::logFonts(const bool includeFamilies){
 		loadFonts();
 	}
 
+//	std::sort(mLoadedFamilies.begin(), mLoadedFamilies.end());
+	//std::sort(mLoadedFonts.begin(), mLoadedFonts.end());
+
 	DS_LOG_INFO_M("Loaded Fonts: ", PANGO_FONT_LOG_M);
-	for(auto it : mLoadedFamilies){
-		DS_LOG_INFO_M("\tFamily: " << it.second.mFamilyName, PANGO_FONT_LOG_M);
-		if(includeFamilies){
+
+	for(auto it : mLoadedFonts){
+		DS_LOG_INFO_M("Settable Font: " << it.second.mDecription, PANGO_FONT_LOG_M);
+	}
+
+	if(includeFamilies){
+		for(auto it : mLoadedFamilies){
+			DS_LOG_INFO_M("\tFamily: " << it.second.mFamilyName, PANGO_FONT_LOG_M);
 			for(auto fit : it.second.mFaces){
 				DS_LOG_INFO_M("\t\tFace " << ": " << fit.mFaceName, PANGO_FONT_LOG_M);
-				DS_LOG_INFO_M("\\tt\tDescription: " << fit.mDecription, PANGO_FONT_LOG_M);
+				DS_LOG_INFO_M("\t\t\tDescription: " << fit.mDecription, PANGO_FONT_LOG_M);
 				DS_LOG_INFO_M("\t\t\tWeight: " << fit.mWeight, PANGO_FONT_LOG_M);
 				DS_LOG_INFO_M("\t\t\tHash: " << fit.mHash, PANGO_FONT_LOG_M);
 			}
