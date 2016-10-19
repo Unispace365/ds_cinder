@@ -23,6 +23,7 @@ StoryView::StoryView(Globals& g)
 	, mMessage(nullptr)
 	, mImage(nullptr)
 	, mPangoText(nullptr)
+	, mFakeCursor(nullptr)
 {
 
 
@@ -30,13 +31,36 @@ StoryView::StoryView(Globals& g)
 	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/story_view.xml"), spriteMap);
 	auto mPrimaryLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["layout"]);
 
+	mFakeCursor = new ds::ui::Sprite(mEngine);
+	mFakeCursor->setSize(4.0f, 100.0f);
+	mFakeCursor->setTransparent(false);
+	mFakeCursor->setColor(ci::Color::white());
+	addChildPtr(mFakeCursor);
+
+	mPangoText = dynamic_cast<ds::ui::TextPango*>(spriteMap["message_b"]);
+	if(mPangoText){
+		mPangoText->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
+			auto touchPos = bs->globalToLocal(ti.mCurrentGlobalPoint);
+			
+			if(mPangoText){
+				int indexy = mPangoText->getCharacterIndexForPosition(touchPos.xy());
+				auto possy = mPangoText->getPositionForCharacterIndex(indexy);
+				auto globby = mPangoText->localToGlobal(ci::Vec3f(possy, 0.0f));
+				auto loccy = globalToLocal(globby);
+				if(mFakeCursor){
+					mFakeCursor->setPosition(loccy);
+				}
+			}
+		});
+	}
+
 	if(mPrimaryLayout){
 		mPrimaryLayout->runLayout();
 	}
 
 	animateOn();
 
-	setPosition(100.0f, 100.0f);
+	//setPosition(100.0f, 100.0f);
 	//hide();
 	//setOpacity(0.0f);
 	/*

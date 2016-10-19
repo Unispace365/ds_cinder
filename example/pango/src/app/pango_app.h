@@ -4,7 +4,7 @@
 #include <cinder/app/AppBasic.h>
 #include <ds/app/app.h>
 #include <ds/app/event_client.h>
-//#include <ds/touch/touch_debug.h>
+#include <ds/touch/touch_debug.h>
 
 #include "app/globals.h"
 #include "query/query_handler.h"
@@ -42,7 +42,7 @@ private:
 	bool				mIdling;
 
 	// Handle mouse events and simulate touch events
-	//ds::TouchDebug		mTouchDebug;
+	ds::TouchDebug		mTouchDebug;
 
 	// App events can be handled here
 	ds::EventClient		mEventClient;

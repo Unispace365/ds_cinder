@@ -328,6 +328,41 @@ void TextPango::drawLocalClient(){
 	}
 }
 
+int TextPango::getCharacterIndexForPosition(const ci::Vec2f& lp){
+	if(!mPangoLayout){
+		render();
+	}
+
+	int outputIndex = 0;
+	if(mPangoLayout){
+		int trailing = 0;
+		pango_layout_xy_to_index(mPangoLayout, (int)lp.x * PANGO_SCALE, (int)lp.y * PANGO_SCALE, &outputIndex, &trailing);
+
+		std::cout << "character index for position: " << outputIndex << " " << lp << std::endl;
+
+	}
+	return outputIndex;
+}
+
+ci::Vec2f TextPango::getPositionForCharacterIndex(const int characterIndex){
+	if(!mPangoLayout){
+		render();
+	}
+
+	ci::Vec2f outputPos = ci::Vec2f::zero();
+	if(mPangoLayout){
+		PangoRectangle outputRectangle;
+		pango_layout_index_to_pos(mPangoLayout, characterIndex, &outputRectangle);
+
+		std::cout << "position for index: " << characterIndex << " " << outputRectangle.x << " " << outputRectangle.y << std::endl;
+
+		outputPos.x = (float)outputRectangle.x / (float)PANGO_SCALE;
+		outputPos.y = (float)outputRectangle.y / (float)PANGO_SCALE;
+	}
+	return outputPos;
+	
+}
+
 void TextPango::updateClient(const UpdateParams&){
 	render();
 }
@@ -402,8 +437,17 @@ bool TextPango::render(bool force) {
 				pango_layout_set_justify(mPangoLayout, true);
 				pango_layout_set_alignment(mPangoLayout, PANGO_ALIGN_LEFT);
 			} else {
+				PangoAlignment aligny = PANGO_ALIGN_LEFT;
+				if(mTextAlignment == Alignment::kCenter){
+					aligny = PANGO_ALIGN_CENTER;
+				} else if(mTextAlignment == Alignment::kRight){
+					aligny = PANGO_ALIGN_RIGHT;
+				} else if(mTextAlignment == Alignment::kJustify){ // handled above, but just to be safe
+					aligny = PANGO_ALIGN_LEFT;
+				}
+
 				pango_layout_set_justify(mPangoLayout, false);
-				pango_layout_set_alignment(mPangoLayout, static_cast<PangoAlignment>(mTextAlignment));
+				pango_layout_set_alignment(mPangoLayout, aligny);
 			}
 
 			// pango_layout_set_wrap(pangoLayout, PANGO_WRAP_CHAR);

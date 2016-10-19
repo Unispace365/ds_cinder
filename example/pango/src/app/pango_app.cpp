@@ -26,6 +26,7 @@ PangoApp::PangoApp()
 	.pickColor()
 
 	)
+	, mTouchDebug(mEngine)
 	, mGlobals(mEngine, mAllData)
 	, mQueryHandler(mEngine, mAllData)
 	, mIdling(false)
@@ -194,15 +195,15 @@ void PangoApp::keyDown(ci::app::KeyEvent event){
 }
 
 void PangoApp::mouseDown(ci::app::MouseEvent e) {
-//	mTouchDebug.mouseDown(e);
+	mTouchDebug.mouseDown(e);
 }
 
 void PangoApp::mouseDrag(ci::app::MouseEvent e) {
-//	mTouchDebug.mouseDrag(e);
+	mTouchDebug.mouseDrag(e);
 }
 
 void PangoApp::mouseUp(ci::app::MouseEvent e) {
-//	mTouchDebug.mouseUp(e);
+	mTouchDebug.mouseUp(e);
 }
 
 void PangoApp::fileDrop(ci::app::FileDropEvent event){

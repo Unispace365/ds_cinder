@@ -108,6 +108,16 @@ public:
 	virtual float				getWidth() const;
 	virtual float				getHeight() const;
 
+
+	/// Returns the 2-d position of the character in the current text string
+	/// Will return 0,0 if the string is blank or the index is out-of-bounds
+	ci::Vec2f					getPositionForCharacterIndex(const int characterIndex);
+
+
+	/// Returns the index of the character of the current text string for the position supplied
+	/// Gracefully handles out-of-bounds points (will always return a valid index, assuming the current text string isn't empty)
+	int							getCharacterIndexForPosition(const ci::Vec2f& localPosition);
+
 	/* TODO
 	bool						getHasSplitLine() { return mHasSplitLine; }
 	float						getFontAscent() const;
@@ -120,17 +130,6 @@ public:
 	float						getPixelFontHeight() const;
 	// Hack in a function to get the full font height, including the leading
 	virtual float				getFontFullHeight() const;
-
-
-	/// Returns the 2-d position of the character in the current text string
-	/// Will return 0,0 if the string is blank or the index is out-of-bounds
-	/// Only valid for MultilineText
-	ci::Vec2f					getPositionForCharacterIndex(const int characterIndex);
-
-	/// Returns the index of the character of the current text string for the position supplied
-	/// Gracefully handles out-of-bounds points (will always return a valid index, assuming the current text string isn't empty)
-	/// Only valid for MultilineText
-	int							getCharacterIndexForPosition(const ci::Vec2f& localPosition);
 
 	virtual void				writeAttributesTo(ds::DataBuffer&);
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);

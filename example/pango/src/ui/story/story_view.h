@@ -43,6 +43,7 @@ private:
 	ds::ui::MultilineText*				mMessage;
 	ds::ui::Image*						mImage;
 	ds::ui::TextPango*					mPangoText;
+	ds::ui::Sprite*						mFakeCursor;
 
 };
 
