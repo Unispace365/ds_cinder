@@ -15,20 +15,6 @@
 
 namespace {
 
-const std::string fragShader =
-"uniform sampler2D tex0;\n"
-"void main()\n"
-"{\n"
-"    vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n"
-"    color = texture2D( tex0, gl_TexCoord[0].st );\n"
-//"    color *= gl_Color;\n"
-"    color.rgb /= color.a;\n"
-//"    color.g /= color.a;\n"
-//"    color.b /= color.a;\n"
-//"    color.a *= color.a;\n"
-"    gl_FragColor = color;\n"
-"}\n";
-
 const std::string opacityFrag =
 "uniform sampler2D tex0;\n"
 "uniform float opaccy;\n"
@@ -50,7 +36,6 @@ const std::string vertShader =
 "  gl_FrontColor = gl_Color;\n"
 "}\n";
 
-std::string shaderName = "pango_text_unpremultiply";
 std::string shaderNameOpaccy = "pango_text_opacity";
 }
 
@@ -81,8 +66,7 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	, mDefaultTextWeight(TextWeight::kNormal)
 	, mPixelWidth(-1)
 	, mPixelHeight(-1)
-	, mFboShader(vertShader, fragShader, shaderName)
-	, mOppaccyShader(vertShader, opacityFrag, shaderNameOpaccy)
+	, mOutputShader(vertShader, opacityFrag, shaderNameOpaccy)
 	, mFontDescription(nullptr)
 	, mPangoContext(nullptr)
 	, mPangoLayout(nullptr)
@@ -95,15 +79,7 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 #endif
 {
 
-	//std::string shaderName("opacity_override");
-	//addNewMemoryShader(vertShader, opacityFrag, shaderName, false);
-
-#ifdef USE_PANGO_FBO
-	mFboGeneral = std::move(mEngine.getFbo());
-	mFboShader.loadShaders();
-#else 
-	mOppaccyShader.loadShaders();
-#endif
+	mOutputShader.loadShaders();
 
 	if(!mEngine.getPangoFontService().getPangoFontMap()) {
 		DS_LOG_WARNING("Cannot create the pango font map, nothing will render for this pango text sprite.");
@@ -135,9 +111,7 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	mNeedsFontOptionUpdate = true;
 	//mNeedsFontUpdate = true;
 
-
 	setTransparent(false);
-	setUseShaderTexture(true);
 }
 
 TextPango::~TextPango() {
@@ -170,15 +144,8 @@ TextPango::~TextPango() {
 #endif
 
 	g_object_unref(mPangoContext); // this one crashes Windows?
-	//g_object_unref(fontMap);
 	g_object_unref(mPangoLayout);
-
-#ifdef USE_PANGO_FBO
-	mEngine.giveBackFbo(std::move(mFboGeneral));
-#endif
 }
-
-//#pragma mark - Getters / Setters
 
 std::wstring TextPango::getText() const {
 	return mText;
@@ -308,7 +275,6 @@ void TextPango::setFontSize(float size) {
 	}
 }
 
-
 TextPango& TextPango::setFont(const std::string& font, const float fontSize) {
 	if(mTextFont != font || mTextSize != fontSize) {
 		mTextFont = font;
@@ -343,33 +309,22 @@ float TextPango::getHeight() const {
 
 void TextPango::drawLocalClient(){
 	if(mTexture){
-		
-		/*
 
-		*/
-
-		
-#ifdef USE_PANGO_FBO
-		ci::gl::enableAlphaBlending(false);
-#else
+		// The true flag is for premultiplied alpha, which this texture is
 		ci::gl::enableAlphaBlending(true);		
-		ci::gl::GlslProg& shaderBase = mOppaccyShader.getShader();
+		ci::gl::GlslProg& shaderBase = mOutputShader.getShader();
 		if(shaderBase) {
 			shaderBase.bind();
 			shaderBase.uniform("tex0", 0);
-			shaderBase.uniform("opaccy", mOpacity);
+			shaderBase.uniform("opaccy", mDrawOpacity);
 			mUniform.applyTo(shaderBase);
 		}
-#endif
-		//glEnable(GL_BLEND);
-		//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+
 		ci::gl::draw(mTexture);
 
-#ifndef USE_PANGO_FBO
 		if(shaderBase){
 			shaderBase.unbind();
 		}
-#endif
 	}
 }
 
@@ -572,74 +527,9 @@ bool TextPango::render(bool force) {
 			// Here we're copying the pixels into an intermediate texture, then drawing into an fbo
 			// This is done entirely so the final output is not premultiplied alpha so it draws well with blend modes, opacity, etc.
 			ci::gl::Texture::Format format;
-		//	format.setInternalFormat(GL_RGBA);
 			format.setMagFilter(GL_LINEAR);
 			format.setMinFilter(GL_LINEAR);
-
-#ifndef USE_PANGO_FBO
 			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
-			mNeedsTextRender = false;
-			return true;
-#endif
-
-			ci::gl::TextureRef intermediateTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
-			DS_REPORT_GL_ERRORS();
-
-			if(!mTexture || mTexture->getWidth() != mPixelWidth || mTexture->getHeight() != mPixelHeight){
-				mTexture = ci::gl::Texture::create(mPixelWidth, mPixelHeight, format);
-			}
-				
-			DS_REPORT_GL_ERRORS();
-			ds::gl::SaveCamera		save_camera;
-
-			ci::gl::SaveFramebufferBinding bindingSaver;
-			mFboGeneral->attach(*mTexture);
-			mFboGeneral->begin();
-
-			ci::Area fboBounds(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
-			ci::gl::setViewport(fboBounds);
-			ci::CameraOrtho camera;
-			camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY1()), static_cast<float>(fboBounds.getY2()), -1.0f, 1.0f);
-			ci::gl::setMatrices(camera);
-
-
-
-			DS_REPORT_GL_ERRORS();
-			{
-				if(!mFboShader.isValid()) {
-					mFboShader.loadShaders();
-				}
-				ci::gl::GlslProg& shaderBase = mFboShader.getShader();
-				if(shaderBase) {
-					DS_REPORT_GL_ERRORS();
-					shaderBase.bind();
-					DS_REPORT_GL_ERRORS();
-					shaderBase.uniform("tex0", 0);
-					mUniform.applyTo(shaderBase);
-				}
-				ci::gl::clear(ci::ColorA(mTextColor.r, mTextColor.g, mTextColor.b, 0.0f));
-				ci::gl::enableAlphaBlending(true);
-				//ci::gl::color(ci::ColorA::white());
-			//	ci::gl::SaveTextureBindState saveBindState(intermediateTexture->getTarget());
-			//	ci::gl::BoolState saveEnabledState(intermediateTexture->getTarget());
-			//	ci::gl::ClientBoolState vertexArrayState(GL_VERTEX_ARRAY);
-			//	ci::gl::ClientBoolState texCoordArrayState(GL_TEXTURE_COORD_ARRAY);
-				//glEnable(GL_BLEND);
-				//glBlendEquation(GL_FUNC_ADD);
-				//glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-				ci::gl::draw(intermediateTexture);
-
-				if(shaderBase) {
-					shaderBase.unbind();
-				}
-			}
-
-			DS_REPORT_GL_ERRORS();
-			mTexture->unbind();
-			mFboGeneral->end();
-			mFboGeneral->detach();
-			DS_REPORT_GL_ERRORS();
-
 			mNeedsTextRender = false;
 		}
 
