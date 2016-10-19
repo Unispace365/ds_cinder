@@ -321,7 +321,13 @@ void TextPango::drawLocalClient(){
 			mUniform.applyTo(shaderBase);
 		}
 
-		ci::gl::draw(mTexture);
+		mTexture->bind();
+		if(getPerspective()){
+			ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f));
+		} else {
+			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight())));
+		}
+		mTexture->unbind();		
 
 		if(shaderBase){
 			shaderBase.unbind();

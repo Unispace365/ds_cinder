@@ -52,6 +52,9 @@ StoryView::StoryView(Globals& g)
 				}
 			}
 		});
+
+		randomizeText();
+
 	}
 
 	if(mPrimaryLayout){
@@ -90,6 +93,13 @@ StoryView::StoryView(Globals& g)
 	//texty->setScale(2.0f);
 	//kp::pango::CinderPango::logFontList(true);
 	*/
+}
+
+void StoryView::randomizeText(){
+	mPangoText->setText(mPangoText->getText() + L" " + std::to_wstring(ci::randFloat()));
+	mPangoText->callAfterDelay([this]{
+		randomizeText();
+	}, 5.0f);
 }
 
 void StoryView::onAppEvent(const ds::Event& in_e){

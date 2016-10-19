@@ -21,8 +21,14 @@ namespace pango {
 PangoApp::PangoApp()
 	: ds::App(ds::RootList()
 
-	// Note: this is where you'll customize the root list
 	.ortho()
+
+	.persp()
+	.perspFov(60.0f)
+	.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
+	.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+	.perspNear(0.0002f)
+	.perspFar(20.0f)
 	.pickColor()
 
 	)
@@ -82,8 +88,8 @@ void PangoApp::setupServer(){
 
 		ds::ui::Sprite& rooty = mEngine.getRootSprite(i);
 		if(rooty.getPerspective()){
-			const float clippFar = 10000.0f;
-			const float fov = 60.0f;
+			const float clippFar = mGlobals.getAppSettings().getFloat("trends:sphere:clipping_far", 0, mEngine.getWorldWidth());
+			const float fov = mGlobals.getAppSettings().getFloat("trends:sphere:fov", 0, 60.0f);
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
 			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
@@ -97,7 +103,7 @@ void PangoApp::setupServer(){
 		rooty.clearChildren();
 	}
 
-	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
+	ds::ui::Sprite &rootSprite = mEngine.getRootSprite(0);
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.9f, 0.9f, 0.9f));
 	

@@ -36,7 +36,7 @@ private:
 	void								setData();
 
 	void								layout();
-
+	void								randomizeText();
 	Globals&							mGlobals;
 
 	ds::EventClient						mEventClient;
