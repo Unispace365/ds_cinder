@@ -40,6 +40,8 @@ PangoApp::PangoApp()
 	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
 
 	enableCommonKeystrokes(true);
+
+	mEngine.getPangoFontService().loadFont(ds::Environment::expand("%APP%/data/fonts/Calibre-Bold.otf"));
 }
 
 void PangoApp::setupServer(){

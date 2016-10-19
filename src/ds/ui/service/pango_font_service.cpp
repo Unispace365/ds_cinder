@@ -24,6 +24,8 @@ PangoFontService::PangoFontService(ds::ui::SpriteEngine& eng)
 	// Note: _putenv doesn't work for successfully propagating variables to the pango / fontconfig dll's
 	//		So the backend variable must be set system-wide. the setx command does that, but it won't be picked up
 	//		until the app runs again. It's not the best, but it's not the worst!
+	//		The backend has to be set to fontconfig for antialiasing to look good. 
+	//		Otherwise it uses the windows native renderer, which looks gross
 	auto envy = getenv("PANGOCAIRO_BACKEND");
 	if(!envy){
 		std::cout << "Pango cairo backend variable not set! Restart the app for prettier fonts" << std::endl;
@@ -103,6 +105,25 @@ void PangoFontService::loadFonts(){
 	}
 
 	g_free(families);
+}
+
+bool PangoFontService::loadFont(const std::string& path) {
+	const FcChar8 *fcPath = (const FcChar8 *)path.c_str();
+	FcBool fontAddStatus = false;
+	// NOTE: calling into fontconfig at this point creates a runtime error
+	// Windows seems to totally fuck shit up trying to find the correct dll. 
+	// When that's resolved, could actually try to load the correct fonts
+//	fontAddStatus = FcConfigAppFontAddFile(FcConfigGetCurrent(), fcPath);
+
+	if(!fontAddStatus) {
+		DS_LOG_WARNING_M("Pango failed to load font from file \"" << path << "\"", PANGO_FONT_LOG_M);
+		return false;
+	} else {
+		DS_LOG_INFO_M("Pango thinks it loaded font " << path << " with status " << fontAddStatus, PANGO_FONT_LOG_M);
+		return true;
+	}
+
+	return false;
 }
 
 void PangoFontService::logFonts(const bool includeFamilies){

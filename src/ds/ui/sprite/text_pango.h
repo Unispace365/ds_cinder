@@ -123,8 +123,6 @@ public:
 	float						getFontAscent() const;
 	float						getFontDescent() const;
 	float						getFontHeight() const; // does not include leading
-	float						getFontLeading() const;
-	virtual float				getLeading() const;
 	// Return the font height in pixels, including ascender and descender. Seems
 	// like one of the other functions should do this, but they don't.
 	float						getPixelFontHeight() const;
@@ -156,48 +154,47 @@ public:
 
 
 private:
-	ci::gl::TextureRef						mTexture;
-	SpriteShader							mOutputShader;
+	ci::gl::TextureRef			mTexture;
+	SpriteShader				mOutputShader;
 
-	std::wstring			mText;
-	std::wstring			mProcessedText; // stores text after newline filtering
-	bool					mProbablyHasMarkup;
-	float					mResizeLimitWidth,
-							mResizeLimitHeight;
+	std::wstring				mText;
+	std::wstring				mProcessedText; // stores text after newline filtering
+	bool						mProbablyHasMarkup;
+	float						mResizeLimitWidth,
+								mResizeLimitHeight;
 
-	float					mTextSize;
-	std::string				mTextFont;
-	bool					mDefaultTextItalicsEnabled;
-	bool					mDefaultTextSmallCapsEnabled;
-	Alignment::Enum			mTextAlignment;
-	TextWeight				mDefaultTextWeight;
-	// TODO: figure out if this is 
-	float					mLeading;
+	float						mTextSize;
+	std::string					mTextFont;
+	bool						mDefaultTextItalicsEnabled;
+	bool						mDefaultTextSmallCapsEnabled;
+	Alignment::Enum				mTextAlignment;
+	TextWeight					mDefaultTextWeight;
+	float						mLeading;
 
 	// Internal flags for state invalidation
 	// Used by render method
-	bool					mNeedsFontUpdate;
-	bool 					mNeedsMeasuring;
-	bool 					mNeedsTextRender;
-	bool 					mNeedsFontOptionUpdate;
-	bool 					mNeedsMarkupDetection;
+	bool						mNeedsFontUpdate;
+	bool 						mNeedsMeasuring;
+	bool 						mNeedsTextRender;
+	bool 						mNeedsFontOptionUpdate;
+	bool 						mNeedsMarkupDetection;
 
 	// simply stored to check for change across renders
-	int 					mPixelWidth;
-	int						mPixelHeight;
+	int 						mPixelWidth;
+	int							mPixelHeight;
 
-	ci::Color				mTextColor;
+	ci::Color					mTextColor;
 
 	// Pango references
-	PangoContext*			mPangoContext;
-	PangoLayout*			mPangoLayout;
-	PangoFontDescription*	mFontDescription;
-	cairo_surface_t*		mCairoSurface;
-	cairo_t*				mCairoContext;
-	cairo_font_options_t*	mCairoFontOptions;
+	PangoContext*				mPangoContext;
+	PangoLayout*				mPangoLayout;
+	PangoFontDescription*		mFontDescription;
+	cairo_surface_t*			mCairoSurface;
+	cairo_t*					mCairoContext;
+	cairo_font_options_t*		mCairoFontOptions;
 
 #ifdef CAIRO_HAS_WIN32_SURFACE
-	cairo_surface_t*		mCairoWinImageSurface;
+	cairo_surface_t*			mCairoWinImageSurface;
 #endif
 };
 }

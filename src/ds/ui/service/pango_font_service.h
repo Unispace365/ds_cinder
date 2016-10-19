@@ -46,6 +46,9 @@ public:
 	/// Clears previously-loaded fonts and reloads the fonts installed in Windows
 	void										loadFonts();
 
+	/// Non-functional!
+	bool										loadFont(const std::string& path);
+
 	/// Logs all the fonts loaded in Windows to std::cout and to DS_LOG_INFO
 	/// If including faces, will print specific info about each face in a family
 	void										logFonts(const bool includeFaces);

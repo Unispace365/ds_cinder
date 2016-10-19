@@ -14,7 +14,8 @@
 #include "ds/debug/logger.h"
 
 namespace {
-
+// Pango/cairo output is premultiplied colors, so rendering it with opacity fades like you'd expect with other sprites
+// requires a custom shader that multiplies in the rest of the opacity setting
 const std::string opacityFrag =
 "uniform sampler2D tex0;\n"
 "uniform float opaccy;\n"
@@ -470,7 +471,7 @@ bool TextPango::render(bool force) {
 			pango_layout_get_pixel_size(mPangoLayout, &newPixelWidth, &newPixelHeight);
 
 			// TODO: output a warning, and / or do a better job detecting and fixing issues or something
-			if(newPixelWidth == 0 || newPixelHeight == 0){
+			if((newPixelWidth == 0 || newPixelHeight == 0) && !mText.empty()){
 				DS_LOG_WARNING("No size detected for pango text size. Font not detected or invalid markup are likely causes.");
 			}
 
@@ -478,8 +479,8 @@ bool TextPango::render(bool force) {
 			//std::cout << "Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height << std::endl;
 
 			// Some italics stuff extends beyond the normal widths
-			mPixelWidth = extentRect.width + extentRect.x + 10; // newPixelWidth + 10;
-			mPixelHeight = extentRect.height + extentRect.y; // newPixelHeight + 10;
+			mPixelWidth = extentRect.width + extentRect.x + 10;
+			mPixelHeight = extentRect.height + extentRect.y;
 
 			setSize((float)mPixelWidth, (float)mPixelHeight);
 
