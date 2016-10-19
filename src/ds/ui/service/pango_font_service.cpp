@@ -10,50 +10,6 @@
 
 namespace {
 const ds::BitMask	PANGO_FONT_LOG_M = ds::Logger::newModule("pango_font");
-
-
-void setTextRenderer() {
-	return;
-	// If we're having problems rendering, we can try win32.
-	//std::string rendererName = "win32";
-
-	std::string rendererName = "fontconfig";
-	
-	int status = _putenv_s("PANGOCAIRO_BACKEND", rendererName.c_str());
-
-	if(status == 0) {
-		DS_LOG_INFO("Set Pango Cairo backend renderer to: " << rendererName);
-		std::cout << "Pango cair backend env var set" << std::endl;
-	} else {
-		DS_LOG_WARNING("Error setting Pango Cairo backend environment variable.");
-		std::cout << "ERROR! Pango cair backend env var set" << std::endl;
-	}
-	
-}
-
-/*
-TextRenderer getTextRenderer() {
-	const char *rendererName = std::getenv("PANGOCAIRO_BACKEND");
-
-	if(rendererName == nullptr) {
-		DS_LOG_WARNING("Could not read Pango Cairo backend environment variable. Assuming native renderer.");
-		return TextRenderer::PLATFORM_NATIVE;
-	}
-
-	std::string rendererNameString(rendererName);
-
-	if((rendererNameString == "win32") || (rendererNameString == "coretext")) {
-		return TextRenderer::PLATFORM_NATIVE;
-	}
-
-	if((rendererNameString == "fontconfig") || (rendererNameString == "fc")) {
-		return TextRenderer::FREETYPE;
-	}
-
-	DS_LOG_WARNING("Unknown Pango Cairo backend environment variable: " << rendererNameString << ". Assuming native renderer.");
-	return TextRenderer::PLATFORM_NATIVE;
-}
-*/
 }
 
 namespace ds {
@@ -65,7 +21,14 @@ PangoFontService::PangoFontService(ds::ui::SpriteEngine& eng)
 	DS_LOG_INFO_M("Initializing Pango version " << PANGO_VERSION_STRING, PANGO_FONT_LOG_M);
 	std::cout << "Initializing Pango version " << PANGO_VERSION_STRING << std::endl;
 
-	setTextRenderer();
+	// Note: _putenv doesn't work for successfully propagating variables to the pango / fontconfig dll's
+	//		So the backend variable must be set system-wide. the setx command does that, but it won't be picked up
+	//		until the app runs again. It's not the best, but it's not the worst!
+	auto envy = getenv("PANGOCAIRO_BACKEND");
+	if(!envy){
+		std::cout << "Pango cairo backend variable not set! Restart the app for prettier fonts" << std::endl;
+		system("setx PANGOCAIRO_BACKEND fontconfig");
+	}
 }
 
 void PangoFontService::loadFonts(){
