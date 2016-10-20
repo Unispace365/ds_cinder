@@ -6,7 +6,7 @@
 	<!-- SERVER SETTINGS --->
 	<!---------------------->
 	<!-- if false, won't connect udp sender / listener for server or client -->
-	<text name="server:connect" value="false" />
+	<text name="server:connect" value="true" />
 
 	<!-- the multicast ip address and port of the server -->
 	<text name="server:ip" value="239.255.42.58" />
@@ -15,7 +15,7 @@
 
 	<!-- if this is a server (world engine), a client (render engine) or both (world + render). 
 	default ="", which is an EngineClientServer, aka "both"-->
-	<text name="platform:architecture" value="" />
+	<text name="platform:architecture" value="client" />
 	
 	<!-- Show console will create a console window, or not if this is false. 
 		If this setting is missing, debug mode will create a console, release will not. -->

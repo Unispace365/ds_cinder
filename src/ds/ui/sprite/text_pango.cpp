@@ -665,20 +665,16 @@ void TextPango::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
 		std::wstring theText = buf.read<std::wstring>();
 		setText(theText);
 	} else if(attributeId == FONTNAME_ATT) {
-		std::cout << "Font attr:";
+
 		std::string fontName = buf.read<std::string>();
 		float fontSize = buf.read<float>();
-
-		std::cout << fontName << " " << fontSize << std::endl;
-		setFont(fontName, fontSize);
-
 		float leading = buf.read<float>();
-		setLeading(leading);
-
 		ci::Color fontColor = buf.read<ci::Color>();
-		setTextColor(fontColor);
-
 		auto alignment = (ds::ui::Alignment::Enum)(buf.read<int>());
+
+		setFont(fontName, fontSize);
+		setLeading(leading);
+		setTextColor(fontColor);
 		setAlignment(alignment);
 
 	} else if(attributeId == LAYOUT_ATT) {
