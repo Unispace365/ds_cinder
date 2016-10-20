@@ -20,6 +20,7 @@
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
+#include "ds/ui/sprite/text_pango.h"
 #include "ds/ui/sprite/border.h"
 #include "ds/ui/sprite/circle.h"
 #include "ds/ui/sprite/circle_border.h"
@@ -114,7 +115,9 @@ App::App(const RootList& roots)
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
-							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
+							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r); });
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::TextPango::installAsServer(r); },
+							[](ds::BlobRegistry& r){ds::ui::TextPango::installAsClient(r); });
 	mEngine.installSprite(	[](ds::BlobRegistry& r){EngineStatsView::installAsServer(r);},
 							[](ds::BlobRegistry& r){EngineStatsView::installAsClient(r);});
 	mEngine.installSprite(  [](ds::BlobRegistry& r){ds::ui::Border::installAsServer(r); },

@@ -7,11 +7,13 @@
 #include <cairo-win32.h>
 #endif
 
-#include <ds/gl/save_camera.h>
+#include "ds/app/blob_reader.h"
+#include "ds/app/blob_registry.h"
+#include "ds/data/data_buffer.h"
+#include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/service/pango_font_service.h"
 #include "ds/util/string_util.h"
-#include "ds/debug/logger.h"
 
 namespace {
 // Pango/cairo output is premultiplied colors, so rendering it with opacity fades like you'd expect with other sprites
@@ -44,6 +46,29 @@ std::string shaderNameOpaccy = "pango_text_opacity";
 
 namespace ds {
 namespace ui {
+
+
+namespace {
+char				BLOB_TYPE = 0;
+
+const DirtyState&	FONT_DIRTY = INTERNAL_A_DIRTY;
+const DirtyState&	TEXT_DIRTY = INTERNAL_B_DIRTY;
+const DirtyState&	LAYOUT_DIRTY = INTERNAL_C_DIRTY;
+
+const char			FONTNAME_ATT = 80;
+const char			TEXT_ATT = 81;
+const char			LAYOUT_ATT = 82;
+}
+
+void TextPango::installAsServer(ds::BlobRegistry& registry)
+{
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r); });
+}
+
+void TextPango::installAsClient(ds::BlobRegistry& registry)
+{
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<TextPango>(r); });
+}
 
 TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	: ds::ui::Sprite(eng)
@@ -79,6 +104,7 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	, mCairoWinImageSurface(nullptr)
 #endif
 {
+	mBlobType = BLOB_TYPE;
 
 	mOutputShader.loadShaders();
 
@@ -162,6 +188,8 @@ void TextPango::setText(std::wstring text) {
 		mNeedsMarkupDetection = true;
 		mNeedsMeasuring = true;
 		mNeedsTextRender = true;
+
+		markAsDirty(TEXT_DIRTY);
 	}
 }
 
@@ -187,6 +215,8 @@ void TextPango::setDefaultTextWeight(TextWeight weight) {
 		mNeedsFontUpdate = true;
 		mNeedsMeasuring = true;
 		mNeedsTextRender = true;
+
+		markAsDirty(FONT_DIRTY);
 	}
 }
 
@@ -199,6 +229,8 @@ void TextPango::setAlignment(Alignment::Enum alignment) {
 		mTextAlignment = alignment;
 		mNeedsMeasuring = true;
 		mNeedsTextRender = true;
+		
+		markAsDirty(FONT_DIRTY);
 	}
 }
 
@@ -211,6 +243,8 @@ TextPango& TextPango::setLeading(const float leading) {
 		mLeading = leading;
 		mNeedsMeasuring = true;
 		mNeedsTextRender = true;
+
+		markAsDirty(FONT_DIRTY);
 	}
 	return *this;
 }
@@ -232,6 +266,8 @@ TextPango& TextPango::setResizeLimit(const float maxWidth, const float maxHeight
 			mResizeLimitHeight = 1000000.0f;
 		}
 		mNeedsMeasuring = true;
+
+		markAsDirty(LAYOUT_DIRTY);
 	}
 
 	return *this;
@@ -241,6 +277,8 @@ void TextPango::setTextColor(const ci::Color& color) {
 	if(mTextColor != color) {
 		mTextColor = color;
 		mNeedsTextRender = true;
+
+		markAsDirty(FONT_DIRTY);
 	}
 }
 
@@ -253,6 +291,8 @@ void TextPango::setDefaultTextSmallCapsEnabled(bool value) {
 		mDefaultTextSmallCapsEnabled = value;
 		mNeedsFontUpdate = true;
 		mNeedsMeasuring = true;
+
+		markAsDirty(FONT_DIRTY);
 	}
 }
 
@@ -265,6 +305,8 @@ void TextPango::setDefaultTextItalicsEnabled(bool value) {
 		mDefaultTextItalicsEnabled = value;
 		mNeedsFontUpdate = true;
 		mNeedsMeasuring = true;
+
+		markAsDirty(FONT_DIRTY);
 	}
 }
 
@@ -273,6 +315,8 @@ void TextPango::setFontSize(float size) {
 		mTextSize = size;
 		mNeedsFontUpdate = true;
 		mNeedsMeasuring = true;
+
+		markAsDirty(FONT_DIRTY);
 	}
 }
 
@@ -282,6 +326,8 @@ TextPango& TextPango::setFont(const std::string& font, const float fontSize) {
 		mTextSize = fontSize;
 		mNeedsFontUpdate = true;
 		mNeedsMeasuring = true;
+
+		markAsDirty(FONT_DIRTY);
 
 		if(!mEngine.getPangoFontService().getFamilyExists(mTextFont) && !mEngine.getPangoFontService().getFaceExists(mTextFont)){
 			DS_LOG_WARNING("TextPango: Family or face not found: " << mTextFont);
@@ -521,7 +567,7 @@ bool TextPango::render(bool force) {
 #endif
 			auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
 			if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
-				DS_LOG_WARNING("Error creating Cairo surface.");
+				DS_LOG_WARNING("Error creating Cairo surface. " << mPixelWidth << " " << mPixelHeight);
 				return true;
 			}
 
@@ -587,6 +633,61 @@ bool TextPango::render(bool force) {
 		return true;
 	} else {
 		return false;
+	}
+}
+
+
+void TextPango::writeAttributesTo(ds::DataBuffer& buf){
+	ds::ui::Sprite::writeAttributesTo(buf);
+
+	if(mDirty.has(TEXT_DIRTY)){
+		buf.add(TEXT_ATT);
+		buf.add(mText);
+	}
+
+	if(mDirty.has(FONT_DIRTY)) {
+		buf.add(FONTNAME_ATT);
+		buf.add(mTextFont);
+		buf.add(mTextSize);
+		buf.add(mLeading);
+		buf.add(mTextColor);
+		buf.add((int)mTextAlignment);
+	}
+	if(mDirty.has(LAYOUT_DIRTY)) {
+		buf.add(LAYOUT_ATT);
+		buf.add(mResizeLimitWidth);
+		buf.add(mResizeLimitHeight);
+	}
+}
+
+void TextPango::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
+	if(attributeId == TEXT_ATT) {
+		std::wstring theText = buf.read<std::wstring>();
+		setText(theText);
+	} else if(attributeId == FONTNAME_ATT) {
+		std::cout << "Font attr:";
+		std::string fontName = buf.read<std::string>();
+		float fontSize = buf.read<float>();
+
+		std::cout << fontName << " " << fontSize << std::endl;
+		setFont(fontName, fontSize);
+
+		float leading = buf.read<float>();
+		setLeading(leading);
+
+		ci::Color fontColor = buf.read<ci::Color>();
+		setTextColor(fontColor);
+
+		auto alignment = (ds::ui::Alignment::Enum)(buf.read<int>());
+		setAlignment(alignment);
+
+	} else if(attributeId == LAYOUT_ATT) {
+		float rsw = buf.read<float>();
+		float rsh = buf.read<float>();
+		setResizeLimit(rsw, rsh);
+
+	} else {
+		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
 }
 

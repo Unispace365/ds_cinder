@@ -129,11 +129,6 @@ public:
 	// Hack in a function to get the full font height, including the leading
 	virtual float				getFontFullHeight() const;
 
-	virtual void				writeAttributesTo(ds::DataBuffer&);
-	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
-	public:
-	static void					installAsServer(ds::BlobRegistry&);
-	static void					installAsClient(ds::BlobRegistry&);
 	*/
 
 	virtual void				updateClient(const UpdateParams &updateParams);
@@ -153,6 +148,12 @@ public:
 	const ci::gl::TextureRef	getTexture();
 
 
+	virtual void				writeAttributesTo(ds::DataBuffer&);
+	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
+
+	static void					installAsServer(ds::BlobRegistry&);
+	static void					installAsClient(ds::BlobRegistry&);
+
 private:
 	ci::gl::TextureRef			mTexture;
 	SpriteShader				mOutputShader;
@@ -165,6 +166,7 @@ private:
 
 	float						mTextSize;
 	std::string					mTextFont;
+	ci::Color					mTextColor;
 	bool						mDefaultTextItalicsEnabled;
 	bool						mDefaultTextSmallCapsEnabled;
 	Alignment::Enum				mTextAlignment;
@@ -182,8 +184,6 @@ private:
 	// simply stored to check for change across renders
 	int 						mPixelWidth;
 	int							mPixelHeight;
-
-	ci::Color					mTextColor;
 
 	// Pango references
 	PangoContext*				mPangoContext;
