@@ -5,7 +5,7 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;OGLFT_NO_QT;OGLFT_NO_SOLID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;OGLFT_NO_QT;OGLFT_NO_SOLID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>..\include;..\src;$(CINDER_086)\include;$(CINDER_086)\boost;$(DS_PLATFORM_086)\lib\poco\include;$(DS_PLATFORM_086)\src;$(CINDER_086)\blocks\tuio\include;$(CINDER_086)\blocks\OSC\src;$(DS_PLATFORM_086)\lib\snappy;$(DS_PLATFORM_086)\lib\zmq;$(DS_PLATFORM_086)\lib\freetype-2.4.10\include;$(DS_PLATFORM_086)\lib\OGLFT;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
