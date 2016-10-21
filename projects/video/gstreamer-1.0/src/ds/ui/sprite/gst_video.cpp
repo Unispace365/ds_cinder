@@ -899,10 +899,8 @@ void GstVideo::setNetClock(){
 	if(!mDoSyncronization || mStreaming) return;
 
 	if (mIpAddress.empty()) {
-		ds::network::networkInfo* Networki;
-		Networki = new ds::network::networkInfo();
-
-		mIpAddress = Networki->getAddress();
+		ds::network::networkInfo Networki = ds::network::networkInfo();
+		mIpAddress = Networki.getAddress();
 	}
 	if (mEngine.getMode() == ds::ui::SpriteEngine::STANDALONE_MODE){
 		// NOTHIN
