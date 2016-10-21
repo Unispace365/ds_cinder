@@ -48,6 +48,7 @@ public:
 	double				getCurrentPhysicalMemory() const;
 	double				getPhysicalMemoryUsedByProcess() const;
 	double				getPercentUsageCPU() const;
+	int					getNumberOfProcessors() const;
 	// VIDEO
 	double				getTotalVideoMemory() const;
 	std::string			getVideoDriverVersion() const;

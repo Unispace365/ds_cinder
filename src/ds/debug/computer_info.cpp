@@ -137,9 +137,11 @@ void ComputerInfo::update()
 	mLastUserCPU = user;
 	mLastSysCPU = sys;
 
-	mPercentCPU = percent * 100.0;
+	if(percent > 0.0){
+		mPercentCPU = percent * 100.0;
+	}
 
-	if((mOn&MAIN_ON) != 0) updateMain();
+//	if((mOn&MAIN_ON) != 0) updateMain(); // this seems to be an exact duplicate of the above memory info, so no need to run it twice
 	if((mOn&VIDEO_ON) != 0) updateVideo();
 }
 
@@ -177,6 +179,10 @@ double ComputerInfo::getConversionNumber() const {
 
 double ComputerInfo::getPercentUsageCPU() const {
 	return mPercentCPU;
+}
+
+int ComputerInfo::getNumberOfProcessors() const{
+	return mNumProcessors;
 }
 
 double ComputerInfo::getTotalVideoMemory() const {
