@@ -143,58 +143,63 @@ void ComputerInfo::update()
 	if((mOn&VIDEO_ON) != 0) updateVideo();
 }
 
-double ComputerInfo::getTotalVirtualMemory() const
-{
+double ComputerInfo::getTotalVirtualMemory() const {
   return mMemoryStatus.ullTotalPageFile * mConversionNumber;
 }
 
-double ComputerInfo::getCurrentVirtualMemory() const
-{
+double ComputerInfo::getCurrentVirtualMemory() const {
 	return (mMemoryStatus.ullTotalPageFile - mMemoryStatus.ullAvailPageFile) * mConversionNumber;
 }
 
-double ComputerInfo::getVirtualMemoryUsedByProcess() const
-{
+double ComputerInfo::getVirtualMemoryUsedByProcess() const {
   return mProcessMemoryCounters.PrivateUsage * mConversionNumber;
 }
 
-double ComputerInfo::getTotalPhysicalMemory() const
-{
+double ComputerInfo::getTotalPhysicalMemory() const {
 	return mMemoryStatus.ullTotalPhys * mConversionNumber;
 }
 
-double ComputerInfo::getCurrentPhysicalMemory() const
-{
+double ComputerInfo::getCurrentPhysicalMemory() const {
 	return (mMemoryStatus.ullTotalPhys - mMemoryStatus.ullAvailPhys) * mConversionNumber;
 }
 
-double ComputerInfo::getPhysicalMemoryUsedByProcess() const
-{
+double ComputerInfo::getPhysicalMemoryUsedByProcess() const {
 	return mProcessMemoryCounters.WorkingSetSize * mConversionNumber;
 }
 
-ComputerInfo::MemoryConversion ComputerInfo::getConversion() const
-{
+ComputerInfo::MemoryConversion ComputerInfo::getConversion() const {
 	return mMemoryConversion;
 }
 
-double ComputerInfo::getConversionNumber() const
-{
+double ComputerInfo::getConversionNumber() const {
 	return mConversionNumber;
 }
 
-double ComputerInfo::getPercentUsageCPU() const
-{
+double ComputerInfo::getPercentUsageCPU() const {
 	return mPercentCPU;
 }
 
-double ComputerInfo::getTotalVideoMemory() const
-{
+double ComputerInfo::getTotalVideoMemory() const {
 	return mTotalVideoMemory * mConversionNumber;
 }
 
-void ComputerInfo::updateMain()
-{
+std::string ComputerInfo::getVideoDriverVersion() const{
+	return mVideoDriverVersion;
+}
+
+std::string ComputerInfo::getVideoDriverVendor() const{
+	return mVideoVendor;
+}
+
+std::string ComputerInfo::getVideoCardName() const{
+	return mVideoCardName;
+}
+
+int ComputerInfo::getVideoRefreshRate() const{
+	return mRefreshRate;
+}
+
+void ComputerInfo::updateMain() {
 	mMemoryStatus.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&mMemoryStatus);
 	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS *)&mProcessMemoryCounters, sizeof(PROCESS_MEMORY_COUNTERS_EX));
@@ -219,8 +224,27 @@ void ComputerInfo::updateMain()
 	mPercentCPU = percent * 100.0;
 }
 
-void ComputerInfo::updateVideo()
+std::string ConvertWCSToMBS(const wchar_t* pstr, long wslen)
 {
+	int len = ::WideCharToMultiByte(CP_ACP, 0, pstr, wslen, NULL, 0, NULL, NULL);
+
+	std::string dblstr(len, '\0');
+	len = ::WideCharToMultiByte(CP_ACP, 0 /* no flags */,
+								pstr, wslen /* not necessary NULL-terminated */,
+								&dblstr[0], len,
+								NULL, NULL /* no default char */);
+
+	return dblstr;
+}
+
+std::string ConvertBSTRToMBS(BSTR bstr)
+{
+	int wslen = ::SysStringLen(bstr);
+	return ConvertWCSToMBS((wchar_t*)bstr, wslen);
+}
+
+
+void ComputerInfo::updateVideo(){
 	// Query the video controller class:
 	// http://msdn.microsoft.com/en-us/library/windows/desktop/aa394512(v=vs.85).aspx
 	// This code taken from the example here:
@@ -288,8 +312,8 @@ void ComputerInfo::updateVideo()
 
 					IEnumWbemClassObject* pEnumerator = NULL;
 					hres = svc.mPSvc->ExecQuery( bstr_t("WQL"), 
-//												bstr_t("SELECT * FROM Win32_VideoController"),
-												bstr_t("SELECT AdapterRAM FROM Win32_VideoController"),
+												bstr_t("SELECT * FROM Win32_VideoController"),
+												//bstr_t("SELECT AdapterRAM FROM Win32_VideoController"),
 												WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, 
 												NULL,
 												&pEnumerator);
@@ -309,6 +333,28 @@ void ComputerInfo::updateVideo()
 						hr = pclsObj->Get(L"AdapterRAM", 0, &vtProp, 0, 0);
 						if (hr == S_OK) mTotalVideoMemory = vtProp.uintVal;
 						VariantClear(&vtProp);
+
+
+						VARIANT vtPropDesc;
+						hr = pclsObj->Get(L"Description", 0, &vtPropDesc, 0, 0);
+						if(hr == S_OK) mVideoCardName = ConvertBSTRToMBS(vtPropDesc.bstrVal);
+						VariantClear(&vtPropDesc);
+
+
+						VARIANT vtPropVendor;
+						hr = pclsObj->Get(L"AdapterCompatibility", 0, &vtPropVendor, 0, 0);
+						if(hr == S_OK) mVideoVendor = ConvertBSTRToMBS(vtPropVendor.bstrVal);
+						VariantClear(&vtPropVendor);
+
+						VARIANT vtPropDriver;
+						hr = pclsObj->Get(L"DriverVersion", 0, &vtPropDriver, 0, 0);
+						if(hr == S_OK) mVideoDriverVersion = ConvertBSTRToMBS(vtPropDriver.bstrVal);
+						VariantClear(&vtPropDriver);
+
+						VARIANT vtPropRefresh;
+						hr = pclsObj->Get(L"CurrentRefreshRate", 0, &vtPropRefresh, 0, 0);
+						if(hr == S_OK) mRefreshRate = vtPropRefresh.uintVal;
+						VariantClear(&vtPropRefresh);
 
 						pclsObj->Release();
 					}
