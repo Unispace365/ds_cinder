@@ -708,6 +708,7 @@ private:
 
 	GstNetTimeProvider*		mClockProvider;
 
+	bool					mSyncedMode;
 	bool					mServer;
 	guint64					m_BaseTime;
 	guint64					m_SeekTime;

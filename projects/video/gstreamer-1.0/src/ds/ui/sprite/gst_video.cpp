@@ -906,7 +906,6 @@ void GstVideo::setNetClock(){
 		// NOTHIN
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE){
 		mServerOnlyMode = true;
-		//DS_LOG_WARNING_M("Gstreamer net sync not implemented in Server only mode. Use ClientServer insteand.", GSTREAMER_LOG);
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
 		//Read port from settings file if available.  Otherwise, pick default.
 		static int newPort = mEngine.getSettings("layout").getInt("gstVideo:netclock:port", 0, 0);

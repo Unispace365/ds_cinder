@@ -36,6 +36,7 @@ GStreamerWrapper::GStreamerWrapper()
 	, m_AutoRestartStream(true)
 	, mServer(true)
 	, m_ValidInstall(true)
+	, mSyncedMode(false)
 {
 
 	m_CurrentPlayState = NOT_INITIALIZED;
@@ -89,7 +90,7 @@ void GStreamerWrapper::resetProperties(){
 	m_AutoRestartStream = true;
 	m_iDurationInNs = -1;
 	m_iCurrentTimeInNs = -1;
-
+	mSyncedMode = false;
 
 }
 
@@ -483,6 +484,7 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 
 
 void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string& addr, const int port, std::uint64_t& netClock, std::uint64_t& clockBaseTime){
+	mSyncedMode = true;
 	mServer = true;
 	DS_LOG_INFO("Setting IP Address to: " << addr.c_str() << " Port: " << port);
 	if (mClockProvider){
@@ -519,6 +521,7 @@ void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string&
 }
 
 void GStreamerWrapper::setClientNetClock(const bool isServer, const std::string& addr, const int port, std::uint64_t& netClock, std::uint64_t& baseTime){
+	mSyncedMode = true;
 	mServer = false;
 	DS_LOG_INFO("Setting IP Address to: " << addr.c_str() << " Port: " << port);
 
@@ -605,28 +608,40 @@ void GStreamerWrapper::setPipelineBaseTime(uint64_t base_time){
 
 void GStreamerWrapper::play(){
 	if (m_GstPipeline){
-		GstStateChangeReturn gscr = gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
 
-		if (gscr == GST_STATE_CHANGE_FAILURE){
-			DS_LOG_WARNING("Gst State change failure");
-		}
+		// Only seek on play in net mode
+		if(mSyncedMode){
+			GstStateChangeReturn gscr = gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
 
-		if (mServer) 
-		{
-			if (getState() == PAUSED){
+			if(gscr == GST_STATE_CHANGE_FAILURE){
+				DS_LOG_WARNING("Gst State change failure");
+			}
 
-				m_playFromPause = true;
+			if(mServer){
+				if(getState() == PAUSED){
+					std::cout << "Playing from pause" << std::endl;
+					m_playFromPause = true;
 
-				uint64_t baseTime = getPipelineTime();
-				setPipelineBaseTime(baseTime);
-				uint64_t latency = 200000000;
-				setSeekTime(m_SeekTime + latency);
+					uint64_t baseTime = getPipelineTime();
+					setPipelineBaseTime(baseTime);
+					uint64_t latency = 200000000;
+					setSeekTime(m_SeekTime + latency);
+
+				}
 
 			}
 
+			setTimePositionInNs(m_SeekTime);
+		} else {
+			if(m_CurrentPlayState != PLAYING){
+				GstStateChangeReturn gscr = gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+
+				if(gscr == GST_STATE_CHANGE_FAILURE){
+					DS_LOG_WARNING("Gst State change failure");
+				}
+			}
 		}
 
-		setTimePositionInNs(m_SeekTime);
 		m_CurrentPlayState = PLAYING;
 	}
 }
@@ -645,11 +660,13 @@ void GStreamerWrapper::pause(){
 	if ( m_GstPipeline ){
 		GstStateChangeReturn gscr = gst_element_set_state(m_GstPipeline, GST_STATE_PAUSED);
 
-		if (mServer) {
-			m_SeekTime = getCurrentTimeInNs();
-		}
+		if(mSyncedMode){
+			if(mServer) {
+				m_SeekTime = getCurrentTimeInNs();
+			}
 
-		setTimePositionInNs(m_SeekTime);
+			setTimePositionInNs(m_SeekTime);
+		}
 
 		if(gscr == GST_STATE_CHANGE_FAILURE){
 			DS_LOG_WARNING("GStreamerWrapper: State change failure trying to pause");
@@ -951,7 +968,7 @@ bool GStreamerWrapper::seekFrame( gint64 iTargetTimeInNs ){
 
 	gboolean bIsSeekSuccessful = false;
 
-	if (mServer) {
+	if (mSyncedMode && mServer) {
 		uint64_t baseTime = getPipelineTime();
 		setPipelineBaseTime(baseTime);
 		m_SeekTime = iTargetTimeInNs;
