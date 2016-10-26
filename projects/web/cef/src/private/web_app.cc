@@ -80,5 +80,6 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 	CefBrowserHost::CreateBrowser(window_info, mHandler, url, browser_settings, NULL);
 }
 
+
 }
 }

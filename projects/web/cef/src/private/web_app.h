@@ -18,7 +18,8 @@ namespace web{
 // Implement application-level callbacks for the browser process.
 // This is responsible for the initial command-line setup, context initialization, and browser creation.
 class WebApp : public CefApp,
-	public CefBrowserProcessHandler {
+	public CefBrowserProcessHandler
+{
 public:
 	WebApp();
 
@@ -29,6 +30,7 @@ public:
 
 	virtual CefRefPtr<CefBrowserProcessHandler> GetBrowserProcessHandler()
 		OVERRIDE{ return this; }
+
 
 	// CefBrowserProcessHandler methods:
 	virtual void OnContextInitialized() OVERRIDE;
