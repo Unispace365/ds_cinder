@@ -1,5 +1,7 @@
 #include "thumbnail_bar.h"
 
+#include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/image.h>
@@ -10,6 +12,21 @@
 #include <ds/ui/scroll/scroll_bar.h>
 #include <ds/data/color_list.h>
 
+namespace {
+class Init {
+public:
+	Init() {
+		ds::App::AddStartup([](ds::Engine& e) {
+			e.registerSpriteImporter("thumbnail_bar", [](ds::ui::SpriteEngine& enginey)->ds::ui::Sprite*{
+				return new ds::ui::ThumbnailBar(enginey);
+			});
+
+		});
+	}
+};
+
+Init INIT;
+}
 
 namespace ds {
 namespace ui {
@@ -18,6 +35,8 @@ ThumbnailBar::ThumbnailBar(ds::ui::SpriteEngine& se)
 	: ds::ui::Sprite(se)
 	, mFileList(nullptr)
 	, mPadding(5.0f)
+	, mHighlightColor(ci::Color::white())
+	, mHighlightItemIndex(0)
 {
 
 	setColor(ci::Color::black());
@@ -47,8 +66,15 @@ ThumbnailBar::ThumbnailBar(ds::ui::SpriteEngine& se)
 			rpi->enable(true);
 			rpi->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 			mImageMap[rpi] = mInfoMap[dbId];
-			rpi->setImageResource(mInfoMap[dbId]);
+			mIndexMap[dbId] = rpi;
+			rpi->setImageResource(mInfoMap[dbId], ds::ui::Image::IMG_CACHE_F);
 			setImageSize(rpi);
+
+			if(dbId == mHighlightItemIndex){
+				rpi->setColor(mHighlightColor);
+			} else {
+				rpi->setColor(ci::Color::white());
+			}
 		}
 	});
 
@@ -104,7 +130,20 @@ void ThumbnailBar::layout(){
 		mFileList->forEachLoadedSprite([this](ds::ui::Sprite* bs){
 			setImageSize(dynamic_cast<Image*>(bs));
 		});
+		mFileList->layout();
+
+		updateHighlight();
 	}
+}
+
+void ThumbnailBar::setHighlightColor(const ci::Color& highlightColor){
+	mHighlightColor = highlightColor;
+	updateHighlight();
+}
+
+void ThumbnailBar::setHighlightedItem(const int itemIndex){
+	mHighlightItemIndex = itemIndex;
+	updateHighlight();
 }
 
 void ThumbnailBar::setImageSize(ds::ui::Image* img){
@@ -119,6 +158,21 @@ void ThumbnailBar::setImageSize(ds::ui::Image* img){
 
 }
 
+void ThumbnailBar::updateHighlight(){
+	if(mFileList){
+		mFileList->forEachLoadedSprite([this](ds::ui::Sprite* bs){
+			bs->setColor(ci::Color::white());
+			auto img = dynamic_cast<ds::ui::Image*>(bs);
+		}); 
+
+		auto findy = mIndexMap.find(mHighlightItemIndex);
+		if(findy != mIndexMap.end()){
+			findy->second->setColor(mHighlightColor);
+		}
+
+	}
+}
+
 void ThumbnailBar::setData(ds::Resource& parentResource){
 	if(!mFileList) return;
 
@@ -126,9 +180,10 @@ void ThumbnailBar::setData(ds::Resource& parentResource){
 	
 	mInfoMap.clear();
 	mImageMap.clear();
+	mIndexMap.clear();
 
 	std::vector<int> productIds;
-	int mediaId = 1;
+	int mediaId = 0;
 	for(auto it : mSourceResource.getChildrenResources()){
 		int thisId = mediaId++;
 		productIds.push_back(thisId);

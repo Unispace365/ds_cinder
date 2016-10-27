@@ -132,7 +132,11 @@ void WebPlayer::layout(){
 
 	if(mWebInterface && mEmbedInterface){
 		mWebInterface->setSize(getWidth() * 2.0f / 3.0f, mWebInterface->getHeight());
-		mWebInterface->setPosition(getWidth() / 2.0f - mWebInterface->getWidth() / 2.0f, getHeight() - mWebInterface->getHeight() - 50.0f);
+
+		float yPos = getHeight() - mWebInterface->getHeight() - 50.0f;
+		if(yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
+		if(yPos + mWebInterface->getHeight() > getHeight()) yPos = getHeight() - mWebInterface->getHeight();
+		mWebInterface->setPosition(getWidth() / 2.0f - mWebInterface->getWidth() / 2.0f, yPos);
 	}
 }
 

@@ -77,6 +77,9 @@ class ScrollArea;
 		// fillCoulumnFirst will change the direction of filling order, default is true , set to false will fill the row fisrt 
 		void						setMatrixLayout(const bool doGrid, const int targetRow, const int targetColumn, const float gapping);
 
+		// Run the layout of children, just in case you need to force the layout. Most changes induce this automatically.
+		virtual void				layout();
+
 	protected:
 
 		// We only create enough sprites that are onscreen at one time.
@@ -105,7 +108,6 @@ class ScrollArea;
 
 
 		virtual void						onSizeChanged();
-		virtual void						layout();
 		virtual void						layoutItems();
 		virtual void						layoutItemsGrid();
 		virtual void						layoutItemsMatrix();

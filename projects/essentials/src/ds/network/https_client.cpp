@@ -84,12 +84,15 @@ void HttpsRequest::IndividualRequest::run(){
 	CURL *curl = curl_easy_init();
 	if(curl) {
 
+		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 30L);
+
 		struct curl_slist *headers = NULL;
 		if(mIsGet){
 			CURLcode res;
 			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
 			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &mOutput);
+
 			/*
 			* If you want to connect to a site who isn't using a certificate that is
 			* signed by one of the certs in the CA bundle you have, you can skip the

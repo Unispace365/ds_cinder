@@ -267,6 +267,10 @@ void App::keyDown(ci::app::KeyEvent e) {
 		mEngine.nextTouchMode();
 	} else if(ci::app::KeyEvent::KEY_F8 == code){
 		saveTransparentScreenshot();
+	} else if(ci::app::KeyEvent::KEY_k == code && mCtrlDown){
+		system("taskkill /f /im RestartOnCrash.exe");
+		system("taskkill /f /im DSNode-Host.exe");
+		system("taskkill /f /im DSNodeConsole.exe");
 	}
 
 	if (mArrowKeyCameraControl) {

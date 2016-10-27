@@ -48,8 +48,13 @@ public:
 	double				getCurrentPhysicalMemory() const;
 	double				getPhysicalMemoryUsedByProcess() const;
 	double				getPercentUsageCPU() const;
+	int					getNumberOfProcessors() const;
 	// VIDEO
 	double				getTotalVideoMemory() const;
+	std::string			getVideoDriverVersion() const;
+	std::string			getVideoDriverVendor() const;
+	std::string			getVideoCardName() const;
+	int					getVideoRefreshRate() const;
 
 private:
 	void				updateMain();
@@ -70,6 +75,10 @@ private:
 	double				mPercentCPU;
 	// VIDEO
 	double				mTotalVideoMemory;
+	std::string			mVideoDriverVersion; // Long driver number, such as 21.21.13.6909
+	std::string			mVideoVendor; // Such as "NVIDIA"
+	std::string			mVideoCardName; // Such as "NVIDIA Quadro K5000"
+	int					mRefreshRate;
 };
 
 }
