@@ -55,12 +55,6 @@
     <Filter Include="src\ds\ui\tweenline">
       <UniqueIdentifier>{75419866-dc29-488a-8391-9c329efd0d2d}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\lib">
-      <UniqueIdentifier>{82ea73fe-3df5-416a-9d1c-3816870b34b0}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\lib\OGLFT">
-      <UniqueIdentifier>{d9dd9d0c-956b-4b14-bba6-ecdb842728d4}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\ui\image_source">
       <UniqueIdentifier>{75b81987-e661-4733-8256-dfb5ba9b9b0b}</UniqueIdentifier>
     </Filter>
@@ -249,9 +243,6 @@
     <ClInclude Include="..\src\ds\ui\tween\sprite_anim.h">
       <Filter>src\ds\ui\tweenline</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\text_layout.h">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\network\http_client.h">
       <Filter>src\ds\network</Filter>
     </ClInclude>
@@ -269,9 +260,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\thread\parallel_runnable.h">
       <Filter>src\ds\thread</Filter>
-    </ClInclude>
-    <ClInclude Include="..\lib\OGLFT\OGLFT.h">
-      <Filter>src\lib\OGLFT</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\thread\serial_runnable.h">
       <Filter>src\ds\thread</Filter>
@@ -761,9 +749,6 @@
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\text.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
@@ -827,20 +812,11 @@
     <ClCompile Include="..\src\ds\ui\tween\sprite_anim.cpp">
       <Filter>src\ds\ui\tweenline</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\text_layout.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\network\http_client.cpp">
       <Filter>src\ds\network</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\util\idle_timer.cpp">
       <Filter>src\ds\util</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\multiline_text.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClCompile>
-    <ClCompile Include="..\lib\OGLFT\OGLFT.cpp">
-      <Filter>src\lib\OGLFT</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\network\node_watcher.cpp">
       <Filter>src\ds\network</Filter>

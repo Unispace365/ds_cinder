@@ -108,6 +108,18 @@ public:
 	virtual float				getWidth() const;
 	virtual float				getHeight() const;
 
+	/// Whether to add ellipses to the text if it doesn't fit inside the resize limit
+	/// If the resize limit is set to 0 or -1, no text wrapping will happen and no ellipses will be added
+	void						setEllipsizeMode(EllipsizeMode theMode);
+	EllipsizeMode				getEllipsizeMode();
+
+
+	/// If ellipsize mode is none and there's a resize width > 0 and the text had to wrap at all, returns true. otherwise false
+	bool						getTextWrapped();
+
+	/// The number of lines in the text layout
+	int							getNumberOfLines();
+
 
 	/// Returns the 2-d position of the character in the current text string
 	/// Will return 0,0 if the string is blank or the index is out-of-bounds
@@ -117,19 +129,6 @@ public:
 	/// Returns the index of the character of the current text string for the position supplied
 	/// Gracefully handles out-of-bounds points (will always return a valid index, assuming the current text string isn't empty)
 	int							getCharacterIndexForPosition(const ci::Vec2f& localPosition);
-
-	/* TODO
-	bool						getHasSplitLine() { return mHasSplitLine; }
-	float						getFontAscent() const;
-	float						getFontDescent() const;
-	float						getFontHeight() const; // does not include leading
-	// Return the font height in pixels, including ascender and descender. Seems
-	// like one of the other functions should do this, but they don't.
-	float						getPixelFontHeight() const;
-	// Hack in a function to get the full font height, including the leading
-	virtual float				getFontFullHeight() const;
-
-	*/
 
 	// TODO: make these function?
 	void						setConfigName(const std::string& cfgName){ mCfgName = cfgName; }
@@ -178,7 +177,12 @@ private:
 	bool						mDefaultTextSmallCapsEnabled;
 	Alignment::Enum				mTextAlignment;
 	TextWeight					mDefaultTextWeight;
+	EllipsizeMode				mEllipsizeMode;
 	float						mLeading;
+
+	// Info about the text layout
+	bool						mWrappedText;
+	int							mNumberOfLines;
 
 	// Internal flags for state invalidation
 	// Used by render method

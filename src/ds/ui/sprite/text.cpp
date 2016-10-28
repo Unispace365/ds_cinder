@@ -2,11 +2,7 @@
 
 namespace ds {
 namespace ui {
-
-
-void clearFontCache()
-{
-}
+void clearFontCache(){}
 }
 }
 #if 0

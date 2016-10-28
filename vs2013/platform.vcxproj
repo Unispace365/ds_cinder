@@ -33,7 +33,6 @@
     <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscPrintReceivedElements.h" />
     <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscReceivedElements.h" />
     <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscTypes.h" />
-    <ClInclude Include="..\lib\OGLFT\OGLFT.h" />
     <ClInclude Include="..\src\ds\app\app.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
     <ClInclude Include="..\src\ds\app\auto_draw.h" />
@@ -182,7 +181,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h" />
     <ClInclude Include="..\src\ds\ui\sprite\text.h" />
     <ClInclude Include="..\src\ds\ui\sprite\text_defs.h" />
-    <ClInclude Include="..\src\ds\ui\sprite\text_layout.h" />
     <ClInclude Include="..\src\ds\ui\sprite\text_pango.h" />
     <ClInclude Include="..\src\ds\ui\sprite\util\blend.h" />
     <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h" />
@@ -227,7 +225,6 @@
     <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscPrintReceivedElements.cpp" />
     <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscReceivedElements.cpp" />
     <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscTypes.cpp" />
-    <ClCompile Include="..\lib\OGLFT\OGLFT.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
     <ClCompile Include="..\src\ds\app\app_defs.cpp" />
     <ClCompile Include="..\src\ds\app\auto_draw.cpp" />
@@ -349,14 +346,11 @@
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image_with_thumbnail.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\mesh.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\multiline_text.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\shader\sprite_shader.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\text.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\text_defs.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\text_layout.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\text_pango.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\blend.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp" />

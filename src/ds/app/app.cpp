@@ -352,7 +352,6 @@ void App::quit(){
 }
 
 void App::shutdown(){
-	ds::ui::clearFontCache();
 	ci::app::AppBasic::shutdown();
 }
 

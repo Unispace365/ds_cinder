@@ -34,6 +34,13 @@ enum class TextWeight : int {
 	kUltraHeavy = 1000
 };
 
+enum class EllipsizeMode : int {
+	kEllipsizeNone = 0, // Doesn't add ellipses
+	kEllipsizeStart = 1, // Adds ellipses to the beginning of the text if it doesn't fit in the resize limit
+	kEllipsizeMiddle = 2, // Adds ellipses to the middle of the text if it doesn't fit in the resize limit
+	kEllipsizeEnd = 3 // Adds ellipses to the end of the text if it doesn't fit in the resize limit
+};
+
 } // namespace ui
 } // namespace ds
 

@@ -28,6 +28,7 @@ const std::string opacityFrag =
 "    color = texture2D( tex0, gl_TexCoord[0].st );\n"
 "    color *= gl_Color;\n"
 "    color *= opaccy;\n"
+"    color.rgb *= opaccy;\n"
 "    gl_FragColor = color;\n"
 "}\n";
 
@@ -86,13 +87,16 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	, mTextColor(ci::Color::white())
 	, mDefaultTextItalicsEnabled(false)
 	, mDefaultTextSmallCapsEnabled(false)
-	, mResizeLimitWidth(1000000.0f)
-	, mResizeLimitHeight(1000000.0f)
+	, mResizeLimitWidth(-1.0f)
+	, mResizeLimitHeight(-1.0f)
 	, mLeading(0.0f)
 	, mTextAlignment(Alignment::kLeft)
 	, mDefaultTextWeight(TextWeight::kNormal)
+	, mEllipsizeMode(EllipsizeMode::kEllipsizeNone)
 	, mPixelWidth(-1)
 	, mPixelHeight(-1)
+	, mNumberOfLines(0)
+	, mWrappedText(false)
 	, mOutputShader(vertShader, opacityFrag, shaderNameOpaccy)
 	, mFontDescription(nullptr)
 	, mPangoContext(nullptr)
@@ -187,7 +191,7 @@ void TextPango::setText(std::string text) {
 	setText(ds::wstr_from_utf8(text));
 }
 
-void TextPango::setText(std::wstring text) {
+void TextPango::setText(std::wstring text) {	
 	if(text != mText) {
 		mText = text;
 		mNeedsMarkupDetection = true;
@@ -268,11 +272,11 @@ TextPango& TextPango::setResizeLimit(const float maxWidth, const float maxHeight
 		mResizeLimitHeight = maxHeight;
 
 		if(mResizeLimitWidth < 1){
-			mResizeLimitWidth = 1000000.0f;
+			mResizeLimitWidth = -1.0f; // negative one turns off text wrapping
 		}
 
 		if(mResizeLimitHeight < 1){
-			mResizeLimitHeight = 1000000.0f;
+			mResizeLimitHeight = -1.0f;
 		}
 		mNeedsMeasuring = true;
 
@@ -364,8 +368,19 @@ float TextPango::getHeight() const {
 	return mHeight;
 }
 
+void TextPango::setEllipsizeMode(EllipsizeMode theMode){
+	if(theMode == mEllipsizeMode) return;
+
+	mEllipsizeMode = theMode;
+	markAsDirty(LAYOUT_DIRTY);
+}
+
+EllipsizeMode TextPango::getEllipsizeMode(){
+	return mEllipsizeMode;
+}
+
 void TextPango::drawLocalClient(){
-	if(mTexture){
+	if(mTexture && !mText.empty()){
 
 		// The true flag is for premultiplied alpha, which this texture is
 		ci::gl::enableAlphaBlending(true);		
@@ -407,6 +422,18 @@ int TextPango::getCharacterIndexForPosition(const ci::Vec2f& lp){
 	return outputIndex;
 }
 
+bool TextPango::getTextWrapped(){
+	// calculate current state if needed
+	render();
+	return mWrappedText;
+}
+
+int TextPango::getNumberOfLines(){
+	// calculate current state if needed
+	render();
+	return mNumberOfLines;
+}
+
 ci::Vec2f TextPango::getPositionForCharacterIndex(const int characterIndex){
 	if(!mPangoLayout){
 		render();
@@ -437,6 +464,13 @@ void TextPango::updateServer(const UpdateParams&){
 bool TextPango::render(bool force) {
 	if(force || mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
 
+		if(mText.empty()){
+			if(mWidth > 0.0f || mWidth > 0.0f){
+				setSize(0.0f, 0.0f);
+			}
+			return false;
+		}
+
 		if(force || mNeedsMarkupDetection) {
 
 			// Pango doesn't support HTML-esque line-break tags, so
@@ -444,7 +478,7 @@ bool TextPango::render(bool force) {
 			// TODO
 			//std::regex e(L"<br\\s?/?>", std::regex_constants::icase);
 			//mProcessedText = std::regex_replace(mText, e, L"\n");
-			mProcessedText = mText;
+			mProcessedText = mText + mEngine.getPangoFontService().getTextSuffix();
 
 			// Let's also decide and flag if there's markup in this string
 			// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
@@ -515,7 +549,18 @@ bool TextPango::render(bool force) {
 				pango_layout_set_alignment(mPangoLayout, aligny);
 			}
 
-			// pango_layout_set_wrap(pangoLayout, PANGO_WRAP_CHAR);
+			pango_layout_set_wrap(mPangoLayout, PANGO_WRAP_WORD_CHAR);
+
+			PangoEllipsizeMode elipsizeMode = PANGO_ELLIPSIZE_NONE;
+			if(mEllipsizeMode == EllipsizeMode::kEllipsizeEnd){
+				elipsizeMode = PANGO_ELLIPSIZE_END;
+			} else if(mEllipsizeMode == EllipsizeMode::kEllipsizeMiddle){
+				elipsizeMode = PANGO_ELLIPSIZE_MIDDLE;
+			} else if(mEllipsizeMode == EllipsizeMode::kEllipsizeStart){
+				elipsizeMode = PANGO_ELLIPSIZE_START;
+			} 
+
+			pango_layout_set_ellipsize(mPangoLayout, elipsizeMode);
 			pango_layout_set_spacing(mPangoLayout, (int)mLeading * PANGO_SCALE);
 
 			// Set text, use the fastest method depending on what we found in the text
@@ -524,6 +569,9 @@ bool TextPango::render(bool force) {
 			} else {
 				pango_layout_set_text(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
 			}
+
+			mWrappedText = pango_layout_is_wrapped(mPangoLayout) == TRUE;
+			mNumberOfLines = pango_layout_get_line_count(mPangoLayout); 
 
 			// Measure text
 			int newPixelWidth = 0;
@@ -539,11 +587,14 @@ bool TextPango::render(bool force) {
 				DS_LOG_WARNING("No size detected for pango text size. Font not detected or invalid markup are likely causes.");
 			}
 
-			//std::cout << "Ink rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height << std::endl;
-			//std::cout << "Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height << std::endl;
+			/*
+			std::cout << getTextAsString() << std::endl;
+			std::cout << "Ink rect: " << inkRect.x << " " << inkRect.y << " " << inkRect.width << " " << inkRect.height << std::endl;
+			std::cout << "Ext rect: " << extentRect.x << " " << extentRect.y << " " << extentRect.width << " " << extentRect.height << std::endl;
+			std::cout << "Pixel size: " << newPixelWidth << " " << newPixelHeight << std::endl;
+			*/
 
-			// Some italics stuff extends beyond the normal widths
-			mPixelWidth = extentRect.width + extentRect.x + 10;
+			mPixelWidth = extentRect.width + extentRect.x;
 			mPixelHeight = extentRect.height + extentRect.y;
 
 			setSize((float)mPixelWidth, (float)mPixelHeight);

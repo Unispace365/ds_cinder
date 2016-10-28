@@ -198,7 +198,7 @@ void PangoApp::keyDown(ci::app::KeyEvent event){
 	} else if(event.getCode() == KeyEvent::KEY_i){
 		forceStartIdleMode();
 	} else if(event.getCode() == KeyEvent::KEY_p){
-		mEngine.getPangoFontService().logFonts(true);
+		mEngine.getPangoFontService().logFonts(false);
 	}
 }
 
