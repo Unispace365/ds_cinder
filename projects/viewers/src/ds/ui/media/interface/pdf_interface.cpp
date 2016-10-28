@@ -60,7 +60,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 
 	mPageCounter = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, this);
 	if(mPageCounter){
-		mPageCounter->setResizeToText(true);
+		//mPageCounter->setResizeToText(true);
 		mPageCounter->enable(false);
 	}
 

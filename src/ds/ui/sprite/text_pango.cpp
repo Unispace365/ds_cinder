@@ -7,6 +7,7 @@
 #include <cairo-win32.h>
 #endif
 
+#include "ds/data/font_list.h"
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
 #include "ds/data/data_buffer.h"
@@ -85,8 +86,8 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	, mTextColor(ci::Color::white())
 	, mDefaultTextItalicsEnabled(false)
 	, mDefaultTextSmallCapsEnabled(false)
-	, mResizeLimitWidth(0.0f)
-	, mResizeLimitHeight(0.0f)
+	, mResizeLimitWidth(1000000.0f)
+	, mResizeLimitHeight(1000000.0f)
 	, mLeading(0.0f)
 	, mTextAlignment(Alignment::kLeft)
 	, mDefaultTextWeight(TextWeight::kNormal)
@@ -172,6 +173,10 @@ TextPango::~TextPango() {
 
 	g_object_unref(mPangoContext); // this one crashes Windows?
 	g_object_unref(mPangoLayout);
+}
+
+std::string TextPango::getTextAsString() const{
+	return ds::utf8_from_wstr(mText);
 }
 
 std::wstring TextPango::getText() const {
@@ -262,6 +267,10 @@ TextPango& TextPango::setResizeLimit(const float maxWidth, const float maxHeight
 		mResizeLimitWidth = maxWidth;
 		mResizeLimitHeight = maxHeight;
 
+		if(mResizeLimitWidth < 1){
+			mResizeLimitWidth = 1000000.0f;
+		}
+
 		if(mResizeLimitHeight < 1){
 			mResizeLimitHeight = 1000000.0f;
 		}
@@ -322,7 +331,8 @@ void TextPango::setFontSize(float size) {
 
 TextPango& TextPango::setFont(const std::string& font, const float fontSize) {
 	if(mTextFont != font || mTextSize != fontSize) {
-		mTextFont = font;
+		mTextFont = mEngine.getFonts().getFileNameFromName(font);
+	//	mTextFont = font;
 		mTextSize = fontSize;
 		mNeedsFontUpdate = true;
 		mNeedsMeasuring = true;
@@ -389,11 +399,11 @@ int TextPango::getCharacterIndexForPosition(const ci::Vec2f& lp){
 	int outputIndex = 0;
 	if(mPangoLayout){
 		int trailing = 0;
-		pango_layout_xy_to_index(mPangoLayout, (int)lp.x * PANGO_SCALE, (int)lp.y * PANGO_SCALE, &outputIndex, &trailing);
+		auto success = pango_layout_xy_to_index(mPangoLayout, (int)lp.x * PANGO_SCALE, (int)lp.y * PANGO_SCALE, &outputIndex, &trailing);
+		outputIndex += trailing;
+		// the "trailing" is if the xy is more than halfway to the next character. this is required to be added for the cursor to be able to be placed after the last character
 
-		std::cout << "character index for position: " << outputIndex << " " << lp << std::endl;
-
-	}
+	}	
 	return outputIndex;
 }
 
@@ -407,7 +417,7 @@ ci::Vec2f TextPango::getPositionForCharacterIndex(const int characterIndex){
 		PangoRectangle outputRectangle;
 		pango_layout_index_to_pos(mPangoLayout, characterIndex, &outputRectangle);
 
-		std::cout << "position for index: " << characterIndex << " " << outputRectangle.x << " " << outputRectangle.y << std::endl;
+		//std::cout << "position for index: " << characterIndex << " " << outputRectangle.x << " " << outputRectangle.y << std::endl;
 
 		outputPos.x = (float)outputRectangle.x / (float)PANGO_SCALE;
 		outputPos.y = (float)outputRectangle.y / (float)PANGO_SCALE;
@@ -466,10 +476,12 @@ bool TextPango::render(bool force) {
 
 			mFontDescription = pango_font_description_from_string(std::string(mTextFont + " " + std::to_string(mTextSize)).c_str());
 		//	pango_font_description_set_weight(fontDescription, static_cast<PangoWeight>(mDefaultTextWeight));
-		//	pango_font_description_set_style(fontDescription, mDefaultTextItalicsEnabled ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+		//	pango_font_description_set_style(mFontDescription, PANGO_STYLE_ITALIC);// mDefaultTextItalicsEnabled ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
 		//	pango_font_description_set_variant(fontDescription, mDefaultTextSmallCapsEnabled ? PANGO_VARIANT_SMALL_CAPS : PANGO_VARIANT_NORMAL);
 			pango_layout_set_font_description(mPangoLayout, mFontDescription);
 			pango_font_map_load_font(mEngine.getPangoFontService().getPangoFontMap(), mPangoContext, mFontDescription);
+
+		//	std::cout << pango_font_description_to_string(mFontDescription) << std::endl;
 
 			mNeedsFontUpdate = false;
 		}

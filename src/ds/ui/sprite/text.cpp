@@ -1,4 +1,16 @@
 #include "text.h"
+
+namespace ds {
+namespace ui {
+
+
+void clearFontCache()
+{
+}
+}
+}
+#if 0
+
 #include <map>
 #include <cinder/Vector.h>
 #include <cinder/app/App.h>
@@ -676,3 +688,5 @@ static FontPtr get_font(const std::string& filename, const float size)
 	mFontCache[filename][size] = font;
 	return font;
 }
+
+#endif

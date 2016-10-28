@@ -15,7 +15,7 @@
 
 	<!-- if this is a server (world engine), a client (render engine) or both (world + render). 
 	default ="", which is an EngineClientServer, aka "both"-->
-	<text name="platform:architecture" value="client" />
+	<text name="platform:architecture" value="" />
 	
 	<!-- Show console will create a console window, or not if this is false. 
 		If this setting is missing, debug mode will create a console, release will not. -->

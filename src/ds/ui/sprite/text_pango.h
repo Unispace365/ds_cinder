@@ -131,6 +131,11 @@ public:
 
 	*/
 
+	// TODO: make these function?
+	void						setConfigName(const std::string& cfgName){ mCfgName = cfgName; }
+	const std::string			getConfigName(){ return mCfgName; }
+	const std::string			getFontFileName(){ return mTextFont; }
+
 	virtual void				updateClient(const UpdateParams &updateParams);
 	virtual void				updateServer(const UpdateParams&);
 	void						drawLocalClient();
@@ -157,6 +162,8 @@ public:
 private:
 	ci::gl::TextureRef			mTexture;
 	SpriteShader				mOutputShader;
+
+	std::string					mCfgName;
 
 	std::wstring				mText;
 	std::wstring				mProcessedText; // stores text after newline filtering

@@ -52,7 +52,7 @@ namespace {
 class LimitCheck {
 public:
 	LimitCheck(const TextLayout::Input& in, const float lineHeight)
-		: mLimitToHeight(!(in.mSprite.autoResizeHeight()))
+		: mLimitToHeight(false)// !(in.mSprite.autoResizeHeight()))
 		, mDescent(getFontDescender(in.mFont))
 		, mMaxY(in.mSize.y)
 		, mLineHeight(lineHeight)
@@ -205,8 +205,8 @@ TextLayoutVertical::TextLayoutVertical(Text& t)
 }
 
 void TextLayoutVertical::installOn(Text& t) {
-	auto f = [this](TextLayout::Input& in, TextLayout& out) { this->run(in, out); };
-	t.setLayoutFunction(f);
+	//auto f = [this](TextLayout::Input& in, TextLayout& out) { this->run(in, out); };
+	//t.setLayoutFunction(f);
 }
 
 ci::Vec2f getSizeFromString(const FontPtr &font, const std::string &str){

@@ -16,7 +16,8 @@ namespace ui {
 class MultilineText : public Text
 {
 public:
-	MultilineText(SpriteEngine&);
+	MultilineText(SpriteEngine& e) : Text(e){};
+	/*
 	~MultilineText();
 
 	// Adjust the font leading value, where 0 = no space between lines,
@@ -33,6 +34,7 @@ private:
 	typedef Text						inherited;
 
 	ds::ui::TextLayoutVertical			mMultilineLayout;
+	*/
 };
 
 } // namespace ui
