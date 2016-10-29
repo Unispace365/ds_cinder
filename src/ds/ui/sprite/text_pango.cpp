@@ -28,7 +28,6 @@ const std::string opacityFrag =
 "    color = texture2D( tex0, gl_TexCoord[0].st );\n"
 "    color *= gl_Color;\n"
 "    color *= opaccy;\n"
-"    color.rgb *= opaccy;\n"
 "    gl_FragColor = color;\n"
 "}\n";
 
@@ -333,6 +332,14 @@ void TextPango::setFontSize(float size) {
 	}
 }
 
+void TextPango::setColor(const ci::Color& c){
+	setTextColor(c);
+}
+
+void TextPango::setColor(float r, float g, float b){
+	setTextColor(ci::Color(r, g, b));
+}
+
 TextPango& TextPango::setFont(const std::string& font, const float fontSize) {
 	if(mTextFont != font || mTextSize != fontSize) {
 		mTextFont = mEngine.getFonts().getFileNameFromName(font);
@@ -382,6 +389,8 @@ EllipsizeMode TextPango::getEllipsizeMode(){
 void TextPango::drawLocalClient(){
 	if(mTexture && !mText.empty()){
 
+		// ignore the "color" setting
+		ci::gl::color(ci::Color::white());
 		// The true flag is for premultiplied alpha, which this texture is
 		ci::gl::enableAlphaBlending(true);		
 		ci::gl::GlslProg& shaderBase = mOutputShader.getShader();
@@ -407,37 +416,22 @@ void TextPango::drawLocalClient(){
 }
 
 int TextPango::getCharacterIndexForPosition(const ci::Vec2f& lp){
-	if(!mPangoLayout){
-		render();
-	}
+	render();	
 
 	int outputIndex = 0;
 	if(mPangoLayout){
 		int trailing = 0;
 		auto success = pango_layout_xy_to_index(mPangoLayout, (int)lp.x * PANGO_SCALE, (int)lp.y * PANGO_SCALE, &outputIndex, &trailing);
-		outputIndex += trailing;
 		// the "trailing" is if the xy is more than halfway to the next character. this is required to be added for the cursor to be able to be placed after the last character
+		outputIndex += trailing;
+
+		//std::cout << "Selected index: " << outputIndex << " " << ds::utf8_from_wstr(mText) << " " << mText.size() << std::endl;
 
 	}	
 	return outputIndex;
 }
-
-bool TextPango::getTextWrapped(){
-	// calculate current state if needed
-	render();
-	return mWrappedText;
-}
-
-int TextPango::getNumberOfLines(){
-	// calculate current state if needed
-	render();
-	return mNumberOfLines;
-}
-
 ci::Vec2f TextPango::getPositionForCharacterIndex(const int characterIndex){
-	if(!mPangoLayout){
-		render();
-	}
+	render();
 
 	ci::Vec2f outputPos = ci::Vec2f::zero();
 	if(mPangoLayout){
@@ -452,6 +446,19 @@ ci::Vec2f TextPango::getPositionForCharacterIndex(const int characterIndex){
 	return outputPos;
 	
 }
+
+bool TextPango::getTextWrapped(){
+	// calculate current state if needed
+	render();
+	return mWrappedText;
+}
+
+int TextPango::getNumberOfLines(){
+	// calculate current state if needed
+	render();
+	return mNumberOfLines;
+}
+
 
 void TextPango::updateClient(const UpdateParams&){
 	render();
@@ -476,9 +483,9 @@ bool TextPango::render(bool force) {
 			// Pango doesn't support HTML-esque line-break tags, so
 			// find break marks and replace with newlines, e.g. <br>, <BR>, <br />, <BR />
 			// TODO
-			//std::regex e(L"<br\\s?/?>", std::regex_constants::icase);
-			//mProcessedText = std::regex_replace(mText, e, L"\n");
-			mProcessedText = mText + mEngine.getPangoFontService().getTextSuffix();
+			std::regex e("<br\\s?/?>", std::regex_constants::icase);
+			mProcessedText = ds::wstr_from_utf8(std::regex_replace(ds::utf8_from_wstr(mText), e, "\n")) + mEngine.getPangoFontService().getTextSuffix();
+			//mProcessedText = mText + mEngine.getPangoFontService().getTextSuffix();
 
 			// Let's also decide and flag if there's markup in this string
 			// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
@@ -561,10 +568,10 @@ bool TextPango::render(bool force) {
 			} 
 
 			pango_layout_set_ellipsize(mPangoLayout, elipsizeMode);
-			pango_layout_set_spacing(mPangoLayout, (int)mLeading * PANGO_SCALE);
+			pango_layout_set_spacing(mPangoLayout, (int)(mTextSize * (mLeading - 1.0f)) * PANGO_SCALE);
 
 			// Set text, use the fastest method depending on what we found in the text
-			if(mProbablyHasMarkup) {
+			if(mProbablyHasMarkup || true) {
 				pango_layout_set_markup(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
 			} else {
 				pango_layout_set_text(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
@@ -624,7 +631,7 @@ bool TextPango::render(bool force) {
 			}
 
 #if CAIRO_HAS_WIN32_SURFACE
-			mCairoSurface = cairo_win32_surface_create_with_dib(cairoFormat, mPixelWidth, mPixelHeight);
+			mCairoSurface = cairo_win32_surface_create_with_dib(cairoFormat, mPixelWidth + 10, mPixelHeight + 10);
 #else
 			mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth, mPixelHeight);
 #endif
@@ -689,7 +696,7 @@ bool TextPango::render(bool force) {
 			ci::gl::Texture::Format format;
 			format.setMagFilter(GL_LINEAR);
 			format.setMinFilter(GL_LINEAR);
-			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
+			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + 10, mPixelHeight + 10, format);
 			mNeedsTextRender = false;
 		}
 

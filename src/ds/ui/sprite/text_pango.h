@@ -80,6 +80,13 @@ public:
 	/// You can also set the color of the sprite, which works like a "multiply" effect on the outputted text color
 	void						setTextColor(const ci::Color&);
 	ci::Color					getTextColor(){	return mTextColor; };
+	/** Set the display color of this Sprite. Implementation can vary by Sprite type. */
+	virtual void				setColor(const ci::Color&) override;
+	/** Set the display color of this Sprite. Implementation can vary by Sprite type.
+	\param r Red component of the color from 0.0 to 1.0
+	\param g Green component of the color from 0.0 to 1.0
+	\param b Blue component of the color from 0.0 to 1.0 */
+	virtual void				setColor(float r, float g, float b) override;
 
 	/// The font name must match a family or face name installed on the system. Will warn and use a default if the desired font is not installed
 	TextPango&					setFont(const std::string& name);
