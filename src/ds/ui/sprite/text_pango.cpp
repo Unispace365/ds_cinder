@@ -631,7 +631,7 @@ bool TextPango::render(bool force) {
 			}
 
 #if CAIRO_HAS_WIN32_SURFACE
-			mCairoSurface = cairo_win32_surface_create_with_dib(cairoFormat, mPixelWidth + 10, mPixelHeight + 10);
+			mCairoSurface = cairo_win32_surface_create_with_dib(cairoFormat, mPixelWidth, mPixelHeight);
 #else
 			mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth, mPixelHeight);
 #endif
@@ -696,7 +696,7 @@ bool TextPango::render(bool force) {
 			ci::gl::Texture::Format format;
 			format.setMagFilter(GL_LINEAR);
 			format.setMinFilter(GL_LINEAR);
-			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + 10, mPixelHeight + 10, format);
+			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
 			mNeedsTextRender = false;
 		}
 
