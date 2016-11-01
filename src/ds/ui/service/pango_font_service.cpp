@@ -39,6 +39,8 @@ void PangoFontService::loadFonts(){
 		mFontMap = nullptr;
 	}
 
+	DS_LOG_INFO("Creating pango font map...");
+
 	if(!mFontMap){
 		mFontMap = pango_cairo_font_map_get_default();
 	}
@@ -47,6 +49,8 @@ void PangoFontService::loadFonts(){
 		DS_LOG_WARNING_M("Font map does not exist! Pango text sprites will be empty.", PANGO_FONT_LOG_M);
 		return;
 	}
+
+	DS_LOG_INFO("Pango font map loaded.");
 
 	mLoadedFonts.clear();
 	mLoadedFamilies.clear();
