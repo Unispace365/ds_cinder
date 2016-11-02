@@ -50,7 +50,6 @@ void PangoFontService::loadFonts(){
 		return;
 	}
 
-	DS_LOG_INFO("Pango font map loaded.");
 
 	mLoadedFonts.clear();
 	mLoadedFamilies.clear();
@@ -109,6 +108,8 @@ void PangoFontService::loadFonts(){
 	}
 
 	g_free(families);
+
+	DS_LOG_INFO("Pango font map loaded.");
 }
 
 bool PangoFontService::loadFont(const std::string& path) {
