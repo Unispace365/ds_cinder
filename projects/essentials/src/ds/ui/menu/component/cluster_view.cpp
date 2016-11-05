@@ -138,6 +138,8 @@ void ClusterView::cancelTappableMode(){
 }
 
 void ClusterView::activateMenu(){
+	cancelDelayedCall();
+
 	for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
 		(*it)->animateOn();
 	}
