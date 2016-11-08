@@ -66,7 +66,6 @@ ThumbnailBar::ThumbnailBar(ds::ui::SpriteEngine& se)
 			rpi->enable(true);
 			rpi->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 			mImageMap[rpi] = mInfoMap[dbId];
-			mIndexMap[dbId] = rpi;
 			rpi->setImageResource(mInfoMap[dbId], ds::ui::Image::IMG_CACHE_F);
 			setImageSize(rpi);
 
@@ -162,14 +161,17 @@ void ThumbnailBar::updateHighlight(){
 	if(mFileList){
 		mFileList->forEachLoadedSprite([this](ds::ui::Sprite* bs){
 			bs->setColor(ci::Color::white());
-			auto img = dynamic_cast<ds::ui::Image*>(bs);
 		}); 
 
-		auto findy = mIndexMap.find(mHighlightItemIndex);
-		if(findy != mIndexMap.end()){
-			findy->second->setColor(mHighlightColor);
+		auto findy = mInfoMap.find(mHighlightItemIndex);
+		if(findy != mInfoMap.end()){
+			for (auto it : mImageMap){
+				if(it.second == findy->second){
+					it.first->setColor(mHighlightColor);
+					break;
+				}
+			}
 		}
-
 	}
 }
 
@@ -180,7 +182,6 @@ void ThumbnailBar::setData(ds::Resource& parentResource){
 	
 	mInfoMap.clear();
 	mImageMap.clear();
-	mIndexMap.clear();
 
 	std::vector<int> productIds;
 	int mediaId = 0;
