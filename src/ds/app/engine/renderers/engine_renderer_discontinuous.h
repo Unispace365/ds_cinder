@@ -24,7 +24,7 @@ public:
 	virtual void	drawServer() override;
 
 private:
-	ci::gl::Fbo		mFbo;
+	ci::gl::FboRef		mFbo;
 };
 
 }

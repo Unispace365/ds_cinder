@@ -9,19 +9,18 @@ namespace gl {
  * \class ds::gl::SaveCamera
  */
 SaveCamera::SaveCamera()
-		: mViewport(ci::gl::getViewport())
-		, mModelView(ci::gl::getModelView())
-		, mProjection(ci::gl::getProjectionMatrix()) {
+	: mViewport(ci::Area(ci::gl::getViewport().first, ci::gl::getViewport().second))
+	, mModel(ci::gl::getModelMatrix())
+	, mView(ci::gl::getViewMatrix())
+	, mProjection(ci::gl::getProjectionMatrix()) {
 }
 
 SaveCamera::~SaveCamera() {
-	ci::gl::setViewport(mViewport);
+	ci::gl::viewport(mViewport.getUL(), mViewport.getSize());
 
-	glMatrixMode(GL_PROJECTION);
-	glLoadMatrixf(mProjection.m);
-
-	glMatrixMode(GL_MODELVIEW);
-	glLoadMatrixf(mModelView.m);
+	ci::gl::setProjectionMatrix(mProjection);
+	ci::gl::setModelMatrix(mModel);
+	ci::gl::setViewMatrix(mView);
 }
 
 } // namespace gl

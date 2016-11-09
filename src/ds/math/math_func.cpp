@@ -47,7 +47,7 @@ bool intersect2D( const ci::vec3 &start0, const ci::vec3 &end0, const ci::vec3 &
     return false;
   }
 
-  if (u.normalize() == v.normalize()) {
+  if (normalize(u) == normalize(v)) {
     return false;
   }
 

@@ -38,8 +38,8 @@ void EngineRendererContinuousFxaa::drawClient()
 	ci::gl::enable(GL_ALPHA_TEST);
 
 	{
-		ci::gl::SaveFramebufferBinding bindingSaver;
-		mFbo.bindFramebuffer();
+		ci::gl::SaveFramebufferBinding bindingSaver(mFbo);
+		//mFbo.bindFramebuffer();
 		
 		ci::gl::enableAlphaBlending();
 		clearScreen();

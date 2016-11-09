@@ -39,7 +39,7 @@ std::unique_ptr<Arc>		load(const std::string& filename) {
 		}
 		if (ds) {
 			ci::Buffer&			buf = ds->getBuffer();
-			if (buf.getDataSize() > 0 && buf.getDataSize() < 100000) {
+			if (buf.getSize() > 0 && buf.getSize() < 100000) {
 				std::string	str(static_cast<const char*>(buf.getData()), buf.getDataSize());
 				return load_xml(str);
 			}

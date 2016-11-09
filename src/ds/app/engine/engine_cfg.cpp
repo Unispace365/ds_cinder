@@ -167,7 +167,7 @@ void EngineCfg::loadText(const std::string& filename, Engine* engine) {
 			break;
 		}
 		// Set color to full red to alert that this wasn't actually loaded
-		mEmptyTextCfg.mColor.set(1.0f, 0.0f, 0.0f, 1.0f);
+		mEmptyTextCfg.mColor = ci::ColorA(1.0f, 0.0f, 0.0f, 1.0f);
 	}
 }
 
@@ -260,8 +260,8 @@ static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& o
 	try {
 		ci::DataSourceRef ds = ci::app::App::loadResource(RES_TEXT);
 		ci::BufferRef	buf = ds->getBuffer();
-		if(buf.getDataSize() > 0 && buf.getDataSize() < 100000) {
-			std::string	str(static_cast<const char*>(buf.getData()), buf.getDataSize());
+		if(buf->getSize() > 0 && buf->getSize() < 100000) {
+			std::string	str(static_cast<const char*>(buf->getData()), buf->getSize());
 			s.readFrom(str, true, true);
 		}
 	}

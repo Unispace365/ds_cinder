@@ -74,7 +74,7 @@ void ClipPlaneState::enableClipping(ds::ui::Sprite &s) {
 		// to two consecutive edges.  Next, we cross that with the forward-
 		// facing (clockwise) edge vector to get an inward-facing edge-
 		// normal vector for that edge
-		ci::vec3			norm = -(edgeA.cross( edgeB )).cross(edgeA).normalized();
+		ci::vec3			norm = -(normalize(cross(cross( edgeA, edgeB ), edgeA)));
 
 		// the four points we pass to glClipPlane are the solutions of the
 		// equation Ax + By + Cz + D = 0.  A, B, and C are the normal, and

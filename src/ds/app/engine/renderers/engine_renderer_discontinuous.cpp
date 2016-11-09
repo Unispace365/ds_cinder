@@ -1,5 +1,7 @@
 #include "engine_renderer_discontinuous.h"
 
+#include <cinder/gl/Fbo.h>
+
 #include <ds/app/engine/engine.h>
 #include <ds/app/engine/engine_data.h>
 #include <ds/app/engine/engine_roots.h>
@@ -11,17 +13,18 @@ EngineRendererDiscontinuous::EngineRendererDiscontinuous(Engine& e)
 	: EngineRenderer(e)
 {
 	ci::gl::Fbo::Format fmt;
-	fmt.setColorInternalFormat(GL_RGBA32F);
+	fmt.setColorTextureFormat(ci::);
 
 	const auto w = static_cast<int>(e.getWidth());
 	const auto h = static_cast<int>(e.getHeight());
 
-	mFbo = ci::gl::Fbo(w, h, fmt);
+	mFbo = ci::gl::Fbo::create(w, h, fmt);
 }
 
 void EngineRendererDiscontinuous::drawClient()
 {
-	ci::gl::SaveFramebufferBinding bindingSaver;
+	auto framebufferSave = ci::gl::ScopedFramebuffer(mFbo);
+	//ci::gl::SaveFramebufferBinding bindingSaver;
 	mFbo.bindFramebuffer();
 	ci::gl::enableAlphaBlending();
 	clearScreen();
@@ -39,6 +42,8 @@ void EngineRendererDiscontinuous::drawClient()
 
 void EngineRendererDiscontinuous::drawServer()
 {
+	//ALPHA TEST needs to be moved to shader, as modern open gl doesnt support it
+	ci::gl::enable(GL_ALPHA_TEST, true);
 	glAlphaFunc(GL_GREATER, 0.001f);
 
 	ci::gl::enable(GL_ALPHA_TEST);

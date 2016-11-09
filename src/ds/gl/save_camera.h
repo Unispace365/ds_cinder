@@ -19,7 +19,8 @@ public:
 
 private:
 	const ci::Area		mViewport;
-	const ci::mat4		mModelView,
+	const ci::mat4		mModel,
+						mView,
 						mProjection;
 };
 

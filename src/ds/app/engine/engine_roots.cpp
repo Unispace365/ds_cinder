@@ -129,7 +129,7 @@ void OrthRoot::setCinderCamera() {
 
 	// I think this should be in setGlCamera, but keeping it compatible for now.
 	if (mSetViewport) {
-		ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
+		ci::gl::viewport(ci::ivec2((int)screen_rect.getX1(), (int)screen_rect.getY2()), ci::ivec2((int)screen_rect.getX2(), (int)screen_rect.getY1()));
 	}
 	mCamera.setOrtho(screen_rect.getX1(), screen_rect.getX2(), screen_rect.getY2(), screen_rect.getY1(), mNearPlane, mFarPlane);
 }
@@ -145,7 +145,7 @@ void OrthRoot::markCameraDirty() {
 void OrthRoot::setGlCamera() {
 	if (mSetViewport) {
 		const ci::Rectf&		screen_rect(mEngine.getScreenRect());
-		ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
+		ci::gl::viewport(ci::ivec2((int)screen_rect.getX1(), (int)screen_rect.getY2()), ci::ivec2((int)screen_rect.getX2(), (int)screen_rect.getY1()));
 	}
 	ci::gl::setMatrices(mCamera);
 	ci::gl::disableDepthRead();
@@ -164,7 +164,7 @@ PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, c
 		, mOldPick(mCamera)
 		, mPicking(picking ? *picking : mOldPick) {
 	mCamera.setEyePoint(p.mPosition);
-	mCamera.setCenterOfInterestPoint(p.mTarget);
+	mCamera.lookAt(p.mTarget);
 	mCamera.setFov(p.mFov);
 	mCamera.setNearClip(p.mNearPlane);
 	mCamera.setFarClip(p.mFarPlane);
@@ -213,7 +213,7 @@ void PerspRoot::drawServer(const DrawParams& p) {
 
 ui::Sprite* PerspRoot::getHit(const ci::vec3& point) {
 	ui::Sprite*		s = nullptr;
-	drawFunc([this, &point, &s](){s = mPicking.pickAt(point.xy(), *(mSprite.get()));});
+	drawFunc([this, &point, &s](){s = mPicking.pickAt(ci::vec2(point.x, point.y), *(mSprite.get()));});
 	return s;
 }
 
@@ -222,7 +222,7 @@ PerspCameraParams PerspRoot::getCamera() const {
 
 	PerspCameraParams		p;
 	p.mPosition = mCamera.getEyePoint();
-	p.mTarget = mCamera.getCenterOfInterestPoint();
+	p.mTarget = mCamera.getPivotPoint();
 	p.mFov = mCamera.getFov();
 	p.mNearPlane = mCamera.getNearClip();
 	p.mFarPlane = mCamera.getFarClip();
@@ -251,7 +251,7 @@ void PerspRoot::setCamera(const PerspCameraParams& p) {
 	if (p == getCamera()) return;
 
 	mCamera.setEyePoint(p.mPosition);
-	mCamera.setCenterOfInterestPoint(p.mTarget);
+	mCamera.lookAt(p.mTarget);
 	mCamera.setPerspective(p.mFov, ci::app::getWindowAspectRatio(), p.mNearPlane, p.mFarPlane);
 	mCamera.setLensShiftHorizontal(p.mLensShiftH);
 	mCamera.setLensShiftVertical(p.mLensShiftV);

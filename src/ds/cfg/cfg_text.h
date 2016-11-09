@@ -40,7 +40,7 @@ public:
 	std::string				mCfgName;
 	float					mSize;
 	float					mLeading;
-	ci::ColorA				mColor;
+	ci::ColorA	  			mColor;
 	ci::vec2				mCenter;
 	ds::ui::Alignment::Enum	mAlignment;
 };
