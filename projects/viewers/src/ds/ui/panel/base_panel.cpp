@@ -215,7 +215,7 @@ void BasePanel::setSizeLimits(){
 
 void BasePanel::checkBounds(const bool immediate) {
 
-	if(mAnimating) return;
+	if(mAnimating && !immediate) return;
 
 	const float thisWidth = getWidth();
 	const float thisHeight = getHeight();
