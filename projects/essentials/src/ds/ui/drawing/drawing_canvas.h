@@ -56,6 +56,8 @@ private:
 	// The texture drawn to the screen and drawn on
 	ci::gl::Texture						mDrawTexture;
 
+	SpriteShader						mOutputShader;
+
 	ds::ui::Image*						mBrushImage;
 	float								mBrushSize;
 	ci::ColorA							mBrushColor;

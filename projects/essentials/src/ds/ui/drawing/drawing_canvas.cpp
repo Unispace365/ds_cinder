@@ -32,15 +32,39 @@ const static std::string whiteboard_point_frag =
 "varying vec4 brushColor;"
 "void main(){"
 "vec4 color = texture2D(tex0, gl_TexCoord[0].st);"
-"brushColor.r *= color.a * brushColor.a;"
-"brushColor.g *= color.a * brushColor.a;"
-"brushColor.b *= color.a * brushColor.a;"
-"gl_FragColor = brushColor * color;"
+"brushColor.r *= brushColor.a * color.r;"
+"brushColor.g *= brushColor.a * color.g;"
+"brushColor.b *= brushColor.a * color.b;"
+"brushColor *= color.a;"
+"gl_FragColor = brushColor;"
 //NEON EFFECTS!//"gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(1.0/2.2));"
 "}";
 
 static std::string whiteboard_point_name = "whiteboard_point";
 
+
+const std::string opacityFrag =
+"uniform sampler2D tex0;\n"
+"uniform float opaccy;\n"
+"void main()\n"
+"{\n"
+"    vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n"
+"    color = texture2D( tex0, gl_TexCoord[0].st );\n"
+"    color *= gl_Color;\n"
+"    color *= opaccy;\n"
+"    gl_FragColor = color;\n"
+"}\n";
+
+const std::string vertShader =
+"void main()\n"
+"{\n"
+"  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
+"  gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;\n"
+"  gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
+"  gl_FrontColor = gl_Color;\n"
+"}\n";
+
+static std::string shaderNameOpaccy = "opaccy_shader";
 }
 
 namespace ds {
@@ -53,7 +77,10 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	, mPointShader(whiteboard_point_vert, whiteboard_point_frag, whiteboard_point_name)
 	, mBrushImage(nullptr)
 	, mEraseMode(false)
+	, mOutputShader(vertShader, opacityFrag, shaderNameOpaccy)
 {
+	mOutputShader.loadShaders();
+
 	mPointShader.loadShaders();
 	mFboGeneral = std::move(mEngine.getFbo());
 	DS_REPORT_GL_ERRORS();
@@ -165,13 +192,31 @@ void DrawingCanvas::drawLocalClient(){
 	if(!mDrawTexture) return;
 
 	if(mDrawTexture) {
-		if(getBlendMode() == ds::ui::BlendMode::NORMAL){
-			glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+	//	if(getBlendMode() == ds::ui::BlendMode::NORMAL){
+	//		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
+		//}
+
+		// ignore the "color" setting
+		ci::gl::color(ci::Color::white());
+		// The true flag is for premultiplied alpha, which this texture is
+		ci::gl::enableAlphaBlending(true);
+		ci::gl::GlslProg& shaderBase = mOutputShader.getShader();
+		if(shaderBase) {
+			shaderBase.bind();
+			shaderBase.uniform("tex0", 0);
+			shaderBase.uniform("opaccy", mDrawOpacity);
+			mUniform.applyTo(shaderBase);
 		}
+
+
 		if(getPerspective()){
 			ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, 0.0f, static_cast<float>(mDrawTexture.getWidth()), static_cast<float>(mDrawTexture.getHeight())));
 		} else {
 			ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, static_cast<float>(mDrawTexture.getHeight()), static_cast<float>(mDrawTexture.getWidth()), 0.0f));
+		}
+
+		if(shaderBase){
+			shaderBase.unbind();
 		}
 	}
 }
