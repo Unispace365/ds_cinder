@@ -8,6 +8,7 @@ namespace ds {
 namespace net {
 HttpsRequest::HttpsRequest(ds::ui::SpriteEngine& eng)
 	: mRequests(eng)
+	, mVerbose(false)
 {
 	mRequests.setReplyHandler([this](HttpsRequest::IndividualRequest& q){onRequestComplete(q); });
 }
@@ -22,7 +23,8 @@ void HttpsRequest::makeGetRequest(const std::string& url, const bool peerVerify,
 		q.mInput = url;
 		q.mVerifyHost = hostVerify;
 		q.mVerifyPeers = peerVerify;
-		q.mIsGet = true; });
+		q.mIsGet = true;
+		q.mVerboseOutput = mVerbose;  });
 }
 
 
@@ -39,8 +41,14 @@ void HttpsRequest::makePostRequest(const std::string& url, const std::string& po
 		q.mVerifyPeers = peerVerify;
 		q.mIsGet = false; 
 		q.mCustomRequest = customRequest; 
-		q.mHeaders = headers; });
+		q.mHeaders = headers;
+		q.mVerboseOutput = mVerbose; });
 
+}
+
+
+void HttpsRequest::setVerboseOutput(const bool verbose){
+	mVerbose = verbose;
 }
 
 void HttpsRequest::onRequestComplete(IndividualRequest& q){
@@ -59,6 +67,7 @@ HttpsRequest::IndividualRequest::IndividualRequest()
 	, mVerifyPeers(true)
 	, mVerifyHost(true)
 	, mIsGet(true)
+	, mVerboseOutput(false)
 {}
 
 void HttpsRequest::IndividualRequest::setInput(std::string url){
@@ -85,6 +94,10 @@ void HttpsRequest::IndividualRequest::run(){
 	if(curl) {
 
 		curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 30L);
+
+		if(mVerboseOutput){
+			curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
+		}
 
 		struct curl_slist *headers = NULL;
 		if(mIsGet){
