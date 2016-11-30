@@ -21,6 +21,7 @@
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/button/layout_button.h>
 #include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/control/control_slider.h>
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/centered_scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
@@ -986,6 +987,10 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
 	} else if(type == "centered_scroll_area"){
 		spriddy = new ds::ui::CenteredScrollArea(engine, 0.0f, 0.0f);
+	} else if(type == "control_slider" || type == "control_slider_horizontal"){
+		spriddy = new ds::ui::ControlSlider(engine, false);
+	} else if(type == "control_slider_vertical"){
+		spriddy = new ds::ui::ControlSlider(engine, true);
 	} else if(type == "scroll_bar"){
 		spriddy = new ds::ui::ScrollBar(engine);
 	} else if(type == "soft_keyboard"){

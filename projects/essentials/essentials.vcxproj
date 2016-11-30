@@ -29,6 +29,7 @@
     <ClCompile Include="src\ds\ui\button\image_button.cpp" />
     <ClCompile Include="src\ds\ui\button\layout_button.cpp" />
     <ClCompile Include="src\ds\ui\button\sprite_button.cpp" />
+    <ClCompile Include="src\ds\ui\control\control_slider.cpp" />
     <ClCompile Include="src\ds\ui\drawing\drawing_canvas.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\stylesheet_parser.cpp" />
@@ -76,6 +77,7 @@
     <ClInclude Include="src\ds\ui\button\image_button.h" />
     <ClInclude Include="src\ds\ui\button\layout_button.h" />
     <ClInclude Include="src\ds\ui\button\sprite_button.h" />
+    <ClInclude Include="src\ds\ui\control\control_slider.h" />
     <ClInclude Include="src\ds\ui\drawing\drawing_canvas.h" />
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h" />
