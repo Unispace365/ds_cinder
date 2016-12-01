@@ -48,7 +48,7 @@ public:
 	/// Sets the bounds returned by the slider
 	void								setSliderLimits(const double minValue, const double maxValue);
 
-	typedef enum { kSliderTypeLinear = 0, kSliderTypeExpo } SliderInterpolation;
+	typedef enum { kSliderTypeLinear = 0, kSliderTypeQuadratic } SliderInterpolation;
 	void								setSliderInterpolation(SliderInterpolation interp){ mSliderInterpolation = interp; }
 
 protected:

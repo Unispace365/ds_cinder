@@ -87,7 +87,9 @@ void ControlSlider::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInf
 			if(mSliderInterpolation == kSliderTypeLinear){
 				sliderValue = ds::math::convertRange(0.0, 1.0, mMinValue, mMaxValue, destPercent);
 			} else if(mSliderInterpolation == kSliderTypeExpo){
-				sliderValue = (double)ci::easeOutExpo(destPercent);
+				// y = x ^ 2
+				double val = destPercent * destPercent;
+				sliderValue = ds::math::convertRange(0.0, 1.0, mMinValue, mMaxValue, val);
 			}
 			mSliderUpdatedCallback(destPercent, sliderValue);
 		}
@@ -113,7 +115,8 @@ void ControlSlider::setSliderValue(const double sliderValue){
 	if(mSliderInterpolation == kSliderTypeLinear){
 		mSliderPercent = ds::math::convertRange(mMinValue, mMaxValue, 0.0, 1.0, sliderValue);
 	} else if(mSliderInterpolation == kSliderTypeExpo){
-
+		mSliderPercent = ds::math::convertRange(mMinValue, mMaxValue, 0.0, 1.0, sliderValue);
+		mSliderPercent = sqrt(mSliderPercent);
 	}
 	if(mSliderPercent < 0.0) mSliderPercent = 0.0;
 	if(mSliderPercent > 1.0) mSliderPercent = 1.0;
