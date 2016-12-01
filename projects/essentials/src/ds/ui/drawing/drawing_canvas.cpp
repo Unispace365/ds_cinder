@@ -32,11 +32,12 @@ const static std::string whiteboard_point_frag =
 "varying vec4 brushColor;"
 "void main(){"
 "vec4 color = texture2D(tex0, gl_TexCoord[0].st);"
-"brushColor.r *= brushColor.a * color.r;"
-"brushColor.g *= brushColor.a * color.g;"
-"brushColor.b *= brushColor.a * color.b;"
-"brushColor *= color.a;"
-"gl_FragColor = brushColor;"
+"vec4 theBrushColor = brushColor;"
+"theBrushColor.r *= brushColor.a * color.r;"
+"theBrushColor.g *= brushColor.a * color.g;"
+"theBrushColor.b *= brushColor.a * color.b;"
+"theBrushColor *= color.a;"
+"gl_FragColor = theBrushColor;"
 //NEON EFFECTS!//"gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(1.0/2.2));"
 "}";
 
