@@ -86,12 +86,12 @@ void ControlSlider::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInf
 			double sliderValue = 0.0;
 			if(mSliderInterpolation == kSliderTypeLinear){
 				sliderValue = ds::math::convertRange(0.0, 1.0, mMinValue, mMaxValue, destPercent);
-			} else if(mSliderInterpolation == kSliderTypeExpo){
+			} else if(mSliderInterpolation == kSliderTypeQuadratic){
 				// y = x ^ 2
 				double val = destPercent * destPercent;
 				sliderValue = ds::math::convertRange(0.0, 1.0, mMinValue, mMaxValue, val);
 			}
-			mSliderUpdatedCallback(destPercent, sliderValue);
+			mSliderUpdatedCallback(destPercent, sliderValue, ti.mPhase == ds::ui::TouchInfo::Removed);
 		}
 
 		sliderUpdated(destPercent);
@@ -99,7 +99,7 @@ void ControlSlider::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInf
 }
 
 
-void ControlSlider::setSliderUpdatedCallback(std::function<void(const double scrollPercent, const double sliderValue)> func){
+void ControlSlider::setSliderUpdatedCallback(std::function<void(const double scrollPercent, const double sliderValue, const bool finishedAdjusting)> func){
 	mSliderUpdatedCallback = func;
 }
 
@@ -114,7 +114,7 @@ void ControlSlider::sliderUpdated(const double sliderPercent){
 void ControlSlider::setSliderValue(const double sliderValue){
 	if(mSliderInterpolation == kSliderTypeLinear){
 		mSliderPercent = ds::math::convertRange(mMinValue, mMaxValue, 0.0, 1.0, sliderValue);
-	} else if(mSliderInterpolation == kSliderTypeExpo){
+	} else if(mSliderInterpolation == kSliderTypeQuadratic){
 		mSliderPercent = ds::math::convertRange(mMinValue, mMaxValue, 0.0, 1.0, sliderValue);
 		mSliderPercent = sqrt(mSliderPercent);
 	}

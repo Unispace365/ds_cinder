@@ -21,7 +21,7 @@ public:
 	// The UI will be updated when you call scrollUpdated()
 	// percent is 0.0 to 1.0
 	// value is converted to a range between the set min and max (0.0 to 1.0 by default)
-	void								setSliderUpdatedCallback(std::function<void(const double sliderPercent, const double sliderValue)> func);
+	void								setSliderUpdatedCallback(std::function<void(const double sliderPercent, const double sliderValue, const bool finishedAdjusting)> func);
 
 	// A callback that the nub or background have been updated, and you can update any other UI that relates to the nub or background
 	void								setVisualUpdateCallback(std::function<void()> func);
@@ -59,7 +59,7 @@ protected:
 	void								updateNubPosition();
 
 	bool								mVertical;
-	std::function<void(const double, const double)>	mSliderUpdatedCallback;
+	std::function<void(const double, const double, const bool)>	mSliderUpdatedCallback;
 	std::function<void()>				mVisualUpdateCallback;
 
 	ds::ui::Sprite*						mBackground;
