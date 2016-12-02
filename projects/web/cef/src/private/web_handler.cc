@@ -215,6 +215,7 @@ std::string getErrorStringForError(const int errorCode){
 		case(ERR_CONNECTION_REFUSED): return "Connection Refused";
 		case(ERR_CONNECTION_ABORTED): return "Connection Aborted";
 		case(ERR_CONNECTION_FAILED): return "Connection Failed";
+		case(-118) : return "Connection Timed Out";
 		case(ERR_NAME_NOT_RESOLVED): return "Name Not Resolved";
 		case(ERR_INTERNET_DISCONNECTED): return "Interned Disconnected";
 		case(ERR_SSL_PROTOCOL_ERROR): return "SSL Protocol Error";
