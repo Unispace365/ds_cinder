@@ -142,7 +142,9 @@ void BasePanel::setAbsoluteSizeLimits(const ci::Vec2f& absMin, const ci::Vec2f& 
 
 void BasePanel::setSizeLimits(){
 	ci::Vec2f	panelDefaultSize = mDefaultSize;
-	const float			cw = getWidth() != 0 ? getWidth() : 1.0f, ch = getHeight() != 0 ? getHeight() : 1.0f, aspect = cw / ch;
+	float				cw = getWidth() != 0 ? getWidth() : 1.0f;
+	float				ch = getHeight() != 0 ? getHeight() : 1.0f;
+	const float			aspect = cw / ch;
 	ci::Vec2f			minSize = ci::Vec2f(cw, ch),
 						defaultSize = ci::Vec2f(cw, ch),
 						maxSize = ci::Vec2f(cw * 10.0f, ch * 10.0f);
@@ -217,8 +219,8 @@ void BasePanel::checkBounds(const bool immediate) {
 
 	if(mAnimating && !immediate) return;
 
-	const float thisWidth = getWidth();
-	const float thisHeight = getHeight();
+	const float thisWidth = getScaleWidth();
+	const float thisHeight = getScaleHeight();
 
 	const float anchorX = getCenter().x * thisWidth;
 	const float anchorY = getCenter().y * thisHeight;
