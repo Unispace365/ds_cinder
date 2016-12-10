@@ -981,8 +981,10 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::Circle(engine);
 	} else if(type == "circle_border"){
 		spriddy = new ds::ui::CircleBorder(engine);
-	} else if(type == "scroll_list"){
+	} else if(type == "scroll_list" || type == "scroll_list_vertical"){
 		spriddy = new ds::ui::ScrollList(engine);
+	} else if(type == "scroll_list_horizontal"){
+		spriddy = new ds::ui::ScrollList(engine, false);
 	} else if(type == "scroll_area"){
 		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
 	} else if(type == "centered_scroll_area"){
