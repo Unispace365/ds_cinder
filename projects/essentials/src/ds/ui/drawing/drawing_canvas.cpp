@@ -2,10 +2,17 @@
 
 #include <Poco/LocalDateTime.h>
 
-#include <ds/app/environment.h>
+#include <ds/app/app.h>
+#include <ds/app/engine/engine.h>
+#include <ds/app/blob_registry.h>
+#include <ds/app/blob_reader.h>
+#include "ds/data/data_buffer.h"
+#include <ds/ui/sprite/dirty_state.h>
 #include <ds/ui/sprite/sprite_engine.h>
+
 #include <ds/debug/logger.h>
 #include <ds/util/file_meta_data.h>
+#include <ds/app/environment.h>
 
 #include <ds/gl/save_camera.h>
 #include <cinder/ImageIo.h>
@@ -71,8 +78,44 @@ static std::string shaderNameOpaccy = "opaccy_shader";
 namespace ds {
 namespace ui {
 
+// Client/Server Stuff ------------------------------
+namespace { // anonymous namespace
+class Init {
+public:
+	Init() {
+		ds::App::AddStartup( []( ds::Engine& e ) {
+			e.installSprite(	[]( ds::BlobRegistry& r ){ds::ui::DrawingCanvas::installAsServer( r ); },
+								[]( ds::BlobRegistry& r ){ds::ui::DrawingCanvas::installAsClient( r ); } );
+		} );
+	}
+};
+Init				INIT;
+char				BLOB_TYPE				= 0;
+const char			DRAW_POINTS_QUEUE_ATT	= 81;
+const char			BRUSH_IMAGE_SRC_ATT		= 82;
+const char			BRUSH_COLOR_ATT 		= 83;
+const char			BRUSH_SIZE_ATT			= 84;
+const DirtyState&	sPointsQueueDirty	 	= newUniqueDirtyState();
+const DirtyState&	sBrushImagePathDirty	= newUniqueDirtyState();
+const DirtyState&	sBrushColorDirty		= newUniqueDirtyState();
+const DirtyState&	sBrushSizeDirty			= newUniqueDirtyState();
+
+const int			MAX_SERIALIZED_POINTS	= 100;
+} // anonymous namespace
+
+void DrawingCanvas::installAsServer(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r); });
+}
+
+void DrawingCanvas::installAsClient(ds::BlobRegistry& registry) {
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<DrawingCanvas>(r); });
+}
+// -- Client/Server Stuff ----------------------------
+
+
 DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brushImagePath)
 	: ds::ui::Sprite(eng)
+	, ds::ui::ImageOwner(eng)
 	, mBrushSize(24.0f)
 	, mBrushColor(1.0f, 0.0f, 0.0f, 0.5f)
 	, mPointShader(whiteboard_point_vert, whiteboard_point_frag, whiteboard_point_name)
@@ -80,6 +123,7 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	, mEraseMode(false)
 	, mOutputShader(vertShader, opacityFrag, shaderNameOpaccy)
 {
+	mBlobType = BLOB_TYPE;
 	mOutputShader.loadShaders();
 
 	mPointShader.loadShaders();
@@ -87,6 +131,7 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	DS_REPORT_GL_ERRORS();
 
 	setBrushImage(brushImagePath);
+	markAsDirty(sBrushSizeDirty);
 
 	setBrushColor(ci::ColorA(1.0f, 0.3f, 0.3f, 0.7f));
 	setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
@@ -100,24 +145,34 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 		auto localPoint = globalToLocal(ti.mCurrentGlobalPoint);
 		auto prevPoint = globalToLocal(ti.mCurrentGlobalPoint - ti.mDeltaPoint);
 		if(ti.mPhase == ds::ui::TouchInfo::Added){
+			mSerializedPointsQueue.push_back( std::make_pair(localPoint.xy(), localPoint.xy()));
 			renderLine(localPoint, localPoint);
+			markAsDirty(sPointsQueueDirty);
 		}
 		if(ti.mPhase == ds::ui::TouchInfo::Moved){
+			mSerializedPointsQueue.push_back( std::make_pair(prevPoint.xy(), localPoint.xy()) );
 			renderLine(prevPoint, localPoint);
+			markAsDirty(sPointsQueueDirty);
 		}
+		// Don't let the queue get too large if there are no clients connected
+		while (mSerializedPointsQueue.size() > MAX_SERIALIZED_POINTS)
+			mSerializedPointsQueue.pop_front();
 	});
 }
 
 void DrawingCanvas::setBrushColor(const ci::ColorA& brushColor){
 	mBrushColor = brushColor;
+	markAsDirty(sBrushColorDirty);
 }
 
 void DrawingCanvas::setBrushColor(const ci::Color& brushColor){
 	mBrushColor.r = brushColor.r; mBrushColor.g = brushColor.g; mBrushColor.b = brushColor.b;
+	markAsDirty(sBrushColorDirty);
 }
 
 void DrawingCanvas::setBrushOpacity(const float brushOpacity){
 	mBrushColor.a = brushOpacity;
+	markAsDirty(sBrushColorDirty);
 }
 
 const ci::ColorA& DrawingCanvas::getBrushColor(){
@@ -126,6 +181,7 @@ const ci::ColorA& DrawingCanvas::getBrushColor(){
 
 void DrawingCanvas::setBrushSize(const float brushSize){
 	mBrushSize = brushSize;
+	markAsDirty(sBrushSizeDirty);
 }
 
 const float DrawingCanvas::getBrushSize(){
@@ -133,26 +189,12 @@ const float DrawingCanvas::getBrushSize(){
 }
 
 void DrawingCanvas::setBrushImage(const std::string& imagePath){
-	if(mBrushImage){
-		mBrushImage->release();
-		mBrushImage = nullptr;
-	}
-
-	if(imagePath.empty()){
-		DS_LOG_WARNING("No brush image path supplied to drawing canvas");
+	if (imagePath.empty()){
+		DS_LOG_WARNING( "No brush image path supplied to drawing canvas" );
 		return;
 	}
-
-	auto expandedPath = ds::Environment::expand(imagePath);
-
-	if(!ds::safeFileExistsCheck(expandedPath, false)){
-		DS_LOG_WARNING("No brush image path supplied to drawing canvas");
-		return;
-	}
-	
-	mBrushImage = new ds::ui::Image(mEngine, expandedPath);
-	addChildPtr(mBrushImage);
-	mBrushImage->hide();
+	setImageFile(imagePath);
+	markAsDirty( sBrushImagePathDirty );
 }
 
 void DrawingCanvas::clearCanvas(){
@@ -190,6 +232,13 @@ void DrawingCanvas::setEraseMode(const bool eraseMode){
 }
 
 void DrawingCanvas::drawLocalClient(){
+	// If any serialized points have been received from the server, draw them
+	while (!mSerializedPointsQueue.empty()) {
+		auto points = mSerializedPointsQueue.front();
+		renderLine( ci::Vec3f( points.first ), ci::Vec3f( points.second ) );
+		mSerializedPointsQueue.pop_front();
+	}
+
 	if(!mDrawTexture) return;
 
 	if(mDrawTexture) {
@@ -223,12 +272,7 @@ void DrawingCanvas::drawLocalClient(){
 }
 
 void DrawingCanvas::renderLine(const ci::Vec3f& start, const ci::Vec3f& end){
-	if(!mBrushImage){
-		DS_LOG_WARNING("No brush image when trying to render a line in Drawing Canvas");
-		return;
-	}
-
-	auto brushTexture = mBrushImage->getImageTexture();
+	auto brushTexture = getImageTexture();
 
 	if(!brushTexture){
 		DS_LOG_WARNING("No brush image texture when trying to render a line in Drawing Canvas");
@@ -330,6 +374,71 @@ void DrawingCanvas::renderLine(const ci::Vec3f& start, const ci::Vec3f& end){
 	mFboGeneral->end();
 	mFboGeneral->detach();
 	DS_REPORT_GL_ERRORS();
+}
+
+void DrawingCanvas::writeAttributesTo(DataBuffer& buf) {
+	Sprite::writeAttributesTo(buf);
+
+	if (mDirty.has(sBrushImagePathDirty)){
+		buf.add(BRUSH_IMAGE_SRC_ATT);
+		mImageSource.writeTo(buf);
+	}
+	if (mDirty.has(sBrushColorDirty)){
+		buf.add(BRUSH_COLOR_ATT);
+		buf.add(mBrushColor.r);
+		buf.add(mBrushColor.g);
+		buf.add(mBrushColor.b);
+		buf.add(mBrushColor.a);
+	}
+	if (mDirty.has(sBrushSizeDirty)){
+		buf.add(BRUSH_SIZE_ATT);
+		buf.add<float>(mBrushSize);
+	}
+	if (mDirty.has(sPointsQueueDirty)){
+		buf.add(DRAW_POINTS_QUEUE_ATT);
+		buf.add<uint32_t>(mSerializedPointsQueue.size());
+		for( auto &pair : mSerializedPointsQueue ) {
+			buf.add<float>(pair.first.x);
+			buf.add<float>(pair.first.y);
+			buf.add<float>(pair.second.x);
+			buf.add<float>(pair.second.y);
+		}
+		mSerializedPointsQueue.clear();
+	}
+
+}
+
+void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
+	if (attrid == BRUSH_IMAGE_SRC_ATT) {
+		mImageSource.readFrom(buf);
+	}
+	else if (attrid == BRUSH_COLOR_ATT) {
+		mBrushColor.r = buf.read<float>();
+		mBrushColor.g = buf.read<float>();
+		mBrushColor.b = buf.read<float>();
+		mBrushColor.a = buf.read<float>();
+	}
+	else if (attrid == BRUSH_SIZE_ATT) {
+		mBrushSize = buf.read<float>();
+	}
+	else if (attrid == DRAW_POINTS_QUEUE_ATT) {
+		uint32_t count = buf.read<uint32_t>();
+		ci::Vec2f p1, p2;
+		for (uint32_t i = 0; i<count; i++) {
+			p1.x = buf.read<float>();
+			p1.y = buf.read<float>();
+			p2.x = buf.read<float>();
+			p2.y = buf.read<float>();
+			mSerializedPointsQueue.push_back( std::make_pair(p1, p2) );
+		}
+	}
+	else {
+		Sprite::readAttributeFrom(attrid, buf);
+	}
+}
+
+void DrawingCanvas::onImageChanged() {
+	markAsDirty(sBrushImagePathDirty);
 }
 
 } // namespace ui
