@@ -49,8 +49,8 @@ bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 	float totalAreaAmount = totalArea.x * totalArea.y;
 	float piecemealArea = 0.0f;
 	for(auto it = panels.begin(); it < panels.end(); ++it){
-		float tw = (*it)->getWidth();
-		float th = (*it)->getHeight();
+		float tw = (*it)->getScaleWidth();
+		float th = (*it)->getScaleHeight();
 		if(tw < 1.0f || th < 1.0f) continue;
 
 		PanelPackage pp;
@@ -152,10 +152,10 @@ bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 		if(animDur > 0.0f){
 			tmv->tweenStarted();
 			tmv->tweenPosition(destination, animDur, delayey, ci::EaseInOutQuad(), [tmv]{ tmv->tweenEnded(); });
-			tmv->animateWidthTo(destWidth);
+			tmv->animateWidthTo(destWidth / tmv->getScale().x);
 		} else {
 			tmv->setPosition(destination);
-			tmv->setViewerWidth(destWidth);
+			tmv->setViewerWidth(destWidth / tmv->getScale().x);
 		}
 	}
 
