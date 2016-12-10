@@ -15,17 +15,17 @@
 		animate_on="slide:-100; fade:-1.0; delay:0.4; duration:0.5; ease:outBack"
 		>
 			<sprite
-				color="eeeeee"
+				color="#eeeeee"
 				opacity="0.9"
 				blend_mode="normal"
 				size="200, 35" />
 			<image 
-				src="%APP%/data/images/ui/close_button.png"
+				src="%APP%/data/images/layout_builder/close_button.png"
 				scale="0.5, 0.5"
 				color="222222"
 				position="2, 2"/>
 			<text
-				font="button:text"
+				font="layout_builder:button:text"
 				position="45, 8"
 			>restart app</text>
 		</sprite_button>
@@ -36,17 +36,17 @@
 		animate_on="slide:-100; fade:-1.0; delay:0.4; duration:0.5; ease:outBack"
 		>
 			<sprite
-				color="eeeeee"
+				color="#eeeeee"
 				opacity="0.9"
 				blend_mode="normal"
 				size="200, 35" />
 			<image 
-				src="%APP%/data/images/media_interface/refresh.png"
+				src="%APP%/data/images/layout_builder/refresh.png"
 				scale="0.5, 0.5"
 				color="222222"
 				position="2, 2"/>
 			<text
-				font="button:text"
+				font="layout_builder:button:text"
 				position="45, 8"
 			>refresh layout</text>
 		</sprite_button>
@@ -57,17 +57,17 @@
 		animate_on="slide:-100; fade:-1.0; delay:0.4; duration:0.5; ease:outBack"
 		>
 			<sprite
-				color="eeeeee"
+				color="#eeeeee"
 				opacity="0.9"
 				blend_mode="normal"
 				size="200, 35" />
 			<image 
-				src="%APP%/data/images/media_interface/touch.png"
+				src="%APP%/data/images/layout_builder/touch.png"
 				scale="0.5, 0.5"
 				color="222222"
 				position="2, 2"/>
 			<text
-				font="button:text"
+				font="layout_builder:button:text"
 				position="45, 8"
 			>animate on</text>
 		</sprite_button>
@@ -78,17 +78,17 @@
 		animate_on="slide:-100; fade:-1.0; delay:0.4; duration:0.5; ease:outBack"
 		>
 			<sprite
-				color="eeeeee"
+				color="#eeeeee"
 				opacity="0.9"
 				blend_mode="normal"
 				size="200, 35" />
 			<image 
-				src="%APP%/data/images/media_interface/save.png"
+				src="%APP%/data/images/layout_builder/save.png"
 				scale="0.5, 0.5"
 				color="222222"
 				position="2, 2"/>
 			<text
-				font="button:text"
+				font="layout_builder:button:text"
 				position="45, 8"
 			>save layout</text>
 		</sprite_button>
