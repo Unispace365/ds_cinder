@@ -21,6 +21,7 @@
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/button/layout_button.h>
 #include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/control/control_slider.h>
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/centered_scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
@@ -174,6 +175,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 	if(circ){
 		xml.setAttribute("filled", unparseBoolean(circ->getFilled()));
 		xml.setAttribute("radius", circ->getRadius());
+		xml.setAttribute("line_width", circ->getLineWidth());
 	}
 
 	ds::ui::Border* border = dynamic_cast<ds::ui::Border*>(&sp);
@@ -669,7 +671,17 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "attach_state" || property == "sprite_link"){
 		// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore it.
 		return;
-	} 
+	}
+	else if (property == "line_width")
+	{
+		auto circle = dynamic_cast<Circle*>(&sprite);
+		if (circle){
+			circle->setLineWidth(ds::string_to_float(value));
+		}
+		else {
+			DS_LOG_WARNING("Trying to set line width on a non-circle sprite of type: " << typeid(sprite).name());
+		}
+	}
 	
 	// fallback to engine-registered properites last
 	else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
@@ -996,12 +1008,18 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::Circle(engine);
 	} else if(type == "circle_border"){
 		spriddy = new ds::ui::CircleBorder(engine);
-	} else if(type == "scroll_list"){
+	} else if(type == "scroll_list" || type == "scroll_list_vertical"){
 		spriddy = new ds::ui::ScrollList(engine);
+	} else if(type == "scroll_list_horizontal"){
+		spriddy = new ds::ui::ScrollList(engine, false);
 	} else if(type == "scroll_area"){
 		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
 	} else if(type == "centered_scroll_area"){
 		spriddy = new ds::ui::CenteredScrollArea(engine, 0.0f, 0.0f);
+	} else if(type == "control_slider" || type == "control_slider_horizontal"){
+		spriddy = new ds::ui::ControlSlider(engine, false);
+	} else if(type == "control_slider_vertical"){
+		spriddy = new ds::ui::ControlSlider(engine, true);
 	} else if(type == "scroll_bar"){
 		spriddy = new ds::ui::ScrollBar(engine);
 	} else if(type == "soft_keyboard"){

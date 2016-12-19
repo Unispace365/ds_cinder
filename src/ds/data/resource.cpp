@@ -561,6 +561,7 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 			  || extensionay.find("tod") != std::string::npos
 			  || extensionay.find("ts") != std::string::npos
 			  || extensionay.find("vob") != std::string::npos
+			  || extensionay.find("m4a") != std::string::npos
 			  ){
 		return ds::Resource::VIDEO_TYPE;
 	} else {

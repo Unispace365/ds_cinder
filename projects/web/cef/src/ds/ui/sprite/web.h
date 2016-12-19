@@ -265,6 +265,8 @@ private:
 	// Ensure threads are locked when getting callbacks, copying buffers, etc
 	std::mutex									mMutex;
 
+	ci::CueRef									mCallbacksCue;
+
 
 	// Initialization
 public:

@@ -50,9 +50,10 @@ Sprite Types
 * **layout** = ds::ui::LayoutSprite
 * **circle** = ds::ui::Circle
 * **border** = ds::ui::Border
-* **scroll_list** = ds::ui::ScrollList
+* **scroll_list[_(vertical|horizontal)** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
 * **centered_scroll_area** = ds::ui::CenteredScrollArea
+* **control_slider[_(horizontal|vertical)]** = ds::ui::ControlSlider
 * **scroll_bar** = ds::ui::ScrollBar
 * **entry_field** = ds::ui::EntryField
 * **soft_keyboard** = ds::ui::SoftKeyboard
@@ -212,6 +213,7 @@ Circle Sprite Parameters
 ---------------------------
 * **filled**: Boolean, whether to draw just the outline or fill in the circle
 * **radius**: Float, the radius of the circle to draw
+* **line_width**: Float, the width for non-filled circle border 
 
 Border Parameters
 ---------------------------
@@ -222,7 +224,7 @@ Scroll List Parameters
 * **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc)
 * **scroll_list_layout**: Sets the parameters for layout from the format "x, y, z", which translates to setLayoutParams(xStart, yStart, incrementAmount, true);
 * **scroll_list_animate**: Sets the animation parameters, from the format "x, y", where x==startDelay and y==deltaDelay on ScrollList::setAnimateOnParams(startDelay, deltaDelay);
-* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool);
+* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool); **Note: only applicable to ScrollArea, not ScrollList.  To set horizontality of ScrollList, use Sprite-types of 'scroll_list_vertical' and 'scroll_list_horizontal'.** 
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
 
 EntryField and SoftKeyboard Parameters

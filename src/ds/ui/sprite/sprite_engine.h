@@ -138,6 +138,7 @@ public:
 	int								getIdleTimeout() const;
 	void							setIdleTimeout(int idleTimeout);
 	virtual void					resetIdleTimeout(){};
+	virtual void					startIdling(){};
 	// deprecated -- use resetIdleTimeout()
 	virtual void					resetIdleTimeOut() { resetIdleTimeout(); }
 

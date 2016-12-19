@@ -67,6 +67,9 @@
     <Filter Include="src\ds\ui\drawing">
       <UniqueIdentifier>{0daa2cd3-cc8f-42cf-bcab-7465c71d6798}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\control">
+      <UniqueIdentifier>{27aa7365-59b9-455f-96e6-3915c4fce6b2}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -176,6 +179,9 @@
     </ClCompile>
     <ClCompile Include="src\ds\network\smtp_request.cpp">
       <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\control\control_slider.cpp">
+      <Filter>src\ds\ui\control</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -322,6 +328,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\network\smtp_request.h">
       <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\control\control_slider.h">
+      <Filter>src\ds\ui\control</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

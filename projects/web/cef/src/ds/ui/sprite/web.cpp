@@ -97,6 +97,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mHasCallbacks(false)
 	, mIsFullscreen(false)
 	, mNeedsInitialized(false)
+	, mCallbacksCue(nullptr)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -132,7 +133,8 @@ void Web::createBrowser(){
 
 		if(!mHasCallbacks){
 			auto& t = mEngine.getTweenline().getTimeline();
-			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			
 			mHasCallbacks = true;
 		}
 
@@ -157,6 +159,10 @@ Web::~Web() {
 
 	clearBrowser();
 
+	if(mCallbacksCue){
+		mCallbacksCue->removeSelf();
+	}
+
 	{
 		// I don't think we'll need to lock this anymore, as the previous call to clear will prevent any callbacks
 	//	std::lock_guard<std::mutex> lock(mMutex);
@@ -175,6 +181,9 @@ void Web::setWebTransparent(const bool isTransparent){
 }
 
 void Web::initializeBrowser(){
+	if(mBrowserId < 0){
+		return;
+	}
 
 	DS_LOG_INFO("Initialize browser: " << mUrl <<" " << mBrowserId);
 
@@ -228,7 +237,7 @@ void Web::initializeBrowser(){
 
 		if(!mHasCallbacks){
 			auto& t = mEngine.getTweenline().getTimeline();
-			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
 			mHasCallbacks = true;
 		}
 	};
@@ -257,7 +266,7 @@ void Web::initializeBrowser(){
 
 		if(!mHasCallbacks){
 			auto& t = mEngine.getTweenline().getTimeline();
-			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
 			mHasCallbacks = true;
 		}
 	};
@@ -271,7 +280,7 @@ void Web::initializeBrowser(){
 
 		if(!mHasCallbacks){
 			auto& t = mEngine.getTweenline().getTimeline();
-			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
 			mHasCallbacks = true;
 		}
 	};
@@ -316,6 +325,7 @@ void Web::dispatchCallbacks(){
 	}
 
 	mHasCallbacks = false;
+	mCallbacksCue = nullptr;
 }
 
 void Web::updateClient(const ds::UpdateParams &p) {

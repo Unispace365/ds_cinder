@@ -111,7 +111,7 @@ public:
 	void								setupTouch(ds::App&);
 
 	bool								isIdling() const;
-	void								startIdling();
+	virtual void						startIdling();
 	virtual void						resetIdleTimeout();
 	
 	// Called during app construction, to register the sprites as blob handlers.

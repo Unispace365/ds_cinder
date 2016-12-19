@@ -41,7 +41,6 @@ protected:
 	ds::Resource						mSourceResource;
 	std::map<int, ds::Resource>			mInfoMap;
 	std::map<Image*, ds::Resource>		mImageMap;
-	std::map<int, Image*>				mIndexMap;
 	std::function<void(ds::Resource&)>	mClickedCallback;
 	float								mPadding;
 	float								mItemSize;

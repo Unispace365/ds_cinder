@@ -23,16 +23,17 @@ ClusterView::ClusterView(ds::ui::SpriteEngine& enginey, ds::ui::TouchMenu::Touch
 	, mGraphicHolder(nullptr)
 {
 
+	mBackground = new ds::ui::Image(mEngine);
+	if(mBackground){
+		addChild(*mBackground);
+		mBackground->setCenter(0.5f, 0.5f);
+		mBackground->setPosition(0.0f, 0.0f);
+		mBackground->setColor(mMenuConfig.mBackgroundColor);
+		mBackground->setScale(0.0f, 0.0f, 0.0f);
+		mBackground->setOpacity(0.0f);
 
-	if(!mMenuConfig.mBackgroundImage.empty()){
-		mBackground = new ds::ui::Image(mEngine, mMenuConfig.mBackgroundImage);
-		if(mBackground){
-			addChild(*mBackground);
-			mBackground->setCenter(0.5f, 0.5f);
-			mBackground->setPosition(0.0f, 0.0f);
-			mBackground->setColor(mMenuConfig.mBackgroundColor);
-			mBackground->setScale(0.0f, 0.0f, 0.0f);
-			mBackground->setOpacity(0.0f);
+		if(!mMenuConfig.mBackgroundImage.empty()){
+			mBackground->setImageFile(mMenuConfig.mBackgroundImage);
 		}
 	}
 
@@ -192,14 +193,14 @@ void ClusterView::updateCluster(const ds::ui::TouchInfo::Phase btp, const ds::ui
 	}
 
 	if(btp == ds::ui::TouchInfo::Removed && !mMenuItems.empty()){
-		if(!mInvalid){
+	//	if(!mInvalid){
 			for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
 				if((*it)->getHighlited()){
 					itemActivated((*it));
 					break;
 				}
 			}
-		}
+		//}
 		deactivate();
 	}
 }
@@ -252,7 +253,8 @@ void ClusterView::activate(){
 void ClusterView::deactivate(){
 	invalidate();
 
-	callAfterDelay([this]{ hide(); mInvalid = false; mActive = false; }, mMenuConfig.mAnimationDuration);
+	mInvalid = false;
+	mActive = false;
 
 	if(mMenuConfig.mDeactivatedCallback){
 		mMenuConfig.mDeactivatedCallback(this, mGraphicHolder);
@@ -269,11 +271,9 @@ void ClusterView::invalidate(){
 
 		if(mBackground){
 			mBackground->animStop();
-			mBackground->tweenScale(ci::Vec3f::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInCubic);
+			mBackground->tweenScale(ci::Vec3f::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInCubic, [this]{handleInvalidateComplete(); });
 			mBackground->tweenOpacity(0.0f, mMenuConfig.mAnimationDuration);
 		}
-
-		callAfterDelay([this]{ handleInvalidateComplete(); }, mMenuConfig.mAnimationDuration);
 	}
 
 	mInvalid = true;
