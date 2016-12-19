@@ -60,7 +60,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 
 	mPageCounter = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, this);
 	if(mPageCounter){
-		mPageCounter->setResizeToText(true);
+		//mPageCounter->setResizeToText(true);
 		mPageCounter->enable(false);
 	}
 
@@ -89,6 +89,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 			if(!mThumbnailBar){
 				mThumbnailBar = new ThumbnailBar(mEngine);
 				addChildPtr(mThumbnailBar);
+				mThumbnailBar->setHighlightColor(ci::Color(0.5f, 0.5f, 0.5f));
 				mThumbnailBar->setOpacity(0.0f);
 				mThumbnailBar->setData(mSourceResource);
 				mThumbnailBar->setThumbnailClickedCallback([this](ds::Resource& reccy){
@@ -231,8 +232,13 @@ void PDFInterface::updateWidgets(){
 			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
 		}
 
+		if(mThumbnailBar){
+			int pageNum = mLinkedPDF->getPageNum() - 1;
+			mThumbnailBar->setHighlightedItem(pageNum);
+		}
 		
 	}
+
 	layout();
 }
 } // namespace ui

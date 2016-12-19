@@ -10,7 +10,6 @@
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
-#include "ds/ui/service/render_text_service.h"
 
 namespace ds {
 
@@ -26,7 +25,6 @@ public:
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
-	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 	virtual ds::sprite_id_t			nextSpriteId();
 
 	virtual void					installSprite(	const std::function<void(ds::BlobRegistry&)>& asServer,
@@ -58,8 +56,6 @@ private:
 	typedef Engine inherited;
 	WorkManager						mWorkManager;
 	ui::LoadImageService			mLoadImageService;
-	GlThread						mRenderTextThread;
-	ui::RenderTextService			mRenderTextService;
 
 	EngineIoInfo					mIoInfo;
 	ds::UdpConnection				mSendConnection;

@@ -25,12 +25,17 @@ public:
 	/// Set the content. Exclusively uses the children of the Resource
 	void								setData(ds::Resource& parentResource);
 
+	void								layout();
+
+	void								setHighlightColor(const ci::Color& highlightColor);
+	void								setHighlightedItem(const int itemIndex);
 protected:
 
 	virtual void						onSizeChanged();
-	void								layout();
 
 	void								setImageSize(ds::ui::Image* img);
+
+	void								updateHighlight();
 
 	ds::ui::ScrollList*					mFileList;
 	ds::Resource						mSourceResource;
@@ -40,6 +45,9 @@ protected:
 	float								mPadding;
 	float								mItemSize;
 	float								mSourceAspect;
+
+	ci::Color							mHighlightColor;
+	int									mHighlightItemIndex;
 };
 
 } // namespace ui

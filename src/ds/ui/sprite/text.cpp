@@ -1,4 +1,12 @@
 #include "text.h"
+
+namespace ds {
+namespace ui {
+void clearFontCache(){}
+}
+}
+#if 0
+
 #include <map>
 #include <cinder/Vector.h>
 #include <cinder/app/App.h>
@@ -563,7 +571,7 @@ void Text::drawIntoFbo() {
 	auto& lines = mLayout.getLines();
 	if (lines.empty()) return;
 
-	if (mNeedRedrawing) {
+	if(mNeedRedrawing) {
 		ds::gl::SaveCamera		save_camera;
 
 		mNeedRedrawing = false;
@@ -676,3 +684,5 @@ static FontPtr get_font(const std::string& filename, const float size)
 	mFontCache[filename][size] = font;
 	return font;
 }
+
+#endif

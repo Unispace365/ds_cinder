@@ -37,6 +37,8 @@ public:
 	/// HTTP status is the normal return code (100 = continue, 200 = ok, 404 = not found, 500 = server error, etc)
 	void					setReplyFunction(std::function<void(const bool errored, const std::string& reply, const long httpCode)> func){ mReplyFunction = func; }
 
+	void					setVerboseOutput(const bool verbose);
+
 private:
 	class IndividualRequest : public Poco::Runnable {
 	public:
@@ -57,9 +59,11 @@ private:
 		std::string			mPostData;
 		std::string			mCustomRequest;
 		std::vector<std::string>	mHeaders;
+		bool				mVerboseOutput;
 	};
 
 	void									onRequestComplete(IndividualRequest&);
+	bool									mVerbose;
 	ds::ParallelRunnable<IndividualRequest>	mRequests;
 	std::function<void(const bool errored, const std::string&, const long)>	mReplyFunction;
 };

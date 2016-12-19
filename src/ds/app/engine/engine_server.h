@@ -10,7 +10,6 @@
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
-#include "ds/ui/service/render_text_service.h"
 
 namespace ds {
 
@@ -133,13 +132,10 @@ public:
 	~EngineServer();
 
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
-	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 
 private:
 	typedef AbstractEngineServer inherited;
 	ui::LoadImageService			mLoadImageService;
-	GlNoThread						mRenderTextThread;
-	ui::RenderTextService			mRenderTextService;
 };
 
 } // namespace ds

@@ -21,6 +21,7 @@
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/button/layout_button.h>
 #include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/control/control_slider.h>
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/centered_scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
@@ -174,6 +175,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 	if(circ){
 		xml.setAttribute("filled", unparseBoolean(circ->getFilled()));
 		xml.setAttribute("radius", circ->getRadius());
+		xml.setAttribute("line_width", circ->getLineWidth());
 	}
 
 	ds::ui::Border* border = dynamic_cast<ds::ui::Border*>(&sp);
@@ -385,23 +387,25 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	// Text, MultilineText specific attributes
 	else if(property == "font") {
 		// Try to set the font
-		auto text = dynamic_cast<Text *>(&sprite);
+		auto text = dynamic_cast<Text*>(&sprite);
 		if(text) {
 			auto cfg = text->getEngine().getEngineCfg().getText(value);
 			cfg.configure(*text);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			
 		}
 	} else if(property == "font_name"){
-		auto text = dynamic_cast<Text *>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if(text) {
 			text->setFont(value, text->getFontSize());
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
+		
 	} else if(property == "resize_limit") {
 		// Try to set the resize limit
-		auto text = dynamic_cast<Text *>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if(text) {
 			auto v = parseVector(value);
 			text->setResizeLimit(v.x, v.y);
@@ -409,38 +413,51 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "text_align"){
-		auto text = dynamic_cast<MultilineText*>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if(text){
 			std::string alignString = value;
 			if(alignString == "right"){
 				text->setAlignment(ds::ui::Alignment::kRight);
 			} else if(alignString == "center"){
 				text->setAlignment(ds::ui::Alignment::kCenter);
+			} else if(alignString == "justify"){
+				text->setAlignment(ds::ui::Alignment::kJustify);
 			} else {
 				text->setAlignment(ds::ui::Alignment::kLeft);
 			}
 		}
+
+
 	} else if (property == "text") {
 		// Try to set content
-		auto text = dynamic_cast<Text *>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if (text) {
 			text->setText(value);
-		}
-		else {
+		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if (property == "font_size") {
 		// Try to set the font size
-		auto text = dynamic_cast<Text *>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if (text) {
 			text->setFontSize(ds::string_to_float(value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "font_leading"){
-		auto text = dynamic_cast<MultilineText*>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if(text){
 			text->setLeading(ds::string_to_float(value));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "font_color"){
+		auto text = dynamic_cast<TextPango*>(&sprite);
+		if(text){
+			text->setColor(parseColor(value, text->getEngine()));
+		} else {			
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			
 		}
 	}
 
@@ -654,7 +671,17 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "attach_state" || property == "sprite_link"){
 		// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore it.
 		return;
-	} 
+	}
+	else if (property == "line_width")
+	{
+		auto circle = dynamic_cast<Circle*>(&sprite);
+		if (circle){
+			circle->setLineWidth(ds::string_to_float(value));
+		}
+		else {
+			DS_LOG_WARNING("Trying to set line width on a non-circle sprite of type: " << typeid(sprite).name());
+		}
+	}
 	
 	// fallback to engine-registered properites last
 	else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
@@ -925,6 +952,7 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
 	if(dynamic_cast<ds::ui::SoftKeyboard*>(sp)) return "soft_keyboard";
 	if(dynamic_cast<ds::ui::EntryField*>(sp)) return "entry_field";
+	if(dynamic_cast<ds::ui::TextPango*>(sp)) return "text_pango";
 	return "sprite";
 }
 
@@ -980,12 +1008,18 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::Circle(engine);
 	} else if(type == "circle_border"){
 		spriddy = new ds::ui::CircleBorder(engine);
-	} else if(type == "scroll_list"){
+	} else if(type == "scroll_list" || type == "scroll_list_vertical"){
 		spriddy = new ds::ui::ScrollList(engine);
+	} else if(type == "scroll_list_horizontal"){
+		spriddy = new ds::ui::ScrollList(engine, false);
 	} else if(type == "scroll_area"){
 		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
 	} else if(type == "centered_scroll_area"){
 		spriddy = new ds::ui::CenteredScrollArea(engine, 0.0f, 0.0f);
+	} else if(type == "control_slider" || type == "control_slider_horizontal"){
+		spriddy = new ds::ui::ControlSlider(engine, false);
+	} else if(type == "control_slider_vertical"){
+		spriddy = new ds::ui::ControlSlider(engine, true);
 	} else if(type == "scroll_bar"){
 		spriddy = new ds::ui::ScrollBar(engine);
 	} else if(type == "soft_keyboard"){

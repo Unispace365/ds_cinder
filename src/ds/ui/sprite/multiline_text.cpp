@@ -1,5 +1,5 @@
 #include "ds/ui/sprite/multiline_text.h"
-
+/*
 using namespace ci;
 
 namespace ds {
@@ -51,3 +51,5 @@ float MultilineText::getFontFullHeight() const
 
 } // namespace ui
 } // namespace ds
+
+*/

@@ -44,7 +44,10 @@ public:
 	void										setUrl(const std::string&);
 	void										setUrlOrThrow(const std::string&);
 
+	// returns the last URL set from loadUrl or setUrl (those two are identical). The page may have updated in the meantime
 	std::string									getUrl();
+	// returns the current url of the site as dispatched from CEF
+	std::string									getCurrentUrl();
 
 	// -------- Input Controls -------------------------------- //
 	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
@@ -244,6 +247,7 @@ private:
 
 	// Replicated state
 	std::string									mUrl;
+	std::string									mCurrentUrl;
 	std::vector<WebTouch>						mTouches;
 	std::vector<WebKeyboardInput>				mKeyPresses;
 	std::vector<WebControl>						mHistoryRequests;
@@ -260,6 +264,8 @@ private:
 
 	// Ensure threads are locked when getting callbacks, copying buffers, etc
 	std::mutex									mMutex;
+
+	ci::CueRef									mCallbacksCue;
 
 
 	// Initialization

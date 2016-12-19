@@ -72,6 +72,8 @@ void WebCefService::start() {
 	// We're using Offscreen Rendering.
 	settings.windowless_rendering_enabled = true;
 
+	//settings.command_line_args_disabled = true;
+
 	// CEF's multi-process structure: it's required.
 	// There's basically another process that needs to be spawned for different things (rendering, plugins, IO, etc)
 	// So we create a small exe that's just there to run CEF. 

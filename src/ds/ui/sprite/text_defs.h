@@ -11,11 +11,35 @@ namespace Alignment {
 	enum Enum {
 		kLeft,
 		kRight,
-		kCenter
+		kCenter,
+		kJustify
 	};
 
 	Alignment::Enum	fromString(const std::string&);
 }
+
+
+enum class TextWeight : int {
+	kThin = 100,
+	kUltraLight = 200,
+	kLight = 300,
+	kSemilight = 350,
+	kBook = 380,
+	kNormal = 400,
+	kMedium = 500,
+	kSemibold = 600,
+	kBold = 700,
+	kUltrabold = 800,
+	kHeavy = 900,
+	kUltraHeavy = 1000
+};
+
+enum class EllipsizeMode : int {
+	kEllipsizeNone = 0, // Doesn't add ellipses
+	kEllipsizeStart = 1, // Adds ellipses to the beginning of the text if it doesn't fit in the resize limit
+	kEllipsizeMiddle = 2, // Adds ellipses to the middle of the text if it doesn't fit in the resize limit
+	kEllipsizeEnd = 3 // Adds ellipses to the end of the text if it doesn't fit in the resize limit
+};
 
 } // namespace ui
 } // namespace ds

@@ -36,7 +36,6 @@ EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
 		, mLoadImageService(*this, mIpFunctions)
-		, mRenderTextService(mRenderTextThread)
 		, mSender(mSendConnection)
 		, mReceiver(mReceiveConnection)
 		, mBlobReader(mReceiver.getData(), *this)
@@ -85,14 +84,11 @@ ds::sprite_id_t EngineClient::nextSpriteId() {
 
 void EngineClient::setup(ds::App& app) {
 	inherited::setup(app);
-
-	mRenderTextThread.start(true);
 }
 
 void EngineClient::update() {
 	mWorkManager.update();
 	updateClient();
-	mRenderTextService.update();
 	mComputerInfo->update();
 
 	if (!mConnectionRenewed && mReceiver.hasLostConnection()) {

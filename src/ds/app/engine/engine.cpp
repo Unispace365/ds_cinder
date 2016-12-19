@@ -51,6 +51,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
+	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
@@ -71,6 +72,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));
 
+
 	// For now, install some default image processing functions here, for convenience. These are
 	// so lightweight it probably makes sense just to have them always available for clients instead
 	// of requiring some sort of configuration.
@@ -80,6 +82,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
+
+	mPangoFontService.loadFonts();
 
 	// touch settings
 	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
@@ -276,6 +280,7 @@ void Engine::prepareSettings(ci::app::App::Settings& settings){
 	const std::string     nope = "ds:IllegalTitle";
 	const std::string     title = mSettings.getText("screen:title", 0, nope);
 	if(title != nope) settings.setTitle(title);
+
 }
 
 void Engine::setup(ds::App& app) {

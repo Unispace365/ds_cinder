@@ -26,7 +26,9 @@ class WebHandler : public CefClient,
 	public CefLoadHandler,
 	public CefRenderHandler,
 	public CefGeolocationHandler,
-	public CefJSDialogHandler
+	public CefJSDialogHandler,
+	public CefFocusHandler,
+	public CefKeyboardHandler
 {
 public:
 	explicit WebHandler();
@@ -52,6 +54,12 @@ public:
 		return this;
 	}
 	virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE{
+		return this;
+	}
+	virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE{
+		return this;
+	}
+	virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE{
 		return this;
 	}
 
@@ -104,12 +112,27 @@ public:
 						 const void* buffer,
 						 int width, int height) OVERRIDE;
 
+	virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
+								CefCursorHandle cursor,
+								CursorType type,
+								const CefCursorInfo& custom_cursor_info);
+
 	virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
 							   CefRefPtr<CefDragData> drag_data,
 							   DragOperationsMask allowed_ops,
 							   int x, int y) OVERRIDE{
 		return true;
 	}
+	virtual void OnStatusMessage(CefRefPtr<CefBrowser> browser,
+		const CefString& value);
+	virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,
+		FocusSource source);
+	virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser,
+							 bool next);
+
+	virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
+							const CefKeyEvent& event,
+							CefEventHandle os_event);
 
 	// CefGeolocationHandler methods:
 	// returning true allows access immediately

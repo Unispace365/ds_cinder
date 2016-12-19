@@ -97,6 +97,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mHasCallbacks(false)
 	, mIsFullscreen(false)
 	, mNeedsInitialized(false)
+	, mCallbacksCue(nullptr)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -132,7 +133,8 @@ void Web::createBrowser(){
 
 		if(!mHasCallbacks){
 			auto& t = mEngine.getTweenline().getTimeline();
-			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			
 			mHasCallbacks = true;
 		}
 
@@ -157,6 +159,10 @@ Web::~Web() {
 
 	clearBrowser();
 
+	if(mCallbacksCue){
+		mCallbacksCue->removeSelf();
+	}
+
 	{
 		// I don't think we'll need to lock this anymore, as the previous call to clear will prevent any callbacks
 	//	std::lock_guard<std::mutex> lock(mMutex);
@@ -175,6 +181,11 @@ void Web::setWebTransparent(const bool isTransparent){
 }
 
 void Web::initializeBrowser(){
+	if(mBrowserId < 0){
+		return;
+	}
+
+	DS_LOG_INFO("Initialize browser: " << mUrl <<" " << mBrowserId);
 
 	mNeedsInitialized = false;
 
@@ -212,7 +223,7 @@ void Web::initializeBrowser(){
 		mIsLoading = isLoading;
 		mCanBack = canBack;
 		mCanForward = canForwards;
-		mUrl = newUrl;
+		mCurrentUrl = newUrl;
 
 		// zoom seems to need to be set for every page
 		// This callback is locked in CEF, so zoom checking needs to happen later
@@ -226,7 +237,7 @@ void Web::initializeBrowser(){
 
 		if(!mHasCallbacks){
 			auto& t = mEngine.getTweenline().getTimeline();
-			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
 			mHasCallbacks = true;
 		}
 	};
@@ -255,7 +266,7 @@ void Web::initializeBrowser(){
 
 		if(!mHasCallbacks){
 			auto& t = mEngine.getTweenline().getTimeline();
-			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
 			mHasCallbacks = true;
 		}
 	};
@@ -269,7 +280,7 @@ void Web::initializeBrowser(){
 
 		if(!mHasCallbacks){
 			auto& t = mEngine.getTweenline().getTimeline();
-			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
 			mHasCallbacks = true;
 		}
 	};
@@ -314,6 +325,7 @@ void Web::dispatchCallbacks(){
 	}
 
 	mHasCallbacks = false;
+	mCallbacksCue = nullptr;
 }
 
 void Web::updateClient(const ds::UpdateParams &p) {
@@ -394,11 +406,17 @@ std::string Web::getUrl() {
 	return mUrl;
 }
 
+std::string Web::getCurrentUrl(){
+	std::lock_guard<std::mutex> lock(mMutex);
+	return mCurrentUrl;
+}
+
 void Web::loadUrl(const std::wstring &url) {
 	loadUrl(ds::utf8_from_wstr(url));
 }
 
 void Web::loadUrl(const std::string &url) {
+	mCurrentUrl = url;
 	mUrl = url;
 	markAsDirty(URL_DIRTY);
 	if(mBrowserId > -1 && !mUrl.empty()){

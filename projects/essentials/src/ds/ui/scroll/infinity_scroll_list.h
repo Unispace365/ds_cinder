@@ -50,6 +50,11 @@ namespace ds{
 			
 			// Call this to initialize the list at a certain point
 			void								initItemStart(int itemNum);
+			// Call this to jump to a certain item in the list
+			void								jumpItem(int itemNum, const float duration = -1.0f);
+
+			// Returns the positions of items currently on screen
+			std::vector<int>					getOnScreenItemsPos();
 
 		protected:
 			// A helper so we only have to show the visible results at one time (instead of creating a zillion sprites)

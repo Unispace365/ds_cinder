@@ -5,12 +5,34 @@
   <PropertyGroup />
   <ItemDefinitionGroup>
     <ClCompile>
-      <PreprocessorDefinitions>_WIN32_WINNT=0x0501;OGLFT_NO_QT;OGLFT_NO_SOLID;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER_090)\include;$(CINDER_090)\boost;$(DS_PLATFORM_086)\lib\poco\include;$(DS_PLATFORM_086)\src;$(CINDER_090)\blocks\tuio\include;$(DS_PLATFORM_086)\lib\snappy;$(DS_PLATFORM_086)\lib\zmq;$(DS_PLATFORM_086)\lib\freetype-2.4.10\include;$(DS_PLATFORM_086)\lib\OGLFT;$(CINDER_090)\blocks\OSC\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER_090)\include;$(CINDER_090)\boost;$(DS_PLATFORM_090)\lib\poco\include;$(DS_PLATFORM_090)\src;$(DS_PLATFORM_090)\src\gtk;$(DS_PLATFORM_090)\src\gtk\cairo;$(DS_PLATFORM_090)\src\gtk\pango-1.0;$(DS_PLATFORM_090)\src\gtk\glib-2.0;$(CINDER_090)\blocks\tuio\include;$(DS_PLATFORM_090)\lib\snappy;$(CINDER_090)\blocks\OSC\src;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(CINDER_090)\lib;$(CINDER_090)\lib\msw\x86;$(DS_PLATFORM_086)\lib\poco\lib\vs2010;$(DS_PLATFORM_086)\lib;$(QUICKTIME)\Libraries;$(DS_PLATFORM_086)\lib\snappy;$(DS_PLATFORM_086)\lib\freetype-2.4.10\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>%(AdditionaDependencies);cinder-v120_d.lib;glu32.lib;PocoFoundationmtd.lib;PocoNetmtd.lib;platform_d.lib;psapi.lib;snappy32_d.lib;freetype2410MT_D.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>
+	  $(CINDER_090)\lib;
+	  $(CINDER_090)\lib\msw\x86;
+	  $(DS_PLATFORM_090)\lib\poco\lib\vs2010;
+	  $(DS_PLATFORM_090)\lib;
+	  $(DS_PLATFORM_090)\lib\gtk\lib;
+	  $(DS_PLATFORM_090)\lib\snappy;
+	  %(AdditionalLibraryDirectories);</AdditionalLibraryDirectories>
+      <AdditionalDependencies>
+	  cinder-v120_d.lib;
+	  glu32.lib;
+	  PocoFoundationmtd.lib;
+	  PocoNetmtd.lib;
+	  platform_d.lib;
+	  psapi.lib;
+	  snappy32_d.lib;
+	  freetype.lib;
+	  cairo.lib;
+	  fontconfig.lib;
+	  pango-1.0.lib;
+	  pangocairo-1.0.lib;
+	  glib-2.0.lib;
+	  gobject-2.0.lib;
+	  %(AdditionalDependencies)</AdditionalDependencies>
       <IgnoreSpecificDefaultLibraries>LIBCMT; LIBC.lib</IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>

@@ -20,6 +20,7 @@
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
+#include "ds/ui/sprite/text_pango.h"
 #include "ds/ui/sprite/border.h"
 #include "ds/ui/sprite/circle.h"
 #include "ds/ui/sprite/circle_border.h"
@@ -114,7 +115,9 @@ App::App(const RootList& roots)
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
-							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
+							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r); });
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::TextPango::installAsServer(r); },
+							[](ds::BlobRegistry& r){ds::ui::TextPango::installAsClient(r); });
 	mEngine.installSprite(	[](ds::BlobRegistry& r){EngineStatsView::installAsServer(r);},
 							[](ds::BlobRegistry& r){EngineStatsView::installAsClient(r);});
 	mEngine.installSprite(  [](ds::BlobRegistry& r){ds::ui::Border::installAsServer(r); },
@@ -264,6 +267,10 @@ void App::keyDown(ci::app::KeyEvent e) {
 		mEngine.nextTouchMode();
 	} else if(ci::app::KeyEvent::KEY_F8 == code){
 		saveTransparentScreenshot();
+	} else if(ci::app::KeyEvent::KEY_k == code && mCtrlDown){
+		system("taskkill /f /im RestartOnCrash.exe");
+		system("taskkill /f /im DSNode-Host.exe");
+		system("taskkill /f /im DSNodeConsole.exe");
 	}
 
 	if (mArrowKeyCameraControl) {
@@ -284,6 +291,10 @@ void App::keyDown(ci::app::KeyEvent e) {
 			mEngineData.mScreenRect.y2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		}
+	}
+
+	if(ci::app::KeyEvent::KEY_p == code){
+		mEngine.getPangoFontService().logFonts(e.isShiftDown());
 	}
 
 #ifdef _DEBUG
@@ -345,7 +356,6 @@ void App::quit(){
 }
 
 void App::shutdown(){
-	ds::ui::clearFontCache();
 	ci::app::AppBasic::shutdown();
 }
 

@@ -215,6 +215,7 @@ std::string getErrorStringForError(const int errorCode){
 		case(ERR_CONNECTION_REFUSED): return "Connection Refused";
 		case(ERR_CONNECTION_ABORTED): return "Connection Aborted";
 		case(ERR_CONNECTION_FAILED): return "Connection Failed";
+		case(-118) : return "Connection Timed Out";
 		case(ERR_NAME_NOT_RESOLVED): return "Name Not Resolved";
 		case(ERR_INTERNET_DISCONNECTED): return "Interned Disconnected";
 		case(ERR_SSL_PROTOCOL_ERROR): return "SSL Protocol Error";
@@ -350,6 +351,29 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 			findy->second.mPaintCallback(buffer, width, height);
 		}
 	}
+}
+
+void WebHandler::OnCursorChange(CefRefPtr<CefBrowser> browser, CefCursorHandle cursor, CursorType type, const CefCursorInfo& custom_cursor_info){
+	// This is when it changes from a hand to a pointer, to a directional arrow, etc.
+//	std::cout << "On Cursor change : " << type << std::endl;
+}
+
+void WebHandler::OnStatusMessage(CefRefPtr<CefBrowser> browser, const CefString& value){
+	//std::cout << "Status message: " << value.ToString() << std::endl;
+}
+
+bool WebHandler::OnSetFocus(CefRefPtr<CefBrowser> browser, FocusSource source){
+	//std::cout << "On set focus" << std::endl;
+	return false;
+}
+
+void WebHandler::OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next){
+//	std::cout << "On Take Focus " << next << std::endl;
+}
+
+bool WebHandler::OnKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent& event, CefEventHandle os_event){
+//	std::cout << "On Key Event: " << event.focus_on_editable_field << std::endl;
+	return false;
 }
 
 void WebHandler::closeBrowser(const int browserId){
