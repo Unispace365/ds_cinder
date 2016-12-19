@@ -89,6 +89,10 @@ void TouchManager::inputBegin(const int fingerId, const ci::Vec2f& touchPos){
 		mFingerDispatcher[touchInfo.mFingerId]->processTouchInfo(touchInfo);
 		mFingerDispatcher[touchInfo.mFingerId] = nullptr;
 
+		if(mEngine.getTouchInfoPipeCallback()){
+			mEngine.getTouchInfoPipeCallback()(touchInfo);
+		}
+
 	}
 
 	touchInfo.mPhase = TouchInfo::Added;
