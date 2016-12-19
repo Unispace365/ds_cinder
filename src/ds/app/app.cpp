@@ -293,6 +293,10 @@ void App::keyDown(ci::app::KeyEvent e) {
 		}
 	}
 
+	if(ci::app::KeyEvent::KEY_p == code){
+		mEngine.getPangoFontService().logFonts(e.isShiftDown());
+	}
+
 #ifdef _DEBUG
 	if(code == ci::app::KeyEvent::KEY_d){
 		std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
