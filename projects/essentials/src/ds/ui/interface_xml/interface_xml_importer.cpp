@@ -175,6 +175,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 	if(circ){
 		xml.setAttribute("filled", unparseBoolean(circ->getFilled()));
 		xml.setAttribute("radius", circ->getRadius());
+		xml.setAttribute("line_width", circ->getLineWidth());
 	}
 
 	ds::ui::Border* border = dynamic_cast<ds::ui::Border*>(&sp);
@@ -655,7 +656,17 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "attach_state" || property == "sprite_link"){
 		// This is a special function to apply children to a highlight or normal state of a sprite button, so ignore it.
 		return;
-	} 
+	}
+	else if (property == "line_width")
+	{
+		auto circle = dynamic_cast<Circle*>(&sprite);
+		if (circle){
+			circle->setLineWidth(ds::string_to_float(value));
+		}
+		else {
+			DS_LOG_WARNING("Trying to set line width on a non-circle sprite of type: " << typeid(sprite).name());
+		}
+	}
 	
 	// fallback to engine-registered properites last
 	else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
