@@ -4,6 +4,7 @@
 
 #include <memory>
 #include <cinder/gl/Vbo.h>
+#include <cinder/gl/VboMesh.h>
 
 namespace ds {
 class DataBuffer;
@@ -12,9 +13,9 @@ namespace ui {
 class SpriteEngine;
 
 /**
- * \class ds::ui::MeshSource
- * \brief The public API for creating mesh geometry.
- */
+* \class ds::ui::MeshSource
+* \brief The public API for creating mesh geometry.
+*/
 class MeshSource {
 public:
 	MeshSource();
@@ -23,7 +24,7 @@ public:
 	bool								operator==(const MeshSource&) const;
 	bool								empty() const;
 
-	const ci::gl::VboMesh*				getMesh();
+	const ci::gl::VboMeshRef			getMesh();
 
 protected:
 	// Internal maintenance
@@ -35,7 +36,7 @@ protected:
 		Data();
 		virtual ~Data();
 		virtual bool					isEqual(const Data&) const = 0;
-		virtual const ci::gl::VboMesh*	getMesh() = 0;
+		virtual const ci::gl::VboMeshRef	getMesh() = 0;
 		// If a subclass needs the engine, then handle this.
 		virtual void					setEngine(SpriteEngine*);
 		// Network replication

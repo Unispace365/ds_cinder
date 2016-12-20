@@ -161,6 +161,7 @@ private:
 
 	Engine&							mEngine;
 	ci::CameraPersp					mCamera;
+	ci::vec3						mCameraTarget;
 	bool							mCameraDirty;
 	std::unique_ptr<ui::Sprite>		mSprite;
 	// If I have a master, use it for my camera

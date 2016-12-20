@@ -47,15 +47,15 @@ public:
 		return !d.empty();
 	}
 
-	const ci::gl::Texture*		getImage() {
-		if (mTexture) return &mTexture;
+	const ci::gl::TextureRef		getImage() {
+		if(mTextureRef) return mTextureRef;
 
 		if (mToken.canAcquire()) {
 			mToken.acquire(mFilename, mIpKey, mIpParams, mFlags);
 		}
 		float						fade;
-		mTexture = mToken.getImage(fade);
-		if (mTexture) return &mTexture;
+		mTextureRef = mToken.getImage(fade);
+		if(mTextureRef) return mTextureRef;
 		return nullptr;
 	}
 
@@ -109,7 +109,7 @@ private:
 	std::string				mIpKey,
 							mIpParams;
 	int						mFlags;
-	ci::gl::Texture			mTexture;
+	ci::gl::TextureRef		mTextureRef;
 };
 
 }

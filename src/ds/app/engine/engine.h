@@ -209,15 +209,6 @@ public:
 	void								setAverageFps(const float fps){ mAverageFps = fps; }
 	const float							getAverageFps() const { return mAverageFps; }
 
-
-	// This really should move somewhere else (TODO: SL)
-	struct FxaaOptions
-	{
-		bool								mApplyFxAA{ false };
-		float								mFxAASpanMax;
-		float								mFxAAReduceMul;
-		float								mFxAAReduceMin;
-	} mFxaaOptions;
 	// -------------------------------------------------------------
 	// These functions are inlined, since they are called frequently
 	// -------------------------------------------------------------
@@ -225,7 +216,6 @@ public:
 	inline const std::vector<std::unique_ptr<EngineRoot>>&		getRoots() const { return mRoots; }
 	inline const ds::DrawParams&								getDrawParams() const { return mDrawParams; }
 	inline ds::AutoDrawService* const							getAutoDrawService() { return mAutoDraw; }
-	inline const FxaaOptions&									getFxaaOptions() const { return mFxaaOptions; }
 
 	/// This is for Clients to reconstruct roots when they re-connect with the server
 	void														clearRoots();

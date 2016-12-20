@@ -83,18 +83,18 @@ void ImageToken::release() {
 	init();
 }
 
-ci::gl::Texture ImageToken::getImage(float& fade) {
-	if (!mAcquired) return ci::gl::Texture();
+ci::gl::TextureRef ImageToken::getImage(float& fade) {
+	if (!mAcquired) return nullptr;
 
-	if (!mTexture) {
-		return (mTexture = mSrv.getImage(mKey, fade));
+	if(!mTextureRef) {
+		return (mTextureRef = mSrv.getImage(mKey, fade));
 	}
 
 	fade = 1;
-	return mTexture;
+	return mTextureRef;
 }
 
-const ci::gl::Texture ImageToken::peekImage(const std::string& filename) const {
+const ci::gl::TextureRef ImageToken::peekImage(const std::string& filename) const {
 	return mSrv.peekImage(mKey);
 }
 
@@ -102,7 +102,7 @@ void ImageToken::init() {
 	mKey.clear();
 	mAcquired = false;
 	mError = false;
-	mTexture.reset();
+	mTextureRef = nullptr;
 }
 
 /* DS::LOAD-IMAGE-SERVICE
@@ -131,7 +131,7 @@ bool LoadImageService::acquire(const ImageKey& key, const int flags) {
 	// current image, then we need to load one in.  But if the refs are > 0, then there's
 	// either an image or one's being loaded.  And if there's an image but the refs are < 1,
 	// then it's being cached.
-	if((!h.mTexture) && h.mRefs < 1) {
+	if((!h.mTextureRef) && h.mRefs < 1) {
 		// There's no image, so push on an operation to start one
 		auto oppy = ImageOperation(key, flags, mFunctions.find(key.mIpKey));
 		mOperationsQueue.push_back(oppy);
@@ -181,22 +181,22 @@ void LoadImageService::release(const ImageKey& key) {
 	}
 }
 
-ci::gl::Texture LoadImageService::getImage(const ImageKey& key, float& fade) {
+ci::gl::TextureRef LoadImageService::getImage(const ImageKey& key, float& fade) {
 
-	if (mImageResource.empty()) return ci::gl::Texture();
+	if (mImageResource.empty()) return nullptr;
 	ImageHolder& h = mImageResource[key];
 	fade = 1;
-	return h.mTexture;
+	return h.mTextureRef;
 }
 
-const ci::gl::Texture LoadImageService::peekImage(const ImageKey& key) const {
-	if (mImageResource.empty()) return ci::gl::Texture();
+const ci::gl::TextureRef LoadImageService::peekImage(const ImageKey& key) const {
+	if (mImageResource.empty()) return nullptr;
 	auto it = mImageResource.find(key);
 	if (it != mImageResource.end()) {
 		const ImageHolder&		h = it->second;
-		return h.mTexture;
+		return h.mTextureRef;
 	}
-	return ci::gl::Texture();
+	return nullptr;
 }
 
 bool LoadImageService::peekToken(const ImageKey& key, int* flags) const {
@@ -228,7 +228,7 @@ void LoadImageService::onLoadComplete(ImageLoadThread& loadThread){
 
 	ImageOperation&			out = loadThread.mOutput;
 	ImageHolder&			h = mImageResource[out.mKey];
-	if(h.mTexture) {
+	if(h.mTextureRef) {
 		// This isn't an error any more, and is just fine. Really the problem is that we spent a bunch of time loading the same image twice
 		//DS_LOG_WARNING_M("Duplicate images for id=" << out.mKey.mFilename << " refs=" << h.mRefs, LOAD_IMAGE_LOG_M);
 	} else {
@@ -237,14 +237,14 @@ void LoadImageService::onLoadComplete(ImageLoadThread& loadThread){
 			fmt.enableMipmapping(true);
 			fmt.setMinFilter(GL_LINEAR_MIPMAP_LINEAR);
 		} 
-		h.mTexture = ci::gl::Texture(out.mSurface, fmt);
+		h.mTextureRef = ci::gl::Texture::create(out.mSurface, fmt);
 
 		// If we ran out of memory, try again! why not!
 		if(glGetError() == GL_OUT_OF_MEMORY) {
 			if(out.mNumberTries < 2){
 				DS_LOG_ERROR_M("LoadImageService::onLoadComplete() called on filename: " << out.mKey.mFilename << " received an out of memory error. Image may be too big.", LOAD_IMAGE_LOG_M);
 			}
-			if(h.mTexture) h.mTexture.reset();
+			if(h.mTextureRef) h.mTextureRef = nullptr;
 
 			if(out.mNumberTries >= mMaxLoadTries){
 				DS_LOG_WARNING("Gave up loading image for " << loadThread.mOutput.mKey.mFilename << " after " << loadThread.mOutput.mNumberTries << " attempts.");
@@ -289,7 +289,7 @@ void LoadImageService::ImageLoadThread::run(){
 
 		if(file.exists()) {
 			mOutput.mSurface = ci::Surface8u(ci::loadImage(fn), ci::SurfaceConstraintsDefault(), alpha);
-			if(mOutput.mSurface) {
+			if(mOutput.mSurface.getData()) {
 				mOutput.mIpFunction.on(mOutput.mKey.mIpParams, mOutput.mSurface);
 				mError = false;
 			}
@@ -309,7 +309,7 @@ void LoadImageService::ImageLoadThread::run(){
 
 			// Try to load from a url path instead of locally
 			mOutput.mSurface = ci::Surface8u(ci::loadImage(ci::loadUrl(mOutput.mKey.mFilename)), ci::SurfaceConstraintsDefault(), alpha);
-			if(mOutput.mSurface) {
+			if(mOutput.mSurface.getData()) {
 				mOutput.mIpFunction.on(mOutput.mKey.mIpParams, mOutput.mSurface);
 				mError = false;
 			} else {
@@ -367,7 +367,7 @@ LoadImageService::ImageOperation::ImageOperation(const ImageKey& key, const int 
 
 void LoadImageService::ImageOperation::clear() {
 	mKey.clear();
-	mSurface.reset();
+	mSurface.create(0, 0, true);
 	mFlags = 0;
 	mIpFunction.clear();
 	mNumberTries = 0;

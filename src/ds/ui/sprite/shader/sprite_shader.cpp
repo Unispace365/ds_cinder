@@ -34,9 +34,9 @@ const std::string DefaultVert =
 "  gl_FrontColor = gl_Color;\n"
 "}\n";
 
-const ds::BitMask   SHADER_LOG        = ds::Logger::newModule("shader");
+const ds::BitMask SHADER_LOG = ds::Logger::newModule("shader");
 
-std::map<std::string, ci::gl::GlslProg> GlslProgs;
+std::map<std::string, ci::gl::GlslProgRef> GlslProgs;
 
 }
 
@@ -79,8 +79,7 @@ void SpriteShader::setShaders(const std::string& vert_memory, const std::string&
 }
 
 
-void SpriteShader::setShaders(const std::string &location, const std::string &name)
-{
+void SpriteShader::setShaders(const std::string &location, const std::string &name){
 	if(name.empty()) {
 		DS_LOG_WARNING_M("SpriteShader::setShaders() on empty name, did you intend that?", SHADER_LOG);
 		return;
@@ -97,8 +96,7 @@ void SpriteShader::setShaders(const std::string &location, const std::string &na
 	mName = name;
 }
 
-void SpriteShader::loadShaders()
-{
+void SpriteShader::loadShaders(){
 	loadShadersFromFile();
 	if(!mShader)
 		loadFromMemory();
@@ -108,18 +106,15 @@ void SpriteShader::loadShaders()
 		loadDefaultFromMemory();
 }
 
-bool SpriteShader::isValid() const
-{
+bool SpriteShader::isValid() const {
+	return (mShader != nullptr);
+}
+
+ci::gl::GlslProgRef SpriteShader::getShader(){
 	return mShader;
 }
 
-ci::gl::GlslProg & SpriteShader::getShader()
-{
-	return mShader;
-}
-
-void SpriteShader::loadShadersFromFile()
-{
+void SpriteShader::loadShadersFromFile(){
 	if(mName.empty())
 		return;
 
@@ -139,7 +134,7 @@ void SpriteShader::loadShadersFromFile()
 				// swallow these, cause shaders could be loaded otherwise
 			}
 			if(exist){
-				mShader = ci::gl::GlslProg(ci::loadFile(vertLocation.c_str()), ci::loadFile(fragLocation.c_str()));
+				mShader = ci::gl::GlslProg::create(ci::loadFile(vertLocation.c_str()), ci::loadFile(fragLocation.c_str()));
 				GlslProgs[mName] = mShader;
 			}
 		} else {
@@ -155,15 +150,14 @@ void SpriteShader::loadShadersFromFile()
 	}
 }
 
-void SpriteShader::loadDefaultFromFile()
-{
+void SpriteShader::loadDefaultFromFile(){
 	if(mDefaultName.empty())
 		return;
 
 	try {
 		auto found = GlslProgs.find(mDefaultName);
 		if(found == GlslProgs.end()) {
-			mShader = ci::gl::GlslProg(ci::loadFile((mDefaultLocation + "/" + mDefaultName + ".vert").c_str()), ci::loadFile((mDefaultLocation + "/" + mDefaultName + ".frag").c_str()));
+			mShader = ci::gl::GlslProg::create(ci::loadFile((mDefaultLocation + "/" + mDefaultName + ".vert").c_str()), ci::loadFile((mDefaultLocation + "/" + mDefaultName + ".frag").c_str()));
 			GlslProgs[mDefaultName] = mShader;
 		} else {
 			mShader = found->second;
@@ -178,7 +172,7 @@ void SpriteShader::loadFromMemory(){
 	try {
 		auto found = GlslProgs.find(mName);
 		if(found == GlslProgs.end()) {
-			mShader = ci::gl::GlslProg(mMemoryVert.c_str(), mMemoryFrag.c_str());
+			mShader = ci::gl::GlslProg::create(mMemoryVert.c_str(), mMemoryFrag.c_str());
 			GlslProgs[mName] = mShader;
 		} else {
 			mShader = found->second;
@@ -190,12 +184,11 @@ void SpriteShader::loadFromMemory(){
 
 }
 
-void SpriteShader::loadDefaultFromMemory()
-{
+void SpriteShader::loadDefaultFromMemory(){
 	try {
 		auto found = GlslProgs.find("default_cpp_shader");
 		if(found == GlslProgs.end()) {
-			mShader = ci::gl::GlslProg(DefaultVert.c_str(), DefaultFrag.c_str());
+			mShader = ci::gl::GlslProg::create(DefaultVert.c_str(), DefaultFrag.c_str());
 			GlslProgs["default_cpp_shader"] = mShader;
 		} else {
 			mShader = found->second;
@@ -206,13 +199,11 @@ void SpriteShader::loadDefaultFromMemory()
 	}
 }
 
-std::string SpriteShader::getLocation() const
-{
+std::string SpriteShader::getLocation() const{
 	return mLocation;
 }
 
-std::string SpriteShader::getName() const
-{
+std::string SpriteShader::getName() const{
 	return mName;
 }
 

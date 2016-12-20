@@ -82,11 +82,14 @@ void Border::drawLocalClient() {
 	} 
 
 	if(!mVertices) return;
-
+	DS_LOG_WARNING("Fix me! Border drawLocalClient");
+	// TODO
+	/*
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, mVertices);
 	glDrawArrays(GL_QUADS, 0, 16);
 	glDisableClientState(GL_VERTEX_ARRAY);
+	*/
 }
 
 void Border::drawLocalServer() {

@@ -58,8 +58,6 @@
     <ClInclude Include="..\src\ds\app\engine\engine_stats_view.h" />
     <ClInclude Include="..\src\ds\app\engine\engine_touch_queue.h" />
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_continuous.h" />
-    <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_continuous_fxaa.h" />
-    <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_discontinuous.h" />
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_interface.h" />
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_null.h" />
     <ClInclude Include="..\src\ds\app\engine\unique_id.h" />
@@ -97,9 +95,6 @@
     <ClInclude Include="..\src\ds\debug\debug_defines.h" />
     <ClInclude Include="..\src\ds\debug\function_exists.h" />
     <ClInclude Include="..\src\ds\debug\logger.h" />
-    <ClInclude Include="..\src\ds\gl\gl_scoped.h" />
-    <ClInclude Include="..\src\ds\gl\gl_state.h" />
-    <ClInclude Include="..\src\ds\gl\save_camera.h" />
     <ClInclude Include="..\src\ds\gl\uniform.h" />
     <ClInclude Include="..\src\ds\math\math_defs.h" />
     <ClInclude Include="..\src\ds\math\math_func.h" />
@@ -247,8 +242,6 @@
     <ClCompile Include="..\src\ds\app\engine\engine_standalone.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp" />
     <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_continuous.cpp" />
-    <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_continuous_fxaa.cpp" />
-    <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_discontinuous.cpp" />
     <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_interface.cpp" />
     <ClCompile Include="..\src\ds\app\engine\unique_id.cpp" />
     <ClCompile Include="..\src\ds\app\environment.cpp" />
@@ -282,9 +275,6 @@
     <ClCompile Include="..\src\ds\debug\computer_info.cpp" />
     <ClCompile Include="..\src\ds\debug\debug_defines.cpp" />
     <ClCompile Include="..\src\ds\debug\logger.cpp" />
-    <ClCompile Include="..\src\ds\gl\gl_scoped.cpp" />
-    <ClCompile Include="..\src\ds\gl\gl_state.cpp" />
-    <ClCompile Include="..\src\ds\gl\save_camera.cpp" />
     <ClCompile Include="..\src\ds\gl\uniform.cpp" />
     <ClCompile Include="..\src\ds\math\math_func.cpp" />
     <ClCompile Include="..\src\ds\network\http_client.cpp" />

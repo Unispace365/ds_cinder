@@ -95,6 +95,8 @@ void EngineStatsView::drawStats(){
 
 	if(!mFont) return;
 
+	// TODO
+	/*
 	ci::gl::GlslProg&	shader = mSpriteShader.getShader();
 	if(shader) shader.unbind();
 
@@ -105,7 +107,7 @@ void EngineStatsView::drawStats(){
 	y = drawLine(make_line("Sprites", (int)mEngine.mSprites.size()), y) + gap;
 	y = drawLine(make_line("Touch mode (t)", ds::ui::TouchMode::toString(mEngine.mTouchMode)), y) + gap;
 	y = drawLine(make_line("FPS", mEngine.getAverageFps()), y) + gap;
-
+	*/
 }
 
 float EngineStatsView::drawLine(const std::string &v, const float y) {

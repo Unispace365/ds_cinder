@@ -1,5 +1,6 @@
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <cinder/Rand.h>
+#include <cinder/app/RendererGl.h>
 
 #include <ds/app/app.h>
 #include <ds/app/engine/engine.h>
@@ -58,7 +59,7 @@ void AnimationApp::update(){
 
 void AnimationApp::setupServer()
 {
-	const ci::Vec2f		 cen(getWindowCenter());
+	const ci::vec2		 cen(getWindowCenter());
 	ds::ui::Sprite		 &rootSprite = mEngine.getRootSprite();
 
 	mSprite1.enable(false);
@@ -88,11 +89,11 @@ void AnimationApp::setupServer()
 		// These are the easiest tweens to use, the built-in sprite tweens. They clear out the previous tween of the same type (tweening position twice in a row only does the second tween)
 		// Tween to a randomized scale
 		const float				nextScale = ci::Rand::randFloat(10.25f, 1000.5f);
-		const ci::Vec3f			scaleEnd(ci::Vec3f(nextScale, nextScale, 1.0f));
+		const ci::vec3			scaleEnd(ci::vec3(nextScale, nextScale, 1.0f));
 		mSprite1.tweenSize(scaleEnd, 0.5f, 1.0f, ci::EaseInOutCubic());
-		ci::Vec3f possy = ti.mCurrentGlobalPoint;
+		ci::vec3 possy = ti.mCurrentGlobalPoint;
 		mSprite1.tweenPosition(ti.mCurrentGlobalPoint, 0.5f, 0.0f, ci::EaseInOutCubic(), [this, possy]{
-			mSprite1.tweenPosition(mSprite1.getPosition() + ci::Vec3f(100.0f, 100.0f, 0.0f), 0.5f, 0.0f, ci::easeInOutCubic);
+			mSprite1.tweenPosition(mSprite1.getPosition() + ci::vec3(100.0f, 100.0f, 0.0f), 0.5f, 0.0f, ci::easeInOutCubic);
 			mSprite1.tweenOpacity(ci::randFloat()); 
 			std::cout << "Sprite 1 position complete!" << std::endl;
 		});
@@ -104,11 +105,11 @@ void AnimationApp::setupServer()
 		// A custom tween parameter -- only position y (also could have been done by
 		// setting the end position.x and .z values to the same as the start, this is
 		// here just to illustrate how to do a custom)
-		ds::ui::SpriteAnim<ci::Vec3f>	anim_pos([](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimPosition; },
-												 [](ds::ui::Sprite& s)->ci::Vec3f { return s.getPosition(); },
-												 [](const ci::Vec3f& v, ds::ui::Sprite& s) { s.setPosition(s.getPosition().x, v.y, s.getPosition().z); });
+		ds::ui::SpriteAnim<ci::vec3>	anim_pos([](ds::ui::Sprite& s)->ci::Anim<ci::vec3>& { return s.mAnimPosition; },
+												 [](ds::ui::Sprite& s)->ci::vec3 { return s.getPosition(); },
+												 [](const ci::vec3& v, ds::ui::Sprite& s) { s.setPosition(s.getPosition().x, v.y, s.getPosition().z); });
 		mEngine.getTweenline().apply(mSprite2, anim_pos, ti.mCurrentGlobalPoint, 1.0f, EaseInOutQuart());
 	});
 }
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC( AnimationApp, RendererGl(RendererGl::AA_MSAA_4) )
+CINDER_APP( AnimationApp, ci::app::RendererGl(RendererGl::Options().msaa(4)) )

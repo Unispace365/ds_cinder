@@ -393,11 +393,11 @@ void TextPango::drawLocalClient(){
 		ci::gl::color(ci::Color::white());
 		// The true flag is for premultiplied alpha, which this texture is
 		ci::gl::enableAlphaBlending(true);		
-		ci::gl::GlslProg& shaderBase = mOutputShader.getShader();
+		ci::gl::GlslProgRef shaderBase = mOutputShader.getShader();
 		if(shaderBase) {
-			shaderBase.bind();
-			shaderBase.uniform("tex0", 0);
-			shaderBase.uniform("opaccy", mDrawOpacity);
+			shaderBase->bind();
+			shaderBase->uniform("tex0", 0);
+			shaderBase->uniform("opaccy", mDrawOpacity);
 			mUniform.applyTo(shaderBase);
 		}
 
@@ -410,12 +410,13 @@ void TextPango::drawLocalClient(){
 		mTexture->unbind();		
 
 		if(shaderBase){
-			shaderBase.unbind();
+			//unbind?
+		//	shaderBase.unbind();
 		}
 	}
 }
 
-int TextPango::getCharacterIndexForPosition(const ci::Vec2f& lp){
+int TextPango::getCharacterIndexForPosition(const ci::vec2& lp){
 	render();	
 
 	int outputIndex = 0;
@@ -430,10 +431,10 @@ int TextPango::getCharacterIndexForPosition(const ci::Vec2f& lp){
 	}	
 	return outputIndex;
 }
-ci::Vec2f TextPango::getPositionForCharacterIndex(const int characterIndex){
+ci::vec2 TextPango::getPositionForCharacterIndex(const int characterIndex){
 	render();
 
-	ci::Vec2f outputPos = ci::Vec2f::zero();
+	ci::vec2 outputPos = ci::vec2();
 	if(mPangoLayout){
 		PangoRectangle outputRectangle;
 		pango_layout_index_to_pos(mPangoLayout, characterIndex, &outputRectangle);

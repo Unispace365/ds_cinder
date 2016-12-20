@@ -130,12 +130,12 @@ public:
 
 	/// Returns the 2-d position of the character in the current text string
 	/// Will return 0,0 if the string is blank or the index is out-of-bounds
-	ci::Vec2f					getPositionForCharacterIndex(const int characterIndex);
+	ci::vec2					getPositionForCharacterIndex(const int characterIndex);
 
 
 	/// Returns the index of the character of the current text string for the position supplied
 	/// Gracefully handles out-of-bounds points (will always return a valid index, assuming the current text string isn't empty)
-	int							getCharacterIndexForPosition(const ci::Vec2f& localPosition);
+	int							getCharacterIndexForPosition(const ci::vec2& localPosition);
 
 	// TODO: make these function?
 	void						setConfigName(const std::string& cfgName){ mCfgName = cfgName; }

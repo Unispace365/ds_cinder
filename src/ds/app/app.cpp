@@ -169,7 +169,8 @@ App::~App() {
 }
 
 void App::prepareSettings(Settings *settings) {
-	inherited::prepareSettings(settings);
+	// TODO?
+	//inherited::prepareSettings(settings);
 
 	if (settings) {
 		mEngine.prepareSettings(*settings);
@@ -352,11 +353,13 @@ void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
 }
 
 void App::quit(){
-	ci::app::AppBasic::quit();
+	ci::app::App::quit();
 }
 
 void App::shutdown(){
-	ci::app::AppBasic::shutdown();
+	// TODO
+	quit();
+	//ci::app::App::shutdown();
 }
 
 void App::showConsole(){

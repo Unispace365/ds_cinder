@@ -64,17 +64,17 @@ const char			CHECKBOUNDS_ATT		= 14;
 const char			CORNERRADIUS_ATT	= 15;
 
 // flags
-const int           VISIBLE_F			= (1<<0);
-const int           TRANSPARENT_F		= (1<<1);
-const int           ENABLED_F			= (1<<2);
-const int           DRAW_SORTED_F		= (1<<3);
-const int           CLIP_F				= (1<<4);
-const int           SHADER_CHILDREN_F	= (1<<5);
-const int           NO_REPLICATION_F	= (1<<6);
-const int           ROTATE_TOUCHES_F	= (1<<7);
+const int			VISIBLE_F			= (1<<0);
+const int			TRANSPARENT_F = (1 << 1);
+const int			ENABLED_F = (1 << 2);
+const int			DRAW_SORTED_F = (1 << 3);
+const int			CLIP_F = (1 << 4);
+const int			SHADER_CHILDREN_F = (1 << 5);
+const int			NO_REPLICATION_F = (1 << 6);
+const int			ROTATE_TOUCHES_F = (1 << 7);
 const int			DRAW_DEBUG_F		= (1<<8);
 
-const ds::BitMask   SPRITE_LOG        = ds::Logger::newModule("sprite");
+const ds::BitMask	SPRITE_LOG = ds::Logger::newModule("sprite");
 }
 
 void Sprite::installAsServer(ds::BlobRegistry& registry) {
@@ -86,10 +86,10 @@ void Sprite::installAsClient(ds::BlobRegistry& registry) {
 }
 
 void Sprite::handleBlobFromClient(ds::BlobReader& r) {
-	ds::DataBuffer&       buf(r.mDataBuffer);
+	ds::DataBuffer&		buf(r.mDataBuffer);
 	if(buf.read<char>() != SPRITE_ID_ATTRIBUTE) return;
-	ds::sprite_id_t       id = buf.read<ds::sprite_id_t>();
-	Sprite*               s = r.mSpriteEngine.findSprite(id);
+	ds::sprite_id_t		id = buf.read<ds::sprite_id_t>();
+	Sprite*				s = r.mSpriteEngine.findSprite(id);
 	if(s) s->readFrom(r);
 }
 
@@ -107,6 +107,7 @@ Sprite::Sprite(SpriteEngine& engine, float width /*= 0.0f*/, float height /*= 0.
 	, mLastHeight(height)
 	, mPerspective(false)
 	, mUseDepthBuffer(false)
+	, mShaderTexture(nullptr)
 {
 	init(mEngine.nextSpriteId());
 	setSize(width, height);
@@ -124,6 +125,7 @@ Sprite::Sprite(SpriteEngine& engine, const ds::sprite_id_t id, const bool perspe
 	, mLastHeight(0)
 	, mPerspective(perspective)
 	, mUseDepthBuffer(false)
+	, mShaderTexture(nullptr)
 {
 	init(id);
 }
@@ -156,13 +158,14 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mDelayedCallCueRef = nullptr;
 	mHasDrawLocalClientPost = false;
 	mLayoutFixedAspect = false;
+	mShaderTexture = nullptr;
 
 	mLayoutBPad = 0.0f;
 	mLayoutTPad = 0.0f;
 	mLayoutRPad = 0.0f;
 	mLayoutLPad = 0.0f;
-	mLayoutFudge = ci::vec2::zero();
-	mLayoutSize = ci::vec2::zero();
+	mLayoutFudge = ci::vec2();
+	mLayoutSize = ci::vec2();
 	mLayoutHAlign = 0;
 	mLayoutVAlign = 0;
 	mLayoutUserType = 0;
@@ -246,12 +249,12 @@ void Sprite::updateServer(const UpdateParams &p) {
 	}
 }
 
-ci::gl::Texture* Sprite::getShaderOutputTexture()
-{
-	if (mSpriteShaders.size()>0 && mFrameBuffer[mFboIndex])
-		return &mFrameBuffer[mFboIndex]->getTexture();
-	else
+ci::gl::TextureRef Sprite::getShaderOutputTexture(){
+	if(mSpriteShaders.size() > 0 && mFrameBuffer[mFboIndex]){
+		return mFrameBuffer[mFboIndex]->getColorTexture();
+	} else {
 		return nullptr;
+	}
 }
 
 void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
@@ -267,17 +270,18 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	buildTransform();
 	ci::mat4 totalTransformation = trans*mTransformation;
 	ci::gl::pushModelView();
-	glLoadIdentity();
-	ci::gl::multModelView(totalTransformation);
+	//glLoadIdentity();
+	ci::gl::multModelMatrix(totalTransformation);
 	bool flipImage = false;
 
-	ci::Area viewport = ci::gl::getViewport();
+	auto viewport = ci::gl::context()->getViewport();
 
 	while (mShaderPass <= mShaderPasses){
 		DS_REPORT_GL_ERRORS();
 		if (mShaderPasses > 0) {
 			//Change viewport for rendering texture to FBO
-			ci::gl::setViewport(mFrameBuffer[mFboIndex]->getBounds());
+			auto bounds = mFrameBuffer[mFboIndex]->getBounds();
+			ci::gl::ScopedViewport fboViewPort(bounds.getX1(), bounds.getY1(), bounds.getWidth(), bounds.getHeight());
 
 			//Output available on Texture Unit 1
 			if (mShaderPasses == mShaderPass){						//last pass
@@ -290,7 +294,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 
 				ci::gl::popModelView();
 				ci::gl::popMatrices();
-				ci::gl::setViewport(viewport);
+				ci::gl::ScopedViewport oldViewport(viewport.first, viewport.second);
 
 				mFboIndex = !mFboIndex;
 				mIsLastPass = true;
@@ -354,14 +358,14 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 			DS_REPORT_GL_ERRORS();
 			ci::gl::enableAlphaBlending();
 			applyBlendingMode(mBlendMode);
-			ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
+			ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
 			if (shaderBase) {
 				DS_REPORT_GL_ERRORS();
-				shaderBase.bind();
+				shaderBase->bind();
 				DS_REPORT_GL_ERRORS();
-				shaderBase.uniform("tex0", 0);
-				shaderBase.uniform("useTexture", mUseShaderTexture);
-				shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+				shaderBase->uniform("tex0", 0);
+				shaderBase->uniform("useTexture", mUseShaderTexture);
+				shaderBase->uniform("preMultiply", premultiplyAlpha(mBlendMode));
 				mUniform.applyTo(shaderBase);
 			}
 
@@ -392,7 +396,8 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 			DS_REPORT_GL_ERRORS();
 
 			if (shaderBase) {
-				shaderBase.unbind();
+				// TODO ? do we have to unbind now?
+				//shaderBase->unbind();
 				if (mSpriteShaders.size() > 0){
 					if (mFrameBuffer[mFboIndex]) mFrameBuffer[mFboIndex]->unbindTexture();
 
@@ -407,7 +412,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	if (mIsRenderFinalToTexture && mOutputFbo){
 		ci::gl::popModelView();
 		ci::gl::popMatrices();
-		ci::gl::setViewport(viewport);
+	//	ci::gl::setViewport(viewport);
 		mOutputFbo->unbindFramebuffer();
 	}
 
@@ -441,17 +446,17 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 
 	if(mHasDrawLocalClientPost && ((mSpriteFlags&TRANSPARENT_F) == 0)) {
 		ci::gl::pushModelView();
-		glLoadIdentity();
-		ci::gl::multModelView(totalTransformation);
+	//	glLoadIdentity();
+		ci::gl::multModelMatrix(totalTransformation);
 
 		ci::gl::enableAlphaBlending();
 		applyBlendingMode(mBlendMode);
-		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
+		ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
 		if(shaderBase) {
-			shaderBase.bind();
-			shaderBase.uniform("tex0", 0);
-			shaderBase.uniform("useTexture", mUseShaderTexture);
-			shaderBase.uniform("preMultiply", premultiplyAlpha(mBlendMode));
+			shaderBase->bind();
+			shaderBase->uniform("tex0", 0);
+			shaderBase->uniform("useTexture", mUseShaderTexture);
+			shaderBase->uniform("preMultiply", premultiplyAlpha(mBlendMode));
 			mUniform.applyTo(shaderBase);
 		}
 
@@ -467,7 +472,8 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 		drawLocalClientPost();
 
 		if(shaderBase) {
-			shaderBase.unbind();
+			// TODO?
+		//	shaderBase.unbind();
 		}
 		ci::gl::popModelView();
 	}
@@ -479,14 +485,15 @@ void Sprite::drawServer(const ci::mat4 &trans, const DrawParams &drawParams) {
 		return;
 	}
 	if(mId > 0) {
-		glLoadName(mId);
+		// TODO (I don't think this worked before but make sure or whatever)
+	//	glLoadName(mId);
 	}
 
 	buildTransform();
 	ci::mat4 totalTransformation = trans*mTransformation;
 	ci::gl::pushModelView();
-	glLoadIdentity();
-	ci::gl::multModelView(totalTransformation);
+
+	ci::gl::multModelMatrix(totalTransformation);
 
 	bool debugDraw = getDrawDebug();
 	if((mSpriteFlags&TRANSPARENT_F) == 0 && (isEnabled() || debugDraw)) {
@@ -576,7 +583,7 @@ const ci::vec3& Sprite::getPosition() const {
 }
 
 const ci::vec3 Sprite::getGlobalPosition() const{
-	if(!getParent()) return ci::vec3::zero();
+	if(!getParent()) return ci::vec3();
 	return getParent()->localToGlobal(mPosition);
 }
 
@@ -659,12 +666,12 @@ namespace {
 }
 
 ci::Rectf Sprite::getBoundingBox() const {
-	const ci::mat4&	t = getTransform();
+	const ci::mat4 t = getTransform();
 
-	ci::vec3				ul = t * ci::vec3(0.0f, 0.0f, 0.0f);
-	ci::vec3				ll = t * ci::vec3(0.0f, getHeight(), 0.0f);
-	ci::vec3				lr = t * ci::vec3(getWidth(), getHeight(), 0.0f);
-	ci::vec3				ur = t * ci::vec3(getWidth(), 0.0f, 0.0f);
+	glm::vec3				ul = glm::vec3(t * glm::vec4(0, 0, 0, 1));
+	glm::vec3				ll = glm::vec3(t * glm::vec4(0, getHeight(), 0, 1));
+	glm::vec3				lr = glm::vec3(t * glm::vec4(getWidth(), getHeight(), 0, 1));
+	glm::vec3				ur = glm::vec3(t * glm::vec4(getWidth(), 0, 0, 1));
 
 	const float				left = min(min(min(ul.x, ll.x), lr.x), ur.x);
 	const float				right = max(max(max(ul.x, ll.x), lr.x), ur.x);
@@ -805,30 +812,16 @@ void Sprite::buildTransform() const{
 
 	mUpdateTransform = false;
 
-	mTransformation = ci::mat4::identity();
+	mTransformation = glm::mat4();
 
-	mTransformation.setToIdentity();
-	mTransformation.translate(ci::vec3(mPosition.x, mPosition.y, mPosition.z));
-	if(mRotationOrderZYX){
-		mTransformation.rotate(ci::vec3(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
-		mTransformation.rotate(ci::vec3(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
-		mTransformation.rotate(ci::vec3(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
-	} else {
-		mTransformation.rotate(ci::vec3(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
-		mTransformation.rotate(ci::vec3(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
-		mTransformation.rotate(ci::vec3(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
-	}
-	mTransformation.scale(ci::vec3(mScale.x, mScale.y, mScale.z));
-	mTransformation.translate(ci::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
-	//mTransformation.setToIdentity();
-	//mTransformation.translate(Vec3f(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
-	//mTransformation.scale(Vec3f(mScale.x, mScale.y, mScale.z));
-	//mTransformation.rotate(Vec3f(0.0f, 0.0f, 1.0f), mRotation.z * math::DEGREE2RADIAN);
-	//mTransformation.rotate(Vec3f(0.0f, 1.0f, 0.0f), mRotation.y * math::DEGREE2RADIAN);
-	//mTransformation.rotate(Vec3f(1.0f, 0.0f, 0.0f), mRotation.x * math::DEGREE2RADIAN);
-	//mTransformation.translate(Vec3f(mPosition.x, mPosition.y, 1.0f));
+	mTransformation = glm::translate(mTransformation, glm::vec3(mPosition.x, mPosition.y, mPosition.z));
+	mTransformation = glm::rotate(mTransformation, mRotation.x * math::DEGREE2RADIAN, glm::vec3(1.0f, 0.0f, 0.0f));
+	mTransformation = glm::rotate(mTransformation, mRotation.y * math::DEGREE2RADIAN, glm::vec3(0.0f, 1.0f, 0.0f));
+	mTransformation = glm::rotate(mTransformation, mRotation.z * math::DEGREE2RADIAN, glm::vec3(0.0f, 0.0f, 1.0f));
+	mTransformation = glm::scale(mTransformation, glm::vec3(mScale.x, mScale.y, mScale.z));
+	mTransformation = glm::translate(mTransformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
 
-	mInverseTransform = mTransformation.inverted();
+	mInverseTransform = glm::inverse(mTransformation);
 }
 
 const ci::vec3 Sprite::getSize()const{
@@ -918,6 +911,11 @@ void Sprite::drawLocalClient(){
 	if(mCornerRadius > 0.0f){
 		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
 	} else {
+
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+
+		/* TODO figure out the extra shader nonsense
+
 		// do this ourselves since Cinder is only willing to send vertices and texture coordinates
 		glEnableClientState( GL_VERTEX_ARRAY );
 		GLfloat verts[8];
@@ -992,6 +990,7 @@ void Sprite::drawLocalClient(){
 		if(usingExtra) {
 			glDisableVertexAttribArray(extraLocation);
 		}
+		*/
 	}
 }
 
@@ -1060,7 +1059,7 @@ void Sprite::buildGlobalTransform() const {
 		mGlobalTransform = parent->mTransformation * mGlobalTransform;
 	}
 
-	mInverseGlobalTransform = mGlobalTransform.inverted();
+	mInverseGlobalTransform = glm::inverse(mGlobalTransform);
 }
 
 void Sprite::parentEventReceived(const ds::Event &e) {
@@ -1105,20 +1104,20 @@ bool Sprite::contains(const ci::vec3& point, const float pad) const {
 
 	buildGlobalTransform();
 
-	ci::vec4 pR = ci::vec4(point.x, point.y, point.z, 1.0f);
+	glm::vec4 pR = glm::vec4(point.x, point.y, point.z, 1.0f);
 
-	ci::vec4 cA = mGlobalTransform * ci::vec4(-pad, -pad, 0.0f, 1.0f);
-	ci::vec4 cB = mGlobalTransform * ci::vec4(mWidth + pad, -pad, 0.0f, 1.0f);
-	ci::vec4 cC = mGlobalTransform * ci::vec4(mWidth + pad, mHeight + pad, 0.0f, 1.0f);
+	glm::vec4 cA = mGlobalTransform * glm::vec4(-pad, -pad, 0.0f, 1.0f);
+	glm::vec4 cB = mGlobalTransform * glm::vec4(mWidth + pad, -pad, 0.0f, 1.0f);
+	glm::vec4 cC = mGlobalTransform * glm::vec4(mWidth + pad, mHeight + pad, 0.0f, 1.0f);
 
-	ci::vec4 v1 = cA - cB;
-	ci::vec4 v2 = cC - cB;
-	ci::vec4 v = pR - cB;
+	glm::vec4 v1 = cA - cB;
+	glm::vec4 v2 = cC - cB;
+	glm::vec4 v = pR - cB;
 
-	float dot1 = v.dot(v1);
-	float dot2 = v.dot(v2);
-	float dot3 = v1.dot(v1);
-	float dot4 = v2.dot(v2);
+	float dot1 = glm::dot(v, v1);
+	float dot2 = glm::dot(v, v2);
+	float dot3 = glm::dot(v1, v1);
+	float dot4 = glm::dot(v2, v2);
 
 	return (
 		dot1 >= 0 &&
@@ -1254,12 +1253,12 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick){
 		v.x = ptR.x - ptB_s.x;
 		v.y = ptR.y - ptB_s.y;
 
-		float dot1 = v.dot(v1);
-		float dot2 = v.dot(v2);
+		float dot1 = dot(v, v1);
+		float dot2 = dot(v, v2);
 		if(dot1 >= 0 &&
 		   dot2 >= 0 &&
-		   dot1 <= v1.dot(v1) &&
-		   dot2 <= v2.dot(v2)
+		   dot1 <= dot(v1, v1) &&
+		   dot2 <= dot(v2, v2)
 		   ) return this;
 	}
 
@@ -1428,10 +1427,10 @@ bool Sprite::checkBounds() const {
 
 	buildGlobalTransform();
 
-	positions[0] = (mGlobalTransform * ci::vec4(spriteMinX, spriteMinY, 0.0f, 1.0f)).xyz();
-	positions[1] = (mGlobalTransform * ci::vec4(spriteMaxX, spriteMinY, 0.0f, 1.0f)).xyz();
-	positions[2] = (mGlobalTransform * ci::vec4(spriteMinX, spriteMaxY, 0.0f, 1.0f)).xyz();
-	positions[3] = (mGlobalTransform * ci::vec4(spriteMaxX, spriteMaxY, 0.0f, 1.0f)).xyz();
+	positions[0] = glm::vec3(mGlobalTransform * glm::vec4(spriteMinX, spriteMinY, 0.0f, 1.0f));
+	positions[1] = glm::vec3(mGlobalTransform * glm::vec4(spriteMaxX, spriteMinY, 0.0f, 1.0f));
+	positions[2] = glm::vec3(mGlobalTransform * glm::vec4(spriteMinX, spriteMaxY, 0.0f, 1.0f));
+	positions[3] = glm::vec3(mGlobalTransform * glm::vec4(spriteMaxX, spriteMaxY, 0.0f, 1.0f));
 
 
 	spriteMinX = spriteMaxX = positions[0].x;
@@ -1932,7 +1931,7 @@ ds::gl::Uniform Sprite::getShaderUniforms(std::string shaderName) {
 }
 
 void Sprite::setShaderExtraData(const ci::vec4& data){
-	mShaderExtraData.set(data);
+	mShaderExtraData = data;
 }
 
 void Sprite::setFinalRenderToTexture(bool render_to_texture)
@@ -1949,12 +1948,12 @@ bool Sprite::isFinalRenderToTexture()
 	return mIsRenderFinalToTexture;
 }
 
-ci::gl::Texture* Sprite::getFinalOutTexture()
+ci::gl::TextureRef Sprite::getFinalOutTexture()
 {
 	if (mOutputFbo){
 		//ci::Surface tmp(mOutputFbo->getTexture());
 		//ci::writeImage("c:/videos/myTex.jpg", tmp); // "jpg");
-		return &(mOutputFbo->getTexture());
+		return mOutputFbo->getColorTexture();
 	}
 	else return nullptr;
 }
@@ -2105,8 +2104,9 @@ void Sprite::dimensionalStateChanged(){
 void Sprite::setupIntermediateFrameBuffers(){
 	if (mSpriteShaders.size() > 0){
 		ci::gl::Fbo::Format format;
-		format.setColorInternalFormat(GL_RGBA);
-		format.enableColorBuffer(true, 1);
+// TODO
+	//	format.setColorInternalFormat(GL_RGBA);
+	//	format.enableColorBuffer(true, 1);
 		format.enableDepthBuffer(false);
 
 		if (getWidth() > 1.0f) {
@@ -2123,7 +2123,8 @@ void Sprite::setupIntermediateFrameBuffers(){
 			}
 
 			if(createBuffer && newWidth > 0 && newHeigh > 0){
-				mFrameBuffer[0] = new ci::gl::Fbo(newWidth, newHeigh, format);
+				// TODO
+			//	mFrameBuffer[0] = new ci::gl::Fbo(newWidth, newHeigh, format);
 			}
 
 			createBuffer = true;
@@ -2135,7 +2136,8 @@ void Sprite::setupIntermediateFrameBuffers(){
 				}
 			}
 			if(createBuffer && newWidth > 0 && newHeigh > 0){
-				mFrameBuffer[1] = new ci::gl::Fbo(newWidth, newHeigh, format);
+				// TODO
+			///	mFrameBuffer[1] = new ci::gl::Fbo(newWidth, newHeigh, format);
 			}
 
 		}
@@ -2151,7 +2153,8 @@ void Sprite::setupFinalRenderBuffer(){
 		getWidth() > 1.0f &&
 		getHeight() > 1.0f){
 		ci::gl::Fbo::Format  format;
-		mOutputFbo = new ci::gl::Fbo(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
+		// TODO
+	//	mOutputFbo = new ci::gl::Fbo(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
 	}
 	else mOutputFbo = nullptr;
 }
@@ -2402,9 +2405,10 @@ namespace {
 
 void			write_matrix44f(const ci::mat4 &m, std::ostream &s) {
 	for (int k=0; k<4; ++k) {
-		auto row = m.getRow(k);
-		if (k > 0) s << ", ";
-		s << row;
+		// TODO
+		//auto row = m.getRow(k);
+		//if (k > 0) s << ", ";
+		//s << row;
 	}
 }
 

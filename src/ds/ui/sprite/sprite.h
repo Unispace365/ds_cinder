@@ -45,7 +45,7 @@ namespace ui {
 	struct TouchInfo;
 
 	// Attribute access
-	extern const char     SPRITE_ID_ATTRIBUTE;
+	extern const char SPRITE_ID_ATTRIBUTE;
 
 	/**
 	 \class Sprite
@@ -591,7 +591,7 @@ namespace ui {
 		//addToFront - When true, this puts the shader first in line to be run
 		void				    addNewShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
 		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
-		ci::gl::Texture*		getShaderOutputTexture();
+		ci::gl::TextureRef		getShaderOutputTexture();
 		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
 		void					setShaderExtraData(const ci::vec4& data);
 
@@ -599,7 +599,7 @@ namespace ui {
 		void					setFinalRenderToTexture(bool render_to_texture);
 		bool					isFinalRenderToTexture();
 		//Retrieve the rendered output texture
-		ci::gl::Texture*		getFinalOutTexture();
+		ci::gl::TextureRef		getFinalOutTexture();
 		void					setupFinalRenderBuffer();
 		void					setupIntermediateFrameBuffers();
 
@@ -768,12 +768,6 @@ namespace ui {
 
 		void				setUseShaderTexture(bool flag);
 		bool				getUseShaderTexture() const;
-
-		// DEPRECATED
-		// Obsolete -- use setUseShaderTexture
-		void					setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
-		// Obsolete -- use getUseShaderTexture
-		bool					getUseShaderTextuer() const { return getUseShaderTexture(); }
 		
 
 		void					sendSpriteToFront(Sprite &sprite);
@@ -795,8 +789,8 @@ namespace ui {
 								mHeight,
 								mDepth;
 
-		mutable ci::mat4	mTransformation;
-		mutable ci::mat4	mInverseTransform;
+		mutable ci::mat4		mTransformation;
+		mutable ci::mat4		mInverseTransform;
 		mutable bool			mUpdateTransform;
 
 		int						mSpriteFlags;
@@ -816,7 +810,7 @@ namespace ui {
 		int							mShaderPass;
 		int							mShaderPasses;
 		ci::gl::Fbo*				mFrameBuffer[2];
-		ci::gl::Texture				mShaderTexture;
+		ci::gl::TextureRef			mShaderTexture;
 		//ci::gl::Texture*			mFinalOutputTexture;
 		ci::gl::Fbo*				mOutputFbo;
 		bool						mIsRenderFinalToTexture;
@@ -899,7 +893,7 @@ namespace ui {
 		// Use addChild() from outside sprite.cpp
 		void				setParent(Sprite *parent);
 
-		ci::gl::Texture		mRenderTarget;
+		ci::gl::TextureRef	mRenderTarget;
 		BlendMode			mBlendMode;
 
 		//set flag for determining whether to use orthoganol or perspective.

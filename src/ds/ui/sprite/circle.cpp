@@ -80,6 +80,7 @@ void Circle::drawLocalClient() {
 	if(!mVertices) return;
 
 	ci::gl::lineWidth(mLineWidth);
+	/* TODO convert to vbo
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, mVertices);
 	if(mFilled){
@@ -88,6 +89,7 @@ void Circle::drawLocalClient() {
 		glDrawArrays(GL_LINE_LOOP, 0, mNumberOfSegments);
 	}
 	glDisableClientState(GL_VERTEX_ARRAY);
+	*/
 }
 
 void Circle::drawLocalServer() {

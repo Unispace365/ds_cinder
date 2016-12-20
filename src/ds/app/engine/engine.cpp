@@ -25,9 +25,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "renderers/engine_renderer_null.h"
-#include "renderers/engine_renderer_continuous_fxaa.h"
 #include "renderers/engine_renderer_continuous.h"
-#include "renderers/engine_renderer_discontinuous.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -106,10 +104,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
 	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
-	mFxaaOptions.mApplyFxAA = settings.getBool("FxAA", 0, false);
-	mFxaaOptions.mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
-	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
-	mFxaaOptions.mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
 	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
 	// Backwards compatibility with pre src-dst rect days
@@ -120,7 +114,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mDstRect = ci::Rectf(0.0f, 0.0f, mData.mSrcRect.getWidth(), mData.mSrcRect.getHeight());
 		if (settings.getPointSize("window_pos") > 0) {
 			const ci::vec3	size(settings.getPoint("window_pos"));
-			mData.mDstRect.offset(size.xy());
+			mData.mDstRect.offset(glm::vec2(size));
 		}
 	}
 	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
@@ -948,29 +942,8 @@ void Engine::setupRenderer()
 		if (mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
 		{
 			mRenderer = std::make_unique<EngineRendererNull>(*this);
-		}
-		else if (mData.mWorldSlices.empty()) //if continuous
-		{
-			if (mFxaaOptions.mApplyFxAA) //if with FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererContinuousFxaa>(*this);
-			}
-			else //if no FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererContinuous>(*this);
-			}
-		}
-		else //if discontinuous
-		{
-			if (mFxaaOptions.mApplyFxAA) //if with FXAA
-			{
-				//! I can't figure out a way to mix these two yet. Pending! (TODO: SL)
-				throw std::logic_error("FXAA is not supported in discontinuous rendering mode.");
-			}
-			else //if no FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererDiscontinuous>(*this);
-			}
+		} else {
+			mRenderer = std::make_unique<EngineRendererContinuous>(*this);
 		}
 	});
 }

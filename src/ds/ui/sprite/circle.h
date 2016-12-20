@@ -4,7 +4,6 @@
 
 #include <string>
 #include <cinder/gl/Vbo.h>
-#include <cinder/gl/Light.h>
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/image_source/image_owner.h"
 #include "ds/ui/mesh_source/mesh_owner.h"

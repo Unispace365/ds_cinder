@@ -4,7 +4,6 @@
 #include <cinder/ImageIo.h>
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
-#include <ds/gl/save_camera.h>
 #include "ds/ui/sprite/fbo/auto_fbo.h"
 #include "ds/ui/sprite/image.h"
 
@@ -82,7 +81,7 @@ void ImageToken::setTo(const ImageKey& key) {
 	mKey = key;
 }
 
-ci::gl::Texture ImageToken::getImage(float& fade) {
+ci::gl::TextureRef ImageToken::getImage(float& fade) {
 	if (mKey.empty()) return nullptr;
 
 	if (!mAcquired) {
@@ -90,19 +89,19 @@ ci::gl::Texture ImageToken::getImage(float& fade) {
 		if (!mAcquired) return nullptr;
 	}
 
-	if (!mTexture) {
-		return (mTexture = mSrv.getImage(mKey, fade));
+	if (!mTextureRef) {
+		return (mTextureRef = mSrv.getImage(mKey, fade));
 	}
 
 	fade = 1;
-	return mTexture;
+	return mTextureRef;
 }
 
 void ImageToken::init() {
 	mKey.clear();
 	mAcquired = false;
 	mError = false;
-	mTexture = ci::gl::Texture();
+	mTextureRef = nullptr;
 }
 
 void ImageToken::release() {
@@ -158,14 +157,14 @@ void ImageService::release(const ImageKey& key) {
 	}
 }
 
-ci::gl::Texture ImageService::getImage(const ImageKey& key, float& fade) {
+ci::gl::TextureRef ImageService::getImage(const ImageKey& key, float& fade) {
 	// XXX Move to render engine update cycle -- wait, but why?  This is probably more efficient
 	update();
 
 	holder*		h = find(key);
-	if (!h) return ci::gl::Texture();
+	if (!h) return nullptr;
 	fade = 1;
-	return h->mImg;
+	return h->mImgRef;
 }
 
 void ImageService::update() {
@@ -174,8 +173,8 @@ void ImageService::update() {
 	for (int k=0; k<mOutput.size(); ++k) {
 		op&							out = mOutput[k];
 		holder*						h = find(out.mKey);
-		if (h && out.mImg) {
-			h->mImg = out.mImg;
+		if(h && out.mImgRef) {
+			h->mImgRef = out.mImgRef;
 		}
 	}
 	mOutput.clear();
@@ -209,7 +208,7 @@ void ImageService::renderInput() {
 		op&								top(*it);
 		try {
 			renderInput(top);
-			if (top.mImg) outs.push_back(top);
+			if(top.mImgRef) outs.push_back(top);
 		} catch (std::exception const&) {
 		}
 	}
@@ -222,20 +221,18 @@ void ImageService::renderInput() {
 }
 
 void ImageService::renderInput(op& input) {
-	input.mImg = ci::gl::Texture();
+	input.mImgRef = nullptr;
 	// Load the shader -- no shader, no output
-	ci::gl::GlslProg shader = ci::gl::GlslProg(ci::loadFile(input.mKey.getVertex()), ci::loadFile(input.mKey.getFragment()));
+	ci::gl::GlslProgRef shader = ci::gl::GlslProg::create(ci::loadFile(input.mKey.getVertex()), ci::loadFile(input.mKey.getFragment()));
 	if (!shader) return;
 
 	// Set up the texture
 	const int w = input.mKey.getWidth(), h = input.mKey.getHeight();
-	if (w < 1 || h < 1) return;
-	input.mImg = ci::gl::Texture(w, h);
-	if (!input.mImg) return;
+	if(w < 1 || h < 1) return;
+	input.mImgRef = ci::gl::Texture::create(w, h);
+	if (!input.mImgRef) return;
 
-	ci::gl::SaveFramebufferBinding	bindingSaver;
-	ds::gl::SaveCamera				save_camera;
-	ds::ui::AutoFbo					afbo(mEngine, input.mImg);
+	ds::ui::AutoFbo					afbo(mEngine, input.mImgRef);
 	{
 		afbo.mFbo->offsetViewport(0, 0);
 		ci::CameraOrtho camera;
@@ -246,15 +243,16 @@ void ImageService::renderInput(op& input) {
 		ci::gl::disableAlphaBlending();
 		ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 
-        shader.bind();
-        shader.uniform("tex0", 0);
+		shader->bind();
+		shader->uniform("tex0", 0);
 		input.mKey.getUnifom().applyTo(shader);
 		ci::gl::color(ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(w), static_cast<float>(h)));
-		shader.unbind();
 
+		ci::gl::bindStockShader(ci::gl::ShaderDef().color());
 		ci::gl::popMatrices();
 	}
+	ci::gl::popMatrices();
 	// SaveCamera should be handling this.
 //	mEngine.setCamera();
 }

@@ -6,8 +6,8 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::AutoFbo
- */
+* \class ds::ui::AutoFbo
+*/
 AutoFbo::AutoFbo(ds::ui::SpriteEngine& engine)
 	: mEngine(engine)
 	, mHasTexture(false)
@@ -15,7 +15,7 @@ AutoFbo::AutoFbo(ds::ui::SpriteEngine& engine)
 	mFbo = std::move(mEngine.getFbo());
 }
 
-AutoFbo::AutoFbo(ds::ui::SpriteEngine& engine, ci::gl::Texture& tex)
+AutoFbo::AutoFbo(ds::ui::SpriteEngine& engine, ci::gl::TextureRef tex)
 	: mEngine(engine)
 	, mHasTexture(true)
 {
@@ -27,7 +27,7 @@ AutoFbo::AutoFbo(ds::ui::SpriteEngine& engine, ci::gl::Texture& tex)
 
 AutoFbo::~AutoFbo()
 {
-	if (mHasTexture) {
+	if(mHasTexture) {
 		mFbo->end();
 		mFbo->detach();
 	}

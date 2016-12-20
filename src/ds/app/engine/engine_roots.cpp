@@ -2,7 +2,6 @@
 
 #include "ds/app/engine/engine.h"
 #include "ds/app/auto_draw.h"
-#include "ds/gl/save_camera.h"
 
 namespace ds {
 
@@ -109,6 +108,10 @@ void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
 	mSprite->drawClient(m, p);
 
 	if (auto_draw) auto_draw->drawClient(m, p);
+
+	if(mSetViewport){
+		ci::gl::context()->popViewport();
+	}
 }
 
 void OrthRoot::drawServer(const DrawParams& p) {
@@ -117,6 +120,10 @@ void OrthRoot::drawServer(const DrawParams& p) {
 		setCameraForDraw(m);
 	}
 	mSprite->drawServer(m, p);
+
+	if(mSetViewport){
+		ci::gl::context()->popViewport();
+	}
 }
 
 ui::Sprite* OrthRoot::getHit(const ci::vec3& point) {
@@ -129,7 +136,8 @@ void OrthRoot::setCinderCamera() {
 
 	// I think this should be in setGlCamera, but keeping it compatible for now.
 	if (mSetViewport) {
-		ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
+		ci::gl::context()->pushViewport(std::make_pair<ci::vec2, ci::vec2>(ci::vec2((int)screen_rect.getX1(), (int)screen_rect.getY2()), ci::vec2((int)screen_rect.getX2(), (int)screen_rect.getY1())));
+	//	ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
 	}
 	mCamera.setOrtho(screen_rect.getX1(), screen_rect.getX2(), screen_rect.getY2(), screen_rect.getY1(), mNearPlane, mFarPlane);
 }
@@ -145,7 +153,7 @@ void OrthRoot::markCameraDirty() {
 void OrthRoot::setGlCamera() {
 	if (mSetViewport) {
 		const ci::Rectf&		screen_rect(mEngine.getScreenRect());
-		ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
+	//	ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
 	}
 	ci::gl::setMatrices(mCamera);
 	ci::gl::disableDepthRead();
@@ -164,10 +172,11 @@ PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, c
 		, mOldPick(mCamera)
 		, mPicking(picking ? *picking : mOldPick) {
 	mCamera.setEyePoint(p.mPosition);
-	mCamera.setCenterOfInterestPoint(p.mTarget);
+	mCamera.lookAt(p.mTarget);
 	mCamera.setFov(p.mFov);
 	mCamera.setNearClip(p.mNearPlane);
 	mCamera.setFarClip(p.mFarPlane);
+	mCameraTarget = p.mTarget;
 }
 
 void PerspRoot::setup(const Settings& s) {
@@ -213,7 +222,7 @@ void PerspRoot::drawServer(const DrawParams& p) {
 
 ui::Sprite* PerspRoot::getHit(const ci::vec3& point) {
 	ui::Sprite*		s = nullptr;
-	drawFunc([this, &point, &s](){s = mPicking.pickAt(point.xy(), *(mSprite.get()));});
+	drawFunc([this, &point, &s](){s = mPicking.pickAt(glm::vec2(point), *(mSprite.get())); });
 	return s;
 }
 
@@ -222,7 +231,7 @@ PerspCameraParams PerspRoot::getCamera() const {
 
 	PerspCameraParams		p;
 	p.mPosition = mCamera.getEyePoint();
-	p.mTarget = mCamera.getCenterOfInterestPoint();
+	p.mTarget = mCameraTarget;
 	p.mFov = mCamera.getFov();
 	p.mNearPlane = mCamera.getNearClip();
 	p.mFarPlane = mCamera.getFarClip();
@@ -251,7 +260,8 @@ void PerspRoot::setCamera(const PerspCameraParams& p) {
 	if (p == getCamera()) return;
 
 	mCamera.setEyePoint(p.mPosition);
-	mCamera.setCenterOfInterestPoint(p.mTarget);
+	mCamera.lookAt(p.mTarget);
+	mCameraTarget = p.mTarget;
 	mCamera.setPerspective(p.mFov, ci::app::getWindowAspectRatio(), p.mNearPlane, p.mFarPlane);
 	mCamera.setLensShiftHorizontal(p.mLensShiftH);
 	mCamera.setLensShiftVertical(p.mLensShiftV);
@@ -293,7 +303,7 @@ void PerspRoot::drawFunc(const std::function<void(void)>& fn) {
 	// this, no later ortho roots will draw (but then it's fine once you go
 	// back to the first root). This inspite of the fact that the ortho
 	// setGlCamera code calls everything this does.
-	gl::SaveCamera		save_camera;
+	ci::gl::pushMatrices();
 
 	if (mCameraDirty) {
 		setCinderCamera();
@@ -303,6 +313,7 @@ void PerspRoot::drawFunc(const std::function<void(void)>& fn) {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	fn();
+	ci::gl::popMatrices();
 }
 
 /**

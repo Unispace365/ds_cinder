@@ -483,9 +483,6 @@
     <ClInclude Include="..\src\ds\app\engine\engine_roots.h">
       <Filter>src\ds\app\engine</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\gl\save_camera.h">
-      <Filter>src\ds\gl</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\params\camera_params.h">
       <Filter>src\ds\params</Filter>
     </ClInclude>
@@ -630,13 +627,7 @@
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_continuous.h">
       <Filter>src\ds\app\engine\renderers</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_discontinuous.h">
-      <Filter>src\ds\app\engine\renderers</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_interface.h">
-      <Filter>src\ds\app\engine\renderers</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_continuous_fxaa.h">
       <Filter>src\ds\app\engine\renderers</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\app\engine\renderers\engine_renderer_null.h">
@@ -662,12 +653,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_event.h">
       <Filter>src\ds\ui\touch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\gl\gl_state.h">
-      <Filter>src\ds\gl</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\gl\gl_scoped.h">
-      <Filter>src\ds\gl</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\data\color_list.h">
       <Filter>src\ds\data</Filter>
@@ -1016,9 +1001,6 @@
     <ClCompile Include="..\src\ds\app\engine\engine_roots.cpp">
       <Filter>src\ds\app\engine</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\gl\save_camera.cpp">
-      <Filter>src\ds\gl</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\params\camera_params.cpp">
       <Filter>src\ds\params</Filter>
     </ClCompile>
@@ -1139,12 +1121,6 @@
     <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_continuous.cpp">
       <Filter>src\ds\app\engine\renderers</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_discontinuous.cpp">
-      <Filter>src\ds\app\engine\renderers</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_continuous_fxaa.cpp">
-      <Filter>src\ds\app\engine\renderers</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\app\engine\renderers\engine_renderer_interface.cpp">
       <Filter>src\ds\app\engine\renderers</Filter>
     </ClCompile>
@@ -1156,12 +1132,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\network\network_info.cpp">
       <Filter>src\ds\network</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\gl\gl_scoped.cpp">
-      <Filter>src\ds\gl</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\gl\gl_state.cpp">
-      <Filter>src\ds\gl</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\data\color_list.cpp">
       <Filter>src\ds\data</Filter>

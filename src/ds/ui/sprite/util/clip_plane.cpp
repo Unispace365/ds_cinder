@@ -18,58 +18,54 @@ namespace {
 namespace ds {
 namespace ui {
 
-void enableClipping( float x0, float y0, float x1, float y1 )
+void enableClipping(float x0, float y0, float x1, float y1)
 {
-  glPushAttrib( GL_TRANSFORM_BIT | GL_ENABLE_BIT );
-  //glEnable(GL_SCISSOR_TEST);
-  //glScissor(x0, y0, x1, y1);
-  ci::vec3 clippingPoints[4];
-  clippingPoints[0].set( x0, y0, 0 );
-  clippingPoints[1].set( x0, y1, 0 );
-  clippingPoints[2].set( x1, y1, 0 );
-  clippingPoints[3].set( x1, y0, 0 );
+	//glPushAttrib( GL_TRANSFORM_BIT | GL_ENABLE_BIT );
+	//glEnable(GL_SCISSOR_TEST);
+	//glScissor(x0, y0, x1, y1);
+	glm::vec3 clippingPoints[4];
+	clippingPoints[0] = glm::vec3(x0, y0, 0);
+	clippingPoints[1] = glm::vec3(x0, y1, 0);
+	clippingPoints[2] = glm::vec3(x1, y1, 0);
+	clippingPoints[3] = glm::vec3(x1, y0, 0);
 
-  for (int i = 0; i < 4; ++i) {
-    int j = (i+1) % 4;
-    int k = (i+2) % 4;
+	for(int i = 0; i < 4; ++i) {
+		int j = (i + 1) % 4;
+		int k = (i + 2) % 4;
 
-    // Going clockwise around clipping points...
-    ci::vec3 edgeA = clippingPoints[i] - clippingPoints[j];
-    ci::vec3 edgeB = clippingPoints[j] - clippingPoints[k];
+		// Going clockwise around clipping points...
+		glm::vec3 edgeA = clippingPoints[i] - clippingPoints[j];
+		glm::vec3 edgeB = clippingPoints[j] - clippingPoints[k];
 
-    // The edge-normal is found by first finding a vector perpendicular
-    // to two consecutive edges.  Next, we cross that with the forward-
-    // facing (clockwise) edge vector to get an inward-facing edge-
-    // normal vector for that edge
-    
-    ci::vec3 norm = -(edgeA.cross( edgeB )).cross(edgeA).normalized();
+		// The edge-normal is found by first finding a vector perpendicular
+		// to two consecutive edges.  Next, we cross that with the forward-
+		// facing (clockwise) edge vector to get an inward-facing edge-
+		// normal vector for that edge
 
-    // the four points we pass to glClipPlane are the solutions of the
-    // equation Ax + By + Cz + D = 0.  A, B, and C are the normal, and
-    // we solve for D. C is always zero for the 2D case however, in the
-    // 3D case, we must use a three-component normal vector.
-    
-    float d = -norm.dot(clippingPoints[i]);
+		glm::vec3 norm = glm::normalize(glm::cross(edgeA, (glm::cross(edgeA, edgeB))));
 
-    DS_REPORT_GL_ERRORS();
-    glEnable( GL_CLIP_PLANE0 + i );
-    DS_REPORT_GL_ERRORS();
-    GLdouble equation[4] = { norm.x, norm.y, norm.z, d };
-    glClipPlane( GL_CLIP_PLANE0 + i, equation );
-    DS_REPORT_GL_ERRORS();
-  }
+		// the four points we pass to glClipPlane are the solutions of the
+		// equation Ax + By + Cz + D = 0.  A, B, and C are the normal, and
+		// we solve for D. C is always zero for the 2D case however, in the
+		// 3D case, we must use a three-component normal vector.
+
+		float d = glm::dot(-norm, clippingPoints[i]);
+
+		/*
+		DS_REPORT_GL_ERRORS();
+		glEnable( GL_CLIP_PLANE0 + i );
+		DS_REPORT_GL_ERRORS();
+		GLdouble equation[4] = { norm.x, norm.y, norm.z, d };
+		glClipPlane( GL_CLIP_PLANE0 + i, equation );
+		DS_REPORT_GL_ERRORS();
+		*/
+	}
 }
 
 void disableClipping()
 {
-  glPopAttrib();
-  //glDisable(GL_SCISSOR_TEST);
-  // Note: There's a bug here which affects only certain platforms, which is that
-  // the clip planes are enabled but never disabled. The result is that clipping can
-  // be left "on" for views that don't want it, and they'll never draw.
-  // The solution is not as simple as disabling the clip planes here, since clipping
-  // can be nested. Realistically, we need a stack object that keeps track of the
-  // clipping state, only disabling the planes when it's empty.
+	//glPopAttrib();
+	//glDisable(GL_SCISSOR_TEST);
 }
 
 }

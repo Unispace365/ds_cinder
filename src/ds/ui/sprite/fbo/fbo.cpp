@@ -1,5 +1,6 @@
 #include "fbo.h"
 #include "ds/debug/debug_defines.h"
+#include "cinder/gl/wrapper.h"
 
 namespace ds {
 namespace ui {
@@ -40,7 +41,7 @@ void FboGeneral::setup(bool useDepth /*= false*/, bool useStencil /*= false*/)
 	mAttached = nullptr;
 }
 
-bool FboGeneral::attach(ci::gl::Texture &target, bool useDepth /*= false*/, bool useStencil /*= false*/)
+void FboGeneral::attach(ci::gl::TextureRef target, bool useDepth /*= false*/, bool useStencil /*= false*/)
 {
 	activate();
 
@@ -49,7 +50,7 @@ bool FboGeneral::attach(ci::gl::Texture &target, bool useDepth /*= false*/, bool
 		mAttached = nullptr;
 	}
 
-	mAttached = &target;
+	mAttached = target;
 
 	glFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, mAttached->getTarget(), mAttached->getId(), 0);
 	DS_REPORT_GL_ERRORS();
@@ -75,15 +76,10 @@ bool FboGeneral::attach(ci::gl::Texture &target, bool useDepth /*= false*/, bool
 
 	GLenum fb = glCheckFramebufferStatus(GL_FRAMEBUFFER_EXT);
 	DS_REPORT_GL_ERRORS();
-
-	bool success = true;
 	if(fb != GL_FRAMEBUFFER_COMPLETE) {
-		success = false;
 		std::cout << "Bad framebuffer: " << fb << " | file: " << __FILE__ << " line: " << __LINE__ << std::endl;
 	}
 	deactivate();
-
-	return success;
 }
 
 void FboGeneral::detach()
@@ -116,7 +112,7 @@ void FboGeneral::end()
 	popTransformation();
 }
 
-ci::gl::Texture *FboGeneral::getAttached()
+ci::gl::TextureRef FboGeneral::getAttached()
 {
 	return mAttached;
 }
@@ -128,22 +124,12 @@ void FboGeneral::offsetViewport(int offsetX, int offsetY)
 
 void FboGeneral::pushTransformation()
 {
-	//mOldViewport[4];
-	glGetIntegerv(GL_VIEWPORT, mOldViewport);
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
+	ci::gl::pushMatrices();
 }
 
 void FboGeneral::popTransformation()
 {
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glViewport(mOldViewport[0], mOldViewport[1], mOldViewport[2], mOldViewport[3]);
+	ci::gl::popMatrices();
 }
 
 int FboGeneral::getWidth() const
@@ -189,7 +175,7 @@ void FboGeneral::reset()
 }
 
 
-FboGeneral::AutoAttach::AutoAttach(FboGeneral &fbo, ci::gl::Texture &target, bool useDepth /*= false*/, bool useStencil /*= false */)
+FboGeneral::AutoAttach::AutoAttach(FboGeneral &fbo, ci::gl::TextureRef target, bool useDepth /*= false*/, bool useStencil /*= false */)
 	: mFbo(fbo)
 {
 	mFbo.attach(target, useDepth, useStencil);

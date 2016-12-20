@@ -22,7 +22,7 @@ void RotationTranslator::down(TouchInfo &ti) {
 void RotationTranslator::move(TouchInfo &ti, const ci::vec3 &previous_global_pt) {
 	if (!(ti.mPickedSprite && ti.mPickedSprite->isRotateTouches())) return;
 
-	ci::mat4			m(ci::mat4::identity());
+	glm::mat4 m;
 
 	auto f = mMatrix.find(ti.mFingerId);
 	if (f != mMatrix.end()) {
@@ -33,7 +33,7 @@ void RotationTranslator::move(TouchInfo &ti, const ci::vec3 &previous_global_pt)
 	}
 
 	ci::vec3				pt(ti.mCurrentGlobalPoint - ti.mStartPoint);
-	pt = ti.mStartPoint + m.transformPoint(pt);
+	pt = ti.mStartPoint + glm::vec3(m * glm::vec4(pt, 1.0f));
 	ti.mCurrentGlobalPoint = pt;
 	ti.mDeltaPoint = ti.mCurrentGlobalPoint - previous_global_pt;
 }
@@ -49,7 +49,7 @@ void RotationTranslator::up(TouchInfo &ti) {
 }
 
 ci::mat4 RotationTranslator::buildRotationMatrix(ds::ui::Sprite *s) const {
-	ci::mat4					m(ci::mat4::identity());
+	ci::mat4 m;
 	if (!s) return m;
 
 	// Build the matrix in order from root parent down to child
@@ -60,9 +60,9 @@ ci::mat4 RotationTranslator::buildRotationMatrix(ds::ui::Sprite *s) const {
 	}
 	for (auto it=vec.rbegin(), end=vec.rend(); it!=end; ++it) {
 		const ci::vec3				rotation((*it)->getRotation());
-		m.rotate(ci::vec3(1.0f, 0.0f, 0.0f), rotation.x * math::DEGREE2RADIAN);
-		m.rotate(ci::vec3(0.0f, 1.0f, 0.0f), rotation.y * math::DEGREE2RADIAN);
-		m.rotate(ci::vec3(0.0f, 0.0f, 1.0f), rotation.z * math::DEGREE2RADIAN);
+		m = glm::rotate(m, rotation.x * math::DEGREE2RADIAN, glm::vec3(1.0f, 0.0f, 0.0f));
+		m = glm::rotate(m, rotation.y * math::DEGREE2RADIAN, glm::vec3(0.0f, 1.0f, 0.0f));
+		m = glm::rotate(m, rotation.z * math::DEGREE2RADIAN, glm::vec3(0.0f, 0.0f, 1.0f));
 	}
 	return m;
 }

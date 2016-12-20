@@ -44,9 +44,9 @@ public:
 		return !d.empty();
 	}
 
-	const ci::gl::Texture*		getImage() {
+	const ci::gl::TextureRef		getImage() {
 		if (mStatus == STATUS_EMPTY) generate();
-		if (mStatus == STATUS_OK) return &mTexture;
+		if (mStatus == STATUS_OK) return mTextureRef;
 		return nullptr;
 	}
 
@@ -99,14 +99,14 @@ private:
 		std::unique_ptr<ds::arc::Arc>		a = std::move(ds::arc::load(mFilename));
 		if (!a) return;
 		ci::Surface8u		s(mWidth, mHeight, true, ci::SurfaceConstraintsDefault());
-		if (!s || s.getWidth() != mWidth || s.getHeight() != mHeight) return;
+		if (!s.getData() || s.getWidth() != mWidth || s.getHeight() != mHeight) return;
 
 		ds::arc::RenderCircle		render;
 		if (!render.on(mInput, s, *(a.get()))) return;
 
 		writeFile(s);
-		mTexture = ci::gl::Texture(s);
-		if (mTexture && mTexture.getWidth() == mWidth && mTexture.getHeight() == mHeight) {
+		mTextureRef = ci::gl::Texture::create(s);
+		if(mTextureRef && mTextureRef->getWidth() == mWidth && mTextureRef->getHeight() == mHeight) {
 			mStatus = STATUS_OK;
 		}
 	}
@@ -128,7 +128,7 @@ private:
 	std::string				mFilename;
 	ds::arc::Input			mInput;
 	std::string				mWriteFile;
-	ci::gl::Texture			mTexture;
+	ci::gl::TextureRef		mTextureRef;
 };
 
 }

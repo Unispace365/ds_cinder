@@ -17,7 +17,7 @@ class SpriteEngine;
 class AutoFbo {
 public:
 	AutoFbo(ds::ui::SpriteEngine&);
-	AutoFbo(ds::ui::SpriteEngine&, ci::gl::Texture&);
+	AutoFbo(ds::ui::SpriteEngine&, ci::gl::TextureRef);
 	~AutoFbo();
 
 	std::unique_ptr<ds::ui::FboGeneral>		mFbo;

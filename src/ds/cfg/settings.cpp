@@ -244,7 +244,7 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 				c = mEngine->getColors().getColorFromName(code);
 			}
 		} else {
-			c.set(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
+			c = ci::ColorA(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);

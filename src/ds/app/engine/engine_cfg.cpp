@@ -167,7 +167,7 @@ void EngineCfg::loadText(const std::string& filename, Engine* engine) {
 			break;
 		}
 		// Set color to full red to alert that this wasn't actually loaded
-		mEmptyTextCfg.mColor.set(1.0f, 0.0f, 0.0f, 1.0f);
+		mEmptyTextCfg.mColor.set(ci::ColorModel::CM_RGB, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	}
 }
 
@@ -258,12 +258,15 @@ static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& o
 	ds::cfg::Settings s;
 
 	try {
-		ci::DataSourceRef ds = ci::app::App::loadResource(RES_TEXT);
+		// TODO? This appears to load a compiled-in xml for error text (why?) config
+		/*
+		ci::DataSourceRef ds = ci::app::AppBase::get()->loadResource(RES_TEXT);
 		ci::BufferRef	buf = ds->getBuffer();
 		if(buf.getDataSize() > 0 && buf.getDataSize() < 100000) {
 			std::string	str(static_cast<const char*>(buf.getData()), buf.getDataSize());
 			s.readFrom(str, true, true);
 		}
+		*/
 	}
 	catch(std::exception& e) {
 		DS_LOG_WARNING("Failed to load default text settings: " << e.what());

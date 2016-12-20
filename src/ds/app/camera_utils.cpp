@@ -66,7 +66,7 @@ ci::vec3 ScreenToWorld::unproject(const ci::vec3 & point)
 {
 	// Find the inverse Modelview-Projection-Matrix
 	ci::mat4 invMVP = mProjection * mModelView;
-	glm::invert(invMVP);//.invert();
+	invMVP = glm::inverse(invMVP);
 
 	// Transform to normalized coordinates in the range [-1, 1]
 	ci::vec4				pointNormal;

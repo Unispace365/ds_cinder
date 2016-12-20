@@ -76,7 +76,7 @@ void Momentum::update(const ds::UpdateParams&) {
 
 	const float		absWidth = mSprite->getWidth() * mSprite->getScale().x;
 	const float		absHeigh = mSprite->getHeight() * mSprite->getScale().y;
-	ci::vec2		curPos = mSprite->getPosition().xy();
+	ci::vec2		curPos = ci::vec2(mSprite->getPosition());
 	curPos.x += absWidth/2.0f - mSprite->getCenter().x * absWidth;
 	curPos.y += absHeigh/2.0f - mSprite->getCenter().y * absHeigh;
 
@@ -89,7 +89,7 @@ void Momentum::update(const ds::UpdateParams&) {
 }
 
 void Momentum::activate() {
-	mVelocity.set(0.0f,0.0f);
+	mVelocity = ci::vec2(0.0f,0.0f);
 	if (mPositionHistory.empty()) return;
 
 	mActive = true;

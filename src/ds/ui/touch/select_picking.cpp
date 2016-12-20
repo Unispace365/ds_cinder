@@ -31,6 +31,7 @@ static void gluPickMatrix(double x, double y, double deltax, double deltay, int*
 ds::ui::Sprite* SelectPicking::pickAt(const ci::vec2& pt, ds::ui::Sprite& root) {
 	mHits.clear();
 
+	/* TODO
 	glPushAttrib( GL_VIEWPORT_BIT );
 //	const float		picking_offset = 0.0f;
 //	glViewport( 0, 0, static_cast<int>(mWorldSize.x + picking_offset), static_cast<int>(mWorldSize.y));
@@ -75,6 +76,7 @@ ds::ui::Sprite* SelectPicking::pickAt(const ci::vec2& pt, ds::ui::Sprite& root) 
 
 	// The z value is a GL-internal representation. The item with the lowest
 	// z is closet to the user.
+	*/
 	std::sort(mHits.begin(), mHits.end());
 	return root.getEngine().findSprite(mHits.front().mId);
 }

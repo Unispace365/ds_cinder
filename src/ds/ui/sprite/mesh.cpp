@@ -1,6 +1,9 @@
 #include "mesh.h"
 
 #include <map>
+
+#include <cinder/gl/gl.h>
+
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
 #include "ds/data/data_buffer.h"
@@ -16,23 +19,23 @@ namespace ds {
 namespace ui {
 
 namespace {
-char				BLOB_TYPE			= 0;
+char				BLOB_TYPE = 0;
 
-const DirtyState&	IMG_SRC_DIRTY		= INTERNAL_A_DIRTY;
-const DirtyState&	MESH_SRC_DIRTY		= INTERNAL_B_DIRTY;
+const DirtyState&	IMG_SRC_DIRTY = INTERNAL_A_DIRTY;
+const DirtyState&	MESH_SRC_DIRTY = INTERNAL_B_DIRTY;
 
-const char			IMG_SRC_ATT			= 80;
-const char			MESH_SRC_ATT		= 81;
+const char			IMG_SRC_ATT = 80;
+const char			MESH_SRC_ATT = 81;
 
-const ds::BitMask   SPRITE_LOG			= ds::Logger::newModule("mesh sprite");
+const ds::BitMask   SPRITE_LOG = ds::Logger::newModule("mesh sprite");
 }
 
 void Mesh::installAsServer(ds::BlobRegistry& registry) {
-	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r);});
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromClient(r); });
 }
 
 void Mesh::installAsClient(ds::BlobRegistry& registry) {
-	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Mesh>(r);});
+	BLOB_TYPE = registry.add([](BlobReader& r) {Sprite::handleBlobFromServer<Mesh>(r); });
 }
 
 Mesh& Mesh::makeMesh(SpriteEngine& e, const std::string& fn, Sprite* parent) {
@@ -44,16 +47,16 @@ Mesh& Mesh::makeMesh(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
 }
 
 Mesh::Mesh(SpriteEngine& engine)
-		: inherited(engine)
-		, ImageOwner(engine)
-		, MeshOwner(engine) {
+	: inherited(engine)
+	, ImageOwner(engine)
+	, MeshOwner(engine) {
 	init();
 }
 
 Mesh::Mesh(SpriteEngine& engine, const std::string& filename)
-		: inherited(engine)
-		, ImageOwner(engine)
-		, MeshOwner(engine) {
+	: inherited(engine)
+	, ImageOwner(engine)
+	, MeshOwner(engine) {
 	init();
 	setFileMesh(filename);
 }
@@ -64,29 +67,28 @@ Mesh::~Mesh() {
 void Mesh::updateServer(const UpdateParams& up) {
 	inherited::updateServer(up);
 
-	if (mStatusDirty) {
+	if(mStatusDirty) {
 		mStatusDirty = false;
-		if (mStatusFn) mStatusFn(mStatus);
+		if(mStatusFn) mStatusFn(mStatus);
 	}
 }
 
 void Mesh::drawLocalClient() {
-	if (!inBounds()) return;
+	if(!inBounds()) return;
 
-	const ci::gl::Texture*		tex = mImageSource.getImage();
-	if (!tex) return;
+	const ci::gl::TextureRef		tex = mImageSource.getImage();
+	if(!tex) return;
 
-	if (!mVboMesh) {
-		const ci::gl::VboMesh*	mesh = getMesh();
-		if (!mesh) return;
-		mVboMesh = *mesh;
-		if (!mVboMesh) return;
+	if(!mVboMesh) {
+		const ci::gl::VboMeshRef	mesh = getMesh();
+		if(!mesh) return;
+		mVboMesh = mesh;
+		if(!mVboMesh) return;
 	}
 
 	// Save the depth-read state...
-	ci::gl::BoolState( GL_DEPTH_TEST );
 	GLboolean oldDepthWriteMask;
-	glGetBooleanv( GL_DEPTH_WRITEMASK, &oldDepthWriteMask );
+	glGetBooleanv(GL_DEPTH_WRITEMASK, &oldDepthWriteMask);
 
 	// Depth read/write is enabled in the root, but unfortunately necessary
 	// right now because every sprite sets (or unsets) the depth buffer in its
@@ -97,12 +99,12 @@ void Mesh::drawLocalClient() {
 	ci::gl::enableDepthWrite();
 
 	tex->bind();
-	ci::gl::draw( mVboMesh );
+	ci::gl::draw(mVboMesh);
 	tex->unbind();
 
 	// Restore depth-write state.  GL_DEPTH_TEST (depth-read) is automagically
 	// restored via Cinder's BoolState destructor
-	glDepthMask( oldDepthWriteMask );
+	glDepthMask(oldDepthWriteMask);
 }
 
 void Mesh::drawLocalServer() {
@@ -114,8 +116,8 @@ bool Mesh::isLoaded() const {
 }
 
 void Mesh::setStatusCallback(const std::function<void(const Status&)>& fn) {
-	DS_ASSERT_MSG(	mEngine.getMode() == mEngine.STANDALONE_MODE,
-					"Currently only works in Standalone mode, fill in the UDP callbacks if you want to use this otherwise");
+	DS_ASSERT_MSG(mEngine.getMode() == mEngine.STANDALONE_MODE,
+				  "Currently only works in Standalone mode, fill in the UDP callbacks if you want to use this otherwise");
 	mStatusFn = fn;
 }
 
@@ -127,22 +129,22 @@ void Mesh::onMeshChanged() {
 void Mesh::writeAttributesTo(ds::DataBuffer& buf) {
 	inherited::writeAttributesTo(buf);
 
-	if (mDirty.has(IMG_SRC_DIRTY)) {
+	if(mDirty.has(IMG_SRC_DIRTY)) {
 		buf.add(IMG_SRC_ATT);
 		mImageSource.writeTo(buf);
 	}
 	// TODO: Eric, want to implement some kind of MeshSource?
 	//else if (mDirty.has(MESH_SRC_DIRTY)) {
-		//buf.add(MESH_SRC_ATT);
-		//mMeshSource.writeTo(buf);
+	//buf.add(MESH_SRC_ATT);
+	//mMeshSource.writeTo(buf);
 	//}
 }
 
 void Mesh::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
-	if (attributeId == IMG_SRC_ATT) {
+	if(attributeId == IMG_SRC_ATT) {
 		mImageSource.readFrom(buf);
-	// TODO: Eric, want to implement some kind of MeshSource?
-	//} else if (attributeId == MESH_SRC_ATT) {
+		// TODO: Eric, want to implement some kind of MeshSource?
+		//} else if (attributeId == MESH_SRC_ATT) {
 		//mMeshSource.readFrom(buf);
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
@@ -150,7 +152,7 @@ void Mesh::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 }
 
 void Mesh::setStatus(const int code) {
-	if (code == mStatus.mCode) return;
+	if(code == mStatus.mCode) return;
 
 	mStatus.mCode = code;
 	mStatusDirty = true;
@@ -163,7 +165,7 @@ void Mesh::init() {
 
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
-	setUseShaderTextuer(true);
+	setUseShaderTexture(true);
 	markAsDirty(MESH_SRC_DIRTY);
 }
 

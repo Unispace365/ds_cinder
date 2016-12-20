@@ -42,7 +42,7 @@ struct UniformData
  * \see http://www.boost.org/doc/libs/1_57_0/doc/html/variant.html
  * \see <cinder/gl/GlslProg.h>. All overloads, match Cinder's uniform helper.
  */
-class UniformVisitor final : public boost::static_visitor < void >
+class UniformVisitor : public boost::static_visitor < void >
 {
 public:
 	// A typedef of all (20) Cinder supported uniforms.
@@ -56,7 +56,7 @@ public:
 
 public:
 	UniformVisitor() = delete;
-	UniformVisitor(ci::gl::GlslProg& shader);
+	UniformVisitor(ci::gl::GlslProgRef shader);
 
 	// Below all are uniform types, supported by Cinder.
 	void					operator()(int data);
@@ -81,7 +81,7 @@ public:
 	void					operator()(const ci::mat4 *data);
 
 private:
-	ci::gl::GlslProg&		mShader; //shader that will receive the passed variant
+	ci::gl::GlslProgRef		mShader; //shader that will receive the passed variant
 
 public:
 	UniformData&			mData; //just a placeholder
@@ -145,7 +145,7 @@ public:
 	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
 	void			setVec4f(const std::string& name, const ci::vec4&);
 
-	void			applyTo(ci::gl::GlslProg&) const;
+	void			applyTo(ci::gl::GlslProgRef) const;
 
 private:
 	// Internally handles inserting boost::variant's into a map for shaders to consume.
