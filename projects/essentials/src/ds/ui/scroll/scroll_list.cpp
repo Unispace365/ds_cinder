@@ -355,9 +355,10 @@ void ScrollList::assignItems(){
 					Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
 					float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
 					if(timeDif < 0.2f){
-						//DS_LOG_INFO("Too soon since the last touch to tap this list!");
+						DS_LOG_INFO("Too soon since the last touch to tap this list!");
 						return;
 					}
+					mLastUpdateTime = Poco::Timestamp().epochMicroseconds();
 					if(mItemTappedCallback) mItemTappedCallback(sprite, cent);
 				});
 				mScrollableHolder->addChildPtr(sprite);

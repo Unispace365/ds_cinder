@@ -213,6 +213,7 @@ Circle Sprite Parameters
 ---------------------------
 * **filled**: Boolean, whether to draw just the outline or fill in the circle
 * **radius**: Float, the radius of the circle to draw
+* **line_width**: Float, the width for non-filled circle border 
 
 Border Parameters
 ---------------------------
