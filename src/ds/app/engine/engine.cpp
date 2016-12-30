@@ -229,7 +229,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 }
 
 
-void Engine::prepareSettings(ci::app::App::Settings& settings){
+void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 	// TODO: remove this null_renderer bullshit
 	std::string screenMode = "window";
 	if(mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))

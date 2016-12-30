@@ -48,13 +48,6 @@ public:
 	ci::Rectf				mSrcRect,
 							mDstRect;
 
-	// A map of slices of the world to render.
-	// this is a special case of rendering and if this
-	// vector is non-empty then both mSrcRect and
-	// mDstRect match the world size.
-	std::vector < std::pair<ci::Area, ci::Rectf> >
-							mWorldSlices;
-
 	// Volume control for the whole app 
 
 	bool					mMute;

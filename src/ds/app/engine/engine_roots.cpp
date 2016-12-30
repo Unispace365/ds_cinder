@@ -48,18 +48,7 @@ void OrthRoot::setup(const Settings& s) {
 	if (mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1
 			&& mDstRect.x2 > mDstRect.x1 && mDstRect.y2 > mDstRect.y1) {
 		mSprite->setSize(mSrcRect.getWidth(), mSrcRect.getHeight());
-	} else {
-		// This is deprecated, and should never be hit
-		const bool			scaleWorldToFit = s.mDebugSettings.getBool("scale_world_to_fit", 0, false);
-		const float			window_scale = s.mDebugSettings.getFloat("window_scale", 0, s.mDefaultScale);
-
-		mSprite->setSize(s.mScreenRect.getWidth(), s.mScreenRect.getHeight());
-		if (scaleWorldToFit) {
-			mSprite->setScale(mEngine.getWidth()/mEngine.getWorldWidth(), mEngine.getHeight()/mEngine.getWorldHeight());
-		} else if (window_scale != s.mDefaultScale) {
-			mSprite->setScale(window_scale, window_scale);
-		}
-	}
+	} 
 }
 
 void OrthRoot::postAppSetup() {

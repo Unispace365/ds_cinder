@@ -158,6 +158,8 @@ App::App(const RootList& roots)
 		if (*it) (*it)(mEngine);
 	}
 	startups.clear();
+
+	prepareSettings(ci::app::App::get()->sSettingsFromMain);
 }
 
 App::~App() {
@@ -168,17 +170,22 @@ App::~App() {
 	}
 }
 
-void App::prepareSettings(Settings *settings) {
+void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 	// TODO?
 	//inherited::prepareSettings(settings);
 
 	if (settings) {
 		mEngine.prepareSettings(*settings);
+		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
 
-		if (mEngineData.mWorldSlices.empty())
-			settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
-		else
-			settings->setWindowPos(static_cast<unsigned>(mEngineData.mScreenRect.x1), static_cast<unsigned>(mEngineData.mScreenRect.y1));
+		inherited::setFrameRate(settings->getFrameRate());
+		inherited::setWindowSize(settings->getWindowSize());
+		inherited::setWindowPos(settings->getWindowPos());
+		inherited::setFullScreen(settings->isFullScreen());
+		inherited::getWindow()->setBorderless(settings->isBorderless());
+		inherited::getWindow()->setAlwaysOnTop(settings->isAlwaysOnTop());
+		inherited::getWindow()->setTitle(settings->getTitle());
+		inherited::enablePowerManagement(settings->isPowerManagementEnabled());
 	}
 }
 

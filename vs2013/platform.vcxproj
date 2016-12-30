@@ -11,28 +11,28 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioClient.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioCursor.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioObject.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioProfileBase.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\IpEndpointName.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\NetworkingUtils.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\PacketListener.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\TimerListener.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\UdpSocket.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscArg.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscBundle.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscListener.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscMessage.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscSender.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\MessageMappingOscPacketListener.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscException.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscHostEndianness.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscOutboundPacketStream.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscPacketListener.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscPrintReceivedElements.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscReceivedElements.h" />
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscTypes.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioClient.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioCursor.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioObject.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioProfileBase.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\IpEndpointName.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\NetworkingUtils.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\PacketListener.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\TimerListener.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\UdpSocket.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\OscArg.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\OscBundle.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\OscListener.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\OscMessage.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\OscSender.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\MessageMappingOscPacketListener.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscException.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscHostEndianness.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscOutboundPacketStream.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscPacketListener.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscPrintReceivedElements.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscReceivedElements.h" />
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscTypes.h" />
     <ClInclude Include="..\src\ds\app\app.h" />
     <ClInclude Include="..\src\ds\app\app_defs.h" />
     <ClInclude Include="..\src\ds\app\auto_draw.h" />
@@ -208,18 +208,18 @@
     <ClInclude Include="..\src\ds\util\string_util.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="$(CINDER_086)\blocks\tuio\src\TuioClient.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\IpEndpointName.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\win32\NetworkingUtils.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\win32\UdpSocket.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscBundle.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscListener.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscMessage.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscSender.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscOutboundPacketStream.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscPrintReceivedElements.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscReceivedElements.cpp" />
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscTypes.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\tuio\src\TuioClient.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\ip\IpEndpointName.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\ip\win32\NetworkingUtils.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\ip\win32\UdpSocket.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\OscBundle.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\OscListener.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\OscMessage.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\OscSender.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\osc\OscOutboundPacketStream.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\osc\OscPrintReceivedElements.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\osc\OscReceivedElements.cpp" />
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\osc\OscTypes.cpp" />
     <ClCompile Include="..\src\ds\app\app.cpp" />
     <ClCompile Include="..\src\ds\app\app_defs.cpp" />
     <ClCompile Include="..\src\ds\app\auto_draw.cpp" />
@@ -408,7 +408,7 @@
     <ClCompile>
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>WIN32;_WIN32_WINNT=0x0501;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;_WINDOWS;NOMINMAX;%(PreprocessorDefinitions);NOMINMAX</PreprocessorDefinitions>
       <MinimalRebuild>false</MinimalRebuild>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
@@ -419,11 +419,9 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -436,9 +434,9 @@
       <Message>Copying Pango resources to output directory</Message>
       <Command>echo Copying Pango resources files to Configuration folder
 		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_086)\lib\gtk\runtime" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime" "$(SolutionDir)\$(Configuration)"
 		</Command>
-      <Inputs>$(DS_PLATFORM_086)\lib\gtk\runtime\libpango-1.0-0.dll</Inputs>
+      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime\libpango-1.0-0.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libpango-1.0-0.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -460,10 +458,8 @@
       <AdditionalIncludeDirectories>..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
-      <AdditionalDependencies>cinder.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
-      <GenerateMapFile>true</GenerateMapFile>
+      <GenerateMapFile>false</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
       <OptimizeReferences>true</OptimizeReferences>
       <EnableCOMDATFolding>
@@ -472,14 +468,15 @@
       <DataExecutionPrevention>
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
+      <IgnoreSpecificDefaultLibraries>LIBCMT</IgnoreSpecificDefaultLibraries>
     </Link>
     <CustomBuildStep>
       <Message>Copying Pango resources to output directory</Message>
       <Command>echo Copying Pango resources files to Configuration folder
 		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_086)\lib\gtk\runtime" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_090)\lib\gtk\runtime" "$(SolutionDir)\$(Configuration)"
 		</Command>
-      <Inputs>$(DS_PLATFORM_086)\lib\gtk\runtime\libpango-1.0-0.dll</Inputs>
+      <Inputs>$(DS_PLATFORM_090)\lib\gtk\runtime\libpango-1.0-0.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libpango-1.0-0.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>

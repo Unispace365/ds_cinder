@@ -33,7 +33,7 @@
 	  glib-2.0.lib;
 	  gobject-2.0.lib;
 	  %(AdditionaDependencies);</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>
+      <IgnoreSpecificDefaultLibraries>libboost_date_time-vc120-mt-s-1_58.lib; libboost_regex-vc120-mt-s-1_58.lib
       </IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>

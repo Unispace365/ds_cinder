@@ -555,72 +555,6 @@
     <ClInclude Include="..\src\ds\ui\touch\rotation_translator.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\IpEndpointName.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\MessageMappingOscPacketListener.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\NetworkingUtils.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscArg.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscBundle.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscException.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscHostEndianness.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscListener.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscMessage.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscOutboundPacketStream.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscPacketListener.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscPrintReceivedElements.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscReceivedElements.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\OscSender.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\osc\OscTypes.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\PacketListener.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioClient.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioCursor.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioObject.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\tuio\include\TuioProfileBase.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\TimerListener.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_086)\blocks\OSC\src\ip\UdpSocket.h">
-      <Filter>src\osc</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\app\event_registry.h">
       <Filter>src\ds\app</Filter>
     </ClInclude>
@@ -686,6 +620,72 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\text_pango.h">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\OscArg.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\OscBundle.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscException.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscHostEndianness.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\OscListener.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\OscMessage.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscOutboundPacketStream.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscPacketListener.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscPrintReceivedElements.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscReceivedElements.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\OscSender.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\OscTypes.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\IpEndpointName.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\osc\MessageMappingOscPacketListener.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\NetworkingUtils.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\PacketListener.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\TimerListener.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioClient.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioCursor.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioObject.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioProfileBase.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\UdpSocket.h">
+      <Filter>src\osc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1079,42 +1079,6 @@
     <ClCompile Include="..\src\ds\ui\touch\rotation_translator.cpp">
       <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\IpEndpointName.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\win32\NetworkingUtils.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscBundle.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscListener.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscMessage.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscOutboundPacketStream.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscPrintReceivedElements.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscReceivedElements.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\OscSender.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\osc\OscTypes.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\tuio\src\TuioClient.cpp">
-      <Filter>src\tuio</Filter>
-    </ClCompile>
-    <ClCompile Include="$(CINDER_086)\blocks\OSC\src\ip\win32\UdpSocket.cpp">
-      <Filter>src\osc</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\app\event_registry.cpp">
       <Filter>src\ds\app</Filter>
     </ClCompile>
@@ -1156,6 +1120,42 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\text_pango.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\OscBundle.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\OscListener.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\OscMessage.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\osc\OscOutboundPacketStream.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\osc\OscPrintReceivedElements.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\osc\OscReceivedElements.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\OscSender.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\osc\OscTypes.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\ip\IpEndpointName.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\ip\win32\NetworkingUtils.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\tuio\src\TuioClient.cpp">
+      <Filter>src\tuio</Filter>
+    </ClCompile>
+    <ClCompile Include="$(CINDER_090)\blocks\OSC\src\ip\win32\UdpSocket.cpp">
+      <Filter>src\osc</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
