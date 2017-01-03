@@ -112,7 +112,7 @@ Sprite* ScrollArea::getSpriteToPassTo(){
 void ScrollArea::checkBounds(){
 	if(!mScroller) return;
 	bool doTween = true;
-	ci::Vec3f tweenDestination = mScroller->getPosition();
+	ci::vec3 tweenDestination = mScroller->getPosition();
 
 	bool snapped = callSnapToPositionCallback(doTween, tweenDestination);
 
@@ -198,8 +198,8 @@ void ScrollArea::updateServer(const ds::UpdateParams& p){
 		checkBounds();
 	}
 }
-void decompose(ci::Matrix44f matrix, ci::Vec3f& scaling, ci::Quatf& rotation,
-			   ci::Vec3f& position){
+void decompose(ci::Matrix44f matrix, ci::vec3& scaling, ci::Quatf& rotation,
+			   ci::vec3& position){
 	// extract translation
 	position.x = matrix.at(0, 3);
 	position.y = matrix.at(1, 3);
@@ -207,7 +207,7 @@ void decompose(ci::Matrix44f matrix, ci::Vec3f& scaling, ci::Quatf& rotation,
 
 	// extract the rows of the matrix
 
-	ci::Vec3f columns[3] = {
+	ci::vec3 columns[3] = {
 		matrix.getColumn(0).xyz(),
 		matrix.getColumn(1).xyz(),
 		matrix.getColumn(2).xyz()
@@ -249,9 +249,9 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 		auto deltaPoint = ti.mDeltaPoint;
 		if(mHandleRotatedTouches){
 			auto globalTrans = getGlobalTransform();
-			ci::Vec3f scaley;
+			ci::vec3 scaley;
 			ci::Quatf rotty;
-			ci::Vec3f poss;
+			ci::vec3 poss;
 			decompose(globalTrans, scaley, rotty, poss);
 			deltaPoint.rotateZ(-ci::toDegrees(rotty.getRoll()));
 		}
@@ -276,7 +276,7 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 	}
 }
 
-bool ScrollArea::callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDestination){
+bool ScrollArea::callSnapToPositionCallback(bool& doTween, ci::vec3& tweenDestination){
 	bool output = false;
 
 	if(mSnapToPositionFunction){
@@ -377,7 +377,7 @@ void ScrollArea::setFadeColors(ci::ColorA fadeColorFull, ci::ColorA fadeColorTra
 	}
 }
 
-void ScrollArea::scrollerUpdated(const ci::Vec2f scrollPos){
+void ScrollArea::scrollerUpdated(const ci::vec2 scrollPos){
 	float scrollerSize = mScroller->getHeight();
 	float scrollWindow = getHeight();
 	float scrollerPossy = scrollPos.y;
@@ -435,7 +435,7 @@ void ScrollArea::setTweenCompleteCallback(const std::function<void(ds::ui::Scrol
 	mTweenCompleteFunction = func;
 }
 
-void ScrollArea::setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func){
+void ScrollArea::setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::vec3&)>& func){
 	mSnapToPositionFunction = func;
 }
 
@@ -443,12 +443,12 @@ void ScrollArea::setScrollerTouchedCallback(const std::function<void()>& func) {
 	mScrollerTouchedFunction = func;
 }
 
-const ci::Vec2f ScrollArea::getScrollerPosition(){
+const ci::vec2 ScrollArea::getScrollerPosition(){
 	if(mScroller){
 		return mScroller->getPosition().xy();
 	}
 
-	return ci::Vec2f::zero();
+	return ci::vec2::zero();
 }
 
 void ScrollArea::resetScrollerPosition() {
@@ -570,7 +570,7 @@ void ScrollArea::scrollPage(const bool forwards, const bool animate) {
 	if(destPixels > 0.0f) destPixels = 0.0f;
 
 
-	ci::Vec3f tweenDestination = mScroller->getPosition();
+	ci::vec3 tweenDestination = mScroller->getPosition();
 	if(mVertical){
 		if(getPerspective()){
 			destPixels = theTop - destPixels;

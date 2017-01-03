@@ -149,7 +149,7 @@ void Automator::clear(){
 	mActive = false;
 	std::vector<ci::app::TouchEvent::Touch> touches;
 	for(int i = 0; i < mFingerMax; ++i){
-		touches.push_back(ci::app::TouchEvent::Touch(ci::Vec2f::zero(), ci::Vec2f::zero(), i, 0.0, nullptr));
+		touches.push_back(ci::app::TouchEvent::Touch(ci::vec2::zero(), ci::vec2::zero(), i, 0.0, nullptr));
 	}
 	mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
 

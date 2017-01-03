@@ -37,7 +37,7 @@ public:
 
 	virtual bool update(float dt);
 protected:
-	std::vector<ci::Vec2f> mTouchPos;
+	std::vector<ci::vec2> mTouchPos;
 };
 }
 }

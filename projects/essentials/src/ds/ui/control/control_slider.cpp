@@ -50,7 +50,7 @@ ControlSlider::ControlSlider(ds::ui::SpriteEngine& engine, const bool vertical, 
 
 void ControlSlider::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 	if(ti.mFingerIndex == 0){
-		ci::Vec3f localPos = globalToLocal(ti.mCurrentGlobalPoint);
+		ci::vec3 localPos = globalToLocal(ti.mCurrentGlobalPoint);
 
 		bool isPerspective = getPerspective();
 		float heighty = getHeight();

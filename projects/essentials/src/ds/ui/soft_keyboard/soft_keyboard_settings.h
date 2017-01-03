@@ -72,11 +72,11 @@ public:
 		}
 	}
 
-	ci::Vec2f			mKeyInitialPosition;
+	ci::vec2			mKeyInitialPosition;
 
 	std::string			mKeyUpTextConfig;
 	std::string			mKeyDnTextConfig;
-	ci::Vec2f			mKeyTextOffset;
+	ci::vec2			mKeyTextOffset;
 	ci::Color			mKeyDownColor;
 	ci::Color			mKeyUpColor;
 	float				mKeyTouchPadding;

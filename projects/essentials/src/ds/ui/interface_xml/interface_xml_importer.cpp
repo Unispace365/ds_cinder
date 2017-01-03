@@ -69,11 +69,11 @@ std::string XmlImporter::getGradientColorsAsString(ds::ui::Gradient* grad){
 }
 
 namespace {
-static const ci::Vec3f				DEFAULT_SIZE = ci::Vec3f(0.0f, 0.0f, 1.0f);
-static const ci::Vec3f				DEFAULT_CENTER = ci::Vec3f(0.0f, 0.0f, 0.0f);
-static const ci::Vec3f				DEFAULT_POS = ci::Vec3f(0.0f, 0.0f, 0.0f);
-static const ci::Vec3f				DEFAULT_ROT = ci::Vec3f(0.0f, 0.0f, 0.0f);
-static const ci::Vec3f				DEFAULT_SCALE = ci::Vec3f(1.0f, 1.0f, 1.0f);
+static const ci::vec3				DEFAULT_SIZE = ci::vec3(0.0f, 0.0f, 1.0f);
+static const ci::vec3				DEFAULT_CENTER = ci::vec3(0.0f, 0.0f, 0.0f);
+static const ci::vec3				DEFAULT_POS = ci::vec3(0.0f, 0.0f, 0.0f);
+static const ci::vec3				DEFAULT_ROT = ci::vec3(0.0f, 0.0f, 0.0f);
+static const ci::vec3				DEFAULT_SCALE = ci::vec3(1.0f, 1.0f, 1.0f);
 static const ci::Color				DEFAULT_COLOR = ci::Color(1.0f, 1.0f, 1.0f);
 static const float					DEFAULT_OPACITY = 1.0f;
 static const bool					DEFAULT_VISIBLE = true;
@@ -84,7 +84,7 @@ static const bool					DEFAULT_CHECKBOUNDS = false;
 static const ds::ui::BlendMode		DEFAULT_BLENDMODE = ds::ui::NORMAL;
 static const float					DEFAULT_LAYOUT_PAD = 0.0f;
 static const float					DEFAULT_LAYOUT_SPACING = 0.0f;
-static const ci::Vec2f				DEFAULT_LAYOUT_SIZEFUDGE = ci::Vec2f::zero();
+static const ci::vec2				DEFAULT_LAYOUT_SIZEFUDGE = ci::vec2::zero();
 static const int					DEFAULT_LAYOUT_ALIGN_USERTYPE = 0;
 static const ds::ui::LayoutSprite::LayoutType DEFAULT_LAYOUT_TYPE = ds::ui::LayoutSprite::kLayoutNone;
 static const ds::ui::LayoutSprite::ShrinkType DEFAULT_SHRINK_TYPE = ds::ui::LayoutSprite::kShrinkNone;
@@ -143,7 +143,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 			xml.setAttribute("font_leading", txt->getLeading());
 		}
 
-		xml.setAttribute("resize_limit", unparseVector(ci::Vec2f(mtxt->getResizeLimitWidth(), mtxt->getResizeLimitHeight())));
+		xml.setAttribute("resize_limit", unparseVector(ci::vec2(mtxt->getResizeLimitWidth(), mtxt->getResizeLimitHeight())));
 		if(mtxt->getAlignment() != ds::ui::Alignment::kLeft) xml.setAttribute("text_align", LayoutSprite::getLayoutHAlignString(mtxt->getAlignment()));
 	}
 
@@ -233,7 +233,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "depth") {
 		sprite.setSizeAll(sprite.getWidth(), sprite.getHeight(), ds::string_to_float(value));
 	} else if(property == "size") {
-		ci::Vec3f v = parseVector(value);
+		ci::vec3 v = parseVector(value);
 		sprite.setSize(v.x, v.y);
 	} else if(property == "color") {
 		sprite.setTransparent(false);
@@ -310,7 +310,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "layout_size"){
 		sprite.mLayoutSize = parseVector(value).xy();
 	} else if(property == "on_tap_event"){
-		sprite.setTapCallback([value](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+		sprite.setTapCallback([value](ds::ui::Sprite* bs, const ci::vec3& pos){
 			XmlImporter::dispatchStringEvents(value, bs, pos);
 		});
 	} else if(property == "layout_fixed_aspect"){
@@ -692,7 +692,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
 	}
 }
-void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite* bs, const ci::Vec3f& pos){
+void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& pos){
 	auto leadingBracket = value.find("{");
 	if(leadingBracket == 0){
 		auto events = ds::split(value, "},{", true);
@@ -707,7 +707,7 @@ void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite*
 	
 }
 
-void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* bs, const ci::Vec3f& globalPos){
+void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& globalPos){
 	auto tokens = ds::split(value, "; ", true);
 	if(!tokens.empty()){
 		std::string eventName = tokens.front();

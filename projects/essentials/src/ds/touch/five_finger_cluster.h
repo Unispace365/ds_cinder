@@ -37,7 +37,7 @@ public:
 		bool							mTriggerable;
 		Poco::Timestamp::TimeVal		mInitialTouchTime;
 
-		void							addToBoundingBox(ci::Vec3f point, ci::Rectf& boxToEdit);
+		void							addToBoundingBox(ci::vec3 point, ci::Rectf& boxToEdit);
 		void							configureCurrentBoundingBox();
 	};
 
@@ -50,10 +50,10 @@ public:
 	void							parseTouch(const ds::ui::TouchInfo& ti);
 
 	// gets called when all fingers are released and it's triggerable
-	void							setTriggeredCallback( const std::function<void (const ci::Vec2f cent)> &func );
+	void							setTriggeredCallback( const std::function<void (const ci::vec2 cent)> &func );
 
 	// gets called when the triggerable state changes. For example, when you've held it down long enough, it calls this with a "true" param.
-	void							setTriggerableCallback( const std::function<void (const bool triggerable, const ci::Vec2f cent)> &func );
+	void							setTriggerableCallback( const std::function<void (const bool triggerable, const ci::vec2 cent)> &func );
 
 	void							setClusterUpdateCallback( const std::function<void (const ds::ui::TouchInfo::Phase clusterPhase, const Cluster&)> &func);
 
@@ -73,12 +73,12 @@ private:
 
 	// answers with the cluster index if it's close to a cluster.
 	// if the point is not close enough, it responds with -1
-	int								closeToCluster(ci::Vec3f pos);
+	int								closeToCluster(ci::vec3 pos);
 
-	int								findCluster(int fingerId, ci::Vec3f curPos);
+	int								findCluster(int fingerId, ci::vec3 curPos);
 
-	std::function<void (const ci::Vec2f)>				mTriggeredFunction;
-	std::function<void (const bool, const ci::Vec2f)>	mTriggerableFunction;
+	std::function<void (const ci::vec2)>				mTriggeredFunction;
+	std::function<void (const bool, const ci::vec2)>	mTriggerableFunction;
 	std::function<void (const ds::ui::TouchInfo::Phase, const Cluster&)>	mClusterUpdateFunction;
 };
 

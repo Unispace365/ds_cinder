@@ -122,12 +122,12 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform.props" />
     <Import Project="PropertySheets\Essentials.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform_d.props" />
     <Import Project="PropertySheets\Essentials_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -159,11 +159,11 @@
       </ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -184,8 +184,8 @@
       <Message>Copying libcurl DLLs to output directory</Message>
       <Command>echo Copying libcurl DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-xcopy /y /d "$(DS_PLATFORM_086)\projects\essentials\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\essentials\lib\libcurl.dll</Inputs>
+xcopy /y /d "$(DS_PLATFORM_090)\projects\essentials\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_090)\projects\essentials\lib\libcurl.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libcurl.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -208,7 +208,7 @@ xcopy /y /d "$(DS_PLATFORM_086)\projects\essentials\lib\*.dll" "$(SolutionDir)\$
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -232,8 +232,8 @@ xcopy /y /d "$(DS_PLATFORM_086)\projects\essentials\lib\*.dll" "$(SolutionDir)\$
       <Message>Copying libcurl DLLs to output directory</Message>
       <Command>echo Copying libcurl DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-xcopy /y /d "$(DS_PLATFORM_086)\projects\essentials\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\essentials\lib\libcurl.dll</Inputs>
+xcopy /y /d "$(DS_PLATFORM_090)\projects\essentials\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_090)\projects\essentials\lib\libcurl.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libcurl.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>

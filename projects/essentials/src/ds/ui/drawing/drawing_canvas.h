@@ -41,7 +41,7 @@ public:
 	const float							getBrushSize();
 
 	/// Draws a line from start to end with an instance of the brush texture at every pixel
-	void								renderLine(const ci::Vec3f& start, const ci::Vec3f& end);
+	void								renderLine(const ci::vec3& start, const ci::vec3& end);
 
 	/// Loads an image file to use for the brush
 	void								setBrushImage(const std::string& imagePath);
@@ -59,7 +59,7 @@ public:
 
 protected:
 	// Queue to store points as they're drawn.  This gets serialized to clients.
-	typedef std::deque< std::pair<ci::Vec2f, ci::Vec2f> > PointsQueue;
+	typedef std::deque< std::pair<ci::vec2, ci::vec2> > PointsQueue;
 	PointsQueue							mSerializedPointsQueue;
 
 	virtual void						drawLocalClient() override;

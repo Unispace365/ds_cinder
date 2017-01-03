@@ -265,12 +265,12 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform.props" />
     <Import Project="PropertySheets\Web_CEF.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform_d.props" />
     <Import Project="PropertySheets\Web_CEF_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -302,11 +302,11 @@
       </ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -319,9 +319,9 @@
       <Message>Copying CEF resources to output directory</Message>
       <Command>echo Copying CEF resources files to Configuration folder
 		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_086)\projects\web\cef\lib\runtime" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_090)\projects\web\cef\lib\runtime" "$(SolutionDir)\$(Configuration)"
 		</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\web\cef\lib\runtime\libcef.dll</Inputs>
+      <Inputs>$(DS_PLATFORM_090)\projects\web\cef\lib\runtime\libcef.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libcef.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -360,9 +360,9 @@
       <Message>Copying CEF resources to output directory</Message>
       <Command>echo Copying CEF resources files to Configuration folder
 		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d /s "$(DS_PLATFORM_086)\projects\web\cef\lib\runtime" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d /s "$(DS_PLATFORM_090)\projects\web\cef\lib\runtime" "$(SolutionDir)\$(Configuration)"
 		</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\web\cef\lib\runtime\libcef.dll</Inputs>
+      <Inputs>$(DS_PLATFORM_090)\projects\web\cef\lib\runtime\libcef.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libcef.dll</Outputs>
     </CustomBuildStep>
     <PostBuildEvent>

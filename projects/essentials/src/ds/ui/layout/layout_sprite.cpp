@@ -69,7 +69,7 @@ void LayoutSprite::runSizeLayout(){
 					tp->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 				} else if(chillin->mLayoutFixedAspect){
 					// restore position after calculating the box size
-					ci::Vec3f prePos = chillin->getPosition();
+					ci::vec3 prePos = chillin->getPosition();
 					fitInside(chillin, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
 					chillin->setPosition(prePos);
 				} else {
@@ -89,7 +89,7 @@ void LayoutSprite::runSizeLayout(){
 				tp->setResizeLimit(fixedW, fixedH);
 			} else if(chillin->mLayoutFixedAspect){
 				// restore position after calculating the box size
-				ci::Vec3f prePos = chillin->getPosition();
+				ci::vec3 prePos = chillin->getPosition();
 				fitInside(chillin, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), chillin->mLayoutUserType != kStretchSize);
 				chillin->setPosition(prePos);
 			} else if(ls){
@@ -298,8 +298,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		}
 		
 		// finally set the position of the child
-		ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
-		ci::Vec2f totalOffset = chillin->mLayoutFudge + childCenter;
+		ci::vec2 childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
+		ci::vec2 totalOffset = chillin->mLayoutFudge + childCenter;
 		chillin->setPosition(xPos + totalOffset.x, yPos + totalOffset.y);	
 		
 		// move along through the layout
@@ -339,9 +339,9 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				// For example, images will be resized within their aspect, so they'll possibly be off.
 				// Compensate for this by centering the child within the area defined by the padding, and respecting the center and fudge factors.
 
-				ci::Vec2f centerOffset((fixedW - chillin->getScaleWidth()) * 0.5f, (fixedH - chillin->getScaleHeight()) * 0.5f);
-				ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
-				ci::Vec2f totalOffset = chillin->mLayoutFudge + childCenter + centerOffset;
+				ci::vec2 centerOffset((fixedW - chillin->getScaleWidth()) * 0.5f, (fixedH - chillin->getScaleHeight()) * 0.5f);
+				ci::vec2 childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
+				ci::vec2 totalOffset = chillin->mLayoutFudge + childCenter + centerOffset;
 				chillin->setPosition(chillin->mLayoutLPad + totalOffset.x, chillin->mLayoutTPad + totalOffset.y);
 			}
 		}

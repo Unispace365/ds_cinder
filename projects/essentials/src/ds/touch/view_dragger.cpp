@@ -106,7 +106,7 @@ void ViewDragger::checkBounds(const bool immediate) {
 	if(immediate){
 		mParent.setPosition(floorf(destinationX), floorf(destinationY));
 	} else {
-		mParent.tweenPosition(ci::Vec3f(destinationX, destinationY, 0.0f), mReturnTime, 0.0f, ci::EaseOutQuint());
+		mParent.tweenPosition(ci::vec3(destinationX, destinationY, 0.0f), mReturnTime, 0.0f, ci::EaseOutQuint());
 	}
 }
 

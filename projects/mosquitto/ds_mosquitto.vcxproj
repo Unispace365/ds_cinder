@@ -40,11 +40,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -75,11 +75,11 @@
       </ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -100,8 +100,8 @@
       <Message>Copying Mosquitto DLLs to output directory</Message>
       <Command>echo Copying Mosquitto DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-xcopy /y /d "$(DS_PLATFORM_086)\projects\mosquitto\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\mosquitto\lib\mosquitto.dll;$(DS_PLATFORM_086)\projects\mosquitto\lib\mosquittopp.dll;$(DS_PLATFORM_086)\projects\mosquitto\lib\pthreadVC2.dll</Inputs>
+xcopy /y /d "$(DS_PLATFORM_090)\projects\mosquitto\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_090)\projects\mosquitto\lib\mosquitto.dll;$(DS_PLATFORM_090)\projects\mosquitto\lib\mosquittopp.dll;$(DS_PLATFORM_090)\projects\mosquitto\lib\pthreadVC2.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\mosquitto.dll;$(SolutionDir)\$(Configuration)\mosquittopp.dll;$(SolutionDir)\$(Configuration)\pthreadVC2.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -124,7 +124,7 @@ xcopy /y /d "$(DS_PLATFORM_086)\projects\mosquitto\lib\*.dll" "$(SolutionDir)\$(
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -148,8 +148,8 @@ xcopy /y /d "$(DS_PLATFORM_086)\projects\mosquitto\lib\*.dll" "$(SolutionDir)\$(
       <Message>Copying Mosquitto DLLs to output directory</Message>
       <Command>echo Copying Mosquitto DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-xcopy /y /d "$(DS_PLATFORM_086)\projects\mosquitto\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\mosquitto\lib\mosquitto.dll;$(DS_PLATFORM_086)\projects\mosquitto\lib\mosquittopp.dll;$(DS_PLATFORM_086)\projects\mosquitto\lib\pthreadVC2.dll</Inputs>
+xcopy /y /d "$(DS_PLATFORM_090)\projects\mosquitto\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_090)\projects\mosquitto\lib\mosquitto.dll;$(DS_PLATFORM_090)\projects\mosquitto\lib\mosquittopp.dll;$(DS_PLATFORM_090)\projects\mosquitto\lib\pthreadVC2.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\mosquitto.dll;$(SolutionDir)\$(Configuration)\mosquittopp.dll;$(SolutionDir)\$(Configuration)\pthreadVC2.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>

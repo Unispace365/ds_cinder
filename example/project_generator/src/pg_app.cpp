@@ -1,7 +1,7 @@
 /************************************************************************/
 /* This DS Cinder project generates other DS Cinder projects by         */
 /* by scanning a reference DS Cinder project (DS Cinder project-ception)*/
-/* It scans the full_starter project located in %ds_platform_086%       */
+/* It scans the full_starter project located in %ds_platform_090%       */
 /************************************************************************/
 
 #include <cinder/app/AppBasic.h>
@@ -66,7 +66,7 @@ public:
 		, mProjectFolder(DOT)
 		, mWorkingDirectory(ELIPSIS)
 		, mWarningCount(0)
-		, mTemplatePath("%ds_platform_086%\\example\\full_starter")
+		, mTemplatePath("%ds_platform_090%\\example\\full_starter")
 		, mTemplateName("full_starter")
 		, mTemplateClassName("FullStarterApp")
 		, mTemplateNamespace("fullstarter")

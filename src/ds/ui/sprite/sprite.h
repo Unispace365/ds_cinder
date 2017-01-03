@@ -119,7 +119,7 @@ namespace ui {
 		ds::ui::SpriteEngine&	getEngine() { return mEngine; }
 
 		/** Get the width, height, and depth of this Sprite. Convenience for getWidth(), getHeight() and getDepth().
-			\return Returns a 3-dimensional vector equivalent to ci::vec3f(width, height, depth).		*/
+			\return Returns a 3-dimensional vector equivalent to ci::vec3(width, height, depth).		*/
 		const ci::vec3			getSize() const;
 
 		/** Sets the width and height of the Sprite.
@@ -220,7 +220,7 @@ namespace ui {
 		const ci::vec3&		getPosition() const;
 
 		/** Get the position of the Sprite in global space. 
-			Returns ci::vec3f::zero() if this sprite has no parent.
+			Returns ci::vec3::zero() if this sprite has no parent.
 			\return The 3d vector of the world-space position, in pixels. */
 		const ci::vec3			getGlobalPosition() const;
 
@@ -278,7 +278,7 @@ namespace ui {
 		ci::vec3				getCenterPosition() const;
 
 		/** The "middle" of the Sprite, NOT related to setCenter and getCenter (anchor), in this Sprite's co-ordinate space..
-			Effectively ci::vec3f(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
+			Effectively ci::vec3(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
 			\return 3d Vector of the pixel position of the center of this Sprite, in local space. */
 		ci::vec3				getLocalCenterPosition() const;
 
@@ -472,7 +472,7 @@ namespace ui {
 		/** Convert coordinate space from global (world) space to the local coordinate space of this Sprite. May not work for perspective Sprites.
 			For example, if you have a global touch point, you can find it's local location like this:
 			\code	if(getParent()){
-			ci::vec3f localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
+			ci::vec3 localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
 			}
 			\endcode
 			\param globalPoint The 3d vector in global coordinate space to be converted.
@@ -482,7 +482,7 @@ namespace ui {
 		/** Convert coordinate space from local coordinate space of this Sprite to global (world) coordinate space. May not work for perspective Sprites.
 			For example, you could figure out where to launch a media viewer from a button on a panel like this:
 			\code //In the button click handler
-			ci::vec3f globalPosition = localToGlobal(mTheLaunchButton.getPosition());
+			ci::vec3 globalPosition = localToGlobal(mTheLaunchButton.getPosition());
 			mEngine.getNotifier().notify(CustomMediaViewerLaunchEvent(globalPosition));
 			\endcode
 			\param localPoint The 3d vector in local coordinate space to be converted.

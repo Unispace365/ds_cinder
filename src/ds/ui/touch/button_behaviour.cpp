@@ -160,7 +160,7 @@ bool ButtonBehaviour::ownerContains(const ci::vec3& point) const {
 	// touch is out of bounds.
 	// Ideally, the visual representation is separated from the touch area.
 	if (mIsSetToScale) {
-		ds::ui::Sprite::LockScale	lock(mOwner, ci::vec3f(1.0f, 1.0f, 1.0f));
+		ds::ui::Sprite::LockScale	lock(mOwner, ci::vec3(1.0f, 1.0f, 1.0f));
 		return mOwner.contains(point, PAD);
 	}
 	return mOwner.contains(point, PAD);

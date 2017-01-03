@@ -235,7 +235,7 @@ void DrawingCanvas::drawLocalClient(){
 	// If any serialized points have been received from the server, draw them
 	while (!mSerializedPointsQueue.empty()) {
 		auto points = mSerializedPointsQueue.front();
-		renderLine( ci::Vec3f( points.first ), ci::Vec3f( points.second ) );
+		renderLine( ci::vec3( points.first ), ci::vec3( points.second ) );
 		mSerializedPointsQueue.pop_front();
 	}
 
@@ -271,7 +271,7 @@ void DrawingCanvas::drawLocalClient(){
 	}
 }
 
-void DrawingCanvas::renderLine(const ci::Vec3f& start, const ci::Vec3f& end){
+void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end){
 	auto brushTexture = getImageTexture();
 
 	if(!brushTexture){
@@ -282,12 +282,12 @@ void DrawingCanvas::renderLine(const ci::Vec3f& start, const ci::Vec3f& end){
 	float brushPixelStep = 3.0f;
 	int vertexCount = 0;
 
-	std::vector<ci::Vec2f> drawPoints;
+	std::vector<ci::vec2> drawPoints;
 
 	// Create a point for every pixel between start and end for smoothness
 	int count = std::max<int>((int)ceilf(sqrtf((end.x - start.x) * (end.x - start.x) + (end.y - start.y) * (end.y - start.y)) / (float)brushPixelStep), 1);
 	for(int i = 0; i < count; ++i) {
-		drawPoints.push_back(ci::Vec2f(start.x + (end.x - start.x) * ((float)i / (float)count), start.y + (end.y - start.y) * ((float)i / (float)count)));
+		drawPoints.push_back(ci::vec2(start.x + (end.x - start.x) * ((float)i / (float)count), start.y + (end.y - start.y) * ((float)i / (float)count)));
 	}
 
 	int w = (int)floorf(getWidth());
@@ -423,7 +423,7 @@ void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
 	}
 	else if (attrid == DRAW_POINTS_QUEUE_ATT) {
 		uint32_t count = buf.read<uint32_t>();
-		ci::Vec2f p1, p2;
+		ci::vec2 p1, p2;
 		for (uint32_t i = 0; i<count; i++) {
 			p1.x = buf.read<float>();
 			p1.y = buf.read<float>();

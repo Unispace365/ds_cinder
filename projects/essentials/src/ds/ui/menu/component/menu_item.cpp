@@ -46,7 +46,7 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 	float iconHeight = mMenuConfig.mItemIconHeight;
 	float padding = mMenuConfig.mItemTitlePad; 
 	float titleYPercent = mMenuConfig.mItemTitleYPositionPercent;
-	ci::Vec2f thisSize = mMenuConfig.mItemSize;
+	ci::vec2 thisSize = mMenuConfig.mItemSize;
 	setSize(thisSize.x, thisSize.y);
 
 	mClipper = new ds::ui::Sprite(mEngine, getWidth(), getHeight());
@@ -77,7 +77,7 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 	float subtitlePositiony = titlePositiony;
 	if(mTitle){
 		mTitle->setText(mMenuItemModel.mTitle);
-		ci::Vec2f titleSize = ci::Vec2f(mTitle->getWidth(), mTitle->getHeight());
+		ci::vec2 titleSize = ci::vec2(mTitle->getWidth(), mTitle->getHeight());
 		mTitle->setPosition(thisSize.x * 0.5f - titleSize.x * 0.5f, titlePositiony);
 		mTitle->setOpacity(0.5f);
 		mClippy->addChildPtr(mTitle);
@@ -86,7 +86,7 @@ MenuItem::MenuItem(ds::ui::SpriteEngine& enginey, const ds::ui::TouchMenu::MenuI
 
 	if(mSubtitle){
 		mSubtitle->setText(mMenuItemModel.mSubtitle);
-		ci::Vec2f titleSize = ci::Vec2f(mSubtitle->getWidth(), mSubtitle->getHeight());
+		ci::vec2 titleSize = ci::vec2(mSubtitle->getWidth(), mSubtitle->getHeight());
 		mSubtitle->setPosition(thisSize.x * 0.5f - titleSize.x * 0.5f, subtitlePositiony);
 		mSubtitle->setOpacity(0.5f);
 		mClippy->addChildPtr(mSubtitle);
@@ -125,10 +125,10 @@ void MenuItem::animateOn(){
 		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateDown){
 			mClippy->setPosition(0.0f, getHeight());
 		}
-		mClippy->tweenPosition(ci::Vec3f::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic);
+		mClippy->tweenPosition(ci::vec3::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic);
 	} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateRadial){
 		mClippy->setPosition(-getWidth() / 2.0f - getPosition().x, -getHeight() / 2.0f - getPosition().y, 0.0f);
-		mClippy->tweenPosition(ci::Vec3f::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeOutQuint);
+		mClippy->tweenPosition(ci::vec3::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeOutQuint);
 	}
 
 	if(!mMenuConfig.mDoClipping){
@@ -145,7 +145,7 @@ void MenuItem::animateOff(){
 
 
 	if(mMenuConfig.mAnimationStyle != TouchMenu::TouchMenuConfig::kAnimateRadial){
-		ci::Vec3f destPos = ci::Vec3f::zero();
+		ci::vec3 destPos = ci::vec3::zero();
 		if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateRight){
 			destPos.set(-getWidth(), 0.0f, 0.0f);
 		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateUp) {
@@ -158,7 +158,7 @@ void MenuItem::animateOff(){
 
 		mClippy->tweenPosition(destPos, mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic);
 	} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateRadial){
-		mClippy->tweenPosition(ci::Vec3f(- getWidth() / 2.0f - getPosition().x, -getHeight() / 2.0f - getPosition().y, 0.0f), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInQuint);
+		mClippy->tweenPosition(ci::vec3(- getWidth() / 2.0f - getPosition().x, -getHeight() / 2.0f - getPosition().y, 0.0f), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInQuint);
 	} 
 
 	if(!mMenuConfig.mDoClipping){
