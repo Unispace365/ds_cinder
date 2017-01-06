@@ -74,7 +74,7 @@ private:
 	// The intermediate fbo that brushes are drawn to
 	std::unique_ptr<ds::ui::FboGeneral>	mFboGeneral;
 	// The texture drawn to the screen and drawn on
-	ci::gl::Texture						mDrawTexture;
+	ci::gl::Texture2dRef				mDrawTexture;
 
 	SpriteShader						mOutputShader;
 

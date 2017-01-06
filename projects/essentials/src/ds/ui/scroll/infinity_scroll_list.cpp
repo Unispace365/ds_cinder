@@ -269,7 +269,7 @@ namespace ds{
 				if (mScroller){
 					if (mIsTurnOnStepSwipe)
 					{
-						if (ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance())
+						if (ci::distance2(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance())
 						{
 							if (mVertical)
 							{
@@ -521,7 +521,7 @@ namespace ds{
 			if (bs){
 				if (mStateChangeCallback) mStateChangeCallback(bs, ti.mNumberFingers > 0);
 
-				if (mScroller  && ti.mPhase == ds::ui::TouchInfo::Moved && ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance()){
+				if (mScroller  && ti.mPhase == ds::ui::TouchInfo::Moved && ci::distance2(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()){
 					if (mStateChangeCallback) mStateChangeCallback(bs, false);
 					bs->passTouchToSprite(mScroller, ti);
 					return;

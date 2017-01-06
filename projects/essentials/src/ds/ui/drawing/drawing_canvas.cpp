@@ -14,7 +14,7 @@
 #include <ds/util/file_meta_data.h>
 #include <ds/app/environment.h>
 
-#include <ds/gl/save_camera.h>
+//#include <ds/gl/save_camera.h>
 #include <cinder/ImageIo.h>
 
 #include <cinder/Rand.h>
@@ -122,6 +122,7 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	, mBrushImage(nullptr)
 	, mEraseMode(false)
 	, mOutputShader(vertShader, opacityFrag, shaderNameOpaccy)
+	, mDrawTexture()
 {
 	mBlobType = BLOB_TYPE;
 	mOutputShader.loadShaders();
@@ -145,12 +146,13 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 		auto localPoint = globalToLocal(ti.mCurrentGlobalPoint);
 		auto prevPoint = globalToLocal(ti.mCurrentGlobalPoint - ti.mDeltaPoint);
 		if(ti.mPhase == ds::ui::TouchInfo::Added){
-			mSerializedPointsQueue.push_back( std::make_pair(localPoint.xy(), localPoint.xy()));
+			//TODO: make sure it is necessary to make_pair
+			mSerializedPointsQueue.push_back( std::make_pair(ci::vec2(localPoint), ci::vec2(localPoint)));
 			renderLine(localPoint, localPoint);
 			markAsDirty(sPointsQueueDirty);
 		}
 		if(ti.mPhase == ds::ui::TouchInfo::Moved){
-			mSerializedPointsQueue.push_back( std::make_pair(prevPoint.xy(), localPoint.xy()) );
+			mSerializedPointsQueue.push_back( std::make_pair(ci::vec2(prevPoint), ci::vec2(localPoint)) );
 			renderLine(prevPoint, localPoint);
 			markAsDirty(sPointsQueueDirty);
 		}
@@ -201,28 +203,29 @@ void DrawingCanvas::clearCanvas(){
 	auto w = getWidth();
 	auto h = getHeight();
 
-	if(!mDrawTexture || mDrawTexture.getWidth() != w || mDrawTexture.getHeight() != h) {
+	if(!mDrawTexture || mDrawTexture->getWidth() != w || mDrawTexture->getHeight() != h) {
 		ci::gl::Texture::Format format;
 		format.setTarget(GL_TEXTURE_2D);
 		format.setMagFilter(GL_LINEAR);
 		format.setMinFilter(GL_LINEAR);
-		mDrawTexture = ci::gl::Texture((int)w, (int)h, format);
+		mDrawTexture = ci::gl::Texture2d::create((int)w, (int)h, format);
 	}
 
-	ds::gl::SaveCamera		save_camera;
+	//ds::gl::SaveCamera		save_camera;
 
 	mFboGeneral->attach(mDrawTexture);
 	mFboGeneral->begin();
 
 	ci::Area fboBounds(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
-	ci::gl::setViewport(fboBounds);
+	//ci::gl::setViewport(fboBounds);
+	ci::gl::viewport(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
 	ci::CameraOrtho camera;
 	camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
 	ci::gl::setMatrices(camera);
 
 	ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 
-	mPointShader.getShader().unbind();
+	//mPointShader.getShader().unbind();
 	mFboGeneral->end();
 	mFboGeneral->detach();
 }
@@ -235,7 +238,7 @@ void DrawingCanvas::drawLocalClient(){
 	// If any serialized points have been received from the server, draw them
 	while (!mSerializedPointsQueue.empty()) {
 		auto points = mSerializedPointsQueue.front();
-		renderLine( ci::vec3( points.first ), ci::vec3( points.second ) );
+		renderLine( ci::vec3( points.first,0 ), ci::vec3( points.second,0 ) );
 		mSerializedPointsQueue.pop_front();
 	}
 
@@ -250,24 +253,32 @@ void DrawingCanvas::drawLocalClient(){
 		ci::gl::color(ci::Color::white());
 		// The true flag is for premultiplied alpha, which this texture is
 		ci::gl::enableAlphaBlending(true);
-		ci::gl::GlslProg& shaderBase = mOutputShader.getShader();
+		ci::gl::GlslProgRef shaderBase = mOutputShader.getShader();
 		if(shaderBase) {
-			shaderBase.bind();
-			shaderBase.uniform("tex0", 0);
-			shaderBase.uniform("opaccy", mDrawOpacity);
+			ci::gl::ScopedGlslProg scopedShaderBase(shaderBase);
+			//shaderBase->bind();
+			shaderBase->uniform("tex0", 0);
+			shaderBase->uniform("opaccy", mDrawOpacity);
 			mUniform.applyTo(shaderBase);
-		}
 
 
-		if(getPerspective()){
-			ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, 0.0f, static_cast<float>(mDrawTexture.getWidth()), static_cast<float>(mDrawTexture.getHeight())));
-		} else {
-			ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, static_cast<float>(mDrawTexture.getHeight()), static_cast<float>(mDrawTexture.getWidth()), 0.0f));
+			if(getPerspective()){
+				ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, 0.0f, static_cast<float>(mDrawTexture->getWidth()), static_cast<float>(mDrawTexture->getHeight())));
+			} else {
+				ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, static_cast<float>(mDrawTexture->getHeight()), static_cast<float>(mDrawTexture->getWidth()), 0.0f));
+			}
+
+		}
+		else{
+
+			if (getPerspective()){
+				ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, 0.0f, static_cast<float>(mDrawTexture->getWidth()), static_cast<float>(mDrawTexture->getHeight())));
+			}
+			else {
+				ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, static_cast<float>(mDrawTexture->getHeight()), static_cast<float>(mDrawTexture->getWidth()), 0.0f));
+			}
 		}
 
-		if(shaderBase){
-			shaderBase.unbind();
-		}
 	}
 }
 
@@ -293,30 +304,31 @@ void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end){
 	int w = (int)floorf(getWidth());
 	int h = (int)floorf(getHeight());
 
-	if(!mDrawTexture || mDrawTexture.getWidth() != w || mDrawTexture.getHeight() != h) {
+	if(!mDrawTexture || mDrawTexture->getWidth() != w || mDrawTexture->getHeight() != h) {
 		ci::gl::Texture::Format format;
 		format.setTarget(GL_TEXTURE_2D);
 		format.setMagFilter(GL_LINEAR);
 		format.setMinFilter(GL_LINEAR);
-		mDrawTexture = ci::gl::Texture(w, h, format);
+		mDrawTexture = ci::gl::Texture2d::create(w, h, format);
 	}
 
-	ds::gl::SaveCamera		save_camera;
+	//ds::gl::SaveCamera		save_camera;
 
-	ci::gl::SaveFramebufferBinding bindingSaver;
+	//ci::gl::SaveFramebufferBinding bindingSaver;
 	mFboGeneral->attach(mDrawTexture);
 	mFboGeneral->begin();
 
 	ci::Area fboBounds(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
-	ci::gl::setViewport(fboBounds);
+	//ci::gl::setViewport(fboBounds);
+	ci::gl::viewport(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
 	ci::CameraOrtho camera;
 	camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
 	ci::gl::setMatrices(camera);
 
 
-	mPointShader.getShader().bind();
-	mPointShader.getShader().uniform("tex0", 10);
-	mPointShader.getShader().uniform("vertexColor", mBrushColor);
+	mPointShader.getShader()->bind();
+	mPointShader.getShader()->uniform("tex0", 10);
+	mPointShader.getShader()->uniform("vertexColor", mBrushColor);
 
 	glEnable(GL_BLEND);
 	glBlendEquation(GL_FUNC_ADD);
@@ -326,51 +338,53 @@ void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end){
 	} else {
 		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 	}
+	//TODO: fix it! whatever it is.
+//	{
+//		ci::gl::ScopedTextureBind scopedTextureBursh(brushTexture);
+//	/*	ci::gl::SaveTextureBindState saveBindState(brushTexture->getTarget());
+//		ci::gl::BoolState saveEnabledState(brushTexture->getTarget());
+//		ci::gl::ClientBoolState vertexArrayState(GL_VERTEX_ARRAY);
+//		ci::gl::ClientBoolState texCoordArrayState(GL_TEXTURE_COORD_ARRAY_BUFFER_BINDING_ARB);
+//		brushTexture->bind(10);
+//*/
+//		glEnableClientState(GL_VERTEX_ARRAY);
+//		GLfloat verts[8];
+//		glVertexPointer(2, GL_FLOAT, 0, verts);
+//		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//		GLfloat texCoords[8];
+//		glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
+//
+//		//auto srcArea = brushTexture->getCleanBounds();
+//		auto srcArea = brushTexture->getBounds();
+//		const ci::Rectf srcCoords = brushTexture->getAreaTexCoords(srcArea);
+//
+//		float widdy = mBrushSize;
+//		float hiddy = mBrushSize / ((float)brushTexture->getWidth() / (float)brushTexture->getHeight());
+//
+//		for(auto it : drawPoints){
+//
+//			auto destRect = ci::Rectf(it.x - widdy / 2.0f, it.y - hiddy / 2.0f, it.x + widdy / 2.0f, it.y + hiddy / 2.0f);
+//
+//			verts[0 * 2 + 0] = destRect.getX2(); verts[0 * 2 + 1] = destRect.getY1();
+//			verts[1 * 2 + 0] = destRect.getX1(); verts[1 * 2 + 1] = destRect.getY1();
+//			verts[2 * 2 + 0] = destRect.getX2(); verts[2 * 2 + 1] = destRect.getY2();
+//			verts[3 * 2 + 0] = destRect.getX1(); verts[3 * 2 + 1] = destRect.getY2();
+//
+//			texCoords[0 * 2 + 0] = srcCoords.getX2(); texCoords[0 * 2 + 1] = srcCoords.getY1();
+//			texCoords[1 * 2 + 0] = srcCoords.getX1(); texCoords[1 * 2 + 1] = srcCoords.getY1();
+//			texCoords[2 * 2 + 0] = srcCoords.getX2(); texCoords[2 * 2 + 1] = srcCoords.getY2();
+//			texCoords[3 * 2 + 0] = srcCoords.getX1(); texCoords[3 * 2 + 1] = srcCoords.getY2();
+//			
+//
+//			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+//		}
+//
+//		//brushTexture->unbind(10);
+	//}
 
-	{
-		ci::gl::SaveTextureBindState saveBindState(brushTexture->getTarget());
-		ci::gl::BoolState saveEnabledState(brushTexture->getTarget());
-		ci::gl::ClientBoolState vertexArrayState(GL_VERTEX_ARRAY);
-		ci::gl::ClientBoolState texCoordArrayState(GL_TEXTURE_COORD_ARRAY);
-		brushTexture->bind(10);
+	//mDrawTexture.unbind();
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		GLfloat verts[8];
-		glVertexPointer(2, GL_FLOAT, 0, verts);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		GLfloat texCoords[8];
-		glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
-
-		auto srcArea = brushTexture->getCleanBounds();
-		const ci::Rectf srcCoords = brushTexture->getAreaTexCoords(srcArea);
-
-		float widdy = mBrushSize;
-		float hiddy = mBrushSize / ((float)brushTexture->getWidth() / (float)brushTexture->getHeight());
-
-		for(auto it : drawPoints){
-
-			auto destRect = ci::Rectf(it.x - widdy / 2.0f, it.y - hiddy / 2.0f, it.x + widdy / 2.0f, it.y + hiddy / 2.0f);
-
-			verts[0 * 2 + 0] = destRect.getX2(); verts[0 * 2 + 1] = destRect.getY1();
-			verts[1 * 2 + 0] = destRect.getX1(); verts[1 * 2 + 1] = destRect.getY1();
-			verts[2 * 2 + 0] = destRect.getX2(); verts[2 * 2 + 1] = destRect.getY2();
-			verts[3 * 2 + 0] = destRect.getX1(); verts[3 * 2 + 1] = destRect.getY2();
-
-			texCoords[0 * 2 + 0] = srcCoords.getX2(); texCoords[0 * 2 + 1] = srcCoords.getY1();
-			texCoords[1 * 2 + 0] = srcCoords.getX1(); texCoords[1 * 2 + 1] = srcCoords.getY1();
-			texCoords[2 * 2 + 0] = srcCoords.getX2(); texCoords[2 * 2 + 1] = srcCoords.getY2();
-			texCoords[3 * 2 + 0] = srcCoords.getX1(); texCoords[3 * 2 + 1] = srcCoords.getY2();
-			
-
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-		}
-
-		brushTexture->unbind(10);
-	}
-
-	mDrawTexture.unbind();
-
-	mPointShader.getShader().unbind();
+	//mPointShader.getShader().unbind();
 	mFboGeneral->end();
 	mFboGeneral->detach();
 	DS_REPORT_GL_ERRORS();

@@ -116,7 +116,7 @@ void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, c
 			mScroller->tweenPosition(position, duration, delay, ease, combinedPostFunc, [this](){ scrollerTweenUpdated(); });
 		} else {
 			mScroller->setPosition(position);
-			scrollerUpdated(position.xy());
+			scrollerUpdated(ci::vec2(position));
 		}
 	}
 
@@ -173,7 +173,7 @@ void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, 
 			mScroller->tweenPosition(position, duration, delay, ease, combinedPostFunc, [this](){ scrollerTweenUpdated(); });
 		} else {
 			mScroller->setPosition(position);
-			scrollerUpdated(position.xy());
+			scrollerUpdated(ci::vec2(position));
 		}
 	}
 

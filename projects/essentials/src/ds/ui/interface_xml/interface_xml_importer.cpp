@@ -84,7 +84,7 @@ static const bool					DEFAULT_CHECKBOUNDS = false;
 static const ds::ui::BlendMode		DEFAULT_BLENDMODE = ds::ui::NORMAL;
 static const float					DEFAULT_LAYOUT_PAD = 0.0f;
 static const float					DEFAULT_LAYOUT_SPACING = 0.0f;
-static const ci::vec2				DEFAULT_LAYOUT_SIZEFUDGE = ci::vec2::zero();
+static const ci::vec2				DEFAULT_LAYOUT_SIZEFUDGE = ci::vec2();
 static const int					DEFAULT_LAYOUT_ALIGN_USERTYPE = 0;
 static const ds::ui::LayoutSprite::LayoutType DEFAULT_LAYOUT_TYPE = ds::ui::LayoutSprite::kLayoutNone;
 static const ds::ui::LayoutSprite::ShrinkType DEFAULT_SHRINK_TYPE = ds::ui::LayoutSprite::kShrinkNone;
@@ -306,9 +306,9 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("layout_h_align set to an invalid value of " << alignMode);
 		}
 	} else if(property == "layout_fudge"){
-		sprite.mLayoutFudge = parseVector(value).xy();
+		sprite.mLayoutFudge = ci::vec2(parseVector(value));
 	} else if(property == "layout_size"){
-		sprite.mLayoutSize = parseVector(value).xy();
+		sprite.mLayoutSize = ci::vec2(parseVector(value));
 	} else if(property == "on_tap_event"){
 		sprite.setTapCallback([value](ds::ui::Sprite* bs, const ci::vec3& pos){
 			XmlImporter::dispatchStringEvents(value, bs, pos);
@@ -1044,11 +1044,11 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 				} else if(paramType == "key_down_color"){
 					sks.mKeyDownColor = parseColor(paramValue, engine);
 				} else if(paramType == "key_text_offset"){
-					sks.mKeyTextOffset = parseVector(paramValue).xy();
+					sks.mKeyTextOffset = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "key_touch_padding"){
 					sks.mKeyTouchPadding = ds::string_to_float(paramValue);
 				} else if(paramType == "key_initial_position"){
-					sks.mKeyInitialPosition = parseVector(paramValue).xy();
+					sks.mKeyInitialPosition = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "key_scale"){
 					sks.mKeyScale = ds::string_to_float(paramValue);
 				}
@@ -1076,11 +1076,11 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 				if(paramType == "text_config"){
 					efs.mTextConfig = paramValue;
 				} else if(paramType == "cursor_size"){
-					efs.mCursorSize = parseVector(paramValue).xy();
+					efs.mCursorSize = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "field_size"){
-					efs.mFieldSize = parseVector(paramValue).xy();
+					efs.mFieldSize = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "cursor_offset"){
-					efs.mCursorOffset = parseVector(paramValue).xy();
+					efs.mCursorOffset = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "cursor_color"){
 					efs.mCursorColor = parseColor(paramValue, engine);
 				} else if(paramType == "blink_rate"){
@@ -1090,7 +1090,7 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 				} else if(paramType == "password_mode"){
 					efs.mPasswordMode = parseBoolean(paramValue);
 				} else if(paramType == "text_offset"){
-					efs.mTextOffset = parseVector(paramValue).xy();
+					efs.mTextOffset = ci::vec2(parseVector(paramValue));
 				}
 			}
 		}

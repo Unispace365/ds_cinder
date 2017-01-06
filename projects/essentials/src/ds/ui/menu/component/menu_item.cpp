@@ -125,10 +125,10 @@ void MenuItem::animateOn(){
 		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateDown){
 			mClippy->setPosition(0.0f, getHeight());
 		}
-		mClippy->tweenPosition(ci::vec3::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic);
+		mClippy->tweenPosition(ci::vec3(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic);
 	} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateRadial){
 		mClippy->setPosition(-getWidth() / 2.0f - getPosition().x, -getHeight() / 2.0f - getPosition().y, 0.0f);
-		mClippy->tweenPosition(ci::vec3::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeOutQuint);
+		mClippy->tweenPosition(ci::vec3(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeOutQuint);
 	}
 
 	if(!mMenuConfig.mDoClipping){
@@ -145,15 +145,15 @@ void MenuItem::animateOff(){
 
 
 	if(mMenuConfig.mAnimationStyle != TouchMenu::TouchMenuConfig::kAnimateRadial){
-		ci::vec3 destPos = ci::vec3::zero();
+		ci::vec3 destPos = ci::vec3();
 		if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateRight){
-			destPos.set(-getWidth(), 0.0f, 0.0f);
+			destPos = ci::vec3(-getWidth(), 0.0f, 0.0f);
 		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateUp) {
-			destPos.set(0.0f, -getHeight(), 0.0f);
+			destPos = ci::vec3(0.0f, -getHeight(), 0.0f);
 		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateLeft){
-			destPos.set(getWidth(), 0.0f, 0.0f);
+			destPos = ci::vec3(getWidth(), 0.0f, 0.0f);
 		} else if(mMenuConfig.mAnimationStyle == TouchMenu::TouchMenuConfig::kAnimateDown){
-			destPos.set(0.0f, getHeight(), 0.0f);
+			destPos = ci::vec3(0.0f, getHeight(), 0.0f);
 		}
 
 		mClippy->tweenPosition(destPos, mMenuConfig.mAnimationDuration, 0.0f, ci::easeInOutCubic);

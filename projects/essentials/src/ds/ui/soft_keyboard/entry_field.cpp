@@ -194,7 +194,7 @@ void EntryField::handleTouchInput(ds::ui::Sprite* bs, const ds::ui::TouchInfo& t
 
 	if(ti.mPhase != ds::ui::TouchInfo::Removed && mTextSprite){
 		ci::vec3 loccy = mTextSprite->globalToLocal(ti.mCurrentGlobalPoint);
-		mCursorIndex = mTextSprite->getCharacterIndexForPosition(loccy.xy());
+		mCursorIndex = mTextSprite->getCharacterIndexForPosition(ci::vec2(loccy));
 
 		cursorUpdated();
 	}

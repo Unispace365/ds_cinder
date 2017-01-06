@@ -390,7 +390,7 @@ void ScrollList::handleItemTouchInfo(ds::ui::Sprite* bs, const TouchInfo& ti){
 	if(bs){
 		if(mStateChangeCallback) mStateChangeCallback(bs, ti.mNumberFingers > 0);
 
-		if(mScrollArea  && ti.mPhase == ds::ui::TouchInfo::Moved && ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance()){
+		if(mScrollArea  && ti.mPhase == ds::ui::TouchInfo::Moved &&ci::distance(ti.mCurrentGlobalPoint,ti.mStartPoint) > mEngine.getMinTapDistance()){
 			if(mStateChangeCallback) mStateChangeCallback(bs, false);
 			bs->passTouchToSprite(mScrollArea->getSpriteToPassTo(), ti);
 			return;

@@ -6,7 +6,7 @@
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/app/environment.h>
 #include <ds/ui/tween/tweenline.h>
-
+#include <cinder/CinderMath.h>
 #include "ds/ui/menu/component/menu_item.h"
 
 namespace ds{
@@ -101,7 +101,9 @@ void ClusterView::startTappableMode(const ci::vec3& globalLocation, const float 
 				mi->highlight();
 			}
 
-			if(ti.mPhase == ds::ui::TouchInfo::Moved && ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance()){
+			auto dir = ci::vec2(ti.mCurrentGlobalPoint - ti.mStartPoint);
+			float distance = dir.size();
+			if(ti.mPhase == ds::ui::TouchInfo::Moved && ci::distance2( ti.mCurrentGlobalPoint,ti.mStartPoint) > mEngine.getMinTapDistance()){
 				mi->unhighlight();
 			}
 		});
@@ -271,7 +273,7 @@ void ClusterView::invalidate(){
 
 		if(mBackground){
 			mBackground->animStop();
-			mBackground->tweenScale(ci::vec3::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInCubic, [this]{handleInvalidateComplete(); });
+			mBackground->tweenScale(ci::vec3(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInCubic, [this]{handleInvalidateComplete(); });
 			mBackground->tweenOpacity(0.0f, mMenuConfig.mAnimationDuration);
 		}
 	}
