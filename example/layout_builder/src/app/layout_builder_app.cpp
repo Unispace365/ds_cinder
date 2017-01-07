@@ -47,8 +47,14 @@ void layout_builder::setupServer(){
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
-	mEngine.loadTextCfg("text.xml");
 
+	// Load colors from colors XML
+	mEngine.loadSettings( "COLORS", "colors.xml" );
+	mEngine.getSettings( "COLORS" ).forEachColorAKey( [this]( const std::string& key ){
+		mEngine.editColors().install( mEngine.getSettings( "COLORS" ).getColorA( key ), key );
+	} );
+
+	mEngine.loadTextCfg("text.xml");
 	/*fonts in use */
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
