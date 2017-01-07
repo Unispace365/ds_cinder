@@ -52,6 +52,12 @@ public:
 	/// If true, will erase instead of drawing
 	void								setEraseMode(const bool eraseMode);
 
+	/// Saves the canvas drawing to a file
+	void								saveCanvasImage(const std::string& filePath);
+
+	/// Loads the canvas drawing from a file
+	void								loadCanvasImage(const std::string& filePath);
+
 	// Static Client/Server Blob registration
 	static void							installAsServer( ds::BlobRegistry& );
 	static void							installAsClient( ds::BlobRegistry& );
@@ -67,6 +73,8 @@ protected:
 	virtual void						readAttributeFrom(const char, DataBuffer&) override;
 	virtual void						onImageChanged() override;
 
+	ds::ui::ImageClient					mCanvasFileLoaderClient;
+
 private:
 
 	// The shader that colorizes the brush image
@@ -78,7 +86,6 @@ private:
 
 	SpriteShader						mOutputShader;
 
-	ds::ui::Image*						mBrushImage;
 	float								mBrushSize;
 	ci::ColorA							mBrushColor;
 	bool								mEraseMode;
