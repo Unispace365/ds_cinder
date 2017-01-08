@@ -9,6 +9,7 @@
 #include "ds/data/data_buffer.h"
 #include <ds/ui/sprite/dirty_state.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/image_source/image_file.h>
 
 #include <ds/debug/logger.h>
 #include <ds/util/file_meta_data.h>
