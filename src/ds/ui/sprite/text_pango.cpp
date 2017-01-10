@@ -19,25 +19,32 @@
 namespace {
 // Pango/cairo output is premultiplied colors, so rendering it with opacity fades like you'd expect with other sprites
 // requires a custom shader that multiplies in the rest of the opacity setting
-const std::string opacityFrag =
-"uniform sampler2D tex0;\n"
-"uniform float opaccy;\n"
+	const std::string opacityFrag =
+"uniform sampler2D	tex0;\n"
+"uniform float		opaccy;\n"
+"in vec4			ciColor;\n"
+"out vec4			oColor;\n"
+"in vec2			TexCoord0;\n"
 "void main()\n"
 "{\n"
-"    vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n"
-"    color = texture2D( tex0, gl_TexCoord[0].st );\n"
-"    color *= gl_Color;\n"
-"    color *= opaccy;\n"
-"    gl_FragColor = color;\n"
+"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+"    oColor = texture2D( tex0, TexCoord0 );\n"
+"    oColor *= ciColor;\n"
+"    oColor *= opaccy;\n"
 "}\n";
 
 const std::string vertShader =
+"uniform mat4		ciModelViewProjection;\n"
+"in vec4			ciPosition;\n" 
+"in vec4			ciColor;\n"
+"out vec4			oColor;\n"
+"in vec2			ciTexCoord0;\n"
+"out vec2			TexCoord0;\n"
 "void main()\n"
 "{\n"
-"  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
-"  gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;\n"
-"  gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
-"  gl_FrontColor = gl_Color;\n"
+"	gl_Position = ciModelViewProjection * ciPosition;\n"
+"	TexCoord0 = ciTexCoord0;\n"
+"	oColor = ciColor;\n"
 "}\n";
 
 std::string shaderNameOpaccy = "pango_text_opacity";

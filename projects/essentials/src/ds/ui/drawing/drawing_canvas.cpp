@@ -21,58 +21,74 @@
 
 namespace {
 
-const static std::string whiteboard_point_vert =
-"uniform vec4 vertexColor;"
-"varying vec4 brushColor;"
+	const static std::string whiteboard_point_vert =
+		"#version 150\n"
+		"uniform mat4		ciModelViewProjection;\n"
+		"in vec4			ciPosition;\n"
+		"in vec4			ciColor;\n"
+		"out vec4			oColor;\n"
+		"in vec2			ciTexCoord0;\n"
+		"out vec2			TexCoord0;\n"
+		"uniform vec4		vertexColor;\n"
+		"varying vec4		brushColor;\n"
 
-"void main(){"
-	"gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
-	"gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;"
-	"gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
-	"gl_FrontColor = gl_Color;"
+"void main(){\n"
+"	gl_Position = ciModelViewProjection * ciPosition;\n"
+"	TexCoord0 = ciTexCoord0;\n"
+"	oColor = ciColor;\n"
 
-	"brushColor = vertexColor;"
-"}";
+	"brushColor = vertexColor;\n"
+"}\n";
 
 const static std::string whiteboard_point_frag =
-"uniform sampler2D tex0;"
-"varying vec4 brushColor;"
-"void main(){"
-"vec4 color = texture2D(tex0, gl_TexCoord[0].st);"
-"vec4 theBrushColor = brushColor;"
-"theBrushColor.r *= brushColor.a * color.r;"
-"theBrushColor.g *= brushColor.a * color.g;"
-"theBrushColor.b *= brushColor.a * color.b;"
-"theBrushColor *= color.a;"
-"gl_FragColor = theBrushColor;"
+"uniform sampler2D	tex0;\n"
+"uniform float		opaccy;\n"
+"in vec4			ciColor;\n"
+"out vec4			oColor;\n"
+"in vec2			TexCoord0;\n"
+"varying vec4		brushColor;\n"
+"void main(){\n"
+"oColor = texture2D(tex0, TexCoord0);\n"
+"brushColor.r *= brushColor.a * oColor.r;\n"
+"brushColor.g *= brushColor.a * oColor.g;\n"
+"brushColor.b *= brushColor.a * oColor.b;\n"
+"brushColor *= color.a;\n"
+"oColor = brushColor;\n"
 //NEON EFFECTS!//"gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(1.0/2.2));"
-"}";
+"}\n";
 
 static std::string whiteboard_point_name = "whiteboard_point";
 
 
 const std::string opacityFrag =
-"uniform sampler2D tex0;\n"
-"uniform float opaccy;\n"
+"uniform sampler2D	tex0;\n"
+"uniform float		opaccy;\n"
+"in vec4			ciColor;\n"
+"out vec4			oColor;\n"
+"in vec2			TexCoord0;\n"
 "void main()\n"
 "{\n"
-"    vec4 color = vec4(1.0, 1.0, 1.0, 1.0);\n"
-"    color = texture2D( tex0, gl_TexCoord[0].st );\n"
-"    color *= gl_Color;\n"
-"    color *= opaccy;\n"
-"    gl_FragColor = color;\n"
+"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+"    oColor = texture2D( tex0, TexCoord0 );\n"
+"    oColor *= ciColor;\n"
+"    oColor *= opaccy;\n"
 "}\n";
 
 const std::string vertShader =
+"uniform mat4	ciModelViewProjection;\n"
+"in vec4			ciPosition;\n"
+"in vec4			ciColor;\n"
+"out vec4			oColor;\n"
+"in vec2			ciTexCoord0;\n"
+"out vec2			TexCoord0;\n"
 "void main()\n"
 "{\n"
-"  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;\n"
-"  gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;\n"
-"  gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;\n"
-"  gl_FrontColor = gl_Color;\n"
+"	gl_Position = ciModelViewProjection * ciPosition;\n"
+"	TexCoord0 = ciTexCoord0;\n"
+"	oColor = ciColor;\n"
 "}\n";
 
-static std::string shaderNameOpaccy = "opaccy_shader";
+std::string shaderNameOpaccy = "opaccy_shader";
 }
 
 namespace ds {
