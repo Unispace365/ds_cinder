@@ -123,7 +123,7 @@ PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	: ds::ui::Sprite(engine)
 	, mVideoSprite(nullptr)
 	, mVideoTexture(nullptr)
-	, mSphere(ci::Sphere(ci::Vec3f::zero(), 100.0f)) // doesn't really matter how big this is. FIXME
+	, mSphere(ci::Sphere(ci::vec3(), 100.0f)) // doesn't really matter how big this is. FIXME
 	, mInvertX(false)
 	, mInvertY(true)
 	, mXSensitivity(5.0f)
@@ -133,7 +133,7 @@ PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	, mPanning(0.0f)
 {
 	mBlobType = _BLOB;
-	setUseShaderTextuer(true);
+	setUseShaderTexture(true);
 	setTransparent(true);
 	addNewMemoryShader(drone_vert, drone_frag, shader_name);
 
@@ -142,11 +142,11 @@ PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	enable(true);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 	setProcessTouchCallback([this](ds::ui::Sprite*, const ds::ui::TouchInfo& ti){
-		handleDrag(ti.mDeltaPoint.xy());
+		handleDrag(ci::vec2(ti.mDeltaPoint));
 	});
 }
 
-void PanoramicVideo::handleDrag(const ci::Vec2f& swipe)
+void PanoramicVideo::handleDrag(const ci::vec2& swipe)
 {
 	auto invert_x = mInvertX ? 1.0f : -1.0f;
 	auto invert_y = mInvertY ? 1.0f : -1.0f;
@@ -219,37 +219,38 @@ void PanoramicVideo::drawLocalClient(){
 
 		mVideoTexture = mVideoSprite->getFinalOutTexture();
 		if(!mVideoTexture) return;
+		// TODO
+		/*
 		//save off original viewport - restore after we are done
-		ci::Area viewport = ci::gl::getViewport();
+		auto viewport = ci::gl::getViewport();
 		DS_REPORT_GL_ERRORS();
-
 
 		if(!getPerspective()) {
 			ci::Rectf bb = getBoundingBox();
-			ci::Vec3f ul = getParent()->localToGlobal(ci::Vec3f(bb.getUpperLeft(), 0.0f));
-			ci::Vec3f br = getParent()->localToGlobal(ci::Vec3f(bb.getLowerRight(), 0.0f));
+			ci::vec3 ul = getParent()->localToGlobal(ci::vec3(bb.getUpperLeft(), 0.0f));
+			ci::vec3 br = getParent()->localToGlobal(ci::vec3(bb.getLowerRight(), 0.0f));
 
 			float yScale = mEngine.getSrcRect().getHeight() / mEngine.getDstRect().getHeight();
 			float xScale = mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth();
 
 			// even though we're not in perspective, the cinder perspective camera starts from the bottom of the window
 			// and counts upwards for y. So reverse that to draw where we expect
-			ul = ul - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
+			ul = ul - ci::vec3(mEngine.getSrcRect().getUpperLeft(), 0.0f);
 			ul.y /= yScale;
 			ul.x /= xScale;
 			ul.y = ci::app::getWindowBounds().getHeight() - ul.y;
 
-			br = br - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
+			br = br - ci::vec3(mEngine.getSrcRect().getUpperLeft(), 0.0f);
 			br.y /= yScale;
 			br.x /= xScale;
 			br.y = ci::app::getWindowBounds().getHeight() - br.y;
 
 			ci::gl::setViewport(ci::Area(ul.xy(), br.xy()));
 		} else {
-			ci::Vec3f ul = getParent()->localToGlobal(ci::Vec3f(getPosition().xy() - getCenter().xy()*getSize().xy(), 0.0f));
-			ul = ul - ci::Vec3f(mEngine.getSrcRect().getUpperLeft(), 0.0f);
-			ci::Vec3f br = ul + ci::Vec3f(getWidth(), getHeight(), 0.0f);
-			ci::gl::setViewport(ci::Area(ci::Vec2f(ul.x,br.y), ci::Vec2f(br.x, ul.y)));
+			ci::vec3 ul = getParent()->localToGlobal(ci::vec3(getPosition().xy() - getCenter().xy()*getSize().xy(), 0.0f));
+			ul = ul - ci::vec3(mEngine.getSrcRect().getUpperLeft(), 0.0f);
+			ci::vec3 br = ul + ci::vec3(getWidth(), getHeight(), 0.0f);
+			ci::gl::setViewport(ci::Area(ci::vec2(ul.x,br.y), ci::vec2(br.x, ul.y)));
 		}
 
 		mVideoTexture->enableAndBind();
@@ -267,15 +268,18 @@ void PanoramicVideo::drawLocalClient(){
 		shaderBase.unbind();
 
 		ci::gl::setViewport(viewport);
+		*/
 	}
 }
 
 void PanoramicVideo::resetCamera(){
+	/* TODO
 	mCamera.setPerspective(mFov, getWidth() / getHeight(), 0.1f, 5000.0f);
 	mCamera.setWorldUp(ci::Vec3f::zAxis());
 	mCamera.setEyePoint(mSphere.getCenter());
 	mCamera.setCenterOfInterest(mSphere.getRadius());
 	lookFront();
+	*/
 }
 
 namespace {
@@ -301,7 +305,7 @@ void PanoramicVideo::setSphericalCoord(float theta, float phi){
 	phi = ci::toRadians(getPhi());
 
 	// Calculate target point
-	ci::Vec3f target;
+	ci::vec3 target;
 	target.x = mSphere.getRadius() * ci::math<float>::sin(theta) * ci::math<float>::cos(phi);
 	target.y = mSphere.getRadius() * ci::math<float>::sin(theta) * ci::math<float>::sin(phi);
 	target.z = mSphere.getRadius() * ci::math<float>::cos(theta);

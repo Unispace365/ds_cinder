@@ -16,7 +16,7 @@
 namespace ds {
 namespace ui {
 
-MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const ci::Color backgroudnColor)
+MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const ci::Color backgroudnColor)
 	: ds::ui::Sprite(eng, sizey.x, sizey.y)
 	, mBackground(nullptr)
 	, mIdling(nullptr)

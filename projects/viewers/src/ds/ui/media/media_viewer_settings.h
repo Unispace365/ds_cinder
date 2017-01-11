@@ -33,7 +33,7 @@ struct MediaViewerSettings {
 
 	//--------------------Overall Settings -----------------------------------------//
 	/// The size to be calculated to fit inside when initially loading content
-	ci::Vec2f					mDefaultBounds;
+	ci::vec2					mDefaultBounds;
 
 	/// Whether the interface should be visible immediately or not
 	bool						mShowInterfaceAtStart;
@@ -41,7 +41,7 @@ struct MediaViewerSettings {
 	//--------------------Web Settings ---------------------------------------------//
 
 	/// The size to load the web page, which will then get scaled up or down when the viewer changes size
-	ci::Vec2f					mWebDefaultSize;		
+	ci::vec2					mWebDefaultSize;		
 	// the scale of the keyboard
 	float						mWebKeyboardKeyScale;
 	// If we should show the keyboard button at all. Default = true

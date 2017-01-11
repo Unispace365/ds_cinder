@@ -63,7 +63,7 @@ public:
 	void										sendMouseDragEvent(const ci::app::MouseEvent &event);
 	void										sendMouseUpEvent(const ci::app::MouseEvent &event);
 
-	void										sendMouseClick(const ci::Vec3f& globalClickPoint);
+	void										sendMouseClick(const ci::vec3& globalClickPoint);
 
 	// DEPRECATED: This is for API-compatibility with the old Awesomium. Always draws while loading now.
 	void										setDrawWhileLoading(const bool){};
@@ -119,8 +119,8 @@ public:
 	// Convenience to access various document properties. Note that
 	// the document probably needs to have passed onLoaded() for this
 	// to be reliable.
-	ci::Vec2f									getDocumentSize();
-	ci::Vec2f									getDocumentScroll();
+	ci::vec2									getDocumentSize();
+	ci::vec2									getDocumentScroll();
 
 	// Scripting.
 	// Send function to object with supplied args. For example, if you want to just invoke the global
@@ -208,20 +208,20 @@ private:
 	int											mBrowserId;
 	unsigned char *								mBuffer;
 	bool										mHasBuffer;
-	ci::Vec2i									mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
-	ci::gl::Texture								mWebTexture;
+	ci::ivec2									mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
+	ci::gl::TextureRef							mWebTexture;
 	bool										mTransparentBackground;
 
 	double										mZoom;
 	bool										mNeedsZoomCheck;
 
-	ci::Vec3f									mPreviousTouchPos;
+	ci::vec3									mPreviousTouchPos;
 	bool										mAllowClicks;
 	bool										mClickDown;
 	bool										mDragScrolling;
 	int											mDragScrollMinFingers;
 	// Cache the page size and scroll during touch events
-	ci::Vec2f									mPageSizeCache,
+	ci::vec2									mPageSizeCache,
 												mPageScrollCache;
 	// Prevent the scroll from being cached more than once in an update.
 	int32_t										mPageScrollCount;

@@ -598,7 +598,7 @@ void WebHandler::loadUrl(const int browserId, const std::string& newUrl){
 	}
 }
 
-void WebHandler::requestBrowserResize(const int browserId, const ci::Vec2i newSize){
+void WebHandler::requestBrowserResize(const int browserId, const ci::ivec2 newSize){
 	// be sure this is locked with other requests to the browser lists
 	{
 		base::AutoLock lock_scope(mLock);

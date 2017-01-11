@@ -7,7 +7,9 @@
 
 #include <ds/ui/media/media_viewer.h>
 
+#include <cinder/app/App.h>
 #include <cinder/Rand.h>
+#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -29,8 +31,8 @@ CefDevelop::CefDevelop()
 
 								.persp() 
 								.perspFov(60.0f)
-								.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
 								.perspFar(20.0f)
 
@@ -76,10 +78,10 @@ void CefDevelop::setupServer(){
 			const float clippFar = 10000.0f;
 			const float fov = 60.0f;
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -105,14 +107,14 @@ void CefDevelop::setupServer(){
 	webby->setCenter(0.5f, 0.5f, 0.5f);
 	webby->setPosition(webby->getWidth()/2.0f, webby->getHeight() / 2.0f);
 	ci::randSeed(26987);
-	webby->setRotation(ci::Vec3f(ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f)));
+	webby->setRotation(ci::vec3(ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f)));
 	webby->enable(true);
 	webby->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
 	webby->setTouchScaleMode(true);
 	mWebby = webby;
 	*/
 
-	rootSprite.setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	rootSprite.setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		/*
 		ds::ui::WebPlayer* wp = new ds::ui::WebPlayer(mEngine, true);
 		wp->setWebViewSize(ci::Vec2f(1366, 1366.0f));
@@ -143,7 +145,7 @@ void CefDevelop::setupServer(){
 		webby->loadUrl(urly);
 		bs->addChildPtr(webby);
 		//webby->setCenter(0.5f, 0.5f, 0.5f);
-		//webby->setRotation(ci::Vec3f(ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f)));
+		//webby->setRotation(ci::vec3(ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f), ci::randFloat(0.0f, 360.0f)));
 		webby->enable(true);
 	//	webby->enableMultiTouch(ds::ui::MULTITOUCH_NO_CONSTRAINTS);
 		webby->setTouchScaleMode(true);
@@ -273,4 +275,4 @@ void CefDevelop::fileDrop(ci::app::FileDropEvent event){
 } // namespace cef
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(cef::CefDevelop, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(cef::CefDevelop, cinder::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

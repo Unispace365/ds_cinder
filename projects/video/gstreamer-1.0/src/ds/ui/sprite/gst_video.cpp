@@ -206,7 +206,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	}
 
 	setTransparent(false);
-	setUseShaderTextuer(true);
+	setUseShaderTexture(true);
 
 }
 
@@ -329,12 +329,12 @@ void GstVideo::drawLocalClient(){
 					ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
 					ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
 
-					mFrameTexture.update(yChannel, ci::Area(0, 0, mVideoSize.x, mVideoSize.y));
-					mUFrameTexture.update(uChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
-					mVFrameTexture.update(vChannel, ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
+					mFrameTexture->update(yChannel);// , ci::Area(0, 0, mVideoSize.x, mVideoSize.y));
+					mUFrameTexture->update(uChannel);// , ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
+					mVFrameTexture->update(vChannel);// , ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
 				} else {
 					ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
-					mFrameTexture.update(video_surface);
+					mFrameTexture->update(video_surface);
 				}
 
 				mDrawable = true;
@@ -360,9 +360,9 @@ void GstVideo::drawLocalClient(){
 			ci::gl::disableDepthWrite();
 			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
 
-				if (mFrameTexture) mFrameTexture.bind(2);
-				if (mUFrameTexture) mUFrameTexture.bind(3);
-				if (mVFrameTexture) mVFrameTexture.bind(4);
+				if (mFrameTexture) mFrameTexture->bind(2);
+				if (mUFrameTexture) mUFrameTexture->bind(3);
+				if (mVFrameTexture) mVFrameTexture->bind(4);
 
 			}
 			if(getPerspective()){
@@ -373,21 +373,22 @@ void GstVideo::drawLocalClient(){
 
 		} else {
 			if (getPerspective()){
-			 	mFrameTexture.setFlipped(true);
+				// TODO
+			 	//mFrameTexture->flip(true);
 			}
-			if (mFrameTexture) mFrameTexture.bind(0);
+			if (mFrameTexture) mFrameTexture->bind(0);
 			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 		}
 
 
 		if (mColorType == kColorTypeShaderTransform){
 			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
-				if (mFrameTexture) mFrameTexture.unbind(2);
-				if (mUFrameTexture) mUFrameTexture.unbind(3);
-				if (mVFrameTexture) mVFrameTexture.unbind(4);
+				if (mFrameTexture) mFrameTexture->unbind(2);
+				if (mUFrameTexture) mUFrameTexture->unbind(3);
+				if (mVFrameTexture) mVFrameTexture->unbind(4);
 			}
 		} else {
-			if (mFrameTexture) mFrameTexture.unbind();
+			if (mFrameTexture) mFrameTexture->unbind();
 		}
 	} 
 }
@@ -581,12 +582,12 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		ci::gl::Texture::Format fmt;
 
 		if(mColorType == kColorTypeShaderTransform){
-			fmt.setInternalFormat(GL_LUMINANCE);
-			mFrameTexture  = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
-			mUFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
-			mVFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+			fmt.setInternalFormat(GL_RED);
+			mFrameTexture  = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+			mUFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+			mVFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
 		} else {
-			mFrameTexture  = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+			mFrameTexture  = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 		}
 
 	}
@@ -654,12 +655,12 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 
 	ci::gl::Texture::Format fmt;
 	if(mColorType == kColorTypeShaderTransform){
-		fmt.setInternalFormat(GL_LUMINANCE);
-		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
-		mUFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
-		mVFrameTexture = ci::gl::Texture(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		fmt.setInternalFormat(GL_RED);
+		mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+		mUFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		mVFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
 	} else {
-		mFrameTexture = ci::gl::Texture(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+		mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
 	}
 }
 

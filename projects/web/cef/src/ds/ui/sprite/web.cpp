@@ -358,7 +358,7 @@ void Web::update(const ds::UpdateParams &p) {
 		ci::gl::Texture::Format fmt;
 		fmt.setMinFilter(GL_LINEAR);
 		fmt.setMagFilter(GL_LINEAR);
-		mWebTexture = ci::gl::Texture(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
+		mWebTexture = ci::gl::Texture::create(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
 		mHasBuffer = false;
 	}
 }
@@ -370,7 +370,7 @@ void Web::onSizeChanged() {
 
 		const int theWid = static_cast<int>(getWidth());
 		const int theHid = static_cast<int>(getHeight());
-		const ci::Vec2i newBrowserSize(theWid, theHid);
+		const ci::ivec2 newBrowserSize(theWid, theHid);
 		if(newBrowserSize == mBrowserSize && mBuffer){
 			return;
 		}
@@ -394,8 +394,8 @@ void Web::onSizeChanged() {
 
 void Web::drawLocalClient() {
 	if (mWebTexture) {
-		if(getPerspective()){
-			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture.getHeight()), static_cast<float>(mWebTexture.getWidth()), 0.0f));
+		if(true || getPerspective()){
+			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture->getHeight()), static_cast<float>(mWebTexture->getWidth()), 0.0f)); 
 		} else {
 			ci::gl::draw(mWebTexture);
 		}
@@ -468,10 +468,10 @@ void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
 	sendTouchToService(e.getX(), e.getY(), 0, 2, 1);
 }
 
-void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
+void Web::sendMouseClick(const ci::vec3& globalClickPoint){
 	if(!mAllowClicks) return;
 
-	ci::Vec2f pos = globalToLocal(globalClickPoint).xy();
+	ci::vec2 pos = ci::vec2(globalToLocal(globalClickPoint));
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
 
@@ -507,7 +507,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	if(touchInfo.mFingerIndex != 0)
 		return;
 
-	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
+	ci::vec2 pos = ci::vec2(globalToLocal(touchInfo.mCurrentGlobalPoint));
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
 
@@ -643,17 +643,17 @@ void Web::clearError(){
 	mHasError = false;
 }
 
-ci::Vec2f Web::getDocumentSize() {
+ci::vec2 Web::getDocumentSize() {
 	// TODO?
-	return ci::Vec2f(getWidth(), getHeight());
+	return ci::vec2(getWidth(), getHeight());
 }
 
-ci::Vec2f Web::getDocumentScroll() {
+ci::vec2 Web::getDocumentScroll() {
 	/* TODO
-	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
+	if (!mWebViewPtr) return ci::vec2(0.0f, 0.0f);
 	return get_document_scroll(*mWebViewPtr);
 	*/
-	return ci::Vec2f::zero();
+	return ci::vec2(0.0f, 0.0f);
 }
 
 void Web::executeJavascript(const std::string& theScript){
