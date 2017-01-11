@@ -1,9 +1,16 @@
+#version 150
+
+uniform mat4	ciModelViewProjection;
+in vec4			ciPosition;
+in vec4			ciColor;
+out vec4		oColor;
+in vec2			ciTexCoord0;
+out vec2		TexCoord0;
 
 void main()
 {
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
-    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
+    gl_Position = ciModelViewProjection * ciPosition;
+    TexCoord0 = ciTexCoord0;
 
-    gl_FrontColor = gl_Color;
+    oColor = ciColor;
 }
