@@ -6,7 +6,8 @@
 #include <ds/app/engine/engine.h>
 #include <ds/ui/sprite/text.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -49,10 +50,10 @@ void PngSequenceExample::setupServer(){
 			const float clippFar = 10000.0f;
 			const float fov = 60.0f;
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -67,7 +68,7 @@ void PngSequenceExample::setupServer(){
 
 	rootSprite.enable(true);
 	rootSprite.enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	rootSprite.setTapCallback([this](ds::ui::Sprite*, const ci::Vec3f&){
+	rootSprite.setTapCallback([this](ds::ui::Sprite*, const ci::vec3&){
 		if(mPngSequence){
 			if(mPngSequence->isPlaying()){
 				mPngSequence->pause();
@@ -160,4 +161,4 @@ void PngSequenceExample::fileDrop(ci::app::FileDropEvent event){
 } // namespace example
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(example::PngSequenceExample, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(example::PngSequenceExample, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

@@ -50,7 +50,7 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	, pangoLayout(nullptr)
 	, cairoSurface(nullptr)
 	, cairoContext(nullptr)
-	, cairoFontOptions(nullptr)
+	, cairoFontOptions()(nullptr)
 
 #ifdef CAIRO_HAS_WIN32_SURFACE
 	, cairoImageSurface(nullptr)
@@ -78,8 +78,8 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	}
 
 	// Initialize Cairo surface and context, will be instantiated on demand
-	cairoFontOptions = cairo_font_options_create();
-	if(cairoFontOptions == nullptr) {
+	cairoFontOptions() = cairo_font_options_create();
+	if(cairoFontOptions() == nullptr) {
 		DS_LOG_WARNING("Cannot create Cairo font options.");
 		return;
 	}
@@ -100,8 +100,8 @@ TextPango::~TextPango() {
 		pango_font_description_free(fontDescription);
 	}
 
-	if(cairoFontOptions != nullptr) {
-		cairo_font_options_destroy(cairoFontOptions);
+	if(cairoFontOptions() != nullptr) {
+		cairo_font_options_destroy(cairoFontOptions());
 	}
 
 #ifdef CAIRO_HAS_WIN32_SURFACE
@@ -320,14 +320,14 @@ bool TextPango::render(bool force) {
 
 		// First run, and then if the fonts change
 		if(force || mNeedsFontOptionUpdate) {
-			cairo_font_options_set_antialias(cairoFontOptions, static_cast<cairo_antialias_t>(mTextAntialias));
+			cairo_font_options_set_antialias(cairoFontOptions(), static_cast<cairo_antialias_t>(mTextAntialias));
 
 			// TODO, expose these?
-			cairo_font_options_set_hint_style(cairoFontOptions, CAIRO_HINT_STYLE_FULL);
-			cairo_font_options_set_hint_metrics(cairoFontOptions, CAIRO_HINT_METRICS_ON);
-			//cairo_font_options_set_subpixel_order(cairoFontOptions, CAIRO_SUBPIXEL_ORDER_BGR);
+			cairo_font_options_set_hint_style(cairoFontOptions(), CAIRO_HINT_STYLE_FULL);
+			cairo_font_options_set_hint_metrics(cairoFontOptions(), CAIRO_HINT_METRICS_ON);
+			//cairo_font_options_set_subpixel_order(cairoFontOptions(), CAIRO_SUBPIXEL_ORDER_BGR);
 
-			pango_cairo_context_set_font_options(pangoContext, cairoFontOptions);
+			pango_cairo_context_set_font_options(pangoContext, cairoFontOptions());
 
 			mNeedsFontOptionUpdate = false;
 		}

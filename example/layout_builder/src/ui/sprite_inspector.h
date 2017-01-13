@@ -35,7 +35,7 @@ private:
 	void								addSpriteProperty(const std::wstring& propertyName, const ds::BitMask& propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const bool propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const ci::Vec2f propertyValue);
-	void								addSpriteProperty(const std::wstring& propertyName, const ci::Vec3f propertyValue);
+	void								addSpriteProperty(const std::wstring& propertyName, const ci::vec3 propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const ci::Color propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const ci::ColorA propertyValue);
 	void								addSpriteProperty(const std::wstring& propertyName, const float propertyValue);

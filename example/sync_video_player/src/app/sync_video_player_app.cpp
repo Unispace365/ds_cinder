@@ -107,7 +107,7 @@ void sync_video_player::loadVideo(const std::string& videoPath){
 	mVideo->loadVideo(videoPath);
 
 	mVideo->enableMultiTouch(ds::ui::MULTITOUCH_CAN_SCALE | ds::ui::MULTITOUCH_CAN_POSITION);
-	mVideo->setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	mVideo->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		ds::ui::GstVideo* video = dynamic_cast<ds::ui::GstVideo*>(bs);
 		if (video){
 			if (mSelectedVideo == video){
@@ -284,4 +284,4 @@ void sync_video_player::keyDown(ci::app::KeyEvent event){
 } // namespace ds
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(ds::sync_video_player, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(ds::sync_video_player, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

@@ -17,8 +17,8 @@ PerspectivePicking::PerspectivePicking()
 
 								.persp() // sample perp view
 								.perspFov(60.0f)
-								.perspPosition(ci::Vec3f(0.0, 0.0f, 960.0f))
-								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 960.0f))
+								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
 								.perspFar(2000.0f)
 								)
@@ -125,30 +125,30 @@ void PerspectivePicking::keyDown(ci::app::KeyEvent event){
 	if(event.getChar() == KeyEvent::KEY_r){
 		setupServer();
 	} else if(event.getCode() == KeyEvent::KEY_RIGHT){
-		moveCamera(ci::Vec3f(moveAmount, 0.0f, 0.0f), moveTarget);
+		moveCamera(ci::vec3(moveAmount, 0.0f, 0.0f), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_LEFT){
-		moveCamera(ci::Vec3f(-moveAmount, 0.0f, 0.0f), moveTarget);
+		moveCamera(ci::vec3(-moveAmount, 0.0f, 0.0f), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_UP){
-		moveCamera(ci::Vec3f(0.0f, -moveAmount, 0.0f), moveTarget);
+		moveCamera(ci::vec3(0.0f, -moveAmount, 0.0f), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_DOWN){
-		moveCamera(ci::Vec3f(0.0f, moveAmount, 0.0f), moveTarget);
+		moveCamera(ci::vec3(0.0f, moveAmount, 0.0f), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_RIGHTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, moveAmount), moveTarget);
+		moveCamera(ci::vec3(0.0f, 0.0f, moveAmount), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_LEFTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, -moveAmount), moveTarget);
+		moveCamera(ci::vec3(0.0f, 0.0f, -moveAmount), moveTarget);
 	} else if(event.getCode() == KeyEvent::KEY_l){
 		shiftLensH(moveAmount / 100.0f);
 	} else if(event.getCode() == KeyEvent::KEY_k){
 		shiftLensH(-moveAmount / 100.0f);
 
 	} else if(event.getCode() == KeyEvent::KEY_SEMICOLON){
-		moveRoot(ci::Vec3f(0.0f, moveAmount, 0.0f));
+		moveRoot(ci::vec3(0.0f, moveAmount, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_COMMA){
-		moveRoot(ci::Vec3f(-moveAmount, 0.0f, 0.0f));
+		moveRoot(ci::vec3(-moveAmount, 0.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_PERIOD){
-		moveRoot(ci::Vec3f(0.0f, -moveAmount, 0.0f));
+		moveRoot(ci::vec3(0.0f, -moveAmount, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_SLASH){
-		moveRoot(ci::Vec3f(moveAmount, 0.0f, 0.0f));
+		moveRoot(ci::vec3(moveAmount, 0.0f, 0.0f));
 
 	} else if(event.getCode() == KeyEvent::KEY_EQUALS){
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(mDebugCamera);
@@ -164,10 +164,10 @@ void PerspectivePicking::keyDown(ci::app::KeyEvent event){
 
 	} else if(event.getCode() == KeyEvent::KEY_z){
 		ds::ui::Sprite& rooty = mEngine.getRootSprite(mDebugCamera);
-		rooty.setPosition(ci::Vec3f(0.0f, 0.0f, 0.0f));
+		rooty.setPosition(ci::vec3(0.0f, 0.0f, 0.0f));
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(mDebugCamera);
-		p.mTarget = ci::Vec3f(0.0f, 0.0f, p.mTarget.z);
-		p.mPosition = ci::Vec3f(0.0f, 0.0f, p.mPosition.z);
+		p.mTarget = ci::vec3(0.0f, 0.0f, p.mTarget.z);
+		p.mPosition = ci::vec3(0.0f, 0.0f, p.mPosition.z);
 		mEngine.setPerspectiveCamera(mDebugCamera, p);
 
 		std::cout << "Reset camera " << mDebugCamera << std::endl;
@@ -179,13 +179,13 @@ void PerspectivePicking::keyDown(ci::app::KeyEvent event){
 	}
 }
 
-void PerspectivePicking::moveRoot(const ci::Vec3f& deltaMove){
+void PerspectivePicking::moveRoot(const ci::vec3& deltaMove){
 	ds::ui::Sprite& rooty = mEngine.getRootSprite(mDebugCamera);
 	rooty.move(deltaMove);
 	std::cout << "Moving root " << mDebugCamera << " pos: " << rooty.getPosition() << std::endl;
 }
 
-void PerspectivePicking::moveCamera(const ci::Vec3f& deltaMove, const bool moveTarget){
+void PerspectivePicking::moveCamera(const ci::vec3& deltaMove, const bool moveTarget){
 	ds::PerspCameraParams p = mEngine.getPerspectiveCamera(mDebugCamera);
 	if(moveTarget){
 		p.mTarget += deltaMove;
@@ -210,4 +210,4 @@ void PerspectivePicking::shiftLensH(const float amount){
 } // namespace perspective_picking
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(perspective_picking::PerspectivePicking, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(perspective_picking::PerspectivePicking, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

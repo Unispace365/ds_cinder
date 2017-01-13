@@ -45,7 +45,7 @@ private:
 	void								treeParseRecursive(ds::ui::Sprite* sp, const int indent);
 	void								addTreeItem(ds::ui::Sprite* sprid, const int indent);
 	void								clearTree();
-	void								handleMouseHover(const ci::Vec3f& mousePoint);
+	void								handleMouseHover(const ci::vec3& mousePoint);
 	void								highlightSprite( const ds::ui::Sprite* sprite );
 };
 

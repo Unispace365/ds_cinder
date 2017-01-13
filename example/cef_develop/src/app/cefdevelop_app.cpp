@@ -8,7 +8,8 @@
 #include <ds/ui/media/media_viewer.h>
 
 #include <cinder/app/App.h>
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 #include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
@@ -275,4 +276,4 @@ void CefDevelop::fileDrop(ci::app::FileDropEvent event){
 } // namespace cef
 
 // This line tells Cinder to actually create the application
-CINDER_APP(cef::CefDevelop, cinder::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(cef::CefDevelop, cinder::app::RendererGl(ci::app::RendererGl::Options()().msaa(4)))

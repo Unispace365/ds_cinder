@@ -61,7 +61,7 @@ TreeItem::TreeItem(Globals& g, ds::ui::Sprite* linkedItem)
 	setSize(theWiddy, theHiddy);
 	enable(true);
 	enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION);
-	setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		if(mLinkedSprite){
 			mEngine.getNotifier().notify(InspectSpriteRequest(mLinkedSprite));
 		} 

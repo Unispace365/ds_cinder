@@ -83,13 +83,13 @@ void SettingsUi::registerSettings(const ds::cfg::Settings* settings){
 
 	settings->forEachSizeKey([this, settings](const std::string& key){
 
-		const std::function<void(ci::Vec3f)> &setterFn = [this, settings, key](ci::Vec3f value){
+		const std::function<void(ci::vec3)> &setterFn = [this, settings, key](ci::vec3 value){
 			ds::cfg::Settings::Editor editor(*const_cast<ds::cfg::Settings*>(settings));
 			editor.setSize(key, value.xy()); };
 
-		const std::function<ci::Vec3f()> &getterFn = [this, settings, key](){
+		const std::function<ci::vec3()> &getterFn = [this, settings, key](){
 			ci::Vec2f sizey = settings->getSize(key);
-			return ci::Vec3f(sizey.x, sizey.y, 0.0f);
+			return ci::vec3(sizey.x, sizey.y, 0.0f);
 		};
 
 		mParams->addParam(key, setterFn, getterFn);

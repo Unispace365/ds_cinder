@@ -12,7 +12,8 @@
 
 #include <ds/ui/sprite/image.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 
 namespace example {
 
@@ -175,7 +176,7 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 		}
 		video->enable(true);
 		video->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-		video->setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+		video->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 			ds::ui::Video* video = dynamic_cast<ds::ui::Video*>(bs);
 			if(video){
 				if(video->getIsPlaying()){
@@ -219,4 +220,4 @@ void SimpleVideoPlayer::fitVideoInArea(ci::Rectf area, ds::ui::Video* video){
 } // namespace example
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(example::SimpleVideoPlayer, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(example::SimpleVideoPlayer, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

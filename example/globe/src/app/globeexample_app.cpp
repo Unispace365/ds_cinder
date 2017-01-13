@@ -16,8 +16,8 @@ GlobeExample::GlobeExample()
 	: inherited(ds::RootList()
 								.persp() // sample perp view
 								.perspFov(30.0f)
-								.perspPosition(ci::Vec3f(0.0, 0.0f, 2080.0f))
-								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 2080.0f))
+								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(1000.0f)
 								.perspFar(2500.0f)
 )
@@ -56,17 +56,17 @@ void GlobeExample::keyDown(ci::app::KeyEvent event){
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	} else if(event.getCode() == KeyEvent::KEY_d){
-		moveCamera(ci::Vec3f(moveAmount, 0.0f, 0.0f));
+		moveCamera(ci::vec3(moveAmount, 0.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_a){
-		moveCamera(ci::Vec3f(-moveAmount, 0.0f, 0.0f));
+		moveCamera(ci::vec3(-moveAmount, 0.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_w){
-		moveCamera(ci::Vec3f(0.0f, -moveAmount, 0.0f));
+		moveCamera(ci::vec3(0.0f, -moveAmount, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_s){
-		moveCamera(ci::Vec3f(0.0f, moveAmount, 0.0f));
+		moveCamera(ci::vec3(0.0f, moveAmount, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_RIGHTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, moveAmount));
+		moveCamera(ci::vec3(0.0f, 0.0f, moveAmount));
 	} else if(event.getCode() == KeyEvent::KEY_LEFTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, -moveAmount));
+		moveCamera(ci::vec3(0.0f, 0.0f, -moveAmount));
 	} else if(event.getCode() == KeyEvent::KEY_EQUALS){
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(0);
 		p.mFarPlane += moveAmount;
@@ -90,7 +90,7 @@ void GlobeExample::keyDown(ci::app::KeyEvent event){
 	}
 }
 
-void GlobeExample::moveCamera(const ci::Vec3f& deltaMove){
+void GlobeExample::moveCamera(const ci::vec3& deltaMove){
 	ds::PerspCameraParams p = mEngine.getPerspectiveCamera(0);
 	p.mPosition += deltaMove;
 	std::cout << "Moving camera: " << p.mPosition.x << " " << p.mPosition.y << " " << p.mPosition.z << std::endl;
@@ -100,4 +100,4 @@ void GlobeExample::moveCamera(const ci::Vec3f& deltaMove){
 } // namespace globe_example
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(globe_example::GlobeExample, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(globe_example::GlobeExample, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

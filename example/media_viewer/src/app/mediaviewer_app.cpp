@@ -4,7 +4,8 @@
 #include <Poco/File.h>
 #include <Poco/Path.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 #include <cinder/app/RendererGl.h>
 
 #include <ds/app/environment.h>
@@ -277,4 +278,4 @@ void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 } // namespace mv
 
 // This line tells Cinder to actually create the application
-CINDER_APP(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)), [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
+CINDER_APP(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::Options()().msaa(4)), [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })

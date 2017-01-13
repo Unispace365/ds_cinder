@@ -6,7 +6,8 @@
 #include <ds/app/engine/engine.h>
 
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -25,8 +26,8 @@ PangoApp::PangoApp()
 
 	.persp()
 	.perspFov(60.0f)
-	.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-	.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+	.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+	.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 	.perspNear(0.0002f)
 	.perspFar(20.0f)
 	.pickColor()
@@ -91,10 +92,10 @@ void PangoApp::setupServer(){
 			const float clippFar = mGlobals.getAppSettings().getFloat("trends:sphere:clipping_far", 0, mEngine.getWorldWidth());
 			const float fov = mGlobals.getAppSettings().getFloat("trends:sphere:fov", 0, 60.0f);
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -226,4 +227,4 @@ void PangoApp::fileDrop(ci::app::FileDropEvent event){
 } // namespace pango
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(pango::PangoApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(pango::PangoApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

@@ -96,4 +96,4 @@ void AutomatorApp::recenterSprites(){
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(AutomatorApp, RendererGl(RendererGl::AA_MSAA_4))
+CINDER_APP(AutomatorApp, RendererGl(RendererGl::Options().msaa(4)))

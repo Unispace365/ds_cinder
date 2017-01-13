@@ -8,7 +8,8 @@
 
 #include <ds/ui/media/media_viewer.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -31,8 +32,8 @@ FullStarterApp::FullStarterApp()
 	/*
 	.persp()
 	.perspFov(60.0f)
-	.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-	.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+	.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+	.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 	.perspNear(0.0002f)
 	.perspFar(20.0f)
 
@@ -98,10 +99,10 @@ void FullStarterApp::setupServer(){
 			const float clippFar = 10000.0f;
 			const float fov = 60.0f;
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -227,4 +228,4 @@ void FullStarterApp::fileDrop(ci::app::FileDropEvent event){
 } // namespace fullstarter
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(fullstarter::FullStarterApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(fullstarter::FullStarterApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

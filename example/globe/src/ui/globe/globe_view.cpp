@@ -56,7 +56,7 @@ GlobeView::GlobeView(Globals& g)
 
 void GlobeView::drawClient(const ci::Matrix44f &trans, const ds::DrawParams &drawParams){
 	if(visible()) {
-		mGlobeMesh.setRotation(ci::Vec3f(mGlobeMesh.getRotation().x + mXMomentum.getDelta(), mGlobeMesh.getRotation().y + 0.1f + mYMomentum.getDelta(), 0.0f));
+		mGlobeMesh.setRotation(ci::vec3(mGlobeMesh.getRotation().x + mXMomentum.getDelta(), mGlobeMesh.getRotation().y + 0.1f + mYMomentum.getDelta(), 0.0f));
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(0);
 		mGlobeMesh.getUniform().setVec4f("camPos", ci::Vec4f(p.mPosition, 1.0f));
 		auto modelMat = mGlobeMesh.getGlobalTransform();

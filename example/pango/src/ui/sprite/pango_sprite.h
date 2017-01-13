@@ -164,7 +164,7 @@ private:
 	PangoFontDescription *fontDescription;
 	cairo_surface_t *cairoSurface;
 	cairo_t *cairoContext;
-	cairo_font_options_t *cairoFontOptions;
+	cairo_font_options_t *cairoFontOptions();
 
 #ifdef CAIRO_HAS_WIN32_SURFACE
 	cairo_surface_t *cairoImageSurface;

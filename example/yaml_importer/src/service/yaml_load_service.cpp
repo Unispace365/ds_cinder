@@ -34,7 +34,7 @@ TableNameHere
 			type: typeHere
 	actAs:
 		actionTypeHere:
-			actionOptionsHere: []
+			actionOptions()Here: []
 	options:
 		type: typeHere
 
