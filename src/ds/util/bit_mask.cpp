@@ -1,4 +1,4 @@
-﻿#include "ds/util/bit_mask.h"
+#include "ds/util/bit_mask.h"
 
 #include <assert.h>
 

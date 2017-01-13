@@ -1,4 +1,4 @@
-﻿#include "ds/ui/service/load_image_service.h"
+#include "ds/ui/service/load_image_service.h"
 
 #include <cinder/ImageIo.h>
 #include "ds/app/environment.h"
