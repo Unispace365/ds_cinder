@@ -34,7 +34,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\web\awesomium\PropertySheets\Web_Awesomium.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf.props" />
@@ -44,7 +44,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform_d.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d_d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\web\awesomium\PropertySheets\Web_Awesomium_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF_d.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials_d.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0_d.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf_d.props" />
