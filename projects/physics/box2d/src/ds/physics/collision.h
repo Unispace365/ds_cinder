@@ -33,9 +33,9 @@ public:
 	ds::sprite_id_t	mSpriteId;
 
 	// Contact positions are in world space
-	ci::Vec3f		mContactOne;
-	ci::Vec3f		mContactTwo;
-	ci::Vec2f		mNormal;
+	ci::vec3		mContactOne;
+	ci::vec3		mContactTwo;
+	ci::vec2		mNormal;
 };
 
 } // namespace physics

@@ -2,7 +2,8 @@
 
 #include <Poco/LocalDateTime.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 #include <cinder/gl/gl.h>
 #include <cinder/ImageIo.h>
 
@@ -118,7 +119,7 @@ void TapestryView::initialize(){
 
 	mMesh = ci::gl::VboMesh(cols * rows * 3, cols * rows * 3, layout, GL_TRIANGLES);
 	std::vector<uint32_t> indices;
-	std::vector<ci::Vec3f> positions;
+	std::vector<ci::vec3> positions;
 
 	float w = theScale; // (float)(M_SQRT_3_2 * theScale);
 	float h = 1.0f * theScale;
@@ -164,13 +165,13 @@ void TapestryView::initialize(){
 				y3 = y - h / 2.0f + yOverflow;
 			}
 
-			positions.push_back(ci::Vec3f(x1, y1, 0.0f));
-			positions.push_back(ci::Vec3f(x2, y2, 0.0f));
-			positions.push_back(ci::Vec3f(x3, y3, 0.0f));
+			positions.push_back(ci::vec3(x1, y1, 0.0f));
+			positions.push_back(ci::vec3(x2, y2, 0.0f));
+			positions.push_back(ci::vec3(x3, y3, 0.0f));
 
-// 			positions.push_back(ci::Vec3f(x - w * direction, y - h, 0));
-// 			positions.push_back(ci::Vec3f(x + w * direction, y + 0, 0));
-// 			positions.push_back(ci::Vec3f(x - w * direction, y + h, 0));
+// 			positions.push_back(ci::vec3(x - w * direction, y - h, 0));
+// 			positions.push_back(ci::vec3(x + w * direction, y + 0, 0));
+// 			positions.push_back(ci::vec3(x - w * direction, y + h, 0));
 
 			// TODO: try 3 colors per triangle? 
 			// TODO: try averaging 3 samples

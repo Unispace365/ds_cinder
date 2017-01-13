@@ -101,9 +101,8 @@ void ClusterView::startTappableMode(const ci::vec3& globalLocation, const float 
 				mi->highlight();
 			}
 
-			auto dir = ci::vec2(ti.mCurrentGlobalPoint - ti.mStartPoint);
-			float distance = dir.size();
-			if(ti.mPhase == ds::ui::TouchInfo::Moved && ci::distance2( ti.mCurrentGlobalPoint,ti.mStartPoint) > mEngine.getMinTapDistance()){
+			
+			if(ti.mPhase == ds::ui::TouchInfo::Moved && ci::distance( ti.mCurrentGlobalPoint,ti.mStartPoint) > mEngine.getMinTapDistance()){
 				mi->unhighlight();
 			}
 		});

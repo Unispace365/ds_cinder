@@ -168,4 +168,4 @@ void video_360::loadMedia(const std::string& newMedia){
 } // namespace test
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(test::video_360, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(test::video_360, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

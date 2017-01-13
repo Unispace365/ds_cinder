@@ -117,7 +117,7 @@ void MediaPlayer::setDefaultProperties(){
 	mContentAspectRatio = 1.0;
 	mLayoutFixedAspect = true;
 	setDefaultBounds(mEngine.getWorldWidth(), mEngine.getWorldHeight());
-	setWebViewSize(ci::Vec2f::zero());
+	setWebViewSize(ci::vec2(0.0f, 0.0f));
 	setCacheImages(false);
 }
 
@@ -151,7 +151,7 @@ void MediaPlayer::setDefaultBounds(const float defaultWidth, const float default
 	mMediaViewerSettings.mDefaultBounds.y = defaultHeight;
 }
 
-void MediaPlayer::setWebViewSize(const ci::Vec2f webSize){
+void MediaPlayer::setWebViewSize(const ci::vec2 webSize){
 	mMediaViewerSettings.mWebDefaultSize = webSize;
 }
 
@@ -492,7 +492,7 @@ void MediaPlayer::setInitializedCallback(std::function<void()> func){
 	mInitializedCallback = func;
 }
 
-void MediaPlayer::handleStandardClick(const ci::Vec3f& globalPos){
+void MediaPlayer::handleStandardClick(const ci::vec3& globalPos){
 	if(mWebPlayer){
 		mWebPlayer->sendClick(globalPos);
 	}
@@ -505,7 +505,7 @@ void MediaPlayer::handleStandardClick(const ci::Vec3f& globalPos){
 }
 
 void MediaPlayer::enableStandardClick(){
-	setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		handleStandardClick(pos);
 	});
 }

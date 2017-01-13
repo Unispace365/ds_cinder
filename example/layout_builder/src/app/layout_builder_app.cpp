@@ -11,7 +11,8 @@
 #include <ds/ui/soft_keyboard/soft_keyboard_defs.h>
 #include <ds/ui/interface_xml/interface_xml_importer.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -70,10 +71,10 @@ void layout_builder::setupServer(){
 			const float clippFar = 10000.0f;
 			const float fov = 60.0f;
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -172,7 +173,7 @@ void layout_builder::mouseUp(ci::app::MouseEvent e) {
 }
 
 void layout_builder::mouseMove( ci::app::MouseEvent e ) {
-	ci::Vec3f p(e.getX(), e.getY(), 0.0f);
+	ci::vec3 p(e.getX(), e.getY(), 0.0f);
 	mEngine.getNotifier().notify(MouseMoveEvent(p));
 }
 
@@ -199,4 +200,4 @@ void layout_builder::onAppEvent(const ds::Event& in_e){
 } // namespace layout_builder
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(layout_builder::layout_builder, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(layout_builder::layout_builder, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

@@ -35,14 +35,14 @@
 	src_rect width and height, which results in a scale of 1, but change those values
 	to scale the window. -->
 	<rect name="src_rect" l="0" w="1920" t="0" h="1080" />
-	<rect name="dst_rect" l="-1920" w="1920" t="0" h="1080" />
+	<rect name="dst_rect" l="0" w="1920" t="0" h="1080" />
 
 	<!-- title of the window -->
 	<text name="screen:title" value="Automator Example" />	
 	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
 	<text name="screen:mode" value="borderless" />
 	<!-- makes the window an always-on-top sort of window. default=false -->
-	<text name="screen:always_on_top" value="true" />
+	<text name="screen:always_on_top" value="false" />
 		
 	<!---------------------->
 	<!-- RENDER SETTINGS --->
@@ -89,7 +89,7 @@
 		"SystemAndMouse" -- Receive both native touch events and mouse events. Will
 		cause the first touch event to be discarded, because it is also a mouse event.
 	-->
-	<text name="touch_mode" value="System" />
+	<text name="touch_mode" value="SystemAndMouse" />
 	
 	<!-- port to listen to tuio stream. default=3333 -->
 	<int name="tuio_port" value="3333" />

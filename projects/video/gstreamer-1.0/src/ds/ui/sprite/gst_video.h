@@ -212,11 +212,11 @@ private:
 
 	ColorType			mColorType;
 
-	ci::gl::Texture		mFrameTexture;
-	ci::gl::Texture		mUFrameTexture;
-	ci::gl::Texture		mVFrameTexture;
+	ci::gl::TextureRef	mFrameTexture;
+	ci::gl::TextureRef	mUFrameTexture;
+	ci::gl::TextureRef	mVFrameTexture;
 
-	ci::Vec2i			mVideoSize;
+	ci::ivec2			mVideoSize;
 	double				mCachedDuration;
 	std::string			mFilename,
 						mPortableFilename;
@@ -251,7 +251,7 @@ private:
 	bool				mGenerateAudioBuffer;
 
 	// YUV/I420 -> RGB conversion
-	ci::gl::GlslProg	mShader;
+	ci::gl::GlslProgRef	mShader;
 
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;

@@ -1,6 +1,6 @@
 <settings>
 	<!-- Project path for locating app resources  -->
-	<text name="project_path" value="downstream/media_viewer" />
+	<text name="project_path" value="downstream/media_viewer_example" />
 
 	<!---------------------->
 	<!-- SERVER SETTINGS --->

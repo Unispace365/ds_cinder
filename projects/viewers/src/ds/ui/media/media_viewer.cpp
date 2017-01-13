@@ -58,7 +58,7 @@ void MediaViewer::setDefaultProperties(){
 	}
 
 	setDefaultBounds(mEngine.getWorldWidth(), mEngine.getWorldHeight());
-	setWebViewSize(ci::Vec2f::zero());
+	setWebViewSize(ci::vec2(0.0f, 0.0f));
 	setCacheImages(false);
 
 }
@@ -89,7 +89,7 @@ void MediaViewer::setDefaultBounds(const float defaultWidth, const float default
 	mMediaViewerSettings.mDefaultBounds.y = defaultHeight;
 }
 
-void MediaViewer::setWebViewSize(const ci::Vec2f webSize){
+void MediaViewer::setWebViewSize(const ci::vec2 webSize){
 	mMediaViewerSettings.mWebDefaultSize = webSize;
 }	
 
@@ -138,7 +138,7 @@ void MediaViewer::initialize(){
 		idealHeight = contentHeight * scaleFactor;
 	}
 
-	mDefaultSize = ci::Vec2f(idealWidth, idealHeight);
+	mDefaultSize = ci::vec2(idealWidth, idealHeight);
 	// setting size is necessary to get size limits to work
 	setSize(idealWidth, idealHeight);
 	setSizeLimits();
@@ -217,14 +217,14 @@ void MediaViewer::setStatusCallback(std::function<void(const bool isGood)> func)
 	}
 }
 
-void MediaViewer::handleStandardClick(const ci::Vec3f& globalPos){
+void MediaViewer::handleStandardClick(const ci::vec3& globalPos){
 	if(mMediaPlayer){
 		mMediaPlayer->handleStandardClick(globalPos);
 	}
 }
 
 void MediaViewer::enableStandardClick(){
-	setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		handleStandardClick(pos);
 	});
 }

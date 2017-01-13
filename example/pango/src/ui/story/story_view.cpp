@@ -45,7 +45,7 @@ StoryView::StoryView(Globals& g)
 			if(mPangoText){
 				int indexy = mPangoText->getCharacterIndexForPosition(touchPos.xy());
 				auto possy = mPangoText->getPositionForCharacterIndex(indexy);
-				auto globby = mPangoText->localToGlobal(ci::Vec3f(possy, 0.0f));
+				auto globby = mPangoText->localToGlobal(ci::vec3(possy, 0.0f));
 				auto loccy = globalToLocal(globby);
 				if(mFakeCursor){
 					mFakeCursor->setPosition(loccy);

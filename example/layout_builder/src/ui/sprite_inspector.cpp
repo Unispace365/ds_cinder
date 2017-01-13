@@ -216,7 +216,7 @@ void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const 
 	doAddSpriteProperty(propertyName, wss.str());
 }
 
-void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::Vec3f propertyValue){
+void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::vec3 propertyValue){
 	std::wstringstream wss;
 	wss << propertyValue.x << L", " << propertyValue.y << L", " << propertyValue.z;
 	doAddSpriteProperty(propertyName, wss.str());

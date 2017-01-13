@@ -10,11 +10,11 @@
     <Filter Include="src\ds\ui">
       <UniqueIdentifier>{a1967c41-9df6-4d28-a5da-03cd7227a956}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\sprite">
-      <UniqueIdentifier>{534c6a14-e706-402c-aece-92e0812f54ab}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\private">
       <UniqueIdentifier>{d4b5bec1-502b-4561-90aa-5a6e35c8cd7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\sprite">
+      <UniqueIdentifier>{534c6a14-e706-402c-aece-92e0812f54ab}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
@@ -22,7 +22,7 @@
       <Filter>src\private</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\sprite\pdf.h">
-      <Filter>src\ds\ui\sprite</Filter>
+      <Filter>src\ds\sprite</Filter>
     </ClInclude>
     <ClInclude Include="src\private\pdf_res.h">
       <Filter>src\private</Filter>
@@ -33,7 +33,7 @@
       <Filter>src\private</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\ui\sprite\pdf.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
+      <Filter>src\ds\sprite</Filter>
     </ClCompile>
     <ClCompile Include="src\private\pdf_res.cpp">
       <Filter>src\private</Filter>

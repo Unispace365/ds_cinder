@@ -24,4 +24,4 @@ void BasicTweenApp::setupServer()
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(BasicTweenApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(BasicTweenApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

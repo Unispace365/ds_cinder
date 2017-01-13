@@ -19,8 +19,8 @@ public:
 
 class RequestVideoList : public ds::RegisteredEvent<RequestVideoList>{
 public:
-	RequestVideoList(const ci::Vec3f& location) : mLocation(location){}
-	const ci::Vec3f mLocation;
+	RequestVideoList(const ci::vec3& location) : mLocation(location){}
+	const ci::vec3 mLocation;
 };
 
 class RequestCloseAllEvent : public ds::RegisteredEvent<RequestCloseAllEvent>{

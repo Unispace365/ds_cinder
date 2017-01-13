@@ -42,7 +42,7 @@ public:
 
 	/// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
 	void					setDefaultBounds(const float defaultWidth, const float defaultHeight);
-	void					setWebViewSize(const ci::Vec2f webSize);
+	void					setWebViewSize(const ci::vec2 webSize);
 
 	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.
 	void					initialize();
@@ -95,7 +95,7 @@ public:
 	/// Web: Click the web content
 	/// PDF: Advance to the next page
 	/// Video: Toggle play / pause
-	void					handleStandardClick(const ci::Vec3f& globalPos);
+	void					handleStandardClick(const ci::vec3& globalPos);
 
 	/// Sets a tap function to enable the above handling
 	void					enableStandardClick();

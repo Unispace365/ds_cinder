@@ -1,6 +1,7 @@
 #include "sprite_shader.h"
 #include "cinder/DataSource.h"
 #include "ds/debug/logger.h"
+#include <ds/util/file_meta_data.h>
 
 #include <Poco/File.h>
 
@@ -147,7 +148,7 @@ void SpriteShader::loadShadersFromFile(){
 			try{
 				if(vertFile.exists() && fragFile.exists()){
 					exist = true;
-				}
+				} 
 			} catch(std::exception&){
 				// swallow these, cause shaders could be loaded otherwise
 			}
@@ -173,13 +174,20 @@ void SpriteShader::loadDefaultFromFile(){
 		return;
 
 	try {
-		auto found = GlslProgs.find(mDefaultName);
-		if(found == GlslProgs.end()) {
-			mShader = ci::gl::GlslProg::create(ci::loadFile((mDefaultLocation + "/" + mDefaultName + ".vert").c_str()), ci::loadFile((mDefaultLocation + "/" + mDefaultName + ".frag").c_str()));
-			GlslProgs[mDefaultName] = mShader;
+		std::string vertLocation = (mDefaultLocation + "/" + mDefaultName + ".vert");
+		std::string fragLocation = (mDefaultLocation + "/" + mDefaultName + ".frag");
+		if(!ds::safeFileExistsCheck(vertLocation) || !ds::safeFileExistsCheck(fragLocation)){
+			// swallow these errors?
 		} else {
-			mShader = found->second;
+			auto found = GlslProgs.find(mDefaultName);
+			if(found == GlslProgs.end()) {
+				mShader = ci::gl::GlslProg::create(ci::loadFile((mDefaultLocation + "/" + mDefaultName + ".vert").c_str()), ci::loadFile((mDefaultLocation + "/" + mDefaultName + ".frag").c_str()));
+				GlslProgs[mDefaultName] = mShader;
+			} else {
+				mShader = found->second;
+			}
 		}
+
 	} catch(std::exception &e) {
 		//    std::cout << e.what() << std::endl;
 		DS_LOG_WARNING_M("SpriteShader::loadShadersFromFile() on " + mDefaultName + "\n" + e.what(), SHADER_LOG);
@@ -190,8 +198,12 @@ void SpriteShader::loadFromMemory(){
 	try {
 		auto found = GlslProgs.find(mName);
 		if(found == GlslProgs.end()) {
-			mShader = ci::gl::GlslProg::create(mMemoryVert.c_str(), mMemoryFrag.c_str());
-			GlslProgs[mName] = mShader;
+			if(mMemoryVert.empty() || mMemoryFrag.empty()){
+				// swallow these errors?
+			} else {
+				mShader = ci::gl::GlslProg::create(mMemoryVert.c_str(), mMemoryFrag.c_str());
+				GlslProgs[mName] = mShader;
+			}
 		} else {
 			mShader = found->second;
 		}

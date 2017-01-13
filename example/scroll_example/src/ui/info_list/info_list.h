@@ -19,12 +19,12 @@ namespace example
 		void						setInfo(const std::vector<ds::model::StoryRef>& infoList);
 
 
-		void						setInfoItemCallback(const std::function<void(const ds::model::StoryRef infothing, const ci::Vec3f possy)> &func);
+		void						setInfoItemCallback(const std::function<void(const ds::model::StoryRef infothing, const ci::vec3 possy)> &func);
 
 	private:
 		Globals&													mGlobals;
 		std::map<int, ds::model::StoryRef>							mInfoMap;
-		std::function<void(const ds::model::StoryRef infothing, const ci::Vec3f possy)>	mInfoCallback;
+		std::function<void(const ds::model::StoryRef infothing, const ci::vec3 possy)>	mInfoCallback;
 
 		virtual void				layout();
 		ds::ui::ScrollBar*			mScrollBar;

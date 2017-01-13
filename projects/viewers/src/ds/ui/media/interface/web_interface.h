@@ -18,7 +18,7 @@ class SoftKeyboard;
 */
 class WebInterface : public MediaInterface  {
 public:
-	WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
+	WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
 
 	virtual void				animateOff();
 

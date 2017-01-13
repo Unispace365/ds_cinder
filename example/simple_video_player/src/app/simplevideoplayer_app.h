@@ -1,7 +1,7 @@
 #ifndef _SIMPLEVIDEOPLAYER_APP_H_
 #define _SIMPLEVIDEOPLAYER_APP_H_
 
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <ds/app/app.h>
 
 #include "app/globals.h"

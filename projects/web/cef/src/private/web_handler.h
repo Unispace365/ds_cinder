@@ -181,7 +181,7 @@ public:
 	void 					loadUrl(const int browserId, const std::string& newUrl);
 
 	// Resize the browser. Happens asynchronously, meaning a paint callback will come back later with the actual info
-	void 					requestBrowserResize(const int browserId, const ci::Vec2i newSize);
+	void 					requestBrowserResize(const int browserId, const ci::ivec2 newSize);
 
 	// Regular browser controls
 	void 					goForwards(const int browserId);
@@ -205,7 +205,7 @@ private:
 	std::map<int, CefRefPtr<CefBrowser>>				mBrowserList;
 
 	// Track the sizes that we want the browsers to be, since resizing is asynchronous
-	std::map<int, ci::Vec2i>							mBrowserSizes;
+	std::map<int, ci::ivec2>							mBrowserSizes;
 
 	std::map<void *,std::function<void(int)>>			mCreatedCallbacks;
 	std::map<int, ds::web::WebCefCallbacks>				mWebCallbacks;

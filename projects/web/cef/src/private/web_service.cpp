@@ -166,7 +166,7 @@ void WebCefService::loadUrl(const int browserId, const std::string& newUrl){
 
 }
 
-void WebCefService::requestBrowserResize(const int browserId, const ci::Vec2i newSize){
+void WebCefService::requestBrowserResize(const int browserId, const ci::ivec2 newSize){
 	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
 	if(handler){
 		handler->requestBrowserResize(browserId, newSize);

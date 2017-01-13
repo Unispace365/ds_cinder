@@ -1,7 +1,7 @@
 #ifndef _TRIANGLE_MAN_APP_H_
 #define _TRIANGLE_MAN_APP_H_
 
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <ds/app/app.h>
 
 #include "app/globals.h"
@@ -40,7 +40,7 @@ private:
 	ds::TouchDebug		mTouchDebug;
 
 
-	void				moveCamera(const ci::Vec3f& deltaMove);
+	void				moveCamera(const ci::vec3& deltaMove);
 };
 
 } // !namespace nwm

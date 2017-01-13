@@ -18,7 +18,7 @@ namespace pdf {
 class PdfRes : public ds::GlThreadClient<PdfRes> {
 public:
 	// Utility to get a render of the first page of a PDF.
-	static ci::Surface8u		renderPage(const std::string& path);
+	static ci::Surface8uRef	renderPage(const std::string& path);
 
 	PdfRes(ds::GlThread&);
 	// Clients should never delete this class, instead schedule it for deletion and consider it invalid.
@@ -43,7 +43,7 @@ public:
 	void					setPageNum(int thePageNum);
 	int						getPageNum() const;
 	int						getPageCount() const;
-	ci::Vec2i				getPageSize() const;
+	ci::ivec2				getPageSize() const;
 	void					goToNextPage();
 	void					goToPreviousPage();
 	void					setScale(const float theScale);
@@ -66,7 +66,7 @@ private:
 		ds::ui::Pdf::PageSizeMode
 					mPageSizeMode;
 		// NOTE: These items are not part of the equality test
-		ci::Vec2i	mPageSize;
+		ci::ivec2	mPageSize;
 	};
 
 public:
@@ -94,7 +94,7 @@ private:
 	mutable std::mutex			mMutex;
 
 	// MAIN THREAD
-	ci::gl::Texture				mTexture;
+	ci::gl::TextureRef			mTexture;
 	
 	// WORKER THREAD
 

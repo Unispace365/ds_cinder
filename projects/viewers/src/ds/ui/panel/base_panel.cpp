@@ -124,7 +124,7 @@ void BasePanel::setViewerSize(float contentWidth, float contentHeight){
 	setSize(nw, nh);
 }
 
-void BasePanel::setViewerSize(const ci::Vec2f newContentSize){
+void BasePanel::setViewerSize(const ci::vec2 newContentSize){
 	setViewerSize(newContentSize.x, newContentSize.y);
 }
 
@@ -136,20 +136,20 @@ void BasePanel::setViewerHeight(const float contentHeight){
 	setViewerSize(contentHeight * mContentAspectRatio, contentHeight);
 }
 
-void BasePanel::setAbsoluteSizeLimits(const ci::Vec2f& absMin, const ci::Vec2f& absMax) {
+void BasePanel::setAbsoluteSizeLimits(const ci::vec2& absMin, const ci::vec2& absMax) {
 	mAbsMinSize = absMin; mAbsMaxSize = absMax;
 }
 
 void BasePanel::setSizeLimits(){
-	ci::Vec2f	panelDefaultSize = mDefaultSize;
+	ci::vec2	panelDefaultSize = mDefaultSize;
 	float				cw = getWidth() != 0 ? getWidth() : 1.0f;
 	float				ch = getHeight() != 0 ? getHeight() : 1.0f;
 	const float			aspect = cw / ch;
-	ci::Vec2f			minSize = ci::Vec2f(cw, ch),
-						defaultSize = ci::Vec2f(cw, ch),
-						maxSize = ci::Vec2f(cw * 10.0f, ch * 10.0f);
-	const ci::Vec2f		absMinSize = mAbsMinSize,
-						idealDefault = ci::Vec2f(panelDefaultSize.x, panelDefaultSize.y),
+	ci::vec2			minSize = ci::vec2(cw, ch),
+						defaultSize = ci::vec2(cw, ch),
+						maxSize = ci::vec2(cw * 10.0f, ch * 10.0f);
+	const ci::vec2		absMinSize = mAbsMinSize,
+						idealDefault = ci::vec2(panelDefaultSize.x, panelDefaultSize.y),
 						absMaxSize = mAbsMaxSize;
 	const float			absMinArea = absMinSize.x * absMinSize.y;
 	const float			absMaxArea = absMaxSize.x * absMaxSize.y;
@@ -278,7 +278,7 @@ void BasePanel::checkBounds(const bool immediate) {
 	if(immediate){
 		setPosition(floorf(destinationX), floorf(destinationY));
 	} else {
-		tweenPosition(ci::Vec3f(destinationX, destinationY, 0.0f), mAnimDuration, 0.0f, ci::EaseOutQuint());
+		tweenPosition(ci::vec3(destinationX, destinationY, 0.0f), mAnimDuration, 0.0f, ci::EaseOutQuint());
 	}
 }
 
@@ -309,18 +309,18 @@ void BasePanel::animateToDefaultSize(){
 	animateSizeTo(mDefaultSize);
 }
 
-void BasePanel::animateSizeTo(const ci::Vec2f newContentSize){
-	ci::Vec3f destSize = ci::Vec3f(newContentSize.x + mLeftPad + mRightPad, newContentSize.y + mTopPad + mBottomPad, 0.0f);
+void BasePanel::animateSizeTo(const ci::vec2 newContentSize){
+	ci::vec3 destSize = ci::vec3(newContentSize.x + mLeftPad + mRightPad, newContentSize.y + mTopPad + mBottomPad, 0.0f);
 	tweenStarted();
 	tweenSize(destSize, mAnimDuration, 0.0f, ci::EaseInOutQuad(), [this](){ tweenEnded(); });
 }
 
 void BasePanel::animateWidthTo(const float newWidth){
-	animateSizeTo(ci::Vec2f(newWidth, newWidth / mContentAspectRatio));
+	animateSizeTo(ci::vec2(newWidth, newWidth / mContentAspectRatio));
 }
 
 void BasePanel::animateHeightTo(const float newHeight){
-	animateSizeTo(ci::Vec2f(newHeight * mContentAspectRatio, newHeight));
+	animateSizeTo(ci::vec2(newHeight * mContentAspectRatio, newHeight));
 }
 
 void BasePanel::setLayoutCallback(std::function<void()> layoutCallback){

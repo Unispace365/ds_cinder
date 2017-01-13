@@ -40,4 +40,4 @@ void TextApp::setupServer() {
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC( TextApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_8) )
+CINDER_APP( TextApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_8) )

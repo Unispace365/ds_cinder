@@ -53,7 +53,7 @@
     <ResourceCompile Include="Resources.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
-    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc">
+    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2013\FrameworkResources.rc">
       <Filter>Resources</Filter>
     </ResourceCompile>
   </ItemGroup>

@@ -27,7 +27,7 @@ InfoListItem::InfoListItem(Globals& g, const float widthy, const float heighty)
 	mBackground->setColor(ci::Color(0.3f, 0.3f, 0.3f));
 	addChildPtr(mBackground);
 
-	mLabel->setFont("noto-sans", 24.0f);
+	mLabel->setFont("Noto Sans", 24.0f);
 	mLabel->setColor(ci::Color::white());
 	addChildPtr(mLabel);
 

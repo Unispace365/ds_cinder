@@ -1,7 +1,7 @@
 #ifndef _MEDIA_TESTER_APP_H_
 #define _MEDIA_TESTER_APP_H_
 
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <ds/ui/sprite/text.h>
 #include <ds/app/app.h>
 #include <ds/ui/sprite/panoramic_video.h>

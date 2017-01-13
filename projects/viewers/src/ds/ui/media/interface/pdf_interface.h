@@ -21,7 +21,7 @@ class ThumbnailBar;
 */
 class PDFInterface : public MediaInterface  {
 public:
-	PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
+	PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
 
 	void						linkPDF(ds::ui::Pdf* linkedPDF, ds::Resource& sourceResource);
 	void						updateWidgets();

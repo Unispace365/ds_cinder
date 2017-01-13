@@ -4,7 +4,9 @@
 #include <Poco/File.h>
 #include <Poco/Path.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
+#include <cinder/app/RendererGl.h>
 
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
@@ -29,8 +31,8 @@ MediaViewer::MediaViewer()
 
 								.persp() // sample perp view
 								.perspFov(60.0f)
-								.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
 								.perspFar(20.0f)
 
@@ -46,8 +48,8 @@ MediaViewer::MediaViewer()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSansCJKsc-Thin.otf"), "noto-thin");
+	mEngine.editFonts().install("Sans Bold", "noto-bold");
+	mEngine.editFonts().install("Sans", "noto-thin");
 
 	enableCommonKeystrokes(true);
 }
@@ -69,10 +71,10 @@ void MediaViewer::setupServer(){
 			const float clippFar = 10000.0f;
 			const float fov = 60.0f;
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -105,10 +107,10 @@ void MediaViewer::setupServer(){
 	mTouchMenu->setMenuConfig(tmc);
 
 	std::vector<ds::ui::TouchMenu::MenuItemModel> menuItemModels;
-	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Exit", "%APP%/data/images/menu/exit_app_normal.png", "%APP%/data/images/menu/exit_app_glow.png", [this](ci::Vec3f){ std::exit(0); }));
-	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Close All", "%APP%/data/images/menu/close_normal.png", "%APP%/data/images/menu/close_glow.png", [this](ci::Vec3f){ mEngine.getNotifier().notify(RequestCloseAllEvent()); }));
-	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Search", "%APP%/data/images/menu/search_normal.png", "%APP%/data/images/menu/search_glow.png", [this](ci::Vec3f pos){ /*mEngine.getNotifier().notify(RequestPresenterModeEvent(pos));*/ }));
-	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Layout", "%APP%/data/images/menu/pinboard_normal.png", "%APP%/data/images/menu/pinboard_glow.png", [this](ci::Vec3f){ mEngine.getNotifier().notify(RequestLayoutEvent()); }));
+	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Exit", "%APP%/data/images/menu/exit_app_normal.png", "%APP%/data/images/menu/exit_app_glow.png", [this](ci::vec3){ std::exit(0); }));
+	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Close All", "%APP%/data/images/menu/close_normal.png", "%APP%/data/images/menu/close_glow.png", [this](ci::vec3){ mEngine.getNotifier().notify(RequestCloseAllEvent()); }));
+	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Search", "%APP%/data/images/menu/search_normal.png", "%APP%/data/images/menu/search_glow.png", [this](ci::vec3 pos){ /*mEngine.getNotifier().notify(RequestPresenterModeEvent(pos));*/ }));
+	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Layout", "%APP%/data/images/menu/pinboard_normal.png", "%APP%/data/images/menu/pinboard_glow.png", [this](ci::vec3){ mEngine.getNotifier().notify(RequestLayoutEvent()); }));
 
 
 	mTouchMenu->setMenuItemModels(menuItemModels);
@@ -156,23 +158,23 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 			newMedia.setPrimaryResource(ds::Resource(fileNameOrig, ds::Resource::IMAGE_TYPE));
 			newMedia.setTitle(ds::wstr_from_utf8(fileName));
 			newMedia.setBody(ds::wstr_from_utf8(fileNameOrig));
-			mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
+			mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
 		}
 
 
 	// Perspective camera movement
 	} else if(event.getCode() == KeyEvent::KEY_d){
-		moveCamera(ci::Vec3f(1.0f, 0.0f, 0.0f));
+		moveCamera(ci::vec3(1.0f, 0.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_a){
-		moveCamera(ci::Vec3f(-1.0f, 0.0f, 0.0f));
+		moveCamera(ci::vec3(-1.0f, 0.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_w){
-		moveCamera(ci::Vec3f(0.0f, -1.0f, 0.0f));
+		moveCamera(ci::vec3(0.0f, -1.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_s){
-		moveCamera(ci::Vec3f(0.0f, 1.0f, 0.0f));
+		moveCamera(ci::vec3(0.0f, 1.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_RIGHTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, 1.0f));
+		moveCamera(ci::vec3(0.0f, 0.0f, 1.0f));
 	} else if(event.getCode() == KeyEvent::KEY_LEFTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, -1.0f));
+		moveCamera(ci::vec3(0.0f, 0.0f, -1.0f));
 	} else if(event.getCode() == KeyEvent::KEY_EQUALS){
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
 		p.mFarPlane += 1.0f;
@@ -225,7 +227,7 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 	}
 }
 
-void MediaViewer::moveCamera(const ci::Vec3f& deltaMove){
+void MediaViewer::moveCamera(const ci::vec3& deltaMove){
 	ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
 	p.mPosition += deltaMove;
 	std::cout << "Moving camera: " << p.mPosition.x << " " << p.mPosition.y << " " << p.mPosition.z << std::endl;
@@ -246,7 +248,7 @@ void MediaViewer::mouseUp(ci::app::MouseEvent e) {
 
 void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
-	ci::Vec3f locationy = ci::Vec3f((float)event.getX(), (float)event.getY(), 0.0f);
+	ci::vec3 locationy = ci::vec3((float)event.getX(), (float)event.getY(), 0.0f);
 	float incrementy = 50.0f;
 	float startWidth = mEngine.getWorldWidth() / 4.0f;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
@@ -265,7 +267,7 @@ void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 		newMedia.setPrimaryResource(ds::Resource((*it).string(), ds::Resource::parseTypeFromFilename((*it).string())));
 		newMedia.setTitle(ds::wstr_from_utf8(fileName));
 		newMedia.setBody((*it).wstring());
-		mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::Vec3f(locationy.x - startWidth/2.0f, locationy.y - startWidth/2.0f, 0.0f), startWidth));
+		mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(locationy.x - startWidth/2.0f, locationy.y - startWidth/2.0f, 0.0f), startWidth));
 		locationy.x += incrementy;
 		locationy.y += incrementy;
 	}
@@ -276,4 +278,4 @@ void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 } // namespace mv
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::Options()().msaa(4)), [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
