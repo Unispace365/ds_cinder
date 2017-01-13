@@ -19,11 +19,11 @@ public:
 
 class RequestMediaOpenEvent : public ds::RegisteredEvent < RequestMediaOpenEvent > {
 public: 
-	RequestMediaOpenEvent(ds::model::MediaRef media, const ci::Vec3f& location, const float startWidth)
+	RequestMediaOpenEvent(ds::model::MediaRef media, const ci::vec3& location, const float startWidth)
 		: mMedia(media), mLocation(location), mStartWidth(startWidth){}
 
 	ds::model::MediaRef mMedia;
-	ci::Vec3f mLocation;
+	ci::vec3 mLocation;
 	const float mStartWidth;
 };
 
