@@ -269,7 +269,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 
 	buildTransform();
 	ci::mat4 totalTransformation = trans*mTransformation;
-	ci::gl::pushModelView();
+	ci::gl::pushModelMatrix();
 	//glLoadIdentity();
 	ci::gl::multModelMatrix(totalTransformation);
 	bool flipImage = false;
@@ -292,7 +292,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 				//Bind previous render to texture unit 1
 				mFrameBuffer[!mFboIndex]->bindTexture(1);
 
-				ci::gl::popModelView();
+				ci::gl::popModelMatrix();
 				ci::gl::popMatrices();
 				ci::gl::ScopedViewport oldViewport(viewport.first, viewport.second);
 
@@ -314,7 +314,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 				mFboIndex = !mFboIndex;
 			}
 			else { //first pass
-				ci::gl::pushModelView();
+				ci::gl::pushModelMatrix();
 				ci::gl::pushMatrices();
 				ci::gl::setMatricesWindow(mFrameBuffer[mFboIndex]->getSize());
 				mFrameBuffer[mFboIndex]->bindFramebuffer();
@@ -331,7 +331,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 		}
 
 		if (mIsLastPass && mIsRenderFinalToTexture && mOutputFbo){
-			ci::gl::pushModelView();
+			ci::gl::pushModelMatrix();
 			ci::gl::pushMatrices();
 			//Need to set the MVP matrices to match dimensions of sprite object
 			ci::gl::setMatricesWindow(ci::ivec2(static_cast<int>(getWidth()), static_cast<int>(getHeight())));
@@ -367,6 +367,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 				shaderBase->uniform("useTexture", mUseShaderTexture);
 				shaderBase->uniform("preMultiply", premultiplyAlpha(mBlendMode));
 				mUniform.applyTo(shaderBase);
+				clip_plane::passClipPlanesToShader(shaderBase);
 			}
 
 			DS_REPORT_GL_ERRORS();
@@ -410,7 +411,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 		mShaderPass++;
 	}
 	if (mIsRenderFinalToTexture && mOutputFbo){
-		ci::gl::popModelView();
+		ci::gl::popModelMatrix();
 		ci::gl::popMatrices();
 	//	ci::gl::setViewport(viewport);
 		mOutputFbo->unbindFramebuffer();
@@ -418,10 +419,10 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 
 	if((mSpriteFlags&CLIP_F) != 0) {
 		const ci::Rectf&      clippingBounds = getClippingBounds();
-		enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
+		clip_plane::enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
 	}
 
-	ci::gl::popModelView();
+	ci::gl::popModelMatrix();
 	DS_REPORT_GL_ERRORS();
 
 	DrawParams dParams = drawParams;
@@ -441,11 +442,11 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	/* does multi pass work with post*/
 
 	if((mSpriteFlags&CLIP_F) != 0) {
-		disableClipping();
+		clip_plane::disableClipping();
 	}
 
 	if(mHasDrawLocalClientPost && ((mSpriteFlags&TRANSPARENT_F) == 0)) {
-		ci::gl::pushModelView();
+		ci::gl::pushModelMatrix();
 	//	glLoadIdentity();
 		ci::gl::multModelMatrix(totalTransformation);
 
@@ -475,7 +476,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 			// TODO?
 		//	shaderBase.unbind();
 		}
-		ci::gl::popModelView();
+		ci::gl::popModelMatrix();
 	}
 	DS_REPORT_GL_ERRORS();
 }
@@ -491,7 +492,7 @@ void Sprite::drawServer(const ci::mat4 &trans, const DrawParams &drawParams) {
 
 	buildTransform();
 	ci::mat4 totalTransformation = trans*mTransformation;
-	ci::gl::pushModelView();
+	ci::gl::pushModelMatrix();
 
 	ci::gl::multModelMatrix(totalTransformation);
 
@@ -519,10 +520,10 @@ void Sprite::drawServer(const ci::mat4 &trans, const DrawParams &drawParams) {
 
 	if((mSpriteFlags&CLIP_F) != 0) {
 		const ci::Rectf&      clippingBounds = getClippingBounds();
-		enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
+		clip_plane::enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
 	}
 
-	ci::gl::popModelView();
+	ci::gl::popModelMatrix();
 
 	if((mSpriteFlags&DRAW_SORTED_F) == 0) {
 		for(auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
@@ -536,7 +537,7 @@ void Sprite::drawServer(const ci::mat4 &trans, const DrawParams &drawParams) {
 	}
 
 	if((mSpriteFlags&CLIP_F) != 0) {
-		disableClipping();
+		clip_plane::disableClipping();
 	}
 }
 
@@ -911,7 +912,6 @@ void Sprite::drawLocalClient(){
 	if(mCornerRadius > 0.0f){
 		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
 	} else {
-
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
 
 		/* TODO figure out the extra shader nonsense
@@ -2030,10 +2030,9 @@ const ci::Rectf& Sprite::getClippingBounds()
 
 void Sprite::computeClippingBounds(){
 	if(getClipping()) {
-		float l = 0.0f, t = 0.0f;
-		float r = mWidth;
-		float b = mHeight;
-
+		ci::vec3 tl = localToGlobal(ci::vec3(0.0f, 0.0f, 0.0f));
+		ci::vec3 br = localToGlobal(ci::vec3(getWidth(), getHeight(), 0.0f));
+		ci::Rectf clippingRect(tl.x, tl.y, br.x, br.y);
 
 		// first find the outermost clipped window and use it as our reference
 		Sprite *outerClippedSprite = nullptr;
@@ -2044,46 +2043,30 @@ void Sprite::computeClippingBounds(){
 			curSprite = curSprite->mParent;
 		}
 
-		float old_l = mClippingBounds.getX1();
-		float old_r = mClippingBounds.getX2();
-		float old_t = mClippingBounds.getY1();
-		float old_b = mClippingBounds.getY2();
-
 		if(outerClippedSprite) {
 			curSprite = mParent;
 			while(curSprite) {
 				if(curSprite->getClipping()) {
 					float ww = curSprite->getWidth();
 					float wh = curSprite->getHeight();
-
-					ci::vec3 tl, br;
-					tl = globalToLocal(curSprite->localToGlobal(ci::vec3(0, 0, 0)));
-					br = globalToLocal(curSprite->localToGlobal(ci::vec3(ww, wh, 0)));
-
-					float wl = tl.x;
-					float wt = tl.y;
-					float wr = br.x;
-					float wb = br.y;
-
-					if(wl > l) l = wl;
-					if(wr < r) r = wr;
-					if(wt > t) t = wt;
-					if(wb < b) b = wb;
-
-					if(wl > r) r = wl + 1;
-					if(wr < l) l = wr - 1;
-					if(wt > b) b = wt + 1;
-					if(wb < t) t = wb - 1;
+					ci::vec3 tl = curSprite->localToGlobal(ci::vec3(0.0f, 0.0f, 0.0f));
+					ci::vec3 br = curSprite->localToGlobal(ci::vec3(ww, wh, 0.0f));
+					ci::Rectf outerRect(tl.x, tl.y, br.x, br.y);
+					clippingRect.clipBy(outerRect);
 				}
 				curSprite = curSprite->mParent;
 			}
-
-			if(l == r) r += 1;
-			if(t == b) b += 1;
 		}
 
-		if(!math::isEqual(old_l, l) || !math::isEqual(old_r, r) || !math::isEqual(old_t, t) || !math::isEqual(old_b, b)) {
-			mClippingBounds.set(l, t, r, b);
+		if (clippingRect.x1 == clippingRect.x2) clippingRect.x2 += 1.0f;
+		if (clippingRect.y1 == clippingRect.y2) clippingRect.y2 += 1.0f;
+
+		if(    !math::isEqual(clippingRect.x1, mClippingBounds.x1)
+			|| !math::isEqual(clippingRect.x2, mClippingBounds.x2)
+			|| !math::isEqual(clippingRect.y1, mClippingBounds.y1)
+			|| !math::isEqual(clippingRect.y2, mClippingBounds.y2) )
+		{
+			mClippingBounds = clippingRect;
 			markAsDirty(CLIPPING_BOUNDS);
 		}
 	}

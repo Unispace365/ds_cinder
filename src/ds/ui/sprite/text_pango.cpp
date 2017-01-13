@@ -22,29 +22,38 @@ namespace {
 	const std::string opacityFrag =
 "uniform sampler2D	tex0;\n"
 "uniform float		opaccy;\n"
-"in vec4			ciColor;\n"
-"out vec4			oColor;\n"
+"in vec4			Color;\n"
 "in vec2			TexCoord0;\n"
+"out vec4			oColor;\n"
 "void main()\n"
 "{\n"
 "    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
-"    oColor = texture2D( tex0, TexCoord0 );\n"
-"    oColor *= ciColor;\n"
+"    oColor = texture2D( tex0, vec2(TexCoord0.x, 1.0-TexCoord0.y) );\n"
+"    oColor *= Color;\n"
 "    oColor *= opaccy;\n"
 "}\n";
 
 const std::string vertShader =
+"uniform mat4		ciModelMatrix;\n"
 "uniform mat4		ciModelViewProjection;\n"
+"uniform vec4		uClipPlane0;\n"
+"uniform vec4		uClipPlane1;\n"
+"uniform vec4		uClipPlane2;\n"
+"uniform vec4		uClipPlane3;\n"
 "in vec4			ciPosition;\n" 
 "in vec4			ciColor;\n"
-"out vec4			oColor;\n"
 "in vec2			ciTexCoord0;\n"
 "out vec2			TexCoord0;\n"
+"out vec4			Color;\n"
 "void main()\n"
 "{\n"
 "	gl_Position = ciModelViewProjection * ciPosition;\n"
 "	TexCoord0 = ciTexCoord0;\n"
-"	oColor = ciColor;\n"
+"	Color = ciColor;\n"
+"	gl_ClipDistance[0] = dot(ciModelMatrix * ciPosition, uClipPlane0);\n"
+"	gl_ClipDistance[1] = dot(ciModelMatrix * ciPosition, uClipPlane1);\n"
+"	gl_ClipDistance[2] = dot(ciModelMatrix * ciPosition, uClipPlane2);\n"
+"	gl_ClipDistance[3] = dot(ciModelMatrix * ciPosition, uClipPlane3);\n"
 "}\n";
 
 std::string shaderNameOpaccy = "pango_text_opacity";
@@ -103,7 +112,6 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	, mPixelHeight(-1)
 	, mNumberOfLines(0)
 	, mWrappedText(false)
-	, mOutputShader(vertShader, opacityFrag, shaderNameOpaccy)
 	, mFontDescription(nullptr)
 	, mPangoContext(nullptr)
 	, mPangoLayout(nullptr)
@@ -117,7 +125,8 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 {
 	mBlobType = BLOB_TYPE;
 
-	mOutputShader.loadShaders();
+	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
+	mSpriteShader.loadShaders();
 
 	if(!mEngine.getPangoFontService().getPangoFontMap()) {
 		DS_LOG_WARNING("Cannot create the pango font map, nothing will render for this pango text sprite.");
@@ -400,7 +409,7 @@ void TextPango::drawLocalClient(){
 		ci::gl::color(ci::Color::white());
 		// The true flag is for premultiplied alpha, which this texture is
 		ci::gl::enableAlphaBlending(true);		
-		ci::gl::GlslProgRef shaderBase = mOutputShader.getShader();
+		ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
 		if(shaderBase) {
 			shaderBase->bind();
 			shaderBase->uniform("tex0", 0);

@@ -74,26 +74,13 @@ void OrthRoot::updateServer(const ds::UpdateParams& p) {
 	mSprite->updateServer(p);
 }
 
-void OrthRoot::setCameraForDraw(ci::mat4& m){
+void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
 	if(mCameraDirty) {
 		setCinderCamera();
 	}
 	setGlCamera();
 
-	// Account for src rect translation
-	if(mSrcRect.x2 > mSrcRect.x1 && mSrcRect.y2 > mSrcRect.y1) {
-		const float			sx = mDstRect.getWidth() / mSrcRect.getWidth(),
-			sy = mDstRect.getHeight() / mSrcRect.getHeight();
-		m = ci::translate(m, ci::vec3(-mSrcRect.x1*sx, -mSrcRect.y1*sy, 0.0f));
-		m = ci::scale(m, ci::vec3(sx, sy, 1.0f));
-	}
-}
-
-void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
-	ci::mat4		m(ci::gl::getModelView());
-	if(getBuilder().mDrawScaled){
-		setCameraForDraw(m);
-	}
+	ci::mat4 m = ci::gl::getModelMatrix();
 	mSprite->drawClient(m, p);
 
 	if (auto_draw) auto_draw->drawClient(m, p);
@@ -104,10 +91,12 @@ void OrthRoot::drawClient(const DrawParams& p, AutoDrawService* auto_draw) {
 }
 
 void OrthRoot::drawServer(const DrawParams& p) {
-	ci::mat4		m(ci::gl::getModelView());
-	if(getBuilder().mDrawScaled){
-		setCameraForDraw(m);
+	if(mCameraDirty) {
+		setCinderCamera();
 	}
+	setGlCamera();
+
+	ci::mat4 m = ci::gl::getModelMatrix();
 	mSprite->drawServer(m, p);
 
 	if(mSetViewport){
@@ -121,14 +110,13 @@ ui::Sprite* OrthRoot::getHit(const ci::vec3& point) {
 
 void OrthRoot::setCinderCamera() {
 	mCameraDirty = false;
-	const ci::Rectf&		screen_rect(mEngine.getScreenRect());
 
-	// I think this should be in setGlCamera, but keeping it compatible for now.
-	if (mSetViewport) {
-		ci::gl::context()->pushViewport(std::make_pair<ci::vec2, ci::vec2>(ci::vec2((int)screen_rect.getX1(), (int)screen_rect.getY2()), ci::vec2((int)screen_rect.getX2(), (int)screen_rect.getY1())));
-	//	ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
+	if(getBuilder().mDrawScaled) {
+		mCamera.setOrtho(mSrcRect.x1, mSrcRect.x2, mSrcRect.y2, mSrcRect.y1, mNearPlane, mFarPlane);
 	}
-	mCamera.setOrtho(screen_rect.getX1(), screen_rect.getX2(), screen_rect.getY2(), screen_rect.getY1(), mNearPlane, mFarPlane);
+	else {
+		mCamera.setOrtho(0.0f, mDstRect.getWidth(), mDstRect.getHeight(), 0.0f, mNearPlane, mFarPlane);
+	}
 }
 
 void OrthRoot::setViewport(const bool b) {
@@ -141,8 +129,7 @@ void OrthRoot::markCameraDirty() {
 
 void OrthRoot::setGlCamera() {
 	if (mSetViewport) {
-		const ci::Rectf&		screen_rect(mEngine.getScreenRect());
-	//	ci::gl::setViewport(ci::Area((int)screen_rect.getX1(), (int)screen_rect.getY2(), (int)screen_rect.getX2(), (int)screen_rect.getY1()));
+		ci::gl::context()->pushViewport(std::make_pair<ci::vec2, ci::vec2>(ci::vec2(0, (int)mDstRect.getHeight()), ci::vec2((int)mDstRect.getWidth(), 0)));
 	}
 	ci::gl::setMatrices(mCamera);
 	ci::gl::disableDepthRead();
