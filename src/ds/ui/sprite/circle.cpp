@@ -7,6 +7,7 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/app/environment.h"
 
 #include <gl/GL.h>
 
@@ -60,6 +61,9 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
+
+	removeShaders();
+	setBaseShader(ds::Environment::expand("%APP%/data/shaders/"), "circle", false);
 	setRadius(mRadius);
 	setFilled(mFilled);
 	mLayoutFixedAspect = true;
@@ -77,9 +81,14 @@ void Circle::updateServer(const UpdateParams& up) {
 }
 
 void Circle::drawLocalClient() {
-	if(!mVertices) return;
+	//if(!mVertices) return;
 
-	ci::gl::lineWidth(mLineWidth);
+	if(mFilled){
+		ci::gl::drawSolidCircle(ci::vec2(mRadius, mRadius), mRadius);
+	} else {
+		ci::gl::lineWidth(mLineWidth);
+		ci::gl::drawStrokedCircle(ci::vec2(mRadius, mRadius), mRadius);
+	}
 	/* TODO convert to vbo
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, mVertices);
@@ -152,6 +161,9 @@ void Circle::init() {
 	mIgnoreSizeUpdates = true;
 	setSize(mRadius * 2.0f, mRadius * 2.0f);
 	mIgnoreSizeUpdates = false;
+
+	// TODO: if we switch to a batch or something, re-evaluate this too
+	return;
 
 	// GN: From ci::gl::drawSolidCircle()
 	// automatically determine the number of segments from the circumference

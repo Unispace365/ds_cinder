@@ -89,7 +89,7 @@
 		"SystemAndMouse" -- Receive both native touch events and mouse events. Will
 		cause the first touch event to be discarded, because it is also a mouse event.
 	-->
-	<text name="touch_mode" value="System" />
+	<text name="touch_mode" value="SystemAndMouse" />
 	
 	<!-- port to listen to tuio stream. default=3333 -->
 	<int name="tuio_port" value="3333" />

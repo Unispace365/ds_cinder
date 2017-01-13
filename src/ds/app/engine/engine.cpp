@@ -280,6 +280,7 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 void Engine::setup(ds::App& app) {
 
 	mCinderWindow = app.getWindow();
+	//mCinderWindow->spanAllDisplays
 
 	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
 	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
