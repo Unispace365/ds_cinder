@@ -78,13 +78,18 @@ void DebugDraw::DrawTransform(const b2Transform& xf) {
 	ci::gl::end();
 }
 
-void DebugDraw::drawClient(const ci::Matrix44f& t, const DrawParams& p) {
+void DebugDraw::drawClient(const ci::mat4& t, const DrawParams& p) {
 	ci::gl::pushModelView();
-	glLoadIdentity();
+
+	// TODO ? Most of this was guessed-at during the 0.9 update and may need revision
+	//glLoadIdentity();
 	auto trans = t;
 	float scale = 1.0f / mPhysicsWorld.getCi2BoxScale();
-	trans.scale( ci::Vec2f(scale, scale) );
-	ci::gl::multModelView(trans);
+	trans = glm::scale(trans, ci::vec3(scale, scale, scale));
+	//trans.scale( ci::vec2(scale, scale) );
+	ci::gl::setModelMatrix(trans);
+	ci::gl::setViewMatrix(trans);
+//	ci::gl::multModelView(trans);
 	mB2World.DrawDebugData();
 	ci::gl::popModelView();
 }

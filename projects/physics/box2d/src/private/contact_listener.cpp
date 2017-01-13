@@ -125,7 +125,7 @@ void ContactListener::makeCollision(const ContactKey& key, Collision& collision)
 {
 	collision.mContactOne = mWorld.box2CiTranslation(key.mContactPointOne, nullptr); // nullptr for sprite will make contacts in world space
 	collision.mContactTwo = mWorld.box2CiTranslation(key.mContactPointTwo, nullptr); // so assume that all contacts are world space position
-	collision.mNormal = ci::Vec2f(key.mNormal.x, key.mNormal.y);
+	collision.mNormal = ci::vec2(key.mNormal.x, key.mNormal.y);
 
 	// I *think* the sprite in the key can be ignored, because technically it should
 	// always be the object receiving the callback (although I bet I have some details
