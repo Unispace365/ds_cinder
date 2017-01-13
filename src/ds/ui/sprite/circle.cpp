@@ -17,6 +17,34 @@ namespace ds {
 namespace ui {
 
 namespace {
+
+const std::string CircleFrag =
+"uniform bool preMultiply;\n"
+"in vec4			Color;\n"
+"out vec4			oColor;\n"
+"void main()\n"
+"{\n"
+"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+"    oColor *= Color;\n"
+"    if (preMultiply) {\n"
+"        oColor.r *= oColor.a;\n"
+"        oColor.g *= oColor.a;\n"
+"        oColor.b *= oColor.a;\n"
+"    }\n"
+"}\n";
+
+const std::string CircleVert =
+"uniform mat4	ciModelViewProjection;\n"
+"in vec4			ciPosition;\n"
+"in vec4			ciColor;\n"
+"out vec4			Color;\n"
+"void main()\n"
+"{\n"
+"	gl_Position = ciModelViewProjection * ciPosition;\n"
+"	Color = ciColor;\n"
+"}\n";
+
+
 	char				BLOB_TYPE = 0;
 
 	const DirtyState&	RADIUS_DIRTY = INTERNAL_A_DIRTY;
@@ -48,6 +76,8 @@ Circle::Circle(SpriteEngine& engine)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
+	removeShaders();
+	addNewMemoryShader(CircleVert, CircleFrag, "circle", true);
 	mLayoutFixedAspect = true;
 }
 
@@ -63,7 +93,7 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	setTransparent(false);
 
 	removeShaders();
-	setBaseShader(ds::Environment::expand("%APP%/data/shaders/"), "circle", false);
+	addNewMemoryShader(CircleVert, CircleFrag, "circle", true);
 	setRadius(mRadius);
 	setFilled(mFilled);
 	mLayoutFixedAspect = true;

@@ -577,7 +577,7 @@ namespace ui {
 		//associate shader in a file to sprite (multi-pass)
 		void					setShaderList(const std::vector<std::pair<std::string, std::string>>, bool applyToChildren = false);
 		void					addNewShader(const std::pair<std::string, std::string>, bool addToFront = false, bool applyToChildren = false);
-		void					addNewShader(const std::string, const std::string, bool addToFront = false, bool applyToChildren = false);
+		void					addNewShader(const std::string location, const std::string shaderName, bool addToFront = false, bool applyToChildren = false);
 		//Associate shader in memory to sprite.
 		void					addNewMemoryShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
 		bool					removeShader(std::string shaderName);
