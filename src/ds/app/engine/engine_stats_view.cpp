@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "engine_stats_view.h"
 
 #include "ds/app/blob_reader.h"

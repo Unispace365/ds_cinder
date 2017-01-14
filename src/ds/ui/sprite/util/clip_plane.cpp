@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "clip_plane.h"
 #include <cinder/gl/gl.h>
 #include <cinder/Vector.h>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "sprite_shader.h"
 #include "cinder/DataSource.h"
 #include "ds/debug/logger.h"

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/touch/momentum.h"
 
 #include <ds/ui/sprite/sprite.h>

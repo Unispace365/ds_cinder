@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/sprite/multiline_text.h"
 /*
 using namespace ci;

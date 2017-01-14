@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_owner.h"
 
 #include "image_file.h"

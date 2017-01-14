@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "select_picking.h"
 
 #include <cinder/gl/gl.h>

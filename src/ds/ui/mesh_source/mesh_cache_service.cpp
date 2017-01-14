@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "mesh_cache_service.h"
 
 namespace ds {

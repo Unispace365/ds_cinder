@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "nine_patch.h"
 
 #include <map>

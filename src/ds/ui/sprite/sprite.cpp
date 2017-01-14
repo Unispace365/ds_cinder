@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "sprite.h"
 #include <cinder/Camera.h>
 #include <cinder/gl/gl.h>

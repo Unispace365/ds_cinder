@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/service/pango_font_service.h"
 
 #include "ds/app/environment.h"

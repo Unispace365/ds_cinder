@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/cfg/settings.h"
 
 #include <cinder/Xml.h>

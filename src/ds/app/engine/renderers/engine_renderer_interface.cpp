@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "engine_renderer_interface.h"
 
 #include <cinder/gl/gl.h>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_glsl.h"
 
 #include <cinder/Surface.h>

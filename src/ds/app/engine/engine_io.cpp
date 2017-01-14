@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_io.h"
 
 #include "ds/app/blob_reader.h"

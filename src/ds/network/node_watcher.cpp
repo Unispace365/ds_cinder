@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/network/node_watcher.h"
 
 #include <Poco/Net/DatagramSocket.h>

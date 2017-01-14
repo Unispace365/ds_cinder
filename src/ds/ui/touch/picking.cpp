@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "picking.h"
 
 namespace ds {

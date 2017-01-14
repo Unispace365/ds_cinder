@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/thread/work_manager.h"
 
 #include <algorithm>

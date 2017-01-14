@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/image_registry.h"
 
 #include <assert.h>

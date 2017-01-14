@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "gradient_sprite.h"
 
 #include <ds/app/blob_reader.h>

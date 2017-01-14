@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "fbo.h"
 #include "ds/debug/debug_defines.h"
 #include "cinder/gl/wrapper.h"

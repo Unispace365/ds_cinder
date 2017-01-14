@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "mesh_owner.h"
 
 #include "mesh_file.h"

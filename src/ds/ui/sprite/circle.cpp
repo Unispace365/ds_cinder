@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "circle.h"
 
 #include <map>

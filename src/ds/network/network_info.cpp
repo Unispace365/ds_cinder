@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "network_info.h"
 
 namespace ds {

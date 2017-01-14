@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/data/user_data.h"
 
 #include <stdexcept>

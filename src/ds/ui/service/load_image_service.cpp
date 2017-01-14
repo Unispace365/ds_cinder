@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/service/load_image_service.h"
 
 #include <cinder/ImageIo.h>

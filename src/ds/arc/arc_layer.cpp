@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/arc/arc_layer.h"
 
 #include <Poco/String.h>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/data/font_list.h"
 
 namespace ds {

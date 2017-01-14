@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/gl/uniform.h"
 #include <cinder/gl/GlslProg.h>
 

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "text_pango.h"
 
 #include <pango/pango-font.h>

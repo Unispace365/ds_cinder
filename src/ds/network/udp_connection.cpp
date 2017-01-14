@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "udp_connection.h"
 #include <iostream>
 #include <Poco/Net/NetException.h>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/util/string_util.h"
 
 #include <sstream>

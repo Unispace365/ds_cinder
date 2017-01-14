@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "mesh_source.h"
 
 namespace ds {

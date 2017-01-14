@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_client.h"
 
 // Turn off an unnecessary warning in the boost GUID

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/service/glsl_image_service.h"
 
 #include <cinder/Camera.h>
