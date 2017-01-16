@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "button_behaviour.h"
 
 #include <ds/debug/logger.h>

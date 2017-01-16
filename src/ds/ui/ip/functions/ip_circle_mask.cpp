@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <ds/ui/ip/functions/ip_circle_mask.h>
 
 namespace ds {

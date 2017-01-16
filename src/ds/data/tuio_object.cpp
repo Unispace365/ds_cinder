@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/data/tuio_object.h"
 
 namespace ds {

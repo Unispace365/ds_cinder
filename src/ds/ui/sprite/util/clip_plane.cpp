@@ -1,22 +1,34 @@
+#include "stdafx.h"
+
 #include "clip_plane.h"
 #include <cinder/gl/gl.h>
 #include <cinder/Vector.h>
 #include "ds/debug/debug_defines.h"
+#include "ds/debug/logger.h"
 
 namespace {
 
-//void planeEquation( double *eq, float x1, float y1, float z1, float x2, float y2, float z2, float x3, float y3, float z3)
-//{
-//  eq[0] = (y1*(z2 – z3)) + (y2*(z3 – z1)) + (y3*(z1 – z2));
-//  eq[1] = (z1*(x2 – x3)) + (z2*(x3 – x1)) + (z3*(x1 – x2));
-//  eq[2] = (x1*(y2 – y3)) + (x2*(y3 – y1)) + (x3*(y1 – y2));
-//  eq[3] = -((x1*((y2*z3) – (y3*z2))) + (x2*((y3*z1) – (y1*z3))) + (x3*((y1*z2) – (y2*z1))));
-//}
+bool					sClippingIsEnabled = false;
+std::vector<glm::mat4>	sClipPlaneStack = {	glm::mat4(
+		glm::vec4(0.0f, 0.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 0.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 0.0f, 0.0f, 0.0f),
+		glm::vec4(0.0f, 0.0f, 0.0f, 0.0f)
+	) };
+
+void pushClipPlaneStack() {
+	sClipPlaneStack.push_back( sClipPlaneStack.back() );
+}
+
+void popClipPlaneStack() {
+	sClipPlaneStack.pop_back();
+}
 
 }
 
 namespace ds {
 namespace ui {
+namespace clip_plane {
 
 void enableClipping(float x0, float y0, float x1, float y1)
 {
@@ -28,6 +40,7 @@ void enableClipping(float x0, float y0, float x1, float y1)
 	clippingPoints[1] = glm::vec3(x0, y1, 0);
 	clippingPoints[2] = glm::vec3(x1, y1, 0);
 	clippingPoints[3] = glm::vec3(x1, y0, 0);
+	pushClipPlaneStack();
 
 	for(int i = 0; i < 4; ++i) {
 		int j = (i + 1) % 4;
@@ -41,32 +54,46 @@ void enableClipping(float x0, float y0, float x1, float y1)
 		// to two consecutive edges.  Next, we cross that with the forward-
 		// facing (clockwise) edge vector to get an inward-facing edge-
 		// normal vector for that edge
-
 		glm::vec3 norm = glm::normalize(glm::cross(edgeA, (glm::cross(edgeA, edgeB))));
 
 		// the four points we pass to glClipPlane are the solutions of the
 		// equation Ax + By + Cz + D = 0.  A, B, and C are the normal, and
 		// we solve for D. C is always zero for the 2D case however, in the
 		// 3D case, we must use a three-component normal vector.
-
 		float d = glm::dot(-norm, clippingPoints[i]);
 
-		/*
+		glm::vec4 plane(norm.x, norm.y, norm.z, d);
+
+		sClipPlaneStack.back()[i] = plane;
+
+		ci::gl::enable( GL_CLIP_DISTANCE0 + i );
 		DS_REPORT_GL_ERRORS();
-		glEnable( GL_CLIP_PLANE0 + i );
-		DS_REPORT_GL_ERRORS();
-		GLdouble equation[4] = { norm.x, norm.y, norm.z, d };
-		glClipPlane( GL_CLIP_PLANE0 + i, equation );
-		DS_REPORT_GL_ERRORS();
-		*/
+	}
+	sClippingIsEnabled = true;
+}
+
+void disableClipping() {
+	if (sClipPlaneStack.size() <= 1) {
+		DS_LOG_WARNING("Clip Plane: Trying to set invalid clipping state!");
+		return;
+	}
+	popClipPlaneStack();
+
+	if (sClipPlaneStack.size() == 1) {
+		sClippingIsEnabled = false;
+		for (int i=0; i<4; i++) {
+			ci::gl::disable(GL_CLIP_DISTANCE0 + i);
+		}
 	}
 }
 
-void disableClipping()
-{
-	//glPopAttrib();
-	//glDisable(GL_SCISSOR_TEST);
+void passClipPlanesToShader(ci::gl::GlslProgRef shaderProg) {
+	shaderProg->uniform("uClipPlane0", sClipPlaneStack.back()[0]);
+	shaderProg->uniform("uClipPlane1", sClipPlaneStack.back()[1]);
+	shaderProg->uniform("uClipPlane2", sClipPlaneStack.back()[2]);
+	shaderProg->uniform("uClipPlane3", sClipPlaneStack.back()[3]);
 }
 
-}
-}
+} // namespace clip_plane
+} // namespace ui
+} // namespace ds

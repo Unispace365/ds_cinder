@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #ifndef DS_UI_SPRITE_UTIL_AUTOFBO_H_
 #define DS_UI_SPRITE_UTIL_AUTOFBO_H_
 

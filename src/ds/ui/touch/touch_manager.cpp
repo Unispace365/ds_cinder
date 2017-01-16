@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "touch_manager.h"
 
 #include <cinder/System.h>

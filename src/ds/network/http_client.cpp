@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/network/http_client.h"
 
 #include <iostream>

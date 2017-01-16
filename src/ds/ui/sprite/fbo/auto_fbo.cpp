@@ -1,4 +1,6 @@
-﻿#include "ds/ui/sprite/fbo/auto_fbo.h"
+#include "stdafx.h"
+
+#include "ds/ui/sprite/fbo/auto_fbo.h"
 
 #include "ds/ui/sprite/sprite_engine.h"
 

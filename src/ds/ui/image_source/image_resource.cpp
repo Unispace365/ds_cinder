@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_resource.h"
 
 #include "ds/app/image_registry.h"

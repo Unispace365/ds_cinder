@@ -1,9 +1,13 @@
-uniform sampler2D 	tex0;
-uniform bool 		useTexture;
-uniform bool		preMultiply;
-in vec4				ciColor;
-out vec4			oColor;
-in vec2				TexCoord0;
+#version 150
+
+uniform sampler2D   tex0;
+uniform bool        useTexture;
+uniform bool        preMultiply;
+
+in vec4             Color;
+in vec2             TexCoord0;
+
+out vec4            oColor;
 
 void main()
 {
@@ -12,12 +16,12 @@ void main()
     if (useTexture) {
         oColor = texture2D( tex0, TexCoord0 );
     }
-    
-    oColor *= ciColor;
-    
+
+    oColor *= Color;
+
     if (preMultiply) {
-        oColor.r *= oColor.a;
-        oColor.g *= oColor.a;
-        oColor.b *= oColor.a;
-    }      
+        oColor.r *= Color.a;
+        oColor.g *= Color.a;
+        oColor.b *= Color.a;
+    }
 }

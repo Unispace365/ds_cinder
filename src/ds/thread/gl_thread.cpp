@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/thread/gl_thread.h"
 
 #include <Poco/Semaphore.h>

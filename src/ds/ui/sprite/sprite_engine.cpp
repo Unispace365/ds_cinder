@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "sprite_engine.h"
 #include "sprite.h"
 #include <cinder/app/App.h>

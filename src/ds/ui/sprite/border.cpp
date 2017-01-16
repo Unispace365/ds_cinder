@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "border.h"
 
 #include "ds/app/blob_reader.h"

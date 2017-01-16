@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <ds/app/event_notifier.h>
 
 

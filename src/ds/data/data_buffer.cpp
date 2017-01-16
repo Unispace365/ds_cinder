@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "data_buffer.h"
 #include <string>
 

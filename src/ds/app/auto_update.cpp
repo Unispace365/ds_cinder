@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/auto_update.h"
 
 #include "ds/app/auto_update_list.h"

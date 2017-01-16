@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/tween/sprite_anim.h"
 
 #include "ds/ui/sprite/sprite.h"

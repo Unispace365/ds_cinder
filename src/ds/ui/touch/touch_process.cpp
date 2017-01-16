@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "touch_process.h"
 #include "ds/math/math_defs.h"
 #include "ds/ui/sprite/sprite.h"

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/arc/arc_chain.h"
 
 #include "ds/arc/arc_io.h"

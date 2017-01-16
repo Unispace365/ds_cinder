@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <ds/app/camera_utils.h>
 
 #include <cinder/gl/gl.h>

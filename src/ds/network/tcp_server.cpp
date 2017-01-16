@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/network/tcp_server.h"
 
 #include <boost/algorithm/string/split.hpp>

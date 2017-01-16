@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_meta_data.h"
 
 #include <intrin.h>

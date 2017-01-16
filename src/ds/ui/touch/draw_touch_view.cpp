@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "draw_touch_view.h"
 
 #include <ds/math/math_defs.h>

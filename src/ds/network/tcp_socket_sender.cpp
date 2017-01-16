@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/network/tcp_socket_sender.h"
 
 #include <Poco/Net/StreamSocket.h>

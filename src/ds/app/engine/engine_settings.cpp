@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_settings.h"
 
 #include <Poco/Path.h>

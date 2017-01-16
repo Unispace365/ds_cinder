@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_client.h"
 
 #include "ds/app/app_defs.h"

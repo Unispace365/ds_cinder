@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/arc/arc_pow.h"
 
 namespace ds {

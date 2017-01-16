@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_arc.h"
 
 #include <cinder/ImageIo.h>

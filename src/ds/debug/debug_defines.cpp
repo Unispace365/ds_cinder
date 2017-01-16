@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/debug/debug_defines.h"
 
 #include <sstream>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/data/color_list.h"
 
 namespace ds {

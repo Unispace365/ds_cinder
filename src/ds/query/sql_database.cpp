@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/query/sql_database.h"
 #include "ds/debug/logger.h"
 

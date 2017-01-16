@@ -1,3 +1,5 @@
+//#include "stdafx.h"
+
 #include "computer_info.h"
 
 #include <Poco/Timestamp.h>

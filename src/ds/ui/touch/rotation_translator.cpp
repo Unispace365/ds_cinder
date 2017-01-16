@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "rotation_translator.h"
 
 #include <ds/math/math_defs.h>

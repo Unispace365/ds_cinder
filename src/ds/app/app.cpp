@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/app.h"
 
 #include <Poco/File.h>

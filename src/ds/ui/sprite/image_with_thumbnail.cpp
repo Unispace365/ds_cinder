@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_with_thumbnail.h"
 
 #include "ds/ui/sprite/sprite_engine.h"

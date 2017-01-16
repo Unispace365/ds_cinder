@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "single_udp_receiver.h"
 #include <iostream>
 #include <Poco/Net/NetException.h>

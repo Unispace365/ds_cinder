@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_generator.h"
 
 #include "ds/app/app_defs.h"

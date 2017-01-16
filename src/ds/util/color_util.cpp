@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "color_util.h"
 
 #include <ds/data/color_list.h>

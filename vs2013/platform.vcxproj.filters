@@ -687,6 +687,9 @@
     <ClInclude Include="$(CINDER_090)\blocks\OSC\src\ip\UdpSocket.h">
       <Filter>src\osc</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\stdafx.h">
+      <Filter>src</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1156,6 +1159,9 @@
     </ClCompile>
     <ClCompile Include="$(CINDER_090)\blocks\OSC\src\ip\win32\UdpSocket.cpp">
       <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\stdafx.cpp">
+      <Filter>src</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

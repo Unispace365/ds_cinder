@@ -6,6 +6,7 @@
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 #include <ds/ui/sprite/text.h>
+#include <ds/ui/sprite/shader/sprite_shader.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -214,6 +215,7 @@ void ScrollExample::keyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
+		ds::ui::SpriteShader::clearShaderCache();
 		setupServer();
 	} else if(event.getCode() == KeyEvent::KEY_d){
 		moveCamera(ci::vec3(1.0f, 0.0f, 0.0f));

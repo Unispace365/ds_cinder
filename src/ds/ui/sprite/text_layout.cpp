@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/sprite/text_layout.h"
 
 #include <iostream>

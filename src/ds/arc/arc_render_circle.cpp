@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/arc/arc_render_circle.h"
 
 #include "ds/math/math_func.h"

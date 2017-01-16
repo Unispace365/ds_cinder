@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "engine_renderer_continuous.h"
 
 #include <ds/app/engine/engine.h>

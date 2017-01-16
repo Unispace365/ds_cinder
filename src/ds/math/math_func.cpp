@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "math_func.h"
 #include "math_defs.h"
 #include "random.h"

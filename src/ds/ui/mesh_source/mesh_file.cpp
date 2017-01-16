@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "mesh_file.h"
 #include "ds/ui/mesh_source/mesh_file_loader.h"
 

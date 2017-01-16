@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/query/query_result.h"
 
 #include <algorithm>

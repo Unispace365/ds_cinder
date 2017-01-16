@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "update_params.h"
 
 namespace ds

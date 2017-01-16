@@ -167,7 +167,6 @@ public:
 
 private:
 	ci::gl::TextureRef			mTexture;
-	SpriteShader				mOutputShader;
 
 	std::string					mCfgName;
 

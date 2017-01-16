@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "draw_params.h"
 
 namespace ds
