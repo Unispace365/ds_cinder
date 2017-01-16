@@ -10,7 +10,7 @@
 namespace {
 
 const std::string DefaultFrag = 
-"#version 150\n"
+//"#version 150\n"
 "uniform sampler2D  tex0;\n"
 "uniform bool       useTexture;\n"
 "uniform bool       preMultiply;\n"
@@ -33,12 +33,12 @@ const std::string DefaultFrag =
 
 const std::string DefaultVert = 
 "#version 150\n"
-"uniform mat        ciModelMatrix;\n"
-"uniform mat        ciModelViewProjection;\n"
-"uniform vec        uClipPlane0;\n"
-"uniform vec        uClipPlane1;\n"
-"uniform vec        uClipPlane2;\n"
-"uniform vec        uClipPlane3;\n"
+"uniform mat4       ciModelMatrix;\n"
+"uniform mat4       ciModelViewProjection;\n"
+"uniform vec4       uClipPlane0;\n"
+"uniform vec4       uClipPlane1;\n"
+"uniform vec4       uClipPlane2;\n"
+"uniform vec4       uClipPlane3;\n"
 "in vec4            ciPosition;\n"
 "in vec2            ciTexCoord0;\n"
 "in vec4            ciColor;\n"
@@ -227,7 +227,7 @@ void SpriteShader::loadDefaultFromMemory(){
 		}
 	} catch(std::exception &e) {
 		//std::cout << e.what() << std::endl;
-		DS_LOG_WARNING_M(std::string("SpriteShader::loadShadersFromFile() on DefaultVert\n") + e.what(), SHADER_LOG);
+		DS_LOG_WARNING_M(std::string("SpriteShader::loadDefaultFromMemory() on DefaultVert\n") + e.what(), SHADER_LOG);
 	}
 }
 
