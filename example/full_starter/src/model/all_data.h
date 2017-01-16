@@ -1,3 +1,4 @@
+#pragma once
 #ifndef _FULLSTARTER_APP_MODEL_ALLDATA_H_
 #define _FULLSTARTER_APP_MODEL_ALLDATA_H_
 

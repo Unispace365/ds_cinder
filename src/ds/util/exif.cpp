@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 /**************************************************************************
 exif.cpp  -- A simple ISO C++ library to parse basic EXIF
 information from a JPEG file.

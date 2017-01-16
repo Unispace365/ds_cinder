@@ -30,6 +30,7 @@
 #include "ds/data/tuio_object.h"
 #include "ds/cfg/settings.h"
 #include "ds/ui/ip/ip_function_list.h"
+#include "ds/ui/service/pango_font_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/ui/touch/select_picking.h"
 #include "ds/ui/touch/touch_manager.h"
@@ -66,6 +67,7 @@ public:
 	void								addChannel(const std::string &name, const std::string &description);
 	virtual ds::AutoUpdateList&			getAutoUpdateList(const int = AutoUpdateType::SERVER);
 	virtual ds::ImageRegistry&			getImageRegistry() { return mImageRegistry; }
+	virtual ds::ui::PangoFontService&	getPangoFontService(){ return mPangoFontService; }
 	virtual ds::ui::Tweenline&			getTweenline() { return mTweenline; }
 	virtual const ds::cfg::Settings&	getDebugSettings() { return mDebugSettings; }
 	// I take ownership of any services added to me.
@@ -102,13 +104,13 @@ public:
 	// Access to the configuration settings that created a root. Allows you to inspect pick style, debug drawing, perspective, etc
 	const RootList::Root&				getRootBuilder(const size_t index = 0);
 
-	void								prepareSettings( ci::app::App::Settings& );
+	void								prepareSettings( ci::app::AppBase::Settings& );
 	//called in app setup; loads settings files and what not.
 	virtual void						setup(ds::App&);
 	void								setupTouch(ds::App&);
 
 	bool								isIdling() const;
-	void								startIdling();
+	virtual void						startIdling();
 	virtual void						resetIdleTimeout();
 	
 	// Called during app construction, to register the sprites as blob handlers.
@@ -207,15 +209,6 @@ public:
 	void								setAverageFps(const float fps){ mAverageFps = fps; }
 	const float							getAverageFps() const { return mAverageFps; }
 
-
-	// This really should move somewhere else (TODO: SL)
-	struct FxaaOptions
-	{
-		bool								mApplyFxAA{ false };
-		float								mFxAASpanMax;
-		float								mFxAAReduceMul;
-		float								mFxAAReduceMin;
-	} mFxaaOptions;
 	// -------------------------------------------------------------
 	// These functions are inlined, since they are called frequently
 	// -------------------------------------------------------------
@@ -223,7 +216,6 @@ public:
 	inline const std::vector<std::unique_ptr<EngineRoot>>&		getRoots() const { return mRoots; }
 	inline const ds::DrawParams&								getDrawParams() const { return mDrawParams; }
 	inline ds::AutoDrawService* const							getAutoDrawService() { return mAutoDraw; }
-	inline const FxaaOptions&									getFxaaOptions() const { return mFxaaOptions; }
 
 	/// This is for Clients to reconstruct roots when they re-connect with the server
 	void														clearRoots();
@@ -267,6 +259,7 @@ protected:
 	ds::ui::TouchMode::Enum				mTouchMode;
 
 private:
+	// TODO: remove this 
 	//! a pointer to the currently active renderer
 	std::unique_ptr<EngineRenderer>		mRenderer;
 	//! decides a renderer based on engine configurations. MUST be called inside "setup".
@@ -280,6 +273,7 @@ private:
 										mRoots;
 	const ds::cfg::Settings&			mSettings;
 	ImageRegistry						mImageRegistry;
+	ds::ui::PangoFontService			mPangoFontService;
 	ds::ui::Tweenline					mTweenline;
 	// A cache of all the resources in the system
 	ResourceList						mResources;

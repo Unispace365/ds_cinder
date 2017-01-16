@@ -56,7 +56,10 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	if(mAutoPlayFirstFrame){
 		mVideo->setMute(true);
 		mVideo->setAutoStart(false);
+	} else {
+		mVideo->setAutoStart(true);
 	}
+
 	mVideo->loadVideo(mediaPath);
 	if(mAutoPlayFirstFrame){
 		mVideo->playAFrame(-1.0, [this](){
@@ -85,6 +88,7 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 			mVideoInterface->hide();
 		}
 	}
+
 	if(mVideo->getWidth() < 1.0f || mVideo->getHeight() < 1.0f){
 		// make this a setting? This is mostly for when the "video" is just an audio track
 		// Probably should detect this properly from GstVideo and expose it to the outside world. Users may want to know that this only has audio
@@ -117,13 +121,22 @@ void VideoPlayer::layout(){
 
 	if(mVideoInterface && mEmbedInterface){
 		mVideoInterface->setSize(getWidth() / 2.0f, mVideoInterface->getHeight());
-		mVideoInterface->setPosition(getWidth() / 2.0f - mVideoInterface->getWidth() / 2.0f, getHeight() - mVideoInterface->getHeight() - 50.0f);
+		float yPos = getHeight() - mVideoInterface->getHeight() - 50.0f;
+		if(yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
+		if(yPos + mVideoInterface->getHeight() > getHeight()) yPos = getHeight() - mVideoInterface->getHeight();
+		mVideoInterface->setPosition(getWidth() / 2.0f - mVideoInterface->getWidth() / 2.0f, yPos);
 	}
 }
 
 void VideoPlayer::showInterface(){
 	if(mVideoInterface){
 		mVideoInterface->animateOn();
+	}
+}
+
+void VideoPlayer::hideInterface(){
+	if(mVideoInterface){
+		mVideoInterface->startIdling();
 	}
 }
 

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "error.h"
 
 #include <ds/app/engine/engine.h>

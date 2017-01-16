@@ -1,4 +1,4 @@
-﻿#pragma once
+#pragma once
 #ifndef DS_UI_SPRITE_UTIL_AUTOFBO_H_
 #define DS_UI_SPRITE_UTIL_AUTOFBO_H_
 
@@ -17,7 +17,7 @@ class SpriteEngine;
 class AutoFbo {
 public:
 	AutoFbo(ds::ui::SpriteEngine&);
-	AutoFbo(ds::ui::SpriteEngine&, ci::gl::Texture&);
+	AutoFbo(ds::ui::SpriteEngine&, ci::gl::TextureRef);
 	~AutoFbo();
 
 	std::unique_ptr<ds::ui::FboGeneral>		mFbo;

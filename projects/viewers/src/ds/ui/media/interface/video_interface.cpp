@@ -16,7 +16,7 @@
 namespace ds {
 namespace ui {
 
-VideoInterface::VideoInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
+VideoInterface::VideoInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
 	: MediaInterface(eng, sizey, backgroundColor)
 	, mLinkedVideo(nullptr)
 	, mPlayButton(nullptr)
@@ -56,6 +56,10 @@ VideoInterface::VideoInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey
 	mPauseButton->getHighImage().setColor(buttonColor / 2.0f);
 	mPauseButton->setScale(sizey.y / mPauseButton->getHeight());
 
+	const float padding = sizey.y / 2.0f; // config?
+	mMinWidth = mPlayButton->getScaleWidth() + mVolumeControl->getScaleWidth() + padding * 3 + sizey.y * 4.0f; // last sizey is for the scrub bar
+	mMaxWidth = 10000.0f; // WHOOOOOOOO
+
 	layout();
 }
 
@@ -86,10 +90,11 @@ void VideoInterface::updateServer(const ds::UpdateParams& p){
 
 // Layout is called when the size is changed, so don't change the size in the layout
 void VideoInterface::onLayout(){
-	const float w = getWidth();
+	float w = getWidth();
+	if(w < mMinWidth) w = mMinWidth;
 	const float h = getHeight();
 	const float padding = h / 2.0f; // config?
-	float xp = padding;
+	float xp = getWidth() / 2.0f - w / 2.0f + padding;
 	float spaceLeft = w - padding;
 	if(mPlayButton && mPauseButton){
 		mPlayButton->setPosition(xp, h / 2.0f - mPlayButton->getHeight() / 2.0f);
@@ -99,7 +104,7 @@ void VideoInterface::onLayout(){
 	}
 
 	if(mVolumeControl){
-		mVolumeControl->setPosition(w - mVolumeControl->getWidth() - padding, h / 2.0f - mVolumeControl->getHeight() / 2.0f);
+		mVolumeControl->setPosition(getWidth() / 2.0f + w / 2.0f - mVolumeControl->getWidth() - padding, h / 2.0f - mVolumeControl->getHeight() / 2.0f);
 		spaceLeft -= mVolumeControl->getScaleWidth() + padding* 2.0f;
 	}
 

@@ -16,6 +16,7 @@
 #include "Box2D/Dynamics/b2Fixture.h"
 #include "Box2D/Dynamics/Joints/b2DistanceJoint.h"
 #include "Box2D/Dynamics/Joints/b2WeldJoint.h"
+#include "Box2D/Dynamics/Joints/b2PrismaticJoint.h"
 
 namespace ds {
 namespace physics {
@@ -102,8 +103,8 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& spriddy)
 	}
 }
 
-void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length, float dampingRatio, float frequencyHz,
-	const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
+b2DistanceJoint* World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length, float dampingRatio, float frequencyHz,
+	const ci::vec3 bodyAOffset, const ci::vec3 bodyBOffset) {
 	
 	if (body1.mBody && body2.mBody) {
 		b2DistanceJointDef jointDef;
@@ -122,8 +123,46 @@ void World::createDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 		//DS_LOG_INFO_M("Joint anchors a=(" << joint->GetAnchorA().x << ", " << joint->GetAnchorA().y << ") b=(" << joint->GetAnchorB().x << ", " << joint->GetAnchorB().y << ")", PHYSICS_LOG);
 
 		mDistanceJoints.insert(mDistanceJoints.end(), joint);
+		return joint;
 	}
+	return nullptr;
 }
+
+b2PrismaticJoint* World::createPrismaticJoint(const SpriteBody& body1, const SpriteBody& body2, b2Vec2 axis, bool enableLimit, float lowerTranslation, float upperTranslation,
+	bool enableMotor, float maxMotorForce, float motorSpeed,
+	const ci::vec3 bodyAOffset, const ci::vec3 bodyBOffset) {
+
+	if (body1.mBody && body2.mBody) {
+		b2PrismaticJointDef jointDef; 
+		jointDef.Initialize(body1.mBody, body2.mBody, b2Vec2(0.0f, 0.0f), axis);
+		jointDef.bodyA = body1.mBody;
+		jointDef.bodyB = body2.mBody;
+		jointDef.lowerTranslation = getCi2BoxScale()*lowerTranslation;
+		jointDef.upperTranslation = getCi2BoxScale()*upperTranslation;
+		jointDef.enableLimit = enableLimit;
+		jointDef.maxMotorForce = maxMotorForce;
+		jointDef.motorSpeed = motorSpeed;
+		jointDef.enableMotor = enableMotor;
+
+		jointDef.localAnchorA = Ci2BoxTranslation(body1.mSprite.getCenter() + bodyAOffset, nullptr);
+		jointDef.localAnchorB = Ci2BoxTranslation(body2.mSprite.getCenter() + bodyBOffset, nullptr);
+
+		//jointDef.dampingRatio = dampingRatio;
+		//jointDef.frequencyHz = frequencyHz;
+
+		jointDef.collideConnected = true;
+		//jointDef.length = getCi2BoxScale()*(length);
+	
+		b2PrismaticJoint* joint = (b2PrismaticJoint*)mWorld->CreateJoint(&jointDef);
+
+		//DS_LOG_INFO_M("Joint anchors a=(" << joint->GetAnchorA().x << ", " << joint->GetAnchorA().y << ") b=(" << joint->GetAnchorB().x << ", " << joint->GetAnchorB().y << ")", PHYSICS_LOG);
+
+		mPrismaticJoints.insert(mPrismaticJoints.end(), joint);
+		return joint;
+	}
+	return nullptr;
+}
+
 
 void World::resizeDistanceJoint(const SpriteBody& body1, const SpriteBody& body2, float length) {
 	for(auto it  = mDistanceJoints.begin(); it != mDistanceJoints.end(); ++it) {
@@ -135,7 +174,7 @@ void World::resizeDistanceJoint(const SpriteBody& body1, const SpriteBody& body2
 	}
 }
 
-void World::createWeldJoint(const SpriteBody& body1, const SpriteBody& body2, const float damping, const float frequency, const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
+void World::createWeldJoint(const SpriteBody& body1, const SpriteBody& body2, const float damping, const float frequency, const ci::vec3 bodyAOffset, const ci::vec3 bodyBOffset) {
 	if (body1.mBody && body2.mBody) {
 		b2WeldJointDef jointDef;
 		jointDef.bodyA = body1.mBody;
@@ -169,6 +208,13 @@ void World::releaseJoints(const SpriteBody& body) {
 		if(mWeldJoints[i]->GetBodyA() == body.mBody || mWeldJoints[i]->GetBodyB() == body.mBody){
 			mWorld->DestroyJoint(mWeldJoints[i]);
 			mWeldJoints.erase(mWeldJoints.begin() + i);
+			i--;
+		}
+	}
+	for (int i = 0; i < mPrismaticJoints.size(); i++){
+		if (mPrismaticJoints[i]->GetBodyA() == body.mBody || mPrismaticJoints[i]->GetBodyB() == body.mBody){
+			mWorld->DestroyJoint(mPrismaticJoints[i]);
+			mPrismaticJoints.erase(mPrismaticJoints.begin() + i);
 			i--;
 		}
 	}
@@ -287,19 +333,19 @@ float World::getCi2BoxScale() const {
 	return mCi2BoxScale;
 }
 
-ci::Vec3f World::box2CiTranslation(const b2Vec2 &vec, ds::ui::Sprite* sp) const
+ci::vec3 World::box2CiTranslation(const b2Vec2 &vec, ds::ui::Sprite* sp) const
 {
 	if(mTranslateToLocalSpace && sp && sp->getParent()){
-		return  sp->getParent()->globalToLocal(ci::Vec3f(vec.x / mCi2BoxScale, vec.y / mCi2BoxScale, 0.0f));
+		return  sp->getParent()->globalToLocal(ci::vec3(vec.x / mCi2BoxScale, vec.y / mCi2BoxScale, 0.0f));
 	} else {
-		return ci::Vec3f(vec.x / mCi2BoxScale, vec.y / mCi2BoxScale, 0.0f);
+		return ci::vec3(vec.x / mCi2BoxScale, vec.y / mCi2BoxScale, 0.0f);
 	}
 }
 
-b2Vec2 World::Ci2BoxTranslation(const ci::Vec3f &vec, ds::ui::Sprite* sp) const
+b2Vec2 World::Ci2BoxTranslation(const ci::vec3 &vec, ds::ui::Sprite* sp) const
 {
 	if(mTranslateToLocalSpace && sp && sp->getParent()){
-		ci::Vec3f globalPoint = sp->getParent()->localToGlobal(vec) * mCi2BoxScale;
+		ci::vec3 globalPoint = sp->getParent()->localToGlobal(vec) * mCi2BoxScale;
 		return b2Vec2(globalPoint.x, globalPoint.y);
 	} else {
 		return b2Vec2(vec.x * mCi2BoxScale, vec.y * mCi2BoxScale);
@@ -309,8 +355,8 @@ b2Vec2 World::Ci2BoxTranslation(const ci::Vec3f &vec, ds::ui::Sprite* sp) const
 static void set_polygon_shape(	const World& trans,
 								const float l, const float t, const float r, const float b,
 								b2PolygonShape& out) {
-	const b2Vec2	lt = trans.Ci2BoxTranslation(ci::Vec3f(l, t, 0.0f), nullptr); // using nullptr for the sprite will make the polygon be in world space
-	const b2Vec2	rb = trans.Ci2BoxTranslation(ci::Vec3f(r, b, 0.0f), nullptr);
+	const b2Vec2	lt = trans.Ci2BoxTranslation(ci::vec3(l, t, 0.0f), nullptr); // using nullptr for the sprite will make the polygon be in world space
+	const b2Vec2	rb = trans.Ci2BoxTranslation(ci::vec3(r, b, 0.0f), nullptr);
 	b2Vec2			vtx[4];
 	vtx[0].Set(lt.x, lt.y);
 	vtx[1].Set(rb.x, lt.y);

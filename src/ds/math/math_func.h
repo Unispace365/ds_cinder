@@ -85,6 +85,16 @@ inline T wrap(const T a, const T b, const T v)
     return result;
 }
 
+template <typename T>
+inline T convertRange(const T originalStart, const T originalEnd, const T newStart, const T newEnd, const T val) {
+	T originalRange = originalEnd - originalStart;
+	if(originalRange == 0.0){
+		return val;
+	}
+
+	return (val - originalStart) * ((newEnd - newStart) / originalRange) + newStart;
+}
+
 // Surely somewhere in of there's been a rounding function defined??  Well, use
 // symmetric rounding, which I believe will be implemented in C+xx10
 inline double round(const double d)

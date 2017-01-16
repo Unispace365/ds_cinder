@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine.h"
 #include "ds/app/app.h"
 #include "ds/app/auto_draw.h"
@@ -25,9 +27,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "renderers/engine_renderer_null.h"
-#include "renderers/engine_renderer_continuous_fxaa.h"
 #include "renderers/engine_renderer_continuous.h"
-#include "renderers/engine_renderer_discontinuous.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -51,6 +51,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
+	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
@@ -71,6 +72,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));
 
+
 	// For now, install some default image processing functions here, for convenience. These are
 	// so lightweight it probably makes sense just to have them always available for clients instead
 	// of requiring some sort of configuration.
@@ -80,6 +82,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
+
+	mPangoFontService.loadFonts();
 
 	// touch settings
 	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
@@ -102,10 +106,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
 	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
-	mFxaaOptions.mApplyFxAA = settings.getBool("FxAA", 0, false);
-	mFxaaOptions.mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
-	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
-	mFxaaOptions.mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
 	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
 	// Backwards compatibility with pre src-dst rect days
@@ -116,7 +116,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mDstRect = ci::Rectf(0.0f, 0.0f, mData.mSrcRect.getWidth(), mData.mSrcRect.getHeight());
 		if (settings.getPointSize("window_pos") > 0) {
 			const ci::vec3	size(settings.getPoint("window_pos"));
-			mData.mDstRect.offset(ci::vec2(size.x, size.y));
+			mData.mDstRect.offset(glm::vec2(size));
 		}
 	}
 	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
@@ -231,7 +231,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 }
 
 
-void Engine::prepareSettings(ci::app::App::Settings& settings){
+void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 	// TODO: remove this null_renderer bullshit
 	std::string screenMode = "window";
 	if(mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
@@ -276,11 +276,13 @@ void Engine::prepareSettings(ci::app::App::Settings& settings){
 	const std::string     nope = "ds:IllegalTitle";
 	const std::string     title = mSettings.getText("screen:title", 0, nope);
 	if(title != nope) settings.setTitle(title);
+
 }
 
 void Engine::setup(ds::App& app) {
 
 	mCinderWindow = app.getWindow();
+	//mCinderWindow->spanAllDisplays
 
 	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
 	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
@@ -943,29 +945,8 @@ void Engine::setupRenderer()
 		if (mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
 		{
 			mRenderer = std::make_unique<EngineRendererNull>(*this);
-		}
-		else if (mData.mWorldSlices.empty()) //if continuous
-		{
-			if (mFxaaOptions.mApplyFxAA) //if with FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererContinuousFxaa>(*this);
-			}
-			else //if no FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererContinuous>(*this);
-			}
-		}
-		else //if discontinuous
-		{
-			if (mFxaaOptions.mApplyFxAA) //if with FXAA
-			{
-				//! I can't figure out a way to mix these two yet. Pending! (TODO: SL)
-				throw std::logic_error("FXAA is not supported in discontinuous rendering mode.");
-			}
-			else //if no FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererDiscontinuous>(*this);
-			}
+		} else {
+			mRenderer = std::make_unique<EngineRendererContinuous>(*this);
 		}
 	});
 }

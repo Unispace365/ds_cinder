@@ -17,6 +17,7 @@ ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const fl
 	, mTouchPadding(touchPadding)
 	, mAutoHide(autoHide)
 	, mAutoHidden(false)
+	, mTouchOffset(0.0f)
 {
 
 	// Set some defaults
@@ -57,19 +58,51 @@ ScrollBar::ScrollBar(ds::ui::SpriteEngine& engine, const bool vertical, const fl
 
 void ScrollBar::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 	if(ti.mFingerIndex == 0){
-		ci::Vec3f localPos = globalToLocal(ti.mCurrentGlobalPoint);
-		
-		float destPercent;
-		if(mVertical){
+		ci::vec3 localPos = globalToLocal(ti.mCurrentGlobalPoint);
 
+
+		bool isPerspective = getPerspective();
+		float heighty = getHeight();
+		if(!mVertical){
+			heighty = getWidth();
+		}
+
+		float barHeight = heighty * mPercentVisible;
+		float totalHeight = heighty - barHeight;
+
+		float destPercent = 0.0f;
+
+		if(ti.mPhase == ds::ui::TouchInfo::Added){
+			mTouchOffset = barHeight/2.0f;
+			if(mVertical){
+				if(localPos.y > mScrollPercent * totalHeight && localPos.y < mScrollPercent * totalHeight + barHeight){
+					mTouchOffset = localPos.y - mScrollPercent * totalHeight;
+				}
+			} else {
+				if(localPos.x > mScrollPercent * totalHeight && localPos.x < mScrollPercent * totalHeight + barHeight){
+					mTouchOffset = localPos.x - mScrollPercent * totalHeight;
+				}
+			}
+		}
+
+		localPos.y -= mTouchOffset;
+		localPos.x -= mTouchOffset;
+
+		if(mVertical){
 			// This may not be right. Feel free to fix, but be sure you get it right and check multiple instances
-			if(getPerspective()){
+			if(isPerspective){
 				localPos.y -= getHeight()/2.0f;
 			}
 
-			destPercent = localPos.y / getHeight();
+			destPercent = localPos.y / totalHeight;
+			
+			if(isPerspective){
+				destPercent = 1.0f - destPercent;
+			}
+
 		} else {
-			destPercent = localPos.x / getWidth();
+			totalHeight = getWidth() - getWidth() * mPercentVisible;
+			destPercent = localPos.x / totalHeight;
 		}
 
 		if(destPercent < 0.0f) destPercent = 0.0f;
@@ -124,7 +157,12 @@ void ScrollBar::updateNubPosition(){
 				nubSize = mMinNubSize;
 			}
 			mNub->setSize(mNub->getWidth(), nubSize);
-			mNub->setPosition(mTouchPadding, mScrollPercent * getHeight() - mScrollPercent * mNub->getHeight());
+
+			if(getPerspective()){
+				mNub->setPosition(mTouchPadding, (1.0f - mScrollPercent) * (getHeight() - nubSize));
+			} else {
+				mNub->setPosition(mTouchPadding, mScrollPercent * getHeight() - mScrollPercent * mNub->getHeight());
+			}
 		} else {
 			float nubSize = getWidth() * mPercentVisible;
 			if(nubSize < mMinNubSize) {

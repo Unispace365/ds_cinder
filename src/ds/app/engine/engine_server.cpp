@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_server.h"
 
 #include <ds/app/engine/engine_io_defs.h>
@@ -457,7 +459,7 @@ EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 	: inherited(app, settings, ed, roots)
 	, mLoadImageService(*this, mIpFunctions)
-	, mRenderTextService(mRenderTextThread) {
+{
 }
 
 EngineServer::~EngineServer() {

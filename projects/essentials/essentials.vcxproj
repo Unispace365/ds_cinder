@@ -19,6 +19,7 @@
     <ClCompile Include="src\ds\debug\automator\automator.cpp" />
     <ClCompile Include="src\ds\network\helper\delayed_node_watcher.cpp" />
     <ClCompile Include="src\ds\network\https_client.cpp" />
+    <ClCompile Include="src\ds\network\smtp_request.cpp" />
     <ClCompile Include="src\ds\query\content\generic_content_model.cpp" />
     <ClCompile Include="src\ds\query\content\xml_content_loader.cpp" />
     <ClCompile Include="src\ds\touch\delayed_momentum.cpp" />
@@ -28,6 +29,8 @@
     <ClCompile Include="src\ds\ui\button\image_button.cpp" />
     <ClCompile Include="src\ds\ui\button\layout_button.cpp" />
     <ClCompile Include="src\ds\ui\button\sprite_button.cpp" />
+    <ClCompile Include="src\ds\ui\control\control_slider.cpp" />
+    <ClCompile Include="src\ds\ui\drawing\drawing_canvas.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\stylesheet_parser.cpp" />
     <ClCompile Include="src\ds\ui\layout\layout_sprite.cpp" />
@@ -64,6 +67,7 @@
     <ClInclude Include="src\ds\network\curl\typecheck-gcc.h" />
     <ClInclude Include="src\ds\network\helper\delayed_node_watcher.h" />
     <ClInclude Include="src\ds\network\https_client.h" />
+    <ClInclude Include="src\ds\network\smtp_request.h" />
     <ClInclude Include="src\ds\query\content\generic_content_model.h" />
     <ClInclude Include="src\ds\query\content\xml_content_loader.h" />
     <ClInclude Include="src\ds\touch\delayed_momentum.h" />
@@ -73,6 +77,8 @@
     <ClInclude Include="src\ds\ui\button\image_button.h" />
     <ClInclude Include="src\ds\ui\button\layout_button.h" />
     <ClInclude Include="src\ds\ui\button\sprite_button.h" />
+    <ClInclude Include="src\ds\ui\control\control_slider.h" />
+    <ClInclude Include="src\ds\ui\drawing\drawing_canvas.h" />
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h" />
     <ClInclude Include="src\ds\ui\layout\layout_sprite.h" />
@@ -116,12 +122,12 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform.props" />
     <Import Project="PropertySheets\Essentials.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform_d.props" />
     <Import Project="PropertySheets\Essentials_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -153,11 +159,11 @@
       </ForcedIncludeFiles>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -178,8 +184,8 @@
       <Message>Copying libcurl DLLs to output directory</Message>
       <Command>echo Copying libcurl DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-xcopy /y /d "$(DS_PLATFORM_086)\projects\essentials\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\essentials\lib\libcurl.dll</Inputs>
+xcopy /y /d "$(DS_PLATFORM_090)\projects\essentials\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_090)\projects\essentials\lib\libcurl.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libcurl.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>
@@ -202,7 +208,7 @@ xcopy /y /d "$(DS_PLATFORM_086)\projects\essentials\lib\*.dll" "$(SolutionDir)\$
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <GenerateMapFile>true</GenerateMapFile>
       <SubSystem>Windows</SubSystem>
@@ -226,8 +232,8 @@ xcopy /y /d "$(DS_PLATFORM_086)\projects\essentials\lib\*.dll" "$(SolutionDir)\$
       <Message>Copying libcurl DLLs to output directory</Message>
       <Command>echo Copying libcurl DLLs to output directory
 if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-xcopy /y /d "$(DS_PLATFORM_086)\projects\essentials\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\essentials\lib\libcurl.dll</Inputs>
+xcopy /y /d "$(DS_PLATFORM_090)\projects\essentials\lib\*.dll" "$(SolutionDir)\$(Configuration)"</Command>
+      <Inputs>$(DS_PLATFORM_090)\projects\essentials\lib\libcurl.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\libcurl.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>

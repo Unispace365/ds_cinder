@@ -63,7 +63,7 @@ Pdf& Pdf::makePdf(SpriteEngine& e, Sprite* parent) {
 	return makeAlloc<ds::ui::Pdf>([&e]()->ds::ui::Pdf*{ return new ds::ui::Pdf(e); }, parent);
 }
 
-ci::Surface8u Pdf::renderPage(const std::string& path) {
+ci::Surface8uRef Pdf::renderPage(const std::string& path) {
 	return ds::pdf::PdfRes::renderPage(path);
 }
 
@@ -83,13 +83,13 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
 	// set some callbacks in case we are ever enabled
-	this->setTapCallback([this](ds::ui::Sprite* sprite, const ci::Vec3f& pos){
+	this->setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos){
 		int count = getPageCount();
 		int zeroIndexNextWrapped = (getPageNum() % count);
 		setPageNum(zeroIndexNextWrapped + 1);
 	});
 
-	this->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::Vec3f& delta){
+	this->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta){
 		int diff = 0;
 
 		if(delta.x < -20.0f){
@@ -119,7 +119,7 @@ Pdf& Pdf::setPageSizeMode(const PageSizeMode& m) {
 
 Pdf& Pdf::setResourceFilename(const std::string& filename) {
 	mResourceFilename = filename;
-	mPageSizeCache = ci::Vec2i(0, 0);
+	mPageSizeCache = ci::ivec2(0, 0);
 	if(!mHolder.setResourceFilename(filename, mPageSizeMode) && mErrorCallback){
 		std::stringstream errorStream;
 		errorStream << "PDF could not be loaded at " << filename;
@@ -167,7 +167,7 @@ void Pdf::updateServer(const UpdateParams& p) {
 		mPageLoadedCallback();
 	}
 	if (mPageSizeMode == kAutoResize) {
-		const ci::Vec2i			page_size(mHolder.getPageSize());
+		const ci::ivec2			page_size(mHolder.getPageSize());
 		if (mPageSizeCache != page_size) {
 			mPageSizeCache = page_size;
 			setSize(static_cast<float>(mPageSizeCache.x), static_cast<float>(mPageSizeCache.y));
@@ -225,25 +225,42 @@ void Pdf::drawLocalClient() {
 	const float				tw = mHolder.getTextureWidth(),
 							th = mHolder.getTextureHeight();
 	if(tw < 1.0f || th < 1.0f){
+
+		auto shaderBase = mSpriteShader.getShader();
+		if(shaderBase) {
+			shaderBase->uniform("useTexture", false);
+			mUniform.applyTo(shaderBase);
+		}
+
 		ci::gl::color(0.0f, 0.0f, 0.0f, mDrawOpacity);
-		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), false);
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));// , false);
 		return;
 	}
 
 	const float				targetw = getWidth()*mScale.x,
 							targeth = getHeight()*mScale.y;
 
-	inherited::drawLocalClient();
+//	inherited::drawLocalClient();
 
 	ci::gl::pushModelView();
 
 	// To draw properly, we first have to turn off whatever scaling has
 	// been applied, then apply a new scale to compensate for any mismatch
 	// between my current texture size and my display size.
-	const ci::Vec3f			turnOffScale(1.0f/mScale.x, 1.0f/mScale.y, 1.0f);
-	const ci::Vec3f			newScale(targetw/tw, targeth/th, 1.0f);
-	ci::gl::multModelView(ci::Matrix44f::createScale(turnOffScale));
+	/* TODO
+	ci::gl::multModelView(ci::mat4::createScale(turnOffScale));
 	ci::gl::multModelView(ci::Matrix44f::createScale(newScale));
+	*/
+
+	const ci::vec3			turnOffScale(1.0f / mScale.x, 1.0f / mScale.y, 1.0f);
+	const ci::vec3			newScale(targetw / tw, targeth / th, 1.0f);
+	ci::mat4 modelMatOff;
+	ci::mat4 modelMatNew;
+	modelMatOff = glm::scale(modelMatOff, turnOffScale);
+	ci::gl::multModelMatrix(modelMatOff);
+	modelMatNew = glm::scale(modelMatNew, newScale);
+	ci::gl::multModelMatrix(modelMatNew);
+
 
 	mHolder.drawLocalClient();
 
@@ -329,7 +346,7 @@ void Pdf::ResHolder::drawLocalClient()
 	}
 }
 
-void Pdf::ResHolder::setScale(const ci::Vec3f& scale) {
+void Pdf::ResHolder::setScale(const ci::vec3& scale) {
 	if (mRes) {
 		mRes->setScale(scale.x);
 	}
@@ -379,8 +396,8 @@ int Pdf::ResHolder::getPageCount() const {
 	return 0;
 }
 
-ci::Vec2i Pdf::ResHolder::getPageSize() const {
-	if (!mRes) return ci::Vec2i(0, 0);
+ci::ivec2 Pdf::ResHolder::getPageSize() const {
+	if (!mRes) return ci::ivec2(0, 0);
 	return mRes->getPageSize();
 }
 

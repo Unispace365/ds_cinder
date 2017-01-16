@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <ds/app/camera_utils.h>
 
 #include <cinder/gl/gl.h>
@@ -66,7 +68,7 @@ ci::vec3 ScreenToWorld::unproject(const ci::vec3 & point)
 {
 	// Find the inverse Modelview-Projection-Matrix
 	ci::mat4 invMVP = mProjection * mModelView;
-	invMVP = glm::inverse(invMVP);//.invert();
+	invMVP = glm::inverse(invMVP);
 
 	// Transform to normalized coordinates in the range [-1, 1]
 	ci::vec4				pointNormal;

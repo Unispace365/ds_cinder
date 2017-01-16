@@ -45,7 +45,7 @@ namespace ui {
 	struct TouchInfo;
 
 	// Attribute access
-	extern const char     SPRITE_ID_ATTRIBUTE;
+	extern const char SPRITE_ID_ATTRIBUTE;
 
 	/**
 	 \class Sprite
@@ -119,7 +119,7 @@ namespace ui {
 		ds::ui::SpriteEngine&	getEngine() { return mEngine; }
 
 		/** Get the width, height, and depth of this Sprite. Convenience for getWidth(), getHeight() and getDepth().
-			\return Returns a 3-dimensional vector equivalent to ci::vec3f(width, height, depth).		*/
+			\return Returns a 3-dimensional vector equivalent to ci::vec3(width, height, depth).		*/
 		const ci::vec3			getSize() const;
 
 		/** Sets the width and height of the Sprite.
@@ -220,7 +220,7 @@ namespace ui {
 		const ci::vec3&		getPosition() const;
 
 		/** Get the position of the Sprite in global space. 
-			Returns ci::vec3f::zero() if this sprite has no parent.
+			Returns ci::vec3::zero() if this sprite has no parent.
 			\return The 3d vector of the world-space position, in pixels. */
 		const ci::vec3			getGlobalPosition() const;
 
@@ -278,7 +278,7 @@ namespace ui {
 		ci::vec3				getCenterPosition() const;
 
 		/** The "middle" of the Sprite, NOT related to setCenter and getCenter (anchor), in this Sprite's co-ordinate space..
-			Effectively ci::vec3f(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
+			Effectively ci::vec3(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
 			\return 3d Vector of the pixel position of the center of this Sprite, in local space. */
 		ci::vec3				getLocalCenterPosition() const;
 
@@ -472,7 +472,7 @@ namespace ui {
 		/** Convert coordinate space from global (world) space to the local coordinate space of this Sprite. May not work for perspective Sprites.
 			For example, if you have a global touch point, you can find it's local location like this:
 			\code	if(getParent()){
-			ci::vec3f localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
+			ci::vec3 localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
 			}
 			\endcode
 			\param globalPoint The 3d vector in global coordinate space to be converted.
@@ -482,7 +482,7 @@ namespace ui {
 		/** Convert coordinate space from local coordinate space of this Sprite to global (world) coordinate space. May not work for perspective Sprites.
 			For example, you could figure out where to launch a media viewer from a button on a panel like this:
 			\code //In the button click handler
-			ci::vec3f globalPosition = localToGlobal(mTheLaunchButton.getPosition());
+			ci::vec3 globalPosition = localToGlobal(mTheLaunchButton.getPosition());
 			mEngine.getNotifier().notify(CustomMediaViewerLaunchEvent(globalPosition));
 			\endcode
 			\param localPoint The 3d vector in local coordinate space to be converted.
@@ -577,7 +577,7 @@ namespace ui {
 		//associate shader in a file to sprite (multi-pass)
 		void					setShaderList(const std::vector<std::pair<std::string, std::string>>, bool applyToChildren = false);
 		void					addNewShader(const std::pair<std::string, std::string>, bool addToFront = false, bool applyToChildren = false);
-		void					addNewShader(const std::string, const std::string, bool addToFront = false, bool applyToChildren = false);
+		void					addNewShader(const std::string location, const std::string shaderName, bool addToFront = false, bool applyToChildren = false);
 		//Associate shader in memory to sprite.
 		void					addNewMemoryShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
 		bool					removeShader(std::string shaderName);
@@ -591,7 +591,7 @@ namespace ui {
 		//addToFront - When true, this puts the shader first in line to be run
 		void				    addNewShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
 		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
-		ci::gl::Texture*		getShaderOutputTexture();
+		ci::gl::TextureRef		getShaderOutputTexture();
 		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
 		void					setShaderExtraData(const ci::vec4& data);
 
@@ -599,7 +599,7 @@ namespace ui {
 		void					setFinalRenderToTexture(bool render_to_texture);
 		bool					isFinalRenderToTexture();
 		//Retrieve the rendered output texture
-		ci::gl::Texture*		getFinalOutTexture();
+		ci::gl::TextureRef		getFinalOutTexture();
 		void					setupFinalRenderBuffer();
 		void					setupIntermediateFrameBuffers();
 
@@ -768,12 +768,6 @@ namespace ui {
 
 		void				setUseShaderTexture(bool flag);
 		bool				getUseShaderTexture() const;
-
-		// DEPRECATED
-		// Obsolete -- use setUseShaderTexture
-		void					setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
-		// Obsolete -- use getUseShaderTexture
-		bool					getUseShaderTextuer() const { return getUseShaderTexture(); }
 		
 
 		void					sendSpriteToFront(Sprite &sprite);
@@ -795,8 +789,8 @@ namespace ui {
 								mHeight,
 								mDepth;
 
-		mutable ci::mat4	mTransformation;
-		mutable ci::mat4	mInverseTransform;
+		mutable ci::mat4		mTransformation;
+		mutable ci::mat4		mInverseTransform;
 		mutable bool			mUpdateTransform;
 
 		int						mSpriteFlags;
@@ -816,7 +810,7 @@ namespace ui {
 		int							mShaderPass;
 		int							mShaderPasses;
 		ci::gl::Fbo*				mFrameBuffer[2];
-		ci::gl::Texture				mShaderTexture;
+		ci::gl::TextureRef			mShaderTexture;
 		//ci::gl::Texture*			mFinalOutputTexture;
 		ci::gl::Fbo*				mOutputFbo;
 		bool						mIsRenderFinalToTexture;
@@ -899,7 +893,7 @@ namespace ui {
 		// Use addChild() from outside sprite.cpp
 		void				setParent(Sprite *parent);
 
-		ci::gl::Texture		mRenderTarget;
+		ci::gl::TextureRef	mRenderTarget;
 		BlendMode			mBlendMode;
 
 		//set flag for determining whether to use orthoganol or perspective.

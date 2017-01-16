@@ -7,7 +7,7 @@
 namespace ds {
 namespace ui {
 
-static void fitInside(Sprite* sp, const ci::Rectf area, const bool letterbox){
+static void fitInside(Sprite* sp, const ci::Rectf area, const bool letterbox, const bool doScale = true){
 	if(!sp) return;
 	// a = w / h;
 	// h = w /a;
@@ -32,7 +32,11 @@ static void fitInside(Sprite* sp, const ci::Rectf area, const bool letterbox){
 		}
 	}
 
-	sp->setScale(destScale, destScale, 1.0f);
+	if(doScale){
+		sp->setScale(destScale, destScale, 1.0f);
+	} else {
+		sp->setSize(destScale * sp->getWidth(), destScale * sp->getHeight());
+	}
 	sp->setPosition(area.getX1() + area.getWidth() / 2.0f - sp->getScaleWidth() / 2.0f, area.getY1() + area.getHeight() / 2.0f - sp->getScaleHeight() / 2.0f);
 }
 
@@ -184,7 +188,9 @@ static void HSVToColor(float h, float s, float v, ci::Color* rgb )
 				break;
 		}
 	}
-	rgb->set(r, g, b);
+	rgb->r = r;
+	rgb->b = b;
+	rgb->g = g;
 }
 
 

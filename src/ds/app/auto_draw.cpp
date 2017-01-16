@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/auto_draw.h"
 
 #include <algorithm>

@@ -15,7 +15,7 @@ namespace ui {
 */
 class MediaInterface : public ds::ui::Sprite  {
 public:
-	MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey = ci::Vec2f(400.0f, 50.0f), const ci::Color backgroundColor = ci::Color::black());
+	MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey = ci::vec2(400.0f, 50.0f), const ci::Color backgroundColor = ci::Color::black());
 
 
 	virtual void						animateOn();
@@ -30,7 +30,10 @@ protected:
 
 	float								mAnimateDuration;
 	ds::ui::Sprite*						mBackground;
+	float								mMinWidth;
+	float								mMaxWidth;
 	bool								mIdling;
+	float								mInterfaceIdleSettings;
 	virtual void						onLayout(){};
 	virtual void						onSizeChanged();
 };

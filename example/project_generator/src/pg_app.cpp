@@ -1,7 +1,7 @@
 /************************************************************************/
 /* This DS Cinder project generates other DS Cinder projects by         */
 /* by scanning a reference DS Cinder project (DS Cinder project-ception)*/
-/* It scans the full_starter project located in %ds_platform_086%       */
+/* It scans the full_starter project located in %ds_platform_090%       */
 /************************************************************************/
 
 #include <cinder/app/AppBasic.h>
@@ -66,7 +66,7 @@ public:
 		, mProjectFolder(DOT)
 		, mWorkingDirectory(ELIPSIS)
 		, mWarningCount(0)
-		, mTemplatePath("%ds_platform_086%\\example\\full_starter")
+		, mTemplatePath("%ds_platform_090%\\example\\full_starter")
 		, mTemplateName("full_starter")
 		, mTemplateClassName("FullStarterApp")
 		, mTemplateNamespace("fullstarter")
@@ -88,7 +88,7 @@ public:
 		mParams->addSeparator();
 		
 		mParams->addButton("Generate", [this](){ generate(); }, "");
-		mParams->setOptions("", "valueswidth=450");
+		mParams->setOptions()("", "valueswidth=450");
 
 		if (mEngine.getDebugSettings().getTextSize("template:path") > 0) {
 			mTemplatePath = mEngine.getDebugSettings().getText("template:path");
@@ -111,7 +111,7 @@ public:
 	{
 		Poco::LocalDateTime now;
 		std::string msg = "label=`Generated " + mAppName + " (" + Poco::DateTimeFormatter::format(now, "%H:%M:%S.%i") + ").`";
-		mParams->setOptions("status", msg);
+		mParams->setOptions()("status", msg);
 
 		analyzeWorkingDirectory();
 	}
@@ -353,4 +353,4 @@ void ProjectGeneratorApp::setupServer()
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(ProjectGeneratorApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(ProjectGeneratorApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

@@ -40,7 +40,7 @@ private:
 	bool								mNeedQuery;
 	Poco::Timestamp::TimeVal			mLastQueryTime;
 
-	std::vector<NodeWatcher::Message>	mDelayedMessages;
+	NodeWatcher::Message				mDelayedMessages;
 
 	std::function<void(const NodeWatcher::Message&)>	mRegularNodeCallback;
 	std::function<void()>								mDelayedNodeCallback;

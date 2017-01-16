@@ -17,9 +17,10 @@ struct MediaViewerSettings {
 
 	MediaViewerSettings()
 		: mDefaultBounds(0.0f, 0.0f)
+		, mShowInterfaceAtStart(true)
 		, mWebDefaultSize(0.0f, 0.0f)
-		, mWebKeyboardPanelSize(900.0f, 450.0f)
 		, mWebKeyboardKeyScale(1.0f)
+		, mWebKeyboardAbove(true)
 		, mWebAllowKeyboard(true)
 		, mWebAllowTouchToggle(true)
 		, mCacheImages(false)
@@ -32,20 +33,23 @@ struct MediaViewerSettings {
 
 	//--------------------Overall Settings -----------------------------------------//
 	/// The size to be calculated to fit inside when initially loading content
-	ci::Vec2f					mDefaultBounds;
+	ci::vec2					mDefaultBounds;
+
+	/// Whether the interface should be visible immediately or not
+	bool						mShowInterfaceAtStart;
 
 	//--------------------Web Settings ---------------------------------------------//
 
 	/// The size to load the web page, which will then get scaled up or down when the viewer changes size
-	ci::Vec2f					mWebDefaultSize;		
-	// The size of the panel behind the keyboard
-	ci::Vec2f					mWebKeyboardPanelSize;
+	ci::vec2					mWebDefaultSize;		
 	// the scale of the keyboard
 	float						mWebKeyboardKeyScale;
 	// If we should show the keyboard button at all. Default = true
 	bool						mWebAllowKeyboard;
 	// If we should show the button to allowing touching web sites. Default=true
 	bool						mWebAllowTouchToggle;
+	// If true, the keyboard appears above the interface. False will show below
+	bool						mWebKeyboardAbove;
 
 	//--------------------Image Settings -------------------------------------------//
 

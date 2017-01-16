@@ -20,19 +20,19 @@ public:
 	virtual ~ImageGenerator();
 
 	// Answer meta data about this image.
-	virtual bool					getMetaData(ImageMetaData&) const = 0;
-	virtual const ci::gl::Texture*	getImage() = 0;
+	virtual bool						getMetaData(ImageMetaData&) const = 0;
+	virtual const ci::gl::TextureRef	getImage() = 0;
 
-	char							getBlobType() const;
-	virtual void					writeTo(DataBuffer&) const = 0;
-	virtual bool					readFrom(DataBuffer&) = 0;
+	char								getBlobType() const;
+	virtual void						writeTo(DataBuffer&) const = 0;
+	virtual bool						readFrom(DataBuffer&) = 0;
 
-	virtual std::string				getImageFilename() const = 0;
+	virtual std::string					getImageFilename() const = 0;
 protected:
 	ImageGenerator(const char blobType);
 
 private:
-	const char						mBlobType;
+	const char							mBlobType;
 };
 
 } // namespace ui

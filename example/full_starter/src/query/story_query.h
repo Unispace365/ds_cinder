@@ -1,5 +1,6 @@
-#ifndef _FULLSTARTER_APP_QUERY_INDUSTRY_QUERY_H_
-#define _FULLSTARTER_APP_QUERY_INDUSTRY_QUERY_H_
+#pragma  once
+#ifndef _FULLSTARTER_APP_QUERY_STORY_QUERY_H_
+#define _FULLSTARTER_APP_QUERY_STORY_QUERY_H_
 
 #include <functional>
 #include <Poco/Runnable.h>

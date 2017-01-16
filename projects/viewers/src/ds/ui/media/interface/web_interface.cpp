@@ -19,29 +19,30 @@
 namespace ds {
 namespace ui {
 
-WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
+WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
 	: MediaInterface(eng, sizey, backgroundColor)
 	, mLinkedWeb(nullptr)
 	, mKeyboardArea(nullptr)
 	, mKeyboard(nullptr)
 	, mKeyboardShowing(false)
+	, mKeyboardAbove(true)
 	, mKeyboardButton(nullptr)
 	, mBackButton(nullptr)
 	, mForwardButton(nullptr)
 	, mRefreshButton(nullptr)
 	, mTouchToggle(nullptr)
-	, mKeyboardPanelSize(800.0f, 500.0f)
 	, mKeyboardKeyScale(1.0f)
 	, mAbleToTouchToggle(true)
 	, mKeyboardAllowed(true)
+	, mWebLocked(false)
 {
-	mKeyboardArea = new ds::ui::Sprite(mEngine, mKeyboardPanelSize.x, mKeyboardPanelSize.y);
+	mKeyboardArea = new ds::ui::Sprite(mEngine, 10.0f, 10.0f);
 	mKeyboardArea->setTransparent(false);
 	mKeyboardArea->setColor(ci::Color(0.0f, 0.0f, 0.0f));
-	mKeyboardArea->setCornerRadius(mKeyboardPanelSize.y * 0.075f);
+	mKeyboardArea->setCornerRadius(15.0f);
 	mKeyboardArea->setOpacity(0.0f);
 	mKeyboardArea->hide();
-	this->addChildPtr(mKeyboardArea);
+	addChildPtr(mKeyboardArea);
 
 	mKeyboardButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/keyboard.png", "%APP%/data/images/media_interface/keyboard.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mKeyboardButton);
@@ -118,15 +119,20 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 		mTouchToggle->hide();
 	}
 
-	updateWidgets();
-}
 
-void WebInterface::setKeyboardPanelSize(const ci::Vec2f panelSize){
-	mKeyboardPanelSize = panelSize;
-	if(mKeyboardArea){
-		mKeyboardArea->setSize(mKeyboardPanelSize.x, mKeyboardPanelSize.y);
-		mKeyboardArea->setCornerRadius(mKeyboardPanelSize.y * 0.075f);
-	}
+
+	const float padding = sizey.y / 4.0f;
+
+	mMinWidth = (
+		mKeyboardButton->getScaleWidth() + padding +
+		mBackButton->getScaleWidth() + padding +
+		mForwardButton->getScaleWidth() + padding +
+		mRefreshButton->getScaleWidth() + padding +
+		mTouchToggle->getScaleWidth() + padding * 2.0f
+		);
+	mMaxWidth = mMinWidth;
+
+	updateWidgets();
 }
 
 void WebInterface::setKeyboardAllow(const bool keyboardAllowed){
@@ -139,6 +145,13 @@ void WebInterface::setKeyboardAllow(const bool keyboardAllowed){
 		}
 		layout();
 	}
+}
+
+
+void WebInterface::setKeyboardAbove(const bool kerboardAbove){
+	mKeyboardAbove = kerboardAbove;
+
+	layout();
 }
 
 void WebInterface::setAllowTouchToggle(const bool allowTouchToggling){
@@ -159,6 +172,7 @@ void WebInterface::setKeyboardKeyScale(const float newKeyScale){
 }
 
 void WebInterface::animateOff(){
+	mIdling = false;
 	tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::EaseNone(), [this]{
 		hide();
 		mKeyboardShowing = false;
@@ -222,11 +236,10 @@ void WebInterface::onLayout(){
 		// center the keyboard area above this sprite
 		const float keyboardW = mKeyboardArea->getWidth();
 		const float keyboardH = mKeyboardArea->getHeight();
+		float yp = h;
+		if(mKeyboardAbove) yp = -keyboardH;
 
-		mKeyboardArea->setPosition(
-			(w - keyboardW) * 0.5f,
-			-keyboardH
-		);
+		mKeyboardArea->setPosition((w - keyboardW) * 0.5f, yp);
 	}
 }
 
@@ -249,26 +262,34 @@ void WebInterface::updateWidgets(){
 		}
 
 		if(mLinkedWeb->isEnabled()){
-			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
+			if(!mWebLocked){
+				mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
+				mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
+				mWebLocked = true;
+			}
 		} else {
-			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
-			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
+			if(mWebLocked){
+				mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
+				mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
+				mWebLocked = false;
+			}
 		}
 	}
 
 	if(mKeyboardArea){
 		if(mKeyboardShowing){
+			setSecondBeforeIdle(5.0f * 60.0f); // 5 minutes enough?
 			if(!mKeyboard){
 				ds::ui::SoftKeyboardSettings sks;
 				sks.mKeyScale = mKeyboardKeyScale;
-				mKeyboard = ds::ui::SoftKeyboardBuilder::buildStandardKeyboard(mEngine, sks);
+				mKeyboard = ds::ui::SoftKeyboardBuilder::buildExtendedKeyboard(mEngine, sks);
 				mKeyboardArea->addChildPtr(mKeyboard);
-	
-				const float areaW = mKeyboardArea->getWidth();
-				const float areaH = mKeyboardArea->getHeight();
+
 				const float keyW = mKeyboard->getScaleWidth();
 				const float keyH = mKeyboard->getScaleHeight();
+				const float areaW = keyW + 30.0f;
+				const float areaH = keyH + 30.0f;
+				mKeyboardArea->setSize(areaW, areaH);
 				mKeyboard->setPosition(
 					(areaW - keyW) * 0.5f,
 					(areaH - keyH) * 0.5f
@@ -284,6 +305,17 @@ void WebInterface::updateWidgets(){
 							send = false;
 						} else if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
 							code = ci::app::KeyEvent::KEY_BACKSPACE;
+							send = false;
+							ci::app::KeyEvent event(
+								mEngine.getWindow(),
+								code,
+								code,
+								'	',
+								0,
+								code
+								);
+							mLinkedWeb->sendKeyDownEvent(event);
+							mLinkedWeb->sendKeyUpEvent(event);
 						} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
 							code = ci::app::KeyEvent::KEY_RETURN;
 							send = false;
@@ -296,6 +328,20 @@ void WebInterface::updateWidgets(){
 								code
 								);
 							mLinkedWeb->sendKeyDownEvent(event);
+							mLinkedWeb->sendKeyUpEvent(event);
+						} else if(keyType == ds::ui::SoftKeyboardDefs::kTab){
+							code = ci::app::KeyEvent::KEY_TAB;
+							send = false;
+							ci::app::KeyEvent event(
+								mEngine.getWindow(),
+								code,
+								code,
+								'	',
+								0,
+								code
+								);
+							mLinkedWeb->sendKeyDownEvent(event);
+							mLinkedWeb->sendKeyUpEvent(event);
 						}
 
 						if(send){
@@ -308,6 +354,7 @@ void WebInterface::updateWidgets(){
 								code
 							);
 							mLinkedWeb->sendKeyDownEvent(event);
+							mLinkedWeb->sendKeyUpEvent(event);
 						}
 					}
 				});
@@ -316,9 +363,10 @@ void WebInterface::updateWidgets(){
 
 			if(!mKeyboardArea->visible()){
 				mKeyboardArea->show();
-				mKeyboardArea->tweenOpacity(1.0f, mAnimateDuration, 0.0f, ci::easeNone);
+				mKeyboardArea->tweenOpacity(0.98f, mAnimateDuration, 0.0f, ci::easeNone);
 			}
 		} else {
+			setSecondBeforeIdle(mInterfaceIdleSettings);
 			if(mKeyboardArea->visible()){
 				mKeyboardArea->tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::easeNone, [this](){
 					mKeyboardArea->hide();

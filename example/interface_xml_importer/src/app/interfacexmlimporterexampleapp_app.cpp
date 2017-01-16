@@ -61,4 +61,4 @@ void InterfaceXmlImporterExampleApp::keyDown(ci::app::KeyEvent event){
 } // namespace importer_example
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(importer_example::InterfaceXmlImporterExampleApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(importer_example::InterfaceXmlImporterExampleApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

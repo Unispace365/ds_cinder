@@ -8,64 +8,63 @@ namespace ui {
 
 class FboGeneral
 {
-  public:
-    FboGeneral();
-    ~FboGeneral();
+public:
+	FboGeneral();
+	~FboGeneral();
 
-    void             setup(bool useDepth = false, bool useStencil = false);
+	void             setup(bool useDepth = false, bool useStencil = false);
 
-    void             attach(ci::gl::Texture &target, bool useDepth = false, bool useStencil = false);
-    void             detach();
+	void             attach(ci::gl::TextureRef target, bool useDepth = false, bool useStencil = false);
+	void             detach();
 
-    void             begin();
-    void             end();
+	void             begin();
+	void             end();
 
-    ci::gl::Texture *getAttached();
+	ci::gl::TextureRef getAttached();
 
-    void             offsetViewport(int offsetX, int offsetY);
+	void             offsetViewport(int offsetX, int offsetY);
 
-    void             pushTransformation();
-    void             popTransformation();
+	void             pushTransformation();
+	void             popTransformation();
 
-    int              getWidth() const;
-    int              getHeight() const;
-  private:
-    FboGeneral(const FboGeneral &rhs){}
-    FboGeneral &operator =(const FboGeneral &rhs){}
+	int              getWidth() const;
+	int              getHeight() const;
+private:
+	FboGeneral(const FboGeneral &rhs){}
+	FboGeneral &operator =(const FboGeneral &rhs){}
 
-    void             activate();
-    void             deactivate();
+	void             activate();
+	void             deactivate();
 
-    void             reset();
+	void             reset();
 
-    int              mWidth;
-    int              mHeight;
+	int              mWidth;
+	int              mHeight;
 
-    GLuint           mFboId;
-    GLuint           mDepthId;
-    GLuint           mStencilId;
-    GLint            mOldViewport[4];
-    GLint            mPreviousFbo;
-    ci::gl::Texture *mAttached;
-  public:
-    // Avoid making clients remember to call required functions
-    class AutoAttach
-    {
-      public:
-        AutoAttach( FboGeneral &, ci::gl::Texture &target, bool useDepth = false, bool useStencil = false );
-        ~AutoAttach();
-      private:
-        FboGeneral &mFbo;
-    };
+	GLuint           mFboId;
+	GLuint           mDepthId;
+	GLuint           mStencilId;
+	GLint            mPreviousFbo;
+	ci::gl::TextureRef mAttached;
+public:
+	// Avoid making clients remember to call required functions
+	class AutoAttach
+	{
+	public:
+		AutoAttach(FboGeneral &, ci::gl::TextureRef target, bool useDepth = false, bool useStencil = false);
+		~AutoAttach();
+	private:
+		FboGeneral &mFbo;
+	};
 
-    class AutoRun
-    {
-      public:
-        AutoRun( FboGeneral & );
-        ~AutoRun();
-      private:
-        FboGeneral &mFbo;
-    };
+	class AutoRun
+	{
+	public:
+		AutoRun(FboGeneral &);
+		~AutoRun();
+	private:
+		FboGeneral &mFbo;
+	};
 };
 
 }

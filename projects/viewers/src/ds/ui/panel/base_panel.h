@@ -43,7 +43,7 @@ public:
 	/** The content is the resizeable part of the panel.
 	The L/R/T/B padding is added to the content width and height to produce the final size of the panel */
 	void							setViewerSize(const float contentWidth, const float contentHeight);
-	void							setViewerSize(const ci::Vec2f newContentSize);
+	void							setViewerSize(const ci::vec2 newContentSize);
 
 	/** Calls the above function, but using the content aspect ratio so it's proportional, and the padding is added to the outside */
 	void							setViewerWidth(const float contentWidth);
@@ -67,19 +67,19 @@ public:
 	void							animateToDefaultSize();
 
 	/** Automatically handles enable/disable and adds padding, so the contentSize should be the x/y of the destination of your content */
-	void							animateSizeTo(const ci::Vec2f newContentSize);
+	void							animateSizeTo(const ci::vec2 newContentSize);
 	void							animateWidthTo(const float newWidth);
 	void							animateHeightTo(const float newHeight);
 
-	const ci::Vec2f&				getMinSize(){ return mMinSize; }
-	const ci::Vec2f&				getDefaultSize(){ return mDefaultSize; }
+	const ci::vec2&					getMinSize(){ return mMinSize; }
+	const ci::vec2&					getDefaultSize(){ return mDefaultSize; }
 
 	/** Used in the setSizeLimits() function, so this must be set before calculating the size limits.
 		NOTE: the actual size limits are NOT calculated when calling this function, that must be done by the override class after this.*/
-	void							setAbsoluteSizeLimits(const ci::Vec2f& absMin, const ci::Vec2f& absMax);
+	void							setAbsoluteSizeLimits(const ci::vec2& absMin, const ci::vec2& absMax);
 
 	/** Sets the default size. Careful here, the aspect ratio of this should match the content aspect ratio. */
-	void							setDefaultSize(const ci::Vec2f& defaultSize){ mDefaultSize = defaultSize; }
+	void							setDefaultSize(const ci::vec2& defaultSize){ mDefaultSize = defaultSize; }
 
 	void							setAnimateDuration(const float animDuration){ mAnimDuration = animDuration; }
 	const float						getAnimateDuration(){ return mAnimDuration; }
@@ -121,12 +121,12 @@ protected:
 	float							mBottomPad;
 
 	// Abs min is used when calculating size limits
-	ci::Vec2f						mAbsMinSize;
+	ci::vec2						mAbsMinSize;
 	// Abs max is used when calculating size limits
-	ci::Vec2f						mAbsMaxSize;
-	ci::Vec2f						mMinSize;
-	ci::Vec2f						mDefaultSize;
-	ci::Vec2f						mMaxSize;
+	ci::vec2						mAbsMaxSize;
+	ci::vec2						mMinSize;
+	ci::vec2						mDefaultSize;
+	ci::vec2						mMaxSize;
 
 	ds::Momentum					mMomentum;
 	bool							mTouching;

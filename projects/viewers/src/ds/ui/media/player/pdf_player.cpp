@@ -23,6 +23,7 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 	, mPDFPrev(nullptr)
 	, mPDFThumbHolder(nullptr)
 	, mEmbedInterface(embedInterface)
+	, mShowInterfaceAtStart(true)
 	, mCurrentPage(-1)
 	, mNextReady(false)
 	, mPrevReady(false)
@@ -37,14 +38,21 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 }
 
 void PDFPlayer::setMedia(const std::string mediaPath){
+	setResource(ds::Resource(mediaPath));
+}
+
+void PDFPlayer::setResource(const ds::Resource mediaResource){
+
+	mSourceResource = mediaResource;
+	std::string mediaPath = mSourceResource.getAbsoluteFilePath();
+
 	if(mPDF){
 		mPDF->release();
 		mPDF = nullptr;
 		if(mPdfInterface){
-			mPdfInterface->linkPDF(nullptr);
+			mPdfInterface->linkPDF(nullptr, ds::Resource());
 		}
 	}
-
 
 	mPDF = new ds::ui::Pdf(mEngine);
 	mPDF->setResourceFilename(mediaPath);
@@ -130,6 +138,16 @@ void PDFPlayer::setMedia(const std::string mediaPath){
 			mPdfInterface->sendToFront();
 		}
 	}  
+
+
+	if(mPdfInterface){
+		if(mShowInterfaceAtStart){
+			mPdfInterface->show();
+		} else {
+			mPdfInterface->setOpacity(0.0f);
+			mPdfInterface->hide();
+		}
+	}
 
 	// This overrides the PDF interface page change callback
 	if(mPDF){
@@ -219,7 +237,11 @@ void PDFPlayer::layout(){
 
 	if(mPdfInterface){
 		mPdfInterface->setSize(w * 2.0f / 3.0f, mPdfInterface->getHeight());
-		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getWidth() / 2.0f, h - mPdfInterface->getHeight() - 50.0f);
+
+		float yPos = h - mPdfInterface->getHeight() - 50.0f;
+		if(yPos < h / 2.0f) yPos = h / 2.0f;
+		if(yPos + mPdfInterface->getHeight() > h) yPos = h - mPdfInterface->getHeight();
+		mPdfInterface->setPosition(w / 2.0f - mPdfInterface->getWidth() / 2.0f, yPos);
 	}
 }
 
@@ -231,6 +253,15 @@ void PDFPlayer::showInterface(){
 	if(mPdfInterface){
 		mPdfInterface->animateOn();
 	}
+}
+
+void PDFPlayer::hideInterface(){
+	if(mPdfInterface){
+		mPdfInterface->startIdling();
+	}
+}
+void PDFPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
+	mShowInterfaceAtStart = showInterfaceAtStart;
 }
 
 void PDFPlayer::nextPage(){

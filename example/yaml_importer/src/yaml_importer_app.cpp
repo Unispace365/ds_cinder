@@ -54,4 +54,4 @@ void YamlImporterApp::fileDrop(ci::app::FileDropEvent event){
 
 }
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(ds::YamlImporterApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(ds::YamlImporterApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

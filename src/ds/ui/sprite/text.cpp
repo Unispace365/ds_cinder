@@ -1,4 +1,14 @@
+#include "stdafx.h"
+
 #include "text.h"
+
+namespace ds {
+namespace ui {
+void clearFontCache(){}
+}
+}
+#if 0
+
 #include <map>
 #include <cinder/Vector.h>
 #include <cinder/app/App.h>
@@ -563,7 +573,7 @@ void Text::drawIntoFbo() {
 	auto& lines = mLayout.getLines();
 	if (lines.empty()) return;
 
-	if (mNeedRedrawing) {
+	if(mNeedRedrawing) {
 		ds::gl::SaveCamera		save_camera;
 
 		mNeedRedrawing = false;
@@ -591,7 +601,16 @@ void Text::drawIntoFbo() {
 		{
 			ci::gl::SaveFramebufferBinding bindingSaver;
 			std::unique_ptr<ds::ui::FboGeneral> fbo = std::move(mEngine.getFbo());
-			fbo->attach(mTexture, true);
+			if(!fbo){
+				DS_LOG_WARNING("Fbo doesn't exist when drawing into it in a text sprite!");
+				return;
+			}
+			if(!fbo->attach(mTexture, true)){
+				DS_LOG_WARNING("Error attaching a texture to the fbo!");
+				fbo->detach();
+				mEngine.giveBackFbo(std::move(fbo));
+				return;
+			}
 			fbo->begin();
 
 			ci::Area fboBounds(0, 0, fbo->getWidth(), fbo->getHeight());
@@ -667,3 +686,5 @@ static FontPtr get_font(const std::string& filename, const float size)
 	mFontCache[filename][size] = font;
 	return font;
 }
+
+#endif

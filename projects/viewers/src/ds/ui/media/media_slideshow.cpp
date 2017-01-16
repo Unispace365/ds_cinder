@@ -52,9 +52,9 @@ void MediaSlideshow::setMediaSlideshow(const std::vector<ds::Resource>& resource
 		MediaViewer* mv = new MediaViewer(mEngine, (*it));
 		mv->setSettings(mMediaViewerSettings); 
 		mv->setDefaultBounds(getWidth(), getHeight());
-		mv->setDefaultSize(ci::Vec2f(getWidth(), getHeight()));
+		mv->setDefaultSize(ci::vec2(getWidth(), getHeight()));
 		mHolder->addChildPtr(mv);
-		mv->setSwipeCallback([this](ds::ui::Sprite* spr, const ci::Vec3f& amount){
+		mv->setSwipeCallback([this](ds::ui::Sprite* spr, const ci::vec3& amount){
 			// don't advance if we're zoomed in
 			if(spr->getWidth() <= getWidth()){
 				if(amount.x > 20.0f){
@@ -65,7 +65,7 @@ void MediaSlideshow::setMediaSlideshow(const std::vector<ds::Resource>& resource
 			}
 		});
 		mv->setAnimateDuration(mAnimateDuration);
-		mv->setDoubleTapCallback([this, mv](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+		mv->setDoubleTapCallback([this, mv](ds::ui::Sprite* bs, const ci::vec3& pos){
 			callAfterDelay([this]{recenterSlides(); }, 0.01f);
 		});
 		mViewers.push_back(mv);
@@ -87,7 +87,7 @@ void MediaSlideshow::layout(){
 	float xp = 0.0f;
 
 	for(auto it = mViewers.begin(); it < mViewers.end(); ++it){
-		ci::Vec2f size = (*it)->getDefaultSize();
+		ci::vec2 size = (*it)->getDefaultSize();
 		float viewerWidth = size.x;
 		float viewerHeight = size.y;
 
@@ -108,7 +108,7 @@ void MediaSlideshow::recenterSlides(){
 	const float h = getHeight();
 	for(auto it = mViewers.begin(); it < mViewers.end(); ++it){
 		(*it)->animateToDefaultSize();
-		(*it)->tweenPosition(ci::Vec3f((*it)->getOrigin().x + (w - (*it)->getDefaultSize().x) * 0.5f, (h - (*it)->getDefaultSize().y) * 0.5f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
+		(*it)->tweenPosition(ci::vec3((*it)->getOrigin().x + (w - (*it)->getDefaultSize().x) * 0.5f, (h - (*it)->getDefaultSize().y) * 0.5f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
 		xp += w;
 	}
 
@@ -133,7 +133,7 @@ void MediaSlideshow::gotoItemIndex(const int newIndex){
 		currentView.enable(false);
 
 		// fix the position if the center is oddly set
-		ci::Vec3f positionDelta = currentView.getCenter();
+		ci::vec3 positionDelta = currentView.getCenter();
 		positionDelta.x *= currentView.getWidth() * currentView.getScale().x;
 		positionDelta.y *= currentView.getHeight() * currentView.getScale().y;
 		currentView.setPosition(currentView.getPosition() - positionDelta);
@@ -150,7 +150,7 @@ void MediaSlideshow::gotoItemIndex(const int newIndex){
 	}
 
 	const float destX = -(float)(mCurItemIndex)* getWidth();
-	mHolder->tweenPosition(ci::Vec3f(destX, 0.0f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
+	mHolder->tweenPosition(ci::vec3(destX, 0.0f, 0.0f), mAnimateDuration, 0.0f, ci::EaseInOutQuad());
 
 	// tell the new view that we're entering it
 	mViewers[mCurItemIndex]->enter();
@@ -179,8 +179,8 @@ void MediaSlideshow::setCurrentInterface(){
 		if(webInterface){
 			webInterface->setKeyboardAllow(mMediaViewerSettings.mWebAllowKeyboard);
 			webInterface->setKeyboardKeyScale(mMediaViewerSettings.mWebKeyboardKeyScale);
-			webInterface->setKeyboardPanelSize(mMediaViewerSettings.mWebKeyboardPanelSize);
 			webInterface->setAllowTouchToggle(mMediaViewerSettings.mWebAllowTouchToggle);
+			webInterface->setKeyboardAbove(mMediaViewerSettings.mWebKeyboardAbove);
 		}
 	}
 

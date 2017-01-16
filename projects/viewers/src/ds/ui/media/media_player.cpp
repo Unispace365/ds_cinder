@@ -117,7 +117,7 @@ void MediaPlayer::setDefaultProperties(){
 	mContentAspectRatio = 1.0;
 	mLayoutFixedAspect = true;
 	setDefaultBounds(mEngine.getWorldWidth(), mEngine.getWorldHeight());
-	setWebViewSize(ci::Vec2f::zero());
+	setWebViewSize(ci::vec2(0.0f, 0.0f));
 	setCacheImages(false);
 }
 
@@ -151,7 +151,7 @@ void MediaPlayer::setDefaultBounds(const float defaultWidth, const float default
 	mMediaViewerSettings.mDefaultBounds.y = defaultHeight;
 }
 
-void MediaPlayer::setWebViewSize(const ci::Vec2f webSize){
+void MediaPlayer::setWebViewSize(const ci::vec2 webSize){
 	mMediaViewerSettings.mWebDefaultSize = webSize;
 }
 
@@ -220,6 +220,7 @@ void MediaPlayer::initialize(){
 		mVideoPlayer->setPlayableInstances(mMediaViewerSettings.mVideoPlayableInstances);
 		mVideoPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
 		mVideoPlayer->setVideoLoop(mMediaViewerSettings.mVideoLoop);
+		mVideoPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
 
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
 
@@ -242,6 +243,8 @@ void MediaPlayer::initialize(){
 			if(mStatusCallback) mStatusCallback(true);
 		});
 
+		mStreamPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+
 		mStreamPlayer->setResource(mResource);
 
 		mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();
@@ -251,7 +254,9 @@ void MediaPlayer::initialize(){
 	} else if(mediaType == ds::Resource::PDF_TYPE){
 		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mPDFPlayer);
-		mPDFPlayer->setMedia(mResource.getAbsoluteFilePath());
+
+		mPDFPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+		mPDFPlayer->setResource(mResource);
 
 		mPDFPlayer->setErrorCallback([this](const std::string& msg){
 			if(mErrorCallback) mErrorCallback(msg);
@@ -271,8 +276,10 @@ void MediaPlayer::initialize(){
 		mWebPlayer = new WebPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mWebPlayer);
 		mWebPlayer->setWebViewSize(mMediaViewerSettings.mWebDefaultSize);
-		mWebPlayer->setKeyboardParams(mMediaViewerSettings.mWebKeyboardPanelSize, mMediaViewerSettings.mWebKeyboardKeyScale, mMediaViewerSettings.mWebAllowKeyboard);
+		mWebPlayer->setKeyboardParams(mMediaViewerSettings.mWebKeyboardKeyScale, mMediaViewerSettings.mWebAllowKeyboard, mMediaViewerSettings.mWebKeyboardAbove);
 		mWebPlayer->setAllowTouchToggle(mMediaViewerSettings.mWebAllowTouchToggle);
+		mWebPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+
 		mWebPlayer->setMedia(mResource.getAbsoluteFilePath());
 
 		if(mWebPlayer->getWeb()){
@@ -413,11 +420,29 @@ void MediaPlayer::showInterface(){
 	if(mVideoPlayer){
 		mVideoPlayer->showInterface();
 	}
+	if(mStreamPlayer){
+		mStreamPlayer->showInterface();
+	}
 	if(mPDFPlayer){
 		mPDFPlayer->showInterface();
 	}
 	if(mWebPlayer){
 		mWebPlayer->showInterface();
+	}
+}
+
+void MediaPlayer::hideInterface(){
+	if(mVideoPlayer){
+		mVideoPlayer->hideInterface();
+	}
+	if(mStreamPlayer){
+		mStreamPlayer->hideInterface();
+	}
+	if(mPDFPlayer){
+		mPDFPlayer->hideInterface();
+	}
+	if(mWebPlayer){
+		mWebPlayer->hideInterface();
 	}
 }
 
@@ -467,7 +492,7 @@ void MediaPlayer::setInitializedCallback(std::function<void()> func){
 	mInitializedCallback = func;
 }
 
-void MediaPlayer::handleStandardClick(const ci::Vec3f& globalPos){
+void MediaPlayer::handleStandardClick(const ci::vec3& globalPos){
 	if(mWebPlayer){
 		mWebPlayer->sendClick(globalPos);
 	}
@@ -480,7 +505,7 @@ void MediaPlayer::handleStandardClick(const ci::Vec3f& globalPos){
 }
 
 void MediaPlayer::enableStandardClick(){
-	setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		handleStandardClick(pos);
 	});
 }

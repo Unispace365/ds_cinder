@@ -27,7 +27,7 @@ class ScrollArea;
 		void						setContent(const std::vector<int>& dbIds);
 
 		// OPTIONAL (but highly recommended): A row has been tapped, set this function to handle it
-		void						setItemTappedCallback(const std::function<void(ds::ui::Sprite* bs, const ci::Vec3f& cent)> &func);
+		void						setItemTappedCallback(const std::function<void(ds::ui::Sprite* bs, const ci::vec3& cent)> &func);
 
 		// REQUIRED: When we need to create a new sprite, respond with a new sprite of your custom type
 		void						setCreateItemCallback(const std::function<ds::ui::Sprite*() > &func);
@@ -70,12 +70,15 @@ class ScrollArea;
 
 		// When layouts happen, will do a grid instead of a horiz or vert list. Use the grid increment to set the advance amount in each direction
 		// NOTE: not tested yet for perspective OR horizontal scrolling
-		void						setGridLayout(const bool doGrid, const ci::Vec2f& gridIncrement);
+		void						setGridLayout(const bool doGrid, const ci::vec2& gridIncrement);
 
 		//when layouts happen, will do a grid instead of a horiz or vert list. when using vertical scrolling it will be adjusted by target column number and gapping will be the gap between each column
 		//when using horizontal scrollin it will be adjusted by target row number and gapping will be the gap between each row; 
 		// fillCoulumnFirst will change the direction of filling order, default is true , set to false will fill the row fisrt 
 		void						setMatrixLayout(const bool doGrid, const int targetRow, const int targetColumn, const float gapping);
+
+		// Run the layout of children, just in case you need to force the layout. Most changes induce this automatically.
+		virtual void				layout();
 
 	protected:
 
@@ -105,7 +108,6 @@ class ScrollArea;
 
 
 		virtual void						onSizeChanged();
-		virtual void						layout();
 		virtual void						layoutItems();
 		virtual void						layoutItemsGrid();
 		virtual void						layoutItemsMatrix();
@@ -129,13 +131,13 @@ class ScrollArea;
 		bool								mFillFromTop;
 		bool								mGridLayout;
 		bool								mSpecialLayout;
-		ci::Vec2f							mGridIncrement;
+		ci::vec2							mGridIncrement;
 
 		// for animate on
 		float								mAnimateOnDeltaDelay;
 		float								mAnimateOnStartDelay;
 
-		std::function<void(ds::ui::Sprite*, const ci::Vec3f& cent)>	mItemTappedCallback;
+		std::function<void(ds::ui::Sprite*, const ci::vec3& cent)>	mItemTappedCallback;
 		std::function<ds::ui::Sprite* ()>							mCreateItemCallback;
 		std::function<void(ds::ui::Sprite*, const int dbId)>		mSetDataCallback;
 		std::function<void(ds::ui::Sprite*, const float delay)>		mAnimateOnCallback;

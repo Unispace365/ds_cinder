@@ -35,7 +35,7 @@ public:
 
 	// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
 	void					setDefaultBounds(const float defaultWidth, const float defaultHeight);
-	void					setWebViewSize(const ci::Vec2f webSize);
+	void					setWebViewSize(const ci::vec2 webSize);
 	
 	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.
 	void					initialize();
@@ -54,14 +54,15 @@ public:
 
 	/// Origin is a convenience position, primarily used in media slideshow. 
 	/// It's a position where the panel starts from, uncoupled from the viewer's current position
-	void					setOrigin(const ci::Vec3f& origin){ mOrigin = origin; }
-	const ci::Vec3f&		getOrigin(){ return mOrigin; }
+	void					setOrigin(const ci::vec3& origin){ mOrigin = origin; }
+	const ci::vec3&		getOrigin(){ return mOrigin; }
 
 	/// Returns any current player. Will need to be dynamic casted to be used
 	/// Definitely can return nullptr, so check before using
 	ds::ui::Sprite*			getPlayer();
 
 	void					showInterface();
+	void					hideInterface();
 
 	/// Called when any component failed to load it's media. or failed during running.
 	/// Note that the message may be technical and not appropriate to show
@@ -80,7 +81,7 @@ public:
 	/// Web: Click the web content
 	/// PDF: Advance to the next page
 	/// Video: Toggle play / pause
-	void					handleStandardClick(const ci::Vec3f& globalPos);
+	void					handleStandardClick(const ci::vec3& globalPos);
 
 	/// Sets a tap function to enable the above handling
 	void					enableStandardClick();
@@ -92,7 +93,7 @@ protected:
 	MediaViewerSettings		mMediaViewerSettings;
 	MediaPlayer*			mMediaPlayer;
 
-	ci::Vec3f				mOrigin;
+	ci::vec3				mOrigin;
 
 private:
 	void					setDefaultProperties();

@@ -41,9 +41,13 @@ Init						INIT;
 
 char						BLOB_TYPE			= 0;
 const ds::ui::DirtyState&	URL_DIRTY			= ds::ui::INTERNAL_A_DIRTY;
-const ds::ui::DirtyState&	PDF_PAGEMODE_DIRTY	= ds::ui::INTERNAL_B_DIRTY;
+const ds::ui::DirtyState&	TOUCHES_DIRTY		= ds::ui::INTERNAL_B_DIRTY;
+const ds::ui::DirtyState&	KEYBOARD_DIRTY		= ds::ui::INTERNAL_C_DIRTY;
+const ds::ui::DirtyState&	HISTORY_DIRTY		= ds::ui::INTERNAL_D_DIRTY;
 const char					URL_ATT				= 80;
-const char					PDF_PAGEMODE_ATT	= 81;
+const char					TOUCH_ATT			= 81;
+const char					KEYBOARD_ATT		= 82;
+const char					HISTORY_ATT			= 83;
 }
 
 namespace ds {
@@ -83,6 +87,17 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mCanForward(false)
 	, mZoom(1.0)
 	, mTransparentBackground(false)
+	, mNeedsZoomCheck(false)
+	, mHasDocCallback(false)
+	, mHasErrorCallback(false)
+	, mHasAddressCallback(false)
+	, mHasTitleCallback(false)
+	, mHasFullCallback(false)
+	, mHasLoadingCallback(false)
+	, mHasCallbacks(false)
+	, mIsFullscreen(false)
+	, mNeedsInitialized(false)
+	, mCallbacksCue(nullptr)
 {
 	// Should be unnecessary, but really want to make sure that static gets initialized
 	INIT.doNothing();
@@ -114,7 +129,15 @@ void Web::createBrowser(){
 			mBrowserId = browserId;
 		}
 
-		initializeBrowser();
+		mNeedsInitialized = true; 
+
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			
+			mHasCallbacks = true;
+		}
+
 	}, mTransparentBackground);
 }
 
@@ -136,6 +159,10 @@ Web::~Web() {
 
 	clearBrowser();
 
+	if(mCallbacksCue){
+		mCallbacksCue->removeSelf();
+	}
+
 	{
 		// I don't think we'll need to lock this anymore, as the previous call to clear will prevent any callbacks
 	//	std::lock_guard<std::mutex> lock(mMutex);
@@ -154,6 +181,13 @@ void Web::setWebTransparent(const bool isTransparent){
 }
 
 void Web::initializeBrowser(){
+	if(mBrowserId < 0){
+		return;
+	}
+
+	DS_LOG_INFO("Initialize browser: " << mUrl <<" " << mBrowserId);
+
+	mNeedsInitialized = false;
 
 	// Now that we know about the browser, set it to the correct size
 	if(!mBuffer){
@@ -173,8 +207,12 @@ void Web::initializeBrowser(){
 		std::lock_guard<std::mutex> lock(mMutex);
 
 		mTitle = newTitle;
-		if(mTitleChangedCallback){
-			mTitleChangedCallback(newTitle);
+
+		mHasTitleCallback = true;
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
 		}
 	};
 
@@ -185,20 +223,22 @@ void Web::initializeBrowser(){
 		mIsLoading = isLoading;
 		mCanBack = canBack;
 		mCanForward = canForwards;
-		mUrl = newUrl;
+		mCurrentUrl = newUrl;
 
 		// zoom seems to need to be set for every page
-		if(mZoom != 1.0 && getZoom() != mZoom){
-			setZoom(mZoom);
+		// This callback is locked in CEF, so zoom checking needs to happen later
+		if(mZoom != 1.0){
+			mNeedsZoomCheck = true;
 		}
 
-		if(mLoadingUpdatedCallback){
-			mLoadingUpdatedCallback(isLoading);
-		}
+		mHasAddressCallback = true;
+		mHasLoadingCallback = true;
+		mHasDocCallback = true;
 
-		if(!mIsLoading && mDocumentReadyFn){
-			mDocumentReadyFn();
-			//	mJsMethodHandler->setDomIsReady(*mWebViewPtr);
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
 		}
 	};
 
@@ -219,22 +259,74 @@ void Web::initializeBrowser(){
 	wcc.mErrorCallback = [this](const std::string& theError){
 		// This callback comes back from the CEF UI thread
 		std::lock_guard<std::mutex> lock(mMutex);
+		mHasError = true;
+		mErrorMessage = theError;
 
-		setErrorMessage(theError);
+		mHasErrorCallback = true;
+
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
+		}
 	};
 
 	wcc.mFullscreenCallback = [this](const bool isFullscreen){
 		// This callback comes back from the CEF UI thread
 		std::lock_guard<std::mutex> lock(mMutex);
+		mIsFullscreen = isFullscreen;
 
-		if(mFullscreenCallback){
-			mFullscreenCallback(isFullscreen);
+		mHasFullCallback = true;
+
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
 		}
 	};
 
 	mService.addWebCallbacks(mBrowserId, wcc);
 }
 
+
+void Web::dispatchCallbacks(){
+	if(mNeedsInitialized){
+		initializeBrowser();
+	}
+
+	if(mHasDocCallback){
+		if(mDocumentReadyFn) mDocumentReadyFn();
+		mHasDocCallback = false;
+	}
+
+	if(mHasErrorCallback){
+		if(mErrorCallback) mErrorCallback(mErrorMessage);
+		mHasErrorCallback = false;
+	}
+
+	if(mHasAddressCallback){
+		if(mAddressChangedCallback) mAddressChangedCallback(mUrl);
+		mHasAddressCallback = false;
+	}
+
+	if(mHasTitleCallback){
+		if(mTitleChangedCallback) mTitleChangedCallback(mTitle);
+		mHasTitleCallback = false;
+	}
+
+	if(mHasFullCallback){
+		if(mFullscreenCallback) mFullscreenCallback(mIsFullscreen);
+		mHasFullCallback = false;
+	}
+
+	if(mHasLoadingCallback){
+		if(mLoadingUpdatedCallback) mLoadingUpdatedCallback(mIsLoading);
+		mHasLoadingCallback = false;
+	}
+
+	mHasCallbacks = false;
+	mCallbacksCue = nullptr;
+}
 
 void Web::updateClient(const ds::UpdateParams &p) {
 	Sprite::updateClient(p);
@@ -250,7 +342,14 @@ void Web::updateServer(const ds::UpdateParams &p) {
 	update(p);
 }
 
+
 void Web::update(const ds::UpdateParams &p) {
+
+	// Get zoom locks CEF, so 
+	if(mNeedsZoomCheck && getZoom() != mZoom){
+		mNeedsZoomCheck = false;
+		setZoom(mZoom);
+	}
 
 	// Anything that modifies mBuffer needs to be locked
 	std::lock_guard<std::mutex> lock(mMutex);
@@ -259,7 +358,7 @@ void Web::update(const ds::UpdateParams &p) {
 		ci::gl::Texture::Format fmt;
 		fmt.setMinFilter(GL_LINEAR);
 		fmt.setMagFilter(GL_LINEAR);
-		mWebTexture = ci::gl::Texture(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
+		mWebTexture = ci::gl::Texture::create(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
 		mHasBuffer = false;
 	}
 }
@@ -271,7 +370,7 @@ void Web::onSizeChanged() {
 
 		const int theWid = static_cast<int>(getWidth());
 		const int theHid = static_cast<int>(getHeight());
-		const ci::Vec2i newBrowserSize(theWid, theHid);
+		const ci::ivec2 newBrowserSize(theWid, theHid);
 		if(newBrowserSize == mBrowserSize && mBuffer){
 			return;
 		}
@@ -295,8 +394,8 @@ void Web::onSizeChanged() {
 
 void Web::drawLocalClient() {
 	if (mWebTexture) {
-		if(getPerspective()){
-			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture.getHeight()), static_cast<float>(mWebTexture.getWidth()), 0.0f));
+		if(true || getPerspective()){
+			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture->getHeight()), static_cast<float>(mWebTexture->getWidth()), 0.0f)); 
 		} else {
 			ci::gl::draw(mWebTexture);
 		}
@@ -307,11 +406,17 @@ std::string Web::getUrl() {
 	return mUrl;
 }
 
+std::string Web::getCurrentUrl(){
+	std::lock_guard<std::mutex> lock(mMutex);
+	return mCurrentUrl;
+}
+
 void Web::loadUrl(const std::wstring &url) {
 	loadUrl(ds::utf8_from_wstr(url));
 }
 
 void Web::loadUrl(const std::string &url) {
+	mCurrentUrl = url;
 	mUrl = url;
 	markAsDirty(URL_DIRTY);
 	if(mBrowserId > -1 && !mUrl.empty()){
@@ -329,77 +434,115 @@ void Web::setUrlOrThrow(const std::string& url) {
 
 void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {
 	mService.sendKeyEvent(mBrowserId, 0, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		mKeyPresses.push_back(WebKeyboardInput(0, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown()));
+		markAsDirty(KEYBOARD_DIRTY);
+	}
 }
 
 void Web::sendKeyUpEvent(const ci::app::KeyEvent &event){
 	mService.sendKeyEvent(mBrowserId, 2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown());
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		mKeyPresses.push_back(WebKeyboardInput(2, event.getNativeKeyCode(), event.getChar(), event.isShiftDown(), event.isControlDown(), event.isAltDown()));
+		markAsDirty(KEYBOARD_DIRTY);
+	}
 }
 
 void Web::sendMouseDownEvent(const ci::app::MouseEvent& e) {
 	if(!mAllowClicks) return;
 
-	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
-	mService.sendMouseClick(mBrowserId, e.getX(), e.getY(), 0, 0, 1);
+	sendTouchToService(e.getX(), e.getY(), 0, 0, 1);
 }
 
 void Web::sendMouseDragEvent(const ci::app::MouseEvent& e) {
 	if(!mAllowClicks) return;
 
-	ci::Vec2f pos = globalToLocal(ci::Vec3f((float)e.getX(), (float)e.getY(), 0.0f)).xy();
-	mService.sendMouseClick(mBrowserId, e.getX(), e.getY(), 0, 1, 1);
+	sendTouchToService(e.getX(), e.getY(), 0, 1, 1);
 }
 
 void Web::sendMouseUpEvent(const ci::app::MouseEvent& e) {
 	if(!mAllowClicks) return;
 
-	mService.sendMouseClick(mBrowserId, e.getX(), e.getY(), 0, 2, 1);
+	sendTouchToService(e.getX(), e.getY(), 0, 2, 1);
 }
 
-void Web::sendMouseClick(const ci::Vec3f& globalClickPoint){
+void Web::sendMouseClick(const ci::vec3& globalClickPoint){
 	if(!mAllowClicks) return;
 
-	ci::Vec2f pos = globalToLocal(globalClickPoint).xy();
+	ci::vec2 pos = ci::vec2(globalToLocal(globalClickPoint));
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
 
-	mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 0, 1);
-	mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
-	mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 1);
+	sendTouchToService(xPos, yPos, 0, 0, 1);
+	sendTouchToService(xPos, yPos, 0, 1, 1);
+	sendTouchToService(xPos, yPos, 0, 2, 1);
+}
+
+void Web::sendTouchToService(const int xp, const int yp, const int btn, const int state, const int clickCnt, 
+							 const bool isWheel, const int xDelta, const int yDelta) {
+	if(mBrowserId < 0) return;
+
+	if(isWheel){
+		mService.sendMouseWheelEvent(mBrowserId, xp, yp, xDelta, yDelta);
+	} else {
+		mService.sendMouseClick(mBrowserId, xp, yp, btn, state, clickCnt);
+	}
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		WebTouch wt = WebTouch(xp, yp, btn, state, clickCnt);
+		if(isWheel){
+			wt.mIsWheel = true;
+			wt.mXDelta = xDelta;
+			wt.mYDelta = yDelta;
+		}
+		mTouches.push_back(wt);
+
+		markAsDirty(TOUCHES_DIRTY);
+	}
 }
 
 void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	if(touchInfo.mFingerIndex != 0)
 		return;
 
-	ci::Vec2f pos = globalToLocal(touchInfo.mCurrentGlobalPoint).xy();
+	ci::vec2 pos = ci::vec2(globalToLocal(touchInfo.mCurrentGlobalPoint));
 	int xPos = (int)roundf(pos.x);
 	int yPos = (int)roundf(pos.y);
 
 	if(ds::ui::TouchInfo::Added == touchInfo.mPhase) {
-		if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 0, 1);
+		if(mAllowClicks){
+			sendTouchToService(xPos, yPos, 0, 0, 1);
+		}
 		if(mDragScrolling){
 			mClickDown = true;
 		}
 		
 	} else if(ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
 
-
 		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
 			
 			if(mClickDown){
-				if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 0);
-				if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 0);
+				if(mAllowClicks){
+					sendTouchToService(xPos, yPos, 0, 1, 0);
+					sendTouchToService(xPos, yPos, 0, 2, 0);
+				}
 				mClickDown = false;
 			}
 
 			float yDelta = touchInfo.mCurrentGlobalPoint.y - mPreviousTouchPos.y;
-			mService.sendMouseWheelEvent(mBrowserId, xPos, yPos, 0, (int)roundf(yDelta));			
+			sendTouchToService(xPos, yPos, 0, 0, 0, true, 0, static_cast<int>(roundf(yDelta)));		
 			
 		} else {
-			if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 1, 1);
+			if(mAllowClicks){
+				sendTouchToService(xPos, yPos, 0, 1, 1);
+			}
 		}
 	} else if(ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
-		if(mAllowClicks) mService.sendMouseClick(mBrowserId, xPos, yPos, 0, 2, 1);
+		if(mAllowClicks){
+			sendTouchToService(xPos, yPos, 0, 2, 1);
+		}
 	}
 
 	mPreviousTouchPos = touchInfo.mCurrentGlobalPoint;
@@ -417,18 +560,42 @@ double Web::getZoom() const {
 
 void Web::goBack() {
 	mService.goBackwards(mBrowserId);
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		mHistoryRequests.push_back(WebControl(WebControl::GO_FORW));
+		markAsDirty(HISTORY_DIRTY);
+	}
 }
 
 void Web::goForward() {
 	mService.goForwards(mBrowserId);
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		mHistoryRequests.push_back(WebControl(WebControl::GO_BACK));
+		markAsDirty(HISTORY_DIRTY);
+	}
 }
 
 void Web::reload(const bool ignoreCache) {
 	mService.reload(mBrowserId, ignoreCache);
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		if(ignoreCache){
+			mHistoryRequests.push_back(WebControl(WebControl::RELOAD_HARD));
+		} else {
+			mHistoryRequests.push_back(WebControl(WebControl::RELOAD_SOFT));
+		}
+		markAsDirty(HISTORY_DIRTY);
+	}
 }
 
 void Web::stop() {
 	mService.stopLoading(mBrowserId);
+
+	if(mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE || mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		mHistoryRequests.push_back(WebControl(WebControl::STOP_LOAD));
+		markAsDirty(HISTORY_DIRTY);
+	}
 }
 
 bool Web::canGoBack() {
@@ -476,17 +643,17 @@ void Web::clearError(){
 	mHasError = false;
 }
 
-ci::Vec2f Web::getDocumentSize() {
+ci::vec2 Web::getDocumentSize() {
 	// TODO?
-	return ci::Vec2f(getWidth(), getHeight());
+	return ci::vec2(getWidth(), getHeight());
 }
 
-ci::Vec2f Web::getDocumentScroll() {
+ci::vec2 Web::getDocumentScroll() {
 	/* TODO
-	if (!mWebViewPtr) return ci::Vec2f(0.0f, 0.0f);
+	if (!mWebViewPtr) return ci::vec2(0.0f, 0.0f);
 	return get_document_scroll(*mWebViewPtr);
 	*/
-	return ci::Vec2f::zero();
+	return ci::vec2(0.0f, 0.0f);
 }
 
 void Web::executeJavascript(const std::string& theScript){
@@ -504,11 +671,98 @@ void Web::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(URL_ATT);
 		buf.add(mUrl);
 	}
+
+	if(mDirty.has(TOUCHES_DIRTY) && !mTouches.empty()){
+		buf.add(TOUCH_ATT);
+		buf.add(static_cast<int>(mTouches.size()));
+		for (auto it : mTouches){
+			buf.add(it.mX);
+			buf.add(it.mY);
+			buf.add(it.mBttn);
+			buf.add(it.mState);
+			buf.add(it.mClickCount);
+			buf.add(it.mIsWheel);
+			buf.add(it.mXDelta);
+			buf.add(it.mYDelta);
+		}
+
+		mTouches.clear();
+	}
+
+	if(mDirty.has(KEYBOARD_DIRTY) && !mKeyPresses.empty()){
+		buf.add(KEYBOARD_ATT);
+		buf.add(static_cast<int>(mKeyPresses.size()));
+		for(auto it : mKeyPresses){
+			buf.add(it.mState);
+			buf.add(it.mNativeKeyCode);
+			buf.add(it.mCharacter);
+			buf.add(it.mShiftDown);
+			buf.add(it.mCntrlDown);
+			buf.add(it.mAltDown);
+		}
+
+		mKeyPresses.clear();
+	}
+
+	if(mDirty.has(HISTORY_DIRTY) && !mHistoryRequests.empty()){
+		buf.add(HISTORY_ATT);
+		buf.add(static_cast<int>(mHistoryRequests.size()));
+		for (auto it : mHistoryRequests){
+			buf.add(it.mCommand);
+		}
+
+		mHistoryRequests.clear();
+	}
 }
 
 void Web::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
-	if (attributeId == URL_ATT) {
+	if(attributeId == URL_ATT) {
 		setUrl(buf.read<std::string>());
+	} else if(attributeId == TOUCH_ATT){
+		auto sizey = buf.read<int>();
+		for(int i = 0; i < sizey; i++){
+			int xxx = buf.read<int>();
+			int yyy = buf.read<int>();
+			int btn = buf.read<int>();
+			int sta = buf.read<int>();
+			int clk = buf.read<int>();
+			bool iw = buf.read<bool>();
+			int xd = buf.read<int>();
+			int yd = buf.read<int>();
+			sendTouchToService(xxx, yyy, btn, sta, clk, iw, xd, yd);
+		}
+
+	} else if(attributeId == KEYBOARD_ATT){
+		auto sizey = buf.read<int>();
+		for(int i = 0; i < sizey; i++){
+			int state = buf.read<int>();
+			int nativ = buf.read<int>();
+			char chary = buf.read<char>();
+			bool isShif = buf.read<bool>();
+			bool isCntrl = buf.read<bool>();
+			bool isAlt = buf.read<bool>();
+
+			if(mBrowserId > -1){
+				mService.sendKeyEvent(mBrowserId, state, nativ, chary, isShif, isCntrl, isAlt);
+			}
+		}
+
+	} else if(attributeId == HISTORY_ATT){
+		auto sizey = buf.read<int>();
+		for(auto i = 0; i < sizey; i++){
+			int commandy = buf.read<int>();
+			if(commandy == WebControl::GO_BACK){
+				goBack();
+			} else if(commandy == WebControl::GO_FORW){
+				goForward();
+			} else if(commandy == WebControl::RELOAD_SOFT){
+				reload();
+			} else if(commandy == WebControl::RELOAD_HARD){
+				reload(true);
+			} else if(commandy == WebControl::STOP_LOAD){
+				stop();
+			} 
+		}
 	} else {
 		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}

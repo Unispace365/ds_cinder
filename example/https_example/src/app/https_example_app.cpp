@@ -7,7 +7,8 @@
 
 #include <ds/ui/media/media_viewer.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 #include <cinder/Clipboard.h>
 
 #include "app/app_defs.h"
@@ -28,8 +29,8 @@ https_example::https_example()
 
 								.persp() 
 								.perspFov(60.0f)
-								.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
 								.perspFar(20.0f)
 
@@ -69,10 +70,10 @@ void https_example::setupServer(){
 			const float clippFar = 10000.0f;
 			const float fov = 60.0f;
 			ds::PerspCameraParams p = mEngine.getPerspectiveCamera(i);
-			p.mTarget = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
+			p.mTarget = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f);
 			p.mFarPlane = clippFar;
 			p.mFov = fov;
-			p.mPosition = ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
+			p.mPosition = ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, mEngine.getWorldWidth() / 2.0f);
 			mEngine.setPerspectiveCamera(i, p);
 		} else {
 			mEngine.setOrthoViewPlanes(i, -10000.0f, 10000.0f);
@@ -105,9 +106,9 @@ void https_example::setupServer(){
 	// So you set the reply function, and it'll come back on the main thread when the request returns sometime later
 	// Errored means something bad happened, and the reply will contain the curl error
 	// If errored = false, the reply is whatever the server sent back
-	mHttpsRequest.setReplyFunction([this](const bool errored, const std::string& reply){
+	mHttpsRequest.setReplyFunction([this](const bool errored, const std::string& reply, const long httpCode){
 		// Handle errors
-		std::cout << "Https request reply: " << errored << " " << reply << std::endl;
+		std::cout << "Https request reply: " << errored << " " << reply << std::endl << std::endl << "http status: " << httpCode << std::endl;
 	});
 
 	// Make an example request. 
@@ -144,6 +145,13 @@ void https_example::keyDown(ci::app::KeyEvent event){
 		auto fileNameOrig = ci::Clipboard::getString();
 		mHttpsRequest.makeGetRequest("https://example.com", false, false);
 
+
+	} else if(event.getCode() == KeyEvent::KEY_p){
+		std::string datay = "{ \"data\": { \"type\": \"collection_links\", \"attributes\": { \"story_type\": \"Achievement\", \"story_id\": \"13\" }}}";
+		std::vector<std::string> headers;
+		headers.push_back("Accept: application/json");
+		headers.push_back("Content-Type: application/json");
+		mHttpsRequest.makePostRequest("https://example.com", datay, true, true, "", headers);
 
 	// Shows all enabled sprites with a label for class type
 	} else if(event.getCode() == KeyEvent::KEY_f){
@@ -197,4 +205,4 @@ void https_example::fileDrop(ci::app::FileDropEvent event){
 } // namespace example
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(example::https_example, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(example::https_example, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

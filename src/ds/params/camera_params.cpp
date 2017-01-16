@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "camera_params.h"
 
 namespace ds {

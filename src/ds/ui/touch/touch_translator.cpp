@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "touch_translator.h"
 
 namespace ds {

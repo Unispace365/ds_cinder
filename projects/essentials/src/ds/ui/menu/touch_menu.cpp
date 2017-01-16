@@ -71,7 +71,7 @@ void TouchMenu::clearClusters(){
 	mClusterLookup.clear();
 }
 
-void TouchMenu::startTappableMenu(const ci::Vec3f& globalLocation, const float timeoutSeconds /*= 10.0f*/){
+void TouchMenu::startTappableMenu(const ci::vec3& globalLocation, const float timeoutSeconds /*= 10.0f*/){
 	ClusterView* cv = getClusterView();
 	cv->startTappableMode(globalLocation, timeoutSeconds);
 }

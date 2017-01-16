@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/network/node_watcher.h"
 
 #include <Poco/Net/DatagramSocket.h>
@@ -58,7 +60,7 @@ void NodeWatcher::update(const ds::UpdateParams &) {
 static long get_refresh_rate(ds::ui::SpriteEngine& e) {
 	// Default to one second
 	const ds::cfg::Settings&		settings = e.getSettings("engine");
-	float							rate = settings.getFloat("node:refresh_rate", 0, 1.0f);
+	float							rate = settings.getFloat("node:refresh_rate", 0, .1f);
 	long							ans = static_cast<long>(rate * 1000.0f);
 	if (ans < 10) return 10;
 	else if (ans > 1000 * 10) return 1000 * 10;

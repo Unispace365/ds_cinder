@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_meta_data.h"
 
 #include <intrin.h>
@@ -94,11 +96,11 @@ void						super_slow_image_atts(const std::string& filename, ci::vec2& outSize) 
 		DS_LOG_WARNING_M("ImageFileAtts Going to load image synchronously; this will affect performance, filename: " << filename, GENERAL_LOG);
 
 		auto s = ci::Surface8u(ci::loadImage(filename));
-		if(s) {
+		if(s.getData()) {
 			outSize = ci::vec2(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
 		} else {
 			DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
-			outSize = ci::vec2::zero();
+			outSize = ci::vec2();
 		}
 	} catch (std::exception const& ex) {
 		bool errored = true;
@@ -106,12 +108,12 @@ void						super_slow_image_atts(const std::string& filename, ci::vec2& outSize) 
 		// try to load it from the web
 		try{
 			auto s = ci::Surface8u(ci::loadImage(ci::loadUrl(filename)));
-			if(s) {
+			if(s.getData()) {
 				outSize = ci::vec2(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
 				errored = false;
 			} else {
 				DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
-				outSize = ci::vec2::zero();
+				outSize = ci::vec2();
 			}
 		} catch(std::exception const& extwo){
 			DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ") = " << extwo.what(), GENERAL_LOG);

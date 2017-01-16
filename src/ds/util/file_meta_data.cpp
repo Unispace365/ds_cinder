@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "file_meta_data.h"
 
 #include <Poco/Path.h>

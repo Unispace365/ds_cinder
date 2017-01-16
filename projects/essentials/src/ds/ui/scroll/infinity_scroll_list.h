@@ -19,7 +19,7 @@ namespace ds{
 			void								setContent(const std::vector<int>& dbIds);
 
 			// OPTIONAL (but highly recommended): A row has been tapped, set this function to handle it
-			void								setItemTappedCallback(const std::function<void(ds::ui::Sprite* bs, const ci::Vec3f& cent)> &func);
+			void								setItemTappedCallback(const std::function<void(ds::ui::Sprite* bs, const ci::vec3& cent)> &func);
 
 			// REQUIRED: When we need to create a new sprite, respond with a new sprite of your custom type
 			void								setCreateItemCallback(const std::function<ds::ui::Sprite*() > &func);
@@ -44,9 +44,17 @@ namespace ds{
 			void								setLayoutParams(const float startPositionX, const float startPositionY, const float incremenetAmount);
 
 			void								setTweenAnimationParams(const float duration, const float delay = 0.0f, const ci::EaseFn fn= ci::EaseNone());
-			void								nextItem();
-			void								previousItem();
+			void								nextItem(const float duration = -1.0f);
+			void								previousItem(const float duration = -1.0f);
 			void								turnOnStepSwipe();
+			
+			// Call this to initialize the list at a certain point
+			void								initItemStart(int itemNum);
+			// Call this to jump to a certain item in the list
+			void								jumpItem(int itemNum, const float duration = -1.0f);
+
+			// Returns the positions of items currently on screen
+			std::vector<int>					getOnScreenItemsPos();
 
 		protected:
 			// A helper so we only have to show the visible results at one time (instead of creating a zillion sprites)
@@ -69,7 +77,7 @@ namespace ds{
 			virtual void						assignItems();
 			void								handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 			void								itemPosUpdated(const float delta);
-			void								tweenItemPos(const float delta);
+			void								tweenItemPos(const float delta, float duration = -1.0f);
 			void								initFillScreen();
 			void								layout();
 			void								checkBounds();
@@ -105,7 +113,7 @@ namespace ds{
 			Poco::Timestamp::TimeVal			mLastUpdateTime;
 
 
-			std::function<void(ds::ui::Sprite*, const ci::Vec3f& cent)>	mItemTappedCallback;
+			std::function<void(ds::ui::Sprite*, const ci::vec3& cent)>	mItemTappedCallback;
 			std::function<ds::ui::Sprite* ()>							mCreateItemCallback;
 			std::function<void(ds::ui::Sprite*, const int dbId)>		mSetDataCallback;
 			std::function<void(ds::ui::Sprite*, const float delay)>		mAnimateOnCallback;

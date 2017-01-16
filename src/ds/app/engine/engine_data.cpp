@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_data.h"
 
 #include "ds/app/engine/engine_service.h"

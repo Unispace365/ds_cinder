@@ -49,11 +49,11 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -85,11 +85,11 @@
       <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>cinder_d.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(CINDER_086)\lib;$(CINDER_086)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(CINDER_090)\lib;$(CINDER_090)\lib\msw;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <SubSystem>Windows</SubSystem>
       <RandomizedBaseAddress>false</RandomizedBaseAddress>
@@ -102,7 +102,7 @@
       <Message>Copying video DLLs to output directory</Message>
       <Command>echo Copying GST DLLs to output directory
 		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libffi-6.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgio-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libglib-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
@@ -118,7 +118,7 @@
 
 		</Command>
       <Inputs>
-	  $(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll; 
+	  $(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll; 
 	  $(GSTREAMER_1_0_ROOT_X86)\bin\libffi-6.dll;
 	  $(GSTREAMER_1_0_ROOT_X86)\bin\libgio-2.0-0.dll;
 	  $(GSTREAMER_1_0_ROOT_X86)\bin\libglib-2.0-0.dll;
@@ -178,7 +178,7 @@
       <Message>Copying video DLLs to output directory</Message>
       <Command>echo Copying GST DLLs to output directory
 		if not exist "$(SolutionDir)\$(Configuration)" mkdir "$(SolutionDir)\$(Configuration)"
-		xcopy /y /d "$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$(SolutionDir)\$(Configuration)"
+		xcopy /y /d "$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfo\*.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libffi-6.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libgio-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libglib-2.0-0.dll" "$(SolutionDir)\$(Configuration)"
@@ -193,7 +193,7 @@
 		xcopy /y /d "$(GSTREAMER_1_0_ROOT_X86)\bin\libz.dll" "$(SolutionDir)\$(Configuration)"
 
 		</Command>
-      <Inputs>$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libffi-6.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgio-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libglib-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgmodule-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgobject-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstapp-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstbase-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstnet-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstreamer-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libintl-8.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libwinpthread-1.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libz.dll</Inputs>
+      <Inputs>$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\MediaInfo\MediaInfo.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libffi-6.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgio-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libglib-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgmodule-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgobject-2.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstapp-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstbase-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstnet-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libgstreamer-1.0-0.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libintl-8.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libwinpthread-1.dll;$(GSTREAMER_1_0_ROOT_X86)\bin\libz.dll</Inputs>
       <Outputs>$(SolutionDir)\$(Configuration)\MediaInfo.dll;$(SolutionDir)\$(Configuration)\libffi-6.dll;$(SolutionDir)\$(Configuration)\libgio-2.0-0.dll;$(SolutionDir)\$(Configuration)\libglib-2.0-0.dll;$(SolutionDir)\$(Configuration)\libgmodule-2.0-0.dll;$(SolutionDir)\$(Configuration)\libgobject-2.0-0.dll;$(SolutionDir)\$(Configuration)\libgstapp-1.0-0.dll;$(SolutionDir)\$(Configuration)\libgstbase-1.0-0.dll;$(SolutionDir)\$(Configuration)\libgstnet-1.0-0.dll;$(SolutionDir)\$(Configuration)\libgstreamer-1.0-0.dll;$(SolutionDir)\$(Configuration)\libintl-8.dll;$(SolutionDir)\$(Configuration)\libwinpthread-1.dll;$(SolutionDir)\$(Configuration)\libz.dll</Outputs>
     </CustomBuildStep>
   </ItemDefinitionGroup>

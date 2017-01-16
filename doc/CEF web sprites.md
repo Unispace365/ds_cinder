@@ -66,8 +66,8 @@ Including the project
 * If you have Web_Awesomium property sheets included already, then delete them
 * Save and close the solution
 * Edit the solution and project files in a text editor, and update the absolute links above with environment variable links, for example:
-    * In the solution file: "cef_web", "%DS_PLATFORM_086%\projects\web\cef\cef_web.vcxproj" 
-	* In the project file: <Import Project="$(DS_PLATFORM_086)\projects\web\cef\PropertySheets\Web_CEF_d.props" />
+    * In the solution file: "cef_web", "%DS_PLATFORM_090%\projects\web\cef\cef_web.vcxproj" 
+	* In the project file: <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF_d.props" />
 	* This step is very important for others to be able to compile your project
 * Compile and run. The relevant runtime files are automatically copied to the $Configuration folders (debug or release near your project file)
 
@@ -105,4 +105,39 @@ Resources
 
 CEF requires a number of resources to run. These are pak, bin, dll, dat and locale files. They're all included in ds_cinder/projects/web/cef/lin/runtime. Any updates to CEF should be sure to make sure that there are the proper resources in this folder. Everything in the runtime folder gets copied to the $Configuration folder at compile time.
 
+
+Updating CEF version
+========================
+
+CEF has been recompiled to add proprietary codec support, so if a new version is desired, you'll have to pull the latest version and compile it.
+
+* Mostly follow the steps under the automated build here: https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
+* I used this command line to pull and build (update the branch number as needed): python automate-git.py --download-dir=D:\code\cef_build\chrochro --branch=2785 --force-build
+* Add these Gyp defines as environment variables in the system:
+
+GYP_DEFINES proprietary_codecs=1 ffmpeg_branding=Chrome
+GYP_GENERATORS ninja
+GYP_MSVS_VERSION 2015
+
+* After compilation succeeds, the binary distribution is in [build_dir]\chromium\src\cef\binary_distrib\
+* You'll need to update the headers in the cef_web project as well as update any relevant APIs
+* Recompile libcef_dll_wrapper in debug and release
+* Recompile cef simple, with everything removed except the CefExecuteProcess. cefsimple runs as a separate process for running browser instances. 
+	* Remove most of the stuff in cefsimple_win.cc and set it's subsystem in the linker settings to WINDOWS
+	* Here's the entirety of the source for that app:
+
+	#include <windows.h>
+	#include <include/cef_app.h>
+	int CALLBACK WinMain(
+	_In_ HINSTANCE hInstance,
+	_In_ HINSTANCE hPrevInstance,
+	_In_ LPSTR     lpCmdLine,
+	_In_ int       nCmdShow
+	){
+		CefMainArgs main_args;
+		return CefExecuteProcess(main_args, NULL, NULL);
+	}
+* Move cefsimple.exe and all other lib, .h, .cc, .cpp, .dll files required from the new binary distribution to the cef_web project. Use the existing files as a guide.
+* If all goes well, web sites should work fine and dandy and video playback should be working (use downstream.com's video sections to test)
+	
 

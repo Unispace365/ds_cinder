@@ -102,6 +102,9 @@
     <ClCompile Include="src\ds\ui\media\media_interface_builder.cpp">
       <Filter>src\ds\ui\media</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\media\interface\thumbnail_bar.cpp">
+      <Filter>src\ds\ui\media\interface</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\ui\panel\base_panel.h">
@@ -175,6 +178,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\media\media_interface.h">
       <Filter>src\ds\ui\media</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\media\interface\thumbnail_bar.h">
+      <Filter>src\ds\ui\media\interface</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

@@ -135,7 +135,7 @@ public:
 		{ }
 
 
-	const ci::Vec2i&	getPageSize() const {
+	const ci::ivec2&	getPageSize() const {
 		return mPageSize;
 	}
 
@@ -266,7 +266,7 @@ private:
 	float						mWidth,
 								mHeight;
 	int							mMode;
-	ci::Vec2i					mOutSize,
+	ci::ivec2					mOutSize,
 								mPageSize;
 };
 
@@ -275,8 +275,8 @@ private:
 /**
  * \class ds::ui::sprite::PdfRes
  */
-ci::Surface8u PdfRes::renderPage(const std::string& path) {
-	ci::Surface8u			s;
+ci::Surface8uRef PdfRes::renderPage(const std::string& path) {
+	ci::Surface8uRef		s;
 
 	Examine					examine;
 	Load					load;
@@ -289,9 +289,11 @@ ci::Surface8u PdfRes::renderPage(const std::string& path) {
 	Draw					draw(pixels, examine.mWidth, examine.mHeight, examine.mWidth, examine.mHeight);
 	if (!load.run(draw, path, page_num)) return s;
 
-	s = ci::Surface8u(pixels.getData(), examine.mWidth, examine.mHeight, examine.mWidth * 4, ci::SurfaceChannelOrder(ci::SurfaceChannelOrder::BGRA));
-	if (s) return s.clone(true);
-	return s;
+	return ci::Surface::create(pixels.getData(), examine.mWidth, examine.mHeight, examine.mWidth * 4, ci::SurfaceChannelOrder(ci::SurfaceChannelOrder::BGRA));
+	
+	// TODO ? Previous code would clone the surface. dunno if that's needed anymore
+	//if (s) return s.clone(true);
+	//return s;
 }
 
 PdfRes::PdfRes(ds::GlThread& t)
@@ -335,17 +337,17 @@ bool PdfRes::loadPDF(const std::string& fileName, const ds::ui::Pdf::PageSizeMod
 
 float PdfRes::getTextureWidth() const {
 	if (!mTexture) return 0.0f;
-	return mTexture.getWidth();
+	return mTexture->getWidth();
 }
 
 float PdfRes::getTextureHeight() const {
 	if (!mTexture) return 0.0f;
-	return mTexture.getHeight();
+	return mTexture->getHeight();
 }
 
 void PdfRes::draw(float x, float y) {
 	if (mPageCount > 0 && mTexture) {
-		ci::gl::draw(mTexture, ci::Vec2f(x, y));
+		ci::gl::draw(mTexture, ci::vec2(x, y));
 	}
 }
 
@@ -366,12 +368,12 @@ void PdfRes::goToPreviousPage() {
 }
 
 float PdfRes::getWidth() const {
-	if (mTexture) return mTexture.getWidth();
+	if (mTexture) return mTexture->getWidth();
 	return (float)mState.mWidth;
 }
 
 float PdfRes::getHeight() const {
-	if (mTexture) return mTexture.getHeight();
+	if (mTexture) return mTexture->getHeight();
 	return (float)mState.mHeight;
 }
 
@@ -394,7 +396,7 @@ int PdfRes::getPageCount() const {
 	return mPageCount;
 }
 
-ci::Vec2i PdfRes::getPageSize() const {
+ci::ivec2 PdfRes::getPageSize() const {
 	std::lock_guard<decltype(mMutex)>		l(mMutex);
 	return mState.mPageSize;
 }
@@ -426,24 +428,26 @@ bool PdfRes::update() {
 			pixelsWereUpdated = true;
 			mPixelsChanged = false;
 			if (mPixels.empty()) {
-				mTexture = ci::gl::Texture();
+				mTexture = nullptr;
 			} else {
-				if (!mTexture || mTexture.getWidth() != mPixels.getWidth() || mTexture.getHeight() != mPixels.getHeight()) {
-					mTexture = ci::gl::Texture(mPixels.getWidth(), mPixels.getHeight());
-					if (!mTexture) return false;
+				if (!mTexture || mTexture->getWidth() != mPixels.getWidth() || mTexture->getHeight() != mPixels.getHeight()) {
+					mTexture = ci::gl::Texture::create(mPixels.getWidth(), mPixels.getHeight());
+					if(!mTexture) return false;
+					mTexture->setTopDown(true);
 				}
 
-				GLsizei width = mTexture.getWidth(),
-						height = mTexture.getHeight();
+				// TODO: check this
+				GLsizei width = mTexture->getWidth(),
+						height = mTexture->getHeight();
 				std::vector<GLubyte> emptyData(width * height * 4, 0);
 
-				mTexture.enableAndBind();
+				mTexture->bind();
 				// Cinder Texture doesn't seem to support accessing the data type. I checked the code
 				// and it seems to always use GL_UNSIGNED_BYTE, so hopefully that's safe.
-				glTexSubImage2D(mTexture.getTarget(), 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, &emptyData[0]);
-				glTexSubImage2D(mTexture.getTarget(), 0, 0, 0, mPixels.getWidth(), mTexture.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, mPixels.getData());
-				mTexture.unbind();
-				mTexture.disable();
+				glTexSubImage2D(mTexture->getTarget(), 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, &emptyData[0]);
+				glTexSubImage2D(mTexture->getTarget(), 0, 0, 0, mPixels.getWidth(), mTexture->getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, mPixels.getData());
+				mTexture->unbind();
+				//mTexture->
 				glFinish();
 			}
 		}

@@ -70,7 +70,7 @@ public:
 	void					loadUrl(const int browserId, const std::string& newUrl);
 
 	// Asynchronously resizes the browser. After the resize is complete, a new paint callback will come through at the correct size
-	void					requestBrowserResize(const int browserId, const ci::Vec2i newSize);
+	void					requestBrowserResize(const int browserId, const ci::ivec2 newSize);
 
 	// Request the browser to go forwards in history (if it can)
 	void					goForwards(const int browserId);

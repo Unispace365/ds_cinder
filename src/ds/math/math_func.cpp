@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "math_func.h"
 #include "math_defs.h"
 #include "random.h"
@@ -47,7 +49,7 @@ bool intersect2D( const ci::vec3 &start0, const ci::vec3 &end0, const ci::vec3 &
     return false;
   }
 
-  if (normalize(u) == normalize(v)) {
+  if (glm::normalize(u) == glm::normalize(v)) {
     return false;
   }
 

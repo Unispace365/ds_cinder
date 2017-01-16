@@ -47,7 +47,7 @@ SpritePropertyItem::SpritePropertyItem(Globals& g, const std::wstring& labelOne,
 	setSize(theWiddy, theHiddy);
 	enable(true);
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		if(mValueTappedCallback){
 			mValueTappedCallback(this);
 		}

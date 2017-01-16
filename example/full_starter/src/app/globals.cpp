@@ -25,15 +25,15 @@ const float Globals::getAnimDur(){
 }
 
 void Globals::initialize(){
-	mAnimationDuration = getSettingsLayout().getFloat("animation:duration", 0, mAnimationDuration);
+	mAnimationDuration = getAppSettings().getFloat("animation:duration", 0, mAnimationDuration);
 }
 
 const ds::cfg::Settings& Globals::getSettings(const std::string& name) const {
 	return mEngine.getEngineCfg().getSettings(name);
 }
 
-const ds::cfg::Settings& Globals::getSettingsLayout() const {
-	return mEngine.getEngineCfg().getSettings(SETTINGS_LAYOUT);
+const ds::cfg::Settings& Globals::getAppSettings() const {
+	return mEngine.getEngineCfg().getSettings(SETTINGS_APP);
 }
 
 

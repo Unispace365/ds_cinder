@@ -24,6 +24,7 @@ namespace ui {
  *        When the browser is created, this sprite will get a unique Browser Id that uses to make requests of the browser (back, load url, etc)
  *		  The browser also sends callbacks for certain events (loading state, fullscreen, etc)
  *		  The browser runs in it's own thread(s), so callbacks need to be locked before sending to the rest of ds_cinder-land
+ *		  Callbacks are syncronized with the main thread using the mutex. They also need to happen outside the update loop, so they are cached and called via a 1-frame delay
  *		  Requests into the browser can (generally) happen on any thread, and CEF handles thread synchronization
  *		  CEF also uses multiple processes for rendering, IO, etc. but that is opaque to this class
  *		  When implementing new functionality, be sure to read the documentation of CEF carefully
@@ -43,7 +44,10 @@ public:
 	void										setUrl(const std::string&);
 	void										setUrlOrThrow(const std::string&);
 
+	// returns the last URL set from loadUrl or setUrl (those two are identical). The page may have updated in the meantime
 	std::string									getUrl();
+	// returns the current url of the site as dispatched from CEF
+	std::string									getCurrentUrl();
 
 	// -------- Input Controls -------------------------------- //
 	// If the sprite is being touched by mDragScrollMinFingers or more, will send mouse scroll events to the web view.
@@ -59,7 +63,7 @@ public:
 	void										sendMouseDragEvent(const ci::app::MouseEvent &event);
 	void										sendMouseUpEvent(const ci::app::MouseEvent &event);
 
-	void										sendMouseClick(const ci::Vec3f& globalClickPoint);
+	void										sendMouseClick(const ci::vec3& globalClickPoint);
 
 	// DEPRECATED: This is for API-compatibility with the old Awesomium. Always draws while loading now.
 	void										setDrawWhileLoading(const bool){};
@@ -115,8 +119,8 @@ public:
 	// Convenience to access various document properties. Note that
 	// the document probably needs to have passed onLoaded() for this
 	// to be reliable.
-	ci::Vec2f									getDocumentSize();
-	ci::Vec2f									getDocumentScroll();
+	ci::vec2									getDocumentSize();
+	ci::vec2									getDocumentScroll();
 
 	// Scripting.
 	// Send function to object with supplied args. For example, if you want to just invoke the global
@@ -150,34 +154,88 @@ protected:
 	virtual void								readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
 private:
+
+	// For syncing touch input across client/servers
+	struct WebTouch {
+		WebTouch(const int x, const int y, const int btn = 0, const int state = 0, const int clickCnt = 0)
+		: mX(x), mY(y), mBttn(btn), mState(state), mClickCount(clickCnt), mIsWheel(false), mXDelta(0), mYDelta(0){}
+		int mX;
+		int mY;
+		int mBttn;
+		int mClickCount;
+		int mState;
+		bool mIsWheel;
+		int mXDelta;
+		int mYDelta;
+	};
+
+	// For syncing keyboard input across server/clients
+	struct WebKeyboardInput {
+		WebKeyboardInput(const int state, const int nativeKeyCode, const char character, const bool shiftDown, const bool controlDown, const bool altDown)
+		: mState(state), mNativeKeyCode(nativeKeyCode), mCharacter(character), mShiftDown(shiftDown), mCntrlDown(controlDown), mAltDown(altDown){}
+		const int mState;
+		const int mNativeKeyCode;
+		const char mCharacter;
+		const bool mShiftDown;
+		const bool mCntrlDown;
+		const bool mAltDown;
+	};
+
+	// For syncing back/forward/stop/reload across server/clients
+	struct WebControl {
+		static const int GO_BACK = 0;
+		static const int GO_FORW = 1;
+		static const int RELOAD_SOFT = 2;
+		static const int RELOAD_HARD = 3;
+		static const int STOP_LOAD = 4;
+		WebControl(const int command) : mCommand(command){}
+		const int mCommand;
+	};
+
+	// Sends to the local web service as well as syncing to any clients
+	void										sendTouchToService(const int xp, const int yp, const int btn, const int state, const int clickCnt, 
+																   const bool isWheel = false, const int xDelta = 0, const int yDelta = 0);
 	void										update(const ds::UpdateParams&);
 	void										handleTouch(const ds::ui::TouchInfo&);
 
 	void										clearBrowser();
 	void										createBrowser();
 	void										initializeBrowser();
+	bool										mNeedsInitialized;
 
 	ds::web::WebCefService&						mService;
 
 	int											mBrowserId;
 	unsigned char *								mBuffer;
 	bool										mHasBuffer;
-	ci::Vec2i									mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
-	ci::gl::Texture								mWebTexture;
+	ci::ivec2									mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
+	ci::gl::TextureRef							mWebTexture;
 	bool										mTransparentBackground;
 
 	double										mZoom;
+	bool										mNeedsZoomCheck;
 
-	ci::Vec3f									mPreviousTouchPos;
+	ci::vec3									mPreviousTouchPos;
 	bool										mAllowClicks;
 	bool										mClickDown;
 	bool										mDragScrolling;
 	int											mDragScrollMinFingers;
 	// Cache the page size and scroll during touch events
-	ci::Vec2f									mPageSizeCache,
+	ci::vec2									mPageSizeCache,
 												mPageScrollCache;
 	// Prevent the scroll from being cached more than once in an update.
 	int32_t										mPageScrollCount;
+
+	// Callbacks need to be called outside of the update loop (since there could be sprites added or removed as a result of the callbacks)
+	// So store the callback state and call it using a cinder tween delay
+	void										dispatchCallbacks();
+	bool										mHasCallbacks;
+	bool										mHasDocCallback;
+	bool										mHasErrorCallback;
+	bool										mHasAddressCallback;
+	bool										mHasTitleCallback;
+	bool										mHasFullCallback;
+	bool										mHasLoadingCallback;
 
 	std::function<void(void)>					mDocumentReadyFn;
 	std::function<void(const std::string&)>		mErrorCallback;
@@ -189,6 +247,10 @@ private:
 
 	// Replicated state
 	std::string									mUrl;
+	std::string									mCurrentUrl;
+	std::vector<WebTouch>						mTouches;
+	std::vector<WebKeyboardInput>				mKeyPresses;
+	std::vector<WebControl>						mHistoryRequests;
 
 	bool										mHasError;
 	std::string									mErrorMessage;
@@ -198,9 +260,12 @@ private:
 	bool										mIsLoading;
 	bool										mCanBack;
 	bool										mCanForward;
+	bool										mIsFullscreen;
 
 	// Ensure threads are locked when getting callbacks, copying buffers, etc
 	std::mutex									mMutex;
+
+	ci::CueRef									mCallbacksCue;
 
 
 	// Initialization

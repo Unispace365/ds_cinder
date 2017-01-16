@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_drop_shadow.h"
 
 namespace ds {

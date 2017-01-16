@@ -101,9 +101,6 @@ public:
 private:
 	void							setGlCamera();
 
-	/// Sets the matrices and camera for this camera in the src/dst rect setup. Abstracted for client and server to use
-	void							setCameraForDraw(ci::mat4& m);
-
 	typedef EngineRoot				inherited;
 	OrthRoot(const OrthRoot&);
 	OrthRoot&						operator=(const OrthRoot&);
@@ -161,6 +158,7 @@ private:
 
 	Engine&							mEngine;
 	ci::CameraPersp					mCamera;
+	ci::vec3						mCameraTarget;
 	bool							mCameraDirty;
 	std::unique_ptr<ui::Sprite>		mSprite;
 	// If I have a master, use it for my camera

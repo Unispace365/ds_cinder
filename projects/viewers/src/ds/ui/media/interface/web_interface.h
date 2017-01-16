@@ -18,7 +18,7 @@ class SoftKeyboard;
 */
 class WebInterface : public MediaInterface  {
 public:
-	WebInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
+	WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& interfaceSize, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor);
 
 	virtual void				animateOff();
 
@@ -26,8 +26,8 @@ public:
 	void						updateWidgets();
 
 	void						setKeyboardKeyScale(const float newKeyScale);
-	void						setKeyboardPanelSize(const ci::Vec2f panelSize);
 	void						setKeyboardAllow(const bool keyboardAllowed);
+	void						setKeyboardAbove(const bool kerboardAbove);
 
 	void						setAllowTouchToggle(const bool allowTouchToggling);
 
@@ -42,11 +42,12 @@ protected:
 	ds::ui::SoftKeyboard*		mKeyboard;
 	bool						mKeyboardShowing;
 	bool						mKeyboardAllowed;
+	bool						mKeyboardAbove;
 
-	ci::Vec2f					mKeyboardPanelSize;
 	float						mKeyboardKeyScale;
 
 	bool						mAbleToTouchToggle;
+	bool						mWebLocked;
 
 	ds::ui::ImageButton*		mKeyboardButton;
 	ds::ui::ImageButton*		mBackButton;

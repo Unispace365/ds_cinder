@@ -45,7 +45,7 @@ public:
 	// Sets the drag direction, default x=false, y=true
 	void				setDragInvert(const bool xInvert, const bool yInvert);
 
-	void				handleDrag(const ci::Vec2f& deltaPos);
+	void				handleDrag(const ci::vec2& deltaPos);
 
 	void				setFOV(const float fov);
 
@@ -65,12 +65,12 @@ protected:
 
 private:
 	ds::ui::Video*		mVideoSprite;
-	ci::gl::Texture*	mVideoTexture;
+	ci::gl::TextureRef	mVideoTexture;
 
 	ci::gl::GlslProgRef	mShader;
 	ci::CameraPersp     mCamera;
 	ci::Sphere          mSphere;
-	ci::Vec2f			mSphericalAngles; // x is theta and y is phi
+	ci::vec2			mSphericalAngles; // x is theta and y is phi
 
 	bool				mInvertX;
 	bool				mInvertY;

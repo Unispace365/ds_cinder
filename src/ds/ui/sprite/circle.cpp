@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "circle.h"
 
 #include <map>
@@ -7,6 +9,7 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
+#include "ds/app/environment.h"
 
 #include <gl/GL.h>
 
@@ -16,6 +19,34 @@ namespace ds {
 namespace ui {
 
 namespace {
+
+const std::string CircleFrag =
+"uniform bool preMultiply;\n"
+"in vec4			Color;\n"
+"out vec4			oColor;\n"
+"void main()\n"
+"{\n"
+"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+"    oColor *= Color;\n"
+"    if (preMultiply) {\n"
+"        oColor.r *= oColor.a;\n"
+"        oColor.g *= oColor.a;\n"
+"        oColor.b *= oColor.a;\n"
+"    }\n"
+"}\n";
+
+const std::string CircleVert =
+"uniform mat4	ciModelViewProjection;\n"
+"in vec4			ciPosition;\n"
+"in vec4			ciColor;\n"
+"out vec4			Color;\n"
+"void main()\n"
+"{\n"
+"	gl_Position = ciModelViewProjection * ciPosition;\n"
+"	Color = ciColor;\n"
+"}\n";
+
+
 	char				BLOB_TYPE = 0;
 
 	const DirtyState&	RADIUS_DIRTY = INTERNAL_A_DIRTY;
@@ -47,6 +78,8 @@ Circle::Circle(SpriteEngine& engine)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
+	removeShaders();
+	addNewMemoryShader(CircleVert, CircleFrag, "circle", true);
 	mLayoutFixedAspect = true;
 }
 
@@ -60,6 +93,9 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
+
+	removeShaders();
+	addNewMemoryShader(CircleVert, CircleFrag, "circle", true);
 	setRadius(mRadius);
 	setFilled(mFilled);
 	mLayoutFixedAspect = true;
@@ -77,9 +113,15 @@ void Circle::updateServer(const UpdateParams& up) {
 }
 
 void Circle::drawLocalClient() {
-	if(!mVertices) return;
+	//if(!mVertices) return;
 
-	ci::gl::lineWidth(mLineWidth);
+	if(mFilled){
+		ci::gl::drawSolidCircle(ci::vec2(mRadius, mRadius), mRadius);
+	} else {
+		ci::gl::lineWidth(mLineWidth);
+		ci::gl::drawStrokedCircle(ci::vec2(mRadius, mRadius), mRadius);
+	}
+	/* TODO convert to vbo
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glVertexPointer(2, GL_FLOAT, 0, mVertices);
 	if(mFilled){
@@ -88,6 +130,7 @@ void Circle::drawLocalClient() {
 		glDrawArrays(GL_LINE_LOOP, 0, mNumberOfSegments);
 	}
 	glDisableClientState(GL_VERTEX_ARRAY);
+	*/
 }
 
 void Circle::drawLocalServer() {
@@ -150,6 +193,9 @@ void Circle::init() {
 	mIgnoreSizeUpdates = true;
 	setSize(mRadius * 2.0f, mRadius * 2.0f);
 	mIgnoreSizeUpdates = false;
+
+	// TODO: if we switch to a batch or something, re-evaluate this too
+	return;
 
 	// GN: From ci::gl::drawSolidCircle()
 	// automatically determine the number of segments from the circumference

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "draw_touch_view.h"
 
 #include <ds/math/math_defs.h>
@@ -38,11 +40,13 @@ DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &s
 void DrawTouchView::drawTrails(){
 	ds::ui::applyBlendingMode(ds::ui::NORMAL);
 
+	/* TODO: update drawing 
+
 	const float			incrementy = mTouchTrailsIncrement;
 	for(auto it = mTouchPointHistory.begin(), it2 = mTouchPointHistory.end(); it != it2; ++it) {
 		float sizey = incrementy;
 		int secondSize = it->second.size();
-		ci::vec2 prevPos = ci::vec2::zero();
+		ci::vec2 prevPos = ci::vec2();
 		for(int i = 0; i < secondSize; i++){
 			ci::vec2		pos(it->second[i].xy());
 			ci::gl::drawSolidCircle(pos, sizey);
@@ -70,6 +74,7 @@ void DrawTouchView::drawTrails(){
 			prevPos = pos;
 		}
 	}
+	*/
 }
 
 void DrawTouchView::drawLocalServer(){

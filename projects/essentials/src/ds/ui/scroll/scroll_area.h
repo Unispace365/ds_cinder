@@ -20,6 +20,9 @@ class ScrollArea : public ds::ui::Sprite {
 		// Sets the clippin' (visible) area of the scroll Area. 
 		void				setScrollSize(const float newWidth, const float newHeight);
 
+          //Temproarily enable/disable touches
+		void				enableScrolling(bool enable);
+
 		// Set the position of your sprite before you add it here.
 		// The scroll area will be sized after the new sprite is passed in.
 		void				addSpriteToScroll(ds::ui::Sprite* bs);
@@ -37,10 +40,10 @@ class ScrollArea : public ds::ui::Sprite {
 
 		void				setScrollUpdatedCallback(const std::function<void(ScrollArea* thisThing)> &func);
 		void				setTweenCompleteCallback(const std::function<void(ScrollArea*)>& func);
-		void				setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>& func);
+		void				setSnapToPositionCallback(const std::function<void(ScrollArea*, Sprite*, bool&, ci::vec3&)>& func);
 		void				setScrollerTouchedCallback(const std::function<void()>& func); // just lets you know some interaction happened with the scroller
 
-		const ci::Vec2f		getScrollerPosition();
+		const ci::vec2		getScrollerPosition();
 		void				resetScrollerPosition();
 
 		// For external UI use. The 0.0 - 1.0 percent of the scroll. 0.0 == the start (top in vertical scrolls). 1.0 == the bottom (fully scrolled through the list)
@@ -60,12 +63,12 @@ class ScrollArea : public ds::ui::Sprite {
 	protected:
 		virtual void		updateServer(const ds::UpdateParams& p);
 		virtual void		onSizeChanged();
-		void				scrollerUpdated(const ci::Vec2f scrollPos);
+		void				scrollerUpdated(const ci::vec2 scrollPos);
 		void				scrollerTweenUpdated();
 		void				tweenComplete();
 		void				checkBounds();
 		void				handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
-		virtual bool		callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDestination);
+		virtual bool		callSnapToPositionCallback(bool& doTween, ci::vec3& tweenDestination);
 
 		Sprite*				mScroller;
 		bool				mScrollable;
@@ -90,7 +93,7 @@ class ScrollArea : public ds::ui::Sprite {
 
 		std::function<void(ScrollArea*)>	mScrollUpdatedFunction;
 		std::function<void(ScrollArea*)>	mTweenCompleteFunction;
-		std::function<void(ScrollArea*, Sprite*, bool&, ci::Vec3f&)>	mSnapToPositionFunction;
+		std::function<void(ScrollArea*, Sprite*, bool&, ci::vec3&)>	mSnapToPositionFunction;
 		std::function<void()>				mScrollerTouchedFunction;
 
 };

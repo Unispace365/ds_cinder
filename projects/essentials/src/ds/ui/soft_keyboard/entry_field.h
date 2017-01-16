@@ -24,13 +24,17 @@ public:
 		, mCursorColor(1.0f, 1.0f, 1.0f)
 		, mBlinkRate(0.5f)
 		, mAnimationRate(0.3f)
+		, mPasswordMode(false)
+		, mTextOffset(0.0f, 0.0f)
 	{}
 
 	std::string mTextConfig;
-	ci::Vec2f	mFieldSize;
-	ci::Vec2f	mCursorSize;
+	ci::vec2	mTextOffset;
+	ci::vec2	mFieldSize;
+	ci::vec2	mCursorSize;
 	ci::Color	mCursorColor;
-	ci::Vec2f	mCursorOffset; 
+	ci::vec2	mCursorOffset; 
+	bool		mPasswordMode;
 	float		mBlinkRate;
 	float		mAnimationRate;
 };
@@ -92,9 +96,13 @@ protected:
 
 	void								handleTouchInput(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 
+	/// Sets the text sprite's text (bullets for pswd, normal text for normal text)
+	void								applyText(const std::wstring& theStr);
+
 	bool								mInFocus;
 	int									mCursorIndex;
 
+	std::wstring						mCurrentText;
 	ds::ui::MultilineText*				mTextSprite;
 	ds::ui::Sprite*						mCursor;
 	std::vector<ds::ui::Sprite*>		mSelectionIndicators;

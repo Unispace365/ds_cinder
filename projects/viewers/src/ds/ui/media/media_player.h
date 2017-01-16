@@ -20,6 +20,9 @@ class MediaInterface;
 *			After loading a piece of media and initializing, the size of this sprite will match the size of the loaded media.
 *			After initializing, you can set the size of this sprite to resize the media. 
 *			Not recommended to scale this sprite, set it's size instead.
+*
+*			Note: for PDF thumbnail viewer to show up, the PDF needs to be loaded via a Resource
+*					that has a children vector of resources of the thumbnails set, and the children need to have the correct parentIndex (i.e. page number) set.
 */
 class MediaPlayer : public ds::ui::Sprite  {
 public:
@@ -39,7 +42,7 @@ public:
 
 	/// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
 	void					setDefaultBounds(const float defaultWidth, const float defaultHeight);
-	void					setWebViewSize(const ci::Vec2f webSize);
+	void					setWebViewSize(const ci::vec2 webSize);
 
 	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.
 	void					initialize();
@@ -69,6 +72,9 @@ public:
 	/// Display the interface on the media player, if it was embedded
 	void					showInterface();
 
+	/// Undisplay the interface on the media player, if it was embedded
+	void					hideInterface();
+
 	/// Called when any component failed to load it's media. or failed during running.
 	/// Note that the message may be technical and not appropriate to show
 	/// Errors also will be logged, o you may want to show a generic "Sorry, something went wrong"
@@ -89,7 +95,7 @@ public:
 	/// Web: Click the web content
 	/// PDF: Advance to the next page
 	/// Video: Toggle play / pause
-	void					handleStandardClick(const ci::Vec3f& globalPos);
+	void					handleStandardClick(const ci::vec3& globalPos);
 
 	/// Sets a tap function to enable the above handling
 	void					enableStandardClick();

@@ -2,7 +2,8 @@
 
 #include <poco/Timestamp.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>

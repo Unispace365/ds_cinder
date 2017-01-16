@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/tween/sprite_anim.h"
 
 #include "ds/ui/sprite/sprite.h"
@@ -416,7 +418,7 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 		}
 
 		// parse the destination vectors to floats
-		ci::vec3 destination = ci::vec3::zero();
+		ci::vec3 destination = ci::vec3();
 
 		if(commandProperties.size() > 1){
 			std::vector<std::string> destinationTokens = ds::split(commandProperties[1], ", ", true);

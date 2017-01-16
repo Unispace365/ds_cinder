@@ -24,7 +24,6 @@ namespace ds{
 			, mTweenAnimationDelay(0.0f)
 			, mTweenAnimationEaseFn(ci::EaseNone())
 			, mIsTurnOnStepSwipe(false)
-
 		{
 			setSize(startWidth, startHeight);
 			mSpriteMomentum.setMass(8.0f);
@@ -70,7 +69,7 @@ namespace ds{
 			layout();
 		}
 
-		void infinityList::setItemTappedCallback(const std::function<void(Sprite*, const ci::Vec3f& cent)> &func){
+		void infinityList::setItemTappedCallback(const std::function<void(Sprite*, const ci::vec3& cent)> &func){
 			mItemTappedCallback = func;
 		}
 
@@ -108,7 +107,22 @@ namespace ds{
 			mTweenAnimationEaseFn = fn;
 		}
 
-		void infinityList::nextItem()
+		std::vector<int> infinityList::getOnScreenItemsPos(){
+			std::vector<int> positions;
+			for (int i = 0; i < mOnScreenItemSize; i++){
+				if (mOnScreenItemList[i].mOnscrren){
+					for (int j = 0; j < mItemPlaceHolders.size(); j++){
+						if (mItemPlaceHolders[j].mDbId == mOnScreenItemList[i].mDbId){
+							positions.push_back(j);
+						}
+					}
+				}
+			}
+
+			return positions;
+		}
+
+		void infinityList::nextItem(const float duration)
 		{
 			if (mOnScreenItemSize < 2)
 				return;
@@ -123,10 +137,11 @@ namespace ds{
 			{
 				targetAmount = mStartPositionX - mIncrementAmount - pos.x;
 			}
-			tweenItemPos(targetAmount);
+			if(duration < 0) tweenItemPos(targetAmount);
+			else tweenItemPos(targetAmount, duration);
 		}
 
-		void infinityList::previousItem()
+		void infinityList::previousItem(const float duration)
 		{
 			if (mOnScreenItemSize < 1)
 				return;
@@ -141,7 +156,29 @@ namespace ds{
 			{
 				targetAmount = mStartPositionX - pos.x;
 			}
-			tweenItemPos(mIncrementAmount);
+			if (duration < 0) tweenItemPos(targetAmount); //tweenItemPos(mIncrementAmount);
+			else tweenItemPos(targetAmount, duration); 
+		}
+
+		void infinityList::jumpItem(int itemId, float duration){
+			if (mOnScreenItemList.empty() && mOnScreenItemSize > 2)
+				return;
+
+			if (itemId < mItemPlaceHolders.size()) itemId = itemId % mItemPlaceHolders.size();
+			mBottomIndex = itemId;
+			auto &placeHolder = mItemPlaceHolders[mBottomIndex];
+			createSprite(placeHolder);
+			if (mVertical)
+				placeHolder.mAssociatedSprite->setPosition(mStartPositionX, mOnScreenItemList[mOnScreenItemSize - 2].mAssociatedSprite->getPosition().y + mIncrementAmount);
+			else
+				placeHolder.mAssociatedSprite->setPosition(mOnScreenItemList[mOnScreenItemSize - 2].mAssociatedSprite->getPosition().x + mIncrementAmount, mStartPositionY);
+
+			mOnScreenItemList[mOnScreenItemSize - 1].mAssociatedSprite->release();
+			mOnScreenItemList.pop_back();
+			mOnScreenItemList.push_back(placeHolder);
+
+			nextItem(duration);
+			
 		}
 
 		void infinityList::turnOnStepSwipe()
@@ -211,8 +248,15 @@ namespace ds{
 			}
 		}
 
+		void infinityList::initItemStart(int itemNum){
+			mBottomIndex = itemNum % (mItemPlaceHolders.size()) - 2;
+			if (mBottomIndex < 0) mBottomIndex = mItemPlaceHolders.size() + mBottomIndex;
+			assignItems();
+		}
+
 		void infinityList::handleScrollTouch(Sprite* bs, const TouchInfo& ti)
 		{
+			if(mSwipeCallback) mSwipeCallback(bs, ti.mCurrentGlobalPoint);
 			if (ti.mPhase == TouchInfo::Added){
 				mSpriteMomentum.deactivate();
 			}
@@ -225,7 +269,7 @@ namespace ds{
 				if (mScroller){
 					if (mIsTurnOnStepSwipe)
 					{
-						if (ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance())
+						if (ci::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance())
 						{
 							if (mVertical)
 							{
@@ -296,8 +340,9 @@ namespace ds{
 			checkBounds();
 		}
 
-		void infinityList::tweenItemPos(const float delta)
+		void infinityList::tweenItemPos(const float delta, float duration)
 		{
+			if (duration < 0) duration = mTweenAnimationDuration;
 			if (mOnScreenItemList.empty() || mIsOnTweenAnimation)
 				return;
 
@@ -310,7 +355,7 @@ namespace ds{
 				if (mVertical)
 				{
 					currentPos.y += delta;
-					targetSprite->tweenPosition(currentPos, mTweenAnimationDuration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
+					targetSprite->tweenPosition(currentPos, duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
 					{
 						if (targetSprite->getPosition().y <= -mIncrementAmount + mStartPositionY || targetSprite->getPosition().y >= mScroller->getHeight())
 						{
@@ -325,7 +370,7 @@ namespace ds{
 				else
 				{
 					currentPos.x += delta;
-					targetSprite->tweenPosition(currentPos, mTweenAnimationDuration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
+					targetSprite->tweenPosition(currentPos, duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
 					{
 						if (targetSprite->getPosition().x <= -mIncrementAmount + mStartPositionX || targetSprite->getPosition().x >= mScroller->getWidth())
 						{
@@ -337,7 +382,10 @@ namespace ds{
 						}
 					});
 				}
-				callAfterDelay([this](){checkBounds(); }, mTweenAnimationDelay + mTweenAnimationDuration + 0.1f);
+				callAfterDelay([this](){
+					checkBounds();
+					if (mScrollUpdatedCallback) mScrollUpdatedCallback();
+				}, mTweenAnimationDelay + duration + 0.1f);
 
 			}
 
@@ -381,7 +429,7 @@ namespace ds{
 			{
 				mOnScreenItemList[0].mAssociatedSprite->release();
 				mOnScreenItemList.erase(mOnScreenItemList.begin());
-				addSpriteToEnd();
+				addSpriteToEnd();		
 			}
 			if (mOnScreenItemList[0].mOnscrren)
 			{
@@ -445,7 +493,7 @@ namespace ds{
 				sprite->setProcessTouchCallback([this](Sprite* sp, const TouchInfo& ti){
 					handleItemTouchInfo(sp, ti);
 				});
-				sprite->setTapCallback([this, sprite](Sprite* bs, const ci::Vec3f cent){
+				sprite->setTapCallback([this, sprite](Sprite* bs, const ci::vec3 cent){
 					Poco::Timestamp::TimeVal nowwwy = Poco::Timestamp().epochMicroseconds();
 					float timeDif = (float)(nowwwy - mLastUpdateTime) / 1000000.0f;
 					if (timeDif < 0.2f){
@@ -473,7 +521,7 @@ namespace ds{
 			if (bs){
 				if (mStateChangeCallback) mStateChangeCallback(bs, ti.mNumberFingers > 0);
 
-				if (mScroller  && ti.mPhase == ds::ui::TouchInfo::Moved && ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance()){
+				if (mScroller  && ti.mPhase == ds::ui::TouchInfo::Moved && ci::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()){
 					if (mStateChangeCallback) mStateChangeCallback(bs, false);
 					bs->passTouchToSprite(mScroller, ti);
 					return;

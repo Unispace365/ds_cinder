@@ -44,13 +44,13 @@ bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 	std::vector<PanelPackage> thePackages;
 	int ind = 0;
 
-	ci::Vec2f totalArea = ci::Vec2f(totalAreaRect.getWidth(), totalAreaRect.getHeight());
+	ci::vec2 totalArea = ci::vec2(totalAreaRect.getWidth(), totalAreaRect.getHeight());
 
 	float totalAreaAmount = totalArea.x * totalArea.y;
 	float piecemealArea = 0.0f;
 	for(auto it = panels.begin(); it < panels.end(); ++it){
-		float tw = (*it)->getWidth();
-		float th = (*it)->getHeight();
+		float tw = (*it)->getScaleWidth();
+		float th = (*it)->getScaleHeight();
 		if(tw < 1.0f || th < 1.0f) continue;
 
 		PanelPackage pp;
@@ -135,7 +135,7 @@ bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 	float farthestRight = 0.0f;
 	float farthestBotto = 0.0f;
 	for(auto it = outputPackages.begin(); it < outputPackages.end(); ++it){
-		ci::Vec2f br = (*it).mOutputRect.getLowerRight();
+		ci::vec2 br = (*it).mOutputRect.getLowerRight();
 		if(br.x > farthestRight) farthestRight = br.x;
 		if(br.y > farthestBotto) farthestBotto = br.y;
 	}
@@ -147,15 +147,15 @@ bool PanelLayouts::binPack(std::vector<ds::ui::BasePanel*> panels, const ci::Rec
 	for(auto it = outputPackages.begin(); it < outputPackages.end(); ++it){
 		ci::Rectf recty = (*it).mOutputRect;
 		auto tmv = panels[(*it).mPanelIndex];
-		ci::Vec3f destination = ci::Vec3f(recty.getUpperLeft().x + offsetX + totalAreaRect.x1, recty.getUpperLeft().y + offsetY + totalAreaRect.y1, 0.0f);
+		ci::vec3 destination = ci::vec3(recty.getUpperLeft().x + offsetX + totalAreaRect.x1, recty.getUpperLeft().y + offsetY + totalAreaRect.y1, 0.0f);
 		float destWidth = recty.getWidth() - padding;
 		if(animDur > 0.0f){
 			tmv->tweenStarted();
 			tmv->tweenPosition(destination, animDur, delayey, ci::EaseInOutQuad(), [tmv]{ tmv->tweenEnded(); });
-			tmv->animateWidthTo(destWidth);
+			tmv->animateWidthTo(destWidth / tmv->getScale().x);
 		} else {
 			tmv->setPosition(destination);
-			tmv->setViewerWidth(destWidth);
+			tmv->setViewerWidth(destWidth / tmv->getScale().x);
 		}
 	}
 

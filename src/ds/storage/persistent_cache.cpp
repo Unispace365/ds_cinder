@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "persistent_cache.h"
 
 #include <sstream>

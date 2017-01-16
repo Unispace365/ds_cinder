@@ -11,16 +11,22 @@
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/sprite/text.h>
 
+#include <ds/ui/media/interface/thumbnail_bar.h>
+
 namespace ds {
 namespace ui {
 
-PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
+PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
 	: MediaInterface(eng, sizey, backgroundColor)
 	, mLinkedPDF(nullptr)
 	, mUpButton(nullptr)
 	, mDownButton(nullptr)
 	, mPageCounter(nullptr)
 	, mTouchToggle(nullptr)
+	, mThumbsButton(nullptr)
+	, mShowingThumbs(false)
+	, mThumbnailBar(nullptr)
+	, mLinkedEnabled(false)
 {
 	mUpButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/prev.png", "%APP%/data/images/media_interface/prev.png", (sizey.y - buttonHeight) / 2.0f);
 	addChildPtr(mUpButton);
@@ -54,7 +60,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 
 	mPageCounter = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, this);
 	if(mPageCounter){
-		mPageCounter->setResizeToText(true);
+		//mPageCounter->setResizeToText(true);
 		mPageCounter->enable(false);
 	}
 
@@ -75,26 +81,87 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 	mTouchToggle->getHighImage().setColor(buttonColor / 2.0f);
 	mTouchToggle->setScale(sizey.y / mTouchToggle->getHeight());
 
+	mThumbsButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/media_interface/thumbnails.png", "%APP%/data/images/media_interface/thumbnails.png", (sizey.y - buttonHeight) / 2.0f);
+	addChildPtr(mThumbsButton);
+	mThumbsButton->setClickFn([this](){
+		mShowingThumbs = !mShowingThumbs;
+		if(mShowingThumbs){
+			if(!mThumbnailBar){
+				mThumbnailBar = new ThumbnailBar(mEngine);
+				addChildPtr(mThumbnailBar);
+				mThumbnailBar->setHighlightColor(ci::Color(0.5f, 0.5f, 0.5f));
+				mThumbnailBar->setOpacity(0.0f);
+				mThumbnailBar->setData(mSourceResource);
+				mThumbnailBar->setThumbnailClickedCallback([this](ds::Resource& reccy){
+					if(mLinkedPDF){
+						mLinkedPDF->setPageNum(reccy.getParentIndex());
+					}
+				});
+			}
+
+			if(mThumbnailBar){
+				mThumbnailBar->show();
+				mThumbnailBar->tweenOpacity(1.0f, 0.35f);
+			}
+		} else {
+			if(mThumbnailBar){
+				mThumbnailBar->tweenOpacity(0.0f, 0.35f, 0.0f, ci::easeNone, [this]{mThumbnailBar->hide(); });
+			}
+		}
+
+		updateWidgets();
+		
+	});
+
+	mThumbsButton->getNormalImage().setColor(buttonColor);
+	mThumbsButton->getHighImage().setColor(buttonColor / 2.0f);
+	mThumbsButton->setScale(sizey.y / mThumbsButton->getHeight());
+
 	updateWidgets();
+	const float padding = sizey.y / 4.0f;
+
+	mMinWidth = (
+		mUpButton->getScaleWidth() + padding +
+		mPageCounter->getScaleWidth() + padding +
+		mDownButton->getScaleWidth() + padding +
+		mTouchToggle->getScaleWidth() + padding * 16.0f // lots of outside padding to account for the page text 
+		);
+
+	mMaxWidth = mMinWidth;
+
 }
 
-void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF){
+void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF, ds::Resource& sourceResource){
 	mLinkedPDF = linkedPDF;
+	mSourceResource = sourceResource;
 	if(mLinkedPDF){
+		/*
 		mLinkedPDF->setPageChangeCallback([this]{
 			updateWidgets();
 		});
+		*/
 	}
+
+	if(mThumbnailBar){
+		mThumbnailBar->setData(mSourceResource);
+	}
+
 	updateWidgets();
 }
 
+void PDFInterface::updateServer(const ds::UpdateParams& updateParams){
+	MediaInterface::updateServer(updateParams);
+	if(mLinkedPDF){
+		updateWidgets();
+	}
+}
 
 // Layout is called when the size is changed, so don't change the size in the layout
 void PDFInterface::onLayout(){
-	if(mUpButton && mDownButton && mPageCounter){
-		const float w = getWidth();
-		const float h = getHeight();
-		const float padding = h / 4.0f;
+	const float w = getWidth();
+	const float h = getHeight();
+	const float padding = h / 4.0f;
+	if(mUpButton && mDownButton && mPageCounter && mThumbsButton){
 
 		float componentsWidth = (
 			mUpButton->getScaleWidth() + padding +
@@ -103,8 +170,17 @@ void PDFInterface::onLayout(){
 			mTouchToggle->getScaleWidth()
 		);
 
+		if(mThumbsButton->visible()){
+			componentsWidth += padding + mThumbsButton->getScaleWidth();
+		}
+
 		float margin = ((w - componentsWidth) * 0.5f);
 		float xp = margin;
+
+		if(mThumbsButton->visible()){
+			mThumbsButton->setPosition(xp, (h * 0.5f) - (mThumbsButton->getScaleHeight() * 0.5f));
+			xp += mThumbsButton->getScaleWidth() + padding;
+		}
 
 		mUpButton->setPosition(xp, (h * 0.5f) - (mUpButton->getScaleHeight() * 0.5f));
 		xp += mUpButton->getScaleWidth() + padding;
@@ -117,7 +193,15 @@ void PDFInterface::onLayout(){
 
 		mTouchToggle->setPosition(xp, (h * 0.5f) - (mTouchToggle->getScaleHeight() * 0.5f));
 		xp += mTouchToggle->getScaleWidth() + padding;
+		
 	}
+
+	if(mThumbnailBar){
+		mThumbnailBar->setSize(w, h * 2.0f);
+		mThumbnailBar->setPosition(0.0f, -mThumbnailBar->getHeight());
+	}
+
+
 }
 
 void PDFInterface::updateWidgets(){
@@ -129,15 +213,32 @@ void PDFInterface::updateWidgets(){
 		mPageCounter->setText(wss.str());
 	}
 
+	if(mThumbsButton){
+		if(mSourceResource.getChildrenResources().size() < 2){
+			mThumbsButton->hide();
+		} else {
+			mThumbsButton->show();
+		}
+	}
+
 	if(mLinkedPDF){
-		if(mLinkedPDF->isEnabled()){
+		if(mLinkedPDF->isEnabled() && !mLinkedEnabled){
+			mLinkedEnabled = true;
 			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
 			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_locked.png", ds::ui::Image::IMG_CACHE_F);
-		} else {
+		} else if(!mLinkedPDF->isEnabled() && mLinkedEnabled){
+			mLinkedEnabled = false;
 			mTouchToggle->getHighImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
 			mTouchToggle->getNormalImage().setImageFile("%APP%/data/images/media_interface/touch_unlocked.png", ds::ui::Image::IMG_CACHE_F);
 		}
+
+		if(mThumbnailBar){
+			int pageNum = mLinkedPDF->getPageNum() - 1;
+			mThumbnailBar->setHighlightedItem(pageNum);
+		}
+		
 	}
+
 	layout();
 }
 } // namespace ui

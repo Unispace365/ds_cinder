@@ -21,7 +21,7 @@ public:
 
 	void											updateCluster(const ds::ui::TouchInfo::Phase btp, const ds::ui::FiveFingerCluster::Cluster& cluster);
 
-	void											startTappableMode(const ci::Vec3f& globalLocation, const float timeoutTime);
+	void											startTappableMode(const ci::vec3& globalLocation, const float timeoutTime);
 
 	/// animates this cluster off and prepares it for reuse. Called internally when there are no more fingers associated with this cluster
 	void											deactivate();
@@ -41,7 +41,7 @@ private:
 	void											itemActivated(MenuItem* mi);
 
 	bool											validateCluster(const ds::ui::FiveFingerCluster::Cluster& cluster, const bool calcDist);
-	void											setHighlight(ci::Vec2f clusterCenter);
+	void											setHighlight(ci::vec2 clusterCenter);
 
 	void											handleInvalidateComplete();
 	void											cancelTappableMode();
@@ -51,6 +51,7 @@ private:
 
 	std::vector<MenuItem*>							mMenuItems;
 	ds::ui::Image*									mBackground;
+	ds::ui::Sprite*									mGraphicHolder;
 
 	bool											mActive;
 	bool											mInvalid;

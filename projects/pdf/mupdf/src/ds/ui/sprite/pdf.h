@@ -20,7 +20,7 @@ class Pdf : public ds::ui::Sprite {
 public:
 	static Pdf&					makePdf(SpriteEngine&, Sprite* parent = nullptr);
 	// Utility to get a render of the first page of a PDF.
-	static ci::Surface8u		renderPage(const std::string& path);
+	static ci::Surface8uRef		renderPage(const std::string& path);
 	// Constant size will cause the sprite to size itself to the first PDF
 	// and scale all subsequent PDF pages to match.
 	// Auto resize will cause the view to resize when the page size changes.
@@ -78,7 +78,7 @@ private:
 	PageSizeMode				mPageSizeMode;
 	std::function<void(void)>	mPageSizeChangeFn;
 	// CACHE
-	ci::Vec2i					mPageSizeCache;
+	ci::ivec2					mPageSizeCache;
 
 	// It'd be nice just have the PdfRes in a unique_ptr,
 	// but it has rules around destruction
@@ -95,7 +95,7 @@ private:
 		/// Returns true if pixels were updated in this update
 		bool					update();
 		void					drawLocalClient();
-		void					setScale(const ci::Vec3f&);
+		void					setScale(const ci::vec3&);
 		void					setPageSizeMode(const PageSizeMode&);
 		float					getWidth() const;
 		float					getHeight() const;
@@ -104,7 +104,7 @@ private:
 		void					setPageNum(const int pageNum);
 		int						getPageNum() const;
 		int						getPageCount() const;
-		ci::Vec2i				getPageSize() const;
+		ci::ivec2				getPageSize() const;
 		void					goToNextPage();
 		void					goToPreviousPage();
 
@@ -115,7 +115,7 @@ private:
 	ResHolder					mHolder;
 
 	// For clients to detect scale changes and re-render
-	ci::Vec3f					mPrevScale;
+	ci::vec3					mPrevScale;
 
 	std::function<void()>		mPageLoadedCallback;
 	std::function<void()>		mPageChangeCallback;

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/gl/uniform.h"
 #include <cinder/gl/GlslProg.h>
 
@@ -19,7 +21,7 @@ bool UniformData::operator==(const UniformData& rhs) const
 	return rhs.mTranspose == mTranspose && rhs.mCount == mCount;
 }
 
-UniformVisitor::UniformVisitor(ci::gl::GlslProg& shader)
+UniformVisitor::UniformVisitor(ci::gl::GlslProgRef shader)
 	: mShader(shader)
 	, mData(EMPTY_DATA)
 	, mName(EMPTY_SZ)
@@ -27,102 +29,102 @@ UniformVisitor::UniformVisitor(ci::gl::GlslProg& shader)
 
 void UniformVisitor::operator()(int data)
 {
-	mShader.uniform(mName, data);
+	mShader->uniform(mName, data);
 }
 
 void UniformVisitor::operator()(const ci::ivec2 &data)
 {
-	mShader.uniform(mName, data);
+	mShader->uniform(mName, data);
 }
 
 void UniformVisitor::operator()(const int *data)
 {
-	mShader.uniform(mName, data, mData.mCount);
+	mShader->uniform(mName, data, mData.mCount);
 }
 
 void UniformVisitor::operator()(const ci::ivec2 *data)
 {
-	mShader.uniform(mName, data, mData.mCount);
+	mShader->uniform(mName, data, mData.mCount);
 }
 
 void UniformVisitor::operator()(float data)
 {
-	mShader.uniform(mName, data);
+	mShader->uniform(mName, data);
 }
 
 void UniformVisitor::operator()(const ci::vec2 &data)
 {
-	mShader.uniform(mName, data);
+	mShader->uniform(mName, data);
 }
 
 void UniformVisitor::operator()(const ci::vec3 &data)
 {
-	mShader.uniform(mName, data);
+	mShader->uniform(mName, data);
 }
 
 void UniformVisitor::operator()(const ci::vec4 &data)
 {
-	mShader.uniform(mName, data);
+	mShader->uniform(mName, data);
 }
 
 void UniformVisitor::operator()(const ci::Color &data)
 {
-	mShader.uniform(mName, data);
+	mShader->uniform(mName, data);
 }
 
 void UniformVisitor::operator()(const ci::ColorA &data)
 {
-	mShader.uniform(mName, data);
+	mShader->uniform(mName, data);
 }
 
 void UniformVisitor::operator()(const ci::mat2 &data)
 {
-	mShader.uniform(mName, data, mData.mTranspose);
+	mShader->uniform(mName, data, mData.mTranspose);
 }
 
 void UniformVisitor::operator()(const ci::mat3 &data)
 {
-	mShader.uniform(mName, data, mData.mTranspose);
+	mShader->uniform(mName, data, mData.mTranspose);
 }
 
 void UniformVisitor::operator()(const ci::mat4 &data)
 {
-	mShader.uniform(mName, data, mData.mTranspose);
+	mShader->uniform(mName, data, mData.mTranspose);
 }
 
 void UniformVisitor::operator()(const std::vector<float> &data)
 {
-	mShader.uniform(mName, &(data.front()), data.size());
+	mShader->uniform(mName, &(data.front()), data.size());
 }
 
 void UniformVisitor::operator()(const ci::vec2 *data)
 {
-	mShader.uniform(mName, data, mData.mCount);
+	mShader->uniform(mName, data, mData.mCount);
 }
 
 void UniformVisitor::operator()(const ci::vec3 *data)
 {
-	mShader.uniform(mName, data, mData.mCount);
+	mShader->uniform(mName, data, mData.mCount);
 }
 
 void UniformVisitor::operator()(const ci::vec4 *data)
 {
-	mShader.uniform(mName, data, mData.mCount);
+	mShader->uniform(mName, data, mData.mCount);
 }
 
 void UniformVisitor::operator()(const ci::mat2 *data)
 {
-	mShader.uniform(mName, data, mData.mCount, mData.mTranspose);
+	mShader->uniform(mName, data, mData.mCount, mData.mTranspose);
 }
 
 void UniformVisitor::operator()(const ci::mat3 *data)
 {
-	mShader.uniform(mName, data, mData.mCount, mData.mTranspose);
+	mShader->uniform(mName, data, mData.mCount, mData.mTranspose);
 }
 
 void UniformVisitor::operator()(const ci::mat4 *data)
 {
-	mShader.uniform(mName, data, mData.mCount, mData.mTranspose);
+	mShader->uniform(mName, data, mData.mCount, mData.mTranspose);
 }
 
 /**
@@ -183,7 +185,7 @@ void Uniform::setVec4f(const std::string& key, const ci::vec4& value) {
 	set(key, value);
 }
 
-void Uniform::applyTo(ci::gl::GlslProg& shader) const {
+void Uniform::applyTo(ci::gl::GlslProgRef shader) const {
 	if (!mVariantUniforms.empty())
 	{
 		// constructing this is really cheap. so no worries.

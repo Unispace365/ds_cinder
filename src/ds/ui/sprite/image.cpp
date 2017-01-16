@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image.h"
 
 #include <map>
@@ -102,6 +104,12 @@ void Image::drawLocalClient()
 	if (auto tex = mImageSource.getImage())
 	{
 		const ci::Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
+
+		tex->bind();
+		ci::gl::drawSolidRect(useRect);
+
+		// TODO
+		/*
 		
 		// we're gonna do this ourselves so we can pass additional attributes to the shader
 		ci::gl::SaveTextureBindState saveBindState( tex->getTarget() );
@@ -172,6 +180,7 @@ void Image::drawLocalClient()
 		if(usingExtra) {
 			glDisableVertexAttribArray(extraLocation);
 		}
+		*/
 	}
 }
 
@@ -292,13 +301,13 @@ void Image::checkStatus()
 			auto tex = mImageSource.getImage();
 			setStatus(Status::STATUS_LOADED);
 			doOnImageLoaded();
-			const float         prevRealW = getWidth(), prevRealH = getHeight();
+			const float prevRealW = getWidth(), prevRealH = getHeight();
 			if (prevRealW <= 0 || prevRealH <= 0) {
 				Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
 			}
 			else {
-				float             prevWidth = prevRealW * getScale().x;
-				float             prevHeight = prevRealH * getScale().y;
+				float prevWidth = prevRealW * getScale().x;
+				float prevHeight = prevRealH * getScale().y;
 				Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
 				setSize(prevWidth, prevHeight);
 			}

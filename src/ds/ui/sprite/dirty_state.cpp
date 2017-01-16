@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/sprite/dirty_state.h"
 
 namespace ds {

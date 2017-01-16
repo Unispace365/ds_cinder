@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/app.h"
 
 #include <Poco/File.h>
@@ -20,6 +22,7 @@
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
+#include "ds/ui/sprite/text_pango.h"
 #include "ds/ui/sprite/border.h"
 #include "ds/ui/sprite/circle.h"
 #include "ds/ui/sprite/circle_border.h"
@@ -114,7 +117,9 @@ App::App(const RootList& roots)
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
-							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
+							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r); });
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::TextPango::installAsServer(r); },
+							[](ds::BlobRegistry& r){ds::ui::TextPango::installAsClient(r); });
 	mEngine.installSprite(	[](ds::BlobRegistry& r){EngineStatsView::installAsServer(r);},
 							[](ds::BlobRegistry& r){EngineStatsView::installAsClient(r);});
 	mEngine.installSprite(  [](ds::BlobRegistry& r){ds::ui::Border::installAsServer(r); },
@@ -155,6 +160,8 @@ App::App(const RootList& roots)
 		if (*it) (*it)(mEngine);
 	}
 	startups.clear();
+
+	prepareSettings(ci::app::App::get()->sSettingsFromMain);
 }
 
 App::~App() {
@@ -165,16 +172,22 @@ App::~App() {
 	}
 }
 
-void App::prepareSettings(Settings *settings) {
-	inherited::prepareSettings(settings);
+void App::prepareSettings(ci::app::AppBase::Settings *settings) {
+	// TODO?
+	//inherited::prepareSettings(settings);
 
 	if (settings) {
 		mEngine.prepareSettings(*settings);
+		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
 
-		if (mEngineData.mWorldSlices.empty())
-			settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
-		else
-			settings->setWindowPos(static_cast<unsigned>(mEngineData.mScreenRect.x1), static_cast<unsigned>(mEngineData.mScreenRect.y1));
+		inherited::setFrameRate(settings->getFrameRate());
+		inherited::setWindowSize(settings->getWindowSize());
+		inherited::setWindowPos(settings->getWindowPos());
+		inherited::setFullScreen(settings->isFullScreen());
+		inherited::getWindow()->setBorderless(settings->isBorderless());
+		inherited::getWindow()->setAlwaysOnTop(settings->isAlwaysOnTop());
+		inherited::getWindow()->setTitle(settings->getTitle());
+		inherited::enablePowerManagement(settings->isPowerManagementEnabled());
 	}
 }
 
@@ -264,6 +277,10 @@ void App::keyDown(ci::app::KeyEvent e) {
 		mEngine.nextTouchMode();
 	} else if(ci::app::KeyEvent::KEY_F8 == code){
 		saveTransparentScreenshot();
+	} else if(ci::app::KeyEvent::KEY_k == code && mCtrlDown){
+		system("taskkill /f /im RestartOnCrash.exe");
+		system("taskkill /f /im DSNode-Host.exe");
+		system("taskkill /f /im DSNodeConsole.exe");
 	}
 
 	if (mArrowKeyCameraControl) {
@@ -284,6 +301,10 @@ void App::keyDown(ci::app::KeyEvent e) {
 			mEngineData.mScreenRect.y2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		}
+	}
+
+	if(ci::app::KeyEvent::KEY_p == code){
+		mEngine.getPangoFontService().logFonts(e.isShiftDown());
 	}
 
 #ifdef _DEBUG
@@ -341,12 +362,13 @@ void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
 }
 
 void App::quit(){
-	ci::app::AppBasic::quit();
+	ci::app::App::quit();
 }
 
 void App::shutdown(){
-	ds::ui::clearFontCache();
-	ci::app::AppBasic::shutdown();
+	// TODO
+	quit();
+	//ci::app::App::shutdown();
 }
 
 void App::showConsole(){

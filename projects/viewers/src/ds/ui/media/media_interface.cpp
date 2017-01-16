@@ -16,15 +16,17 @@
 namespace ds {
 namespace ui {
 
-MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const ci::Color backgroudnColor)
+MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const ci::Color backgroudnColor)
 	: ds::ui::Sprite(eng, sizey.x, sizey.y)
 	, mBackground(nullptr)
 	, mIdling(nullptr)
 	, mAnimateDuration(0.35f)
+	, mMaxWidth(sizey.x)
+	, mMinWidth(sizey.y)
+	, mInterfaceIdleSettings(5.0f)
 {
 	// TODO: settings?
 	const float backOpacccy = 0.95f;
-	const float idleSeconds = 5.0f;
 
 	mBackground = new ds::ui::Sprite(mEngine);
 	mBackground->setTransparent(false);
@@ -32,7 +34,7 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey
 	mBackground->setOpacity(backOpacccy);
 	addChildPtr(mBackground);
 
-	setSecondBeforeIdle(idleSeconds);
+	setSecondBeforeIdle(mInterfaceIdleSettings);
 	resetIdleTimer();
 	layout();
 }
@@ -55,10 +57,16 @@ void MediaInterface::updateServer(const ds::UpdateParams& p){
 void MediaInterface::layout(){
 	const float w = getWidth();
 	const float h = getHeight();
-	if(mBackground){
-		mBackground->setSize(w, h);
-	}
 	onLayout();
+	if(mBackground){
+		float newW = w;
+		if(newW < mMinWidth) newW = mMinWidth;
+		if(newW > mMaxWidth) newW = mMaxWidth;
+
+		mBackground->setSize(newW, h);
+		mBackground->setCenter(0.5f, 0.0f);
+		mBackground->setPosition(w / 2.0f, 0.0f);
+	}
 }
 
 void MediaInterface::animateOn(){

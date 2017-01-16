@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/environment.h"
 
 #include <boost/algorithm/string.hpp>

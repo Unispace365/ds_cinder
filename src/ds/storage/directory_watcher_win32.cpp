@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "directory_watcher.h"
 
 #include <iostream>

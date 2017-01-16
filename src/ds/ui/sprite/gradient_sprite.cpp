@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "gradient_sprite.h"
 
 #include <ds/app/blob_reader.h>
@@ -83,6 +85,11 @@ void Gradient::setColorsAll(const ci::ColorA& tlColor, const ci::ColorA& trColor
 
 void Gradient::drawLocalClient() {
 	// the magic!
+	auto rect = ci::geom::Rect();
+	rect.colors(mTLColor, mTRColor, mBRColor, mBLColor);
+	rect.rect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));
+	ci::gl::draw(rect);
+	/*
 	ci::gl::begin(GL_QUADS);
 	ci::gl::color(mTLColor.r, mTLColor.g, mTLColor.b, mTLColor.a * getDrawOpacity());
 	ci::gl::vertex(0, 0);
@@ -93,6 +100,7 @@ void Gradient::drawLocalClient() {
 	ci::gl::color(mBLColor.r, mBLColor.g, mBLColor.b, mBLColor.a * getDrawOpacity());
 	ci::gl::vertex(0.0f, getHeight());
 	ci::gl::end();
+	*/
 }
 
 void Gradient::writeAttributesTo(ds::DataBuffer& buf) {

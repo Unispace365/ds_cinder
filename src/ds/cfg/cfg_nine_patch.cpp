@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/cfg/cfg_nine_patch.h"
 
 #include <ds/ui/image_source/image_drop_shadow.h>

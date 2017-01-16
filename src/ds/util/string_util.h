@@ -113,7 +113,7 @@ void tokenize(const std::string& input, const std::function<void(const std::stri
 /// Defaults parameters to 0 if they don't exist.
 ci::vec3 parseVector(const std::string &s);
 
-/// The inverse of parseVector. For an input of ci::vec3f(123.0f, 0.0f, 987.6f) returns "123.0, 0.0, 987.6"
+/// The inverse of parseVector. For an input of ci::vec3(123.0f, 0.0f, 987.6f) returns "123.0, 0.0, 987.6"
 std::string unparseVector(const ci::vec3& v);
 
 /// The inverse of parseVector. For an input of ci::vec2f(123.0f, 0.0f) returns "123.0, 0.0"

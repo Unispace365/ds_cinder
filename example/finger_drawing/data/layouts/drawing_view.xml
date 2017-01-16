@@ -1,0 +1,159 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="vert"
+			layout_size_mode="flex"
+			position="0, 0"				
+			size="1920, 1080"
+		>
+		<layout name="inset"
+			layout_type="vert"
+			layout_size_mode="stretch"
+			l_pad="20"
+			r_pad="20"
+			t_pad="20"
+			b_pad="20"
+				layout_spacing="10"
+			>
+			<text name="message"
+				font="media_viewer:title"
+				layout_v_align="middle"
+				layout_size_mode="flex"
+				animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+				>Drawing</text>
+				
+			
+			<layout name="drawing_canvas_holder"
+				layout_size_mode="stretch"
+				>
+				<sprite name="background"
+					color="black"
+					opacity="0.9"
+					blend_mode="normal"
+					layout_size_mode="fill"
+					/>
+				<border name="border"
+					color="white"
+					opacity="0.5"
+					blend_mode="normal"
+					border_width="1"
+					layout_size_mode="fill"
+					/>
+			</layout>
+			
+			<layout name="buttons"
+				layout_type="horiz"
+				layout_spacing="10"
+				layout_size_mode="flex"
+				shrink_to_children="height"
+				>
+				
+				<text name="brush_label"
+						text="Brushes"
+						font="media_viewer:title"
+						layout_v_align="middle"
+						animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+							
+						/>
+				<xml name="brush_black" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="black" />
+				</xml>
+				<xml name="brush_grey" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="grey" />
+				</xml>
+				<xml name="brush_white" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="white" />
+				</xml>
+				<xml name="brush_pink" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="salmon" />
+				</xml>
+				<xml name="brush_red" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="red" />
+				</xml>
+				<xml name="brush_orange" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="orange" />
+				</xml>
+				<xml name="brush_yellow" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="yellow" />
+				</xml>
+				<xml name="brush_green" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="bright_green" />
+				</xml>
+				<xml name="brush_blue" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="blue" />
+				</xml>
+				<xml name="brush_erase" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="light_grey" opacity="0.0" />
+					<property name="the_normal_border" color="light_grey" opacity="0.0" />
+					<property name="icon" src="%APP%/data/images/drawing/marker.png" layout_fudge="1, 0"/>
+				</xml>
+				
+				<sprite name="space_space" size="22" />
+				
+				<xml name="small" src="%APP%/data/layouts/brush_size_button.xml" >
+					<property name="sizer" radius="3" />
+				</xml>
+				
+				<xml name="med" src="%APP%/data/layouts/brush_size_button.xml" >
+					<property name="sizer" radius="6" />
+				</xml>
+				<xml name="large" src="%APP%/data/layouts/brush_size_button.xml" >
+					<property name="sizer" radius="10" />
+				</xml>
+				<xml name="xlarge" src="%APP%/data/layouts/brush_size_button.xml" >
+					<property name="sizer" radius="15" />
+				</xml>
+				<xml name="xxlarge" src="%APP%/data/layouts/brush_size_button.xml" >
+					<property name="sizer" radius="18" />
+				</xml>
+				
+				<sprite name="kevin_spacey_one"
+					layout_size_mode="stretch" />
+				<text name="background_label"
+						text="Backgrounds"
+						font="media_viewer:title"
+						layout_v_align="middle"
+						animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+							
+						/>
+				<xml name="background_black" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="black" />
+				</xml>
+				<xml name="background_grey" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="grey" />
+				</xml>
+				<xml name="background_white" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="white" />
+				</xml>
+				<xml name="background_pink" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="salmon" />
+				</xml>
+				<xml name="background_red" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="red" />
+				</xml>
+				<xml name="background_orange" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="orange" />
+				</xml>
+				<xml name="background_yellow" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="yellow" />
+				</xml>
+				<xml name="background_green" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="bright_green" />
+				</xml>
+				<xml name="background_blue" src="%APP%/data/layouts/swatch_button.xml" >
+					<property name="swatch" color="blue" />
+				</xml>
+				
+				<sprite name="kevin_spacey"
+					layout_size_mode="stretch" />
+				<xml name="clear_button" src="%APP%/data/layouts/icon_label_button.xml" >
+					<property name="high_icon" src="%APP%/data/images/media_interface/close_normal.png" scale="0.25, 0.25" position="50, 23" />
+					<property name="high_label" text="Clear" />
+				</xml>
+			</layout>
+		</layout>
+	</layout>
+	
+	
+</interface>
+

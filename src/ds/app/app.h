@@ -66,7 +66,7 @@ public:
 	virtual void				tuioObjectEnded( const TuioObject& );
 	virtual void				keyDown( ci::app::KeyEvent event );
 	virtual void				keyUp( ci::app::KeyEvent event );
-	virtual void				prepareSettings( Settings* );
+	virtual void				prepareSettings( ci::app::AppBase::Settings* );
 	virtual void				setup();
 	// This is where client applications would setup the initial UI.
 	virtual void				setupServer() { }

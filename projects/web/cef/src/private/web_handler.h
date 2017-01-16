@@ -26,7 +26,9 @@ class WebHandler : public CefClient,
 	public CefLoadHandler,
 	public CefRenderHandler,
 	public CefGeolocationHandler,
-	public CefJSDialogHandler
+	public CefJSDialogHandler,
+	public CefFocusHandler,
+	public CefKeyboardHandler
 {
 public:
 	explicit WebHandler();
@@ -52,6 +54,12 @@ public:
 		return this;
 	}
 	virtual CefRefPtr<CefJSDialogHandler> GetJSDialogHandler() OVERRIDE{
+		return this;
+	}
+	virtual CefRefPtr<CefFocusHandler> GetFocusHandler() OVERRIDE{
+		return this;
+	}
+	virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE{
 		return this;
 	}
 
@@ -104,12 +112,27 @@ public:
 						 const void* buffer,
 						 int width, int height) OVERRIDE;
 
+	virtual void OnCursorChange(CefRefPtr<CefBrowser> browser,
+								CefCursorHandle cursor,
+								CursorType type,
+								const CefCursorInfo& custom_cursor_info);
+
 	virtual bool StartDragging(CefRefPtr<CefBrowser> browser,
 							   CefRefPtr<CefDragData> drag_data,
 							   DragOperationsMask allowed_ops,
 							   int x, int y) OVERRIDE{
 		return true;
 	}
+	virtual void OnStatusMessage(CefRefPtr<CefBrowser> browser,
+		const CefString& value);
+	virtual bool OnSetFocus(CefRefPtr<CefBrowser> browser,
+		FocusSource source);
+	virtual void OnTakeFocus(CefRefPtr<CefBrowser> browser,
+							 bool next);
+
+	virtual bool OnKeyEvent(CefRefPtr<CefBrowser> browser,
+							const CefKeyEvent& event,
+							CefEventHandle os_event);
 
 	// CefGeolocationHandler methods:
 	// returning true allows access immediately
@@ -158,7 +181,7 @@ public:
 	void 					loadUrl(const int browserId, const std::string& newUrl);
 
 	// Resize the browser. Happens asynchronously, meaning a paint callback will come back later with the actual info
-	void 					requestBrowserResize(const int browserId, const ci::Vec2i newSize);
+	void 					requestBrowserResize(const int browserId, const ci::ivec2 newSize);
 
 	// Regular browser controls
 	void 					goForwards(const int browserId);
@@ -182,7 +205,7 @@ private:
 	std::map<int, CefRefPtr<CefBrowser>>				mBrowserList;
 
 	// Track the sizes that we want the browsers to be, since resizing is asynchronous
-	std::map<int, ci::Vec2i>							mBrowserSizes;
+	std::map<int, ci::ivec2>							mBrowserSizes;
 
 	std::map<void *,std::function<void(int)>>			mCreatedCallbacks;
 	std::map<int, ds::web::WebCefCallbacks>				mWebCallbacks;

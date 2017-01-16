@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/data/resource.h"
 
 #include <iostream>
@@ -287,6 +289,8 @@ Resource::Resource()
 	, mWidth(0)
 	, mHeight(0)
 	, mThumbnailId(0)
+	, mParentId(0)
+	, mParentIndex(0)
 {
 }
 
@@ -297,6 +301,8 @@ Resource::Resource(const Resource::Id& dbId, const int type)
 	, mWidth(0)
 	, mHeight(0)
 	, mThumbnailId(0)
+	, mParentId(0)
+	, mParentIndex(0)
 {
 }
 Resource::Resource(const std::string& fullPath)
@@ -306,6 +312,8 @@ Resource::Resource(const std::string& fullPath)
 	, mWidth(0)
 	, mHeight(0)
 	, mThumbnailId(0)
+	, mParentId(0)
+	, mParentIndex(0)
 	, mLocalFilePath(fullPath)
 {
 }
@@ -317,6 +325,8 @@ Resource::Resource(const std::string& fullPath, const int type)
 	, mWidth(0)
 	, mHeight(0)
 	, mThumbnailId(0)
+	, mParentId(0)
+	, mParentIndex(0)
 	, mLocalFilePath(fullPath)
 {
 }
@@ -328,6 +338,8 @@ Resource::Resource(const std::string& localFullPath, const float width, const fl
 	, mWidth(width)
 	, mHeight(height)
 	, mThumbnailId(0)
+	, mParentId(0)
+	, mParentIndex(0)
 	, mLocalFilePath(localFullPath){
 }
 
@@ -342,6 +354,8 @@ Resource::Resource(const Resource::Id dbid, const int type, const double duratio
 	, mFileName(filename)
 	, mPath(path)
 	, mThumbnailId(thumbnailId)
+	, mParentId(0)
+	, mParentIndex(0)
 	, mLocalFilePath(fullFilePath)
 {}
 	
@@ -549,6 +563,7 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 			  || extensionay.find("tod") != std::string::npos
 			  || extensionay.find("ts") != std::string::npos
 			  || extensionay.find("vob") != std::string::npos
+			  || extensionay.find("m4a") != std::string::npos
 			  ){
 		return ds::Resource::VIDEO_TYPE;
 	} else {

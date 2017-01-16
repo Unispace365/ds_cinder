@@ -1,0 +1,5 @@
+<settings>
+
+	<!-- Link together a font name and a font file -->
+	<text name="noto-regular" value="Noto Sans" />
+</settings>

@@ -50,9 +50,10 @@ Sprite Types
 * **layout** = ds::ui::LayoutSprite
 * **circle** = ds::ui::Circle
 * **border** = ds::ui::Border
-* **scroll_list** = ds::ui::ScrollList
+* **scroll_list[_(vertical|horizontal)** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
 * **centered_scroll_area** = ds::ui::CenteredScrollArea
+* **control_slider[_(horizontal|vertical)]** = ds::ui::ControlSlider
 * **scroll_bar** = ds::ui::ScrollBar
 * **entry_field** = ds::ui::EntryField
 * **soft_keyboard** = ds::ui::SoftKeyboard
@@ -212,6 +213,7 @@ Circle Sprite Parameters
 ---------------------------
 * **filled**: Boolean, whether to draw just the outline or fill in the circle
 * **radius**: Float, the radius of the circle to draw
+* **line_width**: Float, the width for non-filled circle border 
 
 Border Parameters
 ---------------------------
@@ -222,7 +224,7 @@ Scroll List Parameters
 * **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc)
 * **scroll_list_layout**: Sets the parameters for layout from the format "x, y, z", which translates to setLayoutParams(xStart, yStart, incrementAmount, true);
 * **scroll_list_animate**: Sets the animation parameters, from the format "x, y", where x==startDelay and y==deltaDelay on ScrollList::setAnimateOnParams(startDelay, deltaDelay);
-* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool);
+* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool); **Note: only applicable to ScrollArea, not ScrollList.  To set horizontality of ScrollList, use Sprite-types of 'scroll_list_vertical' and 'scroll_list_horizontal'.** 
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
 
 EntryField and SoftKeyboard Parameters
@@ -246,9 +248,11 @@ EntryFields and SoftKeyboards need some parameters set for instantiation, so the
 * **cursor_color**: The color of the blinking cursor. Engine colors are allowed. Default: white
 * **blink_rate**: How many seconds to wait between blinks. Total blink time is animate_rate + animate_rate + blink_rate. Default: 0.5
 * **animate_rate**: How many seconds to fade the cursor on and off. Default: 0.3.
+* **text_offset**: How many pixels to offset the text sprite. Default: 0.0, 0.0
+* **password_mode**: If true, will show bullets instead of text. Default: false
 
 **SOFT KEYBOARD PARAMETERS**
-* **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase and pinpad. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Pinpad is like an ATM pin pad. Default: standard
+* **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase, extended and pinpad. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Pinpad is like an ATM pin pad. Default: standard
 * **key_up_text_config**: The text config of the text in the keys when not pressed. Default: keyboard:key:up
 * **key_dn_text_config**: The text config of the text in the keys when pressed. Default: keyboard:key:down
 * **key_up_color**: The color of the keys when not pressed. Engine colors allowed. Default: white

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/arc/arc_io.h"
 
 #include <cinder/app/App.h>
@@ -35,12 +37,12 @@ std::unique_ptr<Arc>		load(const std::string& filename) {
 		ci::DataSourceRef		ds;
 		const std::string		sub(filename.substr(RESOURCE_.length(), filename.length()));
 		if (sub == "drop_shadow") {
-			ds = ci::app::App::loadResource(RES_ARC_DROPSHADOW);
+			ds = ci::app::AppBase::get()->loadResource(RES_ARC_DROPSHADOW);
 		}
 		if (ds) {
-			ci::Buffer&			buf = ds->getBuffer();
-			if (buf.getSize() > 0 && buf.getSize() < 100000) {
-				std::string	str(static_cast<const char*>(buf.getData()), buf.getDataSize());
+			ci::BufferRef buf = ds->getBuffer();
+			if (buf->getSize() > 0 && buf->getSize() < 100000) {
+				std::string	str(static_cast<const char*>(buf->getData()), buf->getSize());
 				return load_xml(str);
 			}
 		}

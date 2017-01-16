@@ -31,7 +31,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources.rc" />
-    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />
+    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2013\FrameworkResources.rc" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="model">

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "mesh_file_loader.h"
 
 namespace ds {

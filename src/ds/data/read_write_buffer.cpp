@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "read_write_buffer.h"
 #include <cstring>
 #include "ds\math\math_func.h"

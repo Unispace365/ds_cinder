@@ -32,23 +32,23 @@
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\physics\box2d\PropertySheets\Physics_Box2d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\web\awesomium\PropertySheets\Web_Awesomium.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\essentials\PropertySheets\Essentials.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\viewers\PropertySheets\Viewers.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\viewers\PropertySheets\Viewers.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="$(DS_PLATFORM_086)\vs2013\PropertySheets\Platform_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\physics\box2d\PropertySheets\Physics_Box2d_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\web\awesomium\PropertySheets\Web_Awesomium_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\essentials\PropertySheets\Essentials_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf_d.props" />
-    <Import Project="$(DS_PLATFORM_086)\projects\viewers\PropertySheets\Viewers_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf_d.props" />
+    <Import Project="$(DS_PLATFORM_090)\projects\viewers\PropertySheets\Viewers_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
@@ -76,7 +76,7 @@
       <DebugInformationFormat>EditAndContinue</DebugInformationFormat>
     </ClCompile>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -88,7 +88,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-	  <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -126,7 +126,7 @@
       <LinkLibraryDependencies>true</LinkLibraryDependencies>
     </ProjectReference>
     <ResourceCompile>
-      <AdditionalIncludeDirectories>$(CINDER_086)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(CINDER_090)\include;..\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ResourceCompile>
     <Link>
       <AdditionalDependencies>%(AdditionalDependencies)</AdditionalDependencies>
@@ -142,7 +142,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-	  <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command />
@@ -155,6 +155,7 @@
     <ClCompile Include="..\src\app\app_defs.cpp" />
     <ClCompile Include="..\src\app\globals.cpp" />
     <ClCompile Include="..\src\app\full_starter_app.cpp" />
+    <ClCompile Include="..\src\model\generated\media_model.cpp" />
     <ClCompile Include="..\src\model\generated\story_model.cpp" />
     <ClCompile Include="..\src\query\query_handler.cpp" />
     <ClCompile Include="..\src\query\story_query.cpp" />
@@ -166,13 +167,14 @@
     <ClInclude Include="..\src\app\full_starter_app.h" />
     <ClInclude Include="..\src\events\app_events.h" />
     <ClInclude Include="..\src\model\all_data.h" />
+    <ClInclude Include="..\src\model\generated\media_model.h" />
     <ClInclude Include="..\src\model\generated\story_model.h" />
     <ClInclude Include="..\src\query\query_handler.h" />
     <ClInclude Include="..\src\query\story_query.h" />
     <ClInclude Include="..\src\ui\story\story_view.h" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="$(DS_PLATFORM_086)\vs2013\FrameworkResources.rc" />
+    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2013\FrameworkResources.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\model\generated\model.yml" />

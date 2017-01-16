@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "multi_touch_constraints.h"
 
 #include <boost/algorithm/string.hpp>

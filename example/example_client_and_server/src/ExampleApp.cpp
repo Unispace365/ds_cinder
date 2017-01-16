@@ -161,4 +161,4 @@ ds::ui::Sprite* CsApp::newToggleSprite() const {
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC( CsApp, RendererGl )
+CINDER_APP( CsApp, RendererGl )

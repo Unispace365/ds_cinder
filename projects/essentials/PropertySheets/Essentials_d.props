@@ -6,11 +6,11 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_086)\projects\essentials\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_090)\projects\essentials\src</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
 		<AdditionalDependencies>%(AdditionalDependencies);essentials_d.lib;libcurl.lib</AdditionalDependencies>
-		<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_086)\projects\essentials\lib</AdditionalLibraryDirectories>
+		<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\essentials\lib</AdditionalLibraryDirectories>
 		<DelayLoadDLLs>libcurl.dll</DelayLoadDLLs>
     </Link>
   </ItemDefinitionGroup>

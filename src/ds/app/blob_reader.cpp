@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/blob_reader.h"
 
 #include <assert.h>

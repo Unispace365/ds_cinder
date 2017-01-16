@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/cfg/settings.h"
 
 #include <cinder/Xml.h>
@@ -130,7 +132,7 @@ void Settings::readFrom(const std::string& filename, const bool append, const bo
 
 	// We're appending, so create a temporary object, then merge all the changes
 	// on top of me.
-	Settings		s;
+	Settings		s(mEngine);
 	s.directReadFrom(filename, false, rawXmlText);
 
 	merge(mFloat, s.mFloat);
@@ -244,7 +246,7 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 				c = mEngine->getColors().getColorFromName(code);
 			}
 		} else {
-			c.set(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
+			c = ci::ColorA(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);

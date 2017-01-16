@@ -19,9 +19,10 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mWeb(nullptr)
 	, mWebInterface(nullptr)
 	, mEmbedInterface(embedInterface)
-	, mKeyboardPanelSize(800.0f, 500.0f)
+	, mShowInterfaceAtStart(true)
 	, mKeyboardKeyScale(1.0f)
 	, mKeyboardAllow(true)
+	, mKeyboardAbove(true)
 	, mAllowTouchToggle(true)
 {
 	mLayoutFixedAspect = true;
@@ -30,21 +31,21 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	setColor(ci::Color::black());
 }
 
-void WebPlayer::setWebViewSize(const ci::Vec2f webSize){
+void WebPlayer::setWebViewSize(const ci::vec2 webSize){
 	mWebSize = webSize;
 	if(mWeb){
 		mWeb->setSize(mWebSize.x, mWebSize.y);
 	}
 }
 
-void WebPlayer::setKeyboardParams(const ci::Vec2f keyboardPanelSize, const float keyboardKeyScale, const bool keyboardAllow){
-	mKeyboardPanelSize = keyboardPanelSize;
+void WebPlayer::setKeyboardParams(const float keyboardKeyScale, const bool keyboardAllow, const bool keyboardAbove){
 	mKeyboardKeyScale = keyboardKeyScale;
 	mKeyboardAllow = keyboardAllow;
+	mKeyboardAbove = keyboardAbove;
 	if(mWebInterface){
 		mWebInterface->setKeyboardKeyScale(keyboardKeyScale);
-		mWebInterface->setKeyboardPanelSize(keyboardPanelSize);
 		mWebInterface->setKeyboardAllow(keyboardAllow);
+		mWebInterface->setKeyboardAbove(mKeyboardAbove);
 	}
 }
 
@@ -86,7 +87,7 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		targetH = mEngine.getWorldHeight();
 	}
 
-	setWebViewSize(ci::Vec2f(targetW, targetH));
+	setWebViewSize(ci::vec2(targetW, targetH));
 
 	addChildPtr(mWeb);
 	mWeb->setUrl(mediaPath);
@@ -100,9 +101,19 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		mWebInterface = dynamic_cast<WebInterface*>(MediaInterfaceBuilder::buildMediaInterface(mEngine, this, this));
 
 		if(mWebInterface){
-			setKeyboardParams(mKeyboardPanelSize, mKeyboardKeyScale, mKeyboardAllow);
+			setKeyboardParams(mKeyboardKeyScale, mKeyboardAllow, mKeyboardAbove);
 			setAllowTouchToggle(mAllowTouchToggle);
 			mWebInterface->sendToFront();
+		}
+	}
+
+
+	if(mWebInterface){
+		if(mShowInterfaceAtStart){
+			mWebInterface->show();
+		} else {
+			mWebInterface->setOpacity(0.0f);
+			mWebInterface->hide();
 		}
 	}
 
@@ -121,7 +132,11 @@ void WebPlayer::layout(){
 
 	if(mWebInterface && mEmbedInterface){
 		mWebInterface->setSize(getWidth() * 2.0f / 3.0f, mWebInterface->getHeight());
-		mWebInterface->setPosition(getWidth() / 2.0f - mWebInterface->getWidth() / 2.0f, getHeight() - mWebInterface->getHeight() - 50.0f);
+
+		float yPos = getHeight() - mWebInterface->getHeight() - 50.0f;
+		if(yPos < getHeight() / 2.0f) yPos = getHeight() / 2.0f;
+		if(yPos + mWebInterface->getHeight() > getHeight()) yPos = getHeight() - mWebInterface->getHeight();
+		mWebInterface->setPosition(getWidth() / 2.0f - mWebInterface->getWidth() / 2.0f, yPos);
 	}
 }
 
@@ -136,7 +151,17 @@ void WebPlayer::showInterface() {
 	}
 }
 
-void WebPlayer::sendClick(const ci::Vec3f& globalClickPos){
+void WebPlayer::hideInterface(){
+	if(mWebInterface){
+		mWebInterface->startIdling();
+	}
+}
+
+void WebPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
+	mShowInterfaceAtStart = showInterfaceAtStart;
+}
+
+void WebPlayer::sendClick(const ci::vec3& globalClickPos){
 	if(mWeb){
 		mWeb->sendMouseClick(globalClickPos);
 	}

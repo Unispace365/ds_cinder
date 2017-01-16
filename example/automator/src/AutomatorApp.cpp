@@ -18,8 +18,8 @@ public:
 	AutomatorApp();
 
 	void						setupServer();
-	void						handleTouchUno(const ci::Vec3f& pos);
-	void						handleTouchDuo(const ci::Vec3f& pos);
+	void						handleTouchUno(const ci::vec3& pos);
+	void						handleTouchDuo(const ci::vec3& pos);
 	void						keyDown(ci::app::KeyEvent event);
 	void						recenterSprites();
 
@@ -68,16 +68,16 @@ void AutomatorApp::setupServer()
 	
 }
 
-void AutomatorApp::handleTouchUno(const ci::Vec3f& pos){
+void AutomatorApp::handleTouchUno(const ci::vec3& pos){
 	static Poco::Random   RND;
 	// Tween to a randomized scale
 	const float           nextScale = 0.25f + RND.nextFloat() * 2;
-	const ci::Vec3f       scaleEnd(ci::Vec3f(nextScale, nextScale, 1));
+	const ci::vec3       scaleEnd(ci::vec3(nextScale, nextScale, 1));
 	mSprite1.tweenPosition(pos, 0.25f, 0.0f, ci::EaseInOutExpo());
 	mSprite1.tweenScale(scaleEnd, 0.25f, 0.0f, ci::EaseInOutExpo());
 }
 
-void AutomatorApp::handleTouchDuo(const ci::Vec3f& pos){
+void AutomatorApp::handleTouchDuo(const ci::vec3& pos){
 
 	mSprite2.tweenPosition(pos, 0.25f, 0.0f, ci::EaseInOutExpo());
 }
@@ -96,4 +96,4 @@ void AutomatorApp::recenterSprites(){
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(AutomatorApp, RendererGl(RendererGl::AA_MSAA_4))
+CINDER_APP(AutomatorApp, RendererGl(RendererGl::Options().msaa(4)))
