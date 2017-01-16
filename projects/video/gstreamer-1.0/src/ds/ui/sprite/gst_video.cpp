@@ -40,7 +40,49 @@ void                            noop()  { /* no op */ };
 
 static int drawcount = 0;
 
+
 static std::string yuv_vert =
+"#version 150\n"
+"uniform mat4       ciModelMatrix;\n"
+"uniform mat4       ciModelViewProjection;\n"
+"uniform vec4       uClipPlane0;\n"
+"uniform vec4       uClipPlane1;\n"
+"uniform vec4       uClipPlane2;\n"
+"uniform vec4       uClipPlane3;\n"
+"in vec4            ciPosition;\n"
+"in vec2            ciTexCoord0;\n"
+"in vec4            ciColor;\n"
+"out vec2           TexCoord0;\n"
+"out vec4           Color;\n"
+"void main()\n"
+"{\n"
+"    gl_Position = ciModelViewProjection * ciPosition;\n"
+"    TexCoord0 = ciTexCoord0;\n"
+"    Color = ciColor;\n"
+"    gl_ClipDistance[0] = dot(ciModelMatrix * ciPosition, uClipPlane0);\n"
+"    gl_ClipDistance[1] = dot(ciModelMatrix * ciPosition, uClipPlane1);\n"
+"    gl_ClipDistance[2] = dot(ciModelMatrix * ciPosition, uClipPlane2);\n"
+"    gl_ClipDistance[3] = dot(ciModelMatrix * ciPosition, uClipPlane3);\n"
+"}\n";
+
+const static std::string yuv_frag =
+"#version 150\n"
+"uniform sampler2D gsuTexture0;"
+"uniform sampler2D gsuTexture1;"
+"uniform sampler2D gsuTexture2;"
+"in vec2            TexCoord0;\n"
+"in vec4            Color;\n"
+"out vec4           oColor;\n"
+"void main(){"
+"float y = texture2D(gsuTexture0, TexCoord0).r;"
+"float u = texture2D(gsuTexture1, TexCoord0).r;"
+"float v = texture2D(gsuTexture2, TexCoord0).r;"
+"u = u - 0.5;"
+"v = v - 0.5;"
+"oColor = Color * vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, Color.a);\n"
+"}";
+
+static std::string yuv_vert_PREV =
 "varying   vec2 gsvTexCoord;"
 "void main(){ "
 "gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
@@ -50,7 +92,7 @@ static std::string yuv_vert =
 "gsvTexCoord = gl_TexCoord[0].xy;"
 "}";
 
-const static std::string yuv_frag =
+const static std::string yuv_frag_PREV =
 //"precision mediump float;"
 "uniform sampler2D gsuTexture0;"
 "uniform sampler2D gsuTexture1;"

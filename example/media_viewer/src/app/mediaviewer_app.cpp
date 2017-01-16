@@ -86,6 +86,7 @@ void MediaViewer::setupServer(){
 	rootSprite.addChildPtr(new ViewerController(mGlobals));
 
 	/*
+	*/
 
 	mStreamerParent = new ds::ui::Sprite(mEngine);
 	rootSprite.addChildPtr(mStreamerParent);
@@ -111,7 +112,6 @@ void MediaViewer::setupServer(){
 
 	mEngine.setTouchInfoPipeCallback([this](const ds::ui::TouchInfo& ti){ mTouchMenu->handleTouchInfo(ti); });
 
-	*/
 }
 
 void MediaViewer::update() {
