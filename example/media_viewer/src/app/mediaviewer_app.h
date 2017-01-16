@@ -49,7 +49,6 @@ private:
 	ds::ui::Sprite*		mStreamerParent;
 	ds::ui::GstVideo*	mStreamer;
 
-	void				moveCamera(const ci::vec3& deltaMove);
 	void				touchEventToTouchInfo(ds::ui::TouchEvent& te, ds::ui::TouchInfo::Phase phasey);
 };
 

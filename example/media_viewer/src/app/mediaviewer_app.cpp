@@ -25,18 +25,7 @@
 namespace mv {
 
 MediaViewer::MediaViewer()
-	: inherited(ds::RootList()
-								.ortho() // sample ortho view
-								.pickColor()
-
-								.persp() // sample perp view
-								.perspFov(60.0f)
-								.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
-								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
-								.perspNear(0.0002f)
-								.perspFar(20.0f)
-
-								.ortho() ) // ortho view on top
+	: inherited()
 	, mGlobals(mEngine , mAllData )
 	, mQueryHandler(mEngine, mAllData)
 	, mIdling( false )
@@ -60,6 +49,7 @@ void MediaViewer::setupServer(){
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
 	mEngine.loadTextCfg("text.xml");
+	/*
 	const int numRoots = mEngine.getRootCount();
 	int numPlacemats = 0;
 	for(int i = 0; i < numRoots - 1; i++){
@@ -82,6 +72,7 @@ void MediaViewer::setupServer(){
 
 		rooty.clearChildren();
 	}
+	*/
 
 	mStreamer = nullptr;
 	mGlobals.initialize();
@@ -89,9 +80,12 @@ void MediaViewer::setupServer(){
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
+	rootSprite.setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	
 	// add sprites
 	rootSprite.addChildPtr(new ViewerController(mGlobals));
+
+	/*
 
 	mStreamerParent = new ds::ui::Sprite(mEngine);
 	rootSprite.addChildPtr(mStreamerParent);
@@ -109,13 +103,15 @@ void MediaViewer::setupServer(){
 	std::vector<ds::ui::TouchMenu::MenuItemModel> menuItemModels;
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Exit", "%APP%/data/images/menu/exit_app_normal.png", "%APP%/data/images/menu/exit_app_glow.png", [this](ci::vec3){ std::exit(0); }));
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Close All", "%APP%/data/images/menu/close_normal.png", "%APP%/data/images/menu/close_glow.png", [this](ci::vec3){ mEngine.getNotifier().notify(RequestCloseAllEvent()); }));
-	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Search", "%APP%/data/images/menu/search_normal.png", "%APP%/data/images/menu/search_glow.png", [this](ci::vec3 pos){ /*mEngine.getNotifier().notify(RequestPresenterModeEvent(pos));*/ }));
+	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Search", "%APP%/data/images/menu/search_normal.png", "%APP%/data/images/menu/search_glow.png", [this](ci::vec3 pos){  }));
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Layout", "%APP%/data/images/menu/pinboard_normal.png", "%APP%/data/images/menu/pinboard_glow.png", [this](ci::vec3){ mEngine.getNotifier().notify(RequestLayoutEvent()); }));
 
 
 	mTouchMenu->setMenuItemModels(menuItemModels);
 
 	mEngine.setTouchInfoPipeCallback([this](const ds::ui::TouchInfo& ti){ mTouchMenu->handleTouchInfo(ti); });
+
+	*/
 }
 
 void MediaViewer::update() {
@@ -161,31 +157,6 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 			mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
 		}
 
-
-	// Perspective camera movement
-	} else if(event.getCode() == KeyEvent::KEY_d){
-		moveCamera(ci::vec3(1.0f, 0.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_a){
-		moveCamera(ci::vec3(-1.0f, 0.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_w){
-		moveCamera(ci::vec3(0.0f, -1.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_s){
-		moveCamera(ci::vec3(0.0f, 1.0f, 0.0f));
-	} else if(event.getCode() == KeyEvent::KEY_RIGHTBRACKET){
-		moveCamera(ci::vec3(0.0f, 0.0f, 1.0f));
-	} else if(event.getCode() == KeyEvent::KEY_LEFTBRACKET){
-		moveCamera(ci::vec3(0.0f, 0.0f, -1.0f));
-	} else if(event.getCode() == KeyEvent::KEY_EQUALS){
-		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
-		p.mFarPlane += 1.0f;
-		std::cout << "Clip Far camera: " << p.mFarPlane << std::endl;
-		mEngine.setPerspectiveCamera(1, p);
-	} else if(event.getCode() == KeyEvent::KEY_MINUS){
-		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
-		p.mFarPlane -= 1.0f;
-		std::cout << "Clip Far camera: " << p.mFarPlane << std::endl;
-		mEngine.setPerspectiveCamera(1, p);
-
 	// Shows all enabled sprites with a label for class type
 	} else if(event.getCode() == KeyEvent::KEY_f){
 
@@ -227,12 +198,6 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 	}
 }
 
-void MediaViewer::moveCamera(const ci::vec3& deltaMove){
-	ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
-	p.mPosition += deltaMove;
-	std::cout << "Moving camera: " << p.mPosition.x << " " << p.mPosition.y << " " << p.mPosition.z << std::endl;
-	mEngine.setPerspectiveCamera(1, p);
-}
 
 void MediaViewer::mouseDown(ci::app::MouseEvent e) {
 	mTouchDebug.mouseDown(e);
@@ -278,4 +243,4 @@ void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 } // namespace mv
 
 // This line tells Cinder to actually create the application
-CINDER_APP(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::Options()().msaa(4)), [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
+CINDER_APP(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))// , [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
