@@ -240,7 +240,7 @@ void Pdf::drawLocalClient() {
 	const float				targetw = getWidth()*mScale.x,
 							targeth = getHeight()*mScale.y;
 
-	inherited::drawLocalClient();
+//	inherited::drawLocalClient();
 
 	ci::gl::pushModelView();
 
@@ -248,13 +248,21 @@ void Pdf::drawLocalClient() {
 	// been applied, then apply a new scale to compensate for any mismatch
 	// between my current texture size and my display size.
 	/* TODO
-	const ci::vec3			turnOffScale(1.0f/mScale.x, 1.0f/mScale.y, 1.0f);
-	const ci::vec3			newScale(targetw/tw, targeth/th, 1.0f);
 	ci::gl::multModelView(ci::mat4::createScale(turnOffScale));
 	ci::gl::multModelView(ci::Matrix44f::createScale(newScale));
+	*/
+
+	const ci::vec3			turnOffScale(1.0f / mScale.x, 1.0f / mScale.y, 1.0f);
+	const ci::vec3			newScale(targetw / tw, targeth / th, 1.0f);
+	ci::mat4 modelMatOff;
+	ci::mat4 modelMatNew;
+	modelMatOff = glm::scale(modelMatOff, turnOffScale);
+	ci::gl::multModelMatrix(modelMatOff);
+	modelMatNew = glm::scale(modelMatNew, newScale);
+	ci::gl::multModelMatrix(modelMatNew);
+
 
 	mHolder.drawLocalClient();
-	*/
 
 	ci::gl::popModelView();
 }

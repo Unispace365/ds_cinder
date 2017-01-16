@@ -432,7 +432,8 @@ bool PdfRes::update() {
 			} else {
 				if (!mTexture || mTexture->getWidth() != mPixels.getWidth() || mTexture->getHeight() != mPixels.getHeight()) {
 					mTexture = ci::gl::Texture::create(mPixels.getWidth(), mPixels.getHeight());
-					if (!mTexture) return false;
+					if(!mTexture) return false;
+					mTexture->setTopDown(true);
 				}
 
 				// TODO: check this

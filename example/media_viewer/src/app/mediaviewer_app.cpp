@@ -37,8 +37,8 @@ MediaViewer::MediaViewer()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install("Sans Bold", "noto-bold");
-	mEngine.editFonts().install("Sans", "noto-thin");
+	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
+	mEngine.editFonts().install("Noto Sans", "noto-thin");
 
 	enableCommonKeystrokes(true);
 }
