@@ -86,7 +86,11 @@ void Gradient::setColorsAll(const ci::ColorA& tlColor, const ci::ColorA& trColor
 void Gradient::drawLocalClient() {
 	// the magic!
 	auto rect = ci::geom::Rect();
-	rect.colors(mTLColor, mTRColor, mBRColor, mBLColor);
+	const float drawOpacity = getDrawOpacity();
+	rect.colors(ci::ColorA(mTLColor, mTLColor.a * drawOpacity), 
+				ci::ColorA(mTRColor, mTRColor.a * drawOpacity),
+				ci::ColorA(mBRColor, mBRColor.a * drawOpacity), 
+				ci::ColorA(mBLColor, mBLColor.a * drawOpacity));
 	rect.rect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));
 	ci::gl::draw(rect);
 	/*
