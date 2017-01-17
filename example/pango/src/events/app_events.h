@@ -29,3 +29,4 @@ public:
 } // !namespace pango
 
 #endif // !_PANGO_APP_APPEVENTS_H_
+

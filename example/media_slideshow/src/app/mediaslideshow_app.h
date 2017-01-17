@@ -40,3 +40,4 @@ private:
 } // !namespace example
 
 #endif // !_MEDIASLIDESHOW_APP_H_
+

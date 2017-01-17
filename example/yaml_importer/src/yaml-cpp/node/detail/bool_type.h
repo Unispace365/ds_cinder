@@ -24,3 +24,5 @@ operator YAML::detail::unspecified_bool_type() const\
 }
 
 #endif // NODE_DETAIL_BOOL_TYPE_H_62B23520_7C8E_11DE_8A39_0800200C9A66
+
+

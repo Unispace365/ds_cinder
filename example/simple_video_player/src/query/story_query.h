@@ -27,3 +27,4 @@ private:
 } // !namespace example
 
 #endif //!_SIMPLEVIDEOPLAYER_APP_QUERY_INDUSTRY_QUERY_H_
+

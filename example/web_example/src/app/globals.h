@@ -38,3 +38,4 @@ public:
 } // !namespace web_example
 
 #endif // !_WEB_EXAMPLE_APP_GLOBALS_
+

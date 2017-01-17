@@ -5,7 +5,7 @@ namespace {
 const std::wstring					EMPTY_WSTRING;
 const std::string					EMPTY_STRING;
 const ds::Resource					EMPTY_RESOURCE;
-const ci::Vec2f						EMPTY_VEC2F;
+const ci::vec2						EMPTY_VEC2F;
 const ModelColumn::Type				EMPTY_COLUMN_TYPE = ModelColumn::Integer;
 const ModelRelation::Type			EMPTY_MODEL_RELATION_TYPE = ModelRelation::One;
 const std::vector<std::string>		EMPTY_STRING_VECTOR;
@@ -314,3 +314,4 @@ ModelModel& ModelModel::addRelation(const ModelRelation& relation){
 }
 
 }
+

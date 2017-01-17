@@ -27,3 +27,4 @@ private:
 } // !namespace perspective_picking
 
 #endif //!_PERSPECTIVEPICKING_APP_QUERY_INDUSTRY_QUERY_H_
+

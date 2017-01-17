@@ -134,3 +134,4 @@ void MediaSlideshow::fileDrop(ci::app::FileDropEvent event){
 
 // This line tells Cinder to actually create the application
 CINDER_APP(example::MediaSlideshow, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

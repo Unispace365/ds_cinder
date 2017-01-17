@@ -23,3 +23,4 @@ extern const int				PHYSICS_INDUSTRIES_LAYER_3_CATEGORY;
 } // !namespace example
 
 #endif // !_MEDIASLIDESHOW_APP_APPDEFS_H_
+

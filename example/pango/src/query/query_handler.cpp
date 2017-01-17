@@ -42,3 +42,5 @@ void QueryHandler::onStoryQuery(StoryQuery& q) {
 
 
 } // !namespace pango
+
+

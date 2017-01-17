@@ -39,3 +39,4 @@ private:
 } // !namespace pango
 
 #endif // !_PANGO_APP_QUERY_QUERYHANDLER_H_
+

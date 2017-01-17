@@ -112,4 +112,4 @@ void AnimationApp::setupServer()
 	});
 }
 // This line tells Cinder to actually create the application
-CINDER_APP( AnimationApp, ci::app::RendererGl(RendererGl::Options().msaa(4)) )
+CINDER_APP( AnimationApp, ci::app::ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)) )

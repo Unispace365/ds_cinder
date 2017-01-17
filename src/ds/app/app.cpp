@@ -173,8 +173,6 @@ App::~App() {
 }
 
 void App::prepareSettings(ci::app::AppBase::Settings *settings) {
-	// TODO?
-	//inherited::prepareSettings(settings);
 
 	if (settings) {
 		mEngine.prepareSettings(*settings);

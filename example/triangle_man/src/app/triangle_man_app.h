@@ -46,3 +46,4 @@ private:
 } // !namespace nwm
 
 #endif // !_TRIANGLE_MAN_APP_H_
+

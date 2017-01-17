@@ -1,5 +1,7 @@
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <Poco/Random.h>
+
+#include <cinder/app/RendererGl.h>
 
 #include <ds/app/app.h>
 #include <ds/app/engine/engine.h>
@@ -40,7 +42,7 @@ AutomatorApp::AutomatorApp()
 void AutomatorApp::setupServer()
 {
 	enableCommonKeystrokes();
-	const ci::Vec2f     cen(getWindowCenter());
+	const ci::vec2     cen(getWindowCenter());
 	ds::ui::Sprite     &rootSprite = mEngine.getRootSprite();
 
 	mSprite1.setCenter(0.5f, 0.5f);
@@ -96,4 +98,4 @@ void AutomatorApp::recenterSprites(){
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP(AutomatorApp, RendererGl(RendererGl::Options().msaa(4)))
+CINDER_APP(AutomatorApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

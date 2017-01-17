@@ -47,3 +47,4 @@ private:
 } // !namespace example
 
 #endif // !_SIMPLEVIDEOPLAYER_APP_H_
+

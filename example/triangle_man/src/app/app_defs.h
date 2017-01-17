@@ -23,3 +23,4 @@ extern const int				PHYSICS_INDUSTRIES_LAYER_3_CATEGORY;
 } // !namespace nwm
 
 #endif // !_TRIANGLE_MAN_APP_APPDEFS_H_
+

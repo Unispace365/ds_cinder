@@ -1,4 +1,4 @@
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <cinder/Timeline.h>
 #include <Poco/Path.h>
 
@@ -74,7 +74,7 @@ public:
 	void				setupServer();
 
 private:
-	ds::ui::Video*		addVideo(ds::ui::Sprite &root, const ci::Vec2f &pos);
+	ds::ui::Video*		addVideo(ds::ui::Sprite &root, const ci::vec2 &pos);
 
 	typedef ds::App		inherited;
 };
@@ -102,14 +102,14 @@ void CsApp::setupServer() {
 		rootSprite.addChild(*web);
 	}
 
-	addVideo(rootSprite, ci::Vec2f(0.0f, 400.0f));
-	ds::ui::Video*			vid(addVideo(rootSprite, ci::Vec2f(400.0f, 400.0f)));
+	addVideo(rootSprite, ci::vec2(0.0f, 400.0f));
+	ds::ui::Video*			vid(addVideo(rootSprite, ci::vec2(400.0f, 400.0f)));
 	if (vid) {
 		vid->setServerModeHack(true);
 	}
 }
 
-ds::ui::Video* CsApp::addVideo(ds::ui::Sprite &root, const ci::Vec2f &pos) {
+ds::ui::Video* CsApp::addVideo(ds::ui::Sprite &root, const ci::vec2 &pos) {
 	ds::ui::Video*			vid(new FrontVideo(mEngine));
 	if (vid) {
 		vid->setLooping(true);
@@ -124,3 +124,4 @@ ds::ui::Video* CsApp::addVideo(ds::ui::Sprite &root, const ci::Vec2f &pos) {
 
 // This line tells Cinder to actually create the application
 CINDER_APP( CsApp, RendererGl )
+

@@ -45,3 +45,4 @@ private:
 } // !namespace example
 
 #endif // !_MQTT_EXAMPLE_APP_GLOBALS_
+

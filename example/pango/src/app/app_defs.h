@@ -21,3 +21,4 @@ extern const int				PHYSICS_INDUSTRIES_LAYER_3_CATEGORY;
 } // !namespace pango
 
 #endif // !_PANGO_APP_APPDEFS_H_
+

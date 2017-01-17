@@ -137,7 +137,7 @@ void SpriteInspector::inspectSprite(ds::ui::Sprite* sp) {
 
 	ds::ui::MultilineText* multitexty = dynamic_cast<ds::ui::MultilineText*>(mLinkedSprite);
 	if(multitexty){
-		addSpriteProperty(L"resize_limit", ci::Vec2f(multitexty->getResizeLimitWidth(), multitexty->getResizeLimitHeight()));
+		addSpriteProperty(L"resize_limit", ci::vec2(multitexty->getResizeLimitWidth(), multitexty->getResizeLimitHeight()));
 		addSpritePropertyLayoutHAlign(L"text_align", multitexty->getAlignment());
 	}
 
@@ -210,7 +210,7 @@ void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const 
 	doAddSpriteProperty(propertyName, ds::wstr_from_utf8(ds::ARGBToHex(propertyValue)));
 }
 
-void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::Vec2f propertyValue){
+void SpriteInspector::addSpriteProperty(const std::wstring& propertyName, const ci::vec2 propertyValue){
 	std::wstringstream wss;
 	wss << propertyValue.x << L", " << propertyValue.y;
 	doAddSpriteProperty(propertyName, wss.str());

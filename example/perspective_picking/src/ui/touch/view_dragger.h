@@ -38,3 +38,4 @@ private:
 } // namespace perspective_picking
 
 #endif //!_PERSPECTIVEPICKING_APP_UI_TOUCH_VIEWDRAGGER_H_
+

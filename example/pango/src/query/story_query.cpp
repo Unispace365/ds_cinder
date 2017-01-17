@@ -75,3 +75,5 @@ void StoryQuery::query(AllData& output) {
 }
 
 } // !namespace pango
+
+

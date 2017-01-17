@@ -52,3 +52,4 @@ private:
 } // !namespace pango
 
 #endif // !_PANGO_APP_H_
+

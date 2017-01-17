@@ -112,3 +112,5 @@ void ViewDragger::checkBounds(const bool immediate) {
 }
 
 } // namespace perspective_picking
+
+

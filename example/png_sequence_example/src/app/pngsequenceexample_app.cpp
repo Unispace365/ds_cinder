@@ -162,3 +162,4 @@ void PngSequenceExample::fileDrop(ci::app::FileDropEvent event){
 
 // This line tells Cinder to actually create the application
 CINDER_APP(example::PngSequenceExample, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

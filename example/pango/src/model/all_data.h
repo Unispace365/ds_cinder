@@ -21,3 +21,5 @@ public:
 } // !namespace pango
 
 #endif // !_PANGO_APP_MODEL_ALLDATA_H_
+
+

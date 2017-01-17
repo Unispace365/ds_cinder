@@ -10,7 +10,7 @@
 #include <cinder/app/App.h>
 #include <cinder/Rand.h> 
 #include <cinder/app/RendererGl.h>
-#include <cinder/app/RendererGl.h>
+
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -118,7 +118,7 @@ void CefDevelop::setupServer(){
 	rootSprite.setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		/*
 		ds::ui::WebPlayer* wp = new ds::ui::WebPlayer(mEngine, true);
-		wp->setWebViewSize(ci::Vec2f(1366, 1366.0f));
+		wp->setWebViewSize(ci::vec2(1366, 1366.0f));
 		wp->setMedia("https://google.com"); 
 		bs->addChildPtr(wp);
 		mWebby = wp->getWeb();
@@ -276,4 +276,4 @@ void CefDevelop::fileDrop(ci::app::FileDropEvent event){
 } // namespace cef
 
 // This line tells Cinder to actually create the application
-CINDER_APP(cef::CefDevelop, cinder::app::RendererGl(ci::app::RendererGl::Options()().msaa(4)))
+CINDER_APP(cef::CefDevelop, cinder::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

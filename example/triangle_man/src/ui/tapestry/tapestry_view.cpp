@@ -205,7 +205,7 @@ void TapestryView::initialize(){
 			indices.push_back(index - 1);
 			indices.push_back(index);
 
-			mThingies.push_back(TriangleThingy(ci::Vec2f(x, y), index, alphaMin, 1.0f));
+			mThingies.push_back(TriangleThingy(ci::vec2(x, y), index, alphaMin, 1.0f));
 		}
 	}
 
@@ -272,3 +272,5 @@ void TapestryView::drawLocalClient(){
 }
 
 } // namespace nwm
+
+

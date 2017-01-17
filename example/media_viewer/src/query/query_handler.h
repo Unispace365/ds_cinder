@@ -39,3 +39,4 @@ private:
 } // !namespace mv
 
 #endif // !_MEDIAVIEWER_APP_QUERY_QUERYHANDLER_H_
+

@@ -40,3 +40,4 @@ public:
 } // !namespace mv
 
 #endif // !_MEDIAVIEWER_APP_APPEVENTS_H_
+

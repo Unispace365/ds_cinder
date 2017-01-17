@@ -1,4 +1,4 @@
-﻿#include "pango_app.h"
+#include "pango_app.h"
 
 #include <Poco/String.h>
 #include <ds/app/environment.h>
@@ -228,3 +228,4 @@ void PangoApp::fileDrop(ci::app::FileDropEvent event){
 
 // This line tells Cinder to actually create the application
 CINDER_APP(pango::PangoApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

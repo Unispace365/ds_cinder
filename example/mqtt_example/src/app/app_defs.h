@@ -23,3 +23,4 @@ extern const int				PHYSICS_INDUSTRIES_LAYER_3_CATEGORY;
 } // !namespace example
 
 #endif // !_MQTT_EXAMPLE_APP_APPDEFS_H_
+

@@ -20,3 +20,5 @@ public:
 } // !namespace example
 
 #endif // !_MQTT_EXAMPLE_APP_MODEL_ALLDATA_H_
+
+

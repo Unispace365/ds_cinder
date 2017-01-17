@@ -164,3 +164,4 @@ void triangle_man::fileDrop(ci::app::FileDropEvent event){
 
 // This line tells Cinder to actually create the application
 CINDER_APP(nwm::triangle_man, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

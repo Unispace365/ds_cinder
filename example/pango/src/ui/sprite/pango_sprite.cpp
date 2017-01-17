@@ -37,8 +37,8 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	, mDefaultTextSize(120.0)
 	, mDefaultTextItalicsEnabled(false)
 	, mDefaultTextSmallCapsEnabled(false)
-	, mMinSize(ci::Vec2f(0, 0))
-	, mMaxSize(ci::Vec2f(320, 240))
+	, mMinSize(ci::vec2(0, 0))
+	, mMaxSize(ci::vec2(320, 240))
 	, mSpacing(0)
 	, mTextAlignment(TextAlignment::LEFT)
 	, mDefaultTextWeight(TextWeight::NORMAL)
@@ -571,3 +571,4 @@ TextRenderer TextPango::getTextRenderer() {
 } // namespace ds
 
 #endif
+

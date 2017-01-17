@@ -21,3 +21,4 @@ public:
 } // !namespace perspective_picking
 
 #endif // !_PERSPECTIVEPICKING_APP_MODEL_ALLSTORIES_H_
+

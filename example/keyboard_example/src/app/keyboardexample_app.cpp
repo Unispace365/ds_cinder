@@ -101,7 +101,7 @@ void KeyboardExample::setupServer(){
 	ef->setPosition(100.0f, 100.0f);
 
 	ds::ui::SoftKeyboardSettings sks;
-	sks.mKeyTextOffset = mGlobals.getSettingsLayout().getSize("keyboard:text_offset", 0, ci::Vec2f::zero());
+	sks.mKeyTextOffset = mGlobals.getSettingsLayout().getSize("keyboard:text_offset", 0, ci::vec2::zero());
 	ds::ui::SoftKeyboard* sk = ds::ui::SoftKeyboardBuilder::buildStandardKeyboard(mEngine, sks);
 	rootSprite.addChildPtr(sk);
 	sk->setPosition(mEngine.getWorldWidth() / 2.0f - sk->getWidth()/2.0f, mEngine.getWorldHeight() / 2.0f - sk->getHeight()/2.0f);

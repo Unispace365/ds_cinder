@@ -285,3 +285,4 @@ void sync_video_player::keyDown(ci::app::KeyEvent event){
 
 // This line tells Cinder to actually create the application
 CINDER_APP(ds::sync_video_player, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

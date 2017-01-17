@@ -41,3 +41,4 @@ private:
 } // !namespace nwm
 
 #endif // !_TRIANGLE_MAN_APP_QUERY_QUERYHANDLER_H_
+

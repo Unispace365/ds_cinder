@@ -55,3 +55,4 @@ private:
 } // !namespace mv
 
 #endif // !_MEDIAVIEWER_APP_H_
+

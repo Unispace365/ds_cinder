@@ -81,3 +81,4 @@ void XmlSettingsSetting::keyDown(ci::app::KeyEvent event){
 
 // This line tells Cinder to actually create the application
 CINDER_APP(setter::XmlSettingsSetting, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

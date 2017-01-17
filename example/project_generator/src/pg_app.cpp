@@ -4,7 +4,7 @@
 /* It scans the full_starter project located in %ds_platform_090%       */
 /************************************************************************/
 
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <ds/app/app.h>
 #include <ds/app/engine/engine.h>
 #include <cinder/params/Params.h>
@@ -354,3 +354,5 @@ void ProjectGeneratorApp::setupServer()
 
 // This line tells Cinder to actually create the application
 CINDER_APP(ProjectGeneratorApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+
+

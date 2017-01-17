@@ -40,3 +40,4 @@ private:
 } // !namespace perspective_picking
 
 #endif // !_PERSPECTIVEPICKING_APP_QUERY_QUERYHANDLER_H_
+

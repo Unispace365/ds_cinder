@@ -36,3 +36,4 @@ public:
 } // !namespace ds
 
 #endif // !_SYNC_VIDEO_PLAYER_APP_GLOBALS_
+

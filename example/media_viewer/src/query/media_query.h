@@ -27,3 +27,4 @@ private:
 } // !namespace mv
 
 #endif //!_MEDIAVIEWER_APP_QUERY_INDUSTRY_QUERY_H_
+

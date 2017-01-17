@@ -32,3 +32,4 @@ private:
 } // !namespace setter
 
 #endif // !_XMLSETTINGSSETTING_APP_H_
+

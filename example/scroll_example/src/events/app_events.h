@@ -19,3 +19,4 @@ public:
 } // !namespace example
 
 #endif // !_SCROLLEXAMPLE_APP_APPEVENTS_H_
+

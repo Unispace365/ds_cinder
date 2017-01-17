@@ -1,4 +1,4 @@
-﻿#include "story_view.h"
+#include "story_view.h"
 
 #include <Poco/LocalDateTime.h>
 
@@ -169,7 +169,7 @@ void StoryView::updateServer(const ds::UpdateParams& p){
 
 			"<span foreground='blue'>blue text</span> "
 			//"<black>Bold Text</black> "
-			//	"<span foreground=\"green\" font=\"24.0\">Green téxt</span> "
+			//	"<span foreground=\"green\" font=\"24.0\">Green t�xt</span> "
 			//	"<span foreground=\"red\" font=\"Times 48.0\">Red text</span> "
 			//	"<span foreground=\"blue\" font=\"Gravur Condensed Pro 72.0\">AVAVAVA Blue text</span> "
 			//"<i>Italic Text </i> "
@@ -210,3 +210,5 @@ void StoryView::drawLocalClient(){
 
 
 } // namespace pango
+
+

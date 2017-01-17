@@ -41,3 +41,4 @@ private:
 } // !namespace example
 
 #endif // !_PNGSEQUENCEEXAMPLE_APP_H_
+

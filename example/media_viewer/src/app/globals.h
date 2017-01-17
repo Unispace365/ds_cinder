@@ -46,3 +46,4 @@ private:
 } // !namespace mv
 
 #endif // !_MEDIAVIEWER_APP_GLOBALS_
+

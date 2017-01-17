@@ -21,3 +21,4 @@ public:
 } // !namespace example
 
 #endif // !_SCROLLEXAMPLE_APP_MODEL_ALLSTORIES_H_
+

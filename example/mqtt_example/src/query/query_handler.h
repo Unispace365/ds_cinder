@@ -41,3 +41,4 @@ private:
 } // !namespace example
 
 #endif // !_MQTT_EXAMPLE_APP_QUERY_QUERYHANDLER_H_
+

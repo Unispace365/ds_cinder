@@ -19,3 +19,4 @@ public:
 } // !namespace example
 
 #endif // !_LAYOUT_EXAMPLE_APP_APPEVENTS_H_
+

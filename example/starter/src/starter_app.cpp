@@ -1,4 +1,4 @@
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <ds/app/app.h>
 #include <ds/app/engine/engine.h>
 
@@ -25,3 +25,5 @@ void BasicTweenApp::setupServer()
 
 // This line tells Cinder to actually create the application
 CINDER_APP(BasicTweenApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+
+

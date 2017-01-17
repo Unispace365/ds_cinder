@@ -45,3 +45,4 @@ private:
 } // !namespace pango
 
 #endif // !_PANGO_APP_GLOBALS_
+

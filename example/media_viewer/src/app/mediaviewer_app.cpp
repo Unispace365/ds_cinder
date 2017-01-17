@@ -244,3 +244,4 @@ void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 
 // This line tells Cinder to actually create the application
 CINDER_APP(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))// , [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
+

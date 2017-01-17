@@ -40,3 +40,4 @@ private:
 } // !namespace example
 
 #endif // !_SIMPLEVIDEOPLAYER_APP_QUERY_QUERYHANDLER_H_
+

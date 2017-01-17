@@ -50,3 +50,5 @@ void StoryQuery::query(AllStories& output) {
 }
 
 } // !namespace example
+
+

@@ -88,7 +88,7 @@ void SettingsUi::registerSettings(const ds::cfg::Settings* settings){
 			editor.setSize(key, value.xy()); };
 
 		const std::function<ci::vec3()> &getterFn = [this, settings, key](){
-			ci::Vec2f sizey = settings->getSize(key);
+			ci::vec2 sizey = settings->getSize(key);
 			return ci::vec3(sizey.x, sizey.y, 0.0f);
 		};
 
@@ -119,3 +119,5 @@ void SettingsUi::toggleVisibility(){
 
 
 } // namespace setter
+
+

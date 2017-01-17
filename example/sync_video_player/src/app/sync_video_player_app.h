@@ -44,3 +44,4 @@ private:
 } // !namespace ds
 
 #endif // !_SYNC_VIDEO_PLAYER_APP_H_
+

@@ -253,3 +253,4 @@ void ScrollExample::moveCamera(const ci::vec3& deltaMove){
 
 // This line tells Cinder to actually create the application
 CINDER_APP(example::ScrollExample, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

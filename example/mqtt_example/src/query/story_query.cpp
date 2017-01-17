@@ -30,3 +30,5 @@ void StoryQuery::query(AllData& output) {
 }
 
 } // !namespace example
+
+

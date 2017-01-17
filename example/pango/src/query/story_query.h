@@ -28,3 +28,4 @@ private:
 } // !namespace pango
 
 #endif //!_PANGO_APP_QUERY_INDUSTRY_QUERY_H_
+

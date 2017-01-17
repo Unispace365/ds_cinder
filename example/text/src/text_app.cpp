@@ -1,4 +1,4 @@
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <ds/app/app.h>
 #include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
@@ -41,3 +41,5 @@ void TextApp::setupServer() {
 
 // This line tells Cinder to actually create the application
 CINDER_APP( TextApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_8) )
+
+

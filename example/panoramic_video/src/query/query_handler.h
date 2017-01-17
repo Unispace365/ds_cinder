@@ -41,3 +41,4 @@ private:
 } // !namespace panoramic
 
 #endif // !_PANORAMICVIDEO_APP_QUERY_QUERYHANDLER_H_
+

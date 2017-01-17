@@ -37,3 +37,4 @@ public:
 } // !namespace panoramic
 
 #endif // !_PANORAMICVIDEO_APP_APPEVENTS_H_
+
