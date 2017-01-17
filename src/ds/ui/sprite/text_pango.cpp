@@ -597,7 +597,7 @@ bool TextPango::render(bool force) {
 				pango_layout_set_text(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
 			}
 
-			mWrappedText = static_cast<bool>(pango_layout_is_wrapped(mPangoLayout));
+			mWrappedText = pango_layout_is_wrapped(mPangoLayout) != FALSE;
 			mNumberOfLines = pango_layout_get_line_count(mPangoLayout); 
 
 			// Measure text

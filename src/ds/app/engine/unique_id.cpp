@@ -1,7 +1,9 @@
 //#include "stdafx.h"
 
 // Turn off an unnecessary warning in the boost GUID
+#ifndef _SCL_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
+#endif
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include <boost/asio.hpp>
