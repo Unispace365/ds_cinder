@@ -7,6 +7,7 @@
 
 #include "app/app_defs.h"
 #include "app/globals.h"
+#include <cinder/app/RendererGl.h>
 
 #include "events/app_events.h"
 

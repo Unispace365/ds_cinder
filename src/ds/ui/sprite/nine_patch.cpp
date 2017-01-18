@@ -185,8 +185,8 @@ ci::vec2 NinePatch::Cell::size() const
 void NinePatch::Cell::draw(const ci::gl::TextureRef tex)
 {
 	if (!mIsValid) return;
-	// TODO
-//	ci::gl::draw(tex, mSrc, mDst);
+
+	ci::gl::draw(tex, mSrc, mDst);
 }
 
 void NinePatch::Cell::print(const int tabs) const

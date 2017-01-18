@@ -1,20 +1,17 @@
-#version 120
+#version 150
 
-varying vec2 position_interpolated;
-varying vec2 texture_interpolated;
-
-uniform bool useTexture;
+uniform mat4	ciModelViewProjection;
+in vec4			ciPosition;
+in vec4			ciColor;
+out vec4		Color;
+in vec2			ciTexCoord0;
+out vec2		TexCoord0;
 
 void main()
 {
-	position_interpolated = gl_Vertex.xy;
-	if(useTexture) {
-		texture_interpolated = texture_interpolated;
-	}
+    gl_Position = ciModelViewProjection * ciPosition;
+ //   gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
+   TexCoord0 = ciTexCoord0;
 
-    gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
-    gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;
-    gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;
-
-    gl_FrontColor = gl_Color;
+    Color = ciColor;
 }

@@ -4,9 +4,10 @@
 	* Vec3f, Vec3i, Vec2f, Vec2i
 	* Macro that launches the app
 	* Cinder app basic #include
-	*
+	* NOTE: You'll likely need to add this to your main app file's cpp: #include <cinder/app/RendererGl.h>
 
 * Global Changes
+	* References to cinder::AppBase need to change to cinder::App
 	* Cinder readmes: 
 	    * Overall 0.9 readme: https://libcinder.org/notes/v0.9.0
 		* Transitioning: https://libcinder.org/docs/guides/transition_0_9/index.html
@@ -31,3 +32,4 @@
 	* Justify alignment is now available
 	* A lightweight markup language is available (see ds/ui/sprite/text_pango.h for usage)
 	* Leading and font size should match pretty closely to the previous implementation, though there might be slight rendering differences
+	* When a ds_cinder app runs for the first time on a machine, or after a new font has been added, pango will need to scan the fonts on the system to create a font map. This could take a long time, up to a minute or two on slow systems with lots of fonts. After the initial build, subsequent font map builds will be fast.
