@@ -33,3 +33,7 @@
 	* A lightweight markup language is available (see ds/ui/sprite/text_pango.h for usage)
 	* Leading and font size should match pretty closely to the previous implementation, though there might be slight rendering differences
 	* When a ds_cinder app runs for the first time on a machine, or after a new font has been added, pango will need to scan the fonts on the system to create a font map. This could take a long time, up to a minute or two on slow systems with lots of fonts. After the initial build, subsequent font map builds will be fast.
+	
+* Potential trouble spots
+	* SQlite has been updated, so if you're using any uncommon sqlite functions (FTS for example), you'll want to check those
+	* If you were using an uncommon startup macro, you may need to update it to something like this: CINDER_APP( ExampleApp,  ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)) )
