@@ -81,10 +81,13 @@ void Border::drawLocalClient() {
 		ci::gl::lineWidth(mBorderWidth);
 		ci::gl::drawStrokedRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
 		return; 
-	} 
+	} else {
+		ci::gl::lineWidth(mBorderWidth);
+		ci::gl::drawStrokedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+	}
 
 	if(!mVertices) return;
-	DS_LOG_WARNING("Fix me! Border drawLocalClient");
+	//DS_LOG_WARNING("Fix me! Border drawLocalClient");
 	// TODO
 	/*
 	glEnableClientState(GL_VERTEX_ARRAY);
