@@ -54,7 +54,6 @@ const static std::string whiteboard_point_frag =
 "newColor.g *= brushColor.a * oColor.g;\n"
 "newColor.b *= brushColor.a * oColor.b;\n"
 "newColor *= oColor.a;\n"
-"newColor.r = 1.0;\n newColor.g=0.5;\n newColor.b=0.5;\n newColor.a=0.4;\n"
 "oColor = newColor;\n"
 //NEON EFFECTS!//"gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(1.0/2.2));"
 "}\n";
@@ -340,7 +339,6 @@ void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end){
 	//ci::gl::SaveFramebufferBinding bindingSaver;
 	mFboGeneral->attach(mDrawTexture);
 	mFboGeneral->begin();
-	mDrawTexture->bind(0);
 
 	ci::Area fboBounds(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
 	//ci::gl::setViewport(fboBounds);
