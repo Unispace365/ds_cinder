@@ -29,6 +29,8 @@ DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &s
 	mTouchTrailsLength = settings.getInt("touch_overlay:trails:length", 0, mTouchTrailsLength);
 	mTouchTrailsIncrement = settings.getFloat("touch_overlay:trails:increment", 0, mTouchTrailsIncrement);
 
+	mTouchTrailsUse = false;
+
 	if(mTouchTrailsUse){
 		setTransparent(false); 
 		setColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
