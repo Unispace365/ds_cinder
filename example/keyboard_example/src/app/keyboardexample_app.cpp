@@ -49,8 +49,8 @@ KeyboardExample::KeyboardExample()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSansCJKsc-Thin.otf"), "noto-thin");
+	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
+	mEngine.editFonts().install("Noto Sans", "noto-thin");
 
 	enableCommonKeystrokes(true);
 }
@@ -101,7 +101,7 @@ void KeyboardExample::setupServer(){
 	ef->setPosition(100.0f, 100.0f);
 
 	ds::ui::SoftKeyboardSettings sks;
-	sks.mKeyTextOffset = mGlobals.getSettingsLayout().getSize("keyboard:text_offset", 0, ci::vec2::zero());
+	sks.mKeyTextOffset = mGlobals.getSettingsLayout().getSize("keyboard:text_offset", 0, ci::vec2());
 	ds::ui::SoftKeyboard* sk = ds::ui::SoftKeyboardBuilder::buildStandardKeyboard(mEngine, sks);
 	rootSprite.addChildPtr(sk);
 	sk->setPosition(mEngine.getWorldWidth() / 2.0f - sk->getWidth()/2.0f, mEngine.getWorldHeight() / 2.0f - sk->getHeight()/2.0f);

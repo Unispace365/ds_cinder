@@ -26,7 +26,7 @@ GlobeView::GlobeView(Globals& g)
 	mGlow->setSize(radius*2.9f, radius*2.9f);
 	mGlow->setTransparent(false);
 	mGlow->setColor(ci::Color::hex(0xccddff));
-	mGlow->getUniform().setVec4f("size", ci::Vec4f(mGlow->getWidth(), mGlow->getHeight(), 0, 0));
+	mGlow->getUniform().setVec4f("size", ci::vec4(mGlow->getWidth(), mGlow->getHeight(), 0, 0));
 	addChild(*mGlow);
 	mGlow->sendToBack();
 
@@ -54,11 +54,11 @@ GlobeView::GlobeView(Globals& g)
 
 }
 
-void GlobeView::drawClient(const ci::Matrix44f &trans, const ds::DrawParams &drawParams){
+void GlobeView::drawClient(const ci::mat4 &trans, const ds::DrawParams &drawParams){
 	if(visible()) {
 		mGlobeMesh.setRotation(ci::vec3(mGlobeMesh.getRotation().x + mXMomentum.getDelta(), mGlobeMesh.getRotation().y + 0.1f + mYMomentum.getDelta(), 0.0f));
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(0);
-		mGlobeMesh.getUniform().setVec4f("camPos", ci::Vec4f(p.mPosition, 1.0f));
+		mGlobeMesh.getUniform().setVec4f("camPos", ci::vec4(p.mPosition, 1.0f));
 		auto modelMat = mGlobeMesh.getGlobalTransform();
 		mGlobeMesh.getUniform().setMatrix44f("modelMatrix", modelMat);
 	}

@@ -88,6 +88,8 @@ public:
 	\param b Blue component of the color from 0.0 to 1.0 */
 	virtual void				setColor(float r, float g, float b) override;
 
+	virtual void				setColorA(const ci::ColorA&) override;
+
 	/// The font name must match a family or face name installed on the system. Will warn and use a default if the desired font is not installed
 	TextPango&					setFont(const std::string& name);
 	TextPango&					setFont(const std::string& name, const float fontSize); // provided for compatibility with the old api

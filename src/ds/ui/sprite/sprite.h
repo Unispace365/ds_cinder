@@ -415,7 +415,7 @@ namespace ui {
 		/** A convenience to set the color and the opacity.
 			The alpha component of the color will set the opacity.
 			Setting the opacity after this call will overwrite this value. */
-		void					setColorA(const ci::ColorA&);
+		virtual void			setColorA(const ci::ColorA&);
 
 		/** A convenience to get the color and the opacity.
 			The alpha component of the color is the opacity.*/

@@ -44,7 +44,7 @@ https_example::https_example()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
 
 	enableCommonKeystrokes(true);
 }

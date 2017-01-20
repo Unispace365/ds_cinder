@@ -5,6 +5,8 @@
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 
+#include <cinder/app/RendererGl.h>
+
 #include "app/app_defs.h"
 #include "app/globals.h"
 

@@ -25,7 +25,7 @@ private:
 	ds::ui::Sprite&		mTouchGrabber;
 	ds::ui::Sprite*		mGlow;
 
-	virtual void		drawClient(const ci::Matrix44f &trans, const ds::DrawParams &drawParams);
+	virtual void		drawClient(const ci::mat4 &trans, const ds::DrawParams &drawParams);
 
 	DelayedMomentum		mXMomentum;
 	DelayedMomentum		mYMomentum;

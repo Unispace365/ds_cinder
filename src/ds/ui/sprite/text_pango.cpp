@@ -21,7 +21,7 @@
 namespace {
 // Pango/cairo output is premultiplied colors, so rendering it with opacity fades like you'd expect with other sprites
 // requires a custom shader that multiplies in the rest of the opacity setting
-	const std::string opacityFrag =
+const std::string opacityFrag =
 "uniform sampler2D	tex0;\n"
 "uniform float		opaccy;\n"
 "in vec4			Color;\n"
@@ -29,9 +29,13 @@ namespace {
 "out vec4			oColor;\n"
 "void main()\n"
 "{\n"
-"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+//"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
 "    oColor = texture2D( tex0, vec2(TexCoord0.x, 1.0-TexCoord0.y) );\n"
-"    oColor *= Color;\n"
+//"    oColor.r = Color.r;\n"
+//"    oColor.g = Color.g;\n"
+//"    oColor.b = Color.b;\n"
+//"    oColor *= Color;\n"
+"    oColor.rgb /= oColor.a;\n"
 "    oColor *= opaccy;\n"
 "}\n";
 
@@ -358,6 +362,11 @@ void TextPango::setColor(float r, float g, float b){
 	setTextColor(ci::Color(r, g, b));
 }
 
+void TextPango::setColorA(const ci::ColorA& c){
+	setTextColor(ci::Color(c));
+	setOpacity(c.a);
+}
+
 TextPango& TextPango::setFont(const std::string& font, const float fontSize) {
 	if(mTextFont != font || mTextSize != fontSize) {
 		mTextFont = mEngine.getFonts().getFileNameFromName(font);
@@ -408,9 +417,10 @@ void TextPango::drawLocalClient(){
 	if(mTexture && !mText.empty()){
 
 		// ignore the "color" setting
+		//ci::gl::color(mTextColor);
 		ci::gl::color(ci::Color::white());
 		// The true flag is for premultiplied alpha, which this texture is
-		ci::gl::enableAlphaBlending(true);		
+	//	ci::gl::enableAlphaBlendingPremult();
 		ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
 		if(shaderBase) {
 			shaderBase->bind();
@@ -519,10 +529,10 @@ bool TextPango::render(bool force) {
 		if(force || mNeedsFontOptionUpdate) {
 			// TODO, expose these?
 			
-			cairo_font_options_set_antialias(mCairoFontOptions, CAIRO_ANTIALIAS_DEFAULT);
+			cairo_font_options_set_antialias(mCairoFontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
 			cairo_font_options_set_hint_style(mCairoFontOptions, CAIRO_HINT_STYLE_DEFAULT);
 			cairo_font_options_set_hint_metrics(mCairoFontOptions, CAIRO_HINT_METRICS_ON);
-			//cairo_font_options_set_subpixel_order(mCairoFontOptions, CAIRO_SUBPIXEL_ORDER_RGB);
+			cairo_font_options_set_subpixel_order(mCairoFontOptions, CAIRO_SUBPIXEL_ORDER_RGB);
 
 			pango_cairo_context_set_font_options(mPangoContext, mCairoFontOptions);
 
@@ -697,7 +707,7 @@ bool TextPango::render(bool force) {
 			}
 
 			// Draw the text into the buffer
-			cairo_set_source_rgb(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b);// , getDrawOpacity());
+			cairo_set_source_rgba(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b , getDrawOpacity());
 			pango_cairo_update_layout(mCairoContext, mPangoLayout);
 			pango_cairo_show_layout(mCairoContext, mPangoLayout);
 

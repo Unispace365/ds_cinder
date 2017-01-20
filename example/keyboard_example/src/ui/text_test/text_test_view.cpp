@@ -58,9 +58,9 @@ TextTest::TextTest(Globals& g)
 			overlay->setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
 			overlay->setPosition(possy.x, possy.y);
 			if(possyTwo.x > 0.0f){
-				overlay->setSize(possyTwo.x - possy.x, mMessage->getPixelFontHeight());
+				overlay->setSize(possyTwo.x - possy.x, mMessage->getFontSize());
 			} else {
-				overlay->setSize(mMessage->getWidth() - possy.x, mMessage->getPixelFontHeight());
+				overlay->setSize(mMessage->getWidth() - possy.x, mMessage->getFontSize());
 			}
 			overlay->setOpacity(0.5f);
 			mCharacterOverlays.push_back(overlay);
@@ -69,7 +69,7 @@ TextTest::TextTest(Globals& g)
 
 	layout();
 
-	setPosition(mGlobals.getSettingsLayout().getSize("text:test:offset", 0, ci::vec2::zero()));
+	setPosition(mGlobals.getSettingsLayout().getSize("text:test:offset", 0, ci::vec2()));
 
 }
 
