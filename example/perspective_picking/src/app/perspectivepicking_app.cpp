@@ -1,5 +1,7 @@
 #include "perspectivepicking_app.h"
 
+#include <cinder/app/RendererGl.h>
+
 #include <Poco/String.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>

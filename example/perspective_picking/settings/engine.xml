@@ -31,7 +31,7 @@
 	<!-- title of the window -->
 	<text name="screen:title" value="PerspectivePicking" />	
 	<!-- screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window -->
-	<text name="screen:mode" value="window" />
+	<text name="screen:mode" value="borderless" />
 	<!-- makes the window an always-on-top sort of window. default=false -->
 	<text name="screen:always_on_top" value="false" />
 
@@ -43,12 +43,6 @@
 
 	<!-- false=no cursor visible, true=visible cursor. default=false -->
 	<text name="hide_mouse" value="false" />
-
-	<!-- turns Fx Anti-aliasing on or off. default=false -->
-	<text name="FxAA" value="false" />
-	<float name="FxAA:SpanMax" value="2.0"/>
-	<float name="FxAA:ReduceMul" value="8.0" />
-	<float name="FxAA:ReduceMin" value="128.0" />
 
 	<!-- for perspective cameras, how near and far away to clip crap. default: x=1, y=1000 -->
 	<size name="camera:z_clip" x="1.0" y="1000.0" />
@@ -80,15 +74,6 @@
 	<text name="touch_smoothing" value="true" />
 	<!-- how many frames to use when smoothing. Higher numbers are smoother. Lower than 3 is effectively off. default=5 -->
 	<int  name="touch_smooth_frames" value="8" />
-	
-	<!-- Touch trails are special debug drawing that leaves a trail behind the touches.
-			use: true turns this on (overrides the stroked cirlce debug drawing (touch_overlay:debug must be true for this to be on)
-			length: how many touch points to keep in the tail
-			increment: how much bigger to make each touch point. Effective max size = (length-1) * increment.
-			Defaults: use=false, length=5, increment=5. Effective size of 20 pixel radius circle. -->
-	<text  name="touch_overlay:trails:use" value="true" />
-	<int   name="touch_overlay:trails:length" value="5" />
-	<float name="touch_overlay:trails:increment" value="5.0" />
 	
 	<!-- Set the current touch mode. Options:
 		"Tuio" -- Receive events over TUIO.

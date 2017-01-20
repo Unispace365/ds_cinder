@@ -43,7 +43,7 @@ StoryView::StoryView(Globals& g)
 			auto touchPos = bs->globalToLocal(ti.mCurrentGlobalPoint);
 			
 			if(mPangoText){
-				int indexy = mPangoText->getCharacterIndexForPosition(touchPos.xy());
+				int indexy = mPangoText->getCharacterIndexForPosition(ci::vec2(touchPos));
 				auto possy = mPangoText->getPositionForCharacterIndex(indexy);
 				auto globby = mPangoText->localToGlobal(ci::vec3(possy, 0.0f));
 				auto loccy = globalToLocal(globby);

@@ -170,12 +170,12 @@ void VideoList::animateOn(){
 	show();
 	tweenOpacity(1.0f, 0.35f);
 //	tweenAnimateOn(true, 0.0f, 0.05f);
-	tweenScale(ci::vec3::one(), 0.35f, 0.0f, ci::easeOutQuint);
+	tweenScale(ci::vec3(1.0f, 1.0f, 1.0f), 0.35f, 0.0f, ci::easeOutQuint);
 }
 
 void VideoList::animateOff(){
 	tweenOpacity(0.0f, 0.35f);
-	tweenScale(ci::vec3::zero(), 0.35f, 0.0f, ci::easeInQuint, [this]{ hide(); });
+	tweenScale(ci::vec3(), 0.35f, 0.0f, ci::easeInQuint, [this]{ hide(); });
 }
 
 

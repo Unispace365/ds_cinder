@@ -25,9 +25,10 @@ PngSequenceExample::PngSequenceExample()
 	, mTouchDebug(mEngine)
 {
 
+	/// NOTE! you have to drop a series of images onto the app to display a png sequence
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
 
 	enableCommonKeystrokes(true);
 }
@@ -161,5 +162,6 @@ void PngSequenceExample::fileDrop(ci::app::FileDropEvent event){
 } // namespace example
 
 // This line tells Cinder to actually create the application
-CINDER_APP(example::PngSequenceExample, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(example::PngSequenceExample, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
 

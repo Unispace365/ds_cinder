@@ -3,6 +3,8 @@
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/pdf.h>
 
+#include <cinder/app/RendererGl.h>
+
 using namespace std;
 using namespace ci;
 using namespace ci::app;
@@ -31,19 +33,20 @@ void BasicTweenApp::setupServer() {
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
-	ds::ui::Pdf&	pdf = ds::ui::Sprite::makeAlloc<ds::ui::Pdf>([this]()->ds::ui::Pdf*{return new ds::ui::Pdf(this->mEngine);}, &rootSprite);
-	mPdf = &pdf;
+	mPdf = new ds::ui::Pdf(mEngine);
 #if 0
 	// By default the PDF sprite will use the first page size, and scale any subsequent...
-	pdf.setResourceFilename(ds::Environment::getAppFolder("data", "bitcoin.pdf"));
+	mPdf->setResourceFilename(ds::Environment::getAppFolder("data", "bitcoin.pdf"));
 #else
 	// Or you can turn on auto resize and the sprite will resize when the page size changes
-	pdf.setPageSizeMode(ds::ui::Pdf::kAutoResize);
-	pdf.setResourceFilename(ds::Environment::getAppFolder("data", "multi_sizes.pdf"));
-	pdf.setPageSizeChangedFn([](){std::cout << "change" << std::endl;});
+	mPdf->setPageSizeMode(ds::ui::Pdf::kAutoResize);
+	mPdf->setResourceFilename(ds::Environment::getAppFolder("data", "multi_sizes.pdf"));
+	mPdf->setPageSizeChangedFn([](){std::cout << "change" << std::endl; });
 #endif
-	pdf.setCenter(0.5f, 0.5f);
-	pdf.setPosition(floorf(mEngine.getWorldWidth()/2.0f), floorf(mEngine.getWorldHeight()/2.0f));
+	mPdf->setCenter(0.5f, 0.5f);
+	mPdf->setPosition(floorf(mEngine.getWorldWidth() / 2.0f), floorf(mEngine.getWorldHeight() / 2.0f));
+
+	rootSprite.addChildPtr(mPdf);
 }
 
 void BasicTweenApp::fileDrop(ci::app::FileDropEvent event){
@@ -77,6 +80,6 @@ void BasicTweenApp::mouseUp(MouseEvent e) {
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP( BasicTweenApp, RendererGl )
+CINDER_APP(BasicTweenApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
 
 

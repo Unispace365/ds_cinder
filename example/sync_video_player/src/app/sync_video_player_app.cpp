@@ -1,5 +1,7 @@
 #include "sync_video_player_app.h"
 
+#include <cinder/app/RendererGl.h>
+
 #include <Poco/String.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
@@ -25,7 +27,7 @@ sync_video_player::sync_video_player()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
 	enableCommonKeystrokes(true);
 }
 
@@ -284,5 +286,6 @@ void sync_video_player::keyDown(ci::app::KeyEvent event){
 } // namespace ds
 
 // This line tells Cinder to actually create the application
-CINDER_APP(ds::sync_video_player, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(ds::sync_video_player, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
 

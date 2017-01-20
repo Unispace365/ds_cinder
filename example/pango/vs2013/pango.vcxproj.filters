@@ -25,9 +25,6 @@
     <ClCompile Include="..\src\model\generated\media_model.cpp">
       <Filter>src\model\generated</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ui\sprite\pango_sprite.cpp">
-      <Filter>src\ui\sprite</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h">
@@ -59,9 +56,6 @@
     </ClInclude>
     <ClInclude Include="..\src\model\generated\media_model.h">
       <Filter>src\model\generated</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ui\sprite\pango_sprite.h">
-      <Filter>src\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -96,9 +90,6 @@
     </Filter>
     <Filter Include="src\ui\story">
       <UniqueIdentifier>{6ee7ca9f-f1f5-4bd4-a2c4-ec43623a5071}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ui\sprite">
-      <UniqueIdentifier>{8cd91ec9-b296-4414-8138-af84f7277282}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>

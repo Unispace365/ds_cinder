@@ -8,6 +8,7 @@
 #include <ds/app/app.h>
 #include <ds/app/engine/engine.h>
 #include <cinder/params/Params.h>
+#include <cinder/app/RendererGl.h>
 #include <Poco/DateTimeFormatter.h>
 #include <Poco/LocalDateTime.h>
 #include <boost/regex.hpp>
@@ -24,6 +25,7 @@ class ProjectGeneratorApp : public ds::App {
   private:
     typedef ds::App   inherited;
 };
+
 
 ProjectGeneratorApp::ProjectGeneratorApp()
 {
@@ -72,7 +74,7 @@ public:
 		, mTemplateNamespace("fullstarter")
 		, mTemplateHeadguard("FULLSTARTER")
 	{
-		mParams = ci::params::InterfaceGl::create(ci::app::getWindow(), "App parameters", ci::app::toPixels(ci::Vec2i(600, 250)));
+		mParams = ci::params::InterfaceGl::create(ci::app::getWindow(), "App parameters", ci::app::toPixels(ci::ivec2(600, 250)));
 		setTransparent(false);
 
 		mParams->addText("status", "label=`Please modify the following values and hit Generate.`");
@@ -88,7 +90,7 @@ public:
 		mParams->addSeparator();
 		
 		mParams->addButton("Generate", [this](){ generate(); }, "");
-		mParams->setOptions()("", "valueswidth=450");
+		mParams->setOptions("", "valueswidth=450");
 
 		if (mEngine.getDebugSettings().getTextSize("template:path") > 0) {
 			mTemplatePath = mEngine.getDebugSettings().getText("template:path");
@@ -111,7 +113,7 @@ public:
 	{
 		Poco::LocalDateTime now;
 		std::string msg = "label=`Generated " + mAppName + " (" + Poco::DateTimeFormatter::format(now, "%H:%M:%S.%i") + ").`";
-		mParams->setOptions()("status", msg);
+		mParams->setOptions("status", msg);
 
 		analyzeWorkingDirectory();
 	}
@@ -119,7 +121,7 @@ public:
 	virtual void drawLocalClient() {
 		// Draw the interface
 		mParams->draw();
-		mParams->setPosition(ci::Vec2i(20, 25));
+		mParams->setPosition(ci::ivec2(20, 25));
 	}
 
 	void copyTemplate() {

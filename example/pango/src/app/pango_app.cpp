@@ -48,7 +48,7 @@ PangoApp::PangoApp()
 
 	enableCommonKeystrokes(true);
 
-	mEngine.getPangoFontService().loadFont(ds::Environment::expand("%APP%/data/fonts/Calibre-Bold.otf"));
+	//mEngine.getPangoFontService().loadFont(ds::Environment::expand("%APP%/data/fonts/Calibre-Bold.otf"));
 }
 
 void PangoApp::setupServer(){

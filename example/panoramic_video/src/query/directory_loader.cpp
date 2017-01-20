@@ -28,7 +28,7 @@ void DirectoryLoader::run() {
 
 void DirectoryLoader::query(AllData& output) {
 	std::string dirPath = ds::Environment::expand("%DOCUMENTS%/downstream/panoramic_video/");
-	if(!ds::FileMetaData::safeFileExistsCheck(dirPath)){
+	if(!ds::safeFileExistsCheck(dirPath)){
 		std::cout << "Panoramic videos folder doesn't exist! Make one and add videos at " << dirPath << std::endl;
 		return;
 	}

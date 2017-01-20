@@ -204,5 +204,6 @@ void media_tester::fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy){
 } // namespace test
 
 // This line tells Cinder to actually create the application
-CINDER_APP(test::media_tester, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)), [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
+CINDER_APP(test::media_tester, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)), 
+		   [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
 
