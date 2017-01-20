@@ -1,6 +1,7 @@
 #include "media_tester_app.h"
 
 #include <cinder/Clipboard.h>
+#include <cinder/app/RendererGl.h>
 
 #include <Poco/String.h>
 #include <Poco/Path.h>
@@ -25,7 +26,7 @@ media_tester::media_tester()
 	, mIsVideo(false)
 {
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
 
 	enableCommonKeystrokes(true);
 }
@@ -81,15 +82,15 @@ void media_tester::keyDown(ci::app::KeyEvent event){
 		}
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
 		if (mIsVideo && mMedia){
-			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(ds::ui::GstVideo::kPanLeft);
+			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(-1.0f);
 		}
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_c){
 		if (mIsVideo && mMedia){
-			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(ds::ui::GstVideo::kPanCenter);
+			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(0.0f);
 		}
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_r){
 		if (mIsVideo && mMedia){
-			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(ds::ui::GstVideo::kPanRight);
+			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(1.0f);
 		}
 	} else if (event.getChar() == KeyEvent::KEY_l){
 		loadMedia("c:/test.mp4");
@@ -203,5 +204,5 @@ void media_tester::fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy){
 } // namespace test
 
 // This line tells Cinder to actually create the application
-CINDER_APP(test::media_tester, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(test::media_tester, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)), [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
 

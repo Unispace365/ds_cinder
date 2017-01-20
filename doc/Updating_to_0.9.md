@@ -37,3 +37,6 @@
 * Potential trouble spots
 	* SQlite has been updated, so if you're using any uncommon sqlite functions (FTS for example), you'll want to check those
 	* If you were using an uncommon startup macro, you may need to update it to something like this: CINDER_APP( ExampleApp,  ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)) )
+	* Borderless windows and Filedrop: If your app has drag-n-drop file abilities and uses a borderless window, you'll need to have the window be set to borderless in the startup macro, like this:
+		CINDER_APP(YOURAPP_CLASS_NAME, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)), 
+		   [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })

@@ -33,23 +33,13 @@
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\viewers\PropertySheets\Viewers.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\mosquitto\PropertySheets\Mosquitto.props" />
   </ImportGroup>
   <ImportGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="PropertySheets">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
     <Import Project="$(DS_PLATFORM_090)\vs2013\PropertySheets\Platform_d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\physics\box2d\PropertySheets\Physics_Box2d_d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\web\cef\PropertySheets\Web_CEF_d.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\essentials\PropertySheets\Essentials_d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\video\gstreamer-1.0\PropertySheets\Video_GStreamer-1.0_d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\pdf\mupdf\PropertySheets\Pdf_MuPdf_d.props" />
-    <Import Project="$(DS_PLATFORM_090)\projects\viewers\PropertySheets\Viewers_d.props" />
     <Import Project="$(DS_PLATFORM_090)\projects\mosquitto\PropertySheets\Mosquitto_d.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
@@ -90,7 +80,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-	  <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <CustomBuildStep>
       <Command>
@@ -144,7 +134,7 @@
       </DataExecutionPrevention>
       <TargetMachine>MachineX86</TargetMachine>
       <IgnoreSpecificDefaultLibraries>%(IgnoreSpecificDefaultLibraries)</IgnoreSpecificDefaultLibraries>
-	  <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
+      <ImageHasSafeExceptionHandlers>false</ImageHasSafeExceptionHandlers>
     </Link>
     <PostBuildEvent>
       <Command />
@@ -155,29 +145,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="..\src\app\app_defs.cpp" />
-    <ClCompile Include="..\src\app\globals.cpp" />
     <ClCompile Include="..\src\app\mqtt_example_app.cpp" />
-    <ClCompile Include="..\src\model\generated\story_model.cpp" />
-    <ClCompile Include="..\src\query\query_handler.cpp" />
-    <ClCompile Include="..\src\query\story_query.cpp" />
-    <ClCompile Include="..\src\ui\story\story_view.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h" />
-    <ClInclude Include="..\src\app\globals.h" />
     <ClInclude Include="..\src\app\mqtt_example_app.h" />
-    <ClInclude Include="..\src\events\app_events.h" />
-    <ClInclude Include="..\src\model\all_data.h" />
-    <ClInclude Include="..\src\model\generated\story_model.h" />
-    <ClInclude Include="..\src\query\query_handler.h" />
-    <ClInclude Include="..\src\query\story_query.h" />
-    <ClInclude Include="..\src\ui\story\story_view.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(DS_PLATFORM_090)\vs2013\FrameworkResources.rc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\src\model\generated\model.yml" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
