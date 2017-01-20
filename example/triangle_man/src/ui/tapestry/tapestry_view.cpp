@@ -117,7 +117,7 @@ void TapestryView::initialize(){
 	int cols = mTriangleSettings.mCols;
 	int rows = mTriangleSettings.mRows;
 
-	mMesh = ci::gl::VboMesh(cols * rows * 3, cols * rows * 3, layout, GL_TRIANGLES);
+	mMesh = ci::gl::VboMesh::create(cols * rows * 3, cols * rows * 3, layout, GL_TRIANGLES);
 	std::vector<uint32_t> indices;
 	std::vector<ci::vec3> positions;
 
@@ -181,9 +181,9 @@ void TapestryView::initialize(){
 			float posYPer2 = ih * y2 / wh;
 			float posXPer3 = iw * x3 / ww;
 			float posYPer3 = ih * y3 / wh;
-			color1 = mImageSurface.getPixel(ci::Vec2i((int)posXPer1, (int)posYPer1));
-			color2 = mImageSurface.getPixel(ci::Vec2i((int)posXPer2, (int)posYPer2));
-			color3 = mImageSurface.getPixel(ci::Vec2i((int)posXPer3, (int)posYPer3));
+			color1 = mImageSurface.getPixel(ci::ivec2((int)posXPer1, (int)posYPer1));
+			color2 = mImageSurface.getPixel(ci::ivec2((int)posXPer2, (int)posYPer2));
+			color3 = mImageSurface.getPixel(ci::ivec2((int)posXPer3, (int)posYPer3));
 
 			color1.a = alphaMin;
 			color2.a = alphaMin;
@@ -213,7 +213,7 @@ void TapestryView::initialize(){
 		mImage->setScale(ww / mImage->getWidth());
 	}
 
-	mMesh.bufferIndices(indices);
+	mMesh->bufferIndices(indices);
 	mMesh.bufferPositions(positions);
 	mMesh.bufferColorsRGBA(mColors);
 
@@ -267,7 +267,8 @@ void TapestryView::updateServer(const ds::UpdateParams& p){
 void TapestryView::drawLocalClient(){
 	if(!mInitialized) return;
 
-	mMesh.bufferColorsRGBA(mColors);
+	//mMesh.bufferAttrib(ci::geom::ColorFromAttrib)
+	//mMesh.bufferColorsRGBA(mColors);
 	ci::gl::draw(mMesh);
 }
 

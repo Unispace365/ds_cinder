@@ -33,7 +33,6 @@ WebView::WebView(Globals& g)
 	mWeb.setDrawWhileLoading(true);
 	mWeb.setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 	mWeb.loadUrl(url);
-	mWeb.activate();
 }
 
 

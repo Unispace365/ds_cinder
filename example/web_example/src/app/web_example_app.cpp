@@ -1,6 +1,7 @@
 #include "web_example_app.h"
 
 #include <cinder/Clipboard.h>
+#include <cinder/app/RendererGl.h>
 
 #include <Poco/String.h>
 #include <ds/app/environment.h>

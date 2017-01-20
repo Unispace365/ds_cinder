@@ -86,7 +86,7 @@ private:
 	std::vector<TriangleThingy>			mThingies;
 	bool								mInitialized;
 	TriangleSettings					mTriangleSettings;
-	ci::gl::VboMesh						mMesh;
+	ci::gl::VboMeshRef					mMesh;
 
 
 	void								onAppEvent(const ds::Event&);

@@ -3,7 +3,5 @@
 	<!-- Standard animation duration, in seconds. -->
 	<float name="animation:duration" value="0.2" />
 	
-	<text  name="web:url" value="http://update.downstreamdev.com/capital_partners/gltesttoo/"/>
-	<text  name="web:url" value="file:///C:/Users/Downstream/Desktop/HelloCube/index.html"/>
 	<text  name="web:url" value="http://google.com"/>
 </settings>
