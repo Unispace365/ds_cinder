@@ -33,9 +33,9 @@ void XmlSettingsSetting::setupServer(){
 
 	mEngine.loadTextCfg("text.xml");
 
-	mEngine.getRootSprite(0).clearChildren();
-	mEngine.getRootSprite(1).clearChildren();
-	mEngine.getRootSprite(2).clearChildren();
+//	mEngine.getRootSprite(0).clearChildren();
+//	mEngine.getRootSprite(1).clearChildren();
+//	mEngine.getRootSprite(2).clearChildren();
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);

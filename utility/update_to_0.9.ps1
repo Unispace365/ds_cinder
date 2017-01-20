@@ -1,4 +1,4 @@
-Write-Debug "Replacing vectors and app launch macros...";
+Write-Host "Replacing vectors and app launch macros...";
 
 # Get a list of the source files
 $FileList = Get-ChildItem -Path .\ -Include *.cpp,*.h -Recurse;
@@ -17,8 +17,8 @@ foreach ($File in $FileList) {
 		Replace("ci::Matrix44f", "ci::mat4").
 		Replace("ci::Matrix33f", "ci::mat3").
 		Replace("<cinder/app/AppBasic.h>", "<cinder/app/App.h>").
-		Replace("CINDER_APP_BASIC", "CINDER_APP");
-//		Replace('RendererGl(RendererGl::Options', 'ci::app::RendererGl(ci::app::RendererGl::Options');
+		Replace("CINDER_APP_BASIC", "CINDER_APP").
+		Replace('RendererGl(RendererGl::Options', 'ci::app::RendererGl(ci::app::RendererGl::Options');
 	
     Set-Content -Path $OutputFile -Value $Content;
 }

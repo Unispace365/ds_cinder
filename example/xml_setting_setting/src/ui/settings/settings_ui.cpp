@@ -16,7 +16,7 @@ SettingsUi::SettingsUi(Globals& g)
 	, mGlobals(g)
 {
 
-	mParams = ci::params::InterfaceGl::create(mEngine.getWindow(), "App parameters", ci::Vec2i(600, 250));
+	mParams = ci::params::InterfaceGl::create(mEngine.getWindow(), "App parameters", ci::ivec2(600, 250));
 
 	setTransparent(false);
 // 
@@ -85,7 +85,7 @@ void SettingsUi::registerSettings(const ds::cfg::Settings* settings){
 
 		const std::function<void(ci::vec3)> &setterFn = [this, settings, key](ci::vec3 value){
 			ds::cfg::Settings::Editor editor(*const_cast<ds::cfg::Settings*>(settings));
-			editor.setSize(key, value.xy()); };
+			editor.setSize(key, ci::vec2(value)); };
 
 		const std::function<ci::vec3()> &getterFn = [this, settings, key](){
 			ci::vec2 sizey = settings->getSize(key);
