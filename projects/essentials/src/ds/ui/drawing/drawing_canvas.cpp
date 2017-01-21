@@ -99,11 +99,13 @@ const char			BRUSH_IMAGE_SRC_ATT		= 82;
 const char			BRUSH_COLOR_ATT 		= 83;
 const char			BRUSH_SIZE_ATT			= 84;
 const char			CANVAS_IMAGE_PATH_ATT	= 85;
+const char			CLEAR_CANVAS_ATT		= 86;
 const DirtyState&	sPointsQueueDirty	 	= newUniqueDirtyState();
 const DirtyState&	sBrushImagePathDirty	= newUniqueDirtyState();
 const DirtyState&	sBrushColorDirty		= newUniqueDirtyState();
 const DirtyState&	sBrushSizeDirty			= newUniqueDirtyState();
 const DirtyState&	sCanvasImagePathDirty	= newUniqueDirtyState();
+const DirtyState&	sClearCanvasDirty		= newUniqueDirtyState();
 
 const int			MAX_SERIALIZED_POINTS	= 100;
 } // anonymous namespace
@@ -230,6 +232,12 @@ void DrawingCanvas::clearCanvas(){
 	mPointShader.getShader().unbind();
 	mFboGeneral->end();
 	mFboGeneral->detach();
+
+	if( mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE ||
+		mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE
+	) {
+		markAsDirty( sClearCanvasDirty );
+	}
 }
 
 void DrawingCanvas::setEraseMode(const bool eraseMode){
@@ -422,6 +430,9 @@ void DrawingCanvas::writeAttributesTo(DataBuffer& buf) {
 		buf.add(CANVAS_IMAGE_PATH_ATT);
 		mCanvasFileLoaderClient.writeTo(buf);
 	}
+	if (mDirty.has(sClearCanvasDirty)){
+		buf.add(CLEAR_CANVAS_ATT);
+	}
 
 }
 
@@ -452,6 +463,10 @@ void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
 	else if (attrid == CANVAS_IMAGE_PATH_ATT) {
 		mCanvasFileLoaderClient.readFrom(buf);
 	}
+	else if (attrid == CLEAR_CANVAS_ATT) {
+		clearCanvas();
+	}
+
 	else {
 		Sprite::readAttributeFrom(attrid, buf);
 	}
