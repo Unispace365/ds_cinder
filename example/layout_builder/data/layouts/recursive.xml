@@ -16,15 +16,15 @@
 				</xml>
 				
 				<xml name="buttThree" src="%APP%/data/layouts/recursive_button.xml" >
-					<property name="button" filename="%APP%/data/images/media_interface/prev.png"  />
+					<property name="button" filename="%APP%/data/images/layout_builder/media_interface/prev.png"  />
 					<property name="recursive_button_text.text" text="Prev" />
 				</xml>
 				<xml name="buttTwo" src="%APP%/data/layouts/recursive_button.xml" >
-					<property name="button" filename="%APP%/data/images/media_interface/next.png" />
+					<property name="button" filename="%APP%/data/images/layout_builder/media_interface/next.png" />
 					<property name="recursive_button_text.text" text="Next" />
 				</xml>
 				<xml name="buttFour" src="%APP%/data/layouts/recursive_button.xml" >
-					<property name="button" filename="%APP%/data/images/media_interface/refresh.png" />
+					<property name="button" filename="%APP%/data/images/layout_builder/media_interface/refresh.png" />
 					<property name="recursive_button_text.text" text="Refresh" />
 				</xml>
 		</layout>
