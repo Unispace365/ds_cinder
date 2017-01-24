@@ -599,27 +599,29 @@ bool TextPango::render(bool force) {
 			pango_layout_set_spacing(mPangoLayout, (int)(mTextSize * (mLeading - 1.0f)) * PANGO_SCALE);
 
 			// Set text, use the fastest method depending on what we found in the text
-			if(mProbablyHasMarkup || true) {
+			int newPixelWidth = 0;
+			int newPixelHeight = 0;
+			if(mProbablyHasMarkup){// || true) {
 				pango_layout_set_markup(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
-			} else {
+				// check the pixel size, if it's empty, then we can try again without markup
+				pango_layout_get_pixel_size(mPangoLayout, &newPixelWidth, &newPixelHeight);
+			}
+
+			if(!mProbablyHasMarkup || newPixelWidth < 1) {
 				pango_layout_set_text(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
 			}
 
 			mWrappedText = pango_layout_is_wrapped(mPangoLayout) != FALSE;
 			mNumberOfLines = pango_layout_get_line_count(mPangoLayout); 
 
-			// Measure text
-			int newPixelWidth = 0;
-			int newPixelHeight = 0;
 			// use this instead: pango_layout_get_pixel_extents
 			PangoRectangle inkRect;
 			PangoRectangle extentRect;
 			pango_layout_get_pixel_extents(mPangoLayout, &inkRect, &extentRect);
-			pango_layout_get_pixel_size(mPangoLayout, &newPixelWidth, &newPixelHeight);
 
 			// TODO: output a warning, and / or do a better job detecting and fixing issues or something
-			if((newPixelWidth == 0 || newPixelHeight == 0) && !mText.empty()){
-				DS_LOG_WARNING("No size detected for pango text size. Font not detected or invalid markup are likely causes.");
+			if((extentRect.width == 0 || extentRect.height == 0) && !mText.empty()){
+				DS_LOG_WARNING("No size detected for pango text size. Font not detected or invalid markup are likely causes. Text: " << getTextAsString());
 			}
 
 			/*

@@ -9,8 +9,12 @@ foreach ($File in $FileList) {
     $OutputFile = $File.FullName;
 	
     $Content = (Get-Content -Path $File.FullName -Raw).Replace("ci::Vec2f", "ci::vec2").
+		Replace("ci::vec2::zero()", "ci::vec2()").
+		Replace("ci::vec2::one()", "ci::vec2(1.0f, 1.0f)").
 		Replace("ci::Vec2i", "ci::ivec2").
 		Replace("ci::Vec3f", "ci::vec3").
+		Replace("ci::vec3::zero()", "ci::vec3()").
+		Replace("ci::vec3::one()", "ci::vec3(1.0f, 1.0f, 1.0f)").
 		Replace("ci::Vec3i", "ci::ivec3").
 		Replace("ci::Vec4f", "ci::vec4").
 		Replace("ci::Vec4i", "ci::ivec4").
