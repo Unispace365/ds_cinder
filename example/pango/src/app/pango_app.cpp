@@ -48,7 +48,8 @@ PangoApp::PangoApp()
 
 	enableCommonKeystrokes(true);
 
-	//mEngine.getPangoFontService().loadFont(ds::Environment::expand("%APP%/data/fonts/Calibre-Bold.otf"));
+	mEngine.getPangoFontService().loadFont(ds::Environment::expand("%APP%/data/fonts/CHLORINR.ttf"));
+	mEngine.getPangoFontService().loadFont(ds::Environment::expand("%APP%/data/fonts/FreightSans-Light.ttf"));
 }
 
 void PangoApp::setupServer(){
@@ -199,7 +200,7 @@ void PangoApp::keyDown(ci::app::KeyEvent event){
 	} else if(event.getCode() == KeyEvent::KEY_i){
 		forceStartIdleMode();
 	} else if(event.getCode() == KeyEvent::KEY_p){
-		mEngine.getPangoFontService().logFonts(false);
+	//	mEngine.getPangoFontService().logFonts(false);
 	}
 }
 

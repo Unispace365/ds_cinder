@@ -107,6 +107,7 @@ void Image::drawLocalClient()
 
 		tex->bind();
 		ci::gl::drawSolidRect(useRect);
+		tex->unbind();
 
 		// TODO
 		/*

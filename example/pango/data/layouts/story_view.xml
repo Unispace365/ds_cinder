@@ -26,7 +26,23 @@
 					/>
 		
 				<text name="message a"
-					font_name="Arial"
+					font_name="Comic Sans MS"
+					font_size="36"
+					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					blend_mode="normal"
+					color="white"
+					font_color="white"
+					resize_limit="1400"
+					layout_fudge="0.0"
+					t_pad="20"
+					l_pad="20"
+					opacity="0.5"
+					layout_size_mode="flex"
+					text="<span foreground='green' strikethrough='true' strikethrough_color='red' weight='bold'>Se	goe and other things</span> <span foreground='red'>red text </span><span letter_spacing='200' foreground='blue'>WP Light</span> And some white text"
+					></text>		
+
+					<text name="message a 2"
+					font_name="Chlorinar Bold Italic"
 					font_size="36"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
 					blend_mode="normal"
@@ -44,7 +60,7 @@
 				<text name="message_b"
 					enable="true"
 					multitouch="info"
-					font_name="Noto Sans Bold"
+					font_name="FreightSans Light"
 					font_size="48"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:1.0"
 					blend_mode="normal"

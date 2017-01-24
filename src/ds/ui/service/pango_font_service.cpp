@@ -37,15 +37,15 @@ PangoFontService::PangoFontService(ds::ui::SpriteEngine& eng)
 
 void PangoFontService::loadFonts(){
 	if(mFontMap){
-		g_object_unref(mFontMap);
-		mFontMap = nullptr;
+	//	g_object_unref(mFontMap);
+	//	mFontMap = nullptr;
 	}
 
 	DS_LOG_INFO("Creating pango font map...");
 
-	if(!mFontMap){
+//	if(!mFontMap){
 		mFontMap = pango_cairo_font_map_get_default();
-	}
+	//}
 
 	if(!mFontMap){
 		DS_LOG_WARNING_M("Font map does not exist! Pango text sprites will be empty.", PANGO_FONT_LOG_M);
@@ -57,8 +57,8 @@ void PangoFontService::loadFonts(){
 	mLoadedFamilies.clear();
 
 	int i;
-	PangoFontFamily** families;
-	int n_families;
+	PangoFontFamily** families = nullptr;
+	int n_families = 0;
 
 	pango_font_map_list_families(mFontMap, &families, &n_families);
 
@@ -120,7 +120,7 @@ bool PangoFontService::loadFont(const std::string& path) {
 	// NOTE: calling into fontconfig at this point creates a runtime error
 	// Windows seems to totally fuck shit up trying to find the correct dll. 
 	// When that's resolved, could actually try to load the correct fonts
-//	fontAddStatus = FcConfigAppFontAddFile(FcConfigGetCurrent(), fcPath);
+	fontAddStatus = FcConfigAppFontAddFile(FcConfigGetCurrent(), fcPath);
 
 	if(!fontAddStatus) {
 		DS_LOG_WARNING_M("Pango failed to load font from file \"" << path << "\"", PANGO_FONT_LOG_M);

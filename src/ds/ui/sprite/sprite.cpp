@@ -272,7 +272,6 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	buildTransform();
 	ci::mat4 totalTransformation = trans*mTransformation;
 	ci::gl::pushModelMatrix();
-	//glLoadIdentity();
 	ci::gl::multModelMatrix(totalTransformation);
 	bool flipImage = false;
 
