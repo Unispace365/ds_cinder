@@ -40,28 +40,24 @@ TextTest::TextTest(Globals& g)
 		float delty = (float)(after - before) / 1000000.0f;
 		std::cout << "Layout time: " << delty << std::endl;
 
-		std::vector<ci::vec2> characterPositions;
+		std::vector<ci::Rectf> characterPositions;
 		for(int i = 0; i < theText.size() + 1; i++){
-			ci::vec2 possy = mMessage->getPositionForCharacterIndex(i);
+			ci::Rectf possy = mMessage->getRectForCharacterIndex(i);
 			characterPositions.push_back(possy);
 		}
 
 		for(int i = 0; i < theText.size(); i++){
-			ci::vec2 possy = characterPositions[i];
-			ci::vec2 possyTwo = ci::vec2(0.0f, 0.0f);
-			if(i + 1 < theText.size()){
-				possyTwo = characterPositions[i + 1];
-			}
+			ci::Rectf possy = characterPositions[i];
+			//ci::vec2 possyTwo = ci::vec2(0.0f, 0.0f);
+			//if(i + 1 < theText.size()){
+			//	possyTwo = characterPositions[i + 1];
+			//}
 			ds::ui::Sprite* overlay = new ds::ui::Sprite(mEngine);
 			addChildPtr(overlay);
 			overlay->setTransparent(false);
 			overlay->setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
-			overlay->setPosition(possy.x, possy.y);
-			if(possyTwo.x > 0.0f){
-				overlay->setSize(possyTwo.x - possy.x, mMessage->getFontSize());
-			} else {
-				overlay->setSize(mMessage->getWidth() - possy.x, mMessage->getFontSize());
-			}
+			overlay->setPosition(possy.x1, possy.y1);
+			overlay->setSize(possy.getWidth(), possy.getHeight());
 			overlay->setOpacity(0.5f);
 			mCharacterOverlays.push_back(overlay);
 		}

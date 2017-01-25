@@ -22,7 +22,7 @@ InterfaceXmlImporterExampleApp::InterfaceXmlImporterExampleApp()
 	/*fonts in use */
 	// These fonts need to be registered to be picked up by the 'text.xml' file.
 	// Then in the css, the config name can be picked up and look this up. a long chain for 'convenience'
-	mEngine.editFonts().install("Noto Sans Bold", "sample-light");
+	mEngine.editFonts().registerFont("Noto Sans Bold", "sample-light");
 
 	enableCommonKeystrokes(true);
 }

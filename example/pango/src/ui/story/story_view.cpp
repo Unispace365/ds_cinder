@@ -35,6 +35,7 @@ StoryView::StoryView(Globals& g)
 	mFakeCursor->setSize(4.0f, 100.0f);
 	mFakeCursor->setTransparent(false);
 	mFakeCursor->setColor(ci::Color::white());
+	mFakeCursor->setOpacity(0.5f);
 	addChildPtr(mFakeCursor);
 
 	mPangoText = dynamic_cast<ds::ui::TextPango*>(spriteMap["message_b"]);
@@ -44,11 +45,12 @@ StoryView::StoryView(Globals& g)
 			
 			if(mPangoText){
 				int indexy = mPangoText->getCharacterIndexForPosition(ci::vec2(touchPos));
-				auto possy = mPangoText->getPositionForCharacterIndex(indexy);
-				auto globby = mPangoText->localToGlobal(ci::vec3(possy, 0.0f));
+				auto recty = mPangoText->getRectForCharacterIndex(indexy);
+				auto globby = mPangoText->localToGlobal(ci::vec3(recty.x1, recty.y1, 0.0f));
 				auto loccy = globalToLocal(globby);
 				if(mFakeCursor){
 					mFakeCursor->setPosition(loccy);
+					mFakeCursor->setSize(recty.getWidth(), recty.getHeight());
 				}
 			}
 		});

@@ -26,7 +26,7 @@ media_tester::media_tester()
 	, mIsVideo(false)
 {
 	/*fonts in use */
-	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
+	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 
 	enableCommonKeystrokes(true);
 }

@@ -37,8 +37,8 @@ MediaViewer::MediaViewer()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
-	mEngine.editFonts().install("Noto Sans", "noto-thin");
+	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
+	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
 
 	enableCommonKeystrokes(true);
 }
@@ -243,5 +243,5 @@ void MediaViewer::fileDrop(ci::app::FileDropEvent event){
 } // namespace mv
 
 // This line tells Cinder to actually create the application
-CINDER_APP(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))// , [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
+CINDER_APP(mv::MediaViewer, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
 

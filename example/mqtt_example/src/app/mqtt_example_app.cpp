@@ -40,7 +40,7 @@ mqtt_example::mqtt_example()
 	});
 	
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().installFont(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "Noto Sans Bold", "noto-bold");
 
 	enableCommonKeystrokes(true);
 }

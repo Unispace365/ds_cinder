@@ -45,10 +45,6 @@ CefDevelop::CefDevelop()
 	, mWebby(nullptr)
 {
 
-
-	/*fonts in use */
-	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
-
 	enableCommonKeystrokes(true);
 }
 
@@ -58,7 +54,7 @@ void CefDevelop::setupServer(){
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
 	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
-		mEngine.editFonts().install(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+		mEngine.editFonts().registerFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
 	});
 
 	/* Settings */

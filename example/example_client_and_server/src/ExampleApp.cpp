@@ -80,7 +80,7 @@ CsApp::CsApp()
 		// same order.
 		// It's maybe worth nothing that if the client and server do have different
 		// font folders, then you HAVE to do this, to abstract that info.
-		mEngine.editFonts().install("Noto Sans Bold", FONT_NAME);
+		mEngine.editFonts().registerFont("Noto Sans Bold", FONT_NAME);
 	} catch (std::exception const& ex) {
 		cout << "ERROR in app constructor=" << ex.what() << endl;
 	}
