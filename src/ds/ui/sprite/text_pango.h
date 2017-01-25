@@ -132,7 +132,15 @@ public:
 
 	/// Returns the 2-d position of the character in the current text string
 	/// Will return 0,0 if the string is blank or the index is out-of-bounds
+	/// Note that this position is fudged by 25% vertically to get the top-left corner of most characters in most fonts. 
+	/// This is good for cursors. If you need the exact bounds of a character, use getRectForCharacterIndex()
 	ci::vec2					getPositionForCharacterIndex(const int characterIndex);
+
+	/// Returns the bounds of the character at the supplied index
+	/// Returns 0,0,0,0 if the string is blank of the index is out of bounds
+	/// Note that this box is likely taller than the actual character
+	/// This is just a wrapper around pango_layout_index_to_pos(), so see that documentation for full details
+	ci::Rectf					getRectForCharacterIndex(const int characterIndex);
 
 
 	/// Returns the index of the character of the current text string for the position supplied

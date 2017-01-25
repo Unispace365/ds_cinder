@@ -461,17 +461,33 @@ ci::vec2 TextPango::getPositionForCharacterIndex(const int characterIndex){
 	render();
 
 	ci::vec2 outputPos = ci::vec2();
-	if(mPangoLayout){
+	if(mPangoLayout && !mText.empty()){
 		PangoRectangle outputRectangle;
 		pango_layout_index_to_pos(mPangoLayout, characterIndex, &outputRectangle);
 
-		//std::cout << "position for index: " << characterIndex << " " << outputRectangle.x << " " << outputRectangle.y << std::endl;
-
 		outputPos.x = (float)outputRectangle.x / (float)PANGO_SCALE;
-		outputPos.y = (float)outputRectangle.y / (float)PANGO_SCALE;
+		// Note: the rectangle returned is to the very top of the very tallest possible character (I think), which makes it a good distance above the top of most characters
+		// So I fudged the output of this for a reasonable position for the 'start' of each character from the top-left
+		// The exact output for the rectangle of each character can be got from getRectForCharacterIndex() 
+		outputPos.y = (float)outputRectangle.y / (float)PANGO_SCALE +(float)outputRectangle.height / (float)PANGO_SCALE / 4.0f; 
 	}
 	return outputPos;
 	
+}
+
+ci::Rectf TextPango::getRectForCharacterIndex(const int characterIndex){
+	render();
+
+	ci::Rectf outputRect = ci::Rectf();
+	if(mPangoLayout && !mText.empty()){
+		PangoRectangle outputRectangle;
+		pango_layout_index_to_pos(mPangoLayout, characterIndex, &outputRectangle);
+
+		float xx = (float)outputRectangle.x / (float)PANGO_SCALE;
+		float yy = (float)outputRectangle.y / (float)PANGO_SCALE;
+		outputRect.set(xx, yy, xx + (float)outputRectangle.width / (float)PANGO_SCALE, yy + (float)outputRectangle.height / (float)PANGO_SCALE);
+	}
+	return outputRect;
 }
 
 bool TextPango::getTextWrapped(){
