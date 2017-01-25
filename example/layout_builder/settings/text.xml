@@ -8,15 +8,20 @@
 		<float name="button:text:leading" value="0.75" />
 		<color name="button:text:color" r="10" g="10" b="10" />
 
-	<text  name="tree:item:name" value="frutiger-bold" />
-	<float name="tree:item:size" value="12" />
-	<float name="tree:item:leading" value="0.75" />
-	<color name="tree:item:color" r="255" g="255" b="255" />
+	<text  name="layout_builder:button:text:name" value="frutiger-light" />
+	<float name="layout_builder:button:text:size" value="12" />
+	<float name="layout_builder:button:text:leading" value="0.75" />
+	<color name="layout_builder:button:text:color" r="255" g="255" b="255" />
 
-	<text  name="tree:item_two:name" value="frutiger-light" />
-	<float name="tree:item_two:size" value="12" />
-	<float name="tree:item_two:leading" value="0.75" />
-	<color name="tree:item_two:color" r="255" g="255" b="255" />
+	<text  name="layout_builder:tree:item:name" value="frutiger-bold" />
+	<float name="layout_builder:tree:item:size" value="12" />
+	<float name="layout_builder:tree:item:leading" value="0.75" />
+	<color name="layout_builder:tree:item:color" r="255" g="255" b="255" />
+
+	<text  name="layout_builder:tree:item_two:name" value="frutiger-light" />
+	<float name="layout_builder:tree:item_two:size" value="12" />
+	<float name="layout_builder:tree:item_two:leading" value="0.75" />
+	<color name="layout_builder:tree:item_two:color" r="255" g="255" b="255" />
 		
 	<text  name="connections:title:name" value="frutiger-light" />
 	<float name="connections:title:size" value="24" />

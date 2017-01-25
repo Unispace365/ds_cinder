@@ -637,6 +637,25 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
+	else if (property == "scroll_fade_size") {
+		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
+		ds::ui::ScrollArea* scrollArea = nullptr;
+		if (scrollList) {
+			scrollArea = scrollList->getScrollArea();
+		}
+
+		if (!scrollArea) {
+			scrollArea = dynamic_cast<ds::ui::ScrollArea*>(&sprite);
+		}
+
+		if (scrollArea) {
+			scrollArea->setUseFades(true);
+			scrollArea->setFadeHeight(ds::string_to_float(value));
+		}
+		else {
+			DS_LOG_WARNING("Couldn't set scroll_fade_size for this sprite ");
+		}
+	}
 
 	// Border sprite properties
 	else if(property == "border_width"){

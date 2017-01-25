@@ -9,6 +9,7 @@
 #include "ds/data/data_buffer.h"
 #include <ds/ui/sprite/dirty_state.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/image_source/image_file.h>
 
 #include <ds/debug/logger.h>
 #include <ds/util/file_meta_data.h>
@@ -18,6 +19,8 @@
 #include <cinder/ImageIo.h>
 
 #include <cinder/Rand.h>
+
+#include <thread>
 
 namespace {
 
@@ -112,10 +115,14 @@ const char			DRAW_POINTS_QUEUE_ATT	= 81;
 const char			BRUSH_IMAGE_SRC_ATT		= 82;
 const char			BRUSH_COLOR_ATT 		= 83;
 const char			BRUSH_SIZE_ATT			= 84;
+const char			CANVAS_IMAGE_PATH_ATT	= 85;
+const char			CLEAR_CANVAS_ATT		= 86;
 const DirtyState&	sPointsQueueDirty	 	= newUniqueDirtyState();
 const DirtyState&	sBrushImagePathDirty	= newUniqueDirtyState();
 const DirtyState&	sBrushColorDirty		= newUniqueDirtyState();
 const DirtyState&	sBrushSizeDirty			= newUniqueDirtyState();
+const DirtyState&	sCanvasImagePathDirty	= newUniqueDirtyState();
+const DirtyState&	sClearCanvasDirty		= newUniqueDirtyState();
 
 const int			MAX_SERIALIZED_POINTS	= 100;
 } // anonymous namespace
@@ -136,9 +143,9 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	, mBrushSize(24.0f)
 	, mBrushColor(1.0f, 0.0f, 0.0f, 0.5f)
 	, mPointShader(whiteboard_point_vert, whiteboard_point_frag, whiteboard_point_name)
-	, mBrushImage(nullptr)
 	, mEraseMode(false)
 	, mOutputShader(vertShader, opacityFrag, shaderNameOpaccy)
+	, mCanvasFileLoaderClient(eng)
 	, mDrawTexture()
 {
 	mBlobType = BLOB_TYPE;
@@ -247,6 +254,12 @@ void DrawingCanvas::clearCanvas(){
 	//mPointShader.getShader().unbind();
 	mFboGeneral->end();
 	mFboGeneral->detach();
+
+	if( mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE ||
+		mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE
+	) {
+		markAsDirty( sClearCanvasDirty );
+	}
 }
 
 void DrawingCanvas::setEraseMode(const bool eraseMode){
@@ -254,6 +267,14 @@ void DrawingCanvas::setEraseMode(const bool eraseMode){
 }
 
 void DrawingCanvas::drawLocalClient(){
+	// If we have a new texture from the canvas loader,
+	// swap that in for the draw texture
+	if (mCanvasFileLoaderClient.getImage()) {
+		auto loaderTex = mCanvasFileLoaderClient.getImage();
+		mDrawTexture = *loaderTex;
+		mCanvasFileLoaderClient.clear();
+	}
+
 	// If any serialized points have been received from the server, draw them
 	while (!mSerializedPointsQueue.empty()) {
 		auto points = mSerializedPointsQueue.front();
@@ -448,6 +469,13 @@ void DrawingCanvas::writeAttributesTo(DataBuffer& buf) {
 		}
 		mSerializedPointsQueue.clear();
 	}
+	if (mDirty.has(sCanvasImagePathDirty)){
+		buf.add(CANVAS_IMAGE_PATH_ATT);
+		mCanvasFileLoaderClient.writeTo(buf);
+	}
+	if (mDirty.has(sClearCanvasDirty)){
+		buf.add(CLEAR_CANVAS_ATT);
+	}
 
 }
 
@@ -475,6 +503,13 @@ void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
 			mSerializedPointsQueue.push_back( std::make_pair(p1, p2) );
 		}
 	}
+	else if (attrid == CANVAS_IMAGE_PATH_ATT) {
+		mCanvasFileLoaderClient.readFrom(buf);
+	}
+	else if (attrid == CLEAR_CANVAS_ATT) {
+		clearCanvas();
+	}
+
 	else {
 		Sprite::readAttributeFrom(attrid, buf);
 	}
@@ -483,6 +518,39 @@ void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
 void DrawingCanvas::onImageChanged() {
 	markAsDirty(sBrushImagePathDirty);
 }
+
+void DrawingCanvas::saveCanvasImage(const std::string& filePath) {
+	if (!(mDrawTexture && mDrawTexture.getWidth() > 0 && mDrawTexture.getHeight() > 0 ))
+		return;
+
+	// This can't be done on the background thread because it needs
+	// the main thread's GL context to get the texture data.
+	ci::Surface8u surface(mDrawTexture);
+
+	// Do the image file saving on background thread
+	auto saveThread = std::thread([surface, filePath] {
+		try {
+			ci::writeImage(filePath, surface);
+		}
+		catch (const std::exception &e) {
+			DS_LOG_WARNING( "DrawingCanvas: Unable to save canvas to file: " << filePath << ": " << e.what() );
+		}
+	});
+
+	// We don't care about this thread anymore, it can terminate on 
+	// its own. But we do need to detach if we're not going to join 
+	// the thread.
+	saveThread.detach();
+}
+
+void DrawingCanvas::loadCanvasImage(const std::string& filePath) {
+	markAsDirty(sCanvasImagePathDirty);
+
+	// This will load the image file asynchronously.  When it's
+	// ready, the texture will be grabbed in drawLocalClient.
+	mCanvasFileLoaderClient.setSource(ds::ui::ImageFile(filePath));
+}
+
 
 } // namespace ui
 } // namespace ds

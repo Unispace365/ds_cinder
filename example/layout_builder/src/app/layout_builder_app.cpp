@@ -48,8 +48,14 @@ void layout_builder::setupServer(){
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
-	mEngine.loadTextCfg("text.xml");
 
+	// Load colors from colors XML
+	mEngine.loadSettings( "COLORS", "colors.xml" );
+	mEngine.getSettings( "COLORS" ).forEachColorAKey( [this]( const std::string& key ){
+		mEngine.editColors().install( mEngine.getSettings( "COLORS" ).getColorA( key ), key );
+	} );
+
+	mEngine.loadTextCfg("text.xml");
 	/*fonts in use */
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
@@ -153,6 +159,10 @@ void layout_builder::keyDown(ci::app::KeyEvent event){
 	} else if(event.getCode() == KeyEvent::KEY_v){
 		loadLayout(ci::Clipboard::getString());
 	}
+	// Reload current layout file with F5 key
+	else if (event.getCode() == KeyEvent::KEY_F5)
+		mEngine.getNotifier().notify(RefreshLayoutRequest());
+
 }
 
 void layout_builder::loadLayout(const std::string& location){
@@ -173,7 +183,8 @@ void layout_builder::mouseUp(ci::app::MouseEvent e) {
 }
 
 void layout_builder::mouseMove( ci::app::MouseEvent e ) {
-	ci::vec3 p(e.getX(), e.getY(), 0.0f);
+	auto alteredMouseEvent = mEngine.alteredMouseEvent(e);
+	ci::Vec3f p(alteredMouseEvent.getX(), alteredMouseEvent.getY(), 0.0f);
 	mEngine.getNotifier().notify(MouseMoveEvent(p));
 }
 
