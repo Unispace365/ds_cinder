@@ -20,7 +20,7 @@ class Globals;
 * \class pango::StoryView
 *			A sample view
 */
-class StoryView final : public ds::ui::Sprite  {
+class StoryView : public ds::ui::Sprite  {
 public:
 	StoryView(Globals& g);
 

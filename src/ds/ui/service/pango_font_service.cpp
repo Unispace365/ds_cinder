@@ -114,7 +114,7 @@ void PangoFontService::loadFonts(){
 	DS_LOG_INFO("Pango font map loaded.");
 }
 
-bool PangoFontService::loadFont(const std::string& path) {
+bool PangoFontService::loadFont(const std::string& path, const std::string& fontName) {
 	const FcChar8 *fcPath = (const FcChar8 *)path.c_str();
 	FcBool fontAddStatus = false;
 	// NOTE: calling into fontconfig at this point creates a runtime error
@@ -126,8 +126,16 @@ bool PangoFontService::loadFont(const std::string& path) {
 		DS_LOG_WARNING_M("Pango failed to load font from file \"" << path << "\"", PANGO_FONT_LOG_M);
 		return false;
 	} else {
-		DS_LOG_INFO_M("Pango thinks it loaded font " << path << " with status " << fontAddStatus, PANGO_FONT_LOG_M);
-		return true;
+		// it's looking like every call to the FcConfigAppFontAddFile succeeds, so this is kinda pointless
+		//DS_LOG_INFO_M("Pango thinks it loaded font " << path << " with status " << fontAddStatus, PANGO_FONT_LOG_M);
+	}
+
+	if(!getFaceExists(fontName)){
+		DsPangoFontFace dpff;
+		dpff.mDecription = "Local loaded font";
+		dpff.mWeight = "400";
+		dpff.mFaceName = fontName;
+		mLoadedFonts[fontName] = dpff;
 	}
 
 	return false;

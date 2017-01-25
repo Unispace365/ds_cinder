@@ -48,19 +48,27 @@ PangoApp::PangoApp()
 
 	enableCommonKeystrokes(true);
 
-	mEngine.getPangoFontService().loadFont(ds::Environment::expand("%APP%/data/fonts/CHLORINR.ttf"));
-	mEngine.getPangoFontService().loadFont(ds::Environment::expand("%APP%/data/fonts/FreightSans-Light.ttf"));
-}
+	/// Load a local font file, and let the engine know what it's font name is. We can now refer to it by it's full name, Chlorinar Bold Italic
+	mEngine.editFonts().installFont(ds::Environment::expand("%APP%/data/fonts/CHLORINR.ttf"), "Chlorinar Bold Italic");
 
-void PangoApp::setupServer(){
+	/// by entering the "title" as the third parameter, now we can refer to the font by that name or FreightSans Light. 
+	/// This is for convenience, as you could refer to "title" everywhere needed, and just replace this line to replace all the title fonts.
+	mEngine.editFonts().installFont(ds::Environment::expand("%APP%/data/fonts/FreightSans-Light.ttf"), "FreightSans Light", "title");
 
 	// Fonts links together a font name and a physical font file
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
 	mEngine.loadSettings("FONTS", "fonts.xml");
-	mEngine.editFonts().clear();
+
 	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
-		mEngine.editFonts().install(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+		// this is a way to register a font as well, which registers the font name (for example, Noto Sans Bold) to the short name (for example noto-bold). 
+		// So in your layout files, you can now set the font_name to be noto-bold OR Noto Sans Bold.
+		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), mEngine.getSettings("FONTS").getText(key), key);
 	});
+}
+
+void PangoApp::setupServer(){
+
+
 
 	// Colors
 	// After registration, colors can be called by name from settings files or in the app

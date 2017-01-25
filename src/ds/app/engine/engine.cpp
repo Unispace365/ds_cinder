@@ -68,6 +68,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mCachedWindowW(0)
 	, mCachedWindowH(0)
 	, mAverageFps(0.0f)
+	, mFonts(*this)
 {
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));

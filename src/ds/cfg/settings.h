@@ -55,10 +55,10 @@ public:
 	const Resource::Id&					getResourceId(const std::string& name, const int index = 0) const;
 	const ci::Color&					getColor(const std::string& name, const int index = 0) const;
 	const ci::ColorA&					getColorA(const std::string& name, const int index = 0) const;
-	const ci::vec2&					getSize(const std::string& name, const int index = 0) const;
+	const ci::vec2&						getSize(const std::string& name, const int index = 0) const;
 	const std::string&					getText(const std::string& name, const int index = 0) const;
 	const std::wstring&					getTextW(const std::string& name, const int index = 0) const;
-	const ci::vec3&					getPoint(const std::string& name, const int index = 0) const;
+	const ci::vec3&						getPoint(const std::string& name, const int index = 0) const;
 	// Bools are a convenience on text fields that will be either "true" or "false"
 	bool								getBool(const std::string& name, const int index = 0) const;
 
@@ -72,7 +72,7 @@ public:
 	ci::vec2					    	getSize(const std::string& name, const int index, const ci::vec2& defaultValue) const;
 	std::string							getText(const std::string& name, const int index, const std::string& defaultValue) const;
 	std::wstring						getTextW(const std::string& name, const int index, const std::wstring& defaultValue) const;
-	const ci::vec3&					getPoint(const std::string& name, const int index, const ci::vec3& defaultValue) const;
+	const ci::vec3&						getPoint(const std::string& name, const int index, const ci::vec3& defaultValue) const;
 	// Bools are a convenience on text fields that will be either "true" or "false"
 	bool							  	getBool(const std::string& name, const int index, const bool defaultValue) const;
 

@@ -105,7 +105,7 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 	, mDefaultTextSmallCapsEnabled(false)
 	, mResizeLimitWidth(-1.0f)
 	, mResizeLimitHeight(-1.0f)
-	, mLeading(0.0f)
+	, mLeading(1.0f)
 	, mTextAlignment(Alignment::kLeft)
 	, mDefaultTextWeight(TextWeight::kNormal)
 	, mEllipsizeMode(EllipsizeMode::kEllipsizeNone)
@@ -364,8 +364,8 @@ void TextPango::setColorA(const ci::ColorA& c){
 
 TextPango& TextPango::setFont(const std::string& font, const float fontSize) {
 	if(mTextFont != font || mTextSize != fontSize) {
-		mTextFont = mEngine.getFonts().getFileNameFromName(font);
-	//	mTextFont = font;
+		mTextFont = mEngine.getFonts().getFontNameForShortName(font);
+
 		mTextSize = fontSize;
 		mNeedsFontUpdate = true;
 		mNeedsMeasuring = true;
