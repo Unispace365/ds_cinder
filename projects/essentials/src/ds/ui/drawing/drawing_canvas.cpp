@@ -271,7 +271,7 @@ void DrawingCanvas::drawLocalClient(){
 	// swap that in for the draw texture
 	if (mCanvasFileLoaderClient.getImage()) {
 		auto loaderTex = mCanvasFileLoaderClient.getImage();
-		mDrawTexture = *loaderTex;
+		mDrawTexture = loaderTex;
 		mCanvasFileLoaderClient.clear();
 	}
 
@@ -520,9 +520,10 @@ void DrawingCanvas::onImageChanged() {
 }
 
 void DrawingCanvas::saveCanvasImage(const std::string& filePath) {
-	if (!(mDrawTexture && mDrawTexture.getWidth() > 0 && mDrawTexture.getHeight() > 0 ))
+	if (!(mDrawTexture && mDrawTexture->getWidth() > 0 && mDrawTexture->getHeight() > 0 ))
 		return;
 
+	/* TODO: update to 0.9.0
 	// This can't be done on the background thread because it needs
 	// the main thread's GL context to get the texture data.
 	ci::Surface8u surface(mDrawTexture);
@@ -541,6 +542,7 @@ void DrawingCanvas::saveCanvasImage(const std::string& filePath) {
 	// its own. But we do need to detach if we're not going to join 
 	// the thread.
 	saveThread.detach();
+	*/
 }
 
 void DrawingCanvas::loadCanvasImage(const std::string& filePath) {
