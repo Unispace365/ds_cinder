@@ -474,6 +474,8 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf)
 		if (!filename.empty()) {
 			setFont(filename, fontSize);
 			mNeedRedrawing = true;
+		} else {
+			DS_LOG_WARNING("No font found!");
 		}
 	} else if (attributeId == LAYOUT_ATT) {
 		mLayout.readFrom(buf);
