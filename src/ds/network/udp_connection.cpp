@@ -42,6 +42,7 @@ UdpConnection::~UdpConnection()
 
 bool UdpConnection::initialize(bool server, const std::string &ip, const std::string &portSz)
 {
+	DS_LOG_INFO("Starting udp connection at IP=" << ip << " port=" << portSz << " server=" << server);
 	std::vector<std::string> numbers = ds::split(ip, ".");
 	int value;
 	ds::string_to_value(numbers.front(), value);
