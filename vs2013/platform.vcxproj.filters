@@ -711,6 +711,9 @@
     <ClInclude Include="..\src\ds\network\single_udp_receiver.h">
       <Filter>src\ds\network</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\network\packet_chunker.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1203,6 +1206,9 @@
       <Filter>src\ds\util</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\network\single_udp_receiver.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\packet_chunker.cpp">
       <Filter>src\ds\network</Filter>
     </ClCompile>
   </ItemGroup>

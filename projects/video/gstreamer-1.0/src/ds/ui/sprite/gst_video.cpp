@@ -911,7 +911,7 @@ void GstVideo::setNetClock(){
 		mServerOnlyMode = true;
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
 		//Read port from settings file if available.  Otherwise, pick default.
-		static int newPort = mEngine.getSettings("engine").getInt("gstVideo:netclock:port", 0, 0);
+		static int newPort = mEngine.getSettings("engine").getInt("gstVideo:netclock:port", 0, DEFAULT_PORT);
 		if (newPort == 0){
 			newPort = DEFAULT_PORT;
 		}
