@@ -21,6 +21,8 @@ const double BYTE_2_KILOBYTE = 0.000976562;
 
 // Utilities to help with COM stuff
 
+#ifdef CINDER_MSW
+
 // COM-INIT
 class ComInit {
 public:
@@ -83,6 +85,9 @@ public:
 
 	IWbemServices*	mPSvc;
 };
+
+
+#endif // !CINDER_MSW
 
 }
 
@@ -433,6 +438,6 @@ double ComputerInfo::getPercentUsageCPU() const
   return 0.0f;
 }
 
-#endif
+#endif // # CINDER_MSW
 
 } // namespace ds

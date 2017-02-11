@@ -25,7 +25,7 @@ namespace cfg {
  */
 class NinePatch {
 public:
-	static const enum Type	{ EMPTY, ARC_DROP_SHADOW };
+	enum Type	{ EMPTY, ARC_DROP_SHADOW };
 
 	NinePatch();
 	NinePatch(const Type);

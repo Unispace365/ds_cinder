@@ -5,6 +5,8 @@
 #include <boost/algorithm/string.hpp>
 #include <Poco/File.h>
 #include <Poco/Path.h>
+#include <Poco/Environment.h>
+
 #include "ds/app/app.h"
 #include "ds/app/engine/engine_settings.h"
 
@@ -14,6 +16,11 @@ namespace ds {
 
 namespace {
 std::string				DOCUMENTS("%DOCUMENTS%");
+#ifdef WIN32
+const std::string		ENV_PATH_SEPARATOR = ";";
+#else
+const std::string		ENV_PATH_SEPARATOR = ":";
+#endif
 }
 
 bool Environment::initialize() {
@@ -155,29 +162,19 @@ std::string Environment::getProjectPath() {
 }
 
 void Environment::addToEnvironmentVariable(const std::string& variable, const std::string& value) {
-	std::string		new_path(variable + "=");
-	const char*		path_env = getenv(variable.c_str());
-	if (path_env) {
-		new_path += path_env;
-	}
-	if (new_path.length() > 0) {
-		if (!(new_path.back() == '=' || new_path.back() == ';')) {
-			new_path += ";";
-		}
-	}
+	std::string new_path = Poco::Environment::get(variable, "");
+
+	if (new_path.length() == 0)
+		new_path += ENV_PATH_SEPARATOR;
 	new_path += value;
-	_putenv(new_path.c_str());
+
+	Poco::Environment::set(variable, new_path);
 }
 
 void Environment::addToFrontEnvironmentVariable(const std::string& variable, const std::string& value) {
-	std::string		new_path(variable + "=");
-	const char*		path_env = getenv(variable.c_str());
-	new_path += value;
-	new_path += ";";
-	if (path_env) {
-		new_path += path_env;
-	}
-	_putenv(new_path.c_str());
+	std::string old_path = Poco::Environment::get(variable, "");
+	std::string new_path = value + ENV_PATH_SEPARATOR + old_path;
+	Poco::Environment::set(variable, new_path);
 }
 
 } // namespace ds

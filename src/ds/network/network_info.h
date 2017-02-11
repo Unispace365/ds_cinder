@@ -1,14 +1,9 @@
 #pragma once
 
-#ifndef _SYNC_VIDEO_PLAYER_APP_NETWORK_INFO_H_
-#define _SYNC_VIDEO_PLAYER_APP_NETWORK_INFO_H_
+#ifndef _DS_NETWORK_NETWORK_INFO_H_
+#define _DS_NETWORK_NETWORK_INFO_H_
 
-//#include <winsock2.h>
-#include <winsock2.h>
-#include <iphlpapi.h>
-#include <stdio.h>
-//#include <stdlib.h>
-#include <ds/debug/logger.h>
+#include <string>
 
 namespace ds {
 	namespace network {
@@ -17,15 +12,13 @@ namespace ds {
 	public:
 		networkInfo();
 
-		void				showInfo();
-		std::string			getAddress();
+		void				showInfo() const;
+		std::string			getAddress() const;
 	private:
-
-		bool				checkAddress(PIP_ADAPTER_INFO iai);
 		std::string			mAddress;
 	};
 }
 
 } // !namespace ds
 
-#endif // !_SYNC_VIDEO_PLAYER_APP_NETWORK_INFO_H_
+#endif // !_DS_NETWORK_NETWORK_INFO_H_

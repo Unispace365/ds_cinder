@@ -12,7 +12,10 @@
 #include "ds/app/engine/engine_standalone.h"
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/app/environment.h"
-#include "ds/debug/console.h"
+// TODO: Make this cleaner
+#ifdef WIN32
+//#include "ds/debug/console.h"
+#endif
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 
@@ -61,7 +64,10 @@ std::string				APP_PATH;
 std::string				APP_DATA_PATH;
 
 //#ifdef _DEBUG
+// TODO: Make this cleaner
+#ifdef WIN32
 ds::Console				GLOBAL_CONSOLE;
+#endif
 //#endif
 
 void					add_dll_path() {
@@ -77,7 +83,7 @@ void					add_dll_path() {
 	}
 }
 
-}
+} // anonymous namespace
 
 namespace ds {
 
@@ -168,7 +174,10 @@ App::~App() {
 	delete &(mEngine);
 	ds::getLogger().shutDown();
 	if(mShowConsole){
+// TODO: Make this cleaner
+#ifdef WIN32
 		GLOBAL_CONSOLE.destroy();
+#endif
 	}
 }
 
@@ -374,7 +383,10 @@ void App::showConsole(){
 	if(mShowConsole) return;
 
 	mShowConsole = true;
+// TODO: Make this cleaner
+#ifdef WIN32
 	GLOBAL_CONSOLE.create();
+#endif
 }
 
 

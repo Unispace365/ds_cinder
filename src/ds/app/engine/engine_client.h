@@ -7,7 +7,6 @@
 #include "ds/app/engine/engine_io.h"
 #include "ds/app/engine/engine_io_defs.h"
 #include "ds/network/udp_connection.h"
-#include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
 

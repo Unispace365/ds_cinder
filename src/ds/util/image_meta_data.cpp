@@ -2,7 +2,6 @@
 
 #include "image_meta_data.h"
 
-#include <intrin.h>
 #include <unordered_map>
 #include <cinder/ImageIo.h>
 #include <cinder/Surface.h>
@@ -30,7 +29,6 @@ const std::string			PATH_SZ("q");
 const std::string			WIDTH_SZ("w");
 const std::string			HEIGHT_SZ("h");
 const std::string			TIMESTAMP_SZ("ts");
-//PersistentCache				DB("ds/imagemetadata", 1, PersistentCache::FieldList().addString(PATH_SZ).addInt(WIDTH_SZ).addInt(HEIGHT_SZ).addInt(TIMESTAMP_SZ));
 
 int							get_format(const std::string& filename) {
 	const Poco::Path		path(filename);
@@ -43,6 +41,16 @@ int							get_format(const std::string& filename) {
 bool						is_little_endian() {
 	int n = 1;
 	return (*(char*)&n == 1);
+}
+
+uint32_t					big_endian_bytes_to_native( const char* bytes ) {
+	const unsigned char* data = (unsigned char*)bytes;
+	return (data[3]<<0) | (data[2]<<8) | (data[1]<<16) | (data[0]<<24);
+}
+
+uint32_t					little_endian_bytes_to_native( const char* bytes ) {
+	const unsigned char* data = (unsigned char*)bytes;
+	return (data[0]<<0) | (data[1]<<8) | (data[2]<<16) | (data[3]<<24);
 }
 
 bool						get_format_png(const std::string& filename, ci::vec2& outSize) {
@@ -58,15 +66,20 @@ bool						get_format_png(const std::string& filename, ci::vec2& outSize) {
 	// Skip Chunk Type
 	file.seekg(4, std::ios_base::cur);
 
-	__int32 width, height;
-
-	file.read((char*)&width, 4);
-	file.read((char*)&height, 4);
+	char widthBytes[4];
+	char heightBytes[4];
+	file.read(widthBytes, 4);
+	file.read(heightBytes, 4);
 
 	// PNG format stores as big endian, convert to little
+	uint32_t width, height;
 	if (is_little_endian()) {
-		width = _byteswap_ulong(width);
-		height = _byteswap_ulong(height);
+		width = little_endian_bytes_to_native(widthBytes);
+		height = little_endian_bytes_to_native(heightBytes);
+	}
+	else {
+		width = big_endian_bytes_to_native(widthBytes);
+		height = big_endian_bytes_to_native(heightBytes);
 	}
 
 	// check to make sure we correctly read the size. There's some bad png's out there

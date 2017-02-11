@@ -3,7 +3,6 @@
 #include "sprite.h"
 #include <cinder/Camera.h>
 #include <cinder/gl/gl.h>
-#include "gl/GL.h"
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
 #include "ds/app/camera_utils.h"

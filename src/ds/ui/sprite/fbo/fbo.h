@@ -31,7 +31,7 @@ public:
 	int              getHeight() const;
 private:
 	FboGeneral(const FboGeneral &rhs){}
-	FboGeneral &operator =(const FboGeneral &rhs){}
+	FboGeneral &operator =(const FboGeneral &rhs){ return *this; }
 
 	void             activate();
 	void             deactivate();

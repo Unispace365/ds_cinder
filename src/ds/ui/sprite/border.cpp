@@ -9,8 +9,6 @@
 #include "ds/debug/logger.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
-#include <gl/GL.h>
-
 using namespace ci;
 
 namespace ds {

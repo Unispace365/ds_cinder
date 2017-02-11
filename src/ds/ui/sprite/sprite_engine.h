@@ -113,7 +113,7 @@ public:
 	float							getFrameRate() const;
 
 	std::unique_ptr<FboGeneral>		getFbo();
-	void							giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
+	void							giveBackFbo(std::unique_ptr<FboGeneral> fbo);
 
 	// Camera control. Will throw if the root at the index is the wrong type.
 	// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call

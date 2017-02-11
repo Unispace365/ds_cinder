@@ -8,10 +8,19 @@
 #include "ds/ui/sprite/fbo/fbo.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 
-
-#include "cairo/cairo.h"
-#include "fontconfig/fontconfig.h"
-#include "pango/pangocairo.h"
+// Forward declare Pango/Cairo structs
+struct 			_PangoContext;
+struct 			_PangoLayout;
+struct 			_PangoFontDescription;
+struct 			_cairo_surface;
+struct 			_cairo;
+struct 			_cairo_font_options;
+typedef struct	_PangoContext PangoContext;
+typedef struct 	_PangoLayout PangoLayout;
+typedef struct 	_PangoFontDescription PangoFontDescription;
+typedef struct 	_cairo_surface cairo_surface_t;
+typedef struct 	_cairo cairo_t;
+typedef struct 	_cairo_font_options cairo_font_options_t;
 
 namespace ds {
 namespace ui {

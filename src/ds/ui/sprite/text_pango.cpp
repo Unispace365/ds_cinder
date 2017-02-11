@@ -2,6 +2,10 @@
 
 #include "text_pango.h"
 
+#include "cairo/cairo.h"
+#include "fontconfig/fontconfig.h"
+#include "pango/pangocairo.h"
+
 #include <pango/pango-font.h>
 #include <regex>
 
@@ -686,7 +690,7 @@ bool TextPango::render(bool force) {
 #if CAIRO_HAS_WIN32_SURFACE
 			mCairoSurface = cairo_win32_surface_create_with_dib(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
 #else
-			mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth, mPixelHeight);
+			mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
 #endif
 			auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
 			if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {

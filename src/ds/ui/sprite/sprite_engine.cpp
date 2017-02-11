@@ -164,7 +164,7 @@ std::unique_ptr<FboGeneral> SpriteEngine::getFbo()
   return std::move(fbo);
 }
 
-void SpriteEngine::giveBackFbo( std::unique_ptr<FboGeneral> &fbo ) {
+void SpriteEngine::giveBackFbo( std::unique_ptr<FboGeneral> fbo ) {
 	mFbos.push_back(std::move(fbo));
 }
 
