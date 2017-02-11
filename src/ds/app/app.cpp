@@ -14,7 +14,7 @@
 #include "ds/app/environment.h"
 // TODO: Make this cleaner
 #ifdef WIN32
-//#include "ds/debug/console.h"
+#include "ds/debug/console.h"
 #endif
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"

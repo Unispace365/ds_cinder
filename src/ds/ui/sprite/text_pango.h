@@ -229,7 +229,7 @@ private:
 	cairo_t*					mCairoContext;
 	cairo_font_options_t*		mCairoFontOptions;
 
-#ifdef CAIRO_HAS_WIN32_SURFACE
+#ifdef WIN32
 	cairo_surface_t*			mCairoWinImageSurface;
 #endif
 };

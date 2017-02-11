@@ -12,7 +12,7 @@ namespace ds {
 	public:
 		networkInfo();
 
-		void				showInfo() const;
+		void				showInfo();
 		std::string			getAddress() const;
 	private:
 		std::string			mAddress;

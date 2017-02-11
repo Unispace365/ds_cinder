@@ -17,7 +17,7 @@
 
 #ifdef WIN32
 namespace {
-bool networkInfo::checkAddress(PIP_ADAPTER_INFO iai){
+bool checkAddress(PIP_ADAPTER_INFO iai){
 	std::string ip = iai->IpAddressList.IpAddress.String;
 	// throw out 0.0.0.0 addresses.
 	int x = 0;
@@ -91,7 +91,7 @@ networkInfo::networkInfo() : mAddress(""){
 #endif
 }
 
-void networkInfo::showInfo() const {
+void networkInfo::showInfo() {
 #ifdef WIN32
 	IP_ADAPTER_INFO  *pAdapterInfo;
 	ULONG            ulOutBufLen;

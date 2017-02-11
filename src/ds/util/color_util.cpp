@@ -95,6 +95,8 @@ std::string ARGBToHex(int aNum, int rNum, int gNum, int bNum){
 		<< std::setw(2) << (rNum & 0xff)
 		<< std::setw(2) << (gNum & 0xff)
 		<< std::setw(2) << (bNum & 0xff);
+
+	return ss.str();
 }
 
 std::string RGBToHex(ci::Color theColor){
