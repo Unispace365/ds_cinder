@@ -39,6 +39,7 @@ public:
 	void								setGoodStatusCallback(std::function<void()> func){ mGoodStatusCallback = func; }
 	void								setErrorCallback(std::function<void(const std::string&)> func){ mErrorMsgCallback = func; }
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
+	void								setSizeChangedCallback(std::function<void(const ci::Vec2f& size)> func){ mSizeChangedCallback = func; }
 
 protected:
 
@@ -59,6 +60,7 @@ protected:
 	bool										mEmbedInterface;
 	bool										mShowInterfaceAtStart;
 	std::function<void(void)>					mGoodStatusCallback;
+	std::function<void(const ci::Vec2f&)>		mSizeChangedCallback;
 	std::function<void(const std::string&)>		mErrorMsgCallback;
 
 };

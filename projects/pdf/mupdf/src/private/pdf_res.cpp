@@ -28,7 +28,7 @@ public:
 	};
 
 public:
-	Load() : mCtx(nullptr), mDoc(nullptr), mPage(nullptr) { } //, mXref(NULL), mPage(NULL), mPageObj(NULL)	{ }
+	Load() : mCtx(nullptr), mDoc(nullptr), mPage(nullptr) { } 
 	~Load()												{ clear(); }
 
 	bool run(Op& op, const std::string& file, const int pageNumber) {
@@ -100,8 +100,8 @@ public:
 		fz_rect bounds;
 		fz_bound_page(&ctx, &page, &bounds);
 		if (fz_is_empty_rect(&bounds) || fz_is_infinite_rect(&bounds)) return false;
-		mWidth = bounds.x1 - bounds.x0;
-		mHeight = bounds.y1 - bounds.y0;
+		mWidth = ceilf(bounds.x1 - bounds.x0);
+		mHeight = ceilf(bounds.y1 - bounds.y0);
 //		mWidth = page.mediabox.x1;
 //		mHeight = page.mediabox.y1;
 		mPageCount = fz_count_pages(&ctx, &doc);
@@ -114,16 +114,6 @@ public:
  ******************************************************************/
 class Draw : public Load::Op {
 public:
-	Draw(ds::pdf::PdfRes::Pixels& pixels, const int scaledWidth, const int scaledHeight, const float width, const float height)
-		: mPixels(pixels)
-		, mScaledWidth(scaledWidth)
-		, mScaledHeight(scaledHeight)
-		, mScale(1.0f)
-		, mWidth(width)
-		, mHeight(height)
-		, mMode(0)
-		{ }
-
 	Draw(ds::pdf::PdfRes::Pixels& pixels, const float scale)
 		: mPixels(pixels)
 		, mScaledWidth(0)
@@ -131,7 +121,6 @@ public:
 		, mScale(scale)
 		, mWidth(0)
 		, mHeight(0)
-		, mMode(1)
 		{ }
 
 
@@ -143,68 +132,20 @@ public:
 		if(mScaledWidth > 12000.0f || mScaledHeight > 12000.0f){
 			return false;
 		}
-		if (mMode == 0) return runMode0(ctx, doc, page);
-		if (mMode == 1) return runMode1(ctx, doc, page);
-		return false;
-	}
 
-private:
-	virtual bool	runMode0(fz_context& ctx, fz_document& doc, fz_page& page) {
 		bool					ans = false;
 		try {
+
 			fz_pixmap*			pixmap = nullptr;
-			fz_device*			device = nullptr;
 			// This is pretty ugly because MuPDF uses custom C++-like error handing that
 			// has stringent rules, like you're not allowed to return.
 			fz_try((&ctx)) {
-				const float		zoom = static_cast<float>(mScaledWidth) / mWidth;
-				const float		rotation = 1.0f;
-				fz_matrix		transform = fz_identity;
-				fz_scale(&transform, zoom, zoom);
+				if(!getPageSize(ctx, page)) return false;
 
 				// Take the page bounds and transform them by the same matrix that
 				// we will use to render the page.
 				fz_rect			rect;
 				fz_bound_page(&ctx, &page, &rect);
-				fz_transform_rect(&rect, &transform);
-
-				// Create a blank pixmap to hold the result of rendering. The
-				// pixmap bounds used here are the same as the transformed page
-				// bounds, so it will contain the entire page. The page coordinate
-				// space has the origin at the top left corner and the x axis
-				// extends to the right and the y axis extends down.
-				int w = mScaledWidth, h = mScaledHeight;
-				if (mPixels.setSize(w, h)) {
-					mPixels.clearPixels();
-					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, mPixels.getData());
-					if (pixmap) {
-						fz_clear_pixmap_with_value(&ctx, pixmap, 0xff);
-						// Run the page with the transform.
-						device = fz_new_draw_device(&ctx, pixmap);
-						if (device) {
-							fz_run_page(&ctx, &page, device, &transform, NULL);
-							ans = true;
-						}
-					}
-				}
-			}
-			fz_always((&ctx)){}
-			fz_catch((&ctx)){}
-			if (device) fz_drop_device(&ctx, device);
-			if (pixmap) fz_drop_pixmap(&ctx, pixmap);
-		} catch (std::exception const&) { }
-		return ans;
-	}
-
-	virtual bool	runMode1(fz_context& ctx, fz_document& doc, fz_page& page) {
-		bool					ans = false;
-		try {
-			fz_pixmap*			pixmap = nullptr;
-			fz_device*			device = nullptr;
-			// This is pretty ugly because MuPDF uses custom C++-like error handing that
-			// has stringent rules, like you're not allowed to return.
-			fz_try((&ctx)) {
-				if (!getPageSize(ctx, page)) return false;
 
 				mWidth = static_cast<float>(mPageSize.x);
 				mHeight = static_cast<float>(mPageSize.y);
@@ -216,10 +157,6 @@ private:
 				fz_matrix		transform = fz_identity;
 				fz_scale(&transform, zoom, zoom);
 
-				// Take the page bounds and transform them by the same matrix that
-				// we will use to render the page.
-				fz_rect			rect;
-				fz_bound_page(&ctx, &page, &rect);
 				fz_transform_rect(&rect, &transform);
 
 				// Create a blank pixmap to hold the result of rendering. The
@@ -230,21 +167,34 @@ private:
 				int w = mScaledWidth, h = mScaledHeight;
 				if (mPixels.setSize(w, h)) {
 					mPixels.clearPixels();
-					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, mPixels.getData());
-					if (pixmap) {
+
+					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, 0, w * 3, mPixels.getData());
+
+					if(pixmap){
 						fz_clear_pixmap_with_value(&ctx, pixmap, 0xff);
-						// Run the page with the transform.
-						device = fz_new_draw_device(&ctx, pixmap);
-						if (device) {
-							fz_run_page(&ctx, &page, device, &transform, NULL);
+						fz_device* device = fz_new_draw_device(&ctx, &transform, pixmap);
+						if(device){
+							fz_run_page(&ctx, &page, device, &fz_identity, NULL);
 							ans = true;
+							fz_drop_device(&ctx, device);
 						}
 					}
+
+					/*
+					pixmap = fz_new_pixmap_with_data(&ctx, fz_device_rgb(&ctx), w, h, 0, w * 3, mPixels.getData());
+					pixmap = fz_new_pixmap_from_page(&ctx, &page, &transform, fz_device_rgb(&ctx), 0);
+
+					if (pixmap) {
+						memcpy(mPixels.getData(), pixmap->samples, mPixels.getWidth() * mPixels.getHeight() * 3);
+						ans = true;
+					}
+					*/
 				}
 			}
 			fz_always((&ctx)){}
-			fz_catch((&ctx)){}
-			if (device) fz_drop_device(&ctx, device);
+			fz_catch((&ctx)){
+				DS_LOG_WARNING("PdfRes: render page error: fz catch mode 1: " << fz_caught_message(&ctx));
+			}
 			if (pixmap) fz_drop_pixmap(&ctx, pixmap);
 		} catch (std::exception const&) { }
 		return ans;
@@ -254,8 +204,8 @@ private:
 		fz_rect bounds;
 		fz_bound_page(&ctx, &page, &bounds);
 		if (fz_is_empty_rect(&bounds) || fz_is_infinite_rect(&bounds)) return false;
-		mPageSize.x = bounds.x1 - bounds.x0;
-		mPageSize.y = bounds.y1 - bounds.y0;
+		mPageSize.x = ceilf(bounds.x1 - bounds.x0);
+		mPageSize.y = ceilf(bounds.y1 - bounds.y0);
 		return mPageSize.x > 0 && mPageSize.y > 0;
 	}
 
@@ -265,7 +215,6 @@ private:
 	const float					mScale;
 	float						mWidth,
 								mHeight;
-	int							mMode;
 	ci::Vec2i					mOutSize,
 								mPageSize;
 };
@@ -286,10 +235,10 @@ ci::Surface8u PdfRes::renderPage(const std::string& path) {
 
 	Pixels					pixels;
 	pixels.setSize(examine.mWidth, examine.mHeight);
-	Draw					draw(pixels, examine.mWidth, examine.mHeight, examine.mWidth, examine.mHeight);
+	Draw					draw(pixels, 1.0f);
 	if (!load.run(draw, path, page_num)) return s;
 
-	s = ci::Surface8u(pixels.getData(), examine.mWidth, examine.mHeight, examine.mWidth * 4, ci::SurfaceChannelOrder(ci::SurfaceChannelOrder::BGRA));
+	s = ci::Surface8u(pixels.getData(), examine.mWidth, examine.mHeight, examine.mWidth * 3, ci::SurfaceChannelOrder(ci::SurfaceChannelOrder::BGR));
 	if (s) return s.clone(true);
 	return s;
 }
@@ -314,7 +263,7 @@ void PdfRes::_destructor() {
 PdfRes::~PdfRes() {
 }
 
-bool PdfRes::loadPDF(const std::string& fileName, const ds::ui::Pdf::PageSizeMode& pageSizeMode) {
+bool PdfRes::loadPDF(const std::string& fileName) {
 	mPrintedError = false;
 	// I'd really like to do this initial examine stuff in the
 	// worker thread, but I suspect the client is expecting this
@@ -326,7 +275,6 @@ bool PdfRes::loadPDF(const std::string& fileName, const ds::ui::Pdf::PageSizeMod
 		mFileName = fileName;
 		mState.mWidth = examine.mWidth;
 		mState.mHeight = examine.mHeight;
-		mState.mPageSizeMode = pageSizeMode;
 		mPageCount = examine.mPageCount;
 		return mPageCount > 0;
 	}
@@ -406,11 +354,6 @@ void PdfRes::setScale(const float theScale) {
 	mState.mScale = theScale;	
 }
 
-void PdfRes::setPageSizeMode(const ds::ui::Pdf::PageSizeMode& m) {
-	std::lock_guard<decltype(mMutex)>		l(mMutex);
-	mState.mPageSizeMode = m;	
-}
-
 bool PdfRes::update() {
 	// Update the page, if necessary.  Batch process -- once my value has been
 	// set, I only need the next pending redraw to perform, everything else
@@ -441,7 +384,7 @@ bool PdfRes::update() {
 				// Cinder Texture doesn't seem to support accessing the data type. I checked the code
 				// and it seems to always use GL_UNSIGNED_BYTE, so hopefully that's safe.
 				glTexSubImage2D(mTexture.getTarget(), 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, &emptyData[0]);
-				glTexSubImage2D(mTexture.getTarget(), 0, 0, 0, mPixels.getWidth(), mTexture.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, mPixels.getData());
+				glTexSubImage2D(mTexture.getTarget(), 0, 0, 0, mPixels.getWidth(), mTexture.getHeight(), GL_RGB, GL_UNSIGNED_BYTE, mPixels.getData());
 				mTexture.unbind();
 				mTexture.disable();
 				glFinish();
@@ -516,31 +459,30 @@ void PdfRes::_redrawPage() {
 		scaledHeight = (int)floorf(newH);
 	}
 
-	// Render to the texture
-	if (drawState.mPageSizeMode == ds::ui::Pdf::kConstantSize) {
-		Draw							draw(mPixels, scaledWidth, scaledHeight, drawState.mWidth, drawState.mHeight);
-		Load							load;
-		if (!load.run(draw, fn, drawState.mPageNum)) {
-			if(!printedError){
-				DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
-				std::lock_guard<decltype(mMutex)>			l(mMutex);
-				mPrintedError = true;
-			}
-			return;
-		}
-	} else if (drawState.mPageSizeMode == ds::ui::Pdf::kAutoResize) {
-		Draw							draw(mPixels, drawState.mScale);
-		Load							load;
-		if(!load.run(draw, fn, drawState.mPageNum)) {
-			if(!printedError){
-				DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
-				std::lock_guard<decltype(mMutex)>			l(mMutex);
-				mPrintedError = true;
-			}
-			return;
-		}
-		drawState.mPageSize = draw.getPageSize();
+	if(drawState.mScale < 0.0f){
+		DS_LOG_WARNING("Something terrible happened with the drawing scale for your pdf!");
+		return;
 	}
+
+	// Render to the texture
+	Draw							draw(mPixels, drawState.mScale);
+	Load							load;
+
+	if(drawState.mScale < 0.0f){
+		DS_LOG_WARNING("Something terrible happened with the drawing scale for your pdf!");
+		return;
+	}
+
+	if(!load.run(draw, fn, drawState.mPageNum)) {
+		if(!printedError){
+			DS_LOG_WARNING("ds::pdf::PdfRes unable to rasterize document \"" << fn << "\".");
+			std::lock_guard<decltype(mMutex)>			l(mMutex);
+			mPrintedError = true;
+		}
+		return;
+	}
+	drawState.mPageSize = draw.getPageSize();
+	
 
 	std::lock_guard<decltype(mMutex)>			l(mMutex);
 	mPixelsChanged = true;
@@ -561,7 +503,7 @@ PdfRes::state::state()
 }
 
 bool PdfRes::state::operator==(const PdfRes::state& o) {
-	return mPageNum == o.mPageNum && mScale == o.mScale && mWidth == o.mWidth && mHeight == o.mHeight && mPageSizeMode == o.mPageSizeMode;
+	return mPageNum == o.mPageNum && mScale == o.mScale && mWidth == o.mWidth && mHeight == o.mHeight;
 }
 
 bool PdfRes::state::operator!=(const PdfRes::state& o) {

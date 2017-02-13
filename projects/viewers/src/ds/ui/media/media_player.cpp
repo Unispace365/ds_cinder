@@ -268,6 +268,15 @@ void MediaPlayer::initialize(){
 			}
 		});
 
+		mPDFPlayer->setSizeChangedCallback([this](const ci::Vec2f& newSize){
+			//setSize(mPDFPlayer->getWidth(), mPDFPlayer->getHeight());
+			mContentAspectRatio = newSize.x / newSize.y;
+			// change this size here?
+			if(mMediaSizeChangedCallback){
+				mMediaSizeChangedCallback(newSize);
+			}
+		});
+
 		mContentAspectRatio = mPDFPlayer->getWidth() / mPDFPlayer->getHeight();
 		contentWidth = mPDFPlayer->getWidth();
 		contentHeight = mPDFPlayer->getHeight();

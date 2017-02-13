@@ -24,7 +24,7 @@ struct pdf_lexbuf_s
 	int size;
 	int base_size;
 	int len;
-	int i;
+	fz_off_t i;
 	float f;
 	char *scratch;
 	char buffer[PDF_LEXBUF_SMALL];
@@ -39,7 +39,6 @@ struct pdf_lexbuf_large_s
 struct pdf_hotspot_s
 {
 	int num;
-	int gen;
 	int state;
 };
 
@@ -86,20 +85,31 @@ pdf_document *pdf_open_document(fz_context *ctx, const char *filename);
 pdf_document *pdf_open_document_with_stream(fz_context *ctx, fz_stream *file);
 
 /*
-	pdf_close_document: Closes and frees an opened PDF document.
+	pdf_drop_document: Closes and frees an opened PDF document.
 
 	The resource store in the context associated with pdf_document
 	is emptied.
 
 	Does not throw exceptions.
 */
-void pdf_close_document(fz_context *ctx, pdf_document *doc);
+void pdf_drop_document(fz_context *ctx, pdf_document *doc);
 
 /*
-	pdf_specific: down-cast an fz_document to a pdf_document.
+	pdf_specifics: down-cast an fz_document to a pdf_document.
 	Returns NULL if underlying document is not PDF
 */
 pdf_document *pdf_specifics(fz_context *ctx, fz_document *doc);
+
+/*
+	pdf_document_from_fz_document,
+	pdf_page_from_fz_page,
+	pdf_annot_from_fz_annot:
+		Down-cast generic fitz objects into pdf specific variants.
+		Returns NULL if the objects are not from a PDF document.
+*/
+pdf_document *pdf_document_from_fz_document(fz_context *ctx, fz_document *ptr);
+pdf_page *pdf_page_from_fz_page(fz_context *ctx, fz_page *ptr);
+pdf_annot *pdf_annot_from_fz_annot(fz_context *ctx, fz_annot *ptr);
 
 int pdf_needs_password(fz_context *ctx, pdf_document *doc);
 int pdf_authenticate_password(fz_context *ctx, pdf_document *doc, const char *pw);
@@ -109,21 +119,129 @@ int pdf_lookup_metadata(fz_context *ctx, pdf_document *doc, const char *key, cha
 
 fz_outline *pdf_load_outline(fz_context *ctx, pdf_document *doc);
 
-typedef struct pdf_ocg_entry_s pdf_ocg_entry;
+/*
+	pdf_count_layer_configs: Get the number of layer
+	configurations defined in this document.
 
-struct pdf_ocg_entry_s
-{
-	int num;
-	int gen;
-	int state;
-};
+	doc: The document in question.
+*/
+int pdf_count_layer_configs(fz_context *ctx, pdf_document *doc);
 
-struct pdf_ocg_descriptor_s
+typedef struct
 {
-	int len;
-	pdf_ocg_entry *ocgs;
-	pdf_obj *intent;
-};
+	const char *name;
+	const char *creator;
+} pdf_layer_config;
+
+/*
+	pdf_layer_config_info: Fetch the name (and
+	optionally creator) of the given layer config.
+
+	doc: The document in question.
+
+	config_num: A value in the 0..n-1 range, where n is the
+	value returned from pdf_count_layer_configs.
+
+	info: Pointer to structure to fill in. Pointers within
+	this structure may be set to NULL if no information is
+	available.
+*/
+void pdf_layer_config_info(fz_context *ctx, pdf_document *doc, int config_num, pdf_layer_config *info);
+
+/*
+	pdf_select_layer_config: Set the current configuration.
+	This updates the visibility of the optional content groups
+	within the document.
+
+	doc: The document in question.
+
+	config_num: A value in the 0..n-1 range, where n is the
+	value returned from pdf_count_layer_configs.
+*/
+void pdf_select_layer_config(fz_context *ctx, pdf_document *doc, int config_num);
+
+/*
+	pdf_count_layer_config_ui: Returns the number of entries in the
+	'UI' for this layer configuration.
+
+	doc: The document in question.
+*/
+int pdf_count_layer_config_ui(fz_context *ctx, pdf_document *doc);
+
+/*
+	pdf_select_layer_ui: Select a checkbox/radiobox
+	within the 'UI' for this layer configuration.
+
+	Selecting a UI entry that is a radiobox may disable
+	other UI entries.
+
+	doc: The document in question.
+
+	ui: A value in the 0..m-1 range, where m is the value
+	returned by pdf_count_layer_config_ui.
+*/
+void pdf_select_layer_config_ui(fz_context *ctx, pdf_document *doc, int ui);
+
+/*
+	pdf_deselect_layer_ui: Select a checkbox/radiobox
+	within the 'UI' for this layer configuration.
+
+	doc: The document in question.
+
+	ui: A value in the 0..m-1 range, where m is the value
+	returned by pdf_count_layer_config_ui.
+*/
+void pdf_deselect_layer_config_ui(fz_context *ctx, pdf_document *doc, int ui);
+
+/*
+	pdf_toggle_layer_config_ui: Toggle a checkbox/radiobox
+	within the 'UI' for this layer configuration.
+
+	Toggling a UI entry that is a radiobox may disable
+	other UI entries.
+
+	doc: The document in question.
+
+	ui: A value in the 0..m-1 range, where m is the value
+	returned by pdf_count_layer_config_ui.
+*/
+void pdf_toggle_layer_config_ui(fz_context *ctx, pdf_document *doc, int ui);
+
+typedef enum
+{
+	PDF_LAYER_UI_LABEL = 0,
+	PDF_LAYER_UI_CHECKBOX = 1,
+	PDF_LAYER_UI_RADIOBOX = 2
+} pdf_layer_config_ui_type;
+
+typedef struct
+{
+	const char *text;
+	int depth;
+	pdf_layer_config_ui_type type;
+	int selected;
+	int locked;
+} pdf_layer_config_ui;
+
+/*
+	pdf_layer_config_ui_info: Get the info for a given
+	entry in the layer config ui.
+
+	doc: The document in question.
+
+	ui: A value in the 0..m-1 range, where m is the value
+	returned by pdf_count_layer_config_ui.
+
+	info: Pointer to a structure to fill in with information
+	about the requested ui entry.
+*/
+void pdf_layer_config_ui_info(fz_context *ctx, pdf_document *doc, int ui, pdf_layer_config_ui *info);
+
+/*
+	pdf_set_layer_config_as_default: Write the current layer
+	config back into the document as the default state.
+*/
+void pdf_set_layer_config_as_default(fz_context *ctx, pdf_document *doc);
 
 /*
 	pdf_update_page: update a page for the sake of changes caused by a call
@@ -131,7 +249,7 @@ struct pdf_ocg_descriptor_s
 	are out of date, checks for cases where different appearance streams
 	should be selected because of state changes, and records internally
 	each annotation that has changed appearance. The list of changed annotations
-	is then available via pdf_poll_changed_annot. Note that a call to
+	is then available via querying the annot->changed flag. Note that a call to
 	pdf_pass_event for one page may lead to changes on any other, so an app
 	should call pdf_update_page for every page it currently displays. Also
 	it is important that the pdf_page object is the one used to last render
@@ -139,7 +257,7 @@ struct pdf_ocg_descriptor_s
 	a call to pdf_update_page would not reliably be able to report all changed
 	areas.
 */
-void pdf_update_page(fz_context *ctx, pdf_document *doc, pdf_page *page);
+void pdf_update_page(fz_context *ctx, pdf_page *page);
 
 /*
 	Determine whether changes have been made since the
@@ -170,17 +288,19 @@ struct pdf_document_s
 	fz_stream *file;
 
 	int version;
-	int startxref;
-	int file_size;
+	fz_off_t startxref;
+	fz_off_t file_size;
 	pdf_crypt *crypt;
 	pdf_ocg_descriptor *ocg;
 	pdf_hotspot hotspot;
 
 	int max_xref_len;
 	int num_xref_sections;
+	int num_incremental_sections;
+	int xref_base;
+	int disallow_new_increments;
 	pdf_xref *xref_sections;
 	int *xref_index;
-	int xref_altered;
 	int freeze_updates;
 	int has_xref_streams;
 
@@ -190,14 +310,14 @@ struct pdf_document_s
 
 	/* State indicating which file parsing method we are using */
 	int file_reading_linearly;
-	int file_length;
+	fz_off_t file_length;
 
 	pdf_obj *linear_obj; /* Linearized object (if used) */
 	pdf_obj **linear_page_refs; /* Page objects for linear loading */
 	int linear_page1_obj_num;
 
 	/* The state for the pdf_progressive_advance parser */
-	int linear_pos;
+	fz_off_t linear_pos;
 	int linear_page_num;
 
 	int hint_object_offset;
@@ -221,17 +341,17 @@ struct pdf_document_s
 	struct
 	{
 		int number; /* Page object number */
-		int offset; /* Offset of page object */
-		int index; /* Index into shared hint_shared_ref */
+		fz_off_t offset; /* Offset of page object */
+		fz_off_t index; /* Index into shared hint_shared_ref */
 	} *hint_page;
 	int *hint_shared_ref;
 	struct
 	{
 		int number; /* Object number of first object */
-		int offset; /* Offset of first object */
+		fz_off_t offset; /* Offset of first object */
 	} *hint_shared;
 	int hint_obj_offsets_max;
-	int *hint_obj_offsets;
+	fz_off_t *hint_obj_offsets;
 
 	int resources_localised;
 
@@ -241,10 +361,9 @@ struct pdf_document_s
 	pdf_obj *focus_obj;
 
 	pdf_js *js;
-	void (*drop_js)(pdf_js *js);
+
 	int recalculating;
 	int dirty;
-	pdf_unsaved_sig *unsaved_sigs;
 
 	void (*update_appearance)(fz_context *ctx, pdf_document *doc, pdf_annot *annot);
 
@@ -254,6 +373,15 @@ struct pdf_document_s
 	int num_type3_fonts;
 	int max_type3_fonts;
 	fz_font **type3_fonts;
+
+	struct {
+		fz_hash_table *images;
+		fz_hash_table *fonts;
+	} resources;
+
+	int orphans_max;
+	int orphans_count;
+	pdf_obj **orphans;
 };
 
 /*
@@ -265,18 +393,167 @@ struct pdf_document_s
 */
 pdf_document *pdf_create_document(fz_context *ctx);
 
-pdf_page *pdf_create_page(fz_context *ctx, pdf_document *doc, fz_rect rect, int res, int rotate);
+/*
+	Deep copy objects between documents.
+*/
+typedef struct pdf_graft_map_s pdf_graft_map;
 
-void pdf_insert_page(fz_context *ctx, pdf_document *doc, pdf_page *page, int at);
+pdf_graft_map *pdf_new_graft_map(fz_context *ctx, pdf_document *src);
+void pdf_drop_graft_map(fz_context *ctx, pdf_graft_map *map);
+pdf_obj *pdf_graft_object(fz_context *ctx, pdf_document *dst, pdf_document *src, pdf_obj *obj, pdf_graft_map *map);
 
+/*
+	pdf_page_write: Create a device that will record the
+	graphical operations given to it into a sequence of
+	pdf operations, together with a set of resources. This
+	sequence/set pair can then be used as the basis for
+	adding a page to the document (see pdf_add_page).
+
+	doc: The document for which these are intended.
+
+	mediabox: The bbox for the created page.
+
+	presources: Pointer to a place to put the created
+	resources dictionary.
+
+	pcontents: Pointer to a place to put the created
+	contents buffer.
+*/
+fz_device *pdf_page_write(fz_context *ctx, pdf_document *doc, const fz_rect *mediabox, pdf_obj **presources, fz_buffer **pcontents);
+
+/*
+	pdf_add_page: Create a pdf_obj within a document that
+	represents a page, from a previously created resources
+	dictionary and page content stream. This should then be
+	inserted into the document using pdf_insert_page.
+
+	After this call the page exists within the document
+	structure, but is not actually ever displayed as it is
+	not linked into the PDF page tree.
+
+	doc: The document to which to add the page.
+
+	mediabox: The mediabox for the page (should be identical
+	to that used when creating the resources/contents).
+
+	rotate: 0, 90, 180 or 270. The rotation to use for the
+	page.
+
+	resources: The resources dictionary for the new page
+	(typically created by pdf_page_write).
+
+	contents: The page contents for the new page (typically
+	create by pdf_page_write).
+*/
+pdf_obj *pdf_add_page(fz_context *ctx, pdf_document *doc, const fz_rect *mediabox, int rotate, pdf_obj *resources, fz_buffer *contents);
+
+/*
+	pdf_insert_page: Insert a page previously created by
+	pdf_add_page into the pages tree of the document.
+
+	doc: The document to insert into.
+
+	at: The page number to insert at. 0 inserts at the start.
+	negative numbers, or INT_MAX insert at the end. Otherwise
+	n inserts after page n.
+
+	page: The page to insert.
+*/
+void pdf_insert_page(fz_context *ctx, pdf_document *doc, int at, pdf_obj *page);
+
+/*
+	pdf_delete_page: Delete a page from the page tree of
+	a document. This does not remove the page contents
+	or resources from the file.
+
+	doc: The document to operate on.
+
+	number: The page to remove (numbered from 0)
+*/
 void pdf_delete_page(fz_context *ctx, pdf_document *doc, int number);
 
+/*
+	pdf_delete_page_range: Delete a range of pages from the
+	page tree of a document. This does not remove the page
+	contents or resources from the file.
+
+	doc: The document to operate on.
+
+	start, end: The range of pages (numbered from 0)
+	(inclusive, exclusive) to remove. If end is negative or
+	greater than the number of pages in the document, it
+	will be taken to be the end of the document.
+*/
 void pdf_delete_page_range(fz_context *ctx, pdf_document *doc, int start, int end);
 
-fz_device *pdf_page_write(fz_context *ctx, pdf_document *doc, pdf_page *page);
-
+/*
+	pdf_finish_edit: Called after any editing operations
+	on a document have completed, this will tidy up
+	the document. For now this is restricted to
+	rebalancing the page tree, but may be extended
+	in future.
+*/
 void pdf_finish_edit(fz_context *ctx, pdf_document *doc);
 
 int pdf_recognize(fz_context *doc, const char *magic);
+
+typedef struct pdf_write_options_s pdf_write_options;
+
+/*
+	In calls to fz_save_document, the following options structure can be used
+	to control aspects of the writing process. This structure may grow
+	in future, and should be zero-filled to allow forwards compatibility.
+*/
+struct pdf_write_options_s
+{
+	int do_incremental; /* Write just the changed objects. */
+	int do_pretty; /* Pretty-print dictionaries and arrays. */
+	int do_ascii; /* ASCII hex encode binary streams. */
+	int do_compress; /* Compress streams. */
+	int do_compress_images; /* Compress (or leave compressed) image streams. */
+	int do_compress_fonts; /* Compress (or leave compressed) font streams. */
+	int do_decompress; /* Decompress streams (except when compressing images/fonts). */
+	int do_garbage; /* Garbage collect objects before saving; 1=gc, 2=re-number, 3=de-duplicate. */
+	int do_linear; /* Write linearised. */
+	int do_clean; /* Sanitize content streams. */
+	int continue_on_error; /* If set, errors are (optionally) counted and writing continues. */
+	int *errors; /* Pointer to a place to store a count of errors */
+};
+
+/*
+	Parse option string into a pdf_write_options struct.
+	Matches the command line options to 'mutool clean':
+		g: garbage collect
+		d, i, f: expand all, fonts, images
+		l: linearize
+		a: ascii hex encode
+		z: deflate
+		s: sanitize content streams
+*/
+pdf_write_options *pdf_parse_write_options(fz_context *ctx, pdf_write_options *opts, const char *args);
+
+/*
+	pdf_has_unsaved_sigs: Returns true if there are digital signatures waiting to
+	to updated on save.
+*/
+int pdf_has_unsaved_sigs(fz_context *ctx, pdf_document *doc);
+
+/*
+	pdf_write_document: Write out the document to an output stream with all changes finalised.
+
+	This method will throw an error if pdf_has_unsaved_sigs.
+*/
+void pdf_write_document(fz_context *ctx, pdf_document *doc, fz_output *out, pdf_write_options *opts);
+
+/*
+	pdf_save_document: Write out the document to a file with all changes finalised.
+*/
+void pdf_save_document(fz_context *ctx, pdf_document *doc, const char *filename, pdf_write_options *opts);
+
+/*
+	pdf_can_be_saved_incrementally: Return true if the document can be saved
+	incrementally. (e.g. it has not been repaired, and it is not encrypted)
+*/
+int pdf_can_be_saved_incrementally(fz_context *ctx, pdf_document *doc);
 
 #endif

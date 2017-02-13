@@ -21,17 +21,12 @@ public:
 	static Pdf&					makePdf(SpriteEngine&, Sprite* parent = nullptr);
 	// Utility to get a render of the first page of a PDF.
 	static ci::Surface8u		renderPage(const std::string& path);
-	// Constant size will cause the sprite to size itself to the first PDF
-	// and scale all subsequent PDF pages to match.
-	// Auto resize will cause the view to resize when the page size changes.
-	enum						PageSizeMode { kConstantSize, kAutoResize };
 
 	Pdf(ds::ui::SpriteEngine&);
 
-	Pdf&						setPageSizeMode(const PageSizeMode&);
 	Pdf&						setResourceFilename(const std::string& filename);
 	Pdf&						setResourceId(const ds::Resource::Id&);
-	// Callback when the page size changes (only triggered in kAutoResize mode).
+	// Callback when the page size changes. Highly recommend you listen for this. The sprite will change size before this is called
 	void						setPageSizeChangedFn(const std::function<void(void)>&);
 
 	virtual void				updateClient(const UpdateParams&);
@@ -75,7 +70,6 @@ private:
 
 	// STATE
 	std::string					mResourceFilename;
-	PageSizeMode				mPageSizeMode;
 	std::function<void(void)>	mPageSizeChangeFn;
 	// CACHE
 	ci::Vec2i					mPageSizeCache;
@@ -90,13 +84,12 @@ private:
 		void					clear();
 
 		/// Returns true if the PDF was loaded successfully
-		bool					setResourceFilename(const std::string& filename, const PageSizeMode&);
+		bool					setResourceFilename(const std::string& filename);
 
 		/// Returns true if pixels were updated in this update
 		bool					update();
 		void					drawLocalClient();
 		void					setScale(const ci::Vec3f&);
-		void					setPageSizeMode(const PageSizeMode&);
 		float					getWidth() const;
 		float					getHeight() const;
 		float					getTextureWidth() const;

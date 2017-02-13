@@ -46,7 +46,10 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 	mSourceResource = mediaResource;
 	std::string mediaPath = mSourceResource.getAbsoluteFilePath();
 
+	ci::Vec2f prevSize = ci::Vec2f(0.0f, 0.0f);
+
 	if(mPDF){
+		prevSize = mPDF->getSize().xy();
 		mPDF->release();
 		mPDF = nullptr;
 		if(mPdfInterface){
@@ -73,9 +76,14 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 		if(mGoodStatusCallback) mGoodStatusCallback();
 	});
 
+	mPDF->setPageSizeChangedFn([this]{
+		if(mSizeChangedCallback && mPDF) mSizeChangedCallback(mPDF->getSize().xy());
+	});
+
 	mPDF->setLoadErrorCallback([this](const std::string& msg){
 		if(mErrorMsgCallback) mErrorMsgCallback(msg);
 	});
+
 	addChildPtr(mPDF);
 
 	if(mPDFNext){
@@ -226,7 +234,7 @@ void PDFPlayer::layout(){
 		mPDFThumbHolder->setScale(theScale * 2.0f);
 	}
 
-	if(mPDF){
+	if(mPDF && w > 0.0f && h > 0.0f && mPDF->getHeight() > 0.0f){
 		// make the PDF content fill the vertical space perfectly
 		float theScale = h / mPDF->getHeight();
 		mPDF->setScale(theScale);
