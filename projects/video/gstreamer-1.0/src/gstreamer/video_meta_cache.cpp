@@ -2,7 +2,7 @@
 
 
 // Keep this at the front, can get messed if it comes later
-#include "MediaInfoDLL.h"
+#include "MediaInfoDLL/MediaInfoDLL.h"
 
 #include <sstream>
 #include <Poco/Path.h>
