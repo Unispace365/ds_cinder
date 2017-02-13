@@ -252,6 +252,7 @@ void MediaPlayer::initialize(){
 		contentHeight = mStreamPlayer->getHeight();
 
 	} else if(mediaType == ds::Resource::PDF_TYPE){
+		showThumbnail = false;
 		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
 		addChildPtr(mPDFPlayer);
 
@@ -270,12 +271,15 @@ void MediaPlayer::initialize(){
 
 		mPDFPlayer->setSizeChangedCallback([this](const ci::Vec2f& newSize){
 			//setSize(mPDFPlayer->getWidth(), mPDFPlayer->getHeight());
-			mContentAspectRatio = newSize.x / newSize.y;
 			// change this size here?
 			if(mMediaSizeChangedCallback){
+				mContentAspectRatio = newSize.x / newSize.y;
 				mMediaSizeChangedCallback(newSize);
+			} else {
+				mPDFPlayer->layout();
 			}
 		});
+		
 
 		mContentAspectRatio = mPDFPlayer->getWidth() / mPDFPlayer->getHeight();
 		contentWidth = mPDFPlayer->getWidth();

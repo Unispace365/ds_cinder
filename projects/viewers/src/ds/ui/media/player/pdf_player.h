@@ -46,7 +46,8 @@ protected:
 	virtual void								onSizeChanged();
 	void										loadNextAndPrevPages();
 	ds::ui::Pdf*								mPDF;
-	ds::ui::Sprite*								mPDFThumbHolder;
+	ds::ui::Sprite*								mPDFNextHolder;
+	ds::ui::Sprite*								mPDFPrevHolder;
 	ds::Resource								mSourceResource;
 
 	bool										mFirstPageLoaded;

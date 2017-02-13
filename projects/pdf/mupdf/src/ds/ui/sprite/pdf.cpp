@@ -153,19 +153,23 @@ void Pdf::updateClient(const UpdateParams& p) {
 
 void Pdf::updateServer(const UpdateParams& p) {
 	inherited::updateServer(p);
-	if(mHolder.update() && mPageLoadedCallback){
-		mPageLoadedCallback();
-	}
-	const ci::Vec2i			page_size(mHolder.getPageSize());
-	if (mPageSizeCache != page_size) {
-		mPageSizeCache = page_size;
-		if(mPageSizeCache.x < 1 || mPageSizeCache.y < 1){
-			DS_LOG_WARNING("Received no size from muPDF!");
+	if(mHolder.update()){
+
+		const ci::Vec2i			page_size(mHolder.getPageSize());
+		if(mPageSizeCache != page_size) {
+			mPageSizeCache = page_size;
+			if(mPageSizeCache.x < 1 || mPageSizeCache.y < 1){
+				DS_LOG_WARNING("Received no size from muPDF!");
+			}
+			setSize(static_cast<float>(mPageSizeCache.x), static_cast<float>(mPageSizeCache.y));
+			if(mPageSizeChangeFn) mPageSizeChangeFn();
 		}
-		setSize(static_cast<float>(mPageSizeCache.x), static_cast<float>(mPageSizeCache.y));
-		if (mPageSizeChangeFn) mPageSizeChangeFn();
+
+		if(mPageLoadedCallback){
+			mPageLoadedCallback();
+		}
+
 	}
-	
 }
 
 void Pdf::setPageNum(const int pageNum) {
@@ -289,7 +293,6 @@ Pdf::ResHolder::~ResHolder() {
 
 void Pdf::ResHolder::clear() {
 	if (mRes) {
-		std::cout << "Clearing res holder " << std::endl;
 		mRes->scheduleDestructor();
 		mRes = nullptr;
 	}
