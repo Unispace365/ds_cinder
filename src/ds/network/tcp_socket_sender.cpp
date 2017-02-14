@@ -140,8 +140,7 @@ void TcpSocketSender::Worker::perform(const std::vector<std::string>& data) {
 				socket.sendBytes(d.data(), d.size());
 			}
 		} catch (std::exception const& ex) {
-			DS_LOG_WARNING("TcpServer::send() error sending data");
-			DS_DBG_CODE(std::cout << "TcpServer::send() error sending data (" << ex.what() << ")" << std::endl);
+			DS_LOG_WARNING("TcpServer::send() error sending data: " << ex.what());
 		}
 	}
 }

@@ -233,6 +233,8 @@ void ScrollList::layoutItemsMatrix()
 				yp = mStartPositionY;
 			}
 			else {
+				if (index == mItemPlaceHolders.size())
+					xp += mIncrementAmount;
 				yp += mGapping;
 			}
 		}

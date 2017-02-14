@@ -104,6 +104,7 @@
     <ClInclude Include="..\src\ds\network\network_info.h" />
     <ClInclude Include="..\src\ds\network\net_connection.h" />
     <ClInclude Include="..\src\ds\network\node_watcher.h" />
+    <ClInclude Include="..\src\ds\network\packet_chunker.h" />
     <ClInclude Include="..\src\ds\network\single_udp_receiver.h" />
     <ClInclude Include="..\src\ds\network\tcp_client.h" />
     <ClInclude Include="..\src\ds\network\tcp_server.h" />
@@ -309,6 +310,7 @@
     <ClCompile Include="..\src\ds\network\http_client.cpp" />
     <ClCompile Include="..\src\ds\network\network_info.cpp" />
     <ClCompile Include="..\src\ds\network\node_watcher.cpp" />
+    <ClCompile Include="..\src\ds\network\packet_chunker.cpp" />
     <ClCompile Include="..\src\ds\network\single_udp_receiver.cpp" />
     <ClCompile Include="..\src\ds\network\tcp_client.cpp" />
     <ClCompile Include="..\src\ds\network\tcp_server.cpp" />

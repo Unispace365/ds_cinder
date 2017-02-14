@@ -637,6 +637,25 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	}
+	else if (property == "scroll_fade_size") {
+		auto scrollList = dynamic_cast<ds::ui::ScrollList*>(&sprite);
+		ds::ui::ScrollArea* scrollArea = nullptr;
+		if (scrollList) {
+			scrollArea = scrollList->getScrollArea();
+		}
+
+		if (!scrollArea) {
+			scrollArea = dynamic_cast<ds::ui::ScrollArea*>(&sprite);
+		}
+
+		if (scrollArea) {
+			scrollArea->setUseFades(true);
+			scrollArea->setFadeHeight(ds::string_to_float(value));
+		}
+		else {
+			DS_LOG_WARNING("Couldn't set scroll_fade_size for this sprite ");
+		}
+	}
 
 	// Border sprite properties
 	else if(property == "border_width"){
@@ -1051,6 +1070,51 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 					sks.mKeyInitialPosition = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "key_scale"){
 					sks.mKeyScale = ds::string_to_float(paramValue);
+				} else if(paramType == "img_letter_up"){
+					sks.mKeyLetterUpImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_letter_dn"){
+					sks.mKeyLetterDnImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_number_up"){
+					sks.mKeyNumberUpImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_number_dn"){
+					sks.mKeyNumberDnImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_space_up"){
+					sks.mKeySpaceUpImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_space_dn"){
+					sks.mKeySpaceDnImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_enter_up"){
+					sks.mKeyEnterUpImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_enter_dn"){
+					sks.mKeyEnterDnImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_delete_up"){
+					sks.mKeyDeleteUpImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_delete_dn"){
+					sks.mKeyDeleteDnImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_shift_up"){
+					sks.mKeyShiftUpImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_shift_dn"){
+					sks.mKeyShiftDnImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_tab_up"){
+					sks.mKeyTabUpImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_tab_dn"){
+					sks.mKeyTabDnImage = ds::Environment::expand(paramValue);
+				} else if(paramType == "img_up_none"){
+					if(parseBoolean(paramValue)){
+						sks.mKeyLetterUpImage = "";
+						//sks.mKeyLetterDnImage = "";
+						sks.mKeyNumberUpImage = "";
+						//sks.mKeyNumberDnImage = "";
+						sks.mKeySpaceUpImage = "";
+						//sks.mKeySpaceDnImage = "";
+						sks.mKeyEnterUpImage = "";
+						//sks.mKeyEnterDnImage = "";
+						sks.mKeyDeleteUpImage = "";
+						//sks.mKeyDeleteDnImage = "";
+						sks.mKeyShiftUpImage = "";
+						//sks.mKeyShiftDnImage = "";
+						sks.mKeyTabUpImage = "";
+						//sks.mKeyTabDnImage = "";
+					}
 				}
 			}
 		}

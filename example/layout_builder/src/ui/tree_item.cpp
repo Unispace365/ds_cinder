@@ -25,7 +25,7 @@ TreeItem::TreeItem(Globals& g, ds::ui::Sprite* linkedItem)
 	, mLabelTextTwo(nullptr)
 {
 	
-	ds::ui::ImageButton* deleteButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/ui/close_button.png", "%APP%/data/images/ui/close_button.png", 10.0f);
+	ds::ui::ImageButton* deleteButton = new ds::ui::ImageButton(mEngine, "%APP%/data/images/layout_builder/close_button.png", "%APP%/data/images/layout_builder/close_button.png", 10.0f);
 	deleteButton->setScale(0.25f, 0.25f);
 	deleteButton->getHighImage().setColor(ci::Color(0.7f, 0.2f, 0.2f));
 	addChildPtr(deleteButton);
@@ -41,14 +41,14 @@ TreeItem::TreeItem(Globals& g, ds::ui::Sprite* linkedItem)
 	mLayoutRPad = paddin/2.0f;
 	float theWiddy = 0.0f;
 	float theHiddy = 0.0f;
-	mNameText = mGlobals.getText("tree:item").create(mEngine, this);
+	mNameText = mGlobals.getText("layout_builder:tree:item").create(mEngine, this);
 	mNameText->setText(mLinkedSprite->getSpriteName());
 	mNameText->setPosition(deleteButton->getScaleWidth(), paddin / 2.0f);
 	theWiddy += mNameText->getWidth() + paddin / 2.0f + deleteButton->getScaleWidth();
 	theHiddy = mNameText->getFontSize() + paddin;
 	
 
-	mLabelTextTwo = mGlobals.getText("tree:item_two").create(mEngine, this);
+	mLabelTextTwo = mGlobals.getText("layout_builder:tree:item_two").create(mEngine, this);
 	mLabelTextTwo->setText(ds::ui::XmlImporter::getSpriteTypeForSprite(mLinkedSprite));
 	mLabelTextTwo->setPosition(theWiddy, paddin / 2.0f);
 	theWiddy += mLabelTextTwo->getWidth() + paddin / 2.0f;

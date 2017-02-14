@@ -364,16 +364,19 @@ void GstVideo::drawLocalClient(){
 
 			dat = mGstreamerWrapper->getVideo();
 
-			if (dat){
+			if (dat && mFrameTexture){
 				if (mColorType == kColorTypeShaderTransform ){
 
-					ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
-					ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
-					ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
+					if(mUFrameTexture && mVFrameTexture){
+						ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
+						ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
+						ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
 
 					mFrameTexture->update(yChannel);// , ci::Area(0, 0, mVideoSize.x, mVideoSize.y));
 					mUFrameTexture->update(uChannel);// , ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
 					mVFrameTexture->update(vChannel);// , ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
+					}
+
 				} else {
 					ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
 					mFrameTexture->update(video_surface);
@@ -951,7 +954,7 @@ void GstVideo::setNetClock(){
 		mServerOnlyMode = true;
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
 		//Read port from settings file if available.  Otherwise, pick default.
-		static int newPort = mEngine.getSettings("layout").getInt("gstVideo:netclock:port", 0, 0);
+		static int newPort = mEngine.getSettings("engine").getInt("gstVideo:netclock:port", 0, DEFAULT_PORT);
 		if (newPort == 0){
 			newPort = DEFAULT_PORT;
 		}

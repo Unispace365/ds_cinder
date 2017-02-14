@@ -217,6 +217,8 @@ void AbstractEngineServer::onClientStartedCommand(ds::DataBuffer &data) {
 
 		mClientStartedReplyState.mClients.push_back(sessionid);
 		setState(mClientStartedReplyState);
+	} else {
+		DS_LOG_INFO_M("onClientStartedCommand didn't receive a valid guid or sessionid!", ds::IO_LOG);
 	}
 }
 
@@ -315,15 +317,16 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		}
 	}
 
-	// Handle data from all the clients. This high number is used
-	// to compensate for catching up when things cause me to get
-	// behind (which could be as simple as LogMeIn taking over a
-	// machine). It might be that we just want to wait until all
-	// registered clients have reported the current frame.
-	int32_t		limit = 100;
-	while (engine.mReceiveConnection.canRecv()) {
-		engine.mReceiver.receiveAndHandle(engine.mBlobRegistry, engine.mBlobReader);
-		if (--limit <= 0) break;
+	// this receive call pulls everything it can off the wire and caches it
+	engine.mReceiver.receiveBlob();
+
+	// now we can look through all the data we got and handle it
+	while(true) {
+		bool moreData = false;
+		engine.mReceiver.handleBlob(engine.mBlobRegistry, engine.mBlobReader, moreData);
+		if(!moreData) {
+			break;
+		}
 	}
 
 	// Track how far behind any clients are

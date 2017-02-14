@@ -87,9 +87,9 @@ void pdf_set_doc_event_callback(fz_context *ctx, pdf_document *doc, pdf_doc_even
 
 /*
 	pdf_alert_event: details of an alert event. In response the app should
-	display an alert dialog with the bittons specified by "button_type_group".
+	display an alert dialog with the buttons specified by "button_type_group".
 	If "check_box_message" is non-NULL, a checkbox should be displayed in
-	the lower-left corned along with the messsage.
+	the lower-left corned along with the message.
 
 	"finally_checked" and "button_pressed" should be set by the app
 	before returning from the callback. "finally_checked" need be set
@@ -97,11 +97,11 @@ void pdf_set_doc_event_callback(fz_context *ctx, pdf_document *doc, pdf_doc_even
 */
 typedef struct
 {
-	char *message;
+	const char *message;
 	int icon_type;
 	int button_group_type;
-	char *title;
-	char *check_box_message;
+	const char *title;
+	const char *check_box_message;
 	int initially_checked;
 	int finally_checked;
 	int button_pressed;
@@ -138,7 +138,7 @@ enum
 /*
 	pdf_access_alert_event: access the details of an alert event
 	The returned pointer and all the data referred to by the
-	structire are owned by mupdf and need not be freed by the
+	structure are owned by mupdf and need not be freed by the
 	caller.
 */
 pdf_alert_event *pdf_access_alert_event(fz_context *ctx, pdf_doc_event *event);
@@ -147,7 +147,7 @@ pdf_alert_event *pdf_access_alert_event(fz_context *ctx, pdf_doc_event *event);
 	pdf_access_exec_menu_item_event: access the details of am execMenuItem
 	event, which consists of just the name of the menu item
 */
-char *pdf_access_exec_menu_item_event(fz_context *ctx, pdf_doc_event *event);
+const char *pdf_access_exec_menu_item_event(fz_context *ctx, pdf_doc_event *event);
 
 /*
 	pdf_submit_event: details of a submit event. The app should submit
@@ -175,7 +175,7 @@ pdf_submit_event *pdf_access_submit_event(fz_context *ctx, pdf_doc_event *event)
 */
 typedef struct
 {
-	char *url;
+	const char *url;
 	int new_frame;
 } pdf_launch_url_event;
 
@@ -194,23 +194,23 @@ pdf_launch_url_event *pdf_access_launch_url_event(fz_context *ctx, pdf_doc_event
 typedef struct
 {
 	int ask_user;
-	char *to;
-	char *cc;
-	char *bcc;
-	char *subject;
-	char *message;
+	const char *to;
+	const char *cc;
+	const char *bcc;
+	const char *subject;
+	const char *message;
 } pdf_mail_doc_event;
 
 /*
-	pdf_acccess_mail_doc_event: access the details of a mail-doc event.
+	pdf_access_mail_doc_event: access the details of a mail-doc event.
 */
 pdf_mail_doc_event *pdf_access_mail_doc_event(fz_context *ctx, pdf_doc_event *event);
 
 void pdf_event_issue_alert(fz_context *ctx, pdf_document *doc, pdf_alert_event *event);
 void pdf_event_issue_print(fz_context *ctx, pdf_document *doc);
-void pdf_event_issue_exec_menu_item(fz_context *ctx, pdf_document *doc, char *item);
+void pdf_event_issue_exec_menu_item(fz_context *ctx, pdf_document *doc, const char *item);
 void pdf_event_issue_exec_dialog(fz_context *ctx, pdf_document *doc);
-void pdf_event_issue_launch_url(fz_context *ctx, pdf_document *doc, char *url, int new_frame);
+void pdf_event_issue_launch_url(fz_context *ctx, pdf_document *doc, const char *url, int new_frame);
 void pdf_event_issue_mail_doc(fz_context *ctx, pdf_document *doc, pdf_mail_doc_event *event);
 
 #endif

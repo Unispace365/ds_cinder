@@ -38,11 +38,9 @@ Init				INIT;
 
 char				BLOB_TYPE			= 0;
 const DirtyState&	PDF_FN_DIRTY		= INTERNAL_A_DIRTY;
-const DirtyState&	PDF_PAGEMODE_DIRTY	= INTERNAL_B_DIRTY;
-const DirtyState&	PDF_CURPAGE_DIRTY	= INTERNAL_C_DIRTY;
+const DirtyState&	PDF_CURPAGE_DIRTY	= INTERNAL_B_DIRTY;
 const char			PDF_FN_ATT			= 80;
-const char			PDF_PAGEMODE_ATT	= 81;
-const char			PDF_CURPAGE_ATT		= 82;
+const char			PDF_CURPAGE_ATT		= 81;
 }
 
 /**
@@ -69,7 +67,6 @@ ci::Surface8uRef Pdf::renderPage(const std::string& path) {
 
 Pdf::Pdf(ds::ui::SpriteEngine& e)
 		: inherited(e)
-		, mPageSizeMode(kConstantSize)
 		, mPageSizeChangeFn(nullptr)
 		, mPageSizeCache(0, 0)
 		, mHolder(e) 
@@ -110,17 +107,10 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 	setUseShaderTexture(true);
 }
 
-Pdf& Pdf::setPageSizeMode(const PageSizeMode& m) {
-	mPageSizeMode = m;
-	mHolder.setPageSizeMode(m);
-	markAsDirty(PDF_PAGEMODE_DIRTY);
-	return *this;
-}
-
 Pdf& Pdf::setResourceFilename(const std::string& filename) {
 	mResourceFilename = filename;
 	mPageSizeCache = ci::ivec2(0, 0);
-	if(!mHolder.setResourceFilename(filename, mPageSizeMode) && mErrorCallback){
+	if(!mHolder.setResourceFilename(filename) && mErrorCallback){
 		std::stringstream errorStream;
 		errorStream << "PDF could not be loaded at " << filename;
 		std::string errorStr = errorStream.str();
@@ -163,16 +153,22 @@ void Pdf::updateClient(const UpdateParams& p) {
 
 void Pdf::updateServer(const UpdateParams& p) {
 	inherited::updateServer(p);
-	if(mHolder.update() && mPageLoadedCallback){
-		mPageLoadedCallback();
-	}
-	if (mPageSizeMode == kAutoResize) {
+	if(mHolder.update()){
+
 		const ci::ivec2			page_size(mHolder.getPageSize());
-		if (mPageSizeCache != page_size) {
+		if(mPageSizeCache != page_size) {
 			mPageSizeCache = page_size;
+			if(mPageSizeCache.x < 1 || mPageSizeCache.y < 1){
+				DS_LOG_WARNING("Received no size from muPDF!");
+			}
 			setSize(static_cast<float>(mPageSizeCache.x), static_cast<float>(mPageSizeCache.y));
-			if (mPageSizeChangeFn) mPageSizeChangeFn();
+			if(mPageSizeChangeFn) mPageSizeChangeFn();
 		}
+
+		if(mPageLoadedCallback){
+			mPageLoadedCallback();
+		}
+
 	}
 }
 
@@ -205,7 +201,7 @@ void Pdf::goToPreviousPage() {
 #ifdef _DEBUG
 void Pdf::writeState(std::ostream &s, const size_t tab) const {
 	for (size_t k=0; k<tab; ++k) s << "\t";
-	s << "PDF (" << mResourceFilename << ", mode=" << mPageSizeMode << ")" << std::endl;
+	s << "PDF (" << mResourceFilename << ")" << std::endl;
 	inherited::writeState(s, tab);
 	s << std::endl;
 }
@@ -274,10 +270,6 @@ void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
 		buf.add(PDF_FN_ATT);
 		buf.add(mResourceFilename);
 	}
-	if (mDirty.has(PDF_PAGEMODE_DIRTY)) {
-		buf.add(PDF_PAGEMODE_ATT);
-		buf.add<int32_t>(static_cast<int32_t>(mPageSizeMode));
-	}
 
 	if(mDirty.has(PDF_CURPAGE_DIRTY)){
 		buf.add(PDF_CURPAGE_ATT);
@@ -288,10 +280,6 @@ void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
 void Pdf::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 	if (attributeId == PDF_FN_ATT) {
 		setResourceFilename(buf.read<std::string>());
-	} else if (attributeId == PDF_PAGEMODE_ATT) {
-		const int32_t		mode = buf.read<int32_t>();
-		if (mode == 0) setPageSizeMode(kConstantSize);
-		else if (mode == 1) setPageSizeMode(kAutoResize);
 	} else if(attributeId == PDF_CURPAGE_ATT) {
 		const int			curPage = buf.read<int>();
 		setPageNum(curPage);
@@ -320,12 +308,16 @@ void Pdf::ResHolder::clear() {
 	}
 }
 
-bool Pdf::ResHolder::setResourceFilename(const std::string& filename, const PageSizeMode& m) {
+bool Pdf::ResHolder::setResourceFilename(const std::string& filename) {
 	clear();
 	bool success = false;
 	mRes = new ds::pdf::PdfRes(mService.mThread);
 	if (mRes) {
-		success = mRes->loadPDF(ds::Environment::expand(filename), m);
+		success = mRes->loadPDF(ds::Environment::expand(filename));
+	}
+
+	if(!success){
+		DS_LOG_WARNING("Couldn't load " << filename << " in pdf res holder");
 	}
 
 	return success;
@@ -349,12 +341,6 @@ void Pdf::ResHolder::drawLocalClient()
 void Pdf::ResHolder::setScale(const ci::vec3& scale) {
 	if (mRes) {
 		mRes->setScale(scale.x);
-	}
-}
-
-void Pdf::ResHolder::setPageSizeMode(const PageSizeMode& m) {
-	if (mRes) {
-		mRes->setPageSizeMode(m);
 	}
 }
 

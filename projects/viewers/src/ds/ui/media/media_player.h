@@ -90,6 +90,9 @@ public:
 	/// Called after a new piece of media has been initialized / loaded
 	void					setInitializedCallback(std::function<void()> func);
 
+	/// If the media loaded inside this player changes sizes (such as a pdf with different page sizes)
+	void					setMediaSizeChangedCallback(std::function<void(const ci::vec2& newSize)> func){ mMediaSizeChangedCallback = func; }
+
 
 	/// Will do standard functions based on media type:
 	/// Web: Click the web content
@@ -126,8 +129,9 @@ protected:
 	ds::ui::Image*			mPrimaryImage;
 
 	std::function<void(const std::string& msg)>	mErrorCallback;
-	std::function<void(const bool isGood)> mStatusCallback;
-	std::function<void()>	mInitializedCallback;
+	std::function<void(const bool isGood)>		mStatusCallback;
+	std::function<void()>						mInitializedCallback;
+	std::function<void(const ci::vec2&)>		mMediaSizeChangedCallback;
 
 private:
 	void					layout();
