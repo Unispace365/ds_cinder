@@ -38,7 +38,7 @@ void BasicTweenApp::setupServer() {
 	//pdf.setResourceFilename(ds::Environment::getAppFolder("data", "bitcoin.pdf"));
 #else
 	// Or you can turn on auto resize and the sprite will resize when the page size changes
-	pdf.setPageSizeMode(ds::ui::Pdf::kAutoResize);
+//	pdf.setPageSizeMode(ds::ui::Pdf::kAutoResize);
 	pdf.setResourceFilename(ds::Environment::getAppFolder("data", "multi_sizes.pdf"));
 	pdf.setPageSizeChangedFn([](){std::cout << "Page size changed" << std::endl;});
 #endif
