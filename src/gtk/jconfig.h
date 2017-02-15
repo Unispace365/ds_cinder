@@ -71,4 +71,4 @@
 /* #undef size_t */
 
 /* The size of `size_t', as computed by sizeof. */
-#define SIZEOF_SIZE_T 4
+#define SIZEOF_SIZE_T 8
