@@ -155,6 +155,12 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 			newMedia.setTitle(ds::wstr_from_utf8(fileName));
 			newMedia.setBody(ds::wstr_from_utf8(fileNameOrig));
 			mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
+		} else if(fileNameOrig.find("http") != std::string::npos){
+			ds::model::MediaRef newMedia = ds::model::MediaRef();
+			newMedia.setPrimaryResource(ds::Resource(fileNameOrig, ds::Resource::WEB_TYPE));
+			newMedia.setTitle(L"The World Wide Web Internet Browser");
+			newMedia.setBody(ds::wstr_from_utf8(fileNameOrig));
+			mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
 		}
 
 	// Shows all enabled sprites with a label for class type

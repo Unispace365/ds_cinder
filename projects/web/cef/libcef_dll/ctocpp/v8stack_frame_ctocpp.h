@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_V8STACK_FRAME_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_v8.h"
 #include "include/capi/cef_v8_capi.h"
@@ -28,22 +28,17 @@ class CefV8StackFrameCToCpp
     : public CefCToCpp<CefV8StackFrameCToCpp, CefV8StackFrame,
         cef_v8stack_frame_t> {
  public:
-  explicit CefV8StackFrameCToCpp(cef_v8stack_frame_t* str)
-      : CefCToCpp<CefV8StackFrameCToCpp, CefV8StackFrame, cef_v8stack_frame_t>(
-          str) {}
-  virtual ~CefV8StackFrameCToCpp() {}
+  CefV8StackFrameCToCpp();
 
-  // CefV8StackFrame methods
-  virtual bool IsValid() OVERRIDE;
-  virtual CefString GetScriptName() OVERRIDE;
-  virtual CefString GetScriptNameOrSourceURL() OVERRIDE;
-  virtual CefString GetFunctionName() OVERRIDE;
-  virtual int GetLineNumber() OVERRIDE;
-  virtual int GetColumn() OVERRIDE;
-  virtual bool IsEval() OVERRIDE;
-  virtual bool IsConstructor() OVERRIDE;
+  // CefV8StackFrame methods.
+  bool IsValid() OVERRIDE;
+  CefString GetScriptName() OVERRIDE;
+  CefString GetScriptNameOrSourceURL() OVERRIDE;
+  CefString GetFunctionName() OVERRIDE;
+  int GetLineNumber() OVERRIDE;
+  int GetColumn() OVERRIDE;
+  bool IsEval() OVERRIDE;
+  bool IsConstructor() OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_V8STACK_FRAME_CTOCPP_H_
-

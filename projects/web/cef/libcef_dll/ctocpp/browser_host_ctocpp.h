@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include <vector>
 #include "include/cef_browser.h"
@@ -31,59 +31,78 @@ class CefBrowserHostCToCpp
     : public CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost,
         cef_browser_host_t> {
  public:
-  explicit CefBrowserHostCToCpp(cef_browser_host_t* str)
-      : CefCToCpp<CefBrowserHostCToCpp, CefBrowserHost, cef_browser_host_t>(
-          str) {}
-  virtual ~CefBrowserHostCToCpp() {}
+  CefBrowserHostCToCpp();
 
-  // CefBrowserHost methods
-  virtual CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
-  virtual void ParentWindowWillClose() OVERRIDE;
-  virtual void CloseBrowser(bool force_close) OVERRIDE;
-  virtual void SetFocus(bool enable) OVERRIDE;
-  virtual CefWindowHandle GetWindowHandle() OVERRIDE;
-  virtual CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
-  virtual CefRefPtr<CefClient> GetClient() OVERRIDE;
-  virtual CefRefPtr<CefRequestContext> GetRequestContext() OVERRIDE;
-  virtual double GetZoomLevel() OVERRIDE;
-  virtual void SetZoomLevel(double zoomLevel) OVERRIDE;
-  virtual void RunFileDialog(FileDialogMode mode, const CefString& title,
-      const CefString& default_file_name,
-      const std::vector<CefString>& accept_types,
+  // CefBrowserHost methods.
+  CefRefPtr<CefBrowser> GetBrowser() OVERRIDE;
+  void CloseBrowser(bool force_close) OVERRIDE;
+  bool TryCloseBrowser() OVERRIDE;
+  void SetFocus(bool focus) OVERRIDE;
+  CefWindowHandle GetWindowHandle() OVERRIDE;
+  CefWindowHandle GetOpenerWindowHandle() OVERRIDE;
+  bool HasView() OVERRIDE;
+  CefRefPtr<CefClient> GetClient() OVERRIDE;
+  CefRefPtr<CefRequestContext> GetRequestContext() OVERRIDE;
+  double GetZoomLevel() OVERRIDE;
+  void SetZoomLevel(double zoomLevel) OVERRIDE;
+  void RunFileDialog(FileDialogMode mode, const CefString& title,
+      const CefString& default_file_path,
+      const std::vector<CefString>& accept_filters, int selected_accept_filter,
       CefRefPtr<CefRunFileDialogCallback> callback) OVERRIDE;
-  virtual void StartDownload(const CefString& url) OVERRIDE;
-  virtual void Print() OVERRIDE;
-  virtual void Find(int identifier, const CefString& searchText, bool forward,
+  void StartDownload(const CefString& url) OVERRIDE;
+  void DownloadImage(const CefString& image_url, bool is_favicon,
+      uint32 max_image_size, bool bypass_cache,
+      CefRefPtr<CefDownloadImageCallback> callback) OVERRIDE;
+  void Print() OVERRIDE;
+  void PrintToPDF(const CefString& path, const CefPdfPrintSettings& settings,
+      CefRefPtr<CefPdfPrintCallback> callback) OVERRIDE;
+  void Find(int identifier, const CefString& searchText, bool forward,
       bool matchCase, bool findNext) OVERRIDE;
-  virtual void StopFinding(bool clearSelection) OVERRIDE;
-  virtual void ShowDevTools(const CefWindowInfo& windowInfo,
-      CefRefPtr<CefClient> client,
-      const CefBrowserSettings& settings) OVERRIDE;
-  virtual void CloseDevTools() OVERRIDE;
-  virtual void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
-  virtual bool IsMouseCursorChangeDisabled() OVERRIDE;
-  virtual bool IsWindowRenderingDisabled() OVERRIDE;
-  virtual void WasResized() OVERRIDE;
-  virtual void WasHidden(bool hidden) OVERRIDE;
-  virtual void NotifyScreenInfoChanged() OVERRIDE;
-  virtual void Invalidate(const CefRect& dirtyRect,
-      PaintElementType type) OVERRIDE;
-  virtual void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
-  virtual void SendMouseClickEvent(const CefMouseEvent& event,
-      MouseButtonType type, bool mouseUp, int clickCount) OVERRIDE;
-  virtual void SendMouseMoveEvent(const CefMouseEvent& event,
-      bool mouseLeave) OVERRIDE;
-  virtual void SendMouseWheelEvent(const CefMouseEvent& event, int deltaX,
+  void StopFinding(bool clearSelection) OVERRIDE;
+  void ShowDevTools(const CefWindowInfo& windowInfo,
+      CefRefPtr<CefClient> client, const CefBrowserSettings& settings,
+      const CefPoint& inspect_element_at) OVERRIDE;
+  void CloseDevTools() OVERRIDE;
+  bool HasDevTools() OVERRIDE;
+  void GetNavigationEntries(CefRefPtr<CefNavigationEntryVisitor> visitor,
+      bool current_only) OVERRIDE;
+  void SetMouseCursorChangeDisabled(bool disabled) OVERRIDE;
+  bool IsMouseCursorChangeDisabled() OVERRIDE;
+  void ReplaceMisspelling(const CefString& word) OVERRIDE;
+  void AddWordToDictionary(const CefString& word) OVERRIDE;
+  bool IsWindowRenderingDisabled() OVERRIDE;
+  void WasResized() OVERRIDE;
+  void WasHidden(bool hidden) OVERRIDE;
+  void NotifyScreenInfoChanged() OVERRIDE;
+  void Invalidate(PaintElementType type) OVERRIDE;
+  void SendKeyEvent(const CefKeyEvent& event) OVERRIDE;
+  void SendMouseClickEvent(const CefMouseEvent& event, MouseButtonType type,
+      bool mouseUp, int clickCount) OVERRIDE;
+  void SendMouseMoveEvent(const CefMouseEvent& event, bool mouseLeave) OVERRIDE;
+  void SendMouseWheelEvent(const CefMouseEvent& event, int deltaX,
       int deltaY) OVERRIDE;
-  virtual void SendFocusEvent(bool setFocus) OVERRIDE;
-  virtual void SendCaptureLostEvent() OVERRIDE;
-  virtual CefTextInputContext GetNSTextInputContext() OVERRIDE;
-  virtual void HandleKeyEventBeforeTextInputClient(
-      CefEventHandle keyEvent) OVERRIDE;
-  virtual void HandleKeyEventAfterTextInputClient(
-      CefEventHandle keyEvent) OVERRIDE;
+  void SendFocusEvent(bool setFocus) OVERRIDE;
+  void SendCaptureLostEvent() OVERRIDE;
+  void NotifyMoveOrResizeStarted() OVERRIDE;
+  int GetWindowlessFrameRate() OVERRIDE;
+  void SetWindowlessFrameRate(int frame_rate) OVERRIDE;
+  void ImeSetComposition(const CefString& text,
+      const std::vector<CefCompositionUnderline>& underlines,
+      const CefRange& replacement_range,
+      const CefRange& selection_range) OVERRIDE;
+  void ImeCommitText(const CefString& text, const CefRange& replacement_range,
+      int relative_cursor_pos) OVERRIDE;
+  void ImeFinishComposingText(bool keep_selection) OVERRIDE;
+  void ImeCancelComposition() OVERRIDE;
+  void DragTargetDragEnter(CefRefPtr<CefDragData> drag_data,
+      const CefMouseEvent& event, DragOperationsMask allowed_ops) OVERRIDE;
+  void DragTargetDragOver(const CefMouseEvent& event,
+      DragOperationsMask allowed_ops) OVERRIDE;
+  void DragTargetDragLeave() OVERRIDE;
+  void DragTargetDrop(const CefMouseEvent& event) OVERRIDE;
+  void DragSourceEndedAt(int x, int y, DragOperationsMask op) OVERRIDE;
+  void DragSourceSystemDragEnded() OVERRIDE;
+  CefRefPtr<CefNavigationEntry> GetVisibleNavigationEntry() OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_BROWSER_HOST_CTOCPP_H_
-
