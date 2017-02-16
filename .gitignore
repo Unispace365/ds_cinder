@@ -35,3 +35,5 @@ projects/viewers/lib/
 /projects/mosquitto/lib/ds_mosquitto_d.lib
 /projects/essentials/lib64/essentials.lib
 /projects/essentials/lib64/essentials_d.lib
+/projects/pdf/lib64/pdf_mupdf.lib
+/projects/pdf/lib64/pdf_mupdf_d.lib
