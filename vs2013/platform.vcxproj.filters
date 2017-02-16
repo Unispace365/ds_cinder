@@ -633,18 +633,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\text_pango.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioClient.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioCursor.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioObject.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
-    <ClInclude Include="$(CINDER_090)\blocks\tuio\include\TuioProfileBase.h">
-      <Filter>src\tuio</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\stdafx.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -701,6 +689,18 @@
     </ClInclude>
     <ClInclude Include="..\src\osc\ip\UdpSocket.h">
       <Filter>src\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tuio\TuioClient.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tuio\TuioCursor.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tuio\TuioObject.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tuio\TuioProfileBase.h">
+      <Filter>src\tuio</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1139,9 +1139,6 @@
     <ClCompile Include="..\src\ds\ui\sprite\text_pango.cpp">
       <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
-    <ClCompile Include="$(CINDER_090)\blocks\tuio\src\TuioClient.cpp">
-      <Filter>src\tuio</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -1177,6 +1174,9 @@
     </ClCompile>
     <ClCompile Include="..\src\osc\ip\win32\UdpSocket.cpp">
       <Filter>src\osc\ip\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\tuio\TuioClient.cpp">
+      <Filter>src\tuio</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

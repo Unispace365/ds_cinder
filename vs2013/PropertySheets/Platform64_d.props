@@ -9,13 +9,13 @@
       <AdditionalIncludeDirectories>..\include;..\src;$(CINDER_090)\include;
 	  $(CINDER_090)\boost;
 	  $(DS_PLATFORM_090)\src\osc\;
+	  $(DS_PLATFORM_090)\src\tuio\;
 	  $(DS_PLATFORM_090)\lib\poco\include;
 	  $(DS_PLATFORM_090)\src;
 	  $(DS_PLATFORM_090)\src\gtk;
 	  $(DS_PLATFORM_090)\src\gtk\cairo;
 	  $(DS_PLATFORM_090)\src\gtk\pango-1.0;
 	  $(DS_PLATFORM_090)\src\gtk\glib-2.0;
-	  $(CINDER_090)\blocks\tuio\include;
 	  $(DS_PLATFORM_090)\lib\snappy;
 	  %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
