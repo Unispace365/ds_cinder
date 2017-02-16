@@ -58,6 +58,12 @@ bool EnvCheck::addGStreamerBinPath(){
 	std::string gstreamer_bin_path = gstreamer_path + "\\bin";
 	normalizePath(gstreamer_bin_path);
 
+	if(!ds::safeFileExistsCheck(gstreamer_bin_path, true)){
+		gstreamer_path = getEnv("GSTREAMER_1_0_ROOT_X86_64");
+		gstreamer_bin_path = gstreamer_path + "\\bin";
+		normalizePath(gstreamer_bin_path);
+	}
+
 	// Only add the environment varible version if we don't have local dll's
 	if(!addedLocalDlls && path_variable.find(gstreamer_bin_path) == std::string::npos) {
 		ds::Environment::addToFrontEnvironmentVariable("PATH", gstreamer_bin_path);
