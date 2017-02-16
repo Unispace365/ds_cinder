@@ -5,7 +5,6 @@
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 
-#include <ds/ui/media/media_viewer.h>
 
 #include <cinder/Rand.h> 
 #include <cinder/app/RendererGl.h>
@@ -195,10 +194,6 @@ void https_example::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
 		//paths.push_back((*it).string());
-
-		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
-		mv->initialize();
-		mEngine.getRootSprite().addChildPtr(mv);
 	}
 }
 
