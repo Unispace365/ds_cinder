@@ -6,15 +6,26 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>_WIN32_WINNT=0x0601;%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER_090)\include;$(CINDER_090)\boost;$(DS_PLATFORM_090)\lib\poco\include;$(DS_PLATFORM_090)\src;$(DS_PLATFORM_090)\src\gtk;$(DS_PLATFORM_090)\src\gtk\cairo;$(DS_PLATFORM_090)\src\gtk\pango-1.0;$(DS_PLATFORM_090)\src\gtk\glib-2.0;$(CINDER_090)\blocks\tuio\include;$(CINDER_090)\blocks\OSC\src;$(DS_PLATFORM_090)\lib\snappy;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\include;..\src;$(CINDER_090)\include;
+	  $(CINDER_090)\boost;
+	  $(DS_PLATFORM_090)\src\osc\;
+	  $(DS_PLATFORM_090)\lib\poco\include;
+	  $(DS_PLATFORM_090)\src;
+	  $(DS_PLATFORM_090)\src\gtk;
+	  $(DS_PLATFORM_090)\src\gtk\cairo;
+	  $(DS_PLATFORM_090)\src\gtk\pango-1.0;
+	  $(DS_PLATFORM_090)\src\gtk\glib-2.0;
+	  $(CINDER_090)\blocks\tuio\include;
+	  $(DS_PLATFORM_090)\lib\snappy;
+	  %(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>
 	  $(CINDER_090)\lib;
-	  $(CINDER_090)\lib\msw\x86;
-	  $(DS_PLATFORM_090)\lib\poco\lib\vs2010;
+	  $(CINDER_090)\lib\msw\x64;
+	  $(DS_PLATFORM_090)\lib\poco_1.7.7\lib64;
 	  $(DS_PLATFORM_090)\lib;
-	  $(DS_PLATFORM_090)\lib\gtk\lib;
+	  $(DS_PLATFORM_090)\lib\gtk\lib64;
 	  $(DS_PLATFORM_090)\lib\snappy;
 	  %(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>kernel32.lib;user32.lib;gdi32.lib;winspool.lib;comdlg32.lib;advapi32.lib;shell32.lib;ole32.lib;oleaut32.lib;uuid.lib;
@@ -22,9 +33,9 @@
 	  glu32.lib;
 	  PocoFoundationmt.lib;
 	  PocoNetmt.lib;
-	  platform.lib;
+	  platform64.lib;
 	  psapi.lib;
-	  snappy32.lib;
+	  snappy64.lib;
 	  cairo.lib;
 	  fontconfig.lib;
 	  pango-1.0.lib;
