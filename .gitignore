@@ -43,3 +43,4 @@ projects/viewers/lib/
 /projects/video/lib64/video_gstreamer-1.0.lib
 /projects/web/lib64/web_cef.lib
 /projects/viewers/lib64/viewers.lib
+/projects/physics/lib64/physics_box2d_d.lib
