@@ -10,7 +10,7 @@
     </ClCompile>
     <Link>
 		<AdditionalDependencies>%(AdditionalDependencies);ds_mosquitto.lib;mosquitto.lib; mosquittopp.lib</AdditionalDependencies>
-		<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\mosquitto\lib</AdditionalLibraryDirectories>
+		<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\mosquitto\lib64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />

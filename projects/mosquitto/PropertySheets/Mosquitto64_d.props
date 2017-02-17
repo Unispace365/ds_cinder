@@ -9,8 +9,8 @@
       <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_090)\projects\mosquitto\src;$(DS_PLATFORM_090)\projects\mosquitto\src\ds\network\mosquitto</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
-		<AdditionalDependencies>%(AdditionalDependencies);ds_mosquitto.lib;mosquitto.lib; mosquittopp.lib</AdditionalDependencies>
-		<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\mosquitto\lib</AdditionalLibraryDirectories>
+		<AdditionalDependencies>%(AdditionalDependencies);ds_mosquitto_d.lib;mosquitto.lib;mosquittopp.lib</AdditionalDependencies>
+		<AdditionalLibraryDirectories>%(AdditionalLibraryDirectories);$(DS_PLATFORM_090)\projects\mosquitto\lib64</AdditionalLibraryDirectories>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup />
