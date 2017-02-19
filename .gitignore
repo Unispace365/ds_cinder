@@ -33,3 +33,5 @@ projects/viewers/lib/
 /example/sync_video_player/debug.txt
 /projects/mosquitto/lib/ds_mosquitto.lib
 /projects/mosquitto/lib/ds_mosquitto_d.lib
+
+build/
