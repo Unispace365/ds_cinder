@@ -73,7 +73,6 @@ void GStreamerWrapper::resetProperties(){
 	m_iAudioSampleRate = 0;
 	m_iAudioBufferSize = 0;
 	m_iAudioWidth = 0;
-	m_AudioEndianness = LITTLE_ENDIAN;
 	m_fFps = 0;
 	m_dDurationInMs = 0;
 	m_iNumberOfFrames = 0;
@@ -921,10 +920,6 @@ int GStreamerWrapper::getAudioWidth(){
 
 float GStreamerWrapper::getCurrentVolume(){
 	return m_fVolume;
-}
-
-Endianness GStreamerWrapper::getAudioEndianness(){
-	return m_AudioEndianness;
 }
 
 gint64 GStreamerWrapper::getBaseTime(){

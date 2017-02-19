@@ -68,14 +68,6 @@ enum ContentType {
 };
 
 /*
-Enumeration to describe the byte order (big endian = 4321 / little endian = 1234) of either video or audio stream
-*/
-enum Endianness {
-	BIG_ENDIAN = 4321,
-	LITTLE_ENDIAN = 1234
-};
-
-/*
 class GStreamerWrapper
 
 Class that provides the functionality to open any kind of media file (movie and sound files) and the possibility to interact with the file
@@ -438,11 +430,6 @@ public:
 	*/
 	float					getCurrentVolume();
 
-	/*
-	Returns the Endianness of the audio stream
-	*/
-	Endianness				getAudioEndianness();
-
 	/* Provides the initial setting for the baseclock of the server*/
 	gint64					getBaseTime();
 
@@ -643,7 +630,6 @@ protected:
 	unsigned char*			m_cAudioBuffer; /* Stores the audio data */
 	int						m_iAudioWidth; /* Width of the audio data (8, 16, 24 or 32) */
 	bool					m_bIsAudioSigned; /* Flag that tracks if the audio buffer is signed or not */
-	Endianness				m_AudioEndianness; /* Audio endianness, either big or small endian */
 	int						m_iAudioDecodeBufferSize; /* Size of the audio buffer without the channels and audio width */
 	int						m_iNumAudioChannels; /* Number of audio channels */
 	int						m_iAudioSampleRate; /* Audio sample rate */

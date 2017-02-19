@@ -36,7 +36,7 @@ namespace {
 ds::ui::VideoMetaCache          CACHE("gstreamer-3");
 const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
 template<typename T> void       noop(T) { /* no op */ };
-void                            noop()  { /* no op */ };
+auto                            void_noop = []() -> void {/* no op */};
 
 static int drawcount = 0;
 
@@ -210,7 +210,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mVolume(1.0f)
 	, mStatusChanged(true)
 	, mStatusFn(noop<const Status&>)
-	, mVideoCompleteFn(noop)
+	, mVideoCompleteFn(void_noop)
 	, mErrorFn(nullptr)
 	, mShouldPlay(false)
 	, mAutoStart(false)
