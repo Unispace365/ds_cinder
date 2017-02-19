@@ -131,7 +131,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 
 }
 
-void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF, ds::Resource& sourceResource){
+void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF, const ds::Resource& sourceResource){
 	mLinkedPDF = linkedPDF;
 	mSourceResource = sourceResource;
 	if(mLinkedPDF){

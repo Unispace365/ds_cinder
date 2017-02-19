@@ -1,4 +1,4 @@
-#include "Automator.h"
+#include "automator.h"
 
 #include <cinder/Rand.h>
 

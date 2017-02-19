@@ -236,7 +236,7 @@ void DrawingCanvas::clearCanvas(){
 
 	ci::Area fboBounds(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
 	//ci::gl::setViewport(fboBounds);
-	ci::gl::ScopedViewport svp = ci::gl::ScopedViewport(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
+	ci::gl::ScopedViewport svp(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
 	//ci::gl::viewport(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
 	ci::CameraOrtho camera;
 	camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
@@ -342,7 +342,7 @@ void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end){
 
 	ci::Area fboBounds(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
 	//ci::gl::setViewport(fboBounds);
-	ci::gl::ScopedViewport svp = ci::gl::ScopedViewport(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
+	ci::gl::ScopedViewport svp(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
 //	ci::gl::viewport();
 	ci::CameraOrtho camera;
 	camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
