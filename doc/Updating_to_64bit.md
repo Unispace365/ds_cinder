@@ -33,6 +33,8 @@ For a specific project
 		* Save
 	* Open the project, and in properties for both Debug x64 and Release x64 change the Output Directory in the General Section to $(Configuration)\
 	* That will make sure all the dll's get copied into the correct folder.
+	* If you have included Curl locally in your project, add this define before you include the curl.h header:
+	    #define CURL_STATICLIB
 	* Compile and run the project
 
 Common Issues / Troubleshooting
