@@ -6,7 +6,7 @@
   <ItemDefinitionGroup>
     <ClCompile>
       <PreprocessorDefinitions>%(PreprocessorDefinitions)</PreprocessorDefinitions>
-      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_090)\projects\mosquitto\src</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>%(AdditionalIncludeDirectories);$(DS_PLATFORM_090)\projects\mosquitto\src;$(DS_PLATFORM_090)\projects\mosquitto\src\ds\network\mosquitto</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
 		<AdditionalDependencies>%(AdditionalDependencies);ds_mosquitto.lib;mosquitto.lib; mosquittopp.lib</AdditionalDependencies>

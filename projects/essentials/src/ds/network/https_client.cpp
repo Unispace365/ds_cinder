@@ -2,6 +2,7 @@
 
 #include "https_client.h"
 
+#define CURL_STATICLIB
 #include "ds/network/curl/curl.h"
 
 #include <ds/debug/logger.h>

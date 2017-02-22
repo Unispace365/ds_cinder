@@ -79,8 +79,7 @@ bool UdpConnection::initialize(bool server, const std::string &ip, const std::st
 			 * combination of setters work! This should be resolved maybe by upgrading Poco / figuring out
 			 * the reason why the flag gets ignored but for now, I am going to leave it like that. (SL)
 			 */
-
-			mSocket = Poco::Net::MulticastSocket(Poco::Net::SocketAddress(Poco::Net::IPAddress(), port), true);
+			mSocket = Poco::Net::MulticastSocket(Poco::Net::SocketAddress("0.0.0.0", port), true);
 			mSocket.setReusePort(true);
 			mSocket.setReuseAddress(true);
 			mSocket.joinGroup(Poco::Net::IPAddress(ip));

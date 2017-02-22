@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_STREAM_READER_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_stream.h"
 #include "include/capi/cef_stream_capi.h"
@@ -28,18 +28,14 @@ class CefStreamReaderCToCpp
     : public CefCToCpp<CefStreamReaderCToCpp, CefStreamReader,
         cef_stream_reader_t> {
  public:
-  explicit CefStreamReaderCToCpp(cef_stream_reader_t* str)
-      : CefCToCpp<CefStreamReaderCToCpp, CefStreamReader, cef_stream_reader_t>(
-          str) {}
-  virtual ~CefStreamReaderCToCpp() {}
+  CefStreamReaderCToCpp();
 
-  // CefStreamReader methods
-  virtual size_t Read(void* ptr, size_t size, size_t n) OVERRIDE;
-  virtual int Seek(int64 offset, int whence) OVERRIDE;
-  virtual int64 Tell() OVERRIDE;
-  virtual int Eof() OVERRIDE;
+  // CefStreamReader methods.
+  size_t Read(void* ptr, size_t size, size_t n) OVERRIDE;
+  int Seek(int64 offset, int whence) OVERRIDE;
+  int64 Tell() OVERRIDE;
+  int Eof() OVERRIDE;
+  bool MayBlock() OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_STREAM_READER_CTOCPP_H_
-

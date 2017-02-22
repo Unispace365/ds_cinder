@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_DOMDOCUMENT_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_dom.h"
 #include "include/capi/cef_dom_capi.h"
@@ -28,30 +28,23 @@ class CefDOMDocumentCToCpp
     : public CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument,
         cef_domdocument_t> {
  public:
-  explicit CefDOMDocumentCToCpp(cef_domdocument_t* str)
-      : CefCToCpp<CefDOMDocumentCToCpp, CefDOMDocument, cef_domdocument_t>(
-          str) {}
-  virtual ~CefDOMDocumentCToCpp() {}
+  CefDOMDocumentCToCpp();
 
-  // CefDOMDocument methods
-  virtual Type GetType() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetDocument() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetBody() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetHead() OVERRIDE;
-  virtual CefString GetTitle() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetElementById(const CefString& id) OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetFocusedNode() OVERRIDE;
-  virtual bool HasSelection() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetSelectionStartNode() OVERRIDE;
-  virtual int GetSelectionStartOffset() OVERRIDE;
-  virtual CefRefPtr<CefDOMNode> GetSelectionEndNode() OVERRIDE;
-  virtual int GetSelectionEndOffset() OVERRIDE;
-  virtual CefString GetSelectionAsMarkup() OVERRIDE;
-  virtual CefString GetSelectionAsText() OVERRIDE;
-  virtual CefString GetBaseURL() OVERRIDE;
-  virtual CefString GetCompleteURL(const CefString& partialURL) OVERRIDE;
+  // CefDOMDocument methods.
+  Type GetType() OVERRIDE;
+  CefRefPtr<CefDOMNode> GetDocument() OVERRIDE;
+  CefRefPtr<CefDOMNode> GetBody() OVERRIDE;
+  CefRefPtr<CefDOMNode> GetHead() OVERRIDE;
+  CefString GetTitle() OVERRIDE;
+  CefRefPtr<CefDOMNode> GetElementById(const CefString& id) OVERRIDE;
+  CefRefPtr<CefDOMNode> GetFocusedNode() OVERRIDE;
+  bool HasSelection() OVERRIDE;
+  int GetSelectionStartOffset() OVERRIDE;
+  int GetSelectionEndOffset() OVERRIDE;
+  CefString GetSelectionAsMarkup() OVERRIDE;
+  CefString GetSelectionAsText() OVERRIDE;
+  CefString GetBaseURL() OVERRIDE;
+  CefString GetCompleteURL(const CefString& partialURL) OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DOMDOCUMENT_CTOCPP_H_
-
