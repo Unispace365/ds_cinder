@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "https_client.h"
 
 #include "ds/network/curl/curl.h"

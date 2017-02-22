@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "interface_xml_importer.h"
 
 #include "stylesheet_parser.h"

@@ -372,9 +372,9 @@ void GstVideo::drawLocalClient(){
 						ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
 						ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
 
-					mFrameTexture->update(yChannel);// , ci::Area(0, 0, mVideoSize.x, mVideoSize.y));
-					mUFrameTexture->update(uChannel);// , ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
-					mVFrameTexture->update(vChannel);// , ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
+						mFrameTexture->update(yChannel);
+						mUFrameTexture->update(uChannel);
+						mVFrameTexture->update(vChannel);
 					}
 
 				} else {

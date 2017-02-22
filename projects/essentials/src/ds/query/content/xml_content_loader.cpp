@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "xml_content_loader.h"
 
 #include <algorithm>

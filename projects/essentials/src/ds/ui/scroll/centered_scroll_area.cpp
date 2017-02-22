@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "centered_scroll_area.h"
 
 #include <ds/ui/layout/layout_sprite.h>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "soft_keyboard_button.h"
 
 #include <ds/app/engine/engine_cfg.h>

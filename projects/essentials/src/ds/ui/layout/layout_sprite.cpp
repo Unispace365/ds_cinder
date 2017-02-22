@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "layout_sprite.h"
 
 #include <ds/app/environment.h>

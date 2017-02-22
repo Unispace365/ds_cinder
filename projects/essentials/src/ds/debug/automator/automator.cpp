@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Automator.h"
 
 #include <cinder/Rand.h>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <cinder/app/App.h>
 #include <cinder/Rand.h>
 #include <cinder/app/RendererGl.h>

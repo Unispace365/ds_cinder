@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "drag_action.h"
 #include <ds/ui/sprite/sprite_engine.h>
 #include <cinder/Rand.h>

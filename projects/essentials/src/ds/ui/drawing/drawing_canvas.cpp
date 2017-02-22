@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "drawing_canvas.h"
 
 #include <Poco/LocalDateTime.h>

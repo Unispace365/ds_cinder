@@ -84,8 +84,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
 
-	mPangoFontService.loadFonts();
-
 	// touch settings
 	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
 	setTouchMode(mTouchMode);

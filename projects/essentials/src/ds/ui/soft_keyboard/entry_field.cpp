@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "entry_field.h"
 
 #include <ds/ui/sprite/sprite_engine.h>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <cinder/app/App.h>
 #include <Poco/Random.h>
 

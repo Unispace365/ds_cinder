@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "scroll_area.h"
 
 

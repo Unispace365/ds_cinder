@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "scroll_list.h"
 
 #include <ds/ui/sprite/sprite_engine.h>

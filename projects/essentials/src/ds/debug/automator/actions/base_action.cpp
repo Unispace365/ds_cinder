@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "base_action.h"
 
 namespace ds {

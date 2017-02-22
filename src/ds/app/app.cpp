@@ -162,6 +162,7 @@ App::App(const RootList& roots)
 	startups.clear();
 
 	prepareSettings(ci::app::App::get()->sSettingsFromMain);
+
 }
 
 App::~App() {
@@ -192,6 +193,7 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 void App::setup() {
 	inherited::setup();
 
+	mEngine.getPangoFontService().loadFonts();
 	mEngine.setup(*this);
 	mEngine.setupTouch(*this);
 }
