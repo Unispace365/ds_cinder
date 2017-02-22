@@ -55,6 +55,15 @@ void MediaViewer::setDefaultProperties(){
 	mLayoutFixedAspect = true;
 	if(mMediaPlayer){
 		mMediaPlayer->setInitializedCallback([this]{ initialize(); });
+		/*
+		mMediaPlayer->setMediaSizeChangedCallback([this](const ci::Vec2f& newSize){ 
+			const float prevWidth = getWidth();
+			mMediaPlayer->setSize(newSize);
+			initialize(); 
+			setViewerWidth(prevWidth);
+			checkBounds(false);
+		});
+		*/
 	}
 
 	setDefaultBounds(mEngine.getWorldWidth(), mEngine.getWorldHeight());

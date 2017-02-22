@@ -119,12 +119,14 @@ const char			BRUSH_COLOR_ATT 		= 83;
 const char			BRUSH_SIZE_ATT			= 84;
 const char			CANVAS_IMAGE_PATH_ATT	= 85;
 const char			CLEAR_CANVAS_ATT		= 86;
+const char			ERASE_MODE_ATT			= 87;
 const DirtyState&	sPointsQueueDirty	 	= newUniqueDirtyState();
 const DirtyState&	sBrushImagePathDirty	= newUniqueDirtyState();
 const DirtyState&	sBrushColorDirty		= newUniqueDirtyState();
 const DirtyState&	sBrushSizeDirty			= newUniqueDirtyState();
 const DirtyState&	sCanvasImagePathDirty	= newUniqueDirtyState();
 const DirtyState&	sClearCanvasDirty		= newUniqueDirtyState();
+const DirtyState&	sEraseModeDirty			= newUniqueDirtyState();
 
 const int			MAX_SERIALIZED_POINTS	= 100;
 } // anonymous namespace
@@ -266,6 +268,7 @@ void DrawingCanvas::clearCanvas(){
 
 void DrawingCanvas::setEraseMode(const bool eraseMode){
 	mEraseMode = eraseMode;
+	markAsDirty(sEraseModeDirty);
 }
 
 void DrawingCanvas::drawLocalClient(){
@@ -273,7 +276,8 @@ void DrawingCanvas::drawLocalClient(){
 	// swap that in for the draw texture
 	if (mCanvasFileLoaderClient.getImage()) {
 		auto loaderTex = mCanvasFileLoaderClient.getImage();
-		mDrawTexture = loaderTex;
+		// TODO
+		//mDrawTexture = *loaderTex;
 		mCanvasFileLoaderClient.clear();
 	}
 
@@ -478,6 +482,10 @@ void DrawingCanvas::writeAttributesTo(DataBuffer& buf) {
 	if (mDirty.has(sClearCanvasDirty)){
 		buf.add(CLEAR_CANVAS_ATT);
 	}
+	if (mDirty.has(sEraseModeDirty)){
+		buf.add(ERASE_MODE_ATT);
+		buf.add<bool>(mEraseMode);
+	}
 
 }
 
@@ -511,7 +519,9 @@ void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
 	else if (attrid == CLEAR_CANVAS_ATT) {
 		clearCanvas();
 	}
-
+	else if (attrid == ERASE_MODE_ATT) {
+		mEraseMode = buf.read<bool>();
+	}
 	else {
 		Sprite::readAttributeFrom(attrid, buf);
 	}
@@ -528,7 +538,8 @@ void DrawingCanvas::saveCanvasImage(const std::string& filePath) {
 	/* TODO: update to 0.9.0
 	// This can't be done on the background thread because it needs
 	// the main thread's GL context to get the texture data.
-	ci::Surface8u surface(mDrawTexture);
+	// todo
+	ci::Surface8u surface;//TODO (mDrawTexture);
 
 	// Do the image file saving on background thread
 	auto saveThread = std::thread([surface, filePath] {

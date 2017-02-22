@@ -29,7 +29,6 @@ BasicTweenApp::BasicTweenApp()
 
 void BasicTweenApp::setupServer() {
 	std::cout << "Press \"+\" and \"-\" to navigate pages." << std::endl;
-	std::cout << "Hmm for some reason it's not getting key presses. Use mouse left/right instead." << std::endl;
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 
@@ -39,7 +38,7 @@ void BasicTweenApp::setupServer() {
 	mPdf->setResourceFilename(ds::Environment::getAppFolder("data", "bitcoin.pdf"));
 #else
 	// Or you can turn on auto resize and the sprite will resize when the page size changes
-	mPdf->setPageSizeMode(ds::ui::Pdf::kAutoResize);
+	//mPdf->setPageSizeMode(ds::ui::Pdf::kAutoResize);
 	mPdf->setResourceFilename(ds::Environment::getAppFolder("data", "multi_sizes.pdf"));
 	mPdf->setPageSizeChangedFn([](){std::cout << "change" << std::endl; });
 #endif
@@ -67,6 +66,8 @@ void BasicTweenApp::keyDown(KeyEvent e) {
 		if (mPdf) mPdf->goToNextPage();
 	} else if (e.getCode() == KeyEvent::KEY_MINUS || e.getCode() == KeyEvent::KEY_p || e.getCode() == KeyEvent::KEY_LEFT) {
 		if (mPdf) mPdf->goToPreviousPage();
+	} else if(e.getCode() == KeyEvent::KEY_l){
+		if(mPdf) mPdf->setResourceFilename(ds::Environment::expand("%APP%/data/bitcoin.pdf"));
 	}
 }
 

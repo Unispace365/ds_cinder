@@ -59,7 +59,7 @@ void sync_video_player::setupServer(){
 	mFpsDisplay->setPosition(mEngine.getWorldWidth() / 4.0f, 30.0f);
 	rootSprite.addChildPtr(mFpsDisplay);
 
-	loadVideo("%APP%/data/video/test_video.mp4");
+	//loadVideo("%APP%/data/video/test_video.mp4");
 
 }
 
@@ -96,7 +96,7 @@ void sync_video_player::loadVideo(const std::string& videoPath){
 	mVideo = new ds::ui::GstVideo(mEngine);
 	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
-	mVideo->setCheckBounds(true);
+	mVideo->setCheckBounds(false);
 	//mVideo->setVerboseLogging(mVerbose);
 	mVideo->enable(true);
 
@@ -104,7 +104,7 @@ void sync_video_player::loadVideo(const std::string& videoPath){
 	allowedInstances.push_back("debug_client");
 	//mVideo->setPlayableInstances(allowedInstances);
 
-	//mVideo->setAutoSynchronize(false);
+	mVideo->setAutoSynchronize(true);
 
 	mVideo->loadVideo(videoPath);
 

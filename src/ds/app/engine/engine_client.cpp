@@ -99,38 +99,30 @@ void EngineClient::update() {
 		// refresh it, and let the world now I'm ready again.
 		mReceiveConnection.renew();
 
-		// GN: Trying out not clearing sprites on lost connections
-		// It might be nice to keeping showing stuff until connection resumes...
-		// clearAllSprites(false);
-
 		setState(mClientStartedState);
 		return;
 	}
 
 	// Every update, receive data
 	mReceiver.setHeaderAndCommandOnly(mState->getHeaderAndCommandOnly());
-	if (!mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader)) {
-		// If I didn't receive any data, then don't send any data. This is
-		// pretty important -- 0MQ will buffer sent commands if there's
-		// no one to receive them. There isn't a way to ask the socket how
-		// many connections there are, so we rely on the fact that the
-		// server sounds out data each frame to tell us if there's someone
-		// to receive anything.
-		return;
-	}
-	mConnectionRenewed = false;
 
-	// Oh this is interesting... There can be more data in the pipe
-	// after handling, so make sure to slurp it all up, or else you
-	// can end up in a situation where the render lags behind the world
-	// by a couple seconds. For now, limit the amount of blocks I might
-	// slurp up, to guarantee I don't go into an infinite loop on some
-	// weird condition.
-	int32_t		limit = 10;
-	while (mReceiveConnection.canRecv()) {
-		mReceiver.receiveAndHandle(mBlobRegistry, mBlobReader);
-		if (--limit <= 0) break;
+	// Don't change state or take any action if there's no data waiting
+	if(!mReceiver.receiveBlob()) return;
+
+	// Run through all the blobs we just 
+	while(true) {
+		bool moreData = false;
+
+		// there's an edge case where we're just listening for the fresh world
+		// If that's the case, then don't handle the rest of the blobs this frame, handle those next frame (the receiver keeps track of stuff)
+		if(!mReceiver.handleBlob(mBlobRegistry, mBlobReader, moreData)){
+			return;
+		}
+
+		if(!moreData) break;
 	}
+
+	mConnectionRenewed = false;
 
 	mState->update(*this);
 }
@@ -147,11 +139,14 @@ void EngineClient::stopServices() {
 void EngineClient::receiveHeader(ds::DataBuffer& data) {
 	if (data.canRead<int32_t>()) {
 		mServerFrame = data.read<int32_t>();
-//		DS_LOG_INFO_M("Receive frame=" << mServerFrame, ds::IO_LOG);
+	} else {
+		DS_LOG_WARNING_M("EngineClient::receiveHeader() invalid server frame. This is likely a net communication issue, packets lost, etc.", ds::IO_LOG);
 	}
 	// Terminator
 	if (data.canRead<char>()) {
 		data.read<char>();
+	} else {
+		DS_LOG_WARNING_M("EngineClient::receiveHeader() No terminator found for header!", ds::IO_LOG);
 	}
 }
 
@@ -160,8 +155,6 @@ void EngineClient::receiveCommand(ds::DataBuffer& data) {
 	while (data.canRead<char>() && (cmd=data.read<char>()) != ds::TERMINATOR_CHAR) {
 		if (cmd == CMD_SERVER_SEND_WORLD) {
 			DS_LOG_INFO_M("Receive world, sessionid=" << mSessionId, ds::IO_LOG);
-			//std::cout << "Command server send world, clearing sprites" << std::endl;
-
 			clearAllSprites(false);
 
 			if (mSessionId < 1) {
@@ -171,7 +164,7 @@ void EngineClient::receiveCommand(ds::DataBuffer& data) {
 				mReceiver.setHeaderAndCommandOnly(false);
 				setState(mRunningState);
 			}
-		} else if (cmd == CMD_CLIENT_STARTED_REPLY) {
+		} else if(cmd == CMD_CLIENT_STARTED_REPLY) {
 			DS_LOG_INFO_M("Receive ClientStartedReply", ds::IO_LOG);
 			onClientStartedReplyCommand(data);
 		}
@@ -181,11 +174,12 @@ void EngineClient::receiveCommand(ds::DataBuffer& data) {
 void EngineClient::receiveDeleteSprite(ds::DataBuffer& data) {
 	// First data is the count
 	if (!data.canRead<size_t>()) return;
+
 	size_t		size = data.read<size_t>();
 	for (size_t k=0; k<size; ++k) {
 		if (data.canRead<sprite_id_t>()) {
 			const sprite_id_t	id = data.read<sprite_id_t>();
-//			std::cout << "DELETE=" << id << std::endl;
+
 			if (!mSprites.empty()) {
 				auto f = mSprites.find(id);
 				if (f != mSprites.end()) {
@@ -373,7 +367,8 @@ void EngineClient::ClientStartedState::update(EngineClient& engine) {
 		// Randomize the amount of time to wait for a retry. 
 		// If there are multiple clients that started at the same time, we could be flooding the server with new world requests
 		mSendFrame = ci::randInt(30, 240);
-//DS_LOG_INFO_M("Send CMD_CLIENT_STARTED", ds::IO_LOG);
+
+		DS_LOG_INFO_M("Send CMD_CLIENT_STARTED", ds::IO_LOG);
 	}
 	--mSendFrame;
 }

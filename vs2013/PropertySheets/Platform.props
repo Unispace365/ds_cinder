@@ -25,7 +25,6 @@
 	  platform.lib;
 	  psapi.lib;
 	  snappy32.lib;
-	  freetype.lib;
 	  cairo.lib;
 	  fontconfig.lib;
 	  pango-1.0.lib;

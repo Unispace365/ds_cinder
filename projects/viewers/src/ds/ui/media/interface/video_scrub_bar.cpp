@@ -69,6 +69,12 @@ void VideoScrubBar::updateServer(const ds::UpdateParams& p){
 		if(progress < 0.0f) progress = 0.0f;
 		if(progress > 1.0f) progress = 1.0f;
 		mProgress->setSize(progress * getWidth(), mProgress->getHeight());
+
+		if(mLinkedVideo->getIsStreaming()){
+			hide();
+		} else {
+			show();
+		}
 	}
 }
 
