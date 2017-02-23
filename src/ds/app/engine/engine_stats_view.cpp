@@ -5,6 +5,7 @@
 #include "ds/app/blob_reader.h"
 #include "ds/data/data_buffer.h"
 #include "engine_data.h"
+#include <ds/debug/computer_info.h>
 
 #pragma warning(disable: 4355)
 
@@ -46,135 +47,87 @@ void EngineStatsView::installAsClient(ds::BlobRegistry& registry) {
  * \class ds::EngineStatsView
  */
 EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
-		: inherited(e)
-		, mEngine((ds::Engine&)e)
-		, mEventClient(e.getNotifier(), [this](const ds::Event *e) { if (e) onAppEvent(*e); })
-		, mFontSize(30.0f)
-		, mLT(mEngine.getEngineData().mSrcRect.x1, mEngine.getEngineData().mSrcRect.y1)
-		, mBorder(20.0f, 20.0f) {
+	: inherited(e)
+	, mEngine((ds::Engine&)e)
+	, mEventClient(e.getNotifier(), [this](const ds::Event *e) { if(e) onAppEvent(*e); })
+	, mLT(mEngine.getEngineData().mSrcRect.x1, mEngine.getEngineData().mSrcRect.y1)
+	, mText(nullptr)
+
+{
 	mBlobType = BLOB_TYPE;
 
 	setDrawDebug(true);
 	hide();
-	setTransparent(false);
-	setColor(0, 0, 0);
-	setOpacity(0.5f);
 
-	setSize(400.0f, 400.0f);
+	mBackground = new ds::ui::Sprite(mEngine, 400.0f, 40.0f);
+	mBackground->setTransparent(false);
+	mBackground->setColor(0, 0, 0);
+	mBackground->setOpacity(0.5f);
+	addChildPtr(mBackground);
+
+	setPosition(mLT);
+
 }
 
 void EngineStatsView::updateServer(const ds::UpdateParams &p) {
 	inherited::updateServer(p);
 
-	if (!visible()) {
-		mTextureFont = ci::gl::TextureFontRef();
+	if(visible()) {
+		updateStats();
 	}
 }
 
 void EngineStatsView::updateClient(const ds::UpdateParams& p){
 	inherited::updateClient(p);
 
-	if(!visible()) {
-		mTextureFont = ci::gl::TextureFontRef();
+	if(visible()) {
+		updateStats();
 	}
 }
 
-void EngineStatsView::drawLocalClient() {
-	inherited::drawLocalClient();
-	drawStats();
-}
-
-void EngineStatsView::drawLocalServer(){
-	inherited::drawLocalServer();
-	drawStats();
-}
-
-void EngineStatsView::drawStats(){
-	if(!mTextureFont) {
-		makeTextureFont();
-		if(!mTextureFont) return;
+void EngineStatsView::updateStats(){
+	if(!mText){
+		const float pad = 30.0f;
+	
+		mText = new ds::ui::Text(mEngine);
+		mText->setFont("Arial", 16.0f);
+		mText->setPosition(pad, pad);
+		mText->setResizeLimit(getWidth() - pad * 2.0f);
+		mText->setLeading(1.2f);
+		addChildPtr(mText);
 	}
+	if(mText){
+		std::stringstream ss;
+		ss << "<span weight='bold'>Sprites:</span> " << mEngine.mSprites.size() << std::endl;
+		ss << "<span weight='bold'>Touch mode (t):</span> " << ds::ui::TouchMode::toString(mEngine.mTouchMode) << std::endl;
 
-	if(!mFont) return;
+		float fpsy = mEngine.getAverageFps();
+		if(fpsy < 30.0f){
+			ss << "<span weight='bold'>FPS:</span> <span color='red'>" << fpsy << "</span>" << std::endl;
+		} else if(fpsy < 60.0f){
+			ss << "<span weight='bold'>FPS:</span> <span color='yellow'>" << fpsy << "</span>" << std::endl;
+		} else {
+			ss << "<span weight='bold'>FPS:</span> " << fpsy << std::endl;
+		}
 
-	// TODO
-	/*
-	ci::gl::GlslProg&	shader = mSpriteShader.getShader();
-	if(shader) shader.unbind();
+		ss << "<span weight='bold'>Memory:</span> " << mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess() << std::endl;
 
-	ci::gl::color(1, 1, 1, 1);
+		mText->setText(ss.str());
 
-	float				y = mLT.y + mBorder.y;
-	const float			gap = 5.0f;
-	y = drawLine(make_line("Sprites", (int)mEngine.mSprites.size()), y) + gap;
-	y = drawLine(make_line("Touch mode (t)", ds::ui::TouchMode::toString(mEngine.mTouchMode)), y) + gap;
-	y = drawLine(make_line("FPS", mEngine.getAverageFps()), y) + gap;
-	*/
-}
-
-float EngineStatsView::drawLine(const std::string &v, const float y) {
-	const float			ascent = mFont.getAscent();
-	mTextureFont->drawString(v, ci::vec2(mBorder.x, y + ascent));
-	return y + ascent + mFont.getDescent();
+		if(mBackground->getHeight() < mText->getPosition().y * 2.0f + mText->getHeight()){
+			mBackground->setSize(mBackground->getWidth(), mText->getPosition().y * 2.0f + mText->getHeight());
+		}
+	}
 }
 
 void EngineStatsView::onAppEvent(const ds::Event &_e) {
-	if (Toggle::WHAT() == _e.mWhat) {
+	if (ToggleStatsRequest::WHAT() == _e.mWhat) {
 		if(visible()){
 			hide();
 		} else {
 			show();
 		}
 	}
-}
-
-void EngineStatsView::makeTextureFont() {
-	try {
-		// Fonts I'm looking for, in order of precendence
-		std::vector<std::string>	cmp;
-		cmp.push_back("Helvetica");
-		cmp.push_back("Arial");
-		cmp.push_back("Segoe UI");
-		cmp.push_back("Times New Roman");
-
-		// Find the best match in the list
-		std::vector<std::string>	n = ci::Font::getNames();
-		std::string					name;
-		size_t						dist = 100000;
-		for (auto it=n.begin(), end=n.end(); it!=end; ++it) {
-//			std::cout << "n=" << *it << std::endl;
-			if (name.empty()) {
-				name = *it;
-			} else {
-				auto				found = std::find(cmp.begin(), cmp.end(), *it);
-				if (found != cmp.end()) {
-					const size_t	d = std::distance(cmp.begin(), found);
-					if (d < dist) {
-						name = *it;
-						dist = d;
-					}
-				}
-			}
-		}
-		if (name.empty()) return;
-
-		mFont = ci::Font(name, mFontSize);
-		mTextureFont = ci::gl::TextureFont::create(mFont);
-	} catch (std::exception const&) {
-	}
-}
-
-/**
- * \class ds::EngineStatsView::Changed
- */
-static ds::EventRegistry    TOGGLE_EVENT("EngineStatsView::Toggle");
-
-int EngineStatsView::Toggle::WHAT() {
-	return TOGGLE_EVENT.mWhat;
-}
-
-EngineStatsView::Toggle::Toggle()
-		: Event(TOGGLE_EVENT.mWhat) {
 }
 
 } // namespace ds

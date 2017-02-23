@@ -272,7 +272,7 @@ void App::keyDown(ci::app::KeyEvent e) {
 	if(code == ci::app::KeyEvent::KEY_LCTRL || code == ci::app::KeyEvent::KEY_RCTRL) {
 		mCtrlDown = true;
 	} else if(ci::app::KeyEvent::KEY_s == code) {
-		mEngine.getNotifier().notify(EngineStatsView::Toggle());
+		mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest());
 	} else if(ci::app::KeyEvent::KEY_t == code) {
 		mEngine.nextTouchMode();
 	} else if(ci::app::KeyEvent::KEY_F8 == code){
