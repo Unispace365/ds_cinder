@@ -26,7 +26,7 @@
 	  $(DS_PLATFORM_090)\lib\poco\lib\vs2010;
 	  $(DS_PLATFORM_090)\lib;
 	  $(DS_PLATFORM_090)\lib\gtk\lib;
-	  $(DS_PLATFORM_090)\lib\snappy;
+	  $(DS_PLATFORM_090)\lib\snappy\lib32;
 	  %(AdditionalLibraryDirectories);</AdditionalLibraryDirectories>
       <AdditionalDependencies>
 	  cinder-v120_d.lib;
