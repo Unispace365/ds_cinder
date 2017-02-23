@@ -48,6 +48,7 @@ Common Issues / Troubleshooting
 		* If you see these, it's most likely that your app is linking to a 32bit lib. 
 		* Try turning on verbose linking for searched libraries. 
 		* Check that you've set the correct property sheets in the property manager for all configurations
+		* Compile base cinder for 64bit if you get one of these: LINK : fatal error LNK1181: cannot open input file 'cinder-v120.lib'
 		* Clean and rebuild
 	* DLL errors / warnings on startup
 		* Clean and rebuild
