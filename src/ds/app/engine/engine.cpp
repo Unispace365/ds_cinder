@@ -480,7 +480,7 @@ void Engine::loadNinePatchCfg(const std::string& filename) {
 	mData.mEngineCfg.loadNinePatchCfg(filename);
 }
 
-int Engine::getRootCount() const {
+size_t Engine::getRootCount() const {
 	return mRoots.size();
 }
 

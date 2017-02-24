@@ -111,7 +111,7 @@ int Result::getClientId() const {
 }
 
 int Result::getColumnSize() const {
-	return mCol.size();
+	return static_cast<int>(mCol.size());
 }
 
 const int Result::getColumnType(const int idx)const{
@@ -130,7 +130,7 @@ bool Result::rowsAreEmpty() const {
 }
 
 int Result::getRowSize() const {
-	return mRow.size();
+	return static_cast<int>(mRow.size());
 }
 
 Result::RowIterator Result::getRows() const {
@@ -402,7 +402,7 @@ void Result::print() const {
 
 	RowIterator				it(getRows());
 	while (it.hasValue()) {
-		for (size_t k=0; k<mCol.size(); ++k) {
+		for (int k=0; k<static_cast<int>(mCol.size()); ++k) {
 			const int		col = mCol[k];
 			if (col == QUERY_NUMERIC)		cout << "\t" << k << " = " << it.getFloat(k) << endl;
 			else if (col == QUERY_STRING)	cout << "\t" << k << " = " << it.getString(k) << endl;

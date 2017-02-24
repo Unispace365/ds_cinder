@@ -99,7 +99,7 @@ public:
 
 	const ds::EngineData&				getEngineData() const		{ return mData; }
 	// only valid after setup() is called
-	int									getRootCount() const;
+	size_t								getRootCount() const;
 	ui::Sprite&							getRootSprite(const size_t index = 0);
 	// Access to the configuration settings that created a root. Allows you to inspect pick style, debug drawing, perspective, etc
 	const RootList::Root&				getRootBuilder(const size_t index = 0);

@@ -807,8 +807,8 @@ namespace ui {
 
 		std::vector<SpriteShader*> mSpriteShaders;
 		//indicates which shader in the shader list is being drawn.
-		int							mShaderPass;
-		int							mShaderPasses;
+		size_t						mShaderPass;
+		size_t						mShaderPasses;
 		ci::gl::Fbo*				mFrameBuffer[2];
 		ci::gl::TextureRef			mShaderTexture;
 		//ci::gl::Texture*			mFinalOutputTexture;

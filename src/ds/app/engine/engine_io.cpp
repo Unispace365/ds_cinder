@@ -33,12 +33,12 @@ EngineSender::AutoSend::~AutoSend() {
 	if (!mSender.mConnection.initialized()) return;
 	if (mData.size() < 1) return;
 
-	const int size = mData.size();
+	const size_t size = mData.size();
 	mSender.mRawDataBuffer.setSize(size);
 	mData.readRaw(mSender.mRawDataBuffer.data(), size);
 	snappy::Compress(mSender.mRawDataBuffer.data(), size, &mSender.mCompressionBuffer);
 
-	static unsigned packetNumber = 0;
+	static size_t packetNumber = 0;
 	packetNumber++;
 	ds::net::Chunker chunker;
 	std::vector<std::string> chunks;
@@ -117,7 +117,7 @@ bool EngineReceiver::handleBlob(ds::BlobRegistry& registry, ds::BlobReader& read
 
 	morePacketsAvailable = !mReceiveBuffers.empty();
 
-	const int					receiveSize = mCurrentDataBuffer.size();
+	const size_t				receiveSize = mCurrentDataBuffer.size();
 	const char					size = static_cast<char>(registry.mReader.size());
 	while (mCurrentDataBuffer.canRead<char>()) {
 		const char				token = mCurrentDataBuffer.read<char>();

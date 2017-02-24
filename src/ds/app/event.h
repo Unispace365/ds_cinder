@@ -24,7 +24,7 @@ class Sprite;
 class Event {
 public:
 	Event();
-	Event(const int what);
+	Event(const size_t what);
 	virtual ~Event();
 
 	const std::string&		getName() const;
@@ -44,7 +44,7 @@ public:
 	template<typename T>
 	const T* const			as() const;
 
-	int						mWhat;
+	size_t					mWhat;
 
 	/** An event-specific parameter, for client usage. Generally global space. May be empty	*/
 	ci::vec3				mEventOrigin;
@@ -87,7 +87,7 @@ template<class Derived>
 class RegisteredEvent : public Event {
 public:
 	// Unique identifier for this message
-	static int						WHAT() { return sENTRY.getWhat(); }
+	static size_t					WHAT() { return sENTRY.getWhat(); }
 	// Unique channel name for this message
 	static const std::string&		CHANNEL() { return sENTRY.getChannel(); }
 

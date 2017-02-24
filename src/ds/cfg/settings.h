@@ -37,16 +37,16 @@ public:
 	bool								empty() const;
 	void							  	clear();
 
-	int								  	getBoolSize(const std::string& name) const;
+	size_t							  	getBoolSize(const std::string& name) const;
 	// This applies to both RGB and RGBA colours, which are always identical.
-	int								  	getColorSize(const std::string& name) const;
-	int								  	getFloatSize(const std::string& name) const;
-	int								  	getIntSize(const std::string& name) const;
-	int								  	getRectSize(const std::string& name) const;
-	int									getResourceIdSize(const std::string& name) const;
-	int								  	getTextSize(const std::string& name) const;
-	int								  	getTextWSize(const std::string& name) const;
-	int									getPointSize(const std::string& name) const;
+	size_t							  	getColorSize(const std::string& name) const;
+	size_t							  	getFloatSize(const std::string& name) const;
+	size_t							  	getIntSize(const std::string& name) const;
+	size_t							  	getRectSize(const std::string& name) const;
+	size_t								getResourceIdSize(const std::string& name) const;
+	size_t							  	getTextSize(const std::string& name) const;
+	size_t							  	getTextWSize(const std::string& name) const;
+	size_t								getPointSize(const std::string& name) const;
 
 	// Throw errors if not found
 	float								getFloat(const std::string& name, const int index = 0) const;

@@ -205,7 +205,7 @@ void GlThread::Loop::consume(std::vector<GlThreadCallback*>& ins)
 {
 	// Perform each callback.  There's one special case:  Callbacks of matching runs
 	// are considered a batch, and only the final one will be performed.
-	const int				size = ins.size();
+	const int				size = static_cast<int>(ins.size());
 	GlThreadCallback		*cur, *nxt;
 	for (int k=0; k<size; k++) {
 		if ((cur = ins[k]) == NULL) continue;

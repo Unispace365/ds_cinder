@@ -33,8 +33,8 @@ public:
 	void				registerFont(const std::string& fontName, const std::string& shortName);
 
 	// Answer > 0 for a valid ID. Name can either be the file path, font name, or short name. Jebus help you if you name fonts the same thing.
-	int					getIdFromName(const std::string&) const;
-	const std::string&	getFilePathFromId(const int id) const;
+	size_t				getIdFromName(const std::string&) const;
+	const std::string&	getFilePathFromId(const size_t id) const;
 
 	/// Clients give either a filename or a shortname, and I answer with the resulting font name to actually load in Pango.
 	/// For example, pass in your custom name of "noto-sans-bold" or "the-title-font" and it will respond with the registered or installed mapped font name such as "Noto Sans Bold" or "Arial"
@@ -46,14 +46,13 @@ private:
 	public:
 		Entry(){}
 		Entry(const std::string& filePath, const std::string& fontName, const std::string& shortName) : mFilePath(filePath), mFontName(fontName), mShortName(shortName) { }
-		std::string			 mFilePath;
-		std::string			 mFontName;
-		std::string			 mShortName;
+		std::string						mFilePath;
+		std::string						mFontName;
+		std::string						mShortName;
 	};
-	std::unordered_map<int, Entry>
-		mData;
+	std::unordered_map<size_t, Entry>	mData;
 
-	ds::ui::SpriteEngine&	mEngine;
+	ds::ui::SpriteEngine&				mEngine;
 };
 
 } // namespace ds

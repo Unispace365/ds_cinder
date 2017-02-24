@@ -302,7 +302,7 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		addHeader(send.mData, mFrame);
 //		DS_LOG_INFO_M("running frame=" << mFrame, ds::IO_LOG);
 
-		const int numRoots = engine.getRootCount();
+		const size_t numRoots = engine.getRootCount();
 		for(int i = 0; i < numRoots - 1; i++){
 			if(!engine.getRootBuilder(i).mSyncronize) continue;
 			ds::ui::Sprite& rooty = engine.getRootSprite(i);
@@ -388,11 +388,11 @@ void EngineServer::ClientStartedReplyState::update(AbstractEngineServer& engine)
 				send.mData.add(s->mSessionId);
 
 				send.mData.add(ATT_ROOTS);
-				int rootCount = engine.getRootCount();
+				size_t rootCount = engine.getRootCount();
 				int numActualRoots = 0;
 				std::vector<RootList::Root> roots;
 
-				for(int i = 0; i < rootCount; i++){
+				for(size_t i = 0; i < rootCount; i++){
 					if(!engine.getRootBuilder(i).mSyncronize) continue;
 					numActualRoots++;
 					RootList::Root newRoot = RootList::Root();
@@ -442,8 +442,8 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 		send.mData.add(CMD_SERVER_SEND_WORLD);
 		send.mData.add(ds::TERMINATOR_CHAR);
 
-		const int numRoots = engine.getRootCount();
-		for(int i = 0; i < numRoots - 1; i++){
+		const size_t numRoots = engine.getRootCount();
+		for(size_t i = 0; i < numRoots - 1; i++){
 			if(!engine.getRootBuilder(i).mSyncronize) continue;
 			ds::ui::Sprite& rooty = engine.getRootSprite(i);
 			rooty.markTreeAsDirty();

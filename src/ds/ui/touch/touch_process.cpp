@@ -204,7 +204,7 @@ void TouchProcess::sendTouchInfo( const TouchInfo &touchInfo )
 	t.mCurrentScale = mCurrentScale;
 	t.mCurrentDistance = mCurrentDistance;
 	t.mStartDistance = mStartDistance;
-	t.mNumberFingers = mFingers.size();
+	t.mNumberFingers = static_cast<int>(mFingers.size());
 	t.mPassedTouch = touchInfo.mPassedTouch;
 
 	if (touchInfo.mPhase == TouchInfo::Removed && t.mNumberFingers > 0)

@@ -70,7 +70,7 @@ void DirectoryWatcher::Waiter::run()
 
 	while (TRUE) { 
 		// Wait for notification.
-		ans = WaitForMultipleObjectsEx(count, handle, FALSE, INFINITE, TRUE);
+		ans = WaitForMultipleObjectsEx((DWORD)count, handle, FALSE, INFINITE, TRUE);
 
 		if (isStopped()) goto cleanup;
 		if (ans < WAIT_OBJECT_0 || ans >= WAIT_OBJECT_0 + count) goto cleanup;

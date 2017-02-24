@@ -1658,7 +1658,7 @@ void Sprite::writeAttributesTo(ds::DataBuffer &buf) {
 	if (mDirty.has(SORTORDER_DIRTY)) {
 		// A flat list of ints, the first value is the number of ints
 		buf.add(SORTORDER_ATT);
-		buf.add<int32_t>(mChildren.size());
+		buf.add<int32_t>(static_cast<int32_t>(mChildren.size()));
 		for (auto it=mChildren.begin(), end=mChildren.end(); it != end; ++it) {
 			buf.add<sprite_id_t>((*it) ? (*it)->getId() : 0);
 		}

@@ -45,8 +45,8 @@ class Bundle {
 	void addBundle(const Bundle& element);
 	void addMessage(const Message& message);
 	
-	int getBundleCount() const {return bundles.size();}
-	int getMessageCount() const {return messages.size();}
+	int getBundleCount() const {return (int)bundles.size();}
+	int getMessageCount() const {return (int)messages.size();}
 	
 	const Bundle& getBundleAt(int index) const { return bundles[index]; }
 	const Message& getMessageAt(int index) const {return messages[index];}

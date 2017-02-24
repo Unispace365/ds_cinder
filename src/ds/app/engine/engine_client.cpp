@@ -332,7 +332,7 @@ void EngineClient::RunningState::update(EngineClient &e) {
 	buf.add(e.mServerFrame);
 	buf.add(ds::TERMINATOR_CHAR);
 
-	const int				count(e.getRootCount());
+	const size_t count(e.getRootCount());
 	for (int k=0; k<count; ++k) {
 		if(!e.getRootBuilder(k).mSyncronize) continue;
 		ui::Sprite&	s(e.getRootSprite(k));
