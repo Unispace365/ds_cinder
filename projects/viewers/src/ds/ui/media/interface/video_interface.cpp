@@ -77,12 +77,17 @@ void VideoInterface::updateServer(const ds::UpdateParams& p){
 	MediaInterface::updateServer(p);
 
 	if(mLinkedVideo && mPauseButton && mPlayButton){
-		if(mLinkedVideo->getIsPlaying()){
-			mPauseButton->show();
+		if(mLinkedVideo->getIsStreaming()){
 			mPlayButton->hide();
-		} else {
 			mPauseButton->hide();
-			mPlayButton->show();
+		} else {
+			if(mLinkedVideo->getIsPlaying()){
+				mPauseButton->show();
+				mPlayButton->hide();
+			} else {
+				mPauseButton->hide();
+				mPlayButton->show();
+			}
 		}
 	}
 }
@@ -90,12 +95,20 @@ void VideoInterface::updateServer(const ds::UpdateParams& p){
 
 // Layout is called when the size is changed, so don't change the size in the layout
 void VideoInterface::onLayout(){
+
 	float w = getWidth();
 	if(w < mMinWidth) w = mMinWidth;
 	const float h = getHeight();
 	const float padding = h / 2.0f; // config?
 	float xp = getWidth() / 2.0f - w / 2.0f + padding;
 	float spaceLeft = w - padding;
+
+	// Streaming videos only have the volume control thingy
+	if(mLinkedVideo && mLinkedVideo->getIsStreaming() && mVolumeControl){
+		mVolumeControl->setPosition(getWidth() / 2.0f - mVolumeControl->getWidth() / 2.0f, h / 2.0f - mVolumeControl->getHeight() / 2.0f);
+		return;
+	}
+
 	if(mPlayButton && mPauseButton){
 		mPlayButton->setPosition(xp, h / 2.0f - mPlayButton->getHeight() / 2.0f);
 		mPauseButton->setPosition(xp, h / 2.0f - mPauseButton->getHeight() / 2.0f);
@@ -112,6 +125,7 @@ void VideoInterface::onLayout(){
 		mScrubBar->setSize(spaceLeft, mScrubBar->getHeight());
 		mScrubBar->setPosition(xp, h / 2.0f - mScrubBar->getHeight() / 2.0f);
 	}
+
 }
 
 } // namespace ui
