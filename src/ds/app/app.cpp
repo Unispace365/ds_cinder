@@ -161,6 +161,8 @@ App::App(const RootList& roots)
 	}
 	startups.clear();
 
+	setFpsSampleInterval(0.25);
+
 	prepareSettings(ci::app::App::get()->sSettingsFromMain);
 
 }
