@@ -209,12 +209,14 @@ ds::ui::SoftKeyboard* buildExtendedKeyboard(ds::ui::SpriteEngine& engine, SoftKe
 	makeAButton(engine, newKeyboard, xp, yp, L"[", L"{", SoftKeyboardDefs::kLetter);
 	makeAButton(engine, newKeyboard, xp, yp, L"]", L"}", SoftKeyboardDefs::kLetter);
 	makeAButton(engine, newKeyboard, xp, yp, L"\\", L"|", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"@", L"@", SoftKeyboardDefs::kLetter);
 
 	if(maxW < xp) maxW = xp;
 
-	xp = settings.mKeyInitialPosition.x + newKeyboard->getButtonVector().back()->getWidth() * 2.0f;
+	xp = settings.mKeyInitialPosition.x;// +newKeyboard->getButtonVector().back()->getWidth() * 2.0f;
 	yp += newKeyboard->getButtonVector().back()->getHeight();
 
+	makeAButton(engine, newKeyboard, xp, yp, L"enter", L"ENTER", SoftKeyboardDefs::kEnter);
 	makeAButton(engine, newKeyboard, xp, yp, L"a", L"A", SoftKeyboardDefs::kLetter);
 	makeAButton(engine, newKeyboard, xp, yp, L"s", L"S", SoftKeyboardDefs::kLetter);
 	makeAButton(engine, newKeyboard, xp, yp, L"d", L"D", SoftKeyboardDefs::kLetter);
@@ -255,6 +257,10 @@ ds::ui::SoftKeyboard* buildExtendedKeyboard(ds::ui::SpriteEngine& engine, SoftKe
 	if(spaceButton){
 		spaceButton->setPosition(maxW / 2.0f, spaceButton->getPosition().y);
 	}
+
+	// TODO: need a way to make the .com key size bigger than a letter
+	//xp = maxW / 2.0f + spaceButton->getWidth()/2.0f;
+	//makeAButton(engine, newKeyboard, xp, yp, L".com", L".org", SoftKeyboardDefs::kLetter);
 
 	yp += newKeyboard->getButtonVector().back()->getHeight();
 
