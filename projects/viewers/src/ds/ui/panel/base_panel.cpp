@@ -26,6 +26,7 @@ BasePanel::BasePanel(ds::ui::SpriteEngine& engine)
 	, mRemoving(false)
 	, mDefaultSize(engine.getWorldWidth(), engine.getWorldHeight())
 	, mLayoutCallback(nullptr)
+	, mAutoSendToFront(true)
 {
 
 	mLayoutFixedAspect = true;
@@ -288,7 +289,9 @@ void BasePanel::userInputReceived() {
 }
 
 void BasePanel::activatePanel() {
-	sendToFront();
+	if(mAutoSendToFront){
+		sendToFront();
+	}
 	onPanelActivated();
 }
 
