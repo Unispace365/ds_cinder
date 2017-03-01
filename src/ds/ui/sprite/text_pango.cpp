@@ -730,7 +730,7 @@ bool TextPango::render(bool force) {
 			}
 
 			// Draw the text into the buffer
-			cairo_set_source_rgba(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b , getDrawOpacity());
+			cairo_set_source_rgb(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b);//, getDrawOpacity());
 			pango_cairo_update_layout(mCairoContext, mPangoLayout);
 			pango_cairo_show_layout(mCairoContext, mPangoLayout);
 

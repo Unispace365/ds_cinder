@@ -82,6 +82,7 @@ size_t write_callback(char *contents, size_t size, size_t nmemb, void *userdata)
 	((std::string*)userdata)->append((char*)contents, size * nmemb);
 	return realsize;
 }
+
 void HttpsRequest::IndividualRequest::run(){
 	mError = false;
 	mErrorMessage = "";
