@@ -9,7 +9,7 @@
 #include <ds/ui/sprite/image.h>
 #include "cinder/gl/Texture.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
-#include <ds/ui/sprite/fbo/fbo.h>
+#include "cinder/gl/Fbo.h"
 #include <ds/ui/image_source/image_owner.h>
 
 namespace ds {
@@ -45,6 +45,7 @@ public:
 
 	/// Loads an image file to use for the brush
 	void								setBrushImage(const std::string& imagePath);
+	std::string							getBrushImagePath(){ return mBrushImagePath; }
 
 	/// Clears any drawings a person has made
 	void								clearCanvas();
@@ -80,11 +81,12 @@ private:
 	// The shader that colorizes the brush image
 	ds::ui::SpriteShader				mPointShader;
 	// The intermediate fbo that brushes are drawn to
-	std::unique_ptr<ds::ui::FboGeneral>	mFboGeneral;
-	// The texture drawn to the screen and drawn on
-	ci::gl::Texture2dRef				mDrawTexture;
+	ci::gl::FboRef						mFbo;
 
 	SpriteShader						mOutputShader;
+
+	/// Only for the getter, the actual brush image is loaded via the image loading API
+	std::string							mBrushImagePath;
 
 	float								mBrushSize;
 	ci::ColorA							mBrushColor;
