@@ -83,9 +83,7 @@ bool safeFileExistsCheck(const std::string filePath, const bool allowDirectory){
 		}
 	} catch(std::exception&){}
 
-
 	return fileExists;
-
 }
 
 std::string filePathRelativeTo(const std::string &base, const std::string &relative){
