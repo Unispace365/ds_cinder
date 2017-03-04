@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "ds/app/environment.h"
+#include "ds/util/file_meta_data.h"
 
 #include <boost/algorithm/string.hpp>
 #include <Poco/File.h>
@@ -14,6 +15,7 @@ namespace ds {
 
 namespace {
 std::string				DOCUMENTS("%DOCUMENTS%");
+bool					USE_CFG_FILE_OVERRIDE = false;
 }
 
 bool Environment::initialize() {
@@ -22,6 +24,11 @@ bool Environment::initialize() {
 	p.append("Documents");
 	DOCUMENTS = p.toString();
 	return true;
+}
+
+
+void Environment::setConfigDirFileExpandOverride(const bool doOverride) {
+	USE_CFG_FILE_OVERRIDE = doOverride;
 }
 
 const std::string& Environment::SETTINGS() {
@@ -36,6 +43,18 @@ const std::string& Environment::RESOURCES() {
 
 std::string Environment::expand(const std::string& _path) {
 	std::string		p(_path);
+
+	if(USE_CFG_FILE_OVERRIDE && p.find("%APP%") != std::string::npos){
+		std::string tempP = p;
+		boost::replace_first(tempP, "%APP%", "%APP%/settings/%CFG_FOLDER%");
+		boost::replace_all(tempP, "%APP%", ds::App::envAppDataPath());
+		boost::replace_all(tempP, "%CFG_FOLDER%", EngineSettings::getConfigurationFolder());
+		std::string tempPath = Poco::Path(tempP).toString();
+		if(ds::safeFileExistsCheck(tempPath)){
+			return tempPath;
+		}
+	}
+
 	boost::replace_all(p, "%APP%", ds::App::envAppDataPath());
 	boost::replace_all(p, "%PP%", EngineSettings::envProjectPath());
 	boost::replace_all(p, "%LOCAL%", getDownstreamDocumentsFolder());
