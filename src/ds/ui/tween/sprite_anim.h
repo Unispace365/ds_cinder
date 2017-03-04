@@ -153,12 +153,17 @@ public:
 			easing: see getEasingByString() implementation for details. Same easing applies to all tween types (opacity and position would use the same easing for instance, unfortunately)
 			duration: in seconds
 			delay: in seconds
+			center: change center directly without changing position
+			shift: tween the position to the set offset
 			slide: tweens the position to the cached destination position, and offsets the start by the supplied values. Cache is created the first time slide, grow or fade is called. Call setAnimateOnTargets() to reset the cached targets.
 			grow: tweens the scale to the cached scale, and starts at the supplied value
 			fade: tweens the opacity to the cached opacity and starts at the supplied value
 		Example: "scale:1, 1, 1; position:100, 200, 300; opacity:1.0; color:0.5, 0.6, 1.0; rotation:0.0, 0.0, 90.0; size:20, 20; easing:inOutBack; duration:1.0; slide:-100; delay:0.5"
 		*/
 	void									runAnimationScript(const std::string& animScript, const float addedDelay = 0.0f);
+
+	void									runMultiAnimationScripts(const std::vector<std::string> animScripts, const float gapTime, const float addedDelay = 0.0f);
+	void									parseMultiScripts(const std::vector<std::string> animScripts, std::vector<float>& durations, std::vector<float>& delays);
 
 	/// Gets the cinder easing function by string value, to support the script running
 	static ci::EaseFn						getEasingByString(const std::string& inString);
