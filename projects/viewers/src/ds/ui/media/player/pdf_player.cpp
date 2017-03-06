@@ -15,7 +15,7 @@
 namespace ds {
 namespace ui {
 
-PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
+PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface, bool cachePrevNext)
 	: ds::ui::Sprite(eng)
 	, mPDF(nullptr)
 	, mPdfInterface(nullptr)
@@ -24,6 +24,7 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 	, mPDFThumbHolder(nullptr)
 	, mEmbedInterface(embedInterface)
 	, mShowInterfaceAtStart(true)
+	, mAutoCachePrevNext(cachePrevNext)
 	, mCurrentPage(-1)
 	, mNextReady(false)
 	, mPrevReady(false)
@@ -92,7 +93,7 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 	// This loads 2 additional PDF sprites, one for the next page, and one for the previous page
 	// The scale of the PDF stays at 0.5 (because of the thumb holder), so the quality is less than the proper PDF
 	// When the page gets changed, and the next or previous PDFs are loaded, they're shown until the primary PDF finishes rendering
-	if(mPDFThumbHolder && mPDF->getPageCount() > 1){
+	if(mPDFThumbHolder && mPDF->getPageCount() > 1 && mAutoCachePrevNext){
 		mPDFNext = new ds::ui::Pdf(mEngine);
 
 		//Next and prev pdf starts loading after the first proper page has finished, for speed

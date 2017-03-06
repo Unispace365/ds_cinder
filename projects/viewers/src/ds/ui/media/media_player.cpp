@@ -252,7 +252,7 @@ void MediaPlayer::initialize(){
 		contentHeight = mStreamPlayer->getHeight();
 
 	} else if(mediaType == ds::Resource::PDF_TYPE){
-		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface);
+		mPDFPlayer = new PDFPlayer(mEngine, mEmbedInterface, mMediaViewerSettings.mPdfCacheNextPrev);
 		addChildPtr(mPDFPlayer);
 
 		mPDFPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
