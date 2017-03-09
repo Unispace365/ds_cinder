@@ -392,6 +392,7 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 	ci::EaseFn easing = ci::EaseInOutCubic();
 	float dur = 0.35f;
 	float delayey = addedDelay;
+	ci::vec3 currentPos = mOwner.getPosition();
 
 	// This maps tracks all the types (scale, position, etc) and their destinations (as 3d vectors)
 	std::map<std::string, ci::vec3> animationCommands;
@@ -448,7 +449,8 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 				break;
 
 			mOwner.setCenter(dest.x, dest.y);
-			mOwner.move((dest.x - currentCenter.x) * mOwner.getScaleWidth(), (dest.y - currentCenter.y) * mOwner.getScaleHeight());
+			mOwner.setPosition((dest.x - currentCenter.x) * mOwner.getScaleWidth() + currentPos.x, (dest.y - currentCenter.y) * mOwner.getScaleHeight() + currentPos.y);
+			currentPos = mOwner.getPosition();
 		}
 	}
 
@@ -475,7 +477,6 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 			tweenColor(ci::Color(dest.x, dest.y, dest.z), dur, delayey, easing);
 		}
 		else if (animType == "shift"){
-			auto currentPos = mOwner.getPosition();
 			tweenPosition(currentPos + dest, dur, delayey, easing);
 		}
 		else if (animType == "slide"){
