@@ -346,16 +346,17 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 			ci::gl::translate(0.0f, (float)-getHeight(), 0.0f);			// shift origin up to upper-left corner.
 		}
 
-		if (!mSpriteShaders.empty()) {
+
+		if(!mSpriteShaders.empty()) {
 			mSpriteShader = *mSpriteShaders[mShaderPass];
 			mSpriteShader.loadShaders();
 			mUniform = getShaderUniforms(mSpriteShader.getName());
-		}
-		else if (!mSpriteShader.isValid()) {
+		} else if(!mSpriteShader.isValid()) {
 			mSpriteShader.loadShaders();
 		}
 
 		if ((mSpriteFlags&TRANSPARENT_F) == 0) {
+
 			DS_REPORT_GL_ERRORS();
 			ci::gl::enableAlphaBlending();
 			applyBlendingMode(mBlendMode);
@@ -387,8 +388,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 			if (mUseDepthBuffer) {
 				ci::gl::enableDepthRead();
 				ci::gl::enableDepthWrite();
-			}
-			else {
+			} else {
 				ci::gl::disableDepthRead();
 				ci::gl::disableDepthWrite();
 			}
@@ -1185,6 +1185,8 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick){
 
 	std::vector<ds::ui::Sprite*> candidates;
 
+//	pick.
+
 	for(auto it = mSortedTmp.rbegin(), it2 = mSortedTmp.rend(); it != it2; ++it) {
 		Sprite*		hit = (*it)->getPerspectiveHit(pick);
 		if(hit) {
@@ -1225,7 +1227,10 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick){
 			return nullptr;
 
 		ci::vec3 ptR = pick.getScreenPt();
-		ci::vec3 a = getPosition();
+		ci::vec3 a = getParent()->localToGlobal(getPosition());
+		
+		ci::vec3 camEye = pick.getCamera().getEyePoint();
+		a.z -= camEye.z;
 		ci::vec3 ptA = a;
 		ci::vec3 ptB = a;
 		ci::vec3 ptC = a;
@@ -1234,18 +1239,19 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick){
 		ci::vec2 ptA_s;
 		ci::vec2 ptB_s;
 		ci::vec2 ptC_s;
+
 		
 		ptA.x -= mCenter.x*w;
 		ptA.y += (1 - mCenter.y)*h;
-		ptA_s = pick.worldToScreen(getParent()->localToGlobal(ci::vec3(ptA)));
+		ptA_s = pick.worldToScreen(ptA);
 
 		ptB.x += (1 - mCenter.x)*w;
 		ptB.y += (1 - mCenter.y)*h;
-		ptB_s = pick.worldToScreen(getParent()->localToGlobal(ci::vec3(ptB)));
+		ptB_s = pick.worldToScreen(ptB);
 
 		ptC.x += (1 - mCenter.x)*w;
 		ptC.y -= mCenter.y*h;
-		ptC_s = pick.worldToScreen(getParent()->localToGlobal(ci::vec3(ptC)));
+		ptC_s = pick.worldToScreen(ptC);
 
 		ci::vec2 v1 = ptA_s - ptB_s;
 		ci::vec2 v2 = ptC_s - ptB_s;

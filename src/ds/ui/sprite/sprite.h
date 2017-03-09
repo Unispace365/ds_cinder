@@ -595,6 +595,8 @@ namespace ui {
 		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
 		void					setShaderExtraData(const ci::vec4& data);
 
+		bool					getUseShaderTexture() const;
+
 		//	Determines if the final render will be to the display or a texture.
 		void					setFinalRenderToTexture(bool render_to_texture);
 		bool					isFinalRenderToTexture();
@@ -767,7 +769,6 @@ namespace ui {
 		virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&){}
 
 		void				setUseShaderTexture(bool flag);
-		bool				getUseShaderTexture() const;
 		
 
 		void					sendSpriteToFront(Sprite &sprite);
