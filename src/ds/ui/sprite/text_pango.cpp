@@ -426,12 +426,16 @@ void TextPango::drawLocalClient(){
 
 
 		mTexture->bind();
-		if(getPerspective()){
-		//	ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f));
+		//ci::Rectf drawRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
+		if(getPerspective()) {
+		//	drawRect = ci::Rectf(0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()), 0.0f);
+			ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f));
 		} else {
 		//	ci::gl::draw(mTexture);
 			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight())));
 		}
+
+		//mEngine.drawSolidRect(drawRect, *this);
 
 		mTexture->unbind();
 
