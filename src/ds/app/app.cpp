@@ -311,7 +311,7 @@ void App::keyDown(ci::app::KeyEvent e) {
 	}
 
 #ifdef _DEBUG
-	if(code == ci::app::KeyEvent::KEY_d){
+	if(code == ci::app::KeyEvent::KEY_d && e.isControlDown()){
 		std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
 		std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
 		std::fstream	filestr;
@@ -335,6 +335,7 @@ void App::keyUp(ci::app::KeyEvent event){
 
 void App::saveTransparentScreenshot(){
 
+	/*
 	const auto		area = getWindowBounds();
 	ci::Surface s(area.getWidth(), area.getHeight(), true);
 	glFlush(); // there is some disagreement about whether this is necessary, but ideally performance-conscious users will use FBOs anyway
@@ -346,13 +347,13 @@ void App::saveTransparentScreenshot(){
 	glReadPixels(area.x1, getWindowHeight() - area.y2, area.getWidth(), area.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, s.getData());
 	glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
 	ci::ip::flipVertical(&s);
-
+	*/
 	Poco::Path		p("%USERPROFILE%");
 	Poco::Timestamp::TimeVal t = Poco::Timestamp().epochMicroseconds();
 	std::stringstream filepath;
 	filepath << "ds_cinder.screenshot." << t << ".png";
 	p.append("Desktop").append(filepath.str());
-	ci::writeImage(Poco::Path::expand(p.toString()), s);
+	ci::writeImage(Poco::Path::expand(p.toString()), copyWindowSurface());
 }
 
 void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
