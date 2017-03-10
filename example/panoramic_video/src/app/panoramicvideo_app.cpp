@@ -44,8 +44,8 @@ PanoramicVideo::PanoramicVideo()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
-	mEngine.editFonts().install("Noto Sans", "noto-thin");
+	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
+	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
 
 	enableCommonKeystrokes(true);
 }
