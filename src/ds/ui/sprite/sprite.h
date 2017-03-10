@@ -810,10 +810,11 @@ namespace ui {
 		//indicates which shader in the shader list is being drawn.
 		size_t						mShaderPass;
 		size_t						mShaderPasses;
-		ci::gl::Fbo*				mFrameBuffer[2];
+		ci::gl::FboRef				mFrameBufferOne;
+		ci::gl::FboRef				mFrameBufferTwo;
 		ci::gl::TextureRef			mShaderTexture;
 		//ci::gl::Texture*			mFinalOutputTexture;
-		ci::gl::Fbo*				mOutputFbo;
+		ci::gl::FboRef				mOutputFbo;
 		bool						mIsRenderFinalToTexture;
 
 		//Keeps track of which FBO is being rendered to for multi-pass rendering

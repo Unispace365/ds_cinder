@@ -186,8 +186,8 @@ void Sprite::init(const ds::sprite_id_t id) {
 							  0.4f);
 	mClippingBounds.set(0.0f, 0.0f, 0.0f, 0.0f);
 	mClippingBoundsDirty = false;
-	mFrameBuffer[0] = nullptr;
-	mFrameBuffer[1] = nullptr;
+	mFrameBufferOne= nullptr;
+	mFrameBufferTwo = nullptr;
 	mOutputFbo = nullptr;
 	mIsRenderFinalToTexture = false;
 	mShaderPasses = 0;
@@ -200,10 +200,6 @@ Sprite::~Sprite() {
 	cancelDelayedCall();
 
 	mEngine.removeFromDragDestinationList(this);
-
-	delete mFrameBuffer[0];
-	delete mFrameBuffer[1];
-	delete mOutputFbo;
 
 	// We only want to request a delete for the sprite at the head of a tree,
 	const sprite_id_t	id = mId;
@@ -252,11 +248,19 @@ void Sprite::updateServer(const UpdateParams &p) {
 }
 
 ci::gl::TextureRef Sprite::getShaderOutputTexture(){
-	if(mSpriteShaders.size() > 0 && mFrameBuffer[mFboIndex]){
-		return mFrameBuffer[mFboIndex]->getColorTexture();
+	if(mSpriteShaders.size() > 0){
+		if(mFboIndex == 0){
+			return mFrameBufferOne->getColorTexture();
+		} else if(mFboIndex == 1){
+			return mFrameBufferTwo->getColorTexture();
+		} else {
+			return nullptr;
+		}
 	} else {
 		return nullptr;
 	}
+
+	return nullptr;
 }
 
 void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
@@ -281,17 +285,27 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 		DS_REPORT_GL_ERRORS();
 		if (mShaderPasses > 0) {
 			//Change viewport for rendering texture to FBO
-			auto bounds = mFrameBuffer[mFboIndex]->getBounds();
+			ci::gl::FboRef frontBuffer;
+			ci::gl::FboRef backBuffer;
+			if(mFboIndex == 0){
+				frontBuffer = mFrameBufferOne;
+				backBuffer = mFrameBufferTwo;
+			} else {
+				frontBuffer = mFrameBufferTwo;
+				backBuffer = mFrameBufferOne;
+			}
+
+			auto bounds = frontBuffer->getBounds();
 			ci::gl::ScopedViewport fboViewPort(bounds.getX1(), bounds.getY1(), bounds.getWidth(), bounds.getHeight());
 
 			//Output available on Texture Unit 1
 			if (mShaderPasses == mShaderPass){						//last pass
 				// render to screen   - may be overridden later to render to texture
 
-				mFrameBuffer[!mFboIndex]->unbindFramebuffer();
+				backBuffer->unbindFramebuffer();
 
 				//Bind previous render to texture unit 1
-				mFrameBuffer[!mFboIndex]->bindTexture(1);
+				backBuffer->bindTexture(1);
 
 				ci::gl::popModelMatrix();
 				ci::gl::popMatrices();
@@ -307,18 +321,18 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 				}
 			}
 			else if (mShaderPass > 0){ //middle passes
-				mFrameBuffer[mFboIndex]->bindFramebuffer();
+				frontBuffer->bindFramebuffer();
 				ci::gl::clear(ci::ColorA(0, 0, 0, 0));
 
 				glDrawBuffer(GL_COLOR_ATTACHMENT0);
-				mFrameBuffer[!mFboIndex]->bindTexture(1);
+				backBuffer->bindTexture(1);
 				mFboIndex = !mFboIndex;
 			}
 			else { //first pass
 				ci::gl::pushModelMatrix();
 				ci::gl::pushMatrices();
-				ci::gl::setMatricesWindow(mFrameBuffer[mFboIndex]->getSize());
-				mFrameBuffer[mFboIndex]->bindFramebuffer();
+				ci::gl::setMatricesWindow(frontBuffer->getSize());
+				frontBuffer->bindFramebuffer();
 				ci::gl::clear(ci::ColorA(0, 0, 0, 0));
 
 				glDrawBuffer(GL_COLOR_ATTACHMENT0);
@@ -401,7 +415,9 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 				// TODO ? do we have to unbind now?
 				//shaderBase->unbind();
 				if (mSpriteShaders.size() > 0){
-					if (mFrameBuffer[mFboIndex]) mFrameBuffer[mFboIndex]->unbindTexture();
+					mFrameBufferOne->unbindTexture();
+					mFrameBufferTwo->unbindTexture();
+					//if (mFrameBuffer[mFboIndex]) mFrameBuffer[mFboIndex]->unbindTexture();
 
 					ci::gl::scale(1.0f, 1.0f, 1.0f);           // invert Y axis so increasing Y goes down.
 					ci::gl::translate(0.0f, 0.0f, 0.0f);       // shift origin up to upper-left corner.
@@ -2104,30 +2120,28 @@ void Sprite::setupIntermediateFrameBuffers(){
 			const int newHeigh = static_cast<int>(getHeight());
 
 			bool createBuffer = true;
-			if(mFrameBuffer[0]){
-				if(mFrameBuffer[0]->getWidth() == newWidth && mFrameBuffer[0]->getHeight() == newHeigh){
+			if(mFrameBufferOne){
+				if(mFrameBufferOne->getWidth() == newWidth && mFrameBufferOne->getHeight() == newHeigh){
 					createBuffer = false;
 				} else {
-					delete mFrameBuffer[0];
+					mFrameBufferOne = nullptr;
 				}
 			}
 
 			if(createBuffer && newWidth > 0 && newHeigh > 0){
-				// TODO
-			//	mFrameBuffer[0] = new ci::gl::Fbo(newWidth, newHeigh, format);
+				mFrameBufferOne = ci::gl::Fbo::create(newWidth, newHeigh, format);
 			}
 
 			createBuffer = true;
-			if(mFrameBuffer[1] ){
-				if(mFrameBuffer[1]->getWidth() == newWidth && mFrameBuffer[1]->getHeight() == newHeigh){
+			if(mFrameBufferTwo){
+				if(mFrameBufferTwo->getWidth() == newWidth && mFrameBufferTwo->getHeight() == newHeigh){
 					createBuffer = false;
 				} else {
-					delete mFrameBuffer[1];
+					mFrameBufferTwo = nullptr;
 				}
 			}
 			if(createBuffer && newWidth > 0 && newHeigh > 0){
-				// TODO
-			///	mFrameBuffer[1] = new ci::gl::Fbo(newWidth, newHeigh, format);
+				mFrameBufferTwo = ci::gl::Fbo::create(newWidth, newHeigh, format);
 			}
 
 		}
@@ -2136,8 +2150,9 @@ void Sprite::setupIntermediateFrameBuffers(){
 
 
 void Sprite::setupFinalRenderBuffer(){
-	if (mOutputFbo)
-		delete mOutputFbo;
+	if(mOutputFbo){
+		mOutputFbo = nullptr;
+	}
 
 	if (mIsRenderFinalToTexture &&
 		getWidth() > 1.0f &&
@@ -2145,8 +2160,10 @@ void Sprite::setupFinalRenderBuffer(){
 		ci::gl::Fbo::Format  format;
 		// TODO
 	//	mOutputFbo = new ci::gl::Fbo(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
+		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
+	} else {
+		mOutputFbo = nullptr;
 	}
-	else mOutputFbo = nullptr;
 }
 
 
