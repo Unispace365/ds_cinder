@@ -166,7 +166,7 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 			newMedia.setPrimaryResource(ds::Resource(fileNameOrig, ds::Resource::WEB_TYPE));
 			newMedia.setTitle(L"The World Wide Web Internet Browser");
 			newMedia.setBody(ds::wstr_from_utf8(fileNameOrig));
-			mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::Vec3f(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
+			mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
 		}
 
 	// Shows all enabled sprites with a label for class type

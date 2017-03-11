@@ -11,6 +11,9 @@
 namespace ds {
 namespace ui {
 
+
+#define USE_CIRCLE_BATCH_DRAWING
+
 /** Circle sprite is a convenience class to draw circles onscreen.
 	This is faster than calling cinder's ci::gl::drawSolidCircle or drawStrokedCircle because this will cache the vertex array.
 	Circles are drawn around the point ci::vec2f(radius,radius)
@@ -35,7 +38,9 @@ public:
 	void						setLineWidth(const float lineWidth);
 	const float					getLineWidth(){ return mLineWidth; }
 
-	virtual void				updateServer(const UpdateParams&);
+	void						setNumberOfSegments(const int numSegments);
+	const int					getNumberOfSegments(){ return mNumberOfSegments; }
+
 	virtual void				drawLocalClient();
 	virtual void				drawLocalServer();
 
@@ -52,9 +57,11 @@ protected:
 private:
 	typedef Sprite				inherited;
 
+	bool						mNeedsInit;
 	void						init();
-
-	GLfloat*					mVertices;
+#ifdef USE_CIRCLE_BATCH_DRAWING
+	ci::gl::BatchRef			mCircleBatch;
+#endif
 	int							mNumberOfSegments;
 	bool						mFilled;
 	float						mRadius;
