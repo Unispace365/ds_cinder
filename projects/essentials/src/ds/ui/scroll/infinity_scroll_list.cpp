@@ -249,7 +249,8 @@ namespace ds{
 		}
 
 		void infinityList::initItemStart(int itemNum){
-			mBottomIndex = itemNum % (mItemPlaceHolders.size()) - 2;
+			mScroller->clearChildren();
+			mBottomIndex = itemNum % (mItemPlaceHolders.size()) - 1;
 			if (mBottomIndex < 0) mBottomIndex = mItemPlaceHolders.size() + mBottomIndex;
 			assignItems();
 		}
@@ -382,13 +383,11 @@ namespace ds{
 						}
 					});
 				}
-				callAfterDelay([this](){
-					checkBounds();
-					if (mScrollUpdatedCallback) mScrollUpdatedCallback();
-				}, mTweenAnimationDelay + duration + 0.1f);
-
 			}
-
+			callAfterDelay([this](){
+				checkBounds();
+				if (mScrollUpdatedCallback) mScrollUpdatedCallback();
+			}, mTweenAnimationDelay + duration + 0.1f);
 		}
 
 		void infinityList::initFillScreen()
