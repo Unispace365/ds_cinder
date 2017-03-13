@@ -106,7 +106,12 @@ void Image::drawLocalClient()
 		const ci::Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
 
 		tex->bind();
-		ci::gl::drawSolidRect(useRect);
+		if(mRenderBatch){
+			mRenderBatch->draw();
+		} else {
+			ci::gl::drawSolidRect(useRect);
+		}
+
 		tex->unbind();
 
 		// TODO

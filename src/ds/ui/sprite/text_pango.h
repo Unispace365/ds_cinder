@@ -122,7 +122,6 @@ public:
 	void						setEllipsizeMode(EllipsizeMode theMode);
 	EllipsizeMode				getEllipsizeMode();
 
-
 	/// If ellipsize mode is none and there's a resize width > 0 and the text had to wrap at all, returns true. otherwise false
 	bool						getTextWrapped();
 
@@ -175,6 +174,7 @@ public:
 	static void					installAsServer(ds::BlobRegistry&);
 	static void					installAsClient(ds::BlobRegistry&);
 
+	virtual	void				buildRenderBatch() override;
 private:
 	ci::gl::TextureRef			mTexture;
 

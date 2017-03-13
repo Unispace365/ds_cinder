@@ -26,6 +26,9 @@
 #include "ds/util/idle_timer.h"
 #include "ds/debug/debug_defines.h"
 
+
+#define USE_BATCH_DRAWING
+
 namespace ds {
 namespace gl { class ClipPlaneState; }
 class BlobReader;
@@ -217,7 +220,7 @@ namespace ui {
 			For ortho Sprites, positive y position is downwards.
 			Z position forwards or backwards depends on your camera setup.
 			\return The 3d vector of the new position, in pixels. */
-		const ci::vec3&		getPosition() const;
+		const ci::vec3&			getPosition() const;
 
 		/** Get the position of the Sprite in global space. 
 			Returns ci::vec3::zero() if this sprite has no parent.
@@ -250,7 +253,7 @@ namespace ui {
 
 		/** The scale of the Sprite.
 			\return scale 3d vector of the current scale of the Sprite		*/
-		const ci::vec3&		getScale() const;
+		const ci::vec3&			getScale() const;
 
 		/** Center point of the Sprite for transform calculations as a percentage (0.0 - 1.0).
 			Scale, rotate and position will happen around this center point.
@@ -270,7 +273,7 @@ namespace ui {
 			Scale, rotate and position happen around this center point.
 			Default is 0.0, 0.0, 0.0, which is the top left corner of the Sprite.
 			\return center 3d vector of the center percentage. */
-		const ci::vec3&		getCenter() const;
+		const ci::vec3&			getCenter() const;
 
 		/** The "midde" of the Sprite, NOT related to setCenter and getCenter (anchor), in the parent's co-ordinate space.
 			Effectively mPosition + getLocalCenterPosition();
@@ -323,10 +326,10 @@ namespace ui {
 			\return True for drawing by z-position of children, false to draw by sprite order. */
 		bool					getDrawSorted() const;
 
-		const ci::mat4&	getTransform() const;
-		const ci::mat4&	getInverseTransform() const;
-		const ci::mat4&	getGlobalTransform() const;
-		const ci::mat4&	getInverseGlobalTransform() const;
+		const ci::mat4&			getTransform() const;
+		const ci::mat4&			getInverseTransform() const;
+		const ci::mat4&			getGlobalTransform() const;
+		const ci::mat4&			getInverseGlobalTransform() const;
 
 		/** Arbitrary data (float's and int's) on this sprite. See UserData for storage usage. */
 		ds::UserData&			getUserData();
@@ -748,6 +751,8 @@ namespace ui {
 		// to the sprite itself while visible flag here is described above.
 		virtual void		onAppearanceChanged(bool visible){}
 
+		virtual void		buildRenderBatch();
+
 		// Always access the bounds via this, which will build them if necessary
 		const ci::Rectf&	getClippingBounds();
 		void				computeClippingBounds();
@@ -804,25 +809,27 @@ namespace ui {
 		ci::Color				mColor;
 		ci::Rectf				mClippingBounds;
 		bool					mClippingBoundsDirty;
-		SpriteShader			mSpriteShader;
 
-		std::vector<SpriteShader*> mSpriteShaders;
+		bool						mNeedsBatchUpdate;
+		ci::gl::BatchRef			mRenderBatch;
+		SpriteShader				mSpriteShader;
+
+		std::vector<SpriteShader*>	mSpriteShaders;
 		//indicates which shader in the shader list is being drawn.
 		size_t						mShaderPass;
 		size_t						mShaderPasses;
 		ci::gl::FboRef				mFrameBufferOne;
 		ci::gl::FboRef				mFrameBufferTwo;
 		ci::gl::TextureRef			mShaderTexture;
-		//ci::gl::Texture*			mFinalOutputTexture;
 		ci::gl::FboRef				mOutputFbo;
 		bool						mIsRenderFinalToTexture;
 
 		//Keeps track of which FBO is being rendered to for multi-pass rendering
 		int							mFboIndex;
-		ci::vec4				mShaderExtraData;
+		ci::vec4					mShaderExtraData;
 
-		mutable ci::mat4	mGlobalTransform;
-		mutable ci::mat4	mInverseGlobalTransform;
+		mutable ci::mat4			mGlobalTransform;
+		mutable ci::mat4			mInverseGlobalTransform;
 
 		ds::UserData			mUserData;
 

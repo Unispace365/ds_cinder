@@ -408,14 +408,41 @@ EllipsizeMode TextPango::getEllipsizeMode(){
 	return mEllipsizeMode;
 }
 
+void TextPango::buildRenderBatch(){
+	if(!mNeedsBatchUpdate || !mTexture) return;
+	mNeedsBatchUpdate = false;
+
+	if(mRenderBatch){
+		mRenderBatch = nullptr;
+	}
+
+	if(getTransparent()){
+		return;
+	}
+
+	// don't do this in multi-pass mode
+	if(!mSpriteShaders.empty()) return;
+
+	mSpriteShader.loadShaders();
+
+	auto drawRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
+	if(getPerspective()){
+		drawRect = ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f);
+	}
+	if(mCornerRadius > 0.0f){
+		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+
+	} else {
+		auto theGeom = ci::geom::Rect(drawRect);
+		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+	}
+}
+
 void TextPango::drawLocalClient(){
 	if(mTexture && !mText.empty()){
 
-		// ignore the "color" setting
-		//ci::gl::color(mTextColor);
 		ci::gl::color(ci::Color::white());
-		// The true flag is for premultiplied alpha, which this texture is
-	//	ci::gl::enableAlphaBlendingPremult();
 		ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
 		if(shaderBase) {
 			shaderBase->bind();
@@ -426,23 +453,25 @@ void TextPango::drawLocalClient(){
 
 
 		mTexture->bind();
-		//ci::Rectf drawRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
-		if(getPerspective()) {
-		//	drawRect = ci::Rectf(0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()), 0.0f);
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f));
-		} else {
-		//	ci::gl::draw(mTexture);
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight())));
-		}
 
-		//mEngine.drawSolidRect(drawRect, *this);
+
+#ifdef USE_BATCH_DRAWING
+		if(mRenderBatch){
+			mRenderBatch->draw();
+		} 
+#else
+		{
+			if(getPerspective()) {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f));
+			} else {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight())));
+			}
+		}
+#endif
+
+
 
 		mTexture->unbind();
-
-		if(shaderBase){
-			//unbind?
-		//	shaderBase.unbind();
-		}
 	}
 }
 
@@ -517,6 +546,8 @@ void TextPango::updateServer(const UpdateParams&){
 
 bool TextPango::render(bool force) {
 	if(force || mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
+
+		mNeedsBatchUpdate = true;
 
 		if(mText.empty()){
 			if(mWidth > 0.0f || mWidth > 0.0f){

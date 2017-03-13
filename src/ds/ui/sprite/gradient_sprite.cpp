@@ -85,14 +85,33 @@ void Gradient::setColorsAll(const ci::ColorA& tlColor, const ci::ColorA& trColor
 
 void Gradient::drawLocalClient() {
 	// the magic!
-	auto rect = ci::geom::Rect();
 	const float drawOpacity = getDrawOpacity();
-	rect.colors(ci::ColorA(mTLColor, mTLColor.a * drawOpacity), 
-				ci::ColorA(mTRColor, mTRColor.a * drawOpacity),
-				ci::ColorA(mBRColor, mBRColor.a * drawOpacity), 
-				ci::ColorA(mBLColor, mBLColor.a * drawOpacity));
-	rect.rect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));
-	ci::gl::draw(rect);
+
+	if(mRenderBatch){
+		ci::gl::color(ci::ColorA(1.0f, 1.0f, 1.0f, drawOpacity));
+		mRenderBatch->draw();
+	} else {
+
+		if(mCornerRadius > 0.0f){
+			auto rect = ci::geom::RoundedRect();
+			rect.colors(ci::ColorA(mTLColor, mTLColor.a * drawOpacity),
+						ci::ColorA(mTRColor, mTRColor.a * drawOpacity),
+						ci::ColorA(mBRColor, mBRColor.a * drawOpacity),
+						ci::ColorA(mBLColor, mBLColor.a * drawOpacity));
+			rect.rect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));
+			rect.cornerRadius(mCornerRadius);
+			rect.cornerSubdivisions(6);
+			ci::gl::draw(rect);
+		} else {
+			auto rect = ci::geom::Rect();
+			rect.colors(ci::ColorA(mTLColor, mTLColor.a * drawOpacity),
+						ci::ColorA(mTRColor, mTRColor.a * drawOpacity),
+						ci::ColorA(mBRColor, mBRColor.a * drawOpacity),
+						ci::ColorA(mBLColor, mBLColor.a * drawOpacity));
+			rect.rect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));
+			ci::gl::draw(rect);
+		}
+	}
 	/*
 	ci::gl::begin(GL_QUADS);
 	ci::gl::color(mTLColor.r, mTLColor.g, mTLColor.b, mTLColor.a * getDrawOpacity());
@@ -105,6 +124,43 @@ void Gradient::drawLocalClient() {
 	ci::gl::vertex(0.0f, getHeight());
 	ci::gl::end();
 	*/
+}
+
+void Gradient::buildRenderBatch() {
+
+	if(!mNeedsBatchUpdate) return;
+	mNeedsBatchUpdate = false;
+
+#ifndef	USE_BATCH_DRAWING
+	return;
+#endif
+
+	if(mRenderBatch){
+		mRenderBatch = nullptr;
+	}
+
+	if(getTransparent()){
+		return;
+	}
+
+	// don't do this in multi-pass mode
+	if(!mSpriteShaders.empty()) return;
+
+
+	mSpriteShader.loadShaders();
+
+	auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
+	if(mCornerRadius > 0.0f){
+		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		theGeom.cornerSubdivisions(6);
+		theGeom.colors(mTLColor, mTRColor, mBRColor, mBLColor);
+		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+
+	} else {
+		auto theGeom = ci::geom::Rect(drawRect);
+		theGeom.colors(mTLColor, mTRColor, mBRColor, mBLColor);
+		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+	}
 }
 
 void Gradient::writeAttributesTo(ds::DataBuffer& buf) {
@@ -132,6 +188,8 @@ void Gradient::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 
 void Gradient::setGradientColor(const DirtyState& state, const ci::ColorA& src, ci::ColorA& dst) {
 	if (src == dst) return;
+
+	mNeedsBatchUpdate = true;
 
 	dst = src;
 	markAsDirty(state);
