@@ -135,6 +135,9 @@ void Gradient::buildRenderBatch() {
 	return;
 #endif
 
+	// disabling batches until we fix opacity problem
+	return;
+
 	if(mRenderBatch){
 		mRenderBatch = nullptr;
 	}

@@ -103,12 +103,12 @@ void Image::drawLocalClient()
 
 	if (auto tex = mImageSource.getImage())
 	{
-		const ci::Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
 
 		tex->bind();
 		if(mRenderBatch){
 			mRenderBatch->draw();
 		} else {
+			const ci::Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
 			ci::gl::drawSolidRect(useRect);
 		}
 
@@ -321,10 +321,45 @@ void Image::checkStatus()
 	}
 }
 
+void Image::buildRenderBatch() {
+	if(!mNeedsBatchUpdate) return;
+	mNeedsBatchUpdate = false;
+
+#ifndef	USE_BATCH_DRAWING
+	return;
+#endif
+
+	if(mRenderBatch){
+		mRenderBatch = nullptr;
+	}
+
+	if(getTransparent()){
+		return;
+	}
+
+	// don't do this in multi-pass mode
+	if(!mSpriteShaders.empty()) return;
+
+
+	mSpriteShader.loadShaders();
+
+	auto drawRect = mDrawRect.mOrthoRect;
+	if(getPerspective()) drawRect = mDrawRect.mPerspRect;
+	if(mCornerRadius > 0.0f){
+		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+
+	} else {
+		auto theGeom = ci::geom::Rect(drawRect);
+		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+	}
+}
+
 void Image::doOnImageLoaded()
 {
 	if (auto tex = mImageSource.getImage())
 	{
+		mNeedsBatchUpdate = true;
 		mDrawRect.mPerspRect = ci::Rectf(0.0f, static_cast<float>(tex->getHeight()), static_cast<float>(tex->getWidth()), 0.0f);
 		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()));
 	}

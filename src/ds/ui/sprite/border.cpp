@@ -11,6 +11,8 @@
 
 #include <gl/GL.h>
 
+// TODO: move this to batches
+
 using namespace ci;
 
 namespace ds {

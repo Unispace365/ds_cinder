@@ -546,13 +546,18 @@ void TextPango::updateServer(const UpdateParams&){
 
 bool TextPango::render(bool force) {
 	if(force || mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
-
-		mNeedsBatchUpdate = true;
+		float preWidth = 0.0f;
+		float preHeight = 0.0f;
+		if(mTexture){
+			preWidth = mTexture->getWidth();
+			preHeight = mTexture->getHeight();
+		}
 
 		if(mText.empty()){
 			if(mWidth > 0.0f || mWidth > 0.0f){
 				setSize(0.0f, 0.0f);
 			}
+			mNeedsBatchUpdate = true;
 			return false;
 		}
 
@@ -726,6 +731,8 @@ bool TextPango::render(bool force) {
 			auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
 			if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
 				DS_LOG_WARNING("Error creating Cairo surface. " << mPixelWidth << " " << mPixelHeight);
+
+				mNeedsBatchUpdate = true;
 				return true;
 			}
 
@@ -741,11 +748,15 @@ bool TextPango::render(bool force) {
 
 			if(CAIRO_STATUS_NO_MEMORY == cairoStatus) {
 				DS_LOG_WARNING("Out of memory, error creating Cairo context");
+
+				mNeedsBatchUpdate = true;
 				return true;
 			}
 
 			if(CAIRO_STATUS_SUCCESS != cairoStatus){
 				DS_LOG_WARNING("Error creating Cairo context " << cairoStatus);
+
+				mNeedsBatchUpdate = true;
 				return true;
 			}
 
@@ -787,6 +798,12 @@ bool TextPango::render(bool force) {
 			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize, format);
 			mTexture->setTopDown(true);
 			mNeedsTextRender = false;
+		}
+
+		if(mTexture && mTexture->getWidth() == preWidth && mTexture->getHeight() == preHeight ){
+			// don't need to refresh the batch update
+		} else {
+			mNeedsBatchUpdate = true;
 		}
 
 		return true;
