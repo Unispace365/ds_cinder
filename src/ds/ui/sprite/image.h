@@ -66,7 +66,7 @@ public:
 
 protected:
 
-	virtual void				buildRenderBatch() override;
+	virtual void				onBuildRenderBatch() override;
 
 	/// @brief override this if you override isLoaded() and there are additional resources to load after isLoaded() returns true
 	virtual bool				isLoadedPrimary() const;

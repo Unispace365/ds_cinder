@@ -751,7 +751,13 @@ namespace ui {
 		// to the sprite itself while visible flag here is described above.
 		virtual void		onAppearanceChanged(bool visible){}
 
+		/// Override this to build mRenderBatch when you need to.
+		/// Recommend to look at this implementation before implementing your own
 		virtual void		buildRenderBatch();
+		/// This is called when it's time to actually build the render batch
+		/// Not called if the sprite is not visible or the sprite is in multi-shader pass mode
+		/// Recommend re-using mRenderBatch if possible by calling replaceVboMesh on mRenderBatch
+		virtual void		onBuildRenderBatch();	
 
 		// Always access the bounds via this, which will build them if necessary
 		const ci::Rectf&	getClippingBounds();

@@ -408,35 +408,23 @@ EllipsizeMode TextPango::getEllipsizeMode(){
 	return mEllipsizeMode;
 }
 
-void TextPango::buildRenderBatch(){
-	if(!mNeedsBatchUpdate || !mTexture) return;
-	mNeedsBatchUpdate = false;
-
-	if(mRenderBatch){
+void TextPango::onBuildRenderBatch(){
+	if(!mTexture){
 		mRenderBatch = nullptr;
-	}
-
-	if(getTransparent()){
 		return;
 	}
-
-	// don't do this in multi-pass mode
-	if(!mSpriteShaders.empty()) return;
-
-	mSpriteShader.loadShaders();
 
 	auto drawRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
 	if(getPerspective()){
 		drawRect = ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f);
 	}
-	if(mCornerRadius > 0.0f){
-		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
-		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
-
+	auto theGeom = ci::geom::Rect(drawRect);
+	if(mRenderBatch){
+		mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 	} else {
-		auto theGeom = ci::geom::Rect(drawRect);
 		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
 	}
+	
 }
 
 void TextPango::drawLocalClient(){

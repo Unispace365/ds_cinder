@@ -230,13 +230,11 @@ void Image::setStatusCallback(const std::function<void(const Status&)>& fn)
 	mStatusFn = fn;
 }
 
-bool Image::isLoadedPrimary() const
-{
+bool Image::isLoadedPrimary() const {
 	return isLoaded();
 }
 
-void Image::onImageChanged()
-{
+void Image::onImageChanged() {
 	setStatus(Status::STATUS_EMPTY);
 	markAsDirty(IMG_SRC_DIRTY);
 	doOnImageUnloaded();
@@ -321,37 +319,26 @@ void Image::checkStatus()
 	}
 }
 
-void Image::buildRenderBatch() {
-	if(!mNeedsBatchUpdate) return;
-	mNeedsBatchUpdate = false;
-
-#ifndef	USE_BATCH_DRAWING
-	return;
-#endif
-
-	if(mRenderBatch){
-		mRenderBatch = nullptr;
-	}
-
-	if(getTransparent()){
-		return;
-	}
-
-	// don't do this in multi-pass mode
-	if(!mSpriteShaders.empty()) return;
-
-
-	mSpriteShader.loadShaders();
+void Image::onBuildRenderBatch() {
+	if(mDrawRect.mOrthoRect.getWidth() < 1.0f) return;
 
 	auto drawRect = mDrawRect.mOrthoRect;
 	if(getPerspective()) drawRect = mDrawRect.mPerspRect;
 	if(mCornerRadius > 0.0f){
 		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
-		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
 
 	} else {
 		auto theGeom = ci::geom::Rect(drawRect);
-		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
 	}
 }
 

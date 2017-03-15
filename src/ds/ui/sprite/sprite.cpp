@@ -665,29 +665,42 @@ void Sprite::buildRenderBatch() {
 	return;
 #endif
 
-	if(mRenderBatch){
-		mRenderBatch = nullptr;
-	}
 
 	if(getTransparent()){
+		mRenderBatch = nullptr;
 		return;
 	}
 
 	// don't do this in multi-pass mode
 	if(!mSpriteShaders.empty()) return;
 
-
 	mSpriteShader.loadShaders();
 
+	if(mRenderBatch && mRenderBatch->getGlslProg() != mSpriteShader.getShader()){
+		mRenderBatch->replaceGlslProg(mSpriteShader.getShader());
+	}
+
+	onBuildRenderBatch();
+}
+
+void Sprite::onBuildRenderBatch(){
 	auto drawRect =	ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
 	if(mCornerRadius > 0.0f){
 		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
-		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
-
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
 	} else {
 		auto theGeom = ci::geom::Rect(drawRect);
-		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
 	}
+
 }
 
 void Sprite::setPosition( float x, float y, float z ) {

@@ -126,31 +126,8 @@ void Gradient::drawLocalClient() {
 	*/
 }
 
-void Gradient::buildRenderBatch() {
-
-	if(!mNeedsBatchUpdate) return;
-	mNeedsBatchUpdate = false;
-
-#ifndef	USE_BATCH_DRAWING
+void Gradient::onBuildRenderBatch() {
 	return;
-#endif
-
-	// disabling batches until we fix opacity problem
-	return;
-
-	if(mRenderBatch){
-		mRenderBatch = nullptr;
-	}
-
-	if(getTransparent()){
-		return;
-	}
-
-	// don't do this in multi-pass mode
-	if(!mSpriteShaders.empty()) return;
-
-
-	mSpriteShader.loadShaders();
 
 	auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
 	if(mCornerRadius > 0.0f){

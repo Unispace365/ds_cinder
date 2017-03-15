@@ -78,7 +78,7 @@ protected:
 	virtual void				writeAttributesTo(ds::DataBuffer&);
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
-	virtual void				buildRenderBatch() override;
+	virtual void				onBuildRenderBatch() override;
 
 private:
 	void						setGradientColor(const DirtyState&, const ci::ColorA& src, ci::ColorA& dst);

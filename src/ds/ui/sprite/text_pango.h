@@ -174,7 +174,7 @@ public:
 	static void					installAsServer(ds::BlobRegistry&);
 	static void					installAsClient(ds::BlobRegistry&);
 
-	virtual	void				buildRenderBatch() override;
+	virtual	void				onBuildRenderBatch() override;
 private:
 	ci::gl::TextureRef			mTexture;
 
