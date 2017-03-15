@@ -334,20 +334,6 @@ void App::keyUp(ci::app::KeyEvent event){
 }
 
 void App::saveTransparentScreenshot(){
-
-	/*
-	const auto		area = getWindowBounds();
-	ci::Surface s(area.getWidth(), area.getHeight(), true);
-	glFlush(); // there is some disagreement about whether this is necessary, but ideally performance-conscious users will use FBOs anyway
-
-
-	GLint oldPackAlignment;
-	glGetIntegerv(GL_PACK_ALIGNMENT, &oldPackAlignment);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glReadPixels(area.x1, getWindowHeight() - area.y2, area.getWidth(), area.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, s.getData());
-	glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
-	ci::ip::flipVertical(&s);
-	*/
 	Poco::Path		p("%USERPROFILE%");
 	Poco::Timestamp::TimeVal t = Poco::Timestamp().epochMicroseconds();
 	std::stringstream filepath;
