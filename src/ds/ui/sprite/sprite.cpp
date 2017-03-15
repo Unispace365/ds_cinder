@@ -700,7 +700,6 @@ void Sprite::onBuildRenderBatch(){
 			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
 		}
 	}
-
 }
 
 void Sprite::setPosition( float x, float y, float z ) {
