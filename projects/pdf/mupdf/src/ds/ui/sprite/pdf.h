@@ -62,6 +62,7 @@ protected:
 	virtual void				onScaleChanged();
 	virtual void				drawLocalClient();
 
+	virtual void				onBuildRenderBatch() override;
 	virtual void				writeAttributesTo(ds::DataBuffer&);
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
@@ -88,6 +89,7 @@ private:
 
 		/// Returns true if pixels were updated in this update
 		bool					update();
+		ci::gl::TextureRef		getTexture();
 		void					drawLocalClient();
 		void					setScale(const ci::vec3&);
 		float					getWidth() const;
