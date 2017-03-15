@@ -6,7 +6,6 @@
 #include <cinder/ImageIo.h>
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
-#include "ds/ui/sprite/fbo/auto_fbo.h"
 #include "ds/ui/sprite/image.h"
 
 namespace {
@@ -234,6 +233,27 @@ void ImageService::renderInput(op& input) {
 	input.mImgRef = ci::gl::Texture::create(w, h);
 	if (!input.mImgRef) return;
 
+	std::cout << "glsl_image_service::ImageService::renderInput(): The code for generating a glsl image is untested. If it works as expected, delete this warning." << std::endl;
+
+	ci::gl::FboRef theFbo = ci::gl::Fbo::create(w, h, true, false, false);
+	ci::gl::ScopedFramebuffer scopedFbo(theFbo);
+	input.mImgRef = theFbo->getTexture2d(GL_COLOR_ATTACHMENT0);
+	ci::gl::ScopedViewport scopedViewport(ci::ivec2(w, h));
+	ci::gl::ScopedMatrices scopedMatrices;
+	ci::CameraOrtho camera;
+	camera.setOrtho(0.0f, static_cast<float>(w), static_cast<float>(h), 0.0f, -1.0f, 1.0f);
+	ci::gl::setMatrices(camera);
+	ci::gl::disableAlphaBlending();
+	ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+	shader->bind();
+	shader->uniform("tex0", 0);
+	input.mKey.getUnifom().applyTo(shader);
+	ci::gl::color(ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+	ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(w), static_cast<float>(h)));
+
+
+
+	/* previous implementation below
 	ds::ui::AutoFbo					afbo(mEngine, input.mImgRef);
 	{
 		afbo.mFbo->offsetViewport(0, 0);
@@ -257,6 +277,7 @@ void ImageService::renderInput(op& input) {
 	ci::gl::popMatrices();
 	// SaveCamera should be handling this.
 //	mEngine.setCamera();
+*/
 }
 
 /* DS::LOAD-IMAGE-SERVICE::HOLDER

@@ -18,15 +18,14 @@ SpriteEngine::SpriteEngine(ds::EngineData& ed)
 	mComputerInfo = new ds::ComputerInfo();
 }
 
-SpriteEngine::~SpriteEngine()
-{
+SpriteEngine::~SpriteEngine(){
 	mData.clearServices();
 }
 
-ds::EventNotifier& SpriteEngine::getNotifier()
-{
+ds::EventNotifier& SpriteEngine::getNotifier(){
 	return mData.mNotifier;
 }
+
 /** \cond Doxygen is having trouble deducing this function so ignore it. */
 void SpriteEngine::loadSettings(const std::string& name, const std::string& filename) {
 	mData.mEngineCfg.loadSettings(name, filename);
@@ -149,24 +148,6 @@ float SpriteEngine::getFrameRate() const
 	return mData.mFrameRate;
 }
 
-std::unique_ptr<FboGeneral> SpriteEngine::getFbo()
-{
-	//DS_VALIDATE(width > 0 && height > 0, return nullptr);
-
-	if(!mFbos.empty()) {
-		std::unique_ptr<FboGeneral> fbo = std::move(mFbos.front());
-		mFbos.pop_front();
-		return std::move(fbo);
-	}
-
-	std::unique_ptr<FboGeneral> fbo = std::move(std::unique_ptr<FboGeneral>(new FboGeneral()));
-	fbo->setup(true);
-	return std::move(fbo);
-}
-
-void SpriteEngine::giveBackFbo(std::unique_ptr<FboGeneral> &fbo) {
-	mFbos.push_back(std::move(fbo));
-}
 
 double SpriteEngine::getElapsedTimeSeconds() const {
 	return ci::app::getElapsedSeconds();

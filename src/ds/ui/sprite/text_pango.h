@@ -5,7 +5,6 @@
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/text_defs.h"
 #include <cinder/gl/Texture.h>
-#include "ds/ui/sprite/fbo/fbo.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 
 

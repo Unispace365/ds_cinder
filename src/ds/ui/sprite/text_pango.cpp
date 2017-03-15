@@ -60,8 +60,6 @@ const std::string vertShader =
 std::string shaderNameOpaccy = "pango_text_opacity";
 }
 
-//#define USE_PANGO_FBO
-
 namespace ds {
 namespace ui {
 
@@ -778,8 +776,6 @@ bool TextPango::render(bool force) {
 			unsigned char *pixels = cairo_image_surface_get_data(mCairoSurface);
 #endif
 
-			// Here we're copying the pixels into an intermediate texture, then drawing into an fbo
-			// This is done entirely so the final output is not premultiplied alpha so it draws well with blend modes, opacity, etc.
 			ci::gl::Texture::Format format;
 			format.setMagFilter(GL_LINEAR);
 			format.setMinFilter(GL_LINEAR);
