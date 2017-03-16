@@ -215,7 +215,7 @@ void Pdf::onScaleChanged() {
 void Pdf::drawLocalClient() {
 
 	const float				tw = mHolder.getTextureWidth(),
-							th = mHolder.getTextureHeight();
+		th = mHolder.getTextureHeight();
 	auto theTexture = mHolder.getTexture();
 	if(!theTexture || tw < 1.0f || th < 1.0f){
 		return;
@@ -230,15 +230,15 @@ void Pdf::drawLocalClient() {
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));// , false);
 	}
 
-	const float				targetw = getWidth()*mScale.x,
-							targeth = getHeight()*mScale.y;
-
 	theTexture->bind();
 
-	if(mCornerRadius > 0.0f){
-		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mCornerRadius, 0, ci::vec2(0, 0), ci::vec2(1, 1));
-	} else if(mRenderBatch){
+	if(mRenderBatch){
+		// The texture from PDF is flipped (and setting topDown on the texture doesn't seem to have an effect, so flip in GL before drawing
+		ci::gl::scale(1.0f, -1.0f);
+		ci::gl::translate(0.0f, -getHeight());
 		mRenderBatch->draw();
+	} else if(mCornerRadius > 0.0f){
+		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mCornerRadius, 0, ci::vec2(0, 0), ci::vec2(1, 1));
 	} else {
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), ci::vec2(0, 0), ci::vec2(1, 1));
 	}
@@ -248,14 +248,22 @@ void Pdf::drawLocalClient() {
 }
 
 void Pdf::onBuildRenderBatch(){
-	auto drawRect = ci::Rectf(0.0f, getHeight(), getWidth(), 0.0f);
+	auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
+	if(mCornerRadius > 0.0f){
+		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
+	} else {
 		auto theGeom = ci::geom::Rect(drawRect);
 		if(mRenderBatch){
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
 			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
 		}
-	
+	}	
 }
 
 void Pdf::writeAttributesTo(ds::DataBuffer &buf) {

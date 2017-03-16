@@ -374,7 +374,6 @@ bool PdfRes::update() {
 				mTexture = nullptr;
 			} else {
 				ci::gl::Texture::Format formatty;
-				formatty.loadTopDown(true);
 				formatty.setMinFilter(GL_LINEAR);
 				formatty.setMagFilter(GL_LINEAR);
 				mTexture = ci::gl::Texture::create(mPixels.getData(), GL_RGB, mPixels.getWidth(), mPixels.getHeight(), formatty);
