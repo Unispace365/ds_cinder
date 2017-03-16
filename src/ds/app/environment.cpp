@@ -187,7 +187,7 @@ void Environment::addToFrontEnvironmentVariable(const std::string& variable, con
 
 std::string Environment::getClipboard() {
 #ifdef CINDER_MSW
-	ci::Clipboard::getString();
+	return ci::Clipboard::getString();
 #else
 	auto window = (GLFWwindow*)ci::app::getWindow()->getNative();
 	return std::string( glfwGetClipboardString(window) );
