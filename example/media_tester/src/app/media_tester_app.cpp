@@ -1,6 +1,5 @@
 #include "media_tester_app.h"
 
-#include <cinder/Clipboard.h>
 #include <cinder/app/RendererGl.h>
 
 #include <Poco/String.h>
@@ -65,9 +64,10 @@ void media_tester::keyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 	inherited::keyDown(event);
 
-	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown() && ci::Clipboard::hasString()){
-		loadMedia(ci::Clipboard::getString());
-		
+	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown()){
+		auto clipboard = ds::Environment::getClipboard();
+		if (!clipboard.empty())
+			loadMedia(clipboard);
 	} else if (event.getChar() == KeyEvent::KEY_1){
 		if (mIsVideo && !mMedia->removeShader("test1")) {
 			mMedia->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");

@@ -10,6 +10,13 @@
 #include "ds/app/app.h"
 #include "ds/app/engine/engine_settings.h"
 
+#ifdef CINDER_MSW
+#include "cinder/Clipboard.h"
+#else
+#include "glfw/glfw3.h"
+#include "glfw/glfw3native.h"
+#endif
+
 static std::string    folder_from(const Poco::Path&, const std::string& folder, const std::string& fileName);
 
 namespace ds {
@@ -176,6 +183,17 @@ void Environment::addToFrontEnvironmentVariable(const std::string& variable, con
 	std::string new_path = value + ENV_PATH_SEPARATOR + old_path;
 	Poco::Environment::set(variable, new_path);
 }
+
+
+std::string Environment::getClipboard() {
+#ifdef CINDER_MSW
+	ci::Clipboard::getString();
+#else
+	auto window = (GLFWwindow*)ci::app::getWindow()->getNative();
+	return std::string( glfwGetClipboardString(window) );
+#endif
+}
+
 
 } // namespace ds
 

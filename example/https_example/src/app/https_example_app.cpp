@@ -9,7 +9,6 @@
 
 #include <cinder/Rand.h> 
 #include <cinder/app/RendererGl.h>
-#include <cinder/Clipboard.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -142,7 +141,7 @@ void https_example::keyDown(ci::app::KeyEvent event){
 		setupServer();
 
 	} else if(event.getCode() == KeyEvent::KEY_v && event.isControlDown()){
-		auto fileNameOrig = ci::Clipboard::getString();
+		auto fileNameOrig = ds::Environment::getClipboard();
 		mHttpsRequest.makeGetRequest("https://example.com", false, false);
 
 

@@ -14,13 +14,10 @@
 #include <ds/util/string_util.h>
 #include <ds/ui/media/media_viewer.h>
 
-#include <cinder/Clipboard.h>
-
 #include "app/app_defs.h"
 #include "app/globals.h"
 #include "events/app_events.h"
 #include "ui/viewers/viewer_controller.h"
-
 
 namespace mv {
 
@@ -135,8 +132,11 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 
-	} else if(event.getCode() == KeyEvent::KEY_v && event.isControlDown()){
-		auto fileNameOrig = ci::Clipboard::getString();
+	}
+	else if(event.getCode() == KeyEvent::KEY_v && event.isControlDown()){
+		auto fileNameOrig = ds::Environment::getClipboard();
+		ds::model::MediaRef newMedia = ds::model::MediaRef();
+
 		Poco::File filey = Poco::File(fileNameOrig);
 		std::string extensionay = Poco::Path(filey.path()).getExtension();
 		std::transform(extensionay.begin(), extensionay.end(), extensionay.begin(), ::tolower);
@@ -144,18 +144,22 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 		   || extensionay.find("jpg") != std::string::npos
 		   || extensionay.find("jpeg") != std::string::npos
 		   || extensionay.find("gif") != std::string::npos
-		   ){
-
+		   )
+		{
 			Poco::Path pathy = filey.path();
 			std::string fileName = pathy.getFileName();
 			fileName = fileName.substr(0, fileName.length() - 4);
-
-			ds::model::MediaRef newMedia = ds::model::MediaRef();
 			newMedia.setPrimaryResource(ds::Resource(fileNameOrig, ds::Resource::IMAGE_TYPE));
 			newMedia.setTitle(ds::wstr_from_utf8(fileName));
 			newMedia.setBody(ds::wstr_from_utf8(fileNameOrig));
-			mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
 		}
+		else {
+			newMedia.setPrimaryResource(ds::Resource(fileNameOrig, ds::Resource::parseTypeFromFilename(fileNameOrig)));
+			newMedia.setTitle(ds::wstr_from_utf8(fileNameOrig));
+			newMedia.setBody(ds::wstr_from_utf8(fileNameOrig));
+		}
+		mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));
+
 
 	// Shows all enabled sprites with a label for class type
 	} else if(event.getCode() == KeyEvent::KEY_f){

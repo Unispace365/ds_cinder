@@ -1,6 +1,5 @@
 #include "web_example_app.h"
 
-#include <cinder/Clipboard.h>
 #include <cinder/app/RendererGl.h>
 
 #include <Poco/String.h>
@@ -55,8 +54,9 @@ void web_example::keyDown(ci::app::KeyEvent event){
 	inherited::keyDown(event);
 
 	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown()){
-		if(ci::Clipboard::hasString() && mWebView){
-			mWebView->setUrl(ci::Clipboard::getString());
+		auto clipboard = ds::Environment::getClipboard();
+		if(!clipboard.empty() && mWebView){
+			mWebView->setUrl(clipboard);
 		}
 	} else if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
