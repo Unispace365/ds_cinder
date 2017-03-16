@@ -75,6 +75,8 @@ void GstVideoService::start() {
 	ss << GST_VERSION_MAJOR << "." << GST_VERSION_MINOR << "." << GST_VERSION_MICRO;
 	std::string gstVersion = ss.str();
 
+#ifdef _WIN32
+	// Only need to add Gstreamer bin-path in Windows
 	// Add the primary dll's to the PATH variable
 	if(!ENV_CHECK.addGStreamerBinPath()){
 		DS_LOG_WARNING("Couldn't find a binary directory for GStreamer! Install GStreamer version " << gstVersion);
@@ -82,6 +84,7 @@ void GstVideoService::start() {
 		return;
 	}
 
+#endif
 	// Initialization must happen after we know about the bin path, or we'll get endless warnings about missing dll's
 	GError* pError;
 	int success = gst_init_check(NULL, NULL, &pError);

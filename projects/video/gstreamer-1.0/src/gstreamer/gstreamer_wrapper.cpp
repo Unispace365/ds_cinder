@@ -136,8 +136,11 @@ void GStreamerWrapper::enforceModEightWidth(const int vidWidth, const int vidHei
 
 guint64 GStreamerWrapper::getNetClockTime()
 {
-	std::uint64_t newTime = gst_clock_get_time(m_NetClock);
-	return newTime;
+	if (m_NetClock) {
+		return gst_clock_get_time(m_NetClock);
+	}
+
+	return GST_CLOCK_TIME_NONE;
 }
 
 
@@ -269,8 +272,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			m_GstConverter = gst_element_factory_make("audioconvert", "convert");
 			m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
 			m_GstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
-			// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, "qos", true, (void*)NULL);
+			g_object_set(m_GstAudioSink, "sync", true, (void*)NULL);
 
 			GstElement* bin = gst_bin_new("converter_sink_bin");
 
@@ -291,22 +293,12 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
 
 			gst_object_unref(pad);
-			m_GstObjects.push_back(m_GstConverter);
-			m_GstObjects.push_back(m_GstAudioSink);
-			m_GstObjects.push_back(m_GstPanorama);
-
-
-			// Set Audio Sink callback methods
-			m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
-			m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
-			m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
-			gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
 		}
 
 	// Only create an audio sink if there's an audio track
 	} else if(hasAudioTrack){
 		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
-		g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", true, (void*)NULL);
+		g_object_set(audioSink, "sync", true, (void*)NULL);
 		g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
 	}
 
@@ -408,7 +400,7 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 		g_object_set(m_GstPipeline, "video-sink", m_GstVideoSink, (void*)NULL);
 
 		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
-		g_object_set(audioSink, "emit-signals", false, "sync", true, "qos", true, (void*)NULL);
+		g_object_set(audioSink, "sync", true, (void*)NULL);
 		g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
 
 	} else {
@@ -504,7 +496,7 @@ void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string&
 
 	// get the time for clients to start based on...
 
-	std::uint64_t newTime = getNetworkTime();
+	std::uint64_t newTime = getNetClockTime();
 	clockBaseTime = newTime;
 
 
@@ -543,44 +535,71 @@ void GStreamerWrapper::setClientNetClock(const bool isServer, const std::string&
 }
 
 void GStreamerWrapper::close(){
+	// Collect information under locked mutex
+	bool hasVideoSink = false;
+	bool hasPipeline = false;
+	bool hasGstBus = false;
+	bool hasClockProvider = false;
+	{
+		std::lock_guard<std::mutex> lock(m_VideoMutex);
+		if (m_GstVideoSink != nullptr)
+			hasVideoSink = true;
+		if (m_GstPipeline != nullptr)
+			hasPipeline = true;
+		if (m_GstBus != nullptr)
+			hasGstBus = true;
+		if (mClockProvider != nullptr)
+			hasClockProvider = true;
+	}
 
-	m_bFileIsOpen = false;
-	m_CurrentPlayState = NOT_INITIALIZED;
-	m_ContentType = NONE;
+	// Clear callbacks before closing
+	if(hasVideoSink) {
+		GstAppSinkCallbacks emptyCallbacks = {NULL, NULL, NULL};
+		gst_app_sink_set_callbacks(GST_APP_SINK(m_GstVideoSink), &emptyCallbacks, NULL, NULL);
+	}
 
+	//GST_DEBUG_BIN_TO_DOT_FILE(GST_BIN(m_GstPipeline), GST_DEBUG_GRAPH_SHOW_ALL, "pipeline");
+
+	// Lock mutex while modifying member variables
+	{
+		std::lock_guard<std::mutex> lock(m_VideoMutex);
+		m_bFileIsOpen = false;
+		m_CurrentPlayState = NOT_INITIALIZED;
+		m_ContentType = NONE;
+	}
+
+	// Don't hold mutex while stopping, because a
+	// callback could still be running...
 	stop();
 
-	if ( m_GstPipeline ){
+	if ( hasPipeline ) {
 		//gst_element_set_state( m_GstPipeline, GST_STATE_NULL );
-		for (auto it = m_GstObjects.begin(); it != m_GstObjects.end(); ++it) {
-			gst_object_unref(*it);
-		}
 		gst_object_unref(m_GstPipeline);
+	}
+
+	if ( hasGstBus )
+		gst_object_unref(m_GstBus);
+
+	if( hasClockProvider )
+		gst_object_unref(mClockProvider);
+
+	// Cleanup member variables under mutex
+	{
+		std::lock_guard<std::mutex> lock(m_VideoMutex);
 
 		m_GstPipeline = NULL;
 		m_GstVideoSink = NULL;
 		m_GstAudioSink = NULL;
 		m_GstPanorama = NULL;
-
-	}
-
-	if ( m_GstBus ){
-		gst_object_unref( m_GstBus );
 		m_GstBus = NULL;
-	}
 
-	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
-	delete [] m_cVideoBuffer;
-	m_cVideoBuffer = NULL;
+		delete [] m_cVideoBuffer;
+		m_cVideoBuffer = NULL;
 
-	delete [] m_cAudioBuffer;
-	m_cAudioBuffer = NULL;
-
-	if(mClockProvider){
-		gst_object_unref(mClockProvider);
+		delete [] m_cAudioBuffer;
+		m_cAudioBuffer = NULL;
 	}
 }
-
 
 void GStreamerWrapper::update(){
 	handleGStMessage();
@@ -592,12 +611,6 @@ uint64_t GStreamerWrapper::getPipelineTime(){
 
 	return now;
 }
-
-uint64_t GStreamerWrapper::getNetworkTime(){
-	uint64_t now = gst_clock_get_time(m_NetClock);
-	return now;
-}
-
 
 void GStreamerWrapper::setPipelineBaseTime(uint64_t base_time){
 	gst_element_set_base_time(m_GstPipeline, base_time);
@@ -646,10 +659,17 @@ void GStreamerWrapper::play(){
 }
 
 void GStreamerWrapper::stop(){
-	if ( m_GstPipeline ){
+	bool hasPipeline = false;
+	{
+		std::lock_guard<std::mutex> lock(m_VideoMutex);
+		hasPipeline = (m_GstPipeline != nullptr);
+	}
+
+	if ( hasPipeline ){
 		// Stop in this context now means a full clearing of the buffers in gstreamer
 		gst_element_set_state( m_GstPipeline, GST_STATE_NULL );
 
+		std::lock_guard<std::mutex> lock(m_VideoMutex);
 		m_CurrentPlayState = STOPPED;
 	}
 }
@@ -776,7 +796,7 @@ std::string GStreamerWrapper::getFileName(){
 }
 
 unsigned char* GStreamerWrapper::getVideo(){
-	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
+	std::lock_guard<std::mutex> lock(m_VideoMutex);
 	m_bIsNewVideoFrame = false;
 	return m_cVideoBuffer;
 }
@@ -1298,7 +1318,7 @@ void GStreamerWrapper::handleGStMessage(){
 								setSeekTime(0);
 
 								//Update the base time with the value of the pipeline/net clock.
-								setPipelineBaseTime(getNetworkTime());
+								setPipelineBaseTime(getNetClockTime());
 
 								if (gst_element_seek(GST_ELEMENT(m_GstPipeline),
 									m_fSpeed,
@@ -1364,11 +1384,6 @@ void GStreamerWrapper::onEosFromVideoSource(GstAppSink* appsink, void* listener)
 	// Not handling EOS callbacks creates a crash, but we handle EOS on the bus messages
 }
 
-void GStreamerWrapper::onEosFromAudioSource(GstAppSink* appsink, void* listener){
-	// ignore
-	// Not handling EOS callbacks creates a crash, but we handle EOS on the bus messages
-}
-
 void GStreamerWrapper::setVerboseLogging(const bool verboseOn){
 	m_VerboseLogging = verboseOn;
 }
@@ -1381,14 +1396,6 @@ GstFlowReturn GStreamerWrapper::onNewPrerollFromVideoSource(GstAppSink* appsink,
 	return GST_FLOW_OK;
 }
 
-GstFlowReturn GStreamerWrapper::onNewPrerollFromAudioSource( GstAppSink* appsink, void* listener ){
-	GstSample* gstAudioSinkBuffer = gst_app_sink_pull_preroll( GST_APP_SINK( appsink ) );
-	( ( GStreamerWrapper * )listener )->newAudioSinkPrerollCallback( gstAudioSinkBuffer );
-	gst_sample_unref( gstAudioSinkBuffer );
-
-	return GST_FLOW_OK;
-}
-
 GstFlowReturn GStreamerWrapper::onNewBufferFromVideoSource( GstAppSink* appsink, void* listener ){	
 	GstSample* gstVideoSinkBuffer = gst_app_sink_pull_sample( GST_APP_SINK( appsink ) );	
 	( ( GStreamerWrapper * )listener )->newVideoSinkBufferCallback( gstVideoSinkBuffer );
@@ -1396,19 +1403,11 @@ GstFlowReturn GStreamerWrapper::onNewBufferFromVideoSource( GstAppSink* appsink,
 	return GST_FLOW_OK;
 }
 
-GstFlowReturn GStreamerWrapper::onNewBufferFromAudioSource( GstAppSink* appsink, void* listener ){
-
-	GstSample* gstAudioSinkBuffer = gst_app_sink_pull_sample( GST_APP_SINK( appsink ) );
-	( ( GStreamerWrapper * )listener )->newAudioSinkBufferCallback( gstAudioSinkBuffer );
-	gst_sample_unref( gstAudioSinkBuffer );
-
-	return GST_FLOW_OK;
-}
-
 void GStreamerWrapper::newVideoSinkPrerollCallback(GstSample* videoSinkSample){
+	std::lock_guard<std::mutex> lock(m_VideoMutex);
+
 	if(!m_cVideoBuffer) return;
 
-	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
 
 
@@ -1434,9 +1433,10 @@ void GStreamerWrapper::newVideoSinkPrerollCallback(GstSample* videoSinkSample){
 }
 
 void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
+	std::lock_guard<std::mutex> lock(m_VideoMutex);
+
 	if(!m_cVideoBuffer) return;
 
-	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
 
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
@@ -1459,112 +1459,6 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 	gst_buffer_unmap(buff, &map);
 }
 
-void GStreamerWrapper::newAudioSinkPrerollCallback( GstSample* audioSinkBuffer ){
-	// NOTE:
-	// This is the old implementation from GStreamer 0.10.
-	// It's left here in case it's helpful for re-implemenation
-	
-	//if ( m_cAudioBuffer == NULL )
-	//{
-	//	m_iAudioBufferSize = GST_BUFFER_SIZE( audioSinkBuffer );
-	//	m_cAudioBuffer = new unsigned char[m_iAudioBufferSize];
-
-	//	////////////////////////////////////////////////////////////////////////// AUDIO DATA
-
-	//	/*
-	//		Note: For some reason, with this version of GStreamer the only way to retrieve the audio metadata
-	//		is to read the caps from the audio appsink buffer and via a GstStructure we can retrieve the needed
-	//		values from the caps. After lots of research I also found another possibility by using GstAudioInfo
-	//		but this struct is not available in this version.
-
-	//		If a later version of GStreamer is ever compiled in a valid way so it can be used with Visual Studio
-	//		it would definitely be a good idea to retrieve the audio information somewhere else in the code.
-	//		But this piece of code does it well for now.
-	//	*/
-
-	//	// Get Audio metadata
-	//	// http://gstreamer.freedesktop.org/data/doc/gstreamer/head/pwg/html/section-types-definitions.html
-	//	GstCaps* audioCaps = gst_buffer_get_caps( audioSinkBuffer );
-	//	GstStructure* gstStructure = gst_caps_get_structure( audioCaps, 0 );
-
-	//	// Is audio data signed or not?
-	//	gboolean isAudioSigned;
-	//	gst_structure_get_boolean( gstStructure, "signed", &isAudioSigned );
-	//	m_bIsAudioSigned = (bool)(isAudioSigned);
-
-	//	// Number of channels
-	//	gst_structure_get_int( gstStructure, "channels", &m_iNumAudioChannels );
-	//	// Audio sample rate
-	//	gst_structure_get_int( gstStructure, "rate", &m_iAudioSampleRate );
-	//	// Audio width
-	//	gst_structure_get_int( gstStructure, "width", &m_iAudioWidth );
-
-	//	// Calculate the audio buffer size without the number of channels and audio width
-	//	m_iAudioDecodeBufferSize = m_iAudioBufferSize / m_iNumAudioChannels / ( m_iAudioWidth / 8 );
-
-	//	// Audio endianness
-	//	gint audioEndianness;
-	//	gst_structure_get_int( gstStructure, "endianness",  &audioEndianness );
-	//	m_AudioEndianness = (Endianness)audioEndianness;
-
-	//	gst_caps_unref( audioCaps );
-	//}
-	//else
-	//{
-	//	// The Audio Buffer size may change during runtime so we keep track if the buffer changes
-	//	// If so, delete the old buffer and re-allocate it with the respective new buffer size
-	//	int bufferSize = GST_BUFFER_SIZE( audioSinkBuffer );
-	//	if ( m_iAudioBufferSize != bufferSize )
-	//	{
-	//		// Allocate the audio data array according to the audio appsink buffer size
-	//		m_iAudioBufferSize = bufferSize;
-	//		delete [] m_cAudioBuffer;
-	//		m_cAudioBuffer = NULL;
-
-	//		m_cAudioBuffer = new unsigned char[m_iAudioBufferSize];
-	//	}
-	//}
-
-	//// Copy the audio appsink buffer data to our unsigned char array
-	//memcpy( (unsigned char *)m_cAudioBuffer, (unsigned char *)GST_BUFFER_DATA( audioSinkBuffer ), GST_BUFFER_SIZE( audioSinkBuffer ) );
-}
-
-void GStreamerWrapper::newAudioSinkBufferCallback( GstSample* audioSinkBuffer )
-{
-
-	//---------------- Potential GStreamer 1.0 implementation
-// 	GstBuffer *buffer;
-// 	GstMapInfo map;
-// 	buffer = gst_sample_get_buffer(audioSinkBuffer);
-// 
-// 	gst_buffer_map(buffer, &map, GST_MAP_READ);
-// 
-// 	// Here you'll send or copy map.data somewhere
-// 	//std::cout << "New Audio Sink Callback: " << map.size << std::endl;
-// 
-// 	gst_buffer_unmap(buffer, &map);
-
-
-	//---------------- Below is the old 0.10 implementation
-	//// The Audio Buffer size may change during runtime so we keep track if the buffer changes
-	//// If so, delete the old buffer and re-allocate it with the respective new buffer size
-	//int bufferSize = GST_BUFFER_SIZE( audioSinkBuffer );
-
-	//if ( m_iAudioBufferSize != bufferSize )
-	//{
-	//	m_iAudioBufferSize = bufferSize;
-	//	delete [] m_cAudioBuffer;
-	//	m_cAudioBuffer = NULL;
-
-	//	m_cAudioBuffer = new unsigned char[m_iAudioBufferSize];
-
-	//	// Recalculate the audio decode buffer size due to change in buffer size
-	//	m_iAudioDecodeBufferSize = m_iAudioBufferSize / m_iNumAudioChannels / ( m_iAudioWidth / 8 );
-	//}
-
-	//// Copy the audio appsink buffer data to our unsigned char array
-	//memcpy( (unsigned char *)m_cAudioBuffer, (unsigned char *)GST_BUFFER_DATA( audioSinkBuffer ), GST_BUFFER_SIZE( audioSinkBuffer ) );
-}
 
 void GStreamerWrapper::setVideoCompleteCallback( const std::function<void(GStreamerWrapper* video)> &func ){
 	mVideoCompleteCallback = func;

@@ -298,10 +298,6 @@ public:
 	uint64_t				getPipelineTime();
 
 
-	/*Get the current time from the network clock*/
-	uint64_t				getNetworkTime();
-
-
 	void					setPipelineBaseTime(uint64_t base_time);
 	/*
 	Returns if the buffer you get with getVideo holds really a new image of the video, use this to increase performance in your applications, so you don't unnecessary copy mem to textures
@@ -537,18 +533,6 @@ private:
 	static GstFlowReturn	onNewPrerollFromVideoSource( GstAppSink* appsink, void* listener );
 
 	/*
-	GStreamer callback method that is called when the Pipeline is set to a paused state. Through the appsink
-	the buffer can be gathered. Furthermore, the unsigned char array for the audio data is allocated here if
-	it hasn't been allocated yet
-
-	params:
-	@appsink: The audio appsink --> needed to get the audio buffer while the stream is in a paused state
-
-	@listener: Reference to an instance of an class, needed for additional calls ("this" in this case)
-	*/
-	static GstFlowReturn	onNewPrerollFromAudioSource( GstAppSink* appsink, void* listener );
-
-	/*
 	GStreamer callback method that is called whenever there is a new video frame decoded. Through the appsink
 	the buffer, which contains the pixel data, can be gathered
 
@@ -558,18 +542,6 @@ private:
 	@listener: Reference to an instance of an class, needed for additional calls ("this" in this case)
 	*/
 	static GstFlowReturn	onNewBufferFromVideoSource( GstAppSink* appsink, void* listener );
-
-	/*
-	GStreamer callback method that is called whenever there is a new chunk of audio data decoded. Through the appsink
-	the buffer, which contains the audio data, can be gathered
-
-	params:
-	@appsink: The audio sink --> needed to get the audio buffer
-
-	@listener: Reference to an instance of an class, needed for additional calls ("this" in this case)
-	*/
-	static GstFlowReturn	onNewBufferFromAudioSource( GstAppSink* appsink, void* listener );
-
 
 	/*
 	Non-static method that is called inside "onNewPrerollFromVideoSource()" in order to handle
@@ -590,29 +562,9 @@ private:
 	*/
 	void					newVideoSinkBufferCallback( GstSample* videoSinkBuffer );
 
-	/*
-	Non-static method that is called inside "onNewPrerollFromAudioSource()" in order to handle
-	member variables that are non-static. Here the unsigned char array with the audio data is actually filled
-	and also allocated if it is NULL
-
-	params:
-	@audioSinkBuffer: The buffer that was gathered from the video sink
-	*/
-	virtual void			newAudioSinkPrerollCallback( GstSample* audioSinkBuffer );
-
-	/*
-	Non-static method that is called inside "onNewBufferFromAudioSource()" in order to handle
-	member variables that are non-static. Here the unsigned char array with the audio data is actually filled
-
-	params:
-	@audioSinkBuffer: The buffer that was gathered from the audio sink
-	*/
-	virtual void			newAudioSinkBufferCallback( GstSample* audioSinkBuffer );
-
 	// Getting app callbacks for new sinks requires registereing EOS callbacks.
 	// However, we handle EoS events from the message bus, so these don't do anything, but don't delete them.
 	static void				onEosFromVideoSource(GstAppSink* appsink, void* listener);
-	static void				onEosFromAudioSource(GstAppSink* appsink, void* listener);
 
 	// Clears out member properties
 	void					resetProperties();
