@@ -893,7 +893,8 @@ void GStreamerWrapper::setVolume(float fVolume){
 		else if(m_fVolume > 1.0f)
 			m_fVolume = 1.0f;
 
-		g_object_set(m_GstPipeline, "volume", m_fVolume, NULL);
+		if (m_GstPipeline)
+			g_object_set(m_GstPipeline, "volume", m_fVolume, NULL);
 	}
 }
 
@@ -1105,22 +1106,6 @@ static void print_one_tag(const GstTagList * list, const gchar * tag, gpointer u
 		} else if(G_VALUE_HOLDS_BOOLEAN(val)) {
 			std::cout << tag << " " << g_value_get_boolean(val) << std::endl;
 		} 
-#if 0
-		else if(GST_VALUE_HOLDS_BUFFER(val)) {
-			GstBuffer *buf = gst_value_get_buffer(val);
-			guint buffer_size = gst_buffer_get_size(buf);
-
-			std::cout << tag << " " << "buffer of size " << buffer_size << std::endl;
-		} else if(GST_VALUE_HOLDS_DATE_TIME(val)) {
-			//GstDateTime *dt = g_value_get_boxed(val);
-			//gchar *dt_str = gst_date_time_to_iso8601_string(dt);
-
-			std::cout << tag << " is a date time thingy " << std::endl;
-			//g_free(dt_str);
-		} else {
-			std::cout << tag << " tag of type " << G_VALUE_TYPE_NAME(val) << std::endl;
-		}
-#endif
 	}
 }
 
@@ -1226,53 +1211,6 @@ void GStreamerWrapper::handleGStMessage(){
 					if ((m_CurrentGstState == STATE_PLAYING || m_CurrentGstState == STATE_PAUSED) && m_PendingSeek){
 						seekFrame(m_PendingSeekTime);
 					}
-
-#if 0
-					GstElement* decodebin = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "avdec_h264-0");
-					if(decodebin){
-						g_object_set(decodebin, "max-threads", 1, NULL);
-						std::cout << GST_ELEMENT_NAME(decodebin) << std::endl;
-					}
-
-					gpointer object;
-					GValue item = G_VALUE_INIT;
-					GstElement* elem;
-					GstIterator* it = gst_bin_iterate_recurse(GST_BIN(m_GstPipeline));
-					bool done = false;
-					while(!done) {
-						switch(gst_iterator_next(it, &item)) {
-						case GST_ITERATOR_OK:
-							//... use / change item here...
-							object = g_value_get_object(&item);
-							elem = GST_ELEMENT(object);
-							if(elem){
-								std::cout << GST_ELEMENT_NAME(elem) << std::endl;
-								g_object_set(elem, "max-threads", 2, NULL);
-							//	g_object_set(elem, "debug-mv", TRUE, NULL);
-							}
-							//g_object_unref(object);
-							g_value_reset(&item);
-							break;
-						case GST_ITERATOR_RESYNC:
-							//...rollback changes to items...
-								gst_iterator_resync(it);
-							//	done = true;
-							break;
-						case GST_ITERATOR_ERROR:
-							//...wrong parameters were given...
-								done = true;
-							break;
-						case GST_ITERATOR_DONE:
-							done = true;
-							break;
-						default :
-							done = true;
-						}
-					}
-
-					g_value_unset(&item);
-					gst_iterator_free(it);
-#endif
 				}
 				break;
 
@@ -1352,16 +1290,6 @@ void GStreamerWrapper::handleGStMessage(){
 					break;
 
 				case GST_MESSAGE_TAG :
-
-#if 0
-					gst_message_parse_tag(m_GstMessage, &tags);
-
-					std::cout << "Got tags from element " << GST_OBJECT_NAME(m_GstMessage->src) << std::endl;
-					gst_tag_list_foreach(tags, print_one_tag, NULL);
-					std::cout << std::endl;
-					gst_tag_list_unref(tags);
-#endif
-
 					break;
 
 				default:
