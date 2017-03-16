@@ -50,7 +50,6 @@ Circle::Circle(SpriteEngine& engine)
 	, mIgnoreSizeUpdates(false)
 	, mLineWidth(1.0f)
 	, mNumberOfSegments(0)
-	, mNeedsInit(true)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
@@ -64,7 +63,6 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	, mIgnoreSizeUpdates(false)
 	, mLineWidth(1.0f)
 	, mNumberOfSegments(0)
-	, mNeedsInit(true)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
@@ -80,30 +78,18 @@ Circle::~Circle(){
 
 void Circle::drawLocalClient() {
 
+	if(mRadius <= 0.0f) return;
 
-	if(mNeedsInit){
-		init();
-	}
-
-#ifdef USE_BATCH_DRAWING
-
-
-	if(mCircleBatch){
-		mCircleBatch->draw();
-	}
-
-#else 
-
-	if(mFilled){
-		ci::gl::drawSolidCircle(ci::vec2(mRadius, mRadius), mRadius);
+	if(mRenderBatch){
+		mRenderBatch->draw();
 	} else {
-		ci::gl::lineWidth(mLineWidth);
-		ci::gl::drawStrokedCircle(ci::vec2(mRadius, mRadius), mRadius);
+		if(mFilled){
+			ci::gl::drawSolidCircle(ci::vec2(mRadius, mRadius), mRadius);
+		} else {
+			ci::gl::lineWidth(mLineWidth);
+			ci::gl::drawStrokedCircle(ci::vec2(mRadius, mRadius), mRadius);
+		}
 	}
-
-
-#endif
-
 }
 
 void Circle::drawLocalServer() {
@@ -134,19 +120,19 @@ void Circle::writeAttributesTo(ds::DataBuffer& buf) {
 void Circle::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if(attributeId == RADIUS_ATT) {
 		mRadius = buf.read<float>();
-		mNeedsInit = true;
+		mNeedsBatchUpdate = true;
 
 	} else if(attributeId == FILLED_ATT) {
 		mFilled = buf.read<bool>();
-		mNeedsInit = true;
+		mNeedsBatchUpdate = true;
 
 	} else if(attributeId == LINE_WIDTH_ATT) {
 		mLineWidth = buf.read<float>();
-		mNeedsInit = true;
+		mNeedsBatchUpdate = true;
 
 	} else if(attributeId == NUM_SEGS_ATT) {
 		mNumberOfSegments = buf.read<int>();
-		mNeedsInit = true;
+		mNeedsBatchUpdate = true;
 
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
@@ -163,65 +149,62 @@ void Circle::onSizeChanged() {
 	}
 }
 
-void Circle::init() {
-#ifdef USE_BATCH_DRAWING
-	mCircleBatch = nullptr;
-#endif
-
-	mNeedsInit = false;
-
+void Circle::onBuildRenderBatch() {
 	if(mRadius <= 0.0f) return;
 
-	mIgnoreSizeUpdates = true;
-	setSize(mRadius * 2.0f, mRadius * 2.0f);
-	mIgnoreSizeUpdates = false;
-
-#ifdef USE_BATCH_DRAWING
-	mSpriteShader.loadShaders();
-
+	if(getWidth() != mRadius * 2.0f || getHeight() != mRadius * 2.0f){
+		mIgnoreSizeUpdates = true;
+		setSize(mRadius * 2.0f, mRadius * 2.0f);
+		mIgnoreSizeUpdates = false;
+	}
 	
 	if(mFilled){
 		auto theCircle = ci::geom::Circle().radius(mRadius).center(ci::vec2(mRadius, mRadius));
 		if(mNumberOfSegments > 1){
 			theCircle.subdivisions(mNumberOfSegments);
 		}
-		mCircleBatch = ci::gl::Batch::create(theCircle, mSpriteShader.getShader());
+		if(mRenderBatch) mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theCircle));
+		else mRenderBatch = ci::gl::Batch::create(theCircle, mSpriteShader.getShader());
 	} else {
 		auto theCircle = ci::geom::Ring().radius(mRadius).width(mLineWidth).center(ci::vec2(mRadius, mRadius));
 		if(mNumberOfSegments > 1){
 			theCircle.subdivisions(mNumberOfSegments);
 		}
-		mCircleBatch = ci::gl::Batch::create(theCircle, mSpriteShader.getShader());
+		if(mRenderBatch) mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theCircle));
+		else mRenderBatch = ci::gl::Batch::create(theCircle, mSpriteShader.getShader());
 	}
-#endif
 }
 
 void Circle::setFilled(const bool filled){
+	if(filled == mFilled) return;
 	mFilled = filled;
-	mNeedsInit = true;
+	mNeedsBatchUpdate = true;
 	markAsDirty(FILLED_DIRTY);
 }
 
 void Circle::setRadius(const float radius){
+	if(mRadius == radius) return;
 	mRadius = radius;
 
 	mIgnoreSizeUpdates = true;
 	setSize(mRadius * 2.0f, mRadius * 2.0f);
 	mIgnoreSizeUpdates = false;
 
-	mNeedsInit = true;
+	mNeedsBatchUpdate = true;
 	markAsDirty(RADIUS_DIRTY);
 }
 
 void Circle::setLineWidth(const float lineWidth){
+	if(mLineWidth == lineWidth) return;
 	mLineWidth = lineWidth;
-	mNeedsInit = true;
+	mNeedsBatchUpdate = true;
 	markAsDirty(LINE_WIDTH_DIRTY);
 }
 
 void Circle::setNumberOfSegments(const int numSegments){
+	if(mNumberOfSegments == numSegments) return;
 	mNumberOfSegments = numSegments;
-	mNeedsInit = true;
+	mNeedsBatchUpdate = true;
 	markAsDirty(NUM_SEGMENTS_DIRTY);
 }
 

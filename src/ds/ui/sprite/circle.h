@@ -56,11 +56,8 @@ protected:
 private:
 	typedef Sprite				inherited;
 
-	bool						mNeedsInit;
-	void						init();
-#ifdef USE_BATCH_DRAWING
-	ci::gl::BatchRef			mCircleBatch;
-#endif
+	virtual void				onBuildRenderBatch() override;
+
 	int							mNumberOfSegments;
 	bool						mFilled;
 	float						mRadius;
