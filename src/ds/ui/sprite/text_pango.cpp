@@ -431,31 +431,25 @@ void TextPango::drawLocalClient(){
 		ci::gl::color(ci::Color::white());
 		ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
 		if(shaderBase) {
-			shaderBase->bind();
 			shaderBase->uniform("tex0", 0);
 			shaderBase->uniform("opaccy", mDrawOpacity);
-			mUniform.applyTo(shaderBase);
 		}
-
 
 		mTexture->bind();
 
-
-#ifdef USE_BATCH_DRAWING
 		if(mRenderBatch){
 			mRenderBatch->draw();
-		} 
-#else
-		{
+		} else {
+			if(shaderBase){
+				shaderBase->bind();
+				mUniform.applyTo(shaderBase);
+			}
 			if(getPerspective()) {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f));
 			} else {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight())));
 			}
 		}
-#endif
-
-
 
 		mTexture->unbind();
 	}

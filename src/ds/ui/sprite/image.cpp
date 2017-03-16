@@ -114,7 +114,7 @@ void Image::drawLocalClient()
 
 		tex->unbind();
 
-		// TODO
+		// TODO: Make this uniforms instead of attributes?
 		/*
 		
 		// we're gonna do this ourselves so we can pass additional attributes to the shader

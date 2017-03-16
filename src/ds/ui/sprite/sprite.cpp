@@ -415,12 +415,9 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 			DS_REPORT_GL_ERRORS();
 
 			if (shaderBase) {
-				// TODO ? do we have to unbind now?
-				//shaderBase->unbind();
 				if (mSpriteShaders.size() > 0){
 					mFrameBufferOne->unbindTexture();
 					mFrameBufferTwo->unbindTexture();
-					//if (mFrameBuffer[mFboIndex]) mFrameBuffer[mFboIndex]->unbindTexture();
 
 					ci::gl::scale(1.0f, 1.0f, 1.0f);           // invert Y axis so increasing Y goes down.
 					ci::gl::translate(0.0f, 0.0f, 0.0f);       // shift origin up to upper-left corner.

@@ -112,21 +112,11 @@ void Gradient::drawLocalClient() {
 			ci::gl::draw(rect);
 		}
 	}
-	/*
-	ci::gl::begin(GL_QUADS);
-	ci::gl::color(mTLColor.r, mTLColor.g, mTLColor.b, mTLColor.a * getDrawOpacity());
-	ci::gl::vertex(0, 0);
-	ci::gl::color(mTRColor.r, mTRColor.g, mTRColor.b, mTRColor.a * getDrawOpacity());
-	ci::gl::vertex(getWidth(), 0.0f);
-	ci::gl::color(mBRColor.r, mBRColor.g, mBRColor.b, mBRColor.a * getDrawOpacity());
-	ci::gl::vertex(getWidth(), getHeight());
-	ci::gl::color(mBLColor.r, mBLColor.g, mBLColor.b, mBLColor.a * getDrawOpacity());
-	ci::gl::vertex(0.0f, getHeight());
-	ci::gl::end();
-	*/
 }
 
 void Gradient::onBuildRenderBatch() {
+	// Batch renders don't take the currently set color or opacity when drawing
+	// So disabled for now.
 	return;
 
 	auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
@@ -134,12 +124,14 @@ void Gradient::onBuildRenderBatch() {
 		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
 		theGeom.cornerSubdivisions(6);
 		theGeom.colors(mTLColor, mTRColor, mBRColor, mBLColor);
-		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		if(mRenderBatch) mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		else mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
 
 	} else {
 		auto theGeom = ci::geom::Rect(drawRect);
 		theGeom.colors(mTLColor, mTRColor, mBRColor, mBLColor);
-		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		if(mRenderBatch) mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		else mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
 	}
 }
 
@@ -182,23 +174,19 @@ void Gradient::writeGradientColor(const DirtyState& dirty, const ci::ColorA& src
 	}
 }
 
-ci::ColorA& Gradient::getColorTL()
-{
+ci::ColorA& Gradient::getColorTL(){
 	return mTLColor;
 }
 
-ci::ColorA& Gradient::getColorTR()
-{
+ci::ColorA& Gradient::getColorTR(){
 	return mTRColor;
 }
 
-ci::ColorA& Gradient::getColorBL()
-{
+ci::ColorA& Gradient::getColorBL(){
 	return mBLColor;
 }
 
-ci::ColorA& Gradient::getColorBR()
-{
+ci::ColorA& Gradient::getColorBR(){
 	return mBRColor;
 }
 
