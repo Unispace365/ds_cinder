@@ -403,13 +403,12 @@ void GstVideo::drawLocalClient(){
 		if (mColorType == kColorTypeShaderTransform){
 			ci::gl::disableDepthRead();
 			ci::gl::disableDepthWrite();
-			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
 
-				if (mFrameTexture) mFrameTexture->bind(2);
-				if (mUFrameTexture) mUFrameTexture->bind(3);
-				if (mVFrameTexture) mVFrameTexture->bind(4);
+			if (mFrameTexture) mFrameTexture->bind(2);
+			if (mUFrameTexture) mUFrameTexture->bind(3);
+			if (mVFrameTexture) mVFrameTexture->bind(4);
 
-			}
+			
 			if(getPerspective()){
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, mHeight, mWidth, 0.0f));
 			} else {
@@ -427,11 +426,10 @@ void GstVideo::drawLocalClient(){
 
 
 		if (mColorType == kColorTypeShaderTransform){
-			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
-				if (mFrameTexture) mFrameTexture->unbind(2);
-				if (mUFrameTexture) mUFrameTexture->unbind(3);
-				if (mVFrameTexture) mVFrameTexture->unbind(4);
-			}
+			if(mFrameTexture) mFrameTexture->unbind(2);
+			if(mUFrameTexture) mUFrameTexture->unbind(3);
+			if(mVFrameTexture) mVFrameTexture->unbind(4);
+			
 		} else {
 			if (mFrameTexture) mFrameTexture->unbind();
 		}
@@ -564,8 +562,7 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			mOutOfBoundsMuted = false;
 		}
 		// if the video was set previously, clear out the shader so we don't multiple-set the shader
-		removeShaders();
-		setBaseShader(Environment::getAppFolder("data/shaders"), "base");
+		//removeShaders();
 
 		mDrawable = false;
 
@@ -573,13 +570,17 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		if(colorSpace == "4:2:0"){
 			theColor = ColorType::kColorTypeShaderTransform;
 			std::string shaderName("yuv_colorspace_conversion");
-			addNewMemoryShader(yuv_vert, yuv_frag, shaderName, true);
+			mSpriteShader.setShaders(yuv_vert, yuv_frag, shaderName);// , true);
+			mSpriteShader.loadShaders();
 			ds::gl::Uniform uniform;
 
 			uniform.setInt("gsuTexture0", 2);
 			uniform.setInt("gsuTexture1", 3);
 			uniform.setInt("gsuTexture2", 4);
 			setShadersUniforms("yuv_colorspace_conversion", uniform);
+			uniform.applyTo(mSpriteShader.getShader());
+		} else {
+			setBaseShader(Environment::getAppFolder("data/shaders"), "base");
 		}
 
 		bool hasAudioTrack = (type == VideoMetaCache::AUDIO_ONLY_TYPE || type == VideoMetaCache::VIDEO_AND_AUDIO_TYPE);
@@ -673,7 +674,7 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	mOutOfBoundsMuted = true;
 	mColorType = ColorType::kColorTypeShaderTransform;
 	std::string name("yuv_colorspace_conversion");
-	addNewMemoryShader(yuv_vert, yuv_frag, name, true);
+	mSpriteShader.setShaders(yuv_vert, yuv_frag, name);// , true);
 	ds::gl::Uniform uniform;
 
 	uniform.setInt("gsuTexture0", 2);

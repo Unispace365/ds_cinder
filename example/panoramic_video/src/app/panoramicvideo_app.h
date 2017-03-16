@@ -2,6 +2,8 @@
 #define _PANORAMICVIDEO_APP_H_
 
 #include <cinder/app/App.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 #include <ds/app/app.h>
 
 #include "app/globals.h"
