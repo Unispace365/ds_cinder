@@ -271,7 +271,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
 			m_GstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
 			// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, "qos", true, (void*)NULL);
+			g_object_set(m_GstAudioSink, "sync", true, (void*)NULL);
 
 			GstElement* bin = gst_bin_new("converter_sink_bin");
 
@@ -292,16 +292,16 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
 
 			gst_object_unref(pad);
-			m_GstObjects.push_back(m_GstConverter);
-			m_GstObjects.push_back(m_GstAudioSink);
-			m_GstObjects.push_back(m_GstPanorama);
+			//m_GstObjects.push_back(m_GstConverter);
+			//m_GstObjects.push_back(m_GstAudioSink);
+			//m_GstObjects.push_back(m_GstPanorama);
 
 
 			// Set Audio Sink callback methods
-			m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
-			m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
-			m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
-			gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
+			//m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
+			//m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
+			//m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
+			//gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
 		}
 
 	// Only create an audio sink if there's an audio track
