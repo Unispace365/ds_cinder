@@ -179,9 +179,10 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 
 	if (settings) {
 		ds::Environment::setConfigDirFileExpandOverride(mEngineSettings.getBool("configuration_folder:allow_expand_override", 0, false));
+
+		ci::gl::enableVerticalSync(mEngineSettings.getBool("vertical_sync", 0, true));
 		mEngine.prepareSettings(*settings);
 		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
-
 		inherited::setFrameRate(settings->getFrameRate());
 		inherited::setWindowSize(settings->getWindowSize());
 		inherited::setWindowPos(settings->getWindowPos());
@@ -334,20 +335,6 @@ void App::keyUp(ci::app::KeyEvent event){
 }
 
 void App::saveTransparentScreenshot(){
-
-	/*
-	const auto		area = getWindowBounds();
-	ci::Surface s(area.getWidth(), area.getHeight(), true);
-	glFlush(); // there is some disagreement about whether this is necessary, but ideally performance-conscious users will use FBOs anyway
-
-
-	GLint oldPackAlignment;
-	glGetIntegerv(GL_PACK_ALIGNMENT, &oldPackAlignment);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glReadPixels(area.x1, getWindowHeight() - area.y2, area.getWidth(), area.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, s.getData());
-	glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
-	ci::ip::flipVertical(&s);
-	*/
 	Poco::Path		p("%USERPROFILE%");
 	Poco::Timestamp::TimeVal t = Poco::Timestamp().epochMicroseconds();
 	std::stringstream filepath;
