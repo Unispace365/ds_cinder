@@ -25,6 +25,7 @@ VideoPlayer::VideoPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mAutoPlayFirstFrame(true)
 	, mAllowOutOfBoundsMuted(true)
 	, mPanning(0.0f)
+	, mLooping(true)
 {
 	mLayoutFixedAspect = true;
 }
@@ -35,6 +36,21 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	mVideo = new ds::ui::GstVideo(mEngine);
 	mVideo->generateAudioBuffer(true);
 	mVideo->setLooping(true);
+
+	mVideo->setVideoCompleteCallback([this]{
+
+
+		mVideo->seekPosition(0);
+
+		if(!mLooping){
+			mVideo->pause();
+		}
+
+		// show the interface if we have one
+		if(mVideoInterface){
+			mVideoInterface->userInputReceived();
+		}
+	});
 
 	setPan(mPanning);
 	setAutoSynchronize(mAutoSyncronize);
