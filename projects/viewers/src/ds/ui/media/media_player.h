@@ -65,6 +65,9 @@ public:
 	/// stops loading web pages, stops videos
 	void					stopContent();
 
+	/// Really only for videos at the moment
+	void					pauseContent();
+
 	/// Returns any current player. Will need to be dynamic casted to be used
 	/// Definitely can return nullptr, so check before using
 	ds::ui::Sprite*			getPlayer();
