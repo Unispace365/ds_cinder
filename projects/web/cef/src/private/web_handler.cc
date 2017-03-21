@@ -18,6 +18,8 @@
 
 #include <ds/debug/logger.h>
 
+#include <cinder/app/KeyEvent.h>
+
 namespace {
 
 	ds::web::WebHandler* g_instance = NULL;
@@ -490,32 +492,17 @@ void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_
 
 	bool isChar = false;
 	keyEvent.type = KEYEVENT_RAWKEYDOWN;
-	keyEvent.native_key_code = MapVirtualKey(windows_key_code, MAPVK_VK_TO_VSC);
+#ifdef WIN32
+    keyEvent.native_key_code = MapVirtualKey(windows_key_code, MAPVK_VK_TO_VSC);
+#else
+    keyEvent.native_key_code = windows_key_code;
+#endif
 
 	switch(windows_key_code) {
 		// These keys are non-character keys and have different windows_key_codes from the character
 		// May need to add more codes to this list, or modify as time goes on
-		case VK_INSERT:
-		case VK_DELETE:
-		case VK_HOME:
-		case VK_END:
-		case VK_PRIOR:
-		case VK_NEXT:
-		case VK_UP:
-		case VK_DOWN:
-		case VK_LEFT:
-		case VK_RIGHT:
-		case VK_NUMLOCK:
-		case VK_CLEAR:
-		case VK_SHIFT:
-		case VK_LSHIFT:
-		case VK_RSHIFT:
-		case VK_CONTROL:
-		case VK_MENU:
-		case VK_LWIN:
-		case VK_RWIN:
-		case VK_BACK:
-		case VK_TAB:
+        case ci::app::KeyEvent::KEY_BACKSPACE:
+        case ci::app::KeyEvent::KEY_TAB:
 		{
 			keyEvent.windows_key_code = windows_key_code;
 			break;

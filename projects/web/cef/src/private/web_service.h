@@ -4,6 +4,8 @@
 
 #include <ds/app/engine/engine_service.h>
 #include <ds/app/auto_update.h>
+#include <memory>
+#include <thread>
 
 #include "web_callbacks.h"
 #include "web_app.h"
@@ -90,6 +92,10 @@ public:
 
 protected:
 	virtual void			update(const ds::UpdateParams&);
+#ifndef _WIN32
+	std::shared_ptr<std::thread>
+							mCefMessageLoopThread;
+#endif
 
 private:
 	CefRefPtr<WebApp>		mCefSimpleApp;

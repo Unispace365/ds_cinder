@@ -14,6 +14,7 @@
 #include "include/wrapper/cef_helpers.h"
 
 #include <ds/debug/debug_defines.h>
+#include <cinder/app/App.h>
 
 namespace ds{
 namespace web{
@@ -71,8 +72,9 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 
 	// Information used when creating the native window.
 	CefWindowInfo window_info;
-	HWND hWnd = WindowFromDC(wglGetCurrentDC());
-	window_info.SetAsWindowless(hWnd, isTransparent);
+	CefWindowHandle window = *((CefWindowHandle *)ci::app::getWindow()->getNative());
+	window_info.SetAsWindowless(window, isTransparent);
+
 
 	if(mHandler){
 		mHandler->addCreatedCallback(instancePtr, createdCallback);

@@ -2,9 +2,24 @@
 
 #include <ds/app/engine/engine.h>
 #include <ds/ui/sprite/web.h>
+#include <ds/app/environment.h>
+
+#include <chrono>
+#include <thread>
 
 #include "include/cef_app.h"
 #include "web_handler.h"
+
+// On linux, we need to shutdown CEF by posting a Quit task to the RunMessageLoop thread
+#ifndef _WIN32
+#include "include/base/cef_bind.h"
+#include "include/wrapper/cef_closure_task.h"
+namespace {
+void shutdownCefCallbackFunc() {
+	CefQuitMessageLoop();
+}
+} // anonymous namespace
+#endif
 
 namespace ds {
 namespace web {
@@ -32,32 +47,52 @@ WebCefService::WebCefService(ds::Engine& e)
 
 }
 
-#include <chrono>
-#include <thread>
-
 WebCefService::~WebCefService() {
-
-#ifdef _DEBUG
-	//std::this_thread::sleep_for(std::chrono::seconds(1));
-#endif
 	try{
+#ifdef _WIN32
 		CefShutdown();
+#else
+		bool quitMessageLoopSuccess = false;
+		const int MAX_TRIES=10;
+		for (int i=0; i<MAX_TRIES; i++) {
+			if (CefPostTask(TID_UI, base::Bind(&shutdownCefCallbackFunc))) {
+				quitMessageLoopSuccess = true;
+				break;
+			}
+			else {
+				DS_LOG_WARNING( "WebCefService: CefQuitMessageLoop message was not successfully sent.  Trying " << (MAX_TRIES-i-1) << " more times..." );
+				std::this_thread::sleep_for( std::chrono::milliseconds(100) );
+			}
+		}
+
+		if (mCefMessageLoopThread) {
+			if (quitMessageLoopSuccess)
+				mCefMessageLoopThread->join();
+			else {
+				DS_LOG_WARNING( "WebCefService did not shut down cleanly.  Abandoning CEF message loop thread." );
+				mCefMessageLoopThread->detach();
+			}
+		}
+#endif
 	} catch(...){
 		DS_LOG_WARNING("WebCefService destructor exception");
 	}
 }
 
 void WebCefService::start() {
-
 	CefEnableHighDPISupport();
 
-	void* sandbox_info = NULL;
-	CefMainArgs main_args(GetModuleHandle(NULL));
+	mCefSimpleApp = CefRefPtr<WebApp>(new WebApp);
 
+#ifdef _WIN32
+	CefMainArgs main_args(GetModuleHandle(NULL));
+	const void* sandbox_info = NULL;
+	/*
 	int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
 	if(exit_code >= 0){
 		DS_LOG_WARNING("CEF setup exit code is not the expected value! Code: " << exit_code);
 	}
+	*/
 
 	CefSettings settings;
 	// There's no sandboxing for IO requests
@@ -65,7 +100,7 @@ void WebCefService::start() {
 
 	// Single process could be used for debugging, but it's much slower and not-production ready
 	settings.single_process = false;
-	
+
 	// CEF handles threading for the message loop (required for performance, otherwise slow apps can become deadlocked)
 	settings.multi_threaded_message_loop = true;
 
@@ -98,8 +133,47 @@ void WebCefService::start() {
 	const char* path = "cefsimple.exe";
 	CefString(&settings.browser_subprocess_path).FromASCII(path);
 
-	mCefSimpleApp = CefRefPtr<WebApp>(new WebApp);
 	CefInitialize(main_args, settings, mCefSimpleApp.get(), sandbox_info);
+
+#else
+	// Linux CEF startup on separate thread
+	mCefMessageLoopThread.reset( new std::thread([this]{
+		// Collect command-line parameters to pass to cefsimple
+		auto params = ds::Environment::getCommandLineParams();
+		char* argv[params.size()];
+		int i=0;
+		for (const auto &param : params ) {
+			argv[i++] = strdup( param.c_str() );
+		}
+		CefMainArgs main_args(params.size(), argv);
+
+		// Setup Cef settings
+		CefSettings settings;
+		settings.no_sandbox = true;
+		settings.single_process = false;
+		// No multi_threaded_message_loop support in Linux
+		settings.multi_threaded_message_loop = false;
+		settings.windowless_rendering_enabled = true;
+
+		// Setup paths
+		// This requires cefsimple executable to be in the subdirectory cef/ in the current working directory
+		auto cef_dir = ds::Environment::expand("%APP%");
+		//DS_LOG_INFO( "CEF Directory: " << cef_dir );
+		CefString(&settings.resources_dir_path)		.FromString(cef_dir);
+		CefString(&settings.locales_dir_path)		.FromString(cef_dir + "/locales");
+		CefString(&settings.browser_subprocess_path).FromString(cef_dir + "/cefsimple");
+
+		CefInitialize(main_args, settings, mCefSimpleApp.get(), NULL);
+
+		// Delete strings allocated for command-line params
+		for (int i=0; i<params.size(); i++)
+			delete argv[i];
+
+		CefRunMessageLoop();
+		DS_LOG_INFO("CEF Message Loop terminated.");
+		CefShutdown();
+	}));
+#endif
 }
 
 void WebCefService::update(const ds::UpdateParams&) {

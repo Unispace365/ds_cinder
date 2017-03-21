@@ -6,9 +6,12 @@
 #include <Poco/File.h>
 #include <Poco/Path.h>
 #include <Poco/Environment.h>
+#include <Poco/Format.h>
+#include <Poco/Process.h>
 
 #include "ds/app/app.h"
 #include "ds/app/engine/engine_settings.h"
+#include "ds/util/string_util.h"
 
 #ifdef CINDER_MSW
 #include "cinder/Clipboard.h"
@@ -184,6 +187,36 @@ void Environment::addToFrontEnvironmentVariable(const std::string& variable, con
 	Poco::Environment::set(variable, new_path);
 }
 
+// Platform dependent code for getting the command line args
+#ifdef CINDER_MSW
+#include <winsock2.h> // need to include winsock2 before windows
+#include <windows.h>
+#include <shellapi.h>
+
+std::vector<std::string> Environment::getCommandLineParams()
+{
+	std::vector<std::string> ret;
+	int nArgs;
+	LPWSTR *szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
+	if(szArglist != NULL) {
+		for(int i = 0; i < nArgs; ++i) ret.push_back(ds::utf8_from_wstr(szArglist[i]));
+	}
+	LocalFree(szArglist);
+
+	return ret;
+}
+#else
+// On Linux, we need to process the contents of cmdline from the /proc filesystem
+std::vector<std::string> Environment::getCommandLineParams()
+{
+	auto filename = Poco::format("/proc/%d/cmdline", Poco::Process::id());
+	auto ifs = std::ifstream( filename, std::ios::in|std::ios::binary );
+	std::ostringstream ss;
+	ss << ifs.rdbuf();
+
+	return ds::split( ss.str(), std::string("\0", 1), true );
+}
+#endif
 
 std::string Environment::getClipboard() {
 #ifdef CINDER_MSW
