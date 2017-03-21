@@ -178,7 +178,8 @@ public:
 	// to make sure everything is stopped before they go away.
 	virtual void						stopServices();
 
-	bool								hideMouse() const;
+	void								setHideMouse(const bool doMouseHide);
+	bool								getHideMouse() const;
 
 	ds::ui::Sprite*						getHit(const ci::vec3& point);
 

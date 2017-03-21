@@ -99,6 +99,7 @@ App::App(const RootList& roots)
 	, mSecondMouseDown(false)
 	, mQKeyEnabled(true)
 	, mEscKeyEnabled(true)
+	, mMouseHidden(false)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
@@ -204,8 +205,12 @@ void App::setup() {
 
 void App::update() {
 	mEngine.setAverageFps(getAverageFps());
-	if (mEngine.hideMouse()) {
+	if (mEngine.getHideMouse() && !mMouseHidden) {
+		mMouseHidden = true;
 		hideCursor();
+	} else if(mMouseHidden && !mEngine.getHideMouse()){
+		mMouseHidden = false;
+		showCursor();
 	}
 	mEngine.update();
 }
@@ -285,6 +290,8 @@ void App::keyDown(ci::app::KeyEvent e) {
 		system("taskkill /f /im RestartOnCrash.exe");
 		system("taskkill /f /im DSNode-Host.exe");
 		system("taskkill /f /im DSNodeConsole.exe");
+	} else if(ci::app::KeyEvent::KEY_m == code){
+		mEngine.setHideMouse(!mEngine.getHideMouse());
 	}
 
 	if (mArrowKeyCameraControl) {
