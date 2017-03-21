@@ -86,7 +86,7 @@ void WebCefService::start() {
 
 #ifdef _WIN32
 	CefMainArgs main_args(GetModuleHandle(NULL));
-	const void* sandbox_info = NULL;
+
 	/*
 	int exit_code = CefExecuteProcess(main_args, NULL, sandbox_info);
 	if(exit_code >= 0){
@@ -133,7 +133,7 @@ void WebCefService::start() {
 	const char* path = "cefsimple.exe";
 	CefString(&settings.browser_subprocess_path).FromASCII(path);
 
-	CefInitialize(main_args, settings, mCefSimpleApp.get(), sandbox_info);
+	CefInitialize(main_args, settings, mCefSimpleApp.get(), NULL);
 
 #else
 	// Linux CEF startup on separate thread

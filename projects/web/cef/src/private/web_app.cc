@@ -72,7 +72,7 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 
 	// Information used when creating the native window.
 	CefWindowInfo window_info;
-	CefWindowHandle window = *((CefWindowHandle *)ci::app::getWindow()->getNative());
+	CefWindowHandle window = (CefWindowHandle)ci::app::getWindow()->getNative();
 	window_info.SetAsWindowless(window, isTransparent);
 
 
