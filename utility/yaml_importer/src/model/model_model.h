@@ -15,7 +15,7 @@ namespace ds {
 */
 class ModelColumn {
 public:
-	typedef enum {Integer = 0, UnsignedInt, Float, String, Resource, Custom, Invalid} Type;
+	typedef enum {Integer = 0, UnsignedInt, Float, String, Resource, Date, Custom, Invalid} Type;
 
 	ModelColumn();
 	ModelColumn(const std::string& columnName, const Type& dataType, const bool autoIncrement, const bool isPrimary);

@@ -110,6 +110,7 @@
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
     <ClInclude Include="..\src\ds\query\sql_query_result_builder.h" />
+    <ClInclude Include="..\src\ds\util\date_util.h" />
     <ClInclude Include="..\src\osc\ip\IpEndpointName.h" />
     <ClInclude Include="..\src\osc\ip\NetworkingUtils.h" />
     <ClInclude Include="..\src\osc\ip\PacketListener.h" />
@@ -169,8 +170,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\circle.h" />
     <ClInclude Include="..\src\ds\ui\sprite\circle_border.h" />
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h" />
-    <ClInclude Include="..\src\ds\ui\sprite\fbo\auto_fbo.h" />
-    <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h" />
     <ClInclude Include="..\src\ds\ui\sprite\gradient_sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image_with_thumbnail.h" />
@@ -309,6 +308,7 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\query\sql_database.cpp" />
     <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp" />
+    <ClCompile Include="..\src\ds\util\date_util.cpp" />
     <ClCompile Include="..\src\osc\ip\IpEndpointName.cpp" />
     <ClCompile Include="..\src\osc\ip\win32\NetworkingUtils.cpp" />
     <ClCompile Include="..\src\osc\ip\win32\UdpSocket.cpp" />
@@ -361,8 +361,6 @@
     <ClCompile Include="..\src\ds\ui\sprite\circle.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\circle_border.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\fbo\auto_fbo.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\gradient_sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image_with_thumbnail.cpp" />

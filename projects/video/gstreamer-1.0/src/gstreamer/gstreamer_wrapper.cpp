@@ -158,12 +158,17 @@ void					GStreamerWrapper::clearNewLoop(){
 	 m_newLoop = false;
 }
 
-bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight, const bool hasAudioTrack){
+bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, 
+							const int videoWidth, const int videoHeight, const bool hasAudioTrack, const double secondsDuration){
 	if(!m_ValidInstall){
 		return false;
 	}
 
 	resetProperties();
+
+	if(secondsDuration > -1){
+		m_iDurationInNs = gint64(secondsDuration * 1000000 * 1000);
+	}
 
 	if( m_bFileIsOpen )	{
 		stop();
@@ -271,7 +276,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
 			m_GstAudioSink	= gst_element_factory_make("autoaudiosink", NULL);
 			// Tell the video appsink that it should not emit signals as the buffer retrieving is handled via callback methods
-			g_object_set(m_GstAudioSink, "emit-signals", false, "sync", true, "qos", true, (void*)NULL);
+			g_object_set(m_GstAudioSink, "sync", true, (void*)NULL);
 
 			GstElement* bin = gst_bin_new("converter_sink_bin");
 
@@ -292,16 +297,16 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
 
 			gst_object_unref(pad);
-			m_GstObjects.push_back(m_GstConverter);
-			m_GstObjects.push_back(m_GstAudioSink);
-			m_GstObjects.push_back(m_GstPanorama);
+			//m_GstObjects.push_back(m_GstConverter);
+			//m_GstObjects.push_back(m_GstAudioSink);
+			//m_GstObjects.push_back(m_GstPanorama);
 
 
 			// Set Audio Sink callback methods
-			m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
-			m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
-			m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
-			gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
+			//m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
+			//m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
+			//m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
+			//gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
 		}
 
 	// Only create an audio sink if there's an audio track
@@ -952,8 +957,8 @@ void GStreamerWrapper::setStartTime(uint64_t start_time){
 }
 
 bool GStreamerWrapper::seekFrame( gint64 iTargetTimeInNs ){
-
-	if (m_iDurationInNs < 0) {
+	std::cout << "seek frame: " << iTargetTimeInNs << " " << m_iDurationInNs << " " << m_CurrentGstState << " " << m_PendingSeek << std::endl;
+	if(m_iDurationInNs < 0 || m_CurrentGstState == STATE_NULL) {
 		m_PendingSeekTime = iTargetTimeInNs;
 		m_PendingSeek = true;
 		return false;
@@ -1421,7 +1426,7 @@ void GStreamerWrapper::newVideoSinkPrerollCallback(GstSample* videoSinkSample){
 	GstMapFlags flags = GST_MAP_READ;
 	gst_buffer_map(buff, &map, flags);
 
-	unsigned int videoBufferSize = map.size; 
+	size_t videoBufferSize = map.size; 
 
 	// sanity check on buffer size, in case something weird happened.
 	// In practice, this can fuck up the look of the video, but it plays and doesn't crash
@@ -1450,7 +1455,7 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 	gst_buffer_map(buff, &map, flags);
 
 
-	unsigned int videoBufferSize = map.size;
+	size_t videoBufferSize = map.size;
 
 	if(m_cVideoBufferSize != videoBufferSize){
 		delete[] m_cVideoBuffer;

@@ -373,25 +373,11 @@ bool PdfRes::update() {
 			if (mPixels.empty()) {
 				mTexture = nullptr;
 			} else {
-				if (!mTexture || mTexture->getWidth() != mPixels.getWidth() || mTexture->getHeight() != mPixels.getHeight()) {
-					mTexture = ci::gl::Texture::create(mPixels.getWidth(), mPixels.getHeight());
-					if(!mTexture) return false;
-					mTexture->setTopDown(true);
-				}
-
-				// TODO: check this
-				GLsizei width = mTexture->getWidth(),
-						height = mTexture->getHeight();
-				std::vector<GLubyte> emptyData(width * height * 4, 0);
-
-				mTexture->bind();
-				// Cinder Texture doesn't seem to support accessing the data type. I checked the code
-				// and it seems to always use GL_UNSIGNED_BYTE, so hopefully that's safe.
-				glTexSubImage2D(mTexture->getTarget(), 0, 0, 0, width, height, GL_BGRA, GL_UNSIGNED_BYTE, &emptyData[0]);
-				glTexSubImage2D(mTexture->getTarget(), 0, 0, 0, mPixels.getWidth(), mTexture->getHeight(), GL_RGB, GL_UNSIGNED_BYTE, mPixels.getData());
-				mTexture->unbind();
-				//mTexture->
-				glFinish();
+				ci::gl::Texture::Format formatty;
+				formatty.setMinFilter(GL_LINEAR);
+				formatty.setMagFilter(GL_LINEAR);
+				mTexture = ci::gl::Texture::create(mPixels.getData(), GL_RGB, mPixels.getWidth(), mPixels.getHeight(), formatty);
+				if(!mTexture) return false;
 			}
 		}
 		mState.mPageSize = mDrawState.mPageSize;

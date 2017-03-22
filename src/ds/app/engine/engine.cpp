@@ -818,7 +818,11 @@ void Engine::stopServices() {
 	}
 }
 
-bool Engine::hideMouse() const {
+void Engine::setHideMouse(const bool doMouseHide){
+	mHideMouse = doMouseHide;
+}
+
+bool Engine::getHideMouse() const {
 	return mHideMouse;
 }
 

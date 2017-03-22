@@ -105,6 +105,7 @@ private:
 	bool						mSecondMouseDown;
 	bool						mQKeyEnabled;
 	bool						mEscKeyEnabled;
+	bool						mMouseHidden;
 	// When enabled, the arrow keys will move the camera.
 	const float					mArrowKeyCameraStep;
 	const bool					mArrowKeyCameraControl;

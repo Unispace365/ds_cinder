@@ -103,7 +103,7 @@ void EngineStatsView::updateStats(){
 
 		ss << "<span weight='bold'>Physical Memory:</span> " << mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess() << std::endl;
 		ss << "<span weight='bold'>Virtual Memory:</span> " << mEngine.getComputerInfo().getVirtualMemoryUsedByProcess() << std::endl;
-		ss << "<span weight='bold'>CPU:</span> " << mEngine.getComputerInfo().getPercentUsageCPU() << "%" << std::endl;
+		//ss << "<span weight='bold'>CPU:</span> " << mEngine.getComputerInfo().getPercentUsageCPU() << "%" << std::endl;
 
 		float fpsy = mEngine.getAverageFps();
 		if(fpsy < 30.0f){

@@ -43,9 +43,6 @@
     <Filter Include="src\ds\network">
       <UniqueIdentifier>{20082a19-803d-48dd-bf2a-4b79b04506d7}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ds\ui\sprite\fbo">
-      <UniqueIdentifier>{9005e0a6-9deb-47ef-a96d-2d1f531a4a68}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ds\ui\sprite\shader">
       <UniqueIdentifier>{ea37a132-bc5d-41e3-8741-e3f669b7df2e}</UniqueIdentifier>
     </Filter>
@@ -234,9 +231,6 @@
     <ClInclude Include="..\src\ds\debug\computer_info.h">
       <Filter>src\ds\debug</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h">
-      <Filter>src\ds\ui\sprite\fbo</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\shader\sprite_shader.h">
       <Filter>src\ds\ui\sprite\shader</Filter>
     </ClInclude>
@@ -371,9 +365,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\app\image_registry.h">
       <Filter>src\ds\app</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\fbo\auto_fbo.h">
-      <Filter>src\ds\ui\sprite\fbo</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h">
       <Filter>src\ds\ui\sprite</Filter>
@@ -702,6 +693,9 @@
     <ClInclude Include="..\src\tuio\TuioProfileBase.h">
       <Filter>src\tuio</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\date_util.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -793,9 +787,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\debug\computer_info.cpp">
       <Filter>src\ds\debug</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp">
-      <Filter>src\ds\ui\sprite\fbo</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\shader\sprite_shader.cpp">
       <Filter>src\ds\ui\sprite\shader</Filter>
@@ -907,9 +898,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\app\image_registry.cpp">
       <Filter>src\ds\app</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\fbo\auto_fbo.cpp">
-      <Filter>src\ds\ui\sprite\fbo</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp">
       <Filter>src\ds\ui\sprite</Filter>
@@ -1177,6 +1165,9 @@
     </ClCompile>
     <ClCompile Include="..\src\tuio\TuioClient.cpp">
       <Filter>src\tuio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\date_util.cpp">
+      <Filter>src\ds\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

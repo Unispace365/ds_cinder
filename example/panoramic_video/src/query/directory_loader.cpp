@@ -6,11 +6,11 @@
 #include <Poco/File.h>
 #include <Poco/Path.h>
 
-#include <ds/debug/logger.h>
 #include <ds/query/query_client.h>
 #include <ds/util/file_meta_data.h>
 #include <ds/app/environment.h>
 #include <ds/data/resource.h>
+#include <ds/debug/logger.h>
 
 
 namespace panoramic {
