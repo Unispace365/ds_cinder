@@ -11,38 +11,32 @@
 namespace ds {
 namespace ui {
 
-	class Border : public Sprite {
-	public:
-		Border(SpriteEngine&);
-		Border(SpriteEngine&, const float width);
-		~Border();
+class Border : public Sprite {
+public:
+	Border(SpriteEngine&);
+	Border(SpriteEngine&, const float width);
 
-		virtual void				onSizeChanged();
-		
-		void						setBorderWidth(const float borderWidth);
-		const float					getBorderWidth(){ return mBorderWidth; }
+	void						setBorderWidth(const float borderWidth);
+	const float					getBorderWidth(){ return mBorderWidth; }
 
-		virtual void				updateServer(const UpdateParams&);
-		virtual void				drawLocalClient();
-		virtual void				drawLocalServer();
+	virtual void				drawLocalClient();
 
-		// Initialization
-		static void					installAsServer(ds::BlobRegistry&);
-		static void					installAsClient(ds::BlobRegistry&);
+	// Initialization
+	static void					installAsServer(ds::BlobRegistry&);
+	static void					installAsClient(ds::BlobRegistry&);
 
-	protected:
-		virtual void				writeAttributesTo(ds::DataBuffer&);
-		virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
+protected:
+	virtual void				writeAttributesTo(ds::DataBuffer&);
+	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
+	virtual void				onBuildRenderBatch();
 
-	private:
-		typedef Sprite				inherited;
+private:
+	float						mBorderWidth;
+	ci::gl::BatchRef			mLeftBatch;
+	ci::gl::BatchRef			mRightBatch;
+	ci::gl::BatchRef			mBotBatch;
 
-		void						rebuildVertices();
-
-		GLfloat*					mVertices;
-		float						mBorderWidth;
-
-	};
+};
 
 } // namespace ui
 } // namespace ds

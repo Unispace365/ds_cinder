@@ -103,13 +103,18 @@ void Image::drawLocalClient()
 
 	if (auto tex = mImageSource.getImage())
 	{
-		const ci::Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
 
 		tex->bind();
-		ci::gl::drawSolidRect(useRect);
+		if(mRenderBatch){
+			mRenderBatch->draw();
+		} else {
+			const ci::Rectf& useRect = (getPerspective() ? mDrawRect.mPerspRect : mDrawRect.mOrthoRect);
+			ci::gl::drawSolidRect(useRect);
+		}
+
 		tex->unbind();
 
-		// TODO
+		// TODO: Make this uniforms instead of attributes?
 		/*
 		
 		// we're gonna do this ourselves so we can pass additional attributes to the shader
@@ -225,13 +230,11 @@ void Image::setStatusCallback(const std::function<void(const Status&)>& fn)
 	mStatusFn = fn;
 }
 
-bool Image::isLoadedPrimary() const
-{
+bool Image::isLoadedPrimary() const {
 	return isLoaded();
 }
 
-void Image::onImageChanged()
-{
+void Image::onImageChanged() {
 	setStatus(Status::STATUS_EMPTY);
 	markAsDirty(IMG_SRC_DIRTY);
 	doOnImageUnloaded();
@@ -316,10 +319,34 @@ void Image::checkStatus()
 	}
 }
 
+void Image::onBuildRenderBatch() {
+	if(mDrawRect.mOrthoRect.getWidth() < 1.0f) return;
+
+	auto drawRect = mDrawRect.mOrthoRect;
+	if(getPerspective()) drawRect = mDrawRect.mPerspRect;
+	if(mCornerRadius > 0.0f){
+		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
+
+	} else {
+		auto theGeom = ci::geom::Rect(drawRect);
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
+	}
+}
+
 void Image::doOnImageLoaded()
 {
 	if (auto tex = mImageSource.getImage())
 	{
+		mNeedsBatchUpdate = true;
 		mDrawRect.mPerspRect = ci::Rectf(0.0f, static_cast<float>(tex->getHeight()), static_cast<float>(tex->getWidth()), 0.0f);
 		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()));
 	}

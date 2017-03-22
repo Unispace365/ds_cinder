@@ -214,13 +214,11 @@ void Pdf::onScaleChanged() {
 
 void Pdf::drawLocalClient() {
 
-	// When drawing, we have to go through some histrionics because we
-	// want this sprite to look the same as other sprites to the outside
-	// world, but internally, we have a buffer that is rendered at the
-	// scaled size, not the sprite size.
 	const float				tw = mHolder.getTextureWidth(),
-							th = mHolder.getTextureHeight();
-	if(tw < 1.0f || th < 1.0f){
+		th = mHolder.getTextureHeight();
+	auto theTexture = mHolder.getTexture();
+	if(!theTexture || tw < 1.0f || th < 1.0f){
+		return;
 
 		auto shaderBase = mSpriteShader.getShader();
 		if(shaderBase) {
@@ -230,37 +228,42 @@ void Pdf::drawLocalClient() {
 
 		ci::gl::color(0.0f, 0.0f, 0.0f, mDrawOpacity);
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));// , false);
-		return;
 	}
 
-	const float				targetw = getWidth()*mScale.x,
-							targeth = getHeight()*mScale.y;
+	theTexture->bind();
 
-//	inherited::drawLocalClient();
+	if(mRenderBatch){
+		// The texture from PDF is flipped (and setting topDown on the texture doesn't seem to have an effect, so flip in GL before drawing
+		ci::gl::scale(1.0f, -1.0f);
+		ci::gl::translate(0.0f, -getHeight());
+		mRenderBatch->draw();
+	} else if(mCornerRadius > 0.0f){
+		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mCornerRadius, 0, ci::vec2(0, 0), ci::vec2(1, 1));
+	} else {
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), ci::vec2(0, 0), ci::vec2(1, 1));
+	}
 
-	ci::gl::pushModelView();
+	theTexture->unbind();
 
-	// To draw properly, we first have to turn off whatever scaling has
-	// been applied, then apply a new scale to compensate for any mismatch
-	// between my current texture size and my display size.
-	/* TODO
-	ci::gl::multModelView(ci::mat4::createScale(turnOffScale));
-	ci::gl::multModelView(ci::Matrix44f::createScale(newScale));
-	*/
+}
 
-	const ci::vec3			turnOffScale(1.0f / mScale.x, 1.0f / mScale.y, 1.0f);
-	const ci::vec3			newScale(targetw / tw, targeth / th, 1.0f);
-	ci::mat4 modelMatOff;
-	ci::mat4 modelMatNew;
-	modelMatOff = glm::scale(modelMatOff, turnOffScale);
-	ci::gl::multModelMatrix(modelMatOff);
-	modelMatNew = glm::scale(modelMatNew, newScale);
-	ci::gl::multModelMatrix(modelMatNew);
-
-
-	mHolder.drawLocalClient();
-
-	ci::gl::popModelView();
+void Pdf::onBuildRenderBatch(){
+	auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
+	if(mCornerRadius > 0.0f){
+		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
+	} else {
+		auto theGeom = ci::geom::Rect(drawRect);
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
+	}	
 }
 
 void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
@@ -329,6 +332,12 @@ bool Pdf::ResHolder::update() {
 	}
 
 	return false;
+}
+
+
+ci::gl::TextureRef Pdf::ResHolder::getTexture() {
+	if(mRes) return mRes->getTexture();
+	return nullptr;
 }
 
 void Pdf::ResHolder::drawLocalClient()

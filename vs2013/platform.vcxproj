@@ -170,8 +170,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\circle.h" />
     <ClInclude Include="..\src\ds\ui\sprite\circle_border.h" />
     <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h" />
-    <ClInclude Include="..\src\ds\ui\sprite\fbo\auto_fbo.h" />
-    <ClInclude Include="..\src\ds\ui\sprite\fbo\fbo.h" />
     <ClInclude Include="..\src\ds\ui\sprite\gradient_sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image_with_thumbnail.h" />
@@ -363,8 +361,6 @@
     <ClCompile Include="..\src\ds\ui\sprite\circle.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\circle_border.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\fbo\auto_fbo.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\fbo\fbo.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\gradient_sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image_with_thumbnail.cpp" />

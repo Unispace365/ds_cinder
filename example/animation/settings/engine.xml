@@ -48,7 +48,7 @@
 	<!-- RENDER SETTINGS --->
 	<!---------------------->
 	<!-- attempt to run the app at this rate -->
-	<float name="frame_rate" value="60" />
+	<float name="frame_rate" value="100" />
 	
 	<!-- false=no cursor visible, true=visible cursor. default=false -->
 	<text name="hide_mouse" value="false" />
@@ -107,11 +107,6 @@
 	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\northeastern\" />
 	<text name="resource_db" value="db\northeastern.sqlite" />
 
-	<!---------------------->
-	<!-- NETWORK SETTINGS -->
-	<!---------------------->
-	<!-- Seconds delay between checking the node for new messages. -->
-	<float name="node:refresh_rate" value="0.1" />
 
 
 </settings>

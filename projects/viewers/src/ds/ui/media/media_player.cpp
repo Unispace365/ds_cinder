@@ -469,6 +469,16 @@ void MediaPlayer::stopContent(){
 	}
 }
 
+void MediaPlayer::pauseContent(){
+	if(mVideoPlayer){
+		mVideoPlayer->pause();
+	}
+
+	if(mStreamPlayer){
+		mStreamPlayer->pause();
+	}
+}
+
 ds::ui::Sprite* MediaPlayer::getPlayer(){
 	if(mVideoPlayer){
 		return mVideoPlayer;

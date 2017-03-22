@@ -36,6 +36,7 @@ public:
 	/// Returns true if the pixels were updated on this pass
 	bool					update();
 
+	ci::gl::TextureRef		getTexture(){ return mTexture; }
 	void					draw(float x, float y);
 
 	float					getWidth() const;

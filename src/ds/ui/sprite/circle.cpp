@@ -20,42 +20,17 @@ namespace ui {
 
 namespace {
 
-const std::string CircleFrag =
-"uniform bool preMultiply;\n"
-"in vec4			Color;\n"
-"out vec4			oColor;\n"
-"void main()\n"
-"{\n"
-"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
-"    oColor *= Color;\n"
-"    if (preMultiply) {\n"
-"        oColor.r *= oColor.a;\n"
-"        oColor.g *= oColor.a;\n"
-"        oColor.b *= oColor.a;\n"
-"    }\n"
-"}\n";
-
-const std::string CircleVert =
-"uniform mat4	ciModelViewProjection;\n"
-"in vec4			ciPosition;\n"
-"in vec4			ciColor;\n"
-"out vec4			Color;\n"
-"void main()\n"
-"{\n"
-"	gl_Position = ciModelViewProjection * ciPosition;\n"
-"	Color = ciColor;\n"
-"}\n";
-
-
 	char				BLOB_TYPE = 0;
 
 	const DirtyState&	RADIUS_DIRTY = INTERNAL_A_DIRTY;
 	const DirtyState&	FILLED_DIRTY = INTERNAL_B_DIRTY;
 	const DirtyState&	LINE_WIDTH_DIRTY = INTERNAL_C_DIRTY;
+	const DirtyState&	NUM_SEGMENTS_DIRTY = INTERNAL_D_DIRTY;
 
 	const char			RADIUS_ATT = 80;
 	const char			FILLED_ATT = 81;
 	const char			LINE_WIDTH_ATT = 82;
+	const char			NUM_SEGS_ATT = 83;
 
 	const ds::BitMask   SPRITE_LOG = ds::Logger::newModule("circle sprite");
 }
@@ -72,14 +47,12 @@ Circle::Circle(SpriteEngine& engine)
 	: inherited(engine)
 	, mFilled(true)
 	, mRadius(0.0f)
-	, mVertices(nullptr)
 	, mIgnoreSizeUpdates(false)
 	, mLineWidth(1.0f)
+	, mNumberOfSegments(0)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
-	removeShaders();
-	addNewMemoryShader(CircleVert, CircleFrag, "circle", true);
 	mLayoutFixedAspect = true;
 }
 
@@ -87,50 +60,36 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	: inherited(engine)
 	, mFilled(filled)
 	, mRadius(radius)
-	, mVertices(nullptr)
 	, mIgnoreSizeUpdates(false)
 	, mLineWidth(1.0f)
+	, mNumberOfSegments(0)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
 
-	removeShaders();
-	addNewMemoryShader(CircleVert, CircleFrag, "circle", true);
 	setRadius(mRadius);
 	setFilled(mFilled);
 	mLayoutFixedAspect = true;
 }
 
 Circle::~Circle(){
-	if(mVertices){
-		delete [] mVertices;
-		mVertices = nullptr;
-	}
 }
 
-void Circle::updateServer(const UpdateParams& up) {
-	inherited::updateServer(up);
-}
 
 void Circle::drawLocalClient() {
-	//if(!mVertices) return;
 
-	if(mFilled){
-		ci::gl::drawSolidCircle(ci::vec2(mRadius, mRadius), mRadius);
+	if(mRadius <= 0.0f) return;
+
+	if(mRenderBatch){
+		mRenderBatch->draw();
 	} else {
-		ci::gl::lineWidth(mLineWidth);
-		ci::gl::drawStrokedCircle(ci::vec2(mRadius, mRadius), mRadius);
+		if(mFilled){
+			ci::gl::drawSolidCircle(ci::vec2(mRadius, mRadius), mRadius);
+		} else {
+			ci::gl::lineWidth(mLineWidth);
+			ci::gl::drawStrokedCircle(ci::vec2(mRadius, mRadius), mRadius);
+		}
 	}
-	/* TODO convert to vbo
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(2, GL_FLOAT, 0, mVertices);
-	if(mFilled){
-		glDrawArrays(GL_TRIANGLE_FAN, 0, mNumberOfSegments + 2);
-	} else {
-		glDrawArrays(GL_LINE_LOOP, 0, mNumberOfSegments);
-	}
-	glDisableClientState(GL_VERTEX_ARRAY);
-	*/
 }
 
 void Circle::drawLocalServer() {
@@ -144,7 +103,7 @@ void Circle::writeAttributesTo(ds::DataBuffer& buf) {
 		buf.add(RADIUS_ATT);
 		buf.add(mRadius);
 	}
-	if (mDirty.has(FILLED_DIRTY)) {
+	if(mDirty.has(FILLED_DIRTY)) {
 		buf.add(FILLED_ATT);
 		buf.add(mFilled);
 	}
@@ -152,19 +111,28 @@ void Circle::writeAttributesTo(ds::DataBuffer& buf) {
 		buf.add(LINE_WIDTH_ATT);
 		buf.add(mLineWidth);
 	}
+	if(mDirty.has(NUM_SEGMENTS_DIRTY)){
+		buf.add(NUM_SEGS_ATT);
+		buf.add(mNumberOfSegments);
+	}
 }
 
 void Circle::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if(attributeId == RADIUS_ATT) {
 		mRadius = buf.read<float>();
-		init();
+		mNeedsBatchUpdate = true;
 
 	} else if(attributeId == FILLED_ATT) {
 		mFilled = buf.read<bool>();
-		init();
+		mNeedsBatchUpdate = true;
 
 	} else if(attributeId == LINE_WIDTH_ATT) {
 		mLineWidth = buf.read<float>();
+		mNeedsBatchUpdate = true;
+
+	} else if(attributeId == NUM_SEGS_ATT) {
+		mNumberOfSegments = buf.read<int>();
+		mNeedsBatchUpdate = true;
 
 	} else {
 		inherited::readAttributeFrom(attributeId, buf);
@@ -181,62 +149,63 @@ void Circle::onSizeChanged() {
 	}
 }
 
-void Circle::init() {
-	if(mVertices){
-		delete [] mVertices;
-		mVertices = nullptr;
-	}
-	mNumberOfSegments = 0;
-
+void Circle::onBuildRenderBatch() {
 	if(mRadius <= 0.0f) return;
+
+	if(getWidth() != mRadius * 2.0f || getHeight() != mRadius * 2.0f){
+		mIgnoreSizeUpdates = true;
+		setSize(mRadius * 2.0f, mRadius * 2.0f);
+		mIgnoreSizeUpdates = false;
+	}
+	
+	if(mFilled){
+		auto theCircle = ci::geom::Circle().radius(mRadius).center(ci::vec2(mRadius, mRadius));
+		if(mNumberOfSegments > 1){
+			theCircle.subdivisions(mNumberOfSegments);
+		}
+		if(mRenderBatch) mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theCircle));
+		else mRenderBatch = ci::gl::Batch::create(theCircle, mSpriteShader.getShader());
+	} else {
+		auto theCircle = ci::geom::Ring().radius(mRadius).width(mLineWidth).center(ci::vec2(mRadius, mRadius));
+		if(mNumberOfSegments > 1){
+			theCircle.subdivisions(mNumberOfSegments);
+		}
+		if(mRenderBatch) mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theCircle));
+		else mRenderBatch = ci::gl::Batch::create(theCircle, mSpriteShader.getShader());
+	}
+}
+
+void Circle::setFilled(const bool filled){
+	if(filled == mFilled) return;
+	mFilled = filled;
+	mNeedsBatchUpdate = true;
+	markAsDirty(FILLED_DIRTY);
+}
+
+void Circle::setRadius(const float radius){
+	if(mRadius == radius) return;
+	mRadius = radius;
 
 	mIgnoreSizeUpdates = true;
 	setSize(mRadius * 2.0f, mRadius * 2.0f);
 	mIgnoreSizeUpdates = false;
 
-	// TODO: if we switch to a batch or something, re-evaluate this too
-	return;
-
-	// GN: From ci::gl::drawSolidCircle()
-	// automatically determine the number of segments from the circumference
-	mNumberOfSegments = (int)math<double>::floor(mRadius * M_PI * 2);
-	
-	if(mNumberOfSegments < 2) mNumberOfSegments = 2;
-	ci::vec2 center = ci::vec2(mRadius, mRadius);
-	if(mFilled){
-		mVertices = new float[(mNumberOfSegments + 2) * 2];
-		mVertices[0] = center.x;
-		mVertices[1] = center.y;
-		for(int s = 0; s <= mNumberOfSegments; s++) {
-			float t = s / (float)mNumberOfSegments * 2.0f * 3.14159f;
-			mVertices[(s + 1) * 2 + 0] = center.x + math<float>::cos(t) * mRadius;
-			mVertices[(s + 1) * 2 + 1] = center.y + math<float>::sin(t) * mRadius;
-		}
-	} else {
-		mVertices = new float[mNumberOfSegments * 2];
-		for(int s = 0; s < mNumberOfSegments; s++) {
-			float t = s / (float)mNumberOfSegments * 2.0f * 3.14159f;
-			mVertices[s * 2 + 0] = center.x + math<float>::cos(t) * mRadius;
-			mVertices[s * 2 + 1] = center.y + math<float>::sin(t) * mRadius;
-		}
-	}
-}
-
-void Circle::setFilled(const bool filled){
-	mFilled = filled;
-	init();
-	markAsDirty(FILLED_DIRTY);
-}
-
-void Circle::setRadius(const float radius){
-	mRadius = radius;
-	init();
+	mNeedsBatchUpdate = true;
 	markAsDirty(RADIUS_DIRTY);
 }
 
 void Circle::setLineWidth(const float lineWidth){
+	if(mLineWidth == lineWidth) return;
 	mLineWidth = lineWidth;
+	mNeedsBatchUpdate = true;
 	markAsDirty(LINE_WIDTH_DIRTY);
+}
+
+void Circle::setNumberOfSegments(const int numSegments){
+	if(mNumberOfSegments == numSegments) return;
+	mNumberOfSegments = numSegments;
+	mNeedsBatchUpdate = true;
+	markAsDirty(NUM_SEGMENTS_DIRTY);
 }
 
 } // namespace ui

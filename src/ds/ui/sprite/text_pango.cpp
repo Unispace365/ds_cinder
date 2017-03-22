@@ -60,8 +60,6 @@ const std::string vertShader =
 std::string shaderNameOpaccy = "pango_text_opacity";
 }
 
-//#define USE_PANGO_FBO
-
 namespace ds {
 namespace ui {
 
@@ -408,41 +406,52 @@ EllipsizeMode TextPango::getEllipsizeMode(){
 	return mEllipsizeMode;
 }
 
+void TextPango::onBuildRenderBatch(){
+	if(!mTexture){
+		mRenderBatch = nullptr;
+		return;
+	}
+
+	auto drawRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
+	if(getPerspective()){
+		drawRect = ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f);
+	}
+	auto theGeom = ci::geom::Rect(drawRect);
+	if(mRenderBatch){
+		mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+	} else {
+		mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+	}
+	
+}
+
 void TextPango::drawLocalClient(){
 	if(mTexture && !mText.empty()){
 
-		// ignore the "color" setting
-		//ci::gl::color(mTextColor);
 		ci::gl::color(ci::Color::white());
-		// The true flag is for premultiplied alpha, which this texture is
-	//	ci::gl::enableAlphaBlendingPremult();
 		ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
 		if(shaderBase) {
-			shaderBase->bind();
 			shaderBase->uniform("tex0", 0);
 			shaderBase->uniform("opaccy", mDrawOpacity);
-			mUniform.applyTo(shaderBase);
 		}
-
 
 		mTexture->bind();
-		//ci::Rectf drawRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()));
-		if(getPerspective()) {
-		//	drawRect = ci::Rectf(0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight()), 0.0f);
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f));
-		} else {
-		//	ci::gl::draw(mTexture);
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight())));
-		}
 
-		//mEngine.drawSolidRect(drawRect, *this);
+		if(mRenderBatch){
+			mRenderBatch->draw();
+		} else {
+			if(shaderBase){
+				shaderBase->bind();
+				mUniform.applyTo(shaderBase);
+			}
+			if(getPerspective()) {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f));
+			} else {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight())));
+			}
+		}
 
 		mTexture->unbind();
-
-		if(shaderBase){
-			//unbind?
-		//	shaderBase.unbind();
-		}
 	}
 }
 
@@ -517,11 +526,18 @@ void TextPango::updateServer(const UpdateParams&){
 
 bool TextPango::render(bool force) {
 	if(force || mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
+		float preWidth = 0.0f;
+		float preHeight = 0.0f;
+		if(mTexture){
+			preWidth = mTexture->getWidth();
+			preHeight = mTexture->getHeight();
+		}
 
 		if(mText.empty()){
 			if(mWidth > 0.0f || mWidth > 0.0f){
 				setSize(0.0f, 0.0f);
 			}
+			mNeedsBatchUpdate = true;
 			return false;
 		}
 
@@ -695,6 +711,8 @@ bool TextPango::render(bool force) {
 			auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
 			if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
 				DS_LOG_WARNING("Error creating Cairo surface. " << mPixelWidth << " " << mPixelHeight);
+
+				mNeedsBatchUpdate = true;
 				return true;
 			}
 
@@ -710,11 +728,15 @@ bool TextPango::render(bool force) {
 
 			if(CAIRO_STATUS_NO_MEMORY == cairoStatus) {
 				DS_LOG_WARNING("Out of memory, error creating Cairo context");
+
+				mNeedsBatchUpdate = true;
 				return true;
 			}
 
 			if(CAIRO_STATUS_SUCCESS != cairoStatus){
 				DS_LOG_WARNING("Error creating Cairo context " << cairoStatus);
+
+				mNeedsBatchUpdate = true;
 				return true;
 			}
 
@@ -748,14 +770,18 @@ bool TextPango::render(bool force) {
 			unsigned char *pixels = cairo_image_surface_get_data(mCairoSurface);
 #endif
 
-			// Here we're copying the pixels into an intermediate texture, then drawing into an fbo
-			// This is done entirely so the final output is not premultiplied alpha so it draws well with blend modes, opacity, etc.
 			ci::gl::Texture::Format format;
 			format.setMagFilter(GL_LINEAR);
 			format.setMinFilter(GL_LINEAR);
 			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize, format);
 			mTexture->setTopDown(true);
 			mNeedsTextRender = false;
+		}
+
+		if(mTexture && mTexture->getWidth() == preWidth && mTexture->getHeight() == preHeight ){
+			// don't need to refresh the batch update
+		} else {
+			mNeedsBatchUpdate = true;
 		}
 
 		return true;

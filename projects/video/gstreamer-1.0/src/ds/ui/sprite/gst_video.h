@@ -253,9 +253,6 @@ private:
 	//Allow for custom audio output
 	bool				mGenerateAudioBuffer;
 
-	// YUV/I420 -> RGB conversion
-	ci::gl::GlslProgRef	mShader;
-
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;
 

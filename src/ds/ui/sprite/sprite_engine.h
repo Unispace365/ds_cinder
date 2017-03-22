@@ -9,7 +9,6 @@
 #include <cinder/Xml.h>
 #include <cinder/app/Window.h>
 #include "ds/app/app_defs.h"
-#include "fbo/fbo.h"
 #include <memory>
 
 namespace ds {
@@ -112,9 +111,6 @@ public:
 	float							getWorldHeight() const;
 	float							getFrameRate() const;
 
-	std::unique_ptr<FboGeneral>		getFbo();
-	void							giveBackFbo(std::unique_ptr<FboGeneral> &fbo);
-
 	// Camera control. Will throw if the root at the index is the wrong type.
 	// NOTE: You can't call setPerspectiveCamera() in the app constructor. Call
 	// no earlier than App::setup().
@@ -200,8 +196,6 @@ protected:
 	ds::EngineData&					mData;
 	std::list<Sprite *>				mDragDestinationSprites;
 	ds::ComputerInfo*				mComputerInfo;
-
-	std::list<std::unique_ptr<FboGeneral>> mFbos;
 
 	std::unordered_map<std::string, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)>> mImporterMap;
 	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>> mPropertyMap;
