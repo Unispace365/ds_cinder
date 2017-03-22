@@ -158,12 +158,17 @@ void					GStreamerWrapper::clearNewLoop(){
 	 m_newLoop = false;
 }
 
-bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, const int videoWidth, const int videoHeight, const bool hasAudioTrack){
+bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, 
+							const int videoWidth, const int videoHeight, const bool hasAudioTrack, const double secondsDuration){
 	if(!m_ValidInstall){
 		return false;
 	}
 
 	resetProperties();
+
+	if(secondsDuration > -1){
+		m_iDurationInNs = gint64(secondsDuration * 1000000 * 1000);
+	}
 
 	if( m_bFileIsOpen )	{
 		stop();
@@ -952,8 +957,8 @@ void GStreamerWrapper::setStartTime(uint64_t start_time){
 }
 
 bool GStreamerWrapper::seekFrame( gint64 iTargetTimeInNs ){
-
-	if (m_iDurationInNs < 0) {
+	std::cout << "seek frame: " << iTargetTimeInNs << " " << m_iDurationInNs << " " << m_CurrentGstState << " " << m_PendingSeek << std::endl;
+	if(m_iDurationInNs < 0 || m_CurrentGstState == STATE_NULL) {
 		m_PendingSeekTime = iTargetTimeInNs;
 		m_PendingSeek = true;
 		return false;
@@ -1421,7 +1426,7 @@ void GStreamerWrapper::newVideoSinkPrerollCallback(GstSample* videoSinkSample){
 	GstMapFlags flags = GST_MAP_READ;
 	gst_buffer_map(buff, &map, flags);
 
-	unsigned int videoBufferSize = map.size; 
+	size_t videoBufferSize = map.size; 
 
 	// sanity check on buffer size, in case something weird happened.
 	// In practice, this can fuck up the look of the video, but it plays and doesn't crash
@@ -1450,7 +1455,7 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 	gst_buffer_map(buff, &map, flags);
 
 
-	unsigned int videoBufferSize = map.size;
+	size_t videoBufferSize = map.size;
 
 	if(m_cVideoBufferSize != videoBufferSize){
 		delete[] m_cVideoBuffer;
