@@ -87,6 +87,9 @@ The Visual Studio project file needs to be updated to use precompiled headers
 
 * Doesn't copy or create the stdafx header or source file
 
+* I'm using git-bash, although cygwin/msys/Linux subsystem for windows should
+    all work correctly
+
 ```bash
 #!/usr/bin/bash
 sed -i "s/<\/PrecompiledHeader>//g" vs2013/*.vcxproj
