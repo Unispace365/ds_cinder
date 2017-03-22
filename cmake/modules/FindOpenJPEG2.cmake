@@ -1,48 +1,24 @@
-# From https://github.com/FabriceSalvaire/mupdf-cmake/blob/cmake/cmake/modules/FindOpenJPEG2.cmake
-####################################################################################################
+# - Try to find OpenJPEG2
+# Once done, this will define:
 #
-# - Find OPENJPEG2
-# Find the native OPENJPEG2 includes and library
-# This module defines
-#  OPENJPEG2_INCLUDE_DIR, where to find openjpeg.h.
-#  OPENJPEG2_LIBRARIES, the libraries needed to use OPENJPEG2.
-#  OPENJPEG2_FOUND, If false, do not try to use OPENJPEG2.
-# also defined, but not for general use are
-#  OPENJPEG2_LIBRARY, where to find the OPENJPEG2 library.
-#
-# Written by Fabrice Salvaire
-#
-####################################################################################################
+#  OPENJPEG2_FOUND - system has OpenJPEG2
+#  OPENJPEG2_INCLUDE_DIRS - the OpenJPEG2 include directories
+#  OPENJPEG2_LIBRARIES - link these to use OpenJPEG2
 
-# UseOPENJPEG.cmake ?
+include(LibFindMacros)
 
-# cf. FindPkgConfig: a pkg-config module for CMake
+# Use pkg-config to get hints about paths
+libfind_pkg_check_modules(OPENJPEG2_PKGCONF libopenjp2)
 
-# find_path(OPENJPEG2_INCLUDE_DIR openjpeg.h)
-exec_program("pkg-config"
-  ARGS "--cflags-only-I libopenjp2"
-  OUTPUT_VARIABLE OPENJPEG2_INCLUDE_DIR )
-string(REGEX REPLACE "^-I" "" OPENJPEG2_INCLUDE_DIR ${OPENJPEG2_INCLUDE_DIR})
+# Include dir
+find_path(OPENJPEG2_INCLUDE_DIR
+  NAMES openjpeg.h
+  HINTS ${OPENJPEG2_PKGCONF_INCLUDE_DIRS}
+)
 
-# set(OPENJPEG2_NAMES ${OPENJPEG2_NAMES} openjp2)
-# find_library(OPENJPEG2_LIBRARY NAMES ${OPENJPEG2_NAMES})
-exec_program("pkg-config"
-  ARGS "--libs libopenjp2"
-  OUTPUT_VARIABLE OPENJPEG2_LIBRARY)
+# Finally the library itself
+find_library(OPENJPEG2_LIBRARY
+  NAMES openjp2
+  PATHS ${OPENJPEG2_PKGCONF_LIBRARY_DIRS}
+)
 
-# handle the QUIETLY and REQUIRED arguments and set OPENJPEG2_FOUND to TRUE if
-# all listed variables are TRUE
-include(FindPackageHandleStandardArgs)
-FIND_PACKAGE_HANDLE_STANDARD_ARGS(OPENJPEG2 DEFAULT_MSG OPENJPEG2_LIBRARY OPENJPEG2_INCLUDE_DIR)
-
-if(OPENJPEG2_FOUND)
-  set(OPENJPEG2_LIBRARIES ${OPENJPEG2_LIBRARY})
-endif()
-
-mark_as_advanced(OPENJPEG2_LIBRARY OPENJPEG2_INCLUDE_DIR)
-
-####################################################################################################
-#
-# End
-#
-####################################################################################################

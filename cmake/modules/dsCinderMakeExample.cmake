@@ -9,8 +9,8 @@ function( ds_cinder_make_example )
 
 	cmake_parse_arguments( ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
-	if( NOT ARG_APP_NAME )
-		set( ARG_APP_NAME "${PROJECT_NAME}" )
+	if( NOT DS_CINDER_APP_TARGET )
+		set( DS_CINDER_APP_TARGET "${PROJECT_NAME}" )
 	endif()
 
 	if( ARG_UNPARSED_ARGUMENTS )
@@ -39,9 +39,9 @@ function( ds_cinder_make_example )
 		endif()
 	endif()
 
-	set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${ARG_APP_NAME} )
+	set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${DS_CINDER_APP_TARGET} )
 
-	ds_log_v( "APP_NAME: ${ARG_APP_NAME}" )
+	ds_log_v( "APP_NAME: ${DS_CINDER_APP_TARGET}" )
 	ds_log_v( "SOURCES: ${ARG_SOURCES}" )
 	ds_log_v( "INCLUDES: ${ARG_INCLUDES}" )
 	ds_log_v( "LIBRARIES: ${ARG_LIBRARIES}" )
@@ -130,20 +130,20 @@ function( ds_cinder_make_example )
 		endif()
 	endif()
 
-	add_executable( ${ARG_APP_NAME} MACOSX_BUNDLE WIN32 ${ARG_SOURCES} ${ICON_PATH} ${ARG_RESOURCES} )
+	add_executable( ${DS_CINDER_APP_TARGET} MACOSX_BUNDLE WIN32 ${ARG_SOURCES} ${ICON_PATH} ${ARG_RESOURCES} )
 
 	#get_directory_property(output INCLUDE_DIRECTORIES)
 	#message( STATUS "OMG : ${output}" )
-	#get_target_property(output ${ARG_APP_NAME} "INCLUDE_DIRECTORIES")
-	#get_property(output TARGET ${ARG_APP_NAME} PROPERTY "INCLUDE_DIRECTORIES" SET)
+	#get_target_property(output ${DS_CINDER_APP_TARGET} "INCLUDE_DIRECTORIES")
+	#get_property(output TARGET ${DS_CINDER_APP_TARGET} PROPERTY "INCLUDE_DIRECTORIES" SET)
 	#get_target_property(output ds-cinder-platform "INTERFACE_INCLUDE_DIRECTORIES")
 	#message( STATUS "OMG : ${output}" )
 
-	target_include_directories( ${ARG_APP_NAME} PUBLIC ${APP_PATH}/src )
-	target_include_directories( ${ARG_APP_NAME} PUBLIC ${ARG_INCLUDES} )
-	target_link_libraries( ${ARG_APP_NAME} cinder ds-cinder-platform ${ARG_LIBRARIES} )
+	target_include_directories( ${DS_CINDER_APP_TARGET} PUBLIC ${APP_PATH}/src )
+	target_include_directories( ${DS_CINDER_APP_TARGET} PUBLIC ${ARG_INCLUDES} )
+	target_link_libraries( ${DS_CINDER_APP_TARGET} cinder ds-cinder-platform ${ARG_LIBRARIES} )
 
-	get_target_property(output ${ARG_APP_NAME} "INTERFACE_INCLUDE_DIRECTORIES")
+	get_target_property(output ${DS_CINDER_APP_TARGET} "INTERFACE_INCLUDE_DIRECTORIES")
 	message( STATUS "OMG : ${output}" )
 
 
@@ -153,15 +153,16 @@ function( ds_cinder_make_example )
 		set( blockName "${block}" )
 		get_filename_component( blockModuleDir "${CINDER_PATH}/blocks/${block}/proj/cmake" ABSOLUTE )
 		find_package( ${blockName} PATHS ${blockModuleDir} NO_DEFAULT_PATH )
-		add_dependencies( ${ARG_APP_NAME} ${blockName} )
+		add_dependencies( ${DS_CINDER_APP_TARGET} ${blockName} )
 		#list( APPEND DS_CINDER_LIBS_DEPENDS ${blockName} )
-		target_link_libraries( ${ARG_APP_NAME} ${blockName} )
+		target_link_libraries( ${DS_CINDER_APP_TARGET} ${blockName} )
 	endforeach()
 
+	add_dependencies( ${DS_CINDER_APP_TARGET} ds-cinder-platform )
 
 	# Ignore Specific Default Libraries
 	if( MSVC )
-		set_target_properties( ${ARG_APP_NAME} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMT /NODEFAULTLIB:LIBCPMT" )
+		set_target_properties( ${DS_CINDER_APP_TARGET} PROPERTIES LINK_FLAGS "/NODEFAULTLIB:LIBCMT /NODEFAULTLIB:LIBCPMT" )
 	endif()
 
 	# DsCinder projects/ components
@@ -186,8 +187,8 @@ function( ds_cinder_make_example )
 			find_package( ${projectComponentName} PATHS ${projectComponentModuleDir} NO_DEFAULT_PATH )
 			# First check if a target was defined. If so then includes and extra libraries will automatically be added to the app target.
 			if( TARGET "${projectComponentName}" )
-				add_dependencies( ${ARG_APP_NAME} "${projectComponentName}" )
-				target_link_libraries( ${ARG_APP_NAME} "${projectComponentName}" )
+				add_dependencies( ${DS_CINDER_APP_TARGET} "${projectComponentName}" )
+				target_link_libraries( ${DS_CINDER_APP_TARGET} "${projectComponentName}" )
 			else()
 				# Otherwise, check for either includes for a header-only projectComponent or libraries that need to be linked.
 				# - sanity check to warn if someone passed in a projectComponent with unexpected cmake configuration
@@ -196,10 +197,10 @@ function( ds_cinder_make_example )
 				endif()
 
 				if( ${projectComponentName}_INCLUDES )
-					target_include_directories( ${ARG_APP_NAME} PUBLIC ${${projectComponentName}_INCLUDES} )
+					target_include_directories( ${DS_CINDER_APP_TARGET} PUBLIC ${${projectComponentName}_INCLUDES} )
 				endif()
 				if( ${projectComponentName}_LIBRARIES )
-					target_link_libraries( ${ARG_APP_NAME} ${${projectComponentName}_LIBRARIES} )
+					target_link_libraries( ${DS_CINDER_APP_TARGET} ${${projectComponentName}_LIBRARIES} )
 				endif()
 			endif()
 
@@ -209,16 +210,16 @@ function( ds_cinder_make_example )
 
 	if( CINDER_MAC )
 		# set bundle info.plist properties
-		set_target_properties( ${ARG_APP_NAME} PROPERTIES
-			MACOSX_BUNDLE_BUNDLE_NAME ${ARG_APP_NAME}
+		set_target_properties( ${DS_CINDER_APP_TARGET} PROPERTIES
+			MACOSX_BUNDLE_BUNDLE_NAME ${DS_CINDER_APP_TARGET}
 			MACOSX_BUNDLE_ICON_FILE ${ICON_NAME}
 		)
 	endif()
 
 	# Make building wai faster using Cotire
 	#include( cotire )
-	#set_target_properties( ${ARG_APP_NAME} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${ROOT_PATH}/src/stdafx.h" )
-	#cotire( ${ARG_APP_NAME} )
+	#set_target_properties( ${DS_CINDER_APP_TARGET} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${ROOT_PATH}/src/stdafx.h" )
+	#cotire( ${DS_CINDER_APP_TARGET} )
 
 endfunction()
 
