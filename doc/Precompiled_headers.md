@@ -82,7 +82,17 @@ The Visual Studio project file needs to be updated to use precompiled headers
 
 ### Scripted Version (WIP)
 
-* This works in git-bash to add stdafx.h to all non-generated .cpp file
+* Running this script from the root of a project will do all of the project
+    setup steps for using precompiled headers.
+
+* Doesn't copy or create the stdafx header or source file
+
 ```bash
+#!/usr/bin/bash
+sed -i "s/<\/PrecompiledHeader>//g" vs2013/*.vcxproj
+sed -i "s/<PrecompiledHeader>/<PrecompiledHeader>Use<\/PrecompiledHeader>\n<AdditionalOptions>\/Zm256 %(AdditionalOptions)<\/AdditionalOptions>/g" vs2013/*.vcxproj
+sed -i "0,/<ItemGroup>/s/<ItemGroup>/<ItemGroup>\n    <ClCompile Include=\"..\\\src\\\app\\\stdafx.cpp\">\n      <PrecompiledHeader>Create<\/PrecompiledHeader>\n    <\/ClCompile>/" vs2013/*.vcxproj
+sed -i "s/<ClInclude .*app_defs.h.*>/    <ClInclude Include=\"..\\\src\\\app\\\stdafx.h\" \/>\n    \0/" vs2013/*.vcxproj
+sed -i "s/\(<ClCompile .*generated.*cpp\"\) \/>/\1>\n      <PrecompiledHeader>NotUsing<\/PrecompiledHeader>\n    <\/ClCompile>/g" vs2013/*.vcxproj
 sed -i '1s/^/#include \"stdafx.h\"\n\n/' **/!(generated|stdafx)/*.cpp
 ```
