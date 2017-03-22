@@ -16,6 +16,12 @@
 #include <ds/debug/debug_defines.h>
 #include <cinder/app/App.h>
 
+// For getting X11 window handle from app window
+#ifndef _WIN32
+#include <glfw/glfw3.h>
+#include <glfw/glfw3native.h>
+#endif
+
 namespace ds{
 namespace web{
 
@@ -70,11 +76,22 @@ void WebApp::createBrowser(const std::string& url, void * instancePtr, std::func
 	// Specify CEF browser settings here.
 	CefBrowserSettings browser_settings;
 
+	// On Windows, ci::Window::getNative() returns a HWND, cast as void*.
+	// On Linux, ci::Window::getNative() returns a GLFWwindow*, cast as void*.
+	// On Windows, CefWindowHandle is typedef'ed as HWND
+	// On Linux CefWindowHandle is typedef'ed as unsigned long 
+	// In either case, this value will be 64-bit or 32-bit depending on target.
+	// On Windows, we can use the HWND directly, but on Linux, we need to get
+	// the X11 Window ID from the GLFWwindow.
+#ifdef _WIN32
+	CefWindowHandle window = (CefWindowHandle)ci::app::getWindow()->getNative();
+#else
+	CefWindowHandle window = (CefWindowHandle)::glfwGetX11Window( (GLFWwindow*)ci::app::getWindow()->getNative() );
+#endif
+
 	// Information used when creating the native window.
 	CefWindowInfo window_info;
-	CefWindowHandle window = (CefWindowHandle)ci::app::getWindow()->getNative();
 	window_info.SetAsWindowless(window, isTransparent);
-
 
 	if(mHandler){
 		mHandler->addCreatedCallback(instancePtr, createdCallback);
