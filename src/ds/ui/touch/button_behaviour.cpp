@@ -155,18 +155,6 @@ bool ButtonBehaviour::ownerContains(const ci::vec3& point) const {
 	else
 		return mOwner.getEngine().getHit( point ) == &mOwner;
 	return false;
-#if 0
-	const float		PAD = 5.0f;
-	// If I'm set to scale, I need to deal with the fact that when I release,
-	// if the touch is near the edge, the button might be scaled so that the
-	// touch is out of bounds.
-	// Ideally, the visual representation is separated from the touch area.
-	if (mIsSetToScale) {
-		ds::ui::Sprite::LockScale	lock(mOwner, ci::vec3(1.0f, 1.0f, 1.0f));
-		return mOwner.contains(point, PAD);
-	}
-	return mOwner.contains(point, PAD);
-#endif
 }
 
 } // namespace ds

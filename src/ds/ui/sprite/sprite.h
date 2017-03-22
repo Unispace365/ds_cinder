@@ -574,27 +574,9 @@ namespace ui {
 		BlendMode				getBlendMode() const;
 
 		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
-		// this is only suitable for shaders without uniforms.
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
 
-		//associate shader in a file to sprite (multi-pass)
-		void					setShaderList(const std::vector<std::pair<std::string, std::string>>, bool applyToChildren = false);
-		void					addNewShader(const std::pair<std::string, std::string>, bool addToFront = false, bool applyToChildren = false);
-		void					addNewShader(const std::string location, const std::string shaderName, bool addToFront = false, bool applyToChildren = false);
-		//Associate shader in memory to sprite.
-		void					addNewMemoryShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
-		bool					removeShader(std::string shaderName);
-		void					removeShaders();
-
-
-		//Add a new shader located in memory
-		//vert - the reference to the in-memory vertex shader
-		//frag - reference to the in-memory fragment shader
-		//shaderName - lookup name for shader
-		//addToFront - When true, this puts the shader first in line to be run
-		void				    addNewShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
 		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
-		ci::gl::TextureRef		getShaderOutputTexture();
 		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
 		void					setShaderExtraData(const ci::vec4& data);
 
@@ -606,12 +588,6 @@ namespace ui {
 		//Retrieve the rendered output texture
 		ci::gl::TextureRef		getFinalOutTexture();
 		void					setupFinalRenderBuffer();
-		void					setupIntermediateFrameBuffers();
-
-
-		//Retrieve a shader based on the name - used with multipass shader setup.
-		ds::ui::SpriteShader*	getShaderFromListName(std::string name) const;
-		int						getShaderNumber(std::string name) const;
 
 		bool					isShaderName(std::string name) const;
 
@@ -715,7 +691,6 @@ namespace ui {
 		void				buildTransform() const;
 		void				buildGlobalTransform() const;
 		virtual void		drawLocalClient();
-		virtual void		drawLocalClientPost() {}
 		virtual void		drawLocalServer();
 		bool				hasDoubleTap() const;
 		bool				hasTap() const;
@@ -782,10 +757,10 @@ namespace ui {
 		void				setUseShaderTexture(bool flag);
 		
 
-		void					sendSpriteToFront(Sprite &sprite);
-		void					sendSpriteToBack(Sprite &sprite);
+		void				sendSpriteToFront(Sprite &sprite);
+		void				sendSpriteToBack(Sprite &sprite);
 
-		void					setPerspective(const bool);
+		void				setPerspective(const bool);
 
 		mutable bool			mBoundsNeedChecking;
 		mutable bool			mInBounds;
@@ -816,26 +791,18 @@ namespace ui {
 		ci::Rectf				mClippingBounds;
 		bool					mClippingBoundsDirty;
 
-		bool						mNeedsBatchUpdate;
-		ci::gl::BatchRef			mRenderBatch;
-		SpriteShader				mSpriteShader;
+		bool					mNeedsBatchUpdate;
+		ci::gl::BatchRef		mRenderBatch;
+		SpriteShader			mSpriteShader;
 
-		std::vector<SpriteShader*>	mSpriteShaders;
-		//indicates which shader in the shader list is being drawn.
-		size_t						mShaderPass;
-		size_t						mShaderPasses;
-		ci::gl::FboRef				mFrameBufferOne;
-		ci::gl::FboRef				mFrameBufferTwo;
-		ci::gl::TextureRef			mShaderTexture;
-		ci::gl::FboRef				mOutputFbo;
-		bool						mIsRenderFinalToTexture;
+		ci::gl::TextureRef		mShaderTexture;
+		ci::gl::FboRef			mOutputFbo;
+		bool					mIsRenderFinalToTexture;
 
-		//Keeps track of which FBO is being rendered to for multi-pass rendering
-		int							mFboIndex;
-		ci::vec4					mShaderExtraData;
+		ci::vec4				mShaderExtraData;
 
-		mutable ci::mat4			mGlobalTransform;
-		mutable ci::mat4			mInverseGlobalTransform;
+		mutable ci::mat4		mGlobalTransform;
+		mutable ci::mat4		mInverseGlobalTransform;
 
 		ds::UserData			mUserData;
 
@@ -844,8 +811,6 @@ namespace ui {
 		// A cache for when I need to sort my children. This could be
 		// a lot more efficient, only running the sort when Z changes.
 		std::vector<Sprite*>	mSortedTmp;
-
-		bool					mHasDrawLocalClientPost;
 
 		// Class-unique key for this type.  Subclasses can replace.
 		char					mBlobType;
@@ -879,7 +844,6 @@ namespace ui {
 		ds::gl::Uniform		mUniform;
 
 		std::map < std::string, ds::gl::Uniform>	mUniforms;
-		bool				mIsLastPass;
 
 	private:
 		// Utility to reorder the sprites
@@ -934,20 +898,8 @@ namespace ui {
 
 		// For debugging, and in a super-duper pinch, in production. 
 		std::wstring		mSpriteName;
+
 	public:
-		// This is a bit of a hack so I can temporarily set a scale value
-		// without causing the whole editing mechanism to kick in.
-		// Upon destruction, this class restores the scale.
-		class LockScale {
-		public:
-			LockScale(Sprite&, const ci::vec3& temporaryScale);
-			~LockScale();
-
-		private:
-			Sprite&			mSprite;
-			const ci::vec3	mScale;
-		};
-
 #ifdef _DEBUG
 		// Debugging aids to write out my state. write() calls writeState
 		// on me and all my children.
@@ -955,7 +907,6 @@ namespace ui {
 		virtual void		writeState(std::ostream&, const size_t tab) const;
 #endif
 
-	public:
 		static void			installAsServer(ds::BlobRegistry&);
 		static void			installAsClient(ds::BlobRegistry&);
 

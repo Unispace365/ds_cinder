@@ -80,14 +80,7 @@ SpriteShader::SpriteShader(const std::string& vert_memory, const std::string& fr
 	, mName(shaderName)
 	, mShader(nullptr)
 {
-
 }
-
-SpriteShader::~SpriteShader()
-{
-
-}
-
 
 void SpriteShader::setShaders(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName){
 	if(mShader) {
@@ -97,9 +90,7 @@ void SpriteShader::setShaders(const std::string& vert_memory, const std::string&
 	mMemoryVert = vert_memory;
 	mMemoryFrag = frag_memory;
 	mName = shaderName;
-
 }
-
 
 void SpriteShader::setShaders(const std::string &location, const std::string &name){
 	if(name.empty()) {
@@ -111,14 +102,16 @@ void SpriteShader::setShaders(const std::string &location, const std::string &na
 		return;
 	}
 
-	if(mShader)
+	if(mShader){
 		mShader.reset();
+	}
 
 	mLocation = location;
 	mName = name;
 }
 
 void SpriteShader::loadShaders() {
+	if(mShader) return;
 	if(!mShader) loadShadersFromFile();
 	if(!mShader) loadFromMemory();
 	if(!mShader) loadDefaultFromFile();
