@@ -702,6 +702,9 @@
     <ClInclude Include="..\src\tuio\TuioProfileBase.h">
       <Filter>src\tuio</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\date_util.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1177,6 +1180,9 @@
     </ClCompile>
     <ClCompile Include="..\src\tuio\TuioClient.cpp">
       <Filter>src\tuio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\date_util.cpp">
+      <Filter>src\ds\util</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

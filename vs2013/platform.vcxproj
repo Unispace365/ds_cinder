@@ -110,6 +110,7 @@
     <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h" />
     <ClInclude Include="..\src\ds\query\sql_database.h" />
     <ClInclude Include="..\src\ds\query\sql_query_result_builder.h" />
+    <ClInclude Include="..\src\ds\util\date_util.h" />
     <ClInclude Include="..\src\osc\ip\IpEndpointName.h" />
     <ClInclude Include="..\src\osc\ip\NetworkingUtils.h" />
     <ClInclude Include="..\src\osc\ip\PacketListener.h" />
@@ -309,6 +310,7 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\query\sql_database.cpp" />
     <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp" />
+    <ClCompile Include="..\src\ds\util\date_util.cpp" />
     <ClCompile Include="..\src\osc\ip\IpEndpointName.cpp" />
     <ClCompile Include="..\src\osc\ip\win32\NetworkingUtils.cpp" />
     <ClCompile Include="..\src\osc\ip\win32\UdpSocket.cpp" />

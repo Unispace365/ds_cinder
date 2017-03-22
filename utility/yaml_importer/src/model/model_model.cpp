@@ -146,6 +146,8 @@ ModelColumn::Type ModelColumn::getTypeForString(const std::string& typeString){
 		return ModelColumn::String;
 	} else if(typeString.find("custom") != std::string::npos){
 		return ModelColumn::Custom;
+	} else if (typeString.find("date") != std::string::npos){
+		return ModelColumn::Date;
 	}
 
 	return Invalid;

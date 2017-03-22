@@ -1,0 +1,4 @@
+<settings>
+	<!-- Link together a font name and a font file -->
+	<text name="noto-regular" value="%APP%/data/fonts/NotoSans-Regular.ttf" />
+</settings>
