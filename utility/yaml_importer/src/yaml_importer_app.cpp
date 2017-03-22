@@ -34,7 +34,13 @@ private:
 
 
 YamlImporterApp::YamlImporterApp(){
-	mEngine.editFonts().install("Noto Sans Regular", "noto-regular");
+	// Fonts links together a font name and a physical font file
+	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
+	mEngine.loadSettings("FONTS", "fonts.xml");
+	mEngine.editFonts().clear();
+	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
+		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+	});
 }
 
 void YamlImporterApp::setupServer()
