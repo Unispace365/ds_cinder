@@ -7,7 +7,7 @@
 #ifdef CINDER_MSW
 #define _WIN32_DCOM
 #include <iostream>
-using namespace std;
+//using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
 

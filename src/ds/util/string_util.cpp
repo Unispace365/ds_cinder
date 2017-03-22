@@ -6,7 +6,7 @@
 #include <fstream>
 #include <codecvt>
 
-using namespace std;
+//using namespace std;
 using namespace ds;
 
 /* WIN32
@@ -18,7 +18,7 @@ using namespace ds;
 
 std::wstring wstr_from_str(const std::string& str, const UINT cp)
 {
-	if (str.empty()) return wstring();
+	if (str.empty()) return std::wstring();
 
 	const int len = MultiByteToWideChar(cp, 0, str.c_str(), static_cast<int>(str.length()), 0, 0);
 	if (!len) throw conversion_error();
@@ -36,7 +36,7 @@ std::wstring wstr_from_str(const std::string& str, const UINT cp)
 
 std::string str_from_wstr(const std::wstring& wstr, const UINT cp)
 {
-	if (wstr.empty()) return string();
+	if (wstr.empty()) return std::string();
 
 	const int len = WideCharToMultiByte(cp, 0, wstr.c_str(), static_cast<int>(wstr.length()), 0, 0, 0, 0);
 	if (!len) throw conversion_error();

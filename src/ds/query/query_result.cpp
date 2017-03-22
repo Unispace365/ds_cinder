@@ -9,11 +9,11 @@
 #include <ds/util/string_util.h>
 #include <Poco/DateTimeParser.h>
 
-using namespace std;
+//using namespace std;
 
 namespace {
-const string				RESULT_EMPTY_STR("");
-const wstring				RESULT_EMPTY_WSTR(L"");
+const std::string				RESULT_EMPTY_STR("");
+const std::wstring				RESULT_EMPTY_WSTR(L"");
 }
 
 #ifndef WIN32
@@ -96,7 +96,7 @@ bool Result::matches(const int* curType, ...) const
 	if (idx != mCol.size()) {
 		ans = false;
 #ifdef _DEBUG
-		cout << "dbg QueryResult::matches() failed my size=" << mCol.size() << " idx=" << idx << endl;
+		std::cout << "dbg QueryResult::matches() failed my size=" << mCol.size() << " idx=" << idx << std::endl;
 #endif
 	}
 	return ans;
@@ -388,24 +388,24 @@ const Poco::DateTime Result::RowIterator::getDateTime(const int columnIndex) con
 
 #ifdef _DEBUG
 void Result::print() const {
-	cout << "QueryResult columnSize=" << mCol.size() << " rows=" << mRow.size() << endl;
+	std::cout << "QueryResult columnSize=" << mCol.size() << " rows=" << mRow.size() << std::endl;
 	if (mCol.size() > 0) {
-		cout << "\tcols ";
+		std::cout << "\tcols ";
 		for (auto it=mCol.begin(), end=mCol.end(); it!=end; ++it) {
 			const int	col(*it);
-			if (col == QUERY_NUMERIC) cout << "NUMERIC ";
-			else if (col == QUERY_STRING) cout << "STRING ";
-			else cout << "? ";
+			if(col == QUERY_NUMERIC) std::cout << "NUMERIC ";
+			else if(col == QUERY_STRING) std::cout << "STRING ";
+			else std::cout << "? ";
 		}
-		cout << endl;
+		std::cout << std::endl;
 	}
 
 	RowIterator				it(getRows());
 	while (it.hasValue()) {
 		for (int k=0; k<static_cast<int>(mCol.size()); ++k) {
 			const int		col = mCol[k];
-			if (col == QUERY_NUMERIC)		cout << "\t" << k << " = " << it.getFloat(k) << endl;
-			else if (col == QUERY_STRING)	cout << "\t" << k << " = " << it.getString(k) << endl;
+			if(col == QUERY_NUMERIC)		std::cout << "\t" << k << " = " << it.getFloat(k) << std::endl;
+			else if(col == QUERY_STRING)	std::cout << "\t" << k << " = " << it.getString(k) << std::endl;
 		}
 		++it;
 	}

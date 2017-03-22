@@ -7,9 +7,9 @@
 #include "ds/thread/work_client.h"
 
 using namespace ds;
-using namespace std;
+//using namespace std;
 
-static const string					WORK_THREAD_NAME("ds_work");
+static const std::string					WORK_THREAD_NAME("ds_work");
 
 /**
  * \class ds::WorkManager
