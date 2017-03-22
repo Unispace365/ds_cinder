@@ -1,11 +1,12 @@
 #include "globeexample_app.h"
 
+#include <cinder/app/RendererGl.h>
+
 #include <Poco/String.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 
-#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -18,10 +19,10 @@ GlobeExample::GlobeExample()
 	: inherited(ds::RootList()
 								.persp() // sample perp view
 								.perspFov(30.0f)
-								.perspPosition(ci::vec3(0.0, 0.0f, 2080.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 1000.0f))
 								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
-								.perspNear(1000.0f)
-								.perspFar(2500.0f)
+								.perspNear(10.0f)
+								.perspFar(4500.0f)
 )
 	, mGlobals(mEngine)
 {
