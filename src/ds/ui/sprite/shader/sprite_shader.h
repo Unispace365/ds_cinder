@@ -13,7 +13,6 @@ public:
 	SpriteShader(const std::string &defaultLocation, const std::string &defaultName);
 	SpriteShader(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName);
 
-	virtual ~SpriteShader();
 	void setShaders(const std::string &location, const std::string &name);
 	void setShaders(const std::string &vert_memory, const std::string &frag_memory, std::string &shaderName);
 	void loadShaders();

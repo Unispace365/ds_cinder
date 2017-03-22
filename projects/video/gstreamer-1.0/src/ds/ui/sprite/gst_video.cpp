@@ -652,7 +652,6 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		return;
 	}
 
-	removeShaders();
 	setBaseShader(Environment::getAppFolder("data/shaders"), "base");
 
 	mDrawable = false;
