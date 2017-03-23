@@ -52,3 +52,13 @@ function(print_target_properties tgt)
 		endif()
 	endforeach(prop)
 endfunction(print_target_properties)
+
+
+# Make a symlink post-build
+macro( MAKE_SYMLINK_POST_BUILD target src dest )
+	add_custom_command( TARGET ${target} POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E create_symlink ${dest} ${src}
+		DEPENDS ${dest}
+		COMMENT "mklink ${src} -> ${dest}" )
+endmacro()
+

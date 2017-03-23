@@ -44,6 +44,13 @@ if( NOT TARGET essentials )
 
 	add_library( essentials ${ESSENTIALS_SRC_FILES} )
 
+	# Place compiled library in project's lib directory
+	set_target_properties ( essentials PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../lib )
+	# Add "_d" to library name for debug builds
+	if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+		set_target_properties ( essentials PROPERTIES OUTPUT_NAME "essentials_d" )
+	endif()
+
 	target_include_directories( essentials PUBLIC "${ESSENTIALS_SRC_PATH}" )
 	target_include_directories( essentials SYSTEM BEFORE PUBLIC "${DS_CINDER_PATH}/src" )
 
