@@ -44,49 +44,6 @@ include( ${DS_CINDER_CMAKE_DIR}/libds-cinder-platform_target.cmake )
 
 # 6. Build Examples?
 
+
+
 # 7. Build Tests?
-
-## Enable Warnings
-#set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" )
-## Disable a ton of Cinder initialization order warning
-#set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder" )
-## Enable C++14
-#set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++14")
-##SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=gnu++11")
-
-# Setup include directories
-#set( INC_DIRS
-#${ROOT_PATH}/src
-#${ROOT_PATH}/lib/poco/include
-#${CINDER_PATH}/include
-#)
-#include_directories( ${INC_DIRS} )
-
-# Cinder Blocks
-##include ( cinderBlocks ) 
-##load_cinder_blocks( BLOCKS TUIO CINDER_PATH ${CINDER_PATH} )
-#include_directories( ${CINDER_PATH}/blocks/TUIO/src/cinder )
-#include_directories( ${CINDER_PATH}/blocks/OSC/src )
-
-# Libs
-
-# Pango
-#find_package(Pango REQUIRED)
-#include_directories(${Pango_1_0_INCLUDE_DIR})
-#target_link_libraries (ds-cinder-platform ${BZIP_INCLUDE_DIRS})
-
-# Glib
-#find_package(Glib REQUIRED)
-#include_directories(${Glib_INCLUDE_DIRS})
-
-# Cairo
-#find_package(Cairo REQUIRED)
-#include_directories(${CAIRO_INCLUDE_DIRS})
-
-#add_library( ${PROJECT_NAME}    ${SRC_FILES} )
-
-# Make building wai faster using Cotire
-#include(cotire)
-#set_target_properties( ds-cinder-platform PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${ROOT_PATH}/src/stdafx.h" )
-#cotire(ds-cinder-platform)
-
