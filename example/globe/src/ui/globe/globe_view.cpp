@@ -65,7 +65,7 @@ GlobeView::GlobeView(Globals& g)
 void GlobeView::updateServer(const ds::UpdateParams& updateParams){
 	ds::ui::Sprite::updateServer(updateParams);
 
-	setRotation(ci::vec3(getRotation().x + mXMomentum.getDelta(), getRotation().y + 0.1f + mYMomentum.getDelta(), 0.0f));
+	setRotation(ci::vec3(getRotation().x + mXMomentum.getDelta(), getRotation().y + 5.0f * updateParams.getDeltaTime() + mYMomentum.getDelta(), 0.0f));
 	mTouchGrabber.setRotation(-getRotation());
 }
 
