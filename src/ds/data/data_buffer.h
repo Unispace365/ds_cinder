@@ -29,16 +29,13 @@ public:
 
 	// will write size when writing data.
 	void add(const char *b, size_t size);
-
+	void add(const char *cs);
+	void add(const wchar_t *cs);
 	template <typename T>
 	void add(const T &t);
 
-	void add(const char *cs);
-	void add(const wchar_t *cs);
-
 	// will read size from buffer and only read if size is available.
 	bool read(char *b, size_t size);
-
 	template <typename T>
 	T read();
 
