@@ -60,7 +60,6 @@ static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 }
 
 namespace {
-std::string				APP_PATH;
 std::string				APP_DATA_PATH;
 
 //#ifdef _DEBUG
@@ -263,10 +262,6 @@ void App::tuioObjectMoved(const ds::TuioObject&) {
 void App::tuioObjectEnded(const ds::TuioObject&) {
 }
 
-const std::string& App::envAppPath() {
-	return APP_PATH;
-}
-
 const std::string& App::envAppDataPath() {
 	return APP_DATA_PATH;
 }
@@ -412,9 +407,9 @@ static std::string app_folder_from(const Poco::Path& path) {
 }
 
 ds::App::Initializer::Initializer(const std::string& appPath) {
-	APP_PATH = appPath;
-
-	Poco::Path      p(appPath);
+	// appPath could contain a trailing slash (Windows), or not (Linux).
+	// We need to parse it as a directory in either case
+	Poco::Path      p = Poco::Path::forDirectory(appPath);
 	std::string     ans;
 	// A couple things limit the search -- the directory can't get too
 	// short, and right now nothing is more then 3 steps from the appPath
