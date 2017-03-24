@@ -2,6 +2,7 @@
 
 list( APPEND DS_CINDER_SRC_FILES
 	#${ROOT_PATH}/src/stdafx.cpp
+	${ROOT_PATH}/src/ds/util/date_util.cpp
 	${ROOT_PATH}/src/ds/util/image_meta_data.cpp		# Need <intrin.h>
 	${ROOT_PATH}/src/ds/util/file_meta_data.cpp
 	${ROOT_PATH}/src/ds/util/color_util.cpp				# sprintf_s (windows)
@@ -21,6 +22,7 @@ list( APPEND DS_CINDER_SRC_FILES
 	${ROOT_PATH}/src/ds/gl/uniform.cpp
 	${ROOT_PATH}/src/ds/network/http_client.cpp		# error: invalid initialization of non-const reference of type ‘std::unique_ptr<ds::WorkRequest>&’ from an rvalue of type ‘std::unique_ptr<ds::WorkRequest>’
 	${ROOT_PATH}/src/ds/network/node_watcher.cpp
+	${ROOT_PATH}/src/ds/network/packet_chunker.cpp
 	${ROOT_PATH}/src/ds/network/tcp_client.cpp
 	${ROOT_PATH}/src/ds/network/tcp_server.cpp
 	${ROOT_PATH}/src/ds/network/tcp_socket_sender.cpp
@@ -105,8 +107,6 @@ list( APPEND DS_CINDER_SRC_FILES
 	${ROOT_PATH}/src/ds/ui/sprite/image_with_thumbnail.cpp
 	${ROOT_PATH}/src/ds/ui/sprite/circle_border.cpp
 	${ROOT_PATH}/src/ds/ui/sprite/text_defs.cpp
-	${ROOT_PATH}/src/ds/ui/sprite/fbo/auto_fbo.cpp
-	${ROOT_PATH}/src/ds/ui/sprite/fbo/fbo.cpp
 	${ROOT_PATH}/src/ds/ui/ip/functions/ip_circle_mask.cpp
 	${ROOT_PATH}/src/ds/ui/ip/ip_function.cpp
 	${ROOT_PATH}/src/ds/ui/ip/ip_defs.cpp

@@ -30,6 +30,12 @@ if( NOT TARGET pdf )
 	target_include_directories( pdf SYSTEM BEFORE PRIVATE ${Freetype_INCLUDE_DIRS} )
 	target_link_libraries( pdf PRIVATE ${Freetype_LIBRARIES} )
 
+	# HarfBuzz
+	find_package( HarfBuzz REQUIRED )
+	target_include_directories( pdf SYSTEM BEFORE PRIVATE ${HARFBUZZ_INCLUDE_DIRS} )
+	target_link_libraries( pdf PRIVATE ${HARFBUZZ_LIBRARIES} )
+
+
 	# pull in ds_cinder's exported configuration
 	if( NOT TARGET ds-cinder-platform )
 		include( "${DS_CINDER_PATH}/cmake/configure.cmake" )
