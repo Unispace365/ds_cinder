@@ -64,21 +64,23 @@ if( NOT TARGET web )
 	# TODO: Make this smarter:
 	#	* What to do if symlink src already exists?
 	#   * Debug/Release CEF binaries?
-	# 	* Symlink to cef binary support files, instead of copy
 	#	* Convert symlinks to actual files upon "install"?
 
-	# Copy CEF binaries and Resources to executable directory
-	COPY_FILES(${DS_CINDER_APP_TARGET} "${CEF_BINARY_FILES}" "${CEF_BINARY_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
-	COPY_FILES(${DS_CINDER_APP_TARGET} "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
+	# Copy (links to) CEF binaries and Resources to executable directory
+	add_custom_command( TARGET ${DS_CINDER_APP_TARGET} POST_BUILD
+		#COMMAND #file( MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
+		COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef"
+		COMMENT "... Creating cef/ directory in target output directory"
+	)
+	MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_BINARY_FILES}"   "${CEF_BINARY_DIR}"   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
+	MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
 
-	# Make symlinks to the files
-	file( GLOB CEF_SUPPORT_FILES "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef/*" )
-	foreach( CEF_SUPPORT_FILE ${CEF_SUPPORT_FILES} )
-		get_filename_component( CEF_SUPPORT_FILE_BASENAME ${CEF_SUPPORT_FILE} NAME )
-		set( source_name "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${CEF_SUPPORT_FILE_BASENAME}" )
-		set( target_name "cef/${CEF_SUPPORT_FILE_BASENAME}" )
-		MAKE_SYMLINK_POST_BUILD( ${DS_CINDER_APP_TARGET} ${source_name} ${target_name} )
-	endforeach()
+	MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_BINARY_FILES}"   "cef" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
+	MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_RESOURCE_FILES}" "cef" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
+
+	# Copy in (link to) the cefsimple program, custom-compiled for Linux
+	COPY_FILES(${DS_CINDER_APP_TARGET} "cefsimple" "${CMAKE_CURRENT_LIST_DIR}/../cef/lib_linux64/runtime/" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
+	MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "cefsimple" "cef" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
 
 	# GLFW required to get access to window handle
 	find_package( GLFW3 REQUIRED )

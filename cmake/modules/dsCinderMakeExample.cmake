@@ -4,7 +4,7 @@ include( CMakeParseArguments )
 #set(CMAKE_DEBUG_TARGET_PROPERTIES INCLUDE_DIRECTORIES)
 
 function( ds_cinder_make_example )
-	set( oneValueArgs APP_NAME DS_CINDER_PATH )
+	set( oneValueArgs APP_PATH DS_CINDER_PATH )
 	set( multiValueArgs SOURCES INCLUDES LIBRARIES RESOURCES PROJECT_COMPONENTS )
 
 	cmake_parse_arguments( ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
@@ -22,26 +22,11 @@ function( ds_cinder_make_example )
 	# ALSO: include CINDER configure.cmake...
 	include( "${CINDER_PATH}/proj/cmake/configure.cmake" )
 
-	if( "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" STREQUAL "" )
-		if( DEFINED ENV{CLION_IDE} )
-			# By default, CLion places its binary outputs in a global cache location, where assets can't be found in the current
-			# folder heirarchy. So we override that, unless the user has specified a custom binary output dir (then they're on their own).
-			set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build/${CMAKE_BUILD_TYPE} )
-			# message( WARNING "CLion detected, set CMAKE_RUNTIME_OUTPUT_DIRECTORY to: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
-		else()
-            if( ( "${CMAKE_GENERATOR}" MATCHES "Visual Studio.+" ) OR ( "Xcode" STREQUAL "${CMAKE_GENERATOR}" ) )
-			    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR} )
-            else()
-			    # Append the build type to the output dir
-			    set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${CMAKE_BUILD_TYPE} )
-            endif()
-			message( STATUS "set CMAKE_RUNTIME_OUTPUT_DIRECTORY to: ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
-		endif()
-	endif()
-
-	set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/${DS_CINDER_APP_TARGET} )
+	# Place executable in app's bin directory
+	set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ARG_APP_PATH}/bin )
 
 	ds_log_v( "APP_NAME: ${DS_CINDER_APP_TARGET}" )
+	ds_log_v( "APP_PATH: ${ARG_APP_PATH}" )
 	ds_log_v( "SOURCES: ${ARG_SOURCES}" )
 	ds_log_v( "INCLUDES: ${ARG_INCLUDES}" )
 	ds_log_v( "LIBRARIES: ${ARG_LIBRARIES}" )
@@ -132,20 +117,14 @@ function( ds_cinder_make_example )
 
 	add_executable( ${DS_CINDER_APP_TARGET} MACOSX_BUNDLE WIN32 ${ARG_SOURCES} ${ICON_PATH} ${ARG_RESOURCES} )
 
-	#get_directory_property(output INCLUDE_DIRECTORIES)
-	#message( STATUS "OMG : ${output}" )
-	#get_target_property(output ${DS_CINDER_APP_TARGET} "INCLUDE_DIRECTORIES")
-	#get_property(output TARGET ${DS_CINDER_APP_TARGET} PROPERTY "INCLUDE_DIRECTORIES" SET)
-	#get_target_property(output ds-cinder-platform "INTERFACE_INCLUDE_DIRECTORIES")
-	#message( STATUS "OMG : ${output}" )
+	# Add "_debug" to Debug build executable name
+	if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
+		set_target_properties ( ${DS_CINDER_APP_TARGET} PROPERTIES OUTPUT_NAME "${DS_CINDER_APP_TARGET}_debug" )
+	endif()
 
 	target_include_directories( ${DS_CINDER_APP_TARGET} PUBLIC ${APP_PATH}/src )
 	target_include_directories( ${DS_CINDER_APP_TARGET} PUBLIC ${ARG_INCLUDES} )
 	target_link_libraries( ${DS_CINDER_APP_TARGET} cinder ds-cinder-platform ${ARG_LIBRARIES} )
-
-	get_target_property(output ${DS_CINDER_APP_TARGET} "INTERFACE_INCLUDE_DIRECTORIES")
-	message( STATUS "OMG : ${output}" )
-
 
 	# Cinder Blocks (TODO: make this smarter?)
 	list( APPEND CINDER_BLOCKS OSC TUIO )
@@ -167,6 +146,9 @@ function( ds_cinder_make_example )
 
 	# DsCinder projects/ components
 	foreach( projectComponent ${ARG_PROJECT_COMPONENTS} )
+		message( "\n----------------------------------------------------" )
+		message(   "  Configuring DsCinder sub-project: ${projectComponent}" )
+		message(   "----------------------------------------------------" )
 		get_filename_component( projectComponentModuleDir "${DS_CINDER_PATH}/projects/${projectComponent}/cmake" ABSOLUTE )
 		set( projectComponentName "" )
 		ds_log_i( "projectComponentModuleDir: ${projectComponentModuleDir}" )

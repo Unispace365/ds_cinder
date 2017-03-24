@@ -156,8 +156,8 @@ void WebCefService::start() {
 		settings.windowless_rendering_enabled = true;
 
 		// Setup paths
-		// This requires cefsimple executable to be in the subdirectory cef/ in the current working directory
-		auto cef_dir = ds::Environment::expand("%APP%");
+		// This requires cefsimple executable to be in same directory as the app executable.
+		auto cef_dir = ci::app::Platform::get()->getExecutablePath().generic_string();
 		//DS_LOG_INFO( "CEF Directory: " << cef_dir );
 		CefString(&settings.resources_dir_path)		.FromString(cef_dir);
 		CefString(&settings.locales_dir_path)		.FromString(cef_dir + "/locales");
