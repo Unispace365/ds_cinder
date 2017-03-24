@@ -15,9 +15,7 @@ public:
 	BadIpException(const std::string &ip){
 		mMsg = ip + " is outside of the Multicast range. Please choose an address between 224.0.0.0 and 239.255.255.255.";
 	}
-	const char *what() const throw()
-
-	const char *what() const {
+	const char *what() const throw() {
 		return mMsg.c_str();
 	}
 
