@@ -67,19 +67,7 @@ void media_tester::keyDown(ci::app::KeyEvent event){
 
 	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown() && ci::Clipboard::hasString()){
 		loadMedia(ci::Clipboard::getString());
-		
-	} else if (event.getChar() == KeyEvent::KEY_1){
-		if (mIsVideo && !mMedia->removeShader("test1")) {
-			mMedia->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
-		}
-	} else if (event.getChar() == KeyEvent::KEY_2){
-		if (mIsVideo && !mMedia->removeShader("test2")) {
-			mMedia->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
-		}
-	} else if (event.getChar() == KeyEvent::KEY_3){
-		if (mIsVideo && !mMedia->removeShader("toonify")) {
-			mMedia->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
-		}
+
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
 		if (mIsVideo && mMedia){
 			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(-1.0f);

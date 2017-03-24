@@ -14,18 +14,23 @@ class Globals;
 /**
 * \class GlobeView - where the magic happens (TM).
 */
-class GlobeView final : public ds::ui::Sprite  {
+class GlobeView : public ds::ui::Sprite  {
 public:
 
 	GlobeView(Globals& g);
 
 private:
 	Globals&			mGlobals; 
-	ds::ui::Mesh&		mGlobeMesh;
 	ds::ui::Sprite&		mTouchGrabber;
-	ds::ui::Sprite*		mGlow;
 
-	virtual void		drawClient(const ci::mat4 &trans, const ds::DrawParams &drawParams);
+	ci::gl::Texture2dRef mTexDiffuse;
+	ci::gl::Texture2dRef mTexNormal;
+	ci::gl::Texture2dRef mTexMask;
+
+	virtual void		updateServer(const ds::UpdateParams& updateParams);
+	virtual void		drawLocalClient();
+
+	ci::gl::BatchRef	mEarth;
 
 	DelayedMomentum		mXMomentum;
 	DelayedMomentum		mYMomentum;

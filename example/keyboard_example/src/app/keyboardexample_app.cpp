@@ -1,14 +1,12 @@
 #include "keyboardexample_app.h"
 
-#include <Poco/String.h>
+
+#include <cinder/Rand.h> 
+
 #include <ds/app/environment.h>
-#include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 
 #include <ds/ui/media/media_viewer.h>
-
-#include <cinder/Rand.h> 
-#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
