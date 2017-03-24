@@ -44,6 +44,8 @@ public:
 	FiveFingerCluster(float secondsToTrigger = 2.0f, int minTouches = 5, float boundingBoxSize = 200.0f);
 	~FiveFingerCluster();
 
+	const std::vector<Cluster>&		getClusters() const { return mClusters; };
+
 	// How far a touch can be away from any other touch to be counted as part of it's cluster.
 	void							setMinClusterSeparation(const float minSeparation){ mMinClusterSeparation = minSeparation; }
 
