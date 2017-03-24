@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "touch_menu.h"
 
 #include "ds/ui/menu/component/cluster_view.h"

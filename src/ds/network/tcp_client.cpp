@@ -82,7 +82,7 @@ size_t					send_loop(Poco::Net::StreamSocket& socket, std::string data) {
 	const size_t		RETRY_MAX = 1000;
 	for (size_t count=0; count < RETRY_MAX; ++count) {
 		try {
-			int			sent_size = socket.sendBytes(data.data(), data.size());
+			int			sent_size = socket.sendBytes(data.data(), static_cast<int>(data.size()));
 			if (sent_size == static_cast<int>(data.size())) {
 				return data.size();
 			}

@@ -28,7 +28,7 @@ private:
 	virtual ~PdfRes();
 
 public:
-	bool loadPDF(const std::string &theFileName, const ds::ui::Pdf::PageSizeMode&);
+	bool loadPDF(const std::string &theFileName);
 
 	float					getTextureWidth() const;
 	float					getTextureHeight() const;
@@ -36,6 +36,7 @@ public:
 	/// Returns true if the pixels were updated on this pass
 	bool					update();
 
+	ci::gl::TextureRef		getTexture(){ return mTexture; }
 	void					draw(float x, float y);
 
 	float					getWidth() const;
@@ -47,8 +48,6 @@ public:
 	void					goToNextPage();
 	void					goToPreviousPage();
 	void					setScale(const float theScale);
-
-	void					setPageSizeMode(const ds::ui::Pdf::PageSizeMode&);
 
 protected:
 	// worker thread calls
@@ -63,8 +62,6 @@ private:
 
 		int			mWidth, mHeight, mPageNum;
 		float		mScale;
-		ds::ui::Pdf::PageSizeMode
-					mPageSizeMode;
 		// NOTE: These items are not part of the equality test
 		ci::ivec2	mPageSize;
 	};
@@ -82,10 +79,10 @@ public:
 		int					getHeight() const		{ return mH; }
 		unsigned char*		getData();
 		void				clearPixels();
+		unsigned char*		mData;
 
 	private:
 		int					mW, mH;
-		unsigned char*		mData;
 	};
 
 private:

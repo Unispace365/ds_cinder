@@ -5,7 +5,6 @@
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/sprite/text_defs.h"
 #include <cinder/gl/Texture.h>
-#include "ds/ui/sprite/fbo/fbo.h"
 #include "ds/ui/sprite/shader/sprite_shader.h"
 
 // Forward declare Pango/Cairo structs
@@ -131,7 +130,6 @@ public:
 	void						setEllipsizeMode(EllipsizeMode theMode);
 	EllipsizeMode				getEllipsizeMode();
 
-
 	/// If ellipsize mode is none and there's a resize width > 0 and the text had to wrap at all, returns true. otherwise false
 	bool						getTextWrapped();
 
@@ -184,6 +182,7 @@ public:
 	static void					installAsServer(ds::BlobRegistry&);
 	static void					installAsClient(ds::BlobRegistry&);
 
+	virtual	void				onBuildRenderBatch() override;
 private:
 	ci::gl::TextureRef			mTexture;
 

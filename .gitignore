@@ -33,5 +33,18 @@ projects/viewers/lib/
 /example/sync_video_player/debug.txt
 /projects/mosquitto/lib/ds_mosquitto.lib
 /projects/mosquitto/lib/ds_mosquitto_d.lib
+/projects/essentials/lib64/essentials.lib
+/projects/essentials/lib64/essentials_d.lib
+/projects/pdf/lib64/pdf_mupdf.lib
+/projects/pdf/lib64/pdf_mupdf_d.lib
+/projects/video/lib64/video_gstreamer-1.0_d.lib
+/projects/viewers/lib64/viewers_d.lib
+/projects/web/lib64/web_cef_d.lib
+/projects/video/lib64/video_gstreamer-1.0.lib
+/projects/web/lib64/web_cef.lib
+/projects/viewers/lib64/viewers.lib
+/projects/physics/lib64/physics_box2d_d.lib
+/example/example_client_and_server_media/vs2013_client/Example_C_and_S.exe
+/example/example_client_and_server_media/vs2013_client/Example_C_and_S.ilk
 
 build/

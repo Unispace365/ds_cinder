@@ -119,7 +119,7 @@ void BodyBuilderPolygon::createFixture(SpriteBody& body) const
 	fixtureDef.filter.categoryBits = mCategoryBits;
 	fixtureDef.filter.maskBits = mMaskBits;
 
- 	int32 count = mPoints.size();
+ 	int32 count = (int32)mPoints.size();
  	b2Vec2 * vertices = new b2Vec2[count];
  	int i = 0;
  	for (auto it = mPoints.begin(); it < mPoints.end(); ++it){

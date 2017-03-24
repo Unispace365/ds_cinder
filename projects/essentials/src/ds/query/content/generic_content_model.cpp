@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "generic_content_model.h" 
 
 

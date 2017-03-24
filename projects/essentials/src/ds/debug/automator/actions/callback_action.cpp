@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "callback_action.h"
 #include <ds/ui/sprite/sprite_engine.h>
 #include <cinder/Rand.h>

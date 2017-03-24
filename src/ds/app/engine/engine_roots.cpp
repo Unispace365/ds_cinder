@@ -158,7 +158,7 @@ PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, c
 }
 
 void PerspRoot::setup(const Settings& s) {
-	mSprite->setSize(s.mScreenRect.getWidth(), s.mScreenRect.getHeight());
+	mSprite->setSize(s.mWorldSize.x, s.mWorldSize.y);
 	mSprite->setDrawSorted(true);
 }
 
@@ -272,7 +272,7 @@ void PerspRoot::setGlCamera() {
 	// enable the depth buffer (after all, we are doing 3D)
 	//gl::enableDepthRead();
 	//gl::enableDepthWrite();
-	//gl::translate(-getWorldWidth()/2.0f, -getWorldHeight()/2.0f, 0.0f);
+	//ci::gl::translate(-mEngine.getWorldWidth()/2.0f, -mEngine.getWorldHeight()/2.0f, 0.0f);
 }
 
 void PerspRoot::drawFunc(const std::function<void(void)>& fn) {

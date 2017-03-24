@@ -4,42 +4,40 @@
 
 namespace ds {
 
-class ReadWriteBuffer
-{
-  public:
-    enum Postions
-    {
-      Begin,
-      End
-    };
+class ReadWriteBuffer {
+public:
+	enum Postions {
+		Begin,
+		End
+	};
 
-    ReadWriteBuffer(unsigned size = 0);
-    ~ReadWriteBuffer();
+	ReadWriteBuffer(size_t size = 0);
+	~ReadWriteBuffer();
 
-    bool read(char *buffer, unsigned size);
-    void rewindRead(unsigned size);
-    bool write(const char *buffer, unsigned size);
-    void rewindWrite(unsigned size);
+	bool read(char *buffer, size_t size);
+	void rewindRead(size_t size);
+	bool write(const char *buffer, size_t size);
+	void rewindWrite(size_t size);
 
-    void reserve(unsigned size);
-    void clear();
-    unsigned size();
+	void reserve(size_t size);
+	void clear();
+	size_t size();
 
-    unsigned getReadPosition() const;
-    void setReadPosition(const unsigned &position);
-    void setReadPosition(const Postions &position);
+	size_t getReadPosition() const;
+	void setReadPosition(const size_t &position);
+	void setReadPosition(const Postions &position);
 
-    unsigned getWritePosition() const;
-    void setWritePosition(const unsigned &position);
-    void setWritePosition(const Postions &position);
-  private:
-    void grow(unsigned size);
+	size_t getWritePosition() const;
+	void setWritePosition(const size_t &position);
+	void setWritePosition(const Postions &position);
+private:
+	void grow(size_t size);
 
-    char *mBuffer;
-    unsigned mSize;
-    unsigned mBufferReadPosition;
-    unsigned mBufferWritePosition;
-    unsigned mMaxBufferWritePosition;
+	char *mBuffer;
+	size_t mSize;
+	size_t mBufferReadPosition;
+	size_t mBufferWritePosition;
+	size_t mMaxBufferWritePosition;
 };
 
 } // namespace ds

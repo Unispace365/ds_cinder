@@ -84,8 +84,6 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	ds::Environment::loadSettings("debug.xml", mDebugSettings);
 	ds::Logger::setup(mDebugSettings);
 
-	mPangoFontService.loadFonts();
-
 	// touch settings
 	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
 	setTouchMode(mTouchMode);
@@ -482,7 +480,7 @@ void Engine::loadNinePatchCfg(const std::string& filename) {
 	mData.mEngineCfg.loadNinePatchCfg(filename);
 }
 
-int Engine::getRootCount() const {
+size_t Engine::getRootCount() const {
 	return mRoots.size();
 }
 
@@ -820,7 +818,11 @@ void Engine::stopServices() {
 	}
 }
 
-bool Engine::hideMouse() const {
+void Engine::setHideMouse(const bool doMouseHide){
+	mHideMouse = doMouseHide;
+}
+
+bool Engine::getHideMouse() const {
 	return mHideMouse;
 }
 

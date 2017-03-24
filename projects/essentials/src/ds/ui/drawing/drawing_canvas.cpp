@@ -1,4 +1,9 @@
+#include "stdafx.h"
+
 #include "drawing_canvas.h"
+
+#include <cinder/gl/gl.h>
+#include <cinder/Surface.h>
 
 #include <Poco/LocalDateTime.h>
 
@@ -9,6 +14,7 @@
 #include "ds/data/data_buffer.h"
 #include <ds/ui/sprite/dirty_state.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/image_source/image_file.h>
 
 #include <ds/debug/logger.h>
 #include <ds/util/file_meta_data.h>
@@ -18,6 +24,8 @@
 #include <cinder/ImageIo.h>
 
 #include <cinder/Rand.h>
+
+#include <thread>
 
 namespace {
 
@@ -55,6 +63,7 @@ const static std::string whiteboard_point_frag =
 "newColor.b *= brushColor.a * oColor.b;\n"
 "newColor *= oColor.a;\n"
 "oColor = newColor;\n"
+//"oColor = brushColor;\n"
 //NEON EFFECTS!//"gl_FragColor.rgb = pow(gl_FragColor.rgb, vec3(1.0/2.2));"
 "}\n";
 
@@ -64,14 +73,14 @@ static std::string whiteboard_point_name = "whiteboard_point";
 const std::string opacityFrag =
 "uniform sampler2D	tex0;\n"
 "uniform float		opaccy;\n"
-"in vec4			ciColor;\n"
+"in vec4			Color;\n"
 "out vec4			oColor;\n"
 "in vec2			TexCoord0;\n"
 "void main()\n"
 "{\n"
 //"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
 "    oColor = texture2D( tex0, TexCoord0 );\n"
-"    oColor *= ciColor;\n"
+"    oColor *= Color;\n"
 "    oColor *= opaccy;\n"
 "}\n";
 
@@ -79,14 +88,14 @@ const std::string vertShader =
 "uniform mat4	ciModelViewProjection;\n"
 "in vec4			ciPosition;\n"
 "in vec4			ciColor;\n"
-"out vec4			oColor;\n"
+"out vec4			Color;\n"
 "in vec2			ciTexCoord0;\n"
 "out vec2			TexCoord0;\n"
 "void main()\n"
 "{\n"
 "	gl_Position = ciModelViewProjection * ciPosition;\n"
 "	TexCoord0 = ciTexCoord0;\n"
-"	oColor = ciColor;\n"
+"	Color = ciColor;\n"
 "}\n";
 
 std::string shaderNameOpaccy = "opaccy_shader";
@@ -112,10 +121,16 @@ const char			DRAW_POINTS_QUEUE_ATT	= 81;
 const char			BRUSH_IMAGE_SRC_ATT		= 82;
 const char			BRUSH_COLOR_ATT 		= 83;
 const char			BRUSH_SIZE_ATT			= 84;
+const char			CANVAS_IMAGE_PATH_ATT	= 85;
+const char			CLEAR_CANVAS_ATT		= 86;
+const char			ERASE_MODE_ATT			= 87;
 const DirtyState&	sPointsQueueDirty	 	= newUniqueDirtyState();
 const DirtyState&	sBrushImagePathDirty	= newUniqueDirtyState();
 const DirtyState&	sBrushColorDirty		= newUniqueDirtyState();
 const DirtyState&	sBrushSizeDirty			= newUniqueDirtyState();
+const DirtyState&	sCanvasImagePathDirty	= newUniqueDirtyState();
+const DirtyState&	sClearCanvasDirty		= newUniqueDirtyState();
+const DirtyState&	sEraseModeDirty			= newUniqueDirtyState();
 
 const int			MAX_SERIALIZED_POINTS	= 100;
 } // anonymous namespace
@@ -136,16 +151,16 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	, mBrushSize(24.0f)
 	, mBrushColor(1.0f, 0.0f, 0.0f, 0.5f)
 	, mPointShader(whiteboard_point_vert, whiteboard_point_frag, whiteboard_point_name)
-	, mBrushImage(nullptr)
 	, mEraseMode(false)
 	, mOutputShader(vertShader, opacityFrag, shaderNameOpaccy)
-	, mDrawTexture()
+	, mCanvasFileLoaderClient(eng)
+//	, mDrawTexture()
 {
 	mBlobType = BLOB_TYPE;
 	mOutputShader.loadShaders();
 
 	mPointShader.loadShaders();
-	mFboGeneral = std::move(mEngine.getFbo());
+
 	DS_REPORT_GL_ERRORS();
 
 	setBrushImage(brushImagePath);
@@ -208,11 +223,16 @@ const float DrawingCanvas::getBrushSize(){
 }
 
 void DrawingCanvas::setBrushImage(const std::string& imagePath){
+	mBrushImagePath = imagePath;
+
 	if (imagePath.empty()){
-		DS_LOG_WARNING( "No brush image path supplied to drawing canvas" );
-		return;
+		clearImage();
+	} else {
+		setImageFile(imagePath);
+
+		// The image won't actually load until it's requested, so try to load it immediately
+		getImageTexture();
 	}
-	setImageFile(imagePath);
 	markAsDirty( sBrushImagePathDirty );
 }
 
@@ -220,40 +240,34 @@ void DrawingCanvas::clearCanvas(){
 	auto w = getWidth();
 	auto h = getHeight();
 
-	if(!mDrawTexture || mDrawTexture->getWidth() != w || mDrawTexture->getHeight() != h) {
-		ci::gl::Texture::Format format;
-		format.setTarget(GL_TEXTURE_2D);
-		format.setMagFilter(GL_LINEAR);
-		format.setMinFilter(GL_LINEAR);
-		mDrawTexture = ci::gl::Texture2d::create((int)w, (int)h, format);
-		mDrawTexture->setTopDown(true);
-	}
+	if(!mFbo) return;
 
-	//ds::gl::SaveCamera		save_camera;
-
-	mFboGeneral->attach(mDrawTexture);
-	mFboGeneral->begin();
-
-	ci::Area fboBounds(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
-	//ci::gl::setViewport(fboBounds);
-	ci::gl::ScopedViewport svp(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
-	//ci::gl::viewport(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
-	ci::CameraOrtho camera;
-	camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
-	ci::gl::setMatrices(camera);
+	ci::gl::ScopedFramebuffer fbScp(mFbo);
 
 	ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
 
-	//mPointShader.getShader().unbind();
-	mFboGeneral->end();
-	mFboGeneral->detach();
+	if( mEngine.getMode() == ds::ui::SpriteEngine::SERVER_MODE ||
+		mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE
+	) {
+		markAsDirty( sClearCanvasDirty );
+	}
 }
 
 void DrawingCanvas::setEraseMode(const bool eraseMode){
 	mEraseMode = eraseMode;
+	markAsDirty(sEraseModeDirty);
 }
 
 void DrawingCanvas::drawLocalClient(){
+	// If we have a new texture from the canvas loader,
+	// swap that in for the draw texture
+	if (mCanvasFileLoaderClient.getImage()) {
+		auto loaderTex = mCanvasFileLoaderClient.getImage();
+		// TODO
+		//mDrawTexture = *loaderTex;
+		mCanvasFileLoaderClient.clear();
+	}
+
 	// If any serialized points have been received from the server, draw them
 	while (!mSerializedPointsQueue.empty()) {
 		auto points = mSerializedPointsQueue.front();
@@ -261,55 +275,52 @@ void DrawingCanvas::drawLocalClient(){
 		mSerializedPointsQueue.pop_front();
 	}
 
-	if(!mDrawTexture) return;
+	if(mFbo) {
 
-	if(mDrawTexture) {
-	//	if(getBlendMode() == ds::ui::BlendMode::NORMAL){
-	//		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-		//}
-
-		// ignore the "color" setting
+		// ignore the "color" setting from base sprite
 		ci::gl::color(ci::Color::white());
-		// The true flag is for premultiplied alpha, which this texture is
-		ci::gl::enableAlphaBlending(true);
 		ci::gl::GlslProgRef shaderBase = mOutputShader.getShader();
+
+		auto theTex = mFbo->getTexture2d(GL_COLOR_ATTACHMENT1);
+		theTex->bind(0);
+
 		if(shaderBase) {
-			ci::gl::ScopedGlslProg scopedShaderBase(shaderBase);
-			//shaderBase->bind();
+			//ci::gl::enableAlphaBlending(true);
+			ci::gl::ScopedBlend sb(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			shaderBase->uniform("tex0", 0);
 			shaderBase->uniform("opaccy", mDrawOpacity);
-			mUniform.applyTo(shaderBase);
+			ci::gl::ScopedGlslProg scopedShaderBase(shaderBase);
 
-
-			if(getPerspective()){
-				ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, 0.0f, static_cast<float>(mDrawTexture->getWidth()), static_cast<float>(mDrawTexture->getHeight())));
+			if(!getPerspective()){
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mFbo->getWidth()), static_cast<float>(mFbo->getHeight())));
 			} else {
-				ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, static_cast<float>(mDrawTexture->getHeight()), static_cast<float>(mDrawTexture->getWidth()), 0.0f));
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mFbo->getHeight()), static_cast<float>(mFbo->getWidth()), 0.0f));
 			}
 
-		}
-		else{
+		} else {
 
-			if (getPerspective()){
-				ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, 0.0f, static_cast<float>(mDrawTexture->getWidth()), static_cast<float>(mDrawTexture->getHeight())));
-			}
-			else {
-				ci::gl::draw(mDrawTexture, ci::Rectf(0.0f, static_cast<float>(mDrawTexture->getHeight()), static_cast<float>(mDrawTexture->getWidth()), 0.0f));
+			if (!getPerspective()){
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mFbo->getWidth()), static_cast<float>(mFbo->getHeight())));
+			} else {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mFbo->getHeight()), static_cast<float>(mFbo->getWidth()), 0.0f));
 			}
 		}
-
 	}
 }
 
 void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end){
 	ci::gl::Texture2dRef brushTexture = getImageTexture();
 
-	if(!brushTexture){
-		DS_LOG_WARNING("No brush image texture when trying to render a line in Drawing Canvas");
-		return;
-	}
+	bool brushTexMode = true;
+	float widdy = mBrushSize;
+	float hiddy = mBrushSize;
 	
-	brushTexture->setTopDown(true);
+	if(brushTexture){
+		brushTexture->setTopDown(true);
+		hiddy = mBrushSize / ((float)brushTexture->getWidth() / (float)brushTexture->getHeight());
+	} else {
+		brushTexMode = false;
+	}
 
 	float brushPixelStep = 3.0f;
 	int vertexCount = 0;
@@ -325,97 +336,58 @@ void DrawingCanvas::renderLine(const ci::vec3& start, const ci::vec3& end){
 	int w = (int)floorf(getWidth());
 	int h = (int)floorf(getHeight());
 
-	if(!mDrawTexture || mDrawTexture->getWidth() != w || mDrawTexture->getHeight() != h) {
-		ci::gl::Texture::Format format;
-		format.setTarget(GL_TEXTURE_2D);
-		format.setMagFilter(GL_LINEAR);
-		format.setMinFilter(GL_LINEAR);
-		mDrawTexture = ci::gl::Texture2d::create(w, h, format);
-		mDrawTexture->setTopDown(true);
+	if(!mFbo || mFbo->getWidth() != w || mFbo->getHeight() != h) {
+		ci::gl::Texture2d::Format textFormat;
+		textFormat.setMinFilter(GL_LINEAR);
+		textFormat.setMagFilter(GL_LINEAR);
+		textFormat.setInternalFormat(GL_RGBA32F);
+		ci::gl::Fbo::Format format;
+		//format.setSamples(4); // NOTE: don't anti-alias, it causes some weird shit at the edges
+		format.attachment(GL_COLOR_ATTACHMENT1, ci::gl::Texture2d::create(w, h, textFormat));
+		mFbo = ci::gl::Fbo::create(w, h, format);
 	}
 
-	//ds::gl::SaveCamera		save_camera;
-
-	//ci::gl::SaveFramebufferBinding bindingSaver;
-	mFboGeneral->attach(mDrawTexture);
-	mFboGeneral->begin();
-
-	ci::Area fboBounds(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
-	//ci::gl::setViewport(fboBounds);
-	ci::gl::ScopedViewport svp(0, 0, mFboGeneral->getWidth(), mFboGeneral->getHeight());
-//	ci::gl::viewport();
-	ci::CameraOrtho camera;
-	camera.setOrtho(static_cast<float>(fboBounds.getX1()), static_cast<float>(fboBounds.getX2()), static_cast<float>(fboBounds.getY2()), static_cast<float>(fboBounds.getY1()), -1.0f, 1.0f);
-	ci::gl::setMatrices(camera);
-
-
-	mPointShader.getShader()->bind();
-	mPointShader.getShader()->uniform("tex0", 10);
-	mPointShader.getShader()->uniform("vertexColor", mBrushColor);
-
-	glEnable(GL_BLEND);
-	glBlendEquation(GL_FUNC_ADD);
-
-	if(mEraseMode){
-		glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_ALPHA);
-	} else {
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
-	}
-	//TODO: fix it! whatever it is.
 	{
-		ci::gl::ScopedTextureBind scopedTextureBursh(brushTexture);
-		brushTexture->bind(10);
+		ci::gl::pushMatrices();
+		ci::gl::ScopedFramebuffer fbScp(mFbo);
+		ci::gl::ScopedViewport scpVp(ci::ivec2(0), mFbo->getSize());
 
-	/*	ci::gl::SaveTextureBindState saveBindState(brushTexture->getTarget());
-		ci::gl::BoolState saveEnabledState(brushTexture->getTarget());
-		ci::gl::ClientBoolState vertexArrayState(GL_VERTEX_ARRAY);
-		ci::gl::ClientBoolState texCoordArrayState(GL_TEXTURE_COORD_ARRAY_BUFFER_BINDING_ARB);
+		ci::CameraOrtho camera = ci::CameraOrtho(0.0f, static_cast<float>(mFbo->getWidth()), static_cast<float>(mFbo->getHeight()), 0.0f, -1000.0f, 1000.0f);
+		ci::gl::setMatrices(camera);
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		GLfloat verts[8];
-		glVertexPointer(2, GL_FLOAT, 0, verts);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		GLfloat texCoords[8];
-		glTexCoordPointer(2, GL_FLOAT, 0, texCoords);
-		*/
+		int blendSfactor = 0;
+		auto drawColor = mBrushColor;
 
-		auto srcArea = brushTexture->getBounds();
-		const ci::Rectf srcCoords = brushTexture->getAreaTexCoords(srcArea);
-
-		float widdy = mBrushSize;
-		float hiddy = mBrushSize / ((float)brushTexture->getWidth() / (float)brushTexture->getHeight());
-
-		for(auto it : drawPoints){
-
-
-			ci::Rectf destRect = ci::Rectf(it.x - widdy / 2.0f, it.y - hiddy / 2.0f, it.x + widdy / 2.0f, it.y + hiddy / 2.0f);
-			ci::gl::draw(brushTexture, ci::Area(srcCoords), destRect);
-
-			/*
-
-			verts[0 * 2 + 0] = destRect.getX2(); verts[0 * 2 + 1] = destRect.getY1();
-			verts[1 * 2 + 0] = destRect.getX1(); verts[1 * 2 + 1] = destRect.getY1();
-			verts[2 * 2 + 0] = destRect.getX2(); verts[2 * 2 + 1] = destRect.getY2();
-			verts[3 * 2 + 0] = destRect.getX1(); verts[3 * 2 + 1] = destRect.getY2();
-
-			texCoords[0 * 2 + 0] = srcCoords.getX2(); texCoords[0 * 2 + 1] = srcCoords.getY1();
-			texCoords[1 * 2 + 0] = srcCoords.getX1(); texCoords[1 * 2 + 1] = srcCoords.getY1();
-			texCoords[2 * 2 + 0] = srcCoords.getX2(); texCoords[2 * 2 + 1] = srcCoords.getY2();
-			texCoords[3 * 2 + 0] = srcCoords.getX1(); texCoords[3 * 2 + 1] = srcCoords.getY2();
-			
-
-			glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-			*/
+		if(mEraseMode){
+			blendSfactor = GL_ZERO;
+		} else {
+			blendSfactor = GL_ONE;
 		}
 
-		//brushTexture->unbind(10);
+		ci::gl::ScopedBlend enableBlend(true);
+		ci::gl::ScopedBlend enableFunc(blendSfactor, GL_ONE_MINUS_SRC_ALPHA);
+
+
+		for(auto it : drawPoints){
+			ci::Rectf destRect = ci::Rectf(it.x - widdy / 2.0f, it.y - hiddy / 2.0f, it.x + widdy / 2.0f, it.y + hiddy / 2.0f);
+
+			if(brushTexMode){
+				mPointShader.getShader()->uniform("tex0", 0);
+				mPointShader.getShader()->uniform("vertexColor", drawColor);
+				ci::gl::ScopedGlslProg shaderScp(mPointShader.getShader());
+				brushTexture->bind(0);
+				ci::gl::drawSolidRect(destRect);
+			} else {
+				ci::gl::ScopedGlslProg shaderScp(ci::gl::getStockShader(ci::gl::ShaderDef().color()));
+				ci::gl::color(mBrushColor);
+				ci::gl::drawSolidCircle(it, mBrushSize/2.0f);
+			}
+		}
+
+		ci::gl::popMatrices();
 	}
 
-	mDrawTexture->unbind(0);
 
-	//mPointShader.getShader()->u
-	mFboGeneral->end();
-	mFboGeneral->detach();
 	DS_REPORT_GL_ERRORS();
 }
 
@@ -448,7 +420,17 @@ void DrawingCanvas::writeAttributesTo(DataBuffer& buf) {
 		}
 		mSerializedPointsQueue.clear();
 	}
-
+	if (mDirty.has(sCanvasImagePathDirty)){
+		buf.add(CANVAS_IMAGE_PATH_ATT);
+		mCanvasFileLoaderClient.writeTo(buf);
+	}
+	if (mDirty.has(sClearCanvasDirty)){
+		buf.add(CLEAR_CANVAS_ATT);
+	}
+	if (mDirty.has(sEraseModeDirty)){
+		buf.add(ERASE_MODE_ATT);
+		buf.add<bool>(mEraseMode);
+	}
 }
 
 void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
@@ -475,6 +457,15 @@ void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
 			mSerializedPointsQueue.push_back( std::make_pair(p1, p2) );
 		}
 	}
+	else if (attrid == CANVAS_IMAGE_PATH_ATT) {
+		mCanvasFileLoaderClient.readFrom(buf);
+	}
+	else if (attrid == CLEAR_CANVAS_ATT) {
+		clearCanvas();
+	}
+	else if (attrid == ERASE_MODE_ATT) {
+		mEraseMode = buf.read<bool>();
+	}
 	else {
 		Sprite::readAttributeFrom(attrid, buf);
 	}
@@ -483,6 +474,42 @@ void DrawingCanvas::readAttributeFrom(const char attrid, DataBuffer& buf){
 void DrawingCanvas::onImageChanged() {
 	markAsDirty(sBrushImagePathDirty);
 }
+
+void DrawingCanvas::saveCanvasImage(const std::string& filePath) {
+
+	if(!(mFbo && mFbo->getWidth() > 0 && mFbo->getHeight() > 0))
+			return;
+
+		/* TODO: Test this, it should be updated 0.9.0 */
+		// This can't be done on the background thread because it needs
+		// the main thread's GL context to get the texture data.
+	ci::Surface surface(mFbo->readPixels8u(ci::Area(0, 0, mFbo->getWidth(), mFbo->getHeight())));//TODO (mDrawTexture);
+
+	// Do the image file saving on background thread
+	auto saveThread = std::thread([surface, filePath] {
+		try {
+			ci::writeImage(filePath, surface);
+		}
+		catch (const std::exception &e) {
+			DS_LOG_WARNING( "DrawingCanvas: Unable to save canvas to file: " << filePath << ": " << e.what() );
+		}
+	});
+
+	// We don't care about this thread anymore, it can terminate on 
+	// its own. But we do need to detach if we're not going to join 
+	// the thread.
+	saveThread.detach();
+	
+}
+
+void DrawingCanvas::loadCanvasImage(const std::string& filePath) {
+	markAsDirty(sCanvasImagePathDirty);
+
+	// This will load the image file asynchronously.  When it's
+	// ready, the texture will be grabbed in drawLocalClient.
+	mCanvasFileLoaderClient.setSource(ds::ui::ImageFile(filePath));
+}
+
 
 } // namespace ui
 } // namespace ds

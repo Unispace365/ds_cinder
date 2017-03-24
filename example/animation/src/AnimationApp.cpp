@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <cinder/app/App.h>
 #include <cinder/Rand.h>
 #include <cinder/app/RendererGl.h>
@@ -77,6 +79,8 @@ void AnimationApp::setupServer()
 	mSprite2.setScale(0.25f, 0.25f);
 	rootSprite.addChild(mSprite2);
 
+	mSprite3.setScale(10.0f, 10.0f);
+	mSprite3.setColor(ci::Color(0.8f, 0.1f, 0.3f));
 	mSprite3.setPosition(600.0f, 200.0f);
 	rootSprite.addChild(mSprite3);
 

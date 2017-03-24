@@ -27,7 +27,7 @@
 		
 				<text name="message a"
 					font_name="title"
-					font_size="36"
+					font_size="30"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
 					blend_mode="normal"
 					color="white"
@@ -37,14 +37,14 @@
 					t_pad="100"
 					l_pad="100"
 					r_pad="100"
-					opacity="0.5"
+					opacity="0.9"
 					layout_size_mode="flex"
 					text="This is the text loaded via the short font name 'title', which is mapped in the main app class. It should appear as FreightSans Light."
 					></text>		
 
 					<text name="message a 2"
 					font_name="Chlorinar Bold Italic"
-					font_size="36"
+					font_size="30"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
 					blend_mode="normal"
 					color="white"

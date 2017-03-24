@@ -10,6 +10,7 @@
 #include "pango/pangocairo.h"
 #include "fontconfig/fontconfig.h"
 
+
 namespace {
 const ds::BitMask	PANGO_FONT_LOG_M = ds::Logger::newModule("pango_font");
 }

@@ -17,7 +17,7 @@ public:
 	SoftKeyboardSettings()
 		: mKeyTouchPadding(4.0f)
 		, mKeyInitialPosition(0.0f, 0.0f)
-		, mKeyTextOffset(-5.0f, -5.0f)
+		, mKeyTextOffset(0.0f, 0.0f)
 		, mKeyUpColor(1.0f, 1.0f, 1.0f)
 		, mKeyDownColor(0.5f, 0.5f, 0.5f)
 		, mKeyLetterDnImage("%APP%/data/images/keyboard/Normal.png")
@@ -28,10 +28,10 @@ public:
 		, mKeySpaceUpImage("%APP%/data/images/keyboard/Space.png")
 		, mKeyDeleteDnImage("%APP%/data/images/keyboard/Delete.png")
 		, mKeyDeleteUpImage("%APP%/data/images/keyboard/Delete.png")
-		, mKeyEnterDnImage("%APP%/data/images/keyboard/EnterAndShift.png")
-		, mKeyEnterUpImage("%APP%/data/images/keyboard/EnterAndShift.png")
-		, mKeyShiftDnImage("%APP%/data/images/keyboard/EnterAndShift.png")
-		, mKeyShiftUpImage("%APP%/data/images/keyboard/EnterAndShift.png")
+		, mKeyEnterDnImage("%APP%/data/images/keyboard/Enter.png")
+		, mKeyEnterUpImage("%APP%/data/images/keyboard/Enter.png")
+		, mKeyShiftDnImage("%APP%/data/images/keyboard/Shift.png")
+		, mKeyShiftUpImage("%APP%/data/images/keyboard/Shift.png")
 		, mKeyTabUpImage("%APP%/data/images/keyboard/Tab.png")
 		, mKeyTabDnImage("%APP%/data/images/keyboard/Tab.png")
 		, mKeyUpTextConfig("keyboard:key:up")
@@ -55,12 +55,23 @@ public:
 		if(mKeyDeleteDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyDeleteDnImage))){
 			mKeyDeleteDnImage = mKeyDeleteUpImage;
 		}
+
+		bool enterUpExists = ds::safeFileExistsCheck(ds::Environment::expand(mKeyEnterUpImage));
+		if(!enterUpExists){
+			mKeyEnterUpImage = "%APP%/data/images/keyboard/EnterAndShift.png";
+		}
 		if(mKeyEnterDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyEnterDnImage))){
 			mKeyEnterDnImage = mKeyEnterUpImage;
+		}
+
+		bool shiftUpExists = ds::safeFileExistsCheck(ds::Environment::expand(mKeyShiftUpImage));
+		if(!enterUpExists){
+			mKeyShiftUpImage = "%APP%/data/images/keyboard/EnterAndShift.png";
 		}
 		if(mKeyShiftDnImage.empty() || !ds::safeFileExistsCheck(ds::Environment::expand(mKeyShiftDnImage))){
 			mKeyShiftDnImage = mKeyShiftUpImage;
 		}
+
 		if(mKeyDnTextConfig.empty() || mKeyDnTextConfig.empty()){
 			mKeyDnTextConfig = mKeyUpTextConfig;
 		}

@@ -65,6 +65,9 @@ public:
 	/// stops loading web pages, stops videos
 	void					stopContent();
 
+	/// Really only for videos at the moment
+	void					pauseContent();
+
 	/// Returns any current player. Will need to be dynamic casted to be used
 	/// Definitely can return nullptr, so check before using
 	ds::ui::Sprite*			getPlayer();
@@ -89,6 +92,9 @@ public:
 
 	/// Called after a new piece of media has been initialized / loaded
 	void					setInitializedCallback(std::function<void()> func);
+
+	/// If the media loaded inside this player changes sizes (such as a pdf with different page sizes)
+	void					setMediaSizeChangedCallback(std::function<void(const ci::vec2& newSize)> func){ mMediaSizeChangedCallback = func; }
 
 
 	/// Will do standard functions based on media type:
@@ -126,8 +132,9 @@ protected:
 	ds::ui::Image*			mPrimaryImage;
 
 	std::function<void(const std::string& msg)>	mErrorCallback;
-	std::function<void(const bool isGood)> mStatusCallback;
-	std::function<void()>	mInitializedCallback;
+	std::function<void(const bool isGood)>		mStatusCallback;
+	std::function<void()>						mInitializedCallback;
+	std::function<void(const ci::vec2&)>		mMediaSizeChangedCallback;
 
 private:
 	void					layout();

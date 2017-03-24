@@ -148,8 +148,10 @@ public:
 
 	virtual void					setCinderCamera();
 
+     //Moved from private to here in order to update camera parameters on the fly at draw time.
+     void							setGlCamera();
+
 private:
-	void							setGlCamera();
 	void							drawFunc(const std::function<void(void)>& fn);
 
 	typedef EngineRoot				inherited;

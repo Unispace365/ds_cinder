@@ -1,6 +1,15 @@
 #ifndef MUPDF_FITZ_SYSTEM_H
 #define MUPDF_FITZ_SYSTEM_H
 
+/* The very first decision we need to make is, are we using the 64bit
+ * file pointers code. This must happen before the stdio.h include. */
+#ifdef FZ_LARGEFILE
+/* Set _LARGEFILE64_SOURCE so that we know fopen64 et al will be declared. */
+#ifndef _LARGEFILE64_SOURCE
+#define _LARGEFILE64_SOURCE
+#endif
+#endif
+
 /*
 	Include the standard libc headers.
 */
@@ -22,6 +31,7 @@
 #include <setjmp.h>
 
 #include "mupdf/memento.h"
+#include "mupdf/fitz/track-usage.h"
 
 #define nelem(x) (sizeof(x)/sizeof((x)[0]))
 
@@ -34,12 +44,22 @@
 #endif
 
 /*
+	Spot architectures where we have optimisations.
+*/
+
+#if defined(__arm__) || defined(__thumb__)
+#ifndef ARCH_ARM
+#define ARCH_ARM
+#endif
+#endif
+
+/*
 	Some differences in libc can be smoothed over
 */
 
 #ifdef __APPLE__
 #define HAVE_SIGSETJMP
-#elif defined(__unix)
+#elif defined(__unix) && !defined(__NACL__)
 #define HAVE_SIGSETJMP
 #endif
 
@@ -67,6 +87,18 @@
 #if _MSC_VER < 1800
 #define va_copy(a, oa) do { a=oa; } while (0)
 #define va_copy_end(a) do {} while(0)
+
+static __inline int signbit(double x)
+{
+	union
+	{
+		double d;
+		__int64 i;
+	} u;
+	u.d = x;
+	return (int)(u.i>>63);
+}
+
 #else
 #define va_copy_end(a) va_end(a)
 #endif
@@ -91,18 +123,37 @@ struct timeval;
 struct timezone;
 int gettimeofday(struct timeval *tv, struct timezone *tz);
 
-#define snprintf _snprintf
-#if _MSC_VER < 1800
+#if _MSC_VER < 1900 /* MSVC 2015 */
+#define snprintf msvc_snprintf
+#define vsnprintf msvc_vsnprintf
+static int msvc_vsnprintf(char *str, size_t size, const char *fmt, va_list ap)
+{
+	int n;
+	n = _vsnprintf(str, size, fmt, ap);
+	str[size-1] = 0;
+	return n;
+}
+static int msvc_snprintf(char *str, size_t size, const char *fmt, ...)
+{
+	int n;
+	va_list ap;
+	va_start(ap, fmt);
+	n = msvc_vsnprintf(str, size, fmt, ap);
+	va_end(ap);
+	return n;
+}
+#endif
+
+#if _MSC_VER <= 1700 /* MSVC 2012 */
 #define isnan(x) _isnan(x)
 #define isinf(x) (!_finite(x))
 #endif
-#define hypotf _hypotf
 
-#define fopen fz_fopen_utf8
+#define hypotf _hypotf
 
 FILE *fz_fopen_utf8(const char *name, const char *mode);
 
-#define fopen fz_fopen_utf8
+#define fz_fopen fz_fopen_utf8
 
 char *fz_utf8_from_wchar(const wchar_t *s);
 wchar_t *fz_wchar_from_utf8(const char *s);
@@ -111,10 +162,19 @@ FILE *fz_fopen_utf8(const char *name, const char *mode);
 char **fz_argv_from_wargv(int argc, wchar_t **wargv);
 void fz_free_argv(int argc, char **argv);
 
+#define fseeko64 _fseeki64
+#define ftello64 _ftelli64
+#define atoll _atoi64
+
+#include <sys/stat.h>
+
+#define stat _stat
+
 #else /* Unix or close enough */
 
 #include <stdint.h>
 #include <unistd.h>
+#include <sys/stat.h>
 
 #ifndef O_BINARY
 #define O_BINARY 0
@@ -124,22 +184,47 @@ void fz_free_argv(int argc, char **argv);
 
 #endif
 
-#ifdef __ANDROID__
-#include <android/log.h>
-#define LOG_TAG "libmupdf"
-#define LOGI(...) __android_log_print(ANDROID_LOG_INFO,LOG_TAG,__VA_ARGS__)
-#define LOGE(...) __android_log_print(ANDROID_LOG_ERROR,LOG_TAG,__VA_ARGS__)
+#ifdef FZ_LARGEFILE
+#ifndef fz_fopen
+#define fz_fopen fopen64
+#endif
+typedef int64_t fz_off_t;
+#define fz_fseek fseeko64
+#define fz_ftell ftello64
+#define fz_atoo_imp atoll
+#define FZ_OFF_MAX 0x7fffffffffffffffLL
 #else
-#define LOGI(...) do {} while(0)
-#define LOGE(...) do {} while(0)
+#ifndef fz_fopen
+#define fz_fopen fopen
+#endif
+#define fz_fseek fseek
+#define fz_ftell ftell
+typedef int fz_off_t;
+#define FZ_OFF_MAX INT_MAX
+#define fz_atoo_imp atoi
 #endif
 
-/*
-	Variadic macros, inline and restrict keywords
+/* Portable way to format a size_t */
+#if defined(_WIN64)
+#define FMT_zu "%Iu"
+#elif defined(_WIN32)
+#define FMT_zu "%u"
+#else
+#define FMT_zu "%zu"
+#endif
 
-	inline is standard in C++, so don't touch the definition in this case.
-	For some compilers we can enable it within C too.
-*/
+#ifdef __ANDROID__
+#include <android/log.h>
+int fz_android_fprintf(FILE *file, const char *fmt, ...);
+#ifdef DEBUG
+/* Capture fprintf for stdout/stderr to the android logging
+ * stream. Only do this in debug builds as this implies a
+ * delay */
+#define fprintf fz_android_fprintf
+#endif
+#endif
+
+/* inline is standard in C++. For some compilers we can enable it within C too. */
 
 #ifndef __cplusplus
 #if __STDC_VERSION__ == 199901L /* C99 */
@@ -152,10 +237,7 @@ void fz_free_argv(int argc, char **argv);
 #endif
 #endif
 
-/*
-	restrict is standard in C99, but not in all C++ compilers. Enable
-	where possible, disable if in doubt.
- */
+/* restrict is standard in C99, but not in all C++ compilers. */
 #if __STDC_VERSION__ == 199901L /* C99 */
 #elif _MSC_VER >= 1500 /* MSVC 9 or newer */
 #define restrict __restrict
@@ -176,10 +258,14 @@ void fz_free_argv(int argc, char **argv);
 #endif
 #endif
 
-/*
-	GCC can do type checking of printf strings
-*/
+/* Flag unused parameters, for use with 'static inline' functions in headers. */
+#if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 7
+#define FZ_UNUSED __attribute__((__unused__))
+#else
+#define FZ_UNUSED
+#endif
 
+/* GCC can do type checking of printf strings */
 #ifndef __printflike
 #if __GNUC__ > 2 || __GNUC__ == 2 && __GNUC_MINOR__ >= 7
 #define __printflike(fmtarg, firstvararg) \
@@ -188,11 +274,6 @@ void fz_free_argv(int argc, char **argv);
 #define __printflike(fmtarg, firstvararg)
 #endif
 #endif
-
-/*
-	Shut the compiler up about unused variables
-*/
-#define UNUSED(x) do { x = x; } while (0)
 
 /* ARM assembly specific defines */
 

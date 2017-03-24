@@ -5,6 +5,7 @@
 #include "ds/data/data_buffer.h"
 #include "ds/query/recycle_array.h"
 #include "ds/network/net_connection.h"
+#include "ds/network/packet_chunker.h"
 
 /**
  * Hide the busy work of sending information between the server and client.
@@ -59,13 +60,14 @@ public:
 	ds::DataBuffer&				getData();
 	// Convenience for clients with a blob reader, automatically
 	// receive and handle the data. Answer true if there was data.
-	bool						receiveAndHandle(ds::BlobRegistry&, ds::BlobReader&);
+	bool						receiveBlob();
+	bool						handleBlob(ds::BlobRegistry&, ds::BlobReader&, bool& morePacketsAvailable);
 	bool						hasLostConnection() const;
 	void						clearLostConnection();
 
 private:
+	ds::DataBuffer				mCurrentDataBuffer;
 	ds::NetConnection&			mConnection;
-	ds::DataBuffer				mReceiveBuffer;
 	std::string					mCompressionBufferRead;
 	std::string					mCompressionBufferWrite;
 	// The header and command blob IDs, used for filtering. The header
@@ -78,14 +80,11 @@ private:
 	// enough, then my network connection has likely dropped.
 	int							mNoDataCount;
 
-public:
-	// Clients can use this to handle a raw stream of
-	// data from the source.
-	class AutoReceive {
-	public:
-		AutoReceive(EngineReceiver&);
-		ds::DataBuffer&           mData;
-	};
+	// Keep track of all the packets we receive.
+	// This is in case we're running slower than the server,
+	// in which case we can run through and update all the buffers at once and catch up
+	std::vector<std::string>	mReceiveBuffers;
+	ds::net::DeChunker			mDechunker;
 };
 
 } // namespace ds

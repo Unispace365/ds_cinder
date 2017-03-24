@@ -94,7 +94,7 @@ void UniformVisitor::operator()(const ci::mat4 &data)
 
 void UniformVisitor::operator()(const std::vector<float> &data)
 {
-	mShader->uniform(mName, &(data.front()), data.size());
+	mShader->uniform(mName, &(data.front()), static_cast<int>(data.size()));
 }
 
 void UniformVisitor::operator()(const ci::vec2 *data)
@@ -292,7 +292,7 @@ void Uniform::set(const std::string &name, const float *data, int count)
 
 void Uniform::set(const std::string &name, const std::vector<float> &data)
 {
-	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(data.size()));
+	setInternal(name, UniformVisitor::SupportedVariants(data), UniformData(static_cast<int>(data.size())));
 }
 
 void Uniform::set(const std::string &name, const ci::vec2 *data, int count)

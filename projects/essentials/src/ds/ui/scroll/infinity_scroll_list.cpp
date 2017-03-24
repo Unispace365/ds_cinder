@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "infinity_scroll_list.h"
 
 #include <ds/debug/logger.h>

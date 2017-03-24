@@ -14,7 +14,7 @@
 #include "ds/util/string_util.h"
 
 using namespace ds;
-using namespace std;
+//using namespace std;
 
 const ds::BitMask	ds::GENERAL_LOG = ds::Logger::newModule("general");
 const ds::BitMask	ds::IO_LOG = ds::Logger::newModule("io");
@@ -93,10 +93,10 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 {
 	for (int k=0; k<LEVEL_SIZE; ++k) HAS_LEVEL[k] = false;
 
-	string				level = settings.getText("logger:level", 0, "all"),
-							module = settings.getText("logger:module", 0, "all"),
-							async = settings.getText("logger:async", 0, "true"),
-							file = settings.getText("logger:file", 0, EMPTY_SZ);
+	std::string				level = settings.getText("logger:level", 0, "all"),
+						module = settings.getText("logger:module", 0, "all"),
+						async = settings.getText("logger:async", 0, "true"),
+						file = settings.getText("logger:file", 0, EMPTY_SZ);
 	ds::tokenize(level, ',', [](const std::string& s) { setup_level(s); });
 	if (!module.empty()) {
 		HAS_MODULE = ds::BitMask::newEmpty();
@@ -109,7 +109,7 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 
 	// If I wasn't supplied a filename, try and find a logs folder
 	if (file.empty()) {
-		file = ds::Environment::getAppFolder("logs");
+		file = ds::Environment::expand("%LOCAL%/logs/");
 	}
 	if (!file.empty()) {
 		Poco::Path path(file);
@@ -124,14 +124,14 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 		path.append(fn);
 		LOG_FILE = path.toString();
 
-		cout << "Logging to file " << LOG_FILE << endl;
+		std::cout << "Logging to file " << LOG_FILE << std::endl;
 		// Verify the directory exists
 		try {
 			path.makeAbsolute();
 			path.makeParent();
 			Poco::File			f(path);
 			f.createDirectories();
-			if (!f.exists()) cout << "WARNING:  Log directory does not exist.  No log will be created." << endl << "\t" << path.toString() << endl;
+			if (!f.exists()) std::cout << "WARNING:  Log directory does not exist.  No log will be created." << std::endl << "\t" << path.toString() << std::endl;
 		} catch (std::exception& e) {
 			std::cout << "Exception setting up logger directory: " << e.what() << std::endl;
 		}
@@ -260,7 +260,7 @@ void ds::Logger::Loop::log( const int level, const std::wstring& str)
 
 void Logger::Loop::run()
 {
-	vector<entry>				ins;
+	std::vector<entry>				ins;
 	ins.reserve(128);
 
 	while (true) {
@@ -287,7 +287,7 @@ void Logger::Loop::run()
 	}
 }
 
-void Logger::Loop::consume(vector<entry>& ins)
+void Logger::Loop::consume(std::vector<entry>& ins)
 {
 	for (int k=0; k<ins.size(); k++) {
 		const entry&			e = ins[k];
@@ -304,7 +304,7 @@ void Logger::Loop::consume(vector<entry>& ins)
 		mBuf << " ";
 		// message
 		mBuf << e.mMsg;
-		mBuf << endl;
+		mBuf << std::endl;
 
 		logToConsole(e, mBuf.str());
 		logToFile(e, mBuf.str());
@@ -320,15 +320,15 @@ void Logger::Loop::consume(vector<entry>& ins)
 
 void Logger::Loop::logToConsole(const entry& e, const std::string& formattedMsg)
 {
-	cout << formattedMsg;
+	std::cout << formattedMsg;
 }
 
 void Logger::Loop::logToFile(const entry& e, const std::string& formattedMsg)
 {
 	if (LOG_FILE.empty()) return;
 
-	ofstream outFile;
-	outFile.open(LOG_FILE.c_str(), ios_base::app);
+	std::ofstream outFile;
+	outFile.open(LOG_FILE.c_str(), std::ios_base::app);
 	outFile << formattedMsg;
 	outFile.close();
 }

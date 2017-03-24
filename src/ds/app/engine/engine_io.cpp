@@ -8,6 +8,8 @@
 #include "ds/util/string_util.h"
 #include "snappy.h"
 
+#include "ds/network/packet_chunker.h"
+
 namespace ds {
 
 /**
@@ -31,11 +33,21 @@ EngineSender::AutoSend::~AutoSend() {
 	if (!mSender.mConnection.initialized()) return;
 	if (mData.size() < 1) return;
 
-	const int size = mData.size();
+	const size_t size = mData.size();
 	mSender.mRawDataBuffer.setSize(size);
 	mData.readRaw(mSender.mRawDataBuffer.data(), size);
 	snappy::Compress(mSender.mRawDataBuffer.data(), size, &mSender.mCompressionBuffer);
-	mSender.mConnection.sendMessage(mSender.mCompressionBuffer);
+
+	static size_t packetNumber = 0;
+	packetNumber++;
+	ds::net::Chunker chunker;
+	std::vector<std::string> chunks;
+	chunker.Chunkify(mSender.mCompressionBuffer, packetNumber, chunks);
+
+	for (auto it : chunks){
+		mSender.mConnection.sendMessage(it);
+	}
+
 	mData.clear();
 }
 
@@ -61,22 +73,54 @@ void EngineReceiver::setHeaderAndCommandOnly(const bool b) {
 }
 
 ds::DataBuffer& EngineReceiver::getData() {
-	return mReceiveBuffer;
+	return mCurrentDataBuffer;
 }
 
-bool EngineReceiver::receiveAndHandle(ds::BlobRegistry& registry, ds::BlobReader& reader) {
-	EngineReceiver::AutoReceive   receive(*this);
-	if (mReceiveBuffer.size() < 1) {
+bool EngineReceiver::receiveBlob() {
+	std::string recvBuffer;
+	while(mConnection.recvMessage(recvBuffer)) {
+		mDechunker.addChunk(recvBuffer);
+	}
+
+	while(mDechunker.getAvailable() > 0) {
+		std::string outBuf;
+		bool validy = mDechunker.getNextGroup(outBuf);
+		snappy::Uncompress(outBuf.c_str(), outBuf.size(), &mCompressionBufferRead);
+		mReceiveBuffers.push_back(mCompressionBufferRead);
+
+		if(!validy) {
+			DS_LOG_WARNING_M("EngineReceiver: Invalid chunk received. Expect a new world frame shortly.", ds::IO_LOG);
+			break;
+		}
+	}
+
+	if(mReceiveBuffers.empty()) {
 		++mNoDataCount;
+		return false;
+	}
+
+	return true;
+}
+
+bool EngineReceiver::handleBlob(ds::BlobRegistry& registry, ds::BlobReader& reader, bool& morePacketsAvailable) {
+	if(mReceiveBuffers.empty()) {
+		++mNoDataCount;
+		morePacketsAvailable = false;
 		return false;
 	}
 
 	mNoDataCount = 0;
 
-	const int					receiveSize = mReceiveBuffer.size();
+	mCurrentDataBuffer.clear(); 
+	mCurrentDataBuffer.addRaw(mReceiveBuffers.front().c_str(), mReceiveBuffers.front().size());
+	mReceiveBuffers.erase(mReceiveBuffers.begin());
+
+	morePacketsAvailable = !mReceiveBuffers.empty();
+
+	const size_t				receiveSize = mCurrentDataBuffer.size();
 	const char					size = static_cast<char>(registry.mReader.size());
-	while (receive.mData.canRead<char>()) {
-		const char				token = receive.mData.read<char>();
+	while (mCurrentDataBuffer.canRead<char>()) {
+		const char				token = mCurrentDataBuffer.read<char>();
 		if (token > 0 && token < size) {
 			// If we're doing header and command only, as soon as we hit a
 			// non-header, non-command, we need to bail
@@ -102,16 +146,5 @@ void EngineReceiver::clearLostConnection() {
 	mNoDataCount = 0;
 }
 
-/**
- * \class ds::EngineReceiver::AutoReceive
- */
-EngineReceiver::AutoReceive::AutoReceive(EngineReceiver& receiver)
-		: mData(receiver.mReceiveBuffer) {
-	mData.clear();
-	if (receiver.mConnection.recvMessage(receiver.mCompressionBufferWrite)) {
-		snappy::Uncompress(receiver.mCompressionBufferWrite.c_str(), receiver.mCompressionBufferWrite.size(), &receiver.mCompressionBufferRead);
-		mData.addRaw(receiver.mCompressionBufferRead.c_str(), receiver.mCompressionBufferRead.size());
-	}
-}
 
 } // namespace ds

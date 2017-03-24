@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "view_dragger.h"
 
 #include <ds/ui/sprite/sprite_engine.h>

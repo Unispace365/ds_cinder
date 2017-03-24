@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "five_finger_cluster.h"
 
 #include <ds/debug/logger.h>

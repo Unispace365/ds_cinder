@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "cluster_view.h"
 
 #include <ds/debug/logger.h>

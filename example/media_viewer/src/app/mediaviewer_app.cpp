@@ -99,7 +99,7 @@ void MediaViewer::setupServer(){
 	mTouchMenu->setMenuConfig(tmc);
 
 	std::vector<ds::ui::TouchMenu::MenuItemModel> menuItemModels;
-	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Exit", "%APP%/data/images/menu/exit_app_normal.png", "%APP%/data/images/menu/exit_app_glow.png", [this](ci::vec3){ std::exit(0); }));
+	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Exit", "%APP%/data/images/menu/exit_app_normal.png", "%APP%/data/images/menu/exit_app_glow.png", [this](ci::vec3){ ci::app::App::quit(); }));
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Close All", "%APP%/data/images/menu/close_normal.png", "%APP%/data/images/menu/close_glow.png", [this](ci::vec3){ mEngine.getNotifier().notify(RequestCloseAllEvent()); }));
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Search", "%APP%/data/images/menu/search_normal.png", "%APP%/data/images/menu/search_glow.png", [this](ci::vec3 pos){  }));
 	menuItemModels.push_back(ds::ui::TouchMenu::MenuItemModel(L"Layout", "%APP%/data/images/menu/pinboard_normal.png", "%APP%/data/images/menu/pinboard_glow.png", [this](ci::vec3){ mEngine.getNotifier().notify(RequestLayoutEvent()); }));
@@ -155,7 +155,7 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 		}
 		else {
 			newMedia.setPrimaryResource(ds::Resource(fileNameOrig, ds::Resource::parseTypeFromFilename(fileNameOrig)));
-			newMedia.setTitle(ds::wstr_from_utf8(fileNameOrig));
+			newMedia.setTitle(L"The World Wide Web Internet Browser");
 			newMedia.setBody(ds::wstr_from_utf8(fileNameOrig));
 		}
 		mEngine.getNotifier().notify(RequestMediaOpenEvent(newMedia, ci::vec3(mEngine.getWorldWidth() / 2.0f, mEngine.getWorldHeight() / 2.0f, 0.0f), 600.0f));

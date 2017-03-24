@@ -32,6 +32,10 @@ private:
 
 	int					mDebugCamera;
 
+	ds::ui::Sprite*		mTopLeftMarker;
+	ds::ui::Sprite*		mBotRightMarker;
+	ds::ui::Sprite*		mTouchTestDuo;
+
 	void				moveRoot(const ci::vec3& deltaMove);
 	void				moveCamera(const ci::vec3& deltaMove, const bool moveTarget);
 	void				shiftLensH(const float amount);

@@ -65,7 +65,7 @@ void finger_drawing::setupServer(){
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
 	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
-		mEngine.editFonts().install(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
 	});
 
 	// Colors

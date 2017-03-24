@@ -21,7 +21,8 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 	, mPdfInterface(nullptr)
 	, mPDFNext(nullptr)
 	, mPDFPrev(nullptr)
-	, mPDFThumbHolder(nullptr)
+	, mPDFNextHolder(nullptr)
+	, mPDFPrevHolder(nullptr)
 	, mEmbedInterface(embedInterface)
 	, mShowInterfaceAtStart(true)
 	, mCurrentPage(-1)
@@ -33,8 +34,10 @@ PDFPlayer::PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface)
 //	setColor(ci::Color(0.3f, 0.5f, 0.0f));
 
 	mLayoutFixedAspect = true;
-	mPDFThumbHolder = new ds::ui::Sprite(mEngine);
-	addChildPtr(mPDFThumbHolder);
+	mPDFNextHolder = new ds::ui::Sprite(mEngine);
+	mPDFPrevHolder = new ds::ui::Sprite(mEngine);
+	addChildPtr(mPDFNextHolder);
+	addChildPtr(mPDFPrevHolder);
 }
 
 void PDFPlayer::setMedia(const std::string mediaPath){
@@ -46,7 +49,10 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 	mSourceResource = mediaResource;
 	std::string mediaPath = mSourceResource.getAbsoluteFilePath();
 
+	ci::vec2 prevSize = ci::vec2(0.0f, 0.0f);
+
 	if(mPDF){
+		prevSize = ci::vec2(mPDF->getSize());
 		mPDF->release();
 		mPDF = nullptr;
 		if(mPdfInterface){
@@ -73,9 +79,20 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 		if(mGoodStatusCallback) mGoodStatusCallback();
 	});
 
+	mPDF->setPageSizeChangedFn([this]{
+		if(mSizeChangedCallback){
+			if(mPDF){
+				mSizeChangedCallback(ci::vec2(mPDF->getSize()));
+			}
+		} else {
+			layout();
+		}
+	});
+
 	mPDF->setLoadErrorCallback([this](const std::string& msg){
 		if(mErrorMsgCallback) mErrorMsgCallback(msg);
 	});
+
 	addChildPtr(mPDF);
 
 	if(mPDFNext){
@@ -92,13 +109,12 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 	// This loads 2 additional PDF sprites, one for the next page, and one for the previous page
 	// The scale of the PDF stays at 0.5 (because of the thumb holder), so the quality is less than the proper PDF
 	// When the page gets changed, and the next or previous PDFs are loaded, they're shown until the primary PDF finishes rendering
-	if(mPDFThumbHolder && mPDF->getPageCount() > 1){
+	if(mPDFNextHolder && mPDFPrevHolder && mPDF->getPageCount() > 1){
 		mPDFNext = new ds::ui::Pdf(mEngine);
 
 		//Next and prev pdf starts loading after the first proper page has finished, for speed
-		//mPDFNext->setResourceFilename(mediaPath);
-		//mPDFNext->setPageNum(2);
 		mPDFNext->setScale(0.5f);
+		mPDFNext->setOpacity(0.0f);
 		mNextReady = false;
 		mPDFNext->setPageChangeCallback([this]{
 			mNextReady = false;
@@ -106,12 +122,11 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 		mPDFNext->setPageLoadedCallback([this]{
 			mNextReady = true;
 		});
-		mPDFThumbHolder->addChildPtr(mPDFNext);
+		mPDFNextHolder->addChildPtr(mPDFNext);
 
 		mPDFPrev = new ds::ui::Pdf(mEngine);
-		//mPDFPrev->setResourceFilename(mediaPath);
-		//mPDFPrev->setPageNum(mPDF->getPageCount());
 		mPDFPrev->setScale(0.5f);
+		mPDFPrev->setOpacity(0.0f);
 		mPrevReady = false;
 		mPDFPrev->setPageChangeCallback([this]{
 			mPrevReady = false;
@@ -119,9 +134,9 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 		mPDFPrev->setPageLoadedCallback([this]{
 			mPrevReady = true;
 		});
-		mPDFThumbHolder->addChildPtr(mPDFPrev);
+		mPDFPrevHolder->addChildPtr(mPDFPrev);
 
-		mPDFThumbHolder->sendToFront();
+		mPDFPrevHolder->sendToFront();
 	}
 
 	mCurrentPage = 0;
@@ -164,7 +179,11 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 					if(mNextReady){
 						mPDFNext->setOpacity(1.0f);
 					} else {
-						//loadNextAndPrevPages();
+						mPDFNext->setOpacity(0.0f);
+					}
+
+					if(mPDFPrev){
+						mPDFPrev->setOpacity(0.0f);
 					}
 				}
 				if(mPDFPrev && mPDF->getPageNum() == mPDFPrev->getPageNum()){
@@ -172,7 +191,11 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 					if(mPrevReady){
 						mPDFPrev->setOpacity(1.0f);
 					} else {
-					//	loadNextAndPrevPages();
+						mPDFPrev->setOpacity(0.0f);
+					}
+
+					if(mPDFNext){
+						mPDFNext->setOpacity(0.0f);
 					}
 				}
 
@@ -185,6 +208,7 @@ void PDFPlayer::setResource(const ds::Resource mediaResource){
 				mPdfInterface->updateWidgets();
 			}
 
+			layout();
 		});
 	}
 
@@ -211,6 +235,8 @@ void PDFPlayer::loadNextAndPrevPages(){
 			mPDFPrev->setPageNum(curPageNum - 1);
 		}
 	}
+
+	layout();
 }
 
 void PDFPlayer::onSizeChanged(){
@@ -221,15 +247,36 @@ void PDFPlayer::layout(){
 	const float w = getWidth();
 	const float h = getHeight();
 
-	if(mPDFThumbHolder && mPDFNext){
-		float theScale = h / mPDFNext->getHeight();
-		mPDFThumbHolder->setScale(theScale * 2.0f);
+	if(mPDFNextHolder && mPDFNext){
+		float pfnw = mPDFNext->getWidth();
+		float pfnh = mPDFNext->getHeight();
+		float theScale = h / pfnh;
+		if(theScale * pfnw > w){
+			theScale = w / pfnw;
+		}
+		mPDFNextHolder->setScale(theScale * 2.0f);
+		mPDFNextHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
 	}
 
-	if(mPDF){
+	if(mPDFPrevHolder && mPDFPrev){
+		float pfnw = mPDFPrev->getWidth();
+		float pfnh = mPDFPrev->getHeight();
+		float theScale = h / pfnh;
+		if(theScale * pfnw > w){
+			theScale = w / pfnw;
+		}
+		mPDFPrevHolder->setScale(theScale * 2.0f);
+		mPDFPrevHolder->setPosition(w / 2.0f - theScale * pfnw / 2.0f, h / 2.0f - theScale * pfnh / 2.0f);
+	}
+
+	if(mPDF && w > 0.0f && h > 0.0f && mPDF->getHeight() > 0.0f && mPDF->getWidth() > 0.0f){
 		// make the PDF content fill the vertical space perfectly
 		float theScale = h / mPDF->getHeight();
 		mPDF->setScale(theScale);
+
+		if(mPDF->getScaleWidth() > w){
+			mPDF->setScale(w / mPDF->getWidth());
+		}
 
 		// then center it
 		mPDF->setPosition((w - mPDF->getScaleWidth()) * 0.5f, (h - mPDF->getScaleHeight()) * 0.5f);

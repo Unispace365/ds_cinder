@@ -100,7 +100,7 @@ private:
  */
 class AddErrorEvent : public ds::Event {
 public:
-	static int				WHAT();
+	static size_t			WHAT();
 	AddErrorEvent(const ErrorRef&);
 	const ErrorRef&			mError;
 };
@@ -111,7 +111,7 @@ public:
  */
 class RemoveErrorEvent : public ds::Event {
 public:
-	static int				WHAT();
+	static size_t			WHAT();
 	RemoveErrorEvent(const int32_t);
 	const int32_t			mErrorId;
 };
@@ -122,7 +122,7 @@ public:
  */
 class ErrorsChangedEvent : public ds::Event {
 public:
-	static int				WHAT();
+	static size_t			WHAT();
 	ErrorsChangedEvent(const ErrorList&);
 	const ErrorList&		mErrors;
 };
@@ -133,7 +133,7 @@ public:
  */
 class ToggleTestErrorEvent : public ds::Event {
 public:
-	static int				WHAT();
+	static size_t			WHAT();
 	ToggleTestErrorEvent();
 };
 

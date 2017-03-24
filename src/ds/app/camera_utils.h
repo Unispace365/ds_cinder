@@ -21,8 +21,10 @@ class CameraPick
 		CameraPick(	ci::Camera&, const ci::vec3& screenPt,
 								const float screenWidth, const float screenHeight);
 
-		const ci::vec3&		getScreenPt() const;
+		const ci::vec3&			getScreenPt() const;
 		ci::vec2				worldToScreen(const ci::vec3 &worldCoord) const;
+
+		ci::Camera&				getCamera(){ return mCamera; }
 
   private:
 		ci::Camera&				mCamera;

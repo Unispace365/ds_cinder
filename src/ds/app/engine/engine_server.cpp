@@ -217,6 +217,8 @@ void AbstractEngineServer::onClientStartedCommand(ds::DataBuffer &data) {
 
 		mClientStartedReplyState.mClients.push_back(sessionid);
 		setState(mClientStartedReplyState);
+	} else {
+		DS_LOG_INFO_M("onClientStartedCommand didn't receive a valid guid or sessionid!", ds::IO_LOG);
 	}
 }
 
@@ -300,7 +302,7 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		addHeader(send.mData, mFrame);
 //		DS_LOG_INFO_M("running frame=" << mFrame, ds::IO_LOG);
 
-		const int numRoots = engine.getRootCount();
+		const size_t numRoots = engine.getRootCount();
 		for(int i = 0; i < numRoots - 1; i++){
 			if(!engine.getRootBuilder(i).mSyncronize) continue;
 			ds::ui::Sprite& rooty = engine.getRootSprite(i);
@@ -315,15 +317,16 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		}
 	}
 
-	// Handle data from all the clients. This high number is used
-	// to compensate for catching up when things cause me to get
-	// behind (which could be as simple as LogMeIn taking over a
-	// machine). It might be that we just want to wait until all
-	// registered clients have reported the current frame.
-	int32_t		limit = 100;
-	while (engine.mReceiveConnection.canRecv()) {
-		engine.mReceiver.receiveAndHandle(engine.mBlobRegistry, engine.mBlobReader);
-		if (--limit <= 0) break;
+	// this receive call pulls everything it can off the wire and caches it
+	engine.mReceiver.receiveBlob();
+
+	// now we can look through all the data we got and handle it
+	while(true) {
+		bool moreData = false;
+		engine.mReceiver.handleBlob(engine.mBlobRegistry, engine.mBlobReader, moreData);
+		if(!moreData) {
+			break;
+		}
 	}
 
 	// Track how far behind any clients are
@@ -385,11 +388,11 @@ void EngineServer::ClientStartedReplyState::update(AbstractEngineServer& engine)
 				send.mData.add(s->mSessionId);
 
 				send.mData.add(ATT_ROOTS);
-				int rootCount = engine.getRootCount();
+				size_t rootCount = engine.getRootCount();
 				int numActualRoots = 0;
 				std::vector<RootList::Root> roots;
 
-				for(int i = 0; i < rootCount; i++){
+				for(size_t i = 0; i < rootCount; i++){
 					if(!engine.getRootBuilder(i).mSyncronize) continue;
 					numActualRoots++;
 					RootList::Root newRoot = RootList::Root();
@@ -439,8 +442,8 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 		send.mData.add(CMD_SERVER_SEND_WORLD);
 		send.mData.add(ds::TERMINATOR_CHAR);
 
-		const int numRoots = engine.getRootCount();
-		for(int i = 0; i < numRoots - 1; i++){
+		const size_t numRoots = engine.getRootCount();
+		for(size_t i = 0; i < numRoots - 1; i++){
 			if(!engine.getRootBuilder(i).mSyncronize) continue;
 			ds::ui::Sprite& rooty = engine.getRootSprite(i);
 			rooty.markTreeAsDirty();

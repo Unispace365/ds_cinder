@@ -5,7 +5,7 @@
 #include <iostream>
 #include <Windows.h>
 
-using namespace std;
+//using namespace std;
 using namespace ds;
 
 static VOID CALLBACK empty_func(ULONG_PTR dwParam)	{ }
@@ -62,7 +62,7 @@ void DirectoryWatcher::Waiter::run()
 	if (handle[0] == INVALID_HANDLE_VALUE) goto cleanup;
 	for (k = 1; k < count; k++) {
 		if (handle[k] == INVALID_HANDLE_VALUE) {
-			cout << "ERROR DirectoryWatcherOp invalid handle on " << mPath[k-1] << endl;
+			std::cout << "ERROR DirectoryWatcherOp invalid handle on " << mPath[k - 1] << std::endl;
 			goto cleanup;
 		}
 	}
@@ -70,7 +70,7 @@ void DirectoryWatcher::Waiter::run()
 
 	while (TRUE) { 
 		// Wait for notification.
-		ans = WaitForMultipleObjectsEx(count, handle, FALSE, INFINITE, TRUE);
+		ans = WaitForMultipleObjectsEx((DWORD)count, handle, FALSE, INFINITE, TRUE);
 
 		if (isStopped()) goto cleanup;
 		if (ans < WAIT_OBJECT_0 || ans >= WAIT_OBJECT_0 + count) goto cleanup;

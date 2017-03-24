@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "scroll_bar.h"
 
 #include <ds/ui/scroll/scroll_area.h>

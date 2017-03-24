@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_JSDIALOG_CALLBACK_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_jsdialog_handler.h"
 #include "include/capi/cef_jsdialog_handler_capi.h"
@@ -28,15 +28,10 @@ class CefJSDialogCallbackCToCpp
     : public CefCToCpp<CefJSDialogCallbackCToCpp, CefJSDialogCallback,
         cef_jsdialog_callback_t> {
  public:
-  explicit CefJSDialogCallbackCToCpp(cef_jsdialog_callback_t* str)
-      : CefCToCpp<CefJSDialogCallbackCToCpp, CefJSDialogCallback,
-          cef_jsdialog_callback_t>(str) {}
-  virtual ~CefJSDialogCallbackCToCpp() {}
+  CefJSDialogCallbackCToCpp();
 
-  // CefJSDialogCallback methods
-  virtual void Continue(bool success, const CefString& user_input) OVERRIDE;
+  // CefJSDialogCallback methods.
+  void Continue(bool success, const CefString& user_input) OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_JSDIALOG_CALLBACK_CTOCPP_H_
-

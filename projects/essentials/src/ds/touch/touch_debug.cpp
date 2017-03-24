@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "touch_debug.h"
 
 #include <ds/app/engine/engine.h>

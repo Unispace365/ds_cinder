@@ -67,6 +67,9 @@ public:
 	/// If video streaming fails, will automatically try to reconnect (default=true)
 	void				setAutoRestartStream(bool autoRestart);
 
+	/// If a video is in streaming mode (live pipeline)
+	bool				getIsStreaming(){ return mStreaming; }
+
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility
 	// with existing behavior.
@@ -249,9 +252,6 @@ private:
 	bool				mStatusChanged;
 	//Allow for custom audio output
 	bool				mGenerateAudioBuffer;
-
-	// YUV/I420 -> RGB conversion
-	ci::gl::GlslProgRef	mShader;
 
 	std::vector<Poco::Timestamp::TimeVal>	mBufferUpdateTimes;
 	float									mCurrentGstFrameRate;

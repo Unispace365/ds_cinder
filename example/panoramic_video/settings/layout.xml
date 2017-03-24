@@ -8,6 +8,6 @@
 	<float name="info_list:item:height" value="50" />
 	<float name="info_list:item:pad" value="30" />
 	
-	<float name="panoramic_video:fov" value="60" />
+	<float name="panoramic_video:fov" value="75" />
 	
 </settings>

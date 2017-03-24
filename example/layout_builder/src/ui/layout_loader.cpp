@@ -7,6 +7,7 @@
 #include <ds/app/environment.h>
 #include <ds/app/event_notifier.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/sprite/shader/sprite_shader.h>
 #include <ds/util/string_util.h>
 #include <ds/debug/logger.h>
 
@@ -30,6 +31,7 @@ LayoutLoader::LayoutLoader(Globals& g)
 
 void LayoutLoader::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == RefreshLayoutRequest::WHAT()){
+		ds::ui::SpriteShader::clearShaderCache();
 		loadLayout(mLayoutLocation);
 	} else if(in_e.mWhat == LayoutLayoutRequest::WHAT()){
 		layout();

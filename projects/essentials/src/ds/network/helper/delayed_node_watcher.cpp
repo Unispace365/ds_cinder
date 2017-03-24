@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "delayed_node_watcher.h"
 
 #include <ds/app/event_notifier.h>

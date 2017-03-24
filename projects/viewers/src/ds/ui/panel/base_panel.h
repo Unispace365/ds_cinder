@@ -98,6 +98,9 @@ public:
 	/** Sends this panel to the front and calls onPanelActivated() */
 	void							activatePanel();
 
+	/** If enabled (the default), will send this panel to the front on any user input. Otherwise leaves the order alone */
+	void							setAutoKeepInFront(const bool autoBringToFront){ mAutoSendToFront = autoBringToFront; }
+
 protected:
 	virtual void					updateServer(const ds::UpdateParams &updateParams);
 
@@ -130,6 +133,8 @@ protected:
 
 	ds::Momentum					mMomentum;
 	bool							mTouching;
+
+	bool							mAutoSendToFront;
 
 	float							mAnimDuration;
 	bool							mAnimating;

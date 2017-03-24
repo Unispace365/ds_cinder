@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "menu_item.h"
 
 #include <boost/algorithm/string.hpp>

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "control_slider.h"
 
 #include <ds/math/math_func.h>

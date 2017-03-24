@@ -99,7 +99,7 @@ public:
 
 	const ds::EngineData&				getEngineData() const		{ return mData; }
 	// only valid after setup() is called
-	int									getRootCount() const;
+	size_t								getRootCount() const;
 	ui::Sprite&							getRootSprite(const size_t index = 0);
 	// Access to the configuration settings that created a root. Allows you to inspect pick style, debug drawing, perspective, etc
 	const RootList::Root&				getRootBuilder(const size_t index = 0);
@@ -178,7 +178,8 @@ public:
 	// to make sure everything is stopped before they go away.
 	virtual void						stopServices();
 
-	bool								hideMouse() const;
+	void								setHideMouse(const bool doMouseHide);
+	bool								getHideMouse() const;
 
 	ds::ui::Sprite*						getHit(const ci::vec3& point);
 

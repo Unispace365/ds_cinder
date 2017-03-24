@@ -87,6 +87,7 @@ public:
 private:
 	friend class App;
 	static bool					initialize();
+	static void					setConfigDirFileExpandOverride(const bool doOverride);
 };
 
 } // namespace ds

@@ -39,10 +39,10 @@ int pdf_get_field_flags(fz_context *ctx, pdf_document *doc, pdf_obj *obj);
 int pdf_field_type(fz_context *ctx, pdf_document *doc, pdf_obj *field);
 void pdf_set_field_type(fz_context *ctx, pdf_document *doc, pdf_obj *obj, int type);
 char *pdf_field_value(fz_context *ctx, pdf_document *doc, pdf_obj *field);
-int pdf_field_set_value(fz_context *ctx, pdf_document *doc, pdf_obj *field, char *text);
+int pdf_field_set_value(fz_context *ctx, pdf_document *doc, pdf_obj *field, const char *text);
 char *pdf_field_border_style(fz_context *ctx, pdf_document *doc, pdf_obj *field);
-void pdf_field_set_border_style(fz_context *ctx, pdf_document *doc, pdf_obj *field, char *text);
-void pdf_field_set_button_caption(fz_context *ctx, pdf_document *doc, pdf_obj *field, char *text);
+void pdf_field_set_border_style(fz_context *ctx, pdf_document *doc, pdf_obj *field, const char *text);
+void pdf_field_set_button_caption(fz_context *ctx, pdf_document *doc, pdf_obj *field, const char *text);
 void pdf_field_set_fill_color(fz_context *ctx, pdf_document *doc, pdf_obj *field, pdf_obj *col);
 void pdf_field_set_text_color(fz_context *ctx, pdf_document *doc, pdf_obj *field, pdf_obj *col);
 void pdf_signature_set_value(fz_context *ctx, pdf_document *doc, pdf_obj *field, pdf_signer *signer);
@@ -51,5 +51,6 @@ char *pdf_field_name(fz_context *ctx, pdf_document *doc, pdf_obj *field);
 void pdf_field_set_display(fz_context *ctx, pdf_document *doc, pdf_obj *field, int d);
 pdf_obj *pdf_lookup_field(fz_context *ctx, pdf_obj *form, char *name);
 void pdf_field_reset(fz_context *ctx, pdf_document *doc, pdf_obj *field);
+int pdf_signatures_supported(fz_context *ctx);
 
 #endif

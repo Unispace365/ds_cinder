@@ -1,5 +1,8 @@
+#include "stdafx.h"
+
 #include "https_client.h"
 
+#define CURL_STATICLIB
 #include "ds/network/curl/curl.h"
 
 #include <ds/debug/logger.h>
@@ -74,11 +77,14 @@ void HttpsRequest::IndividualRequest::setInput(std::string url){
 	mInput = url;
 }
 
-size_t write_callback(char *contents, size_t size, size_t nmemb, void *userdata){
+namespace {
+size_t this_write_callback(char *contents, size_t size, size_t nmemb, void *userdata){
 	size_t realsize = size * nmemb;
-	((std::string*)userdata)->append((char*)contents, size * nmemb);
+	((std::string*)userdata)->append((char*)contents, realsize);
 	return realsize;
 }
+}
+
 void HttpsRequest::IndividualRequest::run(){
 	mError = false;
 	mErrorMessage = "";
@@ -99,55 +105,37 @@ void HttpsRequest::IndividualRequest::run(){
 			curl_easy_setopt(curl, CURLOPT_VERBOSE, 1L);
 		}
 
+		curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, this_write_callback);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &mOutput);
+
+
+		/*
+		* If you want to connect to a site who isn't using a certificate that is
+		* signed by one of the certs in the CA bundle you have, you can skip the
+		* verification of the server's certificate. This makes the connection
+		* A LOT LESS SECURE.
+		*
+		* If you have a CA cert for the server stored someplace else than in the
+		* default bundle, then the CURLOPT_CAPATH option might come handy for
+		* you.
+		*/
+		if(!mVerifyPeers){
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
+		}
+		/*
+		* If the site you're connecting to uses a different host name that what
+		* they have mentioned in their server certificate's commonName (or
+		* subjectAltName) fields, libcurl will refuse to connect. You can skip
+		* this check, but this will make the connection less secure.
+		*/
+		if(!mVerifyHost){
+			curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
+		}
+
 		struct curl_slist *headers = NULL;
-		if(mIsGet){
-			CURLcode res;
-			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
-			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &mOutput);
-
-			/*
-			* If you want to connect to a site who isn't using a certificate that is
-			* signed by one of the certs in the CA bundle you have, you can skip the
-			* verification of the server's certificate. This makes the connection
-			* A LOT LESS SECURE.
-			*
-			* If you have a CA cert for the server stored someplace else than in the
-			* default bundle, then the CURLOPT_CAPATH option might come handy for
-			* you.
-			*/
-			if(!mVerifyPeers){
-				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-			}
-
-			/*
-			* If the site you're connecting to uses a different host name that what
-			* they have mentioned in their server certificate's commonName (or
-			* subjectAltName) fields, libcurl will refuse to connect. You can skip
-			* this check, but this will make the connection less secure.
-			*/
-			if(!mVerifyHost){
-				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-			}
-
-			res = curl_easy_perform(curl);
-
-			if(res != CURLE_OK){
-				mError = true;
-				mErrorMessage = curl_easy_strerror(res);
-				DS_LOG_WARNING(mErrorMessage);
-			} else {
-				// success
-			}
-
-			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
-		} else {
-			/* First set the URL that is about to receive our POST. This URL can
-			just as well be a https:// URL if that is what should receive the
-			data. */
-			CURLcode res;
-			curl_easy_setopt(curl, CURLOPT_URL, mInput.c_str());
-
+		CURLcode res;
+		if(!mIsGet){
 			if(!mHeaders.empty()){
 				for(auto it : mHeaders){
 					headers = curl_slist_append(headers, it.c_str());
@@ -165,42 +153,18 @@ void HttpsRequest::IndividualRequest::run(){
 				curl_easy_setopt(curl, CURLOPT_POSTFIELDS, mPostData.c_str());
 			}
 
-			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_callback);
-			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &mOutput);
-			/*
-			* If you want to connect to a site who isn't using a certificate that is
-			* signed by one of the certs in the CA bundle you have, you can skip the
-			* verification of the server's certificate. This makes the connection
-			* A LOT LESS SECURE.
-			*
-			* If you have a CA cert for the server stored someplace else than in the
-			* default bundle, then the CURLOPT_CAPATH option might come handy for
-			* you.
-			*/
-			if(!mVerifyPeers){
-				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
-			}
-			/*
-			* If the site you're connecting to uses a different host name that what
-			* they have mentioned in their server certificate's commonName (or
-			* subjectAltName) fields, libcurl will refuse to connect. You can skip
-			* this check, but this will make the connection less secure.
-			*/
-			if(!mVerifyHost){
-				curl_easy_setopt(curl, CURLOPT_SSL_VERIFYHOST, 0L);
-			}
-
-			/* Perform the request, res will get the return code */
-			res = curl_easy_perform(curl);
-			/* Check for errors */
-			if(res != CURLE_OK){
-				mError = true;
-				mErrorMessage = curl_easy_strerror(res);
-				DS_LOG_WARNING(mErrorMessage);
-			} 
-			
-			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
 		}
+
+		/* Perform the request, res will get the return code */
+		res = curl_easy_perform(curl);
+		/* Check for errors */
+		if(res != CURLE_OK){
+			mError = true;
+			mErrorMessage = curl_easy_strerror(res);
+			DS_LOG_WARNING(mErrorMessage);
+		}
+
+		curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &mHttpStatus);
 
 		if(headers){
 			curl_slist_free_all(headers);

@@ -57,7 +57,7 @@ const std::string DefaultVert =
 
 const ds::BitMask SHADER_LOG = ds::Logger::newModule("shader");
 
-std::map<std::string, ci::gl::GlslProgRef> GlslProgs;
+std::unordered_map<std::string, ci::gl::GlslProgRef> GlslProgs;
 
 }
 
@@ -67,8 +67,7 @@ namespace ui {
 SpriteShader::SpriteShader(const std::string &defaultLocation, const std::string &defaultName)
 	: mDefaultLocation(defaultLocation)
 	, mDefaultName(defaultName)
-	//, mMemoryVert(nullptr)
-	//, mMemoryFrag(nullptr)
+	, mShader(nullptr)
 {
 	mLocation = mDefaultLocation;
 	mName = mDefaultName;
@@ -79,26 +78,19 @@ SpriteShader::SpriteShader(const std::string& vert_memory, const std::string& fr
 	: mMemoryVert(vert_memory)
 	, mMemoryFrag(frag_memory)
 	, mName(shaderName)
+	, mShader(nullptr)
 {
-
 }
-
-SpriteShader::~SpriteShader()
-{
-
-}
-
 
 void SpriteShader::setShaders(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName){
-	if(mShader)
+	if(mShader) {
 		mShader.reset();
+	}
 
 	mMemoryVert = vert_memory;
 	mMemoryFrag = frag_memory;
 	mName = shaderName;
-
 }
-
 
 void SpriteShader::setShaders(const std::string &location, const std::string &name){
 	if(name.empty()) {
@@ -110,21 +102,20 @@ void SpriteShader::setShaders(const std::string &location, const std::string &na
 		return;
 	}
 
-	if(mShader)
+	if(mShader){
 		mShader.reset();
+	}
 
 	mLocation = location;
 	mName = name;
 }
 
-void SpriteShader::loadShaders(){
-	loadShadersFromFile();
-	if(!mShader)
-		loadFromMemory();
-	if(!mShader)
-		loadDefaultFromFile();
-	if(!mShader)
-		loadDefaultFromMemory();
+void SpriteShader::loadShaders() {
+	if(mShader) return;
+	if(!mShader) loadShadersFromFile();
+	if(!mShader) loadFromMemory();
+	if(!mShader) loadDefaultFromFile();
+	if(!mShader) loadDefaultFromMemory();
 }
 
 bool SpriteShader::isValid() const {

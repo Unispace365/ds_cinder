@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "scroll_list.h"
 
 #include <ds/ui/sprite/sprite_engine.h>
@@ -233,6 +235,8 @@ void ScrollList::layoutItemsMatrix()
 				yp = mStartPositionY;
 			}
 			else {
+				if (index == mItemPlaceHolders.size())
+					xp += mIncrementAmount;
 				yp += mGapping;
 			}
 		}

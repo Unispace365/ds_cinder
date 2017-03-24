@@ -14,80 +14,90 @@ namespace ds {
 class DataBuffer
 {
 public:
-	DataBuffer(unsigned initialStreamSize = 0);
-	unsigned size();
+	DataBuffer(size_t initialStreamSize = 0);
+	size_t size();
 	void seekBegin();
 	void clear();
 
 	template <typename T>
-	bool canRead()
-	{
-		unsigned size = sizeof(T);
-		unsigned currentPosition = mStream.getReadPosition();
-
-		mStream.setReadPosition(ReadWriteBuffer::End);
-		unsigned length = mStream.getReadPosition();
-		mStream.setReadPosition(currentPosition);
-
-		if(size > (length - currentPosition))
-			return false;
-		return true;
-	}
+	bool canRead();
 
 	// function to add raw data no size added.
-	void addRaw(const char *b, unsigned size);
+	void addRaw(const char *b, size_t size);
 	// function to read raw data no size will be read.
-	bool readRaw(char *b, unsigned size);
+	bool readRaw(char *b, size_t size);
 
 	// will write size when writing data.
-	void add(const char *b, unsigned size);
+	void add(const char *b, size_t size);
 
 	template <typename T>
-	void add(const T &t)
-	{
-		mStream.write((const char *)(&t), sizeof(t));
-	}
+	void add(const T &t);
 
 	void add(const char *cs);
 	void add(const wchar_t *cs);
 
 	// will read size from buffer and only read if size is available.
-	bool read(char *b, unsigned size);
+	bool read(char *b, size_t size);
 
 	template <typename T>
-	T read()
-	{
-		T t;
-		mStream.read((char *)(&t), sizeof(t));
-		return t;
-	}
+	T read();
 
 	template <typename T>
-	void rewindRead()
-	{
-		unsigned currentPosition = mStream.getReadPosition();
-
-		if(sizeof(T) > currentPosition)
-			return;
-
-		mStream.rewindRead(sizeof(T));
-	}
+	void rewindRead();
 
 	template <typename T>
-	void rewindAdd()
-	{
-		unsigned currentPosition = mStream.getWritePosition();
-
-		if(sizeof(T) > currentPosition)
-			return;
-
-		mStream.rewindWrite(sizeof(T));
-	}
+	void rewindAdd();
 private:
 	ReadWriteBuffer		mStream;
-	RecycleArray<char>   mStringBuffer;
-	RecycleArray<char>   mWStringBuffer;
+	RecycleArray<char>	mStringBuffer;
+	RecycleArray<char>	mWStringBuffer;
 };
+
+template <typename T>
+bool ds::DataBuffer::canRead(){
+	size_t size = sizeof(T);
+	size_t currentPosition = mStream.getReadPosition();
+
+	mStream.setReadPosition(ReadWriteBuffer::End);
+	size_t length = mStream.getReadPosition();
+	mStream.setReadPosition(currentPosition);
+
+	if(size > (length - currentPosition))
+		return false;
+	return true;
+}
+
+template <typename T>
+void ds::DataBuffer::add(const T &t){
+	mStream.write((const char *)(&t), sizeof(t));
+}
+
+template <typename T>
+T ds::DataBuffer::read(){
+	T t;
+	mStream.read((char *)(&t), sizeof(t));
+	return t;
+}
+
+template <typename T>
+void ds::DataBuffer::rewindRead(){
+	size_t currentPosition = mStream.getReadPosition();
+
+	if(sizeof(T) > currentPosition)
+		return;
+
+	mStream.rewindRead(sizeof(T));
+}
+
+template <typename T>
+void ds::DataBuffer::rewindAdd(){
+	size_t currentPosition = mStream.getWritePosition();
+
+	if(sizeof(T) > currentPosition)
+		return;
+
+	mStream.rewindWrite(sizeof(T));
+}
 
 // Template specializations
 template <>

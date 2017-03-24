@@ -364,16 +364,19 @@ void GstVideo::drawLocalClient(){
 
 			dat = mGstreamerWrapper->getVideo();
 
-			if (dat){
+			if (dat && mFrameTexture){
 				if (mColorType == kColorTypeShaderTransform ){
 
-					ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
-					ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
-					ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
+					if(mUFrameTexture && mVFrameTexture){
+						ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
+						ci::Channel8u uChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y);
+						ci::Channel8u vChannel(mVideoSize.x / 2, mVideoSize.y / 2, mVideoSize.x / 2, 1, dat + mVideoSize.x * mVideoSize.y + mVideoSize.x * (mVideoSize.y / 4));
 
-					mFrameTexture->update(yChannel);// , ci::Area(0, 0, mVideoSize.x, mVideoSize.y));
-					mUFrameTexture->update(uChannel);// , ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
-					mVFrameTexture->update(vChannel);// , ci::Area(0, 0, mVideoSize.x / 2, mVideoSize.y / 2));
+						mFrameTexture->update(yChannel);
+						mUFrameTexture->update(uChannel);
+						mVFrameTexture->update(vChannel);
+					}
+
 				} else {
 					ci::Surface video_surface(dat, mVideoSize.x, mVideoSize.y, videoDepth, co);
 					mFrameTexture->update(video_surface);
@@ -400,13 +403,12 @@ void GstVideo::drawLocalClient(){
 		if (mColorType == kColorTypeShaderTransform){
 			ci::gl::disableDepthRead();
 			ci::gl::disableDepthWrite();
-			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
 
-				if (mFrameTexture) mFrameTexture->bind(2);
-				if (mUFrameTexture) mUFrameTexture->bind(3);
-				if (mVFrameTexture) mVFrameTexture->bind(4);
+			if (mFrameTexture) mFrameTexture->bind(2);
+			if (mUFrameTexture) mUFrameTexture->bind(3);
+			if (mVFrameTexture) mVFrameTexture->bind(4);
 
-			}
+			
 			if(getPerspective()){
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, mHeight, mWidth, 0.0f));
 			} else {
@@ -424,11 +426,10 @@ void GstVideo::drawLocalClient(){
 
 
 		if (mColorType == kColorTypeShaderTransform){
-			if (mSpriteShader.getName().compare("yuv_colorspace_conversion") == 0){
-				if (mFrameTexture) mFrameTexture->unbind(2);
-				if (mUFrameTexture) mUFrameTexture->unbind(3);
-				if (mVFrameTexture) mVFrameTexture->unbind(4);
-			}
+			if(mFrameTexture) mFrameTexture->unbind(2);
+			if(mUFrameTexture) mUFrameTexture->unbind(3);
+			if(mVFrameTexture) mVFrameTexture->unbind(4);
+			
 		} else {
 			if (mFrameTexture) mFrameTexture->unbind();
 		}
@@ -547,20 +548,21 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 
 		mServerOnlyMode = false;
 
+#ifndef _WIN64
 		if(mEngine.getComputerInfo().getPhysicalMemoryUsedByProcess() > 800.0f){
 			setSizeAll(static_cast<float>(videoWidth), static_cast<float>(videoHeight), mDepth);
 			DS_LOG_WARNING_M("doLoadVideo aborting loading a video because we're almost out of memory", GSTREAMER_LOG);
 			if(mErrorFn) mErrorFn("Did not load a video because the system ran out of memory.");
 			return;
 		}
+#endif
 
 		if(type == VideoMetaCache::AUDIO_ONLY_TYPE){
 			generateVideoBuffer = false;
 			mOutOfBoundsMuted = false;
 		}
 		// if the video was set previously, clear out the shader so we don't multiple-set the shader
-		removeShaders();
-		setBaseShader(Environment::getAppFolder("data/shaders"), "base");
+		//removeShaders();
 
 		mDrawable = false;
 
@@ -568,20 +570,24 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		if(colorSpace == "4:2:0"){
 			theColor = ColorType::kColorTypeShaderTransform;
 			std::string shaderName("yuv_colorspace_conversion");
-			addNewMemoryShader(yuv_vert, yuv_frag, shaderName, true);
+			mSpriteShader.setShaders(yuv_vert, yuv_frag, shaderName);// , true);
+			mSpriteShader.loadShaders();
 			ds::gl::Uniform uniform;
 
 			uniform.setInt("gsuTexture0", 2);
 			uniform.setInt("gsuTexture1", 3);
 			uniform.setInt("gsuTexture2", 4);
 			setShadersUniforms("yuv_colorspace_conversion", uniform);
+			uniform.applyTo(mSpriteShader.getShader());
+		} else {
+			setBaseShader(Environment::getAppFolder("data/shaders"), "base");
 		}
 
 		bool hasAudioTrack = (type == VideoMetaCache::AUDIO_ONLY_TYPE || type == VideoMetaCache::VIDEO_AND_AUDIO_TYPE);
 
 		mColorType = theColor;
 		DS_LOG_INFO_M("GstVideo::doLoadVideo() movieOpen: " << filename, GSTREAMER_LOG);
-		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, theColor, videoWidth, videoHeight, hasAudioTrack);
+		mGstreamerWrapper->open(filename, generateVideoBuffer, mGenerateAudioBuffer, theColor, videoWidth, videoHeight, hasAudioTrack, mCachedDuration);
 
 		mVideoSize.x = mGstreamerWrapper->getWidth();
 		mVideoSize.y = mGstreamerWrapper->getHeight();
@@ -646,7 +652,6 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 		return;
 	}
 
-	removeShaders();
 	setBaseShader(Environment::getAppFolder("data/shaders"), "base");
 
 	mDrawable = false;
@@ -668,7 +673,7 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	mOutOfBoundsMuted = true;
 	mColorType = ColorType::kColorTypeShaderTransform;
 	std::string name("yuv_colorspace_conversion");
-	addNewMemoryShader(yuv_vert, yuv_frag, name, true);
+	mSpriteShader.setShaders(yuv_vert, yuv_frag, name);// , true);
 	ds::gl::Uniform uniform;
 
 	uniform.setInt("gsuTexture0", 2);
@@ -951,7 +956,7 @@ void GstVideo::setNetClock(){
 		mServerOnlyMode = true;
 	} else if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
 		//Read port from settings file if available.  Otherwise, pick default.
-		static int newPort = mEngine.getSettings("layout").getInt("gstVideo:netclock:port", 0, 0);
+		static int newPort = mEngine.getSettings("engine").getInt("gstVideo:netclock:port", 0, DEFAULT_PORT);
 		if (newPort == 0){
 			newPort = DEFAULT_PORT;
 		}

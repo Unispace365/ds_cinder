@@ -44,7 +44,7 @@ namespace {
 
 // A is a map between a string and a vector
 template <typename A>
-static int get_size(const std::string& name, A& container)
+static size_t get_size(const std::string& name, A& container)
 {
 	auto it = container.find(name);
 	if (it != container.end()) return it->second.size();
@@ -414,39 +414,39 @@ void Settings::clear() {
 	mPoints.clear();
 }
 
-int Settings::getBoolSize(const std::string& name) const {
+size_t Settings::getBoolSize(const std::string& name) const {
 	return getTextSize(name);
 }
 
-int Settings::getColorSize(const std::string& name) const {
+size_t Settings::getColorSize(const std::string& name) const {
 	return get_size(name, mColor);
 }
 
-int Settings::getFloatSize(const std::string& name) const {
+size_t Settings::getFloatSize(const std::string& name) const {
 	return get_size(name, mFloat);
 }
 
-int Settings::getIntSize(const std::string& name) const {
+size_t Settings::getIntSize(const std::string& name) const {
 	return get_size(name, mInt);
 }
 
-int Settings::getRectSize(const std::string& name) const {
+size_t Settings::getRectSize(const std::string& name) const {
 	return get_size(name, mRect);
 }
 
-int Settings::getResourceIdSize(const std::string& name) const {
+size_t Settings::getResourceIdSize(const std::string& name) const {
 	return get_size(name, mRes);
 }
 
-int Settings::getTextSize(const std::string& name) const {
+size_t Settings::getTextSize(const std::string& name) const {
 	return get_size(name, mText);
 }
 
-int Settings::getTextWSize(const std::string& name) const {
+size_t Settings::getTextWSize(const std::string& name) const {
 	return get_size(name, mTextW);
 }
 
-int Settings::getPointSize( const std::string& name ) const {	
+size_t Settings::getPointSize(const std::string& name) const {
 	return get_size(name, mPoints);
 }
 

@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_urlrequest.h"
 #include "include/capi/cef_urlrequest_capi.h"
@@ -27,19 +27,15 @@
 class CefURLRequestCToCpp
     : public CefCToCpp<CefURLRequestCToCpp, CefURLRequest, cef_urlrequest_t> {
  public:
-  explicit CefURLRequestCToCpp(cef_urlrequest_t* str)
-      : CefCToCpp<CefURLRequestCToCpp, CefURLRequest, cef_urlrequest_t>(str) {}
-  virtual ~CefURLRequestCToCpp() {}
+  CefURLRequestCToCpp();
 
-  // CefURLRequest methods
-  virtual CefRefPtr<CefRequest> GetRequest() OVERRIDE;
-  virtual CefRefPtr<CefURLRequestClient> GetClient() OVERRIDE;
-  virtual Status GetRequestStatus() OVERRIDE;
-  virtual ErrorCode GetRequestError() OVERRIDE;
-  virtual CefRefPtr<CefResponse> GetResponse() OVERRIDE;
-  virtual void Cancel() OVERRIDE;
+  // CefURLRequest methods.
+  CefRefPtr<CefRequest> GetRequest() OVERRIDE;
+  CefRefPtr<CefURLRequestClient> GetClient() OVERRIDE;
+  Status GetRequestStatus() OVERRIDE;
+  ErrorCode GetRequestError() OVERRIDE;
+  CefRefPtr<CefResponse> GetResponse() OVERRIDE;
+  void Cancel() OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_URLREQUEST_CTOCPP_H_
-

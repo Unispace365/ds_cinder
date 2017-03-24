@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_TASK_RUNNER_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_task.h"
 #include "include/capi/cef_task_capi.h"
@@ -27,19 +27,14 @@
 class CefTaskRunnerCToCpp
     : public CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner, cef_task_runner_t> {
  public:
-  explicit CefTaskRunnerCToCpp(cef_task_runner_t* str)
-      : CefCToCpp<CefTaskRunnerCToCpp, CefTaskRunner, cef_task_runner_t>(str) {}
-  virtual ~CefTaskRunnerCToCpp() {}
+  CefTaskRunnerCToCpp();
 
-  // CefTaskRunner methods
-  virtual bool IsSame(CefRefPtr<CefTaskRunner> that) OVERRIDE;
-  virtual bool BelongsToCurrentThread() OVERRIDE;
-  virtual bool BelongsToThread(CefThreadId threadId) OVERRIDE;
-  virtual bool PostTask(CefRefPtr<CefTask> task) OVERRIDE;
-  virtual bool PostDelayedTask(CefRefPtr<CefTask> task,
-      int64 delay_ms) OVERRIDE;
+  // CefTaskRunner methods.
+  bool IsSame(CefRefPtr<CefTaskRunner> that) OVERRIDE;
+  bool BelongsToCurrentThread() OVERRIDE;
+  bool BelongsToThread(CefThreadId threadId) OVERRIDE;
+  bool PostTask(CefRefPtr<CefTask> task) OVERRIDE;
+  bool PostDelayedTask(CefRefPtr<CefTask> task, int64 delay_ms) OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_TASK_RUNNER_CTOCPP_H_
-

@@ -1,14 +1,12 @@
 #include "panoramicvideo_app.h"
 
-#include <Poco/String.h>
+//#include <Poco/String.h>
+
 #include <ds/app/environment.h>
-#include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 
-#include <ds/ui/media/media_viewer.h>
+//#include <ds/ui/media/media_viewer.h>
 
-#include <cinder/Rand.h> 
-#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"
@@ -17,6 +15,7 @@
 
 #include "ui/video_list.h"
 #include "ui/panoramic_view.h"
+//#include <ds/debug/logger.h>
 
 namespace panoramic {
 
@@ -44,8 +43,8 @@ PanoramicVideo::PanoramicVideo()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install("Noto Sans Bold", "noto-bold");
-	mEngine.editFonts().install("Noto Sans", "noto-thin");
+	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
+	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
 
 	enableCommonKeystrokes(true);
 }
@@ -175,9 +174,9 @@ void PanoramicVideo::fileDrop(ci::app::FileDropEvent event){
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
 		//paths.push_back((*it).string());
 
-		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
-		mv->initialize();
-		mEngine.getRootSprite().addChildPtr(mv);
+	//	ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
+	//	mv->initialize();
+	//	mEngine.getRootSprite().addChildPtr(mv);
 	}
 }
 

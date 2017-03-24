@@ -7,7 +7,7 @@
 #include <codecvt>
 #include <string>
 
-using namespace std;
+//using namespace std;
 using namespace ds;
 
 /* WIN32
@@ -19,31 +19,37 @@ using namespace ds;
 
 std::wstring wstr_from_str(const std::string& str, const UINT cp)
 {
-	if (str.empty()) return wstring();
+	if (str.empty()) return std::wstring();
 
-	const int len = MultiByteToWideChar(cp, 0, str.c_str(), str.length(), 0, 0);
+	const int len = MultiByteToWideChar(cp, 0, str.c_str(), static_cast<int>(str.length()), 0, 0);
 	if (!len) throw conversion_error();
 
 	std::vector<wchar_t> wbuff(len + 1);
 	// NOTE: this does not NULL terminate the string in wbuff, but this is ok
 	//       since it was zero-initialized in the vector constructor
-	if (!MultiByteToWideChar(cp, 0, str.c_str(), str.length(), &wbuff[0], len)) throw conversion_error();
+	if(!MultiByteToWideChar(cp, 0, str.c_str(), static_cast<int>(str.length()), &wbuff[0], len)){
+		//throw conversion_error();
+		return L"";
+	}
 
 	return &wbuff[0];
 }
 
 std::string str_from_wstr(const std::wstring& wstr, const UINT cp)
 {
-	if (wstr.empty()) return string();
+	if (wstr.empty()) return std::string();
 
-	const int len = WideCharToMultiByte(cp, 0, wstr.c_str(), wstr.length(), 0, 0, 0, 0);
+	const int len = WideCharToMultiByte(cp, 0, wstr.c_str(), static_cast<int>(wstr.length()), 0, 0, 0, 0);
 	if (!len) throw conversion_error();
 
 	std::vector<char> abuff(len + 1);
 
 	// NOTE: this does not NULL terminate the string in abuff, but this is ok
 	//       since it was zero-initialized in the vector constructor
-	if (!WideCharToMultiByte(cp, 0, wstr.c_str(), wstr.length(), &abuff[0], len, 0, 0)) throw conversion_error();
+	if(!WideCharToMultiByte(cp, 0, wstr.c_str(), static_cast<int>(wstr.length()), &abuff[0], len, 0, 0)){
+		//throw conversion_error();
+		return "";
+	}
 
 	return &abuff[0];
 }
@@ -382,13 +388,14 @@ bool strEqual(const wchar_t *str1, const wchar_t *str2, int size)
 void partition(const std::wstring &str, const std::wstring &partitioner, const Token &token, std::vector<Token> &partitions)
 {
 	int lastPos = token.pos;
-	const int size = token.pos + token.size - (partitioner.size() - 1);
+	int partitionerSize = static_cast<int>(partitioner.size());
+	const int size = token.pos + token.size - (partitionerSize - 1);
 	for(int i = token.pos; i < size; ++i) {
-		if(strEqual(&str[i], partitioner.c_str(), partitioner.size())) {
+		if(strEqual(&str[i], partitioner.c_str(), partitionerSize)) {
 			if(i - lastPos > 0)
 				partitions.push_back(Token(lastPos, i - lastPos));
-			partitions.push_back(Token(i, partitioner.size()));
-			lastPos = i + partitioner.size();
+			partitions.push_back(Token(i, partitionerSize));
+			lastPos = i + partitionerSize;
 		}
 	}
 	if(lastPos != token.pos + token.size)
@@ -399,7 +406,7 @@ std::vector<std::wstring> partition(const std::wstring &str, const std::vector<s
 {
 	//clock_t start = clock();
 	std::vector<Token> partitions;
-	partitions.push_back(Token(0, str.size()));
+	partitions.push_back(Token(0, static_cast<int>(str.size())));
 
 	std::vector<Token> tPartitions;
 	for(auto it = partitioners.begin(), it2 = partitioners.end(); it != it2; ++it) {

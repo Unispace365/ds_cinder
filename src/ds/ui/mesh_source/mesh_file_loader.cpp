@@ -124,15 +124,14 @@ void MeshFileLoader::Write( const std::string &filename, unsigned chunk /*= 256*
     }
 }
 
-void MeshFileLoader::setVerts( const std::vector<ci::vec3> &verts )
-{
+void MeshFileLoader::setVerts( const std::vector<ci::vec3> &verts ){
     if ( mVert )
     {
         delete [] mVert;
         mVert = nullptr;
     }
 
-    mNumVert = verts.size();
+    mNumVert = static_cast<int>(verts.size());
     mVert = new ci::vec3[mNumVert];
     for ( unsigned i = 0; i < mNumVert; ++i )
     {
@@ -148,7 +147,7 @@ void MeshFileLoader::setInd( const std::vector<unsigned> &inds )
         mIndices = nullptr;
     }
 
-    mNumIndices = inds.size();
+	mNumIndices = static_cast<int>(inds.size());
     mIndices = new unsigned[mNumIndices];
     for ( unsigned i = 0; i < mNumIndices; ++i )
     {
@@ -164,7 +163,7 @@ void MeshFileLoader::setTexs( const std::vector<ci::vec2> &texs )
         mTex = nullptr;
     }
 
-    mNumTex = texs.size();
+	mNumTex = static_cast<int>(texs.size());
     mTex = new ci::vec2[mNumTex];
     for ( unsigned i = 0; i < mNumTex; ++i )
     {
@@ -180,7 +179,7 @@ void MeshFileLoader::setNorms( const std::vector<ci::vec3> &norms )
         mNorm = nullptr;
     }
 
-    mNumNorm = norms.size();
+	mNumNorm = static_cast<int>(norms.size());
     mNorm = new ci::vec3[mNumNorm];
     for ( unsigned i = 0; i < mNumNorm; ++i )
     {
