@@ -87,6 +87,11 @@ void					add_dll_path() {
 namespace ds {
 
 void EngineSettingsPreloader::earlyPrepareAppSettings( ci::app::AppBase::Settings* settings ) {
+	// Enable MultiTouch on app window if needed
+	const auto touchMode = ds::ui::TouchMode::fromSettings(mEngineSettings);
+	if(ds::ui::TouchMode::hasSystem(ds::ui::TouchMode::fromSettings(mEngineSettings))) {
+		settings->setMultiTouchEnabled();
+	}
 }
 
 

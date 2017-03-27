@@ -261,9 +261,6 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 
 	settings.setResizable(false);
 
-	//if(ds::ui::TouchMode::hasSystem(mTouchMode)) {
-	//	settings.enableMultiTouch();
-	//}
 
 	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
@@ -341,14 +338,6 @@ void Engine::setupTouch(ds::App& a) {
 			tuioClient.connect(mTuioPort);
 		} catch(std::exception ex) {
 			DS_LOG_WARNING("Tuio client could not be started.");
-		}
-	}
-
-	if(ds::ui::TouchMode::hasSystem(mTouchMode)){
-		BOOL(WINAPI *RegisterTouchWindow)(HWND, ULONG);
-		*(size_t *)&RegisterTouchWindow = (size_t)::GetProcAddress(::GetModuleHandle(TEXT("user32.dll")), "RegisterTouchWindow");
-		if(RegisterTouchWindow) {
-			(*RegisterTouchWindow)((HWND)ci::app::getWindow()->getNative(), 0x00000002);
 		}
 	}
 }
