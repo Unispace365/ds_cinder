@@ -86,6 +86,14 @@ void					add_dll_path() {
 
 namespace ds {
 
+EngineSettingsPreloader::EngineSettingsPreloader( ci::app::AppBase::Settings* settings )
+		: mInitializer()
+		, mEngineSettings()
+	{
+		earlyPrepareAppSettings( settings );
+	}
+
+
 void EngineSettingsPreloader::earlyPrepareAppSettings( ci::app::AppBase::Settings* settings ) {
 	// Enable MultiTouch on app window if needed
 	const auto touchMode = ds::ui::TouchMode::fromSettings(mEngineSettings);
@@ -106,7 +114,6 @@ App::App(const RootList& roots)
 	: EngineSettingsPreloader( ci::app::AppBase::sSettingsFromMain )
 	, ci::app::App()
 	, mEnvironmentInitialized(ds::Environment::initialize())
-	, mInitializer(getAppPath().generic_string())
 	, mShowConsole(false)
 	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
@@ -396,7 +403,7 @@ void App::showConsole(){
 
 
 /**
- * \class ds::App::Initializer
+ * \class ds::EngineSettingsPreloader::Initializer
  */
 static std::string app_sub_folder_from(const std::string &sub, const Poco::Path &path) {
 	Poco::Path          parent(path);
@@ -416,7 +423,9 @@ static std::string app_folder_from(const Poco::Path& path) {
 	return app_sub_folder_from("settings", path);
 }
 
-ds::App::Initializer::Initializer(const std::string& appPath) {
+ds::EngineSettingsPreloader::Initializer::Initializer() {
+	const auto appPath = ci::app::Platform::get()->getExecutablePath().generic_string();
+
 	// appPath could contain a trailing slash (Windows), or not (Linux).
 	// We need to parse it as a directory in either case
 	Poco::Path      p = Poco::Path::forDirectory(appPath);

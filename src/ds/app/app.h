@@ -20,14 +20,16 @@ class Engine;
  */
 class EngineSettingsPreloader {
 public:
-	EngineSettingsPreloader( ci::app::AppBase::Settings* settings )
-		: mEngineSettings()
-	{
-		earlyPrepareAppSettings( settings );
-	}
+	EngineSettingsPreloader( ci::app::AppBase::Settings* settings );
 
 protected:
 	virtual void				earlyPrepareAppSettings( ci::app::AppBase::Settings* settings );
+	class Initializer {
+	public:
+								Initializer();
+	};
+	Initializer					mInitializer;
+
 	ds::EngineSettings			mEngineSettings;
 };
 
@@ -101,9 +103,6 @@ public:
 	void						saveTransparentScreenshot();
 
 protected:
-	class Initializer { public: Initializer(const std::string&); };
-	Initializer					mInitializer;
-
 	bool						mShowConsole;
 	ds::EngineData				mEngineData;
 	ds::Engine&					mEngine;
