@@ -14,10 +14,28 @@ class TuioObject;
 class Engine;
 
 /**
+ * \class ds::EngineSettingsPreloader
+ * Load engine settings first, then setup ci::app settings accordingly,
+ * before Cinder's App instantiation and Window creation
+ */
+class EngineSettingsPreloader {
+public:
+	EngineSettingsPreloader( ci::app::AppBase::Settings* settings )
+		: mEngineSettings()
+	{
+		earlyPrepareAppSettings( settings );
+	}
+
+protected:
+	virtual void				earlyPrepareAppSettings( ci::app::AppBase::Settings* settings );
+	ds::EngineSettings			mEngineSettings;
+};
+
+/**
  * \class ds::App
  * Handle the main app setup.
  */
-class App : public cinder::app::App {
+class App : public EngineSettingsPreloader, public cinder::app::App {
 private:
 	const bool			mEnvironmentInitialized;
 
@@ -87,7 +105,6 @@ protected:
 	Initializer					mInitializer;
 
 	bool						mShowConsole;
-	ds::EngineSettings			mEngineSettings;
 	ds::EngineData				mEngineData;
 	ds::Engine&					mEngine;
 

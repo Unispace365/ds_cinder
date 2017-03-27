@@ -86,6 +86,10 @@ void					add_dll_path() {
 
 namespace ds {
 
+void EngineSettingsPreloader::earlyPrepareAppSettings( ci::app::AppBase::Settings* settings ) {
+}
+
+
 void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
 	if (fn != nullptr) get_startups().push_back(fn);
 }
@@ -94,10 +98,11 @@ void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
  * \class ds::App
  */
 App::App(const RootList& roots)
-	: mEnvironmentInitialized(ds::Environment::initialize())
+	: EngineSettingsPreloader( ci::app::AppBase::sSettingsFromMain )
+	, ci::app::App()
+	, mEnvironmentInitialized(ds::Environment::initialize())
 	, mInitializer(getAppPath().generic_string())
 	, mShowConsole(false)
-	, mEngineSettings()
 	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
 	, mCtrlDown(false)
