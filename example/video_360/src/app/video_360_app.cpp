@@ -92,9 +92,10 @@ void video_360::keyDown(ci::app::KeyEvent event){
 	} else if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	} else if(event.getChar() == KeyEvent::KEY_1){
-		if (!mPanoramicVideo->getVideo()->removeShader("test1")) {
-			mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
-		}
+		mPanoramicVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
+		//if (!mPanoramicVideo->getVideo()->removeShader("test1")) {
+		//	mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
+		//}
 	} else if (event.getChar() == KeyEvent::KEY_2){
 		if(!mPanoramicVideo->getVideo()->removeShader("test2")) {
 			mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");

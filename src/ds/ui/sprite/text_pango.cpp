@@ -370,9 +370,11 @@ TextPango& TextPango::setFont(const std::string& font, const float fontSize) {
 
 		markAsDirty(FONT_DIRTY);
 
+		/*
 		if(!mEngine.getPangoFontService().getFamilyExists(mTextFont) && !mEngine.getPangoFontService().getFaceExists(mTextFont)){
 			DS_LOG_WARNING("TextPango: Family or face not found: " << mTextFont);
 		}
+		*/
 	}
 	return *this;
 }

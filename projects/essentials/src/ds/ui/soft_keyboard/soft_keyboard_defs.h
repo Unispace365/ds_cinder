@@ -13,7 +13,7 @@ namespace ui {
 */
 namespace SoftKeyboardDefs {
 
-	typedef enum { kLetter, kNumber, kDelete, kSpace, kEnter, kShift, kTab } KeyType;
+	typedef enum { kLetter, kNumber, kDelete, kSpace, kEnter, kShift, kTab, kDotCom } KeyType;
 
 
 	void handleKeyPressGeneric(const KeyType& inputKeyType, std::wstring& inOutCurrentKey, std::wstring& inOutFullString);

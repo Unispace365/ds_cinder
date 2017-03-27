@@ -256,6 +256,12 @@ ds::ui::SoftKeyboard* buildExtendedKeyboard(ds::ui::SpriteEngine& engine, SoftKe
 	auto spaceButton = makeAButton(engine, newKeyboard, xp, yp, L"space", L"SPACE", SoftKeyboardDefs::kSpace);
 	if(spaceButton){
 		spaceButton->setPosition(maxW / 2.0f, spaceButton->getPosition().y);
+		xp = maxW /2.0f + spaceButton->getWidth() /2.0f;
+	}
+
+	if(settings.mEmailMode){
+		makeAButton(engine, newKeyboard, xp, yp, L"@", L"@", SoftKeyboardDefs::kLetter);
+		makeAButton(engine, newKeyboard, xp, yp, L".com", L".net", SoftKeyboardDefs::kDotCom);
 	}
 
 	// TODO: need a way to make the .com key size bigger than a letter
