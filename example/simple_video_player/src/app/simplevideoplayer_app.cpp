@@ -186,6 +186,8 @@ void SimpleVideoPlayer::startVideos(const std::vector<std::string> vidPaths){
 			}
 		});
 
+		video->setBaseShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
+
 		//video->setOpacity(ci::randFloat());
 
 		fitVideoInArea(ci::Rectf(xp, yp, xp + vidWidth, yp + vidHeight), video);

@@ -36,6 +36,7 @@ public:
 		, mKeyTabDnImage("%APP%/data/images/keyboard/Tab.png")
 		, mKeyUpTextConfig("keyboard:key:up")
 		, mKeyDnTextConfig("keyboard:key:down")
+		, mEmailMode(false) // Only applies to the "extended" keyboard (adds @ and .com keys)
 		, mKeyScale(1.0f)
 	{}
 
@@ -106,6 +107,8 @@ public:
 	std::string			mKeyShiftDnImage;
 	std::string			mKeyTabUpImage;
 	std::string			mKeyTabDnImage;
+
+	bool				mEmailMode;
 
 	float				mKeyScale;
 };

@@ -1099,6 +1099,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 						sks.mKeyTabUpImage = "";
 						//sks.mKeyTabDnImage = "";
 					}
+				} else if(paramType == "email_mode"){
+					sks.mEmailMode = parseBoolean(paramValue);
 				}
 			}
 		}
