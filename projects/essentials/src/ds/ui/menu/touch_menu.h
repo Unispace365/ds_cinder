@@ -88,6 +88,8 @@ public:
 
 	TouchMenu(ds::ui::SpriteEngine& enginey);
 
+	const ds::ui::FiveFingerCluster&		getFiveFingerCluster() const {return mFiveFingerCluster;};
+
 	/** Set a vector of models, one for each item in the menu. Clears any currently active cluster views. */
 	void									setMenuItemModels(std::vector<MenuItemModel> itemModels);
 
