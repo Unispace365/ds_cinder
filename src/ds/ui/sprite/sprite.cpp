@@ -405,13 +405,9 @@ void Sprite::drawServer(const ci::mat4 &trans, const DrawParams &drawParams) {
 }
 
 void Sprite::drawLocalClient(){
-#ifdef USE_BATCH_DRAWING
 	if(mRenderBatch){
 		mRenderBatch->draw();
-		return;
-	}
-#endif
-	if(mCornerRadius > 0.0f){
+	} else if(mCornerRadius > 0.0f){
 		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
 	} else {
 		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
@@ -503,11 +499,6 @@ void Sprite::drawLocalServer(){
 void Sprite::buildRenderBatch() {
 	if(!mNeedsBatchUpdate) return;
 	mNeedsBatchUpdate = false;
-
-#ifndef	USE_BATCH_DRAWING
-	return;
-#endif
-
 
 	if(getTransparent()){
 		mRenderBatch = nullptr;
@@ -1746,6 +1737,18 @@ void Sprite::setBaseShader(const std::string &location, const std::string &shade
 	if(applyToChildren) {
 		for(auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
 			(*it)->setBaseShader(location, shadername, applyToChildren);
+		}
+	}
+}
+
+void Sprite::setBaseShader(const std::string &vertShader, const std::string& fragShader, const std::string &shadername, bool applyToChildren){
+	mNeedsBatchUpdate = true;
+	mSpriteShader.setShaders(vertShader, fragShader, shadername);
+	setFlag(SHADER_CHILDREN_F, applyToChildren, FLAGS_DIRTY, mSpriteFlags);
+
+	if(applyToChildren) {
+		for(auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
+			(*it)->setBaseShader(vertShader, fragShader, shadername, applyToChildren);
 		}
 	}
 }

@@ -44,7 +44,7 @@ void PangoFontService::loadFonts(){
 	DS_LOG_INFO("Map Created.");
 
 
-	return;
+//	return;
 
 	if(!mFontMap){
 		DS_LOG_WARNING_M("Font map does not exist! Pango text sprites will be empty.", PANGO_FONT_LOG_M);

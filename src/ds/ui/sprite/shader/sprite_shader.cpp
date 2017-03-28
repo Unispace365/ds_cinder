@@ -74,7 +74,7 @@ SpriteShader::SpriteShader(const std::string &defaultLocation, const std::string
 }
 
 
-SpriteShader::SpriteShader(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName)
+SpriteShader::SpriteShader(const std::string& vert_memory, const std::string& frag_memory, const std::string &shaderName)
 	: mMemoryVert(vert_memory)
 	, mMemoryFrag(frag_memory)
 	, mName(shaderName)
@@ -82,7 +82,7 @@ SpriteShader::SpriteShader(const std::string& vert_memory, const std::string& fr
 {
 }
 
-void SpriteShader::setShaders(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName){
+void SpriteShader::setShaders(const std::string& vert_memory, const std::string& frag_memory, const std::string &shaderName){
 	if(mShader) {
 		mShader.reset();
 	}

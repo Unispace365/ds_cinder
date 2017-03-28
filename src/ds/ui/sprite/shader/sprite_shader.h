@@ -11,10 +11,10 @@ class SpriteShader
 {
 public:
 	SpriteShader(const std::string &defaultLocation, const std::string &defaultName);
-	SpriteShader(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName);
+	SpriteShader(const std::string& vert_memory, const std::string& frag_memory, const std::string &shaderName);
 
 	void setShaders(const std::string &location, const std::string &name);
-	void setShaders(const std::string &vert_memory, const std::string &frag_memory, std::string &shaderName);
+	void setShaders(const std::string &vert_memory, const std::string &frag_memory, const std::string &shaderName);
 	void loadShaders();
 	bool isValid() const;
 
