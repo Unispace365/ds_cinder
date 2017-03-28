@@ -187,6 +187,8 @@ protected:
 	virtual void		writeClientAttributesTo(ds::DataBuffer&);
 	virtual void		readClientAttributeFrom(const char attributeId, ds::DataBuffer&);
 
+	void				updateVideoTexture();
+
 	gstwrapper::GStreamerWrapper* mGstreamerWrapper;
 
 private:
@@ -212,6 +214,7 @@ private:
 	void				checkStatus();
 	void				setNetClock();
 	bool				thisInstancePlayable();
+
 
 	ColorType			mColorType;
 
