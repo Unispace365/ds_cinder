@@ -247,25 +247,6 @@ void Pdf::drawLocalClient() {
 
 }
 
-void Pdf::onBuildRenderBatch(){
-	auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
-	if(mCornerRadius > 0.0f){
-		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
-		if(mRenderBatch){
-			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
-		} else {
-			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
-		}
-	} else {
-		auto theGeom = ci::geom::Rect(drawRect);
-		if(mRenderBatch){
-			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
-		} else {
-			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
-		}
-	}	
-}
-
 void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
 	inherited::writeAttributesTo(buf);
 

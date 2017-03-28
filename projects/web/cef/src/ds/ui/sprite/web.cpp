@@ -394,10 +394,16 @@ void Web::onSizeChanged() {
 
 void Web::drawLocalClient() {
 	if (mWebTexture) {
-		if(true || getPerspective()){
-			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture->getHeight()), static_cast<float>(mWebTexture->getWidth()), 0.0f)); 
+		if(mRenderBatch){
+			// web texture is top down, and render batches work bottom up
+			// so flippy flip flip
+			ci::gl::scale(1.0f, -1.0f);
+			ci::gl::translate(0.0f, -getHeight());
+			mWebTexture->bind();
+			mRenderBatch->draw();
+			mWebTexture->unbind();
 		} else {
-			ci::gl::draw(mWebTexture);
+			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture->getHeight()), static_cast<float>(mWebTexture->getWidth()), 0.0f));
 		}
 	}
 }
