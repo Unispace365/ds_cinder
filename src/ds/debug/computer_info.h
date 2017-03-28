@@ -11,6 +11,7 @@
 #include <psapi.h>
 #include <tchar.h>
 #include <pdh.h>
+#include <string>
 
 namespace ds {
 

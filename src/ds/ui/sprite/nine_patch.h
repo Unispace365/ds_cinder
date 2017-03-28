@@ -58,9 +58,9 @@ private:
 	public:
 		Cell();
 
-		ci::Vec2f						size() const;
+		ci::vec2						size() const;
 
-		void							draw(const ci::gl::Texture&);
+		void							draw(const ci::gl::TextureRef);
 		void							print(const int tabs) const;
 
 		bool							mIsValid;
@@ -78,10 +78,10 @@ private:
 
 		void							clear();
 		bool							empty() const;
-		void							buildSources(ci::gl::Texture);
+		void							buildSources(ci::gl::TextureRef);
 		void							buildDestinations(const float width, const float height);
 
-		void							draw(const ci::gl::Texture&);
+		void							draw(const ci::gl::TextureRef);
 
 		void							print(const int tabs = 0) const;
 

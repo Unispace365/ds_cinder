@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "packet_chunker.h"
 #include "snappy.h"
 #include <iostream>
@@ -11,20 +13,19 @@ Chunker::Chunker()
 {
 }
 
-void Chunker::Chunkify(const char *src, unsigned size, unsigned groupId, std::vector<std::string> &dst){
+void Chunker::Chunkify(const char *src, size_t size, size_t groupId, std::vector<std::string> &dst){
 
-	unsigned chunkSize = mChunkSize - sizeof(ChunkHeader);
-	unsigned pos = 0;
+	size_t chunkSize = mChunkSize - sizeof(ChunkHeader);
+	size_t pos = 0;
 
 	snappy::Compress(src, size, &mCompressedBuffer);
 
-	unsigned nSize = mCompressedBuffer.size();
-	//std::cout << "mCompressed size: " << nSize << std::endl;
-	int numIterations = nSize / chunkSize;
+	size_t nSize = mCompressedBuffer.size();
+	size_t numIterations = nSize / chunkSize;
 
-	unsigned excess = nSize % chunkSize;
+	size_t excess = nSize % chunkSize;
 
-	unsigned total = numIterations + (excess ? 1 : 0);
+	size_t total = numIterations + (excess ? 1 : 0);
 
 	dst.resize(total);
 
@@ -48,7 +49,7 @@ void Chunker::Chunkify(const char *src, unsigned size, unsigned groupId, std::ve
 	}
 }
 
-void Chunker::Chunkify(std::string src, unsigned groupId, std::vector<std::string> &dst){
+void Chunker::Chunkify(std::string src, size_t groupId, std::vector<std::string> &dst){
 	Chunkify(src.c_str(), src.size(), groupId, dst);
 }
 
@@ -61,7 +62,7 @@ bool DeChunker::addChunk(std::string &chunk){
 	return addChunk(chunk.c_str(), chunk.size());
 }
 
-bool DeChunker::addChunk(const char *chunk, unsigned size){
+bool DeChunker::addChunk(const char *chunk, size_t size){
 	if(size < sizeof(ChunkHeader)){
 		return false;
 	}
@@ -105,7 +106,7 @@ bool DeChunker::addChunk(const char *chunk, unsigned size){
 			mReceived.pop_front();
 		}
 
-		std::sort(mGroupsReceived.begin(), mGroupsReceived.end(), [](unsigned a, unsigned b) -> bool {
+		std::sort(mGroupsReceived.begin(), mGroupsReceived.end(), [](size_t a, size_t b) -> bool {
 			if(a > b)
 				return true;
 			return false;
@@ -116,7 +117,7 @@ bool DeChunker::addChunk(const char *chunk, unsigned size){
 
 	if(stats.mIdsMissing.empty()){
 		mGroupsAvailable.push_back(chunkHeader.mGroupId);
-		std::sort(mGroupsAvailable.begin(), mGroupsAvailable.end(), [](unsigned a, unsigned b) -> bool {
+		std::sort(mGroupsAvailable.begin(), mGroupsAvailable.end(), [](size_t a, size_t b) -> bool {
 			if(a > b){
 				return true;
 			}
@@ -127,7 +128,7 @@ bool DeChunker::addChunk(const char *chunk, unsigned size){
 	return false;
 }
 
-void DeChunker::addChunkToGroup(DeChunkStats &stats, const char *chunk, unsigned size){
+void DeChunker::addChunkToGroup(DeChunkStats &stats, const char *chunk, size_t size){
 	ChunkHeader chunkHeader;
 	memcpy(reinterpret_cast<char *>(&chunkHeader), chunk, sizeof(ChunkHeader));
 
@@ -135,8 +136,8 @@ void DeChunker::addChunkToGroup(DeChunkStats &stats, const char *chunk, unsigned
 	if(found == stats.mIdsMissing.end())
 		return;
 
-	unsigned nSize = chunkHeader.mSize / chunkHeader.mChunkSize;
-	unsigned pos = chunkHeader.mId * chunkHeader.mChunkSize;
+	size_t nSize = chunkHeader.mSize / chunkHeader.mChunkSize;
+	size_t pos = chunkHeader.mId * chunkHeader.mChunkSize;
 
 	if(stats.mData.get()){
 		std::copy(chunk + sizeof(ChunkHeader), chunk + size, stats.mData.get()->begin() + pos);
@@ -146,7 +147,7 @@ void DeChunker::addChunkToGroup(DeChunkStats &stats, const char *chunk, unsigned
 
 bool DeChunker::getNextGroup(std::string &dst){
 	if(!mGroupsAvailable.empty() && !mGroupsReceived.empty() && (mGroupsReceived.back() == mGroupsAvailable.back()))	{
-		unsigned groupId = mGroupsAvailable.back();
+		size_t groupId = mGroupsAvailable.back();
 		mGroupsAvailable.pop_back();
 		mGroupsReceived.pop_back();
 

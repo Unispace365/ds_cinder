@@ -5,6 +5,8 @@
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
 
+#include <cinder/app/RendererGl.h>
+
 #include "app/app_defs.h"
 #include "app/globals.h"
 #include "view/sample_view.h"
@@ -20,7 +22,7 @@ InterfaceXmlImporterExampleApp::InterfaceXmlImporterExampleApp()
 	/*fonts in use */
 	// These fonts need to be registered to be picked up by the 'text.xml' file.
 	// Then in the css, the config name can be picked up and look this up. a long chain for 'convenience'
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/MaureaJci_RgL__reg.ttf"), "sample-light");
+	mEngine.editFonts().registerFont("Noto Sans Bold", "sample-light");
 
 	enableCommonKeystrokes(true);
 }
@@ -61,4 +63,4 @@ void InterfaceXmlImporterExampleApp::keyDown(ci::app::KeyEvent event){
 } // namespace importer_example
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(importer_example::InterfaceXmlImporterExampleApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(importer_example::InterfaceXmlImporterExampleApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

@@ -93,7 +93,7 @@ void TreeInspector::highlightSprite( const ds::ui::Sprite* sprite ) {
 
 }
 
-void TreeInspector::handleMouseHover(const ci::Vec3f& mousePoint) {
+void TreeInspector::handleMouseHover(const ci::vec3& mousePoint) {
 	if (!this->contains( mousePoint ))
 		return;
 
@@ -238,3 +238,5 @@ void TreeInspector::animateOff(){
 
 
 } // namespace layout_builder
+
+

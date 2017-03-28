@@ -1,22 +1,27 @@
-uniform sampler2D tex0;
-uniform bool useTexture;
-uniform bool preMultiply;
+#version 150
+
+uniform sampler2D   tex0;
+uniform bool        useTexture;
+uniform bool        preMultiply;
+
+in vec4             Color;
+in vec2             TexCoord0;
+
+out vec4            oColor;
 
 void main()
 {
-    vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
+    oColor = vec4(1.0, 1.0, 1.0, 1.0);
 
     if (useTexture) {
-        color = texture2D( tex0, gl_TexCoord[0].st );
+        oColor = texture2D( tex0, TexCoord0 );
     }
-    
-    color *= gl_Color;
-    
+
+    oColor *= Color;
+
     if (preMultiply) {
-        color.r *= color.a;
-        color.g *= color.a;
-        color.b *= color.a;
-    }    
-    
-    gl_FragColor = color;
+        oColor.r *= Color.a;
+        oColor.g *= Color.a;
+        oColor.b *= Color.a;
+    }
 }

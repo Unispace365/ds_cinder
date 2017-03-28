@@ -10,7 +10,6 @@
 #include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
-#include "ds/ui/service/render_text_service.h"
 
 namespace ds {
 
@@ -26,7 +25,6 @@ public:
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
-	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 	virtual ds::sprite_id_t			nextSpriteId();
 
 	virtual void					installSprite(	const std::function<void(ds::BlobRegistry&)>& asServer,
@@ -53,13 +51,11 @@ private:
 	virtual void					handleMouseTouchBegin(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchMoved(const ci::app::MouseEvent&, int id);
 	virtual void					handleMouseTouchEnded(const ci::app::MouseEvent&, int id);
-	void							sendMouseTouch(const int phase, const ci::Vec2i pos);
+	void							sendMouseTouch(const int phase, const ci::ivec2 pos);
 
 	typedef Engine inherited;
 	WorkManager						mWorkManager;
 	ui::LoadImageService			mLoadImageService;
-	GlThread						mRenderTextThread;
-	ui::RenderTextService			mRenderTextService;
 
 	EngineIoInfo					mIoInfo;
 	ds::UdpConnection				mSendConnection;

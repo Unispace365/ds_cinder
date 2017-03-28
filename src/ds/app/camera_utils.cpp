@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <ds/app/camera_utils.h>
 
 #include <cinder/gl/gl.h>
@@ -7,7 +9,7 @@ namespace ds {
 /**
  * \class ds::CameraPick
  */
-CameraPick::CameraPick(	ci::Camera& c, const ci::Vec3f& screenPt,
+CameraPick::CameraPick(	ci::Camera& c, const ci::vec3& screenPt,
 												const float screenWidth, const float screenHeight)
 	: mCamera(c)
 	, mScreenPt(screenPt)
@@ -16,12 +18,12 @@ CameraPick::CameraPick(	ci::Camera& c, const ci::Vec3f& screenPt,
 {
 }
 
-const ci::Vec3f& CameraPick::getScreenPt() const
+const ci::vec3& CameraPick::getScreenPt() const
 {
 	return mScreenPt;
 }
 
-ci::Vec2f CameraPick::worldToScreen(const ci::Vec3f &worldCoord) const
+ci::vec2 CameraPick::worldToScreen(const ci::vec3 &worldCoord) const
 {
 	return mCamera.worldToScreen(worldCoord, mScreenW, mScreenH);
 }
@@ -41,46 +43,47 @@ void ScreenToWorld::setScreenSize(const float width, const float height)
 void ScreenToWorld::update()
 {
 	mModelView = ci::gl::getModelView();
-	mProjection = ci::gl::getProjection();
-	mViewport = ci::gl::getViewport();
+	mProjection = ci::gl::getProjectionMatrix();
+	const auto& viewPort = ci::gl::getViewport();
+	mViewport = ci::Area(viewPort.first, viewPort.second);
 }
 
-ci::Vec3f ScreenToWorld::translate(const ci::Vec3f & point)
+ci::vec3 ScreenToWorld::translate(const ci::vec3 & point)
 {
 	// Find near and far plane intersections
-	ci::Vec3f point3f = ci::Vec3f((float)point.x, mWindowSize.getHeight() * 0.5f - (float)point.y, 0.0f);
-	ci::Vec3f nearPlane = unproject(point3f);
-	ci::Vec3f farPlane = unproject(ci::Vec3f(point3f.x, point3f.y, 1.0f));
+	ci::vec3 point3f = ci::vec3((float)point.x, mWindowSize.getHeight() * 0.5f - (float)point.y, 0.0f);
+	ci::vec3 nearPlane = unproject(point3f);
+	ci::vec3 farPlane = unproject(ci::vec3(point3f.x, point3f.y, 1.0f));
 
 	// Calculate X, Y and return point
 	float theta = (0.0f - nearPlane.z) / (farPlane.z - nearPlane.z);
-	return ci::Vec3f(
+	return ci::vec3(
 		nearPlane.x + theta * (farPlane.x - nearPlane.x), 
 		nearPlane.y + theta * (farPlane.y - nearPlane.y), 
 		0.0f
 	);
 }
 
-ci::Vec3f ScreenToWorld::unproject(const ci::Vec3f & point)
+ci::vec3 ScreenToWorld::unproject(const ci::vec3 & point)
 {
 	// Find the inverse Modelview-Projection-Matrix
-	ci::Matrix44f invMVP = mProjection * mModelView;
-	invMVP.invert();
+	ci::mat4 invMVP = mProjection * mModelView;
+	invMVP = glm::inverse(invMVP);
 
 	// Transform to normalized coordinates in the range [-1, 1]
-	ci::Vec4f				pointNormal;
+	ci::vec4				pointNormal;
 	pointNormal.x = (point.x - mViewport.getX1()) / mViewport.getWidth() * 2.0f - 1.0f;
 	pointNormal.y = (point.y - mViewport.getY1()) / mViewport.getHeight() * 2.0f;
 	pointNormal.z = 2.0f * point.z - 1.0f;
 	pointNormal.w = 1.0f;
 
 	// Find the object's coordinates
-	ci::Vec4f				pointCoord = invMVP * pointNormal;
+	ci::vec4				pointCoord = invMVP * pointNormal;
 	if (pointCoord.w != 0.0f)
 		pointCoord.w = 1.0f / pointCoord.w;
 
 	// Return coordinate
-	return ci::Vec3f(
+	return ci::vec3(
 		pointCoord.x * pointCoord.w, 
 		pointCoord.y * pointCoord.w, 
 		pointCoord.z * pointCoord.w

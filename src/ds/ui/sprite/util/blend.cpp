@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "blend.h"
 #include <cinder/gl/gl.h>
 #include <algorithm>

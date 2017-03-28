@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/ip/ip_function.h"
 
 namespace ds {

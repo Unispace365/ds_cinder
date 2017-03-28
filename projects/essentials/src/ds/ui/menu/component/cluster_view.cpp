@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "cluster_view.h"
 
 #include <ds/debug/logger.h>
@@ -6,7 +8,7 @@
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/app/environment.h>
 #include <ds/ui/tween/tweenline.h>
-
+#include <cinder/CinderMath.h>
 #include "ds/ui/menu/component/menu_item.h"
 
 namespace ds{
@@ -63,7 +65,7 @@ void ClusterView::buildMenuItems(){
 
 	float mis = (float)mItemModels.size();
 	int i = 0;
-	ci::Vec2f newPos = ci::Vec2f(mMenuConfig.mClusterRadius / 2.0f, -mMenuConfig.mItemSize.y * (mis) / 2.0f);
+	ci::vec2 newPos = ci::vec2(mMenuConfig.mClusterRadius / 2.0f, -mMenuConfig.mItemSize.y * (mis) / 2.0f);
 	for(auto it = mItemModels.begin(); it < mItemModels.end(); ++it){
 		MenuItem* mi = new MenuItem(mEngine, (*it), mMenuConfig);
 		addChildPtr(mi);
@@ -73,7 +75,7 @@ void ClusterView::buildMenuItems(){
 		while(degs >= 360.0f) degs -= 360.0f;
 
 		const float		radians = -ci::toRadians(degs);
-		newPos = ci::Vec2f(mMenuConfig.mClusterRadius * cos(radians), mMenuConfig.mClusterRadius * sin(radians));
+		newPos = ci::vec2(mMenuConfig.mClusterRadius * cos(radians), mMenuConfig.mClusterRadius * sin(radians));
 		newPos.x -= mi->getWidth() / 2.0f;
 		newPos.y -= mi->getHeight() / 2.0f;
 
@@ -84,7 +86,7 @@ void ClusterView::buildMenuItems(){
 
 }
 
-void ClusterView::startTappableMode(const ci::Vec3f& globalLocation, const float timeoutTime){
+void ClusterView::startTappableMode(const ci::vec3& globalLocation, const float timeoutTime){
 	mTappableMode = true;
 	mInvalid = false;
 	setPosition(globalLocation);
@@ -101,12 +103,13 @@ void ClusterView::startTappableMode(const ci::Vec3f& globalLocation, const float
 				mi->highlight();
 			}
 
-			if(ti.mPhase == ds::ui::TouchInfo::Moved && ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance()){
+			
+			if(ti.mPhase == ds::ui::TouchInfo::Moved && ci::distance( ti.mCurrentGlobalPoint,ti.mStartPoint) > mEngine.getMinTapDistance()){
 				mi->unhighlight();
 			}
 		});
 
-		mi->setTapCallback([this, mi](ds::ui::Sprite*, const ci::Vec3f& pos){
+		mi->setTapCallback([this, mi](ds::ui::Sprite*, const ci::vec3& pos){
 			if(mi && mi->getModel().mActivatedCallback){
 				mi->getModel().mActivatedCallback(pos);
 				cancelTappableMode();
@@ -117,7 +120,7 @@ void ClusterView::startTappableMode(const ci::Vec3f& globalLocation, const float
 	if(mBackground){
 		mBackground->enable(true);
 		mBackground->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-		mBackground->setTapCallback([this](ds::ui::Sprite*, const ci::Vec3f& pos){
+		mBackground->setTapCallback([this](ds::ui::Sprite*, const ci::vec3& pos){
 			cancelTappableMode();
 		});
 	}
@@ -149,11 +152,11 @@ void ClusterView::activateMenu(){
 	
 }
 
-void ClusterView::setHighlight(ci::Vec2f clusterCenter){
+void ClusterView::setHighlight(ci::vec2 clusterCenter){
 
 	bool somethingHighlighted(false);
 	for(auto it = mMenuItems.begin(); it < mMenuItems.end(); ++it){
-		if((*it)->contains(ci::Vec3f(clusterCenter.x, clusterCenter.y, 0.0f)) && !somethingHighlighted){
+		if((*it)->contains(ci::vec3(clusterCenter.x, clusterCenter.y, 0.0f)) && !somethingHighlighted){
 			(*it)->highlight();
 
 			somethingHighlighted = true;
@@ -184,7 +187,7 @@ void ClusterView::updateCluster(const ds::ui::TouchInfo::Phase btp, const ds::ui
 			}
 		}
 
-		ci::Vec2f clusterCenter = cluster.mCurrentBoundingBox.getCenter();
+		ci::vec2 clusterCenter = cluster.mCurrentBoundingBox.getCenter();
 		setHighlight(clusterCenter);
 
 		if(!validateCluster(cluster, true)){
@@ -206,7 +209,7 @@ void ClusterView::updateCluster(const ds::ui::TouchInfo::Phase btp, const ds::ui
 }
 
 void ClusterView::itemActivated(MenuItem* mi){
-	ci::Vec3f launchPos = this->localToGlobal(mi->getCenter());
+	ci::vec3 launchPos = this->localToGlobal(mi->getCenter());
 
 	if(mi && mi->getModel().mActivatedCallback){
 		mi->getModel().mActivatedCallback(launchPos);
@@ -223,8 +226,8 @@ bool ClusterView::validateCluster(const ds::ui::FiveFingerCluster::Cluster& clus
 	}
 
 	if(calcDist){
-		ci::Vec2f bbcent = cluster.mCurrentBoundingBox.getCenter();
-		ci::Vec3f center = getPosition();
+		ci::vec2 bbcent = cluster.mCurrentBoundingBox.getCenter();
+		ci::vec3 center = getPosition();
 		float xdelt = bbcent.x - center.x;
 		float ydelt = bbcent.y - center.y;
 		if(distThreshold * distThreshold < (xdelt * xdelt) + (ydelt * ydelt)){
@@ -245,7 +248,7 @@ void ClusterView::activate(){
 		float bgOpacity = mMenuConfig.mBackgroundOpacity;
 		float bgScale = mMenuConfig.mBackgroundScale;
 		mBackground->animStop();
-		mBackground->tweenScale(ci::Vec3f(bgScale, bgScale, 1.0f), mMenuConfig.mAnimationDuration, 0.0f, ci::easeOutCubic);
+		mBackground->tweenScale(ci::vec3(bgScale, bgScale, 1.0f), mMenuConfig.mAnimationDuration, 0.0f, ci::easeOutCubic);
 		mBackground->tweenOpacity(bgOpacity, mMenuConfig.mAnimationDuration);
 	}
 }
@@ -271,7 +274,7 @@ void ClusterView::invalidate(){
 
 		if(mBackground){
 			mBackground->animStop();
-			mBackground->tweenScale(ci::Vec3f::zero(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInCubic, [this]{handleInvalidateComplete(); });
+			mBackground->tweenScale(ci::vec3(), mMenuConfig.mAnimationDuration, 0.0f, ci::easeInCubic, [this]{handleInvalidateComplete(); });
 			mBackground->tweenOpacity(0.0f, mMenuConfig.mAnimationDuration);
 		}
 	}

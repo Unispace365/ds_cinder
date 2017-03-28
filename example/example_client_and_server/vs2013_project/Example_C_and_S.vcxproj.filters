@@ -20,7 +20,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="..\..\..\vs2013\FrameworkResources.rc">
+    <ResourceCompile Include="$(DS_PLATFORM_090)\vs2013\FrameworkResources.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>

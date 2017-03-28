@@ -33,7 +33,7 @@ VideoList::VideoList(Globals& g)
 	const float itemSize = mGlobals.getSettingsLayout().getFloat("info_list:item:height", 0, 100.0f);
 	mFileList = new ds::ui::ScrollList(mEngine);
 
-	mFileList->setItemTappedCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& cent){
+	mFileList->setItemTappedCallback([this](ds::ui::Sprite* bs, const ci::vec3& cent){
 		VideoListItem* rpi = dynamic_cast<VideoListItem*>(bs);
 		if(rpi){
 			mEngine.getNotifier().notify(RequestPanoramicVideo(rpi->getInfo()));
@@ -161,7 +161,7 @@ void VideoList::onAppEvent(const ds::Event& in_e){
 		animateOff();
 	} else if(in_e.mWhat == RequestVideoList::WHAT()){
 		const RequestVideoList& e((const RequestVideoList&)in_e);
-		tweenPosition(ci::Vec3f(e.mLocation.x - getWidth() / 2.0f, e.mLocation.y - getHeight() / 2.0f, 0.0f), 0.35f, 0.0f, ci::easeInOutQuint);
+		tweenPosition(ci::vec3(e.mLocation.x - getWidth() / 2.0f, e.mLocation.y - getHeight() / 2.0f, 0.0f), 0.35f, 0.0f, ci::easeInOutQuint);
 		animateOn();
 	}
 }
@@ -170,13 +170,15 @@ void VideoList::animateOn(){
 	show();
 	tweenOpacity(1.0f, 0.35f);
 //	tweenAnimateOn(true, 0.0f, 0.05f);
-	tweenScale(ci::Vec3f::one(), 0.35f, 0.0f, ci::easeOutQuint);
+	tweenScale(ci::vec3(1.0f, 1.0f, 1.0f), 0.35f, 0.0f, ci::easeOutQuint);
 }
 
 void VideoList::animateOff(){
 	tweenOpacity(0.0f, 0.35f);
-	tweenScale(ci::Vec3f::zero(), 0.35f, 0.0f, ci::easeInQuint, [this]{ hide(); });
+	tweenScale(ci::vec3(), 0.35f, 0.0f, ci::easeInQuint, [this]{ hide(); });
 }
 
 
 } // namespace mv
+
+

@@ -26,6 +26,9 @@
 #include "ds/util/idle_timer.h"
 #include "ds/debug/debug_defines.h"
 
+
+#define USE_BATCH_DRAWING
+
 namespace ds {
 namespace gl { class ClipPlaneState; }
 class BlobReader;
@@ -45,7 +48,7 @@ namespace ui {
 	struct TouchInfo;
 
 	// Attribute access
-	extern const char     SPRITE_ID_ATTRIBUTE;
+	extern const char SPRITE_ID_ATTRIBUTE;
 
 	/**
 	 \class Sprite
@@ -101,13 +104,13 @@ namespace ui {
 			In most cases, you'll want to override drawLocalClient() to do custom drawing, as this function handles drawing for children as well.
 			\param transformMatrix The transform matrix of the parent.
 			\param drawParams Parameters for drawing, such as the opacity of the parent.		*/
-		virtual void			drawClient(const ci::Matrix44f &transformMatrix, const DrawParams &drawParams);
+		virtual void			drawClient(const ci::mat4 &transformMatrix, const DrawParams &drawParams);
 
 		/** Draw function for when this app is set to be a server.
 			In most cases, you'll want to override drawLocalClient() to do custom drawing, as this function handles drawing for children as well.
 			\param transformMatrix The transform matrix of the parent.
 			\param drawParams Parameters for drawing, such as the opacity of the parent.		*/
-		virtual void			drawServer(const ci::Matrix44f &transformMatrix, const DrawParams &drawParams);
+		virtual void			drawServer(const ci::mat4 &transformMatrix, const DrawParams &drawParams);
 
 		/** Returns the unique id for this Sprite. The SpriteEngine will automatically generate an id for the sprite when constructed.
 			We recommend you use references or pointers to keep track of sprites, rather than looking up by Id.
@@ -119,13 +122,13 @@ namespace ui {
 		ds::ui::SpriteEngine&	getEngine() { return mEngine; }
 
 		/** Get the width, height, and depth of this Sprite. Convenience for getWidth(), getHeight() and getDepth().
-			\return Returns a 3-dimensional vector equivalent to ci::Vec3f(width, height, depth).		*/
-		const ci::Vec3f			getSize() const;
+			\return Returns a 3-dimensional vector equivalent to ci::vec3(width, height, depth).		*/
+		const ci::vec3			getSize() const;
 
 		/** Sets the width and height of the Sprite.
 			This does not affect the scale of the Sprite. Many subclasses set the size of the Sprite themselves, such as Image and Text.
-			\param size2d The size to set in the form of ci::Vec2f(width, height).		*/
-		void					setSize(const ci::Vec2f& size2d);
+			\param size2d The size to set in the form of ci::vec2f(width, height).		*/
+		void					setSize(const ci::vec2& size2d);
 
 		/** Sets the width and height of the Sprite.
 			This does not affect the scale of the Sprite.
@@ -138,8 +141,8 @@ namespace ui {
 			This does not affect the scale of the Sprite.
 			Many subclasses set the size of the Sprite themselves, such as Image and Text, and in those cases you should not call this function yourself.
 			This is identical to setSize(), except it also sets the depth.
-			\param size3d The size to set in the form of ci::Vec2f(width, height, depth).		*/
-		virtual void			setSizeAll(const ci::Vec3f& size3d);
+			\param size3d The size to set in the form of ci::vec2f(width, height, depth).		*/
+		virtual void			setSizeAll(const ci::vec3& size3d);
 
 		/** Sets the width, height, and depth of the Sprite.
 			This does not affect the scale of the Sprite.
@@ -157,7 +160,7 @@ namespace ui {
 			This is intended to be part of a layout pass, so the default preferred size is 0 not width/height.
 			Subclasses need to override this to be meaningful.
 			\return The 3d vector of the size this sprite should be. Override this function and return a meaningful value.		 */
-		virtual ci::Vec3f		getPreferredSize() const;
+		virtual ci::vec3		getPreferredSize() const;
 
 		/** The width of this sprite, not including scale.
 			For instance, an Image Sprite will always return the width of the image from this function, even if the Sprite has been scaled.
@@ -194,14 +197,14 @@ namespace ui {
 			For ortho Sprites, positive y position is downwards.
 			Z position forwards or backwards depends on your camera setup.
 			\param pos The 3d vector of the new position, in pixels. */
-		void					setPosition(const ci::Vec3f& pos);
+		void					setPosition(const ci::vec3& pos);
 
 		/** Set the position of the Sprite in local space (the parent's relative co-ordinates).
 			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
 			For ortho Sprites, positive y position is downwards.
 			Z position will use the current z-position of the sprite.
 			\param pos The x and y position. */
-		void					setPosition(const ci::Vec2f& pos);
+		void					setPosition(const ci::vec2& pos);
 
 		/** Set the position of the Sprite in local space (the parent's relative co-ordinates).
 			For perspective Sprites, the y position is inverted, so greater y values will move upwards.
@@ -217,16 +220,16 @@ namespace ui {
 			For ortho Sprites, positive y position is downwards.
 			Z position forwards or backwards depends on your camera setup.
 			\return The 3d vector of the new position, in pixels. */
-		const ci::Vec3f&		getPosition() const;
+		const ci::vec3&			getPosition() const;
 
 		/** Get the position of the Sprite in global space. 
-			Returns ci::Vec3f::zero() if this sprite has no parent.
+			Returns ci::vec3::zero() if this sprite has no parent.
 			\return The 3d vector of the world-space position, in pixels. */
-		const ci::Vec3f			getGlobalPosition() const;
+		const ci::vec3			getGlobalPosition() const;
 
 		/** Change the position of the Sprite relative to it's current position.
 			\param delta 3d vector of the amount to move the Sprite in pixels		*/
-		void					move(const ci::Vec3f &delta);
+		void					move(const ci::vec3 &delta);
 
 		/** Change the position of the Sprite relative to it's current position.
 			\param deltaX Horizontal amount to move the Sprite in pixels
@@ -236,7 +239,7 @@ namespace ui {
 
 		/** Change the scale of the Sprite.
 			\param scale 3d vector of the new scale of the Sprite		*/
-		void					setScale(const ci::Vec3f &scale);
+		void					setScale(const ci::vec3 &scale);
 
 		/** Change the scale of the Sprite.
 			\param x New horizontal scale of the Sprite
@@ -250,13 +253,13 @@ namespace ui {
 
 		/** The scale of the Sprite.
 			\return scale 3d vector of the current scale of the Sprite		*/
-		const ci::Vec3f&		getScale() const;
+		const ci::vec3&			getScale() const;
 
 		/** Center point of the Sprite for transform calculations as a percentage (0.0 - 1.0).
 			Scale, rotate and position will happen around this center point.
 			Default is 0.0, 0.0, 0.0, which is the top left corner of the Sprite.
 			\param center 3d vector of the center percentage. */
-		virtual void			setCenter(const ci::Vec3f &center);
+		virtual void			setCenter(const ci::vec3 &center);
 
 		/** Center point of the Sprite for transform calculations as a percentage (0.0 - 1.0).
 			Scale, rotate and position will happen around this center point.
@@ -270,17 +273,17 @@ namespace ui {
 			Scale, rotate and position happen around this center point.
 			Default is 0.0, 0.0, 0.0, which is the top left corner of the Sprite.
 			\return center 3d vector of the center percentage. */
-		const ci::Vec3f&		getCenter() const;
+		const ci::vec3&			getCenter() const;
 
 		/** The "midde" of the Sprite, NOT related to setCenter and getCenter (anchor), in the parent's co-ordinate space.
 			Effectively mPosition + getLocalCenterPosition();
 			\return 3d Vector of the pixel position of the center of this Sprite. */
-		ci::Vec3f				getCenterPosition() const;
+		ci::vec3				getCenterPosition() const;
 
 		/** The "middle" of the Sprite, NOT related to setCenter and getCenter (anchor), in this Sprite's co-ordinate space..
-			Effectively ci::Vec3f(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
+			Effectively ci::vec3(floorf(mWidth/2.0f), floorf(mHeight/2.0f), mPosition.z);
 			\return 3d Vector of the pixel position of the center of this Sprite, in local space. */
-		ci::Vec3f				getLocalCenterPosition() const;
+		ci::vec3				getLocalCenterPosition() const;
 
 		/** Set the rotation around the z-axis, in degrees.
 			Leaves the x and y axis rotations alone.
@@ -295,11 +298,11 @@ namespace ui {
 
 		/** Set the rotation around all 3 axis'es, in degrees.
 			\param rot 3d vector of the new rotation, in degrees.*/
-		void					setRotation(const ci::Vec3f &rot);
+		void					setRotation(const ci::vec3 &rot);
 
 		/** Get the rotation around all 3 axis'es, in degrees.
 			\return 3d vector of the current rotation, in degrees.*/
-		ci::Vec3f				getRotation() const;
+		ci::vec3				getRotation() const;
 
 		/** Get the rectangle that contains this sprite, in Parent's local space.
 			Includes all transformation, including scale and rotation.
@@ -323,10 +326,10 @@ namespace ui {
 			\return True for drawing by z-position of children, false to draw by sprite order. */
 		bool					getDrawSorted() const;
 
-		const ci::Matrix44f&	getTransform() const;
-		const ci::Matrix44f&	getInverseTransform() const;
-		const ci::Matrix44f&	getGlobalTransform() const;
-		const ci::Matrix44f&	getInverseGlobalTransform() const;
+		const ci::mat4&			getTransform() const;
+		const ci::mat4&			getInverseTransform() const;
+		const ci::mat4&			getGlobalTransform() const;
+		const ci::mat4&			getInverseGlobalTransform() const;
 
 		/** Arbitrary data (float's and int's) on this sprite. See UserData for storage usage. */
 		ds::UserData&			getUserData();
@@ -415,7 +418,7 @@ namespace ui {
 		/** A convenience to set the color and the opacity.
 			The alpha component of the color will set the opacity.
 			Setting the opacity after this call will overwrite this value. */
-		void					setColorA(const ci::ColorA&);
+		virtual void			setColorA(const ci::ColorA&);
 
 		/** A convenience to get the color and the opacity.
 			The alpha component of the color is the opacity.*/
@@ -472,34 +475,34 @@ namespace ui {
 		/** Convert coordinate space from global (world) space to the local coordinate space of this Sprite. May not work for perspective Sprites.
 			For example, if you have a global touch point, you can find it's local location like this:
 			\code	if(getParent()){
-			ci::Vec3f localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
+			ci::vec3 localPoint = getParent()->globalToLocal(touchInfo.mCurrentGlobalPoint);
 			}
 			\endcode
 			\param globalPoint The 3d vector in global coordinate space to be converted.
 			\return A local 3d vector in the coordinate space of this Sprite. */
-		ci::Vec3f				globalToLocal(const ci::Vec3f &globalPoint);
+		ci::vec3				globalToLocal(const ci::vec3 &globalPoint);
 
 		/** Convert coordinate space from local coordinate space of this Sprite to global (world) coordinate space. May not work for perspective Sprites.
 			For example, you could figure out where to launch a media viewer from a button on a panel like this:
 			\code //In the button click handler
-			ci::Vec3f globalPosition = localToGlobal(mTheLaunchButton.getPosition());
+			ci::vec3 globalPosition = localToGlobal(mTheLaunchButton.getPosition());
 			mEngine.getNotifier().notify(CustomMediaViewerLaunchEvent(globalPosition));
 			\endcode
 			\param localPoint The 3d vector in local coordinate space to be converted.
 			\return A local 3d vector in the coordinate space of this Sprite. */
-		ci::Vec3f				localToGlobal(const ci::Vec3f &localPoint);
+		ci::vec3				localToGlobal(const ci::vec3 &localPoint);
 
 		/** Check if a global point is inside the Sprite's bounding box, does not take perspective into account.
 			\param point The global point to check if it's inside this Sprite's bounding box.
 			\param pad Extra pixel size outside this Sprite's bounding box. Useful for ad-hoc touch padding.
 			\return True if the point is inside the bounding box, false for outside. */
-		virtual bool			contains(const ci::Vec3f& point, const float pad = 0.0f) const;
+		virtual bool			contains(const ci::vec3& point, const float pad = 0.0f) const;
 
 		/** Recursively checks the Sprite hierarchy list for an enabled, visible sprite with a scale > 0.0 and any size for touch picking.
 			This is for Ortho Sprites. Perspective Sprites use getPerspectiveHit()
 			\param point The global point to check.
 			\return The Sprite that is the best candidate for touch picking. Can return nullptr if there was no valid pick.*/
-		Sprite*					getHit(const ci::Vec3f &point);
+		Sprite*					getHit(const ci::vec3 &point);
 
 		/** Recursively checks the Sprite hierarchy list for an enabled, visible sprite with a scale > 0.0 and any size for touch picking.
 			This is for Perspective Sprites. Ortho Sprites use getHit()
@@ -538,9 +541,9 @@ namespace ui {
 		// a tap if, for example, they only want to handle single taps.  Answer true as
 		// long as you want to keep checking for a tap, false otherwise.
 		void					setTapInfoCallback(const std::function<bool(Sprite *, const TapInfo &)> &func);
-		void					setSwipeCallback(const std::function<void(Sprite *, const ci::Vec3f &)> &func);
-		void					setTapCallback(const std::function<void(Sprite *, const ci::Vec3f &)> &func);
-		void					setDoubleTapCallback(const std::function<void(Sprite *, const ci::Vec3f &)> &func);
+		void					setSwipeCallback(const std::function<void(Sprite *, const ci::vec3 &)> &func);
+		void					setTapCallback(const std::function<void(Sprite *, const ci::vec3 &)> &func);
+		void					setDoubleTapCallback(const std::function<void(Sprite *, const ci::vec3 &)> &func);
 		void					setDragDestinationCallback(const std::function<void(Sprite *, const DragDestinationInfo &)> &func);
 
 		// true will size the sprite using setSize() on a touch scale gesture
@@ -571,42 +574,20 @@ namespace ui {
 		BlendMode				getBlendMode() const;
 
 		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
-		// this is only suitable for shaders without uniforms.
 		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
 
-		//associate shader in a file to sprite (multi-pass)
-		void					setShaderList(const std::vector<std::pair<std::string, std::string>>, bool applyToChildren = false);
-		void					addNewShader(const std::pair<std::string, std::string>, bool addToFront = false, bool applyToChildren = false);
-		void					addNewShader(const std::string, const std::string, bool addToFront = false, bool applyToChildren = false);
-		//Associate shader in memory to sprite.
-		void					addNewMemoryShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
-		bool					removeShader(std::string shaderName);
-		void					removeShaders();
-
-
-		//Add a new shader located in memory
-		//vert - the reference to the in-memory vertex shader
-		//frag - reference to the in-memory fragment shader
-		//shaderName - lookup name for shader
-		//addToFront - When true, this puts the shader first in line to be run
-		void				    addNewShader(const std::string& vert, const std::string& frag, std::string shaderName, bool addToFront = false, bool applyToChildren = false);
 		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
-		ci::gl::Texture*		getShaderOutputTexture();
 		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
-		void					setShaderExtraData(const ci::Vec4f& data);
+		void					setShaderExtraData(const ci::vec4& data);
+
+		bool					getUseShaderTexture() const;
 
 		//	Determines if the final render will be to the display or a texture.
 		void					setFinalRenderToTexture(bool render_to_texture);
 		bool					isFinalRenderToTexture();
 		//Retrieve the rendered output texture
-		ci::gl::Texture*		getFinalOutTexture();
+		ci::gl::TextureRef		getFinalOutTexture();
 		void					setupFinalRenderBuffer();
-		void					setupIntermediateFrameBuffers();
-
-
-		//Retrieve a shader based on the name - used with multipass shader setup.
-		ds::ui::SpriteShader*	getShaderFromListName(std::string name) const;
-		int						getShaderNumber(std::string name) const;
 
 		bool					isShaderName(std::string name) const;
 
@@ -685,8 +666,8 @@ namespace ui {
 		float					mLayoutBPad;
 		float					mLayoutLPad;
 		float					mLayoutRPad;
-		ci::Vec2f				mLayoutSize;
-		ci::Vec2f				mLayoutFudge;
+		ci::vec2				mLayoutSize;
+		ci::vec2				mLayoutFudge;
 		int						mLayoutHAlign;
 		int						mLayoutVAlign;
 		int						mLayoutUserType;
@@ -699,10 +680,10 @@ namespace ui {
 		friend class        TouchProcess;
 		friend class		ds::gl::ClipPlaneState;
 
-		void				swipe(const ci::Vec3f &swipeVector);
+		void				swipe(const ci::vec3 &swipeVector);
 		bool				tapInfo(const TapInfo&);
-		void				tap(const ci::Vec3f &tapPos);
-		void				doubleTap(const ci::Vec3f &tapPos);
+		void				tap(const ci::vec3 &tapPos);
+		void				doubleTap(const ci::vec3 &tapPos);
 		void				dragDestination(Sprite *sprite, const DragDestinationInfo &dragInfo);
 		void				processTouchInfo(const TouchInfo &touchInfo);
 		void				processTouchInfoCallback(const TouchInfo &touchInfo);
@@ -710,7 +691,6 @@ namespace ui {
 		void				buildTransform() const;
 		void				buildGlobalTransform() const;
 		virtual void		drawLocalClient();
-		virtual void		drawLocalClientPost() {}
 		virtual void		drawLocalServer();
 		bool				hasDoubleTap() const;
 		bool				hasTap() const;
@@ -721,11 +701,11 @@ namespace ui {
 		// Once the sprite has passed the getHit() sprite bounds, this is a second
 		// stage that allows the sprite itself to determine if the point is interior,
 		// in the case that the sprite has transparency or other special rules.
-		virtual bool		getInnerHit(const ci::Vec3f&) const;
+		virtual bool		getInnerHit(const ci::vec3&) const;
 
-		virtual void		doSetPosition(const ci::Vec3f&);
-		virtual void		doSetScale(const ci::Vec3f&);
-		virtual void		doSetRotation(const ci::Vec3f&);
+		virtual void		doSetPosition(const ci::vec3&);
+		virtual void		doSetScale(const ci::vec3&);
+		virtual void		doSetRotation(const ci::vec3&);
 		void				doPropagateVisibilityChange(bool before, bool after);
 
 		virtual void		onCenterChanged(){}
@@ -745,6 +725,14 @@ namespace ui {
 		// the same as Sprite::visible()! Sprite::visible() is only limited
 		// to the sprite itself while visible flag here is described above.
 		virtual void		onAppearanceChanged(bool visible){}
+
+		/// Override this to build mRenderBatch when you need to.
+		/// Recommend to look at this implementation before implementing your own
+		virtual void		buildRenderBatch();
+		/// This is called when it's time to actually build the render batch
+		/// Not called if the sprite is not visible or the sprite is in multi-shader pass mode
+		/// Recommend re-using mRenderBatch if possible by calling replaceVboMesh on mRenderBatch
+		virtual void		onBuildRenderBatch();	
 
 		// Always access the bounds via this, which will build them if necessary
 		const ci::Rectf&	getClippingBounds();
@@ -767,19 +755,12 @@ namespace ui {
 		virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&){}
 
 		void				setUseShaderTexture(bool flag);
-		bool				getUseShaderTexture() const;
-
-		// DEPRECATED
-		// Obsolete -- use setUseShaderTexture
-		void					setUseShaderTextuer(bool flag) { setUseShaderTexture(flag); }
-		// Obsolete -- use getUseShaderTexture
-		bool					getUseShaderTextuer() const { return getUseShaderTexture(); }
 		
 
-		void					sendSpriteToFront(Sprite &sprite);
-		void					sendSpriteToBack(Sprite &sprite);
+		void				sendSpriteToFront(Sprite &sprite);
+		void				sendSpriteToBack(Sprite &sprite);
 
-		void					setPerspective(const bool);
+		void				setPerspective(const bool);
 
 		mutable bool			mBoundsNeedChecking;
 		mutable bool			mInBounds;
@@ -795,12 +776,12 @@ namespace ui {
 								mHeight,
 								mDepth;
 
-		mutable ci::Matrix44f	mTransformation;
-		mutable ci::Matrix44f	mInverseTransform;
+		mutable ci::mat4		mTransformation;
+		mutable ci::mat4		mInverseTransform;
 		mutable bool			mUpdateTransform;
 
 		int						mSpriteFlags;
-		ci::Vec3f				mPosition,
+		ci::vec3				mPosition,
 								mCenter,
 								mScale,
 								mRotation;
@@ -809,24 +790,19 @@ namespace ui {
 		ci::Color				mColor;
 		ci::Rectf				mClippingBounds;
 		bool					mClippingBoundsDirty;
+
+		bool					mNeedsBatchUpdate;
+		ci::gl::BatchRef		mRenderBatch;
 		SpriteShader			mSpriteShader;
 
-		std::vector<SpriteShader*> mSpriteShaders;
-		//indicates which shader in the shader list is being drawn.
-		int							mShaderPass;
-		int							mShaderPasses;
-		ci::gl::Fbo*				mFrameBuffer[2];
-		ci::gl::Texture				mShaderTexture;
-		//ci::gl::Texture*			mFinalOutputTexture;
-		ci::gl::Fbo*				mOutputFbo;
-		bool						mIsRenderFinalToTexture;
+		ci::gl::TextureRef		mShaderTexture;
+		ci::gl::FboRef			mOutputFbo;
+		bool					mIsRenderFinalToTexture;
 
-		//Keeps track of which FBO is being rendered to for multi-pass rendering
-		int							mFboIndex;
-		ci::Vec4f				mShaderExtraData;
+		ci::vec4				mShaderExtraData;
 
-		mutable ci::Matrix44f	mGlobalTransform;
-		mutable ci::Matrix44f	mInverseGlobalTransform;
+		mutable ci::mat4		mGlobalTransform;
+		mutable ci::mat4		mInverseGlobalTransform;
 
 		ds::UserData			mUserData;
 
@@ -836,17 +812,15 @@ namespace ui {
 		// a lot more efficient, only running the sort when Z changes.
 		std::vector<Sprite*>	mSortedTmp;
 
-		bool					mHasDrawLocalClientPost;
-
 		// Class-unique key for this type.  Subclasses can replace.
 		char					mBlobType;
 		DirtyState				mDirty;
 
 		std::function<void(Sprite *, const TouchInfo &)> mProcessTouchInfoCallback;
-		std::function<void(Sprite *, const ci::Vec3f &)> mSwipeCallback;
+		std::function<void(Sprite *, const ci::vec3 &)> mSwipeCallback;
 		std::function<bool(Sprite *, const TapInfo &)> mTapInfoCallback;
-		std::function<void(Sprite *, const ci::Vec3f &)> mTapCallback;
-		std::function<void(Sprite *, const ci::Vec3f &)> mDoubleTapCallback;
+		std::function<void(Sprite *, const ci::vec3 &)> mTapCallback;
+		std::function<void(Sprite *, const ci::vec3 &)> mDoubleTapCallback;
 		std::function<void(Sprite *, const DragDestinationInfo &)> mDragDestinationCallback;
 
 		bool				mMultiTouchEnabled;
@@ -870,7 +844,6 @@ namespace ui {
 		ds::gl::Uniform		mUniform;
 
 		std::map < std::string, ds::gl::Uniform>	mUniforms;
-		bool				mIsLastPass;
 
 	private:
 		// Utility to reorder the sprites
@@ -899,7 +872,7 @@ namespace ui {
 		// Use addChild() from outside sprite.cpp
 		void				setParent(Sprite *parent);
 
-		ci::gl::Texture		mRenderTarget;
+		ci::gl::TextureRef	mRenderTarget;
 		BlendMode			mBlendMode;
 
 		//set flag for determining whether to use orthoganol or perspective.
@@ -925,20 +898,8 @@ namespace ui {
 
 		// For debugging, and in a super-duper pinch, in production. 
 		std::wstring		mSpriteName;
+
 	public:
-		// This is a bit of a hack so I can temporarily set a scale value
-		// without causing the whole editing mechanism to kick in.
-		// Upon destruction, this class restores the scale.
-		class LockScale {
-		public:
-			LockScale(Sprite&, const ci::Vec3f& temporaryScale);
-			~LockScale();
-
-		private:
-			Sprite&			mSprite;
-			const ci::Vec3f	mScale;
-		};
-
 #ifdef _DEBUG
 		// Debugging aids to write out my state. write() calls writeState
 		// on me and all my children.
@@ -946,7 +907,6 @@ namespace ui {
 		virtual void		writeState(std::ostream&, const size_t tab) const;
 #endif
 
-	public:
 		static void			installAsServer(ds::BlobRegistry&);
 		static void			installAsClient(ds::BlobRegistry&);
 

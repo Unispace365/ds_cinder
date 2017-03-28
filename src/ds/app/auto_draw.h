@@ -3,10 +3,7 @@
 #define DS_APP_AUTODRAW_H_
 
 #include <vector>
-#include <cinder/MatrixAffine2.h>
-#include <cinder/Matrix22.h>
-#include <cinder/Matrix33.h>
-#include <cinder/Matrix44.h>
+#include "cinder/gl/gl.h"
 #include "ds/app/engine/engine_service.h"
 
 namespace ds {
@@ -26,7 +23,7 @@ public:
 	virtual ~AutoDraw();
 
 protected:
-	virtual void		drawClient(const ci::Matrix44f&, const DrawParams&) = 0;
+	virtual void		drawClient(const ci::mat4&, const DrawParams&) = 0;
 
 private:
 	friend class AutoDrawService;
@@ -43,7 +40,7 @@ class AutoDrawService : public EngineService {
 public:
     AutoDrawService();
 
-	virtual void			drawClient(const ci::Matrix44f&, const DrawParams&);
+	virtual void			drawClient(const ci::mat4&, const DrawParams&);
 
 private:
 	friend class AutoDraw;

@@ -1,0 +1,108 @@
+<interface>
+
+		<layout name="layout"
+				layout_type="vert"
+				layout_size_mode="fixed"	
+				size="1920, 1080"
+			
+			>
+			
+			
+			<layout name="header_layout"
+				layout_type="vert"
+				layout_size_mode="stretch"
+				layout_spacing="20"
+				l_pad="20"
+				t_pad="20"
+				r_pad="20"
+				b_pad="20"
+				color="red"
+			>
+			
+				<sprite name="background"
+					color="black"
+					layout_size_mode="fill"
+					
+					/>
+		
+				<text name="message a"
+					font_name="title"
+					font_size="30"
+					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					blend_mode="normal"
+					color="white"
+					font_color="white"
+					resize_limit="1200"
+					layout_fudge="0.0"
+					t_pad="100"
+					l_pad="100"
+					r_pad="100"
+					opacity="0.9"
+					layout_size_mode="flex"
+					text="This is the text loaded via the short font name 'title', which is mapped in the main app class. It should appear as FreightSans Light."
+					></text>		
+
+					<text name="message a 2"
+					font_name="Chlorinar Bold Italic"
+					font_size="30"
+					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					blend_mode="normal"
+					color="white"
+					font_color="white"
+					resize_limit="1400"
+					t_pad="20"
+					l_pad="100"
+					r_pad="100"
+					opacity="0.75"
+					layout_size_mode="flex"
+					text="Here's some text loaded from a local font file and referred to by it's full font name 'Chlorinar Bold Italic'"
+					></text>
+					
+					<text name="message 3"
+						font_name="noto-bold"
+						font_size="12"
+						animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+						t_pad="20"
+						l_pad="100"
+						resize_limit="800"
+						font_color="white"
+						text="This text should be in Noto Sans Bold. If it's displaying as a weird serif font, then you need to install Noto Sans Bold on your computer. Press the 'p' key to list all installed fonts and what their settable font names are."
+						/>
+					
+				<text name="message_b"
+					enable="true"
+					multitouch="info"
+					font_name="Arial"
+					font_size="36"
+					font_leading="1.0"
+					animate_on="fade; ease:outQuint; slide:200, 0; duration:1.0"
+					blend_mode="normal"
+					color="white"
+					font_color="white"
+					l_pad="300"
+					r_pad="300"
+					t_pad="50"
+					layout_size_mode="flex"
+					blend_mode="normal"
+					text_align="justify"
+					text="<span font='Arial Italic'><span foreground='white' font='HelveticaNeueLT Std UltLt Ext'>Hello,</span> and Welcome to the <span font='Edwardian Script ITC'>markup</span> text <span style='italic'>area</span> where many <span foreground='orange' size='xx-large'>fun</span> things are <span letter_spacing='40000'>happening</span> because of the span elements in the text field!</span><span size='xx-small' font='Consolas'><br><br>Tap on this text area to highlight characters.<br><br>After this text, there will be some auto-added random numbers to test the re-layout abilities of the text sprite.</span><br><br>"
+					/>
+				<multiline_text name="message c"
+					font_name="noto-bold"
+					font_size="48"
+					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
+					blend_mode="normal"
+					font_leading="0.5"
+					color="white"
+					l_pad="50"
+					layout_size_mode="fixed"
+					text="Hello, and Welcome to the second text area where many fun things are happening"
+					resize_limit="1600, 0"
+					></text>
+					-->
+			</layout>
+		</layout>
+	
+	
+</interface>
+

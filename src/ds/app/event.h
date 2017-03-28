@@ -24,7 +24,7 @@ class Sprite;
 class Event {
 public:
 	Event();
-	Event(const int what);
+	Event(const size_t what);
 	virtual ~Event();
 
 	const std::string&		getName() const;
@@ -44,16 +44,16 @@ public:
 	template<typename T>
 	const T* const			as() const;
 
-	int						mWhat;
+	size_t					mWhat;
 
 	/** An event-specific parameter, for client usage. Generally global space. May be empty	*/
-	ci::Vec3f				mEventOrigin;
+	ci::vec3				mEventOrigin;
 	/** An event-specific parameter, for client usage. Defaults to nullptr	*/
 	ds::ui::Sprite*			mSpriteOriginator;
 	/** An event-specific ID. Could be used to lookup info from a db, etc. Default=0*/
 	int						mUserId;
 	/** An event-specific size. For instance if you want launch a panel at a certain width */
-	ci::Vec3f				mUserSize;
+	ci::vec3				mUserSize;
 	/** An event-specific string. Defaults to empty */
 	std::string				mUserStringData;
 };
@@ -87,7 +87,7 @@ template<class Derived>
 class RegisteredEvent : public Event {
 public:
 	// Unique identifier for this message
-	static int						WHAT() { return sENTRY.getWhat(); }
+	static size_t					WHAT() { return sENTRY.getWhat(); }
 	// Unique channel name for this message
 	static const std::string&		CHANNEL() { return sENTRY.getChannel(); }
 

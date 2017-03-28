@@ -1,7 +1,11 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_client.h"
 
 // Turn off an unnecessary warning in the boost GUID
+#ifndef _SCL_SECURE_NO_WARNINGS
 #define _SCL_SECURE_NO_WARNINGS
+#endif
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 
 #include "ds/app/engine/engine_io_defs.h"

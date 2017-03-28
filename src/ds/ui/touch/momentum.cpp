@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/touch/momentum.h"
 
 #include <ds/ui/sprite/sprite.h>
@@ -66,7 +68,7 @@ void Momentum::update(const ds::UpdateParams&) {
 
 		if (leftwards) mVelocity.x *= -1;
 
-		ci::Vec3f		curr_pos(mSprite->getPosition());
+		ci::vec3		curr_pos(mSprite->getPosition());
 		curr_pos.x += mVelocity.x;
 		curr_pos.y += mVelocity.y;
 		mSprite->setPosition(curr_pos);
@@ -76,11 +78,11 @@ void Momentum::update(const ds::UpdateParams&) {
 
 	const float		absWidth = mSprite->getWidth() * mSprite->getScale().x;
 	const float		absHeigh = mSprite->getHeight() * mSprite->getScale().y;
-	ci::Vec2f		curPos = mSprite->getPosition().xy();
+	ci::vec2		curPos = ci::vec2(mSprite->getPosition());
 	curPos.x += absWidth/2.0f - mSprite->getCenter().x * absWidth;
 	curPos.y += absHeigh/2.0f - mSprite->getCenter().y * absHeigh;
 
-	ci::Vec2f		delta = ci::Vec2f(curPos.x - mLastPosition.x, curPos.y - mLastPosition.y);
+	ci::vec2		delta = ci::vec2(curPos.x - mLastPosition.x, curPos.y - mLastPosition.y);
 	mLastPosition = curPos;
 	mPositionHistory.push_back(delta);
 	if (mPositionHistory.size() > mNumSmoothFrames) {
@@ -89,13 +91,13 @@ void Momentum::update(const ds::UpdateParams&) {
 }
 
 void Momentum::activate() {
-	mVelocity.set(0.0f,0.0f);
+	mVelocity = ci::vec2(0.0f,0.0f);
 	if (mPositionHistory.empty()) return;
 
 	mActive = true;
 
 	int			histSize(static_cast<int>(mPositionHistory.size()));
-	ci::Vec2f	pos;
+	ci::vec2	pos;
 	for (int i = 0; i < histSize; i++) {
 		pos = mPositionHistory[i];
 		mVelocity.x += pos.x;
@@ -110,7 +112,7 @@ void Momentum::deactivate() {
 	mActive = false;
 }
 
-const ci::Vec2f& Momentum::getVelocity() {
+const ci::vec2& Momentum::getVelocity() {
 	return mVelocity;
 }
 

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine.h"
 #include "ds/app/app.h"
 #include "ds/app/auto_draw.h"
@@ -25,9 +27,7 @@
 #include <boost/algorithm/string/predicate.hpp>
 
 #include "renderers/engine_renderer_null.h"
-#include "renderers/engine_renderer_continuous_fxaa.h"
 #include "renderers/engine_renderer_continuous.h"
-#include "renderers/engine_renderer_discontinuous.h"
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -51,6 +51,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
+	, mPangoFontService(*this)
 	, mSettings(settings)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
@@ -67,9 +68,11 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mCachedWindowW(0)
 	, mCachedWindowH(0)
 	, mAverageFps(0.0f)
+	, mFonts(*this)
 {
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));
+
 
 	// For now, install some default image processing functions here, for convenience. These are
 	// so lightweight it probably makes sense just to have them always available for clients instead
@@ -85,8 +88,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
 	setTouchMode(mTouchMode);
 	mTouchManager.setOverrideTranslation(settings.getBool("touch_overlay:override_translation", 0, false));
-	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::Vec2f(1920.0f, 1080.0f)));
-	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::Vec2f(0.0f, 0.0f)));
+	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::vec2(1920.0f, 1080.0f)));
+	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::vec2(0.0f, 0.0f)));
 	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
 
 	mData.mAppInstanceName = settings.getText("platform:guid", 0, "Downstream");
@@ -102,12 +105,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
 	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
-	mFxaaOptions.mApplyFxAA = settings.getBool("FxAA", 0, false);
-	mFxaaOptions.mFxAASpanMax = settings.getFloat("FxAA:SpanMax", 0, 2.0);
-	mFxaaOptions.mFxAAReduceMul = settings.getFloat("FxAA:ReduceMul", 0, 8.0);
-	mFxaaOptions.mFxAAReduceMin = settings.getFloat("FxAA:ReduceMin", 0, 128.0);
 
-	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::Vec2f(0.0f, 0.0f));
+	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
 	// Backwards compatibility with pre src-dst rect days
 	const float				DEFAULT_WINDOW_SCALE = 1.0f;
 	if (settings.getRectSize("local_rect") > 0) {
@@ -115,8 +114,8 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mSrcRect = settings.getRect("local_rect", 0, mData.mSrcRect);
 		mData.mDstRect = ci::Rectf(0.0f, 0.0f, mData.mSrcRect.getWidth(), mData.mSrcRect.getHeight());
 		if (settings.getPointSize("window_pos") > 0) {
-			const ci::Vec3f	size(settings.getPoint("window_pos"));
-			mData.mDstRect.offset(size.xy());
+			const ci::vec3	size(settings.getPoint("window_pos"));
+			mData.mDstRect.offset(glm::vec2(size));
 		}
 	}
 	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
@@ -146,7 +145,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mDstRect = mainDisplayRect;
 		mData.mScreenRect = mainDisplayRect;
 		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
-			mData.mWorldSize = ci::Vec2f(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
+			mData.mWorldSize = ci::vec2(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
 		}
 	}
 
@@ -231,7 +230,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 }
 
 
-void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
+void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 	// TODO: remove this null_renderer bullshit
 	std::string screenMode = "window";
 	if(mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
@@ -276,11 +275,13 @@ void Engine::prepareSettings(ci::app::AppBasic::Settings& settings){
 	const std::string     nope = "ds:IllegalTitle";
 	const std::string     title = mSettings.getText("screen:title", 0, nope);
 	if(title != nope) settings.setTitle(title);
+
 }
 
 void Engine::setup(ds::App& app) {
 
 	mCinderWindow = app.getWindow();
+	//mCinderWindow->spanAllDisplays
 
 	mTouchTranslator.setTranslation(mData.mSrcRect.x1, mData.mSrcRect.y1);
 	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
@@ -479,7 +480,7 @@ void Engine::loadNinePatchCfg(const std::string& filename) {
 	mData.mEngineCfg.loadNinePatchCfg(filename);
 }
 
-int Engine::getRootCount() const {
+size_t Engine::getRootCount() const {
 	return mRoots.size();
 }
 
@@ -770,7 +771,7 @@ ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) cons
 	// the newer version of cinder gave access so hopefully can just wait for that if we need it.
 
 	// Translate the mouse from the actual window to the desired rect in world coordinates.
-	const ci::Vec2i	pos(mTouchTranslator.toWorldi(e.getX(), e.getY()));
+	const ci::ivec2	pos(mTouchTranslator.toWorldi(e.getX(), e.getY()));
 	return ci::app::MouseEvent(e.getWindow(),	0, pos.x, pos.y,
 												0, e.getWheelIncrement(), e.getNativeModifiers());
 }
@@ -817,17 +818,21 @@ void Engine::stopServices() {
 	}
 }
 
-bool Engine::hideMouse() const {
+void Engine::setHideMouse(const bool doMouseHide){
+	mHideMouse = doMouseHide;
+}
+
+bool Engine::getHideMouse() const {
 	return mHideMouse;
 }
 
-ds::ui::Sprite* Engine::getHit(const ci::Vec3f& point) {
+ds::ui::Sprite* Engine::getHit(const ci::vec3& point) {
 	for (auto it=mRoots.rbegin(), end=mRoots.rend(); it!=end; ++it) {
 		
-		ci::Vec3f pointToUse = point;
+		ci::vec3 pointToUse = point;
 		if((*it)->getSprite()->getPerspective()){
 			// scale the point from world size to screen size (which is the size of the perspective root)
-			pointToUse.set(
+			pointToUse = ci::vec3(
 				(point.x / mData.mWorldSize.x) * mData.mScreenRect.getWidth(),
 				(point.y / mData.mWorldSize.y) * mData.mScreenRect.getHeight(),
 				0.0f
@@ -847,7 +852,7 @@ const ci::Rectf& Engine::getScreenRect() const {
 	return mData.mScreenRect;
 }
 
-void Engine::translateTouchPoint(ci::Vec2f& inOutPoint) {
+void Engine::translateTouchPoint(ci::vec2& inOutPoint) {
 	inOutPoint = mTouchTranslator.toWorldf(inOutPoint.x, inOutPoint.y);
 	if(mTouchManager.getOverrideEnabled()){
 		mTouchManager.overrideTouchTranslation(inOutPoint);
@@ -943,29 +948,8 @@ void Engine::setupRenderer()
 		if (mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
 		{
 			mRenderer = std::make_unique<EngineRendererNull>(*this);
-		}
-		else if (mData.mWorldSlices.empty()) //if continuous
-		{
-			if (mFxaaOptions.mApplyFxAA) //if with FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererContinuousFxaa>(*this);
-			}
-			else //if no FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererContinuous>(*this);
-			}
-		}
-		else //if discontinuous
-		{
-			if (mFxaaOptions.mApplyFxAA) //if with FXAA
-			{
-				//! I can't figure out a way to mix these two yet. Pending! (TODO: SL)
-				throw std::logic_error("FXAA is not supported in discontinuous rendering mode.");
-			}
-			else //if no FXAA
-			{
-				mRenderer = std::make_unique<EngineRendererDiscontinuous>(*this);
-			}
+		} else {
+			mRenderer = std::make_unique<EngineRendererContinuous>(*this);
 		}
 	});
 }

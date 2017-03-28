@@ -31,7 +31,7 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	setColor(ci::Color::black());
 }
 
-void WebPlayer::setWebViewSize(const ci::Vec2f webSize){
+void WebPlayer::setWebViewSize(const ci::vec2 webSize){
 	mWebSize = webSize;
 	if(mWeb){
 		mWeb->setSize(mWebSize.x, mWebSize.y);
@@ -87,7 +87,7 @@ void WebPlayer::setMedia(const std::string mediaPath){
 		targetH = mEngine.getWorldHeight();
 	}
 
-	setWebViewSize(ci::Vec2f(targetW, targetH));
+	setWebViewSize(ci::vec2(targetW, targetH));
 
 	addChildPtr(mWeb);
 	mWeb->setUrl(mediaPath);
@@ -161,7 +161,7 @@ void WebPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
 	mShowInterfaceAtStart = showInterfaceAtStart;
 }
 
-void WebPlayer::sendClick(const ci::Vec3f& globalClickPos){
+void WebPlayer::sendClick(const ci::vec3& globalClickPos){
 	if(mWeb){
 		mWeb->sendMouseClick(globalClickPos);
 	}

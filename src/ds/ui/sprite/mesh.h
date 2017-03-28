@@ -4,7 +4,7 @@
 
 #include <string>
 #include <cinder/gl/Vbo.h>
-#include <cinder/gl/Light.h>
+//#include <cinder/gl/Light.h>
 #include "ds/ui/sprite/sprite.h"
 #include "ds/ui/image_source/image_owner.h"
 #include "ds/ui/mesh_source/mesh_owner.h"
@@ -13,8 +13,8 @@ namespace ds {
 namespace ui {
 
 class Mesh : public Sprite
-	       , public ImageOwner
-		   , public MeshOwner {
+	, public ImageOwner
+	, public MeshOwner {
 public:
 	static Mesh&				makeMesh(SpriteEngine&, const std::string& filename, Sprite* parent = nullptr);
 	static Mesh&				makeMesh(SpriteEngine&, const ds::Resource&, Sprite* parent = nullptr);
@@ -49,9 +49,9 @@ private:
 	Status						mStatus;
 	bool						mStatusDirty;
 	std::function<void(const Status&)>
-								mStatusFn;
+		mStatusFn;
 
-	cinder::gl::VboMesh			mVboMesh;
+	cinder::gl::VboMeshRef		mVboMesh;
 
 	// Initialization
 public:

@@ -20,3 +20,5 @@ public:
 } // !namespace panoramic
 
 #endif // !_PANORAMICVIDEO_APP_MODEL_ALLDATA_H_
+
+

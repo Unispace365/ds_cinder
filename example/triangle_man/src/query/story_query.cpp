@@ -30,3 +30,5 @@ void StoryQuery::query(AllStories& output) {
 }
 
 } // !namespace nwm
+
+

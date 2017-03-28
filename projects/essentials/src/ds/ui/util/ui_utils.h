@@ -188,7 +188,9 @@ static void HSVToColor(float h, float s, float v, ci::Color* rgb )
 				break;
 		}
 	}
-	rgb->set(r, g, b);
+	rgb->r = r;
+	rgb->b = b;
+	rgb->g = g;
 }
 
 

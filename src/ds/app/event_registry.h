@@ -24,12 +24,12 @@ public:
 	static Registry&			get();
 	Registry();
 
-	int							add(const std::string&);
+	size_t						add(const std::string&);
 
 	// Print out all registered messages
 	void						report();
 
-	const std::string&			getName(const int what);
+	const std::string&			getName(const size_t what);
 
 	void						addEventCreator(const std::string& eventName, std::function<ds::Event*()> creator);
 	std::function<ds::Event*()>	getEventCreator(const std::string& eventName);
@@ -39,18 +39,18 @@ public:
 	public:
 		Entry(const std::string &name);
 
-		int						getWhat() const { return mWhat; }
+		size_t					getWhat() const { return mWhat; }
 		const std::string&		getChannel() const { return mChannel; }
 		const std::string&		getName() const { return mName; }
 
 	private:
-		const int				mWhat;
+		const size_t			mWhat;
 		const std::string		mName;
 		std::string				mChannel;
 	};
 
 private:
-	std::map<int, std::string>	mMsgs;
+	std::map<size_t, std::string>	mMsgs;
 	std::map<std::string, std::function<ds::Event*()>> mCreators;
 };
 
@@ -67,14 +67,14 @@ private:
  */
 class EventRegistry {
 public:
-	static const std::string&	getName(const int what);
+	static const std::string&	getName(const size_t what);
 
 	EventRegistry(const std::string& name);
 	// What is now obsolete, the value is generated automatically.
 	// This only exists for backwards compatibility
-	EventRegistry(const int what, const std::string& name);
+	EventRegistry(const size_t what, const std::string& name);
 
-	const int				mWhat;
+	const size_t			mWhat;
 };
 
 } // namespace ds

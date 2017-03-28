@@ -2,7 +2,7 @@
 #ifndef DS_APP_APP_H_
 #define DS_APP_APP_H_
 
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include "ds/app/app_defs.h"
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_settings.h"
@@ -17,7 +17,7 @@ class Engine;
  * \class ds::App
  * Handle the main app setup.
  */
-class App : public cinder::app::AppBasic {
+class App : public cinder::app::App {
 private:
 	const bool			mEnvironmentInitialized;
 
@@ -66,7 +66,7 @@ public:
 	virtual void				tuioObjectEnded( const TuioObject& );
 	virtual void				keyDown( ci::app::KeyEvent event );
 	virtual void				keyUp( ci::app::KeyEvent event );
-	virtual void				prepareSettings( Settings* );
+	virtual void				prepareSettings( ci::app::AppBase::Settings* );
 	virtual void				setup();
 	// This is where client applications would setup the initial UI.
 	virtual void				setupServer() { }
@@ -92,7 +92,7 @@ protected:
 	ds::Engine&					mEngine;
 
 private:
-	typedef ci::app::AppBasic   inherited;
+	typedef ci::app::App   inherited;
 
 	friend class Environment;
 	// Path to the executable (which realistically we never want)
@@ -105,6 +105,7 @@ private:
 	bool						mSecondMouseDown;
 	bool						mQKeyEnabled;
 	bool						mEscKeyEnabled;
+	bool						mMouseHidden;
 	// When enabled, the arrow keys will move the camera.
 	const float					mArrowKeyCameraStep;
 	const bool					mArrowKeyCameraControl;

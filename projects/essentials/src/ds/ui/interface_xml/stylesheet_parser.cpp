@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "stylesheet_parser.h"
 
 #include <boost/config/warning_disable.hpp>

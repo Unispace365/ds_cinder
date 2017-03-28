@@ -17,7 +17,7 @@ InfoList::InfoList(Globals& g)
 	enable(false);
 
 
-	setItemTappedCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& cent){
+	setItemTappedCallback([this](ds::ui::Sprite* bs, const ci::vec3& cent){
 		InfoListItem* rpi = dynamic_cast<InfoListItem*>(bs);
 		if(rpi && mInfoCallback){
 			mInfoCallback(rpi->getInfo(), cent);
@@ -86,7 +86,7 @@ void InfoList::setInfo(const std::vector<ds::model::StoryRef>& infoList){
 
 
 
-void InfoList::setInfoItemCallback(const std::function<void(const ds::model::StoryRef infothing, const ci::Vec3f possy)>& func){
+void InfoList::setInfoItemCallback(const std::function<void(const ds::model::StoryRef infothing, const ci::vec3 possy)>& func){
 	mInfoCallback = func;
 }
 
@@ -100,3 +100,5 @@ void InfoList::layout(){
 	}
 }
 }
+
+

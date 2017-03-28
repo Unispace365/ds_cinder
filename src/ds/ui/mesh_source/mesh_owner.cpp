@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "mesh_owner.h"
 
 #include "mesh_file.h"
@@ -7,14 +9,14 @@ namespace ds {
 namespace ui {
 
 /**
- * \class ds::ui::MeshOwner
- */
+* \class ds::ui::MeshOwner
+*/
 MeshOwner::MeshOwner(SpriteEngine& e)
-		: mEngineForMesh(e) {
+	: mEngineForMesh(e) {
 }
 
 void MeshOwner::setMesh(const MeshSource& src) {
-	if (mMeshSource == src) return;
+	if(mMeshSource == src) return;
 
 	mMeshSource.setEngine(nullptr);
 	mMeshSource = src;
@@ -26,7 +28,7 @@ void MeshOwner::clearMesh() {
 	setMesh(MeshSource());
 }
 
-const ci::gl::VboMesh* MeshOwner::getMesh() {
+const ci::gl::VboMeshRef MeshOwner::getMesh() {
 	return mMeshSource.getMesh();
 }
 

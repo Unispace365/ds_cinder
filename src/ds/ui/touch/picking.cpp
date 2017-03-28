@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "picking.h"
 
 namespace ds {
@@ -11,7 +13,7 @@ Picking::Picking() {
 Picking::~Picking() {
 }
 
-void Picking::setWorldSize(const ci::Vec2f& ws) {
+void Picking::setWorldSize(const ci::vec2& ws) {
 	mWorldSize = ws;
 }
 

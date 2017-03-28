@@ -6,11 +6,11 @@
 #include <Poco/File.h>
 #include <Poco/Path.h>
 
-#include <ds/debug/logger.h>
 #include <ds/query/query_client.h>
 #include <ds/util/file_meta_data.h>
 #include <ds/app/environment.h>
 #include <ds/data/resource.h>
+#include <ds/debug/logger.h>
 
 
 namespace panoramic {
@@ -28,7 +28,7 @@ void DirectoryLoader::run() {
 
 void DirectoryLoader::query(AllData& output) {
 	std::string dirPath = ds::Environment::expand("%DOCUMENTS%/downstream/panoramic_video/");
-	if(!ds::FileMetaData::safeFileExistsCheck(dirPath)){
+	if(!ds::safeFileExistsCheck(dirPath)){
 		std::cout << "Panoramic videos folder doesn't exist! Make one and add videos at " << dirPath << std::endl;
 		return;
 	}
@@ -63,3 +63,5 @@ void DirectoryLoader::query(AllData& output) {
 }
 
 } // !namespace panoramic
+
+

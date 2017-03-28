@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include <ds/app/event.h>
 
 #include <assert.h>
@@ -20,7 +22,7 @@ Event::Event()
 {
 }
 
-Event::Event(const int what)
+Event::Event(const size_t what)
 	: mWhat(what)
 	, mEventOrigin(0.0f, 0.0f, 0.0f)
 	, mUserStringData("")

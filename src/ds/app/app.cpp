@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/app.h"
 
 #include <Poco/File.h>
@@ -20,6 +22,7 @@
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
+#include "ds/ui/sprite/text_pango.h"
 #include "ds/ui/sprite/border.h"
 #include "ds/ui/sprite/circle.h"
 #include "ds/ui/sprite/circle_border.h"
@@ -96,6 +99,7 @@ App::App(const RootList& roots)
 	, mSecondMouseDown(false)
 	, mQKeyEnabled(true)
 	, mEscKeyEnabled(true)
+	, mMouseHidden(false)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
@@ -114,7 +118,9 @@ App::App(const RootList& roots)
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
-							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r);});
+							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r); });
+	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::TextPango::installAsServer(r); },
+							[](ds::BlobRegistry& r){ds::ui::TextPango::installAsClient(r); });
 	mEngine.installSprite(	[](ds::BlobRegistry& r){EngineStatsView::installAsServer(r);},
 							[](ds::BlobRegistry& r){EngineStatsView::installAsClient(r);});
 	mEngine.installSprite(  [](ds::BlobRegistry& r){ds::ui::Border::installAsServer(r); },
@@ -155,6 +161,11 @@ App::App(const RootList& roots)
 		if (*it) (*it)(mEngine);
 	}
 	startups.clear();
+
+	setFpsSampleInterval(0.25);
+
+	prepareSettings(ci::app::App::get()->sSettingsFromMain);
+
 }
 
 App::~App() {
@@ -165,30 +176,41 @@ App::~App() {
 	}
 }
 
-void App::prepareSettings(Settings *settings) {
-	inherited::prepareSettings(settings);
+void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 
 	if (settings) {
-		mEngine.prepareSettings(*settings);
+		ds::Environment::setConfigDirFileExpandOverride(mEngineSettings.getBool("configuration_folder:allow_expand_override", 0, false));
 
-		if (mEngineData.mWorldSlices.empty())
-			settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
-		else
-			settings->setWindowPos(static_cast<unsigned>(mEngineData.mScreenRect.x1), static_cast<unsigned>(mEngineData.mScreenRect.y1));
+		ci::gl::enableVerticalSync(mEngineSettings.getBool("vertical_sync", 0, true));
+		mEngine.prepareSettings(*settings);
+		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
+		inherited::setFrameRate(settings->getFrameRate());
+		inherited::setWindowSize(settings->getWindowSize());
+		inherited::setWindowPos(settings->getWindowPos());
+		inherited::setFullScreen(settings->isFullScreen());
+		inherited::getWindow()->setBorderless(settings->isBorderless());
+		inherited::getWindow()->setAlwaysOnTop(settings->isAlwaysOnTop());
+		inherited::getWindow()->setTitle(settings->getTitle());
+		inherited::enablePowerManagement(settings->isPowerManagementEnabled());
 	}
 }
 
 void App::setup() {
 	inherited::setup();
 
+	mEngine.getPangoFontService().loadFonts();
 	mEngine.setup(*this);
 	mEngine.setupTouch(*this);
 }
 
 void App::update() {
 	mEngine.setAverageFps(getAverageFps());
-	if (mEngine.hideMouse()) {
+	if (mEngine.getHideMouse() && !mMouseHidden) {
+		mMouseHidden = true;
 		hideCursor();
+	} else if(mMouseHidden && !mEngine.getHideMouse()){
+		mMouseHidden = false;
+		showCursor();
 	}
 	mEngine.update();
 }
@@ -259,7 +281,7 @@ void App::keyDown(ci::app::KeyEvent e) {
 	if(code == ci::app::KeyEvent::KEY_LCTRL || code == ci::app::KeyEvent::KEY_RCTRL) {
 		mCtrlDown = true;
 	} else if(ci::app::KeyEvent::KEY_s == code) {
-		mEngine.getNotifier().notify(EngineStatsView::Toggle());
+		mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest());
 	} else if(ci::app::KeyEvent::KEY_t == code) {
 		mEngine.nextTouchMode();
 	} else if(ci::app::KeyEvent::KEY_F8 == code){
@@ -268,6 +290,8 @@ void App::keyDown(ci::app::KeyEvent e) {
 		system("taskkill /f /im RestartOnCrash.exe");
 		system("taskkill /f /im DSNode-Host.exe");
 		system("taskkill /f /im DSNodeConsole.exe");
+	} else if(ci::app::KeyEvent::KEY_m == code){
+		mEngine.setHideMouse(!mEngine.getHideMouse());
 	}
 
 	if (mArrowKeyCameraControl) {
@@ -290,8 +314,12 @@ void App::keyDown(ci::app::KeyEvent e) {
 		}
 	}
 
+	if(ci::app::KeyEvent::KEY_p == code){
+		mEngine.getPangoFontService().logFonts(e.isShiftDown());
+	}
+
 #ifdef _DEBUG
-	if(code == ci::app::KeyEvent::KEY_d){
+	if(code == ci::app::KeyEvent::KEY_d && e.isControlDown()){
 		std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
 		std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
 		std::fstream	filestr;
@@ -314,25 +342,12 @@ void App::keyUp(ci::app::KeyEvent event){
 }
 
 void App::saveTransparentScreenshot(){
-
-	const auto		area = getWindowBounds();
-	ci::Surface s(area.getWidth(), area.getHeight(), true);
-	glFlush(); // there is some disagreement about whether this is necessary, but ideally performance-conscious users will use FBOs anyway
-
-
-	GLint oldPackAlignment;
-	glGetIntegerv(GL_PACK_ALIGNMENT, &oldPackAlignment);
-	glPixelStorei(GL_PACK_ALIGNMENT, 1);
-	glReadPixels(area.x1, getWindowHeight() - area.y2, area.getWidth(), area.getHeight(), GL_RGBA, GL_UNSIGNED_BYTE, s.getData());
-	glPixelStorei(GL_PACK_ALIGNMENT, oldPackAlignment);
-	ci::ip::flipVertical(&s);
-
 	Poco::Path		p("%USERPROFILE%");
 	Poco::Timestamp::TimeVal t = Poco::Timestamp().epochMicroseconds();
 	std::stringstream filepath;
 	filepath << "ds_cinder.screenshot." << t << ".png";
 	p.append("Desktop").append(filepath.str());
-	ci::writeImage(Poco::Path::expand(p.toString()), s);
+	ci::writeImage(Poco::Path::expand(p.toString()), copyWindowSurface());
 }
 
 void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
@@ -345,12 +360,13 @@ void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
 }
 
 void App::quit(){
-	ci::app::AppBasic::quit();
+	ci::app::App::quit();
 }
 
 void App::shutdown(){
-	ds::ui::clearFontCache();
-	ci::app::AppBasic::shutdown();
+	// TODO
+	quit();
+	//ci::app::App::shutdown();
 }
 
 void App::showConsole(){

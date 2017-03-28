@@ -1,13 +1,14 @@
 /************************************************************************/
 /* This DS Cinder project generates other DS Cinder projects by         */
 /* by scanning a reference DS Cinder project (DS Cinder project-ception)*/
-/* It scans the full_starter project located in %ds_platform_086%       */
+/* It scans the full_starter project located in %ds_platform_090%       */
 /************************************************************************/
 
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <ds/app/app.h>
 #include <ds/app/engine/engine.h>
 #include <cinder/params/Params.h>
+#include <cinder/app/RendererGl.h>
 #include <Poco/DateTimeFormatter.h>
 #include <Poco/LocalDateTime.h>
 #include <boost/regex.hpp>
@@ -24,6 +25,7 @@ class ProjectGeneratorApp : public ds::App {
   private:
     typedef ds::App   inherited;
 };
+
 
 ProjectGeneratorApp::ProjectGeneratorApp()
 {
@@ -66,13 +68,13 @@ public:
 		, mProjectFolder(DOT)
 		, mWorkingDirectory(ELIPSIS)
 		, mWarningCount(0)
-		, mTemplatePath("%ds_platform_086%\\example\\full_starter")
+		, mTemplatePath("%ds_platform_090%\\example\\full_starter")
 		, mTemplateName("full_starter")
 		, mTemplateClassName("FullStarterApp")
 		, mTemplateNamespace("fullstarter")
 		, mTemplateHeadguard("FULLSTARTER")
 	{
-		mParams = ci::params::InterfaceGl::create(ci::app::getWindow(), "App parameters", ci::app::toPixels(ci::Vec2i(600, 250)));
+		mParams = ci::params::InterfaceGl::create(ci::app::getWindow(), "App parameters", ci::app::toPixels(ci::ivec2(600, 250)));
 		setTransparent(false);
 
 		mParams->addText("status", "label=`Please modify the following values and hit Generate.`");
@@ -119,7 +121,7 @@ public:
 	virtual void drawLocalClient() {
 		// Draw the interface
 		mParams->draw();
-		mParams->setPosition(ci::Vec2i(20, 25));
+		mParams->setPosition(ci::ivec2(20, 25));
 	}
 
 	void copyTemplate() {
@@ -353,4 +355,6 @@ void ProjectGeneratorApp::setupServer()
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(ProjectGeneratorApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(ProjectGeneratorApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+
+

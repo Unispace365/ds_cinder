@@ -1,7 +1,8 @@
 #ifndef _MEDIAVIEWER_APP_H_
 #define _MEDIAVIEWER_APP_H_
 
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
+#include <cinder/app/AppBase.h>
 #include <ds/app/app.h>
 
 #include "app/globals.h"
@@ -26,7 +27,7 @@ public:
 	void				setupServer();
 	void				update();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event);
+	void				fileDrop(ci::app::FileDropEvent event) override;
 private:
 	typedef ds::App		inherited;
 
@@ -48,10 +49,10 @@ private:
 	ds::ui::Sprite*		mStreamerParent;
 	ds::ui::GstVideo*	mStreamer;
 
-	void				moveCamera(const ci::Vec3f& deltaMove);
 	void				touchEventToTouchInfo(ds::ui::TouchEvent& te, ds::ui::TouchInfo::Phase phasey);
 };
 
 } // !namespace mv
 
 #endif // !_MEDIAVIEWER_APP_H_
+

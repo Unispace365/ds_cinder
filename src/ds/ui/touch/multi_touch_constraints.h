@@ -2,6 +2,7 @@
 #ifndef DS_UI_MULTI_TOUCH_CONSTRAINTS_H
 #define DS_UI_MULTI_TOUCH_CONSTRAINTS_H
 #include "ds/util/bit_mask.h"
+#include <string>
 
 namespace ds {
 namespace ui {

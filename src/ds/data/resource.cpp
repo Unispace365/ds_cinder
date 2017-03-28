@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/data/resource.h"
 
 #include <iostream>
@@ -207,7 +209,8 @@ const std::string& Resource::Id::getDatabasePath() const
 }
 
 const std::string& Resource::Id::getPortableResourcePath() const {
-	if (mType == CMS_TYPE)		return CMS_PORTABLE_RESOURCE_PATH;
+	if(mType == CMS_TYPE)		return CMS_PORTABLE_RESOURCE_PATH;
+	if(mType <= CUSTOM_TYPE && CUSTOM_RESOURCE_PATH) return CUSTOM_RESOURCE_PATH(*this);
 	return EMPTY_PATH;
 }
 
@@ -394,8 +397,11 @@ std::string Resource::getPortableFilePath() const {
 
 	if (mFileName.empty()) return EMPTY_SZ;
 	if (mType == WEB_TYPE) return mFileName;
-	Poco::Path        p(mDbId.getPortableResourcePath());
-	if (p.depth() < 1) return EMPTY_SZ;
+	auto reccyPath = mDbId.getPortableResourcePath();
+	Poco::Path        p(reccyPath);
+	if(p.depth() < 1){
+		return EMPTY_SZ;
+	}
 	p.append(mPath).append(mFileName);
 	return p.toString();
 }

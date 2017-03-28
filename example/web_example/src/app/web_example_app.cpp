@@ -1,6 +1,7 @@
 #include "web_example_app.h"
 
 #include <cinder/Clipboard.h>
+#include <cinder/app/RendererGl.h>
 
 #include <Poco/String.h>
 #include <ds/app/environment.h>
@@ -21,7 +22,7 @@ web_example::web_example()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "font-name-here");
+	//mEngine.editFonts().installFont(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "Font Name", "font-name-here");
 
 	enableCommonKeystrokes(true);
 }
@@ -77,4 +78,5 @@ void web_example::keyDown(ci::app::KeyEvent event){
 } // namespace web_example
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(web_example::web_example, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(web_example::web_example, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+

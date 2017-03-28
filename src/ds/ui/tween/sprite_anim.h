@@ -62,10 +62,10 @@ public:
 
 	static const SpriteAnim<ci::Color>&		ANIM_COLOR();
 	static const SpriteAnim<float>&			ANIM_OPACITY();
-	static const SpriteAnim<ci::Vec3f>&		ANIM_POSITION();
-	static const SpriteAnim<ci::Vec3f>&		ANIM_SCALE();
-	static const SpriteAnim<ci::Vec3f>&		ANIM_SIZE();
-	static const SpriteAnim<ci::Vec3f>&		ANIM_ROTATION();
+	static const SpriteAnim<ci::vec3>&		ANIM_POSITION();
+	static const SpriteAnim<ci::vec3>&		ANIM_SCALE();
+	static const SpriteAnim<ci::vec3>&		ANIM_SIZE();
+	static const SpriteAnim<ci::vec3>&		ANIM_ROTATION();
 	static const SpriteAnim<float>&			ANIM_NORMALIZED();
 
 	void									tweenColor(		const ci::Color&, const float duration = 1.0f, const float delay = 0.0f,
@@ -77,19 +77,19 @@ public:
 															const ci::EaseFn& = ci::easeNone,
 															const std::function<void(void)>& finishFn = nullptr,
 															const std::function<void(void)>& updateFn = nullptr);
-	void									tweenPosition(	const ci::Vec3f& pos, const float duration = 1.0f, const float delay = 0.0f,
+	void									tweenPosition(	const ci::vec3& pos, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
 															const std::function<void(void)>& finishFn = nullptr,
 															const std::function<void(void)>& updateFn = nullptr);
-	void									tweenRotation(	const ci::Vec3f& rot, const float duration = 1.0f, const float delay = 0.0f,
+	void									tweenRotation(	const ci::vec3& rot, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
 															const std::function<void(void)>& finishFn = nullptr,
 															const std::function<void(void)>& updateFn = nullptr);
-	void									tweenScale(		const ci::Vec3f& scale, const float duration = 1.0f, const float delay = 0.0f,
+	void									tweenScale(		const ci::vec3& scale, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
 															const std::function<void(void)>& finishFn = nullptr,
 															const std::function<void(void)>& updateFn = nullptr);
-	void									tweenSize(		const ci::Vec3f& size, const float duration = 1.0f, const float delay = 0.0f,
+	void									tweenSize(		const ci::vec3& size, const float duration = 1.0f, const float delay = 0.0f,
 															const ci::EaseFn& = ci::easeNone,
 															const std::function<void(void)>& finishFn = nullptr,
 															const std::function<void(void)>& updateFn = nullptr);
@@ -153,6 +153,8 @@ public:
 			easing: see getEasingByString() implementation for details. Same easing applies to all tween types (opacity and position would use the same easing for instance, unfortunately)
 			duration: in seconds
 			delay: in seconds
+			center: change center directly without changing position
+			shift: tween the position to the set offset
 			slide: tweens the position to the cached destination position, and offsets the start by the supplied values. Cache is created the first time slide, grow or fade is called. Call setAnimateOnTargets() to reset the cached targets.
 			grow: tweens the scale to the cached scale, and starts at the supplied value
 			fade: tweens the opacity to the cached opacity and starts at the supplied value
@@ -160,16 +162,19 @@ public:
 		*/
 	void									runAnimationScript(const std::string& animScript, const float addedDelay = 0.0f);
 
+	void									runMultiAnimationScripts(const std::vector<std::string> animScripts, const float gapTime, const float addedDelay = 0.0f);
+	void									parseMultiScripts(const std::vector<std::string> animScripts, std::vector<float>& durations, std::vector<float>& delays);
+
 	/// Gets the cinder easing function by string value, to support the script running
 	static ci::EaseFn						getEasingByString(const std::string& inString);
 
 public:
 	ci::Anim<ci::Color>						mAnimColor;
 	ci::Anim<float>							mAnimOpacity;
-	ci::Anim<ci::Vec3f>						mAnimPosition;
-	ci::Anim<ci::Vec3f>						mAnimScale;
-	ci::Anim<ci::Vec3f>						mAnimSize;
-	ci::Anim<ci::Vec3f>						mAnimRotation;
+	ci::Anim<ci::vec3>						mAnimPosition;
+	ci::Anim<ci::vec3>						mAnimScale;
+	ci::Anim<ci::vec3>						mAnimSize;
+	ci::Anim<ci::vec3>						mAnimRotation;
 	ci::Anim<float>							mAnimNormalized;
 
 	float									getNormalizedTweenValue(){ return mNormalizedTweenValue; }
@@ -180,17 +185,17 @@ private:
 
 	std::string								mAnimateOnScript;
 	bool									mAnimateOnTargetsSet;
-	ci::Vec3f								mAnimateOnScaleTarget;
-	ci::Vec3f								mAnimateOnPositionTarget;
+	ci::vec3								mAnimateOnScaleTarget;
+	ci::vec3								mAnimateOnPositionTarget;
 	float									mAnimateOnOpacityTarget;
 
 	float									mNormalizedTweenValue;
 
 	//---- For completing tweens, yaaay ----------------------------//
-	ci::TweenRef<ci::Vec3f>					mInternalPositionCinderTweenRef;
-	ci::TweenRef<ci::Vec3f>					mInternalScaleCinderTweenRef;
-	ci::TweenRef<ci::Vec3f>					mInternalSizeCinderTweenRef;
-	ci::TweenRef<ci::Vec3f>					mInternalRotationCinderTweenRef;
+	ci::TweenRef<ci::vec3>					mInternalPositionCinderTweenRef;
+	ci::TweenRef<ci::vec3>					mInternalScaleCinderTweenRef;
+	ci::TweenRef<ci::vec3>					mInternalSizeCinderTweenRef;
+	ci::TweenRef<ci::vec3>					mInternalRotationCinderTweenRef;
 	ci::TweenRef<ci::Color>					mInternalColorCinderTweenRef;
 	ci::TweenRef<float>						mInternalOpacityCinderTweenRef;
 	ci::TweenRef<float>						mInternalNormalizedCinderTweenRef;

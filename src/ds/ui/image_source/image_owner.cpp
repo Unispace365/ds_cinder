@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_owner.h"
 
 #include "image_file.h"
@@ -40,7 +42,7 @@ void ImageOwner::setImageResource(const ds::Resource::Id& rid, const int flags) 
 }
 
 
-const ci::gl::Texture* ImageOwner::getImageTexture(){
+const ci::gl::TextureRef ImageOwner::getImageTexture(){
 	return mImageSource.getImage();
 }
 

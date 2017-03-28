@@ -83,7 +83,7 @@ void SpriteBody::create(const BodyBuilder& b) {
 
 	def.userData = &mSprite;
 	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition(), &mSprite);
-//	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition() + (mSprite.getCenter() - ci::Vec3f(0.5f, 0.5f, 0.0f)) *mSprite.getSize(), &mSprite);
+//	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition() + (mSprite.getCenter() - ci::vec3(0.5f, 0.5f, 0.0f)) *mSprite.getSize(), &mSprite);
 	def.linearDamping = b.mLinearDampening;
 	def.angularDamping = b.mAngularDampening;
 	def.fixedRotation = b.mFixedRotation;
@@ -94,17 +94,17 @@ void SpriteBody::create(const BodyBuilder& b) {
 	b.createFixture(*this);
 }
 
-b2DistanceJoint* SpriteBody::createDistanceJoint(SpriteBody& body, float length, float dampingRatio, float frequencyHz, const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
+b2DistanceJoint* SpriteBody::createDistanceJoint(SpriteBody& body, float length, float dampingRatio, float frequencyHz, const ci::vec3 bodyAOffset, const ci::vec3 bodyBOffset) {
 	return mWorld.createDistanceJoint(*this, body, length, dampingRatio, frequencyHz, bodyAOffset, bodyBOffset);
 }
 
-void SpriteBody::createWeldJoint(SpriteBody& body,const float damping, const float frequency, const ci::Vec3f bodyAOffset, const ci::Vec3f bodyBOffset) {
+void SpriteBody::createWeldJoint(SpriteBody& body,const float damping, const float frequency, const ci::vec3 bodyAOffset, const ci::vec3 bodyBOffset) {
 	mWorld.createWeldJoint(*this, body, damping, frequency, bodyAOffset, bodyBOffset);
 }
 
-b2PrismaticJoint* SpriteBody::createPrismaticJoint(const SpriteBody& body, ci::Vec2f axis, bool enableLimit, float lowerTranslation, float upperTranslation,
+b2PrismaticJoint* SpriteBody::createPrismaticJoint(const SpriteBody& body, ci::vec2 axis, bool enableLimit, float lowerTranslation, float upperTranslation,
 	bool enableMotor , float maxMotorForce , float motorSpeed,
-	const ci::Vec3f bodyAOffset , const ci::Vec3f bodyBOffset ) {
+	const ci::vec3 bodyAOffset , const ci::vec3 bodyBOffset ) {
 	b2Vec2 bAxis(axis.x, axis.y);
 	return mWorld.createPrismaticJoint(*this, body, bAxis,  enableLimit, lowerTranslation, upperTranslation, enableMotor, maxMotorForce, motorSpeed, bodyAOffset, bodyBOffset);
 }
@@ -165,7 +165,7 @@ void SpriteBody::processTouchRemoved(const ds::ui::TouchInfo& ti) {
 	mWorld.processTouchRemoved(*this, ti);
 }
 
-void SpriteBody::setPosition(const ci::Vec3f& pos) {
+void SpriteBody::setPosition(const ci::vec3& pos) {
 	if (!mBody) return;
 
 	const b2Vec2		boxpos = mWorld.Ci2BoxTranslation(pos, &mSprite);
@@ -188,13 +188,13 @@ void SpriteBody::setLinearVelocity(const float x, const float y) {
 }
 
 
-ci::Vec2f SpriteBody::getLinearVelocity() {
+ci::vec2 SpriteBody::getLinearVelocity() {
 	b2Vec2 vel = b2Vec2(0.0f, 0.0f);
 
 	if (mBody) {
 		vel =  mBody->GetLinearVelocity();
 	}
-	return ci::Vec2f(vel.x, vel.y);
+	return ci::vec2(vel.x, vel.y);
 }
 
 
@@ -203,7 +203,7 @@ void SpriteBody::applyForceToCenter(const float x, const float y) {
 		mBody->ApplyForceToCenter(b2Vec2(x, y), true);
 	}
 }
-void SpriteBody::applyImpulseToCenter(const float x, const float y, ci::Vec2f point) {
+void SpriteBody::applyImpulseToCenter(const float x, const float y, ci::vec2 point) {
 	if (mBody) {
 		mBody->ApplyLinearImpulse (b2Vec2(x, y), b2Vec2(point.x, point.y), true);
 	}
@@ -259,7 +259,7 @@ void SpriteBody::onCenterChanged() {
 			const float32	w = mSprite.getWidth() / 2.0f * mWorld.getCi2BoxScale(),
 							h = mSprite.getHeight() / 2.0f * mWorld.getCi2BoxScale();
 			// Convert the sprite center into a box2d center.
-			const ci::Vec2f	cen((mSprite.getCenter().x * 2) - 1.0f,
+			const ci::vec2	cen((mSprite.getCenter().x * 2) - 1.0f,
 								(mSprite.getCenter().y * 2) - 1.0f);
 			b2Vec2			box_cen;
 			box_cen.x = cen.x * -w;

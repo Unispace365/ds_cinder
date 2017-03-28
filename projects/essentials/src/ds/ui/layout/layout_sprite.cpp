@@ -1,8 +1,11 @@
+#include "stdafx.h"
+
 #include "layout_sprite.h"
 
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
+#include <ds/ui/sprite/text_pango.h>
 #include <ds/ui/sprite/multiline_text.h>
 #include <ds/util/string_util.h>
 
@@ -61,11 +64,14 @@ void LayoutSprite::runSizeLayout(){
 		if(chillin->mLayoutUserType == kFixedSize){
 			if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+				ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
 				if(mt){
 					mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
+				} else if(tp){
+					tp->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 				} else if(chillin->mLayoutFixedAspect){
 					// restore position after calculating the box size
-					ci::Vec3f prePos = chillin->getPosition();
+					ci::vec3 prePos = chillin->getPosition();
 					fitInside(chillin, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
 					chillin->setPosition(prePos);
 				} else {
@@ -77,12 +83,15 @@ void LayoutSprite::runSizeLayout(){
 			const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+			ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 			if(mt){
 				mt->setResizeLimit(fixedW, fixedH);
+			} else if(tp){
+				tp->setResizeLimit(fixedW, fixedH);
 			} else if(chillin->mLayoutFixedAspect){
 				// restore position after calculating the box size
-				ci::Vec3f prePos = chillin->getPosition();
+				ci::vec3 prePos = chillin->getPosition();
 				fitInside(chillin, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), chillin->mLayoutUserType != kStretchSize);
 				chillin->setPosition(prePos);
 			} else if(ls){
@@ -130,6 +139,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				numStretches++;
 			} else {
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+				ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 				
 				if(chillin->mLayoutUserType == kFixedSize){
@@ -137,6 +147,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 					if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
 						if(mt){
 							mt->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
+						} else if(tp){
+							tp->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 						} else if(chillin->mLayoutFixedAspect){
 							fitInside(chillin, ci::Rectf(0.0f, 0.0f, chillin->mLayoutSize.x, chillin->mLayoutSize.y), true);
 						} else {
@@ -152,6 +164,12 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 							mt->setResizeLimit(fixedW);
 						} else {
 							mt->setResizeLimit(mt->getResizeLimitWidth(), fixedH);
+						}
+					} else if(tp){
+						if(vertical){
+							tp->setResizeLimit(fixedW);
+						} else {
+							tp->setResizeLimit(tp->getResizeLimitWidth(), fixedH);
 						}
 					} else if(chillin->mLayoutFixedAspect){
 						if(vertical){
@@ -242,9 +260,12 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 			const float stretchH = (vertical ? perStretch : layoutHeight) - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 			ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+			ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 			if(mt){
 				mt->setResizeLimit(stretchW, stretchH);
+			} else if(tp){
+				tp->setResizeLimit(stretchW, stretchH);
 			} else if(chillin->mLayoutFixedAspect){
 				fitInside(chillin, ci::Rectf(0.0f, 0.0f, stretchW, stretchH), true);
 			} else if(ls){
@@ -279,8 +300,8 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 		}
 		
 		// finally set the position of the child
-		ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
-		ci::Vec2f totalOffset = chillin->mLayoutFudge + childCenter;
+		ci::vec2 childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
+		ci::vec2 totalOffset = chillin->mLayoutFudge + childCenter;
 		chillin->setPosition(xPos + totalOffset.x, yPos + totalOffset.y);	
 		
 		// move along through the layout
@@ -301,9 +322,12 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
 				ds::ui::MultilineText* mt = dynamic_cast<ds::ui::MultilineText*>(chillin);
+				ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 				if(mt){
 					mt->setResizeLimit(fixedW, fixedH);
+				} else if(tp){
+					tp->setResizeLimit(fixedW, fixedH);
 				} else if(chillin->mLayoutFixedAspect){
 					fitInside(chillin, ci::Rectf(0.0f, 0.0f, fixedW, fixedH), false);
 				} else if(ls){
@@ -317,9 +341,9 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				// For example, images will be resized within their aspect, so they'll possibly be off.
 				// Compensate for this by centering the child within the area defined by the padding, and respecting the center and fudge factors.
 
-				ci::Vec2f centerOffset((fixedW - chillin->getScaleWidth()) * 0.5f, (fixedH - chillin->getScaleHeight()) * 0.5f);
-				ci::Vec2f childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
-				ci::Vec2f totalOffset = chillin->mLayoutFudge + childCenter + centerOffset;
+				ci::vec2 centerOffset((fixedW - chillin->getScaleWidth()) * 0.5f, (fixedH - chillin->getScaleHeight()) * 0.5f);
+				ci::vec2 childCenter(chillin->getCenter().x * chillin->getScaleWidth(), chillin->getCenter().y * chillin->getScaleHeight());
+				ci::vec2 totalOffset = chillin->mLayoutFudge + childCenter + centerOffset;
 				chillin->setPosition(chillin->mLayoutLPad + totalOffset.x, chillin->mLayoutTPad + totalOffset.y);
 			}
 		}

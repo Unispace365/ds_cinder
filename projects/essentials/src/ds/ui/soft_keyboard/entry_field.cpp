@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "entry_field.h"
 
 #include <ds/ui/sprite/sprite_engine.h>
@@ -184,7 +186,7 @@ void EntryField::cursorUpdated(){
 		if(mCursorIndex > getCurrentText().size()){
 			mCursorIndex = getCurrentText().size();
 		}
-		ci::Vec2f cursorPos = mTextSprite->getPositionForCharacterIndex(mCursorIndex);
+		ci::vec2 cursorPos = mTextSprite->getPositionForCharacterIndex(mCursorIndex);
 		mCursor->setPosition(cursorPos.x + mEntryFieldSettings.mCursorOffset.x, cursorPos.y + mEntryFieldSettings.mCursorOffset.y);
 	}
 }
@@ -193,8 +195,8 @@ void EntryField::cursorUpdated(){
 void EntryField::handleTouchInput(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 
 	if(ti.mPhase != ds::ui::TouchInfo::Removed && mTextSprite){
-		ci::Vec3f loccy = mTextSprite->globalToLocal(ti.mCurrentGlobalPoint);
-		mCursorIndex = mTextSprite->getCharacterIndexForPosition(loccy.xy());
+		ci::vec3 loccy = mTextSprite->globalToLocal(ti.mCurrentGlobalPoint);
+		mCursorIndex = mTextSprite->getCharacterIndexForPosition(ci::vec2(loccy));
 
 		cursorUpdated();
 	}

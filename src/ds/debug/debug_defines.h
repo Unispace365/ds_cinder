@@ -29,7 +29,7 @@
 /* OpenGL debugging
  ******************************************************************/
 #ifdef _DEBUG
-#define TURN_ON_REPORT_GL_ERRORS
+//#define TURN_ON_REPORT_GL_ERRORS
 #endif
 
 /* OpenGL debugging -- impl

@@ -1,7 +1,7 @@
 #ifndef _XMLSETTINGSSETTING_APP_H_
 #define _XMLSETTINGSSETTING_APP_H_
 
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <ds/app/app.h>
 
 #include "app/globals.h"
@@ -32,3 +32,4 @@ private:
 } // !namespace setter
 
 #endif // !_XMLSETTINGSSETTING_APP_H_
+

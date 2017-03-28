@@ -1,14 +1,13 @@
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 
 #include <cinder/app/FileDropEvent.h>
+#include <cinder/app/RendererGl.h>
 
 #include <ds/app/app.h>
 #include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
 
 #include <ds/ui/sprite/multiline_text.h>
-
-#include <ds/ui/sprite/text_layout.h>
 
 #include <Poco/File.h>
 #include <Poco/Path.h>
@@ -35,7 +34,13 @@ private:
 
 
 YamlImporterApp::YamlImporterApp(){
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Regular.ttf"), "noto-regular");
+	// Fonts links together a font name and a physical font file
+	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
+	mEngine.loadSettings("FONTS", "fonts.xml");
+	mEngine.editFonts().clear();
+	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
+		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+	});
 }
 
 void YamlImporterApp::setupServer()
@@ -59,7 +64,7 @@ void YamlImporterApp::setupServer()
 // 	mm.run();
 
 
-	std::vector<std::string> theArgs = getArgs();
+	std::vector<std::string> theArgs = ci::app::App::get()->getCommandLineArgs();// getArgs();
 	for(auto it = theArgs.begin(); it < theArgs.end(); ++it){
 		Poco::File filey = Poco::File((*it));
 		if(filey.exists() && !filey.isDirectory()){
@@ -101,4 +106,7 @@ void YamlImporterApp::parseFile(std::string fileLocation){
 
 }
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(ds::YamlImporterApp, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(ds::YamlImporterApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
+
+

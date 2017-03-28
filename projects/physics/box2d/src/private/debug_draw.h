@@ -27,7 +27,7 @@ public:
 	virtual void		DrawTransform(const b2Transform& xf);
 
 protected:
-	virtual void		drawClient(const ci::Matrix44f&, const DrawParams&);
+	virtual void		drawClient(const ci::mat4&, const DrawParams&);
 
 private:
 	ds::physics::World	&mPhysicsWorld;

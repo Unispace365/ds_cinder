@@ -14,8 +14,8 @@
 
 	<float name="camera:fov" value="30" />
 	
-	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\northeastern\" />
-	<text name="resource_db" value="db\northeastern.sqlite" />
+	<text name="resource_location" value="%APP%\data\resources\" />
+	<text name="resource_db" value="db\db.sqlite" />
 
 	<float name="frame_rate" value="30" />
 	<float name="tap_threshold" value="10" />

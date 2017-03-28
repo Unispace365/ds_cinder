@@ -18,7 +18,7 @@ namespace pdf {
 class PdfRes : public ds::GlThreadClient<PdfRes> {
 public:
 	// Utility to get a render of the first page of a PDF.
-	static ci::Surface8u		renderPage(const std::string& path);
+	static ci::Surface8uRef	renderPage(const std::string& path);
 
 	PdfRes(ds::GlThread&);
 	// Clients should never delete this class, instead schedule it for deletion and consider it invalid.
@@ -28,7 +28,7 @@ private:
 	virtual ~PdfRes();
 
 public:
-	bool loadPDF(const std::string &theFileName, const ds::ui::Pdf::PageSizeMode&);
+	bool loadPDF(const std::string &theFileName);
 
 	float					getTextureWidth() const;
 	float					getTextureHeight() const;
@@ -36,6 +36,7 @@ public:
 	/// Returns true if the pixels were updated on this pass
 	bool					update();
 
+	ci::gl::TextureRef		getTexture(){ return mTexture; }
 	void					draw(float x, float y);
 
 	float					getWidth() const;
@@ -43,12 +44,10 @@ public:
 	void					setPageNum(int thePageNum);
 	int						getPageNum() const;
 	int						getPageCount() const;
-	ci::Vec2i				getPageSize() const;
+	ci::ivec2				getPageSize() const;
 	void					goToNextPage();
 	void					goToPreviousPage();
 	void					setScale(const float theScale);
-
-	void					setPageSizeMode(const ds::ui::Pdf::PageSizeMode&);
 
 protected:
 	// worker thread calls
@@ -63,10 +62,8 @@ private:
 
 		int			mWidth, mHeight, mPageNum;
 		float		mScale;
-		ds::ui::Pdf::PageSizeMode
-					mPageSizeMode;
 		// NOTE: These items are not part of the equality test
-		ci::Vec2i	mPageSize;
+		ci::ivec2	mPageSize;
 	};
 
 public:
@@ -82,10 +79,10 @@ public:
 		int					getHeight() const		{ return mH; }
 		unsigned char*		getData();
 		void				clearPixels();
+		unsigned char*		mData;
 
 	private:
 		int					mW, mH;
-		unsigned char*		mData;
 	};
 
 private:
@@ -94,7 +91,7 @@ private:
 	mutable std::mutex			mMutex;
 
 	// MAIN THREAD
-	ci::gl::Texture				mTexture;
+	ci::gl::TextureRef			mTexture;
 	
 	// WORKER THREAD
 

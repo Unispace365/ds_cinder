@@ -41,3 +41,4 @@ public:
 } // !namespace perspective_picking
 
 #endif // !_PERSPECTIVEPICKING_APP_GLOBALS_
+

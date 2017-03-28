@@ -2,6 +2,21 @@ DS Cinder
 =========
 DS Cinder is a framework for interactive applications built on top of the fantastic Cinder framework. DS Cinder provides conveniences for getting graphics onscreen; loading data from a sqlite database; displaying PDFs, videos and web pages; providing touch interaction; and loading settings. The DS version also provides the ability to syncronize multiple clients to display the same graphics, as well as conveniences for touch handling.
 
+
+-----------------------------
+DS Cinder - Transition to Cinder 0.9
+-----------------------------
+Lots of things have changed in both Cinder & openGL since Cinder .84. The documentation has some useful pages for explaining what has changed which can be found ([Here](https://libcinder.org/docs/guides/transition_0_9/index.html)) and ([Here](https://libcinder.org/docs/guides/opengl/index.html)).
+- Major changes
+    - Cinder moved to GLM for Vectors and Matricies (`ci::Vec3f => ci::vec3`). That also means that instead of writing `MyVec.normalize()` it would be `MyVec = normalize(MyVec)`, which matches the glsl conventions.
+    - Instead of using ci::gl::Texture et. al. the new convention is to use ci::gl::TextureRef, which is a shared pointer to the texture.
+    - Many openGL functions have been depricated or removed with the removal of "Immediate Mode" rendering. Cinder provides some replication of the old functionality,but things like ALPHA_TEST, will need to be replaced with equivalent shader(s).
+    - Things like `ds::SaveCamera` & `ds::SaveViewport` can be replaced with Cinders new `ci::Scoped*` group of classes, which follow the same RAII structre.
+    - Cinder now has a set of default shaders that can replace the old default "Immediate Mode", as well as ones that can do simple 3d lighting.
+- Current Progress:
+    - Created 090_develop branch
+    - Converted most of the old style vector and matrix notations
+
 -----------------------------
 DS Cinder Version 103.0.0
 -----------------------------
@@ -45,15 +60,16 @@ The latest and greatest. Rough changes since the first tagged release (100.0.0):
 
 Installation
 ------------
+!! For Cinder 0.9, add the environment variable CINDER_090 and point it to the unziped 0.90 cinder distribution folder !!
 This version of DS Cinder requires **Visual Studio 2013** installed.
 
 -  You'll need some environment variables set:
-   - CINDER_086 points to the unzipped 0.8.6 cinder distribution folder ([Version 0.8.6 for VC 2013](https://libcinder.org/static/releases/cinder_0.8.6_vc2013.zip)). 
-  
-   - DS_PLATFORM_086 points to the root of this repository. 
+   - CINDER_090 points to the unzipped 0.8.6 cinder distribution folder ([Version 0.9.0 for VC 2013](https://libcinder.org/static/releases/cinder_0.9.0_vc2013.zip)).
+
+   - DS_PLATFORM_090 points to the root of this repository.
 
 
-Use the project generator to create a new project. This will make a copy of the "full_starter" example project, which contains all the projects you'll need to get started (PDF, Video, etc) and a bare-bones app structure. 
+Use the project generator to create a new project. This will make a copy of the "full_starter" example project, which contains all the projects you'll need to get started (PDF, Video, etc) and a bare-bones app structure.
 
 ----------
 
@@ -63,7 +79,7 @@ Troubleshooting installation
  - If you get errors for `xaudio.h`: install [latest DirectX SDK][2]
  - If you get errors of missing `Boost cstdint` headers: make sure your cinder distribution does include Boost! Be sure to use the download on the cinder home page, and not a release from the cinder github.
  - If you get `LNK1123: failure during conversion to COFF: file invalid or corrupt'`: Install latest update for your Visual Studio!
- - `SerialRunnable`: You may need to pass an alloc function when initializing a SerialRunnbale. 
+ - `SerialRunnable`: You may need to pass an alloc function when initializing a SerialRunnbale.
  - `boost::mutex` to `std::mutex`. In most cases for threading, the `boost` versions are supplanted with the `STL` version. Check stack overflow / google, there's plenty of upgrade examples
  - `Not defined`s: Many `STL` elements now need to have `include`s, most commonly `<memory>`, `<cctype>` and `<sstring>`.
  - `KeyEvent Not Defined`: Since the removal of using namespace `ci::*` from `ds_cinder` files, you'll need to make sure everything is namespaced properly.
@@ -71,7 +87,7 @@ Troubleshooting installation
 
 ----------
 
- 
+
 Property sheets
 ---------------
 
@@ -93,4 +109,4 @@ Install **Gstreamer 1.8.2** runtime and development files. Use the x86, not x64 
   - [Runtime installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.8.2/gstreamer-1.0-x86-1.8.2.msi)
   - [Development files installer](http://gstreamer.freedesktop.org/data/pkg/windows/1.8.2/gstreamer-1.0-devel-x86-1.8.2.msi)
 
-  
+

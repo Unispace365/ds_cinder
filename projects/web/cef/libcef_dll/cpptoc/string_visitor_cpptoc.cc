@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -13,6 +13,8 @@
 #include "libcef_dll/cpptoc/string_visitor_cpptoc.h"
 
 
+namespace {
+
 // MEMBER FUNCTIONS - Body may be edited by hand.
 
 void CEF_CALLBACK string_visitor_visit(struct _cef_string_visitor_t* self,
@@ -22,27 +24,33 @@ void CEF_CALLBACK string_visitor_visit(struct _cef_string_visitor_t* self,
   DCHECK(self);
   if (!self)
     return;
-  // Verify param: string; type: string_byref_const
-  DCHECK(string);
-  if (!string)
-    return;
+  // Unverified params: string
 
   // Execute
   CefStringVisitorCppToC::Get(self)->Visit(
       CefString(string));
 }
 
+}  // namespace
+
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefStringVisitorCppToC::CefStringVisitorCppToC(CefStringVisitor* cls)
-    : CefCppToC<CefStringVisitorCppToC, CefStringVisitor, cef_string_visitor_t>(
-        cls) {
-  struct_.struct_.visit = string_visitor_visit;
+CefStringVisitorCppToC::CefStringVisitorCppToC() {
+  GetStruct()->visit = string_visitor_visit;
 }
 
-#ifndef NDEBUG
-template<> long CefCppToC<CefStringVisitorCppToC, CefStringVisitor,
-    cef_string_visitor_t>::DebugObjCt = 0;
+template<> CefRefPtr<CefStringVisitor> CefCppToC<CefStringVisitorCppToC,
+    CefStringVisitor, cef_string_visitor_t>::UnwrapDerived(CefWrapperType type,
+    cef_string_visitor_t* s) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
+#if DCHECK_IS_ON()
+template<> base::AtomicRefCount CefCppToC<CefStringVisitorCppToC,
+    CefStringVisitor, cef_string_visitor_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCppToC<CefStringVisitorCppToC, CefStringVisitor,
+    cef_string_visitor_t>::kWrapperType = WT_STRING_VISITOR;

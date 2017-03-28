@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "png_sequence_sprite.h"
 
 #include <cinder/app/App.h>

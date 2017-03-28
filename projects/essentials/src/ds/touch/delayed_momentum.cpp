@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "delayed_momentum.h"
 
 namespace ds {

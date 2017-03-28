@@ -38,11 +38,9 @@ Init				INIT;
 
 char				BLOB_TYPE			= 0;
 const DirtyState&	PDF_FN_DIRTY		= INTERNAL_A_DIRTY;
-const DirtyState&	PDF_PAGEMODE_DIRTY	= INTERNAL_B_DIRTY;
-const DirtyState&	PDF_CURPAGE_DIRTY	= INTERNAL_C_DIRTY;
+const DirtyState&	PDF_CURPAGE_DIRTY	= INTERNAL_B_DIRTY;
 const char			PDF_FN_ATT			= 80;
-const char			PDF_PAGEMODE_ATT	= 81;
-const char			PDF_CURPAGE_ATT		= 82;
+const char			PDF_CURPAGE_ATT		= 81;
 }
 
 /**
@@ -63,13 +61,12 @@ Pdf& Pdf::makePdf(SpriteEngine& e, Sprite* parent) {
 	return makeAlloc<ds::ui::Pdf>([&e]()->ds::ui::Pdf*{ return new ds::ui::Pdf(e); }, parent);
 }
 
-ci::Surface8u Pdf::renderPage(const std::string& path) {
+ci::Surface8uRef Pdf::renderPage(const std::string& path) {
 	return ds::pdf::PdfRes::renderPage(path);
 }
 
 Pdf::Pdf(ds::ui::SpriteEngine& e)
 		: inherited(e)
-		, mPageSizeMode(kConstantSize)
 		, mPageSizeChangeFn(nullptr)
 		, mPageSizeCache(0, 0)
 		, mHolder(e) 
@@ -83,13 +80,13 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 
 	// set some callbacks in case we are ever enabled
-	this->setTapCallback([this](ds::ui::Sprite* sprite, const ci::Vec3f& pos){
+	this->setTapCallback([this](ds::ui::Sprite* sprite, const ci::vec3& pos){
 		int count = getPageCount();
 		int zeroIndexNextWrapped = (getPageNum() % count);
 		setPageNum(zeroIndexNextWrapped + 1);
 	});
 
-	this->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::Vec3f& delta){
+	this->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta){
 		int diff = 0;
 
 		if(delta.x < -20.0f){
@@ -110,17 +107,10 @@ Pdf::Pdf(ds::ui::SpriteEngine& e)
 	setUseShaderTexture(true);
 }
 
-Pdf& Pdf::setPageSizeMode(const PageSizeMode& m) {
-	mPageSizeMode = m;
-	mHolder.setPageSizeMode(m);
-	markAsDirty(PDF_PAGEMODE_DIRTY);
-	return *this;
-}
-
 Pdf& Pdf::setResourceFilename(const std::string& filename) {
 	mResourceFilename = filename;
-	mPageSizeCache = ci::Vec2i(0, 0);
-	if(!mHolder.setResourceFilename(filename, mPageSizeMode) && mErrorCallback){
+	mPageSizeCache = ci::ivec2(0, 0);
+	if(!mHolder.setResourceFilename(filename) && mErrorCallback){
 		std::stringstream errorStream;
 		errorStream << "PDF could not be loaded at " << filename;
 		std::string errorStr = errorStream.str();
@@ -163,16 +153,22 @@ void Pdf::updateClient(const UpdateParams& p) {
 
 void Pdf::updateServer(const UpdateParams& p) {
 	inherited::updateServer(p);
-	if(mHolder.update() && mPageLoadedCallback){
-		mPageLoadedCallback();
-	}
-	if (mPageSizeMode == kAutoResize) {
-		const ci::Vec2i			page_size(mHolder.getPageSize());
-		if (mPageSizeCache != page_size) {
+	if(mHolder.update()){
+
+		const ci::ivec2			page_size(mHolder.getPageSize());
+		if(mPageSizeCache != page_size) {
 			mPageSizeCache = page_size;
+			if(mPageSizeCache.x < 1 || mPageSizeCache.y < 1){
+				DS_LOG_WARNING("Received no size from muPDF!");
+			}
 			setSize(static_cast<float>(mPageSizeCache.x), static_cast<float>(mPageSizeCache.y));
-			if (mPageSizeChangeFn) mPageSizeChangeFn();
+			if(mPageSizeChangeFn) mPageSizeChangeFn();
 		}
+
+		if(mPageLoadedCallback){
+			mPageLoadedCallback();
+		}
+
 	}
 }
 
@@ -205,7 +201,7 @@ void Pdf::goToPreviousPage() {
 #ifdef _DEBUG
 void Pdf::writeState(std::ostream &s, const size_t tab) const {
 	for (size_t k=0; k<tab; ++k) s << "\t";
-	s << "PDF (" << mResourceFilename << ", mode=" << mPageSizeMode << ")" << std::endl;
+	s << "PDF (" << mResourceFilename << ")" << std::endl;
 	inherited::writeState(s, tab);
 	s << std::endl;
 }
@@ -218,43 +214,56 @@ void Pdf::onScaleChanged() {
 
 void Pdf::drawLocalClient() {
 
-	// When drawing, we have to go through some histrionics because we
-	// want this sprite to look the same as other sprites to the outside
-	// world, but internally, we have a buffer that is rendered at the
-	// scaled size, not the sprite size.
 	const float				tw = mHolder.getTextureWidth(),
-							th = mHolder.getTextureHeight();
-	if(tw < 1.0f || th < 1.0f){
+		th = mHolder.getTextureHeight();
+	auto theTexture = mHolder.getTexture();
+	if(!theTexture || tw < 1.0f || th < 1.0f){
+		return;
 
-		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
+		auto shaderBase = mSpriteShader.getShader();
 		if(shaderBase) {
-			shaderBase.uniform("useTexture", false);
+			shaderBase->uniform("useTexture", false);
 			mUniform.applyTo(shaderBase);
 		}
 
 		ci::gl::color(0.0f, 0.0f, 0.0f, mDrawOpacity);
-		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), false);
-		return;
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));// , false);
 	}
 
-	const float				targetw = getWidth()*mScale.x,
-							targeth = getHeight()*mScale.y;
+	theTexture->bind();
 
-	inherited::drawLocalClient();
+	if(mRenderBatch){
+		// The texture from PDF is flipped (and setting topDown on the texture doesn't seem to have an effect, so flip in GL before drawing
+		ci::gl::scale(1.0f, -1.0f);
+		ci::gl::translate(0.0f, -getHeight());
+		mRenderBatch->draw();
+	} else if(mCornerRadius > 0.0f){
+		ci::gl::drawSolidRoundedRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), mCornerRadius, 0, ci::vec2(0, 0), ci::vec2(1, 1));
+	} else {
+		ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()), ci::vec2(0, 0), ci::vec2(1, 1));
+	}
 
-	ci::gl::pushModelView();
+	theTexture->unbind();
 
-	// To draw properly, we first have to turn off whatever scaling has
-	// been applied, then apply a new scale to compensate for any mismatch
-	// between my current texture size and my display size.
-	const ci::Vec3f			turnOffScale(1.0f/mScale.x, 1.0f/mScale.y, 1.0f);
-	const ci::Vec3f			newScale(targetw/tw, targeth/th, 1.0f);
-	ci::gl::multModelView(ci::Matrix44f::createScale(turnOffScale));
-	ci::gl::multModelView(ci::Matrix44f::createScale(newScale));
+}
 
-	mHolder.drawLocalClient();
-
-	ci::gl::popModelView();
+void Pdf::onBuildRenderBatch(){
+	auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());
+	if(mCornerRadius > 0.0f){
+		auto theGeom = ci::geom::RoundedRect(drawRect, mCornerRadius);
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
+	} else {
+		auto theGeom = ci::geom::Rect(drawRect);
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
+	}	
 }
 
 void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
@@ -263,10 +272,6 @@ void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
 	if (mDirty.has(PDF_FN_DIRTY)) {
 		buf.add(PDF_FN_ATT);
 		buf.add(mResourceFilename);
-	}
-	if (mDirty.has(PDF_PAGEMODE_DIRTY)) {
-		buf.add(PDF_PAGEMODE_ATT);
-		buf.add<int32_t>(static_cast<int32_t>(mPageSizeMode));
 	}
 
 	if(mDirty.has(PDF_CURPAGE_DIRTY)){
@@ -278,10 +283,6 @@ void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
 void Pdf::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 	if (attributeId == PDF_FN_ATT) {
 		setResourceFilename(buf.read<std::string>());
-	} else if (attributeId == PDF_PAGEMODE_ATT) {
-		const int32_t		mode = buf.read<int32_t>();
-		if (mode == 0) setPageSizeMode(kConstantSize);
-		else if (mode == 1) setPageSizeMode(kAutoResize);
 	} else if(attributeId == PDF_CURPAGE_ATT) {
 		const int			curPage = buf.read<int>();
 		setPageNum(curPage);
@@ -310,12 +311,16 @@ void Pdf::ResHolder::clear() {
 	}
 }
 
-bool Pdf::ResHolder::setResourceFilename(const std::string& filename, const PageSizeMode& m) {
+bool Pdf::ResHolder::setResourceFilename(const std::string& filename) {
 	clear();
 	bool success = false;
 	mRes = new ds::pdf::PdfRes(mService.mThread);
 	if (mRes) {
-		success = mRes->loadPDF(ds::Environment::expand(filename), m);
+		success = mRes->loadPDF(ds::Environment::expand(filename));
+	}
+
+	if(!success){
+		DS_LOG_WARNING("Couldn't load " << filename << " in pdf res holder");
 	}
 
 	return success;
@@ -329,6 +334,12 @@ bool Pdf::ResHolder::update() {
 	return false;
 }
 
+
+ci::gl::TextureRef Pdf::ResHolder::getTexture() {
+	if(mRes) return mRes->getTexture();
+	return nullptr;
+}
+
 void Pdf::ResHolder::drawLocalClient()
 {
 	if (mRes) {
@@ -336,15 +347,9 @@ void Pdf::ResHolder::drawLocalClient()
 	}
 }
 
-void Pdf::ResHolder::setScale(const ci::Vec3f& scale) {
+void Pdf::ResHolder::setScale(const ci::vec3& scale) {
 	if (mRes) {
 		mRes->setScale(scale.x);
-	}
-}
-
-void Pdf::ResHolder::setPageSizeMode(const PageSizeMode& m) {
-	if (mRes) {
-		mRes->setPageSizeMode(m);
 	}
 }
 
@@ -386,8 +391,8 @@ int Pdf::ResHolder::getPageCount() const {
 	return 0;
 }
 
-ci::Vec2i Pdf::ResHolder::getPageSize() const {
-	if (!mRes) return ci::Vec2i(0, 0);
+ci::ivec2 Pdf::ResHolder::getPageSize() const {
+	if (!mRes) return ci::ivec2(0, 0);
 	return mRes->getPageSize();
 }
 

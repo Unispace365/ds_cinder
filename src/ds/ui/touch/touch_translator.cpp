@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "touch_translator.h"
 
 namespace ds {
@@ -14,18 +16,18 @@ TouchTranslator::TouchTranslator()
 		, mSy(1.0f) {
 }
 
-ci::Vec2i TouchTranslator::toWorldi(const int x, const int y) const {
-	const ci::Vec2f		f(toWorldf(static_cast<float>(x), static_cast<float>(y)));
-	return ci::Vec2i(	static_cast<int>(f.x),
+ci::ivec2 TouchTranslator::toWorldi(const int x, const int y) const {
+	const ci::vec2		f(toWorldf(static_cast<float>(x), static_cast<float>(y)));
+	return ci::ivec2(	static_cast<int>(f.x),
 						static_cast<int>(f.y));
 }
 
-ci::Vec2f TouchTranslator::toWorldf(const float _x, const float _y) const {
+ci::vec2 TouchTranslator::toWorldf(const float _x, const float _y) const {
 	float				x(_x),
 						y(_y);
 
 	// Perform the translation to world space
-	return ci::Vec2f(	mTx + (x * mSx),
+	return ci::vec2(	mTx + (x * mSx),
 						mTy + (y * mSy));
 }
 
@@ -37,8 +39,8 @@ ds::ui::TouchEvent TouchTranslator::toWorldSpace(const ds::ui::TouchEvent& touch
 
 	std::vector<ci::app::TouchEvent::Touch>	touches;
 	for(auto it = touchEvent.getTouches().begin(), end = touchEvent.getTouches().end(); it != end; ++it) {
-		ci::Vec2f possy = it->getPos();
-		ci::Vec2f prevPossy = it->getPrevPos();
+		ci::vec2 possy = it->getPos();
+		ci::vec2 prevPossy = it->getPrevPos();
 			possy = toWorldf(possy.x, possy.y);
 			prevPossy = toWorldf(prevPossy.x, prevPossy.y);
 		touches.push_back(ci::app::TouchEvent::Touch(possy,

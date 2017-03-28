@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "sprite_engine.h"
 #include "sprite.h"
 #include <cinder/app/App.h>
@@ -16,15 +18,14 @@ SpriteEngine::SpriteEngine(ds::EngineData& ed)
 	mComputerInfo = new ds::ComputerInfo();
 }
 
-SpriteEngine::~SpriteEngine()
-{
+SpriteEngine::~SpriteEngine(){
 	mData.clearServices();
 }
 
-ds::EventNotifier& SpriteEngine::getNotifier()
-{
+ds::EventNotifier& SpriteEngine::getNotifier(){
 	return mData.mNotifier;
 }
+
 /** \cond Doxygen is having trouble deducing this function so ignore it. */
 void SpriteEngine::loadSettings(const std::string& name, const std::string& filename) {
 	mData.mEngineCfg.loadSettings(name, filename);
@@ -109,37 +110,37 @@ float SpriteEngine::getWorldHeight() const
 	return mData.mWorldSize.y;
 }
 
-void SpriteEngine::addToDragDestinationList( Sprite *sprite )
+void SpriteEngine::addToDragDestinationList(Sprite *sprite)
 {
-  if (!sprite)
-	return;
-  
-  removeFromDragDestinationList(sprite);
+	if(!sprite)
+		return;
 
-  mDragDestinationSprites.push_back(sprite);
+	removeFromDragDestinationList(sprite);
+
+	mDragDestinationSprites.push_back(sprite);
 }
 
-void SpriteEngine::removeFromDragDestinationList( Sprite *sprite )
+void SpriteEngine::removeFromDragDestinationList(Sprite *sprite)
 {
-  if (!sprite)
-	return;
+	if(!sprite)
+		return;
 
-  auto found = std::find(mDragDestinationSprites.begin(), mDragDestinationSprites.end(), sprite);
-  if (found != mDragDestinationSprites.end())
-	mDragDestinationSprites.erase(found);
+	auto found = std::find(mDragDestinationSprites.begin(), mDragDestinationSprites.end(), sprite);
+	if(found != mDragDestinationSprites.end())
+		mDragDestinationSprites.erase(found);
 }
 
-Sprite *SpriteEngine::getDragDestinationSprite( const ci::Vec3f &globalPoint, Sprite *draggingSprite )
+Sprite *SpriteEngine::getDragDestinationSprite(const ci::vec3 &globalPoint, Sprite *draggingSprite)
 {
-  for (auto it = mDragDestinationSprites.begin(), it2 = mDragDestinationSprites.end(); it != it2; ++it) {
-	Sprite *sprite = *it;
-	if (sprite == draggingSprite)
-	  continue;
-	if (sprite->contains(globalPoint))
-	  return sprite;
-  }
+	for(auto it = mDragDestinationSprites.begin(), it2 = mDragDestinationSprites.end(); it != it2; ++it) {
+		Sprite *sprite = *it;
+		if(sprite == draggingSprite)
+			continue;
+		if(sprite->contains(globalPoint))
+			return sprite;
+	}
 
-  return nullptr;
+	return nullptr;
 }
 
 float SpriteEngine::getFrameRate() const
@@ -147,24 +148,6 @@ float SpriteEngine::getFrameRate() const
 	return mData.mFrameRate;
 }
 
-std::unique_ptr<FboGeneral> SpriteEngine::getFbo()
-{
-  //DS_VALIDATE(width > 0 && height > 0, return nullptr);
-
-  if (!mFbos.empty()) {
-	std::unique_ptr<FboGeneral> fbo = std::move(mFbos.front());
-	mFbos.pop_front();
-	return std::move(fbo);
-  }
-
-  std::unique_ptr<FboGeneral> fbo = std::move(std::unique_ptr<FboGeneral>(new FboGeneral()));
-  fbo->setup(true);
-  return std::move(fbo);
-}
-
-void SpriteEngine::giveBackFbo( std::unique_ptr<FboGeneral> &fbo ) {
-	mFbos.push_back(std::move(fbo));
-}
 
 double SpriteEngine::getElapsedTimeSeconds() const {
 	return ci::app::getElapsedSeconds();
@@ -178,7 +161,7 @@ void SpriteEngine::setIdleTimeout(int idleTimeout) {
 	mData.mIdleTimeout = idleTimeout;
 }
 
-void SpriteEngine::clearFingers( const std::vector<int> &fingers ) {
+void SpriteEngine::clearFingers(const std::vector<int> &fingers) {
 }
 
 
@@ -209,7 +192,7 @@ bool SpriteEngine::hasService(const std::string& key) const
 
 ds::EngineService& SpriteEngine::private_getService(const std::string& str) {
 	ds::EngineService*	s = mData.mServices[str];
-	if (!s) {
+	if(!s) {
 		const std::string	msg = "Service (" + str + ") does not exist";
 		DS_DBG_CODE(DS_LOG_ERROR(msg));
 		throw std::runtime_error(msg);

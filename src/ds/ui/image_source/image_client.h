@@ -27,23 +27,23 @@ public:
 	ImageClient(ds::ui::SpriteEngine&);
 	~ImageClient();
 
-	void					clear();
+	void						clear();
 	// Set the device responsible for generating the image
-	void					setSource(const ImageSource&);
+	void						setSource(const ImageSource&);
 
 	// Answer meta data about this image.
-	bool					getMetaData(ImageMetaData&) const;
+	bool						getMetaData(ImageMetaData&) const;
 	// Answer the generator image. If the texture is not null, then it will be valid.
-	const ci::gl::Texture*	getImage();
+	const ci::gl::TextureRef	getImage();
 
-	void					writeTo(DataBuffer&) const;
-	bool					readFrom(DataBuffer&);
+	void						writeTo(DataBuffer&) const;
+	bool						readFrom(DataBuffer&);
 
-	std::string				getImageFilename();
+	std::string					getImageFilename();
 
 private:
-	ds::ui::SpriteEngine&	mEngine;
-	ImageGenerator*			mGenerator;
+	ds::ui::SpriteEngine&		mEngine;
+	ImageGenerator*				mGenerator;
 };
 
 } // namespace ui

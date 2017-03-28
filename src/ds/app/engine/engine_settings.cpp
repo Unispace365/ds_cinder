@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/app/engine/engine_settings.h"
 
 #include <Poco/Path.h>
@@ -64,7 +66,10 @@ EngineSettings::EngineSettings()
 	// Find my app settings/ directory.  This will vary based on whether I'm in a dev environment or
 	// in a production, but I will have a settings/ folder either at or above me.
 	const std::string         appSettingsPath = ds::Environment::getAppFolder(ds::Environment::SETTINGS());
-	if(appSettingsPath.empty()) throw std::runtime_error("Missing application settings folder");
+	if(appSettingsPath.empty()){
+		//throw std::runtime_error("Missing application settings folder");
+		std::cout << "Couldn't find the application settings folder, that could be a problem." << std::endl;
+	}
 	Poco::Path                appP(appSettingsPath);
 	appP.append(appFilename);
 

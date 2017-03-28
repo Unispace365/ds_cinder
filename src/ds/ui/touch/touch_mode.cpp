@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "touch_mode.h"
 
 #include <boost/algorithm/string.hpp>

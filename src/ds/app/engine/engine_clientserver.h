@@ -17,7 +17,6 @@ public:
 	~EngineClientServer();
 
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }
-	virtual ui::RenderTextService&	getRenderTextService()	{ return mRenderTextService; }
 
 	virtual void					setup(ds::App&);
 	virtual void					draw();
@@ -27,8 +26,6 @@ public:
 private:
 	typedef AbstractEngineServer inherited;
 	ui::LoadImageService			mLoadImageService;
-	GlThread						mRenderTextThread;
-	ui::RenderTextService			mRenderTextService;
 };
 
 } // namespace ds

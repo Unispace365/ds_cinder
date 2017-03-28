@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "border.h"
 
 #include "ds/app/blob_reader.h"
@@ -8,6 +10,8 @@
 #include "ds/ui/sprite/sprite_engine.h"
 
 #include <gl/GL.h>
+
+// TODO: move this to batches
 
 using namespace ci;
 
@@ -33,68 +37,51 @@ void Border::installAsClient(ds::BlobRegistry& registry) {
 }
 
 Border::Border(SpriteEngine& engine)
-	: inherited(engine)
+	: ds::ui::Sprite(engine)
 	, mBorderWidth(0.0f)
-	, mVertices(nullptr)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
 }
 
 Border::Border(SpriteEngine& engine, const float width)
-	: inherited(engine)
+	: ds::ui::Sprite(engine)
 	, mBorderWidth(width)
-	, mVertices(nullptr)
 {
 	mBlobType = BLOB_TYPE;
 	setTransparent(false);
-	rebuildVertices();
+	mNeedsBatchUpdate = true;
 	markAsDirty(BORDER_WIDTH_DIRTY);
-}
-
-Border::~Border(){
-	if(mVertices){
-		delete [] mVertices;
-		mVertices = nullptr;
-	}
-}
-
-void Border::onSizeChanged() {
-	inherited::onSizeChanged();
-	rebuildVertices();
 }
 
 void Border::setBorderWidth(const float borderWidth) {
 	mBorderWidth = borderWidth;
-	rebuildVertices();
+	mNeedsBatchUpdate = true;
 	markAsDirty(BORDER_WIDTH_DIRTY);
 }
 
-void Border::updateServer(const UpdateParams& up) {
-	inherited::updateServer(up);
-}
-
 void Border::drawLocalClient() {
-	if(mCornerRadius > 0.0f){
+	if(mCornerRadius < 1.0f
+	   && mRenderBatch && mLeftBatch && mRightBatch && mBotBatch
+	   ){
+
+		mRenderBatch->draw();
+		mLeftBatch->draw();
+		mRightBatch->draw();
+		mBotBatch->draw();
+
+	} else if(mRenderBatch){
 		ci::gl::lineWidth(mBorderWidth);
-		ci::gl::drawStrokedRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
-		return; 
+		mRenderBatch->draw();
+
+	} else {
+		ci::gl::drawStrokedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mBorderWidth); 
 	} 
 
-	if(!mVertices) return;
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glVertexPointer(2, GL_FLOAT, 0, mVertices);
-	glDrawArrays(GL_QUADS, 0, 16);
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
-
-void Border::drawLocalServer() {
-	drawLocalClient();
 }
 
 void Border::writeAttributesTo(ds::DataBuffer& buf) {
-	inherited::writeAttributesTo(buf);
+	ds::ui::Sprite::writeAttributesTo(buf);
 
 	if(mDirty.has(BORDER_WIDTH_DIRTY)) {
 		buf.add(BORDER_WIDTH_ATT);
@@ -105,66 +92,59 @@ void Border::writeAttributesTo(ds::DataBuffer& buf) {
 void Border::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if(attributeId == BORDER_WIDTH_ATT) {
 		mBorderWidth = buf.read<float>();
-		rebuildVertices();
+		mNeedsBatchUpdate = true;
 	} else {
-		inherited::readAttributeFrom(attributeId, buf);
+		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
 }
 
-void Border::rebuildVertices() {
-	if(mVertices){
-		delete [] mVertices;
-		mVertices = nullptr;
-	}
-	
-	if(mBorderWidth <= 0.0f) return;
+void Border::onBuildRenderBatch() {
 
 	const float w = getWidth();
 	const float h = getHeight();
+	auto rect = ci::Rectf(0.0f, 0.0f, w, h);
+	if(mCornerRadius > 0.0f){
+		auto theGeom = ci::geom::WireRoundedRect(rect, mCornerRadius);
+		if(mRenderBatch){
+			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		} else {
+			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
+		}
+	} else {
+		/*
+		0				 w
+		==================
+		||              ||
+		||              ||
+		==================
 
-	mVertices = new float[32];
+		Border goes on the inside when there's no corner radius
+		*/
 
-	int i = 0;
-	// top quad
-	mVertices[i++] = 0.0f;
-	mVertices[i++] = h - mBorderWidth;
-	mVertices[i++] = w;
-	mVertices[i++] = h - mBorderWidth;
-	mVertices[i++] = w;
-	mVertices[i++] = h;
-	mVertices[i++] = 0.0f;
-	mVertices[i++] = h;
+		ci::Rectf topRect = ci::Rectf(0.0f, 0.0f, w, mBorderWidth);
+		ci::Rectf botRect = ci::Rectf(0.0f, h - mBorderWidth, w, h);
+		ci::Rectf lefRect = ci::Rectf(0.0f, mBorderWidth, mBorderWidth, h - mBorderWidth);
+		ci::Rectf rigRect = ci::Rectf(w - mBorderWidth, mBorderWidth, w, h - mBorderWidth);
 
-	// bottom quad
-	mVertices[i++] = 0.0f;
-	mVertices[i++] = 0.0f;
-	mVertices[i++] = w;
-	mVertices[i++] = 0.0f;
-	mVertices[i++] = w;
-	mVertices[i++] = mBorderWidth;
-	mVertices[i++] = 0.0f;
-	mVertices[i++] = mBorderWidth;
+		auto topMesh = ci::gl::VboMesh::create(ci::geom::Rect(topRect));
+		auto botMesh = ci::gl::VboMesh::create(ci::geom::Rect(botRect));
+		auto lefMesh = ci::gl::VboMesh::create(ci::geom::Rect(lefRect));
+		auto rigMesh = ci::gl::VboMesh::create(ci::geom::Rect(rigRect));
 
-	// left quad
-	mVertices[i++] = 0.0f;
-	mVertices[i++] = mBorderWidth;
-	mVertices[i++] = mBorderWidth;
-	mVertices[i++] = mBorderWidth;
-	mVertices[i++] = mBorderWidth;
-	mVertices[i++] = h - mBorderWidth;
-	mVertices[i++] = 0.0f;
-	mVertices[i++] = h - mBorderWidth;
+		if(mRenderBatch) mRenderBatch->replaceVboMesh(topMesh);
+		else mRenderBatch = ci::gl::Batch::create(topMesh, mSpriteShader.getShader()); 
 
-	// right quad
-	mVertices[i++] = w - mBorderWidth;
-	mVertices[i++] = mBorderWidth;
-	mVertices[i++] = w;
-	mVertices[i++] = mBorderWidth;
-	mVertices[i++] = w;
-	mVertices[i++] = h - mBorderWidth;
-	mVertices[i++] = w - mBorderWidth;
-	mVertices[i++] = h - mBorderWidth;
+		if(mBotBatch) mRenderBatch->replaceVboMesh(botMesh);
+		else mBotBatch = ci::gl::Batch::create(botMesh, mSpriteShader.getShader());
+
+		if(mLeftBatch) mRenderBatch->replaceVboMesh(lefMesh);
+		else mLeftBatch = ci::gl::Batch::create(lefMesh, mSpriteShader.getShader());
+
+		if(mRightBatch) mRenderBatch->replaceVboMesh(rigMesh);
+		else mRightBatch = ci::gl::Batch::create(rigMesh, mSpriteShader.getShader());
+	}
 }
+
 
 } // namespace ui
 } // namespace ds

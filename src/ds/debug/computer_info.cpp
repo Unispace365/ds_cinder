@@ -1,3 +1,5 @@
+//#include "stdafx.h"
+
 #include "computer_info.h"
 
 #include <Poco/Timestamp.h>
@@ -5,7 +7,7 @@
 #ifdef CINDER_MSW
 #define _WIN32_DCOM
 #include <iostream>
-using namespace std;
+//using namespace std;
 #include <comdef.h>
 #include <Wbemidl.h>
 
@@ -120,6 +122,7 @@ void ComputerInfo::update()
 	GlobalMemoryStatusEx(&mMemoryStatus);
 	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS *)&mProcessMemoryCounters, sizeof(PROCESS_MEMORY_COUNTERS_EX));
 
+	/* CPU percents seem to be totally inaccurate, disabling
 	FILETIME ftime, fsys, fuser;
 	ULARGE_INTEGER now, sys, user;
 	double percent;
@@ -140,6 +143,7 @@ void ComputerInfo::update()
 	if(percent > 0.0){
 		mPercentCPU = percent * 100.0;
 	}
+	*/
 
 //	if((mOn&MAIN_ON) != 0) updateMain(); // this seems to be an exact duplicate of the above memory info, so no need to run it twice
 	if((mOn&VIDEO_ON) != 0) updateVideo();

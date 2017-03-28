@@ -1,4 +1,4 @@
-// Copyright (c) 2016 Marshall A. Greenblatt. All rights reserved.
+// Copyright (c) 2017 Marshall A. Greenblatt. All rights reserved.
 //
 // Redistribution and use in source and binary forms, with or without
 // modification, are permitted provided that the following conditions are
@@ -70,6 +70,19 @@ typedef struct _cef_menu_model_delegate_t {
   ///
   void (CEF_CALLBACK *menu_will_show)(struct _cef_menu_model_delegate_t* self,
       struct _cef_menu_model_t* menu_model);
+
+  ///
+  // The menu has closed.
+  ///
+  void (CEF_CALLBACK *menu_closed)(struct _cef_menu_model_delegate_t* self,
+      struct _cef_menu_model_t* menu_model);
+
+  ///
+  // Optionally modify a menu item label. Return true (1) if |label| was
+  // modified.
+  ///
+  int (CEF_CALLBACK *format_label)(struct _cef_menu_model_delegate_t* self,
+      struct _cef_menu_model_t* menu_model, cef_string_t* label);
 } cef_menu_model_delegate_t;
 
 

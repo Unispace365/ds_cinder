@@ -40,7 +40,7 @@ TitledMediaViewer::TitledMediaViewer(Globals& g)
 	mTitle = mGlobals.getText("viewer:title").createMultiline(mEngine, mTrayHolder);
 	mBody = mGlobals.getText("viewer:body").createMultiline(mEngine, mTrayHolder);
 
-	setTapCallback([this](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		toggleTitle();
 	});
 }
@@ -131,3 +131,5 @@ void TitledMediaViewer::toggleTitle() {
 
 
 } // namespace mv
+
+

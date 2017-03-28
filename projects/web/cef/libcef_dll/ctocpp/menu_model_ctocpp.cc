@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -10,52 +10,77 @@
 // for more information.
 //
 
+#include "libcef_dll/cpptoc/menu_model_delegate_cpptoc.h"
 #include "libcef_dll/ctocpp/menu_model_ctocpp.h"
+
+
+// STATIC METHODS - Body may be edited by hand.
+
+CefRefPtr<CefMenuModel> CefMenuModel::CreateMenuModel(
+    CefRefPtr<CefMenuModelDelegate> delegate) {
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: delegate; type: refptr_diff
+  DCHECK(delegate.get());
+  if (!delegate.get())
+    return NULL;
+
+  // Execute
+  cef_menu_model_t* _retval = cef_menu_model_create(
+      CefMenuModelDelegateCppToC::Wrap(delegate));
+
+  // Return type: refptr_same
+  return CefMenuModelCToCpp::Wrap(_retval);
+}
 
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
 bool CefMenuModelCToCpp::Clear() {
-  if (CEF_MEMBER_MISSING(struct_, clear))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, clear))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->clear(struct_);
+  int _retval = _struct->clear(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 int CefMenuModelCToCpp::GetCount() {
-  if (CEF_MEMBER_MISSING(struct_, get_count))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_count))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_count(struct_);
+  int _retval = _struct->get_count(_struct);
 
   // Return type: simple
   return _retval;
 }
 
 bool CefMenuModelCToCpp::AddSeparator() {
-  if (CEF_MEMBER_MISSING(struct_, add_separator))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, add_separator))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->add_separator(struct_);
+  int _retval = _struct->add_separator(_struct);
 
   // Return type: bool
   return _retval?true:false;
 }
 
 bool CefMenuModelCToCpp::AddItem(int command_id, const CefString& label) {
-  if (CEF_MEMBER_MISSING(struct_, add_item))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, add_item))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -66,7 +91,7 @@ bool CefMenuModelCToCpp::AddItem(int command_id, const CefString& label) {
     return false;
 
   // Execute
-  int _retval = struct_->add_item(struct_,
+  int _retval = _struct->add_item(_struct,
       command_id,
       label.GetStruct());
 
@@ -75,7 +100,8 @@ bool CefMenuModelCToCpp::AddItem(int command_id, const CefString& label) {
 }
 
 bool CefMenuModelCToCpp::AddCheckItem(int command_id, const CefString& label) {
-  if (CEF_MEMBER_MISSING(struct_, add_check_item))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, add_check_item))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -86,7 +112,7 @@ bool CefMenuModelCToCpp::AddCheckItem(int command_id, const CefString& label) {
     return false;
 
   // Execute
-  int _retval = struct_->add_check_item(struct_,
+  int _retval = _struct->add_check_item(_struct,
       command_id,
       label.GetStruct());
 
@@ -96,7 +122,8 @@ bool CefMenuModelCToCpp::AddCheckItem(int command_id, const CefString& label) {
 
 bool CefMenuModelCToCpp::AddRadioItem(int command_id, const CefString& label,
     int group_id) {
-  if (CEF_MEMBER_MISSING(struct_, add_radio_item))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, add_radio_item))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -107,7 +134,7 @@ bool CefMenuModelCToCpp::AddRadioItem(int command_id, const CefString& label,
     return false;
 
   // Execute
-  int _retval = struct_->add_radio_item(struct_,
+  int _retval = _struct->add_radio_item(_struct,
       command_id,
       label.GetStruct(),
       group_id);
@@ -118,7 +145,8 @@ bool CefMenuModelCToCpp::AddRadioItem(int command_id, const CefString& label,
 
 CefRefPtr<CefMenuModel> CefMenuModelCToCpp::AddSubMenu(int command_id,
     const CefString& label) {
-  if (CEF_MEMBER_MISSING(struct_, add_sub_menu))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, add_sub_menu))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -129,7 +157,7 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::AddSubMenu(int command_id,
     return NULL;
 
   // Execute
-  cef_menu_model_t* _retval = struct_->add_sub_menu(struct_,
+  cef_menu_model_t* _retval = _struct->add_sub_menu(_struct,
       command_id,
       label.GetStruct());
 
@@ -138,13 +166,14 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::AddSubMenu(int command_id,
 }
 
 bool CefMenuModelCToCpp::InsertSeparatorAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, insert_separator_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, insert_separator_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->insert_separator_at(struct_,
+  int _retval = _struct->insert_separator_at(_struct,
       index);
 
   // Return type: bool
@@ -153,7 +182,8 @@ bool CefMenuModelCToCpp::InsertSeparatorAt(int index) {
 
 bool CefMenuModelCToCpp::InsertItemAt(int index, int command_id,
     const CefString& label) {
-  if (CEF_MEMBER_MISSING(struct_, insert_item_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, insert_item_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -164,7 +194,7 @@ bool CefMenuModelCToCpp::InsertItemAt(int index, int command_id,
     return false;
 
   // Execute
-  int _retval = struct_->insert_item_at(struct_,
+  int _retval = _struct->insert_item_at(_struct,
       index,
       command_id,
       label.GetStruct());
@@ -175,7 +205,8 @@ bool CefMenuModelCToCpp::InsertItemAt(int index, int command_id,
 
 bool CefMenuModelCToCpp::InsertCheckItemAt(int index, int command_id,
     const CefString& label) {
-  if (CEF_MEMBER_MISSING(struct_, insert_check_item_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, insert_check_item_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -186,7 +217,7 @@ bool CefMenuModelCToCpp::InsertCheckItemAt(int index, int command_id,
     return false;
 
   // Execute
-  int _retval = struct_->insert_check_item_at(struct_,
+  int _retval = _struct->insert_check_item_at(_struct,
       index,
       command_id,
       label.GetStruct());
@@ -197,7 +228,8 @@ bool CefMenuModelCToCpp::InsertCheckItemAt(int index, int command_id,
 
 bool CefMenuModelCToCpp::InsertRadioItemAt(int index, int command_id,
     const CefString& label, int group_id) {
-  if (CEF_MEMBER_MISSING(struct_, insert_radio_item_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, insert_radio_item_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -208,7 +240,7 @@ bool CefMenuModelCToCpp::InsertRadioItemAt(int index, int command_id,
     return false;
 
   // Execute
-  int _retval = struct_->insert_radio_item_at(struct_,
+  int _retval = _struct->insert_radio_item_at(_struct,
       index,
       command_id,
       label.GetStruct(),
@@ -220,7 +252,8 @@ bool CefMenuModelCToCpp::InsertRadioItemAt(int index, int command_id,
 
 CefRefPtr<CefMenuModel> CefMenuModelCToCpp::InsertSubMenuAt(int index,
     int command_id, const CefString& label) {
-  if (CEF_MEMBER_MISSING(struct_, insert_sub_menu_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, insert_sub_menu_at))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -231,7 +264,7 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::InsertSubMenuAt(int index,
     return NULL;
 
   // Execute
-  cef_menu_model_t* _retval = struct_->insert_sub_menu_at(struct_,
+  cef_menu_model_t* _retval = _struct->insert_sub_menu_at(_struct,
       index,
       command_id,
       label.GetStruct());
@@ -241,13 +274,14 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::InsertSubMenuAt(int index,
 }
 
 bool CefMenuModelCToCpp::Remove(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, remove))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, remove))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->remove(struct_,
+  int _retval = _struct->remove(_struct,
       command_id);
 
   // Return type: bool
@@ -255,13 +289,14 @@ bool CefMenuModelCToCpp::Remove(int command_id) {
 }
 
 bool CefMenuModelCToCpp::RemoveAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, remove_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, remove_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->remove_at(struct_,
+  int _retval = _struct->remove_at(_struct,
       index);
 
   // Return type: bool
@@ -269,13 +304,14 @@ bool CefMenuModelCToCpp::RemoveAt(int index) {
 }
 
 int CefMenuModelCToCpp::GetIndexOf(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, get_index_of))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_index_of))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_index_of(struct_,
+  int _retval = _struct->get_index_of(_struct,
       command_id);
 
   // Return type: simple
@@ -283,13 +319,14 @@ int CefMenuModelCToCpp::GetIndexOf(int command_id) {
 }
 
 int CefMenuModelCToCpp::GetCommandIdAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_command_id_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_command_id_at))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_command_id_at(struct_,
+  int _retval = _struct->get_command_id_at(_struct,
       index);
 
   // Return type: simple
@@ -297,13 +334,14 @@ int CefMenuModelCToCpp::GetCommandIdAt(int index) {
 }
 
 bool CefMenuModelCToCpp::SetCommandIdAt(int index, int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, set_command_id_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_command_id_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_command_id_at(struct_,
+  int _retval = _struct->set_command_id_at(_struct,
       index,
       command_id);
 
@@ -312,13 +350,14 @@ bool CefMenuModelCToCpp::SetCommandIdAt(int index, int command_id) {
 }
 
 CefString CefMenuModelCToCpp::GetLabel(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, get_label))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_label))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_label(struct_,
+  cef_string_userfree_t _retval = _struct->get_label(_struct,
       command_id);
 
   // Return type: string
@@ -328,13 +367,14 @@ CefString CefMenuModelCToCpp::GetLabel(int command_id) {
 }
 
 CefString CefMenuModelCToCpp::GetLabelAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_label_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_label_at))
     return CefString();
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_string_userfree_t _retval = struct_->get_label_at(struct_,
+  cef_string_userfree_t _retval = _struct->get_label_at(_struct,
       index);
 
   // Return type: string
@@ -344,7 +384,8 @@ CefString CefMenuModelCToCpp::GetLabelAt(int index) {
 }
 
 bool CefMenuModelCToCpp::SetLabel(int command_id, const CefString& label) {
-  if (CEF_MEMBER_MISSING(struct_, set_label))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_label))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -355,7 +396,7 @@ bool CefMenuModelCToCpp::SetLabel(int command_id, const CefString& label) {
     return false;
 
   // Execute
-  int _retval = struct_->set_label(struct_,
+  int _retval = _struct->set_label(_struct,
       command_id,
       label.GetStruct());
 
@@ -364,7 +405,8 @@ bool CefMenuModelCToCpp::SetLabel(int command_id, const CefString& label) {
 }
 
 bool CefMenuModelCToCpp::SetLabelAt(int index, const CefString& label) {
-  if (CEF_MEMBER_MISSING(struct_, set_label_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_label_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -375,7 +417,7 @@ bool CefMenuModelCToCpp::SetLabelAt(int index, const CefString& label) {
     return false;
 
   // Execute
-  int _retval = struct_->set_label_at(struct_,
+  int _retval = _struct->set_label_at(_struct,
       index,
       label.GetStruct());
 
@@ -384,13 +426,14 @@ bool CefMenuModelCToCpp::SetLabelAt(int index, const CefString& label) {
 }
 
 CefMenuModel::MenuItemType CefMenuModelCToCpp::GetType(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, get_type))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_type))
     return MENUITEMTYPE_NONE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_menu_item_type_t _retval = struct_->get_type(struct_,
+  cef_menu_item_type_t _retval = _struct->get_type(_struct,
       command_id);
 
   // Return type: simple
@@ -398,13 +441,14 @@ CefMenuModel::MenuItemType CefMenuModelCToCpp::GetType(int command_id) {
 }
 
 CefMenuModel::MenuItemType CefMenuModelCToCpp::GetTypeAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_type_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_type_at))
     return MENUITEMTYPE_NONE;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_menu_item_type_t _retval = struct_->get_type_at(struct_,
+  cef_menu_item_type_t _retval = _struct->get_type_at(_struct,
       index);
 
   // Return type: simple
@@ -412,13 +456,14 @@ CefMenuModel::MenuItemType CefMenuModelCToCpp::GetTypeAt(int index) {
 }
 
 int CefMenuModelCToCpp::GetGroupId(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, get_group_id))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_group_id))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_group_id(struct_,
+  int _retval = _struct->get_group_id(_struct,
       command_id);
 
   // Return type: simple
@@ -426,13 +471,14 @@ int CefMenuModelCToCpp::GetGroupId(int command_id) {
 }
 
 int CefMenuModelCToCpp::GetGroupIdAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_group_id_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_group_id_at))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->get_group_id_at(struct_,
+  int _retval = _struct->get_group_id_at(_struct,
       index);
 
   // Return type: simple
@@ -440,13 +486,14 @@ int CefMenuModelCToCpp::GetGroupIdAt(int index) {
 }
 
 bool CefMenuModelCToCpp::SetGroupId(int command_id, int group_id) {
-  if (CEF_MEMBER_MISSING(struct_, set_group_id))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_group_id))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_group_id(struct_,
+  int _retval = _struct->set_group_id(_struct,
       command_id,
       group_id);
 
@@ -455,13 +502,14 @@ bool CefMenuModelCToCpp::SetGroupId(int command_id, int group_id) {
 }
 
 bool CefMenuModelCToCpp::SetGroupIdAt(int index, int group_id) {
-  if (CEF_MEMBER_MISSING(struct_, set_group_id_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_group_id_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_group_id_at(struct_,
+  int _retval = _struct->set_group_id_at(_struct,
       index,
       group_id);
 
@@ -470,13 +518,14 @@ bool CefMenuModelCToCpp::SetGroupIdAt(int index, int group_id) {
 }
 
 CefRefPtr<CefMenuModel> CefMenuModelCToCpp::GetSubMenu(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, get_sub_menu))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_sub_menu))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_menu_model_t* _retval = struct_->get_sub_menu(struct_,
+  cef_menu_model_t* _retval = _struct->get_sub_menu(_struct,
       command_id);
 
   // Return type: refptr_same
@@ -484,13 +533,14 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::GetSubMenu(int command_id) {
 }
 
 CefRefPtr<CefMenuModel> CefMenuModelCToCpp::GetSubMenuAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, get_sub_menu_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_sub_menu_at))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_menu_model_t* _retval = struct_->get_sub_menu_at(struct_,
+  cef_menu_model_t* _retval = _struct->get_sub_menu_at(_struct,
       index);
 
   // Return type: refptr_same
@@ -498,13 +548,14 @@ CefRefPtr<CefMenuModel> CefMenuModelCToCpp::GetSubMenuAt(int index) {
 }
 
 bool CefMenuModelCToCpp::IsVisible(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, is_visible))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_visible))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_visible(struct_,
+  int _retval = _struct->is_visible(_struct,
       command_id);
 
   // Return type: bool
@@ -512,13 +563,14 @@ bool CefMenuModelCToCpp::IsVisible(int command_id) {
 }
 
 bool CefMenuModelCToCpp::IsVisibleAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, is_visible_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_visible_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_visible_at(struct_,
+  int _retval = _struct->is_visible_at(_struct,
       index);
 
   // Return type: bool
@@ -526,13 +578,14 @@ bool CefMenuModelCToCpp::IsVisibleAt(int index) {
 }
 
 bool CefMenuModelCToCpp::SetVisible(int command_id, bool visible) {
-  if (CEF_MEMBER_MISSING(struct_, set_visible))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_visible))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_visible(struct_,
+  int _retval = _struct->set_visible(_struct,
       command_id,
       visible);
 
@@ -541,13 +594,14 @@ bool CefMenuModelCToCpp::SetVisible(int command_id, bool visible) {
 }
 
 bool CefMenuModelCToCpp::SetVisibleAt(int index, bool visible) {
-  if (CEF_MEMBER_MISSING(struct_, set_visible_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_visible_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_visible_at(struct_,
+  int _retval = _struct->set_visible_at(_struct,
       index,
       visible);
 
@@ -556,13 +610,14 @@ bool CefMenuModelCToCpp::SetVisibleAt(int index, bool visible) {
 }
 
 bool CefMenuModelCToCpp::IsEnabled(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, is_enabled))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_enabled))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_enabled(struct_,
+  int _retval = _struct->is_enabled(_struct,
       command_id);
 
   // Return type: bool
@@ -570,13 +625,14 @@ bool CefMenuModelCToCpp::IsEnabled(int command_id) {
 }
 
 bool CefMenuModelCToCpp::IsEnabledAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, is_enabled_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_enabled_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_enabled_at(struct_,
+  int _retval = _struct->is_enabled_at(_struct,
       index);
 
   // Return type: bool
@@ -584,13 +640,14 @@ bool CefMenuModelCToCpp::IsEnabledAt(int index) {
 }
 
 bool CefMenuModelCToCpp::SetEnabled(int command_id, bool enabled) {
-  if (CEF_MEMBER_MISSING(struct_, set_enabled))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_enabled))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_enabled(struct_,
+  int _retval = _struct->set_enabled(_struct,
       command_id,
       enabled);
 
@@ -599,13 +656,14 @@ bool CefMenuModelCToCpp::SetEnabled(int command_id, bool enabled) {
 }
 
 bool CefMenuModelCToCpp::SetEnabledAt(int index, bool enabled) {
-  if (CEF_MEMBER_MISSING(struct_, set_enabled_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_enabled_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_enabled_at(struct_,
+  int _retval = _struct->set_enabled_at(_struct,
       index,
       enabled);
 
@@ -614,13 +672,14 @@ bool CefMenuModelCToCpp::SetEnabledAt(int index, bool enabled) {
 }
 
 bool CefMenuModelCToCpp::IsChecked(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, is_checked))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_checked))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_checked(struct_,
+  int _retval = _struct->is_checked(_struct,
       command_id);
 
   // Return type: bool
@@ -628,13 +687,14 @@ bool CefMenuModelCToCpp::IsChecked(int command_id) {
 }
 
 bool CefMenuModelCToCpp::IsCheckedAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, is_checked_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, is_checked_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->is_checked_at(struct_,
+  int _retval = _struct->is_checked_at(_struct,
       index);
 
   // Return type: bool
@@ -642,13 +702,14 @@ bool CefMenuModelCToCpp::IsCheckedAt(int index) {
 }
 
 bool CefMenuModelCToCpp::SetChecked(int command_id, bool checked) {
-  if (CEF_MEMBER_MISSING(struct_, set_checked))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_checked))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_checked(struct_,
+  int _retval = _struct->set_checked(_struct,
       command_id,
       checked);
 
@@ -657,13 +718,14 @@ bool CefMenuModelCToCpp::SetChecked(int command_id, bool checked) {
 }
 
 bool CefMenuModelCToCpp::SetCheckedAt(int index, bool checked) {
-  if (CEF_MEMBER_MISSING(struct_, set_checked_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_checked_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_checked_at(struct_,
+  int _retval = _struct->set_checked_at(_struct,
       index,
       checked);
 
@@ -672,13 +734,14 @@ bool CefMenuModelCToCpp::SetCheckedAt(int index, bool checked) {
 }
 
 bool CefMenuModelCToCpp::HasAccelerator(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, has_accelerator))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_accelerator))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->has_accelerator(struct_,
+  int _retval = _struct->has_accelerator(_struct,
       command_id);
 
   // Return type: bool
@@ -686,13 +749,14 @@ bool CefMenuModelCToCpp::HasAccelerator(int command_id) {
 }
 
 bool CefMenuModelCToCpp::HasAcceleratorAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, has_accelerator_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, has_accelerator_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->has_accelerator_at(struct_,
+  int _retval = _struct->has_accelerator_at(_struct,
       index);
 
   // Return type: bool
@@ -701,13 +765,14 @@ bool CefMenuModelCToCpp::HasAcceleratorAt(int index) {
 
 bool CefMenuModelCToCpp::SetAccelerator(int command_id, int key_code,
     bool shift_pressed, bool ctrl_pressed, bool alt_pressed) {
-  if (CEF_MEMBER_MISSING(struct_, set_accelerator))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_accelerator))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_accelerator(struct_,
+  int _retval = _struct->set_accelerator(_struct,
       command_id,
       key_code,
       shift_pressed,
@@ -720,13 +785,14 @@ bool CefMenuModelCToCpp::SetAccelerator(int command_id, int key_code,
 
 bool CefMenuModelCToCpp::SetAcceleratorAt(int index, int key_code,
     bool shift_pressed, bool ctrl_pressed, bool alt_pressed) {
-  if (CEF_MEMBER_MISSING(struct_, set_accelerator_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_accelerator_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->set_accelerator_at(struct_,
+  int _retval = _struct->set_accelerator_at(_struct,
       index,
       key_code,
       shift_pressed,
@@ -738,13 +804,14 @@ bool CefMenuModelCToCpp::SetAcceleratorAt(int index, int key_code,
 }
 
 bool CefMenuModelCToCpp::RemoveAccelerator(int command_id) {
-  if (CEF_MEMBER_MISSING(struct_, remove_accelerator))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, remove_accelerator))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->remove_accelerator(struct_,
+  int _retval = _struct->remove_accelerator(_struct,
       command_id);
 
   // Return type: bool
@@ -752,13 +819,14 @@ bool CefMenuModelCToCpp::RemoveAccelerator(int command_id) {
 }
 
 bool CefMenuModelCToCpp::RemoveAcceleratorAt(int index) {
-  if (CEF_MEMBER_MISSING(struct_, remove_accelerator_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, remove_accelerator_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = struct_->remove_accelerator_at(struct_,
+  int _retval = _struct->remove_accelerator_at(_struct,
       index);
 
   // Return type: bool
@@ -767,7 +835,8 @@ bool CefMenuModelCToCpp::RemoveAcceleratorAt(int index) {
 
 bool CefMenuModelCToCpp::GetAccelerator(int command_id, int& key_code,
     bool& shift_pressed, bool& ctrl_pressed, bool& alt_pressed) {
-  if (CEF_MEMBER_MISSING(struct_, get_accelerator))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_accelerator))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -780,7 +849,7 @@ bool CefMenuModelCToCpp::GetAccelerator(int command_id, int& key_code,
   int alt_pressedInt = alt_pressed;
 
   // Execute
-  int _retval = struct_->get_accelerator(struct_,
+  int _retval = _struct->get_accelerator(_struct,
       command_id,
       &key_code,
       &shift_pressedInt,
@@ -800,7 +869,8 @@ bool CefMenuModelCToCpp::GetAccelerator(int command_id, int& key_code,
 
 bool CefMenuModelCToCpp::GetAcceleratorAt(int index, int& key_code,
     bool& shift_pressed, bool& ctrl_pressed, bool& alt_pressed) {
-  if (CEF_MEMBER_MISSING(struct_, get_accelerator_at))
+  cef_menu_model_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_accelerator_at))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -813,7 +883,7 @@ bool CefMenuModelCToCpp::GetAcceleratorAt(int index, int& key_code,
   int alt_pressedInt = alt_pressed;
 
   // Execute
-  int _retval = struct_->get_accelerator_at(struct_,
+  int _retval = _struct->get_accelerator_at(_struct,
       index,
       &key_code,
       &shift_pressedInt,
@@ -832,8 +902,21 @@ bool CefMenuModelCToCpp::GetAcceleratorAt(int index, int& key_code,
 }
 
 
-#ifndef NDEBUG
-template<> long CefCToCpp<CefMenuModelCToCpp, CefMenuModel,
+// CONSTRUCTOR - Do not edit by hand.
+
+CefMenuModelCToCpp::CefMenuModelCToCpp() {
+}
+
+template<> cef_menu_model_t* CefCToCpp<CefMenuModelCToCpp, CefMenuModel,
+    cef_menu_model_t>::UnwrapDerived(CefWrapperType type, CefMenuModel* c) {
+  NOTREACHED() << "Unexpected class type: " << type;
+  return NULL;
+}
+
+#if DCHECK_IS_ON()
+template<> base::AtomicRefCount CefCToCpp<CefMenuModelCToCpp, CefMenuModel,
     cef_menu_model_t>::DebugObjCt = 0;
 #endif
 
+template<> CefWrapperType CefCToCpp<CefMenuModelCToCpp, CefMenuModel,
+    cef_menu_model_t>::kWrapperType = WT_MENU_MODEL;

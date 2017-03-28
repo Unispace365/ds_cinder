@@ -7,7 +7,8 @@
 	</image>
 
 	<sprite name="text_holder">
-		<text name="title" >SAMPLE</multiline_text>
+		<multiline_text name="title"
+		>SAMPLE</multiline_text>
 		<multiline_text name="body" >
 			Text content can wrap to multiple lines, if you let it!
 			

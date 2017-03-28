@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "image_source.h"
 
 namespace ds {

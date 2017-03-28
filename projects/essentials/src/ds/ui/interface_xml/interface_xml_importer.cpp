@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "interface_xml_importer.h"
 
 #include "stylesheet_parser.h"
@@ -69,11 +71,11 @@ std::string XmlImporter::getGradientColorsAsString(ds::ui::Gradient* grad){
 }
 
 namespace {
-static const ci::Vec3f				DEFAULT_SIZE = ci::Vec3f(0.0f, 0.0f, 1.0f);
-static const ci::Vec3f				DEFAULT_CENTER = ci::Vec3f(0.0f, 0.0f, 0.0f);
-static const ci::Vec3f				DEFAULT_POS = ci::Vec3f(0.0f, 0.0f, 0.0f);
-static const ci::Vec3f				DEFAULT_ROT = ci::Vec3f(0.0f, 0.0f, 0.0f);
-static const ci::Vec3f				DEFAULT_SCALE = ci::Vec3f(1.0f, 1.0f, 1.0f);
+static const ci::vec3				DEFAULT_SIZE = ci::vec3(0.0f, 0.0f, 1.0f);
+static const ci::vec3				DEFAULT_CENTER = ci::vec3(0.0f, 0.0f, 0.0f);
+static const ci::vec3				DEFAULT_POS = ci::vec3(0.0f, 0.0f, 0.0f);
+static const ci::vec3				DEFAULT_ROT = ci::vec3(0.0f, 0.0f, 0.0f);
+static const ci::vec3				DEFAULT_SCALE = ci::vec3(1.0f, 1.0f, 1.0f);
 static const ci::Color				DEFAULT_COLOR = ci::Color(1.0f, 1.0f, 1.0f);
 static const float					DEFAULT_OPACITY = 1.0f;
 static const bool					DEFAULT_VISIBLE = true;
@@ -84,7 +86,7 @@ static const bool					DEFAULT_CHECKBOUNDS = false;
 static const ds::ui::BlendMode		DEFAULT_BLENDMODE = ds::ui::NORMAL;
 static const float					DEFAULT_LAYOUT_PAD = 0.0f;
 static const float					DEFAULT_LAYOUT_SPACING = 0.0f;
-static const ci::Vec2f				DEFAULT_LAYOUT_SIZEFUDGE = ci::Vec2f::zero();
+static const ci::vec2				DEFAULT_LAYOUT_SIZEFUDGE = ci::vec2();
 static const int					DEFAULT_LAYOUT_ALIGN_USERTYPE = 0;
 static const ds::ui::LayoutSprite::LayoutType DEFAULT_LAYOUT_TYPE = ds::ui::LayoutSprite::kLayoutNone;
 static const ds::ui::LayoutSprite::ShrinkType DEFAULT_SHRINK_TYPE = ds::ui::LayoutSprite::kShrinkNone;
@@ -143,7 +145,7 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 			xml.setAttribute("font_leading", txt->getLeading());
 		}
 
-		xml.setAttribute("resize_limit", unparseVector(ci::Vec2f(mtxt->getResizeLimitWidth(), mtxt->getResizeLimitHeight())));
+		xml.setAttribute("resize_limit", unparseVector(ci::vec2(mtxt->getResizeLimitWidth(), mtxt->getResizeLimitHeight())));
 		if(mtxt->getAlignment() != ds::ui::Alignment::kLeft) xml.setAttribute("text_align", LayoutSprite::getLayoutHAlignString(mtxt->getAlignment()));
 	}
 
@@ -233,7 +235,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	} else if(property == "depth") {
 		sprite.setSizeAll(sprite.getWidth(), sprite.getHeight(), ds::string_to_float(value));
 	} else if(property == "size") {
-		ci::Vec3f v = parseVector(value);
+		ci::vec3 v = parseVector(value);
 		sprite.setSize(v.x, v.y);
 	} else if(property == "color") {
 		sprite.setTransparent(false);
@@ -306,11 +308,11 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("layout_h_align set to an invalid value of " << alignMode);
 		}
 	} else if(property == "layout_fudge"){
-		sprite.mLayoutFudge = parseVector(value).xy();
+		sprite.mLayoutFudge = ci::vec2(parseVector(value));
 	} else if(property == "layout_size"){
-		sprite.mLayoutSize = parseVector(value).xy();
+		sprite.mLayoutSize = ci::vec2(parseVector(value));
 	} else if(property == "on_tap_event"){
-		sprite.setTapCallback([value](ds::ui::Sprite* bs, const ci::Vec3f& pos){
+		sprite.setTapCallback([value](ds::ui::Sprite* bs, const ci::vec3& pos){
 			XmlImporter::dispatchStringEvents(value, bs, pos);
 		});
 	} else if(property == "layout_fixed_aspect"){
@@ -387,23 +389,25 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 	// Text, MultilineText specific attributes
 	else if(property == "font") {
 		// Try to set the font
-		auto text = dynamic_cast<Text *>(&sprite);
+		auto text = dynamic_cast<Text*>(&sprite);
 		if(text) {
 			auto cfg = text->getEngine().getEngineCfg().getText(value);
 			cfg.configure(*text);
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			
 		}
 	} else if(property == "font_name"){
-		auto text = dynamic_cast<Text *>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if(text) {
 			text->setFont(value, text->getFontSize());
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
+		
 	} else if(property == "resize_limit") {
 		// Try to set the resize limit
-		auto text = dynamic_cast<Text *>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if(text) {
 			auto v = parseVector(value);
 			text->setResizeLimit(v.x, v.y);
@@ -411,38 +415,51 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "text_align"){
-		auto text = dynamic_cast<MultilineText*>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if(text){
 			std::string alignString = value;
 			if(alignString == "right"){
 				text->setAlignment(ds::ui::Alignment::kRight);
 			} else if(alignString == "center"){
 				text->setAlignment(ds::ui::Alignment::kCenter);
+			} else if(alignString == "justify"){
+				text->setAlignment(ds::ui::Alignment::kJustify);
 			} else {
 				text->setAlignment(ds::ui::Alignment::kLeft);
 			}
 		}
+
+
 	} else if (property == "text") {
 		// Try to set content
-		auto text = dynamic_cast<Text *>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if (text) {
 			text->setText(value);
-		}
-		else {
+		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if (property == "font_size") {
 		// Try to set the font size
-		auto text = dynamic_cast<Text *>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if (text) {
 			text->setFontSize(ds::string_to_float(value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "font_leading"){
-		auto text = dynamic_cast<MultilineText*>(&sprite);
+		auto text = dynamic_cast<TextPango*>(&sprite);
 		if(text){
 			text->setLeading(ds::string_to_float(value));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "font_color"){
+		auto text = dynamic_cast<TextPango*>(&sprite);
+		if(text){
+			text->setColor(parseColor(value, text->getEngine()));
+		} else {			
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			
 		}
 	}
 
@@ -696,7 +713,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		DS_LOG_WARNING("Unknown Sprite property: " << property << " in " << referer);
 	}
 }
-void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite* bs, const ci::Vec3f& pos){
+void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& pos){
 	auto leadingBracket = value.find("{");
 	if(leadingBracket == 0){
 		auto events = ds::split(value, "},{", true);
@@ -711,7 +728,7 @@ void XmlImporter::dispatchStringEvents(const std::string& value, ds::ui::Sprite*
 	
 }
 
-void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* bs, const ci::Vec3f& globalPos){
+void XmlImporter::dispatchSingleEvent(const std::string& value, ds::ui::Sprite* bs, const ci::vec3& globalPos){
 	auto tokens = ds::split(value, "; ", true);
 	if(!tokens.empty()){
 		std::string eventName = tokens.front();
@@ -956,6 +973,7 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
 	if(dynamic_cast<ds::ui::SoftKeyboard*>(sp)) return "soft_keyboard";
 	if(dynamic_cast<ds::ui::EntryField*>(sp)) return "entry_field";
+	if(dynamic_cast<ds::ui::TextPango*>(sp)) return "text_pango";
 	return "sprite";
 }
 
@@ -1047,11 +1065,11 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 				} else if(paramType == "key_down_color"){
 					sks.mKeyDownColor = parseColor(paramValue, engine);
 				} else if(paramType == "key_text_offset"){
-					sks.mKeyTextOffset = parseVector(paramValue).xy();
+					sks.mKeyTextOffset = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "key_touch_padding"){
 					sks.mKeyTouchPadding = ds::string_to_float(paramValue);
 				} else if(paramType == "key_initial_position"){
-					sks.mKeyInitialPosition = parseVector(paramValue).xy();
+					sks.mKeyInitialPosition = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "key_scale"){
 					sks.mKeyScale = ds::string_to_float(paramValue);
 				} else if(paramType == "img_letter_up"){
@@ -1126,11 +1144,11 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 				if(paramType == "text_config"){
 					efs.mTextConfig = paramValue;
 				} else if(paramType == "cursor_size"){
-					efs.mCursorSize = parseVector(paramValue).xy();
+					efs.mCursorSize = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "field_size"){
-					efs.mFieldSize = parseVector(paramValue).xy();
+					efs.mFieldSize = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "cursor_offset"){
-					efs.mCursorOffset = parseVector(paramValue).xy();
+					efs.mCursorOffset = ci::vec2(parseVector(paramValue));
 				} else if(paramType == "cursor_color"){
 					efs.mCursorColor = parseColor(paramValue, engine);
 				} else if(paramType == "blink_rate"){
@@ -1140,7 +1158,7 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 				} else if(paramType == "password_mode"){
 					efs.mPasswordMode = parseBoolean(paramValue);
 				} else if(paramType == "text_offset"){
-					efs.mTextOffset = parseVector(paramValue).xy();
+					efs.mTextOffset = ci::vec2(parseVector(paramValue));
 				}
 			}
 		}

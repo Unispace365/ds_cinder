@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "persistent_cache.h"
 
 #include <sstream>
@@ -146,7 +148,7 @@ void PersistentCache::loadDatabase(const FieldList& list) {
 		mRows.push_back(Row());
 		Row&						row(mRows.back());
 		row.mId = it.getInt(0);
-		for (size_t k=0; k<list.mFields.size(); ++k) {
+		for (int k=0; k<(int)list.mFields.size(); ++k) {
 			const FieldFormat&		fmt(list.mFields[k]);
 			if (fmt.mType == fmt.kFloat) {
 				row.mFields.push_back(Field(it.getFloat(k+1), 0, ""));

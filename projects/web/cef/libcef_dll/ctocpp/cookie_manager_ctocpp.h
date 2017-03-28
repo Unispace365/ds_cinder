@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_COOKIE_MANAGER_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include <vector>
 #include "include/cef_cookie.h"
@@ -29,26 +29,21 @@ class CefCookieManagerCToCpp
     : public CefCToCpp<CefCookieManagerCToCpp, CefCookieManager,
         cef_cookie_manager_t> {
  public:
-  explicit CefCookieManagerCToCpp(cef_cookie_manager_t* str)
-      : CefCToCpp<CefCookieManagerCToCpp, CefCookieManager,
-          cef_cookie_manager_t>(str) {}
-  virtual ~CefCookieManagerCToCpp() {}
+  CefCookieManagerCToCpp();
 
-  // CefCookieManager methods
-  virtual void SetSupportedSchemes(
-      const std::vector<CefString>& schemes) OVERRIDE;
-  virtual bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
-  virtual bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
+  // CefCookieManager methods.
+  void SetSupportedSchemes(const std::vector<CefString>& schemes,
+      CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
+  bool VisitAllCookies(CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
+  bool VisitUrlCookies(const CefString& url, bool includeHttpOnly,
       CefRefPtr<CefCookieVisitor> visitor) OVERRIDE;
-  virtual bool SetCookie(const CefString& url,
-      const CefCookie& cookie) OVERRIDE;
-  virtual bool DeleteCookies(const CefString& url,
-      const CefString& cookie_name) OVERRIDE;
-  virtual bool SetStoragePath(const CefString& path,
-      bool persist_session_cookies) OVERRIDE;
-  virtual bool FlushStore(CefRefPtr<CefCompletionHandler> handler) OVERRIDE;
+  bool SetCookie(const CefString& url, const CefCookie& cookie,
+      CefRefPtr<CefSetCookieCallback> callback) OVERRIDE;
+  bool DeleteCookies(const CefString& url, const CefString& cookie_name,
+      CefRefPtr<CefDeleteCookiesCallback> callback) OVERRIDE;
+  bool SetStoragePath(const CefString& path, bool persist_session_cookies,
+      CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
+  bool FlushStore(CefRefPtr<CefCompletionCallback> callback) OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_COOKIE_MANAGER_CTOCPP_H_
-

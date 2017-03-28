@@ -1,8 +1,10 @@
+#include "stdafx.h"
+
 #include "ds/query/sql_query_result_builder.h"
 
 #include <iostream>
 
-using namespace std;
+//using namespace std;
 
 namespace ds {
 

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "centered_scroll_area.h"
 
 #include <ds/ui/layout/layout_sprite.h>
@@ -15,7 +17,7 @@ CenteredScrollArea::CenteredScrollArea(ds::ui::SpriteEngine& engine, const float
 {
 	// add the swipe behavior
 	if(mScroller){
-		mScroller->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::Vec3f& delta){
+		mScroller->setSwipeCallback([this](ds::ui::Sprite* sprite, const ci::vec3& delta){
 			bool shouldCenter = false;
 			int index = 0;
 
@@ -100,7 +102,7 @@ void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, c
 	if(mScroller){
 		float p = trueCenterOfItem(index);
 		
-		ci::Vec3f position;
+		ci::vec3 position;
 		if(mVertical){
 			position.y = p + mCenteringOffset;
 		} else {
@@ -116,7 +118,7 @@ void CenteredScrollArea::centerOnIndex(int index, float duration, float delay, c
 			mScroller->tweenPosition(position, duration, delay, ease, combinedPostFunc, [this](){ scrollerTweenUpdated(); });
 		} else {
 			mScroller->setPosition(position);
-			scrollerUpdated(position.xy());
+			scrollerUpdated(ci::vec2(position));
 		}
 	}
 
@@ -157,7 +159,7 @@ void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, 
 			p = relaxedCenterOfItem(index);
 		}
 
-		ci::Vec3f position;
+		ci::vec3 position;
 		if(mVertical){
 			position.y = p + mCenteringOffset;
 		} else {
@@ -173,7 +175,7 @@ void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, 
 			mScroller->tweenPosition(position, duration, delay, ease, combinedPostFunc, [this](){ scrollerTweenUpdated(); });
 		} else {
 			mScroller->setPosition(position);
-			scrollerUpdated(position.xy());
+			scrollerUpdated(ci::vec2(position));
 		}
 	}
 
@@ -185,7 +187,7 @@ void CenteredScrollArea::balanceOnIndex(int index, float duration, float delay, 
 	}
 }
 
-bool CenteredScrollArea::callSnapToPositionCallback(bool& doTween, ci::Vec3f& tweenDestination){
+bool CenteredScrollArea::callSnapToPositionCallback(bool& doTween, ci::vec3& tweenDestination){
 	// accept an externally-imposed snap function, if provided, but otherwise use our own logic
 	bool output = ScrollArea::callSnapToPositionCallback(doTween, tweenDestination);
 

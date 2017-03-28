@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/soft_keyboard/soft_keyboard_defs.h"
 
 #include <sstream>

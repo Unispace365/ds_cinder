@@ -36,7 +36,7 @@ private:
 	bool							mReplicating;
 
 	bool							mTwoTouching;
-	ci::Vec2i						mTwoTouchDown;
+	ci::ivec2						mTwoTouchDown;
 
 	bool							mDropTouched;
 	float							mFiveTouchRadius;

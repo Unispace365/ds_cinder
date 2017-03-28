@@ -16,7 +16,7 @@
 namespace ds {
 namespace ui {
 
-PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
+PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, const float buttonHeight, const ci::Color buttonColor, const ci::Color backgroundColor)
 	: MediaInterface(eng, sizey, backgroundColor)
 	, mLinkedPDF(nullptr)
 	, mUpButton(nullptr)
@@ -60,7 +60,7 @@ PDFInterface::PDFInterface(ds::ui::SpriteEngine& eng, const ci::Vec2f& sizey, co
 
 	mPageCounter = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, this);
 	if(mPageCounter){
-		mPageCounter->setResizeToText(true);
+		//mPageCounter->setResizeToText(true);
 		mPageCounter->enable(false);
 	}
 

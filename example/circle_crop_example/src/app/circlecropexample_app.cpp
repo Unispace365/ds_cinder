@@ -7,6 +7,7 @@
 
 #include "app/app_defs.h"
 #include "app/globals.h"
+#include <cinder/app/RendererGl.h>
 
 #include "events/app_events.h"
 
@@ -24,8 +25,8 @@ CircleCropExample::CircleCropExample()
 
 								.persp() // sample perp view
 								.perspFov(60.0f)
-								.perspPosition(ci::Vec3f(0.0, 0.0f, 10.0f))
-								.perspTarget(ci::Vec3f(0.0f, 0.0f, 0.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
+								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(0.0002f)
 								.perspFar(20.0f)
 
@@ -37,7 +38,7 @@ CircleCropExample::CircleCropExample()
 
 
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "font-name-here");
+	//mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "Font Name", "font-shorthand);
 
 	enableCommonKeystrokes(true);
 }
@@ -95,17 +96,17 @@ void CircleCropExample::keyDown(ci::app::KeyEvent event){
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	} else if(event.getCode() == KeyEvent::KEY_d){
-		moveCamera(ci::Vec3f(1.0f, 0.0f, 0.0f));
+		moveCamera(ci::vec3(1.0f, 0.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_a){
-		moveCamera(ci::Vec3f(-1.0f, 0.0f, 0.0f));
+		moveCamera(ci::vec3(-1.0f, 0.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_w){
-		moveCamera(ci::Vec3f(0.0f, -1.0f, 0.0f));
+		moveCamera(ci::vec3(0.0f, -1.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_s){
-		moveCamera(ci::Vec3f(0.0f, 1.0f, 0.0f));
+		moveCamera(ci::vec3(0.0f, 1.0f, 0.0f));
 	} else if(event.getCode() == KeyEvent::KEY_RIGHTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, 1.0f));
+		moveCamera(ci::vec3(0.0f, 0.0f, 1.0f));
 	} else if(event.getCode() == KeyEvent::KEY_LEFTBRACKET){
-		moveCamera(ci::Vec3f(0.0f, 0.0f, -1.0f));
+		moveCamera(ci::vec3(0.0f, 0.0f, -1.0f));
 	} else if(event.getCode() == KeyEvent::KEY_EQUALS){
 		ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
 		p.mFarPlane += 1.0f;
@@ -119,7 +120,7 @@ void CircleCropExample::keyDown(ci::app::KeyEvent event){
 	}
 }
 
-void CircleCropExample::moveCamera(const ci::Vec3f& deltaMove){
+void CircleCropExample::moveCamera(const ci::vec3& deltaMove){
 	ds::PerspCameraParams p = mEngine.getPerspectiveCamera(1);
 	p.mPosition += deltaMove;
 	std::cout << "Moving camera: " << p.mPosition.x << " " << p.mPosition.y << " " << p.mPosition.z << std::endl;
@@ -129,4 +130,4 @@ void CircleCropExample::moveCamera(const ci::Vec3f& deltaMove){
 } // namespace example
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(example::CircleCropExample, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(example::CircleCropExample, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

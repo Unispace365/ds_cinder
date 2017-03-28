@@ -21,3 +21,4 @@ public:
 } // !namespace nwm
 
 #endif // !_TRIANGLE_MAN_APP_MODEL_ALLSTORIES_H_
+

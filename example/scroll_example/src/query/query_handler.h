@@ -40,3 +40,4 @@ private:
 } // !namespace example
 
 #endif // !_SCROLLEXAMPLE_APP_QUERY_QUERYHANDLER_H_
+

@@ -30,3 +30,5 @@ void MediaQuery::query(AllData& output) {
 }
 
 } // !namespace mv
+
+

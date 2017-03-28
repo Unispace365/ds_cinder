@@ -42,7 +42,7 @@ public:
 
 	/// Sets the area for the initial default size calculation. must be called before initialize or load media to have an effect
 	void					setDefaultBounds(const float defaultWidth, const float defaultHeight);
-	void					setWebViewSize(const ci::Vec2f webSize);
+	void					setWebViewSize(const ci::vec2 webSize);
 
 	/// Actually loads the media set in constructor or loadMedia. if the media is already loaded, this does nothing.
 	void					initialize();
@@ -64,6 +64,9 @@ public:
 
 	/// stops loading web pages, stops videos
 	void					stopContent();
+
+	/// Really only for videos at the moment
+	void					pauseContent();
 
 	/// Returns any current player. Will need to be dynamic casted to be used
 	/// Definitely can return nullptr, so check before using
@@ -90,12 +93,15 @@ public:
 	/// Called after a new piece of media has been initialized / loaded
 	void					setInitializedCallback(std::function<void()> func);
 
+	/// If the media loaded inside this player changes sizes (such as a pdf with different page sizes)
+	void					setMediaSizeChangedCallback(std::function<void(const ci::vec2& newSize)> func){ mMediaSizeChangedCallback = func; }
+
 
 	/// Will do standard functions based on media type:
 	/// Web: Click the web content
 	/// PDF: Advance to the next page
 	/// Video: Toggle play / pause
-	void					handleStandardClick(const ci::Vec3f& globalPos);
+	void					handleStandardClick(const ci::vec3& globalPos);
 
 	/// Sets a tap function to enable the above handling
 	void					enableStandardClick();
@@ -126,8 +132,9 @@ protected:
 	ds::ui::Image*			mPrimaryImage;
 
 	std::function<void(const std::string& msg)>	mErrorCallback;
-	std::function<void(const bool isGood)> mStatusCallback;
-	std::function<void()>	mInitializedCallback;
+	std::function<void(const bool isGood)>		mStatusCallback;
+	std::function<void()>						mInitializedCallback;
+	std::function<void(const ci::vec2&)>		mMediaSizeChangedCallback;
 
 private:
 	void					layout();

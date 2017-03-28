@@ -123,3 +123,5 @@ void SpriteCache<T>::forEachActive(const std::function<void(const T&)>& fn) cons
 } // namespace ds
 
 #endif // !_SCROLLEXAMPLE_APP_UI_TABLE_UTIL_SPRITECACHE_H_
+
+

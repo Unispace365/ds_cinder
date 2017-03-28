@@ -1,5 +1,6 @@
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <cinder/Timeline.h>
+#include <cinder/app/RendererGl.h>
 #include <Poco/Path.h>
 
 #include <ds/app/app.h>
@@ -79,7 +80,7 @@ CsApp::CsApp()
 		// same order.
 		// It's maybe worth nothing that if the client and server do have different
 		// font folders, then you HAVE to do this, to abstract that info.
-		mEngine.editFonts().install(ds::Environment::getAppFolder("data/fonts", "DIN-Medium.otf"), FONT_NAME);
+		mEngine.editFonts().registerFont("Noto Sans Bold", FONT_NAME);
 	} catch (std::exception const& ex) {
 		cout << "ERROR in app constructor=" << ex.what() << endl;
 	}
@@ -161,4 +162,4 @@ ds::ui::Sprite* CsApp::newToggleSprite() const {
 }
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC( CsApp, RendererGl )
+CINDER_APP(CsApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

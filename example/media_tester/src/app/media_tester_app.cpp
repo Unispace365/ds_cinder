@@ -1,6 +1,7 @@
 #include "media_tester_app.h"
 
 #include <cinder/Clipboard.h>
+#include <cinder/app/RendererGl.h>
 
 #include <Poco/String.h>
 #include <Poco/Path.h>
@@ -25,7 +26,7 @@ media_tester::media_tester()
 	, mIsVideo(false)
 {
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 
 	enableCommonKeystrokes(true);
 }
@@ -66,30 +67,18 @@ void media_tester::keyDown(ci::app::KeyEvent event){
 
 	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown() && ci::Clipboard::hasString()){
 		loadMedia(ci::Clipboard::getString());
-		
-	} else if (event.getChar() == KeyEvent::KEY_1){
-		if (mIsVideo && !mMedia->removeShader("test1")) {
-			mMedia->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
-		}
-	} else if (event.getChar() == KeyEvent::KEY_2){
-		if (mIsVideo && !mMedia->removeShader("test2")) {
-			mMedia->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
-		}
-	} else if (event.getChar() == KeyEvent::KEY_3){
-		if (mIsVideo && !mMedia->removeShader("toonify")) {
-			mMedia->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
-		}
+
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
 		if (mIsVideo && mMedia){
-			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(ds::ui::GstVideo::kPanLeft);
+			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(-1.0f);
 		}
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_c){
 		if (mIsVideo && mMedia){
-			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(ds::ui::GstVideo::kPanCenter);
+			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(0.0f);
 		}
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_r){
 		if (mIsVideo && mMedia){
-			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(ds::ui::GstVideo::kPanRight);
+			static_cast<ds::ui::GstVideo*>(mMedia)->setPan(1.0f);
 		}
 	} else if (event.getChar() == KeyEvent::KEY_l){
 		loadMedia("c:/test.mp4");
@@ -137,7 +126,7 @@ void media_tester::loadMedia(const std::string& newMedia){
 		pdfy->setResourceFilename(newMedia);
 		pdfy->enable(true);
 		pdfy->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-		pdfy->setTapCallback([this, pdfy](ds::ui::Sprite* sp, const ci::Vec3f& pos){
+		pdfy->setTapCallback([this, pdfy](ds::ui::Sprite* sp, const ci::vec3& pos){
 			int curPage = pdfy->getPageNum();
 			curPage++;
 			if(curPage > pdfy->getPageCount()){
@@ -203,4 +192,6 @@ void media_tester::fitSpriteInArea(ci::Rectf area, ds::ui::Sprite* spriddy){
 } // namespace test
 
 // This line tells Cinder to actually create the application
-CINDER_APP_BASIC(test::media_tester, ci::app::RendererGl(ci::app::RendererGl::AA_MSAA_4))
+CINDER_APP(test::media_tester, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)), 
+		   [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
+

@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/sprite/circle_border.h"
 
 #include <ds/app/environment.h>

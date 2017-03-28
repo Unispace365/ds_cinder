@@ -55,8 +55,8 @@ public:
 	RootList&						pickColor();
 	
 	RootList&						perspFov(const float);
-	RootList&						perspPosition(const ci::Vec3f&);
-	RootList&						perspTarget(const ci::Vec3f&);
+	RootList&						perspPosition(const ci::vec3&);
+	RootList&						perspTarget(const ci::vec3&);
 	RootList&						perspNear(const float);
 	RootList&						perspFar(const float);
 

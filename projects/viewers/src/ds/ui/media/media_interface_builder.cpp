@@ -35,7 +35,7 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 
 	ds::ui::VideoPlayer* vidPlayer = dynamic_cast<ds::ui::VideoPlayer*>(mediaPlayer);
 	if(vidPlayer){
-		ds::ui::VideoInterface* vi = new VideoInterface(engine, ci::Vec2f(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+		ds::ui::VideoInterface* vi = new VideoInterface(engine, ci::vec2(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
 		parentSprite->addChildPtr(vi);
 		vi->linkVideo(vidPlayer->getVideo());
 		outputMi = vi;
@@ -43,7 +43,7 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 
 	ds::ui::StreamPlayer* streamPlayer = dynamic_cast<ds::ui::StreamPlayer*>(mediaPlayer);
 	if(streamPlayer){
-		ds::ui::VideoInterface* vi = new VideoInterface(engine, ci::Vec2f(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+		ds::ui::VideoInterface* vi = new VideoInterface(engine, ci::vec2(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
 		parentSprite->addChildPtr(vi);
 		vi->linkVideo(streamPlayer->getVideo());
 		outputMi = vi;
@@ -51,7 +51,7 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 
 	ds::ui::WebPlayer* webPlayer = dynamic_cast<ds::ui::WebPlayer*>(mediaPlayer);
 	if(webPlayer){
-		ds::ui::WebInterface* wi = new WebInterface(engine, ci::Vec2f(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+		ds::ui::WebInterface* wi = new WebInterface(engine, ci::vec2(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
 		parentSprite->addChildPtr(wi);
 		wi->linkWeb(webPlayer->getWeb());
 		outputMi = wi;
@@ -59,7 +59,7 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 
 	ds::ui::PDFPlayer* pdfPlayer = dynamic_cast<ds::ui::PDFPlayer*>(mediaPlayer);
 	if(pdfPlayer){
-		ds::ui::PDFInterface* pi = new PDFInterface(engine, ci::Vec2f(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+		ds::ui::PDFInterface* pi = new PDFInterface(engine, ci::vec2(400.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
 		parentSprite->addChildPtr(pi);
 		pi->linkPDF(pdfPlayer->getPDF(), pdfPlayer->getResource());
 		outputMi = pi;

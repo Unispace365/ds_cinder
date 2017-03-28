@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "ds/ui/tween/sprite_anim.h"
 
 #include "ds/ui/sprite/sprite.h"
@@ -56,35 +58,35 @@ const SpriteAnim<float>& SpriteAnimatable::ANIM_OPACITY() {
 	return ANIM;
 }
 
-const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_POSITION() {
-	static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
-		[](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimPosition; },
-		[](ds::ui::Sprite& s)->ci::Vec3f { return s.getPosition(); },
-		[](const ci::Vec3f& v, ds::ui::Sprite& s) { s.setPosition(v); });
+const SpriteAnim<ci::vec3>& SpriteAnimatable::ANIM_POSITION() {
+	static ds::ui::SpriteAnim<ci::vec3>  ANIM(
+		[](ds::ui::Sprite& s)->ci::Anim<ci::vec3>& { return s.mAnimPosition; },
+		[](ds::ui::Sprite& s)->ci::vec3 { return s.getPosition(); },
+		[](const ci::vec3& v, ds::ui::Sprite& s) { s.setPosition(v); });
 	return ANIM;
 }
 
-const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SCALE() {
-	static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
-		[](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimScale; },
-		[](ds::ui::Sprite& s)->ci::Vec3f { return s.getScale(); },
-		[](const ci::Vec3f& v, ds::ui::Sprite& s) { s.setScale(v); });
+const SpriteAnim<ci::vec3>& SpriteAnimatable::ANIM_SCALE() {
+	static ds::ui::SpriteAnim<ci::vec3>  ANIM(
+		[](ds::ui::Sprite& s)->ci::Anim<ci::vec3>& { return s.mAnimScale; },
+		[](ds::ui::Sprite& s)->ci::vec3 { return s.getScale(); },
+		[](const ci::vec3& v, ds::ui::Sprite& s) { s.setScale(v); });
 	return ANIM;
 }
 
-const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_SIZE() {
-	static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
-		[](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimSize; },
-		[](ds::ui::Sprite& s)->ci::Vec3f { return ci::Vec3f(s.getWidth(), s.getHeight(), s.getDepth()); },
-		[](const ci::Vec3f& v, ds::ui::Sprite& s) { s.setSizeAll(v.x, v.y, v.z); });
+const SpriteAnim<ci::vec3>& SpriteAnimatable::ANIM_SIZE() {
+	static ds::ui::SpriteAnim<ci::vec3>  ANIM(
+		[](ds::ui::Sprite& s)->ci::Anim<ci::vec3>& { return s.mAnimSize; },
+		[](ds::ui::Sprite& s)->ci::vec3 { return ci::vec3(s.getWidth(), s.getHeight(), s.getDepth()); },
+		[](const ci::vec3& v, ds::ui::Sprite& s) { s.setSizeAll(v.x, v.y, v.z); });
 	return ANIM;
 }
 
-const SpriteAnim<ci::Vec3f>& SpriteAnimatable::ANIM_ROTATION() {
-	static ds::ui::SpriteAnim<ci::Vec3f>  ANIM(
-		[](ds::ui::Sprite& s)->ci::Anim<ci::Vec3f>& { return s.mAnimRotation; },
-		[](ds::ui::Sprite& s)->ci::Vec3f { return s.getRotation(); },
-		[](const ci::Vec3f& v, ds::ui::Sprite& s) { s.setRotation(v); });
+const SpriteAnim<ci::vec3>& SpriteAnimatable::ANIM_ROTATION() {
+	static ds::ui::SpriteAnim<ci::vec3>  ANIM(
+		[](ds::ui::Sprite& s)->ci::Anim<ci::vec3>& { return s.mAnimRotation; },
+		[](ds::ui::Sprite& s)->ci::vec3 { return s.getRotation(); },
+		[](const ci::vec3& v, ds::ui::Sprite& s) { s.setRotation(v); });
 	return ANIM;
 }
 
@@ -110,32 +112,32 @@ void SpriteAnimatable::tweenOpacity(const float opacity, const float duration, c
 	mInternalOpacityCinderTweenRef = options.operator ci::TweenRef<float>();
 }
 
-void SpriteAnimatable::tweenPosition(const ci::Vec3f& pos, const float duration, const float delay,
+void SpriteAnimatable::tweenPosition(const ci::vec3& pos, const float duration, const float delay,
 									 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	animPositionStop();
 	auto options = mEngine.getTweenline().apply(mOwner, ANIM_POSITION(), pos, duration, ease, finishFn, delay, updateFn);
-	mInternalPositionCinderTweenRef = options.operator ci::TweenRef<ci::Vec3f>();
+	mInternalPositionCinderTweenRef = options.operator ci::TweenRef<ci::vec3>();
 }
 
-void SpriteAnimatable::tweenRotation(const ci::Vec3f& rot, const float duration, const float delay,
+void SpriteAnimatable::tweenRotation(const ci::vec3& rot, const float duration, const float delay,
 									 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	animRotationStop();
 	auto options = mEngine.getTweenline().apply(mOwner, ANIM_ROTATION(), rot, duration, ease, finishFn, delay, updateFn);
-	mInternalRotationCinderTweenRef = options.operator ci::TweenRef<ci::Vec3f>();
+	mInternalRotationCinderTweenRef = options.operator ci::TweenRef<ci::vec3>();
 }
 
-void SpriteAnimatable::tweenScale(const ci::Vec3f& scale, const float duration, const float delay,
+void SpriteAnimatable::tweenScale(const ci::vec3& scale, const float duration, const float delay,
 								  const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	animScaleStop();
 	auto options = mEngine.getTweenline().apply(mOwner, ANIM_SCALE(), scale, duration, ease, finishFn, delay, updateFn);
-	mInternalScaleCinderTweenRef = options.operator ci::TweenRef<ci::Vec3f>();
+	mInternalScaleCinderTweenRef = options.operator ci::TweenRef<ci::vec3>();
 }
 
-void SpriteAnimatable::tweenSize(const ci::Vec3f& size, const float duration, const float delay,
+void SpriteAnimatable::tweenSize(const ci::vec3& size, const float duration, const float delay,
 								 const ci::EaseFn& ease, const std::function<void(void)>& finishFn, const std::function<void(void)>& updateFn) {
 	animSizeStop();
 	auto options = mEngine.getTweenline().apply(mOwner, ANIM_SIZE(), size, duration, ease, finishFn, delay, updateFn);
-	mInternalSizeCinderTweenRef = options.operator ci::TweenRef<ci::Vec3f>();
+	mInternalSizeCinderTweenRef = options.operator ci::TweenRef<ci::vec3>();
 }
 
 void SpriteAnimatable::tweenNormalized(const float duration, const float delay,
@@ -379,36 +381,39 @@ void SpriteAnimatable::clearAnimateOnTargets(const bool recursive){
 }
 
 void SpriteAnimatable::runAnimationScript(const std::string& animScript, const float addedDelay){
-	if(animScript.empty()) return;
+	if (animScript.empty()) return;
 
 	// find all the commands in the string
 	std::vector<std::string> commands = ds::split(animScript, "; ", true);
 
-	if(commands.empty()) return;
+	if (commands.empty()) return;
 
 	// set default parameters, if they're not supplied by the string
 	ci::EaseFn easing = ci::EaseInOutCubic();
 	float dur = 0.35f;
 	float delayey = addedDelay;
+	ci::vec3 currentPos = mOwner.getPosition();
 
 	// This maps tracks all the types (scale, position, etc) and their destinations (as 3d vectors)
-	std::map<std::string, ci::Vec3f> animationCommands;
-	for(auto it = commands.begin(); it < commands.end(); ++it){
+	std::map<std::string, ci::vec3> animationCommands;
+	for (auto it = commands.begin(); it < commands.end(); ++it){
 
 		// Split commands between the type and the destination
 		std::vector<std::string> commandProperties = ds::split((*it), ":", true);
-		if(commandProperties.empty() || commandProperties.size() < 1) continue;
+		if (commandProperties.empty() || commandProperties.size() < 1) continue;
 
 		// Parse out the special commands
 		std::string keyey = commandProperties.front();
-		if(keyey == "ease"){
+		if (keyey == "ease"){
 			std::string easeString = commandProperties[1];
 			easing = getEasingByString(easeString);
 			continue;
-		} else if(keyey == "duration"){
+		}
+		else if (keyey == "duration"){
 			ds::string_to_value<float>(commandProperties[1], dur);
 			continue;
-		} else if(keyey == "delay"){
+		}
+		else if (keyey == "delay"){
 			float rootDelay = 0.0f;
 			ds::string_to_value<float>(commandProperties[1], rootDelay);
 			delayey += rootDelay;
@@ -416,16 +421,16 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 		}
 
 		// parse the destination vectors to floats
-		ci::Vec3f destination = ci::Vec3f::zero();
+		ci::vec3 destination = ci::vec3();
 
-		if(commandProperties.size() > 1){
+		if (commandProperties.size() > 1){
 			std::vector<std::string> destinationTokens = ds::split(commandProperties[1], ", ", true);
 
 			ds::string_to_value<float>(destinationTokens[0], destination.x);
-			if(destinationTokens.size() > 1){
+			if (destinationTokens.size() > 1){
 				ds::string_to_value<float>(destinationTokens[1], destination.y);
 			}
-			if(destinationTokens.size() > 2){
+			if (destinationTokens.size() > 2){
 				ds::string_to_value<float>(destinationTokens[2], destination.z);
 			}
 		}
@@ -433,46 +438,136 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 		animationCommands[keyey] = destination;
 	}
 
-	// now that we have all the commands, apply them
-	for(auto it = animationCommands.begin(); it != animationCommands.end(); ++it){
+	//apply center first 
+	for (auto it = animationCommands.begin(); it != animationCommands.end(); ++it)
+	{
 		std::string animType = it->first;
-		ci::Vec3f dest = it->second;
-		if(animType == "scale"){
-			tweenScale(dest, dur, delayey, easing);
-		} else if(animType == "opacity"){
-			tweenOpacity(dest.x, dur, delayey, easing);
-		} else if(animType == "position"){
-			tweenPosition(dest, dur, delayey, easing);
-		} else if(animType == "rotation"){
-			tweenRotation(dest, dur, delayey, easing);
-		} else if(animType == "size"){
-			tweenSize(dest, dur, delayey, easing);
-		} else if(animType == "color"){
-			tweenColor(ci::Color(dest.x, dest.y, dest.z), dur, delayey, easing);
+		ci::vec3 dest = it->second;
+		if (animType == "center"){
+			auto currentCenter = mOwner.getCenter();
+			if (ci::vec2(currentCenter) == ci::vec2(dest))
+				break;
 
-		} else if(animType == "slide"){
+			mOwner.setCenter(dest.x, dest.y);
+			mOwner.setPosition((dest.x - currentCenter.x) * mOwner.getScaleWidth() + currentPos.x, (dest.y - currentCenter.y) * mOwner.getScaleHeight() + currentPos.y);
+			currentPos = mOwner.getPosition();
+		}
+	}
+
+	// now that we have all the commands, apply them
+	for (auto it = animationCommands.begin(); it != animationCommands.end(); ++it){
+		std::string animType = it->first;
+		ci::vec3 dest = it->second;
+		if (animType == "scale"){
+			tweenScale(dest, dur, delayey, easing);
+		}
+		else if (animType == "opacity"){
+			tweenOpacity(dest.x, dur, delayey, easing);
+		}
+		else if (animType == "position"){
+			tweenPosition(dest, dur, delayey, easing);
+		}
+		else if (animType == "rotation"){
+			tweenRotation(dest, dur, delayey, easing);
+		}
+		else if (animType == "size"){
+			tweenSize(dest, dur, delayey, easing);
+		}
+		else if (animType == "color"){
+			tweenColor(ci::Color(dest.x, dest.y, dest.z), dur, delayey, easing);
+		}
+		else if (animType == "shift"){
+			tweenPosition(currentPos + dest, dur, delayey, easing);
+		}
+		else if (animType == "slide"){
 			setAnimateOnTargetsIfNeeded();
 			mOwner.setPosition(mAnimateOnPositionTarget + dest);
 			tweenPosition(mAnimateOnPositionTarget, dur, delayey, easing);
 
-		} else if(animType == "fade"){
+		}
+		else if (animType == "fade"){
 			setAnimateOnTargetsIfNeeded();
-			if(dest.x == 0.0f){
+			if (dest.x == 0.0f){
 				mOwner.setOpacity(0.0f);
-			} else {
+			}
+			else {
 				mOwner.setOpacity(mAnimateOnOpacityTarget + dest.x);
 			}
 			tweenOpacity(mAnimateOnOpacityTarget, dur, delayey, easing);
 
-		} else if(animType == "grow"){
+		}
+		else if (animType == "grow"){
 			setAnimateOnTargetsIfNeeded();
-			if(dest.x == 0.0f && dest.y == 0.0f){
+			if (dest.x == 0.0f && dest.y == 0.0f){
 				mOwner.setScale(0.0f);
-			} else {
+			}
+			else {
 				mOwner.setScale(mAnimateOnScaleTarget + dest);
 			}
 			tweenScale(mAnimateOnScaleTarget, dur, delayey, easing);
 		}
+	}
+	
+}
+
+
+void SpriteAnimatable::runMultiAnimationScripts(const std::vector<std::string> animScripts, const float gapTime, const float addedDelay /*= 0.0f*/)
+{
+	if (animScripts.empty()) return;
+	
+	std::vector<float> durationList, delayList;
+	parseMultiScripts(animScripts, durationList, delayList);
+
+	float delay = 0.0f, gap = 0.0f;
+	delay =addedDelay;
+	gap = gapTime;
+	for (size_t i = 0; i < animScripts.size(); i++)
+	{
+		auto sp = new ds::ui::Sprite(mEngine);
+		ci::Timeline&		t = mEngine.getTweenline().getTimeline();
+		t.add([this, delay, animScripts, i](){runAnimationScript(animScripts[i]); }, t.getCurrentTime() + delay);
+		delay += (durationList[i] + delayList[i] + gap);
+	}
+}
+
+void SpriteAnimatable::parseMultiScripts(const std::vector<std::string> animScripts, std::vector<float>& durations, std::vector<float>& delays)
+{
+	if (animScripts.empty()) return;
+
+
+	for (auto i = 0; i < animScripts.size(); i++)
+	{
+		// find all the commands in the string
+		std::vector<std::string> commands = ds::split(animScripts[i], "; ", true);
+
+		if (commands.empty()) return;
+
+		// set default parameters, if they're not supplied by the string
+		ci::EaseFn easing = ci::EaseInOutCubic();
+		float dur = 0.35f;
+		float delayey = 0.0f;
+
+		// This maps tracks all the types (scale, position, etc) and their destinations (as 3d vectors)
+		std::map<std::string, ci::vec3> animationCommands;
+		for (auto it = commands.begin(); it < commands.end(); ++it){
+
+			// Split commands between the type and the destination
+			std::vector<std::string> commandProperties = ds::split((*it), ":", true);
+			if (commandProperties.empty() || commandProperties.size() < 1) continue;
+
+			// Parse out the special commands
+			std::string keyey = commandProperties.front();
+			if (keyey == "duration"){
+				ds::string_to_value<float>(commandProperties[1], dur);
+				continue;
+			}
+			else if (keyey == "delay"){
+				ds::string_to_value<float>(commandProperties[1], delayey);
+				continue;
+			}
+		}
+		durations.push_back(dur);
+		delays.push_back(delayey);
 	}
 }
 
@@ -528,4 +623,5 @@ ci::EaseFn SpriteAnimatable::getEasingByString(const std::string& inString){
 }
 
 } // namespace ui
+
 } // namespace ds

@@ -54,7 +54,7 @@ public:
 	bool						recentlyMoved(){ return mMoved; }
 
 	// returns the current velocity
-	const ci::Vec2f&			getVelocity();
+	const ci::vec2&			getVelocity();
 
 protected:
 	virtual void				update(const ds::UpdateParams&);
@@ -65,11 +65,11 @@ private:
 	ds::ui::Sprite*				mSprite;
 	bool						mActive;
 
-	ci::Vec2f					mLastPosition;
-	std::vector<ci::Vec2f>		mPositionHistory;
+	ci::vec2					mLastPosition;
+	std::vector<ci::vec2>		mPositionHistory;
 	int							mNumSmoothFrames;
 
-	ci::Vec2f					mVelocity;
+	ci::vec2					mVelocity;
 	Poco::Timestamp::TimeVal	mLastTime;
 
 	double						mFriction;

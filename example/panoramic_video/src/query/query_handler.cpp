@@ -36,3 +36,5 @@ void QueryHandler::onDirectoryQuery(DirectoryLoader& q) {
 
 
 } // !namespace panoramic
+
+

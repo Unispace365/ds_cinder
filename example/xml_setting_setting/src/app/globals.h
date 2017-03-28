@@ -36,3 +36,4 @@ public:
 } // !namespace setter
 
 #endif // !_XMLSETTINGSSETTING_APP_GLOBALS_
+

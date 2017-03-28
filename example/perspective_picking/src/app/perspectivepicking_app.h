@@ -1,7 +1,7 @@
 #ifndef _PERSPECTIVEPICKING_APP_H_
 #define _PERSPECTIVEPICKING_APP_H_
 
-#include <cinder/app/AppBasic.h>
+#include <cinder/app/App.h>
 #include <ds/app/app.h>
 
 #include "app/globals.h"
@@ -32,11 +32,16 @@ private:
 
 	int					mDebugCamera;
 
-	void				moveRoot(const ci::Vec3f& deltaMove);
-	void				moveCamera(const ci::Vec3f& deltaMove, const bool moveTarget);
+	ds::ui::Sprite*		mTopLeftMarker;
+	ds::ui::Sprite*		mBotRightMarker;
+	ds::ui::Sprite*		mTouchTestDuo;
+
+	void				moveRoot(const ci::vec3& deltaMove);
+	void				moveCamera(const ci::vec3& deltaMove, const bool moveTarget);
 	void				shiftLensH(const float amount);
 };
 
 } // !namespace perspective_picking
 
 #endif // !_PERSPECTIVEPICKING_APP_H_
+

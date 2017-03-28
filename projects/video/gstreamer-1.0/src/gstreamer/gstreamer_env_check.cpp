@@ -54,20 +54,32 @@ bool EnvCheck::addGStreamerBinPath(){
 		addedLocalDlls = true;
 	} 
 
+#ifdef _WIN64
+	std::string gstreamer_path = getEnv("GSTREAMER_1_0_ROOT_X86_64");
+#else 
 	std::string gstreamer_path = getEnv("GSTREAMER_1_0_ROOT_X86");
+#endif
 	std::string gstreamer_bin_path = gstreamer_path + "\\bin";
 	normalizePath(gstreamer_bin_path);
 
+
+
 	// Only add the environment varible version if we don't have local dll's
-	if(!addedLocalDlls && path_variable.find(gstreamer_bin_path) == std::string::npos) {
+	if(!addedLocalDlls && path_variable.find(gstreamer_bin_path) == std::string::npos && ds::safeFileExistsCheck(gstreamer_bin_path, true)) {
 		ds::Environment::addToFrontEnvironmentVariable("PATH", gstreamer_bin_path);
+	} else {
+		DS_LOG_WARNING("No gstreamer bin path found! That's a problem if you wanna see any videos!")
 	}
 		
 	if(getEnv("GST_PLUGIN_PATH").empty()){
 		std::string gstreamer_plugin_path = gstreamer_path + "\\lib\\gstreamer-1.0";
 		normalizePath(gstreamer_plugin_path);
 
-		ds::Environment::addToEnvironmentVariable("GST_PLUGIN_PATH", gstreamer_plugin_path);
+		if(ds::safeFileExistsCheck(gstreamer_plugin_path)){
+			ds::Environment::addToEnvironmentVariable("GST_PLUGIN_PATH", gstreamer_plugin_path);
+		} else {
+			DS_LOG_WARNING("No gstreamer plugin path found! That's a problem if you wanna see any videos!")
+		}
 	}
 
 	if(addedLocalDlls || ds::safeFileExistsCheck(gstreamer_path, true)){

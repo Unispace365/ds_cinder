@@ -44,7 +44,7 @@
 			font="media_viewer:title"
 			color="white"
 			text_align="center"
-			resize_limit="400"
+			resize_limit="200"
 			position="110, 10"
 			center="0.5, 0.0" 
 			/>			

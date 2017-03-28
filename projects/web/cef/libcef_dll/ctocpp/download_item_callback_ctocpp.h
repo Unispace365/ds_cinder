@@ -1,4 +1,4 @@
-// Copyright (c) 2013 The Chromium Embedded Framework Authors. All rights
+// Copyright (c) 2017 The Chromium Embedded Framework Authors. All rights
 // reserved. Use of this source code is governed by a BSD-style license that
 // can be found in the LICENSE file.
 //
@@ -14,9 +14,9 @@
 #define CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_ITEM_CALLBACK_CTOCPP_H_
 #pragma once
 
-#ifndef USING_CEF_SHARED
-#pragma message("Warning: "__FILE__" may be accessed wrapper-side only")
-#else  // USING_CEF_SHARED
+#if !defined(WRAPPING_CEF_SHARED)
+#error This file can be included wrapper-side only
+#endif
 
 #include "include/cef_download_handler.h"
 #include "include/capi/cef_download_handler_capi.h"
@@ -28,15 +28,12 @@ class CefDownloadItemCallbackCToCpp
     : public CefCToCpp<CefDownloadItemCallbackCToCpp, CefDownloadItemCallback,
         cef_download_item_callback_t> {
  public:
-  explicit CefDownloadItemCallbackCToCpp(cef_download_item_callback_t* str)
-      : CefCToCpp<CefDownloadItemCallbackCToCpp, CefDownloadItemCallback,
-          cef_download_item_callback_t>(str) {}
-  virtual ~CefDownloadItemCallbackCToCpp() {}
+  CefDownloadItemCallbackCToCpp();
 
-  // CefDownloadItemCallback methods
-  virtual void Cancel() OVERRIDE;
+  // CefDownloadItemCallback methods.
+  void Cancel() OVERRIDE;
+  void Pause() OVERRIDE;
+  void Resume() OVERRIDE;
 };
 
-#endif  // USING_CEF_SHARED
 #endif  // CEF_LIBCEF_DLL_CTOCPP_DOWNLOAD_ITEM_CALLBACK_CTOCPP_H_
-

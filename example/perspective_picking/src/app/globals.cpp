@@ -36,3 +36,5 @@ const ds::cfg::Text& Globals::getText(const std::string& name) const {
 
 
 } // !namespace perspective_picking
+
+

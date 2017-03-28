@@ -53,18 +53,18 @@ public:
 	// Distance joints will move the bodies to keep them at the length specified, but they can be at any angle.
 	// damping ratio: 0.0 = no damping (faster), 1.0 = full damping (no movement)
 	// frequency: how many times it's applied a second. higher frequency for smoother resolution, lower frequency for better performance (generally)
-	b2DistanceJoint*		createDistanceJoint(SpriteBody&, float length, float dampingRatio, float frequencyHz, const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
+	b2DistanceJoint*		createDistanceJoint(SpriteBody&, float length, float dampingRatio, float frequencyHz, const ci::vec3 bodyAOffset = ci::vec3(0.0f, 0.0f, 0.0f), const ci::vec3 bodyBOffset = ci::vec3(0.0f, 0.0f, 0.0f));
 	void					resizeDistanceJoint(SpriteBody& body, float length);
 
 	// Weld joints attempt to keep the two bodies at the same relative position. There will be a little bit of elasticness between the two.
 	// To make a completely rigid connection, combine two fixtures into the same body (may need to add some API to handle that)
 	// By default, the positioning will place the center of one body on the center of the other body, use the offsets to place the bodies somewhere else
-	void					createWeldJoint(SpriteBody&, const float damping, const float frequencyHz, const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
+	void					createWeldJoint(SpriteBody&, const float damping, const float frequencyHz, const ci::vec3 bodyAOffset = ci::vec3(0.0f, 0.0f, 0.0f), const ci::vec3 bodyBOffset = ci::vec3(0.0f, 0.0f, 0.0f));
 
 	//Joins two bodies along a single, restricted axis of motion.
-	b2PrismaticJoint*		createPrismaticJoint(const SpriteBody& body, ci::Vec2f axis, bool enableLimit = false, float lowerTranslation = 0.0f, float upperTranslation = 0.0f,
+	b2PrismaticJoint*		createPrismaticJoint(const SpriteBody& body, ci::vec2 axis, bool enableLimit = false, float lowerTranslation = 0.0f, float upperTranslation = 0.0f,
 		bool enableMotor = false, float maxMotorForce = 0.0f, float motorSpeed = 0.0f,
-		const ci::Vec3f bodyAOffset = ci::Vec3f(0.0f, 0.0f, 0.0f), const ci::Vec3f bodyBOffset = ci::Vec3f(0.0f, 0.0f, 0.0f));
+		const ci::vec3 bodyAOffset = ci::vec3(0.0f, 0.0f, 0.0f), const ci::vec3 bodyBOffset = ci::vec3(0.0f, 0.0f, 0.0f));
 	// Remove all joints associated with this body. destroy also does this.
 	void					releaseJoints();
 
@@ -84,14 +84,14 @@ public:
 	void					processTouchRemoved(const ds::ui::TouchInfo&);
 
 	// Forces the physics body to this position, may result in non-natural movement. But who cares, right?
-	void					setPosition(const ci::Vec3f&);
+	void					setPosition(const ci::vec3&);
 
 	void					clearVelocity();
 	void					setLinearVelocity(const float x, const float y);
-	ci::Vec2f				getLinearVelocity();
+	ci::vec2				getLinearVelocity();
 
 	void					applyForceToCenter(const float x, const float y);
-	void					applyImpulseToCenter(const float x, const float y, ci::Vec2f point);
+	void					applyImpulseToCenter(const float x, const float y, ci::vec2 point);
 
 	void					setRotation(const float degree);
 	float					getRotation() const;

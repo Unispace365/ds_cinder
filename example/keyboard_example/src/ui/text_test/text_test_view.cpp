@@ -2,7 +2,8 @@
 
 #include <poco/Timestamp.h>
 
-#include <cinder/Rand.h>
+#include <cinder/Rand.h> 
+#include <cinder/app/RendererGl.h>
 
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
@@ -29,7 +30,7 @@ TextTest::TextTest(Globals& g)
 
 		Poco::Timestamp::TimeVal before = Poco::Timestamp().epochMicroseconds();
 
-		ci::Vec2f resizeSize = mGlobals.getSettingsLayout().getSize("text:test:resize", 0, ci::Vec2f(0.0f, 0.0f));
+		ci::vec2 resizeSize = mGlobals.getSettingsLayout().getSize("text:test:resize", 0, ci::vec2(0.0f, 0.0f));
 		mMessage->setResizeLimit(resizeSize.x, resizeSize.y);
 
 		std::cout << mMessage->getWidth() << " " << mMessage->getPositionForCharacterIndex(0) << std::endl;
@@ -39,28 +40,24 @@ TextTest::TextTest(Globals& g)
 		float delty = (float)(after - before) / 1000000.0f;
 		std::cout << "Layout time: " << delty << std::endl;
 
-		std::vector<ci::Vec2f> characterPositions;
+		std::vector<ci::Rectf> characterPositions;
 		for(int i = 0; i < theText.size() + 1; i++){
-			ci::Vec2f possy = mMessage->getPositionForCharacterIndex(i);
+			ci::Rectf possy = mMessage->getRectForCharacterIndex(i);
 			characterPositions.push_back(possy);
 		}
 
 		for(int i = 0; i < theText.size(); i++){
-			ci::Vec2f possy = characterPositions[i];
-			ci::Vec2f possyTwo = ci::Vec2f(0.0f, 0.0f);
-			if(i + 1 < theText.size()){
-				possyTwo = characterPositions[i + 1];
-			}
+			ci::Rectf possy = characterPositions[i];
+			//ci::vec2 possyTwo = ci::vec2(0.0f, 0.0f);
+			//if(i + 1 < theText.size()){
+			//	possyTwo = characterPositions[i + 1];
+			//}
 			ds::ui::Sprite* overlay = new ds::ui::Sprite(mEngine);
 			addChildPtr(overlay);
 			overlay->setTransparent(false);
 			overlay->setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
-			overlay->setPosition(possy.x, possy.y);
-			if(possyTwo.x > 0.0f){
-				overlay->setSize(possyTwo.x - possy.x, mMessage->getPixelFontHeight());
-			} else {
-				overlay->setSize(mMessage->getWidth() - possy.x, mMessage->getPixelFontHeight());
-			}
+			overlay->setPosition(possy.x1, possy.y1);
+			overlay->setSize(possy.getWidth(), possy.getHeight());
 			overlay->setOpacity(0.5f);
 			mCharacterOverlays.push_back(overlay);
 		}
@@ -68,7 +65,7 @@ TextTest::TextTest(Globals& g)
 
 	layout();
 
-	setPosition(mGlobals.getSettingsLayout().getSize("text:test:offset", 0, ci::Vec2f::zero()));
+	setPosition(mGlobals.getSettingsLayout().getSize("text:test:offset", 0, ci::vec2()));
 
 }
 

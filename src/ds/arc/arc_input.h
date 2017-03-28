@@ -25,11 +25,11 @@ public:
 
 	ci::ColorA				getColor(const size_t index, const ci::ColorA& defaultValue) const;
 	double					getFloat(const size_t index, const double defaultValue) const;
-	ci::Vec2d				getVec2(const size_t index, const ci::Vec2d& defaultValue) const;
+	ci::dvec2				getVec2(const size_t index, const ci::dvec2& defaultValue) const;
 
 	void					addColor(const ci::ColorA&);
 	void					addFloat(const double);
-	void					addVec2(const ci::Vec2d&);
+	void					addVec2(const ci::dvec2&);
 
 	void					writeTo(DataBuffer&) const;
 	bool					readFrom(DataBuffer&);
@@ -37,7 +37,7 @@ public:
 private:
 	std::vector<ci::ColorA>	mColor;
 	std::vector<double>		mFloat;
-	std::vector<ci::Vec2d>	mVec2;
+	std::vector<ci::dvec2>	mVec2;
 };
 
 /**
@@ -85,13 +85,13 @@ private:
  */
 class Vec2Param {
 public:
-	Vec2Param(const ci::Vec2d& v = ci::Vec2d(0.0f, 0.0f));
+	Vec2Param(const ci::dvec2& v = ci::dvec2(0.0f, 0.0f));
 
-	ci::Vec2d		getValue(const Input&) const;
+	ci::dvec2		getValue(const Input&) const;
 
 	void			readXml(const ci::XmlTree&);
 
-	ci::Vec2d		mValue;
+	ci::dvec2		mValue;
 	int				mInputIndex;
 };
 

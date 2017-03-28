@@ -29,11 +29,11 @@ public:
 	{}
 
 	std::string mTextConfig;
-	ci::Vec2f	mTextOffset;
-	ci::Vec2f	mFieldSize;
-	ci::Vec2f	mCursorSize;
+	ci::vec2	mTextOffset;
+	ci::vec2	mFieldSize;
+	ci::vec2	mCursorSize;
 	ci::Color	mCursorColor;
-	ci::Vec2f	mCursorOffset; 
+	ci::vec2	mCursorOffset; 
 	bool		mPasswordMode;
 	float		mBlinkRate;
 	float		mAnimationRate;

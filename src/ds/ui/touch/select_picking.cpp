@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "select_picking.h"
 
 #include <cinder/gl/gl.h>
@@ -28,15 +30,16 @@ static void gluPickMatrix(double x, double y, double deltax, double deltay, int*
 						1.0);
 }
 
-ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root) {
+ds::ui::Sprite* SelectPicking::pickAt(const ci::vec2& pt, ds::ui::Sprite& root) {
 	mHits.clear();
 
+	/* TODO
 	glPushAttrib( GL_VIEWPORT_BIT );
 //	const float		picking_offset = 0.0f;
 //	glViewport( 0, 0, static_cast<int>(mWorldSize.x + picking_offset), static_cast<int>(mWorldSize.y));
 	GLint			viewport[4];
 	glGetIntegerv(GL_VIEWPORT, viewport);
-	ci::Matrix44f	m = ci::gl::getProjection();
+	ci::mat4	m = ci::gl::getProjection();
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
 	gluPickMatrix(pt.x, mWorldSize.y-pt.y, 8, 8, viewport);
@@ -75,6 +78,7 @@ ds::ui::Sprite* SelectPicking::pickAt(const ci::Vec2f& pt, ds::ui::Sprite& root)
 
 	// The z value is a GL-internal representation. The item with the lowest
 	// z is closet to the user.
+	*/
 	std::sort(mHits.begin(), mHits.end());
 	return root.getEngine().findSprite(mHits.front().mId);
 }

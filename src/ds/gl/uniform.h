@@ -5,9 +5,7 @@
 #include <map>
 #include <string>
 
-#include <cinder/Matrix.h>
-#include <cinder/Vector.h>
-#include <cinder/Color.h>
+#include "cinder/gl/gl.h"
 
 #include <boost/variant/static_visitor.hpp>
 #include <boost/variant/variant.hpp>
@@ -44,46 +42,46 @@ struct UniformData
  * \see http://www.boost.org/doc/libs/1_57_0/doc/html/variant.html
  * \see <cinder/gl/GlslProg.h>. All overloads, match Cinder's uniform helper.
  */
-class UniformVisitor final : public boost::static_visitor < void >
+class UniformVisitor : public boost::static_visitor < void >
 {
 public:
 	// A typedef of all (20) Cinder supported uniforms.
 	typedef boost::variant <
 		int, float, const int*, std::vector<float>,
-		ci::Vec2f, ci::Vec2i, ci::Vec3f, ci::Vec4f,
-		const ci::Vec2f*, const ci::Vec2i*, const ci::Vec3f*, const ci::Vec4f*,
-		ci::Matrix22f, ci::Matrix33f, ci::Matrix44f,
-		const ci::Matrix22f*, const ci::Matrix33f*, const ci::Matrix44f*,
+		ci::vec2, ci::ivec2, ci::vec3, ci::vec4,
+		const ci::vec2*, const ci::ivec2*, const ci::vec3*, const ci::vec4*,
+		ci::mat2, ci::mat3, ci::mat4,
+		const ci::mat2*, const ci::mat3*, const ci::mat4*,
 		ci::Color, ci::ColorA > SupportedVariants;
 
 public:
 	UniformVisitor() = delete;
-	UniformVisitor(ci::gl::GlslProg& shader);
+	UniformVisitor(ci::gl::GlslProgRef shader);
 
 	// Below all are uniform types, supported by Cinder.
 	void					operator()(int data);
-	void					operator()(const ci::Vec2i &data);
+	void					operator()(const ci::ivec2 &data);
 	void					operator()(const int *data);
-	void					operator()(const ci::Vec2i *data);
+	void					operator()(const ci::ivec2 *data);
 	void					operator()(float data);
-	void					operator()(const ci::Vec2f &data);
-	void					operator()(const ci::Vec3f &data);
-	void					operator()(const ci::Vec4f &data);
+	void					operator()(const ci::vec2 &data);
+	void					operator()(const ci::vec3 &data);
+	void					operator()(const ci::vec4 &data);
 	void					operator()(const ci::Color &data);
 	void					operator()(const ci::ColorA &data);
-	void					operator()(const ci::Matrix22f &data);
-	void					operator()(const ci::Matrix33f &data);
-	void					operator()(const ci::Matrix44f &data);
+	void					operator()(const ci::mat2 &data);
+	void					operator()(const ci::mat3 &data);
+	void					operator()(const ci::mat4 &data);
 	void					operator()(const std::vector<float> &data);
-	void					operator()(const ci::Vec2f *data);
-	void					operator()(const ci::Vec3f *data);
-	void					operator()(const ci::Vec4f *data);
-	void					operator()(const ci::Matrix22f *data);
-	void					operator()(const ci::Matrix33f *data);
-	void					operator()(const ci::Matrix44f *data);
+	void					operator()(const ci::vec2 *data);
+	void					operator()(const ci::vec3 *data);
+	void					operator()(const ci::vec4 *data);
+	void					operator()(const ci::mat2 *data);
+	void					operator()(const ci::mat3 *data);
+	void					operator()(const ci::mat4 *data);
 
 private:
-	ci::gl::GlslProg&		mShader; //shader that will receive the passed variant
+	ci::gl::GlslProgRef		mShader; //shader that will receive the passed variant
 
 public:
 	UniformData&			mData; //just a placeholder
@@ -109,26 +107,26 @@ public:
 	 * \arg transpose: transpose matrix passed to shader (if using ci::MatXX classes to pass to shader)
 	 */
 	void			set(const std::string &name, int data);
-	void			set(const std::string &name, const ci::Vec2i &data);
+	void			set(const std::string &name, const ci::ivec2 &data);
 	void			set(const std::string &name, const int *data, int count);
-	void			set(const std::string &name, const ci::Vec2i *data, int count);
+	void			set(const std::string &name, const ci::ivec2 *data, int count);
 	void			set(const std::string &name, float data);
-	void			set(const std::string &name, const ci::Vec2f &data);
-	void			set(const std::string &name, const ci::Vec3f &data);
-	void			set(const std::string &name, const ci::Vec4f &data);
+	void			set(const std::string &name, const ci::vec2 &data);
+	void			set(const std::string &name, const ci::vec3 &data);
+	void			set(const std::string &name, const ci::vec4 &data);
 	void			set(const std::string &name, const ci::Color &data);
 	void			set(const std::string &name, const ci::ColorA &data);
-	void			set(const std::string &name, const ci::Matrix22f &data, bool transpose = false);
-	void			set(const std::string &name, const ci::Matrix33f &data, bool transpose = false);
-	void			set(const std::string &name, const ci::Matrix44f &data, bool transpose = false);
+	void			set(const std::string &name, const ci::mat2 &data, bool transpose = false);
+	void			set(const std::string &name, const ci::mat3 &data, bool transpose = false);
+	void			set(const std::string &name, const ci::mat4 &data, bool transpose = false);
 	void			set(const std::string &name, const float *data, int count);
 	void			set(const std::string &name, const std::vector<float> &data);
-	void			set(const std::string &name, const ci::Vec2f *data, int count);
-	void			set(const std::string &name, const ci::Vec3f *data, int count);
-	void			set(const std::string &name, const ci::Vec4f *data, int count);
-	void			set(const std::string &name, const ci::Matrix22f *data, int count, bool transpose = false);
-	void			set(const std::string &name, const ci::Matrix33f *data, int count, bool transpose = false);
-	void			set(const std::string &name, const ci::Matrix44f *data, int count, bool transpose = false);
+	void			set(const std::string &name, const ci::vec2 *data, int count);
+	void			set(const std::string &name, const ci::vec3 *data, int count);
+	void			set(const std::string &name, const ci::vec4 *data, int count);
+	void			set(const std::string &name, const ci::mat2 *data, int count, bool transpose = false);
+	void			set(const std::string &name, const ci::mat3 *data, int count, bool transpose = false);
+	void			set(const std::string &name, const ci::mat4 *data, int count, bool transpose = false);
 
 	bool			operator==(const Uniform&) const;
 	bool			empty() const;
@@ -141,13 +139,13 @@ public:
 	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
 	void			setInt(const std::string& name, const int);
 	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
-	void			setMatrix44f(const std::string& name, const ci::Matrix44f&);
+	void			setMatrix44f(const std::string& name, const ci::mat4&);
 	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
-	void			setVec2i(const std::string& name, const ci::Vec2i&);
+	void			setVec2i(const std::string& name, const ci::ivec2&);
 	// DEPRECATED LEGACY API, kept here for backward compatibility. use Uniform::set
-	void			setVec4f(const std::string& name, const ci::Vec4f&);
+	void			setVec4f(const std::string& name, const ci::vec4&);
 
-	void			applyTo(ci::gl::GlslProg&) const;
+	void			applyTo(ci::gl::GlslProgRef) const;
 
 private:
 	// Internally handles inserting boost::variant's into a map for shaders to consume.

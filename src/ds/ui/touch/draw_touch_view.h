@@ -35,7 +35,7 @@ private:
 
 	std::map<int, Circle*>					mCircles;
 
-	std::map<int, std::vector<ci::Vec3f>>	mTouchPointHistory;
+	std::map<int, std::vector<ci::vec3>>	mTouchPointHistory;
 	bool									mTouchTrailsUse;
 	int										mTouchTrailsLength;
 	float									mTouchTrailsIncrement;

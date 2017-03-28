@@ -28,10 +28,10 @@ public:
 	/** A simple construction for setting up each item in the menu. */
 	struct MenuItemModel {
 		MenuItemModel() : mTitle(L""), mSubtitle(L""), mIconNormalImage(""), mIconHighlightedImage(""), mActivatedCallback(nullptr){}
-		MenuItemModel(const std::wstring& titley, const std::string& normalImage = "", const std::string& highImage = "", std::function<void(ci::Vec3f)> callback = nullptr, const std::wstring& subtitley = L"") 
+		MenuItemModel(const std::wstring& titley, const std::string& normalImage = "", const std::string& highImage = "", std::function<void(ci::vec3)> callback = nullptr, const std::wstring& subtitley = L"") 
 			: mTitle(titley), mIconNormalImage(normalImage), mIconHighlightedImage(highImage), mActivatedCallback(callback), mSubtitle(subtitley){}
 
-		std::function<void(ci::Vec3f)>		mActivatedCallback;			// Called when this item has been activated, the Vec3f is the position of the item
+		std::function<void(ci::vec3)>		mActivatedCallback;			// Called when this item has been activated, the vec3 is the position of the item
 		std::wstring						mTitle;						// Label text for the menu item
 		std::wstring						mSubtitle;					// Label text for the menu item (second line, probably smaller)
 		std::string							mIconNormalImage;			// Path to the normal image for the icon
@@ -59,7 +59,7 @@ public:
 		float								mItemIconHeight;			// The height of the icon for each menu item, in pixels
 		float								mItemTitlePad;				// Distance between the icon and the title in each menu item
 		float								mItemTitleYPositionPercent; // Vertical Position of the title, as a percentage of the height of the menu item
-		ci::Vec2f							mItemSize;					// size of each menu item
+		ci::vec2							mItemSize;					// size of each menu item
 		std::string							mItemTitleTextConfig;		// The text config for the title of the menu item
 		std::string							mItemSubtitleTextConfig;	// The text config for the subtitle of the menu item
 
@@ -88,6 +88,8 @@ public:
 
 	TouchMenu(ds::ui::SpriteEngine& enginey);
 
+	const ds::ui::FiveFingerCluster&		getFiveFingerCluster() const {return mFiveFingerCluster;};
+
 	/** Set a vector of models, one for each item in the menu. Clears any currently active cluster views. */
 	void									setMenuItemModels(std::vector<MenuItemModel> itemModels);
 
@@ -100,7 +102,7 @@ public:
 	void									handleTouchInfo(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 
 	/** Starts a menu at the specified location. That menu will timeout or close when an option is tapped. */
-	void									startTappableMenu(const ci::Vec3f& globalLocation, const float timeoutSeconds = 10.0f);
+	void									startTappableMenu(const ci::vec3& globalLocation, const float timeoutSeconds = 10.0f);
 
 	/** Deactive all open menus. This may be jarring to users, so use with care. 
 		Also, if someone has a hand still on the wall, the menu underneath their hand may reappear*/

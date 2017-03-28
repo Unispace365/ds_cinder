@@ -16,7 +16,7 @@ class Sprite;
 class SpriteEngine;
 
 struct SwipeQueueEvent {
-	ci::Vec3f mCurrentGlobalPoint;
+	ci::vec3 mCurrentGlobalPoint;
 	float     mTimeStamp;
 };
 
@@ -38,7 +38,7 @@ private:
 	void					initializeTouchPoints();
 	void					resetTouchAnchor();
     
-	void					addToSwipeQueue(const ci::Vec3f &currentPoint, int queueNum);
+	void					addToSwipeQueue(const ci::vec3 &currentPoint, int queueNum);
 	bool					swipeHappened();
 
 	void					updateDragDestination(const TouchInfo &touchInfo);
@@ -46,7 +46,7 @@ private:
 
 	void					processTap(const TouchInfo &touchInfo);
 	void					processTapInfo(const TouchInfo &touchInfo);
-	void					sendTapInfo(const TapInfo::State, const int count, const ci::Vec3f& pt = ci::Vec3f(-1.0f, -1.0f, -1.0f));
+	void					sendTapInfo(const TapInfo::State, const int count, const ci::vec3& pt = ci::vec3(-1.0f, -1.0f, -1.0f));
 
 	SpriteEngine&			mSpriteEngine;
 	Sprite&					mSprite;
@@ -58,15 +58,15 @@ private:
 	int						mControlFingerIndexes[2];
 
 	// the start point of the first finger, in local coordinates
-	ci::Vec3f				mMultiTouchAnchor;
+	ci::vec3				mMultiTouchAnchor;
 
 	// Start properties are stored to determine deltas
-	ci::Vec3f				mStartPosition;
+	ci::vec3				mStartPosition;
 
 	// and to reset the anchor on touch completion and switches
-	ci::Vec3f				mStartScale;
-	ci::Vec3f				mStartRotation;
-	ci::Vec3f				mStartAnchor;
+	ci::vec3				mStartScale;
+	ci::vec3				mStartRotation;
+	ci::vec3				mStartAnchor;
 
 	float					mStartWidth;
 	float					mStartHeight;
@@ -77,7 +77,7 @@ private:
 	float					mCurrentScale;
 	float					mCurrentAngle;
 
-	ci::Vec3f				mSwipeVector;
+	ci::vec3				mSwipeVector;
 	int						mSwipeFingerId;
 
 	// the last few touch events and their time, for calculating swipes
@@ -89,7 +89,7 @@ private:
 	// used to track for double taps
 	bool					mOneTap;
 	float					mDoubleTapTime;
-	ci::Vec3f				mFirstTapPos;
+	ci::vec3				mFirstTapPos;
 
 	TapInfo					mTapInfo;
 
