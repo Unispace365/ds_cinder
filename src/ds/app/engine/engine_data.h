@@ -39,7 +39,6 @@ public:
 	ci::vec2				mWorldSize;
 	float					mFrameRate;
 	int						mIdleTimeout;
-	bool					mUsingDefaults; // if no settings file loaded, use all default settings
 	std::string				mAppInstanceName;
 
 	// The source rect in world bounds and the destination

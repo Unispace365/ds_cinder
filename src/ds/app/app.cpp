@@ -52,7 +52,7 @@
 #include <cinder/ImageIo.h>
 
 // Answer a new engine based on the current settings
-static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList& roots);
+static ds::Engine&    new_engine(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList& roots);
 
 static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 	static std::vector<std::function<void(ds::Engine&)>>	VEC;
@@ -126,7 +126,6 @@ App::App(const RootList& roots)
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
 	mEngineSettings.printStartupInfo();
-	mEngineData.mUsingDefaults = mEngineSettings.getUsingDefault();
 
 	add_dll_path();
 
@@ -443,7 +442,7 @@ ds::EngineSettingsPreloader::Initializer::Initializer() {
 
 } // namespace ds
 
-static ds::Engine&    new_engine(	ds::App& app, const ds::cfg::Settings& settings,
+static ds::Engine&    new_engine(	ds::App& app, const ds::EngineSettings& settings,
 									ds::EngineData& ed, const ds::RootList& roots){
 
 	bool defaultShowConsole = false;

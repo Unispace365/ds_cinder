@@ -44,7 +44,7 @@ namespace ds {
 
 const int Engine::NumberOfNetworkThreads = 2;
 
-Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
+Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
 	, mTweenline(app.timeline())
@@ -243,7 +243,7 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 
 	} else {
 		settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
-		if(mData.mUsingDefaults){
+		if(mSettings.getUsingDefault()){
 			screenMode = "borderless";
 		}
 		screenMode = mSettings.getText("screen:mode", 0, screenMode);

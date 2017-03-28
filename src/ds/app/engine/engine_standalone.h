@@ -15,7 +15,7 @@ namespace ds {
  */
 class EngineStandalone : public Engine {
 public:
-	EngineStandalone(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList&);
+	EngineStandalone(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineStandalone();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }

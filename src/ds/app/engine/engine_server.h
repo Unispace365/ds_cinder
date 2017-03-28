@@ -21,7 +21,7 @@ namespace ds {
  */
 class AbstractEngineServer : public Engine {
 public:
-	AbstractEngineServer(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList&);
+	AbstractEngineServer(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~AbstractEngineServer();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
@@ -127,7 +127,7 @@ private:
  */
 class EngineServer : public AbstractEngineServer {
 public:
-	EngineServer(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList&);
+	EngineServer(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineServer();
 
 	virtual ui::LoadImageService&	getLoadImageService()	{ return mLoadImageService; }

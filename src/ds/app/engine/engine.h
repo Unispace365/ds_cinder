@@ -28,7 +28,7 @@
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
 #include "ds/data/tuio_object.h"
-#include "ds/cfg/settings.h"
+#include "ds/app/engine/engine_settings.h"
 #include "ds/ui/ip/ip_function_list.h"
 #include "ds/ui/service/pango_font_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
@@ -225,7 +225,7 @@ public:
 	void														createClientRoots(std::vector<RootList::Root> newRoots);
 
 protected:
-	Engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const RootList&);
+	Engine(ds::App&, const ds::EngineSettings&, ds::EngineData&, const RootList&);
 
 	// Conveniences for the subclases
 	void								updateClient();
@@ -272,7 +272,7 @@ private:
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
 										mRoots;
-	const ds::cfg::Settings&			mSettings;
+	const ds::EngineSettings&			mSettings;
 	ImageRegistry						mImageRegistry;
 	ds::ui::PangoFontService			mPangoFontService;
 	ds::ui::Tweenline					mTweenline;

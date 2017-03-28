@@ -33,7 +33,7 @@ using namespace ci::app;
 /**
  * \class ds::AbstractEngineServer
  */
-AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::cfg::Settings& settings,
+AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::EngineSettings& settings,
 											ds::EngineData& ed, const ds::RootList& roots)
 	: inherited(app, settings, ed, roots)
 //    , mConnection(NumberOfNetworkThreads)
@@ -458,7 +458,7 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 /**
  * \class ds::EngineServer
  */
-EngineServer::EngineServer(	ds::App& app, const ds::cfg::Settings& settings,
+EngineServer::EngineServer(	ds::App& app, const ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 	: inherited(app, settings, ed, roots)
 	, mLoadImageService(*this, mIpFunctions)
