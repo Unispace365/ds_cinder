@@ -37,6 +37,7 @@ GStreamerWrapper::GStreamerWrapper()
 	, mServer(true)
 	, m_ValidInstall(true)
 	, mSyncedMode(false)
+	, m_StreamNeedsRestart(false)
 {
 
 	m_CurrentPlayState = NOT_INITIALIZED;
@@ -91,6 +92,7 @@ void GStreamerWrapper::resetProperties(){
 	m_iDurationInNs = -1;
 	m_iCurrentTimeInNs = -1;
 	mSyncedMode = false;
+	m_StreamNeedsRestart = false;
 
 }
 
@@ -590,6 +592,15 @@ void GStreamerWrapper::close(){
 
 void GStreamerWrapper::update(){
 	handleGStMessage();
+
+	if(m_StreamNeedsRestart){
+		m_StreamRestartCount++;
+		// 2 seconds at 60fps, should prolly move to a timed situation
+		if(m_StreamRestartCount > 120){
+			m_StreamNeedsRestart = false;
+			openStream(m_StreamPipeline, m_iWidth, m_iHeight);
+		}
+	}
 }
 
 uint64_t GStreamerWrapper::getPipelineTime(){
@@ -1175,7 +1186,9 @@ void GStreamerWrapper::handleGStMessage(){
 						close();
 
 						if(m_Streaming && m_AutoRestartStream){
-							openStream(m_StreamPipeline, m_iWidth, m_iHeight);
+							m_StreamNeedsRestart = true;
+							m_StreamRestartCount = 0;
+							//openStream(m_StreamPipeline, m_iWidth, m_iHeight);
 						}
 
 						g_error_free(err);

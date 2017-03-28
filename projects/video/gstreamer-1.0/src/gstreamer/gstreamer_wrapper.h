@@ -723,5 +723,8 @@ private:
 	//bool					m_isFastSeeking;
 	bool					m_newLoop;
 
+	bool					m_StreamNeedsRestart;
+	int						m_StreamRestartCount;
+
 }; //!class GStreamerWrapper
 }; //!namespace gstwrapper
