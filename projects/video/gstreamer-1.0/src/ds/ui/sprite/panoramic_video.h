@@ -51,6 +51,8 @@ protected:
 	virtual void		writeAttributesTo(ds::DataBuffer&);
 	virtual void		readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
+	virtual void		onBuildRenderBatch() override;
+
 private:
 	ds::ui::Video*		mVideoSprite;
 

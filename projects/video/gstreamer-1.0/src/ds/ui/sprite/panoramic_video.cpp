@@ -138,6 +138,11 @@ void PanoramicVideo::readAttributeFrom(const char attributeId, ds::DataBuffer& b
 	}
 }
 
+// no need to build the base render batch
+void PanoramicVideo::onBuildRenderBatch(){
+
+}
+
 void PanoramicVideo::drawLocalClient(){
 
 	if(mVideoSprite){
