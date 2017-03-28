@@ -3,6 +3,15 @@ DS Cinder
 DS Cinder is a framework for interactive applications built on top of the fantastic Cinder framework. DS Cinder provides conveniences for getting graphics onscreen; loading data from a sqlite database; displaying PDFs, videos and web pages; providing touch interaction; and loading settings. The DS version also provides the ability to syncronize multiple clients to display the same graphics, as well as conveniences for touch handling.
 
 -----------------------------
+DS Cinder Version 103.0.0
+-----------------------------
+
+- Add CEF for web display (Chromium Embedded Framework)
+- Add an extended keyboard
+- Drawing canvas for using touch input to draw
+- Lots of incremental changes and fixes
+
+-----------------------------
 DS Cinder Version 102.0.0
 -----------------------------
 
