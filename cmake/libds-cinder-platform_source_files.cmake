@@ -145,4 +145,17 @@ list( APPEND DS_CINDER_SRC_FILES
 	${ROOT_PATH}/src/ds/data/color_list.cpp
 	${ROOT_PATH}/src/ds/data/user_data.cpp
 	${ROOT_PATH}/src/ds/data/resource.cpp
+
+	${ROOT_PATH}/src/tuio/TuioClient.cpp
+	${ROOT_PATH}/src/osc/OscBundle.cpp
+	${ROOT_PATH}/src/osc/OscListener.cpp
+	${ROOT_PATH}/src/osc/OscMessage.cpp
+	${ROOT_PATH}/src/osc/OscSender.cpp
+	${ROOT_PATH}/src/osc/ip/IpEndpointName.cpp
+	${ROOT_PATH}/src/osc/ip/posix/NetworkingUtils.cpp
+	${ROOT_PATH}/src/osc/ip/posix/UdpSocket.cpp
+	${ROOT_PATH}/src/osc/osc/OscOutboundPacketStream.cpp
+	${ROOT_PATH}/src/osc/osc/OscPrintReceivedElements.cpp
+	${ROOT_PATH}/src/osc/osc/OscReceivedElements.cpp
+	${ROOT_PATH}/src/osc/osc/OscTypes.cpp
 )

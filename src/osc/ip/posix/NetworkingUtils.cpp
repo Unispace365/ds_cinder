@@ -42,7 +42,8 @@
 
 #include <cstring>
 
-
+namespace cinder {
+namespace osc {
 
 NetworkInitializer::NetworkInitializer() {}
 
@@ -61,4 +62,6 @@ unsigned long GetHostByName( const char *name )
     }
 
     return result;
+}
+}
 }
