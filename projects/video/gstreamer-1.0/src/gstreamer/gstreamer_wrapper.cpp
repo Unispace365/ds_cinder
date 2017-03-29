@@ -968,7 +968,6 @@ void GStreamerWrapper::setStartTime(uint64_t start_time){
 }
 
 bool GStreamerWrapper::seekFrame( gint64 iTargetTimeInNs ){
-	std::cout << "seek frame: " << iTargetTimeInNs << " " << m_iDurationInNs << " " << m_CurrentGstState << " " << m_PendingSeek << std::endl;
 	if(m_iDurationInNs < 0 || m_CurrentGstState == STATE_NULL) {
 		m_PendingSeekTime = iTargetTimeInNs;
 		m_PendingSeek = true;
