@@ -443,7 +443,7 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 	{
 		std::string animType = it->first;
 		ci::vec3 dest = it->second;
-		if (animType == "center"){
+		if (animType == "center" && &mOwner){
 			auto currentCenter = mOwner.getCenter();
 			if (ci::vec2(currentCenter) == ci::vec2(dest))
 				break;
