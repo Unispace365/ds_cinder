@@ -1,29 +1,34 @@
-#version 120
+#version 150
 
-varying vec2 position_interpolated;
-varying vec2 texture_interpolated;
-varying vec2 extent_interpolated;
-varying vec4 extra_interpolated;
+in vec2 position_interpolated;
+in vec2 texture_interpolated;
+in vec2 extent_interpolated;
+in vec4 extra_interpolated;
 
 uniform sampler2D tex0;
 uniform bool useTexture;
 uniform bool preMultiply;
 
+in vec2            TexCoord0;
+in vec4            Color;
+out vec4           oColor;
+
 void main()
 {
-	vec4 color = vec4(1.0, 1.0, 1.0, 1.0);
+	oColor = vec4(1.0, 1.0, 1.0, 1.0);
+
 
     if (useTexture) {
-        color = texture2D( tex0, gl_TexCoord[0].st );
+        oColor = texture2D( tex0, TexCoord0 );
     }
     
-    color *= gl_Color;
+    oColor *= Color;
     
     if (preMultiply) {
-        color.r *= color.a;
-        color.g *= color.a;
-        color.b *= color.a;
-    }
+        oColor.r *= oColor.a;
+        oColor.g *= oColor.a;
+        oColor.b *= oColor.a;
+    }  
     
 	vec2 circleExtent = extent_interpolated;
 	vec2 circleCenter = circleExtent * 0.5;
@@ -53,30 +58,6 @@ void main()
 	
 	totalAlpha = outerAlpha * innerAlpha;
 	
-	/*
-	// apply the general equation of an ellipse (middle of border)
-	vec2 middleRadius = outerRadius - vec2(extra_interpolated.x * 0.5, extra_interpolated.x * 0.5);
-	float middleDistance = (
-		((delta.x * delta.x) / (middleRadius.x * middleRadius.x)) +
-		((delta.y * delta.y) / (middleRadius.y * middleRadius.y))
-	);
+	oColor.a *= totalAlpha;
 	
-	// I'd like to find a way to smooth this out without the pow functions, and without the ternary operator
-	float powOuter = pow(outerDistance, 50.0);
-	float powInner = pow(innerDistance, 50.0);
-	
-	totalAlpha = (middleDistance < 1.0) ? powInner : (1.0 - powOuter);
-	*/
-	
-	/*
-	// you can use this instead if you want a hard edge
-	// for now, just provide a hard edge
-	float outerAlpha = step(outerDistance, 1.0);
-	float innerAlpha = 1.0 - step(innerDistance, 1.0);
-	totalAlpha = outerAlpha * innerAlpha;
-	*/
-	
-	color.a *= totalAlpha;
-	
-	gl_FragColor = color;
 }

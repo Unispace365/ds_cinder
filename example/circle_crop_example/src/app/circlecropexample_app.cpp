@@ -10,6 +10,8 @@
 
 #include "events/app_events.h"
 
+#include <ds/ui/sprite/circle_border.h>
+
 // These three includes are required for the circle crop and image
 #include <ds/ui/ip/ip_defs.h>
 #include <ds/ui/image_source/image_file.h>
@@ -92,6 +94,13 @@ void CircleCropExample::setupServer(){
 	mShaderCircleCrop->setPosition(scw, 100.0f);
 
 	mShaderCircleCrop->setCircleCropRect(ci::Rectf(scw / 2.0f - sch / 2.0f, 0.0f, scw / 2.0f + sch / 2.0f, sch));
+
+	ds::ui::CircleBorder* circBorder = new ds::ui::CircleBorder(mEngine);
+	circBorder->setBorderWidth(20.0f);
+	circBorder->setColor(ci::Color(0.54f, 0.2f, 0.1f));
+	circBorder->setSize(200.f, 200.0f);
+	rootSprite.addChildPtr(circBorder);
+
 
 }
 

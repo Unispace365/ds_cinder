@@ -28,8 +28,6 @@ const DirtyState&	IMG_CROP_DIRTY		= INTERNAL_B_DIRTY;
 const char			IMG_SRC_ATT			= 80;
 const char			IMG_CROP_ATT		= 81;
 
-
-
 const std::string CircleCropFrag =
 "#version 150\n"
 
@@ -195,22 +193,17 @@ Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags
 	setImageResource(resource, flags);
 }
 
-Image::~Image() { /* no-op */ }
-
-void Image::updateServer(const UpdateParams& up)
-{
+void Image::updateServer(const UpdateParams& up){
 	inherited::updateServer(up);
 	checkStatus();
 }
 
-void Image::updateClient(const UpdateParams& up)
-{
+void Image::updateClient(const UpdateParams& up){
 	inherited::updateClient(up);
 	checkStatus();
 }
 
-void Image::drawLocalClient()
-{
+void Image::drawLocalClient(){
 	if (!inBounds() || !isLoaded()) return;
 
 	if (auto tex = mImageSource.getImage())
@@ -228,18 +221,15 @@ void Image::drawLocalClient()
 	}
 }
 
-void Image::setSizeAll( float width, float height, float depth )
-{
+void Image::setSizeAll( float width, float height, float depth ){
 	setScale( width / getWidth(), height / getHeight() );
 }
 
-bool Image::isLoaded() const
-{
+bool Image::isLoaded() const {
 	return mStatus.mCode == Status::STATUS_LOADED;
 }
 
-void Image::setCircleCrop(bool circleCrop)
-{
+void Image::setCircleCrop(bool circleCrop){
 	mCircleCropped = circleCrop;
 	if(circleCrop){
 		// switch to crop shader
@@ -261,8 +251,7 @@ void Image::setCircleCropRect(const ci::Rectf& rect)
 	mShaderExtraData.w = rect.y2;
 }
 
-void Image::setStatusCallback(const std::function<void(const Status&)>& fn)
-{
+void Image::setStatusCallback(const std::function<void(const Status&)>& fn){
 	if(mEngine.getMode() != mEngine.STANDALONE_MODE){
 		//DS_LOG_WARNING("Currently only works in Standalone mode, fill in the UDP callbacks if you want to use this otherwise");
 		// TODO: fill in some callbacks? This actually kinda works. This will only not work in server-only mode. Everything else is fine
@@ -283,8 +272,7 @@ void Image::onImageChanged() {
 	ImageMetaData		d;
 	if (mImageSource.getMetaData(d) && !d.empty()) {
 		Sprite::setSizeAll(d.mSize.x, d.mSize.y, mDepth);
-	}
-	else {
+	} else {
 		// Metadata not found, reset all internal states
 		ds::ui::Sprite::setSizeAll(0, 0, 1.0f);
 		ds::ui::Sprite::setScale(1.0f, 1.0f, 1.0f);
@@ -331,25 +319,19 @@ void Image::setStatus(const int code) {
 	if (mStatusFn) mStatusFn(mStatus);
 }
 
-void Image::checkStatus()
-{
-	if (mImageSource.getImage() && !isLoadedPrimary())
-	{
-		if (mEngine.getMode() == mEngine.CLIENT_MODE)
-		{
+void Image::checkStatus() {
+	if (mImageSource.getImage() && !isLoadedPrimary()){
+		if (mEngine.getMode() == mEngine.CLIENT_MODE){
 			setStatus(Status::STATUS_LOADED);
 			doOnImageLoaded();
-		}
-		else
-		{
+		} else {
 			auto tex = mImageSource.getImage();
 			setStatus(Status::STATUS_LOADED);
 			doOnImageLoaded();
 			const float prevRealW = getWidth(), prevRealH = getHeight();
 			if (prevRealW <= 0 || prevRealH <= 0) {
 				Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
-			}
-			else {
+			} else {
 				float prevWidth = prevRealW * getScale().x;
 				float prevHeight = prevRealH * getScale().y;
 				Sprite::setSizeAll(static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()), mDepth);
@@ -382,10 +364,8 @@ void Image::onBuildRenderBatch() {
 	}
 }
 
-void Image::doOnImageLoaded()
-{
-	if (auto tex = mImageSource.getImage())
-	{
+void Image::doOnImageLoaded() {
+	if (auto tex = mImageSource.getImage()){
 		mNeedsBatchUpdate = true;
 		mDrawRect.mPerspRect = ci::Rectf(0.0f, static_cast<float>(tex->getHeight()), static_cast<float>(tex->getWidth()), 0.0f);
 		mDrawRect.mOrthoRect = ci::Rectf(0.0f, 0.0f, static_cast<float>(tex->getWidth()), static_cast<float>(tex->getHeight()));
@@ -394,8 +374,7 @@ void Image::doOnImageLoaded()
 	onImageLoaded();
 }
 
-void Image::doOnImageUnloaded()
-{
+void Image::doOnImageUnloaded() {
 	onImageUnloaded();
 }
 
