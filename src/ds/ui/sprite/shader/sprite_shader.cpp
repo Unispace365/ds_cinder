@@ -110,6 +110,15 @@ void SpriteShader::setShaders(const std::string &location, const std::string &na
 	mName = name;
 }
 
+void SpriteShader::setToDefaultShader(){
+	if(mShader){
+		mShader.reset();
+	}
+
+	mName = "base";
+	loadDefaultFromMemory();
+}
+
 void SpriteShader::loadShaders() {
 	if(mShader) return;
 	if(!mShader) loadShadersFromFile();
@@ -209,10 +218,10 @@ void SpriteShader::loadFromMemory(){
 
 void SpriteShader::loadDefaultFromMemory(){
 	try {
-		auto found = GlslProgs.find("default_cpp_shader");
+		auto found = GlslProgs.find("base");
 		if(found == GlslProgs.end()) {
 			mShader = ci::gl::GlslProg::create(DefaultVert.c_str(), DefaultFrag.c_str());
-			GlslProgs["default_cpp_shader"] = mShader;
+			GlslProgs["base"] = mShader;
 		} else {
 			mShader = found->second;
 		}

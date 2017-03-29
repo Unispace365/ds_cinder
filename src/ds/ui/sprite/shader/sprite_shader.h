@@ -15,6 +15,7 @@ public:
 
 	void setShaders(const std::string &location, const std::string &name);
 	void setShaders(const std::string &vert_memory, const std::string &frag_memory, const std::string &shaderName);
+	void setToDefaultShader();
 	void loadShaders();
 	bool isValid() const;
 

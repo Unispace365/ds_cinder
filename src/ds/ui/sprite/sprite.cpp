@@ -293,6 +293,15 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 			shaderBase->uniform("tex0", 0);
 			shaderBase->uniform("useTexture", mUseShaderTexture);
 			shaderBase->uniform("preMultiply", premultiplyAlpha(mBlendMode));
+
+			int uniformLoc = 0;
+			if(shaderBase->findUniform("extent", &uniformLoc)){
+				shaderBase->uniform("extent", ci::vec2(getWidth(), getHeight()));
+			}
+			if(shaderBase->findUniform("extra", &uniformLoc)){
+				shaderBase->uniform("extra", mShaderExtraData);
+			}
+
 			mUniform.applyTo(shaderBase);
 			clip_plane::passClipPlanesToShader(shaderBase);
 		}

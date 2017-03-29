@@ -10,6 +10,7 @@ in vec2            ciTexCoord0;
 in vec4            ciColor;
 out vec2           TexCoord0;
 out vec4           Color;
+
 void main()
 {
     gl_Position = ciModelViewProjection * ciPosition;

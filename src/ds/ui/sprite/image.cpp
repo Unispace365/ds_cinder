@@ -27,6 +27,118 @@ const DirtyState&	IMG_CROP_DIRTY		= INTERNAL_B_DIRTY;
 
 const char			IMG_SRC_ATT			= 80;
 const char			IMG_CROP_ATT		= 81;
+
+
+
+const std::string CircleCropFrag =
+"#version 150\n"
+
+"in vec2 position_interpolated; \n"
+"in vec2 texture_interpolated; \n"
+"in vec2 extent_interpolated; \n"
+"in vec4 extra_interpolated; \n"
+
+"uniform sampler2D tex0; \n"
+"uniform bool useTexture; \n"
+"uniform bool preMultiply; \n"
+
+"in vec2            TexCoord0; \n"
+"in vec4            Color; \n"
+"out vec4           oColor; \n"
+
+"void main()\n"
+"{\n"
+"oColor = vec4(1.0, 1.0, 1.0, 1.0); \n"
+
+"	if(useTexture) {\n"
+"		oColor = texture2D(tex0, TexCoord0);\n"
+"	}\n"
+
+"	oColor *= Color;\n"
+
+"	if(preMultiply) {\n"
+"		oColor.r *= oColor.a;\n"
+"		oColor.g *= oColor.a;\n"
+"		oColor.b *= oColor.a;\n"
+"	}\n"
+
+"	vec2 circleExtent = vec2(\n"
+"		extra_interpolated.z - extra_interpolated.x,\n"
+"		extra_interpolated.w - extra_interpolated.y\n"
+"		);\n"
+"	vec2 circleRadius = circleExtent * 0.5;\n"
+"	vec2 circleCenter = vec2(\n"
+"		(extra_interpolated.x + extra_interpolated.z) * 0.5,\n"
+"		(extra_interpolated.y + extra_interpolated.w) * 0.5\n"
+"		);\n"
+"	vec2 delta = position_interpolated - circleCenter;\n"
+
+	// apply the general equation of an ellipse
+"	float radialDistance = (\n"
+"		((delta.x * delta.x) / (circleRadius.x * circleRadius.x)) +\n"
+"		((delta.y * delta.y) / (circleRadius.y * circleRadius.y))\n"
+"		);\n"
+
+"	float totalAlpha;\n"
+
+	// do this with minimal aliasing
+"	float fragDelta = fwidth(radialDistance) * 3.0;\n"
+"	totalAlpha = 1.0 - smoothstep(1.0 - fragDelta, 1.0, radialDistance);\n"
+
+"	oColor.a *= totalAlpha;\n"
+"}\n";
+
+const std::string CircleCropVert =
+"#version 150\n"
+"out vec2 			position_interpolated;\n"
+"out vec2 			texture_interpolated;\n"
+"out vec4 			extra_interpolated;\n"
+"out vec2 			extent_interpolated;\n"
+
+"uniform bool 		useTexture;\n"
+"uniform vec2 		extent;\n"
+"uniform vec4 		extra;\n"
+"uniform mat4		ciModelMatrix;\n"
+"uniform mat4		ciModelViewProjection;\n"
+"uniform vec4		uClipPlane0;\n"
+"uniform vec4 		uClipPlane1;\n"
+"uniform vec4		uClipPlane2;\n"
+"uniform vec4		uClipPlane3;\n"
+
+"in vec4			ciPosition;\n"
+"in vec2			ciTexCoord0;\n"
+"in vec4			ciColor;\n"
+"out vec2			TexCoord0;\n"
+"out vec4			Color;\n"
+
+"void main()\n"
+"{\n"
+"	position_interpolated = ciPosition.xy;\n"
+"	if(useTexture) {\n"
+"		texture_interpolated = texture_interpolated;\n"
+"	}\n"
+
+"	extent_interpolated = extent;\n"
+
+	// see if extra has non-zero width and height
+"	if(((extra.z - extra.x) > 0) && ((extra.w - extra.y) > 0)) {\n"
+		// specified, so use it
+"		extra_interpolated = extra;\n"
+"	} else {\n"
+		// use the entire extent
+"		extra_interpolated = vec4(0, 0, extent.xy);\n"
+"	}\n"
+
+"	gl_Position = ciModelViewProjection * ciPosition;\n"
+"	TexCoord0 = ciTexCoord0;\n"
+"	Color = ciColor;\n"
+
+"	gl_ClipDistance[0] = dot(ciModelMatrix * ciPosition, uClipPlane0);\n"
+"	gl_ClipDistance[1] = dot(ciModelMatrix * ciPosition, uClipPlane1);\n"
+"	gl_ClipDistance[2] = dot(ciModelMatrix * ciPosition, uClipPlane2);\n"
+"	gl_ClipDistance[3] = dot(ciModelMatrix * ciPosition, uClipPlane3);\n"
+"}\n"
+;
 }
 
 void Image::installAsServer(ds::BlobRegistry& registry) {
@@ -113,80 +225,6 @@ void Image::drawLocalClient()
 		}
 
 		tex->unbind();
-
-		// TODO: Make this uniforms instead of attributes?
-		/*
-		
-		// we're gonna do this ourselves so we can pass additional attributes to the shader
-		ci::gl::SaveTextureBindState saveBindState( tex->getTarget() );
-		ci::gl::BoolState saveEnabledState( tex->getTarget() );
-		ci::gl::ClientBoolState vertexArrayState( GL_VERTEX_ARRAY );
-		ci::gl::ClientBoolState texCoordArrayState( GL_TEXTURE_COORD_ARRAY );	
-		tex->enableAndBind();
-
-		glEnableClientState( GL_VERTEX_ARRAY );
-		GLfloat verts[8];
-		glVertexPointer( 2, GL_FLOAT, 0, verts );
-		glEnableClientState( GL_TEXTURE_COORD_ARRAY );
-		GLfloat texCoords[8];
-		glTexCoordPointer( 2, GL_FLOAT, 0, texCoords );
-
-		verts[0*2+0] = useRect.getX2(); verts[0*2+1] = useRect.getY1();	
-		verts[1*2+0] = useRect.getX1(); verts[1*2+1] = useRect.getY1();	
-		verts[2*2+0] = useRect.getX2(); verts[2*2+1] = useRect.getY2();	
-		verts[3*2+0] = useRect.getX1(); verts[3*2+1] = useRect.getY2();	
-
-		const Rectf srcCoords = tex->getAreaTexCoords( tex->getCleanBounds() );
-		texCoords[0*2+0] = srcCoords.getX2(); texCoords[0*2+1] = srcCoords.getY1();	
-		texCoords[1*2+0] = srcCoords.getX1(); texCoords[1*2+1] = srcCoords.getY1();	
-		texCoords[2*2+0] = srcCoords.getX2(); texCoords[2*2+1] = srcCoords.getY2();	
-		texCoords[3*2+0] = srcCoords.getX1(); texCoords[3*2+1] = srcCoords.getY2();	
-
-		bool usingExtent = false;
-		GLint extentLocation;
-		GLfloat extent[8];
-		ci::gl::GlslProg& shaderBase = mSpriteShader.getShader();
-		if(shaderBase) {
-			extentLocation = shaderBase.getAttribLocation("extent");
-			if((extentLocation != GL_INVALID_OPERATION) && (extentLocation != -1)) {
-				usingExtent = true;
-				glEnableVertexAttribArray(extentLocation);
-				glVertexAttribPointer( extentLocation, 2, GL_FLOAT, GL_FALSE, 0, extent );
-				for(int i = 0; i < 4; i++) {
-					extent[i*2+0] = mWidth;
-					extent[i*2+1] = mHeight;
-				}
-			}
-		}
-
-		bool usingExtra = false;
-		GLint extraLocation;
-		GLfloat extra[16];
-		if(shaderBase) {
-			extraLocation = shaderBase.getAttribLocation("extra");
-			if((extraLocation != GL_INVALID_OPERATION) && (extraLocation != -1)) {
-				usingExtra = true;
-				glEnableVertexAttribArray(extraLocation);
-				glVertexAttribPointer( extraLocation, 4, GL_FLOAT, GL_FALSE, 0, extra );
-				for(int i = 0; i < 4; i++) {
-					extra[i*4+0] = mShaderExtraData.x;
-					extra[i*4+1] = mShaderExtraData.y;
-					extra[i*4+2] = mShaderExtraData.z;
-					extra[i*4+3] = mShaderExtraData.w;
-				}
-			}
-		}
-
-		glDrawArrays( GL_TRIANGLE_STRIP, 0, 4 );
-
-		if(usingExtent) {
-			glDisableVertexAttribArray(extentLocation);
-		}
-
-		if(usingExtra) {
-			glDisableVertexAttribArray(extraLocation);
-		}
-		*/
 	}
 }
 
@@ -205,11 +243,13 @@ void Image::setCircleCrop(bool circleCrop)
 	mCircleCropped = circleCrop;
 	if(circleCrop){
 		// switch to crop shader
-		mSpriteShader.setShaders(Environment::getAppFolder("data/shaders"), "circle_crop");
+		mSpriteShader.setShaders(CircleCropVert, CircleCropFrag, "image_circle_crop");
 	} else {
 		// go back to base shader
-		mSpriteShader.setShaders(Environment::getAppFolder("data/shaders"), "base");
+		mSpriteShader.setToDefaultShader();
 	}
+
+	mNeedsBatchUpdate = true;
 }
 
 void Image::setCircleCropRect(const ci::Rectf& rect)
