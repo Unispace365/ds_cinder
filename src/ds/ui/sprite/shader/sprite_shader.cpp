@@ -211,7 +211,7 @@ void SpriteShader::loadFromMemory(){
 		}
 	} catch(std::exception &e) {
 		//std::cout << e.what() << std::endl;
-		DS_LOG_WARNING_M(std::string("SpriteShader::loadShadersFromFile() on custom file\n") + e.what(), SHADER_LOG);
+		DS_LOG_WARNING_M("SpriteShader::loadShadersFromMemory() " << mName << " " << e.what(), SHADER_LOG);
 	}
 
 }
