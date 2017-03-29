@@ -22,7 +22,7 @@ video_360::video_360()
 	, mOverlay(nullptr)
 {
 	/*fonts in use */
-	mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
+	mEngine.editFonts().installFont(ds::Environment::getAppFile("data/fonts/NotoSans-Bold.ttf"), "noto-bold");
 	enableCommonKeystrokes(true);
 }
 
@@ -92,18 +92,18 @@ void video_360::keyDown(ci::app::KeyEvent event){
 	} else if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	} else if(event.getChar() == KeyEvent::KEY_1){
-		mPanoramicVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
+		//mPanoramicVideo->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
 		//if (!mPanoramicVideo->getVideo()->removeShader("test1")) {
 		//	mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test1");
 		//}
 	} else if (event.getChar() == KeyEvent::KEY_2){
-		if(!mPanoramicVideo->getVideo()->removeShader("test2")) {
-			mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
-		}
+	//	if(!mPanoramicVideo->getVideo()->removeShader("test2")) {
+		//	mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "test2");
+	//	}
 	} else if (event.getChar() == KeyEvent::KEY_3){
-		if(!mPanoramicVideo->getVideo()->removeShader("toonify")) {
-			mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
-		}
+		//if(!mPanoramicVideo->getVideo()->removeShader("toonify")) {
+		//	mPanoramicVideo->getVideo()->addNewShader(ds::Environment::getAppFolder("data/shaders"), "toonify");
+		//}
 	}
 }
 

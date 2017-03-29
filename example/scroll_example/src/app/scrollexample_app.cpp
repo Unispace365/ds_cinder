@@ -1,7 +1,6 @@
 #include "scrollexample_app.h"
 
 #include <Poco/String.h>
-#include <cinder/app/RendererGl.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
