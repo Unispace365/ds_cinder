@@ -1,6 +1,26 @@
+if(NOT WIN32)
+  string(ASCII 27 Esc)
+  set(ColorReset "${Esc}[m")
+  set(ColorBold  "${Esc}[1m")
+  set(Red         "${Esc}[31m")
+  set(Green       "${Esc}[32m")
+  set(Yellow      "${Esc}[33m")
+  set(Blue        "${Esc}[34m")
+  set(Magenta     "${Esc}[35m")
+  set(Cyan        "${Esc}[36m")
+  set(White       "${Esc}[37m")
+  set(BoldRed     "${Esc}[1;31m")
+  set(BoldGreen   "${Esc}[1;32m")
+  set(BoldYellow  "${Esc}[1;33m")
+  set(BoldBlue    "${Esc}[1;34m")
+  set(BoldMagenta "${Esc}[1;35m")
+  set(BoldCyan    "${Esc}[1;36m")
+  set(BoldWhite   "${Esc}[1;37m")
+endif()
+
 function( _ds_build_message )
 	# get the path of the CMakeLists file evaluating this macro relative to the project's root source directory
-	file( RELATIVE_PATH _curr_file "${PROJECT_SOURCE_DIR}" "${CMAKE_CURRENT_LIST_FILE}" )
+	file( RELATIVE_PATH _curr_file "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_LIST_FILE}" )
 
 	# Build up all remaining arguments into the _msg var
 	set( _msg )
@@ -14,16 +34,24 @@ endfunction()
 function( ds_log_v )
 	if( DS_CINDER_VERBOSE )
 		_ds_build_message( "${ARGV}" )
-		message( "verbose ${msg}" )
+		#message( "verbose ${msg}" )
+		message( "${Blue}[V] ${msg}${ColorReset}" )
 	endif()
 endfunction()
 
-# Alawys prints
+# Always prints
 function( ds_log_i )
 	_ds_build_message( "${ARGV}" )
-	message( "info ${msg}" )
+	message( "${Green}[I] ${msg}${ColorReset}" )
 endfunction()
-
+function( ds_log_w )
+	_ds_build_message( "${ARGV}" )
+	message( WARNING "${Yellow}[W] ${msg}${ColorReset}" )
+endfunction()
+function( ds_log_e )
+	_ds_build_message( "${ARGV}" )
+	message( FATAL_ERROR "${Red}[E] ${msg}${ColorReset}" )
+endfunction()
 
 
 # Get all propreties that cmake supports

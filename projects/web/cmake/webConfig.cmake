@@ -54,7 +54,7 @@ if( NOT TARGET web )
 	# TODO: Link against libcef_dll_wrapper without importing libcef_dll_wrapper compile flags...
 	#target_link_libraries( web PRIVATE libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
 	#target_link_libraries( web PRIVATE ${CEF_ROOT}/build/libcef_dll_wrapper/libcef_dll_wrapper.a )
-	target_link_libraries( web PRIVATE ${CMAKE_BINARY_DIR}/libcef_dll_wrapper/libcef_dll_wrapper.a )
+	target_link_libraries( web PRIVATE ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libcef_dll_wrapper.a )
 	#print_target_properties(web)
 
 	# HMM... WTF?

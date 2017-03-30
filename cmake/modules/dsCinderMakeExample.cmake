@@ -9,12 +9,16 @@ function( ds_cinder_make_example )
 
 	cmake_parse_arguments( ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
+	if( NOT ARG_APP_PATH )
+		ds_log_e( "No APP_PATH specified!" )
+	endif()
+
 	if( NOT DS_CINDER_APP_TARGET )
 		set( DS_CINDER_APP_TARGET "${PROJECT_NAME}" )
 	endif()
 
 	if( ARG_UNPARSED_ARGUMENTS )
-		message( WARNING "unhandled arguments: ${ARG_UNPARSED_ARGUMENTS}" )
+		ds_log_w( "unhandled arguments: ${ARG_UNPARSED_ARGUMENTS}" )
 	endif()
 
 	include( "${ARG_DS_CINDER_PATH}/cmake/configure.cmake" )
@@ -127,7 +131,8 @@ function( ds_cinder_make_example )
 	target_link_libraries( ${DS_CINDER_APP_TARGET} cinder ds-cinder-platform ${ARG_LIBRARIES} )
 
 	# Cinder Blocks (TODO: make this smarter?)
-	list( APPEND CINDER_BLOCKS OSC TUIO )
+	set ( CINDER_BLOCKS )
+	#list( APPEND CINDER_BLOCKS OSC TUIO )
 	foreach( block ${CINDER_BLOCKS} )
 		set( blockName "${block}" )
 		get_filename_component( blockModuleDir "${CINDER_PATH}/blocks/${block}/proj/cmake" ABSOLUTE )

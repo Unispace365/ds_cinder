@@ -21,6 +21,7 @@ set( SRC_FILES
 )
 
 ds_cinder_make_example(
+	APP_PATH				${APP_PATH}
 	SOURCES     			${SRC_FILES}
 	DS_CINDER_PATH			${DS_CINDER_PATH}
 	PROJECT_COMPONENTS     	essentials

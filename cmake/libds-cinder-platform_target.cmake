@@ -66,5 +66,6 @@ configure_file( ${CMAKE_CURRENT_LIST_DIR}/modules/ds-cinder-platformConfig.build
 # Make building wai faster using Cotire
 include( cotire )
 set_target_properties( ds-cinder-platform PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${ROOT_PATH}/src/stdafx.h" )
+set_target_properties( ds-cinder-platform PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE )
 cotire(ds-cinder-platform)
 

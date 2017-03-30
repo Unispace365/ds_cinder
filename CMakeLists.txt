@@ -8,6 +8,8 @@ get_filename_component( ROOT_PATH "${CMAKE_CURRENT_SOURCE_DIR}" ABSOLUTE )
 set( DS_CINDER_PATH    		"${CMAKE_CURRENT_SOURCE_DIR}" )
 set( DS_CINDER_CMAKE_DIR	"${CMAKE_CURRENT_SOURCE_DIR}/cmake" )
 
+option( DS_CINDER_BUILD_EXAMPLES "Build all examples." OFF )
+
 # 1. Configure (configure.cmake), used by user-apps and Examples
 #		Setup verbose option 
 #		Setup BUILD_SHARED_LIBS lib option 
@@ -43,7 +45,16 @@ endif()
 include( ${DS_CINDER_CMAKE_DIR}/libds-cinder-platform_target.cmake )
 
 # 6. Build Examples?
+if( DS_CINDER_BUILD_EXAMPLES )
+	include( ${DS_CINDER_CMAKE_DIR}/modules/findCMakeDirs.cmake )
 
+	set( allExamples "" )
+	findCMakeDirs( allExamples "${DS_CINDER_CMAKE_DIR}/examples" "${DS_CINDER_SKIP_EXAMPLES}" )
+	foreach( exampleDir ${allExamples} )
+		ds_log_i( "adding example: ${exampleDir}" )
+		add_subdirectory( ${exampleDir} )
+	endforeach()
+endif()
 
 
 # 7. Build Tests?
