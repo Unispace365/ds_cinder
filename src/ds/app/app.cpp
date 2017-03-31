@@ -13,7 +13,7 @@
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/app/environment.h"
 // TODO: Make this cleaner
-#ifdef WIN32
+#ifdef _WIN32
 #include "ds/debug/console.h"
 #endif
 #include "ds/debug/logger.h"
@@ -51,12 +51,35 @@
 #include <cinder/ip/Flip.h>
 #include <cinder/ImageIo.h>
 
-// For access to Linux native GLFW window calls
 #ifndef _WIN32
+// For access to Linux native GLFW window calls
 #include "glfw/glfw3.h"
 #include "glfw/glfw3native.h"
-#endif // !_WIN32
+// For Linux window file-drop event registration
+#include <cinder/app/FileDropEvent.h>
+#include <cinder/Filesystem.h>
 
+// Add a file-drop handler under Linux, since Cinder's Linux implementation currently doesn't support this
+namespace {
+void linuxImplRegisterWindowFiledropHandler( ci::app::WindowRef cinderWindow ) {
+	static ci::app::WindowRef sMainAppCinderWindow = cinderWindow;
+
+	::glfwSetDropCallback( (GLFWwindow*)sMainAppCinderWindow->getNative(), [](GLFWwindow *window, int numPaths, const char **paths) {
+		if( sMainAppCinderWindow && (GLFWwindow*)sMainAppCinderWindow->getNative() == window ) {
+			DS_LOG_INFO( "Dropped files on window: " << window );
+			std::vector<ci::fs::path> files;
+			for (int i=0; i<numPaths; i++) {
+				DS_LOG_INFO( "  " << i << ": " << std::string(paths[i]) );
+				files.push_back( std::string( paths[i] ) );
+			}
+
+			ci::app::FileDropEvent dropEvent( sMainAppCinderWindow, 0, 0, files );
+			sMainAppCinderWindow->emitFileDrop( &dropEvent );
+		}
+	});
+}
+} //anonymous namespace
+#endif // !_WIN32
 
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList& roots);
@@ -71,7 +94,7 @@ std::string				APP_DATA_PATH;
 
 //#ifdef _DEBUG
 // TODO: Make this cleaner
-#ifdef WIN32
+#ifdef _WIN32
 ds::Console				GLOBAL_CONSOLE;
 #endif
 //#endif
@@ -201,7 +224,7 @@ App::~App() {
 	ds::getLogger().shutDown();
 	if(mShowConsole){
 // TODO: Make this cleaner
-#ifdef WIN32
+#ifdef _WIN32
 		GLOBAL_CONSOLE.destroy();
 #endif
 	}
@@ -233,6 +256,9 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 		}
 #endif
 	}
+#ifndef _WIN32
+	linuxImplRegisterWindowFiledropHandler(inherited::getWindow());
+#endif // !_WIN32
 }
 
 void App::setup() {
@@ -411,7 +437,7 @@ void App::showConsole(){
 
 	mShowConsole = true;
 // TODO: Make this cleaner
-#ifdef WIN32
+#ifdef _WIN32
 	GLOBAL_CONSOLE.create();
 #endif
 }
