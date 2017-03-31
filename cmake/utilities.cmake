@@ -19,38 +19,53 @@ if(NOT WIN32)
 endif()
 
 function( _ds_build_message )
+	set( options SECTION TRACE )
+	set( oneValueArgs PREFIX )
+	cmake_parse_arguments( BM_ARG  ""            "${oneValueArgs}" "" ${ARGN} )
+	cmake_parse_arguments( LOG_ARG "${options}"  ""                "" ${ARGV0} )
+
 	# get the path of the CMakeLists file evaluating this macro relative to the project's root source directory
 	file( RELATIVE_PATH _curr_file "${CMAKE_SOURCE_DIR}" "${CMAKE_CURRENT_LIST_FILE}" )
 
 	# Build up all remaining arguments into the _msg var
-	set( _msg )
-	set( _msg "${_msg}${ARGV${0}}" )
+	set( _msg "${LOG_ARG_UNPARSED_ARGUMENTS}" )
+	if ( LOG_ARG_TRACE )
+		set( _msg "${_msg} -- (${_curr_file})" )
+	endif()
 
 	# deposit the concatenated message into 'msg' var for the parent function to use
-	set( msg "(${_curr_file}) -- ${_msg}" PARENT_SCOPE )
+	if ( LOG_ARG_SECTION )
+		string (CONCAT _msg 
+			"\n${BM_ARG_PREFIX}--------------------------------------------------\n"
+			"${BM_ARG_PREFIX}  ${_msg}\n"
+			"${BM_ARG_PREFIX}--------------------------------------------------\n"
+		)
+	else()
+		set( _msg "${BM_ARG_PREFIX}${_msg}" )
+	endif()
+	set( msg "${_msg}" PARENT_SCOPE )
 endfunction()
 
 # Only prints if DS_CINDER_VERBOSE is On
 function( ds_log_v )
 	if( DS_CINDER_VERBOSE )
-		_ds_build_message( "${ARGV}" )
-		#message( "verbose ${msg}" )
-		message( "${Blue}[V] ${msg}${ColorReset}" )
+		_ds_build_message( "${ARGV}" PREFIX "[V] " )
+		message( "${Blue}${msg}${ColorReset}" )
 	endif()
 endfunction()
 
 # Always prints
 function( ds_log_i )
-	_ds_build_message( "${ARGV}" )
-	message( "${Green}[I] ${msg}${ColorReset}" )
+	_ds_build_message( "${ARGV}" PREFIX "[I] "  )
+	message( "${Green}${msg}${ColorReset}" )
 endfunction()
 function( ds_log_w )
-	_ds_build_message( "${ARGV}" )
-	message( WARNING "${Yellow}[W] ${msg}${ColorReset}" )
+	_ds_build_message( "${ARGV}" PREFIX "[W] " )
+	message( WARNING "${Yellow}${msg}${ColorReset}" )
 endfunction()
 function( ds_log_e )
-	_ds_build_message( "${ARGV}" )
-	message( FATAL_ERROR "${Red}[E] ${msg}${ColorReset}" )
+	_ds_build_message( "${ARGV}" PREFIX "[E] " )
+	message( FATAL_ERROR "${Red}${msg}${ColorReset}" )
 endfunction()
 
 

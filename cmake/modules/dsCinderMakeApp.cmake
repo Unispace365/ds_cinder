@@ -3,7 +3,8 @@ include( CMakeParseArguments )
 ## TEMP: Debug/Trace INCLUDE_DIRECTORIES....
 #set(CMAKE_DEBUG_TARGET_PROPERTIES INCLUDE_DIRECTORIES)
 
-function( ds_cinder_make_example )
+function( ds_cinder_make_app )
+	ds_log_i( SECTION "Configuring DsCinder App: ${PROJECT_NAME}" )
 	set( oneValueArgs APP_PATH DS_CINDER_PATH )
 	set( multiValueArgs SOURCES INCLUDES LIBRARIES RESOURCES PROJECT_COMPONENTS )
 
@@ -156,7 +157,7 @@ function( ds_cinder_make_example )
 		message(   "----------------------------------------------------" )
 		get_filename_component( projectComponentModuleDir "${DS_CINDER_PATH}/projects/${projectComponent}/cmake" ABSOLUTE )
 		set( projectComponentName "" )
-		ds_log_i( "projectComponentModuleDir: ${projectComponentModuleDir}" )
+		ds_log_v( "projectComponentModuleDir: ${projectComponentModuleDir}" )
 
 		if( EXISTS ${projectComponentModuleDir} )
 			get_filename_component( projectComponentName "${projectComponent}" NAME )

@@ -9,7 +9,7 @@ if( NOT CEF_ROOT )
 		"Path to the binary CEF directory."
 		FORCE
 	)
-	message( WARNING "CEF_ROOT not specified, defaulting to: ${CEF_ROOT}" )
+	ds_log_w( "CEF_ROOT not specified, defaulting to: ${CEF_ROOT}" )
 endif()
 message( "CEF ROOT: ${CEF_ROOT}" )
 set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake" )
@@ -41,7 +41,7 @@ if( NOT TARGET web )
 
 	message( "\n-----------------------------------------------------------------------\n\n" )
 	PRINT_CEF_CONFIG()
-	message( "\n-----------------------------------------------------------------------\n\n" )
+	message( "\n\n-----------------------------------------------------------------------\n" )
 
 	add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
 	# This macro is defined by CEF, sets include directories and compile flags for library

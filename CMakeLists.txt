@@ -22,6 +22,8 @@ option( DS_CINDER_BUILD_EXAMPLES "Build all examples." OFF )
 # 			IMPORTANT: This is where user-apps expect lib to be found
 include( ${DS_CINDER_CMAKE_DIR}/configure.cmake )
 
+ds_log_i( SECTION "DsCinder ds-cinder-platform Configuration" )
+
 # 2. Configure (lib<project>_configure.cmake)
 #		Setup <project>_SRC_DIR
 #		Setup <project>_INC_DIR
@@ -51,7 +53,7 @@ if( DS_CINDER_BUILD_EXAMPLES )
 	set( allExamples "" )
 	findCMakeDirs( allExamples "${DS_CINDER_CMAKE_DIR}/examples" "${DS_CINDER_SKIP_EXAMPLES}" )
 	foreach( exampleDir ${allExamples} )
-		ds_log_i( "adding example: ${exampleDir}" )
+		ds_log_v( TRACE "adding example: ${exampleDir}" )
 		add_subdirectory( ${exampleDir} )
 	endforeach()
 endif()

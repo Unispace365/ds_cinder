@@ -3,7 +3,7 @@ macro( findCMakeDirs RESULT_PATHS BASE_PATH SKIP_PATHS )
 	file( GLOB_RECURSE results "${BASE_PATH}/**/CMakeLists.txt" )
 	foreach( f ${results} )
 		if( EXISTS "${f}" AND NOT IS_DIRECTORY "${f}" )
-			ds_log_i( "---- [findCMakeDirs] Found file: ${f}" )
+			ds_log_v( "---- [findCMakeDirs] Found file: ${f}" )
 
 			set( shouldSkip FALSE )
 			foreach( skip ${SKIP_PATHS} )
