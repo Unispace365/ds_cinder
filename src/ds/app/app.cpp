@@ -51,6 +51,13 @@
 #include <cinder/ip/Flip.h>
 #include <cinder/ImageIo.h>
 
+// For access to Linux native GLFW window calls
+#ifndef _WIN32
+#include "glfw/glfw3.h"
+#include "glfw/glfw3native.h"
+#endif // !_WIN32
+
+
 // Answer a new engine based on the current settings
 static ds::Engine&    new_engine(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList& roots);
 
@@ -216,6 +223,15 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 		inherited::getWindow()->setAlwaysOnTop(settings->isAlwaysOnTop());
 		inherited::getWindow()->setTitle(settings->getTitle());
 		inherited::enablePowerManagement(settings->isPowerManagementEnabled());
+
+#ifndef _WIN32
+		auto window = (GLFWwindow*) inherited::getWindow()->getNative();
+		if (settings->isFullScreen()) {
+			GLFWmonitor* monitor = ::glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = ::glfwGetVideoMode(monitor);
+			::glfwSetWindowMonitor( window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate );
+		}
+#endif
 	}
 }
 
