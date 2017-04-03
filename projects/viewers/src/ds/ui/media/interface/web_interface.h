@@ -30,6 +30,10 @@ public:
 	void						setKeyboardAbove(const bool kerboardAbove);
 
 	void						setAllowTouchToggle(const bool allowTouchToggling);
+	
+	/// If true, will keep the interface onscreen when the keyboard is on
+	/// If false, will allow timeouts when the keyboard is on (note: recommend to use this with setCanTimeout(false) on the base MediaInterface to persist the interface)
+	void						setKeyboardDisablesTimeout(const bool doAutoTimeout);
 
 protected:
 
@@ -43,6 +47,7 @@ protected:
 	bool						mKeyboardShowing;
 	bool						mKeyboardAllowed;
 	bool						mKeyboardAbove;
+	bool						mKeyboardAutoDisablesTimeout;
 
 	float						mKeyboardKeyScale;
 
