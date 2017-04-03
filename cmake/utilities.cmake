@@ -50,7 +50,7 @@ endfunction()
 function( ds_log_v )
 	if( DS_CINDER_VERBOSE )
 		_ds_build_message( "${ARGV}" PREFIX "[V] " )
-		message( "${Blue}${msg}${ColorReset}" )
+		message( "${Cyan}${msg}${ColorReset}" )
 	endif()
 endfunction()
 
