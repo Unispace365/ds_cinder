@@ -132,13 +132,13 @@ void Border::onBuildRenderBatch() {
 		if(mRenderBatch) mRenderBatch->replaceVboMesh(topMesh);
 		else mRenderBatch = ci::gl::Batch::create(topMesh, mSpriteShader.getShader()); 
 
-		if(mBotBatch) mRenderBatch->replaceVboMesh(botMesh);
+		if(mBotBatch) mBotBatch->replaceVboMesh(botMesh);
 		else mBotBatch = ci::gl::Batch::create(botMesh, mSpriteShader.getShader());
 
-		if(mLeftBatch) mRenderBatch->replaceVboMesh(lefMesh);
+		if(mLeftBatch) mLeftBatch->replaceVboMesh(lefMesh);
 		else mLeftBatch = ci::gl::Batch::create(lefMesh, mSpriteShader.getShader());
 
-		if(mRightBatch) mRenderBatch->replaceVboMesh(rigMesh);
+		if(mRightBatch) mRightBatch->replaceVboMesh(rigMesh);
 		else mRightBatch = ci::gl::Batch::create(rigMesh, mSpriteShader.getShader());
 	}
 }

@@ -6,6 +6,7 @@
 #include "ds/debug/logger.h"
 
 #include <algorithm>
+#include <ds/util/file_meta_data.h>
 
 #include "pango/pangocairo.h"
 #include "fontconfig/fontconfig.h"
@@ -37,22 +38,18 @@ PangoFontService::PangoFontService(ds::ui::SpriteEngine& eng)
 }
 
 void PangoFontService::loadFonts(){
-	if(mFontMap){
-	//	g_object_unref(mFontMap);
-	//	mFontMap = nullptr;
-	}
-
 	DS_LOG_INFO("Creating pango font map...");
 
-//	if(!mFontMap){
-		mFontMap = pango_cairo_font_map_get_default();
-	//}
+	mFontMap = pango_cairo_font_map_get_default();
+	DS_LOG_INFO("Map Created.");
+
+
+//	return;
 
 	if(!mFontMap){
 		DS_LOG_WARNING_M("Font map does not exist! Pango text sprites will be empty.", PANGO_FONT_LOG_M);
 		return;
 	}
-
 
 	mLoadedFonts.clear();
 	mLoadedFamilies.clear();
@@ -116,6 +113,7 @@ void PangoFontService::loadFonts(){
 }
 
 bool PangoFontService::loadFont(const std::string& path, const std::string& fontName) {
+	if(!ds::safeFileExistsCheck(path)) return false;
 	const FcChar8 *fcPath = (const FcChar8 *)path.c_str();
 	FcBool fontAddStatus = false;
 	// NOTE: calling into fontconfig at this point creates a runtime error
@@ -139,7 +137,7 @@ bool PangoFontService::loadFont(const std::string& path, const std::string& font
 		mLoadedFonts[fontName] = dpff;
 	}
 
-	return false;
+	return true;
 }
 
 void PangoFontService::logFonts(const bool includeFamilies){

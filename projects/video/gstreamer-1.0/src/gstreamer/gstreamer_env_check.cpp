@@ -67,7 +67,7 @@ bool EnvCheck::addGStreamerBinPath(){
 	// Only add the environment varible version if we don't have local dll's
 	if(!addedLocalDlls && path_variable.find(gstreamer_bin_path) == std::string::npos && ds::safeFileExistsCheck(gstreamer_bin_path, true)) {
 		ds::Environment::addToFrontEnvironmentVariable("PATH", gstreamer_bin_path);
-	} else {
+	} else if(!addedLocalDlls){
 		DS_LOG_WARNING("No gstreamer bin path found! That's a problem if you wanna see any videos!")
 	}
 		

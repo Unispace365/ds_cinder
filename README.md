@@ -6,16 +6,24 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 -----------------------------
 DS Cinder - Transition to Cinder 0.9
 -----------------------------
-Lots of things have changed in both Cinder & openGL since Cinder .84. The documentation has some useful pages for explaining what has changed which can be found ([Here](https://libcinder.org/docs/guides/transition_0_9/index.html)) and ([Here](https://libcinder.org/docs/guides/opengl/index.html)).
+Lots of things have changed in both Cinder & openGL since Cinder 0.8.4 and 0.8.6. The documentation has some useful pages for explaining what has changed which can be found ([Here](https://libcinder.org/docs/guides/transition_0_9/index.html)) and ([Here](https://libcinder.org/docs/guides/opengl/index.html)).
 - Major changes
     - Cinder moved to GLM for Vectors and Matricies (`ci::Vec3f => ci::vec3`). That also means that instead of writing `MyVec.normalize()` it would be `MyVec = normalize(MyVec)`, which matches the glsl conventions.
     - Instead of using ci::gl::Texture et. al. the new convention is to use ci::gl::TextureRef, which is a shared pointer to the texture.
     - Many openGL functions have been depricated or removed with the removal of "Immediate Mode" rendering. Cinder provides some replication of the old functionality,but things like ALPHA_TEST, will need to be replaced with equivalent shader(s).
     - Things like `ds::SaveCamera` & `ds::SaveViewport` can be replaced with Cinders new `ci::Scoped*` group of classes, which follow the same RAII structre.
     - Cinder now has a set of default shaders that can replace the old default "Immediate Mode", as well as ones that can do simple 3d lighting.
-- Current Progress:
-    - Created 090_develop branch
-    - Converted most of the old style vector and matrix notations
+- Check out the updating guides in the 'doc' folder of this repo for instructions on how to update your repo.
+- As of this writing, if you still need 0.8.6 support, you can use the master branch or the 103.0.0 tags or below
+
+-----------------------------
+DS Cinder Version 103.0.0
+-----------------------------
+
+- Add CEF for web display (Chromium Embedded Framework)
+- Add an extended keyboard
+- Drawing canvas for using touch input to draw
+- Lots of incremental changes and fixes
 
 -----------------------------
 DS Cinder Version 102.0.0

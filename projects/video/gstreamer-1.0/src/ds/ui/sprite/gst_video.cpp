@@ -82,41 +82,6 @@ const static std::string yuv_frag =
 "oColor = Color * vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, Color.a);\n"
 "}";
 
-static std::string yuv_vert_PREV =
-"varying   vec2 gsvTexCoord;"
-"void main(){ "
-"gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;"
-"gl_ClipVertex = gl_ModelViewMatrix * gl_Vertex;"
-"gl_TexCoord[0] = gl_TextureMatrix[0] * gl_MultiTexCoord0;"
-"gl_FrontColor = gl_Color;"
-"gsvTexCoord = gl_TexCoord[0].xy;"
-"}";
-
-const static std::string yuv_frag_PREV =
-//"precision mediump float;"
-"uniform sampler2D gsuTexture0;"
-"uniform sampler2D gsuTexture1;"
-"uniform sampler2D gsuTexture2;"
-"varying vec2 gsvTexCoord;"
-"void main(){"
-"float y = texture2D(gsuTexture0, gsvTexCoord).r;"
-"float u = texture2D(gsuTexture1, gsvTexCoord).r;"
-"float v = texture2D(gsuTexture2, gsvTexCoord).r;"
-"u = u - 0.5;"
-"v = v - 0.5;"
-"gl_FragData[0] = vec4( (y + (1.403 * v)) * 1.1643835 - 0.062745, (y - (0.344 * u) - (0.714 * v)) * 1.1643835 - 0.062745, (y + (1.770 * u)) * 1.1643835 - 0.062745, gl_Color.a);" //  ITU.BT-601 Y’CbCr color space transposed to super space for better contrast
-
-// Below are other test color spaces, some ok, some poopy
-//"gl_FragData[0] = vec4( y + (1.403 * v), y - (0.344 * u) - (0.714 * v), y + (1.770 * u), gl_Color.a);" //  ITU.BT-601 Y’CbCr color space
-//"gl_FragData[0] = vec4( y + (1.13983 * v), y - (0.39465 * u) - (0.58060 * v), y + (2.03211 * u), gl_Color.a);" // 601 color space
-//"gl_FragData[0] = vec4( y + (1.28033 * v), y - (0.21482 * u) - (0.38059 * v), y + (2.12798 * u), gl_Color.a);" // 709 (wikipedia) color space
-//"gl_FragData[0] = vec4( (y + (1.28033 * v)) * 1.1643835 - 0.062745, (y - (0.21482 * u) - (0.38059 * v)) * 1.1643835 - 0.062745, (y + (2.12798 * u)) * 1.1643835 - 0.062745, gl_Color.a);" // 709 (wikipedia) color space transposed to Super space (0-255, from YUV's 16-235)
-//"gl_FragData[0] = vec4( y + (1.5701 * v), y - (0.1870 * u) - (0.4664 * v), y + (1.8556 * u), gl_Color.a);" //  ITU.BT-709 HDTV studio production in Y’CbCr  color space http://www.poynton.com/PDFs/coloureq.pdf
-//"gl_FragData[0] = vec4( y + (1.5756 * v), y - (0.2253 * u) + (0.50 * v), y + (1.8270 * u), gl_Color.a);" //  SMPTE-240M Y’PbPr color space (totally not right)
-//"gl_FragData[0] = vec4( y + (1.370705 * v), y - (0.698001 * u) - (0.337633 * v), y + (1.732446 * u), gl_Color.a);" // android color space
-//"gl_FragData[0] = vec4( clamp(y + (1.28033 * v), 0, 1), clamp(y - (0.21482 * u) - (0.38059 * v), 0, 1), clamp(y + (2.12798 * u), 0, 1), gl_Color.a);" // 709 clamped color space
-"}";
-
 class Init {
 public:
 	Init() {
@@ -259,41 +224,6 @@ GstVideo::~GstVideo(){
 	}
 }
 
-void GstVideo::updateServer(const UpdateParams &up){
-	Sprite::updateServer(up);
-
-	mGstreamerWrapper->update();
-
-	if (mGstreamerWrapper->isNewLoop()){
-		mGstreamerWrapper->clearNewLoop();
-		markAsDirty(mBaseTimeDirty);
-		markAsDirty(mSeekDirty);
-	} else
-	//m_StartTime is used for pause/resume operations
-	if (mGstreamerWrapper->isPlayFromPause() )	{
-		mGstreamerWrapper->clearPlayFromPause();
-		mBaseTime = mGstreamerWrapper->getBaseTime();
-		mSeekTime = mGstreamerWrapper->getSeekTime();
-
-		markAsDirty(mBaseTimeDirty);
-		markAsDirty(mSeekTimeDirty);
-	}
-	
-	//check wrapper for new time sync.  If new, mark as dirty
-	//Don't try to sync base-time while fast seeking
-	else if (mGstreamerWrapper->getBaseTime() != mBaseTime ) {
-		mBaseTime = mGstreamerWrapper->getBaseTime();
-		markAsDirty(mBaseTimeDirty);
-	}	
-	
-	checkStatus();
-	checkOutOfBounds();
-
-	if(mAutoExtendIdle && mStatus == Status::STATUS_PLAYING){
-		mEngine.resetIdleTimeOut();
-	}
-}
-
 void GstVideo::generateAudioBuffer(bool enableAudioBuffer ){
 	 mGenerateAudioBuffer = enableAudioBuffer; 
 }
@@ -318,6 +248,42 @@ void GstVideo::setPlayableInstances(const std::vector<std::string>& instanceName
 	markAsDirty(mInstancesDirty);
 }
 
+void GstVideo::updateServer(const UpdateParams &up){
+	Sprite::updateServer(up);
+
+	mGstreamerWrapper->update();
+
+	if(mGstreamerWrapper->isNewLoop()){
+		mGstreamerWrapper->clearNewLoop();
+		markAsDirty(mBaseTimeDirty);
+		markAsDirty(mSeekDirty);
+	} else if(mGstreamerWrapper->isPlayFromPause())	{
+
+			//m_StartTime is used for pause/resume operations
+			mGstreamerWrapper->clearPlayFromPause();
+			mBaseTime = mGstreamerWrapper->getBaseTime();
+			mSeekTime = mGstreamerWrapper->getSeekTime();
+
+			markAsDirty(mBaseTimeDirty);
+			markAsDirty(mSeekTimeDirty);
+
+	//check wrapper for new time sync.  If new, mark as dirty
+	//Don't try to sync base-time while fast seeking
+	} else if(mGstreamerWrapper->getBaseTime() != mBaseTime) {
+		mBaseTime = mGstreamerWrapper->getBaseTime();
+		markAsDirty(mBaseTimeDirty);
+	}
+
+	checkStatus();
+	checkOutOfBounds();
+
+	if(mAutoExtendIdle && mStatus == Status::STATUS_PLAYING){
+		mEngine.resetIdleTimeOut();
+	}
+
+	updateVideoTexture();
+}
+
 void GstVideo::updateClient(const UpdateParams& up){
 	Sprite::updateClient(up);
 
@@ -325,6 +291,8 @@ void GstVideo::updateClient(const UpdateParams& up){
 
 	checkStatus();
 	checkOutOfBounds();
+
+	updateVideoTexture();
 
 	// The code below this is only for synchronization
 	if(!mDoSyncronization) return;
@@ -338,11 +306,12 @@ void GstVideo::updateClient(const UpdateParams& up){
 	}
 }
 
-void GstVideo::drawLocalClient(){
-	if (!mGstreamerWrapper){
+void GstVideo::updateVideoTexture() {
+	if(!mGstreamerWrapper){
 		DS_LOG_WARNING("Gstreamer wrapper not available");
 		return;
 	}
+
 	if(mGstreamerWrapper->hasVideo() && mGstreamerWrapper->isNewVideoFrame()){
 
 		if(mGstreamerWrapper->getWidth() != mVideoSize.x){
@@ -364,8 +333,8 @@ void GstVideo::drawLocalClient(){
 
 			dat = mGstreamerWrapper->getVideo();
 
-			if (dat && mFrameTexture){
-				if (mColorType == kColorTypeShaderTransform ){
+			if(dat && mFrameTexture){
+				if(mColorType == kColorTypeShaderTransform){
 
 					if(mUFrameTexture && mVFrameTexture){
 						ci::Channel8u yChannel(mVideoSize.x, mVideoSize.y, mVideoSize.x, 1, dat);
@@ -385,20 +354,27 @@ void GstVideo::drawLocalClient(){
 				mDrawable = true;
 			}
 
-			if (mPlaySingleFrame){
+			if(mPlaySingleFrame){
 				stop();
 				mPlaySingleFrame = false;
-				if (mPlaySingleFrameFunction) mPlaySingleFrameFunction();
+				if(mPlaySingleFrameFunction) mPlaySingleFrameFunction();
 				mPlaySingleFrameFunction = nullptr;
 			}
 
 			mBufferUpdateTimes.push_back(Poco::Timestamp().epochMicroseconds());
-			if (mBufferUpdateTimes.size() > 10){
+			if(mBufferUpdateTimes.size() > 10){
 				mBufferUpdateTimes.erase(mBufferUpdateTimes.begin());
 			}
 		}
 	}
+}
 
+void GstVideo::drawLocalClient(){
+	if (!mGstreamerWrapper){
+		DS_LOG_WARNING("Gstreamer wrapper not available");
+		return;
+	}
+	
 	if (mFrameTexture && mDrawable){
 		if (mColorType == kColorTypeShaderTransform){
 			ci::gl::disableDepthRead();
@@ -409,7 +385,9 @@ void GstVideo::drawLocalClient(){
 			if (mVFrameTexture) mVFrameTexture->bind(4);
 
 			
-			if(getPerspective()){
+			if(mRenderBatch){
+				mRenderBatch->draw();
+			} else if(getPerspective()){
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, mHeight, mWidth, 0.0f));
 			} else {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
@@ -421,9 +399,13 @@ void GstVideo::drawLocalClient(){
 			 	//mFrameTexture->flip(true);
 			}
 			if (mFrameTexture) mFrameTexture->bind(0);
-			ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
-		}
 
+			if(mRenderBatch){
+				mRenderBatch->draw();
+			} else {
+				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight));
+			}
+		}
 
 		if (mColorType == kColorTypeShaderTransform){
 			if(mFrameTexture) mFrameTexture->unbind(2);
@@ -505,16 +487,11 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		return;
 	}
 
-
-
 	auto videoService = mEngine.getService<ds::gstreamer::GstVideoService>("gst_video");
 	if(!videoService.getValidInstall()){
 		if(mErrorFn){
 			mErrorFn(videoService.getErrorMessage());
 		}
-
-
-		//return;
 	}
 
 	mStreaming = false;
@@ -582,6 +559,8 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 		} else {
 			setBaseShader(Environment::getAppFolder("data/shaders"), "base");
 		}
+
+		mNeedsBatchUpdate = true;
 
 		bool hasAudioTrack = (type == VideoMetaCache::AUDIO_ONLY_TYPE || type == VideoMetaCache::VIDEO_AND_AUDIO_TYPE);
 
@@ -674,12 +653,16 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	mColorType = ColorType::kColorTypeShaderTransform;
 	std::string name("yuv_colorspace_conversion");
 	mSpriteShader.setShaders(yuv_vert, yuv_frag, name);// , true);
+	mSpriteShader.loadShaders();
 	ds::gl::Uniform uniform;
 
 	uniform.setInt("gsuTexture0", 2);
 	uniform.setInt("gsuTexture1", 3);
 	uniform.setInt("gsuTexture2", 4);
 	setShadersUniforms("yuv_colorspace_conversion", uniform);
+	uniform.applyTo(mSpriteShader.getShader());
+
+	mNeedsBatchUpdate = true;
 
 	DS_LOG_INFO_M("GstVideo::startStream() " << streamingPipeline, GSTREAMER_LOG);
 	if(!mGstreamerWrapper->openStream(streamingPipeline, (int)floorf(videoWidth), (int)floorf(videoHeight))){

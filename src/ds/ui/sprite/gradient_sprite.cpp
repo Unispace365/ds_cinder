@@ -117,6 +117,7 @@ void Gradient::drawLocalClient() {
 void Gradient::onBuildRenderBatch() {
 	// Batch renders don't take the currently set color or opacity when drawing
 	// So disabled for now.
+	// TODO update render batch on opacity change
 	return;
 
 	auto drawRect = ci::Rectf(0.0f, 0.0f, getWidth(), getHeight());

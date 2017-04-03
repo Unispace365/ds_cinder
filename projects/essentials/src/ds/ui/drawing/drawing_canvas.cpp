@@ -152,12 +152,10 @@ DrawingCanvas::DrawingCanvas(ds::ui::SpriteEngine& eng, const std::string& brush
 	, mBrushColor(1.0f, 0.0f, 0.0f, 0.5f)
 	, mPointShader(whiteboard_point_vert, whiteboard_point_frag, whiteboard_point_name)
 	, mEraseMode(false)
-	, mOutputShader(vertShader, opacityFrag, shaderNameOpaccy)
 	, mCanvasFileLoaderClient(eng)
-//	, mDrawTexture()
 {
 	mBlobType = BLOB_TYPE;
-	mOutputShader.loadShaders();
+	setBaseShader(vertShader, opacityFrag, shaderNameOpaccy);
 
 	mPointShader.loadShaders();
 
@@ -279,7 +277,7 @@ void DrawingCanvas::drawLocalClient(){
 
 		// ignore the "color" setting from base sprite
 		ci::gl::color(ci::Color::white());
-		ci::gl::GlslProgRef shaderBase = mOutputShader.getShader();
+		ci::gl::GlslProgRef shaderBase = getBaseShader().getShader();
 
 		auto theTex = mFbo->getTexture2d(GL_COLOR_ATTACHMENT1);
 		theTex->bind(0);
@@ -289,10 +287,14 @@ void DrawingCanvas::drawLocalClient(){
 			ci::gl::ScopedBlend sb(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			shaderBase->uniform("tex0", 0);
 			shaderBase->uniform("opaccy", mDrawOpacity);
-			ci::gl::ScopedGlslProg scopedShaderBase(shaderBase);
+			//ci::gl::ScopedGlslProg scopedShaderBase(shaderBase);
 
 			if(!getPerspective()){
-				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mFbo->getWidth()), static_cast<float>(mFbo->getHeight())));
+				if(mRenderBatch){
+					mRenderBatch->draw();
+				} else {
+					ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mFbo->getWidth()), static_cast<float>(mFbo->getHeight())));
+				}
 			} else {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mFbo->getHeight()), static_cast<float>(mFbo->getWidth()), 0.0f));
 			}

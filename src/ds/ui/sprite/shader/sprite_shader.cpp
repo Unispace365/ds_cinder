@@ -74,7 +74,7 @@ SpriteShader::SpriteShader(const std::string &defaultLocation, const std::string
 }
 
 
-SpriteShader::SpriteShader(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName)
+SpriteShader::SpriteShader(const std::string& vert_memory, const std::string& frag_memory, const std::string &shaderName)
 	: mMemoryVert(vert_memory)
 	, mMemoryFrag(frag_memory)
 	, mName(shaderName)
@@ -82,7 +82,7 @@ SpriteShader::SpriteShader(const std::string& vert_memory, const std::string& fr
 {
 }
 
-void SpriteShader::setShaders(const std::string& vert_memory, const std::string& frag_memory, std::string &shaderName){
+void SpriteShader::setShaders(const std::string& vert_memory, const std::string& frag_memory, const std::string &shaderName){
 	if(mShader) {
 		mShader.reset();
 	}
@@ -108,6 +108,15 @@ void SpriteShader::setShaders(const std::string &location, const std::string &na
 
 	mLocation = location;
 	mName = name;
+}
+
+void SpriteShader::setToDefaultShader(){
+	if(mShader){
+		mShader.reset();
+	}
+
+	mName = "base";
+	loadDefaultFromMemory();
 }
 
 void SpriteShader::loadShaders() {
@@ -202,17 +211,17 @@ void SpriteShader::loadFromMemory(){
 		}
 	} catch(std::exception &e) {
 		//std::cout << e.what() << std::endl;
-		DS_LOG_WARNING_M(std::string("SpriteShader::loadShadersFromFile() on custom file\n") + e.what(), SHADER_LOG);
+		DS_LOG_WARNING_M("SpriteShader::loadShadersFromMemory() " << mName << " " << e.what(), SHADER_LOG);
 	}
 
 }
 
 void SpriteShader::loadDefaultFromMemory(){
 	try {
-		auto found = GlslProgs.find("default_cpp_shader");
+		auto found = GlslProgs.find("base");
 		if(found == GlslProgs.end()) {
 			mShader = ci::gl::GlslProg::create(DefaultVert.c_str(), DefaultFrag.c_str());
-			GlslProgs["default_cpp_shader"] = mShader;
+			GlslProgs["base"] = mShader;
 		} else {
 			mShader = found->second;
 		}

@@ -7,9 +7,10 @@
 
 #include "app/app_defs.h"
 #include "app/globals.h"
-#include <cinder/app/RendererGl.h>
 
 #include "events/app_events.h"
+
+#include <ds/ui/sprite/circle_border.h>
 
 // These three includes are required for the circle crop and image
 #include <ds/ui/ip/ip_defs.h>
@@ -34,6 +35,7 @@ CircleCropExample::CircleCropExample()
 	, mGlobals(mEngine , mAllData )
 	, mQueryHandler(mEngine, mAllData)
 	, mIdling( false )
+	, mShaderCircleCrop(nullptr)
 {
 
 
@@ -57,8 +59,6 @@ void CircleCropExample::setupServer(){
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);
 	rootSprite.setColor(ci::Color(0.2f, 0.1f, 0.6f));
-	// add sprites
-
 
 
 	//------------------------------------------------------------------//
@@ -69,10 +69,39 @@ void CircleCropExample::setupServer(){
 	// You can extend ip::function, install that on the engine, and have that run here instead
 	// Pass the string key to the image file to look up the ip when the image file is created.
 	// kind of confusing, but there you go.
+	
+	// This one crops the image data when loading the image, and bakes the circle crop into the texture
+	// Can result in a lower resolution circle edge if the image is lower resolution and scaled up
 	ds::ui::Image*	imagey = new ds::ui::Image(mEngine);
 	std::string fileName = "%APP%/data/images/cupola.png";
 	imagey->setImage(ds::ui::ImageFile(fileName, ds::ui::ip::CIRCLE_MASK, ""));
 	rootSprite.addChildPtr(imagey);
+	imagey->setScale(2.0f);
+	imagey->setPosition(0.0f, 100.0f);
+
+
+	// This one get's cropped by the shader that renders the image
+	// Can produce a higher resolution circle crop for lower res images that are scaled up
+	// since the edge is rendered per output pixel 
+	mShaderCircleCrop = new ds::ui::Image(mEngine);
+	mShaderCircleCrop->setImageFile(ds::Environment::expand(fileName));
+	mShaderCircleCrop->setCircleCrop(true);
+	mShaderCircleCrop->setScale(2.0f);
+	rootSprite.addChildPtr(mShaderCircleCrop);
+	
+	const float scw = mShaderCircleCrop->getWidth();
+	const float sch = mShaderCircleCrop->getHeight();
+	mShaderCircleCrop->setPosition(scw, 100.0f);
+
+	mShaderCircleCrop->setCircleCropRect(ci::Rectf(scw / 2.0f - sch / 2.0f, 0.0f, scw / 2.0f + sch / 2.0f, sch));
+
+	ds::ui::CircleBorder* circBorder = new ds::ui::CircleBorder(mEngine);
+	circBorder->setBorderWidth(20.0f);
+	circBorder->setColor(ci::Color(0.54f, 0.2f, 0.1f));
+	circBorder->setSize(200.f, 200.0f);
+	rootSprite.addChildPtr(circBorder);
+
+
 }
 
 void CircleCropExample::update() {
@@ -117,6 +146,10 @@ void CircleCropExample::keyDown(ci::app::KeyEvent event){
 		p.mFarPlane -= 1.0f;
 		std::cout << "Clip Far camera: " << p.mFarPlane << std::endl;
 		mEngine.setPerspectiveCamera(1, p);
+	} else if(event.getCode() == KeyEvent::KEY_c){
+		if(mShaderCircleCrop){
+			mShaderCircleCrop->setCircleCrop(!mShaderCircleCrop->getCircleCrop());
+		}
 	}
 }
 

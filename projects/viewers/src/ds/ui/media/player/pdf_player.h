@@ -19,7 +19,7 @@ class PDFInterface;
 */
 class PDFPlayer : public ds::ui::Sprite  {
 public:
-	PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface = true);
+	PDFPlayer(ds::ui::SpriteEngine& eng, bool embedInterface = true, bool cachePrevNext = true);
 
 	void								setMedia(const std::string mediaPath);
 	void								setResource(const ds::Resource mediaResource);
@@ -60,6 +60,7 @@ protected:
 	PDFInterface*								mPdfInterface;
 	bool										mEmbedInterface;
 	bool										mShowInterfaceAtStart;
+	bool										mAutoCachePrevNext;
 	std::function<void(void)>					mGoodStatusCallback;
 	std::function<void(const ci::vec2&)>		mSizeChangedCallback;
 	std::function<void(const std::string&)>		mErrorMsgCallback;

@@ -28,6 +28,7 @@ namespace {
 const std::string opacityFrag =
 "uniform sampler2D	tex0;\n"
 "uniform float		opaccy;\n"
+"uniform vec2	resolution;\n"
 "in vec4			Color;\n"
 "in vec2			TexCoord0;\n"
 "out vec4			oColor;\n"
@@ -374,9 +375,11 @@ TextPango& TextPango::setFont(const std::string& font, const float fontSize) {
 
 		markAsDirty(FONT_DIRTY);
 
+		/*
 		if(!mEngine.getPangoFontService().getFamilyExists(mTextFont) && !mEngine.getPangoFontService().getFaceExists(mTextFont)){
 			DS_LOG_WARNING("TextPango: Family or face not found: " << mTextFont);
 		}
+		*/
 	}
 	return *this;
 }
@@ -437,6 +440,7 @@ void TextPango::drawLocalClient(){
 		if(shaderBase) {
 			shaderBase->uniform("tex0", 0);
 			shaderBase->uniform("opaccy", mDrawOpacity);
+			shaderBase->uniform("resolution", ci::vec2(getWidth(), getHeight()));
 		}
 
 		mTexture->bind();

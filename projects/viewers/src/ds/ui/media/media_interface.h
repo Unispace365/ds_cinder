@@ -26,6 +26,13 @@ public:
 
 	void								setAnimateDuration(const float animDuration){ mAnimateDuration = animDuration; }
 
+	/// allows the interface to timeout and hide itself after a period of time
+	/// e.g. when a web interface has a keyboard displaying, the interface doesn't idle timeout
+	void								setCanTimeout(const bool canTimeout){ mCanIdle = canTimeout; }
+
+	/// allows the interface to be shown at all (rare edge case when you temporarily want to hide this)
+	void								setAllowDisplay(const bool canDisplay){ mCanDisplay = canDisplay; }
+
 protected:
 
 	float								mAnimateDuration;
@@ -33,6 +40,8 @@ protected:
 	float								mMinWidth;
 	float								mMaxWidth;
 	bool								mIdling;
+	bool								mCanIdle;
+	bool								mCanDisplay;
 	float								mInterfaceIdleSettings;
 	virtual void						onLayout(){};
 	virtual void						onSizeChanged();

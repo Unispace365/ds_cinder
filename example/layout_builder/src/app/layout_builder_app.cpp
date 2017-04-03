@@ -183,7 +183,7 @@ void layout_builder::mouseUp(ci::app::MouseEvent e) {
 
 void layout_builder::mouseMove( ci::app::MouseEvent e ) {
 	auto alteredMouseEvent = mEngine.alteredMouseEvent(e);
-	ci::Vec3f p(alteredMouseEvent.getX(), alteredMouseEvent.getY(), 0.0f);
+	ci::vec3 p(alteredMouseEvent.getX(), alteredMouseEvent.getY(), 0.0f);
 	mEngine.getNotifier().notify(MouseMoveEvent(p));
 }
 

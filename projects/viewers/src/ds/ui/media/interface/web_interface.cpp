@@ -34,6 +34,7 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	, mKeyboardKeyScale(1.0f)
 	, mAbleToTouchToggle(true)
 	, mKeyboardAllowed(true)
+	, mKeyboardAutoDisablesTimeout(true)
 	, mWebLocked(false)
 {
 	mKeyboardArea = new ds::ui::Sprite(mEngine, 10.0f, 10.0f);
@@ -167,6 +168,11 @@ void WebInterface::setAllowTouchToggle(const bool allowTouchToggling){
 	}
 }
 
+
+void WebInterface::setKeyboardDisablesTimeout(const bool doAutoTimeout){
+	mKeyboardAutoDisablesTimeout = doAutoTimeout;
+}
+
 void WebInterface::setKeyboardKeyScale(const float newKeyScale){
 	mKeyboardKeyScale = newKeyScale;
 }
@@ -278,7 +284,9 @@ void WebInterface::updateWidgets(){
 
 	if(mKeyboardArea){
 		if(mKeyboardShowing){
-			setSecondBeforeIdle(5.0f * 60.0f); // 5 minutes enough?
+			if(mKeyboardAutoDisablesTimeout){
+				setCanTimeout(false);
+			}
 			if(!mKeyboard){
 				ds::ui::SoftKeyboardSettings sks;
 				sks.mKeyScale = mKeyboardKeyScale;
@@ -366,7 +374,9 @@ void WebInterface::updateWidgets(){
 				mKeyboardArea->tweenOpacity(0.98f, mAnimateDuration, 0.0f, ci::easeNone);
 			}
 		} else {
-			setSecondBeforeIdle(mInterfaceIdleSettings);
+			if(mKeyboardAutoDisablesTimeout){
+				setCanTimeout(true);
+			}
 			if(mKeyboardArea->visible()){
 				mKeyboardArea->tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::easeNone, [this](){
 					mKeyboardArea->hide();

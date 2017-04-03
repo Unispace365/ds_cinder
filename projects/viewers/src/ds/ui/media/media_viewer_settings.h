@@ -24,6 +24,7 @@ struct MediaViewerSettings {
 		, mWebAllowKeyboard(true)
 		, mWebAllowTouchToggle(true)
 		, mCacheImages(false)
+		, mPdfCacheNextPrev(true)
 		, mVideoPanning(0.0f)
 		, mVideoAutoSync(true)
 		, mVideoAutoPlayFirstFrame(true)
@@ -55,6 +56,11 @@ struct MediaViewerSettings {
 
 	/// whether to cache the primary and thumb images. Default = false
 	bool						mCacheImages;
+
+	//--------------------PDF Settings ---------------------------------------------//
+
+	/// whether to auto cache the next/previous pdf page. default = true
+	bool						mPdfCacheNextPrev;
 
 	//--------------------Video Settings -------------------------------------------//
 

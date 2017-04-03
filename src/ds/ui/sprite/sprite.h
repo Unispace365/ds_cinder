@@ -29,9 +29,6 @@
 #include "ds/data/data_buffer.h"
 #include "ds/ui/sprite/sprite_engine.h"
 
-
-#define USE_BATCH_DRAWING
-
 namespace ds {
 namespace gl { class ClipPlaneState; }
 class BlobRegistry;
@@ -573,15 +570,6 @@ namespace ui {
 		void					setBlendMode(const BlendMode &blendMode);
 		BlendMode				getBlendMode() const;
 
-		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
-		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
-
-		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
-		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
-		void					setShaderExtraData(const ci::vec4& data);
-
-		bool					getUseShaderTexture() const;
-
 		//	Determines if the final render will be to the display or a texture.
 		void					setFinalRenderToTexture(bool render_to_texture);
 		bool					isFinalRenderToTexture();
@@ -589,11 +577,19 @@ namespace ui {
 		ci::gl::TextureRef		getFinalOutTexture();
 		void					setupFinalRenderBuffer();
 
-		bool					isShaderName(std::string name) const;
+		// WARNING: ONLY shader loading is network safe. Uniforms are not synchronized.
+		void					setBaseShader(const std::string &location, const std::string &shadername, bool applyToChildren = false);
+		void					setBaseShader(const std::string &vertShaderString, const std::string& fragShaderString, const std::string &shadername, bool applyToChildren = false);
 
 		SpriteShader&			getBaseShader();
 		std::string				getBaseShaderName() const;
 		ds::gl::Uniform&		getUniform();
+
+		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
+		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
+		void					setShaderExtraData(const ci::vec4& data);
+
+		bool					getUseShaderTexture() const;
 
 		void					setClipping(bool flag);
 		bool					getClipping() const;

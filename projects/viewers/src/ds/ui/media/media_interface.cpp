@@ -24,6 +24,8 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey,
 	, mMaxWidth(sizey.x)
 	, mMinWidth(sizey.y)
 	, mInterfaceIdleSettings(5.0f)
+	, mCanIdle(true)
+	, mCanDisplay(true)
 {
 	// TODO: settings?
 	const float backOpacccy = 0.95f;
@@ -42,7 +44,7 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey,
 void MediaInterface::updateServer(const ds::UpdateParams& p){
 	ds::ui::Sprite::updateServer(p);
 
-	if(mIdling != isIdling()){
+	if(mCanIdle && mIdling != isIdling()){
 		mIdling = isIdling();
 		if(mIdling){
 			animateOff();
@@ -70,6 +72,7 @@ void MediaInterface::layout(){
 }
 
 void MediaInterface::animateOn(){
+	if(!mCanDisplay) return;
 	resetIdleTimer();
 	show();
 

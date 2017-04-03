@@ -27,6 +27,7 @@ namespace ui {
 
 	private:
 		typedef Sprite				inherited;
+		void						initialize();
 
 		float						mBorderWidth;
 

@@ -61,8 +61,7 @@ public:
 protected:
 	virtual void				onScaleChanged();
 	virtual void				drawLocalClient();
-
-	virtual void				onBuildRenderBatch() override;
+	
 	virtual void				writeAttributesTo(ds::DataBuffer&);
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
 

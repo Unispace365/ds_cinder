@@ -2,6 +2,7 @@
 #define _SCROLLEXAMPLE_APP_H_
 
 #include <cinder/app/App.h>
+#include <cinder/app/RendererGl.h>
 
 #include <ds/app/app.h>
 

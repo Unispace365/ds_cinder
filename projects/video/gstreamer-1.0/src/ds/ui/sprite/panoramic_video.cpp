@@ -65,7 +65,7 @@ PanoramicVideo::PanoramicVideo(ds::ui::SpriteEngine& engine)
 	setUseShaderTexture(true);
 	setTransparent(true);
 
-	mSphereVbo = ci::gl::VboMesh::create(ci::geom::Sphere().subdivisions(120).radius(2000.0f));
+	mSphereVbo = ci::gl::VboMesh::create(ci::geom::Sphere().subdivisions(120).radius(200.0f));
 
 	resetCamera();
 	
@@ -136,6 +136,11 @@ void PanoramicVideo::readAttributeFrom(const char attributeId, ds::DataBuffer& b
 	} else {
 		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
+}
+
+// no need to build the base render batch
+void PanoramicVideo::onBuildRenderBatch(){
+
 }
 
 void PanoramicVideo::drawLocalClient(){

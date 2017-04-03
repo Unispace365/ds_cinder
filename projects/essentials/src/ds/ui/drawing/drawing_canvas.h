@@ -83,8 +83,6 @@ private:
 	// The intermediate fbo that brushes are drawn to
 	ci::gl::FboRef						mFbo;
 
-	SpriteShader						mOutputShader;
-
 	/// Only for the getter, the actual brush image is loaded via the image loading API
 	std::string							mBrushImagePath;
 
