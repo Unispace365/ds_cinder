@@ -1,14 +1,16 @@
 include( CMakeParseArguments )
 
-## TEMP: Debug/Trace INCLUDE_DIRECTORIES....
-#set(CMAKE_DEBUG_TARGET_PROPERTIES INCLUDE_DIRECTORIES)
+list( APPEND CMAKE_MODULE_PATH ${DS_CINDER_PATH}/cmake/modules  )
+# Need this for ds_log_* functions
+include( "${DS_CINDER_PATH}/cmake/utilities.cmake" )
 
 function( ds_cinder_make_app )
 	ds_log_i( SECTION "Configuring DsCinder App: ${PROJECT_NAME}" )
-	set( oneValueArgs APP_PATH DS_CINDER_PATH )
+	set( options LIBRARY_ONLY )
+	set( oneValueArgs DYNAMIC_SOURCES APP_PATH DS_CINDER_PATH )
 	set( multiValueArgs SOURCES INCLUDES LIBRARIES RESOURCES PROJECT_COMPONENTS )
 
-	cmake_parse_arguments( ARG "" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
+	cmake_parse_arguments( ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
 
 	if( NOT ARG_APP_PATH )
 		ds_log_e( "No APP_PATH specified!" )
@@ -22,6 +24,21 @@ function( ds_cinder_make_app )
 		ds_log_w( "unhandled arguments: ${ARG_UNPARSED_ARGUMENTS}" )
 	endif()
 
+	# Compute app source files from either passed SOURCES or DYNAMIC_SOURCES
+	# DYNAMIC_SOURCES can either be TRUE or a path specifying where to search for source files
+	if (DEFINED ARG_DYNAMIC_SOURCES)
+		if ( ${ARG_DYNAMIC_SOURCES} )
+			file (GLOB_RECURSE _foundCpps "${ARG_APP_PATH}/src/**/*.cpp" )
+			ds_log_v( TRACE "  Loading DYNAMIC_SOURCES from default app src path: ${ARG_APP_PATH}/src" )
+		else ()
+			file (GLOB_RECURSE _foundCpps "${ARG_DYNAMIC_SOURCES}/**/*.cpp" )
+			ds_log_v( TRACE "  Loading DYNAMIC_SOURCES from path: ${ARG_DYNAMIC_SOURCES}" )
+		endif()
+		set( DS_CINDER_APP_SOURCES ${_foundCpps} )
+	else(DEFINED ARG_DYNAMIC_SOURCES)
+		set( DS_CINDER_APP_SOURCES ${ARG_SOURCES} )
+	endif()
+
 	include( "${ARG_DS_CINDER_PATH}/cmake/configure.cmake" )
 
 	# ALSO: include CINDER configure.cmake...
@@ -32,7 +49,7 @@ function( ds_cinder_make_app )
 
 	ds_log_v( "APP_NAME: ${DS_CINDER_APP_TARGET}" )
 	ds_log_v( "APP_PATH: ${ARG_APP_PATH}" )
-	ds_log_v( "SOURCES: ${ARG_SOURCES}" )
+	ds_log_v( "SOURCES: ${DS_CINDER_APP_SOURCES}" )
 	ds_log_v( "INCLUDES: ${ARG_INCLUDES}" )
 	ds_log_v( "LIBRARIES: ${ARG_LIBRARIES}" )
 	ds_log_v( "DS_CINDER_PATH: ${ARG_DS_CINDER_PATH}" )
@@ -120,14 +137,23 @@ function( ds_cinder_make_app )
 		endif()
 	endif()
 
-	add_executable( ${DS_CINDER_APP_TARGET} MACOSX_BUNDLE WIN32 ${ARG_SOURCES} ${ICON_PATH} ${ARG_RESOURCES} )
+	if( ARG_LIBRARY_ONLY )
+		add_library( ${DS_CINDER_APP_TARGET} ${DS_CINDER_APP_SOURCES} )
+	else()
+		add_executable( ${DS_CINDER_APP_TARGET} MACOSX_BUNDLE WIN32 ${DS_CINDER_APP_SOURCES} ${ICON_PATH} ${ARG_RESOURCES} )
+	endif()
 
 	# Add "_debug" to Debug build executable name
 	if( CMAKE_BUILD_TYPE STREQUAL "Debug" )
 		set_target_properties ( ${DS_CINDER_APP_TARGET} PROPERTIES OUTPUT_NAME "${DS_CINDER_APP_TARGET}_debug" )
 	endif()
 
+	# Add include directories and library dependencies to app target
 	target_include_directories( ${DS_CINDER_APP_TARGET} PUBLIC ${APP_PATH}/src )
+	# If we're using a path for DYNAMIC_SOURCES, use that path as a project include directory
+	if (DEFINED ARG_DYNAMIC_SOURCES AND NOT ${ARG_DYNAMIC_SOURCES} )
+		target_include_directories( ${DS_CINDER_APP_TARGET} PUBLIC ${ARG_DYNAMIC_SOURCES} )
+	endif()
 	target_include_directories( ${DS_CINDER_APP_TARGET} PUBLIC ${ARG_INCLUDES} )
 	target_link_libraries( ${DS_CINDER_APP_TARGET} cinder ds-cinder-platform ${ARG_LIBRARIES} )
 

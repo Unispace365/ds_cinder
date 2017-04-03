@@ -56,7 +56,6 @@ if( NOT TARGET pdf )
 	target_link_libraries( pdf PUBLIC cinder )
 
 	# Make building wai faster using Cotire
-	list( APPEND CMAKE_MODULE_PATH ${DS_CINDER_PATH}/cmake/modules  )
 	include( cotire )
 	# TODO
 	#set_target_properties( pdf PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${ROOT_PATH}/src/stdafx.h" )

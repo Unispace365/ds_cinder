@@ -65,7 +65,6 @@ if( NOT TARGET video )
 	target_include_directories( video SYSTEM BEFORE PRIVATE ${MEDIAINFOLIB_INCLUDE_DIRS})
 
 	# Make building wai faster using Cotire
-	list( APPEND CMAKE_MODULE_PATH ${DS_CINDER_PATH}/cmake/modules  )
 	include( cotire )
 	# TODO
 	#set_target_properties( video PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${ROOT_PATH}/src/stdafx.h" )

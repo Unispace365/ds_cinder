@@ -4,7 +4,7 @@
 
 # Set CEF_ROOT
 if( NOT CEF_ROOT )
-	get_filename_component( CEF_ROOT_ABS "../../../../cef" ABSOLUTE )
+	get_filename_component( CEF_ROOT_ABS "${DS_CINDER_PATH}/../cef" ABSOLUTE )
 	set( CEF_ROOT ${CEF_ROOT_ABS} CACHE STRING
 		"Path to the binary CEF directory."
 		FORCE
@@ -12,7 +12,7 @@ if( NOT CEF_ROOT )
 	ds_log_w( "CEF_ROOT not specified, defaulting to: ${CEF_ROOT}" )
 endif()
 message( "CEF ROOT: ${CEF_ROOT}" )
-set( CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CEF_ROOT}/cmake" )
+list( APPEND CMAKE_MODULE_PATH "${CEF_ROOT}/cmake" )
 
 find_package( CEF REQUIRED )
 
@@ -44,6 +44,11 @@ if( NOT TARGET web )
 	message( "\n\n-----------------------------------------------------------------------\n" )
 
 	add_subdirectory(${CEF_LIBCEF_DLL_WRAPPER_PATH} libcef_dll_wrapper)
+
+	# Override output location of libcef_dll_wrapper
+	set( LIBCEF_DLL_WRAPPER_OUTPUT_DIRECTORY "${CMAKE_CURRENT_LIST_DIR}/../cef/lib_linux64/${CMAKE_BUILD_TYPE}" )
+	set_target_properties( libcef_dll_wrapper PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${LIBCEF_DLL_WRAPPER_OUTPUT_DIRECTORY} )
+
 	# This macro is defined by CEF, sets include directories and compile flags for library
 	#SET_LIBRARY_TARGET_PROPERTIES(web)
 	add_dependencies(web libcef_dll_wrapper)
@@ -52,10 +57,11 @@ if( NOT TARGET web )
 	ADD_LOGICAL_TARGET("libcef_lib" "${CEF_LIB_DEBUG}" "${CEF_LIB_RELEASE}")
 	target_link_libraries( web PUBLIC libcef_lib ${CEF_STANDARD_LIBS})
 
-	# TODO: Link against libcef_dll_wrapper without importing libcef_dll_wrapper compile flags...
-	#target_link_libraries( web PRIVATE libcef_lib libcef_dll_wrapper ${CEF_STANDARD_LIBS})
-	#target_link_libraries( web PRIVATE ${CEF_ROOT}/build/libcef_dll_wrapper/libcef_dll_wrapper.a )
-	target_link_libraries( web PRIVATE ${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/libcef_dll_wrapper.a )
+	# HACK: We need to specify path to libcef_dll_wrapper.a instead of just
+	# plain target name (libcef_dll_wrapper) because otherwise, the "web"
+	# target would inherit all the same compile flags as libcef_dll_wrapper.a,
+	# which we don't want 
+	target_link_libraries( web PRIVATE ${LIBCEF_DLL_WRAPPER_OUTPUT_DIRECTORY}/libcef_dll_wrapper.a )
 	#print_target_properties(web)
 
 	# HMM... WTF?
@@ -85,7 +91,6 @@ if( NOT TARGET web )
 	target_link_libraries( web PUBLIC cinder )
 
 	# Make building wai faster using Cotire
-	list( APPEND CMAKE_MODULE_PATH ${DS_CINDER_PATH}/cmake/modules  )
 	include( cotire )
 	# TODO
 	#set_target_properties( web PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${ROOT_PATH}/src/stdafx.h" )
