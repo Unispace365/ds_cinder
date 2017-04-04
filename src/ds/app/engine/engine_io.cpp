@@ -7,6 +7,7 @@
 #include "ds/debug/logger.h"
 #include "ds/util/string_util.h"
 #include "snappy.h"
+#include <cinder/Rand.h>
 
 #include "ds/network/packet_chunker.h"
 
@@ -15,8 +16,15 @@ namespace ds {
 /**
  * \class ds::EngineSender
  */
-EngineSender::EngineSender(ds::NetConnection& con)
-		: mConnection(con) {
+EngineSender::EngineSender(ds::NetConnection& con, const bool useChunker)
+		: mConnection(con) 
+		, mPacketId(0)
+		, mUseChunker(useChunker)
+{
+}
+
+void EngineSender::setPacketNumber(unsigned int packetId){
+	mPacketId = packetId;
 }
 
 /**
@@ -38,11 +46,16 @@ EngineSender::AutoSend::~AutoSend() {
 	mData.readRaw(mSender.mRawDataBuffer.data(), size);
 	snappy::Compress(mSender.mRawDataBuffer.data(), size, &mSender.mCompressionBuffer);
 
-	static size_t packetNumber = 0;
-	packetNumber++;
-	ds::net::Chunker chunker;
 	std::vector<std::string> chunks;
-	chunker.Chunkify(mSender.mCompressionBuffer, packetNumber, chunks);
+
+	if(mSender.mUseChunker){
+
+		mSender.mPacketId++;
+		ds::net::Chunker chunker;
+		chunker.Chunkify(mSender.mCompressionBuffer, mSender.mPacketId, chunks);
+	} else {
+		chunks.push_back(mSender.mCompressionBuffer);
+	}
 
 	for (auto it : chunks){
 		mSender.mConnection.sendMessage(it);
@@ -54,11 +67,12 @@ EngineSender::AutoSend::~AutoSend() {
 /**
  * \class ds::EngineReceiver
  */
-EngineReceiver::EngineReceiver(ds::NetConnection& con)
+EngineReceiver::EngineReceiver(ds::NetConnection& con, const bool useChunker)
 		: mConnection(con)
 		, mHeaderId(0)
 		, mCommandId(0)
 		, mHeaderAndCommandOnly(false)
+		, mUseChunker(useChunker)
 		, mNoDataCount(0) {
 	setHeaderAndCommandOnly();
 }
@@ -78,25 +92,34 @@ ds::DataBuffer& EngineReceiver::getData() {
 
 bool EngineReceiver::receiveBlob() {
 	std::string recvBuffer;
-	while(mConnection.recvMessage(recvBuffer)) {
-		mDechunker.addChunk(recvBuffer);
-	}
 
-	while(mDechunker.getAvailable() > 0) {
-		std::string outBuf;
-		bool validy = mDechunker.getNextGroup(outBuf);
-		snappy::Uncompress(outBuf.c_str(), outBuf.size(), &mCompressionBufferRead);
-		mReceiveBuffers.push_back(mCompressionBufferRead);
+	if(mUseChunker){
+		while(mConnection.recvMessage(recvBuffer)) {
+			mDechunker.addChunk(recvBuffer);
+		}
 
-		if(!validy) {
-			DS_LOG_WARNING_M("EngineReceiver: Invalid chunk received. Expect a new world frame shortly.", ds::IO_LOG);
-			break;
+		while(mDechunker.getAvailable() > 0) {
+			std::string outBuf;
+			bool validy = mDechunker.getNextGroup(outBuf);
+
+			if(!validy) {
+				DS_LOG_WARNING_M("EngineReceiver: Invalid chunk received. Expect a new world frame shortly.", ds::IO_LOG);
+				return false;
+			}
+
+			snappy::Uncompress(outBuf.c_str(), outBuf.size(), &mCompressionBufferRead);
+			mReceiveBuffers.push_back(mCompressionBufferRead);
+		}
+	} else {
+		while(mConnection.recvMessage(recvBuffer)) {
+			snappy::Uncompress(recvBuffer.c_str(), recvBuffer.size(), &mCompressionBufferRead);
+			mReceiveBuffers.push_back(mCompressionBufferRead);
 		}
 	}
 
 	if(mReceiveBuffers.empty()) {
 		++mNoDataCount;
-		return false;
+		//return false;
 	}
 
 	return true;
@@ -139,7 +162,7 @@ bool EngineReceiver::handleBlob(ds::BlobRegistry& registry, ds::BlobReader& read
 }
 
 bool EngineReceiver::hasLostConnection() const {
-	return mNoDataCount > 100;
+	return mNoDataCount > 300;
 }
 
 void EngineReceiver::clearLostConnection() {

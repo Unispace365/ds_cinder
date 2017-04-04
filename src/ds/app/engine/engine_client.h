@@ -37,6 +37,9 @@ public:
 	virtual void					stopServices();
 	virtual int						getMode() const { return CLIENT_MODE; }
 
+	virtual int						getBytesRecieved();
+	virtual int						getBytesSent();
+
 	// The most recent frame received from the server.
 	int32_t							mServerFrame;
 

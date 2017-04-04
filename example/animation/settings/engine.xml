@@ -6,12 +6,12 @@
 	<!-- SERVER SETTINGS --->
 	<!---------------------->
 	<!-- if false, won't connect udp sender / listener for server or client -->
-	<text name="server:connect" value="false" />
+	<text name="server:connect" value="true" />
 	
 	<!-- the multicast ip address and port of the server -->
-	<text name="server:ip" value="239.255.42.58" />
-	<int name="server:send_port" value="10370" />
-	<int name="server:listen_port" value="10371" />
+	<text name="server:ip" value="239.255.11.19" />
+	<int name="server:send_port" value="1234" />
+	<int name="server:listen_port" value="5678" />
 	
 	<!-- Set the basic architecture, either a server (world engine), a client (render engine), a
 	both client and server (i.e. world + render, for cases where you want the app running as a
@@ -19,7 +19,7 @@
 	(no client server architecture at all).
 	values: "client", "server", "clientserver", ""
 	default = "", which is the standalone app -->
-	<text name="platform:architecture" value="" />
+	<text name="platform:architecture" value="clientserver" />
 	
 	<!-- Show console will create a console window, or not if this is false. 
 		If this setting is missing, debug mode will create a console, release will not. -->
@@ -103,10 +103,10 @@
 	<!----------------------->
 	<!-- RESOURCE SETTINGS -->
 	<!----------------------->
-	<!-- resource location and database for cms content-->
+	<!-- resource location and database for cms content
 	<text name="resource_location" value="%USERPROFILE%\Documents\downstream\northeastern\" />
 	<text name="resource_db" value="db\northeastern.sqlite" />
-
+-->
 
 
 </settings>

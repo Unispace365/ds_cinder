@@ -31,6 +31,8 @@ UdpConnection::UdpConnection(int numThreads)
 	: mServer(false)
 	, mInitialized(false)
 	, mReceiveBufferMaxSize(0)
+	, mReccBytes(0)
+	, mSentBytes(0)
 {
 }
 
@@ -46,36 +48,33 @@ bool UdpConnection::initialize(bool server, const std::string &ip, const std::st
 	if(!(value >= 224 && value <= 239)){
 		DS_LOG_WARNING("Ip address must be in the multicast range, starting with 224 to 239, for example 239.255.42.50");
 		return false;
-
-		// NO MORE EXCEPTIONS!
-		//throw BadIpException(ip);
 	}
 
+	mInitialized = false;
+	mReccBytes = 0;
+	mSentBytes = 0;
 	mServer = server;
 	mIp = ip;
 	mPort = portSz;
-	try
-	{
+
+	try {
 		unsigned short port;
 		ds::string_to_value(portSz, port);
 		if(mServer)		{
+			Poco::Net::SocketAddress sa = Poco::Net::SocketAddress(ip, port);
+			mSocket.close();
+			mSocket = Poco::Net::MulticastSocket();
+			mSocket.connect(sa);
 			mSocket.setReuseAddress(true);
 			mSocket.setReusePort(true);
-			mSocket.connect(Poco::Net::SocketAddress(ip, port));
 			mSocket.setBlocking(false);
 			mSocket.setSendBufferSize(ds::NET_MAX_UDP_PACKET_SIZE);
 		} else {
-			/*!
-			 * \note
-			 * notice the "set_reuse" flag is set at three places! this is necessary for some odd reason!
-			 * Poco apparently resets / clears / ignores this set_reuse request. Magically this three
-			 * combination of setters work! This should be resolved maybe by upgrading Poco / figuring out
-			 * the reason why the flag gets ignored but for now, I am going to leave it like that. (SL)
-			 */
-			mSocket = Poco::Net::MulticastSocket(Poco::Net::SocketAddress("0.0.0.0", port), true);
-			mSocket.setReusePort(true);
-			mSocket.setReuseAddress(true);
-			mSocket.joinGroup(Poco::Net::IPAddress(ip));
+			Poco::Net::SocketAddress sa = Poco::Net::SocketAddress(ip, port);
+			mSocket.close();
+			mSocket = Poco::Net::MulticastSocket(Poco::Net::SocketAddress(Poco::Net::IPAddress(), sa.port()), true);
+			
+			mSocket.joinGroup(sa.host());
 			mSocket.setReuseAddress(true);
 			mSocket.setReusePort(true);
 			mSocket.setBlocking(false);
@@ -84,23 +83,24 @@ bool UdpConnection::initialize(bool server, const std::string &ip, const std::st
 
 			mReceiveBufferMaxSize = mSocket.getReceiveBufferSize();
 			if(mReceiveBufferMaxSize <= 0){
-				//throw std::exception("UdpConnection::initialize() Couldn't determine a receive buffer size");
 				DS_LOG_WARNING("UdpConnection::initialize() Couldn't determine a receive buffer size");
 			}
 			if(!mReceiveBuffer.setSize(mReceiveBufferMaxSize)){
-				//throw std::exception("UdpConnection::initialize() Can't allocate receive buffer");
 				DS_LOG_WARNING("UdpConnection::initialize() Can't allocate receive buffer");
 			}
 		}
 
 		mInitialized = true;
 		return true;
+	} catch(Poco::Net::NetException& ne){
+		DS_LOG_WARNING("Udp connection start Poco Net exception: " << ne.message());
 	} catch(std::exception &e) {
-		std::cout << e.what() << std::endl;
+		DS_LOG_WARNING("Exception starting a UDP connection: " << e.what());
 	} catch(...) {
-		std::cout << "Caught unknown exception" << std::endl;
+		DS_LOG_WARNING("UdpConnection Caught unknown exception");
 	}
 
+	mInitialized = false;
 	return false;
 }
 
@@ -111,13 +111,13 @@ void UdpConnection::close(){
 	try{
 		mSocket.close();
 	} catch(std::exception &e) {
-		std::cout << e.what() << std::endl;
+		DS_LOG_WARNING("Exception closing socket in UdpConnection: " << e.what());
 	}
 }
 
 void UdpConnection::renew() {
 	const bool		server = mServer;
-	close();
+	//close();
 	initialize(server, mIp, mPort);
 }
 
@@ -136,11 +136,12 @@ bool UdpConnection::sendMessage(const char *data, int size){
 
 	try	{
 		const int sentAmt = mSocket.sendBytes(data, size);
+		mSentBytes += sentAmt;
 		return sentAmt > 0;
 	} catch(Poco::Net::NetException &e)	{
-		std::cout << "UdpConnection::sendMessage() error " << e.message() << std::endl;
+		DS_LOG_WARNING( "UdpConnection::sendMessage() error " << e.message());
 	} catch(std::exception &e)	{
-		std::cout << e.what() << std::endl;
+		DS_LOG_WARNING("UdpConnection::sendMessage() std::exception: " << e.what());
 	}
 
 	return false;
@@ -159,10 +160,12 @@ int UdpConnection::recvMessage(std::string &msg){
 		if(size > 0) {
 			msg.assign(mReceiveBuffer.data(), size);
 		}
+		mReccBytes += size;
 		return size;
-	} catch(std::exception &e)
-	{
-		std::cout << e.what() << std::endl;
+	} catch(Poco::Net::NetException &e)	{
+		DS_LOG_WARNING("UdpConnection::recvMessage() error " << e.message());
+	} catch(std::exception &e)	{
+		DS_LOG_WARNING("UdpConnection::recvMessage() std::exception: " << e.what());
 	}
 
 	return 0;
@@ -174,8 +177,10 @@ bool UdpConnection::canRecv() const{
 
 	try{
 		return mSocket.available() > 0;
-	} catch(std::exception &e){
-		std::cout << e.what() << std::endl;
+	} catch(Poco::Net::NetException &e)	{
+		DS_LOG_WARNING("UdpConnection::canRecv() error " << e.message());
+	} catch(std::exception &e)	{
+		DS_LOG_WARNING("UdpConnection::canRecv() std::exception: " << e.what());
 	}
 
 	return false;
@@ -187,6 +192,18 @@ bool UdpConnection::isServer() const{
 
 bool UdpConnection::initialized() const{
 	return mInitialized;
+}
+
+int UdpConnection::getReceivedBytes(){
+	int returnAmount = mReccBytes;
+	mReccBytes = 0;
+	return returnAmount;
+}
+
+int UdpConnection::getSentBytes(){
+	int returnAmount = mSentBytes;
+	mSentBytes = 0;
+	return returnAmount;
 }
 
 }

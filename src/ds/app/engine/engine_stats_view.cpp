@@ -105,10 +105,15 @@ void EngineStatsView::updateStats(){
 		ss << "<span weight='bold'>Virtual Memory:</span> " << mEngine.getComputerInfo().getVirtualMemoryUsedByProcess() << std::endl;
 		//ss << "<span weight='bold'>CPU:</span> " << mEngine.getComputerInfo().getPercentUsageCPU() << "%" << std::endl;
 
+		if(mEngine.getMode() != ds::ui::SpriteEngine::STANDALONE_MODE){
+			ss << "<span weight='bold'>Bytes Received:</span>\t" << mEngine.getBytesRecieved() << std::endl;
+			ss << "<span weight='bold'>Bytes Sent:</span>\t\t" << mEngine.getBytesSent() << std::endl;
+		}
+
 		float fpsy = mEngine.getAverageFps();
 		if(fpsy < 30.0f){
 			ss << "<span weight='bold'>FPS:</span> <span color='red'>" << fpsy << "</span>" << std::endl;
-		} else if(fpsy < 60.0f){
+		} else if(fpsy < 59.0f){
 			ss << "<span weight='bold'>FPS:</span> <span color='yellow'>" << fpsy << "</span>" << std::endl;
 		} else {
 			ss << "<span weight='bold'>FPS:</span> " << fpsy << std::endl;

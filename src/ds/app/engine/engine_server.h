@@ -39,6 +39,9 @@ public:
 
 	virtual void					spriteDeleted(const ds::sprite_id_t&);
 
+	virtual int						getBytesRecieved();
+	virtual int						getBytesSent();
+
 private:
 	void							receiveHeader(ds::DataBuffer&);
 	void							receiveCommand(ds::DataBuffer&);
@@ -56,7 +59,6 @@ private:
 	WorkManager						mWorkManager;
 	EngineClientList				mClients;
 
-//    ds::ZmqConnection             mConnection;
 	ds::UdpConnection				mSendConnection;
 	ds::UdpConnection				mReceiveConnection;
 	EngineSender					mSender;

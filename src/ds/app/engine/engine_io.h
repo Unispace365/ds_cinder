@@ -21,13 +21,17 @@ class BlobRegistry;
  */
 class EngineSender {
 public:
-	EngineSender(ds::NetConnection&);
+	EngineSender(ds::NetConnection&, const bool useChunker);
+
+	void						setPacketNumber(unsigned int packetId);
 
 private:
 	ds::NetConnection&			mConnection;
 	ds::DataBuffer				mSendBuffer;
 	RecycleArray<char>			mRawDataBuffer;
 	std::string					mCompressionBuffer;
+	unsigned int				mPacketId;
+	bool						mUseChunker;
 
 public:
 	class AutoSend {
@@ -48,7 +52,7 @@ public:
  */
 class EngineReceiver {
 public:
-	EngineReceiver(ds::NetConnection&);
+	EngineReceiver(ds::NetConnection&, const bool useChunker);
 
 	// A bit of a hack -- every state can be set to listen
 	// only for the header and command, or everything. This
@@ -85,6 +89,7 @@ private:
 	// in which case we can run through and update all the buffers at once and catch up
 	std::vector<std::string>	mReceiveBuffers;
 	ds::net::DeChunker			mDechunker;
+	bool						mUseChunker;
 };
 
 } // namespace ds

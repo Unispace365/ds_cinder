@@ -33,8 +33,14 @@ public:
 
 	bool initialized() const;
 
+	// For status, will return the number of bytes sent/rec since the last time this was called
+	int getReceivedBytes();
+	int getSentBytes();
+
 private:
 	Poco::Net::MulticastSocket	mSocket;
+	int							mSentBytes;
+	int							mReccBytes;
 	bool						mInitialized;
 	size_t						mReceiveBufferMaxSize;
 	RecycleArray<char>			mReceiveBuffer;
