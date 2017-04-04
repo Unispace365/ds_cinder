@@ -22,7 +22,6 @@
 
 #include "TuioClient.h"
 
-#include "ds/app/engine/renderers/engine_renderer_interface.h"
 #include "ds/app/engine/engine_touch_queue.h"
 #include "ds/data/color_list.h"
 #include "ds/data/font_list.h"
@@ -260,12 +259,6 @@ protected:
 	ds::ui::TouchMode::Enum				mTouchMode;
 
 private:
-	// TODO: remove this 
-	//! a pointer to the currently active renderer
-	std::unique_ptr<EngineRenderer>		mRenderer;
-	//! decides a renderer based on engine configurations. MUST be called inside "setup".
-	void								setupRenderer();
-
 	void								setTouchMode(const ds::ui::TouchMode::Enum&);
 	void								createStatsView(sprite_id_t root_id);
 

@@ -24,18 +24,12 @@
 //! to get removed. Poco is not part of the Cinder.
 #include <Poco/Path.h>
 
-#include <boost/algorithm/string/predicate.hpp>
-
-#include "renderers/engine_renderer_null.h"
-#include "renderers/engine_renderer_continuous.h"
+//#include <boost/algorithm/string/predicate.hpp>
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
 namespace {
-const int			NUMBER_OF_NETWORK_THREADS = 2;
-
 void				root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>&);
-
 }
 
 const ds::BitMask	ds::ENGINE_LOG = ds::Logger::newModule("engine");
@@ -327,8 +321,6 @@ void Engine::setup(ds::App& app) {
 			if(it->second) it->second->start();
 		}
 	}
-
-	setupRenderer();
 }
 
 void Engine::setupTouch(ds::App& a) {
@@ -673,11 +665,23 @@ void Engine::registerForTuioObjects(ci::tuio::Client& client) {
 }
 
 void Engine::drawClient() {
-	mRenderer->drawClient();
+	ci::gl::enableAlphaBlending();
+
+	ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+
+	for(auto it = getRoots().begin(), end = getRoots().end(); it != end; ++it){
+		(*it)->drawClient(getDrawParams(), getAutoDrawService());
+	}
 }
 
 void Engine::drawServer() {
-	mRenderer->drawServer();
+	ci::gl::enableAlphaBlending();
+
+	ci::gl::clear(ci::ColorA(0.0f, 0.0f, 0.0f, 0.0f));
+
+	for(auto it = getRoots().cbegin(), end = getRoots().cend(); it != end; ++it){
+		(*it)->drawServer(getDrawParams());
+	}
 }
 
 ds::sprite_id_t Engine::nextSpriteId() {
@@ -934,24 +938,6 @@ ci::app::WindowRef Engine::getWindow(){
 
 bool Engine::getRotateTouchesDefault(){
 	return mRotateTouchesDefault;
-}
-
-void Engine::setupRenderer()
-{
-	//! multiple calls to this method should do nothing
-	//! but also should not crash the whole thing!
-	static std::once_flag renderer_initialized;
-	
-	//! decide and pick the most appropriate renderer and set it up.
-	//! based on engine.xml entries.
-	std::call_once(renderer_initialized, [this] {
-		if (mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
-		{
-			mRenderer = std::make_unique<EngineRendererNull>(*this);
-		} else {
-			mRenderer = std::make_unique<EngineRendererContinuous>(*this);
-		}
-	});
 }
 
 /**
