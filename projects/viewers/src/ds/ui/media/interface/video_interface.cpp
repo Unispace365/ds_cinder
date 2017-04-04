@@ -73,8 +73,8 @@ void VideoInterface::linkVideo(ds::ui::GstVideo* vid){
 	}
 }
 
-void VideoInterface::updateServer(const ds::UpdateParams& p){
-	MediaInterface::updateServer(p);
+void VideoInterface::onUpdateServer(const ds::UpdateParams& p){
+	MediaInterface::onUpdateServer(p);
 
 	if(mLinkedVideo && mPauseButton && mPlayButton){
 		if(mLinkedVideo->getIsStreaming()){

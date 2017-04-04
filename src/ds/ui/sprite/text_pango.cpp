@@ -520,11 +520,11 @@ int TextPango::getNumberOfLines(){
 }
 
 
-void TextPango::updateClient(const UpdateParams&){
+void TextPango::onUpdateClient(const UpdateParams&){
 	render();
 }
 
-void TextPango::updateServer(const UpdateParams&){
+void TextPango::onUpdateServer(const UpdateParams&){
 	render();
 }
 

@@ -193,13 +193,11 @@ Image::Image(SpriteEngine& engine, const ds::Resource& resource, const int flags
 	setImageResource(resource, flags);
 }
 
-void Image::updateServer(const UpdateParams& up){
-	inherited::updateServer(up);
+void Image::onUpdateServer(const UpdateParams& up){
 	checkStatus();
 }
 
-void Image::updateClient(const UpdateParams& up){
-	inherited::updateClient(up);
+void Image::onUpdateClient(const UpdateParams& up){
 	checkStatus();
 }
 

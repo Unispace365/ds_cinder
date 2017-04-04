@@ -17,7 +17,7 @@ public:
 	VideoScrubBar(ds::ui::SpriteEngine& eng, const float heighty, const float buttHeight, const ci::Color interfaceColor);
 
 	void					linkVideo(ds::ui::GstVideo* linkedVideo);
-	void					updateServer(const ds::UpdateParams& p);
+	virtual void			onUpdateServer(const ds::UpdateParams& p) override;
 	void					layout();
 
 protected:

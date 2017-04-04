@@ -149,8 +149,8 @@ void PDFInterface::linkPDF(ds::ui::Pdf* linkedPDF, ds::Resource& sourceResource)
 	updateWidgets();
 }
 
-void PDFInterface::updateServer(const ds::UpdateParams& updateParams){
-	MediaInterface::updateServer(updateParams);
+void PDFInterface::onUpdateServer(const ds::UpdateParams& updateParams){
+	MediaInterface::onUpdateServer(updateParams);
 	if(mLinkedPDF){
 		updateWidgets();
 	}

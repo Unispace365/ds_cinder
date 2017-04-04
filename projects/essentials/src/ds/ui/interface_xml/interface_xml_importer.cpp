@@ -879,7 +879,7 @@ bool XmlImporter::load( ci::XmlTree &xml ) {
 
 	auto interface = xml.getChild( "interface" );
 	auto& sprites = interface.getChildren();
-	int count = sprites.size();
+	size_t count = sprites.size();
 	if ( count < 1 ) {
 		DS_LOG_WARNING( "No sprites found in xml file: " << mXmlFile );
 		return false;

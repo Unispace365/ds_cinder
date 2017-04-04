@@ -5,8 +5,6 @@
 #include <Poco/Path.h>
 
 #include <cinder/Rand.h> 
-#include <cinder/app/RendererGl.h>
-#include <cinder/app/RendererGl.h>
 
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
@@ -172,9 +170,9 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 	// Shows all enabled sprites with a label for class type
 	} else if(event.getCode() == KeyEvent::KEY_f){
 
-		const int numRoots = mEngine.getRootCount();
+		const size_t numRoots = mEngine.getRootCount();
 		int numPlacemats = 0;
-		for(int i = 0; i < numRoots - 1; i++){
+		for(size_t i = 0; i < numRoots - 1; i++){
 			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
 				if(sprite.isEnabled()){
 					sprite.setTransparent(false);
@@ -200,8 +198,8 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 		}
 		mStreamer = new ds::ui::GstVideo(mEngine);
 		mStreamer->startStream(mGlobals.getSettingsLayout().getText("streaming:pipeline", 0, ""),
-							  mGlobals.getSettingsLayout().getInt("streaming:width", 0, 640), 
-							  mGlobals.getSettingsLayout().getInt("streaming:height", 0, 480));
+							 (float) mGlobals.getSettingsLayout().getInt("streaming:width", 0, 640), 
+							 (float) mGlobals.getSettingsLayout().getInt("streaming:height", 0, 480));
 		mStreamerParent->addChildPtr(mStreamer);
 		mStreamer->enable(true);
 		mStreamer->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION | ds::ui::MULTITOUCH_CAN_SCALE);

@@ -61,7 +61,7 @@ NinePatch& NinePatch::makeNinePatch(SpriteEngine& e, const std::string &file, Sp
 }
 
 NinePatch::NinePatch(SpriteEngine& engine)
-		: inherited(engine)
+		: ds::ui::Sprite(engine)
 		, ImageOwner(engine)
 		, mSizeDirty(true) {
 	init();
@@ -70,9 +70,7 @@ NinePatch::NinePatch(SpriteEngine& engine)
 	setTransparent(false);
 }
 
-void NinePatch::updateServer(const UpdateParams& up) {
-	inherited::updateServer(up);
-
+void NinePatch::onUpdateServer(const UpdateParams& up) {
 	if (mStatusDirty) {
 		mStatusDirty = false;
 		if (mStatusFn) mStatusFn(mStatus);
@@ -122,7 +120,7 @@ void NinePatch::setStatusCallback(const std::function<void(const Status&)>& fn) 
 }
 
 void NinePatch::onSizeChanged() {
-	inherited::onSizeChanged();
+	ds::ui::Sprite::onSizeChanged();
 	mSizeDirty = true;
 }
 
@@ -133,7 +131,7 @@ void NinePatch::onImageChanged() {
 }
 
 void NinePatch::writeAttributesTo(ds::DataBuffer& buf) {
-	inherited::writeAttributesTo(buf);
+	ds::ui::Sprite::writeAttributesTo(buf);
 
 	if (mDirty.has(IMG_SRC_DIRTY)) {
 		buf.add(IMG_SRC_ATT);
@@ -145,7 +143,7 @@ void NinePatch::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 	if (attributeId == IMG_SRC_ATT) {
 		mImageSource.readFrom(buf);
 	} else {
-		inherited::readAttributeFrom(attributeId, buf);
+		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
 }
 

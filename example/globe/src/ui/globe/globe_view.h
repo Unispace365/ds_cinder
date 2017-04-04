@@ -27,8 +27,8 @@ private:
 	ci::gl::Texture2dRef mTexNormal;
 	ci::gl::Texture2dRef mTexMask;
 
-	virtual void		updateServer(const ds::UpdateParams& updateParams);
-	virtual void		drawLocalClient();
+	virtual void		onUpdateServer(const ds::UpdateParams& updateParams) override;
+	virtual void		drawLocalClient() override;
 
 	ci::gl::BatchRef	mEarth;
 

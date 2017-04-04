@@ -7,7 +7,6 @@
 
 
 #include <cinder/Rand.h> 
-#include <cinder/app/RendererGl.h>
 #include <cinder/Clipboard.h>
 
 #include "app/app_defs.h"

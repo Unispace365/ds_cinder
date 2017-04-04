@@ -3,6 +3,7 @@
 
 #include <cinder/app/App.h>
 #include <cinder/app/AppBase.h>
+#include <cinder/app/RendererGl.h>
 #include <ds/app/app.h>
 
 #include "app/globals.h"

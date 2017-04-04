@@ -22,7 +22,7 @@ public:
 	static NinePatch&					makeNinePatch(SpriteEngine&, const std::string &file, Sprite *parent = nullptr);
 	NinePatch(SpriteEngine&);
 
-	virtual void						updateServer(const UpdateParams&);
+	virtual void						onUpdateServer(const UpdateParams&) override;
 	virtual void						drawLocalClient();
 
 	struct Status {
@@ -41,8 +41,6 @@ protected:
 private:
 	void								setStatus(const int);
 	void								init();
-
-	typedef Sprite						inherited;
 
 	Status								mStatus;
 	bool								mStatusDirty;

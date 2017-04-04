@@ -141,9 +141,9 @@ public:
 	bool										getWebTransparent(){ return mTransparentBackground; }
 
 
-	virtual void								updateClient(const ds::UpdateParams&);
-	virtual void								updateServer(const ds::UpdateParams&);
-	virtual void								drawLocalClient();
+	virtual void								onUpdateClient(const ds::UpdateParams&) override;
+	virtual void								onUpdateServer(const ds::UpdateParams&) override;
+	virtual void								drawLocalClient() override;
 
 	// DEPRECATED - there's no loading icon anymore
 	void										setLoadingIconOpacity(const float opacity){}

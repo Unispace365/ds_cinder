@@ -248,8 +248,7 @@ void GstVideo::setPlayableInstances(const std::vector<std::string>& instanceName
 	markAsDirty(mInstancesDirty);
 }
 
-void GstVideo::updateServer(const UpdateParams &up){
-	Sprite::updateServer(up);
+void GstVideo::onUpdateServer(const UpdateParams &up){
 
 	mGstreamerWrapper->update();
 
@@ -284,9 +283,7 @@ void GstVideo::updateServer(const UpdateParams &up){
 	updateVideoTexture();
 }
 
-void GstVideo::updateClient(const UpdateParams& up){
-	Sprite::updateClient(up);
-
+void GstVideo::onUpdateClient(const UpdateParams& up){
 	mGstreamerWrapper->update();
 
 	checkStatus();

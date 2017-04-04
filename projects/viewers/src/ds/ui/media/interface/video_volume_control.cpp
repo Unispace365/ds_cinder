@@ -64,9 +64,7 @@ void VideoVolumeControl::setVolume(const float v){
 	}
 }
 
-void VideoVolumeControl::updateServer(const ds::UpdateParams& updateParams){
-	ds::ui::Sprite::updateServer(updateParams);
-
+void VideoVolumeControl::onUpdateServer(const ds::UpdateParams& updateParams){
 	float vol = 0.0f;
 	if(mLinkedVideo){
 		vol = mLinkedVideo->getVolume();

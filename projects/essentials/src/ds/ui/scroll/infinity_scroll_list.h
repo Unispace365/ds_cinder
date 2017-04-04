@@ -72,7 +72,6 @@ namespace ds{
 				bool						mOnscrren;
 			};
 
-			virtual void						updateServer(const ds::UpdateParams& p);
 			virtual void						clearItems();
 			virtual void						assignItems();
 			void								handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);

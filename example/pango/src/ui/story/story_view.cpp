@@ -65,36 +65,6 @@ StoryView::StoryView(Globals& g)
 
 	animateOn();
 
-	//setPosition(100.0f, 100.0f);
-	//hide();
-	//setOpacity(0.0f);
-	/*
-
-	// calls layout
-	setData();
-
-	mPangoText = new ds::ui::TextPango(mEngine);
-	mPangoText->setFont("HelveticaNeueLT Std UltLt Ext");
-	mPangoText->setDefaultTextWeight(ds::ui::TextWeight::kThin);
-	mPangoText->setFontSize(48.0f);
-	mPangoText->setTextColor(ci::Color::white());
-	mPangoText->setResizeLimit(mEngine.getWorldWidth() - 200.0f, mEngine.getWorldHeight());
-
-	mPangoText->setText("Hello whirlled");
-
-	//mPangoText->tweenColor(ci::Color(1.0f, 1.0f, 0.0f), 10.0f, 0.0f, ci::easeNone);
-	addChildPtr(mPangoText);
-
-	mMessage = new ds::ui::MultilineText(mEngine);
-	addChildPtr(mMessage);
-	mMessage->setFont("noto-regular", 48.0f);
-//	mMessage->setText(L"Hello World!");
-	mMessage->setColor(ci::Color::black());
-	mMessage->setPosition(-10.0f, 320.0f);
-	mMessage->setResizeLimit(mEngine.getWorldWidth() - 200.0f);
-	//texty->setScale(2.0f);
-	//kp::pango::CinderPango::logFontList(true);
-	*/
 }
 
 void StoryView::randomizeText(){
@@ -154,8 +124,7 @@ void StoryView::animateOff(){
 	tweenOpacity(0.0f, mGlobals.getAnimDur(), 0.0f, ci::EaseNone(), [this]{hide(); });
 }
 
-void StoryView::updateServer(const ds::UpdateParams& p){
-	ds::ui::Sprite::updateServer(p);
+void StoryView::onUpdateServer(const ds::UpdateParams& p){
 
 	// any changes for this frame happen here
 
@@ -197,18 +166,6 @@ void StoryView::updateServer(const ds::UpdateParams& p){
 	}
 }
 
-void StoryView::drawLocalClient(){
-	ds::ui::Sprite::drawLocalClient();
-	/*
-	if(mPango != nullptr) {
-		float aaAmount = 0.5f;
-		auto tex = mPango->getTexture();
-		if(tex){
-			ci::gl::draw(tex);
-		}
-	}
-	*/
-}
 
 
 } // namespace pango

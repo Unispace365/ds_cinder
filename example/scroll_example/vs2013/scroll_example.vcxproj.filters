@@ -16,9 +16,6 @@
     <ClCompile Include="..\src\query\story_query.cpp">
       <Filter>src\query</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ui\touch\view_dragger.cpp">
-      <Filter>src\ui\touch</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\app\scrollexample_app.cpp">
       <Filter>src\app</Filter>
     </ClCompile>
@@ -42,9 +39,6 @@
     <ClInclude Include="..\src\query\query_handler.h">
       <Filter>src\query</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\util\sprite_cache.h">
-      <Filter>src\util</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\model\all_data.h">
       <Filter>src\model</Filter>
     </ClInclude>
@@ -56,9 +50,6 @@
     </ClInclude>
     <ClInclude Include="..\src\model\all_stories.h">
       <Filter>src\model</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ui\touch\view_dragger.h">
-      <Filter>src\ui\touch</Filter>
     </ClInclude>
     <ClInclude Include="..\src\app\scrollexample_app.h">
       <Filter>src\app</Filter>
@@ -94,9 +85,6 @@
     <Filter Include="src\ui">
       <UniqueIdentifier>{9b9f5de1-cbd5-4cb7-a580-46be59c2cf82}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\util">
-      <UniqueIdentifier>{323e382a-4878-4487-81c9-e08fe46e05dc}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\app">
       <UniqueIdentifier>{dd1b41ab-1751-4126-9ac0-507d8fee6176}</UniqueIdentifier>
     </Filter>
@@ -105,9 +93,6 @@
     </Filter>
     <Filter Include="Resources">
       <UniqueIdentifier>{3eca459a-2fc2-4471-8dd4-6c188d47d4f9}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="src\ui\touch">
-      <UniqueIdentifier>{91fc60c0-7144-40ea-8d94-f2a2acd9b5b8}</UniqueIdentifier>
     </Filter>
     <Filter Include="src\ui\info_list">
       <UniqueIdentifier>{2cb44903-dcf8-4228-8039-89bb20dfcef4}</UniqueIdentifier>

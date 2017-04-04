@@ -202,7 +202,7 @@ void MediaSlideshow::gotoNext(const bool wrap){
 
 void MediaSlideshow::gotoPrev(const bool wrap){
 	if(mViewers.empty()) return;
-	int newIndex = mCurItemIndex - 1;
+	size_t newIndex = mCurItemIndex - 1;
 	if(newIndex < 0){
 		if(!wrap){
 			// don't do anything if we're not supposed to wrap around

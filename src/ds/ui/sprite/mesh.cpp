@@ -49,14 +49,14 @@ Mesh& Mesh::makeMesh(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
 }
 
 Mesh::Mesh(SpriteEngine& engine)
-	: inherited(engine)
+	: ds::ui::Sprite(engine)
 	, ImageOwner(engine)
 	, MeshOwner(engine) {
 	init();
 }
 
 Mesh::Mesh(SpriteEngine& engine, const std::string& filename)
-	: inherited(engine)
+	: ds::ui::Sprite(engine)
 	, ImageOwner(engine)
 	, MeshOwner(engine) {
 	init();
@@ -66,9 +66,7 @@ Mesh::Mesh(SpriteEngine& engine, const std::string& filename)
 Mesh::~Mesh() {
 }
 
-void Mesh::updateServer(const UpdateParams& up) {
-	inherited::updateServer(up);
-
+void Mesh::onUpdateServer(const UpdateParams& up) {
 	if(mStatusDirty) {
 		mStatusDirty = false;
 		if(mStatusFn) mStatusFn(mStatus);
@@ -129,7 +127,7 @@ void Mesh::onMeshChanged() {
 }
 
 void Mesh::writeAttributesTo(ds::DataBuffer& buf) {
-	inherited::writeAttributesTo(buf);
+	ds::ui::Sprite::writeAttributesTo(buf);
 
 	if(mDirty.has(IMG_SRC_DIRTY)) {
 		buf.add(IMG_SRC_ATT);
@@ -149,7 +147,7 @@ void Mesh::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 		//} else if (attributeId == MESH_SRC_ATT) {
 		//mMeshSource.readFrom(buf);
 	} else {
-		inherited::readAttributeFrom(attributeId, buf);
+		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
 }
 

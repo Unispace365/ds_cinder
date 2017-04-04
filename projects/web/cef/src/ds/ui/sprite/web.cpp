@@ -328,20 +328,15 @@ void Web::dispatchCallbacks(){
 	mCallbacksCue = nullptr;
 }
 
-void Web::updateClient(const ds::UpdateParams &p) {
-	Sprite::updateClient(p);
-
+void Web::onUpdateClient(const ds::UpdateParams &p) {
 	update(p);
 }
 
-void Web::updateServer(const ds::UpdateParams &p) {
-	Sprite::updateServer(p);
-
+void Web::onUpdateServer(const ds::UpdateParams &p) {
 	mPageScrollCount = 0;
 
 	update(p);
 }
-
 
 void Web::update(const ds::UpdateParams &p) {
 

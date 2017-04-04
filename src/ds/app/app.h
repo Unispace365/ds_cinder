@@ -3,6 +3,7 @@
 #define DS_APP_APP_H_
 
 #include <cinder/app/App.h>
+#include <cinder/app/RendererGl.h>
 #include "ds/app/app_defs.h"
 #include "ds/app/engine/engine_data.h"
 #include "ds/app/engine/engine_settings.h"

@@ -194,8 +194,7 @@ void ScrollArea::checkBounds(){
 	}
 }
 
-void ScrollArea::updateServer(const ds::UpdateParams& p){
-	Sprite::updateServer(p);
+void ScrollArea::onUpdateServer(const ds::UpdateParams& p){
 	if(mSpriteMomentum.recentlyMoved()){
 		checkBounds();
 	}

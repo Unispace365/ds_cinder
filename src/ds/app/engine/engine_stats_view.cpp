@@ -47,7 +47,7 @@ void EngineStatsView::installAsClient(ds::BlobRegistry& registry) {
  * \class ds::EngineStatsView
  */
 EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
-	: inherited(e)
+	: ds::ui::Sprite(e)
 	, mEngine((ds::Engine&)e)
 	, mEventClient(e.getNotifier(), [this](const ds::Event *e) { if(e) onAppEvent(*e); })
 	, mLT(mEngine.getEngineData().mSrcRect.x1, mEngine.getEngineData().mSrcRect.y1)
@@ -69,17 +69,13 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 
 }
 
-void EngineStatsView::updateServer(const ds::UpdateParams &p) {
-	inherited::updateServer(p);
-
+void EngineStatsView::onUpdateServer(const ds::UpdateParams &p) {
 	if(visible()) {
 		updateStats();
 	}
 }
 
-void EngineStatsView::updateClient(const ds::UpdateParams& p){
-	inherited::updateClient(p);
-
+void EngineStatsView::onUpdateClient(const ds::UpdateParams& p){
 	if(visible()) {
 		updateStats();
 	}

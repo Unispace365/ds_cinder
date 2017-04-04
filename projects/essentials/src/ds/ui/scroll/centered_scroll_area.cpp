@@ -63,7 +63,7 @@ int CenteredScrollArea::getItemCount(){
 	Sprite* firstChild = getFirstChild();
 	if(firstChild){
 		auto grandChildren = firstChild->getChildren();
-		output = grandChildren.size();
+		output = (int)grandChildren.size();
 	}
 
 	return output;

@@ -413,7 +413,7 @@ void DrawingCanvas::writeAttributesTo(DataBuffer& buf) {
 	}
 	if (mDirty.has(sPointsQueueDirty)){
 		buf.add(DRAW_POINTS_QUEUE_ATT);
-		buf.add<uint32_t>(mSerializedPointsQueue.size());
+		buf.add<uint32_t>((uint32_t)mSerializedPointsQueue.size());
 		for( auto &pair : mSerializedPointsQueue ) {
 			buf.add<float>(pair.first.x);
 			buf.add<float>(pair.first.y);

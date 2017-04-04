@@ -29,8 +29,8 @@ public:
 	// Callback when the page size changes. Highly recommend you listen for this. The sprite will change size before this is called
 	void						setPageSizeChangedFn(const std::function<void(void)>&);
 
-	virtual void				updateClient(const UpdateParams&);
-	virtual void				updateServer(const UpdateParams&);
+	virtual void				onUpdateClient(const UpdateParams&) override;
+	virtual void				onUpdateServer(const UpdateParams&) override;
 
 	// PDF API
 	/** Displays the page given, from 1 to getPageCount() */
@@ -66,7 +66,6 @@ protected:
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
 private:
-	typedef ds::ui::Sprite		inherited;
 
 	// STATE
 	std::string					mResourceFilename;

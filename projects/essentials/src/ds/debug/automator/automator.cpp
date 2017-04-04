@@ -49,9 +49,9 @@ void Automator::addFactory(const std::shared_ptr<BaseActionFactory>& fac){
 		mFactory.push_back(Factory());
 		mFactory.back().mFactory = fac;
 		// Assign everyone to a bucket for random selection.
-		const int			size = mFactory.size();
+		const size_t		size = mFactory.size();
 		float				min = 0;
-		for(int k = 0; k < size; ++k) {
+		for(size_t k = 0; k < size; ++k) {
 			Factory&		f = mFactory[k];
 			f.mMin = min;
 			f.mMax = float(k + 1) / float(size);
