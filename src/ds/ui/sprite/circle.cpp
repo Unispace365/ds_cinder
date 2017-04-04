@@ -58,7 +58,7 @@ Circle::Circle(SpriteEngine& engine)
 
 Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	: inherited(engine)
-	, mFilled(filled)
+	, mFilled(!filled)
 	, mRadius(radius)
 	, mIgnoreSizeUpdates(false)
 	, mLineWidth(1.0f)
@@ -68,7 +68,7 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	setTransparent(false);
 
 	setRadius(mRadius);
-	setFilled(mFilled);
+	setFilled(filled);
 	mLayoutFixedAspect = true;
 }
 
