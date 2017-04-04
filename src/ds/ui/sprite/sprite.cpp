@@ -227,6 +227,8 @@ void Sprite::updateClient(const UpdateParams &p) {
 	for(auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
 		(*it)->updateClient(p);
 	}
+
+	onUpdateClient(p);
 }
 
 void Sprite::updateServer(const UpdateParams &p) {
