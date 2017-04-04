@@ -235,12 +235,7 @@
     <ClCompile Include="..\src\ds\app\engine\engine_settings.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_standalone.cpp" />
     <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp" />
-    <ClCompile Include="..\src\ds\app\engine\unique_id.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">NotUsing</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
-    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\unique_id.cpp"/>
     <ClCompile Include="..\src\ds\app\environment.cpp" />
     <ClCompile Include="..\src\ds\app\error.cpp" />
     <ClCompile Include="..\src\ds\app\event.cpp" />
