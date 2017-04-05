@@ -47,7 +47,7 @@ void EngineStatsView::installAsClient(ds::BlobRegistry& registry) {
  * \class ds::EngineStatsView
  */
 EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
-	: inherited(e)
+	: ds::ui::Sprite(e)
 	, mEngine((ds::Engine&)e)
 	, mEventClient(e.getNotifier(), [this](const ds::Event *e) { if(e) onAppEvent(*e); })
 	, mLT(mEngine.getEngineData().mSrcRect.x1, mEngine.getEngineData().mSrcRect.y1)
@@ -69,17 +69,13 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 
 }
 
-void EngineStatsView::updateServer(const ds::UpdateParams &p) {
-	inherited::updateServer(p);
-
+void EngineStatsView::onUpdateServer(const ds::UpdateParams &p) {
 	if(visible()) {
 		updateStats();
 	}
 }
 
-void EngineStatsView::updateClient(const ds::UpdateParams& p){
-	inherited::updateClient(p);
-
+void EngineStatsView::onUpdateClient(const ds::UpdateParams& p){
 	if(visible()) {
 		updateStats();
 	}
@@ -105,10 +101,15 @@ void EngineStatsView::updateStats(){
 		ss << "<span weight='bold'>Virtual Memory:</span> " << mEngine.getComputerInfo().getVirtualMemoryUsedByProcess() << std::endl;
 		//ss << "<span weight='bold'>CPU:</span> " << mEngine.getComputerInfo().getPercentUsageCPU() << "%" << std::endl;
 
+		if(mEngine.getMode() != ds::ui::SpriteEngine::STANDALONE_MODE){
+			ss << "<span weight='bold'>Bytes Received:</span>\t" << mEngine.getBytesRecieved() << std::endl;
+			ss << "<span weight='bold'>Bytes Sent:</span>\t\t" << mEngine.getBytesSent() << std::endl;
+		}
+
 		float fpsy = mEngine.getAverageFps();
 		if(fpsy < 30.0f){
 			ss << "<span weight='bold'>FPS:</span> <span color='red'>" << fpsy << "</span>" << std::endl;
-		} else if(fpsy < 60.0f){
+		} else if(fpsy < 59.0f){
 			ss << "<span weight='bold'>FPS:</span> <span color='yellow'>" << fpsy << "</span>" << std::endl;
 		} else {
 			ss << "<span weight='bold'>FPS:</span> " << fpsy << std::endl;

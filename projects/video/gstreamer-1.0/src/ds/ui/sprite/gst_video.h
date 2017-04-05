@@ -151,8 +151,8 @@ public:
 	void				setAutoExtendIdle(const bool doAutoextend);
 	bool				getAutoExtendIdle() const;
 
-	virtual void		updateClient(const UpdateParams&) override;
-	virtual void		updateServer(const UpdateParams&) override;
+	virtual void		onUpdateClient(const UpdateParams&) override;
+	virtual void		onUpdateServer(const UpdateParams&) override;
 
 	///Allow for custom audio output
 	void				generateAudioBuffer(bool enableAudioBuffer);

@@ -26,13 +26,12 @@ public:
 	EngineStatsView(ds::ui::SpriteEngine&);
 
 
-	virtual void				updateServer(const ds::UpdateParams&);
-	virtual void				updateClient(const ds::UpdateParams&);
+	virtual void				onUpdateServer(const ds::UpdateParams&) override;
+	virtual void				onUpdateClient(const ds::UpdateParams&) override;
 
 	void						updateStats();
 private:
 	void						onAppEvent(const ds::Event&);
-	typedef ds::ui::Sprite		inherited;
 	ds::Engine&					mEngine;
 	ds::EventClient				mEventClient;
 	// UI

@@ -21,7 +21,7 @@ public:
 
 	void								linkVideo(ds::ui::Video* vid);
 
-	virtual void						updateServer(const ds::UpdateParams& p);
+	virtual void						onUpdateServer(const ds::UpdateParams& p) override;
 
 	ds::ui::ImageButton*				mHome;
 	ds::ui::ImageButton*				mPauseOn;

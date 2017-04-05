@@ -100,7 +100,7 @@ protected:
 	void								applyText(const std::wstring& theStr);
 
 	bool								mInFocus;
-	int									mCursorIndex;
+	size_t								mCursorIndex;
 
 	std::wstring						mCurrentText;
 	ds::ui::MultilineText*				mTextSprite;

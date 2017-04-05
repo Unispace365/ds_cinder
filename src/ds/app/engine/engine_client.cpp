@@ -38,8 +38,8 @@ EngineClient::EngineClient(	ds::App& app, const ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
 		, mLoadImageService(*this, mIpFunctions)
-		, mSender(mSendConnection)
-		, mReceiver(mReceiveConnection)
+		, mSender(mSendConnection, false)
+		, mReceiver(mReceiveConnection, true)
 		, mBlobReader(mReceiver.getData(), *this)
 		, mSessionId(0)
 		, mConnectionRenewed(false)
@@ -93,15 +93,23 @@ void EngineClient::update() {
 	updateClient();
 	mComputerInfo->update();
 
-	if (!mConnectionRenewed && mReceiver.hasLostConnection()) {
-		mConnectionRenewed = true;
+	if (!mConnectionRenewed && 
+		(mReceiver.hasLostConnection() || !mSendConnection.initialized())
+		){
 		// This can happen because the network connection drops, so
 		// refresh it, and let the world now I'm ready again.
 		mReceiveConnection.renew();
+		mSendConnection.renew();
+		mReceiver.clearLostConnection();
+
+		if(mReceiveConnection.initialized() && mSendConnection.initialized()){
+			mConnectionRenewed = true;
+		}
 
 		setState(mClientStartedState);
 		return;
 	}
+
 
 	// Every update, receive data
 	mReceiver.setHeaderAndCommandOnly(mState->getHeaderAndCommandOnly());
@@ -134,6 +142,14 @@ void EngineClient::draw() {
 void EngineClient::stopServices() {
 	inherited::stopServices();
 	mWorkManager.stopManager();
+}
+
+int EngineClient::getBytesRecieved(){
+	return mReceiveConnection.getReceivedBytes();
+}
+
+int EngineClient::getBytesSent(){
+	return mSendConnection.getSentBytes();
 }
 
 void EngineClient::receiveHeader(ds::DataBuffer& data) {
@@ -227,12 +243,12 @@ void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
 			char			att;
 			std::string		guid;
 			int32_t			sessionid(0);
+			unsigned int	chunkerId(0);
 			while (data.canRead<char>() && (att=data.read<char>()) != ds::TERMINATOR_CHAR) {
 				if (att == ATT_GLOBAL_ID) {
 					guid = data.read<std::string>();
 				} else if (att == ATT_SESSION_ID) {
 					sessionid = data.read<int32_t>();
-
 				} else if(att == ATT_ROOTS){
 					std::vector<RootList::Root> roots;
 					int numRoots = data.read<int32_t>();
@@ -259,6 +275,7 @@ void EngineClient::onClientStartedReplyCommand(ds::DataBuffer& data) {
 			}
 			if (guid == mIoInfo.mGlobalId) {
 				mSessionId = sessionid;
+				mSender.setPacketNumber(chunkerId);
 				setState(mBlankState);
 			}
 		} 
@@ -355,6 +372,9 @@ void EngineClient::ClientStartedState::begin(EngineClient&) {
 }
 
 void EngineClient::ClientStartedState::update(EngineClient& engine) {
+	if(!engine.mSendConnection.initialized()){
+		engine.mSendConnection.renew();
+	}
 	if (mSendFrame <= 0) {
 		EngineSender::AutoSend  send(engine.mSender);
 		ds::DataBuffer&   buf = send.mData;
@@ -366,7 +386,7 @@ void EngineClient::ClientStartedState::update(EngineClient& engine) {
 
 		// Randomize the amount of time to wait for a retry. 
 		// If there are multiple clients that started at the same time, we could be flooding the server with new world requests
-		mSendFrame = ci::randInt(30, 240);
+		mSendFrame = ci::randInt(60, 300);
 
 		DS_LOG_INFO_M("Send CMD_CLIENT_STARTED", ds::IO_LOG);
 	}

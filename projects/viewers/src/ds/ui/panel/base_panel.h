@@ -102,7 +102,7 @@ public:
 	void							setAutoKeepInFront(const bool autoBringToFront){ mAutoSendToFront = autoBringToFront; }
 
 protected:
-	virtual void					updateServer(const ds::UpdateParams &updateParams);
+	virtual void					onUpdateServer(const ds::UpdateParams &updateParams);
 
 
 	/** Override this to layout your ui when the panel changes size .

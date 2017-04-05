@@ -1,6 +1,7 @@
 #ifndef _GLOBEEXAMPLE_APP_H_
 #define _GLOBEEXAMPLE_APP_H_
 
+#include <cinder/app/RendererGl.h>
 #include <cinder/app/App.h>
 #include <ds/app/app.h>
 

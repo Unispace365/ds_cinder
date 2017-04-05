@@ -274,7 +274,6 @@
     <ClCompile Include="..\src\query\story_query.cpp" />
     <ClCompile Include="..\src\ui\info_list\info_list.cpp" />
     <ClCompile Include="..\src\ui\info_list\info_list_item.cpp" />
-    <ClCompile Include="..\src\ui\touch\view_dragger.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\app\app_defs.h" />
@@ -288,8 +287,6 @@
     <ClInclude Include="..\src\query\story_query.h" />
     <ClInclude Include="..\src\ui\info_list\info_list.h" />
     <ClInclude Include="..\src\ui\info_list\info_list_item.h" />
-    <ClInclude Include="..\src\ui\touch\view_dragger.h" />
-    <ClInclude Include="..\src\util\sprite_cache.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(DS_PLATFORM_090)\vs2013\FrameworkResources.rc" />

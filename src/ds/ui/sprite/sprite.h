@@ -87,15 +87,30 @@ namespace ui {
 		virtual ~Sprite();
 
 		/** Update function for when this app is set to be a client.
-			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
+			Don't override this function, use onUpdateClient if you need it
 			\param updateParams UpdateParams containing some conveniences such as delta time.		*/
-		virtual void			updateClient(const ds::UpdateParams& updateParams);
+		virtual void			updateClient(const ds::UpdateParams& updateParams) final;
+
+		/** Update function for when this app is set to be a client.
+			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
+			This is called after everything else in the base updateServer, and allows you to update things on a frame-by-frame basis.
+			This was added to prevent bugs from not calling the inherited updateServer when overriding that function
+		\param updateParams UpdateParams containing some conveniences such as delta time.		*/
+		virtual void			onUpdateClient(const ds::UpdateParams& updateParams){};
 
 		/** Update function for when this app is set to be a server.
 			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
-			In most cases, you'll override this function for logic on updates, rather than updateClient()
+			Don't override this function (you can't in fact). Override onUpdateServer() for stuff that should change each frame.
 			\param updateParams UpdateParams containing some conveniences such as delta time.		*/
-		virtual void			updateServer(const ds::UpdateParams& updateParams);
+		virtual void			updateServer(const ds::UpdateParams& updateParams) final;
+
+
+		/** Update function for when this app is set to be a server.
+			Sprite behaviour can vary whether this is running on the server or client, and you can hook into that here.
+			This is called after everything else in the base updateServer, and allows you to update things on a frame-by-frame basis.
+			This was added to prevent bugs from not calling the inherited updateServer when overriding that function
+		\param updateParams UpdateParams containing some conveniences such as delta time.		*/
+		virtual void			onUpdateServer(const ds::UpdateParams& updateParams){}
 
 		/** Draw function for when this app is set to be a client.
 			In most cases, you'll want to override drawLocalClient() to do custom drawing, as this function handles drawing for children as well.

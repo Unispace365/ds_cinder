@@ -146,20 +146,30 @@ void DeChunker::addChunkToGroup(DeChunkStats &stats, const char *chunk, size_t s
 }
 
 bool DeChunker::getNextGroup(std::string &dst){
-	if(!mGroupsAvailable.empty() && !mGroupsReceived.empty() && (mGroupsReceived.back() == mGroupsAvailable.back()))	{
-		size_t groupId = mGroupsAvailable.back();
-		mGroupsAvailable.pop_back();
-		mGroupsReceived.pop_back();
+	if(!mGroupsAvailable.empty() && !mGroupsReceived.empty())	{
 
-		if(mDataChunks[groupId].mData.get()){
-			snappy::Uncompress(mDataChunks[groupId].mData.get()->c_str(), mDataChunks[groupId].mData.get()->size(), &dst);
+		size_t groupId = mGroupsAvailable.back();
+		
+		auto gr = std::find(mGroupsReceived.begin(), mGroupsReceived.end(), groupId);
+		if(gr != mGroupsReceived.end()){
+			mGroupsAvailable.pop_back();
+			mGroupsReceived.erase(gr);
+
+			if(mDataChunks[groupId].mData.get()){
+				snappy::Uncompress(mDataChunks[groupId].mData.get()->c_str(), mDataChunks[groupId].mData.get()->size(), &dst);
+			}
+
+			mReserveStrings.push_back(std::move(mDataChunks[groupId].mData));
+			mDataChunks.erase(groupId);
+
+			return true;
+		} else {
+			std::cout << "Big trubs with mismatched lists!" << std::endl;
 		}
 
-		mReserveStrings.push_back(std::move(mDataChunks[groupId].mData));
-		mDataChunks.erase(groupId);
-
-		return true;
 	}
+
+	std::cout << "get next group is borking: " << mGroupsAvailable.empty() << " " << mGroupsReceived.empty() << std::endl;
 
 	return false;
 }

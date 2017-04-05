@@ -75,8 +75,8 @@ protected:
 	virtual void				onImageLoaded() {}
 	virtual void				onImageUnloaded() {}
 
-	void						updateServer(const UpdateParams&) override;
-	void						updateClient(const UpdateParams&) override;
+	void						onUpdateServer(const UpdateParams&) override;
+	void						onUpdateClient(const UpdateParams&) override;
 	void						drawLocalClient() override;
 	void						writeAttributesTo(ds::DataBuffer&) override;
 	void						readAttributeFrom(const char attributeId, ds::DataBuffer&) override;

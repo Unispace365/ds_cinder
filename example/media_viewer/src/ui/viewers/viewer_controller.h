@@ -18,7 +18,7 @@ class TitledMediaViewer;
 * \class mv::ViewerController
 *			Manages and mediates all media viewers
 */
-class ViewerController final : public ds::ui::Sprite  {
+class ViewerController : public ds::ui::Sprite  {
 	public:
 		ViewerController(Globals& g);
 
@@ -32,7 +32,6 @@ class ViewerController final : public ds::ui::Sprite  {
 
 	private:
 		void								onAppEvent(const ds::Event&);
-		virtual void						updateServer(const ds::UpdateParams& p);
 		void								animateViewerOff(TitledMediaViewer* viewer, const float delayey);
 		void								createGridLayout(const ci::Rectf area, const int numItems, std::vector<ci::vec2>& positions);
 

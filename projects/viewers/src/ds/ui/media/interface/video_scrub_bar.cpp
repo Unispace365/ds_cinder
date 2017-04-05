@@ -60,9 +60,7 @@ void VideoScrubBar::linkVideo(ds::ui::GstVideo* vid){
 	mLinkedVideo = vid;
 }
 
-void VideoScrubBar::updateServer(const ds::UpdateParams& p){
-	ds::ui::Sprite::updateServer(p);
-
+void VideoScrubBar::onUpdateServer(const ds::UpdateParams& p){
 	if(mLinkedVideo && mProgress){
 		// update scrub bar
 		float progress = (float)mLinkedVideo->getCurrentPosition();

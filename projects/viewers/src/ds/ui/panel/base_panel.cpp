@@ -91,9 +91,7 @@ void BasePanel::handleTouchInfo(const ds::ui::TouchInfo& ti){
 	}
 }
 
-void BasePanel::updateServer(const ds::UpdateParams &updateParams){
-
-	ds::ui::Sprite::updateServer(updateParams);
+void BasePanel::onUpdateServer(const ds::UpdateParams &updateParams){
 	if(mMomentum.recentlyMoved() && !mAnimating){
 		checkBounds();
 	}

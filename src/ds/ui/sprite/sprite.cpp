@@ -226,6 +226,8 @@ void Sprite::updateClient(const UpdateParams &p) {
 	for(auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
 		(*it)->updateClient(p);
 	}
+
+	onUpdateClient(p);
 }
 
 void Sprite::updateServer(const UpdateParams &p) {
@@ -240,6 +242,8 @@ void Sprite::updateServer(const UpdateParams &p) {
 	for(auto it = mChildren.begin(), it2 = mChildren.end(); it != it2; ++it) {
 		(*it)->updateServer(p);
 	}
+
+	onUpdateServer(p);
 }
 
 void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {

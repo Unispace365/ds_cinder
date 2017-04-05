@@ -23,7 +23,7 @@
       <AdditionalLibraryDirectories>
 	  $(CINDER_090)\lib;
 	  $(CINDER_090)\lib\msw\x64;
-	  $(DS_PLATFORM_090)\lib\poco_1.7.7\lib64;
+	  $(DS_PLATFORM_090)\lib\poco\lib\x64;
 	  $(DS_PLATFORM_090)\lib;
 	  $(DS_PLATFORM_090)\lib\gtk\lib64;
 	  $(DS_PLATFORM_090)\lib\snappy\lib64;

@@ -23,7 +23,7 @@ public:
 	Mesh(SpriteEngine&, const std::string& filename);
 	~Mesh();
 
-	virtual void				updateServer(const UpdateParams&);
+	virtual void				onUpdateServer(const UpdateParams&) override;
 	virtual void				drawLocalClient();
 	virtual void				drawLocalServer();
 	bool						isLoaded() const;
@@ -41,8 +41,6 @@ protected:
 	virtual void				readAttributeFrom(const char attributeId, ds::DataBuffer&);
 
 private:
-	typedef Sprite				inherited;
-
 	void						setStatus(const int);
 	void						init();
 

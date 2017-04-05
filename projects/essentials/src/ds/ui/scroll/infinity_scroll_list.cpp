@@ -191,11 +191,6 @@ namespace ds{
 			}
 		}
 
-		void infinityList::updateServer(const ds::UpdateParams& p)
-		{
-			Sprite::updateServer(p);
-		}
-
 		void infinityList::clearItems()
 		{
 			for (auto it = mItemPlaceHolders.begin(), it2 = mItemPlaceHolders.end(); it != it2; ++it){

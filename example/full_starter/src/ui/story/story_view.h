@@ -26,7 +26,7 @@ public:
 private:
 	void								onAppEvent(const ds::Event&);
 
-	virtual void						updateServer(const ds::UpdateParams& p);
+	virtual void						onUpdateServer(const ds::UpdateParams& p) override;
 
 	void								animateOn();
 	void								animateOff();

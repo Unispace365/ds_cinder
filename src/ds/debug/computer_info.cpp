@@ -6,6 +6,7 @@
 
 #ifdef CINDER_MSW
 #define _WIN32_DCOM
+
 #include <iostream>
 //using namespace std;
 #include <comdef.h>
@@ -121,8 +122,7 @@ ComputerInfo::ComputerInfo(const MemoryConversion memoryConversion, const int on
 	update();
 }
 
-void ComputerInfo::update()
-{
+void ComputerInfo::update(){
 	mMemoryStatus.dwLength = sizeof(MEMORYSTATUSEX);
 	GlobalMemoryStatusEx(&mMemoryStatus);
 	GetProcessMemoryInfo(GetCurrentProcess(), (PROCESS_MEMORY_COUNTERS *)&mProcessMemoryCounters, sizeof(PROCESS_MEMORY_COUNTERS_EX));

@@ -6,7 +6,7 @@
 #include <ds/app/engine/engine.h>
 
 
-#include <cinder/Rand.h> 
+#include <cinder/Rand.h>
 #include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"

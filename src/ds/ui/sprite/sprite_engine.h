@@ -167,6 +167,9 @@ public:
 	// Get the sprite at the global touch point. NOTE: performance intensive. Use carefully.
 	virtual ds::ui::Sprite*			getHit(const ci::vec3& point) = 0;
 
+	virtual	int						getBytesRecieved() = 0;
+	virtual int						getBytesSent() = 0;
+
 
 	static const int				CLIENT_MODE = 0;
 	static const int				SERVER_MODE = 1;

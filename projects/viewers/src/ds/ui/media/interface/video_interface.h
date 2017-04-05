@@ -22,7 +22,7 @@ public:
 
 	void						linkVideo(ds::ui::GstVideo* linkedVideo);
 
-	virtual void				updateServer(const ds::UpdateParams& p);
+	virtual void				onUpdateServer(const ds::UpdateParams& p) override;
 protected:
 
 	virtual void				onLayout();

@@ -20,7 +20,7 @@ public:
 	void							setVolume(const float v);
 
 protected:
-	virtual void					updateServer(const ds::UpdateParams& updateParams);
+	virtual void					onUpdateServer(const ds::UpdateParams& updateParams) override;
 
 	ds::ui::GstVideo*				mLinkedVideo;
 

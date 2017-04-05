@@ -8,7 +8,6 @@
 #include <ds/ui/media/media_viewer.h>
 
 #include <cinder/Rand.h> 
-#include <cinder/app/RendererGl.h>
 
 #include "app/app_defs.h"
 #include "app/globals.h"

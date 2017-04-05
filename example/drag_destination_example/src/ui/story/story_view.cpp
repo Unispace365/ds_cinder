@@ -86,12 +86,4 @@ void StoryView::animateOff(){
 	tweenOpacity(0.0f, mGlobals.getSettingsLayout().getFloat("story_view:anim_time", 0, 0.35f), 0.0f, ci::EaseNone(), [this]{hide(); });
 }
 
-void StoryView::updateServer(const ds::UpdateParams& p){
-	inherited::updateServer(p);
-
-	// any changes for this frame happen here
-}
-
-
-
 } // namespace example

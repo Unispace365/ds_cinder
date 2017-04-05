@@ -159,8 +159,8 @@ public:
 	const std::string			getConfigName(){ return mCfgName; }
 	const std::string			getFontFileName(){ return mTextFont; }
 
-	virtual void				updateClient(const UpdateParams &updateParams);
-	virtual void				updateServer(const UpdateParams&);
+	virtual void				onUpdateClient(const UpdateParams &updateParams) override;
+	virtual void				onUpdateServer(const UpdateParams&) override;
 	void						drawLocalClient();
 
 	// Renders text into the texture.

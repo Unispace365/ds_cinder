@@ -27,7 +27,7 @@ public:
 	void						updateWidgets();
 
 protected:
-	virtual void				updateServer(const ds::UpdateParams& updateParams);
+	virtual void				onUpdateServer(const ds::UpdateParams& updateParams) override;
 	virtual void				onLayout();
 
 	ds::ui::Pdf*				mLinkedPDF;

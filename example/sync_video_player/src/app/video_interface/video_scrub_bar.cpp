@@ -131,8 +131,7 @@ void VideoScrubBar::linkVideo(ds::ui::Video* vid){
 	mLinkedVideo = vid;
 }
 
-void VideoScrubBar::updateServer(const ds::UpdateParams& p){
-	inherited::updateServer(p);
+void VideoScrubBar::onUpdateServer(const ds::UpdateParams& p){
 	if (!mLinkedVideo) return;
 
 	if (mAdded || mMoved || mRemoved) {

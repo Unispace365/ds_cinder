@@ -10,7 +10,7 @@ namespace ds{
 namespace ui{
 
 PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine, const std::vector<std::string>& imageFiles)
-	: inherited(engine)
+	: ds::ui::Sprite(engine)
 	, mLoopStyle(Loop)
 	, mCurrentFrameIndex(0)
 	, mPlaying(true)
@@ -25,7 +25,7 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine, const std::vector<std
 }
 
 PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine)
-	: inherited(engine)
+	: ds::ui::Sprite(engine)
 	, mLoopStyle(Loop)
 	, mCurrentFrameIndex(0)
 	, mPlaying(true)
@@ -36,7 +36,7 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine)
 }
 
 void PngSequenceSprite::setImages(const std::vector<std::string>& imageFiles){
-	int i=0;
+	size_t i=0;
 	for(auto it = imageFiles.begin(); it < imageFiles.end(); ++it){
 		bool created_new_frames = false;
 		while ( mFrames.size() < i+1 ) {
@@ -105,11 +105,11 @@ void PngSequenceSprite::setCurrentFrameIndex(const int frameIndex){
 	}
 }
 
-const int PngSequenceSprite::getCurrentFrameIndex()const{
+const size_t PngSequenceSprite::getCurrentFrameIndex()const{
 	return mCurrentFrameIndex;
 }
 
-const int PngSequenceSprite::getNumberOfFrames(){
+const size_t PngSequenceSprite::getNumberOfFrames(){
 	return mNumFrames;
 }
 
@@ -126,9 +126,7 @@ void PngSequenceSprite::sizeToFirstImage(){
 	}
 }
 
-void PngSequenceSprite::updateServer(const ds::UpdateParams& p){
-	inherited::updateServer(p);
-
+void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p){
 	// Remove old (unused) Image sprites from the back of the frames if the count has changed...
 	while ( mFrames.size() > mNumFrames ) {
 		auto last_frame = mFrames.back();

@@ -37,8 +37,8 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::EngineSettin
 											ds::EngineData& ed, const ds::RootList& roots)
 	: inherited(app, settings, ed, roots)
 //    , mConnection(NumberOfNetworkThreads)
-	, mSender(mSendConnection)
-	, mReceiver(mReceiveConnection)
+	, mSender(mSendConnection, true)
+	, mReceiver(mReceiveConnection, false)
 	, mBlobReader(mReceiver.getData(), *this)
 	, mState(nullptr)
 {
@@ -98,6 +98,14 @@ void AbstractEngineServer::stopServices() {
 
 void AbstractEngineServer::spriteDeleted(const ds::sprite_id_t &id) {
 	mState->spriteDeleted(id);
+}
+
+int AbstractEngineServer::getBytesRecieved(){
+	return mReceiveConnection.getReceivedBytes();
+}
+
+int AbstractEngineServer::getBytesSent(){
+	return mSendConnection.getSentBytes();
 }
 
 void AbstractEngineServer::receiveHeader(ds::DataBuffer& data) {
@@ -290,8 +298,9 @@ void EngineServer::RunningState::begin(AbstractEngineServer& engine) {
 
 void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 	if (engine.mReceiver.hasLostConnection()) {
-//DS_LOG_INFO_M("server receiver lost connection", ds::IO_LOG);
 		engine.mReceiveConnection.renew();
+		engine.mSendConnection.renew();
+		
 		engine.mReceiver.clearLostConnection();
 	}
 
@@ -300,7 +309,6 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 		EngineSender::AutoSend  send(engine.mSender);
 		// Always send the header
 		addHeader(send.mData, mFrame);
-//		DS_LOG_INFO_M("running frame=" << mFrame, ds::IO_LOG);
 
 		const size_t numRoots = engine.getRootCount();
 		for(int i = 0; i < numRoots - 1; i++){
@@ -318,7 +326,12 @@ void EngineServer::RunningState::update(AbstractEngineServer& engine) {
 	}
 
 	// this receive call pulls everything it can off the wire and caches it
-	engine.mReceiver.receiveBlob();
+	// if there was an error decoding the chunks, then go back to sending a full world
+	if(!engine.mReceiver.receiveBlob()){
+		engine.mReceiver.clearLostConnection();
+		engine.setState(engine.mSendWorldState);
+		return;
+	}
 
 	// now we can look through all the data we got and handle it
 	while(true) {
@@ -378,6 +391,7 @@ void EngineServer::ClientStartedReplyState::update(AbstractEngineServer& engine)
 		send.mData.add(COMMAND_BLOB);
 		send.mData.add(CMD_CLIENT_STARTED_REPLY);
 		// Send each client
+
 		for (auto it=mClients.begin(), end=mClients.end(); it!=end; ++it) {
 			const EngineClientList::State*	s(engine.mClients.findClient(*it));
 			if (s) {

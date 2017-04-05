@@ -61,8 +61,8 @@ class ScrollArea : public ds::ui::Sprite {
 		void				handleTouchesRotated(const bool doRotated){ mHandleRotatedTouches = doRotated; }
 
 	protected:
-		virtual void		updateServer(const ds::UpdateParams& p);
-		virtual void		onSizeChanged();
+		virtual void		onUpdateServer(const ds::UpdateParams& p) override;
+		virtual void		onSizeChanged() override;
 		void				scrollerUpdated(const ci::vec2 scrollPos);
 		void				scrollerTweenUpdated();
 		void				tweenComplete();

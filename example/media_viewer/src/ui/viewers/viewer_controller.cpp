@@ -36,12 +36,6 @@ void ViewerController::onAppEvent(const ds::Event& in_e){
 	}
 }
 
-void ViewerController::updateServer(const ds::UpdateParams& p){
-	inherited::updateServer(p);
-
-	// any changes for this frame happen here
-}
-
 void ViewerController::addViewer(ds::model::MediaRef newMedia, const ci::vec3 location, const float startWidth) {
 	TitledMediaViewer* tmv = new TitledMediaViewer(mGlobals);
 	addChildPtr(tmv);
@@ -141,7 +135,7 @@ void ViewerController::layoutViewers() {
 
 	ci::Rectf area = ci::Rectf(xStart, yStart, xStop, yStop);
 	std::vector<ci::vec2> positions;
-	int numItems = mViewers.size();
+	int numItems = (int)mViewers.size();
 	createGridLayout(area, numItems, positions);
 
 	float delayey = 0.0f;

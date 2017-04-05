@@ -21,7 +21,7 @@ public:
 	virtual void						animateOn();
 	virtual void						animateOff();
 
-	virtual void						updateServer(const ds::UpdateParams& updateParams);
+	virtual void						onUpdateServer(const ds::UpdateParams& updateParams) override;
 	void								layout();
 
 	void								setAnimateDuration(const float animDuration){ mAnimateDuration = animDuration; }

@@ -66,7 +66,7 @@ ci::Surface8uRef Pdf::renderPage(const std::string& path) {
 }
 
 Pdf::Pdf(ds::ui::SpriteEngine& e)
-		: inherited(e)
+	: ds::ui::Sprite(e)
 		, mPageSizeChangeFn(nullptr)
 		, mPageSizeCache(0, 0)
 		, mHolder(e) 
@@ -142,8 +142,7 @@ void Pdf::setPageSizeChangedFn(const std::function<void(void)>& fn) {
 	mPageSizeChangeFn = fn;
 }
 
-void Pdf::updateClient(const UpdateParams& p) {
-	inherited::updateClient(p);
+void Pdf::onUpdateClient(const UpdateParams& p) {
 	if(mPrevScale != mScale){
 		mHolder.setScale(mScale);
 		mPrevScale = mScale;
@@ -151,8 +150,7 @@ void Pdf::updateClient(const UpdateParams& p) {
 	mHolder.update();
 }
 
-void Pdf::updateServer(const UpdateParams& p) {
-	inherited::updateServer(p);
+void Pdf::onUpdateServer(const UpdateParams& p) {
 	if(mHolder.update()){
 
 		const ci::ivec2			page_size(mHolder.getPageSize());
@@ -202,13 +200,13 @@ void Pdf::goToPreviousPage() {
 void Pdf::writeState(std::ostream &s, const size_t tab) const {
 	for (size_t k=0; k<tab; ++k) s << "\t";
 	s << "PDF (" << mResourceFilename << ")" << std::endl;
-	inherited::writeState(s, tab);
+	ds::ui::Sprite::writeState(s, tab);
 	s << std::endl;
 }
 #endif
 
 void Pdf::onScaleChanged() {
-	inherited::onScaleChanged();
+	ds::ui::Sprite::onScaleChanged();
 	mHolder.setScale(mScale);
 }
 
@@ -248,7 +246,7 @@ void Pdf::drawLocalClient() {
 }
 
 void Pdf::writeAttributesTo(ds::DataBuffer &buf) {
-	inherited::writeAttributesTo(buf);
+	ds::ui::Sprite::writeAttributesTo(buf);
 
 	if (mDirty.has(PDF_FN_DIRTY)) {
 		buf.add(PDF_FN_ATT);
@@ -268,7 +266,7 @@ void Pdf::readAttributeFrom(const char attributeId, ds::DataBuffer &buf) {
 		const int			curPage = buf.read<int>();
 		setPageNum(curPage);
 	} else {
-		inherited::readAttributeFrom(attributeId, buf);
+		ds::ui::Sprite::readAttributeFrom(attributeId, buf);
 	}
 }
 

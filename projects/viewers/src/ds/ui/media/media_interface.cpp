@@ -41,9 +41,7 @@ MediaInterface::MediaInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey,
 	layout();
 }
 
-void MediaInterface::updateServer(const ds::UpdateParams& p){
-	ds::ui::Sprite::updateServer(p);
-
+void MediaInterface::onUpdateServer(const ds::UpdateParams& p){
 	if(mCanIdle && mIdling != isIdling()){
 		mIdling = isIdling();
 		if(mIdling){
@@ -53,7 +51,6 @@ void MediaInterface::updateServer(const ds::UpdateParams& p){
 		}
 	}
 }
-
 
 // Layout is called when the size is changed, so don't change the size in the layout
 void MediaInterface::layout(){

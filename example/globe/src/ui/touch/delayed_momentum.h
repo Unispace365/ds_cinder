@@ -2,6 +2,7 @@
 #ifndef DS_EXAMPLE_UI_TOUCH_DELAYED_MOMENTUM
 #define DS_EXAMPLE_UI_TOUCH_DELAYED_MOMENTUM
 
+#include <cinder/app/RendererGl.h>
 #include <vector>
 #include <cinder/Vector.h>
 #include <Poco/Timestamp.h>
