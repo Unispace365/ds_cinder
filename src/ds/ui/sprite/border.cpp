@@ -102,7 +102,7 @@ void Border::onBuildRenderBatch() {
 	const float h = getHeight();
 	auto rect = ci::Rectf(0.0f, 0.0f, w, h);
 	if(mCornerRadius > 0.0f){
-		auto theGeom = ci::geom::WireRoundedRect(rect, mCornerRadius);
+		auto theGeom = ci::geom::RoundedRect(rect, mCornerRadius);
 		if(mRenderBatch){
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
 		} else {
