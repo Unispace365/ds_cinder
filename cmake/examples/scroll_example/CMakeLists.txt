@@ -15,7 +15,6 @@ set( SRC_FILES
 	${APP_PATH}/src/app/app_defs.cpp
 	${APP_PATH}/src/app/globals.cpp
 	${APP_PATH}/src/app/scrollexample_app.cpp
-	${APP_PATH}/src/ui/touch/view_dragger.cpp
 	${APP_PATH}/src/ui/info_list/info_list.cpp
 	${APP_PATH}/src/ui/info_list/info_list_item.cpp
 )

@@ -47,8 +47,6 @@ list( APPEND DS_CINDER_SRC_FILES
 	${ROOT_PATH}/src/ds/app/event_client.cpp
 	${ROOT_PATH}/src/ds/app/event_registry.cpp
 	${ROOT_PATH}/src/ds/app/engine/engine_io.cpp
-	${ROOT_PATH}/src/ds/app/engine/renderers/engine_renderer_continuous.cpp
-	${ROOT_PATH}/src/ds/app/engine/renderers/engine_renderer_interface.cpp
 	${ROOT_PATH}/src/ds/app/engine/engine_server.cpp
 	${ROOT_PATH}/src/ds/app/engine/engine_client_list.cpp
 	${ROOT_PATH}/src/ds/app/engine/engine_roots.cpp
