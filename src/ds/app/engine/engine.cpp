@@ -19,6 +19,7 @@
 #include "ds/util/file_meta_data.h"
 
 #include <cinder/Display.h>
+#include <boost/algorithm/string.hpp>
 
 //! This entire header is included for one single
 //! function Poco::Path::expand. This slowly needs
@@ -215,6 +216,14 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 		// This is valid, though unusual
 		std::cout << "Engine() has no resource_location setting" << std::endl;
 	} else {
+		if (boost::contains(resourceLocation, "%USERPROFILE%")) {
+			DS_LOG_WARNING("Using \"%USERPROFILE%\" in a resource_location path is deprecated.  You probably want \"%LOCAL%\"...");
+#ifndef _WIN32
+			boost::replace_all(resourceLocation, "%USERPROFILE%", Poco::Path::expand("~"));
+			DS_LOG_WARNING("Linux workaround: Converting \"%USERPROFILE%\" to \"~\" in resources_location...");
+#endif
+		}
+
 		resourceLocation = Poco::Path::expand(resourceLocation);
 		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
 		Resource::Id::setupPaths(
