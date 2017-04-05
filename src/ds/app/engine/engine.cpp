@@ -217,7 +217,11 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 	} else {
 		resourceLocation = Poco::Path::expand(resourceLocation);
 		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
-		Resource::Id::setupPaths(resourceLocation, ds::getNormalizedPath(settings.getText("resource_db", 0)), ds::getNormalizedPath(settings.getText("project_path", 0)));
+		Resource::Id::setupPaths(
+			ds::getNormalizedPath(resourceLocation),
+			ds::getNormalizedPath(settings.getText("resource_db", 0)),
+			ds::getNormalizedPath(settings.getText("project_path", 0))
+		);
 	}
 
 	setIdleTimeout((int)settings.getFloat("idle_time", 0, 300));

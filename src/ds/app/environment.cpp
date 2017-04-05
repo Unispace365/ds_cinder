@@ -27,19 +27,34 @@ namespace ds {
 
 namespace {
 std::string				DOCUMENTS("%DOCUMENTS%");
+std::string				DOWNSTREAM_DOCUMENTS("%LOCAL%");
 bool					USE_CFG_FILE_OVERRIDE = false;
 #ifdef WIN32
 const std::string		ENV_PATH_SEPARATOR = ";";
 #else
 const std::string		ENV_PATH_SEPARATOR = ":";
 #endif
+
+bool					sInitialized = false;
 }
 
 bool Environment::initialize() {
-	// We will need to do something different for linux, no doubt
+	if (sInitialized)
+		return true;
+	sInitialized = true;
+
+	// Home directory is %USERPROFILE% on Windows, ~ on Linux
+#ifdef _WIN32
 	Poco::Path			p(Poco::Path::expand("%USERPROFILE%"));
+#else
+	Poco::Path			p(Poco::Path::expand("~"));
+#endif
 	p.append("Documents");
 	DOCUMENTS = p.toString();
+
+	p.append("downstream");
+	DOWNSTREAM_DOCUMENTS = p.toString();
+
 	return true;
 }
 
@@ -59,6 +74,8 @@ const std::string& Environment::RESOURCES() {
 }
 
 std::string Environment::expand(const std::string& _path) {
+	if (!sInitialized) ds::Environment::initialize();
+
 	std::string		p(_path);
 
 	if(USE_CFG_FILE_OVERRIDE && p.find("%APP%") != std::string::npos){
@@ -83,6 +100,8 @@ std::string Environment::expand(const std::string& _path) {
 
 
 std::string Environment::contract(const std::string& fullPath){
+	if (!sInitialized) ds::Environment::initialize();
+
 	std::string		p(fullPath);
 	boost::replace_all(p, ds::App::envAppDataPath(), "%APP%");
 	boost::replace_all(p, EngineSettings::envProjectPath(), "%PP%");
@@ -135,11 +154,8 @@ std::string Environment::getLocalResourcesFolder(const std::string& folderName, 
 
 std::string Environment::getDownstreamDocumentsFolder()
 {
-	// We will need to do something different for linux, no doubt
-	Poco::Path			p(Poco::Path::expand("%USERPROFILE%"));
-	p.append("Documents");
-	p.append("downstream");
-	return p.toString();
+	if (!sInitialized) ds::Environment::initialize();
+	return DOWNSTREAM_DOCUMENTS;
 }
 
 std::string Environment::getLocalSettingsPath(const std::string& fileName)

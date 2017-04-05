@@ -221,7 +221,7 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 	{
 		Poco::Path      p(resource);
 		p.append(db);
-		CMS_DB_PATH = p.toString();
+		CMS_DB_PATH = getNormalizedPath(p);
 	}
 
 	// Portable path. We want it as small as possible to ease network traffic.
