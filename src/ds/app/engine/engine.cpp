@@ -16,6 +16,7 @@
 #include "ds/ui/ip/functions/ip_circle_mask.h"
 #include "ds/ui/touch/draw_touch_view.h"
 #include "ds/ui/touch/touch_event.h"
+#include "ds/util/file_meta_data.h"
 
 #include <cinder/Display.h>
 
@@ -209,14 +210,14 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 	mSelectPicking.setWorldSize(mData.mWorldSize);
 
 	// SETUP RESOURCES
-	std::string resourceLocation = settings.getText("resource_location", 0, "");
+	std::string resourceLocation = ds::getNormalizedPath(settings.getText("resource_location", 0, ""));
 	if (resourceLocation.empty()) {
 		// This is valid, though unusual
 		std::cout << "Engine() has no resource_location setting" << std::endl;
 	} else {
 		resourceLocation = Poco::Path::expand(resourceLocation);
 		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
-		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
+		Resource::Id::setupPaths(resourceLocation, ds::getNormalizedPath(settings.getText("resource_db", 0)), ds::getNormalizedPath(settings.getText("project_path", 0)));
 	}
 
 	setIdleTimeout((int)settings.getFloat("idle_time", 0, 300));

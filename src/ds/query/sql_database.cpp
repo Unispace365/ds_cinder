@@ -2,9 +2,11 @@
 
 #include "ds/query/sql_database.h"
 #include "ds/debug/logger.h"
+#include "ds/util/file_meta_data.h"
 
 #include <iostream>
 #include <Poco/Thread.h>
+#include <Poco/Path.h>
 
 //using namespace std;
 
@@ -107,7 +109,7 @@ namespace query {
  ******************************************************************/
 SqlDatabase::SqlDatabase(const std::string& sDB, int flags, int *errorCode)
 	: db(NULL)
-	, db_file(sDB)
+	, db_file(ds::getNormalizedPath(sDB))
 {
 	const int		result = sqlite3_open_v2(db_file.c_str(), &db, flags, 0);
 	if (errorCode) *errorCode = result;

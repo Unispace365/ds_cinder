@@ -165,7 +165,7 @@ public:
 	std::string				getAbsoluteFilePath() const;
 
 	/// Local file path is the path to a file, generally not tracked by a database. This will be used instead of resource ID, and FileName and Path won't be used.
-	void					setLocalFilePath(const std::string& localPath){ mLocalFilePath = localPath; }
+	void					setLocalFilePath(const std::string& localPath);
 
 	/// Answer an abstract file path that can be resolved to an absolute one via ds::Environment::expand().
 	std::string				getPortableFilePath() const;

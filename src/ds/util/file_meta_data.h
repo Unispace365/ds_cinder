@@ -6,6 +6,7 @@
 #include <string>
 #include <vector>
 #include <cinder/Vector.h>
+#include <Poco/Path.h>
 #include <ds/util/string_util.h>
 
 namespace ds {
@@ -15,6 +16,10 @@ std::string		filePathRelativeTo(const std::string &base, const std::string &rela
 
 /// Poco throws an exception when calling file.exists() and the file doesn't exist, so this handles that for you with no exceptions thrown.
 bool			safeFileExistsCheck(const std::string filePath, const bool allowDirectory = true);
+
+/// Return a platform-native normalized path string
+std::string		getNormalizedPath(const std::string& path);
+std::string		getNormalizedPath(const Poco::Path& path);
 
 
 /**
