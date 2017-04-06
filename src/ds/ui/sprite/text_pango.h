@@ -154,14 +154,6 @@ public:
 	virtual void				onUpdateServer(const UpdateParams&) override;
 	void						drawLocalClient();
 
-	// Renders text into the texture.
-	// Returns true if the texture was actually updated, false if nothing had to change
-	// It's reasonable (and more efficient) to just run this in an update loop rather than calling it
-	// explicitly after every change to the text state. It will coalesce all invalidations since the
-	// last frame and only rebuild what needs to be rebuilt to render the diff.
-	// Set force to true to render even if the system thinks state wasn't invalidated.
-	bool render(bool force = false);
-
 	/// Text is rendered into this texture
 	/// Note: this texture has pre-multiplied alpha
 	const ci::gl::TextureRef	getTexture();
@@ -174,6 +166,17 @@ public:
 	static void					installAsClient(ds::BlobRegistry&);
 
 	virtual	void				onBuildRenderBatch() override;
+
+protected:
+
+	// puts the layout into pango, updates any layout stuff, and measures the result
+	// This is a pre-requisite for drawPangoText().
+	bool measurePangoText();
+
+	// Renders text into the texture.
+	// Returns true if the texture was actually updated, false if nothing had to change
+	bool renderPangoText();
+
 private:
 	ci::gl::TextureRef			mTexture;
 
@@ -200,12 +203,13 @@ private:
 	int							mNumberOfLines;
 
 	// Internal flags for state invalidation
-	// Used by render method
+	// Used by measure and render methods
 	bool						mNeedsFontUpdate;
 	bool 						mNeedsMeasuring;
 	bool 						mNeedsTextRender;
 	bool 						mNeedsFontOptionUpdate;
 	bool 						mNeedsMarkupDetection;
+	bool						mNeedsSurfaceResize;
 
 	// simply stored to check for change across renders
 	int 						mPixelWidth;

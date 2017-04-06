@@ -24,7 +24,7 @@ namespace {
 const std::string opacityFrag =
 "uniform sampler2D	tex0;\n"
 "uniform float		opaccy;\n"
-"uniform vec2	resolution;\n"
+//"uniform vec2	    resolution;\n"
 "in vec4			Color;\n"
 "in vec2			TexCoord0;\n"
 "out vec4			oColor;\n"
@@ -180,8 +180,11 @@ TextPango::~TextPango() {
 
 #ifdef CAIRO_HAS_WIN32_SURFACE
 	if(mCairoWinImageSurface) {
-		cairo_surface_destroy(mCairoWinImageSurface);
+		//cairo_surface_destroy(mCairoWinImageSurface);
 		mCairoWinImageSurface = nullptr;
+	}
+	if(mCairoSurface != nullptr) {
+		cairo_surface_destroy(mCairoSurface);
 	}
 #else
 	// Crashes windows...
@@ -386,14 +389,14 @@ TextPango& TextPango::setFont(const std::string& name){
 
 float TextPango::getWidth() const {
 	if(mNeedsMeasuring) {
-		(const_cast<TextPango*>(this))->render();
+		(const_cast<TextPango*>(this))->measurePangoText();
 	}
 	return mWidth;
 }
 
 float TextPango::getHeight() const {
 	if(mNeedsMeasuring) {
-		(const_cast<TextPango*>(this))->render();
+		(const_cast<TextPango*>(this))->measurePangoText();
 	}
 	return mHeight;
 }
@@ -410,6 +413,9 @@ EllipsizeMode TextPango::getEllipsizeMode(){
 }
 
 void TextPango::onBuildRenderBatch(){
+	renderPangoText();
+
+	//return;
 	if(!mTexture){
 		mRenderBatch = nullptr;
 		return;
@@ -436,7 +442,7 @@ void TextPango::drawLocalClient(){
 		if(shaderBase) {
 			shaderBase->uniform("tex0", 0);
 			shaderBase->uniform("opaccy", mDrawOpacity);
-			shaderBase->uniform("resolution", ci::vec2(getWidth(), getHeight()));
+			shaderBase->uniform("resolution", ci::vec2(mTexture->getWidth(), mTexture->getHeight()));
 		}
 
 		mTexture->bind();
@@ -460,7 +466,7 @@ void TextPango::drawLocalClient(){
 }
 
 int TextPango::getCharacterIndexForPosition(const ci::vec2& lp){
-	render();	
+	measurePangoText();
 
 	int outputIndex = 0;
 	if(mPangoLayout){
@@ -475,7 +481,7 @@ int TextPango::getCharacterIndexForPosition(const ci::vec2& lp){
 	return outputIndex;
 }
 ci::vec2 TextPango::getPositionForCharacterIndex(const int characterIndex){
-	render();
+	measurePangoText();
 
 	ci::vec2 outputPos = ci::vec2();
 	if(mPangoLayout && !mText.empty()){
@@ -493,7 +499,7 @@ ci::vec2 TextPango::getPositionForCharacterIndex(const int characterIndex){
 }
 
 ci::Rectf TextPango::getRectForCharacterIndex(const int characterIndex){
-	render();
+	measurePangoText();
 
 	ci::Rectf outputRect = ci::Rectf();
 	if(mPangoLayout && !mText.empty()){
@@ -509,43 +515,39 @@ ci::Rectf TextPango::getRectForCharacterIndex(const int characterIndex){
 
 bool TextPango::getTextWrapped(){
 	// calculate current state if needed
-	render();
+	measurePangoText();
 	return mWrappedText;
 }
 
 int TextPango::getNumberOfLines(){
 	// calculate current state if needed
-	render();
+	measurePangoText();
 	return mNumberOfLines;
 }
 
 
 void TextPango::onUpdateClient(const UpdateParams&){
-	render();
+	measurePangoText();
 }
 
 void TextPango::onUpdateServer(const UpdateParams&){
-	render();
+	measurePangoText();
 }
 
-bool TextPango::render(bool force) {
-	if(force || mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
-		float preWidth = 0.0f;
-		float preHeight = 0.0f;
-		if(mTexture){
-			preWidth = mTexture->getWidth();
-			preHeight = mTexture->getHeight();
-		}
+bool TextPango::measurePangoText() {
+	if(mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
 
 		if(mText.empty()){
 			if(mWidth > 0.0f || mWidth > 0.0f){
 				setSize(0.0f, 0.0f);
 			}
+			mNeedsMarkupDetection = false;
+			mNeedsMeasuring = false;
 			mNeedsBatchUpdate = true;
 			return false;
 		}
 
-		if(force || mNeedsMarkupDetection) {
+		if(mNeedsMarkupDetection) {
 
 			// Pango doesn't support HTML-esque line-break tags, so
 			// find break marks and replace with newlines, e.g. <br>, <BR>, <br />, <BR />
@@ -564,9 +566,9 @@ bool TextPango::render(bool force) {
 		}
 
 		// First run, and then if the fonts change
-		if(force || mNeedsFontOptionUpdate) {
+		if(mNeedsFontOptionUpdate) {
 			// TODO, expose these?
-			
+
 			cairo_font_options_set_antialias(mCairoFontOptions, CAIRO_ANTIALIAS_SUBPIXEL);
 			cairo_font_options_set_hint_style(mCairoFontOptions, CAIRO_HINT_STYLE_DEFAULT);
 			cairo_font_options_set_hint_metrics(mCairoFontOptions, CAIRO_HINT_METRICS_ON);
@@ -577,28 +579,27 @@ bool TextPango::render(bool force) {
 			mNeedsFontOptionUpdate = false;
 		}
 
-		if(force || mNeedsFontUpdate) {
+		if(mNeedsFontUpdate) {
 			if(mFontDescription != nullptr) {
 				pango_font_description_free(mFontDescription);
 			}
 
 			mFontDescription = pango_font_description_from_string(mTextFont.c_str());// +" " + std::to_string(mTextSize)).c_str());
 			pango_font_description_set_absolute_size(mFontDescription, (double)(mTextSize * 1.333333333f) * PANGO_SCALE);
-		//	pango_font_description_set_weight(fontDescription, static_cast<PangoWeight>(mDefaultTextWeight));
-		//	pango_font_description_set_style(mFontDescription, PANGO_STYLE_ITALIC);// mDefaultTextItalicsEnabled ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
-		//	pango_font_description_set_variant(fontDescription, mDefaultTextSmallCapsEnabled ? PANGO_VARIANT_SMALL_CAPS : PANGO_VARIANT_NORMAL);
+			//	pango_font_description_set_weight(fontDescription, static_cast<PangoWeight>(mDefaultTextWeight));
+			//	pango_font_description_set_style(mFontDescription, PANGO_STYLE_ITALIC);// mDefaultTextItalicsEnabled ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+			//	pango_font_description_set_variant(fontDescription, mDefaultTextSmallCapsEnabled ? PANGO_VARIANT_SMALL_CAPS : PANGO_VARIANT_NORMAL);
 			pango_layout_set_font_description(mPangoLayout, mFontDescription);
 			pango_font_map_load_font(mEngine.getPangoFontService().getPangoFontMap(), mPangoContext, mFontDescription);
 
-		//	std::cout << pango_font_description_to_string(mFontDescription) << std::endl;
+			//	std::cout << pango_font_description_to_string(mFontDescription) << std::endl;
 
 			mNeedsFontUpdate = false;
 		}
 
-		bool needsSurfaceResize = false;
 
 		// If the text or the bounds change
-		if(force || mNeedsMeasuring) {
+		if(mNeedsMeasuring) {
 
 			const int lastPixelWidth = mPixelWidth;
 			const int lastPixelHeight = mPixelHeight;
@@ -633,7 +634,7 @@ bool TextPango::render(bool force) {
 				elipsizeMode = PANGO_ELLIPSIZE_MIDDLE;
 			} else if(mEllipsizeMode == EllipsizeMode::kEllipsizeStart){
 				elipsizeMode = PANGO_ELLIPSIZE_START;
-			} 
+			}
 
 			pango_layout_set_ellipsize(mPangoLayout, elipsizeMode);
 			pango_layout_set_spacing(mPangoLayout, (int)(mTextSize * (mLeading - 1.0f)) * PANGO_SCALE);
@@ -652,7 +653,7 @@ bool TextPango::render(bool force) {
 			}
 
 			mWrappedText = pango_layout_is_wrapped(mPangoLayout) != FALSE;
-			mNumberOfLines = pango_layout_get_line_count(mPangoLayout); 
+			mNumberOfLines = pango_layout_get_line_count(mPangoLayout);
 
 			// use this instead: pango_layout_get_pixel_extents
 			PangoRectangle inkRect;
@@ -679,119 +680,160 @@ bool TextPango::render(bool force) {
 			// Check for change, need to re-render if there's a change
 			if((mPixelWidth != lastPixelWidth) || (mPixelHeight != lastPixelHeight)) {
 				// Dimensions changed, re-draw text
-				needsSurfaceResize = true;
+				mNeedsSurfaceResize = true;
+			} else {
+				mNeedsSurfaceResize = false;
 			}
 
 			mNeedsMeasuring = false;
 		}
 
-		/// HACK
-		/// Some fonts clip some descenders and characters at the end of the text
-		/// So we make the surface and texture somewhat bigger than the size of the sprite
-		/// Yes, this means that it could fuck up some shaders.
-		/// I dunno what else to do. I couldn't seem to find any relevant docs or issues on stackoverflow
-		/// The official APIs from Pango are simply reporting less pixel size than they draw into. (shrug)
-		int extraTextureSize = (int)mTextSize;
-
-		// Create Cairo surface buffer to draw glyphs into
-		// Force this is we need to render but don't have a surface yet
-		bool freshCairoSurface = false;
-
-		if(force || needsSurfaceResize || (mNeedsTextRender && (mCairoSurface == nullptr))) {
-			// Create appropriately sized cairo surface
-			const bool grayscale = false; // Not really supported
-			_cairo_format cairoFormat = grayscale ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32;
-
-			// clean up any existing surfaces
-			if(mCairoSurface != nullptr) {
-				cairo_surface_destroy(mCairoSurface);
-			}
-
-#if CAIRO_HAS_WIN32_SURFACE
-			mCairoSurface = cairo_win32_surface_create_with_dib(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
-#else
-			mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth, mPixelHeight);
-#endif
-			auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
-			if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
-				DS_LOG_WARNING("Error creating Cairo surface. " << mPixelWidth << " " << mPixelHeight);
-
-				mNeedsBatchUpdate = true;
-				return true;
-			}
-
-			// Create context
-			/* create our cairo context object that tracks state. */
-			if(mCairoContext) {
-				cairo_destroy(mCairoContext);
-			}
-
-			mCairoContext = cairo_create(mCairoSurface);
-
-			auto cairoStatus = cairo_status(mCairoContext);
-
-			if(CAIRO_STATUS_NO_MEMORY == cairoStatus) {
-				DS_LOG_WARNING("Out of memory, error creating Cairo context");
-
-				mNeedsBatchUpdate = true;
-				return true;
-			}
-
-			if(CAIRO_STATUS_SUCCESS != cairoStatus){
-				DS_LOG_WARNING("Error creating Cairo context " << cairoStatus);
-
-				mNeedsBatchUpdate = true;
-				return true;
-			}
-
-			mNeedsTextRender = true;
-			freshCairoSurface = true;
-		}
-
-
-		if((force || mNeedsTextRender) && mCairoContext) {
-			// Render text
-			if(!freshCairoSurface) {
-				// Clear the context... if the background is clear and it's not a brand-new surface buffer
-				cairo_save(mCairoContext);
-				cairo_set_operator(mCairoContext, CAIRO_OPERATOR_CLEAR);
-				cairo_paint(mCairoContext);
-				cairo_restore(mCairoContext);
-			}
-
-			// Draw the text into the buffer
-			cairo_set_source_rgb(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b);//, getDrawOpacity());
-			pango_cairo_update_layout(mCairoContext, mPangoLayout);
-			pango_cairo_show_layout(mCairoContext, mPangoLayout);
-
-			//	cairo_surface_write_to_png(cairoSurface, "test_font.png");
-
-			// Copy it out to a texture
-#ifdef CAIRO_HAS_WIN32_SURFACE
-			mCairoWinImageSurface = cairo_win32_surface_get_image(mCairoSurface);
-			unsigned char *pixels = cairo_image_surface_get_data(mCairoWinImageSurface);
-#else
-			unsigned char *pixels = cairo_image_surface_get_data(mCairoSurface);
-#endif
-
-			ci::gl::Texture::Format format;
-			format.setMagFilter(GL_LINEAR);
-			format.setMinFilter(GL_LINEAR);
-			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize, format);
-			mTexture->setTopDown(true);
-			mNeedsTextRender = false;
-		}
-
-		if(mTexture && mTexture->getWidth() == preWidth && mTexture->getHeight() == preHeight ){
-			// don't need to refresh the batch update
-		} else {
-			mNeedsBatchUpdate = true;
-		}
-
+		mNeedsBatchUpdate = true;
 		return true;
 	} else {
 		return false;
 	}
+}
+
+bool TextPango::renderPangoText(){
+
+	float preWidth = 0.0f;
+	float preHeight = 0.0f;
+	if(mTexture){
+		preWidth = mTexture->getWidth();
+		preHeight = mTexture->getHeight();
+	}
+
+	/// HACK
+	/// Some fonts clip some descenders and characters at the end of the text
+	/// So we make the surface and texture somewhat bigger than the size of the sprite
+	/// Yes, this means that it could fuck up some shaders.
+	/// I dunno what else to do. I couldn't seem to find any relevant docs or issues on stackoverflow
+	/// The official APIs from Pango are simply reporting less pixel size than they draw into. (shrug)
+	int extraTextureSize = (int)mTextSize;
+
+	// Create Cairo surface buffer to draw glyphs into
+	// Force this is we need to render but don't have a surface yet
+	bool freshCairoSurface = false;
+
+	if(mNeedsSurfaceResize || (mNeedsTextRender && (mCairoSurface == nullptr))) {
+		// Create appropriately sized cairo surface
+		const bool grayscale = false; // Not really supported
+		_cairo_format cairoFormat = grayscale ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32;
+
+
+		// clean up any existing surfaces
+		if(mCairoSurface) {
+			cairo_surface_destroy(mCairoSurface);
+			mCairoSurface = nullptr;
+			mCairoWinImageSurface = nullptr;
+		}
+
+#if CAIRO_HAS_WIN32_SURFACE
+		mCairoSurface = cairo_win32_surface_create_with_dib(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
+#else
+		mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth, mPixelHeight);
+#endif
+		auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
+		if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
+			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth + extraTextureSize << " h:" << mPixelHeight + extraTextureSize << " text:" << ds::utf8_from_wstr(mText));
+			// make sure we don't render garbage
+			if(mTexture){
+				mTexture = nullptr;
+			}
+			mNeedsBatchUpdate = true;
+			return true;
+		}
+
+		// Create context
+		/* create our cairo context object that tracks state. */
+		if(mCairoContext) {
+			cairo_destroy(mCairoContext);
+		}
+	} 
+
+	if(mNeedsTextRender && !mCairoContext && mCairoSurface){
+		mCairoContext = cairo_create(mCairoSurface);
+
+		auto cairoStatus = cairo_status(mCairoContext);
+
+		if(CAIRO_STATUS_NO_MEMORY == cairoStatus) {
+			DS_LOG_WARNING("Out of memory, error creating Cairo context");
+
+			mNeedsBatchUpdate = true;
+			return true;
+		}
+
+		if(CAIRO_STATUS_SUCCESS != cairoStatus){
+			DS_LOG_WARNING("Error creating Cairo context " << cairoStatus);
+
+			mNeedsBatchUpdate = true;
+			return true;
+		}
+
+		mNeedsTextRender = true;
+		freshCairoSurface = true;
+	}
+
+
+	if(mNeedsTextRender && mCairoContext) {
+		// Render text
+		if(!freshCairoSurface) {
+			// Clear the context... if the background is clear and it's not a brand-new surface buffer
+			cairo_save(mCairoContext);
+			cairo_set_operator(mCairoContext, CAIRO_OPERATOR_CLEAR);
+			cairo_paint(mCairoContext);
+			cairo_restore(mCairoContext);
+		}
+
+		// Draw the text into the buffer
+		cairo_set_source_rgb(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b);//, getDrawOpacity());
+		pango_cairo_update_layout(mCairoContext, mPangoLayout);
+		pango_cairo_show_layout(mCairoContext, mPangoLayout);
+
+		//	cairo_surface_write_to_png(cairoSurface, "test_font.png");
+
+		// Copy it out to a texture
+#ifdef CAIRO_HAS_WIN32_SURFACE
+		mCairoWinImageSurface = cairo_win32_surface_get_image(mCairoSurface);
+		unsigned char *pixels = cairo_image_surface_get_data(mCairoWinImageSurface);
+#else
+		unsigned char *pixels = cairo_image_surface_get_data(mCairoSurface);
+#endif
+
+		ci::gl::Texture::Format format;
+		format.setMagFilter(GL_LINEAR);
+		format.setMinFilter(GL_LINEAR);
+		mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize, format);
+		mTexture->setTopDown(true);
+		mNeedsTextRender = false;
+
+		/* */
+		if(mCairoContext) {
+			cairo_destroy(mCairoContext);
+			mCairoContext = nullptr;
+		}
+
+		if(mCairoSurface) {
+			cairo_surface_destroy(mCairoSurface);
+			mCairoSurface = nullptr;
+			mCairoWinImageSurface = nullptr;
+		}
+				
+	} else {
+		return false;
+	}
+
+	if(mTexture && mTexture->getWidth() == preWidth && mTexture->getHeight() == preHeight ){
+		// don't need to refresh the batch update
+		return false;
+	} else {
+		mNeedsBatchUpdate = true;
+		return true;
+	}
+
+	return false;
+
 }
 
 
