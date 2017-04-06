@@ -44,12 +44,6 @@
 	<!-- false=no cursor visible, true=visible cursor. default=false -->
 	<text name="hide_mouse" value="false" />
 
-	<!-- turns Fx Anti-aliasing on or off. default=false -->
-	<text name="FxAA" value="false" />
-	<float name="FxAA:SpanMax" value="2.0"/>
-	<float name="FxAA:ReduceMul" value="8.0" />
-	<float name="FxAA:ReduceMin" value="128.0" />
-
 	<!-- for perspective cameras, how near and far away to clip crap. default: x=1, y=1000 -->
 	<size name="camera:z_clip" x="1.0" y="1000.0" />
 	<!-- the field of view of the perspective camera? -->

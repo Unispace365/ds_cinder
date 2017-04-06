@@ -65,7 +65,7 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	mBackground->setOpacity(0.5f);
 	addChildPtr(mBackground);
 
-	setPosition(mLT);
+//	setPosition(mLT);
 
 }
 
