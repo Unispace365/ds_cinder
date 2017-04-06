@@ -209,7 +209,6 @@ private:
 	bool 						mNeedsTextRender;
 	bool 						mNeedsFontOptionUpdate;
 	bool 						mNeedsMarkupDetection;
-	bool						mNeedsSurfaceResize;
 
 	// simply stored to check for change across renders
 	int 						mPixelWidth;
