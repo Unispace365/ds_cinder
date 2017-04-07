@@ -547,6 +547,8 @@ bool TextPango::measurePangoText() {
 			return false;
 		}
 
+		mNeedsTextRender = true;
+
 		if(mNeedsMarkupDetection) {
 
 			// Pango doesn't support HTML-esque line-break tags, so
@@ -677,14 +679,7 @@ bool TextPango::measurePangoText() {
 
 			setSize((float)mPixelWidth, (float)mPixelHeight);
 
-			// Check for change, need to re-render if there's a change
-			if((mPixelWidth != lastPixelWidth) || (mPixelHeight != lastPixelHeight)) {
-				// Dimensions changed, re-draw text
-				mNeedsSurfaceResize = true;
-			} else {
-				mNeedsSurfaceResize = false;
-			}
-
+			mNeedsTextRender = true;
 			mNeedsMeasuring = false;
 		}
 
@@ -712,11 +707,7 @@ bool TextPango::renderPangoText(){
 	/// The official APIs from Pango are simply reporting less pixel size than they draw into. (shrug)
 	int extraTextureSize = (int)mTextSize;
 
-	// Create Cairo surface buffer to draw glyphs into
-	// Force this is we need to render but don't have a surface yet
-	bool freshCairoSurface = false;
-
-	if(mNeedsSurfaceResize || (mNeedsTextRender && (mCairoSurface == nullptr))) {
+	if(mNeedsTextRender) {
 		// Create appropriately sized cairo surface
 		const bool grayscale = false; // Not really supported
 		_cairo_format cairoFormat = grayscale ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32;
@@ -745,86 +736,78 @@ bool TextPango::renderPangoText(){
 			return true;
 		}
 
-		// Create context
-		/* create our cairo context object that tracks state. */
+
+		if(mCairoSurface){
+			// Create context
+			/* create our cairo context object that tracks state. */
+			if(mCairoContext) {
+				cairo_destroy(mCairoContext);
+				mCairoContext = nullptr;
+			}
+			mCairoContext = cairo_create(mCairoSurface);
+
+			auto cairoStatus = cairo_status(mCairoContext);
+
+			if(CAIRO_STATUS_NO_MEMORY == cairoStatus) {
+				DS_LOG_WARNING("Out of memory, error creating Cairo context");
+
+				mNeedsBatchUpdate = true;
+				return true;
+			}
+
+			if(CAIRO_STATUS_SUCCESS != cairoStatus){
+				DS_LOG_WARNING("Error creating Cairo context " << cairoStatus);
+
+				mNeedsBatchUpdate = true;
+				return true;
+			}
+
+			mNeedsTextRender = true;
+		}
+
+
 		if(mCairoContext) {
-			cairo_destroy(mCairoContext);
-		}
-	} 
 
-	if(mNeedsTextRender && !mCairoContext && mCairoSurface){
-		mCairoContext = cairo_create(mCairoSurface);
+			// Draw the text into the buffer
+			cairo_set_source_rgb(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b);//, getDrawOpacity());
+			pango_cairo_update_layout(mCairoContext, mPangoLayout);
+			pango_cairo_show_layout(mCairoContext, mPangoLayout);
 
-		auto cairoStatus = cairo_status(mCairoContext);
+			//	cairo_surface_write_to_png(cairoSurface, "test_font.png");
 
-		if(CAIRO_STATUS_NO_MEMORY == cairoStatus) {
-			DS_LOG_WARNING("Out of memory, error creating Cairo context");
-
-			mNeedsBatchUpdate = true;
-			return true;
-		}
-
-		if(CAIRO_STATUS_SUCCESS != cairoStatus){
-			DS_LOG_WARNING("Error creating Cairo context " << cairoStatus);
-
-			mNeedsBatchUpdate = true;
-			return true;
-		}
-
-		mNeedsTextRender = true;
-		freshCairoSurface = true;
-	}
-
-
-	if(mNeedsTextRender && mCairoContext) {
-		// Render text
-		if(!freshCairoSurface) {
-			// Clear the context... if the background is clear and it's not a brand-new surface buffer
-			cairo_save(mCairoContext);
-			cairo_set_operator(mCairoContext, CAIRO_OPERATOR_CLEAR);
-			cairo_paint(mCairoContext);
-			cairo_restore(mCairoContext);
-		}
-
-		// Draw the text into the buffer
-		cairo_set_source_rgb(mCairoContext, mTextColor.r, mTextColor.g, mTextColor.b);//, getDrawOpacity());
-		pango_cairo_update_layout(mCairoContext, mPangoLayout);
-		pango_cairo_show_layout(mCairoContext, mPangoLayout);
-
-		//	cairo_surface_write_to_png(cairoSurface, "test_font.png");
-
-		// Copy it out to a texture
+			// Copy it out to a texture
 #ifdef CAIRO_HAS_WIN32_SURFACE
-		mCairoWinImageSurface = cairo_win32_surface_get_image(mCairoSurface);
-		unsigned char *pixels = cairo_image_surface_get_data(mCairoWinImageSurface);
+			mCairoWinImageSurface = cairo_win32_surface_get_image(mCairoSurface);
+			unsigned char *pixels = cairo_image_surface_get_data(mCairoWinImageSurface);
 #else
-		unsigned char *pixels = cairo_image_surface_get_data(mCairoSurface);
+			unsigned char *pixels = cairo_image_surface_get_data(mCairoSurface);
 #endif
 
-		ci::gl::Texture::Format format;
-		format.setMagFilter(GL_LINEAR);
-		format.setMinFilter(GL_LINEAR);
-		mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize, format);
-		mTexture->setTopDown(true);
-		mNeedsTextRender = false;
+			ci::gl::Texture::Format format;
+			format.setMagFilter(GL_LINEAR);
+			format.setMinFilter(GL_LINEAR);
+			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize, format);
+			mTexture->setTopDown(true);
+			mNeedsTextRender = false;
 
-		/* */
-		if(mCairoContext) {
-			cairo_destroy(mCairoContext);
-			mCairoContext = nullptr;
+			/* */
+			if(mCairoContext) {
+				cairo_destroy(mCairoContext);
+				mCairoContext = nullptr;
+			}
+
+			if(mCairoSurface) {
+				cairo_surface_destroy(mCairoSurface);
+				mCairoSurface = nullptr;
+				mCairoWinImageSurface = nullptr;
+			}
 		}
 
-		if(mCairoSurface) {
-			cairo_surface_destroy(mCairoSurface);
-			mCairoSurface = nullptr;
-			mCairoWinImageSurface = nullptr;
-		}
-				
 	} else {
 		return false;
 	}
 
-	if(mTexture && mTexture->getWidth() == preWidth && mTexture->getHeight() == preHeight ){
+	if(mTexture && mTexture->getWidth() == preWidth && mTexture->getHeight() == preHeight){
 		// don't need to refresh the batch update
 		return false;
 	} else {
@@ -835,7 +818,6 @@ bool TextPango::renderPangoText(){
 	return false;
 
 }
-
 
 void TextPango::writeAttributesTo(ds::DataBuffer& buf){
 	ds::ui::Sprite::writeAttributesTo(buf);
