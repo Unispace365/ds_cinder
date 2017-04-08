@@ -413,11 +413,25 @@ EllipsizeMode TextPango::getEllipsizeMode(){
 }
 
 void TextPango::onBuildRenderBatch(){
+
+
+	float preWidth = 0.0f;
+	float preHeight = 0.0f;
+	if(mTexture){
+		preWidth = mTexture->getWidth();
+		preHeight = mTexture->getHeight();
+	}
+
 	renderPangoText();
 
-	//return;
 	if(!mTexture){
 		mRenderBatch = nullptr;
+		return;
+	}
+
+	// if we already have a batch of this size, don't rebuild it
+	if(mRenderBatch && preHeight == mTexture->getHeight() && preWidth == mTexture->getWidth()){
+		mNeedsBatchUpdate = false;
 		return;
 	}
 
@@ -679,7 +693,6 @@ bool TextPango::measurePangoText() {
 
 			setSize((float)mPixelWidth, (float)mPixelHeight);
 
-			mNeedsTextRender = true;
 			mNeedsMeasuring = false;
 		}
 
@@ -690,14 +703,7 @@ bool TextPango::measurePangoText() {
 	}
 }
 
-bool TextPango::renderPangoText(){
-
-	float preWidth = 0.0f;
-	float preHeight = 0.0f;
-	if(mTexture){
-		preWidth = mTexture->getWidth();
-		preHeight = mTexture->getHeight();
-	}
+void TextPango::renderPangoText(){
 
 	/// HACK
 	/// Some fonts clip some descenders and characters at the end of the text
@@ -732,8 +738,7 @@ bool TextPango::renderPangoText(){
 			if(mTexture){
 				mTexture = nullptr;
 			}
-			mNeedsBatchUpdate = true;
-			return true;
+			return;
 		}
 
 
@@ -751,20 +756,14 @@ bool TextPango::renderPangoText(){
 			if(CAIRO_STATUS_NO_MEMORY == cairoStatus) {
 				DS_LOG_WARNING("Out of memory, error creating Cairo context");
 
-				mNeedsBatchUpdate = true;
-				return true;
+				return;
 			}
 
 			if(CAIRO_STATUS_SUCCESS != cairoStatus){
 				DS_LOG_WARNING("Error creating Cairo context " << cairoStatus);
-
-				mNeedsBatchUpdate = true;
-				return true;
+				return;
 			}
-
-			mNeedsTextRender = true;
 		}
-
 
 		if(mCairoContext) {
 
@@ -803,20 +802,7 @@ bool TextPango::renderPangoText(){
 			}
 		}
 
-	} else {
-		return false;
-	}
-
-	if(mTexture && mTexture->getWidth() == preWidth && mTexture->getHeight() == preHeight){
-		// don't need to refresh the batch update
-		return false;
-	} else {
-		mNeedsBatchUpdate = true;
-		return true;
-	}
-
-	return false;
-
+	} 
 }
 
 void TextPango::writeAttributesTo(ds::DataBuffer& buf){

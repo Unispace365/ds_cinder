@@ -175,7 +175,7 @@ protected:
 
 	// Renders text into the texture.
 	// Returns true if the texture was actually updated, false if nothing had to change
-	bool renderPangoText();
+	void renderPangoText();
 
 private:
 	ci::gl::TextureRef			mTexture;
