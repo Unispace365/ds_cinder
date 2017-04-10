@@ -16,4 +16,8 @@ namespace ds {
 		return(a.month() == b.month() && a.year() == b.year());
 	}
 
+	bool dateIsInRange(const Poco::DateTime& date, const Poco::DateTime& start, const Poco::DateTime& end){
+		return(date > start && date < end);
+	}
+
 } // namespace ds
