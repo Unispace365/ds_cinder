@@ -257,25 +257,17 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	ci::mat4 totalTransformation = trans*mTransformation;
 	ci::gl::pushModelMatrix();
 	ci::gl::multModelMatrix(totalTransformation);
-	bool flipImage = false;
 
-	auto viewport = ci::gl::context()->getViewport();
-
-	//Need an extra flip if rendering final out to texture
-	if (mIsRenderFinalToTexture && mOutputFbo) {
-		flipImage = !flipImage;
-	}
 
 	if (mIsRenderFinalToTexture && mOutputFbo){
-		ci::gl::pushModelMatrix();
+		// set the viewport and maticies to match the w/h of this object and fbo
 		ci::gl::pushMatrices();
-		//Need to set the MVP matrices to match dimensions of sprite object
-		ci::gl::setMatricesWindow(ci::ivec2(static_cast<int>(getWidth()), static_cast<int>(getHeight())));
+		ci::gl::pushViewport(ci::ivec2(0), mOutputFbo->getSize());
+		ci::CameraOrtho camera = ci::CameraOrtho(0.0f, getWidth(), getHeight(), 0.0f, -1000.0f, 1000.0f);
+		ci::gl::setMatrices(camera);
 		mOutputFbo->bindFramebuffer();
-	}
 
-	//Need to manual flip image.  The flip() function of the ci::Texture element doesn't work with shaders.
-	if (flipImage){
+		//Need to manual flip image.  The flip() function of the ci::Texture element doesn't work with shaders.
 		ci::gl::scale(1.0f, -1.0f, 1.0f);							// invert Y axis so increasing Y goes down.
 		ci::gl::translate(0.0f, (float)-getHeight(), 0.0f);			// shift origin up to upper-left corner.
 	}
@@ -329,7 +321,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	}	
 
 	if (mIsRenderFinalToTexture && mOutputFbo){
-		ci::gl::popModelMatrix();
+		ci::gl::popViewport();
 		ci::gl::popMatrices();
 		mOutputFbo->unbindFramebuffer();
 	}
@@ -1695,9 +1687,11 @@ void Sprite::setupFinalRenderBuffer(){
 
 	if(mIsRenderFinalToTexture &&
 	   getWidth() > 1.0f &&
-	   getHeight() > 1.0f){
+	   getHeight() > 1.0f
+	   ){
 		ci::gl::Fbo::Format  format;
-		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
+		//mOutputFbo = ci::gl::Fbo::create(static_cast<int>(mEngine.getSrcRect().getWidth()), static_cast<int>(mEngine.getSrcRect().getHeight()), format);
+		mOutputFbo = ci::gl::Fbo::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), format);
 	} else {
 		mOutputFbo = nullptr;
 	}
