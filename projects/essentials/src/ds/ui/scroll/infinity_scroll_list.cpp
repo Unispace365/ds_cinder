@@ -308,16 +308,12 @@ namespace ds{
 			{
 				auto targetSprite = (*it).mAssociatedSprite;
 				auto currentPos = targetSprite->getPosition();
-				if (mVertical)
-				{
+				if (mVertical){
 					currentPos.y += delta;
-					targetSprite->setPosition(currentPos);
-				}
-				else
-				{
+				} else {
 					currentPos.x += delta;
-					targetSprite->setPosition(currentPos);
 				}
+				targetSprite->setPosition(currentPos);
 				checkIsOnScreen();
 			}
 			checkBounds();
@@ -335,22 +331,15 @@ namespace ds{
 			{
 				auto targetSprite = (*it).mAssociatedSprite;
 				auto currentPos = targetSprite->getPosition();
-				if (mVertical)
-				{
+				if (mVertical)				{
 					currentPos.y += delta;
-					targetSprite->tweenPosition(currentPos, duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
-					{
-						checkIsOnScreen();
-					});
-				}
-				else
-				{
+				} else {
 					currentPos.x += delta;
-					targetSprite->tweenPosition(currentPos, duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
-					{
-						checkIsOnScreen();
-					});
 				}
+
+				targetSprite->tweenPosition(currentPos, duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this](){
+					checkIsOnScreen();
+				});
 			}
 			callAfterDelay([this](){
 				checkBounds();
@@ -397,8 +386,6 @@ namespace ds{
 				if (mOnScreenItemList[i].mOnscrren)
 					count++;
 			}
-			if (count != size -2)
-				return;
 
 			if (mOnScreenItemList[size - 1].mOnscrren)
 			{
