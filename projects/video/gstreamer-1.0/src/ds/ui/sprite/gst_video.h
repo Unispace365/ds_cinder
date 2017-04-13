@@ -179,6 +179,12 @@ public:
 	/// If you're having trouble with networked videos dropping audio, try turning this off
 	void				setAllowOutOfBoundsMuted(const bool allowMuted);
 
+	/// Have at the raw video data.
+	/// I'm not gonna put any more comments here, because you really need to know what you're doing with this
+	/// If you're like "Hey, I just want to show a video" then you are in the wrong place
+	/// This is the "I'd really like to know the byte value of a pixel of the U channel before color space conversion" sorta thing
+	unsigned char *		getRawVideoData();
+
 protected:
 	virtual void		drawLocalClient() override;
 	virtual void		writeAttributesTo(DataBuffer&) override;

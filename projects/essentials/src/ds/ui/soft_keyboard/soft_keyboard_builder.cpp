@@ -88,6 +88,80 @@ SoftKeyboard* buildLowercaseKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardS
 	return newKeyboard;
 }
 
+SoftKeyboard* buildUppercaseKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent, bool numbers) {
+	SoftKeyboard* newKeyboard = new SoftKeyboard(engine, settings);
+
+	float xp = settings.mKeyInitialPosition.x;
+	float yp = settings.mKeyInitialPosition.y;
+
+	if (numbers){
+		makeAButton(engine, newKeyboard, xp, yp, L"1", L"!", SoftKeyboardDefs::kNumber);
+		makeAButton(engine, newKeyboard, xp, yp, L"2", L"@", SoftKeyboardDefs::kNumber);
+		makeAButton(engine, newKeyboard, xp, yp, L"3", L"#", SoftKeyboardDefs::kNumber);
+		makeAButton(engine, newKeyboard, xp, yp, L"4", L"$", SoftKeyboardDefs::kNumber);
+		makeAButton(engine, newKeyboard, xp, yp, L"5", L"%", SoftKeyboardDefs::kNumber);
+		makeAButton(engine, newKeyboard, xp, yp, L"6", L"^", SoftKeyboardDefs::kNumber);
+		makeAButton(engine, newKeyboard, xp, yp, L"7", L"&", SoftKeyboardDefs::kNumber);
+		makeAButton(engine, newKeyboard, xp, yp, L"8", L"*", SoftKeyboardDefs::kNumber);
+		makeAButton(engine, newKeyboard, xp, yp, L"9", L"(", SoftKeyboardDefs::kNumber);
+		makeAButton(engine, newKeyboard, xp, yp, L"0", L")", SoftKeyboardDefs::kNumber);
+
+		xp = settings.mKeyInitialPosition.x;
+		yp += newKeyboard->getButtonVector().back()->getHeight();
+	}
+
+
+	makeAButton(engine, newKeyboard, xp, yp, L"Q", L"Q", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"W", L"W", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"E", L"E", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"R", L"R", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"T", L"T", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"Y", L"Y", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"U", L"U", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"I", L"I", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"O", L"O", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"P", L"P", SoftKeyboardDefs::kLetter);
+
+	xp = settings.mKeyInitialPosition.x + newKeyboard->getButtonVector().back()->getWidth() / 2.0f;
+	yp += newKeyboard->getButtonVector().back()->getHeight();
+
+	makeAButton(engine, newKeyboard, xp, yp, L"A", L"A", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"S", L"S", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"D", L"D", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"F", L"F", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"G", L"G", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"H", L"H", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"J", L"J", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"K", L"K", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"L", L"L", SoftKeyboardDefs::kLetter);
+
+	xp = settings.mKeyInitialPosition.x + newKeyboard->getButtonVector().back()->getWidth()* 3.0f / 2.0f;
+	yp += newKeyboard->getButtonVector().back()->getHeight();
+
+	makeAButton(engine, newKeyboard, xp, yp, L"Z", L"Z", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"X", L"X", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"C", L"C", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"V", L"V", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"B", L"B", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"N", L"N", SoftKeyboardDefs::kLetter);
+	makeAButton(engine, newKeyboard, xp, yp, L"M", L"M", SoftKeyboardDefs::kLetter);
+
+	xp = settings.mKeyInitialPosition.x + newKeyboard->getButtonVector().back()->getWidth()* 3.0f / 2.0f + 10.0f;
+	yp += newKeyboard->getButtonVector().back()->getHeight();
+
+	makeAButton(engine, newKeyboard, xp, yp, L"space", L"SPACE", SoftKeyboardDefs::kSpace);
+	makeAButton(engine, newKeyboard, xp, yp, L"", L"", SoftKeyboardDefs::kDelete);
+
+	newKeyboard->setSize(xp, yp);
+	newKeyboard->setScale(settings.mKeyScale);
+
+	if (parent){
+		parent->addChildPtr(newKeyboard);
+	}
+
+	return newKeyboard;
+}
+
 SoftKeyboard* buildStandardKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent) {
 	SoftKeyboard* newKeyboard = new SoftKeyboard(engine, settings);
 

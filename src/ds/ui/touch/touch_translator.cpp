@@ -41,8 +41,8 @@ ds::ui::TouchEvent TouchTranslator::toWorldSpace(const ds::ui::TouchEvent& touch
 	for(auto it = touchEvent.getTouches().begin(), end = touchEvent.getTouches().end(); it != end; ++it) {
 		ci::vec2 possy = it->getPos();
 		ci::vec2 prevPossy = it->getPrevPos();
-			possy = toWorldf(possy.x, possy.y);
-			prevPossy = toWorldf(prevPossy.x, prevPossy.y);
+		possy = toWorldf(possy.x, possy.y);
+		prevPossy = toWorldf(prevPossy.x, prevPossy.y);
 		touches.push_back(ci::app::TouchEvent::Touch(possy,
 			prevPossy,
 			it->getId(),
