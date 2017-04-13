@@ -9,6 +9,7 @@ namespace ds {
 	bool sameDay(const Poco::DateTime& a, const Poco::DateTime& b);
 	bool sameWeek(const Poco::DateTime& a, const Poco::DateTime& b);
 	bool sameMonth(const Poco::DateTime& a, const Poco::DateTime& b);
+	bool dateIsInRange(const Poco::DateTime& d, const Poco::DateTime& a, const Poco::DateTime& b);
 
 } // namespace ds
 
