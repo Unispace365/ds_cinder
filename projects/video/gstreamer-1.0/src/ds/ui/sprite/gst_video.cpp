@@ -248,6 +248,10 @@ void GstVideo::setPlayableInstances(const std::vector<std::string>& instanceName
 	markAsDirty(mInstancesDirty);
 }
 
+unsigned char * GstVideo::getRawVideoData(){
+	return mGstreamerWrapper->getVideo();
+}
+
 void GstVideo::onUpdateServer(const UpdateParams &up){
 
 	mGstreamerWrapper->update();
