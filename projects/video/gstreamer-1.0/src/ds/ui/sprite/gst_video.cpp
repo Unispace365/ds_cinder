@@ -555,7 +555,6 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			uniform.setInt("gsuTexture0", 2);
 			uniform.setInt("gsuTexture1", 3);
 			uniform.setInt("gsuTexture2", 4);
-			setShadersUniforms("yuv_colorspace_conversion", uniform);
 			uniform.applyTo(mSpriteShader.getShader());
 		} else {
 			setBaseShader(Environment::getAppFolder("data/shaders"), "base");
@@ -660,7 +659,6 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	uniform.setInt("gsuTexture0", 2);
 	uniform.setInt("gsuTexture1", 3);
 	uniform.setInt("gsuTexture2", 4);
-	setShadersUniforms("yuv_colorspace_conversion", uniform);
 	uniform.applyTo(mSpriteShader.getShader());
 
 	mNeedsBatchUpdate = true;
