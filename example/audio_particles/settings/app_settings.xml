@@ -1,0 +1,29 @@
+<settings>
+
+	<!-- Standard animation duration, in seconds. -->
+	<float name="animation:duration" value="0.2" />
+	
+	<float name="header:height" value="100.0" />
+	
+	<text  name="video_path" value="C:\Users\GordonN\Downloads\The Prids Video_v1.mov" />
+	
+	
+	<int   name="particles:num" value="50000" />
+	<text  name="particles:blend_mode" value="normal" />
+	<float name="particles:touch_radius" value="400" />
+	<float name="particles:touch_power" value="0.01" />
+	<float name="particles:lifespan_min" value=".1" />
+	<float name="particles:lifespan_max" value="10" />
+	<float name="particles:counter_multiplier" value="100000.0" />
+	<float name="particles:perlin_scale" value="2" />
+	<float name="particles:audio_anim_speed" value="150" />
+	<float name="particles:anim_speed" value="1.0" />
+	<float name="particles:min_vel" value="-0.5" />
+	<float name="particles:max_vel" value="0.5" />
+	<float name="particles:scale" value="8" />
+	<float name="particles:friction" value="0.98" />
+	<float name="particles:lum_threshold" value="320" />
+	<float name="particles:touch_radius" value="400" />
+	<float name="particles:touch_power" value="0.01" />
+	<float name="audio:boost" value="300.0" />
+</settings>
