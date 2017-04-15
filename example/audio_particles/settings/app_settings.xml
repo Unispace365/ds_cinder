@@ -5,7 +5,7 @@
 	
 	<float name="header:height" value="100.0" />
 	
-	<text  name="video_path" value="C:\Users\GordonN\Downloads\The Prids Video_v1.mov" />
+	<text  name="video_path" value="C:\Users\GordonN\Desktop\zebra_3.mp4" />
 	
 	
 	<int   name="particles:num" value="50000" />

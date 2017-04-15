@@ -25,7 +25,7 @@ public:
 
 	ds::ui::SpriteEngine&			mEngine;
 	ds::EventNotifier				mNotifier;
-
+	float							mVolume;
 	void							initialize();
 
 	const float						getAnimDur();

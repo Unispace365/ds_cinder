@@ -17,6 +17,7 @@ Globals::Globals(ds::ui::SpriteEngine& e)
 	: mEngine(e)
 	, mAnimDuration(0.2f)
 	, mRequestId(0)
+	, mVolume(0.0)
 {
 }
 

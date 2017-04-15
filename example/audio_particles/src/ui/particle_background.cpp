@@ -76,21 +76,6 @@ ParticleBackground::ParticleBackground(Globals& g)
 	, mTextureLocVbo(nullptr)
 {
 
-	auto ctx = ci::audio::Context::master();
-
-	// The InputDeviceNode is platform-specific, so you create it using a special method on the Context:
-	mInputDeviceNode = ctx->createInputDeviceNode();
-
-	// By providing an FFT size double that of the window size, we 'zero-pad' the analysis data, which gives
-	// an increase in resolution of the resulting spectrum data.
-	auto monitorFormat = ci::audio::MonitorSpectralNode::Format().fftSize(2048).windowSize(1024);
-	mMonitorSpectralNode = ctx->makeNode(new ci::audio::MonitorSpectralNode(monitorFormat));
-
-	mInputDeviceNode >> mMonitorSpectralNode;
-
-	// InputDeviceNode (and all InputNode subclasses) need to be enabled()'s to process audio. So does the Context:
-	mInputDeviceNode->enable();
-	ctx->enable();
 
 
 
@@ -123,6 +108,8 @@ ParticleBackground::ParticleBackground(Globals& g)
 	mVideoBacky = new ds::ui::Video(mEngine);
 	mVideoBacky->setFinalRenderToTexture(true);
 	mVideoBacky->setLooping(true);
+	mVideoBacky->wantAudioBuffer(true);
+	//mVideoBacky->generateAudioBuffer(true);
 	//mVideoBacky->setVolume(0.0f);
 	mVideoBacky->setAutoStart(false);
 	mVideoBacky->enable(true);
@@ -242,6 +229,16 @@ void ParticleBackground::onUpdateServer(const ds::UpdateParams& p){
 	mAnimationCounter += p.getDeltaTime() * counterMultiplier;
 
 	std::vector<ci::vec2> touchRespulsors;
+
+	if(mVideoBacky && mVideoBacky->getIsPlaying()){
+		unsigned char * audioDat = mVideoBacky->getRawAudioData();
+		if(audioDat){
+			size_t audioBuffSize = mVideoBacky->getRawAudioDataSize();
+			for(size_t i = 0; i < audioBuffSize; i++){
+				std::cout << "Audio buff: " << audioDat[i] << std::endl;
+			}
+		}
+	}
 	/*
 	if(mVideoBacky){
 		unsigned char * dat = mVideoBacky->getRawVideoData();
@@ -305,7 +302,7 @@ void ParticleBackground::onUpdateServer(const ds::UpdateParams& p){
 
 	if(!mInstanceDataVbo || !mOpacityVbo || !mTextureLocVbo || !mScaleDataVbo) return;
 
-	float vol = mMonitorSpectralNode->getVolume();
+	float vol = mGlobals.mVolume;
 	mParticleScale = mGlobals.getAppSettings().getFloat("audio:boost", 0, 10.0f) * vol * vol;
 	audioSpeed *= vol;
 

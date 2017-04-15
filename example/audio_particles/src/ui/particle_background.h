@@ -9,9 +9,6 @@
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/video.h>
 
-#include "cinder/audio/Context.h"
-#include "cinder/audio/MonitorNode.h"
-#include "cinder/audio/Utilities.h"
 
 #include "cinder/Perlin.h"
 
@@ -43,10 +40,6 @@ private:
 
 	};
 
-
-	ci::audio::InputDeviceNodeRef		mInputDeviceNode;
-	ci::audio::MonitorSpectralNodeRef	mMonitorSpectralNode;
-	std::vector<float>					mMagSpectrum;
 
 	//void								onAppEvent(const ds::Event&);
 	virtual void						onUpdateServer(const ds::UpdateParams& p);

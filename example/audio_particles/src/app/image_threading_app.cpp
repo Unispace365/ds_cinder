@@ -29,6 +29,28 @@ ImageThreading::ImageThreading()
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 
 	enableCommonKeystrokes(true);
+
+
+	return;
+	try{
+		auto ctx = ci::audio::Context::master();
+
+		// The InputDeviceNode is platform-specific, so you create it using a special method on the Context:
+		mInputDeviceNode = ctx->createInputDeviceNode();
+
+		// By providing an FFT size double that of the window size, we 'zero-pad' the analysis data, which gives
+		// an increase in resolution of the resulting spectrum data.
+		auto monitorFormat = ci::audio::MonitorSpectralNode::Format().fftSize(2048).windowSize(1024);
+		mMonitorSpectralNode = ctx->makeNode(new ci::audio::MonitorSpectralNode(monitorFormat));
+
+		mInputDeviceNode >> mMonitorSpectralNode;
+
+		// InputDeviceNode (and all InputNode subclasses) need to be enabled()'s to process audio. So does the Context:
+		mInputDeviceNode->enable();
+		ctx->enable();
+	} catch(std::exception& e){
+		std::cout << "Couldn't start audio stuff; " << e.what() << std::endl;
+	}
 }
 
 void ImageThreading::setupServer(){
@@ -51,7 +73,11 @@ void ImageThreading::setupServer(){
 
 void ImageThreading::update() {
 	inherited::update();
-
+	if(mMonitorSpectralNode){
+		mGlobals.mVolume = mMonitorSpectralNode->getVolume();
+	} else {
+		mGlobals.mVolume = ci::randFloat(0.0f, 0.1f);
+	}
 }
 
 void ImageThreading::keyDown(ci::app::KeyEvent event){
