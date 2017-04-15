@@ -269,6 +269,8 @@ public:
 	*/
 	unsigned char*			getVideo();
 
+	size_t					getVideoBufferSize(){ return m_cVideoBufferSize; }
+
 	/*
 	Returns the index of the current video stream
 	*/
@@ -398,6 +400,12 @@ public:
 	*/
 	void					setPan(float fPan);
 
+
+
+	/* This is distinct from the generateAudioBuffer property on openMovie. That now means "apply some extra properties to audio so you can set the pan\
+		This means that an actual buffer for audio will be created and pumped out.*/
+	void					setAudioBufferWanted(const bool wantedAudioBuffer){ m_AudioBufferWanted = wantedAudioBuffer; }
+
 	/*
 	Returns an unsigned char pointer containing a buffer to the currently decoded audio data
 	Returns NULL if there is either no audio stream in the media file, no file has been loaded or something went wrong
@@ -423,7 +431,7 @@ public:
 	/*
 	Returns the audio buffer size
 	*/
-	int						getAudioBufferSize();
+	size_t					getAudioBufferSize();
 
 	/*
 	Returns the audio buffer size without the audio width and audio channels
@@ -641,7 +649,8 @@ private:
 
 protected:
 
-	int						m_iAudioBufferSize; /* Size of the audio buffer */
+	bool					m_AudioBufferWanted;
+	size_t					m_iAudioBufferSize; /* Size of the audio buffer */
 	unsigned char*			m_cAudioBuffer; /* Stores the audio data */
 	int						m_iAudioWidth; /* Width of the audio data (8, 16, 24 or 32) */
 	bool					m_bIsAudioSigned; /* Flag that tracks if the audio buffer is signed or not */

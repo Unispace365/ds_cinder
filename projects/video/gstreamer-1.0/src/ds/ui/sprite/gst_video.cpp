@@ -228,6 +228,12 @@ void GstVideo::generateAudioBuffer(bool enableAudioBuffer ){
 	 mGenerateAudioBuffer = enableAudioBuffer; 
 }
 
+void GstVideo::wantAudioBuffer(bool doWantAudioBuffer){
+	if(mGstreamerWrapper){
+		mGstreamerWrapper->setAudioBufferWanted(doWantAudioBuffer);
+	}
+}
+
 void GstVideo::setVerboseLogging(const bool doVerbose){
 	mGstreamerWrapper->setVerboseLogging(doVerbose);
 }
@@ -250,6 +256,18 @@ void GstVideo::setPlayableInstances(const std::vector<std::string>& instanceName
 
 unsigned char * GstVideo::getRawVideoData(){
 	return mGstreamerWrapper->getVideo();
+}
+
+size_t GstVideo::getRawVideoDataSize(){
+	return mGstreamerWrapper->getVideoBufferSize();
+}
+
+unsigned char * GstVideo::getRawAudioData(){
+	return mGstreamerWrapper->getAudio();
+}
+
+size_t GstVideo::getRawAudioDataSize(){
+	return mGstreamerWrapper->getAudioBufferSize();
 }
 
 void GstVideo::onUpdateServer(const UpdateParams &up){
