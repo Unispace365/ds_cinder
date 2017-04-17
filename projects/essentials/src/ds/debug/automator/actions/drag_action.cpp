@@ -46,7 +46,7 @@ bool DragAction::update(float dt){
 		for(int i = 0; i < mNumberOfFingers; ++i){
 			touches.push_back(ci::app::TouchEvent::Touch(mTouchPos[i], mPreviousTouch[i], mInUseList[i], dt, nullptr));
 		}
-		mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
+		mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, true));
 		return true;
 
 	} else {
@@ -60,7 +60,7 @@ bool DragAction::update(float dt){
 				mTouchPos[i] += mDirection * mMagnitude * mUpdateTime;
 				touches.push_back(ci::app::TouchEvent::Touch(mTouchPos[i], mTouchPos[i], mInUseList[i], dt, nullptr));
 			}
-			mEngine.injectTouchesMoved(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
+			mEngine.injectTouchesMoved(ds::ui::TouchEvent(mEngine.getWindow(), touches, true));
 		}
 
 	}
@@ -89,7 +89,7 @@ void DragAction::setup(float limit, int numberOfFingers){
 		touches.push_back(ci::app::TouchEvent::Touch(nTouchPos, nTouchPos, *it, 0.0, nullptr));
 	}
 
-	mEngine.injectTouchesBegin(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
+	mEngine.injectTouchesBegin(ds::ui::TouchEvent(mEngine.getWindow(), touches, true));
 
 	mMagnitude = ci::randFloat (10.0f, 1500.0f);
 	mDirection = glm::normalize(ci::vec2(ci::randFloat(-1.0f, 1.0f), ci::randFloat(-1.0f, 1.0f)));

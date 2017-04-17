@@ -196,8 +196,6 @@ void TouchManager::inputMoved(const int fingerId, const ci::vec2& touchPos){
 	}
 }
 
-
-
 void TouchManager::touchesEnded(const ds::ui::TouchEvent &event) {
 	for (auto touchIt = event.getTouches().begin(); touchIt != event.getTouches().end(); ++touchIt) {
 		int fingerId = touchIt->getId() + MOUSE_RESERVED_IDS;

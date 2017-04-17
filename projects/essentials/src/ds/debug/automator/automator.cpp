@@ -20,7 +20,7 @@ Automator::Automator(ds::ui::SpriteEngine& engine, const std::string& watermarkT
 	, mActive(false)
 	, mWatermark(nullptr)
 	, mWatermarkConfig(watermarkTextConfig)
-	, mFrame(0.0f, 0.0f, 1.0f, 1.0f)
+	, mFrame(0.0f, 0.0f, mEngine.getWorldWidth(), mEngine.getWorldHeight())
 	, mPeriod(0.016f)
 	, mTotal(0.0f)
 	, mFingerMax(128)

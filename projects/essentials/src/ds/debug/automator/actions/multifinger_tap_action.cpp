@@ -44,7 +44,7 @@ bool MultiTapAction::update(float dt){
 		for(int i = 0; i < mNumberOfFingers; ++i){
 			touches.push_back(ci::app::TouchEvent::Touch(mTouchPos[i], mTouchPos[i], mInUseList[i], dt, nullptr));
 		}
-		mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, false));
+		mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, true));
 		return true;
 	}
 
@@ -68,7 +68,7 @@ void MultiTapAction::setup(float limit, int numberOfFingers){
 		angle += step;
 		touches.push_back(ci::app::TouchEvent::Touch(nTouchPos, nTouchPos, *it, 0.0, nullptr));
 	}
-	mEngine.injectTouchesBegin(ds::ui::TouchEvent(mEngine.getWindow(), touches));
+	mEngine.injectTouchesBegin(ds::ui::TouchEvent(mEngine.getWindow(), touches, true));
 }
 
 } // namespace debug
