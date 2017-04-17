@@ -18,6 +18,7 @@ GStreamerWrapper::GStreamerWrapper()
 	, m_GstAudioSink(NULL)
 	, m_GstPanorama(NULL)
 	, m_GstBus(NULL)
+	, m_AudioBufferWanted(false)
 	, m_StartPlaying(true)
 	, m_StopOnLoopComplete(false)
 	, m_CustomPipeline(false)
@@ -251,6 +252,12 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		m_GstVideoSinkCallbacks.eos = &GStreamerWrapper::onEosFromVideoSource;
 		m_GstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromVideoSource;
 		m_GstVideoSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromVideoSource;
+
+		if(m_AudioBufferWanted){
+			m_GstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
+			m_GstVideoSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
+		}
+
 		gst_app_sink_set_callbacks( GST_APP_SINK( m_GstVideoSink ), &m_GstVideoSinkCallbacks, this, NULL );
 
 	} else {
@@ -299,16 +306,6 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			g_object_set(m_GstPipeline, "audio-sink", bin, (void*)NULL);
 
 			gst_object_unref(pad);
-			//m_GstObjects.push_back(m_GstConverter);
-			//m_GstObjects.push_back(m_GstAudioSink);
-			//m_GstObjects.push_back(m_GstPanorama);
-
-
-			// Set Audio Sink callback methods
-			//m_GstAudioSinkCallbacks.eos = &GStreamerWrapper::onEosFromAudioSource;
-			//m_GstAudioSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
-			//m_GstAudioSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
-			//gst_app_sink_set_callbacks(GST_APP_SINK(m_GstAudioSink), &m_GstAudioSinkCallbacks, this, NULL);
 		}
 
 	// Only create an audio sink if there's an audio track
@@ -908,6 +905,7 @@ void GStreamerWrapper::setPan(float fPan){
 }
 
 unsigned char* GStreamerWrapper::getAudio(){
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	return m_cAudioBuffer;
 }
 
@@ -923,7 +921,7 @@ int GStreamerWrapper::getAudioSampleRate(){
 	return m_iAudioSampleRate;
 }
 
-int GStreamerWrapper::getAudioBufferSize(){
+size_t GStreamerWrapper::getAudioBufferSize(){
 	return m_iAudioBufferSize;
 }
 
@@ -1482,110 +1480,49 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 }
 
 void GStreamerWrapper::newAudioSinkPrerollCallback( GstSample* audioSinkBuffer ){
-	// NOTE:
-	// This is the old implementation from GStreamer 0.10.
-	// It's left here in case it's helpful for re-implemenation
-	
-	//if ( m_cAudioBuffer == NULL )
-	//{
-	//	m_iAudioBufferSize = GST_BUFFER_SIZE( audioSinkBuffer );
-	//	m_cAudioBuffer = new unsigned char[m_iAudioBufferSize];
 
-	//	////////////////////////////////////////////////////////////////////////// AUDIO DATA
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 
-	//	/*
-	//		Note: For some reason, with this version of GStreamer the only way to retrieve the audio metadata
-	//		is to read the caps from the audio appsink buffer and via a GstStructure we can retrieve the needed
-	//		values from the caps. After lots of research I also found another possibility by using GstAudioInfo
-	//		but this struct is not available in this version.
+	GstBuffer* buff = gst_sample_get_buffer(audioSinkBuffer);
+	GstMapInfo map;
+	GstMapFlags flags = GST_MAP_READ;
+	gst_buffer_map(buff, &map, flags);
 
-	//		If a later version of GStreamer is ever compiled in a valid way so it can be used with Visual Studio
-	//		it would definitely be a good idea to retrieve the audio information somewhere else in the code.
-	//		But this piece of code does it well for now.
-	//	*/
 
-	//	// Get Audio metadata
-	//	// http://gstreamer.freedesktop.org/data/doc/gstreamer/head/pwg/html/section-types-definitions.html
-	//	GstCaps* audioCaps = gst_buffer_get_caps( audioSinkBuffer );
-	//	GstStructure* gstStructure = gst_caps_get_structure( audioCaps, 0 );
+	size_t audioBufferSize = map.size;
 
-	//	// Is audio data signed or not?
-	//	gboolean isAudioSigned;
-	//	gst_structure_get_boolean( gstStructure, "signed", &isAudioSigned );
-	//	m_bIsAudioSigned = (bool)(isAudioSigned);
+	if(m_iAudioBufferSize != audioBufferSize){
+		if(m_cAudioBuffer) delete[] m_cAudioBuffer;
+		m_iAudioBufferSize = audioBufferSize;
+		m_cAudioBuffer = new unsigned char[m_iAudioBufferSize];
+	}
 
-	//	// Number of channels
-	//	gst_structure_get_int( gstStructure, "channels", &m_iNumAudioChannels );
-	//	// Audio sample rate
-	//	gst_structure_get_int( gstStructure, "rate", &m_iAudioSampleRate );
-	//	// Audio width
-	//	gst_structure_get_int( gstStructure, "width", &m_iAudioWidth );
+	memcpy((unsigned char *)m_cAudioBuffer, map.data, m_iAudioBufferSize);
 
-	//	// Calculate the audio buffer size without the number of channels and audio width
-	//	m_iAudioDecodeBufferSize = m_iAudioBufferSize / m_iNumAudioChannels / ( m_iAudioWidth / 8 );
 
-	//	// Audio endianness
-	//	gint audioEndianness;
-	//	gst_structure_get_int( gstStructure, "endianness",  &audioEndianness );
-	//	m_AudioEndianness = (Endianness)audioEndianness;
-
-	//	gst_caps_unref( audioCaps );
-	//}
-	//else
-	//{
-	//	// The Audio Buffer size may change during runtime so we keep track if the buffer changes
-	//	// If so, delete the old buffer and re-allocate it with the respective new buffer size
-	//	int bufferSize = GST_BUFFER_SIZE( audioSinkBuffer );
-	//	if ( m_iAudioBufferSize != bufferSize )
-	//	{
-	//		// Allocate the audio data array according to the audio appsink buffer size
-	//		m_iAudioBufferSize = bufferSize;
-	//		delete [] m_cAudioBuffer;
-	//		m_cAudioBuffer = NULL;
-
-	//		m_cAudioBuffer = new unsigned char[m_iAudioBufferSize];
-	//	}
-	//}
-
-	//// Copy the audio appsink buffer data to our unsigned char array
-	//memcpy( (unsigned char *)m_cAudioBuffer, (unsigned char *)GST_BUFFER_DATA( audioSinkBuffer ), GST_BUFFER_SIZE( audioSinkBuffer ) );
+	gst_buffer_unmap(buff, &map);
 }
 
-void GStreamerWrapper::newAudioSinkBufferCallback( GstSample* audioSinkBuffer )
-{
+void GStreamerWrapper::newAudioSinkBufferCallback( GstSample* audioSinkBuffer ){
 
-	//---------------- Potential GStreamer 1.0 implementation
-// 	GstBuffer *buffer;
-// 	GstMapInfo map;
-// 	buffer = gst_sample_get_buffer(audioSinkBuffer);
-// 
-// 	gst_buffer_map(buffer, &map, GST_MAP_READ);
-// 
-// 	// Here you'll send or copy map.data somewhere
-// 	//std::cout << "New Audio Sink Callback: " << map.size << std::endl;
-// 
-// 	gst_buffer_unmap(buffer, &map);
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 
+	GstBuffer* buff = gst_sample_get_buffer(audioSinkBuffer);
+	GstMapInfo map;
+	GstMapFlags flags = GST_MAP_READ;
+	gst_buffer_map(buff, &map, flags);
+	
+	size_t audioBufferSize = map.size;
+	
+	if(m_iAudioBufferSize != audioBufferSize){
+		if(m_cAudioBuffer) delete[] m_cAudioBuffer;
+		m_iAudioBufferSize = audioBufferSize;
+		m_cAudioBuffer = new unsigned char[m_iAudioBufferSize];
+	}
+	
+	memcpy((unsigned char *)m_cAudioBuffer, map.data, m_iAudioBufferSize);
 
-	//---------------- Below is the old 0.10 implementation
-	//// The Audio Buffer size may change during runtime so we keep track if the buffer changes
-	//// If so, delete the old buffer and re-allocate it with the respective new buffer size
-	//int bufferSize = GST_BUFFER_SIZE( audioSinkBuffer );
-
-	//if ( m_iAudioBufferSize != bufferSize )
-	//{
-	//	m_iAudioBufferSize = bufferSize;
-	//	delete [] m_cAudioBuffer;
-	//	m_cAudioBuffer = NULL;
-
-	//	m_cAudioBuffer = new unsigned char[m_iAudioBufferSize];
-
-	//	// Recalculate the audio decode buffer size due to change in buffer size
-	//	m_iAudioDecodeBufferSize = m_iAudioBufferSize / m_iNumAudioChannels / ( m_iAudioWidth / 8 );
-	//}
-
-	//// Copy the audio appsink buffer data to our unsigned char array
-	//memcpy( (unsigned char *)m_cAudioBuffer, (unsigned char *)GST_BUFFER_DATA( audioSinkBuffer ), GST_BUFFER_SIZE( audioSinkBuffer ) );
+	gst_buffer_unmap(buff, &map);
 }
 
 void GStreamerWrapper::setVideoCompleteCallback( const std::function<void(GStreamerWrapper* video)> &func ){

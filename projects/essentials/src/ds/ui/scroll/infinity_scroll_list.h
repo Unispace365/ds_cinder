@@ -80,6 +80,7 @@ namespace ds{
 			void								initFillScreen();
 			void								layout();
 			void								checkBounds();
+			void								checkIsOnScreen();
 			void								addSpriteToEnd();
 			void								addSpriteToTop();
 			void								createSprite(ItemPlaceHolder&);
@@ -102,6 +103,7 @@ namespace ds{
 			int									mOnScreenItemSize;
 			int									mTopIndex;
 			int									mBottomIndex;
+
 			bool								mIsOnTweenAnimation;
 			bool								mIsTurnOnStepSwipe;
 

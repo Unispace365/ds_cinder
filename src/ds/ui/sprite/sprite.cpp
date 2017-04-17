@@ -1697,20 +1697,8 @@ void Sprite::setupFinalRenderBuffer(){
 	}
 }
 
-void Sprite::setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms){
-	mUniforms[shaderName] = uniforms;
-}
-
 ds::gl::Uniform& Sprite::getUniform(){
 	return mUniform;
-}
-
-ds::gl::Uniform Sprite::getShaderUniforms(std::string shaderName) {
-	auto it = mUniforms.find(shaderName);
-	if (it != mUniforms.end()){
-		return it->second;
-	}
-	return ds::gl::Uniform();
 }
 
 void Sprite::setShaderExtraData(const ci::vec4& data){

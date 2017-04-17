@@ -228,6 +228,12 @@ void GstVideo::generateAudioBuffer(bool enableAudioBuffer ){
 	 mGenerateAudioBuffer = enableAudioBuffer; 
 }
 
+void GstVideo::wantAudioBuffer(bool doWantAudioBuffer){
+	if(mGstreamerWrapper){
+		mGstreamerWrapper->setAudioBufferWanted(doWantAudioBuffer);
+	}
+}
+
 void GstVideo::setVerboseLogging(const bool doVerbose){
 	mGstreamerWrapper->setVerboseLogging(doVerbose);
 }
@@ -246,6 +252,22 @@ void GstVideo::setAutoSynchronize(const bool doSync){
 void GstVideo::setPlayableInstances(const std::vector<std::string>& instanceNames){
 	mPlayableInstances = instanceNames;
 	markAsDirty(mInstancesDirty);
+}
+
+unsigned char * GstVideo::getRawVideoData(){
+	return mGstreamerWrapper->getVideo();
+}
+
+size_t GstVideo::getRawVideoDataSize(){
+	return mGstreamerWrapper->getVideoBufferSize();
+}
+
+unsigned char * GstVideo::getRawAudioData(){
+	return mGstreamerWrapper->getAudio();
+}
+
+size_t GstVideo::getRawAudioDataSize(){
+	return mGstreamerWrapper->getAudioBufferSize();
 }
 
 void GstVideo::onUpdateServer(const UpdateParams &up){
@@ -551,7 +573,6 @@ void GstVideo::doLoadVideo(const std::string &filename, const std::string &porta
 			uniform.setInt("gsuTexture0", 2);
 			uniform.setInt("gsuTexture1", 3);
 			uniform.setInt("gsuTexture2", 4);
-			setShadersUniforms("yuv_colorspace_conversion", uniform);
 			uniform.applyTo(mSpriteShader.getShader());
 		} else {
 			setBaseShader(Environment::getAppFolder("data/shaders"), "base");
@@ -656,7 +677,6 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	uniform.setInt("gsuTexture0", 2);
 	uniform.setInt("gsuTexture1", 3);
 	uniform.setInt("gsuTexture2", 4);
-	setShadersUniforms("yuv_colorspace_conversion", uniform);
 	uniform.applyTo(mSpriteShader.getShader());
 
 	mNeedsBatchUpdate = true;
