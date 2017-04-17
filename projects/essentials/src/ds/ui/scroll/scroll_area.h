@@ -56,6 +56,7 @@ class ScrollArea : public ds::ui::Sprite {
 		// Move the scroll forwards or backwards by a "page", defined by the visible area minus the size of the fades (if present)
 		// May not work correctly in perspective
 		void				scrollPage(const bool forwards, const bool animate = true);
+		void				setReturnAnimateTime(const float dur){ mReturnAnimateTime = dur; }
 
 		// If this scroll area is rotated globally, rotate the touch delta by that amount. Default = false
 		void				handleTouchesRotated(const bool doRotated){ mHandleRotatedTouches = doRotated; }
