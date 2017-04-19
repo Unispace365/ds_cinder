@@ -72,10 +72,6 @@ Circle::Circle(SpriteEngine& engine, const bool filled, const float radius)
 	mLayoutFixedAspect = true;
 }
 
-Circle::~Circle(){
-}
-
-
 void Circle::drawLocalClient() {
 
 	if(mRadius <= 0.0f) return;

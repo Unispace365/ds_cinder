@@ -2,11 +2,7 @@
 #ifndef DS_UI_CIRCLE_H
 #define DS_UI_CIRCLE_H
 
-#include <string>
-#include <cinder/gl/Vbo.h>
 #include "ds/ui/sprite/sprite.h"
-#include "ds/ui/image_source/image_owner.h"
-#include "ds/ui/mesh_source/mesh_owner.h"
 
 namespace ds {
 namespace ui {
@@ -21,7 +17,6 @@ class Circle : public Sprite {
 public:
 	Circle(SpriteEngine&);
 	Circle(SpriteEngine&, const bool filled, const float radius);
-	~Circle();
 
 	/// Whether to draw just a stroke or just the fill
 	void						setFilled(const bool filled);
