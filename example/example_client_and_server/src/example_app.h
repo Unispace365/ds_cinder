@@ -8,6 +8,8 @@
 #include "ds/touch/touch_debug.h"
 #include <ds/app/event_client.h>
 
+#include "custom_sprite.h"
+
 namespace mv {
 
 class CsApp : public ds::App {
@@ -34,6 +36,8 @@ private:
 	ds::ui::Text*			mTexty;
 	ds::ui::Image*			imgSprite;
 	ds::ui::Sprite*			mToggleSprite;
+
+	ds::ui::CustomSprite*	mCustomNetSprite;
 };
 
 } // !namespace mv
