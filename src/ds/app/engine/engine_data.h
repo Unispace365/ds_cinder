@@ -35,7 +35,6 @@ public:
 	float					mSwipeMinVelocity;
 	float					mSwipeMaxTime;
 	float					mDoubleTapTime;
-	ci::Rectf				mScreenRect;
 	ci::vec2				mWorldSize;
 	float					mFrameRate;
 	int						mIdleTimeout;
@@ -43,8 +42,7 @@ public:
 	std::string				mAppInstanceName;
 
 	// The source rect in world bounds and the destination
-	// local rect. Together these should obsolete mScreenRect.
-	// The dest local rect.
+	// local rect.
 	ci::Rectf				mSrcRect,
 							mDstRect;
 

@@ -123,27 +123,19 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mDstRect = settings.getRect("dst_rect", 0, empty_rect);
 		
 	}
-	// Override the screen rect if we're using the new-style mode. I inherit behaviour like setting
-	// the window size from this.
-	if (mData.mDstRect.x2 > mData.mDstRect.x1 && mData.mDstRect.y2 > mData.mDstRect.y1) {
-		// Hmmm... suspect the screen rect does not support setting x1, y1, because when I do
-		// everything goes black. That really needs to be weeded out in favour of the new system.
-		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
-	}
 
-	if(mData.mScreenRect.getWidth() < 1 || mData.mScreenRect.getHeight() < 1 || mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
+	if(mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
 		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
 		ci::DisplayRef mainDisplay = ci::Display::getMainDisplay();
 		ci::Rectf mainDisplayRect = ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
 		mData.mSrcRect = mainDisplayRect;
 		mData.mDstRect = mainDisplayRect;
-		mData.mScreenRect = mainDisplayRect;
 		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
 			mData.mWorldSize = ci::vec2(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
 		}
 	}
 
-	DS_LOG_INFO("Screen rect is (" << mData.mScreenRect.x1 << ", " << mData.mScreenRect.y1 << ") - (" << mData.mScreenRect.x2 << ", " << mData.mScreenRect.y2 << ")");
+	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 
 	// Don't construct roots on startup for clients, and instead create them when we connect to a server
 	const std::string	arch(settings.getText("platform:architecture", 0, ""));
@@ -158,11 +150,9 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		for(auto it = roots.mRoots.begin(), end = roots.mRoots.end(); it != end; ++it) {
 			RootList::Root&			r(*it);
 			r.mRootId = root_id;
-			Picking*						picking = nullptr;
-			if(r.mPick == r.kSelect) picking = &mSelectPicking;
 			std::unique_ptr<EngineRoot>		root;
 			if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, r.mRootId));
-			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp, picking));
+			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp));
 			if(!root){
 				DS_LOG_WARNING("Couldn't create root in the engine!");
 				continue;
@@ -200,16 +190,13 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	createStatsView(root_id);
 
 	// Initialize the roots
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
 	}
 
 	mRotateTouchesDefault = settings.getBool("touch:rotate_touches_default", 0, false);
-
-	// SETUP PICKING
-	mSelectPicking.setWorldSize(mData.mWorldSize);
 
 	// SETUP RESOURCES
 	std::string resourceLocation = settings.getText("resource_location", 0, "");
@@ -372,7 +359,7 @@ void Engine::createClientRoots(std::vector<RootList::Root> roots){
 	createStatsView(root_id);
 	root_setup(mRoots);
 
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, 1.0f, mData.mSrcRect, mData.mDstRect);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mDebugSettings, 1.0f, mData.mSrcRect, mData.mDstRect);
 	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
@@ -802,8 +789,12 @@ ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) cons
 	// Note that you CAN get to this if you want to interpret what's there. I *think* I saw that
 	// the newer version of cinder gave access so hopefully can just wait for that if we need it.
 
-	// Translate the mouse from the actual window to the desired rect in world coordinates.
-	const ci::ivec2	pos(mTouchTranslator.toWorldi(e.getX(), e.getY()));
+	// Transform the mouse from the actual window to the desired rect in world coordinates.
+	const ci::vec2 srcOffset = mData.mSrcRect.getUpperLeft();
+	const ci::vec2 screenScale = mData.mDstRect.getSize() / mData.mSrcRect.getSize();
+	const ci::vec2 mouseWorldPos = srcOffset + (ci::vec2(e.getX(), e.getY()) / screenScale);
+	const ci::ivec2 pos((int)mouseWorldPos.x, (int)mouseWorldPos.y);
+
 	return ci::app::MouseEvent(e.getWindow(),	0, pos.x, pos.y,
 												0, e.getWheelIncrement(), e.getNativeModifiers());
 }
@@ -860,17 +851,7 @@ bool Engine::getHideMouse() const {
 
 ds::ui::Sprite* Engine::getHit(const ci::vec3& point) {
 	for (auto it=mRoots.rbegin(), end=mRoots.rend(); it!=end; ++it) {
-		
-		ci::vec3 pointToUse = point;
-		if((*it)->getSprite()->getPerspective()){
-			// scale the point from world size to screen size (which is the size of the perspective root)
-			pointToUse = ci::vec3(
-				(point.x / mData.mWorldSize.x) * mData.mScreenRect.getWidth(),
-				(point.y / mData.mWorldSize.y) * mData.mScreenRect.getHeight(),
-				0.0f
-			);
-		}
-		ds::ui::Sprite* s = (*it)->getHit(pointToUse);
+		ds::ui::Sprite* s = (*it)->getHit(point);
 		if (s) return s;
 	}
 	return nullptr;
@@ -879,17 +860,6 @@ ds::ui::Sprite* Engine::getHit(const ci::vec3& point) {
 void Engine::clearFingers( const std::vector<int> &fingers ) {
 	mTouchManager.clearFingers(fingers);
 }
-
-const ci::Rectf& Engine::getScreenRect() const {
-	return mData.mScreenRect;
-}
-
-void Engine::translateTouchPoint(ci::vec2& inOutPoint) {
-	inOutPoint = mTouchTranslator.toWorldf(inOutPoint.x, inOutPoint.y);
-	if(mTouchManager.getOverrideEnabled()){
-		mTouchManager.overrideTouchTranslation(inOutPoint);
-	}
-};
 
 void Engine::nextTouchMode() {
 	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
@@ -931,28 +901,6 @@ void Engine::resetIdleTimeout() {
 	mLastTime = curr;
 	mLastTouchTime = curr;
 	mIdling = false;
-}
-
-namespace {
-ci::app::MouseEvent offset_mouse_event(const ci::app::MouseEvent& e, const ci::Rectf& offset) {
-	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
-	// Currently I believe that's fine -- and since our target is touch platforms without those things
-	// hopefully it always will be.
-	return ci::app::MouseEvent(	e.getWindow(), 0, e.getX() + static_cast<int>(offset.x1), e.getY() + static_cast<int>(offset.y1),
-								0, e.getWheelIncrement(), e.getNativeModifiers());
-}
-
-}
-
-void Engine::setToUserCamera() {
-	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-		(*it)->setViewport(false);
-	}
-
-	// When using a user camera, offset the event inputs.
-	mMouseBeginEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchBegin(offset_mouse_event(e.first, mData.mScreenRect), e.second); });
-	mMouseMovedEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchMoved(offset_mouse_event(e.first, mData.mScreenRect), e.second); });
-	mMouseEndEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchEnded(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
 }
 
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {

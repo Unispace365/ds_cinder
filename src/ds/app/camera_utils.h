@@ -15,22 +15,24 @@ namespace ds {
  * \class ds::CameraPick
  * Utility for picking a sprite.
  */
-class CameraPick
-{
+	class CameraPick
+	{
 	public:
-		CameraPick(	ci::Camera&, const ci::vec3& screenPt,
-								const float screenWidth, const float screenHeight);
+		CameraPick(const ci::Ray& pickRay, const ci::vec3& cameraDirection)
+			: mPickRay(pickRay)
+			, mCameraDirection(cameraDirection)
+		{}
 
-		const ci::vec3&			getScreenPt() const;
-		ci::vec2				worldToScreen(const ci::vec3 &worldCoord) const;
+		//const ci::vec3&			getScreenPoint() const;
+		//ci::Camera&				getCamera(){ return mCamera; }
+		const ci::Ray&			getPickRay() const { return mPickRay; }
+		const ci::vec3&			getCameraDirection() const { return mCameraDirection; }
 
-		ci::Camera&				getCamera(){ return mCamera; }
-
-  private:
-		ci::Camera&				mCamera;
-		const ci::vec3			mScreenPt;
-		const float				mScreenW,
-								mScreenH;
+	private:
+		const ci::Ray&				mPickRay;
+		const ci::vec3&				mCameraDirection;
+		//ci::Camera&				mCamera;
+		//const ci::vec3			mScreenPoint;
 };
 
 /**

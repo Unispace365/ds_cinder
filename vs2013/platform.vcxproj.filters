@@ -501,9 +501,6 @@
     <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file.h">
       <Filter>src\ds\ui\mesh_source</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\touch\select_picking.h">
-      <Filter>src\ds\ui\touch</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\picking.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
@@ -1012,9 +1009,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file_loader.cpp">
       <Filter>src\ds\ui\mesh_source</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\touch\select_picking.cpp">
-      <Filter>src\ds\ui\touch</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\app\app_defs.cpp">
       <Filter>src\ds\app</Filter>
