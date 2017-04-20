@@ -85,19 +85,14 @@ const ci::Rectf& SpriteEngine::getDstRect() const {
 	return mData.mDstRect;
 }
 
-ci::Rectf SpriteEngine::getScreenRect() const
-{
-	return mData.mScreenRect;
-}
-
 float SpriteEngine::getWidth() const
 {
-	return mData.mScreenRect.getWidth();
+	return mData.mDstRect.getWidth();
 }
 
 float SpriteEngine::getHeight() const
 {
-	return mData.mScreenRect.getHeight();
+	return mData.mDstRect.getHeight();
 }
 
 float SpriteEngine::getWorldWidth() const

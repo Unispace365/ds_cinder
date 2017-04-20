@@ -191,14 +191,6 @@ App::App(const RootList& roots)
 	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService(mEngine)));
 	mEngine.addService(ds::MESH_CACHE_SERVICE_NAME, *(new ds::MeshCacheService()));
 
-	if (mArrowKeyCameraControl) {
-		// Currently this is necessary for the keyboard commands
-		// that change the screen rect. I don't understand things
-		// well enough to know why this is a problem or what turning
-		// it off could be doing, but everything LOOKS fine.
-		mEngine.setToUserCamera();
-	}
-
 	// Verify that the application has included the framework resources.
 	try {
 		ci::DataSourceRef ds = loadResource(RES_ARC_DROPSHADOW);
@@ -358,20 +350,20 @@ void App::keyDown(ci::app::KeyEvent e) {
 
 	if (mArrowKeyCameraControl) {
 		if(code == ci::app::KeyEvent::KEY_LEFT) {
-			mEngineData.mScreenRect.x1 -= mArrowKeyCameraStep;
-			mEngineData.mScreenRect.x2 -= mArrowKeyCameraStep;
+			mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
+			mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		} else if(code == ci::app::KeyEvent::KEY_RIGHT) {
-			mEngineData.mScreenRect.x1 += mArrowKeyCameraStep;
-			mEngineData.mScreenRect.x2 += mArrowKeyCameraStep;
+			mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
+			mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		} else if(code == ci::app::KeyEvent::KEY_UP) {
-			mEngineData.mScreenRect.y1 -= mArrowKeyCameraStep;
-			mEngineData.mScreenRect.y2 -= mArrowKeyCameraStep;
+			mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
+			mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		} else if(code == ci::app::KeyEvent::KEY_DOWN) {
-			mEngineData.mScreenRect.y1 += mArrowKeyCameraStep;
-			mEngineData.mScreenRect.y2 += mArrowKeyCameraStep;
+			mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
+			mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		}
 	}

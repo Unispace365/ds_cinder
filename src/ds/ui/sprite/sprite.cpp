@@ -21,6 +21,9 @@
 
 #include <Poco/Debugger.h>
 #include "cinder/ImageIo.h"
+#include <cinder/Ray.h>
+
+#include <glm/gtc/matrix_transform.hpp>
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -1006,99 +1009,83 @@ Sprite* Sprite::getHit(const ci::vec3 &point) {
 	return nullptr;
 }
 
-Sprite* Sprite::getPerspectiveHit(CameraPick& pick){
+Sprite* Sprite::getPerspectiveHit(CameraPick& pick) {
 	if(!visible())
 		return nullptr;
 
-	makeSortedChildren();
-
-	std::vector<ds::ui::Sprite*> candidates;
-
-//	pick.
-
-	for(auto it = mSortedTmp.rbegin(), it2 = mSortedTmp.rend(); it != it2; ++it) {
-		Sprite*		hit = (*it)->getPerspectiveHit(pick);
-		if(hit) {
-			candidates.push_back(hit);
-			//	std::cout << "Found pick candidate: " << hit->getParent()->localToGlobal(hit->getPosition()).z << " " << hit->getId() << std::endl;
-			//	return hit;
-		}
-	}
-
-	if(!candidates.empty()){
-		if(candidates.size() == 1){
-			return candidates.front();
-		}
-
-
-		float closestZ = -10000000.0f;
-		if(candidates.front()->getParent()){
-			closestZ = candidates.front()->getParent()->localToGlobal(candidates.front()->getPosition()).z;
-		}
-		ds::ui::Sprite* hit = candidates.front();
-		for(auto it = candidates.begin() + 1; it < candidates.end(); ++it){
-			if(!(*it)->getParent()) continue;
-			float newZ = (*it)->getParent()->localToGlobal((*it)->getPosition()).z;
-			if(newZ > closestZ){
-				hit = (*it);
-				closestZ = newZ;
-			}
-		}
-
-		return hit;
-	}
-
-	if(isEnabled()) {
-		const float	w = getScaleWidth(),
-			h = getScaleHeight();
-
-		if(w <= 0.0f || h <= 0.0f)
+	static float hitZ;
+	static auto hitTester = [](const CameraPick& pick, ds::ui::Sprite* sprite) -> ds::ui::Sprite* {
+		if (!sprite->isEnabled())
 			return nullptr;
 
-		ci::vec3 ptR = pick.getScreenPt();
-		ci::vec3 a = getParent()->localToGlobal(getPosition());
-		
-		ci::vec3 camEye = pick.getCamera().getEyePoint();
-		a.z -= camEye.z;
-		ci::vec3 ptA = a;
-		ci::vec3 ptB = a;
-		ci::vec3 ptC = a;
-		ci::vec3 ptD = a;
+		const auto& pickRay = pick.getPickRay();
+		const auto& camDirection = pick.getCameraDirection();
 
-		ci::vec2 ptA_s;
-		ci::vec2 ptB_s;
-		ci::vec2 ptC_s;
+		const float	w = sprite->getScaleWidth();
+		const float h = sprite->getScaleHeight();
 
-		
-		ptA.x -= mCenter.x*w;
-		ptA.y += (1 - mCenter.y)*h;
-		ptA_s = pick.worldToScreen(ptA);
+		if (w <= 0.0f || h <= 0.0f)
+			return nullptr;
 
-		ptB.x += (1 - mCenter.x)*w;
-		ptB.y += (1 - mCenter.y)*h;
-		ptB_s = pick.worldToScreen(ptB);
+		auto cornerA = sprite->localToGlobal(glm::vec3(0.0f, 0.0f, 0.0f));
+		auto cornerB = sprite->localToGlobal(glm::vec3(sprite->mWidth, 0.0f, 0.0f));
+		auto cornerC = sprite->localToGlobal(glm::vec3(0.0f, sprite->mHeight, 0.0f));
 
-		ptC.x += (1 - mCenter.x)*w;
-		ptC.y -= mCenter.y*h;
-		ptC_s = pick.worldToScreen(ptC);
+		auto v1 = cornerB - cornerA;
+		auto v2 = cornerC - cornerA;
 
-		ci::vec2 v1 = ptA_s - ptB_s;
-		ci::vec2 v2 = ptC_s - ptB_s;
-		ci::vec2 v;
+		auto norm = glm::normalize(glm::cross(v2, v1));
 
-		v.x = ptR.x - ptB_s.x;
-		v.y = ptR.y - ptB_s.y;
+		float rayDist;
+		bool intersectsPlane = pickRay.calcPlaneIntersection(cornerA, norm, &rayDist);
+		if (!intersectsPlane)
+			return nullptr;
 
-		float dot1 = dot(v, v1);
-		float dot2 = dot(v, v2);
-		if(dot1 >= 0 &&
-		   dot2 >= 0 &&
-		   dot1 <= dot(v1, v1) &&
-		   dot2 <= dot(v2, v2)
-		   ) return this;
+		auto intersectPoint = pickRay.calcPosition(rayDist);
+
+		auto v = intersectPoint - cornerA;
+
+		float dot1 = glm::dot(v, v1);
+		float dot2 = glm::dot(v, v2);
+
+		if (dot1 >= 0
+			&& dot2 >= 0
+			&& dot1 <= dot(v1, v1)
+			&& dot2 <= dot(v2, v2)
+			) {
+
+			auto intersectVector = intersectPoint - pickRay.getOrigin();
+			hitZ = glm::dot(intersectVector, camDirection);
+			return sprite;
+		}
+
+		return nullptr;
+	};
+
+	// Collect hit candidates from children first, before considering this sprite
+	makeSortedChildren();
+	typedef std::pair<ds::ui::Sprite*, float> HitCandidate;
+	std::vector<HitCandidate> candidates;
+	for (auto it = mSortedTmp.rbegin(), it2 = mSortedTmp.rend(); it != it2; ++it) {
+		Sprite* hit = (*it)->getPerspectiveHit(pick);
+		if (hit) {
+			candidates.push_back(std::make_pair(hit, hitZ));
+				//std::cout << "Found pick candidate: " << hit->getParent()->localToGlobal(hit->getPosition()).z << " " << hit->getId() << std::endl;
+				//return hit;
+		}
 	}
 
-	return nullptr;
+	// Return the child hit candidate with the nearest hitZ (closest to camera)
+	auto nearestCandidate = std::min_element(candidates.begin(), candidates.end(),
+		[](const HitCandidate &lhs, const HitCandidate& rhs) {
+		return lhs.second < rhs.second;
+	});
+	if (nearestCandidate != candidates.end()) {
+		hitZ = nearestCandidate->second;
+		return nearestCandidate->first;
+	}
+
+	return hitTester(pick, this);
 }
 
 void Sprite::setProcessTouchCallback(const std::function<void(Sprite *, const TouchInfo &)> &func){
@@ -1247,7 +1234,6 @@ bool Sprite::checkBounds() const {
 	mInBounds = false;
 
 	const ci::Rectf&		screenRect(mEngine.getSrcRect());
-	//  ci::Rectf screenRect = mEngine.getScreenRect();
 
 	float screenMinX = screenRect.getX1();
 	float screenMaxX = screenRect.getX2();

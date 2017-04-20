@@ -23,7 +23,6 @@ EngineData::EngineData(const ds::cfg::Settings& engine_settings)
 	, mAppInstanceName("Downstream")
 	, mMute(false)
 	, mSrcRect(ci::Rectf::zero())
-	, mScreenRect(ci::Rectf::zero())
 	, mDstRect(ci::Rectf::zero())
 {
 }

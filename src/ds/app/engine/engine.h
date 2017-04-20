@@ -31,7 +31,6 @@
 #include "ds/ui/ip/ip_function_list.h"
 #include "ds/ui/service/pango_font_service.h"
 #include "ds/ui/sprite/sprite_engine.h"
-#include "ds/ui/touch/select_picking.h"
 #include "ds/ui/touch/touch_manager.h"
 #include "ds/ui/touch/touch_translator.h"
 #include "ds/ui/tween/tweenline.h"
@@ -165,13 +164,6 @@ public:
 	virtual float						getOrthoNearPlane(const size_t index) const;
 	virtual void						setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane);
 
-	// Modal -- prepare for the user to be able to move the camera.
-	// I discovered there's a call to setViewport() when the camera is set up that *seems* to
-	// do nothing except prevent me from dynamically changing the camera bounds. However, I
-	// know I'll discover it's significance at some point down the road, so this just lets
-	// specific apps turn off this behaviour.
-	void								setToUserCamera();
-
 	// Can be used by apps to stop services before exiting.
 	// This will happen automatically, but some apps might want
 	// to make sure everything is stopped before they go away.
@@ -186,8 +178,6 @@ public:
 	virtual void						clearFingers( const std::vector<int> &fingers );
 	void								setSpriteForFinger( const int fingerId, ui::Sprite* theSprite ){ mTouchManager.setSpriteForFinger(fingerId, theSprite); }
 	ds::ui::Sprite*						getSpriteForFinger( const int fingerId ){ return mTouchManager.getSpriteForFinger(fingerId); }
-	// translate a touch event point to the overlay bounds specified in the settings
-	virtual void						translateTouchPoint( ci::vec2& inOutPoint );
 	virtual bool						shouldDiscardTouch( ci::vec2& p ){ return mTouchManager.shouldDiscardTouch(p); }
 
 	void								setTouchSmoothing(const bool doSmoothing);
@@ -304,8 +294,6 @@ private:
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsBegin;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsMoved;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnd;
-
-	ds::SelectPicking					mSelectPicking;
 
 	bool								mRotateTouchesDefault;
 	bool								mHideMouse;

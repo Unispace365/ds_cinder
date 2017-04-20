@@ -7,28 +7,6 @@
 namespace ds {
 
 /**
- * \class ds::CameraPick
- */
-CameraPick::CameraPick(	ci::Camera& c, const ci::vec3& screenPt,
-												const float screenWidth, const float screenHeight)
-	: mCamera(c)
-	, mScreenPt(screenPt)
-	, mScreenW(screenWidth)
-	, mScreenH(screenHeight)
-{
-}
-
-const ci::vec3& CameraPick::getScreenPt() const
-{
-	return mScreenPt;
-}
-
-ci::vec2 CameraPick::worldToScreen(const ci::vec3 &worldCoord) const
-{
-	return mCamera.worldToScreen(worldCoord, mScreenW, mScreenH);
-}
-
-/**
  * \class ds::ScreenToWorld
  */
 ScreenToWorld::ScreenToWorld()
