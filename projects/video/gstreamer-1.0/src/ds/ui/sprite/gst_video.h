@@ -154,8 +154,11 @@ public:
 	virtual void		onUpdateClient(const UpdateParams&) override;
 	virtual void		onUpdateServer(const UpdateParams&) override;
 
-	///Allow for custom audio output
+	///Allow for custom audio output - generally you'll set a custom pipeline and get the output
 	void				generateAudioBuffer(bool enableAudioBuffer);
+
+	/// This means that you can actually get the audio buffer data itself
+	void				wantAudioBuffer(bool doWantAudioBuffer);
 
 	/// In case you want a ton of info from gstreamer about what's going on
 	void				setVerboseLogging(const bool doVerbose);
@@ -178,6 +181,15 @@ public:
 	/// If this video goes out of the current instance's bounds, will automatically mute. default == true
 	/// If you're having trouble with networked videos dropping audio, try turning this off
 	void				setAllowOutOfBoundsMuted(const bool allowMuted);
+
+	/// Have at the raw video and data.
+	/// I'm not gonna put any more comments here, because you really need to know what you're doing with this
+	/// If you're like "Hey, I just want to show a video" then you are in the wrong place
+	/// This is the "I'd really like to know the byte value of a pixel of the U channel before color space conversion" sorta thing
+	unsigned char *		getRawVideoData();
+	size_t				getRawVideoDataSize();
+	unsigned char *		getRawAudioData();
+	size_t				getRawAudioDataSize();
 
 protected:
 	virtual void		drawLocalClient() override;

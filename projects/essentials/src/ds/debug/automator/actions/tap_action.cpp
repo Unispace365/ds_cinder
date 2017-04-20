@@ -48,7 +48,7 @@ bool TapAction::update(float dt){
 		for(int i = 0; i < mNumberOfFingers; ++i){
 			touches.push_back(ci::app::TouchEvent::Touch(mTouchPos[i], mTouchPos[i], mInUseList[i], dt, nullptr));
 		}
-		mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches));
+		mEngine.injectTouchesEnded(ds::ui::TouchEvent(mEngine.getWindow(), touches, true));
 		return true;
 	}
 
@@ -67,7 +67,7 @@ void TapAction::setup(float limit, int numberOfFingers)
 		mTouchPos.push_back(touchPos);
 		touches.push_back(ci::app::TouchEvent::Touch(touchPos, touchPos, *it, 0.0, nullptr));
 	}
-	mEngine.injectTouchesBegin(ds::ui::TouchEvent(mEngine.getWindow(), touches));
+	mEngine.injectTouchesBegin(ds::ui::TouchEvent(mEngine.getWindow(), touches, true));
 }
 
 } // namespace debug

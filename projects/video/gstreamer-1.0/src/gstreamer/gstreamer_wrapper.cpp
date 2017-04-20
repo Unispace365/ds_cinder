@@ -18,6 +18,7 @@ GStreamerWrapper::GStreamerWrapper()
 	, m_GstAudioSink(NULL)
 	, m_GstPanorama(NULL)
 	, m_GstBus(NULL)
+	, m_AudioBufferWanted(false)
 	, m_StartPlaying(true)
 	, m_StopOnLoopComplete(false)
 	, m_CustomPipeline(false)
@@ -253,6 +254,12 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		m_GstVideoSinkCallbacks.eos = &GStreamerWrapper::onEosFromVideoSource;
 		m_GstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromVideoSource;
 		m_GstVideoSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromVideoSource;
+
+		if(m_AudioBufferWanted){
+			m_GstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
+			m_GstVideoSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
+		}
+
 		gst_app_sink_set_callbacks( GST_APP_SINK( m_GstVideoSink ), &m_GstVideoSinkCallbacks, this, NULL );
 
 	} else {
@@ -928,6 +935,7 @@ void GStreamerWrapper::setPan(float fPan){
 }
 
 unsigned char* GStreamerWrapper::getAudio(){
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
 	return m_cAudioBuffer;
 }
 
@@ -943,7 +951,7 @@ int GStreamerWrapper::getAudioSampleRate(){
 	return m_iAudioSampleRate;
 }
 
-int GStreamerWrapper::getAudioBufferSize(){
+size_t GStreamerWrapper::getAudioBufferSize(){
 	return m_iAudioBufferSize;
 }
 
@@ -1404,6 +1412,51 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 	gst_buffer_unmap(buff, &map);
 }
 
+void GStreamerWrapper::newAudioSinkPrerollCallback( GstSample* audioSinkBuffer ){
+
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
+
+	GstBuffer* buff = gst_sample_get_buffer(audioSinkBuffer);
+	GstMapInfo map;
+	GstMapFlags flags = GST_MAP_READ;
+	gst_buffer_map(buff, &map, flags);
+
+
+	size_t audioBufferSize = map.size;
+
+	if(m_iAudioBufferSize != audioBufferSize){
+		if(m_cAudioBuffer) delete[] m_cAudioBuffer;
+		m_iAudioBufferSize = audioBufferSize;
+		m_cAudioBuffer = new unsigned char[m_iAudioBufferSize];
+	}
+
+	memcpy((unsigned char *)m_cAudioBuffer, map.data, m_iAudioBufferSize);
+
+
+	gst_buffer_unmap(buff, &map);
+}
+
+void GStreamerWrapper::newAudioSinkBufferCallback( GstSample* audioSinkBuffer ){
+
+	std::lock_guard<decltype(m_VideoLock)> lock(m_VideoLock);
+
+	GstBuffer* buff = gst_sample_get_buffer(audioSinkBuffer);
+	GstMapInfo map;
+	GstMapFlags flags = GST_MAP_READ;
+	gst_buffer_map(buff, &map, flags);
+	
+	size_t audioBufferSize = map.size;
+	
+	if(m_iAudioBufferSize != audioBufferSize){
+		if(m_cAudioBuffer) delete[] m_cAudioBuffer;
+		m_iAudioBufferSize = audioBufferSize;
+		m_cAudioBuffer = new unsigned char[m_iAudioBufferSize];
+	}
+	
+	memcpy((unsigned char *)m_cAudioBuffer, map.data, m_iAudioBufferSize);
+
+	gst_buffer_unmap(buff, &map);
+}
 
 void GStreamerWrapper::setVideoCompleteCallback( const std::function<void(GStreamerWrapper* video)> &func ){
 	mVideoCompleteCallback = func;

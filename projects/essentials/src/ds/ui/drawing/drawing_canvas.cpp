@@ -283,11 +283,9 @@ void DrawingCanvas::drawLocalClient(){
 		theTex->bind(0);
 
 		if(shaderBase) {
-			//ci::gl::enableAlphaBlending(true);
 			ci::gl::ScopedBlend sb(GL_ONE, GL_ONE_MINUS_SRC_ALPHA);
 			shaderBase->uniform("tex0", 0);
 			shaderBase->uniform("opaccy", mDrawOpacity);
-			//ci::gl::ScopedGlslProg scopedShaderBase(shaderBase);
 
 			if(!getPerspective()){
 				if(mRenderBatch){

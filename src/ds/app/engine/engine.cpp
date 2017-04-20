@@ -165,12 +165,15 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 			std::unique_ptr<EngineRoot>		root;
 			if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, r.mRootId));
 			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp, picking));
-			if(!root) throw std::runtime_error("Engine can't create root");
+			if(!root){
+				DS_LOG_WARNING("Couldn't create root in the engine!");
+				continue;
+			}
 			mRoots.push_back(std::move(root));
 			--root_id;
 		}
 		if(mRoots.empty()) {
-			throw std::runtime_error("Engine can't create single root");
+			DS_LOG_WARNING("Engine can't create single root");
 		}
 		root_setup(mRoots);
 	}
@@ -314,10 +317,7 @@ void Engine::setup(ds::App& app) {
 		// GN: recent updates should make this impossible to get to.
 		//		but leaving this here in case some weird case sets the size to an invalid value
 		DS_LOG_WARNING("Engine::setup() on 0 size width or height");
-		//std::cout << "ERROR Engine::setup() on 0 size width or height" << std::endl;
-		//throw std::runtime_error("Engine::setup() on 0 size width or height");
 	}
-	//////////////////////////////////////////////////////////////////////////
 
 	float curr = static_cast<float>(ci::app::getElapsedSeconds());
 	mLastTime = curr;
@@ -361,7 +361,10 @@ void Engine::createClientRoots(std::vector<RootList::Root> roots){
 		sprite_id_t thisRootId = (*it).mRootId;
 		if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, thisRootId));
 		else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, thisRootId, r.mPersp));
-		if(!root) throw std::runtime_error("Engine can't create root");
+		if(!root){
+			DS_LOG_WARNING("Engine can't create root");
+			continue;
+		}
 		mRoots.push_back(std::move(root));
 		if(thisRootId < root_id){
 			root_id = thisRootId;
@@ -415,7 +418,15 @@ Engine::~Engine() {
 }
 
 ds::EventNotifier& Engine::getChannel(const std::string &name) {
-	if (name.empty()) throw std::runtime_error("Engine::getChannel() on empty name");
+	if(name.empty()){
+		DS_LOG_WARNING("Engine::getChannel() on empty name");
+		if(mChannels.empty()){
+			mChannels["blank"] = Channel();
+			return mChannels["blank"].mNotifier;
+		} else {
+			return mChannels.begin()->second.mNotifier;
+		}
+	}
 	if (!mChannels.empty()) {
 		auto f = mChannels.find(name);
 		if (f != mChannels.end()) return f->second.mNotifier;
@@ -423,18 +434,27 @@ ds::EventNotifier& Engine::getChannel(const std::string &name) {
 	mChannels[name] = Channel();
 	auto f = mChannels.find(name);
 	if (f != mChannels.end()) return f->second.mNotifier;
-	throw std::runtime_error("Engine::getChannel() no channel named " + name);
+	DS_LOG_WARNING("Engine::getChannel() no channel named " + name);
+	if(mChannels.empty()){
+		mChannels["blank"] = Channel();
+		return mChannels["blank"].mNotifier;
+	} else {
+		return mChannels.begin()->second.mNotifier;
+	}
 }
 
 void Engine::addChannel(const std::string &name, const std::string &description) {
-	if (name.empty()) throw std::runtime_error("Engine::addChannel() on empty name");
+	if(name.empty()){
+		DS_LOG_WARNING("Engine::addChannel() on empty name");
+		return;
+	}
 	mChannels[name] = Channel(description);
 }
 
 ds::AutoUpdateList& Engine::getAutoUpdateList(const int mask) {
 	if ((mask&AutoUpdateType::SERVER) != 0) return mAutoUpdateServer;
 	if ((mask&AutoUpdateType::CLIENT) != 0) return mAutoUpdateClient;
-	throw std::runtime_error("Engine::getAutoUpdateList() on illegal param");
+	DS_LOG_WARNING("Engine::getAutoUpdateList() on illegal param");
 	return mAutoUpdateServer;
 }
 
@@ -480,14 +500,21 @@ size_t Engine::getRootCount() const {
 }
 
 ui::Sprite& Engine::getRootSprite(const size_t index) {
-	if (index < 0 || index >= mRoots.size()) throw std::runtime_error("Engine::getRootSprite() on invalid index");
+	if(index < 0 || index >= mRoots.size()){
+		DS_LOG_WARNING("Engine::getRootSprite() on invalid index " << index);
+		ui::Sprite* fs = mRoots.front()->getSprite();
+		return *fs;
+	}
 	ui::Sprite*		s = mRoots[index]->getSprite();
-	if (!s) throw std::runtime_error("Engine::getRootSprite() on null sprite");
+	if(!s) DS_LOG_WARNING("Engine::getRootSprite() on null sprite");
 	return *s;
 }
 
 const RootList::Root& Engine::getRootBuilder(const size_t index){
-	if(index < 0 || index >= mRoots.size()) throw std::runtime_error("Engine::getRootBuilder() on invalid index");
+	if(index < 0 || index >= mRoots.size()){
+		DS_LOG_WARNING("Engine::getRootBuilder() on invalid index " << index);
+		return mRoots.front()->getBuilder();;
+	}
 	return mRoots[index]->getBuilder();
 }
 
@@ -588,7 +615,7 @@ PerspCameraParams Engine::getPerspectiveCamera(const size_t index) const {
 		return root->getCamera();
 	}
 	DS_LOG_ERROR(" Engine::getPerspectiveCamera() on invalid root (" << index << ")");
-	throw std::runtime_error("getPerspectiveCamera() on non-perspective root.");
+	return PerspCameraParams();
 }
 
 const ci::CameraPersp& Engine::getPerspectiveCameraRef(const size_t index) const {
@@ -596,9 +623,10 @@ const ci::CameraPersp& Engine::getPerspectiveCameraRef(const size_t index) const
 	if (index < mRoots.size()) root = dynamic_cast<const PerspRoot*>(mRoots[index].get());
 	if (root) {
 		return root->getCameraRef();
-	}
+	} 
 	DS_LOG_ERROR(" Engine::getPerspectiveCamera() on invalid root (" << index << ")");
-	throw std::runtime_error("getPerspectiveCamera() on non-perspective root.");
+	static ci::CameraPersp defaultCamera;
+	return defaultCamera;
 }
 
 void Engine::setPerspectiveCamera(const size_t index, const PerspCameraParams& p) {
@@ -628,7 +656,8 @@ float Engine::getOrthoFarPlane(const size_t index)const{
 		return root->getFarPlane();
 	}
 	DS_LOG_ERROR(" Engine::getOrthoFarPlane() on invalid root (" << index << ")");
-	throw std::runtime_error("getOrthoFarPlane() on non-perspective root.");
+
+	return 0.0f;
 }
 
 float Engine::getOrthoNearPlane(const size_t index)const{
@@ -638,7 +667,7 @@ float Engine::getOrthoNearPlane(const size_t index)const{
 		return root->getNearPlane();
 	}
 	DS_LOG_ERROR(" Engine::getOrthoNearPlane() on invalid root (" << index << ")");
-	throw std::runtime_error("getOrthoNearPlane() on non-perspective root.");
+	return 0.0f;
 }
 
 void Engine::setOrthoViewPlanes(const size_t index, const float nearPlane, const float farPlane){
@@ -650,7 +679,6 @@ void Engine::setOrthoViewPlanes(const size_t index, const float nearPlane, const
 		return;
 	}
 	DS_LOG_ERROR(" Engine::setOrthoViewPlanes() on invalid root (" << index << ")");
-	throw std::runtime_error("setOrthoViewPlanes() on non-perspective root.");
 }
 void Engine::clearAllSprites(const bool clearDebug) {
 	for (auto it=mRoots.begin(), end=mRoots.end(); it != end; ++it) {

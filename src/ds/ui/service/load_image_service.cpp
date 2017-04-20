@@ -369,7 +369,7 @@ LoadImageService::ImageOperation::ImageOperation(const ImageKey& key, const int 
 
 void LoadImageService::ImageOperation::clear() {
 	mKey.clear();
-	mSurface.create(0, 0, true);
+	mSurface = ci::Surface8u();
 	mFlags = 0;
 	mIpFunction.clear();
 	mNumberTries = 0;

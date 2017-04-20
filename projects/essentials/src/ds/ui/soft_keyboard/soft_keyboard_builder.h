@@ -22,6 +22,7 @@ namespace SoftKeyboardBuilder {
 
 	/// Doesn't include shift, enter, ', \. Good for basic search keyboards
 	SoftKeyboard*			buildLowercaseKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr);
+	SoftKeyboard*			buildUppercaseKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr, bool numbers = false);
 
 	/// Includes all the regular keys
 	SoftKeyboard*			buildStandardKeyboard(ds::ui::SpriteEngine& engine, SoftKeyboardSettings& settings, ds::ui::Sprite* parent = nullptr);

@@ -599,11 +599,7 @@ namespace ui {
 		SpriteShader&			getBaseShader();
 		std::string				getBaseShaderName() const;
 		ds::gl::Uniform&		getUniform();
-
-		void					setShadersUniforms(std::string shaderName, ds::gl::Uniform uniforms);
-		ds::gl::Uniform			getShaderUniforms(std::string shaderName);
 		void					setShaderExtraData(const ci::vec4& data);
-
 		bool					getUseShaderTexture() const;
 
 		void					setClipping(bool flag);
@@ -853,8 +849,6 @@ namespace ui {
 
 		// Transport uniform data to the shader
 		ds::gl::Uniform		mUniform;
-
-		std::map < std::string, ds::gl::Uniform>	mUniforms;
 
 	private:
 		// Utility to reorder the sprites
