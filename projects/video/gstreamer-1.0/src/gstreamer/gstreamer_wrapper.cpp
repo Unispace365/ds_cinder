@@ -1349,10 +1349,27 @@ GstFlowReturn GStreamerWrapper::onNewPrerollFromVideoSource(GstAppSink* appsink,
 	return GST_FLOW_OK;
 }
 
+GstFlowReturn GStreamerWrapper::onNewPrerollFromAudioSource(GstAppSink* appsink, void* listener){
+	GstSample* gstAudioSinkBuffer = gst_app_sink_pull_preroll(GST_APP_SINK(appsink));
+	((GStreamerWrapper *)listener)->newAudioSinkPrerollCallback(gstAudioSinkBuffer);
+	gst_sample_unref(gstAudioSinkBuffer);
+
+	return GST_FLOW_OK;
+}
+
 GstFlowReturn GStreamerWrapper::onNewBufferFromVideoSource( GstAppSink* appsink, void* listener ){	
 	GstSample* gstVideoSinkBuffer = gst_app_sink_pull_sample( GST_APP_SINK( appsink ) );	
 	( ( GStreamerWrapper * )listener )->newVideoSinkBufferCallback( gstVideoSinkBuffer );
 	gst_sample_unref( gstVideoSinkBuffer );
+	return GST_FLOW_OK;
+}
+
+GstFlowReturn GStreamerWrapper::onNewBufferFromAudioSource(GstAppSink* appsink, void* listener){
+
+	GstSample* gstAudioSinkBuffer = gst_app_sink_pull_sample(GST_APP_SINK(appsink));
+	((GStreamerWrapper *)listener)->newAudioSinkBufferCallback(gstAudioSinkBuffer);
+	gst_sample_unref(gstAudioSinkBuffer);
+
 	return GST_FLOW_OK;
 }
 
