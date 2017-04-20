@@ -33,6 +33,8 @@ projects/viewers/lib/
 /example/sync_video_player/debug.txt
 /projects/mosquitto/lib/ds_mosquitto.lib
 /projects/mosquitto/lib/ds_mosquitto_d.lib
+/projects/mosquitto/lib64/ds_mosquitto.lib
+/projects/mosquitto/lib64/ds_mosquitto_d.lib
 /projects/essentials/lib64/essentials.lib
 /projects/essentials/lib64/essentials_d.lib
 /projects/pdf/lib64/pdf_mupdf.lib
