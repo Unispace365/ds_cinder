@@ -727,7 +727,9 @@ void TextPango::renderPangoText(){
 		if(mCairoSurface) {
 			cairo_surface_destroy(mCairoSurface);
 			mCairoSurface = nullptr;
+#if CAIRO_HAS_WIN32_SURFACE
 			mCairoWinImageSurface = nullptr;
+#endif
 		}
 
 #if CAIRO_HAS_WIN32_SURFACE
@@ -802,7 +804,9 @@ void TextPango::renderPangoText(){
 			if(mCairoSurface) {
 				cairo_surface_destroy(mCairoSurface);
 				mCairoSurface = nullptr;
+#ifdef CAIRO_HAS_WIN32_SURFACE
 				mCairoWinImageSurface = nullptr;
+#endif
 			}
 		}
 
