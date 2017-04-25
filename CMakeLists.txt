@@ -58,5 +58,26 @@ if( DS_CINDER_BUILD_EXAMPLES )
 	endforeach()
 endif()
 
+# 7. Configure/Build Projects
+foreach( projectComponent essentials mosquitto video pdf web viewers )
+	ds_log_i( SECTION " Configuring DsCinder sub-project: ${projectComponent}" )
+	get_filename_component( projectComponentModuleDir "${DS_CINDER_PATH}/projects/${projectComponent}/cmake" ABSOLUTE )
+	find_package( ${projectComponent} PATHS ${projectComponentModuleDir} NO_DEFAULT_PATH )
+	export( TARGETS ${projectComponent} FILE ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/${projectComponent}Targets.cmake )
+	export( PACKAGE ${projectComponent} )
 
-# 7. Build Tests?
+	set( projectComponentConfigInFile ${DS_CINDER_PATH}/projects/${projectComponent}/cmake/${projectComponent}Config.buildtree.cmake.in )
+	if( EXISTS ${projectComponentConfigInFile} )
+		configure_file( 
+			${projectComponentConfigInFile}
+			${DS_CINDER_PATH}/${DS_CINDER_LIB_DIRECTORY}/${projectComponent}Config.cmake 
+			@ONLY
+		)
+	else() 
+		ds_log_w( "Could not find project cmake export config file: ${projectComponentConfigInFile}" )
+	endif()
+
+endforeach()
+
+
+# 8. Build Tests?

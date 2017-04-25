@@ -98,24 +98,3 @@ if( NOT TARGET web )
 
 endif()
 
-# TODO: Make this smarter:
-#	* What to do if symlink src already exists?
-#   * Debug/Release CEF binaries?
-#	* Convert symlinks to actual files upon "install"?
-
-# Copy (links to) CEF binaries and Resources to executable directory
-add_custom_command( TARGET ${DS_CINDER_APP_TARGET} POST_BUILD
-	#COMMAND #file( MAKE_DIRECTORY "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
-	COMMAND ${CMAKE_COMMAND} -E make_directory "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef"
-	COMMENT "... Creating cef/ directory in target output directory"
-)
-MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_BINARY_FILES}"   "${CEF_BINARY_DIR}"   "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
-MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_RESOURCE_FILES}" "${CEF_RESOURCE_DIR}" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
-
-MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_BINARY_FILES}"   "cef" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
-MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "${CEF_RESOURCE_FILES}" "cef" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
-
-# Copy in (link to) the cefsimple program, custom-compiled for Linux
-COPY_FILES(${DS_CINDER_APP_TARGET} "cefsimple" "${CMAKE_CURRENT_LIST_DIR}/../cef/lib_linux64/runtime/" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}/cef")
-MAKE_SYMLINKS_POST_BUILD(${DS_CINDER_APP_TARGET} "cefsimple" "cef" "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}" )
-

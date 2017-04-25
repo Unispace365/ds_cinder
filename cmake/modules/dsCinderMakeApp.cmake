@@ -181,24 +181,14 @@ function( ds_cinder_make_app )
 		message( "\n----------------------------------------------------" )
 		message(   "  Configuring DsCinder sub-project: ${projectComponent}" )
 		message(   "----------------------------------------------------" )
-		get_filename_component( projectComponentModuleDir "${DS_CINDER_PATH}/projects/${projectComponent}/cmake" ABSOLUTE )
-		set( projectComponentName "" )
-		ds_log_v( "projectComponentModuleDir: ${projectComponentModuleDir}" )
-
-		if( EXISTS ${projectComponentModuleDir} )
-			get_filename_component( projectComponentName "${projectComponent}" NAME )
-		elseif( EXISTS ${DS_CINDER_PATH}/projects/${projectComponent}/cmake )
-			get_filename_component( projectComponentModuleDir "${DS_CINDER_PATH}/projects/${projectComponent}/cmake" ABSOLUTE )
-			set( projectComponentName "${projectComponent}" )
-		elseif( IS_DIRECTORY ${projectComponent} )
-		  	get_filename_component( projectComponentName ${projectComponent} NAME )
-			set( projectComponentModuleDir "${projectComponent}/cmake" )
-    		else()
-			message( ERROR " Could not find projectComponent: ${projectComponent}, checked in ds_cinder/projects and at path: ${projectComponentModuleDir}" )
-		endif()
+		set( projectComponentName ${projectComponent} )
 
 		if( projectComponentName )
-			find_package( ${projectComponentName} PATHS ${projectComponentModuleDir} NO_DEFAULT_PATH )
+			find_package( ${projectComponentName} REQUIRED
+				PATHS ${DS_CINDER_PATH}/${DS_CINDER_LIB_DIRECTORY}
+				CONFIG NO_DEFAULT_PATH
+			)
+
 			# First check if a target was defined. If so then includes and extra libraries will automatically be added to the app target.
 			if( TARGET "${projectComponentName}" )
 				add_dependencies( ${DS_CINDER_APP_TARGET} "${projectComponentName}" )
@@ -220,7 +210,19 @@ function( ds_cinder_make_app )
 
 			ds_log_v( "Added projectComponent named: ${projectComponentName}, module directory: ${projectComponentModuleDir}" )
 		endif()
+
+
 	endforeach()
+
+	# Secret sauce: Add a custom target to make sure external
+	# project is built before building this project
+	get_target_property( ds-cinder-platform_BUILD_DIR ds-cinder-platform "BUILD_DIR_${CMAKE_BUILD_TYPE}" )
+	ds_log_v( "DS CINDER BUILD DIR: ${ds-cinder-platform_BUILD_DIR}" )
+	add_custom_target( build_ds_cinder ALL )
+	add_custom_command( TARGET build_ds_cinder
+		COMMAND ${CMAKE_COMMAND} --build .
+		WORKING_DIRECTORY ${ds-cinder-platform_BUILD_DIR}
+	)
 
 	if( CINDER_MAC )
 		# set bundle info.plist properties

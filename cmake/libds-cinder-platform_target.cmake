@@ -42,6 +42,9 @@ set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall" )
 ## Disable a ton of initialization order warning
 set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-reorder" )
 
+## Add colorized gcc output
+set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color" )
+
 # Disable Position-Independent-Executable (PIE)
 # Needed because Cinder's libboost libraries were not compiled 
 # using -fpic or fPIC
@@ -54,6 +57,9 @@ target_compile_options( ds-cinder-platform INTERFACE ${DS_CINDER_CXX_FLAGS} )
 
 # This file will contain all dependencies, includes, definition, compiler flags and so on..
 export( TARGETS ds-cinder-platform FILE ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/ds-cinder-platformTargets.cmake )
+
+# Register ds-cinder-platform with cmake user package registry
+export( PACKAGE ds-cinder-platform )
 
 # And this command will generate a file on the ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}
 # that applications have to pull in order to link successfully with Cinder and its dependencies.
