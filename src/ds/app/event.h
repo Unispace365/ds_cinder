@@ -10,6 +10,8 @@ namespace ui {
 class Sprite;
 }
 
+extern const std::string demangleTypeName(const std::string& n);
+
 /**
  * \class ds::Event
  * \brief Abstract message class. Ignore this, and derive from RegisteredEvent.
@@ -72,11 +74,6 @@ const T* const Event::as() const
 }
 // End of Template impl
 
-
-// Only works in Visual Studio. GCC will likely mangle type names differently, sorry.
-static const std::string demangleTypeName(const std::string& n){
-	return n.substr(n.find_last_of(':') + 1);
-}
 
 /**
 * \class ds::event::RegisteredEvent
