@@ -72,6 +72,10 @@ public:
 	/// Definitely can return nullptr, so check before using
 	ds::ui::Sprite*			getPlayer();
 
+	/// Returns a media interface of a player.
+	/// Only returns if there is currently a player and that player has an interface
+	ds::ui::MediaInterface*	getMediaInterface();
+
 	/// Display the interface on the media player, if it was embedded
 	void					showInterface();
 

@@ -30,6 +30,7 @@ public:
 
 	void								showInterface();
 	void								hideInterface();
+	PDFInterface*						getPDFInterface(){ return mPdfInterface; }
 
 	ds::ui::Pdf*						getPDF();
 
