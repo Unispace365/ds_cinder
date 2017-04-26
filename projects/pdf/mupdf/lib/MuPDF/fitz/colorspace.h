@@ -8,7 +8,7 @@
 enum { FZ_MAX_COLORS = 32 };
 
 /*
-	An fz_colorspace object represents an abstract colorspace. While
+	A fz_colorspace object represents an abstract colorspace. While
 	this should be treated as a black box by callers of the library at
 	this stage, know that it encapsulates knowledge of how to convert
 	colors to and from the colorspace, any lookup tables generated, the
@@ -27,6 +27,13 @@ int fz_colorspace_is_indexed(fz_context *ctx, fz_colorspace *cs);
 	lab.
 */
 int fz_colorspace_is_lab(fz_context *ctx, fz_colorspace *cs);
+
+/*
+	fz_colorspace_is_subtractive: Return true if a colorspace is subtractive.
+
+	True for CMYK, Separation and DeviceN colorspaces.
+*/
+int fz_colorspace_is_subtractive(fz_context *ctx, fz_colorspace *pix);
 
 /*
 	fz_device_gray: Get colorspace representing device specific gray.
@@ -77,7 +84,7 @@ typedef void (fz_colorspace_convert_fn)(fz_context *ctx, fz_colorspace *cs, cons
 
 typedef void (fz_colorspace_destruct_fn)(fz_context *ctx, fz_colorspace *cs);
 
-fz_colorspace *fz_new_colorspace(fz_context *ctx, char *name, int n, fz_colorspace_convert_fn *to_rgb, fz_colorspace_convert_fn *from_rgb, fz_colorspace_destruct_fn *destruct, void *data, size_t size);
+fz_colorspace *fz_new_colorspace(fz_context *ctx, char *name, int n, int is_subtractive, fz_colorspace_convert_fn *to_rgb, fz_colorspace_convert_fn *from_rgb, fz_colorspace_destruct_fn *destruct, void *data, size_t size);
 fz_colorspace *fz_new_indexed_colorspace(fz_context *ctx, fz_colorspace *base, int high, unsigned char *lookup);
 fz_colorspace *fz_keep_colorspace(fz_context *ctx, fz_colorspace *colorspace);
 void fz_drop_colorspace(fz_context *ctx, fz_colorspace *colorspace);

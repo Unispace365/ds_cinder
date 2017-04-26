@@ -113,6 +113,8 @@ enum
 	PDF_OBJ_ENUM_NAME_CF,
 #define PDF_NAME_CFM  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_CFM)
 	PDF_OBJ_ENUM_NAME_CFM,
+#define PDF_NAME_CI  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_CI)
+	PDF_OBJ_ENUM_NAME_CI,
 #define PDF_NAME_CIDFontType0  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_CIDFontType0)
 	PDF_OBJ_ENUM_NAME_CIDFontType0,
 #define PDF_NAME_CIDFontType0C  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_CIDFontType0C)
@@ -145,6 +147,8 @@ enum
 	PDF_OBJ_ENUM_NAME_CharProcs,
 #define PDF_NAME_Circle  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Circle)
 	PDF_OBJ_ENUM_NAME_Circle,
+#define PDF_NAME_Collection  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Collection)
+	PDF_OBJ_ENUM_NAME_Collection,
 #define PDF_NAME_ColorSpace  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_ColorSpace)
 	PDF_OBJ_ENUM_NAME_ColorSpace,
 #define PDF_NAME_ColorTransform  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_ColorTransform)
@@ -181,6 +185,8 @@ enum
 	PDF_OBJ_ENUM_NAME_DCT,
 #define PDF_NAME_DCTDecode  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_DCTDecode)
 	PDF_OBJ_ENUM_NAME_DCTDecode,
+#define PDF_NAME_DL  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_DL)
+	PDF_OBJ_ENUM_NAME_DL,
 #define PDF_NAME_DOS  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_DOS)
 	PDF_OBJ_ENUM_NAME_DOS,
 #define PDF_NAME_DP  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_DP)
@@ -201,6 +207,8 @@ enum
 	PDF_OBJ_ENUM_NAME_DecodeParms,
 #define PDF_NAME_Default  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Default)
 	PDF_OBJ_ENUM_NAME_Default,
+#define PDF_NAME_Desc  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Desc)
+	PDF_OBJ_ENUM_NAME_Desc,
 #define PDF_NAME_DescendantFonts  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_DescendantFonts)
 	PDF_OBJ_ENUM_NAME_DescendantFonts,
 #define PDF_NAME_Descent  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Descent)
@@ -233,8 +241,12 @@ enum
 	PDF_OBJ_ENUM_NAME_Dur,
 #define PDF_NAME_E  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_E)
 	PDF_OBJ_ENUM_NAME_E,
+#define PDF_NAME_EF  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_EF)
+	PDF_OBJ_ENUM_NAME_EF,
 #define PDF_NAME_EarlyChange  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_EarlyChange)
 	PDF_OBJ_ENUM_NAME_EarlyChange,
+#define PDF_NAME_EmbeddedFiles  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_EmbeddedFiles)
+	PDF_OBJ_ENUM_NAME_EmbeddedFiles,
 #define PDF_NAME_Encode  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Encode)
 	PDF_OBJ_ENUM_NAME_Encode,
 #define PDF_NAME_EncodedByteAlign  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_EncodedByteAlign)
@@ -273,6 +285,8 @@ enum
 	PDF_OBJ_ENUM_NAME_Fields,
 #define PDF_NAME_FileAttachment  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_FileAttachment)
 	PDF_OBJ_ENUM_NAME_FileAttachment,
+#define PDF_NAME_Filespec  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Filespec)
+	PDF_OBJ_ENUM_NAME_Filespec,
 #define PDF_NAME_Filter  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Filter)
 	PDF_OBJ_ENUM_NAME_Filter,
 #define PDF_NAME_First  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_First)
@@ -463,6 +477,8 @@ enum
 	PDF_OBJ_ENUM_NAME_MediaBox,
 #define PDF_NAME_MissingWidth  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_MissingWidth)
 	PDF_OBJ_ENUM_NAME_MissingWidth,
+#define PDF_NAME_ModDate  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_ModDate)
+	PDF_OBJ_ENUM_NAME_ModDate,
 #define PDF_NAME_Movie  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Movie)
 	PDF_OBJ_ENUM_NAME_Movie,
 #define PDF_NAME_N  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_N)
@@ -529,6 +545,8 @@ enum
 	PDF_OBJ_ENUM_NAME_Pages,
 #define PDF_NAME_PaintType  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_PaintType)
 	PDF_OBJ_ENUM_NAME_PaintType,
+#define PDF_NAME_Params  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Params)
+	PDF_OBJ_ENUM_NAME_Params,
 #define PDF_NAME_Parent  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Parent)
 	PDF_OBJ_ENUM_NAME_Parent,
 #define PDF_NAME_Pattern  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Pattern)
@@ -597,6 +615,8 @@ enum
 	PDF_OBJ_ENUM_NAME_SMask,
 #define PDF_NAME_SMaskInData  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_SMaskInData)
 	PDF_OBJ_ENUM_NAME_SMaskInData,
+#define PDF_NAME_Schema  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Schema)
+	PDF_OBJ_ENUM_NAME_Schema,
 #define PDF_NAME_Screen  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Screen)
 	PDF_OBJ_ENUM_NAME_Screen,
 #define PDF_NAME_Separation  ((pdf_obj *)(intptr_t)PDF_OBJ_ENUM_NAME_Separation)
