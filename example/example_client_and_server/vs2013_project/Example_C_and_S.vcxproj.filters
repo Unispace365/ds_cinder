@@ -23,9 +23,15 @@
     <ClCompile Include="..\src\example_app.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\src\custom_sprite.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\example_app.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\custom_sprite.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

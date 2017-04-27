@@ -14,7 +14,7 @@
 	<int name="server:listen_port" value="5001" />
 
 	<!-- if this is a server (world engine), a client (render engine) or both (world + render). 
-	default ="", which is an EngineClientServer, aka "both"-->
+	default ="", which is standalone, aka "both without netsync"-->
 	<text name="platform:architecture" value="clientserver" />
 	
 	<!-- Show console will create a console window, or not if this is false. 

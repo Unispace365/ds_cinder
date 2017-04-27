@@ -4,6 +4,8 @@
 int pdf_lookup_page_number(fz_context *ctx, pdf_document *doc, pdf_obj *pageobj);
 int pdf_count_pages(fz_context *ctx, pdf_document *doc);
 pdf_obj *pdf_lookup_page_obj(fz_context *ctx, pdf_document *doc, int needle);
+void pdf_load_page_tree(fz_context *ctx, pdf_document *doc);
+void pdf_drop_page_tree(fz_context *ctx, pdf_document *doc);
 
 /*
 	pdf_lookup_anchor: Find the page number of a named destination.
@@ -32,7 +34,6 @@ void pdf_flatten_inheritable_page_items(fz_context *ctx, pdf_obj *page);
 	number: page number, where 0 is the first page of the document.
 */
 pdf_page *pdf_load_page(fz_context *ctx, pdf_document *doc, int number);
-void pdf_drop_page(fz_context *ctx, pdf_page *page);
 
 void pdf_page_obj_transform(fz_context *ctx, pdf_obj *pageobj, fz_rect *page_mediabox, fz_matrix *page_ctm);
 void pdf_page_transform(fz_context *ctx, pdf_page *page, fz_rect *mediabox, fz_matrix *ctm);

@@ -30,6 +30,14 @@
 /* #define FZ_ENABLE_GPRF 1 */
 
 /*
+	Choose whether to enable JPEG2000 decoding.
+	By default, it is enabled, but due to frequent security
+	issues with the third party libraries we support disabling
+	it with this flag.
+*/
+/* #define FZ_ENABLE_JPX 1 */
+
+/*
 	Choose whether to enable JavaScript.
 	By default JavaScript is enabled both for mutool and PDF interactivity.
 */
@@ -46,11 +54,14 @@
 /* To avoid all noto fonts except CJK, enable: */
 /* #define TOFU */
 
-/* To skip the CJK font, enable: */
+/* To skip the CJK font, enable: (this implicitly enables TOFU_CJK_EXT and TOFU_CJK_LANG) */
 /* #define TOFU_CJK */
 
-/* To skip CJK Extension A, enable: */
+/* To skip CJK Extension A, enable: (this implicitly enables TOFU_CJK_LANG) */
 /* #define TOFU_CJK_EXT */
+
+/* To skip CJK language specific fonts, enable: */
+/* #define TOFU_CJK_LANG */
 
 /* To skip the Emoji font, enable: */
 /* #define TOFU_EMOJI */
@@ -127,6 +138,10 @@
 #ifndef FZ_ENABLE_GPRF
 #define FZ_ENABLE_GPRF 0
 #endif /* FZ_ENABLE_GPRF */
+
+#ifndef FZ_ENABLE_JPX
+#define FZ_ENABLE_JPX 1
+#endif /* FZ_ENABLE_JPX */
 
 #ifndef FZ_ENABLE_JS
 #define FZ_ENABLE_JS 1

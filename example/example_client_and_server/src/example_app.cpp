@@ -11,6 +11,8 @@
 #include <ds/ui/touch/touch_info.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/multiline_text.h>
+
+#include "custom_sprite.h"
 namespace mv {
 
 CsApp::CsApp()
@@ -19,6 +21,9 @@ CsApp::CsApp()
 {
 
 	mEngine.editFonts().registerFont("Arial", "arial");
+
+	mEngine.installSprite([](ds::BlobRegistry& r){ds::ui::CustomSprite::installAsServer(r); },
+						  [](ds::BlobRegistry& r){ds::ui::CustomSprite::installAsClient(r); });
 }
 
 void CsApp::setupServer() {
@@ -70,6 +75,12 @@ void CsApp::setupServer() {
 	mTexty->setAlignment(ds::ui::Alignment::kLeft);
 	rootSprite.addChildPtr(mTexty);
 
+	mCustomNetSprite = new ds::ui::CustomSprite(mEngine);
+	mCustomNetSprite->setPosition(mEngine.getWorldWidth()/2.0f - 150.0f, 300.0f);
+	mCustomNetSprite->setSize(300.0f, 300.0f);
+	mCustomNetSprite->setColor(ci::Color(0.7f, 0.2f, 0.1f));
+	rootSprite.addChildPtr(mCustomNetSprite);
+
 	recreateText();
 }
 
@@ -98,7 +109,7 @@ void CsApp::recreateText(){
 		rootSprite.addChild(*mTexty);
 
 	}
-	mTexty->callAfterDelay([this]{recreateText(); }, 0.1f);
+	mTexty->callAfterDelay([this]{recreateText(); }, 5.0f);
 
 	if(imgSprite){
 		imgSprite->release();
@@ -136,6 +147,14 @@ void CsApp::keyDown(ci::app::KeyEvent e) {
 		} else {
 			mToggleSprite->release();
 			mToggleSprite = nullptr;
+		}
+	} else if(code == ci::app::KeyEvent::KEY_c){
+		if(mCustomNetSprite){
+			mCustomNetSprite->setNumberOfSegments(ci::randInt(3, 10));
+		}
+	} else if(code == ci::app::KeyEvent::KEY_i){
+		if(mCustomNetSprite){
+			mCustomNetSprite->setNumberOfInstances(ci::randInt(1, 50));
 		}
 	}
 }

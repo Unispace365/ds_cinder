@@ -33,6 +33,7 @@ public:
 
 	void								showInterface();
 	void								hideInterface();
+	VideoInterface*						getVideoInterface(){ return mVideoInterface; }
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
 	void								setAutoRestartStream(bool autoRestart);
 
