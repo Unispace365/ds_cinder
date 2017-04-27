@@ -3,7 +3,7 @@
 
 #include "mupdf/fitz/system.h"
 #include "mupdf/fitz/context.h"
-#include "mupdf/fitz/math.h"
+#include "mupdf/fitz/geometry.h"
 #include "mupdf/fitz/buffer.h"
 
 /* forward declaration for circular dependency */
@@ -59,7 +59,7 @@ enum { FZ_ADOBE_CNS_1, FZ_ADOBE_GB_1, FZ_ADOBE_JAPAN_1, FZ_ADOBE_KOREA_1 };
 
 /*
 	fz_font_flags_t: Every fz_font carries a set of flags
-	within it, in an fz_font_flags_t structure.
+	within it, in a fz_font_flags_t structure.
 */
 typedef struct
 {
@@ -126,6 +126,26 @@ fz_shaper_data_t *fz_font_shaper_data(fz_context *ctx, fz_font *font);
 const char *fz_font_name(fz_context *ctx, fz_font *font);
 
 /*
+	fz_font_is_bold: Returns true if the font is bold.
+*/
+int fz_font_is_bold(fz_context *ctx, fz_font *font);
+
+/*
+	fz_font_is_italic: Returns true if the font is italic.
+*/
+int fz_font_is_italic(fz_context *ctx, fz_font *font);
+
+/*
+	fz_font_is_serif: Returns true if the font is serif.
+*/
+int fz_font_is_serif(fz_context *ctx, fz_font *font);
+
+/*
+	fz_font_is_monospaced: Returns true if the font is monospaced.
+*/
+int fz_font_is_monospaced(fz_context *ctx, fz_font *font);
+
+/*
 	fz_font_bbox: Retrieve a pointer to the font bbox.
 
 	font: The font to query.
@@ -136,48 +156,50 @@ const char *fz_font_name(fz_context *ctx, fz_font *font);
 fz_rect *fz_font_bbox(fz_context *ctx, fz_font *font);
 
 /*
-	fz_load_system_font_func: Type for user supplied system
-	font loading hook.
+	fz_load_system_font_fn: Type for user supplied system font loading hook.
 
 	name: The name of the font to load.
-
 	bold: 1 if a bold font desired, 0 otherwise.
-
 	italic: 1 if an italic font desired, 0 otherwise.
+	needs_exact_metrics: 1 if an exact metric match is required for the font requested.
 
-	needs_exact_metrics: 1 if an exact metric match is required
-	for the font requested.
-
-	Returns a new font handle, or NULL if no font found (or on
-	error).
+	Returns a new font handle, or NULL if no font found (or on error).
 */
-typedef fz_font *(*fz_load_system_font_func)(fz_context *ctx, const char *name, int bold, int italic, int needs_exact_metrics);
+typedef fz_font *(*fz_load_system_font_fn)(fz_context *ctx, const char *name, int bold, int italic, int needs_exact_metrics);
 
 /*
-	fz_load_system_cjk_font_func: Type for user supplied cjk
-	font loading hook.
+	fz_load_system_cjk_font_fn: Type for user supplied cjk font loading hook.
 
 	name: The name of the font to load.
-
-	ros: The registry from which to load the font (e.g.
-	FZ_ADOBE_KOREA_1)
-
+	ros: The registry from which to load the font (e.g. FZ_ADOBE_KOREA_1)
 	serif: 1 if a serif font is desired, 0 otherwise.
 
-	Returns a new font handle, or NULL if no font found (or on
-	error).
+	Returns a new font handle, or NULL if no font found (or on error).
 */
-typedef fz_font *(*fz_load_system_cjk_font_func)(fz_context *ctx, const char *name, int ros, int serif);
+typedef fz_font *(*fz_load_system_cjk_font_fn)(fz_context *ctx, const char *name, int ros, int serif);
 
 /*
-	fz_install_load_system_font_funcs: Install functions to allow
-	MuPDF to request fonts from the system.
+	fz_load_system_fallback_font_fn: Type for user supplied fallback font loading hook.
 
-	f, f_cjk: The hooks to use.
+	name: The name of the font to load.
+	script: UCDN script enum.
+	language: FZ_LANG enum.
+	serif, bold, italic: boolean style flags.
+
+	Returns a new font handle, or NULL if no font found (or on error).
+*/
+typedef fz_font *(*fz_load_system_fallback_font_fn)(fz_context *ctx, int script, int language, int serif, int bold, int italic);
+
+/*
+	fz_install_load_system_font_fn: Install functions to allow
+	MuPDF to request fonts from the system.
 
 	Only one set of hooks can be in use at a time.
 */
-void fz_install_load_system_font_funcs(fz_context *ctx, fz_load_system_font_func f, fz_load_system_cjk_font_func f_cjk);
+void fz_install_load_system_font_funcs(fz_context *ctx,
+	fz_load_system_font_fn f,
+	fz_load_system_cjk_font_fn f_cjk,
+	fz_load_system_fallback_font_fn f_fallback);
 
 /* fz_load_*_font returns NULL if no font could be loaded (also on error) */
 /*
@@ -379,7 +401,7 @@ fz_font *fz_new_font_from_memory(fz_context *ctx, const char *name, const char *
 
 /*
 	fz_new_font_from_buffer: Create a new font from a font
-	file in an fz_buffer.
+	file in a fz_buffer.
 
 	name: Name of font (leave NULL to use name from font).
 
@@ -444,7 +466,7 @@ void fz_set_font_bbox(fz_context *ctx, fz_font *font, float xmin, float ymin, fl
 
 	trm: The matrix to apply to the glyph before bounding.
 
-	r: Pointer to an fz_rect to use for storage.
+	r: Pointer to a fz_rect to use for storage.
 
 	Returns r, after filling it in with the bounds of the given glyph.
 */

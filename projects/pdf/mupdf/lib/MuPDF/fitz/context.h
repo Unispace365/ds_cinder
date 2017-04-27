@@ -3,7 +3,7 @@
 
 #include "mupdf/fitz/version.h"
 #include "mupdf/fitz/system.h"
-#include "mupdf/fitz/math.h"
+#include "mupdf/fitz/geometry.h"
 
 /*
 	Contexts
@@ -87,7 +87,7 @@ void fz_rethrow_if(fz_context *ctx, int errcode);
 enum
 {
 	FZ_ERROR_NONE = 0,
-	FZ_ERROR_OOM = 1,
+	FZ_ERROR_MEMORY = 1,
 	FZ_ERROR_GENERIC = 2,
 	FZ_ERROR_SYNTAX = 3,
 	FZ_ERROR_TRYLATER = 4,
@@ -349,6 +349,16 @@ const char *fz_user_css(fz_context *ctx);
 void fz_set_user_css(fz_context *ctx, const char *text);
 
 /*
+	fz_use_document_css: Return whether to respect document styles in HTML and EPUB.
+*/
+int fz_use_document_css(fz_context *ctx);
+
+/*
+	fz_set_use_document_css: Toggle whether to respect document styles in HTML and EPUB.
+*/
+void fz_set_use_document_css(fz_context *ctx, int use);
+
+/*
 	Locking functions
 
 	MuPDF is kept deliberately free of any knowledge of particular
@@ -377,8 +387,7 @@ struct fz_locks_context_s
 };
 
 enum {
-	FZ_LOCK_REAP = 0,
-	FZ_LOCK_ALLOC,
+	FZ_LOCK_ALLOC = 0,
 	FZ_LOCK_FREETYPE,
 	FZ_LOCK_GLYPHCACHE,
 	FZ_LOCK_MAX
@@ -561,7 +570,7 @@ extern fz_alloc_context fz_alloc_default;
 /* Default locks */
 extern fz_locks_context fz_locks_default;
 
-#if defined(MEMENTO) || defined(DEBUG)
+#if defined(MEMENTO) || !defined(NDEBUG)
 #define FITZ_DEBUG_LOCKING
 #endif
 
