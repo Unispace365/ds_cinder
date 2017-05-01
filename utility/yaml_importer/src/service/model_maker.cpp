@@ -205,6 +205,10 @@ void ModelMaker::run() {
 			sCustomIncludes << "#include " << mm.getCustomInclude() << std::endl;
 		}
 
+		if (!mm.getCustomImpInclude().empty()){
+			sCustomImpIncludes << "#include " << mm.getCustomImpInclude() << std::endl;
+		}
+
 		// make all 'resource' flagged columns into proper resources
 		for(auto mit = mm.getResourceColumns().begin(); mit < mm.getResourceColumns().end(); ++mit){
 			for(auto cit = mm.getColumns().begin(); cit < mm.getColumns().end(); ++cit){

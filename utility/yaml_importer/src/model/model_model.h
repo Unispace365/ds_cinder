@@ -86,6 +86,7 @@ public:
 
 	const std::string&					getTableName() const;
 	const std::string&					getCustomInclude() const;
+	const std::string&					getCustomImpInclude() const;
 	const std::vector<ModelColumn>&		getColumns();
 	const std::vector<ModelRelation>&	getRelations() const;
 	const std::vector<std::string>&		getResourceColumns() const;
@@ -93,6 +94,7 @@ public:
 
 	ModelModel&							setTableName(const std::string& tableName);
 	ModelModel&							setCustomInclude(const std::string& customInclude);
+	ModelModel&							setCustomImpInclude(const std::string& customImpInclude);
 	ModelModel&							setColumns(const std::vector<ModelColumn>& columns);
 	ModelModel&							addColumn(const ModelColumn& column);
 	ModelModel&							setRelations(const std::vector<ModelRelation>& columns);

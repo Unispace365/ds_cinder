@@ -160,12 +160,17 @@ void YamlLoadService::parseTable(const std::string& tableName, YAML::Node mainCo
 // 				mm.setTableName(tableName);
 // 			}
 
-		} else if(key == "customInclude"){
-			if(mappedNode.Type() == YAML::NodeType::Scalar){
- 				std::string customInclude = mappedNode.as<std::string>();
- 				mm.setCustomInclude(customInclude);
- 			}
+		} else if (key == "customInclude"){
+			if (mappedNode.Type() == YAML::NodeType::Scalar){
+				std::string customInclude = mappedNode.as<std::string>();
+				mm.setCustomInclude(customInclude);
+			}
 
+		} else if (key == "customCPPInclude"){
+			if (mappedNode.Type() == YAML::NodeType::Scalar){
+				std::string customInclude = mappedNode.as<std::string>();
+				mm.setCustomImpInclude(customInclude);
+			}
 		} else if(key == "columns"){
 			if(mappedNode.Type() == YAML::NodeType::Map){
 				parseColumn(mappedNode, mm);

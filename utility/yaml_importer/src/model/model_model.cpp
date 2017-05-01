@@ -237,6 +237,7 @@ public:
 
 	std::string					mTableName;
 	std::string					mCustomInclude;
+	std::string					mCustomImpInclude;
 	std::vector<ModelColumn>	mColumns;
 	std::vector<ModelRelation>	mRelations;
 	std::vector<std::string>	mResourceColumns;
@@ -259,6 +260,11 @@ const std::string& ModelModel::getTableName()const{
 const std::string& ModelModel::getCustomInclude()const{
 	if(!mData) return EMPTY_STRING;
 	return mData->mCustomInclude;
+}
+
+const std::string& ModelModel::getCustomImpInclude()const{
+	if (!mData) return EMPTY_STRING;
+	return mData->mCustomImpInclude;
 }
 
 const std::vector<ModelColumn>& ModelModel::getColumns(){
@@ -290,6 +296,12 @@ ModelModel& ModelModel::setTableName(const std::string& name){
 ModelModel& ModelModel::setCustomInclude(const std::string& customInclude){
 	if(!mData) mData.reset(new Data());
 	if(mData) mData->mCustomInclude = customInclude;
+	return *this;
+}
+
+ModelModel& ModelModel::setCustomImpInclude(const std::string& customInclude){
+	if (!mData) mData.reset(new Data());
+	if (mData) mData->mCustomImpInclude = customInclude;
 	return *this;
 }
 
