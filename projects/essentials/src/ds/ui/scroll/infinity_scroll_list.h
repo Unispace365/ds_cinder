@@ -56,6 +56,8 @@ namespace ds{
 			// Returns the positions of items currently on screen
 			std::vector<int>					getOnScreenItemsPos();
 
+			void								enableScroll(bool isScrollable = true){ mScrollable = isScrollable; }
+
 		protected:
 			// A helper so we only have to show the visible results at one time (instead of creating a zillion sprites)
 			struct ItemPlaceHolder	{

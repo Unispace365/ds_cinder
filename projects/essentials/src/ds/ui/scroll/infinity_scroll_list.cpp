@@ -26,6 +26,7 @@ namespace ds{
 			, mTweenAnimationDelay(0.0f)
 			, mTweenAnimationEaseFn(ci::EaseNone())
 			, mIsTurnOnStepSwipe(false)
+			, mScrollable(true)
 		{
 			setSize(startWidth, startHeight);
 			mSpriteMomentum.setMass(8.0f);
@@ -252,51 +253,52 @@ namespace ds{
 
 		void infinityList::handleScrollTouch(Sprite* bs, const TouchInfo& ti)
 		{
-			if (mSwipeCallback) mSwipeCallback(bs, ti.mCurrentGlobalPoint);
-			if (ti.mPhase == TouchInfo::Added){
-				mSpriteMomentum.deactivate();
-			}
-			else if (ti.mPhase == TouchInfo::Removed && ti.mNumberFingers == 0){
-				mSpriteMomentum.activate();
-			}
-			else if (ti.mPhase == TouchInfo::Moved && ti.mNumberFingers > 0){
-				auto deltaPoint = ti.mDeltaPoint;
+			if (mScrollable){
+				if (mSwipeCallback) mSwipeCallback(bs, ti.mCurrentGlobalPoint);
+				if (ti.mPhase == TouchInfo::Added){
+					mSpriteMomentum.deactivate();
+				}
+				else if (ti.mPhase == TouchInfo::Removed && ti.mNumberFingers == 0){
+					mSpriteMomentum.activate();
+				}
+				else if (ti.mPhase == TouchInfo::Moved && ti.mNumberFingers > 0){
+					auto deltaPoint = ti.mDeltaPoint;
 
-				if (mScroller){
-					if (mIsTurnOnStepSwipe)
-					{
-						if (ci::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance())
+					if (mScroller){
+						if (mIsTurnOnStepSwipe)
 						{
-							if (mVertical)
+							if (ci::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance())
 							{
+								if (mVertical)
+								{
 
-							}
-							else
-							{
-								if (ti.mDeltaPoint.x > 0)
-									previousItem();
+								}
 								else
-									nextItem();
+								{
+									if (ti.mDeltaPoint.x > 0)
+										previousItem();
+									else
+										nextItem();
+								}
 							}
 						}
-					}
-					else
-					{
-						if (mVertical){
-							float yDelta = deltaPoint.y / ti.mNumberFingers;
-							if (getPerspective()){
-								yDelta = -yDelta;
+						else
+						{
+							if (mVertical){
+								float yDelta = deltaPoint.y / ti.mNumberFingers;
+								if (getPerspective()){
+									yDelta = -yDelta;
+								}
+								itemPosUpdated(yDelta);
 							}
-							itemPosUpdated(yDelta);
-						}
-						else {
-							float xDelta = deltaPoint.x / ti.mNumberFingers;
-							itemPosUpdated(xDelta);
+							else {
+								float xDelta = deltaPoint.x / ti.mNumberFingers;
+								itemPosUpdated(xDelta);
+							}
 						}
 					}
 				}
 			}
-
 		}
 
 		void infinityList::itemPosUpdated(const float delta)

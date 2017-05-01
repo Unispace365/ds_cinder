@@ -130,6 +130,7 @@ public:
 
 	virtual bool	run(fz_context& ctx, fz_document& doc, fz_page& page) {
 		if(mScaledWidth > 12000.0f || mScaledHeight > 12000.0f){
+			DS_LOG_WARNING("Aborting PdfRes render due to too large of a size of a pdf w/h: " << mScaledWidth << " " << mScaledHeight);
 			return false;
 		}
 
@@ -196,7 +197,9 @@ public:
 				DS_LOG_WARNING("PdfRes: render page error: fz catch mode 1: " << fz_caught_message(&ctx));
 			}
 			if (pixmap) fz_drop_pixmap(&ctx, pixmap);
-		} catch (std::exception const&) { }
+		} catch (std::exception const& e) { 
+			DS_LOG_WARNING("Exception in PdfRes rendering page: " << e.what());
+		}
 		return ans;
 	}
 
@@ -425,29 +428,34 @@ void PdfRes::_redrawPage() {
 		// I'll be modifying them.
 		mPixelsChanged = false;
 		printedError = mPrintedError;
-	}
 
-	// Setup parameters
-	int scaledWidth = (float)drawState.mWidth * drawState.mScale;
-	if (scaledWidth < 1) scaledWidth = 1;
-	int scaledHeight = scaledWidth * drawState.mHeight / drawState.mWidth;
-	if (scaledHeight < 1) scaledHeight = 1;
 
-	// Prevent trying to draw a PDF that's too large (can cause a memory overload and crashy thingy)
-	if(scaledWidth > 8000 || scaledHeight > 8000){
-		float newW = (float)scaledWidth;
-		float newH = (float)scaledHeight;
-		float asp = newW / newH;
-		newW = 8000;
-		newH = 8000;
-		if(asp < 1.0f){
-			newW = newH * asp;
-		} else {
-			newH = newW / asp;
+		// Setup parameters
+		int scaledWidth = (float)drawState.mWidth * drawState.mScale;
+		if(scaledWidth < 1) scaledWidth = 1;
+		int scaledHeight = scaledWidth * drawState.mHeight / drawState.mWidth;
+		if(scaledHeight < 1) scaledHeight = 1;
+
+		// Prevent trying to draw a PDF that's too large (can cause a memory overload and crashy thingy)
+		if(scaledWidth > 12000 || scaledHeight > 12000){
+			float newW = (float)scaledWidth;
+			float newH = (float)scaledHeight;
+			float asp = newW / newH;
+			newW = 12000;
+			newH = 12000;
+			if(asp < 1.0f){
+				newW = newH * asp;
+			} else {
+				newH = newW / asp;
+			}
+			scaledWidth = (int)floorf(newW);
+			scaledHeight = (int)floorf(newH);
+			drawState.mScale = (float)scaledWidth / (float)drawState.mPageSize.x;
+			mState.mScale = drawState.mScale;
+			mDrawState.mScale = drawState.mScale;
 		}
-		scaledWidth = (int)floorf(newW);
-		scaledHeight = (int)floorf(newH);
 	}
+
 
 	if(drawState.mScale < 0.0f){
 		DS_LOG_WARNING("Something terrible happened with the drawing scale for your pdf!");

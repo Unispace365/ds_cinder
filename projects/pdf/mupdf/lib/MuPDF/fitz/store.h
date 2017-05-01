@@ -39,7 +39,6 @@ struct fz_storable_s {
 struct fz_key_storable_s {
 	fz_storable storable;
 	short store_key_refs;
-	unsigned short needs_reaping;
 };
 
 #define FZ_INIT_STORABLE(S_,RC,DROP) \
@@ -49,17 +48,22 @@ struct fz_key_storable_s {
 
 #define FZ_INIT_KEY_STORABLE(KS_,RC,DROP) \
 	do { fz_key_storable *KS = &(KS_)->key_storable; KS->store_key_refs = 0;\
-	KS->needs_reaping = 0; FZ_INIT_STORABLE(KS,RC,DROP); \
+	FZ_INIT_STORABLE(KS,RC,DROP); \
 	} while (0)
 
 void *fz_keep_storable(fz_context *, const fz_storable *);
 void fz_drop_storable(fz_context *, const fz_storable *);
 
 void *fz_keep_key_storable(fz_context *, const fz_key_storable *);
-void fz_drop_key_storable(fz_context *, const fz_key_storable *);
+int fz_drop_key_storable(fz_context *, const fz_key_storable *);
 
 void *fz_keep_key_storable_key(fz_context *, const fz_key_storable *);
-void fz_drop_key_storable_key(fz_context *, const fz_key_storable *);
+int fz_drop_key_storable_key(fz_context *, const fz_key_storable *);
+
+static inline int fz_key_storable_needs_reaping(fz_context *ctx, const fz_key_storable *ks)
+{
+	return ks == NULL ? 0 : (ks->store_key_refs == ks->storable.refs);
+}
 
 /*
 	The store can be seen as a dictionary that maps keys to fz_storable
@@ -73,7 +77,7 @@ void fz_drop_key_storable_key(fz_context *, const fz_key_storable *);
 	order for this to work, we need a mechanism for turning a generic
 	'key' into 'a hashable string'. For this purpose the type structure
 	contains a make_hash_key function pointer that maps from a void *
-	to an fz_store_hash structure. If make_hash_key function returns 0,
+	to a fz_store_hash structure. If make_hash_key function returns 0,
 	then the key is determined not to be hashable, and the value is
 	not stored in the hash table.
 
@@ -81,7 +85,7 @@ void fz_drop_key_storable_key(fz_context *, const fz_key_storable *);
 	component of keys within the store. We refer to these objects as
 	"key storable" objects. In this case, we need to take additional
 	care to ensure that we do not end up keeping an item within the
-	store, purely because it's value is referred to by another key in
+	store, purely because its value is referred to by another key in
 	the store.
 
 	An example of this are fz_images in PDF files. Each fz_image is
@@ -105,7 +109,7 @@ void fz_drop_key_storable_key(fz_context *, const fz_key_storable *);
 	This is done by running a pass over the store, 'reaping' those
 	items.
 
-	Reap passes are slower than we would like as they touching every
+	Reap passes are slower than we would like as they touch every
 	item in the store. We therefore provide a way to 'batch' such
 	reap passes together, using fz_defer_reap_start/fz_defer_reap_end
 	to bracket a region in which many may be triggered.
@@ -171,7 +175,7 @@ fz_store *fz_keep_store_context(fz_context *ctx);
 	instead. This function takes its own reference to val, as required
 	(i.e. the caller maintains ownership of its own reference).
 
-	key: The key to use to index the item.
+	key: The key used to index the item.
 
 	val: The value to store.
 
@@ -180,7 +184,7 @@ fz_store *fz_keep_store_context(fz_context *ctx);
 
 	type: Functions used to manipulate the key.
 */
-void *fz_store_item(fz_context *ctx, void *key, void *val, size_t itemsize, fz_store_type *type);
+void *fz_store_item(fz_context *ctx, void *key, void *val, size_t itemsize, const fz_store_type *type);
 
 /*
 	fz_find_item: Find an item within the store.
@@ -188,14 +192,14 @@ void *fz_store_item(fz_context *ctx, void *key, void *val, size_t itemsize, fz_s
 	drop: The function used to free the value (to ensure we get a value
 	of the correct type).
 
-	key: The key to use to index the item.
+	key: The key used to index the item.
 
 	type: Functions used to manipulate the key.
 
 	Returns NULL for not found, otherwise returns a pointer to the value
 	indexed by key to which a reference has been taken.
 */
-void *fz_find_item(fz_context *ctx, fz_store_drop_fn *drop, void *key, fz_store_type *type);
+void *fz_find_item(fz_context *ctx, fz_store_drop_fn *drop, void *key, const fz_store_type *type);
 
 /*
 	fz_remove_item: Remove an item from the store.
@@ -205,11 +209,11 @@ void *fz_find_item(fz_context *ctx, fz_store_drop_fn *drop, void *key, fz_store_
 	drop: The function used to free the value (to ensure we get a value
 	of the correct type).
 
-	key: The key to use to find the item to remove.
+	key: The key used to find the item to remove.
 
 	type: Functions used to manipulate the key.
 */
-void fz_remove_item(fz_context *ctx, fz_store_drop_fn *drop, void *key, fz_store_type *type);
+void fz_remove_item(fz_context *ctx, fz_store_drop_fn *drop, void *key, const fz_store_type *type);
 
 /*
 	fz_empty_store: Evict everything from the store.
@@ -243,7 +247,7 @@ int fz_shrink_store(fz_context *ctx, unsigned int percent);
 
 typedef int (fz_store_filter_fn)(fz_context *ctx, void *arg, void *key);
 
-void fz_filter_store(fz_context *ctx, fz_store_filter_fn *fn, void *arg, fz_store_type *type);
+void fz_filter_store(fz_context *ctx, fz_store_filter_fn *fn, void *arg, const fz_store_type *type);
 
 /*
 	fz_print_store: Dump the contents of the store for debugging.

@@ -12,10 +12,10 @@ extern "C" {
 
 #include "mupdf/fitz/crypt.h"
 #include "mupdf/fitz/getopt.h"
+#include "mupdf/fitz/geometry.h"
 #include "mupdf/fitz/hash.h"
-#include "mupdf/fitz/math.h"
 #include "mupdf/fitz/pool.h"
-#include "mupdf/fitz/string.h"
+#include "mupdf/fitz/string-util.h"
 #include "mupdf/fitz/tree.h"
 #include "mupdf/fitz/ucdn.h"
 #include "mupdf/fitz/bidi.h"
@@ -60,6 +60,7 @@ extern "C" {
 
 /* Output formats */
 #include "mupdf/fitz/writer.h"
+#include "mupdf/fitz/band-writer.h"
 #include "mupdf/fitz/output-pnm.h"
 #include "mupdf/fitz/output-png.h"
 #include "mupdf/fitz/output-pwg.h"

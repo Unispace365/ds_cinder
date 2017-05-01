@@ -18,7 +18,9 @@
 #include <ds/util/file_meta_data.h>
 
 #include "ds/ui/media/media_interface.h"
+#include "ds/ui/media/interface/video_interface.h"
 #include "ds/ui/media/interface/web_interface.h"
+#include "ds/ui/media/interface/pdf_interface.h"
 
 #include "ds/ui/sprite/web.h"
 #include "ds/ui/sprite/gst_video.h"
@@ -498,6 +500,26 @@ ds::ui::Sprite* MediaPlayer::getPlayer(){
 
 	if(mPrimaryImage){
 		return mPrimaryImage;
+	}
+
+	return nullptr;
+}
+
+ds::ui::MediaInterface* MediaPlayer::getMediaInterface(){
+	if(mVideoPlayer){
+		return mVideoPlayer->getVideoInterface();
+	}
+
+	if(mPDFPlayer){
+		return mPDFPlayer->getPDFInterface();
+	}
+
+	if(mStreamPlayer){
+		return mStreamPlayer->getVideoInterface();
+	}
+
+	if(mWebPlayer){
+		return mWebPlayer->getWebInterface();
 	}
 
 	return nullptr;
