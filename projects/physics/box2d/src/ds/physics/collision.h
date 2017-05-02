@@ -14,8 +14,8 @@ namespace physics {
 class Collision {
 public:
 	// Information about what I collided with.
-	static const enum Type { EMPTY, WORLD_BOUNDS, SPRITE };
-	static const enum Edge { LEFT, TOP, RIGHT, BOTTOM };
+	enum Type { EMPTY, WORLD_BOUNDS, SPRITE };
+	enum Edge { LEFT, TOP, RIGHT, BOTTOM };
 
 public:
 	Collision();

@@ -59,7 +59,7 @@ if( DS_CINDER_BUILD_EXAMPLES )
 endif()
 
 # 7. Configure/Build Projects
-foreach( projectComponent essentials mosquitto video pdf web viewers )
+foreach( projectComponent essentials mosquitto video pdf web viewers physics )
 	ds_log_i( SECTION " Configuring DsCinder sub-project: ${projectComponent}" )
 	get_filename_component( projectComponentModuleDir "${DS_CINDER_PATH}/projects/${projectComponent}/cmake" ABSOLUTE )
 	find_package( ${projectComponent} PATHS ${projectComponentModuleDir} NO_DEFAULT_PATH )
