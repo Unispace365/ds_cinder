@@ -216,13 +216,15 @@ function( ds_cinder_make_app )
 
 	# Secret sauce: Add a custom target to make sure external
 	# project is built before building this project
-	get_target_property( ds-cinder-platform_BUILD_DIR ds-cinder-platform "BUILD_DIR_${CMAKE_BUILD_TYPE}" )
-	ds_log_v( "DS CINDER BUILD DIR: ${ds-cinder-platform_BUILD_DIR}" )
-	add_custom_target( build_ds_cinder ALL )
-	add_custom_command( TARGET build_ds_cinder
-		COMMAND ${CMAKE_COMMAND} --build .
-		WORKING_DIRECTORY ${ds-cinder-platform_BUILD_DIR}
-	)
+	if( NOT TARGET build_ds_cinder )
+		get_target_property( ds-cinder-platform_BUILD_DIR ds-cinder-platform "BUILD_DIR_${CMAKE_BUILD_TYPE}" )
+		ds_log_v( "DS CINDER BUILD DIR: ${ds-cinder-platform_BUILD_DIR}" )
+		add_custom_target( build_ds_cinder ALL )
+		add_custom_command( TARGET build_ds_cinder
+			COMMAND ${CMAKE_COMMAND} --build .
+			WORKING_DIRECTORY ${ds-cinder-platform_BUILD_DIR}
+		)
+	endif()
 
 	if( CINDER_MAC )
 		# set bundle info.plist properties
