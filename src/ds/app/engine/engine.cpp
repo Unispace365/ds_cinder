@@ -792,9 +792,16 @@ ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) cons
 	// Note that you CAN get to this if you want to interpret what's there. I *think* I saw that
 	// the newer version of cinder gave access so hopefully can just wait for that if we need it.
 
-	// Transform the mouse from the actual window to the desired rect in world coordinates.
+	// Transform the mouse event coordinate from window/screen space to world
+	// coordinates.  Note: We are using the actual window size here, not the
+	// mDstRect size, which may be different if the window gets automagically
+	// resized for some reason.  (For example, in fullscreen mode, or a window
+	// mode on a screen that is not big enough for the mDstRect)
 	const ci::vec2 srcOffset = mData.mSrcRect.getUpperLeft();
-	const ci::vec2 screenScale = mData.mDstRect.getSize() / mData.mSrcRect.getSize();
+
+	auto screenSize = glm::vec2( ci::app::getWindowSize() );
+	const ci::vec2 screenScale = screenSize / mData.mSrcRect.getSize();
+
 	const ci::vec2 mouseWorldPos = srcOffset + (ci::vec2(e.getX(), e.getY()) / screenScale);
 	const ci::ivec2 pos((int)mouseWorldPos.x, (int)mouseWorldPos.y);
 

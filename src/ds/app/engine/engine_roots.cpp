@@ -182,8 +182,9 @@ void PerspRoot::drawServer(const DrawParams& p) {
 ui::Sprite* PerspRoot::getHit(const ci::vec3& point) {
 	ui::Sprite*		s = nullptr;
 
-	// TODO: What if the actual window size is different than dest_rect?
-	auto screenSize = mEngine.getDstRect().getSize();
+	// Note: Again, we are using the actual window size here, not
+	// the Engine mDstRect size.
+	auto screenSize = glm::vec2( ci::app::getWindowSize() );
 
 	// Sigh... convert world coordinate back to screen coordinate
 	const ci::vec2 srcOffset = mEngine.getSrcRect().getUpperLeft();
