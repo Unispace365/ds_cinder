@@ -27,6 +27,7 @@ namespace ds{
 			, mTweenAnimationEaseFn(ci::EaseNone())
 			, mIsTurnOnStepSwipe(false)
 			, mScrollable(true)
+			, mMinimumTouchDistance(0.0f)
 		{
 			setSize(startWidth, startHeight);
 			mSpriteMomentum.setMass(8.0f);
@@ -275,9 +276,9 @@ namespace ds{
 								}
 								else
 								{
-									if (ti.mDeltaPoint.x > 0)
+									if (ti.mDeltaPoint.x > mMinimumTouchDistance)
 										previousItem();
-									else
+									else if (ti.mDeltaPoint.x < -mMinimumTouchDistance)
 										nextItem();
 								}
 							}
