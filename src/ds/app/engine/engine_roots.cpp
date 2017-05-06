@@ -134,7 +134,6 @@ PerspRoot::PerspRoot(Engine& e, const RootList::Root& r, const sprite_id_t id, c
 		, mCameraDirty(false)
 		, mSprite(EngineRoot::make(e, id, true))
 		, mMaster(nullptr)
-		, mPicking(mCamera)
 		, mCameraParams(p)
 {
 }
@@ -180,34 +179,12 @@ void PerspRoot::drawServer(const DrawParams& p) {
 }
 
 ui::Sprite* PerspRoot::getHit(const ci::vec3& point) {
-	ui::Sprite*		s = nullptr;
+	if (mCameraDirty) {
+		setCinderCamera();
+	}
 
-	// Note: Again, we are using the actual window size here, not
-	// the Engine mDstRect size.
-	auto screenSize = glm::vec2( ci::app::getWindowSize() );
-
-	// Sigh... convert world coordinate back to screen coordinate
-	const ci::vec2 srcOffset = mEngine.getSrcRect().getUpperLeft();
-	const ci::vec2 screenScale = screenSize / mEngine.getSrcRect().getSize();
-	const ci::vec2 screenPoint = (ci::vec2(point) - srcOffset) * screenScale;
-
-	// We need to flip the y screen coordinate because OpenGL
-	// Defines 0, 0 to be the lower left corner of the viewport
-	const auto viewportPoint = glm::vec3(screenPoint.x, screenSize.y-screenPoint.y, 0.0f);
-
-	// Compute the pick Ray.  We need to unproject the 
-	// viewport point into camera-space coordinates
-	const auto viewMat = mCamera.getViewMatrix();
-	const auto projMat = mCamera.getProjectionMatrix();
-	const auto viewport = glm::vec4(0.0f, 0.0f, screenSize);
-	glm::vec3 worldPosNear = glm::unProject(viewportPoint, viewMat, projMat, viewport);
-	glm::vec3 rayDirection = glm::normalize(worldPosNear - mCamera.getEyePoint());
-
-	ci::Ray pickRay(mCamera.getEyePoint(), rayDirection);
-	auto camDirection = glm::normalize( mCamera.getViewDirection() );
-
-	drawFunc([this, pickRay, camDirection, &s](){s = mPicking.pickAt(pickRay, camDirection, *(mSprite.get())); });
-	return s;
+	ds::CameraPick pick(mEngine, mCamera, point);
+	return mSprite->getPerspectiveHit(pick);
 }
 
 PerspCameraParams PerspRoot::getCamera() const {
@@ -294,18 +271,6 @@ void PerspRoot::drawFunc(const std::function<void(void)>& fn) {
 	glClear(GL_DEPTH_BUFFER_BIT);
 
 	fn();
-}
-
-/**
- * \class ds::PerspRoot::OldPick
- */
-PerspRoot::OldPick::OldPick(ci::Camera& c)
-		: mCamera(c) {
-}
-
-ds::ui::Sprite* PerspRoot::OldPick::pickAt(const ci::Ray& pickRay, const ci::vec3& camDirection, ds::ui::Sprite& root) {
-	ds::CameraPick pick(pickRay, camDirection);
-	return root.getPerspectiveHit(pick);
 }
 
 } // namespace ds

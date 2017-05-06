@@ -10,29 +10,30 @@
 #include <cinder/Matrix44.h>
 
 namespace ds {
+namespace ui {
+class SpriteEngine;
+class Sprite;
+} // namespace ui
 
 /**
  * \class ds::CameraPick
  * Utility for picking a sprite.
  */
-	class CameraPick
-	{
-	public:
-		CameraPick(const ci::Ray& pickRay, const ci::vec3& cameraDirection)
-			: mPickRay(pickRay)
-			, mCameraDirection(cameraDirection)
-		{}
+class CameraPick {
+public:
+	CameraPick( const ds::ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint )
+		: mPickRay( calculatePickRay(engine, cameraPersp, worldTouchPoint) )
+		, mCameraDirection( glm::normalize( cameraPersp.getViewDirection()) )
+	{}
 
-		//const ci::vec3&			getScreenPoint() const;
-		//ci::Camera&				getCamera(){ return mCamera; }
-		const ci::Ray&			getPickRay() const { return mPickRay; }
-		const ci::vec3&			getCameraDirection() const { return mCameraDirection; }
+	const bool					testHitSprite( ds::ui::Sprite* sprite, ci::vec3& hitWorldPos ) const;
+	const float					calcHitDepth( const ci::vec3& hitWorldPos ) const;
 
-	private:
-		const ci::Ray&				mPickRay;
-		const ci::vec3&				mCameraDirection;
-		//ci::Camera&				mCamera;
-		//const ci::vec3			mScreenPoint;
+	static const ci::Ray		calculatePickRay( const ds::ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint );
+
+protected:
+	const ci::Ray				mPickRay;
+	const ci::vec3				mCameraDirection;
 };
 
 /**

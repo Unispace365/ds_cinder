@@ -163,18 +163,6 @@ private:
 	std::unique_ptr<ui::Sprite>		mSprite;
 	// If I have a master, use it for my camera
 	PerspRoot*						mMaster;
-
-	// Maintain old and new-style picking
-	class OldPick : public Picking {
-	public:
-		OldPick(ci::Camera&);
-
-		virtual ds::ui::Sprite*		pickAt(const ci::Ray&, const ci::vec3&, ds::ui::Sprite& root);
-
-	private:
-		ci::Camera&					mCamera;
-	};
-	OldPick							mPicking;
 };
 
 } // namespace ds

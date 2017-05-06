@@ -1013,54 +1013,8 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick) {
 	if(!visible())
 		return nullptr;
 
+	ci::vec3 hitWorldPos;
 	static float hitZ;
-	static auto hitTester = [](const CameraPick& pick, ds::ui::Sprite* sprite) -> ds::ui::Sprite* {
-		if (!sprite->isEnabled())
-			return nullptr;
-
-		const auto& pickRay = pick.getPickRay();
-		const auto& camDirection = pick.getCameraDirection();
-
-		const float	w = sprite->getScaleWidth();
-		const float h = sprite->getScaleHeight();
-
-		if (w <= 0.0f || h <= 0.0f)
-			return nullptr;
-
-		auto cornerA = sprite->localToGlobal(glm::vec3(0.0f, 0.0f, 0.0f));
-		auto cornerB = sprite->localToGlobal(glm::vec3(sprite->mWidth, 0.0f, 0.0f));
-		auto cornerC = sprite->localToGlobal(glm::vec3(0.0f, sprite->mHeight, 0.0f));
-
-		auto v1 = cornerB - cornerA;
-		auto v2 = cornerC - cornerA;
-
-		auto norm = glm::normalize(glm::cross(v2, v1));
-
-		float rayDist;
-		bool intersectsPlane = pickRay.calcPlaneIntersection(cornerA, norm, &rayDist);
-		if (!intersectsPlane)
-			return nullptr;
-
-		auto intersectPoint = pickRay.calcPosition(rayDist);
-
-		auto v = intersectPoint - cornerA;
-
-		float dot1 = glm::dot(v, v1);
-		float dot2 = glm::dot(v, v2);
-
-		if (dot1 >= 0
-			&& dot2 >= 0
-			&& dot1 <= dot(v1, v1)
-			&& dot2 <= dot(v2, v2)
-			) {
-
-			auto intersectVector = intersectPoint - pickRay.getOrigin();
-			hitZ = glm::dot(intersectVector, camDirection);
-			return sprite;
-		}
-
-		return nullptr;
-	};
 
 	// Collect hit candidates from children first, before considering this sprite
 	makeSortedChildren();
@@ -1085,7 +1039,12 @@ Sprite* Sprite::getPerspectiveHit(CameraPick& pick) {
 		return nearestCandidate->first;
 	}
 
-	return hitTester(pick, this);
+	if (pick.testHitSprite(this, hitWorldPos)) {
+		hitZ = pick.calcHitDepth(hitWorldPos);
+		return this;
+	}
+
+	return nullptr;
 }
 
 void Sprite::setProcessTouchCallback(const std::function<void(Sprite *, const TouchInfo &)> &func){
