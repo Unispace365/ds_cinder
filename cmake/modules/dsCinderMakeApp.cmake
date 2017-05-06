@@ -7,7 +7,7 @@ include( "${DS_CINDER_PATH}/cmake/utilities.cmake" )
 function( ds_cinder_make_app )
 	ds_log_i( SECTION "Configuring DsCinder App: ${PROJECT_NAME}" )
 	set( options LIBRARY_ONLY )
-	set( oneValueArgs DYNAMIC_SOURCES APP_PATH DS_CINDER_PATH )
+	set( oneValueArgs DYNAMIC_SOURCES APP_PATH DS_CINDER_PATH PCH_HEADER )
 	set( multiValueArgs SOURCES INCLUDES LIBRARIES RESOURCES PROJECT_COMPONENTS )
 
 	cmake_parse_arguments( ARG "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN} )
@@ -85,6 +85,19 @@ function( ds_cinder_make_app )
 		)
 	endif()
 
+	# HACK OMG WORKAROUND
+	# Cinder adds GLFW compiler definitions as a space-separated list like so: 
+	#   --> list( APPEND GLFW_FLAGS "-D_GLFW_X11 -D_GLFW_GLX -D_GLFW_USE_OPENGL" ) <--
+	# This breaks cotire, which interprets this as defining _GLFW_X11 as "D_GLFW_GLX -D_GLFW_USE_OPENGL",
+	# when building the precompiled header.  To workaround this, we need to convert this space-separated,
+	# "-D"-prefixed list into a normal list.
+	get_target_property(_badDefinitions cinder INTERFACE_COMPILE_DEFINITIONS)
+	foreach (_def IN LISTS _badDefinitions)
+		string( REPLACE " -D" ";" _fixedDef ${_def} )
+		list( APPEND _fixedDefs ${_fixedDef} )
+	endforeach()
+	set_target_properties( cinder PROPERTIES INTERFACE_COMPILE_DEFINITIONS "${_fixedDefs}" )
+
 	# ensure the runtime output directory exists, in case we need to copy other files to it
 	if( NOT EXISTS "${CMAKE_RUNTIME_OUTPUT_DIRECTORY}")
 		file( MAKE_DIRECTORY ${CMAKE_RUNTIME_OUTPUT_DIRECTORY} )
@@ -136,6 +149,9 @@ function( ds_cinder_make_app )
 			cmake_policy( POP )
 		endif()
 	endif()
+
+	## Add colorized gcc output
+	set ( CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fdiagnostics-color" )
 
 	if( ARG_LIBRARY_ONLY )
 		add_library( ${DS_CINDER_APP_TARGET} ${DS_CINDER_APP_SOURCES} )
@@ -235,9 +251,18 @@ function( ds_cinder_make_app )
 	endif()
 
 	# Make building wai faster using Cotire
-	#include( cotire )
-	#set_target_properties( ${DS_CINDER_APP_TARGET} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT "${ROOT_PATH}/src/stdafx.h" )
-	#cotire( ${DS_CINDER_APP_TARGET} )
+	if( ARG_PCH_HEADER )
+		set( PCH_HEADER ${ARG_PCH_HEADER} )
+	else()
+		set( PCH_HEADER "${ARG_APP_PATH}/src/stdafx.h" )
+	endif()
+	if( EXISTS ${PCH_HEADER} )
+		ds_log_i( "Using PCH HEADER: ${PCH_HEADER}" )
+		include( cotire )
+		set_target_properties( ${DS_CINDER_APP_TARGET} PROPERTIES COTIRE_CXX_PREFIX_HEADER_INIT ${PCH_HEADER} )
+		set_target_properties( ${DS_CINDER_APP_TARGET} PROPERTIES COTIRE_ADD_UNITY_BUILD FALSE )
+		cotire( ${DS_CINDER_APP_TARGET} )
+	endif()
 
 endfunction()
 
