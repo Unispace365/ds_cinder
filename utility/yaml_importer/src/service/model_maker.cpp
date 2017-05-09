@@ -56,9 +56,9 @@ const std::string baseHeader = \
 "#endif\n";
 
 const std::string baseCpp = \
+"CUSTOM_INCLUDES" \
 "#include \"MODEL_HEADER_FILE_NAME\" \n" \
 "\n" \
-"CUSTOM_INCLUDES" \
 "\n" \
 "namespace ds {\n" \
 "namespace model {\n" \
