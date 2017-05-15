@@ -312,12 +312,6 @@ namespace ui {
 			\param rot 3d vector of the new rotation, in degrees.*/
 		void					setRotation(const ci::vec3 &rot);
 
-		/** Set the rotation around all 3 given axis'es with the given degree
-		\param rot 3d vector of the new rotation, in degrees.*/
-		void					setRotation(const ci::vec3 &rot, const float degree);
-		bool					mDoSpeicalRotation;
-		float					mDegree;
-
 		/** Get the rotation around all 3 axis'es, in degrees.
 			\return 3d vector of the current rotation, in degrees.*/
 		ci::vec3				getRotation() const;
