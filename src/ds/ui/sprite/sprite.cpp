@@ -23,6 +23,7 @@
 #include "cinder/ImageIo.h"
 #include <cinder/Ray.h>
 
+//#include <glm/gtx/rotate_vector.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
@@ -746,7 +747,7 @@ void Sprite::buildTransform() const{
 	mTransformation = glm::mat4();
 
 	mTransformation = glm::translate(mTransformation, glm::vec3(mPosition.x, mPosition.y, mPosition.z));
-	if (mDoSpeicalRotation)
+	if (!mDoSpeicalRotation)
 	{
 		mTransformation = glm::rotate(mTransformation, mRotation.x * math::DEGREE2RADIAN, glm::vec3(1.0f, 0.0f, 0.0f));
 		mTransformation = glm::rotate(mTransformation, mRotation.y * math::DEGREE2RADIAN, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -754,7 +755,8 @@ void Sprite::buildTransform() const{
 	}
 	else
 	{
-		mTransformation = ci::rotate(mDegree * math::DEGREE2RADIAN, mRotation);
+		mTransformation = glm::rotate(mTransformation, mDegree * math::DEGREE2RADIAN, mRotation);
+		//mTransformation = ci::rotate(mDegree * math::DEGREE2RADIAN, mRotation);
 	}
 	mTransformation = glm::scale(mTransformation, glm::vec3(mScale.x, mScale.y, mScale.z));
 	mTransformation = glm::translate(mTransformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));

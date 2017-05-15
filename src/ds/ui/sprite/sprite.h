@@ -315,7 +315,7 @@ namespace ui {
 		/** Set the rotation around all 3 given axis'es with the given degree
 		\param rot 3d vector of the new rotation, in degrees.*/
 		void					setRotation(const ci::vec3 &rot, const float degree);
-		bool					mDoSpeicalRotation;
+		bool					mDoSpecialRotation;
 		float					mDegree;
 
 		/** Get the rotation around all 3 axis'es, in degrees.
