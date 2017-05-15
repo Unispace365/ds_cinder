@@ -164,7 +164,7 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mLayoutFixedAspect = false;
 	mShaderTexture = nullptr;
 	mNeedsBatchUpdate = false;
-	mDoSpeicalRotation = false;
+	mDoSpecialRotation = false;
 	mDegree = 0.0f;
 
 	mLayoutBPad = 0.0f;
@@ -571,12 +571,12 @@ void Sprite::setRotation(const ci::vec3& rot) {
 void Sprite::setRotation(const ci::vec3 &rot, const float degree)
 {
 	doSetRotation(rot);
-	mDoSpeicalRotation = true;
+	mDoSpecialRotation = true;
 	mDegree = degree;
 }
 
 void Sprite::doSetRotation(const ci::vec3& rot) {
-	if(math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z) && mDegree==0.0f)
+	if(math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z) && mDegree ==0.0f)
 		return;
 
 	mRotation = rot;
@@ -747,7 +747,7 @@ void Sprite::buildTransform() const{
 	mTransformation = glm::mat4();
 
 	mTransformation = glm::translate(mTransformation, glm::vec3(mPosition.x, mPosition.y, mPosition.z));
-	if (!mDoSpeicalRotation)
+	if (!mDoSpecialRotation)
 	{
 		mTransformation = glm::rotate(mTransformation, mRotation.x * math::DEGREE2RADIAN, glm::vec3(1.0f, 0.0f, 0.0f));
 		mTransformation = glm::rotate(mTransformation, mRotation.y * math::DEGREE2RADIAN, glm::vec3(0.0f, 1.0f, 0.0f));
@@ -755,8 +755,7 @@ void Sprite::buildTransform() const{
 	}
 	else
 	{
-		mTransformation = glm::rotate(mTransformation, mDegree * math::DEGREE2RADIAN, mRotation);
-		//mTransformation = ci::rotate(mDegree * math::DEGREE2RADIAN, mRotation);
+		mTransformation = ci::rotate(mDegree * math::DEGREE2RADIAN, mRotation);
 	}
 	mTransformation = glm::scale(mTransformation, glm::vec3(mScale.x, mScale.y, mScale.z));
 	mTransformation = glm::translate(mTransformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
