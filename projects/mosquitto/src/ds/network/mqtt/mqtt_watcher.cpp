@@ -7,26 +7,8 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include "ds/debug/logger.h"
 
-#include <future>
-
 namespace ds {
 namespace net {
-
-// From http://stackoverflow.com/questions/16296284/workaround-for-blocking-async
-// Visual Studio incorrectly returns a future with a non-blocking destructor.
-// This workaround returns a non-blocking destructor on both Linux (GCC) and Windows (Visual Studio)
-namespace async_workaround {
-template< class Function, class... Args>
-std::future<typename std::result_of<Function(Args...)>::type> async( Function&& f, Args&&... args ) {
-	typedef typename std::result_of<Function(Args...)>::type R;
-	auto bound_task = std::bind(std::forward<Function>(f), std::forward<Args>(args)...);
-	std::packaged_task<R()> task(std::move(bound_task));
-	auto ret = task.get_future();
-	std::thread t(std::move(task));
-	t.detach();
-	return ret;
-}
-} //!namespace async_workaround
 
 namespace {
 
@@ -67,6 +49,8 @@ MqttWatcher::MqttWatcher(
 MqttWatcher::~MqttWatcher(){
 	// does not need locking. it's atomic
 	mLoop.mAbort = true;
+	if (mLoopThread.joinable())
+		mLoopThread.join();
 }
 
 void MqttWatcher::addInboundListener(const std::function<void(const MessageQueue&)>& fn){
@@ -120,7 +104,7 @@ void MqttWatcher::startListening(){
 	mStarted = true;
 	if(!mLoop.mConnected){
 		DS_LOG_INFO_M("Attempting to connect to the MQTT server...", MQTT_LOG);
-		async_workaround::async([this]{ mLoop.run(); });
+		mLoopThread = std::thread( [this](){ mLoop.run(); } );
 		mLoop.mConnected = true;
 	}
 }
