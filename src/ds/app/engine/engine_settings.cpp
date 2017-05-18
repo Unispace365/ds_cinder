@@ -51,6 +51,7 @@ EngineSettings::EngineSettings()
 	const std::string			DEFAULT_FILENAME("engine.xml");
 	std::string					appFilename = DEFAULT_FILENAME,
 		localFilename,
+		commandLineAppConfig,
 		projectPath;
 
 	std::vector<std::string>	args = ds::Environment::getCommandLineParams();
@@ -71,6 +72,10 @@ EngineSettings::EngineSettings()
 			projectPath = full.substr(0, full.length() - (fn.length() + 1));
 			localFilename = fn;
 		}
+		else if (key == "configuration" || key == "config") {
+			commandLineAppConfig = value;
+		}
+
 	}
 	if(localFilename.empty()) localFilename = DEFAULT_FILENAME;
 
@@ -120,7 +125,9 @@ EngineSettings::EngineSettings()
 		// Load the configuration settings, which can be used to modify settings even more.
 		// Currently used to provide alternate layout sizes.
 		ds::Environment::loadSettings("configuration.xml", CONFIGURATION_SETTINGS);
-		CONFIGURATION_FOLDER = CONFIGURATION_SETTINGS.getText("folder", 0, "");
+		CONFIGURATION_FOLDER = commandLineAppConfig.empty()
+			? CONFIGURATION_SETTINGS.getText("folder", 0, "")
+			: commandLineAppConfig;
 
 		// If the folder exists, then apply any changes to the engine file
 		if(!CONFIGURATION_FOLDER.empty()) {
