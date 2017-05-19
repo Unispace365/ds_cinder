@@ -687,8 +687,8 @@ bool TextPango::measurePangoText() {
 			std::cout << "Pixel size: " << newPixelWidth << " " << newPixelHeight << std::endl;
 			*/
 
-			mPixelWidth = extentRect.width + extentRect.x;
-			mPixelHeight = extentRect.height + extentRect.y;
+			mPixelWidth = extentRect.width+(extentRect.x*2.0f);
+			mPixelHeight = extentRect.height+(extentRect.y*2.0f);
 
 			setSize((float)mPixelWidth, (float)mPixelHeight);
 
