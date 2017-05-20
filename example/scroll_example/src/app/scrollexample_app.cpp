@@ -13,6 +13,7 @@
 
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/scroll_list.h>
+#include <ds/ui/scroll/infinity_scroll_list.h>
 
 #include "model/generated/story_model.h"
 #include "ui/info_list/info_list.h"
@@ -137,8 +138,9 @@ void ScrollExample::setupServer(){
 
 
 	// ----------- A scroll list just like InfoList, but implemented here instead of a separate class ----------//
-	ds::ui::ScrollList* instanceList = new ds::ui::ScrollList(mEngine, false);
+	//ds::ui::ScrollList* instanceList = new ds::ui::ScrollList(mEngine, false);
 	const float itemSize = mGlobals.getSettingsLayout().getFloat("info_list:item:height", 0, 100.0f);
+	ds::ui::infinityList* instanceList = new ds::ui::infinityList(mEngine,600,itemSize, false);
 	instanceList->setSize(600.0f, itemSize);
 	instanceList->enable(false);
 
