@@ -14,7 +14,7 @@ namespace {
 const std::string	EMPTY_SZ;
 
 std::string			make_filename(const std::string& location) {
-	Poco::Path		p("%USERPROFILE%");
+	Poco::Path		p(Poco::Path::home());
 	p.append("documents").append("downstream").append("cache").append(location);
 	p = Poco::Path(Poco::Path::expand(p.toString()));
 	Poco::File		f(p.toString());

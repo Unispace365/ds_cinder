@@ -43,12 +43,7 @@ bool Environment::initialize() {
 		return true;
 	sInitialized = true;
 
-	// Home directory is %USERPROFILE% on Windows, ~ on Linux
-#ifdef _WIN32
-	Poco::Path			p(Poco::Path::expand("%USERPROFILE%"));
-#else
-	Poco::Path			p(Poco::Path::expand("~"));
-#endif
+	Poco::Path			p(Poco::Path::home());
 	p.append("Documents");
 	DOCUMENTS = p.toString();
 
