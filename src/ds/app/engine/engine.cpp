@@ -51,13 +51,13 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 	, mSettings(settings)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
-	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
+	, mTouchEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
 	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);}, "mousebegin")
 	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);}, "mousemoved")
-	, mMouseEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
+	, mMouseEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
 	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);}, "tuiobegin")
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
-	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
+	, mTuioObjectsEnded(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
 	, mHideMouse(false)
 	, mUniqueColor(0, 0, 0)
 	, mAutoDraw(new AutoDrawService())
@@ -517,12 +517,12 @@ void Engine::updateClient() {
 		std::lock_guard<std::mutex> lock(mTouchMutex);
 		mMouseBeginEvents.lockedUpdate();
 		mMouseMovedEvents.lockedUpdate();
-		mMouseEndEvents.lockedUpdate();
+		mMouseEndedEvents.lockedUpdate();
 	}
 
 	mMouseBeginEvents.update(curr);
 	mMouseMovedEvents.update(curr);
-	mMouseEndEvents.update(curr);
+	mMouseEndedEvents.update(curr);
 
 	mUpdateParams.setDeltaTime(dt);
 	mUpdateParams.setElapsedTime(curr);
@@ -551,29 +551,29 @@ void Engine::updateServer() {
 		std::lock_guard<std::mutex> lock(mTouchMutex);
 		mMouseBeginEvents.lockedUpdate();
 		mMouseMovedEvents.lockedUpdate();
-		mMouseEndEvents.lockedUpdate();
+		mMouseEndedEvents.lockedUpdate();
 
 		mTouchBeginEvents.lockedUpdate();
 		mTouchMovedEvents.lockedUpdate();
-		mTouchEndEvents.lockedUpdate();
+		mTouchEndedEvents.lockedUpdate();
 
 		mTuioObjectsBegin.lockedUpdate();
 		mTuioObjectsMoved.lockedUpdate();
-		mTuioObjectsEnd.lockedUpdate();
+		mTuioObjectsEnded.lockedUpdate();
 	} // unlock touch mutex
 	//////////////////////////////////////////////////////////////////////////
 
 	mMouseBeginEvents.update(curr);
 	mMouseMovedEvents.update(curr);
-	mMouseEndEvents.update(curr);
+	mMouseEndedEvents.update(curr);
 
 	mTouchBeginEvents.update(curr);
 	mTouchMovedEvents.update(curr);
-	mTouchEndEvents.update(curr);
+	mTouchEndedEvents.update(curr);
 
 	mTuioObjectsBegin.update(curr);
 	mTuioObjectsMoved.update(curr);
-	mTuioObjectsEnd.update(curr);
+	mTuioObjectsEnded.update(curr);
 
 	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
 		mIdling = true;
@@ -678,7 +678,7 @@ void Engine::registerForTuioObjects(ci::tuio::Client& client) {
 	if (mSettings.getBool("tuio:receive_objects", 0, false)) {
 		client.registerObjectAdded([this](ci::tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
 		client.registerObjectUpdated([this](ci::tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle(), o.getSpeed(), o.getRotationSpeed())); });
-		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnd.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
+		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnded.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
 	}
 }
 
@@ -760,7 +760,7 @@ void Engine::touchesMoved(const ds::ui::TouchEvent &e) {
 }
 
 void Engine::touchesEnded(const ds::ui::TouchEvent &e) {
-	mTouchEndEvents.incoming(mTouchTranslator.toWorldSpace(e));
+	mTouchEndedEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
 ci::tuio::Client &Engine::getTuioClient() {
@@ -781,7 +781,7 @@ void Engine::mouseTouchMoved(const ci::app::MouseEvent &e, int id) {
 
 void Engine::mouseTouchEnded(const ci::app::MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
-		mMouseEndEvents.incoming(MousePair(alteredMouseEvent(e), id));
+		mMouseEndedEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 

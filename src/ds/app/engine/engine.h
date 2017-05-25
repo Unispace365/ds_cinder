@@ -288,15 +288,15 @@ private:
 	ds::EngineTouchQueue<ds::ui::TouchEvent>
 										mTouchMovedEvents;
 	ds::EngineTouchQueue<ds::ui::TouchEvent>
-										mTouchEndEvents;
+										mTouchEndedEvents;
 	typedef std::pair<ci::app::MouseEvent, int> MousePair;
 	ds::EngineTouchQueue<MousePair>		mMouseBeginEvents;
 	ds::EngineTouchQueue<MousePair>		mMouseMovedEvents;
-	ds::EngineTouchQueue<MousePair>		mMouseEndEvents;
+	ds::EngineTouchQueue<MousePair>		mMouseEndedEvents;
 	// Only used if the settings file has "tuio:receive_objects" set to true
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsBegin;
 	ds::EngineTouchQueue<TuioObject>	mTuioObjectsMoved;
-	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnd;
+	ds::EngineTouchQueue<TuioObject>	mTuioObjectsEnded;
 
 	bool								mRotateTouchesDefault;
 	bool								mHideMouse;
