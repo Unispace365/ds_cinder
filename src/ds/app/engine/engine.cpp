@@ -821,6 +821,17 @@ void Engine::injectTouchesEnded(const ds::ui::TouchEvent& e){
 	touchesEnded(e);
 }
 
+void Engine::injectObjectsBegin(const ds::TuioObject& o) {
+	mTuioObjectsBegin.incoming(o);
+}
+
+void Engine::injectObjectsMoved(const ds::TuioObject& o) {
+	mTuioObjectsMoved.incoming(o);
+}
+
+void Engine::injectObjectsEnded(const ds::TuioObject& o) {
+	mTuioObjectsEnded.incoming(o);
+}
 
 ds::ResourceList& Engine::getResources() {
 	return mResources;

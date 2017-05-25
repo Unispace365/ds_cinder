@@ -142,6 +142,10 @@ public:
 	virtual void						injectTouchesMoved(const ds::ui::TouchEvent&);
 	virtual void						injectTouchesEnded(const ds::ui::TouchEvent&);
 
+	virtual void						injectObjectsBegin(const ds::TuioObject&);
+	virtual void						injectObjectsMoved(const ds::TuioObject&);
+	virtual void						injectObjectsEnded(const ds::TuioObject&);
+
 	// Register a TuioClient to send TUIO objects events through the Engine.  Useful if your app needs
 	// additional TuioClient object listeners beyond the single TuioClient proveded by the Engine.
 	void								registerForTuioObjects(ci::tuio::Client&);
