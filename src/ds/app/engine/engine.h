@@ -142,6 +142,10 @@ public:
 	virtual void						injectTouchesMoved(const ds::ui::TouchEvent&);
 	virtual void						injectTouchesEnded(const ds::ui::TouchEvent&);
 
+	// Register a TuioClient to send TUIO objects events through the Engine.  Useful if your app needs
+	// additional TuioClient object listeners beyond the single TuioClient proveded by the Engine.
+	void								registerForTuioObjects(ci::tuio::Client&);
+
 	// Turns on Sprite's setRotateTouches when first created so you can enable rotated touches app-wide by default
 	// Sprites can still turn this off after creation
 	virtual bool						getRotateTouchesDefault();
@@ -226,7 +230,6 @@ protected:
 		\param clearDebug If true, will clear all the children from the debug roots too. 
 							If false, leaves them alone (for instance, in client situations) */
 	void								clearAllSprites(const bool clearDebug = true);
-	void								registerForTuioObjects(ci::tuio::Client&);
 
 	/** When mouse events are ready to be handled by the touch manager. 
 		These are enforced virtual functions to be sure the engine handles mouse events.
