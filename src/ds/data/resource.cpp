@@ -221,17 +221,20 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 	{
 		Poco::Path      p(resource);
 		p.append(db);
-		CMS_DB_PATH = p.toString();
+		CMS_DB_PATH = getNormalizedPath(p);
 	}
 
 	// Portable path. We want it as small as possible to ease network traffic.
 	std::string			local = ds::Environment::expand("%LOCAL%");
+	Poco::Path 			cmsPortableResourcePath;
 	if (boost::starts_with(resource, local)) {
-		CMS_PORTABLE_RESOURCE_PATH = "%LOCAL%" + resource.substr(local.size());
+		cmsPortableResourcePath = "%LOCAL%";
+		cmsPortableResourcePath.append(resource.substr(local.size()));
 	} else {
 		DS_LOG_ERROR("CMS resource path (" << CMS_RESOURCE_PATH << ") does not start with %LOCAL% (" << local << ")");
-		CMS_PORTABLE_RESOURCE_PATH = resource;
+		cmsPortableResourcePath =  resource;
 	}
+	CMS_PORTABLE_RESOURCE_PATH = ds::getNormalizedPath(cmsPortableResourcePath);
 
 	// If the project path exists, then setup our app-local resources path.
 	if (!projectPath.empty()) {
@@ -239,7 +242,7 @@ void Resource::Id::setupPaths(const std::string& resource, const std::string& db
 		p.append("resources");
 		p.append(projectPath);
 		p.append("app");
-		APP_RESOURCE_PATH = p.toString();
+		APP_RESOURCE_PATH = ds::getNormalizedPath(p);
 
 		p.append("db");
 		p.append("db.sqlite");
@@ -270,7 +273,7 @@ void Resource::Id::setupCustomPaths( const std::function<const std::string&(cons
 Resource Resource::fromImage(const std::string& full_path) {
 	Resource		r;
 	r.mType = IMAGE_TYPE;
-	r.mLocalFilePath = full_path;
+	r.mLocalFilePath = ds::getNormalizedPath(full_path);
 	ImageMetaData	meta(full_path);
 	r.mWidth = meta.mSize.x;
 	r.mHeight = meta.mSize.y;
@@ -315,7 +318,7 @@ Resource::Resource(const std::string& fullPath)
 	, mThumbnailId(0)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(fullPath)
+	, mLocalFilePath(ds::getNormalizedPath(fullPath))
 {
 }
 
@@ -328,7 +331,7 @@ Resource::Resource(const std::string& fullPath, const int type)
 	, mThumbnailId(0)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(fullPath)
+	, mLocalFilePath(ds::getNormalizedPath(fullPath))
 {
 }
 
@@ -341,7 +344,8 @@ Resource::Resource(const std::string& localFullPath, const float width, const fl
 	, mThumbnailId(0)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(localFullPath){
+	, mLocalFilePath(ds::getNormalizedPath(localFullPath))
+{
 }
 
 Resource::Resource(const Resource::Id dbid, const int type, const double duration, 
@@ -357,7 +361,7 @@ Resource::Resource(const Resource::Id dbid, const int type, const double duratio
 	, mThumbnailId(thumbnailId)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(fullFilePath)
+	, mLocalFilePath(ds::getNormalizedPath(fullFilePath))
 {}
 	
 
@@ -381,6 +385,10 @@ const std::wstring& Resource::getTypeName() const {
 	return ERROR_NAME_SZ;
 }
 
+void Resource::setLocalFilePath(const std::string& localPath) {
+	mLocalFilePath = ds::getNormalizedPath(localPath);
+}
+
 std::string Resource::getAbsoluteFilePath() const {
 	if(!mLocalFilePath.empty()) return mLocalFilePath;
 
@@ -389,7 +397,7 @@ std::string Resource::getAbsoluteFilePath() const {
 	Poco::Path        p(mDbId.getResourcePath());
 	if (p.depth() < 1) return EMPTY_SZ;
 	p.append(mPath).append(mFileName);
-	return p.toString();
+	return ds::getNormalizedPath(p);
 }
 
 std::string Resource::getPortableFilePath() const {
@@ -403,7 +411,7 @@ std::string Resource::getPortableFilePath() const {
 		return EMPTY_SZ;
 	}
 	p.append(mPath).append(mFileName);
-	return p.toString();
+	return ds::getNormalizedPath(p);
 }
 
 void Resource::clear() {

@@ -27,12 +27,11 @@ public:
 
 	class Settings {
 	public:
-		Settings(	const ci::vec2& world_size, const ci::Rectf& screen_rect, const ds::cfg::Settings& debug_settings,
+		Settings(	const ci::vec2& world_size, const ds::cfg::Settings& debug_settings,
 					const float default_scale, const ci::Rectf& src_rect, const ci::Rectf& dst_rect)
-				: mWorldSize(world_size), mScreenRect(screen_rect), mDebugSettings(debug_settings)
+				: mWorldSize(world_size), mDebugSettings(debug_settings)
 				, mDefaultScale(default_scale), mSrcRect(src_rect), mDstRect(dst_rect) { }
 		ci::vec2					mWorldSize;
-		ci::Rectf					mScreenRect;
 		const ds::cfg::Settings&	mDebugSettings;
 		const float					mDefaultScale;
 		// Obsolete scrren rect and default scale
@@ -59,8 +58,6 @@ public:
 	virtual void					markCameraDirty() = 0;
 	virtual void					setCinderCamera() = 0;
 	virtual ui::Sprite*				getHit(const ci::vec3& point) = 0;
-	// Hack for manually positioning the screen.
-	virtual void					setViewport(const bool) { }
 	
 protected:
 	// The builder object for this root. Params only used during initialization.
@@ -90,7 +87,6 @@ public:
 	virtual void					drawClient(const DrawParams&, AutoDrawService*);
 	virtual void					drawServer(const DrawParams&);
 	virtual void					setCinderCamera();
-	virtual void					setViewport(const bool b);
 	virtual void					markCameraDirty();
 	virtual ui::Sprite*				getHit(const ci::vec3& point);
 
@@ -107,7 +103,6 @@ private:
 	Engine&							mEngine;
 	ci::CameraOrtho					mCamera;
 	bool							mCameraDirty;
-	bool							mSetViewport;
 	std::unique_ptr<ui::Sprite>		mSprite;
 	// Hack in the src_rect, dst_rect stuff as I figure that out.
 	ci::Rectf						mSrcRect, mDstRect;
@@ -124,7 +119,7 @@ private:
  */
 class PerspRoot : public EngineRoot {
 public:
-	PerspRoot(Engine&, const RootList::Root&, const sprite_id_t, const PerspCameraParams&, Picking* = nullptr);
+	PerspRoot(Engine&, const RootList::Root&, const sprite_id_t, const PerspCameraParams&);
 
 	virtual void					setup(const Settings&);
 	virtual void					postAppSetup();
@@ -151,6 +146,10 @@ public:
      //Moved from private to here in order to update camera parameters on the fly at draw time.
      void							setGlCamera();
 
+
+protected:
+	PerspCameraParams				mCameraParams;
+
 private:
 	void							drawFunc(const std::function<void(void)>& fn);
 
@@ -160,24 +159,10 @@ private:
 
 	Engine&							mEngine;
 	ci::CameraPersp					mCamera;
-	ci::vec3						mCameraTarget;
 	bool							mCameraDirty;
 	std::unique_ptr<ui::Sprite>		mSprite;
 	// If I have a master, use it for my camera
 	PerspRoot*						mMaster;
-
-	// Maintain old and new-style picking
-	class OldPick : public Picking {
-	public:
-		OldPick(ci::Camera&);
-
-		virtual ds::ui::Sprite*		pickAt(const ci::vec2&, ds::ui::Sprite& root);
-
-	private:
-		ci::Camera&					mCamera;
-	};
-	OldPick							mOldPick;
-	Picking&						mPicking;
 };
 
 } // namespace ds

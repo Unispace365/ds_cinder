@@ -7,8 +7,6 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include "ds/debug/logger.h"
 
-#include <future>
-
 namespace ds {
 namespace net {
 
@@ -51,6 +49,8 @@ MqttWatcher::MqttWatcher(
 MqttWatcher::~MqttWatcher(){
 	// does not need locking. it's atomic
 	mLoop.mAbort = true;
+	if (mLoopThread.joinable())
+		mLoopThread.join();
 }
 
 void MqttWatcher::addInboundListener(const std::function<void(const MessageQueue&)>& fn){
@@ -104,7 +104,7 @@ void MqttWatcher::startListening(){
 	mStarted = true;
 	if(!mLoop.mConnected){
 		DS_LOG_INFO_M("Attempting to connect to the MQTT server...", MQTT_LOG);
-		std::async(std::launch::async, [this]{ mLoop.run(); });
+		mLoopThread = std::thread( [this](){ mLoop.run(); } );
 		mLoop.mConnected = true;
 	}
 }

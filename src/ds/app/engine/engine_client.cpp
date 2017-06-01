@@ -34,7 +34,7 @@ char EngineClient::getClientStatusBlob() {
 	return CLIENT_STATUS_BLOB;
 }
 
-EngineClient::EngineClient(	ds::App& app, const ds::cfg::Settings& settings,
+EngineClient::EngineClient(	ds::App& app, const ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
 		, mLoadImageService(*this, mIpFunctions)

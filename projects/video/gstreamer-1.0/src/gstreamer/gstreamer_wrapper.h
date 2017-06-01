@@ -68,14 +68,6 @@ enum ContentType {
 };
 
 /*
-Enumeration to describe the byte order (big endian = 4321 / little endian = 1234) of either video or audio stream
-*/
-enum Endianness {
-	BIG_ENDIAN = 4321,
-	LITTLE_ENDIAN = 1234
-};
-
-/*
 class GStreamerWrapper
 
 Class that provides the functionality to open any kind of media file (movie and sound files) and the possibility to interact with the file
@@ -310,10 +302,6 @@ public:
 	uint64_t				getPipelineTime();
 
 
-	/*Get the current time from the network clock*/
-	uint64_t				getNetworkTime();
-
-
 	void					setPipelineBaseTime(uint64_t base_time);
 	/*
 	Returns if the buffer you get with getVideo holds really a new image of the video, use this to increase performance in your applications, so you don't unnecessary copy mem to textures
@@ -447,11 +435,6 @@ public:
 	Returns the current volume value
 	*/
 	float					getCurrentVolume();
-
-	/*
-	Returns the Endianness of the audio stream
-	*/
-	Endianness				getAudioEndianness();
 
 	/* Provides the initial setting for the baseclock of the server*/
 	gint64					getBaseTime();
@@ -593,7 +576,6 @@ private:
 	*/
 	static GstFlowReturn	onNewBufferFromAudioSource( GstAppSink* appsink, void* listener );
 
-
 	/*
 	Non-static method that is called inside "onNewPrerollFromVideoSource()" in order to handle
 	member variables that are non-static. Here the unsigned char array with the pixel data is actually filled
@@ -635,7 +617,6 @@ private:
 	// Getting app callbacks for new sinks requires registereing EOS callbacks.
 	// However, we handle EoS events from the message bus, so these don't do anything, but don't delete them.
 	static void				onEosFromVideoSource(GstAppSink* appsink, void* listener);
-	static void				onEosFromAudioSource(GstAppSink* appsink, void* listener);
 
 	// Clears out member properties
 	void					resetProperties();
@@ -654,7 +635,6 @@ protected:
 	unsigned char*			m_cAudioBuffer; /* Stores the audio data */
 	int						m_iAudioWidth; /* Width of the audio data (8, 16, 24 or 32) */
 	bool					m_bIsAudioSigned; /* Flag that tracks if the audio buffer is signed or not */
-	Endianness				m_AudioEndianness; /* Audio endianness, either big or small endian */
 	int						m_iAudioDecodeBufferSize; /* Size of the audio buffer without the channels and audio width */
 	int						m_iNumAudioChannels; /* Number of audio channels */
 	int						m_iAudioSampleRate; /* Audio sample rate */

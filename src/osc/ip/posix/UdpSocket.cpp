@@ -66,6 +66,8 @@
 typedef ssize_t socklen_t;
 #endif
 
+namespace cinder {
+namespace osc {
 
 static void SockaddrFromIpEndpointName( struct sockaddr_in& sockAddr, const IpEndpointName& endpoint )
 {
@@ -600,3 +602,5 @@ void SocketReceiveMultiplexer::AsynchronousBreak()
 	impl_->AsynchronousBreak();
 }
 
+}
+}

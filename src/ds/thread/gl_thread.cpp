@@ -39,7 +39,7 @@ void GlThread::start(const bool makeGlCalls)
   mLoop.start(makeGlCalls);
   if (!mLoop.mError) {
 	mThread.start(mLoop);
-	// We want to serialize this thread with the main thread, for the wglMakeCurrent() call.
+	// We want to serialize this thread with the main thread
 	if (makeGlCalls && mThread.isRunning()) waitForNoInput();
   }
 }
@@ -86,34 +86,24 @@ void GlThread::waitForNoInput()
  ******************************************************************/
 GlThread::Loop::Loop()
 	  : mAbort(false)
-	  , mThreadContext(NULL)
 	  , mError(true)
 {
 }
 
 GlThread::Loop::~Loop()
 {
-	if (mThreadContext) {
-		wglDeleteContext(mThreadContext);
-	}
+	// No need to do anything with the background context.
+	// Destructors will take are of things automatically.
 }
 
 bool GlThread::Loop::start(const bool makeGlCalls)
 {
 	if(makeGlCalls) {
 		DS_REPORT_GL_ERRORS();
-		mCurHDC = wglGetCurrentDC();
+		mBackgroundContext = ci::gl::Context::create( ci::gl::context() );
 		DS_REPORT_GL_ERRORS();
-		if(!mCurHDC) DS_LOG_WARNING_M("ds::GlThread::Loop() unable to create mCurHDC", GLTHREAD_LOG_M);
-		HGLRC			mainContext = wglGetCurrentContext();
-		DS_REPORT_GL_ERRORS();
-		mThreadContext = wglCreateContext(mCurHDC);
-		DS_REPORT_GL_ERRORS();
-		if(!mThreadContext) DS_LOG_WARNING_M("ds::GlThread::Loop() unable to create mThreadContext", GLTHREAD_LOG_M);
-		if(mThreadContext && wglShareLists(mainContext, mThreadContext)) {
+		if (mBackgroundContext)
 			mError = false;
-		}
-		DS_REPORT_GL_ERRORS();
 	} else {
 		mError = false;
 	}
@@ -122,7 +112,7 @@ bool GlThread::Loop::start(const bool makeGlCalls)
 
 bool GlThread::Loop::makesGlCalls() const
 {
-	return mThreadContext != NULL;
+	return (mBackgroundContext != nullptr);
 }
 
 bool GlThread::Loop::addInput(GlThreadCallback* cb)
@@ -153,9 +143,8 @@ void GlThread::Loop::run()
 	if (glCalls) {
 		// When setting the GL context you need to make sure this call
 		// is synchronized with the main thread, or else weird things can happen.
-		if (!wglMakeCurrent(mCurHDC, mThreadContext)) {
-			DS_LOG_ERROR_M("GlThread error setting the GL context", GLTHREAD_LOG_M);
-		}
+		if (mBackgroundContext)
+			mBackgroundContext->makeCurrent();
 		DS_REPORT_GL_ERRORS();
 	}
 
@@ -197,7 +186,9 @@ void GlThread::Loop::run()
 	}
 
 	if (glCalls) {
-		wglMakeCurrent(NULL, NULL);
+		// Destroy the background context
+		if (mBackgroundContext)
+			mBackgroundContext.reset();
 	}
 }
 

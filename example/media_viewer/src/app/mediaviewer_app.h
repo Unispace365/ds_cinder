@@ -1,6 +1,7 @@
 #ifndef _MEDIAVIEWER_APP_H_
 #define _MEDIAVIEWER_APP_H_
 
+#include <cinder/gl/gl.h>
 #include <cinder/app/App.h>
 #include <cinder/app/AppBase.h>
 #include <cinder/app/RendererGl.h>

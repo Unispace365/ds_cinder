@@ -2,6 +2,10 @@
 
 #include "text_pango.h"
 
+#include "cairo/cairo.h"
+#include "fontconfig/fontconfig.h"
+#include "pango/pangocairo.h"
+
 #include <pango/pango-font.h>
 #include <regex>
 
@@ -23,16 +27,23 @@ namespace {
 // requires a custom shader that multiplies in the rest of the opacity setting
 const std::string opacityFrag =
 "uniform sampler2D	tex0;\n"
-"uniform float		opaccy;\n"
-//"uniform vec2	    resolution;\n"
+"uniform bool		useTexture;\n"	// dummy, Engine always sends this anyway
+"uniform bool       preMultiply;\n" // dummy, Engine always sends this anyway
 "in vec4			Color;\n"
 "in vec2			TexCoord0;\n"
 "out vec4			oColor;\n"
 "void main()\n"
 "{\n"
-"    oColor = texture2D( tex0, vec2(TexCoord0.x, 1.0-TexCoord0.y) );\n"
+"    oColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+"    if (useTexture) {\n"
+"        oColor = texture2D( tex0, vec2(TexCoord0.x, 1.0-TexCoord0.y) );\n"
+"    }\n"
+"    // Undo the pango premultiplication\n"
 "    oColor.rgb /= oColor.a;\n"
-"    oColor.a *= opaccy;\n"
+"    // Now do the normal colorize/optional premultiplication\n"
+"    oColor *= Color;\n"
+"    if (preMultiply)\n"
+"        oColor.rgb *= oColor.a;\n"
 "}\n";
 
 const std::string vertShader =
@@ -125,6 +136,7 @@ TextPango::TextPango(ds::ui::SpriteEngine& eng)
 {
 	mBlobType = BLOB_TYPE;
 
+	setUseShaderTexture(true);
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
 	mSpriteShader.loadShaders();
 
@@ -451,31 +463,18 @@ void TextPango::onBuildRenderBatch(){
 void TextPango::drawLocalClient(){
 	if(mTexture && !mText.empty()){
 
-		ci::gl::color(ci::Color::white());
-		ci::gl::GlslProgRef shaderBase = mSpriteShader.getShader();
-		if(shaderBase) {
-			shaderBase->uniform("tex0", 0);
-			shaderBase->uniform("opaccy", mDrawOpacity);
-			shaderBase->uniform("resolution", ci::vec2(mTexture->getWidth(), mTexture->getHeight()));
-		}
-
-		mTexture->bind();
+		ci::gl::color(mColor.r, mColor.g, mColor.b, mDrawOpacity);
+		ci::gl::ScopedTextureBind scopedTexture(mTexture);
 
 		if(mRenderBatch){
 			mRenderBatch->draw();
 		} else {
-			if(shaderBase){
-				shaderBase->bind();
-				mUniform.applyTo(shaderBase);
-			}
 			if(getPerspective()) {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, static_cast<float>(mTexture->getHeight()), static_cast<float>(mTexture->getWidth()), 0.0f));
 			} else {
 				ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, static_cast<float>(mTexture->getWidth()), static_cast<float>(mTexture->getHeight())));
 			}
 		}
-
-		mTexture->unbind();
 	}
 }
 
@@ -723,13 +722,15 @@ void TextPango::renderPangoText(){
 		if(mCairoSurface) {
 			cairo_surface_destroy(mCairoSurface);
 			mCairoSurface = nullptr;
+#if CAIRO_HAS_WIN32_SURFACE
 			mCairoWinImageSurface = nullptr;
+#endif
 		}
 
 #if CAIRO_HAS_WIN32_SURFACE
 		mCairoSurface = cairo_win32_surface_create_with_dib(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
 #else
-		mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth, mPixelHeight);
+		mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
 #endif
 		auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
 		if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
@@ -798,7 +799,9 @@ void TextPango::renderPangoText(){
 			if(mCairoSurface) {
 				cairo_surface_destroy(mCairoSurface);
 				mCairoSurface = nullptr;
+#ifdef CAIRO_HAS_WIN32_SURFACE
 				mCairoWinImageSurface = nullptr;
+#endif
 			}
 		}
 

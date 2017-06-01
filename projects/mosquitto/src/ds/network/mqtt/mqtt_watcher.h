@@ -4,6 +4,7 @@
 #include <queue>
 #include <mutex>
 #include <atomic>
+#include <thread>
 
 #include <ds/app/auto_update.h>
 
@@ -89,10 +90,12 @@ private:
 	MessageQueue					mMsgOutbound;
 	std::vector < std::function<void(const MessageQueue&)> > mListeners;
 	MqttConnectionLoop				mLoop;
+	std::thread						mLoopThread;
 
 	Poco::Timestamp::TimeVal		mLastMessageTime;
 	float							mRetryWaitTime;
 	bool							mStarted;
+
 };
 
 } //!namespace net

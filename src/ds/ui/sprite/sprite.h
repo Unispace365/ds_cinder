@@ -25,13 +25,14 @@
 #include "ds/ui/sprite/util/blend.h"
 #include "ds/util/idle_timer.h"
 #include "ds/debug/debug_defines.h"
+#include "ds/app/blob_reader.h"
+#include "ds/data/data_buffer.h"
+#include "ds/ui/sprite/sprite_engine.h"
 
 namespace ds {
 namespace gl { class ClipPlaneState; }
-class BlobReader;
 class BlobRegistry;
 class CameraPick;
-class DataBuffer;
 class DrawParams;
 class Engine;
 class EngineRoot;
@@ -39,7 +40,6 @@ class Event;
 class UpdateParams;
 
 namespace ui {
-	class SpriteEngine;
 	struct DragDestinationInfo;
 	struct TapInfo;
 	struct TouchInfo;
@@ -311,6 +311,12 @@ namespace ui {
 		/** Set the rotation around all 3 axis'es, in degrees.
 			\param rot 3d vector of the new rotation, in degrees.*/
 		void					setRotation(const ci::vec3 &rot);
+
+		/** Set the rotation around all 3 given axis'es with the given degree
+		\param rot 3d vector of the new rotation, in degrees.*/
+		void					setRotation(const ci::vec3 &rot, const float degree);
+		bool					mDoSpecialRotation;
+		float					mDegree;
 
 		/** Get the rotation around all 3 axis'es, in degrees.
 			\return 3d vector of the current rotation, in degrees.*/
@@ -854,8 +860,8 @@ namespace ui {
 		// Utility to reorder the sprites
 		void				setSpriteOrder(const std::vector<sprite_id_t>&);
 
-		friend class Engine;
-		friend class EngineRoot;
+		friend class ds::Engine;
+		friend class ds::EngineRoot;
 		// Disable copy constructor; sprites are managed by their parent and
 		// must be allocated
 		Sprite(const Sprite&);
@@ -921,7 +927,7 @@ namespace ui {
 	};
 
 	template <typename T, typename... Args>
-	static T& Sprite::make(SpriteEngine& e, Sprite* parent, Args... args)
+	T& Sprite::make(SpriteEngine& e, Sprite* parent, Args... args)
 	{
 		T*                    s = new T(e, args...);
 		if(!s) throw std::runtime_error("Can't create sprite");
@@ -930,7 +936,7 @@ namespace ui {
 	}
 
 	template <typename T>
-	static T& Sprite::makeAlloc(const std::function<T*(void)>& allocFn, Sprite* parent)
+	T& Sprite::makeAlloc(const std::function<T*(void)>& allocFn, Sprite* parent)
 	{
 		T*                    s = allocFn();
 		if(!s) throw std::runtime_error("Can't create sprite");
@@ -944,7 +950,7 @@ namespace ui {
 		Also Note: Due to the way VS handles templatization, this cannot be moved to the cpp file. 
 		Also also Note: It would be great if this weren't in the Sprite header! */
 	template <typename T>
-	static void Sprite::handleBlobFromServer(ds::BlobReader& r)	{
+	void Sprite::handleBlobFromServer(ds::BlobReader& r)	{
 		ds::DataBuffer&       buf(r.mDataBuffer);
 		char attributey = buf.read<char>();
 		if(attributey != SPRITE_ID_ATTRIBUTE){

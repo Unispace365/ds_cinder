@@ -29,6 +29,8 @@ namespace cfg {
 class Settings;
 }
 
+class TuioObject;
+
 namespace ui {
 class LoadImageService;
 class PangoFontService;
@@ -103,8 +105,6 @@ public:
 	float							getDoubleTapTime() const;
 	const ci::Rectf&				getSrcRect() const;
 	const ci::Rectf&				getDstRect() const;
-	// This should be obsoleted, everyone should be using src and dst rects now
-	ci::Rectf						getScreenRect() const;
 	float							getWidth() const;
 	float							getHeight() const;
 	float							getWorldWidth() const;
@@ -150,8 +150,9 @@ public:
 	virtual void					injectTouchesMoved(const ds::ui::TouchEvent&) = 0;
 	virtual void					injectTouchesEnded(const ds::ui::TouchEvent&) = 0;
 
-	// translate a touch event point to the overlay bounds specified in the settings
-	virtual void					translateTouchPoint( ci::vec2& inOutPoint ) = 0;
+	virtual void					injectObjectsBegin(const ds::TuioObject&) = 0;
+	virtual void					injectObjectsMoved(const ds::TuioObject&) = 0;
+	virtual void					injectObjectsEnded(const ds::TuioObject&) = 0;
 
 	/// Calls every time any touch anywhere happens, and the touch info is post-translation and filtering
 	/// This calls *after* any sprites get the touch. 

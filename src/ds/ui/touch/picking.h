@@ -17,7 +17,7 @@ public:
 
 	void					setWorldSize(const ci::vec2&);
 
-	virtual ds::ui::Sprite*	pickAt(const ci::vec2&, ds::ui::Sprite& root) = 0;
+	virtual ds::ui::Sprite*	pickAt(const ci::Ray&, const ci::vec3&, ds::ui::Sprite& root) = 0;
 	
 protected:
 	ci::vec2				mWorldSize;

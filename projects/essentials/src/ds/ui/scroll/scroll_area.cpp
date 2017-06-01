@@ -1,6 +1,7 @@
 #include "stdafx.h"
 
 #include "scroll_area.h"
+#include <glm/gtx/matrix_decompose.hpp>
 
 
 namespace ds{
@@ -199,52 +200,14 @@ void ScrollArea::onUpdateServer(const ds::UpdateParams& p){
 		checkBounds();
 	}
 }
+
 void decompose(ci::mat4 matrix, ci::vec3& scaling, ci::quat& rotation,
 			   ci::vec3& position){
-	// extract translation
-	position.x = matrix[0][3];
-	position.y = matrix[1][3];
-	position.z = matrix[2][3];
 
-	// extract the rows of the matrix
-
-	ci::mat3 upperLeftMatrix(matrix);
-
-	upperLeftMatrix /= 4;
-	rotation = ci::quat(upperLeftMatrix);
-
-
-	//ci::vec3 columns[3] = {
-	//	matrix.getColumn(0).xyz(),
-	//	matrix.getColumn(1).xyz(),
-	//	matrix.getColumn(2).xyz()
-	//};
-
-	//// extract the scaling factors
-	//scaling.x = columns[0].length();
-	//scaling.y = columns[1].length();
-	//scaling.z = columns[2].length();
-
-	//// and remove all scaling from the matrix
-	//if(scaling.x){
-	//	columns[0] /= scaling.x;
-	//}
-	//if(scaling.y){
-	//	columns[1] /= scaling.y;
-	//}
-	//if(scaling.z){
-	//	columns[2] /= scaling.z;
-	//}
-
-	//// build a 3x3 rotation matrix
-	//ci::mat3 m(columns[0].x, columns[1].x, columns[2].x,
-	//				columns[0].y, columns[1].y, columns[2].y,
-	//				columns[0].z, columns[1].z, columns[2].z, true);
-
-	//// and generate the rotation quaternion from it
-	//rotation = ci::quat(m);
+	ci::vec3 skew;
+	ci::vec4 perspective;
+	glm::decompose(matrix, scaling, rotation, position, skew, perspective);
 }
-
 
 void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 	if(ti.mPhase == ds::ui::TouchInfo::Added){
@@ -260,7 +223,7 @@ void ScrollArea::handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& 
 			ci::quat rotty;
 			ci::vec3 poss;
 			decompose(globalTrans, scaley, rotty, poss);
-			glm::rotateZ(deltaPoint,(-ci::toDegrees(glm::roll(rotty))));		
+			deltaPoint = glm::rotateZ(deltaPoint, glm::roll(rotty));
 		}
 
 		if(mScroller){

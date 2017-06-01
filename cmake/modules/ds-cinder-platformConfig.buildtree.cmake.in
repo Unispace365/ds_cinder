@@ -1,0 +1,7 @@
+if( NOT TARGET ds-cinder-platform${DS_CINDER_LIB_SUFFIX} )
+	include( ${PROJECT_BINARY_DIR}/${DS_CINDER_LIB_DIRECTORY}/ds-cinder-platformTargets.cmake )
+
+	set_target_properties( ds-cinder-platform PROPERTIES
+		BUILD_DIR_${CMAKE_BUILD_TYPE} "${PROJECT_BINARY_DIR}"
+	)
+endif()

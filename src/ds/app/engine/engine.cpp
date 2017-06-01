@@ -16,8 +16,10 @@
 #include "ds/ui/ip/functions/ip_circle_mask.h"
 #include "ds/ui/touch/draw_touch_view.h"
 #include "ds/ui/touch/touch_event.h"
+#include "ds/util/file_meta_data.h"
 
 #include <cinder/Display.h>
+#include <boost/algorithm/string.hpp>
 
 //! This entire header is included for one single
 //! function Poco::Path::expand. This slowly needs
@@ -38,7 +40,7 @@ namespace ds {
 
 const int Engine::NumberOfNetworkThreads = 2;
 
-Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
+Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
 	, mTweenline(app.timeline())
@@ -49,13 +51,13 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	, mSettings(settings)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
-	, mTouchEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
+	, mTouchEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
 	, mMouseBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchBegin(e.first, e.second);}, "mousebegin")
 	, mMouseMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchMoved(e.first, e.second);}, "mousemoved")
-	, mMouseEndEvents(mTouchMutex,		mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
+	, mMouseEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [this](const MousePair& e)  {handleMouseTouchEnded(e.first, e.second);}, "mouseend")
 	, mTuioObjectsBegin(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectBegan(e);}, "tuiobegin")
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
-	, mTuioObjectsEnd(mTouchMutex,		mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
+	, mTuioObjectsEnded(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
 	, mHideMouse(false)
 	, mUniqueColor(0, 0, 0)
 	, mAutoDraw(new AutoDrawService())
@@ -123,27 +125,19 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		mData.mDstRect = settings.getRect("dst_rect", 0, empty_rect);
 		
 	}
-	// Override the screen rect if we're using the new-style mode. I inherit behaviour like setting
-	// the window size from this.
-	if (mData.mDstRect.x2 > mData.mDstRect.x1 && mData.mDstRect.y2 > mData.mDstRect.y1) {
-		// Hmmm... suspect the screen rect does not support setting x1, y1, because when I do
-		// everything goes black. That really needs to be weeded out in favour of the new system.
-		mData.mScreenRect = ci::Rectf(0.0f, 0.0f, mData.mDstRect.getWidth(), mData.mDstRect.getHeight());
-	}
 
-	if(mData.mScreenRect.getWidth() < 1 || mData.mScreenRect.getHeight() < 1 || mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
+	if(mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
 		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
 		ci::DisplayRef mainDisplay = ci::Display::getMainDisplay();
 		ci::Rectf mainDisplayRect = ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
 		mData.mSrcRect = mainDisplayRect;
 		mData.mDstRect = mainDisplayRect;
-		mData.mScreenRect = mainDisplayRect;
 		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
 			mData.mWorldSize = ci::vec2(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
 		}
 	}
 
-	DS_LOG_INFO("Screen rect is (" << mData.mScreenRect.x1 << ", " << mData.mScreenRect.y1 << ") - (" << mData.mScreenRect.x2 << ", " << mData.mScreenRect.y2 << ")");
+	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 
 	// Don't construct roots on startup for clients, and instead create them when we connect to a server
 	const std::string	arch(settings.getText("platform:architecture", 0, ""));
@@ -158,11 +152,9 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 		for(auto it = roots.mRoots.begin(), end = roots.mRoots.end(); it != end; ++it) {
 			RootList::Root&			r(*it);
 			r.mRootId = root_id;
-			Picking*						picking = nullptr;
-			if(r.mPick == r.kSelect) picking = &mSelectPicking;
 			std::unique_ptr<EngineRoot>		root;
 			if(r.mType == r.kOrtho) root.reset(new OrthRoot(*this, r, r.mRootId));
-			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp, picking));
+			else if(r.mType == r.kPerspective) root.reset(new PerspRoot(*this, r, r.mRootId, r.mPersp));
 			if(!root){
 				DS_LOG_WARNING("Couldn't create root in the engine!");
 				continue;
@@ -200,7 +192,7 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 	createStatsView(root_id);
 
 	// Initialize the roots
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
@@ -208,18 +200,27 @@ Engine::Engine(	ds::App& app, const ds::cfg::Settings &settings,
 
 	mRotateTouchesDefault = settings.getBool("touch:rotate_touches_default", 0, false);
 
-	// SETUP PICKING
-	mSelectPicking.setWorldSize(mData.mWorldSize);
-
 	// SETUP RESOURCES
-	std::string resourceLocation = settings.getText("resource_location", 0, "");
+	std::string resourceLocation = ds::getNormalizedPath(settings.getText("resource_location", 0, ""));
 	if (resourceLocation.empty()) {
 		// This is valid, though unusual
 		std::cout << "Engine() has no resource_location setting" << std::endl;
 	} else {
+		if (boost::contains(resourceLocation, "%USERPROFILE%")) {
+			DS_LOG_WARNING("Using \"%USERPROFILE%\" in a resource_location path is deprecated.  You probably want \"%LOCAL%\"...");
+#ifndef _WIN32
+			boost::replace_all(resourceLocation, "%USERPROFILE%", Poco::Path::expand("~"));
+			DS_LOG_WARNING("Linux workaround: Converting \"%USERPROFILE%\" to \"~\" in resources_location...");
+#endif
+		}
+
 		resourceLocation = Poco::Path::expand(resourceLocation);
 		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
-		Resource::Id::setupPaths(resourceLocation, settings.getText("resource_db", 0), settings.getText("project_path", 0));
+		Resource::Id::setupPaths(
+			ds::getNormalizedPath(resourceLocation),
+			ds::getNormalizedPath(settings.getText("resource_db", 0)),
+			ds::getNormalizedPath(settings.getText("project_path", 0))
+		);
 	}
 
 	setIdleTimeout((int)settings.getFloat("idle_time", 0, 300));
@@ -240,7 +241,7 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 
 	} else {
 		settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
-		if(mData.mUsingDefaults){
+		if(mSettings.getUsingDefault()){
 			screenMode = "borderless";
 		}
 		screenMode = mSettings.getText("screen:mode", 0, screenMode);
@@ -258,9 +259,6 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 
 	settings.setResizable(false);
 
-	//if(ds::ui::TouchMode::hasSystem(mTouchMode)) {
-	//	settings.enableMultiTouch();
-	//}
 
 	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
@@ -335,14 +333,6 @@ void Engine::setupTouch(ds::App& a) {
 			DS_LOG_WARNING("Tuio client could not be started.");
 		}
 	}
-
-	if(ds::ui::TouchMode::hasSystem(mTouchMode)){
-		BOOL(WINAPI *RegisterTouchWindow)(HWND, ULONG);
-		*(size_t *)&RegisterTouchWindow = (size_t)::GetProcAddress(::GetModuleHandle(TEXT("user32.dll")), "RegisterTouchWindow");
-		if(RegisterTouchWindow) {
-			(*RegisterTouchWindow)((HWND)ci::app::getWindow()->getNative(), 0x00000002);
-		}
-	}
 }
 
 void Engine::clearRoots(){
@@ -372,7 +362,7 @@ void Engine::createClientRoots(std::vector<RootList::Root> roots){
 	createStatsView(root_id);
 	root_setup(mRoots);
 
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mScreenRect, mDebugSettings, 1.0f, mData.mSrcRect, mData.mDstRect);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mDebugSettings, 1.0f, mData.mSrcRect, mData.mDstRect);
 	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
@@ -527,12 +517,12 @@ void Engine::updateClient() {
 		std::lock_guard<std::mutex> lock(mTouchMutex);
 		mMouseBeginEvents.lockedUpdate();
 		mMouseMovedEvents.lockedUpdate();
-		mMouseEndEvents.lockedUpdate();
+		mMouseEndedEvents.lockedUpdate();
 	}
 
 	mMouseBeginEvents.update(curr);
 	mMouseMovedEvents.update(curr);
-	mMouseEndEvents.update(curr);
+	mMouseEndedEvents.update(curr);
 
 	mUpdateParams.setDeltaTime(dt);
 	mUpdateParams.setElapsedTime(curr);
@@ -561,29 +551,29 @@ void Engine::updateServer() {
 		std::lock_guard<std::mutex> lock(mTouchMutex);
 		mMouseBeginEvents.lockedUpdate();
 		mMouseMovedEvents.lockedUpdate();
-		mMouseEndEvents.lockedUpdate();
+		mMouseEndedEvents.lockedUpdate();
 
 		mTouchBeginEvents.lockedUpdate();
 		mTouchMovedEvents.lockedUpdate();
-		mTouchEndEvents.lockedUpdate();
+		mTouchEndedEvents.lockedUpdate();
 
 		mTuioObjectsBegin.lockedUpdate();
 		mTuioObjectsMoved.lockedUpdate();
-		mTuioObjectsEnd.lockedUpdate();
+		mTuioObjectsEnded.lockedUpdate();
 	} // unlock touch mutex
 	//////////////////////////////////////////////////////////////////////////
 
 	mMouseBeginEvents.update(curr);
 	mMouseMovedEvents.update(curr);
-	mMouseEndEvents.update(curr);
+	mMouseEndedEvents.update(curr);
 
 	mTouchBeginEvents.update(curr);
 	mTouchMovedEvents.update(curr);
-	mTouchEndEvents.update(curr);
+	mTouchEndedEvents.update(curr);
 
 	mTuioObjectsBegin.update(curr);
 	mTuioObjectsMoved.update(curr);
-	mTuioObjectsEnd.update(curr);
+	mTuioObjectsEnded.update(curr);
 
 	if (!mIdling && (curr - mLastTouchTime) >= (float)getIdleTimeout()) {
 		mIdling = true;
@@ -688,7 +678,7 @@ void Engine::registerForTuioObjects(ci::tuio::Client& client) {
 	if (mSettings.getBool("tuio:receive_objects", 0, false)) {
 		client.registerObjectAdded([this](ci::tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
 		client.registerObjectUpdated([this](ci::tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle(), o.getSpeed(), o.getRotationSpeed())); });
-		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnd.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
+		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnded.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
 	}
 }
 
@@ -770,7 +760,7 @@ void Engine::touchesMoved(const ds::ui::TouchEvent &e) {
 }
 
 void Engine::touchesEnded(const ds::ui::TouchEvent &e) {
-	mTouchEndEvents.incoming(mTouchTranslator.toWorldSpace(e));
+	mTouchEndedEvents.incoming(mTouchTranslator.toWorldSpace(e));
 }
 
 ci::tuio::Client &Engine::getTuioClient() {
@@ -791,7 +781,7 @@ void Engine::mouseTouchMoved(const ci::app::MouseEvent &e, int id) {
 
 void Engine::mouseTouchEnded(const ci::app::MouseEvent &e, int id) {
 	if (ds::ui::TouchMode::hasMouse(mTouchMode)) {
-		mMouseEndEvents.incoming(MousePair(alteredMouseEvent(e), id));
+		mMouseEndedEvents.incoming(MousePair(alteredMouseEvent(e), id));
 	}
 }
 
@@ -802,8 +792,19 @@ ci::app::MouseEvent Engine::alteredMouseEvent(const ci::app::MouseEvent& e) cons
 	// Note that you CAN get to this if you want to interpret what's there. I *think* I saw that
 	// the newer version of cinder gave access so hopefully can just wait for that if we need it.
 
-	// Translate the mouse from the actual window to the desired rect in world coordinates.
-	const ci::ivec2	pos(mTouchTranslator.toWorldi(e.getX(), e.getY()));
+	// Transform the mouse event coordinate from window/screen space to world
+	// coordinates.  Note: We are using the actual window size here, not the
+	// mDstRect size, which may be different if the window gets automagically
+	// resized for some reason.  (For example, in fullscreen mode, or a window
+	// mode on a screen that is not big enough for the mDstRect)
+	const ci::vec2 srcOffset = mData.mSrcRect.getUpperLeft();
+
+	auto screenSize = glm::vec2( ci::app::getWindowSize() );
+	const ci::vec2 screenScale = screenSize / mData.mSrcRect.getSize();
+
+	const ci::vec2 mouseWorldPos = srcOffset + (ci::vec2(e.getX(), e.getY()) / screenScale);
+	const ci::ivec2 pos((int)mouseWorldPos.x, (int)mouseWorldPos.y);
+
 	return ci::app::MouseEvent(e.getWindow(),	0, pos.x, pos.y,
 												0, e.getWheelIncrement(), e.getNativeModifiers());
 }
@@ -820,6 +821,17 @@ void Engine::injectTouchesEnded(const ds::ui::TouchEvent& e){
 	touchesEnded(e);
 }
 
+void Engine::injectObjectsBegin(const ds::TuioObject& o) {
+	mTuioObjectsBegin.incoming(o);
+}
+
+void Engine::injectObjectsMoved(const ds::TuioObject& o) {
+	mTuioObjectsMoved.incoming(o);
+}
+
+void Engine::injectObjectsEnded(const ds::TuioObject& o) {
+	mTuioObjectsEnded.incoming(o);
+}
 
 ds::ResourceList& Engine::getResources() {
 	return mResources;
@@ -860,17 +872,7 @@ bool Engine::getHideMouse() const {
 
 ds::ui::Sprite* Engine::getHit(const ci::vec3& point) {
 	for (auto it=mRoots.rbegin(), end=mRoots.rend(); it!=end; ++it) {
-		
-		ci::vec3 pointToUse = point;
-		if((*it)->getSprite()->getPerspective()){
-			// scale the point from world size to screen size (which is the size of the perspective root)
-			pointToUse = ci::vec3(
-				(point.x / mData.mWorldSize.x) * mData.mScreenRect.getWidth(),
-				(point.y / mData.mWorldSize.y) * mData.mScreenRect.getHeight(),
-				0.0f
-			);
-		}
-		ds::ui::Sprite* s = (*it)->getHit(pointToUse);
+		ds::ui::Sprite* s = (*it)->getHit(point);
 		if (s) return s;
 	}
 	return nullptr;
@@ -879,17 +881,6 @@ ds::ui::Sprite* Engine::getHit(const ci::vec3& point) {
 void Engine::clearFingers( const std::vector<int> &fingers ) {
 	mTouchManager.clearFingers(fingers);
 }
-
-const ci::Rectf& Engine::getScreenRect() const {
-	return mData.mScreenRect;
-}
-
-void Engine::translateTouchPoint(ci::vec2& inOutPoint) {
-	inOutPoint = mTouchTranslator.toWorldf(inOutPoint.x, inOutPoint.y);
-	if(mTouchManager.getOverrideEnabled()){
-		mTouchManager.overrideTouchTranslation(inOutPoint);
-	}
-};
 
 void Engine::nextTouchMode() {
 	setTouchMode(ds::ui::TouchMode::next(mTouchMode));
@@ -931,28 +922,6 @@ void Engine::resetIdleTimeout() {
 	mLastTime = curr;
 	mLastTouchTime = curr;
 	mIdling = false;
-}
-
-namespace {
-ci::app::MouseEvent offset_mouse_event(const ci::app::MouseEvent& e, const ci::Rectf& offset) {
-	// Note -- breaks the button and modifier checks, because cinder doesn't give me access to the raw data.
-	// Currently I believe that's fine -- and since our target is touch platforms without those things
-	// hopefully it always will be.
-	return ci::app::MouseEvent(	e.getWindow(), 0, e.getX() + static_cast<int>(offset.x1), e.getY() + static_cast<int>(offset.y1),
-								0, e.getWheelIncrement(), e.getNativeModifiers());
-}
-
-}
-
-void Engine::setToUserCamera() {
-	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
-		(*it)->setViewport(false);
-	}
-
-	// When using a user camera, offset the event inputs.
-	mMouseBeginEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchBegin(offset_mouse_event(e.first, mData.mScreenRect), e.second); });
-	mMouseMovedEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchMoved(offset_mouse_event(e.first, mData.mScreenRect), e.second); });
-	mMouseEndEvents.setUpdateFn([this](const MousePair& e)  {this->handleMouseTouchEnded(offset_mouse_event(e.first, mData.mScreenRect), e.second);});
 }
 
 void Engine::setTouchMode(const ds::ui::TouchMode::Enum &mode) {

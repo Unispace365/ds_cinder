@@ -5,6 +5,7 @@
 #include <sstream>
 #include <fstream>
 #include <codecvt>
+#include <string>
 
 //using namespace std;
 using namespace ds;
@@ -55,18 +56,18 @@ std::string str_from_wstr(const std::wstring& wstr, const UINT cp)
 
 namespace ds{
 
-std::wstring		ds::wstr_from_utf8(const std::string& str)
+std::wstring		wstr_from_utf8(const std::string& str)
 {
 	return wstr_from_str(str, CP_UTF8);
 }
 
-std::string			ds::utf8_from_wstr(const std::wstring& wstr)
+std::string			utf8_from_wstr(const std::wstring& wstr)
 {
 	return str_from_wstr(wstr, CP_UTF8);
 }
 
 
-std::wstring ds::iso_8859_1_string_to_wstring(const std::string& input){
+std::wstring iso_8859_1_string_to_wstring(const std::string& input){
 	// you may notice that this implementation is different than the reverse.
 	// good eye.
 	// wstring and string conversion is A TOTAL MOTHERFUCKER.
@@ -80,18 +81,21 @@ std::wstring ds::iso_8859_1_string_to_wstring(const std::string& input){
 	return conv.str();
 }
 
-std::string ds::iso_8859_1_wstring_to_string(const std::wstring& input){
+std::string iso_8859_1_wstring_to_string(const std::wstring& input){
 	typedef std::codecvt_utf8<wchar_t> convert_typeX;
 	std::wstring_convert<convert_typeX, wchar_t> converterX;
 
 	return converterX.to_bytes(input);
 }
 
-
+}// namespace ds
 #else
+
+namespace ds{
 /* Linux equivalent?
  ******************************************************************/
-std::wstring		ds::wstr_from_utf8(const std::string& src) {
+
+std::wstring		wstr_from_utf8(const std::string& src) {
 	std::wstring dest;
 
 	wchar_t w = 0;
@@ -141,7 +145,8 @@ std::wstring		ds::wstr_from_utf8(const std::string& src) {
 }
 
 
-std::string		ds::utf8_from_wstr(const std::wstring& src) {
+
+std::string		utf8_from_wstr(const std::wstring& src) {
 	std::string dest;
 
 	for ( size_t i = 0; i < src.size(); i++ ) {
@@ -170,49 +175,51 @@ std::string		ds::utf8_from_wstr(const std::wstring& src) {
 	return dest;
 }
 
+} // namespace ds 
 
 
 #endif
 
+namespace ds {
 
-const float ds::string_to_float(const std::string& str){
+const float string_to_float(const std::string& str){
 	float floatValue = 0.0f;
 	string_to_value<float>(str, floatValue);
 	return floatValue;
 }
 
-const float ds::wstring_to_float(const std::wstring& str){
+const float wstring_to_float(const std::wstring& str){
 	float floatValue = 0.0f;
 	wstring_to_value<float>(str, floatValue);
 	return floatValue;
 }
 
-const int ds::string_to_int(const std::string& str){
+const int string_to_int(const std::string& str){
 	int intValue = 0;
 	string_to_value<int>(str, intValue);
 	return intValue;
 }
 
-const int ds::wstring_to_int(const std::wstring& str){
+const int wstring_to_int(const std::wstring& str){
 	int intValue = 0;
 	wstring_to_value<int>(str, intValue);
 	return intValue;
 }
 
-const double ds::string_to_double(const std::string& str){
+const double string_to_double(const std::string& str){
 	double doubleValue = 0.0;
 	string_to_value<double>(str, doubleValue);
 	return doubleValue;
 }
 
-const double ds::wstring_to_double(const std::wstring& str){
+const double wstring_to_double(const std::wstring& str){
 	double doubleValue = 0.0;
 	wstring_to_value<double>(str, doubleValue);
 	return doubleValue;
 }
 
 //variation on a function found on stackoverflow
-std::vector<std::string> ds::split(const std::string &str, const std::string &delimiters, bool dropEmpty)
+std::vector<std::string> split(const std::string &str, const std::string &delimiters, bool dropEmpty)
 {
 	std::size_t pos;
 	std::size_t lastPos = 0;
@@ -246,7 +253,7 @@ std::vector<std::string> ds::split(const std::string &str, const std::string &de
 	return splitWords;
 }
 
-std::vector<std::wstring> ds::split(const std::wstring &str, const std::wstring &delimiters, bool dropEmpty)
+std::vector<std::wstring> split(const std::wstring &str, const std::wstring &delimiters, bool dropEmpty)
 {
 	std::size_t pos;
 	std::size_t lastPos = 0;
@@ -279,7 +286,7 @@ std::vector<std::wstring> ds::split(const std::wstring &str, const std::wstring 
 	return splitWords;
 }
 
-std::vector<std::string> ds::partition(const std::string &str, const std::string &partitioner)
+std::vector<std::string> partition(const std::string &str, const std::string &partitioner)
 {
 	std::vector<std::string> partitions;
 
@@ -312,7 +319,7 @@ std::vector<std::string> ds::partition(const std::string &str, const std::string
 	return partitions;
 }
 
-std::vector<std::string> ds::partition(const std::string &str, const std::vector<std::string> &partitioners)
+std::vector<std::string> partition(const std::string &str, const std::vector<std::string> &partitioners)
 {
 	std::vector<std::string> partitions;
 	partitions.push_back(str);
@@ -332,7 +339,7 @@ std::vector<std::string> ds::partition(const std::string &str, const std::vector
 	return partitions;
 }
 
-//std::vector<std::wstring> ds::partition( const std::wstring &str, const std::wstring &partitioner )
+//std::vector<std::wstring> partition( const std::wstring &str, const std::wstring &partitioner )
 //{
 //  std::vector<std::wstring> partitions;
 //
@@ -378,7 +385,7 @@ bool strEqual(const wchar_t *str1, const wchar_t *str2, int size)
 
 }
 
-void ds::partition(const std::wstring &str, const std::wstring &partitioner, const Token &token, std::vector<Token> &partitions)
+void partition(const std::wstring &str, const std::wstring &partitioner, const Token &token, std::vector<Token> &partitions)
 {
 	int lastPos = token.pos;
 	int partitionerSize = static_cast<int>(partitioner.size());
@@ -395,7 +402,7 @@ void ds::partition(const std::wstring &str, const std::wstring &partitioner, con
 		partitions.push_back(Token(lastPos, token.pos + token.size - lastPos));
 }
 
-std::vector<std::wstring> ds::partition(const std::wstring &str, const std::vector<std::wstring> &partitioners)
+std::vector<std::wstring> partition(const std::wstring &str, const std::vector<std::wstring> &partitioners)
 {
 	//clock_t start = clock();
 	std::vector<Token> partitions;
@@ -418,7 +425,7 @@ std::vector<std::wstring> ds::partition(const std::wstring &str, const std::vect
 	//std::cout << "time taken: " << (double)(clock() - start) / CLOCKS_PER_SEC << std::endl;
 	return tokenPartitions;
 }
-//std::vector<std::wstring> ds::partition( const std::wstring &str, const std::wstring &partitioner )
+//std::vector<std::wstring> partition( const std::wstring &str, const std::wstring &partitioner )
 //{
 //  std::vector<std::wstring> partitions;
 //
@@ -438,7 +445,7 @@ std::vector<std::wstring> ds::partition(const std::wstring &str, const std::vect
 //  return partitions;
 //}
 //
-//std::vector<std::wstring> ds::partition( const std::wstring &str, const std::vector<std::wstring> &partitioners )
+//std::vector<std::wstring> partition( const std::wstring &str, const std::vector<std::wstring> &partitioners )
 //{
 //  std::vector<std::wstring> partitions;
 //  partitions.push_back(str);
@@ -458,7 +465,7 @@ std::vector<std::wstring> ds::partition(const std::wstring &str, const std::vect
 //  return partitions;
 //}
 
-int ds::find_count(const std::string &str, const std::string &token)
+int find_count(const std::string &str, const std::string &token)
 {
 	std::size_t pos;
 	std::size_t lastPos = 0;
@@ -479,7 +486,7 @@ int ds::find_count(const std::string &str, const std::string &token)
 	return count;
 }
 
-int ds::find_count(const std::wstring &str, const std::wstring &token)
+int find_count(const std::wstring &str, const std::wstring &token)
 {
 	std::size_t pos;
 	std::size_t lastPos = 0;
@@ -500,7 +507,7 @@ int ds::find_count(const std::wstring &str, const std::wstring &token)
 	return count;
 }
 
-void ds::replace(std::string &str, const std::string &oldToken, const std::string &newToken)
+void replace(std::string &str, const std::string &oldToken, const std::string &newToken)
 {
 	std::size_t pos;
 	std::size_t lastPos = 0;
@@ -533,7 +540,7 @@ void ds::replace(std::string &str, const std::string &oldToken, const std::strin
 	}
 }
 
-void ds::replace(std::wstring &str, const std::wstring &oldToken, const std::wstring &newToken)
+void replace(std::wstring &str, const std::wstring &oldToken, const std::wstring &newToken)
 {
 	std::size_t pos;
 	std::size_t lastPos = 0;
@@ -569,7 +576,7 @@ void ds::replace(std::wstring &str, const std::wstring &oldToken, const std::wst
 	}
 }
 
-void ds::loadFileIntoString(const std::string &filename, std::string &destination)
+void loadFileIntoString(const std::string &filename, std::string &destination)
 {
 	std::fstream filestr;
 	filestr.open(filename.c_str(), std::fstream::in);
@@ -591,7 +598,7 @@ void ds::loadFileIntoString(const std::string &filename, std::string &destinatio
 	}
 }
 
-void ds::loadFileIntoString(const std::wstring &filename, std::wstring &destination)
+void loadFileIntoString(const std::wstring &filename, std::wstring &destination)
 {
 	std::wfstream filestr;
 	filestr.open(ds::utf8_from_wstr(filename).c_str(), std::wfstream::in);
@@ -613,7 +620,7 @@ void ds::loadFileIntoString(const std::wstring &filename, std::wstring &destinat
 	}
 }
 
-void ds::loadFileIntoStringByLine(const std::string& filename, const std::function<void(const std::string& line)>& func)
+void loadFileIntoStringByLine(const std::string& filename, const std::function<void(const std::string& line)>& func)
 {
 	if(!func) return;
 
@@ -636,7 +643,7 @@ void ds::loadFileIntoStringByLine(const std::string& filename, const std::functi
 	}
 }
 
-void ds::loadFileIntoStringByLine(const std::wstring& filename, const std::function<void(const std::wstring& line)>& func)
+void loadFileIntoStringByLine(const std::wstring& filename, const std::function<void(const std::wstring& line)>& func)
 {
 	if(!func) return;
 
@@ -659,7 +666,7 @@ void ds::loadFileIntoStringByLine(const std::wstring& filename, const std::funct
 	}
 }
 
-void ds::saveStringToFile(const std::string &filename, const std::string &src)
+void saveStringToFile(const std::string &filename, const std::string &src)
 {
 	std::fstream filestr;
 	filestr.open(filename.c_str(), std::fstream::out);
@@ -670,7 +677,7 @@ void ds::saveStringToFile(const std::string &filename, const std::string &src)
 	}
 }
 
-void ds::saveStringToFile(const std::wstring &filename, const std::wstring &src)
+void saveStringToFile(const std::wstring &filename, const std::wstring &src)
 {
 	std::wfstream filestr;
 	filestr.open(ds::utf8_from_wstr(filename).c_str(), std::wfstream::out);
@@ -681,7 +688,7 @@ void ds::saveStringToFile(const std::wstring &filename, const std::wstring &src)
 	}
 }
 
-void ds::tokenize(const std::string& input, const char delim, const std::function<void(const std::string&)>& f)
+void tokenize(const std::string& input, const char delim, const std::function<void(const std::string&)>& f)
 {
 	try {
 		std::istringstream			lineBuf(input);
@@ -694,7 +701,7 @@ void ds::tokenize(const std::string& input, const char delim, const std::functio
 	}
 }
 
-ci::vec3 ds::parseVector(const std::string &s){
+ci::vec3 parseVector(const std::string &s){
 	auto tokens = ds::split(s, ", ", true);
 	ci::vec3 v;
 	v.x = tokens.size() > 0 ? ds::string_to_float(tokens[0]) : 0.0f;
@@ -704,22 +711,22 @@ ci::vec3 ds::parseVector(const std::string &s){
 	return v;
 }
 
-std::string ds::unparseVector(const ci::vec3& v){
+std::string unparseVector(const ci::vec3& v){
 	std::stringstream ss;
 	ss << v.x << ", " << v.y << ", " << v.z;
 	return ss.str();
 }
 
-bool ds::parseBoolean(const std::string &s){
+bool parseBoolean(const std::string &s){
 	return (s == "true" || s == "TRUE" || s == "yes" || s == "YES" || s == "on" || s == "ON") ? true : false;
 }
 
-std::string ds::unparseBoolean(const bool b){
+std::string unparseBoolean(const bool b){
 	if(b) return "true";
 	return "false";
 }
 
-std::string ds::unparseVector(const ci::vec2& v){
+std::string unparseVector(const ci::vec2& v){
 	std::stringstream ss;
 	ss << v.x << ", " << v.y;
 	return ss.str();
@@ -729,4 +736,4 @@ void tokenize(const std::string& input, const std::function<void(const std::stri
 	tokenize(input, '\n', f);
 }
 
-}
+} // namespace ds 

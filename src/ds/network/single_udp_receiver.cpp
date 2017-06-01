@@ -3,7 +3,7 @@
 #include "single_udp_receiver.h"
 #include <iostream>
 #include <Poco/Net/NetException.h>
-#include "ds\util\string_util.h"
+#include "ds/util/string_util.h"
 #include <ds/debug/logger.h>
 
 namespace {
@@ -14,7 +14,7 @@ public:
 		mMsg = ip + " is outside of the Multicast range. Please choose an address between 224.0.0.0 and 239.255.255.255.";
 	}
 
-	const char *what() const	{
+	const char *what() const throw() {
 		return mMsg.c_str();
 	}
 

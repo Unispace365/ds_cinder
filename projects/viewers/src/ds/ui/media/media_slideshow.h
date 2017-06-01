@@ -52,7 +52,7 @@ public:
 protected:
 	std::vector<MediaViewer*>			mViewers;
 	ds::ui::Sprite*						mHolder;
-	size_t								mCurItemIndex;
+	int									mCurItemIndex;
 	float								mAnimateDuration;
 	MediaViewerSettings					mMediaViewerSettings;
 	bool								mAllowLoadAhead;

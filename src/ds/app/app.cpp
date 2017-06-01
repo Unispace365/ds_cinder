@@ -12,7 +12,10 @@
 #include "ds/app/engine/engine_standalone.h"
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/app/environment.h"
+// TODO: Make this cleaner
+#ifdef _WIN32
 #include "ds/debug/console.h"
+#endif
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 
@@ -48,8 +51,38 @@
 #include <cinder/ip/Flip.h>
 #include <cinder/ImageIo.h>
 
+#ifndef _WIN32
+// For access to Linux native GLFW window calls
+#include "glfw/glfw3.h"
+#include "glfw/glfw3native.h"
+// For Linux window file-drop event registration
+#include <cinder/app/FileDropEvent.h>
+#include <cinder/Filesystem.h>
+
+// Add a file-drop handler under Linux, since Cinder's Linux implementation currently doesn't support this
+namespace {
+void linuxImplRegisterWindowFiledropHandler( ci::app::WindowRef cinderWindow ) {
+	static ci::app::WindowRef sMainAppCinderWindow = cinderWindow;
+
+	::glfwSetDropCallback( (GLFWwindow*)sMainAppCinderWindow->getNative(), [](GLFWwindow *window, int numPaths, const char **paths) {
+		if( sMainAppCinderWindow && (GLFWwindow*)sMainAppCinderWindow->getNative() == window ) {
+			DS_LOG_INFO( "Dropped files on window: " << window );
+			std::vector<ci::fs::path> files;
+			for (int i=0; i<numPaths; i++) {
+				DS_LOG_INFO( "  " << i << ": " << std::string(paths[i]) );
+				files.push_back( std::string( paths[i] ) );
+			}
+
+			ci::app::FileDropEvent dropEvent( sMainAppCinderWindow, 0, 0, files );
+			sMainAppCinderWindow->emitFileDrop( &dropEvent );
+		}
+	});
+}
+} //anonymous namespace
+#endif // !_WIN32
+
 // Answer a new engine based on the current settings
-static ds::Engine&    new_engine(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList& roots);
+static ds::Engine&    new_engine(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList& roots);
 
 static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 	static std::vector<std::function<void(ds::Engine&)>>	VEC;
@@ -57,11 +90,13 @@ static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 }
 
 namespace {
-std::string				APP_PATH;
 std::string				APP_DATA_PATH;
 
 //#ifdef _DEBUG
+// TODO: Make this cleaner
+#ifdef _WIN32
 ds::Console				GLOBAL_CONSOLE;
+#endif
 //#endif
 
 void					add_dll_path() {
@@ -77,9 +112,26 @@ void					add_dll_path() {
 	}
 }
 
-}
+} // anonymous namespace
 
 namespace ds {
+
+EngineSettingsPreloader::EngineSettingsPreloader( ci::app::AppBase::Settings* settings )
+		: mInitializer()
+		, mEngineSettings()
+	{
+		earlyPrepareAppSettings( settings );
+	}
+
+
+void EngineSettingsPreloader::earlyPrepareAppSettings( ci::app::AppBase::Settings* settings ) {
+	// Enable MultiTouch on app window if needed
+	const auto touchMode = ds::ui::TouchMode::fromSettings(mEngineSettings);
+	if(ds::ui::TouchMode::hasSystem(ds::ui::TouchMode::fromSettings(mEngineSettings))) {
+		settings->setMultiTouchEnabled();
+	}
+}
+
 
 void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
 	if (fn != nullptr) get_startups().push_back(fn);
@@ -89,10 +141,10 @@ void App::AddStartup(const std::function<void(ds::Engine&)>& fn) {
  * \class ds::App
  */
 App::App(const RootList& roots)
-	: mEnvironmentInitialized(ds::Environment::initialize())
-	, mInitializer(getAppPath().generic_string())
+	: EngineSettingsPreloader( ci::app::AppBase::sSettingsFromMain )
+	, ci::app::App()
+	, mEnvironmentInitialized(ds::Environment::initialize())
 	, mShowConsole(false)
-	, mEngineSettings()
 	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
 	, mCtrlDown(false)
@@ -104,7 +156,6 @@ App::App(const RootList& roots)
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
 	mEngineSettings.printStartupInfo();
-	mEngineData.mUsingDefaults = mEngineSettings.getUsingDefault();
 
 	add_dll_path();
 
@@ -140,14 +191,6 @@ App::App(const RootList& roots)
 	mEngine.addService(ds::glsl::IMAGE_SERVICE, *(new ds::glsl::ImageService(mEngine)));
 	mEngine.addService(ds::MESH_CACHE_SERVICE_NAME, *(new ds::MeshCacheService()));
 
-	if (mArrowKeyCameraControl) {
-		// Currently this is necessary for the keyboard commands
-		// that change the screen rect. I don't understand things
-		// well enough to know why this is a problem or what turning
-		// it off could be doing, but everything LOOKS fine.
-		mEngine.setToUserCamera();
-	}
-
 	// Verify that the application has included the framework resources.
 	try {
 		ci::DataSourceRef ds = loadResource(RES_ARC_DROPSHADOW);
@@ -172,7 +215,10 @@ App::~App() {
 	delete &(mEngine);
 	ds::getLogger().shutDown();
 	if(mShowConsole){
+// TODO: Make this cleaner
+#ifdef _WIN32
 		GLOBAL_CONSOLE.destroy();
+#endif
 	}
 }
 
@@ -192,7 +238,19 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 		inherited::getWindow()->setAlwaysOnTop(settings->isAlwaysOnTop());
 		inherited::getWindow()->setTitle(settings->getTitle());
 		inherited::enablePowerManagement(settings->isPowerManagementEnabled());
+
+#ifndef _WIN32
+		auto window = (GLFWwindow*) inherited::getWindow()->getNative();
+		if (settings->isFullScreen()) {
+			GLFWmonitor* monitor = ::glfwGetPrimaryMonitor();
+			const GLFWvidmode* mode = ::glfwGetVideoMode(monitor);
+			::glfwSetWindowMonitor( window, monitor, 0, 0, mode->width, mode->height, mode->refreshRate );
+		}
+#endif
 	}
+#ifndef _WIN32
+	linuxImplRegisterWindowFiledropHandler(inherited::getWindow());
+#endif // !_WIN32
 }
 
 void App::setup() {
@@ -265,10 +323,6 @@ void App::tuioObjectMoved(const ds::TuioObject&) {
 void App::tuioObjectEnded(const ds::TuioObject&) {
 }
 
-const std::string& App::envAppPath() {
-	return APP_PATH;
-}
-
 const std::string& App::envAppDataPath() {
 	return APP_DATA_PATH;
 }
@@ -296,20 +350,20 @@ void App::keyDown(ci::app::KeyEvent e) {
 
 	if (mArrowKeyCameraControl) {
 		if(code == ci::app::KeyEvent::KEY_LEFT) {
-			mEngineData.mScreenRect.x1 -= mArrowKeyCameraStep;
-			mEngineData.mScreenRect.x2 -= mArrowKeyCameraStep;
+			mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
+			mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		} else if(code == ci::app::KeyEvent::KEY_RIGHT) {
-			mEngineData.mScreenRect.x1 += mArrowKeyCameraStep;
-			mEngineData.mScreenRect.x2 += mArrowKeyCameraStep;
+			mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
+			mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		} else if(code == ci::app::KeyEvent::KEY_UP) {
-			mEngineData.mScreenRect.y1 -= mArrowKeyCameraStep;
-			mEngineData.mScreenRect.y2 -= mArrowKeyCameraStep;
+			mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
+			mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		} else if(code == ci::app::KeyEvent::KEY_DOWN) {
-			mEngineData.mScreenRect.y1 += mArrowKeyCameraStep;
-			mEngineData.mScreenRect.y2 += mArrowKeyCameraStep;
+			mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
+			mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		}
 	}
@@ -342,7 +396,7 @@ void App::keyUp(ci::app::KeyEvent event){
 }
 
 void App::saveTransparentScreenshot(){
-	Poco::Path		p("%USERPROFILE%");
+	Poco::Path		p(Poco::Path::home());
 	Poco::Timestamp::TimeVal t = Poco::Timestamp().epochMicroseconds();
 	std::stringstream filepath;
 	filepath << "ds_cinder.screenshot." << t << ".png";
@@ -374,12 +428,15 @@ void App::showConsole(){
 	if(mShowConsole) return;
 
 	mShowConsole = true;
+// TODO: Make this cleaner
+#ifdef _WIN32
 	GLOBAL_CONSOLE.create();
+#endif
 }
 
 
 /**
- * \class ds::App::Initializer
+ * \class ds::EngineSettingsPreloader::Initializer
  */
 static std::string app_sub_folder_from(const std::string &sub, const Poco::Path &path) {
 	Poco::Path          parent(path);
@@ -399,10 +456,12 @@ static std::string app_folder_from(const Poco::Path& path) {
 	return app_sub_folder_from("settings", path);
 }
 
-ds::App::Initializer::Initializer(const std::string& appPath) {
-	APP_PATH = appPath;
+ds::EngineSettingsPreloader::Initializer::Initializer() {
+	const auto appPath = ci::app::Platform::get()->getExecutablePath().generic_string();
 
-	Poco::Path      p(appPath);
+	// appPath could contain a trailing slash (Windows), or not (Linux).
+	// We need to parse it as a directory in either case
+	Poco::Path      p = Poco::Path::forDirectory(appPath);
 	std::string     ans;
 	// A couple things limit the search -- the directory can't get too
 	// short, and right now nothing is more then 3 steps from the appPath
@@ -417,7 +476,7 @@ ds::App::Initializer::Initializer(const std::string& appPath) {
 
 } // namespace ds
 
-static ds::Engine&    new_engine(	ds::App& app, const ds::cfg::Settings& settings,
+static ds::Engine&    new_engine(	ds::App& app, const ds::EngineSettings& settings,
 									ds::EngineData& ed, const ds::RootList& roots){
 
 	bool defaultShowConsole = false;

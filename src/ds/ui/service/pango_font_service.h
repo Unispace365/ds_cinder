@@ -7,7 +7,8 @@
 #include <map>
 #include <vector>
 
-#include "pango/pangocairo.h"
+struct _PangoFontMap;
+typedef struct _PangoFontMap PangoFontMap;
 
 namespace ds {
 namespace ui {

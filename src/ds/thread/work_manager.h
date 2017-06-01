@@ -25,7 +25,7 @@ public:
 	~WorkManager();
 
 	// I take ownership of the request.
-	bool							sendRequest(std::unique_ptr<WorkRequest>&, Poco::Timestamp* sendTime = nullptr);
+	bool							sendRequest(std::unique_ptr<WorkRequest>, Poco::Timestamp* sendTime = nullptr);
 
 	// Called from the world engine during each update cycle, which is probably
 	// excessive, but the performance hit is nil.  This is where we handle

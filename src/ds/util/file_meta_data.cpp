@@ -100,4 +100,17 @@ std::string filePathRelativeTo(const std::string &base, const std::string &relat
 	return ret;
 }
 
+std::string	getNormalizedPath(const std::string& path) {
+	auto ret = path;
+	std::replace(ret.begin(), ret.end(), '\\', '/');
+
+	ret = Poco::Path(ret).toString();
+
+	return ret;
+}
+
+std::string	getNormalizedPath(const Poco::Path& path) {
+	return getNormalizedPath(path.toString());
+}
+
 } // namespace ds

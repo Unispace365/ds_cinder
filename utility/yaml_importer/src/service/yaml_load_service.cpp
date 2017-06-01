@@ -22,8 +22,17 @@ This Class loads a yaml file with the following syntax into a vector of ModelMod
 Labels with "Here" at the end are actual values, everything else are keys.
 
 #Generic table - for syntax
+options:
+	# Optional options:
+	customGlobalCppInclude: '"stdafx.h"'
+	customGlobalCppInclude:
+		- '"stdafx.h"'
+		- '"another_global_header.h"'
+		- '"array_or_scalar.h"'
+
 TableNameHere
 	tableName: tableNameHere
+	customCPPInclude: '"this_will_appear_under_model_include.h"'
 	columns:
 		columnNameHere:
 			type: typeNameHere
@@ -115,6 +124,8 @@ void YamlLoadService::run() {
 	try{
 		std::vector<YAML::Node> nodes = YAML::LoadAll(iff);
 
+		ModelModel::setCustomGlobalImpInclude("");
+
 		// create a ModelModel for each root node
 		for(auto it = nodes.begin(); it < nodes.end(); ++it){
 			YAML::Node nodey = (*it);
@@ -122,10 +133,11 @@ void YamlLoadService::run() {
 				for(auto mit = (*it).begin(); mit != (*it).end(); ++mit){
 					std::string tableName = (*mit).first.as<std::string>();
 
-					// one of the root tables can be options, and we don't care about it
-					if(tableName == "options") continue;
-
-					parseTable(tableName, (*mit).second);
+					// one of the root tables can be options
+					if(tableName == "options")
+						parseOptions((*mit).second);
+					else
+						parseTable(tableName, (*mit).second);
 				}
 			}
 			//parseTable((*it));
@@ -136,6 +148,24 @@ void YamlLoadService::run() {
 	}
 
 
+}
+
+void YamlLoadService::parseOptions(const YAML::Node& options){
+	for( const auto& option : options ) {
+		auto key = option.first.as<std::string>();
+
+		if (key == "customGlobalCppInclude") {
+			std::string customGlobalCppIncludes = ModelModel::getCustomGlobalImpInclude();
+			if (option.second.IsSequence()) {
+				for( const auto& value : option.second )
+					customGlobalCppIncludes += value.as<std::string>() + "\n";
+			}
+			else {
+				customGlobalCppIncludes += option.second.as<std::string>() + "\n";
+			}
+			ModelModel::setCustomGlobalImpInclude(customGlobalCppIncludes);
+		}
+	}
 }
 
 void YamlLoadService::parseTable(const std::string& tableName, YAML::Node mainComponentsMap){
@@ -160,12 +190,17 @@ void YamlLoadService::parseTable(const std::string& tableName, YAML::Node mainCo
 // 				mm.setTableName(tableName);
 // 			}
 
-		} else if(key == "customInclude"){
-			if(mappedNode.Type() == YAML::NodeType::Scalar){
- 				std::string customInclude = mappedNode.as<std::string>();
- 				mm.setCustomInclude(customInclude);
- 			}
+		} else if (key == "customInclude"){
+			if (mappedNode.Type() == YAML::NodeType::Scalar){
+				std::string customInclude = mappedNode.as<std::string>();
+				mm.setCustomInclude(customInclude);
+			}
 
+		} else if (key == "customCPPInclude"){
+			if (mappedNode.Type() == YAML::NodeType::Scalar){
+				std::string customInclude = mappedNode.as<std::string>();
+				mm.setCustomImpInclude(customInclude);
+			}
 		} else if(key == "columns"){
 			if(mappedNode.Type() == YAML::NodeType::Map){
 				parseColumn(mappedNode, mm);

@@ -48,7 +48,7 @@ void WorkManager::removeClient(WorkClient& c)
 	}
 }
 
-bool WorkManager::sendRequest(std::unique_ptr<WorkRequest>& upR, Poco::Timestamp* sendTime)
+bool WorkManager::sendRequest(std::unique_ptr<WorkRequest> upR, Poco::Timestamp* sendTime)
 {
 	if (!upR.get()) return false;
 	// Push new input onto the stack

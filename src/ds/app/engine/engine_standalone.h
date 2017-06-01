@@ -3,7 +3,6 @@
 #define DS_APP_ENGINE_ENGINESTANDALONE_H_
 
 #include "ds/app/engine/engine.h"
-#include "ds/thread/gl_thread.h"
 #include "ds/thread/work_manager.h"
 #include "ds/ui/service/load_image_service.h"
 
@@ -16,7 +15,7 @@ namespace ds {
  */
 class EngineStandalone : public Engine {
 public:
-	EngineStandalone(ds::App&, const ds::cfg::Settings&, ds::EngineData&, const ds::RootList&);
+	EngineStandalone(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineStandalone();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }

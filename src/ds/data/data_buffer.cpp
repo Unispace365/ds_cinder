@@ -5,11 +5,51 @@
 
 namespace ds {
 
-template <>
-void DataBuffer::add<std::string>(const std::string &s){
-	size_t size = (unsigned)s.size();
+DataBuffer::DataBuffer(size_t initialStreamSize)
+	: mStream(initialStreamSize)
+{
+}
+
+size_t DataBuffer::size(){
+	size_t currentPosition = mStream.getReadPosition();
+
+	mStream.setReadPosition(ReadWriteBuffer::End);
+	size_t length = mStream.getReadPosition();
+	mStream.setReadPosition(currentPosition);
+
+	return length;
+}
+
+void DataBuffer::seekBegin(){
+	mStream.setReadPosition(ReadWriteBuffer::Begin);
+	mStream.setWritePosition(ReadWriteBuffer::Begin);
+}
+
+void DataBuffer::clear(){
+	mStream.clear();
+}
+
+void DataBuffer::addRaw(const char *b, size_t size){
+	mStream.write(b, size);
+}
+
+bool DataBuffer::readRaw(char *b, size_t size){
+	size_t currentPosition = mStream.getReadPosition();
+
+	mStream.setReadPosition(ReadWriteBuffer::End);
+	size_t length = mStream.getReadPosition();
+	mStream.setReadPosition(currentPosition);
+
+	if(size > (length - currentPosition))
+		return false;
+
+	mStream.read(b, size);
+	return true;
+}
+
+void DataBuffer::add(const char *b, size_t size){
 	add(size);
-	mStream.write(s.c_str(), size);
+	mStream.write(b, size);
 }
 
 void DataBuffer::add(const char *cs){
@@ -18,18 +58,6 @@ void DataBuffer::add(const char *cs){
 
 void DataBuffer::add(const wchar_t *cs){
 	add<std::wstring>(cs);
-}
-
-template <>
-void DataBuffer::add<std::wstring>(const std::wstring &ws){
-	size_t size = (ws.size())*sizeof(wchar_t);
-	add(size);
-	mStream.write((const char *)(ws.c_str()), size);
-}
-
-void DataBuffer::add(const char *b, size_t size){
-	add(size);
-	mStream.write(b, size);
 }
 
 bool DataBuffer::read(char *b, size_t size){
@@ -53,52 +81,60 @@ bool DataBuffer::read(char *b, size_t size){
 	return true;
 }
 
-DataBuffer::DataBuffer(size_t initialStreamSize)
-	: mStream(initialStreamSize)
-{
 
+// Template specializations
+template <>
+void DataBuffer::add<std::string>(const std::string &s){
+	size_t size = (unsigned)s.size();
+	add(size);
+	mStream.write(s.c_str(), size);
 }
 
-void DataBuffer::seekBegin()
-{
-	mStream.setReadPosition(ReadWriteBuffer::Begin);
-	mStream.setWritePosition(ReadWriteBuffer::Begin);
+template <>
+void DataBuffer::add<std::wstring>(const std::wstring &ws){
+	size_t size = (ws.size())*sizeof(wchar_t);
+	add(size);
+	mStream.write((const char *)(ws.c_str()), size);
 }
 
-size_t DataBuffer::size()
-{
-	size_t currentPosition = mStream.getReadPosition();
+template <>
+std::string DataBuffer::read<std::string>(){
+	unsigned size = read<unsigned>();
+	unsigned currentPosition = mStream.getReadPosition();
 
 	mStream.setReadPosition(ReadWriteBuffer::End);
-	size_t length = mStream.getReadPosition();
+	unsigned length = mStream.getReadPosition();
 	mStream.setReadPosition(currentPosition);
 
-	return length;
+	if(size > (length - currentPosition)) {
+		add(size);
+		return std::string();
+	}
+
+	mStringBuffer.setSize(size);
+
+	mStream.read(mStringBuffer.data(), size);
+	return std::string(mStringBuffer.data(), size);
 }
 
-void DataBuffer::clear()
-{
-	mStream.clear();
-}
-
-void DataBuffer::addRaw(const char *b, size_t size)
-{
-	mStream.write(b, size);
-}
-
-bool DataBuffer::readRaw(char *b, size_t size)
-{
-	size_t currentPosition = mStream.getReadPosition();
+template <>
+std::wstring DataBuffer::read<std::wstring>(){
+	unsigned size = read<unsigned>();
+	unsigned currentPosition = mStream.getReadPosition();
 
 	mStream.setReadPosition(ReadWriteBuffer::End);
-	size_t length = mStream.getReadPosition();
+	unsigned length = mStream.getReadPosition();
 	mStream.setReadPosition(currentPosition);
 
-	if(size > (length - currentPosition))
-		return false;
+	if(size > (length - currentPosition)) {
+		add(size);
+		return std::wstring();
+	}
 
-	mStream.read(b, size);
-	return true;
+	mWStringBuffer.setSize(size);
+
+	mStream.read((char *)mWStringBuffer.data(), size);
+	return std::wstring((const wchar_t *)mWStringBuffer.data(), size / 2);
 }
 
 } // namespace ds

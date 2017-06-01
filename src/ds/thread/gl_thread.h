@@ -13,6 +13,8 @@
 #include <Poco/Debugger.h>
 #endif
 
+#include <cinder/gl/Context.h>
+
 /* DS::GL-THREAD
  * Utility for any clients that want to render to a GL texture in
  * a separate thread.  There are two pieces to be aware of:
@@ -225,8 +227,7 @@ private:
 		Poco::Mutex				mMutex;
 		Poco::Condition			mCondition;
 		bool			    	mAbort;
-		HDC					    mCurHDC;
-		HGLRC			    	mThreadContext;
+		ci::gl::ContextRef		mBackgroundContext;
 		bool			    	mError;
 
 	public:

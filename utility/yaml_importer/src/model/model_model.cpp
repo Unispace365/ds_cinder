@@ -13,6 +13,8 @@ const std::vector<ModelColumn>		EMPTY_COLUMN_VECTOR;
 const std::vector<ModelRelation>	EMPTY_RELATION_VECTOR;
 }
 
+std::string ModelModel::sCustomGlobalImpInclude;
+
 /**
 * \class ds::ModelColumn::Data
 */
@@ -237,6 +239,7 @@ public:
 
 	std::string					mTableName;
 	std::string					mCustomInclude;
+	std::string					mCustomImpInclude;
 	std::vector<ModelColumn>	mColumns;
 	std::vector<ModelRelation>	mRelations;
 	std::vector<std::string>	mResourceColumns;
@@ -259,6 +262,15 @@ const std::string& ModelModel::getTableName()const{
 const std::string& ModelModel::getCustomInclude()const{
 	if(!mData) return EMPTY_STRING;
 	return mData->mCustomInclude;
+}
+
+const std::string& ModelModel::getCustomImpInclude()const{
+	if (!mData) return EMPTY_STRING;
+	return mData->mCustomImpInclude;
+}
+
+const std::string ModelModel::getCustomGlobalImpInclude() {
+	return ModelModel::sCustomGlobalImpInclude;
 }
 
 const std::vector<ModelColumn>& ModelModel::getColumns(){
@@ -291,6 +303,16 @@ ModelModel& ModelModel::setCustomInclude(const std::string& customInclude){
 	if(!mData) mData.reset(new Data());
 	if(mData) mData->mCustomInclude = customInclude;
 	return *this;
+}
+
+ModelModel& ModelModel::setCustomImpInclude(const std::string& customInclude){
+	if (!mData) mData.reset(new Data());
+	if (mData) mData->mCustomImpInclude = customInclude;
+	return *this;
+}
+
+void ModelModel::setCustomGlobalImpInclude(const std::string& customGlobalImpInclude){
+	sCustomGlobalImpInclude = customGlobalImpInclude;
 }
 
 ModelModel& ModelModel::setColumns(const std::vector<ModelColumn>& columns){

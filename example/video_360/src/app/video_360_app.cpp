@@ -1,7 +1,5 @@
 #include "video_360_app.h"
 
-#include <cinder/Clipboard.h>
-
 #include <Poco/String.h>
 #include <Poco/Path.h>
 #include <Poco/File.h>
@@ -75,8 +73,10 @@ void video_360::keyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 	inherited::keyDown(event);
 
-	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown() && ci::Clipboard::hasString()){
-		loadMedia(ci::Clipboard::getString());
+	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown()){
+		auto clipboard = ds::Environment::getClipboard();
+		if (!clipboard.empty())
+			loadMedia(clipboard);
 	} else if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
 		if (mPanoramicVideo){
 			mPanoramicVideo->getVideo()->setPan(-1.0f);

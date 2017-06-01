@@ -3,7 +3,6 @@
 #include "sprite.h"
 #include <cinder/Camera.h>
 #include <cinder/gl/gl.h>
-#include "gl/GL.h"
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
 #include "ds/app/camera_utils.h"
@@ -22,6 +21,10 @@
 
 #include <Poco/Debugger.h>
 #include "cinder/ImageIo.h"
+#include <cinder/Ray.h>
+
+//#include <glm/gtx/rotate_vector.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #pragma warning (disable : 4355)    // disable 'this': used in base member initializer list
 
@@ -161,6 +164,8 @@ void Sprite::init(const ds::sprite_id_t id) {
 	mLayoutFixedAspect = false;
 	mShaderTexture = nullptr;
 	mNeedsBatchUpdate = false;
+	mDoSpecialRotation = false;
+	mDegree = 0.0f;
 
 	mLayoutBPad = 0.0f;
 	mLayoutTPad = 0.0f;
@@ -563,8 +568,15 @@ void Sprite::setRotation(const ci::vec3& rot) {
 	doSetRotation(rot);
 }
 
+void Sprite::setRotation(const ci::vec3 &rot, const float degree)
+{
+	doSetRotation(rot);
+	mDoSpecialRotation = true;
+	mDegree = degree;
+}
+
 void Sprite::doSetRotation(const ci::vec3& rot) {
-	if(math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z))
+	if(math::isEqual(mRotation.x, rot.x) && math::isEqual(mRotation.y, rot.y) && math::isEqual(mRotation.z, rot.z) && mDegree ==0.0f)
 		return;
 
 	mRotation = rot;
@@ -735,9 +747,16 @@ void Sprite::buildTransform() const{
 	mTransformation = glm::mat4();
 
 	mTransformation = glm::translate(mTransformation, glm::vec3(mPosition.x, mPosition.y, mPosition.z));
-	mTransformation = glm::rotate(mTransformation, mRotation.x * math::DEGREE2RADIAN, glm::vec3(1.0f, 0.0f, 0.0f));
-	mTransformation = glm::rotate(mTransformation, mRotation.y * math::DEGREE2RADIAN, glm::vec3(0.0f, 1.0f, 0.0f));
-	mTransformation = glm::rotate(mTransformation, mRotation.z * math::DEGREE2RADIAN, glm::vec3(0.0f, 0.0f, 1.0f));
+	if (!mDoSpecialRotation)
+	{
+		mTransformation = glm::rotate(mTransformation, mRotation.x * math::DEGREE2RADIAN, glm::vec3(1.0f, 0.0f, 0.0f));
+		mTransformation = glm::rotate(mTransformation, mRotation.y * math::DEGREE2RADIAN, glm::vec3(0.0f, 1.0f, 0.0f));
+		mTransformation = glm::rotate(mTransformation, mRotation.z * math::DEGREE2RADIAN, glm::vec3(0.0f, 0.0f, 1.0f));
+	}
+	else
+	{
+		mTransformation = glm::rotate(mTransformation, mDegree * math::DEGREE2RADIAN, mRotation);
+	}
 	mTransformation = glm::scale(mTransformation, glm::vec3(mScale.x, mScale.y, mScale.z));
 	mTransformation = glm::translate(mTransformation, glm::vec3(-mCenter.x*mWidth, -mCenter.y*mHeight, -mCenter.z*mDepth));
 
@@ -1007,96 +1026,39 @@ Sprite* Sprite::getHit(const ci::vec3 &point) {
 	return nullptr;
 }
 
-Sprite* Sprite::getPerspectiveHit(CameraPick& pick){
+Sprite* Sprite::getPerspectiveHit(CameraPick& pick) {
 	if(!visible())
 		return nullptr;
 
+	ci::vec3 hitWorldPos;
+	static float hitZ;
+
+	// Collect hit candidates from children first, before considering this sprite
 	makeSortedChildren();
-
-	std::vector<ds::ui::Sprite*> candidates;
-
-//	pick.
-
-	for(auto it = mSortedTmp.rbegin(), it2 = mSortedTmp.rend(); it != it2; ++it) {
-		Sprite*		hit = (*it)->getPerspectiveHit(pick);
-		if(hit) {
-			candidates.push_back(hit);
-			//	std::cout << "Found pick candidate: " << hit->getParent()->localToGlobal(hit->getPosition()).z << " " << hit->getId() << std::endl;
-			//	return hit;
+	typedef std::pair<ds::ui::Sprite*, float> HitCandidate;
+	std::vector<HitCandidate> candidates;
+	for (auto it = mSortedTmp.rbegin(), it2 = mSortedTmp.rend(); it != it2; ++it) {
+		Sprite* hit = (*it)->getPerspectiveHit(pick);
+		if (hit) {
+			candidates.push_back(std::make_pair(hit, hitZ));
+				//std::cout << "Found pick candidate: " << hit->getParent()->localToGlobal(hit->getPosition()).z << " " << hit->getId() << std::endl;
+				//return hit;
 		}
 	}
 
-	if(!candidates.empty()){
-		if(candidates.size() == 1){
-			return candidates.front();
-		}
-
-
-		float closestZ = -10000000.0f;
-		if(candidates.front()->getParent()){
-			closestZ = candidates.front()->getParent()->localToGlobal(candidates.front()->getPosition()).z;
-		}
-		ds::ui::Sprite* hit = candidates.front();
-		for(auto it = candidates.begin() + 1; it < candidates.end(); ++it){
-			if(!(*it)->getParent()) continue;
-			float newZ = (*it)->getParent()->localToGlobal((*it)->getPosition()).z;
-			if(newZ > closestZ){
-				hit = (*it);
-				closestZ = newZ;
-			}
-		}
-
-		return hit;
+	// Return the child hit candidate with the nearest hitZ (closest to camera)
+	auto nearestCandidate = std::min_element(candidates.begin(), candidates.end(),
+		[](const HitCandidate &lhs, const HitCandidate& rhs) {
+		return lhs.second < rhs.second;
+	});
+	if (nearestCandidate != candidates.end()) {
+		hitZ = nearestCandidate->second;
+		return nearestCandidate->first;
 	}
 
-	if(isEnabled()) {
-		const float	w = getScaleWidth(),
-			h = getScaleHeight();
-
-		if(w <= 0.0f || h <= 0.0f)
-			return nullptr;
-
-		ci::vec3 ptR = pick.getScreenPt();
-		ci::vec3 a = getParent()->localToGlobal(getPosition());
-		
-		ci::vec3 camEye = pick.getCamera().getEyePoint();
-		a.z -= camEye.z;
-		ci::vec3 ptA = a;
-		ci::vec3 ptB = a;
-		ci::vec3 ptC = a;
-		ci::vec3 ptD = a;
-
-		ci::vec2 ptA_s;
-		ci::vec2 ptB_s;
-		ci::vec2 ptC_s;
-
-		
-		ptA.x -= mCenter.x*w;
-		ptA.y += (1 - mCenter.y)*h;
-		ptA_s = pick.worldToScreen(ptA);
-
-		ptB.x += (1 - mCenter.x)*w;
-		ptB.y += (1 - mCenter.y)*h;
-		ptB_s = pick.worldToScreen(ptB);
-
-		ptC.x += (1 - mCenter.x)*w;
-		ptC.y -= mCenter.y*h;
-		ptC_s = pick.worldToScreen(ptC);
-
-		ci::vec2 v1 = ptA_s - ptB_s;
-		ci::vec2 v2 = ptC_s - ptB_s;
-		ci::vec2 v;
-
-		v.x = ptR.x - ptB_s.x;
-		v.y = ptR.y - ptB_s.y;
-
-		float dot1 = dot(v, v1);
-		float dot2 = dot(v, v2);
-		if(dot1 >= 0 &&
-		   dot2 >= 0 &&
-		   dot1 <= dot(v1, v1) &&
-		   dot2 <= dot(v2, v2)
-		   ) return this;
+	if (pick.testHitSprite(this, hitWorldPos)) {
+		hitZ = pick.calcHitDepth(hitWorldPos);
+		return this;
 	}
 
 	return nullptr;
@@ -1248,7 +1210,6 @@ bool Sprite::checkBounds() const {
 	mInBounds = false;
 
 	const ci::Rectf&		screenRect(mEngine.getSrcRect());
-	//  ci::Rectf screenRect = mEngine.getScreenRect();
 
 	float screenMinX = screenRect.getX1();
 	float screenMaxX = screenRect.getX2();

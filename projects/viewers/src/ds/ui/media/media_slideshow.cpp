@@ -127,7 +127,9 @@ void MediaSlideshow::stopAllContent(){
 void MediaSlideshow::gotoItemIndex(const int newIndex){
 	if(!mHolder || mViewers.empty()) return;
 
-	if(mCurItemIndex > -1 && mCurItemIndex < mViewers.size() && mCurItemIndex != newIndex){
+	const int numViewers = (int)mViewers.size();
+
+	if(mCurItemIndex > -1 && mCurItemIndex < numViewers && mCurItemIndex != newIndex){
 		// if the current view is in a drag, shut that down
 		MediaViewer &currentView = *mViewers[mCurItemIndex];
 		currentView.enable(false);
@@ -143,7 +145,7 @@ void MediaSlideshow::gotoItemIndex(const int newIndex){
 		currentView.exit();
 	}
 
-	if(newIndex < 0 || newIndex > mViewers.size() - 1){
+	if(newIndex < 0 || newIndex > numViewers - 1){
 		mCurItemIndex = 0;
 	} else {
 		mCurItemIndex = newIndex;
@@ -161,7 +163,7 @@ void MediaSlideshow::gotoItemIndex(const int newIndex){
 }
 
 void MediaSlideshow::setCurrentInterface(){
-	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > mViewers.size() - 1) return;
+	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > (int)mViewers.size() - 1) return;
 
 	// if there was an interface, get rid of it
 	if(mCurrentInterface){
@@ -189,7 +191,7 @@ void MediaSlideshow::setCurrentInterface(){
 void MediaSlideshow::gotoNext(const bool wrap){
 	if(mViewers.empty()) return;
 	int newIndex = mCurItemIndex + 1;
-	if(newIndex > mViewers.size() - 1){
+	if(newIndex > (int)mViewers.size() - 1){
 		if(!wrap){
 			// don't do anything if we're not supposed to wrap around
 			return;
@@ -216,7 +218,7 @@ void MediaSlideshow::gotoPrev(const bool wrap){
 
 void MediaSlideshow::loadCurrentAndAdjacent(){
 	// Simple sanity checks
-	unsigned sizey = mViewers.size();
+	int sizey = mViewers.size();
 	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > sizey - 1) return;
 
 	if(!mAllowLoadAhead){

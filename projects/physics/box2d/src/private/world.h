@@ -11,6 +11,11 @@
 #include <ds/ui/touch/touch_info.h>
 #include "private/contact_listener.h"
 #include "private/touch.h"
+
+#include "Box2D/Dynamics/b2World.h"
+#include "debug_draw.h"
+
+
 class b2Body;
 class b2DistanceJoint;
 class b2MouseJoint;

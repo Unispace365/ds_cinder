@@ -87,21 +87,16 @@ std::string ARGBToHex(ci::ColorA theColor){
 }
 
 std::string ARGBToHex(int aNum, int rNum, int gNum, int bNum){
-	std::string result;
-	result.append("#");
-	char a[255];
-	sprintf_s(a, "%.2X", aNum);
-	result.append(a);
-	char r[255];
-	sprintf_s(r, "%.2X", rNum);
-	result.append(r);
-	char g[255];
-	sprintf_s(g, "%.2X", gNum);
-	result.append(g);
-	char b[255];
-	sprintf_s(b, "%.2X", bNum);
-	result.append(b);
-	return result;
+	std::stringstream ss;
+	ss
+		<< '#'
+		<< std::hex << std::setfill('0')
+		<< std::setw(2) << (aNum & 0xff)
+		<< std::setw(2) << (rNum & 0xff)
+		<< std::setw(2) << (gNum & 0xff)
+		<< std::setw(2) << (bNum & 0xff);
+
+	return ss.str();
 }
 
 std::string RGBToHex(ci::Color theColor){
@@ -109,18 +104,14 @@ std::string RGBToHex(ci::Color theColor){
 }
 
 std::string RGBToHex(int rNum, int gNum, int bNum){
-	std::string result;
-	result.append("#");
-	char r[255];
-	sprintf_s(r, "%.2X", rNum);
-	result.append(r);
-	char g[255];
-	sprintf_s(g, "%.2X", gNum);
-	result.append(g);
-	char b[255];
-	sprintf_s(b, "%.2X", bNum);
-	result.append(b);
-	return result;
+	std::stringstream ss;
+	ss
+		<< '#'
+		<< std::hex << std::setfill('0')
+		<< std::setw(2) << (rNum & 0xff)
+		<< std::setw(2) << (gNum & 0xff)
+		<< std::setw(2) << (bNum & 0xff);
+	return ss.str();
 }
 
 // Grabs a color from the engine's supplied color list

@@ -15,10 +15,30 @@ class TuioObject;
 class Engine;
 
 /**
+ * \class ds::EngineSettingsPreloader
+ * Load engine settings first, then setup ci::app settings accordingly,
+ * before Cinder's App instantiation and Window creation
+ */
+class EngineSettingsPreloader {
+public:
+	EngineSettingsPreloader( ci::app::AppBase::Settings* settings );
+
+protected:
+	virtual void				earlyPrepareAppSettings( ci::app::AppBase::Settings* settings );
+	class Initializer {
+	public:
+								Initializer();
+	};
+	Initializer					mInitializer;
+
+	ds::EngineSettings			mEngineSettings;
+};
+
+/**
  * \class ds::App
  * Handle the main app setup.
  */
-class App : public cinder::app::App {
+class App : public EngineSettingsPreloader, public cinder::app::App {
 private:
 	const bool			mEnvironmentInitialized;
 
@@ -84,11 +104,7 @@ public:
 	void						saveTransparentScreenshot();
 
 protected:
-	class Initializer { public: Initializer(const std::string&); };
-	Initializer					mInitializer;
-
 	bool						mShowConsole;
-	ds::EngineSettings			mEngineSettings;
 	ds::EngineData				mEngineData;
 	ds::Engine&					mEngine;
 
@@ -96,8 +112,6 @@ private:
 	typedef ci::app::App   inherited;
 
 	friend class Environment;
-	// Path to the executable (which realistically we never want)
-	static const std::string&   envAppPath();
 	// Path to the folder that contains the "data" folder
 	// (but not including "data", you still need to add that
 	// if it's what you want

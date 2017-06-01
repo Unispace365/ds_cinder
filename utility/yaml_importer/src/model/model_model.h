@@ -86,6 +86,8 @@ public:
 
 	const std::string&					getTableName() const;
 	const std::string&					getCustomInclude() const;
+	const std::string&					getCustomImpInclude() const;
+	static const std::string			getCustomGlobalImpInclude();
 	const std::vector<ModelColumn>&		getColumns();
 	const std::vector<ModelRelation>&	getRelations() const;
 	const std::vector<std::string>&		getResourceColumns() const;
@@ -93,6 +95,8 @@ public:
 
 	ModelModel&							setTableName(const std::string& tableName);
 	ModelModel&							setCustomInclude(const std::string& customInclude);
+	ModelModel&							setCustomImpInclude(const std::string& customImpInclude);
+	static void							setCustomGlobalImpInclude(const std::string& customGlobalImpInclude);
 	ModelModel&							setColumns(const std::vector<ModelColumn>& columns);
 	ModelModel&							addColumn(const ModelColumn& column);
 	ModelModel&							setRelations(const std::vector<ModelRelation>& columns);
@@ -101,6 +105,7 @@ public:
 	ModelModel&							setSortColumn(const std::string& sortColumn);
 
 private:
+	static std::string					sCustomGlobalImpInclude;
 	class Data;
 	std::shared_ptr<Data>	mData;
 };

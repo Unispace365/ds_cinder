@@ -1,6 +1,6 @@
 #include "stdafx.h"
 
-#include "Automator.h"
+#include "automator.h"
 
 #include <cinder/Rand.h>
 

@@ -325,7 +325,7 @@ void SpriteAnimatable::completeAllTweens(const bool callFinishFunctions, const b
 	completeTweenNormalized(callFinishFunctions);
 
 	if(recursive){
-		std::vector<ds::ui::Sprite*>& chillins = mOwner.getChildren();
+		const std::vector<ds::ui::Sprite*>& chillins = mOwner.getChildren();
 		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
 			Sprite*		s(*it);
 			if(s) {
@@ -339,7 +339,7 @@ void SpriteAnimatable::tweenAnimateOn(const bool recursive, const float delay, c
 	float thisDelay = delay;
 	runAnimationScript(mAnimateOnScript, thisDelay);
 	if(recursive){
-		std::vector<ds::ui::Sprite*>& chillins = mOwner.getChildren();
+		const std::vector<ds::ui::Sprite*>& chillins = mOwner.getChildren();
 		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
 			Sprite*		s(*it);
 			if(s) {
@@ -370,7 +370,7 @@ void SpriteAnimatable::setAnimateOnTargetsIfNeeded(){
 void SpriteAnimatable::clearAnimateOnTargets(const bool recursive){
 	mAnimateOnTargetsSet = false;
 	if(recursive){
-		auto chillins = mOwner.getChildren();
+		const auto chillins = mOwner.getChildren();
 		for(auto it = chillins.begin(), end = chillins.end(); it != end; ++it) {
 			Sprite*		s(*it);
 			if(s) {

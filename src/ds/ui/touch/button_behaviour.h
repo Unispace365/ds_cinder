@@ -19,7 +19,7 @@ struct TouchInfo;
 class ButtonBehaviour {
 public:
 
-	static const enum State { STATE_EMPTY, STATE_INSIDE, STATE_OUTSIDE };
+	enum State { STATE_EMPTY, STATE_INSIDE, STATE_OUTSIDE };
 
 	ButtonBehaviour(ds::ui::Sprite&);
 

@@ -29,25 +29,15 @@ public:
 
 	// will write size when writing data.
 	void add(const char *b, size_t size);
-	template <typename T>
-	void add(const T &t);
-
-	template <>
-	void add<std::string>(const std::string &s);
-	template <>
-	void add<std::wstring>(const std::wstring &ws);
 	void add(const char *cs);
 	void add(const wchar_t *cs);
+	template <typename T>
+	void add(const T &t);
 
 	// will read size from buffer and only read if size is available.
 	bool read(char *b, size_t size);
 	template <typename T>
 	T read();
-
-	template <>
-	std::string read<std::string>();
-	template <>
-	std::wstring read<std::wstring>();
 
 	template <typename T>
 	void rewindRead();
@@ -106,46 +96,16 @@ void ds::DataBuffer::rewindAdd(){
 	mStream.rewindWrite(sizeof(T));
 }
 
+// Template specializations
 template <>
-std::string DataBuffer::read<std::string>(){
-	size_t size = read<size_t>();
-	size_t currentPosition = mStream.getReadPosition();
-
-	mStream.setReadPosition(ReadWriteBuffer::End);
-	size_t length = mStream.getReadPosition();
-	mStream.setReadPosition(currentPosition);
-
-	if(size > (length - currentPosition)) {
-		add(size);
-		return std::string();
-	}
-
-	mStringBuffer.setSize(size);
-
-	mStream.read(mStringBuffer.data(), size);
-	return std::string(mStringBuffer.data(), size);
-}
+void DataBuffer::add<std::string>(const std::string &s);
+template <>
+void DataBuffer::add<std::wstring>(const std::wstring &ws);
 
 template <>
-std::wstring DataBuffer::read<std::wstring>()
-{
-	size_t size = read<size_t>();
-	size_t currentPosition = mStream.getReadPosition();
-
-	mStream.setReadPosition(ReadWriteBuffer::End);
-	size_t length = mStream.getReadPosition();
-	mStream.setReadPosition(currentPosition);
-
-	if(size > (length - currentPosition)) {
-		add(size);
-		return std::wstring();
-	}
-
-	mWStringBuffer.setSize(size);
-
-	mStream.read((char *)mWStringBuffer.data(), size);
-	return std::wstring((const wchar_t *)mWStringBuffer.data(), size / 2);
-}
+std::string DataBuffer::read<std::string>();
+template <>
+std::wstring DataBuffer::read<std::wstring>();
 
 }
 

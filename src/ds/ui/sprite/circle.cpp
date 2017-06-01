@@ -11,8 +11,6 @@
 #include "ds/ui/sprite/sprite_engine.h"
 #include "ds/app/environment.h"
 
-#include <gl/GL.h>
-
 using namespace ci;
 
 namespace ds {

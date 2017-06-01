@@ -8,8 +8,8 @@
 #include <algorithm>
 #include <ds/util/file_meta_data.h>
 
-#include "fontconfig/fontconfig.h"
 #include "pango/pangocairo.h"
+#include "fontconfig/fontconfig.h"
 
 
 namespace {

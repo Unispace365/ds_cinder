@@ -1,32 +1,88 @@
 #include "stdafx.h"
 
-#include <ds/app/camera_utils.h>
+#include "ds/app/camera_utils.h"
+#include "ds/ui/sprite/sprite.h"
+#include "ds/ui/sprite/sprite_engine.h"
 
 #include <cinder/gl/gl.h>
 
 namespace ds {
 
-/**
- * \class ds::CameraPick
- */
-CameraPick::CameraPick(	ci::Camera& c, const ci::vec3& screenPt,
-												const float screenWidth, const float screenHeight)
-	: mCamera(c)
-	, mScreenPt(screenPt)
-	, mScreenW(screenWidth)
-	, mScreenH(screenHeight)
-{
+const ci::Ray CameraPick::calculatePickRay( const ds::ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint ) {
+	// Note: Again, we are using the actual window size here, not
+	// the Engine mDstRect size.
+	auto screenSize = glm::vec2( ci::app::getWindowSize() );
+
+	// Sigh... convert world coordinate back to screen coordinate
+	const ci::vec2 srcOffset = engine.getSrcRect().getUpperLeft();
+	const ci::vec2 screenScale = screenSize / engine.getSrcRect().getSize();
+	const ci::vec2 screenPoint = (ci::vec2(worldTouchPoint) - srcOffset) * screenScale;
+
+	// We need to flip the y screen coordinate because OpenGL
+	// Defines 0, 0 to be the lower left corner of the viewport
+	const auto viewportPoint = glm::vec3(screenPoint.x, screenSize.y-screenPoint.y, 0.0f);
+
+	// Compute the pick Ray.  We need to unproject the 
+	// viewport point into camera-space coordinates
+	const auto viewMat = cameraPersp.getViewMatrix();
+	const auto projMat = cameraPersp.getProjectionMatrix();
+	const auto viewport = glm::vec4(0.0f, 0.0f, screenSize);
+	glm::vec3 worldPosNear = glm::unProject(viewportPoint, viewMat, projMat, viewport);
+	glm::vec3 rayDirection = glm::normalize(worldPosNear - cameraPersp.getEyePoint());
+
+	return  ci::Ray(cameraPersp.getEyePoint(), rayDirection);
 }
 
-const ci::vec3& CameraPick::getScreenPt() const
-{
-	return mScreenPt;
+const bool CameraPick::testHitSprite( ds::ui::Sprite* sprite, ci::vec3& hitWorldPos ) const {
+	if (!sprite->isEnabled())
+		return false;
+
+	const float	w = sprite->getScaleWidth();
+	const float h = sprite->getScaleHeight();
+
+	if (w <= 0.0f || h <= 0.0f)
+		return false;
+
+	auto cornerA = sprite->localToGlobal(glm::vec3(0.0f, 0.0f, 0.0f));
+	auto cornerB = sprite->localToGlobal(glm::vec3(sprite->getWidth(), 0.0f, 0.0f));
+	auto cornerC = sprite->localToGlobal(glm::vec3(0.0f, sprite->getHeight(), 0.0f));
+
+	auto v1 = cornerB - cornerA;
+	auto v2 = cornerC - cornerA;
+
+	auto norm = glm::normalize(glm::cross(v2, v1));
+
+	float rayDist;
+	bool intersectsPlane = mPickRay.calcPlaneIntersection(cornerA, norm, &rayDist);
+	if (!intersectsPlane)
+		return false;
+
+	auto intersectPoint = mPickRay.calcPosition(rayDist);
+
+	auto v = intersectPoint - cornerA;
+
+	float dot1 = glm::dot(v, v1);
+	float dot2 = glm::dot(v, v2);
+
+	if (dot1 >= 0
+		&& dot2 >= 0
+		&& dot1 <= dot(v1, v1)
+		&& dot2 <= dot(v2, v2)
+		) {
+
+		hitWorldPos = intersectPoint;
+		return true;
+	}
+
+	return false;
 }
 
-ci::vec2 CameraPick::worldToScreen(const ci::vec3 &worldCoord) const
-{
-	return mCamera.worldToScreen(worldCoord, mScreenW, mScreenH);
+const float CameraPick::calcHitDepth( const ci::vec3& hitWorldPos ) const {
+	auto intersectVector = hitWorldPos - mPickRay.getOrigin();
+	const float hitZ = glm::dot(intersectVector, mCameraDirection );
+	return hitZ;
 }
+
 
 /**
  * \class ds::ScreenToWorld

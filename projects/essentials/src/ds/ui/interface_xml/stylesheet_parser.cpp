@@ -80,7 +80,8 @@ struct stylesheet_grammar : qi::grammar<Iterator, Rules(), Skipper> {
 		identifier			%= nmstart >> *(nmchar);
 
 		property_name		%= identifier;
-		property_value		%= lexeme[ +(char_ - '{' - '}' - ';') ];
+		quoted_string		%= lexeme[ '"' >> *(('\\' >> qi::char_) | (qi::char_ - '"')) >> '"' ];
+		property_value		%= quoted_string | lexeme[ +(char_ - '{' - '}' - ';') ];
 		prop				%=  property_name >>
 								':' >>
 								property_value
@@ -106,6 +107,7 @@ struct stylesheet_grammar : qi::grammar<Iterator, Rules(), Skipper> {
 													selectors;
 
 	qi::rule<Iterator, std::string(), Skipper> property_name;
+	qi::rule<Iterator, std::string(), Skipper> quoted_string;
 	qi::rule<Iterator, std::string(), Skipper> property_value;
 	qi::rule<Iterator, Property(), Skipper> prop;
 

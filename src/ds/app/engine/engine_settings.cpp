@@ -9,15 +9,31 @@
 #include "ds/debug/logger.h"
 #include "ds/util/file_meta_data.h"
 
-static bool			get_key_value(const std::wstring& arg, std::string& key, std::string& value);
-static void			get_cmd_line(std::vector<std::wstring>&);
-
 namespace {
 std::string			PROJECT_PATH;
 // The configuration settings
 ds::cfg::Settings	CONFIGURATION_SETTINGS;
 std::string			CONFIGURATION_FOLDER;
+
+static bool			get_key_value(const std::string& arg, std::string& key, std::string& value) {
+	const std::string	SEP_SZ("=");
+	const std::string	SEP_SZ_ALT(":");
+	size_t				sep = arg.find(SEP_SZ);
+	if(sep == arg.npos) {
+		sep = arg.find(SEP_SZ_ALT);
+		if(sep == arg.npos)
+			return false;
+	}
+
+	key = arg.substr(0, sep);
+	Poco::toLowerInPlace(key);
+
+	value = arg.substr(sep + 1, arg.size() - (sep + 1));
+
+	return true;
 }
+
+} // anonymous namespace
 
 namespace ds {
 
@@ -35,13 +51,13 @@ EngineSettings::EngineSettings()
 	const std::string			DEFAULT_FILENAME("engine.xml");
 	std::string					appFilename = DEFAULT_FILENAME,
 		localFilename,
+		commandLineAppConfig,
 		projectPath;
 
-	std::vector<std::wstring>	args;
-	get_cmd_line(args);
-	for(auto it = args.begin(), end = args.end(); it != end; ++it) {
+	std::vector<std::string>	args = ds::Environment::getCommandLineParams();
+	for(const auto& arg : args) {
 		std::string				key, value;
-		if(!get_key_value(*it, key, value)) continue;
+		if(!get_key_value(arg, key, value)) continue;
 
 		if(key == "app_settings") {
 			appFilename = value;
@@ -56,6 +72,10 @@ EngineSettings::EngineSettings()
 			projectPath = full.substr(0, full.length() - (fn.length() + 1));
 			localFilename = fn;
 		}
+		else if (key == "configuration" || key == "config") {
+			commandLineAppConfig = value;
+		}
+
 	}
 	if(localFilename.empty()) localFilename = DEFAULT_FILENAME;
 
@@ -105,7 +125,9 @@ EngineSettings::EngineSettings()
 		// Load the configuration settings, which can be used to modify settings even more.
 		// Currently used to provide alternate layout sizes.
 		ds::Environment::loadSettings("configuration.xml", CONFIGURATION_SETTINGS);
-		CONFIGURATION_FOLDER = CONFIGURATION_SETTINGS.getText("folder", 0, "");
+		CONFIGURATION_FOLDER = commandLineAppConfig.empty()
+			? CONFIGURATION_SETTINGS.getText("folder", 0, "")
+			: commandLineAppConfig;
 
 		// If the folder exists, then apply any changes to the engine file
 		if(!CONFIGURATION_FOLDER.empty()) {
@@ -150,45 +172,3 @@ void EngineSettings::printStartupInfo(){
 
 } // namespace ds
 
-
-static bool       get_key_value(const std::wstring& arg, std::string& key, std::string& value)
-{
-	const std::wstring    SEP_SZ(L"=");
-	const std::wstring    SEP_SZ_ALT(L":");
-	size_t                sep = arg.find(SEP_SZ);
-	if(sep == arg.npos) {
-		sep = arg.find(SEP_SZ_ALT);
-		if(sep == arg.npos)
-			return false;
-	}
-
-	key = ds::utf8_from_wstr(arg.substr(0, sep));
-	Poco::toLowerInPlace(key);
-
-	value = ds::utf8_from_wstr(arg.substr(sep + 1, arg.size() - (sep + 1)));
-
-	return true;
-}
-
-// Platform dependent code for getting the command line args
-
-#if defined( CINDER_MSW )
-#include <winsock2.h> // need to include winsock2 before windows
-#include <windows.h>
-#include <shellapi.h>
-
-static void       get_cmd_line(std::vector<std::wstring>& out)
-{
-	int nArgs;
-	LPWSTR *szArglist = CommandLineToArgvW(GetCommandLineW(), &nArgs);
-	if(szArglist != NULL) {
-		for(int i = 0; i < nArgs; ++i) out.push_back(szArglist[i]);
-	}
-	LocalFree(szArglist);
-}
-#else
-static void get_cmd_line(std::vector<std::wstring>& out)
-{
-  std::cout << "ds::EngineSettings get_cmd_line() unimplemented on this platform" << std::endl;
-}
-#endif

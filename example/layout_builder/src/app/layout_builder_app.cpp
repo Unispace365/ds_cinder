@@ -1,6 +1,5 @@
 #include "layout_builder_app.h"
 
-#include <cinder/Clipboard.h>
 #include <Poco/String.h>
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
@@ -157,7 +156,7 @@ void layout_builder::keyDown(ci::app::KeyEvent event){
 			}, true);
 		}
 	} else if(event.getCode() == KeyEvent::KEY_v){
-		loadLayout(ci::Clipboard::getString());
+		loadLayout(ds::Environment::getClipboard());
 	}
 	// Reload current layout file with F5 key
 	else if (event.getCode() == KeyEvent::KEY_F5)
