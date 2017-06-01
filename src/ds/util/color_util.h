@@ -8,13 +8,13 @@
 namespace ds {
 
 
-	/** DEPRECATED. Don't use this, cause it throws an error sometimes! Read a colour from a string of the format \code #rrggbb, xrrggbb or rrggbb. For example: #ffcc00. \endcode Throws exception on error on error. */
+	/** Read a colour from a string of the format \code #rrggbb, xrrggbb or rrggbb. For example: #ffcc00. \endcode Returns black if the color can't be parsed */
 	ci::Color  parse_color(const std::string& input);
 
 	/** Read a colour from a string of the format \code #rrggbb, xrrggbb or rrggbb. For example: #ffcc00. \endcode Returns the defaultColor if the string can't be found.*/
 	ci::Color  parse_color(const std::string& input, const ci::Color& defaultColor);
 
-	/** DEPRECATED. Don't use this, cause it throws an error sometimes! Read a colour from a string of the format \code #rrggbbaa, xrrggbbaa or rrggbbaa. For example: #ffcc0033. \endcode Throws exception on error on error. */
+	/** Read a colour from a string of the format \code #rrggbbaa, xrrggbbaa or rrggbbaa. For example: #ffcc0033. \endcode Returns black if the color can't be parsed */
 	ci::ColorA parse_colora(const std::string& input);
 
 	/** Read a colour from a string of the format  \code #rrggbbaa, xrrggbbaa or rrggbbaa. For example: #ffcc0033. \endcode  Returns the defaultColor if the string can't be found. */

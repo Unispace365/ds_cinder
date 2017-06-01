@@ -89,8 +89,8 @@ private:
 	Engine&								mEngine;
 
 	std::map<int, ui::Sprite*>			mFingerDispatcher;
-	std::map<int, ci::vec3>			mTouchStartPoint;
-	std::map<int, ci::vec3>			mTouchPreviousPoint;
+	std::map<int, ci::vec3>				mTouchStartPoint;
+	std::map<int, ci::vec3>				mTouchPreviousPoint;
 	std::map<int, bool>					mDiscardTouchMap;
 
 	ci::vec2							mTouchDimensions;
