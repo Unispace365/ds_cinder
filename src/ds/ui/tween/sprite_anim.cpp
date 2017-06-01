@@ -392,6 +392,8 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 	ci::EaseFn easing = ci::EaseInOutCubic();
 	float dur = 0.35f;
 	float delayey = addedDelay;
+	if (!&mOwner)
+		return;
 	ci::vec3 currentPos = mOwner.getPosition();
 
 	// This maps tracks all the types (scale, position, etc) and their destinations (as 3d vectors)
