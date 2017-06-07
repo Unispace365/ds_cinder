@@ -76,6 +76,8 @@ private:
 		void						setOutBound(const std::string&);
 		void						setHost(const std::string&);
 		void						setPort(const int);
+		const int					getPort(){ return mPort; };
+		std::string					getHost(){ return mHost; }
 
 	private:
 		std::string					mHost;
