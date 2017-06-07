@@ -192,6 +192,11 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	// Init main pipeline --> playbin
 	m_GstPipeline = gst_element_factory_make( "playbin", "pipeline" );
 
+	if(!m_GstPipeline){
+		DS_LOG_WARNING("GStreamer pipeline could not be created! Aborting video playback. Check gstreamer install.");
+		return false;
+	}
+
 	// Open Uri
 	g_object_set(m_GstPipeline, "uri", m_strFilename.c_str(), NULL);
 

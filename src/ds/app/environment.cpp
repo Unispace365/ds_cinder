@@ -204,8 +204,9 @@ std::string Environment::getProjectPath() {
 void Environment::addToEnvironmentVariable(const std::string& variable, const std::string& value) {
 	std::string new_path = Poco::Environment::get(variable, "");
 
-	if (new_path.length() == 0)
-		new_path += ENV_PATH_SEPARATOR;
+	if(new_path.length() > 0 && !(new_path.back() == '=' || new_path.back() == ';')) {
+		new_path += ";";
+	}
 	new_path += value;
 
 	Poco::Environment::set(variable, new_path);
