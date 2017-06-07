@@ -72,6 +72,9 @@ void Border::drawLocalClient() {
 		ci::gl::lineWidth(mBorderWidth);
 		mRenderBatch->draw();
 
+	} else if(mCornerRadius > 1.0f){
+		ci::gl::lineWidth(mBorderWidth);
+		ci::gl::drawStrokedRoundedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mCornerRadius);
 	} else {
 		ci::gl::drawStrokedRect(ci::Rectf(0.0f, 0.0f, mWidth, mHeight), mBorderWidth); 
 	} 
@@ -102,9 +105,10 @@ void Border::onBuildRenderBatch() {
 	const float h = getHeight();
 	auto rect = ci::Rectf(0.0f, 0.0f, w, h);
 	if(mCornerRadius > 0.0f){
-		auto theGeom = ci::geom::RoundedRect(rect, mCornerRadius);
+		auto theGeom = ci::geom::WireRoundedRect(rect, mCornerRadius);
 		if(mRenderBatch){
 			mRenderBatch->replaceVboMesh(ci::gl::VboMesh::create(theGeom));
+		//	mRenderBatch->getVboMesh().get()->getAvailableAttribs()
 		} else {
 			mRenderBatch = ci::gl::Batch::create(theGeom, mSpriteShader.getShader());
 		}
