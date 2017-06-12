@@ -246,7 +246,7 @@ void MediaPlayer::initialize(){
 		});
 
 		mStreamPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
-
+		mStreamPlayer->setStreamLatency(mMediaViewerSettings.mVideoStreamingLatency);
 		mStreamPlayer->setResource(mResource);
 
 		mContentAspectRatio = mStreamPlayer->getWidth() / mStreamPlayer->getHeight();

@@ -38,6 +38,8 @@ public:
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
 	void								setAutoRestartStream(bool autoRestart);
 
+	void								setStreamLatency(const double latencyInSeconds);
+
 	ds::ui::GstVideo*					getVideo();
 
 	void								setGoodStatusCallback(std::function<void()> func){ mGoodStatusCallback = func; }
@@ -50,6 +52,7 @@ protected:
 	ds::ui::GstVideo*					mVideo;
 	bool								mEmbedInterface;
 	bool								mShowInterfaceAtStart;
+	double								mStreamLatency;
 	std::function<void(void)>					mGoodStatusCallback;
 	std::function<void(const std::string&)>		mErrorMsgCallback;
 

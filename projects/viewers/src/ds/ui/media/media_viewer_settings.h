@@ -30,6 +30,7 @@ struct MediaViewerSettings {
 		, mVideoAutoPlayFirstFrame(true)
 		, mVideoAllowOutOfBoundsMuting(true)
 		, mVideoLoop(true)
+		, mVideoStreamingLatency(0.2)
 	{}
 
 	//--------------------Overall Settings -----------------------------------------//
@@ -85,6 +86,9 @@ struct MediaViewerSettings {
 
 	/// Whether the video should loop or not by default
 	bool						mVideoLoop;
+
+	/// The latency when opening a stream in seconds
+	double						mVideoStreamingLatency;
 
 
 

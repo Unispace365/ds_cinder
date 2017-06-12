@@ -118,7 +118,10 @@ public:
 		Streaming is also assumed to be YUV / I420 color space.
 		You must also have an appsink element named appsink0 for video output to work.
 		If you want to control volume, include a volume element named volume0 */
-	bool					openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight);
+	bool					openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight, const uint64_t latencyInNs = 200000000 /* default is 200 milliseconds */);
+
+	/** Sets the playbin latency when streaming. May not work ok after the stream has started. */
+	void					setStreamingLatency(uint64_t latency_ns);
 
 	/*
 	Closes the file and frees allocated memory for both video and audio buffers as well as various GStreamer references
@@ -300,7 +303,6 @@ public:
 
 	/*Get the current time from the pipeline clock*/
 	uint64_t				getPipelineTime();
-
 
 	void					setPipelineBaseTime(uint64_t base_time);
 	/*
@@ -693,6 +695,7 @@ private:
 	bool					m_Streaming; /* The video is playing live over the network (disallows seeking and a few other things */
 	bool					m_AutoRestartStream;
 	std::string				m_StreamPipeline;
+	gint64					m_iStreamingLatency; /* Latency in streaming live pipelines (how long to wait between getting the data and trying to display it) */
 
 	bool					m_ValidInstall;
 	bool					m_VerboseLogging;

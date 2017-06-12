@@ -50,6 +50,8 @@ void StreamPlayer::setResource(const ds::Resource& resource){
 		}
 	});
 
+	mVideo->setStreamingLatency(mStreamLatency * 1000000000);
+
 	mVideo->setResource(resource);
 
 	addChildPtr(mVideo);
@@ -124,6 +126,13 @@ void StreamPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
 void StreamPlayer::setAutoRestartStream(bool autoRestart){
 	if(mVideo){
 		mVideo->setAutoRestartStream(autoRestart);
+	}
+}
+
+void StreamPlayer::setStreamLatency(const double latencyInSeconds){
+	mStreamLatency = latencyInSeconds;
+	if(mVideo){
+		mVideo->setStreamingLatency(latencyInSeconds * 1000000000);
 	}
 }
 

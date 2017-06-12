@@ -218,7 +218,7 @@ bool VideoMetaCache::getVideoInfo(Entry& entry) {
 		entry.mType = AUDIO_ONLY_TYPE;
 		entry.mWidth = 0;
 		entry.mHeight = 0;
-		if(!_MI_TO_VALUE(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Duration"), MediaInfoDLL::Info_Text), entry.mDuration));
+		if(!_MI_TO_VALUE(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Duration"), MediaInfoDLL::Info_Text), entry.mDuration)) return false;
 
 	// Any number of audio streams and at least one video streams is VIDEO_TYPE
 	} else if(numVideo > 0){

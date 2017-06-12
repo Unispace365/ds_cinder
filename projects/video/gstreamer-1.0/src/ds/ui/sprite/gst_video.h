@@ -70,6 +70,9 @@ public:
 	/// If a video is in streaming mode (live pipeline)
 	bool				getIsStreaming(){ return mStreaming; }
 
+	/// Sets the latency for streaming. The default is 200000000 (200 milliseconds)
+	void				setStreamingLatency(const uint64_t latencyNs);
+
 	// If clear frame is true then the current frame texture is removed. I
 	// would think this should default to true but I'm maintaining compatibility
 	// with existing behavior.
@@ -288,6 +291,8 @@ private:
 	/// The client sets this flag to true, then the next writeClientAttributesTo() sends this flag to the server and resets it to false
 	/// The server gets a message that the client has completed and immediately dispatches a video complete message.
 	bool				mClientVideoCompleted;
+
+	std::uint64_t		mStreamingLatency;	// Latency for streaming pipelines
 
 	std::uint64_t		mBaseTime;		//Base clock for gst pipeline
 	std::uint64_t		mSeekTime;		//Position to seek to
