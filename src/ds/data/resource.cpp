@@ -318,8 +318,9 @@ Resource::Resource(const std::string& fullPath)
 	, mThumbnailId(0)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(ds::getNormalizedPath(fullPath))
+	, mLocalFilePath("")
 {
+	setLocalFilePath(fullPath);
 }
 
 Resource::Resource(const std::string& fullPath, const int type)
@@ -331,8 +332,9 @@ Resource::Resource(const std::string& fullPath, const int type)
 	, mThumbnailId(0)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(ds::getNormalizedPath(fullPath))
+	, mLocalFilePath("")
 {
+	setLocalFilePath(fullPath);
 }
 
 Resource::Resource(const std::string& localFullPath, const float width, const float height)
@@ -344,8 +346,9 @@ Resource::Resource(const std::string& localFullPath, const float width, const fl
 	, mThumbnailId(0)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(ds::getNormalizedPath(localFullPath))
+	, mLocalFilePath("")
 {
+	setLocalFilePath(localFullPath);
 }
 
 Resource::Resource(const Resource::Id dbid, const int type, const double duration, 
@@ -361,8 +364,10 @@ Resource::Resource(const Resource::Id dbid, const int type, const double duratio
 	, mThumbnailId(thumbnailId)
 	, mParentId(0)
 	, mParentIndex(0)
-	, mLocalFilePath(ds::getNormalizedPath(fullFilePath))
-{}
+	, mLocalFilePath("")
+{
+	setLocalFilePath(fullFilePath);
+}
 	
 
 bool Resource::operator==(const Resource& o) const {
@@ -380,13 +385,17 @@ const std::wstring& Resource::getTypeName() const {
 	else if (mType == IMAGE_SEQUENCE_TYPE) return IMAGE_SEQUENCE_NAME_SZ;
 	else if (mType == PDF_TYPE) return PDF_NAME_SZ;
 	else if (mType == VIDEO_TYPE) return VIDEO_NAME_SZ;
-	else if(mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_NAME_SZ;
+	else if (mType == VIDEO_STREAM_TYPE) return VIDEO_STREAM_NAME_SZ;
 	else if (mType == WEB_TYPE) return WEB_NAME_SZ;
 	return ERROR_NAME_SZ;
 }
 
 void Resource::setLocalFilePath(const std::string& localPath) {
-	mLocalFilePath = ds::getNormalizedPath(localPath);
+	if(mType == WEB_TYPE || mType == VIDEO_STREAM_TYPE){
+		mLocalFilePath = localPath;
+	} else {
+		mLocalFilePath = ds::getNormalizedPath(localPath);
+	}
 }
 
 std::string Resource::getAbsoluteFilePath() const {
