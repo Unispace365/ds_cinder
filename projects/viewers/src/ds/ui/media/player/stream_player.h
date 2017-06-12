@@ -30,6 +30,7 @@ public:
 	void								play();
 	void								pause();
 	void								stop();
+	void								toggleMute();
 
 	void								showInterface();
 	void								hideInterface();

@@ -471,6 +471,16 @@ void MediaPlayer::stopContent(){
 	}
 }
 
+void MediaPlayer::playContent(){
+	if(mVideoPlayer){
+		mVideoPlayer->play();
+	}
+
+	if(mStreamPlayer){
+		mStreamPlayer->play();
+	}
+}
+
 void MediaPlayer::pauseContent(){
 	if(mVideoPlayer){
 		mVideoPlayer->pause();
@@ -478,6 +488,16 @@ void MediaPlayer::pauseContent(){
 
 	if(mStreamPlayer){
 		mStreamPlayer->pause();
+	}
+}
+
+void MediaPlayer::toggleMute(){
+	if(mVideoPlayer){
+		mVideoPlayer->toggleMute();
+	}
+
+	if(mStreamPlayer){
+		mStreamPlayer->toggleMute();
 	}
 }
 

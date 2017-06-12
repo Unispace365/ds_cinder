@@ -149,6 +149,16 @@ void StreamPlayer::stop(){
 	}
 }
 
+void StreamPlayer::toggleMute(){
+	if(mVideo){
+		if(mVideo->getIsMuted()){
+			mVideo->setMute(false);
+		} else {
+			mVideo->setMute(true);
+		}
+	}
+}
+
 ds::ui::GstVideo* StreamPlayer::getVideo(){
 	return mVideo;
 }

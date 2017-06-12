@@ -196,6 +196,16 @@ void VideoPlayer::togglePlayPause(){
 	}
 }
 
+void VideoPlayer::toggleMute(){
+	if(mVideo){
+		if(mVideo->getIsMuted()){
+			mVideo->setMute(false);
+		} else {
+			mVideo->setMute(true);
+		}
+	}
+}
+
 void VideoPlayer::setPan(const float newPan){
 	if(mVideo){
 		mVideo->setPan(newPan);

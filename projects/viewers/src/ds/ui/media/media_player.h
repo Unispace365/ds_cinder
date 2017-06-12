@@ -66,7 +66,9 @@ public:
 	void					stopContent();
 
 	/// Really only for videos at the moment
+	void					playContent();
 	void					pauseContent();
+	void					toggleMute();
 
 	/// Returns any current player. Will need to be dynamic casted to be used
 	/// Definitely can return nullptr, so check before using

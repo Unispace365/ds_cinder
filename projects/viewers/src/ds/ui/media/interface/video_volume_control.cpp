@@ -60,6 +60,9 @@ void VideoVolumeControl::linkVideo(ds::ui::GstVideo* vid){
 
 void VideoVolumeControl::setVolume(const float v){
 	if(mLinkedVideo){
+		if(mLinkedVideo->getIsMuted() && v > 0.0f){
+			mLinkedVideo->setMute(false);
+		}
 		mLinkedVideo->setVolume(v);
 	}
 }
@@ -68,6 +71,9 @@ void VideoVolumeControl::onUpdateServer(const ds::UpdateParams& updateParams){
 	float vol = 0.0f;
 	if(mLinkedVideo){
 		vol = mLinkedVideo->getVolume();
+		if(mLinkedVideo->getIsMuted()){
+			vol = 0.0f;
+		}
 	}
 	for(int k = 0; k < mBars.size(); ++k) {
 		const float		bar_v = static_cast<float>(k + 1) / static_cast<float>(mBars.size());
