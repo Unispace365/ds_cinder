@@ -13,6 +13,8 @@ const std::vector<ModelColumn>		EMPTY_COLUMN_VECTOR;
 const std::vector<ModelRelation>	EMPTY_RELATION_VECTOR;
 }
 
+std::string ModelModel::sCustomGlobalImpInclude;
+
 /**
 * \class ds::ModelColumn::Data
 */
@@ -267,6 +269,10 @@ const std::string& ModelModel::getCustomImpInclude()const{
 	return mData->mCustomImpInclude;
 }
 
+const std::string ModelModel::getCustomGlobalImpInclude() {
+	return ModelModel::sCustomGlobalImpInclude;
+}
+
 const std::vector<ModelColumn>& ModelModel::getColumns(){
 	if(!mData) return EMPTY_COLUMN_VECTOR;
 	return mData->mColumns;
@@ -303,6 +309,10 @@ ModelModel& ModelModel::setCustomImpInclude(const std::string& customInclude){
 	if (!mData) mData.reset(new Data());
 	if (mData) mData->mCustomImpInclude = customInclude;
 	return *this;
+}
+
+void ModelModel::setCustomGlobalImpInclude(const std::string& customGlobalImpInclude){
+	sCustomGlobalImpInclude = customGlobalImpInclude;
 }
 
 ModelModel& ModelModel::setColumns(const std::vector<ModelColumn>& columns){

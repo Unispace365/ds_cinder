@@ -56,9 +56,11 @@ const std::string baseHeader = \
 "#endif\n";
 
 const std::string baseCpp = \
-"CUSTOM_INCLUDES" \
-"#include \"MODEL_HEADER_FILE_NAME\" \n" \
+"GLOBAL_CPP_INCLUDES" \
 "\n" \
+"#include \"MODEL_HEADER_FILE_NAME\"\n" \
+"\n" \
+"CUSTOM_INCLUDES" \
 "\n" \
 "namespace ds {\n" \
 "namespace model {\n" \
@@ -184,6 +186,7 @@ void ModelMaker::run() {
 
 		// imps
 		std::stringstream sCustomImpIncludes;
+		std::stringstream sCustomGlobalImpIncludes;
 		std::stringstream sDataMembers;
 		std::stringstream sCustomEmptyData;
 		std::stringstream sImpGetters;
@@ -207,6 +210,11 @@ void ModelMaker::run() {
 
 		if (!mm.getCustomImpInclude().empty()){
 			sCustomImpIncludes << "#include " << mm.getCustomImpInclude() << std::endl;
+		}
+
+		if (!mm.getCustomGlobalImpInclude().empty()){
+			for ( const auto& include : ds::split(mm.getCustomGlobalImpInclude(), "\n", true) )
+				sCustomGlobalImpIncludes << "#include " << include << std::endl;
 		}
 
 		// make all 'resource' flagged columns into proper resources
@@ -376,6 +384,7 @@ void ModelMaker::run() {
 		std::string imp = baseCpp;
 
 		const std::string headerFileName = getFileName(mm.getTableName(), true);
+		imp = replaceAllString(imp, "GLOBAL_CPP_INCLUDES", sCustomGlobalImpIncludes.str());
 		imp = replaceAllString(imp, "MODEL_HEADER_FILE_NAME", headerFileName);
 		imp = replaceAllString(imp, "CUSTOM_INCLUDES", sCustomImpIncludes.str());
 		imp = replaceAllString(imp, "CUSTOM_EMPTY_DATA", sCustomEmptyData.str());

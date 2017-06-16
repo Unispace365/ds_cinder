@@ -27,7 +27,7 @@ void StoryQuery::query(AllStories& output) {
 	// sane people might query from a database here or something
 
 	std::wstringstream ss;
-	for(int i = 0; i < 100; i++){
+	for(int i = 0; i < 10; i++){
 		ds::model::StoryRef story;
 		story.setId(i);
 		

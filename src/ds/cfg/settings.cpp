@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 #include "ds/cfg/settings.h"
-
+#include <boost/algorithm/string.hpp>
 #include <cinder/Xml.h>
 #include <Poco/File.h>
 #include <Poco/String.h>
@@ -193,6 +193,7 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 	const std::string   B_SZ("b");
 	const std::string   G_SZ("g");
 	const std::string   A_SZ("a");
+	const std::string	HEX_SZ("hex");
 	const std::string   X_SZ("x");
 	const std::string   Y_SZ("y");
 	const std::string   Z_SZ("z");
@@ -245,11 +246,36 @@ void Settings::directReadXmlFromTree(const cinder::XmlTree& xml, const bool clea
 				std::string code = it->getAttributeValue<std::string>(CODE_SZ);
 				c = mEngine->getColors().getColorFromName(code);
 			}
-		} else {
+		} else if( it->hasAttribute(R_SZ)){
 			c = ci::ColorA(it->getAttributeValue<float>(R_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(G_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(B_SZ, DEFV) / DEFV,
 				it->getAttributeValue<float>(A_SZ, DEFV) / DEFV);
+
+		} else if (it->hasAttribute(HEX_SZ)){
+			
+			std::string s = it->getAttributeValue<std::string>(HEX_SZ);
+
+			if (boost::starts_with(s, "#")){
+				boost::erase_head(s, 1);
+			}
+
+			if (boost::starts_with(s, "0x")){
+				boost::erase_head(s, 2);
+			}
+
+			std::stringstream converter(s);
+			unsigned int value;
+			converter >> std::hex >> value;
+
+			float a = (s.length() > 6)
+				? ((value >> 24) & 0xFF) / 255.0f
+				: 1.0f;
+			float r = ((value >> 16) & 0xFF) / 255.0f;
+			float g = ((value >> 8) & 0xFF) / 255.0f;
+			float b = ((value)& 0xFF) / 255.0f;
+			
+			c = ci::ColorA(r, g, b, a);
 		}
 		add_item(name, mColor, cinder::Color(c.r, c.g, c.b));
 		add_item(name, mColorA, c);

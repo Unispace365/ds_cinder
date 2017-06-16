@@ -396,7 +396,7 @@ void App::keyUp(ci::app::KeyEvent event){
 }
 
 void App::saveTransparentScreenshot(){
-	Poco::Path		p("%USERPROFILE%");
+	Poco::Path		p(Poco::Path::home());
 	Poco::Timestamp::TimeVal t = Poco::Timestamp().epochMicroseconds();
 	std::stringstream filepath;
 	filepath << "ds_cinder.screenshot." << t << ".png";

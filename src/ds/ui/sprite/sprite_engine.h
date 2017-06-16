@@ -29,6 +29,8 @@ namespace cfg {
 class Settings;
 }
 
+class TuioObject;
+
 namespace ui {
 class LoadImageService;
 class PangoFontService;
@@ -147,6 +149,10 @@ public:
 	virtual void					injectTouchesBegin(const ds::ui::TouchEvent&) = 0;
 	virtual void					injectTouchesMoved(const ds::ui::TouchEvent&) = 0;
 	virtual void					injectTouchesEnded(const ds::ui::TouchEvent&) = 0;
+
+	virtual void					injectObjectsBegin(const ds::TuioObject&) = 0;
+	virtual void					injectObjectsMoved(const ds::TuioObject&) = 0;
+	virtual void					injectObjectsEnded(const ds::TuioObject&) = 0;
 
 	/// Calls every time any touch anywhere happens, and the touch info is post-translation and filtering
 	/// This calls *after* any sprites get the touch. 

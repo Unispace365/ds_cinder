@@ -218,14 +218,14 @@ void BasePanel::checkBounds(const bool immediate) {
 
 	if(mAnimating && !immediate) return;
 
-	const float thisWidth = getScaleWidth();
-	const float thisHeight = getScaleHeight();
+	// Constrain the bounding box of the sprite to mBoundingArea
+	auto bb = getBoundingBox();
+	const float thisWidth = bb.getWidth();
+	const float thisHeight = bb.getHeight();
+	const float thisX = bb.getX1();
+	const float thisY = bb.getY1();
 
-	const float anchorX = getCenter().x * thisWidth;
-	const float anchorY = getCenter().y * thisHeight;
-
-	const float thisX = getPosition().x - anchorX;
-	const float thisY = getPosition().y - anchorY;
+	//DS_LOG_INFO("BasePanel::checkBounds(): BB size: " << bb);
 
 	const float worldL = mBoundingArea.getX1();
 	const float worldR = mBoundingArea.getX2();
@@ -271,13 +271,48 @@ void BasePanel::checkBounds(const bool immediate) {
 
 	mMomentum.deactivate();
 
+
+	// Compute the position of the upper-left corner of the rotated sprite, relative to the bounding box
+	const auto normalizeAngle = []( const float degrees ) {
+		float ret = glm::mod(degrees, 360.0f);
+		if (ret < 0)
+			ret += 360.0f;
+		return ret;
+	};
+	const float degrees = normalizeAngle( getRotation().z );
+
+	const int quadrant = (int)glm::floor(degrees / 90.0f);
+	const float radians = glm::radians(degrees);
+	const float w = getScaleWidth();
+	const float h = getScaleHeight();
+	const float W = bb.getWidth();
+	const float H = bb.getHeight();
+	const auto ulPos =
+		   (0 == quadrant)
+			? ci::vec2(h * glm::sin(radians), 0 )
+		: ((1 == quadrant)
+			? ci::vec2(W, -h * glm::cos(radians))
+		: ((2 == quadrant)
+			? ci::vec2(-w * glm::cos(radians), H)
+		://(3 == quadrant)
+			  ci::vec2(0, -w * glm::sin(radians))
+	));
+
+	//DS_LOG_INFO("  BasePanel::checkBounds(): Constrained position: " << destinationX << ", " << destinationY << ", Angle: " << degrees << " degrees"  );
+	//DS_LOG_INFO("  BasePanel::setBounds(): upper-left position: " << ulPos );
+
 	// re-apply the anchor offset.
-	destinationX += anchorX;
-	destinationY += anchorY;
+	const auto anchorOffset = ci::vec2(getCenter()) * ci::vec2(getScaleWidth(), getScaleHeight());
+	const auto pos = ci::vec3(
+			ci::vec2(destinationX, destinationY)
+			+ ulPos
+			+ glm::rotate(anchorOffset, radians)
+	, 0);
+
 	if(immediate){
-		setPosition(floorf(destinationX), floorf(destinationY));
+		setPosition(pos);
 	} else {
-		tweenPosition(ci::vec3(destinationX, destinationY, 0.0f), mAnimDuration, 0.0f, ci::EaseOutQuint());
+		tweenPosition(pos, mAnimDuration, 0.0f, ci::EaseOutQuint());
 	}
 }
 

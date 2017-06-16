@@ -39,7 +39,7 @@ const std::string&	VIDEO_ONLY_TYPE_SZ() { static const std::string	ANS("v"); ret
 const std::string&	VIDEO_AND_AUDIO_TYPE_SZ() { static const std::string	ANS("va"); return ANS; }
 
 std::string get_db_directory() {
-	Poco::Path		p("%USERPROFILE%");
+	Poco::Path		p(Poco::Path::home());
 	p.append("documents").append("downstream").append("cache").append("video");
 	return Poco::Path::expand(p.toString());
 }
