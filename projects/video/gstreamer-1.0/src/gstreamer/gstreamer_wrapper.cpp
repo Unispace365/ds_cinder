@@ -93,6 +93,7 @@ void GStreamerWrapper::resetProperties(){
 	m_iCurrentTimeInNs = -1;
 	mSyncedMode = false;
 	m_StreamNeedsRestart = false;
+	m_iStreamingLatency = 200000000;
 
 }
 
@@ -362,7 +363,7 @@ static void sourceSetupHandler(void* playbin, GstElement* source, gpointer user_
 	g_object_set(source, "latency", 100);
 }
 
-bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight){
+bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight, const uint64_t latencyInNs){
 	if(!m_ValidInstall){
 		return false;
 	}
@@ -380,6 +381,7 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 	}
 	enforceModFourWidth(videoWidth, videoHeight);
 	m_StreamPipeline = streamingPipeline;
+	m_iStreamingLatency = latencyInNs;
 	m_Streaming = true;
 	m_ContentType = VIDEO_AND_AUDIO;
 
@@ -392,7 +394,7 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 		g_signal_connect(m_GstPipeline, "source-setup", G_CALLBACK(sourceSetupHandler), NULL);
 
 		// Open Uri
-		g_object_set(m_GstPipeline, "uri", m_StreamPipeline.c_str(), NULL);
+		g_object_set(m_GstPipeline, "uri", m_StreamPipeline.c_str(), "latency", latencyInNs, NULL);
 
 		// VIDEO SINK
 		// Extract and Config Video Sink
@@ -492,6 +494,16 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 	return true;
 }
 
+
+void GStreamerWrapper::setStreamingLatency(uint64_t latency_ns){
+	m_iStreamingLatency = latency_ns;
+	if(!m_Streaming || !m_GstPipeline){
+		return;
+	}
+
+	g_object_set(m_GstPipeline, "latency", m_iStreamingLatency, NULL);
+
+}
 
 void GStreamerWrapper::setServerNetClock(const bool isServer, const std::string& addr, const int port, std::uint64_t& netClock, std::uint64_t& clockBaseTime){
 	mSyncedMode = true;
@@ -628,7 +640,7 @@ void GStreamerWrapper::update(){
 		// 2 seconds at 60fps, should prolly move to a timed situation
 		if(m_StreamRestartCount > 120){
 			m_StreamNeedsRestart = false;
-			openStream(m_StreamPipeline, m_iWidth, m_iHeight);
+			openStream(m_StreamPipeline, m_iWidth, m_iHeight, m_iStreamingLatency);
 		}
 	}
 }

@@ -201,6 +201,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mPan(0.0f)
 	, mStreaming(false)
 	, mClientVideoCompleted(false)
+	, mStreamingLatency(200000000)
 {
 	mLayoutFixedAspect = true;
 	mBlobType = BLOB_TYPE;
@@ -682,7 +683,7 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	mNeedsBatchUpdate = true;
 
 	DS_LOG_INFO_M("GstVideo::startStream() " << streamingPipeline, GSTREAMER_LOG);
-	if(!mGstreamerWrapper->openStream(streamingPipeline, (int)floorf(videoWidth), (int)floorf(videoHeight))){
+	if(!mGstreamerWrapper->openStream(streamingPipeline, (int)floorf(videoWidth), (int)floorf(videoHeight), mStreamingLatency)){
 		DS_LOG_WARNING_M("GstVideo::startStream() aborting cause of a problem.", GSTREAMER_LOG);
 		return;
 	}
@@ -884,6 +885,14 @@ void GstVideo::applyMovieLooping(){
 		mGstreamerWrapper->setLoopMode(LOOP);
 	} else {
 		mGstreamerWrapper->setLoopMode(NO_LOOP);
+	}
+}
+
+void GstVideo::setStreamingLatency(const uint64_t latencyNs){
+	mStreamingLatency = latencyNs;
+
+	if(mGstreamerWrapper){
+		mGstreamerWrapper->setStreamingLatency(latencyNs);
 	}
 }
 

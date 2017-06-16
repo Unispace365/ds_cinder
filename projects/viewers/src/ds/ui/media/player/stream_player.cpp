@@ -50,6 +50,8 @@ void StreamPlayer::setResource(const ds::Resource& resource){
 		}
 	});
 
+	mVideo->setStreamingLatency(mStreamLatency * 1000000000);
+
 	mVideo->setResource(resource);
 
 	addChildPtr(mVideo);
@@ -127,6 +129,13 @@ void StreamPlayer::setAutoRestartStream(bool autoRestart){
 	}
 }
 
+void StreamPlayer::setStreamLatency(const double latencyInSeconds){
+	mStreamLatency = latencyInSeconds;
+	if(mVideo){
+		mVideo->setStreamingLatency(latencyInSeconds * 1000000000);
+	}
+}
+
 void StreamPlayer::play(){
 	if (mVideo){
 		if (mVideo->isPlayingAFrame()){
@@ -146,6 +155,16 @@ void StreamPlayer::pause(){
 void StreamPlayer::stop(){
 	if (mVideo){
 		mVideo->stop();
+	}
+}
+
+void StreamPlayer::toggleMute(){
+	if(mVideo){
+		if(mVideo->getIsMuted()){
+			mVideo->setMute(false);
+		} else {
+			mVideo->setMute(true);
+		}
 	}
 }
 

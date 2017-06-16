@@ -114,7 +114,9 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 		applyText(wss.str());
 
 		if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
-			mCursorIndex--;
+			if(!mCurrentText.empty()){
+				mCursorIndex--;
+			}
 		} else if(keyType == ds::ui::SoftKeyboardDefs::kShift){
 			// nothin!
 		} else {

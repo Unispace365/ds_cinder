@@ -47,10 +47,7 @@ MqttWatcher::MqttWatcher(
 }
 
 MqttWatcher::~MqttWatcher(){
-	// does not need locking. it's atomic
-	mLoop.mAbort = true;
-	if (mLoopThread.joinable())
-		mLoopThread.join();
+	stopListening();
 }
 
 void MqttWatcher::addInboundListener(const std::function<void(const MessageQueue&)>& fn){
@@ -101,21 +98,27 @@ void MqttWatcher::sendOutboundMessage(const std::string& str){
 }
 
 void MqttWatcher::startListening(){
+	if(mStarted){
+		stopListening();
+	}
 	mStarted = true;
 	if(!mLoop.mConnected){
-		DS_LOG_INFO_M("Attempting to connect to the MQTT server...", MQTT_LOG);
+		DS_LOG_INFO_M("Attempting to connect to the MQTT server at " << mLoop.getHost() << ":" << mLoop.getPort(), MQTT_LOG);
 		mLoopThread = std::thread( [this](){ mLoop.run(); } );
 		mLoop.mConnected = true;
 	}
 }
 
 void MqttWatcher::stopListening(){
+	if(!mStarted) return;
 	mStarted = false;
 	// setting abort is atomic, but someone may want to do something right after this
 	std::lock_guard<std::mutex>	_lock(mLoop.mOutboundMutex);
+	DS_LOG_INFO_M("Closing connection to the MQTT server at " << mLoop.getHost() << ":" << mLoop.getPort(), MQTT_LOG);
 	mLoop.mAbort = true;
-	if (mLoopThread.joinable())
+	if(mLoopThread.joinable()){
 		mLoopThread.join();
+	}
 }
 
 void MqttWatcher::setTopicInbound(const std::string& inBound){
