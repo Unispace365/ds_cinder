@@ -87,7 +87,7 @@ bool safeFileExistsCheck(const std::string filePath, const bool allowDirectory){
 }
 
 std::string filePathRelativeTo(const std::string &base, const std::string &relative){
-	if(relative.find("%APP%") != std::string::npos){
+	if(relative.find("%APP%") != std::string::npos || relative.find("%LOCAL%") != std::string::npos){
 		return ds::Environment::expand(relative);
 	}
 

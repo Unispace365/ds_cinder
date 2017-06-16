@@ -30,12 +30,15 @@ public:
 	void								play();
 	void								pause();
 	void								stop();
+	void								toggleMute();
 
 	void								showInterface();
 	void								hideInterface();
 	VideoInterface*						getVideoInterface(){ return mVideoInterface; }
 	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
 	void								setAutoRestartStream(bool autoRestart);
+
+	void								setStreamLatency(const double latencyInSeconds);
 
 	ds::ui::GstVideo*					getVideo();
 
@@ -49,6 +52,7 @@ protected:
 	ds::ui::GstVideo*					mVideo;
 	bool								mEmbedInterface;
 	bool								mShowInterfaceAtStart;
+	double								mStreamLatency;
 	std::function<void(void)>					mGoodStatusCallback;
 	std::function<void(const std::string&)>		mErrorMsgCallback;
 

@@ -26,6 +26,22 @@
 #include <cinder/gl/gl.h>
 #include <cinder/params/Params.h>
 
+
+// ds_cinder
+#include <ds/app/app.h>
+#include <ds/app/event_client.h>
+#include <ds/app/event_notifier.h>
+#include <ds/app/environment.h>
+#include <ds/app/engine/engine.h>
+#include <ds/app/engine/engine_settings.h>
+#include <ds/debug/logger.h>
+#include <ds/ui/sprite/sprite.h>
+#include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/sprite/text.h>
+#include <ds/ui/sprite/image.h>
+#include <ds/ui/sprite/circle.h>
+#include <ds/util/string_util.h>
+
 // Poco
 #include <Poco/Foundation.h>
 #include <Poco/Thread.h>

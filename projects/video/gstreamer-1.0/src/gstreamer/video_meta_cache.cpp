@@ -39,7 +39,7 @@ const std::string&	VIDEO_ONLY_TYPE_SZ() { static const std::string	ANS("v"); ret
 const std::string&	VIDEO_AND_AUDIO_TYPE_SZ() { static const std::string	ANS("va"); return ANS; }
 
 std::string get_db_directory() {
-	Poco::Path		p("%USERPROFILE%");
+	Poco::Path		p(Poco::Path::home());
 	p.append("documents").append("downstream").append("cache").append("video");
 	return Poco::Path::expand(p.toString());
 }
@@ -218,7 +218,7 @@ bool VideoMetaCache::getVideoInfo(Entry& entry) {
 		entry.mType = AUDIO_ONLY_TYPE;
 		entry.mWidth = 0;
 		entry.mHeight = 0;
-		if(!_MI_TO_VALUE(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Duration"), MediaInfoDLL::Info_Text), entry.mDuration));
+		if(!_MI_TO_VALUE(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Duration"), MediaInfoDLL::Info_Text), entry.mDuration)) return false;
 
 	// Any number of audio streams and at least one video streams is VIDEO_TYPE
 	} else if(numVideo > 0){

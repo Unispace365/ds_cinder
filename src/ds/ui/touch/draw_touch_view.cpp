@@ -103,15 +103,17 @@ void DrawTouchView::touchBegin(const ds::ui::TouchInfo &ti){
 		if(mCircles[ti.mFingerId]){
 			mCircles[ti.mFingerId]->show();
 		} else {
-			Circle* circley = new Circle(mEngine, false, 20.0f);
+			Circle* circley = new Circle(mEngine, false, 0.0f);
 			circley->setColor(getColor());
 			circley->setDrawDebug(true);
 			circley->setCenter(0.5f, 0.5f);
 			addChildPtr(circley);
 			mCircles[ti.mFingerId] = circley;
 		}
-
-		if(mCircles[ti.mFingerId]) mCircles[ti.mFingerId]->setPosition(ti.mCurrentGlobalPoint);
+		if(mCircles[ti.mFingerId]){
+			mCircles[ti.mFingerId]->setPosition(ti.mCurrentGlobalPoint);
+			mCircles[ti.mFingerId]->setRadius(20.0f);
+		}
 	}
 }
 
