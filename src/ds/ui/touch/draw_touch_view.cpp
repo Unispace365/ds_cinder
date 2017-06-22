@@ -22,7 +22,12 @@ DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &s
 	: ds::ui::Sprite(e)
 	, mTouchTrailsUse(false)
 	, mTouchTrailsLength(5)
-	, mTouchTrailsIncrement(5.0f) {
+	, mTouchTrailsIncrement(5.0f)
+	, mCircleRadius(20.0f)
+	, mCircleColor(ci::ColorA::white())
+	, mCircleFilled(false)
+
+{
 	mTouchTrailsUse = settings.getBool("touch_overlay:trails:use", 0, mTouchTrailsUse);
 	mTouchTrailsLength = settings.getInt("touch_overlay:trails:length", 0, mTouchTrailsLength);
 	mTouchTrailsIncrement = settings.getFloat("touch_overlay:trails:increment", 0, mTouchTrailsIncrement);
@@ -33,6 +38,10 @@ DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &s
 	}
 
 	tm.setCapture(this);
+
+	mCircleRadius = settings.getFloat("touch_overlay:debug_circle_radius", 0, mCircleRadius);
+	mCircleColor  = settings.getColorA("touch_overlay:debug_circle_color", 0, mCircleColor);
+	mCircleFilled = settings.getBool("touch_overlay:debug_circle_filled", 0, mCircleFilled);
 }
 
 void DrawTouchView::drawTrails(){
@@ -96,8 +105,8 @@ void DrawTouchView::touchBegin(const ds::ui::TouchInfo &ti){
 		if(mCircles[ti.mFingerId]){
 			mCircles[ti.mFingerId]->show();
 		} else {
-			Circle* circley = new Circle(mEngine, false, 20.0f);
-			circley->setColor(getColor());
+			Circle* circley = new Circle(mEngine, mCircleFilled, mCircleRadius);
+			circley->setColorA(mCircleColor);
 			circley->setDrawDebug(true);
 			circley->setCenter(0.5f, 0.5f);
 			addChildPtr(circley);
