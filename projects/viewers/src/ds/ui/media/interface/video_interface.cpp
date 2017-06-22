@@ -110,8 +110,8 @@ void VideoInterface::onLayout(){
 	}
 
 	if(mPlayButton && mPauseButton){
-		mPlayButton->setPosition(xp, h / 2.0f - mPlayButton->getHeight() / 2.0f);
-		mPauseButton->setPosition(xp, h / 2.0f - mPauseButton->getHeight() / 2.0f);
+		mPlayButton->setPosition(xp, h / 2.0f - mPlayButton->getScaleHeight() / 2.0f);
+		mPauseButton->setPosition(xp, h / 2.0f - mPauseButton->getScaleHeight() / 2.0f);
 		xp += mPlayButton->getScaleWidth() + padding;
 		spaceLeft -= mPlayButton->getScaleWidth() + padding;
 	}
