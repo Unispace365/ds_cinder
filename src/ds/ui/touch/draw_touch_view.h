@@ -34,6 +34,9 @@ private:
 	void									drawCircles();
 
 	std::map<int, Circle*>					mCircles;
+	float									mCircleRadius;
+	bool									mCircleFilled;
+	ci::ColorA								mCircleColor;
 
 	std::map<int, std::vector<ci::vec3>>	mTouchPointHistory;
 	bool									mTouchTrailsUse;
