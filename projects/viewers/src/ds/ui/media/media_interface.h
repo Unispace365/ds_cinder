@@ -32,6 +32,8 @@ public:
 
 	/// allows the interface to be shown at all (rare edge case when you temporarily want to hide this)
 	void								setAllowDisplay(const bool canDisplay){ mCanDisplay = canDisplay; }
+	
+	void								setBackgroundColorA(const ci::ColorA backgroundColor);
 
 protected:
 
