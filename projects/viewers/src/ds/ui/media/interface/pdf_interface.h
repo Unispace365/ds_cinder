@@ -25,6 +25,7 @@ public:
 
 	void						linkPDF(ds::ui::Pdf* linkedPDF, const ds::Resource& sourceResource);
 	void						updateWidgets();
+	void						setPageFont(std::string fontName, float fontSize);
 
 protected:
 	virtual void				onUpdateServer(const ds::UpdateParams& updateParams) override;

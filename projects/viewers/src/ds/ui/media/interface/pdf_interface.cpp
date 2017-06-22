@@ -241,5 +241,15 @@ void PDFInterface::updateWidgets(){
 
 	layout();
 }
+
+void PDFInterface::setPageFont(std::string fontName, float fontSize)
+{
+	if (mPageCounter)
+	{
+		mPageCounter->setFont(fontName);
+		mPageCounter->setFontSize(fontSize);
+	}
+}
+
 } // namespace ui
 } // namespace ds
