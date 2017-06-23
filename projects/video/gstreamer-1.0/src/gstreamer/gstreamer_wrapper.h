@@ -120,6 +120,13 @@ public:
 		If you want to control volume, include a volume element named volume0 */
 	bool					openStream(const std::string& streamingPipeline, const int videoWidth, const int videoHeight, const uint64_t latencyInNs = 200000000 /* default is 200 milliseconds */);
 
+	/** Similar to openStream above, but this is not considered a live pipeline, and will only create a single gstreamer element from the supplied pipeline. 
+		This assumes the source is part of the pipeline.
+		*/
+	bool					parseLaunch(const std::string& fullPipeline, const int videoWidth, const int videoHeight,
+										const int colorSpace, const std::string& videoSinkName = "appsink0", const std::string& volumeElementName = "volume0",
+										const double secondsDuration = -1);
+
 	/** Sets the playbin latency when streaming. May not work ok after the stream has started. */
 	void					setStreamingLatency(uint64_t latency_ns);
 
@@ -692,7 +699,8 @@ private:
 	GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 	bool					m_StartPlaying;/* Play the video as soon as it's loaded */
 	bool					m_CustomPipeline; /* Has a custom pipeline for audio */
-	bool					m_Streaming; /* The video is playing live over the network (disallows seeking and a few other things */
+	bool					m_LivePipeline; /* The video is playing live over the network which disallows seeking and a few other things (previously m_Streaming) */
+	bool					m_FullPipeline; /* This was launched from a gst_parse_launch command */
 	bool					m_AutoRestartStream;
 	std::string				m_StreamPipeline;
 	gint64					m_iStreamingLatency; /* Latency in streaming live pipelines (how long to wait between getting the data and trying to display it) */

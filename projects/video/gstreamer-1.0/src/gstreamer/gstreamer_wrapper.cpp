@@ -33,7 +33,8 @@ GStreamerWrapper::GStreamerWrapper()
 	, m_playFromPause(false)
 	, m_SeekTime(0)
 	, m_newLoop(false)
-	, m_Streaming(false)
+	, m_LivePipeline(false)
+	, m_FullPipeline(false)
 	, m_AutoRestartStream(true)
 	, mServer(true)
 	, m_ValidInstall(true)
@@ -87,7 +88,8 @@ void GStreamerWrapper::resetProperties(){
 	m_LoopMode = LOOP;
 	m_PendingSeek = false;
 	m_cVideoBufferSize = 0;
-	m_Streaming = false;
+	m_LivePipeline = false;
+	m_FullPipeline = false;
 	m_AutoRestartStream = true;
 	m_iDurationInNs = -1;
 	m_iCurrentTimeInNs = -1;
@@ -193,11 +195,6 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	// Init main pipeline --> playbin
 	m_GstPipeline = gst_element_factory_make( "playbin", "pipeline" );
 
-	if(!m_GstPipeline){
-		DS_LOG_WARNING("GStreamer pipeline could not be created! Aborting video playback. Check gstreamer install.");
-		return false;
-	}
-
 	// Open Uri
 	g_object_set(m_GstPipeline, "uri", m_strFilename.c_str(), NULL);
 
@@ -282,7 +279,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 	// AUDIO SINK
 	// Extract and config Audio Sink
-	if (bGenerateAudioBuffer){
+	if (false && bGenerateAudioBuffer){
 		if (m_CustomPipeline){
 			setCustomFunction();
 		}
@@ -317,9 +314,13 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 	// Only create an audio sink if there's an audio track
 	} else if(hasAudioTrack){
-		GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
-		g_object_set(audioSink, "sync", true, (void*)NULL);
-		g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
+	//	std::string 
+		GError* err = new GError();
+		GstElement* audioSink = gst_parse_bin_from_description("tee name=t ! queue ! videoconvert ! autovideosink t. ! queue ! audioconvert ! audioresample ! audio/x-raw, channels=6, format=S16LE ! tee name=tt ! queue ! audioconvert ! audio/x-raw, channels=2, channel-mask=(bitmask)0x3 ! directsoundsink tt. ! queue ! audioconvert ! audio/x-raw, channels=2, channel-mask=(bitmask)0x6  ! directsoundsink device={64EA191B-4F87-4E88-BBD2-54ECDAE3C134}", true, &err);
+
+		//GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
+		//g_object_set(audioSink, "sync", true, (void*)NULL);
+		//g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
 	}
 
 	// BUS
@@ -382,7 +383,8 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 	enforceModFourWidth(videoWidth, videoHeight);
 	m_StreamPipeline = streamingPipeline;
 	m_iStreamingLatency = latencyInNs;
-	m_Streaming = true;
+	m_FullPipeline = true;
+	m_LivePipeline = true;
 	m_ContentType = VIDEO_AND_AUDIO;
 
 	// If you've constructed a streaming pipeline yourself, there will be '!' characters separating the elements
@@ -391,7 +393,8 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 
 		m_GstPipeline = gst_element_factory_make("playbin", "pipeline");
 
-		g_signal_connect(m_GstPipeline, "source-setup", G_CALLBACK(sourceSetupHandler), NULL);
+		// This is obsolete
+		//g_signal_connect(m_GstPipeline, "source-setup", G_CALLBACK(sourceSetupHandler), NULL);
 
 		// Open Uri
 		g_object_set(m_GstPipeline, "uri", m_StreamPipeline.c_str(), "latency", latencyInNs, NULL);
@@ -494,10 +497,93 @@ bool GStreamerWrapper::openStream(const std::string& streamingPipeline, const in
 	return true;
 }
 
+bool GStreamerWrapper::parseLaunch(const std::string& fullPipeline, const int videoWidth, const int videoHeight, const int colorSpace,
+								   const std::string& videoSinkName, const std::string& volumeElementName,
+								   const double secondsDuration){
+	if(!m_ValidInstall){
+		return false;
+	}
+
+	m_FullPipeline = true;
+	m_LivePipeline = false;
+	m_StreamPipeline = fullPipeline;
+
+	resetProperties();
+
+	if(secondsDuration > -1){
+		m_iDurationInNs = gint64(secondsDuration * 1000000 * 1000);
+	}
+
+	if(m_bFileIsOpen)	{
+		stop();
+		close();
+	}
+
+	if(colorSpace == kColorSpaceI420){
+		enforceModEightWidth(videoWidth, videoHeight);
+	} else {
+		enforceModFourWidth(videoWidth, videoHeight);
+	}
+
+	// PIPELINE
+	m_GstPipeline = gst_parse_launch(fullPipeline.c_str(), NULL);
+
+	if(!m_GstPipeline){
+		DS_LOG_WARNING("GStreamer pipeline could not be created! Aborting video playback. Check gstreamer install.");
+		return false;
+	}
+
+	if(colorSpace == kColorSpaceTransparent){
+		m_cVideoBufferSize = 4 * m_iWidth * m_iHeight;
+	} else if(colorSpace == kColorSpaceSolid){
+		m_cVideoBufferSize = 3 * m_iWidth * m_iHeight;
+	} else if(colorSpace == kColorSpaceI420){
+		// 1.5 * w * h, for I420 color space, which has a full-size luma channel, and 1/4 size U and V color channels
+		m_cVideoBufferSize = (int)(1.5 * m_iWidth * m_iHeight);
+	}
+
+	m_cVideoBuffer = new unsigned char[m_cVideoBufferSize];
+
+	m_GstVideoSink = gst_bin_get_by_name(GST_BIN(m_GstPipeline), videoSinkName.c_str());
+	m_GstVolumeElement = gst_bin_get_by_name(GST_BIN(m_GstPipeline), volumeElementName.c_str());
+	m_GstPanorama = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "panorama0");
+
+	// Set Video Sink callback methods
+	m_GstVideoSinkCallbacks.eos = &GStreamerWrapper::onEosFromVideoSource;
+	m_GstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromVideoSource;
+	m_GstVideoSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromVideoSource;
+
+	if(m_AudioBufferWanted){
+		m_GstVideoSinkCallbacks.new_preroll = &GStreamerWrapper::onNewPrerollFromAudioSource;
+		m_GstVideoSinkCallbacks.new_sample = &GStreamerWrapper::onNewBufferFromAudioSource;
+	}
+
+	g_object_set(m_GstVideoSink, "emit-signals", false, "sync", true, "async", true, (void*)NULL);
+	gst_app_sink_set_callbacks(GST_APP_SINK(m_GstVideoSink), &m_GstVideoSinkCallbacks, this, NULL);
+
+	m_GstBus = gst_pipeline_get_bus(GST_PIPELINE(m_GstPipeline));
+	gst_element_set_state(m_GstPipeline, GST_STATE_READY);
+	gst_element_set_state(m_GstPipeline, GST_STATE_PAUSED);
+
+	setTimePositionInMs(0);
+
+	m_bFileIsOpen = true;
+	m_CurrentPlayState = OPENED;
+	m_ContentType = VIDEO_AND_AUDIO;
+
+	if(m_StartPlaying){
+		GstStateChangeReturn retrun = gst_element_set_state(m_GstPipeline, GST_STATE_PLAYING);
+		if(retrun != GST_STATE_CHANGE_FAILURE){
+			m_CurrentPlayState = PLAYING;
+
+		}
+	}
+	return true;
+}
 
 void GStreamerWrapper::setStreamingLatency(uint64_t latency_ns){
 	m_iStreamingLatency = latency_ns;
-	if(!m_Streaming || !m_GstPipeline){
+	if(!m_LivePipeline || !m_GstPipeline){
 		return;
 	}
 
@@ -739,7 +825,7 @@ void GStreamerWrapper::pause(){
 }
 
 void GStreamerWrapper::setCurrentVideoStream( int iCurrentVideoStream ){
-	if(m_Streaming) return;
+	if(m_LivePipeline) return;
 
 	if ( m_iCurrentVideoStream != iCurrentVideoStream )	{
 		if ( iCurrentVideoStream >= 0 && iCurrentVideoStream < m_iNumVideoStreams )		{
@@ -751,7 +837,7 @@ void GStreamerWrapper::setCurrentVideoStream( int iCurrentVideoStream ){
 }
 
 void GStreamerWrapper::setCurrentAudioStream(int iCurrentAudioStream){
-	if(m_Streaming) return;
+	if(m_LivePipeline) return;
 
 	if ( m_iCurrentAudioStream != iCurrentAudioStream )	{
 		if ( iCurrentAudioStream >= 0 && iCurrentAudioStream < m_iNumAudioStreams )		{
@@ -763,7 +849,7 @@ void GStreamerWrapper::setCurrentAudioStream(int iCurrentAudioStream){
 }
 
 void GStreamerWrapper::setSpeed(float fSpeed){
-	if(m_Streaming) return;
+	if(m_LivePipeline) return;
 
 	if( fSpeed != m_fSpeed )
 	{
@@ -776,7 +862,7 @@ void GStreamerWrapper::setSpeed(float fSpeed){
 }
 
 void GStreamerWrapper::setDirection(PlayDirection direction){
-	if(m_Streaming) return;
+	if(m_LivePipeline) return;
 
 	if ( m_PlayDirection != direction )	{
 		m_PlayDirection = direction;
@@ -785,7 +871,7 @@ void GStreamerWrapper::setDirection(PlayDirection direction){
 }
 
 void GStreamerWrapper::setLoopMode(LoopMode loopMode){
-	if(m_Streaming) return;
+	if(m_LivePipeline) return;
 
 	m_LoopMode = loopMode;
 }
@@ -1092,7 +1178,7 @@ bool GStreamerWrapper::changeSpeedAndDirection( float fSpeed, PlayDirection dire
 }
 
 void GStreamerWrapper::retrieveVideoInfo(){
-	if(m_Streaming){
+	if(m_LivePipeline || m_FullPipeline){
 		return; // streaming sets it's open values
 	}
 	////////////////////////////////////////////////////////////////////////// Media Duration
@@ -1209,10 +1295,9 @@ void GStreamerWrapper::handleGStMessage(){
 
 						close();
 
-						if(m_Streaming && m_AutoRestartStream){
+						if(m_FullPipeline && m_AutoRestartStream){
 							m_StreamNeedsRestart = true;
 							m_StreamRestartCount = 0;
-							//openStream(m_StreamPipeline, m_iWidth, m_iHeight);
 						}
 
 						g_error_free(err);
@@ -1424,8 +1509,6 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 
 	if(!m_cVideoBuffer) return;
 
-	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
-
 	GstBuffer* buff = gst_sample_get_buffer(videoSinkSample);	
 	GstMapInfo map;
 	GstMapFlags flags = GST_MAP_READ;
@@ -1442,7 +1525,7 @@ void GStreamerWrapper::newVideoSinkBufferCallback( GstSample* videoSinkSample ){
 
 	memcpy((unsigned char *)m_cVideoBuffer, map.data, videoBufferSize);
 	if(!m_PendingSeek) m_bIsNewVideoFrame = true;
-
+	m_bIsNewVideoFrame = true;
 	gst_buffer_unmap(buff, &map);
 }
 

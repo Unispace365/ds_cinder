@@ -712,6 +712,87 @@ void GstVideo::startStream(const std::string& streamingPipeline, const float vid
 	}
 }
 
+void GstVideo::parseLaunch(const std::string& fullPipeline, const int videoWidth, const int videoHeight, const ColorType colorSpace, const std::string& videoSinkName /*= "appsink0"*/, const std::string& volumeElementName /*= "volume0"*/, const double secondsDuration /*= -1*/){
+
+	if(fullPipeline.empty()){
+		DS_LOG_WARNING_M("GstVideo::parseLaunch aborting loading a video because of a blank gstreamer pipeline.", GSTREAMER_LOG);
+		if(mErrorFn) mErrorFn("Did not load a video because there was no pipeline.");
+		return;
+	}
+
+	auto videoService = mEngine.getService<ds::gstreamer::GstVideoService>("gst_video");
+	if(!videoService.getValidInstall()){
+		if(mErrorFn){
+			mErrorFn(videoService.getErrorMessage());
+		}
+	}
+
+	mStreaming = false;
+	mNeedsBatchUpdate = true;
+	mDrawable = false;
+	mColorType = colorSpace;
+
+	if(mColorType == ColorType::kColorTypeShaderTransform){
+		std::string shaderName("yuv_colorspace_conversion");
+		mSpriteShader.setShaders(yuv_vert, yuv_frag, shaderName);// , true);
+		mSpriteShader.loadShaders();
+		ds::gl::Uniform uniform;
+
+		uniform.setInt("gsuTexture0", 2);
+		uniform.setInt("gsuTexture1", 3);
+		uniform.setInt("gsuTexture2", 4);
+		uniform.applyTo(mSpriteShader.getShader());
+	} else {
+		setBaseShader(Environment::getAppFolder("data/shaders"), "base");
+	}
+
+
+	DS_LOG_INFO_M("GstVideo::parseLaunch() pipeline: " << fullPipeline, GSTREAMER_LOG);
+	mGstreamerWrapper->parseLaunch(fullPipeline, videoWidth, videoHeight, (int)mColorType, videoSinkName, volumeElementName, secondsDuration);
+
+	mVideoSize.x = mGstreamerWrapper->getWidth();
+	mVideoSize.y = mGstreamerWrapper->getHeight();
+	Sprite::setSizeAll(static_cast<float>(mVideoSize.x), static_cast<float>(mVideoSize.y), mDepth);
+
+	applyMovieLooping();
+	applyMovieVolume();
+	applyMoviePan(mPan);
+
+	mGstreamerWrapper->setVideoCompleteCallback([this](GStreamerWrapper*){
+		if(mVideoCompleteFn) mVideoCompleteFn();
+		if(mEngine.getMode() == ds::ui::SpriteEngine::CLIENT_MODE){
+			mClientVideoCompleted = true;
+		}
+	});
+
+	// TODO: add error callbacks to the server?
+	mGstreamerWrapper->setErrorMessageCallback([this](const std::string& msg){
+		if(mErrorFn) mErrorFn(msg);
+	});
+
+	if(mDoSyncronization && mEngine.getMode() == ds::ui::SpriteEngine::CLIENTSERVER_MODE){
+		setNetClock();
+	}
+
+	setStatus(Status::STATUS_PLAYING);
+
+
+	if(mGstreamerWrapper->getWidth() < 1.0f || mGstreamerWrapper->getHeight() < 1.0f){
+		// this is ok
+	} else {
+		ci::gl::Texture::Format fmt;
+
+		if(mColorType == kColorTypeShaderTransform){
+			fmt.setInternalFormat(GL_RED);
+			mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+			mUFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+			mVFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth() / 2.0f), static_cast<int>(getHeight() / 2.0f), fmt);
+		} else {
+			mFrameTexture = ci::gl::Texture::create(static_cast<int>(getWidth()), static_cast<int>(getHeight()), fmt);
+		}
+	}
+}
+
 void GstVideo::setLooping(const bool on){
 	mLooping = on;
 	applyMovieLooping();

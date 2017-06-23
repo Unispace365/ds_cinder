@@ -42,6 +42,15 @@ public:
 		int					 mCode;
 	};
 
+
+	// A simple enum for specifying how the video gets rendered.
+	// Transparent: retains an alpha channel through the whole pipeline, gstreamer handles the colorspace conversion to RGBA (or BGRA)
+	// Solid: has no alpha channel, and gstreamer handles the colorspace conversion to RGB (or BGR)
+	// ShaderTransform: has no alpha channel, and colorspace conversion is handled in a shader when drawing to the screen, uses I420 YUV colorspace conversion only
+	// This value is assumed from the output of the videometa cache
+	// Use these values if you're using the parseLaunch option
+	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform } ColorType;
+
 public:
 
 	// Convenience for allocating a Video sprite pointer and optionally adding it
@@ -85,6 +94,16 @@ public:
 	//		rtsp://192.168.1.37:5015/Stream1
 	// Arbitrary pipelines can be set here, though this pathway assumes that the pipeline is live, and seeking is disabled
 	void				startStream(const std::string& streamingPipeline, const float width, const float height);
+
+
+	/** Similar to startStream above, but this is not considered a live pipeline, and will only create a single gstreamer element from the supplied pipeline.
+		Assumes you really know what you're doing with gstreamer. This assumes the source is part of the pipeline (so no filename from setResource or loadVideo is used)
+		Not currently setup for netsync (client/server) situations
+		Note that width and height are enforced to be multiples of 8 for I420 color space and multiples of 4 for the others
+	*/
+	void				parseLaunch(const std::string& fullPipeline, const int videoWidth, const int videoHeight,
+										const ColorType colorSpace, const std::string& videoSinkName = "appsink0", const std::string& volumeElementName = "volume0",
+										const double secondsDuration = -1);
 
 	// Looping (play again after video complete)
 	void				setLooping(const bool on);
@@ -208,12 +227,6 @@ protected:
 
 private:
 
-	// A simple enum for specifying how the video gets rendered.
-	// Transparent: retains an alpha channel through the whole pipeline, gstreamer handles the colorspace conversion to RGBA (or BGRA)
-	// Solid: has no alpha channel, and gstreamer handles the colorspace conversion to RGB (or BGR)
-	// ShaderTransform: has no alpha channel, and colorspace conversion is handled in a shader when drawing to the screen, uses I420 YUV colorspace conversion only
-	// This value is assumed from the output of the videometa cache
-	typedef enum { kColorTypeTransparent = 0, kColorTypeSolid, kColorTypeShaderTransform } ColorType;
 	
 
 	// filename is the absolute path to the file.
