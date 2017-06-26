@@ -8,12 +8,10 @@
 #include <cinder/Function.h>
 #include <cinder/Tween.h>
 #include <cinder/Easing.h>
-#include <cinder/gl/Vbo.h>
 #include <cinder/TriMesh.h>
 #include <cinder/app/App.h>
 #include <cinder/Xml.h>
 #include <cinder/Rand.h>
-
 #include <cinder/CinderMath.h>
 #include <cinder/Font.h>
 #include <cinder/Perlin.h>
@@ -24,6 +22,7 @@
 #include <cinder/gl/GlslProg.h>
 #include <cinder/gl/TextureFont.h>
 #include <cinder/gl/gl.h>
+#include <cinder/gl/Vbo.h>
 #include <cinder/params/Params.h>
 
 
