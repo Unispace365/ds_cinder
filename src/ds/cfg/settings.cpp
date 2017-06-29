@@ -96,9 +96,7 @@ const V& get_or_throw(const std::string& name, const A& container, const int ind
 {
 	auto it = container.find(name);
 	if (it != container.end() && index >= 0 && index < (int)it->second.size()) return it->second[index];
-#ifdef _DEBUG
-	throw std::logic_error("Setting " + typeName + " (" + name + ") does not exist");
-#endif
+
 	DS_LOG_ERROR("Setting " << typeName << " (" << name << ") does not exist");
 	return v;
 }

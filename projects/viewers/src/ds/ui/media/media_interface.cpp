@@ -68,6 +68,13 @@ void MediaInterface::layout(){
 	}
 }
 
+
+void MediaInterface::setBackgroundColorA(const ci::ColorA backgroundColor)
+{
+	if (mBackground)
+		mBackground->setColorA(backgroundColor);
+}
+
 void MediaInterface::animateOn(){
 	if(!mCanDisplay) return;
 	resetIdleTimer();

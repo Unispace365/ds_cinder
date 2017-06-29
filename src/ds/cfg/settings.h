@@ -48,7 +48,7 @@ public:
 	size_t							  	getTextWSize(const std::string& name) const;
 	size_t								getPointSize(const std::string& name) const;
 
-	// Throw errors if not found
+	// Throw errors if not found GN: no longer throws, cause that's not helpful at all
 	float								getFloat(const std::string& name, const int index = 0) const;
 	const cinder::Rectf&				getRect(const std::string& name, const int index = 0) const;
 	int									getInt(const std::string& name, const int index = 0) const;
