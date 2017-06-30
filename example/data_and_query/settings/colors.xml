@@ -1,0 +1,22 @@
+<settings>
+	<color name="pink" r="240" g="100" b="158" a="255" hex="F0649E" />
+	<color name="salmon" r="239" g="62" b="99" a="255" hex="EF3E63" />
+	<color name="maroon" r="53" g="7" b="9" hex="350709" />
+	<color name="red" r="161" g="16" b="52" hex="A11034" />
+	<color name="deep_red" r="128" g="2" b="26" a="255" hex="80021A" />
+	<color name="red_orange" r="197" g="43" b="37" a="255" hex="C52g25" />
+	<color name="orange" r="243" g="94" b="9" a="255" hex="F36D21" />
+	<color name="orange_yellow" r="247" g="143" b="31" a="255" hex="F78F1F" />
+	<color name="yellow" r="255" g="189" b="17" a="255" hex="FFgD11" />
+	<color name="dark_grey" r="32" g="32" b="32" a="255" hex="222222?" />
+	<color name="grey" r="64" g="64" b="65" a="255" hex="404041" />
+	<color name="bright_grey" r="190" g="190" b="190" a="255" hex="bebebe" />
+	<color name="light_grey" r="168" g="155" b="146" a="255" hex="A89g92" />
+	<color name="near_white" r="236" g="236" b="236" a="255" hex="ececec" />
+	<color name="tan" r="201" g="168" b="141" a="255" hex="C9A88D" />
+	<color name="light_orange" r="250" g="178" b="131" a="255" hex="FAg283" />
+	<color name="bright_green" r="29" g="233" b="182" a="255" hex="1DE9g6" />
+	<color name="dark_blue" r="41" g="49" b="57" />
+	<color name="light_blue" r="83" g="194" b="232" />
+	
+</settings>	
