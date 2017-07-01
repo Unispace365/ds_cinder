@@ -27,7 +27,7 @@ void StoryQuery::query(AllData& output) {
 	// Sample to hard-code data:
 	ds::model::StoryRef newStory;
 	newStory.setId(1);
-	newStory.setTitle(L"Sample Story");
+	newStory.setTitle(L"full_starter");
 	newStory.setBody(L"Sample body");
 	newStory.setPrimaryResource(ds::Resource(ds::Environment::expand("%APP%/data/images/temp/sample_image.png")));
 	output.mStories.push_back(newStory);
