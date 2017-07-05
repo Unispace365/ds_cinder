@@ -14,13 +14,14 @@ Function Get-FileName($initialDirectory)
 }
 
 
-Function Execute-Clone($BaseDir, $DestDir, $NewName){
+Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
     #$DestDir = $DsCinder + "\example\" + $NewName;
     $DestDir = $DestDir + "\" + $NewName;
     $SrcDir = $BaseDir + "src\";
     $SlnDir = $BaseDir + "vs2013\";
     $DebugDir = $BaseDir + "vs2013\Debug";
-    $Reseale = $BaseDir + "vs2013\Release";
+    $ReleaseDir = $BaseDir + "vs2013\Release";
+    $IpchDir = $BaseDir + "vs2013\ipch";
     $x64Dir = $BaseDir + "vs2013\x64";
     $logsDir = $BaseDir + "logs";
 
@@ -29,16 +30,19 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName){
 
     Write-Host "Duplicating base project " $BaseDir " to " $DestDir;
 
-    robocopy $BaseDir $DestDir /E /XD $DebugDir $x64Dir $logsdir /xf *.sdf *.suo
+    robocopy $BaseDir $DestDir /E /XD $DebugDir $x64Dir $logsdir $ReleaseDir $IpchDir /xf *.sdf *.suo
 
     $FileList = Get-ChildItem -Path $DestDir -Include *.cpp,*.h -Recurse;
 
     foreach ($File in $FileList) {
         $OutputFile = $File.FullName;
 
-        $Content = (Get-Content -Path $File.FullName -Raw).Replace("fullstarter", $NewName).
+        $Content = (Get-Content -Path $File.FullName -Raw).
+            Replace("fullstarter", $NameSpace).
             Replace("FULLSTARTER", $NewName.ToUpper()).
+            Replace("FullStarterApp", $NewName + "_app").
             Replace("FullStarter", $NewName).
+            Replace("full_starter_app", $NewName + "_app").
             Replace("full_starter", $NewName);
 
         Set-Content -Path $OutputFile -Value $Content;
@@ -82,6 +86,7 @@ $ThisDir = (get-item $ThisCommand ).Directory.FullName;
 $Source = $FullStarter;
 $Dest = $ThisDir;
 $TheName = "project_name";
+$TheNameSpace = "downstream";
 
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Drawing") 
 [void] [System.Reflection.Assembly]::LoadWithPartialName("System.Windows.Forms") 
@@ -93,7 +98,7 @@ $objForm.StartPosition = "CenterScreen"
 
 $objForm.KeyPreview = $True
 $objForm.Add_KeyDown({if ($_.KeyCode -eq "Enter") 
-    {$x=$objTextBox.Text; Execute-Clone $objTextBox.Text $destTextBox.Text $projText.Text }})
+    {$x=$objTextBox.Text; Execute-Clone $objTextBox.Text $destTextBox.Text $projText.Text $nameSpaceText.Text }})
 $objForm.Add_KeyDown({if ($_.KeyCode -eq "Escape") 
     {$objForm.Close()}})
 
@@ -101,7 +106,7 @@ $OKButton = New-Object System.Windows.Forms.Button
 $OKButton.Location = New-Object System.Drawing.Size(700,550)
 $OKButton.Size = New-Object System.Drawing.Size(75,23)
 $OKButton.Text = "Clone"
-$OKButton.Add_Click({Execute-Clone $objTextBox.Text $destTextBox.Text $projText.Text })
+$OKButton.Add_Click({Execute-Clone $objTextBox.Text $destTextBox.Text $projText.Text $nameSpaceText.Text })
 $objForm.Controls.Add($OKButton)
 
 $CancelButton = New-Object System.Windows.Forms.Button
@@ -167,6 +172,18 @@ $projText.Size = New-Object System.Drawing.Size(690,20)
 $projText.Text = $TheName;
 $objForm.Controls.Add($projText) 
 
+# Namespace
+$nameSpace = New-Object System.Windows.Forms.Label
+$nameSpace.Location = New-Object System.Drawing.Size(10,200) 
+$nameSpace.Size = New-Object System.Drawing.Size(480,20) 
+$nameSpace.Text = "Namespace"
+$objForm.Controls.Add($nameSpace) 
+
+$nameSpaceText = New-Object System.Windows.Forms.TextBox 
+$nameSpaceText.Location = New-Object System.Drawing.Size(10,220) 
+$nameSpaceText.Size = New-Object System.Drawing.Size(690,20) 
+$nameSpaceText.Text = $TheNameSpace;
+$objForm.Controls.Add($nameSpaceText) 
 
 
 $objForm.Topmost = $True

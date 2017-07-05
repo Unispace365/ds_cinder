@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "Media_model.h" 
 
 

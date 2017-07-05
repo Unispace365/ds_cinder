@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "story_view.h"
 
 #include <Poco/LocalDateTime.h>

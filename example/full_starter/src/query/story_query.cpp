@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "story_query.h"
 
 #include <map>

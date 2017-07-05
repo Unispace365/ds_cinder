@@ -1,3 +1,5 @@
+#include "stdafx.h"
+
 #include "full_starter_app.h"
 
 #include <Poco/String.h>
@@ -88,9 +90,9 @@ void FullStarterApp::setupServer(){
 	const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
 	ds::ui::XmlImporter::setAutoCache(cacheXML);
 
-	const int numRoots = mEngine.getRootCount();
+	const size_t numRoots = mEngine.getRootCount();
 	int numPlacemats = 0;
-	for(int i = 0; i < numRoots - 1; i++){
+	for(size_t i = 0; i < numRoots - 1; i++){
 		// don't clear the last root, which is the debug draw
 		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
 
@@ -126,7 +128,7 @@ void FullStarterApp::update() {
 	ds::App::update();
 
 	bool rootsIdle = true;
-	const int numRoots = mEngine.getRootCount();
+	const size_t numRoots = mEngine.getRootCount();
 	for(int i = 0; i < numRoots - 1; i++){
 		// don't clear the last root, which is the debug draw
 		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
@@ -152,8 +154,8 @@ void FullStarterApp::update() {
 
 void FullStarterApp::forceStartIdleMode(){
 	// force idle mode to start again
-	const int numRoots = mEngine.getRootCount();
-	for(int i = 0; i < numRoots - 1; i++){
+	const size_t numRoots = mEngine.getRootCount();
+	for(size_t i = 0; i < numRoots - 1; i++){
 		// don't clear the last root, which is the debug draw
 		if(mEngine.getRootBuilder(i).mDebugDraw) continue;
 		mEngine.getRootSprite(i).startIdling();
@@ -179,9 +181,9 @@ void FullStarterApp::keyDown(ci::app::KeyEvent event){
 	// Shows all enabled sprites with a label for class type
 	} else if(event.getCode() == KeyEvent::KEY_f){
 
-		const int numRoots = mEngine.getRootCount();
+		const size_t numRoots = mEngine.getRootCount();
 		int numPlacemats = 0;
-		for(int i = 0; i < numRoots - 1; i++){
+		for(size_t i = 0; i < numRoots - 1; i++){
 			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
 				if(sprite.isEnabled()){
 					sprite.setTransparent(false);
