@@ -36,9 +36,10 @@ MqttWatcher::MqttWatcher(
 	const std::string& topic_inbound /*= "/ds_test_mqtt_inbound"*/,
 	const std::string& topic_outband /*= "/ds_test_mqtt_outbound"*/,
 	float refresh_rate /*= 0.1f*/,
-	int port /*= 1883*/)
+	int port /*= 1883*/,
+	const std::string& clientId)
 	: ds::AutoUpdate(e)
-	, mLoop(e, host, topic_inbound, topic_outband, refresh_rate, port)
+	, mLoop(e, host, topic_inbound, topic_outband, refresh_rate, port, clientId)
 	, mRetryWaitTime(5.0f)
 	, mStarted(false)
 {
@@ -149,7 +150,8 @@ MqttWatcher::MqttConnectionLoop::MqttConnectionLoop (
 	const std::string& topic_inbound,
 	const std::string& topic_outband,
 	float refresh_rate,
-	int port)
+	int port,
+	const std::string& clientId)
 	: mAbort(false)
 	, mHost(host)
 	, mPort(port)
@@ -157,12 +159,14 @@ MqttWatcher::MqttConnectionLoop::MqttConnectionLoop (
 	, mTopicOutbound(topic_outband)
 	, mRefreshRateMs(static_cast<int>(refresh_rate * 1000))
 	, mFirstTimeMessage(true)
+	, mClientId(clientId)
 {}
 
 namespace {
 class MosquittoReceiver final : public mosqpp::mosquittopp
 {
 public:
+	MosquittoReceiver(const std::string& id) : mosqpp::mosquittopp(id.c_str(), true){}
 	void on_connect(int rc) override { mConnectAction(rc); }
 	void on_message(const struct mosquitto_message *message) override { 
 		MqttWatcher::MqttMessage msg;
@@ -181,10 +185,16 @@ private:
 
 void MqttWatcher::MqttConnectionLoop::run(){
 	mAbort = false;
-	MosquittoReceiver mqtt_isnt;
 
-	mqtt_isnt.setConnectAction([this](int code){
-		DS_LOG_INFO_M("MQTT server connected, status code (0 is success): " << code, MQTT_LOG);
+	std::srand((unsigned int)std::time(0));
+	std::string id = mClientId;
+	if(id.empty()) id = "ds_" + std::to_string(std::time(0));
+	id.append(std::to_string(std::rand()));
+
+	MosquittoReceiver mqtt_isnt(id);
+
+	mqtt_isnt.setConnectAction([this, id](int code){
+		DS_LOG_INFO_M("MQTT server connected, status code (0 is success): " << code << " client id: " << id, MQTT_LOG);
 		mFirstTimeMessage = true;
 	});
 
@@ -197,11 +207,6 @@ void MqttWatcher::MqttConnectionLoop::run(){
 		}
 	});
 
-	std::srand(std::time(0));
-	std::string id("ds_");
-	id += std::to_string(std::time(0));
-	id += std::to_string(std::rand());
-	mqtt_isnt.reinitialise(id.c_str(), true);
 	auto err_no = mqtt_isnt.connect(mHost.c_str(), mPort);
 	if(err_no != MOSQ_ERR_SUCCESS && mFirstTimeMessage){
 		DS_LOG_ERROR_M("Unable to connect to the MQTT server. Error number is: " << err_no << ". Error string is: " << mosqpp::strerror(err_no), MQTT_LOG);
