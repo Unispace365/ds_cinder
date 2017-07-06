@@ -325,6 +325,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="$(DS_PLATFORM_090)\vs2013\FrameworkResources.rc" />
+    <ResourceCompile Include="Resources.rc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\src\model\generated\model.yml" />

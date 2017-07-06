@@ -48,12 +48,6 @@
 	<!-- false=no cursor visible, true=visible cursor. default=false -->
 	<text name="hide_mouse" value="false" />
 
-	<!-- turns Fx Anti-aliasing on or off. default=false -->
-	<text name="FxAA" value="false" />
-	<float name="FxAA:SpanMax" value="2.0"/>
-	<float name="FxAA:ReduceMul" value="8.0" />
-	<float name="FxAA:ReduceMin" value="128.0" />
-
 	<!-- for perspective cameras, how near and far away to clip crap. default: x=1, y=1000 -->
 	<size name="camera:z_clip" x="1.0" y="1000.0" />
 	<!-- the field of view of the perspective camera? -->
@@ -62,7 +56,7 @@
 	<!-- how much to step the camera when using the arrow keys.
 		set to a value above 0.025 to enable arrow key usage.
 		default=-1.0 -->
-	<float name="camera:arrow_keys" value="-1.0" />
+	<float name="camera:arrow_keys" value="30.0" />
 
 	<!---------------------->
 	<!-- TOUCH SETTINGS ---->
@@ -73,17 +67,25 @@
 	<text name="touch_overlay:override_translation" value="false" />
 	<size name="touch_overlay:dimensions" x="1920" y="1080" />
 	<size name="touch_overlay:offset" x="0" y="0" />
-	<rect name="touch_overlay:filter_rect" l="10" t="10" r="1910" b="1070" />
+	<!-- <rect name="touch_overlay:filter_rect" l="10" t="10" r="1910" b="1070" /> -->
 
 	<!-- sets the color of debug touch points. default=255,255,255 -->
 	<color name="touch_color" r="255" g="255" b="255" />
 	<!-- draw circles around touch points -->
 	<text name="touch_overlay:debug" value="true" />
 	
+	<!-- visual settings for touch debug circles -->
+	<float name="touch_overlay:debug_circle_radius" value="15" />
+	<color name="touch_overlay:debug_circle_color" r="255" g="255" b="255" a="255" />
+	<text  name="touch_overlay:debug_circle_filled" value="false" />
+	
 	<!-- average out touch points over time for smoother input, but slightly less accurate. default=true -->
 	<text name="touch_smoothing" value="true" />
 	<!-- how many frames to use when smoothing. Higher numbers are smoother. Lower than 3 is effectively off. default=5 -->
 	<int  name="touch_smooth_frames" value="8" />
+	
+	<!-- how many pixels away from an existing touch point for a new touch to be considered valid -->
+	<float name="touch:minimum_distance" value="35" />
 	
 	<!-- Touch trails are special debug drawing that leaves a trail behind the touches.
 			use: true turns this on (overrides the stroked cirlce debug drawing (touch_overlay:debug must be true for this to be on)
@@ -93,6 +95,8 @@
 	<text  name="touch_overlay:trails:use" value="false" />
 	<int   name="touch_overlay:trails:length" value="5" />
 	<float name="touch_overlay:trails:increment" value="5.0" />
+	
+	
 	
 	<!-- Set the current touch mode. Options:
 		"Tuio" -- Receive events over TUIO.
