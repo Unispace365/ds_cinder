@@ -113,7 +113,7 @@ void MediaSlideshow::recenterSlides(){
 	}
 
 	if(mItemChangedCallback){
-		mItemChangedCallback(mCurItemIndex, mViewers.size());
+		mItemChangedCallback(mCurItemIndex, (int)mViewers.size());
 	}
 }
 
@@ -204,13 +204,13 @@ void MediaSlideshow::gotoNext(const bool wrap){
 
 void MediaSlideshow::gotoPrev(const bool wrap){
 	if(mViewers.empty()) return;
-	size_t newIndex = mCurItemIndex - 1;
+	int newIndex = mCurItemIndex - 1;
 	if(newIndex < 0){
 		if(!wrap){
 			// don't do anything if we're not supposed to wrap around
 			return;
 		}
-		newIndex = mViewers.size() - 1;
+		newIndex = (int)mViewers.size() - 1;
 	}
 
 	gotoItemIndex(newIndex);
@@ -218,11 +218,12 @@ void MediaSlideshow::gotoPrev(const bool wrap){
 
 void MediaSlideshow::loadCurrentAndAdjacent(){
 	// Simple sanity checks
-	int sizey = mViewers.size();
+	int sizey = (int)mViewers.size();
 	if(mViewers.empty() || mCurItemIndex < 0 || mCurItemIndex > sizey - 1) return;
 
 	if(!mAllowLoadAhead){
 		mViewers[mCurItemIndex]->initialize();
+		mViewers[mCurItemIndex]->setPosition(mViewers[mCurItemIndex]->getPosition().x, (getHeight() - mViewers[mCurItemIndex]->getDefaultSize().y) * 0.5f);
 		return;
 	}
 
@@ -234,7 +235,9 @@ void MediaSlideshow::loadCurrentAndAdjacent(){
 		   || (mCurItemIndex == 0 && i == sizey - 1)	// The current one is the first one, so wrap backwards and load the last one
 		   )
 		{
-			mViewers[i]->initialize();
+			mViewers[i]->initialize();		
+			mViewers[i]->setPosition(mViewers[i]->getPosition().x, (getHeight() - mViewers[i]->getDefaultSize().y) * 0.5f);
+
 		} else {
 			mViewers[i]->uninitialize();
 		}

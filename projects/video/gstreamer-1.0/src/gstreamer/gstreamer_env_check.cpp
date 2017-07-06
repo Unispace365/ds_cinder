@@ -40,7 +40,6 @@ bool EnvCheck::addGStreamerBinPath(){
 
 	bool addedLocalDlls = false;
 
-	std::cout << "addGstreamerBinPath: " << ds::Environment::expand("%APP%") << std::endl;
 	std::string localDllPath = ds::Environment::expand("%APP%/dll/");
 	std::string localPlugins = ds::Environment::expand("%APP%/dll/gst_plugins");
 	if(safeFileExistsCheck(localDllPath) && safeFileExistsCheck(localPlugins)){
