@@ -197,6 +197,11 @@ void MqttWatcher::MqttConnectionLoop::run(){
 		}
 	});
 
+	std::srand(std::time(0));
+	std::string id("ds_");
+	id += std::to_string(std::time(0));
+	id += std::to_string(std::rand());
+	mqtt_isnt.reinitialise(id.c_str(), true);
 	auto err_no = mqtt_isnt.connect(mHost.c_str(), mPort);
 	if(err_no != MOSQ_ERR_SUCCESS && mFirstTimeMessage){
 		DS_LOG_ERROR_M("Unable to connect to the MQTT server. Error number is: " << err_no << ". Error string is: " << mosqpp::strerror(err_no), MQTT_LOG);
