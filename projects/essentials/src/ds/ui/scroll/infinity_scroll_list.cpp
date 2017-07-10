@@ -1,3 +1,4 @@
+
 #include "infinity_scroll_list.h"
 
 #include <ds/debug/logger.h>
@@ -17,13 +18,15 @@ namespace ds{
 			, mStartPositionY(0.0f)
 			, mIncrementAmount(350.0f)
 			, mOnScreenItemSize(0)
-			, mTopIndex(-1)
+			, mTopIndex(0)
 			, mBottomIndex(-1)
 			, mIsOnTweenAnimation(false)
 			, mTweenAnimationDuration(0.4f)
 			, mTweenAnimationDelay(0.0f)
 			, mTweenAnimationEaseFn(ci::EaseNone())
 			, mIsTurnOnStepSwipe(false)
+			, mScrollable(true)
+			, mMinimumTouchDistance(0.0f)
 		{
 			setSize(startWidth, startHeight);
 			mSpriteMomentum.setMass(8.0f);
@@ -55,9 +58,7 @@ namespace ds{
 			clearItems();
 			initFillScreen();
 
-			mTopIndex = dbIds.size() - 1;
-
-			mItemPlaceHolders.push_back(ItemPlaceHolder(dbIds[mTopIndex]));
+			mItemPlaceHolders.push_back(ItemPlaceHolder(dbIds[dbIds.size() - 1]));
 			if (dbIds.size() > 1)
 			{
 				for (auto it = 0; it < dbIds.size() - 1; ++it){
@@ -137,7 +138,7 @@ namespace ds{
 			{
 				targetAmount = mStartPositionX - mIncrementAmount - pos.x;
 			}
-			if(duration < 0) tweenItemPos(targetAmount);
+			if (duration < 0) tweenItemPos(targetAmount);
 			else tweenItemPos(targetAmount, duration);
 		}
 
@@ -157,7 +158,7 @@ namespace ds{
 				targetAmount = mStartPositionX - pos.x;
 			}
 			if (duration < 0) tweenItemPos(targetAmount); //tweenItemPos(mIncrementAmount);
-			else tweenItemPos(targetAmount, duration); 
+			else tweenItemPos(targetAmount, duration);
 		}
 
 		void infinityList::jumpItem(int itemId, float duration){
@@ -178,7 +179,7 @@ namespace ds{
 			mOnScreenItemList.push_back(placeHolder);
 
 			nextItem(duration);
-			
+
 		}
 
 		void infinityList::turnOnStepSwipe()
@@ -187,11 +188,6 @@ namespace ds{
 			{
 				mIsTurnOnStepSwipe = true;
 			}
-		}
-
-		void infinityList::updateServer(const ds::UpdateParams& p)
-		{
-			Sprite::updateServer(p);
 		}
 
 		void infinityList::clearItems()
@@ -257,51 +253,52 @@ namespace ds{
 
 		void infinityList::handleScrollTouch(Sprite* bs, const TouchInfo& ti)
 		{
-			if(mSwipeCallback) mSwipeCallback(bs, ti.mCurrentGlobalPoint);
-			if (ti.mPhase == TouchInfo::Added){
-				mSpriteMomentum.deactivate();
-			}
-			else if (ti.mPhase == TouchInfo::Removed && ti.mNumberFingers == 0){
-				mSpriteMomentum.activate();
-			}
-			else if (ti.mPhase == TouchInfo::Moved && ti.mNumberFingers > 0){
-				auto deltaPoint = ti.mDeltaPoint;
+			if (mScrollable){
+				if (mSwipeCallback) mSwipeCallback(bs, ti.mCurrentGlobalPoint);
+				if (ti.mPhase == TouchInfo::Added){
+					mSpriteMomentum.deactivate();
+				}
+				else if (ti.mPhase == TouchInfo::Removed && ti.mNumberFingers == 0){
+					mSpriteMomentum.activate();
+				}
+				else if (ti.mPhase == TouchInfo::Moved && ti.mNumberFingers > 0){
+					auto deltaPoint = ti.mDeltaPoint;
 
-				if (mScroller){
-					if (mIsTurnOnStepSwipe)
-					{
-						if (ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance())
+					if (mScroller){
+						if (mIsTurnOnStepSwipe)
 						{
-							if (mVertical)
+							if (ti.mCurrentGlobalPoint.distance(ti.mStartPoint) > mEngine.getMinTapDistance())
 							{
+								if (mVertical)
+								{
 
-							}
-							else
-							{
-								if (ti.mDeltaPoint.x > 0)
-									previousItem();
+								}
 								else
-									nextItem();
+								{
+									if (ti.mDeltaPoint.x > mMinimumTouchDistance)
+										previousItem();
+									else if (ti.mDeltaPoint.x < -mMinimumTouchDistance)
+										nextItem();
+								}
 							}
 						}
-					}
-					else
-					{
-						if (mVertical){
-							float yDelta = deltaPoint.y / ti.mNumberFingers;
-							if (getPerspective()){
-								yDelta = -yDelta;
+						else
+						{
+							if (mVertical){
+								float yDelta = deltaPoint.y / ti.mNumberFingers;
+								if (getPerspective()){
+									yDelta = -yDelta;
+								}
+								itemPosUpdated(yDelta);
 							}
-							itemPosUpdated(yDelta);
-						}
-						else {
-							float xDelta = deltaPoint.x / ti.mNumberFingers;
-							itemPosUpdated(xDelta);
+							else {
+								float xDelta = deltaPoint.x / ti.mNumberFingers;
+								itemPosUpdated(xDelta);
+							}
 						}
 					}
 				}
 			}
-
 		}
 
 		void infinityList::itemPosUpdated(const float delta)
@@ -312,31 +309,14 @@ namespace ds{
 			for (auto it = mOnScreenItemList.begin(); it < mOnScreenItemList.end(); it++)
 			{
 				auto targetSprite = (*it).mAssociatedSprite;
-				if (mVertical)
-				{
-					targetSprite->move(0.0f, delta);
-					if (targetSprite->getPosition().y <= -mIncrementAmount + mStartPositionY || targetSprite->getPosition().y >= mScroller->getHeight())
-					{
-						(*it).mOnscrren = false;
-					}
-					else
-					{
-						(*it).mOnscrren = true;
-					}
+				auto currentPos = targetSprite->getPosition();
+				if (mVertical){
+					currentPos.y += delta;
+				} else {
+					currentPos.x += delta;
 				}
-				else
-				{
-					targetSprite->move(delta, 0.0f);
-					if (targetSprite->getPosition().x <= -mIncrementAmount + mStartPositionX || targetSprite->getPosition().x >= mScroller->getWidth())
-					{
-						(*it).mOnscrren = false;
-					}
-					else
-					{
-						(*it).mOnscrren = true;
-					}
-
-				}
+				targetSprite->setPosition(currentPos);
+				checkIsOnScreen();
 			}
 			checkBounds();
 		}
@@ -353,36 +333,15 @@ namespace ds{
 			{
 				auto targetSprite = (*it).mAssociatedSprite;
 				auto currentPos = targetSprite->getPosition();
-				if (mVertical)
-				{
+				if (mVertical)				{
 					currentPos.y += delta;
-					targetSprite->tweenPosition(currentPos, duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
-					{
-						if (targetSprite->getPosition().y <= -mIncrementAmount + mStartPositionY || targetSprite->getPosition().y >= mScroller->getHeight())
-						{
-							(*it).mOnscrren = false;
-						}
-						else
-						{
-							(*it).mOnscrren = true;
-						}
-					});
-				}
-				else
-				{
+				} else {
 					currentPos.x += delta;
-					targetSprite->tweenPosition(currentPos, duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this, it, targetSprite]()
-					{
-						if (targetSprite->getPosition().x <= -mIncrementAmount + mStartPositionX || targetSprite->getPosition().x >= mScroller->getWidth())
-						{
-							(*it).mOnscrren = false;
-						}
-						else
-						{
-							(*it).mOnscrren = true;
-						}
-					});
 				}
+
+				targetSprite->tweenPosition(currentPos, duration, mTweenAnimationDelay, mTweenAnimationEaseFn, [this](){
+					checkIsOnScreen();
+				});
 			}
 			callAfterDelay([this](){
 				checkBounds();
@@ -423,41 +382,84 @@ namespace ds{
 				return;
 
 			auto size = mOnScreenItemList.size();
+			auto count = 0;
+			for (auto i = 0; i < size; i++)
+			{
+				if (mOnScreenItemList[i].mOnscrren)
+					count++;
+			}
 
 			if (mOnScreenItemList[size - 1].mOnscrren)
 			{
 				mOnScreenItemList[0].mAssociatedSprite->release();
 				mOnScreenItemList.erase(mOnScreenItemList.begin());
-				addSpriteToEnd();		
+				mOnScreenItemSize--;
+				addSpriteToEnd();
 			}
-			if (mOnScreenItemList[0].mOnscrren)
+			else if (mOnScreenItemList[0].mOnscrren)
 			{
 				mOnScreenItemList[size - 1].mAssociatedSprite->release();
 				mOnScreenItemList.pop_back();
+				mOnScreenItemSize--;
 				addSpriteToTop();
 			}
+
 			mIsOnTweenAnimation = false;
+		}
+
+		void infinityList::checkIsOnScreen()
+		{
+			for (auto it = mOnScreenItemList.begin(); it < mOnScreenItemList.end(); it++)
+			{
+				auto targetSprite = (*it).mAssociatedSprite;
+				if (mVertical)
+				{
+					if (targetSprite->getPosition().y < -mIncrementAmount + mStartPositionY || targetSprite->getPosition().y > mScroller->getHeight())
+					{
+						(*it).mOnscrren = false;
+					}
+					else
+					{
+						(*it).mOnscrren = true;
+					}
+				}
+				else
+				{
+					if (targetSprite->getPosition().x < -mIncrementAmount + mStartPositionX || targetSprite->getPosition().x > mScroller->getWidth())
+					{
+						(*it).mOnscrren = false;
+					}
+					else
+					{
+						(*it).mOnscrren = true;
+					}
+				}
+			}
 		}
 
 		void infinityList::addSpriteToEnd()
 		{
-			if (mOnScreenItemList.empty() && mOnScreenItemSize > 2)
+			if (mOnScreenItemList.empty() && mOnScreenItemSize < 2)
 				return;
 
 			mTopIndex++;
 			mBottomIndex++;
-			if (mTopIndex == mItemPlaceHolders.size())
+			if (mTopIndex >= mItemPlaceHolders.size())
 				mTopIndex = 0;
-			if (mBottomIndex == mItemPlaceHolders.size())
+			if (mBottomIndex >= mItemPlaceHolders.size())
 				mBottomIndex = 0;
+
+			//std::cout << "add to end, top index is " << mTopIndex << " and bottom index is" << mBottomIndex << std::endl;
 
 			auto &placeHolder = mItemPlaceHolders[mBottomIndex];
 			createSprite(placeHolder);
 			if (mVertical)
-				placeHolder.mAssociatedSprite->setPosition(mStartPositionX, mOnScreenItemList[mOnScreenItemSize - 2].mAssociatedSprite->getPosition().y + mIncrementAmount);
+				placeHolder.mAssociatedSprite->setPosition(mStartPositionX, mOnScreenItemList[mOnScreenItemSize - 1].mAssociatedSprite->getPosition().y + mIncrementAmount);
 			else
-				placeHolder.mAssociatedSprite->setPosition(mOnScreenItemList[mOnScreenItemSize - 2].mAssociatedSprite->getPosition().x + mIncrementAmount, mStartPositionY);
+				placeHolder.mAssociatedSprite->setPosition(mOnScreenItemList[mOnScreenItemSize - 1].mAssociatedSprite->getPosition().x + mIncrementAmount, mStartPositionY);
 			mOnScreenItemList.push_back(placeHolder);
+			mOnScreenItemSize++;
+			checkIsOnScreen();
 		}
 
 		void infinityList::addSpriteToTop()
@@ -467,18 +469,22 @@ namespace ds{
 
 			mTopIndex--;
 			mBottomIndex--;
-			if (mTopIndex == -1)
+			if (mTopIndex <= -1)
 				mTopIndex = mItemPlaceHolders.size() - 1;
-			if (mBottomIndex == -1)
+			if (mBottomIndex <= -1)
 				mBottomIndex = mItemPlaceHolders.size() - 1;
 
-			auto &placeHolder = mItemPlaceHolders[mTopIndex];
+			//std::cout << "add to top, top index is " << mTopIndex << " and bottom index is" << mBottomIndex << std::endl;
+
+			auto &placeHolder = mItemPlaceHolders[mTopIndex ];
 			createSprite(placeHolder);
 			if (mVertical)
 				placeHolder.mAssociatedSprite->setPosition(mStartPositionX, mOnScreenItemList[0].mAssociatedSprite->getPosition().y - mIncrementAmount);
 			else
 				placeHolder.mAssociatedSprite->setPosition(mOnScreenItemList[0].mAssociatedSprite->getPosition().x - mIncrementAmount, mStartPositionY);
 			mOnScreenItemList.insert(mOnScreenItemList.begin(), placeHolder);
+			mOnScreenItemSize++;
+			checkIsOnScreen();
 		}
 
 		void infinityList::createSprite(ItemPlaceHolder& placeHolder)
@@ -511,7 +517,6 @@ namespace ds{
 				if (mSetDataCallback)
 					mSetDataCallback(sprite, placeHolder.mDbId);
 				placeHolder.mAssociatedSprite = sprite;
-				//placeHolder.mOnscrren = false;
 			}
 		}
 

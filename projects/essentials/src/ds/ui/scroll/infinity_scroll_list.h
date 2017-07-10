@@ -56,6 +56,11 @@ namespace ds{
 			// Returns the positions of items currently on screen
 			std::vector<int>					getOnScreenItemsPos();
 
+			void								enableScroll(bool isScrollable = true){ mScrollable = isScrollable; }
+
+			// Sets the minimum touch distance for handling scroll touch
+			void								setMinimumTouchDistance(float minDist){ mMinimumTouchDistance = minDist; }
+
 		protected:
 			// A helper so we only have to show the visible results at one time (instead of creating a zillion sprites)
 			struct ItemPlaceHolder	{
@@ -72,7 +77,6 @@ namespace ds{
 				bool						mOnscrren;
 			};
 
-			virtual void						updateServer(const ds::UpdateParams& p);
 			virtual void						clearItems();
 			virtual void						assignItems();
 			void								handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
@@ -81,6 +85,7 @@ namespace ds{
 			void								initFillScreen();
 			void								layout();
 			void								checkBounds();
+			void								checkIsOnScreen();
 			void								addSpriteToEnd();
 			void								addSpriteToTop();
 			void								createSprite(ItemPlaceHolder&);
@@ -103,6 +108,7 @@ namespace ds{
 			int									mOnScreenItemSize;
 			int									mTopIndex;
 			int									mBottomIndex;
+
 			bool								mIsOnTweenAnimation;
 			bool								mIsTurnOnStepSwipe;
 
@@ -119,6 +125,8 @@ namespace ds{
 			std::function<void(ds::ui::Sprite*, const float delay)>		mAnimateOnCallback;
 			std::function<void(ds::ui::Sprite*, const bool highli)>		mStateChangeCallback;
 			std::function<void()>										mScrollUpdatedCallback;
+
+			float								mMinimumTouchDistance;
 		};
 	} // namespace ds
 }
