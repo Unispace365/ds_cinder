@@ -141,9 +141,9 @@ TcpServer::TcpServer(	ds::ui::SpriteEngine& e, const Poco::Net::SocketAddress& a
 		, mBucket(new SendBucket())
 		, mReceiveQueue(new ds::AsyncQueue<std::string>())
 		, mServer(new ConnectionFactory(mBucket, mReceiveQueue, mStopped, wakeup, terminator), Poco::Net::ServerSocket(address)) {
-	if (!mStopped) throw std::runtime_error("TcpServer failed making mStopped");
-	if (!mBucket) throw std::runtime_error("TcpServer failed making mBucket");
-	if (!mReceiveQueue) throw std::runtime_error("TcpServer failed making mReceiveQueue");
+	if (!mStopped) DS_LOG_WARNING("TcpServer failed making mStopped");
+	if(!mBucket) DS_LOG_WARNING("TcpServer failed making mBucket");
+	if(!mReceiveQueue) DS_LOG_WARNING("TcpServer failed making mReceiveQueue");
 
 	try {
 		mServer.start();

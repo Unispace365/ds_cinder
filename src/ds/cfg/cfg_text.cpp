@@ -42,7 +42,10 @@ ds::ui::Text* Text::create(ds::ui::SpriteEngine& se, ds::ui::Sprite* parent) con
 
 ds::ui::Text& Text::createOrThrow(ds::ui::SpriteEngine& se, ds::ui::Sprite* parent, const char* error) const {
 	ds::ui::Text*				s = create(se);
-	if (!s) throw std::runtime_error(error ? error : CREATE_ERROR);
+	
+	//GN: this isn't helpful, since it'll just crash anyways
+	//if (!s) throw std::runtime_error(error ? error : CREATE_ERROR);
+
 	if (parent) parent->addChild(*s);
 	return *s;
 }
@@ -58,7 +61,7 @@ ds::ui::MultilineText* Text::createMultiline(ds::ui::SpriteEngine& se, ds::ui::S
 
 ds::ui::MultilineText& Text::createOrThrowMultiline(ds::ui::SpriteEngine& se, ds::ui::Sprite* parent, const char* error) const {
 	ds::ui::MultilineText*		s = createMultiline(se);
-	if (!s) throw std::runtime_error(error ? error : CREATE_ERROR);
+	//if (!s) throw std::runtime_error(error ? error : CREATE_ERROR);
 	if (parent) parent->addChild(*s);
 	return *s;
 }

@@ -640,7 +640,8 @@ const ci::mat4 &Sprite::getTransform() const {
 
 void Sprite::addChild(Sprite &child){
 	if(this == &child) {
-		throw std::runtime_error("Trying to add a Sprite to itself.");
+		DS_LOG_WARNING("Trying to add a Sprite to itself.");
+		return;
 	}
 
 	if(containsChild(&child))

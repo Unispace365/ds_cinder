@@ -41,7 +41,9 @@ ds::ui::NinePatch* NinePatch::create(ds::ui::SpriteEngine& se, ds::ui::Sprite* p
 
 ds::ui::NinePatch& NinePatch::createOrThrow(ds::ui::SpriteEngine& se, ds::ui::Sprite* parent, const char* error) const {
 	ds::ui::NinePatch*				s = create(se, parent);
-	if (!s) throw std::runtime_error(error ? error : CREATE_ERROR);
+	if(!s){
+		DS_LOG_WARNING("failed to create a ninepatch sprite!");
+	}
 	return *s;
 }
 

@@ -205,9 +205,7 @@ void PerspRoot::setCameraRef(const ci::CameraPersp& cam){
 
 void PerspRoot::setCamera(const PerspCameraParams& p) {
 	if (mMaster) {
-#ifdef _DEBUG
-		throw std::runtime_error("PerspRoot::setCamera() illegal: root is a slave");
-#endif
+		DS_LOG_WARNING("PerspRoot::setCamera() illegal: root is a slave");
 		return;
 	}
 	if (p == getCamera()) return;
