@@ -94,13 +94,16 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 	// don't lose idle just because we got a marker moved event
 	mTuioObjectsMoved.setAutoIdleReset(false);
 
-	const bool			drawTouches = settings.getBool("touch_overlay:debug", 0, false);
+	const bool drawTouches = settings.getBool("touch_overlay:debug", 0, false);
 	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
 	mData.mMinTouchDistance = settings.getFloat("touch:minimum_distance", 0, 10.0f);
 	mData.mSwipeQueueSize = settings.getInt("touch:swipe:queue_size", 0, 4);
 	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
 	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
 	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
+
+	const bool verboseTouchLogging = settings.getBool("touch_overlay:verbose_logging", 0, false);
+	mTouchManager.setVerboseLogging(verboseTouchLogging);
 
 	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
 	// Backwards compatibility with pre src-dst rect days
@@ -329,8 +332,9 @@ void Engine::setupTouch(ds::App& a) {
 		registerForTuioObjects(tuioClient);
 		try{
 			tuioClient.connect(mTuioPort);
+			DS_LOG_INFO("TUIO Connected on port " << mTuioPort);
 		} catch(std::exception ex) {
-			DS_LOG_WARNING("Tuio client could not be started.");
+			DS_LOG_WARNING("TUIO client could not be started on port " << mTuioPort << ". The most common cause is that the port is already bound by another app.");
 		}
 	}
 }

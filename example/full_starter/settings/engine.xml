@@ -74,6 +74,9 @@
 	<!-- draw circles around touch points -->
 	<text name="touch_overlay:debug" value="true" />
 	
+	<!-- Prints out info for every touch info. Also can be set at runtime using shift-V -->
+	<text  name="touch_overlay:verbose_logging" value="true" />
+	
 	<!-- visual settings for touch debug circles -->
 	<float name="touch_overlay:debug_circle_radius" value="15" />
 	<color name="touch_overlay:debug_circle_color" r="255" g="255" b="255" a="255" />

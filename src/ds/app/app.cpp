@@ -366,6 +366,8 @@ void App::keyDown(ci::app::KeyEvent e) {
 			mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		}
+	} else if(code == ci::app::KeyEvent::KEY_v && e.isShiftDown()){
+		mEngine.getTouchManager().setVerboseLogging(!mEngine.getTouchManager().getVerboseLogging());
 	}
 
 	if(ci::app::KeyEvent::KEY_p == code){
