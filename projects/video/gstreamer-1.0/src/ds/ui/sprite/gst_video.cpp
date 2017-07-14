@@ -33,10 +33,10 @@ namespace ds {
 namespace ui {
 
 namespace {
-ds::ui::VideoMetaCache          CACHE("gstreamer-3");
-const ds::BitMask               GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
-template<typename T> void       noop(T) { /* no op */ };
-auto                            void_noop = []() -> void {/* no op */};
+ds::ui::VideoMetaCache		CACHE("gstreamer-3");
+const ds::BitMask			GSTREAMER_LOG = ds::Logger::newModule("gstreamer");
+template<typename T> void	noop(T) { /* no op */ };
+auto						void_noop = []() -> void {/* no op */};
 
 static int drawcount = 0;
 

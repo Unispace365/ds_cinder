@@ -42,6 +42,7 @@ private:
 	ds::ui::MultilineText*				mMessage;
 	ds::ui::Image*						mImage;
 	ds::ui::TextPango*					mPangoText;
+	std::wstring						mFullText;
 	ds::ui::Sprite*						mFakeCursor;
 
 };

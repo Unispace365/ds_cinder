@@ -40,6 +40,7 @@ StoryView::StoryView(Globals& g)
 
 	mPangoText = dynamic_cast<ds::ui::TextPango*>(spriteMap["message_b"]);
 	if(mPangoText){
+		mFullText = mPangoText->getText();
 		mPangoText->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
 			auto touchPos = bs->globalToLocal(ti.mCurrentGlobalPoint);
 			
@@ -68,7 +69,14 @@ StoryView::StoryView(Globals& g)
 }
 
 void StoryView::randomizeText(){
-	mPangoText->setText(mPangoText->getText() + L" " + std::to_wstring(ci::randFloat()));
+	mFullText += L" " + std::to_wstring(ci::randFloat());
+	static bool switcher = false;
+	switcher = !switcher;
+	if(switcher){
+		mPangoText->setText(mFullText);
+	} else {
+		mPangoText->setText(L"Hello there!");
+	}
 	mPangoText->callAfterDelay([this]{
 		randomizeText();
 	}, 5.0f);

@@ -561,6 +561,7 @@ bool TextPango::measurePangoText() {
 		}
 
 		mNeedsTextRender = true;
+		bool hadMarkup = mProbablyHasMarkup;
 
 		if(mNeedsMarkupDetection) {
 
@@ -664,6 +665,9 @@ bool TextPango::measurePangoText() {
 			}
 
 			if(!mProbablyHasMarkup || newPixelWidth < 1) {
+				if(hadMarkup){
+					pango_layout_set_markup(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
+				}
 				pango_layout_set_text(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
 			}
 
