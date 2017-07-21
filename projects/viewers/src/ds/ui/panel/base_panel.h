@@ -55,7 +55,7 @@ public:
 	void							tweenEnded();
 
 	/** Sets the flag that this viewer is on it's way out. Usage up to client app*/
-	void							setAboutToBeRemoved(const bool isRemoving = true){ mRemoving = true; };
+	void							setAboutToBeRemoved(const bool isRemoving = true);
 
 	/** Gets the flag that this panel will be removed or retired after the current animation. This is primarily for client app logic. */
 	bool							getIsAboutToBeRemoved(){ return mRemoving; }
@@ -108,6 +108,9 @@ protected:
 	/** Override this to layout your ui when the panel changes size .
 	Don't change the size of this sprite in this function (you'll get an infinite loop) */
 	virtual void					onLayout(){};
+
+	/** The About to be removed flag has just been set */
+	virtual void					onAboutToBeRemoved(){};
 
 	/** When this panel has been sent to the front via activatePanel() */
 	virtual void					onPanelActivated(){}
