@@ -1,0 +1,16 @@
+<settings>
+
+<!-- Font names are installed in the root app class on startup	-->
+	
+	<!-- Sample Text -->
+		<text  name="sample:config:name" value="noto-bold" />
+		<float name="sample:config:size" value="16" />
+		<float name="sample:config:leading" value="0.75" />
+		<color name="sample:config:color" code="white" />
+
+		<text  name="media_viewer:title:name" value="noto-bold" />
+		<float name="media_viewer:title:size" value="16" />
+		<float name="media_viewer:title:leading" value="0.75" />
+		<color name="media_viewer:title:color" code="white" />
+	
+</settings>
