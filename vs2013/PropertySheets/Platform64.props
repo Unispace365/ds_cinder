@@ -23,6 +23,7 @@
       <AdditionalLibraryDirectories>
 	  $(CINDER_090)\lib;
 	  $(CINDER_090)\lib\msw\x64;
+	  $(CINDER_090)\lib\msw\x64\Release\v120;
 	  $(DS_PLATFORM_090)\lib\poco\lib\x64;
 	  $(DS_PLATFORM_090)\lib;
 	  $(DS_PLATFORM_090)\lib\gtk\lib64;
@@ -43,7 +44,7 @@
 	  glib-2.0.lib;
 	  gobject-2.0.lib;
 	  %(AdditionaDependencies);</AdditionalDependencies>
-      <IgnoreSpecificDefaultLibraries>libboost_date_time-vc120-mt-s-1_58.lib; libboost_regex-vc120-mt-s-1_58.lib
+      <IgnoreSpecificDefaultLibraries>libboost_date_time-vc120-mt-s-1_58.lib; libboost_regex-vc120-mt-s-1_58.lib; libboost_regex-vc120-mt-s-1_60.lib
       </IgnoreSpecificDefaultLibraries>
     </Link>
     <ResourceCompile>
