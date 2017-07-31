@@ -13,7 +13,6 @@
 namespace ds {
 namespace ui {
 
-
 SmartLayout::SmartLayout(Globals& g, std::string xmlLayoutFile)
   : ds::ui::Sprite(g.mEngine)
   , mGlobals(g)

@@ -11,11 +11,11 @@ namespace ui {
 
 /**
 * \class ds::ui::SmartLayout
-*		SmartLayout combines a layout sprite with XML importing.
+*        SmartLayout combines a layout sprite with XML importing.
 */
 class SmartLayout : public ds::ui::LayoutSprite  {
 public:
-	SmartLayout(ds::ui::SpriteEngine& engine, std::string xmlLayoutFile);
+    SmartLayout(ds::ui::SpriteEngine& engine, std::string xmlLayoutFile);
 
     bool hasSprite(std::string spriteName) { return mSpriteMap[spriteName] != nullptr; }
 
