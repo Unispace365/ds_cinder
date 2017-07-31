@@ -8,6 +8,7 @@
 #include <string>
 #include <vector>
 #include <cinder/Vector.h>
+#include <cinder/Rect.h>
 
 namespace ds {
 
@@ -112,6 +113,10 @@ void tokenize(const std::string& input, const std::function<void(const std::stri
 /// Parses a string into a 3d vector. Example: size="400, 400, 0" the space after the comma is required to read the second and third token.
 /// Defaults parameters to 0 if they don't exist.
 ci::vec3 parseVector(const std::string &s);
+
+/// Parses a string into a rectangle. Example: size="400, 400, 0, 0", where it's "L, T, W, H" the space after the comma is required to read the second and third token.
+/// Defaults parameters to 0 if they don't exist.
+ci::Rectf parseRect(const std::string &s);
 
 /// The inverse of parseVector. For an input of ci::vec3(123.0f, 0.0f, 987.6f) returns "123.0, 0.0, 987.6"
 std::string unparseVector(const ci::vec3& v);
