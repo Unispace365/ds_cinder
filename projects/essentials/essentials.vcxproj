@@ -47,7 +47,6 @@
     <ClCompile Include="src\ds\ui\drawing\drawing_canvas.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\stylesheet_parser.cpp" />
-    <ClCompile Include="src\ds\ui\layout\layout_sprite.cpp" />
     <ClCompile Include="src\ds\ui\menu\component\cluster_view.cpp" />
     <ClCompile Include="src\ds\ui\menu\component\menu_item.cpp" />
     <ClCompile Include="src\ds\ui\menu\touch_menu.cpp" />
@@ -96,7 +95,6 @@
     <ClInclude Include="src\ds\ui\drawing\drawing_canvas.h" />
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h" />
-    <ClInclude Include="src\ds\ui\layout\layout_sprite.h" />
     <ClInclude Include="src\ds\ui\menu\component\cluster_view.h" />
     <ClInclude Include="src\ds\ui\menu\component\menu_item.h" />
     <ClInclude Include="src\ds\ui\menu\touch_menu.h" />
