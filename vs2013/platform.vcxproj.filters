@@ -103,6 +103,9 @@
     <Filter Include="src\osc\ip\win32">
       <UniqueIdentifier>{0d7b5432-3ad6-4e19-89dd-71086b05587c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\layout">
+      <UniqueIdentifier>{ec8f7e90-a386-4b14-9c1b-dddd49bd09fe}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -681,6 +684,9 @@
     <ClInclude Include="..\src\ds\util\date_util.h">
       <Filter>src\ds\util</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\layout\layout_sprite.h">
+      <Filter>src\ds\ui\layout</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1144,6 +1150,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\util\date_util.cpp">
       <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\layout\layout_sprite.cpp">
+      <Filter>src\ds\ui\layout</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

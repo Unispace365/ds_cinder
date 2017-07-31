@@ -341,6 +341,12 @@ void BasePanel::tweenEnded(){
 	layout(); // sometimes tweens are happening and not laying out properly, so just to be sure
 }
 
+
+void BasePanel::setAboutToBeRemoved(const bool isRemoving /*= true*/) {
+	mRemoving = true;
+	onAboutToBeRemoved();
+}
+
 void BasePanel::animateToDefaultSize(){
 	animateSizeTo(mDefaultSize);
 }

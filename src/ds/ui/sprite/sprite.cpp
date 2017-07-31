@@ -705,6 +705,7 @@ void Sprite::release() {
 }
 
 bool Sprite::containsChild(Sprite *child) const {
+	if(mChildren.empty()) return false;
 	auto found = std::find(mChildren.begin(), mChildren.end(), child);
 
 	if(found != mChildren.end()) {
