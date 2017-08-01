@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<setting name="project_path" value="stupid/thingy"/>
+	<setting name="project_path" value="another/krumbum"/>
+	<setting name="Server Configuration" value="" type="group_header" comment="Setup for netsync and overall app structure"/>
+	<setting name="server:connect" value="false" comment="If false, won't connect udp sender / listener for server or client" default="false"/>
+	<setting name="server:ip" value="239.255.42.58" comment="The multicast ip address and port of the server" default="239.255.52.52"/>
+	<setting name="server:send_port" value="10370" comment="The port to send to the server" default="10370"/>
+	<setting name="server:listen_port" value="10370" comment="The port to listen to the server" default="10371"/>
+	<setting name="platform:architecture" value="server" type="text"/>
+	<setting name="console:show" value="true" type="bool" comment="Whether to show the console window or not. If this setting is missing, debug mode will create a console, release will not." default="false"/>
+	<setting name="story:area" value="20, 20, 1920, 1080"/>
+	<setting name="story:area" value="whoop de doo" comment="the second story:area"/>
+	<setting name="story:color" value="red"/>
+	<setting name="story:offset" value="20, 20"/>
+	<setting name="a new setting" value="0, 1"/>
+	<setting name="holy:fuck_balls" value="well crap on a stick" type="string" comment="Testing!"/>
+</settings>
+
