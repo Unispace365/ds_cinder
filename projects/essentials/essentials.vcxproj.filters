@@ -67,6 +67,9 @@
     <Filter Include="src\ds\ui\control">
       <UniqueIdentifier>{27aa7365-59b9-455f-96e6-3915c4fce6b2}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\smart_layout">
+      <UniqueIdentifier>{0ee73044-2222-49af-9b19-53f132f69c28}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\ds\debug\automator\automator.cpp">
@@ -179,6 +182,9 @@
     </ClCompile>
     <ClCompile Include="..\..\src\stdafx.cpp">
       <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="src\ds\ui\smart_layout\smart_layout.cpp">
+      <Filter>src\ds\ui\smart_layout</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -328,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\stdafx.h">
       <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\smart_layout\smart_layout.h">
+      <Filter>src\ds\ui\smart_layout</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
