@@ -52,3 +52,5 @@ projects/viewers/lib/
 *build*/
 /example/*/bin/
 projects/**/lib*.a
+
+.clang-format
