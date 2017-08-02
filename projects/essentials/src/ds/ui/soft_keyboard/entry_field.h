@@ -3,7 +3,7 @@
 #define ESSENTIALS_UI_SOFT_KEYBOARD_ENTRY_FIELD
 
 #include <ds/ui/sprite/sprite.h>
-#include <ds/ui/sprite/multiline_text.h>
+#include <ds/ui/sprite/text.h>
 
 #include "ds/ui/soft_keyboard/soft_keyboard_defs.h"
 
@@ -103,7 +103,7 @@ protected:
 	size_t								mCursorIndex;
 
 	std::wstring						mCurrentText;
-	ds::ui::MultilineText*				mTextSprite;
+	ds::ui::Text*						mTextSprite;
 	ds::ui::Sprite*						mCursor;
 	std::vector<ds::ui::Sprite*>		mSelectionIndicators;
 	EntryFieldSettings					mEntryFieldSettings;

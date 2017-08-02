@@ -9,7 +9,6 @@
 
 namespace ds {
 namespace ui {
-class MultilineText;
 class Sprite;
 class SpriteEngine;
 class Text;
@@ -28,12 +27,10 @@ public:
 	Text(const std::string& font, const std::string& configName, const float size, const float leading,
 			const ci::ColorA&, const ds::ui::Alignment::Enum& = ds::ui::Alignment::kLeft);
 
-	// Create a new text sprite from this cfg. The throw reference throws the error if anything goes wrong.
+	/// Create a new text sprite from this cfg. Optionally add it to the parent immediately
 	ds::ui::Text*			create(ds::ui::SpriteEngine&, ds::ui::Sprite* parent = nullptr) const;
-	ds::ui::Text&			createOrThrow(ds::ui::SpriteEngine&, ds::ui::Sprite* parent = nullptr, const char* error = nullptr) const;
-	ds::ui::MultilineText*	createMultiline(ds::ui::SpriteEngine&, ds::ui::Sprite* parent = nullptr) const;
-	ds::ui::MultilineText&	createOrThrowMultiline(ds::ui::SpriteEngine&, ds::ui::Sprite* parent = nullptr, const char* error = nullptr) const;
 
+	/// Apply this configuration to a text sprite
 	void					configure(ds::ui::Text&) const;
 
 	std::string				mFont;

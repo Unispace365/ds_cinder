@@ -20,7 +20,7 @@ EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& setting
 	, mInFocus(false)
 	, mCursorIndex(0)
 {
-	mTextSprite = new ds::ui::MultilineText(engine);
+	mTextSprite = new ds::ui::Text(engine);
 	addChildPtr(mTextSprite);
 
 	mCursor = new ds::ui::Sprite(engine);

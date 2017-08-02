@@ -5,7 +5,7 @@
 #include <ds/app/environment.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/debug/logger.h>
-#include <ds/ui/sprite/text_pango.h>
+#include <ds/ui/sprite/text.h>
 #include <ds/util/string_util.h>
 
 
@@ -62,7 +62,7 @@ void LayoutSprite::runSizeLayout(){
 
 		if(chillin->mLayoutUserType == kFixedSize){
 			if(chillin->mLayoutSize.x > 0.0f && chillin->mLayoutSize.y > 0.0f){
-				ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
+				ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
 				if(tp){
 					tp->setResizeLimit(chillin->mLayoutSize.x, chillin->mLayoutSize.y);
 				} else if(chillin->mLayoutFixedAspect){
@@ -78,7 +78,7 @@ void LayoutSprite::runSizeLayout(){
 			const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 			const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
-			ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
+			ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 			if(tp){
 				tp->setResizeLimit(fixedW, fixedH);
@@ -131,7 +131,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				// stretch sizes will be set later
 				numStretches++;
 			} else {
-				ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
+				ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 				
 				if(chillin->mLayoutUserType == kFixedSize){
@@ -243,7 +243,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 			const float stretchW = (vertical ? layoutWidth : perStretch) - chillin->mLayoutLPad - chillin->mLayoutRPad;
 			const float stretchH = (vertical ? perStretch : layoutHeight) - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
-			ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
+			ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
 			LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 			if(tp){
 				tp->setResizeLimit(stretchW, stretchH);
@@ -302,7 +302,7 @@ void LayoutSprite::runFlowLayout(const bool vertical){
 				const float fixedW = layoutWidth - chillin->mLayoutLPad - chillin->mLayoutRPad;
 				const float fixedH = layoutHeight - chillin->mLayoutTPad - chillin->mLayoutBPad;
 
-				ds::ui::TextPango* tp = dynamic_cast<ds::ui::TextPango*>(chillin);
+				ds::ui::Text* tp = dynamic_cast<ds::ui::Text*>(chillin);
 				LayoutSprite* ls = dynamic_cast<LayoutSprite*>(chillin);
 				if(tp){
 					tp->setResizeLimit(fixedW, fixedH);

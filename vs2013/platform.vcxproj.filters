@@ -174,9 +174,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\image.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\text.h">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\touch_info.h">
       <Filter>src\ds\ui\touch</Filter>
     </ClInclude>
@@ -254,9 +251,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\touch\tap_info.h">
       <Filter>src\ds\ui\touch</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\multiline_text.h">
-      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\thread\timed_runnable.h">
       <Filter>src\ds\thread</Filter>
@@ -609,9 +603,6 @@
     <ClInclude Include="..\src\ds\ui\service\pango_font_service.h">
       <Filter>src\ds\ui\service</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\text_pango.h">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\stdafx.h">
       <Filter>src</Filter>
     </ClInclude>
@@ -686,6 +677,9 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\ui\layout\layout_sprite.h">
       <Filter>src\ds\ui\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\text.h">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -1106,9 +1100,6 @@
     <ClCompile Include="..\src\ds\ui\service\pango_font_service.cpp">
       <Filter>src\ds\ui\service</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\text_pango.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -1153,6 +1144,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\layout\layout_sprite.cpp">
       <Filter>src\ds\ui\layout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\text.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

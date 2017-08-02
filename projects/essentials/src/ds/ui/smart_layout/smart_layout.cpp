@@ -5,9 +5,8 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/interface_xml/interface_xml_importer.h>
-#include <ds/ui/sprite/multiline_text.h>
+#include <ds/ui/sprite/text.h>
 #include <ds/ui/sprite/sprite_engine.h>
-#include <ds/ui/sprite/text_pango.h>
 #include <ds/util/string_util.h>
 
 
@@ -49,12 +48,9 @@ void SmartLayout::setSpriteText(std::string spriteName, std::string value) {
 
 void SmartLayout::setSpriteText(std::string spriteName, std::wstring value) {
 	ds::ui::Text*		   spr  = dynamic_cast<ds::ui::Text*>(mSpriteMap[spriteName]);
-	ds::ui::MultilineText* sprM = dynamic_cast<ds::ui::MultilineText*>(mSpriteMap[spriteName]);
 
 	if (spr) {
 		spr->setText(value);
-	} else if (sprM) {
-		sprM->setText(value);
 	} else {
 		DS_LOG_WARNING("Failed to set Text for Sprite: " << spriteName);
 	}
@@ -64,12 +60,9 @@ void SmartLayout::setSpriteText(std::string spriteName, std::wstring value) {
 
 void SmartLayout::setSpriteFont(std::string spriteName, std::string value) {
 	ds::ui::Text*		   spr  = dynamic_cast<ds::ui::Text*>(mSpriteMap[spriteName]);
-	ds::ui::MultilineText* sprM = dynamic_cast<ds::ui::MultilineText*>(mSpriteMap[spriteName]);
 
 	if (spr) {
 		mEngine.getEngineCfg().getText(value).configure(*spr);
-	} else if (sprM) {
-		mEngine.getEngineCfg().getText(value).configure(*sprM);
 	} else {
 		DS_LOG_WARNING("Failed to set Font " << value << " for Sprite: " << spriteName);
 	}

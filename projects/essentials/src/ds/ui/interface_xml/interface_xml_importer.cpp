@@ -17,7 +17,6 @@
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/image_with_thumbnail.h>
 #include <ds/ui/sprite/text.h>
-#include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/button/sprite_button.h>
@@ -138,15 +137,13 @@ void XmlImporter::getSpriteProperties(ds::ui::Sprite& sp, ci::XmlTree& xml){
 		} else {
 			xml.setAttribute("font", txt->getConfigName());
 		}
-	}
-	ds::ui::MultilineText* mtxt = dynamic_cast<ds::ui::MultilineText*>(&sp);
-	if(mtxt){
-		if(mtxt->getConfigName().empty()){
+
+		if(txt->getConfigName().empty()){
 			xml.setAttribute("font_leading", txt->getLeading());
 		}
 
-		xml.setAttribute("resize_limit", unparseVector(ci::vec2(mtxt->getResizeLimitWidth(), mtxt->getResizeLimitHeight())));
-		if(mtxt->getAlignment() != ds::ui::Alignment::kLeft) xml.setAttribute("text_align", LayoutSprite::getLayoutHAlignString(mtxt->getAlignment()));
+		xml.setAttribute("resize_limit", unparseVector(ci::vec2(txt->getResizeLimitWidth(), txt->getResizeLimitHeight())));
+		if(txt->getAlignment() != ds::ui::Alignment::kLeft) xml.setAttribute("text_align", LayoutSprite::getLayoutHAlignString(txt->getAlignment()));
 	}
 
 	ds::ui::Image* img = dynamic_cast<ds::ui::Image*>(&sp);
@@ -219,7 +216,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 
 	// This is a pretty long "case switch" (well, effectively a case switch).
 	// It seems like it'd be slow, but in practice, it's relatively fast.
-	// The slower parts of this are the actual functions that are called (particularly multilinetext setResizeLimit())
+	// The slower parts of this are the actual functions that are called (particularly text setResizeLimit())
 	// So be sure that this is actually performing slowly before considering a refactor.
 
 
@@ -386,7 +383,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		}
 	}
 	
-	// Text, MultilineText specific attributes
+	// Text specific attributes
 	else if(property == "font") {
 		// Try to set the font
 		auto text = dynamic_cast<Text*>(&sprite);
@@ -398,7 +395,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			
 		}
 	} else if(property == "font_name"){
-		auto text = dynamic_cast<TextPango*>(&sprite);
+		auto text = dynamic_cast<Text*>(&sprite);
 		if(text) {
 			text->setFont(value, text->getFontSize());
 		} else {
@@ -407,7 +404,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		
 	} else if(property == "resize_limit") {
 		// Try to set the resize limit
-		auto text = dynamic_cast<TextPango*>(&sprite);
+		auto text = dynamic_cast<Text*>(&sprite);
 		if(text) {
 			auto v = parseVector(value);
 			text->setResizeLimit(v.x, v.y);
@@ -415,7 +412,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "text_align"){
-		auto text = dynamic_cast<TextPango*>(&sprite);
+		auto text = dynamic_cast<Text*>(&sprite);
 		if(text){
 			std::string alignString = value;
 			if(alignString == "right"){
@@ -432,7 +429,7 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 
 	} else if (property == "text") {
 		// Try to set content
-		auto text = dynamic_cast<TextPango*>(&sprite);
+		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
 			text->setText(value);
 		} else {
@@ -440,21 +437,21 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		}
 	} else if (property == "font_size") {
 		// Try to set the font size
-		auto text = dynamic_cast<TextPango*>(&sprite);
+		auto text = dynamic_cast<Text*>(&sprite);
 		if (text) {
 			text->setFontSize(ds::string_to_float(value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "font_leading"){
-		auto text = dynamic_cast<TextPango*>(&sprite);
+		auto text = dynamic_cast<Text*>(&sprite);
 		if(text){
 			text->setLeading(ds::string_to_float(value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
 	} else if(property == "font_color"){
-		auto text = dynamic_cast<TextPango*>(&sprite);
+		auto text = dynamic_cast<Text*>(&sprite);
 		if(text){
 			text->setColor(parseColor(value, text->getEngine()));
 		} else {			
@@ -961,7 +958,6 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::ImageButton*>(sp)) return "image_button";
 	if(dynamic_cast<ds::ui::ImageWithThumbnail*>(sp)) return "image_with_thumbnail";
 	if(dynamic_cast<ds::ui::Image*>(sp)) return "image";
-	if(dynamic_cast<ds::ui::MultilineText*>(sp)) return "multiline_text";
 	if(dynamic_cast<ds::ui::Text*>(sp)) return "text";
 	if(dynamic_cast<ds::ui::ScrollBar*>(sp)) return "scroll_bar";
 	if(dynamic_cast<ds::ui::ScrollList*>(sp)) return "scroll_list";
@@ -973,7 +969,6 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
 	if(dynamic_cast<ds::ui::SoftKeyboard*>(sp)) return "soft_keyboard";
 	if(dynamic_cast<ds::ui::EntryField*>(sp)) return "entry_field";
-	if(dynamic_cast<ds::ui::TextPango*>(sp)) return "text_pango";
 	return "sprite";
 }
 
@@ -994,14 +989,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 	} else if(type == "image_with_thumbnail") {
 		auto image = new ds::ui::ImageWithThumbnail(engine);
 		spriddy = image;
-	} else if(type == "text") {
+	} else if(type == "text" || type == "multiline_text") {
 		auto text = new ds::ui::Text(engine);
-		auto content = value;
-		boost::trim(content);
-		text->setText(content);
-		spriddy = text;
-	} else if(type == "multiline_text") {
-		auto text = new ds::ui::MultilineText(engine);
 		auto content = value;
 		boost::trim(content);
 		text->setText(content);

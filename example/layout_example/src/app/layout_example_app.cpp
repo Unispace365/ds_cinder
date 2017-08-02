@@ -4,7 +4,6 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/app/engine/engine.h>
-#include <ds/ui/sprite/multiline_text.h>
 #include <ds/ui/sprite/text.h>
 
 #include <ds/ui/media/media_viewer.h>
@@ -126,7 +125,7 @@ void layout_example::setupServer(){
 	medFixed->mLayoutLPad = 50.0f;
 	rootLayout->addChildPtr(medFixed);
 
-	ds::ui::MultilineText* horizText = mGlobals.getText("sample:config").createMultiline(mEngine, medFixed);
+	ds::ui::Text* horizText = mGlobals.getText("sample:config").create(mEngine, medFixed);
 	horizText->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	horizText->mLayoutLPad = 10.0f;
 	horizText->mLayoutRPad = 10.0f;
@@ -160,7 +159,7 @@ void layout_example::setupServer(){
 	rootLayout->addChildPtr(imagey);
 
 
-	ds::ui::MultilineText* mt = mGlobals.getText("sample:config").createMultiline(mEngine, rootLayout);
+	ds::ui::Text* mt = mGlobals.getText("sample:config").create(mEngine, rootLayout);
 	mt->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	mt->mLayoutLPad = 10.0f;
 	mt->mLayoutRPad = 10.0f;
@@ -193,7 +192,7 @@ void layout_example::setupServer(){
 	horizontalLayout->setLayoutType(ds::ui::LayoutSprite::kLayoutHFlow);
 	horizontalLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkBoth);
 
-	ds::ui::MultilineText* sampley = mGlobals.getText("sample:config").createMultiline(mEngine, horizontalLayout);
+	ds::ui::Text* sampley = mGlobals.getText("sample:config").create(mEngine, horizontalLayout);
 	sampley->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	sampley->mLayoutLPad = 10.0f;
 	sampley->mLayoutRPad = 10.0f;
