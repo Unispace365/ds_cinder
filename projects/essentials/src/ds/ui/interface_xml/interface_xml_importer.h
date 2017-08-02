@@ -36,8 +36,9 @@ public:
 	// Name prefix gets applied to the front of all sprite names. 
 	// For instance, setting a namePrefix of "button" will make the sprite named "title" in this xml be named "button.title".
 	// The name prefix is to support recursive loading of xml's, so you can link one xml to another xml.
-	static bool loadXMLto(ds::ui::Sprite * parent, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr, const std::string& namePrefix = "");
-	static bool loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& xmldata, NamedSpriteMap &map, SpriteImporter customImporter = nullptr, const std::string& namePrefix = "");
+	// mergeFirstSprite: If true, and the layout has one root sprite of the same type as the parent, will apply those properties to the parent, saving you a sprite
+	static bool loadXMLto(ds::ui::Sprite * parent, const std::string& xmlFile, NamedSpriteMap &map, SpriteImporter customImporter = nullptr, const std::string& namePrefix = "", const bool mergeFirstSprite = false);
+	static bool loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& xmldata, NamedSpriteMap &map, SpriteImporter customImporter = nullptr, const std::string& namePrefix = "", const bool mergeFirstSprite = false);
 
 	// Pre-loads the xml & related css files in preparation for creating sprites later. Removes a lot of the dynamic disk reads associated with importing stuff
 	static bool preloadXml(const std::string& xmlFile, XmlPreloadData& outData);
@@ -74,9 +75,9 @@ protected:
 	{}
 	~XmlImporter();
 
-	bool load(ci::XmlTree &);
+	bool load(ci::XmlTree &, const bool mergeFirstSprite);
 
-	bool readSprite(ds::ui::Sprite *, std::unique_ptr<ci::XmlTree>&);
+	bool readSprite(ds::ui::Sprite *, std::unique_ptr<ci::XmlTree>&, const bool mergeFirstSprite);
 
 	NamedSpriteMap &			mNamedSpriteMap;
 	std::string 				mXmlFile;

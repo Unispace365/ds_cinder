@@ -818,7 +818,7 @@ void XmlImporter::setAutoCache(const bool doCaching){
 	}
 }
 
-bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName) {
+bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild) {
 
 	XmlImporter xmlImporter(parent, filename, map, customImporter, prefixName);
 
@@ -850,10 +850,10 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite* parent, const std::string& filename,
 		xmlImporter.mStylesheets.push_back(ss);
 	}
 
-	return xmlImporter.load(preloadData.mXmlTree);
+	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild);
 }
 
-bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName ){
+bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData, NamedSpriteMap &map, SpriteImporter customImporter, const std::string& prefixName, const bool mergeFirstChild){
 	XmlImporter xmlImporter(parent, preloadData.mFilename, map, customImporter, prefixName);
 
 	// copy each stylesheet, cause the xml importer will delete it's copies when it destructs
@@ -864,11 +864,11 @@ bool XmlImporter::loadXMLto(ds::ui::Sprite * parent, XmlPreloadData& preloadData
 		xmlImporter.mStylesheets.push_back(ss);
 	}
 
-	return xmlImporter.load(preloadData.mXmlTree);
+	return xmlImporter.load(preloadData.mXmlTree, mergeFirstChild);
 }
 
 
-bool XmlImporter::load( ci::XmlTree &xml ) {
+bool XmlImporter::load(ci::XmlTree &xml, const bool mergeFirstChild) {
 	if (!xml.hasChild("interface")) {
 		DS_LOG_WARNING( "No interface found in xml file: " << mXmlFile );
 		return false;
@@ -882,8 +882,11 @@ bool XmlImporter::load( ci::XmlTree &xml ) {
 		return false;
 	}
 
+	bool mergeFirst = mergeFirstChild;
+
 	BOOST_FOREACH( auto &xmlNode, sprites ) {
-		readSprite(mTargetSprite, xmlNode);
+		readSprite(mTargetSprite, xmlNode, mergeFirst);
+		mergeFirst = false;
 	}
 
 	for(auto it : mSpriteLinks){
@@ -1161,7 +1164,7 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 	return spriddy;
 }
 
-bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree>& node){
+bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree>& node, const bool mergeFirstSprite){
 	if(!parent){
 		DS_LOG_WARNING("No parent sprite specified when reading a sprite from xml file=" << mXmlFile);
 		return false;
@@ -1189,7 +1192,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			spriteName = ss.str();
 		}
 
-		if(!XmlImporter::loadXMLto(parent, xmlPath, mNamedSpriteMap, mCustomImporter, spriteName)){
+		if(!XmlImporter::loadXMLto(parent, xmlPath, mNamedSpriteMap, mCustomImporter, spriteName, mergeFirstSprite)){
 			return false;
 		}
 
@@ -1224,7 +1227,17 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 
 
 	} else {
-		ds::ui::Sprite* spriddy = createSpriteByType(engine, type, value);
+		ds::ui::Sprite* spriddy = nullptr;
+		if(mergeFirstSprite){
+			auto parentType = getSpriteTypeForSprite(parent);
+			if(parentType == type){
+				spriddy = parent;
+			}
+		}
+
+		if(!spriddy){
+			spriddy = createSpriteByType(engine, type, value);
+		}
 
 		if(!spriddy){
 			spriddy = engine.createSpriteImporter(type);
@@ -1240,7 +1253,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 		}
 
 		BOOST_FOREACH(auto &sprite, node->getChildren()) {
-			readSprite(spriddy, sprite);
+			readSprite(spriddy, sprite, false);
 		}
 
 		std::string linkValue = node->getAttributeValue<std::string>("sprite_link", "");

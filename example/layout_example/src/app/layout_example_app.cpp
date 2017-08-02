@@ -19,6 +19,8 @@
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/interface_xml/interface_xml_importer.h>
 
+#include <ds/ui/smart_layout/smart_layout.h>
+
 namespace example {
 
 layout_example::layout_example()
@@ -216,7 +218,7 @@ void layout_example::setupServer(){
 
 
 	std::map<std::string, ds::ui::Sprite*>	spriteMap;
-	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layout/layout_view.xml"), spriteMap);
+	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layouts/layout_view.xml"), spriteMap);
 
 	auto generatedLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["root_layout"]);
 	if(generatedLayout){
@@ -226,13 +228,18 @@ void layout_example::setupServer(){
 	}
 
 	std::map<std::string, ds::ui::Sprite*>	spriteMapTwo;
-	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layout/layout_alignments.xml"), spriteMapTwo);
+	ds::ui::XmlImporter::loadXMLto(&rootSprite, ds::Environment::expand("%APP%/data/layouts/layout_alignments.xml"), spriteMapTwo);
 
 	auto generatedLayoutTwo = dynamic_cast<ds::ui::LayoutSprite*>(spriteMapTwo["root_layout"]);
 	if(generatedLayoutTwo){
 		generatedLayoutTwo->runLayout();
 		generatedLayoutTwo->tweenAnimateOn(true, 0.5f, 0.1f);
 	}
+
+
+	ds::ui::SmartLayout* sl = new ds::ui::SmartLayout(mEngine, "smart_layout.xml");
+	rootSprite.addChildPtr(sl);
+	sl->tweenAnimateOn(true, 0.75f, 0.1f);
 }
 
 void layout_example::update() {

@@ -20,11 +20,7 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, std::string xmlLayoutFile
 	  if (m) this->onAppEvent(*m);
   }) {
 
-	// Fit all children of the XML layout. Not totally convinced about this
-	setLayoutType(LayoutType::kLayoutVFlow);
-	setShrinkToChildren(ShrinkType::kShrinkBoth);
-
-	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/" + mLayoutFile), mSpriteMap);
+	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/" + mLayoutFile), mSpriteMap, nullptr, "", true);
 
 	runLayout();
 }
