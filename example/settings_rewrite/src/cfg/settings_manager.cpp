@@ -15,7 +15,40 @@
 namespace ds {
 namespace cfg {
 
+const std::string&				SETTING_TYPE_UNKNOWN = "unknown";
+const std::string&				SETTING_TYPE_BOOL = "bool";
+const std::string&				SETTING_TYPE_INT = "int";
+const std::string&				SETTING_TYPE_FLOAT = "float";
+const std::string&				SETTING_TYPE_DOUBLE = "double";
+const std::string&				SETTING_TYPE_STRING = "string";
+const std::string&				SETTING_TYPE_WSTRING = "wstring";
+const std::string&				SETTING_TYPE_COLOR = "color";
+const std::string&				SETTING_TYPE_COLORA = "colora";
+const std::string&				SETTING_TYPE_VEC2 = "vec2";
+const std::string&				SETTING_TYPE_VEC3 = "vec3";
+const std::string&				SETTING_TYPE_RECT = "rect";
+const std::string&				SETTING_TYPE_SECTION_HEADER = "section_header";
+
 namespace {
+
+static std::vector<std::string>	SETTING_TYPES;
+void initialize_types(){
+	if(SETTING_TYPES.empty()){
+		SETTING_TYPES.emplace_back(SETTING_TYPE_UNKNOWN);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_BOOL);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_INT);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_FLOAT);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_DOUBLE);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_STRING);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_WSTRING);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_COLOR);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_COLORA);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_VEC2);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_VEC3);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_RECT);
+		SETTING_TYPES.emplace_back(SETTING_TYPE_SECTION_HEADER);
+	}
+}
 
 static const ds::cfg::SettingsManager::Setting BLANK_SETTING;
 
@@ -56,15 +89,13 @@ double SettingsManager::Setting::getDouble() const{
 	return ds::string_to_double(mRawValue);
 }
 
-/*
-const ci::Color& SettingsManager::Setting::getColor() const{
-	ds::parseColor(mRawValue, mEngine);
+const ci::Color SettingsManager::Setting::getColor(ds::Engine& eng) const{
+	return ds::parseColor(mRawValue, eng);
 }
 
-const ci::ColorA& SettingsManager::Setting::getColorA() const{
-	ds::parseColor(mRawValue, mEngine);
+const ci::ColorA SettingsManager::Setting::getColorA(ds::Engine& eng) const{
+	return ds::parseColor(mRawValue, eng);
 }
-*/
 
 const std::string& SettingsManager::Setting::getString() const{
 	return mRawValue;
@@ -88,12 +119,11 @@ const cinder::Rectf& SettingsManager::Setting::getRect() const{
 
 SettingsManager::SettingsManager(ds::Engine& engine)
 	: mEngine(engine)
-	, mChanged(false)
 {
+	initialize_types();
 }
 
 void SettingsManager::readFrom(const std::string& filename, const bool append){
-	mChanged = false;
 	if(!append) {
 		directReadFrom(filename, true);
 		return;
@@ -142,6 +172,11 @@ void SettingsManager::directReadFrom(const std::string& filename, const bool cle
 		if(it->hasAttribute("min_value"))	theSetting.mMinValue = it->getAttributeValue<std::string>("min_value");
 		if(it->hasAttribute("max_value"))	theSetting.mMaxValue = it->getAttributeValue<std::string>("max_value");
 		if(it->hasAttribute("type"))	theSetting.mType = it->getAttributeValue<std::string>("type");
+
+		if(!validateType(theSetting.mType)){
+			DS_LOG_WARNING("Unknown setting type for " << theName << " type:" << theSetting.mType << " source: " << filename);
+		}
+
 		theSetting.mSource = filename;
 
 		auto settingIndex = getSettingIndex(theName);
@@ -206,11 +241,11 @@ double SettingsManager::getDouble(const std::string& name, const int index){
 }
 
 const ci::Color SettingsManager::getColor(const std::string& name, const int index){
-	return parseColor(getSetting(name, index).mRawValue, mEngine);
+	return getSetting(name, index).getColor(mEngine);
 }
 
 const ci::ColorA SettingsManager::getColorA(const std::string& name, const int index){
-	return parseColor(getSetting(name, index).mRawValue, mEngine);
+	return getSetting(name, index).getColorA(mEngine);
 }
 
 const std::string& SettingsManager::getString(const std::string& name, const int index){
@@ -231,6 +266,10 @@ const ci::vec3& SettingsManager::getVec3(const std::string& name, const int inde
 
 const cinder::Rectf& SettingsManager::getRect(const std::string& name, const int index){
 	return getSetting(name, index).getRect();
+}
+
+bool SettingsManager::validateType(const std::string& inputType) {
+	return std::find(SETTING_TYPES.begin(), SETTING_TYPES.end(), inputType) != SETTING_TYPES.end();
 }
 
 bool SettingsManager::hasSetting(const std::string& name) const {
