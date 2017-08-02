@@ -238,6 +238,8 @@ void layout_example::setupServer(){
 
 
 	ds::ui::SmartLayout* sl = new ds::ui::SmartLayout(mEngine, "smart_layout.xml");
+	sl->listenToEvents<IdleStartedEvent>([sl](const IdleStartedEvent& e){ sl->setSpriteText("event_text", "Idling!"); });
+	sl->listenToEvents<IdleEndedEvent>([sl](const IdleEndedEvent& e){ sl->setSpriteText("event_text", "Not Idling!"); });
 	rootSprite.addChildPtr(sl);
 	sl->tweenAnimateOn(true, 0.75f, 0.1f);
 }
@@ -260,10 +262,14 @@ void layout_example::update() {
 void layout_example::keyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
 	inherited::keyDown(event);
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
+	if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 
-	// Shows all enabled sprites with a label for class type
+		// Shows all enabled sprites with a label for class type
+	} else if (event.getChar() == KeyEvent::KEY_i){ // I = toggle idle state
+		if (mEngine.isIdling()) mEngine.resetIdleTimeout();
+		else mEngine.startIdling();
+	
 	} else if(event.getCode() == KeyEvent::KEY_f){
 
 		const int numRoots = mEngine.getRootCount();

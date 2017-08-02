@@ -5,41 +5,37 @@
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 #include <ds/ui/interface_xml/interface_xml_importer.h>
-#include <ds/ui/sprite/text.h>
 #include <ds/ui/sprite/sprite_engine.h>
+#include <ds/ui/sprite/text.h>
 #include <ds/util/string_util.h>
 
 
 namespace ds {
 namespace ui {
 
-SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, std::string xmlLayoutFile)
-  : ds::ui::LayoutSprite(engine)
-  , mLayoutFile(xmlLayoutFile)
-  , mEventClient(engine.getNotifier(), [this](const ds::Event* m) {
-	  if (m) this->onAppEvent(*m);
-  }) {
+SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLayoutFile,
+						 const std::string xmlFileLocation)
+	: ds::ui::LayoutSprite(engine)
+	, mLayoutFile(xmlFileLocation + xmlLayoutFile)
+	, mEventClient(engine.getNotifier(), [this](const ds::Event* m) {
+		if (m) this->onAppEvent(*m);
+	}) {
 
-	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layouts/" + mLayoutFile), mSpriteMap, nullptr, "", true);
+	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true);
 
 	runLayout();
 }
 
-bool SmartLayout::hasSprite(const std::string& spriteName){
+bool SmartLayout::hasSprite(const std::string& spriteName) {
 	return mSpriteMap.find(spriteName) != mSpriteMap.end();
 }
 
-ds::ui::Sprite* SmartLayout::getSprite(const std::string& spriteName){
+ds::ui::Sprite* SmartLayout::getSprite(const std::string& spriteName) {
 	auto findy = mSpriteMap.find(spriteName);
-	if(findy != mSpriteMap.end()){
+	if (findy != mSpriteMap.end()) {
 		return findy->second;
 	}
 	return nullptr;
-}
-
-template <typename T>
-T* ds::ui::SmartLayout::getSprite(const std::string& spriteName){
-	return dynamic_cast<T*>(getSprite(spriteName));
 }
 
 void SmartLayout::onAppEvent(const ds::Event& in_e) {
@@ -51,52 +47,48 @@ void SmartLayout::onAppEvent(const ds::Event& in_e) {
 	}
 }
 
-void SmartLayout::listenToEvents(size_t type, std::function<void(const ds::Event&)> callback) {
-	mEventCallbacks[type] = callback;
+void SmartLayout::setSpriteText(const std::string& spriteName, const std::string& theText) {
+	return setSpriteText(spriteName, ds::wstr_from_utf8(theText));
 }
 
-void SmartLayout::setSpriteText(const std::string& spriteName, const std::string& value) {
-	return setSpriteText(spriteName, ds::wstr_from_utf8(value));
-}
-
-void SmartLayout::setSpriteText(const std::string& spriteName, const std::wstring& value) {
-	ds::ui::Text* spr  = getSprite<ds::ui::Text>(spriteName);
+void SmartLayout::setSpriteText(const std::string& spriteName, const std::wstring& theText) {
+	ds::ui::Text* spr = getSprite<ds::ui::Text>(spriteName);
 
 	if (spr) {
-		spr->setText(value);
+		spr->setText(theText);
 		runLayout();
 	} else {
 		DS_LOG_WARNING("Failed to set Text for Sprite: " << spriteName);
 	}
 }
 
-void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string& value) {
+void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string& textCfgName) {
 	ds::ui::Text* spr = getSprite<ds::ui::Text>(spriteName);
 
 	if (spr) {
-		mEngine.getEngineCfg().getText(value).configure(*spr);
+		mEngine.getEngineCfg().getText(textCfgName).configure(*spr);
 		runLayout();
 	} else {
-		DS_LOG_WARNING("Failed to set Font " << value << " for Sprite: " << spriteName);
+		DS_LOG_WARNING("Failed to set Font " << textCfgName << " for Sprite: " << spriteName);
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& value) {
+void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& imagePath) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		sprI->setImageFile(ds::Environment::expand("%APP%/data/images/" + value));
+		sprI->setImageFile(ds::Environment::expand(imagePath));
 		runLayout();
 	} else {
 		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource value) {
+void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		sprI->setImageResource(value);
+		sprI->setImageResource(imageResource);
 		runLayout();
 	} else {
 		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
