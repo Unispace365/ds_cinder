@@ -25,6 +25,23 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, std::string xmlLayoutFile
 	runLayout();
 }
 
+bool SmartLayout::hasSprite(const std::string& spriteName){
+	return mSpriteMap.find(spriteName) != mSpriteMap.end();
+}
+
+ds::ui::Sprite* SmartLayout::getSprite(const std::string& spriteName){
+	auto findy = mSpriteMap.find(spriteName);
+	if(findy != mSpriteMap.end()){
+		return findy->second;
+	}
+	return nullptr;
+}
+
+template <typename T>
+T* ds::ui::SmartLayout::getSprite(const std::string& spriteName){
+	return dynamic_cast<T*>(getSprite(spriteName));
+}
+
 void SmartLayout::onAppEvent(const ds::Event& in_e) {
 	if (mEventCallbacks.empty()) return;
 
@@ -34,75 +51,72 @@ void SmartLayout::onAppEvent(const ds::Event& in_e) {
 	}
 }
 
-void SmartLayout::listen(size_t type, std::function<void(const ds::Event&)> callback) {
+void SmartLayout::listenToEvents(size_t type, std::function<void(const ds::Event&)> callback) {
 	mEventCallbacks[type] = callback;
 }
 
-void SmartLayout::setSpriteText(std::string spriteName, std::string value) {
+void SmartLayout::setSpriteText(const std::string& spriteName, const std::string& value) {
 	return setSpriteText(spriteName, ds::wstr_from_utf8(value));
 }
 
-void SmartLayout::setSpriteText(std::string spriteName, std::wstring value) {
-	ds::ui::Text*		   spr  = dynamic_cast<ds::ui::Text*>(mSpriteMap[spriteName]);
+void SmartLayout::setSpriteText(const std::string& spriteName, const std::wstring& value) {
+	ds::ui::Text* spr  = getSprite<ds::ui::Text>(spriteName);
 
 	if (spr) {
 		spr->setText(value);
+		runLayout();
 	} else {
 		DS_LOG_WARNING("Failed to set Text for Sprite: " << spriteName);
 	}
-
-	runLayout();
 }
 
-void SmartLayout::setSpriteFont(std::string spriteName, std::string value) {
-	ds::ui::Text*		   spr  = dynamic_cast<ds::ui::Text*>(mSpriteMap[spriteName]);
+void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string& value) {
+	ds::ui::Text* spr = getSprite<ds::ui::Text>(spriteName);
 
 	if (spr) {
 		mEngine.getEngineCfg().getText(value).configure(*spr);
+		runLayout();
 	} else {
 		DS_LOG_WARNING("Failed to set Font " << value << " for Sprite: " << spriteName);
 	}
-
-	runLayout();
 }
 
-void SmartLayout::setSpriteImage(std::string spriteName, std::string value) {
-	ds::ui::Image* sprI = dynamic_cast<ds::ui::Image*>(mSpriteMap[spriteName]);
+void SmartLayout::setSpriteImage(const std::string& spriteName, const std::string& value) {
+	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
 		sprI->setImageFile(ds::Environment::expand("%APP%/data/images/" + value));
+		runLayout();
 	} else {
 		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
 	}
-
-	runLayout();
 }
 
-void SmartLayout::setSpriteImage(std::string spriteName, ds::Resource value) {
-	ds::ui::Image* sprI = dynamic_cast<ds::ui::Image*>(mSpriteMap[spriteName]);
+void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource value) {
+	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
 		sprI->setImageResource(value);
+		runLayout();
 	} else {
 		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
 	}
-
-	runLayout();
 }
 
-void SmartLayout::setSpriteTapFn(std::string spriteName,
+void SmartLayout::setSpriteTapFn(const std::string& spriteName,
 								 const std::function<void(ds::ui::Sprite*, const ci::vec3&)>& tapCallback) {
-	ds::ui::Sprite* spr = dynamic_cast<ds::ui::Sprite*>(mSpriteMap[spriteName]);
+	ds::ui::Sprite* spr = getSprite(spriteName);
 	if (spr && tapCallback) {
 		spr->enable(true);
 		spr->setTapCallback(tapCallback);
 	}
 }
 
-void SmartLayout::addSpriteChild(std::string spriteName, ds::ui::Sprite* newChild) {
-	ds::ui::Sprite* spr = dynamic_cast<ds::ui::Sprite*>(mSpriteMap[spriteName]);
+void SmartLayout::addSpriteChild(const std::string spriteName, ds::ui::Sprite* newChild) {
+	ds::ui::Sprite* spr = getSprite(spriteName);
 	if (spr && newChild) {
 		spr->addChildPtr(newChild);
+		runLayout();
 	} else {
 		DS_LOG_WARNING("Failed to add child to " << spriteName);
 	}

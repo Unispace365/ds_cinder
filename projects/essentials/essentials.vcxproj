@@ -47,6 +47,7 @@
     <ClCompile Include="src\ds\ui\drawing\drawing_canvas.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\stylesheet_parser.cpp" />
+    <ClCompile Include="src\ds\ui\layout\smart_layout.cpp" />
     <ClCompile Include="src\ds\ui\menu\component\cluster_view.cpp" />
     <ClCompile Include="src\ds\ui\menu\component\menu_item.cpp" />
     <ClCompile Include="src\ds\ui\menu\touch_menu.cpp" />
@@ -55,7 +56,6 @@
     <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp" />
-    <ClCompile Include="src\ds\ui\smart_layout\smart_layout.cpp" />
     <ClCompile Include="src\ds\ui\soft_keyboard\entry_field.cpp" />
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard.cpp" />
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp" />
@@ -96,6 +96,7 @@
     <ClInclude Include="src\ds\ui\drawing\drawing_canvas.h" />
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h" />
+    <ClInclude Include="src\ds\ui\layout\smart_layout.h" />
     <ClInclude Include="src\ds\ui\menu\component\cluster_view.h" />
     <ClInclude Include="src\ds\ui\menu\component\menu_item.h" />
     <ClInclude Include="src\ds\ui\menu\touch_menu.h" />
@@ -104,7 +105,6 @@
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_bar.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
-    <ClInclude Include="src\ds\ui\smart_layout\smart_layout.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\entry_field.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.h" />

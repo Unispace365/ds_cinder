@@ -19,7 +19,7 @@
 #include <ds/ui/layout/layout_sprite.h>
 #include <ds/ui/interface_xml/interface_xml_importer.h>
 
-#include <ds/ui/smart_layout/smart_layout.h>
+#include <ds/ui/layout/smart_layout.h>
 
 namespace example {
 

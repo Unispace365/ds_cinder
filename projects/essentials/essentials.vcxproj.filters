@@ -183,9 +183,7 @@
     <ClCompile Include="..\..\src\stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\smart_layout\smart_layout.cpp">
-      <Filter>src\ds\ui\smart_layout</Filter>
-    </ClCompile>
+    <ClCompile Include="src\ds\ui\layout\smart_layout.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -335,8 +333,6 @@
     <ClInclude Include="..\..\src\stdafx.h">
       <Filter>src</Filter>
     </ClInclude>
-    <ClInclude Include="src\ds\ui\smart_layout\smart_layout.h">
-      <Filter>src\ds\ui\smart_layout</Filter>
-    </ClInclude>
+    <ClInclude Include="src\ds\ui\layout\smart_layout.h" />
   </ItemGroup>
 </Project>
