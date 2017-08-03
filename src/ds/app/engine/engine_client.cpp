@@ -34,7 +34,7 @@ char EngineClient::getClientStatusBlob() {
 	return CLIENT_STATUS_BLOB;
 }
 
-EngineClient::EngineClient(	ds::App& app, const ds::EngineSettings& settings,
+EngineClient::EngineClient(	ds::App& app, ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 		: inherited(app, settings, ed, roots)
 		, mLoadImageService(*this, mIpFunctions)
@@ -59,8 +59,8 @@ EngineClient::EngineClient(	ds::App& app, const ds::EngineSettings& settings,
 	
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
-			mSendConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
-			mReceiveConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+			mSendConnection.initialize(true, settings.getString("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
+			mReceiveConnection.initialize(false, settings.getString("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
 		}
 	} catch(std::exception &e) {
 		DS_LOG_ERROR_M("EngineClient::EngineClient() initializing UDP: " << e.what(), ds::ENGINE_LOG);

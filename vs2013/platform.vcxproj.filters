@@ -273,9 +273,6 @@
     <ClInclude Include="..\src\ds\data\font_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\image_source\image_source.h">
       <Filter>src\ds\ui\image_source</Filter>
     </ClInclude>
@@ -396,9 +393,6 @@
     <ClInclude Include="..\src\ds\thread\async_queue.h">
       <Filter>src\ds\thread</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\cfg\settings.h">
-      <Filter>src\ds\cfg</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\cfg\cfg_text.h">
       <Filter>src\ds\cfg</Filter>
     </ClInclude>
@@ -437,9 +431,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\data\user_data.h">
       <Filter>src\ds\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\cfg\cfg_nine_patch.h">
-      <Filter>src\ds\cfg</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\arc\arc_map.h">
       <Filter>src\ds\arc</Filter>
@@ -681,6 +672,12 @@
     <ClInclude Include="..\src\ds\ui\sprite\text.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\legacy_settings.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\settings.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -803,9 +800,6 @@
     <ClCompile Include="..\src\ds\data\font_list.cpp">
       <Filter>src\ds\data</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\ui\image_source\image_source.cpp">
       <Filter>src\ds\ui\image_source</Filter>
     </ClCompile>
@@ -914,9 +908,6 @@
     <ClCompile Include="..\src\ds\network\tcp_server.cpp">
       <Filter>src\ds\network</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ds\cfg\settings.cpp">
-      <Filter>src\ds\cfg</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\ds\cfg\cfg_text.cpp">
       <Filter>src\ds\cfg</Filter>
     </ClCompile>
@@ -949,9 +940,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\user_data.cpp">
       <Filter>src\ds\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\cfg\cfg_nine_patch.cpp">
-      <Filter>src\ds\cfg</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_map.cpp">
       <Filter>src\ds\arc</Filter>
@@ -1147,6 +1135,12 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\text.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\legacy_settings.cpp">
+      <Filter>src\ds\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\settings.cpp">
+      <Filter>src\ds\cfg</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

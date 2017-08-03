@@ -1289,7 +1289,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			} else if(layoutButton){
 				layoutButton->showUp();
 			}
-		} else {
+		} else if(parent != spriddy){
 			parent->addChildPtr(spriddy);
 		}
 

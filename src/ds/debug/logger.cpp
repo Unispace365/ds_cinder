@@ -89,14 +89,14 @@ static bool ends_in_separator(const std::string& file)
 	return false;
 }
 
-void ds::Logger::setup(const ds::cfg::Settings& settings)
+void ds::Logger::setup(ds::cfg::Settings& settings)
 {
 	for (int k=0; k<LEVEL_SIZE; ++k) HAS_LEVEL[k] = false;
 
-	std::string				level = settings.getText("logger:level", 0, "all"),
-						module = settings.getText("logger:module", 0, "all"),
-						async = settings.getText("logger:async", 0, "true"),
-						file = settings.getText("logger:file", 0, EMPTY_SZ);
+	std::string				level = settings.getString("logger:level", 0, "all"),
+							module = settings.getString("logger:module", 0, "all"),
+							async = settings.getString("logger:async", 0, "true"),
+							file = settings.getString("logger:file", 0, EMPTY_SZ);
 	ds::tokenize(level, ',', [](const std::string& s) { setup_level(s); });
 	if (!module.empty()) {
 		HAS_MODULE = ds::BitMask::newEmpty();

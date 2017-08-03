@@ -32,48 +32,39 @@ void SpriteEngine::loadSettings(const std::string& name, const std::string& file
 }
 /** \endcond */
 
-ds::EngineCfg& SpriteEngine::getEngineCfg()
-{
+ds::EngineCfg& SpriteEngine::getEngineCfg() {
 	return mData.mEngineCfg;
 }
 
-const ds::EngineCfg& SpriteEngine::getEngineCfg() const
-{
+const ds::EngineCfg& SpriteEngine::getEngineCfg() const {
 	return mData.mEngineCfg;
 }
 
-const ds::cfg::Settings& SpriteEngine::getSettings(const std::string& name) const
-{
+ds::cfg::Settings& SpriteEngine::getSettings(const std::string& name) const {
 	return mData.mEngineCfg.getSettings(name);
 }
 
-float SpriteEngine::getMinTouchDistance() const
-{
+float SpriteEngine::getMinTouchDistance() const {
 	return mData.mMinTouchDistance;
 }
 
-float SpriteEngine::getMinTapDistance() const
-{
+float SpriteEngine::getMinTapDistance() const {
 	return mData.mMinTapDistance;
 }
 
-unsigned SpriteEngine::getSwipeQueueSize() const
-{
+unsigned SpriteEngine::getSwipeQueueSize() const {
 	return mData.mSwipeQueueSize;
 }
 
-float SpriteEngine::getSwipeMinVelocity() const
-{
+float SpriteEngine::getSwipeMinVelocity() const {
 	return mData.mSwipeMinVelocity;
 }
 
-float SpriteEngine::getSwipeMaxTime() const
-{
+float SpriteEngine::getSwipeMaxTime() const {
 	return mData.mSwipeMaxTime;
 }
 
-float SpriteEngine::getDoubleTapTime() const
-{
+float SpriteEngine::getDoubleTapTime() const {
 	return mData.mDoubleTapTime;
 }
 
@@ -85,28 +76,23 @@ const ci::Rectf& SpriteEngine::getDstRect() const {
 	return mData.mDstRect;
 }
 
-float SpriteEngine::getWidth() const
-{
+float SpriteEngine::getWidth() const {
 	return mData.mDstRect.getWidth();
 }
 
-float SpriteEngine::getHeight() const
-{
+float SpriteEngine::getHeight() const {
 	return mData.mDstRect.getHeight();
 }
 
-float SpriteEngine::getWorldWidth() const
-{
+float SpriteEngine::getWorldWidth() const {
 	return mData.mWorldSize.x;
 }
 
-float SpriteEngine::getWorldHeight() const
-{
+float SpriteEngine::getWorldHeight() const {
 	return mData.mWorldSize.y;
 }
 
-void SpriteEngine::addToDragDestinationList(Sprite *sprite)
-{
+void SpriteEngine::addToDragDestinationList(Sprite *sprite){
 	if(!sprite)
 		return;
 
@@ -115,8 +101,7 @@ void SpriteEngine::addToDragDestinationList(Sprite *sprite)
 	mDragDestinationSprites.push_back(sprite);
 }
 
-void SpriteEngine::removeFromDragDestinationList(Sprite *sprite)
-{
+void SpriteEngine::removeFromDragDestinationList(Sprite *sprite){
 	if(!sprite)
 		return;
 
@@ -125,8 +110,7 @@ void SpriteEngine::removeFromDragDestinationList(Sprite *sprite)
 		mDragDestinationSprites.erase(found);
 }
 
-Sprite *SpriteEngine::getDragDestinationSprite(const ci::vec3 &globalPoint, Sprite *draggingSprite)
-{
+Sprite *SpriteEngine::getDragDestinationSprite(const ci::vec3 &globalPoint, Sprite *draggingSprite){
 	for(auto it = mDragDestinationSprites.begin(), it2 = mDragDestinationSprites.end(); it != it2; ++it) {
 		Sprite *sprite = *it;
 		if(sprite == draggingSprite)
@@ -138,8 +122,7 @@ Sprite *SpriteEngine::getDragDestinationSprite(const ci::vec3 &globalPoint, Spri
 	return nullptr;
 }
 
-float SpriteEngine::getFrameRate() const
-{
+float SpriteEngine::getFrameRate() const {
 	return mData.mFrameRate;
 }
 
@@ -165,14 +148,12 @@ ds::ComputerInfo& SpriteEngine::getComputerInfo(){
 }
 
 
-bool SpriteEngine::getMute()
-{
+bool SpriteEngine::getMute(){
 	return mData.mMute;
 }
 
 
-void SpriteEngine::setMute(bool mute)
-{
+void SpriteEngine::setMute(bool mute){
 	mData.mMute = mute;
 }
 
@@ -180,8 +161,7 @@ const std::string SpriteEngine::getAppInstanceName(){
 	return mData.mAppInstanceName;
 }
 
-bool SpriteEngine::hasService(const std::string& key) const
-{
+bool SpriteEngine::hasService(const std::string& key) const {
 	return mData.mServices.find(key) != mData.mServices.cend();
 }
 

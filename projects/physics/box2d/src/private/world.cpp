@@ -58,6 +58,7 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& spriddy)
 		, mMouseDampening(1.0f)
 		, mMouseFrequencyHz(25.0f)
 		, mTranslateToLocalSpace(false)
+		, mSettings()
 {
 	mWorld = std::move(std::unique_ptr<b2World>(new b2World(b2Vec2(0.0f, 0.0f))));
 	if (mWorld.get() == nullptr) throw std::runtime_error("ds::physics::World() can't create b2World");
@@ -83,16 +84,16 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& spriddy)
 
 	// Slightly complicated, but flexible: Bounds can be either fixed or unit,
 	// or a combination of both, which applies the fixed as an offset.
-	if (mSettings.getRectSize("bounds:fixed") > 0 && mSettings.getRectSize("bounds:unit") > 0) {
+	if (mSettings.hasSetting("bounds:fixed") && mSettings.hasSetting("bounds:unit")) {
 		const ci::Rectf&		unit = mSettings.getRect("bounds:unit");
 		const ci::Rectf&		fixed = mSettings.getRect("bounds:fixed");
 		ci::Rectf				r(	(unit.x1 * e.getWorldWidth()) + fixed.x1, (unit.y1 * e.getWorldHeight()) + fixed.y1,
 									(unit.x2 * e.getWorldWidth()) + fixed.x2, (unit.y2 * e.getWorldHeight()) + fixed.y2);
 		setBounds(r, mSettings.getFloat("bounds:restitution", 0, 1.0f));
-	} else if (mSettings.getRectSize("bounds:fixed") > 0) {
+	} else if (mSettings.hasSetting("bounds:fixed")) {
 		setBounds(	mSettings.getRect("bounds:fixed"),
 					mSettings.getFloat("bounds:restitution", 0, 1.0f));
-	} else if (mSettings.getRectSize("bounds:unit") > 0) {
+	} else if (mSettings.hasSetting("bounds:unit")) {
 		const ci::Rectf&		r = mSettings.getRect("bounds:unit");
 		setBounds(	ci::Rectf(r.x1 * e.getWorldWidth(), r.y1 * e.getWorldHeight(), r.x2 * e.getWorldWidth(), r.y2 * e.getWorldHeight()),
 					mSettings.getFloat("bounds:restitution", 0, 1.0f));

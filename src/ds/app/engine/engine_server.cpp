@@ -33,7 +33,7 @@ using namespace ci::app;
 /**
  * \class ds::AbstractEngineServer
  */
-AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::EngineSettings& settings,
+AbstractEngineServer::AbstractEngineServer(	ds::App& app, ds::EngineSettings& settings,
 											ds::EngineData& ed, const ds::RootList& roots)
 	: inherited(app, settings, ed, roots)
 //    , mConnection(NumberOfNetworkThreads)
@@ -53,8 +53,8 @@ AbstractEngineServer::AbstractEngineServer(	ds::App& app, const ds::EngineSettin
 
 	try {
 		if (settings.getBool("server:connect", 0, true)) {
-			mSendConnection.initialize(true, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
-			mReceiveConnection.initialize(false, settings.getText("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
+			mSendConnection.initialize(true, settings.getString("server:ip"), ds::value_to_string(settings.getInt("server:send_port")));
+			mReceiveConnection.initialize(false, settings.getString("server:ip"), ds::value_to_string(settings.getInt("server:listen_port")));
 		}
 	} catch (std::exception &e) {
 		DS_LOG_ERROR_M("EngineServer() initializing connection: " << e.what(), ds::ENGINE_LOG);
@@ -472,7 +472,7 @@ void EngineServer::SendWorldState::update(AbstractEngineServer& engine) {
 /**
  * \class ds::EngineServer
  */
-EngineServer::EngineServer(	ds::App& app, const ds::EngineSettings& settings,
+EngineServer::EngineServer(	ds::App& app, ds::EngineSettings& settings,
 							ds::EngineData& ed, const ds::RootList& roots)
 	: inherited(app, settings, ed, roots)
 	, mLoadImageService(*this, mIpFunctions)

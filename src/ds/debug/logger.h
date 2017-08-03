@@ -44,7 +44,7 @@ public:
 	 *  "logger:file" string -- filename (and location).  a date stamp is appended.  DEFAULT=../logs/
 	 *  "logger:async" text -- (true,false) If this is false, then logging is synchronous.  DEFAULT=true
 	 */
-	static void						  setup(const ds::cfg::Settings&);
+	static void						  setup(ds::cfg::Settings&);
 
 	/**
 	 * LEVELS

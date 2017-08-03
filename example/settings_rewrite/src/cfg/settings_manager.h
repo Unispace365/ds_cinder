@@ -1,4 +1,5 @@
 #pragma once
+#if 0
 #ifndef DS_CFG_SETTINGS_MANAGER_H_
 #define DS_CFG_SETTINGS_MANAGER_H_
 
@@ -41,20 +42,22 @@ public:
 
 
 	
-	// An actual setting with some metadata. Type conversion happens at read time
+	// An actual setting with some metadata. 
 	struct Setting {
 		Setting() : mType(SETTING_TYPE_UNKNOWN){};
 
+		/// Type conversion happens at read time for all getters
 		bool							getBool() const;
 		int								getInt() const;
 		float							getFloat() const;
 		double							getDouble() const;
 
+		/// The Engine is supplied to look up named colors
 		const ci::Color					getColor(ds::Engine&) const;
 		const ci::ColorA				getColorA(ds::Engine&) const;
 
 		const std::string&				getString() const;
-		const std::wstring				getWstring() const;
+		const std::wstring				getWString() const;
 
 		const ci::vec2					getVec2() const;
 		const ci::vec3					getVec3() const;
@@ -100,58 +103,70 @@ public:
 	void							  	clear();
 
 	/// All getters type convert from the raw string value when you get the value
+	/// If the setting doesn't exist when you get it, it will be created. Supplying the default value will apply that value to the new setting
 
 	/// <setting name="the_name" value="true" type="bool" /> // index 0
 	/// <setting name="the_name" value="false" type="bool" /> // index 1
-	bool								getBool(const std::string& name, const int index = 0);
+	const bool							getBool(const std::string& name, const int index = 0);
+	const bool							getBool(const std::string& name, const int index, const bool defaultValue);
 
 
 	/// <setting name="the_name" value="1" type="int" min_value="0" max_value="1000" default="5" /> 
-	int									getInt(const std::string& name, const int index = 0);
+	const int							getInt(const std::string& name, const int index = 0);
+	const int							getInt(const std::string& name, const int index, const int defaultValue);
 
 	/// <setting name="the_name" value="1.0" type="float" /> 
-	float								getFloat(const std::string& name, const int index = 0);
+	const float							getFloat(const std::string& name, const int index = 0);
+	const float							getFloat(const std::string& name, const int index, const float defaultValue);
 
 	/// <setting name="the_name" value="10.0000000000000000001" type="double" /> 
-	double								getDouble(const std::string& name, const int index = 0);
+	const double						getDouble(const std::string& name, const int index = 0);
+	const double						getDouble(const std::string& name, const int index, const double defaultValue);
 
 	/// Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb 
 	/// Can also use named engine colors like "red" or "horrible_off_pink_brand_color"
 	/// This will ignore the alpha value when returning the color
 	/// <setting name="the_name" value="123456" type="color" /> 
 	const ci::Color						getColor(const std::string& name, const int index = 0);
+	const ci::Color						getColor(const std::string& name, const int index, const ci::Color& defaultValue);
 
 	/// Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb 
 	/// Can also use named engine colors like "red" or "horrible_off_pink_brand_color"
 	/// This one retains the alpha value
 	/// <setting name="the_name" value="12345678" type="colora" /> 
 	const ci::ColorA					getColorA(const std::string& name, const int index = 0);
+	const ci::ColorA					getColorA(const std::string& name, const int index, const ci::ColorA& defaultValue);
 
 	/// <setting name="the_name" value="What about the droid attack on the wookie army?" type="string" /> 
 	const std::string&					getString(const std::string& name, const int index = 0);
+	const std::string&					getString(const std::string& name, const int index, const std::string& defaultValue);
 
 	/// <setting name="the_name" value="I hate sand, it's course and rough and irritating!" type="string" /> 
-	const std::wstring					getWstring(const std::string& name, const int index = 0);
+	const std::wstring					getWString(const std::string& name, const int index = 0);
+	const std::wstring					getWString(const std::string& name, const int index, const std::wstring& defaultValue);
 
 	/// vec2 format value="X, Y" The space after the comma is required. Y defaults to 0.0 if it's not present
 	/// <setting name="the_name" value="140, 100" type="vec2" /> 
 	const ci::vec2&						getVec2(const std::string& name, const int index = 0);
+	const ci::vec2&						getVec2(const std::string& name, const int index, const ci::vec2& defaultValue);
 
 	/// vec3 format value="X, Y, Z" The space after the commas are required. Y and Z default to 0.0 if not present
 	/// <setting name="the_name" value="-1.0, -1000.0, 50" type="vec3" /> 
 	const ci::vec3&						getVec3(const std::string& name, const int index = 0);
+	const ci::vec3&						getVec3(const std::string& name, const int index, const ci::vec3& defaultValue);
 
 	/// rect format value="L, T, W, H" The space after the commas are required.
 	/// <setting name="the_name" value="0, 0, 1920, 1080" type="rect" /> 
 	const cinder::Rectf&				getRect(const std::string& name, const int index = 0);
-
-	/// Gets a reference to a raw setting for full access to properties like comments, min, max, etc.
-	/// Returns a blank setting (with all empty strings) if the setting doesn't exist
-	const Setting&						getSetting(const std::string& name, const int index) const;
+	const cinder::Rectf&				getRect(const std::string& name, const int index, const ci::Rectf& defaultValue);
 
 	/// Gets a reference to a raw setting for full access to properties like comments, min, max, etc.
 	/// Returns a new setting with the name specified (though the index is ignored when creating a new setting)
 	Setting&							getSetting(const std::string& name, const int index);
+
+	/// Gets a reference to a raw setting for full access to properties like comments, min, max, etc.
+	/// Returns a new setting with the name specified (though the index is ignored when creating a new setting). Applies the default to the new setting
+	Setting&							getSetting(const std::string& name, const int index, const std::string& defaultRawValue);
 
 	/// Appends the setting to the end of the setting list.
 	/// TODO: ability to insert at a particular overall index
@@ -161,6 +176,9 @@ public:
 	/// Return -1 if the setting isn't there or there are no settings
 	/// NOTE: This is NOT NOT NOT the same index as above. This is the index of ALL setting names. The indices above are for settings with the same name
 	int									getSettingIndex(const std::string& name) const;
+
+	/// Iterate over all the settings, optionally filtering by a specific type
+	void								forEachSetting(const std::function<void(const Setting&)>&, const std::string& typeFilter = "") const;
 
 	/// Prints out information for all settings
 	void								printAllSettings();
@@ -189,4 +207,5 @@ protected:
 } // namespace cfg
 } // namespace ds
 
+#endif // DS_CFG_SETTINGS_H_
 #endif // DS_CFG_SETTINGS_H_

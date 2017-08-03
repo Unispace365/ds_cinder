@@ -69,8 +69,8 @@ void settings_rewrite_app::setupServer(){
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
-	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
-		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& setting){
+		mEngine.editFonts().installFont(ds::Environment::expand(setting.mRawValue), setting.mName);
 	});
 
 	// Colors
@@ -79,9 +79,9 @@ void settings_rewrite_app::setupServer(){
 	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
 	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
 	mEngine.loadSettings("COLORS", "colors.xml");
-	mEngine.getSettings("COLORS").forEachColorAKey([this](const std::string& key){
-		mEngine.editColors().install(mEngine.getSettings("COLORS").getColorA(key), key);
-	});
+	mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& setting){
+		mEngine.editColors().install(setting.getColorA(mEngine), setting.mName);
+	}, ds::cfg::SETTING_TYPE_COLOR);
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_APP, "app_settings.xml");
@@ -97,13 +97,13 @@ void settings_rewrite_app::setupServer(){
 
 
 
-	ds::cfg::SettingsManager sm(mEngine);
+	ds::cfg::Settings sm;
 	sm.readFrom(ds::Environment::expand("%APP%/settings/engine_new.xml"), true);
 	sm.readFrom(ds::Environment::expand("%APP%/settings/engine_new_override.xml"), true);
 	std::string serverConnect = sm.getString("server:connect");
 
 
-	ds::cfg::SettingsManager::Setting newSetting;
+	ds::cfg::Settings::Setting newSetting;
 	newSetting.mName = "holy:fuck_balls";
 	newSetting.mType = "string";
 	newSetting.mRawValue = "well crap on a stick";
@@ -114,9 +114,9 @@ void settings_rewrite_app::setupServer(){
 	auto& adjustASetting = sm.getSetting("story:area", 1);
 	adjustASetting.mRawValue = "whoop de doo";
 
-	sm.printAllSettings();
+	//sm.printAllSettings();
 
-	sm.writeTo(ds::Environment::expand("%APP%/settings/test_write.xml"));
+	//sm.writeTo(ds::Environment::expand("%APP%/settings/test_write.xml"));
 
 
 	const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
@@ -200,7 +200,7 @@ void settings_rewrite_app::forceStartIdleMode(){
 
 void settings_rewrite_app::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == RequestAppExitEvent::WHAT()){
-		quit();
+		mEngine.getRootSprite().callAfterDelay([this]{	quit(); }, 0.1f);
 	} 
 }
 
@@ -253,9 +253,19 @@ void settings_rewrite_app::mouseUp(ci::app::MouseEvent e) {
 void settings_rewrite_app::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
+
+
+
+		/*
 		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
 		mv->initialize();
 		mEngine.getRootSprite().addChildPtr(mv);
+		*/
+
+		std::string thePath = (*it).string();
+
+		ds::cfg::SettingsUpdater updater(mEngine);
+		updater.updateSettings(thePath, thePath);
 	}
 }
 

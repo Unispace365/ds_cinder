@@ -30,7 +30,7 @@ void SettingsUpdater::updateSettings(const std::string& source, const std::strin
 	if(source.empty() || destination.empty()) return;
 
 
-	SettingsManager outputSettings(mEngine);
+	Settings outputSettings;
 
 
 	ci::XmlTree xml;
@@ -56,7 +56,7 @@ void SettingsUpdater::updateSettings(const std::string& source, const std::strin
 				nextIsHeader = true;
 			} else if(nextIsHeader){
 				nextIsHeader = false;
-				SettingsManager::Setting newSetting;
+				Settings::Setting newSetting;
 				newSetting.mName = theValue;
 				if(!theComment.empty()){
 					newSetting.mComment = theComment;
@@ -72,7 +72,7 @@ void SettingsUpdater::updateSettings(const std::string& source, const std::strin
 				
 		} else {
 			nextIsHeader = false;
-			SettingsManager::Setting newSetting;
+			Settings::Setting newSetting;
 
 			if((*it)->hasAttribute("name")) newSetting.mName = (*it)->getAttribute("name");
 			if((*it)->hasAttribute("value")) newSetting.mRawValue = (*it)->getAttribute("value");
@@ -174,7 +174,7 @@ void SettingsUpdater::updateSettings(const std::string& source, const std::strin
 				}
 
 
-				newSetting.mType = SETTING_TYPE_COLORA;
+				newSetting.mType = SETTING_TYPE_COLOR;
 			}
 
 

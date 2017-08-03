@@ -46,9 +46,10 @@ private:
 	friend class EngineCfg;
 	static const std::string&		envProjectPath();
 	// Answer the configuration.xml if it exists.
-	static const ds::cfg::Settings&	getConfiguration();
+	const ds::cfg::Settings&		getConfiguration();
 	static const std::string&		getConfigurationFolder();
 
+	ds::cfg::Settings				mConfiguration;
 
 	bool							mLoadedAnySettings;
 	std::stringstream				mStartupInfo;

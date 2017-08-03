@@ -1,5 +1,5 @@
 #include "stdafx.h"
-
+#if 0
 #include "settings_manager.h"
 
 #include <cinder/Xml.h>
@@ -50,11 +50,9 @@ void initialize_types(){
 	}
 }
 
-static const ds::cfg::SettingsManager::Setting BLANK_SETTING;
-
 static void merge_settings(
-		  std::vector<std::pair<std::string, std::vector<ds::cfg::SettingsManager::Setting>>>& dst, 
-	const std::vector<std::pair<std::string, std::vector<ds::cfg::SettingsManager::Setting>>>& src){
+		  std::vector<std::pair<std::string, std::vector<ds::cfg::Settings::Setting>>>& dst, 
+		  const std::vector<std::pair<std::string, std::vector<ds::cfg::Settings::Setting>>>& src){
 	for(auto sit : src) {
 		bool found = false;
 		for (auto& dit : dst){
@@ -101,7 +99,7 @@ const std::string& SettingsManager::Setting::getString() const{
 	return mRawValue;
 }
 
-const std::wstring SettingsManager::Setting::getWstring() const{
+const std::wstring SettingsManager::Setting::getWString() const{
 	return ds::wstr_from_utf8(mRawValue);
 }
 
@@ -224,48 +222,92 @@ void SettingsManager::clear() {
 }
 
 
-bool SettingsManager::getBool(const std::string& name, const int index){
+const bool SettingsManager::getBool(const std::string& name, const int index) {
 	return getSetting(name, index).getBool();
 }
 
-int SettingsManager::getInt(const std::string& name, const int index){
+const bool SettingsManager::getBool(const std::string& name, const int index, const bool defaultValue){
+	return getSetting(name, index, std::to_string(defaultValue)).getBool();
+}
+
+const int SettingsManager::getInt(const std::string& name, const int index){
 	return getSetting(name, index).getInt();
 }
 
-float SettingsManager::getFloat(const std::string& name, const int index){
+const int SettingsManager::getInt(const std::string& name, const int index, const int defaultValue){
+	return getSetting(name, index, std::to_string(defaultValue)).getInt();
+}
+
+const float SettingsManager::getFloat(const std::string& name, const int index){
 	return getSetting(name, index).getFloat();
 }
 
-double SettingsManager::getDouble(const std::string& name, const int index){
+const float SettingsManager::getFloat(const std::string& name, const int index, const float defaultValue){
+	return getSetting(name, index, std::to_string(defaultValue)).getFloat();
+}
+
+const double SettingsManager::getDouble(const std::string& name, const int index){
 	return getSetting(name, index).getDouble();
+}
+
+const double SettingsManager::getDouble(const std::string& name, const int index, const double defaultValue){
+	return getSetting(name, index, std::to_string(defaultValue)).getDouble();
 }
 
 const ci::Color SettingsManager::getColor(const std::string& name, const int index){
 	return getSetting(name, index).getColor(mEngine);
 }
 
+const ci::Color SettingsManager::getColor(const std::string& name, const int index, const ci::Color& defaultValue){
+	return getSetting(name, index, ds::unparseColor(defaultValue)).getColor(mEngine);
+}
+
 const ci::ColorA SettingsManager::getColorA(const std::string& name, const int index){
 	return getSetting(name, index).getColorA(mEngine);
+}
+
+const ci::ColorA SettingsManager::getColorA(const std::string& name, const int index, const ci::ColorA& defaultValue){
+	return getSetting(name, index, ds::unparseColor(defaultValue)).getColor(mEngine);
 }
 
 const std::string& SettingsManager::getString(const std::string& name, const int index){
 	return getSetting(name, index).getString();
 }
 
-const std::wstring SettingsManager::getWstring(const std::string& name, const int index){
-	return getSetting(name, index).getWstring();
+const std::string& SettingsManager::getString(const std::string& name, const int index, const std::string& defaultValue){
+	return getSetting(name, index, defaultValue).getString();
+}
+
+const std::wstring SettingsManager::getWString(const std::string& name, const int index){
+	return getSetting(name, index).getWString();
+}
+
+const std::wstring SettingsManager::getWString(const std::string& name, const int index, const std::wstring& defaultValue){
+	return getSetting(name, index, ds::utf8_from_wstr(defaultValue)).getWString();
 }
 
 const ci::vec2& SettingsManager::getVec2(const std::string& name, const int index){
 	return getSetting(name, index).getVec2();
 }
 
+const ci::vec2& SettingsManager::getVec2(const std::string& name, const int index, const ci::vec2& defaultValue){
+	return getSetting(name, index, ds::unparseVector(defaultValue)).getVec2();
+}
+
 const ci::vec3& SettingsManager::getVec3(const std::string& name, const int index){
 	return getSetting(name, index).getVec3();
 }
 
+const ci::vec3& SettingsManager::getVec3(const std::string& name, const int index, const ci::vec3& defaultValue){
+	return getSetting(name, index, ds::unparseVector(defaultValue)).getVec3();
+}
+
 const cinder::Rectf& SettingsManager::getRect(const std::string& name, const int index){
 	return getSetting(name, index).getRect();
+}
+
+const cinder::Rectf& SettingsManager::getRect(const std::string& name, const int index, const ci::Rectf& defaultValue){
+	return getSetting(name, index, ds::unparseRect(defaultValue)).getRect();
 }
 
 bool SettingsManager::validateType(const std::string& inputType) {
@@ -288,17 +330,21 @@ int SettingsManager::getSettingIndex(const std::string& name) const {
 	return -1;
 }
 
-const ds::cfg::SettingsManager::Setting& SettingsManager::getSetting(const std::string& name, const int index) const {
-	auto settingIndex = getSettingIndex(name);
-
-	if(settingIndex > -1 && index > -1 && !mSettings[settingIndex].second.empty() && index < mSettings[settingIndex].second.size()){
-		return mSettings[settingIndex].second[index];
+void SettingsManager::forEachSetting(const std::function<void(const Setting&)>& func, const std::string& typeFilter /*= ""*/) const{
+	for (auto it : mSettings){
+		auto theThingies = it.second;
+		for (auto sit : theThingies){
+			if(!typeFilter.empty() && typeFilter != sit.mType) continue;
+			func(sit);
+		}
 	}
-
-	return BLANK_SETTING;	
 }
 
 ds::cfg::SettingsManager::Setting& SettingsManager::getSetting(const std::string& name, const int index) {
+	return getSetting(name, index, "");
+}
+
+ds::cfg::SettingsManager::Setting& SettingsManager::getSetting(const std::string& name, const int index, const std::string& defaultRawValue){
 	auto settingIndex = getSettingIndex(name);
 
 	if(settingIndex > -1 && index > -1 && !mSettings[settingIndex].second.empty() && index < mSettings[settingIndex].second.size()){
@@ -346,3 +392,5 @@ void SettingsManager::printAllSettings(){
 
 } // namespace cfg
 } // namespace ds
+
+#endif

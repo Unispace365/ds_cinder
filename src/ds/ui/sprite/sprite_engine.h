@@ -63,8 +63,6 @@ public:
 	virtual PangoFontService&		getPangoFontService() = 0;
 	virtual ds::ImageRegistry&		getImageRegistry() = 0;
 	virtual Tweenline&				getTweenline() = 0;
-	virtual const ds::cfg::Settings&
-									getDebugSettings() = 0;
 	virtual ci::app::WindowRef		getWindow() = 0;
 
 	bool							getMute();
@@ -86,7 +84,7 @@ public:
 	ds::EngineCfg&					getEngineCfg();
 	const ds::EngineCfg&			getEngineCfg() const;
 	// Shortcuts
-	const ds::cfg::Settings&		getSettings(const std::string& name) const;
+	ds::cfg::Settings&				getSettings(const std::string& name) const;
 
 	// Sprite management
 	virtual ds::sprite_id_t			nextSpriteId() = 0;

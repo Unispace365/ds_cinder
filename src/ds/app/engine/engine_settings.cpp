@@ -12,7 +12,6 @@
 namespace {
 std::string			PROJECT_PATH;
 // The configuration settings
-ds::cfg::Settings	CONFIGURATION_SETTINGS;
 std::string			CONFIGURATION_FOLDER;
 
 static bool			get_key_value(const std::string& arg, std::string& key, std::string& value) {
@@ -104,13 +103,16 @@ EngineSettings::EngineSettings()
 	// The project path is taken from the supplied arguments, if it existed, or else it's
 	// pulled from the settings I just loaded.  If neither has it, then I guess no local settings.
 	if(projectPath.empty()) {
-		projectPath = getText("project_path", 0, projectPath);
+		projectPath = getString("project_path", 0, projectPath);
 	} else {
 		// If it exists, then make sure then any project_path in the settings is the same.  No one
 		// should ever use that, but let's be safe.
-		ds::cfg::Settings::Editor   ed(*this, Editor::SET_MODE);
-		ed.setText("project_path", projectPath);
+		
+		auto& theSetting = getSetting("project_path", 0);
+		theSetting.mRawValue = projectPath;
+
 	}
+
 	if(!projectPath.empty()) {
 		// Set the global project path
 		PROJECT_PATH = projectPath;
@@ -124,9 +126,9 @@ EngineSettings::EngineSettings()
 
 		// Load the configuration settings, which can be used to modify settings even more.
 		// Currently used to provide alternate layout sizes.
-		ds::Environment::loadSettings("configuration.xml", CONFIGURATION_SETTINGS);
+		ds::Environment::loadSettings("configuration.xml", mConfiguration);
 		CONFIGURATION_FOLDER = commandLineAppConfig.empty()
-			? CONFIGURATION_SETTINGS.getText("folder", 0, "")
+			? mConfiguration.getString("folder", 0, "")
 			: commandLineAppConfig;
 
 		// If the folder exists, then apply any changes to the engine file
@@ -155,7 +157,7 @@ const std::string& EngineSettings::envProjectPath() {
 }
 
 const ds::cfg::Settings& EngineSettings::getConfiguration() {
-	return CONFIGURATION_SETTINGS;
+	return mConfiguration;
 }
 
 const std::string& EngineSettings::getConfigurationFolder() {

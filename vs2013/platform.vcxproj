@@ -61,8 +61,8 @@
     <ClInclude Include="..\src\ds\arc\arc_map.h" />
     <ClInclude Include="..\src\ds\arc\arc_pow.h" />
     <ClInclude Include="..\src\ds\arc\arc_render_circle.h" />
-    <ClInclude Include="..\src\ds\cfg\cfg_nine_patch.h" />
     <ClInclude Include="..\src\ds\cfg\cfg_text.h" />
+    <ClInclude Include="..\src\ds\cfg\legacy_settings.h" />
     <ClInclude Include="..\src\ds\cfg\settings.h" />
     <ClInclude Include="..\src\ds\data\color_list.h" />
     <ClInclude Include="..\src\ds\data\data_buffer.h" />
@@ -172,7 +172,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\image.h" />
     <ClInclude Include="..\src\ds\ui\sprite\image_with_thumbnail.h" />
     <ClInclude Include="..\src\ds\ui\sprite\mesh.h" />
-    <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h" />
     <ClInclude Include="..\src\ds\ui\sprite\shader\sprite_shader.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite.h" />
     <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h" />
@@ -250,8 +249,8 @@
     <ClCompile Include="..\src\ds\arc\arc_map.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_pow.cpp" />
     <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp" />
-    <ClCompile Include="..\src\ds\cfg\cfg_nine_patch.cpp" />
     <ClCompile Include="..\src\ds\cfg\cfg_text.cpp" />
+    <ClCompile Include="..\src\ds\cfg\legacy_settings.cpp" />
     <ClCompile Include="..\src\ds\cfg\settings.cpp" />
     <ClCompile Include="..\src\ds\data\color_list.cpp" />
     <ClCompile Include="..\src\ds\data\data_buffer.cpp" />
@@ -354,7 +353,6 @@
     <ClCompile Include="..\src\ds\ui\sprite\image.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\image_with_thumbnail.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\mesh.cpp" />
-    <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\shader\sprite_shader.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp" />

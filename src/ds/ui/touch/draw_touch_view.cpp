@@ -20,7 +20,7 @@ DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e)
 {
 }
 
-DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &settings, ds::ui::TouchManager& tm)
+DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, ds::cfg::Settings &settings, ds::ui::TouchManager& tm)
 	: ds::ui::Sprite(e)
 	, mTouchTrailsUse(false)
 	, mTouchTrailsLength(5)
@@ -37,13 +37,13 @@ DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &s
 
 	if(mTouchTrailsUse){
 		setTransparent(false); 
-		setColor(settings.getColor("touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
+		setColor(settings.getColor(dynamic_cast<ds::Engine&>(e), "touch_color", 0, ci::Color(1.0f, 1.0f, 1.0f)));
 	}
 
 	tm.setCapture(this);
 
 	mCircleRadius = settings.getFloat("touch_overlay:debug_circle_radius", 0, mCircleRadius);
-	mCircleColor = settings.getColorA("touch_overlay:debug_circle_color", 0, mCircleColor);
+	mCircleColor = settings.getColorA(dynamic_cast<ds::Engine&>(e), "touch_overlay:debug_circle_color", 0, mCircleColor);
 	mCircleFilled = settings.getBool("touch_overlay:debug_circle_filled", 0, mCircleFilled);
 }
 

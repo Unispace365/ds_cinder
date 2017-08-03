@@ -67,7 +67,7 @@ public:
 	virtual ds::ImageRegistry&			getImageRegistry() { return mImageRegistry; }
 	virtual ds::ui::PangoFontService&	getPangoFontService(){ return mPangoFontService; }
 	virtual ds::ui::Tweenline&			getTweenline() { return mTweenline; }
-	virtual const ds::cfg::Settings&	getDebugSettings() { return mDebugSettings; }
+
 	// I take ownership of any services added to me.
 	void								addService(const std::string&, ds::EngineService&);
 	// Add the image processing function to my global pool
@@ -90,11 +90,7 @@ public:
 	// @param filename is the leaf path of the settings file (i.e. "text.xml").
 	// It will be loaded from all appropriate locations.
 	void								loadTextCfg(const std::string& filename);
-	// Convenice to load a nine patch cfg file into a collection of cfg objects.
-	// @param filename is the leaf path of the settings file (i.e. "nine_patch.xml").
-	// It will be loaded from all appropriate locations.
-	void								loadNinePatchCfg(const std::string& filename);
-
+	
 	const ds::EngineData&				getEngineData() const		{ return mData; }
 	// only valid after setup() is called
 	size_t								getRootCount() const;
@@ -222,7 +218,7 @@ public:
 	void														createClientRoots(std::vector<RootList::Root> newRoots);
 
 protected:
-	Engine(ds::App&, const ds::EngineSettings&, ds::EngineData&, const RootList&);
+	Engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const RootList&);
 
 	// Conveniences for the subclases
 	void								updateClient();
@@ -262,7 +258,7 @@ private:
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
 										mRoots;
-	const ds::EngineSettings&			mSettings;
+	ds::EngineSettings&					mSettings;
 	ImageRegistry						mImageRegistry;
 	ds::ui::PangoFontService			mPangoFontService;
 	ds::ui::Tweenline					mTweenline;
@@ -284,7 +280,6 @@ private:
 	// Quick hack to get any ol' client participating in draw
 	AutoDrawService*					mAutoDraw;
 
-	ds::cfg::Settings					mDebugSettings;
 	ds::ui::TouchTranslator				mTouchTranslator;
 	std::mutex							mTouchMutex;
 	ds::EngineTouchQueue<ds::ui::TouchEvent>

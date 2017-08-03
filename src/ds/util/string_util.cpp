@@ -722,6 +722,12 @@ ci::Rectf parseRect(const std::string &s){
 	return v;
 }
 
+std::string unparseRect(const ci::Rectf& v){
+	std::stringstream ss;
+	ss << v.x1 << ", " << v.y1 << ", " << v.getWidth() << ", " << v.getHeight();
+	return ss.str();
+}
+
 std::string unparseVector(const ci::vec3& v){
 	std::stringstream ss;
 	ss << v.x << ", " << v.y << ", " << v.z;

@@ -23,7 +23,6 @@
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/ui/sprite/gradient_sprite.h"
 #include "ds/ui/sprite/image.h"
-#include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
 #include "ds/ui/sprite/border.h"
 #include "ds/ui/sprite/circle.h"
@@ -81,7 +80,7 @@ void linuxImplRegisterWindowFiledropHandler( ci::app::WindowRef cinderWindow ) {
 #endif // !_WIN32
 
 // Answer a new engine based on the current settings
-static ds::Engine&    new_engine(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList& roots);
+static ds::Engine&    new_engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList& roots);
 
 static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 	static std::vector<std::function<void(ds::Engine&)>>	VEC;
@@ -165,8 +164,6 @@ App::App(const RootList& roots)
 							[](ds::BlobRegistry& r){ds::ui::Gradient::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Image::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Image::installAsClient(r);});
-	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
-							[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r); });
 	mEngine.installSprite(	[](ds::BlobRegistry& r){EngineStatsView::installAsServer(r);},
@@ -475,7 +472,7 @@ ds::EngineSettingsPreloader::Initializer::Initializer() {
 
 } // namespace ds
 
-static ds::Engine&    new_engine(	ds::App& app, const ds::EngineSettings& settings,
+static ds::Engine&    new_engine(	ds::App& app, ds::EngineSettings& settings,
 									ds::EngineData& ed, const ds::RootList& roots){
 
 	bool defaultShowConsole = false;
@@ -484,7 +481,7 @@ static ds::Engine&    new_engine(	ds::App& app, const ds::EngineSettings& settin
 		app.showConsole();
 	}
 
-	const std::string	arch(settings.getText("platform:architecture", 0, ""));
+	const std::string	arch(settings.getString("platform:architecture", 0, ""));
 	if (arch == "client") return *(new ds::EngineClient(app, settings, ed, roots));
 	if (arch == "server") return *(new ds::EngineServer(app, settings, ed, roots));
 	if (arch == "clientserver") return *(new ds::EngineClientServer(app, settings, ed, roots));

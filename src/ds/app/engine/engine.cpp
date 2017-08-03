@@ -40,7 +40,7 @@ namespace ds {
 
 const int Engine::NumberOfNetworkThreads = 2;
 
-Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
+Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
 	, mTweenline(app.timeline())
@@ -77,18 +77,17 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 
 	if (mAutoDraw) addService("AUTODRAW", *mAutoDraw);
 
-	ds::Environment::loadSettings("debug.xml", mDebugSettings);
-	ds::Logger::setup(mDebugSettings);
+	ds::Logger::setup(settings);
 
 	// touch settings
 	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
 	setTouchMode(mTouchMode);
 	mTouchManager.setOverrideTranslation(settings.getBool("touch_overlay:override_translation", 0, false));
-	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::vec2(1920.0f, 1080.0f)));
-	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::vec2(0.0f, 0.0f)));
+	mTouchManager.setOverrideDimensions(settings.getVec2("touch_overlay:dimensions", 0, ci::vec2(1920.0f, 1080.0f)));
+	mTouchManager.setOverrideOffset(settings.getVec2("touch_overlay:offset", 0, ci::vec2(0.0f, 0.0f)));
 	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
 
-	mData.mAppInstanceName = settings.getText("platform:guid", 0, "Downstream");
+	mData.mAppInstanceName = settings.getString("platform:guid", 0, "Downstream");
 
 
 	// don't lose idle just because we got a marker moved event
@@ -105,25 +104,14 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 	const bool verboseTouchLogging = settings.getBool("touch_overlay:verbose_logging", 0, false);
 	mTouchManager.setVerboseLogging(verboseTouchLogging);
 
-	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
-	// Backwards compatibility with pre src-dst rect days
-	const float				DEFAULT_WINDOW_SCALE = 1.0f;
-	if (settings.getRectSize("local_rect") > 0) {
-		const float			window_scale = mDebugSettings.getFloat("window_scale", 0, DEFAULT_WINDOW_SCALE);
-		mData.mSrcRect = settings.getRect("local_rect", 0, mData.mSrcRect);
-		mData.mDstRect = ci::Rectf(0.0f, 0.0f, mData.mSrcRect.getWidth(), mData.mSrcRect.getHeight());
-		if (settings.getPointSize("window_pos") > 0) {
-			const ci::vec3	size(settings.getPoint("window_pos"));
-			mData.mDstRect.offset(glm::vec2(size));
-		}
-	}
+	mData.mWorldSize = settings.getVec2("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
+
 	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
 	// which makes them get ignored.
-	if (settings.getRectSize("src_rect") > 0 || settings.getRectSize("dst_rect") > 0) {
+	if (settings.hasSetting("src_rect") || settings.hasSetting("dst_rect")) {
 
 		const ci::Rectf		empty_rect(0.0f, 0.0f, 0.0f, 0.0f);
 
-		// normal continuous-render engine behavior.
 		mData.mSrcRect = settings.getRect("src_rect", 0, empty_rect);
 		mData.mDstRect = settings.getRect("dst_rect", 0, empty_rect);
 		
@@ -143,7 +131,7 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 
 	// Don't construct roots on startup for clients, and instead create them when we connect to a server
-	const std::string	arch(settings.getText("platform:architecture", 0, ""));
+	const std::string	arch(settings.getString("platform:architecture", 0, ""));
 	bool isClient = false;
 	if(arch == "client") isClient = true;
 
@@ -195,7 +183,7 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 	createStatsView(root_id);
 
 	// Initialize the roots
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mSrcRect, mData.mDstRect);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
@@ -204,7 +192,7 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 	mRotateTouchesDefault = settings.getBool("touch:rotate_touches_default", 0, false);
 
 	// SETUP RESOURCES
-	std::string resourceLocation = ds::getNormalizedPath(settings.getText("resource_location", 0, ""));
+	std::string resourceLocation = ds::getNormalizedPath(settings.getString("resource_location", 0, ""));
 	if (resourceLocation.empty()) {
 		// This is valid, though unusual
 		std::cout << "Engine() has no resource_location setting" << std::endl;
@@ -221,8 +209,8 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
 		Resource::Id::setupPaths(
 			ds::getNormalizedPath(resourceLocation),
-			ds::getNormalizedPath(settings.getText("resource_db", 0)),
-			ds::getNormalizedPath(settings.getText("project_path", 0))
+			ds::getNormalizedPath(settings.getString("resource_db", 0)),
+			ds::getNormalizedPath(settings.getString("project_path", 0))
 		);
 	}
 
@@ -232,32 +220,23 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 
 
 void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
-	// TODO: remove this null_renderer bullshit
 	std::string screenMode = "window";
-	if(mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
-	{
-		// a 50x25 window for null renderer.
-		settings.setWindowSize(50, 25);
-		settings.setFullScreen(false);
-		settings.setBorderless(false);
-		settings.setAlwaysOnTop(false);
 
-	} else {
-		settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
-		if(mSettings.getUsingDefault()){
-			screenMode = "borderless";
-		}
-		screenMode = mSettings.getText("screen:mode", 0, screenMode);
-		if(screenMode == "full"){
-			settings.setFullScreen(true);
-		} else if(screenMode == "fullscreen"){
-			settings.setFullScreen(true);
-		} else if(screenMode == "borderless"){
-			settings.setBorderless(true);
-		}
-
-		settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
+	settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
+	if(mSettings.getUsingDefault()){
+		screenMode = "borderless";
 	}
+	screenMode = mSettings.getString("screen:mode", 0, screenMode);
+	if(screenMode == "full"){
+		settings.setFullScreen(true);
+	} else if(screenMode == "fullscreen"){
+		settings.setFullScreen(true);
+	} else if(screenMode == "borderless"){
+		settings.setBorderless(true);
+	}
+
+	settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
+	
 	DS_LOG_INFO("Engine::prepareSettings: screenMode is " << screenMode << " and always on top " << settings.isAlwaysOnTop());
 
 	settings.setResizable(false);
@@ -271,7 +250,7 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 	settings.setFrameRate(mData.mFrameRate);
 
 	const std::string     nope = "ds:IllegalTitle";
-	const std::string     title = mSettings.getText("screen:title", 0, nope);
+	const std::string     title = mSettings.getString("screen:title", 0, nope);
 	if(title != nope) settings.setTitle(title);
 
 }
@@ -285,7 +264,7 @@ void Engine::setup(ds::App& app) {
 	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
 
 
-	const std::string	arch(mSettings.getText("platform:architecture", 0, ""));
+	const std::string	arch(mSettings.getString("platform:architecture", 0, ""));
 	bool isClient = false;
 	if(arch == "client") isClient = true;
 	const bool			drawTouches = mSettings.getBool("touch_overlay:debug", 0, false);
@@ -366,7 +345,7 @@ void Engine::createClientRoots(std::vector<RootList::Root> roots){
 	createStatsView(root_id);
 	root_setup(mRoots);
 
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mDebugSettings, 1.0f, mData.mSrcRect, mData.mDstRect);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mSrcRect, mData.mDstRect);
 	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
@@ -467,7 +446,7 @@ void Engine::addIp(const std::string& key, const ds::ui::ip::FunctionRef& fn) {
 }
 
 void Engine::loadSettings(const std::string& name, const std::string& filename) {
-	mData.mEngineCfg.loadSettings(name, filename, this);
+	mData.mEngineCfg.loadSettings(name, filename);
 }
 
 void Engine::saveSettings(const std::string& name, const std::string& filename) {
@@ -479,11 +458,7 @@ void Engine::appendSettings(const std::string& name, const std::string& filename
 }
 
 void Engine::loadTextCfg(const std::string& filename) {
-	mData.mEngineCfg.loadText(filename, this);
-}
-
-void Engine::loadNinePatchCfg(const std::string& filename) {
-	mData.mEngineCfg.loadNinePatchCfg(filename);
+	mData.mEngineCfg.loadText(filename, *this);
 }
 
 size_t Engine::getRootCount() const {

@@ -21,7 +21,7 @@ class DrawTouchView : public ds::ui::Sprite
 	, public ds::ui::TouchManager::Capture {
 public:
 	DrawTouchView(ds::ui::SpriteEngine& e);
-	DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &settings, ds::ui::TouchManager& tm);
+	DrawTouchView(ds::ui::SpriteEngine& e, ds::cfg::Settings &settings, ds::ui::TouchManager& tm);
 
 	virtual void							touchBegin(const ds::ui::TouchInfo &ti);
 	virtual void							touchMoved(const ds::ui::TouchInfo &ti);

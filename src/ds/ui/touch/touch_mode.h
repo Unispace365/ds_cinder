@@ -27,7 +27,7 @@ namespace TouchMode {
 
 	TouchMode::Enum	fromString(const std::string&);
 	std::string		toString(const TouchMode::Enum&);
-	TouchMode::Enum	fromSettings(const ds::cfg::Settings&);
+	TouchMode::Enum	fromSettings(ds::cfg::Settings&);
 	// Step the touch mode to the next logical one
 	TouchMode::Enum	next(const TouchMode::Enum&);
 }

@@ -19,7 +19,7 @@ namespace ds {
 class EngineClient : public Engine {
 public:
 	static char						getClientStatusBlob();
-	EngineClient(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
+	EngineClient(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList&);
 	~EngineClient();
 
 	virtual ds::WorkManager&		getWorkManager()		{ return mWorkManager; }
