@@ -24,6 +24,14 @@ void SettingsEditor::showSettings(Settings* theSettings){
 
 	mSettingItems.clear();
 
+	theSettings->forEachSetting([this](ds::cfg::Settings::Setting& setting){
+		EditorItem* ei = new EditorItem(mEngine);
+		ei->setSetting(&setting);
+		if(mSettingsLayout){
+			mSettingsLayout->addChildPtr(ei);
+		}
+	});
+
 }
 
 }

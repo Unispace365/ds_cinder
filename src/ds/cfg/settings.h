@@ -176,7 +176,7 @@ public:
 	int									getSettingIndex(const std::string& name) const;
 
 	/// Iterate over all the settings, optionally filtering by a specific type
-	void								forEachSetting(const std::function<void(const Setting&)>&, const std::string& typeFilter = "") const;
+	void								forEachSetting(const std::function<void(Setting&)>&, const std::string& typeFilter = "") const;
 
 	/// Prints out information for all settings
 	void								printAllSettings();

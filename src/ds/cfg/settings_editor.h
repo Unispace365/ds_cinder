@@ -7,6 +7,7 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/cfg/settings.h>
+#include <ds/ui/layout/layout_sprite.h>
 
 namespace ds{
 namespace cfg{
@@ -22,6 +23,8 @@ public:
 private:
 	Settings*					mCurrentSettings;
 
+	ds::ui::LayoutSprite*		mPrimaryLayout;
+	ds::ui::LayoutSprite*		mSettingsLayout;
 	std::vector<EditorItem*>	mSettingItems;
 };
 
