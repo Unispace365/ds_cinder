@@ -40,7 +40,7 @@ class SmartLayout : public ds::ui::LayoutSprite {
 
 	// NOTE!!: These templates need to be in the header to work
 	/// Calls the lambda callback for the event type from Template, casting event automatically
-	template <typename EVENT>
+	template <class EVENT>
 	void listenToEvents(std::function<void(const EVENT&)> callback) {
 		static_assert(std::is_base_of<ds::Event, EVENT>::value, "EVENT not derived from ds::Event");
 		auto type = EVENT::WHAT();
