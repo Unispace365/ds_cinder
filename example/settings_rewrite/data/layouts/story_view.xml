@@ -34,7 +34,7 @@
 					layout_size_mode="flex"
 					font_size="48"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
-					>Launcher</text>
+					>Settings Rewriter / Updater</text>
 					
 				<sprite name="spacer_one" 
 					layout_size_mode="flex"
@@ -45,43 +45,16 @@
 					opacity="0.5"
 					animate_on="fade; delay:0.5; duration:0.4"
 				/>
-				<image name="primary_image"
-					layout_size_mode="flex"
-					animate_on="fade; delay:0.5; duration:0.4"
-					/>
 					
-				<layout layout_type="horiz"
-					t_pad="40"
-					b_pad="10"
-					layout_spacing="5"
-				>
-				<text name="sample_setting"
+					
+		
+				<text name="message"
 					font="media_viewer:title"
 					layout_v_align="middle"
 					layout_size_mode="flex"
-					font_size="14"
+					font_size="24"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
-					>server:send_port</text>
-					
-				<text name="sample_value"
-					font="media_viewer:title"
-					layout_v_align="middle"
-					layout_size_mode="flex"
-					font_name="Noto Sans Bold"
-					font_size="14"
-					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
-					>10370</text>
-				</layout>
-					
-				<text name="sample_comment"
-					font="media_viewer:title"
-					layout_v_align="middle"
-					layout_size_mode="flex"
-					font_size="10"
-					b_pad="10"
-					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
-					>The port to send to the server</text>
-					
+					>Drop one or more legacy settings files here to update them to the new format.</text>
 					
 				<sprite name="spacer_two" 
 					layout_size_mode="flex"

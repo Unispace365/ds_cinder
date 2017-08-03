@@ -301,7 +301,6 @@
     <ClCompile Include="..\src\app\app_defs.cpp" />
     <ClCompile Include="..\src\app\globals.cpp" />
     <ClCompile Include="..\src\app\settings_rewrite_app.cpp" />
-    <ClCompile Include="..\src\cfg\settings_manager.cpp" />
     <ClCompile Include="..\src\cfg\settings_updater.cpp" />
     <ClCompile Include="..\src\model\generated\media_model.cpp" />
     <ClCompile Include="..\src\model\generated\story_model.cpp" />
@@ -316,7 +315,6 @@
     <ClInclude Include="..\src\app\app_defs.h" />
     <ClInclude Include="..\src\app\globals.h" />
     <ClInclude Include="..\src\app\settings_rewrite_app.h" />
-    <ClInclude Include="..\src\cfg\settings_manager.h" />
     <ClInclude Include="..\src\cfg\settings_updater.h" />
     <ClInclude Include="..\src\events\app_events.h" />
     <ClInclude Include="..\src\model\all_data.h" />

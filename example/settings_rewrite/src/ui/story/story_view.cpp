@@ -61,10 +61,7 @@ void StoryView::setData() {
 
 		auto storyRef = mGlobals.mAllData.mStories.front();
 
-		if(mMessage){
-			// Map the content from the app to the view sprites
-			mMessage->setText(storyRef.getTitle());
-		}
+		
 
 		if(mImage && storyRef.getPrimaryResource().getType() == ds::Resource::IMAGE_TYPE){
 			mImage->setImageResource(storyRef.getPrimaryResource());

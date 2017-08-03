@@ -672,9 +672,6 @@
     <ClInclude Include="..\src\ds\ui\sprite\text.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\cfg\legacy_settings.h">
-      <Filter>src\ds\cfg</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\cfg\settings.h">
       <Filter>src\ds\cfg</Filter>
     </ClInclude>
@@ -1135,9 +1132,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\text.cpp">
       <Filter>src\ds\ui\sprite</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\cfg\legacy_settings.cpp">
-      <Filter>src\ds\cfg</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\cfg\settings.cpp">
       <Filter>src\ds\cfg</Filter>

@@ -28,9 +28,6 @@
     <ClCompile Include="..\src\stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\cfg\settings_manager.cpp">
-      <Filter>src\cfg</Filter>
-    </ClCompile>
     <ClCompile Include="..\src\cfg\settings_updater.cpp">
       <Filter>src\cfg</Filter>
     </ClCompile>
@@ -68,9 +65,6 @@
     </ClInclude>
     <ClInclude Include="..\src\stdafx.h">
       <Filter>src</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\cfg\settings_manager.h">
-      <Filter>src\cfg</Filter>
     </ClInclude>
     <ClInclude Include="..\src\cfg\settings_updater.h">
       <Filter>src\cfg</Filter>
