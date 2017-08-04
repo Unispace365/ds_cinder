@@ -9,15 +9,16 @@
 namespace ds{
 namespace cfg{
 
-/// A single item in the editor
+/// A single item in the SettingsEditor, to display the item and it's properties. Click on this to open it's edit view
 class EditorItem : public ds::ui::LayoutSprite {
 public:
 	EditorItem(ds::ui::SpriteEngine& e);
 
 	void					setSetting(Settings::Setting* theSetting);
+	const std::string&		getSettingName();
 
 protected:
-	Settings::Setting*		mTheSetting;
+	std::string				mOriginalSettingName; // somehow gotta handle indexes?
 
 	ds::ui::Text*			mSettingName;
 	ds::ui::Text*			mSettingValue;

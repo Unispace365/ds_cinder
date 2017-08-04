@@ -78,6 +78,19 @@ const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 	return it->second;
 }
 
+const std::string& EngineCfg::getDefaultTextCfgName() const{
+	if(mTextCfg.empty()) return "";
+	return mTextCfg.begin()->first;
+}
+
+const ds::cfg::Text& EngineCfg::getDefaultTextCfg() const{
+	if(mTextCfg.empty()){
+		return mEmptyTextCfg;
+	}
+
+	return mTextCfg.begin()->second;
+}
+
 void EngineCfg::setText(const std::string& name, const ds::cfg::Text& t) {
 	try {
 		mTextCfg[name] = t;
@@ -137,6 +150,8 @@ void EngineCfg::loadText(const std::string& filename, Engine& engine) {
 		}
 		// Set color to full red to alert that this wasn't actually loaded
 		mEmptyTextCfg.mColor.set(ci::ColorModel::CM_RGB, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+		mEmptyTextCfg.mFont = "Arial Bold";
+		mEmptyTextCfg.mSize = 16.0f;
 	}
 }
 

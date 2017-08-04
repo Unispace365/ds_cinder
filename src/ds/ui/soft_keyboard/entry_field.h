@@ -1,6 +1,6 @@
 #pragma once
-#ifndef ESSENTIALS_UI_SOFT_KEYBOARD_ENTRY_FIELD
-#define ESSENTIALS_UI_SOFT_KEYBOARD_ENTRY_FIELD
+#ifndef DS_UI_SOFT_KEYBOARD_ENTRY_FIELD
+#define DS_UI_SOFT_KEYBOARD_ENTRY_FIELD
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/text.h>

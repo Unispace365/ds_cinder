@@ -16,7 +16,6 @@ namespace cfg{
 
 EditorItem::EditorItem(ds::ui::SpriteEngine& e)
 	: ds::ui::LayoutSprite(e)
-	, mTheSetting(nullptr)
 	, mSettingValue(nullptr)
 	, mSettingName(nullptr)
 	, mSettingComment(nullptr)
@@ -47,9 +46,10 @@ EditorItem::EditorItem(ds::ui::SpriteEngine& e)
 
 
 void EditorItem::setSetting(Settings::Setting* theSetting){
-	mTheSetting = theSetting;
+	mOriginalSettingName = "";
 
-	if(!mSettingName || !mSettingValue || !mTheSetting) return;
+	if(!mSettingName || !mSettingValue || !theSetting) return;
+	mOriginalSettingName = theSetting->mName;
 
 	if(theSetting->mType == ds::cfg::SETTING_TYPE_SECTION_HEADER){
 		mSettingName->setFontSize(16.0f);
@@ -62,12 +62,16 @@ void EditorItem::setSetting(Settings::Setting* theSetting){
 	}
 
 	mSettingName->setText(theSetting->mName);
-	if(theSetting->mRawValue.empty() && mTheSetting->mType != ds::cfg::SETTING_TYPE_SECTION_HEADER){
+	if(theSetting->mRawValue.empty() && theSetting->mType != ds::cfg::SETTING_TYPE_SECTION_HEADER){
 		mSettingValue->setText("<span style='italic'>empty</span>");
 	} else {
 		mSettingValue->setText(theSetting->mRawValue);
 	}
 	mSettingComment->setText(theSetting->mComment);
+}
+
+const std::string& EditorItem::getSettingName(){
+	return mOriginalSettingName;
 }
 
 }

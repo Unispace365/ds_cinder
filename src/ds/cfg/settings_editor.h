@@ -10,6 +10,7 @@
 namespace ds{
 namespace cfg{
 class EditorItem;
+class EditView;
 
 /// View for displaying and editing settings
 class SettingsEditor : public ds::ui::Sprite {
@@ -18,12 +19,14 @@ public:
 	
 	void						showSettings(Settings* theSettings);
 
+	void						editProperty(EditorItem* ei);
 private:
 	Settings*					mCurrentSettings;
 
 	ds::ui::LayoutSprite*		mPrimaryLayout;
 	ds::ui::LayoutSprite*		mSettingsLayout;
 	std::vector<EditorItem*>	mSettingItems;
+	EditView*					mEditView;
 };
 
 } // namespace ui

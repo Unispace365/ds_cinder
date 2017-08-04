@@ -23,6 +23,8 @@ public:
 	// if it doesn't exist. In release mode, just answer an empty one.
 	bool							hasText(const std::string& name) const;
 	const ds::cfg::Text&			getText(const std::string& name) const;
+	const std::string&				getDefaultTextCfgName() const;
+	const ds::cfg::Text&			getDefaultTextCfg() const;
 	void							setText(const std::string& name, const ds::cfg::Text&);
 
 	// Answers true if settings with given key is already loaded

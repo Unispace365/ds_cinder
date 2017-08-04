@@ -1,6 +1,6 @@
 #pragma once
-#ifndef ESSENTIALS_UI_SOFT_KEYBOARD_SOFT_KEYBOARD_BUTTON
-#define ESSENTIALS_UI_SOFT_KEYBOARD_SOFT_KEYBOARD_BUTTON
+#ifndef DS_UI_SOFT_KEYBOARD_SOFT_KEYBOARD_BUTTON
+#define DS_UI_SOFT_KEYBOARD_SOFT_KEYBOARD_BUTTON
 
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/sprite/text.h>

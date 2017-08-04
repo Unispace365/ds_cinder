@@ -6,6 +6,7 @@
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
 #include "ds/cfg/editor_components/editor_item.h"
+#include "ds/cfg/editor_components/edit_view.h"
 
 namespace ds{
 namespace cfg{
@@ -15,6 +16,7 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	, mCurrentSettings(nullptr)
 	, mPrimaryLayout(nullptr)
 	, mSettingsLayout(nullptr)
+	, mEditView(nullptr)
 {
 	mPrimaryLayout = new ds::ui::LayoutSprite(mEngine);
 	addChildPtr(mPrimaryLayout);
@@ -50,23 +52,47 @@ void SettingsEditor::showSettings(Settings* theSettings){
 	for (auto it : mSettingItems){
 		it->release();
 	}
-
+	mCurrentSettings = theSettings;
 	mSettingItems.clear();
 
 	if(!mSettingsLayout || !mPrimaryLayout) return;
 
 	theSettings->forEachSetting([this](ds::cfg::Settings::Setting& setting){
 		EditorItem* ei = new EditorItem(mEngine);
-		ei->setSetting(&setting);
+		Settings::Setting* theSetting = &setting;
+		ei->setSetting(theSetting);
+		ei->enable(true);
+		ei->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+		ei->setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
+			if(bs && mSettingsLayout && ti.mPhase == ds::ui::TouchInfo::Moved && glm::distance(ti.mCurrentGlobalPoint, ti.mStartPoint) > mEngine.getMinTapDistance()){
+				bs->passTouchToSprite(mSettingsLayout, ti);
+			}
+		});
+		ei->setTapCallback([this, ei](ds::ui::Sprite* bs, const ci::vec3& pos){
+			editProperty(ei);
+		});
 		if(mSettingsLayout){
 			mSettingsLayout->addChildPtr(ei);
 		}
+		mSettingItems.push_back(ei);
 	});
 
 	mPrimaryLayout->runLayout();
 
 	setPosition(mEngine.getSrcRect().getX2() - mPrimaryLayout->getWidth(), mEngine.getSrcRect().getY1());
 
+}
+
+void SettingsEditor::editProperty(EditorItem* ei){
+	if(ei && !ei->getSettingName().empty()){
+		if(!mEditView){
+			mEditView = new EditView(mEngine);
+			addChildPtr(mEditView);
+		}
+		Settings::Setting* theSetting = &mCurrentSettings->getSetting(ei->getSettingName(), 0);
+		mEditView->setSetting(theSetting);
+		mEditView->setPosition(-mEditView->getWidth(), 0.0f);
+	}
 }
 
 }

@@ -40,9 +40,6 @@
     <ClCompile Include="src\ds\touch\five_finger_cluster.cpp" />
     <ClCompile Include="src\ds\touch\touch_debug.cpp" />
     <ClCompile Include="src\ds\touch\view_dragger.cpp" />
-    <ClCompile Include="src\ds\ui\button\image_button.cpp" />
-    <ClCompile Include="src\ds\ui\button\layout_button.cpp" />
-    <ClCompile Include="src\ds\ui\button\sprite_button.cpp" />
     <ClCompile Include="src\ds\ui\control\control_slider.cpp" />
     <ClCompile Include="src\ds\ui\drawing\drawing_canvas.cpp" />
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp" />
@@ -56,11 +53,6 @@
     <ClCompile Include="src\ds\ui\scroll\scroll_area.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp" />
     <ClCompile Include="src\ds\ui\scroll\scroll_list.cpp" />
-    <ClCompile Include="src\ds\ui\soft_keyboard\entry_field.cpp" />
-    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard.cpp" />
-    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp" />
-    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_button.cpp" />
-    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp" />
     <ClCompile Include="src\ds\ui\sprite\png_sequence_sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -89,9 +81,6 @@
     <ClInclude Include="src\ds\touch\five_finger_cluster.h" />
     <ClInclude Include="src\ds\touch\touch_debug.h" />
     <ClInclude Include="src\ds\touch\view_dragger.h" />
-    <ClInclude Include="src\ds\ui\button\image_button.h" />
-    <ClInclude Include="src\ds\ui\button\layout_button.h" />
-    <ClInclude Include="src\ds\ui\button\sprite_button.h" />
     <ClInclude Include="src\ds\ui\control\control_slider.h" />
     <ClInclude Include="src\ds\ui\drawing\drawing_canvas.h" />
     <ClInclude Include="src\ds\ui\interface_xml\interface_xml_importer.h" />
@@ -105,12 +94,6 @@
     <ClInclude Include="src\ds\ui\scroll\scroll_area.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_bar.h" />
     <ClInclude Include="src\ds\ui\scroll\scroll_list.h" />
-    <ClInclude Include="src\ds\ui\soft_keyboard\entry_field.h" />
-    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard.h" />
-    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.h" />
-    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_button.h" />
-    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.h" />
-    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_settings.h" />
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />
     <ClInclude Include="src\ds\ui\util\sprite_cache.h" />
     <ClInclude Include="src\ds\ui\util\ui_utils.h" />

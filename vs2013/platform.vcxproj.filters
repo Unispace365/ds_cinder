@@ -109,6 +109,12 @@
     <Filter Include="src\ds\cfg\editor_components">
       <UniqueIdentifier>{ad2b8bc8-efd4-491b-8082-fad654242039}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\soft_keyboard">
+      <UniqueIdentifier>{590987a9-44bc-4064-aaf6-2d09ee69b0ed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\button">
+      <UniqueIdentifier>{cdd02fa4-1793-4630-9282-a9c02260305e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -684,6 +690,36 @@
     <ClInclude Include="..\src\ds\cfg\editor_components\editor_item.h">
       <Filter>src\ds\cfg\editor_components</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\button\layout_button.h">
+      <Filter>src\ds\ui\button</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\button\sprite_button.h">
+      <Filter>src\ds\ui\button</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\button\image_button.h">
+      <Filter>src\ds\ui\button</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_builder.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_button.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_defs.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_settings.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\entry_field.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\editor_components\edit_view.h">
+      <Filter>src\ds\cfg\editor_components</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1149,6 +1185,33 @@
       <Filter>src\ds\cfg</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\cfg\editor_components\editor_item.cpp">
+      <Filter>src\ds\cfg\editor_components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\button\sprite_button.cpp">
+      <Filter>src\ds\ui\button</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\button\image_button.cpp">
+      <Filter>src\ds\ui\button</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\button\layout_button.cpp">
+      <Filter>src\ds\ui\button</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_button.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\soft_keyboard\entry_field.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\editor_components\edit_view.cpp">
       <Filter>src\ds\cfg\editor_components</Filter>
     </ClCompile>
   </ItemGroup>

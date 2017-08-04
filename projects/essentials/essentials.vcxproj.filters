@@ -99,12 +99,6 @@
     <ClCompile Include="src\ds\ui\interface_xml\interface_xml_importer.cpp">
       <Filter>src\ds\ui\interface_xml</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\button\image_button.cpp">
-      <Filter>src\ds\ui\button</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\ui\button\sprite_button.cpp">
-      <Filter>src\ds\ui\button</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\touch\five_finger_cluster.cpp">
       <Filter>src\ds\touch</Filter>
     </ClCompile>
@@ -135,21 +129,6 @@
     <ClCompile Include="src\ds\network\helper\delayed_node_watcher.cpp">
       <Filter>src\ds\network\helper</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard.cpp">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_button.cpp">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\ui\soft_keyboard\entry_field.cpp">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
-    </ClCompile>
     <ClCompile Include="src\ds\ui\scroll\scroll_bar.cpp">
       <Filter>src\ds\ui\scroll</Filter>
     </ClCompile>
@@ -167,9 +146,6 @@
     </ClCompile>
     <ClCompile Include="src\ds\ui\scroll\infinity_scroll_list.cpp">
       <Filter>src\ds\ui\scroll</Filter>
-    </ClCompile>
-    <ClCompile Include="src\ds\ui\button\layout_button.cpp">
-      <Filter>src\ds\ui\button</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\ui\drawing\drawing_canvas.cpp">
       <Filter>src\ds\ui\drawing</Filter>
@@ -215,12 +191,6 @@
     <ClInclude Include="src\ds\ui\interface_xml\stylesheet_parser.h">
       <Filter>src\ds\ui\interface_xml</Filter>
     </ClInclude>
-    <ClInclude Include="src\ds\ui\button\image_button.h">
-      <Filter>src\ds\ui\button</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\button\sprite_button.h">
-      <Filter>src\ds\ui\button</Filter>
-    </ClInclude>
     <ClInclude Include="src\ds\touch\five_finger_cluster.h">
       <Filter>src\ds\touch</Filter>
     </ClInclude>
@@ -256,24 +226,6 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\util\ui_utils.h">
       <Filter>src\ds\ui\util</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard.h">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.h">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_button.h">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_settings.h">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\soft_keyboard\entry_field.h">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.h">
-      <Filter>src\ds\ui\soft_keyboard</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\scroll\scroll_bar.h">
       <Filter>src\ds\ui\scroll</Filter>
@@ -319,9 +271,6 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\scroll\infinity_scroll_list.h">
       <Filter>src\ds\ui\scroll</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\button\layout_button.h">
-      <Filter>src\ds\ui\button</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\drawing\drawing_canvas.h">
       <Filter>src\ds\ui\drawing</Filter>
