@@ -204,36 +204,9 @@ void settings_rewrite_app::onAppEvent(const ds::Event& in_e){
 	} 
 }
 
-void settings_rewrite_app::keyDown(ci::app::KeyEvent event){
+void settings_rewrite_app::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	ds::App::keyDown(event);
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
-
-	// Shows all enabled sprites with a label for class type
-	} else if(event.getCode() == KeyEvent::KEY_f){
-
-		const size_t numRoots = mEngine.getRootCount();
-		int numPlacemats = 0;
-		for(size_t i = 0; i < numRoots - 1; i++){
-			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
-				if(sprite.isEnabled()){
-					sprite.setTransparent(false);
-					sprite.setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
-					sprite.setOpacity(0.95f);
-
-					ds::ui::Text* labelly = mGlobals.getText("media_viewer:title").create(mEngine, &sprite);
-					labelly->setText(typeid(sprite).name());
-					labelly->enable(false);
-					labelly->setColor(ci::Color::black());
-				} else {
-
-					ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(&sprite);
-					if(!texty || (texty && texty->getColor() != ci::Color::black())) sprite.setTransparent(true);
-				}
-			}, true);
-		}
-	} else if(event.getCode() == KeyEvent::KEY_i){
+	if(event.getCode() == KeyEvent::KEY_i){
 		forceStartIdleMode();
 	}
 }

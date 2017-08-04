@@ -322,6 +322,7 @@ const std::string& App::envAppDataPath() {
 }
 
 void App::keyDown(ci::app::KeyEvent e) {
+	using ci::app::KeyEvent;
 	const int		code = e.getCode();
 	if((mEscKeyEnabled && code == ci::app::KeyEvent::KEY_ESCAPE) || (mQKeyEnabled && code == ci::app::KeyEvent::KEY_q)) {
 		quit();
@@ -340,28 +341,7 @@ void App::keyDown(ci::app::KeyEvent e) {
 		system("taskkill /f /im DSNodeConsole.exe");
 	} else if(ci::app::KeyEvent::KEY_m == code){
 		mEngine.setHideMouse(!mEngine.getHideMouse());
-	}
-
-	if (mArrowKeyCameraControl) {
-		if(code == ci::app::KeyEvent::KEY_LEFT) {
-			mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
-			mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
-			mEngine.markCameraDirty();
-		} else if(code == ci::app::KeyEvent::KEY_RIGHT) {
-			mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
-			mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
-			mEngine.markCameraDirty();
-		} else if(code == ci::app::KeyEvent::KEY_UP) {
-			mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
-			mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
-			mEngine.markCameraDirty();
-		} else if(code == ci::app::KeyEvent::KEY_DOWN) {
-			mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
-			mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
-			mEngine.markCameraDirty();
-		}
-	} 
-	if(code == ci::app::KeyEvent::KEY_v && e.isShiftDown()){
+	} else if(code == ci::app::KeyEvent::KEY_v && e.isShiftDown()){
 		mEngine.getTouchManager().setVerboseLogging(!mEngine.getTouchManager().getVerboseLogging());
 	} else if(code == ci::app::KeyEvent::KEY_e){
 		if(mEngine.isShowingSettingsEditor()){
@@ -371,15 +351,12 @@ void App::keyDown(ci::app::KeyEvent e) {
 		}
 	} else if(ci::app::KeyEvent::KEY_p == code){
 		mEngine.getPangoFontService().logFonts(e.isShiftDown());
-	}
-
-#ifdef _DEBUG
-	if(code == ci::app::KeyEvent::KEY_d && e.isControlDown()){
+	} else if(code == ci::app::KeyEvent::KEY_d && e.isControlDown()){
 		std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
 		std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
 		std::fstream	filestr;
 		filestr.open(path, std::fstream::out);
-		if (filestr.is_open()) {
+		if(filestr.is_open()) {
 			mEngine.writeSprites(filestr);
 			filestr.close();
 		}
@@ -387,13 +364,60 @@ void App::keyDown(ci::app::KeyEvent e) {
 		std::stringstream		buf;
 		mEngine.writeSprites(buf);
 		std::cout << buf.str() << std::endl;
+	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_LEFT) {
+		mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
+		mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_RIGHT) {
+		mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
+		mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_UP) {
+		mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
+		mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_DOWN) {
+		mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
+		mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	} else if(e.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
+		/// TODO: reload engine settings	
+		setupServer();
+	} else if(e.getCode() == KeyEvent::KEY_f){
+		const size_t numRoots = mEngine.getRootCount();
+		int numPlacemats = 0;
+		for(size_t i = 0; i < numRoots - 1; i++){
+			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
+				if(sprite.isEnabled()){
+					sprite.setTransparent(false);
+					sprite.setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
+					sprite.setOpacity(0.95f);
+
+					ds::ui::Text* labelly = new ds::ui::Text(mEngine);
+					labelly->setFont("Arial");
+					labelly->setFontSize(16.0f);
+					labelly->setText(typeid(sprite).name());
+					labelly->enable(false);
+					labelly->setColor(ci::Color::black());
+				} else {
+
+					ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(&sprite);
+					if(!texty || (texty && texty->getColor() != ci::Color::black())) sprite.setTransparent(true);
+				}
+			}, true);
+		}
+	} else {
+		onKeyDown(e);
 	}
-#endif
+	
 }
 
 void App::keyUp(ci::app::KeyEvent event){
-	if(event.getCode() == ci::app::KeyEvent::KEY_LCTRL || event.getCode() == ci::app::KeyEvent::KEY_RCTRL)
-	mCtrlDown = false;
+	if(event.getCode() == ci::app::KeyEvent::KEY_LCTRL || event.getCode() == ci::app::KeyEvent::KEY_RCTRL){
+		mCtrlDown = false;
+	}
+
+	onKeyUp(event);
 }
 
 void App::saveTransparentScreenshot(){
