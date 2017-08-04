@@ -50,7 +50,6 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	: ds::ui::Sprite(e)
 	, mEngine((ds::Engine&)e)
 	, mEventClient(e.getNotifier(), [this](const ds::Event *e) { if(e) onAppEvent(*e); })
-	, mLT(mEngine.getEngineData().mSrcRect.x1, mEngine.getEngineData().mSrcRect.y1)
 	, mText(nullptr)
 
 {
@@ -64,8 +63,6 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	mBackground->setColor(0, 0, 0);
 	mBackground->setOpacity(0.5f);
 	addChildPtr(mBackground);
-
-//	setPosition(mLT);
 
 }
 

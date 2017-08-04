@@ -2,8 +2,6 @@
 #ifndef DS_CFG_SETTINGS_EDITOR
 #define DS_CFG_SETTINGS_EDITOR
 
-#include <map>
-
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/cfg/settings.h>

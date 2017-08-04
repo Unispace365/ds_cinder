@@ -360,11 +360,16 @@ void App::keyDown(ci::app::KeyEvent e) {
 			mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
 			mEngine.markCameraDirty();
 		}
-	} else if(code == ci::app::KeyEvent::KEY_v && e.isShiftDown()){
+	} 
+	if(code == ci::app::KeyEvent::KEY_v && e.isShiftDown()){
 		mEngine.getTouchManager().setVerboseLogging(!mEngine.getTouchManager().getVerboseLogging());
-	}
-
-	if(ci::app::KeyEvent::KEY_p == code){
+	} else if(code == ci::app::KeyEvent::KEY_e){
+		if(mEngine.isShowingSettingsEditor()){
+			mEngine.hideSettingsEditor();
+		} else {
+			mEngine.showSettingsEditor(mEngineSettings);
+		}
+	} else if(ci::app::KeyEvent::KEY_p == code){
 		mEngine.getPangoFontService().logFonts(e.isShiftDown());
 	}
 

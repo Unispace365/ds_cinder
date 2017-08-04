@@ -9,6 +9,7 @@
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/app/error.h"
 #include "ds/cfg/settings.h"
+#include "ds/cfg/settings_editor.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
@@ -49,6 +50,7 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	, mTouchManager(*this, mTouchMode)
 	, mPangoFontService(*this)
 	, mSettings(settings)
+	, mSettingsEditor(nullptr)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
 	, mTouchEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
@@ -255,6 +257,27 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 
 }
 
+void Engine::showSettingsEditor(ds::cfg::Settings& theSettings){
+	if(mSettingsEditor){
+		mSettingsEditor->show();
+		mSettingsEditor->showSettings(&theSettings);
+	}
+}
+
+void Engine::hideSettingsEditor(){
+	if(mSettingsEditor){
+		mSettingsEditor->hide();
+	}
+}
+
+bool Engine::isShowingSettingsEditor(){
+	if(mSettingsEditor){
+		return mSettingsEditor->visible();
+	}
+
+	return false;
+}
+
 void Engine::setup(ds::App& app) {
 
 	mCinderWindow = app.getWindow();
@@ -372,8 +395,13 @@ void Engine::createStatsView(sprite_id_t root_id){
 			EngineStatsView*		v = new EngineStatsView(*this);
 			if(v) {
 				parent->addChild(*v);
-				mRoots.push_back(std::move(root));
 			}
+
+			mSettingsEditor = new ds::cfg::SettingsEditor(*this);
+			if(mSettingsEditor){
+				parent->addChildPtr(mSettingsEditor);
+			}
+			mRoots.push_back(std::move(root));
 		}
 	}
 

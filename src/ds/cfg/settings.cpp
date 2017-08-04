@@ -328,7 +328,7 @@ int Settings::getSettingIndex(const std::string& name) const {
 	return -1;
 }
 
-void Settings::forEachSetting(const std::function<void(const Setting&)>& func, const std::string& typeFilter /*= ""*/) const{
+void Settings::forEachSetting(const std::function<void(Setting&)>& func, const std::string& typeFilter /*= ""*/) const{
 	for(auto it : mSettings){
 		auto theThingies = it.second;
 		for(auto sit : theThingies){

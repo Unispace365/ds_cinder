@@ -38,9 +38,6 @@ private:
 	ds::ui::Sprite*				mBackground;
 	ds::ui::Text*				mText;
 
-	// SETTINGS
-	const ci::vec2				mLT;
-
 	// EVENTS
 public:
 	class ToggleStatsRequest : public ds::RegisteredEvent<ToggleStatsRequest> {

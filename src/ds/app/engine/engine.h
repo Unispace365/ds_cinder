@@ -42,6 +42,10 @@ class AutoDrawService;
 class AutoUpdate;
 class EngineRoot;
 
+namespace cfg {
+class SettingsEditor;
+}
+
 extern const ds::BitMask	ENGINE_LOG;
 
 /**
@@ -99,6 +103,10 @@ public:
 	const RootList::Root&				getRootBuilder(const size_t index = 0);
 
 	void								prepareSettings( ci::app::AppBase::Settings& );
+	void								showSettingsEditor(ds::cfg::Settings& theSettings);
+	void								hideSettingsEditor();
+	bool								isShowingSettingsEditor();
+
 	//called in app setup; loads settings files and what not.
 	virtual void						setup(ds::App&);
 	void								setupTouch(ds::App&);
@@ -259,6 +267,7 @@ private:
 	std::vector<std::unique_ptr<EngineRoot> >
 										mRoots;
 	ds::EngineSettings&					mSettings;
+	ds::cfg::SettingsEditor*			mSettingsEditor;
 	ImageRegistry						mImageRegistry;
 	ds::ui::PangoFontService			mPangoFontService;
 	ds::ui::Tweenline					mTweenline;
