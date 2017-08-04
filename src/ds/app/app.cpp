@@ -383,7 +383,7 @@ void App::keyDown(ci::app::KeyEvent e) {
 	} else if(e.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		/// TODO: reload engine settings	
 		setupServer();
-	} else if(e.getCode() == KeyEvent::KEY_f){
+	} else if(e.getCode() == KeyEvent::KEY_d){
 		const size_t numRoots = mEngine.getRootCount();
 		int numPlacemats = 0;
 		for(size_t i = 0; i < numRoots - 1; i++){
@@ -406,6 +406,8 @@ void App::keyDown(ci::app::KeyEvent e) {
 				}
 			}, true);
 		}
+	} else if(e.getCode() == KeyEvent::KEY_f){
+		setFullScreen(!isFullScreen());
 	} else {
 		onKeyDown(e);
 	}
