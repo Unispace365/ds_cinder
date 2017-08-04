@@ -79,7 +79,7 @@ const ds::cfg::Text& EngineCfg::getText(const std::string& name) const {
 }
 
 const std::string& EngineCfg::getDefaultTextCfgName() const{
-	if(mTextCfg.empty()) return "";
+	if(mTextCfg.empty()) return EMPTY_SZ;
 	return mTextCfg.begin()->first;
 }
 
@@ -111,7 +111,7 @@ void EngineCfg::loadSettings(const std::string& name, const std::string& filenam
 
 	findy = mSettings.find(name);
 	
-	ds::Environment::loadSettings(filename, findy->second);
+	ds::Environment::loadSettings(name, filename, findy->second);
 }
 
 void EngineCfg::saveSettings(const std::string& name, const std::string& filename) {

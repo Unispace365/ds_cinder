@@ -30,6 +30,7 @@ protected:
 	ds::ui::Text*			mSettingMin;
 	ds::ui::Text*			mSettingMax;
 	ds::ui::Text*			mSettingSource;
+	ds::ui::Text*			mApplyButton;
 	ds::ui::EntryField*		mEntryEditor;
 	ds::ui::SoftKeyboard*	mKeyboard;
 

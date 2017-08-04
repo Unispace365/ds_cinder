@@ -8,6 +8,8 @@
 #include <cinder/Rect.h>
 #include "ds/data/resource.h"
 
+#include <ds/app/event.h>
+
 namespace cinder {
 class XmlTree;
 }
@@ -86,6 +88,10 @@ public:
 		/// auto determined by the file path of the settings file
 		std::string						mSource;
 	};
+
+	/// The name of these settings (e.g. engine, layout, text, etc)
+	void								setName(const std::string& theType){ mName = theType; }
+	const std::string&					getName(){ return mName;  }
 
 	/// TODO: add ability to load all settings locations right from here
 	/// Read from an xml from the full file path. If append is true, will merge with any existing settings
@@ -187,11 +193,22 @@ public:
 	/// Validate if the type string is known (int, float, string, section_header, etc)
 	static bool							validateType(const std::string& inputType);
 
+
+	class SettingsEditedEvent : public ds::RegisteredEvent<SettingsEditedEvent> {
+	public:
+		SettingsEditedEvent(const std::string& settingsType, const std::string& settingName)
+			: mSettingsType(settingsType), mSettingName(settingName){}
+		const std::string& mSettingsType;
+		const std::string& mSettingName;
+	};
+
 protected:
 	/// The first vector is all settings
 	/// The pair is to match the name of the setting
 	/// The inner vector is for a series of settings with the same name (to support the index calls in the getSetting() calls)
 	std::vector<std::pair<std::string, std::vector<Setting>>>			mSettings;
+
+	std::string															mName;
 
 	/// Used in the read function
 	void								directReadFrom(const std::string& filename, const bool clear); \

@@ -66,7 +66,7 @@ World::World(ds::ui::SpriteEngine& e, ds::ui::Sprite& spriddy)
 	mGround = mWorld->CreateBody(&def);
 	if (!mGround) throw std::runtime_error("ds::physics::World() can't create mGround");
 
-	ds::Environment::loadSettings("physics.xml", mSettings);
+	ds::Environment::loadSettings("physics", "physics.xml", mSettings);
 	mTranslateToLocalSpace = mSettings.getBool("use_local_translation", 0, false);
 	mFriction = mSettings.getFloat("friction", 0, mFriction);
 	mLinearDampening = mSettings.getFloat("dampening:linear", 0, mLinearDampening);

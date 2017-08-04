@@ -35,7 +35,7 @@ void Service::start() {
 	}
 
 	ds::cfg::Settings settings;
-	ds::Environment::loadSettings("physics.xml", settings);
+	ds::Environment::loadSettings("physics", "physics.xml", settings);
 	if (settings.getBool("create_root_world", 0, true)) {
 		createWorld(e->getRootSprite(), 0);		
 	}

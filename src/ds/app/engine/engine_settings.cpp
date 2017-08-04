@@ -126,7 +126,7 @@ EngineSettings::EngineSettings()
 
 		// Load the configuration settings, which can be used to modify settings even more.
 		// Currently used to provide alternate layout sizes.
-		ds::Environment::loadSettings("configuration.xml", mConfiguration);
+		ds::Environment::loadSettings("configuration", "configuration.xml", mConfiguration);
 		CONFIGURATION_FOLDER = commandLineAppConfig.empty()
 			? mConfiguration.getString("folder", 0, "")
 			: commandLineAppConfig;

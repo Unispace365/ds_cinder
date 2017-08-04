@@ -45,7 +45,7 @@ public:
 	static std::string			getLocalSettingsPath(const std::string& fileName);
 
 	// Convenience to load in a settings file, first from the app path, then the local path
-	static void					loadSettings(const std::string& filename, ds::cfg::Settings&);
+	static void					loadSettings(const std::string& settingsName, const std::string& filename, ds::cfg::Settings&);
 	
 	// Convenience to save a settings file to the local path
 	static void					saveSettings(const std::string& filename, ds::cfg::Settings&);

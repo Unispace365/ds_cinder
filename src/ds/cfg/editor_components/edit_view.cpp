@@ -11,6 +11,8 @@
 
 #include <ds/ui/soft_keyboard/soft_keyboard_builder.h>
 
+#include "ds/cfg/settings.h"
+
 namespace ds{
 namespace cfg{
 
@@ -24,6 +26,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	, mSettingMin(nullptr)
 	, mSettingMax(nullptr)
 	, mSettingSource(nullptr)
+	, mApplyButton(nullptr)
 	, mEntryEditor(nullptr)
 	, mKeyboard(nullptr)
 {
@@ -40,13 +43,23 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	addChildPtr(backgroundSprite);
 
 
-	mSettingName = addTextSprite("Arial Bold", 14.0f, 1.0f);
+	mSettingName = addTextSprite("Arial Narrow", 21.0f, 1.0f);
+	mSettingName->setColor(ci::Color(0.9f, 0.282f, 0.035f));
+
 	mSettingValue = addTextSprite("Arial Bold", 21.0f, 1.0f);
 	mSettingComment = addTextSprite("Arial Narrow", 14.0f, 0.4f);
 	mSettingDefault = addTextSprite("Arial Narrow", 14.0f, 0.4f);
 	mSettingMin = addTextSprite("Arial Narrow", 14.0f, 0.4f);
 	mSettingMax = addTextSprite("Arial Narrow", 14.0f, 0.4f);
 	mSettingSource = addTextSprite("Arial Narrow", 14.0f, 0.4f);
+
+	mApplyButton = addTextSprite("Arial Narrow", 18.0f, 1.0f);
+	mApplyButton->setColor(ci::Color(0.9f, 0.282f, 0.035f));
+	mApplyButton->enable(true);
+	mApplyButton->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	mApplyButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+		mEngine.getNotifier().notify(ds::cfg::Settings::SettingsEditedEvent("", ""));
+	});
 
 }
 

@@ -355,6 +355,7 @@ ds::cfg::Settings::Setting& Settings::getSetting(const std::string& name, const 
 	settings.back().mName = name;
 	settings.back().mRawValue = defaultRawValue;
 	mSettings.emplace_back(std::pair<std::string, std::vector<Setting>>(name, settings));
+
 	return mSettings.back().second.back();
 
 }

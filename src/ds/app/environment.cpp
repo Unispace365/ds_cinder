@@ -161,7 +161,8 @@ std::string Environment::getLocalSettingsPath(const std::string& fileName)
 	return p.toString();
 }
 
-void Environment::loadSettings(const std::string& filename, ds::cfg::Settings& settings) {
+void Environment::loadSettings(const std::string& settingsName, const std::string& filename, ds::cfg::Settings& settings) {
+	settings.setName(settingsName);
 	settings.readFrom(ds::Environment::getAppFolder(ds::Environment::SETTINGS(), filename), false);
 	settings.readFrom(ds::Environment::getLocalSettingsPath(filename), true);
 	if (!ds::EngineSettings::getConfigurationFolder().empty()) {
