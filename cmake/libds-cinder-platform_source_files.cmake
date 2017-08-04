@@ -101,7 +101,7 @@ list( APPEND DS_CINDER_SRC_FILES
 	${ROOT_PATH}/src/ds/ui/sprite/gradient_sprite.cpp
 	${ROOT_PATH}/src/ds/ui/sprite/mesh.cpp
 	${ROOT_PATH}/src/ds/ui/sprite/nine_patch.cpp
-	${ROOT_PATH}/src/ds/ui/sprite/text_pango.cpp
+	${ROOT_PATH}/src/ds/ui/sprite/text.cpp
 	${ROOT_PATH}/src/ds/ui/sprite/image_with_thumbnail.cpp
 	${ROOT_PATH}/src/ds/ui/sprite/circle_border.cpp
 	${ROOT_PATH}/src/ds/ui/sprite/text_defs.cpp
@@ -124,6 +124,7 @@ list( APPEND DS_CINDER_SRC_FILES
 	${ROOT_PATH}/src/ds/ui/mesh_source/mesh_file_loader.cpp
 	${ROOT_PATH}/src/ds/ui/mesh_source/mesh_sphere.cpp
 	${ROOT_PATH}/src/ds/ui/mesh_source/mesh_file.cpp
+	${ROOT_PATH}/src/ds/ui/layout/layout_sprite.cpp
 	${ROOT_PATH}/src/ds/params/draw_params.cpp
 	${ROOT_PATH}/src/ds/params/camera_params.cpp
 	${ROOT_PATH}/src/ds/params/update_params.cpp
@@ -156,4 +157,5 @@ list( APPEND DS_CINDER_SRC_FILES
 	${ROOT_PATH}/src/osc/osc/OscPrintReceivedElements.cpp
 	${ROOT_PATH}/src/osc/osc/OscReceivedElements.cpp
 	${ROOT_PATH}/src/osc/osc/OscTypes.cpp
+	
 )

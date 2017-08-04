@@ -17,7 +17,7 @@ if( NOT TARGET essentials )
 		${ESSENTIALS_SRC_PATH}/ds/ui/button/layout_button.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/button/sprite_button.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/button/image_button.cpp
-		${ESSENTIALS_SRC_PATH}/ds/ui/layout/layout_sprite.cpp
+		#${ESSENTIALS_SRC_PATH}/ds/ui/layout/layout_sprite.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/sprite/png_sequence_sprite.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/menu/component/menu_item.cpp
 		${ESSENTIALS_SRC_PATH}/ds/ui/menu/component/cluster_view.cpp
