@@ -82,11 +82,20 @@ public:
 	virtual void						keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType) override;
 	virtual void						keyPressed(ci::app::KeyEvent& keyEvent) override;
 
+	/// This is called back before the key is handled internally, in case you want to intercept some keys.
+	/// Return true if the key has been handled, return false to pass the key into the entry field. In most cases, it just types the letter.
+	void								setNativeKeyboardCallback(std::function<bool(ci::app::KeyEvent& keyEvent)> func);
+
 	/// Set a lambda function when the above keypressed function is called
 	void								setKeyPressedCallback(std::function<void(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType)> keyPressedFunc);
 
 	/// Set a lambda function that's called just after onTextUpdated()
 	void								setTextUpdatedCallback(std::function<void(const std::wstring& fullStr)> func);
+
+	/// Gets the index of the cursor position in the visible text string (might have weird results when using <span> tags in Text.
+	size_t								getCursorIndex(){ return mCursorIndex; }
+	/// Set the index of the cursor. Will bounds check the cursor
+	void								setCursorIndex(const size_t index);
 
 protected:
 
@@ -124,6 +133,7 @@ protected:
 	ds::ui::Sprite*						mCursor;
 	std::vector<ds::ui::Sprite*>		mSelectionIndicators;
 	EntryFieldSettings					mEntryFieldSettings;
+	std::function<bool(ci::app::KeyEvent&)> mNativeKeyCallback;
 	std::function<void(const std::wstring&, const ds::ui::SoftKeyboardDefs::KeyType)> mKeyPressedFunction;
 	std::function<void(const std::wstring&)> mTextUpdateFunction;
 

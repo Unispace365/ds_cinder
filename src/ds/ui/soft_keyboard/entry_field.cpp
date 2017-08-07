@@ -81,7 +81,7 @@ void EntryField::setCurrentText(const std::wstring& crTxStr){
 	mCurrentText = crTxStr;
 
 	applyText(crTxStr);
-	
+
 	mCursorIndex = crTxStr.size();
 
 	textUpdated();
@@ -116,7 +116,7 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 		handleKeyPressGeneric(keyType, currentCharacter, preString);
 		std::wstringstream wss;
 		wss << preString << posString;
-		
+
 		mCurrentText = wss.str();
 		applyText(wss.str());
 
@@ -139,13 +139,41 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 }
 
 void EntryField::keyPressed(ci::app::KeyEvent& keyEvent){
-	std::wstring keyCharacter = std::to_wstring(keyEvent.getChar());
-	std::wstring currentFullText = getCurrentText();
+	bool handled = false;
+	if(mNativeKeyCallback){
+		handled = mNativeKeyCallback(keyEvent);
+	}
 
-	std::cout << "Key pressed: " << ds::utf8_from_wstr(keyCharacter) << " " << keyEvent.getChar() << " " << ds::utf8_from_wstr(currentFullText) << std::endl;
+	if(handled){
+		return;
+	}
 
+	std::stringstream ss;
+	ss << keyEvent.getChar();
+	std::wstring keyCharacter = ds::wstr_from_utf8(ss.str());
 
+	// TODO: differentiate delete forwards and delete back
+	if(keyEvent.getCode() == ci::app::KeyEvent::KEY_BACKSPACE || keyEvent.getCode() == ci::app::KeyEvent::KEY_DELETE){
+		keyPressed(keyCharacter, ds::ui::SoftKeyboardDefs::kDelete);
 
+	// TODO: handle up / down keys for lines and page up / down for pages
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_RIGHT || keyEvent.getCode() == ci::app::KeyEvent::KEY_DOWN){
+		setCursorIndex(mCursorIndex + 1);
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_LEFT || keyEvent.getCode() == ci::app::KeyEvent::KEY_UP){
+		setCursorIndex(mCursorIndex - 1);
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_RSHIFT || keyEvent.getCode() == ci::app::KeyEvent::KEY_LSHIFT){
+		// we're just gonna ignore these guys
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_HOME || keyEvent.getCode() == ci::app::KeyEvent::KEY_PAGEUP){
+		setCursorIndex(0);
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_END || keyEvent.getCode() == ci::app::KeyEvent::KEY_PAGEDOWN){
+		setCursorIndex(getCurrentText().size());
+	} else {
+		keyPressed(keyCharacter, ds::ui::SoftKeyboardDefs::kLetter);
+	}
+}
+
+void EntryField::setNativeKeyboardCallback(std::function<bool(ci::app::KeyEvent& keyEvent)> func){
+	mNativeKeyCallback = func;
 }
 
 void EntryField::setKeyPressedCallback(std::function<void(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType)> keyPressedFunc) {
@@ -154,6 +182,14 @@ void EntryField::setKeyPressedCallback(std::function<void(const std::wstring& ke
 
 void EntryField::setTextUpdatedCallback(std::function<void(const std::wstring& fullStr)> func) {
 	mTextUpdateFunction = func;
+}
+
+void EntryField::setCursorIndex(const size_t index){
+	mCursorIndex = index;
+	if(mCursorIndex < 0) mCursorIndex = 0;
+	if(mCursorIndex > getCurrentText().size()) mCursorIndex = getCurrentText().size();
+
+	cursorUpdated();
 }
 
 void EntryField::resetCurrentText() {

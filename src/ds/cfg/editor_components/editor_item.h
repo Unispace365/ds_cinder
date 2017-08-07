@@ -16,8 +16,9 @@ public:
 
 	void					setSetting(Settings::Setting* theSetting);
 	const std::string&		getSettingName();
-
+	bool					getIsHeader(){ return mIsHeader; }
 protected:
+	bool					mIsHeader;
 	std::string				mOriginalSettingName; // somehow gotta handle indexes?
 
 	ds::ui::Text*			mSettingName;

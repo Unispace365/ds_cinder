@@ -43,7 +43,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	addChildPtr(backgroundSprite);
 
 
-	mSettingName = addTextSprite("Arial Narrow", 21.0f, 1.0f);
+	mSettingName = addTextSprite("Arial Bold", 24.0f, 1.0f);
 	mSettingName->setColor(ci::Color(0.9f, 0.282f, 0.035f));
 
 	mSettingValue = addTextSprite("Arial Bold", 21.0f, 1.0f);
@@ -83,7 +83,7 @@ void EditView::setSetting(Settings::Setting* theSetting){
 
 
 	mSettingName->setText(theSetting->mName);
-	mSettingValue->setText(theSetting->mRawValue);	
+	//mSettingValue->setText(theSetting->mRawValue);	
 	mSettingComment->setText("Comment: " + theSetting->mComment);
 	mSettingDefault->setText("Default: " + theSetting->mDefault);
 	mSettingMin->setText("Min: " + theSetting->mMinValue);
@@ -92,12 +92,13 @@ void EditView::setSetting(Settings::Setting* theSetting){
 
 	if(!mEntryEditor){
 		ds::ui::EntryFieldSettings efs;
+		efs.mFieldSize = ci::vec2(600.0f, 40.0f);
 		efs.mTextConfig = mEngine.getEngineCfg().getDefaultTextCfgName();
 		mEntryEditor = new ds::ui::EntryField(mEngine, efs);
 		mEntryEditor->mLayoutTPad = 5.0f;
 		mEntryEditor->mLayoutLPad = 5.0f;
 		mEntryEditor->mLayoutRPad = 5.0f;
-		mEntryEditor->mLayoutBPad = 5.0f;
+		mEntryEditor->mLayoutBPad = 0.0f;
 		addChildPtr(mEntryEditor);
 	}
 
@@ -109,7 +110,7 @@ void EditView::setSetting(Settings::Setting* theSetting){
 		sks.mKeyScale = 0.5f;
 		sks.normalizeSettings();
 		mKeyboard = ds::ui::SoftKeyboardBuilder::buildExtendedKeyboard(mEngine, sks, this);
-		mKeyboard->mLayoutTPad = 5.0f;
+		mKeyboard->mLayoutTPad = 0.0f;
 		mKeyboard->mLayoutLPad = 5.0f;
 		mKeyboard->mLayoutRPad = 5.0f;
 		mKeyboard->mLayoutBPad = 10.0f;
@@ -118,17 +119,59 @@ void EditView::setSetting(Settings::Setting* theSetting){
 	if(mEntryEditor && mKeyboard){
 		mKeyboard->setKeyPressFunction([this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
 			if(mEntryEditor){
-				mEntryEditor->keyPressed(character, keyType);
+				if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
+					stopEditing();
+				} else {
+					mEntryEditor->keyPressed(character, keyType);
+				}
 			}
+		});
+
+		mEntryEditor->setNativeKeyboardCallback([this](ci::app::KeyEvent& event)->bool{
+			if(event.getCode() == ci::app::KeyEvent::KEY_ESCAPE){
+				stopEditing();
+				return true;
+			}
+
+			if(mNextSettingCallback &&
+			   (event.getCode() == ci::app::KeyEvent::KEY_DOWN
+			   || event.getCode() == ci::app::KeyEvent::KEY_TAB
+			   || event.getCode() == ci::app::KeyEvent::KEY_RETURN
+			   || event.getCode() == ci::app::KeyEvent::KEY_KP_ENTER
+			   )){
+				mNextSettingCallback(true);
+				return true;
+			}
+
+			if(mNextSettingCallback &&
+			   event.getCode() == ci::app::KeyEvent::KEY_UP){
+				mNextSettingCallback(false);
+				return true;
+			}
+
+			return false;
+
 		});
 
 		mEntryEditor->setTextUpdatedCallback([this](const std::wstring& line){
 			if(mSettingValue){
-				mSettingValue->setText(line);
+			//	mSettingValue->setText(line);
 			}
+
+			if(mTheSetting){
+				mTheSetting->mRawValue = ds::utf8_from_wstr(line);
+
+				if(mSettingUpdatedCalback){
+					mSettingUpdatedCalback(mTheSetting);
+				}
+			}
+			
+			runLayout();
+
+			mEngine.getNotifier().notify(Settings::SettingsEditedEvent("", ""));
 		});
 
-		mEntryEditor->setCurrentText(mSettingValue->getText());
+		if(mTheSetting) mEntryEditor->setCurrentText(ds::wstr_from_utf8(mTheSetting->mRawValue));
 		mEntryEditor->autoRegisterOnFocus(true);
 		mEntryEditor->focus();
 	}

@@ -101,8 +101,92 @@ void SettingsEditor::editProperty(EditorItem* ei){
 		mEditView->show();
 		Settings::Setting* theSetting = &mCurrentSettings->getSetting(ei->getSettingName(), 0);
 		mEditView->setSetting(theSetting);
-		mEditView->setPosition(-mEditView->getWidth(), 0.0f);
+		mEditView->setPosition(-mEditView->getWidth(), 150.0f);
+		mEditView->setRequestNextSettingCallback([this, ei](const bool isNext){
+			EditorItem* theNewItem = nullptr;
+			if(isNext) theNewItem = getNextItem(ei);
+			if(!isNext) theNewItem = getPrevItem(ei);
+
+			if(theNewItem){
+				editProperty(theNewItem);
+			}
+		});
+
+		mEditView->setSettingUpdatedCallback([this](Settings::Setting* theSetting){
+			if(!theSetting) return;
+			for (auto it : mSettingItems){
+				if(it->getSettingName() == theSetting->mName){
+					it->setSetting(theSetting);
+					if(mPrimaryLayout){
+						mPrimaryLayout->runLayout();
+					}
+
+					break;
+				}
+			}
+		});
 	}
+}
+
+EditorItem* SettingsEditor::getNextItem(EditorItem* ei){
+	if(mSettingItems.empty()) return nullptr;
+
+	EditorItem* nextItem = nullptr;
+	bool hasNonHeaders = false;
+	bool foundThis = false;
+	for(auto it : mSettingItems){
+		if(!it->getIsHeader()) hasNonHeaders = true;
+
+		// we found the one we're looking for in the previous loop, use this item
+		if(foundThis && !it->getIsHeader()){
+			nextItem = it;
+			break;
+		}
+		// this is the current one we're looking for
+		if(it->getSettingName() == ei->getSettingName()){
+			foundThis = true;
+		}
+	}
+
+	if(!hasNonHeaders){
+		return nullptr;
+	}
+
+	if(!nextItem){
+		if(mSettingItems.front()->getIsHeader()){
+			return getNextItem(mSettingItems.front());
+		}
+		return mSettingItems.front();
+	}
+
+	return nextItem;
+}
+
+ds::cfg::EditorItem* SettingsEditor::getPrevItem(EditorItem* ei){
+	if(mSettingItems.empty()) return nullptr;
+
+	EditorItem* prevItem = nullptr;
+	bool hasNonHeaders = false;
+	for(auto it : mSettingItems){
+		if(it->getIsHeader()) continue;
+		hasNonHeaders = true;
+
+		// this is the current one we're looking for, so return the prev item
+		if(it->getSettingName() == ei->getSettingName()){
+			break;
+		}
+		// keep this item till the next loop in case we find it
+		prevItem = it;
+	}
+	
+	if(!prevItem){
+		if(mSettingItems.back()->getIsHeader()){
+			return getPrevItem(mSettingItems.back());
+		} 
+		return mSettingItems.back();
+	}
+
+	return prevItem;
 }
 
 }

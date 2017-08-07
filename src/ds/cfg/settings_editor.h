@@ -22,6 +22,9 @@ public:
 
 	void						editProperty(EditorItem* ei);
 private:
+	EditorItem*					getNextItem(EditorItem* ei);
+	EditorItem*					getPrevItem(EditorItem* ei);
+
 	Settings*					mCurrentSettings;
 
 	ds::ui::LayoutSprite*		mPrimaryLayout;

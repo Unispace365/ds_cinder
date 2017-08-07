@@ -19,6 +19,7 @@ EditorItem::EditorItem(ds::ui::SpriteEngine& e)
 	, mSettingValue(nullptr)
 	, mSettingName(nullptr)
 	, mSettingComment(nullptr)
+	, mIsHeader(false)
 {
 	setSize(600.0f, 200.0f);
 	setShrinkToChildren(ds::ui::LayoutSprite::kShrinkHeight); 
@@ -55,10 +56,12 @@ void EditorItem::setSetting(Settings::Setting* theSetting){
 		mSettingName->setFontSize(16.0f);
 		mSettingName->mLayoutTPad = 10.0f;
 		mSettingName->setColor(ci::Color(0.56f, 0.7f, 0.7f));
+		mIsHeader = true;
 	} else {
 		mSettingName->setFontSize(9.0f);
 		mSettingName->mLayoutTPad = 0.0f;
 		mSettingName->setColor(ci::Color(0.9f, 0.282f, 0.035f));
+		mIsHeader = false;
 	}
 
 	mSettingName->setText(theSetting->mName);

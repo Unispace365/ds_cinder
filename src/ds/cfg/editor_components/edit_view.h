@@ -20,6 +20,9 @@ public:
 	void					setSetting(Settings::Setting* theSetting);
 	Settings::Setting*		getSetting(){ return mTheSetting; }
 
+	void					setSettingUpdatedCallback(std::function<void(Settings::Setting*)> func){ mSettingUpdatedCalback = func; }
+	void					setRequestNextSettingCallback(std::function<void(const bool isNext)> func){ mNextSettingCallback = func; }
+
 	void					stopEditing();
 
 protected:
@@ -35,6 +38,9 @@ protected:
 	ds::ui::Text*			mApplyButton;
 	ds::ui::EntryField*		mEntryEditor;
 	ds::ui::SoftKeyboard*	mKeyboard;
+
+	std::function<void(Settings::Setting*)> mSettingUpdatedCalback;
+	std::function<void(const bool)>	mNextSettingCallback;
 
 	ds::ui::Text*			addTextSprite(const std::string& fontName, const float fontSize, const float opacity);
 };
