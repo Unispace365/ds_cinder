@@ -39,10 +39,21 @@ public:
 	float		mAnimationRate;
 };
 
-class EntryField : public ds::ui::Sprite {
+/// Abstract base class for a generic interface for registering on the Engine
+/// Extend this class if you want to be able to register on the engine for normal keyboard input (not just soft keyboard input)
+class IEntryField : public ds::ui::Sprite {
+public:
+	IEntryField(ds::ui::SpriteEngine& engine) : ds::ui::Sprite(engine){};
+
+	virtual void						keyPressed(ci::app::KeyEvent& keyEvent) = 0;
+	virtual void						keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType) = 0;
+};
+
+class EntryField : public IEntryField {
 public:
 
 	EntryField(ds::ui::SpriteEngine&, EntryFieldSettings& settings);
+	~EntryField();
 
 	/// This field will be in "focus", making the cursor blink and look like this is activated
 	/// Does no checking about the number of fields in focus, and any number could be in focus at once (multiple user scenario)
@@ -50,6 +61,10 @@ public:
 
 	/// This field will lose focus, which hides the cursor, and this field won't be active
 	void								unfocus();
+
+	/// If true, when you call "focus", it will register this field in the main engine class to grab keyboard input
+	/// Default is false
+	void								autoRegisterOnFocus(const bool doAutoRegister);
 
 	/// Get the current entered text string
 	const std::wstring					getCurrentText();
@@ -64,7 +79,8 @@ public:
 	void								setEntryFieldSettings(EntryFieldSettings& newSettings);
 
 	/// Handles key input like a keyboard would
-	void								keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType);
+	virtual void						keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType) override;
+	virtual void						keyPressed(ci::app::KeyEvent& keyEvent) override;
 
 	/// Set a lambda function when the above keypressed function is called
 	void								setKeyPressedCallback(std::function<void(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType)> keyPressedFunc);
@@ -100,6 +116,7 @@ protected:
 	void								applyText(const std::wstring& theStr);
 
 	bool								mInFocus;
+	bool								mAutoRegisterOnFocus;
 	size_t								mCursorIndex;
 
 	std::wstring						mCurrentText;

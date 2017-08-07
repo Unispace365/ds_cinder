@@ -21,6 +21,7 @@
 
 // For installing the sprite types
 #include "ds/app/engine/engine_stats_view.h"
+#include "ds/ui/soft_keyboard/entry_field.h"
 #include "ds/ui/sprite/gradient_sprite.h"
 #include "ds/ui/sprite/image.h"
 #include "ds/ui/sprite/text.h"
@@ -147,8 +148,7 @@ App::App(const RootList& roots)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
 	, mCtrlDown(false)
 	, mSecondMouseDown(false)
-	, mQKeyEnabled(true)
-	, mEscKeyEnabled(true)
+	, mAppKeysEnabled(true)
 	, mMouseHidden(false)
 	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
@@ -322,28 +322,38 @@ const std::string& App::envAppDataPath() {
 }
 
 void App::keyDown(ci::app::KeyEvent e) {
+	if(!mAppKeysEnabled){
+		onKeyDown(e);
+		return;
+	}
+
+	if(mEngine.getRegisteredEntryField()){
+		mEngine.getRegisteredEntryField()->keyPressed(e);
+		return;
+	}
+
 	using ci::app::KeyEvent;
 	const int		code = e.getCode();
-	if((mEscKeyEnabled && code == ci::app::KeyEvent::KEY_ESCAPE) || (mQKeyEnabled && code == ci::app::KeyEvent::KEY_q)) {
+	if(code == KeyEvent::KEY_ESCAPE || code == KeyEvent::KEY_q) {
 		quit();
 	}
-	if(code == ci::app::KeyEvent::KEY_LCTRL || code == ci::app::KeyEvent::KEY_RCTRL) {
+	if(code == ci::app::KeyEvent::KEY_LCTRL || code == KeyEvent::KEY_RCTRL) {
 		mCtrlDown = true;
-	} else if(ci::app::KeyEvent::KEY_s == code) {
+	} else if(KeyEvent::KEY_s == code) {
 		mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest());
-	} else if(ci::app::KeyEvent::KEY_t == code) {
+	} else if(KeyEvent::KEY_t == code) {
 		mEngine.nextTouchMode();
-	} else if(ci::app::KeyEvent::KEY_F8 == code){
+	} else if(KeyEvent::KEY_F8 == code){
 		saveTransparentScreenshot();
-	} else if(ci::app::KeyEvent::KEY_k == code && mCtrlDown){
+	} else if(KeyEvent::KEY_k == code && mCtrlDown){
 		system("taskkill /f /im RestartOnCrash.exe");
 		system("taskkill /f /im DSNode-Host.exe");
 		system("taskkill /f /im DSNodeConsole.exe");
 	} else if(ci::app::KeyEvent::KEY_m == code){
 		mEngine.setHideMouse(!mEngine.getHideMouse());
-	} else if(code == ci::app::KeyEvent::KEY_v && e.isShiftDown()){
+	} else if(code == KeyEvent::KEY_v && e.isShiftDown()){
 		mEngine.getTouchManager().setVerboseLogging(!mEngine.getTouchManager().getVerboseLogging());
-	} else if(code == ci::app::KeyEvent::KEY_e){
+	} else if(code == KeyEvent::KEY_e){
 		if(mEngine.isShowingSettingsEditor()){
 			mEngine.hideSettingsEditor();
 		} else {
@@ -429,15 +439,6 @@ void App::saveTransparentScreenshot(){
 	filepath << "ds_cinder.screenshot." << t << ".png";
 	p.append("Desktop").append(filepath.str());
 	ci::writeImage(Poco::Path::expand(p.toString()), copyWindowSurface());
-}
-
-void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
-	if (q) {
-		mQKeyEnabled = q;
-	}
-	if (esc) {
-		mEscKeyEnabled = esc;
-	}
 }
 
 void App::quit(){

@@ -259,14 +259,13 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 
 void Engine::showSettingsEditor(ds::cfg::Settings& theSettings){
 	if(mSettingsEditor){
-		mSettingsEditor->show();
 		mSettingsEditor->showSettings(&theSettings);
 	}
 }
 
 void Engine::hideSettingsEditor(){
 	if(mSettingsEditor){
-		mSettingsEditor->hide();
+		mSettingsEditor->hideSettings();
 	}
 }
 

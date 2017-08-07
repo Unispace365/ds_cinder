@@ -58,9 +58,6 @@ settings_rewrite_app::settings_rewrite_app()
 	// mEngine.getNotifier().notify("StoryDataUpdatedEvent");
 	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event*{return new StoryDataUpdatedEvent(); });
 	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
-
-
-	enableCommonKeystrokes(true);
 }
 
 void settings_rewrite_app::setupServer(){

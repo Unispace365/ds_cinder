@@ -129,11 +129,21 @@ void EditView::setSetting(Settings::Setting* theSetting){
 		});
 
 		mEntryEditor->setCurrentText(mSettingValue->getText());
+		mEntryEditor->autoRegisterOnFocus(true);
 		mEntryEditor->focus();
 	}
 
+	show();
 	runLayout();
 
+}
+
+void EditView::stopEditing(){
+
+	hide();
+	if(mEntryEditor){
+		mEntryEditor->unfocus();
+	}
 }
 
 }

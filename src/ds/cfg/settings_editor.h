@@ -18,6 +18,7 @@ public:
 	SettingsEditor(ds::ui::SpriteEngine& e);
 	
 	void						showSettings(Settings* theSettings);
+	void						hideSettings();
 
 	void						editProperty(EditorItem* ei);
 private:

@@ -32,6 +32,7 @@ class Settings;
 class TuioObject;
 
 namespace ui {
+class IEntryField;
 class LoadImageService;
 class PangoFontService;
 class Sprite;
@@ -189,6 +190,12 @@ public:
 	/** Set the property of a sprite by name and value string. File referrer (optional) is the relative file path to look up files. See ds/util/file_meta_data.h for relative path finding */
 	bool							setRegisteredSpriteProperty(const std::string& propertyName, ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer = "");
 
+	/// Register an Entry Field so it's able to get normal keyboard input
+	void							registerEntryField(IEntryField* entryField);
+
+	/// Returns the Entry Field registered. Returns nullptr if no entry field has been registered
+	IEntryField*					getRegisteredEntryField();
+
 protected:
 	// The data is not copied, so it needs to exist for the life of the SpriteEngine,
 	// which is how things work by default (the data and engine are owned by the App).
@@ -198,6 +205,7 @@ protected:
 	ds::EngineData&					mData;
 	std::list<Sprite *>				mDragDestinationSprites;
 	ds::ComputerInfo*				mComputerInfo;
+	IEntryField*					mRegisteredEntryField;
 
 	std::unordered_map<std::string, std::function<ds::ui::Sprite*(ds::ui::SpriteEngine&)>> mImporterMap;
 	std::unordered_map<std::string, std::function<void(ds::ui::Sprite& theSprite, const std::string& theValue, const std::string& fileRefferer)>> mPropertyMap;

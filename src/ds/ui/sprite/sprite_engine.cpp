@@ -8,12 +8,14 @@
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/computer_info.h"
+#include "ds/ui/soft_keyboard/entry_field.h"
 
 namespace ds {
 namespace ui {
 
 SpriteEngine::SpriteEngine(ds::EngineData& ed)
 	: mData(ed)
+	, mRegisteredEntryField(nullptr)
 {
 	mComputerInfo = new ds::ComputerInfo();
 }
@@ -213,6 +215,14 @@ bool SpriteEngine::setRegisteredSpriteProperty(const std::string& propertyName, 
 
 	finder->second(theSprite, theValue, fileRefferer);
 	return true;
+}
+
+void SpriteEngine::registerEntryField(IEntryField* entryField){
+	mRegisteredEntryField = entryField;
+}
+
+ds::ui::IEntryField* SpriteEngine::getRegisteredEntryField(){
+	return mRegisteredEntryField;
 }
 
 } // namespace ui

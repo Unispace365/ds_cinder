@@ -14,10 +14,11 @@ namespace ds{
 namespace ui{
 
 EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& settings)
-	: ds::ui::Sprite(engine)
+	: IEntryField(engine)
 	, mCursor(nullptr)
 	, mTextSprite(nullptr)
 	, mInFocus(false)
+	, mAutoRegisterOnFocus(false)
 	, mCursorIndex(0)
 {
 	mTextSprite = new ds::ui::Text(engine);
@@ -37,6 +38,12 @@ EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& setting
 	});
 
 	setEntryFieldSettings(settings);
+}
+
+EntryField::~EntryField(){
+	if(mEngine.getRegisteredEntryField() == this){
+		mEngine.registerEntryField(nullptr);
+	}
 }
 
 void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings){
@@ -131,6 +138,16 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 	}
 }
 
+void EntryField::keyPressed(ci::app::KeyEvent& keyEvent){
+	std::wstring keyCharacter = std::to_wstring(keyEvent.getChar());
+	std::wstring currentFullText = getCurrentText();
+
+	std::cout << "Key pressed: " << ds::utf8_from_wstr(keyCharacter) << " " << keyEvent.getChar() << " " << ds::utf8_from_wstr(currentFullText) << std::endl;
+
+
+
+}
+
 void EntryField::setKeyPressedCallback(std::function<void(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType)> keyPressedFunc) {
 	mKeyPressedFunction = keyPressedFunc;
 }
@@ -147,6 +164,10 @@ void EntryField::resetCurrentText() {
 }
 
 void EntryField::focus(){
+	if(mAutoRegisterOnFocus){
+		mEngine.registerEntryField(this);
+	}
+
 	if(mInFocus) return;
 	mInFocus = true;
 
@@ -162,6 +183,9 @@ void EntryField::focus(){
 }
 
 void EntryField::unfocus(){
+	if(mEngine.getRegisteredEntryField() == this){
+		mEngine.registerEntryField(nullptr);
+	}
 	if(!mInFocus) return;
 	mInFocus = false;
 
@@ -172,6 +196,10 @@ void EntryField::unfocus(){
 			mCursor->hide();
 		});
 	}
+}
+
+void EntryField::autoRegisterOnFocus(const bool doAutoRegister){
+	mAutoRegisterOnFocus = doAutoRegister;
 }
 
 void EntryField::textUpdated(){

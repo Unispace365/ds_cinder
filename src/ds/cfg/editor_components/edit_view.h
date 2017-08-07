@@ -20,6 +20,8 @@ public:
 	void					setSetting(Settings::Setting* theSetting);
 	Settings::Setting*		getSetting(){ return mTheSetting; }
 
+	void					stopEditing();
+
 protected:
 	Settings::Setting*		mTheSetting;
 

@@ -57,6 +57,8 @@ void SettingsEditor::showSettings(Settings* theSettings){
 
 	if(!mSettingsLayout || !mPrimaryLayout) return;
 
+	show();
+
 	theSettings->forEachSetting([this](ds::cfg::Settings::Setting& setting){
 		EditorItem* ei = new EditorItem(mEngine);
 		Settings::Setting* theSetting = &setting;
@@ -83,12 +85,20 @@ void SettingsEditor::showSettings(Settings* theSettings){
 
 }
 
+void SettingsEditor::hideSettings(){
+	hide();
+	if(mEditView){
+		mEditView->stopEditing();
+	}
+}
+
 void SettingsEditor::editProperty(EditorItem* ei){
 	if(ei && !ei->getSettingName().empty()){
 		if(!mEditView){
 			mEditView = new EditView(mEngine);
 			addChildPtr(mEditView);
 		}
+		mEditView->show();
 		Settings::Setting* theSetting = &mCurrentSettings->getSetting(ei->getSettingName(), 0);
 		mEditView->setSetting(theSetting);
 		mEditView->setPosition(-mEditView->getWidth(), 0.0f);
