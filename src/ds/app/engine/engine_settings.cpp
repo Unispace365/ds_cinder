@@ -42,6 +42,7 @@ namespace ds {
 EngineSettings::EngineSettings() 
 	: mLoadedAnySettings(false)
 {
+	setName("engine");
 
 	mLoadedAnySettings = false;
 	mStartupInfo.str("");

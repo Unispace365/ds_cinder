@@ -33,6 +33,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	setSize(600.0f, 200.0f);
 	setShrinkToChildren(ds::ui::LayoutSprite::kShrinkHeight);
 	setLayoutType(ds::ui::LayoutSprite::kLayoutVFlow);
+	enable(true); // block touchies
 
 	ds::ui::Sprite* backgroundSprite = new ds::ui::Sprite(mEngine);
 	backgroundSprite->setColor(ci::Color::black());
@@ -43,27 +44,33 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	addChildPtr(backgroundSprite);
 
 
-	mSettingName = addTextSprite("Arial Bold", 24.0f, 1.0f);
+	mSettingName = addTextSprite("Arial Bold", 24.0f, 1.0f, false);
 	mSettingName->setColor(ci::Color(0.9f, 0.282f, 0.035f));
 
-	mSettingValue = addTextSprite("Arial Bold", 21.0f, 1.0f);
-	mSettingComment = addTextSprite("Arial Narrow", 14.0f, 0.4f);
-	mSettingDefault = addTextSprite("Arial Narrow", 14.0f, 0.4f);
-	mSettingMin = addTextSprite("Arial Narrow", 14.0f, 0.4f);
-	mSettingMax = addTextSprite("Arial Narrow", 14.0f, 0.4f);
-	mSettingSource = addTextSprite("Arial Narrow", 14.0f, 0.4f);
+	mSettingValue = addTextSprite("Arial Bold", 21.0f, 1.0f, false);
+	mSettingComment = addTextSprite("Arial", 14.0f, 0.75f, false);
+	mSettingDefault = addTextSprite("Arial", 14.0f, 0.4f, true);
 
-	mApplyButton = addTextSprite("Arial Narrow", 18.0f, 1.0f);
+	mSettingMin = addTextSprite("Arial", 14.0f, 0.4f, true);
+	mSettingMax = addTextSprite("Arial", 14.0f, 0.4f, true);
+	mSettingSource = addTextSprite("Arial", 14.0f, 0.4f, false);
+
+	mApplyButton = addTextSprite("Arial Narrow", 18.0f, 1.0f, true);
 	mApplyButton->setColor(ci::Color(0.9f, 0.282f, 0.035f));
-	mApplyButton->enable(true);
-	mApplyButton->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 	mApplyButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+		if(mSettingUpdatedCalback){
+			mSettingUpdatedCalback(mTheSetting);
+		}
 		mEngine.getNotifier().notify(ds::cfg::Settings::SettingsEditedEvent("", ""));
 	});
+	mApplyButton->mLayoutHAlign = ds::ui::LayoutSprite::kRight;
+	mApplyButton->mLayoutBPad = 10.0f;
+	mApplyButton->mLayoutRPad = 10.0f;
+	mApplyButton->setText("Apply");
 
 }
 
-ds::ui::Text* EditView::addTextSprite(const std::string& fontName, const float fontSize, const float opacity){
+ds::ui::Text* EditView::addTextSprite(const std::string& fontName, const float fontSize, const float opacity, const bool clickSetValue){
 	ds::ui::Text* newText = new ds::ui::Text(mEngine);
 	newText->setFont(fontName);
 	newText->setFontSize(fontSize);
@@ -72,6 +79,18 @@ ds::ui::Text* EditView::addTextSprite(const std::string& fontName, const float f
 	newText->mLayoutLPad = 5.0f;
 	newText->mLayoutRPad = 5.0f;
 	newText->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+	if(clickSetValue){
+		newText->enable(true);
+		newText->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+		newText->setTapCallback([this, newText](ds::ui::Sprite* bs, const ci::vec3& pos){
+			std::wstring theText = newText->getText();
+			auto splitty = ds::split(theText, L": ", true);
+			if(mEntryEditor && splitty.size() > 1){
+				mEntryEditor->setCurrentText(splitty[1]);
+				updateValue(splitty[1]);
+			}
+		});
+	}
 	addChildPtr(newText);
 	return newText;
 }
@@ -84,7 +103,7 @@ void EditView::setSetting(Settings::Setting* theSetting){
 
 	mSettingName->setText(theSetting->mName);
 	//mSettingValue->setText(theSetting->mRawValue);	
-	mSettingComment->setText("Comment: " + theSetting->mComment);
+	mSettingComment->setText(theSetting->mComment);
 	mSettingDefault->setText("Default: " + theSetting->mDefault);
 	mSettingMin->setText("Min: " + theSetting->mMinValue);
 	mSettingMax->setText("Max: " + theSetting->mMaxValue);
@@ -154,21 +173,8 @@ void EditView::setSetting(Settings::Setting* theSetting){
 		});
 
 		mEntryEditor->setTextUpdatedCallback([this](const std::wstring& line){
-			if(mSettingValue){
-			//	mSettingValue->setText(line);
-			}
-
-			if(mTheSetting){
-				mTheSetting->mRawValue = ds::utf8_from_wstr(line);
-
-				if(mSettingUpdatedCalback){
-					mSettingUpdatedCalback(mTheSetting);
-				}
-			}
-			
-			runLayout();
-
-			mEngine.getNotifier().notify(Settings::SettingsEditedEvent("", ""));
+			updateValue(line);
+			//mEngine.getNotifier().notify(Settings::SettingsEditedEvent("", ""));
 		});
 
 		if(mTheSetting) mEntryEditor->setCurrentText(ds::wstr_from_utf8(mTheSetting->mRawValue));
@@ -176,9 +182,25 @@ void EditView::setSetting(Settings::Setting* theSetting){
 		mEntryEditor->focus();
 	}
 
+	if(mApplyButton){
+		mApplyButton->sendToFront();
+	}
 	show();
 	runLayout();
 
+}
+
+void EditView::updateValue(const std::wstring& theValue){
+	if(mSettingValue){
+		//	mSettingValue->setText(line);
+	}
+
+	if(mTheSetting){
+		mTheSetting->mRawValue = ds::utf8_from_wstr(theValue);
+
+	}
+
+	runLayout();
 }
 
 void EditView::stopEditing(){

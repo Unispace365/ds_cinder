@@ -30,6 +30,7 @@ private:
 	ds::ui::LayoutSprite*		mPrimaryLayout;
 	ds::ui::LayoutSprite*		mSettingsLayout;
 	std::vector<EditorItem*>	mSettingItems;
+	ds::ui::Text*				mSaveLocal;
 	EditView*					mEditView;
 };
 

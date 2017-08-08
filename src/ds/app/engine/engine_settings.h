@@ -40,14 +40,14 @@ public:
 
 	void							printStartupInfo();
 	bool							getUsingDefault() const { return !mLoadedAnySettings; };
+	static const std::string&		getConfigurationFolder();
+	static const std::string&		envProjectPath();
 
 private:
 	friend class Environment;
 	friend class EngineCfg;
-	static const std::string&		envProjectPath();
 	// Answer the configuration.xml if it exists.
 	const ds::cfg::Settings&		getConfiguration();
-	static const std::string&		getConfigurationFolder();
 
 	ds::cfg::Settings				mConfiguration;
 

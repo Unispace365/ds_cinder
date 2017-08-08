@@ -18,6 +18,7 @@ public:
 	EditView(ds::ui::SpriteEngine& e);
 
 	void					setSetting(Settings::Setting* theSetting);
+	void					updateValue(const std::wstring& theValue);
 	Settings::Setting*		getSetting(){ return mTheSetting; }
 
 	void					setSettingUpdatedCallback(std::function<void(Settings::Setting*)> func){ mSettingUpdatedCalback = func; }
@@ -42,7 +43,7 @@ protected:
 	std::function<void(Settings::Setting*)> mSettingUpdatedCalback;
 	std::function<void(const bool)>	mNextSettingCallback;
 
-	ds::ui::Text*			addTextSprite(const std::string& fontName, const float fontSize, const float opacity);
+	ds::ui::Text*			addTextSprite(const std::string& fontName, const float fontSize, const float opacity, const bool clickSetValue);
 };
 
 } // namespace ui

@@ -16,6 +16,7 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	, mCurrentSettings(nullptr)
 	, mPrimaryLayout(nullptr)
 	, mSettingsLayout(nullptr)
+	, mSaveLocal(nullptr)
 	, mEditView(nullptr)
 {
 	mPrimaryLayout = new ds::ui::LayoutSprite(mEngine);
@@ -23,6 +24,8 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	mPrimaryLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkBoth);
 	mPrimaryLayout->setLayoutType(ds::ui::LayoutSprite::kLayoutVFlow);
 	mPrimaryLayout->setClipping(true);
+	mPrimaryLayout->setSpacing(10.0f);
+	mPrimaryLayout->enable(true); // block touches from hitting the app
 
 
 	ds::ui::Sprite* backgroundSprite = new ds::ui::Sprite(mEngine);
@@ -32,6 +35,9 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	backgroundSprite->setBlendMode(ds::ui::BlendMode::MULTIPLY);
 	backgroundSprite->mLayoutUserType = ds::ui::LayoutSprite::kFillSize;
 	mPrimaryLayout->addChildPtr(backgroundSprite);
+
+
+
 		
 	mSettingsLayout = new ds::ui::LayoutSprite(mEngine);
 	mPrimaryLayout->addChildPtr(mSettingsLayout);
@@ -58,6 +64,28 @@ void SettingsEditor::showSettings(Settings* theSettings){
 	if(!mSettingsLayout || !mPrimaryLayout) return;
 
 	show();
+
+
+
+	if(!mSaveLocal){
+		mSaveLocal = new ds::ui::Text(mEngine);
+		mSaveLocal->setFont("Arial Bold");
+		mSaveLocal->setFontSize(14.0f);
+		mSaveLocal->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+		mSaveLocal->setText("Save in app settings");
+		mSaveLocal->enable(true);
+		mSaveLocal->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+		mSaveLocal->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+			if(mCurrentSettings){
+				mCurrentSettings->writeTo(ds::Environment::expand("%LOCAL%/settings/%PP%/" + mCurrentSettings->getName() + ".xml"));
+				mCurrentSettings->writeTo(ds::Environment::expand("%APP%/settings/" + mCurrentSettings->getName() + ".xml"));
+			}
+		});
+
+		auto theWidth = mSaveLocal->getWidth();
+		std::cout << "save base width  " << theWidth << " " << mSaveLocal->getHeight() << std::endl;
+		mSettingsLayout->addChildPtr(mSaveLocal);
+	}
 
 	theSettings->forEachSetting([this](ds::cfg::Settings::Setting& setting){
 		EditorItem* ei = new EditorItem(mEngine);
@@ -115,11 +143,11 @@ void SettingsEditor::editProperty(EditorItem* ei){
 		mEditView->setSettingUpdatedCallback([this](Settings::Setting* theSetting){
 			if(!theSetting) return;
 			for (auto it : mSettingItems){
-				if(it->getSettingName() == theSetting->mName){
+				if(it->getSettingName() == theSetting->mName && mSettingsLayout && mPrimaryLayout){
+					auto yPos = mSettingsLayout->getPosition().y;
 					it->setSetting(theSetting);
-					if(mPrimaryLayout){
-						mPrimaryLayout->runLayout();
-					}
+					mPrimaryLayout->runLayout();
+					mSettingsLayout->setPosition(mSettingsLayout->getPosition().x, yPos);
 
 					break;
 				}
