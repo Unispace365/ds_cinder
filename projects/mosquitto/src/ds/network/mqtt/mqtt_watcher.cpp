@@ -61,6 +61,7 @@ void MqttWatcher::update(const ds::UpdateParams &){
 		Poco::Timestamp::TimeVal nowwy = Poco::Timestamp().epochMicroseconds();
 		auto delty = (float)(nowwy - mLastMessageTime) / 1000000.0f;
 		if(delty > mRetryWaitTime){
+			DS_LOG_INFO("Retrying connection to mqtt server. Connected = " << mLoop.mConnected);
 			startListening();
 			mLastMessageTime = Poco::Timestamp().epochMicroseconds();
 		}
@@ -196,6 +197,7 @@ void MqttWatcher::MqttConnectionLoop::run(){
 	mqtt_isnt.setConnectAction([this, id](int code){
 		DS_LOG_INFO_M("MQTT server connected, status code (0 is success): " << code << " client id: " << id, MQTT_LOG);
 		mFirstTimeMessage = true;
+		//mConnected = true;
 	});
 
 	mqtt_isnt.setMessageAction([this](const MqttMessage& msg){
@@ -219,7 +221,12 @@ void MqttWatcher::MqttConnectionLoop::run(){
 		mAbort = true;
 	}
 
-	while(!mAbort && mqtt_isnt.loop() == MOSQ_ERR_SUCCESS){
+	while(!mAbort){
+		auto loopReturn = mqtt_isnt.loop();			
+		if(loopReturn != MOSQ_ERR_SUCCESS){
+			DS_LOG_WARNING_M("MQTT loop errored with number: " << loopReturn << " Error string is: " << mosqpp::strerror(loopReturn), MQTT_LOG);
+			break;
+		}
 		if(!mLoopOutbound.empty())	{
 			std::lock_guard<std::mutex>	_lock(mOutboundMutex);
 			while(!mLoopOutbound.empty()){
@@ -230,7 +237,7 @@ void MqttWatcher::MqttConnectionLoop::run(){
 
 		std::this_thread::sleep_for(std::chrono::milliseconds(mRefreshRateMs));
 	}
-
+	DS_LOG_INFO_M("MQTT Watcher loop is returning, setting connected to false.", MQTT_LOG);
 	mConnected = false;
 	//if(mFirstTimeMessage) std::cout << "MQTT watcher returned.";
 	mFirstTimeMessage = false;
