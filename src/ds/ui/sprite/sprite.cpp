@@ -263,6 +263,7 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	ci::gl::pushModelMatrix();
 	
 	if (mIsRenderFinalToTexture && mOutputFbo){
+		// Remove any parent transforms from the chain for rendering to FBO
 		totalTransformation = mTransformation;
 	}
 
