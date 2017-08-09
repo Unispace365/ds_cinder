@@ -261,6 +261,11 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 	buildTransform();
 	ci::mat4 totalTransformation = trans*mTransformation;
 	ci::gl::pushModelMatrix();
+	
+	if (mIsRenderFinalToTexture && mOutputFbo){
+		totalTransformation = mTransformation;
+	}
+
 	ci::gl::multModelMatrix(totalTransformation);
 
 
@@ -325,19 +330,19 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 		DS_REPORT_GL_ERRORS();
 	}	
 
-	if (mIsRenderFinalToTexture && mOutputFbo){
-		ci::gl::popViewport();
-		ci::gl::popMatrices();
-		mOutputFbo->unbindFramebuffer();
-	}
 
-	if((mSpriteFlags&CLIP_F) != 0) {
+	if (mIsRenderFinalToTexture && mOutputFbo){
+		// Reverse flipping
+		ci::gl::scale(1.0f, -1.0f, 1.0f);
+		ci::gl::translate(0.0f, (float)-getHeight(), 0.0f);
+	} else if ((mSpriteFlags&CLIP_F) != 0){ // Clipping is implicit when rendering to an FBO, only set clipping if we aren't
 		const ci::Rectf&      clippingBounds = getClippingBounds();
 		clip_plane::enableClipping(clippingBounds.getX1(), clippingBounds.getY1(), clippingBounds.getX2(), clippingBounds.getY2());
 	}
 
 	ci::gl::popModelMatrix();
 	DS_REPORT_GL_ERRORS();
+
 
 	DrawParams dParams = drawParams;
 	dParams.mParentOpacity *= mOpacity;
@@ -353,7 +358,11 @@ void Sprite::drawClient(const ci::mat4 &trans, const DrawParams &drawParams) {
 		}
 	}
 
-	if((mSpriteFlags&CLIP_F) != 0) {
+	if (mIsRenderFinalToTexture && mOutputFbo){
+		ci::gl::popViewport();
+		ci::gl::popMatrices();
+		mOutputFbo->unbindFramebuffer();
+	} else if ((mSpriteFlags&CLIP_F) != 0){
 		clip_plane::disableClipping();
 	}
 }
