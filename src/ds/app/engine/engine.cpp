@@ -67,6 +67,7 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	, mCachedWindowH(0)
 	, mAverageFps(0.0f)
 	, mFonts(*this)
+	, mEventClient(ed.mNotifier, [this](const ds::Event *m){ if(m) onAppEvent(*m); })
 {
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));
@@ -255,6 +256,23 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 	const std::string     title = mSettings.getString("screen:title", 0, nope);
 	if(title != nope) settings.setTitle(title);
 
+}
+
+void Engine::onAppEvent(const ds::Event& in_e){
+	if(in_e.mWhat == ds::cfg::Settings::SettingsEditedEvent::WHAT()){
+		const ds::cfg::Settings::SettingsEditedEvent& e((const ds::cfg::Settings::SettingsEditedEvent&)in_e);
+		/// TODO: refactor all engine read settings that can be changed at runtime and just apply them
+		if(e.mSettingsType == "engine"){
+			if(e.mSettingName == "screen:mode"){
+				auto newMode = mSettings.getString("screen:mode");
+				if(newMode == "borderless"){
+					ci::app::getWindow()->setBorderless(true);
+				} else {
+					ci::app::getWindow()->setBorderless(false);
+				}
+			}
+		}
+	}
 }
 
 void Engine::showSettingsEditor(ds::cfg::Settings& theSettings){

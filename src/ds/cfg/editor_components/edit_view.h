@@ -17,7 +17,7 @@ class EditView : public ds::ui::LayoutSprite {
 public:
 	EditView(ds::ui::SpriteEngine& e);
 
-	void					setSetting(Settings::Setting* theSetting);
+	void					setSetting(Settings::Setting* theSetting, const std::string& parentSettingsName);
 	void					updateValue(const std::wstring& theValue);
 	Settings::Setting*		getSetting(){ return mTheSetting; }
 
@@ -28,6 +28,7 @@ public:
 
 protected:
 	Settings::Setting*		mTheSetting;
+	std::string				mParentSettingsName;
 
 	ds::ui::Text*			mSettingName;
 	ds::ui::Text*			mSettingValue;

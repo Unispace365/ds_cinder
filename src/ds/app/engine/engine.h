@@ -23,6 +23,7 @@
 #include "TuioClient.h"
 
 #include "ds/app/engine/engine_touch_queue.h"
+#include <ds/app/event_client.h>
 #include "ds/data/color_list.h"
 #include "ds/data/font_list.h"
 #include "ds/data/resource_list.h"
@@ -246,6 +247,7 @@ protected:
 	virtual void						handleMouseTouchMoved(const ci::app::MouseEvent&, int id) = 0;
 	virtual void						handleMouseTouchEnded(const ci::app::MouseEvent&, int id) = 0;
 
+
 	ui::TouchManager					mTouchManager;
 
 	static const int					NumberOfNetworkThreads;
@@ -325,6 +327,10 @@ private:
 										mChannels;
 
 	float								mAverageFps;
+
+	/// For listening to settings changes and applying them
+	void								onAppEvent(const ds::Event&);
+	ds::EventClient						mEventClient;
 };
 
 } // namespace ds

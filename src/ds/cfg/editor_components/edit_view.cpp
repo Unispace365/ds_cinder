@@ -61,7 +61,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 		if(mSettingUpdatedCalback){
 			mSettingUpdatedCalback(mTheSetting);
 		}
-		mEngine.getNotifier().notify(ds::cfg::Settings::SettingsEditedEvent("", ""));
+		mEngine.getNotifier().notify(ds::cfg::Settings::SettingsEditedEvent(mParentSettingsName, mTheSetting->mName));
 	});
 	mApplyButton->mLayoutHAlign = ds::ui::LayoutSprite::kRight;
 	mApplyButton->mLayoutBPad = 10.0f;
@@ -95,8 +95,9 @@ ds::ui::Text* EditView::addTextSprite(const std::string& fontName, const float f
 	return newText;
 }
 
-void EditView::setSetting(Settings::Setting* theSetting){
+void EditView::setSetting(Settings::Setting* theSetting, const std::string& parentSetingsName){
 	mTheSetting = theSetting;
+	mParentSettingsName = parentSetingsName;
 
 	if(!mSettingName || !mSettingValue || !mTheSetting || !mSettingComment || !mSettingDefault || !mSettingMin || !mSettingMax || !mSettingSource) return;
 

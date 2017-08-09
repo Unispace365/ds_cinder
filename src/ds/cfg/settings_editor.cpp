@@ -121,14 +121,14 @@ void SettingsEditor::hideSettings(){
 }
 
 void SettingsEditor::editProperty(EditorItem* ei){
-	if(ei && !ei->getSettingName().empty()){
+	if(ei && !ei->getSettingName().empty() && mCurrentSettings){
 		if(!mEditView){
 			mEditView = new EditView(mEngine);
 			addChildPtr(mEditView);
 		}
 		mEditView->show();
 		Settings::Setting* theSetting = &mCurrentSettings->getSetting(ei->getSettingName(), 0);
-		mEditView->setSetting(theSetting);
+		mEditView->setSetting(theSetting, mCurrentSettings->getName());
 		mEditView->setPosition(-mEditView->getWidth(), 150.0f);
 		mEditView->setRequestNextSettingCallback([this, ei](const bool isNext){
 			EditorItem* theNewItem = nullptr;
