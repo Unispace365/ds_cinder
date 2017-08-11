@@ -26,7 +26,9 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	, mSettingMin(nullptr)
 	, mSettingMax(nullptr)
 	, mSettingSource(nullptr)
+	, mCancelButton(nullptr)
 	, mApplyButton(nullptr)
+	, mButtonHolder(nullptr)
 	, mEntryEditor(nullptr)
 	, mKeyboard(nullptr)
 {
@@ -55,18 +57,35 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	mSettingMax = addTextSprite("Arial", 14.0f, 0.4f, true);
 	mSettingSource = addTextSprite("Arial", 14.0f, 0.4f, false);
 
+	mButtonHolder = new ds::ui::LayoutSprite(mEngine);
+	mButtonHolder->setLayoutType(ds::ui::LayoutSprite::kLayoutHFlow);
+	mButtonHolder->mLayoutHAlign = ds::ui::LayoutSprite::kRight;
+	mButtonHolder->mLayoutBPad = 10.0f;
+	mButtonHolder->mLayoutRPad = 10.0f;
+	mButtonHolder->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkBoth);
+	mButtonHolder->setSpacing(10.0f);
+	addChildPtr(mButtonHolder);
+
+	mCancelButton = addTextSprite("Arial Narrow", 18.0f, 0.8f, true);
+	mCancelButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+		stopEditing();
+	});
+	mCancelButton->setText("Cancel");
+	mButtonHolder->addChildPtr(mCancelButton);
+
 	mApplyButton = addTextSprite("Arial Narrow", 18.0f, 1.0f, true);
 	mApplyButton->setColor(ci::Color(0.9f, 0.282f, 0.035f));
 	mApplyButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+		if(mTheSetting && mEntryEditor){
+			mTheSetting->mRawValue = ds::utf8_from_wstr(mEntryEditor->getCurrentText());
+		}
 		if(mSettingUpdatedCalback){
 			mSettingUpdatedCalback(mTheSetting);
 		}
 		mEngine.getNotifier().notify(ds::cfg::Settings::SettingsEditedEvent(mParentSettingsName, mTheSetting->mName));
 	});
-	mApplyButton->mLayoutHAlign = ds::ui::LayoutSprite::kRight;
-	mApplyButton->mLayoutBPad = 10.0f;
-	mApplyButton->mLayoutRPad = 10.0f;
 	mApplyButton->setText("Apply");
+	mButtonHolder->addChildPtr(mApplyButton);
 
 }
 
@@ -183,8 +202,8 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 		mEntryEditor->focus();
 	}
 
-	if(mApplyButton){
-		mApplyButton->sendToFront();
+	if(mButtonHolder){
+		mButtonHolder->sendToFront();
 	}
 	show();
 	runLayout();
@@ -194,11 +213,6 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 void EditView::updateValue(const std::wstring& theValue){
 	if(mSettingValue){
 		//	mSettingValue->setText(line);
-	}
-
-	if(mTheSetting){
-		mTheSetting->mRawValue = ds::utf8_from_wstr(theValue);
-
 	}
 
 	runLayout();

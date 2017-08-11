@@ -30,6 +30,8 @@ protected:
 	Settings::Setting*		mTheSetting;
 	std::string				mParentSettingsName;
 
+	ds::ui::LayoutSprite*	mButtonHolder;
+
 	ds::ui::Text*			mSettingName;
 	ds::ui::Text*			mSettingValue;
 	ds::ui::Text*			mSettingComment;
@@ -37,6 +39,7 @@ protected:
 	ds::ui::Text*			mSettingMin;
 	ds::ui::Text*			mSettingMax;
 	ds::ui::Text*			mSettingSource;
+	ds::ui::Text*			mCancelButton;
 	ds::ui::Text*			mApplyButton;
 	ds::ui::EntryField*		mEntryEditor;
 	ds::ui::SoftKeyboard*	mKeyboard;

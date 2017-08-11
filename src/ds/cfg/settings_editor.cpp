@@ -71,8 +71,10 @@ void SettingsEditor::showSettings(Settings* theSettings){
 		mSaveLocal = new ds::ui::Text(mEngine);
 		mSaveLocal->setFont("Arial Bold");
 		mSaveLocal->setFontSize(14.0f);
-		mSaveLocal->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
-		mSaveLocal->setText("Save in app settings");
+		mSaveLocal->mLayoutHAlign = ds::ui::LayoutSprite::kCenter;
+	//	mSaveLocal->mLayoutRPad = 10.0f;
+		mSaveLocal->setText("Save");
+		mSaveLocal->setColor(ci::Color(0.8f, 0.2f, 0.2f));
 		mSaveLocal->enable(true);
 		mSaveLocal->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 		mSaveLocal->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
@@ -83,7 +85,6 @@ void SettingsEditor::showSettings(Settings* theSettings){
 		});
 
 		auto theWidth = mSaveLocal->getWidth();
-		std::cout << "save base width  " << theWidth << " " << mSaveLocal->getHeight() << std::endl;
 		mSettingsLayout->addChildPtr(mSaveLocal);
 	}
 
