@@ -25,11 +25,17 @@ public:
 		: mPickRay( calculatePickRay(engine, cameraPersp, worldTouchPoint) )
 		, mCameraDirection( glm::normalize( cameraPersp.getViewDirection()) )
 	{}
+	// Takes an additional viewport argument, to enable 3d picking for arbitrary 3d viewports
+	CameraPick( const ds::ui::SpriteEngine& engine, const ci::Rectf& viewport , const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint )
+		: mPickRay( calculatePickRay(engine, viewport, cameraPersp, worldTouchPoint) )
+		, mCameraDirection( glm::normalize( cameraPersp.getViewDirection()) )
+	{}
 
 	const bool					testHitSprite( ds::ui::Sprite* sprite, ci::vec3& hitWorldPos ) const;
 	const float					calcHitDepth( const ci::vec3& hitWorldPos ) const;
 
 	static const ci::Ray		calculatePickRay( const ds::ui::SpriteEngine& engine, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint );
+	static const ci::Ray		calculatePickRay( const ds::ui::SpriteEngine& engine, const ci::Rectf& viewport, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint );
 
 protected:
 	const ci::Ray				mPickRay;
