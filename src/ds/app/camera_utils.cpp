@@ -34,34 +34,11 @@ const ci::Ray CameraPick::calculatePickRay( const ds::ui::SpriteEngine& engine, 
 }
 
 const ci::Ray CameraPick::calculatePickRay( const ds::ui::SpriteEngine& engine, const ci::Rectf& viewport, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint ) {
-	// Note: Again, we are using the actual window size here, not
-	// the Engine mDstRect size.
-	auto screenSize = glm::vec2( ci::app::getWindowSize() );
-
-	// Sigh... convert world coordinate back to screen coordinate
-	const ci::vec2 srcOffset = engine.getSrcRect().getUpperLeft();
-	const ci::vec2 screenScale = screenSize / engine.getSrcRect().getSize();
-	const ci::vec2 screenPoint = (ci::vec2(worldTouchPoint) - srcOffset) * screenScale;
-
-	// We need to flip the y screen coordinate because OpenGL
-	// Defines 0, 0 to be the lower left corner of the viewport
-	const auto viewportPoint = glm::vec3(screenPoint.x - viewport.getUpperLeft().x*screenScale, screenPoint.y - viewport.getUpperLeft().y*screenScale, 0.0f);
-
-	// Compute the pick Ray.  We need to unproject the 
-	// viewport point into camera-space coordinates
-	const auto viewMat = cameraPersp.getViewMatrix();
-	const auto projMat = cameraPersp.getProjectionMatrix();
-
-	//const auto viewportVec = glm::vec4(viewport.getUpperLeft()*screenScale, viewport.getSize()*screenScale);
-	const auto viewportVec = glm::vec4(ci::vec2(0.0f), viewport.getSize()*screenScale);
-	//const auto viewportVec = glm::vec4(0.0f, 0.0f, screenSize);
-	glm::vec3 worldPosNear = glm::unProject(viewportPoint, viewMat, projMat, viewportVec);
-	glm::vec3 rayDirection = glm::normalize(worldPosNear - cameraPersp.getEyePoint());
-
-	//glm::vec3 worldPosNear = glm::unProject(viewportPoint, viewMat, projMat, viewportVec);
-	//glm::vec3 rayDirection = glm::normalize(worldPosNear - cameraPersp.getEyePoint());
-
-	return  ci::Ray(cameraPersp.getEyePoint(), rayDirection);
+	// Alternate pick ray, calculated in using a world-space viewport.
+	const auto rayPt = ci::vec2(worldTouchPoint.x - viewport.getX1(), viewport.getY2() - worldTouchPoint.y);
+	auto ray = cameraPersp.generateRay(rayPt, viewport.getSize());
+	ray.setOrigin(ray.getOrigin() + ci::vec3(viewport.getUpperLeft(), 0.0f));
+	return ray;
 }
 
 const bool CameraPick::testHitSprite( ds::ui::Sprite* sprite, ci::vec3& hitWorldPos ) const {
