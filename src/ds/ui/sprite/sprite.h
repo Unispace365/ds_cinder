@@ -520,7 +520,7 @@ namespace ui {
 			This is for Ortho Sprites. Perspective Sprites use getPerspectiveHit()
 			\param point The global point to check.
 			\return The Sprite that is the best candidate for touch picking. Can return nullptr if there was no valid pick.*/
-		Sprite*					getHit(const ci::vec3 &point);
+		virtual Sprite*			getHit(const ci::vec3 &point);
 
 		/** Recursively checks the Sprite hierarchy list for an enabled, visible sprite with a scale > 0.0 and any size for touch picking.
 			This is for Perspective Sprites. Ortho Sprites use getHit()
