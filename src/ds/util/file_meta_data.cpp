@@ -72,6 +72,8 @@ const std::string& FileMetaData::findValue(const std::string& key) const {
 
 
 bool safeFileExistsCheck(const std::string filePath, const bool allowDirectory){
+	if(filePath.empty()) return false;
+
 	Poco::File xmlFile(filePath);
 	bool fileExists = false;
 	try{
