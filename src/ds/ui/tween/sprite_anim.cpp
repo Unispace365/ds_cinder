@@ -525,7 +525,6 @@ void SpriteAnimatable::runMultiAnimationScripts(const std::vector<std::string> a
 	gap = gapTime;
 	for (size_t i = 0; i < animScripts.size(); i++)
 	{
-		auto sp = new ds::ui::Sprite(mEngine);
 		ci::Timeline&		t = mEngine.getTweenline().getTimeline();
 		t.add([this, delay, animScripts, i](){runAnimationScript(animScripts[i]); }, t.getCurrentTime() + delay);
 		delay += (durationList[i] + delayList[i] + gap);
