@@ -214,6 +214,11 @@ public:
 	unsigned char *		getRawAudioData();
 	size_t				getRawAudioDataSize();
 
+	/// Returns a pointer to a gstreamer element with the specified name.
+	/// May return null if there's no element with that name.
+	/// Use with caution
+	void *				getGstreamerElementByName(const std::string& theName);
+
 protected:
 	virtual void		drawLocalClient() override;
 	virtual void		writeAttributesTo(DataBuffer&) override;

@@ -272,6 +272,10 @@ size_t GstVideo::getRawAudioDataSize(){
 	return mGstreamerWrapper->getAudioBufferSize();
 }
 
+void * GstVideo::getGstreamerElementByName(const std::string& theName){
+	return mGstreamerWrapper->getElementByName(theName);
+}
+
 void GstVideo::onUpdateServer(const UpdateParams &up){
 
 	mGstreamerWrapper->update();

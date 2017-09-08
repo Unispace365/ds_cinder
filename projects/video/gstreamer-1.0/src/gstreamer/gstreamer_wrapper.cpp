@@ -166,7 +166,15 @@ void					GStreamerWrapper::clearNewLoop(){
 	 m_newLoop = false;
 }
 
-bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace, 
+void * GStreamerWrapper::getElementByName(const std::string& gst_element_name){
+	if(m_GstPipeline){
+		return gst_bin_get_by_name(GST_BIN(m_GstPipeline), gst_element_name.c_str());
+	}
+
+	return NULL;
+}
+
+bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace,
 							const int videoWidth, const int videoHeight, const bool hasAudioTrack, const double secondsDuration){
 	if(!m_ValidInstall){
 		return false;
@@ -197,7 +205,6 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 	// Open Uri
 	g_object_set(m_GstPipeline, "uri", m_strFilename.c_str(), NULL);
-
 
 	// VIDEO SINK
 	// Extract and Config Video Sink

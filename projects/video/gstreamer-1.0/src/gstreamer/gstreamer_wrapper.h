@@ -533,6 +533,9 @@ public:
 	/*clear flag to indicate if loop has started*/
 	void					clearNewLoop();
 
+	/* Returns a pointer to a GST_ELEMENT if it exists and gstreamer returns it correctly */
+	void *					getElementByName(const std::string& gst_element_name);
+
 private:
 	/*
 	Helper method in order to apply either changes to the playback speed or direction in GStreamer
