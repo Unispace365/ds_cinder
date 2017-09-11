@@ -76,17 +76,21 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	mApplyButton = addTextSprite("Arial Narrow", 18.0f, 1.0f, true);
 	mApplyButton->setColor(ci::Color(0.9f, 0.282f, 0.035f));
 	mApplyButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
-		if(mTheSetting && mEntryEditor){
-			mTheSetting->mRawValue = ds::utf8_from_wstr(mEntryEditor->getCurrentText());
-		}
-		if(mSettingUpdatedCalback){
-			mSettingUpdatedCalback(mTheSetting);
-		}
-		mEngine.getNotifier().notify(ds::cfg::Settings::SettingsEditedEvent(mParentSettingsName, mTheSetting->mName));
+		applySetting();
 	});
 	mApplyButton->setText("Apply");
 	mButtonHolder->addChildPtr(mApplyButton);
 
+}
+
+void EditView::applySetting(){
+	if(mTheSetting && mEntryEditor){
+		mTheSetting->mRawValue = ds::utf8_from_wstr(mEntryEditor->getCurrentText());
+	}
+	if(mSettingUpdatedCalback){
+		mSettingUpdatedCalback(mTheSetting);
+	}
+	mEngine.getNotifier().notify(ds::cfg::Settings::SettingsEditedEvent(mParentSettingsName, mTheSetting->mName));
 }
 
 ds::ui::Text* EditView::addTextSprite(const std::string& fontName, const float fontSize, const float opacity, const bool clickSetValue){
@@ -173,12 +177,19 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 			}
 
 			if(mNextSettingCallback &&
-			   (event.getCode() == ci::app::KeyEvent::KEY_DOWN
-			   || event.getCode() == ci::app::KeyEvent::KEY_TAB
-			   || event.getCode() == ci::app::KeyEvent::KEY_RETURN
+			   (  event.getCode() == ci::app::KeyEvent::KEY_DOWN
+			   || event.getCode() == ci::app::KeyEvent::KEY_TAB			   
+			   )){
+				applySetting();
+				mNextSettingCallback(true);
+				return true;
+			}
+
+			if(mNextSettingCallback &&
+			   (  event.getCode() == ci::app::KeyEvent::KEY_RETURN
 			   || event.getCode() == ci::app::KeyEvent::KEY_KP_ENTER
 			   )){
-				mNextSettingCallback(true);
+				applySetting();
 				return true;
 			}
 

@@ -47,6 +47,7 @@ protected:
 	std::function<void(Settings::Setting*)> mSettingUpdatedCalback;
 	std::function<void(const bool)>	mNextSettingCallback;
 
+	void					applySetting();
 	ds::ui::Text*			addTextSprite(const std::string& fontName, const float fontSize, const float opacity, const bool clickSetValue);
 };
 

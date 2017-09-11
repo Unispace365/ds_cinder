@@ -12,10 +12,6 @@
 #include "ds/app/engine/engine_standalone.h"
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/app/environment.h"
-// TODO: Make this cleaner
-#ifdef _WIN32
-#include "ds/debug/console.h"
-#endif
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 
@@ -91,13 +87,6 @@ static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 namespace {
 std::string				APP_DATA_PATH;
 
-//#ifdef _DEBUG
-// TODO: Make this cleaner
-#ifdef _WIN32
-ds::Console				GLOBAL_CONSOLE;
-#endif
-//#endif
-
 void					add_dll_path() {
 	// If there's a DLL folder, then add it to my PATH environment variable.
 	try {
@@ -143,7 +132,6 @@ App::App(const RootList& roots)
 	: EngineSettingsPreloader( ci::app::AppBase::sSettingsFromMain )
 	, ci::app::App()
 	, mEnvironmentInitialized(ds::Environment::initialize())
-	, mShowConsole(false)
 	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
 	, mCtrlDown(false)
@@ -208,12 +196,6 @@ App::App(const RootList& roots)
 App::~App() {
 	delete &(mEngine);
 	ds::getLogger().shutDown();
-	if(mShowConsole){
-// TODO: Make this cleaner
-#ifdef _WIN32
-		GLOBAL_CONSOLE.destroy();
-#endif
-	}
 }
 
 void App::prepareSettings(ci::app::AppBase::Settings *settings) {
@@ -451,18 +433,6 @@ void App::shutdown(){
 	//ci::app::App::shutdown();
 }
 
-void App::showConsole(){
-	// prevent calling create multiple times
-	if(mShowConsole) return;
-
-	mShowConsole = true;
-// TODO: Make this cleaner
-#ifdef _WIN32
-	GLOBAL_CONSOLE.create();
-#endif
-}
-
-
 /**
  * \class ds::EngineSettingsPreloader::Initializer
  */
@@ -506,13 +476,6 @@ ds::EngineSettingsPreloader::Initializer::Initializer() {
 
 static ds::Engine&    new_engine(	ds::App& app, ds::EngineSettings& settings,
 									ds::EngineData& ed, const ds::RootList& roots){
-
-	bool defaultShowConsole = false;
-	DS_DBG_CODE(defaultShowConsole = true);
-	if(settings.getBool("console:show", 0, defaultShowConsole)){
-		app.showConsole();
-	}
-
 	const std::string	arch(settings.getString("platform:architecture", 0, ""));
 	if (arch == "client") return *(new ds::EngineClient(app, settings, ed, roots));
 	if (arch == "server") return *(new ds::EngineServer(app, settings, ed, roots));

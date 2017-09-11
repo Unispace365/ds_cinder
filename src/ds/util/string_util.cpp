@@ -716,8 +716,11 @@ ci::Rectf parseRect(const std::string &s){
 	ci::Rectf v;
 	v.x1 = tokens.size() > 0 ? ds::string_to_float(tokens[0]) : 0.0f;
 	v.y1 = tokens.size() > 1 ? ds::string_to_float(tokens[1]) : 0.0f;
-	v.x2 = tokens.size() > 2 ? ds::string_to_float(tokens[2]) : 0.0f + v.x1;
-	v.y2 = tokens.size() > 3 ? ds::string_to_float(tokens[3]) : 0.0f + v.y1;
+	v.x2 = tokens.size() > 2 ? ds::string_to_float(tokens[2]) : 0.0f;
+	v.y2 = tokens.size() > 3 ? ds::string_to_float(tokens[3]) : 0.0f;
+
+	v.x2 += v.x1;
+	v.y2 += v.y1;
 
 	return v;
 }

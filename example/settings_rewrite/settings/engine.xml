@@ -11,8 +11,8 @@
 	<setting name="Window Settings" value="" type="section_header"/>
 	<setting name="world_dimensions" value="1920, 1080" type="vec2"/>
 	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect"/>
-	<setting name="dst_rect" value="0, 0, 1920, 1080" type="rect"/>
-	<setting name="screen:title" value="Downstream Application" type="string"/>
+	<setting name="dst_rect" value="40, 40, 1920, 1080" type="rect"/>
+	<setting name="screen:title" value="Settings Rewriter and Updater" type="string"/>
 	<setting name="screen:mode" value="borderless" type="string" comment="Screen mode. full=fullscreen, borderless=no OS chrome, window=normal. default=window"/>
 	<setting name="screen:always_on_top" value="false" type="bool" comment="Makes the window an always-on-top sort of window. default=false"/>
 	<setting name="Logger" value="" type="section_header"/>

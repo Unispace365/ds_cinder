@@ -10,6 +10,9 @@
 #include "ds/app/error.h"
 #include "ds/cfg/settings.h"
 #include "ds/cfg/settings_editor.h"
+#ifdef _WIN32
+#include "ds/debug/console.h"
+#endif
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
@@ -33,6 +36,12 @@
 
 namespace {
 void				root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>&);
+
+
+#ifdef _WIN32
+ds::Console				GLOBAL_CONSOLE;
+#endif
+
 }
 
 const ds::BitMask	ds::ENGINE_LOG = ds::Logger::newModule("engine");
@@ -61,6 +70,7 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
 	, mTuioObjectsEnded(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
 	, mHideMouse(false)
+	, mShowConsole(false)
 	, mUniqueColor(0, 0, 0)
 	, mAutoDraw(new AutoDrawService())
 	, mCachedWindowW(0)
@@ -109,27 +119,7 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 
 	mData.mWorldSize = settings.getVec2("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
 
-	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
-	// which makes them get ignored.
-	if (settings.hasSetting("src_rect") || settings.hasSetting("dst_rect")) {
-
-		const ci::Rectf		empty_rect(0.0f, 0.0f, 0.0f, 0.0f);
-
-		mData.mSrcRect = settings.getRect("src_rect", 0, empty_rect);
-		mData.mDstRect = settings.getRect("dst_rect", 0, empty_rect);
-		
-	}
-
-	if(mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
-		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
-		ci::DisplayRef mainDisplay = ci::Display::getMainDisplay();
-		ci::Rectf mainDisplayRect = ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
-		mData.mSrcRect = mainDisplayRect;
-		mData.mDstRect = mainDisplayRect;
-		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
-			mData.mWorldSize = ci::vec2(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
-		}
-	}
+	setSrcDstRects();
 
 	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 
@@ -165,6 +155,9 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	// If we're drawing the touches, create a separate top-level root to do that
 	// For clients, the debug touch root is created by the server and synced
 
+	// Add a view for displaying the stats.
+	createStatsView(root_id);
+
 	if (drawTouches && !isClient) {
 		RootList::Root					root_cfg;
 		root_cfg.mType = root_cfg.kOrtho;
@@ -177,13 +170,10 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 			ds::ui::Sprite*				parent = root->getSprite();
 			if (parent) {
 				parent->setDrawDebug(true);
-				mRoots.push_back(std::move(root));
-				
+				mRoots.push_back(std::move(root));				
 			}
 		}
 	}
-	// Add a view for displaying the stats.
-	createStatsView(root_id);
 
 	// Initialize the roots
 	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mSrcRect, mData.mDstRect);
@@ -219,33 +209,115 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 
 	setIdleTimeout((int)settings.getFloat("idle_time", 0, 300));
 	setMute(settings.getBool("platform:mute", 0, false));
+
+	setConsole();
+}
+
+Engine::~Engine() {
+	mTuio.disconnect();
+
+	// Important to do this here before the auto update list is destructed.
+	// so any autoupdate services get removed.
+	mData.clearServices();
+
+	hideConsole();
+}
+
+void Engine::setSrcDstRects(){
+	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
+	// which makes them get ignored and default to the main display
+	const ci::Rectf		empty_rect(0.0f, 0.0f, 0.0f, 0.0f);
+
+	mData.mSrcRect = mSettings.getRect("src_rect", 0, empty_rect);
+	mData.mDstRect = mSettings.getRect("dst_rect", 0, empty_rect);
+
+	if(mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
+		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
+		ci::DisplayRef mainDisplay = ci::Display::getMainDisplay();
+		ci::Rectf mainDisplayRect = ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
+		mData.mSrcRect = mainDisplayRect;
+		mData.mDstRect = mainDisplayRect;
+		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
+			mData.mWorldSize = ci::vec2(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
+		}
+	}
+	ci::app::getWindow()->setPos(mData.mDstRect.getUpperLeft());
+	ci::app::getWindow()->setSize(mData.mDstRect.getSize());
+}
+
+void Engine::setConsole(){
+	bool defaultShowConsole = false;
+	DS_DBG_CODE(defaultShowConsole = true);
+	if(mSettings.getBool("console:show", 0, defaultShowConsole)){
+		showConsole();
+	} else {
+		hideConsole();
+	}
+}
+
+void Engine::setWindowMode(){
+	auto newMode = mSettings.getString("screen:mode");
+	if(newMode == "borderless"){
+		ci::app::getWindow()->setFullScreen(false);
+		ci::app::getWindow()->setBorderless(true);
+	} else if(newMode.find("full") != std::string::npos){
+		ci::app::getWindow()->setFullScreen(true);
+	} else {
+		ci::app::getWindow()->setFullScreen(false);
+		ci::app::getWindow()->setBorderless(false);
+	}
+}
+
+void Engine::setMouseHide(){
+	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
+}
+
+void Engine::showConsole(){
+	// prevent calling create multiple times
+	if(mShowConsole) return;
+
+	mShowConsole = true;
+	// TODO: Make this cleaner
+#ifdef _WIN32
+	GLOBAL_CONSOLE.create();
+#endif
 }
 
 
+void Engine::hideConsole(){
+	if(!mShowConsole) return;
+	mShowConsole = false;
+#ifdef _WIN32
+	GLOBAL_CONSOLE.destroy();
+#endif
+}
+
 void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
+	settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
+
 	std::string screenMode = "window";
 
-	settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
 	if(mSettings.getUsingDefault()){
 		screenMode = "borderless";
 	}
 	screenMode = mSettings.getString("screen:mode", 0, screenMode);
-	if(screenMode == "full"){
-		settings.setFullScreen(true);
-	} else if(screenMode == "fullscreen"){
+	if(screenMode == "full" || screenMode == "fullscreen"){
 		settings.setFullScreen(true);
 	} else if(screenMode == "borderless"){
 		settings.setBorderless(true);
+	} else if(screenMode == "window"){
+		settings.setBorderless(false);
+		settings.setFullScreen(false);
 	}
 
 	settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 	
-	DS_LOG_INFO("Engine::prepareSettings: screenMode is " << screenMode << " and always on top " << settings.isAlwaysOnTop());
+	//DS_LOG_INFO("Engine::prepareSettings: screenMode is " << screenMode << " and always on top " << settings.isAlwaysOnTop());
 
 	settings.setResizable(false);
 
+	setMouseHide();
 
-	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
 	setTouchSmoothing(mSettings.getBool("touch_smoothing", 0, true));
 	setTouchSmoothFrames(mSettings.getInt("touch_smooth_frames", 0, 5));
@@ -264,12 +336,14 @@ void Engine::onAppEvent(const ds::Event& in_e){
 		/// TODO: refactor all engine read settings that can be changed at runtime and just apply them
 		if(e.mSettingsType == "engine"){
 			if(e.mSettingName == "screen:mode"){
-				auto newMode = mSettings.getString("screen:mode");
-				if(newMode == "borderless"){
-					ci::app::getWindow()->setBorderless(true);
-				} else {
-					ci::app::getWindow()->setBorderless(false);
-				}
+				setWindowMode();
+			} else if(e.mSettingName == "src_rect" || e.mSettingName == "dst_rect"){
+				setSrcDstRects();
+				markCameraDirty();
+			} else if(e.mSettingName == "console:show"){
+				setConsole();
+			} else if(e.mSettingName == "mouse:hide"){
+				setMouseHide();
 			}
 		}
 	}
@@ -409,27 +483,20 @@ void Engine::createStatsView(sprite_id_t root_id){
 		ds::ui::Sprite*				parent = root->getSprite();
 		if(parent) {
 			parent->setDrawDebug(true);
+			mSettingsEditor = new ds::cfg::SettingsEditor(*this);
+			if(mSettingsEditor){
+				parent->addChildPtr(mSettingsEditor);
+			}
+
 			EngineStatsView*		v = new EngineStatsView(*this);
 			if(v) {
 				parent->addChild(*v);
 			}
 
-			mSettingsEditor = new ds::cfg::SettingsEditor(*this);
-			if(mSettingsEditor){
-				parent->addChildPtr(mSettingsEditor);
-			}
 			mRoots.push_back(std::move(root));
 		}
 	}
 
-}
-
-Engine::~Engine() {
-	mTuio.disconnect();
-
-	// Important to do this here before the auto update list is destructed.
-	// so any autoupdate services get removed.
-	mData.clearServices();
 }
 
 ds::EventNotifier& Engine::getChannel(const std::string &name) {

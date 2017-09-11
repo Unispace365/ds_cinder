@@ -207,6 +207,9 @@ public:
 
 	virtual ci::app::WindowRef			getWindow();
 
+	void								showConsole();
+	void								hideConsole();
+
 	// Should only be used by the app class to record the average fps. 
 	// Allows for debug drawing of the fps
 	void								setAverageFps(const float fps){ mAverageFps = fps; }
@@ -264,12 +267,19 @@ protected:
 private:
 	void								setTouchMode(const ds::ui::TouchMode::Enum&);
 	void								createStatsView(sprite_id_t root_id);
+	
+	/// Read these values from settings and apply them
+	void								setSrcDstRects();
+	void								setConsole();
+	void								setWindowMode();
+	void								setMouseHide();
 
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
 										mRoots;
 	ds::EngineSettings&					mSettings;
 	ds::cfg::SettingsEditor*			mSettingsEditor;
+	bool								mShowConsole;
 	ImageRegistry						mImageRegistry;
 	ds::ui::PangoFontService			mPangoFontService;
 	ds::ui::Tweenline					mTweenline;

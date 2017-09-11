@@ -108,13 +108,10 @@ public:
 	virtual void				quit();
 	virtual void				shutdown();
 
-	void						showConsole();
-
 	// Triggered by F8 key, saves a transparent png on the desktop
 	void						saveTransparentScreenshot();
 
 protected:
-	bool						mShowConsole;
 	ds::EngineData				mEngineData;
 	ds::Engine&					mEngine;
 
