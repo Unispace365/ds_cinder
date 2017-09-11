@@ -191,6 +191,10 @@ App::App(const RootList& roots)
 
 	prepareSettings(ci::app::App::get()->sSettingsFromMain);
 
+#ifdef _WIN32
+	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
+#endif
+
 }
 
 App::~App() {
