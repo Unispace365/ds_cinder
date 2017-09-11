@@ -63,6 +63,8 @@ public:
 		const ci::vec3					getVec3() const;
 		const cinder::Rectf				getRect() const;
 
+		std::vector<std::string>		getPossibleValues() const; 
+
 
 		/// <setting name="the_name" value="sample" type="string" comment="Detailed description" default="null" /> 
 		/// <setting name="the_name" value="1.0" type="double" min_value="0.01" max_value="10.0" default="1.5" /> 
@@ -84,6 +86,9 @@ public:
 		std::string						mDefault;
 		std::string						mMinValue;
 		std::string						mMaxValue;
+
+		/// Optional comma-separated list of possible values. E.g. "borderless, window, fullscreen"
+		std::string						mPossibleValues;
 
 		/// auto determined by the file path of the settings file
 		std::string						mSource;

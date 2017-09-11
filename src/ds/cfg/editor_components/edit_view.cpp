@@ -25,12 +25,14 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	, mSettingDefault(nullptr)
 	, mSettingMin(nullptr)
 	, mSettingMax(nullptr)
+	, mSettingPossibles(nullptr)
 	, mSettingSource(nullptr)
 	, mCancelButton(nullptr)
 	, mApplyButton(nullptr)
 	, mButtonHolder(nullptr)
 	, mEntryEditor(nullptr)
 	, mKeyboard(nullptr)
+	, mPossibleIndex(0)
 {
 	setSize(600.0f, 200.0f);
 	setShrinkToChildren(ds::ui::LayoutSprite::kShrinkHeight);
@@ -55,6 +57,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 
 	mSettingMin = addTextSprite("Arial", 14.0f, 0.4f, true);
 	mSettingMax = addTextSprite("Arial", 14.0f, 0.4f, true);
+	mSettingPossibles = addTextSprite("Arial", 14.0f, 0.4f, false);
 	mSettingSource = addTextSprite("Arial", 14.0f, 0.4f, false);
 
 	mButtonHolder = new ds::ui::LayoutSprite(mEngine);
@@ -122,7 +125,7 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 	mTheSetting = theSetting;
 	mParentSettingsName = parentSetingsName;
 
-	if(!mSettingName || !mSettingValue || !mTheSetting || !mSettingComment || !mSettingDefault || !mSettingMin || !mSettingMax || !mSettingSource) return;
+	if(!mSettingName || !mSettingValue || !mTheSetting || !mSettingComment || !mSettingDefault || !mSettingMin || !mSettingMax || !mSettingSource || !mSettingPossibles) return;
 
 
 	mSettingName->setText(theSetting->mName);
@@ -131,6 +134,7 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 	mSettingDefault->setText("Default: " + theSetting->mDefault);
 	mSettingMin->setText("Min: " + theSetting->mMinValue);
 	mSettingMax->setText("Max: " + theSetting->mMaxValue);
+	mSettingPossibles->setText("Possible Values: " + theSetting->mPossibleValues);
 	mSettingSource->setText("Source: " + theSetting->mSource);
 
 	if(!mEntryEditor){
@@ -160,6 +164,7 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 	}
 
 	if(mEntryEditor && mKeyboard){
+
 		mKeyboard->setKeyPressFunction([this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
 			if(mEntryEditor){
 				if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
@@ -209,6 +214,46 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 		});
 
 		if(mTheSetting) mEntryEditor->setCurrentText(ds::wstr_from_utf8(mTheSetting->mRawValue));
+
+
+		mPossibleValues = theSetting->getPossibleValues();
+		mPossibleIndex = 0;
+
+		if(theSetting->mType == ds::cfg::SETTING_TYPE_BOOL){
+			mEntryEditor->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+				if(mEntryEditor->getCurrentText() == L"true"){
+					mEntryEditor->setCurrentText(L"false");
+				} else {
+					mEntryEditor->setCurrentText(L"true");
+				}
+			});
+
+			mKeyboard->hide();
+		} else if(mPossibleValues.size() > 1){
+			for(int i = 0; i < mPossibleValues.size(); i++){
+				if(theSetting->mRawValue == mPossibleValues[i]){
+					mPossibleIndex = i;
+					break;
+				}
+			}
+
+			mEntryEditor->setTapCallback([this](ds::ui::Sprite*, const ci::vec3&){
+				if(mPossibleValues.size() < 1) return;
+				mPossibleIndex++;
+				if(mPossibleIndex > mPossibleValues.size() - 1){ 
+					mPossibleIndex = 0; 
+				}
+				if(mPossibleIndex < 0) mPossibleIndex = 0;
+				mEntryEditor->setCurrentText(ds::wstr_from_utf8(mPossibleValues[mPossibleIndex]));
+			});
+
+			mKeyboard->show();
+
+		} else {
+			mEntryEditor->setTapCallback(nullptr);
+			mKeyboard->show();
+		}
+
 		mEntryEditor->autoRegisterOnFocus(true);
 		mEntryEditor->focus();
 	}

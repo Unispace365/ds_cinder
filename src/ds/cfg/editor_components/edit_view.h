@@ -38,11 +38,15 @@ protected:
 	ds::ui::Text*			mSettingDefault;
 	ds::ui::Text*			mSettingMin;
 	ds::ui::Text*			mSettingMax;
+	ds::ui::Text*			mSettingPossibles;
 	ds::ui::Text*			mSettingSource;
 	ds::ui::Text*			mCancelButton;
 	ds::ui::Text*			mApplyButton;
 	ds::ui::EntryField*		mEntryEditor;
 	ds::ui::SoftKeyboard*	mKeyboard;
+
+	std::vector<std::string> mPossibleValues;
+	int						mPossibleIndex;
 
 	std::function<void(Settings::Setting*)> mSettingUpdatedCalback;
 	std::function<void(const bool)>	mNextSettingCallback;

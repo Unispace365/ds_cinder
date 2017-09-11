@@ -115,6 +115,11 @@ const cinder::Rectf Settings::Setting::getRect() const{
 	return parseRect(mRawValue);
 }
 
+std::vector<std::string> Settings::Setting::getPossibleValues() const{
+	std::vector<std::string> possibles = ds::split(mPossibleValues, ", ", true);
+	return possibles;
+}
+
 Settings::Settings(){
 	initialize_types();
 }
@@ -162,12 +167,13 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll){
 
 		Setting theSetting;
 		theSetting.mName = theName;
-		if(it->hasAttribute("value"))	theSetting.mRawValue = it->getAttributeValue<std::string>("value");
-		if(it->hasAttribute("comment"))	theSetting.mComment = it->getAttributeValue<std::string>("comment");
-		if(it->hasAttribute("default"))	theSetting.mDefault = it->getAttributeValue<std::string>("default");
+		if(it->hasAttribute("value"))		theSetting.mRawValue = it->getAttributeValue<std::string>("value");
+		if(it->hasAttribute("comment"))		theSetting.mComment = it->getAttributeValue<std::string>("comment");
+		if(it->hasAttribute("default"))		theSetting.mDefault = it->getAttributeValue<std::string>("default");
 		if(it->hasAttribute("min_value"))	theSetting.mMinValue = it->getAttributeValue<std::string>("min_value");
 		if(it->hasAttribute("max_value"))	theSetting.mMaxValue = it->getAttributeValue<std::string>("max_value");
-		if(it->hasAttribute("type"))	theSetting.mType = it->getAttributeValue<std::string>("type");
+		if(it->hasAttribute("type"))		theSetting.mType = it->getAttributeValue<std::string>("type");
+		if(it->hasAttribute("possibles"))	theSetting.mPossibleValues = it->getAttributeValue<std::string>("possibles");
 
 		if(!validateType(theSetting.mType)){
 			DS_LOG_WARNING("Unknown setting type for " << theName << " type:" << theSetting.mType << " source: " << filename);
@@ -203,6 +209,7 @@ void Settings::writeTo(const std::string& filename){
 			if(!sit.mDefault.empty()) settingNode.setAttribute("default", sit.mDefault);
 			if(!sit.mMinValue.empty()) settingNode.setAttribute("min_value", sit.mMinValue);
 			if(!sit.mMaxValue.empty()) settingNode.setAttribute("max_value", sit.mMaxValue);
+			if(!sit.mPossibleValues.empty()) settingNode.setAttribute("possibles", sit.mMaxValue);
 			rootNode.push_back(settingNode);
 		}
 	}
@@ -386,6 +393,7 @@ void Settings::printAllSettings(){
 			if(!sit.mDefault.empty()) std::cout << "\t\t default: \t" << sit.mDefault << std::endl;
 			if(!sit.mMinValue.empty()) std::cout << "\t\t min: \t\t" << sit.mMinValue << std::endl;
 			if(!sit.mMaxValue.empty()) std::cout << "\t\t max: \t\t" << sit.mMaxValue << std::endl;
+			if(!sit.mPossibleValues.empty()) std::cout << "\t\t possibles: \t\t" << sit.mPossibleValues << std::endl;
 		}
 	}
 }
