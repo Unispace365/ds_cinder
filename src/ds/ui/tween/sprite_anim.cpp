@@ -30,6 +30,7 @@ SpriteAnimatable::SpriteAnimatable(Sprite& s, SpriteEngine& e)
 	, mInternalSizeCinderTweenRef(nullptr)
 	, mInternalOpacityCinderTweenRef(nullptr)
 	, mInternalNormalizedCinderTweenRef(nullptr)
+	, mDelayedCallCueRef(nullptr)
 {}
 
 SpriteAnimatable::~SpriteAnimatable() {
@@ -40,6 +41,7 @@ SpriteAnimatable::~SpriteAnimatable() {
 	mInternalSizeCinderTweenRef = nullptr;
 	mInternalOpacityCinderTweenRef = nullptr;
 	mInternalNormalizedCinderTweenRef = nullptr;
+	mDelayedCallCueRef = nullptr;
 }
 
 const SpriteAnim<ci::Color>& SpriteAnimatable::ANIM_COLOR() {
@@ -278,6 +280,11 @@ void SpriteAnimatable::animStop() {
 	animOpacityStop();
 	animColorStop();
 	animNormalizedStop();
+
+	if (mDelayedCallCueRef){
+		mDelayedCallCueRef->removeSelf();
+		mDelayedCallCueRef = nullptr;
+	}
 }
 
 void SpriteAnimatable::animPositionStop(){
@@ -512,7 +519,6 @@ void SpriteAnimatable::runAnimationScript(const std::string& animScript, const f
 	
 }
 
-
 void SpriteAnimatable::runMultiAnimationScripts(const std::vector<std::string> animScripts, const float gapTime, const float addedDelay /*= 0.0f*/)
 {
 	if (animScripts.empty()) return;
@@ -523,10 +529,14 @@ void SpriteAnimatable::runMultiAnimationScripts(const std::vector<std::string> a
 	float delay = 0.0f, gap = 0.0f;
 	delay =addedDelay;
 	gap = gapTime;
+	if (mDelayedCallCueRef){
+		mDelayedCallCueRef->removeSelf();
+		mDelayedCallCueRef = nullptr;
+	}
 	for (size_t i = 0; i < animScripts.size(); i++)
 	{
 		ci::Timeline&		t = mEngine.getTweenline().getTimeline();
-		t.add([this, delay, animScripts, i](){runAnimationScript(animScripts[i]); }, t.getCurrentTime() + delay);
+		mDelayedCallCueRef = t.add([this, delay, animScripts, i](){runAnimationScript(animScripts[i]); }, t.getCurrentTime() + delay);
 		delay += (durationList[i] + delayList[i] + gap);
 	}
 }
