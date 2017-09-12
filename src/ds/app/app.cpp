@@ -207,7 +207,6 @@ void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 	if (settings) {
 		ds::Environment::setConfigDirFileExpandOverride(mEngineSettings.getBool("configuration_folder:allow_expand_override", 0, false));
 
-		ci::gl::enableVerticalSync(mEngineSettings.getBool("vertical_sync", 0, true));
 		mEngine.prepareSettings(*settings);
 		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
 		inherited::setFrameRate(settings->getFrameRate());

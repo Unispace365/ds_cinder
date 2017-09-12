@@ -79,6 +79,9 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	, mFonts(*this)
 	, mEventClient(ed.mNotifier, [this](const ds::Event *m){ if(m) onAppEvent(*m); })
 {
+
+	setConsole();
+
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));
 
@@ -102,7 +105,6 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 
 	mData.mAppInstanceName = settings.getString("platform:guid", 0, "Downstream");
 
-
 	// don't lose idle just because we got a marker moved event
 	mTuioObjectsMoved.setAutoIdleReset(false);
 
@@ -112,7 +114,9 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	mData.mSwipeQueueSize = settings.getInt("touch:swipe:queue_size", 0, 4);
 	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
 	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
-	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
+
+	setFrameRate();
+	setVerticalSync();
 
 	const bool verboseTouchLogging = settings.getBool("touch_overlay:verbose_logging", 0, false);
 	mTouchManager.setVerboseLogging(verboseTouchLogging);
@@ -209,8 +213,6 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 
 	setIdleTimeout((int)settings.getFloat("idle_time", 0, 300));
 	setMute(settings.getBool("platform:mute", 0, false));
-
-	setConsole();
 }
 
 Engine::~Engine() {
@@ -270,6 +272,15 @@ void Engine::setWindowMode(){
 
 void Engine::setMouseHide(){
 	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
+}
+
+void Engine::setFrameRate(){
+	mData.mFrameRate = mSettings.getFloat("frame_rate", 0, 60.0f);
+	ci::app::setFrameRate(mData.mFrameRate);
+}
+
+void Engine::setVerticalSync(){
+	ci::gl::enableVerticalSync(mSettings.getBool("vertical_sync", 0, true));
 }
 
 void Engine::showConsole(){
@@ -344,6 +355,10 @@ void Engine::onAppEvent(const ds::Event& in_e){
 				setConsole();
 			} else if(e.mSettingName == "mouse:hide"){
 				setMouseHide();
+			} else if(e.mSettingName == "frame_rate"){
+				setFrameRate();
+			} else if(e.mSettingName == "vertical_sync"){
+				setVerticalSync();
 			}
 		}
 	}

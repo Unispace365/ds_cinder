@@ -27,21 +27,12 @@ public:
 	virtual void							touchMoved(const ds::ui::TouchInfo &ti);
 	virtual void							touchEnd(const ds::ui::TouchInfo &ti);
 
-	virtual void							drawLocalClient();
 	virtual void							drawLocalServer();
 private:
-	void									drawTrails();
-	void									drawCircles();
-
 	std::map<int, Circle*>					mCircles;
 	float									mCircleRadius;
 	bool									mCircleFilled;
 	ci::ColorA								mCircleColor;
-
-	std::map<int, std::vector<ci::vec3>>	mTouchPointHistory;
-	bool									mTouchTrailsUse;
-	int										mTouchTrailsLength;
-	float									mTouchTrailsIncrement;
 };
 
 } // namespace ui

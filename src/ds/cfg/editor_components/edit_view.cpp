@@ -52,13 +52,13 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	mSettingName->setColor(ci::Color(0.9f, 0.282f, 0.035f));
 
 	mSettingValue = addTextSprite("Arial Bold", 21.0f, 1.0f, false);
-	mSettingComment = addTextSprite("Arial", 14.0f, 0.75f, false);
-	mSettingDefault = addTextSprite("Arial", 14.0f, 0.4f, true);
+	mSettingComment = addTextSprite("Arial", 12.0f, 0.75f, false);
+	mSettingDefault = addTextSprite("Arial", 12.0f, 0.4f, true);
 
-	mSettingMin = addTextSprite("Arial", 14.0f, 0.4f, true);
-	mSettingMax = addTextSprite("Arial", 14.0f, 0.4f, true);
-	mSettingPossibles = addTextSprite("Arial", 14.0f, 0.4f, false);
-	mSettingSource = addTextSprite("Arial", 14.0f, 0.4f, false);
+	mSettingMin = addTextSprite("Arial", 12.0f, 0.4f, true);
+	mSettingMax = addTextSprite("Arial", 12.0f, 0.4f, true);
+	mSettingPossibles = addTextSprite("Arial", 12.0f, 0.4f, false);
+	mSettingSource = addTextSprite("Arial", 12.0f, 0.4f, false);
 
 	mButtonHolder = new ds::ui::LayoutSprite(mEngine);
 	mButtonHolder->setLayoutType(ds::ui::LayoutSprite::kLayoutHFlow);

@@ -273,6 +273,8 @@ private:
 	void								setConsole();
 	void								setWindowMode();
 	void								setMouseHide();
+	void								setFrameRate();
+	void								setVerticalSync();
 
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
