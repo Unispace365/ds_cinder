@@ -27,9 +27,9 @@ DrawTouchView::DrawTouchView(ds::ui::SpriteEngine& e, ds::cfg::Settings &setting
 
 	tm.setCapture(this);
 
-	mCircleRadius = settings.getFloat("touch_overlay:debug_circle_radius", 0, mCircleRadius);
-	mCircleColor = settings.getColorA(dynamic_cast<ds::Engine&>(e), "touch_overlay:debug_circle_color", 0, mCircleColor);
-	mCircleFilled = settings.getBool("touch_overlay:debug_circle_filled", 0, mCircleFilled);
+	mCircleRadius = settings.getFloat("touch:debug_circle_radius", 0, mCircleRadius);
+	mCircleColor = settings.getColorA(dynamic_cast<ds::Engine&>(e), "touch:debug_circle_color", 0, mCircleColor);
+	mCircleFilled = settings.getBool("touch:debug_circle_filled", 0, mCircleFilled);
 }
 
 

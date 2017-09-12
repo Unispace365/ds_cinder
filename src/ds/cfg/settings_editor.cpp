@@ -79,7 +79,7 @@ void SettingsEditor::showSettings(Settings* theSettings){
 		mSaveLocal->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
 		mSaveLocal->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 			if(mCurrentSettings){
-				mCurrentSettings->writeTo(ds::Environment::expand("%LOCAL%/settings/%PP%/" + mCurrentSettings->getName() + ".xml"));
+				//mCurrentSettings->writeTo(ds::Environment::expand("%LOCAL%/settings/%PP%/" + mCurrentSettings->getName() + ".xml"));
 				mCurrentSettings->writeTo(ds::Environment::expand("%APP%/settings/" + mCurrentSettings->getName() + ".xml"));
 			}
 		});

@@ -53,6 +53,7 @@ const int Engine::NumberOfNetworkThreads = 2;
 Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
+	, mDsApp(app)
 	, mTweenline(app.timeline())
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
@@ -76,11 +77,16 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	, mCachedWindowW(0)
 	, mCachedWindowH(0)
 	, mAverageFps(0.0f)
+	, mTuioPort(0)
+	, mTuioBeganRegistrationId(0)
+	, mTuioMovedRegistrationId(0)
+	, mTuioEndedRegistrationId(0)
+	, mTuioRegistered(false)
 	, mFonts(*this)
 	, mEventClient(ed.mNotifier, [this](const ds::Event *m){ if(m) onAppEvent(*m); })
 {
 
-	setConsole();
+	setupConsole();
 
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));
@@ -95,35 +101,17 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 
 	ds::Logger::setup(settings);
 
-	// touch settings
-	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
-	setTouchMode(mTouchMode);
-	mTouchManager.setOverrideTranslation(settings.getBool("touch_overlay:override_translation", 0, false));
-	mTouchManager.setOverrideDimensions(settings.getVec2("touch_overlay:dimensions", 0, ci::vec2(1920.0f, 1080.0f)));
-	mTouchManager.setOverrideOffset(settings.getVec2("touch_overlay:offset", 0, ci::vec2(0.0f, 0.0f)));
-	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
-
 	mData.mAppInstanceName = settings.getString("platform:guid", 0, "Downstream");
 
-	// don't lose idle just because we got a marker moved event
-	mTuioObjectsMoved.setAutoIdleReset(false);
+	setupFrameRate();
+	setupVerticalSync();
+	setupMouseHide();
+	setupWorldSize();
+	setupSrcDstRects();
+	setupIdleTimeout();
+	setupMute();
 
-	const bool drawTouches = settings.getBool("touch_overlay:debug", 0, false);
-	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
-	mData.mMinTouchDistance = settings.getFloat("touch:minimum_distance", 0, 10.0f);
-	mData.mSwipeQueueSize = settings.getInt("touch:swipe:queue_size", 0, 4);
-	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
-	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
-
-	setFrameRate();
-	setVerticalSync();
-
-	const bool verboseTouchLogging = settings.getBool("touch_overlay:verbose_logging", 0, false);
-	mTouchManager.setVerboseLogging(verboseTouchLogging);
-
-	mData.mWorldSize = settings.getVec2("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
-
-	setSrcDstRects();
+	ci::app::getWindow()->setTitle("Hey there");
 
 	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 
@@ -162,6 +150,7 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	// Add a view for displaying the stats.
 	createStatsView(root_id);
 
+	const bool drawTouches = settings.getBool("touch:debug", 0, false);
 	if (drawTouches && !isClient) {
 		RootList::Root					root_cfg;
 		root_cfg.mType = root_cfg.kOrtho;
@@ -186,8 +175,6 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 		r.setup(er_settings);
 	}
 
-	mRotateTouchesDefault = settings.getBool("touch:rotate_touches_default", 0, false);
-
 	// SETUP RESOURCES
 	std::string resourceLocation = ds::getNormalizedPath(settings.getString("resource_location", 0, ""));
 	if (resourceLocation.empty()) {
@@ -210,9 +197,6 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 			ds::getNormalizedPath(settings.getString("project_path", 0))
 		);
 	}
-
-	setIdleTimeout((int)settings.getFloat("idle_time", 0, 300));
-	setMute(settings.getBool("platform:mute", 0, false));
 }
 
 Engine::~Engine() {
@@ -225,7 +209,11 @@ Engine::~Engine() {
 	hideConsole();
 }
 
-void Engine::setSrcDstRects(){
+void Engine::setupWorldSize(){
+	mData.mWorldSize = mSettings.getVec2("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
+}
+
+void Engine::setupSrcDstRects(){
 	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
 	// which makes them get ignored and default to the main display
 	const ci::Rectf		empty_rect(0.0f, 0.0f, 0.0f, 0.0f);
@@ -247,7 +235,7 @@ void Engine::setSrcDstRects(){
 	ci::app::getWindow()->setSize(mData.mDstRect.getSize());
 }
 
-void Engine::setConsole(){
+void Engine::setupConsole(){
 	bool defaultShowConsole = false;
 	DS_DBG_CODE(defaultShowConsole = true);
 	if(mSettings.getBool("console:show", 0, defaultShowConsole)){
@@ -257,8 +245,8 @@ void Engine::setConsole(){
 	}
 }
 
-void Engine::setWindowMode(){
-	auto newMode = mSettings.getString("screen:mode");
+void Engine::setupWindowMode(){
+	auto newMode = mSettings.getString("screen:mode", 0, "borderless");
 	if(newMode == "borderless"){
 		ci::app::getWindow()->setFullScreen(false);
 		ci::app::getWindow()->setBorderless(true);
@@ -270,17 +258,25 @@ void Engine::setWindowMode(){
 	}
 }
 
-void Engine::setMouseHide(){
+void Engine::setupMouseHide(){
 	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
 }
 
-void Engine::setFrameRate(){
+void Engine::setupFrameRate(){
 	mData.mFrameRate = mSettings.getFloat("frame_rate", 0, 60.0f);
 	ci::app::setFrameRate(mData.mFrameRate);
 }
 
-void Engine::setVerticalSync(){
+void Engine::setupVerticalSync(){
 	ci::gl::enableVerticalSync(mSettings.getBool("vertical_sync", 0, true));
+}
+
+void Engine::setupIdleTimeout(){
+	setIdleTimeout(mSettings.getInt("idle_time", 0, 300));
+}
+
+void Engine::setupMute(){
+	setMute(mSettings.getBool("platform:mute", 0, false));
 }
 
 void Engine::showConsole(){
@@ -321,23 +317,14 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 		settings.setFullScreen(false);
 	}
 
-	settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
-	
-	//DS_LOG_INFO("Engine::prepareSettings: screenMode is " << screenMode << " and always on top " << settings.isAlwaysOnTop());
-
 	settings.setResizable(false);
-
-	setMouseHide();
-
-	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
-	setTouchSmoothing(mSettings.getBool("touch_smoothing", 0, true));
-	setTouchSmoothFrames(mSettings.getInt("touch_smooth_frames", 0, 5));
-
+	settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 	settings.setFrameRate(mData.mFrameRate);
+	
+	DS_LOG_INFO("Engine::prepareSettings: screenMode is " << screenMode << " and always on top " << settings.isAlwaysOnTop());
 
-	const std::string     nope = "ds:IllegalTitle";
-	const std::string     title = mSettings.getString("screen:title", 0, nope);
-	if(title != nope) settings.setTitle(title);
+
+	settings.setTitle(mSettings.getString("screen:title", 0, "Downstream"));
 
 }
 
@@ -347,18 +334,26 @@ void Engine::onAppEvent(const ds::Event& in_e){
 		/// TODO: refactor all engine read settings that can be changed at runtime and just apply them
 		if(e.mSettingsType == "engine"){
 			if(e.mSettingName == "screen:mode"){
-				setWindowMode();
+				setupWindowMode();
+			} else if(e.mSettingName == "world_dimensions"){
+				setupWorldSize();
 			} else if(e.mSettingName == "src_rect" || e.mSettingName == "dst_rect"){
-				setSrcDstRects();
+				setupSrcDstRects();
 				markCameraDirty();
 			} else if(e.mSettingName == "console:show"){
-				setConsole();
+				setupConsole();
 			} else if(e.mSettingName == "mouse:hide"){
-				setMouseHide();
+				setupMouseHide();
 			} else if(e.mSettingName == "frame_rate"){
-				setFrameRate();
+				setupFrameRate();
 			} else if(e.mSettingName == "vertical_sync"){
-				setVerticalSync();
+				setupVerticalSync();
+			} else if(e.mSettingName == "idle_time"){
+				setupIdleTimeout();
+			} else if(e.mSettingName == "platform:mute"){
+				setupMute();
+			} else if(e.mSettingName.find("touch") != std::string::npos){
+				setupTouch(mDsApp);
 			}
 		}
 	}
@@ -396,7 +391,7 @@ void Engine::setup(ds::App& app) {
 	const std::string	arch(mSettings.getString("platform:architecture", 0, ""));
 	bool isClient = false;
 	if(arch == "client") isClient = true;
-	const bool			drawTouches = mSettings.getBool("touch_overlay:debug", 0, false);
+	const bool			drawTouches = mSettings.getBool("touch:debug", 0, false);
 	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
 		(*it)->postAppSetup();
 		(*it)->setCinderCamera();
@@ -432,17 +427,59 @@ void Engine::setup(ds::App& app) {
 	}
 }
 
-void Engine::setupTouch(ds::App& a) {
+void Engine::setupTouch(ds::App& app) {
+	// touch settings
+	mTouchManager.setOverrideTranslation(mSettings.getBool("touch:override_translation", 0, false));
+	mTouchManager.setOverrideDimensions(mSettings.getVec2("touch:dimensions", 0, ci::vec2(1920.0f, 1080.0f)));
+	mTouchManager.setOverrideOffset(mSettings.getVec2("touch:offset", 0, ci::vec2(0.0f, 0.0f)));
+	mTouchManager.setTouchFilterRect(mSettings.getRect("touch:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
+	mTouchManager.setVerboseLogging(mSettings.getBool("touch:verbose_logging", 0, false));
+
+	mRotateTouchesDefault = mSettings.getBool("touch:rotate_touches_default", 0, false);
 	
+	setTouchSmoothing(mSettings.getBool("touch:smoothing", 0, true));
+	setTouchSmoothFrames(mSettings.getInt("touch:smooth_frames", 0, 5));
+
+
+	mData.mMinTapDistance = mSettings.getFloat("touch:tap_threshold", 0, 30.0f);
+	mData.mMinTouchDistance = mSettings.getFloat("touch:minimum_distance", 0, 10.0f);
+	mData.mSwipeQueueSize = mSettings.getInt("touch:swipe:queue_size", 0, 4);
+	mData.mSwipeMinVelocity = mSettings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
+	mData.mSwipeMaxTime = mSettings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
+
+	mTouchMode = ds::ui::TouchMode::fromSettings(mSettings);
+	setTouchMode(mTouchMode);
+	int oldTuioPort = mTuioPort;
+	mTuioPort = mSettings.getInt("touch:tuio:port", 0, 3333);
+	// don't lose idle just because we got a marker moved event
+	mTuioObjectsMoved.setAutoIdleReset(false);
 	if(ds::ui::TouchMode::hasTuio(mTouchMode)) {
-		ci::tuio::Client&		tuioClient = getTuioClient();
-		tuioClient.registerTouches(&a);
-		registerForTuioObjects(tuioClient);
-		try{
-			tuioClient.connect(mTuioPort);
-			DS_LOG_INFO("TUIO Connected on port " << mTuioPort);
-		} catch(std::exception ex) {
-			DS_LOG_WARNING("TUIO client could not be started on port " << mTuioPort << ". The most common cause is that the port is already bound by another app.");
+		if(!mTuioRegistered){
+			ci::tuio::Client&		tuioClient = getTuioClient();
+			mTuioBeganRegistrationId = tuioClient.registerTouchesBegan(&app, &ds::App::touchesBegan);
+			mTuioMovedRegistrationId = tuioClient.registerTouchesMoved(&app, &ds::App::touchesMoved);
+			mTuioEndedRegistrationId = tuioClient.registerTouchesEnded(&app, &ds::App::touchesEnded);
+			mTuioRegistered = true;
+
+			registerForTuioObjects(tuioClient);
+			try{
+				tuioClient.connect(mTuioPort);
+				DS_LOG_INFO("TUIO Connected on port " << mTuioPort);
+			} catch(std::exception ex) {
+				DS_LOG_WARNING("TUIO client could not be started on port " << mTuioPort << ". The most common cause is that the port is already bound by another app.");
+			}
+		}
+	} else {
+		if(mTuioRegistered){
+			ci::tuio::Client&		tuioClient = getTuioClient();
+			tuioClient.unregisterTouchesBegan(mTuioBeganRegistrationId);
+			tuioClient.unregisterTouchesMoved(mTuioMovedRegistrationId);
+			tuioClient.unregisterTouchesEnded(mTuioEndedRegistrationId);
+			mTuioRegistered = false;
+			try{
+				tuioClient.disconnect();
+			} catch(std::exception){}
+			DS_LOG_INFO("TUIO disconnected");
 		}
 	}
 }
@@ -781,7 +818,7 @@ void Engine::clearAllSprites(const bool clearDebug) {
 }
 
 void Engine::registerForTuioObjects(ci::tuio::Client& client) {
-	if (mSettings.getBool("tuio:receive_objects", 0, false)) {
+	if (mSettings.getBool("touch:tuio:receive_objects", 0, false)) {
 		client.registerObjectAdded([this](ci::tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
 		client.registerObjectUpdated([this](ci::tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle(), o.getSpeed(), o.getRotationSpeed())); });
 		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnded.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });

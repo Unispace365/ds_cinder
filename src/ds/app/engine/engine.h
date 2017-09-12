@@ -269,16 +269,20 @@ private:
 	void								createStatsView(sprite_id_t root_id);
 	
 	/// Read these values from settings and apply them
-	void								setSrcDstRects();
-	void								setConsole();
-	void								setWindowMode();
-	void								setMouseHide();
-	void								setFrameRate();
-	void								setVerticalSync();
+	void								setupWorldSize();
+	void								setupSrcDstRects();
+	void								setupConsole();
+	void								setupWindowMode();
+	void								setupMouseHide();
+	void								setupFrameRate();
+	void								setupVerticalSync();
+	void								setupIdleTimeout();
+	void								setupMute();
 
 	friend class EngineStatsView;
 	std::vector<std::unique_ptr<EngineRoot> >
 										mRoots;
+	ds::App&							mDsApp;
 	ds::EngineSettings&					mSettings;
 	ds::cfg::SettingsEditor*			mSettingsEditor;
 	bool								mShowConsole;
@@ -296,6 +300,10 @@ private:
 	float								mLastTouchTime;
 
 	ci::tuio::Client					mTuio;
+	uint32_t							mTuioBeganRegistrationId;
+	uint32_t							mTuioMovedRegistrationId;
+	uint32_t							mTuioEndedRegistrationId;
+	bool								mTuioRegistered;
 	// Clients that will get update() called automatically at the start
 	// of each update cycle
 	AutoUpdateList						mAutoUpdateServer;

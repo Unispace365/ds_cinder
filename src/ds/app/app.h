@@ -81,7 +81,7 @@ public:
 	virtual void				onTouchesEnded(ci::app::TouchEvent event) final {};
 
 	// To receive TUIO Objects, the engine must have this setting:
-	//	<text name="tuio:receive_objects" value="true" />
+	//	<text name="touch:tuio:receive_objects" value="true" />
 	virtual void				tuioObjectBegan(const TuioObject&);
 	virtual void				tuioObjectMoved(const TuioObject&);
 	virtual void				tuioObjectEnded(const TuioObject&);

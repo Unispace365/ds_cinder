@@ -209,7 +209,7 @@ void Settings::writeTo(const std::string& filename){
 			if(!sit.mDefault.empty()) settingNode.setAttribute("default", sit.mDefault);
 			if(!sit.mMinValue.empty()) settingNode.setAttribute("min_value", sit.mMinValue);
 			if(!sit.mMaxValue.empty()) settingNode.setAttribute("max_value", sit.mMaxValue);
-			if(!sit.mPossibleValues.empty()) settingNode.setAttribute("possibles", sit.mMaxValue);
+			if(!sit.mPossibleValues.empty()) settingNode.setAttribute("possibles", sit.mPossibleValues);
 			rootNode.push_back(settingNode);
 		}
 	}
