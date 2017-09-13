@@ -726,6 +726,9 @@
     <ClInclude Include="..\src\ds\ui\control\control_slider.h">
       <Filter>src\ds\ui\control</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\control\control_check_box.h">
+      <Filter>src\ds\ui\control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1221,6 +1224,9 @@
       <Filter>src\ds\cfg\editor_components</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\control\control_slider.cpp">
+      <Filter>src\ds\ui\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\control\control_check_box.cpp">
       <Filter>src\ds\ui\control</Filter>
     </ClCompile>
   </ItemGroup>

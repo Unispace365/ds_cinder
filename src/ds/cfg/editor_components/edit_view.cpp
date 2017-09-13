@@ -32,6 +32,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	, mButtonHolder(nullptr)
 	, mEntryEditor(nullptr)
 	, mKeyboard(nullptr)
+	, mCheckBox(nullptr)
 	, mSlider(nullptr)
 	, mPossibleIndex(0)
 {
@@ -161,6 +162,22 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 		addChildPtr(mSlider);
 	}
 
+	if(!mCheckBox){
+		mCheckBox = new ds::ui::ControlCheckBox(mEngine);
+		mCheckBox->mLayoutLPad = 5.0f;
+		mCheckBox->mLayoutRPad = 5.0f;
+		mCheckBox->setLabelTextConfig("Arial Bold", 18.0f, ci::ColorA(1.0f, 1.0f, 1.0f));
+		mCheckBox->mLayoutUserType = ds::ui::LayoutSprite::kFixedSize;
+		mCheckBox->setCheckboxUpdatedCallback([this](const bool isChecked){
+			if(isChecked){
+				mEntryEditor->setCurrentText(L"true");
+			} else {
+				mEntryEditor->setCurrentText(L"false");
+			}
+		});
+		addChildPtr(mCheckBox);
+	}
+
 	if(!mEntryEditor){
 		ds::ui::EntryFieldSettings efs;
 		efs.mFieldSize = ci::vec2(600.0f, 40.0f);
@@ -238,9 +255,17 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 		});
 
 		mEntryEditor->setCurrentText(ds::wstr_from_utf8(mTheSetting->mRawValue));
+		mEntryEditor->show();
+		mKeyboard->show();
 
 		mPossibleValues = theSetting->getPossibleValues();
 		mPossibleIndex = 0;
+
+		mSlider->hide();
+		mSlider->setScale(0.0f);
+
+		mCheckBox->hide();
+		mCheckBox->setScale(0.0f);
 
 		if(theSetting->mType == ds::cfg::SETTING_TYPE_BOOL){
 			mEntryEditor->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
@@ -251,8 +276,17 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 				}
 			});
 
+			if(mEntryEditor->getCurrentText().find(L"t") != std::wstring::npos){
+				mCheckBox->setCheckBoxValue(true);
+			} else {
+				mCheckBox->setCheckBoxValue(false);
+			}
+
+			mEntryEditor->hide();
 			mKeyboard->hide();
-			mSlider->hide();
+			mCheckBox->show();
+			mCheckBox->setScale(1.0f);
+
 		} else if(mPossibleValues.size() > 1){
 			for(int i = 0; i < mPossibleValues.size(); i++){
 				if(theSetting->mRawValue == mPossibleValues[i]){
@@ -271,21 +305,17 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 				mEntryEditor->setCurrentText(ds::wstr_from_utf8(mPossibleValues[mPossibleIndex]));
 			});
 
-			mKeyboard->show();
-			mSlider->hide();
-
 		} else if(  (theSetting->mType == ds::cfg::SETTING_TYPE_DOUBLE
 				  || theSetting->mType == ds::cfg::SETTING_TYPE_FLOAT
 				  || theSetting->mType == ds::cfg::SETTING_TYPE_INT)
 				  && !theSetting->mMinValue.empty() && !theSetting->mMaxValue.empty()
 				  ){
 			mSlider->show();
+			mSlider->setScale(1.0f);
 			mSlider->setSliderLimits(ds::string_to_double(theSetting->mMinValue), ds::string_to_double(theSetting->mMaxValue));
 			mSlider->setSliderValue(ds::wstring_to_double(mEntryEditor->getCurrentText()));
 		} else {
 			mEntryEditor->setTapCallback(nullptr);
-			mKeyboard->show();
-			mSlider->hide();
 		}
 
 		mEntryEditor->autoRegisterOnFocus(true);
