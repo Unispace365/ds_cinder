@@ -32,6 +32,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	, mButtonHolder(nullptr)
 	, mEntryEditor(nullptr)
 	, mKeyboard(nullptr)
+	, mSlider(nullptr)
 	, mPossibleIndex(0)
 {
 	setSize(600.0f, 200.0f);
@@ -137,6 +138,29 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 	mSettingPossibles->setText("Possible Values: " + theSetting->mPossibleValues);
 	mSettingSource->setText("Source: " + theSetting->mSource);
 
+	if(!mSlider){
+		mSlider = new ds::ui::ControlSlider(mEngine, false);
+		mSlider->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+		mSlider->mLayoutLPad = 5.0f;
+		mSlider->mLayoutRPad = 5.0f;
+		mSlider->setSliderInterpolation(ds::ui::ControlSlider::kSliderTypeQuadratic);
+
+		mSlider->setSliderUpdatedCallback([this](double sliderPercent, double sliderValue, bool finishedAdjusting){
+			if(mTheSetting && mEntryEditor){
+				if(mTheSetting->mType == ds::cfg::SETTING_TYPE_INT){
+					int theActualValue = static_cast<int>(round(sliderValue));
+					mEntryEditor->setCurrentText(std::to_wstring(theActualValue));
+				} else if(mTheSetting->mType == ds::cfg::SETTING_TYPE_FLOAT){
+					float theActualValue = static_cast<float>(sliderValue);
+					mEntryEditor->setCurrentText(std::to_wstring(theActualValue));
+				} else {
+					mEntryEditor->setCurrentText(std::to_wstring(sliderValue));
+				}
+			}
+		});
+		addChildPtr(mSlider);
+	}
+
 	if(!mEntryEditor){
 		ds::ui::EntryFieldSettings efs;
 		efs.mFieldSize = ci::vec2(600.0f, 40.0f);
@@ -163,7 +187,7 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 		mKeyboard->mLayoutBPad = 10.0f;
 	}
 
-	if(mEntryEditor && mKeyboard){
+	if(mEntryEditor && mKeyboard && mSlider && mTheSetting){
 
 		mKeyboard->setKeyPressFunction([this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
 			if(mEntryEditor){
@@ -182,8 +206,8 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 			}
 
 			if(mNextSettingCallback &&
-			   (  event.getCode() == ci::app::KeyEvent::KEY_DOWN
-			   || event.getCode() == ci::app::KeyEvent::KEY_TAB			   
+			   (event.getCode() == ci::app::KeyEvent::KEY_DOWN
+			   || event.getCode() == ci::app::KeyEvent::KEY_TAB
 			   )){
 				applySetting();
 				mNextSettingCallback(true);
@@ -191,7 +215,7 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 			}
 
 			if(mNextSettingCallback &&
-			   (  event.getCode() == ci::app::KeyEvent::KEY_RETURN
+			   (event.getCode() == ci::app::KeyEvent::KEY_RETURN
 			   || event.getCode() == ci::app::KeyEvent::KEY_KP_ENTER
 			   )){
 				applySetting();
@@ -213,8 +237,7 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 			//mEngine.getNotifier().notify(Settings::SettingsEditedEvent("", ""));
 		});
 
-		if(mTheSetting) mEntryEditor->setCurrentText(ds::wstr_from_utf8(mTheSetting->mRawValue));
-
+		mEntryEditor->setCurrentText(ds::wstr_from_utf8(mTheSetting->mRawValue));
 
 		mPossibleValues = theSetting->getPossibleValues();
 		mPossibleIndex = 0;
@@ -229,6 +252,7 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 			});
 
 			mKeyboard->hide();
+			mSlider->hide();
 		} else if(mPossibleValues.size() > 1){
 			for(int i = 0; i < mPossibleValues.size(); i++){
 				if(theSetting->mRawValue == mPossibleValues[i]){
@@ -240,18 +264,28 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 			mEntryEditor->setTapCallback([this](ds::ui::Sprite*, const ci::vec3&){
 				if(mPossibleValues.size() < 1) return;
 				mPossibleIndex++;
-				if(mPossibleIndex > mPossibleValues.size() - 1){ 
-					mPossibleIndex = 0; 
+				if(mPossibleIndex > mPossibleValues.size() - 1){
+					mPossibleIndex = 0;
 				}
 				if(mPossibleIndex < 0) mPossibleIndex = 0;
 				mEntryEditor->setCurrentText(ds::wstr_from_utf8(mPossibleValues[mPossibleIndex]));
 			});
 
 			mKeyboard->show();
+			mSlider->hide();
 
+		} else if(  (theSetting->mType == ds::cfg::SETTING_TYPE_DOUBLE
+				  || theSetting->mType == ds::cfg::SETTING_TYPE_FLOAT
+				  || theSetting->mType == ds::cfg::SETTING_TYPE_INT)
+				  && !theSetting->mMinValue.empty() && !theSetting->mMaxValue.empty()
+				  ){
+			mSlider->show();
+			mSlider->setSliderLimits(ds::string_to_double(theSetting->mMinValue), ds::string_to_double(theSetting->mMaxValue));
+			mSlider->setSliderValue(ds::wstring_to_double(mEntryEditor->getCurrentText()));
 		} else {
 			mEntryEditor->setTapCallback(nullptr);
 			mKeyboard->show();
+			mSlider->hide();
 		}
 
 		mEntryEditor->autoRegisterOnFocus(true);

@@ -149,16 +149,16 @@ void ControlSlider::updateNubPosition(){
 		if(mVertical){
 
 			//mNub->setSize(getWidth(), mNub->getHeight());
-			
+
 			if(getPerspective()){
 				mNub->setPosition(mTouchPadding, (1.0f - (float)mSliderPercent) * (getHeight() - mNub->getHeight()));
 			} else {
 				mNub->setPosition(mTouchPadding, (float)mSliderPercent * getHeight() - (float)mSliderPercent * mNub->getHeight());
 			}
 		} else {
-			
-		//	mNub->setSize(mNub->getWidth(), getHeight());
-			
+
+			//	mNub->setSize(mNub->getWidth(), getHeight());
+
 			mNub->setPosition(getWidth() * (float)mSliderPercent - (float)mSliderPercent * mNub->getWidth(), getHeight() / 2.0f - mNub->getHeight() / 2.0f);
 		}
 	}

@@ -115,6 +115,9 @@
     <Filter Include="src\ds\ui\button">
       <UniqueIdentifier>{cdd02fa4-1793-4630-9282-a9c02260305e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\ui\control">
+      <UniqueIdentifier>{d591730b-f21c-4c59-8e08-410384c048fd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -720,6 +723,9 @@
     <ClInclude Include="..\src\ds\cfg\editor_components\edit_view.h">
       <Filter>src\ds\cfg\editor_components</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\ui\control\control_slider.h">
+      <Filter>src\ds\ui\control</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1213,6 +1219,9 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\cfg\editor_components\edit_view.cpp">
       <Filter>src\ds\cfg\editor_components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\control\control_slider.cpp">
+      <Filter>src\ds\ui\control</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -112,6 +112,7 @@
     <ClInclude Include="..\src\ds\ui\button\image_button.h" />
     <ClInclude Include="..\src\ds\ui\button\layout_button.h" />
     <ClInclude Include="..\src\ds\ui\button\sprite_button.h" />
+    <ClInclude Include="..\src\ds\ui\control\control_slider.h" />
     <ClInclude Include="..\src\ds\ui\layout\layout_sprite.h" />
     <ClInclude Include="..\src\ds\ui\soft_keyboard\entry_field.h" />
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard.h" />
@@ -311,6 +312,7 @@
     <ClCompile Include="..\src\ds\ui\button\image_button.cpp" />
     <ClCompile Include="..\src\ds\ui\button\layout_button.cpp" />
     <ClCompile Include="..\src\ds\ui\button\sprite_button.cpp" />
+    <ClCompile Include="..\src\ds\ui\control\control_slider.cpp" />
     <ClCompile Include="..\src\ds\ui\layout\layout_sprite.cpp" />
     <ClCompile Include="..\src\ds\ui\soft_keyboard\entry_field.cpp" />
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard.cpp" />

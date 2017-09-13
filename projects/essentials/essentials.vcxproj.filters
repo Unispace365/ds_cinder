@@ -153,9 +153,6 @@
     <ClCompile Include="src\ds\network\smtp_request.cpp">
       <Filter>src\ds\network</Filter>
     </ClCompile>
-    <ClCompile Include="src\ds\ui\control\control_slider.cpp">
-      <Filter>src\ds\ui\control</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\stdafx.cpp">
       <Filter>src</Filter>
     </ClCompile>
@@ -277,9 +274,6 @@
     </ClInclude>
     <ClInclude Include="src\ds\network\smtp_request.h">
       <Filter>src\ds\network</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\ui\control\control_slider.h">
-      <Filter>src\ds\ui\control</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\stdafx.h">
       <Filter>src</Filter>

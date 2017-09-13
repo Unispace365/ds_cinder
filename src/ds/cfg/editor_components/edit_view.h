@@ -8,6 +8,7 @@
 #include <ds/ui/sprite/text.h>
 #include <ds/ui/soft_keyboard/entry_field.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
+#include <ds/ui/control/control_slider.h>
 
 namespace ds{
 namespace cfg{
@@ -42,6 +43,7 @@ protected:
 	ds::ui::Text*			mSettingSource;
 	ds::ui::Text*			mCancelButton;
 	ds::ui::Text*			mApplyButton;
+	ds::ui::ControlSlider*	mSlider;
 	ds::ui::EntryField*		mEntryEditor;
 	ds::ui::SoftKeyboard*	mKeyboard;
 
