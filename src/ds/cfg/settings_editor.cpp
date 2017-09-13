@@ -2,6 +2,10 @@
 
 #include "settings_editor.h"
 
+#ifdef _WIN32
+#include <shellapi.h>
+#endif
+
 #include <ds/math/math_defs.h>
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
@@ -16,6 +20,7 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	, mCurrentSettings(nullptr)
 	, mPrimaryLayout(nullptr)
 	, mSettingsLayout(nullptr)
+	, mSaveApp(nullptr)
 	, mSaveLocal(nullptr)
 	, mEditView(nullptr)
 {
@@ -37,8 +42,6 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	mPrimaryLayout->addChildPtr(backgroundSprite);
 
 
-
-		
 	mSettingsLayout = new ds::ui::LayoutSprite(mEngine);
 	mPrimaryLayout->addChildPtr(mSettingsLayout);
 	mSettingsLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkBoth);
@@ -65,23 +68,72 @@ void SettingsEditor::showSettings(Settings* theSettings){
 
 	show();
 
+	if(!mSaveApp){
+		std::string saveName = "%APP%/settings/" + mCurrentSettings->getName() + ".xml";
+		std::string savePath = ds::Environment::expand(saveName);
+		mSaveApp = new ds::ui::Text(mEngine);
+		mSaveApp->setFont("Arial Bold");
+		mSaveApp->setFontSize(14.0f);
+		mSaveApp->mLayoutTPad = 10.0f;
+		mSaveApp->mLayoutHAlign = ds::ui::LayoutSprite::kCenter;
+		mSaveApp->setText("Save in " + saveName);
+		mSaveApp->setColor(ci::Color(0.8f, 0.2f, 0.2f));
+		mSaveApp->enable(true);
+		mSaveApp->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+		mSaveApp->setTapCallback([this, savePath, saveName](ds::ui::Sprite* bs, const ci::vec3& pos){
+			if(mCurrentSettings){
+				mCurrentSettings->writeTo(savePath);
 
+#ifdef _WIN32
+				try{
+					Poco::Path thePath = Poco::Path(savePath);
+					thePath.makeParent();
+					ShellExecute(NULL, L"open", ds::wstr_from_utf8(thePath.toString()).c_str(), NULL, NULL, SW_SHOWDEFAULT);
+				} catch(std::exception){
+					// just making sure we don't crash, this isn't a required thing
+				}
+#endif
+
+				mSaveApp->setText("Saved!");
+				mSaveApp->callAfterDelay([this, saveName]{
+					mSaveApp->setText("Save in " + saveName);
+				}, 3.0f);
+			}
+
+		});
+
+		auto theWidth = mSaveApp->getWidth();
+		mSettingsLayout->addChildPtr(mSaveApp);
+	}
 
 	if(!mSaveLocal){
+		std::string saveName = "%LOCAL%/settings/%PP%/" + mCurrentSettings->getName() + ".xml";
+		std::string savePath = ds::Environment::expand(saveName);
 		mSaveLocal = new ds::ui::Text(mEngine);
 		mSaveLocal->setFont("Arial Bold");
 		mSaveLocal->setFontSize(14.0f);
 		mSaveLocal->mLayoutHAlign = ds::ui::LayoutSprite::kCenter;
-	//	mSaveLocal->mLayoutRPad = 10.0f;
-		mSaveLocal->setText("Save");
+		mSaveLocal->setText("Save in " + saveName);
 		mSaveLocal->setColor(ci::Color(0.8f, 0.2f, 0.2f));
 		mSaveLocal->enable(true);
 		mSaveLocal->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-		mSaveLocal->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+		mSaveLocal->setTapCallback([this, savePath, saveName](ds::ui::Sprite* bs, const ci::vec3& pos){
 			if(mCurrentSettings){
-				//mCurrentSettings->writeTo(ds::Environment::expand("%LOCAL%/settings/%PP%/" + mCurrentSettings->getName() + ".xml"));
-				mCurrentSettings->writeTo(ds::Environment::expand("%APP%/settings/" + mCurrentSettings->getName() + ".xml"));
+				mCurrentSettings->writeTo(savePath);
 			}
+
+#ifdef _WIN32
+			try{
+				Poco::Path thePath = Poco::Path(savePath);
+				thePath.makeParent();
+				ShellExecute(NULL, L"open", ds::wstr_from_utf8(thePath.toString()).c_str(), NULL, NULL, SW_SHOWDEFAULT);
+			} catch(std::exception){
+				// just making sure we don't crash, this isn't a required thing
+			}
+#endif
+
+			mSaveLocal->setText("Saved!");
+			mSaveLocal->callAfterDelay([this, saveName]{ mSaveLocal->setText("Save in " + saveName); }, 3.0f);
 		});
 
 		auto theWidth = mSaveLocal->getWidth();

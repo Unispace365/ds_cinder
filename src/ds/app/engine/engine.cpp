@@ -105,6 +105,7 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 
 	setupFrameRate();
 	setupVerticalSync();
+	setupWindowMode();
 	setupMouseHide();
 	setupWorldSize();
 	setupSrcDstRects();
@@ -246,6 +247,8 @@ void Engine::setupConsole(){
 }
 
 void Engine::setupWindowMode(){
+	if(!ci::app::getWindow()) return;
+
 	auto newMode = mSettings.getString("screen:mode", 0, "borderless");
 	if(newMode == "borderless"){
 		ci::app::getWindow()->setFullScreen(false);
@@ -256,6 +259,8 @@ void Engine::setupWindowMode(){
 		ci::app::getWindow()->setFullScreen(false);
 		ci::app::getWindow()->setBorderless(false);
 	}
+
+	ci::app::getWindow()->setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
 }
 
 void Engine::setupMouseHide(){
@@ -302,12 +307,10 @@ void Engine::hideConsole(){
 void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 	settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
 
-	std::string screenMode = "window";
+	/// Note: some of these are set in the engine constructor, but they don't get accurately applied on startup unless they're here too
+	/// Sucks, but here it is
 
-	if(mSettings.getUsingDefault()){
-		screenMode = "borderless";
-	}
-	screenMode = mSettings.getString("screen:mode", 0, screenMode);
+	auto screenMode = mSettings.getString("screen:mode", 0, "borderless");
 	if(screenMode == "full" || screenMode == "fullscreen"){
 		settings.setFullScreen(true);
 	} else if(screenMode == "borderless"){
@@ -318,7 +321,8 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 	}
 
 	settings.setResizable(false);
-	settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
+	bool aot = mSettings.getBool("screen:always_on_top", 0, false);
+	settings.setAlwaysOnTop(aot);
 	settings.setFrameRate(mData.mFrameRate);
 	
 	DS_LOG_INFO("Engine::prepareSettings: screenMode is " << screenMode << " and always on top " << settings.isAlwaysOnTop());
@@ -331,9 +335,8 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 void Engine::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == ds::cfg::Settings::SettingsEditedEvent::WHAT()){
 		const ds::cfg::Settings::SettingsEditedEvent& e((const ds::cfg::Settings::SettingsEditedEvent&)in_e);
-		/// TODO: refactor all engine read settings that can be changed at runtime and just apply them
 		if(e.mSettingsType == "engine"){
-			if(e.mSettingName == "screen:mode"){
+			if(e.mSettingName == "screen:mode" || e.mSettingName == "screen:always_on_top"){
 				setupWindowMode();
 			} else if(e.mSettingName == "world_dimensions"){
 				setupWorldSize();

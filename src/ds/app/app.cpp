@@ -189,11 +189,12 @@ App::App(const RootList& roots)
 
 	setFpsSampleInterval(0.25);
 
-	prepareSettings(ci::app::App::get()->sSettingsFromMain);
-
 #ifdef _WIN32
 	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
 #endif
+
+	prepareSettings(ci::app::App::get()->sSettingsFromMain);
+
 
 }
 
