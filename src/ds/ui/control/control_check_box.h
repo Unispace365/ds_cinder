@@ -17,8 +17,8 @@ namespace ui {
 ///  |   *------*   | <--- Outer box (always visible)
 ///  |   | **** |   | <--- Inner box (visible if checked)
 ///  |   | **** |   | <--- Distance between inner box and outer box is boxPadding
-///  |   *------*   | <--- Default is 50x50, touchPadding=5, boxPadding=2
-///  |	            |
+///  |   *------*   |		
+///  |	            |      Default is 50x50, touchPadding=15, boxPadding=5
 ///  *--------------*
 
 /// An onscreen checkbox to control a bool

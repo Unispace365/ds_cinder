@@ -13,7 +13,7 @@
 	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment="The size of the overall app space."/>
 	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect" comment="The rectangle of the world space to render"/>
 	<setting name="dst_rect" value="40, 40, 1920, 1080" type="rect" comment="The output window size and position to render"/>
-	<setting name="screen:title" value="Settings Rewriter and Updater" type="string" comment="The title of the window. Generally only displays if the screen mode is windowed."/>
+	<setting name="screen:title" value="Settings Rewriter / Updater" type="string" comment="The title of the window. Generally only displays if the screen mode is windowed."/>
 	<setting name="screen:mode" value="borderless" type="string" comment="How the primary window displays, including fullscreen" default="window" possibles="window, borderless, fullscreen"/>
 	<setting name="screen:always_on_top" value="false" type="bool" comment="Makes the window an always-on-top sort of window. default=false"/>
 	<setting name="idle_time" value="300" type="double" comment=" Seconds before idle happens. 300 = 5 minutes " min_value="0" max_value="1000"/>

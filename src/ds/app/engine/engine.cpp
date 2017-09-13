@@ -261,6 +261,7 @@ void Engine::setupWindowMode(){
 	}
 
 	ci::app::getWindow()->setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
+	ci::app::getWindow()->setTitle(mSettings.getString("screen:title", 0, "Downstream"));
 }
 
 void Engine::setupMouseHide(){
@@ -336,7 +337,7 @@ void Engine::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == ds::cfg::Settings::SettingsEditedEvent::WHAT()){
 		const ds::cfg::Settings::SettingsEditedEvent& e((const ds::cfg::Settings::SettingsEditedEvent&)in_e);
 		if(e.mSettingsType == "engine"){
-			if(e.mSettingName == "screen:mode" || e.mSettingName == "screen:always_on_top"){
+			if(e.mSettingName == "screen:mode" || e.mSettingName == "screen:always_on_top" || e.mSettingName == "screen:title"){
 				setupWindowMode();
 			} else if(e.mSettingName == "world_dimensions"){
 				setupWorldSize();
