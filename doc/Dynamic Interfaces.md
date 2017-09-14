@@ -53,6 +53,7 @@ Sprite Types
 * **scroll_list[_(vertical|horizontal)** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
 * **centered_scroll_area** = ds::ui::CenteredScrollArea
+* **control_check_box** = ds::ui::ControlCheckBox
 * **control_slider[_(horizontal|vertical)]** = ds::ui::ControlSlider
 * **scroll_bar** = ds::ui::ScrollBar
 * **entry_field** = ds::ui::EntryField
@@ -218,6 +219,13 @@ Circle Sprite Parameters
 Border Parameters
 ---------------------------
 * **border_width**: Float, the width of the border, which has its outer edge at the extent of the sprite
+
+
+Control Check Box Parameters
+---------------------------
+* **font**: Sets the font text config of the label (which also adds a true/false label at all, optional)
+* **check_box_true_label**: Sets the text string that shows up when the box is checked
+* **check_box_false_label**: Sets the text string that shows up when the box is unchecked
 
 Scroll List Parameters
 -------------------------------

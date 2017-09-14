@@ -101,7 +101,9 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 
 	ds::Logger::setup(settings);
 
-	mData.mAppInstanceName = settings.getString("platform:guid", 0, "Downstream");
+	mData.mAppInstanceName = settings.getString("platform:guid");
+
+	ds::Environment::setConfigDirFileExpandOverride(mSettings.getBool("configuration_folder:allow_expand_override"));
 
 	setupFrameRate();
 	setupVerticalSync();
@@ -117,7 +119,7 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 
 	// Don't construct roots on startup for clients, and instead create them when we connect to a server
-	const std::string	arch(settings.getString("platform:architecture", 0, ""));
+	const std::string	arch(settings.getString("platform:architecture"));
 	bool isClient = false;
 	if(arch == "client") isClient = true;
 
@@ -151,7 +153,7 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	// Add a view for displaying the stats.
 	createStatsView(root_id);
 
-	const bool drawTouches = settings.getBool("touch:debug", 0, false);
+	const bool drawTouches = settings.getBool("touch:debug");
 	if (drawTouches && !isClient) {
 		RootList::Root					root_cfg;
 		root_cfg.mType = root_cfg.kOrtho;
@@ -177,7 +179,7 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 	}
 
 	// SETUP RESOURCES
-	std::string resourceLocation = ds::getNormalizedPath(settings.getString("resource_location", 0, ""));
+	std::string resourceLocation = ds::getNormalizedPath(settings.getString("resource_location"));
 	if (resourceLocation.empty()) {
 		// This is valid, though unusual
 		std::cout << "Engine() has no resource_location setting" << std::endl;
@@ -194,8 +196,8 @@ Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
 		Resource::Id::setupPaths(
 			ds::getNormalizedPath(resourceLocation),
-			ds::getNormalizedPath(settings.getString("resource_db", 0)),
-			ds::getNormalizedPath(settings.getString("project_path", 0))
+			ds::getNormalizedPath(settings.getString("resource_db")),
+			ds::getNormalizedPath(settings.getString("project_path"))
 		);
 	}
 }
@@ -211,16 +213,15 @@ Engine::~Engine() {
 }
 
 void Engine::setupWorldSize(){
-	mData.mWorldSize = mSettings.getVec2("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
+	mData.mWorldSize = mSettings.getVec2("world_dimensions");
 }
 
 void Engine::setupSrcDstRects(){
 	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
 	// which makes them get ignored and default to the main display
-	const ci::Rectf		empty_rect(0.0f, 0.0f, 0.0f, 0.0f);
 
-	mData.mSrcRect = mSettings.getRect("src_rect", 0, empty_rect);
-	mData.mDstRect = mSettings.getRect("dst_rect", 0, empty_rect);
+	mData.mSrcRect = mSettings.getRect("src_rect");
+	mData.mDstRect = mSettings.getRect("dst_rect");
 
 	if(mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
 		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
@@ -249,7 +250,7 @@ void Engine::setupConsole(){
 void Engine::setupWindowMode(){
 	if(!ci::app::getWindow()) return;
 
-	auto newMode = mSettings.getString("screen:mode", 0, "borderless");
+	auto newMode = mSettings.getString("screen:mode");
 	if(newMode == "borderless"){
 		ci::app::getWindow()->setFullScreen(false);
 		ci::app::getWindow()->setBorderless(true);
@@ -260,29 +261,29 @@ void Engine::setupWindowMode(){
 		ci::app::getWindow()->setBorderless(false);
 	}
 
-	ci::app::getWindow()->setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
-	ci::app::getWindow()->setTitle(mSettings.getString("screen:title", 0, "Downstream"));
+	ci::app::getWindow()->setAlwaysOnTop(mSettings.getBool("screen:always_on_top"));
+	ci::app::getWindow()->setTitle(mSettings.getString("screen:title"));
 }
 
 void Engine::setupMouseHide(){
-	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
+	mHideMouse = mSettings.getBool("hide_mouse");
 }
 
 void Engine::setupFrameRate(){
-	mData.mFrameRate = mSettings.getFloat("frame_rate", 0, 60.0f);
+	mData.mFrameRate = mSettings.getFloat("frame_rate");
 	ci::app::setFrameRate(mData.mFrameRate);
 }
 
 void Engine::setupVerticalSync(){
-	ci::gl::enableVerticalSync(mSettings.getBool("vertical_sync", 0, true));
+	ci::gl::enableVerticalSync(mSettings.getBool("vertical_sync"));
 }
 
 void Engine::setupIdleTimeout(){
-	setIdleTimeout(mSettings.getInt("idle_time", 0, 300));
+	setIdleTimeout(mSettings.getInt("idle_time"));
 }
 
 void Engine::setupMute(){
-	setMute(mSettings.getBool("platform:mute", 0, false));
+	setMute(mSettings.getBool("platform:mute"));
 }
 
 void Engine::showConsole(){
@@ -311,7 +312,7 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 	/// Note: some of these are set in the engine constructor, but they don't get accurately applied on startup unless they're here too
 	/// Sucks, but here it is
 
-	auto screenMode = mSettings.getString("screen:mode", 0, "borderless");
+	auto screenMode = mSettings.getString("screen:mode");
 	if(screenMode == "full" || screenMode == "fullscreen"){
 		settings.setFullScreen(true);
 	} else if(screenMode == "borderless"){
@@ -322,14 +323,14 @@ void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
 	}
 
 	settings.setResizable(false);
-	bool aot = mSettings.getBool("screen:always_on_top", 0, false);
+	bool aot = mSettings.getBool("screen:always_on_top");
 	settings.setAlwaysOnTop(aot);
 	settings.setFrameRate(mData.mFrameRate);
 	
 	DS_LOG_INFO("Engine::prepareSettings: screenMode is " << screenMode << " and always on top " << settings.isAlwaysOnTop());
 
 
-	settings.setTitle(mSettings.getString("screen:title", 0, "Downstream"));
+	settings.setTitle(mSettings.getString("screen:title"));
 
 }
 
@@ -392,7 +393,7 @@ void Engine::setup(ds::App& app) {
 	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
 
 
-	const std::string	arch(mSettings.getString("platform:architecture", 0, ""));
+	const std::string	arch(mSettings.getString("platform:architecture"));
 	bool isClient = false;
 	if(arch == "client") isClient = true;
 	const bool			drawTouches = mSettings.getBool("touch:debug", 0, false);
@@ -433,28 +434,28 @@ void Engine::setup(ds::App& app) {
 
 void Engine::setupTouch(ds::App& app) {
 	// touch settings
-	mTouchManager.setOverrideTranslation(mSettings.getBool("touch:override_translation", 0, false));
-	mTouchManager.setOverrideDimensions(mSettings.getVec2("touch:dimensions", 0, ci::vec2(1920.0f, 1080.0f)));
-	mTouchManager.setOverrideOffset(mSettings.getVec2("touch:offset", 0, ci::vec2(0.0f, 0.0f)));
-	mTouchManager.setTouchFilterRect(mSettings.getRect("touch:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
-	mTouchManager.setVerboseLogging(mSettings.getBool("touch:verbose_logging", 0, false));
+	mTouchManager.setOverrideTranslation(mSettings.getBool("touch:override_translation"));
+	mTouchManager.setOverrideDimensions(mSettings.getVec2("touch:dimensions"));
+	mTouchManager.setOverrideOffset(mSettings.getVec2("touch:offset"));
+	mTouchManager.setTouchFilterRect(mSettings.getRect("touch:filter_rect"));
+	mTouchManager.setVerboseLogging(mSettings.getBool("touch:verbose_logging"));
 
-	mRotateTouchesDefault = mSettings.getBool("touch:rotate_touches_default", 0, false);
+	mRotateTouchesDefault = mSettings.getBool("touch:rotate_touches_default");
 	
-	setTouchSmoothing(mSettings.getBool("touch:smoothing", 0, true));
-	setTouchSmoothFrames(mSettings.getInt("touch:smooth_frames", 0, 5));
+	setTouchSmoothing(mSettings.getBool("touch:smoothing"));
+	setTouchSmoothFrames(mSettings.getInt("touch:smooth_frames"));
 
 
-	mData.mMinTapDistance = mSettings.getFloat("touch:tap_threshold", 0, 30.0f);
-	mData.mMinTouchDistance = mSettings.getFloat("touch:minimum_distance", 0, 10.0f);
-	mData.mSwipeQueueSize = mSettings.getInt("touch:swipe:queue_size", 0, 4);
-	mData.mSwipeMinVelocity = mSettings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
-	mData.mSwipeMaxTime = mSettings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
+	mData.mMinTapDistance = mSettings.getFloat("touch:tap_threshold");
+	mData.mMinTouchDistance = mSettings.getFloat("touch:minimum_distance");
+	mData.mSwipeQueueSize = mSettings.getInt("touch:swipe:queue_size");
+	mData.mSwipeMinVelocity = mSettings.getFloat("touch:swipe:minimum_velocity");
+	mData.mSwipeMaxTime = mSettings.getFloat("touch:swipe:maximum_time");
 
 	mTouchMode = ds::ui::TouchMode::fromSettings(mSettings);
 	setTouchMode(mTouchMode);
 	int oldTuioPort = mTuioPort;
-	mTuioPort = mSettings.getInt("touch:tuio:port", 0, 3333);
+	mTuioPort = mSettings.getInt("touch:tuio:port");
 	// don't lose idle just because we got a marker moved event
 	mTuioObjectsMoved.setAutoIdleReset(false);
 	if(ds::ui::TouchMode::hasTuio(mTouchMode)) {

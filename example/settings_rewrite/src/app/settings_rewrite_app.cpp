@@ -32,18 +32,6 @@ settings_rewrite_app::settings_rewrite_app()
 	.ortho()
 	.pickColor()
 
-	// If you need a perspective view, add it here.
-	// Then you can refer to the perspective root later and modify its properties (see setupServer())
-	/*
-	.persp()
-	.perspFov(60.0f)
-	.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
-	.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
-	.perspNear(0.0002f)
-	.perspFar(20.0f)
-
-	.ortho()
-	*/
 
 	)
 	, mGlobals(mEngine, mAllData)
@@ -51,6 +39,7 @@ settings_rewrite_app::settings_rewrite_app()
 	, mIdling(false)
 	, mTouchDebug(mEngine)
 	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
+	, mStoryView(nullptr)
 {
 
 	// Register events so they can be called by string
@@ -87,7 +76,7 @@ void settings_rewrite_app::setupServer(){
 	mGlobals.initialize();
 	mQueryHandler.runInitialQueries(true);
 
-
+	/*
 
 	ds::cfg::SettingsUpdater updater(mEngine);
 	updater.updateSettings(ds::Environment::expand("%APP%/settings/engine.xml"), ds::Environment::expand("%APP%/settings/engine_updated.xml"));
@@ -115,6 +104,7 @@ void settings_rewrite_app::setupServer(){
 
 	//sm.writeTo(ds::Environment::expand("%APP%/settings/test_write.xml"));
 
+	*/
 
 	const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
 	ds::ui::XmlImporter::setAutoCache(cacheXML);
@@ -147,7 +137,8 @@ void settings_rewrite_app::setupServer(){
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
 	
 	// add sprites
-	rootSprite.addChildPtr(new StoryView(mGlobals));
+	mStoryView = new StoryView(mGlobals);
+	rootSprite.addChildPtr(mStoryView);
 
 	// The engine will actually be idling, and this gets picked up on the next update
 	mIdling = false;
@@ -224,18 +215,14 @@ void settings_rewrite_app::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
 
-
-
-		/*
-		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
-		mv->initialize();
-		mEngine.getRootSprite().addChildPtr(mv);
-		*/
-
 		std::string thePath = (*it).string();
 
 		ds::cfg::SettingsUpdater updater(mEngine);
-		updater.updateSettings(thePath, thePath);
+		if(mStoryView && mStoryView->getIsEngineMode()){
+			updater.updateEngineSettings(thePath);
+		} else {
+			updater.updateSettings(thePath, thePath);
+		}
 	}
 }
 

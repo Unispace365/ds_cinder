@@ -53,9 +53,7 @@ void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings){
 
 	if(mTextSprite){
 		mTextSprite->setResizeLimit(mEntryFieldSettings.mFieldSize.x, mEntryFieldSettings.mFieldSize.y);
-		if(!newSettings.mTextConfig.empty()){
-			mEngine.getEngineCfg().getText(newSettings.mTextConfig).configure(*mTextSprite);
-		}
+		mEngine.getEngineCfg().getText(newSettings.mTextConfig).configure(*mTextSprite);		
 		mTextSprite->setPosition(mEntryFieldSettings.mTextOffset);
 	}
 

@@ -51,6 +51,8 @@ public:
 	typedef enum { kSliderTypeLinear = 0, kSliderTypeQuadratic } SliderInterpolation;
 	void								setSliderInterpolation(SliderInterpolation interp){ mSliderInterpolation = interp; }
 
+	bool								getIsVertical(){ return mVertical; }
+
 protected:
 	void								handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
 	virtual void						onSizeChanged();

@@ -32,6 +32,11 @@ StoryView::StoryView(Globals& g)
 	mPrimaryLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["root_layout"]);
 	mMessage = dynamic_cast<ds::ui::Text*>(spriteMap["message"]);
 	mImage = dynamic_cast<ds::ui::Image*>(spriteMap["primary_image"]);
+	mIsEngineCheckbox = dynamic_cast<ds::ui::ControlCheckBox*>(spriteMap["engine_check_box"]);
+
+	if(mIsEngineCheckbox){
+		mIsEngineCheckbox->setCheckBoxValue(true);
+	}
 
 	// calls layout
 	setData();
@@ -93,6 +98,13 @@ void StoryView::onUpdateServer(const ds::UpdateParams& p){
 	// any changes for this frame happen here
 }
 
+bool StoryView::getIsEngineMode(){
+	if(mIsEngineCheckbox){
+		return mIsEngineCheckbox->getCheckBoxValue();
+	}
+
+	return false;
+}
 
 
 } // namespace downstream

@@ -26,11 +26,13 @@ public:
 	SettingsUpdater(ds::Engine& engine);
 
 	// Read from an xml file 
+	void								updateEngineSettings(const std::string& fileToUpdate);
 	void								updateSettings(const std::string& source, const std::string& destination);
 
 protected:
 	ds::Engine&							mEngine;
 
+	void								updateAnEngineSetting(const std::string& settingName, Settings& theSettings, ci::XmlTree::Container& theXml, const std::string& newSettingName = "");
 
 };
 

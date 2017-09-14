@@ -11,6 +11,7 @@
 
 namespace downstream {
 class AllData;
+class StoryView;
 
 class settings_rewrite_app : public ds::App {
 public:
@@ -45,6 +46,8 @@ private:
 
 	// App events can be handled here
 	ds::EventClient		mEventClient;
+
+	StoryView*			mStoryView;
 };
 
 } // !namespace downstream

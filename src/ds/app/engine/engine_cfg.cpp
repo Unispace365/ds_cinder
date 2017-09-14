@@ -31,6 +31,10 @@ EngineCfg::EngineCfg(ds::cfg::Settings& engine_settings)
 	, mEmptySettings()
 	, mEditEmptySettings()
 {
+	// Set color to full red to alert that this wasn't actually loaded
+	mEmptyTextCfg.mColor.set(ci::ColorModel::CM_RGB, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+	mEmptyTextCfg.mFont = "Arial Bold";
+	mEmptyTextCfg.mSize = 16.0f;
 }
 
 ds::cfg::Settings& EngineCfg::getSettings(const std::string& name) {
@@ -148,10 +152,6 @@ void EngineCfg::loadText(const std::string& filename, Engine& engine) {
 			mEmptyTextCfg = it->second;
 			break;
 		}
-		// Set color to full red to alert that this wasn't actually loaded
-		mEmptyTextCfg.mColor.set(ci::ColorModel::CM_RGB, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-		mEmptyTextCfg.mFont = "Arial Bold";
-		mEmptyTextCfg.mSize = 16.0f;
 	}
 }
 

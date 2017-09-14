@@ -15,6 +15,7 @@ ControlCheckBox::ControlCheckBox(ds::ui::SpriteEngine& engine)
 	, mIsChecked(false)
 	, mBoxPad(5.0f)
 	, mTouchPadding(15.0f)
+	, mLabelPadding(0.0f)
 	, mTrueText(L"True")
 	, mFalseText(L"False")
 {
@@ -56,7 +57,7 @@ void ControlCheckBox::layout(){
 	}
 
 	if(mLabel){
-		mLabel->setPosition(getHeight(), getHeight() / 2.0f - mLabel->getHeight() / 2.0f);
+		mLabel->setPosition(getHeight() + mLabelPadding, getHeight() / 2.0f - mLabel->getHeight() / 2.0f);
 	}
 }
 
@@ -98,7 +99,7 @@ void ControlCheckBox::updateBox(){
 	}
 
 	if(mLabel){
-		setSize(getHeight() + mLabel->getWidth(), getHeight());
+		setSize(getHeight() + mLabel->getWidth() + mLabelPadding, getHeight());
 	} else {
 		layout();
 	}
@@ -128,7 +129,7 @@ void ControlCheckBox::setLabelTextConfig(const std::string& textConfig){
 	if(mLabel){
 		theActualConfig.configure(*mLabel);
 	} else {
-		theActualConfig.create(mEngine, this);
+		mLabel = theActualConfig.create(mEngine, this);
 	}
 	updateBox();
 }
@@ -144,10 +145,26 @@ void ControlCheckBox::setLabelTextConfig(const std::string& fontName, const floa
 	updateBox();
 }
 
+void ControlCheckBox::setLabelPadding(const float labelPadding){
+	mLabelPadding = labelPadding;
+	updateBox();
+}
+
 void ControlCheckBox::setLabelLabels(const std::wstring& trueLabel, const std::wstring& falseText){
 	mTrueText = trueLabel;
 	mFalseText = falseText;
 	updateBox();
+}
+
+void ControlCheckBox::setTrueLabel(const std::wstring& trueLabel){
+	mTrueText = trueLabel;
+	updateBox();
+}
+
+void ControlCheckBox::setFalseLabel(const std::wstring& falseText){
+	mFalseText = falseText;
+	updateBox();
+
 }
 
 } // namespace ui

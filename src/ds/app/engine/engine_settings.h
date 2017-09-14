@@ -49,6 +49,8 @@ private:
 	// Answer the configuration.xml if it exists.
 	const ds::cfg::Settings&		getConfiguration();
 
+	void							setDefaults();
+
 	ds::cfg::Settings				mConfiguration;
 
 	bool							mLoadedAnySettings;

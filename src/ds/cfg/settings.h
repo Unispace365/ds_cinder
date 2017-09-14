@@ -177,6 +177,10 @@ public:
 	/// Returns a new setting with the name specified (though the index is ignored when creating a new setting). Applies the default to the new setting
 	Setting&							getSetting(const std::string& name, const int index, const std::string& defaultRawValue);
 
+	/// Gets a reference to a raw setting, but also applies all values. This is great for making canonical settings in c++ instead of storing them in xml
+	Setting&							getSetting(const std::string& name, const int index, const std::string& settingType, const std::string& commentValue, 
+												   const std::string& defaultRawValue = "", const std::string& minValue = "", const std::string& maxValue = "", const std::string& possibleValues = "");
+
 	/// Appends the setting to the end of the setting list.
 	/// TODO: ability to insert at a particular overall index
 	void								addSetting(const Setting& newSetting);

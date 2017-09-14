@@ -138,7 +138,7 @@ App::App(const RootList& roots)
 	, mSecondMouseDown(false)
 	, mAppKeysEnabled(true)
 	, mMouseHidden(false)
-	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
+	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
 	mEngineSettings.printStartupInfo();
@@ -206,7 +206,6 @@ App::~App() {
 void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 
 	if (settings) {
-		ds::Environment::setConfigDirFileExpandOverride(mEngineSettings.getBool("configuration_folder:allow_expand_override", 0, false));
 
 		mEngine.prepareSettings(*settings);
 		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));

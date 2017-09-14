@@ -367,6 +367,19 @@ ds::cfg::Settings::Setting& Settings::getSetting(const std::string& name, const 
 
 }
 
+ds::cfg::Settings::Setting& Settings::getSetting(const std::string& name, const int index, const std::string& settingType, 
+												 const std::string& commentValue, const std::string& defaultRawValue /*= ""*/, 
+												 const std::string& minValue /*= ""*/, const std::string& maxValue /*= ""*/, const std::string& possibleValues /*= ""*/){
+	auto& theSetting = getSetting(name, index, defaultRawValue);
+	theSetting.mType = settingType;
+	theSetting.mComment = commentValue;
+	theSetting.mDefault = defaultRawValue;
+	theSetting.mMinValue = minValue;
+	theSetting.mMaxValue = maxValue;
+	theSetting.mPossibleValues = possibleValues;
+	return theSetting;
+}
+
 void Settings::addSetting(const Setting& newSetting){
 	auto settingIndex = getSettingIndex(newSetting.mName);
 

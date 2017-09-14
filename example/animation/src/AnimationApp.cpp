@@ -19,7 +19,7 @@ public:
 	AnimationApp();
 
 	void						setupServer();
-	virtual void				keyDown(ci::app::KeyEvent event);
+	virtual void				onKeyDown(ci::app::KeyEvent event) override;
 	void						update();
 
 private:
@@ -36,8 +36,7 @@ AnimationApp::AnimationApp()
 {
 }
 
-void AnimationApp::keyDown(ci::app::KeyEvent event){
-	ds::App::keyDown(event);
+void AnimationApp::onKeyDown(ci::app::KeyEvent event){
 	if(event.getCode() == ci::app::KeyEvent::KEY_p){
 		mEngine.setTouchSmoothing(!mEngine.getTouchSmoothing());
 	} else if(event.getCode() == ci::app::KeyEvent::KEY_c){

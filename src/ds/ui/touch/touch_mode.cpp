@@ -44,7 +44,7 @@ std::string TouchMode::toString(const TouchMode::Enum &m) {
 TouchMode::Enum TouchMode::fromSettings(ds::cfg::Settings &s) {
 	// Default to tuio and mouse being enabled.
 	TouchMode::Enum		mode(TouchMode::kTuioAndMouse);
-	mode = TouchMode::fromString(s.getString("touch:mode", 0, ""));
+	mode = TouchMode::fromString(s.getString("touch:mode"));
 	
 	return mode;
 }

@@ -58,8 +58,13 @@ public:
 	void								setLabelTextConfig(const std::string& textConfig);
 	void								setLabelTextConfig(const std::string& fontName, const float& fontSize, const ci::ColorA& fontColor);
 
+	/// Extra distance between the check box and the label (default is 0)
+	void								setLabelPadding(const float labelPadding);
+
 	/// Sets the text that the label displays when checked/unchecked
 	void								setLabelLabels(const std::wstring& trueLabel, const std::wstring& falseText);
+	void								setTrueLabel(const std::wstring& trueLabel);
+	void								setFalseLabel(const std::wstring& falseText);
 
 protected:
 	void								handleScrollTouch(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti);
@@ -76,6 +81,7 @@ protected:
 	std::wstring						mTrueText;
 	std::wstring						mFalseText;
 
+	float								mLabelPadding;
 	float								mTouchPadding;
 	float								mBoxPad;
 	bool								mIsChecked;

@@ -84,10 +84,10 @@ public:
 	// Utility to get the current clipboard contents as a string
 	static std::string			getClipboard();
 
+	static void					setConfigDirFileExpandOverride(const bool doOverride);
 private:
 	friend class App;
 	static bool					initialize();
-	static void					setConfigDirFileExpandOverride(const bool doOverride);
 };
 
 } // namespace ds
