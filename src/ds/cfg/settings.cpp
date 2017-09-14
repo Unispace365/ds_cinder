@@ -120,7 +120,9 @@ std::vector<std::string> Settings::Setting::getPossibleValues() const{
 	return possibles;
 }
 
-Settings::Settings(){
+Settings::Settings()
+	: mReadIndex(1)
+{
 	initialize_types();
 }
 
@@ -167,6 +169,8 @@ void Settings::directReadFrom(const std::string& filename, const bool clearAll){
 
 		Setting theSetting;
 		theSetting.mName = theName;
+		theSetting.mReadIndex = mReadIndex;
+		mReadIndex += 100; // leave space for other settings to be inserted
 		if(it->hasAttribute("value"))		theSetting.mRawValue = it->getAttributeValue<std::string>("value");
 		if(it->hasAttribute("comment"))		theSetting.mComment = it->getAttributeValue<std::string>("comment");
 		if(it->hasAttribute("default"))		theSetting.mDefault = it->getAttributeValue<std::string>("default");
@@ -198,21 +202,21 @@ void Settings::writeTo(const std::string& filename){
 	ci::XmlTree xml = ci::XmlTree::createDoc();
 	ci::XmlTree rootNode;
 	rootNode.setTag("settings");
-	for(auto it : mSettings){
-		for(auto sit : it.second){
-			ci::XmlTree settingNode;
-			settingNode.setTag("setting");
-			settingNode.setAttribute("name", sit.mName);
-			settingNode.setAttribute("value", sit.mRawValue);
-			if(!sit.mType.empty()) settingNode.setAttribute("type", sit.mType);
-			if(!sit.mComment.empty()) settingNode.setAttribute("comment", sit.mComment);
-			if(!sit.mDefault.empty()) settingNode.setAttribute("default", sit.mDefault);
-			if(!sit.mMinValue.empty()) settingNode.setAttribute("min_value", sit.mMinValue);
-			if(!sit.mMaxValue.empty()) settingNode.setAttribute("max_value", sit.mMaxValue);
-			if(!sit.mPossibleValues.empty()) settingNode.setAttribute("possibles", sit.mPossibleValues);
-			rootNode.push_back(settingNode);
-		}
+	auto& sortedSettings = getReadSortedSettings();
+	for(auto sit : sortedSettings){
+		ci::XmlTree settingNode;
+		settingNode.setTag("setting");
+		settingNode.setAttribute("name", sit.mName);
+		settingNode.setAttribute("value", sit.mRawValue);
+		if(!sit.mType.empty()) settingNode.setAttribute("type", sit.mType);
+		if(!sit.mComment.empty()) settingNode.setAttribute("comment", sit.mComment);
+		if(!sit.mDefault.empty()) settingNode.setAttribute("default", sit.mDefault);
+		if(!sit.mMinValue.empty()) settingNode.setAttribute("min_value", sit.mMinValue);
+		if(!sit.mMaxValue.empty()) settingNode.setAttribute("max_value", sit.mMaxValue);
+		if(!sit.mPossibleValues.empty()) settingNode.setAttribute("possibles", sit.mPossibleValues);
+		rootNode.push_back(settingNode);
 	}
+	
 
 	xml.push_back(rootNode);
 	xml.write(ci::writeFile(filename), true);
@@ -319,6 +323,31 @@ bool Settings::validateType(const std::string& inputType) {
 	return std::find(SETTING_TYPES.begin(), SETTING_TYPES.end(), inputType) != SETTING_TYPES.end();
 }
 
+bool sortByReadIndex(ds::cfg::Settings::Setting& a, ds::cfg::Settings::Setting& b){
+	if(a.mReadIndex < b.mReadIndex){
+		return true;
+	} else if(a.mReadIndex == b.mReadIndex){
+		return a.mName < b.mName;
+	}
+
+	return false;
+}
+
+std::vector<ds::cfg::Settings::Setting>& Settings::getReadSortedSettings(){
+	mSortedSettings.clear();
+
+	for(auto it : mSettings){
+		auto theVec = it.second;
+		for(auto sit : theVec){
+			mSortedSettings.push_back(sit);
+		}
+	}
+
+	std::sort(mSortedSettings.begin(), mSortedSettings.end(), sortByReadIndex);
+
+	return mSortedSettings;
+}
+
 bool Settings::hasSetting(const std::string& name) const {
 	for(auto it : mSettings){
 		if(it.first == name) return true;
@@ -335,13 +364,11 @@ int Settings::getSettingIndex(const std::string& name) const {
 	return -1;
 }
 
-void Settings::forEachSetting(const std::function<void(Setting&)>& func, const std::string& typeFilter /*= ""*/) const{
-	for(auto it : mSettings){
-		auto theThingies = it.second;
-		for(auto sit : theThingies){
-			if(!typeFilter.empty() && typeFilter != sit.mType) continue;
-			func(sit);
-		}
+void Settings::forEachSetting(const std::function<void(Setting&)>& func, const std::string& typeFilter /*= ""*/) {
+	auto& theThingies = getReadSortedSettings();
+	for(auto sit : theThingies){
+		if(!typeFilter.empty() && typeFilter != sit.mType) continue;
+		func(sit);
 	}
 }
 
@@ -361,6 +388,8 @@ ds::cfg::Settings::Setting& Settings::getSetting(const std::string& name, const 
 	settings.push_back(Setting());
 	settings.back().mName = name;
 	settings.back().mRawValue = defaultRawValue;
+	settings.back().mReadIndex = mReadIndex;
+	mReadIndex += 100;
 	mSettings.emplace_back(std::pair<std::string, std::vector<Setting>>(name, settings));
 
 	return mSettings.back().second.back();
@@ -395,20 +424,19 @@ void Settings::addSetting(const Setting& newSetting){
 
 void Settings::printAllSettings(){
 	std::cout << "Settings: " << std::endl;
-	for(auto it : mSettings){
-		auto theVec = it.second;
-		for(auto sit : theVec){
-			std::cout << std::endl << "\t" << sit.mName << ": \t" << sit.mRawValue << std::endl;
-			std::cout << "\t\t source: \t" << sit.mSource << std::endl;
+	auto& theVec = getReadSortedSettings();
+	for(auto sit : theVec){
+		std::cout << std::endl << "\t" << sit.mName << ": \t" << sit.mRawValue << std::endl;
+		std::cout << "\t\t source: \t" << sit.mSource << std::endl;
 
-			if(!sit.mComment.empty()) std::cout << "\t\t comment: \t" << sit.mComment << std::endl;
-			if(!sit.mType.empty()) std::cout << "\t\t type: \t\t" << sit.mType << std::endl;
-			if(!sit.mDefault.empty()) std::cout << "\t\t default: \t" << sit.mDefault << std::endl;
-			if(!sit.mMinValue.empty()) std::cout << "\t\t min: \t\t" << sit.mMinValue << std::endl;
-			if(!sit.mMaxValue.empty()) std::cout << "\t\t max: \t\t" << sit.mMaxValue << std::endl;
-			if(!sit.mPossibleValues.empty()) std::cout << "\t\t possibles: \t\t" << sit.mPossibleValues << std::endl;
-		}
+		if(!sit.mComment.empty()) std::cout << "\t\t comment: \t" << sit.mComment << std::endl;
+		if(!sit.mType.empty()) std::cout << "\t\t type: \t\t" << sit.mType << std::endl;
+		if(!sit.mDefault.empty()) std::cout << "\t\t default: \t" << sit.mDefault << std::endl;
+		if(!sit.mMinValue.empty()) std::cout << "\t\t min: \t\t" << sit.mMinValue << std::endl;
+		if(!sit.mMaxValue.empty()) std::cout << "\t\t max: \t\t" << sit.mMaxValue << std::endl;
+		if(!sit.mPossibleValues.empty()) std::cout << "\t\t possibles: \t\t" << sit.mPossibleValues << std::endl;
 	}
+	
 }
 
 } // namespace cfg

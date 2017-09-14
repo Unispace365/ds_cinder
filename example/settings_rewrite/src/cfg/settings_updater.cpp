@@ -222,6 +222,7 @@ void SettingsUpdater::updateSettings(const std::string& source, const std::strin
 	std::string theComment;
 
 	bool nextIsHeader = false;
+	int readIndex = 1;
 	for(auto it = theChillins.begin(); it != theChillins.end(); ++it){
 		if((*it)->isComment()){
 			std::string theValue = (*it)->getValue();
@@ -238,6 +239,7 @@ void SettingsUpdater::updateSettings(const std::string& source, const std::strin
 				}
 				newSetting.mType = SETTING_TYPE_SECTION_HEADER;
 				newSetting.mSource = source;
+				newSetting.mReadIndex = readIndex++;
 				outputSettings.addSetting(newSetting);
 
 			} else {
@@ -247,6 +249,7 @@ void SettingsUpdater::updateSettings(const std::string& source, const std::strin
 		} else {
 			nextIsHeader = false;
 			Settings::Setting newSetting;
+			newSetting.mReadIndex = readIndex++;
 
 			if((*it)->hasAttribute("name")) newSetting.mName = (*it)->getAttribute("name");
 			if((*it)->hasAttribute("value")) newSetting.mRawValue = (*it)->getAttribute("value");

@@ -44,7 +44,7 @@ public:
 
 	// An actual setting with some metadata. 
 	struct Setting {
-		Setting() : mType(SETTING_TYPE_UNKNOWN){};
+		Setting() : mType(SETTING_TYPE_UNKNOWN), mReadIndex(-1){};
 
 		/// Type conversion happens at read time for all getters
 		bool							getBool() const;
@@ -92,6 +92,9 @@ public:
 
 		/// auto determined by the file path of the settings file
 		std::string						mSource;
+
+		/// an id that's auto-assigned to this setting to determine overall sort order
+		unsigned int					mReadIndex;
 	};
 
 	/// The name of these settings (e.g. engine, layout, text, etc)
@@ -182,7 +185,7 @@ public:
 												   const std::string& defaultRawValue = "", const std::string& minValue = "", const std::string& maxValue = "", const std::string& possibleValues = "");
 
 	/// Appends the setting to the end of the setting list.
-	/// TODO: ability to insert at a particular overall index
+	/// Note: set mReadIndex correctly if you want to insert this new setting inside the overall list
 	void								addSetting(const Setting& newSetting);
 
 	/// Returns the index of the name of the setting in the vector of all settings (not the index of the same setting)
@@ -191,7 +194,8 @@ public:
 	int									getSettingIndex(const std::string& name) const;
 
 	/// Iterate over all the settings, optionally filtering by a specific type
-	void								forEachSetting(const std::function<void(Setting&)>&, const std::string& typeFilter = "") const;
+	/// The order they are returned is the overall order they were originally read in (the same order returned by getReadSortedSettings())
+	void								forEachSetting(const std::function<void(Setting&)>&, const std::string& typeFilter = "");
 
 	/// Prints out information for all settings
 	void								printAllSettings();
@@ -201,6 +205,10 @@ public:
 
 	/// Validate if the type string is known (int, float, string, section_header, etc)
 	static bool							validateType(const std::string& inputType);
+
+	/// Returns a reference to a vector of all Settings sorted by the order they were added (or if their mReadIndex value was changed later)
+	/// This vector may change at any time, so careful here
+	std::vector<Setting>&				getReadSortedSettings();
 
 
 	class SettingsEditedEvent : public ds::RegisteredEvent<SettingsEditedEvent> {
@@ -218,6 +226,8 @@ protected:
 	std::vector<std::pair<std::string, std::vector<Setting>>>			mSettings;
 
 	std::string															mName;
+	unsigned int														mReadIndex;
+	std::vector<Setting>												mSortedSettings; // rebuilt every call of getReadSortedIndex()
 
 	/// Used in the read function
 	void								directReadFrom(const std::string& filename, const bool clear); \

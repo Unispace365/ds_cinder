@@ -13,7 +13,7 @@
 
 static void read_text_defaults(std::unordered_map<std::string, ds::cfg::Text>& out, ds::Engine& engine);
 static void read_text_cfg(const std::string& path, std::unordered_map<std::string, ds::cfg::Text>& out, ds::Engine& engine);
-static void interpret_text_settings(const ds::cfg::Settings &s, std::unordered_map<std::string, ds::cfg::Text>& out, ds::Engine& engine);
+static void interpret_text_settings(ds::cfg::Settings &s, std::unordered_map<std::string, ds::cfg::Text>& out, ds::Engine& engine);
 
 
 namespace ds {
@@ -182,7 +182,7 @@ static void read_text_cfg(const std::string& path, std::unordered_map<std::strin
 	interpret_text_settings(s, out, engine);
 }
 
-static void interpret_text_settings(const ds::cfg::Settings &s, std::unordered_map<std::string, ds::cfg::Text>& out, ds::Engine& engine) {
+static void interpret_text_settings(ds::cfg::Settings &s, std::unordered_map<std::string, ds::cfg::Text>& out, ds::Engine& engine) {
 	// Do the name first, because that determines whether an entry exists.
 	s.forEachSetting([&s, &out](const ds::cfg::Settings::Setting& setting) {
 		std::string			left, right;
