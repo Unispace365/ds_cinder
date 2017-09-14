@@ -45,7 +45,7 @@ CefDevelop::CefDevelop()
 	, mWebby(nullptr)
 {
 
-	enableCommonKeystrokes(true);
+	setAppKeysEnabled(false);
 }
 
 void CefDevelop::setupServer(){
@@ -53,9 +53,9 @@ void CefDevelop::setupServer(){
 	/*fonts in use */
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
-	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
-		mEngine.editFonts().registerFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
-	});
+	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting){
+		mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName);
+	}, ds::cfg::SETTING_TYPE_STRING);
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_LAYOUT, "layout.xml");
@@ -191,13 +191,13 @@ void CefDevelop::update() {
 
 }
 
-void CefDevelop::keyUp(ci::app::KeyEvent event){
+void CefDevelop::onKeyUp(ci::app::KeyEvent event){
 	if(mWebby){
 		mWebby->sendKeyUpEvent(event);
 	}
 }
 
-void CefDevelop::keyDown(ci::app::KeyEvent event){
+void CefDevelop::onKeyDown(ci::app::KeyEvent event){
 	if(event.getChar() == '+' && mWebby){
 		mWebby->setZoom(mWebby->getZoom() + 0.1);
 	} else if(event.getChar() == '-' && mWebby){
@@ -216,7 +216,6 @@ void CefDevelop::keyDown(ci::app::KeyEvent event){
 		return;
 	}
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 

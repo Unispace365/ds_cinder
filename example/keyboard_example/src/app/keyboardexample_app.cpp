@@ -49,8 +49,6 @@ KeyboardExample::KeyboardExample()
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
-
-	enableCommonKeystrokes(true);
 }
 
 void KeyboardExample::setupServer(){
@@ -99,7 +97,7 @@ void KeyboardExample::setupServer(){
 	ef->setPosition(100.0f, 100.0f);
 
 	ds::ui::SoftKeyboardSettings sks;
-	sks.mKeyTextOffset = mGlobals.getSettingsLayout().getSize("keyboard:text_offset", 0, ci::vec2());
+	sks.mKeyTextOffset = mGlobals.getSettingsLayout().getVec2("keyboard:text_offset", 0, ci::vec2());
 	ds::ui::SoftKeyboard* sk = ds::ui::SoftKeyboardBuilder::buildStandardKeyboard(mEngine, sks);
 	rootSprite.addChildPtr(sk);
 	sk->setPosition(mEngine.getWorldWidth() / 2.0f - sk->getWidth()/2.0f, mEngine.getWorldHeight() / 2.0f - sk->getHeight()/2.0f);
@@ -130,9 +128,9 @@ void KeyboardExample::update() {
 
 }
 
-void KeyboardExample::keyDown(ci::app::KeyEvent event){
+void KeyboardExample::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 

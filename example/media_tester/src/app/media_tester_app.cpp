@@ -27,7 +27,6 @@ media_tester::media_tester()
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 
-	enableCommonKeystrokes(true);
 }
 
 void media_tester::setupServer(){
@@ -60,9 +59,8 @@ void media_tester::update() {
 
 }
 
-void media_tester::keyDown(ci::app::KeyEvent event){
+void media_tester::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
 
 	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown()){
 		auto clipboard = ds::Environment::getClipboard();
@@ -154,17 +152,17 @@ void media_tester::loadMedia(const std::string& newMedia){
 		//Set shader uniforms - Shaders are enabled/disabled by user keyboard input
 		ds::gl::Uniform uniform;
 		uniform.setInt("Texture0", 1);  // Use texture unit 1 since Vidoe CSC is hardcoded to TU 0
-		vid->setShadersUniforms("toonify", uniform);
+		//vid->setShadersUniforms("toonify", uniform);
 
 		uniform.clear();
 		uniform.setFloat("opacity", 0.9f);
 		uniform.setInt("tex0", 1);  // Use texture unit 1 since Video CSC is hardcoded to TU 0
-		vid->setShadersUniforms("test2", uniform);
+	//	vid->setShadersUniforms("test2", uniform);
 
 		uniform.clear();
 		uniform.setInt("tex1", 1);
 		uniform.setFloat("opacity", 1.0f);
-		vid->setShadersUniforms("test1", uniform);
+		//vid->setShadersUniforms("test1", uniform);
 
 		vid->setVerboseLogging(true);
 		vid->setLooping(true);

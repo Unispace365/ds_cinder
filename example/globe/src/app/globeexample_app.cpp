@@ -17,7 +17,7 @@ GlobeExample::GlobeExample()
 	: inherited(ds::RootList()
 								.persp() // sample perp view
 								.perspFov(30.0f)
-								.perspPosition(ci::vec3(0.0, 0.0f, 1000.0f))
+								.perspPosition(ci::vec3(0.0, 0.0f, 2000.0f))
 								.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
 								.perspNear(10.0f)
 								.perspFar(4500.0f)
@@ -25,7 +25,6 @@ GlobeExample::GlobeExample()
 	, mGlobals(mEngine)
 {
 
-	enableCommonKeystrokes(true);
 }
 
 void GlobeExample::setupServer(){
@@ -47,9 +46,9 @@ void GlobeExample::update() {
 	inherited::update();
 }
 
-void GlobeExample::keyDown(ci::app::KeyEvent event){
+void GlobeExample::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	float moveAmount = 1.0f;
 	if(event.isShiftDown()) moveAmount = 10.0f;
 	if(event.isAltDown()) moveAmount = 100.0f;

@@ -5,7 +5,7 @@
 
 #include <ds/ui/sprite/sprite.h>
 #include <ds/app/event_client.h>
-#include <ds/ui/sprite/multiline_text.h>
+#include <ds/ui/sprite/text.h>
 
 namespace example {
 
@@ -30,7 +30,7 @@ private:
 
 	ds::EventClient						mEventClient;
 
-	ds::ui::MultilineText*				mMessage;
+	ds::ui::Text*						mMessage;
 	std::vector<ds::ui::Sprite*>		mCharacterOverlays;
 
 };

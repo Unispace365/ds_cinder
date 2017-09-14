@@ -18,7 +18,7 @@ Globals::Globals(ds::ui::SpriteEngine& e )
 {
 }
 
-const ds::cfg::Settings& Globals::getSettingsLayout() const {
+ds::cfg::Settings& Globals::getSettingsLayout() const {
 	return mEngine.getEngineCfg().getSettings(SETTINGS_LAYOUT);
 }
 

@@ -1,14 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-
-	<!---------------------->
-	<!-- WINDOW SETTINGS --->
-	<!---------------------->
-	<!-- how big the world size is, in pixels --> 
-	<!-- -->
-	<size name="world_dimensions" x="1920" y="1080" />
-	<rect name="src_rect" l="0" t="0" w="1920" h="1080" />
-	<rect name="dst_rect" l="0" t="40" w="1920" h="1080" />
-	
-
-
+	<setting name=" WINDOW SETTINGS -" value="" type="section_header"/>
+	<setting name=" how big the world size is, in pixels " value="" type="section_header"/>
+	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment=" "/>
+	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect"/>
+	<setting name="dst_rect" value="0, 40, 1920, 1080" type="rect"/>
 </settings>
+

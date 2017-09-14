@@ -24,7 +24,6 @@ InterfaceXmlImporterExampleApp::InterfaceXmlImporterExampleApp()
 	// Then in the css, the config name can be picked up and look this up. a long chain for 'convenience'
 	mEngine.editFonts().registerFont("Noto Sans Bold", "sample-light");
 
-	enableCommonKeystrokes(true);
 }
 
 void InterfaceXmlImporterExampleApp::setupServer(){
@@ -52,9 +51,9 @@ void InterfaceXmlImporterExampleApp::update() {
 	inherited::update();
 }
 
-void InterfaceXmlImporterExampleApp::keyDown(ci::app::KeyEvent event){
+void InterfaceXmlImporterExampleApp::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	}

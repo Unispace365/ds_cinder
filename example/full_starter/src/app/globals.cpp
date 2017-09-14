@@ -30,11 +30,11 @@ void Globals::initialize(){
 	mAnimationDuration = getAppSettings().getFloat("animation:duration", 0, mAnimationDuration);
 }
 
-const ds::cfg::Settings& Globals::getSettings(const std::string& name) const {
+ds::cfg::Settings& Globals::getSettings(const std::string& name) const {
 	return mEngine.getEngineCfg().getSettings(name);
 }
 
-const ds::cfg::Settings& Globals::getAppSettings() const {
+ds::cfg::Settings& Globals::getAppSettings() const {
 	return mEngine.getEngineCfg().getSettings(SETTINGS_APP);
 }
 

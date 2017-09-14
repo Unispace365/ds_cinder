@@ -4,7 +4,6 @@
 #include <ds/app/event_notifier.h>
 #include <ds/cfg/cfg_text.h>
 #include <ds/cfg/settings.h>
-#include <ds/cfg/cfg_nine_patch.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
 
@@ -26,7 +25,7 @@ public:
 
 	ds::ui::SpriteEngine&			mEngine;
 
-	const ds::cfg::Settings&		getSettingsLayout() const;
+	ds::cfg::Settings&				getSettingsLayout() const;
 
 
 };

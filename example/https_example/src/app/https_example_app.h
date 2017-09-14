@@ -16,10 +16,10 @@ class https_example : public ds::App {
 public:
 	https_example();
 
-	virtual void		mouseDown(ci::app::MouseEvent e);
-	virtual void		mouseDrag(ci::app::MouseEvent e);
-	virtual void		mouseUp(ci::app::MouseEvent e);
-	virtual void		keyDown(ci::app::KeyEvent event);
+	virtual void		mouseDown(ci::app::MouseEvent e) override;
+	virtual void		mouseDrag(ci::app::MouseEvent e) override;
+	virtual void		mouseUp(ci::app::MouseEvent e) override;
+	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
 	void				update();
 

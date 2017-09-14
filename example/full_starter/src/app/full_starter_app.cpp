@@ -56,8 +56,6 @@ FullStarterApp::FullStarterApp()
 	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event*{return new StoryDataUpdatedEvent(); });
 	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
 
-
-	enableCommonKeystrokes(true);
 }
 
 void FullStarterApp::setupServer(){
@@ -66,9 +64,9 @@ void FullStarterApp::setupServer(){
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
-	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
-		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
-	});
+	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting){
+		mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName);
+	}, ds::cfg::SETTING_TYPE_STRING);
 
 	// Colors
 	// After registration, colors can be called by name from settings files or in the app
@@ -76,9 +74,9 @@ void FullStarterApp::setupServer(){
 	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
 	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
 	mEngine.loadSettings("COLORS", "colors.xml");
-	mEngine.getSettings("COLORS").forEachColorAKey([this](const std::string& key){
-		mEngine.editColors().install(mEngine.getSettings("COLORS").getColorA(key), key);
-	});
+	mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting){
+		mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
+	}, ds::cfg::SETTING_TYPE_COLOR);
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_APP, "app_settings.xml");
@@ -172,9 +170,9 @@ void FullStarterApp::onAppEvent(const ds::Event& in_e){
 	} 
 }
 
-void FullStarterApp::keyDown(ci::app::KeyEvent event){
+void FullStarterApp::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	ds::App::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 

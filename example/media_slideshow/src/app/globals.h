@@ -3,7 +3,6 @@
 
 #include <ds/cfg/cfg_text.h>
 #include <ds/cfg/settings.h>
-#include <ds/cfg/cfg_nine_patch.h>
 #include <ds/ui/sprite/sprite_engine.h>
 
 namespace ds {
@@ -30,8 +29,8 @@ public:
 
 	//Shortcuts
 	const ds::cfg::Text&			getText(const std::string& name) const;
-	const ds::cfg::Settings&		getSettingsLayout() const;
-	const ds::cfg::Settings&		getSettings(const std::string& name) const;
+	ds::cfg::Settings&				getSettingsLayout() const;
+	ds::cfg::Settings&				getSettings(const std::string& name) const;
 
 private:
 

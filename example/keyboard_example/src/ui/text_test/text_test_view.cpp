@@ -23,14 +23,14 @@ TextTest::TextTest(Globals& g)
 	, mMessage(nullptr)
 {
 
-	mMessage = mGlobals.getText("sample:config").createMultiline(mEngine, this);
+	mMessage = mGlobals.getText("sample:config").create(mEngine, this);
 	if(mMessage){
-		std::wstring theText = ds::wstr_from_utf8(mGlobals.getSettingsLayout().getText("text:test:text", 0, ""));
+		std::wstring theText = ds::wstr_from_utf8(mGlobals.getSettingsLayout().getString("text:test:text", 0, ""));
 		mMessage->setText(theText);
 
 		Poco::Timestamp::TimeVal before = Poco::Timestamp().epochMicroseconds();
 
-		ci::vec2 resizeSize = mGlobals.getSettingsLayout().getSize("text:test:resize", 0, ci::vec2(0.0f, 0.0f));
+		ci::vec2 resizeSize = mGlobals.getSettingsLayout().getVec2("text:test:resize", 0, ci::vec2(0.0f, 0.0f));
 		mMessage->setResizeLimit(resizeSize.x, resizeSize.y);
 
 		std::cout << mMessage->getWidth() << " " << mMessage->getPositionForCharacterIndex(0) << std::endl;
@@ -65,7 +65,7 @@ TextTest::TextTest(Globals& g)
 
 	layout();
 
-	setPosition(mGlobals.getSettingsLayout().getSize("text:test:offset", 0, ci::vec2()));
+	setPosition(mGlobals.getSettingsLayout().getVec2("text:test:offset", 0, ci::vec2()));
 
 }
 
