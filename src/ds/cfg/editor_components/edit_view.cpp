@@ -6,8 +6,7 @@
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
 
-#include <cinder/TriMesh.h>
-#include <cinder/Triangulate.h>
+#include <cinder/Clipboard.h>
 
 #include <ds/ui/soft_keyboard/soft_keyboard_builder.h>
 
@@ -29,6 +28,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	, mSettingSource(nullptr)
 	, mCancelButton(nullptr)
 	, mApplyButton(nullptr)
+	, mSaveButton(nullptr)
 	, mButtonHolder(nullptr)
 	, mEntryEditor(nullptr)
 	, mKeyboard(nullptr)
@@ -75,27 +75,37 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	mCancelButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		stopEditing();
 	});
-	mCancelButton->setText("Cancel");
+	mCancelButton->setText("Close");
 	mButtonHolder->addChildPtr(mCancelButton);
 
 	mApplyButton = addTextSprite("Arial Narrow", 18.0f, 1.0f, true);
 	mApplyButton->setColor(ci::Color(0.9f, 0.282f, 0.035f));
 	mApplyButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
-		applySetting();
+		applySetting(true);
 	});
 	mApplyButton->setText("Apply");
 	mButtonHolder->addChildPtr(mApplyButton);
 
+	mSaveButton = addTextSprite("Arial Narrow", 18.0f, 1.0f, true);
+	mSaveButton->setColor(ci::Color(0.93f, 0.62f, 0.49f));
+	mSaveButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+		applySetting(false);
+	});
+	mSaveButton->setText("Save");
+	mButtonHolder->addChildPtr(mSaveButton);
+
 }
 
-void EditView::applySetting(){
+void EditView::applySetting(const bool notify){
 	if(mTheSetting && mEntryEditor){
 		mTheSetting->mRawValue = ds::utf8_from_wstr(mEntryEditor->getCurrentText());
 	}
 	if(mSettingUpdatedCalback){
 		mSettingUpdatedCalback(mTheSetting);
 	}
-	mEngine.getNotifier().notify(ds::cfg::Settings::SettingsEditedEvent(mParentSettingsName, mTheSetting->mName));
+	if(notify){
+		mEngine.getNotifier().notify(ds::cfg::Settings::SettingsEditedEvent(mParentSettingsName, mTheSetting->mName));
+	}
 }
 
 ds::ui::Text* EditView::addTextSprite(const std::string& fontName, const float fontSize, const float opacity, const bool clickSetValue){
@@ -226,7 +236,7 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 			   (event.getCode() == ci::app::KeyEvent::KEY_DOWN
 			   || event.getCode() == ci::app::KeyEvent::KEY_TAB
 			   )){
-				applySetting();
+				applySetting(false);
 				mNextSettingCallback(true);
 				return true;
 			}
@@ -235,13 +245,21 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 			   (event.getCode() == ci::app::KeyEvent::KEY_RETURN
 			   || event.getCode() == ci::app::KeyEvent::KEY_KP_ENTER
 			   )){
-				applySetting();
+				applySetting(true);
 				return true;
 			}
 
 			if(mNextSettingCallback &&
 			   event.getCode() == ci::app::KeyEvent::KEY_UP){
 				mNextSettingCallback(false);
+				return true;
+			}
+
+			if(event.getCode() == ci::app::KeyEvent::KEY_v && event.isControlDown()){
+				if(ci::Clipboard::hasString()){
+					mEntryEditor->pasteText(ds::wstr_from_utf8(ci::Clipboard::getString()));
+				}
+
 				return true;
 			}
 

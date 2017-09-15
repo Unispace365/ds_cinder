@@ -366,7 +366,7 @@ void Engine::onAppEvent(const ds::Event& in_e){
 
 void Engine::showSettingsEditor(ds::cfg::Settings& theSettings){
 	if(mSettingsEditor){
-		mSettingsEditor->showSettings(&theSettings);
+		mSettingsEditor->showSettings(theSettings.getName());
 	}
 }
 

@@ -197,6 +197,17 @@ void EntryField::resetCurrentText() {
 	}
 }
 
+void EntryField::pasteText(const std::wstring& insertText){
+	if(insertText.empty()) return;
+	int postCursorIndex = mCursorIndex + insertText.size();
+	std::wstring preText = mCurrentText.substr(0, mCursorIndex);
+	std::wstring postText = mCurrentText.substr(mCursorIndex);
+	std::wstringstream wss;
+	wss << preText << insertText << postText;
+	setCurrentText(wss.str());
+	setCursorIndex(postCursorIndex);
+}
+
 void EntryField::focus(){
 	if(mAutoRegisterOnFocus){
 		mEngine.registerEntryField(this);

@@ -31,7 +31,6 @@ EngineCfg::EngineCfg(ds::cfg::Settings& engine_settings)
 	, mEmptySettings()
 	, mEditEmptySettings()
 {
-	mSettings[mEngineSettings.getName()] = mEngineSettings;
 	// Set color to full red to alert that this wasn't actually loaded
 	mEmptyTextCfg.mColor.set(ci::ColorModel::CM_RGB, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 	mEmptyTextCfg.mFont = "Arial Bold";
@@ -64,18 +63,26 @@ ds::cfg::Settings& EngineCfg::getNextSettings(const std::string& name){
 		return mEmptySettings;
 	}
 
+	if(name == ENGINE_SZ) return mSettings.begin()->second;
+
 	bool foundTheSetting = false;
-	for (auto it : mSettings){
+	std::string theKey = "";
+	for(auto it : mSettings){
 		if(foundTheSetting){
-			return it.second;
+			theKey = it.first;
+			break;
 		}
 		if(it.second.getName() == name){
 			foundTheSetting = true;
 		}
 	}
 
+	if(!theKey.empty()){
+		return mSettings[theKey];
+	}
+
 	// wrap around
-	return mSettings.begin()->second;
+	return mEngineSettings;
 }
 
 bool EngineCfg::hasText(const std::string& name) const {

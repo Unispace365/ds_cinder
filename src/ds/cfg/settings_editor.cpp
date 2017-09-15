@@ -60,11 +60,12 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	hide();
 }
 
-void SettingsEditor::showSettings(Settings* theSettings){
+void SettingsEditor::showSettings(const std::string theSettingsName){
 	for (auto it : mSettingItems){
 		it->release();
 	}
-	mCurrentSettings = theSettings;
+
+	mCurrentSettings = &mEngine.getEngineCfg().getSettings(theSettingsName);
 	mSettingItems.clear();
 
 	if(!mSettingsLayout || !mPrimaryLayout) return;
@@ -73,7 +74,7 @@ void SettingsEditor::showSettings(Settings* theSettings){
 
 	if(!mTitle){
 		mTitle = new ds::ui::Text(mEngine);
-		mTitle->setFont("Arial Light");
+		mTitle->setFont("Arial Narrow");
 		mTitle->setFontSize(24.0f);
 		mSettingsLayout->addChildPtr(mTitle);
 
@@ -82,8 +83,10 @@ void SettingsEditor::showSettings(Settings* theSettings){
 		mTitle->setTapCallback([this](ds::ui::Sprite*, const ci::vec3&){
 			try{
 				if(mCurrentSettings && !mCurrentSettings->getName().empty()){
-				//	auto& theSettings = mEngine.getEngineCfg().getNextSettings(mCurrentSettings->getName());
-				//	showSettings(&(mEngine.getSettings(theSettings.getName())));
+					std::string thisSettingName = mCurrentSettings->getName();
+					std::string newSettingsName = mEngine.getEngineCfg().getNextSettings(thisSettingName).getName();
+					
+					showSettings(newSettingsName);
 				}
 			} catch(std::exception& e){
 				std::cout << "Oh whoops " << e.what() << std::endl;
@@ -105,7 +108,7 @@ void SettingsEditor::showSettings(Settings* theSettings){
 	setSaveTouch(mSaveConfig, "%APP%/settings/%CFG_FOLDER%/" + mCurrentSettings->getName() + ".xml");
 	setSaveTouch(mSaveLocalConfig, "%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + mCurrentSettings->getName() + ".xml");
 
-	theSettings->forEachSetting([this](ds::cfg::Settings::Setting& setting){
+	mCurrentSettings->forEachSetting([this](ds::cfg::Settings::Setting& setting){
 		EditorItem* ei = new EditorItem(mEngine);
 		Settings::Setting* theSetting = &setting;
 		ei->setSetting(theSetting);
@@ -182,7 +185,7 @@ void SettingsEditor::hideSettings(){
 }
 
 void SettingsEditor::editProperty(EditorItem* ei){
-	if(ei && !ei->getSettingName().empty() && mCurrentSettings){
+	if(ei && !ei->getSettingName().empty()){// && mCurrentSettings){
 		if(!mEditView){
 			mEditView = new EditView(mEngine);
 			addChildPtr(mEditView);

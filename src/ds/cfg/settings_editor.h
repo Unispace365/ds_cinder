@@ -20,7 +20,7 @@ class SettingsEditor : public ds::ui::Sprite {
 public:
 	SettingsEditor(ds::ui::SpriteEngine& e);
 	
-	void						showSettings(Settings* theSettings);
+	void						showSettings(const std::string settingsName);
 	void						hideSettings();
 
 	void						editProperty(EditorItem* ei);

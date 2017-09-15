@@ -56,6 +56,15 @@ void StoryView::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == StoryDataUpdatedEvent::WHAT()){
 		setData();
 	}
+
+	if(in_e.mWhat == ds::cfg::Settings::SettingsEditedEvent::WHAT()){
+		const ds::cfg::Settings::SettingsEditedEvent& e((const ds::cfg::Settings::SettingsEditedEvent&)in_e);
+		if(e.mSettingsType == "app_settings" && e.mSettingName == "something"){
+			for(int i = 0; i < 8; i++){
+				std::cout << "New setting index=" << i << " value=" << mGlobals.getAppSettings().getInt("something", i) << std::endl;
+			}
+		}
+	}
 }
 
 void StoryView::setData() {

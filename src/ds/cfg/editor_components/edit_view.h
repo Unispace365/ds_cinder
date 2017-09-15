@@ -44,6 +44,7 @@ protected:
 	ds::ui::Text*				mSettingSource;
 	ds::ui::Text*				mCancelButton;
 	ds::ui::Text*				mApplyButton;
+	ds::ui::Text*				mSaveButton;
 	ds::ui::ControlCheckBox*	mCheckBox;
 	ds::ui::ControlSlider*		mSlider;
 	ds::ui::EntryField*			mEntryEditor;
@@ -55,7 +56,7 @@ protected:
 	std::function<void(Settings::Setting*)> mSettingUpdatedCalback;
 	std::function<void(const bool)>	mNextSettingCallback;
 
-	void						applySetting();
+	void						applySetting(const bool notify);
 	ds::ui::Text*				addTextSprite(const std::string& fontName, const float fontSize, const float opacity, const bool clickSetValue);
 };
 

@@ -75,6 +75,9 @@ public:
 	/// Clears the current text string. Does not call any callbacks.
 	void								resetCurrentText();
 
+	/// Inserts the string at the current cursor location
+	void								pasteText(const std::wstring& insertText);
+
 	/// Settings can be set at any time to update graphic properties
 	void								setEntryFieldSettings(EntryFieldSettings& newSettings);
 
