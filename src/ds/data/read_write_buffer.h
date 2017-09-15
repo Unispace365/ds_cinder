@@ -11,33 +11,33 @@ public:
 		End
 	};
 
-	ReadWriteBuffer(size_t size = 0);
+	ReadWriteBuffer(unsigned size = 0);
 	~ReadWriteBuffer();
 
-	bool read(char *buffer, size_t size);
-	void rewindRead(size_t size);
-	bool write(const char *buffer, size_t size);
-	void rewindWrite(size_t size);
+	bool read(char *buffer, unsigned size);
+	void rewindRead(unsigned size);
+	bool write(const char *buffer, unsigned size);
+	void rewindWrite(unsigned size);
 
-	void reserve(size_t size);
+	void reserve(unsigned size);
 	void clear();
-	size_t size();
+	unsigned size();
 
-	size_t getReadPosition() const;
-	void setReadPosition(const size_t &position);
+	unsigned getReadPosition() const;
+	void setReadPosition(const unsigned &position);
 	void setReadPosition(const Postions &position);
 
-	size_t getWritePosition() const;
-	void setWritePosition(const size_t &position);
+	unsigned getWritePosition() const;
+	void setWritePosition(const unsigned &position);
 	void setWritePosition(const Postions &position);
 private:
-	void grow(size_t size);
+	void grow(unsigned size);
 
 	char *mBuffer;
-	size_t mSize;
-	size_t mBufferReadPosition;
-	size_t mBufferWritePosition;
-	size_t mMaxBufferWritePosition;
+	unsigned mSize;
+	unsigned mBufferReadPosition;
+	unsigned mBufferWritePosition;
+	unsigned mMaxBufferWritePosition;
 };
 
 } // namespace ds

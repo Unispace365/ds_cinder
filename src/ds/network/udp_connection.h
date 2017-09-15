@@ -42,7 +42,7 @@ private:
 	int							mSentBytes;
 	int							mReccBytes;
 	bool						mInitialized;
-	size_t						mReceiveBufferMaxSize;
+	int							mReceiveBufferMaxSize;
 	RecycleArray<char>			mReceiveBuffer;
 	// Initialization value
 	bool						mServer;
