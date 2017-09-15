@@ -184,6 +184,7 @@ GstVideo::GstVideo(SpriteEngine& engine)
 	, mStatus(Status::STATUS_STOPPED)
 	, mPlaySingleFrame(false)
 	, mPlaySingleFrameFunction(nullptr)
+	, mSingleFrameStop(true)
 	, mDrawable(false)
 	, mVideoSize(0, 0)
 	, mAutoExtendIdle(false)
@@ -269,6 +270,10 @@ unsigned char * GstVideo::getRawAudioData(){
 
 size_t GstVideo::getRawAudioDataSize(){
 	return mGstreamerWrapper->getAudioBufferSize();
+}
+
+void * GstVideo::getGstreamerElementByName(const std::string& theName){
+	return mGstreamerWrapper->getElementByName(theName);
 }
 
 void GstVideo::onUpdateServer(const UpdateParams &up){
@@ -375,7 +380,11 @@ void GstVideo::updateVideoTexture() {
 			}
 
 			if(mPlaySingleFrame){
-				stop();
+				if(mSingleFrameStop){
+					stop();
+				} else {
+					pause();
+				}
 				mPlaySingleFrame = false;
 				if(mPlaySingleFrameFunction) mPlaySingleFrameFunction();
 				mPlaySingleFrameFunction = nullptr;
@@ -1335,9 +1344,10 @@ double GstVideo::getCurrentTimeMs() const {
 	return mGstreamerWrapper->getCurrentTimeInMs();
 }
 
-void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn){
+void GstVideo::playAFrame(double time_ms, const std::function<void()>& fn, const bool stopAfterFrame){
 	mPlaySingleFrame = true;
 	mPlaySingleFrameFunction = fn;
+	mSingleFrameStop = stopAfterFrame;
 	if(!getIsPlaying()) {
 		play();
 	}

@@ -165,7 +165,8 @@ public:
 	/// Play a single frame, then stop. Useful to show a thumbnail-like frame, or to keep a video in the background, but visible
 	/// Optional: Supply the time in ms to display
 	/// Optional: Supply a function called once that frame has been displayed (to unload the video, or animate or whatever)
-	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr);
+	/// Optional: StopAfterFrame will stop the video and clear the pipeline, otherwise will pause and keep the pipeline open
+	void				playAFrame(double time_ms = -1.0,const std::function<void()>& fn = nullptr, const bool stopAfterFrame = true);
 	void				enablePlayingAFrame(bool on = true);
 	bool				isPlayingAFrame() const;
 
@@ -212,6 +213,11 @@ public:
 	size_t				getRawVideoDataSize();
 	unsigned char *		getRawAudioData();
 	size_t				getRawAudioDataSize();
+
+	/// Returns a pointer to a gstreamer element with the specified name.
+	/// May return null if there's no element with that name.
+	/// Use with caution
+	void *				getGstreamerElementByName(const std::string& theName);
 
 protected:
 	virtual void		drawLocalClient() override;
@@ -280,6 +286,7 @@ private:
 	bool				mAutoExtendIdle;
 	// Playing a single frame, then stopping.
 	bool				mPlaySingleFrame;
+	bool				mSingleFrameStop;
 	bool				mStatusChanged;
 	//Allow for custom audio output
 	bool				mGenerateAudioBuffer;

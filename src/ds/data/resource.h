@@ -102,6 +102,7 @@ public:
 	static const int		VIDEO_TYPE          = 5;
 	static const int		WEB_TYPE            = 6;
 	static const int		VIDEO_STREAM_TYPE	= 7;
+	static const int		ZIP_TYPE			= 8;
 
 public:
 	// Mainly for debugging

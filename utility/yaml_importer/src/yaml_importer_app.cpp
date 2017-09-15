@@ -6,8 +6,7 @@
 #include <ds/app/app.h>
 #include <ds/app/engine/engine.h>
 #include <ds/app/environment.h>
-
-#include <ds/ui/sprite/multiline_text.h>
+#include <ds/ui/sprite/text.h>
 
 #include <Poco/File.h>
 #include <Poco/Path.h>
@@ -18,6 +17,8 @@ namespace ds{
 
 class YamlImporterApp : public ds::App {
 public:
+	class ds::ui::Text;
+
 	YamlImporterApp();
 
 	void				setupServer();	
@@ -27,7 +28,7 @@ public:
 	void parseFile(std::string fileLocation);
 private:
 	typedef ds::App		inherited;
-	ds::ui::MultilineText*	mMessage;
+	ds::ui::Text*	mMessage;
 
 };
 
@@ -53,8 +54,13 @@ void YamlImporterApp::setupServer()
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	// add sprites...
 
-	mMessage = mEngine.getEngineCfg().getText("sample:config").createMultiline(mEngine, &rootSprite);
+	//mMessage = mEngine.getEngineCfg().getText("sample:config").createMultiline(mEngine, &rootSprite);	
+	mMessage = new ds::ui::Text(mEngine);
+	rootSprite.addChildPtr(mMessage);
+
 	if(mMessage){
+		auto cfg = mEngine.getEngineCfg().getText("sample:config");
+		cfg.configure(*mMessage);
 		mMessage->setPosition(150.0f, 150.0f);
 		mMessage->setText(startMessage.str());
 	}

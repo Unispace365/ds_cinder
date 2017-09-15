@@ -33,6 +33,14 @@ const ci::Ray CameraPick::calculatePickRay( const ds::ui::SpriteEngine& engine, 
 	return  ci::Ray(cameraPersp.getEyePoint(), rayDirection);
 }
 
+const ci::Ray CameraPick::calculatePickRay( const ds::ui::SpriteEngine& engine, const ci::Rectf& viewport, const ci::CameraPersp& cameraPersp, const ci::vec3& worldTouchPoint ) {
+	// Alternate pick ray, calculated in using a world-space viewport.
+	const auto rayPt = ci::vec2(worldTouchPoint.x - viewport.getX1(), viewport.getY2() - worldTouchPoint.y);
+	auto ray = cameraPersp.generateRay(rayPt, viewport.getSize());
+	ray.setOrigin(ray.getOrigin() + ci::vec3(viewport.getUpperLeft(), 0.0f));
+	return ray;
+}
+
 const bool CameraPick::testHitSprite( ds::ui::Sprite* sprite, ci::vec3& hitWorldPos ) const {
 	if (!sprite->isEnabled())
 		return false;

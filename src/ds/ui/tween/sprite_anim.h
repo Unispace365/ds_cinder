@@ -200,6 +200,10 @@ private:
 	ci::TweenRef<float>						mInternalOpacityCinderTweenRef;
 	ci::TweenRef<float>						mInternalNormalizedCinderTweenRef;
 
+	// Store a CueRef from the cinder timeline to clear the callAfterDelay() function
+	// Cleared automatically on destruction
+	ci::CueRef			mDelayedCallCueRef;
+
 };
 
 } // namespace ui
