@@ -16,7 +16,7 @@ class sync_video_player : public ds::App {
 public:
 	sync_video_player();
 
-	virtual void				keyDown(ci::app::KeyEvent event);
+	virtual void				onKeyDown(ci::app::KeyEvent event) override;
 	void						setupServer();
 	void						update();
 	virtual void				fileDrop(ci::app::FileDropEvent event);

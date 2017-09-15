@@ -224,6 +224,11 @@ void SettingsUpdater::updateSettings(const std::string& source, const std::strin
 	bool nextIsHeader = false;
 	int readIndex = 1;
 	for(auto it = theChillins.begin(); it != theChillins.end(); ++it){
+		if((*it)->getTag() == "setting"){
+			DS_LOG_WARNING("It looks like this file is already in the new format! Abandoning update.");
+			return;
+		}
+
 		if((*it)->isComment()){
 			std::string theValue = (*it)->getValue();
 

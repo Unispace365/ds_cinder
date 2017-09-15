@@ -22,8 +22,6 @@ web_example::web_example()
 
 	/*fonts in use */
 	//mEngine.editFonts().installFont(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "Font Name", "font-name-here");
-
-	enableCommonKeystrokes(true);
 }
 
 void web_example::setupServer(){
@@ -49,9 +47,9 @@ void web_example::update() {
 
 }
 
-void web_example::keyDown(ci::app::KeyEvent event){
+void web_example::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 
 	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown()){
 		auto clipboard = ds::Environment::getClipboard();

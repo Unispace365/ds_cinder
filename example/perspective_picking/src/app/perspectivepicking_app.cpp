@@ -39,7 +39,6 @@ PerspectivePicking::PerspectivePicking()
 	/*fonts in use */
 	//mEngine.editFonts().installFont(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "Font Name", "font-name-here");
 
-	enableCommonKeystrokes(true);
 }
 
 void PerspectivePicking::setupServer(){
@@ -190,10 +189,8 @@ void PerspectivePicking::update() {
 	}
 }
 
-void PerspectivePicking::keyDown(ci::app::KeyEvent event){
+void PerspectivePicking::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	//inherited::keyDown(event);
-
 
 	float moveAmount = 1.0f;
 	if(event.isShiftDown()) moveAmount = 10.0f;

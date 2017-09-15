@@ -14,7 +14,7 @@ class PerspectivePicking : public ds::App {
 public:
 	PerspectivePicking();
 
-	virtual void		keyDown(ci::app::KeyEvent event);
+	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
 	void				update();
 private:

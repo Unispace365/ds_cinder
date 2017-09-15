@@ -84,8 +84,8 @@ void InfoListItem::layout(){
 
 void InfoListItem::setState(const int buttonState){
 	if(mBackground){
-		ci::Color normalColor = mGlobals.getSettingsLayout().getColor("info_list:item:normal_color", 0, ci::Color::white());
-		ci::Color highliColor = mGlobals.getSettingsLayout().getColor("info_list:item:highli_color", 0, ci::Color::white());
+		ci::Color normalColor = mGlobals.getSettingsLayout().getColor(mEngine, "info_list:item:normal_color", 0, ci::Color::white());
+		ci::Color highliColor = mGlobals.getSettingsLayout().getColor(mEngine, "info_list:item:highli_color", 0, ci::Color::white());
 		if(buttonState == 1){
 			mBackground->setColor(highliColor);
 		} else {

@@ -28,7 +28,7 @@ sync_video_player::sync_video_player()
 
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
-	enableCommonKeystrokes(true);
+
 }
 
 void sync_video_player::setupServer(){
@@ -234,9 +234,9 @@ void sync_video_player::updateScrubBar(ds::ui::Video* video){
 
 }
 
-void sync_video_player::keyDown(ci::app::KeyEvent event){
+void sync_video_player::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if (event.isControlDown() && event.getChar() == KeyEvent::KEY_l){
 		if (mVideo){
 			mVideo->setPan(-1.0f);

@@ -1,13 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-
-	<!-- Standard animation duration, in seconds. -->
-	<float name="animation:duration" value="0.2" />
-	
-	<float name="info_list:item:height" value="100" />
-	<float name="info_list:item:pad" value="10" />
-	<float name="info_list:item:thumb_pad" value="10" />
-	<float name="info_list:item:text_x_pad" value="10" />
-	<float name="info_list:item:text_y_pad" value="10" />
-	<color name="info_list:item:normal_color" r="40" g="40" b="40" />
-	<color name="info_list:item:highli_color" r="100" g="100" b="120"/>
+	<setting name="animation:duration" value="0.2" type="float" comment=" Standard animation duration, in seconds. "/>
+	<setting name="info_list:item:height" value="100" type="float"/>
+	<setting name="info_list:item:pad" value="10" type="float"/>
+	<setting name="info_list:item:thumb_pad" value="10" type="float"/>
+	<setting name="info_list:item:text_x_pad" value="10" type="float"/>
+	<setting name="info_list:item:text_y_pad" value="10" type="float"/>
+	<setting name="info_list:item:normal_color" value="#ff282828" type="color"/>
+	<setting name="info_list:item:highli_color" value="#ff646478" type="color"/>
 </settings>
+

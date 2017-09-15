@@ -43,16 +43,14 @@ ScrollExample::ScrollExample()
 
 	/*fonts in use */
 	//mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/NotoSans-Regular.ttf"), "Noto Sans");
-
-	enableCommonKeystrokes(true);
 }
 
 void ScrollExample::setupServer(){
 
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
-	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
-		mEngine.editFonts().registerFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+	mEngine.getSettings("FONTS").forEachSetting([this](ds::cfg::Settings::Setting& setting){
+		mEngine.editFonts().registerFont(ds::Environment::expand(setting.mRawValue), setting.mName);
 	});
 
 	/* Settings */
@@ -131,8 +129,8 @@ void ScrollExample::setupServer(){
 	mInfoList->setInfo(mAllData.mAllStories.mStories);
 
 	mInfoList->setInfoItemCallback([this, outputTexter](ds::model::StoryRef infoThing, ci::vec3 possy){
-		//outputTexter->setText(infoThing.getName());
-		mInfoList->nextPage();
+		outputTexter->setText(infoThing.getName());
+		//mInfoList->nextPage();
 	});
 
 
@@ -213,9 +211,9 @@ void ScrollExample::update() {
 
 }
 
-void ScrollExample::keyDown(ci::app::KeyEvent event){
+void ScrollExample::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		ds::ui::SpriteShader::clearShaderCache();
 		setupServer();
