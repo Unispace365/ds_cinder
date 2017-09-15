@@ -5,7 +5,7 @@
 #include <cinder/Xml.h>
 #include <Poco/File.h>
 #include <Poco/String.h>
-#include "ds/app/engine/engine.h"
+#include "ds/ui/sprite/sprite_engine.h"
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 #include "ds/util/string_util.h"
@@ -87,11 +87,11 @@ double Settings::Setting::getDouble() const{
 	return ds::string_to_double(mRawValue);
 }
 
-const ci::Color Settings::Setting::getColor(ds::Engine& eng) const{
+const ci::Color Settings::Setting::getColor(ds::ui::SpriteEngine& eng) const{
 	return ds::parseColor(mRawValue, eng);
 }
 
-const ci::ColorA Settings::Setting::getColorA(ds::Engine& eng) const{
+const ci::ColorA Settings::Setting::getColorA(ds::ui::SpriteEngine& eng) const{
 	return ds::parseColor(mRawValue, eng);
 }
 
@@ -263,19 +263,19 @@ const double Settings::getDouble(const std::string& name, const int index, const
 	return getSetting(name, index, std::to_string(defaultValue)).getDouble();
 }
 
-const ci::Color Settings::getColor(ds::Engine& engine, const std::string& name, const int index){
+const ci::Color Settings::getColor(ds::ui::SpriteEngine& engine, const std::string& name, const int index){
 	return getSetting(name, index).getColor(engine);
 }
 
-const ci::Color Settings::getColor(ds::Engine& engine, const std::string& name, const int index, const ci::Color& defaultValue){
+const ci::Color Settings::getColor(ds::ui::SpriteEngine& engine, const std::string& name, const int index, const ci::Color& defaultValue){
 	return getSetting(name, index, ds::unparseColor(defaultValue)).getColor(engine);
 }
 
-const ci::ColorA Settings::getColorA(ds::Engine& engine, const std::string& name, const int index){
+const ci::ColorA Settings::getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index){
 	return getSetting(name, index).getColorA(engine);
 }
 
-const ci::ColorA Settings::getColorA(ds::Engine& engine, const std::string& name, const int index, const ci::ColorA& defaultValue){
+const ci::ColorA Settings::getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index, const ci::ColorA& defaultValue){
 	return getSetting(name, index, ds::unparseColor(defaultValue)).getColor(engine);
 }
 

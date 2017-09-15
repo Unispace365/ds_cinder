@@ -1,41 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-
-<!-- Font names are installed in the root app class on startup	-->
-	
-	<!-- Sample Text -->
-		<text  name="sample:config:name" value="noto-bold" />
-		<float name="sample:config:size" value="16" />
-		<float name="sample:config:leading" value="0.75" />
-		<color name="sample:config:color" r="255" g="255" b="255" />
-
-		<text  name="viewer:title:name" value="noto-bold" />
-		<float name="viewer:title:size" value="16" />
-		<float name="viewer:title:leading" value="0.75" />
-		<color name="viewer:title:color" r="255" g="255" b="255" />
-
-		<text  name="viewer:body:name" value="noto-thin" />
-		<float name="viewer:body:size" value="12" />
-		<float name="viewer:body:leading" value="0.75" />
-		<color name="viewer:body:color" r="255" g="255" b="255" />
-
-		<text  name="viewer:widget:name" value="noto-thin" />
-		<float name="viewer:widget:size" value="16" />
-		<float name="viewer:widget:leading" value="0.75" />
-		<color name="viewer:widget:color" r="255" g="255" b="255" />
-
-		<text  name="touch:menu:name" value="noto-thin" />
-		<float name="touch:menu:size" value="16" />
-		<float name="touch:menu:leading" value="0.75" />
-		<color name="touch:menu:color" r="255" g="255" b="255" />
-
-		<text  name="folder_browser:list_item:name" value="noto-thin" />
-		<float name="folder_browser:list_item:size" value="16" />
-		<float name="folder_browser:list_item:leading" value="0.75" />
-		<color name="folder_browser:list_item:color" r="41" g="49" b="57" />
-
-		<text  name="folder_browser:back_label:name" value="noto-thin" />
-		<float name="folder_browser:back_label:size" value="21" />
-		<float name="folder_browser:back_label:leading" value="0.75" />
-		<color name="folder_browser:back_label:color" r="255" g="255" b="255" />
-	
+	<setting name="sample:config:name" value="noto-bold" type="string" comment=" Font names are installed in the root app class on startup	 Sample Text "/>
+	<setting name="sample:config:size" value="16" type="float"/>
+	<setting name="sample:config:leading" value="0.75" type="float"/>
+	<setting name="sample:config:color" value="#ffffffff" type="color"/>
+	<setting name="viewer:title:name" value="noto-bold" type="string"/>
+	<setting name="viewer:title:size" value="16" type="float"/>
+	<setting name="viewer:title:leading" value="0.75" type="float"/>
+	<setting name="viewer:title:color" value="#ffffffff" type="color"/>
+	<setting name="viewer:body:name" value="noto-thin" type="string"/>
+	<setting name="viewer:body:size" value="12" type="float"/>
+	<setting name="viewer:body:leading" value="0.75" type="float"/>
+	<setting name="viewer:body:color" value="#ffffffff" type="color"/>
+	<setting name="viewer:widget:name" value="noto-thin" type="string"/>
+	<setting name="viewer:widget:size" value="16" type="float"/>
+	<setting name="viewer:widget:leading" value="0.75" type="float"/>
+	<setting name="viewer:widget:color" value="#ffffffff" type="color"/>
+	<setting name="touch:menu:name" value="noto-thin" type="string"/>
+	<setting name="touch:menu:size" value="16" type="float"/>
+	<setting name="touch:menu:leading" value="0.75" type="float"/>
+	<setting name="touch:menu:color" value="#ffffffff" type="color"/>
+	<setting name="folder_browser:list_item:name" value="noto-thin" type="string"/>
+	<setting name="folder_browser:list_item:size" value="16" type="float"/>
+	<setting name="folder_browser:list_item:leading" value="0.75" type="float"/>
+	<setting name="folder_browser:list_item:color" value="#ff293139" type="color"/>
+	<setting name="folder_browser:back_label:name" value="noto-thin" type="string"/>
+	<setting name="folder_browser:back_label:size" value="21" type="float"/>
+	<setting name="folder_browser:back_label:leading" value="0.75" type="float"/>
+	<setting name="folder_browser:back_label:color" value="#ffffffff" type="color"/>
 </settings>
+

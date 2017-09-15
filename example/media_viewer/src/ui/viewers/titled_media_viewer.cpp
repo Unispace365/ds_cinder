@@ -37,8 +37,8 @@ TitledMediaViewer::TitledMediaViewer(Globals& g)
 	mBackground->setTransparent(false);
 	mTrayHolder->addChildPtr(mBackground);
 
-	mTitle = mGlobals.getText("viewer:title").createMultiline(mEngine, mTrayHolder);
-	mBody = mGlobals.getText("viewer:body").createMultiline(mEngine, mTrayHolder);
+	mTitle = mGlobals.getText("viewer:title").create(mEngine, mTrayHolder);
+	mBody = mGlobals.getText("viewer:body").create(mEngine, mTrayHolder);
 
 	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		toggleTitle();

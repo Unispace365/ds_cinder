@@ -219,7 +219,11 @@ void settings_rewrite_app::fileDrop(ci::app::FileDropEvent event){
 
 		ds::cfg::SettingsUpdater updater(mEngine);
 		if(mStoryView && mStoryView->getIsEngineMode()){
-			updater.updateEngineSettings(thePath);
+			if(thePath.find("engine.xml") != std::string::npos){
+				updater.updateEngineSettings(thePath);
+			} else {
+				updater.updateSettings(thePath, thePath);
+			}
 		} else {
 			updater.updateSettings(thePath, thePath);
 		}

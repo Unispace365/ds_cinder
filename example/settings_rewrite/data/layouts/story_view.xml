@@ -54,13 +54,15 @@
 					layout_size_mode="flex"
 					font_size="24"
 					animate_on="fade; ease:outQuint; slide:200, 0; duration:0.4"
-					>Drop one or more legacy settings files here to update them to the new format. Note: if the file is an engine.xml file, use engine.xml update mode, which updates the type names correctly. Otherwise, use the generic update mode</text>
+					>Drop one or more legacy settings files here to update them to the new format. 
+					
+Note: if you're updating an engine.xml that is an override file, turn off auto-detect update mode. The auto-detect will make all engine.xml files full-featured, and add the defaults for any missing settings.</text>
 					
 					
 				<control_check_box name="engine_check_box"
 					font="media_viewer:title"
-					check_box_true_label="engine.xml update mode"
-					check_box_false_label="generic update mode"
+					check_box_true_label="auto-detect update mode"
+					check_box_false_label="force generic update mode"
 					check_box_box_pad="5"
 					check_box_touch_pad="15"
 					check_box_label_pad="0"

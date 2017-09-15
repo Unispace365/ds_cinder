@@ -45,8 +45,6 @@ PanoramicVideo::PanoramicVideo()
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
-
-	enableCommonKeystrokes(true);
 }
 
 void PanoramicVideo::setupServer(){
@@ -125,9 +123,9 @@ void PanoramicVideo::update() {
 
 }
 
-void PanoramicVideo::keyDown(ci::app::KeyEvent event){
+void PanoramicVideo::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 

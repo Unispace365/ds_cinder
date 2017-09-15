@@ -15,7 +15,9 @@ class XmlTree;
 }
 
 namespace ds {
-class Engine;
+namespace ui {
+class SpriteEngine;
+}
 
 namespace cfg {
 
@@ -53,8 +55,8 @@ public:
 		double							getDouble() const;
 
 		/// The Engine is supplied to look up named colors
-		const ci::Color					getColor(ds::Engine&) const;
-		const ci::ColorA				getColorA(ds::Engine&) const;
+		const ci::Color					getColor(ds::ui::SpriteEngine&) const;
+		const ci::ColorA				getColorA(ds::ui::SpriteEngine&) const;
 
 		const std::string&				getString() const;
 		const std::wstring				getWString() const;
@@ -139,15 +141,15 @@ public:
 	/// Can also use named engine colors like "red" or "horrible_off_pink_brand_color"
 	/// This will ignore the alpha value when returning the color
 	/// <setting name="the_name" value="123456" type="color" /> 
-	const ci::Color						getColor(ds::Engine& engine, const std::string& name, const int index = 0);
-	const ci::Color						getColor(ds::Engine& engine, const std::string& name, const int index, const ci::Color& defaultValue);
+	const ci::Color						getColor(ds::ui::SpriteEngine& engine, const std::string& name, const int index = 0);
+	const ci::Color						getColor(ds::ui::SpriteEngine& engine, const std::string& name, const int index, const ci::Color& defaultValue);
 
 	/// Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb 
 	/// Can also use named engine colors like "red" or "horrible_off_pink_brand_color"
 	/// This one retains the alpha value
 	/// <setting name="the_name" value="12345678" type="colora" /> 
-	const ci::ColorA					getColorA(ds::Engine& engine, const std::string& name, const int index = 0);
-	const ci::ColorA					getColorA(ds::Engine& engine, const std::string& name, const int index, const ci::ColorA& defaultValue);
+	const ci::ColorA					getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index = 0);
+	const ci::ColorA					getColorA(ds::ui::SpriteEngine& engine, const std::string& name, const int index, const ci::ColorA& defaultValue);
 
 	/// <setting name="the_name" value="What about the droid attack on the wookie army?" type="string" /> 
 	const std::string&					getString(const std::string& name, const int index = 0);

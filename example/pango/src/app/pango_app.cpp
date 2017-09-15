@@ -46,8 +46,6 @@ PangoApp::PangoApp()
 	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event*{return new StoryDataUpdatedEvent(); });
 	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
 
-	enableCommonKeystrokes(true);
-
 	/// Load a local font file, and let the engine know what it's font name is. We can now refer to it by it's full name, Chlorinar Bold Italic
 	mEngine.editFonts().installFont(ds::Environment::expand("%APP%/data/fonts/CHLORINR.ttf"), "Chlorinar Bold Italic");
 
@@ -59,10 +57,10 @@ PangoApp::PangoApp()
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
 	mEngine.loadSettings("FONTS", "fonts.xml");
 
-	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
+	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& setting){
 		// this is a way to register a font as well, which registers the font name (for example, Noto Sans Bold) to the short name (for example noto-bold). 
 		// So in your layout files, you can now set the font_name to be noto-bold OR Noto Sans Bold.
-		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), mEngine.getSettings("FONTS").getText(key), key);
+		mEngine.editFonts().installFont(ds::Environment::expand(setting.mRawValue), setting.mRawValue, setting.mName);
 	});
 }
 
@@ -76,8 +74,8 @@ void PangoApp::setupServer(){
 	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
 	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
 	mEngine.loadSettings("COLORS", "colors.xml");
-	mEngine.getSettings("COLORS").forEachColorAKey([this](const std::string& key){
-		mEngine.editColors().install(mEngine.getSettings("COLORS").getColorA(key), key);
+	mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& setting){
+		mEngine.editColors().install(setting.getColorA(mEngine), setting.mName);
 	});
 
 	/* Settings */
@@ -176,9 +174,9 @@ void PangoApp::onAppEvent(const ds::Event& in_e){
 	} 
 }
 
-void PangoApp::keyDown(ci::app::KeyEvent event){
+void PangoApp::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	ds::App::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 
