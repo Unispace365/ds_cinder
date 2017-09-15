@@ -12,11 +12,11 @@ namespace ds {
 namespace net {
 
 struct ChunkHeader {
-	size_t mGroupId;
-	size_t mSize;
-	size_t mId;
-	size_t mTotal;
-	size_t mChunkSize;
+	unsigned mGroupId;
+	unsigned mSize;
+	unsigned mId;
+	unsigned mTotal;
+	unsigned mChunkSize;
 };
 
 /// Chunker splits packets up into byte-sized pieces. HA! Wordplay!
@@ -24,8 +24,8 @@ class Chunker {
 
 public:
 	Chunker();
-	void Chunkify(const char *src, size_t size, size_t groupId, std::vector<std::string> &dst);
-	void Chunkify(std::string src, size_t groupId, std::vector<std::string> &dst);
+	void Chunkify(const char *src, unsigned size, unsigned groupId, std::vector<std::string> &dst);
+	void Chunkify(std::string src, unsigned groupId, std::vector<std::string> &dst);
 
 private:
 	unsigned mChunkSize;
@@ -36,11 +36,11 @@ private:
 class DeChunker {
 public:
 	DeChunker();
-	bool addChunk(const char *chunk, size_t size);
+	bool addChunk(const char *chunk, unsigned size);
 	bool addChunk(std::string &chunk);
 	bool getNextGroup(std::string &dst);
 	void clearReceived();
-	size_t getAvailable() { return mGroupsAvailable.size(); }
+	unsigned getAvailable() { return mGroupsAvailable.size(); }
 
 private:
 	struct DeChunkStats	{
@@ -50,17 +50,17 @@ private:
 			mIdsMissing = rhs.mIdsMissing;
 		}
 
-		std::list<size_t> mIdsMissing;
+		std::list<unsigned> mIdsMissing;
 		std::unique_ptr<std::string> mData;
 	};
 
-	void addChunkToGroup(DeChunkStats &stats, const char *chunk, size_t size);
+	void addChunkToGroup(DeChunkStats &stats, const char *chunk, unsigned size);
 
-	std::map<size_t, DeChunkStats>				mDataChunks;
-	std::vector<size_t>							mGroupsAvailable;
-	std::vector<size_t>							mGroupsReceived;
-	std::list<size_t>							mReceived;
-	size_t										mMaxReceivedSize;
+	std::map<unsigned, DeChunkStats>				mDataChunks;
+	std::vector<unsigned>							mGroupsAvailable;
+	std::vector<unsigned>							mGroupsReceived;
+	std::list<unsigned>							mReceived;
+	unsigned										mMaxReceivedSize;
 	std::vector<std::unique_ptr<std::string>>	mReserveStrings;
 };
 

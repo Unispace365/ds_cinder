@@ -6,7 +6,7 @@
 
 namespace ds {
 
-ReadWriteBuffer::ReadWriteBuffer(size_t size /*= 0*/)
+ReadWriteBuffer::ReadWriteBuffer(unsigned size /*= 0*/)
 	: mSize(size)
 	, mBuffer(nullptr)
 	, mBufferReadPosition(0)
@@ -26,7 +26,7 @@ ReadWriteBuffer::~ReadWriteBuffer(){
 	}
 }
 
-bool ReadWriteBuffer::read(char *buffer, size_t size){
+bool ReadWriteBuffer::read(char *buffer, unsigned size){
 	if(mBufferReadPosition + size > mMaxBufferWritePosition)
 		return false;
 
@@ -36,7 +36,7 @@ bool ReadWriteBuffer::read(char *buffer, size_t size){
 	return true;
 }
 
-bool ReadWriteBuffer::write(const char *buffer, size_t size){
+bool ReadWriteBuffer::write(const char *buffer, unsigned size){
 	if(mBufferWritePosition + size > mSize)
 		grow(math::getNextPowerOf2(static_cast<int32_t>(mSize + size)));
 
@@ -48,7 +48,7 @@ bool ReadWriteBuffer::write(const char *buffer, size_t size){
 	return true;
 }
 
-void ReadWriteBuffer::reserve(size_t size){
+void ReadWriteBuffer::reserve(unsigned size){
 	if(mSize > size)
 		return;
 
@@ -62,15 +62,15 @@ void ReadWriteBuffer::clear()
 	mMaxBufferWritePosition = 0;
 }
 
-size_t ReadWriteBuffer::size(){
+unsigned ReadWriteBuffer::size(){
 	return mSize;
 }
 
-size_t ReadWriteBuffer::getReadPosition() const{
+unsigned ReadWriteBuffer::getReadPosition() const{
 	return mBufferReadPosition;
 }
 
-void ReadWriteBuffer::setReadPosition(const size_t &position){
+void ReadWriteBuffer::setReadPosition(const unsigned &position){
 	if(position > mMaxBufferWritePosition) {
 		mBufferReadPosition = mMaxBufferWritePosition;
 	}
@@ -85,11 +85,11 @@ void ReadWriteBuffer::setReadPosition(const Postions &position){
 		mBufferReadPosition = mMaxBufferWritePosition;
 }
 
-size_t ReadWriteBuffer::getWritePosition() const {
+unsigned ReadWriteBuffer::getWritePosition() const {
 	return mBufferWritePosition;
 }
 
-void ReadWriteBuffer::setWritePosition(const size_t &position){
+void ReadWriteBuffer::setWritePosition(const unsigned &position){
 	if(position > mMaxBufferWritePosition) {
 		mBufferWritePosition = mMaxBufferWritePosition;
 	}
@@ -104,8 +104,8 @@ void ReadWriteBuffer::setWritePosition(const Postions &position){
 		mBufferWritePosition = mMaxBufferWritePosition;
 }
 
-void ReadWriteBuffer::grow(size_t size){
-	size_t newSize = size;
+void ReadWriteBuffer::grow(unsigned size){
+	unsigned newSize = size;
 	char *newBuffer = new char[newSize];
 	memset(newBuffer, 0, newSize);
 
@@ -119,15 +119,15 @@ void ReadWriteBuffer::grow(size_t size){
 	mSize = newSize;
 }
 
-void ReadWriteBuffer::rewindRead(size_t size){
+void ReadWriteBuffer::rewindRead(unsigned size){
 	if(size > mBufferReadPosition)
 		mBufferReadPosition = 0;
 	else
 		mBufferReadPosition -= size;
 }
 
-void ReadWriteBuffer::rewindWrite(size_t size){
-	size_t newWriteBufferPosition = mBufferWritePosition;
+void ReadWriteBuffer::rewindWrite(unsigned size){
+	unsigned newWriteBufferPosition = mBufferWritePosition;
 	if(size > mBufferWritePosition)
 		newWriteBufferPosition = 0;
 	else

@@ -30,7 +30,7 @@ public:
 public:
 	// Clients can optionally supply a factory that will initialize
 	// each element, although that only applies if T is a pointer.
-	RecycleArray(const size_t growBy = 1);
+	RecycleArray(const int growBy = 1);
 	RecycleArray(const RecycleArray &rhs);
 	virtual ~RecycleArray();
 
@@ -38,24 +38,24 @@ public:
 	const T*					data() const;
 
 	int							size() const;
-	bool						setSize(const size_t newSize);
-	bool						setSize(const size_t newSize, const T& initialize);
+	bool						setSize(const int newSize);
+	bool						setSize(const int newSize, const T& initialize);
 	void						clear();
 
-	T&							operator[](const size_t index) const;
+	T&							operator[](const int index) const;
 
 	bool						setTo(const RecycleArray<T>&);
 
-	int							find(const T&, const size_t startIndex = 0) const;
+	int							find(const T&, const int startIndex = 0) const;
 
 	bool						add(const T&);
 	// Note:  This can cause a reorder!
 	bool						remove(const T&);
-	bool						removeAt(const size_t index);
+	bool						removeAt(const int index);
 
 	// Treat like a list, and keep things ordered
 	T							popFront();
-	T							popAt(const size_t index);
+	T							popAt(const int index);
 
 	// Exchange data between the arrays
 	void						swap(RecycleArray<T>&);
@@ -63,18 +63,18 @@ public:
 	RecycleArray<T>&			operator=(const RecycleArray<T>&);
 	bool						operator==(const RecycleArray<T>&) const;
 
-	size_t						alloc() const;
+	int							alloc() const;
 
 private:
-	const size_t				mGrowBy;
+	const int					mGrowBy;
 	T*							mD;
-	size_t						mSize, mAlloc;
+	int							mSize, mAlloc;
 };
 
 /* RECYCLE-ARRAY IMPLEMENTATION
 	******************************************************************/
 template <class T>
-RecycleArray<T>::RecycleArray(const size_t growBy)
+RecycleArray<T>::RecycleArray(const int growBy)
 	: mGrowBy(growBy)
 	, mD(nullptr)
 	, mSize(0)
@@ -117,13 +117,13 @@ inline int RecycleArray<T>::size() const
 }
 
 template <class T>
-bool RecycleArray<T>::setSize(const size_t newSize)
+bool RecycleArray<T>::setSize(const int newSize)
 {
 	if(newSize <= mAlloc) {
 		mSize = newSize;
 		return true;
 	}
-	const size_t	newAlloc = newSize + mGrowBy;
+	const int		newAlloc = newSize + mGrowBy;
 	T*				newD = (T*)realloc(mD, sizeof(T)*newAlloc);
 	if(newD == NULL) return false;
 
@@ -134,7 +134,7 @@ bool RecycleArray<T>::setSize(const size_t newSize)
 }
 
 template <class T>
-bool RecycleArray<T>::setSize(const size_t newSize, const T& initialize)
+bool RecycleArray<T>::setSize(const int newSize, const T& initialize)
 {
 	const int			oldSize = mSize;
 	if(!setSize(newSize)) return false;
@@ -143,7 +143,7 @@ bool RecycleArray<T>::setSize(const size_t newSize, const T& initialize)
 }
 
 template <class T>
-T& RecycleArray<T>::operator[](const size_t index) const
+T& RecycleArray<T>::operator[](const int index) const
 {
 	if(index < 0 || index >= mSize) throw bad_index();
 	return mD[index];
@@ -165,7 +165,7 @@ bool RecycleArray<T>::setTo(const RecycleArray<T>& src)
 }
 
 template <class T>
-int RecycleArray<T>::find(const T& t, const size_t startIndex) const
+int RecycleArray<T>::find(const T& t, const int startIndex) const
 {
 	for(int k = startIndex; k < mSize; k++) {
 		if(mD[k] == t) return k;
@@ -180,7 +180,7 @@ bool RecycleArray<T>::add(const T& t)
 		mD[mSize++] = t;
 		return true;
 	}
-	const size_t oldSize = mSize;
+	const int oldSize = mSize;
 	if(!setSize(mSize + 1)) return false;
 	mD[oldSize] = t;
 	return true;
@@ -207,7 +207,7 @@ bool RecycleArray<T>::remove(const T& t)
 }
 
 template <class T>
-bool RecycleArray<T>::removeAt(const size_t idx)
+bool RecycleArray<T>::removeAt(const int idx)
 {
 	if(mSize < 1 || idx < 0 || idx >= mSize) return false;
 	mD[idx] = mD[mSize - 1];
@@ -222,7 +222,7 @@ T RecycleArray<T>::popFront()
 }
 
 template <class T>
-T RecycleArray<T>::popAt(const size_t index)
+T RecycleArray<T>::popAt(const int index)
 {
 	if(index < 0 || index >= mSize) throw bad_index();
 
@@ -236,8 +236,8 @@ template <class T>
 void RecycleArray<T>::swap(RecycleArray<T>& o)
 {
 	T*				d = mD;			mD = o.mD;			o.mD = d;
-	const size_t	s = mSize;		mSize = o.mSize;	o.mSize = s;
-	const size_t	a = mAlloc;		mAlloc = o.mAlloc;	o.mAlloc = a;
+	const int		s = mSize;		mSize = o.mSize;	o.mSize = s;
+	const int		a = mAlloc;		mAlloc = o.mAlloc;	o.mAlloc = a;
 }
 
 template <class T>
@@ -256,7 +256,7 @@ bool RecycleArray<T>::operator==(const RecycleArray<T>& o) const
 }
 
 template <class T>
-inline size_t RecycleArray<T>::alloc() const
+inline int RecycleArray<T>::alloc() const
 {
 	return mAlloc;
 }
