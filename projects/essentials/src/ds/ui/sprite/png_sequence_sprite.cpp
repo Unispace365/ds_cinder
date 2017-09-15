@@ -30,6 +30,7 @@ PngSequenceSprite::PngSequenceSprite(SpriteEngine& engine)
 	, mCurrentFrameIndex(0)
 	, mPlaying(true)
 	, mFrameTime(0.0f)
+	, mNumFrames(0)
 {
 	mLayoutFixedAspect = true;
 	mLastFrameTime = ci::app::getElapsedSeconds();
@@ -134,7 +135,10 @@ void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p){
 		mFrames.pop_back();
 	}
 
-	if(mPlaying && mNumFrames > 0){
+	if(mPlaying 
+	   && mNumFrames > 0
+	   && !mFrames.empty() 
+	   && mCurrentFrameIndex < mFrames.size() ){
 
 		bool advanceFrame(true);
 
