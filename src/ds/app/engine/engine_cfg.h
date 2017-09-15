@@ -2,6 +2,7 @@
 #ifndef DS_APP_ENGINE_ENGINECFG_H_
 #define DS_APP_ENGINE_ENGINECFG_H_
 
+#include <map>
 #include <unordered_map>
 #include "ds/cfg/cfg_text.h"
 #include "ds/cfg/settings.h"
@@ -19,6 +20,10 @@ public:
 	// Answer the requested settings file. In debug mode, throw
 	// if it doesn't exist. In release mode, just answer an empty one.
 	ds::cfg::Settings&				getSettings(const std::string& name);
+
+	// Get the settings in the list AFTER the one specified by the name
+	ds::cfg::Settings&				getNextSettings(const std::string& name);
+
 	// Answer the requested text cfg. 
 	// if it doesn't exist. In release mode, just answer an empty one.
 	bool							hasText(const std::string& name) const;
@@ -57,7 +62,7 @@ private:
 	EngineCfg(const EngineCfg&);
 	// Make it easy for clients to access the engine settings.
 	ds::cfg::Settings&				mEngineSettings;
-	std::unordered_map<std::string, ds::cfg::Settings>
+	std::map<std::string, ds::cfg::Settings>
 									mSettings;
 	std::unordered_map<std::string, ds::cfg::Text>
 									mTextCfg;

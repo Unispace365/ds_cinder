@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <settings>
 	<setting name="SERVER SETTINGS" value="" type="section_header"/>
-	<setting name="project_path" value="" type="string" comment="Project path for locating app resources"/>
+	<setting name="project_path" value="settings/rewrite" type="string" comment="Project path for locating app resources"/>
 	<setting name="server:connect" value="false" type="bool" comment="If false, won't connect udp sender / listener for server or client" default="false"/>
 	<setting name="server:ip" value="239.255.42.58" type="string" comment="The multicast group udp address and port of the server" default="239.255.42.58"/>
 	<setting name="server:send_port" value="1037" type="int" comment="The send port of the server. Match these between server and client" default="1037" min_value="1" max_value="99999"/>

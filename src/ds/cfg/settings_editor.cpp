@@ -20,8 +20,11 @@ SettingsEditor::SettingsEditor(ds::ui::SpriteEngine& e)
 	, mCurrentSettings(nullptr)
 	, mPrimaryLayout(nullptr)
 	, mSettingsLayout(nullptr)
+	, mTitle(nullptr)
 	, mSaveApp(nullptr)
 	, mSaveLocal(nullptr)
+	, mSaveConfig(nullptr)
+	, mSaveLocalConfig(nullptr)
 	, mEditView(nullptr)
 {
 	mPrimaryLayout = new ds::ui::LayoutSprite(mEngine);
@@ -68,77 +71,39 @@ void SettingsEditor::showSettings(Settings* theSettings){
 
 	show();
 
-	if(!mSaveApp){
-		std::string saveName = "%APP%/settings/" + mCurrentSettings->getName() + ".xml";
-		std::string savePath = ds::Environment::expand(saveName);
-		mSaveApp = new ds::ui::Text(mEngine);
-		mSaveApp->setFont("Arial Bold");
-		mSaveApp->setFontSize(14.0f);
-		mSaveApp->mLayoutTPad = 10.0f;
-		mSaveApp->mLayoutHAlign = ds::ui::LayoutSprite::kCenter;
-		mSaveApp->setText("Save in " + saveName);
-		mSaveApp->setColor(ci::Color(0.8f, 0.2f, 0.2f));
-		mSaveApp->enable(true);
-		mSaveApp->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-		mSaveApp->setTapCallback([this, savePath, saveName](ds::ui::Sprite* bs, const ci::vec3& pos){
-			if(mCurrentSettings){
-				mCurrentSettings->writeTo(savePath);
+	if(!mTitle){
+		mTitle = new ds::ui::Text(mEngine);
+		mTitle->setFont("Arial Light");
+		mTitle->setFontSize(24.0f);
+		mSettingsLayout->addChildPtr(mTitle);
 
-#ifdef _WIN32
-				try{
-					Poco::Path thePath = Poco::Path(savePath);
-					thePath.makeParent();
-					ShellExecute(NULL, L"open", ds::wstr_from_utf8(thePath.toString()).c_str(), NULL, NULL, SW_SHOWDEFAULT);
-				} catch(std::exception){
-					// just making sure we don't crash, this isn't a required thing
-				}
-#endif
-
-				mSaveApp->setText("Saved!");
-				mSaveApp->callAfterDelay([this, saveName]{
-					mSaveApp->setText("Save in " + saveName);
-				}, 3.0f);
-			}
-
-		});
-
-		auto theWidth = mSaveApp->getWidth();
-		mSettingsLayout->addChildPtr(mSaveApp);
-	}
-
-	if(!mSaveLocal){
-		std::string saveName = "%LOCAL%/settings/%PP%/" + mCurrentSettings->getName() + ".xml";
-		std::string savePath = ds::Environment::expand(saveName);
-		mSaveLocal = new ds::ui::Text(mEngine);
-		mSaveLocal->setFont("Arial Bold");
-		mSaveLocal->setFontSize(14.0f);
-		mSaveLocal->mLayoutHAlign = ds::ui::LayoutSprite::kCenter;
-		mSaveLocal->setText("Save in " + saveName);
-		mSaveLocal->setColor(ci::Color(0.8f, 0.2f, 0.2f));
-		mSaveLocal->enable(true);
-		mSaveLocal->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-		mSaveLocal->setTapCallback([this, savePath, saveName](ds::ui::Sprite* bs, const ci::vec3& pos){
-			if(mCurrentSettings){
-				mCurrentSettings->writeTo(savePath);
-			}
-
-#ifdef _WIN32
+		mTitle->enable(true);
+		mTitle->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+		mTitle->setTapCallback([this](ds::ui::Sprite*, const ci::vec3&){
 			try{
-				Poco::Path thePath = Poco::Path(savePath);
-				thePath.makeParent();
-				ShellExecute(NULL, L"open", ds::wstr_from_utf8(thePath.toString()).c_str(), NULL, NULL, SW_SHOWDEFAULT);
-			} catch(std::exception){
-				// just making sure we don't crash, this isn't a required thing
+				if(mCurrentSettings && !mCurrentSettings->getName().empty()){
+				//	auto& theSettings = mEngine.getEngineCfg().getNextSettings(mCurrentSettings->getName());
+				//	showSettings(&(mEngine.getSettings(theSettings.getName())));
+				}
+			} catch(std::exception& e){
+				std::cout << "Oh whoops " << e.what() << std::endl;
 			}
-#endif
-
-			mSaveLocal->setText("Saved!");
-			mSaveLocal->callAfterDelay([this, saveName]{ mSaveLocal->setText("Save in " + saveName); }, 3.0f);
 		});
-
-		auto theWidth = mSaveLocal->getWidth();
-		mSettingsLayout->addChildPtr(mSaveLocal);
 	}
+
+	if(mTitle){
+		mTitle->setText(mCurrentSettings->getName() + " >");
+	}
+
+	if(!mSaveApp) mSaveApp = createSaveButton(mSettingsLayout);
+	if(!mSaveLocal) mSaveLocal = createSaveButton(mSettingsLayout);
+	if(!mSaveConfig) mSaveConfig = createSaveButton(mSettingsLayout);
+	if(!mSaveLocalConfig) mSaveLocalConfig = createSaveButton(mSettingsLayout);
+
+	setSaveTouch(mSaveApp, "%APP%/settings/" + mCurrentSettings->getName() + ".xml");
+	setSaveTouch(mSaveLocal, "%LOCAL%/settings/%PP%/" + mCurrentSettings->getName() + ".xml");
+	setSaveTouch(mSaveConfig, "%APP%/settings/%CFG_FOLDER%/" + mCurrentSettings->getName() + ".xml");
+	setSaveTouch(mSaveLocalConfig, "%LOCAL%/settings/%PP%/%CFG_FOLDER%/" + mCurrentSettings->getName() + ".xml");
 
 	theSettings->forEachSetting([this](ds::cfg::Settings::Setting& setting){
 		EditorItem* ei = new EditorItem(mEngine);
@@ -164,6 +129,49 @@ void SettingsEditor::showSettings(Settings* theSettings){
 
 	setPosition(mEngine.getSrcRect().getX2() - mPrimaryLayout->getWidth(), mEngine.getSrcRect().getY1());
 
+}
+
+ds::ui::Text* SettingsEditor::createSaveButton(ds::ui::LayoutSprite* theParent){
+	auto newSaveButton = new ds::ui::Text(mEngine);
+	newSaveButton->mLayoutLPad = 10.0f;
+	newSaveButton->setFont("Arial");
+	newSaveButton->setFontSize(14.0f);
+	newSaveButton->setColor(ci::Color(0.8f, 0.2f, 0.2f));
+	newSaveButton->enable(true);
+	newSaveButton->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	theParent->addChildPtr(newSaveButton);
+	return newSaveButton;
+}
+
+void SettingsEditor::setSaveTouch(ds::ui::Text* theButton, const std::string& saveName){
+	if(!theButton) return;
+
+	std::string savePath = ds::Environment::expand(saveName);
+	theButton->setText("Save in " + saveName);
+	theButton->setTapCallback([this, savePath, saveName, theButton](ds::ui::Sprite* bs, const ci::vec3& pos){
+		if(mCurrentSettings){
+			mCurrentSettings->writeTo(savePath);
+
+#ifdef _WIN32
+			/// open the parent folder in windows explorer
+			try{
+				Poco::Path thePath = Poco::Path(savePath);
+				thePath.makeParent();
+				ShellExecute(NULL, L"open", ds::wstr_from_utf8(thePath.toString()).c_str(), NULL, NULL, SW_SHOWDEFAULT);
+			} catch(std::exception){
+				// just making sure we don't crash, this isn't a required thing
+			}
+#endif
+
+			theButton->setText("Saved!");
+			theButton->callAfterDelay([this, saveName, theButton]{
+				theButton->setText("Save in " + saveName);
+			}, 3.0f);
+		}
+
+	});
+	// get the width so the text gets measured so layouts work ok
+	auto theWidth = theButton->getWidth();
 }
 
 void SettingsEditor::hideSettings(){
