@@ -286,7 +286,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 	// AUDIO SINK
 	// Extract and config Audio Sink
-	if (false && bGenerateAudioBuffer){
+	if (bGenerateAudioBuffer){
 		if (m_CustomPipeline){
 			setCustomFunction();
 		}
@@ -319,16 +319,8 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			gst_object_unref(pad);
 		}
 
-	// Only create an audio sink if there's an audio track
-	} else if(hasAudioTrack){
-	//	std::string 
-		GError* err = new GError();
-		GstElement* audioSink = gst_parse_bin_from_description("tee name=t ! queue ! videoconvert ! autovideosink t. ! queue ! audioconvert ! audioresample ! audio/x-raw, channels=6, format=S16LE ! tee name=tt ! queue ! audioconvert ! audio/x-raw, channels=2, channel-mask=(bitmask)0x3 ! directsoundsink tt. ! queue ! audioconvert ! audio/x-raw, channels=2, channel-mask=(bitmask)0x6  ! directsoundsink device={64EA191B-4F87-4E88-BBD2-54ECDAE3C134}", true, &err);
 
-		//GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
-		//g_object_set(audioSink, "sync", true, (void*)NULL);
-		//g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
-	}
+	} 
 
 	// BUS
 	// Set GstBus
