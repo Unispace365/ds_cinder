@@ -14,8 +14,8 @@ namespace ds {
 class DataBuffer
 {
 public:
-	DataBuffer(size_t initialStreamSize = 0);
-	size_t size();
+	DataBuffer(unsigned initialStreamSize = 0);
+	unsigned size();
 	void seekBegin();
 	void clear();
 
@@ -23,19 +23,19 @@ public:
 	bool canRead();
 
 	// function to add raw data no size added.
-	void addRaw(const char *b, size_t size);
+	void addRaw(const char *b, unsigned size);
 	// function to read raw data no size will be read.
-	bool readRaw(char *b, size_t size);
+	bool readRaw(char *b, unsigned size);
 
 	// will write size when writing data.
-	void add(const char *b, size_t size);
+	void add(const char *b, unsigned size);
 	void add(const char *cs);
 	void add(const wchar_t *cs);
 	template <typename T>
 	void add(const T &t);
 
 	// will read size from buffer and only read if size is available.
-	bool read(char *b, size_t size);
+	bool read(char *b, unsigned size);
 	template <typename T>
 	T read();
 
@@ -52,11 +52,11 @@ private:
 
 template <typename T>
 bool ds::DataBuffer::canRead(){
-	size_t size = sizeof(T);
-	size_t currentPosition = mStream.getReadPosition();
+	unsigned size = sizeof(T);
+	unsigned currentPosition = mStream.getReadPosition();
 
 	mStream.setReadPosition(ReadWriteBuffer::End);
-	size_t length = mStream.getReadPosition();
+	unsigned length = mStream.getReadPosition();
 	mStream.setReadPosition(currentPosition);
 
 	if(size > (length - currentPosition))
@@ -78,7 +78,7 @@ T ds::DataBuffer::read(){
 
 template <typename T>
 void ds::DataBuffer::rewindRead(){
-	size_t currentPosition = mStream.getReadPosition();
+	unsigned currentPosition = mStream.getReadPosition();
 
 	if(sizeof(T) > currentPosition)
 		return;
@@ -88,7 +88,7 @@ void ds::DataBuffer::rewindRead(){
 
 template <typename T>
 void ds::DataBuffer::rewindAdd(){
-	size_t currentPosition = mStream.getWritePosition();
+	unsigned currentPosition = mStream.getWritePosition();
 
 	if(sizeof(T) > currentPosition)
 		return;

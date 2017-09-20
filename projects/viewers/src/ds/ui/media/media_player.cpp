@@ -184,22 +184,23 @@ void MediaPlayer::initialize(){
 		if(mMediaViewerSettings.mCacheImages){
 			flags |= Image::IMG_CACHE_F;
 		}
-		mPrimaryImage = new ds::ui::Image(mEngine, mResource, flags);
+		mPrimaryImage = new ds::ui::Image(mEngine);
 		addChildPtr(mPrimaryImage);
-		mPrimaryImage->checkStatus();
-		if(mPrimaryImage->isLoaded()){
-			showThumbnail = false;
-		} else {
-			mPrimaryImage->setOpacity(0.0f);
-			mPrimaryImage->setStatusCallback([this](ds::ui::Image::Status status){
-				if(status.mCode == status.STATUS_LOADED && mPrimaryImage){
-					mPrimaryImage->tweenOpacity(1.0f, mAnimDuration);
-					if(mStatusCallback){
-						mStatusCallback(true);
-					}
+
+		mPrimaryImage->setOpacity(0.0f);
+		mPrimaryImage->setStatusCallback([this](ds::ui::Image::Status status){
+			if(status.mCode == status.STATUS_LOADED && mPrimaryImage){
+				mPrimaryImage->tweenOpacity(1.0f, mAnimDuration);
+				if(mThumbnailImage){
+					mThumbnailImage->tweenOpacity(0.0f, mAnimDuration);
 				}
-			});
-		}
+				if(mStatusCallback){
+					mStatusCallback(true);
+				}
+			}
+		});
+
+		mPrimaryImage->setImageResource(mResource, flags);
 
 		mContentAspectRatio = mPrimaryImage->getWidth() / mPrimaryImage->getHeight();
 		contentWidth = mPrimaryImage->getWidth();
@@ -318,7 +319,6 @@ void MediaPlayer::initialize(){
 		DS_LOG_WARNING("Whoopsies - tried to open a media player on an invalid file type. " << mResource.getAbsoluteFilePath() << " " << ds::utf8_from_wstr(mResource.getTypeName()));
 	}
 
-
 	if(showThumbnail && (mResource.getThumbnailId() > 0 || !mResource.getThumbnailFilePath().empty())){
 		int flags = 0;
 		if(mMediaViewerSettings.mCacheImages){
@@ -334,7 +334,7 @@ void MediaPlayer::initialize(){
 		}
 		mThumbnailImage->setOpacity(0.0f);
 		mThumbnailImage->setStatusCallback([this](ds::ui::Image::Status status){
-			if(status.mCode == status.STATUS_LOADED && mThumbnailImage){
+			if(status.mCode == status.STATUS_LOADED && mThumbnailImage && mPrimaryImage && !mPrimaryImage->isLoaded()){
 				mThumbnailImage->tweenOpacity(1.0f, mAnimDuration);
 			}
 		});
