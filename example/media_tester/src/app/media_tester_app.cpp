@@ -149,7 +149,9 @@ void media_tester::loadMedia(const std::string& newMedia){
 		ds::ui::Video* vid = new ds::ui::Video(mEngine);
 
 		//Enable audio panning
-		vid->generateAudioBuffer(true);
+		vid->generateAudioBuffer(false);
+
+		/*
 
 		//Set shader uniforms - Shaders are enabled/disabled by user keyboard input
 		ds::gl::Uniform uniform;
@@ -165,6 +167,8 @@ void media_tester::loadMedia(const std::string& newMedia){
 		uniform.setInt("tex1", 1);
 		uniform.setFloat("opacity", 1.0f);
 		vid->setShadersUniforms("test1", uniform);
+
+		*/
 
 		vid->setVerboseLogging(true);
 		vid->setLooping(true);
