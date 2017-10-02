@@ -284,9 +284,66 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 	}
 
+	/*
+	std::vector<std::string> deviceGuids;
+	deviceGuids.push_back("{A948FD2E-8986-4600-8CAB-F42E70DFC235}");
+	deviceGuids.push_back("{D00954C4-6286-4627-932C-A3463050C68E}");
+	deviceGuids.push_back("{25BACB67-8AEE-47F3-8E2F-23CB25DDD601}");
+
+	std::vector<std::string> deviceMasks;
+	deviceMasks.push_back("0x3");
+	deviceMasks.push_back("0x12");
+	deviceMasks.push_back("0x48");
+
 	// AUDIO SINK
 	// Extract and config Audio Sink
-	if (false && bGenerateAudioBuffer){
+#ifdef _WIN32
+	if(!deviceGuids.empty() && deviceGuids.size() == deviceMasks.size()){
+		GstElement* bin = gst_bin_new("converter_sink_bin");
+		GstElement* mainConvert = gst_element_factory_make("audioconvert", NULL);
+		GstElement* mainResample = gst_element_factory_make("audioresample", NULL);
+		GstElement* mainTee = gst_element_factory_make("tee", NULL);
+
+		gst_bin_add_many(GST_BIN(bin), mainConvert, mainResample, mainTee, NULL);
+		gboolean link_ok = gst_element_link_many(mainConvert, mainResample, mainTee, NULL);
+	//	link_ok = gst_element_link_filtered(mainConvert, mainResample, caps);
+
+		for(int i = 0; i < deviceGuids.size(); i++){
+
+			GstElement* thisQueue = gst_element_factory_make("queue", NULL);
+			GstElement* thisConvert = gst_element_factory_make("audioconvert", NULL);
+			GstCaps* thisCaps = gst_caps_new_simple("audio/x-raw", "channels", G_TYPE_INT, deviceGuids.size() * 2, "channel_mask", G_TYPE_STRING, deviceMasks[i]);
+			GstElement* thisSink = gst_element_factory_make("directsoundsink", NULL);
+			g_object_set(thisSink, "device", deviceGuids[i].c_str());
+			gst_bin_add_many(GST_BIN(bin), thisQueue, thisConvert, thisSink, NULL);
+
+			GstPad* sinkPad = gst_element_get_static_pad(thisSink, NULL);
+			gst_pad_set_caps(sinkPad, thisCaps);
+			gst_caps_unref(thisCaps);
+
+			link_ok = gst_element_link_many(thisQueue, thisConvert, thisSink, NULL);
+			GstPadTemplate* tee_src_pad_template = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(mainTee), "src_%u");
+			GstPad* teePad = gst_element_request_pad(mainTee, tee_src_pad_template, NULL, NULL);
+			GstPad* queue_audio_pad1 = gst_element_get_static_pad(thisQueue, "sink");
+			link_ok = gst_pad_link(teePad, queue_audio_pad1);
+		}
+		
+		GstPad* pad = gst_element_get_static_pad(mainConvert, "sink");
+		GstPad* ghost_pad = gst_ghost_pad_new("sink", pad);
+		GstCaps* caps = gst_caps_new_simple("audio/x-raw", "channels", G_TYPE_INT, (int)deviceGuids.size() * 2, "format", G_TYPE_STRING, "S16LE");
+		gst_pad_set_caps(pad, caps);
+		gst_caps_unref(caps);
+		gst_pad_set_active(ghost_pad, TRUE);
+		gst_element_add_pad(bin, ghost_pad);
+
+		g_object_set(m_GstPipeline, "audio-sink", bin, NULL);
+		gst_object_unref(pad);
+
+	} else 
+#endif
+	*/
+
+	if (bGenerateAudioBuffer){
 		if (m_CustomPipeline){
 			setCustomFunction();
 		}
@@ -318,17 +375,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 			gst_object_unref(pad);
 		}
-
-	// Only create an audio sink if there's an audio track
-	} else if(hasAudioTrack){
-	//	std::string 
-		GError* err = new GError();
-		GstElement* audioSink = gst_parse_bin_from_description("tee name=t ! queue ! videoconvert ! autovideosink t. ! queue ! audioconvert ! audioresample ! audio/x-raw, channels=6, format=S16LE ! tee name=tt ! queue ! audioconvert ! audio/x-raw, channels=2, channel-mask=(bitmask)0x3 ! directsoundsink tt. ! queue ! audioconvert ! audio/x-raw, channels=2, channel-mask=(bitmask)0x6  ! directsoundsink device={64EA191B-4F87-4E88-BBD2-54ECDAE3C134}", true, &err);
-
-		//GstElement* audioSink = gst_element_factory_make("autoaudiosink", NULL);
-		//g_object_set(audioSink, "sync", true, (void*)NULL);
-		//g_object_set(m_GstPipeline, "audio-sink", audioSink, NULL);
-	}
+	} 
 
 	// BUS
 	// Set GstBus
