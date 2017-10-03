@@ -5,6 +5,7 @@
 #include <string>
 #include <cinder/Vector.h>
 #include <cinder/Color.h>
+#include <gstreamer/gstreamer_audio_device.h>
 
 namespace ds {
 namespace ui { 
@@ -90,6 +91,8 @@ struct MediaViewerSettings {
 	/// The latency when opening a stream in seconds
 	double						mVideoStreamingLatency;
 
+	/// Which audio devices to play audio out of (see the gstreamer_audio_devices header for more details)
+	std::vector<GstAudioDevice> mVideoAudioDevices;
 
 
 };

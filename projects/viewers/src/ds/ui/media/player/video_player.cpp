@@ -57,6 +57,7 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	setPlayableInstances(mPlayableInstances);
 	allowOutOfBoundsMuted(mAllowOutOfBoundsMuted);
 	setVideoLoop(mLooping);
+	setAudioDevices(mAudioDevices);
 
 	mVideo->setErrorCallback([this](const std::string& msg){
 		if(mErrorMsgCallback) mErrorMsgCallback(msg);
@@ -245,6 +246,13 @@ void VideoPlayer::setVideoLoop(const bool doLoop){
 	mLooping = doLoop;
 	if(mVideo){
 		mVideo->setLooping(mLooping);
+	}
+}
+
+void VideoPlayer::setAudioDevices(std::vector<GstAudioDevice>& audioDevices){
+	mAudioDevices = audioDevices;
+	if(mVideo){
+		mVideo->setAudioDevices(audioDevices);
 	}
 }
 

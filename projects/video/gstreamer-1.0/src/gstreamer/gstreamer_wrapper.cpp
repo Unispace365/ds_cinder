@@ -294,13 +294,15 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 	deviceMasks.push_back("0x3");
 	deviceMasks.push_back("0x12");
 	deviceMasks.push_back("0x48");
+	*/
 
 	// AUDIO SINK
 	// Extract and config Audio Sink
 #ifdef _WIN32
-	if(!deviceGuids.empty() && deviceGuids.size() == deviceMasks.size()){
+	if(!m_AudioDevices.empty()){
 		GstElement* bin = gst_bin_new("converter_sink_bin");
 		GstElement* mainConvert = gst_element_factory_make("audioconvert", NULL);
+	//	m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
 		GstElement* mainResample = gst_element_factory_make("audioresample", NULL);
 		GstElement* mainTee = gst_element_factory_make("tee", NULL);
 
@@ -308,13 +310,18 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		gboolean link_ok = gst_element_link_many(mainConvert, mainResample, mainTee, NULL);
 	//	link_ok = gst_element_link_filtered(mainConvert, mainResample, caps);
 
-		for(int i = 0; i < deviceGuids.size(); i++){
+		for(int i = 0; i < m_AudioDevices.size(); i++){
+
+			// auto-detects guid's based on output name
+			m_AudioDevices[i].initialize();
+
+			if(m_AudioDevices[i].mDeviceGuid.empty()) continue;
 
 			GstElement* thisQueue = gst_element_factory_make("queue", NULL);
 			GstElement* thisConvert = gst_element_factory_make("audioconvert", NULL);
-			GstCaps* thisCaps = gst_caps_new_simple("audio/x-raw", "channels", G_TYPE_INT, deviceGuids.size() * 2, "channel_mask", G_TYPE_STRING, deviceMasks[i]);
+			GstCaps* thisCaps = gst_caps_new_simple("audio/x-raw", "channels", G_TYPE_INT, 2, "channel-mask", G_TYPE_STRING, m_AudioDevices[i].mChannelMask.c_str(), NULL);
 			GstElement* thisSink = gst_element_factory_make("directsoundsink", NULL);
-			g_object_set(thisSink, "device", deviceGuids[i].c_str());
+			g_object_set(thisSink, "device", m_AudioDevices[i].mDeviceGuid.c_str(), NULL);// , "volume", m_AudioDevices[i].mVolume, NULL);
 			gst_bin_add_many(GST_BIN(bin), thisQueue, thisConvert, thisSink, NULL);
 
 			GstPad* sinkPad = gst_element_get_static_pad(thisSink, NULL);
@@ -330,7 +337,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 		
 		GstPad* pad = gst_element_get_static_pad(mainConvert, "sink");
 		GstPad* ghost_pad = gst_ghost_pad_new("sink", pad);
-		GstCaps* caps = gst_caps_new_simple("audio/x-raw", "channels", G_TYPE_INT, (int)deviceGuids.size() * 2, "format", G_TYPE_STRING, "S16LE");
+		GstCaps* caps = gst_caps_new_simple("audio/x-raw", "channels", G_TYPE_INT, (int)m_AudioDevices.size() * 2, "format", G_TYPE_STRING, "S16LE");
 		gst_pad_set_caps(pad, caps);
 		gst_caps_unref(caps);
 		gst_pad_set_active(ghost_pad, TRUE);
@@ -341,7 +348,6 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 	} else 
 #endif
-	*/
 
 	if (bGenerateAudioBuffer){
 		if (m_CustomPipeline){

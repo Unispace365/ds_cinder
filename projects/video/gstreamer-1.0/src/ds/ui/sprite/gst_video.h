@@ -7,7 +7,8 @@
 #include <ds/data/resource.h>
 
 #include <Poco/Timestamp.h>
-//#include <gst/gstclock.h>
+
+#include "gstreamer/gstreamer_audio_device.h"
 
 namespace gstwrapper {
 	class GStreamerWrapper;
@@ -198,12 +199,15 @@ public:
 	/// Will only load and play video on the instances named in the vector. 
 	/// This must be called before you load a movie
 	/// Set instance names in engine.xml with platform:guid
-	/// This may interact badly with syncronization if you don't load the video on the ClientServer, so use with caution
+	/// This may interact badly with synchronization if you don't load the video on the ClientServer, so use with caution
 	void				setPlayableInstances(const std::vector<std::string>& instanceNames);
 
 	/// If this video goes out of the current instance's bounds, will automatically mute. default == true
 	/// If you're having trouble with networked videos dropping audio, try turning this off
 	void				setAllowOutOfBoundsMuted(const bool allowMuted);
+
+	/// Sets the audio devices for playback (allows multi-channel output like 5.1 surround)
+	void				setAudioDevices(std::vector<GstAudioDevice>& audioDevices);
 
 	/// Have at the raw video and data.
 	/// I'm not gonna put any more comments here, because you really need to know what you're doing with this

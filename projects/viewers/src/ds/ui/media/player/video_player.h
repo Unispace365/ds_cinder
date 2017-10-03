@@ -4,6 +4,7 @@
 
 
 #include <ds/ui/sprite/sprite.h>
+#include <gstreamer/gstreamer_audio_device.h>
 
 namespace ds {
 
@@ -64,6 +65,9 @@ public:
 	/// Sets looping on the video
 	void								setVideoLoop(const bool doLooping);
 
+	/// Sets the audio devices for playback (see gstreamer_audio_device header for more info)
+	void								setAudioDevices(std::vector<GstAudioDevice>& audioDevices);
+
 protected:
 
 	virtual void								onSizeChanged();
@@ -80,6 +84,7 @@ protected:
 	bool										mAutoPlayFirstFrame;
 	bool										mAllowOutOfBoundsMuted;
 	std::vector<std::string>					mPlayableInstances;
+	std::vector<GstAudioDevice>					mAudioDevices;
 	bool										mLooping;
 };
 

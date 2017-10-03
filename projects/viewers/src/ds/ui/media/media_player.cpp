@@ -224,6 +224,7 @@ void MediaPlayer::initialize(){
 		mVideoPlayer->setAutoPlayFirstFrame(mMediaViewerSettings.mVideoAutoPlayFirstFrame);
 		mVideoPlayer->setVideoLoop(mMediaViewerSettings.mVideoLoop);
 		mVideoPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
+		mVideoPlayer->setAudioDevices(mMediaViewerSettings.mVideoAudioDevices);
 
 		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
 

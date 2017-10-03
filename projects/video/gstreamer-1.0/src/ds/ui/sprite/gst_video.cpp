@@ -1379,6 +1379,10 @@ void GstVideo::setAllowOutOfBoundsMuted(const bool allowMuted) {
 	applyMovieVolume();
 }
 
+void GstVideo::setAudioDevices(std::vector<GstAudioDevice>& audioDevices){
+	mGstreamerWrapper->setAudioDevices(audioDevices);
+}
+
 GstVideo::Status::Status(int code){
 	mCode = code;
 }
