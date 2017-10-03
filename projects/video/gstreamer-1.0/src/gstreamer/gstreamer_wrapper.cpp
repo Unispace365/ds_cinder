@@ -174,6 +174,13 @@ void * GStreamerWrapper::getElementByName(const std::string& gst_element_name){
 	return NULL;
 }
 
+
+static void deinterleave_new_pad(GstElement* element, GstPad* pad, gpointer data){
+	gchar * padName = gst_pad_get_name(pad);
+	std::cout << "New pad created! " << padName << std::endl;
+	g_free(padName);
+}
+
 bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerateVideoBuffer, const bool bGenerateAudioBuffer, const int colorSpace,
 							const int videoWidth, const int videoHeight, const bool hasAudioTrack, const double secondsDuration){
 	if(!m_ValidInstall){
@@ -317,6 +324,70 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 			if(m_AudioDevices[i].mDeviceGuid.empty()) continue;
 
+
+			GstElement* deinterleave = gst_element_factory_make("deinterleave", NULL);
+
+			GstElement* queueLeft = gst_element_factory_make("queue", NULL);
+			GstElement* queueRight = gst_element_factory_make("queue", NULL);
+
+			GstElement* interleave = gst_element_factory_make("interleave", NULL);
+			GstElement* thisQueue = gst_element_factory_make("queue", NULL);
+			GstElement* thisConvert = gst_element_factory_make("audioconvert", NULL);
+			GstElement* thisSink = gst_element_factory_make("directsoundsink", NULL);
+
+			gst_bin_add_many(GST_BIN(bin), thisQueue, deinterleave, NULL); // , queueLeft, queueRight, interleave, thisQueue, thisConvert, thisSink, NULL);
+
+			
+			GValueArray* va = g_value_array_new(2);
+			GValue v = { 0, };
+			g_value_set_enum(&v, GST_AUDIO_CHANNEL_POSITION_FRONT_LEFT);
+			g_value_array_append(va, &v);
+			g_value_reset(&v);
+			g_value_set_enum(&v, GST_AUDIO_CHANNEL_POSITION_FRONT_RIGHT);
+			g_value_array_append(va, &v);
+			g_value_reset(&v);
+			g_object_set(interleave, "channel-positions", va, NULL);
+			g_value_array_free(va);
+
+			g_object_set(thisSink, "device", m_AudioDevices[i].mDeviceGuid.c_str(), NULL);
+
+
+			g_signal_connect(deinterleave, "pad-added", G_CALLBACK(deinterleave_new_pad), NULL);
+
+			GstPadTemplate* tee_src_pad_template = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(mainTee), "src_%u");
+			GstPad* teePad = gst_element_request_pad(mainTee, tee_src_pad_template, NULL, NULL);
+			GstPad* queueSinkPad = gst_element_get_static_pad(thisQueue, "sink");
+			link_ok = gst_pad_link(teePad, queueSinkPad);
+			link_ok = gst_element_link_many(thisQueue, deinterleave, NULL);
+
+			/*
+			GstPadTemplate* leftDePadTemplate = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(deinterleave), "src_%u");
+			GstPad* leftDePad = gst_element_get_request_pad(deinterleave, "src_0");
+			gchar * padName = gst_pad_get_name(leftDePad);
+			GstPad* leftQueuePad = gst_element_get_static_pad(queueLeft, "sink");
+			link_ok = gst_pad_link(leftDePad, leftQueuePad);
+
+			GstPad* leftQueueSrc = gst_element_get_static_pad(queueLeft, "src");
+			GstPad* leftIntSink = gst_element_get_static_pad(interleave, "sink_0");
+			link_ok = gst_pad_link(leftQueueSrc, leftIntSink);
+
+			GstPad* rightDePad = gst_element_get_static_pad(deinterleave, "src_3");
+			GstPad* rightQueuePad = gst_element_get_static_pad(queueRight, "sink");
+			link_ok = gst_pad_link(rightDePad, rightQueuePad);
+
+			GstPad* rightQueueSrc = gst_element_get_static_pad(queueRight, "src");
+			GstPad* rightIntSink = gst_element_get_static_pad(interleave, "sink_1");
+			link_ok = gst_pad_link(rightQueueSrc, rightIntSink);
+			
+			link_ok = gst_element_link_many(interleave, thisQueue, thisConvert, thisSink);
+
+
+			*/
+
+
+
+			/*
+
 			GstElement* thisQueue = gst_element_factory_make("queue", NULL);
 			GstElement* thisConvert = gst_element_factory_make("audioconvert", NULL);
 			GstCaps* thisCaps = gst_caps_new_simple("audio/x-raw", "channels", G_TYPE_INT, 2, "channel-mask", G_TYPE_STRING, m_AudioDevices[i].mChannelMask.c_str(), NULL);
@@ -333,6 +404,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			GstPad* teePad = gst_element_request_pad(mainTee, tee_src_pad_template, NULL, NULL);
 			GstPad* queue_audio_pad1 = gst_element_get_static_pad(thisQueue, "sink");
 			link_ok = gst_pad_link(teePad, queue_audio_pad1);
+			*/
 		}
 		
 		GstPad* pad = gst_element_get_static_pad(mainConvert, "sink");
