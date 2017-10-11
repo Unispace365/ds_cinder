@@ -50,6 +50,7 @@ Sprite Types
 * **layout** = ds::ui::LayoutSprite
 * **circle** = ds::ui::Circle
 * **border** = ds::ui::Border
+* **donut_arc** = ds::ui::DonutArc
 * **scroll_list[_(vertical|horizontal)** = ds::ui::ScrollList
 * **scroll_area** = ds::ui::ScrollArea
 * **centered_scroll_area** = ds::ui::CenteredScrollArea
@@ -218,6 +219,11 @@ Circle Sprite Parameters
 Border Parameters
 ---------------------------
 * **border_width**: Float, the width of the border, which has its outer edge at the extent of the sprite
+
+Donut Arc Parameters
+---------------------------
+* **donut_width**: Float, the distance in pixels from the outside of the sprite to the inside of the donut
+* **donut_percent**: Float, the percentage that the donut is filled in
 
 Scroll List Parameters
 -------------------------------

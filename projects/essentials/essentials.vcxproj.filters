@@ -184,6 +184,7 @@
       <Filter>src</Filter>
     </ClCompile>
     <ClCompile Include="src\ds\ui\layout\smart_layout.cpp" />
+    <ClCompile Include="src\ds\ui\sprite\donut_arc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -334,5 +335,6 @@
       <Filter>src</Filter>
     </ClInclude>
     <ClInclude Include="src\ds\ui\layout\smart_layout.h" />
+    <ClInclude Include="src\ds\ui\sprite\donut_arc.h" />
   </ItemGroup>
 </Project>

@@ -33,6 +33,7 @@
 #include <ds/ui/sprite/border.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/ui/sprite/circle_border.h>
+#include <ds/ui/sprite/donut_arc.h>
 #include <ds/util/string_util.h>
 #include <ds/util/color_util.h>
 #include <ds/util/file_meta_data.h>
@@ -700,6 +701,22 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			DS_LOG_WARNING("Trying to set line width on a non-circle sprite of type: " << typeid(sprite).name());
 		}
 	}
+	else if(property == "donut_width"){
+		auto donut = dynamic_cast<DonutArc*>(&sprite);
+		if(donut){
+			donut->setDonutWidth(ds::string_to_float(value));
+		} else {
+			DS_LOG_WARNING("Trying to set donut_inner_radius on a non-donut sprite of type: " << typeid(sprite).name());
+		}
+	} 
+	else if(property == "donut_percent"){
+		auto donut = dynamic_cast<DonutArc*>(&sprite);
+		if(donut){
+			donut->setPercent(ds::string_to_float(value));
+		} else {
+			DS_LOG_WARNING("Trying to set donut_percent on a non-donut sprite of type: " << typeid(sprite).name());
+		}
+	}
 	
 	// fallback to engine-registered properites last
 	else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
@@ -1033,6 +1050,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::ControlSlider(engine, false);
 	} else if(type == "control_slider_vertical"){
 		spriddy = new ds::ui::ControlSlider(engine, true);
+	} else if(type == "donut_arc"){
+		spriddy = new ds::ui::DonutArc(engine);
 	} else if(type == "scroll_bar"){
 		spriddy = new ds::ui::ScrollBar(engine);
 	} else if(type == "soft_keyboard"){
