@@ -1137,6 +1137,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 			spriddy = SoftKeyboardBuilder::buildLowercaseKeyboard(engine, sks);
 		} else if(keyboardType == "pinpad"){
 			spriddy = SoftKeyboardBuilder::buildPinPadKeyboard(engine, sks);
+		} else if(keyboardType == "pincode"){
+			spriddy = SoftKeyboardBuilder::buildPinCodeKeyboard(engine, sks);
 		} else if(keyboardType == "extended"){
 			spriddy = SoftKeyboardBuilder::buildExtendedKeyboard(engine, sks);
 		} else {

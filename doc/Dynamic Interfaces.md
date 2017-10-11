@@ -258,7 +258,7 @@ EntryFields and SoftKeyboards need some parameters set for instantiation, so the
 * **password_mode**: If true, will show bullets instead of text. Default: false
 
 **SOFT KEYBOARD PARAMETERS**
-* **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase, extended and pinpad. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Pinpad is like an ATM pin pad. Default: standard
+* **type**: Determines which kind of keyboard this is. Valid types: standard, lowercase, extended, pinpad and pincode. Standard has shift abilities and some extended keys. Lowercase is simplified and only has lowercase keys. Pinpad is like an ATM pin pad with an enter button. Pincode is a number entry keyboard with a back/delete button. Default: standard
 * **key_up_text_config**: The text config of the text in the keys when not pressed. Default: keyboard:key:up
 * **key_dn_text_config**: The text config of the text in the keys when pressed. Default: keyboard:key:down
 * **key_up_color**: The color of the keys when not pressed. Engine colors allowed. Default: white
