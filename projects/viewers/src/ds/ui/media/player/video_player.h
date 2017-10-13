@@ -43,6 +43,7 @@ public:
 
 	void								setGoodStatusCallback(std::function<void()> func){ mGoodStatusCallback = func; }
 	void								setErrorCallback(std::function<void(const std::string&)> func){ mErrorMsgCallback = func; }
+	void								setVideoCompleteCallback(std::function<void()> func){ mVideoCompleteCallback = func; }
 
 	/// See the function of the same name on GstVideo, Set any time, will remember between loading videos
 	void								setPan(const float newPan);
@@ -72,6 +73,7 @@ protected:
 	bool										mEmbedInterface;
 	bool										mShowInterfaceAtStart;
 	std::function<void(void)>					mGoodStatusCallback;
+	std::function<void(void)>					mVideoCompleteCallback;
 	std::function<void(const std::string&)>		mErrorMsgCallback;
 
 	/// Settings - these are kept locally here so the settings can be applied at any time

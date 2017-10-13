@@ -50,6 +50,10 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 		if(mVideoInterface){
 			mVideoInterface->userInputReceived();
 		}
+
+		if(mVideoCompleteCallback){
+			mVideoCompleteCallback();
+		}
 	});
 
 	setPan(mPanning);
