@@ -41,6 +41,13 @@ enum class EllipsizeMode : int {
 	kEllipsizeEnd = 3 // Adds ellipses to the end of the text if it doesn't fit in the resize limit
 };
 
+
+enum class WrapMode : int {
+	kWrapModeWord = 0, // Wraps only on word boundaries
+	kWrapModeChar = 1, // Wraps on each character
+	kWrapModeWordChar  // Wraps on words, and falls back to char if it doesn't fit 
+};
+
 } // namespace ui
 } // namespace ds
 
