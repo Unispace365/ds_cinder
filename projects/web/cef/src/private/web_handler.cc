@@ -185,7 +185,7 @@ bool WebHandler::OnBeforePopup(CefRefPtr<CefBrowser> browser,
 								  CefRefPtr<CefFrame> frame, 
 								  const CefString& target_url, 
 								  const CefString& target_frame_name, 
-								  WindowOpenDisposition target_disposition, 
+								  CefLifeSpanHandler::WindowOpenDisposition target_disposition,
 								  bool user_gesture, 
 								  const CefPopupFeatures& popupFeatures, 
 								  CefWindowInfo& windowInfo, 
@@ -376,6 +376,46 @@ void WebHandler::OnTakeFocus(CefRefPtr<CefBrowser> browser, bool next){
 bool WebHandler::OnKeyEvent(CefRefPtr<CefBrowser> browser, const CefKeyEvent& event, CefEventHandle os_event){
 //	std::cout << "On Key Event: " << event.focus_on_editable_field << std::endl;
 	return false;
+}
+
+// This comes from the IO thread, so it needs to be locked with the main thread 
+bool WebHandler::GetAuthCredentials(CefRefPtr<CefBrowser> browser, CefRefPtr<CefFrame> frame, bool isProxy, const CefString& host, int port, const CefString& realm, const CefString& scheme, CefRefPtr<CefAuthCallback> callback){
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+	bool handled = false;
+	int browserId = browser->GetIdentifier();
+	auto findy = mWebCallbacks.find(browserId);
+	if(findy != mWebCallbacks.end()){
+		if(findy->second.mAuthCallback){
+			mAuthCallbacks[browserId] = callback;
+			findy->second.mAuthCallback(isProxy, host.ToString(), port, realm.ToString(), scheme.ToString());
+			handled = true;
+		}
+	}
+
+	return handled;
+}
+
+void WebHandler::authRequestCancel(const int browserId){
+
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+	auto findy = mAuthCallbacks.find(browserId);
+	if(findy != mAuthCallbacks.end()){
+		findy->second->Cancel();
+		mAuthCallbacks.erase(findy);
+	}
+}
+
+void WebHandler::authRequestContinue(const int browserId, const std::string& username, const std::string& password){
+
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+	auto findy = mAuthCallbacks.find(browserId);
+	if(findy != mAuthCallbacks.end()){
+		findy->second->Continue(CefString(username), CefString(password));
+		mAuthCallbacks.erase(findy);
+	}
 }
 
 void WebHandler::closeBrowser(const int browserId){

@@ -291,5 +291,19 @@ double WebCefService::getZoomLevel(const int browserId){
 	return 0.0;
 }
 
+void WebCefService::authCallbackCancel(const int browserId){
+	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
+	if(handler){
+		handler->authRequestCancel(browserId);
+	}
+}
+
+void WebCefService::authCallbackContinue(const int browserId, const std::string& username, const std::string& password){
+	CefRefPtr<WebHandler> handler(WebHandler::GetInstance());
+	if(handler){
+		handler->authRequestContinue(browserId, username, password);
+	}
+}
+
 } // namespace web
 } // namespace ds

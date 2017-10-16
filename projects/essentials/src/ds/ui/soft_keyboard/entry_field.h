@@ -51,6 +51,9 @@ public:
 	/// This field will lose focus, which hides the cursor, and this field won't be active
 	void								unfocus();
 
+	/// If this field is in focus
+	bool								getIsInFocus(){ return mInFocus; }
+
 	/// Get the current entered text string
 	const std::wstring					getCurrentText();
 

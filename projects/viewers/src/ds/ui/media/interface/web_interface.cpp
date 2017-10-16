@@ -11,6 +11,9 @@
 #include <ds/ui/button/image_button.h>
 #include <ds/ui/sprite/text.h>
 
+#include <ds/ui/layout/layout_sprite.h>
+
+#include <ds/ui/soft_keyboard/entry_field.h>
 #include <ds/ui/soft_keyboard/soft_keyboard.h>
 #include <ds/ui/soft_keyboard/soft_keyboard_defs.h>
 #include <ds/ui/soft_keyboard/soft_keyboard_button.h>
@@ -36,6 +39,10 @@ WebInterface::WebInterface(ds::ui::SpriteEngine& eng, const ci::vec2& sizey, con
 	, mKeyboardAllowed(true)
 	, mKeyboardAutoDisablesTimeout(true)
 	, mWebLocked(false)
+	, mUserField(nullptr)
+	, mAuthLayout(nullptr)
+	, mPasswordField(nullptr)
+	, mAuthorizing(false)
 {
 	mKeyboardArea = new ds::ui::Sprite(mEngine, 10.0f, 10.0f);
 	mKeyboardArea->setTransparent(false);
@@ -168,9 +175,132 @@ void WebInterface::setAllowTouchToggle(const bool allowTouchToggling){
 	}
 }
 
-
 void WebInterface::setKeyboardDisablesTimeout(const bool doAutoTimeout){
 	mKeyboardAutoDisablesTimeout = doAutoTimeout;
+}
+
+
+void WebInterface::startAuthCallback(const std::string& host, const std::string& realm){
+
+	if(!mLinkedWeb || !mKeyboardArea) return;
+
+	// If they can't type anything, then cancel the auth request
+	if(!mKeyboardAllowed){
+		mLinkedWeb->authCallbackCancel();
+	}
+
+	if(mAuthLayout){
+		mAuthLayout->release();
+		mAuthLayout = nullptr;
+		mUserField = nullptr;
+		mPasswordField = nullptr;
+	}
+
+	mAuthLayout = new ds::ui::LayoutSprite(mEngine);
+	mAuthLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkHeight);
+	mAuthLayout->setTransparent(false);
+	mAuthLayout->setColor(ci::Color::black());
+	mAuthLayout->setCornerRadius(mKeyboardArea->getCornerRadius());
+
+	mAuthLayout->enable(true);
+	mAuthLayout->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	mAuthLayout->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
+		if(mUserField && mPasswordField){
+			if(mUserField->getIsInFocus()){
+				mUserField->unfocus();
+				mPasswordField->focus();
+			} else {
+				mUserField->focus();
+				mPasswordField->unfocus();
+			}
+		}
+	});
+	addChildPtr(mAuthLayout);
+
+	float padding = getHeight() / 4.0f;
+	auto innerLayout = new ds::ui::LayoutSprite(mEngine);
+	innerLayout->setSpacing(padding);
+	innerLayout->setShrinkToChildren(ds::ui::LayoutSprite::kShrinkHeight);
+	innerLayout->mLayoutBPad = padding * 2.0f;
+	innerLayout->mLayoutRPad = padding * 2.0f;
+	innerLayout->mLayoutTPad = padding * 2.0f;
+	innerLayout->mLayoutLPad = padding * 2.0f;
+	mAuthLayout->addChildPtr(innerLayout);
+
+	auto authLabel = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, innerLayout);
+	std::stringstream ss;
+	ss << realm << " - "  << host;
+	authLabel->setText(ss.str());
+
+
+	auto userLabel = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, innerLayout);
+	userLabel->setFontSize(userLabel->getFontSize() * 0.66667f);
+	userLabel->setText("Username");
+	userLabel->mLayoutTPad = padding;
+
+	ds::ui::EntryFieldSettings efs;
+	efs.mTextConfig = "viewer:widget";
+	efs.mFieldSize.x = getWidth();
+	efs.mFieldSize.y = mEngine.getEngineCfg().getText("viewer:widget").mSize * 1.25f;
+	efs.mCursorSize.y = efs.mFieldSize.y;
+	mUserField = new ds::ui::EntryField(mEngine, efs);
+	mUserField->focus();
+	innerLayout->addChildPtr(mUserField);
+
+	auto passLabel = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, innerLayout);
+	passLabel->setFontSize(passLabel->getFontSize() * 0.66667f);
+	passLabel->setText("Password");
+	passLabel->mLayoutTPad = padding;
+
+	efs.mPasswordMode = true;
+	mPasswordField = new ds::ui::EntryField(mEngine, efs);
+	mPasswordField->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
+	mPasswordField->focus();
+	mPasswordField->unfocus();
+	innerLayout->addChildPtr(mPasswordField);
+
+
+	auto cancelButton = mEngine.getEngineCfg().getText("viewer:widget").create(mEngine, innerLayout);
+	cancelButton->setFontSize(cancelButton->getFontSize());
+	cancelButton->setText("Cancel");
+	cancelButton->mLayoutTPad = padding;
+	cancelButton->enable(true);
+	cancelButton->enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
+	cancelButton->setTapCallback([this](ds::ui::Sprite*, const ci::vec3&){
+		cancelAuth();
+	});
+
+	mAuthorizing = true;
+	mKeyboardShowing = true;
+	updateWidgets();
+
+	mAuthLayout->setOpacity(0.0f);
+	mAuthLayout->tweenOpacity(1.0f, mAnimateDuration);
+
+	if(mCanDisplay){
+		userInputReceived();
+	}
+}
+
+
+void WebInterface::cancelAuth(){
+	if(!mAuthorizing) return;
+	if(mLinkedWeb){
+		mLinkedWeb->authCallbackCancel();
+	}
+
+	authComplete();
+}
+
+
+void WebInterface::authComplete(){
+	if(!mAuthorizing || !mAuthLayout) return;
+	mAuthorizing = false;
+	auto aa = mAuthLayout;
+	mAuthLayout->tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::easeNone, [this, aa]{ aa->release(); });
+	mAuthLayout = nullptr;
+	mUserField = nullptr;
+	mPasswordField = nullptr;
 }
 
 void WebInterface::setKeyboardKeyScale(const float newKeyScale){
@@ -179,6 +309,9 @@ void WebInterface::setKeyboardKeyScale(const float newKeyScale){
 
 void WebInterface::animateOff(){
 	mIdling = false;
+
+	cancelAuth();
+
 	tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::EaseNone(), [this]{
 		hide();
 		mKeyboardShowing = false;
@@ -187,7 +320,18 @@ void WebInterface::animateOff(){
 }
 
 void WebInterface::linkWeb(ds::ui::Web* linkedWeb){
+	if(mLinkedWeb && !linkedWeb){
+		mLinkedWeb->setAuthCallback(nullptr);
+	}
+
 	mLinkedWeb = linkedWeb;
+
+	if(mLinkedWeb){
+		mLinkedWeb->setAuthCallback([this](ds::ui::Web::AuthCallback callback){
+			startAuthCallback(callback.mHost, callback.mRealm);
+		});
+	}
+
 	updateWidgets();
 }
 
@@ -246,6 +390,12 @@ void WebInterface::onLayout(){
 		if(mKeyboardAbove) yp = -keyboardH;
 
 		mKeyboardArea->setPosition((w - keyboardW) * 0.5f, yp);
+
+		if(mAuthLayout){
+			mAuthLayout->setSize(keyboardW, mAuthLayout->getHeight());
+			mAuthLayout->runLayout();
+			mAuthLayout->setPosition(mKeyboardArea->getPosition().x, yp - mAuthLayout->getHeight());
+		}
 	}
 }
 
@@ -305,65 +455,88 @@ void WebInterface::updateWidgets(){
 
 				mKeyboard->setKeyPressFunction([this](const std::wstring& character, ds::ui::SoftKeyboardDefs::KeyType keyType){
 					if(mLinkedWeb){
-						// spoof a keyevent to send to the web
-						bool send = true;
-						int code = 0;
-			
-						if(keyType == ds::ui::SoftKeyboardDefs::kShift){
-							send = false;
-						} else if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
-							code = ci::app::KeyEvent::KEY_BACKSPACE;
-							send = false;
-							ci::app::KeyEvent event(
-								mEngine.getWindow(),
-								code,
-								code,
-								'	',
-								0,
-								code
-								);
-							mLinkedWeb->sendKeyDownEvent(event);
-							mLinkedWeb->sendKeyUpEvent(event);
-						} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
-							code = ci::app::KeyEvent::KEY_RETURN;
-							send = false;
-							ci::app::KeyEvent event(
-								mEngine.getWindow(),
-								code,
-								code,
-								'\r',
-								0,
-								code
-								);
-							mLinkedWeb->sendKeyDownEvent(event);
-							mLinkedWeb->sendKeyUpEvent(event);
-						} else if(keyType == ds::ui::SoftKeyboardDefs::kTab){
-							code = ci::app::KeyEvent::KEY_TAB;
-							send = false;
-							ci::app::KeyEvent event(
-								mEngine.getWindow(),
-								code,
-								code,
-								'	',
-								0,
-								code
-								);
-							mLinkedWeb->sendKeyDownEvent(event);
-							mLinkedWeb->sendKeyUpEvent(event);
+						if(mAuthorizing && mUserField && mPasswordField && mAuthLayout){
+							if(mUserField->getIsInFocus()){
+								if(keyType == SoftKeyboardDefs::KeyType::kEnter || keyType == SoftKeyboardDefs::KeyType::kTab){
+									mUserField->unfocus();
+									mPasswordField->focus();
+								} else {
+									mUserField->keyPressed(character, keyType);
+								}
+							} else {
+								if(keyType == SoftKeyboardDefs::KeyType::kEnter){
+									mLinkedWeb->authCallbackContinue(ds::utf8_from_wstr(mUserField->getCurrentText()), ds::utf8_from_wstr(mPasswordField->getCurrentText()));
+									authComplete();
+
+								} else if(keyType == SoftKeyboardDefs::KeyType::kTab){
+									mPasswordField->unfocus();
+									mUserField->focus();
+								} else {
+									mPasswordField->keyPressed(character, keyType);
+								}
+							}
+						} else {
+							// spoof a keyevent to send to the web
+							bool send = true;
+							int code = 0;
+
+							if(keyType == ds::ui::SoftKeyboardDefs::kShift){
+								send = false;
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
+								code = ci::app::KeyEvent::KEY_BACKSPACE;
+								send = false;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'	',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
+								code = ci::app::KeyEvent::KEY_RETURN;
+								send = false;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'\r',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+							} else if(keyType == ds::ui::SoftKeyboardDefs::kTab){
+								code = ci::app::KeyEvent::KEY_TAB;
+								send = false;
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									code,
+									'	',
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+							}
+
+							if(send){
+								ci::app::KeyEvent event(
+									mEngine.getWindow(),
+									code,
+									0,
+									(char)character.c_str()[0],
+									0,
+									code
+									);
+								mLinkedWeb->sendKeyDownEvent(event);
+								mLinkedWeb->sendKeyUpEvent(event);
+							}
 						}
 
-						if(send){
-							ci::app::KeyEvent event(
-								mEngine.getWindow(),
-								code,
-								0,
-								(char)character.c_str()[0],
-								0,
-								code
-							);
-							mLinkedWeb->sendKeyDownEvent(event);
-							mLinkedWeb->sendKeyUpEvent(event);
-						}
 					}
 				});
 				layout();

@@ -90,6 +90,9 @@ public:
 	void					setZoomLevel(const int browserId, const double newZoomLevel);
 	double					getZoomLevel(const int browserId);
 
+	void					authCallbackCancel(const int browserId);
+	void					authCallbackContinue(const int browserId, const std::string& username, const std::string& password);
+
 protected:
 	virtual void			update(const ds::UpdateParams&);
 #ifndef _WIN32
