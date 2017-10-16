@@ -543,10 +543,33 @@ void WebHandler::sendKeyEvent(const int browserId, const int state, int windows_
 		// May need to add more codes to this list, or modify as time goes on
         case ci::app::KeyEvent::KEY_BACKSPACE:
         case ci::app::KeyEvent::KEY_TAB:
+		case ci::app::KeyEvent::KEY_ESCAPE:
+
 		{
 			keyEvent.windows_key_code = windows_key_code;
 			break;
 		}
+		case ci::app::KeyEvent::KEY_F1:			keyEvent.windows_key_code = 112; break;
+		case ci::app::KeyEvent::KEY_F2:			keyEvent.windows_key_code = 113; break;
+		case ci::app::KeyEvent::KEY_F3:			keyEvent.windows_key_code = 114; break;
+		case ci::app::KeyEvent::KEY_F4:			keyEvent.windows_key_code = 115; break;
+		case ci::app::KeyEvent::KEY_F5:			keyEvent.windows_key_code = 116; break;
+		case ci::app::KeyEvent::KEY_F6:			keyEvent.windows_key_code = 117; break;
+		case ci::app::KeyEvent::KEY_F7:			keyEvent.windows_key_code = 118; break;
+		case ci::app::KeyEvent::KEY_F8:			keyEvent.windows_key_code = 119; break;
+		case ci::app::KeyEvent::KEY_F9:			keyEvent.windows_key_code = 120; break;
+		case ci::app::KeyEvent::KEY_F10:		keyEvent.windows_key_code = 121; break;
+		case ci::app::KeyEvent::KEY_F11:		keyEvent.windows_key_code = 122; break;
+		case ci::app::KeyEvent::KEY_F12:		keyEvent.windows_key_code = 123; break;
+		case ci::app::KeyEvent::KEY_DELETE:		keyEvent.windows_key_code = 46; break;
+		case ci::app::KeyEvent::KEY_HOME:		keyEvent.windows_key_code = 36; break;
+		case ci::app::KeyEvent::KEY_END:		keyEvent.windows_key_code = 35; break;
+		case ci::app::KeyEvent::KEY_PAGEDOWN:	keyEvent.windows_key_code = 34; break;
+		case ci::app::KeyEvent::KEY_PAGEUP:		keyEvent.windows_key_code = 33; break;
+		case ci::app::KeyEvent::KEY_LEFT:		keyEvent.windows_key_code = 37; break;
+		case ci::app::KeyEvent::KEY_RIGHT:		keyEvent.windows_key_code = 39; break;
+		case ci::app::KeyEvent::KEY_UP:			keyEvent.windows_key_code = 38; break;
+		case ci::app::KeyEvent::KEY_DOWN:		keyEvent.windows_key_code = 40; break;
 
 		default:
 			isChar = true;
