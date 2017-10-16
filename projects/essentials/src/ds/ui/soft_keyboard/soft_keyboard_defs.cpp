@@ -11,6 +11,8 @@ void ds::ui::SoftKeyboardDefs::handleKeyPressGeneric(const KeyType& inputKeyType
 		}
 		inOutCurrentKey = L"";
 
+	} else if(inputKeyType == kFwdDelete || inputKeyType == kEscape || inputKeyType == kSpecial || inputKeyType == kFunction || inputKeyType == kArrow){
+
 	} else if(inputKeyType == kShift){
 		inOutCurrentKey = L"";
 
