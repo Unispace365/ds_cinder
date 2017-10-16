@@ -529,7 +529,7 @@ const int Resource::parseTypeFromFilename(const std::string& newMedia){
 
 	auto htmlFind = newMedia.find(".html");
 	auto htmlEnd = newMedia.size() - 5;
-	if(newMedia.find("http") == 0 || htmlFind == htmlEnd){
+	if(newMedia.find("http") == 0 || htmlFind == htmlEnd || newMedia.find("ftp://") == 0 || newMedia.find("ftps://") == 0){
 		return ds::Resource::WEB_TYPE;
 	}
 
