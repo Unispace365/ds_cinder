@@ -88,7 +88,7 @@ void GstAudioDevice::initialize(){
 #ifdef _WIN32
 	if(mDeviceGuid.empty()){
 
-		BOOL CALLBACK DSEnumProc(LPGUID lpGUID, LPCTSTR lpszDesc, LPCTSTR lpszDrvName, LPVOID lpContext);
+		//BOOL CALLBACK DSEnumProc(LPGUID lpGUID, LPCTSTR lpszDesc, LPCTSTR lpszDrvName, LPVOID lpContext);
 
 		bool found = false;
 
