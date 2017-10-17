@@ -61,6 +61,7 @@
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp" />
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_button.cpp" />
     <ClCompile Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp" />
+    <ClCompile Include="src\ds\ui\sprite\donut_arc.cpp" />
     <ClCompile Include="src\ds\ui\sprite\png_sequence_sprite.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -111,6 +112,7 @@
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_button.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_defs.h" />
     <ClInclude Include="src\ds\ui\soft_keyboard\soft_keyboard_settings.h" />
+    <ClInclude Include="src\ds\ui\sprite\donut_arc.h" />
     <ClInclude Include="src\ds\ui\sprite\png_sequence_sprite.h" />
     <ClInclude Include="src\ds\ui\util\sprite_cache.h" />
     <ClInclude Include="src\ds\ui\util\ui_utils.h" />

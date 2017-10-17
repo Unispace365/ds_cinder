@@ -31,6 +31,7 @@ namespace ds {
 	ci::ColorA parseHexColor(const std::string &color);
 	/** Checks engine named colors, then does a string convert if it's not found. Color format: #AARRGGBB OR #RRGGBB OR AARRGGBB OR RRGGBB. Example: ff0033 or #9933ffbb */
 	ci::ColorA parseColor(const std::string &color, const ds::ui::SpriteEngine& engine);
+	ci::ColorA parseColor(const std::wstring &color, const ds::ui::SpriteEngine& engine);
 
 	std::string unparseColor(const ci::ColorA& color);
 

@@ -24,13 +24,23 @@ namespace ui {
  *        When the browser is created, this sprite will get a unique Browser Id that uses to make requests of the browser (back, load url, etc)
  *		  The browser also sends callbacks for certain events (loading state, fullscreen, etc)
  *		  The browser runs in it's own thread(s), so callbacks need to be locked before sending to the rest of ds_cinder-land
- *		  Callbacks are syncronized with the main thread using the mutex. They also need to happen outside the update loop, so they are cached and called via a 1-frame delay
+ *		  Callbacks are synchronized with the main thread using the mutex. They also need to happen outside the update loop, so they are cached and called via a 1-frame delay
  *		  Requests into the browser can (generally) happen on any thread, and CEF handles thread synchronization
  *		  CEF also uses multiple processes for rendering, IO, etc. but that is opaque to this class
  *		  When implementing new functionality, be sure to read the documentation of CEF carefully
  */
 class Web : public ds::ui::Sprite {
 public:
+	struct AuthCallback {
+		AuthCallback() : mIsProxy(false), mPort(0){}
+		bool			mIsProxy;
+		std::string		mHost;
+		int				mPort;
+		std::string		mRealm;
+		std::string		mScheme;
+	};
+
+
 	Web(ds::ui::SpriteEngine &engine, float width = 0.0f, float height = 0.0f);
 	~Web();
 
@@ -110,6 +120,13 @@ public:
 	// The page entered or exited fullscreen. The bool will be true if in fullscreen. 
 	// The content that's fullscreen'ed will take up the entire web instance. 
 	void										setFullscreenChangedCallback(std::function<void(const bool)> func);
+
+	// The page has requested authorization. If you set this callback, you need to respond using authCallbackCancel() or authCallbackContinue() or the browser will hang indefinitely
+	void										setAuthCallback(std::function<void(AuthCallback)> func);
+	// After an authorization request, this cancels the request
+	void										authCallbackCancel();
+	// After an authorization request, this responds with the user / pass to try to continue to the page
+	void										authCallbackContinue(const std::string& username, const std::string& password);
 
 	// An error has occurred. No longer displays a text sprite for errors, simply calls back the error callback.
 	// You're responsible for displaying the error message yourself
@@ -236,6 +253,7 @@ private:
 	bool										mHasTitleCallback;
 	bool										mHasFullCallback;
 	bool										mHasLoadingCallback;
+	bool										mHasAuthCallback;
 
 	std::function<void(void)>					mDocumentReadyFn;
 	std::function<void(const std::string&)>		mErrorCallback;
@@ -243,7 +261,8 @@ private:
 	std::function<void(const std::wstring&)>	mTitleChangedCallback;
 	std::function<void(const bool)>				mFullscreenCallback;
 	std::function<void(const bool)>				mLoadingUpdatedCallback;
-
+	std::function<void(AuthCallback)>			mAuthRequestCallback;
+	AuthCallback								mAuthCallback;
 
 	// Replicated state
 	std::string									mUrl;

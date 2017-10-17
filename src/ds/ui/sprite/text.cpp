@@ -119,6 +119,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mTextAlignment(Alignment::kLeft)
 	, mDefaultTextWeight(TextWeight::kNormal)
 	, mEllipsizeMode(EllipsizeMode::kEllipsizeNone)
+	, mWrapMode(WrapMode::kWrapModeWordChar)
 	, mPixelWidth(-1)
 	, mPixelHeight(-1)
 	, mNumberOfLines(0)
@@ -417,11 +418,24 @@ void Text::setEllipsizeMode(EllipsizeMode theMode){
 	if(theMode == mEllipsizeMode) return;
 
 	mEllipsizeMode = theMode;
+	mNeedsMeasuring = true;
 	markAsDirty(LAYOUT_DIRTY);
 }
 
 EllipsizeMode Text::getEllipsizeMode(){
 	return mEllipsizeMode;
+}
+
+void Text::setWrapMode(WrapMode theMode){
+	if(theMode == mWrapMode) return;
+
+	mWrapMode = theMode;
+	mNeedsMeasuring = true;
+	markAsDirty(LAYOUT_DIRTY);
+}
+
+WrapMode Text::getWrapMode(){
+	return mWrapMode;
 }
 
 void Text::onBuildRenderBatch(){
@@ -641,7 +655,13 @@ bool Text::measurePangoText() {
 				pango_layout_set_alignment(mPangoLayout, aligny);
 			}
 
-			pango_layout_set_wrap(mPangoLayout, PANGO_WRAP_WORD_CHAR);
+			if(mWrapMode == WrapMode::kWrapModeChar){
+				pango_layout_set_wrap(mPangoLayout, PANGO_WRAP_CHAR);
+			} else if(mWrapMode == WrapMode::kWrapModeWord){
+				pango_layout_set_wrap(mPangoLayout, PANGO_WRAP_WORD);
+			} else {
+				pango_layout_set_wrap(mPangoLayout, PANGO_WRAP_WORD_CHAR);
+			}
 
 			PangoEllipsizeMode elipsizeMode = PANGO_ELLIPSIZE_NONE;
 			if(mEllipsizeMode == EllipsizeMode::kEllipsizeEnd){

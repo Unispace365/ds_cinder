@@ -28,7 +28,8 @@ class WebHandler : public CefClient,
 	public CefGeolocationHandler,
 	public CefJSDialogHandler,
 	public CefFocusHandler,
-	public CefKeyboardHandler
+	public CefKeyboardHandler,
+	public CefRequestHandler
 {
 public:
 	explicit WebHandler();
@@ -62,6 +63,9 @@ public:
 	virtual CefRefPtr<CefKeyboardHandler> GetKeyboardHandler() OVERRIDE{
 		return this;
 	}
+	virtual CefRefPtr<CefRequestHandler> GetRequestHandler() OVERRIDE{
+		return this;
+	}
 
 		// CefDisplayHandler methods:
 	virtual void OnTitleChange(CefRefPtr<CefBrowser> browser,
@@ -78,7 +82,7 @@ public:
 							   CefRefPtr<CefFrame> frame,
 							   const CefString& target_url,
 							   const CefString& target_frame_name,
-							   WindowOpenDisposition target_disposition,
+							   CefLifeSpanHandler::WindowOpenDisposition target_disposition,
 							   bool user_gesture,
 							   const CefPopupFeatures& popupFeatures,
 							   CefWindowInfo& windowInfo,
@@ -158,6 +162,18 @@ public:
 		return false;
 	}
 
+	virtual bool GetAuthCredentials(CefRefPtr<CefBrowser> browser,
+									CefRefPtr<CefFrame> frame,
+									bool isProxy,
+									const CefString& host,
+									int port,
+									const CefString& realm,
+									const CefString& scheme,
+									CefRefPtr<CefAuthCallback> callback) OVERRIDE;
+
+	void					authRequestCancel(const int browserId);
+	void					authRequestContinue(const int browserId, const std::string& username, const std::string& password);
+
 	// Requests the browser to be closed and also clears and related callbacks
 	void					closeBrowser(const int browserId);
 
@@ -209,6 +225,8 @@ private:
 
 	std::map<void *,std::function<void(int)>>			mCreatedCallbacks;
 	std::map<int, ds::web::WebCefCallbacks>				mWebCallbacks;
+
+	std::map<int, CefRefPtr<CefAuthCallback>>			mAuthCallbacks;
 
 	// Browsers that were created but their instances were removed before they were used
 	std::vector<CefRefPtr<CefBrowser>>					mOrphanedBrowsers;
