@@ -75,11 +75,11 @@ BOOL CALLBACK DSEnumProc(LPGUID lpGUID, LPCTSTR lpszDesc, LPCTSTR lpszDrvName, L
 
 namespace ds{
 
-GstAudioDevice::GstAudioDevice(const std::string& deviceName, const std::string& channelMask /*= "0x3"*/, const std::string& deviceGuid /*= ""*/, const double theVolume /*= 1.0*/) 
+GstAudioDevice::GstAudioDevice(const std::string& deviceName, const std::string& deviceGuid /*= ""*/, const double theVolume /*= 1.0*/, const float thePan) 
 	: mDeviceName(deviceName)
 	, mDeviceGuid(deviceGuid)
-	, mChannelMask(channelMask)
-	, mVolume(1.0)
+	, mVolume(theVolume)
+	, mPan(thePan)
 {
 }
 

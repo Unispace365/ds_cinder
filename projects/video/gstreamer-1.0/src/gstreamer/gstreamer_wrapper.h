@@ -492,6 +492,11 @@ public:
 
 	/* Sets the available audio devices for output. Note that this overrides other audio output controls like panning or custom audio output. */
 	void					setAudioDevices(std::vector<ds::GstAudioDevice>& devices) { m_AudioDevices = devices; }
+
+	/* Set the volume of a specific audio device by device name and volume. You must have called setAudioDevice() above before loading the video for this to work.*/
+	void					setAudioDeviceVolume(ds::GstAudioDevice& theDevice);
+	/* Set the pan of a specific audio device by device name and pan. You must have called setAudioDevice() above before loading the video for this to work.*/
+	void					setAudioDevicePan(ds::GstAudioDevice& theDevice);
 	
 	/*
 	Here the GStreamer messages are read and processed. Needed for error checking while streaming and

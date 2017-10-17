@@ -291,30 +291,18 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 
 	}
 
-	/*
-	std::vector<std::string> deviceGuids;
-	deviceGuids.push_back("{A948FD2E-8986-4600-8CAB-F42E70DFC235}");
-	deviceGuids.push_back("{D00954C4-6286-4627-932C-A3463050C68E}");
-	deviceGuids.push_back("{25BACB67-8AEE-47F3-8E2F-23CB25DDD601}");
-
-	std::vector<std::string> deviceMasks;
-	deviceMasks.push_back("0x3");
-	deviceMasks.push_back("0x12");
-	deviceMasks.push_back("0x48");
-	*/
-
 	// AUDIO SINK
 	// Extract and config Audio Sink
 #ifdef _WIN32
 	if(!m_AudioDevices.empty()){
 		GstElement* bin = gst_bin_new("converter_sink_bin");
 		GstElement* mainConvert = gst_element_factory_make("audioconvert", NULL);
-	//	m_GstPanorama = gst_element_factory_make("audiopanorama", "pan");
 		GstElement* mainResample = gst_element_factory_make("audioresample", NULL);
+		GstElement* mainVolume = gst_element_factory_make("volume", "mainvolume");
 		GstElement* mainTee = gst_element_factory_make("tee", NULL);
 
-		gst_bin_add_many(GST_BIN(bin), mainConvert, mainResample, mainTee, NULL);
-		gboolean link_ok = gst_element_link_many(mainConvert, mainResample, mainTee, NULL);
+		gst_bin_add_many(GST_BIN(bin), mainConvert, mainResample, mainVolume, mainTee, NULL);
+		gboolean link_ok = gst_element_link_many(mainConvert, mainResample, mainVolume, mainTee, NULL);
 	//	link_ok = gst_element_link_filtered(mainConvert, mainResample, caps);
 
 		for(int i = 0; i < m_AudioDevices.size(); i++){
@@ -325,6 +313,13 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			if(m_AudioDevices[i].mDeviceGuid.empty()) continue;
 
 
+			/* This is a start of how to implement 5.1, 7.1, or n-channel audio support.
+				Basically, you have to deinterleave the channels from the source. 
+				Deinterleave converts multichannel audio into single mono tracks, which can then be interleaved back into stereo outputs
+				Since the deinterleave element only has dynamic pads, you'll need to add a signal callback and 
+				connect the channels back up to directsoundsink outputs. 
+				You'll need to know the number of channels for each video ahead of time and how to map that to output devices.
+				Chances are that this will need to be implemented separately from this class. But the code is here for reference.
 			GstElement* deinterleave = gst_element_factory_make("deinterleave", NULL);
 
 			GstElement* queueLeft = gst_element_factory_make("queue", NULL);
@@ -360,51 +355,25 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			link_ok = gst_pad_link(teePad, queueSinkPad);
 			link_ok = gst_element_link_many(thisQueue, deinterleave, NULL);
 
-			/*
-			GstPadTemplate* leftDePadTemplate = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(deinterleave), "src_%u");
-			GstPad* leftDePad = gst_element_get_request_pad(deinterleave, "src_0");
-			gchar * padName = gst_pad_get_name(leftDePad);
-			GstPad* leftQueuePad = gst_element_get_static_pad(queueLeft, "sink");
-			link_ok = gst_pad_link(leftDePad, leftQueuePad);
-
-			GstPad* leftQueueSrc = gst_element_get_static_pad(queueLeft, "src");
-			GstPad* leftIntSink = gst_element_get_static_pad(interleave, "sink_0");
-			link_ok = gst_pad_link(leftQueueSrc, leftIntSink);
-
-			GstPad* rightDePad = gst_element_get_static_pad(deinterleave, "src_3");
-			GstPad* rightQueuePad = gst_element_get_static_pad(queueRight, "sink");
-			link_ok = gst_pad_link(rightDePad, rightQueuePad);
-
-			GstPad* rightQueueSrc = gst_element_get_static_pad(queueRight, "src");
-			GstPad* rightIntSink = gst_element_get_static_pad(interleave, "sink_1");
-			link_ok = gst_pad_link(rightQueueSrc, rightIntSink);
-			
-			link_ok = gst_element_link_many(interleave, thisQueue, thisConvert, thisSink);
-
-
 			*/
 
-
-
-			/*
+			m_AudioDevices[i].mVolumeName = "volume" + std::to_string(i);
+			m_AudioDevices[i].mPanoramaName = "panorama" + std::to_string(i);
 
 			GstElement* thisQueue = gst_element_factory_make("queue", NULL);
 			GstElement* thisConvert = gst_element_factory_make("audioconvert", NULL);
-			GstCaps* thisCaps = gst_caps_new_simple("audio/x-raw", "channels", G_TYPE_INT, 2, "channel-mask", G_TYPE_STRING, m_AudioDevices[i].mChannelMask.c_str(), NULL);
+			GstElement* thisPanorama = gst_element_factory_make("audiopanorama", m_AudioDevices[i].mPanoramaName.c_str());
+			GstElement* thisVolume = gst_element_factory_make("volume", m_AudioDevices[i].mVolumeName.c_str());
 			GstElement* thisSink = gst_element_factory_make("directsoundsink", NULL);
 			g_object_set(thisSink, "device", m_AudioDevices[i].mDeviceGuid.c_str(), NULL);// , "volume", m_AudioDevices[i].mVolume, NULL);
-			gst_bin_add_many(GST_BIN(bin), thisQueue, thisConvert, thisSink, NULL);
+			gst_bin_add_many(GST_BIN(bin), thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
 
-			GstPad* sinkPad = gst_element_get_static_pad(thisSink, NULL);
-			gst_pad_set_caps(sinkPad, thisCaps);
-			gst_caps_unref(thisCaps);
 
-			link_ok = gst_element_link_many(thisQueue, thisConvert, thisSink, NULL);
+			link_ok = gst_element_link_many(thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
 			GstPadTemplate* tee_src_pad_template = gst_element_class_get_pad_template(GST_ELEMENT_GET_CLASS(mainTee), "src_%u");
 			GstPad* teePad = gst_element_request_pad(mainTee, tee_src_pad_template, NULL, NULL);
 			GstPad* queue_audio_pad1 = gst_element_get_static_pad(thisQueue, "sink");
 			link_ok = gst_pad_link(teePad, queue_audio_pad1);
-			*/
 		}
 		
 		GstPad* pad = gst_element_get_static_pad(mainConvert, "sink");
@@ -1151,8 +1120,15 @@ void GStreamerWrapper::setVolume(float fVolume){
 		else if(m_fVolume > 1.0f)
 			m_fVolume = 1.0f;
 
-		if (m_GstPipeline)
-			g_object_set(m_GstPipeline, "volume", m_fVolume, NULL);
+		if(m_GstPipeline) g_object_set(m_GstPipeline, "volume", m_fVolume, NULL);
+
+		if(!m_AudioDevices.empty()){
+			auto mainVolumeElement = gst_bin_get_by_name(GST_BIN(m_GstPipeline), "mainvolume");
+			if(mainVolumeElement){
+				g_object_set(mainVolumeElement, "volume", m_fVolume, NULL);
+			}
+		}
+		
 	}
 }
 
@@ -1364,6 +1340,30 @@ static void print_one_tag(const GstTagList * list, const gchar * tag, gpointer u
 		} else if(G_VALUE_HOLDS_BOOLEAN(val)) {
 			std::cout << tag << " " << g_value_get_boolean(val) << std::endl;
 		} 
+	}
+}
+
+void GStreamerWrapper::setAudioDeviceVolume(ds::GstAudioDevice& theDevice){
+	for (auto it : m_AudioDevices){
+		if(it.mDeviceName == theDevice.mDeviceName){
+			auto volumeElement = gst_bin_get_by_name(GST_BIN(m_GstPipeline), it.mVolumeName.c_str());
+			if(volumeElement){
+				g_object_set(volumeElement, "volume", theDevice.mVolume, (void*)NULL);
+			}
+			break;
+		}
+	}
+}
+
+void GStreamerWrapper::setAudioDevicePan(ds::GstAudioDevice& theDevice){
+	for(auto it : m_AudioDevices){
+		if(it.mDeviceName == theDevice.mDeviceName){
+			auto panElement = gst_bin_get_by_name(GST_BIN(m_GstPipeline), it.mPanoramaName.c_str());
+			if(panElement){
+				g_object_set(panElement, "panorama", theDevice.mPan, (void*)NULL);
+			}
+			break;
+		}
 	}
 }
 

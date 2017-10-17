@@ -209,6 +209,11 @@ public:
 	/// Sets the audio devices for playback (allows multi-channel output like 5.1 surround)
 	void				setAudioDevices(std::vector<GstAudioDevice>& audioDevices);
 
+	/// The volume of a specific device. The most common case is to use setVolume() above. This is only if you've setAudioDevices() and need to control a specific one
+	void				setAudioDeviceVolume(GstAudioDevice& deviceWithVolume);
+	/// The pan of a specific device. The most common case is to use setPan() above. This is only if you've setAudioDevices() and need to control a specific one
+	void				setAudioDevicePan(GstAudioDevice& deviceWithPan);
+
 	/// Have at the raw video and data.
 	/// I'm not gonna put any more comments here, because you really need to know what you're doing with this
 	/// If you're like "Hey, I just want to show a video" then you are in the wrong place
