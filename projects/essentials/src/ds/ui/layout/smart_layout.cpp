@@ -22,7 +22,7 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
 		if (m) this->onAppEvent(*m);
 	}) {
 
-	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "");
+	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true);
 
 	runLayout();
 }
