@@ -137,6 +137,7 @@ void VideoPlayer::layout(){
 	if(mVideo){
 		if(mVideo->getWidth() > 0.0f){
 			mVideo->setScale(getWidth() / mVideo->getWidth());
+			mVideo->setPosition(getWidth() / 2.0f - mVideo->getScaleWidth() / 2.0f, getHeight() / 2.0f - mVideo->getScaleHeight() / 2.0f);
 		}
 	}
 
