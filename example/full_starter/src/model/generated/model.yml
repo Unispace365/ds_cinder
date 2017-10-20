@@ -1,3 +1,7 @@
+options:
+    customGlobalCppInclude:
+        - '"stdafx.h"'
+
 Story:
     tableName: Story
     columns:
