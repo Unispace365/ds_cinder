@@ -183,6 +183,9 @@
     <ClCompile Include="src\ds\ui\control\control_slider.cpp">
       <Filter>src\ds\ui\control</Filter>
     </ClCompile>
+    <ClCompile Include="src\ds\ui\layout\smart_layout.cpp">
+      <Filter>src\ds\ui\layout</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\ds\debug\automator\automator.h">
@@ -331,6 +334,9 @@
     </ClInclude>
     <ClInclude Include="src\ds\ui\control\control_slider.h">
       <Filter>src\ds\ui\control</Filter>
+    </ClInclude>
+    <ClInclude Include="src\ds\ui\layout\smart_layout.h">
+      <Filter>src\ds\ui\layout</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
