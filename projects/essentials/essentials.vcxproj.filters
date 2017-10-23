@@ -280,12 +280,6 @@
     <ClInclude Include="src\ds\network\curl\curl.h">
       <Filter>src\ds\network\curl</Filter>
     </ClInclude>
-    <ClInclude Include="src\ds\network\curl\curlbuild.h">
-      <Filter>src\ds\network\curl</Filter>
-    </ClInclude>
-    <ClInclude Include="src\ds\network\curl\curlrules.h">
-      <Filter>src\ds\network\curl</Filter>
-    </ClInclude>
     <ClInclude Include="src\ds\network\curl\curlver.h">
       <Filter>src\ds\network\curl</Filter>
     </ClInclude>
