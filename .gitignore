@@ -12,6 +12,8 @@
 *.obj
 *.idb
 *.pdb
+*.db
+*.opendb
 
 lib/platform*.lib
 obj/
