@@ -50,14 +50,17 @@ void AnimationApp::keyDown(ci::app::KeyEvent event){
 void AnimationApp::update(){
 	inherited::update();
 
+	return;
 
 	std::cout << "Position tween is ";
+	//if(std::cout.fail()) {
+	//	std::cout.clear();
+	//}
 	if(!mSprite1.getPositionTweenIsRunning()){
 		std::cout << "not ";
 	}
 	std::cout << "running." << std::endl;
 	console() << "Hello there" << std::endl;
-	return;
 }
 
 void AnimationApp::setupServer()
@@ -119,10 +122,5 @@ void AnimationApp::setupServer()
 	console() << "Hello there" << std::endl;
 }
 
-
-void prepareSettings(AnimationApp::Settings* settings) {
-	settings->setConsoleWindowEnabled(true);
-}
-
 // This line tells Cinder to actually create the application
-CINDER_APP(AnimationApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)), prepareSettings)
+CINDER_APP(AnimationApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

@@ -23,7 +23,7 @@ PangoFontService::PangoFontService(ds::ui::SpriteEngine& eng)
 	: mFontMap(nullptr)
 {
 	DS_LOG_INFO_M("Initializing Pango version " << PANGO_VERSION_STRING, PANGO_FONT_LOG_M);
-	std::cout << "Initializing Pango version " << PANGO_VERSION_STRING << std::endl;
+
 
 	// Note: _putenv doesn't work for successfully propagating variables to the pango / fontconfig dll's
 	//		So the backend variable must be set system-wide. the setx command does that, but it won't be picked up

@@ -23,7 +23,7 @@
 	
 	<!-- Show console will create a console window, or not if this is false. 
 		If this setting is missing, debug mode will create a console, release will not. -->
-	<text name="console:show" value="false" />
+	<text name="console:show" value="true" />
 
 	<!---------------------->
 	<!-- WINDOW SETTINGS --->
