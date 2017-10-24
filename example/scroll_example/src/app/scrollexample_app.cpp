@@ -132,7 +132,7 @@ void ScrollExample::setupServer(){
 
 	mInfoList->setInfoItemCallback([this, outputTexter](ds::model::StoryRef infoThing, ci::vec3 possy){
 		//outputTexter->setText(infoThing.getName());
-		mInfoList->nextPage();
+//		mInfoList->nextPage();
 	});
 
 

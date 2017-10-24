@@ -23,7 +23,7 @@ TextTest::TextTest(Globals& g)
 	, mMessage(nullptr)
 {
 
-	mMessage = mGlobals.getText("sample:config").createMultiline(mEngine, this);
+	mMessage = mGlobals.getText("sample:config").create(mEngine, this);
 	if(mMessage){
 		std::wstring theText = ds::wstr_from_utf8(mGlobals.getSettingsLayout().getText("text:test:text", 0, ""));
 		mMessage->setText(theText);

@@ -51,6 +51,8 @@ projects/viewers/lib/
 /example/example_client_and_server_media/vs2013_client/Example_C_and_S.exe
 /example/example_client_and_server_media/vs2013_client/Example_C_and_S.ilk
 
+*GPUCache/
+
 *build*/
 /example/*/bin/
 projects/**/lib*.a

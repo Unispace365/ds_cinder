@@ -29,7 +29,7 @@ SampleView::SampleView(Globals& g)
 	ds::ui::XmlImporter::loadXMLto(this, mGlobals.mXmlImporterMap["sample.xml"], mSpriteMap);
 
 	mTitle = dynamic_cast<ds::ui::Text*>(mSpriteMap["title"]);
-	mBody = dynamic_cast<ds::ui::MultilineText*>(mSpriteMap["body"]);
+	mBody = dynamic_cast<ds::ui::Text*>(mSpriteMap["body"]);
 	mSampleImage = dynamic_cast<ds::ui::Image*>(mSpriteMap["sample_image"]);
 
 	// always check xml-loaded sprites, in case the xml didn't load correct or that sprite was removed or whatever

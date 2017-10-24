@@ -5,7 +5,6 @@
 #include <ds/ui/sprite/sprite.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/sprite/text.h>
-#include <ds/ui/sprite/multiline_text.h>
 
 namespace importer_example {
 class Globals;
@@ -25,7 +24,7 @@ private:
 	Globals&								mGlobals;
 
 	ds::ui::Text*							mTitle;
-	ds::ui::MultilineText*					mBody;
+	ds::ui::Text*							mBody;
 	ds::ui::Image*							mSampleImage;
 
 	std::map<std::string, ds::ui::Sprite*>	mSpriteMap;
