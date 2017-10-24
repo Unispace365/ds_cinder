@@ -9,15 +9,20 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=51a75f1cffe3f368185a7079b460c02d2fed2f52$
+//
 
-#include <algorithm>
-#include "libcef_dll/cpptoc/test/translator_test_handler_cpptoc.h"
-#include "libcef_dll/cpptoc/test/translator_test_handler_child_cpptoc.h"
 #include "libcef_dll/ctocpp/test/translator_test_ctocpp.h"
-#include "libcef_dll/ctocpp/test/translator_test_object_ctocpp.h"
-#include "libcef_dll/ctocpp/test/translator_test_object_child_ctocpp.h"
+#include <algorithm>
+#include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_child_cpptoc.h"
+#include "libcef_dll/cpptoc/test/translator_test_ref_ptr_client_cpptoc.h"
+#include "libcef_dll/cpptoc/test/translator_test_scoped_client_child_cpptoc.h"
+#include "libcef_dll/cpptoc/test/translator_test_scoped_client_cpptoc.h"
+#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_child_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_ref_ptr_library_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_scoped_library_child_ctocpp.h"
+#include "libcef_dll/ctocpp/test/translator_test_scoped_library_ctocpp.h"
 #include "libcef_dll/transfer_util.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
@@ -30,7 +35,6 @@ CefRefPtr<CefTranslatorTest> CefTranslatorTest::Create() {
   // Return type: refptr_same
   return CefTranslatorTestCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -56,7 +60,7 @@ bool CefTranslatorTestCToCpp::GetBool() {
   int _retval = _struct->get_bool(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 int CefTranslatorTestCToCpp::GetInt() {
@@ -126,7 +130,7 @@ bool CefTranslatorTestCToCpp::SetVoid() {
   int _retval = _struct->set_void(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::SetBool(bool val) {
@@ -137,11 +141,10 @@ bool CefTranslatorTestCToCpp::SetBool(bool val) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->set_bool(_struct,
-      val);
+  int _retval = _struct->set_bool(_struct, val);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::SetInt(int val) {
@@ -152,11 +155,10 @@ bool CefTranslatorTestCToCpp::SetInt(int val) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->set_int(_struct,
-      val);
+  int _retval = _struct->set_int(_struct, val);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::SetDouble(double val) {
@@ -167,11 +169,10 @@ bool CefTranslatorTestCToCpp::SetDouble(double val) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->set_double(_struct,
-      val);
+  int _retval = _struct->set_double(_struct, val);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::SetLong(long val) {
@@ -182,11 +183,10 @@ bool CefTranslatorTestCToCpp::SetLong(long val) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->set_long(_struct,
-      val);
+  int _retval = _struct->set_long(_struct, val);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::SetSizet(size_t val) {
@@ -197,11 +197,10 @@ bool CefTranslatorTestCToCpp::SetSizet(size_t val) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->set_sizet(_struct,
-      val);
+  int _retval = _struct->set_sizet(_struct, val);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::SetIntList(const std::vector<int>& val) {
@@ -225,16 +224,14 @@ bool CefTranslatorTestCToCpp::SetIntList(const std::vector<int>& val) {
   }
 
   // Execute
-  int _retval = _struct->set_int_list(_struct,
-      valCount,
-      valList);
+  int _retval = _struct->set_int_list(_struct, valCount, valList);
 
   // Restore param:val; type: simple_vec_byref_const
   if (valList)
-    delete [] valList;
+    delete[] valList;
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::GetIntListByRef(IntList& val) {
@@ -252,7 +249,7 @@ bool CefTranslatorTestCToCpp::GetIntListByRef(IntList& val) {
     valList = new int[valCount];
     DCHECK(valList);
     if (valList) {
-       memset(valList, 0, sizeof(int)*valCount);
+      memset(valList, 0, sizeof(int) * valCount);
     }
     if (valList && valSize > 0) {
       for (size_t i = 0; i < valSize; ++i) {
@@ -262,9 +259,7 @@ bool CefTranslatorTestCToCpp::GetIntListByRef(IntList& val) {
   }
 
   // Execute
-  int _retval = _struct->get_int_list_by_ref(_struct,
-      &valCount,
-      valList);
+  int _retval = _struct->get_int_list_by_ref(_struct, &valCount, valList);
 
   // Restore param:val; type: simple_vec_byref
   val.clear();
@@ -272,11 +267,11 @@ bool CefTranslatorTestCToCpp::GetIntListByRef(IntList& val) {
     for (size_t i = 0; i < valCount; ++i) {
       val.push_back(valList[i]);
     }
-    delete [] valList;
+    delete[] valList;
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 size_t CefTranslatorTestCToCpp::GetIntListSize() {
@@ -322,11 +317,10 @@ bool CefTranslatorTestCToCpp::SetString(const CefString& val) {
     return false;
 
   // Execute
-  int _retval = _struct->set_string(_struct,
-      val.GetStruct());
+  int _retval = _struct->set_string(_struct, val.GetStruct());
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefTranslatorTestCToCpp::GetStringByRef(CefString& val) {
@@ -337,8 +331,7 @@ void CefTranslatorTestCToCpp::GetStringByRef(CefString& val) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->get_string_by_ref(_struct,
-      val.GetWritableStruct());
+  _struct->get_string_by_ref(_struct, val.GetWritableStruct());
 }
 
 bool CefTranslatorTestCToCpp::SetStringList(const std::vector<CefString>& val) {
@@ -355,15 +348,14 @@ bool CefTranslatorTestCToCpp::SetStringList(const std::vector<CefString>& val) {
     transfer_string_list_contents(val, valList);
 
   // Execute
-  int _retval = _struct->set_string_list(_struct,
-      valList);
+  int _retval = _struct->set_string_list(_struct, valList);
 
   // Restore param:val; type: string_vec_byref_const
   if (valList)
     cef_string_list_free(valList);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::GetStringListByRef(StringList& val) {
@@ -380,8 +372,7 @@ bool CefTranslatorTestCToCpp::GetStringListByRef(StringList& val) {
     transfer_string_list_contents(val, valList);
 
   // Execute
-  int _retval = _struct->get_string_list_by_ref(_struct,
-      valList);
+  int _retval = _struct->get_string_list_by_ref(_struct, valList);
 
   // Restore param:val; type: string_vec_byref
   if (valList) {
@@ -391,7 +382,7 @@ bool CefTranslatorTestCToCpp::GetStringListByRef(StringList& val) {
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::SetStringMap(const StringMap& val) {
@@ -408,19 +399,18 @@ bool CefTranslatorTestCToCpp::SetStringMap(const StringMap& val) {
     transfer_string_map_contents(val, valMap);
 
   // Execute
-  int _retval = _struct->set_string_map(_struct,
-      valMap);
+  int _retval = _struct->set_string_map(_struct, valMap);
 
   // Restore param:val; type: string_map_single_byref_const
   if (valMap)
     cef_string_map_free(valMap);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefTranslatorTestCToCpp::GetStringMapByRef(std::map<CefString,
-    CefString>& val) {
+bool CefTranslatorTestCToCpp::GetStringMapByRef(
+    std::map<CefString, CefString>& val) {
   cef_translator_test_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, get_string_map_by_ref))
     return false;
@@ -434,8 +424,7 @@ bool CefTranslatorTestCToCpp::GetStringMapByRef(std::map<CefString,
     transfer_string_map_contents(val, valMap);
 
   // Execute
-  int _retval = _struct->get_string_map_by_ref(_struct,
-      valMap);
+  int _retval = _struct->get_string_map_by_ref(_struct, valMap);
 
   // Restore param:val; type: string_map_single_byref
   if (valMap) {
@@ -445,11 +434,11 @@ bool CefTranslatorTestCToCpp::GetStringMapByRef(std::map<CefString,
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefTranslatorTestCToCpp::SetStringMultimap(const std::multimap<CefString,
-    CefString>& val) {
+bool CefTranslatorTestCToCpp::SetStringMultimap(
+    const std::multimap<CefString, CefString>& val) {
   cef_translator_test_t* _struct = GetStruct();
   if (CEF_MEMBER_MISSING(_struct, set_string_multimap))
     return false;
@@ -463,15 +452,14 @@ bool CefTranslatorTestCToCpp::SetStringMultimap(const std::multimap<CefString,
     transfer_string_multimap_contents(val, valMultimap);
 
   // Execute
-  int _retval = _struct->set_string_multimap(_struct,
-      valMultimap);
+  int _retval = _struct->set_string_multimap(_struct, valMultimap);
 
   // Restore param:val; type: string_map_multi_byref_const
   if (valMultimap)
     cef_string_multimap_free(valMultimap);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::GetStringMultimapByRef(StringMultimap& val) {
@@ -488,8 +476,7 @@ bool CefTranslatorTestCToCpp::GetStringMultimapByRef(StringMultimap& val) {
     transfer_string_multimap_contents(val, valMultimap);
 
   // Execute
-  int _retval = _struct->get_string_multimap_by_ref(_struct,
-      valMultimap);
+  int _retval = _struct->get_string_multimap_by_ref(_struct, valMultimap);
 
   // Restore param:val; type: string_map_multi_byref
   if (valMultimap) {
@@ -499,7 +486,7 @@ bool CefTranslatorTestCToCpp::GetStringMultimapByRef(StringMultimap& val) {
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 CefPoint CefTranslatorTestCToCpp::GetPoint() {
@@ -524,11 +511,10 @@ bool CefTranslatorTestCToCpp::SetPoint(const CefPoint& val) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->set_point(_struct,
-      &val);
+  int _retval = _struct->set_point(_struct, &val);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefTranslatorTestCToCpp::GetPointByRef(CefPoint& val) {
@@ -539,8 +525,7 @@ void CefTranslatorTestCToCpp::GetPointByRef(CefPoint& val) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  _struct->get_point_by_ref(_struct,
-      &val);
+  _struct->get_point_by_ref(_struct, &val);
 }
 
 bool CefTranslatorTestCToCpp::SetPointList(const std::vector<CefPoint>& val) {
@@ -564,16 +549,14 @@ bool CefTranslatorTestCToCpp::SetPointList(const std::vector<CefPoint>& val) {
   }
 
   // Execute
-  int _retval = _struct->set_point_list(_struct,
-      valCount,
-      valList);
+  int _retval = _struct->set_point_list(_struct, valCount, valList);
 
   // Restore param:val; type: simple_vec_byref_const
   if (valList)
-    delete [] valList;
+    delete[] valList;
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 bool CefTranslatorTestCToCpp::GetPointListByRef(PointList& val) {
@@ -591,7 +574,7 @@ bool CefTranslatorTestCToCpp::GetPointListByRef(PointList& val) {
     valList = new cef_point_t[valCount];
     DCHECK(valList);
     if (valList) {
-       memset(valList, 0, sizeof(cef_point_t)*valCount);
+      memset(valList, 0, sizeof(cef_point_t) * valCount);
     }
     if (valList && valSize > 0) {
       for (size_t i = 0; i < valSize; ++i) {
@@ -601,9 +584,7 @@ bool CefTranslatorTestCToCpp::GetPointListByRef(PointList& val) {
   }
 
   // Execute
-  int _retval = _struct->get_point_list_by_ref(_struct,
-      &valCount,
-      valList);
+  int _retval = _struct->get_point_list_by_ref(_struct, &valCount, valList);
 
   // Restore param:val; type: simple_vec_byref
   val.clear();
@@ -611,11 +592,11 @@ bool CefTranslatorTestCToCpp::GetPointListByRef(PointList& val) {
     for (size_t i = 0; i < valCount; ++i) {
       val.push_back(valList[i]);
     }
-    delete [] valList;
+    delete[] valList;
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 size_t CefTranslatorTestCToCpp::GetPointListSize() {
@@ -632,24 +613,26 @@ size_t CefTranslatorTestCToCpp::GetPointListSize() {
   return _retval;
 }
 
-CefRefPtr<CefTranslatorTestObject> CefTranslatorTestCToCpp::GetObject(int val) {
+CefRefPtr<CefTranslatorTestRefPtrLibrary>
+CefTranslatorTestCToCpp::GetRefPtrLibrary(int val) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_object))
+  if (CEF_MEMBER_MISSING(_struct, get_ref_ptr_library))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_translator_test_object_t* _retval = _struct->get_object(_struct,
-      val);
+  cef_translator_test_ref_ptr_library_t* _retval =
+      _struct->get_ref_ptr_library(_struct, val);
 
   // Return type: refptr_same
-  return CefTranslatorTestObjectCToCpp::Wrap(_retval);
+  return CefTranslatorTestRefPtrLibraryCToCpp::Wrap(_retval);
 }
 
-int CefTranslatorTestCToCpp::SetObject(CefRefPtr<CefTranslatorTestObject> val) {
+int CefTranslatorTestCToCpp::SetRefPtrLibrary(
+    CefRefPtr<CefTranslatorTestRefPtrLibrary> val) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_object))
+  if (CEF_MEMBER_MISSING(_struct, set_ref_ptr_library))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -660,17 +643,18 @@ int CefTranslatorTestCToCpp::SetObject(CefRefPtr<CefTranslatorTestObject> val) {
     return 0;
 
   // Execute
-  int _retval = _struct->set_object(_struct,
-      CefTranslatorTestObjectCToCpp::Unwrap(val));
+  int _retval = _struct->set_ref_ptr_library(
+      _struct, CefTranslatorTestRefPtrLibraryCToCpp::Unwrap(val));
 
   // Return type: simple
   return _retval;
 }
 
-CefRefPtr<CefTranslatorTestObject> CefTranslatorTestCToCpp::SetObjectAndReturn(
-    CefRefPtr<CefTranslatorTestObject> val) {
+CefRefPtr<CefTranslatorTestRefPtrLibrary>
+CefTranslatorTestCToCpp::SetRefPtrLibraryAndReturn(
+    CefRefPtr<CefTranslatorTestRefPtrLibrary> val) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_object_and_return))
+  if (CEF_MEMBER_MISSING(_struct, set_ref_ptr_library_and_return))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -681,18 +665,18 @@ CefRefPtr<CefTranslatorTestObject> CefTranslatorTestCToCpp::SetObjectAndReturn(
     return NULL;
 
   // Execute
-  cef_translator_test_object_t* _retval = _struct->set_object_and_return(
-      _struct,
-      CefTranslatorTestObjectCToCpp::Unwrap(val));
+  cef_translator_test_ref_ptr_library_t* _retval =
+      _struct->set_ref_ptr_library_and_return(
+          _struct, CefTranslatorTestRefPtrLibraryCToCpp::Unwrap(val));
 
   // Return type: refptr_same
-  return CefTranslatorTestObjectCToCpp::Wrap(_retval);
+  return CefTranslatorTestRefPtrLibraryCToCpp::Wrap(_retval);
 }
 
-int CefTranslatorTestCToCpp::SetChildObject(
-    CefRefPtr<CefTranslatorTestObjectChild> val) {
+int CefTranslatorTestCToCpp::SetChildRefPtrLibrary(
+    CefRefPtr<CefTranslatorTestRefPtrLibraryChild> val) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_child_object))
+  if (CEF_MEMBER_MISSING(_struct, set_child_ref_ptr_library))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -703,17 +687,18 @@ int CefTranslatorTestCToCpp::SetChildObject(
     return 0;
 
   // Execute
-  int _retval = _struct->set_child_object(_struct,
-      CefTranslatorTestObjectChildCToCpp::Unwrap(val));
+  int _retval = _struct->set_child_ref_ptr_library(
+      _struct, CefTranslatorTestRefPtrLibraryChildCToCpp::Unwrap(val));
 
   // Return type: simple
   return _retval;
 }
 
-CefRefPtr<CefTranslatorTestObject> CefTranslatorTestCToCpp::SetChildObjectAndReturnParent(
-    CefRefPtr<CefTranslatorTestObjectChild> val) {
+CefRefPtr<CefTranslatorTestRefPtrLibrary>
+CefTranslatorTestCToCpp::SetChildRefPtrLibraryAndReturnParent(
+    CefRefPtr<CefTranslatorTestRefPtrLibraryChild> val) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_child_object_and_return_parent))
+  if (CEF_MEMBER_MISSING(_struct, set_child_ref_ptr_library_and_return_parent))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -724,114 +709,111 @@ CefRefPtr<CefTranslatorTestObject> CefTranslatorTestCToCpp::SetChildObjectAndRet
     return NULL;
 
   // Execute
-  cef_translator_test_object_t* _retval =
-      _struct->set_child_object_and_return_parent(_struct,
-      CefTranslatorTestObjectChildCToCpp::Unwrap(val));
+  cef_translator_test_ref_ptr_library_t* _retval =
+      _struct->set_child_ref_ptr_library_and_return_parent(
+          _struct, CefTranslatorTestRefPtrLibraryChildCToCpp::Unwrap(val));
 
   // Return type: refptr_same
-  return CefTranslatorTestObjectCToCpp::Wrap(_retval);
+  return CefTranslatorTestRefPtrLibraryCToCpp::Wrap(_retval);
 }
 
-bool CefTranslatorTestCToCpp::SetObjectList(
-    const std::vector<CefRefPtr<CefTranslatorTestObject>>& val, int val1,
+bool CefTranslatorTestCToCpp::SetRefPtrLibraryList(
+    const std::vector<CefRefPtr<CefTranslatorTestRefPtrLibrary>>& val,
+    int val1,
     int val2) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_object_list))
+  if (CEF_MEMBER_MISSING(_struct, set_ref_ptr_library_list))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Translate param: val; type: refptr_vec_same_byref_const
   const size_t valCount = val.size();
-  cef_translator_test_object_t** valList = NULL;
+  cef_translator_test_ref_ptr_library_t** valList = NULL;
   if (valCount > 0) {
-    valList = new cef_translator_test_object_t*[valCount];
+    valList = new cef_translator_test_ref_ptr_library_t*[valCount];
     DCHECK(valList);
     if (valList) {
       for (size_t i = 0; i < valCount; ++i) {
-        valList[i] = CefTranslatorTestObjectCToCpp::Unwrap(val[i]);
+        valList[i] = CefTranslatorTestRefPtrLibraryCToCpp::Unwrap(val[i]);
       }
     }
   }
 
   // Execute
-  int _retval = _struct->set_object_list(_struct,
-      valCount,
-      valList,
-      val1,
-      val2);
+  int _retval =
+      _struct->set_ref_ptr_library_list(_struct, valCount, valList, val1, val2);
 
   // Restore param:val; type: refptr_vec_same_byref_const
   if (valList)
-    delete [] valList;
+    delete[] valList;
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefTranslatorTestCToCpp::GetObjectListByRef(ObjectList& val, int val1,
-    int val2) {
+bool CefTranslatorTestCToCpp::GetRefPtrLibraryListByRef(RefPtrLibraryList& val,
+                                                        int val1,
+                                                        int val2) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_object_list_by_ref))
+  if (CEF_MEMBER_MISSING(_struct, get_ref_ptr_library_list_by_ref))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Translate param: val; type: refptr_vec_same_byref
   size_t valSize = val.size();
-  size_t valCount = std::max(GetObjectListSize(), valSize);
-  cef_translator_test_object_t** valList = NULL;
+  size_t valCount = std::max(GetRefPtrLibraryListSize(), valSize);
+  cef_translator_test_ref_ptr_library_t** valList = NULL;
   if (valCount > 0) {
-    valList = new cef_translator_test_object_t*[valCount];
+    valList = new cef_translator_test_ref_ptr_library_t*[valCount];
     DCHECK(valList);
     if (valList) {
-       memset(valList, 0, sizeof(cef_translator_test_object_t*)*valCount);
+      memset(valList, 0,
+             sizeof(cef_translator_test_ref_ptr_library_t*) * valCount);
     }
     if (valList && valSize > 0) {
       for (size_t i = 0; i < valSize; ++i) {
-        valList[i] = CefTranslatorTestObjectCToCpp::Unwrap(val[i]);
+        valList[i] = CefTranslatorTestRefPtrLibraryCToCpp::Unwrap(val[i]);
       }
     }
   }
 
   // Execute
-  int _retval = _struct->get_object_list_by_ref(_struct,
-      &valCount,
-      valList,
-      val1,
-      val2);
+  int _retval = _struct->get_ref_ptr_library_list_by_ref(_struct, &valCount,
+                                                         valList, val1, val2);
 
   // Restore param:val; type: refptr_vec_same_byref
   val.clear();
   if (valCount > 0 && valList) {
     for (size_t i = 0; i < valCount; ++i) {
-      val.push_back(CefTranslatorTestObjectCToCpp::Wrap(valList[i]));
+      val.push_back(CefTranslatorTestRefPtrLibraryCToCpp::Wrap(valList[i]));
     }
-    delete [] valList;
+    delete[] valList;
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-size_t CefTranslatorTestCToCpp::GetObjectListSize() {
+size_t CefTranslatorTestCToCpp::GetRefPtrLibraryListSize() {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_object_list_size))
+  if (CEF_MEMBER_MISSING(_struct, get_ref_ptr_library_list_size))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  size_t _retval = _struct->get_object_list_size(_struct);
+  size_t _retval = _struct->get_ref_ptr_library_list_size(_struct);
 
   // Return type: simple
   return _retval;
 }
 
-int CefTranslatorTestCToCpp::SetHandler(
-    CefRefPtr<CefTranslatorTestHandler> val) {
+int CefTranslatorTestCToCpp::SetRefPtrClient(
+    CefRefPtr<CefTranslatorTestRefPtrClient> val) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_handler))
+  if (CEF_MEMBER_MISSING(_struct, set_ref_ptr_client))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -842,17 +824,18 @@ int CefTranslatorTestCToCpp::SetHandler(
     return 0;
 
   // Execute
-  int _retval = _struct->set_handler(_struct,
-      CefTranslatorTestHandlerCppToC::Wrap(val));
+  int _retval = _struct->set_ref_ptr_client(
+      _struct, CefTranslatorTestRefPtrClientCppToC::Wrap(val));
 
   // Return type: simple
   return _retval;
 }
 
-CefRefPtr<CefTranslatorTestHandler> CefTranslatorTestCToCpp::SetHandlerAndReturn(
-    CefRefPtr<CefTranslatorTestHandler> val) {
+CefRefPtr<CefTranslatorTestRefPtrClient>
+CefTranslatorTestCToCpp::SetRefPtrClientAndReturn(
+    CefRefPtr<CefTranslatorTestRefPtrClient> val) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_handler_and_return))
+  if (CEF_MEMBER_MISSING(_struct, set_ref_ptr_client_and_return))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -863,18 +846,18 @@ CefRefPtr<CefTranslatorTestHandler> CefTranslatorTestCToCpp::SetHandlerAndReturn
     return NULL;
 
   // Execute
-  cef_translator_test_handler_t* _retval = _struct->set_handler_and_return(
-      _struct,
-      CefTranslatorTestHandlerCppToC::Wrap(val));
+  cef_translator_test_ref_ptr_client_t* _retval =
+      _struct->set_ref_ptr_client_and_return(
+          _struct, CefTranslatorTestRefPtrClientCppToC::Wrap(val));
 
   // Return type: refptr_diff
-  return CefTranslatorTestHandlerCppToC::Unwrap(_retval);
+  return CefTranslatorTestRefPtrClientCppToC::Unwrap(_retval);
 }
 
-int CefTranslatorTestCToCpp::SetChildHandler(
-    CefRefPtr<CefTranslatorTestHandlerChild> val) {
+int CefTranslatorTestCToCpp::SetChildRefPtrClient(
+    CefRefPtr<CefTranslatorTestRefPtrClientChild> val) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_child_handler))
+  if (CEF_MEMBER_MISSING(_struct, set_child_ref_ptr_client))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -885,17 +868,18 @@ int CefTranslatorTestCToCpp::SetChildHandler(
     return 0;
 
   // Execute
-  int _retval = _struct->set_child_handler(_struct,
-      CefTranslatorTestHandlerChildCppToC::Wrap(val));
+  int _retval = _struct->set_child_ref_ptr_client(
+      _struct, CefTranslatorTestRefPtrClientChildCppToC::Wrap(val));
 
   // Return type: simple
   return _retval;
 }
 
-CefRefPtr<CefTranslatorTestHandler> CefTranslatorTestCToCpp::SetChildHandlerAndReturnParent(
-    CefRefPtr<CefTranslatorTestHandlerChild> val) {
+CefRefPtr<CefTranslatorTestRefPtrClient>
+CefTranslatorTestCToCpp::SetChildRefPtrClientAndReturnParent(
+    CefRefPtr<CefTranslatorTestRefPtrClientChild> val) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_child_handler_and_return_parent))
+  if (CEF_MEMBER_MISSING(_struct, set_child_ref_ptr_client_and_return_parent))
     return NULL;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -906,56 +890,55 @@ CefRefPtr<CefTranslatorTestHandler> CefTranslatorTestCToCpp::SetChildHandlerAndR
     return NULL;
 
   // Execute
-  cef_translator_test_handler_t* _retval =
-      _struct->set_child_handler_and_return_parent(_struct,
-      CefTranslatorTestHandlerChildCppToC::Wrap(val));
+  cef_translator_test_ref_ptr_client_t* _retval =
+      _struct->set_child_ref_ptr_client_and_return_parent(
+          _struct, CefTranslatorTestRefPtrClientChildCppToC::Wrap(val));
 
   // Return type: refptr_diff
-  return CefTranslatorTestHandlerCppToC::Unwrap(_retval);
+  return CefTranslatorTestRefPtrClientCppToC::Unwrap(_retval);
 }
 
-bool CefTranslatorTestCToCpp::SetHandlerList(
-    const std::vector<CefRefPtr<CefTranslatorTestHandler>>& val, int val1,
+bool CefTranslatorTestCToCpp::SetRefPtrClientList(
+    const std::vector<CefRefPtr<CefTranslatorTestRefPtrClient>>& val,
+    int val1,
     int val2) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, set_handler_list))
+  if (CEF_MEMBER_MISSING(_struct, set_ref_ptr_client_list))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Translate param: val; type: refptr_vec_diff_byref_const
   const size_t valCount = val.size();
-  cef_translator_test_handler_t** valList = NULL;
+  cef_translator_test_ref_ptr_client_t** valList = NULL;
   if (valCount > 0) {
-    valList = new cef_translator_test_handler_t*[valCount];
+    valList = new cef_translator_test_ref_ptr_client_t*[valCount];
     DCHECK(valList);
     if (valList) {
       for (size_t i = 0; i < valCount; ++i) {
-        valList[i] = CefTranslatorTestHandlerCppToC::Wrap(val[i]);
+        valList[i] = CefTranslatorTestRefPtrClientCppToC::Wrap(val[i]);
       }
     }
   }
 
   // Execute
-  int _retval = _struct->set_handler_list(_struct,
-      valCount,
-      valList,
-      val1,
-      val2);
+  int _retval =
+      _struct->set_ref_ptr_client_list(_struct, valCount, valList, val1, val2);
 
   // Restore param:val; type: refptr_vec_diff_byref_const
   if (valList)
-    delete [] valList;
+    delete[] valList;
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-bool CefTranslatorTestCToCpp::GetHandlerListByRef(HandlerList& val,
-    CefRefPtr<CefTranslatorTestHandler> val1,
-    CefRefPtr<CefTranslatorTestHandler> val2) {
+bool CefTranslatorTestCToCpp::GetRefPtrClientListByRef(
+    RefPtrClientList& val,
+    CefRefPtr<CefTranslatorTestRefPtrClient> val1,
+    CefRefPtr<CefTranslatorTestRefPtrClient> val2) {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_handler_list_by_ref))
+  if (CEF_MEMBER_MISSING(_struct, get_ref_ptr_client_list_by_ref))
     return false;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
@@ -971,72 +954,443 @@ bool CefTranslatorTestCToCpp::GetHandlerListByRef(HandlerList& val,
 
   // Translate param: val; type: refptr_vec_diff_byref
   size_t valSize = val.size();
-  size_t valCount = std::max(GetObjectListSize(), valSize);
-  cef_translator_test_handler_t** valList = NULL;
+  size_t valCount = std::max(GetRefPtrLibraryListSize(), valSize);
+  cef_translator_test_ref_ptr_client_t** valList = NULL;
   if (valCount > 0) {
-    valList = new cef_translator_test_handler_t*[valCount];
+    valList = new cef_translator_test_ref_ptr_client_t*[valCount];
     DCHECK(valList);
     if (valList) {
-       memset(valList, 0, sizeof(cef_translator_test_handler_t*)*valCount);
+      memset(valList, 0,
+             sizeof(cef_translator_test_ref_ptr_client_t*) * valCount);
     }
     if (valList && valSize > 0) {
       for (size_t i = 0; i < valSize; ++i) {
-        valList[i] = CefTranslatorTestHandlerCppToC::Wrap(val[i]);
+        valList[i] = CefTranslatorTestRefPtrClientCppToC::Wrap(val[i]);
       }
     }
   }
 
   // Execute
-  int _retval = _struct->get_handler_list_by_ref(_struct,
-      &valCount,
-      valList,
-      CefTranslatorTestHandlerCppToC::Wrap(val1),
-      CefTranslatorTestHandlerCppToC::Wrap(val2));
+  int _retval = _struct->get_ref_ptr_client_list_by_ref(
+      _struct, &valCount, valList,
+      CefTranslatorTestRefPtrClientCppToC::Wrap(val1),
+      CefTranslatorTestRefPtrClientCppToC::Wrap(val2));
 
   // Restore param:val; type: refptr_vec_diff_byref
   val.clear();
   if (valCount > 0 && valList) {
     for (size_t i = 0; i < valCount; ++i) {
-      val.push_back(CefTranslatorTestHandlerCppToC::Unwrap(valList[i]));
+      val.push_back(CefTranslatorTestRefPtrClientCppToC::Unwrap(valList[i]));
     }
-    delete [] valList;
+    delete[] valList;
   }
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
-size_t CefTranslatorTestCToCpp::GetHandlerListSize() {
+size_t CefTranslatorTestCToCpp::GetRefPtrClientListSize() {
   cef_translator_test_t* _struct = GetStruct();
-  if (CEF_MEMBER_MISSING(_struct, get_handler_list_size))
+  if (CEF_MEMBER_MISSING(_struct, get_ref_ptr_client_list_size))
     return 0;
 
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  size_t _retval = _struct->get_handler_list_size(_struct);
+  size_t _retval = _struct->get_ref_ptr_client_list_size(_struct);
 
   // Return type: simple
   return _retval;
 }
 
+CefOwnPtr<CefTranslatorTestScopedLibrary>
+CefTranslatorTestCToCpp::GetOwnPtrLibrary(int val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, get_own_ptr_library))
+    return CefOwnPtr<CefTranslatorTestScopedLibrary>();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Execute
+  cef_translator_test_scoped_library_t* _retval =
+      _struct->get_own_ptr_library(_struct, val);
+
+  // Return type: ownptr_same
+  return CefTranslatorTestScopedLibraryCToCpp::Wrap(_retval);
+}
+
+int CefTranslatorTestCToCpp::SetOwnPtrLibrary(
+    CefOwnPtr<CefTranslatorTestScopedLibrary> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_own_ptr_library))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: ownptr_same
+  DCHECK(val.get());
+  if (!val.get())
+    return 0;
+
+  // Execute
+  int _retval = _struct->set_own_ptr_library(
+      _struct, CefTranslatorTestScopedLibraryCToCpp::UnwrapOwn(OWN_PASS(val)));
+
+  // Return type: simple
+  return _retval;
+}
+
+CefOwnPtr<CefTranslatorTestScopedLibrary>
+CefTranslatorTestCToCpp::SetOwnPtrLibraryAndReturn(
+    CefOwnPtr<CefTranslatorTestScopedLibrary> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_own_ptr_library_and_return))
+    return CefOwnPtr<CefTranslatorTestScopedLibrary>();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: ownptr_same
+  DCHECK(val.get());
+  if (!val.get())
+    return CefOwnPtr<CefTranslatorTestScopedLibrary>();
+
+  // Execute
+  cef_translator_test_scoped_library_t* _retval =
+      _struct->set_own_ptr_library_and_return(
+          _struct,
+          CefTranslatorTestScopedLibraryCToCpp::UnwrapOwn(OWN_PASS(val)));
+
+  // Return type: ownptr_same
+  return CefTranslatorTestScopedLibraryCToCpp::Wrap(_retval);
+}
+
+int CefTranslatorTestCToCpp::SetChildOwnPtrLibrary(
+    CefOwnPtr<CefTranslatorTestScopedLibraryChild> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_child_own_ptr_library))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: ownptr_same
+  DCHECK(val.get());
+  if (!val.get())
+    return 0;
+
+  // Execute
+  int _retval = _struct->set_child_own_ptr_library(
+      _struct,
+      CefTranslatorTestScopedLibraryChildCToCpp::UnwrapOwn(OWN_PASS(val)));
+
+  // Return type: simple
+  return _retval;
+}
+
+CefOwnPtr<CefTranslatorTestScopedLibrary>
+CefTranslatorTestCToCpp::SetChildOwnPtrLibraryAndReturnParent(
+    CefOwnPtr<CefTranslatorTestScopedLibraryChild> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_child_own_ptr_library_and_return_parent))
+    return CefOwnPtr<CefTranslatorTestScopedLibrary>();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: ownptr_same
+  DCHECK(val.get());
+  if (!val.get())
+    return CefOwnPtr<CefTranslatorTestScopedLibrary>();
+
+  // Execute
+  cef_translator_test_scoped_library_t* _retval =
+      _struct->set_child_own_ptr_library_and_return_parent(
+          _struct,
+          CefTranslatorTestScopedLibraryChildCToCpp::UnwrapOwn(OWN_PASS(val)));
+
+  // Return type: ownptr_same
+  return CefTranslatorTestScopedLibraryCToCpp::Wrap(_retval);
+}
+
+int CefTranslatorTestCToCpp::SetOwnPtrClient(
+    CefOwnPtr<CefTranslatorTestScopedClient> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_own_ptr_client))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: ownptr_diff
+  DCHECK(val.get());
+  if (!val.get())
+    return 0;
+
+  // Execute
+  int _retval = _struct->set_own_ptr_client(
+      _struct, CefTranslatorTestScopedClientCppToC::WrapOwn(OWN_PASS(val)));
+
+  // Return type: simple
+  return _retval;
+}
+
+CefOwnPtr<CefTranslatorTestScopedClient>
+CefTranslatorTestCToCpp::SetOwnPtrClientAndReturn(
+    CefOwnPtr<CefTranslatorTestScopedClient> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_own_ptr_client_and_return))
+    return CefOwnPtr<CefTranslatorTestScopedClient>();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: ownptr_diff
+  DCHECK(val.get());
+  if (!val.get())
+    return CefOwnPtr<CefTranslatorTestScopedClient>();
+
+  // Execute
+  cef_translator_test_scoped_client_t* _retval =
+      _struct->set_own_ptr_client_and_return(
+          _struct, CefTranslatorTestScopedClientCppToC::WrapOwn(OWN_PASS(val)));
+
+  // Return type: ownptr_diff
+  return CefTranslatorTestScopedClientCppToC::UnwrapOwn(_retval);
+}
+
+int CefTranslatorTestCToCpp::SetChildOwnPtrClient(
+    CefOwnPtr<CefTranslatorTestScopedClientChild> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_child_own_ptr_client))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: ownptr_diff
+  DCHECK(val.get());
+  if (!val.get())
+    return 0;
+
+  // Execute
+  int _retval = _struct->set_child_own_ptr_client(
+      _struct,
+      CefTranslatorTestScopedClientChildCppToC::WrapOwn(OWN_PASS(val)));
+
+  // Return type: simple
+  return _retval;
+}
+
+CefOwnPtr<CefTranslatorTestScopedClient>
+CefTranslatorTestCToCpp::SetChildOwnPtrClientAndReturnParent(
+    CefOwnPtr<CefTranslatorTestScopedClientChild> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_child_own_ptr_client_and_return_parent))
+    return CefOwnPtr<CefTranslatorTestScopedClient>();
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: ownptr_diff
+  DCHECK(val.get());
+  if (!val.get())
+    return CefOwnPtr<CefTranslatorTestScopedClient>();
+
+  // Execute
+  cef_translator_test_scoped_client_t* _retval =
+      _struct->set_child_own_ptr_client_and_return_parent(
+          _struct,
+          CefTranslatorTestScopedClientChildCppToC::WrapOwn(OWN_PASS(val)));
+
+  // Return type: ownptr_diff
+  return CefTranslatorTestScopedClientCppToC::UnwrapOwn(_retval);
+}
+
+int CefTranslatorTestCToCpp::SetRawPtrLibrary(
+    CefRawPtr<CefTranslatorTestScopedLibrary> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_raw_ptr_library))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: rawptr_same
+  DCHECK(val);
+  if (!val)
+    return 0;
+
+  // Execute
+  int _retval = _struct->set_raw_ptr_library(
+      _struct, CefTranslatorTestScopedLibraryCToCpp::UnwrapRaw(val));
+
+  // Return type: simple
+  return _retval;
+}
+
+int CefTranslatorTestCToCpp::SetChildRawPtrLibrary(
+    CefRawPtr<CefTranslatorTestScopedLibraryChild> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_child_raw_ptr_library))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: rawptr_same
+  DCHECK(val);
+  if (!val)
+    return 0;
+
+  // Execute
+  int _retval = _struct->set_child_raw_ptr_library(
+      _struct, CefTranslatorTestScopedLibraryChildCToCpp::UnwrapRaw(val));
+
+  // Return type: simple
+  return _retval;
+}
+
+bool CefTranslatorTestCToCpp::SetRawPtrLibraryList(
+    const std::vector<CefRawPtr<CefTranslatorTestScopedLibrary>>& val,
+    int val1,
+    int val2) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_raw_ptr_library_list))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Translate param: val; type: rawptr_vec_same_byref_const
+  const size_t valCount = val.size();
+  cef_translator_test_scoped_library_t** valList = NULL;
+  if (valCount > 0) {
+    valList = new cef_translator_test_scoped_library_t*[valCount];
+    DCHECK(valList);
+    if (valList) {
+      for (size_t i = 0; i < valCount; ++i) {
+        valList[i] = CefTranslatorTestScopedLibraryCToCpp::UnwrapRaw(val[i]);
+      }
+    }
+  }
+
+  // Execute
+  int _retval =
+      _struct->set_raw_ptr_library_list(_struct, valCount, valList, val1, val2);
+
+  // Restore param:val; type: rawptr_vec_same_byref_const
+  if (valList)
+    delete[] valList;
+
+  // Return type: bool
+  return _retval ? true : false;
+}
+
+int CefTranslatorTestCToCpp::SetRawPtrClient(
+    CefRawPtr<CefTranslatorTestScopedClient> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_raw_ptr_client))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: rawptr_diff
+  DCHECK(val);
+  if (!val)
+    return 0;
+
+  // Translate param: val; type: rawptr_diff
+  CefOwnPtr<CefTranslatorTestScopedClientCppToC> valPtr(
+      CefTranslatorTestScopedClientCppToC::WrapRaw(val));
+
+  // Execute
+  int _retval = _struct->set_raw_ptr_client(_struct, valPtr->GetStruct());
+
+  // Return type: simple
+  return _retval;
+}
+
+int CefTranslatorTestCToCpp::SetChildRawPtrClient(
+    CefRawPtr<CefTranslatorTestScopedClientChild> val) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_child_raw_ptr_client))
+    return 0;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Verify param: val; type: rawptr_diff
+  DCHECK(val);
+  if (!val)
+    return 0;
+
+  // Translate param: val; type: rawptr_diff
+  CefOwnPtr<CefTranslatorTestScopedClientChildCppToC> valPtr(
+      CefTranslatorTestScopedClientChildCppToC::WrapRaw(val));
+
+  // Execute
+  int _retval = _struct->set_child_raw_ptr_client(_struct, valPtr->GetStruct());
+
+  // Return type: simple
+  return _retval;
+}
+
+bool CefTranslatorTestCToCpp::SetRawPtrClientList(
+    const std::vector<CefRawPtr<CefTranslatorTestScopedClient>>& val,
+    int val1,
+    int val2) {
+  cef_translator_test_t* _struct = GetStruct();
+  if (CEF_MEMBER_MISSING(_struct, set_raw_ptr_client_list))
+    return false;
+
+  // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
+
+  // Translate param: val; type: rawptr_vec_diff_byref_const
+  const size_t valCount = val.size();
+  cef_translator_test_scoped_client_t** valList = NULL;
+  if (valCount > 0) {
+    valList = new cef_translator_test_scoped_client_t*[valCount];
+    DCHECK(valList);
+    if (valList) {
+      for (size_t i = 0; i < valCount; ++i) {
+        valList[i] = CefTranslatorTestScopedClientCppToC::WrapRaw(val[i])
+                         .release()
+                         ->GetStruct();
+      }
+    }
+  }
+
+  // Execute
+  int _retval =
+      _struct->set_raw_ptr_client_list(_struct, valCount, valList, val1, val2);
+
+  // Restore param:val; type: rawptr_vec_diff_byref_const
+  if (valCount > 0) {
+    for (size_t i = 0; i < valCount; ++i) {
+      delete CefTranslatorTestScopedClientCppToC::GetWrapper(valList[i]);
+    }
+  }
+  if (valList)
+    delete[] valList;
+
+  // Return type: bool
+  return _retval ? true : false;
+}
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefTranslatorTestCToCpp::CefTranslatorTestCToCpp() {
-}
+CefTranslatorTestCToCpp::CefTranslatorTestCToCpp() {}
 
-template<> cef_translator_test_t* CefCToCpp<CefTranslatorTestCToCpp,
-    CefTranslatorTest, cef_translator_test_t>::UnwrapDerived(
-    CefWrapperType type, CefTranslatorTest* c) {
+template <>
+cef_translator_test_t* CefCToCppRefCounted<
+    CefTranslatorTestCToCpp,
+    CefTranslatorTest,
+    cef_translator_test_t>::UnwrapDerived(CefWrapperType type,
+                                          CefTranslatorTest* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefTranslatorTestCToCpp,
-    CefTranslatorTest, cef_translator_test_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefTranslatorTestCToCpp,
+                                         CefTranslatorTest,
+                                         cef_translator_test_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefTranslatorTestCToCpp, CefTranslatorTest,
-    cef_translator_test_t>::kWrapperType = WT_TRANSLATOR_TEST;
+template <>
+CefWrapperType CefCToCppRefCounted<CefTranslatorTestCToCpp,
+                                   CefTranslatorTest,
+                                   cef_translator_test_t>::kWrapperType =
+    WT_TRANSLATOR_TEST;

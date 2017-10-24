@@ -111,20 +111,29 @@ Updating CEF version
 
 CEF has been recompiled to add proprietary codec support, so if a new version is desired, you'll have to pull the latest version and compile it.
 
-* Mostly follow the steps under the automated build here: https://bitbucket.org/chromiumembedded/cef/wiki/BranchesAndBuilding
-* I used this command line to pull and build (update the branch number as needed): python automate-git.py --download-dir=D:\code\cef_build\chrochro --branch=2785 --force-build
-* Add these Gyp defines as environment variables in the system:
+* Follow the guide here: https://bitbucket.org/chromiumembedded/cef/wiki/MasterBuildQuickStart
+* When it comes up make the update.bat file, use this instead:
+    set CEF_USE_GN=1
+    set GN_DEFINES=is_official_build=true proprietary_codecs=true ffmpeg_branding=Chrome
+    set GN_ARGUMENTS=--ide=vs2015 --sln=cef --filters=//cef/*
+    python ..\automate\automate-git.py --download-dir=C:\code\chromium_git --depot-tools-dir=C:\code\depot_tools --no-distrib --no-build
+	
+* Use this for create.bat:
+    set CEF_USE_GN=1
+    set GN_DEFINES=is_win_fastlink=true proprietary_codecs=true ffmpeg_branding=Chrome
+    set GN_ARGUMENTS=--ide=vs2015 --sln=cef --filters=//cef/*
+    call cef_create_projects.bat
+	
+* The proprietary codecs value enables h.264 and mp3 support (which everyone uses these days pretty much)
 
-GYP_DEFINES proprietary_codecs=1 ffmpeg_branding=Chrome
-GYP_GENERATORS ninja
-GYP_MSVS_VERSION 2015
-
-* After compilation succeeds, the binary distribution is in [build_dir]\chromium\src\cef\binary_distrib\
+* Compile both Debug_GN_x64 and Release_GN_x64
+* After compilation succeeds, the relavent files are in C:\code\chromium_git\chromium\src\out\
+* libcef.dll.lib is in the root directory of each configuration, and libcef_dll_wrapper.lib is in obj/cef/
 * You'll need to update the headers in the cef_web project as well as update any relevant APIs
-* Recompile libcef_dll_wrapper in debug and release
 * Recompile cef simple, with everything removed except the CefExecuteProcess. cefsimple runs as a separate process for running browser instances. 
-	* Remove most of the stuff in cefsimple_win.cc and set it's subsystem in the linker settings to WINDOWS
-	* Here's the entirety of the source for that app:
+	* Open the cefsimple.vcxproj in Release_GN_x64 (it's in C:\code\chromium_git\chromium\src\out\Release_GN_x64\obj\cef)
+	* Set the project subsystem in the linker settings to WINDOWS (if it's not already) This ensures that a console window doesn't pop up during runtime
+	* Remove everything in cefsimple_win.cc and replace with this source code:
 
 	#include <windows.h>
 	#include <include/cef_app.h>
@@ -137,6 +146,7 @@ GYP_MSVS_VERSION 2015
 		CefMainArgs main_args;
 		return CefExecuteProcess(main_args, NULL, NULL);
 	}
+	* Recompile just cefsimple
 * Move cefsimple.exe and all other lib, .h, .cc, .cpp, .dll files required from the new binary distribution to the cef_web project. Use the existing files as a guide.
 * If all goes well, web sites should work fine and dandy and video playback should be working (use downstream.com's video sections to test)
 	

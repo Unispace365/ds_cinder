@@ -76,7 +76,29 @@
     call cef_create_projects.bat
 	
 - The proprietary codecs value enables h.264 and mp3 support (which everyone uses these days pretty much)
+- Compile both Debug_GN_x64 and Release_GN_x64
+- After compilation succeeds, the relavent files are in C:\code\chromium_git\chromium\src\out\
+- libcef.dll.lib is in the root directory of each configuration, and libcef_dll_wrapper.lib is in obj/cef/
+- You'll need to update the headers in the cef_web project as well as update any relevant APIs
+- Recompile cef simple, with everything removed except the CefExecuteProcess. cefsimple runs as a separate process for running browser instances. 
+	* Open the cefsimple.vcxproj in Release_GN_x64 (it's in C:\code\chromium_git\chromium\src\out\Release_GN_x64\obj\cef)
+	* Set the project subsystem in the linker settings to WINDOWS (if it's not already) This ensures that a console window doesn't pop up during runtime
+	* Remove everything in cefsimple_win.cc and replace with this source code:
 
+	#include <windows.h>
+	#include <include/cef_app.h>
+	int CALLBACK WinMain(
+	_In_ HINSTANCE hInstance,
+	_In_ HINSTANCE hPrevInstance,
+	_In_ LPSTR     lpCmdLine,
+	_In_ int       nCmdShow
+	){
+		CefMainArgs main_args;
+		return CefExecuteProcess(main_args, NULL, NULL);
+	}
+	* Recompile just cefsimple
+- Move cefsimple.exe and all other lib, .h, .cc, .cpp, .dll files required from the new binary distribution to the cef_web project. Use the existing files as a guide.
+- If all goes well, web sites should work fine and dandy and video playback should be working (use downstream.com's video sections to test)
 
 
 # MuPDF

@@ -9,6 +9,8 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=16d6b5872e3d8609c825026cd3cd0e83e44ca1e4$
+//
 
 #ifndef CEF_LIBCEF_DLL_CTOCPP_SSLINFO_CTOCPP_H_
 #define CEF_LIBCEF_DLL_CTOCPP_SSLINFO_CTOCPP_H_
@@ -18,14 +20,14 @@
 #error This file can be included wrapper-side only
 #endif
 
-#include "include/cef_ssl_info.h"
 #include "include/capi/cef_ssl_info_capi.h"
-#include "libcef_dll/ctocpp/ctocpp.h"
+#include "include/cef_ssl_info.h"
+#include "libcef_dll/ctocpp/ctocpp_ref_counted.h"
 
 // Wrap a C structure with a C++ class.
 // This class may be instantiated and accessed wrapper-side only.
 class CefSSLInfoCToCpp
-    : public CefCToCpp<CefSSLInfoCToCpp, CefSSLInfo, cef_sslinfo_t> {
+    : public CefCToCppRefCounted<CefSSLInfoCToCpp, CefSSLInfo, cef_sslinfo_t> {
  public:
   CefSSLInfoCToCpp();
 

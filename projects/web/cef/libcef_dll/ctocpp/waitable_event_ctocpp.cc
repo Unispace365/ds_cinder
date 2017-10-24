@@ -9,25 +9,25 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=909f533ecdf6af2dca40e96d39c538c47b38f0bf$
+//
 
 #include "libcef_dll/ctocpp/waitable_event_ctocpp.h"
-
 
 // STATIC METHODS - Body may be edited by hand.
 
 CefRefPtr<CefWaitableEvent> CefWaitableEvent::CreateWaitableEvent(
-    bool automatic_reset, bool initially_signaled) {
+    bool automatic_reset,
+    bool initially_signaled) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  cef_waitable_event_t* _retval = cef_waitable_event_create(
-      automatic_reset,
-      initially_signaled);
+  cef_waitable_event_t* _retval =
+      cef_waitable_event_create(automatic_reset, initially_signaled);
 
   // Return type: refptr_same
   return CefWaitableEventCToCpp::Wrap(_retval);
 }
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -64,7 +64,7 @@ bool CefWaitableEventCToCpp::IsSignaled() {
   int _retval = _struct->is_signaled(_struct);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
 
 void CefWaitableEventCToCpp::Wait() {
@@ -86,30 +86,36 @@ bool CefWaitableEventCToCpp::TimedWait(int64 max_ms) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   // Execute
-  int _retval = _struct->timed_wait(_struct,
-      max_ms);
+  int _retval = _struct->timed_wait(_struct, max_ms);
 
   // Return type: bool
-  return _retval?true:false;
+  return _retval ? true : false;
 }
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
-CefWaitableEventCToCpp::CefWaitableEventCToCpp() {
-}
+CefWaitableEventCToCpp::CefWaitableEventCToCpp() {}
 
-template<> cef_waitable_event_t* CefCToCpp<CefWaitableEventCToCpp,
-    CefWaitableEvent, cef_waitable_event_t>::UnwrapDerived(CefWrapperType type,
-    CefWaitableEvent* c) {
+template <>
+cef_waitable_event_t*
+CefCToCppRefCounted<CefWaitableEventCToCpp,
+                    CefWaitableEvent,
+                    cef_waitable_event_t>::UnwrapDerived(CefWrapperType type,
+                                                         CefWaitableEvent* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefWaitableEventCToCpp,
-    CefWaitableEvent, cef_waitable_event_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefWaitableEventCToCpp,
+                                         CefWaitableEvent,
+                                         cef_waitable_event_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefWaitableEventCToCpp, CefWaitableEvent,
-    cef_waitable_event_t>::kWrapperType = WT_WAITABLE_EVENT;
+template <>
+CefWrapperType CefCToCppRefCounted<CefWaitableEventCToCpp,
+                                   CefWaitableEvent,
+                                   cef_waitable_event_t>::kWrapperType =
+    WT_WAITABLE_EVENT;
