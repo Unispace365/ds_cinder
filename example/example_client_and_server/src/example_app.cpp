@@ -10,7 +10,7 @@
 #include <ds/data/resource_list.h>
 #include <ds/ui/touch/touch_info.h>
 #include <ds/ui/sprite/image.h>
-#include <ds/ui/sprite/multiline_text.h>
+#include <ds/ui/sprite/text.h>
 
 #include "custom_sprite.h"
 namespace mv {
