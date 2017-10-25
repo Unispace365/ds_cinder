@@ -40,3 +40,8 @@
 		* Close the configuration manager
 	4. Clean and build
 	5. If you encounter errors, generally restarting Visual studio and checking paths fixes the issues
+	
+* Gitignore, add these:
+	1. *.db
+	2. *.openDb
+	3. GPUCache/
