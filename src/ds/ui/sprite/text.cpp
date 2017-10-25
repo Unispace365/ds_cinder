@@ -709,15 +709,6 @@ bool Text::measurePangoText() {
 }
 
 void Text::renderPangoText(){
-
-	/// HACK
-	/// Some fonts clip some descenders and characters at the end of the text
-	/// So we make the surface and texture somewhat bigger than the size of the sprite
-	/// Yes, this means that it could fuck up some shaders.
-	/// I dunno what else to do. I couldn't seem to find any relevant docs or issues on stackoverflow
-	/// The official APIs from Pango are simply reporting less pixel size than they draw into. (shrug)
-	int extraTextureSize = 0;// (int)mTextSize * 10.0f;
-
 	if(mNeedsTextRender) {
 		// Create appropriately sized cairo surface
 		const bool grayscale = false; // Not really supported
@@ -729,11 +720,11 @@ void Text::renderPangoText(){
 			mCairoSurface = nullptr;
 		}
 
-		mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
+		mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth, mPixelHeight);
 
 		auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
 		if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
-			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth + extraTextureSize << " h:" << mPixelHeight + extraTextureSize << " text:" << ds::utf8_from_wstr(mText));
+			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth << " h:" << mPixelHeight << " text:" << ds::utf8_from_wstr(mText));
 			// make sure we don't render garbage
 			if(mTexture){
 				mTexture = nullptr;
@@ -780,7 +771,7 @@ void Text::renderPangoText(){
 			ci::gl::Texture::Format format;
 			format.setMagFilter(GL_LINEAR);
 			format.setMinFilter(GL_LINEAR);
-			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize, format);
+			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
 			mTexture->setTopDown(true);
 			mNeedsTextRender = false;
 
