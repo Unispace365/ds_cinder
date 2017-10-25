@@ -153,7 +153,7 @@ void PngSequenceSprite::onUpdateServer(const ds::UpdateParams& p){
 			}
 		}
 
-		if(advanceFrame){
+		if(advanceFrame && !mFrames.empty() && mCurrentFrameIndex > -1 && mCurrentFrameIndex < mFrames.size()){
 			// hide the old frame
 			mFrames[mCurrentFrameIndex]->hide();
 

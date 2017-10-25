@@ -62,6 +62,9 @@ public:
 	/// This field will lose focus, which hides the cursor, and this field won't be active
 	void								unfocus();
 
+	/// If this field is in focus
+	bool								getIsInFocus(){ return mInFocus; }
+
 	/// If true, when you call "focus", it will register this field in the main engine class to grab keyboard input
 	/// Default is false
 	void								autoRegisterOnFocus(const bool doAutoRegister);

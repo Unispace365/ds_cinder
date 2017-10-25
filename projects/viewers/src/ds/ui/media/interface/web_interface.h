@@ -11,6 +11,8 @@ class ImageButton;
 class Text;
 class Web;
 class SoftKeyboard;
+class EntryField;
+class LayoutSprite;
 
 /**
 * \class ds:ui:::WebInterface
@@ -34,6 +36,11 @@ public:
 	/// If true, will keep the interface onscreen when the keyboard is on
 	/// If false, will allow timeouts when the keyboard is on (note: recommend to use this with setCanTimeout(false) on the base MediaInterface to persist the interface)
 	void						setKeyboardDisablesTimeout(const bool doAutoTimeout);
+
+	/// The browser has request a login (like when you hit an ftp site)
+	void						startAuthCallback(const std::string& host, const std::string& realm);
+	void						cancelAuth();
+	void						authComplete();
 
 protected:
 
@@ -59,6 +66,11 @@ protected:
 	ds::ui::ImageButton*		mForwardButton;
 	ds::ui::ImageButton*		mRefreshButton;
 	ds::ui::ImageButton*		mTouchToggle;
+
+	bool						mAuthorizing;
+	ds::ui::LayoutSprite*		mAuthLayout;
+	ds::ui::EntryField*			mUserField;
+	ds::ui::EntryField*			mPasswordField;
 
 };
 

@@ -95,6 +95,7 @@ void StreamPlayer::onSizeChanged(){
 void StreamPlayer::layout(){
 	if (mVideo){
 		mVideo->setScale(getWidth() / mVideo->getWidth());
+		mVideo->setPosition(getWidth() / 2.0f - mVideo->getScaleWidth() / 2.0f, getHeight() / 2.0f - mVideo->getScaleHeight() /2.0f);
 	}
 
 	if (mVideoInterface && mEmbedInterface){

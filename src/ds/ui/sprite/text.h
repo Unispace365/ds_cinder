@@ -79,7 +79,7 @@ public:
 	/// Resize limit is the amount of width the text will wrap at and the height that text will no longer be rendered
 	float						getResizeLimitWidth() const;
 	float						getResizeLimitHeight() const;
-	Text&					setResizeLimit(const float width = 0, const float height = 0);
+	Text&						setResizeLimit(const float width = 0, const float height = 0);
 
 	/// This is a convenience that can set all the text attributes at once
 	void						setTextStyle(std::string font = "Sans", float size = 12.0f, ci::ColorA color = ci::Color::black(), TextWeight weight = TextWeight::kNormal, Alignment::Enum alignment = Alignment::kLeft); 
@@ -129,6 +129,9 @@ public:
 	/// If the resize limit is set to 0 or -1, no text wrapping will happen and no ellipses will be added
 	void						setEllipsizeMode(EllipsizeMode theMode);
 	EllipsizeMode				getEllipsizeMode();
+
+	void						setWrapMode(WrapMode theMode);
+	WrapMode					getWrapMode();
 
 	/// If ellipsize mode is none and there's a resize width > 0 and the text had to wrap at all, returns true. otherwise false
 	bool						getTextWrapped();
@@ -205,6 +208,7 @@ private:
 	Alignment::Enum				mTextAlignment;
 	TextWeight					mDefaultTextWeight;
 	EllipsizeMode				mEllipsizeMode;
+	WrapMode					mWrapMode;
 	float						mLeading;
 
 	// Info about the text layout

@@ -50,6 +50,10 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 		if(mVideoInterface){
 			mVideoInterface->userInputReceived();
 		}
+
+		if(mVideoCompleteCallback){
+			mVideoCompleteCallback();
+		}
 	});
 
 	setPan(mPanning);
@@ -57,6 +61,7 @@ void VideoPlayer::setMedia(const std::string mediaPath){
 	setPlayableInstances(mPlayableInstances);
 	allowOutOfBoundsMuted(mAllowOutOfBoundsMuted);
 	setVideoLoop(mLooping);
+	setAudioDevices(mAudioDevices);
 
 	mVideo->setErrorCallback([this](const std::string& msg){
 		if(mErrorMsgCallback) mErrorMsgCallback(msg);
@@ -132,6 +137,7 @@ void VideoPlayer::layout(){
 	if(mVideo){
 		if(mVideo->getWidth() > 0.0f){
 			mVideo->setScale(getWidth() / mVideo->getWidth());
+			mVideo->setPosition(getWidth() / 2.0f - mVideo->getScaleWidth() / 2.0f, getHeight() / 2.0f - mVideo->getScaleHeight() / 2.0f);
 		}
 	}
 
@@ -245,6 +251,13 @@ void VideoPlayer::setVideoLoop(const bool doLoop){
 	mLooping = doLoop;
 	if(mVideo){
 		mVideo->setLooping(mLooping);
+	}
+}
+
+void VideoPlayer::setAudioDevices(std::vector<GstAudioDevice>& audioDevices){
+	mAudioDevices = audioDevices;
+	if(mVideo){
+		mVideo->setAudioDevices(audioDevices);
 	}
 }
 

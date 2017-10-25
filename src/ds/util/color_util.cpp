@@ -3,6 +3,7 @@
 #include "color_util.h"
 
 #include <ds/data/color_list.h>
+#include <ds/util/string_util.h>
 
 #include <sstream>
 #include <boost/foreach.hpp>
@@ -151,6 +152,10 @@ ci::ColorA parseColor(const std::string &color, const ds::ui::SpriteEngine& engi
 
 	return parseHexColor(color);
 
+}
+
+ci::ColorA parseColor(const std::wstring &color, const ui::SpriteEngine& engine){
+	return parseColor(ds::utf8_from_wstr(color), engine);
 }
 
 } // namespace ds

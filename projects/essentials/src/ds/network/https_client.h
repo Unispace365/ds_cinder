@@ -24,13 +24,13 @@ public:
 	/// The url is the full request url
 	/// verifyPeers if false will use try to connect even if the certificate is self-signed (Much less secure)
 	/// verifyHosts if false will use try to connect even if the certificate doesn't match the domain (Much less secure)
-	void					makeGetRequest(const std::string& url, const bool verifyPeers = true, const bool verifyHosts = true);
+	void					makeGetRequest(const std::string& url, const bool verifyPeers = true, const bool verifyHosts = true, const bool isDownloadMedia = false, const std::string& downloadfile = "");
 
 	/// The url is the full request url
 	/// The postData is something like name=jeeves&project=ds_cinder
 	/// verifyPeers if false will use try to connect even if the certificate is self-signed (Much less secure)
 	/// verifyHosts if false will use try to connect even if the certificate doesn't match the domain (Much less secure)
-	void					makePostRequest(const std::string& url, const std::string& postData, const bool verifyPeers = true, const bool verifyHosts = true, const std::string& customrequest = "", std::vector<std::string> headers = std::vector<std::string>());
+	void					makePostRequest(const std::string& url, const std::string& postData, const bool verifyPeers = true, const bool verifyHosts = true, const std::string& customrequest = "", std::vector<std::string> headers = std::vector<std::string>(), const bool isDownloadMedia = false, const std::string& downloadfile = "");
 
 	/// If errored == true, then something went wrong and the reply will have the error message
 	/// Otherwise it will be whatever was returned from the server
@@ -51,6 +51,7 @@ private:
 		bool				mError;
 		std::string			mErrorMessage;
 		std::string			mOutput;
+		std::FILE*			mFp;
 		long				mHttpStatus;
 		std::string			mInput;
 		bool				mVerifyPeers;
@@ -60,6 +61,8 @@ private:
 		std::string			mCustomRequest;
 		std::vector<std::string>	mHeaders;
 		bool				mVerboseOutput;
+		bool				mIsDownloadMedia;
+		std::string			mDownloadFile;
 	};
 
 	void									onRequestComplete(IndividualRequest&);

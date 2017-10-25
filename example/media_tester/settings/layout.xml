@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<settings>
-	<setting name="animation:duration" value="0.2" type="float" comment=" Standard animation duration, in seconds. "/>
-	<setting name="header:height" value="100.0" type="float"/>
-</settings>
-

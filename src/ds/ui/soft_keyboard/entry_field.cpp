@@ -103,15 +103,55 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 	std::wstring currentCharacter = keyCharacter;
 	std::wstring currentFullText = getCurrentText();
 
-	if(mCursorIndex == currentFullText.size()){
+	/// Arrow keys
+	if(keyType == SoftKeyboardDefs::kArrow){
+		if(keyCharacter == L"<" || keyCharacter == L"^"){
+			mCursorIndex--;
+		} else if(keyCharacter == L">" || keyCharacter == L"v"){
+			mCursorIndex++;
+		}
+		cursorUpdated();
+
+	/// Ignore function keys (F1 - F12) 
+	} else if(keyType == SoftKeyboardDefs::kFunction){
+	} else if(keyType == SoftKeyboardDefs::kSpecial){
+		if(keyCharacter == L"Home" || keyCharacter == L"PgUp"){
+			mCursorIndex = 0;
+			cursorUpdated();
+		} else if(keyCharacter == L"End" || keyCharacter == L"PgDn"){
+			mCursorIndex = currentFullText.size();
+			cursorUpdated();
+		}
+
+
+	/// If the cursor is at the end, add text to the end
+	} else if(mCursorIndex == currentFullText.size()){
+
 		handleKeyPressGeneric(keyType, currentCharacter, currentFullText);
 
 		setCurrentText(currentFullText);
+		
+
+	/// If End or PgDn was clicked, move the cursor to the end
+	
+	/// The cursor is not at the end, handle 'inserts'
 	} else {
+
 
 		std::wstring preString = currentFullText.substr(0, mCursorIndex);
 		std::wstring posString = currentFullText.substr(mCursorIndex);
-		handleKeyPressGeneric(keyType, currentCharacter, preString);
+
+		/// delete forwards
+		if(keyType == ds::ui::SoftKeyboardDefs::kFwdDelete){
+			if(!posString.empty()){
+				posString = posString.substr(1);
+			}
+
+		/// insert normal text or backspace
+		} else {
+			handleKeyPressGeneric(keyType, currentCharacter, preString);
+		}
+
 		std::wstringstream wss;
 		wss << preString << posString;
 
@@ -122,7 +162,11 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 			if(!mCurrentText.empty()){
 				mCursorIndex--;
 			}
-		} else if(keyType == ds::ui::SoftKeyboardDefs::kShift){
+
+			// cursor index stays the same
+		} else if(keyType == SoftKeyboardDefs::kShift 
+				  || keyType == SoftKeyboardDefs::kFwdDelete
+				  ){
 			// nothin!
 		} else {
 			mCursorIndex++;
@@ -258,6 +302,7 @@ void EntryField::textUpdated(){
 
 void EntryField::cursorUpdated(){
 	if(mTextSprite && mCursor){
+		if(mCursorIndex < 0) mCursorIndex = 0;
 		if(mCursorIndex > getCurrentText().size()){
 			mCursorIndex = getCurrentText().size();
 		}

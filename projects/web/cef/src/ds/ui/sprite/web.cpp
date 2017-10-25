@@ -95,6 +95,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mHasFullCallback(false)
 	, mHasLoadingCallback(false)
 	, mHasCallbacks(false)
+	, mHasAuthCallback(false)
 	, mIsFullscreen(false)
 	, mNeedsInitialized(false)
 	, mCallbacksCue(nullptr)
@@ -285,6 +286,31 @@ void Web::initializeBrowser(){
 		}
 	};
 
+	wcc.mAuthCallback = [this](const bool isProxy, const std::string& host, const int port, const std::string& realm, const std::string& scheme){
+		// This callback comes back from the CEF IO thread
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		// If the client ui has a callback for authorization, do that
+		// Otherwise, just cancel the request
+		if(mAuthRequestCallback){
+			mAuthCallback.mIsProxy = isProxy;
+			mAuthCallback.mHost = host;
+			mAuthCallback.mPort = port;
+			mAuthCallback.mRealm = realm;
+			mAuthCallback.mScheme = scheme;
+
+		} // if there's no authRequestCallback, we handle this in a callback to avoid recursive lock
+
+	
+		mHasAuthCallback = true;
+
+		if(!mHasCallbacks){
+			auto& t = mEngine.getTweenline().getTimeline();
+			mCallbacksCue = t.add([this]{ dispatchCallbacks(); }, t.getCurrentTime() + 0.001f);
+			mHasCallbacks = true;
+		}
+	};
+
 	mService.addWebCallbacks(mBrowserId, wcc);
 }
 
@@ -322,6 +348,15 @@ void Web::dispatchCallbacks(){
 	if(mHasLoadingCallback){
 		if(mLoadingUpdatedCallback) mLoadingUpdatedCallback(mIsLoading);
 		mHasLoadingCallback = false;
+	}
+
+	if(mHasAuthCallback){
+		if(mAuthRequestCallback){
+			mAuthRequestCallback(mAuthCallback);
+		} else {
+			mService.authCallbackCancel(mBrowserId);
+		}
+		mHasAuthCallback = false;
 	}
 
 	mHasCallbacks = false;
@@ -629,6 +664,18 @@ void Web::setErrorCallback(std::function<void(const std::string&)> func){
 
 void Web::setFullscreenChangedCallback(std::function<void(const bool)> func){
 	mFullscreenCallback = func;
+}
+
+void Web::setAuthCallback(std::function<void(AuthCallback)> func){
+	mAuthRequestCallback = func;
+}
+
+void Web::authCallbackCancel(){
+	mService.authCallbackCancel(mBrowserId);
+}
+
+void Web::authCallbackContinue(const std::string& username, const std::string& password){
+	mService.authCallbackContinue(mBrowserId, username, password);
 }
 
 void Web::setErrorMessage(const std::string &message){

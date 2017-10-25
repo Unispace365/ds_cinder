@@ -127,7 +127,11 @@ void WebPlayer::onSizeChanged(){
 void WebPlayer::layout(){
 	if(mWeb){
 		float scale = this->getHeight() / mWeb->getHeight();
+		if(mWeb->getWidth() / mWeb->getHeight() > getWidth() / getHeight()){
+			scale = getWidth() / mWeb->getWidth();
+		}
 		mWeb->setScale(scale);
+		mWeb->setPosition(getWidth() / 2.0f - mWeb->getScaleWidth() / 2.0f, getHeight() / 2.0f - mWeb->getScaleHeight() /2.0f);
 	}
 
 	if(mWebInterface && mEmbedInterface){

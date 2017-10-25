@@ -16,7 +16,8 @@ enum BlendMode
   SUBTRACT,
   LIGHTEN,
   DARKEN,
-  TRANSPARENT_BLACK
+  TRANSPARENT_BLACK,
+  EXCLUSION
 };
 
 BlendMode getBlendModeByString(const std::string& blendString);

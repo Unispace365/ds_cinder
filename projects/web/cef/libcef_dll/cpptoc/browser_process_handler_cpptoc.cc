@@ -9,12 +9,13 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=dc92a1083681b1f0b2c2bf42470f5421d256391c$
+//
 
 #include "libcef_dll/cpptoc/browser_process_handler_cpptoc.h"
 #include "libcef_dll/cpptoc/print_handler_cpptoc.h"
 #include "libcef_dll/ctocpp/command_line_ctocpp.h"
 #include "libcef_dll/ctocpp/list_value_ctocpp.h"
-
 
 namespace {
 
@@ -68,7 +69,8 @@ void CEF_CALLBACK browser_process_handler_on_render_process_thread_created(
       CefListValueCToCpp::Wrap(extra_info));
 }
 
-struct _cef_print_handler_t* CEF_CALLBACK browser_process_handler_get_print_handler(
+struct _cef_print_handler_t* CEF_CALLBACK
+browser_process_handler_get_print_handler(
     struct _cef_browser_process_handler_t* self) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
@@ -77,15 +79,16 @@ struct _cef_print_handler_t* CEF_CALLBACK browser_process_handler_get_print_hand
     return NULL;
 
   // Execute
-  CefRefPtr<CefPrintHandler> _retval = CefBrowserProcessHandlerCppToC::Get(
-      self)->GetPrintHandler();
+  CefRefPtr<CefPrintHandler> _retval =
+      CefBrowserProcessHandlerCppToC::Get(self)->GetPrintHandler();
 
   // Return type: refptr_same
   return CefPrintHandlerCppToC::Wrap(_retval);
 }
 
 void CEF_CALLBACK browser_process_handler_on_schedule_message_pump_work(
-    struct _cef_browser_process_handler_t* self, int64 delay_ms) {
+    struct _cef_browser_process_handler_t* self,
+    int64 delay_ms) {
   // AUTO-GENERATED CONTENT - DELETE THIS COMMENT BEFORE MODIFYING
 
   DCHECK(self);
@@ -98,7 +101,6 @@ void CEF_CALLBACK browser_process_handler_on_schedule_message_pump_work(
 }
 
 }  // namespace
-
 
 // CONSTRUCTOR - Do not edit by hand.
 
@@ -114,18 +116,28 @@ CefBrowserProcessHandlerCppToC::CefBrowserProcessHandlerCppToC() {
       browser_process_handler_on_schedule_message_pump_work;
 }
 
-template<> CefRefPtr<CefBrowserProcessHandler> CefCppToC<CefBrowserProcessHandlerCppToC,
-    CefBrowserProcessHandler, cef_browser_process_handler_t>::UnwrapDerived(
-    CefWrapperType type, cef_browser_process_handler_t* s) {
+template <>
+CefRefPtr<CefBrowserProcessHandler> CefCppToCRefCounted<
+    CefBrowserProcessHandlerCppToC,
+    CefBrowserProcessHandler,
+    cef_browser_process_handler_t>::UnwrapDerived(CefWrapperType type,
+                                                  cef_browser_process_handler_t*
+                                                      s) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCppToC<CefBrowserProcessHandlerCppToC,
-    CefBrowserProcessHandler, cef_browser_process_handler_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCppToCRefCounted<
+    CefBrowserProcessHandlerCppToC,
+    CefBrowserProcessHandler,
+    cef_browser_process_handler_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
-template<> CefWrapperType CefCppToC<CefBrowserProcessHandlerCppToC,
-    CefBrowserProcessHandler, cef_browser_process_handler_t>::kWrapperType =
-    WT_BROWSER_PROCESS_HANDLER;
+template <>
+CefWrapperType
+    CefCppToCRefCounted<CefBrowserProcessHandlerCppToC,
+                        CefBrowserProcessHandler,
+                        cef_browser_process_handler_t>::kWrapperType =
+        WT_BROWSER_PROCESS_HANDLER;

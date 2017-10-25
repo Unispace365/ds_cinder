@@ -4,6 +4,7 @@
 
 
 #include <ds/ui/sprite/sprite.h>
+#include <gstreamer/gstreamer_audio_device.h>
 
 namespace ds {
 
@@ -43,6 +44,7 @@ public:
 
 	void								setGoodStatusCallback(std::function<void()> func){ mGoodStatusCallback = func; }
 	void								setErrorCallback(std::function<void(const std::string&)> func){ mErrorMsgCallback = func; }
+	void								setVideoCompleteCallback(std::function<void()> func){ mVideoCompleteCallback = func; }
 
 	/// See the function of the same name on GstVideo, Set any time, will remember between loading videos
 	void								setPan(const float newPan);
@@ -64,6 +66,9 @@ public:
 	/// Sets looping on the video
 	void								setVideoLoop(const bool doLooping);
 
+	/// Sets the audio devices for playback (see gstreamer_audio_device header for more info)
+	void								setAudioDevices(std::vector<GstAudioDevice>& audioDevices);
+
 protected:
 
 	virtual void								onSizeChanged();
@@ -72,6 +77,7 @@ protected:
 	bool										mEmbedInterface;
 	bool										mShowInterfaceAtStart;
 	std::function<void(void)>					mGoodStatusCallback;
+	std::function<void(void)>					mVideoCompleteCallback;
 	std::function<void(const std::string&)>		mErrorMsgCallback;
 
 	/// Settings - these are kept locally here so the settings can be applied at any time
@@ -80,6 +86,7 @@ protected:
 	bool										mAutoPlayFirstFrame;
 	bool										mAllowOutOfBoundsMuted;
 	std::vector<std::string>					mPlayableInstances;
+	std::vector<GstAudioDevice>					mAudioDevices;
 	bool										mLooping;
 };
 

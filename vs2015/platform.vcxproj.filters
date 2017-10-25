@@ -1,0 +1,1152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="src">
+      <UniqueIdentifier>{c6487098-2eaf-493d-ada3-1025bb854738}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds">
+      <UniqueIdentifier>{78d83269-245b-4726-9b7d-eed59de07506}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\debug">
+      <UniqueIdentifier>{f33039c8-3c8e-44ce-84fa-cb1e9ec7f1f1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\data">
+      <UniqueIdentifier>{82677205-5330-4559-96b4-57603391363c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\query">
+      <UniqueIdentifier>{1e476e57-00f3-49bd-896f-25d85401f019}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\query\sqlite">
+      <UniqueIdentifier>{0d3cba12-8c92-4c1f-93c6-bdb8c8bde430}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui">
+      <UniqueIdentifier>{d7b8e4dd-8239-48ad-bb6a-97dfd629e5ee}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\util">
+      <UniqueIdentifier>{35cdee3e-bb96-4566-9838-ba11d4e2ed46}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\thread">
+      <UniqueIdentifier>{b4621128-d54d-45b3-9b09-eff83bfa8402}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\params">
+      <UniqueIdentifier>{211f71c8-e9c1-4fa5-87d6-c67cbf9b0195}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\sprite">
+      <UniqueIdentifier>{2ac10f37-fb39-4f7f-a22a-e86ab62d9163}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\math">
+      <UniqueIdentifier>{9fb4c09e-660e-4216-93c1-e3dd8ff0f9e0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\service">
+      <UniqueIdentifier>{0ee8cb5c-b5a5-4e24-80b3-ae017220e214}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\network">
+      <UniqueIdentifier>{20082a19-803d-48dd-bf2a-4b79b04506d7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\sprite\shader">
+      <UniqueIdentifier>{ea37a132-bc5d-41e3-8741-e3f669b7df2e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\sprite\util">
+      <UniqueIdentifier>{10e6bd0d-110c-4e59-a253-3c5b534efff4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\tweenline">
+      <UniqueIdentifier>{75419866-dc29-488a-8391-9c329efd0d2d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\image_source">
+      <UniqueIdentifier>{75b81987-e661-4733-8256-dfb5ba9b9b0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\arc">
+      <UniqueIdentifier>{0dabc65a-df40-4df3-9b7b-f2d4553611a0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\app">
+      <UniqueIdentifier>{a8305b29-38ed-490c-9351-bc0d0bab9de9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\app\engine">
+      <UniqueIdentifier>{f8585ddc-6731-4e08-8c9b-1fc6e94d0720}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\cfg">
+      <UniqueIdentifier>{5e71772f-c261-47da-9b61-42260e961303}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\gl">
+      <UniqueIdentifier>{a2c57887-62d6-4497-99fb-2e041a4938b5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\time">
+      <UniqueIdentifier>{bd82e7a9-956c-4d26-a56b-bbfe3c2a2e72}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\ip">
+      <UniqueIdentifier>{480bdf66-e8fe-43b8-9627-e8eaacd8f2dd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\ip\functions">
+      <UniqueIdentifier>{03cb731e-c5f5-44bd-9745-6afa3e648d94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\storage">
+      <UniqueIdentifier>{2368de55-a922-4afc-8a0d-1314142d9f04}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\mesh_source">
+      <UniqueIdentifier>{cbc57e74-972d-4ce0-96b6-dd570de55259}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\osc">
+      <UniqueIdentifier>{3751695d-68b3-432a-b561-cc7a7ee5ce2c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\tuio">
+      <UniqueIdentifier>{9be7ff39-27e0-45e4-890a-65e91ab4e28e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\touch">
+      <UniqueIdentifier>{6fa6067f-0336-4e7d-8406-1da97416e95d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\osc\osc">
+      <UniqueIdentifier>{8d7b7f8c-0bb8-4d92-a9da-0864cb3d60b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\osc\ip">
+      <UniqueIdentifier>{0253483d-3435-4cd5-87aa-09af4f9844a8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\osc\ip\win32">
+      <UniqueIdentifier>{0d7b5432-3ad6-4e19-89dd-71086b05587c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\layout">
+      <UniqueIdentifier>{ec8f7e90-a386-4b14-9c1b-dddd49bd09fe}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\ds\data\resource.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\console.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\debug_defines.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\sqlite\sqlite3.h">
+      <Filter>src\ds\query\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\sqlite\sqlite3ext.h">
+      <Filter>src\ds\query\sqlite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\query_client.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\query_result.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\query_result_builder.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\query_talkback.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\sql_database.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\sql_query_result_builder.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\runnable_client.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\thread_defs.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\work_client.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\work_manager.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\work_request.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\work_request_list.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\memory_ds.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\string_util.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\params\draw_params.h">
+      <Filter>src\ds\params</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\params\update_params.h">
+      <Filter>src\ds\params</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\image.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\touch_info.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\touch_manager.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\bit_mask.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\math_defs.h">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\touch_process.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\multi_touch_constraints.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\sprite_engine.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\service\load_image_service.h">
+      <Filter>src\ds\ui\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\gl_thread.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\logger.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\math_func.h">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\random.h">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\resource_list.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\drag_destination_info.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\dirty_state.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\data_buffer.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\read_write_buffer.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\computer_info.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\shader\sprite_shader.h">
+      <Filter>src\ds\ui\sprite\shader</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\util\blend.h">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\util\clip_plane.h">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\tween\tweenline.h">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\tween\sprite_anim.h">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\http_client.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\idle_timer.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\tap_info.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\timed_runnable.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\parallel_runnable.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\serial_runnable.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\node_watcher.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\udp_connection.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\net_connection.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\font_list.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_source.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_client.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_generator.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_file.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_render_circle.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_chain.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_layer.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_arc.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_drop_shadow.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_io.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_color_array.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\file_meta_data.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_pow.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_input.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\app.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\app_defs.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\auto_update.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\auto_update_list.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\blob_reader.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\blob_registry.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\camera_utils.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\environment.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\event.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\event_client.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\event_notifier.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\FrameworkResources.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\image_registry.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\sprite.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_client.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_data.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_io.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_server.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_service.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_settings.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_cfg.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\tcp_client.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\tcp_server.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\thread\async_queue.h">
+      <Filter>src\ds\thread</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\settings.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\cfg_text.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\tcp_socket_sender.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\query_result_editor.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_touch_queue.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\tuio_object.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\gl\uniform.h">
+      <Filter>src\ds\gl</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\color_util.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\text_defs.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_resource.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\time\timer.h">
+      <Filter>src\ds\time</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\debug\function_exists.h">
+      <Filter>src\ds\debug</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\image_meta_data.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\user_data.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\cfg_nine_patch.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\arc\arc_map.h">
+      <Filter>src\ds\arc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_owner.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\service\glsl_image_service.h">
+      <Filter>src\ds\ui\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\image_source\image_glsl.h">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\key_value_store.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\ip\ip_function.h">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\ip\ip_function_list.h">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\ip\functions\ip_circle_mask.h">
+      <Filter>src\ds\ui\ip\functions</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\ip\ip_defs.h">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\gradient_sprite.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\storage\persistent_cache.h">
+      <Filter>src\ds\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_roots.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\params\camera_params.h">
+      <Filter>src\ds\params</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\mesh.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_source.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_sphere.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_owner.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file_loader.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_file.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\picking.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\mesh_source\mesh_cache_service.h">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\storage\directory_watcher.h">
+      <Filter>src\ds\storage</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_standalone.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_clientserver.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\auto_draw.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\touch_mode.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_stats_view.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\touch_translator.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_io_defs.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_client_list.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\error.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\momentum.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\button_behaviour.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\unique_id.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\rotation_translator.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\event_registry.h">
+      <Filter>src\ds\app</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\notifier.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\recycle_node.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\query\recycle_array.h">
+      <Filter>src\ds\query</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\draw_touch_view.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\circle.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\network_info.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\touch\touch_event.h">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\data\color_list.h">
+      <Filter>src\ds\data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\border.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\image_with_thumbnail.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\circle_border.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\math\Quaternion.h">
+      <Filter>src\ds\math</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\exif.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\exif_reader.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\app\engine\engine_events.h">
+      <Filter>src\ds\app\engine</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\single_udp_receiver.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\network\packet_chunker.h">
+      <Filter>src\ds\network</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\service\pango_font_service.h">
+      <Filter>src\ds\ui\service</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\stdafx.h">
+      <Filter>src</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\OscBundle.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\OscListener.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\OscMessage.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\OscSender.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\OscArg.h">
+      <Filter>src\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\osc\OscException.h">
+      <Filter>src\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\osc\OscHostEndianness.h">
+      <Filter>src\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\osc\OscOutboundPacketStream.h">
+      <Filter>src\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\osc\OscPacketListener.h">
+      <Filter>src\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\osc\OscPrintReceivedElements.h">
+      <Filter>src\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\osc\OscReceivedElements.h">
+      <Filter>src\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\osc\OscTypes.h">
+      <Filter>src\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\osc\MessageMappingOscPacketListener.h">
+      <Filter>src\osc\osc</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\ip\IpEndpointName.h">
+      <Filter>src\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\ip\NetworkingUtils.h">
+      <Filter>src\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\ip\PacketListener.h">
+      <Filter>src\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\ip\TimerListener.h">
+      <Filter>src\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\osc\ip\UdpSocket.h">
+      <Filter>src\osc\ip</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tuio\TuioClient.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tuio\TuioCursor.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tuio\TuioObject.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\tuio\TuioProfileBase.h">
+      <Filter>src\tuio</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\date_util.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\layout\layout_sprite.h">
+      <Filter>src\ds\ui\layout</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\sprite\text.h">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="..\src\ds\data\resource.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\sqlite\sqlite3.c">
+      <Filter>src\ds\query\sqlite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\query_client.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\query_result.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\query_result_builder.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\sql_database.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\sql_query_result_builder.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\thread\runnable_client.cpp">
+      <Filter>src\ds\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\thread\work_client.cpp">
+      <Filter>src\ds\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\thread\work_manager.cpp">
+      <Filter>src\ds\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\thread\work_request.cpp">
+      <Filter>src\ds\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\string_util.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\params\draw_params.cpp">
+      <Filter>src\ds\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\params\update_params.cpp">
+      <Filter>src\ds\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\image.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\touch_manager.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\bit_mask.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\touch_process.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\multi_touch_constraints.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\thread\gl_thread.cpp">
+      <Filter>src\ds\thread</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\logger.cpp">
+      <Filter>src\ds\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\debug_defines.cpp">
+      <Filter>src\ds\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\service\load_image_service.cpp">
+      <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\math\math_func.cpp">
+      <Filter>src\ds\math</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\resource_list.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\sprite_engine.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\dirty_state.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\data_buffer.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\read_write_buffer.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\debug\computer_info.cpp">
+      <Filter>src\ds\debug</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\shader\sprite_shader.cpp">
+      <Filter>src\ds\ui\sprite\shader</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\util\blend.cpp">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\util\clip_plane.cpp">
+      <Filter>src\ds\ui\sprite\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\tween\tweenline.cpp">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\tween\sprite_anim.cpp">
+      <Filter>src\ds\ui\tweenline</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\http_client.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\idle_timer.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\node_watcher.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\udp_connection.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\font_list.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_source.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_client.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_generator.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_file.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_render_circle.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_chain.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_layer.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_arc.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_drop_shadow.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_io.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_color_array.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\file_meta_data.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_pow.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_input.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\app.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\auto_update.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\auto_update_list.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\blob_reader.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\blob_registry.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\camera_utils.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\environment.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\event.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\event_client.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\event_notifier.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\image_registry.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\sprite.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_client.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_data.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_io.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_server.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_settings.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_cfg.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\tcp_client.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\tcp_server.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\settings.cpp">
+      <Filter>src\ds\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\cfg_text.cpp">
+      <Filter>src\ds\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\tcp_socket_sender.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\query\query_result_editor.cpp">
+      <Filter>src\ds\query</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\tuio_object.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\gl\uniform.cpp">
+      <Filter>src\ds\gl</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\color_util.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\text_defs.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_resource.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\time\timer.cpp">
+      <Filter>src\ds\time</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\image_meta_data.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\user_data.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\cfg_nine_patch.cpp">
+      <Filter>src\ds\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\arc\arc_map.cpp">
+      <Filter>src\ds\arc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_owner.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\service\glsl_image_service.cpp">
+      <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\image_source\image_glsl.cpp">
+      <Filter>src\ds\ui\image_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\key_value_store.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\ip\ip_function.cpp">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\ip\ip_function_list.cpp">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\ip\functions\ip_circle_mask.cpp">
+      <Filter>src\ds\ui\ip\functions</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\ip\ip_defs.cpp">
+      <Filter>src\ds\ui\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\gradient_sprite.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\storage\persistent_cache.cpp">
+      <Filter>src\ds\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_roots.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\params\camera_params.cpp">
+      <Filter>src\ds\params</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\mesh.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_source.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_sphere.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_owner.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_file_loader.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\app_defs.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\picking.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\mesh_source\mesh_cache_service.cpp">
+      <Filter>src\ds\ui\mesh_source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\storage\directory_watcher_win32.cpp">
+      <Filter>src\ds\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\storage\directory_watcher.cpp">
+      <Filter>src\ds\storage</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_standalone.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_clientserver.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\auto_draw.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\touch_mode.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_stats_view.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\touch_translator.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_io_defs.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\engine_client_list.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\error.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\momentum.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\button_behaviour.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\engine\unique_id.cpp">
+      <Filter>src\ds\app\engine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\rotation_translator.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\app\event_registry.cpp">
+      <Filter>src\ds\app</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\touch\draw_touch_view.cpp">
+      <Filter>src\ds\ui\touch</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\circle.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\network_info.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\data\color_list.cpp">
+      <Filter>src\ds\data</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\border.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\image_with_thumbnail.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\circle_border.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\exif.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\single_udp_receiver.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\network\packet_chunker.cpp">
+      <Filter>src\ds\network</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\service\pango_font_service.cpp">
+      <Filter>src\ds\ui\service</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\stdafx.cpp">
+      <Filter>src</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\OscListener.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\OscMessage.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\OscSender.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\OscBundle.cpp">
+      <Filter>src\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\osc\OscOutboundPacketStream.cpp">
+      <Filter>src\osc\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\osc\OscPrintReceivedElements.cpp">
+      <Filter>src\osc\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\osc\OscReceivedElements.cpp">
+      <Filter>src\osc\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\osc\OscTypes.cpp">
+      <Filter>src\osc\osc</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\ip\IpEndpointName.cpp">
+      <Filter>src\osc\ip</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\ip\win32\NetworkingUtils.cpp">
+      <Filter>src\osc\ip\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\osc\ip\win32\UdpSocket.cpp">
+      <Filter>src\osc\ip\win32</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\tuio\TuioClient.cpp">
+      <Filter>src\tuio</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\date_util.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\layout\layout_sprite.cpp">
+      <Filter>src\ds\ui\layout</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\sprite\text.cpp">
+      <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>

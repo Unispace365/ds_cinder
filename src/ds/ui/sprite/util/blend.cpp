@@ -33,6 +33,9 @@ void applyBlendingMode(const BlendMode &blendMode){
 	} else if(blendMode == TRANSPARENT_BLACK){
 		glBlendEquation(GL_FUNC_ADD);
 		glBlendFunc(GL_DST_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	} else if (blendMode == EXCLUSION){
+		glBlendEquation(GL_FUNC_ADD);
+		glBlendFunc(GL_ONE_MINUS_DST_COLOR, GL_ONE_MINUS_SRC_COLOR);
 	}
 }
 
@@ -57,6 +60,8 @@ ds::ui::BlendMode getBlendModeByString(const std::string& blendString){
 		return TRANSPARENT_BLACK;
 	} else if(lowerString == "screen"){
 		return SCREEN;
+	} else if (lowerString == "exclusion"){
+		return EXCLUSION;
 	}
 
 	return NORMAL;
@@ -79,6 +84,8 @@ const std::string getStringForBlendMode(const BlendMode& blendMode){
 		return "darken";
 	} else if(blendMode == TRANSPARENT_BLACK){
 		return "transparent_black";
+	} else if (blendMode == EXCLUSION){
+		return "exclusion";
 	}
 
 	return "normal";
@@ -100,6 +107,8 @@ bool premultiplyAlpha(const BlendMode &blendMode){
 	} else if(blendMode == DARKEN) {
 		return true;
 	} else if(blendMode == TRANSPARENT_BLACK){
+		return true;
+	} else if (blendMode == EXCLUSION){
 		return true;
 	}
 	return false;

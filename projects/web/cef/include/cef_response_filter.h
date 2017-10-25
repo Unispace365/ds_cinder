@@ -45,7 +45,7 @@
 // this class will be called on the browser process IO thread.
 ///
 /*--cef(source=client)--*/
-class CefResponseFilter : public virtual CefBase {
+class CefResponseFilter : public virtual CefBaseRefCounted {
  public:
   typedef cef_response_filter_status_t FilterStatus;
 
@@ -54,7 +54,7 @@ class CefResponseFilter : public virtual CefBase {
   // filter will not be installed if this method returns false.
   ///
   /*--cef()--*/
-  virtual bool InitFilter() =0;
+  virtual bool InitFilter() = 0;
 
   ///
   // Called to filter a chunk of data. Expected usage is as follows:
@@ -92,7 +92,7 @@ class CefResponseFilter : public virtual CefBase {
                               size_t& data_in_read,
                               void* data_out,
                               size_t data_out_size,
-                              size_t& data_out_written) =0;
+                              size_t& data_out_written) = 0;
 };
 
 #endif  // CEF_INCLUDE_CEF_RESPONSE_FILTER_H_

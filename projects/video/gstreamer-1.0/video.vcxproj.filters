@@ -39,6 +39,9 @@
     <ClCompile Include="src\private\gst_video_service.cpp">
       <Filter>src\private</Filter>
     </ClCompile>
+    <ClCompile Include="src\gstreamer\gstreamer_audio_device.cpp">
+      <Filter>src\gstreamer</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\gstreamer\video_meta_cache.h">
@@ -61,6 +64,9 @@
     </ClInclude>
     <ClInclude Include="src\private\gst_video_service.h">
       <Filter>src\private</Filter>
+    </ClInclude>
+    <ClInclude Include="src\gstreamer\gstreamer_audio_device.h">
+      <Filter>src\gstreamer</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

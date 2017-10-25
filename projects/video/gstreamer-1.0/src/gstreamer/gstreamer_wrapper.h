@@ -7,6 +7,8 @@
 #include <gst/audio/audio.h>
 #include <gst/net/gstnettimeprovider.h>
 
+#include "gstreamer_audio_device.h"
+
 #include <mutex>
 #include <atomic>
 #include <string>
@@ -177,7 +179,6 @@ public:
 	void					setCurrentAudioStream( int iCurrentAudioStream );
 
 	void					setAutoRestartStream(bool autoRestart) { m_AutoRestartStream = autoRestart; }
-
 
 	/*
 	Sets the playback speed of the opened media file.
@@ -488,6 +489,14 @@ public:
 	virtual void			setCustomFunction(){};
 
 	void					enableCustomPipeline(bool enable) { m_CustomPipeline = enable; }
+
+	/* Sets the available audio devices for output. Note that this overrides other audio output controls like panning or custom audio output. */
+	void					setAudioDevices(std::vector<ds::GstAudioDevice>& devices) { m_AudioDevices = devices; }
+
+	/* Set the volume of a specific audio device by device name and volume. You must have called setAudioDevice() above before loading the video for this to work.*/
+	void					setAudioDeviceVolume(ds::GstAudioDevice& theDevice);
+	/* Set the pan of a specific audio device by device name and pan. You must have called setAudioDevice() above before loading the video for this to work.*/
+	void					setAudioDevicePan(ds::GstAudioDevice& theDevice);
 	
 	/*
 	Here the GStreamer messages are read and processed. Needed for error checking while streaming and
@@ -702,6 +711,7 @@ private:
 	GstAppSinkCallbacks		m_GstAudioSinkCallbacks; /* Stores references to the callback methods for audio preroll, new audio buffer and audio eos */
 	bool					m_StartPlaying;/* Play the video as soon as it's loaded */
 	bool					m_CustomPipeline; /* Has a custom pipeline for audio */
+	std::vector<ds::GstAudioDevice> m_AudioDevices; /* Which audio devices to use for playback. */
 	bool					m_LivePipeline; /* The video is playing live over the network which disallows seeking and a few other things (previously m_Streaming) */
 	bool					m_FullPipeline; /* This was launched from a gst_parse_launch command */
 	bool					m_AutoRestartStream;

@@ -7,7 +7,7 @@
 #include <ds/app/event_notifier.h>
 #include <ds/debug/logger.h>
 #include <ds/util/string_util.h>
-#include <ds/ui/sprite/multiline_text.h>
+#include <ds/ui/sprite/text.h>
 #include <ds/ui/sprite/gradient_sprite.h>
 #include <ds/ui/sprite/circle.h>
 #include <ds/ui/sprite/border.h>
@@ -132,13 +132,9 @@ void SpriteInspector::inspectSprite(ds::ui::Sprite* sp) {
 	if(texty){
 		addSpriteProperty(L"text", texty->getText());
 		addSpriteProperty(L"font", ds::wstr_from_utf8(texty->getConfigName()));
+		addSpriteProperty(L"resize_limit", ci::vec2(texty->getResizeLimitWidth(), texty->getResizeLimitHeight()));
+		addSpritePropertyLayoutHAlign(L"text_align", texty->getAlignment());
 	//	addSpriteProperty(L"font_size", texty->getFontSize());
-	}
-
-	ds::ui::MultilineText* multitexty = dynamic_cast<ds::ui::MultilineText*>(mLinkedSprite);
-	if(multitexty){
-		addSpriteProperty(L"resize_limit", ci::vec2(multitexty->getResizeLimitWidth(), multitexty->getResizeLimitHeight()));
-		addSpritePropertyLayoutHAlign(L"text_align", multitexty->getAlignment());
 	}
 
 	ds::ui::Gradient* grad = dynamic_cast<ds::ui::Gradient*>(mLinkedSprite);

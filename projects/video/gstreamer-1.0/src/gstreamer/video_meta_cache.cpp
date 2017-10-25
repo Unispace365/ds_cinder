@@ -210,8 +210,9 @@ bool VideoMetaCache::getVideoInfo(Entry& entry) {
 	// If there's an audio channel, get it's codec
 	if(numAudio > 0){
 		entry.mAudioCodec = _MI_TO_STR(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Codec"), MediaInfoDLL::Info_Text));
-	}
 
+		std::cout << "Number of audio channels: " << _MI_TO_STR(media_info.Get(MediaInfoDLL::Stream_Audio, 0, __T("Channels"), MediaInfoDLL::Info_Text)) << std::endl;
+	}
 
 	// No video streams, but has at least one audio stream is a AUDIO_TYPE
 	if(numAudio > 0 && numVideo < 1){
@@ -238,11 +239,6 @@ bool VideoMetaCache::getVideoInfo(Entry& entry) {
 
 	entry.mDuration /= 1000.0f;
 
-	// Disabling duration check, if MediaInfo can't find it, that's ok, GStreamer can fill it in
-// 	if(entry.mDuration <= 0.0f || entry.mDuration > 360000.0f) {  // 360000.0f == 100 hours. That should be enough, right?
-// 		DS_LOG_WARNING("VideoMetaCache::getVideoInfo() illegal duration (" << entry.mDuration << ") for file (" << entry.mPath << ")");
-// 		return false;
-// 	}
 	return true;
 }
 

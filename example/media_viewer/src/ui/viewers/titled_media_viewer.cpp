@@ -66,8 +66,6 @@ void TitledMediaViewer::onLayout() {
 	const float w = getWidth();
 	const float h = getHeight();
 
-	std::cout << "view size: " << w << " " << h << std::endl;
-
 	const float padding = mGlobals.getSettingsLayout().getFloat("titled_viewer:padding", 0, 20.0f);
 	if(mBody && mBackground && mTitle && mShowingTitle){
 		// do the stuff
