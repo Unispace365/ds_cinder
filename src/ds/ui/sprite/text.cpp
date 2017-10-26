@@ -9,10 +9,6 @@
 #include <pango/pango-font.h>
 #include <regex>
 
-#if CAIRO_HAS_WIN32_SURFACE
-#include <cairo-win32.h>
-#endif
-
 #include "ds/data/font_list.h"
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
@@ -130,10 +126,6 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mCairoSurface(nullptr)
 	, mCairoContext(nullptr)
 	, mCairoFontOptions(nullptr)
-
-#ifdef CAIRO_HAS_WIN32_SURFACE
-	, mCairoWinImageSurface(nullptr)
-#endif
 {
 	mBlobType = BLOB_TYPE;
 
@@ -191,20 +183,10 @@ Text::~Text() {
 		mCairoFontOptions = nullptr;
 	}
 
-#ifdef CAIRO_HAS_WIN32_SURFACE
-	if(mCairoWinImageSurface) {
-		//cairo_surface_destroy(mCairoWinImageSurface);
-		mCairoWinImageSurface = nullptr;
-	}
-	if(mCairoSurface != nullptr) {
-		cairo_surface_destroy(mCairoSurface);
-	}
-#else
 	// Crashes windows...
 	if(mCairoSurface != nullptr) {
 		cairo_surface_destroy(mCairoSurface);
 	}
-#endif
 
 	g_object_unref(mPangoContext); // this one crashes Windows?
 	g_object_unref(mPangoLayout);
@@ -616,7 +598,7 @@ bool Text::measurePangoText() {
 
 			mFontDescription = pango_font_description_from_string(mTextFont.c_str());// +" " + std::to_string(mTextSize)).c_str());
 			pango_font_description_set_absolute_size(mFontDescription, (double)(mTextSize * 1.333333333f) * PANGO_SCALE);
-			//	pango_font_description_set_weight(fontDescription, static_cast<PangoWeight>(mDefaultTextWeight));
+			//pango_font_description_set_weight(fontDescription, static_cast<PangoWeight>(mDefaultTextWeight));
 			//	pango_font_description_set_style(mFontDescription, PANGO_STYLE_ITALIC);// mDefaultTextItalicsEnabled ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
 			//	pango_font_description_set_variant(fontDescription, mDefaultTextSmallCapsEnabled ? PANGO_VARIANT_SMALL_CAPS : PANGO_VARIANT_NORMAL);
 			pango_layout_set_font_description(mPangoLayout, mFontDescription);
@@ -727,38 +709,22 @@ bool Text::measurePangoText() {
 }
 
 void Text::renderPangoText(){
-
-	/// HACK
-	/// Some fonts clip some descenders and characters at the end of the text
-	/// So we make the surface and texture somewhat bigger than the size of the sprite
-	/// Yes, this means that it could fuck up some shaders.
-	/// I dunno what else to do. I couldn't seem to find any relevant docs or issues on stackoverflow
-	/// The official APIs from Pango are simply reporting less pixel size than they draw into. (shrug)
-	int extraTextureSize = (int)mTextSize;
-
 	if(mNeedsTextRender) {
 		// Create appropriately sized cairo surface
 		const bool grayscale = false; // Not really supported
 		_cairo_format cairoFormat = grayscale ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32;
 
-
 		// clean up any existing surfaces
 		if(mCairoSurface) {
 			cairo_surface_destroy(mCairoSurface);
 			mCairoSurface = nullptr;
-#if CAIRO_HAS_WIN32_SURFACE
-			mCairoWinImageSurface = nullptr;
-#endif
 		}
 
-#if CAIRO_HAS_WIN32_SURFACE
-		mCairoSurface = cairo_win32_surface_create_with_dib(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
-#else
-		mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
-#endif
+		mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth, mPixelHeight);
+
 		auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
 		if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
-			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth + extraTextureSize << " h:" << mPixelHeight + extraTextureSize << " text:" << ds::utf8_from_wstr(mText));
+			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth << " h:" << mPixelHeight << " text:" << ds::utf8_from_wstr(mText));
 			// make sure we don't render garbage
 			if(mTexture){
 				mTexture = nullptr;
@@ -800,17 +766,12 @@ void Text::renderPangoText(){
 			//	cairo_surface_write_to_png(cairoSurface, "test_font.png");
 
 			// Copy it out to a texture
-#ifdef CAIRO_HAS_WIN32_SURFACE
-			mCairoWinImageSurface = cairo_win32_surface_get_image(mCairoSurface);
-			unsigned char *pixels = cairo_image_surface_get_data(mCairoWinImageSurface);
-#else
 			unsigned char *pixels = cairo_image_surface_get_data(mCairoSurface);
-#endif
 
 			ci::gl::Texture::Format format;
 			format.setMagFilter(GL_LINEAR);
 			format.setMinFilter(GL_LINEAR);
-			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize, format);
+			mTexture = ci::gl::Texture::create(pixels, GL_BGRA, mPixelWidth, mPixelHeight, format);
 			mTexture->setTopDown(true);
 			mNeedsTextRender = false;
 
@@ -823,9 +784,6 @@ void Text::renderPangoText(){
 			if(mCairoSurface) {
 				cairo_surface_destroy(mCairoSurface);
 				mCairoSurface = nullptr;
-#ifdef CAIRO_HAS_WIN32_SURFACE
-				mCairoWinImageSurface = nullptr;
-#endif
 			}
 		}
 
