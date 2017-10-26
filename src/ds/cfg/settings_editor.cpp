@@ -129,8 +129,9 @@ void SettingsEditor::showSettings(const std::string theSettingsName){
 	});
 
 	mPrimaryLayout->runLayout();
-
-	setPosition(mEngine.getSrcRect().getX2() - mPrimaryLayout->getWidth(), mEngine.getSrcRect().getY1());
+	mPrimaryLayout->setScale(mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth());
+	//setPosition(ci::app::getWindowBounds().getWidth() - mPrimaryLayout->getWidth(), 0.0f);// mEngine.getSrcRect().getY1());
+	setPosition(mEngine.getSrcRect().getX2() - mPrimaryLayout->getScaleWidth(), mEngine.getSrcRect().getY1());
 
 }
 

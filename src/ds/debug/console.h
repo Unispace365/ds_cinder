@@ -18,14 +18,15 @@ public:
 	}
 
 	void create() {
-		if(mConsoleCreated)
-			return;
-		::AllocConsole();
+		if(mConsoleCreated)	return;
+
+		AllocConsole();
+		mConsoleCreated = true;
+		ci::app::PlatformMsw::get()->directConsoleToCout(true);
+
 		freopen("CONIN$", "r", stdin);
 		freopen("CONOUT$", "w", stdout);
 		freopen("CONOUT$", "w", stderr);
-		ci::app::PlatformMsw::get()->directConsoleToCout(true);
-		mConsoleCreated = true;
 
 		std::cout.clear();
 		std::cerr.clear();
@@ -35,7 +36,13 @@ public:
 		if(!mConsoleCreated)
 			return;
 
-		FreeConsole();
+		fclose(stdin);
+		fclose(stdout);
+		fclose(stderr);
+
+		if(!FreeConsole()) {
+			DS_LOG_WARNING("failed to close console window");
+		}
 		mConsoleCreated = false;
 	};
 

@@ -63,7 +63,7 @@ EngineStatsView::EngineStatsView(ds::ui::SpriteEngine &e)
 	mBackground->setColor(0, 0, 0);
 	mBackground->setOpacity(0.5f);
 	addChildPtr(mBackground);
-
+	setScale(mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth());
 }
 
 void EngineStatsView::onUpdateServer(const ds::UpdateParams &p) {

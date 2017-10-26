@@ -532,7 +532,7 @@ void Engine::createStatsView(sprite_id_t root_id){
 	RootList::Root					root_cfg;
 	root_cfg.mType = root_cfg.kOrtho;
 	root_cfg.mDebugDraw = true;
-	root_cfg.mDrawScaled = false;
+	//root_cfg.mDrawScaled = false;
 	root_cfg.mSyncronize = false;
 	std::unique_ptr<EngineRoot>		root;
 	root.reset(new OrthRoot(*this, root_cfg, root_id));
