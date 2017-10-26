@@ -55,29 +55,34 @@ New Settings xml format
 Note that since types are converted at runtime, there is no strict type-checking. So you could specify a value as an int in the xml, but still get the value as a wstring from the settings. The type markers are for documentation and for the gui to show the appropriate ui.
 
 With the new system, every time you "get" a value, if the setting doesn't exist already, it'll be created and added to the settings. What you can do with this is specify all your settings in C++, run the app, then use the gui to save the file. Call getSetting() and fill out all the values:
-	mGlobals.getAppSettings().getSetting("setting:name", 0, ds::cfg::SETTING_TYPE_STRING, "Set the comment for the new setting, which is required", "default value", "min_value", "max_value", "possible_values");
+
+    mGlobals.getAppSettings().getSetting("setting:name", 0, ds::cfg::SETTING_TYPE_STRING, "Set the comment for the new setting, which is required", "default value", "min_value", "max_value", "possible_values");
 
 
 
 forEachTextKey() is now forEachSetting()
 
 old syntax:
+
     mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
         mEngine.editFonts().registerFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
     });
 
 new syntax:
+
     mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting){
         mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName);
     }, ds::cfg::SETTING_TYPE_STRING);
 	
 	
 old syntax:
+
     mEngine.getSettings("COLORS").forEachColorAKey([this](const std::string& key){
         mEngine.editColors().install(mEngine.getSettings("COLORS").getColorA(key), key);
     });
 	
 new syntax:
+
     mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& theSetting){
         mEngine.editColors().install(theSetting.getColorA(mEngine), theSetting.mName);
     }, ds::cfg::SETTING_TYPE_COLOR);
