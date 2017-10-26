@@ -21,6 +21,8 @@ StoryView::StoryView(Globals& g)
 	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 	, mMessage(nullptr)
 	, mPrimaryLayout(nullptr)
+	, mIsEngineCheckbox(nullptr)
+	, mIncludeComments(nullptr)
 	, mImage(nullptr)
 {
 	hide();
@@ -33,9 +35,14 @@ StoryView::StoryView(Globals& g)
 	mMessage = dynamic_cast<ds::ui::Text*>(spriteMap["message"]);
 	mImage = dynamic_cast<ds::ui::Image*>(spriteMap["primary_image"]);
 	mIsEngineCheckbox = dynamic_cast<ds::ui::ControlCheckBox*>(spriteMap["engine_check_box"]);
+	mIncludeComments = dynamic_cast<ds::ui::ControlCheckBox*>(spriteMap["comments_check_box"]);
 
 	if(mIsEngineCheckbox){
 		mIsEngineCheckbox->setCheckBoxValue(true);
+	}
+
+	if(mIncludeComments) {
+		mIncludeComments->setCheckBoxValue(true);
 	}
 
 	// calls layout
@@ -115,6 +122,13 @@ bool StoryView::getIsEngineMode(){
 	return false;
 }
 
+bool StoryView::getIncludeComments() {
+	if(mIncludeComments) {
+		return mIncludeComments->getCheckBoxValue();
+	}
+
+	return false;
+}
 
 } // namespace downstream
 

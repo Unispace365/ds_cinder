@@ -217,15 +217,21 @@ void settings_rewrite_app::fileDrop(ci::app::FileDropEvent event){
 
 		std::string thePath = (*it).string();
 
+		bool autoDetect = true;
+		bool includeComments = true;
+		if(mStoryView) {
+			includeComments = mStoryView->getIncludeComments();
+			autoDetect = mStoryView->getIsEngineMode();
+		}
 		ds::cfg::SettingsUpdater updater(mEngine);
-		if(mStoryView && mStoryView->getIsEngineMode()){
+		if(autoDetect){
 			if(thePath.find("engine.xml") != std::string::npos){
 				updater.updateEngineSettings(thePath);
 			} else {
-				updater.updateSettings(thePath, thePath);
+				updater.updateSettings(thePath, thePath, includeComments);
 			}
 		} else {
-			updater.updateSettings(thePath, thePath);
+			updater.updateSettings(thePath, thePath, includeComments);
 		}
 	}
 }

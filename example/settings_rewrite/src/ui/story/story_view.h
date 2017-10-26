@@ -25,6 +25,7 @@ public:
 	StoryView(Globals& g);
 
 	bool								getIsEngineMode();
+	bool								getIncludeComments();
 
 private:
 	void								onAppEvent(const ds::Event&);
@@ -45,6 +46,7 @@ private:
 	ds::ui::Text*						mMessage;
 	ds::ui::Image*						mImage;
 	ds::ui::ControlCheckBox*			mIsEngineCheckbox;
+	ds::ui::ControlCheckBox*			mIncludeComments;
 
 };
 

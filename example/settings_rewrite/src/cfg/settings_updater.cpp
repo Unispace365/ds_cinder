@@ -200,7 +200,7 @@ void SettingsUpdater::updateAnEngineSetting(const std::string& settingName, Sett
 	}
 }
 
-void SettingsUpdater::updateSettings(const std::string& source, const std::string& destination){
+void SettingsUpdater::updateSettings(const std::string& source, const std::string& destination, const bool allowComments){
 	if(source.empty() || destination.empty()) return;
 
 
@@ -209,7 +209,7 @@ void SettingsUpdater::updateSettings(const std::string& source, const std::strin
 
 	ci::XmlTree xml;
 	ci::XmlTree::ParseOptions parseOptions;
-	parseOptions.setParseComments(true);
+	parseOptions.setParseComments(allowComments);
 	try{
 		xml = ci::XmlTree(ci::loadFile(source), parseOptions);
 	} catch(std::exception& e){

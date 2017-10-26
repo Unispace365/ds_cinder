@@ -27,7 +27,7 @@ public:
 
 	// Read from an xml file 
 	void								updateEngineSettings(const std::string& fileToUpdate);
-	void								updateSettings(const std::string& source, const std::string& destination);
+	void								updateSettings(const std::string& source, const std::string& destination, const bool allowComments);
 
 protected:
 	ds::Engine&							mEngine;

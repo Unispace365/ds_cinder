@@ -62,12 +62,21 @@ Note: if you're updating an engine.xml that is an override file, turn off auto-d
 				<control_check_box name="engine_check_box"
 					font="media_viewer:title"
 					check_box_true_label="auto-detect update mode"
-					check_box_false_label="force generic update mode"
+					check_box_false_label="auto-detect update mode"
 					check_box_box_pad="5"
 					check_box_touch_pad="15"
 					check_box_label_pad="0"
 					/>
 					
+					
+				<control_check_box name="comments_check_box"
+					font="media_viewer:title"
+					check_box_true_label="include comments"
+					check_box_false_label="include comments"
+					check_box_box_pad="5"
+					check_box_touch_pad="15"
+					check_box_label_pad="0"
+					/>
 				<sprite name="spacer_two" 
 					layout_size_mode="flex"
 					color="white"
