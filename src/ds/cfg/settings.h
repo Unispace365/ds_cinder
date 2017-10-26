@@ -205,6 +205,9 @@ public:
 	/// If a setting with this name exists
 	bool								hasSetting(const std::string& name) const;
 
+	/// How many settings there are with this name
+	size_t								countSetting(const std::string& name) const;
+
 	/// Validate if the type string is known (int, float, string, section_header, etc)
 	static bool							validateType(const std::string& inputType);
 

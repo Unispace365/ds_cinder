@@ -356,6 +356,14 @@ bool Settings::hasSetting(const std::string& name) const {
 	return false;
 }
 
+size_t Settings::countSetting(const std::string& name) const {
+	for(auto it : mSettings) {
+		if(it.first == name) return it.second.size();
+	}
+
+	return 0;
+}
+
 int Settings::getSettingIndex(const std::string& name) const {
 	for(int i = 0; i < mSettings.size(); i++){
 		if(mSettings[i].first == name) return i;
