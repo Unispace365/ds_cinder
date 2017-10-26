@@ -106,6 +106,18 @@
     <Filter Include="src\ds\ui\layout">
       <UniqueIdentifier>{ec8f7e90-a386-4b14-9c1b-dddd49bd09fe}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\cfg\editor_components">
+      <UniqueIdentifier>{f24cfaab-b5e0-484d-9eb4-cff6b4568774}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\soft_keyboard">
+      <UniqueIdentifier>{1796269e-de1c-42c4-b9a3-b679fed1fc83}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\control">
+      <UniqueIdentifier>{eb2e84d3-5927-4afa-b1f0-fbad3c16af85}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ds\ui\button">
+      <UniqueIdentifier>{42013d7c-e39d-4524-8e5b-a2bad7802e54}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -273,9 +285,6 @@
     <ClInclude Include="..\src\ds\data\font_list.h">
       <Filter>src\ds\data</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ds\ui\sprite\nine_patch.h">
-      <Filter>src\ds\ui\sprite</Filter>
-    </ClInclude>
     <ClInclude Include="..\src\ds\ui\image_source\image_source.h">
       <Filter>src\ds\ui\image_source</Filter>
     </ClInclude>
@@ -437,9 +446,6 @@
     </ClInclude>
     <ClInclude Include="..\src\ds\data\user_data.h">
       <Filter>src\ds\data</Filter>
-    </ClInclude>
-    <ClInclude Include="..\src\ds\cfg\cfg_nine_patch.h">
-      <Filter>src\ds\cfg</Filter>
     </ClInclude>
     <ClInclude Include="..\src\ds\arc\arc_map.h">
       <Filter>src\ds\arc</Filter>
@@ -681,6 +687,48 @@
     <ClInclude Include="..\src\ds\ui\sprite\text.h">
       <Filter>src\ds\ui\sprite</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\settings_editor.h">
+      <Filter>src\ds\cfg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\editor_components\edit_view.h">
+      <Filter>src\ds\cfg\editor_components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\cfg\editor_components\editor_item.h">
+      <Filter>src\ds\cfg\editor_components</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\entry_field.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_builder.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_button.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_defs.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_settings.h">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\control\control_check_box.h">
+      <Filter>src\ds\ui\control</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\control\control_slider.h">
+      <Filter>src\ds\ui\control</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\button\layout_button.h">
+      <Filter>src\ds\ui\button</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\button\sprite_button.h">
+      <Filter>src\ds\ui\button</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\ui\button\image_button.h">
+      <Filter>src\ds\ui\button</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -802,9 +850,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\font_list.cpp">
       <Filter>src\ds\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\ui\sprite\nine_patch.cpp">
-      <Filter>src\ds\ui\sprite</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\image_source\image_source.cpp">
       <Filter>src\ds\ui\image_source</Filter>
@@ -949,9 +994,6 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\data\user_data.cpp">
       <Filter>src\ds\data</Filter>
-    </ClCompile>
-    <ClCompile Include="..\src\ds\cfg\cfg_nine_patch.cpp">
-      <Filter>src\ds\cfg</Filter>
     </ClCompile>
     <ClCompile Include="..\src\ds\arc\arc_map.cpp">
       <Filter>src\ds\arc</Filter>
@@ -1147,6 +1189,45 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\sprite\text.cpp">
       <Filter>src\ds\ui\sprite</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\settings_editor.cpp">
+      <Filter>src\ds\cfg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\editor_components\editor_item.cpp">
+      <Filter>src\ds\cfg\editor_components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\cfg\editor_components\edit_view.cpp">
+      <Filter>src\ds\cfg\editor_components</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\soft_keyboard\entry_field.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_builder.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_button.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp">
+      <Filter>src\ds\ui\soft_keyboard</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\control\control_slider.cpp">
+      <Filter>src\ds\ui\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\control\control_check_box.cpp">
+      <Filter>src\ds\ui\control</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\button\sprite_button.cpp">
+      <Filter>src\ds\ui\button</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\button\image_button.cpp">
+      <Filter>src\ds\ui\button</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\ui\button\layout_button.cpp">
+      <Filter>src\ds\ui\button</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
