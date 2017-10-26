@@ -72,6 +72,7 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mService(engine.getService<ds::web::WebCefService>("cef_web"))
 	, mDragScrolling(false)
 	, mDragScrollMinFingers(2)
+	, mIsDragging(false)
 	, mClickDown(false)
 	, mPageScrollCount(0)
 	, mDocumentReadyFn(nullptr)
@@ -518,7 +519,8 @@ void Web::sendMouseClick(const ci::vec3& globalClickPoint){
 
 void Web::sendTouchToService(const int xp, const int yp, const int btn, const int state, const int clickCnt, 
 							 const bool isWheel, const int xDelta, const int yDelta) {
-	if(mBrowserId < 0) return;
+	//std::cout << "Sending touch, state: " << state << " click: " << clickCnt << " " << xp << " " << yp << std::endl;
+	if(mBrowserId < 0) return; 
 
 	if(isWheel){
 		mService.sendMouseWheelEvent(mBrowserId, xp, yp, xDelta, yDelta);
@@ -554,21 +556,29 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 		if(mDragScrolling){
 			mClickDown = true;
 		}
+
+		mIsDragging = false;
 		
 	} else if(ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
 
+		if(!mIsDragging && glm::distance(mPreviousTouchPos, touchInfo.mCurrentGlobalPoint) > mEngine.getMinTapDistance()) {
+			mIsDragging = true;
+		}
+
 		if(mDragScrolling && touchInfo.mNumberFingers >= mDragScrollMinFingers){
-			
-			if(mClickDown){
-				if(mAllowClicks){
-					sendTouchToService(xPos, yPos, 0, 1, 0);
-					sendTouchToService(xPos, yPos, 0, 2, 0);
+			if(mIsDragging) {
+				if(mClickDown) {
+					if(mAllowClicks) {
+						sendTouchToService(xPos, yPos, 0, 1, 0);
+						sendTouchToService(xPos, yPos, 0, 2, 0);
+					}
+					mClickDown = false;
 				}
-				mClickDown = false;
+
+				float yDelta = touchInfo.mCurrentGlobalPoint.y - mPreviousTouchPos.y;
+				sendTouchToService(xPos, yPos, 0, 0, 0, true, 0, static_cast<int>(roundf(yDelta)));
 			}
 
-			float yDelta = touchInfo.mCurrentGlobalPoint.y - mPreviousTouchPos.y;
-			sendTouchToService(xPos, yPos, 0, 0, 0, true, 0, static_cast<int>(roundf(yDelta)));		
 			
 		} else {
 			if(mAllowClicks){
@@ -576,7 +586,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 			}
 		}
 	} else if(ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
-		if(mAllowClicks){
+		if(mAllowClicks) {
 			sendTouchToService(xPos, yPos, 0, 2, 1);
 		}
 	}
