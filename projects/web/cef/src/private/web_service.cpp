@@ -84,6 +84,13 @@ void WebCefService::start() {
 
 	mCefSimpleApp = CefRefPtr<WebApp>(new WebApp);
 
+	// Register CDM. This is content decryption (aka DRM)
+	// I couldn't actually get this working. You're supposed to copy the manifest.json and widevine dll's from your chrome directory
+	// But for whatever reason, Netflix and Hulu still complain about missing stuff.
+	// Version mismatch? I dunno. Anyways, this is here.
+	CefString thePath = CefString(ds::Environment::expand("%APP%").c_str());
+	CefRegisterWidevineCdm(thePath, NULL);
+
 #ifdef _WIN32
 	CefMainArgs main_args(GetModuleHandle(NULL));
 
