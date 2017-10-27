@@ -236,7 +236,10 @@ const bool Settings::getBool(const std::string& name, const int index) {
 }
 
 const bool Settings::getBool(const std::string& name, const int index, const bool defaultValue){
-	return getSetting(name, index, std::to_string(defaultValue)).getBool();
+	/// std::to_string was converting bool to int and returning 1 or 0
+	std::string defaultString = "false";
+	if(defaultValue) defaultString = "true";
+	return getSetting(name, index, defaultString).getBool();
 }
 
 const int Settings::getInt(const std::string& name, const int index){

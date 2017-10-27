@@ -476,156 +476,14 @@ void WebInterface::updateWidgets(){
 								}
 							}
 						} else {
-							// spoof a keyevent to send to the web
-							bool send = true;
-							int code = 0;
-
-							if(keyType == ds::ui::SoftKeyboardDefs::kShift){
-								send = false;
-							} else if(keyType == ds::ui::SoftKeyboardDefs::kArrow){
-								send = false;
-								if(character == L"<") code = ci::app::KeyEvent::KEY_LEFT;
-								if(character == L"^") code = ci::app::KeyEvent::KEY_UP;
-								if(character == L"v") code = ci::app::KeyEvent::KEY_DOWN;
-								if(character == L">") code = ci::app::KeyEvent::KEY_RIGHT;
-								ci::app::KeyEvent event(
-									mEngine.getWindow(),
-									code,
-									code,
-									'	',
-									0,
-									code
-									);
-								mLinkedWeb->sendKeyDownEvent(event);
-								mLinkedWeb->sendKeyUpEvent(event);
-							} else if(keyType == ds::ui::SoftKeyboardDefs::kFunction){
-								send = false;
-								if(character == L"F1") code = ci::app::KeyEvent::KEY_F1;
-								if(character == L"F2") code = ci::app::KeyEvent::KEY_F2;
-								if(character == L"F3") code = ci::app::KeyEvent::KEY_F3;
-								if(character == L"F4") code = ci::app::KeyEvent::KEY_F4;
-								if(character == L"F5") code = ci::app::KeyEvent::KEY_F5;
-								if(character == L"F6") code = ci::app::KeyEvent::KEY_F6;
-								if(character == L"F7") code = ci::app::KeyEvent::KEY_F7;
-								if(character == L"F8") code = ci::app::KeyEvent::KEY_F8;
-								if(character == L"F9") code = ci::app::KeyEvent::KEY_F9;
-								if(character == L"F10") code = ci::app::KeyEvent::KEY_F10;
-								if(character == L"F11") code = ci::app::KeyEvent::KEY_F11;
-								if(character == L"F12") code = ci::app::KeyEvent::KEY_F12;
-								ci::app::KeyEvent event(
-									mEngine.getWindow(),
-									code,
-									code,
-									'	',
-									0,
-									code
-									);
-								mLinkedWeb->sendKeyDownEvent(event);
-								mLinkedWeb->sendKeyUpEvent(event);
-
-							} else if(keyType == ds::ui::SoftKeyboardDefs::kEscape){
-								send = false;
-								code = ci::app::KeyEvent::KEY_ESCAPE;
-								ci::app::KeyEvent event(
-									mEngine.getWindow(),
-									code,
-									code,
-									'	',
-									0,
-									code
-									);
-								mLinkedWeb->sendKeyDownEvent(event);
-								mLinkedWeb->sendKeyUpEvent(event);
-
-							} else if(keyType == ds::ui::SoftKeyboardDefs::kFwdDelete){
-								send = false;
-								code = ci::app::KeyEvent::KEY_DELETE;
-								ci::app::KeyEvent event(
-									mEngine.getWindow(),
-									code,
-									code,
-									'	',
-									0,
-									code
-									);
-								mLinkedWeb->sendKeyDownEvent(event);
-								mLinkedWeb->sendKeyUpEvent(event);
-
-							} else if(keyType == ds::ui::SoftKeyboardDefs::kSpecial){
-								send = false;
-								if(character == L"Home") code = ci::app::KeyEvent::KEY_HOME;
-								if(character == L"End") code = ci::app::KeyEvent::KEY_END;
-								if(character == L"PgUp") code = ci::app::KeyEvent::KEY_PAGEUP;
-								if(character == L"PgDn") code = ci::app::KeyEvent::KEY_PAGEDOWN;
-								ci::app::KeyEvent event(
-									mEngine.getWindow(),
-									code,
-									code,
-									'	',
-									0,
-									code
-									);
-								mLinkedWeb->sendKeyDownEvent(event);
-								mLinkedWeb->sendKeyUpEvent(event);
-
-
-							} else if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
-								code = ci::app::KeyEvent::KEY_BACKSPACE;
-								send = false;
-								ci::app::KeyEvent event(
-									mEngine.getWindow(),
-									code,
-									code,
-									'	',
-									0,
-									code
-									);
-								mLinkedWeb->sendKeyDownEvent(event);
-								mLinkedWeb->sendKeyUpEvent(event);
-							} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter){
-								code = ci::app::KeyEvent::KEY_RETURN;
-								send = false;
-								ci::app::KeyEvent event(
-									mEngine.getWindow(),
-									code,
-									code,
-									'\r',
-									0,
-									code
-									);
-								mLinkedWeb->sendKeyDownEvent(event);
-								mLinkedWeb->sendKeyUpEvent(event);
-							} else if(keyType == ds::ui::SoftKeyboardDefs::kTab){
-								code = ci::app::KeyEvent::KEY_TAB;
-								send = false;
-								ci::app::KeyEvent event(
-									mEngine.getWindow(),
-									code,
-									code,
-									'	',
-									0,
-									code
-									);
-								mLinkedWeb->sendKeyDownEvent(event);
-								mLinkedWeb->sendKeyUpEvent(event);
-							}
-
-							if(send){
-								ci::app::KeyEvent event(
-									mEngine.getWindow(),
-									code,
-									0,
-									(char)character.c_str()[0],
-									0,
-									code
-									);
-								mLinkedWeb->sendKeyDownEvent(event);
-								mLinkedWeb->sendKeyUpEvent(event);
-							}
+							mLinkedWeb->keyPressed(character, keyType);
 						}
 
 					}
 				});
+
+				mEngine.registerEntryField(mLinkedWeb);
+
 				layout();
 			}
 
@@ -638,6 +496,10 @@ void WebInterface::updateWidgets(){
 				setCanTimeout(true);
 			}
 			if(mKeyboardArea->visible()){
+				if(mEngine.getRegisteredEntryField() == mLinkedWeb) {
+					mEngine.registerEntryField(nullptr);
+				}
+
 				mKeyboardArea->tweenOpacity(0.0f, mAnimateDuration, 0.0f, ci::easeNone, [this](){
 					mKeyboardArea->hide();
 				});

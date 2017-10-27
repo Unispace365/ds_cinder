@@ -11,7 +11,7 @@
 #include "ds/ui/soft_keyboard/soft_keyboard_button.h"
 
 namespace ds{
-namespace ui{
+namespace ui {
 
 EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& settings)
 	: IEntryField(engine)
@@ -33,31 +33,25 @@ EntryField::EntryField(ds::ui::SpriteEngine& engine, EntryFieldSettings& setting
 	//setColor(ci::Color(0.3f, 0.0f, 0.0f));
 
 	enableMultiTouch(ds::ui::MULTITOUCH_INFO_ONLY);
-	setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
+	setProcessTouchCallback([this](ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
 		handleTouchInput(bs, ti);
 	});
 
 	setEntryFieldSettings(settings);
 }
 
-EntryField::~EntryField(){
-	if(mEngine.getRegisteredEntryField() == this){
-		mEngine.registerEntryField(nullptr);
-	}
-}
-
-void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings){
+void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings) {
 	mEntryFieldSettings = newSettings;
 
 	setSize(mEntryFieldSettings.mFieldSize.x, mEntryFieldSettings.mFieldSize.y);
 
-	if(mTextSprite){
+	if(mTextSprite) {
 		mTextSprite->setResizeLimit(mEntryFieldSettings.mFieldSize.x, mEntryFieldSettings.mFieldSize.y);
-		mEngine.getEngineCfg().getText(newSettings.mTextConfig).configure(*mTextSprite);		
+		mEngine.getEngineCfg().getText(newSettings.mTextConfig).configure(*mTextSprite);
 		mTextSprite->setPosition(mEntryFieldSettings.mTextOffset);
 	}
 
-	if(mCursor){
+	if(mCursor) {
 		mCursor->setColor(newSettings.mCursorColor);
 		mCursor->setSize(newSettings.mCursorSize);
 	}
@@ -65,17 +59,17 @@ void EntryField::setEntryFieldSettings(EntryFieldSettings& newSettings){
 	textUpdated();
 }
 
-void EntryField::onSizeChanged(){
-	if(mTextSprite){
+void EntryField::onSizeChanged() {
+	if(mTextSprite) {
 		//mTextSprite->setResizeLimit(getWidth(), getHeight());
 	}
 }
 
-const std::wstring EntryField::getCurrentText(){
+const std::wstring EntryField::getCurrentText() {
 	return mCurrentText;
 }
 
-void EntryField::setCurrentText(const std::wstring& crTxStr){
+void EntryField::setCurrentText(const std::wstring& crTxStr) {
 	mCurrentText = crTxStr;
 
 	applyText(crTxStr);
@@ -85,11 +79,11 @@ void EntryField::setCurrentText(const std::wstring& crTxStr){
 	textUpdated();
 }
 
-void EntryField::applyText(const std::wstring& theStr){
-	if(mTextSprite){
-		if(mEntryFieldSettings.mPasswordMode){
+void EntryField::applyText(const std::wstring& theStr) {
+	if(mTextSprite) {
+		if(mEntryFieldSettings.mPasswordMode) {
 			std::wstring bullets;
-			for(int i = 0; i < theStr.size(); i++){
+			for(int i = 0; i < theStr.size(); i++) {
 				bullets.append(L"*");
 			}
 			mTextSprite->setText(bullets);
@@ -99,42 +93,42 @@ void EntryField::applyText(const std::wstring& theStr){
 	}
 }
 
-void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType){
+void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType) {
 	std::wstring currentCharacter = keyCharacter;
 	std::wstring currentFullText = getCurrentText();
 
 	/// Arrow keys
-	if(keyType == SoftKeyboardDefs::kArrow){
-		if(keyCharacter == L"<" || keyCharacter == L"^"){
+	if(keyType == SoftKeyboardDefs::kArrow) {
+		if(keyCharacter == L"<" || keyCharacter == L"^") {
 			mCursorIndex--;
-		} else if(keyCharacter == L">" || keyCharacter == L"v"){
+		} else if(keyCharacter == L">" || keyCharacter == L"v") {
 			mCursorIndex++;
 		}
 		cursorUpdated();
 
-	/// Ignore function keys (F1 - F12) 
-	} else if(keyType == SoftKeyboardDefs::kFunction){
-	} else if(keyType == SoftKeyboardDefs::kSpecial){
-		if(keyCharacter == L"Home" || keyCharacter == L"PgUp"){
+		/// Ignore function keys (F1 - F12) 
+	} else if(keyType == SoftKeyboardDefs::kFunction) {
+	} else if(keyType == SoftKeyboardDefs::kSpecial) {
+		if(keyCharacter == L"Home" || keyCharacter == L"PgUp") {
 			mCursorIndex = 0;
 			cursorUpdated();
-		} else if(keyCharacter == L"End" || keyCharacter == L"PgDn"){
+		} else if(keyCharacter == L"End" || keyCharacter == L"PgDn") {
 			mCursorIndex = currentFullText.size();
 			cursorUpdated();
 		}
 
 
-	/// If the cursor is at the end, add text to the end
-	} else if(mCursorIndex == currentFullText.size()){
+		/// If the cursor is at the end, add text to the end
+	} else if(mCursorIndex == currentFullText.size()) {
 
 		handleKeyPressGeneric(keyType, currentCharacter, currentFullText);
 
 		setCurrentText(currentFullText);
-		
 
-	/// If End or PgDn was clicked, move the cursor to the end
-	
-	/// The cursor is not at the end, handle 'inserts'
+
+		/// If End or PgDn was clicked, move the cursor to the end
+
+		/// The cursor is not at the end, handle 'inserts'
 	} else {
 
 
@@ -142,12 +136,12 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 		std::wstring posString = currentFullText.substr(mCursorIndex);
 
 		/// delete forwards
-		if(keyType == ds::ui::SoftKeyboardDefs::kFwdDelete){
-			if(!posString.empty()){
+		if(keyType == ds::ui::SoftKeyboardDefs::kFwdDelete) {
+			if(!posString.empty()) {
 				posString = posString.substr(1);
 			}
 
-		/// insert normal text or backspace
+			/// insert normal text or backspace
 		} else {
 			handleKeyPressGeneric(keyType, currentCharacter, preString);
 		}
@@ -158,15 +152,15 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 		mCurrentText = wss.str();
 		applyText(wss.str());
 
-		if(keyType == ds::ui::SoftKeyboardDefs::kDelete){
-			if(!mCurrentText.empty()){
+		if(keyType == ds::ui::SoftKeyboardDefs::kDelete) {
+			if(!mCurrentText.empty()) {
 				mCursorIndex--;
 			}
 
 			// cursor index stays the same
-		} else if(keyType == SoftKeyboardDefs::kShift 
+		} else if(keyType == SoftKeyboardDefs::kShift
 				  || keyType == SoftKeyboardDefs::kFwdDelete
-				  ){
+				  ) {
 			// nothin!
 		} else {
 			mCursorIndex++;
@@ -175,18 +169,18 @@ void EntryField::keyPressed(const std::wstring& keyCharacter, const ds::ui::Soft
 		textUpdated();
 	}
 
-	if(mKeyPressedFunction){
+	if(mKeyPressedFunction) {
 		mKeyPressedFunction(keyCharacter, keyType);
 	}
 }
 
-void EntryField::keyPressed(ci::app::KeyEvent& keyEvent){
+void EntryField::keyPressed(ci::app::KeyEvent& keyEvent) {
 	bool handled = false;
-	if(mNativeKeyCallback){
+	if(mNativeKeyCallback) {
 		handled = mNativeKeyCallback(keyEvent);
 	}
 
-	if(handled){
+	if(handled) {
 		return;
 	}
 
@@ -195,26 +189,26 @@ void EntryField::keyPressed(ci::app::KeyEvent& keyEvent){
 	std::wstring keyCharacter = ds::wstr_from_utf8(ss.str());
 
 	// TODO: differentiate delete forwards and delete back
-	if(keyEvent.getCode() == ci::app::KeyEvent::KEY_BACKSPACE || keyEvent.getCode() == ci::app::KeyEvent::KEY_DELETE){
+	if(keyEvent.getCode() == ci::app::KeyEvent::KEY_BACKSPACE || keyEvent.getCode() == ci::app::KeyEvent::KEY_DELETE) {
 		keyPressed(keyCharacter, ds::ui::SoftKeyboardDefs::kDelete);
 
-	// TODO: handle up / down keys for lines and page up / down for pages
-	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_RIGHT || keyEvent.getCode() == ci::app::KeyEvent::KEY_DOWN){
+		// TODO: handle up / down keys for lines and page up / down for pages
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_RIGHT || keyEvent.getCode() == ci::app::KeyEvent::KEY_DOWN) {
 		setCursorIndex(mCursorIndex + 1);
-	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_LEFT || keyEvent.getCode() == ci::app::KeyEvent::KEY_UP){
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_LEFT || keyEvent.getCode() == ci::app::KeyEvent::KEY_UP) {
 		setCursorIndex(mCursorIndex - 1);
-	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_RSHIFT || keyEvent.getCode() == ci::app::KeyEvent::KEY_LSHIFT){
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_RSHIFT || keyEvent.getCode() == ci::app::KeyEvent::KEY_LSHIFT) {
 		// we're just gonna ignore these guys
-	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_HOME || keyEvent.getCode() == ci::app::KeyEvent::KEY_PAGEUP){
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_HOME || keyEvent.getCode() == ci::app::KeyEvent::KEY_PAGEUP) {
 		setCursorIndex(0);
-	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_END || keyEvent.getCode() == ci::app::KeyEvent::KEY_PAGEDOWN){
+	} else if(keyEvent.getCode() == ci::app::KeyEvent::KEY_END || keyEvent.getCode() == ci::app::KeyEvent::KEY_PAGEDOWN) {
 		setCursorIndex(getCurrentText().size());
 	} else {
 		keyPressed(keyCharacter, ds::ui::SoftKeyboardDefs::kLetter);
 	}
 }
 
-void EntryField::setNativeKeyboardCallback(std::function<bool(ci::app::KeyEvent& keyEvent)> func){
+void EntryField::setNativeKeyboardCallback(std::function<bool(ci::app::KeyEvent& keyEvent)> func) {
 	mNativeKeyCallback = func;
 }
 
@@ -226,7 +220,7 @@ void EntryField::setTextUpdatedCallback(std::function<void(const std::wstring& f
 	mTextUpdateFunction = func;
 }
 
-void EntryField::setCursorIndex(const size_t index){
+void EntryField::setCursorIndex(const size_t index) {
 	mCursorIndex = index;
 	if(mCursorIndex < 0) mCursorIndex = 0;
 	if(mCursorIndex > getCurrentText().size()) mCursorIndex = getCurrentText().size();
@@ -236,12 +230,12 @@ void EntryField::setCursorIndex(const size_t index){
 
 void EntryField::resetCurrentText() {
 	setCurrentText(L"");
-	if(mKeyPressedFunction){
+	if(mKeyPressedFunction) {
 		mKeyPressedFunction(L"", ds::ui::SoftKeyboardDefs::kDelete);
 	}
 }
 
-void EntryField::pasteText(const std::wstring& insertText){
+void EntryField::pasteText(const std::wstring& insertText) {
 	if(insertText.empty()) return;
 	int postCursorIndex = mCursorIndex + insertText.size();
 	std::wstring preText = mCurrentText.substr(0, mCursorIndex);
@@ -252,8 +246,8 @@ void EntryField::pasteText(const std::wstring& insertText){
 	setCursorIndex(postCursorIndex);
 }
 
-void EntryField::focus(){
-	if(mAutoRegisterOnFocus){
+void EntryField::focus() {
+	if(mAutoRegisterOnFocus) {
 		mEngine.registerEntryField(this);
 	}
 
@@ -262,7 +256,7 @@ void EntryField::focus(){
 
 	enable(true);
 
-	if(mCursor){
+	if(mCursor) {
 		mCursor->show();
 		mCursor->setOpacity(0.0f);
 		blinkCursor();
@@ -271,8 +265,8 @@ void EntryField::focus(){
 	onFocus();
 }
 
-void EntryField::unfocus(){
-	if(mEngine.getRegisteredEntryField() == this){
+void EntryField::unfocus() {
+	if(mEngine.getRegisteredEntryField() == this) {
 		mEngine.registerEntryField(nullptr);
 	}
 	if(!mInFocus) return;
@@ -280,30 +274,30 @@ void EntryField::unfocus(){
 
 	enable(false);
 
-	if(mCursor){
-		mCursor->tweenOpacity(0.0f, mEntryFieldSettings.mAnimationRate, 0.0f, ci::easeNone, [this]{
+	if(mCursor) {
+		mCursor->tweenOpacity(0.0f, mEntryFieldSettings.mAnimationRate, 0.0f, ci::easeNone, [this] {
 			mCursor->hide();
 		});
 	}
 }
 
-void EntryField::autoRegisterOnFocus(const bool doAutoRegister){
+void EntryField::autoRegisterOnFocus(const bool doAutoRegister) {
 	mAutoRegisterOnFocus = doAutoRegister;
 }
 
-void EntryField::textUpdated(){
+void EntryField::textUpdated() {
 	cursorUpdated();
 	onTextUpdated();
 
-	if(mTextUpdateFunction){
+	if(mTextUpdateFunction) {
 		mTextUpdateFunction(mCurrentText);
 	}
 }
 
-void EntryField::cursorUpdated(){
-	if(mTextSprite && mCursor){
+void EntryField::cursorUpdated() {
+	if(mTextSprite && mCursor) {
 		if(mCursorIndex < 0) mCursorIndex = 0;
-		if(mCursorIndex > getCurrentText().size()){
+		if(mCursorIndex > getCurrentText().size()) {
 			mCursorIndex = getCurrentText().size();
 		}
 		ci::vec2 cursorPos = mTextSprite->getPositionForCharacterIndex(mCursorIndex);
@@ -312,9 +306,9 @@ void EntryField::cursorUpdated(){
 }
 
 
-void EntryField::handleTouchInput(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti){
+void EntryField::handleTouchInput(ds::ui::Sprite* bs, const ds::ui::TouchInfo& ti) {
 
-	if(ti.mPhase != ds::ui::TouchInfo::Removed && mTextSprite){
+	if(ti.mPhase != ds::ui::TouchInfo::Removed && mTextSprite) {
 		ci::vec3 loccy = mTextSprite->globalToLocal(ti.mCurrentGlobalPoint);
 		mCursorIndex = mTextSprite->getCharacterIndexForPosition(ci::vec2(loccy));
 
@@ -322,11 +316,11 @@ void EntryField::handleTouchInput(ds::ui::Sprite* bs, const ds::ui::TouchInfo& t
 	}
 }
 
-void EntryField::blinkCursor(){
+void EntryField::blinkCursor() {
 	if(!mCursor) return;
-	mCursor->tweenOpacity(1.0f, mEntryFieldSettings.mAnimationRate, 0.0f, ci::easeNone, [this]{
-		mCursor->tweenOpacity(1.0f, mEntryFieldSettings.mBlinkRate, 0.0f, ci::easeNone, [this]{
-			mCursor->tweenOpacity(0.0f, mEntryFieldSettings.mAnimationRate, 0.0f, ci::easeNone, [this]{
+	mCursor->tweenOpacity(1.0f, mEntryFieldSettings.mAnimationRate, 0.0f, ci::easeNone, [this] {
+		mCursor->tweenOpacity(1.0f, mEntryFieldSettings.mBlinkRate, 0.0f, ci::easeNone, [this] {
+			mCursor->tweenOpacity(0.0f, mEntryFieldSettings.mAnimationRate, 0.0f, ci::easeNone, [this] {
 				blinkCursor();
 			});
 		});

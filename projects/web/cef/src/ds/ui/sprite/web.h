@@ -4,7 +4,7 @@
 
 #include <cinder/app/KeyEvent.h>
 #include <cinder/app/MouseEvent.h>
-#include "ds/ui/sprite/sprite.h"
+#include <ds/ui/soft_keyboard/entry_field.h>
 #include "ds/ui/sprite/text.h"
 
 #include <mutex>
@@ -28,8 +28,10 @@ namespace ui {
  *		  Requests into the browser can (generally) happen on any thread, and CEF handles thread synchronization
  *		  CEF also uses multiple processes for rendering, IO, etc. but that is opaque to this class
  *		  When implementing new functionality, be sure to read the documentation of CEF carefully
+
+ *		  We're extending IEntryField so websites can get physical keyboard entry the same way EntryFields can
  */
-class Web : public ds::ui::Sprite {
+class Web : public ds::ui::IEntryField {
 public:
 	struct AuthCallback {
 		AuthCallback() : mIsProxy(false), mPort(0){}
@@ -43,6 +45,10 @@ public:
 
 	Web(ds::ui::SpriteEngine &engine, float width = 0.0f, float height = 0.0f);
 	~Web();
+
+	/// IEntryField API input
+	virtual void								keyPressed(ci::app::KeyEvent& keyEvent);
+	virtual void								keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType);
 
 
 	// Loads the new url in the main frame (what you'd expect to happen)

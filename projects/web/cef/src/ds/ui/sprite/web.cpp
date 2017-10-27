@@ -68,7 +68,7 @@ void Web::installAsClient(ds::BlobRegistry& registry) {
  * \class ds::ui::sprite::Web
  */
 Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
-	: Sprite(engine, width, height)
+	: IEntryField(engine)
 	, mService(engine.getService<ds::web::WebCefService>("cef_web"))
 	, mDragScrolling(false)
 	, mDragScrollMinFingers(2)
@@ -467,6 +467,86 @@ void Web::setUrl(const std::string& url) {
 
 void Web::setUrlOrThrow(const std::string& url) {
 	loadUrl(url);
+}
+
+
+void Web::keyPressed(ci::app::KeyEvent& keyEvent) {
+	sendKeyDownEvent(keyEvent);
+	sendKeyUpEvent(keyEvent);
+}
+
+void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDefs::KeyType keyType) {
+	// spoof a keyevent to send to the web
+	int code = 0;
+
+	if(keyType == ds::ui::SoftKeyboardDefs::kShift) {
+	} else if(keyType == ds::ui::SoftKeyboardDefs::kArrow) {
+		if(character == L"<") code = ci::app::KeyEvent::KEY_LEFT;
+		if(character == L"^") code = ci::app::KeyEvent::KEY_UP;
+		if(character == L"v") code = ci::app::KeyEvent::KEY_DOWN;
+		if(character == L">") code = ci::app::KeyEvent::KEY_RIGHT;
+		ci::app::KeyEvent event(mEngine.getWindow(), code, code, '	', 0, code);
+		sendKeyDownEvent(event);
+		sendKeyUpEvent(event);
+	} else if(keyType == ds::ui::SoftKeyboardDefs::kFunction) {
+		if(character == L"F1") code = ci::app::KeyEvent::KEY_F1;
+		if(character == L"F2") code = ci::app::KeyEvent::KEY_F2;
+		if(character == L"F3") code = ci::app::KeyEvent::KEY_F3;
+		if(character == L"F4") code = ci::app::KeyEvent::KEY_F4;
+		if(character == L"F5") code = ci::app::KeyEvent::KEY_F5;
+		if(character == L"F6") code = ci::app::KeyEvent::KEY_F6;
+		if(character == L"F7") code = ci::app::KeyEvent::KEY_F7;
+		if(character == L"F8") code = ci::app::KeyEvent::KEY_F8;
+		if(character == L"F9") code = ci::app::KeyEvent::KEY_F9;
+		if(character == L"F10") code = ci::app::KeyEvent::KEY_F10;
+		if(character == L"F11") code = ci::app::KeyEvent::KEY_F11;
+		if(character == L"F12") code = ci::app::KeyEvent::KEY_F12;
+		ci::app::KeyEvent event( mEngine.getWindow(), code,	code, '	', 0, code);
+		sendKeyDownEvent(event);
+		sendKeyUpEvent(event);
+
+	} else if(keyType == ds::ui::SoftKeyboardDefs::kEscape) {
+		code = ci::app::KeyEvent::KEY_ESCAPE;
+		ci::app::KeyEvent event( mEngine.getWindow(), code,	code, '	', 0, code);
+		sendKeyDownEvent(event);
+		sendKeyUpEvent(event);
+
+	} else if(keyType == ds::ui::SoftKeyboardDefs::kFwdDelete) {
+		code = ci::app::KeyEvent::KEY_DELETE;
+		ci::app::KeyEvent event(mEngine.getWindow(), code, code, '	', 0, code);
+		sendKeyDownEvent(event);
+		sendKeyUpEvent(event);
+
+	} else if(keyType == ds::ui::SoftKeyboardDefs::kSpecial) {
+		if(character == L"Home") code = ci::app::KeyEvent::KEY_HOME;
+		if(character == L"End") code = ci::app::KeyEvent::KEY_END;
+		if(character == L"PgUp") code = ci::app::KeyEvent::KEY_PAGEUP;
+		if(character == L"PgDn") code = ci::app::KeyEvent::KEY_PAGEDOWN;
+		ci::app::KeyEvent event(mEngine.getWindow(), code, code, '	', 0, code);
+		sendKeyDownEvent(event);
+		sendKeyUpEvent(event);
+
+
+	} else if(keyType == ds::ui::SoftKeyboardDefs::kDelete) {
+		code = ci::app::KeyEvent::KEY_BACKSPACE;
+		ci::app::KeyEvent event(mEngine.getWindow(), code, code, '	', 0, code);
+		sendKeyDownEvent(event);
+		sendKeyUpEvent(event);
+	} else if(keyType == ds::ui::SoftKeyboardDefs::kEnter) {
+		code = ci::app::KeyEvent::KEY_RETURN;
+		ci::app::KeyEvent event(mEngine.getWindow(), code, code, '\r', 0, code);
+		sendKeyDownEvent(event);
+		sendKeyUpEvent(event);
+	} if(keyType == ds::ui::SoftKeyboardDefs::kTab) {
+		code = ci::app::KeyEvent::KEY_TAB;
+		ci::app::KeyEvent event(mEngine.getWindow(), code, code, '	', 0, code);
+		sendKeyDownEvent(event);
+		sendKeyUpEvent(event);
+	} else {
+		ci::app::KeyEvent event(mEngine.getWindow(), code, 0, (char)character.c_str()[0], 0, code);
+		sendKeyDownEvent(event);
+		sendKeyUpEvent(event);
+	}
 }
 
 void Web::sendKeyDownEvent(const ci::app::KeyEvent &event) {

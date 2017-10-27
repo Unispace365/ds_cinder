@@ -44,6 +44,11 @@ public:
 class IEntryField : public ds::ui::Sprite {
 public:
 	IEntryField(ds::ui::SpriteEngine& engine) : ds::ui::Sprite(engine){};
+	~IEntryField() {
+		if(mEngine.getRegisteredEntryField() == this) {
+			mEngine.registerEntryField(nullptr);
+		}
+	}
 
 	virtual void						keyPressed(ci::app::KeyEvent& keyEvent) = 0;
 	virtual void						keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType) = 0;
@@ -53,7 +58,6 @@ class EntryField : public IEntryField {
 public:
 
 	EntryField(ds::ui::SpriteEngine&, EntryFieldSettings& settings);
-	~EntryField();
 
 	/// This field will be in "focus", making the cursor blink and look like this is activated
 	/// Does no checking about the number of fields in focus, and any number could be in focus at once (multiple user scenario)
