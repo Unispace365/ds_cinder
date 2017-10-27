@@ -19,12 +19,12 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 2. Download Visual C++ 2013 edition
 3. Unzip the downloaded folder
 4. Make a new environment variable
-  * Open the Start menu and type "Advanced System Settings"
-  * Click "Environment Variables"
-  * Under "Sytem variables", select "New..."
-  * Variable name: CINDER_090
-  * Variable value: the path of the unzipped cinder 0.9.1 directory (e.g D:\code\cinder_0.9.1_vc2013)
-  * Ok, Ok, Ok
+    1. Open the Start menu and type "Advanced System Settings"
+    2. Click "Environment Variables"
+    3. Under "Sytem variables", select "New..."
+    4. Variable name: CINDER_090
+    5. Variable value: the path of the unzipped cinder 0.9.1 directory (e.g D:\code\cinder_0.9.1_vc2013)
+    6. Ok, Ok, Ok
 5. Open Visual Studio 2015 and open cinder.sln in cinder_0.9.1_vc2013/proj/vc2013
 6. You should be prompted to update the compiler version. If not, right-click the cinder project and upgrade the compiler version
 7. Go to the Build menu > Configuration manager. Select "Debug" for configuration and "x64" for platform at the top and close
@@ -46,14 +46,13 @@ DS Cinder is a framework for interactive applications built on top of the fantas
 
 1. Clone this repo with git or download this as a zip and unzip it
 2. Make another new environment variable
-  * Open the Start menu and type "Advanced System Settings"
-  * Click "Environment Variables"
-  * Under "Sytem variables", select "New..."
-  * Variable name: DS_PLATFORM_090
-  * Variable value: the path of this downloaded repo (e.g C:\Users\GordonN\Documents\ds_cinder)
-  * Ok, Ok, Ok
+    1. Open the Start menu and type "Advanced System Settings"
+    2. Click "Environment Variables"
+    3. Under "Sytem variables", select "New..."
+    4. Variable name: DS_PLATFORM_090
+    5. Variable value: the path of this downloaded repo (e.g C:\Users\GordonN\Documents\ds_cinder)
+    6. Ok, Ok, Ok
 3. Open an example project in the example folder and compile
-  f
   
   
 ## Starting a project
