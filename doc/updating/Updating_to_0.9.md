@@ -1,4 +1,19 @@
-### Updating to 0.9.0
+-----------------------------
+DS Cinder - Transition to Cinder 0.9
+-----------------------------
+Lots of things have changed in both Cinder & openGL since Cinder 0.8.4 and 0.8.6. The documentation has some useful pages for explaining what has changed which can be found ([Here](https://libcinder.org/docs/guides/transition_0_9/index.html)) and ([Here](https://libcinder.org/docs/guides/opengl/index.html)).
+- Major changes
+    - Cinder moved to GLM for Vectors and Matricies (`ci::Vec3f => ci::vec3`). That also means that instead of writing `MyVec.normalize()` it would be `MyVec = normalize(MyVec)`, which matches the glsl conventions.
+    - Instead of using ci::gl::Texture et. al. the new convention is to use ci::gl::TextureRef, which is a shared pointer to the texture.
+    - Many openGL functions have been depricated or removed with the removal of "Immediate Mode" rendering. Cinder provides some replication of the old functionality,but things like ALPHA_TEST, will need to be replaced with equivalent shader(s).
+    - Things like `ds::SaveCamera` & `ds::SaveViewport` can be replaced with Cinders new `ci::Scoped*` group of classes, which follow the same RAII structre.
+    - Cinder now has a set of default shaders that can replace the old default "Immediate Mode", as well as ones that can do simple 3d lighting.
+- Check out the updating guides in the 'doc' folder of this repo for instructions on how to update your repo.
+- As of this writing, if you still need 0.8.6 support, you can use the master branch or the 103.0.0 tags or below
+
+
+
+
 
 * Create DS_PLATFORM_090 env variable pointing to the root of this repo
 * Create CINDER_090 env variable point to the root cinder_0.9.0_vc2013 folder
@@ -47,3 +62,18 @@
 	* Borderless windows and Filedrop: If your app has drag-n-drop file abilities and uses a borderless window, you'll need to have the window be set to borderless in the startup macro, like this:
 		CINDER_APP(YOURAPP_CLASS_NAME, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)), 
 		   [&](ci::app::App::Settings* settings){ settings->setBorderless(true); })
+		   
+		   
+
+* Troubleshooting installation
+
+ - If you get errors for `xaudio.h`: install [latest DirectX SDK][2]
+ - If you get errors of missing `Boost cstdint` headers: make sure your cinder distribution does include Boost! Be sure to use the download on the cinder home page, and not a release from the cinder github.
+ - If you get `LNK1123: failure during conversion to COFF: file invalid or corrupt'`: Install latest update for your Visual Studio!
+ - `SerialRunnable`: You may need to pass an alloc function when initializing a SerialRunnbale.
+ - `boost::mutex` to `std::mutex`. In most cases for threading, the `boost` versions are supplanted with the `STL` version. Check stack overflow / google, there's plenty of upgrade examples
+ - `Not defined`s: Many `STL` elements now need to have `include`s, most commonly `<memory>`, `<cctype>` and `<sstring>`.
+ - `KeyEvent Not Defined`: Since the removal of using namespace `ci::*` from `ds_cinder` files, you'll need to make sure everything is namespaced properly.
+ - Be sure you have the correct environment variables. Clean the solution. Restart visual studio and/or your machine
+
+----------
