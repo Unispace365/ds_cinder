@@ -194,7 +194,7 @@ void SettingsEditor::editProperty(EditorItem* ei){
 		mEditView->show();
 		Settings::Setting* theSetting = &mCurrentSettings->getSetting(ei->getSettingName(), 0);
 		mEditView->setSetting(theSetting, mCurrentSettings->getName());
-		mEditView->setPosition(-mEditView->getWidth(), 150.0f);
+		mEditView->setPosition(-mEditView->getScaleWidth(), 150.0f);
 		mEditView->setRequestNextSettingCallback([this, ei](const bool isNext){
 			EditorItem* theNewItem = nullptr;
 			if(isNext) theNewItem = getNextItem(ei);

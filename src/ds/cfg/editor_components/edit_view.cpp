@@ -40,6 +40,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	setShrinkToChildren(ds::ui::LayoutSprite::kShrinkHeight);
 	setLayoutType(ds::ui::LayoutSprite::kLayoutVFlow);
 	enable(true); // block touchies
+	setScale(mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth());
 
 	ds::ui::Sprite* backgroundSprite = new ds::ui::Sprite(mEngine);
 	backgroundSprite->setColor(ci::Color::black());
@@ -71,14 +72,14 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	mButtonHolder->setSpacing(10.0f);
 	addChildPtr(mButtonHolder);
 
-	mCancelButton = addTextSprite("Arial Narrow", 18.0f, 0.8f, true);
+	mCancelButton = addTextSprite("Arial", 18.0f, 0.8f, true);
 	mCancelButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		stopEditing();
 	});
 	mCancelButton->setText("Close");
 	mButtonHolder->addChildPtr(mCancelButton);
 
-	mApplyButton = addTextSprite("Arial Narrow", 18.0f, 1.0f, true);
+	mApplyButton = addTextSprite("Arial", 18.0f, 1.0f, true);
 	mApplyButton->setColor(ci::Color(0.9f, 0.282f, 0.035f));
 	mApplyButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		applySetting(true);
@@ -86,7 +87,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	mApplyButton->setText("Apply");
 	mButtonHolder->addChildPtr(mApplyButton);
 
-	mSaveButton = addTextSprite("Arial Narrow", 18.0f, 1.0f, true);
+	mSaveButton = addTextSprite("Arial", 18.0f, 1.0f, true);
 	mSaveButton->setColor(ci::Color(0.93f, 0.62f, 0.49f));
 	mSaveButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		applySetting(false);

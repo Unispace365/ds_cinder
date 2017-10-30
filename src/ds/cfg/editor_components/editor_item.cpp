@@ -32,13 +32,13 @@ EditorItem::EditorItem(ds::ui::SpriteEngine& e)
 	addChildPtr(mSettingName);
 
 	mSettingValue = new ds::ui::Text(mEngine);
-	mSettingValue->setFont("Arial Narrow");
+	mSettingValue->setFont("Arial");
 	mSettingValue->setFontSize(14.0f);
 	mSettingValue->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
 	addChildPtr(mSettingValue);
 
 	mSettingComment = new ds::ui::Text(mEngine);
-	mSettingComment->setFont("Arial Narrow");
+	mSettingComment->setFont("Arial");
 	mSettingComment->setFontSize(12.0f);
 	mSettingComment->setOpacity(0.4f);
 	mSettingComment->mLayoutUserType = ds::ui::LayoutSprite::kFlexSize;
@@ -70,7 +70,7 @@ void EditorItem::setSetting(Settings::Setting* theSetting){
 	} else {
 		mSettingValue->setText(theSetting->mRawValue);
 	}
-	mSettingComment->setText(theSetting->mComment);
+	//mSettingComment->setText(theSetting->mComment);
 }
 
 const std::string& EditorItem::getSettingName(){
