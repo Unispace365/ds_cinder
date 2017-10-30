@@ -8,6 +8,7 @@
 #include "app/globals.h"
 #include "query/query_handler.h"
 #include "ds/touch/touch_debug.h"
+#include <ds/ui/soft_keyboard/soft_keyboard.h>
 
 namespace example {
 class AllData;
@@ -25,8 +26,6 @@ public:
 
 	virtual void		fileDrop(ci::app::FileDropEvent event);
 private:
-	typedef ds::App		inherited;
-
 	// Data
 	AllData				mAllData;
 
@@ -40,8 +39,8 @@ private:
 
 	ds::TouchDebug		mTouchDebug;
 
+	ds::ui::SoftKeyboard*	mSoftKeyboard;
 
-	void				moveCamera(const ci::vec3& deltaMove);
 };
 
 } // !namespace example

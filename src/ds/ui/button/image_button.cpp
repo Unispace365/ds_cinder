@@ -62,6 +62,10 @@ void ImageButton::setTouchPad(const float touchPad){
 	layout();
 }
 
+void ImageButton::setAnimationDuration(const float dur) {
+	mAnimDuration = dur;
+}
+
 const float ImageButton::getPad() const {
 	return mPad;
 }

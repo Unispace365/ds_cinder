@@ -191,7 +191,17 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 	if(!mEntryEditor){
 		ds::ui::EntryFieldSettings efs;
 		efs.mFieldSize = ci::vec2(600.0f, 40.0f);
-		efs.mTextConfig = mEngine.getEngineCfg().getDefaultTextCfgName();
+
+		if(!mEngine.getEngineCfg().hasText("settings_editor:edit_view:entry:field")) {
+			ds::cfg::Text textCfg;
+			textCfg.mFont = "Arial";
+			textCfg.mSize = 18.0f;
+			textCfg.mColor = ci::Color::white();
+			textCfg.mLeading = 1.0f;
+			mEngine.getEngineCfg().setText("settings_editor:edit_view:entry:field", textCfg);
+		}
+		efs.mTextConfig = "settings_editor:edit_view:entry:field";
+		efs.mCursorOffset.x = 0.0f;
 		mEntryEditor = new ds::ui::EntryField(mEngine, efs);
 		mEntryEditor->mLayoutTPad = 5.0f;
 		mEntryEditor->mLayoutLPad = 5.0f;
@@ -202,10 +212,30 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 
 	if(!mKeyboard){
 		ds::ui::SoftKeyboardSettings sks;
-		sks.mKeyDnTextConfig = mEngine.getEngineCfg().getDefaultTextCfgName();
-		sks.mKeyUpTextConfig = mEngine.getEngineCfg().getDefaultTextCfgName();
-		sks.mKeyUpColor = ci::Color::white();
-		sks.mKeyScale = 0.5f;
+		sks.mGraphicKeys = true;
+		sks.mGraphicKeySize = 32.0f;
+		sks.mKeyTouchPadding = 2.5f;
+		sks.mGraphicType = ds::ui::SoftKeyboardSettings::kSolid;
+		if(!mEngine.getEngineCfg().hasText("settings_editor:edit_view:keyboard:key_up")) {
+			ds::cfg::Text textCfg;
+			textCfg.mFont = "Arial";
+			textCfg.mSize = 14.0f;
+			textCfg.mColor = ci::Color::white();
+			textCfg.mLeading = 1.0f;
+			mEngine.getEngineCfg().setText("settings_editor:edit_view:keyboard:key_up", textCfg);
+		}
+		if(!mEngine.getEngineCfg().hasText("settings_editor:edit_view:keyboard:key_dn")) {
+			ds::cfg::Text textCfg;
+			textCfg.mFont = "Arial";
+			textCfg.mSize = 14.0f;
+			textCfg.mColor = ci::Color(0.5f, 0.5f, 0.5f);
+			textCfg.mLeading = 1.0f;
+			mEngine.getEngineCfg().setText("settings_editor:edit_view:keyboard:key_dn", textCfg);
+		}
+		sks.mKeyDnTextConfig = "settings_editor:edit_view:keyboard:key_dn";
+		sks.mKeyUpTextConfig = "settings_editor:edit_view:keyboard:key_up";
+		sks.mKeyUpColor = ci::Color(0.25f, 0.25f, 0.25f);
+		sks.mKeyDownColor = ci::Color::white();
 		sks.normalizeSettings();
 		mKeyboard = ds::ui::SoftKeyboardBuilder::buildExtendedKeyboard(mEngine, sks, this);
 		mKeyboard->mLayoutTPad = 0.0f;

@@ -36,6 +36,13 @@ void SoftKeyboard::handleKeyPress(SoftKeyboardButton* key){
 	if(mKeyPressFunction) mKeyPressFunction(currentCharacter, keyType);
 }
 
+void SoftKeyboard::setSoftKeyboardSettings(SoftKeyboardSettings& newSettings) {
+	mSoftKeyboardSettings = newSettings;
+	for (auto it :mButtons){
+		it->setSoftKeyboardSettings(mSoftKeyboardSettings);
+	}
+}
+
 void SoftKeyboard::setKeyPressFunction(const std::function<void(const std::wstring& character, const SoftKeyboardDefs::KeyType keyType)>& func) {
 	mKeyPressFunction = func;
 }

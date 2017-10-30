@@ -5,19 +5,28 @@
 #include <ds/app/engine/engine_cfg.h>
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/ui/sprite/image.h>
+#include <ds/ui/sprite/border.h>
+#include <ds/ui/sprite/circle_border.h>
+#include <ds/ui/sprite/circle.h>
+
 #include <ds/app/environment.h>
 #include <ds/debug/logger.h>
 
 namespace ds {
 namespace ui {
 SoftKeyboardButton::SoftKeyboardButton(ds::ui::SpriteEngine& engine, const std::wstring& characterlow, const std::wstring& characterUp, const SoftKeyboardDefs::KeyType keyType, SoftKeyboardSettings& settings)
-	: ds::ui::ImageButton(engine, "", "", 0.0f)
+	: ds::ui::Sprite(engine)
 	, mCharacterLower(characterlow)
 	, mCharacterUpper(characterUp)
+	, mButtonBehaviour(*this)
+	, mAnimDuration(0.0f)
 	, mUpper(false)
 	, mKeyType(keyType)
 	, mText(nullptr)
 	, mPressed(false)
+	, mGraphic(nullptr)
+	, mUpImg(nullptr)
+	, mDownImg(nullptr)
 {
 	mLayoutFixedAspect = true;
 	mText = new ds::ui::Text(mEngine);
@@ -25,9 +34,13 @@ SoftKeyboardButton::SoftKeyboardButton(ds::ui::SpriteEngine& engine, const std::
 
 	setCenter(0.5f, 0.5f);
 
-	setStateChangeFn([this](const bool pressed){
-		stateChanged(pressed);
-	});
+
+	mButtonBehaviour.setOnClickFn([this]() {onClicked(); });
+	// Purely for visual state
+	mButtonBehaviour.setOnDownFn([this](const ds::ui::TouchInfo&) {showDown(); });
+	mButtonBehaviour.setOnEnterFn([this]() {showDown(); });
+	mButtonBehaviour.setOnExitFn([this]() {showUp(); });
+	mButtonBehaviour.setOnUpFn([this]() {showUp(); });
 
 	setSoftKeyboardSettings(settings);
 }
@@ -48,53 +61,193 @@ void SoftKeyboardButton::setSoftKeyboardSettings(SoftKeyboardSettings& softKeySe
 		mTextOffset = softKeySettings.mKeyTextOffset;
 	}
 
-	if(mKeyType == SoftKeyboardDefs::kNumber || mKeyType == SoftKeyboardDefs::kFunction || mKeyType == SoftKeyboardDefs::kArrow || mKeyType == SoftKeyboardDefs::kEscape){
-		getNormalImage().setImageFile(softKeySettings.mKeyNumberUpImage, ds::ui::Image::IMG_CACHE_F);
-		getHighImage().setImageFile(softKeySettings.mKeyNumberDnImage, ds::ui::Image::IMG_CACHE_F);
-	} else if(mKeyType == SoftKeyboardDefs::kLetter){
-		getNormalImage().setImageFile(softKeySettings.mKeyLetterUpImage, ds::ui::Image::IMG_CACHE_F);
-		getHighImage().setImageFile(softKeySettings.mKeyLetterDnImage, ds::ui::Image::IMG_CACHE_F);
-	} else if(mKeyType == SoftKeyboardDefs::kSpace){
-		getNormalImage().setImageFile(softKeySettings.mKeySpaceUpImage, ds::ui::Image::IMG_CACHE_F);
-		getHighImage().setImageFile(softKeySettings.mKeySpaceDnImage, ds::ui::Image::IMG_CACHE_F);
-	} else if(mKeyType == SoftKeyboardDefs::kDelete || mKeyType == SoftKeyboardDefs::kFwdDelete){
-		getNormalImage().setImageFile(softKeySettings.mKeyDeleteUpImage, ds::ui::Image::IMG_CACHE_F);
-		getHighImage().setImageFile(softKeySettings.mKeyDeleteDnImage, ds::ui::Image::IMG_CACHE_F);
+	mKeyUpColor = softKeySettings.mKeyUpColor;
+	mKeyDnColor = softKeySettings.mKeyDownColor;
 
-	} else if(mKeyType == SoftKeyboardDefs::kShift){
-		getNormalImage().setImageFile(softKeySettings.mKeyShiftUpImage, ds::ui::Image::IMG_CACHE_F);
-		getHighImage().setImageFile(softKeySettings.mKeyShiftDnImage, ds::ui::Image::IMG_CACHE_F);
-	} else if(mKeyType == SoftKeyboardDefs::kTab || mKeyType == SoftKeyboardDefs::kDotCom || mKeyType == SoftKeyboardDefs::kSpecial ){
-		getNormalImage().setImageFile(softKeySettings.mKeyTabUpImage, ds::ui::Image::IMG_CACHE_F);
-		getHighImage().setImageFile(softKeySettings.mKeyTabDnImage, ds::ui::Image::IMG_CACHE_F);
-	} else if(mKeyType == SoftKeyboardDefs::kEnter){
-		getNormalImage().setImageFile(softKeySettings.mKeyEnterUpImage, ds::ui::Image::IMG_CACHE_F);
-		getHighImage().setImageFile(softKeySettings.mKeyEnterDnImage, ds::ui::Image::IMG_CACHE_F);
-	} else {
-		DS_LOG_WARNING("Warning: key type not supported in SoftKeyboardButton");
+	if(mGraphic) {
+		mGraphic->release();
+		mGraphic = nullptr;
 	}
 
-	getNormalImage().setColor(softKeySettings.mKeyUpColor);
-	getHighImage().setColor(softKeySettings.mKeyDownColor);
+	if(mUpImg) {
+		mUpImg->release();
+		mUpImg = nullptr;
+	}
 
-	setTouchPad(softKeySettings.mKeyTouchPadding);
+	if(mDownImg) {
+		mDownImg->release();
+		mDownImg = nullptr;
+	}
 
-	layout();
+	if(softKeySettings.mGraphicKeys) {
+
+		// circular keys look bad when stretched (if they stretch at all)
+		bool hideStretchedGraphics = false;
+
+		if(softKeySettings.mGraphicType == SoftKeyboardSettings::kBorder) {
+			mGraphic = new ds::ui::Border(mEngine, softKeySettings.mGraphicBorderWidth);
+		} else if(softKeySettings.mGraphicType == SoftKeyboardSettings::kSolid) {
+			mGraphic = new ds::ui::Sprite(mEngine);
+			mGraphic->setTransparent(false);
+		} else if(softKeySettings.mGraphicType == SoftKeyboardSettings::kCircularBorder) {
+			hideStretchedGraphics = true;
+			mGraphic = new ds::ui::CircleBorder(mEngine, softKeySettings.mGraphicBorderWidth);
+		} else if(softKeySettings.mGraphicType == SoftKeyboardSettings::kCircularSolid) {
+			hideStretchedGraphics = true;
+			mGraphic = new ds::ui::Circle(mEngine, true, softKeySettings.mGraphicKeySize / 2.0f);
+		}
+
+		addChildPtr(mGraphic);
+		mGraphic->sendToBack();
+		mGraphic->setCornerRadius(softKeySettings.mGraphicRoundedCornerRadius);
+
+
+		ci::vec2 keySize = ci::vec2(softKeySettings.mGraphicKeySize, softKeySettings.mGraphicKeySize);
+
+		if(mKeyType == SoftKeyboardDefs::kNumber || mKeyType == SoftKeyboardDefs::kFunction || mKeyType == SoftKeyboardDefs::kArrow || mKeyType == SoftKeyboardDefs::kEscape) {
+		} else if(mKeyType == SoftKeyboardDefs::kLetter) {
+		} else if(mKeyType == SoftKeyboardDefs::kSpace) {
+			keySize.x *= 4.578125f;
+		} else if(mKeyType == SoftKeyboardDefs::kDelete || mKeyType == SoftKeyboardDefs::kFwdDelete) {
+			if(mKeyType == SoftKeyboardDefs::kDelete && mCharacterLower.empty() && mCharacterUpper.empty()) {
+				mCharacterLower = L"delete";
+				mCharacterUpper = L"DELETE";
+			}
+			
+			keySize.x *= 2.71875f;
+		} else if(mKeyType == SoftKeyboardDefs::kShift) {
+			keySize.x *= 2.984375f;
+		} else if(mKeyType == SoftKeyboardDefs::kTab || mKeyType == SoftKeyboardDefs::kDotCom || mKeyType == SoftKeyboardDefs::kSpecial) {
+			keySize.x *= 1.609375f;
+		} else if(mKeyType == SoftKeyboardDefs::kEnter) {
+			keySize.x *= 2.421875f;
+		} else {
+			DS_LOG_WARNING("Warning: key type not supported in SoftKeyboardButton");
+		}
+
+		if(hideStretchedGraphics && keySize.x != keySize.y) {
+			mGraphic->hide();
+		}
+		mGraphic->setSize(keySize);
+		mGraphic->setPosition(softKeySettings.mKeyTouchPadding, softKeySettings.mKeyTouchPadding);
+		setSize(keySize.x + softKeySettings.mKeyTouchPadding * 2.0f, keySize.y + softKeySettings.mKeyTouchPadding * 2.0f);
+
+
+	} else {
+
+
+		std::string upImgPath = "";
+		std::string dnImgPath = "";
+		if(mKeyType == SoftKeyboardDefs::kNumber || mKeyType == SoftKeyboardDefs::kFunction || mKeyType == SoftKeyboardDefs::kArrow || mKeyType == SoftKeyboardDefs::kEscape) {
+			upImgPath = softKeySettings.mKeyNumberUpImage;
+			dnImgPath = softKeySettings.mKeyNumberDnImage;
+		} else if(mKeyType == SoftKeyboardDefs::kLetter) {
+			upImgPath = softKeySettings.mKeyLetterUpImage;
+			dnImgPath = softKeySettings.mKeyLetterDnImage;
+		} else if(mKeyType == SoftKeyboardDefs::kSpace) {
+			upImgPath = softKeySettings.mKeySpaceUpImage;
+			dnImgPath = softKeySettings.mKeySpaceDnImage;
+		} else if(mKeyType == SoftKeyboardDefs::kDelete || mKeyType == SoftKeyboardDefs::kFwdDelete) {
+			upImgPath = softKeySettings.mKeyDeleteUpImage;
+			dnImgPath = softKeySettings.mKeyDeleteDnImage;
+		} else if(mKeyType == SoftKeyboardDefs::kShift) {
+			upImgPath = softKeySettings.mKeyShiftUpImage;
+			dnImgPath = softKeySettings.mKeyShiftDnImage;
+		} else if(mKeyType == SoftKeyboardDefs::kTab || mKeyType == SoftKeyboardDefs::kDotCom || mKeyType == SoftKeyboardDefs::kSpecial) {
+			upImgPath = softKeySettings.mKeyTabUpImage;
+			dnImgPath = softKeySettings.mKeyTabDnImage;
+		} else if(mKeyType == SoftKeyboardDefs::kEnter) {
+			upImgPath = softKeySettings.mKeyEnterUpImage;
+			dnImgPath = softKeySettings.mKeyEnterDnImage;
+		} else {
+			DS_LOG_WARNING("Warning: key type not supported in SoftKeyboardButton");
+		}
+
+		mUpImg = new ds::ui::Image(mEngine, upImgPath, ds::ui::Image::IMG_CACHE_F);
+		mDownImg = new ds::ui::Image(mEngine, dnImgPath, ds::ui::Image::IMG_CACHE_F);
+		addChildPtr(mUpImg);
+		addChildPtr(mDownImg);
+
+		mUpImg->setColor(softKeySettings.mKeyUpColor);
+		mDownImg->setColor(softKeySettings.mKeyDownColor);
+
+		mDownImg->setPosition(floorf(softKeySettings.mKeyTouchPadding), floorf(softKeySettings.mKeyTouchPadding));
+		mUpImg->setPosition(mDownImg->getPosition());
+		setSize(floorf(mDownImg->getWidth() + softKeySettings.mKeyTouchPadding * 2.0f), floorf(mDownImg->getHeight() + softKeySettings.mKeyTouchPadding * 2.0f));
+	}
+
+	doLayout();
+}
+
+void SoftKeyboardButton::setClickFn(const std::function<void(void)>& fn) {
+	mClickFn = fn;
 }
 
 void SoftKeyboardButton::setShifted(const bool upper) {
 	mUpper = upper;
 
-	layout();
+	doLayout();
 }
 
-void SoftKeyboardButton::stateChanged(const bool pressed) {
-	mPressed = pressed;
-
-	layout();
+void SoftKeyboardButton::onClicked() {
+	showUp();
+	if(mClickFn) mClickFn();
 }
 
-void SoftKeyboardButton::layout(){
+void SoftKeyboardButton::showDown() {
+	mPressed = true;
+	doLayout();
+
+	if(mStateChangeFunction) {
+		mStateChangeFunction(true);
+	}
+}
+
+void SoftKeyboardButton::showUp() {
+	mPressed = false;
+	doLayout();
+	if(mStateChangeFunction) {
+		mStateChangeFunction(false);
+	}
+}
+
+void SoftKeyboardButton::doLayout(){
+
+	if(mUpImg && mDownImg) {
+		if(mPressed) {
+			if(mAnimDuration <= 0.0f) {
+				mUpImg->hide();
+				mUpImg->setOpacity(0.0f);
+				mDownImg->show();
+				mDownImg->setOpacity(1.0f);
+			} else {
+				mUpImg->tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic(), [this]() {mUpImg->hide(); });
+				mDownImg->show();
+				mDownImg->tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseOutCubic());
+			}
+		} else {
+			if(mAnimDuration <= 0.0f) {
+				mUpImg->show();
+				mUpImg->setOpacity(1.0f);
+				mDownImg->hide();
+				mDownImg->setOpacity(0.0f);
+			} else {
+				mUpImg->show();
+				mUpImg->tweenOpacity(1.0f, mAnimDuration, 0.0f, ci::EaseOutCubic());
+				mDownImg->tweenOpacity(0.0f, mAnimDuration, 0.0f, ci::EaseInCubic(), [this]() {mDownImg->hide(); });
+			}
+
+		}
+
+		if(mKeyType == SoftKeyboardDefs::kFwdDelete) {
+			mUpImg->setRotation(180.0f);
+			mUpImg->setPosition(mUpImg->getWidth(), mUpImg->getHeight());
+			mDownImg->setRotation(180.0f);
+			mDownImg->setPosition(mUpImg->getWidth(), mUpImg->getHeight());
+		}
+	}
+
+
 	if(mText){
 		if(mPressed){
 			if(!mTextConfigDown.empty()){
@@ -115,14 +268,16 @@ void SoftKeyboardButton::layout(){
 		mText->setPosition(getWidth() / 2.0f - mText->getWidth() / 2.0f + mTextOffset.x, getHeight() / 2.0f - mText->getHeight() / 2.0f + mTextOffset.y);
 	}
 
-
-	if(mKeyType == SoftKeyboardDefs::kFwdDelete){
-		getNormalImage().setRotation(180.0f);
-		getNormalImage().setPosition(getNormalImage().getWidth(), getNormalImage().getHeight());
-		getHighImage().setRotation(180.0f);
-		getHighImage().setPosition(getNormalImage().getWidth(), getNormalImage().getHeight());
+	if(mGraphic) {
+		if(mPressed) {
+			mGraphic->setColor(mKeyDnColor);
+		} else {
+			mGraphic->setColor(mKeyUpColor);
+		}
 	}
+
 }
+
 
 } // namespace ui
 } // namespace ds

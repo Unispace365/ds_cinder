@@ -7,19 +7,27 @@
 #include <ds/ui/sprite/sprite_engine.h>
 #include <ds/app/environment.h>
 #include <ds/util/file_meta_data.h>
-#include "ds/ui/soft_keyboard/soft_keyboard_button.h"
 
 namespace ds {
 namespace ui {
 class SoftKeyboardSettings {
 
 public:
+
+
+	typedef enum { kBorder, kSolid, kCircularBorder, kCircularSolid } GraphicType;
+
 	SoftKeyboardSettings()
 		: mKeyTouchPadding(4.0f)
 		, mKeyInitialPosition(0.0f, 0.0f)
 		, mKeyTextOffset(0.0f, 0.0f)
 		, mKeyUpColor(1.0f, 1.0f, 1.0f)
 		, mKeyDownColor(0.5f, 0.5f, 0.5f)
+		, mGraphicKeys(false)
+		, mGraphicType(kBorder)
+		, mGraphicKeySize(64.0f)
+		, mGraphicBorderWidth(1.0f)
+		, mGraphicRoundedCornerRadius(0.0f)
 		, mKeyLetterDnImage("%APP%/data/images/keyboard/Normal.png")
 		, mKeyLetterUpImage("%APP%/data/images/keyboard/Normal.png")
 		, mKeyNumberDnImage("%APP%/data/images/keyboard/Normal.png")
@@ -109,6 +117,11 @@ public:
 	std::string			mKeyTabDnImage;
 
 	bool				mEmailMode;
+	bool				mGraphicKeys;
+	GraphicType			mGraphicType;
+	float				mGraphicKeySize;
+	float				mGraphicRoundedCornerRadius;
+	float				mGraphicBorderWidth;
 
 	float				mKeyScale;
 };

@@ -72,7 +72,7 @@ private:
 
 	// SETTINGS
 	float						mPad;
-	const float					mAnimDuration;
+	float						mAnimDuration;
 
 
 };
