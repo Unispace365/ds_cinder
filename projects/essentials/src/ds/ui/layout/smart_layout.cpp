@@ -84,11 +84,15 @@ void SmartLayout::setSpriteImage(const std::string& spriteName, const std::strin
 	}
 }
 
-void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource) {
+void SmartLayout::setSpriteImage(const std::string& spriteName, ds::Resource imageResource, bool cache) {
 	ds::ui::Image* sprI = getSprite<ds::ui::Image>(spriteName);
 
 	if (sprI) {
-		sprI->setImageResource(imageResource);
+		if(cache){
+			sprI->setImageResource(imageResource, ds::ui::Image::IMG_CACHE_F);
+		}else{
+			sprI->setImageResource(imageResource);
+		}
 		runLayout();
 	} else {
 		DS_LOG_WARNING("Failed to set Image for Sprite: " << spriteName);
