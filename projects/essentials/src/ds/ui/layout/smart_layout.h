@@ -91,8 +91,10 @@ class SmartLayout : public ds::ui::LayoutSprite {
 	using eventMap		= std::unordered_map<size_t, eventCallback>;
 
 	void onAppEvent(const ds::Event&);
+    virtual void onUpdateServer(const ds::UpdateParams& p) override;
 
 	std::string		mLayoutFile;
+	bool			mNeedsLayout;
 	ds::EventClient mEventClient;
 	sMap			mSpriteMap;
 	eventMap		mEventCallbacks;
