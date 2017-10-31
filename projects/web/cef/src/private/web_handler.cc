@@ -497,7 +497,7 @@ void WebHandler::sendMouseClick(const int browserId, const int x, const int y, c
 			browserHost->SendMouseMoveEvent(mouseEvent, false);
 		} else {
 			// This can be called on any thread
-			browserHost->SendMouseClickEvent(mouseEvent, btnType, true, 0);
+			browserHost->SendMouseClickEvent(mouseEvent, btnType, true, clickCount);
 		}
 	} else if(browserId >= 0) {
 		DS_LOG_WARNING("Browser not found in list to sendMouseClick to! BrowserId=" << browserId);

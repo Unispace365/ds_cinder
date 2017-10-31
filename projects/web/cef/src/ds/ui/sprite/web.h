@@ -237,6 +237,7 @@ private:
 	bool										mClickDown;
 	bool										mDragScrolling;
 	int											mDragScrollMinFingers;
+	bool										mIsDragging;
 	// Cache the page size and scroll during touch events
 	ci::vec2									mPageSizeCache,
 												mPageScrollCache;
