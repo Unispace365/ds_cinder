@@ -35,7 +35,7 @@ void web_example::setupServer(){
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite();
 	rootSprite.setTransparent(false);
-	rootSprite.setColor(ci::Color(0.2f, 0.1f, 0.6f));
+	rootSprite.setColor(ci::Color(1.0f, 1.0f, 1.0f));
 	// add sprites
 
 	mWebView = new WebView(mGlobals);

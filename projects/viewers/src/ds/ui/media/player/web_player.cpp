@@ -28,7 +28,7 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	mLayoutFixedAspect = true;
 	enable(false);
 	setTransparent(false);
-	setColor(ci::Color::black());
+	setColor(ci::Color::white());
 }
 
 void WebPlayer::setWebViewSize(const ci::vec2 webSize){
