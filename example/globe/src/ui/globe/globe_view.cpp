@@ -20,6 +20,9 @@ GlobeView::GlobeView(Globals& g)
 	const int meshResolution = mGlobals.getSettingsLayout().getInt("globe:mesh_resolution", 0, 50);
 	const float radius = mGlobals.getSettingsLayout().getFloat("globe:radius", 0, 450.0f);
 
+	mMinTilt = mGlobals.getSettingsLayout().getFloat("globe:min_tilt", 0, -22.0f);
+	mMaxTilt = mGlobals.getSettingsLayout().getFloat("globe:max_tilt", 0, 65.0f);
+
 	setTransparent(false);
 	setPosition(0.0f, 0.0f, radius);
 
@@ -27,7 +30,7 @@ GlobeView::GlobeView(Globals& g)
 	std::string earthDiffuse = ds::Environment::expand("%APP%/data/images/globe/earthDiffuse.png");
 	std::string earthMask = ds::Environment::expand("%APP%/data/images/globe/earthMask.png");
 	std::string earthNormal = ds::Environment::expand("%APP%/data/images/globe/earthNormal.png");
-	auto fmt = ci::gl::Texture2d::Format().wrap(GL_REPEAT).mipmap().minFilter(GL_LINEAR_MIPMAP_LINEAR);
+	auto fmt = ci::gl::Texture2d::Format().wrap(GL_REPEAT).mipmap().minFilter(GL_LINEAR_MIPMAP_NEAREST);
 	mTexDiffuse = ci::gl::Texture2d::create(ci::loadImage(ci::loadFile(earthDiffuse)), fmt);
 	mTexNormal = ci::gl::Texture2d::create(ci::loadImage(ci::loadFile(earthNormal)), fmt);
 	mTexMask = ci::gl::Texture2d::create(ci::loadImage(ci::loadFile(earthMask)), fmt);
@@ -62,14 +65,28 @@ GlobeView::GlobeView(Globals& g)
 }
 
 
-void GlobeView::onUpdateServer(const ds::UpdateParams& updateParams){
-	setRotation(ci::vec3(getRotation().x + mXMomentum.getDelta(), getRotation().y + 5.0f * updateParams.getDeltaTime() + mYMomentum.getDelta(), 0.0f));
-	mTouchGrabber.setRotation(-getRotation());
+void GlobeView::onUpdateServer(const ds::UpdateParams& updateParams) {
+
+	//Limit xRotation;
+	auto rot = ci::vec3(mGlobeRotation.x + mXMomentum.getDelta(), mGlobeRotation.y + 5.0f * updateParams.getDeltaTime() + mYMomentum.getDelta(), 0.0f);
+
+	if (rot.x < mMinTilt || rot.x > mMaxTilt) {
+		mXMomentum.clear();
+		rot.x = ci::constrain(rot.x, mMinTilt, mMaxTilt);
+	}
+
+	mGlobeRotation = ci::vec3((rot.x), (rot.y), 0.0);
+	
 }
 
 
 void GlobeView::drawLocalClient(){
 	if(!mEarth) return;
+
+	ci::gl::ScopedMatrices();
+
+	ci::gl::rotate(ci::toRadians(mGlobeRotation.x), 1.0, 0.0, 0.0);
+	ci::gl::rotate(ci::toRadians(mGlobeRotation.y), 0.0, 1.0, 0.0);
 
 	ci::gl::ScopedFaceCulling cull(true, GL_BACK);
 	ci::gl::ScopedTextureBind tex0(mTexDiffuse, 0);
