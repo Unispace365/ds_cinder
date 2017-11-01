@@ -159,7 +159,7 @@ public:
 	/// Lets you disable clicking, but still scroll via "mouse wheel"
 	void										setAllowClicks(const bool doAllowClicks);
 
-	/// If true, any transparent web pages will be blank, false will have a white background for pages
+	/// DEPRECATED, everything is transparent now - If true, any transparent web pages will be blank, false will have a white background for pages
 	void										setWebTransparent(const bool isTransparent);
 	bool										getWebTransparent(){ return mTransparentBackground; }
 
@@ -234,6 +234,15 @@ private:
 	ci::ivec2									mBrowserSize; // basically the w/h of this sprite, but tracked so we only recreate the buffer when needed
 	ci::gl::TextureRef							mWebTexture;
 	bool										mTransparentBackground;
+
+	unsigned char *								mPopupBuffer;
+	bool										mHasPopupBuffer;
+	ci::gl::TextureRef							mPopupTexture;
+	ci::vec2									mPopupPos;
+	ci::vec2									mPopupSize;
+	bool										mPopupShowing;
+	bool										mPopupReady;
+
 
 	double										mZoom;
 	bool										mNeedsZoomCheck;

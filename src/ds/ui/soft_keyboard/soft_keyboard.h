@@ -42,6 +42,9 @@ public:
 	/// Returns a reference to the settings for the keyboard
 	SoftKeyboardSettings&				getSoftKeyboardSettings(){ return mSoftKeyboardSettings; }
 
+	/// Applies new settings. Note: some settings are only applied by the builder on creation, use with caution
+	void								setSoftKeyboardSettings(SoftKeyboardSettings& newSettings);
+
 protected:
 	std::wstring						mCurrentText;
 	bool								mUpperCase;

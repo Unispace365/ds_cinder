@@ -82,6 +82,10 @@ Web::Web( ds::ui::SpriteEngine &engine, float width, float height )
 	, mBuffer(nullptr)
 	, mHasBuffer(false)
 	, mBrowserSize(0, 0)
+	, mPopupBuffer(nullptr)
+	, mPopupShowing(false)
+	, mPopupReady(false)
+	, mHasPopupBuffer(false)
 	, mUrl("")
 	, mIsLoading(false)
 	, mCanBack(false)
@@ -172,6 +176,11 @@ Web::~Web() {
 			delete mBuffer;
 			mBuffer = nullptr;
 		}
+
+		if(mPopupBuffer) {
+			delete mPopupBuffer;
+			mPopupBuffer = nullptr;
+		}
 	}
 }
 
@@ -256,6 +265,49 @@ void Web::initializeBrowser(){
 			mHasBuffer = true;
 			memcpy(mBuffer, buffer, bufferWidth * bufferHeight * 4);
 		}
+	};
+
+	wcc.mPopupPaintCallback = [this](const void * buffer, const int bufferWidth, const int bufferHeight) {
+		// This callback comes back from the CEF UI thread
+		std::lock_guard<std::mutex> lock(mMutex);
+
+		// resize buffer if needed
+		if( mPopupBuffer && (bufferWidth != mPopupSize.x || bufferHeight != mPopupSize.y)) {
+			delete mPopupBuffer;
+			mPopupBuffer = nullptr;
+		}
+
+		// create the buffer if needed
+		if(!mPopupBuffer) {
+			mPopupBuffer = new unsigned char[bufferWidth * bufferHeight * 4];
+		}  
+
+		// if everything went ok
+		if(mPopupBuffer && bufferWidth == mPopupSize.x && bufferHeight == mPopupSize.y) {
+			mHasPopupBuffer = true;
+			memcpy(mPopupBuffer, buffer, bufferWidth * bufferHeight * 4);
+		}
+	};
+
+	wcc.mPopupRectCallback = [this](const int xp, const int yp, const int widthy, const int heighty) {
+
+		std::lock_guard<std::mutex> lock(mMutex);
+		mHasPopupBuffer = false;
+		
+		if(mPopupSize.x != widthy || mPopupSize.y != heighty) {
+			delete mPopupBuffer;
+			mPopupBuffer = nullptr;
+			mPopupReady = false;
+		}
+
+		mPopupPos = ci::vec2(xp, yp);
+		mPopupSize = ci::vec2(widthy, heighty);
+
+	};
+
+	wcc.mPopupShowCallback = [this](const bool showing) {
+		std::lock_guard<std::mutex> lock(mMutex);
+		mPopupShowing = showing;
 	};
 
 	wcc.mErrorCallback = [this](const std::string& theError){
@@ -392,6 +444,17 @@ void Web::update(const ds::UpdateParams &p) {
 		mWebTexture = ci::gl::Texture::create(mBuffer, GL_BGRA, mBrowserSize.x, mBrowserSize.y, fmt);
 		mHasBuffer = false;
 	}
+
+
+	if(mPopupBuffer && mHasPopupBuffer) {
+		ci::gl::Texture::Format fmt;
+		fmt.setMinFilter(GL_LINEAR);
+		fmt.setMagFilter(GL_LINEAR);
+		mPopupTexture = ci::gl::Texture::create(mPopupBuffer, GL_BGRA, mPopupSize.x, mPopupSize.y, fmt);
+		mHasPopupBuffer = false;
+		mPopupReady = true;
+	}
+
 }
 
 void Web::onSizeChanged() {
@@ -428,11 +491,21 @@ void Web::drawLocalClient() {
 		if(mRenderBatch){
 			// web texture is top down, and render batches work bottom up
 			// so flippy flip flip
+
+			if(!mTransparentBackground) {
+			//	ci::gl::color(ci::Color::white());
+			//	ci::gl::drawSolidRect(ci::Rectf(0.0f, 0.0f, getWidth(), getHeight()));
+			}
+
 			ci::gl::scale(1.0f, -1.0f);
 			ci::gl::translate(0.0f, -getHeight());
 			mWebTexture->bind();
 			mRenderBatch->draw();
 			mWebTexture->unbind();
+
+			if(mPopupTexture && mPopupShowing && mPopupReady) {
+				ci::gl::draw(mPopupTexture, ci::Rectf(static_cast<float>(mPopupPos.x), static_cast<float>(getHeight() - mPopupTexture->getHeight()) - mPopupPos.y, static_cast<float>( mPopupTexture->getWidth()) + mPopupPos.x, static_cast<float>(getHeight()) - mPopupPos.y));
+			}
 		} else {
 			ci::gl::draw(mWebTexture, ci::Rectf(0.0f, static_cast<float>(mWebTexture->getHeight()), static_cast<float>(mWebTexture->getWidth()), 0.0f));
 		}
@@ -593,7 +666,7 @@ void Web::sendMouseClick(const ci::vec3& globalClickPoint){
 	int yPos = (int)roundf(pos.y);
 
 	sendTouchToService(xPos, yPos, 0, 0, 1);
-	sendTouchToService(xPos, yPos, 0, 1, 1);
+//	sendTouchToService(xPos, yPos, 0, 1, 1);
 	sendTouchToService(xPos, yPos, 0, 2, 1);
 }
 

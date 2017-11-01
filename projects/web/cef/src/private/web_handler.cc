@@ -335,6 +335,34 @@ bool WebHandler::GetScreenPoint(CefRefPtr<CefBrowser> browser, int viewX, int vi
 	return true;
 }
 
+void WebHandler::OnPopupShow(CefRefPtr<CefBrowser> browser, bool show) {
+	// This callback comes back on the UI thread (so will need to be synchronized to the main app thread)
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+
+	int browserId = browser->GetIdentifier();
+	auto findy = mWebCallbacks.find(browserId);
+	if(findy != mWebCallbacks.end()) {
+		if(findy->second.mPopupShowCallback) {
+			findy->second.mPopupShowCallback(show);
+		}
+	}
+}
+
+void WebHandler::OnPopupSize(CefRefPtr<CefBrowser> browser, const CefRect& rect) {
+	// This callback comes back on the UI thread (so will need to be synchronized to the main app thread)
+	// be sure this is locked with other requests to the browser list
+	base::AutoLock lock_scope(mLock);
+
+	int browserId = browser->GetIdentifier();
+	auto findy = mWebCallbacks.find(browserId);
+	if(findy != mWebCallbacks.end()) {
+		if(findy->second.mPopupRectCallback) {
+			findy->second.mPopupRectCallback(rect.x, rect.y, rect.width, rect.height);
+		}
+	}
+}
+
 void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 							PaintElementType type, 
 							const RectList& dirtyRects, 
@@ -344,13 +372,21 @@ void WebHandler::OnPaint(CefRefPtr<CefBrowser> browser,
 	base::AutoLock lock_scope(mLock);
 
 	//TODO: Handle dirty rects
-	//std::cout << "OnPaint, type: " << type <<  " " << width << " " << height << std::endl;
 
 	int browserId = browser->GetIdentifier();
+
+	//std::cout << "OnPaint, " << browserId << " type: " << type << " " << width << " " << height << std::endl;
+
 	auto findy = mWebCallbacks.find(browserId);
 	if(findy != mWebCallbacks.end()){
-		if(findy->second.mPaintCallback){
-			findy->second.mPaintCallback(buffer, width, height);
+		if(type == PaintElementType::PET_VIEW) {
+			if(findy->second.mPaintCallback) {
+				findy->second.mPaintCallback(buffer, width, height);
+			}
+		} else if(type == PaintElementType::PET_POPUP) {
+			if(findy->second.mPopupPaintCallback) {
+				findy->second.mPopupPaintCallback(buffer, width, height);
+			}
 		}
 	}
 }

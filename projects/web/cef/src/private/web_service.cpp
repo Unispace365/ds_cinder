@@ -114,6 +114,8 @@ void WebCefService::start() {
 	// We're using Offscreen Rendering.
 	settings.windowless_rendering_enabled = true;
 
+	settings.background_color = CefColorSetARGB(255, 255, 255, 255);
+
 	//settings.command_line_args_disabled = true;
 
 	// CEF's multi-process structure: it's required.

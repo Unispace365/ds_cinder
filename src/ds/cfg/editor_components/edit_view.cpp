@@ -40,6 +40,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	setShrinkToChildren(ds::ui::LayoutSprite::kShrinkHeight);
 	setLayoutType(ds::ui::LayoutSprite::kLayoutVFlow);
 	enable(true); // block touchies
+	setScale(mEngine.getSrcRect().getWidth() / mEngine.getDstRect().getWidth());
 
 	ds::ui::Sprite* backgroundSprite = new ds::ui::Sprite(mEngine);
 	backgroundSprite->setColor(ci::Color::black());
@@ -71,14 +72,14 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	mButtonHolder->setSpacing(10.0f);
 	addChildPtr(mButtonHolder);
 
-	mCancelButton = addTextSprite("Arial Narrow", 18.0f, 0.8f, true);
+	mCancelButton = addTextSprite("Arial", 18.0f, 0.8f, true);
 	mCancelButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		stopEditing();
 	});
 	mCancelButton->setText("Close");
 	mButtonHolder->addChildPtr(mCancelButton);
 
-	mApplyButton = addTextSprite("Arial Narrow", 18.0f, 1.0f, true);
+	mApplyButton = addTextSprite("Arial", 18.0f, 1.0f, true);
 	mApplyButton->setColor(ci::Color(0.9f, 0.282f, 0.035f));
 	mApplyButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		applySetting(true);
@@ -86,7 +87,7 @@ EditView::EditView(ds::ui::SpriteEngine& e)
 	mApplyButton->setText("Apply");
 	mButtonHolder->addChildPtr(mApplyButton);
 
-	mSaveButton = addTextSprite("Arial Narrow", 18.0f, 1.0f, true);
+	mSaveButton = addTextSprite("Arial", 18.0f, 1.0f, true);
 	mSaveButton->setColor(ci::Color(0.93f, 0.62f, 0.49f));
 	mSaveButton->setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		applySetting(false);
@@ -191,7 +192,17 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 	if(!mEntryEditor){
 		ds::ui::EntryFieldSettings efs;
 		efs.mFieldSize = ci::vec2(600.0f, 40.0f);
-		efs.mTextConfig = mEngine.getEngineCfg().getDefaultTextCfgName();
+
+		if(!mEngine.getEngineCfg().hasText("settings_editor:edit_view:entry:field")) {
+			ds::cfg::Text textCfg;
+			textCfg.mFont = "Arial";
+			textCfg.mSize = 18.0f;
+			textCfg.mColor = ci::Color::white();
+			textCfg.mLeading = 1.0f;
+			mEngine.getEngineCfg().setText("settings_editor:edit_view:entry:field", textCfg);
+		}
+		efs.mTextConfig = "settings_editor:edit_view:entry:field";
+		efs.mCursorOffset.x = 0.0f;
 		mEntryEditor = new ds::ui::EntryField(mEngine, efs);
 		mEntryEditor->mLayoutTPad = 5.0f;
 		mEntryEditor->mLayoutLPad = 5.0f;
@@ -202,10 +213,30 @@ void EditView::setSetting(Settings::Setting* theSetting, const std::string& pare
 
 	if(!mKeyboard){
 		ds::ui::SoftKeyboardSettings sks;
-		sks.mKeyDnTextConfig = mEngine.getEngineCfg().getDefaultTextCfgName();
-		sks.mKeyUpTextConfig = mEngine.getEngineCfg().getDefaultTextCfgName();
-		sks.mKeyUpColor = ci::Color::white();
-		sks.mKeyScale = 0.5f;
+		sks.mGraphicKeys = true;
+		sks.mGraphicKeySize = 32.0f;
+		sks.mKeyTouchPadding = 2.5f;
+		sks.mGraphicType = ds::ui::SoftKeyboardSettings::kSolid;
+		if(!mEngine.getEngineCfg().hasText("settings_editor:edit_view:keyboard:key_up")) {
+			ds::cfg::Text textCfg;
+			textCfg.mFont = "Arial";
+			textCfg.mSize = 14.0f;
+			textCfg.mColor = ci::Color::white();
+			textCfg.mLeading = 1.0f;
+			mEngine.getEngineCfg().setText("settings_editor:edit_view:keyboard:key_up", textCfg);
+		}
+		if(!mEngine.getEngineCfg().hasText("settings_editor:edit_view:keyboard:key_dn")) {
+			ds::cfg::Text textCfg;
+			textCfg.mFont = "Arial";
+			textCfg.mSize = 14.0f;
+			textCfg.mColor = ci::Color(0.5f, 0.5f, 0.5f);
+			textCfg.mLeading = 1.0f;
+			mEngine.getEngineCfg().setText("settings_editor:edit_view:keyboard:key_dn", textCfg);
+		}
+		sks.mKeyDnTextConfig = "settings_editor:edit_view:keyboard:key_dn";
+		sks.mKeyUpTextConfig = "settings_editor:edit_view:keyboard:key_up";
+		sks.mKeyUpColor = ci::Color(0.25f, 0.25f, 0.25f);
+		sks.mKeyDownColor = ci::Color::white();
 		sks.normalizeSettings();
 		mKeyboard = ds::ui::SoftKeyboardBuilder::buildExtendedKeyboard(mEngine, sks, this);
 		mKeyboard->mLayoutTPad = 0.0f;
