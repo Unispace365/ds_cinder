@@ -63,16 +63,10 @@ public:
 	/// For creating pango contexts. Check for nullptr before using
 	PangoFontMap*								getPangoFontMap();
 
-	/// A really hacky way to fix some font rendering clipping issues.
-	/// If your text is rendering ok, no need to mess with this.
-	void										setTextSuffix(const std::wstring& suffix);
-	std::wstring								getTextSuffix();
-
 private:
 	PangoFontMap*								mFontMap;
 	std::map<std::string, DsPangoFontFamily>	mLoadedFamilies;
 	std::map<std::string, DsPangoFontFace>		mLoadedFonts;
-	std::wstring								mTextSuffix;
 };
 
 } // namespace ui
