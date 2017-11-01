@@ -240,7 +240,7 @@ std::vector<std::string> split(const std::string &str, const std::string &delimi
 		{
 			if(pos != lastPos || !dropEmpty) {
 				std::string tstr = std::string(str.data() + lastPos, pos - lastPos);
-				if(!tstr.empty())
+				if(!tstr.empty() || !dropEmpty)
 					splitWords.push_back(tstr);
 				lastPos = pos + delimiters.size();
 				continue;
