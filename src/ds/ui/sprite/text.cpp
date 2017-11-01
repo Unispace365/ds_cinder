@@ -96,8 +96,8 @@ void Text::installAsClient(ds::BlobRegistry& registry)
 
 Text::Text(ds::ui::SpriteEngine& eng)
 	: ds::ui::Sprite(eng)
-	, mText(L"")
-	, mProcessedText(L"")
+	, mText("")
+	, mProcessedText("")
 	, mNeedsMarkupDetection(false)
 	, mNeedsFontUpdate(false)
 	, mNeedsMeasuring(false)
@@ -193,18 +193,14 @@ Text::~Text() {
 }
 
 std::string Text::getTextAsString() const{
-	return ds::utf8_from_wstr(mText);
-}
-
-std::wstring Text::getText() const {
 	return mText;
 }
 
-void Text::setText(std::string text) {
-	setText(ds::wstr_from_utf8(text));
+std::wstring Text::getText() const {
+	return ds::wstr_from_utf8(mText);
 }
 
-void Text::setText(std::wstring text) {	
+void Text::setText(std::string text) {
 	if(text != mText) {
 		mText = text;
 		mNeedsMarkupDetection = true;
@@ -213,6 +209,10 @@ void Text::setText(std::wstring text) {
 
 		markAsDirty(TEXT_DIRTY);
 	}
+}
+
+void Text::setText(std::wstring text) {
+	setText(ds::utf8_from_wstr(text));
 }
 
 const ci::gl::TextureRef Text::getTexture() {
@@ -543,6 +543,7 @@ void Text::onUpdateServer(const UpdateParams&){
 	measurePangoText();
 }
 
+#include <locale.h>  
 bool Text::measurePangoText() {
 	if(mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
 
@@ -563,16 +564,14 @@ bool Text::measurePangoText() {
 
 			// Pango doesn't support HTML-esque line-break tags, so
 			// find break marks and replace with newlines, e.g. <br>, <BR>, <br />, <BR />
-			// TODO
 			std::regex e("<br\\s?/?>", std::regex_constants::icase);
-			mProcessedText = ds::wstr_from_utf8(std::regex_replace(ds::utf8_from_wstr(mText), e, "\n")) + mEngine.getPangoFontService().getTextSuffix();
-			//mProcessedText = mText + mEngine.getPangoFontService().getTextSuffix();
+			mProcessedText = std::regex_replace(mText, e, "\n");
 
 			// Let's also decide and flag if there's markup in this string
 			// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
 			// there's no markup to bother with.
 			// Be pretty liberal, there's more harm in false-postives than false-negatives
-			mProbablyHasMarkup = ((mProcessedText.find(L"<") != std::wstring::npos) && (mProcessedText.find(L">") != std::wstring::npos));
+			mProbablyHasMarkup = ((mProcessedText.find("<") != std::wstring::npos) && (mProcessedText.find(">") != std::wstring::npos));
 
 			mNeedsMarkupDetection = false;
 		}
@@ -661,16 +660,17 @@ bool Text::measurePangoText() {
 			int newPixelWidth = 0;
 			int newPixelHeight = 0;
 			if(mProbablyHasMarkup){// || true) {
-				pango_layout_set_markup(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
+				pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), -1);
+
 				// check the pixel size, if it's empty, then we can try again without markup
 				pango_layout_get_pixel_size(mPangoLayout, &newPixelWidth, &newPixelHeight);
 			}
 
 			if(!mProbablyHasMarkup || newPixelWidth < 1) {
 				if(hadMarkup){
-					pango_layout_set_markup(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
+					pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), -1);
 				}
-				pango_layout_set_text(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
+				pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), -1);
 			}
 
 			mWrappedText = pango_layout_is_wrapped(mPangoLayout) != FALSE;
@@ -733,7 +733,7 @@ void Text::renderPangoText(){
 
 		auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
 		if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
-			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth + extraTextureSize << " h:" << mPixelHeight + extraTextureSize << " text:" << ds::utf8_from_wstr(mText));
+			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth + extraTextureSize << " h:" << mPixelHeight + extraTextureSize << " text:" << mText);
 			// make sure we don't render garbage
 			if(mTexture){
 				mTexture = nullptr;

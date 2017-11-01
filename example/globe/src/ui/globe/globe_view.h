@@ -18,6 +18,8 @@ class GlobeView : public ds::ui::Sprite  {
 public:
 
 	GlobeView(Globals& g);
+	ci::vec3 getGlobeRotation() { return mGlobeRotation; }
+
 
 private:
 	Globals&			mGlobals; 
@@ -34,6 +36,11 @@ private:
 
 	DelayedMomentum		mXMomentum;
 	DelayedMomentum		mYMomentum;
+
+	float				mMinTilt;
+	float				mMaxTilt;
+
+	ci::vec3			mGlobeRotation;
 
 };
 
