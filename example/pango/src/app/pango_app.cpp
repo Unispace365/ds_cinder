@@ -14,6 +14,9 @@
 
 #include "events/app_events.h"
 
+#include "ds/util/markdown_to_pango.h"
+#include "ds/util/string_util.h"
+
 #include "ui/story/story_view.h"
 
 
@@ -113,14 +116,16 @@ void PangoApp::setupServer(){
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite(0);
 	rootSprite.setTransparent(false);
-	rootSprite.setColor(ci::Color(0.9f, 0.9f, 0.9f));
+	rootSprite.setColor(ci::Color(0.0f, 0.0f, 0.0f));
 	
 	// add sprites
-	rootSprite.addChildPtr(new StoryView(mGlobals));
+	//rootSprite.addChildPtr(new StoryView(mGlobals));
 
 	//auto secondStory = new StoryView(mGlobals);
 	//secondStory->setPosition(200.0f, 500.0f);
 	//rootSprite.addChildPtr(secondStory);
+
+
 
 	// The engine will actually be idling, and this gets picked up on the next update
 	mIdling = false;
@@ -225,14 +230,34 @@ void PangoApp::mouseUp(ci::app::MouseEvent e) {
 void PangoApp::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
+		//std::string pangoMd = ds::ui::markdown_to_pango((*it).string());
+
+		std::wstring imAbullet = L" • \u2022 A bullet point";
+		std::string pangoMd = ds::utf8_from_wstr(imAbullet);
+
+		ds::ui::Text* texty = new ds::ui::Text(mEngine);
+		texty->setFont("Noto Sans CJK SC Thin");
+		texty->setFontSize(14.0f);
+		texty->setResizeLimit(mEngine.getWorldWidth() - 200.0f);
+		texty->setText(pangoMd);
+		texty->setPosition(100.0f, 100.0f);
+		mEngine.getRootSprite().addChildPtr(texty);
+
 		//ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
 		//mv->initialize();
 		//mEngine.getRootSprite().addChildPtr(mv);
+	//	std::ifstream t((*it).string().c_str());
+	//	std::string str((std::istreambuf_iterator<char>(t)),
+	//					std::istreambuf_iterator<char>());
+
+	//	std::cout << "The string: " << str << std::endl;
+	//	std::cout << "as pango: " << std::endl << ds::utf8_from_wstr( ds::ui::markdown_to_pango(str) ) << std::endl;
 	}
 }
 
 } // namespace pango
 
 // This line tells Cinder to actually create the application
-CINDER_APP(pango::PangoApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))
+CINDER_APP(pango::PangoApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)),
+		   [&](ci::app::App::Settings* settings) { settings->setBorderless(true); })
 
