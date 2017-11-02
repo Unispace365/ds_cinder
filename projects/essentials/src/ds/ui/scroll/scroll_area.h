@@ -49,6 +49,7 @@ class ScrollArea : public ds::ui::Sprite {
 		// For external UI use. The 0.0 - 1.0 percent of the scroll. 0.0 == the start (top in vertical scrolls). 1.0 == the bottom (fully scrolled through the list)
 		float				getScrollPercent();
 		void				setScrollPercent(const float percenty);
+		void				tweenScrollPercent(const float percenty);
 
 		// How much of the scroller is currently visible. If the scroller is smaller than the scroll area, then this will be 1.0
 		float				getVisiblePercent();
