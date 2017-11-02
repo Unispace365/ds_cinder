@@ -467,7 +467,6 @@ void ScrollArea::setScrollPercent(const float percenty){
 
 	float scrollerPossy = percenty * theTop;
 
-
 	if(mVertical){
 		if(getPerspective()){
 			scrollerPossy = theTop - scrollerPossy;
@@ -478,6 +477,42 @@ void ScrollArea::setScrollPercent(const float percenty){
 	}
 	
 	scrollerUpdated(ci::vec2(mScroller->getPosition()));
+}
+
+void ScrollArea::tweenScrollPercent(const float percenty){
+	if (!mScroller) return;
+
+	if (mScrollPercent == percenty) return;
+
+	float scrollerSize = mScroller->getHeight();
+	float scrollWindow = getHeight();
+
+	if (!mVertical){
+		scrollerSize = mScroller->getWidth();
+		scrollWindow = getWidth();
+	}
+
+	const float theTop = scrollWindow - scrollerSize;
+
+	float scrollerPossy = percenty * theTop;
+
+
+	if (mVertical){
+		if (getPerspective()){
+			scrollerPossy = theTop - scrollerPossy;
+		}
+		mScroller->tweenPosition(ci::vec3(0.0f, scrollerPossy, 0.0f), mReturnAnimateTime, 0.0f, ci::easeOutQuint);
+	}
+	else {
+		mScroller->tweenPosition(ci::vec3(scrollerPossy, 0.0f, 0.0f), mReturnAnimateTime, 0.0f, ci::easeOutQuint);
+	}
+
+	tweenNormalized(mReturnAnimateTime, 0.0f, ci::easeOutQuint, [this]{
+			scrollerUpdated(ci::vec2(mScroller->getPosition()));
+		}, [this]{
+			scrollerUpdated(ci::vec2(mScroller->getPosition()));
+		});
+
 }
 
 float ScrollArea::getVisiblePercent(){
