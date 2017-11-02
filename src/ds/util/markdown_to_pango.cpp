@@ -109,7 +109,14 @@ std::wstring markdown_to_pango(const std::wstring& inputMarkdown) {
 }
 
 std::string markdown_to_pango(const std::string& source) {
+	
+	// see the html directory for usage
+	// https://github.com/apiaryio/sundown/
+
+
 	static const struct sd_callbacks cb_default = {
+
+		/// NULL skips these ones (note: tables aren't parsed)
 		rndr_blockcode, // rndr_blockcode,
 		rndr_blockquote, // rndr_blockquote,
 		rndr_normal_text, // rndr_raw_block,
@@ -122,6 +129,7 @@ std::string markdown_to_pango(const std::string& source) {
 		NULL, // rndr_tablerow,
 		NULL, // rndr_tablecell,
 
+		/// NULL or returning 0 adds the original text verbatim
 		NULL, // rndr_autolink,
 		rndr_codespan, // rndr_codespan,
 		rndr_double_emphasis, // rndr_double_emphasis,
@@ -134,11 +142,13 @@ std::string markdown_to_pango(const std::string& source) {
 		NULL, // rndr_strikethrough,
 		NULL, // rndr_superscript,
 
-		NULL,
+
+		/// These all return the original if NULL
+		NULL, // entity - copied directly
 		rndr_normal_text,
 
-		NULL,
-		NULL,
+		NULL, // header - copied directly
+		NULL, // footer - copied directly
 	};
 
 	struct sd_callbacks callbacks;
