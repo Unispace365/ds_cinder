@@ -660,7 +660,7 @@ bool Text::measurePangoText() {
 			int newPixelWidth = 0;
 			int newPixelHeight = 0;
 			if(mProbablyHasMarkup){// || true) {
-				pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), -1);
+				pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), mProcessedText.size());
 
 				// check the pixel size, if it's empty, then we can try again without markup
 				pango_layout_get_pixel_size(mPangoLayout, &newPixelWidth, &newPixelHeight);
@@ -668,7 +668,7 @@ bool Text::measurePangoText() {
 
 			if(!mProbablyHasMarkup || newPixelWidth < 1) {
 				if(hadMarkup){
-					pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), -1);
+					pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), mProcessedText.size());
 				}
 				pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), -1);
 			}

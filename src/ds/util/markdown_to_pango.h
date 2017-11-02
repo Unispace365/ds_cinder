@@ -8,7 +8,7 @@ namespace ds {
 namespace ui {
 
 std::wstring markdown_to_pango(const std::wstring& inputMarkdown);
-std::string  markdown_to_pango(const std::string& inputMarkdown);
+std::string markdown_to_pango(const std::string& inputMarkdown);
 }
 
 } // namespace ds

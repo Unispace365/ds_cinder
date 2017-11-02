@@ -251,8 +251,8 @@ EntryFields and SoftKeyboards need some parameters set for instantiation, so the
         sprite_link="primary_keyboard"
         >text_config:keyboard:key:up; cursor_offset:4, -10; cursor_size:1, 40; field_size:500, 40; cursor_color:orange</entry_field>
 
-    <soft_keyboard name="primary_keyboard"
-    >type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; key_text_offset:-2, -2; key_touch_padding:4</soft_keyboard>
+    <soft_keyboard name="primary_keyboard">
+    type:lowercase; key_scale:1; key_up_color:bright_grey; key_down_color:orange; key_text_offset:-2, -2; key_touch_padding:4</soft_keyboard>
 
 **ENTRY FIELD PARAMETERS**
 * **sprite_link**: Allows you to link the text entry field with a soft keyboard. Set the value of sprite_link to the name of the soft_keyboard. The keyboard needs to be in the same sprite map as entry field to be linked. Once linked, the keyboard will type it's text into the entry field.

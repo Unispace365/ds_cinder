@@ -116,10 +116,10 @@ void PangoApp::setupServer(){
 
 	ds::ui::Sprite &rootSprite = mEngine.getRootSprite(0);
 	rootSprite.setTransparent(false);
-	rootSprite.setColor(ci::Color(0.0f, 0.0f, 0.0f));
+	rootSprite.setColor(ci::Color(0.9f, 0.9f, 0.9f));
 	
 	// add sprites
-	//rootSprite.addChildPtr(new StoryView(mGlobals));
+	rootSprite.addChildPtr(new StoryView(mGlobals));
 
 	//auto secondStory = new StoryView(mGlobals);
 	//secondStory->setPosition(200.0f, 500.0f);
@@ -230,28 +230,29 @@ void PangoApp::mouseUp(ci::app::MouseEvent e) {
 void PangoApp::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
-		//std::string pangoMd = ds::ui::markdown_to_pango((*it).string());
+		mEngine.getRootSprite().clearChildren();
 
-		std::wstring imAbullet = L" • \u2022 A bullet point";
-		std::string pangoMd = ds::utf8_from_wstr(imAbullet);
+		// read the file into a string
+		std::ifstream t((*it).string().c_str());
+		std::string str((std::istreambuf_iterator<char>(t)),
+						std::istreambuf_iterator<char>());
+
+		// parse it for pango
+		std::string pangoMd = ds::ui::markdown_to_pango(str);
+
 
 		ds::ui::Text* texty = new ds::ui::Text(mEngine);
-		texty->setFont("Noto Sans CJK SC Thin");
-		texty->setFontSize(14.0f);
+		texty->setFont("Noto Sans");
+		texty->setFontSize(10.0f);
 		texty->setResizeLimit(mEngine.getWorldWidth() - 200.0f);
+		texty->setLeading(1.2f);
 		texty->setText(pangoMd);
 		texty->setPosition(100.0f, 100.0f);
+		texty->setColor(ci::Color(0.1f, 0.1f, 0.1f));
+
+		texty->enable(true);
+		texty->enableMultiTouch(ds::ui::MULTITOUCH_CAN_POSITION_Y);
 		mEngine.getRootSprite().addChildPtr(texty);
-
-		//ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
-		//mv->initialize();
-		//mEngine.getRootSprite().addChildPtr(mv);
-	//	std::ifstream t((*it).string().c_str());
-	//	std::string str((std::istreambuf_iterator<char>(t)),
-	//					std::istreambuf_iterator<char>());
-
-	//	std::cout << "The string: " << str << std::endl;
-	//	std::cout << "as pango: " << std::endl << ds::utf8_from_wstr( ds::ui::markdown_to_pango(str) ) << std::endl;
 	}
 }
 
