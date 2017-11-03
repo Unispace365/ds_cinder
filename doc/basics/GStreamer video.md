@@ -42,7 +42,7 @@ gst-inspect gets information about plugins in your gstreamer installation. In a 
 	
 Which prints out all plugins installed with gstreamer; useful for if you want to check if you have a valid install or if you want to see whats available while developing. Some other handy commands:
 
-* `gst-inspect-1.0.exe --types audio`: Shows all audio elements. Replace audio with other terms to narrow down the list
+* `gst-inspect-1.0.exe --types audio`: Shows all audio elements. Replace audio with other terms, such as video, effect, filter
 * `gst-inspect-1.0.exe --version`: print version information
 * `gst-inspect-1.0.exe [plugin or element name]`: info about a specific plugin. Sample elements: playbin, decodebin, autoaudiosink This is great if you're developing a pipeline and want to see the capabilities or variables of an element.
    
@@ -116,6 +116,9 @@ MediaViewer wraps up MediaPlayer into a Viewer, which is a BasePanel. This lets 
 
 ## Synchronized playback over a network
 
+Setup your app as a server/client and play video and ds_cinder will automatically keep the video playback in sync over the network. Note that you need to have the video in the same location on both machines for this to work. You also need to have a clientserver (and not a plain server) and the video needs to load and play there.
+
+If you'd like the app to only play back videos on some clients, but not all, you can use setPlayableInstances() on GstVideo. Using this may interact poorly with the synchronization system, so use with caution. The primary use case for this is a system that has many clients that are all playing independent large videos, and you don't want to slow playback by loading unneccessary videos.
 
 
 ## Streaming

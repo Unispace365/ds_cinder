@@ -16,6 +16,20 @@ static void rndr_paragraph(struct buf *ob, const struct buf *text, void *opaque)
 	bufput(ob, text->data, text->size);
 	bufputs(ob, "\n\n");
 }
+static int rndr_strikethrough(struct buf *ob, const struct buf *text, void *opaque) {
+	if(!text || !text->size) return 0;
+	bufputs(ob, "<span strikethrough='true'>");
+	bufput(ob, text->data, text->size);
+	bufputs(ob, "</span>");
+	return 1;
+}
+static int rndr_superscript(struct buf *ob, const struct buf *text, void *opaque) {
+	if(!text || !text->size) return 0;
+	bufputs(ob, "<sup>");
+	bufput(ob, text->data, text->size);
+	bufputs(ob, "</sup>");
+	return 1;
+}
 static int rndr_double_emphasis(struct buf *ob, const struct buf *text, void *opaque) {
 	if(!text || !text->size) return 0;
 	bufputs(ob, "<span weight='bold'>");
@@ -104,6 +118,29 @@ static int rndr_codespan(struct buf *ob, const struct buf *text, void *opaque) {
 	return 1;
 }
 
+static void rndr_table(struct buf *ob, const struct buf *header, const struct buf *body, void *opaque){
+	BUFPUTSL(ob, "<span font='Consolas'>");
+	if(header)
+		bufput(ob, header->data, header->size);
+	if(body)
+		bufput(ob, body->data, body->size);
+	BUFPUTSL(ob, "</span>");
+	bufputc(ob, '\n');
+}
+
+static void rndr_tablerow(struct buf *ob, const struct buf *text, void *opaque){
+	//BUFPUTSL(ob, "<tr>\n");
+	if(text)
+		bufput(ob, text->data, text->size);
+	BUFPUTSL(ob, "\n");
+}
+
+static void rndr_tablecell(struct buf *ob, const struct buf *text, int flags, void *opaque){
+	if(text) 
+		bufput(ob, text->data, text->size);
+	BUFPUTSL(ob, " | ");
+}
+
 std::wstring markdown_to_pango(const std::wstring& inputMarkdown) {
 	return ds::wstr_from_utf8(markdown_to_pango(ds::utf8_from_wstr(inputMarkdown)));
 }
@@ -125,9 +162,9 @@ std::string markdown_to_pango(const std::string& source) {
 		rndr_list, // rndr_list,
 		rndr_listitem, // rndr_listitem,
 		rndr_paragraph, // rndr_paragraph,
-		NULL, // rndr_table,
-		NULL, // rndr_tablerow,
-		NULL, // rndr_tablecell,
+		rndr_table, // rndr_table,
+		rndr_tablerow, // rndr_tablerow,
+		rndr_tablecell, // rndr_tablecell,
 
 		/// NULL or returning 0 adds the original text verbatim
 		NULL, // rndr_autolink,
@@ -139,8 +176,8 @@ std::string markdown_to_pango(const std::string& source) {
 		NULL, // rndr_link,
 		NULL, // rndr_raw_html,
 		rndr_triple_emphasis, // rndr_triple_emphasis,
-		NULL, // rndr_strikethrough,
-		NULL, // rndr_superscript,
+		rndr_strikethrough, // rndr_strikethrough,
+		rndr_superscript, // rndr_superscript,
 
 
 		/// These all return the original if NULL
@@ -156,7 +193,7 @@ std::string markdown_to_pango(const std::string& source) {
 	struct buf *ob;
 	callbacks = cb_default;
 
-	const int parserExtensions = MKDEXT_FENCED_CODE | MKDEXT_NO_INTRA_EMPHASIS | MKDEXT_LAX_SPACING /*| MKDEXT_TABLES */;
+	const int parserExtensions = MKDEXT_FENCED_CODE | MKDEXT_NO_INTRA_EMPHASIS | MKDEXT_LAX_SPACING | MKDEXT_SUPERSCRIPT | MKDEXT_STRIKETHROUGH  /*| MKDEXT_TABLES */;
 	markdown = sd_markdown_new(parserExtensions, 16, &callbacks, nullptr);
 
 
