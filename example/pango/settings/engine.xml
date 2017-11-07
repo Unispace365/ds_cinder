@@ -9,9 +9,9 @@
 	<setting name="platform:architecture" value="" type="string" comment="If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive." default="standalone" possibles="standalone, client, server, clientserver"/>
 	<setting name="platform:guid" value="Downstream" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
 	<setting name="WINDOW SETTINGS" value="" type="section_header"/>
-	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>
-	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect" comment="The rectangle of the world space to render."/>
-	<setting name="dst_rect" value="40, 40, 1920, 1080" type="rect" comment="The output window size and position to render."/>
+	<setting name="world_dimensions" value="0, 0" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>
+	<setting name="src_rect" value="0, 0, 0, 0" type="rect" comment="The rectangle of the world space to render."/>
+	<setting name="dst_rect" value="0, 0, 0, 0" type="rect" comment="The output window size and position to render."/>
 	<setting name="screen:title" value="pango" type="string" comment="The title of the window. Generally only displays if the screen mode is windowed."/>
 	<setting name="screen:mode" value="borderless" type="string" comment="How the primary window displays, including fullscreen" default="borderless" possibles="window, borderless, fullscreen"/>
 	<setting name="screen:always_on_top" value="false" type="bool" comment="Makes the window an always-on-top sort of window." default="false"/>
@@ -30,7 +30,7 @@
 	<setting name="touch:override_translation" value="false" type="bool" comment="Override the built-in touch scale and offset parsing. It's uncommon you'll need to do this. Default is to use the built-in Cinder touch translation, which is generally correct if the window is the same pixel size as the main screen and not scaled at all." default="false"/>
 	<setting name="touch:dimensions" value="1920, 1080" type="vec2" comment="How large in screen pixels the touch input stream covers" default="1920, 1080"/>
 	<setting name="touch:offset" value="0, 0" type="vec2" comment="How much to offset touch input in pixels" default="0, 0"/>
-	<setting name="touch:filter_rect" value="10, 10, 1900.000000, 1060.000000" type="rect" comment="Any touches started outside this rect will be ignored, in world space. Set to 0, 0, 0, 0 to ignore." default="0, 0, 0, 0"/>
+	<setting name="touch:filter_rect" value="0, 0, 0.000000, 0.000000" type="rect" comment="Any touches started outside this rect will be ignored, in world space. Set to 0, 0, 0, 0 to ignore." default="0, 0, 0, 0"/>
 	<setting name="touch:verbose_logging" value="false" type="bool" comment="Prints out info for every touch info. Also can be set at runtime using shift-V." default="false"/>
 	<setting name="touch:debug" value="true" type="bool" comment="Draw circles around touch points " default="true"/>
 	<setting name="touch:debug_circle_radius" value="15" type="float" comment="Visual settings for touch debug circles." default="15" min_value="1" max_value="100"/>

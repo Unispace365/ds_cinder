@@ -114,6 +114,11 @@
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_defs.h" />
     <ClInclude Include="..\src\ds\ui\soft_keyboard\soft_keyboard_settings.h" />
     <ClInclude Include="..\src\ds\util\date_util.h" />
+    <ClInclude Include="..\src\ds\util\markdown_to_pango.h" />
+    <ClInclude Include="..\src\ds\util\sundown\autolink.h" />
+    <ClInclude Include="..\src\ds\util\sundown\buffer.h" />
+    <ClInclude Include="..\src\ds\util\sundown\markdown.h" />
+    <ClInclude Include="..\src\ds\util\sundown\stack.h" />
     <ClInclude Include="..\src\osc\ip\IpEndpointName.h" />
     <ClInclude Include="..\src\osc\ip\NetworkingUtils.h" />
     <ClInclude Include="..\src\osc\ip\PacketListener.h" />
@@ -310,6 +315,23 @@
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_button.cpp" />
     <ClCompile Include="..\src\ds\ui\soft_keyboard\soft_keyboard_defs.cpp" />
     <ClCompile Include="..\src\ds\util\date_util.cpp" />
+    <ClCompile Include="..\src\ds\util\markdown_to_pango.cpp" />
+    <ClCompile Include="..\src\ds\util\sundown\autolink.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\sundown\buffer.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\sundown\markdown.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\sundown\stack.c">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">NotUsing</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">NotUsing</PrecompiledHeader>
+    </ClCompile>
     <ClCompile Include="..\src\osc\ip\IpEndpointName.cpp" />
     <ClCompile Include="..\src\osc\ip\win32\NetworkingUtils.cpp" />
     <ClCompile Include="..\src\osc\ip\win32\UdpSocket.cpp" />

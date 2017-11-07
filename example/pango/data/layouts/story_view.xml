@@ -96,7 +96,7 @@
 					color="white"
 					l_pad="50"
 					layout_size_mode="fixed"
-					text="Hello, and Welcome to the second text area where many fun things are happening"
+					text="Drop a markdown file on this window."
 					resize_limit="1600, 0"
 					></text>
 					-->

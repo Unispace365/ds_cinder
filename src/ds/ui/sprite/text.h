@@ -69,7 +69,7 @@ public:
 
 	std::string					getTextAsString() const;
 	std::wstring				getText() const;
-	bool						hasText() const;
+	bool						hasText() const { return !mText.empty(); }
 
 	/// Can be plain text or use markup (see top of header)
 	void						setText(std::string text);
@@ -194,8 +194,8 @@ private:
 
 	std::string					mCfgName;
 
-	std::wstring				mText;
-	std::wstring				mProcessedText; // stores text after newline filtering
+	std::string					mText;
+	std::string					mProcessedText; // stores text after newline filtering
 	bool						mProbablyHasMarkup;
 	float						mResizeLimitWidth,
 								mResizeLimitHeight;

@@ -61,6 +61,7 @@ StoryView::StoryView(Globals& g)
 	}
 
 	if(mPrimaryLayout){
+		mPrimaryLayout->setSize(mEngine.getWorldWidth(), mEngine.getWorldHeight());
 		mPrimaryLayout->runLayout();
 	}
 

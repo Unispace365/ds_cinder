@@ -386,6 +386,21 @@ const Poco::DateTime Result::RowIterator::getDateTime(const int columnIndex) con
 	return Poco::DateTime();
 }
 
+const Poco::DateTime Result::RowIterator::getDateTime24hr(const int columnIndex) const {
+	const Row&		row = (mOverride ? *mOverride : **mRowIt);
+	if(columnIndex >= 0 && columnIndex < row.mString.size()) {
+		try {
+			std::string stringToParse = row.mString[columnIndex];
+			int tzd = 0;
+			Poco::DateTime output;
+			Poco::DateTimeParser::parse("%Y-%m-%d %H:%M:%S", stringToParse, output, tzd);
+			return output;
+		} catch(...) {
+		}
+	}
+	return Poco::DateTime();
+}
+
 #ifdef _DEBUG
 void Result::print() const {
 	std::cout << "QueryResult columnSize=" << mCol.size() << " rows=" << mRow.size() << std::endl;

@@ -179,13 +179,5 @@ PangoFontMap* PangoFontService::getPangoFontMap(){
 	return mFontMap;
 }
 
-void PangoFontService::setTextSuffix(const std::wstring& suffix){
-	mTextSuffix = suffix;
-}
-
-std::wstring PangoFontService::getTextSuffix(){
-	return mTextSuffix;
-}
-
 } // namespace ui
 } // namespace ds
