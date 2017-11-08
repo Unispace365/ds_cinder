@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<settings>
+	<setting name="globe:pin:name" value="Noto Sans Bold" type="string"/>
+	<setting name="globe:pin:size" value="24" type="float"/>
+	<setting name="globe:pin:leading" value="0.75" type="float"/>
+	<setting name="globe:pin:color" value="white" type="color"/>
+	
+	<setting name="globe:filter:name" value="Noto Sans Bold" type="string"/>
+	<setting name="globe:filter:size" value="14" type="float"/>
+	<setting name="globe:filter:leading" value="0.75" type="float"/>
+	<setting name="globe:filter:color" value="white" type="color"/>
+
+</settings>
+
