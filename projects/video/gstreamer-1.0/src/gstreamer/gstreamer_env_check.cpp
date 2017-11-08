@@ -44,11 +44,11 @@ bool EnvCheck::addGStreamerBinPath(){
 	std::string localPlugins = ds::Environment::expand("%APP%/dll/gst_plugins");
 	if(safeFileExistsCheck(localDllPath) && safeFileExistsCheck(localPlugins)){
 		if(path_variable.find(localDllPath) == std::string::npos){
-			DS_LOG_INFO( "Gstreamer Env Check: Adding local dlls to path for video playback");
+			DS_LOG_INFO( "GStreamer Env Check: Adding local dlls to path for video playback");
 			ds::Environment::addToFrontEnvironmentVariable("PATH", localDllPath);
 		}
 
-		DS_LOG_INFO("streamer Env Check: Adding local gst plugins");
+		DS_LOG_INFO("GStreamer Env Check: Adding local gst plugins");
 		ds::Environment::addToEnvironmentVariable("GST_PLUGIN_PATH", localPlugins);
 		addedLocalDlls = true;
 	} 
