@@ -543,7 +543,6 @@ void Text::onUpdateServer(const UpdateParams&){
 	measurePangoText();
 }
 
-#include <locale.h>  
 bool Text::measurePangoText() {
 	if(mNeedsFontUpdate || mNeedsMeasuring || mNeedsTextRender || mNeedsMarkupDetection) {
 
@@ -693,7 +692,11 @@ bool Text::measurePangoText() {
 			std::cout << "Pixel size: " << newPixelWidth << " " << newPixelHeight << std::endl;
 			*/
 
-			mPixelWidth = extentRect.width+(extentRect.x*2.0f);
+			mPixelWidth = extentRect.width + extentRect.x;
+
+			// add the right side of the offset for center aligned
+			if(mTextAlignment == Alignment::kCenter) mPixelWidth += extentRect.x;
+
 			mPixelHeight = extentRect.height+(extentRect.y*2.0f);
 
 			setSize((float)mPixelWidth, (float)mPixelHeight);
