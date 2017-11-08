@@ -1,0 +1,32 @@
+<interface>
+
+	<layout name="root_layout"
+			layout_type="none"
+			layout_size_mode="fill"
+				position="-800, 0"
+			size="1920, 1080"
+			shrink_to_children="both"
+		>
+		<!-- Search for a User -->
+
+
+			<layout name="search_layout"
+				layout_type="vert"
+				layout_size_mode="fixed"
+				layout_spacing="20"
+				shrink_to_children="both"
+			>
+
+				<xml name="us_button" src="%APP%/data/layouts/white_label_button.xml" >
+					<property name="high_label" text="United States" />
+				</xml>
+				<xml name="europe_button" src="%APP%/data/layouts/white_label_button.xml" >
+					<property name="high_label" text="Europe" />
+				</xml>
+				<xml name="africa_button" src="%APP%/data/layouts/white_label_button.xml" >
+					<property name="high_label" text="Africa" />
+				</xml>
+
+			</layout>
+	</layout>
+</interface>

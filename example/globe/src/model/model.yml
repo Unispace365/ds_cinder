@@ -1,0 +1,15 @@
+Location:
+    tableName: Location
+    columns:
+        id:
+            type: integer
+        name:
+            type: string
+        layer:
+            type: integer
+        population:
+            type: string
+        lat:
+            type: float
+        long:
+            type: float

@@ -18,11 +18,11 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
     #$DestDir = $DsCinder + "\example\" + $NewName;
     $DestDir = $DestDir + "\" + $NewName;
     $SrcDir = $BaseDir + "src\";
-    $SlnDir = $BaseDir + "vs2013\";
-    $DebugDir = $BaseDir + "vs2013\Debug";
-    $ReleaseDir = $BaseDir + "vs2013\Release";
-    $IpchDir = $BaseDir + "vs2013\ipch";
-    $x64Dir = $BaseDir + "vs2013\x64";
+    $SlnDir = $BaseDir + "vs2015\";
+    $DebugDir = $BaseDir + "vs2015\Debug";
+    $ReleaseDir = $BaseDir + "vs2015\Release";
+    $IpchDir = $BaseDir + "vs2015\ipch";
+    $x64Dir = $BaseDir + "vs2015\x64";
     $logsDir = $BaseDir + "logs";
 
     #Write-Host "Removing old stuff at the destination";
@@ -30,7 +30,7 @@ Function Execute-Clone($BaseDir, $DestDir, $NewName, $NameSpace){
 
     Write-Host "Duplicating base project " $BaseDir " to " $DestDir;
 
-    robocopy $BaseDir $DestDir /E /XD $DebugDir $x64Dir $logsdir $ReleaseDir $IpchDir /xf *.sdf *.suo
+    robocopy $BaseDir $DestDir /E /XD $DebugDir $x64Dir $logsdir $ReleaseDir $IpchDir /xf *.sdf *.suo *.db *.opendb
 
     $FileList = Get-ChildItem -Path $DestDir -Include *.cpp,*.h -Recurse;
 

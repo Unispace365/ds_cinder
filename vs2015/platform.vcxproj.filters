@@ -118,6 +118,9 @@
     <Filter Include="src\ds\ui\button">
       <UniqueIdentifier>{42013d7c-e39d-4524-8e5b-a2bad7802e54}</UniqueIdentifier>
     </Filter>
+    <Filter Include="src\ds\util\sundown">
+      <UniqueIdentifier>{216b1d42-b655-4834-88b4-037a0de4b4ca}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\src\ds\data\resource.h">
@@ -729,6 +732,21 @@
     <ClInclude Include="..\src\ds\ui\button\image_button.h">
       <Filter>src\ds\ui\button</Filter>
     </ClInclude>
+    <ClInclude Include="..\src\ds\util\markdown_to_pango.h">
+      <Filter>src\ds\util</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\sundown\markdown.h">
+      <Filter>src\ds\util\sundown</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\sundown\stack.h">
+      <Filter>src\ds\util\sundown</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\sundown\autolink.h">
+      <Filter>src\ds\util\sundown</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ds\util\sundown\buffer.h">
+      <Filter>src\ds\util\sundown</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\src\ds\data\resource.cpp">
@@ -1228,6 +1246,21 @@
     </ClCompile>
     <ClCompile Include="..\src\ds\ui\button\layout_button.cpp">
       <Filter>src\ds\ui\button</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\markdown_to_pango.cpp">
+      <Filter>src\ds\util</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\sundown\autolink.c">
+      <Filter>src\ds\util\sundown</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\sundown\buffer.c">
+      <Filter>src\ds\util\sundown</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\sundown\markdown.c">
+      <Filter>src\ds\util\sundown</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ds\util\sundown\stack.c">
+      <Filter>src\ds\util\sundown</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

@@ -13,8 +13,20 @@
     <ClCompile Include="..\src\ui\globe\globe_view.cpp">
       <Filter>src\ui\globe</Filter>
     </ClCompile>
-    <ClCompile Include="..\src\ui\touch\delayed_momentum.cpp">
-      <Filter>src\ui\touch</Filter>
+    <ClCompile Include="..\src\ui\globe\pins\globe_pin_manager.cpp">
+      <Filter>src\ui\globe\pins</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\globe\pins\globe_pin.cpp">
+      <Filter>src\ui\globe\pins</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\model\location_model.cpp">
+      <Filter>src\model</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\population\population_pin.cpp">
+      <Filter>src\ui\population</Filter>
+    </ClCompile>
+    <ClCompile Include="..\src\ui\population\population_view.cpp">
+      <Filter>src\ui\population</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -30,8 +42,23 @@
     <ClInclude Include="..\src\ui\globe\globe_view.h">
       <Filter>src\ui\globe</Filter>
     </ClInclude>
-    <ClInclude Include="..\src\ui\touch\delayed_momentum.h">
-      <Filter>src\ui\touch</Filter>
+    <ClInclude Include="..\src\ui\globe\pins\globe_pin.h">
+      <Filter>src\ui\globe\pins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\globe\pins\globe_pin_manager.h">
+      <Filter>src\ui\globe\pins</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\model\location_model.h">
+      <Filter>src\model</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\population\population_pin.h">
+      <Filter>src\ui\population</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\ui\population\population_view.h">
+      <Filter>src\ui\population</Filter>
+    </ClInclude>
+    <ClInclude Include="..\src\event\app_events.h">
+      <Filter>src\events</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -53,11 +80,20 @@
     <Filter Include="Resources">
       <UniqueIdentifier>{3eca459a-2fc2-4471-8dd4-6c188d47d4f9}</UniqueIdentifier>
     </Filter>
-    <Filter Include="src\ui\touch">
-      <UniqueIdentifier>{91fc60c0-7144-40ea-8d94-f2a2acd9b5b8}</UniqueIdentifier>
-    </Filter>
     <Filter Include="src\ui\globe">
       <UniqueIdentifier>{e708f280-0877-4bc9-8e10-343e4b6d7074}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui\globe\pins">
+      <UniqueIdentifier>{d4e2d9d2-7948-4e89-bd4b-d5682ad48ca4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\model">
+      <UniqueIdentifier>{ef3e9547-d934-4256-a198-452d6aad581a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\ui\population">
+      <UniqueIdentifier>{5a33c213-6aba-4e31-af63-1ee302f837b6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="src\events">
+      <UniqueIdentifier>{8cdaf4c7-4189-49cc-8385-c6c28bf999e2}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
