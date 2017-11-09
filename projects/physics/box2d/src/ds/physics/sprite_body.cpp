@@ -81,9 +81,9 @@ void SpriteBody::create(const BodyBuilder& b) {
 		def.type = b2_dynamicBody;
 	}
 
+	def.allowSleep = b.mAllowSleep;
 	def.userData = &mSprite;
 	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition(), &mSprite);
-//	def.position = mWorld.Ci2BoxTranslation(mSprite.getPosition() + (mSprite.getCenter() - ci::vec3(0.5f, 0.5f, 0.0f)) *mSprite.getSize(), &mSprite);
 	def.linearDamping = b.mLinearDampening;
 	def.angularDamping = b.mAngularDampening;
 	def.fixedRotation = b.mFixedRotation;
