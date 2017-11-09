@@ -47,6 +47,9 @@ public:
 	/// Clears previously-loaded fonts and reloads the fonts installed in Windows
 	void										loadFonts();
 
+
+	void										loadFamiliesAndFaces();
+
 	/// Load a local font file.
 	/// This is called when you use FontList::installFont(), recommend you use that method instead unless you know what you're doing
 	bool										loadFont(const std::string& path, const std::string& fontName);

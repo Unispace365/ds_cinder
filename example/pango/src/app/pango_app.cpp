@@ -54,7 +54,7 @@ PangoApp::PangoApp()
 
 	/// by entering the "title" as the third parameter, now we can refer to the font by that name or FreightSans Light. 
 	/// This is for convenience, as you could refer to "title" everywhere needed, and just replace this line to replace all the title fonts.
-	mEngine.editFonts().installFont(ds::Environment::expand("%APP%/data/fonts/FreightSans-Light.ttf"), "FreightSans Light", "title");
+	mEngine.editFonts().installFont(ds::Environment::expand("%APP%/data/fonts/FreightSans-Light.ttf"), "FreightSans Light,", "title");
 
 	// Fonts links together a font name and a physical font file
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)

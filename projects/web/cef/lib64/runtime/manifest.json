@@ -9,6 +9,8 @@
   "x-cdm-interface-versions": "8",
   "x-cdm-host-versions": "8",
   "x-cdm-codecs": "vp8,vp9.0,avc1",
+  "os": "win",
+  "arc": "x64",
   "platforms": [
     {
       "os": "win",
