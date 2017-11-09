@@ -122,6 +122,9 @@ public:
 	float						getLeading() const;
 	Text&						setLeading(const float);
 
+	float						getLetterSpacing() const;
+	Text&						setLetterSpacing(const float);
+
 	virtual float				getWidth() const;
 	virtual float				getHeight() const;
 
@@ -210,6 +213,7 @@ private:
 	EllipsizeMode				mEllipsizeMode;
 	WrapMode					mWrapMode;
 	float						mLeading;
+	float						mLetterSpacing;
 
 	// Info about the text layout
 	bool						mWrappedText;
