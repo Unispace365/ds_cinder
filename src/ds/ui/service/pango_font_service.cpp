@@ -22,7 +22,6 @@ namespace ui {
 PangoFontService::PangoFontService(ds::ui::SpriteEngine& eng)
 	: mFontMap(nullptr)
 {
-	DS_LOG_INFO_M("Initializing Pango version " << PANGO_VERSION_STRING, PANGO_FONT_LOG_M);
 
 
 	// Note: _putenv doesn't work for successfully propagating variables to the pango / fontconfig dll's
@@ -37,7 +36,8 @@ PangoFontService::PangoFontService(ds::ui::SpriteEngine& eng)
 	}
 }
 
-void PangoFontService::loadFonts(){
+void PangoFontService::loadFonts() {
+	DS_LOG_INFO_M("Initializing Pango version " << PANGO_VERSION_STRING << " runtime version: " << pango_version_string(), PANGO_FONT_LOG_M);
 	DS_LOG_INFO("Creating pango font map...");
 
 	mFontMap = pango_cairo_font_map_get_default();
