@@ -457,6 +457,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
+	} else if(property == "font_letter_spacing"){
+		auto text = dynamic_cast<Text*>(&sprite);
+		if(text){
+			text->setLetterSpacing(ds::string_to_float(value));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
 	} else if(property == "font_color"){
 		auto text = dynamic_cast<Text*>(&sprite);
 		if(text){

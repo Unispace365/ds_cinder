@@ -218,13 +218,13 @@ static void interpret_text_settings(ds::cfg::Settings &s, std::unordered_map<std
 			std::string		v = setting.getString();
 			if (!v.empty()) {
 				if (out.empty()) {
-					out[left] = ds::cfg::Text(v, left, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+					out[left] = ds::cfg::Text(v, left, 10.0f, 1.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 				} else {
 					auto	found = out.find(left);
 					if (found != out.end()) {
 						found->second.mFont = v;
 					} else {
-						out[left] = ds::cfg::Text(v, left, 10.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
+						out[left] = ds::cfg::Text(v, left, 10.0f, 1.0f, 1.0f, ci::ColorA(1.0f, 1.0f, 1.0f, 1.0f));
 					}
 				}
 			}
@@ -239,6 +239,7 @@ static void interpret_text_settings(ds::cfg::Settings &s, std::unordered_map<std
 			if (found != out.end()) {
 				if(right == "size") found->second.mSize = setting.getFloat();
 				else if (right == "leading") found->second.mLeading = setting.getFloat();
+				else if (right == "letter_spacing") found->second.mLetterSpacing = setting.getFloat();
 			}
 		}
 	}, ds::cfg::SETTING_TYPE_FLOAT);

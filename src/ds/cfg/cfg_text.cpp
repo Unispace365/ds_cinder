@@ -12,11 +12,12 @@ Text::Text()
 }
 
 Text::Text(const std::string& font, const std::string& configName, const float size, const float leading,
-			const ci::ColorA& c, const ds::ui::Alignment::Enum& alignment)
+			const float letterSpacing, const ci::ColorA& c, const ds::ui::Alignment::Enum& alignment)
 		: mFont(font)
 		, mCfgName(configName)
 		, mSize(size)
 		, mLeading(leading)
+		, mLetterSpacing(letterSpacing)
 		, mColor(c)
 		, mCenter(0.0f, 0.0f)
 		, mAlignment(alignment) {
@@ -36,6 +37,7 @@ void Text::configure(ds::ui::Text& s) const {
 	s.setFont(mFont, mSize);
 	s.setColorA(mColor);
 	s.setLeading(mLeading);
+	s.setLetterSpacing(mLetterSpacing);
 	s.setAlignment(mAlignment);	
 }
 

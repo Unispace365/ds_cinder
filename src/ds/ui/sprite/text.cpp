@@ -112,6 +112,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mResizeLimitWidth(-1.0f)
 	, mResizeLimitHeight(-1.0f)
 	, mLeading(1.0f)
+	, mLetterSpacing(1.0f)
 	, mTextAlignment(Alignment::kLeft)
 	, mDefaultTextWeight(TextWeight::kNormal)
 	, mEllipsizeMode(EllipsizeMode::kEllipsizeNone)
@@ -263,6 +264,21 @@ float Text::getLeading() const {
 Text& Text::setLeading(const float leading) {
 	if(mLeading != leading) {
 		mLeading = leading;
+		mNeedsMeasuring = true;
+		mNeedsTextRender = true;
+
+		markAsDirty(FONT_DIRTY);
+	}
+	return *this;
+}
+
+float Text::getLetterSpacing() const {
+	return mLetterSpacing;
+}
+
+Text& Text::setLetterSpacing(const float letterSpacing) {
+	if(mLetterSpacing != letterSpacing) {
+		mLetterSpacing = letterSpacing;
 		mNeedsMeasuring = true;
 		mNeedsTextRender = true;
 
@@ -672,8 +688,20 @@ bool Text::measurePangoText() {
 				pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), -1);
 			}
 
+			auto attrs = pango_layout_get_attributes(mPangoLayout);
+			if (attrs == nullptr) { attrs = pango_attr_list_new(); }
+
+			// Set letter spacing: 1.0f=normal; 2.0f = 1pt extra spacing;
+			pango_attr_list_insert(attrs, pango_attr_letter_spacing_new((int)((mLetterSpacing-1.0f) * 1024.0f)));
+
+			// Enable ligatures, kerning, and auto-conversion of simple fractions to a single character representation
+			//pango_attr_list_insert(attrs, pango_attr_font_features_new("liga=1, -kern, afrc on, frac on"));
+
+			pango_layout_set_attributes(mPangoLayout, attrs);
+
 			mWrappedText = pango_layout_is_wrapped(mPangoLayout) != FALSE;
 			mNumberOfLines = pango_layout_get_line_count(mPangoLayout);
+
 
 			// use this instead: pango_layout_get_pixel_extents
 			PangoRectangle inkRect;
@@ -693,11 +721,10 @@ bool Text::measurePangoText() {
 			*/
 
 			mPixelWidth = extentRect.width + extentRect.x;
-
 			// add the right side of the offset for center aligned
 			if(mTextAlignment == Alignment::kCenter) mPixelWidth += extentRect.x;
 
-			mPixelHeight = extentRect.height+(extentRect.y*2.0f);
+			mPixelHeight = extentRect.height;
 
 			setSize((float)mPixelWidth, (float)mPixelHeight);
 
@@ -815,6 +842,7 @@ void Text::writeAttributesTo(ds::DataBuffer& buf){
 		buf.add(mTextFont);
 		buf.add(mTextSize);
 		buf.add(mLeading);
+		buf.add(mLetterSpacing);
 		buf.add(mTextColor);
 		buf.add((int)mTextAlignment);
 	}
@@ -834,11 +862,13 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
 		std::string fontName = buf.read<std::string>();
 		float fontSize = buf.read<float>();
 		float leading = buf.read<float>();
+		float letterSpacing = buf.read<float>();
 		ci::Color fontColor = buf.read<ci::Color>();
 		auto alignment = (ds::ui::Alignment::Enum)(buf.read<int>());
 
 		setFont(fontName, fontSize);
 		setLeading(leading);
+		setLetterSpacing(letterSpacing);
 		setTextColor(fontColor);
 		setAlignment(alignment);
 
