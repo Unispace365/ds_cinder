@@ -77,10 +77,10 @@ const std::string CircleCropFrag =
 "		((delta.y * delta.y) / (circleRadius.y * circleRadius.y))\n"
 "		);\n"
 
-"	float totalAlpha;\n"
+"	float totalAlpha = 1.0;\n"
 
 	// do this with minimal aliasing
-"	float fragDelta = fwidth(radialDistance) * 3.0;\n"
+"	float fragDelta = fwidth(radialDistance) * 1.1;\n"
 "	totalAlpha = 1.0 - smoothstep(1.0 - fragDelta, 1.0, radialDistance);\n"
 
 "	oColor.a *= totalAlpha;\n"
@@ -247,6 +247,18 @@ void Image::setCircleCropRect(const ci::Rectf& rect)
 	mShaderExtraData.y = rect.y1;
 	mShaderExtraData.z = rect.x2;
 	mShaderExtraData.w = rect.y2;
+}
+
+
+void Image::cicleCropAutoCenter() {
+	setCircleCrop(true);
+	const float scw = getWidth();
+	const float sch = getHeight();
+	if(scw > sch) {
+		setCircleCropRect(ci::Rectf(scw / 2.0f - sch / 2.0f, 0.0f, scw / 2.0f + sch / 2.0f, sch));
+	} else {
+		setCircleCropRect(ci::Rectf(0.0f, sch / 2.0f - scw / 2.0f, scw, sch / 2.0f + scw / 2.0f));
+	}
 }
 
 void Image::setStatusCallback(const std::function<void(const Status&)>& fn){

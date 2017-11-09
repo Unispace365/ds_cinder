@@ -130,6 +130,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 {
 	mBlobType = BLOB_TYPE;
 
+
 	setUseShaderTexture(true);
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
 	mSpriteShader.loadShaders();
