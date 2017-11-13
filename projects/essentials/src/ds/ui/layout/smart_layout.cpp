@@ -17,13 +17,15 @@ SmartLayout::SmartLayout(ds::ui::SpriteEngine& engine, const std::string& xmlLay
 						 const std::string xmlFileLocation)
 	: ds::ui::LayoutSprite(engine)
 	, mLayoutFile(xmlFileLocation + xmlLayoutFile)
-	, mNeedsLayout(true)
+	, mNeedsLayout(false)
 	, mEventClient(engine.getNotifier(), [this](const ds::Event* m) {
 		if (m) this->onAppEvent(*m);
 	}) {
 
 	ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand(mLayoutFile), mSpriteMap, nullptr, "", true);
 
+	// Auto clear mNeedsLayout if client app runs layout manually
+	setLayoutUpdatedFunction([this] { mNeedsLayout = false; });
 }
 
 bool SmartLayout::hasSprite(const std::string& spriteName) {
