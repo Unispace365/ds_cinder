@@ -24,7 +24,7 @@ Loading an interface XML to your class:
     ds::ui::XmlImporter::loadXMLto(this, ds::Environment::expand("%APP%/data/layout/layout_view.xml"), spriteMap);
 
 Adds the hierarchy in the interface as a child of "this".
-Use the spriteMap to look up specific sprites by string name. This lets you apply a data model or deal with touch callbacks, etc. Avoid setting the layout in c++ land, as that can easily confuse where the layout is managed.
+Use the spriteMap to look up specific sprites by string name. This lets you apply a data model or deal with touch callbacks, etc. Avoid setting the layout in c++ land, as that can confuse where the layout is managed.
 
 You can also preload the xml by keeping a ds::ui::XmlImporter::XmlPreloadData generated from ds::ui::XmlImporter::preloadXml() and pass that as the second parameter of loadXMLto(). This avoids a run-time hit to the disk, though all the parameter mapping still happens in real time.
 
@@ -58,7 +58,7 @@ Sprite Types
 * **scroll_bar** = ds::ui::ScrollBar
 * **entry_field** = ds::ui::EntryField
 * **soft_keyboard** = ds::ui::SoftKeyboard
-* **web** = ds::ui::Web (if the Awesomium web project is included)
+* **web** = ds::ui::Web (if the cef web project is included)
 * **pdf** = ds::ui::Pdf (if the pdf project is included)
 * **video** = ds::ui::GstVideo (if the gstreamer-1.0 project is included)
 * **media_player** = ds::ui::MediaPlayer (if the viewers project is included)
@@ -106,7 +106,7 @@ Using the **on_tap_event** and **on_click_event** sprite parameters, you can tri
         ds::event::Registry::get().addEventCreator(RequestCloseAllEvent::NAME(), [this]()->ds::Event*{return new RequestCloseAllEvent(); });
 
 * **Built-in event parameters:** The event will automatically have the sprite that triggered the event applied to the ds::Event::mSpriteOriginator property, and mEventOrigin paramter will be the global position of the tap or click of the interaction.
-* **Custom event parameters:** You can apply a few parameters to each event dispatched from a layout xml: Data, Id, and UserSize. Pass these properties to the event like so:
+* **Custom event parameters:** You can apply certain parameters to each event dispatched from a layout xml: Data, Id, and UserSize. Pass these properties to the event like so:
 
         RequestCustomEvent; data:myCustomStringData; id:1234; user_size:400, 300, 1;
 
@@ -124,12 +124,14 @@ Using the **on_tap_event** and **on_click_event** sprite parameters, you can tri
         }
 
 
-Layout Parameters (only valid if using a layout sprite as a parent)
+Layout Parameters (valid if using a layout sprite as a parent)
 ------------------------------------------------------
 * **t_pad**: Padding on the top part of this sprite in the layout
 * **b_pad**: Padding on the bottom part of this sprite in the layout
 * **l_pad**: Padding on the left part of this sprite in the layout
 * **r_pad**: Padding on the right part of this sprite in the layout
+* **padding**: Set padding for all sides of sprite (order: L, T, R, B) ex: padding="20, 30, 20, 30"
+* **pad_all**: Set padding for all sides of sprite together. ex: pad_all="60"
 * **layout_fudge**: An offset in pixels for the sprite during the layout. Doesn't get added to the overall layout positioning, but allows you to fudge the position a bit if something isn't rendering just right
 * **layout_size**: Desired size for the "fixed" layout size mode. This is separate from the sprite size, since some sprites (like Image) will be able to calculate size only after the thing is loaded, and this will try to scale the image (or other thing) up to fit in this size, letterboxed.
 * **layout_size_mode**: The method to calculate the size of this sprite during layout
@@ -239,7 +241,7 @@ Scroll List Parameters
 * **Note:** You'll need to supply the usual callbacks for this to work (for creating items in the list, setting data, etc)
 * **scroll_list_layout**: Sets the parameters for layout from the format "x, y, z", which translates to setLayoutParams(xStart, yStart, incrementAmount, true);
 * **scroll_list_animate**: Sets the animation parameters, from the format "x, y", where x==startDelay and y==deltaDelay on ScrollList::setAnimateOnParams(startDelay, deltaDelay);
-* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool); **Note: only applicable to ScrollArea, not ScrollList.  To set horizontality of ScrollList, use Sprite-types of 'scroll_list_vertical' and 'scroll_list_horizontal'.**
+* **scroll_area_vert**: Sets the direction parameters, where true==vertical and false==horizontal on ScrollArea::setVertical(bool); **Note: only applicable to ScrollArea, not ScrollList. To set horizontality of ScrollList, use Sprite-types of 'scroll_list_vertical' and 'scroll_list_horizontal'.**
 * **scroll_fade_colors**: **Also applicable to ScrollArea**. Set the colors of the scroll area, in the format "[colorFull], [colorTransparent]". Example: scroll_fade_colors="ff000000, 00000000" or scroll_fade_colors="44000000, 000000"
 
 EntryField and SoftKeyboard Parameters
