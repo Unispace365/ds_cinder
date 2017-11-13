@@ -689,16 +689,18 @@ bool Text::measurePangoText() {
 				pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), -1);
 			}
 
-			auto attrs = pango_layout_get_attributes(mPangoLayout);
-			if (attrs == nullptr) { attrs = pango_attr_list_new(); }
+			if(mLetterSpacing != 0.0f) {
+				auto attrs = pango_layout_get_attributes(mPangoLayout);
+				if(attrs == nullptr) { attrs = pango_attr_list_new(); }
 
-			// Set letter spacing: 0.0f=normal; 1.0f = 1pt extra spacing;
-			pango_attr_list_insert(attrs, pango_attr_letter_spacing_new((int)(mLetterSpacing * 1024.0f)));
+				// Set letter spacing: 0.0f=normal; 1.0f = 1pt extra spacing;
+				pango_attr_list_insert(attrs, pango_attr_letter_spacing_new((int)(mLetterSpacing) * PANGO_SCALE));
 
-			// Enable ligatures, kerning, and auto-conversion of simple fractions to a single character representation
-			//pango_attr_list_insert(attrs, pango_attr_font_features_new("liga=1, -kern, afrc on, frac on"));
+				// Enable ligatures, kerning, and auto-conversion of simple fractions to a single character representation
+				//pango_attr_list_insert(attrs, pango_attr_font_features_new("liga=1, -kern, afrc on, frac on"));
 
-			pango_layout_set_attributes(mPangoLayout, attrs);
+				pango_layout_set_attributes(mPangoLayout, attrs);
+			}
 
 			mWrappedText = pango_layout_is_wrapped(mPangoLayout) != FALSE;
 			mNumberOfLines = pango_layout_get_line_count(mPangoLayout);
