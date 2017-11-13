@@ -271,6 +271,19 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		sprite.mLayoutLPad = ds::string_to_float(value);
 	} else if(property == "r_pad") {
 		sprite.mLayoutRPad = ds::string_to_float(value);
+	} else if(property == "pad_all") {
+		auto pad = ds::string_to_float(value);
+		sprite.mLayoutLPad = pad;
+		sprite.mLayoutTPad = pad;
+		sprite.mLayoutRPad = pad;
+		sprite.mLayoutBPad = pad;
+	} else if(property == "padding") {
+		auto pads = ds::split(value, ", ", true);
+		auto count = pads.size();
+		sprite.mLayoutLPad = count > 0 ? ds::string_to_float(pads[0]) : 0.0f;
+		sprite.mLayoutTPad = count > 1 ? ds::string_to_float(pads[1]) : 0.0f;
+		sprite.mLayoutRPad = count > 2 ? ds::string_to_float(pads[2]) : 0.0f;
+		sprite.mLayoutBPad = count > 3 ? ds::string_to_float(pads[3]) : 0.0f;
 	} else if(property == "layout_size_mode"){
 		auto sizeMode = value;
 		if(sizeMode == "fixed"){
