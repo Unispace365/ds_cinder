@@ -52,6 +52,9 @@ public:
 	virtual void				setCircleCropRect(const ci::Rectf& rect);
 	virtual bool				getCircleCrop(){ return mCircleCropped; }
 
+	/// Enables circle cropping and also automatically centers the rect (if the image has been set already)
+	void						cicleCropAutoCenter();
+
 	struct Status {
 		static const int		STATUS_EMPTY = 0;
 		static const int		STATUS_LOADED = 1;

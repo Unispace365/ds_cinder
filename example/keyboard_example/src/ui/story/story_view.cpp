@@ -21,7 +21,7 @@ StoryView::StoryView(Globals& g)
 	hide();
 	setOpacity(0.0f);
 
-	mMessage = mGlobals.getText("sample:config").createMultiline(mEngine, this);
+	mMessage = mGlobals.getText("sample:config").create(mEngine, this);
 	if(mMessage){
 		mMessage->setText(L"Hello, whi\trled!	this is a nother \t tab");
 	}

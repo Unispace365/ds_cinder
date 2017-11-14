@@ -1,7 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-
-
-	<text name="noto_bold" value="Noto Sans Bold" />
-	
-	
+	<setting name="noto_bold" value="Noto Sans Bold" type="string"/>
 </settings>
+

@@ -22,10 +22,12 @@ BodyBuilder::BodyBuilder(const SpriteBody& b)
 	, mFixedRotation(b.mWorld.getFixedRotation())
 	, mIsStaticBody(false)
 	, mIsKinematicBody(false)
+	, mAllowSleep(true)
 {
 	b2Filter		filter;
 	mCategoryBits = filter.categoryBits;
 	mMaskBits = filter.maskBits;
+	mGroupIndex = filter.groupIndex;
 }
 
 BodyBuilder::~BodyBuilder()
@@ -51,20 +53,15 @@ void BodyBuilderBox::createFixture(SpriteBody& body) const
 	fixtureDef.restitution = mRestitution;
 	fixtureDef.filter.categoryBits = mCategoryBits;
 	fixtureDef.filter.maskBits = mMaskBits;
+	fixtureDef.filter.groupIndex = mGroupIndex;
 
 	b2PolygonShape	dynamicBox;
 	const float32			w = mWidth / 2.0f * body.mWorld.getCi2BoxScale(),
 							h = mHeight / 2.0f * body.mWorld.getCi2BoxScale();
-#if 1
 	dynamicBox.SetAsBox(w, h);
-#else
-	b2Vec2					center;
-	center.x = w;
-	center.y = 0.0f;
-	dynamicBox.SetAsBox(w, h, center, 0.0f);
-#endif
 	fixtureDef.shape = &dynamicBox;
 	body.mBody->CreateFixture(&fixtureDef);
+
 }
 
 /**
@@ -86,6 +83,7 @@ void BodyBuilderCircle::createFixture(SpriteBody& body) const
 	fixtureDef.restitution = mRestitution;
 	fixtureDef.filter.categoryBits = mCategoryBits;
 	fixtureDef.filter.maskBits = mMaskBits;
+	fixtureDef.filter.groupIndex = mGroupIndex;
 
 	b2CircleShape	circle;
 	circle.m_radius = mRadius * body.mWorld.getCi2BoxScale(); 
@@ -118,6 +116,7 @@ void BodyBuilderPolygon::createFixture(SpriteBody& body) const
 	fixtureDef.restitution = mRestitution;
 	fixtureDef.filter.categoryBits = mCategoryBits;
 	fixtureDef.filter.maskBits = mMaskBits;
+	fixtureDef.filter.groupIndex = mGroupIndex;
 
  	int32 count = (int32)mPoints.size();
  	b2Vec2 * vertices = new b2Vec2[count];

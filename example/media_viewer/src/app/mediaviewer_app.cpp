@@ -35,7 +35,6 @@ MediaViewer::MediaViewer()
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 	mEngine.editFonts().registerFont("Noto Sans", "noto-thin");
 
-	enableCommonKeystrokes(true);
 }
 
 void MediaViewer::setupServer(){
@@ -124,9 +123,9 @@ void MediaViewer::update() {
 
 }
 
-void MediaViewer::keyDown(ci::app::KeyEvent event){
+void MediaViewer::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 
@@ -189,7 +188,7 @@ void MediaViewer::keyDown(ci::app::KeyEvent event){
 			mStreamer = nullptr;
 		}
 		mStreamer = new ds::ui::GstVideo(mEngine);
-		mStreamer->startStream(mGlobals.getSettingsLayout().getText("streaming:pipeline", 0, ""),
+		mStreamer->startStream(mGlobals.getSettingsLayout().getString("streaming:pipeline", 0, ""),
 							 (float) mGlobals.getSettingsLayout().getInt("streaming:width", 0, 640), 
 							 (float) mGlobals.getSettingsLayout().getInt("streaming:height", 0, 480));
 		mStreamerParent->addChildPtr(mStreamer);

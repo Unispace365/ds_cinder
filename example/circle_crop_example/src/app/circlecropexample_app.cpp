@@ -41,8 +41,6 @@ CircleCropExample::CircleCropExample()
 
 	/*fonts in use */
 	//mEngine.editFonts().install(ds::Environment::getAppFile("data/fonts/FONT_FILE_HERE.ttf"), "Font Name", "font-shorthand);
-
-	enableCommonKeystrokes(true);
 }
 
 void CircleCropExample::setupServer(){
@@ -119,9 +117,8 @@ void CircleCropExample::update() {
 
 }
 
-void CircleCropExample::keyDown(ci::app::KeyEvent event){
+void CircleCropExample::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 	} else if(event.getCode() == KeyEvent::KEY_d){

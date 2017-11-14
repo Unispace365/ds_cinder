@@ -21,27 +21,18 @@ class DrawTouchView : public ds::ui::Sprite
 	, public ds::ui::TouchManager::Capture {
 public:
 	DrawTouchView(ds::ui::SpriteEngine& e);
-	DrawTouchView(ds::ui::SpriteEngine& e, const ds::cfg::Settings &settings, ds::ui::TouchManager& tm);
+	DrawTouchView(ds::ui::SpriteEngine& e, ds::cfg::Settings &settings, ds::ui::TouchManager& tm);
 
 	virtual void							touchBegin(const ds::ui::TouchInfo &ti);
 	virtual void							touchMoved(const ds::ui::TouchInfo &ti);
 	virtual void							touchEnd(const ds::ui::TouchInfo &ti);
 
-	virtual void							drawLocalClient();
 	virtual void							drawLocalServer();
 private:
-	void									drawTrails();
-	void									drawCircles();
-
 	std::map<int, Circle*>					mCircles;
 	float									mCircleRadius;
 	bool									mCircleFilled;
 	ci::ColorA								mCircleColor;
-
-	std::map<int, std::vector<ci::vec3>>	mTouchPointHistory;
-	bool									mTouchTrailsUse;
-	int										mTouchTrailsLength;
-	float									mTouchTrailsIncrement;
 };
 
 } // namespace ui

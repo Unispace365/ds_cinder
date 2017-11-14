@@ -16,14 +16,14 @@ class FullStarterApp : public ds::App {
 public:
 	FullStarterApp();
 
-	virtual void		mouseDown(ci::app::MouseEvent e);
-	virtual void		mouseDrag(ci::app::MouseEvent e);
-	virtual void		mouseUp(ci::app::MouseEvent e);
-	virtual void		keyDown(ci::app::KeyEvent event);
+	virtual void		mouseDown(ci::app::MouseEvent e) override;
+	virtual void		mouseDrag(ci::app::MouseEvent e) override;
+	virtual void		mouseUp(ci::app::MouseEvent e) override;
+	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
 	void				update();
 
-	virtual void		fileDrop(ci::app::FileDropEvent event);
+	virtual void		fileDrop(ci::app::FileDropEvent event) override;
 
 private:
 

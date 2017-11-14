@@ -22,6 +22,7 @@
 #include <ds/ui/button/sprite_button.h>
 #include <ds/ui/button/layout_button.h>
 #include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/control/control_check_box.h>
 #include <ds/ui/control/control_slider.h>
 #include <ds/ui/scroll/scroll_area.h>
 #include <ds/ui/scroll/centered_scroll_area.h>
@@ -270,6 +271,19 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		sprite.mLayoutLPad = ds::string_to_float(value);
 	} else if(property == "r_pad") {
 		sprite.mLayoutRPad = ds::string_to_float(value);
+	} else if(property == "pad_all") {
+		auto pad = ds::string_to_float(value);
+		sprite.mLayoutLPad = pad;
+		sprite.mLayoutTPad = pad;
+		sprite.mLayoutRPad = pad;
+		sprite.mLayoutBPad = pad;
+	} else if(property == "padding") {
+		auto pads = ds::split(value, ", ", true);
+		auto count = pads.size();
+		sprite.mLayoutLPad = count > 0 ? ds::string_to_float(pads[0]) : 0.0f;
+		sprite.mLayoutTPad = count > 1 ? ds::string_to_float(pads[1]) : 0.0f;
+		sprite.mLayoutRPad = count > 2 ? ds::string_to_float(pads[2]) : 0.0f;
+		sprite.mLayoutBPad = count > 3 ? ds::string_to_float(pads[3]) : 0.0f;
 	} else if(property == "layout_size_mode"){
 		auto sizeMode = value;
 		if(sizeMode == "fixed"){
@@ -392,7 +406,12 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 			auto cfg = text->getEngine().getEngineCfg().getText(value);
 			cfg.configure(*text);
 		} else {
-			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			auto controlBox = dynamic_cast<ControlCheckBox*>(&sprite);
+			if(controlBox){
+				controlBox->setLabelTextConfig(value);
+			} else {
+				DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+			}
 			
 		}
 	} else if(property == "font_name"){
@@ -448,6 +467,13 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		auto text = dynamic_cast<Text*>(&sprite);
 		if(text){
 			text->setLeading(ds::string_to_float(value));
+		} else {
+			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
+		}
+	} else if(property == "font_letter_spacing"){
+		auto text = dynamic_cast<Text*>(&sprite);
+		if(text){
+			text->setLetterSpacing(ds::string_to_float(value));
 		} else {
 			DS_LOG_WARNING("Trying to set incompatible attribute _" << property << "_ on sprite of type: " << typeid(sprite).name());
 		}
@@ -718,6 +744,35 @@ void XmlImporter::setSpriteProperty(ds::ui::Sprite &sprite, const std::string& p
 		}
 	}
 	
+
+	/// Check box properties
+	else if(property == "check_box_true_label"){
+		auto checkBox = dynamic_cast<ControlCheckBox*>(&sprite);
+		if(checkBox){
+			checkBox->setTrueLabel(ds::wstr_from_utf8(value));
+		}
+	}else if(property == "check_box_false_label"){
+		auto checkBox = dynamic_cast<ControlCheckBox*>(&sprite);
+		if(checkBox){
+			checkBox->setFalseLabel(ds::wstr_from_utf8(value));
+		}
+	} else if(property == "check_box_touch_pad"){
+		auto checkBox = dynamic_cast<ControlCheckBox*>(&sprite);
+		if(checkBox){
+			checkBox->setTouchPadding(ds::string_to_float(value));
+		}
+	} else if(property == "check_box_box_pad"){
+		auto checkBox = dynamic_cast<ControlCheckBox*>(&sprite);
+		if(checkBox){
+			checkBox->setBoxPadding(ds::string_to_float(value));
+		}
+	} else if(property == "check_box_label_pad"){
+		auto checkBox = dynamic_cast<ControlCheckBox*>(&sprite);
+		if(checkBox){
+			checkBox->setLabelPadding(ds::string_to_float(value));
+		}
+	}
+
 	// fallback to engine-registered properites last
 	else if(engine.setRegisteredSpriteProperty(property, sprite, value, referer)){
 		return;
@@ -989,6 +1044,16 @@ std::string XmlImporter::getSpriteTypeForSprite(ds::ui::Sprite* sp){
 	if(dynamic_cast<ds::ui::Gradient*>(sp)) return "gradient";
 	if(dynamic_cast<ds::ui::SoftKeyboard*>(sp)) return "soft_keyboard";
 	if(dynamic_cast<ds::ui::EntryField*>(sp)) return "entry_field";
+	if(dynamic_cast<ds::ui::ControlSlider*>(sp)){
+		auto slider = dynamic_cast<ds::ui::ControlSlider*>(sp);
+		if(slider->getIsVertical()){
+			return "control_slider_vertical";
+		} else {
+			return "control_slider_horizontal";				
+		}
+		return "control_slider";
+	}
+	if(dynamic_cast<ds::ui::ControlCheckBox*>(sp)) return "control_check_box";
 	return "sprite";
 }
 
@@ -1046,6 +1111,8 @@ ds::ui::Sprite* XmlImporter::createSpriteByType(ds::ui::SpriteEngine& engine, co
 		spriddy = new ds::ui::ScrollArea(engine, 0.0f, 0.0f);
 	} else if(type == "centered_scroll_area"){
 		spriddy = new ds::ui::CenteredScrollArea(engine, 0.0f, 0.0f);
+	} else if(type == "control_check_box"){
+		spriddy = new ds::ui::ControlCheckBox(engine);
 	} else if(type == "control_slider" || type == "control_slider_horizontal"){
 		spriddy = new ds::ui::ControlSlider(engine, false);
 	} else if(type == "control_slider_vertical"){
@@ -1310,7 +1377,7 @@ bool XmlImporter::readSprite(ds::ui::Sprite* parent, std::unique_ptr<ci::XmlTree
 			} else if(layoutButton){
 				layoutButton->showUp();
 			}
-		} else if(parent != spriddy) {
+		} else if(parent != spriddy){
 			parent->addChildPtr(spriddy);
 		}
 

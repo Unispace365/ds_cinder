@@ -9,6 +9,10 @@
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/app/error.h"
 #include "ds/cfg/settings.h"
+#include "ds/cfg/settings_editor.h"
+#ifdef _WIN32
+#include "ds/debug/console.h"
+#endif
 #include "ds/debug/debug_defines.h"
 #include "ds/debug/logger.h"
 #include "ds/math/math_defs.h"
@@ -32,6 +36,12 @@
 
 namespace {
 void				root_setup(std::vector<std::unique_ptr<ds::EngineRoot>>&);
+
+
+#ifdef _WIN32
+ds::Console				GLOBAL_CONSOLE;
+#endif
+
 }
 
 const ds::BitMask	ds::ENGINE_LOG = ds::Logger::newModule("engine");
@@ -40,15 +50,17 @@ namespace ds {
 
 const int Engine::NumberOfNetworkThreads = 2;
 
-Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
+Engine::Engine(	ds::App& app, ds::EngineSettings &settings,
 				ds::EngineData& ed, const RootList& _roots)
 	: ds::ui::SpriteEngine(ed)
+	, mDsApp(app)
 	, mTweenline(app.timeline())
 	, mIdling(true)
 	, mTouchMode(ds::ui::TouchMode::kTuioAndMouse)
 	, mTouchManager(*this, mTouchMode)
 	, mPangoFontService(*this)
 	, mSettings(settings)
+	, mSettingsEditor(nullptr)
 	, mTouchBeginEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesBegan(e); this->mTouchManager.touchesBegin(e);}, "touchbegin")
 	, mTouchMovedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesMoved(e); this->mTouchManager.touchesMoved(e);}, "touchmoved")
 	, mTouchEndedEvents(mTouchMutex,	mLastTouchTime, mIdling, [&app, this](const ds::ui::TouchEvent& e) {app.onTouchesEnded(e); this->mTouchManager.touchesEnded(e);}, "touchend")
@@ -59,13 +71,23 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 	, mTuioObjectsMoved(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectMoved(e);}, "tuiomoved")
 	, mTuioObjectsEnded(mTouchMutex,	mLastTouchTime, mIdling, [&app](const TuioObject& e) {app.tuioObjectEnded(e);}, "tuioend")
 	, mHideMouse(false)
+	, mShowConsole(false)
 	, mUniqueColor(0, 0, 0)
 	, mAutoDraw(new AutoDrawService())
 	, mCachedWindowW(0)
 	, mCachedWindowH(0)
 	, mAverageFps(0.0f)
+	, mTuioPort(0)
+	, mTuioBeganRegistrationId(0)
+	, mTuioMovedRegistrationId(0)
+	, mTuioEndedRegistrationId(0)
+	, mTuioRegistered(false)
 	, mFonts(*this)
+	, mEventClient(ed.mNotifier, [this](const ds::Event *m){ if(m) onAppEvent(*m); })
 {
+
+	setupConsole();
+
 	addChannel(ERROR_CHANNEL, "A master list of all errors in the system.");
 	addService("ds/error", *(new ErrorService(*this)));
 
@@ -77,73 +99,27 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 
 	if (mAutoDraw) addService("AUTODRAW", *mAutoDraw);
 
-	ds::Environment::loadSettings("debug.xml", mDebugSettings);
-	ds::Logger::setup(mDebugSettings);
+	ds::Logger::setup(settings);
 
-	// touch settings
-	mTouchMode = ds::ui::TouchMode::fromSettings(settings);
-	setTouchMode(mTouchMode);
-	mTouchManager.setOverrideTranslation(settings.getBool("touch_overlay:override_translation", 0, false));
-	mTouchManager.setOverrideDimensions(settings.getSize("touch_overlay:dimensions", 0, ci::vec2(1920.0f, 1080.0f)));
-	mTouchManager.setOverrideOffset(settings.getSize("touch_overlay:offset", 0, ci::vec2(0.0f, 0.0f)));
-	mTouchManager.setTouchFilterRect(settings.getRect("touch_overlay:filter_rect", 0, ci::Rectf(0.0f, 0.0f, 0.0f, 0.0f)));
+	mData.mAppInstanceName = settings.getString("platform:guid");
 
-	mData.mAppInstanceName = settings.getText("platform:guid", 0, "Downstream");
+	ds::Environment::setConfigDirFileExpandOverride(mSettings.getBool("configuration_folder:allow_expand_override"));
 
+	setupFrameRate();
+	setupVerticalSync();
+	setupWindowMode();
+	setupMouseHide();
+	setupWorldSize();
+	setupSrcDstRects();
+	setupIdleTimeout();
+	setupMute();
 
-	// don't lose idle just because we got a marker moved event
-	mTuioObjectsMoved.setAutoIdleReset(false);
-
-	const bool drawTouches = settings.getBool("touch_overlay:debug", 0, false);
-	mData.mMinTapDistance = settings.getFloat("tap_threshold", 0, 30.0f);
-	mData.mMinTouchDistance = settings.getFloat("touch:minimum_distance", 0, 10.0f);
-	mData.mSwipeQueueSize = settings.getInt("touch:swipe:queue_size", 0, 4);
-	mData.mSwipeMinVelocity = settings.getFloat("touch:swipe:minimum_velocity", 0, 800.0f);
-	mData.mSwipeMaxTime = settings.getFloat("touch:swipe:maximum_time", 0, 0.5f);
-	mData.mFrameRate = settings.getFloat("frame_rate", 0, 60.0f);
-
-	const bool verboseTouchLogging = settings.getBool("touch_overlay:verbose_logging", 0, false);
-	mTouchManager.setVerboseLogging(verboseTouchLogging);
-
-	mData.mWorldSize = settings.getSize("world_dimensions", 0, ci::vec2(0.0f, 0.0f));
-	// Backwards compatibility with pre src-dst rect days
-	const float				DEFAULT_WINDOW_SCALE = 1.0f;
-	if (settings.getRectSize("local_rect") > 0) {
-		const float			window_scale = mDebugSettings.getFloat("window_scale", 0, DEFAULT_WINDOW_SCALE);
-		mData.mSrcRect = settings.getRect("local_rect", 0, mData.mSrcRect);
-		mData.mDstRect = ci::Rectf(0.0f, 0.0f, mData.mSrcRect.getWidth(), mData.mSrcRect.getHeight());
-		if (settings.getPointSize("window_pos") > 0) {
-			const ci::vec3	size(settings.getPoint("window_pos"));
-			mData.mDstRect.offset(glm::vec2(size));
-		}
-	}
-	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
-	// which makes them get ignored.
-	if (settings.getRectSize("src_rect") > 0 || settings.getRectSize("dst_rect") > 0) {
-
-		const ci::Rectf		empty_rect(0.0f, 0.0f, 0.0f, 0.0f);
-
-		// normal continuous-render engine behavior.
-		mData.mSrcRect = settings.getRect("src_rect", 0, empty_rect);
-		mData.mDstRect = settings.getRect("dst_rect", 0, empty_rect);
-		
-	}
-
-	if(mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
-		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
-		ci::DisplayRef mainDisplay = ci::Display::getMainDisplay();
-		ci::Rectf mainDisplayRect = ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
-		mData.mSrcRect = mainDisplayRect;
-		mData.mDstRect = mainDisplayRect;
-		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
-			mData.mWorldSize = ci::vec2(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
-		}
-	}
+	ci::app::getWindow()->setTitle("Hey there");
 
 	DS_LOG_INFO("Screen dst_rect is (" << mData.mDstRect.x1 << ", " << mData.mDstRect.y1 << ") - (" << mData.mDstRect.x2 << ", " << mData.mDstRect.y2 << ")");
 
 	// Don't construct roots on startup for clients, and instead create them when we connect to a server
-	const std::string	arch(settings.getText("platform:architecture", 0, ""));
+	const std::string	arch(settings.getString("platform:architecture"));
 	bool isClient = false;
 	if(arch == "client") isClient = true;
 
@@ -174,6 +150,10 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 	// If we're drawing the touches, create a separate top-level root to do that
 	// For clients, the debug touch root is created by the server and synced
 
+	// Add a view for displaying the stats.
+	createStatsView(root_id);
+
+	const bool drawTouches = settings.getBool("touch:debug");
 	if (drawTouches && !isClient) {
 		RootList::Root					root_cfg;
 		root_cfg.mType = root_cfg.kOrtho;
@@ -186,25 +166,20 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 			ds::ui::Sprite*				parent = root->getSprite();
 			if (parent) {
 				parent->setDrawDebug(true);
-				mRoots.push_back(std::move(root));
-				
+				mRoots.push_back(std::move(root));				
 			}
 		}
 	}
-	// Add a view for displaying the stats.
-	createStatsView(root_id);
 
 	// Initialize the roots
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mDebugSettings, DEFAULT_WINDOW_SCALE, mData.mSrcRect, mData.mDstRect);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mSrcRect, mData.mDstRect);
 	for (auto it=mRoots.begin(), end=mRoots.end(); it!=end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
 	}
 
-	mRotateTouchesDefault = settings.getBool("touch:rotate_touches_default", 0, false);
-
 	// SETUP RESOURCES
-	std::string resourceLocation = ds::getNormalizedPath(settings.getText("resource_location", 0, ""));
+	std::string resourceLocation = ds::getNormalizedPath(settings.getString("resource_location"));
 	if (resourceLocation.empty()) {
 		// This is valid, though unusual
 		std::cout << "Engine() has no resource_location setting" << std::endl;
@@ -221,59 +196,192 @@ Engine::Engine(	ds::App& app, const ds::EngineSettings &settings,
 		resourceLocation = ds::Environment::expand(resourceLocation); // allow use of %APP%, etc
 		Resource::Id::setupPaths(
 			ds::getNormalizedPath(resourceLocation),
-			ds::getNormalizedPath(settings.getText("resource_db", 0)),
-			ds::getNormalizedPath(settings.getText("project_path", 0))
+			ds::getNormalizedPath(settings.getString("resource_db")),
+			ds::getNormalizedPath(settings.getString("project_path"))
 		);
 	}
+}
 
-	setIdleTimeout((int)settings.getFloat("idle_time", 0, 300));
-	setMute(settings.getBool("platform:mute", 0, false));
+Engine::~Engine() {
+	mTuio.disconnect();
+
+	// Important to do this here before the auto update list is destructed.
+	// so any autoupdate services get removed.
+	mData.clearServices();
+
+	hideConsole();
+}
+
+void Engine::setupWorldSize(){
+	mData.mWorldSize = mSettings.getVec2("world_dimensions");
+}
+
+void Engine::setupSrcDstRects(){
+	// Src rect and dst rect are new, and should obsolete local_rect. For now, default to illegal values,
+	// which makes them get ignored and default to the main display
+
+	mData.mSrcRect = mSettings.getRect("src_rect");
+	mData.mDstRect = mSettings.getRect("dst_rect");
+
+	if(mData.mDstRect.getWidth() < 1 || mData.mDstRect.getHeight() < 1){
+		DS_LOG_WARNING("Screen rect is 0 width or height. Overriding to full screen size");
+		ci::DisplayRef mainDisplay = ci::Display::getMainDisplay();
+		ci::Rectf mainDisplayRect = ci::Rectf(0.0f, 0.0f, (float)mainDisplay->getWidth(), (float)mainDisplay->getHeight());
+		mData.mSrcRect = mainDisplayRect;
+		mData.mDstRect = mainDisplayRect;
+		if(mData.mWorldSize.x < 1 || mData.mWorldSize.y < 1){
+			mData.mWorldSize = ci::vec2(mainDisplayRect.getWidth(), mainDisplayRect.getHeight());
+		}
+	}
+	ci::app::getWindow()->setPos(mData.mDstRect.getUpperLeft());
+	ci::app::getWindow()->setSize(mData.mDstRect.getSize());
+}
+
+void Engine::setupConsole(){
+	bool defaultShowConsole = false;
+	DS_DBG_CODE(defaultShowConsole = true);
+	if(mSettings.getBool("console:show", 0, defaultShowConsole)){
+		showConsole();
+	} else {
+		hideConsole();
+	}
+}
+
+void Engine::setupWindowMode(){
+	if(!ci::app::getWindow()) return;
+
+	auto newMode = mSettings.getString("screen:mode");
+	if(newMode == "borderless"){
+		ci::app::getWindow()->setFullScreen(false);
+		ci::app::getWindow()->setBorderless(true);
+	} else if(newMode.find("full") != std::string::npos){
+		ci::app::getWindow()->setFullScreen(true);
+	} else {
+		ci::app::getWindow()->setFullScreen(false);
+		ci::app::getWindow()->setBorderless(false);
+	}
+
+	ci::app::getWindow()->setAlwaysOnTop(mSettings.getBool("screen:always_on_top"));
+	ci::app::getWindow()->setTitle(mSettings.getString("screen:title"));
+}
+
+void Engine::setupMouseHide(){
+	mHideMouse = mSettings.getBool("hide_mouse");
+}
+
+void Engine::setupFrameRate(){
+	mData.mFrameRate = mSettings.getFloat("frame_rate");
+	ci::app::setFrameRate(mData.mFrameRate);
+}
+
+void Engine::setupVerticalSync(){
+	ci::gl::enableVerticalSync(mSettings.getBool("vertical_sync"));
+}
+
+void Engine::setupIdleTimeout(){
+	setIdleTimeout(mSettings.getInt("idle_time"));
+}
+
+void Engine::setupMute(){
+	setMute(mSettings.getBool("platform:mute"));
+}
+
+void Engine::showConsole(){
+	// prevent calling create multiple times
+	if(mShowConsole) return;
+
+	mShowConsole = true;
+	// TODO: Make this cleaner
+#ifdef _WIN32
+	GLOBAL_CONSOLE.create();
+#endif
 }
 
 
+void Engine::hideConsole(){
+	if(!mShowConsole) return;
+	mShowConsole = false;
+#ifdef _WIN32
+	GLOBAL_CONSOLE.destroy();
+#endif
+}
+
 void Engine::prepareSettings(ci::app::AppBase::Settings& settings){
-	// TODO: remove this null_renderer bullshit
-	std::string screenMode = "window";
-	if(mSettings.getBoolSize("null_renderer") > 0 && mSettings.getBool("null_renderer"))
-	{
-		// a 50x25 window for null renderer.
-		settings.setWindowSize(50, 25);
-		settings.setFullScreen(false);
+	settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
+
+	/// Note: some of these are set in the engine constructor, but they don't get accurately applied on startup unless they're here too
+	/// Sucks, but here it is
+
+	auto screenMode = mSettings.getString("screen:mode");
+	if(screenMode == "full" || screenMode == "fullscreen"){
+		settings.setFullScreen(true);
+	} else if(screenMode == "borderless"){
+		settings.setBorderless(true);
+	} else if(screenMode == "window"){
 		settings.setBorderless(false);
-		settings.setAlwaysOnTop(false);
-
-	} else {
-		settings.setWindowSize(static_cast<int>(getWidth()), static_cast<int>(getHeight()));
-		if(mSettings.getUsingDefault()){
-			screenMode = "borderless";
-		}
-		screenMode = mSettings.getText("screen:mode", 0, screenMode);
-		if(screenMode == "full"){
-			settings.setFullScreen(true);
-		} else if(screenMode == "fullscreen"){
-			settings.setFullScreen(true);
-		} else if(screenMode == "borderless"){
-			settings.setBorderless(true);
-		}
-
-		settings.setAlwaysOnTop(mSettings.getBool("screen:always_on_top", 0, false));
+		settings.setFullScreen(false);
 	}
-	DS_LOG_INFO("Engine::prepareSettings: screenMode is " << screenMode << " and always on top " << settings.isAlwaysOnTop());
 
 	settings.setResizable(false);
-
-
-	mHideMouse = mSettings.getBool("hide_mouse", 0, mHideMouse);
-	mTuioPort = mSettings.getInt("tuio_port", 0, 3333);
-	setTouchSmoothing(mSettings.getBool("touch_smoothing", 0, true));
-	setTouchSmoothFrames(mSettings.getInt("touch_smooth_frames", 0, 5));
-
+	bool aot = mSettings.getBool("screen:always_on_top");
+	settings.setAlwaysOnTop(aot);
 	settings.setFrameRate(mData.mFrameRate);
+	
+	DS_LOG_INFO("Engine::prepareSettings: screenMode is " << screenMode << " and always on top " << settings.isAlwaysOnTop());
 
-	const std::string     nope = "ds:IllegalTitle";
-	const std::string     title = mSettings.getText("screen:title", 0, nope);
-	if(title != nope) settings.setTitle(title);
 
+	settings.setTitle(mSettings.getString("screen:title"));
+
+}
+
+void Engine::onAppEvent(const ds::Event& in_e){
+	if(in_e.mWhat == ds::cfg::Settings::SettingsEditedEvent::WHAT()){
+		const ds::cfg::Settings::SettingsEditedEvent& e((const ds::cfg::Settings::SettingsEditedEvent&)in_e);
+		if(e.mSettingsType == "engine"){
+			if(e.mSettingName == "screen:mode" || e.mSettingName == "screen:always_on_top" || e.mSettingName == "screen:title"){
+				setupWindowMode();
+			} else if(e.mSettingName == "world_dimensions"){
+				setupWorldSize();
+			} else if(e.mSettingName == "src_rect" || e.mSettingName == "dst_rect"){
+				setupSrcDstRects();
+				markCameraDirty();
+			} else if(e.mSettingName == "console:show"){
+				setupConsole();
+			} else if(e.mSettingName == "mouse:hide"){
+				setupMouseHide();
+			} else if(e.mSettingName == "frame_rate"){
+				setupFrameRate();
+			} else if(e.mSettingName == "vertical_sync"){
+				setupVerticalSync();
+			} else if(e.mSettingName == "idle_time"){
+				setupIdleTimeout();
+			} else if(e.mSettingName == "platform:mute"){
+				setupMute();
+			} else if(e.mSettingName.find("touch") != std::string::npos){
+				setupTouch(mDsApp);
+			}
+		}
+	}
+}
+
+void Engine::showSettingsEditor(ds::cfg::Settings& theSettings){
+	if(mSettingsEditor){
+		mSettingsEditor->showSettings(theSettings.getName());
+	}
+}
+
+void Engine::hideSettingsEditor(){
+	if(mSettingsEditor){
+		mSettingsEditor->hideSettings();
+	}
+}
+
+bool Engine::isShowingSettingsEditor(){
+	if(mSettingsEditor){
+		return mSettingsEditor->visible();
+	}
+
+	return false;
 }
 
 void Engine::setup(ds::App& app) {
@@ -285,10 +393,10 @@ void Engine::setup(ds::App& app) {
 	mTouchTranslator.setScale(mData.mSrcRect.getWidth() / ci::app::getWindowWidth(), mData.mSrcRect.getHeight() / ci::app::getWindowHeight());
 
 
-	const std::string	arch(mSettings.getText("platform:architecture", 0, ""));
+	const std::string	arch(mSettings.getString("platform:architecture"));
 	bool isClient = false;
 	if(arch == "client") isClient = true;
-	const bool			drawTouches = mSettings.getBool("touch_overlay:debug", 0, false);
+	const bool			drawTouches = mSettings.getBool("touch:debug", 0, false);
 	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
 		(*it)->postAppSetup();
 		(*it)->setCinderCamera();
@@ -324,17 +432,59 @@ void Engine::setup(ds::App& app) {
 	}
 }
 
-void Engine::setupTouch(ds::App& a) {
+void Engine::setupTouch(ds::App& app) {
+	// touch settings
+	mTouchManager.setOverrideTranslation(mSettings.getBool("touch:override_translation"));
+	mTouchManager.setOverrideDimensions(mSettings.getVec2("touch:dimensions"));
+	mTouchManager.setOverrideOffset(mSettings.getVec2("touch:offset"));
+	mTouchManager.setTouchFilterRect(mSettings.getRect("touch:filter_rect"));
+	mTouchManager.setVerboseLogging(mSettings.getBool("touch:verbose_logging"));
+
+	mRotateTouchesDefault = mSettings.getBool("touch:rotate_touches_default");
 	
+	setTouchSmoothing(mSettings.getBool("touch:smoothing"));
+	setTouchSmoothFrames(mSettings.getInt("touch:smooth_frames"));
+
+
+	mData.mMinTapDistance = mSettings.getFloat("touch:tap_threshold");
+	mData.mMinTouchDistance = mSettings.getFloat("touch:minimum_distance");
+	mData.mSwipeQueueSize = mSettings.getInt("touch:swipe:queue_size");
+	mData.mSwipeMinVelocity = mSettings.getFloat("touch:swipe:minimum_velocity");
+	mData.mSwipeMaxTime = mSettings.getFloat("touch:swipe:maximum_time");
+
+	mTouchMode = ds::ui::TouchMode::fromSettings(mSettings);
+	setTouchMode(mTouchMode);
+	int oldTuioPort = mTuioPort;
+	mTuioPort = mSettings.getInt("touch:tuio:port");
+	// don't lose idle just because we got a marker moved event
+	mTuioObjectsMoved.setAutoIdleReset(false);
 	if(ds::ui::TouchMode::hasTuio(mTouchMode)) {
-		ci::tuio::Client&		tuioClient = getTuioClient();
-		tuioClient.registerTouches(&a);
-		registerForTuioObjects(tuioClient);
-		try{
-			tuioClient.connect(mTuioPort);
-			DS_LOG_INFO("TUIO Connected on port " << mTuioPort);
-		} catch(std::exception ex) {
-			DS_LOG_WARNING("TUIO client could not be started on port " << mTuioPort << ". The most common cause is that the port is already bound by another app.");
+		if(!mTuioRegistered){
+			ci::tuio::Client&		tuioClient = getTuioClient();
+			mTuioBeganRegistrationId = tuioClient.registerTouchesBegan(&app, &ds::App::touchesBegan);
+			mTuioMovedRegistrationId = tuioClient.registerTouchesMoved(&app, &ds::App::touchesMoved);
+			mTuioEndedRegistrationId = tuioClient.registerTouchesEnded(&app, &ds::App::touchesEnded);
+			mTuioRegistered = true;
+
+			registerForTuioObjects(tuioClient);
+			try{
+				tuioClient.connect(mTuioPort);
+				DS_LOG_INFO("TUIO Connected on port " << mTuioPort);
+			} catch(std::exception ex) {
+				DS_LOG_WARNING("TUIO client could not be started on port " << mTuioPort << ". The most common cause is that the port is already bound by another app.");
+			}
+		}
+	} else {
+		if(mTuioRegistered){
+			ci::tuio::Client&		tuioClient = getTuioClient();
+			tuioClient.unregisterTouchesBegan(mTuioBeganRegistrationId);
+			tuioClient.unregisterTouchesMoved(mTuioMovedRegistrationId);
+			tuioClient.unregisterTouchesEnded(mTuioEndedRegistrationId);
+			mTuioRegistered = false;
+			try{
+				tuioClient.disconnect();
+			} catch(std::exception){}
+			DS_LOG_INFO("TUIO disconnected");
 		}
 	}
 }
@@ -366,7 +516,7 @@ void Engine::createClientRoots(std::vector<RootList::Root> roots){
 	createStatsView(root_id);
 	root_setup(mRoots);
 
-	const EngineRoot::Settings	er_settings(mData.mWorldSize, mDebugSettings, 1.0f, mData.mSrcRect, mData.mDstRect);
+	const EngineRoot::Settings	er_settings(mData.mWorldSize, mData.mSrcRect, mData.mDstRect);
 	for(auto it = mRoots.begin(), end = mRoots.end(); it != end; ++it) {
 		EngineRoot&				r(*(it->get()));
 		r.setup(er_settings);
@@ -382,7 +532,7 @@ void Engine::createStatsView(sprite_id_t root_id){
 	RootList::Root					root_cfg;
 	root_cfg.mType = root_cfg.kOrtho;
 	root_cfg.mDebugDraw = true;
-	root_cfg.mDrawScaled = false;
+	//root_cfg.mDrawScaled = false;
 	root_cfg.mSyncronize = false;
 	std::unique_ptr<EngineRoot>		root;
 	root.reset(new OrthRoot(*this, root_cfg, root_id));
@@ -390,22 +540,20 @@ void Engine::createStatsView(sprite_id_t root_id){
 		ds::ui::Sprite*				parent = root->getSprite();
 		if(parent) {
 			parent->setDrawDebug(true);
+			mSettingsEditor = new ds::cfg::SettingsEditor(*this);
+			if(mSettingsEditor){
+				parent->addChildPtr(mSettingsEditor);
+			}
+
 			EngineStatsView*		v = new EngineStatsView(*this);
 			if(v) {
 				parent->addChild(*v);
-				mRoots.push_back(std::move(root));
 			}
+
+			mRoots.push_back(std::move(root));
 		}
 	}
 
-}
-
-Engine::~Engine() {
-	mTuio.disconnect();
-
-	// Important to do this here before the auto update list is destructed.
-	// so any autoupdate services get removed.
-	mData.clearServices();
 }
 
 ds::EventNotifier& Engine::getChannel(const std::string &name) {
@@ -467,7 +615,7 @@ void Engine::addIp(const std::string& key, const ds::ui::ip::FunctionRef& fn) {
 }
 
 void Engine::loadSettings(const std::string& name, const std::string& filename) {
-	mData.mEngineCfg.loadSettings(name, filename, this);
+	mData.mEngineCfg.loadSettings(name, filename);
 }
 
 void Engine::saveSettings(const std::string& name, const std::string& filename) {
@@ -479,11 +627,7 @@ void Engine::appendSettings(const std::string& name, const std::string& filename
 }
 
 void Engine::loadTextCfg(const std::string& filename) {
-	mData.mEngineCfg.loadText(filename, this);
-}
-
-void Engine::loadNinePatchCfg(const std::string& filename) {
-	mData.mEngineCfg.loadNinePatchCfg(filename);
+	mData.mEngineCfg.loadText(filename, *this);
 }
 
 size_t Engine::getRootCount() const {
@@ -679,7 +823,7 @@ void Engine::clearAllSprites(const bool clearDebug) {
 }
 
 void Engine::registerForTuioObjects(ci::tuio::Client& client) {
-	if (mSettings.getBool("tuio:receive_objects", 0, false)) {
+	if (mSettings.getBool("touch:tuio:receive_objects", 0, false)) {
 		client.registerObjectAdded([this](ci::tuio::Object o) { this->mTuioObjectsBegin.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });
 		client.registerObjectUpdated([this](ci::tuio::Object o) { this->mTuioObjectsMoved.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle(), o.getSpeed(), o.getRotationSpeed())); });
 		client.registerObjectRemoved([this](ci::tuio::Object o) { this->mTuioObjectsEnded.incoming(TuioObject(o.getFiducialId(), o.getPos(), o.getAngle())); });

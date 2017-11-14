@@ -89,14 +89,14 @@ static bool ends_in_separator(const std::string& file)
 	return false;
 }
 
-void ds::Logger::setup(const ds::cfg::Settings& settings)
+void ds::Logger::setup(ds::cfg::Settings& settings)
 {
 	for (int k=0; k<LEVEL_SIZE; ++k) HAS_LEVEL[k] = false;
 
-	std::string				level = settings.getText("logger:level", 0, "all"),
-						module = settings.getText("logger:module", 0, "all"),
-						async = settings.getText("logger:async", 0, "true"),
-						file = settings.getText("logger:file", 0, EMPTY_SZ);
+	std::string				level = settings.getString("logger:level"),
+							module = settings.getString("logger:module"),
+							async = settings.getString("logger:async"),
+							file = settings.getString("logger:file");
 	ds::tokenize(level, ',', [](const std::string& s) { setup_level(s); });
 	if (!module.empty()) {
 		HAS_MODULE = ds::BitMask::newEmpty();
@@ -109,10 +109,10 @@ void ds::Logger::setup(const ds::cfg::Settings& settings)
 
 	// If I wasn't supplied a filename, try and find a logs folder
 	if (file.empty()) {
-		file = ds::Environment::expand("%LOCAL%/logs/");
+		file = "%LOCAL%/logs/";
 	}
 	if (!file.empty()) {
-		Poco::Path path(file);
+		Poco::Path path(ds::Environment::expand(file));
 		const Poco::Timestamp::TimeVal	t = Poco::Timestamp().epochMicroseconds();
 		static const std::string		DATE_FORMAT("%Y-%m-%d");
 		std::string						fn;

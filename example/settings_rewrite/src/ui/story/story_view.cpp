@@ -21,6 +21,8 @@ StoryView::StoryView(Globals& g)
 	, mEventClient(g.mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
 	, mMessage(nullptr)
 	, mPrimaryLayout(nullptr)
+	, mIsEngineCheckbox(nullptr)
+	, mIncludeComments(nullptr)
 	, mImage(nullptr)
 {
 	hide();
@@ -32,6 +34,16 @@ StoryView::StoryView(Globals& g)
 	mPrimaryLayout = dynamic_cast<ds::ui::LayoutSprite*>(spriteMap["root_layout"]);
 	mMessage = dynamic_cast<ds::ui::Text*>(spriteMap["message"]);
 	mImage = dynamic_cast<ds::ui::Image*>(spriteMap["primary_image"]);
+	mIsEngineCheckbox = dynamic_cast<ds::ui::ControlCheckBox*>(spriteMap["engine_check_box"]);
+	mIncludeComments = dynamic_cast<ds::ui::ControlCheckBox*>(spriteMap["comments_check_box"]);
+
+	if(mIsEngineCheckbox){
+		mIsEngineCheckbox->setCheckBoxValue(true);
+	}
+
+	if(mIncludeComments) {
+		mIncludeComments->setCheckBoxValue(true);
+	}
 
 	// calls layout
 	setData();
@@ -51,6 +63,15 @@ void StoryView::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == StoryDataUpdatedEvent::WHAT()){
 		setData();
 	}
+
+	if(in_e.mWhat == ds::cfg::Settings::SettingsEditedEvent::WHAT()){
+		const ds::cfg::Settings::SettingsEditedEvent& e((const ds::cfg::Settings::SettingsEditedEvent&)in_e);
+		if(e.mSettingsType == "app_settings" && e.mSettingName == "something"){
+			for(int i = 0; i < 8; i++){
+				std::cout << "New setting index=" << i << " value=" << mGlobals.getAppSettings().getInt("something", i) << std::endl;
+			}
+		}
+	}
 }
 
 void StoryView::setData() {
@@ -61,10 +82,7 @@ void StoryView::setData() {
 
 		auto storyRef = mGlobals.mAllData.mStories.front();
 
-		if(mMessage){
-			// Map the content from the app to the view sprites
-			mMessage->setText(storyRef.getTitle());
-		}
+		
 
 		if(mImage && storyRef.getPrimaryResource().getType() == ds::Resource::IMAGE_TYPE){
 			mImage->setImageResource(storyRef.getPrimaryResource());
@@ -96,7 +114,21 @@ void StoryView::onUpdateServer(const ds::UpdateParams& p){
 	// any changes for this frame happen here
 }
 
+bool StoryView::getIsEngineMode(){
+	if(mIsEngineCheckbox){
+		return mIsEngineCheckbox->getCheckBoxValue();
+	}
 
+	return false;
+}
+
+bool StoryView::getIncludeComments() {
+	if(mIncludeComments) {
+		return mIncludeComments->getCheckBoxValue();
+	}
+
+	return false;
+}
 
 } // namespace downstream
 

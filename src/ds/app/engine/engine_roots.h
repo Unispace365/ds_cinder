@@ -27,14 +27,9 @@ public:
 
 	class Settings {
 	public:
-		Settings(	const ci::vec2& world_size, const ds::cfg::Settings& debug_settings,
-					const float default_scale, const ci::Rectf& src_rect, const ci::Rectf& dst_rect)
-				: mWorldSize(world_size), mDebugSettings(debug_settings)
-				, mDefaultScale(default_scale), mSrcRect(src_rect), mDstRect(dst_rect) { }
+		Settings(	const ci::vec2& world_size, const ci::Rectf& src_rect, const ci::Rectf& dst_rect)
+				: mWorldSize(world_size), mSrcRect(src_rect), mDstRect(dst_rect) { }
 		ci::vec2					mWorldSize;
-		const ds::cfg::Settings&	mDebugSettings;
-		const float					mDefaultScale;
-		// Obsolete scrren rect and default scale
 		ci::Rectf					mSrcRect,
 									mDstRect;
 	};

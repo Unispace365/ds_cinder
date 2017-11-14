@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=158b19fa3b7bec818b76834d487844acf7434273$
+//
 
 #include "libcef_dll/ctocpp/download_item_callback_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -48,24 +49,30 @@ void CefDownloadItemCallbackCToCpp::Resume() {
   _struct->resume(_struct);
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefDownloadItemCallbackCToCpp::CefDownloadItemCallbackCToCpp() {
-}
+CefDownloadItemCallbackCToCpp::CefDownloadItemCallbackCToCpp() {}
 
-template<> cef_download_item_callback_t* CefCToCpp<CefDownloadItemCallbackCToCpp,
-    CefDownloadItemCallback, cef_download_item_callback_t>::UnwrapDerived(
-    CefWrapperType type, CefDownloadItemCallback* c) {
+template <>
+cef_download_item_callback_t* CefCToCppRefCounted<
+    CefDownloadItemCallbackCToCpp,
+    CefDownloadItemCallback,
+    cef_download_item_callback_t>::UnwrapDerived(CefWrapperType type,
+                                                 CefDownloadItemCallback* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefDownloadItemCallbackCToCpp,
-    CefDownloadItemCallback, cef_download_item_callback_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<
+    CefDownloadItemCallbackCToCpp,
+    CefDownloadItemCallback,
+    cef_download_item_callback_t>::DebugObjCt ATOMIC_DECLARATION;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefDownloadItemCallbackCToCpp,
-    CefDownloadItemCallback, cef_download_item_callback_t>::kWrapperType =
+template <>
+CefWrapperType CefCToCppRefCounted<CefDownloadItemCallbackCToCpp,
+                                   CefDownloadItemCallback,
+                                   cef_download_item_callback_t>::kWrapperType =
     WT_DOWNLOAD_ITEM_CALLBACK;

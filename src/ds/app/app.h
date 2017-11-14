@@ -81,30 +81,37 @@ public:
 	virtual void				onTouchesEnded(ci::app::TouchEvent event) final {};
 
 	// To receive TUIO Objects, the engine must have this setting:
-	//	<text name="tuio:receive_objects" value="true" />
-	virtual void				tuioObjectBegan( const TuioObject& );
-	virtual void				tuioObjectMoved( const TuioObject& );
-	virtual void				tuioObjectEnded( const TuioObject& );
-	virtual void				keyDown( ci::app::KeyEvent event );
-	virtual void				keyUp( ci::app::KeyEvent event );
+	//	<text name="touch:tuio:receive_objects" value="true" />
+	virtual void				tuioObjectBegan(const TuioObject&);
+	virtual void				tuioObjectMoved(const TuioObject&);
+	virtual void				tuioObjectEnded(const TuioObject&);
+
+	/// Key events coming from the base Cinder App class
+	virtual void				keyDown(ci::app::KeyEvent event) final;
+	virtual void				keyUp(ci::app::KeyEvent event) final;
+
+	/// If false, will send all keys to the client's app class (disables escape-to-quit, "s" for status pane, etc)
+	/// If true, the default, will parse keys first and send any remaining key presses to the client app (enables the normal keys like escape-to-quit, "f" for fullscreen)
+	void						setAppKeysEnabled(const bool enabled){ mAppKeysEnabled = enabled; }
+
+	/// Override these to get key notifications
+	/// The app may not pass some keys in some circumstances (like there's a registered soft keyboard)
+	virtual void				onKeyDown(ci::app::KeyEvent event){};
+	virtual void				onKeyUp(ci::app::KeyEvent event){};
+
 	virtual void				prepareSettings( ci::app::AppBase::Settings* );
 	virtual void				setup();
 	// This is where client applications would setup the initial UI.
-	virtual void				setupServer() { }
+	virtual void				setupServer() {}
 	virtual void				update();
 	virtual void				draw();
 	virtual void				quit();
 	virtual void				shutdown();
 
-	void						showConsole();
-
-	void						enableCommonKeystrokes(bool q = true, bool esc = true);
-
 	// Triggered by F8 key, saves a transparent png on the desktop
 	void						saveTransparentScreenshot();
 
 protected:
-	bool						mShowConsole;
 	ds::EngineData				mEngineData;
 	ds::Engine&					mEngine;
 
@@ -118,8 +125,7 @@ private:
 	static const std::string&   envAppDataPath();
 	bool						mCtrlDown;
 	bool						mSecondMouseDown;
-	bool						mQKeyEnabled;
-	bool						mEscKeyEnabled;
+	bool						mAppKeysEnabled;
 	bool						mMouseHidden;
 	// When enabled, the arrow keys will move the camera.
 	const float					mArrowKeyCameraStep;

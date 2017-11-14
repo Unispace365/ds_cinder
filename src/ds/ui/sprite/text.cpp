@@ -9,10 +9,6 @@
 #include <pango/pango-font.h>
 #include <regex>
 
-#if CAIRO_HAS_WIN32_SURFACE
-#include <cairo-win32.h>
-#endif
-
 #include "ds/data/font_list.h"
 #include "ds/app/blob_reader.h"
 #include "ds/app/blob_registry.h"
@@ -100,8 +96,8 @@ void Text::installAsClient(ds::BlobRegistry& registry)
 
 Text::Text(ds::ui::SpriteEngine& eng)
 	: ds::ui::Sprite(eng)
-	, mText(L"")
-	, mProcessedText(L"")
+	, mText("")
+	, mProcessedText("")
 	, mNeedsMarkupDetection(false)
 	, mNeedsFontUpdate(false)
 	, mNeedsMeasuring(false)
@@ -116,6 +112,7 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mResizeLimitWidth(-1.0f)
 	, mResizeLimitHeight(-1.0f)
 	, mLeading(1.0f)
+	, mLetterSpacing(0.0f)
 	, mTextAlignment(Alignment::kLeft)
 	, mDefaultTextWeight(TextWeight::kNormal)
 	, mEllipsizeMode(EllipsizeMode::kEllipsizeNone)
@@ -130,12 +127,9 @@ Text::Text(ds::ui::SpriteEngine& eng)
 	, mCairoSurface(nullptr)
 	, mCairoContext(nullptr)
 	, mCairoFontOptions(nullptr)
-
-#ifdef CAIRO_HAS_WIN32_SURFACE
-	, mCairoWinImageSurface(nullptr)
-#endif
 {
 	mBlobType = BLOB_TYPE;
+
 
 	setUseShaderTexture(true);
 	mSpriteShader.setShaders(vertShader, opacityFrag, shaderNameOpaccy);
@@ -191,38 +185,24 @@ Text::~Text() {
 		mCairoFontOptions = nullptr;
 	}
 
-#ifdef CAIRO_HAS_WIN32_SURFACE
-	if(mCairoWinImageSurface) {
-		//cairo_surface_destroy(mCairoWinImageSurface);
-		mCairoWinImageSurface = nullptr;
-	}
-	if(mCairoSurface != nullptr) {
-		cairo_surface_destroy(mCairoSurface);
-	}
-#else
 	// Crashes windows...
 	if(mCairoSurface != nullptr) {
 		cairo_surface_destroy(mCairoSurface);
 	}
-#endif
 
 	g_object_unref(mPangoContext); // this one crashes Windows?
 	g_object_unref(mPangoLayout);
 }
 
 std::string Text::getTextAsString() const{
-	return ds::utf8_from_wstr(mText);
-}
-
-std::wstring Text::getText() const {
 	return mText;
 }
 
-void Text::setText(std::string text) {
-	setText(ds::wstr_from_utf8(text));
+std::wstring Text::getText() const {
+	return ds::wstr_from_utf8(mText);
 }
 
-void Text::setText(std::wstring text) {	
+void Text::setText(std::string text) {
 	if(text != mText) {
 		mText = text;
 		mNeedsMarkupDetection = true;
@@ -231,6 +211,10 @@ void Text::setText(std::wstring text) {
 
 		markAsDirty(TEXT_DIRTY);
 	}
+}
+
+void Text::setText(std::wstring text) {
+	setText(ds::utf8_from_wstr(text));
 }
 
 const ci::gl::TextureRef Text::getTexture() {
@@ -281,6 +265,21 @@ float Text::getLeading() const {
 Text& Text::setLeading(const float leading) {
 	if(mLeading != leading) {
 		mLeading = leading;
+		mNeedsMeasuring = true;
+		mNeedsTextRender = true;
+
+		markAsDirty(FONT_DIRTY);
+	}
+	return *this;
+}
+
+float Text::getLetterSpacing() const {
+	return mLetterSpacing;
+}
+
+Text& Text::setLetterSpacing(const float letterSpacing) {
+	if(mLetterSpacing != letterSpacing) {
+		mLetterSpacing = letterSpacing;
 		mNeedsMeasuring = true;
 		mNeedsTextRender = true;
 
@@ -581,16 +580,14 @@ bool Text::measurePangoText() {
 
 			// Pango doesn't support HTML-esque line-break tags, so
 			// find break marks and replace with newlines, e.g. <br>, <BR>, <br />, <BR />
-			// TODO
 			std::regex e("<br\\s?/?>", std::regex_constants::icase);
-			mProcessedText = ds::wstr_from_utf8(std::regex_replace(ds::utf8_from_wstr(mText), e, "\n")) + mEngine.getPangoFontService().getTextSuffix();
-			//mProcessedText = mText + mEngine.getPangoFontService().getTextSuffix();
+			mProcessedText = std::regex_replace(mText, e, "\n");
 
 			// Let's also decide and flag if there's markup in this string
 			// Faster to use pango_layout_set_text than pango_layout_set_markup later on if
 			// there's no markup to bother with.
 			// Be pretty liberal, there's more harm in false-postives than false-negatives
-			mProbablyHasMarkup = ((mProcessedText.find(L"<") != std::wstring::npos) && (mProcessedText.find(L">") != std::wstring::npos));
+			mProbablyHasMarkup = ((mProcessedText.find("<") != std::wstring::npos) && (mProcessedText.find(">") != std::wstring::npos));
 
 			mNeedsMarkupDetection = false;
 		}
@@ -616,7 +613,7 @@ bool Text::measurePangoText() {
 
 			mFontDescription = pango_font_description_from_string(mTextFont.c_str());// +" " + std::to_string(mTextSize)).c_str());
 			pango_font_description_set_absolute_size(mFontDescription, (double)(mTextSize * 1.333333333f) * PANGO_SCALE);
-			//	pango_font_description_set_weight(fontDescription, static_cast<PangoWeight>(mDefaultTextWeight));
+			//pango_font_description_set_weight(fontDescription, static_cast<PangoWeight>(mDefaultTextWeight));
 			//	pango_font_description_set_style(mFontDescription, PANGO_STYLE_ITALIC);// mDefaultTextItalicsEnabled ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
 			//	pango_font_description_set_variant(fontDescription, mDefaultTextSmallCapsEnabled ? PANGO_VARIANT_SMALL_CAPS : PANGO_VARIANT_NORMAL);
 			pango_layout_set_font_description(mPangoLayout, mFontDescription);
@@ -679,20 +676,35 @@ bool Text::measurePangoText() {
 			int newPixelWidth = 0;
 			int newPixelHeight = 0;
 			if(mProbablyHasMarkup){// || true) {
-				pango_layout_set_markup(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
+				pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), mProcessedText.size());
+
 				// check the pixel size, if it's empty, then we can try again without markup
 				pango_layout_get_pixel_size(mPangoLayout, &newPixelWidth, &newPixelHeight);
 			}
 
 			if(!mProbablyHasMarkup || newPixelWidth < 1) {
 				if(hadMarkup){
-					pango_layout_set_markup(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
+					pango_layout_set_markup(mPangoLayout, mProcessedText.c_str(), mProcessedText.size());
 				}
-				pango_layout_set_text(mPangoLayout, ds::utf8_from_wstr(mProcessedText).c_str(), -1);
+				pango_layout_set_text(mPangoLayout, mProcessedText.c_str(), -1);
+			}
+
+			if(mLetterSpacing != 0.0f) {
+				auto attrs = pango_layout_get_attributes(mPangoLayout);
+				if(attrs == nullptr) { attrs = pango_attr_list_new(); }
+
+				// Set letter spacing: 0.0f=normal; 1.0f = 1pt extra spacing;
+				pango_attr_list_insert(attrs, pango_attr_letter_spacing_new((int)(mLetterSpacing) * PANGO_SCALE));
+
+				// Enable ligatures, kerning, and auto-conversion of simple fractions to a single character representation
+				//pango_attr_list_insert(attrs, pango_attr_font_features_new("liga=1, -kern, afrc on, frac on"));
+
+				pango_layout_set_attributes(mPangoLayout, attrs);
 			}
 
 			mWrappedText = pango_layout_is_wrapped(mPangoLayout) != FALSE;
 			mNumberOfLines = pango_layout_get_line_count(mPangoLayout);
+
 
 			// use this instead: pango_layout_get_pixel_extents
 			PangoRectangle inkRect;
@@ -711,8 +723,11 @@ bool Text::measurePangoText() {
 			std::cout << "Pixel size: " << newPixelWidth << " " << newPixelHeight << std::endl;
 			*/
 
-			mPixelWidth = extentRect.width+(extentRect.x*2.0f);
-			mPixelHeight = extentRect.height+(extentRect.y*2.0f);
+			mPixelWidth = extentRect.width + extentRect.x;
+			// add the right side of the offset for center aligned
+			if(mTextAlignment == Alignment::kCenter) mPixelWidth += extentRect.x;
+
+			mPixelHeight = extentRect.height + extentRect.y + extentRect.y;
 
 			setSize((float)mPixelWidth, (float)mPixelHeight);
 
@@ -741,24 +756,17 @@ void Text::renderPangoText(){
 		const bool grayscale = false; // Not really supported
 		_cairo_format cairoFormat = grayscale ? CAIRO_FORMAT_A8 : CAIRO_FORMAT_ARGB32;
 
-
 		// clean up any existing surfaces
 		if(mCairoSurface) {
 			cairo_surface_destroy(mCairoSurface);
 			mCairoSurface = nullptr;
-#if CAIRO_HAS_WIN32_SURFACE
-			mCairoWinImageSurface = nullptr;
-#endif
 		}
 
-#if CAIRO_HAS_WIN32_SURFACE
-		mCairoSurface = cairo_win32_surface_create_with_dib(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
-#else
 		mCairoSurface = cairo_image_surface_create(cairoFormat, mPixelWidth + extraTextureSize, mPixelHeight + extraTextureSize);
-#endif
+
 		auto cairoSurfaceStatus = cairo_surface_status(mCairoSurface);
 		if(CAIRO_STATUS_SUCCESS != cairoSurfaceStatus) {
-			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth + extraTextureSize << " h:" << mPixelHeight + extraTextureSize << " text:" << ds::utf8_from_wstr(mText));
+			DS_LOG_WARNING("Error creating Cairo surface. Status:" << cairoSurfaceStatus << " w:" << mPixelWidth + extraTextureSize << " h:" << mPixelHeight + extraTextureSize << " text:" << mText);
 			// make sure we don't render garbage
 			if(mTexture){
 				mTexture = nullptr;
@@ -800,12 +808,7 @@ void Text::renderPangoText(){
 			//	cairo_surface_write_to_png(cairoSurface, "test_font.png");
 
 			// Copy it out to a texture
-#ifdef CAIRO_HAS_WIN32_SURFACE
-			mCairoWinImageSurface = cairo_win32_surface_get_image(mCairoSurface);
-			unsigned char *pixels = cairo_image_surface_get_data(mCairoWinImageSurface);
-#else
 			unsigned char *pixels = cairo_image_surface_get_data(mCairoSurface);
-#endif
 
 			ci::gl::Texture::Format format;
 			format.setMagFilter(GL_LINEAR);
@@ -823,9 +826,6 @@ void Text::renderPangoText(){
 			if(mCairoSurface) {
 				cairo_surface_destroy(mCairoSurface);
 				mCairoSurface = nullptr;
-#ifdef CAIRO_HAS_WIN32_SURFACE
-				mCairoWinImageSurface = nullptr;
-#endif
 			}
 		}
 
@@ -845,6 +845,7 @@ void Text::writeAttributesTo(ds::DataBuffer& buf){
 		buf.add(mTextFont);
 		buf.add(mTextSize);
 		buf.add(mLeading);
+		buf.add(mLetterSpacing);
 		buf.add(mTextColor);
 		buf.add((int)mTextAlignment);
 	}
@@ -864,11 +865,13 @@ void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
 		std::string fontName = buf.read<std::string>();
 		float fontSize = buf.read<float>();
 		float leading = buf.read<float>();
+		float letterSpacing = buf.read<float>();
 		ci::Color fontColor = buf.read<ci::Color>();
 		auto alignment = (ds::ui::Alignment::Enum)(buf.read<int>());
 
 		setFont(fontName, fontSize);
 		setLeading(leading);
+		setLetterSpacing(letterSpacing);
 		setTextColor(fontColor);
 		setAlignment(alignment);
 

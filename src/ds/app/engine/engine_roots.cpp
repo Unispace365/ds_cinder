@@ -239,8 +239,8 @@ void PerspRoot::setCinderCamera() {
 
 		const float tanHalfFov = ci::math<float>::tan(ci::toRadians(mCameraParams.mFov / 2.0f));
 		const float adjustedFov = 2.0f * ci::toDegrees(ci::math<float>::atan2(sh * tanHalfFov, wh));
-		const float adjustedLensShiftH =  (1.0 - ww / sw * (mCameraParams.mLensShiftH + 1.0f) + (2.0f * srcRect.x1 / sw));
-        const float adjustedLensShiftV = -(1.0 - wh / sh * (mCameraParams.mLensShiftV + 1.0f) + (2.0f * srcRect.y1 / sh));
+		const float adjustedLensShiftH =  (1.0f - ww / sw * (mCameraParams.mLensShiftH + 1.0f) + (2.0f * srcRect.x1 / sw));
+        const float adjustedLensShiftV = -(1.0f - wh / sh * (mCameraParams.mLensShiftV + 1.0f) + (2.0f * srcRect.y1 / sh));
 
 		mCamera.setEyePoint(mCameraParams.mPosition);
 		mCamera.lookAt(mCameraParams.mTarget);

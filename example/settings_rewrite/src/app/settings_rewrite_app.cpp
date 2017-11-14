@@ -32,18 +32,6 @@ settings_rewrite_app::settings_rewrite_app()
 	.ortho()
 	.pickColor()
 
-	// If you need a perspective view, add it here.
-	// Then you can refer to the perspective root later and modify its properties (see setupServer())
-	/*
-	.persp()
-	.perspFov(60.0f)
-	.perspPosition(ci::vec3(0.0, 0.0f, 10.0f))
-	.perspTarget(ci::vec3(0.0f, 0.0f, 0.0f))
-	.perspNear(0.0002f)
-	.perspFar(20.0f)
-
-	.ortho()
-	*/
 
 	)
 	, mGlobals(mEngine, mAllData)
@@ -51,6 +39,7 @@ settings_rewrite_app::settings_rewrite_app()
 	, mIdling(false)
 	, mTouchDebug(mEngine)
 	, mEventClient(mEngine.getNotifier(), [this](const ds::Event *m){ if(m) this->onAppEvent(*m); })
+	, mStoryView(nullptr)
 {
 
 	// Register events so they can be called by string
@@ -58,9 +47,6 @@ settings_rewrite_app::settings_rewrite_app()
 	// mEngine.getNotifier().notify("StoryDataUpdatedEvent");
 	ds::event::Registry::get().addEventCreator(StoryDataUpdatedEvent::NAME(), [this]()->ds::Event*{return new StoryDataUpdatedEvent(); });
 	ds::event::Registry::get().addEventCreator(RequestAppExitEvent::NAME(), [this]()->ds::Event*{return new RequestAppExitEvent(); });
-
-
-	enableCommonKeystrokes(true);
 }
 
 void settings_rewrite_app::setupServer(){
@@ -69,8 +55,8 @@ void settings_rewrite_app::setupServer(){
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
-	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
-		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+	mEngine.getSettings("FONTS").forEachSetting([this](const ds::cfg::Settings::Setting& setting){
+		mEngine.editFonts().installFont(ds::Environment::expand(setting.mRawValue), setting.mName);
 	});
 
 	// Colors
@@ -79,9 +65,9 @@ void settings_rewrite_app::setupServer(){
 	mEngine.editColors().install(ci::Color(1.0f, 1.0f, 1.0f), "white");
 	mEngine.editColors().install(ci::Color(0.0f, 0.0f, 0.0f), "black");
 	mEngine.loadSettings("COLORS", "colors.xml");
-	mEngine.getSettings("COLORS").forEachColorAKey([this](const std::string& key){
-		mEngine.editColors().install(mEngine.getSettings("COLORS").getColorA(key), key);
-	});
+	mEngine.getSettings("COLORS").forEachSetting([this](const ds::cfg::Settings::Setting& setting){
+		mEngine.editColors().install(setting.getColorA(mEngine), setting.mName);
+	}, ds::cfg::SETTING_TYPE_COLOR);
 
 	/* Settings */
 	mEngine.loadSettings(SETTINGS_APP, "app_settings.xml");
@@ -90,20 +76,20 @@ void settings_rewrite_app::setupServer(){
 	mGlobals.initialize();
 	mQueryHandler.runInitialQueries(true);
 
-
+	/*
 
 	ds::cfg::SettingsUpdater updater(mEngine);
 	updater.updateSettings(ds::Environment::expand("%APP%/settings/engine.xml"), ds::Environment::expand("%APP%/settings/engine_updated.xml"));
 
 
 
-	ds::cfg::SettingsManager sm(mEngine);
+	ds::cfg::Settings sm;
 	sm.readFrom(ds::Environment::expand("%APP%/settings/engine_new.xml"), true);
 	sm.readFrom(ds::Environment::expand("%APP%/settings/engine_new_override.xml"), true);
 	std::string serverConnect = sm.getString("server:connect");
 
 
-	ds::cfg::SettingsManager::Setting newSetting;
+	ds::cfg::Settings::Setting newSetting;
 	newSetting.mName = "holy:fuck_balls";
 	newSetting.mType = "string";
 	newSetting.mRawValue = "well crap on a stick";
@@ -114,10 +100,11 @@ void settings_rewrite_app::setupServer(){
 	auto& adjustASetting = sm.getSetting("story:area", 1);
 	adjustASetting.mRawValue = "whoop de doo";
 
-	sm.printAllSettings();
+	//sm.printAllSettings();
 
-	sm.writeTo(ds::Environment::expand("%APP%/settings/test_write.xml"));
+	//sm.writeTo(ds::Environment::expand("%APP%/settings/test_write.xml"));
 
+	*/
 
 	const bool cacheXML = mGlobals.getAppSettings().getBool("xml:cache", 0, true);
 	ds::ui::XmlImporter::setAutoCache(cacheXML);
@@ -150,7 +137,8 @@ void settings_rewrite_app::setupServer(){
 	rootSprite.setColor(ci::Color(0.1f, 0.1f, 0.1f));
 	
 	// add sprites
-	rootSprite.addChildPtr(new StoryView(mGlobals));
+	mStoryView = new StoryView(mGlobals);
+	rootSprite.addChildPtr(mStoryView);
 
 	// The engine will actually be idling, and this gets picked up on the next update
 	mIdling = false;
@@ -200,40 +188,13 @@ void settings_rewrite_app::forceStartIdleMode(){
 
 void settings_rewrite_app::onAppEvent(const ds::Event& in_e){
 	if(in_e.mWhat == RequestAppExitEvent::WHAT()){
-		quit();
+		mEngine.getRootSprite().callAfterDelay([this]{	quit(); }, 0.1f);
 	} 
 }
 
-void settings_rewrite_app::keyDown(ci::app::KeyEvent event){
+void settings_rewrite_app::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	ds::App::keyDown(event);
-	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
-		setupServer();
-
-	// Shows all enabled sprites with a label for class type
-	} else if(event.getCode() == KeyEvent::KEY_f){
-
-		const size_t numRoots = mEngine.getRootCount();
-		int numPlacemats = 0;
-		for(size_t i = 0; i < numRoots - 1; i++){
-			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
-				if(sprite.isEnabled()){
-					sprite.setTransparent(false);
-					sprite.setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
-					sprite.setOpacity(0.95f);
-
-					ds::ui::Text* labelly = mGlobals.getText("media_viewer:title").create(mEngine, &sprite);
-					labelly->setText(typeid(sprite).name());
-					labelly->enable(false);
-					labelly->setColor(ci::Color::black());
-				} else {
-
-					ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(&sprite);
-					if(!texty || (texty && texty->getColor() != ci::Color::black())) sprite.setTransparent(true);
-				}
-			}, true);
-		}
-	} else if(event.getCode() == KeyEvent::KEY_i){
+	if(event.getCode() == KeyEvent::KEY_i){
 		forceStartIdleMode();
 	}
 }
@@ -253,9 +214,25 @@ void settings_rewrite_app::mouseUp(ci::app::MouseEvent e) {
 void settings_rewrite_app::fileDrop(ci::app::FileDropEvent event){
 	std::vector<std::string> paths;
 	for(auto it = event.getFiles().begin(); it < event.getFiles().end(); ++it){
-		ds::ui::MediaViewer* mv = new ds::ui::MediaViewer(mEngine, (*it).string(), true);
-		mv->initialize();
-		mEngine.getRootSprite().addChildPtr(mv);
+
+		std::string thePath = (*it).string();
+
+		bool autoDetect = true;
+		bool includeComments = true;
+		if(mStoryView) {
+			includeComments = mStoryView->getIncludeComments();
+			autoDetect = mStoryView->getIsEngineMode();
+		}
+		ds::cfg::SettingsUpdater updater(mEngine);
+		if(autoDetect){
+			if(thePath.find("engine.xml") != std::string::npos){
+				updater.updateEngineSettings(thePath);
+			} else {
+				updater.updateSettings(thePath, thePath, includeComments);
+			}
+		} else {
+			updater.updateSettings(thePath, thePath, includeComments);
+		}
 	}
 }
 

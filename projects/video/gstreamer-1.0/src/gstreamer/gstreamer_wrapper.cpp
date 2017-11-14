@@ -1420,7 +1420,7 @@ void GStreamerWrapper::handleGStMessage(){
 						errorMessage << "Gst error: Embedded video playback halted: module " << gst_element_get_name(GST_MESSAGE_SRC(m_GstMessage)) << " reported " << err->message;
 
 						std::string errorMessageStr = errorMessage.str();
-						DS_LOG_ERROR(errorMessageStr);
+						DS_LOG_ERROR(errorMessageStr << " Debug: " << debug);
 						if(m_ErrorMessageCallback){
 							m_ErrorMessageCallback(errorMessageStr);
 						}

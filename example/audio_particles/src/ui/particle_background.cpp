@@ -89,7 +89,7 @@ ParticleBackground::ParticleBackground(Globals& g)
 	}
 	
 
-	std::string blendName = mGlobals.getAppSettings().getText("particles:blend_mode", 0, "normal");
+	std::string blendName = mGlobals.getAppSettings().getString("particles:blend_mode", 0, "normal");
 	mPerlin.setSeed(clock());
 	setTransparent(false);
 	setBlendMode(ds::ui::getBlendModeByString(blendName));
@@ -101,7 +101,7 @@ ParticleBackground::ParticleBackground(Globals& g)
 
 	mParticleScale = mGlobals.getAppSettings().getFloat("particles:scale", 0, 1.0f);
 
-	std::string vidPath = ds::Environment::expand(mGlobals.getAppSettings().getText("video_path", 0, ""));
+	std::string vidPath = ds::Environment::expand(mGlobals.getAppSettings().getString("video_path", 0, ""));
 
 
 	mMediaPath = vidPath;

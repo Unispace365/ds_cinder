@@ -16,7 +16,7 @@ class CircleCropExample : public ds::App {
 public:
 	CircleCropExample();
 
-	virtual void		keyDown(ci::app::KeyEvent event);
+	virtual void		onKeyDown(ci::app::KeyEvent event) override;
 	void				setupServer();
 	void				update();
 private:

@@ -41,23 +41,11 @@ std::string TouchMode::toString(const TouchMode::Enum &m) {
 	return "Unknown";
 }
 
-TouchMode::Enum TouchMode::fromSettings(const ds::cfg::Settings &s) {
+TouchMode::Enum TouchMode::fromSettings(ds::cfg::Settings &s) {
 	// Default to tuio and mouse being enabled.
 	TouchMode::Enum		mode(TouchMode::kTuioAndMouse);
-	// Backwards compatibility
-	if (s.getBoolSize("enable_system_multitouch") > 0) {
-		const bool		system = s.getBool("enable_system_multitouch", 0, false),
-						mouse = s.getBool("enable_mouse_events", 0, true);
-		if (system) {
-			mode = (mouse ? TouchMode::kSystemAndMouse : TouchMode::kSystem);
-		} else {
-			mode = (mouse ? TouchMode::kTuioAndMouse : TouchMode::kTuio);
-		}
-	}
-	// The correct way to do this, overrides all other options
-	if (s.getTextSize("touch_mode") > 0) {
-		mode = TouchMode::fromString(s.getText("touch_mode", 0, ""));
-	}
+	mode = TouchMode::fromString(s.getString("touch:mode"));
+	
 	return mode;
 }
 

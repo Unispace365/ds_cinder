@@ -12,6 +12,8 @@
 *.obj
 *.idb
 *.pdb
+*.db
+*.opendb
 
 lib/platform*.lib
 obj/
@@ -48,6 +50,8 @@ projects/viewers/lib/
 /projects/physics/lib64/
 /example/example_client_and_server_media/vs2013_client/Example_C_and_S.exe
 /example/example_client_and_server_media/vs2013_client/Example_C_and_S.ilk
+
+*GPUCache/
 
 *build*/
 /example/*/bin/

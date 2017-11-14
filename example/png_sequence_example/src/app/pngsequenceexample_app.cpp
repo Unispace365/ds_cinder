@@ -30,7 +30,6 @@ PngSequenceExample::PngSequenceExample()
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 
-	enableCommonKeystrokes(true);
 }
 
 void PngSequenceExample::setupServer(){
@@ -94,9 +93,9 @@ void PngSequenceExample::update() {
 	inherited::update();
 }
 
-void PngSequenceExample::keyDown(ci::app::KeyEvent event){
+void PngSequenceExample::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 
@@ -156,6 +155,7 @@ void PngSequenceExample::fileDrop(ci::app::FileDropEvent event){
 
 	if(mPngSequence){
 		mPngSequence->setImages(paths);
+		mPngSequence->play();
 	}
 }
 

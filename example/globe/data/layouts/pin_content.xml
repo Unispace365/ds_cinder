@@ -1,0 +1,43 @@
+<interface>
+
+		<layout name="root_layout"
+				layout_type="horizontal"
+				layout_size_mode="flex"
+				position="0, 0"
+				size="1200, 50"
+				shrink_to_children="both"
+				layout_v_align="top"
+		>
+		
+			<sprite name="pole" size="1, 60" 
+				transparent="false"
+			/>
+		
+
+			<layout name="list"
+				layout_type="vert"
+				layout_size_mode="flex"
+				position="10, 0"
+				size="1200, 50"
+				shrink_to_children="both"
+				layout_v_align="top"
+
+			>
+
+				<text name="message"
+					font="globe:pin"
+					layout_size_mode="flex"
+					font_size="12"
+					animate_on="fade; ease:outQuint; slide:200, 0; delay:0.5; duration:0.4"
+				>Glad you could make it,</text>
+
+				<text name="visitor"
+					font="globe:pin"
+					layout_size_mode="flex"
+					font_size="12"
+					animate_on="fade; ease:outQuint; slide:200, 0; delay:0.5; duration:0.4"
+				>Bonney Kapp</text>
+
+			</layout>
+		</layout>
+</interface>

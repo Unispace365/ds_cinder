@@ -43,7 +43,6 @@ drag_destination_example::drag_destination_example()
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 
-	enableCommonKeystrokes(true);
 }
 
 void drag_destination_example::setupServer(){
@@ -106,9 +105,8 @@ void drag_destination_example::update() {
 
 }
 
-void drag_destination_example::keyDown(ci::app::KeyEvent event){
+void drag_destination_example::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
 	if(event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 

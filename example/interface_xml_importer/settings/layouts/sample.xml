@@ -7,9 +7,10 @@
 	</image>
 
 	<sprite name="text_holder">
-		<multiline_text name="title"
+		<text name="title"
 		>SAMPLE</multiline_text>
-		<multiline_text name="body" >
+		<text name="body" class="body"
+				>
 			Text content can wrap to multiple lines, if you let it!
 			
 Change some settings in the xml or css files and press 'r' to reload the app on the fly. Whee!

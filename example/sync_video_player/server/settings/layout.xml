@@ -1,10 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-
-<!-- Specify starting port for syncing video across server/client -->
-	<int name="gstVideo:netclock:port" value="1624" />
-	
-		<!-- Standard animation duration, in seconds. -->
-	<float name="animation:duration" value="0.2" />
-	<float name="pan:value" value="-1.0" />
-	
+	<setting name="gstVideo:netclock:port" value="1624" type="int" comment=" Specify starting port for syncing video across server/client "/>
+	<setting name="animation:duration" value="0.2" type="float" comment=" Standard animation duration, in seconds. "/>
+	<setting name="pan:value" value="-1.0" type="float"/>
 </settings>
+

@@ -25,7 +25,7 @@ class Text {
 public:
 	Text();
 	Text(const std::string& font, const std::string& configName, const float size, const float leading,
-			const ci::ColorA&, const ds::ui::Alignment::Enum& = ds::ui::Alignment::kLeft);
+			const float letterSpacing, const ci::ColorA&, const ds::ui::Alignment::Enum& = ds::ui::Alignment::kLeft);
 
 	/// Create a new text sprite from this cfg. Optionally add it to the parent immediately
 	ds::ui::Text*			create(ds::ui::SpriteEngine&, ds::ui::Sprite* parent = nullptr) const;
@@ -37,6 +37,7 @@ public:
 	std::string				mCfgName;
 	float					mSize;
 	float					mLeading;
+	float					mLetterSpacing;
 	ci::ColorA	  			mColor;
 	ci::vec2				mCenter;
 	ds::ui::Alignment::Enum	mAlignment;

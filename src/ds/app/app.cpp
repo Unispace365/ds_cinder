@@ -12,18 +12,14 @@
 #include "ds/app/engine/engine_standalone.h"
 #include "ds/app/engine/engine_stats_view.h"
 #include "ds/app/environment.h"
-// TODO: Make this cleaner
-#ifdef _WIN32
-#include "ds/debug/console.h"
-#endif
 #include "ds/debug/logger.h"
 #include "ds/debug/debug_defines.h"
 
 // For installing the sprite types
 #include "ds/app/engine/engine_stats_view.h"
+#include "ds/ui/soft_keyboard/entry_field.h"
 #include "ds/ui/sprite/gradient_sprite.h"
 #include "ds/ui/sprite/image.h"
-#include "ds/ui/sprite/nine_patch.h"
 #include "ds/ui/sprite/text.h"
 #include "ds/ui/sprite/border.h"
 #include "ds/ui/sprite/circle.h"
@@ -81,7 +77,7 @@ void linuxImplRegisterWindowFiledropHandler( ci::app::WindowRef cinderWindow ) {
 #endif // !_WIN32
 
 // Answer a new engine based on the current settings
-static ds::Engine&    new_engine(ds::App&, const ds::EngineSettings&, ds::EngineData&, const ds::RootList& roots);
+static ds::Engine&    new_engine(ds::App&, ds::EngineSettings&, ds::EngineData&, const ds::RootList& roots);
 
 static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 	static std::vector<std::function<void(ds::Engine&)>>	VEC;
@@ -90,13 +86,6 @@ static std::vector<std::function<void(ds::Engine&)>>& get_startups() {
 
 namespace {
 std::string				APP_DATA_PATH;
-
-//#ifdef _DEBUG
-// TODO: Make this cleaner
-#ifdef _WIN32
-ds::Console				GLOBAL_CONSOLE;
-#endif
-//#endif
 
 void					add_dll_path() {
 	// If there's a DLL folder, then add it to my PATH environment variable.
@@ -143,15 +132,13 @@ App::App(const RootList& roots)
 	: EngineSettingsPreloader( ci::app::AppBase::sSettingsFromMain )
 	, ci::app::App()
 	, mEnvironmentInitialized(ds::Environment::initialize())
-	, mShowConsole(false)
 	, mEngineData(mEngineSettings)
 	, mEngine(new_engine(*this, mEngineSettings, mEngineData, roots))
 	, mCtrlDown(false)
 	, mSecondMouseDown(false)
-	, mQKeyEnabled(true)
-	, mEscKeyEnabled(true)
+	, mAppKeysEnabled(true)
 	, mMouseHidden(false)
-	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys", 0, -1.0f))
+	, mArrowKeyCameraStep(mEngineSettings.getFloat("camera:arrow_keys"))
 	, mArrowKeyCameraControl(mArrowKeyCameraStep > 0.025f)
 {
 	mEngineSettings.printStartupInfo();
@@ -165,8 +152,6 @@ App::App(const RootList& roots)
 							[](ds::BlobRegistry& r){ds::ui::Gradient::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Image::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Image::installAsClient(r);});
-	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsServer(r);},
-							[](ds::BlobRegistry& r){ds::ui::NinePatch::installAsClient(r);});
 	mEngine.installSprite(	[](ds::BlobRegistry& r){ds::ui::Text::installAsServer(r);},
 							[](ds::BlobRegistry& r){ds::ui::Text::installAsClient(r); });
 	mEngine.installSprite(	[](ds::BlobRegistry& r){EngineStatsView::installAsServer(r);},
@@ -204,27 +189,24 @@ App::App(const RootList& roots)
 
 	setFpsSampleInterval(0.25);
 
+#ifdef _WIN32
+	::SetForegroundWindow((HWND)ci::app::getWindow()->getNative());
+#endif
+
 	prepareSettings(ci::app::App::get()->sSettingsFromMain);
+
 
 }
 
 App::~App() {
 	delete &(mEngine);
 	ds::getLogger().shutDown();
-	if(mShowConsole){
-// TODO: Make this cleaner
-#ifdef _WIN32
-		GLOBAL_CONSOLE.destroy();
-#endif
-	}
 }
 
 void App::prepareSettings(ci::app::AppBase::Settings *settings) {
 
 	if (settings) {
-		ds::Environment::setConfigDirFileExpandOverride(mEngineSettings.getBool("configuration_folder:allow_expand_override", 0, false));
 
-		ci::gl::enableVerticalSync(mEngineSettings.getBool("vertical_sync", 0, true));
 		mEngine.prepareSettings(*settings);
 		settings->setWindowPos(static_cast<unsigned>(mEngineData.mDstRect.x1), static_cast<unsigned>(mEngineData.mDstRect.y1));
 		inherited::setFrameRate(settings->getFrameRate());
@@ -325,59 +307,51 @@ const std::string& App::envAppDataPath() {
 }
 
 void App::keyDown(ci::app::KeyEvent e) {
+	if(!mAppKeysEnabled){
+		onKeyDown(e);
+		return;
+	}
+
+	if(mEngine.getRegisteredEntryField()){
+		mEngine.getRegisteredEntryField()->keyPressed(e);
+		return;
+	}
+
+	using ci::app::KeyEvent;
 	const int		code = e.getCode();
-	if((mEscKeyEnabled && code == ci::app::KeyEvent::KEY_ESCAPE) || (mQKeyEnabled && code == ci::app::KeyEvent::KEY_q)) {
+	if(code == KeyEvent::KEY_ESCAPE || code == KeyEvent::KEY_q) {
 		quit();
 	}
-	if(code == ci::app::KeyEvent::KEY_LCTRL || code == ci::app::KeyEvent::KEY_RCTRL) {
+	if(code == ci::app::KeyEvent::KEY_LCTRL || code == KeyEvent::KEY_RCTRL) {
 		mCtrlDown = true;
-	} else if(ci::app::KeyEvent::KEY_s == code) {
+	} else if(KeyEvent::KEY_s == code) {
 		mEngine.getNotifier().notify(EngineStatsView::ToggleStatsRequest());
-	} else if(ci::app::KeyEvent::KEY_t == code) {
+	} else if(KeyEvent::KEY_t == code) {
 		mEngine.nextTouchMode();
-	} else if(ci::app::KeyEvent::KEY_F8 == code){
+	} else if(KeyEvent::KEY_F8 == code){
 		saveTransparentScreenshot();
-	} else if(ci::app::KeyEvent::KEY_k == code && mCtrlDown){
+	} else if(KeyEvent::KEY_k == code && mCtrlDown){
 		system("taskkill /f /im RestartOnCrash.exe");
 		system("taskkill /f /im DSNode-Host.exe");
 		system("taskkill /f /im DSNodeConsole.exe");
 	} else if(ci::app::KeyEvent::KEY_m == code){
 		mEngine.setHideMouse(!mEngine.getHideMouse());
-	}
-
-	if (mArrowKeyCameraControl) {
-		if(code == ci::app::KeyEvent::KEY_LEFT) {
-			mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
-			mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
-			mEngine.markCameraDirty();
-		} else if(code == ci::app::KeyEvent::KEY_RIGHT) {
-			mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
-			mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
-			mEngine.markCameraDirty();
-		} else if(code == ci::app::KeyEvent::KEY_UP) {
-			mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
-			mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
-			mEngine.markCameraDirty();
-		} else if(code == ci::app::KeyEvent::KEY_DOWN) {
-			mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
-			mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
-			mEngine.markCameraDirty();
-		}
-	} else if(code == ci::app::KeyEvent::KEY_v && e.isShiftDown()){
+	} else if(code == KeyEvent::KEY_v && e.isShiftDown()){
 		mEngine.getTouchManager().setVerboseLogging(!mEngine.getTouchManager().getVerboseLogging());
-	}
-
-	if(ci::app::KeyEvent::KEY_p == code){
+	} else if(code == KeyEvent::KEY_e){
+		if(mEngine.isShowingSettingsEditor()){
+			mEngine.hideSettingsEditor();
+		} else {
+			mEngine.showSettingsEditor(mEngineSettings);
+		}
+	} else if(ci::app::KeyEvent::KEY_p == code){
 		mEngine.getPangoFontService().logFonts(e.isShiftDown());
-	}
-
-#ifdef _DEBUG
-	if(code == ci::app::KeyEvent::KEY_d && e.isControlDown()){
+	} else if(code == ci::app::KeyEvent::KEY_d && e.isControlDown()){
 		std::string		path = ds::Environment::expand("%LOCAL%/sprite_dump.txt");
 		std::cout << "WRITING OUT SPRITE HIERARCHY (" << path << ")" << std::endl;
 		std::fstream	filestr;
 		filestr.open(path, std::fstream::out);
-		if (filestr.is_open()) {
+		if(filestr.is_open()) {
 			mEngine.writeSprites(filestr);
 			filestr.close();
 		}
@@ -385,13 +359,62 @@ void App::keyDown(ci::app::KeyEvent e) {
 		std::stringstream		buf;
 		mEngine.writeSprites(buf);
 		std::cout << buf.str() << std::endl;
+	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_LEFT) {
+		mEngineData.mSrcRect.x1 -= mArrowKeyCameraStep;
+		mEngineData.mSrcRect.x2 -= mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_RIGHT) {
+		mEngineData.mSrcRect.x1 += mArrowKeyCameraStep;
+		mEngineData.mSrcRect.x2 += mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_UP) {
+		mEngineData.mSrcRect.y1 -= mArrowKeyCameraStep;
+		mEngineData.mSrcRect.y2 -= mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	} else if(mArrowKeyCameraControl && code == ci::app::KeyEvent::KEY_DOWN) {
+		mEngineData.mSrcRect.y1 += mArrowKeyCameraStep;
+		mEngineData.mSrcRect.y2 += mArrowKeyCameraStep;
+		mEngine.markCameraDirty();
+	} else if(e.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
+		/// TODO: reload engine settings	
+		setupServer();
+	} else if(e.getCode() == KeyEvent::KEY_d){
+		const size_t numRoots = mEngine.getRootCount();
+		int numPlacemats = 0;
+		for(size_t i = 0; i < numRoots - 1; i++){
+			mEngine.getRootSprite(i).forEachChild([this](ds::ui::Sprite& sprite){
+				if(sprite.isEnabled()){
+					sprite.setTransparent(false);
+					sprite.setColor(ci::Color(ci::randFloat(), ci::randFloat(), ci::randFloat()));
+					sprite.setOpacity(0.95f);
+
+					ds::ui::Text* labelly = new ds::ui::Text(mEngine);
+					labelly->setFont("Arial");
+					labelly->setFontSize(16.0f);
+					labelly->setText(typeid(sprite).name());
+					labelly->enable(false);
+					labelly->setColor(ci::Color::black());
+				} else {
+
+					ds::ui::Text* texty = dynamic_cast<ds::ui::Text*>(&sprite);
+					if(!texty || (texty && texty->getColor() != ci::Color::black())) sprite.setTransparent(true);
+				}
+			}, true);
+		}
+	} else if(e.getCode() == KeyEvent::KEY_f){
+		setFullScreen(!isFullScreen());
+	} else {
+		onKeyDown(e);
 	}
-#endif
+	
 }
 
 void App::keyUp(ci::app::KeyEvent event){
-	if(event.getCode() == ci::app::KeyEvent::KEY_LCTRL || event.getCode() == ci::app::KeyEvent::KEY_RCTRL)
-	mCtrlDown = false;
+	if(event.getCode() == ci::app::KeyEvent::KEY_LCTRL || event.getCode() == ci::app::KeyEvent::KEY_RCTRL){
+		mCtrlDown = false;
+	}
+
+	onKeyUp(event);
 }
 
 void App::saveTransparentScreenshot(){
@@ -403,15 +426,6 @@ void App::saveTransparentScreenshot(){
 	ci::writeImage(Poco::Path::expand(p.toString()), copyWindowSurface());
 }
 
-void App::enableCommonKeystrokes( bool q /*= true*/, bool esc /*= true*/ ){
-	if (q) {
-		mQKeyEnabled = q;
-	}
-	if (esc) {
-		mEscKeyEnabled = esc;
-	}
-}
-
 void App::quit(){
 	ci::app::App::quit();
 }
@@ -421,18 +435,6 @@ void App::shutdown(){
 	quit();
 	//ci::app::App::shutdown();
 }
-
-void App::showConsole(){
-	// prevent calling create multiple times
-	if(mShowConsole) return;
-
-	mShowConsole = true;
-// TODO: Make this cleaner
-#ifdef _WIN32
-	GLOBAL_CONSOLE.create();
-#endif
-}
-
 
 /**
  * \class ds::EngineSettingsPreloader::Initializer
@@ -475,16 +477,9 @@ ds::EngineSettingsPreloader::Initializer::Initializer() {
 
 } // namespace ds
 
-static ds::Engine&    new_engine(	ds::App& app, const ds::EngineSettings& settings,
+static ds::Engine&    new_engine(	ds::App& app, ds::EngineSettings& settings,
 									ds::EngineData& ed, const ds::RootList& roots){
-
-	bool defaultShowConsole = false;
-	DS_DBG_CODE(defaultShowConsole = true);
-	if(settings.getBool("console:show", 0, defaultShowConsole)){
-		app.showConsole();
-	}
-
-	const std::string	arch(settings.getText("platform:architecture", 0, ""));
+	const std::string	arch(settings.getString("platform:architecture", 0, ""));
 	if (arch == "client") return *(new ds::EngineClient(app, settings, ed, roots));
 	if (arch == "server") return *(new ds::EngineServer(app, settings, ed, roots));
 	if (arch == "clientserver") return *(new ds::EngineClientServer(app, settings, ed, roots));

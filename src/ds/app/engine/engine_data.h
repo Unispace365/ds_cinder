@@ -18,7 +18,7 @@ class EngineService;
  */
 class EngineData {
 public:
-	EngineData(const ds::cfg::Settings& engine_settings);
+	EngineData(ds::cfg::Settings& engine_settings);
 
 	EventNotifier			mNotifier;
 	std::unordered_map<std::string, ds::EngineService*>

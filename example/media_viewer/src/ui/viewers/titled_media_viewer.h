@@ -4,7 +4,7 @@
 
 #include <ds/ui/media/media_viewer.h>
 #include <ds/ui/sprite/sprite.h>
-#include <ds/ui/sprite/multiline_text.h>
+#include <ds/ui/sprite/text.h>
 
 #include "model/generated/media_model.h"
 
@@ -38,8 +38,8 @@ private:
 
 	ds::ui::Sprite*						mTrayHolder;
 	ds::ui::Sprite*						mBackground;
-	ds::ui::MultilineText*				mTitle;
-	ds::ui::MultilineText*				mBody;
+	ds::ui::Text*						mTitle;
+	ds::ui::Text*						mBody;
 
 	bool								mShowingTitle;
 

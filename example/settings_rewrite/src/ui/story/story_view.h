@@ -8,6 +8,7 @@
 #include <ds/ui/sprite/text.h>
 #include <ds/ui/sprite/image.h>
 #include <ds/ui/layout/layout_sprite.h>
+#include <ds/ui/control/control_check_box.h>
 
 #include "model/generated/story_model.h"
 
@@ -22,6 +23,9 @@ class Globals;
 class StoryView final : public ds::ui::Sprite  {
 public:
 	StoryView(Globals& g);
+
+	bool								getIsEngineMode();
+	bool								getIncludeComments();
 
 private:
 	void								onAppEvent(const ds::Event&);
@@ -41,6 +45,8 @@ private:
 	ds::ui::LayoutSprite*				mPrimaryLayout;
 	ds::ui::Text*						mMessage;
 	ds::ui::Image*						mImage;
+	ds::ui::ControlCheckBox*			mIsEngineCheckbox;
+	ds::ui::ControlCheckBox*			mIncludeComments;
 
 };
 

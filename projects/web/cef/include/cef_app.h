@@ -34,7 +34,6 @@
 // tools directory for more information.
 //
 
-
 #ifndef CEF_INCLUDE_CEF_APP_H_
 #define CEF_INCLUDE_CEF_APP_H_
 #pragma once
@@ -143,7 +142,7 @@ void CefEnableHighDPISupport();
 // called by the process and/or thread indicated.
 ///
 /*--cef(source=client,no_debugct_check)--*/
-class CefApp : public virtual CefBase {
+class CefApp : public virtual CefBaseRefCounted {
  public:
   ///
   // Provides an opportunity to view and/or modify command-line arguments before
@@ -159,8 +158,7 @@ class CefApp : public virtual CefBase {
   /*--cef(optional_param=process_type)--*/
   virtual void OnBeforeCommandLineProcessing(
       const CefString& process_type,
-      CefRefPtr<CefCommandLine> command_line) {
-  }
+      CefRefPtr<CefCommandLine> command_line) {}
 
   ///
   // Provides an opportunity to register custom schemes. Do not keep a reference
@@ -170,8 +168,7 @@ class CefApp : public virtual CefBase {
   ///
   /*--cef()--*/
   virtual void OnRegisterCustomSchemes(
-      CefRefPtr<CefSchemeRegistrar> registrar) {
-  }
+      CefRawPtr<CefSchemeRegistrar> registrar) {}
 
   ///
   // Return the handler for resource bundle events. If

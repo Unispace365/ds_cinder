@@ -1,11 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-
-	<!-- App-specific settings and configs. Formerlly layout.xml. Renamed to clarify that it's not a layout file for layout sprites -->
-	
-	<!-- Standard animation duration, in seconds. -->
-	<float name="animation:duration" value="0.5" />
-	
-	<!-- If you cache xml, they'll load faster after the first one, but you'll have to restart the app to see any changes -->
-	<text  name="xml:cache" value="false" />
-	
+	<setting name="animation:duration" value="0.5" type="float" comment=" App-specific settings and configs. Formerlly layout.xml. Renamed to clarify that it's not a layout file for layout sprites  Standard animation duration, in seconds. "/>
+	<setting name="xml:cache" value="false" type="bool" comment=" If you cache xml, they'll load faster after the first one, but you'll have to restart the app to see any changes "/>
 </settings>
+

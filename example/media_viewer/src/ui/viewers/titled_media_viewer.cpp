@@ -37,8 +37,8 @@ TitledMediaViewer::TitledMediaViewer(Globals& g)
 	mBackground->setTransparent(false);
 	mTrayHolder->addChildPtr(mBackground);
 
-	mTitle = mGlobals.getText("viewer:title").createMultiline(mEngine, mTrayHolder);
-	mBody = mGlobals.getText("viewer:body").createMultiline(mEngine, mTrayHolder);
+	mTitle = mGlobals.getText("viewer:title").create(mEngine, mTrayHolder);
+	mBody = mGlobals.getText("viewer:body").create(mEngine, mTrayHolder);
 
 	setTapCallback([this](ds::ui::Sprite* bs, const ci::vec3& pos){
 		toggleTitle();
@@ -65,8 +65,6 @@ void TitledMediaViewer::onLayout() {
 	
 	const float w = getWidth();
 	const float h = getHeight();
-
-	std::cout << "view size: " << w << " " << h << std::endl;
 
 	const float padding = mGlobals.getSettingsLayout().getFloat("titled_viewer:padding", 0, 20.0f);
 	if(mBody && mBackground && mTitle && mShowingTitle){

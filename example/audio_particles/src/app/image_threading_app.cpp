@@ -28,9 +28,6 @@ ImageThreading::ImageThreading()
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
 
-	enableCommonKeystrokes(true);
-
-
 	return;
 	try{
 		auto ctx = ci::audio::Context::master();
@@ -80,9 +77,8 @@ void ImageThreading::update() {
 	}
 }
 
-void ImageThreading::keyDown(ci::app::KeyEvent event){
+void ImageThreading::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
 
 	if(event.getChar() == KeyEvent::KEY_v && event.isControlDown() && ci::Clipboard::hasString()){
 		//loadMedia(ci::Clipboard::getString());

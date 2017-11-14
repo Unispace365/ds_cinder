@@ -4,7 +4,7 @@
 
 #include <cinder/app/KeyEvent.h>
 #include <cinder/app/MouseEvent.h>
-#include "ds/ui/sprite/sprite.h"
+#include <ds/ui/soft_keyboard/entry_field.h>
 #include "ds/ui/sprite/text.h"
 
 #include <mutex>
@@ -28,8 +28,10 @@ namespace ui {
  *		  Requests into the browser can (generally) happen on any thread, and CEF handles thread synchronization
  *		  CEF also uses multiple processes for rendering, IO, etc. but that is opaque to this class
  *		  When implementing new functionality, be sure to read the documentation of CEF carefully
+
+ *		  We're extending IEntryField so websites can get physical keyboard entry the same way EntryFields can
  */
-class Web : public ds::ui::Sprite {
+class Web : public ds::ui::IEntryField {
 public:
 	struct AuthCallback {
 		AuthCallback() : mIsProxy(false), mPort(0){}
@@ -43,6 +45,10 @@ public:
 
 	Web(ds::ui::SpriteEngine &engine, float width = 0.0f, float height = 0.0f);
 	~Web();
+
+	/// IEntryField API input
+	virtual void								keyPressed(ci::app::KeyEvent& keyEvent);
+	virtual void								keyPressed(const std::wstring& keyCharacter, const ds::ui::SoftKeyboardDefs::KeyType keyType);
 
 
 	// Loads the new url in the main frame (what you'd expect to happen)
@@ -153,7 +159,7 @@ public:
 	/// Lets you disable clicking, but still scroll via "mouse wheel"
 	void										setAllowClicks(const bool doAllowClicks);
 
-	/// If true, any transparent web pages will be blank, false will have a white background for pages
+	/// DEPRECATED, everything is transparent now - If true, any transparent web pages will be blank, false will have a white background for pages
 	void										setWebTransparent(const bool isTransparent);
 	bool										getWebTransparent(){ return mTransparentBackground; }
 
@@ -229,6 +235,15 @@ private:
 	ci::gl::TextureRef							mWebTexture;
 	bool										mTransparentBackground;
 
+	unsigned char *								mPopupBuffer;
+	bool										mHasPopupBuffer;
+	ci::gl::TextureRef							mPopupTexture;
+	ci::vec2									mPopupPos;
+	ci::vec2									mPopupSize;
+	bool										mPopupShowing;
+	bool										mPopupReady;
+
+
 	double										mZoom;
 	bool										mNeedsZoomCheck;
 
@@ -237,6 +252,7 @@ private:
 	bool										mClickDown;
 	bool										mDragScrolling;
 	int											mDragScrollMinFingers;
+	bool										mIsDragging;
 	// Cache the page size and scroll during touch events
 	ci::vec2									mPageSizeCache,
 												mPageScrollCache;

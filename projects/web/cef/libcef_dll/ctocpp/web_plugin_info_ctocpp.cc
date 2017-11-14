@@ -9,9 +9,10 @@
 // implementations. See the translator.README.txt file in the tools directory
 // for more information.
 //
+// $hash=d79f25c885d7397e93bb73626c50fa387a3cf1c6$
+//
 
 #include "libcef_dll/ctocpp/web_plugin_info_ctocpp.h"
-
 
 // VIRTUAL METHODS - Body may be edited by hand.
 
@@ -79,23 +80,30 @@ CefString CefWebPluginInfoCToCpp::GetDescription() {
   return _retvalStr;
 }
 
-
 // CONSTRUCTOR - Do not edit by hand.
 
-CefWebPluginInfoCToCpp::CefWebPluginInfoCToCpp() {
-}
+CefWebPluginInfoCToCpp::CefWebPluginInfoCToCpp() {}
 
-template<> cef_web_plugin_info_t* CefCToCpp<CefWebPluginInfoCToCpp,
-    CefWebPluginInfo, cef_web_plugin_info_t>::UnwrapDerived(
-    CefWrapperType type, CefWebPluginInfo* c) {
+template <>
+cef_web_plugin_info_t*
+CefCToCppRefCounted<CefWebPluginInfoCToCpp,
+                    CefWebPluginInfo,
+                    cef_web_plugin_info_t>::UnwrapDerived(CefWrapperType type,
+                                                          CefWebPluginInfo* c) {
   NOTREACHED() << "Unexpected class type: " << type;
   return NULL;
 }
 
 #if DCHECK_IS_ON()
-template<> base::AtomicRefCount CefCToCpp<CefWebPluginInfoCToCpp,
-    CefWebPluginInfo, cef_web_plugin_info_t>::DebugObjCt = 0;
+template <>
+base::AtomicRefCount CefCToCppRefCounted<CefWebPluginInfoCToCpp,
+                                         CefWebPluginInfo,
+                                         cef_web_plugin_info_t>::DebugObjCt
+    ATOMIC_DECLARATION;
 #endif
 
-template<> CefWrapperType CefCToCpp<CefWebPluginInfoCToCpp, CefWebPluginInfo,
-    cef_web_plugin_info_t>::kWrapperType = WT_WEB_PLUGIN_INFO;
+template <>
+CefWrapperType CefCToCppRefCounted<CefWebPluginInfoCToCpp,
+                                   CefWebPluginInfo,
+                                   cef_web_plugin_info_t>::kWrapperType =
+    WT_WEB_PLUGIN_INFO;

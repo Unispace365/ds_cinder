@@ -44,10 +44,10 @@
 #include "include/cef_base.h"
 #include "include/cef_browser.h"
 #include "include/cef_frame.h"
+#include "include/cef_request.h"
 #include "include/cef_resource_handler.h"
 #include "include/cef_response.h"
 #include "include/cef_response_filter.h"
-#include "include/cef_request.h"
 #include "include/cef_ssl_info.h"
 #include "include/cef_x509_certificate.h"
 
@@ -55,50 +55,48 @@
 // Callback interface used for asynchronous continuation of url requests.
 ///
 /*--cef(source=library)--*/
-class CefRequestCallback : public virtual CefBase {
+class CefRequestCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Continue the url request. If |allow| is true the request will be continued.
   // Otherwise, the request will be canceled.
   ///
   /*--cef(capi_name=cont)--*/
-  virtual void Continue(bool allow) =0;
+  virtual void Continue(bool allow) = 0;
 
   ///
   // Cancel the url request.
   ///
   /*--cef()--*/
-  virtual void Cancel() =0;
+  virtual void Cancel() = 0;
 };
-
 
 ///
 // Callback interface used to select a client certificate for authentication.
 ///
 /*--cef(source=library)--*/
-class CefSelectClientCertificateCallback : public virtual CefBase {
+class CefSelectClientCertificateCallback : public virtual CefBaseRefCounted {
  public:
   ///
   // Chooses the specified certificate for client certificate authentication.
   // NULL value means that no client certificate should be used.
   ///
   /*--cef(optional_param=cert)--*/
-  virtual void Select(CefRefPtr<CefX509Certificate> cert) =0;
+  virtual void Select(CefRefPtr<CefX509Certificate> cert) = 0;
 };
-
 
 ///
 // Implement this interface to handle events related to browser requests. The
 // methods of this class will be called on the thread indicated.
 ///
 /*--cef(source=client)--*/
-class CefRequestHandler : public virtual CefBase {
+class CefRequestHandler : public virtual CefBaseRefCounted {
  public:
   typedef cef_return_value_t ReturnValue;
   typedef cef_termination_status_t TerminationStatus;
   typedef cef_urlrequest_status_t URLRequestStatus;
   typedef cef_window_open_disposition_t WindowOpenDisposition;
-  typedef std::vector<CefRefPtr<CefX509Certificate> > X509CertificateList;
+  typedef std::vector<CefRefPtr<CefX509Certificate>> X509CertificateList;
 
   ///
   // Called on the UI thread before browser navigation. Return true to cancel
@@ -149,7 +147,7 @@ class CefRequestHandler : public virtual CefBase {
   // immediately. Return RV_CONTINUE_ASYNC and call CefRequestCallback::
   // Continue() at a later time to continue or cancel the request
   // asynchronously. Return RV_CANCEL to cancel the request immediately.
-  // 
+  //
   ///
   /*--cef(default_retval=RV_CONTINUE)--*/
   virtual ReturnValue OnBeforeResourceLoad(
@@ -291,12 +289,11 @@ class CefRequestHandler : public virtual CefBase {
   // be accepted without calling this method.
   ///
   /*--cef()--*/
-  virtual bool OnCertificateError(
-      CefRefPtr<CefBrowser> browser,
-      cef_errorcode_t cert_error,
-      const CefString& request_url,
-      CefRefPtr<CefSSLInfo> ssl_info,
-      CefRefPtr<CefRequestCallback> callback) {
+  virtual bool OnCertificateError(CefRefPtr<CefBrowser> browser,
+                                  cef_errorcode_t cert_error,
+                                  const CefString& request_url,
+                                  CefRefPtr<CefSSLInfo> ssl_info,
+                                  CefRefPtr<CefRequestCallback> callback) {
     return false;
   }
 

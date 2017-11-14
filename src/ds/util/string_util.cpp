@@ -240,7 +240,7 @@ std::vector<std::string> split(const std::string &str, const std::string &delimi
 		{
 			if(pos != lastPos || !dropEmpty) {
 				std::string tstr = std::string(str.data() + lastPos, pos - lastPos);
-				if(!tstr.empty())
+				if(!tstr.empty() || !dropEmpty)
 					splitWords.push_back(tstr);
 				lastPos = pos + delimiters.size();
 				continue;
@@ -716,10 +716,19 @@ ci::Rectf parseRect(const std::string &s){
 	ci::Rectf v;
 	v.x1 = tokens.size() > 0 ? ds::string_to_float(tokens[0]) : 0.0f;
 	v.y1 = tokens.size() > 1 ? ds::string_to_float(tokens[1]) : 0.0f;
-	v.x2 = tokens.size() > 2 ? ds::string_to_float(tokens[2]) : 0.0f + v.x1;
-	v.y2 = tokens.size() > 3 ? ds::string_to_float(tokens[3]) : 0.0f + v.y1;
+	v.x2 = tokens.size() > 2 ? ds::string_to_float(tokens[2]) : 0.0f;
+	v.y2 = tokens.size() > 3 ? ds::string_to_float(tokens[3]) : 0.0f;
+
+	v.x2 += v.x1;
+	v.y2 += v.y1;
 
 	return v;
+}
+
+std::string unparseRect(const ci::Rectf& v){
+	std::stringstream ss;
+	ss << v.x1 << ", " << v.y1 << ", " << v.getWidth() << ", " << v.getHeight();
+	return ss.str();
 }
 
 std::string unparseVector(const ci::vec3& v){

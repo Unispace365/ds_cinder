@@ -161,8 +161,8 @@ typedef unsigned __int64 guintptr;
 #endif
 
 #define GLIB_MAJOR_VERSION 2
-#define GLIB_MINOR_VERSION 48
-#define GLIB_MICRO_VERSION 1
+#define GLIB_MINOR_VERSION 50
+#define GLIB_MICRO_VERSION 3
 
 #define G_OS_WIN32
 #define G_PLATFORM_WIN32
@@ -242,6 +242,7 @@ typedef unsigned __int64 guintptr;
  * not a process identifier.
  */
 typedef void * GPid;
+#define G_PID_FORMAT "p"
 
 #define GLIB_SYSDEF_AF_UNIX 1
 #define GLIB_SYSDEF_AF_INET 2

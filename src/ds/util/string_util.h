@@ -118,6 +118,10 @@ ci::vec3 parseVector(const std::string &s);
 /// Defaults parameters to 0 if they don't exist.
 ci::Rectf parseRect(const std::string &s);
 
+/// The inverse of parseRect. For an input of ci::Rectf(100.0f, 100.0f, 2220.0f, 1180.0f) returns "100.0, 100.0, 1920.0, 1080.0"
+///														X1		Y1		X2		 Y2				   L	  T		 W		 H
+std::string unparseRect(const ci::Rectf& v);
+
 /// The inverse of parseVector. For an input of ci::vec3(123.0f, 0.0f, 987.6f) returns "123.0, 0.0, 987.6"
 std::string unparseVector(const ci::vec3& v);
 

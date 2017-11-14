@@ -29,10 +29,13 @@ Service::Service(ds::ui::SpriteEngine& e)
 
 void Service::start() {
 	ds::Engine*						e(dynamic_cast<ds::Engine*>(&mEngine));
-	if (!e) throw std::runtime_error("physics::Service::start() no app engine");
+	if(!e){
+		DS_LOG_WARNING("No app engine trying to start the physicss service!");
+		return;
+	}
 
-	ds::cfg::Settings				settings;
-	ds::Environment::loadSettings("physics.xml", settings);
+	ds::cfg::Settings settings;
+	ds::Environment::loadSettings("physics", "physics.xml", settings);
 	if (settings.getBool("create_root_world", 0, true)) {
 		createWorld(e->getRootSprite(), 0);		
 	}

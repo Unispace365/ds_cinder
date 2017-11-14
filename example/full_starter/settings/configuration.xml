@@ -1,5 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
 <settings>
-	<!-- Used to support multiple resolutions of the same app. If this value exists,
+	<setting name="folder" value="1920x1080" type="string" comment=' Used to support multiple resolutions of the same app. If this value exists,
 	then all settings files found in the supplied folder will get applied on top of
 	their base files, including engine.xml.
 	OK settings-file aficionados, what this means is that, for any given setting, it
@@ -15,7 +16,6 @@
 	that we have to run the local settings to know if we have a local configuration.xml.
 	
 	You can add additional override settings files to the configuration folder, such as app settings, text.xml, etc 
-	-->	
-	<text name="folder" value="1920x1080" />	
-	
+	'/>
 </settings>
+

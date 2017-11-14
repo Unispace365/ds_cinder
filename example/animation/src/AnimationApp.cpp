@@ -19,7 +19,7 @@ public:
 	AnimationApp();
 
 	void						setupServer();
-	virtual void				keyDown(ci::app::KeyEvent event);
+	virtual void				onKeyDown(ci::app::KeyEvent event) override;
 	void						update();
 
 private:
@@ -36,8 +36,7 @@ AnimationApp::AnimationApp()
 {
 }
 
-void AnimationApp::keyDown(ci::app::KeyEvent event){
-	ds::App::keyDown(event);
+void AnimationApp::onKeyDown(ci::app::KeyEvent event){
 	if(event.getCode() == ci::app::KeyEvent::KEY_p){
 		mEngine.setTouchSmoothing(!mEngine.getTouchSmoothing());
 	} else if(event.getCode() == ci::app::KeyEvent::KEY_c){
@@ -53,10 +52,14 @@ void AnimationApp::update(){
 	return;
 
 	std::cout << "Position tween is ";
+	//if(std::cout.fail()) {
+	//	std::cout.clear();
+	//}
 	if(!mSprite1.getPositionTweenIsRunning()){
 		std::cout << "not ";
 	}
 	std::cout << "running." << std::endl;
+	console() << "Hello there" << std::endl;
 }
 
 void AnimationApp::setupServer()
@@ -114,6 +117,9 @@ void AnimationApp::setupServer()
 												 [](const ci::vec3& v, ds::ui::Sprite& s) { s.setPosition(s.getPosition().x, v.y, s.getPosition().z); });
 		mEngine.getTweenline().apply(mSprite2, anim_pos, ti.mCurrentGlobalPoint, 1.0f, EaseInOutQuart());
 	});
+
+	console() << "Hello there" << std::endl;
 }
+
 // This line tells Cinder to actually create the application
-CINDER_APP( AnimationApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)) )
+CINDER_APP(AnimationApp, ci::app::RendererGl(ci::app::RendererGl::Options().msaa(4)))

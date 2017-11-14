@@ -47,22 +47,21 @@
 // Class representing SSL information.
 ///
 /*--cef(source=library)--*/
-class CefSSLInfo : public virtual CefBase {
+class CefSSLInfo : public virtual CefBaseRefCounted {
  public:
   ///
   // Returns a bitmask containing any and all problems verifying the server
   // certificate.
   ///
   /*--cef(default_retval=CERT_STATUS_NONE)--*/
-  virtual cef_cert_status_t GetCertStatus() =0;
+  virtual cef_cert_status_t GetCertStatus() = 0;
 
   ///
   // Returns the X.509 certificate.
   ///
   /*--cef()--*/
-  virtual CefRefPtr<CefX509Certificate> GetX509Certificate() =0;
+  virtual CefRefPtr<CefX509Certificate> GetX509Certificate() = 0;
 };
-
 
 ///
 // Returns true if the certificate status has any error, major or minor.

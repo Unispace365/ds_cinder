@@ -47,8 +47,6 @@ layout_example::layout_example()
 
 	/*fonts in use */
 	mEngine.editFonts().registerFont("Noto Sans Bold", "noto-bold");
-
-	enableCommonKeystrokes(true);
 }
 
 void layout_example::setupServer(){
@@ -259,9 +257,9 @@ void layout_example::update() {
 
 }
 
-void layout_example::keyDown(ci::app::KeyEvent event){
+void layout_example::onKeyDown(ci::app::KeyEvent event){
 	using ci::app::KeyEvent;
-	inherited::keyDown(event);
+
 	if (event.getChar() == KeyEvent::KEY_r){ // R = reload all configs and start over without quitting app
 		setupServer();
 
