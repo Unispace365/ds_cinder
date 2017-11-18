@@ -838,14 +838,24 @@ XmlImporter::~XmlImporter() {
 bool XmlImporter::preloadXml(const std::string& filename, XmlPreloadData& outData){
 	outData.mFilename = filename;
 	try {
+		if(!ds::safeFileExistsCheck(filename)) {
+			DS_LOG_WARNING("XmlImporter file doesn't exist: " << filename);
+			return false;
+		}
 		outData.mXmlTree = ci::XmlTree(cinder::loadFile(filename));
 	} catch(ci::XmlTree::Exception &e) {
-		DS_LOG_WARNING("XML doc " << filename << " not loaded! oh no: " << e.what());
+		DS_LOG_WARNING("XmlImporter doc " << filename << " not loaded!");
+		if(e.what()) {
+			DS_LOG_WARNING("XmlImporter load exception: " << e.what());
+		}
 		return false;
 	}
 	// Catch rapidxml::parse_errors too
 	catch(std::exception &e) {
-		DS_LOG_WARNING("XML doc " << filename << " not loaded! oh no: " << e.what());
+		DS_LOG_WARNING("XmlImporter doc " << filename << " not loaded!");
+		if(e.what()) {
+			DS_LOG_WARNING("XmlImporter load exception: " << e.what());
+		}
 		return false;
 	}
 
