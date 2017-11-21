@@ -695,8 +695,8 @@ void Web::sendTouchToService(const int xp, const int yp, const int btn, const in
 }
 
 void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
-	if(touchInfo.mFingerIndex != 0)
-		return;
+//	if(touchInfo.mFingerIndex != 0)
+//		return;
 
 	ci::vec2 pos = ci::vec2(globalToLocal(touchInfo.mCurrentGlobalPoint));
 	int xPos = (int)roundf(pos.x);
@@ -704,6 +704,8 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 
 	if(ds::ui::TouchInfo::Added == touchInfo.mPhase) {
 		if(mAllowClicks){
+			// send a move at first, since a lot of sites have stuff with mouse overs
+			sendTouchToService(xPos, yPos, 0, 1, 0);
 			sendTouchToService(xPos, yPos, 0, 0, 1);
 		}
 		if(mDragScrolling){
@@ -714,7 +716,7 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 		
 	} else if(ds::ui::TouchInfo::Moved == touchInfo.mPhase) {
 
-		if(!mIsDragging && glm::distance(mPreviousTouchPos, touchInfo.mCurrentGlobalPoint) > mEngine.getMinTapDistance()) {
+		if(!mIsDragging && glm::distance(touchInfo.mStartPoint, touchInfo.mCurrentGlobalPoint) > mEngine.getMinTapDistance()) {
 			mIsDragging = true;
 		}
 
@@ -741,6 +743,12 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 	} else if(ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
 		if(mAllowClicks) {
 			sendTouchToService(xPos, yPos, 0, 2, 1);
+
+			if(!mIsDragging && touchInfo.mStartPoint != touchInfo.mCurrentGlobalPoint) {
+				// send another click
+				sendTouchToService(xPos, yPos, 0, 0, 1);
+				sendTouchToService(xPos, yPos, 0, 2, 1);
+			}
 		}
 	}
 

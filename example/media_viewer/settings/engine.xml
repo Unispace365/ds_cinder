@@ -9,11 +9,11 @@
 	<setting name="platform:architecture" value="" type="string" comment="If this is a server (world engine), a client (render engine) or both (world + render). clientserver is an EngineClientServer, which both displays content and can control other instances. standalone does not transmit or receive." default="standalone" possibles="standalone, client, server, clientserver"/>
 	<setting name="platform:guid" value="Downstream" type="string" comment="Unique identifier for network traffic (appended by additional unique values)." default="Downstream"/>
 	<setting name="WINDOW SETTINGS" value="" type="section_header"/>
-	<setting name="world_dimensions" value="1920, 1080" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>
-	<setting name="src_rect" value="0, 0, 1920, 1080" type="rect" comment="The rectangle of the world space to render."/>
-	<setting name="dst_rect" value="0, 0, 1920, 1080" type="rect" comment="The output window size and position to render."/>
+	<setting name="world_dimensions" value="0, 0" type="vec2" comment="The size of the overall app space." default="1920, 1080"/>
+	<setting name="src_rect" value="0, 0, 0, 0" type="rect" comment="The rectangle of the world space to render."/>
+	<setting name="dst_rect" value="0, 0, 0, 0" type="rect" comment="The output window size and position to render."/>
 	<setting name="screen:title" value="Downstream | Media Viewer Example" type="string" comment="The title of the window. Generally only displays if the screen mode is windowed."/>
-	<setting name="screen:mode" value="window" type="string" comment="How the primary window displays, including fullscreen" default="borderless" possibles="window, borderless, fullscreen"/>
+	<setting name="screen:mode" value="borderless" type="string" comment="How the primary window displays, including fullscreen" default="borderless" possibles="window, borderless, fullscreen"/>
 	<setting name="screen:always_on_top" value="false" type="bool" comment="Makes the window an always-on-top sort of window." default="false"/>
 	<setting name="console:show" value="true" type="bool" comment="Show console will create a console window, or not if this is false." default="false"/>
 	<setting name="idle_time" value="300" type="double" comment="Seconds before idle happens. 300 = 5 minutes." default="300" min_value="0" max_value="1000"/>

@@ -70,7 +70,7 @@ void WebPlayer::setMedia(const std::string mediaPath){
 
 	mWeb = new ds::ui::Web(mEngine);
 	mWeb->setDragScrolling(true);
-	mWeb->setDragScrollingMinimumFingers(1);
+	mWeb->setDragScrollingMinimumFingers(2);
 	mWeb->setDrawWhileLoading(true);
 
 	mWeb->setAddressChangedFn([this](const std::string& addy){
