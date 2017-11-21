@@ -24,6 +24,7 @@ struct MediaViewerSettings {
 		, mWebKeyboardAbove(true)
 		, mWebAllowKeyboard(true)
 		, mWebAllowTouchToggle(true)
+		, mWebStartTouchable(false)
 		, mCacheImages(false)
 		, mPdfCacheNextPrev(true)
 		, mVideoPanning(0.0f)
@@ -53,6 +54,8 @@ struct MediaViewerSettings {
 	bool						mWebAllowTouchToggle;
 	// If true, the keyboard appears above the interface. False will show below
 	bool						mWebKeyboardAbove;
+	// If true, the website will load interactable. Default = false
+	bool						mWebStartTouchable;
 
 	//--------------------Image Settings -------------------------------------------//
 

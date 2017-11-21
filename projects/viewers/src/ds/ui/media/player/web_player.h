@@ -36,7 +36,8 @@ public:
 	void								setWebViewSize(const ci::vec2 webSize);
 	void								setKeyboardParams(const float keyboardKeyScale, const bool allowKeyboard, const bool keyboardAbove);
 	void								setAllowTouchToggle(const bool allowTouchToggle);
-	void								setShowInterfaceAtStart(bool showInterfaceAtStart);
+	void								setShowInterfaceAtStart(const bool showInterfaceAtStart);
+	void								setStartInteractable(const bool startInteractable);
 
 protected:
 
@@ -51,6 +52,7 @@ protected:
 	bool								mKeyboardAllow;
 	bool								mKeyboardAbove;
 	bool								mAllowTouchToggle;
+	bool								mStartInteractable;
 
 };
 

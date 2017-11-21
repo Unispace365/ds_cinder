@@ -695,8 +695,8 @@ void Web::sendTouchToService(const int xp, const int yp, const int btn, const in
 }
 
 void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
-//	if(touchInfo.mFingerIndex != 0)
-//		return;
+	if(touchInfo.mFingerIndex != 0)
+		return;
 
 	ci::vec2 pos = ci::vec2(globalToLocal(touchInfo.mCurrentGlobalPoint));
 	int xPos = (int)roundf(pos.x);
@@ -742,12 +742,15 @@ void Web::handleTouch(const ds::ui::TouchInfo& touchInfo) {
 		}
 	} else if(ds::ui::TouchInfo::Removed == touchInfo.mPhase) {
 		if(mAllowClicks) {
-			sendTouchToService(xPos, yPos, 0, 2, 1);
+			//sendTouchToService(xPos, yPos, 0, 2, 1);
 
-			if(!mIsDragging && touchInfo.mStartPoint != touchInfo.mCurrentGlobalPoint) {
+			if(!mIsDragging){// && touchInfo.mStartPoint != touchInfo.mCurrentGlobalPoint) {
 				// send another click
 				sendTouchToService(xPos, yPos, 0, 0, 1);
+				//sendTouchToService(xPos, yPos, 0, 1, 1);
 				sendTouchToService(xPos, yPos, 0, 2, 1);
+			} else {
+				sendTouchToService(xPos, yPos, 0, 2, 0);
 			}
 		}
 	}

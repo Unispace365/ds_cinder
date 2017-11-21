@@ -24,6 +24,7 @@ WebPlayer::WebPlayer(ds::ui::SpriteEngine& eng, const bool embedInterface)
 	, mKeyboardAllow(true)
 	, mKeyboardAbove(true)
 	, mAllowTouchToggle(true)
+	, mStartInteractable(false)
 {
 	mLayoutFixedAspect = true;
 	enable(false);
@@ -91,7 +92,12 @@ void WebPlayer::setMedia(const std::string mediaPath){
 
 	addChildPtr(mWeb);
 	mWeb->setUrl(mediaPath);
-	mWeb->enable(false);
+
+	if(mStartInteractable) {
+		mWeb->enable(true);
+	} else {
+		mWeb->enable(false);
+	}
 
 	if(mWebInterface){
 		mWebInterface->release();
@@ -161,8 +167,12 @@ void WebPlayer::hideInterface(){
 	}
 }
 
-void WebPlayer::setShowInterfaceAtStart(bool showInterfaceAtStart){
+void WebPlayer::setShowInterfaceAtStart(const bool showInterfaceAtStart){
 	mShowInterfaceAtStart = showInterfaceAtStart;
+}
+
+void WebPlayer::setStartInteractable(const bool startInteractable) {
+	mStartInteractable = startInteractable;
 }
 
 void WebPlayer::sendClick(const ci::vec3& globalClickPos){
