@@ -329,10 +329,10 @@ void MediaPlayer::initialize(){
 		mThumbnailImage = new ds::ui::Image(mEngine);
 		addChildPtr(mThumbnailImage);
 		mThumbnailImage->sendToBack();
-		if(mResource.getThumbnailId() > 0){
-			mThumbnailImage->setImageResource(mResource.getThumbnailId(), flags);
-		} else {
+		if(!mResource.getThumbnailFilePath().empty()) {
 			mThumbnailImage->setImageFile(mResource.getThumbnailFilePath(), flags);
+		} else {
+			mThumbnailImage->setImageResource(mResource.getThumbnailId(), flags);
 		}
 		mThumbnailImage->setOpacity(0.0f);
 		mThumbnailImage->setStatusCallback([this](ds::ui::Image::Status status){
