@@ -152,7 +152,7 @@ Image& Image::makeImage(SpriteEngine& e, const std::string& fn, Sprite* parent) 
 }
 
 Image& Image::makeImage(SpriteEngine& e, const ds::Resource& r, Sprite* parent) {
-	return makeImage(e, r.getPortableFilePath(), parent);
+	return makeImage(e, ds::Environment::expand(r.getPortableFilePath()), parent);
 }
 
 Image::Image(SpriteEngine& engine)
@@ -238,10 +238,10 @@ void Image::setCircleCrop(bool circleCrop){
 	}
 
 	mNeedsBatchUpdate = true;
+	markAsDirty(IMG_CROP_DIRTY);
 }
 
-void Image::setCircleCropRect(const ci::Rectf& rect)
-{
+void Image::setCircleCropRect(const ci::Rectf& rect){
 	markAsDirty(IMG_CROP_DIRTY);
 	mShaderExtraData.x = rect.x1;
 	mShaderExtraData.y = rect.y1;
@@ -301,6 +301,7 @@ void Image::writeAttributesTo(ds::DataBuffer& buf) {
 
 	if (mDirty.has(IMG_CROP_DIRTY)) {
 		buf.add(IMG_CROP_ATT);
+		buf.add(mCircleCropped);
 		buf.add(mShaderExtraData.x);
 		buf.add(mShaderExtraData.y);
 		buf.add(mShaderExtraData.z);
@@ -313,6 +314,8 @@ void Image::readAttributeFrom(const char attributeId, ds::DataBuffer& buf) {
 		mImageSource.readFrom(buf);
 		setStatus(Status::STATUS_EMPTY);
 	} else if (attributeId == IMG_CROP_ATT) {
+		mCircleCropped = buf.read<bool>();
+		setCircleCrop(mCircleCropped);
 		mShaderExtraData.x = buf.read<float>();
 		mShaderExtraData.y = buf.read<float>();
 		mShaderExtraData.z = buf.read<float>();

@@ -226,7 +226,7 @@ void MediaPlayer::initialize(){
 		mVideoPlayer->setShowInterfaceAtStart(mMediaViewerSettings.mShowInterfaceAtStart);
 		mVideoPlayer->setAudioDevices(mMediaViewerSettings.mVideoAudioDevices);
 
-		mVideoPlayer->setMedia(mResource.getAbsoluteFilePath());
+		mVideoPlayer->setMedia(mResource.getPortableFilePath());
 
 
 		mContentAspectRatio = mVideoPlayer->getWidth() / mVideoPlayer->getHeight();
