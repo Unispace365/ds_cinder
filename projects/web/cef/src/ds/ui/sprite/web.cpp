@@ -828,6 +828,10 @@ void Web::setAddressChangedFn(const std::function<void(const std::string& new_ad
 	mAddressChangedCallback = fn;
 }
 
+void Web::setLoadingUpdatedCallback(std::function<void(const bool isLoading)> fn) {
+	mLoadingUpdatedCallback = fn;
+}
+
 void Web::setDocumentReadyFn(const std::function<void(void)>& fn) {
 	mDocumentReadyFn = fn;
 }

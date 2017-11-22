@@ -330,6 +330,10 @@ void WebInterface::linkWeb(ds::ui::Web* linkedWeb){
 		mLinkedWeb->setAuthCallback([this](ds::ui::Web::AuthCallback callback){
 			startAuthCallback(callback.mHost, callback.mRealm);
 		});
+
+		mLinkedWeb->setLoadingUpdatedCallback([this](const bool isLoading) {
+			updateWidgets();
+		});
 	}
 
 	updateWidgets();
