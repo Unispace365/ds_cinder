@@ -858,8 +858,7 @@ void Text::writeAttributesTo(ds::DataBuffer& buf){
 
 void Text::readAttributeFrom(const char attributeId, ds::DataBuffer& buf){
 	if(attributeId == TEXT_ATT) {
-		std::wstring theText = buf.read<std::wstring>();
-		setText(theText);
+		setText(buf.read<std::string>());
 	} else if(attributeId == FONTNAME_ATT) {
 
 		std::string fontName = buf.read<std::string>();
