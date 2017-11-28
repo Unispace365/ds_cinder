@@ -102,7 +102,7 @@ void						super_slow_image_atts(const std::string& filename, ci::vec2& outSize) 
 		bool errored = true;
 
 		// try to load it from the web
-		try{
+		try {
 			auto s = ci::Surface8u(ci::loadImage(ci::loadUrl(filename)));
 			if(s.getData()) {
 				outSize = ci::vec2(static_cast<float>(s.getWidth()), static_cast<float>(s.getHeight()));
@@ -111,12 +111,23 @@ void						super_slow_image_atts(const std::string& filename, ci::vec2& outSize) 
 				DS_LOG_WARNING_M("super_slow_image_atts: file could not be loaded, filename: " << filename, GENERAL_LOG);
 				outSize = ci::vec2();
 			}
+		} catch(ci::StreamExc& streamEx){
+			DS_LOG_WARNING_M("ImageMetaData stream exception loading file from url (" << filename << ")", GENERAL_LOG);
+			
 		} catch(std::exception const& extwo){
-			DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ") = " << extwo.what(), GENERAL_LOG);
+			if(extwo.what()) {
+				DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ") = " << extwo.what(), GENERAL_LOG);
+			} else {
+				DS_LOG_WARNING_M("ImageMetaData error loading file from url (" << filename << ")", GENERAL_LOG);
+			}
 		}
 
 		if(errored){
-			DS_LOG_WARNING_M("ImageMetaData error loading file (" << filename << ") = " << ex.what(), GENERAL_LOG);
+			if(ex.what()) {
+				DS_LOG_WARNING_M("ImageMetaData error loading file (" << filename << ") = " << ex.what(), GENERAL_LOG);
+			} else {
+				DS_LOG_WARNING_M("ImageMetaData error loading file (" << filename << ")", GENERAL_LOG);
+			}
 		}
 	}
 }

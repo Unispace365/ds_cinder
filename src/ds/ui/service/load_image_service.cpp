@@ -303,7 +303,7 @@ void LoadImageService::ImageLoadThread::run(){
 		}
 	} catch(std::exception const& ex) {
 
-		try{
+		try {
 			// If there's a function, then require this image have an alpha channel, because
 			// who knows what the function will need. Otherwise let cinder do its thing.
 			boost::tribool						alpha = boost::logic::indeterminate;
@@ -315,11 +315,16 @@ void LoadImageService::ImageLoadThread::run(){
 				mOutput.mIpFunction.on(mOutput.mKey.mIpParams, mOutput.mSurface);
 				mError = false;
 			} else {
-				if(mOutput.mNumberTries < 2){
+				if(mOutput.mNumberTries < 2) {
 					DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed fallback loading. Original exception ex=" << ex.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
 				}
 				mError = true;
 			}
+		} catch(ci::StreamExc& streamEx) {
+			if(mOutput.mNumberTries < 2) {
+				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() ci::StreamException (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
+			}
+			mError = true;
 		} catch(std::exception const& extwo){
 			if(mOutput.mNumberTries < 2){
 				DS_LOG_WARNING_M("LoadImageService::ImageLoadThread::run() failed extwo=" << extwo.what() << " (file=" << mOutput.mKey.mFilename << ")", LOAD_IMAGE_LOG_M);
