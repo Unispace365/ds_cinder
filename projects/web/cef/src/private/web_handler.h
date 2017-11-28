@@ -216,6 +216,10 @@ public:
 	bool 					hasOrphans(){ return !mOrphanedBrowsers.empty(); }
 	void 					useOrphan(std::function<void(int)> callback, const std::string startUrl);
 
+	// No browser ID cause cookies are global
+	// Url and cookie name are optional. Will delete all if not specified.
+	void					deleteCookies(const std::string& url, const std::string& cookieName);
+
 private:
 
 	// switch to a map for faster lookup

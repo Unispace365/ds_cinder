@@ -97,6 +97,13 @@ void WebHandler::useOrphan(std::function<void(int)> callback, const std::string 
 	}	
 }
 
+void WebHandler::deleteCookies(const std::string& url, const std::string& cookieName) {
+	auto cookieManager = CefCookieManager::GetGlobalManager(nullptr);
+	if(cookieManager) {
+		cookieManager->DeleteCookies(CefString(url), CefString(cookieName), nullptr);
+	}
+}
+
 void WebHandler::OnAfterCreated(CefRefPtr<CefBrowser> browser) {
 	CEF_REQUIRE_UI_THREAD();
 

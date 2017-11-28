@@ -93,6 +93,8 @@ public:
 	void					authCallbackCancel(const int browserId);
 	void					authCallbackContinue(const int browserId, const std::string& username, const std::string& password);
 
+	void					deleteCookies(const std::string& url, const std::string& cookies);
+
 protected:
 	virtual void			update(const ds::UpdateParams&);
 #ifndef _WIN32

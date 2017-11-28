@@ -998,5 +998,9 @@ void Web::setAllowClicks(const bool doAllowClicks){
 	mAllowClicks = doAllowClicks;
 }
 
+void Web::deleteCookies(const std::string& url, const std::string& cookieName) {
+	mService.deleteCookies(url, cookieName);
+}
+
 } // namespace ui
 } // namespace ds
