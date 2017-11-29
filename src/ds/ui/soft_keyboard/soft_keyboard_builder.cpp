@@ -570,7 +570,7 @@ ds::ui::SoftKeyboard* buildPinCodeKeyboard(ds::ui::SpriteEngine& engine, SoftKey
 	xp = settings.mKeyInitialPosition.x;
 	float numberButtonWidht = newKeyboard->getButtonVector().back()->getWidth();
 
-	makeAButton(engine, newKeyboard, xp, yp, L"back", L"BACK", SoftKeyboardDefs::kDelete);
+	makeAButton(engine, newKeyboard, xp, yp, L"", L"", SoftKeyboardDefs::kDelete);
 
 	auto enterKey = newKeyboard->getButtonVector().back();
 	enterKey->setPosition(settings.mKeyInitialPosition.x + numberButtonWidht * 1.5f, enterKey->getPosition().y);
