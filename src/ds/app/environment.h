@@ -50,6 +50,9 @@ public:
 	// Convenience to save a settings file to the local path
 	static void					saveSettings(const std::string& filename, ds::cfg::Settings&);
 
+	// Utility to replace the value of an environment variable
+	static void					replaceEnvironmentVariable(const std::string& variable, const std::string& value);
+
 	// Utility to add a value to an environment variable. 
 	// This adds the value to the end of any existing value
 	static void					addToEnvironmentVariable(const std::string& variable, const std::string& value);

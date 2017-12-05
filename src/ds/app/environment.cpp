@@ -202,6 +202,11 @@ std::string Environment::getProjectPath() {
 	return EngineSettings::envProjectPath();
 }
 
+void Environment::replaceEnvironmentVariable(const std::string& variable, const std::string& value) {
+	Poco::Environment::set(variable, value);
+}
+
+
 void Environment::addToEnvironmentVariable(const std::string& variable, const std::string& value) {
 	std::string new_path = Poco::Environment::get(variable, "");
 
