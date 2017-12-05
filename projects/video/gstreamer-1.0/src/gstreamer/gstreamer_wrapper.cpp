@@ -365,6 +365,7 @@ bool GStreamerWrapper::open(const std::string& strFilename, const bool bGenerate
 			GstElement* thisPanorama = gst_element_factory_make("audiopanorama", m_AudioDevices[i].mPanoramaName.c_str());
 			GstElement* thisVolume = gst_element_factory_make("volume", m_AudioDevices[i].mVolumeName.c_str());
 			GstElement* thisSink = gst_element_factory_make("directsoundsink", NULL);
+			g_object_set(thisVolume, "volume", m_AudioDevices[i].mVolume, NULL);
 			g_object_set(thisSink, "device", m_AudioDevices[i].mDeviceGuid.c_str(), NULL);// , "volume", m_AudioDevices[i].mVolume, NULL);
 			gst_bin_add_many(GST_BIN(bin), thisQueue, thisConvert, thisPanorama, thisVolume, thisSink, NULL);
 
