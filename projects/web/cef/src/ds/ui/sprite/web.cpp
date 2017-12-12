@@ -610,7 +610,7 @@ void Web::keyPressed(const std::wstring& character, const ds::ui::SoftKeyboardDe
 		ci::app::KeyEvent event(mEngine.getWindow(), code, code, '\r', 0, code);
 		sendKeyDownEvent(event);
 		sendKeyUpEvent(event);
-	} if(keyType == ds::ui::SoftKeyboardDefs::kTab) {
+	} else if(keyType == ds::ui::SoftKeyboardDefs::kTab) {
 		code = ci::app::KeyEvent::KEY_TAB;
 		ci::app::KeyEvent event(mEngine.getWindow(), code, code, '	', 0, code);
 		sendKeyDownEvent(event);
