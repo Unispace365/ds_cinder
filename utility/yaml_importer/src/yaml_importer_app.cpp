@@ -39,8 +39,8 @@ YamlImporterApp::YamlImporterApp(){
 	// Then the "text.xml" and TextCfg will use those font names to specify visible settings (size, color, leading)
 	mEngine.loadSettings("FONTS", "fonts.xml");
 	mEngine.editFonts().clear();
-	mEngine.getSettings("FONTS").forEachTextKey([this](const std::string& key){
-		mEngine.editFonts().installFont(ds::Environment::expand(mEngine.getSettings("FONTS").getText(key)), key);
+	mEngine.getSettings("FONTS").forEachSetting([this](ds::cfg::Settings::Setting& theSetting){
+		mEngine.editFonts().installFont(ds::Environment::expand(theSetting.mRawValue), theSetting.mName);
 	});
 }
 
