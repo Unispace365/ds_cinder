@@ -94,15 +94,16 @@ public:
 	};
 
 public:
-	static const int		ERROR_TYPE          = 0;
-	static const int		FONT_TYPE           = 1;
-	static const int		IMAGE_TYPE          = 2;
-	static const int		IMAGE_SEQUENCE_TYPE = 3;
-	static const int		PDF_TYPE            = 4;
-	static const int		VIDEO_TYPE          = 5;
-	static const int		WEB_TYPE            = 6;
-	static const int		VIDEO_STREAM_TYPE	= 7;
-	static const int		ZIP_TYPE			= 8;
+	static const int		ERROR_TYPE				= 0;
+	static const int		FONT_TYPE				= 1;
+	static const int		IMAGE_TYPE				= 2;
+	static const int		IMAGE_SEQUENCE_TYPE		= 3;
+	static const int		PDF_TYPE				= 4;
+	static const int		VIDEO_TYPE				= 5;
+	static const int		WEB_TYPE				= 6;
+	static const int		VIDEO_STREAM_TYPE		= 7;
+	static const int		ZIP_TYPE				= 8;
+	static const int		VIDEO_PANORAMIC_TYPE	= 9;
 
 public:
 	// Mainly for debugging

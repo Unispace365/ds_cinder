@@ -33,6 +33,7 @@ struct MediaViewerSettings {
 		, mVideoAllowOutOfBoundsMuting(true)
 		, mVideoLoop(true)
 		, mVideoStreamingLatency(0.2)
+		, mPanoramicVideoInteractive(true)
 	{}
 
 	//--------------------Overall Settings -----------------------------------------//
@@ -90,6 +91,9 @@ struct MediaViewerSettings {
 
 	/// Whether the video should loop or not by default
 	bool						mVideoLoop;
+
+	/// Ability to pan panoramic videos at start
+	bool						mPanoramicVideoInteractive;
 
 	/// The latency when opening a stream in seconds
 	double						mVideoStreamingLatency;

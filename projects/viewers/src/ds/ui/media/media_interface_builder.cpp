@@ -7,6 +7,7 @@
 
 #include "ds/ui/media/player/pdf_player.h"
 #include "ds/ui/media/player/web_player.h"
+#include "ds/ui/media/player/panoramic_video_player.h"
 #include "ds/ui/media/player/video_player.h"
 #include "ds/ui/media/player/stream_player.h"
 
@@ -38,6 +39,14 @@ MediaInterface* buildMediaInterface(ds::ui::SpriteEngine& engine, ds::ui::Sprite
 		ds::ui::VideoInterface* vi = new VideoInterface(engine, ci::vec2(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
 		parentSprite->addChildPtr(vi);
 		vi->linkVideo(vidPlayer->getVideo());
+		outputMi = vi;
+	}
+
+	ds::ui::PanoramicVideoPlayer* pvidPlayer = dynamic_cast<ds::ui::PanoramicVideoPlayer*>(mediaPlayer);
+	if(pvidPlayer) {
+		ds::ui::VideoInterface* vi = new VideoInterface(engine, ci::vec2(1050.0f, 50.0f), 25.0f, ci::Color::white(), ci::Color::black());
+		parentSprite->addChildPtr(vi);
+		vi->linkVideo(pvidPlayer->getVideo());
 		outputMi = vi;
 	}
 
