@@ -50,18 +50,18 @@ void SmartLayout::onAppEvent(const ds::Event& in_e) {
 }
 
 void SmartLayout::setSpriteText(const std::string& spriteName, const std::string& theText) {
-	return setSpriteText(spriteName, ds::wstr_from_utf8(theText));
-}
-
-void SmartLayout::setSpriteText(const std::string& spriteName, const std::wstring& theText) {
 	ds::ui::Text* spr = getSprite<ds::ui::Text>(spriteName);
 
-	if (spr) {
+	if(spr) {
 		spr->setText(theText);
 		mNeedsLayout = true;
 	} else {
 		DS_LOG_WARNING("Failed to set Text for Sprite: " << spriteName);
 	}
+}
+
+void SmartLayout::setSpriteText(const std::string& spriteName, const std::wstring& theText) {
+	return setSpriteText(spriteName, ds::utf8_from_wstr(theText));
 }
 
 void SmartLayout::setSpriteFont(const std::string& spriteName, const std::string& textCfgName) {
