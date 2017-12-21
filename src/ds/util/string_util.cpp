@@ -738,7 +738,7 @@ std::string unparseVector(const ci::vec3& v){
 }
 
 bool parseBoolean(const std::string &s){
-	return (s == "true" || s == "TRUE" || s == "yes" || s == "YES" || s == "on" || s == "ON") ? true : false;
+	return (s == "true" || s == "TRUE" || s == "yes" || s == "YES" || s == "on" || s == "ON" || s=="1") ? true : false;
 }
 
 std::string unparseBoolean(const bool b){
