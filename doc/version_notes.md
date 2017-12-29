@@ -1,4 +1,22 @@
 -----------------------------
+DS Cinder Version 104.0.0
+-----------------------------
+
+- Supports Cinder 0.9.0
+- Reworked rendering of all sprites for new OpenGL stuff
+- Switch text system to Pango. No more MultilineText, it's all just Text now
+- Lots of incremental changes and fixes
+- Logs go to the documents directory now by default
+- New common key commands: m to show/hide mouse and a few others
+- Linux support
+- 64bit support
+- Poco update to 1.7.8
+- MuPDF update to 1.11
+- Supports most recent GStreamer (1.12.4 as of this writing)
+- More GStreamer control: run arbitrary pipelines, get GstElements, support multiple audio outputs
+- New project generator in the utility folder (run with Powershell)
+
+-----------------------------
 DS Cinder Version 103.0.0
 -----------------------------
 
